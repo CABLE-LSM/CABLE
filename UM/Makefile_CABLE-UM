@@ -1,0 +1,80 @@
+#==============================================================================
+# This file is part of the 
+# Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
+# This work is licensed under the CABLE Academic User Licence Agreement 
+# (the "Licence").
+# You may not use this file except in compliance with the Licence.
+# A copy of the Licence and registration form can be obtained from 
+# http://www.accessimulator.org.au/cable
+# You need to register and read the Licence agreement before use.
+# Please contact cable_help@nf.nci.org.au for any questions on 
+# registration and the Licence.
+#
+# Unless required by applicable law or agreed to in writing, 
+# software distributed under the Licence is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the Licence for the specific language governing permissions and 
+# limitations under the Licence.
+# ==============================================================================
+
+## this Makefile builds the CABLE executable from f90 source code 
+
+# these are all the files we are compiling
+LSRC = cable_data.F90 cable_common.F90 cable_define_types.F90 cable_soilsnow.F90 cable_air.F90 cable_albedo.F90 cable_radiation.F90 cable_roughness.F90 cable_carbon.F90 cable_canopy.F90 cable_cbm.F90 cable_um_tech.F90 cable_um_init.F90 cable_um_init_subrs.F90 cable_explicit_driver.F90 cable_implicit_driver.F90 cable_hyd_driver.F90 cable_rad_driver.F90 
+
+#compiler switches and flags
+CINC = -I$(NCMOD)
+
+OBJS	= ${LSRC:.F90=.o} 
+
+#suffixes we use
+.SUFFIXES:.F90 
+#default rules for these suffixes
+.F90.o:
+	$(FC) $(CFLAGS) $(CINC) -c $<
+
+# default target by convention is ``all''
+all : 
+
+
+# dependencies
+cable_data.o: cable_data.F90 
+ 
+cable_air.o: cable_air.F90 cable_define_types.o cable_common.o cable_data.o
+
+cable_albedo.o: cable_albedo.F90 cable_define_types.o cable_common.o cable_data.o
+
+cable_canopy.o: cable_canopy.F90 cable_define_types.o cable_radiation.o cable_air.o cable_common.o cable_data.o
+
+cable_carbon.o: cable_carbon.F90 cable_define_types.o cable_common.o cable_data.o
+
+cable_cbm.o: cable_cbm.F90 cable_carbon.o cable_soilsnow.o cable_canopy.o cable_define_types.o cable_roughness.o cable_radiation.o cable_albedo.o cable_common.o cable_data.o
+
+cable_define_types.o: cable_define_types.F90
+
+cable_radiation.o: cable_radiation.F90 cable_define_types.o cable_common.o cable_data.o 
+
+cable_roughness.o: cable_roughness.F90 cable_define_types.o cable_common.o cable_data.o
+
+cable_soilsnow.o: cable_soilsnow.F90 cable_define_types.o cable_common.o cable_data.o
+
+cable_common.o: cable_common.F90 cable_define_types.o  
+
+cable_um_tech.o: cable_um_tech.F90
+
+cable_um_init.o: cable_um_init.F90 cable_um_init_subrs.o cable_define_types.o cable_um_init_subrs.o
+
+cable_um_init_subrs.o: cable_um_init_subrs.F90 cable_define_types.o cable_data.o cable_um_tech.o cable_common.o
+
+cable_explicit_driver.o: cable_explicit_driver.F90 cable_common.o cable_um_tech.o cable_define_types.o cable_um_init.o cable_cbm.o cable_define_types.o cable_data.o
+
+cable_implicit_driver.o: cable_implicit_driver.F90 cable_common.o cable_um_tech.o cable_define_types.o cable_um_init.o cable_cbm.o cable_data.o
+
+cable_hyd_driver.o: cable_hyd_driver.F90 cable_common.o cable_um_tech.o cable_define_types.o cable_um_init.o cable_cbm.o cable_data.o
+
+cable_rad_driver.o: cable_rad_driver.F90 cable_common.o cable_um_tech.o cable_define_types.o cable_um_init.o cable_cbm.o cable_data.o
+
+all: cable_rad_driver.o cable_hyd_driver.o cable_implicit_driver.o cable_explicit_driver.o cable_um_init_subrs.o  cable_um_init.o cable_data.o cable_define_types.o cable_common.o cable_carbon.o cable_air.o cable_albedo.o cable_canopy.o cable_cbm.o cable_roughness.o cable_soilsnow.o cable_radiation.o cable_um_tech.o 
+clean:
+	rm -f *.o *.mod 
+
