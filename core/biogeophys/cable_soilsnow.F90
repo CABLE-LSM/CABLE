@@ -1631,12 +1631,12 @@ SUBROUTINE soil_snow(dels, soil, ssnow, canopy, met, bal, veg)
    cp = C%CAPP
     
    ktau = ktau +1 
-
-   IF( cable_runtime%um) THEN
-      max_glacier_snowd = 50000.0
-   ELSE
-      max_glacier_snowd = 1100.0
-   ENDIF
+   
+   !jhan - make switchable 
+   ! appropriate for ACCESS1.0
+   !max_glacier_snowd = 50000.0
+   ! appropriate for ACCESS1.3 
+   max_glacier_snowd = 1100.0
 
    zsetot = sum(soil%zse) 
    ssnow%tggav = 0.
