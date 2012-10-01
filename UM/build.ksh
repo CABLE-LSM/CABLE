@@ -125,7 +125,7 @@ do_i_no_u()
       if [[ $HOST_MACH = ${kh[$k]} ]];then
          print 'Host recognized'
          subr=host_${kh[$k]}
-         $subr
+         $subr $1
       fi        
       (( k = k + 1 ))
    done 
@@ -181,9 +181,11 @@ build_build()
       mv $libpath $libpathbu
    fi
   
+   UTIL="../core/utils"
    CORE="../core/biogeophys"
    DRV="."
    
+   /bin/cp -p $UTIL/*90 ./.tmp
    /bin/cp -p $CORE/*90 ./.tmp
    /bin/cp -p $DRV/*90 ./.tmp
    
@@ -207,7 +209,7 @@ build_build()
    ## make library from CABLE object files
    /usr/bin/ar r libcable.a cable_explicit_driver.o cable_implicit_driver.o   \
       cable_rad_driver.o cable_hyd_driver.o cable_common.o  \
-      cable_define_types.o cable_data.o \
+      cable_define_types.o cable_data.o cable_diag.o \
       cable_soilsnow.o cable_air.o cable_albedo.o cable_radiation.o  \
       cable_roughness.o cable_carbon.o cable_canopy.o cable_cbm.o    \
       cable_um_tech.o cable_um_init_subrs.o cable_um_init.o 
@@ -261,7 +263,7 @@ known_hosts
 
 HOST_MACH=`uname -n | cut -c 1-4`
 
-do_i_no_u
+do_i_no_u $1
 
 not_recognized
 
