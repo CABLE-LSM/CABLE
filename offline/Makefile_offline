@@ -76,7 +76,7 @@ cable_driver.o: cable_driver.F90 cable_output.o cable_iovars.o cable_cbm.o  casa
 
 cable_define_types.o: cable_define_types.F90
 
-cable_iovars.o: cable_iovars.F90 
+cable_iovars.o: cable_iovars.F90 cable_define_types.o 
 
 cable_read.o: cable_read.F90 cable_iovars.o cable_abort.o 
 
@@ -86,7 +86,7 @@ cable_write.o: cable_write.F90 cable_iovars.o cable_abort.o cable_define_types.o
 
 cable_input.o: cable_input.F90 cable_checks.o cable_abort.o cable_read.o cable_initialise.o cable_radiation.o cable_parameters.o cable_common.o
 
-cable_output.o: cable_output.F90 cable_checks.o cable_write.o cable_common.o
+cable_output.o: cable_output.F90 cable_abort.o cable_checks.o cable_write.o cable_common.o
 
 cable_outputtxt.o: cable_outputtxt.F90 cable_checks.o cable_carbon.o
 
@@ -105,7 +105,6 @@ casa_cable.o: casa_cable.F90 cable_define_types.o  cable_carbon.o casa_variable.
 casa_cnp.o: casa_cnp.F90 cable_define_types.o  casa_variable.o 
 
 casa_inout.o: casa_inout.F90 cable_define_types.o  cable_iovars.o casa_variable.o casa_cnp.o
-
 
 cable_common.o: cable_common.F90  cable_iovars.o
 
