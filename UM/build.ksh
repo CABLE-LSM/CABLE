@@ -181,11 +181,9 @@ build_build()
       mv $libpath $libpathbu
    fi
   
-   UTIL="../core/utils"
    CORE="../core/biogeophys"
    DRV="."
    
-   /bin/cp -p $UTIL/*90 ./.tmp
    /bin/cp -p $CORE/*90 ./.tmp
    /bin/cp -p $DRV/*90 ./.tmp
    
