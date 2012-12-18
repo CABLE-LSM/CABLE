@@ -161,14 +161,6 @@ i_do_now()
 build_build()
 {
    
-   # write file for consumption by Fortran code
-   # get SVN revision number 
-   CABLE_REV=`svn info | grep Revis |cut -c 11-18`
-   print $CABLE_REV > ~/.cable_rev
-   # get SVN status 
-   CABLE_STAT=`svn status`
-   print $CABLE_STAT >> ~/.cable_rev
- 
    if [[ ! -d .tmp ]]; then
       mkdir .tmp
    fi
