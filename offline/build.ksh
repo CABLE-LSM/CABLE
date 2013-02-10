@@ -282,12 +282,12 @@ build_build()
       mv cable cable.bu
    fi
    
-   UTIL="../core/utils"
+   # directories contain source code
+   #UTIL="../core/utils"
    CORE="../core/biogeophys"
    DRV="."
    CASA="../core/biogeochem"
    
-   /bin/cp -p $UTIL/*90 ./.tmp
    /bin/cp -p $CORE/*90 ./.tmp
    /bin/cp -p $DRV/*90 ./.tmp
    /bin/cp -p $CASA/*90 ./.tmp
