@@ -37,10 +37,6 @@ MODULE cable_common_module
    !---total number of timesteps, and processing node 
    INTEGER, SAVE :: ktau_gl, kend_gl, knode_gl, kwidth_gl
    
-   ! set from environment variable $HOME
-   CHARACTER(LEN=200) ::                                                       & 
-      myhome
-   
    !---CABLE runtime switches def in this type
    TYPE kbl_internal_switches
       LOGICAL :: um = .FALSE., um_explicit = .FALSE., um_implicit = .FALSE.,   &
@@ -54,19 +50,25 @@ MODULE cable_common_module
    TYPE kbl_user_switches
       
       CHARACTER(LEN=200) ::                                                    &
-         VEG_PARS_FILE,       & ! 
-         LEAF_RESPIRATION,    & !
-         FWSOIL_SWITCH          !
+         VEG_PARS_FILE  ! 
       
-   CHARACTER(LEN=20) :: DIAG_SOIL_RESP !
-   CHARACTER(LEN=5) :: RUN_DIAG_LEVEL  !
-   CHARACTER(LEN=3) :: SSNOW_POTEV     !
-   LOGICAL ::                                                               &
-      INITIALIZE_MAPPING = .FALSE., & ! 
-      CONSISTENCY_CHECK = .FALSE.,  & !
-      CASA_DUMP_READ = .FALSE.,     & !
-      CASA_DUMP_WRITE = .FALSE.,    & !
-      CABLE_RUNTIME_COUPLED  = .FALSE.!
+      CHARACTER(LEN=20) ::                                                     &
+         FWSOIL_SWITCH     !
+      
+      CHARACTER(LEN=5) ::                                                      &
+         RUN_DIAG_LEVEL  !
+      
+      CHARACTER(LEN=3) ::                                                      &
+         SSNOW_POTEV,      & !
+         DIAG_SOIL_RESP,   & ! either ON or OFF (jhan:Make Logical) 
+         LEAF_RESPIRATION    ! either ON or OFF (jhan:Make Logical) 
+
+      LOGICAL ::                                                               &
+         INITIALIZE_MAPPING = .FALSE., & ! 
+         CONSISTENCY_CHECK = .FALSE.,  & !
+         CASA_DUMP_READ = .FALSE.,     & !
+         CASA_DUMP_WRITE = .FALSE.,    & !
+         CABLE_RUNTIME_COUPLED  = .FALSE.!
 
 
    END TYPE kbl_user_switches
@@ -377,6 +379,52 @@ SUBROUTINE get_type_parameters(logn,vegparmnew, classification)
    CLOSE(40)
 
 END SUBROUTINE get_type_parameters
+
+
+! get svn revision number and status
+SUBROUTINE report_version_no( logn )
+   INTEGER, INTENT(IN) :: logn
+   ! set from environment variable $HOME
+   CHARACTER(LEN=200) ::                                                       & 
+      myhome,       & ! $HOME (POSIX) environment/shell variable
+      fcablerev,    & ! recorded svn revision number at build time
+      icable_status   ! recorded svn STATUS at build time (ONLY 200 chars of it)
+
+   
+   INTEGER :: icable_rev, ioerror
+    
+   CALL getenv("HOME", myhome) 
+   fcablerev = TRIM(myhome)//TRIM("/.cable_rev")
+   OPEN(440,FILE=TRIM(fcablerev),STATUS='old',ACTION='READ',IOSTAT=ioerror)
+
+      IF(ioerror/=0) then 
+         PRINT *, "We'll keep running but the generated revision number "     
+         PRINT *, " in the log & file will be meaningless."     
+      ENDIF
+      
+      ! get svn revision number (see WRITE comments)
+      READ(440,*) icable_rev
+       
+      WRITE(logn,*) ''
+      WRITE(logn,*) 'Revision nuber: ', icable_rev
+      WRITE(logn,*) ''
+      WRITE(logn,*)'This is the latest revision of you workin copy as sourced ' 
+      WRITE(logn,*)'by the SVN INFO command at build time. Please note that the' 
+      WRITE(logn,*)'accuracy of this number is dependent on how recently you ' 
+      WRITE(logn,*)'used SVN UPDATE.'
+   
+      ! get svn status (see WRITE comments)
+      ! (jhan: make this output prettier & not limitted to 200 chars) 
+      WRITE(logn,*)'SVN STATUS indicates that you have (at least) the following'
+      WRITE(logn,*)'local changes: '
+      READ(440,'(A)',IOSTAT=ioerror) icable_status
+      WRITE(logn,*) TRIM(icable_status)
+      WRITE(logn,*) ''
+   
+   CLOSE(440)
+
+END SUBROUTINE report_version_no
+
 
 
 END MODULE cable_common_module

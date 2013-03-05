@@ -72,8 +72,9 @@ PROGRAM cable_offline_driver
                                    verbose, fixedCO2,output,check,patchout,    &
                                    patch_type,soilparmnew
    USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
-                                   cable_runtime, filename, myhome,            & 
-                                   redistrb, wiltParam, satuParam
+                                   cable_runtime, filename,                    & 
+                                   report_version_no, redistrb, wiltParam,     &
+                                   satuParam
    USE cable_data_module,    ONLY: driver_type, point2constants
    USE cable_input_module,   ONLY: open_met_file,load_parameters,              &
                                    get_met_data,close_met_file
@@ -189,6 +190,11 @@ PROGRAM cable_offline_driver
       READ( 10, NML=CABLE )   !where NML=CABLE defined above
    CLOSE(10)
 
+   ! Open log file:
+   OPEN(logn,FILE=filename%log)
+ 
+   CALL report_version_no( logn )
+    
    IF( IARGC() > 0 ) THEN
       CALL GETARG(1, filename%met)
       CALL GETARG(2, casafile%cnpipool)
@@ -209,9 +215,6 @@ PROGRAM cable_offline_driver
    IF( icycle > 0 .AND. ( .NOT. soilparmnew ) )                             &
       STOP 'casaCNP must use new soil parameters'
 
-   ! Open log file:
-   OPEN(logn,FILE=filename%log)
- 
    ! Check for gswp run
    IF (ncciy /= 0) THEN
       
@@ -309,7 +312,7 @@ PROGRAM cable_offline_driver
          !jhan this is insufficient testing. condition for 
          !spinup=.false. & we want CASA_dump.nc (spinConv=.true.)
          IF(icycle >0) THEN
-            call bgcdriver( ktau, kstart, kend, dels, met,                  &
+            call bgcdriver( ktau, kstart, kend, dels, met,                     &
                             ssnow, canopy, veg, soil, casabiome,               &
                             casapool, casaflux, casamet, casabal,              &
                             phen, spinConv, spinup, ktauday, idoy,             &
@@ -318,15 +321,15 @@ PROGRAM cable_offline_driver
    
          ! sumcflux is pulled out of subroutine cbm
          ! so that casaCNP can be called before adding the fluxes (Feb 2008, YP)
-         CALL sumcflux( ktau, kstart, kend, dels, bgc,                      &
+         CALL sumcflux( ktau, kstart, kend, dels, bgc,                         &
                         canopy, soil, ssnow, sum_flux, veg,                    &
                         met, casaflux, l_vcmaxFeedbk )
    
          ! Write time step's output to file if either: we're not spinning up 
          ! or we're spinning up and the spinup has converged:
-         IF((.NOT.spinup).OR.(spinup.AND.spinConv))                         &
-            CALL write_output( dels, ktau, met, canopy, ssnow,                    &
-                               rad, bal, air, soil, veg, C%SBOLTZ, &
+         IF((.NOT.spinup).OR.(spinup.AND.spinConv))                            &
+            CALL write_output( dels, ktau, met, canopy, ssnow,                 &
+                               rad, bal, air, soil, veg, C%SBOLTZ,             &
                                C%EMLEAF, C%EMSOIL )
    
        END DO ! END Do loop over timestep ktau
