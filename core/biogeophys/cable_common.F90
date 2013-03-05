@@ -48,7 +48,7 @@ MODULE cable_common_module
 
    !---CABLE runtime switches def in this type
    TYPE kbl_user_switches
-      
+      !jhan: this is redundant now we all use filename%veg?
       CHARACTER(LEN=200) ::                                                    &
          VEG_PARS_FILE  ! 
       

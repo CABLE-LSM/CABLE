@@ -71,6 +71,9 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
    USE cable_def_types_mod, ONLY : mp, ms, ssnow, rough, canopy, air, rad,     &
                                    met
 
+   !--- include subr called to write data for testing purposes 
+   USE cable_diag_module
+
    IMPLICIT NONE
  
  
@@ -325,6 +328,13 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
                            canopy%fwet, canopy%wetfac_cs, canopy%rnet,         &
                            canopy%zetar, canopy%epot, met%ua, rad%trad,        &
                            rad%transd, rough%z0m, rough%zref_tq )
+
+
+   ! dump bitwise reproducible testing data
+   IF( cable_user%RUN_DIAG_LEVEL == 'zero')                                    &
+      call cable_diag( 1, "FLUXES", mp, kend_gl, ktau_gl, knode_gl,            &
+                          "FLUXES", canopy%fe + canopy%fh )
+                
 
    cable_runtime%um_explicit = .FALSE.
 

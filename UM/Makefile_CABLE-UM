@@ -20,7 +20,7 @@
 ## this Makefile builds the CABLE executable from f90 source code 
 
 # these are all the files we are compiling
-LSRC = cable_data.F90 cable_common.F90 cable_define_types.F90 cable_soilsnow.F90 cable_air.F90 cable_albedo.F90 cable_radiation.F90 cable_roughness.F90 cable_carbon.F90 cable_canopy.F90 cable_cbm.F90 cable_um_tech.F90 cable_um_init.F90 cable_um_init_subrs.F90 cable_explicit_driver.F90 cable_implicit_driver.F90 cable_hyd_driver.F90 cable_rad_driver.F90 
+LSRC = cable_data.F90 cable_diag.F90 cable_common.F90 cable_define_types.F90 cable_soilsnow.F90 cable_air.F90 cable_albedo.F90 cable_radiation.F90 cable_roughness.F90 cable_carbon.F90 cable_canopy.F90 cable_cbm.F90 cable_um_tech.F90 cable_um_init.F90 cable_um_init_subrs.F90 cable_explicit_driver.F90 cable_implicit_driver.F90 cable_hyd_driver.F90 cable_rad_driver.F90 
 
 #compiler switches and flags
 CINC = -I$(NCMOD)
@@ -39,6 +39,8 @@ all :
 
 # dependencies
 cable_data.o: cable_data.F90 
+
+cable_diag.o: cable_diag.F90 cable_common.o
  
 cable_air.o: cable_air.F90 cable_define_types.o cable_common.o cable_data.o
 
@@ -66,7 +68,7 @@ cable_um_init.o: cable_um_init.F90 cable_um_init_subrs.o cable_define_types.o ca
 
 cable_um_init_subrs.o: cable_um_init_subrs.F90 cable_define_types.o cable_data.o cable_um_tech.o cable_common.o
 
-cable_explicit_driver.o: cable_explicit_driver.F90 cable_common.o cable_um_tech.o cable_define_types.o cable_um_init.o cable_cbm.o cable_define_types.o cable_data.o
+cable_explicit_driver.o: cable_explicit_driver.F90 cable_common.o cable_um_tech.o cable_define_types.o cable_um_init.o cable_cbm.o cable_define_types.o cable_data.o cable_diag.o 
 
 cable_implicit_driver.o: cable_implicit_driver.F90 cable_common.o cable_um_tech.o cable_define_types.o cable_um_init.o cable_cbm.o cable_data.o
 

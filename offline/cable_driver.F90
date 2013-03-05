@@ -72,15 +72,16 @@ PROGRAM cable_offline_driver
                                    verbose, fixedCO2,output,check,patchout,    &
                                    patch_type,soilparmnew
    USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
-                                   cable_runtime, filename,                    & 
-                                   report_version_no, redistrb, wiltParam,     &
-                                   satuParam
+                                   cable_runtime, filename, redistrb,          & 
+                                   report_version_no, wiltParam, satuParam
    USE cable_data_module,    ONLY: driver_type, point2constants
    USE cable_input_module,   ONLY: open_met_file,load_parameters,              &
                                    get_met_data,close_met_file
    USE cable_output_module,  ONLY: create_restart,open_output_file,            &
                                    write_output,close_output_file
    USE cable_cbm_module
+   
+   USE cable_diag_module
    
    ! modules related to CASA-CNP
    USE casadimension,       ONLY: icycle 
@@ -332,7 +333,15 @@ PROGRAM cable_offline_driver
                                rad, bal, air, soil, veg, C%SBOLTZ,             &
                                C%EMLEAF, C%EMSOIL )
    
-       END DO ! END Do loop over timestep ktau
+         ! dump bitwise reproducible testing data
+         IF( cable_user%RUN_DIAG_LEVEL == 'zero') THEN
+            IF((.NOT.spinup).OR.(spinup.AND.spinConv))                         &
+               call cable_diag( 1, "FLUXES", mp, kend, ktau,                   &
+                                knode_gl, "FLUXES",                            &
+                          canopy%fe + canopy%fh )
+         ENDIF
+                
+      END DO ! END Do loop over timestep ktau
 
 
 
@@ -357,11 +366,12 @@ PROGRAM cable_offline_driver
                
                ! No complete convergence yet
                maxdiff = MAXLOC(ABS(ssnow%wb-soilMtemp))
-               PRINT *, 'Example location of moisture non-convergence: ',maxdiff
+               PRINT *, 'Example location of moisture non-convergence: ', &
+                        maxdiff
                PRINT *, 'ssnow%wb : ', ssnow%wb(maxdiff(1),maxdiff(2))
                PRINT *, 'soilMtemp: ', soilMtemp(maxdiff(1),maxdiff(2))
                maxdiff = MAXLOC(ABS(ssnow%tgg-soilTtemp))
-               PRINT *, 'Example location of temperature non-convergence: ',   &
+               PRINT *, 'Example location of temperature non-convergence: ', &
                         maxdiff
                PRINT *, 'ssnow%tgg: ', ssnow%tgg(maxdiff(1),maxdiff(2))
                PRINT *, 'soilTtemp: ', soilTtemp(maxdiff(1),maxdiff(2))

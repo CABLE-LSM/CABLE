@@ -12,15 +12,13 @@ host_jigg()
    export NCDIR='/usr/local/lib'
    export NCMOD='/usr/local/include'
    export FC=gfortran
-   export CFLAGS='-O0 -x f95-cpp-input'
+   export CFLAGS='-O2 -x f95-cpp-input'
    export LD='-lnetcdf -lnetcdff'
    export LDFLAGS='-L/usr/local/lib -O2'
    build_build
    cd ../
    build_status
 }
-
-
 
 
 ## shine-cl.nexus.csiro.au 
