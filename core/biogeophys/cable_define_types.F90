@@ -268,7 +268,7 @@ MODULE cable_def_types_mod
          dewmm,   & ! dewfall (mm)
          fe,      & ! total latent heat (W/m2)
          fh,      & ! total sensible heat (W/m2)
-         fpn,     & ! plant photosynthesis (g C s-1)
+         fpn,     & ! plant photosynthesis (g C m-2 s-1)
          frp,     & ! plant respiration (g C m-2 s-1)
          frpw,    & ! plant respiration (g C m-2 s-1)???
          frpr,    & ! plant respiration (g C m-2 s-1)???
