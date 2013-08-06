@@ -704,6 +704,7 @@ SUBROUTINE alloc_veg_parameter_type(var, mp)
    ALLOCATE( var%wai(mp) )   
    ALLOCATE( var%deciduous(mp) ) 
    ALLOCATE( var%froot(mp,ms) ) 
+   !was nrb(=3), but never uses (:,3) in model   
    ALLOCATE( var%refl(mp,2) ) !jhan:swb?
    ALLOCATE( var%taul(mp,2) ) 
    ALLOCATE( var%vlaimax(mp) ) 
