@@ -88,14 +88,14 @@ host_vayu()
 ## unknown machine, user entering options stdout 
 host_read()
 {
-   print "\n\tWhat is the root path of your NetCDF library" \
+   print "\n\tWhat is the ROOT path of your NetCDF library" \
          "and .mod file. "
    print "\tRemember these have to be created by the same " \
          "Fortran compiler you" 
    print "\twant to use to build CABLE. e.g./usr/local/intel"
    read NCDF_ROOT
    
-   print "\n\tWhat is the path, relative to this root, of " \
+   print "\n\tWhat is the path, relative to the above ROOT, of " \
          "your NetCDF library." 
    print "\n\tPress enter for default [lib]."
    read NCDF_DIR
@@ -106,7 +106,7 @@ host_read()
    fi
 
    
-   print "\n\tWhat is the path, relative to this root, of " \
+   print "\n\tWhat is the path, relative to the above ROOT, of " \
          "your NetCDF .mod file."
    print "\n\tPress enter for default [include]."
    read NCDF_MOD
@@ -284,8 +284,8 @@ build_build()
    fi
    
    if [[ -f cable ]]; then
-      print '\ncable executable exists. copying to cable.bu\n' 
-      mv cable cable.bu
+      print '\ncable executable exists. copying to dated backup file\n' 
+      mv cable cable.`date +%d.%m.%y`
    fi
    
    CORE="../core/biogeophys"

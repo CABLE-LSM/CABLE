@@ -28,20 +28,20 @@ host_vayu()
 ## unknown machine, user entering options stdout 
 host_read()
 {
-   print "\n\tWhat is the root path of your NetCDF library" \
+   print "\n\tWhat is the ROOT path of your NetCDF library" \
          "and .mod file. "
    print "\tRemember these have to be created by the same " \
          "Fortran compiler you" 
    print "\twant to use to build CABLE. e.g./usr/local/intel"
    read NCDF_ROOT
    
-   print "\n\tWhat is the path, relative to this root, of " \
+   print "\n\tWhat is the path, relative to the above ROOT, of " \
          "your NetCDF library." 
    print "\te.g. lib"
    read NCDF_DIR
    export NCDIR=$NCDF_ROOT/$NCDF_DIR
    
-   print "\n\tWhat is the path, relative to this root, of " \
+   print "\n\tWhat is the path, relative to the above ROOT, of " \
          "your NetCDF .mod file."
    print "\te.g. include"
    read NCDF_MOD
@@ -184,7 +184,7 @@ build_build()
       print '\n\tCABLE library exists at\n' 
       print $libpath 
       print '\nCopying to\n'
-      libpathbu=$libpath'.bu'
+      libpathbu=$libpath'.'`date +%d.%m.%y`
       print $libpathbu'\n' 
       mv $libpath $libpathbu
    fi
