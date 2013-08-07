@@ -141,8 +141,8 @@ SUBROUTINE mpidrv_master (comm)
                                    verbose, fixedCO2,output,check,patchout,    &
                                    patch_type,soilparmnew
    USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
-                                   cable_runtime, filename, myhome,            &
-                                   redistrb, wiltParam, satuParam
+                                   cable_runtime, filename, redistrb,          & 
+                                   report_version_no, wiltParam, satuParam
    USE cable_data_module,    ONLY: driver_type, point2constants
    USE cable_input_module,   ONLY: open_met_file,load_parameters,              &
                                    get_met_data,close_met_file
@@ -272,11 +272,16 @@ SUBROUTINE mpidrv_master (comm)
       READ( 10, NML=CABLE )   !where NML=CABLE defined above
    CLOSE(10)
 
+   ! Open log file:
+   OPEN(logn,FILE=filename%log)
+ 
+   CALL report_version_no( logn )
+    
    IF( IARGC() > 0 ) THEN
       CALL GETARG(1, filename%met)
       CALL GETARG(2, casafile%cnpipool)
    ENDIF
-
+    
     
    cable_runtime%offline = .TRUE.
    
@@ -292,9 +297,6 @@ SUBROUTINE mpidrv_master (comm)
    IF( icycle > 0 .AND. ( .NOT. soilparmnew ) )                             &
       STOP 'casaCNP must use new soil parameters'
 
-   ! Open log file:
-   OPEN(logn,FILE=filename%log)
- 
    ! Check for gswp run
    IF (ncciy /= 0) THEN
       
