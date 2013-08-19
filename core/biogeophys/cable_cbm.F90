@@ -33,7 +33,7 @@
 !
 ! ==============================================================================
 
-#define NO_CASA_YET 1
+!#define NO_CASA_YET 1
 
 MODULE cable_cbm_module
    

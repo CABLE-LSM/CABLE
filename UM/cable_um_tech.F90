@@ -93,14 +93,18 @@ CONTAINS
 SUBROUTINE cable_um_runtime_vars(runtime_vars_file) 
    USE cable_common_module, ONLY : cable_runtime, cable_user, filename,        &
                                    cable_user, knode_gl, redistrb, wiltParam,  &
-                                   satuParam
+                                   satuParam, l_casacnp, l_laiFeedbk,          &
+                                   l_vcmaxFeedbk
+   USE casavariable, ONLY : casafile
+   USE casadimension, ONLY : icycle
 
 
    CHARACTER(LEN=*), INTENT(IN) :: runtime_vars_file
    INTEGER :: funit=88
    
    !--- namelist for CABLE runtime vars, files, switches 
-   NAMELIST/CABLE/filename,cable_user, redistrb, wiltParam, satuParam
+   NAMELIST/CABLE/filename, l_casacnp, l_laiFeedbk, l_vcmaxFeedbk, icycle,   &
+                  casafile, cable_user, redistrb, wiltParam, satuParam
 
       !--- assume namelist exists. no iostatus check 
       OPEN(unit=funit,FILE= runtime_vars_file)
@@ -113,8 +117,24 @@ SUBROUTINE cable_um_runtime_vars(runtime_vars_file)
             PRINT *, 'End CABLE_log:'; PRINT *, '  '
         ENDIF
       CLOSE(funit)
+
+      if (knode_gl==0) then
+        print *, '  '; print *, 'CASA_log:'
+        print *, '  icycle =',icycle
+        print *, '  l_casacnp =',l_casacnp
+        print *, '  l_laiFeedbk =',l_laiFeedbk
+        print *, '  l_vcmaxFeedbk =',l_vcmaxFeedbk
+        print *, 'End CASA_log:'; print *, '  '
+      endif
+      IF (l_casacnp  .AND. (icycle == 0 .OR. icycle > 3)) &
+          STOP 'CASA_log: icycle must be 1 to 3 when using casaCNP'
+      IF ((.NOT. l_casacnp)  .AND. (icycle >= 1)) &
+          STOP 'CASA_log: icycle must be <=0 when not using casaCNP'
+      IF ((l_laiFeedbk .OR. l_vcmaxFeedbk) .AND. (.NOT. l_casacnp)) &
+          STOP 'CASA_log: casaCNP required to get prognostic LAI or Vcmax'
+      IF (l_vcmaxFeedbk .AND. icycle < 2) &
+          STOP 'CASA_log: icycle must be 2 to 3 to get prognostic Vcmax'
    
-                   
       !--- check value of variable 
       CALL check_nmlvar('filename%veg', filename%veg)
       CALL check_nmlvar('filename%soil', filename%soil)

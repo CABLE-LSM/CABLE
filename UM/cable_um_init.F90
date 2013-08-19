@@ -48,7 +48,9 @@ SUBROUTINE interface_UM_data( row_length, rows, land_pts, ntiles,              &
                               z1_uv, rho_water, L_tile_pts, canopy_tile, Fland,&
                               CO2_MMR, sthu_tile, smcl_tile, sthf_tile, sthu,  &
                               tsoil_tile, canht_ft, lai_ft, sin_theta_latitude,&
-                              dzsoil )                         
+                              dzsoil, CPOOL_TILE, NPOOL_TILE, PPOOL_TILE,      &
+                              SOIL_ORDER, NIDEP, NIFIX, PWEA, PDUST, GLAI,     &
+                              PHENPHASE, NPP_FT_ACC, RESP_W_FT_ACC )
 
    USE cable_um_init_subrs_mod          ! where most subrs called from here reside
    
@@ -59,11 +61,16 @@ SUBROUTINE interface_UM_data( row_length, rows, land_pts, ntiles,              &
       kblum_veg                    ! kblum_veg% reset UM veg vars 4 CABLE use
 
    USE cable_common_module, ONLY :                                             &
-      cable_user,       & ! cable_user% type inherits user definition
-                          ! via namelist (cable.nml) 
-      get_type_parameters ! veg and soil parameters READ subroutine  
+      cable_user,          & ! cable_user% type inherits user definition
+                             ! via namelist (cable.nml) 
+      get_type_parameters, & ! veg and soil parameters READ subroutine  
+                             !
+      l_casacnp,           & !
+      knode_gl               !
 
    USE cable_def_types_mod, ONLY : mp ! number of points CABLE works on
+
+   USE casa_um_inout_mod
 
 
    !-------------------------------------------------------------------------- 
@@ -165,6 +172,30 @@ SUBROUTINE interface_UM_data( row_length, rows, land_pts, ntiles,              &
    REAL, INTENT(IN), DIMENSION(row_length,rows) ::                             & 
       sin_theta_latitude
 
+! Les 28 Spet 2012 - CASA-CNP Pools
+   REAL, INTENT(INOUT), DIMENSION(land_pts,ntiles,10) :: &
+      CPOOL_TILE, &
+      NPOOL_TILE
+
+   REAL, INTENT(INOUT), DIMENSION(land_pts,ntiles,12) :: &
+      PPOOL_TILE
+
+   REAL, INTENT(INOUT), DIMENSION(land_pts) :: &
+      SOIL_ORDER, &
+      NIDEP,      &
+      NIFIX,      &
+      PWEA,       &
+      PDUST
+
+   REAL, INTENT(INOUT), DIMENSION(land_pts,ntiles) :: &
+      GLAI, &
+   !INTEGER, INTENT(INOUT), DIMENSION(land_pts,ntiles) :: &
+      PHENPHASE
+
+   REAL, INTENT(INOUT), DIMENSION(land_pts,ntiles) :: &
+      NPP_FT_ACC,   &
+      RESP_W_FT_ACC
+
    !------------------------------------------------------------------------- 
    !--- end INPUT ARGS FROM cable_explicit_driver() -------------------------
    !------------------------------------------------------------------------- 
@@ -264,11 +295,30 @@ SUBROUTINE interface_UM_data( row_length, rows, land_pts, ntiles,              &
                                  surf_down_sw, sin_theta_latitude, ls_rain, &
                                  ls_snow, tl_1, qw_1, vshr_land, pstar,     &
                                  co2_mmr ) 
-                   
+
  
       IF( first_call ) THEN
          CALL init_bgc_vars() 
          CALL init_sumflux_zero() 
+
+      !--- initialize respiration for CASA-CNP
+      !--- Lestevens 23apr13
+      !IF (l_casacnp) THEN ?
+         CALL init_respiration(NPP_FT_ACC,RESP_W_FT_ACC)
+
+      ! Lestevens 28 Sept 2012 - Initialize CASA-CNP here
+         if (l_casacnp) then
+           if (knode_gl==0) then
+             print *, '  '; print *, 'CASA_log:'
+             print *, '  Calling CasaCNP - Initialise '
+             print *, '  l_casacnp = ',l_casacnp
+             print *, 'End CASA_log:'; print *, '  '
+           endif
+           call init_casacnp(sin_theta_latitude,cpool_tile,npool_tile,&
+                             ppool_tile,soil_order,nidep,nifix,pwea,pdust,&
+                             GLAI,PHENPHASE)
+         endif
+
          CALL dealloc_vegin_soilin()
          first_call = .FALSE. 
       ENDIF      

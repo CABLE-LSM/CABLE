@@ -49,8 +49,11 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
                                   FQW_TILE, LE_TILE_CAB, LE_CAB, TSTAR_TILE,   &
                                   TSTAR_TILE_CAB, TSTAR_CAB, U_S, U_S_STD_TILE,&
                                   U_S_CAB, CH_CAB, CD_CAB, CD_TILE, CH_TILE,   &
-                                  RADNET_TILE, FRACA, rESFS, RESFT, Z0H_TILE,  &
+                                  RADNET_TILE, FRACA, RESFS, RESFT, Z0H_TILE,  &
                                   Z0M_TILE, RECIP_L_MO_TILE, EPOT_TILE,        &
+                                  CPOOL_TILE, NPOOL_TILE, PPOOL_TILE,          &
+                                  SOIL_ORDER, NIDEP, NIFIX, PWEA, PDUST,       &
+                                  GLAI, PHENPHASE, NPP_FT_ACC, RESP_W_FT_ACC,  &
                                   endstep, timestep_number, mype )    
    
    !--- reads runtime and user switches and reports
@@ -60,7 +63,8 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
    !--- vars common to CABLE declared 
    USE cable_common_module, ONLY : cable_runtime, cable_user, ktau_gl,         &
                                    knode_gl, kwidth_gl, kend_gl,               &
-                                   report_version_no
+                                   report_version_no,                          & 
+                                   l_vcmaxFeedbk, l_laiFeedbk
    
    !--- subr to (manage)interface UM data to CABLE
    USE cable_um_init_mod, ONLY : interface_UM_data
@@ -73,6 +77,8 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
 
    !--- include subr called to write data for testing purposes 
    USE cable_diag_module
+   USE casavariable
+   USE casa_types_mod
 
    IMPLICIT NONE
  
@@ -230,6 +236,29 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
       FRACA,         & ! Fraction of surface moisture
       RECIP_L_MO_TILE,& ! Reciprocal of the Monin-Obukhov length for tiles (m^-1)
       EPOT_TILE
+
+! Lestevens Sept2012 - CASA-CNP Pools
+   REAL, INTENT(INOUT), DIMENSION(land_pts,ntiles,10) :: &
+      CPOOL_TILE,    & ! Carbon Pools
+      NPOOL_TILE       ! Nitrogen Pools
+
+   REAL, INTENT(INOUT), DIMENSION(land_pts,ntiles,12) :: &
+      PPOOL_TILE       ! Phosphorus Pools
+
+   REAL, INTENT(INOUT), DIMENSION(land_pts) :: &
+      SOIL_ORDER,    & ! Soil Order (1 to 12)
+      NIDEP,         & ! Nitrogen Deposition
+      NIFIX,         & ! Nitrogen Fixation
+      PWEA,          & ! Phosphorus from Weathering
+      PDUST            ! Phosphorus from Dust
+
+   REAL, INTENT(INOUT), DIMENSION(land_pts,ntiles) :: &
+      GLAI, &          ! Leaf Area Index for Prognostics LAI
+      PHENPHASE        ! Phenology Phase for Casa-CNP
+                                  
+   REAL, INTENT(INOUT), DIMENSION(land_pts,ntiles) :: &
+      NPP_FT_ACC,     &
+      RESP_W_FT_ACC
      
    !-------------------------------------------------------------------------- 
    !--- end INPUT ARGS FROM sf_exch() ----------------------------------------
@@ -298,7 +327,16 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
                            z1_uv, rho_water, L_tile_pts, canopy_tile, Fland,   &
                            CO2_MMR, sthu_tile, smcl_tile, sthf_tile,           &
                            sthu, tsoil_tile, canht_ft, lai_ft,                 &
-                           sin_theta_latitude, dzsoil )                         
+                           sin_theta_latitude, dzsoil,                         &
+                           CPOOL_TILE, NPOOL_TILE, PPOOL_TILE, SOIL_ORDER,     &
+                           NIDEP, NIFIX, PWEA, PDUST, GLAI, PHENPHASE,         &
+                           NPP_FT_ACC,RESP_W_FT_ACC )
+
+   !---------------------------------------------------------------------!
+   !--- Feedback prognostic vcmax and daily LAI from casaCNP to CABLE ---!
+   !---------------------------------------------------------------------!
+   IF(l_vcmaxFeedbk) call casa_feedback(ktau_gl,veg,casabiome,casapool,casamet)
+   IF(l_laiFeedbk) veg%vlai(:) = casamet%glai(:)
 
    canopy%oldcansto=canopy%cansto
 

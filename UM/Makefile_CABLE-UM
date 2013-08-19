@@ -20,7 +20,7 @@
 ## this Makefile builds the CABLE executable from f90 source code 
 
 # these are all the files we are compiling
-LSRC = cable_data.F90 cable_diag.F90 cable_common.F90 cable_define_types.F90 cable_soilsnow.F90 cable_air.F90 cable_albedo.F90 cable_radiation.F90 cable_roughness.F90 cable_carbon.F90 cable_canopy.F90 cable_cbm.F90 cable_um_tech.F90 cable_um_init.F90 cable_um_init_subrs.F90 cable_explicit_driver.F90 cable_implicit_driver.F90 cable_hyd_driver.F90 cable_rad_driver.F90 
+LSRC = cable_data.F90 cable_common.F90 cable_define_types.F90 cable_soilsnow.F90 cable_air.F90 cable_albedo.F90 cable_radiation.F90 cable_roughness.F90 cable_carbon.F90 cable_canopy.F90 cable_cbm.F90 cable_um_tech.F90 cable_um_init.F90 cable_um_init_subrs.F90 cable_explicit_driver.F90 cable_implicit_driver.F90 cable_hyd_driver.F90 cable_rad_driver.F90 cable_diag.F90 casa_variable.F90 casa_cnp.F90 casa_cable.F90 casa_inout.F90 casa_types.F90 casa_um_inout.F90 cable_iovars.F90
 
 #compiler switches and flags
 CINC = -I$(NCMOD)
@@ -50,7 +50,7 @@ cable_canopy.o: cable_canopy.F90 cable_define_types.o cable_radiation.o cable_ai
 
 cable_carbon.o: cable_carbon.F90 cable_define_types.o cable_common.o cable_data.o
 
-cable_cbm.o: cable_cbm.F90 cable_carbon.o cable_soilsnow.o cable_canopy.o cable_define_types.o cable_roughness.o cable_radiation.o cable_albedo.o cable_common.o cable_data.o
+cable_cbm.o: cable_cbm.F90 cable_carbon.o cable_soilsnow.o cable_canopy.o cable_define_types.o cable_roughness.o cable_radiation.o cable_albedo.o cable_common.o cable_data.o casa_variable.o
 
 cable_define_types.o: cable_define_types.F90
 
@@ -62,21 +62,35 @@ cable_soilsnow.o: cable_soilsnow.F90 cable_define_types.o cable_common.o cable_d
 
 cable_common.o: cable_common.F90 cable_define_types.o  
 
-cable_um_tech.o: cable_um_tech.F90
+cable_um_tech.o: cable_um_tech.F90 casa_variable.o
 
-cable_um_init.o: cable_um_init.F90 cable_um_init_subrs.o cable_define_types.o cable_um_init_subrs.o
+cable_um_init.o: cable_um_init.F90 cable_um_init_subrs.o cable_define_types.o casa_um_inout.o
 
 cable_um_init_subrs.o: cable_um_init_subrs.F90 cable_define_types.o cable_data.o cable_um_tech.o cable_common.o
 
 cable_explicit_driver.o: cable_explicit_driver.F90 cable_common.o cable_um_tech.o cable_define_types.o cable_um_init.o cable_cbm.o cable_define_types.o cable_data.o cable_diag.o 
 
-cable_implicit_driver.o: cable_implicit_driver.F90 cable_common.o cable_um_tech.o cable_define_types.o cable_um_init.o cable_cbm.o cable_data.o
+cable_implicit_driver.o: cable_implicit_driver.F90 cable_common.o cable_um_tech.o cable_define_types.o cable_um_init.o cable_cbm.o cable_data.o casa_types.o
 
 cable_hyd_driver.o: cable_hyd_driver.F90 cable_common.o cable_um_tech.o cable_define_types.o cable_um_init.o cable_cbm.o cable_data.o
 
 cable_rad_driver.o: cable_rad_driver.F90 cable_common.o cable_um_tech.o cable_define_types.o cable_um_init.o cable_cbm.o cable_data.o
 
-all: cable_rad_driver.o cable_hyd_driver.o cable_implicit_driver.o cable_explicit_driver.o cable_um_init_subrs.o  cable_um_init.o cable_data.o cable_define_types.o cable_common.o cable_carbon.o cable_air.o cable_albedo.o cable_canopy.o cable_cbm.o cable_roughness.o cable_soilsnow.o cable_radiation.o cable_um_tech.o 
+casa_variable.o: casa_variable.F90 cable_define_types.o
+
+casa_cable.o: casa_cable.F90 cable_define_types.o cable_carbon.o casa_variable.o
+
+casa_cnp.o: casa_cnp.F90 cable_define_types.o casa_variable.o
+
+casa_inout.o: casa_inout.F90 cable_define_types.o cable_iovars.o casa_variable.o casa_cnp.o cable_common.o
+
+casa_types.o: casa_types.F90 casa_variable.o
+
+casa_um_inout.o: casa_um_inout.F90 cable_define_types.o casa_variable.o cable_um_tech.o casa_types.o casa_inout.o cable_um_init_subrs.o cable_data.o
+
+cable_iovars.o: cable_iovars.F90 cable_define_types.o
+
+all: cable_rad_driver.o cable_hyd_driver.o cable_implicit_driver.o cable_explicit_driver.o cable_um_init_subrs.o  cable_um_init.o cable_data.o cable_define_types.o cable_common.o cable_carbon.o cable_air.o cable_albedo.o cable_canopy.o cable_cbm.o cable_roughness.o cable_soilsnow.o cable_radiation.o cable_um_tech.o casa_variable.o casa_cnp.o casa_cable.o casa_inout.o casa_types.o casa_um_inout.o cable_iovars.o
 clean:
 	rm -f *.o *.mod 
 

@@ -246,6 +246,12 @@ SUBROUTINE initialize_soil( bexp, hcon, satcon, sathh, smvcst, smvcwt,         &
          !--- these are temporary 
          soil%rhosoil =  soilin%rhosoil(soil%isoilm)
          soil%css     =  soilin%css(soil%isoilm)
+
+         !--- Lestevens 28 Sept 2012 - Fix Init for soil% textures 
+         !--- needed for CASA-CNP
+         soil%clay = soilin%clay(soil%isoilm)
+         soil%silt = soilin%silt(soil%isoilm)
+         soil%sand = soilin%sand(soil%isoilm)
          
             
          first_call= .FALSE.
@@ -324,6 +330,58 @@ SUBROUTINE clobber_height_lai( um_htveg, um_lai )
    veg%hc     = PACK(kblum_veg%htveg, um1%L_TILE_PTS)
 
 END SUBROUTINE clobber_height_lai
+
+!========================================================================
+!========================================================================
+!========================================================================
+
+SUBROUTINE init_respiration(NPP_FT_ACC,RESP_W_FT_ACC)
+   ! Lestevens 23apr13 - for reading in prog soil & plant resp
+   USE cable_um_tech_mod,   ONLY : um1, canopy
+   !USE cable_common_module, ONLY : cable_runtime, cable_user
+
+   REAL, INTENT(INOUT),DIMENSION(um1%land_pts, um1%ntiles) :: NPP_FT_ACC
+   REAL, INTENT(INOUT),DIMENSION(um1%land_pts, um1%ntiles) :: RESP_W_FT_ACC
+
+!   REAL, ALLOCATABLE :: tempvar(:,:), tempvar2(:,:)
+   INTEGER :: l,j,n
+
+!   ALLOCATE( tempvar(um1%land_pts,um1%ntiles) )
+!   ALLOCATE( tempvar2(um1%land_pts,um1%ntiles) )
+!
+!      DO N=1,um1%NTILES
+!         DO J=1,um1%TILE_PTS(N)
+!
+!            L = um1%TILE_INDEX(j,N)  ! It must be landpt index
+!
+!            !IF( um1%TILE_FRAC(L,N) .gt. 0.0 ) THEN
+!
+!               !IF(N <= 13 ) THEN
+!                  tempvar(L,N)  = NPP_FT_ACC(L,N)
+!                  tempvar2(L,N) = RESP_W_FT_ACC(L,N)
+!               !ELSE IF(N > 13 ) THEN
+!               !   tempvar(L,N)  = 0.
+!               !   tempvar2(L,N) = 0.
+!               !ENDIF
+!
+!            !ENDIF
+!
+!         ENDDO
+!      ENDDO
+
+      !---set soil & plant respiration (now in dim(land_pts,ntiles))
+      canopy%frs = PACK(NPP_FT_ACC   , um1%L_TILE_PTS)
+      canopy%frp = PACK(RESP_W_FT_ACC, um1%L_TILE_PTS)
+!      canopy%frs = PACK(tempvar, um1%L_TILE_PTS)
+!      canopy%frp = PACK(tempvar2, um1%L_TILE_PTS)
+
+      !---convert units to g C m-2 s-1
+      canopy%frs = canopy%frs * 1000.
+      canopy%frp = canopy%frp * 1000.
+
+!   DEALLOCATE( tempvar, tempvar2 )
+
+END SUBROUTINE init_respiration
 
 !========================================================================
 !========================================================================
