@@ -2,7 +2,25 @@
 
 known_hosts()
 {
-   set -A kh vayu 
+   set -A kh vayu raij
+}
+
+## raijin.nci.org.au
+host_raij()
+{
+   NCDF_ROOT=/apps/netcdf/3.6.3
+   export NCDIR=$NCDF_ROOT'/lib/Intel'
+   export NCMOD=$NCDF_ROOT'/include/Intel'
+   export FC=ifort
+   export CFLAGS='-O2 -g -i8 -r8 -traceback -fp-model precise -ftz -fpe0'  
+   #export CFLAGS='-O0 -traceback -g -i8 -r8 -fp-model precise -ftz -fpe0'
+   export CINC='-I$(NCMOD)'
+   if [[ $1 = 'debug' ]]; then      
+      export CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0' 
+   fi
+   build_build
+   cd ../
+   build_status
 }
 
 

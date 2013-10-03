@@ -46,7 +46,9 @@ SUBROUTINE interface_UM_data( row_length, rows, land_pts, ntiles,              &
                               lw_down, cos_zenith_angle, surf_down_sw, ls_rain,&
                               ls_snow, tl_1, qw_1, vshr_land, pstar, z1_tq,    &
                               z1_uv, rho_water, L_tile_pts, canopy_tile, Fland,&
-                              CO2_MMR, sthu_tile, smcl_tile, sthf_tile, sthu,  &
+! rml 2/7/13 pass 3d co2 through to cable if required
+                   CO2_MMR,CO2_3D,CO2_DIM_LEN,CO2_DIM_ROW,L_CO2_INTERACTIVE,   &
+                              sthu_tile, smcl_tile, sthf_tile, sthu,           &
                               tsoil_tile, canht_ft, lai_ft, sin_theta_latitude,&
                               dzsoil, CPOOL_TILE, NPOOL_TILE, PPOOL_TILE,      &
                               SOIL_ORDER, NIDEP, NIFIX, PWEA, PDUST, GLAI,     &
@@ -165,6 +167,12 @@ SUBROUTINE interface_UM_data( row_length, rows, land_pts, ntiles,              &
       tsoil_tile     !
 
    REAL, INTENT(IN) :: co2_mmr
+! rml 2/7/13 Extra atmospheric co2 variables
+   LOGICAL, INTENT(IN) :: L_CO2_INTERACTIVE
+   INTEGER, INTENT(IN) ::                              &
+      CO2_DIM_LEN                                      &
+     ,CO2_DIM_ROW
+   REAL, INTENT(IN) :: CO2_3D(CO2_DIM_LEN,CO2_DIM_ROW)  ! co2 mass mixing ratio
 
    LOGICAL, INTENT(INOUT),DIMENSION(land_pts, ntiles) ::                       &
       L_tile_pts  ! true IF vegetation (tile) fraction is greater than 0
@@ -294,7 +302,8 @@ SUBROUTINE interface_UM_data( row_length, rows, land_pts, ntiles,              &
       CALL initialize_radiation( sw_down, lw_down, cos_zenith_angle,        &
                                  surf_down_sw, sin_theta_latitude, ls_rain, &
                                  ls_snow, tl_1, qw_1, vshr_land, pstar,     &
-                                 co2_mmr ) 
+! rml 2/7/13 pass 3d co2 through to cable if required
+                   CO2_MMR,CO2_3D,CO2_DIM_LEN,CO2_DIM_ROW,L_CO2_INTERACTIVE )   
 
  
       IF( first_call ) THEN

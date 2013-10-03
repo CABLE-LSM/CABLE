@@ -772,6 +772,7 @@ SUBROUTINE alloc_canopy_type(var, mp)
    ALLOCATE( var% gswx(mp,mf) )  
    ALLOCATE( var% oldcansto(mp) )  
    ALLOCATE( var% zetar(mp,NITER) )  
+   ALLOCATE( var% gs_vs(mp) )   
    
 END SUBROUTINE alloc_canopy_type
 
@@ -1167,6 +1168,7 @@ SUBROUTINE dealloc_canopy_type(var)
    DEALLOCATE( var% gswx )  
    DEALLOCATE( var% oldcansto )  
    DEALLOCATE( var% zetar )  
+   DEALLOCATE( var% gs_vs )  
 
 END SUBROUTINE dealloc_canopy_type
    

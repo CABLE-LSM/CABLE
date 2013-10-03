@@ -918,7 +918,8 @@ SUBROUTINE surfbv (dels, met, ssnow, soil, veg, canopy )
 
    REAL, DIMENSION(mp,0:3) :: smelt1
     
-   INTEGER :: k
+   REAL :: wb_lake_T, rnof2_T, ratio
+   INTEGER :: k,j
 
    CALL smoisturev( dels, ssnow, soil, veg )
 
@@ -937,15 +938,6 @@ SUBROUTINE surfbv (dels, met, ssnow, soil, veg, canopy )
    ! ssnow%rnof1 = (1. - fracm) * ssnow%rnof1 
 
    ! Scaling  runoff to kg/m^2/s to match rest of the model
-   ssnow%sinfil = 0.0
-   ! lakes: replace hard-wired vegetation number in next version
-   WHERE( veg%iveg == 16 )
-      ssnow%sinfil = MIN( ssnow%rnof1, ssnow%wb_lake + MAX( 0.,canopy%segg ) )
-      ssnow%rnof1 = MAX( 0.0, ssnow%rnof1 - ssnow%sinfil )
-      ssnow%wb_lake = ssnow%wb_lake - ssnow%sinfil
-      ssnow%rnof2 = MAX( 0.0, ssnow%rnof2 - ssnow%wb_lake )
-   ENDWHERE
-
 !jhan:replace nested wheres 
 
    !---  glacier formation
@@ -985,6 +977,16 @@ SUBROUTINE surfbv (dels, met, ssnow, soil, veg, canopy )
       WHERE( ssnow%isflag > 0 ) rnof5 = smelt1(:,1) + smelt1(:,2) + smelt1(:,3)
    
    END IF
+
+!  Rescale drainage to remove water added to lakes (wb_lake) 
+   wb_lake_T = 0.0
+   rnof2_T = 0.
+   DO j=1,mp
+      IF( ssnow%wb_lake(j) >  0.0 ) wb_lake_T = wb_lake_T + ssnow%wb_lake(j)
+      rnof2_T = rnof2_T + ssnow%rnof2(j)
+   END DO
+   ratio = min( 1., wb_lake_T/max(rnof2_T,1.))
+   ssnow%rnof2 = ssnow%rnof2 - ratio*ssnow%rnof2
 
    ssnow%rnof1 = ssnow%rnof1 / dels + rnof5/dels
    ssnow%rnof2 = ssnow%rnof2 / dels
@@ -1225,7 +1227,7 @@ SUBROUTINE stempv(dels, canopy, ssnow, soil)
 
    CALL trimb( at, bt, ct, tmp_mat, ms + 3 ) 
    
-   ssnow%tggsn = REAL( tmp_mat(:,:3) )
+   ssnow%tggsn = REAL( tmp_mat(:,1:3) )
    ssnow%tgg   = REAL( tmp_mat(:,4:(ms+3)) )
    canopy%sghflux = coefa * ( ssnow%tggsn(:,1) - ssnow%tggsn(:,2) )
    canopy%ghflux = coefb * ( ssnow%tgg(:,1) - ssnow%tgg(:,2) ) ! +ve downwards
@@ -1788,9 +1790,9 @@ SUBROUTINE soil_snow(dels, soil, ssnow, canopy, met, bal, veg)
    CALL surfbv(dels, met, ssnow, soil, veg, canopy )
 
    ! correction required for energy balance in online simulations 
-   IF( cable_runtime%um) THEN
+   IF( cable_runtime%um ) THEN
       canopy%fhs_cor = ssnow%dtmlt(:,1)*ssnow%dfh_dtg
-      canopy%fes_cor = ssnow%dtmlt(:,1)*(ssnow%cls*ssnow%dfe_ddq * ssnow%ddq_dtg)
+      canopy%fes_cor = ssnow%dtmlt(:,1)*(ssnow%dfe_ddq * ssnow%ddq_dtg)
 
       canopy%fhs = canopy%fhs+canopy%fhs_cor
       canopy%fes = canopy%fes+canopy%fes_cor

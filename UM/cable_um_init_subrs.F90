@@ -434,7 +434,10 @@ END SUBROUTINE init_veg_pars_fr_vegin
         
 SUBROUTINE initialize_radiation( sw_down, lw_down, cos_zenith_angle,           &
                                  surf_down_sw, sin_theta_latitude, ls_rain,    &
-                                 ls_snow, tl_1, qw_1, vshr_land, pstar, co2_mmr ) 
+                                 ls_snow, tl_1, qw_1, vshr_land, pstar,        &
+! rml 2/7/13 pass 3d co2 through to cable if required
+                   CO2_MMR,CO2_3D,CO2_DIM_LEN,CO2_DIM_ROW,L_CO2_INTERACTIVE )   
+
    USE cable_def_types_mod, ONLY : mp
    USE cable_data_module,   ONLY : PHYS, OTHER
    USE cable_um_tech_mod,   ONLY : um1, rad, soil, met,                        & 
@@ -460,6 +463,12 @@ SUBROUTINE initialize_radiation( sw_down, lw_down, cos_zenith_angle,           &
       pstar
    
    REAL, INTENT(IN) :: co2_mmr
+! rml 2/7/13 Extra atmospheric co2 variables
+   LOGICAL, INTENT(IN) :: L_CO2_INTERACTIVE
+   INTEGER, INTENT(IN) ::                              &
+      CO2_DIM_LEN                                      &
+     ,CO2_DIM_ROW
+   REAL, INTENT(IN) :: CO2_3D(CO2_DIM_LEN,CO2_DIM_ROW)  ! co2 mass mixing ratio
              
    !___defs 1st call to CABLE in this run. OK in UM & coupled
    LOGICAL, SAVE :: first_call= .TRUE.
@@ -519,8 +528,14 @@ SUBROUTINE initialize_radiation( sw_down, lw_down, cos_zenith_angle,           &
       ! rml 24/2/11 Set atmospheric CO2 seen by cable to CO2_MMR (value seen 
       ! by radiation scheme).  Option in future to have cable see interactive 
       ! (3d) CO2 field Convert CO2 from kg/kg to mol/mol ( m_air, 
-      ! 28.97 taken from UKCA include file, c_v_m.h)
-      met%ca =        CO2_MMR * 28.97/44.
+      ! 28.966 taken from include/constant/ccarbon.h file )
+      ! rml 2/7/13 Add in co2_interactive option
+      IF (L_CO2_INTERACTIVE) THEN
+        CALL um2cable_rr(CO2_3D, met%ca)
+      ELSE
+        met%ca = CO2_MMR
+      ENDIF
+      met%ca = met%ca * 28.966/44.
 
       WHERE (met%coszen < RAD_THRESH ) 
          rad%fbeam(:,1) = REAL(0) 
@@ -611,6 +626,8 @@ SUBROUTINE initialize_soilsnow( smvcst, tsoil_tile, sthf_tile, smcl_tile,      &
    LOGICAL :: skip =.TRUE. 
    LOGICAL :: first_call = .TRUE.
 
+!     not sure if this is in restart file hence repeated again
+      ssnow%pudsto = 0.0; ssnow%pudsmx = 0.0
       ssnow%wbtot1 = 0
       ssnow%wbtot2 = 0
       TFRZ => PHYS%TFRZ
@@ -639,13 +656,13 @@ SUBROUTINE initialize_soilsnow( smvcst, tsoil_tile, sthf_tile, smcl_tile,      &
          ENDWHERE
       
       ENDDO 
+      ssnow%wb_lake = MAX( ssnow%wbtot2 - ssnow%wbtot1, 0.)
        
       DO J=1,um1%sm_levels
          ssnow%tgg(:,J) = PACK(TSOIL_TILE(:,:,J),um1%l_tile_pts)
       ENDDO 
       
       ssnow%snage = PACK(SNAGE_TILE, um1%l_tile_pts)
-      ssnow%wb_lake = MAX( ssnow%wbtot2 - ssnow%wbtot1, 0.)
 
       IF( first_call) THEN 
         
