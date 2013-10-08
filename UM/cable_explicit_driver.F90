@@ -574,7 +574,7 @@ SUBROUTINE cable_expl_unpack( FTL_TILE_CAB, FTL_CAB, FTL_TILE, FQW_TILE,       &
             L = um1%TILE_INDEX(K,N)
             J=(um1%LAND_INDEX(L)-1)/um1%row_length + 1
             I = um1%LAND_INDEX(L) - (J-1)*um1%row_length
-            U_S(I,J) = U_S(I,J)+FLAND(L)*um1%TILE_FRAC(L,N)*U_S_TILE(L,N)
+            U_S(I,J) = U_S(I,J)+um1%TILE_FRAC(L,N)*U_S_TILE(L,N)
          ENDDO
       ENDDO
 
