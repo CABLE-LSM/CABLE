@@ -74,14 +74,13 @@ SUBROUTINE ruff_resist(veg, rough, ssnow, canopy)
    ! LAI decreases due to snow:
    canopy%vlaiw = veg%vlai * rough%hruff / MAX( 0.01, veg%hc )
    canopy%rghlai = canopy%vlaiw
-   WHERE( ssnow%snowd .LT. 0.001 ) canopy%rghlai = MIN( 5., canopy%vlaiw )
 
    ! Roughness length of bare soil (m):
    rough%z0soil = 0.0009*min(1.0,canopy%vlaiw) + 1.e-4
    rough%z0soilsn = rough%z0soil 
 
     WHERE( ssnow%snowd .GT. 0.01   )  &
-     rough%z0soilsn =  max( 0.1e-7, rough%z0soil + 0.1*(1.e-6 - rough%z0soil) * ssnow%snowd)
+     rough%z0soilsn =  max( 1.e-7, rough%z0soil - rough%z0soil*min(ssnow%snowd,10.)/10.)
      
    WHERE( canopy%vlaiw .LT. 0.01 .OR.                                          &
            rough%hruff .LT. rough%z0soilsn ) ! BARE SOIL SURFACE

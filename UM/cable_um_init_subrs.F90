@@ -401,6 +401,7 @@ SUBROUTINE init_veg_pars_fr_vegin()
       veg%tminvj  = vegin%tminvj(veg%iveg)
       veg%tmaxvj  = vegin%tmaxvj(veg%iveg)
       veg%vbeta   = vegin%vbeta(veg%iveg)
+      veg%vbeta   = 1.0
       veg%rp20    = vegin%rp20(veg%iveg)
       veg%rpcoef  = vegin%rpcoef(veg%iveg)
       veg%shelrb  = vegin%shelrb(veg%iveg)
@@ -630,6 +631,8 @@ SUBROUTINE initialize_soilsnow( smvcst, tsoil_tile, sthf_tile, smcl_tile,      &
       ssnow%pudsto = 0.0; ssnow%pudsmx = 0.0
       ssnow%wbtot1 = 0
       ssnow%wbtot2 = 0
+      ssnow%wb_lake = 0.
+
       TFRZ => PHYS%TFRZ
 
       snow_tile = MIN(max_snow_depth, snow_tile)
@@ -646,10 +649,9 @@ SUBROUTINE initialize_soilsnow( smvcst, tsoil_tile, sthf_tile, smcl_tile,      &
          ssnow%tggsn(:,J) = PACK(SNOW_TMP3L(:,:,J),um1%l_tile_pts)  
          ssnow%sconds(:,J)= PACK(SNOW_COND(:,:,J),um1%l_tile_pts)  
          
-         WHERE( veg%iveg == 16 ) ! lakes: remove hard-wired number in future version
+         WHERE( veg%iveg == 16 .and. ssnow%wb(:,J) < soil%sfc ) ! lakes: remove hard-wired number in future version
             ssnow%wbtot1 = ssnow%wbtot1 + REAL( ssnow%wb(:,J) ) * 1000.0 *     &
                            soil%zse(J)
-            !jhan:coupled run temp fix for lakes
             ssnow%wb(:,J) = soil%sfc
             ssnow%wbtot2 = ssnow%wbtot2 + REAL( ssnow%wb(:,J) ) * 1000.0 *     &
                            soil%zse(J)
@@ -720,7 +722,8 @@ SUBROUTINE initialize_soilsnow( smvcst, tsoil_tile, sthf_tile, smcl_tile,      &
             ssnow%wbice(:,J) = pack(fwork(:,:,J+um1%SM_LEVELS),um1%l_tile_pts)
             ssnow%wbice(:,J) = max(0.,ssnow%wbice(:,J))
             ! lakes: removed hard-wired number in future version
-            WHERE( veg%iveg == 16 ) ssnow%wb(:,J) = 0.95*soil%ssat
+            !WHERE( veg%iveg == 16 ) ssnow%wb(:,J) = 0.95*soil%ssat
+            WHERE( veg%iveg == 16 ) ssnow%wb(:,J) = soil%sfc
          ENDDO
          
          DEALLOCATE( fwork )

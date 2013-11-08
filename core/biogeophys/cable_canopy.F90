@@ -388,8 +388,9 @@ SUBROUTINE define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy)
       canopy%epot = ((1.-rad%transd)*canopy%fevw_pot +                         &
                     rad%transd*ssnow%potev) * dels/air%rlam  
 
-      ! convert to mm/day
-      rlower_limit = canopy%epot * air%rlam / dels
+      rlower_limit = canopy%epot * air%rlam / dels  
+      where (rlower_limit == 0 ) rlower_limit = 1.e-7 !prevent from 0. by adding 1.e-7 (W/m2)
+
       
       canopy%wetfac_cs = max(0., min(1.0,canopy%fe / rlower_limit ))
       
@@ -1126,13 +1127,6 @@ SUBROUTINE wetLeaf( dels, rad, rough, air, met, veg, canopy, cansat, tlfy,     &
          canopy%fhvw(j) = canopy%fwet(j) * ( sum_rad_rniso(j) -C%CAPP * C%rmair&
                           * ( tlfy(j) - met%tk(j) ) * sum_rad_gradis(j) )      &
                            - canopy%fevw(j)
-
-          xx1(j) = canopy%fhvw(j)
-
-         canopy%fhvw(j) = sum_rad_rniso(j) - canopy%fevc(j) - canopy%fevw(j)   &
-                          - ( 1.0 - canopy%fwet(j) ) *  REAL( hcy(j) ) 
-          
-         canopy%fhvw(j) =  xx1(j)
 
       ENDIF
        
