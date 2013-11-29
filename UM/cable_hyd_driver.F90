@@ -32,7 +32,7 @@
 ! ==============================================================================
 
 SUBROUTINE cable_hyd_driver( SNOW_TILE, LYING_SNOW, SURF_ROFF, SUB_SURF_ROFF,  &
-                             TOT_TFALL )
+                             TOT_TFALL, WB_LAKE )
 
    USE cable_data_module,   ONLY : PHYS, OTHER
    USE cable_common_module!, only : cable_runtime, cable_user
@@ -52,6 +52,10 @@ SUBROUTINE cable_hyd_driver( SNOW_TILE, LYING_SNOW, SURF_ROFF, SUB_SURF_ROFF,  &
       SURF_CAB_ROFF,    &
       TOT_TFALL_TILE                
 
+   ! Lestevens 25sep13 - water balance fix for lakes
+   REAL, DIMENSION(um1%land_pts,um1%ntiles) ::                                 &
+      WB_LAKE         ! unpack CABLE wb_lake
+
    REAL :: miss =0. 
    REAL, POINTER :: TFRZ
       
@@ -68,6 +72,9 @@ SUBROUTINE cable_hyd_driver( SNOW_TILE, LYING_SNOW, SURF_ROFF, SUB_SURF_ROFF,  &
 
       TOT_TFALL_TILE = UNPACK(canopy%through, um1%L_TILE_PTS, miss)
       TOT_TFALL      = SUM(um1%TILE_FRAC * TOT_TFALL_TILE,2)
+
+      ! Lest 25sep13 - wb_lake fix
+      WB_LAKE        = UNPACK(ssnow%wb_lake, um1%L_TILE_PTS, miss)
       
 END SUBROUTINE cable_hyd_driver
       
