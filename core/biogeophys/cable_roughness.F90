@@ -76,8 +76,10 @@ SUBROUTINE ruff_resist(veg, rough, ssnow, canopy)
    canopy%rghlai = canopy%vlaiw
 
    ! Roughness length of bare soil (m):
-   rough%z0soil = 0.0009*min(1.0,canopy%vlaiw) + 1.e-4
-   rough%z0soilsn = rough%z0soil 
+   !rough%z0soil = 0.0009*min(1.0,canopy%vlaiw) + 1.e-4
+   rough%z0soil = 0.01*min(1.0,canopy%vlaiw) + 0.02*min(canopy%us**2/C%GRAV,1.0)
+   !rough%z0soilsn = rough%z0soil 
+   rough%z0soilsn = max(1.e-7,rough%z0soil)
 
     WHERE( ssnow%snowd .GT. 0.01   )  &
      rough%z0soilsn =  max( 1.e-7, rough%z0soil - rough%z0soil*min(ssnow%snowd,10.)/10.)

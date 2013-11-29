@@ -52,6 +52,7 @@ SUBROUTINE define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy)
    USE cable_radiation_module
    USE cable_air_module
    USE cable_common_module   
+   USE cable_roughness_module
 
    TYPE (balances_type), INTENT(INOUT)  :: bal
    TYPE (radiation_type), INTENT(INOUT) :: rad
@@ -188,6 +189,9 @@ SUBROUTINE define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy)
       ! resistances rt0, rt1 (elements of dispersion matrix):
       ! See CSIRO SCAM, Raupach et al 1997, eq. 3.46:
       CALL comp_friction_vel()
+
+      CALL ruff_resist(veg, rough, ssnow, canopy)
+
       
       ! Turbulent aerodynamic resistance from roughness sublayer depth 
       ! to reference height, x=1 if zref+disp>zruffs, 
@@ -687,7 +691,8 @@ SUBROUTINE Latent_heat_flux()
       
       IF(ssnow%snowd(j) < 0.1 .AND. canopy%fess(j) .GT. 0. ) THEN
 
-         flower_limit(j) = REAL(ssnow%wb(j,1))-soil%swilt(j)/2.0
+         !flower_limit(j) = REAL(ssnow%wb(j,1))-soil%swilt(j)/2.0
+         flower_limit(j) = REAL(ssnow%wb(j,1))-soil%swilt(j)
          fupper_limit(j) = MAX( 0._r_2,                                        &
                            flower_limit(j) * frescale(j)                       &
                            - ssnow%evapfbl(j,1)*air%rlam(j)/dels)

@@ -233,7 +233,7 @@ module cable_data_module
       REAL, POINTER ::                                                         &
          ! physical constants
          CSD, CRD, CCD, CCW_C, USUHM, VONK,                                    &
-         A33, CTL,  ZDLIN, CSW   
+         A33, CTL,  ZDLIN, CSW, GRAV   
    END TYPE irough_type
 
 
@@ -420,6 +420,7 @@ SUBROUTINE rough_type_ptr(C)
          C%A33   => PHYS%A33                                                      
          C%CTL   => PHYS%CTL                                                    
          C%ZDLIN => PHYS%ZDLIN                                                    
+         C%GRAV  => PHYS%GRAV                                                   
 END SUBROUTINE rough_type_ptr 
 
 ! ------------------------------------------------------------------------------
