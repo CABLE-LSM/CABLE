@@ -403,16 +403,19 @@ SUBROUTINE report_version_no( logn )
     
    CALL getenv("HOME", myhome) 
    fcablerev = TRIM(myhome)//TRIM("/.cable_rev")
+   
    OPEN(440,FILE=TRIM(fcablerev),STATUS='old',ACTION='READ',IOSTAT=ioerror)
 
-      IF(ioerror/=0) then 
+      IF(ioerror==0) then 
+         ! get svn revision number (see WRITE comments)
+         READ(440,*) icable_rev
+      ELSE 
+         icable_rev=0 !default initialization
          PRINT *, "We'll keep running but the generated revision number "     
          PRINT *, " in the log & file will be meaningless."     
       ENDIF
       
-      ! get svn revision number (see WRITE comments)
-      READ(440,*) icable_rev
-       
+      
       WRITE(logn,*) ''
       WRITE(logn,*) 'Revision nuber: ', icable_rev
       WRITE(logn,*) ''
@@ -425,10 +428,16 @@ SUBROUTINE report_version_no( logn )
       ! (jhan: make this output prettier & not limitted to 200 chars) 
       WRITE(logn,*)'SVN STATUS indicates that you have (at least) the following'
       WRITE(logn,*)'local changes: '
-      READ(440,'(A)',IOSTAT=ioerror) icable_status
-      WRITE(logn,*) TRIM(icable_status)
-      WRITE(logn,*) ''
-   
+      IF(ioerror==0) then 
+         READ(440,'(A)',IOSTAT=ioerror) icable_status
+         WRITE(logn,*) TRIM(icable_status)
+         WRITE(logn,*) ''
+      else   
+         WRITE(logn,*) '.cable_rev file does not exist,' 
+         WRITE(logn,*) 'suggesting you did not build libcable here' 
+         WRITE(logn,*) ''
+      endif 
+
    CLOSE(440)
 
 END SUBROUTINE report_version_no
