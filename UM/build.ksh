@@ -161,6 +161,11 @@ build_build()
    # write file for consumption by Fortran code
    # get SVN revision number 
    CABLE_REV=`svn info | grep Revis |cut -c 11-18`
+   if [[ $CABLE_REV="" ]]; then
+      echo "this is not an svn checkout"
+      CABLE_REV=0
+      echo "setting CABLE revision number to " $CABLE_REV 
+   fi         
    print $CABLE_REV > ~/.cable_rev
    # get SVN status 
    CABLE_STAT=`svn status`
