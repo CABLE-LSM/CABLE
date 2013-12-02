@@ -230,31 +230,32 @@ build_build()
 
    if [[ -f libcable.a ]]; then
       print '\nLibrary build successful. Copying libcable.a to ' $libroot
+      print '\nLibrary build successful. In this case - NOT Copying libcable.a to ' $libroot
    else
       print '\nBuild failed\n'
       exit
    fi
    
-   if [[ -h $libpath ]]; then
-      print "\nThis library already exists in some form. Most likely it is the"
-      print "\tdefault linked library. If you wish to overwrite this library"
-      print "\tthen press Enter to proceeed. Otherwise Control-C to abort. \n"
-      read dummy
-      mv $libpath $libroot/original_link 
-      rm -f $libpath
-   fi
+#   if [[ -h $libpath ]]; then
+#      print "\nThis library already exists in some form. Most likely it is the"
+#      print "\tdefault linked library. If you wish to overwrite this library"
+#      print "\tthen press Enter to proceeed. Otherwise Control-C to abort. \n"
+#      read dummy
+#      mv $libpath $libroot/original_link 
+#      rm -f $libpath
+#   fi
+#   
+##   /bin/cp -p libcable.a $libroot 
    
-   /bin/cp -p libcable.a $libroot 
-   
-   if [[ -f $libpath ]]; then
+#   if [[ -f $libpath ]]; then
       print "\nYour timestamped library should be this one:\n"
-      echo `ls -alt $libpath`
+      echo `ls -alt .tmp/`
       print '\nDONE\n'
       exit
-   else
-      print '\nSomething went wrong!\n'
-      exit
-   fi
+#   else
+#      print '\nSomething went wrong!\n'
+#      exit
+#   fi
 
 }
 
