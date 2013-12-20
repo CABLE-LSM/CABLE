@@ -69,7 +69,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    if ( .NOT. dump_read ) then
    ! Lest 13may13: will require loop when prog resp are init nonzero
    ! need for mk3l ?
-   !IF( cable_runtime%offline .or. cable_runtime%mk3l ) THEN
+   IF( .NOT. cable_runtime%UM ) THEN
       if(ktau == kstart) then
          casamet%tairk  = 0.0
          casamet%tsoil  = 0.0
@@ -86,7 +86,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
          ! casaflux%crmplant(:,leaf) = 0.0
          ! end changes (BP jul2010)
       ENDIF
-   !ENDIF
+   ENDIF
       IF(mod(ktau,ktauday)==1) THEN
          casamet%tairk = met%tk
          casamet%tsoil = ssnow%tgg
