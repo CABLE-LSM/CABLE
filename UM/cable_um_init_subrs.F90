@@ -649,16 +649,16 @@ SUBROUTINE initialize_soilsnow( smvcst, tsoil_tile, sthf_tile, smcl_tile,      &
          ssnow%tggsn(:,J) = PACK(SNOW_TMP3L(:,:,J),um1%l_tile_pts)  
          ssnow%sconds(:,J)= PACK(SNOW_COND(:,:,J),um1%l_tile_pts)  
          
-         WHERE( veg%iveg == 16 .and. ssnow%wb(:,J) < soil%sfc ) ! lakes: remove hard-wired number in future version
-            ssnow%wbtot1 = ssnow%wbtot1 + REAL( ssnow%wb(:,J) ) * 1000.0 *     &
-                           soil%zse(J)
-            ssnow%wb(:,J) = soil%sfc
-            ssnow%wbtot2 = ssnow%wbtot2 + REAL( ssnow%wb(:,J) ) * 1000.0 *     &
-                           soil%zse(J)
-         ENDWHERE
+         !WHERE( veg%iveg == 16 .and. ssnow%wb(:,J) < soil%sfc ) ! lakes: remove hard-wired number in future version
+         !   ssnow%wbtot1 = ssnow%wbtot1 + REAL( ssnow%wb(:,J) ) * 1000.0 *     &
+         !                  soil%zse(J)
+         !   ssnow%wb(:,J) = soil%sfc
+         !   ssnow%wbtot2 = ssnow%wbtot2 + REAL( ssnow%wb(:,J) ) * 1000.0 *     &
+         !                  soil%zse(J)
+         !ENDWHERE
       
       ENDDO 
-      ssnow%wb_lake = MAX( ssnow%wbtot2 - ssnow%wbtot1, 0.)
+      !ssnow%wb_lake = MAX( ssnow%wbtot2 - ssnow%wbtot1, 0.)
        
       DO J=1,um1%sm_levels
          ssnow%tgg(:,J) = PACK(TSOIL_TILE(:,:,J),um1%l_tile_pts)
@@ -723,7 +723,7 @@ SUBROUTINE initialize_soilsnow( smvcst, tsoil_tile, sthf_tile, smcl_tile,      &
             ssnow%wbice(:,J) = max(0.,ssnow%wbice(:,J))
             ! lakes: removed hard-wired number in future version
             !WHERE( veg%iveg == 16 ) ssnow%wb(:,J) = 0.95*soil%ssat
-            WHERE( veg%iveg == 16 ) ssnow%wb(:,J) = soil%sfc
+            !WHERE( veg%iveg == 16 ) ssnow%wb(:,J) = soil%sfc
          ENDDO
          
          DEALLOCATE( fwork )
@@ -768,6 +768,19 @@ SUBROUTINE initialize_soilsnow( smvcst, tsoil_tile, sthf_tile, smcl_tile,      &
          first_call = .FALSE.
 
       ENDIF ! END: if (first_call)       
+
+     DO J=1, msn
+
+         WHERE( veg%iveg == 16 .and. ssnow%wb(:,J) < soil%sfc ) ! lakes: remove hard-wired number in future version
+            ssnow%wbtot1 = ssnow%wbtot1 + REAL( ssnow%wb(:,J) ) * 1000.0 *     &
+                           soil%zse(J)
+            ssnow%wb(:,J) = soil%sfc
+            ssnow%wbtot2 = ssnow%wbtot2 + REAL( ssnow%wb(:,J) ) * 1000.0 *     &
+                           soil%zse(J)
+         ENDWHERE
+
+      ENDDO
+      ssnow%wb_lake = MAX( ssnow%wbtot2 - ssnow%wbtot1, 0.)
 
 END SUBROUTINE initialize_soilsnow
  
