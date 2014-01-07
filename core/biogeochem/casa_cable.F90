@@ -35,7 +35,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
                      spinConv, spinup, ktauday, idoy, dump_read, dump_write )
 
    USE cable_def_types_mod
-   !USE cable_common_module, only: cable_runtime
+   USE cable_common_module, only: cable_runtime
    USE casadimension
    USE casaparm
    USE casavariable
