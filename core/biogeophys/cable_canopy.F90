@@ -555,6 +555,8 @@ SUBROUTINE define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy)
    ! snow may absorb
    canopy%precis = max(0.,canopy%through)
 
+   ! this change of units does not affect next timestep as canopy%through is
+   ! re-calc in surf_wetness_fact routine
    canopy%through = canopy%through / dels   ! change units for stash output
    
    ! Update canopy storage term:
