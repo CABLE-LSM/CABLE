@@ -1,0 +1,260 @@
+ 
+ Revision nuber:            0
+ 
+ This is the latest revision of you workin copy as sourced 
+ by the SVN INFO command at build time. Please note that the
+ accuracy of this number is dependent on how recently you 
+ used SVN UPDATE.
+ SVN STATUS indicates that you have (at least) the following
+ local changes: 
+ .cable_rev file does not exist,
+ suggesting you did not build libcable here
+ 
+ ============================================================
+ Log file for offline CABLE run:
+ 12:21:58 2014/02/10
+ ============================================================
+ Opening met data file: /home/srb001/CABLE-AUX/offline/data/sample_met/Bondville1997_csiro.nc
+ Total number of gridcells:       1
+                              1 of which are land grid cells
+ Number of time steps in run:    17520 =    365.000 days
+ Time step size:    1800.0 seconds
+ Time variable units: seconds since 1997-01-01 00:01:00
+ Run begins:  0.50 hour-of-day,   1 day-of-year, 1997  LOC time
+ Run ends:    0.00 hour-of-day,   1 day-of-year, 1998  LOC time
+ Pressure will be converted from Pa to mb
+ LAI found in met file - time dependent;
+ Found all met variables in met file.
+ -------------------------------------------------------
+ Looking for parameters and initial states....
+  Loading initialisations from default grid.
+  Number of vegetation types =  17      CSIRO
+  Reading grid info from /home/srb001/CABLE-AUX/offline/data/surface_data/gridinfo_CSIRO_1x1.nc
+  And assigning C4 fraction according to veg classification.
+
+ Use spatially-specific soil properties;          360         150
+ When choosing spatially-specific soil properties,
+ snow-free albedo is also overwritten by this data set.
+  CABLE variables allocated with            1  patch(es).
+
+  Could not find restart file /home/srb001/CABLE-AUX/offline/data/Bondville97/out_spinupBondville97/restart_out.nc
+  Pre-loaded default initialisations are used.
+
+  Loaded some parameters from met input file: /home/srb001/CABLE-AUX/offline/data/sample_met/Bondville1997_csiro.nc the rest are default values
+
+ =========================================================
+ CABLE setup details for land point        1 :
+ =========================================================
+ Proportions of each active veg/soil patch:
+ ---------------------------------------------------------
+ patch  1:  100.00% veg type  10                             C4
+                    soil type  2    Medium clay loam/silty clay loam/silt loam
+ ---------------------------------------------------------
+ CABLE parameter values (land point        1 ):
+ ---------------------------------------------------------
+                                reference height (m):     8.0000    8.0000
+  Vegetation parameters: 
+       Veg type for each active (>0% gridcell) patch:           10
+                               Vegetation height (m):       3.0000
+                    Fraction of roots in layer 1 (-):       0.0838
+                    Fraction of roots in layer 2 (-):       0.1888
+                    Fraction of roots in layer 3 (-):       0.3332
+                    Fraction of roots in layer 4 (-):       0.3167
+                    Fraction of roots in layer 5 (-):       0.0764
+                    Fraction of roots in layer 6 (-):       0.0010
+                 Fraction of plants which are C4 (-):       1.0000
+               Maximum canopy water storage (mm/LAI):       0.1000
+     Max pot elec transport rate top leaf (mol/m2/s):   0.1600E-03
+    Max RuBP carboxylation rate top leaf (mol/m^2/s):   0.8000E-04
+          Plant respiration coeff @ 20 C (mol/m^2/s):       1.0000
+    Temperature coef nonleaf plant respiration (1/C):       0.0832
+                               Sheltering factor (-):       2.0000
+                 Chararacteristic legnth of leaf (m):       0.0548
+                            Leaf angle parameter (-):      -0.3000
+     Min temperature for start of photosynthesis (C):     -15.0000
+     Max temperature for start of photosynthesis (C):     -10.0000
+                  Stomatal sensitivity to soil water:       2.0000
+         Modifier for surface albedo in near IR band:       1.0000
+          Plant carbon rate constant pool 1 (1/year):       1.0000
+          Plant carbon rate constant pool 2 (1/year):       0.0300
+          Plant carbon rate constant pool 3 (1/year):       0.1400
+ ---------------------------------------------------------
+  Soil parameters: 
+               Soil type for each active (>0%) patch:            2
+                  Fraction of soil which is sand (-):       0.3700
+                  Fraction of soil which is silt (-):       0.3300
+                  Fraction of soil which is clay (-):       0.3000
+    Volumetric soil moisture at saturation (m^3/m^3):       0.4281
+      Vol. soil moisture at field capacity (m^3/m^3):       0.2935
+       Vol. soil moisture at wilting point (m^3/m^3):       0.1800
+            Soil respiration coeff @ 20C (mol/m^2/s):       1.0000
+                           Suction at saturation (m):      -0.1766
+                               Soil density (kg/m^3):    1544.1230
+               Soil specific heat capacity (kJ/kg/K):     818.0358
+                    Parameter b in Campbell equation:       7.8049
+           Hydraulic conductivity @ saturation (m/s):   0.4301E-05
+           Soil carbon rate constant pool 1 (1/year):       2.0000
+           Soil carbon rate constant pool 2 (1/year):       0.5000
+                           Bare soil albedo, vis (-):       0.0743
+                           Bare soil albedo, nir (-):       0.1485
+ ---------------------------------------------------------
+ CABLE initialisations (land point        1 ):
+ ---------------------------------------------------------
+  Soil-specific initialisations, per patch: --------------
+                              Soil moisture, layer 1:       0.4135
+                              Soil moisture, layer 2:       0.3854
+                              Soil moisture, layer 3:       0.3832
+                              Soil moisture, layer 4:       0.3585
+                              Soil moisture, layer 5:       0.3630
+                              Soil moisture, layer 6:       0.3766
+                           Soil temperature, layer 1:     272.6976
+                           Soil temperature, layer 2:     272.9597
+                           Soil temperature, layer 3:     273.1736
+                           Soil temperature, layer 4:     274.7644
+                           Soil temperature, layer 5:     278.8804
+                           Soil temperature, layer 6:     286.0125
+              Soil carbon pool size (g C/m2), pool 1:     149.0000
+              Soil carbon pool size (g C/m2), pool 2:     300.0000
+                        Volumetric soil ice, layer 1:       0.3308
+                        Volumetric soil ice, layer 2:       0.3083
+                        Volumetric soil ice, layer 3:       0.0000
+                        Volumetric soil ice, layer 4:       0.0000
+                        Volumetric soil ice, layer 5:       0.0000
+                        Volumetric soil ice, layer 6:       0.0000
+                       Turbulent resistance for soil:     100.0000
+  Snow-specific initialisations, per patch: --------------
+             Snow liquid water equivalent depth (mm):      14.0472
+    Snow liq. water equiv. depth previous tstep (mm):       0.0000
+                       Overall snow density (kg/m^3):     120.0000
+                                        Snow age (-):       0.0000
+                       Snow temperature (K), layer 1:     273.1600
+                       Snow temperature (K), layer 2:     273.1600
+                       Snow temperature (K), layer 3:     273.1600
+                      Snow density (kg/m^3), layer 1:     120.0000
+                      Snow density (kg/m^3), layer 2:     120.0000
+                      Snow density (kg/m^3), layer 3:     120.0000
+                         Snow mass (kg/m^2), layer 1:       0.0000
+                         Snow mass (kg/m^2), layer 2:       0.0000
+                         Snow mass (kg/m^2), layer 3:       0.0000
+                              Snow layer scheme flag:            0
+  Vegetation-specific initialisations, per patch: --------
+                   Canopy surface water storage (mm):       0.0000
+                  default monthly Leaf area index: 
+                                                            0.2400
+                                                            0.4200
+                                                            0.3700
+                                                            0.5300
+                                                            0.7000
+                                                            1.1800
+                                                            2.7600
+                                                            2.4400
+                                                            1.4600
+                                                            0.6200
+                                                            0.4000
+                                                            0.3900
+ Check LAI in output for values provided in met file.
+             Plant carbon pool size (g C/m2), pool 1:     150.0000
+             Plant carbon pool size (g C/m2), pool 2:       0.0000
+  Other initialisations, per patch: ----------------------
+                       Soil+snow albedo (-), visible:       0.0743
+                 Soil+snow albedo (-), near infrared:       0.1485
+                       Soil+snow albedo (-), thermal:       0.0000
+                         Runoff total (mm/time step):       0.0000
+                       Surface runoff (mm/time step):       0.0000
+                 Deep drainage runoff (mm/time step):       0.0000
+ =========================================================
+ =========================================================
+
+ =========================================================
+ =========================================================
+
+ Writing SWdown to output file using mask grid
+ Writing LWdown to output file using mask grid
+ Writing Tair to output file using mask grid
+ Writing Rainf to output file using mask grid
+ Writing Snowf to output file using mask grid
+ Writing Qair to output file using mask grid
+ Writing Wind to output file using mask grid
+ Writing PSurf to output file using mask grid
+ Writing CO2air to output file using mask grid
+ Writing Qle to output file using mask grid
+ Writing Qh to output file using mask grid
+ Writing Qg to output file using mask grid
+ Writing Qs to output file using mask grid
+ Writing Qsb to output file using mask grid
+ Writing Evap to output file using mask grid
+ Writing ECanop to output file using mask grid
+ Writing TVeg to output file using mask grid
+ Writing ESoil to output file using mask grid
+ Writing HVeg to output file using mask grid
+ Writing HSoil to output file using mask grid
+ Writing NEE to output file using mask grid
+ Writing SoilMoist to output file using mask grid
+ Writing SoilTemp to output file using mask grid
+ Writing BaresoilT to output file using mask grid
+ Writing SWE to output file using mask grid
+ Writing SnowT to output file using mask grid
+ Writing SnowDepth to output file using mask grid
+ Writing SWnet to output file using mask grid
+ Writing LWnet to output file using mask grid
+ Writing Rnet to output file using mask grid
+ Writing Albedo to output file using mask grid
+ Writing RadT to output file using mask grid
+ Writing VegT to output file using mask grid
+ Writing CanopInt to output file using mask grid
+ Writing LAI to output file using mask grid
+ Writing Ebal to output file using mask grid
+ Writing Wbal to output file using mask grid
+ Writing AutoResp to output file using mask grid
+ Writing LeafResp to output file using mask grid
+ Writing HeteroResp to output file using mask grid
+ Writing GPP to output file using mask grid
+ Writing NPP to output file using mask grid
+ Writing iveg to output file using mask grid
+ Writing isoil to output file using mask grid
+ Writing bch to output file using mask grid
+ Writing clay to output file using mask grid
+ Writing sand to output file using mask grid
+ Writing silt to output file using mask grid
+ Writing ssat to output file using mask grid
+ Writing sfc to output file using mask grid
+ Writing swilt to output file using mask grid
+ Writing hyds to output file using mask grid
+ Writing sucs to output file using mask grid
+ Writing css to output file using mask grid
+ Writing rhosoil to output file using mask grid
+ Writing rs20 to output file using mask grid
+ Writing albsoil to output file using mask grid
+ Writing hc to output file using mask grid
+ Writing canst1 to output file using mask grid
+ Writing dleaf to output file using mask grid
+ Writing frac4 to output file using mask grid
+ Writing ejmax to output file using mask grid
+ Writing vcmax to output file using mask grid
+ Writing rp20 to output file using mask grid
+ Writing rpcoef to output file using mask grid
+ Writing shelrb to output file using mask grid
+ Writing xfang to output file using mask grid
+ Writing wai to output file using mask grid
+ Writing vegcf to output file using mask grid
+ Writing extkn to output file using mask grid
+ Writing tminvj to output file using mask grid
+ Writing tmaxvj to output file using mask grid
+ Writing vbeta to output file using mask grid
+ Writing xalbnir to output file using mask grid
+ Writing meth to output file using mask grid
+ Writing za_uv to output file using mask grid
+ Writing za_tq to output file using mask grid
+ Writing ratecp to output file using mask grid
+ Writing ratecs to output file using mask grid
+ Writing zse to output file using mask grid
+ Writing froot to output file using mask grid
+
+ Cumulative energy balance for each patch in site #      1 is (W/m^2):
+  -2472.92700    
+ Cumulative water balance for each patch in site #      1 is (mm):
+  -1.34902187E-08
+
+
+ Run finished and output file closed.
+  -1.34902187E-08  -2472.92700      -586.593750    
