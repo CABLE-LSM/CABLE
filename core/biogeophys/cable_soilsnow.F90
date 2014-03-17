@@ -223,8 +223,13 @@ SUBROUTINE smoisturev (dels,ssnow,soil,veg)
       DO k = 1, ms-1
       
          ! Calculate amount of liquid soil water:
-         wbl_k = MAX( 0.001_r_2, ssnow%wb(:,k) - ssnow%wbice(:,k) )
-         wbl_kp = MAX( 0.001_r_2, ssnow%wb(:,k+1) - ssnow%wbice(:,k+1) )
+         IF (.not. cable_user%l_new_runoff_speed) THEN
+            wbl_k = MAX( 0.01_r_2, ssnow%wb(:,k) - ssnow%wbice(:,k) )
+            wbl_kp = MAX( 0.01_r_2, ssnow%wb(:,k+1) - ssnow%wbice(:,k+1) )
+         ELSE
+            wbl_k = MAX( 0.001_r_2, ssnow%wb(:,k) - ssnow%wbice(:,k) )
+            wbl_kp = MAX( 0.001_r_2, ssnow%wb(:,k+1) - ssnow%wbice(:,k+1) )
+         ENDIF
          
          ! Calculate difference in liq soil water b/w consecutive layers:
          delt(:,k) = wbl_kp - wbl_k
@@ -259,6 +264,8 @@ SUBROUTINE smoisturev (dels,ssnow,soil,veg)
       ! calculate drainage (this code replaces the code in the surfb)
       k = ms 
 
+      IF (.not. cable_user%l_new_runoff_speed) then
+
       WHERE( ssnow%wb(:,ms) > soil%sfc(:) )
 
          wbl_k = MAX( 0.001_r_2, ssnow%wb(:,ms) - ssnow%wbice(:,ms) )
@@ -272,16 +279,40 @@ SUBROUTINE smoisturev (dels,ssnow,soil,veg)
          hydss = soil%hyds
     
          speed_k = hydss * ( wh / soil%ssat )**( soil%i2bp3 - 1 )
-         !speed_k =  0.5 * speed_k / ( 1. - MIN( 0.5, 10. * ssnow%wbice(:,ms) ) )
-         speed_k =  speed_k / ( 1. - MIN( 0.5, 10. * ssnow%wbice(:,ms) ) )
+         speed_k =  0.5 * speed_k / ( 1. - MIN( 0.5, 10. * ssnow%wbice(:,ms) ) )
          fluxlo = wbl_k
          
          ! scale speed to grid lengths per dt & limit speed for stability
-         !speed_k = MIN( 0.5 * speed_k, 0.5 * soil%zse(ms) / dels )
-         speed_k = MIN( speed_k, 0.5 * soil%zse(ms) / dels )
+         speed_k = MIN( 0.5 * speed_k, 0.5 * soil%zse(ms) / dels )
          fluxh(:,ms) = MAX( 0.0, speed_k * fluxlo )
      
       END WHERE
+
+      ELSE
+
+      WHERE( ssnow%wb(:,ms) > soil%sfc(:) )
+
+         wbl_k = MAX( 0.001_r_2, ssnow%wb(:,ms) - ssnow%wbice(:,ms) )
+         wbl_kp = MAX( 0.001_r_2, soil%ssat(:) - ssnow%wbice(:,ms) )
+
+         wh = MIN( wbl_k, wbl_kp )
+
+         WHERE( ssnow%wbice(:,ms) .GT. 0.05 ) wh = 0.9 * wbl_k + 0.1 * wbl_kp
+
+         ! Calculate hyd conductivity adjusted for ice:
+         hydss = soil%hyds
+
+         speed_k = hydss * ( wh / soil%ssat )**( soil%i2bp3 - 1 )
+         speed_k =  speed_k / ( 1. - MIN( 0.5, 10. * ssnow%wbice(:,ms) ) )
+         fluxlo = wbl_k
+
+         ! scale speed to grid lengths per dt & limit speed for stability
+         speed_k = MIN( speed_k, 0.5 * soil%zse(ms) / dels )
+         fluxh(:,ms) = MAX( 0.0, speed_k * fluxlo )
+
+      END WHERE
+
+      ENDIF
 
       ! update wb by TVD method
       DO k = ms, 1, -1

@@ -190,7 +190,9 @@ SUBROUTINE define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy)
       ! See CSIRO SCAM, Raupach et al 1997, eq. 3.46:
       CALL comp_friction_vel()
 
-      CALL ruff_resist(veg, rough, ssnow, canopy)
+      ! E.Kowalczyk 2014
+      IF (cable_user%l_new_roughness_soil)                                     &
+         CALL ruff_resist(veg, rough, ssnow, canopy)
 
       
       ! Turbulent aerodynamic resistance from roughness sublayer depth 
@@ -693,8 +695,12 @@ SUBROUTINE Latent_heat_flux()
       
       IF(ssnow%snowd(j) < 0.1 .AND. canopy%fess(j) .GT. 0. ) THEN
 
-         !flower_limit(j) = REAL(ssnow%wb(j,1))-soil%swilt(j)/2.0
+        IF (.not.cable_user%l_new_reduce_soilevp) THEN
+         flower_limit(j) = REAL(ssnow%wb(j,1))-soil%swilt(j)/2.0
+        ELSE
+         ! E.Kowalczyk 2014 - reduces the soil evaporation
          flower_limit(j) = REAL(ssnow%wb(j,1))-soil%swilt(j)
+        ENDIF
          fupper_limit(j) = MAX( 0._r_2,                                        &
                            flower_limit(j) * frescale(j)                       &
                            - ssnow%evapfbl(j,1)*air%rlam(j)/dels)
