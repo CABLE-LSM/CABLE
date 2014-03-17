@@ -51,7 +51,7 @@ subroutine cable_implicit_driver( LS_RAIN, CON_RAIN, LS_SNOW, CONV_SNOW,       &
                                   RESP_S_TOT, RESP_S_TILE, RESP_P, RESP_P_FT,  &
                                   G_LEAF, TRANSP_TILE, CPOOL_TILE, NPOOL_TILE, &
                                   PPOOL_TILE, GLAI, PHENPHASE, NPP_FT_ACC,     &
-                                  RESP_W_FT_ACC )
+                                  RESP_W_FT_ACC, idoy )
 
    USE cable_def_types_mod, ONLY : mp
    USE cable_data_module,   ONLY : PHYS
@@ -258,7 +258,6 @@ subroutine cable_implicit_driver( LS_RAIN, CON_RAIN, LS_SNOW, CONV_SNOW,       &
 
       ! Lestevens - temporary ?
       ktauday = int(24.0*3600.0/TIMESTEP)
-      idoy = mod(ktau_gl/ktauday,365)
       IF(idoy==0) idoy =365
   
 ! Lestevens Sept2012 - Call CASA-CNP

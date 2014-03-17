@@ -1,0 +1,7 @@
+offline/cable_checks.F90:   USE cable_radiation_module, ONLY: sinbet
+offline/cable_input.F90:   USE cable_radiation_module,  ONLY: sinbet
+offline/cable_input.F90:!        sinbet
+offline/cable_input.F90:    met%coszen = sinbet(met%doy, rad%latitude, met%hod)
+core/biogeophys/cable_radiation.F90:   PUBLIC init_radiation, radiation, sinbet 
+core/biogeophys/cable_radiation.F90:ELEMENTAL FUNCTION sinbet(doy,xslat,hod) RESULT(z)
+core/biogeophys/cable_radiation.F90:END FUNCTION sinbet
