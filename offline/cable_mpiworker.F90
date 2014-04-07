@@ -1964,9 +1964,6 @@ SUBROUTINE worker_casa_params (comm,casabiome,casapool,casaflux,casamet,&
 
   INTEGER :: rank
 
-  CALL MPI_Bcast (mvtype, 1, MPI_INTEGER, 0, comm, ierr)
-  CALL MPI_Bcast (mstype, 1, MPI_INTEGER, 0, comm, ierr)
-
   CALL MPI_Comm_rank (comm, rank, ierr)
 
   IF (.NOT. ASSOCIATED (casabiome%ivt2)) THEN
