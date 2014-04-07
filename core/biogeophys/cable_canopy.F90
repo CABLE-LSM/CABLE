@@ -551,16 +551,13 @@ SUBROUTINE define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy)
    canopy%spill=max(0.0, canopy%cansto-cansat)
 
    ! Move excess canopy water to throughfall:
+   ! %through is /dels in UM app. (unpacked in hyd driver) for STASH output  
    canopy%through = canopy%through + canopy%spill
    
    ! Initialise 'throughfall to soil' as 'throughfall from canopy'; 
    ! snow may absorb
    canopy%precis = max(0.,canopy%through)
 
-   ! this change of units does not affect next timestep as canopy%through is
-   ! re-calc in surf_wetness_fact routine
-   canopy%through = canopy%through / dels   ! change units for stash output
-   
    ! Update canopy storage term:
    canopy%cansto=canopy%cansto - canopy%spill
    
