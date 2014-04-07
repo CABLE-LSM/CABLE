@@ -192,6 +192,11 @@ SUBROUTINE surface_albedosn(ssnow, veg, met, soil)
    ssnow%albsoilsn(:,2) = 2. * soil%albsoilf / (1. + sfact)
    ssnow%albsoilsn(:,1) = sfact * ssnow%albsoilsn(:,2)
   
+   ! calc soil albedo based on colour - Ticket #27
+   IF (calcsoilalbedo) THEN
+     CALL soilcol_albedo(ssnow, soil)
+   END IF
+
    snrat=0.
    alir =0.
    alv  =0.
@@ -330,5 +335,46 @@ SUBROUTINE calc_rhoch(veg,c1,rhoch)
 
 END SUBROUTINE calc_rhoch 
 
+! -----------------------------------------------------------------------------
+! subr to calc soil albedo based on colour - Ticket #27
+SUBROUTINE soilcol_albedo(ssnow, soil)
+
+   USE cable_def_types_mod, ONLY : soil_snow_type, soil_parameter_type,        &
+                                   r_2, mp, nrb
+   ! Arguments
+   TYPE(soil_snow_type), INTENT(INOUT)      :: ssnow      ! soil+snow variables
+   TYPE(soil_parameter_type), INTENT(INOUT) :: soil       ! soil parameters
+
+   ! Local Variables 
+   INTEGER   :: ib, ic
+   REAL(r_2), DIMENSION(mp)      :: inc
+   REAL(r_2), DIMENSION(mp, nrb) :: albsod,          & ! soil albedo (direct)
+                                    albsoi             ! soil albedo (indirect)
+
+   ! Look-up tables for soil albedo
+   ! saturated soil albedos for 20 color classes and 2 wavebands (1=vis, 2=nir)
+   REAL(r_2), PARAMETER, DIMENSION(20,nrb) ::                                  &
+      albsat = (/ (/ 0.25,0.23,0.21,0.20,0.19,0.18,0.17,0.16,0.15,0.14,0.13,   &
+                     0.12,0.11,0.10,0.09,0.08,0.07,0.06,0.05,0.04 /),          &
+                  (/ 0.50,0.46,0.42,0.40,0.38,0.36,0.34,0.32,0.30,0.28,0.26,   &
+                     0.24,0.22,0.20,0.18,0.16,0.14,0.12,0.10,0.08/),           &
+                  (/ 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,                   &
+                     0., 0., 0., 0., 0., 0., 0., 0., 0., 0. /) /),             &
+   ! dry soil albedos for 20 color classes and 2 wavebands (1=vis, 2=nir)
+      albdry = (/ (/ 0.36,0.34,0.32,0.31,0.30,0.29,0.28,0.27,0.26,0.25,0.24,   &
+                     0.23,0.22,0.20,0.18,0.16,0.14,0.12,0.10,0.08 /),          &
+                  (/ 0.61,0.57,0.53,0.51,0.49,0.48,0.45,0.43,0.41,0.39,0.37,   &
+                     0.35,0.33,0.31,0.29,0.27,0.25,0.23,0.21,0.16 /),          &
+                  (/ 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,                   &
+                     0., 0., 0., 0., 0., 0., 0., 0., 0., 0. /) /)
+
+   DO ib = 1,2 ! Number of wavebands (vis, nir)
+      inc = MAX(0.11-0.40*ssnow%wb(:,1), 0.)
+      albsod(:,ib) = MIN(albsat(soil%soilcol,ib)+inc, albdry(soil%soilcol,ib))
+      albsoi(:,ib) = albsod(:,ib)
+   END DO
+   ssnow%albsoilsn = 0.5*(albsod + albsoi)
+
+END SUBROUTINE soilcol_albedo
 
 END MODULE cable_albedo_module

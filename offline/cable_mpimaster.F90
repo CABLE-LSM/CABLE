@@ -142,7 +142,8 @@ SUBROUTINE mpidrv_master (comm)
                                    patch_type,soilparmnew
    USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
                                    cable_runtime, filename, redistrb,          & 
-                                   report_version_no, wiltParam, satuParam
+                                   report_version_no, wiltParam, satuParam,    &
+                                   calcsoilalbedo
    USE cable_data_module,    ONLY: driver_type, point2constants
    USE cable_input_module,   ONLY: open_met_file,load_parameters,              &
                                    get_met_data,close_met_file
@@ -240,8 +241,9 @@ SUBROUTINE mpidrv_master (comm)
    ! switches etc defined thru namelist (by default cable.nml)
    NAMELIST/CABLE/                  &
                   filename,         & ! TYPE, containing input filenames 
-                  vegparmnew,       & ! jhan: use new soil param. method
-                  soilparmnew,      & ! jhan: use new soil param. method
+                  vegparmnew,       & ! use new soil param. method
+                  soilparmnew,      & ! use new soil param. method
+                  calcsoilalbedo,   & ! ! vars intro for Ticket #27 
                   spinup,           & ! spinup model (soil) to steady state 
                   delsoilM,delsoilT,& ! 
                   output,           &
@@ -790,6 +792,8 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
 
   USE cable_def_types_mod
   USE cable_IO_vars_module
+  ! switch soil colour albedo calc - Ticket #27
+  USE cable_common_module,  ONLY: calcsoilalbedo
 
   IMPLICIT NONE
 
@@ -854,6 +858,11 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
   ! MPI: TODO: free landp_t and patch_t types?
 
   ntyp = nparam
+
+  ! vars intro for Ticket #27 
+  IF (calcsoilalbedo) THEN
+    ntyp = nparam + 1
+  END IF
 
   ALLOCATE (param_ts(wnp))
 
@@ -1468,6 +1477,13 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
   bidx = bidx + 1
   CALL MPI_Get_address (soil%zshh, displs(bidx), ierr)
   blen(bidx) = (ms + 1) * extr1
+
+  ! vars intro for Ticket #27  
+  IF (calcsoilalbedo) THEN
+     bidx = bidx + 1
+     CALL MPI_Get_address (soil%soilcol(off), displs(bidx), ierr)
+     blen(bidx) = r1len
+  END IF
 
   ! ----------- canopy --------------
 

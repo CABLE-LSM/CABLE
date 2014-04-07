@@ -120,6 +120,8 @@ MODULE cable_def_types_mod
          swilt,   & ! vol H2O @ wilting
          zse,     & ! thickness of each soil layer (1=top) in m
          zshh,    & ! distance between consecutive layer midpoints (m)
+  		 ! vars intro for Ticket #27
+         soilcol, & ! keep color for all patches/tiles
          albsoilf   ! soil reflectance
      
       REAL(r_2), DIMENSION(:), POINTER ::                                      &
@@ -593,7 +595,8 @@ SUBROUTINE alloc_soil_parameter_type(var, mp)
    allocate( var% cnsd(mp) )  
    allocate( var% albsoil(mp, nrb) )  
    allocate( var% pwb_min(mp) )  
-   allocate( var% albsoilf(mp) )  
+   allocate( var% albsoilf(mp) ) 
+   allocate( var% soilcol(mp) )
 
 END SUBROUTINE alloc_soil_parameter_type
  
@@ -993,7 +996,8 @@ SUBROUTINE dealloc_soil_parameter_type(var)
    DEALLOCATE( var% albsoil )  
    DEALLOCATE( var% cnsd )  
    DEALLOCATE( var% pwb_min)  
-   DEALLOCATE( var% albsoilf )  
+   DEALLOCATE( var% albsoilf )
+   DEALLOCATE( var% soilcol )  
    
 END SUBROUTINE dealloc_soil_parameter_type
  

@@ -90,6 +90,8 @@ MODULE cable_checks_module
            ACond = (/0.0,1.0/),                &
            SoilWet = (/-0.4,1.2/),             &
            Albedo = (/0.0,1.0/),               &
+           visAlbedo = (/0.0,1.0/),            & ! vars intro for Ticket #27
+           nirAlbedo = (/0.0,1.0/),            & ! vars intro for Ticket #27
            VegT = (/213.0,333.0/),             &
            SoilTemp = (/213.0,343.0/),         &
            SoilMoist = (/0.0,2000.0/),         &
