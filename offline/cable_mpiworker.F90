@@ -328,6 +328,11 @@ CONTAINS
    CALL worker_cable_params(comm, met,air,ssnow,veg,bgc,soil,canopy,&
    &                        rough,rad,sum_flux,bal)
 
+   ! MPI: mvtype and mstype send out here instead of inside worker_casa_params
+   !      so that old CABLE carbon module can use them. (BP May 2013)
+   CALL MPI_Bcast (mvtype, 1, MPI_INTEGER, 0, comm, ierr)
+   CALL MPI_Bcast (mstype, 1, MPI_INTEGER, 0, comm, ierr)
+
    ! MPI: casa parameters received only if cnp module is active
    IF (icycle>0) THEN
      ! MPI:
