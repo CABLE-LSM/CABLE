@@ -1115,8 +1115,11 @@ IF(casamet%iveg2(nland)/=icewater) THEN
 !                       *  max(0.0,(costNpup(veg%iveg(nland))-15.0))/(max(0.0,(costNpup(veg%iveg(nland))-15.0)) + 150.0)
 
       fluxptase(nland) =  prodptase(veg%iveg(nland))*deltcasa  &
-                       *  max(0.0,(casapool%Psoil(nland,2)*casaflux%ksoil(nland,2)+casapool%Psoil(nland,3)*casaflux%ksoil(nland,3))) &
-                       *  max(0.0,(costNpup(veg%iveg(nland))-15.0))/(max(0.0,(costNpup(veg%iveg(nland))-15.0)) + 150.0)
+                       *  max(0.0,(casapool%Psoil(nland,2)     &
+                       * casaflux%ksoil(nland,2)+casapool%Psoil(nland,3)&
+                       *casaflux%ksoil(nland,3))) &
+                       * max(0.0,(costNpup(veg%iveg(nland))-15.0)) &
+                       /(max(0.0,(costNpup(veg%iveg(nland))-15.0)) + 150.0)
 
       !fluxptase(nland)  = 0.0
       xdplabsorb(nland) = 1.0+ casaflux%Psorbmax(nland)*casaflux%kmlabp(nland) &
