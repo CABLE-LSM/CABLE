@@ -86,6 +86,7 @@ host_vayu()
 ## raijin.nci.org.au
 host_raij()
 {
+   module load netcdf
    export NCDIR=$NETCDF_ROOT'/lib/Intel'
    export NCMOD=$NETCDF_ROOT'/include/Intel'
    export FC=$F90
