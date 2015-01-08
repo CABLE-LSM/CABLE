@@ -73,6 +73,11 @@ MODULE cable_common_module
          DIAG_SOIL_RESP,   & ! either ON or OFF (jhan:Make Logical) 
          LEAF_RESPIRATION    ! either ON or OFF (jhan:Make Logical) 
 
+      ! Custom soil respiration - see Ticket #42
+      CHARACTER(LEN=10) ::                                                     &
+         SMRF_NAME,   & ! Soil Moist Respiration Function
+         STRF_NAME      ! Soil Temp Respiration Function
+
       LOGICAL ::                                                               &
          INITIALIZE_MAPPING = .FALSE., & ! 
          CONSISTENCY_CHECK = .FALSE.,  & !
@@ -82,9 +87,11 @@ MODULE cable_common_module
          ! L.Stevens - Test Switches
          L_NEW_ROUGHNESS_SOIL  = .FALSE., & !
          L_NEW_RUNOFF_SPEED    = .FALSE., & !
-         L_NEW_REDUCE_SOILEVP  = .FALSE.!
+         L_NEW_REDUCE_SOILEVP  = .FALSE., & !
 
-
+	     ! Switch for customized soil respiration - see Ticket #42
+         SRF = .FALSE.
+         
    END TYPE kbl_user_switches
 
    TYPE(kbl_user_switches), SAVE :: cable_user
