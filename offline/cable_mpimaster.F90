@@ -244,10 +244,11 @@ SUBROUTINE mpidrv_master (comm)
       Ftrunk_sumbal  = ".trunk_sumbal",                                        &
       Fnew_sumbal    = "new_sumbal"
 
-   DOUBLE PRECISION ::                                                         &
+   DOUBLE PRECISION, save ::                                                         &
       trunk_sumbal = 0.0, & !
       new_sumbal = 0.0
 
+   INTEGER :: nkend=0
    INTEGER :: ioerror=0
 
 
@@ -524,6 +525,44 @@ SUBROUTINE mpidrv_master (comm)
                                rad, bal, air, soil, veg, C%SBOLTZ, &
                                C%EMLEAF, C%EMSOIL )
    
+         !---------------------------------------------------------------------!
+         ! Check this run against standard for quasi-bitwise reproducability   !  
+         ! Check triggered by cable_user%consistency_check=.TRUE. in cable.nml !
+         !---------------------------------------------------------------------!
+         IF(cable_user%consistency_check) THEN 
+            new_sumbal = new_sumbal + SUM(canopy%fe) + SUM(canopy%fh)                &
+                          + SUM(ssnow%wb(:,1)) + SUM(ssnow%tgg(:,1))
+           
+            if(ktau==(kend-1)) then 
+               nkend = nkend+1
+               IF( abs(new_sumbal-trunk_sumbal) < 1.e-7) THEN
+         
+                  print *, ""
+                  print *, &
+                  "NB. Offline-papallel runs spinup cycles:", nkend
+                  print *, &
+                  "Internal check shows this version reproduces the trunk sumbal"
+               
+               ELSE
+         
+                  print *, ""
+                  print *, &
+                  "NB. Offline-papallel runs spinup cycles:", nkend
+                  print *, &
+                  "Internal check shows in this version new_sumbal != trunk sumbal"
+                  print *, "The difference is: ", new_sumbal - trunk_sumbal
+                  print *, &
+                  "Writing new_sumbal to the file:", TRIM(Fnew_sumbal)
+                        
+                  OPEN( 12, FILE = Fnew_sumbal )
+                     WRITE( 12, * ) new_sumbal  ! written by previous trunk version
+                  CLOSE(12)
+               
+               ENDIF   
+            ENDIF   
+         ENDIF
+
+
        END DO ! END Do loop over timestep ktau
 
 
@@ -660,38 +699,6 @@ SUBROUTINE mpidrv_master (comm)
                            sum_flux, veg )
 
    WRITE(logn,*) bal%wbal_tot, bal%ebal_tot, bal%ebal_tot_cncheck
-
-   !---------------------------------------------------------------------!
-   ! Check this run against standard for quasi-bitwise reproducability   !  
-   ! Check triggered by cable_user%consistency_check=.TRUE. in cable.nml !
-   !---------------------------------------------------------------------!
-   IF(cable_user%consistency_check) THEN 
-      if(ktau_gl==kend_gl) then 
-         new_sumbal = SUM(canopy%fe) + SUM(canopy%fh)                       &
-                    + SUM(ssnow%wb(:,1)) + SUM(ssnow%tgg(:,1))
-     
-         IF( abs(new_sumbal-trunk_sumbal) < 1.e-7) THEN
-   
-            print *, ""
-            print *, &
-            "Internal check shows this version reproduces the trunk sumbal"
-         
-         ELSE
-   
-            print *, ""
-            print *, &
-            "Internal check shows in this version new_sumbal != trunk sumbal"
-            print *, "The difference is: ", new_sumbal - trunk_sumbal
-            print *, &
-            "Writing new_sumbal to the file:", TRIM(Fnew_sumbal)
-                  
-            OPEN( 12, FILE = Fnew_sumbal )
-               WRITE( 12, * ) new_sumbal  ! written by previous trunk version
-            CLOSE(12)
-         
-         ENDIF   
-      ENDIF   
-   ENDIF
 
    ! Close log file
    CLOSE(logn)
