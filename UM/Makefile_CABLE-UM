@@ -66,7 +66,7 @@ cable_um_tech.o: cable_um_tech.F90 casa_variable.o
 
 cable_um_init.o: cable_um_init.F90 cable_um_init_subrs.o cable_define_types.o casa_um_inout.o
 
-cable_um_init_subrs.o: cable_um_init_subrs.F90 cable_define_types.o cable_data.o cable_um_tech.o cable_common.o
+cable_um_init_subrs.o: cable_um_init_subrs.F90 cable_define_types.o cable_data.o cable_um_tech.o cable_common.o cable_diag.o
 
 cable_explicit_driver.o: cable_explicit_driver.F90 cable_common.o cable_um_tech.o cable_define_types.o cable_um_init.o cable_cbm.o cable_define_types.o cable_data.o cable_diag.o 
 

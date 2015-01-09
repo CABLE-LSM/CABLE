@@ -268,8 +268,8 @@ SUBROUTINE interface_UM_data( row_length, rows, land_pts, ntiles,              &
          
       !jhan: turn this off until implementation finalised
       !--- initialize latitude/longitude & mapping IF required
-      !if ( first_call ) & 
-      !   call initialize_maps(latitude,longitude, tile_index_mp)
+      if ( first_call ) & 
+         call initialize_maps(latitude,longitude, tile_index_mp)
 
 
 

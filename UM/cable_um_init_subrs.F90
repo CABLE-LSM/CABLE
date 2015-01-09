@@ -33,94 +33,105 @@ MODULE cable_um_init_subrs_mod
 
 CONTAINS
 
-!jhan: code under development for future release
-!   subroutine initialize_maps(latitude,longitude, tile_index_mp)
-!      use cable_data_module, only : cable, const 
-!      use cable_um_tech_mod, only : um1
-!      use define_dimensions, only : mp
-!
-!      use cable_diag_module, only : cable_diag 
-!      use cable_common_module, only : ktau_gl, knode_gl, cable_user 
-!         
-!      implicit none
-!      real, intent(in), dimension(um1%row_length,um1%rows) :: &
-!         latitude, longitude
-!      integer, intent(in), dimension(um1%land_pts, um1%ntiles) :: &
-!         tile_index_mp  ! index of tile
-!          
-!      logical, save :: first_call = .true.
-!      
-!      INTEGER :: j
-!
-!      real :: dlon
-!      real, dimension(um1%row_length) :: tlong,acoslong
-!      real, dimension(um1%row_length, um1%rows) :: new_longitude
-!
-!
-!           
-!            allocate( cable%lat(mp), cable%lon(mp), cable%tile(mp), cable%tile_frac(mp) )
-!
-!            !-------------------------------------   
-!            !---make indexes for tile, lat, lon
-!            !-------------------------------------   
-!           
-!            !--- get latitude index corresponding to cable points
-!            call um2cable_rr( (asin(latitude)/const%math%pi180), cable%lat )
-!
-!            !--- get longitude index corresponding to cable points.
-!            !--- this is not so straight forward as UM longitude index 
-!            !--- contains ambiguity. thus define "new_longitude" first
-!            acoslong =  acos( longitude(:,1) ) /const%math%pi180  
-!       
-!            tlong(1) = acoslong(1)
-!            do j=2, um1%row_length
-!               if( acoslong(j) < acoslong(j-1) ) then  
-!                  dlon = acoslong(j) - acoslong(j-1)
-!                  tlong(j) = tlong(j-1) - dlon   
-!               else 
-!                  tlong(j) = acoslong(j)
-!               endif           
-!            enddo
-!            
-!            do j=1, um1%row_length
-!               new_longitude(j,:) = tlong(j)
-!            enddo
-!            
-!            call um2cable_rr( new_longitude, cable%lon )
-!         
-!         
-!            !--- get tile index/fraction  corresponding to cable points
-!            cable%tile = pack(tile_index_mp, um1%l_tile_pts)
-!            cable%tile_frac = pack(um1%tile_frac, um1%l_tile_pts)
-!
-!         !--- write all these maps.  cable_user%initialize_mapping can be 
-!         !--- set in namelist cable.nml
-!         if ( cable_user%initialize_mapping ) then
-!            !write indexes for tile, lat, lon
-!            call cable_diag( 1, 'latitude', um1%rows, 1, ktau_gl,  & 
-!                  knode_gl, 'latitude', ( asin( latitude(1,:) ) /const%math%pi180 ) ) 
-!            
-!            call cable_diag( 1, 'longitude', um1%row_length, 1, ktau_gl,  & 
-!                  knode_gl, 'longitude', ( new_longitude(:,1) ) ) 
-!        
-!            !write indexes for tile, lat, lon
-!            call cable_diag( 1, 'lat_index', mp, 1, ktau_gl,  & 
-!                  knode_gl, 'lat', cable%lat )
-!            call cable_diag( 1, 'lon_index', mp, 1, ktau_gl,  & 
-!                  knode_gl, 'lon', cable%lon )
-!            
-!            !this should be integer-ed. typecast for now
-!            call cable_diag( 1, 'tile_index', mp, 1, ktau_gl,  & 
-!                  knode_gl, 'tile', real(cable%tile) )
-!            
-!            call cable_diag( 1, 'tile_frac', mp, 1, ktau_gl,  & 
-!                  knode_gl, 'tile_frac', cable%tile_frac )
-!            
-!          endif  
-!         
-!      
-!      return
-!   end subroutine initialize_maps
+   subroutine initialize_maps(latitude,longitude, tile_index_mp)
+      use cable_data_module, only : cable
+      use cable_um_tech_mod, only : um1
+      use cable_def_types_mod, only : mp
+
+      use cable_diag_module, only : cable_diag 
+      use cable_common_module, only : ktau_gl, knode_gl, cable_user 
+         
+      implicit none
+      real, intent(in), dimension(um1%row_length,um1%rows) :: &
+         latitude, longitude
+      integer, intent(in), dimension(um1%land_pts, um1%ntiles) :: &
+         tile_index_mp  ! index of tile
+          
+      logical, save :: first_call = .true.
+      
+      INTEGER :: i, j
+
+      real :: dlon
+      real, dimension(um1%row_length) :: tlong,acoslong
+      real, dimension(um1%row_length, um1%rows) :: new_longitude
+
+      integer, save :: iDiag0, iDiag1, iDiag2, iDiag3, iDiag4, iDiag5 
+
+           
+            allocate( cable%lat(mp), cable%lon(mp), cable%tile(mp), cable%tile_frac(mp) )
+
+            !-------------------------------------   
+            !---make indexes for tile, lat, lon
+            !-------------------------------------   
+           
+            !--- get latitude index corresponding to cable points
+            call um2cable_rr( (asin(latitude)/cable%const%math%pi180), cable%lat )
+
+            !--- get longitude index corresponding to cable points.
+            !--- this is not so straight forward as UM longitude index 
+            !--- contains ambiguity. thus define "new_longitude" first
+            acoslong =  acos( longitude(:,1) ) /cable%const%math%pi180  
+       
+            tlong(1) = acoslong(1)
+            do j=2, um1%row_length
+               if( acoslong(j) < acoslong(j-1) ) then  
+                  dlon = acoslong(j) - acoslong(j-1)
+                  tlong(j) = tlong(j-1) - dlon   
+               else 
+                  tlong(j) = acoslong(j)
+               endif           
+            enddo
+            
+            do j=1, um1%row_length
+               new_longitude(j,:) = tlong(j)
+            enddo
+            
+            call um2cable_rr( new_longitude, cable%lon )
+         
+         
+            !--- get tile index/fraction  corresponding to cable points
+            cable%tile = pack(tile_index_mp, um1%l_tile_pts)
+            cable%tile_frac = pack(um1%tile_frac, um1%l_tile_pts)
+
+         !--- write all these maps.  cable_user%initialize_mapping can be 
+         !--- set in namelist cable.nml
+         !if ( cable_user%initialize_mapping ) then
+            !write indexes for tile, lat, lon
+      !do i=1, um1%row_length      
+      !   do j=1, um1%rows     
+      !      !if( latitude(i,j) > 0. ) & 
+      !      !   print *, "jhan: _init_ sin_theta_latitude ", &
+      !      !            asin( latitude(i,j) ) /cable%const%math%pi180
+      !      if( new_longitude(i,j) > 0. ) & 
+      !         print *, "jhan: _init_ longitude ", new_longitude(i,j)
+      !   enddo
+      !enddo
+ 
+            print *, "jhan: _init_ latitude ", shape(latitude), um1%rows
+            call cable_diag( iDiag0, 'latitude', um1%rows, 1, ktau_gl,  & 
+                  knode_gl, 'latitude', ( asin( latitude(1,:) ) /cable%const%math%pi180 ) ) 
+            
+            call cable_diag( iDiag1, 'longitude', um1%row_length, 1, ktau_gl,  & 
+                  knode_gl, 'longitude', ( new_longitude(:,1) ) ) 
+        
+            !write indexes for tile, lat, lon
+            call cable_diag( iDiag2, 'lat_index', mp, 1, ktau_gl,  & 
+                  knode_gl, 'lat', cable%lat )
+            call cable_diag( iDiag3, 'lon_index', mp, 1, ktau_gl,  & 
+                  knode_gl, 'lon', cable%lon )
+            
+            !this should be integer-ed. typecast for now
+            call cable_diag( iDiag4, 'tile_index', mp, 1, ktau_gl,  & 
+                  knode_gl, 'tile', real(cable%tile) )
+            
+            call cable_diag( iDiag5, 'tile_frac', mp, 1, ktau_gl,  & 
+                  knode_gl, 'tile_frac', cable%tile_frac )
+            
+          !endif  
+         
+      
+      return
+   end subroutine initialize_maps
   
   
         

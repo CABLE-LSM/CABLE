@@ -133,8 +133,10 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
       sw_down,          & 
       cos_zenith_angle
    
+   REAL, INTENT(INOUT), DIMENSION(row_length,rows) ::                             &
+      latitude
+   
    REAL, INTENT(IN), DIMENSION(row_length,rows) ::                             &
-      latitude,   &
       longitude,  &
       lw_down,    &
       ls_rain,    &
@@ -324,6 +326,9 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
    !--- internal FLAGS def. specific call of CABLE from UM
    !--- from cable_common_module
    cable_runtime%um_explicit = .TRUE.
+   
+   !--- UM7.3 latitude is not passed correctly. hack 
+   IF(first_cable_call) latitude = sin_theta_latitude
 
    !--- user FLAGS, variables etc def. in cable.nml is read on 
    !--- first time step of each run. these variables are read at 
