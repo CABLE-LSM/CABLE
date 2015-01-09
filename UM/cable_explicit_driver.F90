@@ -286,6 +286,9 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
    !___ 1st call in RUN (!=ktau_gl -see below) 
    LOGICAL, SAVE :: first_cable_call = .TRUE.
  
+   !___ unique unit/file identifiers for cable_diag: arbitrarily 5 here 
+   INTEGER, SAVE :: iDiagZero=0, iDiag1=0, iDiag2=0, iDiag3=0, iDiag4=0
+
 
    ! Vars for standard for quasi-bitwise reproducability b/n runs
    ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
@@ -439,7 +442,7 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
 
    ! dump bitwise reproducible testing data
    IF( cable_user%RUN_DIAG_LEVEL == 'zero')                                    &
-      call cable_diag( 1, "FLUXES", mp, kend_gl, ktau_gl, knode_gl,            &
+      call cable_diag( iDiagZero, "FLUXES", mp, kend_gl, ktau_gl, knode_gl,            &
                           "FLUXES", canopy%fe + canopy%fh )
                 
 
