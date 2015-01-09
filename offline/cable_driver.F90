@@ -375,6 +375,7 @@ PROGRAM cable_offline_driver
   
             IF( ktau == kend ) THEN
                nkend = nkend+1
+
                IF( abs(new_sumbal-trunk_sumbal) < 1.e-7) THEN
 
                   print *, ""
@@ -394,7 +395,7 @@ PROGRAM cable_offline_driver
                   "Writing new_sumbal to the file:", TRIM(Fnew_sumbal)
                         
                   OPEN( 12, FILE = Fnew_sumbal )
-                     WRITE( 12, * ) new_sumbal  ! written by previous trunk version
+                     WRITE( 12, '(F20.7)' ) new_sumbal  ! written by previous trunk version
                   CLOSE(12)
                
                ENDIF   

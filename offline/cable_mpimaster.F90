@@ -530,10 +530,12 @@ SUBROUTINE mpidrv_master (comm)
          ! Check triggered by cable_user%consistency_check=.TRUE. in cable.nml !
          !---------------------------------------------------------------------!
          IF(cable_user%consistency_check) THEN 
+            
             new_sumbal = new_sumbal + SUM(canopy%fe) + SUM(canopy%fh)                &
                           + SUM(ssnow%wb(:,1)) + SUM(ssnow%tgg(:,1))
            
             if(ktau==(kend-1)) then 
+               
                nkend = nkend+1
                IF( abs(new_sumbal-trunk_sumbal) < 1.e-7) THEN
          
@@ -555,13 +557,14 @@ SUBROUTINE mpidrv_master (comm)
                   "Writing new_sumbal to the file:", TRIM(Fnew_sumbal)
                         
                   OPEN( 12, FILE = Fnew_sumbal )
-                     WRITE( 12, * ) new_sumbal  ! written by previous trunk version
+                     WRITE( 12, '(F20.7)' ) new_sumbal  ! written by previous trunk version
                   CLOSE(12)
                
                ENDIF   
+            
             ENDIF   
+        
          ENDIF
-
 
        END DO ! END Do loop over timestep ktau
 

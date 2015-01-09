@@ -382,19 +382,19 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
    CALL cbm( timestep, air, bgc, canopy, met, bal,                             &
              rad, rough, soil, ssnow, sum_flux, veg )
 
-
-
    !---------------------------------------------------------------------!
    ! Check this run against standard for quasi-bitwise reproducability   !  
    ! Check triggered by cable_user%consistency_check=.TRUE. in cable.nml !
    !---------------------------------------------------------------------!
    IF(cable_user%consistency_check) THEN 
          
-      new_sumbal = new_sumbal + ( SUM(canopy%fe) + SUM(canopy%fh)              &
+      IF( knode_gl==1 ) &
+         new_sumbal = new_sumbal + ( SUM(canopy%fe) + SUM(canopy%fh)           &
                     + SUM(ssnow%wb(:,1)) + SUM(ssnow%tgg(:,1)) )
      
-      if(knode_gl==1 .and. ktau_gl==kend_gl) then 
-         IF( abs(new_sumbal-trunk_sumbal) < 1.e-7) THEN
+      IF( knode_gl==1 .and. ktau_gl==kend_gl ) then 
+         
+         IF( abs(new_sumbal-trunk_sumbal) < 1.e-7 ) THEN
    
             print *, ""
             print *, &
@@ -410,11 +410,13 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
             "Writing new_sumbal to the file:", TRIM(Fnew_sumbal)
                   
             OPEN( 12, FILE = Fnew_sumbal )
-               WRITE( 12, * ) new_sumbal  ! written by previous trunk version
+               WRITE( 12, '(F20.7)' ) new_sumbal  ! written by previous trunk version
             CLOSE(12)
          
          ENDIF   
+      
       ENDIF   
+   
    ENDIF
 
 
