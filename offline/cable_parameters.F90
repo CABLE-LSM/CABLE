@@ -1053,10 +1053,22 @@ CONTAINS
           veg%rs20(h)     = vegin%rs20(veg%iveg(h))
           veg%shelrb(h)   = vegin%shelrb(veg%iveg(h))
           veg%wai(h)      = vegin%wai(veg%iveg(h))
+          veg%a1gs(h)     = vegin%a1gs(veg%iveg(h))
+          veg%d0gs(h)     = vegin%d0gs(veg%iveg(h))
           veg%vegcf(h)    = vegin%vegcf(veg%iveg(h))
           veg%extkn(h)    = vegin%extkn(veg%iveg(h))
           veg%tminvj(h)   = vegin%tminvj(veg%iveg(h))
           veg%tmaxvj(h)   = vegin%tmaxvj(veg%iveg(h))
+          veg%a1gs(h)   = vegin%a1gs(veg%iveg(h))
+          veg%d0gs(h)   = vegin%d0gs(veg%iveg(h))
+          veg%alpha(h)  = vegin%alpha(veg%iveg(h))
+          veg%convex(h) = vegin%convex(veg%iveg(h))
+          veg%cfrd(h)   = vegin%cfrd(veg%iveg(h))
+          veg%gswmin(h) = vegin%gswmin(veg%iveg(h))
+          veg%conkc0(h) = vegin%conkc0(veg%iveg(h))
+          veg%conko0(h) = vegin%conko0(veg%iveg(h))
+          veg%ekc(h)    = vegin%ekc(veg%iveg(h))
+          veg%eko(h)    = vegin%eko(veg%iveg(h))
           bgc%cplant(h,:) = vegin%cplant(:, veg%iveg(h))
           bgc%csoil(h,:)  = vegin%csoil(:, veg%iveg(h))
           bgc%ratecp(:)   = vegin%ratecp(:, veg%iveg(h))
@@ -1107,7 +1119,9 @@ CONTAINS
                vegin%wai, vegin%vegcf, vegin%extkn, vegin%tminvj,              &
                vegin%tmaxvj, vegin%vbeta, vegin%rootbeta, vegin%froot,         &
                vegin%cplant, vegin%csoil, vegin%ratecp, vegin%ratecs,          &
-               vegin%xalbnir, vegin%length, vegin%width )
+               vegin%xalbnir, vegin%length, vegin%width,                       &
+               vegin%a1gs, vegin%d0gs, vegin%alpha, vegin%convex, vegin%cfrd,  &
+               vegin%gswmin, vegin%conkc0,vegin%conko0,vegin%ekc,vegin%eko   )
     !         vegf_temp,urbanf_temp,lakef_temp,icef_temp, &
 
     ! if using old format veg_parm input file, need to define veg%deciduous
@@ -1548,6 +1562,12 @@ SUBROUTINE report_parameters(logn, soil, veg, bgc, rough,                    &
                - 1))
          WRITE(logn, patchfmtr) 'Modifier for surface albedo in near IR '//   &
                'band: ', veg%xalbnir(landpt(e)%cstart:(landpt(e)%cstart +     &
+               landpt(e)%nap - 1))
+         WRITE(logn, patchfmtr) 'a1 parameter in leaf stomatal model  ',      &
+               veg%a1gs(landpt(e)%cstart:(landpt(e)%cstart +                  &
+               landpt(e)%nap - 1))
+         WRITE(logn, patchfmtr) 'd0 parameter in leaf stomatal model  ',      &
+               veg%d0gs(landpt(e)%cstart:(landpt(e)%cstart +                  &
                landpt(e)%nap - 1))
          IF (icycle == 0) THEN
            WRITE(logn,'(4X, A50, F12.4)')                                     &

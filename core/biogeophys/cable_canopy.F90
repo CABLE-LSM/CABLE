@@ -1310,9 +1310,8 @@ SUBROUTINE dryLeaf( dels, rad, rough, air, met,                                &
 
    ! weight min stomatal conductance by C3 an C4 plant fractions
    frac42 = SPREAD(veg%frac4, 2, mf) ! frac C4 plants
-
-   gsw_term = C%gsw03 * (1. - frac42) + C%gsw04 * frac42
-   lower_limit2 = rad%scalex * (C%gsw03 * (1. - frac42) + C%gsw04 * frac42)
+   gsw_term = SPREAD(veg%gswmin,2,mf)
+   lower_limit2 = rad%scalex * gsw_term
    gswmin = max(1.e-6,lower_limit2)
          
 
@@ -1421,48 +1420,39 @@ SUBROUTINE dryLeaf( dels, rad, rough, air, met,                                &
             tdiff(i) = tlfx(i) - C%TREFK
             
             ! Michaelis menten constant of Rubisco for CO2:
-            conkct(i) = C%conkc0 * EXP( (C%ekc / ( C%rgas*C%trefk) ) *         &
-                        ( 1.0 - C%trefk/tlfx(i) ) )
+            conkct(i) = veg%conkc0(i) * EXP( ( veg%ekc(i) / (C%rgas*C%trefk) ) &
+                                             * ( 1.0 - C%trefk/tlfx(i) ) )
 
             ! Michaelis menten constant of Rubisco for oxygen:
-            conkot(i) = C%conko0 * EXP( ( C%eko / (C%rgas*C%trefk) ) *         &
-                        ( 1.0 - C%trefk/tlfx(i) ) )
-   
+            conkot(i) = veg%conko0(i) * EXP( ( veg%eko(i) / (C%rgas*C%trefk) ) &
+                                             * ( 1.0 - C%trefk/tlfx(i) ) )
+
             ! Store leaf temperature
             tlfxx(i) = tlfx(i)
    
             ! "d_{3}" in Wang and Leuning, 1998, appendix E:
             cx1(i) = conkct(i) * (1.0+0.21/conkot(i))
-            cx2(i) = 2.0 * C%gam0 * ( 1.0 + C%gam1 * tdiff(i) +                    &
-                     C%gam2 * tdiff(i) * tdiff(i ))
+            cx2(i) = 2.0 * C%gam0 * ( 1.0 + C%gam1 * tdiff(i)                  &
+                                          + C%gam2 * tdiff(i) * tdiff(i) )
     
             ! All equations below in appendix E in Wang and Leuning 1998 are
             ! for calculating anx, csx and gswx for Rubisco limited,
             ! RuBP limited, sink limited
             temp2(i,1) = rad%qcan(i,1,1) * jtomol * (1.0-veg%frac4(i))
             temp2(i,2) = rad%qcan(i,2,1) * jtomol * (1.0-veg%frac4(i))
-            vx3(i,1)  = ej3x(temp2(i,1),ejmxt3(i,1))
-            vx3(i,2)  = ej3x(temp2(i,2),ejmxt3(i,2))
-    
+            vx3(i,1)  = ej3x(temp2(i,1),veg%alpha(i),veg%convex(i),ejmxt3(i,1))
+            vx3(i,2)  = ej3x(temp2(i,2),veg%alpha(i),veg%convex(i),ejmxt3(i,2))
             temp2(i,1) = rad%qcan(i,1,1) * jtomol * veg%frac4(i)
             temp2(i,2) = rad%qcan(i,2,1) * jtomol * veg%frac4(i)
-            vx4(i,1)  = ej4x(temp2(i,1),vcmxt4(i,1))
-            vx4(i,2)  = ej4x(temp2(i,2),vcmxt4(i,2))
+            vx4(i,1)  = ej4x(temp2(i,1),veg%alpha(i),veg%convex(i),vcmxt4(i,1))
+            vx4(i,2)  = ej4x(temp2(i,2),veg%alpha(i),veg%convex(i),vcmxt4(i,2))
     
-            rdx(i,1) = (C%cfrd3*vcmxt3(i,1) + C%cfrd4*vcmxt4(i,1))
-            rdx(i,2) = (C%cfrd3*vcmxt3(i,2) + C%cfrd4*vcmxt4(i,2))
-            
+            rdx(i,1) = (veg%cfrd(i)*vcmxt3(i,1) + veg%cfrd(i)*vcmxt4(i,1))
+            rdx(i,2) = (veg%cfrd(i)*vcmxt3(i,2) + veg%cfrd(i)*vcmxt4(i,2))
             xleuning(i,1) = ( fwsoil(i) / ( csx(i,1) - co2cp3 ) )              &
-                          * ( ( 1.0 - veg%frac4(i) ) * C%A1C3 / ( 1.0 + dsx(i) &
-                          / C%d0c3 ) + veg%frac4(i)    * C%A1C4 / (1.0+dsx(i)/ &
-                          C%d0c4) )
-
-            xleuning(i,2) = ( fwsoil(i) / ( csx(i,2)-co2cp3 ) )                &
-                            * ( (1.0-veg%frac4(i) ) * C%A1C3 / ( 1.0 + dsx(i) /&
-                            C%d0c3 ) + veg%frac4(i)    * C%A1C4 / (1.0+ dsx(i)/&
-                            C%d0c4) )
-    
-         
+                          * ( veg%a1gs(i) / ( 1.0 + dsx(i)/veg%d0gs(i)))
+            xleuning(i,2) = ( fwsoil(i) / ( csx(i,2) - co2cp3 ) )              &
+                          * ( veg%a1gs(i) / ( 1.0 + dsx(i)/veg%d0gs(i)))
          ENDIF
          
       ENDDO !i=1,mp
@@ -1881,30 +1871,33 @@ END SUBROUTINE photosynthesis
 
 ! ------------------------------------------------------------------------------
 
-FUNCTION ej3x(parx,x) RESULT(z)
+FUNCTION ej3x(parx,alpha,convex,x) RESULT(z)
    
    REAL, INTENT(IN)     :: parx
+   REAL, INTENT(IN)     :: alpha
+   REAL, INTENT(IN)     :: convex
    REAL, INTENT(IN)     :: x
    REAL                 :: z
    
    z = MAX(0.0,                                                                &
-       0.25*((C%alpha3*parx+x-sqrt((C%alpha3*parx+x)**2 -                      &
-       4.0*C%convx3*C%alpha3*parx*x)) /(2.0*C%convx3)) )
-
+       0.25*((alpha*parx+x-sqrt((alpha*parx+x)**2 -                      &
+       4.0*convex*alpha*parx*x)) /(2.0*convex)) )
 END FUNCTION ej3x
 
 ! ------------------------------------------------------------------------------
 
-FUNCTION ej4x(parx,x) RESULT(z)
+FUNCTION ej4x(parx,alpha,convex,x) RESULT(z)
    
    REAL, INTENT(IN)     :: parx
+   REAL, INTENT(IN)     :: alpha
+   REAL, INTENT(IN)     :: convex
    REAL, INTENT(IN)     :: x
    REAL                 :: z
  
    z = MAX(0.0,                                                                &
-        (C%alpha4*parx+x-sqrt((C%alpha4*parx+x)**2 -                           &
-        4.0*C%convx4*C%alpha4*parx*x))/(2.0*C%convx4))
- 
+        (alpha*parx+x-sqrt((alpha*parx+x)**2 -                           &
+        4.0*convex*alpha*parx*x))/(2.0*convex))
+
 END FUNCTION ej4x
 
 ! ------------------------------------------------------------------------------

@@ -106,25 +106,9 @@ module cable_data_module
 
    type photosynthetic_constants
       integer:: maxiter=20 ! max # interations for leaf temperature
-      real :: a1c3 = 9.0
-      real :: a1c4 = 4.0
-      real :: alpha3 = 0.200
-      real :: alpha4  = 0.05
-      real :: cfrd3  = 0.015
-      real :: cfrd4  = 0.025
-      real :: conkc0 = 302.e-6  !mol mol^-1
-      real :: conko0 = 256.e-3  !mol mol^-1
-      real :: convx3 = 1.0E-2
-      real :: convx4 = 0.8
-      real :: d0c3 = 1500.0
-      real :: d0c4 = 1500.0
-      real :: ekc = 59430.0  !J mol^-1
-      real :: eko = 36000.0  !J mol^-1
       real :: gam0 = 28.0E-6  !mol mol^-1 @ 20C = 36.9 @ 25C
       real :: gam1 = 0.0509
       real :: gam2 = 0.0010
-      real :: gsw03  = 0.01
-      real :: gsw04  = 0.04
       real :: rgbwc  = 1.32
       real :: rgswc  = 1.57
       real :: tmaxj  = 45.0
@@ -192,10 +176,7 @@ module cable_data_module
          EMLEAF, EMSOIL, SBOLTZ, PRANDT, CAPP,                                 &
          RMH2O, APOL, A33, VONK, ZETA0,                                        &
          ! photosynthetic constants
-         RGSWC, GAM0, GAM1, GAM2,CONKO0, CONKC0,                               &
-         ALPHA3, ALPHA4, D0C3, D0C4, RGBWC,                                    &
-         CONVX3, CONVX4, GSW03, GSW04,                                         &
-         EKC, EKO, TREFK, A1C3, A1C4, CFRD3, CFRD4,                            &
+         RGSWC, GAM0, GAM1, GAM2,RGBWC,TREFK,                                  &
          ! math constants
          PI_C,                                                                 &
          ! other constants
@@ -365,26 +346,9 @@ SUBROUTINE canopy_type_ptr(C)
    C%RGSWC => PHOTO%RGSWC               
    C%GAM0  => PHOTO%GAM0
    C%GAM2  => PHOTO%GAM2
-   C%CONKC0  => PHOTO%CONKC0
-   C%CONKO0  => PHOTO%CONKO0
-   C%ALPHA3  => PHOTO%ALPHA3
-   C%ALPHA4  => PHOTO%ALPHA4
-   C%GSW03 => PHOTO%GSW03
-   C%CONVX4  => PHOTO%CONVX4
-   C%CONVX3  => PHOTO%CONVX3
-   C%D0C3  => PHOTO%D0C3
-   C%D0C4  => PHOTO%D0C4
    C%RGBWC  => PHOTO%RGBWC
-   C%CFRD3  => PHOTO%CFRD3
-   C%GSW04  => PHOTO%GSW04
    C%GAM1  => PHOTO%GAM1
-   C%EKO  => PHOTO%EKO
-   C%EKC  => PHOTO%EKC
    C%TREFK => PHOTO%TREFK
-   C%A1C3 => PHOTO%A1C3
-   C%A1C4  => PHOTO%A1C4
-   C%CFRD4  => PHOTO%CFRD4
-
    ! math constants
    C%PI_C  => MATH%PI_C
    
