@@ -1146,6 +1146,16 @@ SUBROUTINE worker_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
   CALL MPI_Get_address (veg%taul, displs(bidx), ierr)
   blen(bidx) = 2 * r1len
 
+  ! Ticket #56, adding new veg parms
+  bidx = bidx + 1
+  CALL MPI_Get_address (veg%g0, displs(bidx), ierr)
+  blen(bidx) = r1len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (veg%g1, displs(bidx), ierr)
+  blen(bidx) = r1len
+  ! Ticket #56, finish adding new veg parms
+
   ! ----------- bgc --------------
 
   bidx = bidx + 1

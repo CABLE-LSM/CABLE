@@ -247,8 +247,10 @@ MODULE cable_def_types_mod
          gswmin,  & ! minimal stomatal conductance
          conkc0,  &  ! Michaelis-menton constant for caroxylase
          conko0,  &  ! Michaelis-menton constant for oxygenase
-         ekc,     & ! activation energy for caroxylagse
-         eko        ! acvtivation enegery for oxygenase
+         ekc,     &  ! activation energy for caroxylagse
+         eko,     &  ! acvtivation enegery for oxygenase
+         g0,      & ! Belinda's stomatal model intercept, Ticket #56.
+         g1         ! Belinda's stomatal model slope, Ticket #56.   
 
       LOGICAL, DIMENSION(:), POINTER ::                                        &
          deciduous ! flag used for phenology fix
@@ -713,7 +715,9 @@ SUBROUTINE alloc_veg_parameter_type(var, mp)
    !was nrb(=3), but never uses (:,3) in model   
    ALLOCATE( var%refl(mp,2) ) !jhan:swb?
    ALLOCATE( var%taul(mp,2) ) 
-   ALLOCATE( var%vlaimax(mp) ) 
+   ALLOCATE( var%vlaimax(mp) )
+   ALLOCATE( var% g0(mp) )   ! Ticket #56. 
+   ALLOCATE( var% g1(mp) )   ! Ticket #56.
    ALLOCATE( var%a1gs(mp) ) 
    ALLOCATE( var%d0gs(mp) ) 
    ALLOCATE( var%alpha(mp) ) 
@@ -778,7 +782,7 @@ SUBROUTINE alloc_canopy_type(var, mp)
    ALLOCATE( var% epot(mp) )   
    ALLOCATE( var% fnpp(mp) )   
    ALLOCATE( var% fevw_pot(mp) )  
-   ALLOCATE( var% gswx_T(mp) )  
+   ALLOCATE( var% gswx_T(mp) ) 
    ALLOCATE( var% cdtq(mp) )   
    ALLOCATE( var% wetfac_cs(mp) )  
    ALLOCATE( var% fevw(mp) )   
@@ -1122,6 +1126,8 @@ SUBROUTINE dealloc_veg_parameter_type(var)
    DEALLOCATE( var%froot) 
    DEALLOCATE( var%refl )
    DEALLOCATE( var%taul ) 
+   DEALLOCATE( var%g0 ) ! Ticket #56.
+   DEALLOCATE( var%g1 ) ! Ticket #56. 
    DEALLOCATE( var%a1gs ) 
    DEALLOCATE( var%d0gs ) 
    DEALLOCATE( var%alpha ) 
@@ -1185,7 +1191,7 @@ SUBROUTINE dealloc_canopy_type(var)
    DEALLOCATE( var% epot )   
    DEALLOCATE( var% fnpp )   
    DEALLOCATE( var% fevw_pot )  
-   DEALLOCATE( var% gswx_T )  
+   DEALLOCATE( var% gswx_T ) 
    DEALLOCATE( var% cdtq )   
    DEALLOCATE( var% wetfac_cs )  
    DEALLOCATE( var% fevw )   

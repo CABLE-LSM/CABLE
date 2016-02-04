@@ -37,8 +37,8 @@ MODULE cable_mpicommon
   ! MPI: CABLE_r491, after following up with Bernard on the new variables
   !INTEGER, PARAMETER :: nparam = 260
   ! added 23 params when trying to fix the bug in MPI
-  ! INTEGER, PARAMETER :: nparam = 283
-  INTEGER, PARAMETER :: nparam = 293    ! add 10 vairable to veg%
+  ! Ticket #56, we've added 2 extra new params for the Medlyns Stom Cond model
+  INTEGER, PARAMETER :: nparam = 295
 
   ! MPI: extra params sent only if nsoilparmnew is true
   INTEGER, PARAMETER :: nsoilnew = 1
@@ -48,8 +48,6 @@ MODULE cable_mpicommon
   !INTEGER, PARAMETER :: ncasaparam = 68
   !INTEGER, PARAMETER :: ncasaparam = 176
   ! MPI: added casapool fields ratioNCsoilnew, ratioNCsoilmin and ratioNCsoilmax
-!  INTEGER, PARAMETER :: ncasaparam = 179
-!  INTEGER, PARAMETER :: ncasaparam = 183     ! changed ypw to add 4 new variables in casabal%
   INTEGER, PARAMETER :: ncasaparam = 196      ! changed ypw to add 13  new variables in casabiome%
 
   ! MPI: base number of casa_init parameters sent to the workers

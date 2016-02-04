@@ -7,7 +7,7 @@ known_hosts()
 ## raijin.nci.org.au
 host_raij()
 {
-   NCDF_ROOT=/apps/netcdf/3.6.3
+   NCDF_ROOT=/apps/netcdf/4.2.1.1
    export NCDIR=$NCDF_ROOT'/lib/Intel'
    export NCMOD=$NCDF_ROOT'/include/Intel'
    export FC=ifort
