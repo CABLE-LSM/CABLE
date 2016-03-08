@@ -212,7 +212,7 @@ SUBROUTINE initialize_soil( bexp, hcon, satcon, sathh, smvcst, smvcwt,         &
          ! parameter b in Campbell equation 
          CALL um2cable_lp( BEXP, soilin%bch, soil%bch, soil%isoilm)
          
-         ALLOCATE( tempvar(um1%land_pts), tempvar2(mp) )
+         ALLOCATE( tempvar(mstype), tempvar2(mp) )
          tempvar = soilin%sand(9) * 0.3  + soilin%clay(9) *0.25 +              &
                    soilin%silt(9) * 0.265
          
@@ -948,11 +948,11 @@ END SUBROUTINE um2cable_rr
 !--- conditional "mask" l_tile_pts(land_pts,ntiles) which is .true.
 !--- if the land point is/has an active tile
 SUBROUTINE um2cable_lp(umvar, defaultin, cablevar, soiltype, skip )
-   USE cable_def_types_mod, ONLY : mp
+   USE cable_def_types_mod, ONLY : mp, mstype
    USE cable_um_tech_mod,   ONLY :um1
   
    REAL, INTENT(IN), DIMENSION(um1%land_pts) :: umvar
-   REAL, INTENT(IN), DIMENSION(10) :: defaultin    
+   REAL, INTENT(IN), DIMENSION(mstype) :: defaultin    
    REAL, INTENT(INOUT), DIMENSION(mp) :: cablevar
    INTEGER, INTENT(INOUT), DIMENSION(mp) :: soiltype
    REAL, DIMENSION(:,:), ALLOCATABLE:: fvar   
@@ -962,7 +962,7 @@ SUBROUTINE um2cable_lp(umvar, defaultin, cablevar, soiltype, skip )
          
       ALLOCATE( fvar(um1%land_pts,um1%ntiles) )
       fvar = 0.0
-
+      !hardwired 9= mstype 9 = permafrost
       DO N=1,um1%NTILES
          DO K=1,um1%TILE_PTS(N)
             L = um1%TILE_INDEX(K,N)
