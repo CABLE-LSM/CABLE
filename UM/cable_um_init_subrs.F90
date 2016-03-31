@@ -395,32 +395,48 @@ SUBROUTINE init_veg_pars_fr_vegin()
    USE cable_um_tech_mod,   ONLY : veg, soil 
    USE cable_def_types_mod, ONLY : mp
 
-   INTEGER :: k
+   INTEGER :: j, k
 
-      !jhan:UM reads from ancil. & resets thru kblum_veg   
-      veg%canst1  = vegin%canst1(veg%iveg)
-      veg%ejmax   = 2.*vegin%vcmax(veg%iveg)
-      veg%frac4   = vegin%frac4(veg%iveg)
-      veg%tminvj  = vegin%tminvj(veg%iveg)
-      veg%tmaxvj  = vegin%tmaxvj(veg%iveg)
-      veg%vbeta   = vegin%vbeta(veg%iveg)
-      veg%rp20    = vegin%rp20(veg%iveg)
-      veg%rpcoef  = vegin%rpcoef(veg%iveg)
-      veg%shelrb  = vegin%shelrb(veg%iveg)
-      veg%vegcf   = vegin%vegcf(veg%iveg)
-      veg%extkn   = vegin%extkn(veg%iveg)
-      veg%vcmax   = vegin%vcmax(veg%iveg)
-      veg%xfang   = vegin%xfang(veg%iveg)
-      veg%dleaf   = vegin%dleaf(veg%iveg)
-      veg%xalbnir = vegin%xalbnir(veg%iveg)
-      veg%rs20 = vegin%rs20(veg%iveg)
-      ! jtk561
-      veg%g0 = vegin%g0(veg%iveg)
-      veg%g1 = vegin%g1(veg%iveg)
+      do j=1,mp
+         veg%canst1(j)   = vegin%canst1(veg%iveg(j) )
+         veg%ejmax(j)    = 2.*vegin%vcmax(veg%iveg(j) )
+         veg%frac4(j)    = vegin%frac4(veg%iveg(j) )
+         veg%tminvj(j)   = vegin%tminvj(veg%iveg(j) )
+         veg%tmaxvj(j)   = vegin%tmaxvj(veg%iveg(j) )
+         veg%vbeta(j)    = vegin%vbeta(veg%iveg(j) )
+         veg%rp20(j)     = vegin%rp20(veg%iveg(j) )
+         veg%rpcoef(j)   = vegin%rpcoef(veg%iveg(j) )
+         veg%shelrb(j)   = vegin%shelrb(veg%iveg(j) )
+         veg%vegcf(j)    = vegin%vegcf(veg%iveg(j) )
+         veg%extkn(j)    = vegin%extkn(veg%iveg(j) )
+         veg%vcmax(j)    = vegin%vcmax(veg%iveg(j) )
+         veg%xfang(j)    = vegin%xfang(veg%iveg(j) )
+         veg%dleaf(j)    = vegin%dleaf(veg%iveg(j) )
+         veg%xalbnir(j)  = vegin%xalbnir(veg%iveg(j) )
+         veg%rs20(j)     = vegin%rs20(veg%iveg(j) )
+ 
+         ! jtk561
+         veg%g0(j)       = vegin%g0(veg%iveg(j))
+         veg%g1(j)       = vegin%g1(veg%iveg(j))
+   
+         ! Ammendments to Ticket #2
+         veg%a1gs(j)     = vegin%a1gs(veg%iveg(j))
+         veg%d0gs(j)     = vegin%d0gs(veg%iveg(j))
+         veg%convex(j)   = vegin%convex(veg%iveg(j))
+         veg%gswmin(j)   = vegin%gswmin(veg%iveg(j))
+         veg%conkc0(j)   = vegin%conkc0(veg%iveg(j))
+         veg%conko0(j)   = vegin%conko0(veg%iveg(j))
+         veg%ekc(j)      = vegin%ekc(veg%iveg(j))
+         veg%eko(j)      = vegin%eko(veg%iveg(j))
+   
+         veg%cfrd(j)     = vegin%cfrd(veg%iveg(j)) !never used
+         veg%wai(j)      = vegin%wai(veg%iveg(j)) !never used
 
-      do k=1,2
-        veg%refl(:,k)   = vegin%refl(k,veg%iveg)
-        veg%taul(:,k)   = vegin%taul(k,veg%iveg)
+            do k=1,2
+              veg%refl(j,k)   = vegin%refl(k,veg%iveg(j) )
+              veg%taul(j,k)   = vegin%taul(k,veg%iveg(j) )
+            enddo
+
       enddo
 
       !froot fixed here for all vegetation types for ACCESS
