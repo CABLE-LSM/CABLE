@@ -104,10 +104,10 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
                     casamet,casabal,phen)
    
          IF((.NOT.spinup).OR.(spinup.AND.spinConv)) THEN 
-            IF ( dump_write ) &
-               call ncdf_dump( casamet%tairk, casamet%tsoil, casamet%moist, &
-                               casaflux%cgpp, casaflux%crmplant, idoy, &
-                               kend/ktauday )
+            ! IF ( dump_write ) &
+            !    call ncdf_dump( casamet%tairk, casamet%tsoil, casamet%moist, &
+            !                    casaflux%cgpp, casaflux%crmplant, idoy, &
+            !                    kend/ktauday )
          ENDIF
 
       ENDIF
@@ -135,9 +135,9 @@ END SUBROUTINE bgcdriver
 
 !! DOES THIS NEED TO BE DELETED FOR NOW - REPLACED WITH BP CODE (LATER?)
 
-   subroutine ncdf_dump(tairk, tsoil, moist, &
-                        cgpp, crmplant, &
-                        n_call, kend)
+!   subroutine ncdf_dump(tairk, tsoil, moist, &
+!                        cgpp, crmplant, &
+!                        n_call, kend)
 !      use netcdf
 !      use cable_common_module, only : kend_gl
 !      use cable_diag_module, only : def_dims, def_vars, def_var_atts, & 
@@ -230,12 +230,12 @@ END SUBROUTINE bgcdriver
 !      
 !      if (n_call == kend ) & 
 !         ncok = nf90_close(ncid)            ! close: save new netCDF dataset
-     
-   end subroutine ncdf_dump
+!     
+!   end subroutine ncdf_dump
 
 
 !! DOES THIS NEED TO BE DELETED FOR NOW - REPLACED WITH BP CODE (LATER?)
-   subroutine read_casa_dump( casamet, casaflux, ktau, kend )
+!   subroutine read_casa_dump( casamet, casaflux, ktau, kend )
 !      use netcdf
 !      USE casa_cnp_module  
 !      use cable_diag_module, only : get_var_nc, stderr_nc
@@ -273,7 +273,7 @@ END SUBROUTINE bgcdriver
 !      ncok = NF90_CLOSE(ncid)            
 !         if (ncok /= nf90_noerr ) call stderr_nc('closing ', ncfile)      
 !      
-   end subroutine read_casa_dump
+!   end subroutine read_casa_dump
 
 
 
