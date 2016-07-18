@@ -391,53 +391,55 @@ END SUBROUTINE init_respiration
 !========================================================================
 
 SUBROUTINE init_veg_pars_fr_vegin() 
-   USE cable_common_module, ONLY : vegin
+   USE cable_common_module, ONLY : vegin, init_veg_from_vegin
    USE cable_um_tech_mod,   ONLY : veg, soil 
    USE cable_def_types_mod, ONLY : mp
 
    INTEGER :: j, k
 
-      do j=1,mp
-         veg%canst1(j)   = vegin%canst1(veg%iveg(j) )
-         veg%ejmax(j)    = 2.*vegin%vcmax(veg%iveg(j) )
-         veg%frac4(j)    = vegin%frac4(veg%iveg(j) )
-         veg%tminvj(j)   = vegin%tminvj(veg%iveg(j) )
-         veg%tmaxvj(j)   = vegin%tmaxvj(veg%iveg(j) )
-         veg%vbeta(j)    = vegin%vbeta(veg%iveg(j) )
-         veg%rp20(j)     = vegin%rp20(veg%iveg(j) )
-         veg%rpcoef(j)   = vegin%rpcoef(veg%iveg(j) )
-         veg%shelrb(j)   = vegin%shelrb(veg%iveg(j) )
-         veg%vegcf(j)    = vegin%vegcf(veg%iveg(j) )
-         veg%extkn(j)    = vegin%extkn(veg%iveg(j) )
-         veg%vcmax(j)    = vegin%vcmax(veg%iveg(j) )
-         veg%xfang(j)    = vegin%xfang(veg%iveg(j) )
-         veg%dleaf(j)    = vegin%dleaf(veg%iveg(j) )
-         veg%xalbnir(j)  = vegin%xalbnir(veg%iveg(j) )
-         veg%rs20(j)     = vegin%rs20(veg%iveg(j) )
+   CALL init_veg_from_vegin(1, mp, veg) 
+
+      !do j=1,mp
+      !   veg%canst1(j)   = vegin%canst1(veg%iveg(j) )
+      !   veg%ejmax(j)    = 2.*vegin%vcmax(veg%iveg(j) )
+      !   veg%frac4(j)    = vegin%frac4(veg%iveg(j) )
+      !   veg%tminvj(j)   = vegin%tminvj(veg%iveg(j) )
+      !   veg%tmaxvj(j)   = vegin%tmaxvj(veg%iveg(j) )
+      !   veg%vbeta(j)    = vegin%vbeta(veg%iveg(j) )
+      !   veg%rp20(j)     = vegin%rp20(veg%iveg(j) )
+      !   veg%rpcoef(j)   = vegin%rpcoef(veg%iveg(j) )
+      !   veg%shelrb(j)   = vegin%shelrb(veg%iveg(j) )
+      !   veg%vegcf(j)    = vegin%vegcf(veg%iveg(j) )
+      !   veg%extkn(j)    = vegin%extkn(veg%iveg(j) )
+      !   veg%vcmax(j)    = vegin%vcmax(veg%iveg(j) )
+      !   veg%xfang(j)    = vegin%xfang(veg%iveg(j) )
+      !   veg%dleaf(j)    = vegin%dleaf(veg%iveg(j) )
+      !   veg%xalbnir(j)  = vegin%xalbnir(veg%iveg(j) )
+      !   veg%rs20(j)     = vegin%rs20(veg%iveg(j) )
  
-         ! jtk561
-         veg%g0(j)       = vegin%g0(veg%iveg(j))
-         veg%g1(j)       = vegin%g1(veg%iveg(j))
+      !   ! jtk561
+      !   veg%g0(j)       = vegin%g0(veg%iveg(j))
+      !   veg%g1(j)       = vegin%g1(veg%iveg(j))
    
-         ! Ammendments to Ticket #2
-         veg%a1gs(j)     = vegin%a1gs(veg%iveg(j))
-         veg%d0gs(j)     = vegin%d0gs(veg%iveg(j))
-         veg%convex(j)   = vegin%convex(veg%iveg(j))
-         veg%gswmin(j)   = vegin%gswmin(veg%iveg(j))
-         veg%conkc0(j)   = vegin%conkc0(veg%iveg(j))
-         veg%conko0(j)   = vegin%conko0(veg%iveg(j))
-         veg%ekc(j)      = vegin%ekc(veg%iveg(j))
-         veg%eko(j)      = vegin%eko(veg%iveg(j))
+      !   ! Ammendments to Ticket #2
+      !   veg%a1gs(j)     = vegin%a1gs(veg%iveg(j))
+      !   veg%d0gs(j)     = vegin%d0gs(veg%iveg(j))
+      !   veg%convex(j)   = vegin%convex(veg%iveg(j))
+      !   veg%gswmin(j)   = vegin%gswmin(veg%iveg(j))
+      !   veg%conkc0(j)   = vegin%conkc0(veg%iveg(j))
+      !   veg%conko0(j)   = vegin%conko0(veg%iveg(j))
+      !   veg%ekc(j)      = vegin%ekc(veg%iveg(j))
+      !   veg%eko(j)      = vegin%eko(veg%iveg(j))
    
-         veg%cfrd(j)     = vegin%cfrd(veg%iveg(j)) !never used
-         veg%wai(j)      = vegin%wai(veg%iveg(j)) !never used
+      !   veg%cfrd(j)     = vegin%cfrd(veg%iveg(j)) !never used
+      !   veg%wai(j)      = vegin%wai(veg%iveg(j)) !never used
 
-            do k=1,2
-              veg%refl(j,k)   = vegin%refl(k,veg%iveg(j) )
-              veg%taul(j,k)   = vegin%taul(k,veg%iveg(j) )
-            enddo
+      !      do k=1,2
+      !        veg%refl(j,k)   = vegin%refl(k,veg%iveg(j) )
+      !        veg%taul(j,k)   = vegin%taul(k,veg%iveg(j) )
+      !      enddo
 
-      enddo
+      !enddo
 
       !froot fixed here for all vegetation types for ACCESS
       !need more flexibility in next version to read in or parameterise
@@ -448,6 +450,7 @@ SUBROUTINE init_veg_pars_fr_vegin()
       veg%froot(:,5) = 0.20
       veg%froot(:,6) = 0.15
 
+      veg%ejmax    = 2.*veg%vcmax
 END SUBROUTINE init_veg_pars_fr_vegin
 
 !========================================================================
