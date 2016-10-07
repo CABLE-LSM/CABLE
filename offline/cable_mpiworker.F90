@@ -101,9 +101,10 @@ CONTAINS
    USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,                  &
                                    verbose, fixedCO2,output,check,patchout,    &
                                    patch_type,soilparmnew
-   USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
-                                   cable_runtime, filename, calcsoilalbedo,    & 
-                                   redistrb, wiltParam, satuParam
+   USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, kwidth_gl,      &
+                                   cable_user, cable_runtime, filename,        &
+                                   calcsoilalbedo, redistrb, wiltParam,        & 
+                                   satuParam
    USE cable_data_module,    ONLY: driver_type, point2constants
    USE cable_input_module,   ONLY: open_met_file,load_parameters,              &
                                    get_met_data,close_met_file
@@ -370,6 +371,7 @@ CONTAINS
       ! globally (WRT code) accessible kend through USE cable_common_module
       ktau_gl = 0
       kend_gl = kend
+      kwidth_gl = int(dels) 
       knode_gl = 0
       
       ! time step loop over ktau

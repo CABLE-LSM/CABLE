@@ -132,10 +132,10 @@ SUBROUTINE mpidrv_master (comm)
    USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,                  &
                                    verbose, fixedCO2,output,check,patchout,    &
                                    patch_type,soilparmnew
-   USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
-                                   cable_runtime, filename, redistrb,          & 
-                                   report_version_no, wiltParam, satuParam,    &
-                                   calcsoilalbedo
+   USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, kwidth_gl,      &
+                                   cable_user, cable_runtime, filename,        &
+                                   redistrb, report_version_no, wiltParam,     &
+                                   satuParam, calcsoilalbedo
    USE cable_data_module,    ONLY: driver_type, point2constants
    USE cable_input_module,   ONLY: open_met_file,load_parameters,              &
                                    get_met_data,close_met_file
@@ -438,6 +438,7 @@ SUBROUTINE mpidrv_master (comm)
       ! globally (WRT code) accessible kend through USE cable_common_module
       ktau_gl = 0
       kend_gl = kend
+      kwidth_gl = int(dels) 
       knode_gl = 0
 
       ! MPI: separate time step counters for reading and writing
