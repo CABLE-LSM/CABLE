@@ -145,7 +145,9 @@ SUBROUTINE init_radiation( met, rad, veg, canopy )
    END WHERE
    
    WHERE(rad%fbeam(:,1) < C%RAD_THRESH )
-      rad%extkb=30.0         ! keep cexpkbm within real*4 range (BP jul2010)
+      ! higher value precludes sunlit leaves at night. affects
+      ! nighttime evaporation - Ticket #90 
+      rad%extkb=1.0e5 
    END WHERE
    
 END SUBROUTINE init_radiation

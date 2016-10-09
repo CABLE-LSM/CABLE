@@ -359,8 +359,11 @@ SUBROUTINE define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy)
 
       ! Soil sensible heat:
       canopy%fhs = air%rho*C%CAPP*(ssnow%tss - met%tvair) /ssnow%rtsoil
-      !canopy%ga = canopy%fns-canopy%fhs-canopy%fes*ssnow%cls
-      canopy%ga = canopy%fns-canopy%fhs-canopy%fes
+      !! Ticket #90 !! ssnow%cls factor in the line below should be retained: required for energy balance
+      !! note this causes a small difference in cumlative latent heat flux (for comparison with trunk), but correction implemented
+      !! because of importance for energy balance
+      canopy%ga = canopy%fns-canopy%fhs-canopy%fes*ssnow%cls
+      !canopy%ga = canopy%fns-canopy%fhs-canopy%fes
       
       ! Set total latent heat:
       canopy%fe = canopy%fev + canopy%fes
