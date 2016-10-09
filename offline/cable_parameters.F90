@@ -1211,6 +1211,9 @@ CONTAINS
     END IF
     soil%hsbh   = soil%hyds*ABS(soil%sucs) * soil%bch ! difsat*etasat
     soil%ibp2   = NINT(soil%bch) + 2
+    ! Ticket #66
+    where( soil%ssat > 0.) & ! Avoid divide by
+      soil%pwb_min = (soil%swilt/soil%ssat)**soil%ibp2 
     soil%i2bp3  = 2 * NINT(soil%bch) + 3
     rough%hruff = max(0.01, veg%hc - 1.2 * ssnow%snowd/max(ssnow%ssdnn, 100.))
     rough%hruff_grmx = rough%hruff 
