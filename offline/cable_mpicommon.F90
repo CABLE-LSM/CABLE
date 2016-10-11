@@ -28,18 +28,17 @@ MODULE cable_mpicommon
   PUBLIC
 
   ! MPI: base number of input fields sent to workers as start up
-  ! parameters
-  !INTEGER, PARAMETER :: nparam = 68
-  !INTEGER, PARAMETER :: nparam = 219
+  ! parameters !INTEGER, PARAMETER :: nparam = 68
   ! MPI: Bernard commented out two canopy params (potev_c and rwater)
-  ! when porting to CABLE_r491
-  ! INTEGER, PARAMETER :: nparam = 217
+  ! when porting to CABLE_r491 ! nparam = 219 -> nparam = 217
   ! MPI: CABLE_r491, after following up with Bernard on the new variables
   !INTEGER, PARAMETER :: nparam = 260
-  ! added 23 params when trying to fix the bug in MPI
-  ! Ticket #56, we've added 2 extra new params for the Medlyns Stom Cond model
-  INTEGER, PARAMETER :: nparam = 295
-
+  ! added 23 params when trying to fix the bug in MPI ! nparam -> 283
+  ! add 10 vairable to veg% param -> 293
+  ! Ticket #56, add 2 new params for the Medlyns Stom Cond model 293 -> 295
+  !Vanessa Haverd: add 4 new params 295 -> 299
+  ! VH add 9 params for sli 299 -> 308
+  INTEGER, PARAMETER :: nparam = 308   
   ! MPI: extra params sent only if nsoilparmnew is true
   INTEGER, PARAMETER :: nsoilnew = 1
 
@@ -48,8 +47,9 @@ MODULE cable_mpicommon
   !INTEGER, PARAMETER :: ncasaparam = 68
   !INTEGER, PARAMETER :: ncasaparam = 176
   ! MPI: added casapool fields ratioNCsoilnew, ratioNCsoilmin and ratioNCsoilmax
-  INTEGER, PARAMETER :: ncasaparam = 196      ! changed ypw to add 13  new variables in casabiome%
-
+  INTEGER, PARAMETER :: ncasaparam = 210  ! changed lpn added 9 variables 
+!  (casaflux%frac_sapwood/sapwood_area,casabiome,casabiome%ratioNPplantmin,%ratioNPplantmax)
+! casapool%ratioNPplant,%ratioNPlitter,ratioNPsoil
   ! MPI: base number of casa_init parameters sent to the workers
   INTEGER, PARAMETER :: ncinit = 18
 
@@ -61,11 +61,22 @@ MODULE cable_mpicommon
   ! icycle = 3
   INTEGER, PARAMETER :: ncinit3 = 18
 
+  ! MPI: number of casa_dump parameters sent/rec'd to/from the workers every
+  ! timestep
+  INTEGER, PARAMETER :: ncdumprw = 9
+! MPI: number of casa_LUC parameters sent/rec'd to/from the workers every
+  ! year
+  INTEGER, PARAMETER :: nLUCrw = 12
+
+  ! MPI: number of pop parameters sent/rec'd to/from the workers every
+  ! timestep or at start, end. Here, with POP the dimensions are separate!
+  INTEGER, PARAMETER :: npop = 988
+
   ! MPI: number of input fields sent to workers at the start of each
   ! timestep
   !INTEGER, PARAMETER :: ninput = 11
   ! added 4 time fields in met: year, moy, doy, hod
-  INTEGER, PARAMETER :: ninput = 15
+  INTEGER, PARAMETER :: ninput = 16
 
   ! MPI: number of 3D array slices / worker (results)
   INTEGER, PARAMETER :: n3d = 1
@@ -77,7 +88,8 @@ MODULE cable_mpicommon
   ! MPI: gol124: net +1 when Bernard ported to CABLE_r491
   !INTEGER, PARAMETER :: nmat = 29
   ! MPI: CABLE_r491, after following up with Bernard on the new variables
-  INTEGER, PARAMETER :: nmat = 36
+  ! vh sli nmat + 4 36 -> 40
+  INTEGER, PARAMETER :: nmat = 40
 
   ! MPI: number of contig vector parts / worker (results)
   !INTEGER, PARAMETER :: nvec = 149
@@ -91,20 +103,24 @@ MODULE cable_mpicommon
   ! ported to CABLE_r491
   !INTEGER, PARAMETER :: nvec = 137
   ! MPI: CABLE_r491, after following up with Bernard on the new variables
-  INTEGER, PARAMETER :: nvec = 161
+  ! vh sli nvec + 6 162 -> 168
+  INTEGER, PARAMETER :: nvec = 168
 
   ! MPI: number of final casa result matrices and vectors to receive
   ! by the master for casa_poolout and casa_fluxout
-  INTEGER, PARAMETER :: ncasa_mat = 15
+  INTEGER, PARAMETER :: ncasa_mat = 34
 !  INTEGER, PARAMETER :: ncasa_vec = 27
-  INTEGER, PARAMETER :: ncasa_vec = 32    ! changed on 30-jan-2013 for adding four new respiration variable to the output
-
+!  INTEGER, PARAMETER :: ncasa_vec = 32    ! changed on 30-jan-2013 for adding four new respiration variable to the output
+  INTEGER, PARAMETER :: ncasa_vec = 58   ! vh changed on 5-feb-2016 for adding sapwood area and frac_sapwood
   ! MPI: number of fields included in restart_t type for data
   ! that is returned only for creating a restart file at the end of the run
   !INTEGER, PARAMETER :: nrestart = 16
   ! MPI: gol124: canopy%rwater removed when Bernard ported to CABLE_r491
   INTEGER, PARAMETER :: nrestart = 15
-
+  INTEGER, PARAMETER :: nsumcasaflux = 62
+  INTEGER, PARAMETER :: nsumcasapool = 40
+  INTEGER, PARAMETER :: nclimate = 30
+  INTEGER, PARAMETER :: nphen = 9
   ! MPI: type to hold landpoint decomposition info
   TYPE lpdecomp_t
           INTEGER :: landp0      ! starting land point index
@@ -113,6 +129,9 @@ MODULE cable_mpicommon
           INTEGER :: patch0      ! starting patch index in global CABLE vars
           INTEGER :: npatch      ! sum of patches for all landpoints of this
                                  ! worker
+          INTEGER :: npop_iwood  ! number of pop-patches for each worker
+          INTEGER,ALLOCATABLE :: iwood(:)  ! number of pop-patches for each worker
+
   END TYPE
 
   ! MPI: worker's local landpoints and patches
@@ -170,47 +189,63 @@ SUBROUTINE decomp_types (landpt_t, patch_t)
   INTEGER, INTENT(OUT) :: landpt_t, patch_t
 
   ! dummy vars to calculate field offsets
-  TYPE(land_type) :: dlandpt
-  TYPE(patch_type) :: dpatch
+  TYPE(land_type) :: dlandpt(2)
+  TYPE(patch_type) :: dpatch(2)
 
-  INTEGER(KIND=MPI_ADDRESS_KIND) :: base_d
+  INTEGER(KIND=MPI_ADDRESS_KIND) :: base_d, el2, text
 
   INTEGER, PARAMETER :: fields = 5
   INTEGER, DIMENSION(fields) :: blocks, types
   INTEGER(KIND=MPI_ADDRESS_KIND), DIMENSION(fields) :: displs
 
-  INTEGER :: ierr
+  ! temp variable for lower bound parameter when setting extent
+  INTEGER(KIND=MPI_ADDRESS_KIND) :: lb
 
+  INTEGER :: tmp_t, ierr
+
+  lb = 0
   blocks = 1
 
   ! create MPI type to exchange landpt records
   types = MPI_INTEGER
   
-  CALL MPI_Get_address (dlandpt, base_d, ierr)
+  CALL MPI_Get_address (dlandpt(1), base_d, ierr)
 
-  CALL MPI_Get_address (dlandpt%nap, displs(1), ierr)
-  CALL MPI_Get_address (dlandpt%cstart, displs(2), ierr)
-  CALL MPI_Get_address (dlandpt%cend, displs(3), ierr)
-  CALL MPI_Get_address (dlandpt%ilat, displs(4), ierr)
-  CALL MPI_Get_address (dlandpt%ilon, displs(5), ierr)
+  CALL MPI_Get_address (dlandpt(1)%nap, displs(1), ierr)
+  CALL MPI_Get_address (dlandpt(1)%cstart, displs(2), ierr)
+  CALL MPI_Get_address (dlandpt(1)%cend, displs(3), ierr)
+  CALL MPI_Get_address (dlandpt(1)%ilat, displs(4), ierr)
+  CALL MPI_Get_address (dlandpt(1)%ilon, displs(5), ierr)
 
   displs = displs - base_d
 
-  CALL MPI_Type_create_struct (5, blocks, displs, types, landpt_t, ierr)
+  CALL MPI_Type_create_struct (5, blocks, displs, types, tmp_t, ierr)
+  CALL MPI_Type_commit (tmp_t, ierr)
+
+  ! make sure the type has correct extent for use in arrays
+  CALL MPI_Get_Address (dlandpt(2), el2, ierr)
+  text = el2 - base_d
+  CALL MPI_Type_create_resized (tmp_t, lb, text, landpt_t, ierr)
   CALL MPI_Type_commit (landpt_t, ierr)
 
   ! create MPI type to exchange patch records
   types = MPI_REAL
   
-  CALL MPI_Get_address (dpatch, base_d, ierr)
+  CALL MPI_Get_address (dpatch(1), base_d, ierr)
 
-  CALL MPI_Get_address (dpatch%frac, displs(1), ierr)
-  CALL MPI_Get_address (dpatch%latitude, displs(2), ierr)
-  CALL MPI_Get_address (dpatch%longitude, displs(3), ierr)
+  CALL MPI_Get_address (dpatch(1)%frac, displs(1), ierr)
+  CALL MPI_Get_address (dpatch(1)%latitude, displs(2), ierr)
+  CALL MPI_Get_address (dpatch(1)%longitude, displs(3), ierr)
 
   displs = displs - base_d
 
-  CALL MPI_Type_create_struct (3, blocks, displs, types, patch_t, ierr)
+  CALL MPI_Type_create_struct (3, blocks, displs, types, tmp_t, ierr)
+  CALL MPI_Type_commit (tmp_t, ierr)
+
+  ! make sure the type has correct extent for use in arrays
+  CALL MPI_Get_Address (dpatch(2), el2, ierr)
+  text = el2 - base_d
+  CALL MPI_Type_create_resized (tmp_t, lb, text, patch_t, ierr)
   CALL MPI_Type_commit (patch_t, ierr)
 
   RETURN

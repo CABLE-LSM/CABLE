@@ -1,11 +1,11 @@
 !==============================================================================
-! This source code is part of the 
+! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
 ! This work is licensed under the CSIRO Open Source Software License
 ! Agreement (variation of the BSD / MIT License).
-! 
+!
 ! You may not use this file except in compliance with this License.
-! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located 
+! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located
 ! in each directory containing CABLE code.
 !
 ! ==============================================================================
@@ -32,19 +32,19 @@
 !
 MODULE cable_read_module
 
-   
+
    USE cable_abort_module
-   USE cable_def_types_mod, ONLY : ms, ncp, r_2, mland, mp, ncs, nrb, msn   
+   USE cable_def_types_mod, ONLY : ms, ncp, r_2, mland, mp, ncs, nrb, msn
    USE cable_IO_vars_module, ONLY: landpt, exists, land_x, land_y, metGrid
    USE netcdf
-   
+
    IMPLICIT NONE
    PRIVATE
    PUBLIC readpar, redistr_i, redistr_r, redistr_rd, redistr_r2, redistr_r2d
-  
+
   INTEGER :: ok ! netcdf error status
   INTERFACE readpar
-     ! Loads a parameter from the met file - chooses subroutine 
+     ! Loads a parameter from the met file - chooses subroutine
      ! below depending on number/type/dimension of arguments
      MODULE PROCEDURE readpar_i   ! for integer parameter read
      MODULE PROCEDURE readpar_r   ! for real parameter read
@@ -61,7 +61,7 @@ MODULE cable_read_module
   ! END INTERFACE
 
 CONTAINS
- 
+
   SUBROUTINE readpar_i(ncid, parname, completeSet, var_i, filename,            &
                        npatch, dimswitch, from_restart, INpatch)
     ! Subroutine for loading an integer-valued parameter
@@ -91,8 +91,8 @@ CONTAINS
     IF(ok /= NF90_NOERR) THEN ! if it doesn't exist
        completeSet=.FALSE.
        ! If this routine is reading from the restart, abort
-       IF(PRESENT(from_restart)) CALL nc_abort(ok,'Error reading '//parname//  &
-                         ' in file '//TRIM(filename)// '(SUBROUTINE readpar_i)')
+       IF(PRESENT(from_restart))  write(*,*) ' Error reading '//parname//' in file ' &
+                                   //TRIM(filename)//' (SUBROUTINE readpar_i)'
     ELSE
        exists%parameters = .TRUE. ! Note that pars were found in file
        ! Check for grid type - restart file uses land type grid
@@ -115,7 +115,7 @@ CONTAINS
                    IF(ok /= NF90_NOERR) CALL nc_abort                          &
                                    (ok, 'Error reading '//parname//' in file ' &
                                     //TRIM(filename)//' (SUBROUTINE readpar_i)')
-                   ! Write non-patch-specific value to all patches: 
+                   ! Write non-patch-specific value to all patches:
                    var_i(landpt(i)%cstart:landpt(i)%cend) = data1i(1)
                 END DO
              END IF
@@ -335,7 +335,7 @@ CONTAINS
     REAL(4), DIMENSION(:), POINTER :: tmp1r ! temporary for ncdf read in
     REAL(4), DIMENSION(:, :), POINTER :: tmp2r ! temporary for ncdf read in
     REAL(4), DIMENSION(:, :, :), POINTER :: tmp3r ! temporary for ncdf read in
-   
+
     ! Check if parameter exists:
     ok = NF90_INQ_VARID(ncid, parname, parID)
     IF(ok /= NF90_NOERR) THEN ! if it doesn't exist
@@ -355,7 +355,7 @@ CONTAINS
              ok = NF90_INQUIRE_VARIABLE(ncid, parID, ndims=pardims)
              IF(pardims == 1) THEN ! no patch dimension, just a single land
                                    ! dimension
-                IF(PRESENT(from_restart)) THEN 
+                IF(PRESENT(from_restart)) THEN
 !                   IF(dimswitch(1:4) == 'defd') THEN ! ie we're expecting to
                                                       ! read double prec.
 !                      ! Read double precision data:
@@ -444,7 +444,7 @@ CONTAINS
           ELSE
              CALL abort('Prescribed input grid '//metGrid//' unknown.')
           END IF ! gridtype land or mask
-          
+
        ELSE IF(dimswitch(1:2) == 'ms') THEN ! ie par has only soil dimension,
                                             ! no spatial
           ! Load parameter values (e.g. zse):
@@ -510,7 +510,7 @@ CONTAINS
     REAL(KIND=4), DIMENSION(:, :, :, :), POINTER :: tmp4r ! temporary for ncdf
                                                           ! read in
     REAL :: tmpjh
-    
+
     ! Check if parameter exists:
     ok = NF90_INQ_VARID(ncid, parname, parID)
     IF(ok /= NF90_NOERR) THEN ! if it doesn't exist
@@ -654,7 +654,7 @@ CONTAINS
   !=============================================================================
   SUBROUTINE readpar_r2d(ncid, parname, completeSet, var_r2d, filename,        &
                          npatch, dimswitch, from_restart, INpatch)
-    ! Subroutine for loading a double precision two dimensional real-valued 
+    ! Subroutine for loading a double precision two dimensional real-valued
     ! soil dimensioned parameter
     INTEGER, INTENT(IN) :: ncid ! netcdf file ID
     INTEGER, INTENT(IN) :: npatch ! # of veg patches in parameter's file
@@ -685,8 +685,8 @@ CONTAINS
     IF(ok /= NF90_NOERR) THEN ! if it doesn't exist
        completeSet = .FALSE.
        ! If this routine is reading from the restart, abort
-       IF(PRESENT(from_restart)) CALL nc_abort(ok,'Error reading '//parname//  &
-                       ' in file '//TRIM(filename)// '(SUBROUTINE readpar_r2d)')
+       IF(PRESENT(from_restart))  write(*,*) ' Error reading '//parname//' in file ' &
+                                   //TRIM(filename)//' (SUBROUTINE readpar_r2d)'
     ELSE
        exists%parameters = .TRUE. ! Note that pars were found in file
        ! Decide which 2nd dimension of parameter /init state we're loading:
@@ -712,7 +712,7 @@ CONTAINS
           ok = NF90_INQUIRE_VARIABLE(ncid, parID, ndims=pardims)
           IF(pardims == 2) THEN ! no patch dimension, just a land+soil
                                 ! dimensions
-             ! If we really are reading a double precision variable 
+             ! If we really are reading a double precision variable
              ! from the netcdf restart file, dimswitch will show this:
              ! equivalent to using "IF(PRESENT(from_restart)) THEN"
              IF(dimswitch == 'msd' .OR. dimswitch == 'snowd' .OR.              &
@@ -833,7 +833,7 @@ CONTAINS
     INTEGER,     INTENT(OUT) :: out_i(mp)
     CHARACTER(LEN=*), INTENT(IN)  :: parname ! name of parameter
 
-    ! local variables    
+    ! local variables
 !    REAL    :: ave_r
     INTEGER :: ii, jj, npt
 
@@ -864,7 +864,7 @@ CONTAINS
     REAL,        INTENT(OUT) :: out_r(mp)
     CHARACTER(LEN=*), INTENT(IN)  :: parname ! name of parameter
 
-    ! local variables    
+    ! local variables
     REAL    :: ave_r
     INTEGER :: ii, jj, npt
 
@@ -893,7 +893,7 @@ CONTAINS
     REAL(r_2),        INTENT(OUT) :: out_rd(mp)
     CHARACTER(LEN=*), INTENT(IN)  :: parname ! name of parameter
 
-    ! local variables    
+    ! local variables
     REAL(r_2)    :: ave_rd
     INTEGER :: ii, jj, npt
 

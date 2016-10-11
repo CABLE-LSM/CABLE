@@ -59,6 +59,8 @@ MODULE cable_param_module
   USE phenvariable
   USE cable_abort_module
   USE cable_IO_vars_module
+  USE cable_common_module, ONLY: cable_user, hide
+  USE CABLE_LUC_EXPT, ONLY: LUC_EXPT, LUC_EXPT_TYPE, LUC_EXPT_SET_TILES
   IMPLICIT NONE
   PRIVATE
   PUBLIC get_default_params, write_default_params, derived_parameters,         &
@@ -69,7 +71,7 @@ MODULE cable_param_module
 
   CHARACTER(LEN=4)  :: classification
 
-  ! Variables below are temporary - for file read-in: 
+  ! Variables below are temporary - for file read-in:
   INTEGER, DIMENSION(:, :, :),    ALLOCATABLE :: inVeg
   REAL,    DIMENSION(:, :, :),    ALLOCATABLE :: inPFrac
   INTEGER, DIMENSION(:, :),       ALLOCATABLE :: inSoil
@@ -101,12 +103,12 @@ MODULE cable_param_module
   REAL,    DIMENSION(:, :),     ALLOCATABLE :: insilt
   REAL,    DIMENSION(:, :),     ALLOCATABLE :: insand
 
-  ! vars intro for Ticket #27 
+  ! vars intro for Ticket #27
   INTEGER, DIMENSION(:, :),     ALLOCATABLE :: inSoilColor
 
 CONTAINS
 
-  SUBROUTINE get_default_params(logn, vegparmnew)
+  SUBROUTINE get_default_params(logn, vegparmnew, LUC_EXPT)
     use cable_common_module, only : get_type_parameters, filename,             &
                                     calcsoilalbedo
   ! Load parameters for each veg type and each soil type. (get_type_parameters)
@@ -119,6 +121,7 @@ CONTAINS
     IMPLICIT NONE
     INTEGER, INTENT(IN) :: logn     ! log file unit number
     LOGICAL,      INTENT(IN) :: vegparmnew ! new format input file (BP dec2007)
+    TYPE (LUC_EXPT_TYPE), INTENT(INOUT) :: LUC_EXPT
 
     ! local variables
     INTEGER :: npatch
@@ -130,8 +133,15 @@ CONTAINS
 
     WRITE(logn,*) ' Reading grid info from ', TRIM(filename%type)
     WRITE(logn,*) ' And assigning C4 fraction according to veg classification.'
-    WRITE(logn,*) 
+    WRITE(logn,*)
     CALL read_gridinfo(nlon,nlat,npatch)
+   
+! Overwrite veg type and inital patch frac with land-use info 
+    IF (CABLE_USER%POPLUC) then
+       CALL get_land_index(nlon, nlat)
+       CALL LUC_EXPT_SET_TILES(inVeg, inPfrac, LUC_EXPT)
+    ENDIF
+
 
     IF (soilparmnew) THEN
       PRINT *,      'Use spatially-specific soil properties; ', nlon, nlat
@@ -176,7 +186,7 @@ CONTAINS
 
     USE netcdf
     use cable_common_module, only : filename
-      
+
     IMPLICIT NONE
     INTEGER, INTENT(OUT) :: nlon
     INTEGER, INTENT(OUT) :: nlat
@@ -187,7 +197,7 @@ CONTAINS
     INTEGER :: xID, yID, pID, sID, tID, bID
     INTEGER :: varID
     INTEGER :: nslayer, ntime, nband
-    INTEGER :: ii, jj, kk
+    INTEGER :: ii, jj, kk,pp
     INTEGER, DIMENSION(:, :),     ALLOCATABLE :: idummy
     REAL,    DIMENSION(:, :),     ALLOCATABLE :: rdummy
     REAL,    DIMENSION(:, :, :),  ALLOCATABLE :: r3dum, r3dum2
@@ -220,12 +230,19 @@ CONTAINS
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error getting rad dimension.')
 
     ! check dimensions of soil-layers and time
-    IF (nslayer /= ms .OR. ntime /= 12) THEN
-      PRINT *, 'Variable dimensions do not match:'
-      PRINT *, 'nslayer and ms = ', nslayer, ms
-      PRINT *, 'ntime not equal 12 months: ', ntime
-      CALL abort('Variable dimensions do not match (read_gridinfo)')
-    END IF
+     !! vh_js !!
+      IF ( (nslayer /= ms) .OR. (ntime /= 12)) THEN
+         PRINT *, 'Variable dimensions do not match:'
+         PRINT *, 'nslayer and ms = ', nslayer, ms
+         PRINT *, 'ntime not equal 12 months: ', ntime
+         IF (ntime /=12) THEN
+            CALL abort('Variable dimensions do not match (read_gridinfo)')
+         ELSE
+            PRINT*, 'warning: soil layers below nslayer will be initialsed with moisture'
+            PRINT*,    'and temperature of lowest layer in grid_info'
+         ENDIF
+      END IF
+
 
     ALLOCATE( inLon(nlon), inLat(nlat) )
     ALLOCATE( inVeg(nlon, nlat, npatch) )
@@ -255,9 +272,10 @@ CONTAINS
 
     ok = NF90_INQ_VARID(ncid, 'iveg', varID)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error finding variable iveg.')
-    ok = NF90_GET_VAR(ncid, varID, idummy)
+!CLN    ok = NF90_GET_VAR(ncid, varID, idummy)
+    ok = NF90_GET_VAR(ncid, varID, inVeg)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error reading variable iveg.')
-    inVeg(:, :, 1) = idummy(:,:) ! npatch=1 in 1x1 degree input
+!CLN    inVeg(:, :, 1) = idummy(:,:) ! npatch=1 in 1x1 degree input
 
     ok = NF90_INQ_VARID(ncid, 'patchfrac', varID)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
@@ -265,7 +283,7 @@ CONTAINS
     ok = NF90_GET_VAR(ncid, varID, inPFrac)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
                                         'Error reading variable patchfrac.')
-    inPFrac(:, :, 1) = rdummy(:, :)
+!CLN    inPFrac(:, :, 1) = rdummy(:, :)
 
     ok = NF90_INQ_VARID(ncid, 'isoil', varID)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error finding variable isoil.')
@@ -288,8 +306,14 @@ CONTAINS
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error finding variable Albedo.')
     ok = NF90_GET_VAR(ncid, varID, r3dum)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error reading variable Albedo.')
+ !   DO kk = 1, nband
+ !     inALB(:,:,1,kk) = r3dum(:,:,kk)
+ !   ENDDO
+! vh!
     DO kk = 1, nband
-      inALB(:,:,1,kk) = r3dum(:,:,kk)
+       DO pp = 1,npatch
+          inALB(:,:,pp,kk) = r3dum(:,:,kk)
+       ENDDO
     ENDDO
 
     ok = NF90_INQ_VARID(ncid, 'SnowDepth', varID)
@@ -298,8 +322,14 @@ CONTAINS
     ok = NF90_GET_VAR(ncid,varID,r3dum2)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
                                         'Error reading variable SnowDepth.')
+   ! DO kk = 1, ntime
+   !   inSND(:, :, 1, kk) = r3dum2(:, :, kk)
+   ! ENDDO
+
     DO kk = 1, ntime
-      inSND(:, :, 1, kk) = r3dum2(:, :, kk)
+       DO pp = 1,npatch
+          inSND(:, :, pp, kk) = r3dum2(:, :, kk)
+       ENDDO
     ENDDO
 
     ok = NF90_INQ_VARID(ncid, 'LAI', varID)
@@ -383,7 +413,7 @@ CONTAINS
 
     USE netcdf
     use cable_common_module, only : filename
-      
+
     IMPLICIT NONE
     INTEGER, INTENT(IN) :: nlon
     INTEGER, INTENT(IN) :: nlat
@@ -481,7 +511,7 @@ CONTAINS
     ok = NF90_GET_VAR(ncid, fieldID, in2alb)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error reading variable UM albedo')
 
-! Use this code if need to process original UM file soil fields into CABLE 
+! Use this code if need to process original UM file soil fields into CABLE
 ! offline format
 !    ! 1
 !    ok = NF90_INQ_VARID(ncid,'field329',fieldID)
@@ -620,7 +650,7 @@ CONTAINS
     ! TYPE (soil_parameter_type), INTENT(OUT) :: soil
     INTEGER, INTENT(IN) ::  logn ! log file unit number
 
-    ! local variables  
+    ! local variables
     ! INTEGER, DIMENSION(:, :),     ALLOCATABLE :: inSoilColor
     INTEGER :: ncid, ok
     INTEGER :: nlon
@@ -658,7 +688,7 @@ CONTAINS
     IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
                                         'Error reading variable longitude.')
 
-    DO r = 1, nlon 
+    DO r = 1, nlon
       IF ( inLonSoilCol(r) /= inLon(r) ) CALL nc_abort(ok,                     &
                                                'Wrong resolution in longitude.')
     END DO
@@ -702,6 +732,72 @@ CONTAINS
 
   END SUBROUTINE NSflip
   !=============================================================================
+ SUBROUTINE get_land_index(nlon, nlat)
+  !
+  ! fill the index variable 'landpt%ilat, landpt%ilon'
+  !
+  ! Input variables:
+  !   nlon           - # longitudes in input data set
+  !   nlat           - # latitudes  in input data set
+  !   npatch         - # patches in each grid from input data set
+  !   inLon          - via cable_param_module
+  !   inLat          - via cable_param_module
+  !   longitude      - via cable_IO_vars_module, dim(mland), not patches
+  !   latitude       - via cable_IO_vars_module, dim(mland), not patches
+  !   nmetpatches    - via cable_IO_vars_module
+  !   vegtype_metfile - via cable_IO_vars_module, dim(mland,nmetpatches)
+  !   soiltype_metfile- via cable_IO_vars_module, dim(mland,nmetpatches)
+  ! Output variables:
+  !   max_vegpatches - via cable_IO_vars_module
+  !   landpt%type    - via cable_IO_vars_module (%nap,cstart,cend,ilon,ilat)
+
+    IMPLICIT NONE
+    INTEGER, INTENT(IN) :: nlon, nlat
+
+    ! local variables
+    REAL :: lon2, distance, newLength
+    INTEGER :: ii, jj, kk, tt, ncount
+
+    ! range of longitudes from input file (inLon) should be -180 to 180,
+    ! and longitude(:) has already been converted to -180 to 180 for CABLE.
+    landpt(:)%ilon = -999
+    landpt(:)%ilat = -999
+    ncount = 0
+    DO kk = 1, mland
+       distance = 3.0 ! initialise, units are degrees
+       DO jj = 1, nlat
+          DO ii = 1, nlon
+             IF (inVeg(ii,jj, 1) > 0) THEN
+                newLength = SQRT((inLon(ii) - longitude(kk))**2                      &
+                     + (inLat(jj) -  latitude(kk))**2)
+                IF (newLength < distance) THEN
+                   distance = newLength
+                   landpt(kk)%ilon = ii
+                   landpt(kk)%ilat = jj
+                END IF
+             END IF
+          END DO
+       END DO
+       IF (landpt(kk)%ilon < -900 .OR. landpt(kk)%ilat < -900) THEN
+          PRINT *, 'Land point ', kk, ' cannot find the nearest grid!'
+          PRINT *, 'lon, lat = ', longitude(kk), latitude(kk)
+          PRINT *, 'inLon range:', MINVAL(inLon), MAXVAL(inLon)
+          PRINT *, 'inLat range:', MINVAL(inLat), MAXVAL(inLat)
+          STOP
+       END IF
+       
+    END DO
+
+
+  END SUBROUTINE get_land_index
+
+
+ !=============================================================================
+
+
+
+
+
   SUBROUTINE countPatch(nlon, nlat, npatch)
   ! count the total number of active patches and
   ! fill the index variable 'landpt'
@@ -734,65 +830,84 @@ CONTAINS
     landpt(:)%ilat = -999
     ncount = 0
     DO kk = 1, mland
-      distance = 3.0 ! initialise, units are degrees
-      DO jj = 1, nlat
-      DO ii = 1, nlon
-        IF (inVeg(ii,jj, 1) > 0) THEN
-          newLength = SQRT((inLon(ii) - longitude(kk))**2                      &
-                           + (inLat(jj) -  latitude(kk))**2)
-          IF (newLength < distance) THEN
-            distance = newLength
-            landpt(kk)%ilon = ii
-            landpt(kk)%ilat = jj
-          END IF
-        END IF
-      END DO
-      END DO
-      IF (landpt(kk)%ilon < -900 .OR. landpt(kk)%ilat < -900) THEN
-        PRINT *, 'Land point ', kk, ' cannot find the nearest grid!'
-        PRINT *, 'lon, lat = ', longitude(kk), latitude(kk)
-        PRINT *, 'inLon range:', MINVAL(inLon), MAXVAL(inLon)
-        PRINT *, 'inLat range:', MINVAL(inLat), MAXVAL(inLat)
-        STOP
-      END IF
-
-      landpt(kk)%nap = 0
-      landpt(kk)%cstart = ncount + 1
-      IF (ASSOCIATED(vegtype_metfile)) THEN
-        DO tt = 1, nmetpatches
-          IF (vegtype_metfile(kk,tt) > 0) ncount = ncount + 1
-          landpt(kk)%nap = landpt(kk)%nap + 1
-        END DO
-        landpt(kk)%cend = ncount
-        IF (landpt(kk)%cend < landpt(kk)%cstart) THEN
-          PRINT *, 'Land point ', kk, ' does not have veg type!'
-          PRINT *, 'landpt%cstart, cend = ', landpt(kk)%cstart, landpt(kk)%cend
-          PRINT *, 'vegtype_metfile = ', vegtype_metfile(kk,:)
+       distance = 3.0 ! initialise, units are degrees
+       DO jj = 1, nlat
+          DO ii = 1, nlon
+             IF (inVeg(ii,jj, 1) > 0) THEN
+                newLength = SQRT((inLon(ii) - longitude(kk))**2                      &
+                     + (inLat(jj) -  latitude(kk))**2)
+                IF (newLength < distance) THEN
+                   distance = newLength
+                   landpt(kk)%ilon = ii
+                   landpt(kk)%ilat = jj
+                END IF
+             END IF
+          END DO
+       END DO
+       IF (landpt(kk)%ilon < -900 .OR. landpt(kk)%ilat < -900) THEN
+          PRINT *, 'Land point ', kk, ' cannot find the nearest grid!'
+          PRINT *, 'lon, lat = ', longitude(kk), latitude(kk)
+          PRINT *, 'inLon range:', MINVAL(inLon), MAXVAL(inLon)
+          PRINT *, 'inLat range:', MINVAL(inLat), MAXVAL(inLat)
           STOP
+       END IF
+       
+       landpt(kk)%nap = 0
+       landpt(kk)%cstart = ncount + 1
+       IF (ASSOCIATED(vegtype_metfile)) THEN
+          DO tt = 1, nmetpatches
+             IF (vegtype_metfile(kk,tt) > 0) ncount = ncount + 1
+             landpt(kk)%nap = landpt(kk)%nap + 1
+          END DO
+          landpt(kk)%cend = ncount
+          IF (landpt(kk)%cend < landpt(kk)%cstart) THEN
+             PRINT *, 'Land point ', kk, ' does not have veg type!'
+             PRINT *, 'landpt%cstart, cend = ', landpt(kk)%cstart, landpt(kk)%cend
+             PRINT *, 'vegtype_metfile = ', vegtype_metfile(kk,:)
+             STOP
+          END IF
+          ! CLN added for npatches
+       ELSE IF ( npatch .GT. 1 ) THEN
+          landpt(kk)%nap = 0
+          DO tt = 1, npatch
+
+             IF (inVeg(landpt(kk)%ilon,landpt(kk)%ilat,tt) > 0) THEN
+                landpt(kk)%nap = landpt(kk)%nap + 1
+             ENDIF
+          END DO
+          ncount = ncount + landpt(kk)%nap
+          landpt(kk)%cend = ncount
+          IF (landpt(kk)%cend < landpt(kk)%cstart) THEN
+             PRINT *, 'Land point ', kk, ' does not have veg type!'
+             PRINT *, 'landpt%cstart, cend = ', landpt(kk)%cstart, landpt(kk)%cend
+             PRINT *, 'vegtype_metfile = ', vegtype_metfile(kk,:)
+             STOP
         END IF
-      ELSE
+     ELSE
         ! assume nmetpatches to be 1
         IF (nmetpatches == 1) THEN
-          ncount = ncount + 1
-          landpt(kk)%nap = 1
-          landpt(kk)%cend = ncount
+           ncount = ncount + 1
+           landpt(kk)%nap = 1
+           landpt(kk)%cend = ncount
         ELSE
           PRINT *, 'nmetpatches = ', nmetpatches, '. Should be 1.'
           PRINT *, 'If soil patches exist, add new code.'
           STOP
         END IF
-      END IF
-    END DO
-    IF (ncount > mland * nmetpatches) THEN
-      PRINT *, ncount, ' should not be greater than mland*nmetpatches.'
-      PRINT *, 'mland, nmetpatches = ', mland, nmetpatches
-      STOP
-    END IF
-    DEALLOCATE(inLon, inLat)
-
+     END IF
+  END DO
+  ! CLN IF (ncount > mland * nmetpatches) THEN
+  IF (ncount > mland * nmetpatches .AND. npatch == 1) THEN
+     PRINT *, ncount, ' should not be greater than mland*nmetpatches.'
+     PRINT *, 'mland, nmetpatches = ', mland, nmetpatches
+     STOP
+  END IF
+  DEALLOCATE(inLon, inLat)
+  
     ! Set the maximum number of active patches to that read from met file:
-    max_vegpatches = MAXVAL(landpt(:)%nap)
-    IF (max_vegpatches /= nmetpatches) THEN
+  max_vegpatches = MAXVAL(landpt(:)%nap)
+  !CLN    IF (max_vegpatches /= nmetpatches) THEN
+    IF (max_vegpatches /= nmetpatches .and. npatch == 1) THEN
       PRINT *, 'Error! Met file claiming to have more active patches than'
       PRINT *, 'it really has. Check met file.'
       STOP
@@ -832,7 +947,7 @@ CONTAINS
   !   landpt(mp)%type- via cable_IO_vars_module (%nap,cstart,cend,ilon,ilat)
   !   patch(mp)%type - via cable_IO_vars_module (%frac,longitude,latitude)
 
-    USE cable_common_module, only : vegin, soilin, calcsoilalbedo, init_veg_from_vegin
+    USE cable_common_module, only : vegin, soilin, calcsoilalbedo
     IMPLICIT NONE
     INTEGER,               INTENT(IN)    :: logn  ! log file unit number
     INTEGER,               INTENT(IN)    :: month ! month of year
@@ -844,11 +959,12 @@ CONTAINS
     TYPE (veg_parameter_type),  INTENT(INOUT) :: veg
     TYPE (bgc_pool_type),       INTENT(INOUT) :: bgc
     TYPE (soil_parameter_type), INTENT(INOUT) :: soil
-    TYPE (canopy_type),         INTENT(OUT)   :: canopy
-    TYPE (roughness_type),      INTENT(OUT)   :: rough
-    TYPE (radiation_type),      INTENT(OUT)   :: rad
+    TYPE (canopy_type),         INTENT(INOUT)   :: canopy
+    TYPE (roughness_type),      INTENT(INOUT)   :: rough
+    TYPE (radiation_type),      INTENT(INOUT)   :: rad
 
-    INTEGER :: e,f,h  ! do loop counter
+    INTEGER,dimension(:), ALLOCATABLE :: ALLVEG
+    INTEGER :: e,f,h,i  ! do loop counter
     INTEGER :: is     ! YP oct07
     INTEGER :: ir     ! BP sep2010
     REAL :: totdepth  ! YP oct07
@@ -876,7 +992,8 @@ CONTAINS
     ssnow%osnowd = 0.0   ! snow depth prev timestep (mm or kg/m2)
     ssnow%sdepth = 0.0   ! snow depth for each snow layer (BP jul2010)
     ssnow%snage  = 0.0   ! snow age
-    ssnow%wbice  = 0.0   ! soil ice 
+    ssnow%wbice  = 0.0   ! soil ice
+    ssnow%thetai = 0.0   ! soil ice
     ssnow%smass  = 0.0   ! snow mass per layer (kg/m^2)
     ssnow%runoff = 0.0   ! runoff total = subsurface + surface runoff
     ssnow%rnof1  = 0.0   ! surface runoff (mm/timestepsize)
@@ -887,17 +1004,52 @@ CONTAINS
     canopy%fev    = 0.0  ! latent heat flux from vegetation (W/m2)
     canopy%fes    = 0.0  ! latent heat flux from soil (W/m2)
     canopy%fhs    = 0.0  ! sensible heat flux from soil (W/m2)
+    !! vh_js !!
+    canopy%us = 0.1 ! friction velocity (needed in roughness before first call to canopy: should in be retart?
+    canopy%fh    = 0.0  ! sensible heat flux
+    canopy%fe    = 0.0  ! sensible heat flux
 
-    ! *******************************************************************
-    ! parameters that are not spatially dependent
-    soil%zse = (/.022, .058, .154, .409, 1.085, 2.872/) ! layer thickness nov03
+   !IF(hide%Ticket49Bug2) THEN
+      canopy%ofes    = 0.0  ! latent heat flux from soil (W/m2)
+      canopy%fevc     = 0.0 !vh!
+      canopy%fevw     = 0.0 !vh!
+      canopy%fns      = 0.0
+      canopy%fnv     = 0.0
+      canopy%fhv     = 0.0
+      canopy%fwsoil = 1.0 ! vh -should be calculated from soil moisture or
+                          ! be in restart file
+
+      ssnow%kth = 0.3  ! vh ! should be calculated from soil moisture or be in restart file
+      ssnow%sconds(:,:) = 0.06_r_2    ! vh snow thermal cond (W m-2 K-1),
+                                      ! should be in restart file
+
+      ! parameters that are not spatially dependent
+      select case(ms)
+
+      case(6)
+         soil%zse = (/.022, .058, .154, .409, 1.085, 2.872/) ! layer thickness nov03
+      case(12)
+         soil%zse = (/.022,  0.0500,    0.1300 ,   0.3250 ,   0.3250 ,   0.3000,  &
+              0.3000,    0.3000 ,   0.3000,    0.3000,    0.7500,  1.50 /)
+      case(13)
+         soil%zse = (/.02,  0.0500,  0.06,  0.1300 ,   0.300 ,   0.300 ,   0.3000,  &
+              0.3000,    0.3000 ,   0.3000,    0.3000,    0.7500,  1.50 /)
+
+      end select
+
+   !ELSE
+
+   !   ! parameters that are not spatially dependent
+   !   soil%zse = (/.022, .058, .154, .409, 1.085, 2.872/) ! layer thickness nov03
+
+   !ENDIF
 
     rough%za_uv = 40.0 ! lowest atm. model layer/reference height
     rough%za_tq = 40.0
 
     veg%meth = 1 ! canopy turbulence parameterisation method: 0 or 1
 
-    ! calculate vegin%froot from using rootbeta and soil depth 
+    ! calculate vegin%froot from using rootbeta and soil depth
     ! (Jackson et al. 1996, Oceologica, 108:389-411)
     totdepth = 0.0
     DO is = 1, ms
@@ -909,14 +1061,27 @@ CONTAINS
     END DO
 
     ALLOCATE(defaultLAI(mp, 12))
+
     DO e = 1, mland ! over all land grid points
-    
+
       ! Write to CABLE variables from temp variables saved in
       ! get_default_params
       veg%iveg(landpt(e)%cstart:landpt(e)%cend) =                              &
                           inVeg(landpt(e)%ilon, landpt(e)%ilat, 1:landpt(e)%nap)
       patch(landpt(e)%cstart:landpt(e)%cend)%frac =                            &
                         inPFrac(landpt(e)%ilon, landpt(e)%ilat, 1:landpt(e)%nap)
+
+write(*,*) 'iveg', e,  veg%iveg(landpt(e)%cstart:landpt(e)%cend) 
+write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
+
+      ! set land use (1 = primary; 2 = secondary, 3 = open)
+      if (cable_user%popluc) then
+         veg%iLU(landpt(e)%cstart:landpt(e)%cend)= 1
+         if (landpt(e)%nap.gt.1) then
+            veg%iLU(landpt(e)%cstart+1) = 2
+            veg%iLU(landpt(e)%cend) = 3
+         endif
+      endif
       ! Check that patch fractions total to 1
       tmp = 0
       IF (landpt(e)%cstart == landpt(e)%cend) THEN
@@ -944,18 +1109,42 @@ CONTAINS
       soil%isoilm(landpt(e)%cstart:landpt(e)%cend) =                           &
                                           inSoil(landpt(e)%ilon, landpt(e)%ilat)
       ! Set initial soil temperature and moisture according to starting month
+!! vh_js !!
+
+   !IF(hide%Ticket49Bug3) THEN
+      ! Set initial soil temperature and moisture according to starting month
       DO is = 1, ms
-        ssnow%tgg(landpt(e)%cstart:landpt(e)%cend, is) =                       &
-                                 inTGG(landpt(e)%ilon,landpt(e)%ilat, is, month)
-        ssnow%wb(landpt(e)%cstart:landpt(e)%cend, is) =                        &
-                                 inWB(landpt(e)%ilon, landpt(e)%ilat, is, month)
+         ! Work around set everything above last input layer to the last input layer
+         ssnow%tgg(landpt(e)%cstart:landpt(e)%cend, is) =                       &
+                inTGG(landpt(e)%ilon,landpt(e)%ilat, min(is,size(inTGG,3)), month)
+         ssnow%wb(landpt(e)%cstart:landpt(e)%cend, is) =                        &
+                inWB(landpt(e)%ilon, landpt(e)%ilat, min(is,size(inTGG,3)), month)
       END DO
 
+
+   !ELSE
+
+   !   DO is = 1, ms
+   !     ssnow%tgg(landpt(e)%cstart:landpt(e)%cend, is) =                       &
+   !                              inTGG(landpt(e)%ilon,landpt(e)%ilat, is, month)
+   !     ssnow%wb(landpt(e)%cstart:landpt(e)%cend, is) =                        &
+   !                              inWB(landpt(e)%ilon, landpt(e)%ilat, is, month)
+   !   END DO
+   !ENDIF
+
       ! Set initial snow depth and snow-free soil albedo
+
+
       DO is = 1, landpt(e)%cend - landpt(e)%cstart + 1  ! each patch
-        DO ir = 1, nrb                                  ! each band
-          ssnow%albsoilsn(landpt(e)%cstart + is - 1, ir)                       &
-              = inALB(landpt(e)%ilon, landpt(e)%ilat, is, ir) ! various rad band
+        DO ir = 1, nrb 
+           IF (CABLE_USER%POPLUC) then !vh! use same soilalbedo for all land-use tiles
+              ssnow%albsoilsn(landpt(e)%cstart + is - 1, ir)                       &
+                   = inALB(landpt(e)%ilon, landpt(e)%ilat, 1, ir) ! various rad band
+           ELSE
+                                 ! each band
+              ssnow%albsoilsn(landpt(e)%cstart + is - 1, ir)                       &
+                   = inALB(landpt(e)%ilon, landpt(e)%ilat, is, ir) ! various rad band
+           ENDIF
         END DO
         ! total depth, change from m to mm
         ssnow%snowd(landpt(e)%cstart + is - 1)                                 &
@@ -970,7 +1159,7 @@ CONTAINS
 
       ! Set IGBP soil texture values, Q.Zhang @ 12/20/2010.
       IF (soilparmnew) THEN
-  
+
       soil%swilt(landpt(e)%cstart:landpt(e)%cend) =                            &
                                          inswilt(landpt(e)%ilon, landpt(e)%ilat)
       soil%sfc(landpt(e)%cstart:landpt(e)%cend) =                              &
@@ -999,12 +1188,12 @@ CONTAINS
       END IF
 
 ! offline only below
-       ! If user defined veg types are present in the met file then use them. 
+       ! If user defined veg types are present in the met file then use them.
        ! This means that if met file just has veg type and no other parameters,
        ! the other veg parameters will be chosen as a function of this type:
        ! N.B. for offline run only
        IF(ASSOCIATED(vegtype_metfile)) THEN ! i.e. iveg found in the met file
-          ! Overwrite iveg for those patches available in met file, 
+          ! Overwrite iveg for those patches available in met file,
           ! which are currently set to def values above:
           veg%iveg(landpt(e)%cstart:landpt(e)%cstart + nmetpatches - 1) =      &
                                                            vegtype_metfile(e, :)
@@ -1026,11 +1215,45 @@ CONTAINS
 
        ! Prescribe parameters for current gridcell based on veg/soil type (which
        ! may have loaded from default value file or met file):
-
-       !call veg% init that is common  
-       CALL init_veg_from_vegin(landpt(e)%cstart, landpt(e)%cend, veg) 
-       
        DO h = landpt(e)%cstart, landpt(e)%cend ! over each patch in current grid
+          veg%frac4(h)    = vegin%frac4(veg%iveg(h))
+          veg%taul(h,1)    = vegin%taul(1,veg%iveg(h))
+          veg%taul(h,2)    = vegin%taul(2,veg%iveg(h))
+          veg%refl(h,1)    = vegin%refl(1,veg%iveg(h))
+          veg%refl(h,2)    = vegin%refl(2,veg%iveg(h))
+          veg%canst1(h)   = vegin%canst1(veg%iveg(h))
+          veg%dleaf(h)    = vegin%dleaf(veg%iveg(h))
+          veg%vcmax(h)    = vegin%vcmax(veg%iveg(h))
+          veg%ejmax(h)    = vegin%ejmax(veg%iveg(h))
+          veg%hc(h)       = vegin%hc(veg%iveg(h))
+          veg%xfang(h)    = vegin%xfang(veg%iveg(h))
+          veg%vbeta(h)    = vegin%vbeta(veg%iveg(h))
+          veg%zr(h)    = vegin%zr(veg%iveg(h))
+          veg%clitt(h)    = vegin%clitt(veg%iveg(h))
+          veg%g0(h)    = vegin%g0(veg%iveg(h))
+          veg%g1(h)    = vegin%g1(veg%iveg(h))
+          veg%xalbnir(h)  = vegin%xalbnir(veg%iveg(h))
+          veg%rp20(h)     = vegin%rp20(veg%iveg(h))
+          veg%rpcoef(h)   = vegin%rpcoef(veg%iveg(h))
+          veg%rs20(h)     = vegin%rs20(veg%iveg(h))
+          veg%shelrb(h)   = vegin%shelrb(veg%iveg(h))
+          veg%wai(h)      = vegin%wai(veg%iveg(h))
+          veg%a1gs(h)     = vegin%a1gs(veg%iveg(h))
+          veg%d0gs(h)     = vegin%d0gs(veg%iveg(h))
+          veg%vegcf(h)    = vegin%vegcf(veg%iveg(h))
+          veg%extkn(h)    = vegin%extkn(veg%iveg(h))
+          veg%tminvj(h)   = vegin%tminvj(veg%iveg(h))
+          veg%tmaxvj(h)   = vegin%tmaxvj(veg%iveg(h))
+          veg%a1gs(h)   = vegin%a1gs(veg%iveg(h))
+          veg%d0gs(h)   = vegin%d0gs(veg%iveg(h))
+          veg%alpha(h)  = vegin%alpha(veg%iveg(h))
+          veg%convex(h) = vegin%convex(veg%iveg(h))
+          veg%cfrd(h)   = vegin%cfrd(veg%iveg(h))
+          veg%gswmin(h) = vegin%gswmin(veg%iveg(h))
+          veg%conkc0(h) = vegin%conkc0(veg%iveg(h))
+          veg%conko0(h) = vegin%conko0(veg%iveg(h))
+          veg%ekc(h)    = vegin%ekc(veg%iveg(h))
+          veg%eko(h)    = vegin%eko(veg%iveg(h))
           bgc%cplant(h,:) = vegin%cplant(:, veg%iveg(h))
           bgc%csoil(h,:)  = vegin%csoil(:, veg%iveg(h))
           bgc%ratecp(:)   = vegin%ratecp(:, veg%iveg(h))
@@ -1050,6 +1273,8 @@ CONTAINS
             soil%css(h)     =  soilin%css(soil%isoilm(h))
           END IF
           rad%latitude(h) = latitude(e)
+            !IF(hide%Ticket49Bug4) &
+          rad%longitude(h) = longitude(e)
           veg%ejmax(h) = 2.0 * veg%vcmax(h)
        END DO ! over each veg patch in land point
     END DO ! over all land points
@@ -1079,7 +1304,7 @@ CONTAINS
                vegin%vcmax, vegin%ejmax, vegin%hc, vegin%xfang, vegin%rp20,    &
                vegin%rpcoef, vegin%rs20, vegin%shelrb, vegin%frac4,            &
                vegin%wai, vegin%vegcf, vegin%extkn, vegin%tminvj,              &
-               vegin%tmaxvj, vegin%vbeta, vegin%rootbeta, vegin%froot,         &
+               vegin%tmaxvj, vegin%vbeta,vegin%clitt, vegin%zr, vegin%rootbeta, vegin%froot,         &
                vegin%cplant, vegin%csoil, vegin%ratecp, vegin%ratecs,          &
                vegin%xalbnir, vegin%length, vegin%width,                       &
                vegin%g0, vegin%g1,                                             & 
@@ -1132,6 +1357,42 @@ CONTAINS
       ssnow%wbice(:, :) = 0.0
     END WHERE
 
+   !IF(hide%Ticket49Bug5) THEN
+
+!! vh_js !! neeed to remove this if to enable the code below
+
+      ! SLI specific initialisations:
+    !  IF(cable_user%SOIL_STRUC=='sli') THEN
+         ssnow%h0(:) = 0.0
+         ssnow%S(:,:) = ssnow%wb(:,:)/SPREAD(soil%ssat,2,ms)
+         ssnow%snowliq(:,:) = 0.0
+         ssnow%Tsurface = 25.0
+         ssnow%nsnow = 0
+         ssnow%Tsoil = ssnow%tgg - 273.15
+         ssnow%thetai = 0.0
+         soil%zeta = 0.0
+         soil%fsatmax = 0.0
+   !   END IF
+
+      IF(cable_user%SOIL_STRUC=='sli') THEN
+         soil%nhorizons = 1 ! use 1 soil horizon globally
+        ! veg%clitt = 5.0 ! (tC / ha)
+         veg%F10 = 0.85
+         veg%ZR = 5.0
+      END IF
+
+      IF(cable_user%SOIL_STRUC=='sli'.or.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
+         veg%gamma = 3.e-2
+         !veg%clitt = 5.0 ! (tC / ha)
+      ENDIF
+!! vh_js !!
+      IF(cable_user%CALL_POP) THEN
+         veg%disturbance_interval = 100
+         veg%disturbance_intensity = 0.
+      ENDIF
+
+
+
   END SUBROUTINE write_default_params
   !=============================================================================
   SUBROUTINE write_cnp_params(veg, casaflux, casamet)
@@ -1170,6 +1431,18 @@ CONTAINS
                                * inPdust(landpt(ee)%ilon, landpt(ee)%ilat)
         casaflux%Pwea(hh)    = patch(hh)%frac                                  &
                                * inPwea(landpt(ee)%ilon, landpt(ee)%ilat)
+        !! vh !! fluxes shouldn't be weighted by patch frac.
+     !   IF (CABLE_USER%POPLUC) then
+           casaflux%Nmindep(hh) =  inNdep(landpt(ee)%ilon, landpt(ee)%ilat)
+           casaflux%Nminfix(hh) = max( inNfix(landpt(ee)%ilon, landpt(ee)%ilat), &
+                8.0e-4)  
+!vh ! minimum fixation rate of 3 kg N ha-1y-1 (8e-4 g N m-2 d-1)
+! Cleveland, Cory C., et al. "Global patterns of terrestrial biological nitrogen (N2) &
+!fixation in natural ecosystems." Global biogeochemical cycles 13.2 (1999): 623-645.
+           casaflux%Pdep(hh)    = inPdust(landpt(ee)%ilon, landpt(ee)%ilat)
+           casaflux%Pwea(hh)    = inPwea(landpt(ee)%ilon, landpt(ee)%ilat)
+      !  ENDIF
+           
         ! fertilizer addition is included here
         IF (veg%iveg(hh) == cropland .OR. veg%iveg(hh) == croplnd2) then
           ! P fertilizer =13 Mt P globally in 1994
@@ -1182,11 +1455,13 @@ CONTAINS
     ENDDO
     DEALLOCATE(inSorder, inArea, inNdep, inNfix, inPwea, inPdust)
 
+!write(668,*) 'in write_cnp_params: Ndep, Nfix', casaflux%Nmindep(1), casaflux%Nminfix(1)
+
   END SUBROUTINE write_cnp_params
   !============================================================================
   SUBROUTINE derived_parameters(soil, sum_flux, bal, ssnow, veg, rough)
     ! Gives values to parameters that are derived from other parameters.
-    TYPE (soil_snow_type),      INTENT(IN)    :: ssnow
+    TYPE (soil_snow_type),      INTENT(INOUT)    :: ssnow
     TYPE (veg_parameter_type),  INTENT(IN)    :: veg
     TYPE (soil_parameter_type), INTENT(INOUT) :: soil
     TYPE (sum_flux_type),       INTENT(INOUT) :: sum_flux
@@ -1198,7 +1473,7 @@ CONTAINS
     REAL    :: tmp2(mp)
 
     ! Construct derived parameters and zero initialisations,
-    ! regardless of where parameters and other initialisations 
+    ! regardless of where parameters and other initialisations
     ! have loaded from:
     soil%zshh(1) = 0.5 * soil%zse(1) ! distance between consecutive layer
                                      ! midpoints:
@@ -1209,14 +1484,15 @@ CONTAINS
                    + soil%silt * 0.265 ! set dry soil thermal conductivity
                                        ! [W/m/K]
     END IF
+
     soil%hsbh   = soil%hyds*ABS(soil%sucs) * soil%bch ! difsat*etasat
     soil%ibp2   = NINT(soil%bch) + 2
     ! Ticket #66
     where( soil%ssat > 0.) & ! Avoid divide by
-      soil%pwb_min = (soil%swilt/soil%ssat)**soil%ibp2 
+    soil%pwb_min = (soil%swilt/soil%ssat)**soil%ibp2
     soil%i2bp3  = 2 * NINT(soil%bch) + 3
     rough%hruff = max(0.01, veg%hc - 1.2 * ssnow%snowd/max(ssnow%ssdnn, 100.))
-    rough%hruff_grmx = rough%hruff 
+    rough%hruff_grmx = rough%hruff
     ! owetfac introduced by EAK apr2009
     ssnow%owetfac = MAX(0.0, MIN(1.0,                                          &
                    (REAL(ssnow%wb(:, 1)) - soil%swilt) /                  &
@@ -1253,12 +1529,25 @@ CONTAINS
     bal%ebal_tot_cncheck = 0.0
     bal%drybal = 0.0
     bal%wetbal = 0.0
-    bal%wbtot0 = 0.0 
+    bal%wbtot0 = 0.0
+    bal%RadbalSum = 0.0
     DO j=1, ms
        bal%wbtot0 = bal%wbtot0 + REAL(ssnow%wb(:, j)) * soil%zse(j)       &
                     * 1000.0
     END DO
     bal%osnowd0 = ssnow%osnowd
+
+  !! vh_js !! comment out hide% condition
+   ! IF (hide%Ticket49Bug6) THEN
+       soil%swilt_vec = SPREAD(soil%swilt,2,ms)
+       soil%ssat_vec = SPREAD(soil%ssat,2,ms)
+       IF(cable_user%SOIL_STRUC=='sli') THEN
+          soil%sfc_vec = SPREAD(soil%sfc,2,ms)
+          ! Only 1 horizon by default !
+          soil%nhorizons = 1
+          soil%ishorizon = 1
+       END IF
+   ! END IF
 
   END SUBROUTINE derived_parameters
   !============================================================================
@@ -1280,7 +1569,7 @@ CONTAINS
           WRITE(*, *) 'Land point number:', i
           WRITE(*, *) 'Veg types:', veg%iveg(landpt(i)%cstart:                 &
                       (landpt(i)%cstart + landpt(i)%nap - 1))
-          CALL abort('Unknown vegetation type! Aborting.') 
+          CALL abort('Unknown vegetation type! Aborting.')
        END IF
        ! Check all soil types make sense:
        IF(ANY(soil%isoilm(landpt(i)%cstart:(landpt(i)%cstart + landpt(i)%nap   &
@@ -1288,7 +1577,7 @@ CONTAINS
           + landpt(i)%nap - 1)) > mstype)) THEN
           WRITE(*,*) 'SUBROUTINE load_parameters:'
           WRITE(*,*) 'Land point number:',i
-          CALL abort('Unknown soil type! Aborting.') 
+          CALL abort('Unknown soil type! Aborting.')
        END IF
        ! Check patch fractions sum to 1 in each grid cell:
        IF((SUM(patch(landpt(i)%cstart:landpt(i)%cend)%frac) - 1.0)             &
@@ -1317,12 +1606,13 @@ CONTAINS
     ! Check sand+soil+clay fractions sum to 1:
     DO i = 1, mland
        DO j = 1, landpt(i)%nap
+ ! vh changed limits from 1.0000001, 0.999999 to 1.01 and 0.99 for compatibility with gridinfo
           IF((soil%sand(landpt(i)%cstart + j - 1)                              &
               + soil%silt(landpt(i)%cstart + j - 1)                            &
-              + soil%clay(landpt(i)%cstart + j - 1)) > 1.0000001 .OR.          &
+              + soil%clay(landpt(i)%cstart + j - 1)) > 1.01 .OR.          & 
              (soil%sand(landpt(i)%cstart + j - 1)                              &
               + soil%silt(landpt(i)%cstart + j - 1)                            &
-              + soil%clay(landpt(i)%cstart + j - 1)) < 0.9999999) THEN
+              + soil%clay(landpt(i)%cstart + j - 1)) < 0.99) THEN
              WRITE(*,*) 'SUBROUTINE load_parameters:'
              WRITE(*,*) 'At land point number:', i
              WRITE(*,*) '        patch number:', j
@@ -1370,7 +1660,7 @@ CONTAINS
     DO i = 1, ms
        WHERE(ssnow%wb(:, i) > soil%ssat) ! Can only happen due to i/o issues
           ssnow%wb(:, i) = 0.9999 * soil%ssat
-       END WHERE    
+       END WHERE
     END DO
 
   END SUBROUTINE check_parameter_values
@@ -1378,7 +1668,7 @@ CONTAINS
 SUBROUTINE report_parameters(logn, soil, veg, bgc, rough,                    &
                                ssnow, canopy, casamet, casapool, casaflux,     &
                                phen, vegparmnew, verbose )
-   USE cable_common_module, ONLY : veg_desc, soil_desc 
+   USE cable_common_module, ONLY : veg_desc, soil_desc
    IMPLICIT NONE
    INTEGER,      INTENT(IN)  :: logn        ! log file unit number
    LOGICAL,      INTENT(IN)  :: vegparmnew  ! are we using the new format?
@@ -1442,8 +1732,8 @@ SUBROUTINE report_parameters(logn, soil, veg, bgc, rough,                    &
                soil%isoilm(landpt(e)%cstart + g - 1),                         &
                TRIM(soil_desc(soil%isoilm(landpt(e)%cstart + g - 1)))
       END DO
-      
-      
+
+
       IF(verbose) THEN
          ! Set up format specifier for writing active patch details below:
          WRITE(patchfmtr,'(A8, I1, A6)') '(4X,A50,', landpt(e)%nap, 'F12.4)'
@@ -1458,7 +1748,7 @@ SUBROUTINE report_parameters(logn, soil, veg, bgc, rough,                    &
          WRITE(logn, *) '------------------------------------------------'//  &
                         '---------'
          WRITE(logn,'(4X, A50, 2F10.4)') 'reference height (m): ',            &
-                               ! AJA MODIFIED 
+                               ! AJA MODIFIED
                                ! rough%za(e*max_vegpatches)
                rough%za_uv(landpt(e)%cend - landpt(e)%cstart + 1),            &
                rough%za_tq(landpt(e)%cend - landpt(e)%cstart + 1)
@@ -1778,144 +2068,144 @@ SUBROUTINE report_parameters(logn, soil, veg, bgc, rough,                    &
 
 !jhan:reviewformatting.spacing of whole module
          IF (icycle >= 1) THEN
-         
+
             WRITE(logn,*) 'CASA-CNP initialisations, per patch:'
-            
+
             WRITE(logn,patchfmti)                                              &
                '  veg class (0=noveg,1=grassy,2=shrub,3=woody): ',             &
                casamet%iveg2( landpt(e)%cstart :                               &
                (landpt(e)%cstart + landpt(e)%nap-1) )
-            
+
             WRITE(logn,patchfmti)                                              &
                '                                    soil order: ',             &
                casamet%isorder( landpt(e)%cstart :                             &
                (landpt(e)%cstart + landpt(e)%nap-1) )
-          
+
             WRITE(logn,patchfmtr)                                              &
                ' patch area (10^9 m^2): ',                                     &
                casamet%areacell(landpt(e)%cstart :                             &
                (landpt(e)%cstart + landpt(e)%nap-1) )*1.0e-9
-          
+
             WRITE(logn,patchfmtr)                                              &
                '          Nitrogen deposition   (g N/m^2/year): ',             &
                casaflux%Nmindep(landpt(e)%cstart :                             &
                (landpt(e)%cstart + landpt(e)%nap-1) )
-          
+
             WRITE(logn,patchfmtr)                                              &
                '          Nitrogen fixation     (g N/m^2/year): ',             &
                casaflux%Nminfix(landpt(e)%cstart :                             &
                (landpt(e)%cstart+landpt(e)%nap-1) )
-            
+
             WRITE(logn,patchfmtr)                                              &
                '          Phosphorus weathering (g P/m^2/year): ',             &
                casaflux%Pwea(landpt(e)%cstart :                                &
                (landpt(e)%cstart+landpt(e)%nap-1) )
-            
+
             WRITE(logn,patchfmtr)                                              &
                '          Phosphorus in dust    (g P/m^2/year): ',             &
                casaflux%Pdep(landpt(e)%cstart :                                &
                (landpt(e)%cstart+landpt(e)%nap-1) )
-            
+
             WRITE(logn,patchfmtr)                                              &
                '  Leaf area index in CASA-CNP: ',                              &
                casamet%glai(landpt(e)%cstart :                                 &
                (landpt(e)%cstart+landpt(e)%nap-1) )
-            
+
             WRITE(logn,patchfmti)                                              &
                '  Phenological phase: ',                                       &
                phen%phase(landpt(e)%cstart :                                   &
                (landpt(e)%cstart+landpt(e)%nap-1) )
-            
+
             WRITE(logn,patchfmtr)                                              &
                '  Carbon pools (g C/m^2)       - labile: ',                    &
                casapool%clabile(landpt(e)%cstart :                             &
-               (landpt(e)%cstart+landpt(e)%nap-1) ) 
-            
+               (landpt(e)%cstart+landpt(e)%nap-1) )
+
             WRITE(logn,patchfmtr)                                              &
                '               - plant - Leaf: ',                              &
                casapool%cplant(landpt(e)%cstart :                              &
                (landpt(e)%cstart+landpt(e)%nap-1), 1 )
-            
+
             WRITE(logn,patchfmtr)                                              &
                '               - plant - Wood: ',                              &
                casapool%cplant(landpt(e)%cstart :                              &
-               (landpt(e)%cstart+landpt(e)%nap-1), 2) 
-            
+               (landpt(e)%cstart+landpt(e)%nap-1), 2)
+
             WRITE(logn,patchfmtr)                                              &
                '               - plant - Root: ',                              &
                casapool%cplant(landpt(e)%cstart :                              &
                (landpt(e)%cstart+landpt(e)%nap-1), 3 )
-            
+
             WRITE(logn,patchfmtr)                                              &
                '               - litter - MTB: ',                              &
                casapool%clitter(landpt(e)%cstart :                             &
                (landpt(e)%cstart+landpt(e)%nap-1), 1 )
-            
+
             WRITE(logn,patchfmtr)                                              &
                '               - litter - STR: ',                              &
                casapool%clitter(landpt(e)%cstart :                             &
-               (landpt(e)%cstart+landpt(e)%nap-1), 2 ) 
-            
+               (landpt(e)%cstart+landpt(e)%nap-1), 2 )
+
             WRITE(logn,patchfmtr)                                              &
                '               - litter - CWD: ',                              &
                casapool%clitter(landpt(e)%cstart :                             &
                (landpt(e)%cstart+landpt(e)%nap-1), 3 )
-            
+
             WRITE(logn,patchfmtr)                                              &
                '               - soil - micro: ',                              &
                casapool%csoil(landpt(e)%cstart :                               &
                (landpt(e)%cstart+landpt(e)%nap-1), 1 )
-            
+
             WRITE(logn,patchfmtr)                                              &
                '               - soil -  slow: ',                              &
                casapool%csoil(landpt(e)%cstart :                               &
                (landpt(e)%cstart+landpt(e)%nap-1), 2 )
-            
+
             WRITE(logn,patchfmtr)                                              &
                '               - soil - passv: ',                              &
                casapool%csoil(landpt(e)%cstart :                               &
                (landpt(e)%cstart+landpt(e)%nap-1), 3 )
-         
+
          ENDIF
 
          IF (icycle >= 2) THEN
-  
+
             WRITE(logn,patchfmtr) '  Nitrogen pools (g N/m^2) - plant - Leaf: ',&
                casapool%nplant(landpt(e)%cstart :                              &
                (landpt(e)%cstart+landpt(e)%nap-1), 1  )
-  
+
             WRITE(logn,patchfmtr) '               - plant - Wood: ',           &
                casapool%nplant(landpt(e)%cstart:                               &
                (landpt(e)%cstart+landpt(e)%nap-1), 2 )
-            
+
             WRITE(logn,patchfmtr) '               - plant - Root: ',           &
                casapool%nplant(landpt(e)%cstart :                              &
                (landpt(e)%cstart+landpt(e)%nap-1), 3 )
-            
+
             WRITE(logn,patchfmtr) '               - litter - MTB: ',           &
                casapool%nlitter(landpt(e)%cstart :                             &
                (landpt(e)%cstart+landpt(e)%nap-1), 1 )
-            
+
             WRITE(logn,patchfmtr) '               - litter - STR: ',           &
                casapool%nlitter(landpt(e)%cstart :                             &
                (landpt(e)%cstart+landpt(e)%nap-1), 2 )
-            
+
             WRITE(logn,patchfmtr) '               - litter - CWD: ',           &
                casapool%nlitter(landpt(e)%cstart :                             &
                (landpt(e)%cstart+landpt(e)%nap-1), 3 )
-            
+
             WRITE(logn,patchfmtr) '               - soil - micro: ',           &
                casapool%nsoil(landpt(e)%cstart :                               &
                (landpt(e)%cstart+landpt(e)%nap-1), 1 )
-            
+
             WRITE(logn,patchfmtr) '               - soil -  slow: ',           &
                casapool%nsoil(landpt(e)%cstart :                               &
                (landpt(e)%cstart+landpt(e)%nap-1), 2 )
-            
+
             WRITE(logn,patchfmtr) '               - soil - passv: ',           &
                casapool%nsoil(landpt(e)%cstart :                               &
                (landpt(e)%cstart+landpt(e)%nap-1), 3 )
-            
+
             WRITE(logn,patchfmtr) '  Mineral nitrogen (inorganic): ',          &
                casapool%nsoilmin(landpt(e)%cstart :                            &
                (landpt(e)%cstart+landpt(e)%nap-1) )
@@ -1923,62 +2213,62 @@ SUBROUTINE report_parameters(logn, soil, veg, bgc, rough,                    &
          ENDIF
 
          IF (icycle == 3) THEN
-  
+
             WRITE(logn,patchfmtr)                                              &
                '  Phosphorus pools (g P/m^2) - plant - Leaf: ',                &
                casapool%pplant(landpt(e)%cstart :                              &
                (landpt(e)%cstart+landpt(e)%nap-1), 1 )
-            
+
             WRITE(logn,patchfmtr)                                              &
                '                   - plant - Wood: ',                          &
                casapool%pplant(landpt(e)%cstart :                              &
                (landpt(e)%cstart+landpt(e)%nap-1), 2 )
-            
+
             WRITE(logn,patchfmtr)                                              &
                '                   - plant - Root: ',                          &
                casapool%pplant(landpt(e)%cstart :                              &
                (landpt(e)%cstart+landpt(e)%nap-1), 3 )
-            
+
             WRITE(logn,patchfmtr)                                              &
                '                   - litter - MTB: ',                          &
                casapool%plitter(landpt(e)%cstart :                             &
                (landpt(e)%cstart+landpt(e)%nap-1), 1 )
-            
+
             WRITE(logn,patchfmtr)                                              &
                '                   - litter - STR: ',                          &
                casapool%plitter(landpt(e)%cstart :                             &
                (landpt(e)%cstart+landpt(e)%nap-1), 2 )
-            
+
             WRITE(logn,patchfmtr)                                              &
                '                   - litter - CWD: ',                          &
                casapool%plitter(landpt(e)%cstart :                             &
                (landpt(e)%cstart+landpt(e)%nap-1), 3 )
-            
+
             WRITE(logn,patchfmtr)                                              &
                '                   - soil - micro: ',                          &
                casapool%psoil(landpt(e)%cstart :                               &
                (landpt(e)%cstart+landpt(e)%nap-1), 1 )
-            
+
             WRITE(logn,patchfmtr)                                              &
                '                   - soil -  slow: ',                          &
                casapool%psoil(landpt(e)%cstart :                               &
                (landpt(e)%cstart+landpt(e)%nap-1), 2 )
-            
+
             WRITE(logn,patchfmtr)                                              &
                '                   - soil - passv: ',                          &
                casapool%psoil(landpt(e)%cstart :                               &
                (landpt(e)%cstart+landpt(e)%nap-1), 3 )
-            
+
             WRITE(logn,patchfmtr)                                              &
                '  Mineral phosphorus -  Labile: ',                             &
                casapool%psoillab(landpt(e)%cstart :                            &
                (landpt(e)%cstart+landpt(e)%nap-1) )
-            
+
             WRITE(logn,patchfmtr)                                              &
                '  - Adsorbed: ',                                               &
                casapool%psoilsorb(landpt(e)%cstart :                           &
                (landpt(e)%cstart+landpt(e)%nap-1) )
-            
+
             WRITE(logn,patchfmtr)                                              &
                '  - Occluded: ',                                               &
                casapool%psoilocc(landpt(e)%cstart :                            &
@@ -1989,7 +2279,7 @@ SUBROUTINE report_parameters(logn, soil, veg, bgc, rough,                    &
       WRITE(logn,*) '========================================================='
       WRITE(logn,*) '========================================================='
       WRITE(logn,*)
-       
+
       END IF ! if verbose
    END DO
 

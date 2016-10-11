@@ -1,11 +1,11 @@
 !==============================================================================
-! This source code is part of the 
+! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
 ! This work is licensed under the CSIRO Open Source Software License
 ! Agreement (variation of the BSD / MIT License).
-! 
+!
 ! You may not use this file except in compliance with this License.
-! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located 
+! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located
 ! in each directory containing CABLE code.
 !
 ! ==============================================================================
@@ -19,18 +19,19 @@
 !
 ! ==============================================================================
 
-module cable_data_module 
+module cable_data_module
    implicit none
-   
-   public 
+
+   public
 
    ! definition of major types of constants
-    
+
    TYPE physical_constants
-      real ::                                                                  & 
+      real ::                                                                  &
       capp   = 1004.64, & ! air spec. heat (J/kg/K)
       hl = 2.5014e6, & ! air spec. heat (J/kg/K)
       hlf = 0.334e6, & ! latent heat of fusion
+      hls = 2.8350e6, & ! latent heat of sublimation (J/kg)
       !hl = 2.5104e6, & ! air spec. heat (J/kg/K)
       !hlf = 0.335e6, & ! latent heat of fusion
       dheat  = 21.5E-6, & ! molecular diffusivity for heat
@@ -38,15 +39,15 @@ module cable_data_module
       grav   = 9.8086, & ! gravity acceleration (m/s2)
       rgas   = 8.3143, & ! universal gas const  (J/mol/K)
       rmair  = 0.02897, & ! molecular wt: dry air (kg/mol)
-      rmh2o  = 0.018016, & ! molecular wt: water	(kg/mol)
+      rmh2o  = 0.018016, & ! molecular wt: water        (kg/mol)
       sboltz = 5.67e-8, & ! Stefan-Boltz. constant (W/m2/K4)
       tfrz   = 273.16, & ! Temp (K) corresp. to 0 C
-      
+
       ! Teten coefficients
       tetena = 6.106, & ! ??? refs?
       tetenb = 17.27, &
       tetenc = 237.3, &
-      
+
       ! Aerodynamic parameters, diffusivities, water density:
       vonk   = 0.40, & ! von Karman constant
       a33    = 1.25, & ! inertial sublayer sw/us
@@ -61,13 +62,13 @@ module cable_data_module
       emsoil = 1.0, & ! soil emissivity
       crd = 0.3,    & ! element drag coefficient
       csd = 0.003,  & ! substrate drag coefficient
-      
+
       !jhan:hardwire for now. note beta2 = crd/csd
       beta2 = 0.3/0.003, & ! ratio cr/cs
       ccd   = 15.0,  & ! constant in d/h equation
       ccw_c = 2.0,   & ! ccw=(zw-d)/(h-d)
       usuhm = 0.3,   & ! (max of us/uh)
-      
+
       ! Turbulence parameters:
       zetmul = 0.4,  & ! if niter=2, final zeta=zetmul*zetar(2)
                        ! NB> niter currently=4 see cable_define_types.F90
@@ -76,7 +77,7 @@ module cable_data_module
       zetpos = 1.0,  & ! positive limit on za/L when niter>=3
       zdlin  = 1.0,  & ! height frac of d below which TL linear
       umin   = 0.01
-       
+
    END TYPE physical_constants
 
 
@@ -92,8 +93,10 @@ module cable_data_module
       !where 3 = no. radiation bands (nrb in define types)
       real, DIMENSION(3) :: gauss_w=(/0.308,0.514,0.178/) ! Gaussian integ. weights
       !--- jhan: can make these trigger of #defines/namelist
-      real:: RAD_THRESH = 0.01 
-      real:: LAI_THRESH = 0.01 
+
+!! vh_js !! smaller values
+      real:: RAD_THRESH = 0.001
+      real:: LAI_THRESH = 0.001
    end type other_constants
 
    type photosynthetic_constants
@@ -114,15 +117,15 @@ module cable_data_module
 
 
 
-   ! instantiate major types of constants 
+   ! instantiate major types of constants
    type( physical_constants ), TARGET :: phys
    type( math_constants ), TARGET  :: math
    type( other_constants ), TARGET  :: other
    type( photosynthetic_constants ), TARGET :: photo
-   
 
-   ! TYPEs of local pointers to global constants defined above 
-   
+
+   ! TYPEs of local pointers to global constants defined above
+
    TYPE driver_type
       REAL, POINTER ::                                                         &
          ! physical constants
@@ -133,7 +136,7 @@ module cable_data_module
    TYPE icbm_type
       REAL, POINTER ::                                                         &
          ! physical constants
-         GRAV, CAPP 
+         GRAV, CAPP
    END TYPE icbm_type
 
 
@@ -141,7 +144,7 @@ module cable_data_module
       REAL, POINTER ::                                                         &
          ! physical constants
          TFRZ, RMAIR, RGAS,                                                    &
-         TETENA, TETENB, TETENC,                                               &      
+         TETENA, TETENB, TETENC,                                               &
          CAPP, RMH2O, HL
    END TYPE iair_type
 
@@ -153,7 +156,7 @@ module cable_data_module
          ! physical constants
          TFRZ,                                                                 &
       ! other constants
-         LAI_THRESH, RAD_THRESH 
+         LAI_THRESH, RAD_THRESH
    END TYPE ialbedo_type
 
 
@@ -164,7 +167,7 @@ module cable_data_module
          ! physical constants
          TFRZ, RMAIR, RGAS, DHEAT, ZETNEG,                                     &
          ZETMUL, ZETPOS, GRAV, UMIN, TETENA,                                   &
-         TETENB, TETENC, RHOW, CTL, CSW,                                       &      
+         TETENB, TETENC, RHOW, CTL, CSW,                                       &
          EMLEAF, EMSOIL, SBOLTZ, PRANDT, CAPP,                                 &
          RMH2O, APOL, A33, VONK, ZETA0,                                        &
          ! photosynthetic constants
@@ -175,7 +178,7 @@ module cable_data_module
          LAI_THRESH
 
       INTEGER, POINTER :: MAXITER
- 
+
    END TYPE icanopy_type
 
 
@@ -192,9 +195,9 @@ module cable_data_module
       REAL, POINTER ::                                                         &
          ! physical constants
          TFRZ, EMSOIL, EMLEAF, SBOLTZ,                                         &
-         CAPP, & 
+         CAPP, &
          ! other constants
-         LAI_THRESH, RAD_THRESH,                                               & 
+         LAI_THRESH, RAD_THRESH,                                               &
          ! math constants
          PI180, PI_C
       REAL, POINTER, DIMENSION(:) ::                                           &
@@ -206,7 +209,7 @@ module cable_data_module
       REAL, POINTER ::                                                         &
          ! physical constants
          CSD, CRD, CCD, CCW_C, USUHM, VONK,                                    &
-         A33, CTL,  ZDLIN, CSW, GRAV   
+         A33, CTL,  ZDLIN, CSW, GRAV , LAI_THRESH  !! vh_js !! added LAI_THRESH here
    END TYPE irough_type
 
 
@@ -214,12 +217,12 @@ module cable_data_module
    TYPE issnow_type
       REAL, POINTER ::                                                         &
          ! physical constants
-         CAPP, TFRZ, HL, HLF
+         CAPP, TFRZ, HL, HLF, HLS
    END TYPE issnow_type
 
 
    TYPE const_type
-      ! instantiate major types of constants 
+      ! instantiate major types of constants
       type( physical_constants ) :: phys
       type( math_constants ) :: math
       type( other_constants ) :: other
@@ -231,93 +234,93 @@ module cable_data_module
          lat, &
          lon, &
          tile, &
-         tile_frac 
-      
+         tile_frac
+
       TYPE (const_type) :: const
 
    end TYPE cable_type
 
    TYPE (cable_type) :: cable
-   
 
- 
+
+
    INTERFACE point2constants
       MODULE PROCEDURE driver_type_ptr, cbm_type_ptr, air_type_ptr,            &
                        albedo_type_ptr, canopy_type_ptr, carbon_type_ptr,      &
-                       rad_type_ptr, rough_type_ptr, ssnow_type_ptr  
-   END INTERFACE 
+                       rad_type_ptr, rough_type_ptr, ssnow_type_ptr
+   END INTERFACE
 
-CONTAINS   
-   
-   ! SUBRs associating local pointers to global constants defined above 
-   ! given passed TYPE which is locally declared  
+CONTAINS
 
-SUBROUTINE driver_type_ptr(C)    
+   ! SUBRs associating local pointers to global constants defined above
+   ! given passed TYPE which is locally declared
+
+SUBROUTINE driver_type_ptr(C)
    TYPE(driver_type) :: C
    ! physical constants
    C%TFRZ  => PHYS%TFRZ
    C%EMLEAF => PHYS%EMLEAF
    C%EMSOIL => PHYS%EMSOIL
    C%SBOLTZ => PHYS%SBOLTZ
-END SUBROUTINE driver_type_ptr 
+END SUBROUTINE driver_type_ptr
 
 ! ------------------------------------------------------------------------------
 
-SUBROUTINE cbm_type_ptr(C)    
+SUBROUTINE cbm_type_ptr(C)
    TYPE(icbm_type) :: C
    ! physical constants
    C%GRAV  => PHYS%GRAV
    C%CAPP  => PHYS%CAPP
-END SUBROUTINE cbm_type_ptr 
+END SUBROUTINE cbm_type_ptr
 
 ! ------------------------------------------------------------------------------
 
 SUBROUTINE air_type_ptr(C)
 
    TYPE(iair_type) :: C
-      
+
    C%TFRZ  => PHYS%TFRZ
    C%RMAIR => PHYS%RMAIR
-   C%RGAS  => PHYS%RGAS            
-   C%TETENA => PHYS%TETENA 
-   C%TETENB => PHYS%TETENB 
-   C%TETENC => PHYS%TETENC 
+   C%RGAS  => PHYS%RGAS
+   C%TETENA => PHYS%TETENA
+   C%TETENB => PHYS%TETENB
+   C%TETENC => PHYS%TETENC
    C%CAPP  => PHYS%CAPP
    C%RMH2O => PHYS%RMH2O
-   C%HL     => PHYS%HL 
+   C%HL     => PHYS%HL
 
 END SUBROUTINE air_type_ptr
 
 ! ------------------------------------------------------------------------------
 
-SUBROUTINE albedo_type_ptr(C) 
+SUBROUTINE albedo_type_ptr(C)
    TYPE(ialbedo_type) :: C
    ! physical constants
    C%TFRZ  => PHYS%TFRZ
    ! other constants
-   C%LAI_THRESH => OTHER%LAI_THRESH 
-   C%RAD_THRESH => OTHER%RAD_THRESH 
+   C%LAI_THRESH => OTHER%LAI_THRESH
+   C%RAD_THRESH => OTHER%RAD_THRESH
 END SUBROUTINE albedo_type_ptr
 
 ! ------------------------------------------------------------------------------
- 
-SUBROUTINE canopy_type_ptr(C)    
-   
+
+SUBROUTINE canopy_type_ptr(C)
+
    TYPE(icanopy_type) :: C
 
    ! physical constants
    C%TFRZ  => PHYS%TFRZ
    C%RMAIR => PHYS%RMAIR
-   C%RGAS  => PHYS%RGAS            
+   C%RGAS  => PHYS%RGAS
    C%DHEAT => PHYS%DHEAT
    C%ZETNEG => PHYS%ZETNEG
    C%ZETMUL => PHYS%ZETMUL
    C%ZETPOS => PHYS%ZETPOS
-   C%GRAV  => PHYS%GRAV            
+   C%GRAV  => PHYS%GRAV
    C%UMIN  => PHYS%UMIN
-   C%TETENA => PHYS%TETENA 
-   C%TETENB => PHYS%TETENB 
-   C%TETENC => PHYS%TETENC 
+   C%TETENA => PHYS%TETENA
+   C%TETENB => PHYS%TETENB
+   C%TETENC => PHYS%TETENC
    C%RHOW  => PHYS%RHOW
    C%CTL   => PHYS%CTL
    C%CSW   => PHYS%CSW
@@ -331,11 +334,11 @@ SUBROUTINE canopy_type_ptr(C)
    C%A33   => PHYS%A33
    C%VONK  => PHYS%VONK
    C%ZETA0 => PHYS%ZETA0
-      
+
    C%MAXITER  => PHOTO%MAXITER ! only integer here
 
    !photosynthetic constants
-   C%RGSWC => PHOTO%RGSWC               
+   C%RGSWC => PHOTO%RGSWC
    C%GAM0  => PHOTO%GAM0
    C%GAM2  => PHOTO%GAM2
    C%RGBWC  => PHOTO%RGBWC
@@ -343,7 +346,7 @@ SUBROUTINE canopy_type_ptr(C)
    C%TREFK => PHOTO%TREFK
    ! math constants
    C%PI_C  => MATH%PI_C
-   
+
    ! other constants
    C%LAI_THRESH  => OTHER%LAI_THRESH
 
@@ -351,26 +354,26 @@ END SUBROUTINE canopy_type_ptr
 
 ! ------------------------------------------------------------------------------
 
-SUBROUTINE carbon_type_ptr(C)    
+SUBROUTINE carbon_type_ptr(C)
    TYPE(icarbon_type) :: C
    ! physical constants
    C%TFRZ  => PHYS%TFRZ
-END SUBROUTINE carbon_type_ptr 
+END SUBROUTINE carbon_type_ptr
 
 ! ------------------------------------------------------------------------------
 
-SUBROUTINE rad_type_ptr(C)    
+SUBROUTINE rad_type_ptr(C)
    TYPE(irad_type) :: C
-   
+
    ! other constants
-   C%LAI_THRESH => OTHER%LAI_THRESH 
-   C%RAD_THRESH => OTHER%RAD_THRESH 
+   C%LAI_THRESH => OTHER%LAI_THRESH
+   C%RAD_THRESH => OTHER%RAD_THRESH
    C%GAUSS_W  => OTHER%GAUSS_W
-   
+
    ! math constants
    C%PI180  => MATH%PI180
    C%PI_C  => MATH%PI_C
-   
+
    ! physical constants
    C%TFRZ  => PHYS%TFRZ
    C%EMLEAF => PHYS%EMLEAF
@@ -382,33 +385,34 @@ END SUBROUTINE rad_type_ptr
 
 ! ------------------------------------------------------------------------------
 
-SUBROUTINE rough_type_ptr(C)    
+SUBROUTINE rough_type_ptr(C)
    TYPE(irough_type) :: C
    ! physical constants
-         C%CSD   => PHYS%CSD                                                     
-         C%CRD   => PHYS%CRD                                                      
-         C%CCD   => PHYS%CCD                                                      
-         C%CSW   => PHYS%CSW                                                      
-         C%CCW_C => PHYS%CCW_C                                                      
-         C%USUHM => PHYS%USUHM                                                  
-         C%VONK  => PHYS%VONK                                                   
-         C%A33   => PHYS%A33                                                      
-         C%CTL   => PHYS%CTL                                                    
-         C%ZDLIN => PHYS%ZDLIN                                                    
-         C%GRAV  => PHYS%GRAV                                                   
-END SUBROUTINE rough_type_ptr 
+         C%CSD   => PHYS%CSD
+         C%CRD   => PHYS%CRD
+         C%CCD   => PHYS%CCD
+         C%CSW   => PHYS%CSW
+         C%CCW_C => PHYS%CCW_C
+         C%USUHM => PHYS%USUHM
+         C%VONK  => PHYS%VONK
+         C%A33   => PHYS%A33
+         C%CTL   => PHYS%CTL
+         C%ZDLIN => PHYS%ZDLIN
+         C%GRAV  => PHYS%GRAV
+         C%LAI_THRESH => OTHER%LAI_THRESH
+END SUBROUTINE rough_type_ptr
 
 ! ------------------------------------------------------------------------------
 
-SUBROUTINE ssnow_type_ptr(C)    
+SUBROUTINE ssnow_type_ptr(C)
    TYPE(issnow_type) :: C
    ! physical constants
    C%CAPP  => PHYS%CAPP
    C%TFRZ  => PHYS%TFRZ
    C%HL    => PHYS%HL
    C%HLF   => PHYS%HLF
+   C%HLS   => PHYS%HLS
    !C% => PHYS%
-END SUBROUTINE ssnow_type_ptr 
+END SUBROUTINE ssnow_type_ptr
 
-END MODULE cable_data_module 
-
+END MODULE cable_data_module

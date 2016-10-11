@@ -73,11 +73,13 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
    USE cable_diag_module
    USE casavariable
    USE casa_types_mod
+   USE cable_climate_mod
 
    IMPLICIT NONE
  
  
-  
+   !jhan: this can be moved and USEd 
+   TYPE (climate_type)	:: climate     ! climate variables
    !-------------------------------------------------------------------------- 
    !--- INPUT ARGS FROM sf_exch() --------------------------------------------
    !-------------------------------------------------------------------------- 
@@ -378,8 +380,8 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
    !--- real(timestep) width, CABLE types passed to CABLE "engine" as ---!  
    !--- req'd by Mk3L  --------------------------------------------------!
    !---------------------------------------------------------------------!
-   CALL cbm( timestep, air, bgc, canopy, met, bal,                             &
-             rad, rough, soil, ssnow, sum_flux, veg )
+   CALL cbm( ktau_gl,timestep, air, bgc, canopy, met, bal,                             &
+             rad, rough, soil, ssnow, sum_flux, veg, climate )
 
    !---------------------------------------------------------------------!
    ! Check this run against standard for quasi-bitwise reproducability   !  

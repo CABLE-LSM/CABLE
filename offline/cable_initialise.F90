@@ -1,11 +1,11 @@
 !==============================================================================
-! This source code is part of the 
+! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
 ! This work is licensed under the CSIRO Open Source Software License
 ! Agreement (variation of the BSD / MIT License).
-! 
+!
 ! You may not use this file except in compliance with this License.
-! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located 
+! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located
 ! in each directory containing CABLE code.
 !
 ! ==============================================================================
@@ -39,15 +39,15 @@ MODULE cable_init_module
                                  soiltype_metfile
    USE cable_read_module
    USE netcdf
-   USE cable_common_module, ONLY : filename
+   USE cable_common_module, ONLY : filename, cable_user
 
    IMPLICIT NONE
-   
+
    PRIVATE
    PUBLIC get_default_inits, get_restart_data
 
    INTEGER :: ok ! netcdf status
-   
+
 CONTAINS
 !==============================================================================
 !
@@ -64,7 +64,7 @@ CONTAINS
 
 
 !==============================================================================
-! changes since version release on 
+! changes since version release on
 ! changes made by who on date
 !
 !==============================================================================
@@ -117,7 +117,7 @@ SUBROUTINE get_default_inits(met,soil,ssnow,canopy,logn, EMSOIL)
       ELSEWHERE
          ssnow%wbice(e,:) = 0.0
       END WHERE
-      
+
    END DO
 
    IF(ANY(ssnow%tgg>350.0).OR.ANY(ssnow%tgg<180.0)) CALL abort('Soil temps nuts')
@@ -125,7 +125,7 @@ SUBROUTINE get_default_inits(met,soil,ssnow,canopy,logn, EMSOIL)
 
    ! Site independent initialisations (all gridcells):
    ! soil+snow albedo for infrared (other values read in below):
-   ssnow%albsoilsn(:,3) = 1.0 - emsoil  
+   ssnow%albsoilsn(:,3) = 1.0 - emsoil
 !   ssnow%albsoilsn(:,3) = 0.05  ! YP Nov2009 (fix cold bias)
    canopy%cansto  = 0.0   ! canopy water storage (mm or kg/m2)
    canopy%sghflux = 0.0
@@ -139,6 +139,7 @@ SUBROUTINE get_default_inits(met,soil,ssnow,canopy,logn, EMSOIL)
    canopy%fev     = 0.0   ! latent heat flux from vegetation (W/m2)
    canopy%fes     = 0.0   ! latent heat flux from soil (W/m2)
    canopy%fhs     = 0.0   ! sensible heat flux from soil (W/m2)
+   canopy%us = 0.1 ! friction velocity (needed in roughness before first call to canopy: should in be in restart?)
 
 END SUBROUTINE get_default_inits
 
@@ -186,8 +187,8 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
    INTEGER ::                                                             &
         mland_restart,         & ! number of land points in restart file
         INvegt,                &
-        INsoilt,               & 
-        INpatch,               & 
+        INsoilt,               &
+        INpatch,               &
         mpatchID,              &
    !     surftype_restart,      & ! number of surface types in restart file
         latID, lonID,          & ! lat,lon variable ID
@@ -201,7 +202,8 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
         from_restart = .TRUE., & ! insist variables/params load
         dummy                    ! To replace completeSet in parameter read; unused
    REAL,    ALLOCATABLE :: var_r(:)
-   
+   REAL,    ALLOCATABLE :: var_r2(:,:)
+
    ! Write to screen the restart file is found:
    WRITE(*,*) 'Reading restart data from: ' ,TRIM(filename%restart_in)
 
@@ -221,7 +223,7 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
    IF(mland_restart /= mland) CALL abort('Number of land points in '//         &
         'restart file '//TRIM(filename%restart_in)//                           &
         ' differs from number in met file '//TRIM(filename%met))
-   
+
    ! Added the checking of mp; if not equal, redirect to another
    ! subroutine to get grid-based info (BP may2010) for LULUC
    ok = NF90_INQ_DIMID(ncid_rin,'mp_patch',mpatchID)
@@ -238,7 +240,7 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
                         bal,veg,soil,rad, EMSOIL)
       RETURN
    ENDIF
-   
+
    ! removed the following because already in IGBP types (BP apr08)
    !    ! Check number of surface types is correct:
    !    ok = NF90_INQ_DIMID(ncid_rin,'surftype',surftypeID)
@@ -259,7 +261,7 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
    !    IF(ok /= NF90_NOERR) CALL nc_abort &
    !         (ok,'Error finding surffrac in restart file ' &
    !         //TRIM(filename%restart_in)//' (SUBROUTINE get_restart)')
-   !    ok=NF90_GET_VAR(ncid_rin,surffracID,surffrac)            
+   !    ok=NF90_GET_VAR(ncid_rin,surffracID,surffrac)
    !    IF(ok/=NF90_NOERR) CALL nc_abort(ok,'Error reading surffrac in file ' &
    !         //TRIM(filename%restart_in)// '(SUBROUTINE get_restart)')
    !    landpt(:)%veg%frac =  surffrac(:,1)
@@ -267,8 +269,8 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
    !    landpt(:)%lake%frac = surffrac(:,3)
    !    landpt(:)%ice%frac = surffrac(:,4)
    !    DEALLOCATE(surffrac)
-   
-   
+
+
    ! check that lat/lon b/w run and restart are compatible:
    ALLOCATE(lat_restart(mland),lon_restart(mland))
    ok = NF90_INQ_VARID(ncid_rin,'latitude',latID)
@@ -279,7 +281,7 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
    IF(ok /= NF90_NOERR) CALL nc_abort                                          &
         (ok,'Error finding longitude in restart file '                         &
         //TRIM(filename%restart_in)//' (SUBROUTINE get_restart)')
-   ok=NF90_GET_VAR(ncid_rin,latID,lat_restart)            
+   ok=NF90_GET_VAR(ncid_rin,latID,lat_restart)
    IF(ok/=NF90_NOERR) CALL nc_abort(ok,'Error reading latitude in file '       &
         //TRIM(filename%restart_in)// '(SUBROUTINE get_restart)')
 ! Removed rad%latitude from here as it is already done in write_default_params
@@ -289,7 +291,7 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
 !       ! All patches in a single grid cell have the same latitude:
 !       rad%latitude(landpt(i)%cstart:landpt(i)%cend)=lat_restart(i)
 !    END DO
-   ok=NF90_GET_VAR(ncid_rin,lonID,lon_restart)            
+   ok=NF90_GET_VAR(ncid_rin,lonID,lon_restart)
    IF(ok/=NF90_NOERR) CALL nc_abort(ok,'Error reading longitude in file '      &
         //TRIM(filename%restart_in)// '(SUBROUTINE get_restart)')
    IF(ANY(ABS(lat_restart-latitude)>0.01))                                     &
@@ -301,7 +303,7 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
         'restart file '//TRIM(filename%restart_in)//                           &
         ' differs from met file '//TRIM(filename%met))
    DEALLOCATE(lat_restart,lon_restart)
-   
+
    ! Check that the number of vegetation types is present in restart file:
    ok = NF90_INQ_VARID(ncid_rin,'mvtype',mvtypeID)
    IF(ok /= NF90_NOERR) THEN
@@ -358,10 +360,10 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
    dummy=.TRUE. ! initialise for completeness only - not used
 
    ! Get variable initialisations =============================
-   ! Arguments are: netcdf file ID; parameter name; 
-   !   complete set check; parameter value; filename for error messages; 
-   !   number of veg/soil patches in met file; switch to indicate 
-   !   size of dimensions of the parameter; an indicator to show 
+   ! Arguments are: netcdf file ID; parameter name;
+   !   complete set check; parameter value; filename for error messages;
+   !   number of veg/soil patches in met file; switch to indicate
+   !   size of dimensions of the parameter; an indicator to show
    !   we're reading from the restart file.
    ! Use 'defd' for single dim double precision.
    ! Use, e.g., 'msd' to fetch double precision 2D soil varible
@@ -397,14 +399,53 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
    CALL readpar(ncid_rin,'isflag',dummy,ssnow%isflag,filename%restart_in,      &
                 max_vegpatches,'def',from_restart,mp)
    CALL readpar(ncid_rin,'albsoilsn',dummy,ssnow%albsoilsn,                    &
-                filename%restart_in,max_vegpatches,'nrb',from_restart,mp) 
+                filename%restart_in,max_vegpatches,'nrb',from_restart,mp)
    ssnow%albsoilsn(:,3) = 1.0 - emsoil  !! (BP Nov 2009)
    CALL readpar(ncid_rin,'rnof1',dummy,ssnow%rnof1,filename%restart_in,        &
                 max_vegpatches,'def',from_restart,mp)
    CALL readpar(ncid_rin,'rnof2',dummy,ssnow%rnof2,filename%restart_in,        &
                 max_vegpatches,'def',from_restart,mp)
    CALL readpar(ncid_rin,'runoff',dummy,ssnow%runoff,filename%restart_in,      &
-                max_vegpatches,'def',from_restart,mp)
+        max_vegpatches,'def',from_restart,mp)
+
+   IF(cable_user%SOIL_STRUC=='sli'.or.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
+      CALL readpar(ncid_rin,'gamma',dummy,veg%gamma,filename%restart_in,           &
+           max_vegpatches,'def',from_restart,mp)
+   ENDIF
+
+    IF(cable_user%SOIL_STRUC=='sli') THEN
+       CALL readpar(ncid_rin,'S',dummy,ssnow%S,filename%restart_in, &
+            max_vegpatches,'ms',from_restart,mp)
+      CALL readpar(ncid_rin,'Tsoil',dummy,ssnow%Tsoil,filename%restart_in, &
+            max_vegpatches,'ms',from_restart,mp)
+       CALL readpar(ncid_rin,'h0',dummy,ssnow%h0,filename%restart_in, &
+            max_vegpatches,'def',from_restart,mp)
+       CALL readpar(ncid_rin,'nsnow',dummy,ssnow%nsnow,filename%restart_in, &
+            max_vegpatches,'def',from_restart,mp)
+       CALL readpar(ncid_rin,'Tsurface',dummy,ssnow%Tsurface,filename%restart_in, &
+            max_vegpatches,'def',from_restart,mp)
+       CALL readpar(ncid_rin,'snowliq',dummy,ssnow%snowliq,filename%restart_in, &
+            max_vegpatches,'snow',from_restart,mp)
+       CALL readpar(ncid_rin,'sconds',dummy,ssnow%sconds,filename%restart_in, &
+            max_vegpatches,'snow',from_restart,mp)
+       CALL readpar(ncid_rin,'ZR',dummy,veg%ZR, &
+            filename%restart_in,max_vegpatches,'def',from_restart,mp)
+       CALL readpar(ncid_rin,'F10',dummy,veg%F10, &
+            filename%restart_in,max_vegpatches,'def',from_restart,mp)
+       CALL readpar(ncid_rin,'zeta',dummy,soil%zeta,filename%restart_in,           &
+            max_vegpatches,'def',from_restart,mp)
+       CALL readpar(ncid_rin,'fsatmax',dummy,soil%fsatmax,filename%restart_in,           &
+            max_vegpatches,'def',from_restart,mp)
+       CALL readpar(ncid_rin,'nhorizons',dummy,soil%nhorizons,filename%restart_in,           &
+            max_vegpatches,'def',from_restart,mp)
+       ALLOCATE(var_r2(mp,ms))
+       CALL readpar(ncid_rin,'ishorizon',dummy,var_r2,filename%restart_in,           &
+            max_vegpatches,'ms',from_restart,mp)
+       soil%ishorizon = int(var_r2)
+       DEALLOCATE(var_r2)
+       CALL readpar(ncid_rin,'clitt',dummy,veg%clitt,filename%restart_in,           &
+            max_vegpatches,'def',from_restart,mp)
+    ENDIF
    CALL readpar(ncid_rin,'cansto',dummy,canopy%cansto,filename%restart_in,     &
                 max_vegpatches,'def',from_restart,mp)
    CALL readpar(ncid_rin,'sghflux',dummy,canopy%sghflux,filename%restart_in,   &
@@ -431,17 +472,17 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
    CALL readpar(ncid_rin,'osnowd0',dummy,bal%osnowd0,filename%restart_in,      &
                 max_vegpatches,'def',from_restart,mp)
    ! The following two restart file additions are to initialise Mk3L:
-   CALL readpar(ncid_rin,'albedo',dummy,rad%albedo,filename%restart_in,        & 
+   CALL readpar(ncid_rin,'albedo',dummy,rad%albedo,filename%restart_in,        &
                 max_vegpatches,'nrb',from_restart,mp)
    CALL readpar(ncid_rin,'trad',dummy,rad%trad,filename%restart_in,            &
                 max_vegpatches,'def',from_restart,mp)
-   
+
    ! Get model parameters =============================================
-   ! rad%latitude set above in lat/lon checking section   
+   ! rad%latitude set above in lat/lon checking section
    ALLOCATE(INvar(mp))
    CALL readpar(ncid_rin,'iveg',dummy,INvar,filename%restart_in,               &
                 max_vegpatches,'def',from_restart,mp)
-   IF (ASSOCIATED(vegtype_metfile)) THEN 
+   IF (ASSOCIATED(vegtype_metfile)) THEN
       ! met file iveg info is now in veg%iveg
       IF (ANY(INvar /= veg%iveg)) THEN
          PRINT *, 'Error: veg type in restart file different from met input'
@@ -454,9 +495,10 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
    ENDIF
 !    CALL readpar(ncid_rin,'iveg',dummy,veg%iveg,filename%restart_in,           &
 !         max_vegpatches,'def',from_restart,mp)
+IF (.NOT.CABLE_USER%POPLUC) then
    CALL readpar(ncid_rin,'patchfrac',dummy,patch(:)%frac,filename%restart_in,  &
                 max_vegpatches,'def',from_restart,mp)
-   
+ENDIF
 !    DO i=1, mland
 !    DO jj = landpt(i)%cstart, landpt(i)%cend
 !      IF (INvar(jj) /= veg%iveg(jj)) THEN
@@ -604,12 +646,12 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
                 max_vegpatches,'ncp',from_restart,mp)
    CALL readpar(ncid_rin,'ratecs',dummy,bgc%ratecs,filename%restart_in,        &
                 max_vegpatches,'ncs',from_restart,mp)
-   
+
    ! Close restart file:
    ok = NF90_CLOSE(ncid_rin)
    IF(ok/=NF90_NOERR) CALL nc_abort(ok,'Error closing restart file '           &
         //TRIM(filename%restart_in)// '(SUBROUTINE get_restart)')
-   
+
 END SUBROUTINE get_restart_data
 
 !==============================================================================
@@ -660,7 +702,7 @@ SUBROUTINE extraRestart(INpatch,ssnow,canopy,rough,bgc,                        &
         from_restart = .TRUE.,    & ! insist variables/params load
         dummy = .TRUE.              ! To replace completeSet in parameter read; unused
    INTEGER                              :: napID
-   
+
    PRINT *, '***** NOTE: now in extraRestart. *****'
    ALLOCATE(nap(mland))
    ok = NF90_INQ_VARID(ncid_rin,'nap',napID)
@@ -670,7 +712,7 @@ SUBROUTINE extraRestart(INpatch,ssnow,canopy,rough,bgc,                        &
    ok=NF90_GET_VAR(ncid_rin,napID,nap)
    IF(ok/=NF90_NOERR) CALL nc_abort(ok,'Error reading nap in file '            &
         //TRIM(filename%restart_in)// '(SUBROUTINE extraRestart)')
-   
+
    ALLOCATE(var_i(INpatch))
    ALLOCATE(var_r(INpatch))
    ALLOCATE(var_rd(INpatch))
@@ -715,7 +757,7 @@ SUBROUTINE extraRestart(INpatch,ssnow,canopy,rough,bgc,                        &
    CALL readpar(ncid_rin,'isflag',dummy,var_i,filename%restart_in,             &
                 max_vegpatches,'def',from_restart,INpatch)
    CALL redistr_i(INpatch,nap,var_i,ssnow%isflag,'isflag')
-   
+
    DEALLOCATE(var_r2)
    ALLOCATE(var_r2(INpatch,nrb))
    CALL readpar(ncid_rin,'albsoilsn',dummy,var_r2,filename%restart_in,         &
@@ -729,7 +771,7 @@ SUBROUTINE extraRestart(INpatch,ssnow,canopy,rough,bgc,                        &
    CALL readpar(ncid_rin,'trad',dummy,var_r,filename%restart_in,               &
                 max_vegpatches,'def',from_restart,INpatch)
    CALL redistr_r(INpatch,nap,var_r,rad%trad,'trad')
-   
+
    CALL readpar(ncid_rin,'rnof1',dummy,var_r,filename%restart_in,              &
                 max_vegpatches,'def',from_restart,INpatch)
    CALL redistr_r(INpatch,nap,var_r,ssnow%rnof1,'rnof1')
@@ -764,13 +806,13 @@ SUBROUTINE extraRestart(INpatch,ssnow,canopy,rough,bgc,                        &
    CALL readpar(ncid_rin,'fhs',dummy,var_r,filename%restart_in,                &
                 max_vegpatches,'def',from_restart,INpatch)
    CALL redistr_r(INpatch,nap,var_r,canopy%fhs,'fhs')
-   
+
    DEALLOCATE(var_r2)
    ALLOCATE(var_r2(INpatch,ncp))
    CALL readpar(ncid_rin,'cplant',dummy,var_r2,filename%restart_in,            &
                 max_vegpatches,'ncp',from_restart,INpatch)
    CALL redistr_r2(INpatch,nap,var_r2,bgc%cplant,'cplant',ncp)
-   
+
    DEALLOCATE(var_r2)
    ALLOCATE(var_r2(INpatch,ncs))
    CALL readpar(ncid_rin,'csoil',dummy,var_r2,filename%restart_in,             &
@@ -782,12 +824,12 @@ SUBROUTINE extraRestart(INpatch,ssnow,canopy,rough,bgc,                        &
    CALL readpar(ncid_rin,'osnowd0',dummy,bal%osnowd0,filename%restart_in,      &
                 max_vegpatches,'def',from_restart,INpatch)
    CALL redistr_r(INpatch,nap,var_r,bal%osnowd0,'osnowd0')
-   
+
    ! assume all soil and veg parameters are done in default_parameters
    ! therefore, no need to do it here again
-   
+
    veg%xalbnir = 1.0   ! xalbnir will soon be removed totally
-   
+
    PRINT *, 'Finished extraRestart'
 
    DEALLOCATE(var_i)
@@ -795,7 +837,7 @@ SUBROUTINE extraRestart(INpatch,ssnow,canopy,rough,bgc,                        &
    DEALLOCATE(var_rd)
    DEALLOCATE(var_r2)
    DEALLOCATE(var_r2d)
-   
+
 END SUBROUTINE extraRestart
 
 END MODULE cable_init_module

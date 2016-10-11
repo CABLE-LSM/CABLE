@@ -2,7 +2,7 @@
 
 known_hosts()
 {
-   set -A kh cher burn shin  raij
+   set -A kh cher burn shin  raij pear
 }
 
 ## raijin.nci.org.au
@@ -45,6 +45,7 @@ host_burn()
    . /apps/modules/Modules/default/init/ksh
    module add netcdf/3.6.3 openmpi
 
+
    export NCDIR=$NETCDF_ROOT'/lib/'
    export NCMOD=$NETCDF_ROOT'/include/'
    export FC='mpif90'
@@ -71,6 +72,41 @@ host_cher()
    build_status
 }
 
+## pearcey.hpsc.csiro.au 
+host_pear()
+{
+#    export LD_PRELOAD=/apps/netcdf/4.3.3/lib/libnetcdf.so
+#    export LD_PRELOAD=/apps/openmpi/1.8.4/lib/libopen-rte.so.7:/apps/openmpi/1.8.4/lib/libopen-pal.so.6
+#   . /apps/modules/Modules/default/init/ksh
+
+#   module add netcdf/4.3.3.1 openmpi/1.7.5
+#   module add netcdf/4.3.3.1 openmpi/1.8.8 
+
+module del intel-cc intel-fc
+module add intel-cc/16.0.1.150 intel-fc/16.0.1.150
+module add netcdf/4.3.3.1 openmpi/1.8.8
+
+
+
+   export NCDIR=$NETCDF_ROOT'/lib/'
+   export NCMOD=$NETCDF_ROOT'/include/'
+   export FC='mpifort' #'mpif90'
+###   export CFLAGS='-O0 -fp-model precise'
+#   export CFLAGS='-O0 -C'
+#   best settings for debugging
+#   export CFLAGS='-O0 -C -g -debug all -traceback   -check all,noarg_temp_created, -C  '
+#   export CFLAGS='-O0 '
+#   export CFLAGS='-O0 -fp-model precise -g -debug -traceback -C'
+   export CFLAGS='-O2 -fp-model precise -g -debug all -traceback '
+#   export CFLAGS='  -g -debug -traceback -fp-stack-check -O0 -debug -fpe=0 -fpe-all=0 -no-ftz -ftrapuv'
+#   best debugg flags
+#   export LDFLAGS='-g -L'$NCDIR  #'-L'$NCDIR' -O2'
+   export LDFLAGS='-O2 -L'$NCDIR''
+   export LD='-lnetcdf -lnetcdff'
+   build_build
+   cd ../
+   build_status
+}
 
 ## unknown machine, user entering options stdout 
 host_read()
@@ -174,9 +210,9 @@ host_write()
 clean_build()
 {
       print '\ncleaning up\n'
-      rm -fr .mpitmp
       print '\n\tPress Enter too continue buiding, Control-C to abort now.\n'
       read dummy 
+      rm -fr .mpitmp
 }
 
 
@@ -187,8 +223,9 @@ set_up_CABLE_AUX()
       print "\tNCI account holders can have this set up for you now (anywhere)."
       print "\tOthers will have to use the tarball available for download at ..."
       print "\n\tDo you want to run set up this directory now? y/[n]"
-      
-      read setup_CABLE_AUX
+      print "\n\t B Y P A S S E D by LN"
+      #read setup_CABLE_AUX
+      setup_CABLE_AUX='n'
       if [[ $setup_CABLE_AUX = 'y' ]]; then
          print "\n\tPlease enter your NCI user ID"
          read NCI_USERID 

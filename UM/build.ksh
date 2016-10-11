@@ -227,7 +227,10 @@ build_build()
       cable_roughness.o cable_carbon.o cable_canopy.o cable_cbm.o    \
       cable_um_tech.o cable_um_init_subrs.o cable_um_init.o \
       casa_variable.o casa_cable.o casa_cnp.o casa_inout.o \
-      casa_types.o casa_um_inout.o cable_iovars.o
+      casa_types.o casa_um_inout.o cable_iovars.o \
+      cable_sli_main.o cable_sli_utils.o cable_sli_numbers.o \
+      cable_sli_roots.o cable_sli_solve.o POP.o cable_climate.o
+
 
    if [[ -f libcable.a ]]; then
       print '\nLibrary build successful. Copying libcable.a to ' $libroot

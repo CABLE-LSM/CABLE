@@ -1,11 +1,11 @@
 !==============================================================================
-! This source code is part of the 
+! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
 ! This work is licensed under the CSIRO Open Source Software License
 ! Agreement (variation of the BSD / MIT License).
-! 
+!
 ! You may not use this file except in compliance with this License.
-! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located 
+! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located
 ! in each directory containing CABLE code.
 !
 ! ==============================================================================
@@ -129,7 +129,7 @@ END SUBROUTINE nc_abort
 !
 ! Name: range_abort
 !
-! Purpose: Prints an error message and localisation information then stops the 
+! Purpose: Prints an error message and localisation information then stops the
 !          code
 !
 ! CALLed from: write_output_variable_r1
@@ -150,35 +150,35 @@ SUBROUTINE range_abort(message,ktau,met,value,var_range,                       &
 
    ! Input arguments
    CHARACTER(LEN=*), INTENT(IN) :: message
-   
+
    INTEGER, INTENT(IN) ::                                                      &
       ktau, & ! time step
       i       ! landpt number of erroneous grid square
-   
+
    INTEGER,INTENT(IN),OPTIONAL ::                                              &
       xx, & ! coordinates of erroneous grid square
       yy    ! coordinates of erroneous grid square
 
-   
-   TYPE(met_type),INTENT(IN) :: met  ! met data
-   
-   REAL,INTENT(IN) :: value ! value deemed to be out of range
-   
-   REAL,DIMENSION(2),INTENT(IN) :: var_range ! appropriate var range 
 
- 
+   TYPE(met_type),INTENT(IN) :: met  ! met data
+
+   REAL,INTENT(IN) :: value ! value deemed to be out of range
+
+   REAL,DIMENSION(2),INTENT(IN) :: var_range ! appropriate var range
+
+   WRITE(*,*) "in SUBR range_abort"
    WRITE(*,*) message ! error from subroutine
-   
+
    IF( PRESENT(yy) ) THEN ! i.e. using rectangular land/sea grid
-     
+
       WRITE(*,*) 'Site lat, lon:',lat_all(xx,yy),lon_all(xx,yy)
       WRITE(*,*) 'Output timestep',ktau,                                       &
                  ', or ', met%hod(landpt(i)%cstart),' hod, ',                  &
                   INT( met%doy( landpt(i)%cstart) ),'doy, ',                   &
                   INT( met%year(landpt(i)%cstart) )
-   
+
    ELSE ! i.e. using compressed land only grid
-   
+
      WRITE(*,*) 'Site lat, lon:', latitude(i), longitude(i)
      WRITE(*,*) 'Output timestep', ktau,                                       &
                  ', or ', met%hod( landpt(i)%cstart ), ' hod, ',               &
@@ -186,12 +186,12 @@ SUBROUTINE range_abort(message,ktau,met,value,var_range,                       &
                  INT( met%year( landpt(i)%cstart) )
 
    END IF
-   
+
    WRITE(*,*) 'Specified acceptable range (checks.f90):', var_range(1),        &
               'to',var_range(2)
-      
-   WRITE(*,*) 'Value:',value 
-   
+
+   WRITE(*,*) 'Value:',value
+
    STOP
 
 END SUBROUTINE range_abort

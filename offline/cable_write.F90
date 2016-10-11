@@ -1,11 +1,11 @@
 !==============================================================================
-! This source code is part of the 
+! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
 ! This work is licensed under the CSIRO Open Source Software License
 ! Agreement (variation of the BSD / MIT License).
-! 
+!
 ! You may not use this file except in compliance with this License.
-! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located 
+! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located
 ! in each directory containing CABLE code.
 !
 ! ==============================================================================
@@ -61,7 +61,7 @@ MODULE cable_write_module
          otmp4xyst, otmp4xysnt, otmp4xyrt, otmp4xypct, otmp4xysct, otmp4lpst,  &
          otmp4lpsnt, otmp4lprt, otmp4lpsct, otmp4lppct, otmp4xyps,             &
          otmp4xyppc, otmp4xypsc, otmp5xypst, otmp5xypsnt, otmp5xyprt,          &
-         otmp5xyppct, otmp5xypsct
+         otmp5xyppct, otmp5xypsct, nullify_write
   INTERFACE define_ovar
     ! Defines an output variable in the output netcdf file. Units, long name,
     ! variable, dimensions etc are created.
@@ -113,6 +113,67 @@ MODULE cable_write_module
 
 CONTAINS
 
+  ! Nullify all temporary pointers so that one can query associated(pointer)
+  SUBROUTINE nullify_write()
+    IMPLICIT NONE
+
+    NULLIFY(otmp1)
+    NULLIFY(otmp1l)
+
+    NULLIFY(otmp2lt)
+    NULLIFY(otmp2xy)
+    NULLIFY(otmp2lp)
+    NULLIFY(otmp2ls)
+    NULLIFY(otmp2lpc)
+    NULLIFY(otmp2lsc)
+    NULLIFY(otmp2lsf)
+    NULLIFY(otmp2lr)
+    NULLIFY(otmp2lsn)
+
+    NULLIFY(otmp3xyt)
+    NULLIFY(otmp3lpt)
+    NULLIFY(otmp3lst)
+    NULLIFY(otmp3lsnt)
+    NULLIFY(otmp3lrt)
+    NULLIFY(otmp3lpct)
+    NULLIFY(otmp3lsct)
+    NULLIFY(otmp3xyp)
+    NULLIFY(otmp3xys)
+    NULLIFY(otmp3xypc)
+    NULLIFY(otmp3xysc)
+    NULLIFY(otmp3lps)
+    NULLIFY(otmp3lppc)
+    NULLIFY(otmp3lpsc)
+    NULLIFY(otmp3xysf)
+    NULLIFY(otmp3lpr)
+    NULLIFY(otmp3lpsn)
+    NULLIFY(otmp3xyr)
+
+    NULLIFY(otmp4xypt)
+    NULLIFY(otmp4xyzt)
+    NULLIFY(otmp4xyst)
+    NULLIFY(otmp4xysnt)
+    NULLIFY(otmp4xyrt)
+    NULLIFY(otmp4xypct)
+    NULLIFY(otmp4xysct)
+    NULLIFY(otmp4lpst)
+    NULLIFY(otmp4lpsnt)
+    NULLIFY(otmp4lprt)
+    NULLIFY(otmp4lpsct)
+    NULLIFY(otmp4lppct)
+    NULLIFY(otmp4xyps)
+    NULLIFY(otmp4xyppc)
+    NULLIFY(otmp4xypsc)
+    NULLIFY(otmp4xypr)
+
+    NULLIFY(otmp5xypst)
+    NULLIFY(otmp5xypsnt)
+    NULLIFY(otmp5xyprt)
+    NULLIFY(otmp5xyppct)
+    NULLIFY(otmp5xypsct)
+
+  END SUBROUTINE nullify_write
+
   SUBROUTINE define_output_variable_r1(ncid, varID, vname,                     &
                                        vunits, longname, writepatch,           &
                                        dimswitch, xID, yID, zID, landID,       &
@@ -127,7 +188,7 @@ CONTAINS
     CHARACTER(LEN=*), INTENT(IN) :: vunits ! variable units
     CHARACTER(LEN=*), INTENT(IN) :: longname ! full variable name
     CHARACTER(LEN=*), INTENT(IN) :: dimswitch ! indicates dimesnion of parameter
-    
+
     ! First, decide which grid to use. If user has forced grid using output%grid
     ! in the namelist file, use this grid. Else use format of met file.
     IF(output%grid(1:3) == 'mas' .OR.                                          &
@@ -235,7 +296,7 @@ CONTAINS
     CHARACTER(LEN=*), INTENT(IN) :: vunits ! variable units
     CHARACTER(LEN=*), INTENT(IN) :: longname ! full variable name
     CHARACTER(LEN=*), INTENT(IN) :: dimswitch ! indicates dimesnion of parameter
-    
+
     ! First, decide which grid to use. If user has forced grid using output%grid
     ! in the namelist file, use this grid. Else use format of met file.
     IF(output%grid(1:3) == 'mas' .OR.                                          &
@@ -442,7 +503,7 @@ CONTAINS
     CHARACTER(LEN=*), INTENT(IN) :: punits ! variable units
     CHARACTER(LEN=*), INTENT(IN) :: longname ! full variable name
     CHARACTER(LEN=*), INTENT(IN) :: dimswitch ! indicates dimension of parameter
-   
+
     ! First, decide which grid to use. If user has forced grid using output%grid
     ! in the namelist file, use this grid. Else use format of met file.
     IF((output%grid(1:3) == 'mas' .OR.                                         &
@@ -468,7 +529,7 @@ CONTAINS
           ! of this dim:
           IF(.NOT. ASSOCIATED(otmp3xyp))                                       &
                           ALLOCATE(otmp3xyp(xdimsize, ydimsize, max_vegpatches))
-       ELSE ! only grid point values, no patch-specific info 
+       ELSE ! only grid point values, no patch-specific info
           WRITE(logn, *) 'Writing '//pname//' to output file using mask grid'
           IF(dimswitch(1:1) == 'r') THEN
              ok = NF90_DEF_VAR(ncid, pname, NF90_FLOAT, (/xID, yID/), parID)
@@ -507,7 +568,7 @@ CONTAINS
           ! If not already allocated, allocate a temporary storage variable
           ! of this dim:
           IF(.NOT. ASSOCIATED(otmp2lp)) ALLOCATE(otmp2lp(mland, max_vegpatches))
-       ELSE ! only grid point values without patch-specific info UNLESS a 
+       ELSE ! only grid point values without patch-specific info UNLESS a
           ! restart variable
           ! Restart file definitions will be directed to this part of interface.
           ! If not writing a restart file, report variable writing to log file:
@@ -620,7 +681,7 @@ CONTAINS
              IF(.NOT. ASSOCIATED(otmp4xypr))                                   &
                     ALLOCATE(otmp4xypr(xdimsize, ydimsize, max_vegpatches, nrb))
           END IF
-       ELSE ! only grid point values, no patch-specific info 
+       ELSE ! only grid point values, no patch-specific info
           WRITE(logn, *) 'Writing '//pname//' to output file using mask grid'
           ok = NF90_DEF_VAR(ncid, pname, NF90_FLOAT, (/xID, yID, othdimID/)    &
                             , parID)
@@ -707,9 +768,9 @@ CONTAINS
              IF(.NOT.ASSOCIATED(otmp2lpc)) ALLOCATE(otmp2lpc(mland,ncp))
           ELSE IF(dimswitch=='soilcarbon') THEN
              IF(.NOT.ASSOCIATED(otmp2lsc)) ALLOCATE(otmp2lsc(mland,ncs))
-          ELSE IF(dimswitch=='radiation') THEN 
+          ELSE IF(dimswitch=='radiation') THEN
              IF(.NOT.ASSOCIATED(otmp2lr)) ALLOCATE(otmp2lr(mland,nrb))
-          ELSE IF(dimswitch=='snow') THEN 
+          ELSE IF(dimswitch=='snow') THEN
              IF(.NOT.ASSOCIATED(otmp2lsn)) ALLOCATE(otmp2lsn(mland,msn))
           ELSE IF(dimswitch=='surftype') THEN
              IF(.NOT.ASSOCIATED(otmp2lsf)) ALLOCATE(otmp2lsf(mland,4))
@@ -776,7 +837,7 @@ CONTAINS
     TYPE(met_type), INTENT(IN) :: met  ! met data
 
     INTEGER :: i,j ! do loop counter
-    
+
     ! First, decide which grid to use. If user has forced grid using output%grid
     ! in the namelist file, use this grid. Else use format of met file.
     IF(output%grid(1:3) == 'mas' .OR.                                          &
@@ -901,7 +962,7 @@ CONTAINS
     ! Check writing was successful:
     IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing '//vname//           &
                ' variable to output file (SUBROUTINE write_output_variable_r1)')
-    
+
   END SUBROUTINE write_output_variable_r1
   !=============================================================================
   SUBROUTINE write_output_variable_r2(ktau, ncid, varID, vname, var_r2,        &
@@ -919,7 +980,7 @@ CONTAINS
     TYPE(met_type), INTENT(IN) :: met  ! met data
 
     INTEGER :: i, j, k ! do loop counter
-  
+
     ! First, decide which grid to use. If user has forced grid using output%grid
     ! in the namelist file, use this grid. Else use format of met file.
     IF(output%grid(1:3) == 'mas' .OR.                                          &
@@ -1192,7 +1253,7 @@ CONTAINS
               END DO
             END IF
           END DO
-          ! Fill non-land points with dummy value:         
+          ! Fill non-land points with dummy value:
           DO j = 1, ncp
             WHERE(mask /= 1) otmp4xypct(:, :, j, 1) = ncmissingr ! not land
           END DO
@@ -1469,7 +1530,7 @@ CONTAINS
                      ' - in SUBROUTINE write_output_variable_r2')
         END IF
       END IF ! patch info or no patch info
-    ELSE 
+    ELSE
       CALL abort('Unknown grid specification '//                               &
                                         '(SUBROUTINE write_output_variable_r2)')
     END IF ! grid type
@@ -1477,7 +1538,7 @@ CONTAINS
     ! Check writing was successful:
     IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing '//vname//           &
                ' variable to output file (SUBROUTINE write_output_variable_r2)')
-    
+
   END SUBROUTINE write_output_variable_r2
   !=============================================================================
   SUBROUTINE write_output_parameter_r1(ncid, parID, pname, par_r1,             &
@@ -1494,7 +1555,7 @@ CONTAINS
     CHARACTER(LEN=*), INTENT(IN) :: dimswitch ! indicates dimesnion of parameter
 
     INTEGER :: i, j ! do loop counter
-    
+
     ! First, decide which grid to use. If user has forced grid using output%grid
     ! in the namelist file, use this grid. Else use format of met file.
     IF((output%grid(1:3) == 'mas' .OR.                                         &
@@ -1663,7 +1724,7 @@ CONTAINS
     IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing '//pname//           &
          ' parameter/variable to output file '//                               &
                                        '(SUBROUTINE write_output_parameter_r1)')
-    
+
   END SUBROUTINE write_output_parameter_r1
   !=============================================================================
   SUBROUTINE write_output_parameter_r1d(ncid, parID, pname, par_r1d,           &
@@ -1681,7 +1742,7 @@ CONTAINS
 
     INTEGER :: i, j ! do loop counter
     REAL(r_2), POINTER, DIMENSION(:, :) :: tmpout
-    
+
     IF(PRESENT(restart)) THEN ! If writing to a a restart file
        ! Write parameter data:
        ok = NF90_PUT_VAR(ncid, parID, par_r1d,                                 &
@@ -1962,7 +2023,7 @@ CONTAINS
                 WRITE(*, *) 'Land point # ', i
                 WRITE(*, *) 'Values: ', otmp3xyr(land_x(i), land_y(i), :)
                 CALL abort('Aborting.')
-              END IF 
+              END IF
             END IF
           END DO
           ! Fill non-land points with dummy value:
@@ -2227,7 +2288,7 @@ CONTAINS
               END DO
               ok = NF90_PUT_VAR(ncid, parID, REAL(otmp2lr, 4),                 &
                   start = (/1, 1/), count = (/mland, nrb/)) ! write data to file
-           END IF   
+           END IF
         ELSE IF(dimswitch == 'snow') THEN ! i.e. spatial and radiation bands
            IF(PRESENT(restart)) THEN
               ! Write data to restart file
@@ -2250,7 +2311,7 @@ CONTAINS
               END DO
               ok = NF90_PUT_VAR(ncid, parID, REAL(otmp2lsn, 4),                &
                   start = (/1, 1/), count = (/mland, msn/)) ! write data to file
-           END IF   
+           END IF
         ELSE IF(dimswitch == 'surftype') THEN
           DO i = 1, mland ! over all land grid points
             ! Write to temporary variable (use dominant patch info only!):
@@ -2281,7 +2342,7 @@ CONTAINS
     ! Check writing was successful:
     IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing '//pname//           &
               ' variable to output file (SUBROUTINE write_output_parameter_r2)')
-    
+
   END SUBROUTINE write_output_parameter_r2
  !==============================================================================
   SUBROUTINE write_output_parameter_r2d(ncid, parID, pname, par_r2d, prange,   &
@@ -2343,7 +2404,7 @@ CONTAINS
     ! Check writing was successful:
     IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing '//pname//           &
              ' variable to output file (SUBROUTINE write_output_parameter_r2d)')
-    
+
   END SUBROUTINE write_output_parameter_r2d
 
 

@@ -104,7 +104,7 @@ SUBROUTINE cable_rad_driver(                                                   &
       ssnow%tgg(:,1) =   PACK( TSOIL_TILE(:,:,1), um1%L_TILE_PTS )
 
 
-      CALL surface_albedo(ssnow, veg, met, rad, soil, canopy)
+      CALL surface_albedo(ssnow, veg, met, rad, soil, canopy,real(um1%timestep))
 
       ! only for land points, at present do not have a method for treating 
       ! mixed land/sea or land/seaice points as yet.
