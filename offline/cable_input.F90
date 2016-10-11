@@ -683,6 +683,14 @@ SUBROUTINE open_met_file(dels,kend,spinup, TFRZ)
     READ(timeunits(20:21),*) smoy ! integer month
     READ(timeunits(23:24),*) sdoytmp ! integer day of that month
     READ(timeunits(26:27),*) shod  ! starting hour of day 
+    ! if site data, shift start time to middle of timestep
+    ! only do this if not already at middle of timestep
+    !! vh_js !!
+
+    !IF (TRIM(cable_user%MetType).EQ.'' .and. MOD(shod*3600, dels)==0) THEN
+    IF (MOD(shod*3600, dels)==0) THEN
+       shod = shod - dels/3600./2.
+    ENDIF
     ! Decide day-of-year for non-leap year:
     SELECT CASE(smoy)
     CASE(1) ! Jan

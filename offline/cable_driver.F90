@@ -189,10 +189,13 @@ PROGRAM cable_offline_driver
 
    DOUBLE PRECISION ::                                                                     &
       trunk_sumbal = 0.0, & !
-      new_sumbal = 0.0
+      new_sumbal = 0.0, &
+      new_sumfpn = 0.0, &
+      new_sumfe = 0.0
 
    INTEGER :: nkend=0
    INTEGER :: ioerror
+   INTEGER :: count_bal = 0
 
    ! END header
 
@@ -362,42 +365,89 @@ PROGRAM cable_offline_driver
                           canopy%fe + canopy%fh )
          ENDIF
    
-         ! Check this run against standard for quasi-bitwise reproducability
-         ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
-         IF(cable_user%consistency_check) THEN 
+                 ! Check this run against standard for quasi-bitwise reproducability
+                 ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
+                 IF(cable_user%consistency_check) THEN
+
+                    count_bal = count_bal +1;
+           !         new_sumbal = new_sumbal + SUM(bal%wbal)/mp +  SUM(bal%ebal)/mp
             
             new_sumbal = new_sumbal + SUM(bal%wbal_tot) + SUM(bal%ebal_tot)          &
                              + SUM(bal%ebal_tot_cncheck)
   
-            IF( ktau == kend ) THEN
-               nkend = nkend+1
+                    new_sumfpn = new_sumfpn + SUM(canopy%fpn)/mp
+                    new_sumfe = new_sumfe + SUM(canopy%fe)/mp
+                    if (ktau == kend) PRINT*
+                    if (ktau == kend) PRINT*, "time-space-averaged energy & water balances"
+                    if (ktau == kend) PRINT*,"Ebal_tot[Wm-2], Wbal_tot[mm per timestep]", &
+                         sum(bal%ebal_tot)/mp/count_bal, sum(bal%wbal_tot)/mp/count_bal
+                    if (ktau == kend) PRINT*, "time-space-averaged latent heat and &
+                         net photosynthesis"
+                    if (ktau == kend) PRINT*, "sum_fe[Wm-2], sum_fpn[umol/m2/s]",  &
+                         new_sumfe/count_bal, new_sumfpn/count_bal
+                    if (ktau == kend) write(logn,*)
+                    if (ktau == kend) write(logn,*), "time-space-averaged energy & water balances"
+                    if (ktau == kend) write(logn,*),"Ebal_tot[Wm-2], Wbal_tot[mm per timestep]", &
+                         sum(bal%ebal_tot)/mp/count_bal, sum(bal%wbal_tot)/mp/count_bal
+                    if (ktau == kend) write(logn,*), "time-space-averaged latent heat and &
+                         net photosynthesis"
+                    if (ktau == kend) write(logn,*), "sum_fe[Wm-2], sum_fpn[umol/m2/s]",  &
+                         new_sumfe/count_bal, new_sumfpn/count_bal
+                  
 
-               IF( abs(new_sumbal-trunk_sumbal) < 1.e-7) THEN
+! vh ! commented code below detects Nans in evaporation flux and stops if there are any.
+!!$	      do kk=1,mp
+!!$		 if( canopy%fe(kk).NE.( canopy%fe(kk))) THEN
+!!$		    write(*,*) 'fe nan', kk, ktau,met%qv(kk), met%precip(kk),met%precip_sn(kk), &
+!!$			 met%fld(kk), met%fsd(kk,:), met%tk(kk), met%ua(kk), ssnow%potev(kk), met%pmb(kk), &
+!!$			 canopy%ga(kk), ssnow%tgg(kk,:), canopy%fwsoil(kk)
+!!$
+!!$
+!!$		    stop
+!!$		 endif
+!!$		 if ( casaflux%cnpp(kk).NE. casaflux%cnpp(kk)) then
+!!$		    write(*,*) 'npp nan', kk, ktau,  casaflux%cnpp(kk)
+!!$		    stop
+!!$
+!!$		 endif
+!!$
+!!$
+!!$		 !if (canopy%fwsoil(kk).eq.0.0) then
+!!$		 !   write(*,*) 'zero fwsoil', ktau, canopy%fpn(kk)
+!!$		 !endif
+!!$
+!!$
+!!$	      enddo
 
-                  print *, ""
-                  print *, &
-                  "NB. Offline-serial runs spinup cycles:", nkend
-                  print *, &
-                  "Internal check shows this version reproduces the trunk sumbal"
-               
-               ELSE
+                    IF( ktau == kend ) THEN
+                       nkend = nkend+1
 
-                  print *, ""
-                  print *, &
-                  "NB. Offline-serial runs spinup cycles:", nkend
-                  print *, &
-                  "Internal check shows in this version new_sumbal != trunk sumbal"
-                  print *, &
-                  "Writing new_sumbal to the file:", TRIM(Fnew_sumbal)
-                        
-                  OPEN( 12, FILE = Fnew_sumbal )
-                     WRITE( 12, '(F20.7)' ) new_sumbal  ! written by previous trunk version
-                  CLOSE(12)
-               
-               ENDIF   
-            ENDIF   
-            
-         ENDIF
+                       IF( ABS(new_sumbal-trunk_sumbal) < 1.e-7) THEN
+
+                          PRINT *, ""
+                          PRINT *, &
+                               "NB. Offline-serial runs spinup cycles:", nkend
+                          PRINT *, &
+                               "Internal check shows this version reproduces the trunk sumbal"
+
+                       ELSE
+
+                          PRINT *, ""
+                          PRINT *, &
+                               "NB. Offline-serial runs spinup cycles:", nkend
+                          PRINT *, &
+                               "Internal check shows in this version new_sumbal != trunk sumbal"
+                          PRINT *, &
+                               "Writing new_sumbal to the file:", TRIM(Fnew_sumbal)
+
+                          OPEN( 12, FILE = Fnew_sumbal )
+                          WRITE( 12, '(F20.7)' ) new_sumbal  ! written by previous trunk version
+                          CLOSE(12)
+
+                       ENDIF
+                    ENDIF
+
+                 ENDIF
 
          
       END DO ! END Do loop over timestep ktau

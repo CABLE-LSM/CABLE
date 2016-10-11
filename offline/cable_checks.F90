@@ -239,13 +239,14 @@ SUBROUTINE mass_balance(dels,ktau, ssnow,soil,canopy,met,                       
    canopy_wbal = REAL(met%precip-canopy%delwc-canopy%through                   &
         - (canopy%fevw+MIN(canopy%fevc,0.0))*dels/air%rlam)
 
-   bal%wbal_tot = 0. 
-   IF(ktau>10) THEN
-      ! Add current water imbalance to total imbalance
-      ! (method 1 for water balance):
+   if(ktau==1) then 
+      bal%wbal_tot = 0.; bal%precip_tot = 0. 
+      bal%rnoff_tot = 0.; bal%evap_tot = 0.
+   endif   
+   
+   IF(ktau>10) THEN ! Avoid wobbly balances for ktau<10 pending later fix 
+       ! Add to accumulation variables:
       bal%wbal_tot = bal%wbal_tot + bal%wbal
-    
-      ! Add to accumulation variables:
       bal%precip_tot = bal%precip_tot + met%precip
       bal%rnoff_tot = bal%rnoff_tot + ssnow%rnof1 + ssnow%rnof2
       bal%evap_tot = bal%evap_tot                                              &
@@ -303,10 +304,11 @@ SUBROUTINE energy_balance( dels,met,rad,canopy,bal,ssnow,                    &
 !   time step need to be used for the evaluation of the SEB
 !   
    !bal%ebal_cncheck = (1.0-rad%albedo(:,1))*met%fsd(:,1) + (1.0-rad%albedo(:,2))*met%fsd(:,2)  &
-   bal%ebal = (1.0-rad%albedo(:,1))*met%fsd(:,1) + (1.0-rad%albedo(:,2))       &
-        *met%fsd(:,2)+met%fld-sboltz*emleaf*canopy%tv**4*(1-rad%transd)        &
-        -sboltz*emsoil*ssnow%tss**4*rad%transd -canopy%fev-canopy%fes          &
-        * ssnow%cls-canopy%fh                 
+    bal%Ebal = SUM(rad%qcan(:,:,1),2)+SUM(rad%qcan(:,:,2),2)+rad%qssabs &  !! vh !! March 2014
+         & +met%fld-sboltz*emleaf*canopy%tv**4*(1-rad%transd) &
+          -rad%flws*rad%transd &
+         & -canopy%fev-canopy%fes*ssnow%cls &
+         & -canopy%fh -canopy%ga
    bal%ebal_tot = bal%ebal_tot + bal%ebal
   
       
