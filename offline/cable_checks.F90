@@ -324,7 +324,7 @@ SUBROUTINE energy_balance( dels,ktau,met,rad,canopy,bal,ssnow,                  
     bal%Ebal = SUM(rad%qcan(:,:,1),2)+SUM(rad%qcan(:,:,2),2)+rad%qssabs &  !! vh !! March 2014
          & +met%fld-sboltz*emleaf*canopy%tv**4*(1-rad%transd) &
           -rad%flws*rad%transd &
-         & -canopy%fev-canopy%fes*ssnow%cls &
+         & -canopy%fev-canopy%fes & !*ssnow%cls &
          & -canopy%fh -canopy%ga
     ! Add to cumulative balance:
     bal%ebal_tot = bal%ebal_tot + bal%ebal
