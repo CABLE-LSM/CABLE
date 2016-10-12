@@ -1179,6 +1179,16 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
       soil%cnsd(landpt(e)%cstart:landpt(e)%cend) =                             &
                                           incnsd(landpt(e)%ilon, landpt(e)%ilat)
 
+! vh !
+      soil%silt(landpt(e)%cstart:landpt(e)%cend) =                             &
+                                          insilt(landpt(e)%ilon, landpt(e)%ilat)
+
+      soil%sand(landpt(e)%cstart:landpt(e)%cend) =                             &
+                                          insand(landpt(e)%ilon, landpt(e)%ilat)
+
+      soil%clay(landpt(e)%cstart:landpt(e)%cend) =                             &
+                                          inclay(landpt(e)%ilon, landpt(e)%ilat)
+
       ENDIF
 
       ! vars intro for Ticket #27
@@ -1259,9 +1269,9 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
           bgc%ratecp(:)   = vegin%ratecp(:, veg%iveg(h))
           bgc%ratecs(:)   = vegin%ratecs(:, veg%iveg(h))
           veg%froot(h,:)  = vegin%froot(:, veg%iveg(h))
-          soil%silt(h)    =  soilin%silt(soil%isoilm(h))
-          soil%clay(h)    =  soilin%clay(soil%isoilm(h))
-          soil%sand(h)    =  soilin%sand(soil%isoilm(h))
+         ! soil%silt(h)    =  soilin%silt(soil%isoilm(h))
+         ! soil%clay(h)    =  soilin%clay(soil%isoilm(h))
+         ! soil%sand(h)    =  soilin%sand(soil%isoilm(h))
           IF (.NOT. soilparmnew) THEN   ! Q,Zhang @ 12/20/2010
             soil%swilt(h)   =  soilin%swilt(soil%isoilm(h))
             soil%sfc(h)     =  soilin%sfc(soil%isoilm(h))
@@ -1271,6 +1281,10 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
             soil%sucs(h)    =  soilin%sucs(soil%isoilm(h))
             soil%rhosoil(h) =  soilin%rhosoil(soil%isoilm(h))
             soil%css(h)     =  soilin%css(soil%isoilm(h))
+
+            soil%silt(h)    =  soilin%silt(soil%isoilm(h))
+            soil%clay(h)    =  soilin%clay(soil%isoilm(h))
+            soil%sand(h)    =  soilin%sand(soil%isoilm(h))
           END IF
           rad%latitude(h) = latitude(e)
             !IF(hide%Ticket49Bug4) &
