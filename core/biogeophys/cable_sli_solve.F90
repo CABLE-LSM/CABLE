@@ -2524,7 +2524,7 @@ CONTAINS
                         par(kk,i)%he, one/(par(kk,i)%lambc*freezefac)))) then
 
                       tmp1d2(kk) = J0(kk,i) + LHS_h(kk,i)*dt(kk) ! total energy in  soil layer
-                     if (Tsoil(kk,i) .lt. -20) then
+                     if (Tsoil(kk,i) .lt. -40.0) then
                          ! assume no lquid below min temp threshhold
                         var(kk,i)%thetal = 0.0
                         var(kk,i)%thetai = theta
