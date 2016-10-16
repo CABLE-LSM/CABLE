@@ -1661,14 +1661,19 @@ SUBROUTINE avgsoil(veg,soil,casamet)
                              * casamet%tsoil(nland,ns)
     casamet%moistavg(nland)  = casamet%moistavg(nland)+ veg%froot(nland,ns) &
                            * min(soil%sfc(nland),casamet%moist(nland,ns))
+!!$    casamet%btran(nland)     = casamet%btran(nland)+ veg%froot(nland,ns)  &
+!!$            * (min(soil%sfc(nland),casamet%moist(nland,ns))-soil%swilt(nland)) &
+!!$            /(soil%sfc(nland)-soil%swilt(nland))
+
+ ! Ticket#121
+
     casamet%btran(nland)     = casamet%btran(nland)+ veg%froot(nland,ns)  &
-            * (min(soil%sfc(nland),casamet%moist(nland,ns))-soil%swilt(nland)) &
+            * (min(soil%sfc(nland),max(casamet%moist(nland,ns))-soil%swilt(nland),0.0)) &
             /(soil%sfc(nland)-soil%swilt(nland))
   ENDDO
   ENDDO
 
 END SUBROUTINE avgsoil
-
 SUBROUTINE casa_xkN(xkNlimiting,casapool,casaflux,casamet,casabiome,veg)
 ! computing the reduction in litter and SOM decomposition
 ! when decomposition rate is N-limiting
