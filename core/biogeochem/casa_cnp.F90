@@ -328,6 +328,8 @@ SUBROUTINE casa_allocation(veg,soil,casabiome,casaflux,casapool,casamet,phen,LAL
            casaflux%fracCalloc(:,froot) = 1.0-casaflux%fracCalloc(:,wood)
            casaflux%fracCalloc(:,leaf)    = 0.0
         ENDWHERE
+
+
         ! IF Prognostic LAI reached glaimax, no C is allocated to leaf
         ! Q.Zhang 17/03/2011
         WHERE(casamet%glai(:)>=casabiome%glaimax(veg%iveg(:)))
@@ -382,19 +384,24 @@ SUBROUTINE casa_allocation(veg,soil,casabiome,casaflux,casapool,casamet,phen,LAL
            casaflux%fracCalloc(:,leaf)  = 0.0
         ENDWHERE
 
-        ! IF Prognostic LAI reached glaimax, no C is allocated to leaf
-        ! Q.Zhang 17/03/2011
-        WHERE(casamet%glai(:)>=casabiome%glaimax(veg%iveg(:)))
-           casaflux%fracCalloc(:,leaf)  = 0.0
-           casaflux%fracCalloc(:,froot) =  casaflux%fracCalloc(:,froot) &
-                /(casaflux%fracCalloc(:,froot) &
-                +casaflux%fracCalloc(:,wood))
-           WHERE (casamet%lnonwood==0)
-              casaflux%fracCalloc(:,wood)  = 1.0 -casaflux%fracCalloc(:,froot)
-           ELSEWHERE
-              casaflux%fracCalloc(:,wood) = 0.0
-           ENDWHERE
-        ENDWHERE
+!! vh !! don't require this fix for LALLOC = 3 (POP allocation scheme)
+!! Thiss fix can lead to over-allocation to roots, in turn bumping up N-uptake
+!! , leading to decline in mineral nitrogen availability and spikes in fracCalloc,
+!! causing spikes in tree mortality and lack of model convergence in productive
+!! regions where LAI is hitting LAImax.
+!!$        ! IF Prognostic LAI reached glaimax, no C is allocated to leaf
+!!$        ! Q.Zhang 17/03/2011
+!!$        WHERE(casamet%glai(:)>=casabiome%glaimax(veg%iveg(:)))
+!!$           casaflux%fracCalloc(:,leaf)  = 0.0
+!!$           casaflux%fracCalloc(:,froot) =  casaflux%fracCalloc(:,froot) &
+!!$                /(casaflux%fracCalloc(:,froot) &
+!!$                +casaflux%fracCalloc(:,wood))
+!!$           WHERE (casamet%lnonwood==0)
+!!$              casaflux%fracCalloc(:,wood)  = 1.0 -casaflux%fracCalloc(:,froot)
+!!$           ELSEWHERE
+!!$              casaflux%fracCalloc(:,wood) = 0.0
+!!$           ENDWHERE
+!!$        ENDWHERE
 
         WHERE(casamet%glai(:)<casabiome%glaimin(veg%iveg(:)))
            casaflux%fracCalloc(:,leaf)  = 0.8
@@ -1661,15 +1668,15 @@ SUBROUTINE avgsoil(veg,soil,casamet)
                              * casamet%tsoil(nland,ns)
     casamet%moistavg(nland)  = casamet%moistavg(nland)+ veg%froot(nland,ns) &
                            * min(soil%sfc(nland),casamet%moist(nland,ns))
-!!$    casamet%btran(nland)     = casamet%btran(nland)+ veg%froot(nland,ns)  &
-!!$            * (min(soil%sfc(nland),casamet%moist(nland,ns))-soil%swilt(nland)) &
-!!$            /(soil%sfc(nland)-soil%swilt(nland))
+    casamet%btran(nland)     = casamet%btran(nland)+ veg%froot(nland,ns)  &
+            * (min(soil%sfc(nland),casamet%moist(nland,ns))-soil%swilt(nland)) &
+            /(soil%sfc(nland)-soil%swilt(nland))
 
  ! Ticket#121
 
-    casamet%btran(nland)     = casamet%btran(nland)+ veg%froot(nland,ns)  &
-            * (min(soil%sfc(nland),max(casamet%moist(nland,ns))-soil%swilt(nland),0.0)) &
-            /(soil%sfc(nland)-soil%swilt(nland))
+!!$    casamet%btran(nland)     = casamet%btran(nland)+ veg%froot(nland,ns)  &
+!!$            * (min(soil%sfc(nland),max(casamet%moist(nland,ns))-soil%swilt(nland),0.0)) &
+!!$            /(soil%sfc(nland)-soil%swilt(nland))
   ENDDO
   ENDDO
 
@@ -2060,7 +2067,7 @@ SUBROUTINE casa_Prequire(xpCnpp,Preqmin,Preqmax,PtransPtoP,veg, &
 END SUBROUTINE casa_Prequire
 
 
-SUBROUTINE casa_cnpcycle(veg,casabiome,casapool,casaflux,casamet)
+SUBROUTINE casa_cnpcycle(veg,casabiome,casapool,casaflux,casamet, LALLOC)
 ! update all pool sizes
 !
   IMPLICIT NONE
@@ -2069,7 +2076,7 @@ SUBROUTINE casa_cnpcycle(veg,casabiome,casapool,casaflux,casamet)
   TYPE (casa_pool),             INTENT(INOUT) :: casapool
   TYPE (casa_flux),             INTENT(INOUT) :: casaflux
   TYPE (casa_met),              INTENT(INOUT) :: casamet
-
+  INTEGER , INTENT(IN) :: LALLOC
   ! local variables
   REAL(r_2), DIMENSION(mp)   :: plabsorb,deltap
   INTEGER i,j,k,np,nland
@@ -2101,7 +2108,10 @@ SUBROUTINE casa_cnpcycle(veg,casabiome,casapool,casaflux,casamet)
 !                                  * casapool%cplant(np,leaf))
     casamet%glai(np)   = MAX(casabiome%glaimin(veg%iveg(np)), &
                                casabiome%sla(veg%iveg(np)) * casapool%cplant(np,leaf))
-    casamet%glai(np)   = MIN(casabiome%glaimax(veg%iveg(np)), casamet%glai(np))
+   ! vh !
+    IF (LALLOC.ne.3) THEN
+       casamet%glai(np)   = MIN(casabiome%glaimax(veg%iveg(np)), casamet%glai(np))
+    ENDIF
     casapool%clitter(np,:) = casapool%clitter(np,:) &
                            + casapool%dClitterdt(np,:) * deltpool
     casapool%csoil(np,:)   = casapool%csoil(np,:)   &

@@ -1473,7 +1473,7 @@ SUBROUTINE biogeochem(ktau,dels,idoY,LALLOC,veg,soil,casabiome,casapool,casaflux
 
   call casa_delsoil(veg,casapool,casaflux,casamet,casabiome)
 
-  call casa_cnpcycle(veg,casabiome,casapool,casaflux,casamet)
+  call casa_cnpcycle(veg,casabiome,casapool,casaflux,casamet, LALLOC)
    !! vh_js !!
   !CLN ndummy must be before pdummy!!!!
   IF (icycle<3) then
