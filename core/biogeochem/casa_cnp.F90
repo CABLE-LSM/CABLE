@@ -1675,7 +1675,7 @@ SUBROUTINE avgsoil(veg,soil,casamet)
  ! Ticket#121
 
     casamet%btran(nland)     = casamet%btran(nland)+ veg%froot(nland,ns)  &
-            * (min(soil%sfc(nland),max(casamet%moist(nland,ns))-soil%swilt(nland),0.0)) &
+            * (min(soil%sfc(nland),max(casamet%moist(nland,ns)-soil%swilt(nland),0.0)) &
             /(soil%sfc(nland)-soil%swilt(nland))
   ENDDO
   ENDDO
