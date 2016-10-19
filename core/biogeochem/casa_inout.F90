@@ -1789,7 +1789,6 @@ SUBROUTINE READ_CASA_RESTART_NC (  casamet, casapool, casaflux,phen )
 !       '_casa_rst.nc'
   fname =  TRIM(casafile%cnpipool)
   INQUIRE( FILE=TRIM(fname), EXIST=EXISTFILE )
-  write (*,*) 'existfile', existfile
   IF (EXISTFILE) THEN
      STATUS = NF90_OPEN( TRIM(fname), NF90_NOWRITE, FILE_ID )
      IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
@@ -1805,7 +1804,8 @@ SUBROUTINE READ_CASA_RESTART_NC (  casamet, casapool, casaflux,phen )
         PRINT *, 'initial pool from restart file: ', fname
      ELSE
         write(*,*) 'CASA restart file:', TRIM(fname), ' does not exist either'
-        write(*,*) 'Set cable_user%CASA_fromZero to true to initialise without restart file'
+        write(*,*) 'Set cable_user%CASA_fromZero to true to initialise without restart file.'
+        write(*,*) 'Otherwise set casafile%cnpipool to restart file name in cable.nml'
         stop
      ENDIF
   ENDIF
