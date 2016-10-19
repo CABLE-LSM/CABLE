@@ -92,7 +92,7 @@ MODULE cable_common_module
         GS_SWITCH='leuning'
       
      CHARACTER(LEN=10) :: RunIden       = 'STANDARD'  !
-     CHARACTER(LEN=4)  :: MetType       = "NA" !
+     CHARACTER(LEN=4)  :: MetType       = ' ' !
      CHARACTER(LEN=20) :: SOIL_STRUC    = "default" ! 'default' or 'sli'
      CHARACTER(LEN=3)  :: POP_out       = 'rst' ! POP output type ('epi' or 'rst')
      CHARACTER(LEN=50) :: POP_rst       = ' ' !
@@ -157,7 +157,7 @@ MODULE cable_common_module
 
      CHARACTER(LEN=500) ::                                                        &
           met,        & ! name of file for CABLE input
-          path,       & ! path for output and restart files for CABLE and CASA
+          path='./',       & ! path for output and restart files for CABLE and CASA
           out,        & ! name of file for CABLE output
           log,        & ! name of file for execution log
           restart_in = ' ', & ! name of restart file to read

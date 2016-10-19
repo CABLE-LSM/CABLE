@@ -343,7 +343,7 @@ CONTAINS
          cable_user           ! additional USER switches 
     INTEGER :: i,x,kk
     INTEGER :: LALLOC
-    INTEGER, PARAMETER ::	 mloop	= 5   ! CASA-CNP PreSpinup loops
+    INTEGER, PARAMETER ::	 mloop	= 30   ! CASA-CNP PreSpinup loops
     REAL    :: etime
 
     ! END header
@@ -488,7 +488,7 @@ CONTAINS
                 write(str3,'(i2)') 1
                 str3 = adjustl(str3)
                 timeunits="seconds since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" &
-                     00:00 (midpoint of averaging period)"
+                     00:00"
 
              ENDIF
              kend = NINT(24.0*3600.0/dels) * LOY
@@ -512,7 +512,7 @@ CONTAINS
                  write(str3,'(i2)') 1
                  str3 = adjustl(str3)
                  timeunits="seconds since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" &
-                            00:00 (midpoint of averaging period)"
+                            00:00"
 
 
 	      ENDIF
@@ -1088,7 +1088,7 @@ IF (icycle>0 .and.   cable_user%CALL_POP)  THEN
      
                  
                    ENDIF
-
+write(*,*) 'after annual calcs'
 
 
           ! WRITE OUTPUT
@@ -1101,12 +1101,12 @@ IF (icycle>0 .and.   cable_user%CALL_POP)  THEN
                 IF ( cable_user%CALL_POP ) THEN
 
                   ! CALL master_receive_pop(POP, ocomm)
-
-                  ! CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
+                   ! CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
                    IF ( TRIM(cable_user%POP_out).eq.'epi' ) THEN
                       CALL POP_IO( pop, casamet, CurYear, 'WRITE_EPI', &
                            (CurYear.EQ.CABLE_USER%YearEnd) )
                    ENDIF
+               
 
                 ENDIF
              END IF
@@ -7945,7 +7945,7 @@ SUBROUTINE master_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
   nloop1= max(1,mloop-3)
 
   DO nloop=1,mloop
-
+write(*,*) 'nloop =', nloop
      !!CLN  OPEN(91,file=fcnpspin)
      !!CLN  read(91,*)
      DO nyear=1,myearspin
@@ -7981,7 +7981,7 @@ SUBROUTINE master_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
            climate%mtemp_max(:) =  casamet%mtempspin(:,idoy)
         CALL master_send_input (icomm, casa_dump_ts, idoy)
      ENDDO ! end doy
-       
+ 
      ENDDO   ! end of nyear
 
   ENDDO     ! end of nloop

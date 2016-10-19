@@ -1473,7 +1473,7 @@ SUBROUTINE biogeochem(ktau,dels,idoY,LALLOC,veg,soil,casabiome,casapool,casaflux
 
   call casa_delsoil(veg,casapool,casaflux,casamet,casabiome)
 
-  call casa_cnpcycle(veg,casabiome,casapool,casaflux,casamet)
+  call casa_cnpcycle(veg,casabiome,casapool,casaflux,casamet, LALLOC)
    !! vh_js !!
   !CLN ndummy must be before pdummy!!!!
   IF (icycle<3) then
@@ -1789,7 +1789,6 @@ SUBROUTINE READ_CASA_RESTART_NC (  casamet, casapool, casaflux,phen )
 !       '_casa_rst.nc'
   fname =  TRIM(casafile%cnpipool)
   INQUIRE( FILE=TRIM(fname), EXIST=EXISTFILE )
-  write (*,*) 'existfile', existfile
   IF (EXISTFILE) THEN
      STATUS = NF90_OPEN( TRIM(fname), NF90_NOWRITE, FILE_ID )
      IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
@@ -1805,7 +1804,8 @@ SUBROUTINE READ_CASA_RESTART_NC (  casamet, casapool, casaflux,phen )
         PRINT *, 'initial pool from restart file: ', fname
      ELSE
         write(*,*) 'CASA restart file:', TRIM(fname), ' does not exist either'
-        write(*,*) 'Set cable_user%CASA_fromZero to true to initialise without restart file'
+        write(*,*) 'Set cable_user%CASA_fromZero to true to initialise without restart file.'
+        write(*,*) 'Otherwise set casafile%cnpipool to netcdf restart file name in cable.nml'
         stop
      ENDIF
   ENDIF
@@ -2156,7 +2156,7 @@ SUBROUTINE WRITE_CASA_OUTPUT_NC ( veg, casamet, casapool, casabal, casaflux, &
   IF ( CALL1 ) THEN
      ! Get File-Name
 
-     IF (TRIM(cable_user%MetType).NE.'' .and. TRIM(cable_user%MetType).NE.'site' ) THEN
+     IF (TRIM(cable_user%MetType).NE.'' ) THEN
 
         WRITE( dum, FMT="(I4,'_',I4)")CABLE_USER%YEARSTART,CABLE_USER%YEAREND
         IF (CABLE_USER%YEARSTART.lt.1000.and.CABLE_USER%YEAREND.lt.1000) THEN

@@ -752,10 +752,15 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
     ! if site data, shift start time to middle of timestep
     ! only do this if not already at middle of timestep
     !! vh_js !!
-
-    IF (TRIM(cable_user%MetType).EQ.'' .and. MOD(shod*3600, dels)==0) THEN
+    IF (TRIM(cable_user%MetType).EQ.'' .and. MOD(shod*3600, dels)==0 .and. &
+         (shod.gt.dels/3600./2.) ) THEN
        shod = shod - dels/3600./2.
+    ELSEIF (TRIM(cable_user%MetType).EQ.'' .and. MOD(shod*3600, dels)==0 .and. &
+         (shod.lt.dels/3600./2.) ) THEN
+       shod = shod + dels/3600./2.
     ENDIF
+    
+   
     ! Decide day-of-year for non-leap year:
     CALL YMDHMS2DOYSOD( syear, smoy, sdoytmp, INT(shod), 0, 0, sdoy, ssod )
        ! Number of days between start position and 1st timestep:
@@ -2433,7 +2438,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
          ! initialise POPLUC structure and params
          !zero biomass in secondary forest tiles
          ! read POP_LUC restart file here
-         ! overwrite patchfrac here if POPLUC%run is not 'static'
+         ! set POP%LU here for secondary tiles if cable_user%POPLUC_RunType is not 'static'
          CALL POPLUC_init(POPLUC,LUC_EXPT, casapool, casaflux, casabiome, veg, POP, mland)
          
       ENDIF

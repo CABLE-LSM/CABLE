@@ -518,17 +518,17 @@ CONTAINS
              Gpot = vmet%Rn-vmet%Rnsw - Hpot - Epot
              dEdTs= zero
              !   write(*,*) "Epot3", Tsurface, vmet%Ta, Epot, Hpot, vmet%rbh
-          
-          elseif (abs(Tsurface - vmet%Ta).gt. 20) then
-             Tsurface = min(vmet%Ta, 0.0)
-             Epot = (esat(Tsurface)*0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero)  - & ! m3 H2O (liq) m-3 (air)
-                  vmet%cva)*rhow*lambdas/vmet%rbw
-             dEdTsoil = zero
-             dGdTsoil = zero
-             Hpot = rhocp*(Tsurface - vmet%Ta)/vmet%rbh
-             Gpot = vmet%Rn-vmet%Rnsw - Hpot - Epot
-             dEdTs= zero
-           endif
+          endif
+!!$          elseif (abs(Tsurface - vmet%Ta).gt. 20) then
+!!$             Tsurface = min(vmet%Ta, 0.0)
+!!$             Epot = (esat(Tsurface)*0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero)  - & ! m3 H2O (liq) m-3 (air)
+!!$                  vmet%cva)*rhow*lambdas/vmet%rbw
+!!$             dEdTsoil = zero
+!!$             dGdTsoil = zero
+!!$             Hpot = rhocp*(Tsurface - vmet%Ta)/vmet%rbh
+!!$             Gpot = vmet%Rn-vmet%Rnsw - Hpot - Epot
+!!$             dEdTs= zero
+!!$           endif
           qevap = Epot/(rhow*lambdas)
           qTb = -dEdTsoil/(thousand*lambdas)
        endif
@@ -2004,8 +2004,8 @@ CONTAINS
        thetal_max    = thetalmax(Tsoil,S,parin%he,one/parin%lam,parin%thre,parin%the)
        var%dthetaldT = dthetalmaxdT(Tsoil,S,parin%he,one/parin%lam,parin%thre,parin%the)
        var%iice   = 1
-       var%thetai = (theta - thetal_max) ! volumetric ice content (m3(liq H2O)/m3 soil)
-       tmp_thetai = min(theta, parin%thre) - thetal_max
+       var%thetai = max((theta - thetal_max),zero) ! volumetric ice content (m3(liq H2O)/m3 soil)
+       tmp_thetai = max(min(theta, parin%thre) - thetal_max,zero)
        var%thetal = thetal_max
        ! liquid water content, relative to saturation
        ! Sliq      = (var%thetal - (parin%the-parin%thre))/parin%thre
@@ -2174,7 +2174,7 @@ CONTAINS
           ! calculate v%kH as in Campbell (1985) p.32 eq. 4.20
           A  = 0.65_r_2 - 0.78_r_2*parin%rho/thousand + 0.60_r_2*(parin%rho/thousand)**2 ! (4.27)
           B  = 2.8_r_2 * (one-parin%thre) !*theta   ! (4.24)
-          if (parin%clay > zero) then
+          if (parin%clay > 0.05) then
              C1 = one + 2.6_r_2/sqrt(parin%clay*100._r_2) ! (4.28)
           else
              C1 = one
