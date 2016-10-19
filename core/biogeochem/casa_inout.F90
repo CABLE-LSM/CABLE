@@ -1805,7 +1805,7 @@ SUBROUTINE READ_CASA_RESTART_NC (  casamet, casapool, casaflux,phen )
      ELSE
         write(*,*) 'CASA restart file:', TRIM(fname), ' does not exist either'
         write(*,*) 'Set cable_user%CASA_fromZero to true to initialise without restart file.'
-        write(*,*) 'Otherwise set casafile%cnpipool to restart file name in cable.nml'
+        write(*,*) 'Otherwise set casafile%cnpipool to netcdf restart file name in cable.nml'
         stop
      ENDIF
   ENDIF
