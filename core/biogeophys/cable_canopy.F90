@@ -1779,6 +1779,7 @@ CONTAINS
                            SPREAD( abs_deltlf, 2, mf ),                        &
                            anx(:,:), fwsoil(:) )
 
+
        DO i=1,mp
 
           IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. abs_deltlf(i) > 0.1 ) Then
@@ -1826,7 +1827,7 @@ CONTAINS
              IF (cable_user%fwsoil_switch=='Haverd2013') then
                  ! avoid root-water extraction when fwsoil is zero
                  if (fwsoil(i).lt.1e-6) then
-                   anx(i,:) = rdx(i,:)
+                   anx(i,:) =  - rdx(i,:)
                    ecx(i) = 0.0
                  endif
                  
@@ -1992,6 +1993,7 @@ CONTAINS
     canopy%frday = 12.0 * SUM(rdy, 2)
 !! vh !! inserted min to avoid -ve values of GPP
     canopy%fpn = min(-12.0 * SUM(an_y, 2), canopy%frday)
+
     canopy%evapfbl = ssnow%evapfbl
 
 
@@ -2038,8 +2040,8 @@ CONTAINS
 
     DO i=1,mp
 
-       IF (sum(vlaiz(i,:)) .GT. C%LAI_THRESH.and.fwsoilz(i).gt.1.e-3) THEN
-
+       !IF (sum(vlaiz(i,:)) .GT. C%LAI_THRESH.and.fwsoilz(i).gt.1.e-3) THEN
+       IF (sum(vlaiz(i,:)) .GT. C%LAI_THRESH) THEN
           DO j=1,mf
 
              IF( vlaiz(i,j) .GT. C%LAI_THRESH .AND. deltlfz(i,j) .GT. 0.1) THEN
