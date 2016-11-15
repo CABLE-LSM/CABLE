@@ -16,6 +16,7 @@
 ! History: Vanessa Haverd Jan 2015
 
 ! ==============================================================================
+!#define UM_BUILD YES
 MODULE cable_climate_mod
 
  Use cable_def_types_mod, ONLY: met_type, climate_type, canopy_type, mp, &
@@ -692,7 +693,6 @@ SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate )
 
   A4(1) = 'dtemp_91'
 
-!# define UM_BUILD YES
 # ifndef UM_BUILD
 
   ! Get File-Name
