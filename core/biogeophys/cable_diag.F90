@@ -34,7 +34,6 @@
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++!
 
 !#define UM_BUILD YES
-
 MODULE cable_diag_module
   use cable_def_types_mod, only : r_2
    IMPLICIT NONE

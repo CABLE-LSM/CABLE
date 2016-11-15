@@ -766,7 +766,9 @@ ENDIF
 
   IF (initcasa==1) THEN
      if (.NOT.cable_user%casa_fromzero) THEN
+#ifndef UM_BUILD
         CALL READ_CASA_RESTART_NC (  casamet, casapool, casaflux, phen )
+#endif
      ELSE
         WRITE(*,*)'casa_init: not using restart file!'
         WRITE(*,*)'Using input from readbiome.!!!'
@@ -1712,6 +1714,7 @@ write(*,*) 'writing casa restart', fname
 
 END SUBROUTINE WRITE_CASA_RESTART_NC
 
+#ifndef UM_BUILD
 SUBROUTINE READ_CASA_RESTART_NC (  casamet, casapool, casaflux,phen )
 
   USE CASAVARIABLE
@@ -1996,7 +1999,7 @@ ENDIF
   STATUS = NF90_CLOSE( FILE_ID )
 
 END SUBROUTINE READ_CASA_RESTART_NC
-
+#endif
 SUBROUTINE WRITE_CASA_OUTPUT_NC ( veg, casamet, casapool, casabal, casaflux, &
      CASAONLY, ctime, FINAL )
 

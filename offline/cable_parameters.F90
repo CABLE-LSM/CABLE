@@ -1222,53 +1222,16 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
                                                           soiltype_metfile(e, :)
        END IF
 ! offline only above
+       !call veg% init that is common   
+       CALL init_veg_from_vegin(landpt(e)%cstart, landpt(e)%cend, veg)
 
        ! Prescribe parameters for current gridcell based on veg/soil type (which
        ! may have loaded from default value file or met file):
        DO h = landpt(e)%cstart, landpt(e)%cend ! over each patch in current grid
-          veg%frac4(h)    = vegin%frac4(veg%iveg(h))
-          veg%taul(h,1)    = vegin%taul(1,veg%iveg(h))
-          veg%taul(h,2)    = vegin%taul(2,veg%iveg(h))
-          veg%refl(h,1)    = vegin%refl(1,veg%iveg(h))
-          veg%refl(h,2)    = vegin%refl(2,veg%iveg(h))
-          veg%canst1(h)   = vegin%canst1(veg%iveg(h))
-          veg%dleaf(h)    = vegin%dleaf(veg%iveg(h))
-          veg%vcmax(h)    = vegin%vcmax(veg%iveg(h))
-          veg%ejmax(h)    = vegin%ejmax(veg%iveg(h))
-          veg%hc(h)       = vegin%hc(veg%iveg(h))
-          veg%xfang(h)    = vegin%xfang(veg%iveg(h))
-          veg%vbeta(h)    = vegin%vbeta(veg%iveg(h))
-          veg%zr(h)    = vegin%zr(veg%iveg(h))
-          veg%clitt(h)    = vegin%clitt(veg%iveg(h))
-          veg%g0(h)    = vegin%g0(veg%iveg(h))
-          veg%g1(h)    = vegin%g1(veg%iveg(h))
-          veg%xalbnir(h)  = vegin%xalbnir(veg%iveg(h))
-          veg%rp20(h)     = vegin%rp20(veg%iveg(h))
-          veg%rpcoef(h)   = vegin%rpcoef(veg%iveg(h))
-          veg%rs20(h)     = vegin%rs20(veg%iveg(h))
-          veg%shelrb(h)   = vegin%shelrb(veg%iveg(h))
-          veg%wai(h)      = vegin%wai(veg%iveg(h))
-          veg%a1gs(h)     = vegin%a1gs(veg%iveg(h))
-          veg%d0gs(h)     = vegin%d0gs(veg%iveg(h))
-          veg%vegcf(h)    = vegin%vegcf(veg%iveg(h))
-          veg%extkn(h)    = vegin%extkn(veg%iveg(h))
-          veg%tminvj(h)   = vegin%tminvj(veg%iveg(h))
-          veg%tmaxvj(h)   = vegin%tmaxvj(veg%iveg(h))
-          veg%a1gs(h)   = vegin%a1gs(veg%iveg(h))
-          veg%d0gs(h)   = vegin%d0gs(veg%iveg(h))
-          veg%alpha(h)  = vegin%alpha(veg%iveg(h))
-          veg%convex(h) = vegin%convex(veg%iveg(h))
-          veg%cfrd(h)   = vegin%cfrd(veg%iveg(h))
-          veg%gswmin(h) = vegin%gswmin(veg%iveg(h))
-          veg%conkc0(h) = vegin%conkc0(veg%iveg(h))
-          veg%conko0(h) = vegin%conko0(veg%iveg(h))
-          veg%ekc(h)    = vegin%ekc(veg%iveg(h))
-          veg%eko(h)    = vegin%eko(veg%iveg(h))
           bgc%cplant(h,:) = vegin%cplant(:, veg%iveg(h))
           bgc%csoil(h,:)  = vegin%csoil(:, veg%iveg(h))
           bgc%ratecp(:)   = vegin%ratecp(:, veg%iveg(h))
           bgc%ratecs(:)   = vegin%ratecs(:, veg%iveg(h))
-          veg%froot(h,:)  = vegin%froot(:, veg%iveg(h))
          ! soil%silt(h)    =  soilin%silt(soil%isoilm(h))
          ! soil%clay(h)    =  soilin%clay(soil%isoilm(h))
          ! soil%sand(h)    =  soilin%sand(soil%isoilm(h))
@@ -1289,6 +1252,7 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
           rad%latitude(h) = latitude(e)
             !IF(hide%Ticket49Bug4) &
           rad%longitude(h) = longitude(e)
+          !jhan:is this done online? YES
           veg%ejmax(h) = 2.0 * veg%vcmax(h)
        END DO ! over each veg patch in land point
     END DO ! over all land points
