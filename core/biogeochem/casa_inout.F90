@@ -1239,11 +1239,11 @@ SUBROUTINE casa_cnpflux(casaflux,casapool,casabal,zeroflux)
   TYPE (casa_flux),    INTENT(INOUT) :: casaflux
   TYPE (casa_pool),    INTENT(INOUT) :: casapool
   TYPE (casa_balance), INTENT(INOUT) :: casabal
-  LOGICAL, OPTIONAL, INTENT(IN) :: zeroflux
+  LOGICAL :: zeroflux
   !  REAL(r_2), INTENT(INOUT) :: clitterinput(mp,3),csoilinput(mp,3)
   INTEGER n
 
-  IF(present(zeroflux) .and. zeroflux) THEN
+  IF(zeroflux) THEN
      casabal%FCgppyear    = 0.0
      casabal%FCrpyear     = 0.0   
      casabal%FCrmleafyear = 0.0
@@ -1359,7 +1359,7 @@ SUBROUTINE biogeochem(ktau,dels,idoY,LALLOC,veg,soil,casabiome,casapool,casaflux
   xKNlimiting = 1.0
 
  ! zero annual sums
-  if (idoy==1) CALL casa_cnpflux(casaflux,casapool,casabal,.TRUE.)
+  if (idoy==1) CALL casa_cnpflux(casaflux,casapool,casabal,.true.)
 
   IF (cable_user%PHENOLOGY_SWITCH.eq.'MODIS') THEN
      call phenology(idoy,veg,phen)
@@ -1484,7 +1484,8 @@ SUBROUTINE biogeochem(ktau,dels,idoY,LALLOC,veg,soil,casabiome,casapool,casaflux
   ENDIF
 
   call casa_cnpbal(casapool,casaflux,casabal)
-  call casa_cnpflux(casaflux,casapool,casabal,.FALSE.)
+
+  call casa_cnpflux(casaflux,casapool,casabal,.false.)
 
   ! for spinning up only
   ! casapool%Nsoilmin = max(casapool%Nsoilmin,0.5)

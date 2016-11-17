@@ -947,7 +947,8 @@ CONTAINS
   !   landpt(mp)%type- via cable_IO_vars_module (%nap,cstart,cend,ilon,ilat)
   !   patch(mp)%type - via cable_IO_vars_module (%frac,longitude,latitude)
 
-    USE cable_common_module, only : vegin, soilin, calcsoilalbedo
+    USE cable_common_module, only : vegin, soilin, calcsoilalbedo,             &
+                                    init_veg_from_vegin
     IMPLICIT NONE
     INTEGER,               INTENT(IN)    :: logn  ! log file unit number
     INTEGER,               INTENT(IN)    :: month ! month of year

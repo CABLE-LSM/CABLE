@@ -705,7 +705,8 @@ PROGRAM cable_offline_driver
                          MOD((ktau-kstart+1)/ktauday,LOY)==0) )THEN ! end of year
                        IF (CABLE_USER%POPLUC) THEN
                           ! Dynamic LUC
-                          CALL LUCdriver( casabiome,casapool,casaflux,POP,LUC_EXPT, POPLUC )
+                          CALL LUCdriver( casabiome,casapool,casaflux,POP,     &
+                                    LUC_EXPT, POPLUC, veg )
                        ENDIF
 
                        ! one annual time-step of POP
@@ -758,7 +759,8 @@ PROGRAM cable_offline_driver
                              CALL write_casa_dump( ncfile, casamet , casaflux, phen, climate,&
                                   INT(met%doy), LOY )
                           ELSE
-                             CALL write_casa_dump( ncfile, casamet , casaflux, phen, climate, idoy, &                                 kend/ktauday )
+                             CALL write_casa_dump( ncfile, casamet , casaflux, &
+                                    phen, climate, idoy, kend/ktauday )
                           ENDIF
 
                        ENDIF
@@ -771,8 +773,8 @@ PROGRAM cable_offline_driver
                     ! sumcflux is pulled out of subroutine cbm
                     ! so that casaCNP can be called before adding the fluxes
                     ! (Feb 2008, YP)
-                    CALL sumcflux( ktau, kstart, kend, dels, bgc,		       &
-                         canopy, soil, ssnow, sum_flux, veg,		       &
+                    CALL sumcflux( ktau, kstart, kend, dels, bgc,              &
+                         canopy, soil, ssnow, sum_flux, veg,                   &
                          met, casaflux, l_vcmaxFeedbk )
 
 

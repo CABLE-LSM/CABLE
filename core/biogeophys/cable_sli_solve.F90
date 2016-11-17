@@ -2537,11 +2537,20 @@ CONTAINS
 
                      
                       !check there is a zero
-                      tmp1 = GTfrozen(real(Tsoil(kk,i)- dTsoil(kk,i)-50., r_2), tmp1d2(kk), dx(kk,i), theta,par(kk,i)%css, par(kk,i)%rho, &
-                           merge(h0(kk),zero,i==1), par(kk,i)%thre, par(kk,i)%the, par(kk,i)%he, one/(par(kk,i)%lambc*freezefac))
+                      tmp1 = GTfrozen( &
+                              real(Tsoil(kk,i) - dTsoil(kk,i) -50., r_2),      &
+                              tmp1d2(kk), dx(kk,i), theta,par(kk,i)%css,       &
+                              par(kk,i)%rho, merge(h0(kk),zero,i==1),          &
+                              par(kk,i)%thre, par(kk,i)%the, par(kk,i)%he,     &
+                              one/(par(kk,i)%lambc*freezefac) )
   
-                      tmp2 = GTFrozen(Tfreezing(kk), tmp1d2(kk), dx(kk,i), theta,par(kk,i)%css, par(kk,i)%rho, &
-                           merge(h0(kk),zero,i==1), par(kk,i)%thre, par(kk,i)%the, par(kk,i)%he, one/(par(kk,i)%lambc*freezefac))
+                      tmp2 = GTFrozen( &
+                              Tfreezing(kk),                                   &
+                              tmp1d2(kk), dx(kk,i), theta,par(kk,i)%css,       &
+                              par(kk,i)%rho, merge(h0(kk),zero,i==1),          &
+                              par(kk,i)%thre, par(kk,i)%the, par(kk,i)%he,     &
+                              one/(par(kk,i)%lambc*freezefac) )
+
                       ! there is a zero in between
                       if ((tmp1*tmp2) < zero) then
                          tmp1d3(kk) = rtbis_Tfrozen(tmp1d2(kk), dx(kk,i), theta,par(kk,i)%css, par(kk,i)%rho, &
