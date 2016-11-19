@@ -2272,19 +2272,19 @@ SUBROUTINE casa_cnpbal(casapool,casaflux,casabal)
    casabal%cbalance(:) = Cbalplant(:) + Cbalsoil(:)
 
 
- do npt=1,mp
-    IF(abs(casabal%cbalance(npt))>1e-10) THEN
-      write(*,*) 'cbalance',  npt, Cbalplant(npt), Cbalsoil(npt)
-      write(*,*) 'cplant', casapool%cplant(npt,:)
-      write(*,*) 'gpp, npp',casaflux%Cgpp(npt) , &
-           casaflux%Cnpp(npt)
-      write(*,*) 'dcplandt',  casapool%dcplantdt(npt,:), sum(casapool%dcplantdt(npt,:))
-      write(*,*) 'rmplant, rgplant',  casaflux%crmplant(npt,:) , casaflux%crgplant(npt)
-      write(*,*), 'dclabile',  casapool%dClabiledt(npt)* deltpool
-       
-     !  STOP
-    ENDIF
- ENDDO
+!!$ do npt=1,mp
+!!$    IF(abs(casabal%cbalance(npt))>1e-10) THEN
+!!$      write(*,*) 'cbalance',  npt, Cbalplant(npt), Cbalsoil(npt)
+!!$      write(*,*) 'cplant', casapool%cplant(npt,:)
+!!$      write(*,*) 'gpp, npp',casaflux%Cgpp(npt) , &
+!!$           casaflux%Cnpp(npt)
+!!$      write(*,*) 'dcplandt',  casapool%dcplantdt(npt,:), sum(casapool%dcplantdt(npt,:))
+!!$      write(*,*) 'rmplant, rgplant',  casaflux%crmplant(npt,:) , casaflux%crgplant(npt)
+!!$      write(*,*), 'dclabile',  casapool%dClabiledt(npt)* deltpool
+!!$       
+!!$     !  STOP
+!!$    ENDIF
+!!$ ENDDO
 
 
 
