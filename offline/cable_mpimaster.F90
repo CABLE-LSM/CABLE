@@ -343,7 +343,7 @@ CONTAINS
          cable_user           ! additional USER switches 
     INTEGER :: i,x,kk
     INTEGER :: LALLOC
-    INTEGER, PARAMETER ::	 mloop	= 30   ! CASA-CNP PreSpinup loops
+    INTEGER, PARAMETER ::	 mloop	= 10   ! CASA-CNP PreSpinup loops
     REAL    :: etime
 
     ! END header
