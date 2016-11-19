@@ -1659,7 +1659,7 @@ CONTAINS
     
               if (cable_user%CALL_climate) then
   
-                 ! Atkins et al. 2015, Table S4, 
+                 ! Atkin et al. 2015, Table S4, 
                  ! modified by saling factor to reduce leaf respiration to 
                  ! expected proportion of GPP
                  !Broad-leaved trees: Rdark a25 = 
@@ -1670,14 +1670,20 @@ CONTAINS
                  !1.2877 + (0.0116 × Vcmax,a25) – (0.0334 × TWQ)
                  !Shrubs: Rdark,a25 = 1.5758 + (0.0116 × Vcmax,a25) – (0.0334 × TWQ)
 
-              if (veg%iveg(i).eq.2 .or. veg%iveg(i).eq. 4  ) then ! broadleaf forest
+              if (veg%iveg(i).eq.2  ) then ! evergreen broadleaf forest
 
-                rdx(i,1) = 0.60*(1.2818e-6+0.0116*veg%vcmax(i)- &
+                rdx(i,1) = 0.80*(1.2818e-6+0.0116*veg%vcmax(i)- &
+                     0.0334*climate%qtemp_max_last_year(i)*1e-6)
+                rdx(i,2) = rdx(i,1)
+
+             elseif ( veg%iveg(i).eq. 4  ) then ! decid broadleaf forest
+
+                rdx(i,1) = 1.2*(1.2818e-6+0.0116*veg%vcmax(i)- &
                      0.0334*climate%qtemp_max_last_year(i)*1e-6)
                 rdx(i,2) = rdx(i,1)
 
               elseif (veg%iveg(i).eq.1 .or. veg%iveg(i).eq. 3  ) then ! needleleaf forest
-                 rdx(i,1) = 1.0*(1.2877e-6+0.0116*veg%vcmax(i)- &
+                 rdx(i,1) = 1.4*(1.2877e-6+0.0116*veg%vcmax(i)- &
                       0.0334*climate%qtemp_max_last_year(i)*1e-6)
                  rdx(i,2) = rdx(i,1)
 
