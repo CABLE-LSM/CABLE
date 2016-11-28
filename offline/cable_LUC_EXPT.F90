@@ -352,6 +352,9 @@ CONTAINS
 
 
            endif
+        else
+           LUC_EXPT%prim_only(k)=.TRUE.
+
         endif
 
 ! don't consider LUC events in desert or tundra
