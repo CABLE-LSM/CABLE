@@ -242,6 +242,7 @@ SUBROUTINE POPdriver(casaflux,casabal,veg, POP)
      Cleafmean = casabal%cleafmean
      Crootmean = casabal%Crootmean
 
+
      CALL POPStep(pop, max(StemNPP(Iw,:)/1000.,0.0001), int(veg%disturbance_interval(Iw,:), i4b),&
           real(veg%disturbance_intensity(Iw,:),dp)      ,&
           max(LAImax(Iw),0.001), Cleafmean(Iw), Crootmean(Iw), NPPtoGPP(Iw))

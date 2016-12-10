@@ -141,7 +141,7 @@ CONTAINS
        CALL get_land_index(nlon, nlat)
        CALL LUC_EXPT_SET_TILES(inVeg, inPfrac, LUC_EXPT)
     ENDIF
-
+ 
 
     IF (soilparmnew) THEN
       PRINT *,      'Use spatially-specific soil properties; ', nlon, nlat
@@ -830,6 +830,8 @@ CONTAINS
     landpt(:)%ilat = -999
     ncount = 0
     DO kk = 1, mland
+
+
        distance = 3.0 ! initialise, units are degrees
        DO jj = 1, nlat
           DO ii = 1, nlon
@@ -925,7 +927,7 @@ CONTAINS
   !=============================================================================
   SUBROUTINE write_default_params(met,  air,    ssnow, veg, bgc,               &
                                   soil, canopy, rough, rad, logn,              &
-                                  vegparmnew, month, TFRZ)
+                                  vegparmnew, month, TFRZ, LUC_EXPT)
   ! Initialize many canopy_type, soil_snow_type, soil_parameter_type and
   ! roughness_type variables;
   ! Calculate 'froot' from 'rootbeta' parameter;
@@ -947,7 +949,7 @@ CONTAINS
   !   landpt(mp)%type- via cable_IO_vars_module (%nap,cstart,cend,ilon,ilat)
   !   patch(mp)%type - via cable_IO_vars_module (%frac,longitude,latitude)
 
-    USE cable_common_module, only : vegin, soilin, calcsoilalbedo
+    USE cable_common_module, only : vegin, soilin, calcsoilalbedo, cable_user
     IMPLICIT NONE
     INTEGER,               INTENT(IN)    :: logn  ! log file unit number
     INTEGER,               INTENT(IN)    :: month ! month of year
@@ -962,6 +964,7 @@ CONTAINS
     TYPE (canopy_type),         INTENT(INOUT)   :: canopy
     TYPE (roughness_type),      INTENT(INOUT)   :: rough
     TYPE (radiation_type),      INTENT(INOUT)   :: rad
+    TYPE (LUC_EXPT_TYPE), INTENT(IN) :: LUC_EXPT
 
     INTEGER,dimension(:), ALLOCATABLE :: ALLVEG
     INTEGER :: e,f,h,i  ! do loop counter
@@ -1077,7 +1080,7 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
       ! set land use (1 = primary; 2 = secondary, 3 = open)
       if (cable_user%popluc) then
          veg%iLU(landpt(e)%cstart:landpt(e)%cend)= 1
-         if (landpt(e)%nap.gt.1) then
+         if (landpt(e)%nap.eq.3 .and.veg%iveg(landpt(e)%cstart)<=5 ) then
             veg%iLU(landpt(e)%cstart+1) = 2
             veg%iLU(landpt(e)%cend) = 3
          endif
@@ -1257,6 +1260,9 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
           veg%a1gs(h)   = vegin%a1gs(veg%iveg(h))
           veg%d0gs(h)   = vegin%d0gs(veg%iveg(h))
           veg%alpha(h)  = vegin%alpha(veg%iveg(h))
+          if (cable_user%POPLUC .and. LUC_EXPT%biome(e).eq.4 .and.veg%iveg(h).eq.2 ) THEN
+             veg%alpha(h) = 0.08
+          endif
           veg%convex(h) = vegin%convex(veg%iveg(h))
           veg%cfrd(h)   = vegin%cfrd(veg%iveg(h))
           veg%gswmin(h) = vegin%gswmin(veg%iveg(h))

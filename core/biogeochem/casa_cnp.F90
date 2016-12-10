@@ -449,9 +449,8 @@ SUBROUTINE casa_allocation(veg,soil,casabiome,casaflux,casapool,casamet,phen,LAL
 !endif
   ENDIF ! LALLOC=3
   
-
-
-
+!write(*,*) 'alloc 4', casaflux%fracCalloc(4,:),  casapool%Cplant(4,:)
+!write(*,*) 'alloc 5', casaflux%fracCalloc(5,:), casapool%Cplant(5,:)
   ! normalization the allocation fraction to ensure they sum up to 1
   totfracCalloc(:) = sum(casaflux%fracCalloc(:,:),2)
   casaflux%fracCalloc(:,leaf) = casaflux%fracCalloc(:,leaf)/totfracCalloc(:)

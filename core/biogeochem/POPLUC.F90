@@ -994,7 +994,6 @@ CONTAINS
                   max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0)
 
           ENDDO
-
        ELSE
 
           POPLUC%csoil(g,:) = 0.0
@@ -1008,7 +1007,6 @@ CONTAINS
           POPLUC%FNEP(g,1) =  casabal%Fcneeyear(j)*patch(j)%frac
           POPLUC%primf(g) = patch(j)%frac
           POPLUC%secdf(g) = 0.0
-
           if (POPLUC%grass(g).gt.0.0 .and. l.eq.j+1) then
              POPLUC%csoil(g,3) = sum(casapool%csoil(l,:))*patch(l)%frac
              POPLUC%clitt(g,3) = sum(casapool%clitter(l,:))*patch(l)%frac

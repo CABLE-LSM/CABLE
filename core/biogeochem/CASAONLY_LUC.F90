@@ -87,7 +87,6 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   
   if (.NOT.Allocated(Iw)) allocate(Iw(POP%np))
 
-
   !! vh_js !!
   IF (cable_user%CALL_POP) THEN
      Iw = POP%Iwood
@@ -238,6 +237,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
                  casaflux%frac_sapwood(j) = 1.0
 
               endif
+
            ENDDO
 
 
@@ -258,8 +258,8 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
 
 
            CALL POP_LUC_CASA_transfer(POPLUC,POP,LUC_EXPT,casapool,casabal,casaflux,ktauday)
-      
-           CALL WRITE_LUC_OUTPUT_GRID_NC( POPLUC, YYYY, ( YYYY.EQ.cable_user%YearEnd ))
+    
+           CALL WRITE_LUC_OUTPUT_NC( POPLUC, YYYY, ( YYYY.EQ.cable_user%YearEnd ))
 
            CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT) 
 

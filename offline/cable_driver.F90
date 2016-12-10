@@ -123,7 +123,7 @@ PROGRAM cable_offline_driver
 
   ! timing variables
   INTEGER, PARAMETER ::	 kstart = 1   ! start of simulation
-  INTEGER, PARAMETER ::	 mloop	= 5   ! CASA-CNP PreSpinup loops
+  INTEGER, PARAMETER ::	 mloop	= 30   ! CASA-CNP PreSpinup loops
   INTEGER :: LALLOC ! allocation coefficient for passing to spincasa
 
   INTEGER	 ::							      &
@@ -503,20 +503,25 @@ PROGRAM cable_offline_driver
     ! be chosen from a coarse global grid of veg and soil types, based on
     ! the lat/lon coordinates. Allocation of CABLE's main variables also here.
     IF ( CALL1 ) THEN
-       
+      ! write(*,*) 'LU1',  POP%pop_grid%LU
+
        IF (cable_user%POPLUC) THEN
           CALL LUC_EXPT_INIT (LUC_EXPT)
        ENDIF
        !! vh_js !!
+ 
        CALL load_parameters( met, air, ssnow, veg,climate,bgc,		&
             soil, canopy, rough, rad, sum_flux,			 &
             bal, logn, vegparmnew, casabiome, casapool,		 &
             casaflux, sum_casapool, sum_casaflux, &
             casamet, casabal, phen, POP, spinup,	       &
             C%EMSOIL, C%TFRZ, LUC_EXPT, POPLUC )
+ 
+
 
        IF ( CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static') &
             CABLE_USER%POPLUC= .FALSE.
+
        ! Open output file:
        IF (.NOT.CASAONLY) THEN
           IF ( TRIM(filename%out) .EQ. '' ) THEN
@@ -562,7 +567,7 @@ PROGRAM cable_offline_driver
           SPINconv = .FALSE. 
 
        ELSEIF ( casaonly .AND. (.NOT. spincasa) .AND. cable_user%popluc) THEN
-
+write(*,*) 'b4 casaonly_luc'
            CALL CASAONLY_LUC(dels,kstart,kend,veg,soil,casabiome,casapool, &
                casaflux,casamet,casabal,phen,POP,climate,LALLOC, LUC_EXPT, POPLUC, &
                sum_casapool, sum_casaflux)
@@ -582,6 +587,7 @@ PROGRAM cable_offline_driver
     knode_gl = 0
 
     IF (casaonly) THEN
+      ! CALL1 = .FALSE.
              EXIT
     ENDIF
     
@@ -638,11 +644,13 @@ PROGRAM cable_offline_driver
 
           ! At first time step of year, set tile area according to updated LU areas
           ! and zero casa fluxes
+
+ 
           IF (ktau == 1) THEN
              if (icycle>1) CALL casa_cnpflux(casaflux,casapool,casabal,.TRUE.)
              if ( CABLE_USER%POPLUC) CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT)   
           ENDIF
-          
+ 
           IF ( .NOT. CASAONLY ) THEN
              
              ! Feedback prognostic vcmax and daily LAI from casaCNP to CABLE

@@ -230,15 +230,24 @@ CONTAINS
        LUC_EXPT%ivegp = 14
     ENDWHERE
 
-    WHERE (LUC_EXPT%biome .eq. 3 .or. LUC_EXPT%biome .eq. 11)
+    WHERE (LUC_EXPT%biome .eq. 3 .or. LUC_EXPT%biome .eq. 11) ! savanna/ xerophytic woods
        LUC_EXPT%grass = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf)*1.0/2.0
        LUC_EXPT%primaryf =  LUC_EXPT%primaryf * 1.0/2.0
        LUC_EXPT%secdf =  LUC_EXPT%secdf * 1.0/2.0
-    ELSEWHERE (LUC_EXPT%biome .eq. 12 .or. LUC_EXPT%biome .eq. 13 &
+    ELSEWHERE (LUC_EXPT%biome .eq. 12 .or. LUC_EXPT%biome .eq. 13 & ! shrub
          .or. LUC_EXPT%biome .eq. 15 .or. LUC_EXPT%biome .eq. 16  )
-       LUC_EXPT%grass = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf)*2.0/3.0
-       LUC_EXPT%primaryf =  LUC_EXPT%primaryf * 1.0/3.0
-       LUC_EXPT%secdf =  LUC_EXPT%secdf * 1.0/3.0
+       LUC_EXPT%grass = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf)*4.0/5.0
+       LUC_EXPT%primaryf =  LUC_EXPT%primaryf * 1.0/5.0
+       LUC_EXPT%secdf =  LUC_EXPT%secdf * 1.0/5.0
+    ELSEWHERE (LUC_EXPT%biome .eq. 7 .or. LUC_EXPT%biome .eq. 8 &  ! boreal
+         .or. LUC_EXPT%biome .eq. 9 .or. LUC_EXPT%biome .eq. 10  )
+       LUC_EXPT%grass = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf)*1.0/5.0
+       LUC_EXPT%primaryf =  LUC_EXPT%primaryf * 4.0/5.0
+       LUC_EXPT%secdf =  LUC_EXPT%secdf * 4.0/5.0
+    ELSEWHERE (LUC_EXPT%biome .eq. 5 .or. LUC_EXPT%biome .eq. 6 ) ! DBL
+       LUC_EXPT%grass = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf)*0.3
+       LUC_EXPT%primaryf =  LUC_EXPT%primaryf *0.7
+       LUC_EXPT%secdf =  LUC_EXPT%secdf * 0.7
     END WHERE
    
 
@@ -278,17 +287,25 @@ CONTAINS
     END DO
 
     ! set secondary vegetation area to be zero where land use transitions don't occur
+    ! set grass component of primary vegetation cover
     WHERE (LUC_EXPT%prim_only .eq. .TRUE.)
        LUC_EXPT%secdf = 0.0
        LUC_EXPT%primaryf = 1.0
        LUC_EXPT%grass = 0.0
-       WHERE (LUC_EXPT%biome .eq. 3 .or. LUC_EXPT%biome .eq. 11)
+       WHERE (LUC_EXPT%biome .eq. 3 .or. LUC_EXPT%biome .eq. 11) ! savanna/ xerophytic woods
           LUC_EXPT%grass = LUC_EXPT%primaryf*1.0/2.0
           LUC_EXPT%primaryf =  LUC_EXPT%primaryf * 1.0/2.0
        ELSEWHERE (LUC_EXPT%biome .eq. 12 .or. LUC_EXPT%biome .eq. 13 &
-            .or. LUC_EXPT%biome .eq. 15 .or. LUC_EXPT%biome .eq. 16  )
-          LUC_EXPT%grass = LUC_EXPT%primaryf*2.0/3.0
-          LUC_EXPT%primaryf =  LUC_EXPT%primaryf * 1.0/3.0
+            .or. LUC_EXPT%biome .eq. 15 .or. LUC_EXPT%biome .eq. 16  ) ! shrub
+          LUC_EXPT%grass = LUC_EXPT%primaryf*4.0/5.0
+          LUC_EXPT%primaryf =  LUC_EXPT%primaryf * 1.0/5.0
+       ELSEWHERE (LUC_EXPT%biome .eq. 7 .or. LUC_EXPT%biome .eq. 8 &
+            .or. LUC_EXPT%biome .eq. 9 .or. LUC_EXPT%biome .eq. 10) ! boreal
+          LUC_EXPT%grass = LUC_EXPT%primaryf*1.0/5.0
+          LUC_EXPT%primaryf =  LUC_EXPT%primaryf * 4.0/5.0
+       ELSEWHERE (LUC_EXPT%biome .eq. 5 .or. LUC_EXPT%biome .eq. 6 ) ! DBL
+          LUC_EXPT%grass = LUC_EXPT%primaryf*0.3
+          LUC_EXPT%primaryf =  LUC_EXPT%primaryf *0.7
        END WHERE
     END WHERE
 
@@ -366,7 +383,6 @@ CONTAINS
           inPFrac(m,n,1) = 1.0
           inPFrac(m,n,2:3) = 0.0
         endif
-
 
      ENDDO
   
@@ -547,18 +563,29 @@ IMPLICIT NONE
  endif
 
 
- ! Adjust transition areas based on native tree fraction for savanna grid-cells
- WHERE (LUC_EXPT%biome .eq. 3 .or. LUC_EXPT%biome .eq. 11) 
+ ! Adjust transition areas based on primary wooded fraction 
+ WHERE (LUC_EXPT%biome .eq. 3 .or. LUC_EXPT%biome .eq. 11)  ! savanna/ xerophytic woods
     LUC_EXPT%INPUT(ptos)%VAL =  LUC_EXPT%INPUT(ptos)%VAL * 1.0/2.0
     LUC_EXPT%INPUT(ptog)%VAL =  LUC_EXPT%INPUT(ptog)%VAL * 1.0/2.0
     LUC_EXPT%INPUT(gtos)%VAL =  LUC_EXPT%INPUT(gtos)%VAL * 1.0/2.0
     LUC_EXPT%INPUT(stog)%VAL =  LUC_EXPT%INPUT(stog)%VAL * 1.0/2.0
  ELSEWHERE (LUC_EXPT%biome .eq. 12 .or. LUC_EXPT%biome .eq. 13 &
-     .or. LUC_EXPT%biome .eq. 15 .or. LUC_EXPT%biome .eq. 16  )
-    LUC_EXPT%INPUT(ptos)%VAL =  LUC_EXPT%INPUT(ptos)%VAL * 1.0/3.0
-    LUC_EXPT%INPUT(ptog)%VAL =  LUC_EXPT%INPUT(ptog)%VAL * 1.0/3.0
-    LUC_EXPT%INPUT(gtos)%VAL =  LUC_EXPT%INPUT(gtos)%VAL * 1.0/3.0
-    LUC_EXPT%INPUT(stog)%VAL =  LUC_EXPT%INPUT(stog)%VAL * 1.0/3.0
+     .or. LUC_EXPT%biome .eq. 15 .or. LUC_EXPT%biome .eq. 16  ) ! shrub
+    LUC_EXPT%INPUT(ptos)%VAL =  LUC_EXPT%INPUT(ptos)%VAL * 1.0/5.0
+    LUC_EXPT%INPUT(ptog)%VAL =  LUC_EXPT%INPUT(ptog)%VAL * 1.0/5.0
+    LUC_EXPT%INPUT(gtos)%VAL =  LUC_EXPT%INPUT(gtos)%VAL * 1.0/5.0
+    LUC_EXPT%INPUT(stog)%VAL =  LUC_EXPT%INPUT(stog)%VAL * 1.0/5.0
+ ELSEWHERE (LUC_EXPT%biome .eq. 7 .or. LUC_EXPT%biome .eq. 8 &
+            .or. LUC_EXPT%biome .eq. 9 .or. LUC_EXPT%biome .eq. 10) ! boreal
+    LUC_EXPT%INPUT(ptos)%VAL =  LUC_EXPT%INPUT(ptos)%VAL * 0.8
+    LUC_EXPT%INPUT(ptog)%VAL =  LUC_EXPT%INPUT(ptog)%VAL * 0.8
+    LUC_EXPT%INPUT(gtos)%VAL =  LUC_EXPT%INPUT(gtos)%VAL * 0.8
+    LUC_EXPT%INPUT(stog)%VAL =  LUC_EXPT%INPUT(stog)%VAL * 0.8
+ ELSEWHERE (LUC_EXPT%biome .eq. 5 .or. LUC_EXPT%biome .eq. 6 ) ! DBL
+    LUC_EXPT%INPUT(ptos)%VAL =  LUC_EXPT%INPUT(ptos)%VAL * 0.7
+    LUC_EXPT%INPUT(ptog)%VAL =  LUC_EXPT%INPUT(ptog)%VAL * 0.7
+    LUC_EXPT%INPUT(gtos)%VAL =  LUC_EXPT%INPUT(gtos)%VAL * 0.7
+    LUC_EXPT%INPUT(stog)%VAL =  LUC_EXPT%INPUT(stog)%VAL * 0.7
  ENDWHERE
 
 END SUBROUTINE READ_LUH2

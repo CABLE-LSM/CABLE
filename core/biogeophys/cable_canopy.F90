@@ -1672,29 +1672,29 @@ CONTAINS
 
               if (veg%iveg(i).eq.2  ) then ! evergreen broadleaf forest
 
-                rdx(i,1) = 0.80*(1.2818e-6+0.0116*veg%vcmax(i)- &
+                rdx(i,1) = 0.50*(1.2818e-6+0.0116*veg%vcmax(i)- &
                      0.0334*climate%qtemp_max_last_year(i)*1e-6)
                 rdx(i,2) = rdx(i,1)
 
              elseif ( veg%iveg(i).eq. 4  ) then ! decid broadleaf forest
 
-                rdx(i,1) = 1.2*(1.2818e-6+0.0116*veg%vcmax(i)- &
+                rdx(i,1) = 1.0*(1.2818e-6+0.0116*veg%vcmax(i)- &
                      0.0334*climate%qtemp_max_last_year(i)*1e-6)
                 rdx(i,2) = rdx(i,1)
 
               elseif (veg%iveg(i).eq.1 .or. veg%iveg(i).eq. 3  ) then ! needleleaf forest
-                 rdx(i,1) = 1.4*(1.2877e-6+0.0116*veg%vcmax(i)- &
+                 rdx(i,1) = 1.0*(1.2877e-6+0.0116*veg%vcmax(i)- &
                       0.0334*climate%qtemp_max_last_year(i)*1e-6)
                  rdx(i,2) = rdx(i,1)
 
               elseif (veg%iveg(i).eq.6 .or. veg%iveg(i).eq.8 .or. &
                  veg%iveg(i).eq. 9  ) then ! C3 grass, tundra, crop
-                 rdx(i,1) = 0.60*(1.6737e-6+0.0116*veg%vcmax(i)- &
+                 rdx(i,1) = 0.8*(1.6737e-6+0.0116*veg%vcmax(i)- &
                       0.0334*climate%qtemp_max_last_year(i)*1e-6)
                  rdx(i,2) = rdx(i,1)
 
               else  ! shrubs and other (C4 grass and crop)
-                 rdx(i,1) = 0.60*(1.5758e-6+0.0116*veg%vcmax(i)- &
+                 rdx(i,1) = 0.7*(1.5758e-6+0.0116*veg%vcmax(i)- &
                       0.0334*climate%qtemp_max_last_year(i)*1e-6)
                  rdx(i,2) = rdx(i,1)
               endif

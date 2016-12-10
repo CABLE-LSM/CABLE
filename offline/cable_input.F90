@@ -752,13 +752,13 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
     ! if site data, shift start time to middle of timestep
     ! only do this if not already at middle of timestep
     !! vh_js !!
-    IF (TRIM(cable_user%MetType).EQ.'' .and. MOD(shod*3600, dels)==0 .and. &
-         (shod.gt.dels/3600./2.) ) THEN
-       shod = shod - dels/3600./2.
-    ELSEIF (TRIM(cable_user%MetType).EQ.'' .and. MOD(shod*3600, dels)==0 .and. &
-         (shod.lt.dels/3600./2.) ) THEN
-       shod = shod + dels/3600./2.
-    ENDIF
+!!$    IF (TRIM(cable_user%MetType).EQ.'' .and. MOD(shod*3600, dels)==0 .and. &
+!!$         (shod.gt.dels/3600./2.) ) THEN
+!!$       shod = shod - dels/3600./2.
+!!$    ELSEIF (TRIM(cable_user%MetType).EQ.'' .and. MOD(shod*3600, dels)==0 .and. &
+!!$         (shod.lt.dels/3600./2.) ) THEN
+!!$       shod = shod + dels/3600./2.
+!!$    ENDIF
     
    
     ! Decide day-of-year for non-leap year:
@@ -2399,7 +2399,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
 
     ! Write parameter values to CABLE's parameter variables:
     CALL write_default_params(met,air,ssnow,veg,bgc,soil,canopy,rough, &
-            rad,logn,vegparmnew,smoy, TFRZ)
+            rad,logn,vegparmnew,smoy, TFRZ, LUC_EXPT)
 
 
 
@@ -2435,12 +2435,17 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
 
       IF (CABLE_USER%POPLUC) then
 
+! reset alpha for extra-tropical iveg2
+
+        ! where (veg%iveg==2 .and. climate%biome.eq.4)
+        !    veg%alpha = 0.1
+        ! endwhere
+
          ! initialise POPLUC structure and params
          !zero biomass in secondary forest tiles
          ! read POP_LUC restart file here
          ! set POP%LU here for secondary tiles if cable_user%POPLUC_RunType is not 'static'
          CALL POPLUC_init(POPLUC,LUC_EXPT, casapool, casaflux, casabiome, veg, POP, mland)
-         
       ENDIF
 
    ENDIF

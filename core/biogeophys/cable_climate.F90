@@ -365,7 +365,7 @@ DO k=1,np
    ENDIF
    
    IF (climate%mtemp_min20(k).GE.-35 .and. climate%mtemp_min20(k).LE.-2 .and. &
-     alpha_PT_scaled(k).GE.0.35 .and. climate%agdd5(k).gt.350 )  THEN
+     alpha_PT_scaled(k).GE.0.35 .and. climate%agdd5(k).gt.550 )  THEN
       IF (pft_biome1(k,1).eq.999 ) THEN
          pft_biome1(k,1) = 6
       ELSEIF (pft_biome1(k,2).eq.999 ) THEN
@@ -376,7 +376,7 @@ DO k=1,np
    ENDIF
    
    IF ( climate%mtemp_min20(k).LE. 5 .and. &
-        alpha_PT_scaled(k).GE.0.45 .and. climate%agdd5(k).gt.350 )  THEN
+        alpha_PT_scaled(k).GE.0.35 .and. climate%agdd5(k).gt.550 )  THEN
       IF (pft_biome1(k,1).eq.999 ) THEN
          pft_biome1(k,1) = 7
       ELSEIF (pft_biome1(k,2).eq.999 ) THEN
@@ -537,6 +537,16 @@ if ((climate%iveg(k)==1 .OR.climate%iveg(k)==3 .OR. climate%iveg(k)==4) &
      .and. patch(k)%latitude<0) THEN
    climate%iveg(k) = 2
 endif
+
+
+! check for EBL in temperate South America: set to Warm grass/shrub instead.
+if (climate%biome(k)==4 .and. &
+     (patch(k)%latitude>=-46.25 .and. patch(k)%latitude<= -23.25 &
+      .and. patch(k)%longitude>=-65.25 .and. patch(k)%longitude<=-42.75)) then
+      climate%biome(k) = 12
+      climate%iveg(k) = 5
+endif
+
 
 !"(/grass:1/shrub:2/woody:3"
 !1,3,Evergreen Needleleaf Forest

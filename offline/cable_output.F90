@@ -2059,7 +2059,8 @@ CONTAINS
                                 / 1.201E-5, 4)
       ! out%GPP = out%GPP + REAL((-1.0 * canopy%fpn)             &
        !                         / 1.201E-5, 4)
-
+!write(*,*),  out%GPP, -1.0 * canopy%fpn, canopy%frday, (-1.0 * canopy%fpn + canopy%frday)
+!stop
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
           out%GPP = out%GPP/REAL(output%interval, 4)
