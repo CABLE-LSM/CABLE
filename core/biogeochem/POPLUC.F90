@@ -9,7 +9,7 @@
 ! in each directory containing CABLE code.
 !
 ! ==============================================================================
-! Purpose: module for land-use change which interacts with POP dmeography 
+! Purpose: module for land-use change which interacts with POP demography 
 ! via secondary forest age-distribution, and updates casa stocks according to land-use transitions
 !
 ! Called from: cable_driver or cable_mpimaster
@@ -296,6 +296,8 @@ CONTAINS
     n_event =  POPLUC%n_event(g)
 
     POPLUC%freq_age_secondary(g,2:age_max)=POPLUC%freq_age_secondary(g,1:age_max-1)
+
+
     POPLUC%freq_age_secondary(g,1) = 0.0
 
     ! adjust secondary age distribution for secondary forest harvest area
@@ -304,14 +306,15 @@ CONTAINS
        remaining = POPLUC%smharv(g)+POPLUC%syharv(g)
        i = age_max
        do while (remaining.gt.0.0)
-          if (POPLUC%freq_age_secondary(g,i) .gt. remaining) then
 
+          if (POPLUC%freq_age_secondary(g,i) .gt. remaining) then
              POPLUC%freq_age_secondary(g,i) = POPLUC%freq_age_secondary(g,i) - remaining
              POPLUC%freq_age_secondary(g,1) = POPLUC%freq_age_secondary(g,1) + remaining
              remaining = 0.0
           else
              POPLUC%freq_age_secondary(g,1) = POPLUC%freq_age_secondary(g,1) + &
                   POPLUC%freq_age_secondary(g,i)
+             remaining = remaining - POPLUC%freq_age_secondary(g,i)
              POPLUC%freq_age_secondary(g,i) = 0.0
              i = i-1;
           end if
