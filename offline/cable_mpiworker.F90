@@ -706,6 +706,7 @@ IF (icycle >0 .and.   cable_user%CALL_POP) THEN
                       
    ENDIF
    ! one annual time-step of POP
+!write(wlogn,*) 'laimax',  casabal%LAImax
    CALL POPdriver(casaflux,casabal,veg, POP)
 
    CALL worker_send_pop (POP, ocomm) 
@@ -6296,6 +6297,10 @@ SUBROUTINE worker_climate_types (comm, climate)
     blocks(bidx) = i1len
     types(bidx)  = MPI_BYTE
    
+    bidx = bidx + 1
+    CALL MPI_Get_address (climate%GMD(off), displs(bidx), ierr)
+    blocks(bidx) = i1len
+    types(bidx)  = MPI_BYTE
 
     bidx = bidx + 1
     CALL MPI_Get_address (climate%dtemp(off), displs(bidx), ierr)

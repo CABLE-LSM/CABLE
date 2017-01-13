@@ -58,6 +58,7 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
   real, PARAMETER:: Gaero = 0.015  ! (m s-1) aerodynmaic conductance (for use in PT evap)
   real, PARAMETER:: Capp   = 29.09    ! isobaric spec heat air    [J/molA/K]
   real, PARAMETER:: SBoltz  = 5.67e-8  ! Stefan-Boltzmann constant [W/m2/K4]
+  real, PARAMETER:: moisture_min = 0.35
   climate%doy = idoy
 
 !!$! * Find irradiances, available energy, equilibrium latent heat flux
@@ -155,6 +156,13 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
      WHERE (climate%dtemp<5.0 .and. climate%chilldays<=365)
         climate%chilldays = climate%chilldays + 1
      ENDWHERE
+
+     ! update GMD (growing moisture day) counter
+    where (climate%dmoist .gt. moisture_min)
+     climate%gmd = climate%gmd + 1
+    elsewhere
+     climate%gmd = 0
+    endwhere
 
      ! Save yesterday's mean temperature for the last month
      mtemp_last=climate%mtemp
@@ -616,7 +624,7 @@ if (cable_user%climate_fromzero) then
    climate%alpha_PT_20=0
    climate%iveg = 999
    climate%biome = 999
-
+   climate%gmd = 0
 
 else
    CALL READ_CLIMATE_RESTART_NC (climate)
@@ -652,7 +660,7 @@ SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate )
   ! 1 dim arrays (npt )
   CHARACTER(len=20),DIMENSION(20) :: A1
  ! 1 dim arrays (integer) (npt )
-  CHARACTER(len=20),DIMENSION(3) :: AI1
+  CHARACTER(len=20),DIMENSION(4) :: AI1
   ! 2 dim arrays (npt,20)
   CHARACTER(len=20),DIMENSION(3) :: A2
   ! 2 dim arrays (npt,31)
@@ -692,6 +700,7 @@ SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate )
   AI1(1) = 'chilldays'
   AI1(2) = 'iveg'
   AI1(3) = 'biome'
+  AI1(4) = 'GMD'
 
   A2(1) = 'mtemp_min_20'
   A2(2) = 'mtemp_max_20'
@@ -846,6 +855,9 @@ STATUS = NF90_PUT_VAR(FILE_ID, VID1(5), climate%qtemp )
   STATUS = NF90_PUT_VAR(FILE_ID, VIDI1(3), climate%biome )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
+  STATUS = NF90_PUT_VAR(FILE_ID, VIDI1(4), climate%GMD )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
   STATUS = NF90_PUT_VAR(FILE_ID, VID2(1), climate%mtemp_min_20 )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
@@ -894,7 +906,7 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate )
   ! 1 dim arrays (npt )
   CHARACTER(len=20),DIMENSION(20) :: A1
  ! 1 dim arrays (integer) (npt )
-  CHARACTER(len=20),DIMENSION(3) :: AI1
+  CHARACTER(len=20),DIMENSION(4) :: AI1
   ! 2 dim arrays (npt,20)
   CHARACTER(len=20),DIMENSION(3) :: A2
   ! 2 dim arrays (npt,31)
@@ -935,6 +947,7 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate )
   AI1(1) = 'chilldays'
   AI1(2) = 'iveg'
   AI1(3) = 'biome'
+  AI1(4) = 'GMD'
 
   A2(1) = 'mtemp_min_20'
   A2(2) = 'mtemp_max_20'
@@ -1045,6 +1058,7 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate )
      CASE ('chilldays'      ) ; climate%chilldays      = TMPI
      CASE ('iveg'      ) ; climate%iveg     = TMPI
      CASE ('biome'      ) ; climate%biome     = TMPI
+     CASE ('GMD'      ) ; climate%GMD     = TMPI
      END SELECT
   END DO
 

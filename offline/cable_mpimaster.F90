@@ -6645,6 +6645,11 @@ SUBROUTINE master_climate_types (comm, climate)
      types(bidx)  = MPI_BYTE
 
      bidx = bidx + 1
+     CALL MPI_Get_address (climate%GMD(off), displs(bidx), ierr)
+     blocks(bidx) = i1len
+     types(bidx)  = MPI_BYTE
+
+     bidx = bidx + 1
      CALL MPI_Get_address (climate%dtemp(off), displs(bidx), ierr)
      blocks(bidx) = r1len
      types(bidx)  = MPI_BYTE

@@ -562,7 +562,8 @@ MODULE cable_def_types_mod
        INTEGER, DIMENSION(:), POINTER ::                                   &
        chilldays, &   ! length of chilling period (period with T<5deg)
        iveg, &        ! potential vegetation type based on climatic constraints
-       biome
+       biome, &
+       GMD            ! growing moisture days (== number days since min moisture threshold)
 
       REAL, DIMENSION(:), POINTER ::                                           &
       dtemp,        & ! daily temperature
@@ -1168,7 +1169,8 @@ print*, 'nd', nd
    ALLOCATE ( var % GDD0(mp) )
    ALLOCATE ( var % chilldays(mp) )
    ALLOCATE ( var % iveg(mp) )
-    ALLOCATE ( var % biome(mp) )
+   ALLOCATE ( var % biome(mp) )
+   ALLOCATE ( var % GMD(mp) )
    ALLOCATE ( var % alpha_PT(mp) )
    ALLOCATE ( var % alpha_PT20(mp) )
    ALLOCATE ( var % evap_PT(mp) )

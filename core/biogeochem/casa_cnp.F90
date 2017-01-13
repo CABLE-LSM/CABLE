@@ -384,24 +384,25 @@ SUBROUTINE casa_allocation(veg,soil,casabiome,casaflux,casapool,casamet,phen,LAL
            casaflux%fracCalloc(:,leaf)  = 0.0
         ENDWHERE
 
-!! vh !! don't require this fix for LALLOC = 3 (POP allocation scheme)
-!! Thiss fix can lead to over-allocation to roots, in turn bumping up N-uptake
+!! vh !! 
+!! This fix can lead to over-allocation to roots, in turn bumping up N-uptake
 !! , leading to decline in mineral nitrogen availability and spikes in fracCalloc,
 !! causing spikes in tree mortality and lack of model convergence in productive
-!! regions where LAI is hitting LAImax.
-!!$        ! IF Prognostic LAI reached glaimax, no C is allocated to leaf
-!!$        ! Q.Zhang 17/03/2011
-!!$        WHERE(casamet%glai(:)>=casabiome%glaimax(veg%iveg(:)))
-!!$           casaflux%fracCalloc(:,leaf)  = 0.0
-!!$           casaflux%fracCalloc(:,froot) =  casaflux%fracCalloc(:,froot) &
-!!$                /(casaflux%fracCalloc(:,froot) &
-!!$                +casaflux%fracCalloc(:,wood))
-!!$           WHERE (casamet%lnonwood==0)
-!!$              casaflux%fracCalloc(:,wood)  = 1.0 -casaflux%fracCalloc(:,froot)
-!!$           ELSEWHERE
-!!$              casaflux%fracCalloc(:,wood) = 0.0
-!!$           ENDWHERE
-!!$        ENDWHERE
+!! regions where LAI is hitting LAImax: for woody pfts, ensure that LAImax is 
+!! parameter is very high (eg 10)
+        ! IF Prognostic LAI reached glaimax, no C is allocated to leaf
+        ! Q.Zhang 17/03/2011
+        WHERE(casamet%glai(:)>=casabiome%glaimax(veg%iveg(:)))
+           casaflux%fracCalloc(:,leaf)  = 0.0
+           casaflux%fracCalloc(:,froot) =  casaflux%fracCalloc(:,froot) &
+                /(casaflux%fracCalloc(:,froot) &
+                +casaflux%fracCalloc(:,wood))
+           WHERE (casamet%lnonwood==0)
+              casaflux%fracCalloc(:,wood)  = 1.0 -casaflux%fracCalloc(:,froot)
+           ELSEWHERE
+              casaflux%fracCalloc(:,wood) = 0.0
+           ENDWHERE
+        ENDWHERE
 
         WHERE(casamet%glai(:)<casabiome%glaimin(veg%iveg(:)))
            casaflux%fracCalloc(:,leaf)  = 0.8
@@ -791,7 +792,8 @@ SUBROUTINE casa_xrateplant(xkleafcold,xkleafdry,xkleaf,veg,casabiome, &
     ! vh: account for high rate of leaf loss during senescence
     ! vh_js
     if (trim(cable_user%PHENOLOGY_SWITCH)=='climate') then
-       IF (phen%phase(npt)==3.or.phen%phase(npt)==0) xkleaf(npt)= 100.0
+       ! increases base turnover rate by a factor of 26 (for base turnover time of 1y, this reduces it to 2 weeks)
+       IF (phen%phase(npt)==3.or.phen%phase(npt)==0) xkleaf(npt)= 26. 
     endif
   END IF
   END DO

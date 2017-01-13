@@ -1260,8 +1260,10 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
           veg%a1gs(h)   = vegin%a1gs(veg%iveg(h))
           veg%d0gs(h)   = vegin%d0gs(veg%iveg(h))
           veg%alpha(h)  = vegin%alpha(veg%iveg(h))
-          if (cable_user%POPLUC .and. LUC_EXPT%biome(e).eq.4 .and.veg%iveg(h).eq.2 ) THEN
-             veg%alpha(h) = 0.08
+          if (cable_user%POPLUC) THEN
+             if (LUC_EXPT%biome(e).eq.4 .and.veg%iveg(h).eq.2 ) THEN
+                veg%alpha(h) = 0.08
+             ENDIF
           endif
           veg%convex(h) = vegin%convex(veg%iveg(h))
           veg%cfrd(h)   = vegin%cfrd(veg%iveg(h))

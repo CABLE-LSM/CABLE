@@ -225,6 +225,7 @@ CONTAINS
     LUC_EXPT%secdf = max((1.0 -  LUC_EXPT%grass - LUC_EXPT%primaryf), 0.0)
 
     CALL READ_ClimateFile(LUC_EXPT)
+
     ! hot desert
     WHERE (LUC_EXPT%biome.eq.15 )
        LUC_EXPT%ivegp = 14
@@ -382,6 +383,7 @@ CONTAINS
           LUC_EXPT%grass(k) = 0.0
           inPFrac(m,n,1) = 1.0
           inPFrac(m,n,2:3) = 0.0
+          inVeg(m,n,2:3) = 0
         endif
 
      ENDDO
@@ -436,8 +438,11 @@ USE netcdf
 
   INQUIRE( FILE=TRIM( fname ), EXIST=EXISTFILE )
 
-  IF ( .NOT.EXISTFILE) write(*,*) fname, ' does not exist!!'
-
+  IF ( .NOT.EXISTFILE) THEN
+     write(*,*) fname, ' does not exist!!'
+  ELSE
+     write(*,*) 'reading biome from : ', fname
+  ENDIF
   ! Open NetCDF file:
   STATUS = NF90_OPEN(fname, NF90_NOWRITE, FILE_ID)
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
@@ -445,12 +450,13 @@ USE netcdf
 
   ! dimensions:
   ! Land (number of points)
+
+  
   STATUS = NF90_INQ_DIMID(FILE_ID, 'land'   , dID)
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
   STATUS = NF90_INQUIRE_DIMENSION( FILE_ID, dID, LEN=land_dim )
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
   
-
   IF ( land_dim .NE. mland) THEN
      WRITE(*,*) "Dimension misfit, ", fname
      WRITE(*,*) "land_dim", land_dim

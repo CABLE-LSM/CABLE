@@ -178,7 +178,6 @@ CONTAINS
     CALL define_air (met, air)
 
     CALL qsatfjh(qstvair,met%tvair-C%tfrz,met%pmb)
-
     met%dva = (qstvair - met%qvair) *  C%rmair/C%rmh2o * met%pmb * 100.0
     dsx = met%dva     ! init. leaf surface vpd
     dsx= max(dsx,0.0)
