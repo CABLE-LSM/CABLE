@@ -241,8 +241,14 @@ CONTAINS
        PLUME%MetPath = TRIM(PLUME%MetPath)//TRIM(PLUME%RCPdir)//"/"
     ENDIF
 
+    IF ((TRIM(PLUME%Run) .EQ. "spinup" .OR. TRIM(PLUME%Run) .EQ. "1850_1900" ) &
+         .and. TRIM(PLUME%Forcing) .NE. 'watch') THEN
+       PLUME%MetPath = TRIM(PLUME%MetPath)//"hist/1901_1930/"
+    ENDIF
+
     ! Set Leap-years according to dataset
-    IF ( TRIM(PLUME%Forcing) .EQ. "watch" ) THEN
+    IF ( TRIM(PLUME%Forcing) .EQ. "watch".OR. &
+         TRIM(PLUME%Forcing) .EQ. "ipsl-cm5a-lr"  ) THEN
        PLUME%LeapYears = .FALSE.
     ELSE
        PLUME%LeapYears = .TRUE.
@@ -469,18 +475,38 @@ CONTAINS
           END SELECT
           FN = TRIM(FN)//cy//".nc"
        ENDIF
-    ELSE
+    ELSE ! non-watch
        ! find proper file for current time
        ! hist spinup only
+   
        IF ( TRIM(PLUME%Run) .EQ. "spinup" ) THEN
           FN = TRIM(mp)//"/"//TRIM(PREF(par))
           IF ( par .NE. rhum ) FN = TRIM(FN)//"Adjust"
           FN = TRIM(FN)//"_"//TRIM(fc)//"_"//TRIM(rcp)//"_"
           IF ( par .NE. wind ) FN = TRIM(FN)//"detrended_"
-          FN = TRIM(FN)//cy
+          FN = TRIM(FN)//"1901-1930/"
+
+          FN = TRIM(FN)//"/"//TRIM(PREF(par))
+          IF ( par .NE. rhum ) FN = TRIM(FN)//"Adjust"
+          FN = TRIM(FN)//"_"//TRIM(fc)//"_"//TRIM(rcp)//"_"
+          IF ( par .NE. wind ) FN = TRIM(FN)//"detrended_"
+          FN = TRIM(FN)//cy//".nc"
+
 
        ELSE IF ( TRIM(PLUME%Run) .EQ. "1850_1900" ) THEN
-          STOP "Not yet implemented! PLUME: GET_FILE_NAMES"
+
+          FN = TRIM(mp)//"/"//TRIM(PREF(par))
+          IF ( par .NE. rhum ) FN = TRIM(FN)//"Adjust"
+          FN = TRIM(FN)//"_"//TRIM(fc)//"_"//TRIM(rcp)//"_"
+          IF ( par .NE. wind ) FN = TRIM(FN)//"detrended_"
+          FN = TRIM(FN)//"1901-1930/"
+
+          FN = TRIM(FN)//"/"//TRIM(PREF(par))
+          IF ( par .NE. rhum ) FN = TRIM(FN)//"Adjust"
+          FN = TRIM(FN)//"_"//TRIM(fc)//"_"//TRIM(rcp)//"_"
+          IF ( par .NE. wind ) FN = TRIM(FN)//"detrended_"
+          FN = TRIM(FN)//cy//".nc"
+          !STOP "Not yet implemented! PLUME: GET_FILE_NAMES"
        ELSE
           ! real runs
           IF ( cyear .LT. syear(1) .OR. cyear .GT. 2099) THEN
@@ -523,6 +549,12 @@ CONTAINS
        RETURN
     ENDIF
 
+    IF ( TRIM(PLUME%Forcing) .EQ. "ipsl-cm5a-lr" .AND. &
+         (TRIM(PLUME%Run) .EQ. "spinup" .OR. TRIM(PLUME%Run) .EQ. "1850_1900") ) THEN
+       FILE_SWITCH = .TRUE.
+       RETURN
+    ENDIF
+
     IF ( INDEX( action,"OPEN") .GE. 1 ) THEN
        !Open files
        IF (TRIM(PLUME%Run) .EQ. "spinup" ) THEN
@@ -536,8 +568,8 @@ CONTAINS
           IF ( MOD(PLUME%CYEAR-1,10) .EQ. 0 ) FILE_SWITCH = .TRUE.
 
        ELSE IF ( TRIM(PLUME%Run) .EQ. "2006_2099" ) THEN
-          IF ( MOD(PLUME%CYEAR-1,10) .EQ. 0 .OR. PLUME%CYEAR .EQ. 2006 ) FILE_SWITCH = .TRUE.
-
+          !IF ( MOD(PLUME%CYEAR-1,10) .EQ. 0 .OR. PLUME%CYEAR .EQ. 2006 ) FILE_SWITCH = .TRUE.
+          IF ( MOD(PLUME%CYEAR-1,10) .EQ. 0  ) FILE_SWITCH = .TRUE.
        ENDIF
     ELSE IF ( INDEX(action, "CLOSE") .GE. 1 ) THEN
        ! Closing files
@@ -551,8 +583,9 @@ CONTAINS
           IF ( MOD(PLUME%CYEAR  ,10) .EQ. 0 ) FILE_SWITCH = .TRUE.
 
        ELSE IF ( TRIM(PLUME%Run) .EQ. "2006_2099" ) THEN
-          IF ( MOD(PLUME%CYEAR  ,10) .EQ. 0 .OR. PLUME%CYEAR .EQ. 2006 ) FILE_SWITCH = .TRUE.
-
+          !IF ( MOD(PLUME%CYEAR  ,10) .EQ. 0 .OR. PLUME%CYEAR .EQ. 2006 ) FILE_SWITCH = .TRUE
+!write(*,*) PLUME%CYEAR,  MOD(PLUME%CYEAR  ,10)
+          IF ( MOD(PLUME%CYEAR  ,10) .EQ. 0  ) FILE_SWITCH = .TRUE.
        ENDIF
     ELSE
        STOP "Wrong action in PLUME FILE_SWITCH! <OPEN|CLOSE> "
@@ -599,10 +632,10 @@ CONTAINS
              ALLOCATE( PLUME%CO2VALS( 2006:2100 ) )
              CO2FILE = TRIM(PLUME%BasePath)//"/CO2/co2_2006_2100_"
              SELECT CASE(TRIM(PLUME%RCP))
-             CASE ( "2.6"  ); CO2FILE = TRIM(CO2FILE)//"rcp2p6.dat"
-             CASE ( "4.5"  ); CO2FILE = TRIM(CO2FILE)//"rcp4p5.dat"
-             CASE ( "6.0"  ); CO2FILE = TRIM(CO2FILE)//"rcp6p0.dat"
-             CASE ( "8.5"  ); CO2FILE = TRIM(CO2FILE)//"rcp8p5.dat"
+             CASE ( "2.6"  ); CO2FILE = TRIM(CO2FILE)//"rcp26.dat"
+             CASE ( "4.5"  ); CO2FILE = TRIM(CO2FILE)//"rcp45.dat"
+             CASE ( "6.0"  ); CO2FILE = TRIM(CO2FILE)//"rcp60.dat"
+             CASE ( "8.5"  ); CO2FILE = TRIM(CO2FILE)//"rcp85.dat"
              END SELECT
           ENDIF
 
@@ -642,8 +675,7 @@ CONTAINS
 
 
     DO i = 1, PLUME%NMET
-       IF ( TRIM(PLUME%Run) .EQ. 'spinup' .AND. &
-            TRIM(PLUME%FORCING) .EQ. 'watch' ) THEN
+       IF ( TRIM(PLUME%Run) .EQ. 'spinup' .OR. TRIM(PLUME%Run) .EQ. '1850_1900' ) THEN
           CYEAR = MODULO(PLUME%CYEAR-1901,30) + 1901
        ELSE
           CYEAR = PLUME%CYEAR
@@ -709,8 +741,9 @@ CONTAINS
        PLUME%MET(  Tmin  )%VAL(:) = PLUME%MET(NextTmin)%VAL(:)
     ENDIF
 
-    IF ( TRIM(PLUME%Run) .EQ. 'spinup' .AND. &
-         TRIM(PLUME%FORCING) .EQ. 'watch' ) THEN
+    !IF ( TRIM(PLUME%Run) .EQ. 'spinup' .AND. &
+    !     TRIM(PLUME%FORCING) .EQ. 'watch' ) THEN
+    IF ( TRIM(PLUME%Run) .EQ. 'spinup' .OR. TRIM(PLUME%Run) .EQ. '1850_1900'  ) THEN
        CYEAR = MODULO(PLUME%CYEAR-1901,30) + 1901
     ELSE
        CYEAR = PLUME%CYEAR
@@ -721,7 +754,7 @@ CONTAINS
 
     DO i= 1, PLUME%NMET
 
-       IF ( i .EQ. Tmin )THEN
+       IF ( i .EQ. Tmin  )THEN
           ! Tmin needs to be read from NEXT DAY
           ii = nextTmin
 
@@ -756,13 +789,13 @@ CONTAINS
           ii = i
           t  = PLUME%CTSTEP
        ENDIF
-
+write(*,*) 'Tmin', i, islast, TminFlag
        IF ( i .EQ. Tmin .AND. TminFlag ) THEN
+
           IF ( .NOT. islast ) THEN
              ! Open next file for Quick access or use same if very last t-step.
              t  = 1
-             IF ( TRIM(PLUME%Run) .EQ. 'spinup' .AND. &
-                  TRIM(PLUME%FORCING) .EQ. 'watch' ) THEN
+             IF ( TRIM(PLUME%Run) .EQ. 'spinup' .OR. TRIM(PLUME%Run) .EQ. '1850_1900' ) THEN
                 NYEAR = MODULO(PLUME%CYEAR+1-1901,30) + 1901
              ELSE
                 NYEAR = PLUME%CYEAR
@@ -805,8 +838,9 @@ CONTAINS
           ! STANDARD READ
           ! variables from open files
           IF ( PLUME%DirectRead ) THEN
-
+              
              DO k = 1, PLUME%mland
+                write(*,*) "Reading directly from ", PLUME%MetFile(i), land_x(k),land_y(k),t
                 STATUS = NF90_GET_VAR(PLUME%F_ID(i), PLUME%V_ID(i), PLUME%MET(ii)%VAL(k), &
                      start=(/land_x(k),land_y(k),t/) )
                 CALL HANDLE_ERR(STATUS, "Reading directly from "//PLUME%MetFile(i) )
@@ -826,8 +860,11 @@ CONTAINS
        IF ( (i .EQ. Tmax ) .AND. CALL1 ) THEN
           ii = prevTmax
 
-          IF ( CYEAR .GT. 1901 ) THEN
+          IF (  (TRIM(PLUME%Run) .EQ. "1901_2005" .AND.CYEAR .GT. 1901) .or. &
+               (TRIM(PLUME%Run) .EQ. "2006_2099" .AND. CYEAR .GT. 2006 ) ) THEN
              ! on
+
+
              CALL PLUME_GET_FILENAME( PLUME, CYEAR-1, i, filename )
              STATUS = NF90_OPEN(TRIM(filename), NF90_NOWRITE, fid)
              CALL HANDLE_ERR(STATUS, "Opening PLUME file "//filename )
@@ -872,6 +909,7 @@ CONTAINS
     ! Convert pressure Pa -> hPa
 
     PLUME%MET(pres)%VAL(:) = PLUME%MET(pres)%VAL(:) / 100.
+
 
     ! update internal counter
 
@@ -983,9 +1021,9 @@ CONTAINS
 
        !CALL CPU_TIME(etime)
        !  PRINT *, 'b4 daily ', etime, ' seconds needed '
-
+write(*,*) 'file_switch', FILE_SWITCH( PLUME, 'CLOSE' ), islast, ktau.EQ.kend-((SecDay/dt)-1) 
        CALL PLUME_GET_DAILY_MET( PLUME, (ktau.EQ.kend-((SecDay/dt)-1) .AND. &
-            FILE_SWITCH( PLUME, 'CLOSE' )), islast )
+            FILE_SWITCH( PLUME, 'CLOSE' )), ktau.eq.kend-7 )
        !CALL CPU_TIME(etime)
        !   PRINT *, 'after daily ', etime, ' seconds needed '
        !STOP
@@ -1038,10 +1076,14 @@ CONTAINS
        met%ua        (is:ie)   = WG%Wind(i)
        met%coszen    (is:ie)   = WG%coszen(i)
        ! compute qv
-      ! CALL rh_sh ( PLUME%MET(rhum)%VAL(i), met%tk(is), met%pmb(is), met%qv(is) )
-      ! met%qv        (is:ie)   = met%qv(is)
-       met%qv        (is:ie) = PLUME%MET(rhum)%VAL(i)
+       IF ( TRIM(PLUME%Forcing) .NE. "watch" ) THEN
+          CALL rh_sh ( PLUME%MET(rhum)%VAL(i), met%tk(is), met%pmb(is), met%qv(is) )
+          met%qv        (is:ie)   = met%qv(is)
+       ELSE
+          met%qv        (is:ie) = PLUME%MET(rhum)%VAL(i)
+       ENDIF
     END DO
+
 
     ! initialise within canopy air temp
     met%tvair     = met%tk
