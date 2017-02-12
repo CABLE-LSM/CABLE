@@ -26,6 +26,9 @@ MODULE CABLE_PLUME_MIP
      CHARACTER(len=12) ,DIMENSION(9) :: VAR_NAME
      CHARACTER(len=200),DIMENSION(9) :: MetFile
      TYPE(PLUME_MET_TYPE), DIMENSION(11) :: MET
+     REAL,  DIMENSION(:), ALLOCATABLE :: NdepVALS
+    INTEGER :: NdepF_ID, NdepV_ID
+    INTEGER  :: Ndep_CTSTEP   ! counter for Ndep in input file   
   END TYPE PLUME_MIP_TYPE
 
   TYPE (PLUME_MIP_TYPE):: PLUME
@@ -346,6 +349,9 @@ CONTAINS
     ALLOCATE( PLUME%MET(prevTmax)%VAL(PLUME%mland) )
     ALLOCATE( PLUME%MET(nextTmin)%VAL(PLUME%mland) )
 
+! allocate array for Nitrogen deposition input data
+    ALLOCATE( PLUME%NdepVALS(PLUME%mland) )
+
     ! Map all to Landgrid arrays
     cnt = 1
     DO y = 1, ydimsize
@@ -583,9 +589,9 @@ CONTAINS
           IF ( MOD(PLUME%CYEAR  ,10) .EQ. 0 ) FILE_SWITCH = .TRUE.
 
        ELSE IF ( TRIM(PLUME%Run) .EQ. "2006_2099" ) THEN
-          !IF ( MOD(PLUME%CYEAR  ,10) .EQ. 0 .OR. PLUME%CYEAR .EQ. 2006 ) FILE_SWITCH = .TRUE
+          IF ( MOD(PLUME%CYEAR  ,10) .EQ. 0 .OR. PLUME%CYEAR .EQ. 2099 ) FILE_SWITCH = .TRUE.
 !write(*,*) PLUME%CYEAR,  MOD(PLUME%CYEAR  ,10)
-          IF ( MOD(PLUME%CYEAR  ,10) .EQ. 0  ) FILE_SWITCH = .TRUE.
+         ! IF ( MOD(PLUME%CYEAR  ,10) .EQ. 0  ) FILE_SWITCH = .TRUE.
        ENDIF
     ELSE
        STOP "Wrong action in PLUME FILE_SWITCH! <OPEN|CLOSE> "
@@ -654,6 +660,95 @@ CONTAINS
     ENDIF
 
   END SUBROUTINE GET_PLUME_CO2
+
+!**************************************************************************************************
+
+  SUBROUTINE GET_PLUME_Ndep( PLUME )
+
+! Get Ndep values for use with a PLUME run. Assign a static 1850 value if specified otherwise
+! on the first call read all the annual values from a file into the PLUME%NdepVALS array. On the first
+! and subsequent   
+
+  IMPLICIT NONE
+  
+  TYPE(PLUME_MIP_TYPE), INTENT(INOUT) :: PLUME           ! All the info needed for PLUME met runs
+  REAL    :: tmparr(720,360)        ! Temporary array for reading one day of met before 
+                                    ! packing into PLUME%NdepVALS(k)
+ 
+  INTEGER              :: i, iunit, iyear, IOS = 0, k, t  
+  INTEGER :: xds, yds        ! Ndep file dimensions of long (x), lat (y)
+ 
+  LOGICAL,        SAVE :: CALL1 = .TRUE.  ! A *local* variable recording the first call of this routine 
+  CHARACTER(200) :: NdepFILE
+
+  ! Abbreviate dimensions for readability.
+  xds = PLUME%xdimsize
+  yds = PLUME%ydimsize
+
+  ! For S0_TRENDY, use only static 1860 CO2 value and return immediately
+
+
+
+  ! On the first call, allocate the PLUME%CO2VALS array to store the entire history of annual CO2 
+  ! values, open the (ascii) CO2 file and read the values into the array. 
+  IF (CALL1) THEN
+
+     NdepFILE = TRIM(PLUME%BasePath)// &
+          "/NDEP/NOy_plus_NHx_dry_plus_wet_deposition_hist_1850_2015_annual.nc"
+     IF (TRIM(PLUME%RCP).EQ."8.5") THEN
+        NdepFILE = TRIM(PLUME%BasePath)// &
+          "/NDEP/ndep_total_mean_annual_series_2000-2109_1.9x2.5_RCP85.nc"
+     ELSEIF  (TRIM(PLUME%RCP).EQ."4.5") THEN    
+        NdepFILE = TRIM(PLUME%BasePath)// &
+             "/NDEP/ndep_total_mean_annual_series_2000-2109_1.9x2.5_RCP45.nc"
+     ENDIF
+     ! Open the NDep and access the variables by their name and variable id.
+     WRITE(*   ,*) 'Opening ndep data file: ', NdepFILE
+     WRITE(logn,*) 'Opening ndep data file: ', NdepFILE
+
+
+     Status = NF90_OPEN(TRIM(NdepFILE), NF90_NOWRITE, PLUME%NdepF_ID)  
+     CALL HANDLE_ERR(Status, "Opening PLUME file "//NdepFILE )
+     Status = NF90_INQ_VARID(PLUME%NdepF_ID,'N_deposition', PLUME%NdepV_ID)
+     CALL HANDLE_ERR(Status, "Inquiring PLUME var "//"N_deposition"// &
+          " in "//NdepFILE )
+
+     ! Set internal counter
+     PLUME%Ndep_CTSTEP = 1
+
+     IF ( TRIM(PLUME%Ndep) .EQ. "static1850") THEN
+       ! read Ndep at year 1860 (noting that file starts at 1850)
+        PLUME%Ndep_CTSTEP = 1
+        t =  PLUME%Ndep_CTSTEP
+        Status = NF90_GET_VAR(PLUME%NdepF_ID, PLUME%NdepV_ID, tmparr, &
+             start=(/1,1,t/),count=(/xds,yds,1/) )
+        CALL HANDLE_ERR(Status, "Reading from "//NdepFILE )
+        DO k = 1, PLUME%mland
+           PLUME%NdepVALS(k) = tmparr( land_x(k), land_y(k) )
+        END DO
+      
+       
+     END IF
+     CALL1 = .FALSE.
+  END IF
+
+  IF ( TRIM(PLUME%Ndep) .NE. "static1850") THEN
+
+     ! read Ndep at current year (noting that file starts at 1850)
+     PLUME%Ndep_CTSTEP = PLUME%CYEAR - 1850 + 1
+     IF (TRIM(PLUME%RCP).EQ."8.5") PLUME%Ndep_CTSTEP = PLUME%CYEAR - 2000 + 1
+     IF (TRIM(PLUME%RCP).EQ."4.5") PLUME%Ndep_CTSTEP = PLUME%CYEAR - 2000 + 1
+     t =  PLUME%Ndep_CTSTEP
+     Status = NF90_GET_VAR(PLUME%NdepF_ID, PLUME%NdepV_ID, tmparr, &
+          start=(/1,1,t/),count=(/xds,yds,1/) )
+     CALL HANDLE_ERR(Status, "Reading from "//NdepFILE )
+     DO k = 1, PLUME%mland
+        PLUME%NdepVALS(k) = tmparr( land_x(k), land_y(k) )
+     END DO
+    
+  END IF
+  
+END SUBROUTINE GET_PLUME_Ndep
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -789,7 +884,6 @@ CONTAINS
           ii = i
           t  = PLUME%CTSTEP
        ENDIF
-write(*,*) 'Tmin', i, islast, TminFlag
        IF ( i .EQ. Tmin .AND. TminFlag ) THEN
 
           IF ( .NOT. islast ) THEN
@@ -840,7 +934,6 @@ write(*,*) 'Tmin', i, islast, TminFlag
           IF ( PLUME%DirectRead ) THEN
               
              DO k = 1, PLUME%mland
-                write(*,*) "Reading directly from ", PLUME%MetFile(i), land_x(k),land_y(k),t
                 STATUS = NF90_GET_VAR(PLUME%F_ID(i), PLUME%V_ID(i), PLUME%MET(ii)%VAL(k), &
                      start=(/land_x(k),land_y(k),t/) )
                 CALL HANDLE_ERR(STATUS, "Reading directly from "//PLUME%MetFile(i) )
@@ -971,7 +1064,7 @@ write(*,*) 'Tmin', i, islast, TminFlag
     TYPE(MET_TYPE)       :: MET
 
     LOGICAL   :: newday
-    INTEGER   :: i, dY, dM, dD, is, ie
+    INTEGER   :: i, dY, dM, dD, is, ie, iland
     REAL      :: dt, CO2air, etime
     CHARACTER :: LMFILE*200
 
@@ -1010,6 +1103,12 @@ write(*,*) 'Tmin', i, islast, TminFlag
 
        met%ca(:) = CO2air / 1.e+6
 
+       CALL GET_PLUME_Ndep( PLUME )
+       DO iland = 1, PLUME%mland
+          met%Ndep(landpt(iland)%cstart:landpt(iland)%cend) = &
+               PLUME%NdepVALS(iland)*86400000.  ! kg/m2/s > g/m2/d (1000.*3600.*24.)
+       END DO
+       
        ! Open/close Met-files if necessary
        IF (FILE_SWITCH( PLUME, 'OPEN ' ) .OR. CALL1)  CALL OPEN_PLUME_MET( PLUME )
 
@@ -1021,9 +1120,8 @@ write(*,*) 'Tmin', i, islast, TminFlag
 
        !CALL CPU_TIME(etime)
        !  PRINT *, 'b4 daily ', etime, ' seconds needed '
-write(*,*) 'file_switch', FILE_SWITCH( PLUME, 'CLOSE' ), islast, ktau.EQ.kend-((SecDay/dt)-1) 
        CALL PLUME_GET_DAILY_MET( PLUME, (ktau.EQ.kend-((SecDay/dt)-1) .AND. &
-            FILE_SWITCH( PLUME, 'CLOSE' )), ktau.eq.kend-7 )
+            FILE_SWITCH( PLUME, 'CLOSE' )), islast )
        !CALL CPU_TIME(etime)
        !   PRINT *, 'after daily ', etime, ' seconds needed '
        !STOP
