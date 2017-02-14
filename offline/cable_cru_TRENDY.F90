@@ -121,7 +121,7 @@ CONTAINS
     ! Temporary local names for CRU% variables as they are read from the namelist file. 
     ! Note that CRU%CO2 and CRU%Forcing are assigned based on the value of Run, not read as options from the namelist file.
     LOGICAL              :: DirectRead = .FALSE.
-    CHARACTER(len=15)    :: Run 
+    CHARACTER(len=20)    :: Run 
     CHARACTER(len=200)   :: BasePath
     CHARACTER(len=200)   :: MetPath
     CHARACTER(len=200)   :: LandMaskFile
