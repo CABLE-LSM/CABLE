@@ -151,29 +151,41 @@ CONTAINS
     ! Assign Forcing and CO2 labels based only on the value of CRU%Run
     SELECT CASE (TRIM(CRU%Run))
     CASE( "S0_TRENDY" ) 
-      CRU%Forcing = "spinup"
-      CRU%CO2     = "static1860"
-      CRU%Ndep     = "static1860"
-      WRITE(*   ,*)"Run = 'spinup': Therefore Forcing = 'spinup', CO2 = 'static1860'"
-      WRITE(logn,*)"Run = 'spinup': Therefore Forcing = 'spinup', CO2 = 'static1860'"
+       CRU%Forcing = "spinup"
+       CRU%CO2     = "static1860"
+       CRU%Ndep     = "static1860"
+       WRITE(*   ,*)"Run = 'spinup': Therefore Forcing = 'spinup', CO2 = 'static1860'"
+       WRITE(logn,*)"Run = 'spinup': Therefore Forcing = 'spinup', CO2 = 'static1860'"
     CASE( "S1_TRENDY" ) 
-      CRU%Forcing = "spinup"
-      CRU%CO2     = "1860_1900"
-      CRU%Ndep     = "1860_1900"
-      WRITE(*   ,*)"Run = 'S1_TRENDY': Therefore Forcing = 'spinup', CO2 = '1860_1900'"
-      WRITE(logn,*)"Run = 'S1_TRENDY': Therefore Forcing = 'spinup', CO2 = '1860_1900'"
+       CRU%Forcing = "spinup"
+       CRU%CO2     = "1860_1900"
+       CRU%Ndep     = "1860_1900"
+       WRITE(*   ,*)"Run = 'S1_TRENDY': Therefore Forcing = 'spinup', CO2 = '1860_1900'"
+       WRITE(logn,*)"Run = 'S1_TRENDY': Therefore Forcing = 'spinup', CO2 = '1860_1900'"
     CASE( "S2_TRENDY" )
-      CRU%Forcing = "1901_2015"
-      CRU%CO2     = "1901_2015"
-      CRU%Ndep     = "1901_2015"
-      WRITE(*   ,*)"Run = 'S2_TRENDY': Therefore Forcing = 'spinup', CO2 = '1901_2015'"
-      WRITE(logn,*)"Run = 'S2_TRENDY': Therefore Forcing = 'spinup', CO2 = '1901_2015'"
+       CRU%Forcing = "1901_2015"
+       CRU%CO2     = "1901_2015"
+       CRU%Ndep     = "1901_2015"
+       WRITE(*   ,*)"Run = 'S2_TRENDY': Therefore Forcing = 'spinup', CO2 = '1901_2015'"
+       WRITE(logn,*)"Run = 'S2_TRENDY': Therefore Forcing = 'spinup', CO2 = '1901_2015'"
+    CASE( "S2_TRENDY_precip" )
+       CRU%Forcing = "1901_2015"
+       CRU%CO2     = "1901_2015"
+       CRU%Ndep     = "1901_2015"
+       WRITE(*   ,*)"Run = 'S2_TRENDY': Therefore Forcing = 'spinup', CO2 = '1901_2015'"
+       WRITE(logn,*)"Run = 'S2_TRENDY': Therefore Forcing = 'spinup', CO2 = '1901_2015'"
+    CASE( "S2_TRENDY_precip0" )
+       CRU%Forcing = "1901_2015"
+       CRU%CO2     = "1901_2015"
+       CRU%Ndep     = "1901_2015"
+       WRITE(*   ,*)"Run = 'S2_TRENDY': Therefore Forcing = 'spinup', CO2 = '1901_2015'"
+       WRITE(logn,*)"Run = 'S2_TRENDY': Therefore Forcing = 'spinup', CO2 = '1901_2015'"
     CASE  default 
-      WRITE(*   ,*)"Wrong CRU%Run: ",CRU%Run
-      WRITE(*   ,*)"Use: S0_TRENDY, S1_TRENDY, or S2_TRENDY!"
-      WRITE(logn,*)"Wrong CRU%Run: ",CRU%Run
-      WRITE(logn,*)"Use: S0_TRENDY, S1_TRENDY, or S2_TRENDY!"
-      ERR = .TRUE.
+       WRITE(*   ,*)"Wrong CRU%Run: ",CRU%Run
+       WRITE(*   ,*)"Use: S0_TRENDY, S1_TRENDY, or S2_TRENDY!"
+       WRITE(logn,*)"Wrong CRU%Run: ",CRU%Run
+       WRITE(logn,*)"Use: S0_TRENDY, S1_TRENDY, or S2_TRENDY!"
+       ERR = .TRUE.
     END SELECT
    
     ! Print settings
@@ -430,8 +442,8 @@ write(*,*) 'after alloc landmask'
 ! On the first call, allocate the CRU%CO2VALS array to store the entire history of annual CO2 
 ! values, open the (ascii) CO2 file and read the values into the array. 
     IF (CALL1) THEN
-      ALLOCATE( CRU%CO2VALS( 1860:2015 ) )
-      CO2FILE = TRIM(CRU%BasePath)//"/co2/1860_2015_globalCO2_time_series.csv"
+      ALLOCATE( CRU%CO2VALS( 1750:2015 ) )
+      CO2FILE = TRIM(CRU%BasePath)//"/co2/1750_2015_globalCO2_time_series.csv"
       CALL GET_UNIT(iunit)
       OPEN (iunit, FILE=TRIM(CO2FILE), STATUS="OLD", ACTION="READ")
       DO WHILE( IOS .EQ. 0 )
@@ -456,7 +468,7 @@ write(*,*) 'after alloc landmask'
 
   SUBROUTINE GET_CRU_Ndep( CRU )
 
-! Get CO2 values for use with a CRU-NCEP run. Assign a static 1860 value if specified otherwise
+! Get Ndep values for use with a CRU-NCEP run. Assign a static 1860 value if specified otherwise
 ! on the first call read all the annual values from a file into the CRU%CO2VALS array. On the first
 ! and subsequent   
 
@@ -561,17 +573,34 @@ END SUBROUTINE GET_CRU_Ndep
   LOGICAL, SAVE       :: CALL1 = .TRUE.  ! A *local* variable recording the first call of this routine
 
 ! Keep the initial value of CYEAR for calculation of different MetYear if required. 
-  IF (CALL1) RunStartYear = 1800 ! edit vh !
+  IF (CALL1) RunStartYear = 1710 ! edit vh !
 
   DO iVar = 1, CRU%NMET  ! For each met variable
 
 ! For S0_TRENDY and initialisation, calculate the required met year for repeatedly cycling through the 
 ! 30 years of 1901-1930 spinup meteorology. For normal runs 1901-2015, MetYear = CYEAR.
-    IF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY' .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' )) THEN
-      MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
-    ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY' ) THEN
-      MetYear = CRU%CYEAR
-    ENDIF
+!!$    IF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY' .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' )) THEN
+!!$      MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
+!!$    ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY' ) THEN
+!!$      MetYear = CRU%CYEAR
+!!$    ENDIF
+     IF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY' .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' )) THEN
+        MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
+     ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY' ) THEN
+        MetYear = CRU%CYEAR
+     ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY_precip0' ) THEN
+        IF (iVar.EQ.1) THEN
+           ! special for baseline precip                                                                                                                                                                               MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
+        ELSE
+           MetYear = CRU%CYEAR
+        ENDIF
+     ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY_precip' ) THEN
+        IF (iVar.NE.1) THEN
+           ! special for baseline non-precip                                                                                                                                                                           MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
+        ELSE
+           MetYear = CRU%CYEAR
+        ENDIF
+     ENDIF
 
     CALL CRU_GET_FILENAME( CRU, MetYear, iVar, CRU%MetFile(iVar) ) ! Call routine to build the filenames.
 
@@ -637,13 +666,13 @@ END SUBROUTINE GET_CRU_Ndep
 ! Stop with error for anything else.
 
 
-  IF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY' .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' )) THEN
-    MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
-  ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY' ) THEN
-    MetYear = CRU%CYEAR
-  ELSE
-    STOP 'Error in cable_cru.F90: CRU%Run not S0_TRENDY, S1_TRENDY, or 1901-2015' 
-  ENDIF
+!!$  IF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY' .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' )) THEN
+!!$    MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
+!!$  ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY' ) THEN
+!!$    MetYear = CRU%CYEAR
+!!$  ELSE
+!!$    STOP 'Error in cable_cru.F90: CRU%Run not S0_TRENDY, S1_TRENDY, or 1901-2015' 
+!!$  ENDIF
 
 !print *, "runstartyear, metyear", runstartyear, metyear
 
@@ -656,6 +685,26 @@ END SUBROUTINE GET_CRU_Ndep
 
 !print *,  "CRU%CTSTEP, LastDayOfYear, LastYearOfMet", CRU%CTSTEP, LastDayOfYear, LastYearOfMet
   DO iVar = 1, CRU%NMET
+     IF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY' .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' )) THEN
+        MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
+     ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY' ) THEN
+        MetYear = CRU%CYEAR
+     ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY_precip0' ) THEN
+        IF (iVar.EQ.1) THEN
+           ! special for baseline precip
+           MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
+        ELSE
+           MetYear = CRU%CYEAR
+        ENDIF
+     ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY_precip' ) THEN
+        IF (iVar.NE.1) THEN
+           ! special for baseline non-precip
+           MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
+        ELSE
+           MetYear = CRU%CYEAR
+        ENDIF
+     ENDIF
+
 
     SELECT CASE (iVar)
 
@@ -698,7 +747,7 @@ END SUBROUTINE GET_CRU_Ndep
 
 ! Not DirectRead: Read the whole spatial grid of first day Tmin into tmparr, and copy it to the  
 ! METVALS vector.  
-        ELSE  
+       ELSE  
 
 ! t (first value) into iVar (tmin)
           ErrStatus = NF90_GET_VAR(CRU%F_ID(iVar), CRU%V_ID(iVar), tmparr, &
@@ -735,10 +784,30 @@ END SUBROUTINE GET_CRU_Ndep
           t = 1   ! Time index is set to the first day of the next year
         
 ! Add one to the calculation of MetYear
+!!$          IF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY' .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' )) THEN
+!!$            NextMetYear = 1901 + MOD(CRU%CYEAR + 1 - RunStartYear,30)  
+!!$          ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY' ) THEN
+!!$            NextMetYear = CRU%CYEAR + 1
+!!$          ENDIF
+
           IF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY' .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' )) THEN
-            NextMetYear = 1901 + MOD(CRU%CYEAR + 1 - RunStartYear,30)  
+             NextMetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
           ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY' ) THEN
-            NextMetYear = CRU%CYEAR + 1
+             NextMetYear = CRU%CYEAR
+          ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY_precip0' ) THEN
+             IF (iVar.EQ.1) THEN
+                ! special for baseline precip
+                NextMetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
+             ELSE
+                NextMetYear = CRU%CYEAR
+             ENDIF
+          ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY_precip' ) THEN
+             IF (iVar.NE.1) THEN
+                ! special for baseline non-precip
+                NextMetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
+             ELSE
+                NextMetYear = CRU%CYEAR
+             ENDIF
           ENDIF
 
 ! Open the Tmin file for next year in preparation for reading Jan 1st...
@@ -945,7 +1014,7 @@ END SUBROUTINE GET_CRU_Ndep
           END DO
         ENDIF
 
-      END IF   ! End of If CALL1
+     END IF   ! End of If CALL1
 
 !--------------------------------------------------------------------------------------------------
 
@@ -978,7 +1047,7 @@ END SUBROUTINE GET_CRU_Ndep
 
     END SELECT
 
-  END DO  ! End of loop through all met variables
+ END DO  ! End of loop through all met variables
 
 ! Convert pressure Pa -> hPa
 
