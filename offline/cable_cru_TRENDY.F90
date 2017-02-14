@@ -590,13 +590,15 @@ END SUBROUTINE GET_CRU_Ndep
         MetYear = CRU%CYEAR
      ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY_precip0' ) THEN
         IF (iVar.EQ.1) THEN
-           ! special for baseline precip                                                                                                                                                                               MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
+           ! special for baseline precip
+           MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
         ELSE
            MetYear = CRU%CYEAR
         ENDIF
      ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY_precip' ) THEN
         IF (iVar.NE.1) THEN
-           ! special for baseline non-precip                                                                                                                                                                           MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
+           ! special for baseline non-precip
+           MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
         ELSE
            MetYear = CRU%CYEAR
         ENDIF
