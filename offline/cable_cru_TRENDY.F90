@@ -38,7 +38,7 @@ MODULE CABLE_CRU
     LOGICAL  :: LeapYears      ! Flag for whether leaps years occur, required by CABLE. Always false for CRUNCEP (no Feb 29th) 
     LOGICAL,DIMENSION(:,:),ALLOCATABLE :: LandMask ! Logical landmask, true for land, false for non-land
   !
-    CHARACTER(len=15)  :: Run            ! Where run type is      : "S0_TRENDY", "S1_TRENDY", "S2_TRENDY"
+    CHARACTER(len=20)  :: Run            ! Where run type is      : "S0_TRENDY", "S1_TRENDY", "S2_TRENDY"
     CHARACTER(len=15)  :: CO2            ! CO2 takes value        : "static1860", "1860_1900", "1901_2015" 
     CHARACTER(len=15)  :: Ndep            ! Ndep takes value        : "static1860", "1860_1900", "1901_2015"
     CHARACTER(len=15)  :: Forcing        ! Met Forcing takes value: "spinup",        "spinup", "1901_2015" 
