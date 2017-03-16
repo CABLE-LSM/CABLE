@@ -326,6 +326,7 @@ CONTAINS
        enddo
     endif
 
+  ! remove IFHARVEST ?
     IF (IFHARVEST .and. POPLUC%freq_age_secondary(g,ROTATION+1).gt.0.0) THEN
        POPLUC%freq_age_secondary(g,1) = POPLUC%freq_age_secondary(g,1) + &
             POPLUC%freq_age_secondary(g,ROTATION+1)
@@ -353,6 +354,7 @@ CONTAINS
     POPLUC%it = POPLUC%it + 1
 
 
+! vh ! remove code relating to (year.lt.POPLUC%thisyear) ?
     IF (year.lt.POPLUC%thisyear) THEN
 
        DO g = 1,POPLUC%np
@@ -1885,7 +1887,7 @@ END SUBROUTINE POPLUC_SET_PATCHFRAC
        END SELECT
     END DO
 
- ! READ 2-dimensional fields (nprod)
+ ! READ 3-dimensional fields (nprod)
     DO i = 1, SIZE(A3)
        STATUS = NF90_INQ_VARID( FILE_ID, A3(i), dID )
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
@@ -1893,8 +1895,8 @@ END SUBROUTINE POPLUC_SET_PATCHFRAC
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
        SELECT CASE ( TRIM(A3(i)))
-       CASE ('HarvProd' ) ; POPLUC%HarvProd = TMP2
-       CASE ('ClearProd' ) ; POPLUC%ClearProd = TMP2
+       CASE ('HarvProd' ) ; POPLUC%HarvProd = TMP3
+       CASE ('ClearProd' ) ; POPLUC%ClearProd = TMP3
        END SELECT
     END DO
 

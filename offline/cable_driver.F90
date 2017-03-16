@@ -594,7 +594,7 @@ write(*,*) 'b4 casaonly_luc'
        ! time step loop over ktau
        DO ktau=kstart, kend
           
-          
+         
           ! increment total timstep counter
           ktau_tot = ktau_tot + 1
           
@@ -603,7 +603,7 @@ write(*,*) 'b4 casaonly_luc'
           
           idoy =INT( MOD(REAL(CEILING(REAL((ktau+koffset)/ktauday))),REAL(LOY)))
           IF ( idoy .EQ. 0 ) idoy = LOY
- 
+
           ! needed for CASA-CNP
           nyear	=INT((kend+koffset)/(LOY*ktauday))
           
@@ -766,7 +766,8 @@ write(*,*) 'b4 casaonly_luc'
                              CALL write_casa_dump( ncfile, casamet , casaflux, phen, climate,&
                                   INT(met%doy), LOY )
                           ELSE
-                             CALL write_casa_dump( ncfile, casamet , casaflux, phen, climate, idoy, &                                 kend/ktauday )
+                             CALL write_casa_dump( ncfile, casamet , casaflux, phen, climate, idoy, & 
+                                kend/ktauday )
                           ENDIF
 
                        ENDIF
@@ -897,6 +898,7 @@ write(*,*) 'b4 casaonly_luc'
 
                  CALL1 = .FALSE.
 
+       
               END DO ! END Do loop over timestep ktau
            
               CALL1 = .FALSE.

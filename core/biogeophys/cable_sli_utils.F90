@@ -1105,7 +1105,11 @@ CONTAINS
     do i=1, n-1
        if (iflux==1 .or. var(i)%isat/=0 .or. var(i+1)%isat/=0 .or. nsat/=nsatlast) then ! get flux
           if (parin(i)%ishorizon == parin(i+1)%ishorizon) then ! same soil type, no interface
+
+
              call flux(parin(i), var(i), var(i+1), dz(i), q(i), qya(i), qyb(i), qTa(i), qTb(i))
+if(i==1) write(*,*) 'after flux', var(1)%phi, var(2)%phi , q(i)
+
           else ! interface
              l  = l+1
              if (init) then ! initialise
@@ -1217,7 +1221,7 @@ CONTAINS
        ! qvh(i) = ((var(i)%Dv+var(i+1)%Dv)/two)* ((var(i)%cvsat+var(i+1)%cvsat)/two)*(var(i)%rh-var(i+1)%rh)/dz(i)
        qv(i)  = qvh(i) + qvT(i) ! whole vapour flux has one part from humidity (qvh) and one part from temp diff (qvT)
        q(i)   = qv(i) + ql(i)
-
+if(i==1) write(*,*) 'qv ql',  qvh(i),qvT(i), Tsoil(i), var(1)%phiv, var(1)%cvsat
        if (var(i)%isat==0) then
           ! qvya(i) = var(i)%phivS/dz(i) *((((Tsoil(i)+Tzero)/Tzero)**1.88_r_2+ &
           !      ((Tsoil(i+1)+Tzero)/Tzero)**1.88_r_2)/two) &

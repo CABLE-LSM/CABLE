@@ -125,9 +125,9 @@ MODULE cable_common_module
           LEAF_RESPIRATION    ! either ON or OFF (jhan:Make Logical)
 
      ! Custom soil respiration - see Ticket #42
-     CHARACTER(LEN=10) ::                                                     &
-          SMRF_NAME,   & ! Soil Moist Respiration Function
-          STRF_NAME      ! Soil Temp Respiration Function
+     CHARACTER(LEN=15) ::                                                     &
+          SMRF_NAME = 'Trudinger2016',   & ! Soil Moist Respiration Function
+          STRF_NAME = 'CASA-CNP'     ! Soil Temp Respiration Function
 
      LOGICAL ::                                                               &
           INITIALIZE_MAPPING    = .FALSE., & !

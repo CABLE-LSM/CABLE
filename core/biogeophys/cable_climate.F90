@@ -85,13 +85,13 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
 
   IF (idoy==1 .and. MOD(ktau,ktauday)==1 ) THEN
       !  climate%evap_PT =  max(phiEq,1.0)*CoeffPT/air%rlam*dels  ! mm
-        climate%evap_PT =  phiEq*CoeffPT/air%rlam*dels  ! mm
+        climate%evap_PT =  phiEq*CoeffPT/2.5014e6*dels  ! mm
       !  climate%evap_PT = canopy%epot  ! mm
       !  climate%aevap  =   canopy%fe/air%rlam*dels ! mm
         climate%aevap = met%precip ! mm
   ELSE
-
-     climate%evap_PT = climate%evap_PT + max(phiEq,1.0)*CoeffPT/air%rlam*dels  ! mm
+     climate%evap_PT = climate%evap_PT + phiEq*CoeffPT/2.5014e6*dels  ! mm
+    ! climate%evap_PT = climate%evap_PT + max(phiEq,1.0)*CoeffPT/air%rlam*dels  ! mm
     ! climate%evap_PT =climate%evap_PT + canopy%epot  ! mm
     ! climate%aevap =  climate%aevap + canopy%fe/air%rlam*dels ! mm
      climate%aevap = climate%aevap + met%precip ! mm

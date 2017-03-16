@@ -1444,6 +1444,8 @@ SUBROUTINE biogeochem(ktau,dels,idoY,LALLOC,veg,soil,casabiome,casapool,casaflux
 
   IF (icycle>1) THEN
     call casa_xkN(xkNlimiting,casapool,casaflux,casamet,casabiome,veg)
+   ! vh ! why is this here and not in casa_cnp.F90?
+
     DO j=1,mlitter
       casaflux%klitter(:,j) = casaflux%klitter(:,j)* xkNlimiting(:)
     ENDDO

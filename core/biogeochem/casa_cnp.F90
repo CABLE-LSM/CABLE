@@ -850,10 +850,28 @@ SUBROUTINE casa_xratesoil(xklitter,xksoil,veg,soil,casamet,casabiome)
   REAL(r_2), parameter :: xkalpha=-3.764   ! Kirschbaum (1995, SBB)
   REAL(r_2), parameter :: xkbeta=0.204
   REAL(r_2), parameter :: xktoptc=36.9
+! Trudinger2016 function parameters (from Trudinger 2016)
+!!$ REAL(r_2), parameter ::  wfpswidth1=1.2160310E+00
+!!$ REAL(r_2), parameter ::  wfpswidth2=6.4620150E-01
+!!$ REAL(r_2), parameter ::  wfpswidth3=4.9625073E-01
+!!$ REAL(r_2), parameter :: wfpsscale1=1.6193957E+00
+!!$ REAL(r_2), parameter :: wfpswidth0=1.3703876E-02 
+!!$ REAL(r_2), parameter :: wfpsquad=8.0000000E-01
+
+! Trudinger2016 function parameters (corresponds to Haverd 2013)
+REAL(r_2), parameter :: wfpswidth1=0.78
+REAL(r_2), parameter :: wfpswidth2=0
+REAL(r_2), parameter :: wfpswidth3=1.5
+REAL(r_2), parameter :: wfpsscale1=10.0
+REAL(r_2), parameter :: wfpswidth0 = 0.0
+REAL(r_2), parameter :: wfpsquad=0
+
+
   REAL(r_2), DIMENSION(mp)       :: xkwater,xktemp
   REAL(r_2), DIMENSION(mp)       :: fwps,tsavg
   ! Custom soil respiration - see Ticket #42
   REAL(r_2), DIMENSION(mp)       :: smrf,strf,slopt,wlt,tsoil,fcap,sopt
+  REAL(r_2) :: f0
 !,tsurfavg  !!, msurfavg
   INTEGER :: npt
 
@@ -874,6 +892,8 @@ SUBROUTINE casa_xratesoil(xklitter,xksoil,veg,soil,casamet,casabiome)
   DO npt=1,mp
   IF(casamet%iveg2(npt)/=icewater) THEN
     xktemp(npt)  = casabiome%q10soil(veg%iveg(npt))**(0.1*(tsavg(npt)-TKzeroC-35.0))
+
+
     xkwater(npt) = ((fwps(npt)-wfpscoefb)/(wfpscoefa-wfpscoefb))**wfpscoefe    &
                * ((fwps(npt)-wfpscoefc)/(wfpscoefa-wfpscoefc))**wfpscoefd
     IF (veg%iveg(npt) == cropland .OR. veg%iveg(npt) == croplnd2) &
@@ -909,6 +929,25 @@ SUBROUTINE casa_xratesoil(xklitter,xksoil,veg,soil,casamet,casabiome)
          ELSE IF (fwps(npt)<wlt(npt)) THEN
            smrf(npt) = 0.2
          END IF
+      ELSE IF (trim(cable_user%SMRF_NAME)=='Trudinger2016') THEN
+         if (fwps(npt) .le. wfpswidth0) then
+            smrf(npt) = wfpsquad*fwps(npt)**2.0 
+         else
+            if (fwps(npt) .le. (wfpswidth0+wfpswidth1)) then
+               f0 = 0.5*(1.0-cos(3.1415*((wfpsscale1-1)*wfpswidth1)/(wfpswidth1*wfpsscale1)))
+               smrf(npt) = max((wfpsquad*fwps(npt)**2.0),  &
+                    ((0.5*(1.0-cos(3.1415*(fwps(npt)-wfpswidth0+(wfpsscale1-1)*wfpswidth1)/ &
+                    (wfpswidth1*wfpsscale1)))-f0)/(1-f0)))
+            else
+               if (fwps(npt) .le. wfpswidth0 + wfpswidth1+wfpswidth2) then
+                  smrf(npt) = 1.0
+               else
+                  smrf(npt) = 0.5*(1.0+cos(3.1415*(fwps(npt)-wfpswidth0-wfpswidth1-wfpswidth2) &
+                       /wfpswidth3))
+               endif
+            endif
+         endif
+
       END IF
 
       IF(trim(cable_user%STRF_NAME)=='CASA-CNP') THEN
@@ -920,8 +959,13 @@ SUBROUTINE casa_xratesoil(xklitter,xksoil,veg,soil,casamet,casabiome)
       ELSE IF (trim(cable_user%STRF_NAME)=='PnET-CN') THEN
         strf(npt)=0.68*exp(0.1*(tsoil(npt)-7.1))/12.64
       END IF
-      xksoil(npt) = casabiome%xkoptsoil(veg%iveg(npt))*strf(npt)*smrf(npt)
-    END IF
+      !xksoil(npt) = casabiome%xkoptsoil(veg%iveg(npt))*strf(npt)*smrf(npt)
+      !xklitter(npt) = casabiome%xkoptlitter(veg%iveg(npt)) *strf(npt)*smrf(npt)
+      xksoil(npt) = strf(npt)*smrf(npt)
+      xklitter(npt) = strf(npt)*smrf(npt)
+
+!write(67,"(i8,18e16.6)") npt, fwps(npt), smrf(npt),xkwater(npt),  xksoil(npt), xklitter(npt)
+   END IF
   END IF
   END DO
 
@@ -1667,19 +1711,35 @@ SUBROUTINE avgsoil(veg,soil,casamet)
   DO nland=1,mp
     casamet%tsoilavg(nland)  = casamet%tsoilavg(nland)+veg%froot(nland,ns)  &
                              * casamet%tsoil(nland,ns)
-    casamet%moistavg(nland)  = casamet%moistavg(nland)+ veg%froot(nland,ns) &
+   
+    IF (trim(cable_user%SMRF_NAME)=='Trudinger2016') THEN
+      
+        casamet%moistavg(nland)  = casamet%moistavg(nland)+ veg%froot(nland,ns) &
+            *casamet%moist(nland,ns) 
+    ELSE
+
+       casamet%moistavg(nland)  = casamet%moistavg(nland)+ veg%froot(nland,ns) &
                            * min(soil%sfc(nland),casamet%moist(nland,ns))
-    casamet%btran(nland)     = casamet%btran(nland)+ veg%froot(nland,ns)  &
-            * (min(soil%sfc(nland),casamet%moist(nland,ns))-soil%swilt(nland)) &
-            /(soil%sfc(nland)-soil%swilt(nland))
+    ENDIF
+
+
+
+
+ 
 
  ! Ticket#121
+
+  ! casamet%btran(nland)     = casamet%btran(nland)+ veg%froot(nland,ns)  &
+   !         * (min(soil%sfc(nland),casamet%moist(nland,ns))-soil%swilt(nland)) &
+   !         /(soil%sfc(nland)-soil%swilt(nland))
 
     casamet%btran(nland)     = casamet%btran(nland)+ veg%froot(nland,ns)  &
             * (max(min(soil%sfc(nland),casamet%moist(nland,ns))-soil%swilt(nland),0.0)) &
             /(soil%sfc(nland)-soil%swilt(nland))
 
   ENDDO
+
+ 
   ENDDO
 
 END SUBROUTINE avgsoil
@@ -2111,9 +2171,9 @@ SUBROUTINE casa_cnpcycle(veg,casabiome,casapool,casaflux,casamet, LALLOC)
     casamet%glai(np)   = MAX(casabiome%glaimin(veg%iveg(np)), &
                                casabiome%sla(veg%iveg(np)) * casapool%cplant(np,leaf))
    ! vh !
-    IF (LALLOC.ne.3) THEN
+    !IF (LALLOC.ne.3) THEN
        casamet%glai(np)   = MIN(casabiome%glaimax(veg%iveg(np)), casamet%glai(np))
-    ENDIF
+    !ENDIF
     casapool%clitter(np,:) = casapool%clitter(np,:) &
                            + casapool%dClitterdt(np,:) * deltpool
     casapool%csoil(np,:)   = casapool%csoil(np,:)   &

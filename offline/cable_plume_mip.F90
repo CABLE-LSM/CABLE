@@ -697,10 +697,10 @@ CONTAINS
           "/NDEP/NOy_plus_NHx_dry_plus_wet_deposition_hist_1850_2015_annual.nc"
      IF (TRIM(PLUME%RCP).EQ."8.5") THEN
         NdepFILE = TRIM(PLUME%BasePath)// &
-          "/NDEP/ndep_total_mean_annual_series_2000-2109_1.9x2.5_RCP85.nc"
+          "/NDEP/ndep_total_mean_annual_series_2000-2109_0.5x0.5_RCP85.nc"
      ELSEIF  (TRIM(PLUME%RCP).EQ."4.5") THEN    
         NdepFILE = TRIM(PLUME%BasePath)// &
-             "/NDEP/ndep_total_mean_annual_series_2000-2109_1.9x2.5_RCP45.nc"
+             "/NDEP/ndep_total_mean_annual_series_2000-2109_0.5x0.5_RCP45.nc"
      ENDIF
      ! Open the NDep and access the variables by their name and variable id.
      WRITE(*   ,*) 'Opening ndep data file: ', NdepFILE
@@ -1133,7 +1133,7 @@ END SUBROUTINE GET_PLUME_Ndep
 
        WG%WindDay        = PLUME%MET(  wind  )%VAL
        WG%TempMinDay     = PLUME%MET(  Tmin  )%VAL - 273.15
-       WG%TempMaxDay     = PLUME%MET(  Tmax  )%VAL - 273.15
+       WG%TempMaxDay     = min(PLUME%MET(  Tmax  )%VAL - 273.15, 55.0)
        WG%TempMinDayNext = PLUME%MET(NextTmin)%VAL - 273.15
        WG%TempMaxDayPrev = PLUME%MET(PrevTmax)%VAL - 273.15
        WG%SolarMJDay     = PLUME%MET(  swdn  )%VAL * 1.e-6 * SecDay ! ->[MJ/m2/d]

@@ -7326,7 +7326,7 @@ SUBROUTINE worker_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
   CALL MPI_Send (MPI_BOTTOM, 1, casa_t, 0, 0, ocomm, ierr) 
   write(wlogn,*) 'after MPI_SEND'
   IF(CABLE_USER%CALL_POP) CALL worker_send_pop (POP, ocomm) 
-  write(wlogn,*) 'cplant', casapool%cplant
+  write(wlogn,*) 'cplant', casapool%cplant(1,:)
 
 END SUBROUTINE worker_spincasacnp
 

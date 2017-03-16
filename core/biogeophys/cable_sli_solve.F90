@@ -680,7 +680,7 @@ CONTAINS
 
 
        do while (t(kk) < tfin)
-
+       
           !----- take next time step
           iflux(kk)=1
           again(kk)  = .true. ! flag for recalcn of fluxes (default=false)
@@ -885,6 +885,8 @@ CONTAINS
              qvTa(kk,1:n) = qTa(kk,1:n)
              qvTb(kk,1:n) = qTb(kk,1:n)
              qlTb(kk,1:n) = zero
+
+write(*,*) 'after getfluxes_vp', q(kk,1), S(kk,1), var(kk,1)%phi, var(kk,2)%phi
 
              ! get  fluxes heat and derivatives (at time t=0, i.e. q0 etc.)
              call getheatfluxes(n, dx(kk,1:n), dxL(kk), &
@@ -1154,7 +1156,8 @@ CONTAINS
                 t(kk) = t(kk)+dt(kk) ! tentative update
                 if (again(kk)) t(kk) = t(kk)-dt(kk)
              end if
-
+             write(*,"(i8,14e15.6)") irec, dt(kk),  dmax(kk), q(kk,0), q(kk,1), iqex(kk,1)
+             if (irec.eq.20) stop
              !----- end estimate time step dt
              !----- get and solve eqns
              rsigdt(kk) = one/(sig(kk)*dt(kk))
@@ -2244,6 +2247,7 @@ CONTAINS
              ! update variables (S,T) to end of time step
              ! update variables to sig for use in isotope routine
              do i=1, n
+ if (i==1) write(*,*) 'update', again, Tsoil(kk,1), dTsoil(kk,1)
                 if (.not.again(kk)) Tsoil(kk,i)  = Tsoil(kk,i) + dTsoil(kk,i)
                 if (var(kk,i)%isat==0) then
                    if (.not.again(kk)) then

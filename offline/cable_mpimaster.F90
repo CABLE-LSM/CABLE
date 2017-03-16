@@ -718,10 +718,12 @@ CONTAINS
           ktau_gl = iktau
 
           IF (.NOT.casaonly) THEN 
+
              IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN                  
                 CALL PLUME_MIP_GET_MET(PLUME, iMET, YYYY, 1, kend, &
                      (YYYY.EQ.CABLE_USER%YearEnd .AND. 1.EQ.kend))
-
+                !CALL PLUME_MIP_GET_MET(PLUME, iMET, YYYY, 1, kend, &
+                !     (YYYY.EQ.CABLE_USER%YearEnd))
              ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
                 
                 CALL CRU_GET_SUBDIURNAL_MET(CRU, imet, YYYY, 1, kend, &
@@ -748,7 +750,6 @@ CONTAINS
 
           ! Zero out lai where there is no vegetation acc. to veg. index
           WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.
-
          
 
           IF ( .NOT. CASAONLY ) THEN
@@ -7990,9 +7991,9 @@ write(*,*) 'nloop =', nloop
      ENDDO   ! end of nyear
 
   ENDDO     ! end of nloop
-write(*,*) 'b4 master receive'
+write(*,*) 'b4 master receive casa'
 CALL master_receive (ocomm, 0, casa_ts)
-write(*,*) 'after master receive'
+write(*,*) 'after master receive casa'
 CALL casa_poolout( ktau, veg, soil, casabiome,                           &
             casapool, casaflux, casamet, casabal, phen )
 
@@ -8001,7 +8002,9 @@ CALL write_casa_restart_nc ( casamet, casapool,casaflux,phen,.TRUE. )
 
 
 IF ( CABLE_USER%CALL_POP .and.POP%np.gt.0 ) THEN
+write(*,*) 'b4 master receive pop'
    CALL master_receive_pop(POP, ocomm)
+write(*,*) 'after master receive pop'
    CALL POP_IO( pop, casamet, myearspin, 'WRITE_INI', .TRUE.)
 ENDIF
 
