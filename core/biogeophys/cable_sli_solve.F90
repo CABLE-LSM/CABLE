@@ -755,10 +755,11 @@ CONTAINS
 
                 endif
 
-
+               
                 CALL snow_adjust(irec, mp, n, kk, ns, h0, hice, thetai, dx, vsnow, var, par, S, Tsoil, &
                      Jcol_latent_S, Jcol_latent_T, Jcol_sensible, deltaJ_sensible_S, qmelt, qtransfer, j0snow)
                 thetai(kk,1) = var(kk,1)%thetai  ! this is the value of thetaice prior to matrix call
+               
                 call hyofS(S(kk,1), Tsoil(kk,1), par(kk,1), var(kk,1))
     
              endif ! iflux==1
@@ -886,7 +887,6 @@ CONTAINS
              qvTb(kk,1:n) = qTb(kk,1:n)
              qlTb(kk,1:n) = zero
 
-write(*,*) 'after getfluxes_vp', q(kk,1), S(kk,1), var(kk,1)%phi, var(kk,2)%phi
 
              ! get  fluxes heat and derivatives (at time t=0, i.e. q0 etc.)
              call getheatfluxes(n, dx(kk,1:n), dxL(kk), &
@@ -1156,7 +1156,7 @@ write(*,*) 'after getfluxes_vp', q(kk,1), S(kk,1), var(kk,1)%phi, var(kk,2)%phi
                 t(kk) = t(kk)+dt(kk) ! tentative update
                 if (again(kk)) t(kk) = t(kk)-dt(kk)
              end if
-             write(*,"(i8,14e15.6)") irec, dt(kk),  dmax(kk), q(kk,0), q(kk,1), iqex(kk,1)
+            
              if (irec.eq.20) stop
              !----- end estimate time step dt
              !----- get and solve eqns
@@ -1801,6 +1801,7 @@ write(*,*) 'after getfluxes_vp', q(kk,1), S(kk,1), var(kk,1)%phi, var(kk,2)%phi
 !!$                    endif
 !!$                    if (nsteps(kk).gt.1000) STOP
 !!$                 endif
+               write(wlogn,*) irec, kk, nsteps(kk)
              end do ! while (iok==0) ----- end get and solve eqns
 
 
@@ -2247,7 +2248,6 @@ write(*,*) 'after getfluxes_vp', q(kk,1), S(kk,1), var(kk,1)%phi, var(kk,2)%phi
              ! update variables (S,T) to end of time step
              ! update variables to sig for use in isotope routine
              do i=1, n
- if (i==1) write(*,*) 'update', again, Tsoil(kk,1), dTsoil(kk,1)
                 if (.not.again(kk)) Tsoil(kk,i)  = Tsoil(kk,i) + dTsoil(kk,i)
                 if (var(kk,i)%isat==0) then
                    if (.not.again(kk)) then
@@ -3259,8 +3259,8 @@ write(*,*) 'after getfluxes_vp', q(kk,1), S(kk,1), var(kk,1)%phi, var(kk,2)%phi
              hice(kk) = h0(kk)*var(kk,1)%thetai/par(kk,1)%thre
              vsnow(kk)%hsnow(1) = zero
              vsnow(kk)%hliq(1) = zero
-             var(kk,1)%thetal = tmp1d4(kk)
-             var(kk,1)%thetai = theta - tmp1d4(kk)
+             var(kk,1)%thetal = min(tmp1d4(kk), theta)
+             var(kk,1)%thetai = max(theta - tmp1d4(kk), 0.0)
 
              ! correct total energy stored in pond + soil
              Jcol_latent_S(kk) = Jcol_latent_S(kk)  - rhow*lambdaf*((hice(kk)-hice_tmp(kk)) + &
@@ -3428,8 +3428,8 @@ write(*,*) 'after getfluxes_vp', q(kk,1), S(kk,1), var(kk,1)%phi, var(kk,2)%phi
                       stop
                    endif
 
-                   var(kk,1)%thetal = tmp1d4(kk)
-                   var(kk,1)%thetai = theta - tmp1d4(kk)
+                   var(kk,1)%thetal = min(tmp1d4(kk),theta)
+                   var(kk,1)%thetai = max(theta - tmp1d4(kk), 0.0)
                    ! correct total energy stored in pond + soil
                    Jcol_latent_S(kk) = Jcol_latent_S(kk)- rhow*lambdaf*((hice(kk)-hice_tmp(kk)) + &
                         dx(kk,1)*(var(kk,1)%thetai-thetai(kk,1)))
@@ -3673,8 +3673,8 @@ write(*,*) 'after getfluxes_vp', q(kk,1), S(kk,1), var(kk,1)%phi, var(kk,2)%phi
                    stop
                 endif
 
-                var(kk,1)%thetal = tmp1d4(kk)
-                var(kk,1)%thetai = theta - tmp1d4(kk)
+                var(kk,1)%thetal = min(tmp1d4(kk),theta)
+                var(kk,1)%thetai = max(theta - tmp1d4(kk), 0.0)
                 hice_tmp(kk) = hice(kk)
                 hice = h0(kk)*var(kk,1)%thetai/par(kk,1)%thre
 
