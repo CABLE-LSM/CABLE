@@ -41,7 +41,7 @@ MODULE POPLUC_CONSTANTS
 
   INTEGER(i4b),PARAMETER ::  LENGTH_SECDF_HISTORY = 4000
   INTEGER(i4b),PARAMETER :: AGE_MAX = 1000  
-  INTEGER(i4b),PARAMETER :: disturbance_interval = 100 
+  INTEGER(i4b),PARAMETER :: disturbance_interval = 200 
        ! N.B. needs to be the same as veg%disturbance_interval
   LOGICAL, PARAMETER :: IFHARVEST=.FALSE.
   INTEGER(i4b), PARAMETER :: ROTATION=70
@@ -516,14 +516,21 @@ CONTAINS
                 ! change in biomass area density due to secondary forest expansion [g C m-2] 
                 dcExpand(g) = -(POPLUC%gtos(g)+POPLUC%ptos(g))*casapool%cplant(j+1,2)/ &
                      (patch(j+1)%frac + POPLUC%gtos(g)+POPLUC%ptos(g)-POPLUC%stog(g))
+
+
                 if (POP%pop_grid(l)%cmass_sum_old .gt. 0.001) then
                    ! change in  biomass area density due to secondary harvest and clearance
-                   ! (== POP 'cataastrophic' mortality minus natural disturbance minus 
+                   ! (== POP 'catastrophic' mortality minus natural disturbance minus 
                    ! density reduction due to expansion
                    dcHarvClear(g) = -max(POP%pop_grid(l)%cat_mortality/ &
                         (POP%pop_grid(l)%cmass_sum_old + POP%pop_grid(l)%growth) &
                         - 1.0/ disturbance_interval ,0.0) &
                         *casapool%cplant(j+1,2) - dcExpand(g)
+
+!if(POPLUC%thisyear.eq.1885 .and. g==3) then
+!write(*,*) 'dcexpand',  dcExpand(g), dcHarvClear(g),  1.0/ disturbance_interval*casapool%cplant(j+!1,2), POP%pop_grid(l)%cat_mortality/(POP%pop_grid(l)%cmass_sum_old + POP%pop_grid(l)%growth)*casapool%cplant(j+1,2), LUC_EXPT%prim_only
+!stop
+!endif
                   if (( POPLUC%smharv(g) + POPLUC%syharv(g) + POPLUC%stog(g)).gt.1e-10) then
                      ! partition dcHarvClear into harvest and clearance components
                      dcHarv(g) = dcHarvClear(g) * (POPLUC%smharv(g)+POPLUC%syharv(g)) & 

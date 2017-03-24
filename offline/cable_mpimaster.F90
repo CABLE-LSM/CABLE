@@ -344,10 +344,10 @@ CONTAINS
     INTEGER :: i,x,kk
     INTEGER :: LALLOC
     INTEGER, PARAMETER ::	 mloop	= 10   ! CASA-CNP PreSpinup loops
-    REAL    :: etime
+    REAL    :: etime, etimelast
 
     ! END header
-
+    etimelast = 0.0  
     ! Open, read and close the namelist file.
     OPEN( 10, FILE = CABLE_NAMELIST, STATUS="OLD", ACTION="READ" )
     READ( 10, NML=CABLE )   !where NML=CABLE defined above
@@ -999,7 +999,11 @@ CONTAINS
              CALL1 = .FALSE.
 
 !WRITE(*,*) " ktauloop end ", ktau, CurYear
-
+              !if (met%doy(1).eq.10) then
+                  !CALL CPU_TIME(etime)
+                  !PRINT *, 'Master ktau ',ktau,  etime, etime-etimelast, ' seconds'
+                  !etimelast = etime
+              ! endif
 
           END DO KTAULOOP ! END Do loop over timestep ktau
 
@@ -1149,6 +1153,8 @@ write(*,*) 'after annual calcs'
                         rad, bal, air, soil, veg, C%SBOLTZ, C%EMLEAF, C%EMSOIL )
                    
                 ENDIF
+              
+
              END IF
              
              IF(cable_user%consistency_check) THEN 
@@ -2079,6 +2085,14 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
 
      bidx = bidx + 1
      CALL MPI_Get_address (veg%iveg(off), displs(bidx), ierr)
+     blen(bidx) = I1LEN
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (veg%ivegp(off), displs(bidx), ierr)
+     blen(bidx) = I1LEN
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (veg%ilu(off), displs(bidx), ierr)
      blen(bidx) = I1LEN
 
      bidx = bidx + 1

@@ -1295,7 +1295,7 @@ CONTAINS
     INTEGER :: iy   ! Counter
     !MC - use met%year(1) instead of CABLE_USER%YearStart for non-GSWP forcing and leap years
     INTEGER, SAVE :: YearStart
-
+    INTEGER :: ok ! for netcdf sync
     ! IF asked to check mass/water balance:
     IF(check%mass_bal) CALL mass_balance(dels, ktau, ssnow, soil, canopy,            &
                                          met,air,bal)
@@ -2477,7 +2477,7 @@ CONTAINS
        END IF
 
     END IF
-
+   ok = NF90_SYNC(ncid_out)
 
   END SUBROUTINE write_output
   !=============================================================================

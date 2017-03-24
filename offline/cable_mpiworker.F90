@@ -64,7 +64,7 @@
 MODULE cable_mpiworker
 
   USE cable_mpicommon
-
+  USE cable_IO_vars_module, ONLY: wlogn
  
   IMPLICIT NONE
 
@@ -105,7 +105,7 @@ MODULE cable_mpiworker
   INTEGER :: restart_t
 
   ! worker's logfile unit
-  INTEGER :: wlogn 
+  !INTEGER :: wlogn 
 
   PUBLIC :: mpidrv_worker
 
@@ -242,6 +242,7 @@ CONTAINS
     INTEGER :: ocomm ! separate dupes of MPI communicator for send and recv
     INTEGER :: ierr
     CHARACTER(len=200):: Run
+    REAL    :: etime, etimelast
 
     ! switches etc defined thru namelist (by default cable.nml)
     NAMELIST/CABLE/                  &
@@ -482,9 +483,7 @@ CONTAINS
 
                 IF ( CABLE_USER%CASA_DUMP_READ .OR. CABLE_USER%CASA_DUMP_WRITE ) &
                      CALL worker_casa_dump_types(comm, casamet, casaflux, phen, climate)
- write(wlogn,*) 'cable_mpiworker, POPLUC: ',  CABLE_USER%POPLUC
-write(*,*) 'cable_mpiworker, POPLUC: ',  CABLE_USER%POPLUC
-call flush(wlogn)
+
                 IF ( CABLE_USER%POPLUC ) &
                      CALL worker_casa_LUC_types( comm, casapool, casabal)
                 
@@ -559,7 +558,7 @@ call flush(wlogn)
          ! IF (.NOT.spincasa) THEN 
           ! time step loop over ktau
           KTAULOOP:DO ktau=kstart, kend 
-
+              CALL CPU_TIME(etimelast)  
              ! increment total timstep counter
              ktau_tot = ktau_tot + 1
 
@@ -632,6 +631,10 @@ call flush(wlogn)
              ssnow%rnof2  = ssnow%rnof2*dels
              ssnow%runoff = ssnow%runoff*dels
 
+
+             CALL CPU_TIME(etime)
+             write(wlogn,*) ktau,  etime-etimelast
+            
 
              !jhan this is insufficient testing. condition for 
              !spinup=.false. & we want CASA_dump.nc (spinConv=.true.)
@@ -1362,6 +1365,14 @@ ENDIF
 
     bidx = bidx + 1
     CALL MPI_Get_address (veg%iveg, displs(bidx), ierr)
+    blen(bidx) = i1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (veg%ivegp, displs(bidx), ierr)
+    blen(bidx) = i1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (veg%ilu, displs(bidx), ierr)
     blen(bidx) = i1len
 
     bidx = bidx + 1

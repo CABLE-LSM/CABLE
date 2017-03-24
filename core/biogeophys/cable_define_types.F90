@@ -268,6 +268,7 @@ MODULE cable_def_types_mod
 
       INTEGER, DIMENSION(:), POINTER ::                                        &
          iveg , &      ! vegetation type
+         ivegp , &      ! dominant potential vegetation type
          iLU ! land use type
       REAL, DIMENSION(:), POINTER ::                                           &
          canst1,  & ! max intercepted water by canopy (mm/LAI)
@@ -880,6 +881,7 @@ SUBROUTINE alloc_veg_parameter_type(var, mp)
    ALLOCATE( var% dleaf(mp) )
    ALLOCATE( var% ejmax(mp) )
    ALLOCATE( var% iveg(mp) )
+   ALLOCATE( var% ivegp(mp) )
    ALLOCATE( var% iLU(mp) )
    ALLOCATE( var% meth(mp) )
    ALLOCATE( var% frac4(mp) )
@@ -1425,6 +1427,7 @@ SUBROUTINE dealloc_veg_parameter_type(var)
    DEALLOCATE( var% dleaf )
    DEALLOCATE( var% ejmax )
    DEALLOCATE( var% iveg )
+   DEALLOCATE( var% ivegp )
    DEALLOCATE( var% iLU )
    DEALLOCATE( var% meth )
    DEALLOCATE( var% frac4 )

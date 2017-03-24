@@ -17,11 +17,10 @@ SUBROUTINE sli_main(ktau, dt, veg, soil, ssnow, met, canopy, air, rad, SEB_only)
        esat_ice, slope_esat_ice, thetalmax, Tfrz,  hyofS, SEB
   USE sli_roots,          ONLY: setroots, getrex
   USE sli_solve,          ONLY: solve
- 
+  USE cable_IO_vars_module, ONLY: wlogn
 
   IMPLICIT NONE
-  !INTEGER, INTENT(IN)            :: wlogn
-  INTEGER :: wlogn = 10001 
+
   REAL,                      INTENT(IN)    :: dt
   TYPE(veg_parameter_type),  INTENT(INOUT) :: veg     ! all r_1
   TYPE(soil_parameter_type), INTENT(INOUT) :: soil    ! all r_1
@@ -137,7 +136,7 @@ SUBROUTINE sli_main(ktau, dt, veg, soil, ssnow, met, canopy, air, rad, SEB_only)
      open (unit=337,file="soil_log.out",status="replace",position="rewind")
      open(unit=338, file="thetai.out", status="replace", position="rewind")
      open(unit=340, file="snow.out", status="replace", position="rewind")
-     open(unit=345, file="diags.out",status="replace", position="rewind")
+     open(unit=346, file="diags.out",status="replace", position="rewind")
      open(unit=369, file="vmet.out", status="replace", position="rewind", recl=20*20)
      open(unit=370, file="qex.out",status="replace", position="rewind")
      open(unit=371, file="q.out",status="replace", position="rewind")
@@ -401,13 +400,16 @@ SUBROUTINE sli_main(ktau, dt, veg, soil, ssnow, met, canopy, air, rad, SEB_only)
   lE_old  = ssnow%lE
   gamm    = real(veg%gamma,r_2)
   where (canopy%through>=met%precip_sn)
-     qprec      = (canopy%through-met%precip_sn)/thousand/dt              ! liq precip rate (m s-1)
+     qprec      = max((canopy%through-met%precip_sn)/thousand/dt , zero)             ! liq precip rate (m s-1)
      qprec_snow = (met%precip_sn)/thousand/dt
   elsewhere
-     qprec = canopy%through
+     qprec = max(canopy%through, zero)
      qprec_snow = zero
   endwhere
-
+!if ( wlogn == 1011) then
+!     write(wlogn,*) 'prec', qprec(79), canopy%through(79), met%precip_sn(79)
+!  write(*,*) 'prec', qprec(79), canopy%through(79), met%precip_sn(79)
+!endif
   ! re-calculate qprec_snow and qprec based on total precip and air T (ref Jin et al. Table II, Hyd Proc, 1999
   ! qprec_tot = qprec + qprec_snow
   ! where (vmet%Ta > 2.5_r_2)
@@ -514,7 +516,7 @@ SUBROUTINE sli_main(ktau, dt, veg, soil, ssnow, met, canopy, air, rad, SEB_only)
      rbh = vmet(1)%rbh
      rrc = vmet(1)%rrc
 !write(*,*), 'b4 solve', ktau
-     call solve(wlogn, ti, tf, ktau, mp, qprec, qprec_snow, ms, dx, &
+     call solve( ti, tf, ktau, mp, qprec, qprec_snow, ms, dx, &
           h0, S, thetai, Jsensible, Tsoil, evap, &
           evap_pot, runoff, infil, drn, discharge, qh, &
           nsteps, vmet, vlit, vsnow, var, csoil, kth, phi, T0, Tsurface, &
@@ -556,8 +558,10 @@ SUBROUTINE sli_main(ktau, dt, veg, soil, ssnow, met, canopy, air, rad, SEB_only)
      wp  = sum((par%thr + (par%the-par%thr)*S)*dx,2) + plit%thre*SL*dxL 
      win = win + (qprec+qprec_snow)*(tf-ti)
 
-     if (1 == 0) then
-        k=1
+     if (1 == 0 .and. wlogn == 1011) then
+        k=79
+
+
         write(332,"(i8,i8,18e16.6)") ktau, nsteps(k), wp(k)-wpi(k), infil(k)-drn(k), runoff(k), &
              win(k)-(wp(k)-wpi(k)+deltah0(k)+runoff(k)+evap(k)+drn(k))-Etrans(k)*dt, wp(k), &
              evap(k), evap_pot(k), infil(k), &
@@ -586,6 +590,15 @@ SUBROUTINE sli_main(ktau, dt, veg, soil, ssnow, met, canopy, air, rad, SEB_only)
         write(371,"(20e20.12)")  qvsig+qlsig
 
      endif
+
+     if (1 == 0) then
+        write(wlogn+100,"(100i8)")  nsteps        
+    
+
+
+     endif
+
+
 
 
      ! Update variables for output:

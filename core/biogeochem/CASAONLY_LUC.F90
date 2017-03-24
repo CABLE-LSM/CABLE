@@ -160,7 +160,13 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
              nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
              pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
 
-        ! update time-aggregates of casa pools and fluxes
+ 
+IF (YYYY.EQ.1610) THEN
+  write(69,*) casapool%ctot(4)-casapool%ctot_0(4), casabal%FCneeyear(4), casabal%dcdtyear(4)
+ENDIF
+
+
+       ! update time-aggregates of casa pools and fluxes
         CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
              & .TRUE. , .FALSE., 1)
         count_sum_casa = count_sum_casa + 1

@@ -42,6 +42,7 @@
 MODULE cable_canopy_module
 
   USE cable_data_module, ONLY : icanopy_type, point2constants
+  USE cable_IO_vars_module, ONLY: wlogn
   IMPLICIT NONE
 
   PUBLIC define_canopy
@@ -60,7 +61,7 @@ CONTAINS
     USE cable_common_module
     USE cable_roughness_module
     USE sli_utils, ONLY : potential_evap
-
+   
 
     TYPE (balances_type), INTENT(INOUT)  :: bal
     TYPE (radiation_type), INTENT(INOUT) :: rad
@@ -1325,9 +1326,12 @@ CONTAINS
     canopy%wcint = MERGE( MIN( upper_limit, ftemp ), 0.0,                       &
          ftemp > 0.0  .AND. met%tk > C%tfrz)  !EAK, 09/10
 
+
+
     ! Define canopy throughfall (100% of precip if temp < 0C, see above):
     canopy%through = met%precip_sn + MIN( met%precip - met%precip_sn ,          &
          MAX( 0.0, met%precip - met%precip_sn - canopy%wcint) )
+
 
     ! Add canopy interception to canopy storage term:
     canopy%cansto = canopy%cansto + canopy%wcint

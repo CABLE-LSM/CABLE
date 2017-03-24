@@ -70,8 +70,8 @@ MODULE sli_numbers
   REAL(r_2), PARAMETER :: dtmax     = 86400. 
   REAL(r_2), PARAMETER :: dtmin     = 0.01
   REAL(r_2), PARAMETER :: dsmmax    = 1.0
-  REAL(r_2), PARAMETER :: dTsoilmax = 5.0
-  REAL(r_2), PARAMETER :: dTLmax    = 5.0
+  REAL(r_2), PARAMETER :: dTsoilmax = 30.0
+  REAL(r_2), PARAMETER :: dTLmax    = 30.0
   !REAL(r_2), PARAMETER :: dTsoilmax = 1.0
   !REAL(r_2), PARAMETER :: dTLmax    = 1.0
   REAL(r_2), PARAMETER :: tol_dthetaldT = 1.e-12_r_2

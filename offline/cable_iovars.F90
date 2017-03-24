@@ -360,8 +360,10 @@ MODULE cable_IO_vars_module
    REAL,POINTER,DIMENSION(:,:)  :: defaultLAI ! in case met file/host model
                                               ! has no LAI
    REAL :: fixedCO2 ! CO2 level if CO2air not in met file
-
+    
   ! For threading:
   !$OMP THREADPRIVATE(landpt,patch)
+! for mpi debugging
+   INTEGER :: wlogn
 
 END MODULE cable_IO_vars_module

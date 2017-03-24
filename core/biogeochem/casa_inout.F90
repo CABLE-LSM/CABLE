@@ -42,6 +42,7 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
   USE phenvariable
   !! vh_js !!
   USE cable_common_module, only: cable_user
+
   IMPLICIT NONE
 !  INTEGER,               INTENT(IN)    :: mvt,mst
   TYPE (veg_parameter_type),  INTENT(INOUT) :: veg  ! vegetation parameters
@@ -1293,8 +1294,10 @@ SUBROUTINE casa_cnpflux(casaflux,casapool,casabal,zeroflux)
      ! change made ypwang 17-nov-2013 to accoutn for change in labile carbon pool  size
      casabal%FCnppyear        = casabal%FCnppyear + (casaflux%Cnpp+casapool%dClabiledt)   * deltpool
      casabal%FCrsyear  = casabal%FCrsyear  + casaflux%Crsoil * deltpool
+     !casabal%FCneeyear = casabal%FCneeyear &
+     !     + (casaflux%Cnpp+casapool%dClabiledt-casaflux%Crsoil) * deltpool
      casabal%FCneeyear = casabal%FCneeyear &
-          + (casaflux%Cnpp+casapool%dClabiledt-casaflux%Crsoil) * deltpool
+          + (casaflux%Cnpp-casaflux%Crsoil) * deltpool
      casabal%dCdtyear =  casabal%dCdtyear + (casapool%Ctot-casapool%Ctot_0)*deltpool
    
      !  DO n=1,3
@@ -1332,6 +1335,7 @@ SUBROUTINE biogeochem(ktau,dels,idoY,LALLOC,veg,soil,casabiome,casapool,casaflux
   USE casadimension
   USE casa_cnp_module
   USE POP_TYPES,            ONLY: POP_TYPE
+  USE cable_IO_vars_module, ONLY: wlogn
   IMPLICIT NONE
   INTEGER, INTENT(IN)    :: ktau
   REAL,    INTENT(IN)    :: dels
@@ -1454,6 +1458,23 @@ SUBROUTINE biogeochem(ktau,dels,idoY,LALLOC,veg,soil,casabiome,casapool,casaflux
                                      casapool,casaflux,casamet)
   ENDIF
 
+ ! reset base soil turnover rates for grass tiles to be the same 
+  ! as potential veg in the same gridcell
+  IF (cable_user%CALL_POP) THEN
+     DO j=1,msoil
+        where (veg%ilu ==3)
+           casaflux%ksoil(:,j) = casaflux%ksoil(:,j) * casabiome%soilrate(veg%ivegp(:),j)/ &
+                casabiome%soilrate(veg%iveg(:),j)
+        ENDWHERE
+     ENDDO
+  ENDIF
+
+if (idoy.eq.365) then
+   write(wlogn, "(6i4)" ) veg%ilu(1:6)
+   write(wlogn, "(6i4)" ) veg%iveg(1:6)
+   write(wlogn, "(6i4)" ) veg%ivegp(1:6)
+endif
+  
   ! changed by ypwang following Chris Lu on 5/nov/2012
   call casa_delplant(veg,casabiome,casapool,casaflux,casamet,                &
        cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,  &

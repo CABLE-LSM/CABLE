@@ -1078,12 +1078,20 @@ write(*,*) 'iveg', e,  veg%iveg(landpt(e)%cstart:landpt(e)%cend)
 write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
 
       ! set land use (1 = primary; 2 = secondary, 3 = open)
+      veg%iLU(landpt(e)%cstart:landpt(e)%cend)= 1
+      veg%ivegp(landpt(e)%cstart:landpt(e)%cend) = veg%iveg(landpt(e)%cstart:landpt(e)%cend)
       if (cable_user%popluc) then
          veg%iLU(landpt(e)%cstart:landpt(e)%cend)= 1
          if (landpt(e)%nap.eq.3 .and.veg%iveg(landpt(e)%cstart)<=5 ) then
             veg%iLU(landpt(e)%cstart+1) = 2
             veg%iLU(landpt(e)%cend) = 3
+            veg%ivegp(landpt(e)%cstart+1:landpt(e)%cend) =  veg%iveg(landpt(e)%cstart)
          endif
+         if (landpt(e)%nap.eq.2 .and.veg%iveg(landpt(e)%cstart)<=5 ) then
+            veg%iLU(landpt(e)%cend) = 3
+            veg%ivegp(landpt(e)%cend) =  veg%iveg(landpt(e)%cstart)
+         endif
+
       endif
       ! Check that patch fractions total to 1
       tmp = 0

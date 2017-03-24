@@ -78,14 +78,14 @@ MODULE POP_Constants
   REAL(dp),PARAMETER:: DENSINDIV_MIN=1e-9 !
   REAL(dp),PARAMETER:: Kbiometric=50.0 ! Constant in height-diameter relationship
   REAL(dp),PARAMETER:: WD= 300.0 ! Wood density kgC/m3
-  REAL(dp),PARAMETER:: GROWTH_EFFICIENCY_MIN=0.008  !0.0084 ! threshold growth efficiency for enhanced mortality (higher value gives higher biomass turnover)
+  REAL(dp),PARAMETER:: GROWTH_EFFICIENCY_MIN=0.0089  !0.0084 ! threshold growth efficiency for enhanced mortality (higher value gives higher biomass turnover)
   REAL(dp),PARAMETER:: Pmort=5.0 ! exponent in mortality formula
   REAL(dp),PARAMETER:: MORT_MAX=0.3 ! upper asymptote for enhanced mortality
   REAL(dp),PARAMETER:: THETA_recruit=0.95 ! shape parameter in recruitment equation
   REAL(dp),PARAMETER:: CMASS_STEM_INIT= 1e-4 ! initial biomass kgC/m2
   REAL(dp),PARAMETER:: POWERbiomass=0.67 ! exponent for biomass in proportion to which cohorts preempt resources
   REAL(dp),PARAMETER:: POWERGrowthEfficiency = 0.67
-  REAL(dp),PARAMETER:: CrowdingFactor = 0.029
+  REAL(dp),PARAMETER:: CrowdingFactor = 0.039  !0.029 ! 0.033
   REAL(dp),PARAMETER:: ALPHA_CPC = 3.5
   REAL(dp),PARAMETER:: k_allom1 = 200.0 ! crown area =  k_allom1 * diam ** k_rp
   REAL(dp),PARAMETER:: k_rp = 1.67  ! constant in crown area relation to tree diameter
@@ -2386,7 +2386,20 @@ pop%pop_grid(g)%csapwood_sum = 0
 pop%pop_grid(g)%sapwood_area = 0
 tmp_array = 0
 nage =  min(POP%pop_grid(g)%patch(1)%disturbance_interval(1),it)+1 ! maximum age
+
 !nage = maxval(pop%pop_grid(g)%patch(:)%age(1))
+IF (POP%pop_grid(g)%LU==2) then ! secondary forest
+nage = AGEMAX
+ DO iage=AGEMAX,1,-1
+    IF (pop%pop_grid(g)%freq_age(iage)>0) THEN
+       EXIT
+    ELSE
+      nage = nage - 1 
+    ENDIF
+ ENDDO
+ENDIF
+
+
 disturbance_freq=1.0/REAL(disturbance_interval(g,1))
 IF(.NOT.ALLOCATED(age)) ALLOCATE(age(nage))
 IF(.NOT.ALLOCATED(freq_age)) ALLOCATE(freq_age(nage))
@@ -2619,7 +2632,7 @@ DO iage = 1, nage
    pop%pop_grid(g)%biomass_age(iage) = cmass_age(iage)
 
 enddo
-!!$if (it.gt.400) then
+!!$if (g==4) then
 !!$   write(*,*) 'it, nage', it, nage
 !!$   write(591, "(350e16.6)") freq_age
 !!$   write(601,"(350e16.6)") cmass_age

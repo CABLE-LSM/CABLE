@@ -23,7 +23,7 @@
 MODULE cable_albedo_module
 
    USE cable_data_module, ONLY : ialbedo_type, point2constants
-
+   USE cable_IO_vars_module, ONLY: wlogn
    IMPLICIT NONE
 
    PUBLIC surface_albedo
@@ -164,6 +164,8 @@ SUBROUTINE surface_albedosn(ssnow, veg, met, soil)
       alvo  = 0.95,  &  ! albedo for vis. on a new snow
       aliro = 0.70      ! albedo for near-infr. on a new snow
 
+   INTEGER:: k
+
    soil%albsoilf = soil%albsoil(:,1)
 
    ! lakes: hard-wired number to be removed in future
@@ -192,6 +194,9 @@ SUBROUTINE surface_albedosn(ssnow, veg, met, soil)
    alir =0.
    alv  =0.
 
+  
+
+  
    WHERE ( ssnow%snowd > 1. .AND. .NOT. cable_runtime%um_radiation )
 
       ! new snow (cm H2O)
