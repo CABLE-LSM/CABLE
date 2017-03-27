@@ -573,8 +573,8 @@ END SUBROUTINE GET_CRU_Ndep
   LOGICAL, SAVE       :: CALL1 = .TRUE.  ! A *local* variable recording the first call of this routine
 
 ! Keep the initial value of CYEAR for calculation of different MetYear if required. 
-  IF (CALL1) RunStartYear = 1710 ! edit vh !
-
+  !IF (CALL1) RunStartYear = 1710 ! edit vh !
+  IF (CALL1) RunStartYear = 1721 ! edit vh !
   DO iVar = 1, CRU%NMET  ! For each met variable
 
 ! For S0_TRENDY and initialisation, calculate the required met year for repeatedly cycling through the 
@@ -651,8 +651,8 @@ END SUBROUTINE GET_CRU_Ndep
 ! If first call...
 ! Keep the initial value of CYEAR for calculation of different MetYear if required.
   IF (CALL1) THEN  
-    RunStartYear = CRU%CYEAR
-
+    !RunStartYear = CRU%CYEAR
+    RunStartYear = 1721
 ! If this is not the first call, capture the existing Tmax from the previous day as the 
 ! 'previous Tmax' before reading another one. Move the existing next day's Tmin into the current
 ! Tmin before reading a new 'next Tmin'. These previous and next values are required for the
