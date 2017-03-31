@@ -41,7 +41,7 @@ MODULE POPLUC_CONSTANTS
 
   INTEGER(i4b),PARAMETER ::  LENGTH_SECDF_HISTORY = 4000
   INTEGER(i4b),PARAMETER :: AGE_MAX = 1000  
-  INTEGER(i4b),PARAMETER :: disturbance_interval = 200 
+  INTEGER(i4b),PARAMETER :: disturbance_interval = 100 
        ! N.B. needs to be the same as veg%disturbance_interval
   LOGICAL, PARAMETER :: IFHARVEST=.FALSE.
   INTEGER(i4b), PARAMETER :: ROTATION=70
@@ -77,7 +77,9 @@ MODULE POPLUC_Types
      REAL(dp), DIMENSION(:,:),POINTER :: fracHarvProd, fracClearProd
      REAL(dp), DIMENSION(:,:),POINTER :: HarvProdLoss, ClearProdLoss
      REAL(dp), DIMENSION(:),POINTER :: fracHarvResid, fracHarvSecResid, fracClearResid
-
+     REAL(dp), DIMENSION(:),POINTER :: kSecHarv, kNatDist, kExpand1, kExpand2, kClear
+     REAL(dp), DIMENSION(:),POINTER :: cRelClear ! carbon denisty in sec forest harvest area, relative to tile average
+   ! biomass density loss rates
   END TYPE POPLUC_TYPE
 
 END MODULE POPLUC_Types
@@ -142,8 +144,12 @@ CONTAINS
     POPLUC%HarvProdLoss = 0
     POPLUC%ClearProd = 0
     POPLUC%ClearProdLoss = 0
-
-
+    POPLUC%kSecHarv = 0
+    POPLUC%kNatDist = 0
+    POPLUC%kExpand1 = 0
+    POPLUC%kExpand2 = 0
+    POPLUC%kClear = 0
+    POPLUC%cRelClear = 0
   END SUBROUTINE ZeroPOPLUC
   !*******************************************************************************
 
@@ -160,6 +166,7 @@ CONTAINS
     REAL :: frac_open_grid, remaining
     INTEGER(i4b) :: n  ! position of new element in POPLUC%SecFor array
     INTEGER(i4b) :: i
+    REAL :: tmp, tmp1, tmp2
     frac_open_grid = 1.0 -POPLUC%frac_forest(g)
     n = POPLUC%n_event(g)
 
@@ -179,12 +186,31 @@ CONTAINS
 
        IF (to_state=='SECDF') THEN 
           ! Transition from primary -> secondary forest(ptos)
+          IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0) THEN
+             tmp = sum( POPLUC%freq_age_secondary(g,:)*POPLUC%biomass_age_secondary(g,:)) &
+                  /sum( POPLUC%freq_age_secondary(g,:))
+          ELSE
+             tmp = 0.0
+          ENDIF
+          POPLUC%kExpand1(g) = 0.0
           POPLUC%n_event(g) = POPLUC%n_event(g)+1
           n = POPLUC%n_event(g)
           POPLUC%area_history_secdf(g,n) = frac_change_grid
           POPLUC%age_history_secdf(g,n) = 0
           POPLUC%freq_age_secondary(g,1) = POPLUC%freq_age_secondary(g,1) + frac_change_grid
-
+       
+          IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0) THEN
+             tmp1 = sum( POPLUC%freq_age_secondary(g,:)*POPLUC%biomass_age_secondary(g,:)) &
+                  /sum( POPLUC%freq_age_secondary(g,:))
+          ELSE
+             tmp1 = 0.0
+          ENDIF
+          if (tmp.gt.0.0) then
+             tmp2 = (tmp1-tmp)/tmp
+             POPLUC%kExpand1(g) = -tmp2
+          else
+             POPLUC%kExpand1(g) = 0.0
+          endif
        ENDIF
 
     ELSEIF (from_state=='SECDF') THEN
@@ -196,27 +222,73 @@ CONTAINS
        ELSE
           ! Transition from secondary -> non forest (stog)
           ! Assumption: youngest stands cleared first
-   
+ 
+          IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0) THEN
+             tmp = sum( POPLUC%freq_age_secondary(g,:)*POPLUC%biomass_age_secondary(g,:)) &
+                  /sum( POPLUC%freq_age_secondary(g,:))
+          ELSE
+             tmp = 0.0
+          ENDIF
+          POPLUC%kClear(g) = 0.0
+          POPLUC%CRelClear(g) = 0.0
           remaining = frac_change_grid
           i = 1
           DO WHILE (remaining > 0.0 .and. i <= age_max )
              IF (POPLUC%freq_age_secondary(g,i).GE.remaining) THEN
                 POPLUC%freq_age_secondary(g,i) =POPLUC%freq_age_secondary(g,i) &
                      - remaining
+                POPLUC%CRelClear(g) = POPLUC%biomass_age_secondary(g,i)*remaining 
                 remaining = 0.0
              ELSE
                 remaining = remaining - POPLUC%freq_age_secondary(g,i)
                 POPLUC%freq_age_secondary(g,i) = 0.0
+                POPLUC%CRelClear(g) =  POPLUC%CRelClear(g) &
+                     + POPLUC%biomass_age_secondary(g,i)*POPLUC%freq_age_secondary(g,i)
                 i = i+1
              ENDIF
 
           ENDDO
-          !if (remaining.gt.frac_change_grid) POPLUC%stog(g) = POPLUC%stog(g)-remaining
+          if (tmp .gt. 0.0 .and. frac_change_grid.gt.0.0) then
+             POPLUC%CRelClear(g)  =  POPLUC%CRelClear(g) /frac_change_grid/ tmp
+          else
+             POPLUC%CRelClear(g) = 0.0
+          endif
+
           if (remaining.gt.0.0) POPLUC%stog(g) = POPLUC%stog(g)-remaining
+     
+          IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0) THEN
+             tmp1 = sum( POPLUC%freq_age_secondary(g,:)*POPLUC%biomass_age_secondary(g,:)) &
+                  /sum( POPLUC%freq_age_secondary(g,:))
+          ELSE
+             tmp1 = 0.0
+          ENDIF
+          if (tmp.gt.0.0) then
+             tmp2 = (tmp1-tmp)/tmp
+             POPLUC%kClear(g) = -tmp2
+          else
+             POPLUC%kClear(g) = 0.0
+          endif
+
+! Use this code for uniform clearance across age classes
+!!$
+!!$          POPLUC%kClear(g) = 0.0
+!!$          frac_change_grid = min(0.9*sum( POPLUC%freq_age_secondary(g,:)), frac_change_grid)
+!!$          POPLUC%stog(g) = frac_change_grid
+!!$          POPLUC%freq_age_secondary(g,:) = POPLUC%freq_age_secondary(g,:)*(1-frac_change_grid)
+!!$          
+
        ENDIF
 
-    ELSEIF (to_state=='SECDF') THEN
 
+    ELSEIF (to_state=='SECDF') THEN
+       IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0) THEN
+          tmp = sum( POPLUC%freq_age_secondary(g,:)*POPLUC%biomass_age_secondary(g,:)) &
+               /sum( POPLUC%freq_age_secondary(g,:))
+       ELSE
+          tmp = 0.0
+       ENDIF
+       POPLUC%kExpand2(g) = 0.0
+ 
        POPLUC%n_event(g) = POPLUC%n_event(g)+1
        n = POPLUC%n_event(g) 
        ! Transition from non-forest to secondary forest (gtos)
@@ -234,8 +306,24 @@ CONTAINS
 
 
        ENDIF
+ 
 
-    ELSEIF (to_state=='PRIMF') THEN
+       IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0) THEN
+          tmp1 = sum( POPLUC%freq_age_secondary(g,:)*POPLUC%biomass_age_secondary(g,:)) &
+               /sum( POPLUC%freq_age_secondary(g,:))
+       ELSE
+          tmp1 = 0.0
+       ENDIF
+    
+
+         if (tmp.gt.0.0) then
+            tmp2 = (tmp1-tmp)/tmp
+            POPLUC%kExpand2(g) = -tmp2
+         else
+            POPLUC%kExpand2(g) = 0.0
+         endif
+
+      ELSEIF (to_state=='PRIMF') THEN
 
        print*, "Error: cannot create primary forest from non-forest"
        STOP
@@ -292,30 +380,43 @@ CONTAINS
     INTEGER(i4b) :: n_event, i, j
     INTEGER(i4b), INTENT(IN) :: g
     REAL(dp):: area, remaining
-
+    REAL(dp):: tmp, tmp1, tmp2, tmp3
     n_event =  POPLUC%n_event(g)
+    POPLUC%kSecHarv(g) = 0.0
+    POPLUC%kNatDist(g) = 0.0
 
     POPLUC%freq_age_secondary(g,2:age_max)=POPLUC%freq_age_secondary(g,1:age_max-1)
-
+    POPLUC%biomass_age_secondary(g,2:age_max)=POPLUC%biomass_age_secondary(g,1:age_max-1)
 
     POPLUC%freq_age_secondary(g,1) = 0.0
-
+    POPLUC%biomass_age_secondary(g,1) = 0.0
     ! adjust secondary age distribution for secondary forest harvest area
+
     if (POPLUC%smharv(g)+POPLUC%syharv(g).gt.0) then
 
+       IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0) THEN
+          tmp = sum( POPLUC%freq_age_secondary(g,:)*POPLUC%biomass_age_secondary(g,:)) &
+               /sum( POPLUC%freq_age_secondary(g,:))
+       ELSE
+          tmp = 0.0
+       ENDIF
+     
        remaining = POPLUC%smharv(g)+POPLUC%syharv(g)
        i = age_max
-       do while (remaining.gt.0.0)
+       do while (remaining.gt.1e-10)
 
           if (POPLUC%freq_age_secondary(g,i) .gt. remaining) then
              POPLUC%freq_age_secondary(g,i) = POPLUC%freq_age_secondary(g,i) - remaining
              POPLUC%freq_age_secondary(g,1) = POPLUC%freq_age_secondary(g,1) + remaining
              remaining = 0.0
           else
+
+
              POPLUC%freq_age_secondary(g,1) = POPLUC%freq_age_secondary(g,1) + &
                   POPLUC%freq_age_secondary(g,i)
              remaining = remaining - POPLUC%freq_age_secondary(g,i)
              POPLUC%freq_age_secondary(g,i) = 0.0
+
              i = i-1;
           end if
           if (i.lt.2) then
@@ -323,8 +424,25 @@ CONTAINS
              POPLUC%syharv(g) = 0.0
              remaining = 0.0
           endif
+
        enddo
+
+
+       IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0) THEN
+          tmp1 = sum( POPLUC%freq_age_secondary(g,:)*POPLUC%biomass_age_secondary(g,:)) &
+               /sum( POPLUC%freq_age_secondary(g,:))
+       ELSE
+          tmp1 = 0.0
+       ENDIF
+       if (tmp.gt.0.0) then
+          tmp2 = (tmp1-tmp)/tmp
+          POPLUC%kSecHarv(g) = -tmp2
+       else
+          POPLUC%kSecHarv(g) = 0.0
+       endif
     endif
+
+
 
   ! remove IFHARVEST ?
     IF (IFHARVEST .and. POPLUC%freq_age_secondary(g,ROTATION+1).gt.0.0) THEN
@@ -333,6 +451,12 @@ CONTAINS
        POPLUC%freq_age_secondary(g,ROTATION+1) = 0.0
     ENDIF
 
+    IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0) THEN
+       tmp = sum( POPLUC%freq_age_secondary(g,:)*POPLUC%biomass_age_secondary(g,:)) &
+            /sum( POPLUC%freq_age_secondary(g,:))
+    ELSE
+       tmp = 0.0
+    ENDIF
     ! adjust secondary age distribution for natural disturbance
     i = age_max
     DO i = age_max, 2 , -1
@@ -341,7 +465,19 @@ CONTAINS
        POPLUC%freq_age_secondary(g,i) = POPLUC%freq_age_secondary(g,i)* &
             (1. - 1./disturbance_interval)
     ENDDO
-
+  
+    IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0) THEN
+       tmp1 = sum( POPLUC%freq_age_secondary(g,:)*POPLUC%biomass_age_secondary(g,:)) &
+            /sum( POPLUC%freq_age_secondary(g,:))
+    ELSE
+       tmp1 = 0.0
+    ENDIF
+    if (tmp.gt.0.0) then
+       tmp2 = (tmp1-tmp)/tmp
+       POPLUC%kNatDist(g) = -tmp2
+    else
+       POPLUC%kNatDist(g) = 0.0
+    endif
 
   END SUBROUTINE INCREMENT_AGE
   !*******************************************************************************
@@ -365,26 +501,39 @@ CONTAINS
     ELSE
 
        DO g = 1,POPLUC%np
+        ! POPLUC%smharv = 0.0 ! test
+         !POPLUC%stog = 0.0 ! test
+!if (POPLUC%thisyear==2013) then
+!         POPLUC%ptos = 0.0 ! test
+!         POPLUC%gtos = 0.0 ! test
+!endif
+         POPLUC%kClear(g) = 0.0
+         POPLUC%kExpand1(g) = 0.0
+         POPLUC%kExpand2(g) = 0.0
+         POPLUC%kSecHarv(g) = 0
+         !CALL increment_age(POPLUC,g)
 
-        
-          if (POPLUC%ptos(g) .gt. 0.0) &
-               CALL execute_luc_event('PRIMF','SECDF',POPLUC%ptos(g),g,POPLUC)
-
-          if (POPLUC%ptog(g) .gt. 0.0) &
-               CALL execute_luc_event('PRIMF','C3ANN',POPLUC%ptog(g),g,POPLUC)
-
-          if (POPLUC%stop(g) .gt.0.0) &
-               CALL execute_luc_event('SECDF','PRIMF',POPLUC%stop(g),g,POPLUC)
-          if (POPLUC%stog(g) .gt.0.0) &
+         if (POPLUC%stog(g) .gt.0.0) &
                CALL execute_luc_event('SECDF','C3ANN',POPLUC%stog(g),g,POPLUC)
 
-          if (POPLUC%gtop(g) .gt.0.0) &
-               CALL execute_luc_event('C3ANN','PRIMF',POPLUC%gtop(g),g,POPLUC)
-          if (POPLUC%gtos(g) .gt.0.0) &
-               CALL execute_luc_event('C3ANN','SECDF',POPLUC%gtos(g),g,POPLUC)
+         if (POPLUC%ptos(g) .gt. 0.0) &
+              CALL execute_luc_event('PRIMF','SECDF',POPLUC%ptos(g),g,POPLUC)
+         
+         if (POPLUC%ptog(g) .gt. 0.0) &
+              CALL execute_luc_event('PRIMF','C3ANN',POPLUC%ptog(g),g,POPLUC)
+         
+         if (POPLUC%stop(g) .gt.0.0) &
+               CALL execute_luc_event('SECDF','PRIMF',POPLUC%stop(g),g,POPLUC)
+         ! if (POPLUC%stog(g) .gt.0.0) &
+         !      CALL execute_luc_event('SECDF','C3ANN',POPLUC%stog(g),g,POPLUC)
+         
+         if (POPLUC%gtop(g) .gt.0.0) &
+              CALL execute_luc_event('C3ANN','PRIMF',POPLUC%gtop(g),g,POPLUC)
+         if (POPLUC%gtos(g) .gt.0.0) &
+              CALL execute_luc_event('C3ANN','SECDF',POPLUC%gtos(g),g,POPLUC)
 
-          POPLUC%frac_forest(g) =  POPLUC%primf(g)+ SUM(POPLUC%freq_age_secondary(g,:))
-          CALL increment_age(POPLUC,g)
+         POPLUC%frac_forest(g) =  POPLUC%primf(g)+ SUM(POPLUC%freq_age_secondary(g,:))
+         CALL increment_age(POPLUC,g)
 
        ENDDO
 
@@ -434,7 +583,7 @@ CONTAINS
     !-------------------------------------------------------------------------------
     IMPLICIT NONE
     TYPE(POPLUC_TYPE), INTENT(INOUT) :: POPLUC
-    TYPE(POP_TYPE), INTENT(IN) :: POP
+    TYPE(POP_TYPE), INTENT(INOUT) :: POP
     TYPE (LUC_EXPT_TYPE), INTENT(IN) :: LUC_EXPT
     TYPE (casa_pool),           INTENT(INOUT) :: casapool
     TYPE (casa_balance),        INTENT(INOUT) :: casabal
@@ -464,9 +613,12 @@ CONTAINS
     REAL(dp) :: dnsoilmin_d(nLU), dclabile_d(nLU)
     REAL(dp) :: dclabile(nLU, nLU), dnsoilmin(nLU,nLU)
     REAL(dp) :: dA_r(nLU), dA_d(nLU), dA(nLU), deltaA, dwood_transfer
-    REAL(dp), ALLOCATABLE :: dcHarvCLear(:), dcHarv(:), dcClear(:), dcExpand(:), FHarvClear(:)
+    REAL(dp), ALLOCATABLE :: dcHarvCLear(:), dcHarv(:), dcClear(:), dcExpand(:), &
+         dcNat(:),  FHarvClear(:), FDist(:), dcExpand1(:), dcExpand2(:), &
+         FNatDist(:), FHarv(:), FClear(:)
     REAL(dp) :: kHarvProd(3), kClearProd(3)
-    
+    REAL(dp) :: NatDist_loss, Expand_Loss, Clear_Loss, SecHarv_Loss , Dist_Loss, &
+         Expand1_Loss, Expand2_Loss, scalefac, tmp
 
     ! turnover rates for harvest and clearance products (y-1)
     kHarvProd(1) = 1.0/1.0
@@ -483,92 +635,140 @@ CONTAINS
     ! local variable for storing sum of biomass change due to 
     !secondary harvest, clearance and expansion, and secondary forest
     !  harvest and clearance fluxes
+    Allocate(FDist(POPLUC%np))
+    Allocate(FClear(POPLUC%np))
+    Allocate(FHarv(POPLUC%np))
+    Allocate(FNatDist(POPLUC%np))
     Allocate(FHarvClear(POPLUC%np))
     Allocate(dcHarvClear(POPLUC%np))
     Allocate(dcHarv(POPLUC%np))
     Allocate(dcClear(POPLUC%np))
     Allocate(dcExpand(POPLUC%np))
+    Allocate(dcExpand1(POPLUC%np))
+    Allocate(dcExpand2(POPLUC%np))
+    Allocate(dcNat(POPLUC%np))
     FHarvClear = 0.0
+    FDist = 0.0
+    FNatDist = 0.0
+    FHarv = 0.0
+    FClear = 0.0
     dcHarvClear = 0.0
     dcHarv = 0.0
     dcClear = 0.0
     dcExpand = 0.0 
+    dcExpand1 = 0.0 ! change in sec for carbon density by p->s
+    dcExpand2 = 0.0 ! change in sec for carbon density by g->s
+    dcNat = 0.0
     POPLUC%FHarvest = 0.0
     POPLUC%FClearance = 0.0
     casaflux%FluxCtohwp = 0.0
     casaflux%FluxCtoclear = 0.0
     casaflux%CtransferLUC = 0.0
-               
     
-    ! Transfer POP age-dependent biomass to POLUC variables (diagnostic only) and
-    ! catastrophic mortality in secondary forest tiles to changes in biomass associated
-    ! with secondary forest harvest and clearance and expansion.  
     DO g = 1,POPLUC%np  ! loop over CABLE grid-cells
+       dcHarv(g) = 0.0
+       dcClear(g) = 0.0
+       POPLUC%FHarvest(g,2) = 0.0
+       POPLUC%FClearance(g,2) = 0.0
        j = landpt(g)%cstart ! index of primary veg tile in each grid-cell
        DO l = 1, POP%np   ! loop over all POP tiles (== wooded tiles in CABLE)
           IF (.NOT.LUC_EXPT%prim_only(g)) THEN ! land-use change may occur
-             
+
              if (POP%Iwood(l).eq.j+1 .and. & 
-                  (patch(j+1)%frac+ POPLUC%gtos(g)+POPLUC%ptos(g)-POPLUC%stog(g)) .gt. 0.0   ) then
-                ! if secondary forest and new secondary forest area > 0
-                ! set POLUC diagnostic 2o forest age distribution to POP age distribution
+                  (patch(j+1)%frac+ POPLUC%gtos(g)+POPLUC%ptos(g)-POPLUC%stog(g)) .gt. 0.0) then
+               ! fraction biomass density loss to disturbance
+               ! includes natural disturbance, expansion, harvest, clearing
+                Dist_loss = POP%pop_grid(l)%cat_mortality &
+                  /(POP%pop_grid(l)%cmass_sum+POP%pop_grid(l)%growth) 
+ 
                 POPLUC%biomass_age_secondary(g,:)=POP%pop_grid(l)%biomass_age 
+             endif
+      
+     
+                if (POP%Iwood(l).eq.j+1 .and. & 
+                  (patch(j+1)%frac+ POPLUC%gtos(g)+POPLUC%ptos(g)-POPLUC%stog(g)) .gt. 0.0  ) then
+                ! if secondary forest and new secondary forest area > 0
+                ! set POPLUC diagnostic 2o forest age distribution to POP age distribution
+                
                 ! change in biomass area density due to secondary forest expansion [g C m-2] 
                 dcExpand(g) = -(POPLUC%gtos(g)+POPLUC%ptos(g))*casapool%cplant(j+1,2)/ &
                      (patch(j+1)%frac + POPLUC%gtos(g)+POPLUC%ptos(g)-POPLUC%stog(g))
 
+                scalefac = (-Dist_loss -   dcExpand(g)/casapool%cplant(j+1,2))/ &
+                    (-POPLUC%kNatDist(g) - POPLUC%kSecHarv(g) -  POPLUC%kClear(g))
 
-                if (POP%pop_grid(l)%cmass_sum_old .gt. 0.001) then
-                   ! change in  biomass area density due to secondary harvest and clearance
-                   ! (== POP 'catastrophic' mortality minus natural disturbance minus 
-                   ! density reduction due to expansion
-                   dcHarvClear(g) = -max(POP%pop_grid(l)%cat_mortality/ &
-                        (POP%pop_grid(l)%cmass_sum_old + POP%pop_grid(l)%growth) &
-                        - 1.0/ disturbance_interval ,0.0) &
-                        *casapool%cplant(j+1,2) - dcExpand(g)
-
-!if(POPLUC%thisyear.eq.1885 .and. g==3) then
-!write(*,*) 'dcexpand',  dcExpand(g), dcHarvClear(g),  1.0/ disturbance_interval*casapool%cplant(j+!1,2), POP%pop_grid(l)%cat_mortality/(POP%pop_grid(l)%cmass_sum_old + POP%pop_grid(l)%growth)*casapool%cplant(j+1,2), LUC_EXPT%prim_only
-!stop
-!endif
-                  if (( POPLUC%smharv(g) + POPLUC%syharv(g) + POPLUC%stog(g)).gt.1e-10) then
-                     ! partition dcHarvClear into harvest and clearance components
-                     dcHarv(g) = dcHarvClear(g) * (POPLUC%smharv(g)+POPLUC%syharv(g)) & 
-                          /( POPLUC%smharv(g) +POPLUC%syharv(g) + POPLUC%stog(g))
-                     dcClear(g) = dcHarvClear(g) * POPLUC%stog(g) & 
-                          /( POPLUC%smharv(g) + POPLUC%syharv(g) + POPLUC%stog(g))
-
-                     if ((casapool%cplant(j+1,2) + dcExpand(g)+dcClear(g)+dcHarv(g)).gt.0.0) then
-                        ! flux + A0C0 = (A + dA) * (C + dC)
-                        ! flux = A0 * dC + dA( C0 + dC)
-                        ! harvest+ clearance flux (not yet corrected for carbon remaining &
-                        ! in landscape as litter)
-                        !  [g C m-2] (grid-cell basis)
-                        FHarvClear(g) = -(patch(j+1)%frac *  (dcHarvClear(g) + dcExpand(g)) + &
-                             (POPLUC%ptos(g)+POPLUC%gtos(g)-POPLUC%stog(g))* &
-                             ( casapool%cplant(j+1,2) + dcHarvClear(g) + dcExpand(g) ) )
-                        ! secondary forest harvest flux (goes to harvest wood products) &
-                        ! [g C m-2] (grid-cell basis)
-                        !  corrected for carbon remaining in landscape as litter
-                        POPLUC%FHarvest(g,2) =  (1.-POPLUC%fracHarvSecResid(g))*FHarvClear(g) &
-                             * (POPLUC%smharv(g) + POPLUC%syharv(g)) &
-                             /( POPLUC%smharv(g) + POPLUC%syharv(g) + POPLUC%stog(g))
-                         ! secondary forest clearance flux (goes to clearance pool) &
-                        ! [g C m-2] (grid-cell basis)
-                        !  corrected for carbon remaining in landscape as litter
-                        POPLUC%FClearance(g,2) =  (1.-POPLUC%fracClearResid(g))* FHarvClear(g) * &
-                             POPLUC%stog(g) & 
-                             /( POPLUC%smharv(g) + POPLUC%syharv(g) + POPLUC%stog(g))
-                     else
-                        dcHarv(g) = 0.0
-                        dcClear(g) = 0.0
-                        POPLUC%FHarvest(g,2) = 0.0
-                        POPLUC%FClearance(g,2) = 0.0
-                     endif
-                        
-                  endif
+                if (scalefac>0) then
+                   SecHarv_loss =  scalefac * POPLUC%kSecHarv(g) 
+                   NatDist_Loss =  scalefac *  POPLUC%kNatDist(g)
+                   Clear_loss = scalefac * POPLUC%kClear(g)
+                else
+                   scalefac = (-Dist_loss -   dcExpand(g)/casapool%cplant(j+1,2))/ &
+                    (-POPLUC%kNatDist(g) - POPLUC%kSecHarv(g))
+                   Clear_Loss = 0.0
+                   SecHarv_loss =  scalefac * POPLUC%kSecHarv(g) 
+                   NatDist_Loss =  scalefac *  POPLUC%kNatDist(g)
                 endif
 
+               ! changes in biomass density due to sec forest
+                ! harvest, clearing, natural disturbance
+                dcHarvClear(g) = -(Clear_loss+SecHarv_loss) &
+                        *casapool%cplant(j+1,2)
+
+                dcHarv(g) = -(SecHarv_loss) &
+                        *casapool%cplant(j+1,2)
+
+                dcClear(g) = -(Clear_loss) &
+                     *casapool%cplant(j+1,2)
+
+               dcNat(g) = -NatDist_loss &
+                     *casapool%cplant(j+1,2)
+
+             
+                if ((casapool%cplant(j+1,2) + dcExpand(g)+dcClear(g)+dcHarv(g)).gt.0.0) then
+                   ! flux + A0C0 = (A + dA) * (C + dC)
+                   ! flux = A0 * dC + dA( C0 + dC)
+                   ! harvest+ clearance flux (not yet corrected for carbon remaining &
+                   ! in landscape as litter)
+                   !  [g C m-2] (grid-cell basis)
+                   FDist(g) = -(patch(j+1)%frac *  (dcHarvClear(g) + dcExpand(g)+dcNat(g)) + &
+                        (POPLUC%ptos(g)+POPLUC%gtos(g)-POPLUC%stog(g))* &
+                        ( casapool%cplant(j+1,2) + dcHarvClear(g) + dcExpand(g)  ) )
+  
+                   Fnatdist(g) = -patch(j+1)%frac*dcNat(g) 
+
+                
+                   ! partition disturbance flux between naturl dist, harvest and clearing
+                   tmp =   -patch(j+1)%frac*(dcNat(g) + dcHarv(g)) &
+                        + POPLUC%stog(g)*POPLUC%CRelClear(g)*casapool%cplant(j+1,2)
+
+                   Fnatdist(g) = -patch(j+1)%frac*dcNat(g)/tmp * FDist(g)
+                   FHarv(g) = -patch(j+1)%frac*dcHarv(g)/tmp * FDist(g)
+                   FClear(g) = POPLUC%stog(g)*POPLUC%CRelClear(g)*casapool%cplant(j+1,2)/ &
+                        tmp * FDist(g)
+
+                  ! adjust biomass density changes to be consistent with FClear & FHarv
+                   dcClear(g) = -(FCLear(g)+(-POPLUC%stog(g))&
+                        *casapool%cplant(j+1,2))/ &
+                     (patch(j+1)%frac + POPLUC%gtos(g)+POPLUC%ptos(g)-POPLUC%stog(g))
+
+
+                  POP%pop_grid(l)%cat_mortality = Fnatdist(g)/casapool%cplant(j+1,2)*&
+                     (POP%pop_grid(l)%cmass_sum+POP%pop_grid(l)%growth)
+ 
+                   ! secondary forest harvest flux (goes to harvest wood products) &
+                        ! [g C m-2] (grid-cell basis)
+                   !  corrected for carbon remaining in landscape as litter
+                   if ((FHarv(g)).gt.0.0) then
+                      POPLUC%FHarvest(g,2) =  (1.-POPLUC%fracHarvSecResid(g))*FHarv(g)
+                   endif
+                      ! secondary forest clearance flux (goes to clearance pool) &
+                      ! [g C m-2] (grid-cell basis)
+                      !  corrected for carbon remaining in landscape as litter
+                   if ((FClear(g)).gt.0.0) then
+                      POPLUC%FClearance(g,2) =  (1.-POPLUC%fracClearResid(g))* FClear(g) 
+                   endif
+ 
+                endif
              endif
           ENDIF
           if (POP%Iwood(l).eq.j ) then
@@ -579,9 +779,7 @@ CONTAINS
           endif
        ENDDO
     ENDDO
-
-
-    
+ 
     ! Calculate Carbon Pool Transfers
     DO g = 1,POPLUC%np ! loop over POPLUC gridcells (== CABLE gridcells)
        j = landpt(g)%cstart   ! start index of CABLE grid-cell tiles
@@ -855,6 +1053,7 @@ CONTAINS
                      *casapool%pplant(irp,2)/ casapool%cplant(irp,2)
                 endif
              endif
+
          
              if ((patch(irp)%frac+dA(ilu)).gt.1.e-6  ) then ! avoid fpe's by ensuring finite &
                 ! new tile area
@@ -956,6 +1155,7 @@ CONTAINS
                 ! account here for change in secondary forest biomass density due to:
                 !  harvest and clearing, as well as increase in (below ground) CWD 
                 ! where secondary forest harvest occurs
+
                 if (ilu .eq.s .and. (casapool%cplant(irp,2) +(dcHarv(g)+dCClear(g)) ).gt.0.0  &
                    .and. casapool%cplant(irp,2).gt.1.e-10  ) then
                    
@@ -965,14 +1165,12 @@ CONTAINS
                    casapool%pplant(irp,2) = casapool%pplant(irp,2) + (dcHarv(g)+dcClear(g)) &
                         * casapool%pplant(irp,2)/casapool%cplant(irp,2)
                    casapool%cplant(irp,2) = casapool%cplant(irp,2) + (dcHarv(g)+dcClear(g))
-
                 
                elseif (ilu .eq.s .and. (casapool%cplant(irp,2) +(dcHarv(g)+dCClear(g)) ).le.0.0  ) then
 
                   POPLUC%FHarvest(g,2) = 0.0
                   POPLUC%FClearance(g,2) = 0.0
                endif
-
             endif
 
               IF (patch(irp)%frac .gt. 1e-8) THEN
@@ -1004,6 +1202,8 @@ CONTAINS
                   max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0)
              POPLUC%cbiomass(g,ilu) = sum(casapool%cplant(irp,:))* &
                   max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0)
+
+
 
           ENDDO
        ELSE
@@ -1307,7 +1507,12 @@ END SUBROUTINE POPLUC_SET_PATCHFRAC
     ALLOCATE(POPLUC%fracHarvResid(arraysize))
     ALLOCATE(POPLUC%fracHarvSecResid(arraysize))
     ALLOCATE(POPLUC%fracClearResid(arraysize))
-
+    ALLOCATE(POPLUC%kSecHarv(arraysize))
+    ALLOCATE(POPLUC%kNatDist(arraysize))
+    ALLOCATE(POPLUC%kExpand1(arraysize))
+    ALLOCATE(POPLUC%kExpand2(arraysize))
+    ALLOCATE(POPLUC%kClear(arraysize))
+    ALLOCATE(POPLUC%cRelClear(arraysize))
   END SUBROUTINE alloc_POPLUC
   !*******************************************************************************
   ! Exponential distribution
@@ -1378,7 +1583,7 @@ END SUBROUTINE POPLUC_SET_PATCHFRAC
     LOGICAL :: put_age_vars
     mp = POPLUC%np
     nprod = 3
-    put_age_vars=.FALSE.
+    put_age_vars=.TRUE.
     allocate(freq_age_secondary(mp,age_max))
 
     A0(1) = 'latitude'
@@ -1697,7 +1902,7 @@ END SUBROUTINE POPLUC_SET_PATCHFRAC
     A1(2) = 'secdf'
     A1(3) = 'grass'
 
-    A2(1) = 'freq_age_primary'
+    A2(1) = 'biomass_age_secondary'
     A2(2) = 'freq_age_secondary'
 
     A3(1) = 'HarvProd'
@@ -1778,7 +1983,7 @@ END SUBROUTINE POPLUC_SET_PATCHFRAC
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
     ! PUT 3D VARS ( mp, mage, t )
-    STATUS = NF90_PUT_VAR(FILE_ID, VID2(1), POPLUC%freq_age_primary)
+    STATUS = NF90_PUT_VAR(FILE_ID, VID2(1), POPLUC%biomass_age_secondary)
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
     STATUS = NF90_PUT_VAR(FILE_ID, VID2(2),POPLUC%freq_age_secondary)
 
@@ -1831,7 +2036,7 @@ END SUBROUTINE POPLUC_SET_PATCHFRAC
     A1(2) = 'secdf'
     A1(3) = 'grass'
    
-    A2(1) = 'freq_age_primary'
+    A2(1) = 'biomass_age_secondary'
     A2(2) = 'freq_age_secondary'
 
     A3(1) = 'HarvProd'
@@ -1889,7 +2094,7 @@ END SUBROUTINE POPLUC_SET_PATCHFRAC
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
        SELECT CASE ( TRIM(A2(i)))
-       CASE ('freq_age_primary' ) ; POPLUC%freq_age_primary = TMP2
+       CASE ('biomass_age_secondary' ) ; POPLUC%biomass_age_secondary = TMP2
        CASE ('freq_age_secondary' ) ; POPLUC%freq_age_secondary = TMP2
        END SELECT
     END DO

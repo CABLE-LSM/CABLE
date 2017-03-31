@@ -1397,23 +1397,23 @@ SUBROUTINE biogeochem(ktau,dels,idoY,LALLOC,veg,soil,casabiome,casapool,casaflux
          casaflux%sapwood_area(POP%Iwood) = max(POP%pop_grid(:)%sapwood_area/10000., 1e-6)
          veg%hc(POP%Iwood) = POP%pop_grid(:)%height_max
           
-         WHERE (pop%pop_grid(:)%LU ==2)
+         !WHERE (pop%pop_grid(:)%LU ==2)
+!!$
+!!$            casaflux%kplant(POP%Iwood,2) =  1.0 -  &
+!!$              (1.0-  max( min((POP%pop_grid(:)%stress_mortality + &
+!!$              POP%pop_grid(:)%crowding_mortality+ &
+!!$              + POP%pop_grid(:)%fire_mortality ) &
+!!$              /(POP%pop_grid(:)%cmass_sum+POP%pop_grid(:)%growth) + &
+!!$              1.0/veg%disturbance_interval(POP%Iwood,1), 0.99), 0.0))**(1.0/365.0)
 
-            casaflux%kplant(POP%Iwood,2) =  1.0 -  &
-              (1.0-  max( min((POP%pop_grid(:)%stress_mortality + &
-              POP%pop_grid(:)%crowding_mortality+ &
-              + POP%pop_grid(:)%fire_mortality ) &
-              /(POP%pop_grid(:)%cmass_sum+POP%pop_grid(:)%growth) + &
-              1.0/veg%disturbance_interval(POP%Iwood,1), 0.99), 0.0))**(1.0/365.0)
-
-         ELSEWHERE
+      !   ELSEWHERE
             casaflux%kplant(POP%Iwood,2) =  1.0 -  &
               (1.0-  max( min((POP%pop_grid(:)%stress_mortality + &
               POP%pop_grid(:)%crowding_mortality+ &
               + POP%pop_grid(:)%fire_mortality+POP%pop_grid(:)%cat_mortality  ) &
               /(POP%pop_grid(:)%cmass_sum+POP%pop_grid(:)%growth), 0.99), 0.0))**(1.0/365.0)
 
-         ENDWHERE
+      !   ENDWHERE
 
          veg%hc(POP%Iwood) = POP%pop_grid(:)%height_max
       ELSEWHERE
@@ -1469,12 +1469,6 @@ SUBROUTINE biogeochem(ktau,dels,idoY,LALLOC,veg,soil,casabiome,casapool,casaflux
      ENDDO
   ENDIF
 
-if (idoy.eq.365) then
-   write(wlogn, "(6i4)" ) veg%ilu(1:6)
-   write(wlogn, "(6i4)" ) veg%iveg(1:6)
-   write(wlogn, "(6i4)" ) veg%ivegp(1:6)
-endif
-  
   ! changed by ypwang following Chris Lu on 5/nov/2012
   call casa_delplant(veg,casabiome,casapool,casaflux,casamet,                &
        cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,  &

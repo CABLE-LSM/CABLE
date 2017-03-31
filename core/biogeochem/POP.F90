@@ -593,7 +593,6 @@ END SUBROUTINE InitPOP2D_Poisson
 
     !INTEGER, INTENT(IN) :: wlogn
     pop%it_pop = pop%it_pop + 1
-
     !it = pop%it_pop(1)
     np = SIZE(POP%POP_grid)
     allocate(it(np))
@@ -744,7 +743,6 @@ END SUBROUTINE InitPOP2D_Poisson
 
                 tmp_fracNPP = tmp_fracNPP + freq*pop%pop_grid(j)%patch(k)%frac_NPP
 
-
              ENDDO
 
              ! normalised fraction NPP
@@ -766,7 +764,6 @@ END SUBROUTINE InitPOP2D_Poisson
           pop%pop_grid(j)%patch(:)%frac_light_uptake = 1.0
        endif
        ! End Get fraction allocation for each patch
-
        ! Get fraction allocation for each cohort in each patch
        DO k=1,NPATCH2D
           tmp = 0.0
@@ -1538,9 +1535,7 @@ END SUBROUTINE InitPOP2D_Poisson
           pop%pop_grid(g)%fire_mortality = pop%pop_grid(g)%fire_mortality + &
                freq*pop%pop_grid(g)%patch(p)%fire_mortality
           pop%pop_grid(g)%growth =  pop%pop_grid(g)%growth + freq_old*pop%pop_grid(g)%patch(p)%growth
-          !write(*,*) 'freq_old',freq_old
-
-
+         
           pop%pop_grid(g)%area_growth =  pop%pop_grid(g)%area_growth + &
                freq*pop%pop_grid(g)%patch(p)%area_growth
 
@@ -2154,7 +2149,7 @@ ENDIF
           mu=EXP(FULTON_ALPHA*(1.0-2*THETA_recruit/(f+1-SQRT((f+1)*(f+1)-4*THETA_recruit*f))));
           densindiv=DENSINDIV_MAX*mu;
           cmass=CMASS_STEM_INIT*densindiv/DENSINDIV_MAX;
-          ! write(*,*) 'layer_recruitment_single_patch', densindiv, pop%pop_grid(j)%patch(k)%Layer(1)%biomass
+        
           IF (cmass>EPS*10..AND.densindiv>DENSINDIV_MIN.AND.(pop%pop_grid(j)%patch(k)%Layer(1)%ncohort+1).LT.NCOHORT_MAX) THEN
              ! create a new cohort
              pop%pop_grid(j)%patch(k)%Layer(1)%ncohort = pop%pop_grid(j)%patch(k)%Layer(1)%ncohort + 1
@@ -2459,7 +2454,7 @@ DO iage = 1, nage
    age_max_growth = age_max
    i_min_growth = i_min
    i_max_growth = i_max
-!write(*,*) 'I0',it, age(iage), age_min, age_max, i_min, i_max 
+
    if ((i_min.gt.0).and.(i_max.gt.0).and.(age_max.eq.age_min)) then
       ! no need to interpolate
 
@@ -2633,11 +2628,15 @@ DO iage = 1, nage
 
 enddo
 !!$if (g==4) then
-!!$   write(*,*) 'it, nage', it, nage
+!!$   write(*,*) 'it, nage, growth', it, nage
+!!$write(*,*) 'patch biomass', pop%pop_grid(g)%patch(1:5)%layer(1)%biomass
+!!$write(*,*) 'patch growth', pop%pop_grid(g)%patch(1:5)%growth
+!!$write(*,*) 'stress mort', pop%pop_grid(g)%patch(1:5)%stress_mortality
 !!$   write(591, "(350e16.6)") freq_age
 !!$   write(601,"(350e16.6)") cmass_age
 !!$   write(602,"(350e16.6)") stress_mort_age
 !!$   write(603,"(350e16.6)") real(age)
+!!$if (it==5) stop
 !!$endif
 DEALLOCATE(age)
 DEALLOCATE(freq_age)

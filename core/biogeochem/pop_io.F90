@@ -421,7 +421,6 @@ SUBROUTINE POP_IO ( POP, casamet, YEAR, ACTION, CF )
               IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
            ENDIF
 
-write(*,*) 'pop_io, after define dimensionsm, mp: ', mp
            ! Define variables
            STATUS = NF90_def_var(FILE_ID,'Time' ,NF90_INT,(/t_ID/),VIDtime )
            IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
