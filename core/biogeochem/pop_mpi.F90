@@ -5,7 +5,7 @@ MODULE pop_mpi
        NYEAR_HISTORY, AGEMAX
 
   ! Total number of type_landscape variables to be communicated
-  INTEGER, PARAMETER :: n_landscape_types = 47
+  INTEGER, PARAMETER :: n_landscape_types = 48
 
   ! Total number of type_patch variables to be communicated
   INTEGER, PARAMETER :: n_patch_types     = 28
@@ -752,6 +752,11 @@ CONTAINS
     blen (bidx) = AGEMAX
     btype(bidx) = MPI_DOUBLE
 
+    bidx = bidx + 1
+    CALL MPI_Get_Address (tmp_grid(1)%biomass_age, a2, ierr)
+    disp (bidx) = a2 - a1
+    blen (bidx) = AGEMAX
+    btype(bidx) = MPI_DOUBLE
 
     ! Scalars REAL
 

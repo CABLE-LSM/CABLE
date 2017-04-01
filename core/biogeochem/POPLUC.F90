@@ -96,7 +96,7 @@ MODULE POPLUC_Module
   USE casavariable, ONLY: casa_pool, casa_balance, casa_flux, casa_biome
   USE POP_Types, ONLY: POP_TYPE
   USE cable_common_module, ONLY: cable_user
-  USE cable_IO_vars_module, ONLY: landpt, patch
+  USE cable_IO_vars_module, ONLY: landpt, patch, wlogn
   USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE
   USE POPModule, ONLY: pop_init_single
 
@@ -472,12 +472,16 @@ CONTAINS
     ELSE
        tmp1 = 0.0
     ENDIF
+
     if (tmp.gt.0.0) then
        tmp2 = (tmp1-tmp)/tmp
        POPLUC%kNatDist(g) = -tmp2
     else
        POPLUC%kNatDist(g) = 0.0
     endif
+
+write(509,*) 'knatdist', POPLUC%thisyear,g, sum( POPLUC%freq_age_secondary(g,:)), &
+sum( POPLUC%biomass_age_secondary(g,:))
 
   END SUBROUTINE INCREMENT_AGE
   !*******************************************************************************
@@ -694,8 +698,10 @@ CONTAINS
                 dcExpand(g) = -(POPLUC%gtos(g)+POPLUC%ptos(g))*casapool%cplant(j+1,2)/ &
                      (patch(j+1)%frac + POPLUC%gtos(g)+POPLUC%ptos(g)-POPLUC%stog(g))
 
+
                 scalefac = (-Dist_loss -   dcExpand(g)/casapool%cplant(j+1,2))/ &
                     (-POPLUC%kNatDist(g) - POPLUC%kSecHarv(g) -  POPLUC%kClear(g))
+
 
                 if (scalefac>0) then
                    SecHarv_loss =  scalefac * POPLUC%kSecHarv(g) 
@@ -723,7 +729,7 @@ CONTAINS
                dcNat(g) = -NatDist_loss &
                      *casapool%cplant(j+1,2)
 
-             
+
                 if ((casapool%cplant(j+1,2) + dcExpand(g)+dcClear(g)+dcHarv(g)).gt.0.0) then
                    ! flux + A0C0 = (A + dA) * (C + dC)
                    ! flux = A0 * dC + dA( C0 + dC)
@@ -750,7 +756,6 @@ CONTAINS
                    dcClear(g) = -(FCLear(g)+(-POPLUC%stog(g))&
                         *casapool%cplant(j+1,2))/ &
                      (patch(j+1)%frac + POPLUC%gtos(g)+POPLUC%ptos(g)-POPLUC%stog(g))
-
 
                   POP%pop_grid(l)%cat_mortality = Fnatdist(g)/casapool%cplant(j+1,2)*&
                      (POP%pop_grid(l)%cmass_sum+POP%pop_grid(l)%growth)
@@ -1583,7 +1588,7 @@ END SUBROUTINE POPLUC_SET_PATCHFRAC
     LOGICAL :: put_age_vars
     mp = POPLUC%np
     nprod = 3
-    put_age_vars=.TRUE.
+    put_age_vars=.FALSE.
     allocate(freq_age_secondary(mp,age_max))
 
     A0(1) = 'latitude'
