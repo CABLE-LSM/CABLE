@@ -271,14 +271,17 @@ CONTAINS
                 POPLUC%kClear(g) = 0.0
              endif
           else
-             !r uniform clearance across age classes
+             ! uniform clearance across age classes
 
              POPLUC%kClear(g) = 0.0 ! no change in biomass density
              frac_change_grid = min(sum( POPLUC%freq_age_secondary(g,:)), frac_change_grid)
              POPLUC%stog(g) = frac_change_grid
+             !if (g==3) write(*,*) 'b4 age_sec', frac_change_grid,  sum(POPLUC%freq_age_secondary(g,:))
              POPLUC%freq_age_secondary(g,:) = POPLUC%freq_age_secondary(g,:)*(1-frac_change_grid)
+             !if (g==3) write(*,*) 'after age_sec',POPLUC%stog(g),  sum(POPLUC%freq_age_secondary(g,:))
              POPLUC%CRelClear(g) = 1.0
           endif
+
 
        ENDIF
 
@@ -707,9 +710,9 @@ sum( POPLUC%biomass_age_secondary(g,:))
                 dcExpand(g) = -(POPLUC%gtos(g)+POPLUC%ptos(g))*casapool%cplant(j+1,2)/ &
                      (patch(j+1)%frac + POPLUC%gtos(g)+POPLUC%ptos(g)-POPLUC%stog(g))
 
-               ! write(*,*),'scalefac',g,-POPLUC%kNatDist(g) ,- POPLUC%kSecHarv(g), &
-               !      -  POPLUC%kClear(g), &
-               !      (-POPLUC%kNatDist(g) - POPLUC%kSecHarv(g) -  POPLUC%kClear(g)), Dist_loss
+                !if (g==3) write(*,*),'scalefac',g,-POPLUC%kNatDist(g) ,- POPLUC%kSecHarv(g), &
+                !     -  POPLUC%kClear(g), &
+                !     (-POPLUC%kNatDist(g) - POPLUC%kSecHarv(g) -  POPLUC%kClear(g)), Dist_loss
 
                 if (abs((-POPLUC%kNatDist(g) - POPLUC%kSecHarv(g) -  POPLUC%kClear(g))) .gt.0) then
                    scalefac = (-Dist_loss -   dcExpand(g)/casapool%cplant(j+1,2))/ &
@@ -718,6 +721,8 @@ sum( POPLUC%biomass_age_secondary(g,:))
                    scalefac = 0.0
                 endif
 
+                ! relative  changes in biomass density due to sec forest
+                ! harvest, clearing, natural disturbance
                 if (scalefac.gt.0) then
                    SecHarv_loss =  scalefac * POPLUC%kSecHarv(g) 
                    NatDist_Loss =  scalefac *  POPLUC%kNatDist(g)
@@ -739,7 +744,7 @@ sum( POPLUC%biomass_age_secondary(g,:))
 
                 endif
 
-               ! changes in biomass density due to sec forest
+               ! absolute  changes in biomass density due to sec forest
                 ! harvest, clearing, natural disturbance
                 dcHarvClear(g) = -(Clear_loss+SecHarv_loss) &
                         *casapool%cplant(j+1,2)
@@ -752,8 +757,8 @@ sum( POPLUC%biomass_age_secondary(g,:))
 
                dcNat(g) = -NatDist_loss &
                      *casapool%cplant(j+1,2)
-               !if (g==3 .and. POPLUC%thisyear==1837) write(*,*) 'b4 fdist', 
-               !scalefac, casapool%cplant(j+1,2) + dcExpand(g)+dcClear(g)+dcHarv(g),  
+               !if (g==3) write(*,*) 'b4 fdist', & 
+               !scalefac, casapool%cplant(j+1,2) + dcExpand(g)+dcClear(g)+dcHarv(g),  &
                !casapool%cplant(j+1,2) , dcExpand(g),dcClear(g),dcHarv(g), dcnat(g)
 
                if ((casapool%cplant(j+1,2) + dcExpand(g)+dcClear(g)+dcHarv(g)).gt.0.0 .and. &
@@ -780,8 +785,9 @@ sum( POPLUC%biomass_age_secondary(g,:))
                         tmp * FDist(g)
                    FHarvClear(g) = FHarv(g)+FClear(g)
 
-                   !if (g==3 .and. POPLUC%thisyear==1837) write(*,*) 'fdist', 
-                   !FDist(g),  Fnatdist(g), tmp, dcharv(g), FHarv(g), FClear(g)
+                   !if (g==3 ) write(*,*) 'fdist', & 
+                   !FDist(g),  Fnatdist(g), tmp, dcharv(g), FHarv(g), FClear(g), &
+                   !POPLUC%CRelClear(g)  
                   ! adjust biomass density changes to be consistent with FClear & FHarv
 
 
@@ -804,7 +810,9 @@ sum( POPLUC%biomass_age_secondary(g,:))
                    if ((FClear(g)).gt.0.0) then
                       POPLUC%FClearance(g,2) =  (1.-POPLUC%fracClearResid(g))* FClear(g) 
                    endif
- 
+                else
+                   dcHarvClear(g) = 0
+                   POPLUC%stog(g) = 0
                 endif
              endif
           ENDIF
@@ -1627,7 +1635,7 @@ END SUBROUTINE POPLUC_SET_PATCHFRAC
     LOGICAL :: put_age_vars
     mp = POPLUC%np
     nprod = 3
-    put_age_vars=.FALSE.
+    put_age_vars=.TRUE.
     allocate(freq_age_secondary(mp,age_max))
 
     A0(1) = 'latitude'
