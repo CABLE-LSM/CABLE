@@ -167,9 +167,10 @@ CONTAINS
     INTEGER(i4b) :: n  ! position of new element in POPLUC%SecFor array
     INTEGER(i4b) :: i
     REAL :: tmp, tmp1, tmp2
-    frac_open_grid = 1.0 -POPLUC%frac_forest(g)
+    !frac_open_grid = 1.0 -POPLUC%frac_forest(g)
+    frac_open_grid = POPLUC%grass(g)
     n = POPLUC%n_event(g)
-
+!!$if (g==4) write(*,*) 'fracfor', from_state, to_state, POPLUC%frac_forest(g), POPLUC%primf(g), POPLUC%secdf(g), sum( POPLUC%freq_age_secondary(g,:)), frac_change_grid
     IF (from_state=='PRIMF') THEN
 
        IF(frac_change_grid.GT.POPLUC%primf(g)) THEN
@@ -298,7 +299,9 @@ CONTAINS
        POPLUC%n_event(g) = POPLUC%n_event(g)+1
        n = POPLUC%n_event(g) 
        ! Transition from non-forest to secondary forest (gtos)
-
+!!$if (g==4) then
+!!$write(*,*) 'gtos1', frac_change_grid, frac_open_grid, POPLUC%grass(g) , sum( POPLUC%freq_age_secondary(g,:))
+!!$endif
        if (frac_change_grid.LE.frac_open_grid) THEN
           POPLUC%area_history_secdf(g,n) = frac_change_grid
           POPLUC%age_history_secdf(g,n) = 0
@@ -313,6 +316,10 @@ CONTAINS
 
        ENDIF
  
+!!$if (g==4) then
+!!$write(*,*) 'gtos2', frac_change_grid, frac_open_grid, POPLUC%grass(g) , sum( POPLUC%freq_age_secondary(g,:))
+!!$endif
+
 
        IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0) THEN
           tmp1 = sum( POPLUC%freq_age_secondary(g,:)*POPLUC%biomass_age_secondary(g,:)) &
@@ -513,12 +520,15 @@ sum( POPLUC%biomass_age_secondary(g,:))
     ELSE
 
        DO g = 1,POPLUC%np
-        ! POPLUC%smharv = 0.0 ! test
-         !POPLUC%stog = 0.0 ! test
-!if (POPLUC%thisyear==2013) then
-!         POPLUC%ptos = 0.0 ! test
-!         POPLUC%gtos = 0.0 ! test
-!endif
+
+!!$if (POPLUC%thisyear.gt.860) then
+!!$         POPLUC%smharv = 0.0 ! test
+!!$         POPLUC%stog = 0.0 ! test
+!!$         POPLUC%syharv = 0.0 ! test
+!!$         POPLUC%ptog = 0.0 ! test
+!!$         POPLUC%ptos = 0.0 ! test
+!!$         POPLUC%gtos = 0.0 ! test
+!!$endif
          POPLUC%kClear(g) = 0.0
          POPLUC%kExpand1(g) = 0.0
          POPLUC%kExpand2(g) = 0.0
@@ -545,6 +555,7 @@ sum( POPLUC%biomass_age_secondary(g,:))
               CALL execute_luc_event('C3ANN','SECDF',POPLUC%gtos(g),g,POPLUC)
 
          POPLUC%frac_forest(g) =  POPLUC%primf(g)+ SUM(POPLUC%freq_age_secondary(g,:))
+!!$if (g==4) write(*,*) 'fracfor: ',  POPLUC%frac_forest(g),  SUM(POPLUC%freq_age_secondary(g,:))
          CALL increment_age(POPLUC,g)
 
        ENDDO
@@ -710,9 +721,9 @@ sum( POPLUC%biomass_age_secondary(g,:))
                 dcExpand(g) = -(POPLUC%gtos(g)+POPLUC%ptos(g))*casapool%cplant(j+1,2)/ &
                      (patch(j+1)%frac + POPLUC%gtos(g)+POPLUC%ptos(g)-POPLUC%stog(g))
 
-                !if (g==3) write(*,*),'scalefac',g,-POPLUC%kNatDist(g) ,- POPLUC%kSecHarv(g), &
-                !     -  POPLUC%kClear(g), &
-                !     (-POPLUC%kNatDist(g) - POPLUC%kSecHarv(g) -  POPLUC%kClear(g)), Dist_loss
+!!$                if (g==4) write(*,*),'scalefac',g,-POPLUC%kNatDist(g) ,- POPLUC%kSecHarv(g), &
+!!$                     -  POPLUC%kClear(g), &
+!!$                     (-POPLUC%kNatDist(g) - POPLUC%kSecHarv(g) -  POPLUC%kClear(g)), Dist_loss
 
                 if (abs((-POPLUC%kNatDist(g) - POPLUC%kSecHarv(g) -  POPLUC%kClear(g))) .gt.0) then
                    scalefac = (-Dist_loss -   dcExpand(g)/casapool%cplant(j+1,2))/ &
@@ -757,9 +768,9 @@ sum( POPLUC%biomass_age_secondary(g,:))
 
                dcNat(g) = -NatDist_loss &
                      *casapool%cplant(j+1,2)
-               !if (g==3) write(*,*) 'b4 fdist', & 
-               !scalefac, casapool%cplant(j+1,2) + dcExpand(g)+dcClear(g)+dcHarv(g),  &
-               !casapool%cplant(j+1,2) , dcExpand(g),dcClear(g),dcHarv(g), dcnat(g)
+!!$               if (g==4) write(*,*) 'b4 fdist', & 
+!!$               scalefac, casapool%cplant(j+1,2) + dcExpand(g)+dcClear(g)+dcHarv(g),  &
+!!$               casapool%cplant(j+1,2) , dcExpand(g),dcClear(g),dcHarv(g), dcnat(g)
 
                if ((casapool%cplant(j+1,2) + dcExpand(g)+dcClear(g)+dcHarv(g)).gt.0.0 .and. &
                     dcnat(g).lt.0.0) then
@@ -785,9 +796,9 @@ sum( POPLUC%biomass_age_secondary(g,:))
                         tmp * FDist(g)
                    FHarvClear(g) = FHarv(g)+FClear(g)
 
-                   !if (g==3 ) write(*,*) 'fdist', & 
-                   !FDist(g),  Fnatdist(g), tmp, dcharv(g), FHarv(g), FClear(g), &
-                   !POPLUC%CRelClear(g)  
+!!$                   if (g==4 ) write(*,*) 'fdist', & 
+!!$                   FDist(g),  Fnatdist(g), tmp, dcharv(g), FHarv(g), FClear(g), &
+!!$                   POPLUC%CRelClear(g)  
                   ! adjust biomass density changes to be consistent with FClear & FHarv
 
 
@@ -1103,7 +1114,7 @@ sum( POPLUC%biomass_age_secondary(g,:))
              endif
 
          
-             if ((patch(irp)%frac+dA(ilu)).gt.1.e-6  ) then ! avoid fpe's by ensuring finite &
+             if ((patch(irp)%frac+dA(ilu)).gt.1.e-5  ) then ! avoid fpe's by ensuring finite &
                 ! new tile area
                 
                 casapool%nsoilmin(irp) = casapool%nsoilmin(irp) +  &
@@ -1118,9 +1129,15 @@ sum( POPLUC%biomass_age_secondary(g,:))
                      (dclabile_r(ilu) - casapool%clabile(irp)*(dA(ilu) - dA_d(ilu))) &
                      /(patch(irp)%frac+dA(ilu))
 
+ 
+! if (g==4  .and. ilu==3) write(*,*) 'c03a',  casapool%csoil(irp,2),  patch(irp)%frac,  dA(ilu) , &
+!(dA(ilu) - dA_d(ilu)), dcsoil_r(ilu,2)
+
                 casapool%csoil(irp,:)  = casapool%csoil(irp,:) + &
                      (dcsoil_r(ilu,:)-casapool%csoil(irp,:)*(dA(ilu) - dA_d(ilu))) &
                      /(patch(irp)%frac+dA(ilu))
+
+!if (g==4  .and. ilu==3) write(*,*) 'c03b',  casapool%csoil(irp,2),  patch(irp)%frac+dA(ilu) ,  cas!apool%csoil(irp-1,2)
                 
                 casaflux%CtransferLUC(irp) = casaflux%CtransferLUC(irp)+ &
                       sum((dcsoil_r(ilu,:)-casapool%csoil(irp,:)*(dA(ilu) - dA_d(ilu))) &
@@ -1250,8 +1267,9 @@ ENDDO
                   max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0)
              POPLUC%cbiomass(g,ilu) = sum(casapool%cplant(irp,:))* &
                   max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0)
-             !if (g==3  .and. ilu==2) write(*,*) 'c02',  casapool%cplant(irp,2), casapool%cplant(irp,2)* max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0), patch(irp)%frac,  dA_r(ilu) + dA_d(ilu)
+ !            if (g==4  .and. ilu==2) write(*,*) 'c02',  casapool%cplant(irp,2), casapool%cplant(irp,2)* max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0), patch(irp)%frac,  dA_r(ilu) + dA_d(ilu)
 
+!  if (g==4  .and. ilu==3) write(*,*) 'c03',  casapool%csoil(irp,2), casapool%csoil(irp,2)* max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0), patch(irp)%frac,  dA_r(ilu) + dA_d(ilu)
 
           ENDDO
        ELSE
