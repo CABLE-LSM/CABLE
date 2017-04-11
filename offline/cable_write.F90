@@ -412,6 +412,9 @@ CONTAINS
           ! of this dim:
           IF( .NOT. ASSOCIATED(otmp4xyrt))                                     &
                               ALLOCATE(otmp4xyrt(mland, max_vegpatches, nrb, 1))
+
+          IF( .NOT. ASSOCIATED(otmp4lprt))                                     &
+                              ALLOCATE(otmp4lprt(mland, max_vegpatches, nrb, 1))
         ELSE IF(dimswitch == 'plantcarbon') THEN ! other dim is plant carbon
                                                  ! pools
           ! If not already allocated, allocate a temporary storage variable
@@ -1084,6 +1087,8 @@ CONTAINS
           ok = NF90_PUT_VAR(ncid, varID, REAL(otmp5xyprt(:, :, :, :, 1), 4),   &
                             start = (/1, 1, 1, 1, ktau/),                      &
                          count = (/xdimsize, ydimsize, max_vegpatches, nrb, 1/))
+
+
         ELSE IF(dimswitch == 'plantcarbon') THEN ! other dim is plant carbon
                                                  ! pools
           DO i = 1, mland ! over all land grid points
@@ -1349,6 +1354,7 @@ CONTAINS
             ! First write data for active patches:
              otmp4lprt(i, 1:landpt(i)%nap, :, 1) =                             &
                                       var_r2(landpt(i)%cstart:landpt(i)%cend, :)
+
              ! Then write data for inactive patches as dummy value:
               IF(landpt(i)%nap < max_vegpatches) otmp4lprt(i,                  &
                           (landpt(i)%nap + 1):max_vegpatches, :, 1) = ncmissingr
@@ -1367,6 +1373,8 @@ CONTAINS
           ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4lprt(:, :, :, 1), 4),       &
                             start = (/1, 1, 1, ktau/),                         &
                             count = (/mland, max_vegpatches, nrb, 1/))
+!write(*,*) 'var', var_r2(landpt(1)%cstart:landpt(1)%cend,:)
+!write(*,*) 'otmp', otmp4lprt( 1, :, :, 1)
         ELSE IF(dimswitch == 'plantcarbon') THEN ! other dim is plant carbon
                                                  ! pools
           DO i = 1, mland ! over all land grid points
