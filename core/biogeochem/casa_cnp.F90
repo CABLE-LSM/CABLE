@@ -373,7 +373,7 @@ SUBROUTINE casa_allocation(veg,soil,casabiome,casaflux,casapool,casamet,phen,LAL
 
         WHERE(phen%phase==1.and.casamet%lnonwood==1)
 
-           casaflux%fracCalloc(:,leaf)  = 0.8
+           casaflux%fracCalloc(:,leaf)  = 0.95
            casaflux%fracCalloc(:,froot) = 1.0-casaflux%fracCalloc(:,leaf)
            casaflux%fracCalloc(:,wood) = 0.0
         ENDWHERE
