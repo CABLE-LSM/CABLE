@@ -1115,7 +1115,6 @@ CONTAINS
                         //TRIM(filename%out)// ' (SUBROUTINE open_output_file)')
 
     ! Write latitude and longitude variables:
-
     ok = NF90_PUT_VAR(ncid_out, latID, REAL(lat_all, 4))
     IF(ok /= NF90_NOERR) CALL nc_abort                                         &
                                     (ok, 'Error writing latitude variable to ' &
@@ -1910,7 +1909,7 @@ CONTAINS
                                        * 0.5, 4)
        !! output calc of soil albedo based on colour? - Ticket #27
        !IF (calcsoilalbedo) THEN
-        IF (met%hod.eq.12.0 .OR. output%averaging(1:3) == 'all') then
+        IF (met%hod(1).eq.12.0 .OR. output%averaging(1:3) == 'all') then
           out%visAlbedo(:,1) = out%visAlbedo(:,1) + REAL(rad%albedo(:, 1) , 4)
           out%nirAlbedo(:,1) = out%nirAlbedo(:,1) + REAL(rad%albedo(:, 2) , 4)
 
