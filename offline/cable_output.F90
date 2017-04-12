@@ -1909,8 +1909,11 @@ CONTAINS
                                        * 0.5, 4)
        !! output calc of soil albedo based on colour? - Ticket #27
        !IF (calcsoilalbedo) THEN
-        IF (met%hod(1).eq.12.0 .OR. output%averaging(1:3) == 'all') then
-          out%visAlbedo(:,1) = out%visAlbedo(:,1) + REAL(rad%albedo(:, 1) , 4)
+
+       IF ( mod(ktau,INT(24.0*3600.0/dels)) == INT(24.0*3600.0/dels)/2  &
+            .OR. output%averaging(1:3) == 'all') THEN
+      
+           out%visAlbedo(:,1) = out%visAlbedo(:,1) + REAL(rad%albedo(:, 1) , 4)
           out%nirAlbedo(:,1) = out%nirAlbedo(:,1) + REAL(rad%albedo(:, 2) , 4)
 
           out%visAlbedo(:,2) = out%visAlbedo(:,2) + REAL(rad%reffbm(:, 1) , 4)
