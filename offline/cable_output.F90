@@ -1910,6 +1910,7 @@ CONTAINS
                                        * 0.5, 4)
        !! output calc of soil albedo based on colour? - Ticket #27
        !IF (calcsoilalbedo) THEN
+        IF (met%hod.eq.12.0 .OR. output%averaging(1:3) == 'all') then
           out%visAlbedo(:,1) = out%visAlbedo(:,1) + REAL(rad%albedo(:, 1) , 4)
           out%nirAlbedo(:,1) = out%nirAlbedo(:,1) + REAL(rad%albedo(:, 2) , 4)
 
@@ -1918,6 +1919,7 @@ CONTAINS
 
           out%visAlbedo(:,3) = out%visAlbedo(:,3) + REAL(rad%reffdf(:, 1) , 4)
           out%nirAlbedo(:,3) = out%nirAlbedo(:,3) + REAL(rad%reffdf(:, 2) , 4)
+       ENDIF
        !END IF
 
        IF(writenow) THEN
@@ -1931,11 +1933,21 @@ CONTAINS
 
          ! output calc of soil albedo based on colour? - Ticket #27
          !IF (calcsoilalbedo) THEN
-           out%visAlbedo = out%visAlbedo / REAL(output%interval, 4)
+         IF (output%averaging(1:3) == 'all') THEN
+            out%visAlbedo = out%visAlbedo / REAL(output%interval, 4)
+         ELSE
+            out%visAlbedo = out%visAlbedo / REAL(output%interval, 4) * &
+                 INT(24.0*3600.0/dels)
+         ENDIF
            CALL write_ovar(out_timestep, ncid_out, ovid%visAlbedo, 'visAlbedo',&
            out%visAlbedo, ranges%visAlbedo, patchout%visAlbedo, 'radiation', met)
            out%visAlbedo = 0.0
-           out%nirAlbedo = out%nirAlbedo / REAL(output%interval, 4)
+           IF (output%averaging(1:3) == 'all') THEN
+              out%nirAlbedo = out%nirAlbedo / REAL(output%interval, 4)
+           ELSE
+              out%nirAlbedo = out%nirAlbedo / REAL(output%interval, 4)* &
+                INT(24.0*3600.0/dels)
+           ENDIF
            CALL write_ovar(out_timestep, ncid_out, ovid%nirAlbedo, 'nirAlbedo',&
            out%nirAlbedo, ranges%nirAlbedo, patchout%nirAlbedo, 'radiation', met)
            out%nirAlbedo = 0.0
