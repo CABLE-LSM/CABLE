@@ -112,7 +112,7 @@ DO np= 1,mp
       endif
 !write(61,*) 'chk2',np, climate%doy,climate%GMD(np), phen_tmp   
    endif
-endif
+
 
  if ((veg%iveg(np) == 3 .or. veg%iveg(np) == 4) .or. &
       (veg%iveg(np).ge.6.and.veg%iveg(np).le.10)) then
