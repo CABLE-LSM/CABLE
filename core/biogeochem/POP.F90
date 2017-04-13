@@ -78,14 +78,14 @@ MODULE POP_Constants
   REAL(dp),PARAMETER:: DENSINDIV_MIN=1e-9 !
   REAL(dp),PARAMETER:: Kbiometric=50.0 ! Constant in height-diameter relationship
   REAL(dp),PARAMETER:: WD= 300.0 ! Wood density kgC/m3
-  REAL(dp),PARAMETER:: GROWTH_EFFICIENCY_MIN=0.0089  !0.0084 ! threshold growth efficiency for enhanced mortality (higher value gives higher biomass turnover)
+  REAL(dp),PARAMETER:: GROWTH_EFFICIENCY_MIN= 0.012 ! 0.0095   !0.0089  !0.0084 ! threshold growth efficiency for enhanced mortality (higher value gives higher biomass turnover)
   REAL(dp),PARAMETER:: Pmort=5.0 ! exponent in mortality formula
   REAL(dp),PARAMETER:: MORT_MAX=0.3 ! upper asymptote for enhanced mortality
   REAL(dp),PARAMETER:: THETA_recruit=0.95 ! shape parameter in recruitment equation
   REAL(dp),PARAMETER:: CMASS_STEM_INIT= 1e-4 ! initial biomass kgC/m2
   REAL(dp),PARAMETER:: POWERbiomass=0.67 ! exponent for biomass in proportion to which cohorts preempt resources
   REAL(dp),PARAMETER:: POWERGrowthEfficiency = 0.67
-  REAL(dp),PARAMETER:: CrowdingFactor = 0.039  !0.029 ! 0.033
+  REAL(dp),PARAMETER:: CrowdingFactor = 0.043 ! 0.039  !0.029 ! 0.033
   REAL(dp),PARAMETER:: ALPHA_CPC = 3.5
   REAL(dp),PARAMETER:: k_allom1 = 200.0 ! crown area =  k_allom1 * diam ** k_rp
   REAL(dp),PARAMETER:: k_rp = 1.67  ! constant in crown area relation to tree diameter

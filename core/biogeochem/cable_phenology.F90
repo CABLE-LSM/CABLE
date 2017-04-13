@@ -90,8 +90,12 @@ DO np= 1,mp
    ! summergreen grass or crops
    if (veg%iveg(np).ge.6.and.veg%iveg(np).le.10)  then     ! grass or crops
 
-      phengdd5ramp = 50
-      phen_tmp = min(1.0_r_2, climate%gdd5(np)/phengdd5ramp)
+      if (climate%gdd5(np).gt.0.1) THEN
+         phengdd5ramp = 50
+         phen_tmp = min(1.0_r_2, climate%gdd5(np)/phengdd5ramp)
+      ELSE
+         phen_tmp = 0.0_r_2
+      ENDIF
 
    endif
 
@@ -104,7 +108,7 @@ DO np= 1,mp
       elseif (climate%GMD(np) .EQ. 0) THEN
          phen_tmp = 0.0_r_2
       elseif (climate%GMD(np) .GE. ndays_raingreenup) THEN
-         phen_tmp = 1.0_r_2
+         phen_tmp = min(phen_tmp, 1.0_r_2)
       endif
 
    endif
