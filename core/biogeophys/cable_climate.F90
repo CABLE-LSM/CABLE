@@ -58,7 +58,7 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
   real, PARAMETER:: Gaero = 0.015  ! (m s-1) aerodynmaic conductance (for use in PT evap)
   real, PARAMETER:: Capp   = 29.09    ! isobaric spec heat air    [J/molA/K]
   real, PARAMETER:: SBoltz  = 5.67e-8  ! Stefan-Boltzmann constant [W/m2/K4]
-  real, PARAMETER:: moisture_min = 0.35
+  real, PARAMETER:: moisture_min = 0.30
   climate%doy = idoy
 
 !!$! * Find irradiances, available energy, equilibrium latent heat flux
