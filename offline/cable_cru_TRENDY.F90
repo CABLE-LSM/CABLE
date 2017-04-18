@@ -596,7 +596,9 @@ END SUBROUTINE GET_CRU_Ndep
 !!$    ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY' ) THEN
 !!$      MetYear = CRU%CYEAR
 !!$    ENDIF
-     IF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY' .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' )) THEN
+     IF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY' .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' ) &
+          .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2' &
+          .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Ndep' ) THEN
         MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
      ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY' ) THEN
         MetYear = CRU%CYEAR
@@ -803,9 +805,10 @@ END SUBROUTINE GET_CRU_Ndep
 !!$          ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY' ) THEN
 !!$            NextMetYear = CRU%CYEAR + 1
 !!$          ENDIF
-
-          IF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY' .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' )) THEN
-             NextMetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
+          IF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY' .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' ) &
+               .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2' &
+               .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Ndep' ) THEN
+                       NextMetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
           ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY' ) THEN
              NextMetYear = CRU%CYEAR
           ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY_precip0' ) THEN
