@@ -156,6 +156,18 @@ CONTAINS
        CRU%Ndep     = "static1860"
        WRITE(*   ,*)"Run = 'spinup': Therefore Forcing = 'spinup', CO2 = 'static1860'"
        WRITE(logn,*)"Run = 'spinup': Therefore Forcing = 'spinup', CO2 = 'static1860'"
+    CASE( "S0_TRENDY_CO2" ) 
+       CRU%Forcing = "spinup"
+       CRU%CO2     = "1901_2015"
+       CRU%Ndep     = "static1860"
+       WRITE(*   ,*)"Run = 'S0_CO2': Therefore Forcing = 'S0_CO2', CO2 = '1860_2015'"
+       WRITE(logn,*)"Run = 'S0_CO2': Therefore Forcing = 'S0_CO2', CO2 = '1860_2015'"
+    CASE( "S0_TRENDY_Ndep" ) 
+       CRU%Forcing = "spinup"
+       CRU%CO2     = "static1860"
+       CRU%Ndep     = "1901_2015"
+       WRITE(*   ,*)"Run = 'S0_Ndep': Therefore Forcing = 'S0_Ndep', Ndep = '1860_2015'"
+       WRITE(logn,*)"Run = 'S0_Ndep': Therefore Forcing = 'S0_Ndep', Ndep = '1860_2015'"
     CASE( "S1_TRENDY" ) 
        CRU%Forcing = "spinup"
        CRU%CO2     = "1860_1900"
