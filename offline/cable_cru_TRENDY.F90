@@ -701,7 +701,10 @@ END SUBROUTINE GET_CRU_Ndep
 
 !print *,  "CRU%CTSTEP, LastDayOfYear, LastYearOfMet", CRU%CTSTEP, LastDayOfYear, LastYearOfMet
   DO iVar = 1, CRU%NMET
-     IF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY' .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' )) THEN
+
+     IF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY' .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' ) &
+          .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2') &
+          .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Ndep' )) THEN
         MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
      ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY' ) THEN
         MetYear = CRU%CYEAR
