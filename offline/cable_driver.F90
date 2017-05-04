@@ -658,7 +658,10 @@ write(*,*) 'b4 casaonly_luc'
                   casapool, casamet )
              
              IF (l_laiFeedbk.and.icycle>0) veg%vlai(:) = casamet%glai(:)
-             
+              !met%fld = 400 ! test
+             ! met%qv = 0.014 ! test
+             !veg%vlai = 4.0 ! test
+             ! met%tk = met%tk -3 ! test
              ! Call land surface scheme for this timestep, all grid points:
                     CALL cbm(ktau, dels, air, bgc, canopy, met,		      &
                          bal, rad, rough, soil, ssnow,			      &

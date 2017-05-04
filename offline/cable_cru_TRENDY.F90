@@ -180,6 +180,12 @@ CONTAINS
        CRU%Ndep     = "static1860"
        WRITE(*   ,*)"Run = 'spinup': Therefore Forcing = 'spinup', CO2 = 'static1860'"
        WRITE(logn,*)"Run = 'spinup': Therefore Forcing = 'spinup', CO2 = 'static1860'"
+    CASE( "S0_TRENDY_CO2_Temp" ) 
+       CRU%Forcing = "spinup"
+       CRU%CO2     = "1901_2015"
+       CRU%Ndep     = "static1860"
+       WRITE(*   ,*)"Run = 'spinup': Therefore Forcing = 'spinup', CO2 = '1860_2015'"
+       WRITE(logn,*)"Run = 'spinup': Therefore Forcing = 'spinup', CO2 = '1860_2015'"
     CASE( "S1_TRENDY" ) 
        CRU%Forcing = "spinup"
        CRU%CO2     = "1860_1900"
@@ -618,7 +624,8 @@ END SUBROUTINE GET_CRU_Ndep
         ELSE
            MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
         ENDIF
-     ELSEIF  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Temp' ) THEN
+     ELSEIF  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Temp' .OR. &
+          TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Temp' ) THEN
         IF (iVar.EQ.6 .OR. iVar.EQ.7) THEN
            MetYear = CRU%CYEAR
         ELSE
@@ -736,7 +743,8 @@ END SUBROUTINE GET_CRU_Ndep
         ELSE
            MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
         ENDIF
-     ELSEIF  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Temp' ) THEN
+     ELSEIF  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Temp' &
+          .OR.  TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Temp'  ) THEN
         IF (iVar.EQ.6 .OR. iVar.EQ.7) THEN
            MetYear = CRU%CYEAR
         ELSE
@@ -854,7 +862,8 @@ END SUBROUTINE GET_CRU_Ndep
              ELSE
                 NextMetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
              ENDIF
-          ELSEIF  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Temp' ) THEN
+          ELSEIF  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Temp' &
+               .OR.  TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Temp'  ) THEN
              IF (iVar.EQ.6 .OR. iVar.EQ.7) THEN
                 MetYear = CRU%CYEAR
              ELSE

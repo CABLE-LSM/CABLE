@@ -406,7 +406,9 @@ CONTAINS
     ! adjust secondary age distribution for secondary forest harvest area
 
     if (POPLUC%smharv(g)+POPLUC%syharv(g).gt.0) then
-       if (sum(POPLUC%biomass_age_secondary(g,:)).gt.0.5*1000) then ! only harvest if biomass density > 0.5 kg Cm-2
+      ! if (sum(POPLUC%biomass_age_secondary(g,:)).gt.0.5*1000) then ! only harvest if biomass density > 0.5 kg Cm-2
+       if (sum(POPLUC%biomass_age_secondary(g,:)* POPLUC%freq_age_secondary(g,:)).gt.0.5) then 
+          ! only harvest if biomass density > 0.5 kg Cm-2
           IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0) THEN
              tmp = sum( POPLUC%freq_age_secondary(g,:)*POPLUC%biomass_age_secondary(g,:)) &
                   /sum( POPLUC%freq_age_secondary(g,:))

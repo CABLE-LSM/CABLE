@@ -79,9 +79,9 @@ SUBROUTINE surface_albedo(ssnow, veg, met, rad, soil, canopy)
    rad%reffdf = ssnow%albsoilsn
    rad%albedo = ssnow%albsoilsn
 
-   ! Define vegetation mask:
+   ! Define sunlit vegetation mask:
    mask = canopy%vlaiw > C%LAI_THRESH .AND.                                    &
-          ( met%fsd(:,1) + met%fsd(:,2) ) > C%RAD_THRESH
+          ( met%fsd(:,1) + met%fsd(:,2) ) > C%RAD_THRESH 
 
    CALL calc_rhoch( veg, c1, rhoch )
 
@@ -126,7 +126,10 @@ SUBROUTINE surface_albedo(ssnow, veg, met, rad, soil, canopy)
                            rad%fbeam(:,b) * rad%reffbm(:,b)
 
    END DO
-
+!b=2
+!write(509,"(18e16.6)") met%hod,rad%fbeam(1,b),rad%reffdf(1,b),rad%rhocdf(:,b),rad%cexpkdm(:,b) , &
+!     rad%reffbm(1,b),rad%rhocbm(1,b) &
+!     , rad%cexpkbm(1,b),rhoch(1,b), rad%extkb, rad%extkd, c1(1,b), rad%albedo(1,b)
 
 END SUBROUTINE surface_albedo
 

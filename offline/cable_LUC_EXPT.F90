@@ -224,6 +224,7 @@ CONTAINS
     LUC_EXPT%primaryf = min(LUC_EXPT%primaryf, 1.0- LUC_EXPT%grass)
     LUC_EXPT%secdf = max((1.0 -  LUC_EXPT%grass - LUC_EXPT%primaryf), 0.0)
 
+
     CALL READ_ClimateFile(LUC_EXPT)
 
     ! hot desert
@@ -251,8 +252,6 @@ CONTAINS
        LUC_EXPT%secdf =  LUC_EXPT%secdf * 0.7
     END WHERE
    
-
-
  
 ! READ transitions from primary to see if primary remains primary
          
@@ -310,10 +309,6 @@ CONTAINS
        END WHERE
     END WHERE
 
-
-!!$    WHERE (LUC_EXPT%ivegp == 14)
-!!$       LUC_EXPT%prim_only = .TRUE.
-!!$    END WHERE
     
  END SUBROUTINE LUC_EXPT_INIT
   

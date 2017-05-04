@@ -95,9 +95,9 @@ module add netcdf/4.3.3.1 openmpi/1.8.8
 #   export CFLAGS='-O0 -C'
 #   best settings for debugging
 #   export CFLAGS='-O0 -C -g -debug all -traceback   -check all,noarg_temp_created, -C  '
-#   export CFLAGS='-O2 '
+#   export CFLAGS='-O3 '
    export CFLAGS='-O2 -fp-model precise -g -debug -traceback '
-#   export CFLAGS='-O0 -fp-model precise -g -debug all -traceback -fpe0 '
+#   export CFLAGS='-O2 -fp-model precise -g -debug all -traceback -fpe0 '
 #   export CFLAGS='  -g -debug -traceback -fp-stack-check -O0 -debug -fpe0 -no-ftz -ftrapuv'
 #   best debugg flags
 #   export LDFLAGS='-g -L'$NCDIR  #'-L'$NCDIR' -O2'

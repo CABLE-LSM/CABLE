@@ -96,9 +96,10 @@ DO np= 1,mp
       ELSE
          phen_tmp = 0.0_r_2
       ENDIF
-!write(61,*) 'chk1',np, climate%doy,climate%gdd5(np), phen_tmp   
+!if (np==3) write(61,*) 'chk1',np, climate%doy,climate%gdd5(np), phen_tmp   
    endif
 
+if (1.eq.1) then
    ! raingreen pfts
    if (veg%iveg(np).ge.6.and.veg%iveg(np).le.10) then ! (grass or crops) need to include raingreen savanna trees here too
 
@@ -110,8 +111,9 @@ DO np= 1,mp
       elseif (climate%GMD(np) .GE. ndays_raingreenup) THEN
          phen_tmp = min(phen_tmp, 1.0_r_2)
       endif
-!write(61,*) 'chk2',np, climate%doy,climate%GMD(np), phen_tmp   
+!if (np==3) write(61,*) 'chk2',np, climate%doy,climate%GMD(np), phen_tmp   
    endif
+endif
 
 
  if ((veg%iveg(np) == 3 .or. veg%iveg(np) == 4) .or. &

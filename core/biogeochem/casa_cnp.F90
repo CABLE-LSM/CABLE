@@ -250,7 +250,7 @@ SUBROUTINE casa_allocation(veg,soil,casabiome,casaflux,casapool,casamet,phen,LAL
     casaflux%fracCalloc(:,:) = casabiome%fracnpptop(veg%iveg(:),:)
 
   CASE (3) ! leaf:wood allocation set to maintain LA:SA ratio
-     ! below target value of 4000, where phen%phase = 1 or 2 
+     ! below target value of 5000, where phen%phase = 1 or 2 
      !(requires casaflux%sapwood_area, which is inherited from the 
      ! POP tree demography module. (Ticket #61)
     WHERE(casamet%lnonwood==0)
@@ -260,10 +260,10 @@ SUBROUTINE casa_allocation(veg,soil,casabiome,casaflux,casapool,casamet,phen,LAL
              casaflux%fracCalloc(:,WOOD)
         newLAI =casamet%glai + (casaflux%fracCalloc(:,LEAF) *casaflux%cnpp- &
              casaflux%kplant(:,leaf) *casapool%cplant(:,LEAF) )*casabiome%sla(veg%iveg(:))
-        where (casaflux%sapwood_area.gt.1.e-6 .and. newLAI.gt.(4000.*casaflux%sapwood_area) &
+        where (casaflux%sapwood_area.gt.1.e-6 .and. newLAI.gt.(5000.*casaflux%sapwood_area) &
              .and. casaflux%cnpp.gt.0.0)
 
-           casaflux%fracCalloc(:,LEAF) = ((4000.*casaflux%sapwood_area - casamet%glai)/ &
+           casaflux%fracCalloc(:,LEAF) = ((5000.*casaflux%sapwood_area - casamet%glai)/ &
                 casabiome%sla(veg%iveg(:)) &
              + casaflux%kplant(:,leaf) *casapool%cplant(:,LEAF)  )/casaflux%cnpp
 
@@ -792,8 +792,8 @@ SUBROUTINE casa_xrateplant(xkleafcold,xkleafdry,xkleaf,veg,casabiome, &
     ! vh: account for high rate of leaf loss during senescence
     ! vh_js
     if (trim(cable_user%PHENOLOGY_SWITCH)=='climate') then
-       ! increases base turnover rate by a factor of 26 (for base turnover time of 1y, this reduces it to 2 weeks)
-       IF (phen%phase(npt)==3.or.phen%phase(npt)==0) xkleaf(npt)= 26. 
+       ! increases base turnover rate by a factor of 13 (for base turnover time of 1y, this reduces it to 4 weeks)
+       IF (phen%phase(npt)==3.or.phen%phase(npt)==0) xkleaf(npt)= 13. 
     endif
   END IF
   END DO
@@ -1188,6 +1188,7 @@ SUBROUTINE casa_delplant(veg,casabiome,casapool,casaflux,casamet,            &
 
   !MPI
   DO npt=1,mp
+
      IF(casamet%iveg2(npt)/=icewater) THEN
         !    PRINT *, 'npt = ', npt
         !    PRINT *, 'casapool%cplant(npt,:) = ', casapool%cplant(npt,:)
@@ -2147,6 +2148,7 @@ SUBROUTINE casa_cnpcycle(veg,casabiome,casapool,casaflux,casamet, LALLOC)
 !  print*,'cplant',casapool%cplant(:,leaf)
 
   DO np=1,mp
+
   IF(casamet%iveg2(np) == icewater) THEN
     casamet%glai(np)   = 0.0
   ELSE
@@ -2168,7 +2170,12 @@ SUBROUTINE casa_cnpcycle(veg,casabiome,casapool,casaflux,casamet, LALLOC)
     ENDIF
 !    casamet%glai(np)   = MIN(0.0, casabiome%sla(veg%iveg(np))  &
 !                                  * casapool%cplant(np,leaf))
-    casamet%glai(np)   = MAX(casabiome%glaimin(veg%iveg(np)), &
+  
+! avoid high ratios of n to p in plant material
+ casapool%Nplant(np,3) = min(casapool%Nplant(np,3), &
+      casabiome%ratioNCplantmax(veg%iveg(np),froot) *  casapool%cplant(np,3))
+
+   casamet%glai(np)   = MAX(casabiome%glaimin(veg%iveg(np)), &
                                casabiome%sla(veg%iveg(np)) * casapool%cplant(np,leaf))
    ! vh !
     !IF (LALLOC.ne.3) THEN
