@@ -6415,6 +6415,21 @@ SUBROUTINE worker_climate_types (comm, climate)
     blocks(bidx) = r1len
     types(bidx)  = MPI_BYTE
 
+    bidx = bidx + 1
+    CALL MPI_Get_address (climate%frec(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+    types(bidx)  = MPI_BYTE
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (climate%gdd0_rec(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+    types(bidx)  = MPI_BYTE
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (climate%fdorm(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+    types(bidx)  = MPI_BYTE
+
     ! ------------- scalars  -------------
 
     bidx = bidx + 1

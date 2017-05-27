@@ -1259,6 +1259,9 @@ ENDDO
                 POPLUC%primf(g)  = max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0)
              elseif (ilu == s) then
                 POPLUC%secdf(g) = max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0)
+                if (POPLUC%secdf(g) .eq. 0.0) then
+                   POPLUC%freq_age_secondary(g,:) = 0.0
+                endif
              elseif (ilu == gr) then
                 POPLUC%grass(g) = max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0)
              endif
@@ -1522,8 +1525,8 @@ END SUBROUTINE POPLUC_SET_PATCHFRAC
        ENDIF
       ! no residue test
       !POPLUC%fracClearResid(g) = 0.0
-      !POPLUC%fracHarvResid(g) = 0.0
-      !POPLUC%fracHarvSecResid(g) = 0.0
+     ! POPLUC%fracHarvResid(g) = 0.0
+     ! POPLUC%fracHarvSecResid(g) = 0.0
 
     ENDDO
 

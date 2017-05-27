@@ -59,8 +59,12 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
   real, PARAMETER:: Capp   = 29.09    ! isobaric spec heat air    [J/molA/K]
   real, PARAMETER:: SBoltz  = 5.67e-8  ! Stefan-Boltzmann constant [W/m2/K4]
   real, PARAMETER:: moisture_min = 0.30
+  real, PARAMETER:: T1 = 0.0, T2 = -3.0, T3 = -4.0, T6 = -5.0 ! for computing fractional spring recovery
+  real, PARAMETER:: ffrost = 0.1, fdorm0 = 0.15  ! for computing fractional spring recovery
+  real, PARAMETER:: gdd0_rec0 = 500.0
+  real, dimension(mp) :: f1, f2, frec0
   climate%doy = idoy
-
+!write(*,*) idoy, climate%frec(1)
 !!$! * Find irradiances, available energy, equilibrium latent heat flux
 !!$PPc    = Gaero / ( Gaero + 4.0*SBoltz*((TempA+273.16)**3)/(RhoA*Capp) )
 !!$                                                    ! PPc = Ga/(Ga+Gr)      [-]
@@ -101,9 +105,11 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
   IF(MOD(ktau,ktauday)==1) THEN
      climate%dtemp = met%tk - 273.15
      climate%dmoist = canopy%fwsoil
+     climate%dtemp_min =  climate%dtemp 
   ELSE
      climate%dtemp = climate%dtemp + met%tk - 273.15
      climate%dmoist = climate%dmoist + canopy%fwsoil
+     climate%dtemp_min = min(met%tk - 273.15, climate%dtemp_min)
   ENDIF
 
   IF(MOD((ktau-kstart+1),ktauday)==0) THEN  ! end of day
@@ -135,7 +141,7 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
         climate%agdd0=0.0
         climate%evap_PT = 0     ! annual PT evap [mm]
         climate%aevap  = 0      ! annual evap [mm]  
-
+    
 
      ENDIF
 
@@ -145,7 +151,21 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
         ! In midwinter, reset GDD counter for summergreen phenology
         climate%gdd5=0.0
         climate%gdd0=0.0
+   
+        ! reset day degree sum related to spring photosynthetic recovery
+        climate%gdd0_rec = 0.0
+        ! In mid-winter, reset dormancy fraction
+       ! climate%fdorm = 1.0
+
      END WHERE
+
+     WHERE ((patch%latitude<=0.0 .and. idoy==COLDEST_DAY_NHEMISPHERE).OR. &
+          (patch%latitude>0.0 .and. idoy==COLDEST_DAY_SHEMISPHERE) )
+
+        ! In mid-summer, reset dormancy fraction
+        climate%fdorm = 1.0
+
+     ENDWHERE
 
      ! Update GDD counters and chill day count
      climate%gdd0 = climate%gdd0 + max(0.0,climate%dtemp-0.0)
@@ -153,6 +173,47 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
 
      climate%gdd5 = climate%gdd5 + max(0.0,climate%dtemp-5.0)
      climate%agdd5= climate%agdd5 + max(0.0,climate%dtemp-5.0)
+
+     ! Update dormancy fraction if there has been a frost
+     WHERE (climate%dtemp_min .GE. T6 .AND. climate%dtemp_min .LT. 0.0)
+        climate%fdorm = max(climate%fdorm - ffrost * climate%dtemp_min/T6 , 0.0)
+     ELSEWHERE (climate%dtemp_min .LT. T6)
+        climate%fdorm = max(climate%fdorm - ffrost , 0.0)
+     ENDWHERE
+     
+     frec0 = fdorm0 + (1.0 - fdorm0) * climate%fdorm
+
+
+
+     WHERE ( climate%dtemp_min .ge. T1 .AND. climate%dtemp_31(:,31) .ge. T1)
+        f2 = 1.0
+     ELSEWHERE ( climate%dtemp_min .le. T2 .AND. climate%dtemp_31(:,31) .le. T2)
+        f2 = 0.0
+     ELSEWHERE
+        f2 = min( (climate%dtemp_min - T2)/(T1-T2) , &
+             ( climate%dtemp_31(:,31) - T2)/(T1-T2))
+     ENDWHERE
+
+     WHERE ( climate%dtemp_min .GE. T2)
+        f1 = 0.0
+     ELSEWHERE ( climate%dtemp_min .LE. T3)
+        f1 = 0.3
+     ELSEWHERE
+        f1 = 0.3*(T2 -  climate%dtemp_min)/ (T2 - T3)
+     ENDWHERE
+
+     WHERE (climate%dtemp_min .ge. T2)
+       climate%gdd0_rec = max(climate%gdd0_rec + climate%dtemp * f2, 0.0)
+     ELSEWHERE (climate%dtemp_min .lt. T2)
+        climate%gdd0_rec = max(climate%gdd0_rec*(1. - f1), 0.0)
+     ENDWHERE
+
+     WHERE (climate%gdd0_rec .LE. gdd0_rec0)
+        climate%frec = frec0 + (1.0 - frec0)* climate%gdd0_rec/gdd0_rec0
+     ELSEWHERE
+        climate%frec = 1.0
+     ENDWHERE
+
      WHERE (climate%dtemp<5.0 .and. climate%chilldays<=365)
         climate%chilldays = climate%chilldays + 1
      ENDWHERE
@@ -625,7 +686,9 @@ if (cable_user%climate_fromzero) then
    climate%iveg = 999
    climate%biome = 999
    climate%gmd = 0
-
+   climate%frec = 1.0
+   climate%GDD0_rec = 0.0
+   climate%fdorm = 1.0
 else
    CALL READ_CLIMATE_RESTART_NC (climate)
 
@@ -658,7 +721,7 @@ SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate )
   ! 0 dim arrays
   CHARACTER(len=20),DIMENSION(2) :: A0
   ! 1 dim arrays (npt )
-  CHARACTER(len=20),DIMENSION(20) :: A1
+  CHARACTER(len=20),DIMENSION(23) :: A1
  ! 1 dim arrays (integer) (npt )
   CHARACTER(len=20),DIMENSION(4) :: AI1
   ! 2 dim arrays (npt,20)
@@ -696,6 +759,9 @@ SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate )
   A1(18) = 'evap_PT'
   A1(19) = 'aevap'
   A1(20)  = 'alpha_PT'
+  A1(21) = 'GDD0_rec'
+  A1(22) = 'frec'
+  A1(23) = 'fdorm'
 
   AI1(1) = 'chilldays'
   AI1(2) = 'iveg'
@@ -845,6 +911,14 @@ STATUS = NF90_PUT_VAR(FILE_ID, VID1(5), climate%qtemp )
   STATUS = NF90_PUT_VAR(FILE_ID, VID1(20), climate%alpha_PT )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(21), climate%GDD0_rec )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(22), climate%frec )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(23), climate%fdorm )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
   STATUS = NF90_PUT_VAR(FILE_ID, VIDI1(1), climate%chilldays )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
@@ -904,7 +978,7 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate )
   ! 0 dim arrays
   CHARACTER(len=20),DIMENSION(2) :: A0
   ! 1 dim arrays (npt )
-  CHARACTER(len=20),DIMENSION(20) :: A1
+  CHARACTER(len=20),DIMENSION(23) :: A1
  ! 1 dim arrays (integer) (npt )
   CHARACTER(len=20),DIMENSION(4) :: AI1
   ! 2 dim arrays (npt,20)
@@ -943,6 +1017,9 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate )
   A1(18) = 'evap_PT'
   A1(19) = 'aevap'
   A1(20)  = 'alpha_PT'
+  A1(21) = 'GDD0_rec'
+  A1(22) = 'frec'
+  A1(23) = 'fdorm'
   
   AI1(1) = 'chilldays'
   AI1(2) = 'iveg'
@@ -1042,6 +1119,9 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate )
      CASE ('evap_PT'  ) ; climate%evap_PT  = TMP
      CASE ('aevap'  ) ; climate%aevap  = TMP
      CASE ('alpha_PT'  ) ; climate%alpha_PT  = TMP
+     CASE ('GDD0_rec'  ) ; climate%GDD0_rec  = TMP
+     CASE ('frec'  ) ; climate%frec  = TMP
+     CASE ('fdorm'  ) ; climate%fdorm  = TMP
      END SELECT
   END DO
 

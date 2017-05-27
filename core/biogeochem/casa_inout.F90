@@ -1458,16 +1458,18 @@ SUBROUTINE biogeochem(ktau,dels,idoY,LALLOC,veg,soil,casabiome,casapool,casaflux
                                      casapool,casaflux,casamet)
   ENDIF
 
- ! reset base soil turnover rates for grass tiles to be the same 
-  ! as potential veg in the same gridcell
-  IF (cable_user%CALL_POP) THEN
-     DO j=1,msoil
-        where (veg%ilu ==3)
-           casaflux%ksoil(:,j) = casaflux%ksoil(:,j) * casabiome%soilrate(veg%ivegp(:),j)/ &
-                casabiome%soilrate(veg%iveg(:),j)
-        ENDWHERE
-     ENDDO
-  ENDIF
+ !write(62,"(100e16.6)") xkNlimiting
+!!$
+!!$ ! reset base soil turnover rates for grass tiles to be the same 
+!!$  ! as potential veg in the same gridcell
+!!$  IF (cable_user%CALL_POP) THEN
+!!$     DO j=1,msoil
+!!$        where (veg%ilu ==3)
+!!$           casaflux%ksoil(:,j) = casaflux%ksoil(:,j) * casabiome%soilrate(veg%ivegp(:),j)/ &
+!!$                casabiome%soilrate(veg%iveg(:),j)
+!!$        ENDWHERE
+!!$     ENDDO
+!!$  ENDIF
 
   ! changed by ypwang following Chris Lu on 5/nov/2012
   call casa_delplant(veg,casabiome,casapool,casaflux,casamet,                &

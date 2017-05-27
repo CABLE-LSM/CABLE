@@ -1602,6 +1602,7 @@ CONTAINS
 
              ! Leuning 2002 (P C & E) equation for temperature response
              ! used for Vcmax for C3 plants:
+
              temp(i) =  xvcmxt3(tlfx(i)) * veg%vcmax(i) * (1.0-veg%frac4(i))
 
              vcmxt3(i,1) = rad%scalex(i,1) * temp(i)
@@ -1661,7 +1662,24 @@ CONTAINS
 
     
               if (cable_user%CALL_climate) then
-  
+                 if (veg%iveg(i).eq.1) then
+
+
+                    temp2(i,1) = rad%qcan(i,1,1) * jtomol * (1.0-veg%frac4(i))
+                    temp2(i,2) = rad%qcan(i,2,1) * jtomol * (1.0-veg%frac4(i))
+                    vx3(i,1)  = ej3x(temp2(i,1),climate%frec(i)*1.5*veg%alpha(i), &
+                         veg%convex(i),ejmxt3(i,1))
+                    vx3(i,2)  = ej3x(temp2(i,2),climate%frec(i)*1.5*veg%alpha(i), &
+                         veg%convex(i),ejmxt3(i,2))
+
+
+                    temp(i) =  xvcmxt3(tlfx(i)) * veg%vcmax(i) * (1.0-veg%frac4(i))
+
+                    vcmxt3(i,1) = rad%scalex(i,1) * temp(i) * climate%frec(i)
+                    vcmxt3(i,2) = rad%scalex(i,2) * temp(i) * climate%frec(i)
+                 endif
+
+
                  ! Atkin et al. 2015, Table S4, 
                  ! modified by saling factor to reduce leaf respiration to 
                  ! expected proportion of GPP
@@ -1685,7 +1703,13 @@ CONTAINS
                      0.0334*climate%qtemp_max_last_year(i)*1e-6)
                 rdx(i,2) = rdx(i,1)
 
-              elseif (veg%iveg(i).eq.1 .or. veg%iveg(i).eq. 3  ) then ! needleleaf forest
+             elseif (veg%iveg(i).eq.1   ) then ! evergreen needleleaf forest
+                 rdx(i,1) = 1.0*(1.2877e-6+0.0116*climate%frec(i)*veg%vcmax(i)- &
+                      0.0334*climate%qtemp_max_last_year(i)*1e-6)
+                 rdx(i,2) = rdx(i,1)
+
+
+              elseif ( veg%iveg(i).eq. 3  ) then ! decid needleleaf forest
                  rdx(i,1) = 1.0*(1.2877e-6+0.0116*veg%vcmax(i)- &
                       0.0334*climate%qtemp_max_last_year(i)*1e-6)
                  rdx(i,2) = rdx(i,1)
@@ -1766,8 +1790,16 @@ CONTAINS
 
                 g1 = veg%g1(i)
 
-                gs_coeff(i,1) = (1.0 + (g1 * fwsoil(i)) / SQRT(vpd)) / csx(i,1)
-                gs_coeff(i,2) = (1.0 + (g1 * fwsoil(i)) / SQRT(vpd)) / csx(i,2)
+                !gs_coeff(i,1) = (1.0* fwsoil(i) + (g1 * fwsoil(i)) / SQRT(vpd)) / csx(i,1)
+                !gs_coeff(i,2) = (1.0* fwsoil(i) + (g1 * fwsoil(i)) / SQRT(vpd)) / csx(i,2)
+
+                if (fwsoil(i) .LE. 0.05) then
+                   gs_coeff(i,1) = (1.0* fwsoil(i) + (g1 * fwsoil(i)) / SQRT(vpd)) / csx(i,1)
+                   gs_coeff(i,2) = (1.0* fwsoil(i) + (g1 * fwsoil(i)) / SQRT(vpd)) / csx(i,2)
+                else
+                   gs_coeff(i,1) = (1.0 + (g1 * fwsoil(i)) / SQRT(vpd)) / csx(i,1)
+                   gs_coeff(i,2) = (1.0 + (g1 * fwsoil(i)) / SQRT(vpd)) / csx(i,2)
+                endif
 
             ELSE
                 STOP 'gs_model_switch failed.'
@@ -1786,7 +1818,7 @@ CONTAINS
                            ! Ticket #56, xleuning replaced with gs_coeff here
                            gs_coeff(:,:), rad%fvlai(:,:),& 
                            SPREAD( abs_deltlf, 2, mf ),                        &
-                           anx(:,:), fwsoil(:) )
+                           anx(:,:), fwsoil(:), met )
 
 
        DO i=1,mp
@@ -1951,6 +1983,28 @@ CONTAINS
 
     END DO  ! DO WHILE (ANY(abs_deltlf > 0.1) .AND.  k < C%MAXITER)
 
+!!$  write(3333,"(200e16.6)") tlfx
+!!$  write(3334,"(200e16.6)") met%tvair
+!!$  write(3335,"(200e16.6)") met%tk
+!!$  write(3336,"(200e16.6)") canopy%gswx(:,1)
+!!$  write(3337,"(200e16.6)") canopy%gswx(:,2)
+!!$  write(3338,"(200e16.6)") gbhu(:,1)
+!!$  write(3339,"(200e16.6)") gbhu(:,2)
+!!$  write(3340,"(200e16.6)") gbhf(:,1)
+!!$  write(3341,"(200e16.6)") gbhf(:,2)
+!!$  write(3342,"(200e16.6)")rad%gradis(:,1)
+!!$  write(3343,"(200e16.6)")rad%gradis(:,2)
+!!$  write(3344,"(200e16.6)") gw(:,1)
+!!$  write(3345,"(200e16.6)") gw(:,2)
+!!$  write(3346,"(200e16.6)") met%dva
+!!$  write(3347,"(200e16.6)") met%ua
+!!$  write(3348,"(200e16.6)") rad%fvlai(:,1)
+!!$  write(3349,"(200e16.6)") rad%fvlai(:,2)
+!!$  write(3350,"(200e16.6)") dsx
+!!$  write(3351,"(200e16.6)") fwsoil
+!!$  write(3352,"(200e16.6)") met%hod
+!!$  write(3353,"(200e16.6)") an_y(:,1)
+!!$  write(3354,"(200e16.6)") an_y(:,2)
 
     ! dry canopy flux
     canopy%fevc = (1.0-canopy%fwet) * ecy
@@ -2015,11 +2069,11 @@ CONTAINS
    ! Ticket #56, xleuningz repalced with gs_coeffz
    SUBROUTINE photosynthesis( csxz, cx1z, cx2z, gswminz,                          &
                            rdxz, vcmxt3z, vcmxt4z, vx3z,                       &
-                           vx4z, gs_coeffz, vlaiz, deltlfz, anxz, fwsoilz )
-    USE cable_def_types_mod, only : mp, mf, r_2
-
+                           vx4z, gs_coeffz, vlaiz, deltlfz, anxz, fwsoilz,met )
+    USE cable_def_types_mod, only : mp, mf, r_2, met_type
+    
     REAL(r_2), DIMENSION(mp,mf), INTENT(IN) :: csxz
-
+    TYPE (met_type),       INTENT(IN) :: met
     REAL, DIMENSION(mp,mf), INTENT(IN) ::                                       &
          cx1z,       & !
          cx2z,       & !
@@ -2072,6 +2126,7 @@ CONTAINS
                               -( gswminz(i,j)*fwsoilz(i)/C%RGSWC ) * cx1z(i,j)*csxz(i,j)
 
 
+
                 ! kdcorbin,09/10 - new calculations
                 IF( ABS(coef2z(i,j)) .GT. 1.0e-9 .AND. &
                      ABS(coef1z(i,j)) .LT. 1.0e-9) THEN
@@ -2108,13 +2163,18 @@ CONTAINS
                    ciz(i,j) = ( -coef1z(i,j) + SQRT( MAX( 0.0_r_2 ,             &
                         delcxz(i,j) ) ) ) / ( 2.0*coef2z(i,j) )
 
-                   ciz(i,j) = MAX( 0.0_r_2, ciz(i,j) )   ! must be positive, why?
+                   ciz(i,j) = MAX( 0.0_r_2, ciz(i,j) )   ! must be positive (concnetration always +ve)
 
                    anrubiscoz(i,j) = vcmxt3z(i,j) * ( ciz(i,j) - cx2z(i,j)      &
                         / 2.0)  / ( ciz(i,j) + cx1z(i,j) ) +       &
                         vcmxt4z(i,j) - rdxz(i,j)
 
                 ENDIF
+
+!!$if (i.eq.1 .and. j.eq.1 .and. met%hod(1) .eq.12) then
+!!$ write(3333,"(200e16.6)"),  gswminz(i,j)*fwsoilz(i) / C%RGSWC,  gs_coeffz(i,j), vcmxt3z(i,j) , &
+!!$rdxz(i,j), csxz(i,j), cx1z(i,j), cx2z(i,j),  coef2z(i,j),  coef1z(i,j),coef0z(i,j),  coef0z(i,j),  ciz(i,j),  anrubiscoz(i,j)
+!!$endif
 
                 ! RuBP limited:
                 coef2z(i,j) = gswminz(i,j)*fwsoilz(i) / C%RGSWC + gs_coeffz(i,j) &
@@ -2275,6 +2335,7 @@ CONTAINS
     z = q10c4 ** (0.1 * x - 2.5) /                                              &
          ((1.0 + exp(0.3 * (13.0 - x))) * (1.0 + exp(0.2 * (x - 38.0))))
 
+ 
   END FUNCTION xvcmxt4
 
   ! ------------------------------------------------------------------------------
@@ -2295,7 +2356,8 @@ CONTAINS
     xvcnum=xvccoef*exp( ( ehavc / ( C%rgas*C%TREFK ) )* ( 1.-C%TREFK/x ) )
     xvcden=1.0+exp( ( entropvc*x-ehdvc ) / ( C%rgas*x ) )
     z = max( 0.0,xvcnum / xvcden )
-
+  
+ 
   END FUNCTION xvcmxt3
 
   ! ------------------------------------------------------------------------------
@@ -2319,18 +2381,18 @@ CONTAINS
     !  leuning 2002 (p c & e) equation for temperature response
     !  used for jmax for c3 plants
 
-    REAL, INTENT(IN) :: x
+    REAL, INTENT(INOUT) :: x
     REAL :: xjxnum,xjxden,z
 
     REAL, PARAMETER  :: EHaJx  = 50300.0  ! J/mol (Leuning 2002)
     REAL, PARAMETER  :: EHdJx  = 152044.0 ! J/mol (Leuning 2002)
     REAL, PARAMETER  :: EntropJx = 495.0  ! J/mol/K (Leuning 2002)
     REAL, PARAMETER  :: xjxcoef = 1.16715 ! derived parameter
-
+ 
     xjxnum = xjxcoef*exp( ( ehajx / ( C%rgas*C%TREFK ) ) * ( 1.-C%TREFK / x ) )
     xjxden=1.0+exp( ( entropjx*x-ehdjx) / ( C%rgas*x ) )
     z = max(0.0, xjxnum/xjxden)
-
+  
   END FUNCTION xejmxt3
 
   ! ------------------------------------------------------------------------------

@@ -89,7 +89,8 @@ MODULE cable_common_module
 
      ! Ticket #56
      CHARACTER(LEN=20) ::                                                     &
-        GS_SWITCH='leuning'
+    ! GS_SWITCH='leuning'
+     GS_SWITCH='medlyn'
       
      CHARACTER(LEN=10) :: RunIden       = 'STANDARD'  !
      CHARACTER(LEN=4)  :: MetType       = ' ' !
@@ -142,7 +143,7 @@ MODULE cable_common_module
           L_NEW_REDUCE_SOILEVP  = .FALSE., & !
 
                                 ! Switch for customized soil respiration - see Ticket #42
-          SRF = .FALSE., &
+          SRF = .TRUE., &
 
           !! vh_js !!
          litter = .FALSE.
@@ -458,7 +459,6 @@ CONTAINS
 
     ! new calculation dleaf since April 2012 (cable v1.8 did not use width)
     vegin%dleaf = SQRT(vegin%width * vegin%length)
-
 
 
     !================= Read in soil type specifications: ============

@@ -119,7 +119,7 @@ MODULE cable_mpicommon
   INTEGER, PARAMETER :: nrestart = 15
   INTEGER, PARAMETER :: nsumcasaflux = 62
   INTEGER, PARAMETER :: nsumcasapool = 40
-  INTEGER, PARAMETER :: nclimate = 31
+  INTEGER, PARAMETER :: nclimate = 34
   INTEGER, PARAMETER :: nphen = 9
   ! MPI: type to hold landpoint decomposition info
   TYPE lpdecomp_t

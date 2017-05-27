@@ -851,20 +851,20 @@ SUBROUTINE casa_xratesoil(xklitter,xksoil,veg,soil,casamet,casabiome)
   REAL(r_2), parameter :: xkbeta=0.204
   REAL(r_2), parameter :: xktoptc=36.9
 ! Trudinger2016 function parameters (from Trudinger 2016)
-!!$ REAL(r_2), parameter ::  wfpswidth1=1.2160310E+00
-!!$ REAL(r_2), parameter ::  wfpswidth2=6.4620150E-01
-!!$ REAL(r_2), parameter ::  wfpswidth3=4.9625073E-01
-!!$ REAL(r_2), parameter :: wfpsscale1=1.6193957E+00
-!!$ REAL(r_2), parameter :: wfpswidth0=1.3703876E-02 
-!!$ REAL(r_2), parameter :: wfpsquad=8.0000000E-01
+ REAL(r_2), parameter ::  wfpswidth1=1.2160310E+00
+ REAL(r_2), parameter ::  wfpswidth2=6.4620150E-01
+ REAL(r_2), parameter ::  wfpswidth3=4.9625073E-01
+ REAL(r_2), parameter :: wfpsscale1=1.6193957E+00
+ REAL(r_2), parameter :: wfpswidth0=1.3703876E-02 
+ REAL(r_2), parameter :: wfpsquad=8.0000000E-01
 
 ! Trudinger2016 function parameters (corresponds to Haverd 2013)
-REAL(r_2), parameter :: wfpswidth1=0.78
-REAL(r_2), parameter :: wfpswidth2=0
-REAL(r_2), parameter :: wfpswidth3=1.5
-REAL(r_2), parameter :: wfpsscale1=10.0
-REAL(r_2), parameter :: wfpswidth0 = 0.0
-REAL(r_2), parameter :: wfpsquad=0
+!!$REAL(r_2), parameter :: wfpswidth1=0.78
+!!$REAL(r_2), parameter :: wfpswidth2=0
+!!$REAL(r_2), parameter :: wfpswidth3=1.5
+!!$REAL(r_2), parameter :: wfpsscale1=10.0
+!!$REAL(r_2), parameter :: wfpswidth0 = 0.0
+!!$REAL(r_2), parameter :: wfpsquad=0
 
 
   REAL(r_2), DIMENSION(mp)       :: xkwater,xktemp
@@ -930,6 +930,7 @@ REAL(r_2), parameter :: wfpsquad=0
            smrf(npt) = 0.2
          END IF
       ELSE IF (trim(cable_user%SMRF_NAME)=='Trudinger2016') THEN
+
          if (fwps(npt) .le. wfpswidth0) then
             smrf(npt) = wfpsquad*fwps(npt)**2.0 
          else
@@ -969,6 +970,12 @@ REAL(r_2), parameter :: wfpsquad=0
   END IF
   END DO
 
+!!$ write(63,"(100e16.6)") xklitter
+!!$ write(64,"(100e16.6)") xksoil
+!!$ write(65,"(100e16.6)") smrf
+!!$ write(66,"(100e16.6)") strf
+!!$ write(67,"(100e16.6)") fwps
+!!$ write(68,"(100e16.6)") tsoil
 END SUBROUTINE casa_xratesoil
 
 SUBROUTINE casa_coeffplant(xkleafcold,xkleafdry,xkleaf,veg,casabiome,casapool, &
@@ -1712,7 +1719,8 @@ SUBROUTINE avgsoil(veg,soil,casamet)
   DO nland=1,mp
     casamet%tsoilavg(nland)  = casamet%tsoilavg(nland)+veg%froot(nland,ns)  &
                              * casamet%tsoil(nland,ns)
-   
+
+    
     IF (trim(cable_user%SMRF_NAME)=='Trudinger2016') THEN
       
         casamet%moistavg(nland)  = casamet%moistavg(nland)+ veg%froot(nland,ns) &

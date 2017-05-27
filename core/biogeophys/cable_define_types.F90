@@ -567,7 +567,7 @@ MODULE cable_def_types_mod
        GMD            ! growing moisture days (== number days since min moisture threshold)
 
       REAL, DIMENSION(:), POINTER ::                                           &
-      dtemp,        & ! daily temperature
+      dtemp,        & ! daily mean temperature
       dmoist,        & ! daily moisture availability
       mtemp,       & ! mean temperature over the last 31 days
       qtemp,       & ! mean temperature over the last 91 days
@@ -586,7 +586,11 @@ MODULE cable_def_types_mod
       alpha_PT,    & ! ratio of annual evap to annual PT evap
       evap_PT,    & ! annual PT evap [mm]
       aevap , &       ! annual evap [mm]
-      alpha_PT20
+      alpha_PT20, &   
+      GDD0_rec, &    ! growing degree day sum related to spring photosynthetic recovery
+      frec, &           ! fractional photosynthetic recovery
+      dtemp_min, &      ! daily minimum temperature
+      fdorm ! dormancy fraction (1 prior to first autumn frost; 0 after 10 severe frosts)
 
       REAL, DIMENSION(:,:), POINTER ::                                   &
       mtemp_min_20, & ! mimimum monthly temperatures for the last 20 y
@@ -1177,6 +1181,10 @@ print*, 'nd', nd
    ALLOCATE ( var % alpha_PT20(mp) )
    ALLOCATE ( var % evap_PT(mp) )
    ALLOCATE ( var % aevap(mp) )
+   ALLOCATE ( var % GDD0_rec(mp) )
+   ALLOCATE ( var % frec(mp) )
+   ALLOCATE ( var % dtemp_min(mp) )
+   ALLOCATE ( var % fdorm(mp) )
 
    ALLOCATE ( var % mtemp_min_20(mp,ny) )
    ALLOCATE ( var %     mtemp_max_20(mp,ny) )
