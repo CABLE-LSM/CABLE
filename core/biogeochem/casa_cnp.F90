@@ -574,6 +574,23 @@ SUBROUTINE casa_rplant(veg,casabiome,casapool,casaflux,casamet,climate)
         else
            vcmaxmax(npt) = vcmax_np(nleaf(npt), pleaf(npt))
         endif
+         
+        if (cable_user%finite_gm) then
+           if (ivt.eq.1) then
+              vcmaxmax(npt) = vcmaxmax(npt) * 2.2
+           elseif (ivt.eq.2) then
+              vcmaxmax(npt) = vcmaxmax(npt) * 1.9
+           elseif (ivt.eq.3) then
+              vcmaxmax(npt) = vcmaxmax(npt) * 1.4
+           elseif (ivt.eq.4) then
+              vcmaxmax(npt) = vcmaxmax(npt) * 1.45
+           elseif (ivt.eq.5) then
+              vcmaxmax(npt) = vcmaxmax(npt) * 1.7
+           elseif (ivt.eq.6 .OR. ivt.eq.8  .OR. ivt.eq.9) then
+              vcmaxmax(npt) = vcmaxmax(npt) * 1.6
+           endif
+        endif
+
         if (veg%iveg(npt).eq.2 .or. veg%iveg(npt).eq. 4  ) then 
            ! broadleaf forest
 

@@ -576,7 +576,7 @@ END SUBROUTINE write_casa_dump
           ENDIF
           veg%vcmax(np) =veg%vcmax(np)* xnslope(ivt)
        ENDIF
-
+       veg%ejmax = 2.0 * veg%vcmax
     elseif (TRIM(cable_user%vcmax).eq.'Walker2014') then
        !Walker, A. P. et al.: The relationship of leaf photosynthetic traits – Vcmax and Jmax – 
        !to leaf nitrogen, leaf phosphorus, and specific leaf area: 
@@ -585,10 +585,34 @@ END SUBROUTINE write_casa_dump
        !      0.282*log(pleafx(np))*log(nleafx(np))) * 1.0e-6
        nleafx(np) = ncleafx(np)/casabiome%sla(ivt) ! leaf N in g N m-2 leaf
        pleafx(np) = nleafx(np)/npleafx(np) ! leaf P in g P m-2 leaf
-       if (ivt .EQ. 7) then
+       if (ivt .EQ. 7 .OR.ivt .EQ. 9  ) then
           veg%vcmax(np) = 1.0e-5 ! special for C4 grass: set here to value from  parameter file
+          veg%ejmax = 2.0 * veg%vcmax
        else
           veg%vcmax(np) = vcmax_np(nleafx(np), pleafx(np))
+          veg%ejmax = 2.0 * veg%vcmax
+          if (cable_user%finite_gm) then
+              ! vcmax and jmax modifications according to Sun et al. 2014 Table S3
+             if (ivt.eq.1) then
+                veg%vcmax(np) = veg%vcmax(np) * 2.2
+                veg%ejmax(np) = veg%vcmax(np) * 1.1
+             elseif (ivt.eq.2) then
+                veg%vcmax(np) = veg%vcmax(np) * 1.9
+                veg%ejma(np)x = veg%vcma(np)x * 1.2
+             elseif (ivt.eq.3) then
+                veg%vcmax(np) = veg%vcmax(np) * 1.4
+                veg%ejmax(np) = veg%vcmax(np) * 1.5
+             elseif (ivt.eq.4) then
+                veg%vcmax(np) = veg%vcmax(np) * 1.45
+                veg%ejmax(np) = veg%vcmax(np) * 1.3
+             elseif (ivt.eq.5) then
+                veg%vcmax(np) = veg%vcmax(np) * 1.7
+                veg%ejmax(np) = veg%vcmax(np) * 1.2
+             elseif (ivt.eq.6 .OR. ivt.eq.8  .OR. ivt.eq.9) then
+                veg%vcmax(np) = veg%vcmax(np) * 1.6
+                veg%ejmax(np) = veg%vcmax(np) * 1.2
+             endif
+          endif
        endif
     else
        stop('invalid vcmax flag')
@@ -596,7 +620,6 @@ END SUBROUTINE write_casa_dump
   
   ENDDO
 
-  veg%ejmax = 2.0 * veg%vcmax
 !991 format(i6,2x,i4,2x,2(f9.3,2x))
  END SUBROUTINE casa_feedback
 

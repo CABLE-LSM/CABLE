@@ -133,7 +133,10 @@ CONTAINS
          gbhu,          & ! forcedConvectionBndryLayerCond
          gbhf,          & ! freeConvectionBndryLayerCond
          csx              ! leaf surface CO2 concentration
-
+    REAL(r_2), DIMENSION(:,:), POINTER ::  gmes  ! mesophyll conductance      
+    REAL, PARAMETER :: kg = 0.08997   ! 
+    !mesophyll conductance extinction coeff't (Sun et al. 2014 SI Eq S7)      
+    REAL :: gmax0 ! max mesophyll conductacne at canopy top  
     REAL  :: rt_min
     REAL, DIMENSION(mp)       :: zstar, rL, phist, csw, psihat,rt0bus
 
@@ -156,6 +159,7 @@ CONTAINS
     ALLOCATE( ecy(mp), hcy(mp), rny(mp))
     ALLOCATE( gbhf(mp,mf), csx(mp,mf))
     ALLOCATE( ghwet(mp))
+    ALLOCATE( gmes(mp,mf))
 
     ! BATS-type canopy saturation proportional to LAI:
     cansat = veg%canst1 * canopy%vlaiw
@@ -344,6 +348,33 @@ CONTAINS
              gbhu(j,2) = (2.0/rough%coexp(j))*gbvtop(j)*  &
                   (1.0-EXP(-min(0.5*rough%coexp(j)*canopy%vlaiw(j),20.0))) &
                   - gbhu(j,1)
+
+             if (cable_user%finite_gm) then
+                gmax0 = 2.47/10.1 ! molm-2s-1 
+                if (veg%iveg(j).eq.1) then
+                   gmax0 = 1.21/10.1
+                elseif (veg%iveg(j).eq.2) then
+                   gmax0 = 1.36/10.1
+                elseif (veg%iveg(j).eq.3) then
+                   gmax0 = 2.14/10.1
+                endif
+
+                gmes(j,1) = gmax0 * xgmesT(tlfx(j)) * &
+                     rad%extkb(j)/(rad%extkb(j)+kg) * &
+                     (1 - exp(-(rad%extkb(j)+kg)*canopy%vlaiw(j))) / &
+                     (1 - exp( -kg*canopy%vlaiw(j)))
+                
+                
+                gmes(j,2) = gmax0 * xgmesT(tlfx(j)) * &
+                     (rad%extkb(j)/kg/(rad%extkb(j)+kg)) * &
+                     (rad%extkb(j) - (rad%extkb(j)+kg)*exp(-kg*canopy%vlaiw(j)) + &
+                     kg*exp(-(kg+rad%extkb(j))*canopy%vlaiw(j)))/ &
+                     (exp(-rad%extkb(j)*canopy%vlaiw(j)) - 1 + rad%extkb(j)*canopy%vlaiw(j))
+!!$                
+!!$                if ( j.eq.1 .and. met%hod(1) .eq.12) then
+!!$                   write(3335,"(200e16.6)") canopy%fwsoil(j) , tlfx(j),xgmesT(tlfx(j)),  gmes(j,1) , gmes(j,2)
+!!$                endif
+             endif              !
           ENDIF
 
        ENDDO
@@ -358,7 +389,7 @@ CONTAINS
             veg, canopy, soil, ssnow, dsx,                             &
             fwsoil, tlfx, tlfy, ecy, hcy,                              &
             rny, gbhu, gbhf, csx, cansat,                              &
-            ghwet,  iter,climate )
+            ghwet,  iter,climate, gmes )
 
 
 
@@ -1374,7 +1405,7 @@ CONTAINS
        veg, canopy, soil, ssnow, dsx,                             &
        fwsoil, tlfx,  tlfy,  ecy, hcy,                            &
        rny, gbhu, gbhf, csx,                                      &
-       cansat, ghwet, iter,climate )
+       cansat, ghwet, iter,climate, gmes )
 
     USE cable_def_types_mod
     USE cable_common_module
@@ -1404,7 +1435,10 @@ CONTAINS
     REAL(R_2),INTENT(INOUT), DIMENSION(:,:) ::                                  &
          gbhu,       & ! forcedConvectionBndryLayerCond
          gbhf,       & ! freeConvectionBndryLayerCond
-         csx           ! leaf surface CO2 concentration
+         csx  ! leaf surface CO2 concentration
+
+     REAL(R_2),INTENT(IN), DIMENSION(:,:) ::                                  & 
+         gmes             ! mesophyll conductance
 
     REAL,INTENT(IN), DIMENSION(:) :: cansat
 
@@ -1691,33 +1725,60 @@ CONTAINS
                  !1.2877 + (0.0116 × Vcmax,a25) – (0.0334 × TWQ)
                  !Shrubs: Rdark,a25 = 1.5758 + (0.0116 × Vcmax,a25) – (0.0334 × TWQ)
 
-              if (veg%iveg(i).eq.2  ) then ! evergreen broadleaf forest
+             if (veg%iveg(i).eq.2  ) then ! evergreen broadleaf forest
 
                 rdx(i,1) = 0.50*(1.2818e-6+0.0116*veg%vcmax(i)- &
                      0.0334*climate%qtemp_max_last_year(i)*1e-6)
+
+                if (cable_user%finite_gm) then
+                   rdx(i,1) = 0.50*(1.2818e-6+0.0116*veg%vcmax(i)/1.9- &
+                     0.0334*climate%qtemp_max_last_year(i)*1e-6)
+                endif
+
                 rdx(i,2) = rdx(i,1)
 
              elseif ( veg%iveg(i).eq. 4  ) then ! decid broadleaf forest
 
                 rdx(i,1) = 1.0*(1.2818e-6+0.0116*veg%vcmax(i)- &
                      0.0334*climate%qtemp_max_last_year(i)*1e-6)
+                if (cable_user%finite_gm) then
+                   rdx(i,1) = 1.0*(1.2818e-6+0.0116*veg%vcmax(i)/1.45- &
+                     0.0334*climate%qtemp_max_last_year(i)*1e-6)
+                endif
                 rdx(i,2) = rdx(i,1)
 
              elseif (veg%iveg(i).eq.1   ) then ! evergreen needleleaf forest
                  rdx(i,1) = 1.0*(1.2877e-6+0.0116*climate%frec(i)*veg%vcmax(i)- &
                       0.0334*climate%qtemp_max_last_year(i)*1e-6)
+
+                 if (cable_user%finite_gm) then
+                    rdx(i,1) = 1.0*(1.2877e-6+0.0116*climate%frec(i)*veg%vcmax(i)/2.2- &
+                         0.0334*climate%qtemp_max_last_year(i)*1e-6)
+                 endif
+
+
                  rdx(i,2) = rdx(i,1)
 
 
               elseif ( veg%iveg(i).eq. 3  ) then ! decid needleleaf forest
                  rdx(i,1) = 1.0*(1.2877e-6+0.0116*veg%vcmax(i)- &
                       0.0334*climate%qtemp_max_last_year(i)*1e-6)
+                 if (cable_user%finite_gm) then
+                    rdx(i,1) = 1.0*(1.2877e-6+0.0116*veg%vcmax(i)/1.4- &
+                      0.0334*climate%qtemp_max_last_year(i)*1e-6)
+                 endif
+
                  rdx(i,2) = rdx(i,1)
 
               elseif (veg%iveg(i).eq.6 .or. veg%iveg(i).eq.8 .or. &
                  veg%iveg(i).eq. 9  ) then ! C3 grass, tundra, crop
                  rdx(i,1) = 0.8*(1.6737e-6+0.0116*veg%vcmax(i)- &
                       0.0334*climate%qtemp_max_last_year(i)*1e-6)
+
+                 if (cable_user%finite_gm) then
+                    rdx(i,1) = 0.8*(1.6737e-6+0.0116*veg%vcmax(i)/1.6- &
+                      0.0334*climate%qtemp_max_last_year(i)*1e-6)
+                 endif
                  rdx(i,2) = rdx(i,1)
 
               else  ! shrubs and other (C4 grass and crop)
@@ -1810,15 +1871,28 @@ CONTAINS
           
        ENDDO !i=1,mp
 
-       CALL photosynthesis( csx(:,:),                                           &
-                           SPREAD( cx1(:), 2, mf ),                            &
-                           SPREAD( cx2(:), 2, mf ),                            &
-                           gswmin(:,:), rdx(:,:), vcmxt3(:,:),                 &
-                           vcmxt4(:,:), vx3(:,:), vx4(:,:),                    &
-                           ! Ticket #56, xleuning replaced with gs_coeff here
-                           gs_coeff(:,:), rad%fvlai(:,:),& 
-                           SPREAD( abs_deltlf, 2, mf ),                        &
-                           anx(:,:), fwsoil(:), met )
+       if (cable_user%finite_gm) then
+          CALL photosynthesis_gm( csx(:,:),                                           &
+               SPREAD( cx1(:), 2, mf ),                            &
+               SPREAD( cx2(:), 2, mf ),                            &
+               gswmin(:,:), rdx(:,:), vcmxt3(:,:),                 &
+               vcmxt4(:,:), vx3(:,:), vx4(:,:),                    &
+               ! Ticket #56, xleuning replaced with gs_coeff here
+               gs_coeff(:,:), rad%fvlai(:,:),& 
+               SPREAD( abs_deltlf, 2, mf ),                        &
+               anx(:,:), fwsoil(:),gmes(:,:), met )
+       ELSE
+          CALL photosynthesis( csx(:,:),                                           &
+               SPREAD( cx1(:), 2, mf ),                            &
+               SPREAD( cx2(:), 2, mf ),                            &
+               gswmin(:,:), rdx(:,:), vcmxt3(:,:),                 &
+               vcmxt4(:,:), vx3(:,:), vx4(:,:),                    &
+               ! Ticket #56, xleuning replaced with gs_coeff here
+               gs_coeff(:,:), rad%fvlai(:,:),& 
+               SPREAD( abs_deltlf, 2, mf ),                        &
+               anx(:,:), fwsoil(:), met )
+       ENDIF
+
 
 
        DO i=1,mp
@@ -2163,7 +2237,7 @@ CONTAINS
                    ciz(i,j) = ( -coef1z(i,j) + SQRT( MAX( 0.0_r_2 ,             &
                         delcxz(i,j) ) ) ) / ( 2.0*coef2z(i,j) )
 
-                   ciz(i,j) = MAX( 0.0_r_2, ciz(i,j) )   ! must be positive (concnetration always +ve)
+                   ciz(i,j) = MAX( 0.0_r_2, ciz(i,j) )   ! must be positive (concentration always +ve)
 
                    anrubiscoz(i,j) = vcmxt3z(i,j) * ( ciz(i,j) - cx2z(i,j)      &
                         / 2.0)  / ( ciz(i,j) + cx1z(i,j) ) +       &
@@ -2187,7 +2261,7 @@ CONTAINS
                               * ( vx3z(i,j) * cx2z(i,j) / 2.0 + cx2z(i,j) *     &
                               ( rdxz(i,j) - vx4z(i,j) ) )                          
                               
-                              coef0z(i,j) = -(1.0-csxz(i,j)*gs_coeffz(i,j)) *   &
+                coef0z(i,j) = -(1.0-csxz(i,j)*gs_coeffz(i,j)) *   &
                               (vx3z(i,j)*cx2z(i,j)/2.0                          &
                               + cx2z(i,j)*(rdxz(i,j)-vx4z(i,j)))                &
                           - (gswminz(i,j)*fwsoilz(i)/C%RGSWC)*cx2z(i,j)*csxz(i,j)
@@ -2291,6 +2365,360 @@ CONTAINS
 
   ! ------------------------------------------------------------------------------
 
+  ! vh adpatation of photosynthesis calculation to 
+  !account for finite mesophyll conductance (gm)
+  SUBROUTINE photosynthesis_gm( csxz, cx1z, cx2z, gswminz,                          &
+       rdxz, vcmxt3z, vcmxt4z, vx3z,                       &
+       vx4z, gs_coeffz, vlaiz, deltlfz, anxz, fwsoilz, &
+       gmes,met )
+    USE cable_def_types_mod, only : mp, mf, r_2, met_type
+    
+    REAL(r_2), DIMENSION(mp,mf), INTENT(IN) :: csxz, gmes
+    TYPE (met_type),       INTENT(IN) :: met
+    REAL, DIMENSION(mp,mf), INTENT(IN) ::                                       &
+         cx1z,       & !
+         cx2z,       & !
+         gswminz,    & !
+         rdxz,       & !
+         vcmxt3z,    & !
+         vcmxt4z,    & !
+         vx4z,       & !
+         vx3z,       & !
+         gs_coeffz,  & ! Ticket #56, xleuningz repalced with gs_coeffz
+         vlaiz,      & !
+         deltlfz
+
+    REAL, DIMENSION(mp,mf), INTENT(INOUT) :: anxz
+
+    ! local variables
+    REAL(r_2), DIMENSION(mp,mf) ::                                              &
+         coef0z,coef1z,coef2z, ciz,delcxz,                                        &
+         anrubiscoz,anrubpz,ansinkz
+
+    REAL, DIMENSION(mp) :: fwsoilz
+
+    REAL, PARAMETER  :: effc4 = 4000.0  ! Vc=effc4*Ci*Vcmax (see
+    ! Bonan,LSM version 1.0, p106)
+
+    REAL(r_2) :: gamma, beta, gammast, gm, g0, X, Rd, cs
+    REAL(r_2) :: a0, a1, a2, ap0, ap1, ap2,ap3, cc, x1, x2, x3
+    REAL(r_2) :: Q, R,a, b, c1
+    INTEGER :: i,j
+    logical :: gmflag
+
+    DO i=1,mp
+
+       !IF (sum(vlaiz(i,:)) .GT. C%LAI_THRESH.and.fwsoilz(i).gt.1.e-3) THEN
+       IF (sum(vlaiz(i,:)) .GT. C%LAI_THRESH) THEN
+          DO j=1,mf
+
+             IF( vlaiz(i,j) .GT. C%LAI_THRESH .AND. deltlfz(i,j) .GT. 0.1) THEN
+
+             ! Rubisco limited:
+             gmflag = .FALSE.
+             if ( vcmxt3z(i,j).gt.0.0) then  ! C3
+
+               gamma =  vcmxt3z(i,j)
+               beta = cx1z(i,j)
+               X = gs_coeffz(i,j) 
+               g0 = gswminz(i,j)*fwsoilz(i) / C%RGSWC
+               cs = csxz(i,j)
+               gammast = cx2z(i,j)/2.0 
+               Rd = rdxz(i,j)
+               gm = gmes(i,j)
+
+              ! coefficients of Cubic polynomial 
+               !(x = Cc ; concentration of CO2 in choloroplast)
+              ! ap0 + ap1*x + ap2*x**2 + ap3*3
+
+               ap0 = -(beta*(8*gm*(gamma*gammast + beta*Rd) &
+                    + 5*g0*(gamma*gammast + beta*(cs*gm + Rd)))) &
+                    + 5*(gamma*gammast + beta*Rd)*(gamma*gammast + beta*(cs*gm + Rd))*X
+
+
+               ap1 =  5*beta**2*gm*(g0 - Rd*X) + gamma*gammast*(-5*g0 + 10*(-gamma + Rd)*X &
+                    + gm*(-8 + 5*cs*X)) + &
+               beta*(8*gamma*gm + 5*g0*(gamma - 2*(cs*gm + Rd)) &
+               - 5*gamma*((cs + gammast)*gm + 2*Rd)*X + 2*Rd*(-8*gm + 5*(cs*gm + Rd)*X))
+
+               ap2 = 8*gm*(gamma - Rd) + 5*g0*(gamma + 2*beta*gm - cs*gm - Rd) &
+                    + 5*(gamma**2 + gamma*(beta*gm - (cs + gammast)*gm - 2*Rd) + &
+                    Rd*(-2*beta*gm + cs*gm + Rd))*X;
+
+               ap3 = 5*gm*(g0 + (gamma - Rd)*X);
+
+                
+              !convert to form a0 + a1*x + a2*x**2 + x**3
+               a0 = ap0/ap3
+               a1 = ap1/ap3
+               a2 = ap2/ap3
+
+               ! solve for x
+               call cubic_root_solver(a0,a1,a2,x1,x2,x3)
+               cc = max(x1,x2,x3)
+               if (cc.gt.0.0 .and. cc.lt.cs) then
+                  gmflag = .TRUE.
+                  ciz(i,j) = cc
+                  anrubiscoz(i,j) = gamma*(cc - gammast)/(cc + beta) - Rd
+               else
+                  gmflag = .FALSE.
+               endif
+               
+            endif  ! end Rubisco limited  c3 calculation that accounts for mesophyll conductance
+
+
+            if (vcmxt4z(i,j).gt.0.0 .OR. (.NOT.gmflag)) then ! C4 only
+
+                coef2z(i,j) = gswminz(i,j)*fwsoilz(i) / C%RGSWC + gs_coeffz(i,j) * &
+                              ( vcmxt3z(i,j) - ( rdxz(i,j)-vcmxt4z(i,j) ) )
+
+                coef1z(i,j) = (1.0-csxz(i,j)*gs_coeffz(i,j)) *                  &
+                              (vcmxt3z(i,j)+vcmxt4z(i,j)-rdxz(i,j))             &
+                              + (gswminz(i,j)*fwsoilz(i)/C%RGSWC)*(cx1z(i,j)-csxz(i,j)) &
+                              - gs_coeffz(i,j)*(vcmxt3z(i,j)*cx2z(i,j)/2.0      &
+                              + cx1z(i,j)*(rdxz(i,j)-vcmxt4z(i,j) ) )
+                
+                 
+                coef0z(i,j) = -(1.0-csxz(i,j)*gs_coeffz(i,j)) *                 &    
+                              (vcmxt3z(i,j)*cx2z(i,j)/2.0                       &
+                              + cx1z(i,j)*( rdxz(i,j)-vcmxt4z(i,j ) ) )         &
+                              -( gswminz(i,j)*fwsoilz(i)/C%RGSWC ) * cx1z(i,j)*csxz(i,j)
+
+
+
+                ! kdcorbin,09/10 - new calculations
+                IF( ABS(coef2z(i,j)) .GT. 1.0e-9 .AND. &
+                     ABS(coef1z(i,j)) .LT. 1.0e-9) THEN
+
+                   ! no solution, give it a huge number as
+                   ! quadratic below cannot handle zero denominator
+                   ciz(i,j) = 99999.0
+
+                   anrubiscoz(i,j) = 99999.0 ! OR do ciz=0 and calc anrubiscoz
+
+                ENDIF
+
+                ! solve linearly
+                IF( ABS( coef2z(i,j) ) < 1.e-9 .AND.                            &
+                     ABS( coef1z(i,j) ) >= 1e-9 ) THEN
+
+                   ! same reason as above
+                   ciz(i,j) = -1.0 * coef0z(i,j) / coef1z(i,j)
+
+                   ciz(i,j) = MAX( 0.0_r_2, ciz(i,j) )
+
+                   anrubiscoz(i,j) = vcmxt3z(i,j)*(ciz(i,j)-cx2z(i,j) / 2.0 ) / &
+                        ( ciz(i,j) + cx1z(i,j)) + vcmxt4z(i,j) -   &
+                        rdxz(i,j)
+
+                ENDIF
+
+                ! solve quadratic (only take the more positive solution)
+                IF( ABS( coef2z(i,j) ) >= 1.e-9 ) THEN
+
+                   delcxz(i,j) = coef1z(i,j)**2 -4.0 * coef0z(i,j)              &
+                        * coef2z(i,j)
+
+                   ciz(i,j) = ( -coef1z(i,j) + SQRT( MAX( 0.0_r_2 ,             &
+                        delcxz(i,j) ) ) ) / ( 2.0*coef2z(i,j) )
+
+                   ciz(i,j) = MAX( 0.0_r_2, ciz(i,j) )   ! must be positive (concentration always +ve)
+
+                   anrubiscoz(i,j) = vcmxt3z(i,j) * ( ciz(i,j) - cx2z(i,j)      &
+                        / 2.0)  / ( ciz(i,j) + cx1z(i,j) ) +       &
+                        vcmxt4z(i,j) - rdxz(i,j)
+
+                ENDIF
+             endif  ! end Rubisco limited  c4 calculation 
+   
+!!$             if (i.eq.1 .and. j.eq.1 .and. met%hod(1) .eq.12) then
+!!$                write(3333,"(200e16.6)"),   anrubiscoz(i,j),ciz(i,j),cc, gamma, beta,gm
+!!$             endif
+             
+             ! RuBP limited:
+             gmflag = .FALSE.
+             if ( vcmxt3z(i,j).gt.0.0) then  ! C3
+
+               gamma =   vx3z(i,j)
+               beta = cx2z(i,j)
+               X = gs_coeffz(i,j) 
+               g0 = gswminz(i,j)*fwsoilz(i) / C%RGSWC
+               cs = csxz(i,j)
+               gammast = cx2z(i,j)/2.0 
+               Rd = rdxz(i,j)
+             
+
+              ! coefficients of Cubic polynomial 
+               !(x = Cc ; concentration of CO2 in choloroplast)
+              ! ap0 + ap1*x + ap2*x**2 + ap3*3
+
+               ap0 = -(beta*(8*gm*(gamma*gammast + beta*Rd) &
+                    + 5*g0*(gamma*gammast + beta*(cs*gm + Rd)))) &
+                    + 5*(gamma*gammast + beta*Rd)*(gamma*gammast + beta*(cs*gm + Rd))*X
+
+
+               ap1 =  5*beta**2*gm*(g0 - Rd*X) + gamma*gammast*(-5*g0 + 10*(-gamma + Rd)*X &
+                    + gm*(-8 + 5*cs*X)) + &
+               beta*(8*gamma*gm + 5*g0*(gamma - 2*(cs*gm + Rd)) &
+               - 5*gamma*((cs + gammast)*gm + 2*Rd)*X + 2*Rd*(-8*gm + 5*(cs*gm + Rd)*X))
+
+               ap2 = 8*gm*(gamma - Rd) + 5*g0*(gamma + 2*beta*gm - cs*gm - Rd) &
+                    + 5*(gamma**2 + gamma*(beta*gm - (cs + gammast)*gm - 2*Rd) + &
+                    Rd*(-2*beta*gm + cs*gm + Rd))*X;
+
+               ap3 = 5*gm*(g0 + (gamma - Rd)*X);
+
+                
+              !convert to form a0 + a1*x + a2*x**2 + x**3
+               a0 = ap0/ap3
+               a1 = ap1/ap3
+               a2 = ap2/ap3
+
+               a = a2
+               b = a1
+               c1 = a0
+
+               Q = (a**2 - 3*b)/9
+               R = (2*a**3 - 9*a*b + 27*c1)/54
+
+               ! solve for x
+               call cubic_root_solver(a0,a1,a2,x1,x2,x3)
+               cc = max(x1,x2,x3)
+               if (cc.gt.0.0 .and. cc.lt.cs) then
+                  gmflag = .TRUE.
+                  ciz(i,j) = cc
+                  anrubpz(i,j) = gamma*(cc - gammast)/(cc + beta) - Rd
+               else
+                  gmflag = .FALSE.
+               endif
+            
+            endif  ! end RuBp c3 calculation that accounts for mesophyll conductance
+
+             
+            if (vcmxt4z(i,j).gt.0.0 .OR. (.NOT.gmflag)) then ! C4 only
+            
+                coef2z(i,j) = gswminz(i,j)*fwsoilz(i) / C%RGSWC + gs_coeffz(i,j) &
+                              * ( vx3z(i,j) - ( rdxz(i,j) - vx4z(i,j) ) )
+    
+                coef1z(i,j) = ( 1.0 - csxz(i,j) * gs_coeffz(i,j) ) *            &
+                              ( vx3z(i,j) + vx4z(i,j) - rdxz(i,j) )             &
+                              + ( gswminz(i,j)*fwsoilz(i) / C%RGSWC ) *          &
+                              ( cx2z(i,j) - csxz(i,j) ) - gs_coeffz(i,j)        &
+                              * ( vx3z(i,j) * cx2z(i,j) / 2.0 + cx2z(i,j) *     &
+                              ( rdxz(i,j) - vx4z(i,j) ) )                          
+                              
+                coef0z(i,j) = -(1.0-csxz(i,j)*gs_coeffz(i,j)) *   &
+                              (vx3z(i,j)*cx2z(i,j)/2.0                          &
+                              + cx2z(i,j)*(rdxz(i,j)-vx4z(i,j)))                &
+                          - (gswminz(i,j)*fwsoilz(i)/C%RGSWC)*cx2z(i,j)*csxz(i,j)
+
+
+                !kdcorbin, 09/10 - new calculations
+                ! no solution, give it a huge number
+                IF( ABS( coef2z(i,j) ) < 1.0e-9 .AND.                           &
+                     ABS( coef1z(i,j) ) < 1.0e-9 ) THEN
+
+                   ciz(i,j) = 99999.0
+                   anrubpz(i,j)  = 99999.0
+
+                ENDIF
+
+                ! solve linearly
+                IF( ABS( coef2z(i,j) ) < 1.e-9 .AND.                            &
+                     ABS( coef1z(i,j) ) >= 1.e-9) THEN
+
+                   ciz(i,j) = -1.0 * coef0z(i,j) / coef1z(i,j)
+
+                   ciz(i,j) = MAX(0.0_r_2,ciz(i,j))
+
+                   anrubpz(i,j) = vx3z(i,j)*(ciz(i,j)-cx2z(i,j)/2.0) /          &
+                        (ciz(i,j)+cx2z(i,j)) +vx4z(i,j)-rdxz(i,j)
+
+                ENDIF
+
+                ! solve quadratic (only take the more positive solution)
+                IF ( ABS( coef2z(i,j)) >= 1.e-9 ) THEN
+
+                   delcxz(i,j) = coef1z(i,j)**2 -4.0*coef0z(i,j)*coef2z(i,j)
+
+                   ciz(i,j) = (-coef1z(i,j)+SQRT(MAX(0.0_r_2,delcxz(i,j))))     &
+                        /(2.0*coef2z(i,j))
+
+                   ciz(i,j) = MAX(0.0_r_2,ciz(i,j))
+
+                   anrubpz(i,j)  = vx3z(i,j)*(ciz(i,j)-cx2z(i,j)/2.0) /         &
+                        (ciz(i,j)+cx2z(i,j)) +vx4z(i,j)-rdxz(i,j)
+
+                ENDIF
+             endif ! end RuBp calc
+
+!!$if (i.eq.1 .and. j.eq.1 .and. met%hod(1) .eq.12) then
+!!$ write(3334,"(200e16.6)"),   anrubpz(i,j),ciz(i,j),cc, gamma, beta,gammast,Rd,cs,g0
+!!$endif
+                ! Sink limited:
+                coef2z(i,j) = gs_coeffz(i,j)
+                
+                coef1z(i,j) = gswminz(i,j)*fwsoilz(i)/C%RGSWC + gs_coeffz(i,j)   &
+                              * (rdxz(i,j) - 0.5*vcmxt3z(i,j))                  &
+                              + effc4 * vcmxt4z(i,j) - gs_coeffz(i,j)           &
+                              * csxz(i,j) * effc4 * vcmxt4z(i,j)  
+                                             
+                coef0z(i,j) = -( gswminz(i,j)*fwsoilz(i)/C%RGSWC )*csxz(i,j)*effc4 &
+                              * vcmxt4z(i,j) + ( rdxz(i,j)                      &
+                            - 0.5 * vcmxt3z(i,j)) * gswminz(i,j)*fwsoilz(i)/C%RGSWC
+  
+                ! no solution, give it a huge number
+                IF( ABS( coef2z(i,j) ) < 1.0e-9 .AND.                           &
+                     ABS( coef1z(i,j)) < 1.0e-9 ) THEN
+
+                   ciz(i,j) = 99999.0
+                   ansinkz(i,j)  = 99999.0
+
+                ENDIF
+
+                ! solve linearly
+                IF( ABS( coef2z(i,j) ) < 1.e-9 .AND.                            &
+                     ABS( coef1z(i,j) ) >= 1.e-9 ) THEN
+
+                   ciz(i,j) = -1.0 * coef0z(i,j) / coef1z(i,j)
+                   ansinkz(i,j)  = ciz(i,j)
+
+                ENDIF
+
+                ! solve quadratic (only take the more positive solution)
+                IF( ABS( coef2z(i,j) ) >= 1.e-9 ) THEN
+
+                   delcxz(i,j) = coef1z(i,j)**2 -4.0*coef0z(i,j)*coef2z(i,j)
+
+                   ciz(i,j) = (-coef1z(i,j)+SQRT (MAX(0.0_r_2,delcxz(i,j)) ) )  &
+                        / ( 2.0 * coef2z(i,j) )
+
+                   ansinkz(i,j) = ciz(i,j)
+
+                ENDIF
+
+                ! minimal of three limited rates
+                anxz(i,j) = MIN(anrubiscoz(i,j),anrubpz(i,j),ansinkz(i,j))
+
+
+             ENDIF
+
+          ENDDO
+
+       ENDIF
+
+    ENDDO
+
+
+
+  END SUBROUTINE photosynthesis_gm
+
+  ! ------------------------------------------------------------------------------
+
+
+
+
+
   FUNCTION ej3x(parx,alpha,convex,x) RESULT(z)
 
     REAL, INTENT(IN)     :: parx
@@ -2337,6 +2765,38 @@ CONTAINS
 
  
   END FUNCTION xvcmxt4
+
+  ! ------------------------------------------------------------------------------
+
+  FUNCTION xgmesT(x) RESULT(z)
+
+    !  Sun et al. 2104 SI Eq S8 for temperature response
+    !  of mesophyll conductance
+    REAL, INTENT(IN) :: x
+    REAL :: xnum,xden,z
+
+! original parameters (4-fold T increase between 15 & 40 degC)
+!!$    REAL, PARAMETER:: C0 = 20.0  ! Sun et al. 2014 SI Eq S8
+!!$    REAL, PARAMETER  :: EHa  = 49.6e3  ! J/mol 
+!!$    REAL, PARAMETER  :: EHd  = 437.4e3 ! J/mol 
+!!$    REAL, PARAMETER  :: Entrop = 1.4e3  ! J/mol/K 
+
+
+
+! modified parameters (1.5-fold T increase between 15 & 40 degC)
+    REAL, PARAMETER:: C0 = 6.35  ! Sun et al. 2014 SI Eq S8
+    REAL, PARAMETER  :: EHa  = 15.6e3  ! J/mol 
+    REAL, PARAMETER  :: EHd  = 445.4e3 ! J/mol 
+    REAL, PARAMETER  :: Entrop = 1.4e3  ! J/mol/K 
+
+
+    
+    xnum=exp(C0 - eha / ( C%rgas*x ) )
+    xden=1.0+exp( ( entrop*x-ehd ) / ( C%rgas*x ) )
+    z = max( 0.0,xnum / xden )
+  
+ 
+  END FUNCTION xgmesT
 
   ! ------------------------------------------------------------------------------
 
@@ -2623,6 +3083,36 @@ CONTAINS
     endif
 
   END SUBROUTINE getrex_1d
-  !*********************************************************************************************************************
+!*****************************************************************************************
+SUBROUTINE cubic_root_solver(a0,a1,a2,x1,x2,x3)
+USE cable_def_types_mod, only: r_2
+REAL(r_2), INTENT(IN) :: a0,a1,a2
+REAL(r_2), INTENT(OUT) :: x1,x2,x3
+REAL(r_2) :: Q, R, theta, a, b, c
+real :: pi_c = 3.1415927
+a = a2
+b = a1
+c = a0
+
+Q = (a**2 - 3*b)/9
+R = (2*a**3 - 9*a*b + 27*c)/54
+
+if (R**2 .lt. Q**2) then
+   theta = acos(R/(Q**3)**0.5)
+   x1 = -2 * (Q**0.5)*cos(theta/3) - a/3
+   x2 = -2 * (Q**0.5)*cos((theta+2*pi_c)/3) - a/3
+   x3 = -2 * (Q**0.5)*cos((theta-2*pi_c)/3) - a/3
+
+else
+   x1 = 9999.0
+   x2 = 9999.0
+   x3 = 9999.0
+
+endif
+
+
+
+END SUBROUTINE cubic_root_solver
+!*****************************************************************************************
 
 END MODULE cable_canopy_module
