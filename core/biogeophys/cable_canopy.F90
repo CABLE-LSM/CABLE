@@ -1022,6 +1022,12 @@ CONTAINS
 
       ENDDO
 
+!!$ write(3355,"(200e16.6)") ( qstvair - met%qv ) *  C%rmair/C%RMH2o         &
+!!$                 * met%pmb * 100.
+!!$ write(3356,"(200e16.6)") ( qstvair - met%qvair ) *  C%rmair/C%RMH2o         &
+!!$                 * met%pmb * 100.
+!!$write(3357,"(200e16.6)") canopy%fwsoil
+!!$write(3358,"(200e16.6)") veg%gamma
     END SUBROUTINE within_canopy
 
     ! -----------------------------------------------------------------------------
@@ -1847,6 +1853,7 @@ CONTAINS
                     vpd  = 0.05 ! kPa
                 ELSE
                     vpd = dsx(i) * 1E-03 ! Pa -> kPa  
+                    !vpd = met%dva(i) * 1E-03 ! Pa -> kPa  
                 END IF
 
                 g1 = veg%g1(i)
@@ -2075,7 +2082,7 @@ CONTAINS
 !!$  write(3348,"(200e16.6)") rad%fvlai(:,1)
 !!$  write(3349,"(200e16.6)") rad%fvlai(:,2)
 !!$  write(3350,"(200e16.6)") dsx
-!!$  write(3351,"(200e16.6)") fwsoil
+!!$  write(3351,"(200e16.6)") ecx
 !!$  write(3352,"(200e16.6)") met%hod
 !!$  write(3353,"(200e16.6)") an_y(:,1)
 !!$  write(3354,"(200e16.6)") an_y(:,2)

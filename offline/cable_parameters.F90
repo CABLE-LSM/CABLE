@@ -1269,6 +1269,7 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
           veg%d0gs(h)   = vegin%d0gs(veg%iveg(h))
           veg%alpha(h)  = vegin%alpha(veg%iveg(h))
           if (cable_user%POPLUC) THEN
+
              if (LUC_EXPT%biome(e).eq.4 .and.veg%iveg(h).eq.2 ) THEN
                 veg%alpha(h) = 0.09  
                 veg%d0gs(h) = 1500.0
@@ -1420,7 +1421,12 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
       END IF
 
       IF(cable_user%SOIL_STRUC=='sli'.or.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
-         veg%gamma = 3.e-2
+
+        ! where (veg%iveg.eq.2 ) 
+        !    veg%gamma = 1.e-2
+        ! elsewhere
+            veg%gamma = 3.e-2
+        !endwhere
          !veg%clitt = 5.0 ! (tC / ha)
       ENDIF
 !! vh_js !!

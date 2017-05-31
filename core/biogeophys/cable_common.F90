@@ -107,7 +107,7 @@ MODULE cable_common_module
           Climate_fromZero       = .FALSE., &
           CASA_fromZero          = .FALSE., &
           POPLUC                 = .FALSE., &
-          finite_gm              = .FALSE.     ! finite mesophyll conductance
+          finite_gm              = .TRUE.     ! finite mesophyll conductance
     
      INTEGER  :: &
           CASA_SPIN_STARTYEAR = 1950, &

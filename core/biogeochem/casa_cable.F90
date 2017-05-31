@@ -598,7 +598,7 @@ END SUBROUTINE write_casa_dump
                 veg%ejmax(np) = veg%vcmax(np) * 1.1
              elseif (ivt.eq.2) then
                 veg%vcmax(np) = veg%vcmax(np) * 1.9
-                veg%ejma(np)x = veg%vcma(np)x * 1.2
+                veg%ejmax(np) = veg%vcmax(np) * 1.2
              elseif (ivt.eq.3) then
                 veg%vcmax(np) = veg%vcmax(np) * 1.4
                 veg%ejmax(np) = veg%vcmax(np) * 1.5
