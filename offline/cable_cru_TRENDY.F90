@@ -38,7 +38,7 @@ MODULE CABLE_CRU
     LOGICAL  :: LeapYears      ! Flag for whether leaps years occur, required by CABLE. Always false for CRUNCEP (no Feb 29th) 
     LOGICAL,DIMENSION(:,:),ALLOCATABLE :: LandMask ! Logical landmask, true for land, false for non-land
   !
-    CHARACTER(len=20)  :: Run            ! Where run type is      : "S0_TRENDY", "S1_TRENDY", "S2_TRENDY"
+    CHARACTER(len=30)  :: Run            ! Where run type is      : "S0_TRENDY", "S1_TRENDY", "S2_TRENDY"
     CHARACTER(len=15)  :: CO2            ! CO2 takes value        : "static1860", "1860_1900", "1901_2015" 
     CHARACTER(len=15)  :: Ndep            ! Ndep takes value        : "static1860", "1860_1900", "1901_2015"
     CHARACTER(len=15)  :: Forcing        ! Met Forcing takes value: "spinup",        "spinup", "1901_2015" 
@@ -121,7 +121,7 @@ CONTAINS
     ! Temporary local names for CRU% variables as they are read from the namelist file. 
     ! Note that CRU%CO2 and CRU%Forcing are assigned based on the value of Run, not read as options from the namelist file.
     LOGICAL              :: DirectRead = .FALSE.
-    CHARACTER(len=20)    :: Run 
+    CHARACTER(len=30)    :: Run 
     CHARACTER(len=200)   :: BasePath
     CHARACTER(len=200)   :: MetPath
     CHARACTER(len=200)   :: LandMaskFile
@@ -645,10 +645,18 @@ END SUBROUTINE GET_CRU_Ndep
         ELSE
            MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
         ENDIF
-     ELSEIF  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Temp' .OR. &
-          TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Temp'.OR. &
-          TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Temp_Precip'.OR. &
+
+        IF  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Temp_Precip'.OR. &
           TRIM(CRU%Run) .EQ. 'S0_TRENDY_Temp_Precip' ) THEN
+           IF (iVar.EQ.6 .OR. iVar.EQ.7) THEN
+              MetYear = CRU%CYEAR
+           ELSE
+              MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
+           ENDIF
+        ENDIF
+
+     ELSEIF  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Temp' .OR. &
+          TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Temp' ) THEN
 
         IF (iVar.EQ.6 .OR. iVar.EQ.7) THEN
            MetYear = CRU%CYEAR
@@ -770,10 +778,17 @@ END SUBROUTINE GET_CRU_Ndep
         ELSE
            MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
         ENDIF
+        IF  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Temp_Precip'.OR. &
+             TRIM(CRU%Run) .EQ. 'S0_TRENDY_Temp_Precip' ) THEN
+           IF (iVar.EQ.6 .OR. iVar.EQ.7) THEN
+              MetYear = CRU%CYEAR
+           ELSE
+              MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
+           ENDIF
+        ENDIF
+
      ELSEIF  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Temp' &
-          .OR.  TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Temp'.OR. &
-          TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Temp_Precip' .OR. &
-          TRIM(CRU%Run) .EQ. 'S0_TRENDY_Temp_Precip' ) THEN
+          .OR.  TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Temp') THEN
         IF (iVar.EQ.6 .OR. iVar.EQ.7) THEN
            MetYear = CRU%CYEAR
         ELSE
@@ -894,10 +909,18 @@ END SUBROUTINE GET_CRU_Ndep
              ELSE
                 NextMetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
              ENDIF
+             IF  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Temp_Precip'.OR. &
+                  TRIM(CRU%Run) .EQ. 'S0_TRENDY_Temp_Precip' ) THEN
+                IF (iVar.EQ.6 .OR. iVar.EQ.7) THEN
+                   NextMetYear = CRU%CYEAR
+                ELSE
+                   NextMetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
+                ENDIF
+             ENDIF
+
+
           ELSEIF  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Temp' &
-               .OR.  TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Temp' .OR. &
-          TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Temp_Precip'.OR. &
-          TRIM(CRU%Run) .EQ. 'S0_TRENDY_Temp_Precip' ) THEN
+               .OR.  TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Temp' ) THEN
              IF (iVar.EQ.6 .OR. iVar.EQ.7) THEN
                 NextMetYear = CRU%CYEAR
              ELSE

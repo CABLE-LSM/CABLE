@@ -105,7 +105,7 @@ CONTAINS
     ! temporary buffers to simplify equations
     REAL, DIMENSION(mp) ::                                                      &
          ftemp,z_eff,psim_arg, psim_1, psim_2, rlower_limit,                      &
-         term1, term2, term3, term5
+         term1, term2, term3, term5, denom
     ! arguments for potential_evap (sli)
     REAL(r_2), DIMENSION(mp) ::  Rn, rbh, rbw, Ta, rha,Ts, &
          kth, dz,lambdav, &
@@ -139,6 +139,13 @@ CONTAINS
     REAL :: gmax0 ! max mesophyll conductacne at canopy top  
     REAL  :: rt_min
     REAL, DIMENSION(mp)       :: zstar, rL, phist, csw, psihat,rt0bus
+
+    REAL(r_2), PARAMETER                :: alpha1=4.0
+    REAL(r_2), PARAMETER                :: beta1=0.5
+    REAL(r_2), PARAMETER                :: gamma1=0.3
+    REAL(r_2), DIMENSION(mp)            :: zeta1
+    REAL(r_2), DIMENSION(mp)            :: zeta2
+
 
     INTEGER :: j
 
@@ -209,6 +216,12 @@ CONTAINS
     canopy%zetash(:,1) = C%ZETA0 ! stability correction terms
     canopy%zetash(:,2) = C%ZETPOS + 1
 
+
+    !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	 ! SPECIAL for global offine met: set screen t and humidity as met inputs
+       canopy%tscrn=   met%tk
+       canopy%qscrn  = met%qv
+    !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     DO iter = 1, NITER
 
@@ -362,7 +375,7 @@ CONTAINS
                 gmes(j,1) = gmax0 * xgmesT(tlfx(j)) * &
                      rad%extkb(j)/(rad%extkb(j)+kg) * &
                      (1 - exp(-(rad%extkb(j)+kg)*canopy%vlaiw(j))) / &
-                     (1 - exp( -kg*canopy%vlaiw(j)))
+                     (1 - exp( -rad%extkb(j)*canopy%vlaiw(j)))
                 
                 
                 gmes(j,2) = gmax0 * xgmesT(tlfx(j)) * &
@@ -370,10 +383,8 @@ CONTAINS
                      (rad%extkb(j) - (rad%extkb(j)+kg)*exp(-kg*canopy%vlaiw(j)) + &
                      kg*exp(-(kg+rad%extkb(j))*canopy%vlaiw(j)))/ &
                      (exp(-rad%extkb(j)*canopy%vlaiw(j)) - 1 + rad%extkb(j)*canopy%vlaiw(j))
-!!$                
-!!$                if ( j.eq.1 .and. met%hod(1) .eq.12) then
-!!$                   write(3335,"(200e16.6)") canopy%fwsoil(j) , tlfx(j),xgmesT(tlfx(j)),  gmes(j,1) , gmes(j,2)
-!!$                endif
+                
+               
              endif              !
           ENDIF
 
@@ -481,6 +492,30 @@ CONTAINS
           ! (Based on old Tsoil, new canopy%tv, new canopy%fns)
           CALL sli_main(1,dels,veg,soil,ssnow,met,canopy,air,rad,1)
        ENDIF
+
+!%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	 ! SPECIAL for global offine met: set screen t and humidity as met inputs
+    
+       tstar = - (canopy%fhv+canopy%fhs) / ( air%rho*C%capp*canopy%us)
+       qstar = - (canopy%fev+canopy%fes) / ( air%rho*air%rlam *canopy%us)
+       zscrn = max(rough%z0m,1.8-rough%disp)
+       denom = ( log(rough%zref_tq/zscrn)- psis(canopy%zetar(:,iter)) + &
+            psis(canopy%zetar(:,iter) * zscrn / rough%zref_tq) ) /C%vonk
+       
+       where (canopy%zetar(:,iter) > 0.7)
+          zeta2=canopy%zetar(:,iter) * zscrn / rough%zref_tq
+          denom =alpha1* ((canopy%zetar(:,iter)**beta1* &
+               (1.0+gamma1*canopy%zetar(:,iter)**(1.0-beta1)))  &
+               - (zeta2*beta1*(1.0+gamma1*zeta2**(1.0-beta1)))) /C%vonk
+       endwhere
+
+       where (abs( tstar*denom ).lt. 5.0)
+          met%tk = canopy%tscrn + tstar*denom
+          met%qv = max(canopy%qscrn + qstar*denom, 0.0)
+       endwhere
+!%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 
 
        CALL within_canopy( gbhu, gbhf )
@@ -2073,8 +2108,8 @@ CONTAINS
 !!$  write(3339,"(200e16.6)") gbhu(:,2)
 !!$  write(3340,"(200e16.6)") gbhf(:,1)
 !!$  write(3341,"(200e16.6)") gbhf(:,2)
-!!$  write(3342,"(200e16.6)")rad%gradis(:,1)
-!!$  write(3343,"(200e16.6)")rad%gradis(:,2)
+!!$  write(3342,"(200e16.6)") rad%qcan(:,1,1)
+!!$  write(3343,"(200e16.6)") rad%qcan(:,1,2)
 !!$  write(3344,"(200e16.6)") gw(:,1)
 !!$  write(3345,"(200e16.6)") gw(:,2)
 !!$  write(3346,"(200e16.6)") met%dva
@@ -2086,6 +2121,17 @@ CONTAINS
 !!$  write(3352,"(200e16.6)") met%hod
 !!$  write(3353,"(200e16.6)") an_y(:,1)
 !!$  write(3354,"(200e16.6)") an_y(:,2)
+!!$  write(3355,"(200e16.6)") veg%vcmax
+!!$  write(3356,"(200e16.6)") veg%ejmax
+!!$  write(3357,"(200e16.6)") gmes(:,1)
+!!$  write(3358,"(200e16.6)") gmes(:,2)
+!!$  write(3359,"(200e16.6)") met%ca
+!!$  write(3360,"(200e16.6)") csx(:,1)
+!!$  write(3361,"(200e16.6)") csx(:,1) - C%RGBWC*anx(:,1) / (                &
+!!$                       canopy%gswx(:,1) )
+!!$  write(3362,"(200e16.6)") csx(:,1) - C%RGBWC*anx(:,1) / (                &
+!!$                       canopy%gswx(:,1) )- anx(:,1) / (                &
+!!$                       gmes(:,1) )
 
     ! dry canopy flux
     canopy%fevc = (1.0-canopy%fwet) * ecy
