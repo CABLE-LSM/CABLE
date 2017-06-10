@@ -1273,10 +1273,10 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
              if (LUC_EXPT%biome(e).eq.4 .and.veg%iveg(h).eq.2 ) THEN
                 veg%alpha(h) = 0.11  
                 veg%d0gs(h) = 1500.0
-                veg%g0(h) = 3.37   ! temperate EBL
+                veg%g1(h) = 3.37   ! temperate EBL
              ENDIF
              if (LUC_EXPT%biome(e).eq.3 .and.veg%iveg(h).eq.2 ) THEN
-                veg%g0(h) = 2.98   ! savanna
+                !veg%g1(h) = 2.98   ! savanna
              ENDIF
 
           endif

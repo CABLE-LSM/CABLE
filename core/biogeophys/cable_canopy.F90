@@ -506,7 +506,7 @@ CONTAINS
           zeta2=canopy%zetar(:,iter) * zscrn / rough%zref_tq
           denom =alpha1* ((canopy%zetar(:,iter)**beta1* &
                (1.0+gamma1*canopy%zetar(:,iter)**(1.0-beta1)))  &
-               - (zeta2*beta1*(1.0+gamma1*zeta2**(1.0-beta1)))) /C%vonk
+               - (zeta2**beta1*(1.0+gamma1*zeta2**(1.0-beta1)))) /C%vonk
        endwhere
 
        where (abs( tstar*denom ).lt. 5.0)
@@ -1591,7 +1591,6 @@ CONTAINS
     lower_limit2 = rad%scalex * gsw_term
     gswmin = max(1.e-6,lower_limit2)
 
-
     gw = 1.0e-3 ! default values of conductance
     gh = 1.0e-3
     ghr= 1.0e-3
@@ -1855,17 +1854,9 @@ CONTAINS
                       rdx(i,2) = rdx(i,2) * &
                       (0.5 - 0.05*log(jtomol*1.0e6*rad%qcan(i,1,2)))
                 
-!!$                xleuning(i,1) = ( fwsoil(i) / ( csx(i,1) - co2cp3 ) )              &
-!!$                     * ( veg%a1gs(i) / ( 1.0 + dsx(i)/veg%d0gs(i)))
-!!$                xleuning(i,2) = ( fwsoil(i) / ( csx(i,2) - co2cp3 ) )              &
-!!$                     * ( veg%a1gs(i) / ( 1.0 + dsx(i)/veg%d0gs(i)))
                 
              else !cable_user%call_climate
 
-!!$!Vanessa:note there is no xleuning to go into photosynthesis etc anymore
-!!$             gs_coeff = xleuning
-
-!#else
             rdx(i,1) = (veg%cfrd(i)*vcmxt3(i,1) + veg%cfrd(i)*vcmxt4(i,1))
             rdx(i,2) = (veg%cfrd(i)*vcmxt3(i,2) + veg%cfrd(i)*vcmxt4(i,2))
 
@@ -1881,9 +1872,9 @@ CONTAINS
                 
             ! Medlyn BE et al (2011) Global Change Biology 17: 2134-2144. 
             ELSEIF(cable_user%GS_SWITCH == 'medlyn') THEN
-                
-                 gswmin = veg%g0(i)               
- 
+                 gswmin(i,1) = veg%g0(i) 
+                 gswmin(i,2) = veg%g0(i)        
+       
                 IF (dsx(i) < 50.0) THEN
                     vpd  = 0.05 ! kPa
                 ELSE
@@ -1913,6 +1904,8 @@ CONTAINS
           
        ENDDO !i=1,mp
 
+
+
        if (cable_user%finite_gm) then
           CALL photosynthesis_gm( csx(:,:),                                           &
                SPREAD( cx1(:), 2, mf ),                            &
@@ -1934,7 +1927,6 @@ CONTAINS
                SPREAD( abs_deltlf, 2, mf ),                        &
                anx(:,:), fwsoil(:), met )
        ENDIF
-
 
 
        DO i=1,mp
@@ -2132,7 +2124,9 @@ CONTAINS
 !!$  write(3362,"(200e16.6)") csx(:,1) - C%RGBWC*anx(:,1) / (                &
 !!$                       canopy%gswx(:,1) )- anx(:,1) / (                &
 !!$                       gmes(:,1) )
-
+!!$ write(3363,"(200e16.6)") canopy%fwsoil
+!!$ write(3364,"(200e16.6)")  gs_coeff(:,1)
+!!$ write(3365,"(200e16.6)")  gs_coeff(:,2)
     ! dry canopy flux
     canopy%fevc = (1.0-canopy%fwet) * ecy
 
@@ -2298,10 +2292,8 @@ CONTAINS
 
                 ENDIF
 
-!!$if (i.eq.1 .and. j.eq.1 .and. met%hod(1) .eq.12) then
-!!$ write(3333,"(200e16.6)"),  gswminz(i,j)*fwsoilz(i) / C%RGSWC,  gs_coeffz(i,j), vcmxt3z(i,j) , &
-!!$rdxz(i,j), csxz(i,j), cx1z(i,j), cx2z(i,j),  coef2z(i,j),  coef1z(i,j),coef0z(i,j),  coef0z(i,j),  ciz(i,j),  anrubiscoz(i,j)
-!!$endif
+
+ 
 
                 ! RuBP limited:
                 coef2z(i,j) = gswminz(i,j)*fwsoilz(i) / C%RGSWC + gs_coeffz(i,j) &
@@ -2412,7 +2404,7 @@ CONTAINS
 
     ENDDO
 
-
+ 
 
   END SUBROUTINE photosynthesis
 
@@ -2762,7 +2754,13 @@ CONTAINS
 
     ENDDO
 
-
+!!$ write(3370,"(200e16.6)") met%hod
+!!$ write(3371,"(200e16.6)") anrubiscoz(:,1)
+!!$ write(3372,"(200e16.6)") anrubiscoz(:,2)
+!!$ write(3373,"(200e16.6)") anrubpz(:,1)
+!!$ write(3374,"(200e16.6)") anrubpz(:,2)
+!!$ write(3375,"(200e16.6)") ansinkz(:,1)
+!!$ write(3376,"(200e16.6)") ansinkz(:,2)
 
   END SUBROUTINE photosynthesis_gm
 
