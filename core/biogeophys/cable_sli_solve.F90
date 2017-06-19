@@ -1352,7 +1352,7 @@ CONTAINS
                         ! assume no lquid below min temp threshhold
                         var(i)%thetal = 0.0
                         var(i)%thetai = theta
-                        hice(kk) = h0(kk)
+                        if (i.eq.1) hice(kk) = h0(kk)
                         tmp1d3(kk) = (tmp1d2(kk) + rhow*lambdaf*(theta*dx(i) +  merge(h0(kk),zero,i==1)))/ &
                             (dx(i)*par(i)%css*par(i)%rho + rhow*csice*(theta*dx(i) + &
                             merge(h0(kk),zero,i==1)))
@@ -1375,13 +1375,28 @@ CONTAINS
                             tmp1d4(kk) = thetalmax(tmp1d3(kk), S(i), par(i)%he, one/(par(i)%lambc*freezefac), &
                                 par(i)%thre, par(i)%the) ! liquid content at solution for Tsoil
                         else
-                            write(*,*) "Found no solution for Tfrozen 1. Stop. ", kk, i
-                            write(*,*) nsteps(kk), S(i), Tsoil(i), dTsoil(i), h0(kk), tmp1, tmp2, tmp1d2(kk), theta
-                            stop
+                            write(*,*) "Found no solution for Tfrozen 1. ", kk, i, irec, wlogn
+                            write(*,*) "Assume soil is totally frozen"
+                            var(i)%thetal = 0.0
+                            var(i)%thetai = theta
+                            if (i.eq.1) hice(kk) = h0(kk)
+                            tmp1d3(kk) = (tmp1d2(kk) + rhow*lambdaf*(theta*dx(i) +  merge(h0(kk),zero,i==1)))/ &
+                                 (dx(i)*par(i)%css*par(i)%rho + rhow*csice*(theta*dx(i) + &
+                                 merge(h0(kk),zero,i==1)))
+                            
+                            write(*,*) "frozen soil temperature: ", tmp1d3(kk)
+
+                            write(*,*) nsteps(kk), S(i), Tsoil(i), dTsoil(i), h0(kk), tmp1, tmp2, tmp1d2(kk), theta, &
+                                 JSoilLayer(Tfreezing(kk), &
+                                 dx(i), theta,par(i)%css, par(i)%rho, &
+                                 merge(h0(kk),zero,i==1), par(i)%thre, par(i)%the, &
+                                 par(i)%he, one/(par(i)%lambc*freezefac)), J0(i) + LHS_h(i)*dt(kk), Tfreezing(kk)
+                            ! stop
+
                         endif
                         var(i)%thetal = tmp1d4(kk)
                         var(i)%thetai = theta - tmp1d4(kk)
-                    endif ! Tsoil <-20
+                     endif ! Tsoil <-40
                     if (i==1) then
                         hice_tmp(kk) = hice(kk)
                         hice(kk) = h0(kk)*var(1)%thetai/par(1)%thre
