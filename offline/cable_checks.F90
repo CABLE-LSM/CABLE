@@ -329,7 +329,9 @@ SUBROUTINE energy_balance( dels,ktau,met,rad,canopy,bal,ssnow,                  
     ! Add to cumulative balance:
     bal%ebal_tot = bal%ebal_tot + bal%ebal
     bal%RadbalSum = bal%RadbalSum + bal%Radbal
-
+!!$write(3355,"(200e16.6)")  bal%EbalSoil
+!!$write(3356,"(200e16.6)")  bal%Ebalveg
+!!$write(3357,"(200e16.6)")  bal%Ebal
 END SUBROUTINE energy_balance
 
 !==============================================================================

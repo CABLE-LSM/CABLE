@@ -261,8 +261,9 @@ MODULE cable_IO_vars_module
          CanT = .FALSE.,      & ! within-canopy temperature [K]
          Fwsoil = .FALSE.,      & ! soil moisture modifier to stomatal conductance
          Area = .FALSE., & ! patch area in km2
-
+         GPP_components = .TRUE.,    & ! sunlit and shaded GPP, plus J and C limited components
          !! vh_js !! additional casa variables
+ 
          NBP = .FALSE., &
          dCdt = .FALSE., &
          TotSoilCarb = .FALSE.,   &

@@ -1691,6 +1691,32 @@ ENDIF
     CALL MPI_Get_address (canopy%fpn, displs(bidx), ierr)
     blen(bidx) = r1len
 
+
+!!$    bidx = bidx + 1
+!!$    CALL MPI_Get_address (canopy%A_sh, displs(bidx), ierr)
+!!$    blen(bidx) = r2len
+!!$
+!!$    bidx = bidx + 1
+!!$    CALL MPI_Get_address (canopy%A_sl, displs(bidx), ierr)
+!!$    blen(bidx) = r2len
+!!$
+!!$    bidx = bidx + 1
+!!$    CALL MPI_Get_address (canopy%A_slC, displs(bidx), ierr)
+!!$    blen(bidx) = r2len
+!!$
+!!$    bidx = bidx + 1
+!!$    CALL MPI_Get_address (canopy%A_shC, displs(bidx), ierr)
+!!$    blen(bidx) = r2len
+!!$
+!!$    bidx = bidx + 1
+!!$    CALL MPI_Get_address (canopy%A_slJ, displs(bidx), ierr)
+!!$    blen(bidx) = r2len
+!!$
+!!$
+!!$    bidx = bidx + 1
+!!$    CALL MPI_Get_address (canopy%A_shJ, displs(bidx), ierr)
+!!$    blen(bidx) = r2len
+
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%frp, displs(bidx), ierr)
     blen(bidx) = r1len
@@ -4207,6 +4233,39 @@ ENDIF
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%fpn(off), displs(bidx), ierr)
     blocks(bidx) = r1len
+
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%A_sh, displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%A_sl, displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%A_slC, displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%A_shC, displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%A_slJ, displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%A_shJ, displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+
+
+
+
+
+
 
     !vidx = vidx + 1
     ! REAL(r_1)

@@ -380,8 +380,9 @@ MODULE cable_def_types_mod
          uscrn,   & ! wind speed at screen height (m/s)
          vlaiw,   & ! lai adj for snow depth for calc of resistances
          rghlai,  & ! lai adj for snow depth for calc of resistances
-         fwet       ! fraction of canopy wet
-
+         fwet     ! fraction of canopy wet
+      
+         
       REAL, DIMENSION(:,:), POINTER ::                                         &
          evapfbl, &
          gswx,    & ! stom cond for water
@@ -396,7 +397,13 @@ MODULE cable_def_types_mod
          fes,     & ! latent heatfl from soil (W/m2)
          fes_cor, & ! latent heatfl from soil (W/m2)
          fevc,     &  ! dry canopy transpiration (W/m2)
-         ofes     ! latent heatfl from soil (W/m2)
+         ofes,     &   ! latent heatfl from soil (W/m2)
+         A_sh,    & ! gross photosynthesis from shaded leaves
+         A_sl,    & ! gross photosynthesis from sunlit leaves
+         A_slC,   & ! gross photosynthesis from sunlit leaves (rubisco limited)
+         A_shC,   & ! gross photosynthesis from shaded leaves  (rubisco limited)
+         A_slJ,   & ! gross photosynthesis from sunlit leaves (rubp limited)
+         A_shJ     ! gross photosynthesis from shaded leaves  (rubp limited)
 
      ! Additional variables:
      REAL(r_2), DIMENSION(:,:),   POINTER :: gw     ! dry canopy conductance (ms-1) edit vh 6/7/09
@@ -986,6 +993,13 @@ SUBROUTINE alloc_canopy_type(var, mp)
    ALLOCATE( var% rghlai(mp) )
    ALLOCATE( var% vlaiw(mp) )
    ALLOCATE( var% fwet(mp) )
+   ALLOCATE( var% A_sh(mp) )
+   ALLOCATE( var% A_sl(mp) )
+   ALLOCATE( var% A_slC(mp) )
+   ALLOCATE( var% A_shC(mp) )
+   ALLOCATE( var% A_slJ(mp) )
+   ALLOCATE( var% A_shJ(mp) )
+         
    ALLOCATE ( var % evapfbl(mp,ms) )
    ALLOCATE( var% epot(mp) )
    ALLOCATE( var% fnpp(mp) )
@@ -1533,6 +1547,13 @@ SUBROUTINE dealloc_canopy_type(var)
    DEALLOCATE( var% rghlai )
    DEALLOCATE( var% vlaiw )
    DEALLOCATE( var% fwet )
+   DEALLOCATE( var% A_sh )
+   DEALLOCATE( var% A_sl )
+   DEALLOCATE( var% A_slC )
+   DEALLOCATE( var% A_shC)
+   DEALLOCATE( var% A_slJ )
+   DEALLOCATE( var% A_shJ )
+   
    DEALLOCATE ( var % evapfbl )
    DEALLOCATE( var% epot )
    DEALLOCATE( var% fnpp )

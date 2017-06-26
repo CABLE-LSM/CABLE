@@ -5110,6 +5110,29 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      CALL MPI_Get_address (canopy%fpn(off), vaddr(vidx), ierr) ! 27
      blen(vidx) = cnt * extr1
      vidx = vidx + 1
+
+
+     CALL MPI_Get_address (canopy%A_sh(off), vaddr(vidx), ierr) ! 27
+     blen(vidx) = cnt * extr2
+     vidx = vidx + 1
+     CALL MPI_Get_address (canopy%A_sl(off), vaddr(vidx), ierr) ! 27
+     blen(vidx) = cnt * extr2
+     vidx = vidx + 1
+     CALL MPI_Get_address (canopy%A_slC(off), vaddr(vidx), ierr) ! 27
+     blen(vidx) = cnt * extr2
+     vidx = vidx + 1
+     CALL MPI_Get_address (canopy%A_shC(off), vaddr(vidx), ierr) ! 27
+     blen(vidx) = cnt * extr2
+     vidx = vidx + 1
+     CALL MPI_Get_address (canopy%A_slJ(off), vaddr(vidx), ierr) ! 27
+     blen(vidx) = cnt * extr2
+     vidx = vidx + 1
+     CALL MPI_Get_address (canopy%A_shJ(off), vaddr(vidx), ierr) ! 27
+     blen(vidx) = cnt * extr2
+     vidx = vidx + 1
+
+
+
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%frp(off), vaddr(vidx), ierr) ! 28
      blen(vidx) = cnt * extr1

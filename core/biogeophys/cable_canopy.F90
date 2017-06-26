@@ -1547,7 +1547,9 @@ CONTAINS
          gs_coeff,   & ! stom coeff, Ticket #56 
          psycst,     & ! modified pych. constant
          frac42,     & ! 2D frac4
-         temp2
+         temp2,      &
+         anrubiscox, & ! net photosynthesis (rubisco limited)
+         anrubpx    ! net photosynthesis (rubp limited)
 
     REAL, DIMENSION(:,:), POINTER :: gswmin ! min stomatal conductance
 
@@ -1596,6 +1598,9 @@ CONTAINS
     ghr= 1.0e-3
     rdx = 0.0
     anx = 0.0
+    anrubiscox = 0.0
+    anrubpx = 0.0
+    
     rnx = SUM(rad%rniso,2)
     abs_deltlf = 999.0
 
@@ -1915,7 +1920,8 @@ CONTAINS
                ! Ticket #56, xleuning replaced with gs_coeff here
                gs_coeff(:,:), rad%fvlai(:,:),& 
                SPREAD( abs_deltlf, 2, mf ),                        &
-               anx(:,:), fwsoil(:),gmes(:,:), met )
+               anx(:,:), fwsoil(:),gmes(:,:), met, &
+                anrubiscox(:,:), anrubpx(:,:))
        ELSE
           CALL photosynthesis( csx(:,:),                                           &
                SPREAD( cx1(:), 2, mf ),                            &
@@ -1925,7 +1931,7 @@ CONTAINS
                ! Ticket #56, xleuning replaced with gs_coeff here
                gs_coeff(:,:), rad%fvlai(:,:),& 
                SPREAD( abs_deltlf, 2, mf ),                        &
-               anx(:,:), fwsoil(:), met )
+               anx(:,:), fwsoil(:), met , anrubiscox(:,:), anrubpx(:,:))
        ENDIF
 
 
@@ -2178,6 +2184,30 @@ CONTAINS
 !! vh !! inserted min to avoid -ve values of GPP
     canopy%fpn = min(-12.0 * SUM(an_y, 2), canopy%frday)
 
+    ! additional diagnostic variables for assessing contributions of rubisco and rubp limited photosynthesis to
+    ! gross photosynthesis in sunlit and shaded leaves.
+    canopy%A_sh = anx(:,2) + rdx(:,2) 
+    canopy%A_sl =  anx(:,1) + rdx(:,1)
+    
+    canopy%A_shC = anrubiscox(:,2) + rdx(:,2)
+    canopy%A_shJ = anrubpx(:,2) + rdx(:,2)
+    !where (anrubiscox(:,2) > anx(:,2)) canopy%A_shC = 0.0
+    !where (anrubpx(:,2) > anx(:,2))    canopy%A_shJ = 0.0
+  
+    canopy%A_slC = anrubiscox(:,1) + rdx(:,1)
+    canopy%A_slJ = anrubpx(:,1) + rdx(:,1)
+    !where (anrubiscox(:,1) > anx(:,1)) canopy%A_slC = 0.0
+    !where (anrubpx(:,1) > anx(:,1))    canopy%A_slJ = 0.0
+
+    where (sum(met%fsd,2) < 20.0)
+       canopy%A_shC = 0.0
+       canopy%A_shJ = 0.0
+       canopy%A_slC = 0.0
+       canopy%A_slJ = 0.0
+       canopy%A_sh = 0.0
+       canopy%A_sl = 0.0
+    end where
+
     canopy%evapfbl = ssnow%evapfbl
 
 
@@ -2190,7 +2220,7 @@ CONTAINS
    ! Ticket #56, xleuningz repalced with gs_coeffz
    SUBROUTINE photosynthesis( csxz, cx1z, cx2z, gswminz,                          &
                            rdxz, vcmxt3z, vcmxt4z, vx3z,                       &
-                           vx4z, gs_coeffz, vlaiz, deltlfz, anxz, fwsoilz,met )
+                           vx4z, gs_coeffz, vlaiz, deltlfz, anxz, fwsoilz,met,anrubiscoz, anrubpz  )
     USE cable_def_types_mod, only : mp, mf, r_2, met_type
     
     REAL(r_2), DIMENSION(mp,mf), INTENT(IN) :: csxz
@@ -2208,12 +2238,12 @@ CONTAINS
          vlaiz,      & !
          deltlfz       !
 
-    REAL, DIMENSION(mp,mf), INTENT(INOUT) :: anxz
+    REAL, DIMENSION(mp,mf), INTENT(INOUT) :: anxz, anrubiscoz, anrubpz 
 
     ! local variables
     REAL(r_2), DIMENSION(mp,mf) ::                                              &
          coef0z,coef1z,coef2z, ciz,delcxz,                                        &
-         anrubiscoz,anrubpz,ansinkz
+         ansinkz
 
     REAL, DIMENSION(mp) :: fwsoilz
 
@@ -2415,7 +2445,7 @@ CONTAINS
   SUBROUTINE photosynthesis_gm( csxz, cx1z, cx2z, gswminz,                          &
        rdxz, vcmxt3z, vcmxt4z, vx3z,                       &
        vx4z, gs_coeffz, vlaiz, deltlfz, anxz, fwsoilz, &
-       gmes,met )
+       gmes,met, anrubiscoz, anrubpz )
     USE cable_def_types_mod, only : mp, mf, r_2, met_type
     
     REAL(r_2), DIMENSION(mp,mf), INTENT(IN) :: csxz, gmes
@@ -2433,12 +2463,12 @@ CONTAINS
          vlaiz,      & !
          deltlfz
 
-    REAL, DIMENSION(mp,mf), INTENT(INOUT) :: anxz
+    REAL, DIMENSION(mp,mf), INTENT(INOUT) :: anxz, anrubiscoz, anrubpz
 
     ! local variables
     REAL(r_2), DIMENSION(mp,mf) ::                                              &
          coef0z,coef1z,coef2z, ciz,delcxz,                                        &
-         anrubiscoz,anrubpz,ansinkz
+        ansinkz
 
     REAL, DIMENSION(mp) :: fwsoilz
 
@@ -2528,8 +2558,6 @@ CONTAINS
                               (vcmxt3z(i,j)*cx2z(i,j)/2.0                       &
                               + cx1z(i,j)*( rdxz(i,j)-vcmxt4z(i,j ) ) )         &
                               -( gswminz(i,j)*fwsoilz(i)/C%RGSWC ) * cx1z(i,j)*csxz(i,j)
-
-
 
                 ! kdcorbin,09/10 - new calculations
                 IF( ABS(coef2z(i,j)) .GT. 1.0e-9 .AND. &

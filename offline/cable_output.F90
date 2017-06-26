@@ -67,7 +67,7 @@ MODULE cable_output_module
                     PlantTurnover, PlantTurnoverLeaf, PlantTurnoverFineRoot, &
                     PlantTurnoverWood, PlantTurnoverWoodDist, PlantTurnoverWoodCrowding, &
                     PlantTurnoverWoodResourceLim, dCdt, Area, LandUseFlux, patchfrac, &
-                    vcmax, hc
+                    vcmax, hc, GPP_sh, GPP_sl, GPP_shC, GPP_slC, GPP_shJ, GPP_slJ
   END TYPE out_varID_type
   TYPE(out_varID_type) :: ovid ! netcdf variable IDs for output variables
   TYPE(parID_type) :: opid ! netcdf variable IDs for output variables
@@ -202,6 +202,12 @@ MODULE cable_output_module
     REAL(KIND=4), POINTER, DIMENSION(:) :: vcmax
     REAL(KIND=4), POINTER, DIMENSION(:) :: patchfrac
     REAL(KIND=4), POINTER, DIMENSION(:) :: hc
+    REAL(KIND=4), POINTER, DIMENSION(:) :: GPP_sh
+    REAL(KIND=4), POINTER, DIMENSION(:) :: GPP_sl
+    REAL(KIND=4), POINTER, DIMENSION(:) :: GPP_shC
+    REAL(KIND=4), POINTER, DIMENSION(:) :: GPP_slC
+    REAL(KIND=4), POINTER, DIMENSION(:) :: GPP_shJ
+     REAL(KIND=4), POINTER, DIMENSION(:) :: GPP_slJ
  END TYPE output_temporary_type
   TYPE(output_temporary_type), SAVE :: out
   INTEGER :: ok   ! netcdf error status
@@ -724,6 +730,51 @@ CONTAINS
        ALLOCATE(out%GPP(mp))
        out%GPP = 0.0 ! initialise
     END IF
+
+    IF(output%GPP_components) THEN
+       CALL define_ovar(ncid_out, ovid%GPP_sh, 'GPP_shaded', 'umol/m^2/s',               &
+                        'Gross primary production from shaded leaves', patchout%GPP,              &
+                        'dummy', xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%GPP_sh(mp))
+       out%GPP_sh = 0.0 ! initialise
+
+       CALL define_ovar(ncid_out, ovid%GPP_sl, 'GPP_sunlit', 'umol/m^2/s',               &
+                        'Gross primary production from sunlit leaves', patchout%GPP,              &
+                        'dummy', xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%GPP_sl(mp))
+       out%GPP_sl = 0.0 ! initialise
+
+       CALL define_ovar(ncid_out, ovid%GPP_shC, 'GPP_shaded_C', 'umol/m^2/s',               &
+            'Gross primary production from carboxylation-rate-limited shaded leaves', &
+            patchout%GPP,              &
+                        'dummy', xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%GPP_shC(mp))
+       out%GPP_shC = 0.0 ! initialise
+
+       CALL define_ovar(ncid_out, ovid%GPP_slC, 'GPP_sunlit_C', 'umol/m^2/s',               &
+            'Gross primary production from carboxylation-rate-limited sunlit leaves', &
+            patchout%GPP,              &
+                        'dummy', xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%GPP_slC(mp))
+       out%GPP_slC = 0.0 ! initialise
+
+        CALL define_ovar(ncid_out, ovid%GPP_shJ, 'GPP_shaded_J', 'umol/m^2/s',               &
+            'Gross primary production from electron-transport-rate-limited shaded leaves', &
+            patchout%GPP,              &
+                        'dummy', xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%GPP_shJ(mp))
+       out%GPP_shJ = 0.0 ! initialise
+
+       CALL define_ovar(ncid_out, ovid%GPP_slJ, 'GPP_sunlit_J', 'umol/m^2/s',               &
+            'Gross primary production from electron-transport-rate-limited sunlit leaves', &
+            patchout%GPP,              &
+                        'dummy', xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%GPP_slJ(mp))
+       out%GPP_shJ = 0.0 ! initialise
+
+
+    END IF
+    
     IF(output%carbon .OR. output%NPP) THEN
        CALL define_ovar(ncid_out, ovid%NPP, 'NPP', 'umol/m^2/s',               &
                         'Net primary production', patchout%NPP,                &
@@ -2078,10 +2129,6 @@ CONTAINS
        ! Add current timestep's value to total of temporary output variable:
        out%GPP = out%GPP + REAL((-1.0 * canopy%fpn + canopy%frday)             &
                                 / 1.201E-5, 4)
-      ! out%GPP = out%GPP + REAL((-1.0 * canopy%fpn)             &
-       !                         / 1.201E-5, 4)
-!write(*,*),  out%GPP, -1.0 * canopy%fpn, canopy%frday, (-1.0 * canopy%fpn + canopy%frday)
-!stop
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
           out%GPP = out%GPP/REAL(output%interval, 4)
@@ -2092,6 +2139,59 @@ CONTAINS
           out%GPP = 0.0
        END IF
     END IF
+
+    ! components of GPP
+    IF (output%GPP_components) THEN
+
+       out%GPP_sh = out%GPP_sh +  REAL(canopy%A_sh/ 1.201E-5 , 4)
+       out%GPP_sl = out%GPP_sl +  REAL(canopy%A_sl/ 1.201E-5 , 4)
+       out%GPP_shC = out%GPP_shC +  REAL(canopy%A_shC/ 1.201E-5 , 4)
+       out%GPP_slC = out%GPP_slC +  REAL(canopy%A_slC/ 1.201E-5 , 4)
+       out%GPP_shJ = out%GPP_shJ +  REAL(canopy%A_shJ/ 1.201E-5 , 4)
+       out%GPP_slJ = out%GPP_slJ +  REAL(canopy%A_slJ/ 1.201E-5 , 4)
+
+
+       IF(writenow) THEN
+          ! Divide accumulated variable by number of accumulated time steps:
+          out%GPP_sh = out%GPP_sh/REAL(output%interval, 4)
+          out%GPP_sl = out%GPP_sl/REAL(output%interval, 4)
+          out%GPP_shC = out%GPP_shC/REAL(output%interval, 4)
+          out%GPP_slC = out%GPP_slC/REAL(output%interval, 4)
+          out%GPP_shJ = out%GPP_shJ/REAL(output%interval, 4)
+          out%GPP_slJ = out%GPP_slJ/REAL(output%interval, 4)
+
+          ! Write value to file:
+          CALL write_ovar(out_timestep, ncid_out, ovid%GPP_sh, 'GPP_sh', out%GPP_sh,    &
+               ranges%GPP, patchout%GPP, 'default', met)
+
+          CALL write_ovar(out_timestep, ncid_out, ovid%GPP_sl, 'GPP_sl', out%GPP_sl,    &
+               ranges%GPP, patchout%GPP, 'default', met)
+
+          CALL write_ovar(out_timestep, ncid_out, ovid%GPP_shC, 'GPP_sh', out%GPP_shC,    &
+               ranges%GPP, patchout%GPP, 'default', met)
+
+          CALL write_ovar(out_timestep, ncid_out, ovid%GPP_slC, 'GPP_sh', out%GPP_slC,    &
+               ranges%GPP, patchout%GPP, 'default', met)
+
+          CALL write_ovar(out_timestep, ncid_out, ovid%GPP_shJ, 'GPP_sh', out%GPP_shJ,    &
+               ranges%GPP, patchout%GPP, 'default', met)
+
+          CALL write_ovar(out_timestep, ncid_out, ovid%GPP_slJ, 'GPP_sh', out%GPP_slJ,    &
+               ranges%GPP, patchout%GPP, 'default', met)
+
+           ! Reset temporary output variable:
+          out%GPP_sh = 0.0
+          out%GPP_sl = 0.0
+          out%GPP_shC = 0.0
+          out%GPP_slC = 0.0
+          out%GPP_shJ= 0.0
+          out%GPP_slJ = 0.0
+
+       ENDIF
+
+    ENDIF
+
+    
     ! NPP: net primary production of C by veg [umol/m^2/s]
     IF(output%carbon .OR. output%NPP) THEN
        ! Add current timestep's value to total of temporary output variable:
@@ -2104,7 +2204,8 @@ CONTAINS
        IF(output%casa) THEN
           out%NPP = out%NPP + REAL(casaflux%cnpp/86400.0 / 1.201E-5, 4)
        ELSE
-          !  out%NPP = out%NPP + REAL((canopy%frday) / 1.201E-5, 4)
+          out%NPP = out%NPP + REAL((-1.0 * canopy%fpn - canopy%frp &
+            - casaflux%clabloss/86400.0) / 1.201E-5, 4)
        ENDIF
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
