@@ -4260,11 +4260,17 @@ ENDIF
     CALL MPI_Get_address (canopy%A_shJ, displs(bidx), ierr)
     blocks(bidx) = r2len
 
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%eta_A_cs, displs(bidx), ierr)
+    blocks(bidx) = r2len
 
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%dAdcs, displs(bidx), ierr)
+    blocks(bidx) = r2len
 
-
-
-
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%cs, displs(bidx), ierr)
+    blocks(bidx) = r2len
 
 
     !vidx = vidx + 1

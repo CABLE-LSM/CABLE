@@ -1271,7 +1271,11 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
           if (cable_user%POPLUC) THEN
 
              if (LUC_EXPT%biome(e).eq.4 .and.veg%iveg(h).eq.2 ) THEN
-                veg%alpha(h) = 0.11  
+                if (cable_user%finite_gm) THEN
+                   veg%alpha(h) = 0.04  ! fininte gm
+                else  
+                   veg%alpha(h) = 0.04  ! infinite gm
+                endif
                 veg%d0gs(h) = 1500.0
                 veg%g1(h) = 3.37   ! temperate EBL
              ENDIF

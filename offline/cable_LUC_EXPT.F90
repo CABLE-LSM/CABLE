@@ -272,7 +272,6 @@ CONTAINS
           END DO
 
        ELSE
-
           STATUS = NF90_GET_VAR(LUC_EXPT%F_ID(i), LUC_EXPT%V_ID(i), tmparr3, &
             start=(/1,1,1/),count=(/xds,yds,tdimsize/) )
           CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )

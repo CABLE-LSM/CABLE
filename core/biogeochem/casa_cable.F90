@@ -587,10 +587,10 @@ END SUBROUTINE write_casa_dump
        pleafx(np) = nleafx(np)/npleafx(np) ! leaf P in g P m-2 leaf
        if (ivt .EQ. 7 .OR.ivt .EQ. 9  ) then
           veg%vcmax(np) = 1.0e-5 ! special for C4 grass: set here to value from  parameter file
-          veg%ejmax = 2.0 * veg%vcmax
+          veg%ejmax(np) = 2.0 * veg%vcmax(np)
        else
           veg%vcmax(np) = vcmax_np(nleafx(np), pleafx(np))
-          veg%ejmax = 2.0 * veg%vcmax
+          veg%ejmax(np) = 2.0 * veg%vcmax(np)
           if (cable_user%finite_gm) then
               ! vcmax and jmax modifications according to Sun et al. 2014 Table S3
              if (ivt.eq.1) then

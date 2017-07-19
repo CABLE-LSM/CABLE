@@ -67,7 +67,8 @@ MODULE cable_output_module
                     PlantTurnover, PlantTurnoverLeaf, PlantTurnoverFineRoot, &
                     PlantTurnoverWood, PlantTurnoverWoodDist, PlantTurnoverWoodCrowding, &
                     PlantTurnoverWoodResourceLim, dCdt, Area, LandUseFlux, patchfrac, &
-                    vcmax, hc, GPP_sh, GPP_sl, GPP_shC, GPP_slC, GPP_shJ, GPP_slJ
+                    vcmax, hc, GPP_sh, GPP_sl, GPP_shC, GPP_slC, GPP_shJ, GPP_slJ, eta_GPP_cs, &
+                    dGPPdcs, CO2s
   END TYPE out_varID_type
   TYPE(out_varID_type) :: ovid ! netcdf variable IDs for output variables
   TYPE(parID_type) :: opid ! netcdf variable IDs for output variables
@@ -207,7 +208,10 @@ MODULE cable_output_module
     REAL(KIND=4), POINTER, DIMENSION(:) :: GPP_shC
     REAL(KIND=4), POINTER, DIMENSION(:) :: GPP_slC
     REAL(KIND=4), POINTER, DIMENSION(:) :: GPP_shJ
-     REAL(KIND=4), POINTER, DIMENSION(:) :: GPP_slJ
+    REAL(KIND=4), POINTER, DIMENSION(:) :: GPP_slJ
+    REAL(KIND=4), POINTER, DIMENSION(:) :: eta_GPP_cs
+    REAL(KIND=4), POINTER, DIMENSION(:) :: dGPPdcs
+    REAL(KIND=4), POINTER, DIMENSION(:) :: CO2s
  END TYPE output_temporary_type
   TYPE(output_temporary_type), SAVE :: out
   INTEGER :: ok   ! netcdf error status
@@ -230,8 +234,6 @@ CONTAINS
     INTEGER :: xvID, yvID   ! coordinate variable IDs for GrADS readability
     !    INTEGER :: surffracID         ! surface fraction varaible ID
     CHARACTER(LEN=10) :: todaydate, nowtime ! used to timestamp netcdf file
-
-
 
 
     ! Create output file:
@@ -771,6 +773,28 @@ CONTAINS
                         'dummy', xID, yID, zID, landID, patchID, tID)
        ALLOCATE(out%GPP_slJ(mp))
        out%GPP_shJ = 0.0 ! initialise
+
+
+       CALL define_ovar(ncid_out, ovid%eta_GPP_cs, 'eta_GPP_cs', 'umol/m^2/s',               &
+            'elasticity of Gross primary production wrt cs, multiplied by GPP', &
+            patchout%GPP,              &
+                        'dummy', xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%eta_GPP_cs(mp))
+       out%eta_GPP_cs = 0.0 ! initialise
+
+       CALL define_ovar(ncid_out, ovid%dGPPdcs, 'dGPPdcs', '(umol/m^2/s)^2',               &
+            'sensitivity of Gross primary production wrt cs, multiplied by GPP', &
+            patchout%GPP,              &
+                        'dummy', xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%dGPPdcs(mp))
+       out%dGPPdcs = 0.0 ! initialise
+
+       CALL define_ovar(ncid_out, ovid%CO2s, 'CO2s', 'ppm umol/m^2/s',               &
+            'CO2 concentration at leaf surface , multiplied by GPP', &
+            patchout%GPP,              &
+                        'dummy', xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%CO2s(mp))
+       out%CO2s = 0.0 ! initialise
 
 
     END IF
@@ -2143,14 +2167,15 @@ CONTAINS
     ! components of GPP
     IF (output%GPP_components) THEN
 
-       out%GPP_sh = out%GPP_sh +  REAL(canopy%A_sh/ 1.201E-5 , 4)
-       out%GPP_sl = out%GPP_sl +  REAL(canopy%A_sl/ 1.201E-5 , 4)
-       out%GPP_shC = out%GPP_shC +  REAL(canopy%A_shC/ 1.201E-5 , 4)
-       out%GPP_slC = out%GPP_slC +  REAL(canopy%A_slC/ 1.201E-5 , 4)
-       out%GPP_shJ = out%GPP_shJ +  REAL(canopy%A_shJ/ 1.201E-5 , 4)
-       out%GPP_slJ = out%GPP_slJ +  REAL(canopy%A_slJ/ 1.201E-5 , 4)
-
-
+       out%GPP_sh = out%GPP_sh +  REAL(canopy%A_sh/ 1e-6 , 4)
+       out%GPP_sl = out%GPP_sl +  REAL(canopy%A_sl/ 1e-6 , 4)
+       out%GPP_shC = out%GPP_shC +  REAL(canopy%A_shC/ 1e-6 , 4)
+       out%GPP_slC = out%GPP_slC +  REAL(canopy%A_slC/ 1e-6 , 4)
+       out%GPP_shJ = out%GPP_shJ +  REAL(canopy%A_shJ/ 1e-6 , 4)
+       out%GPP_slJ = out%GPP_slJ +  REAL(canopy%A_slJ/ 1e-6 , 4)
+       out%eta_GPP_cs =  out%eta_GPP_cs + REAL(canopy%eta_A_cs/ 1e-6 , 4)
+       out%dGPPdcs =  out%dGPPdcs + REAL(canopy%dAdcs/ 1e-6 , 4)
+       out%CO2s =  out%CO2s + REAL(canopy%cs/ 1e-6 , 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
           out%GPP_sh = out%GPP_sh/REAL(output%interval, 4)
@@ -2159,7 +2184,10 @@ CONTAINS
           out%GPP_slC = out%GPP_slC/REAL(output%interval, 4)
           out%GPP_shJ = out%GPP_shJ/REAL(output%interval, 4)
           out%GPP_slJ = out%GPP_slJ/REAL(output%interval, 4)
-
+          out%eta_GPP_cs = out%eta_GPP_cs/REAL(output%interval, 4)
+          out%dGPPdcs = out%dGPPdcs/REAL(output%interval, 4)
+          out%CO2s = out%CO2s/REAL(output%interval, 4)
+          
           ! Write value to file:
           CALL write_ovar(out_timestep, ncid_out, ovid%GPP_sh, 'GPP_sh', out%GPP_sh,    &
                ranges%GPP, patchout%GPP, 'default', met)
@@ -2176,16 +2204,34 @@ CONTAINS
           CALL write_ovar(out_timestep, ncid_out, ovid%GPP_shJ, 'GPP_sh', out%GPP_shJ,    &
                ranges%GPP, patchout%GPP, 'default', met)
 
+        
+
           CALL write_ovar(out_timestep, ncid_out, ovid%GPP_slJ, 'GPP_sh', out%GPP_slJ,    &
                ranges%GPP, patchout%GPP, 'default', met)
 
-           ! Reset temporary output variable:
+          CALL write_ovar(out_timestep, ncid_out, ovid%eta_GPP_cs, 'eta_GPP_cs', &
+               out%eta_GPP_cs,    &
+               ranges%GPP, patchout%GPP, 'default', met)
+
+          CALL write_ovar(out_timestep, ncid_out, ovid%dGPPdcs, 'dGPPdcs', &
+               out%dGPPdcs,    &
+               ranges%GPP, patchout%GPP, 'default', met)
+
+          CALL write_ovar(out_timestep, ncid_out, ovid%CO2s, 'CO2s', &
+               out%CO2s,    &
+               ranges%GPP, patchout%GPP, 'default', met)
+       
+
+          ! Reset temporary output variable:
           out%GPP_sh = 0.0
           out%GPP_sl = 0.0
           out%GPP_shC = 0.0
           out%GPP_slC = 0.0
           out%GPP_shJ= 0.0
           out%GPP_slJ = 0.0
+          out%eta_GPP_cs = 0.0
+          out%dGPPdcs = 0.0
+          out%CO2s = 0.0
 
        ENDIF
 

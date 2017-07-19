@@ -147,8 +147,8 @@ SUBROUTINE init_radiation( met, rad, veg, canopy )
    ! In gridcells where vegetation exists....
 
 !!vh !! include RAD_THRESH in condition
-  ! WHERE (canopy%vlaiw > C%LAI_THRESH .and. rad%fbeam(:,1).GE.C%RAD_THRESH   )
-   WHERE (canopy%vlaiw > C%LAI_THRESH) 
+   WHERE (canopy%vlaiw > C%LAI_THRESH .and. rad%fbeam(:,1).GE.C%RAD_THRESH   )
+  ! WHERE (canopy%vlaiw > C%LAI_THRESH) 
       ! SW beam extinction coefficient ("black" leaves, extinction neglects
       ! leaf SW transmittance and REFLectance):
       rad%extkb = xphi1 / met%coszen + xphi2

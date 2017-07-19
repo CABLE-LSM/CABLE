@@ -403,8 +403,10 @@ MODULE cable_def_types_mod
          A_slC,   & ! gross photosynthesis from sunlit leaves (rubisco limited)
          A_shC,   & ! gross photosynthesis from shaded leaves  (rubisco limited)
          A_slJ,   & ! gross photosynthesis from sunlit leaves (rubp limited)
-         A_shJ     ! gross photosynthesis from shaded leaves  (rubp limited)
-
+         A_shJ, &     ! gross photosynthesis from shaded leaves  (rubp limited)
+         eta_A_cs, &      ! elasticity of photosynthesis wrt cs, mulitplied by gross photosythesis
+         dAdcs, & ! sensitivity of photosynthesis wrt cs, mulitplied by gross photosythesis
+         cs       ! leaf surface CO2 (ppm), mulitplied by gross photosythesis
      ! Additional variables:
      REAL(r_2), DIMENSION(:,:),   POINTER :: gw     ! dry canopy conductance (ms-1) edit vh 6/7/09
      REAL(r_2), DIMENSION(:,:,:), POINTER :: ancj   ! limiting photosynthetic rates (Rubisco,RuBP,sink) vh 6/7/09
@@ -999,7 +1001,10 @@ SUBROUTINE alloc_canopy_type(var, mp)
    ALLOCATE( var% A_shC(mp) )
    ALLOCATE( var% A_slJ(mp) )
    ALLOCATE( var% A_shJ(mp) )
-         
+   ALLOCATE( var% eta_A_cs(mp) )
+   ALLOCATE( var% cs(mp) )
+   ALLOCATE( var% dAdcs(mp) )
+
    ALLOCATE ( var % evapfbl(mp,ms) )
    ALLOCATE( var% epot(mp) )
    ALLOCATE( var% fnpp(mp) )
@@ -1553,6 +1558,9 @@ SUBROUTINE dealloc_canopy_type(var)
    DEALLOCATE( var% A_shC)
    DEALLOCATE( var% A_slJ )
    DEALLOCATE( var% A_shJ )
+   DEALLOCATE( var% eta_A_cs )
+   DEALLOCATE( var% cs )
+   DEALLOCATE( var% dAdcs )
    
    DEALLOCATE ( var % evapfbl )
    DEALLOCATE( var% epot )

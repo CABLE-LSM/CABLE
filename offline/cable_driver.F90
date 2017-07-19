@@ -509,7 +509,7 @@ PROGRAM cable_offline_driver
           CALL LUC_EXPT_INIT (LUC_EXPT)
        ENDIF
        !! vh_js !!
- 
+ write(*,*) 'after luc expt init'
        CALL load_parameters( met, air, ssnow, veg,climate,bgc,		&
             soil, canopy, rough, rad, sum_flux,			 &
             bal, logn, vegparmnew, casabiome, casapool,		 &
@@ -517,7 +517,7 @@ PROGRAM cable_offline_driver
             casamet, casabal, phen, POP, spinup,	       &
             C%EMSOIL, C%TFRZ, LUC_EXPT, POPLUC )
  
-
+write(*,*) 'after load params'
 
        IF ( CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static') &
             CABLE_USER%POPLUC= .FALSE.

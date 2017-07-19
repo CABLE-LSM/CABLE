@@ -1375,7 +1375,7 @@ CONTAINS
                             tmp1d4(kk) = thetalmax(tmp1d3(kk), S(i), par(i)%he, one/(par(i)%lambc*freezefac), &
                                 par(i)%thre, par(i)%the) ! liquid content at solution for Tsoil
                         else
-                            write(*,*) "Found no solution for Tfrozen 1. ", kk, i, irec, wlogn
+                            write(*,*) "Found no solution for Tfrozen 1. ", kk, i, wlogn
                             write(*,*) "Assume soil is totally frozen"
                             var(i)%thetal = 0.0
                             var(i)%thetai = theta
