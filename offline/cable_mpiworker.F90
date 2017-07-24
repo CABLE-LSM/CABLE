@@ -633,7 +633,7 @@ CONTAINS
 
 
              CALL CPU_TIME(etime)
-             write(wlogn,*) ktau,  etime-etimelast
+             !write(wlogn,*) ktau,  etime-etimelast
             
 
              !jhan this is insufficient testing. condition for 

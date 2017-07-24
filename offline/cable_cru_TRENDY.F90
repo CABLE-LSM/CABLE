@@ -1332,6 +1332,7 @@ END SUBROUTINE GET_CRU_Ndep
     WG%SolarMJDay     = CRU%MET(  swdn  )%METVALS * 1.e-6 * SecDay ! ->[MJ/m2/d]
 ! Convert precip from mm to m/day
     WG%PrecipDay      = max(CRU%MET(  rain  )%METVALS  / 1000., 0.0) ! ->[m/d]
+    !WG%PrecipDay      = max(CRU%MET(  rain  )%METVALS  / 1000., 0.0)/2.0 ! ->[m/d] ! test vh !
     WG%SnowDay        = 0.0
 
     CALL WGEN_DAILY_CONSTANTS( WG, CRU%mland, INT(met%doy(1))+1 )
@@ -1362,7 +1363,7 @@ END SUBROUTINE GET_CRU_Ndep
     is = landpt(iland)%cstart
     ie = landpt(iland)%cend
 
-    met%precip    (is:ie)   = WG%Precip(iland)
+    met%precip    (is:ie)   = WG%Precip(iland) ! test vh !
 
 
 ! Cable's swdown is split into two components, visible and nir, which 

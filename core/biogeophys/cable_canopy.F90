@@ -2178,7 +2178,7 @@ CONTAINS
        END DO !over mp
 
     END DO  ! DO WHILE (ANY(abs_deltlf > 0.1) .AND.  k < C%MAXITER)
-!!$
+
 !!$  write(3333,"(200e16.6)") tlfx
 !!$  write(3334,"(200e16.6)") met%tvair
 !!$  write(3335,"(200e16.6)") met%tk

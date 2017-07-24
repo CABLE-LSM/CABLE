@@ -255,7 +255,9 @@ SUBROUTINE mass_balance(dels,ktau, ssnow,soil,canopy,met,                       
                   - ssnow%evap - max(canopy%fevc,0.0)*dels/air%rlam, r_2)
    
    ENDIF
-
+!!$write(*,"(100e16.6)")  REAL(canopy%through(1) - ssnow%delwcol(1)-ssnow%runoff(1) &
+!!$                  - ssnow%evap(1) - max(canopy%fevc(1),0.0)*dels/air%rlam(1), r_2), &
+!!$canopy%through(1),  ssnow%delwcol(1), ssnow%runoff(1),  ssnow%evap(1),  max(canopy%fevc(1),0.0)*dels/air%rlam(1)
 
    if(ktau==1) then 
       bal%wbal_tot = 0.; bal%precip_tot = 0. 
