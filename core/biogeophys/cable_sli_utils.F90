@@ -332,7 +332,6 @@ CONTAINS
        call potential_evap(vmet%Rn, vmet%rbh, vmet%rbw, vmet%Ta, vmet%rha, &
             Tsoil(1), var(1)%kth, half*dx(1)+h0, var(1)%lambdav, Tsurface_pot, Epot, Hpot, &
             Gpot, dEdrha, dEdTs, dEdTsoil, dGdTa, dGdTsoil)
-
        if (var(1)%iice.eq.1.and.Tsurface_pot> zero) then
           Tsurface_pot = 0.0_r_2
           Tsurface = 0.0_r_2
@@ -499,10 +498,9 @@ CONTAINS
           !! leading to large negative surface temperatures when snow-pack is thick and
           !! Rn is large and negative (~-100 Wm-2)
           call potential_evap(vmet%Rn-vmet%Rnsw, vmet%rbh, vmet%rbw, vmet%Ta, vmet%rha, &
-               vsnow%tsn(1), max(vsnow%kth(1),0.1_r_2), half*min(vsnow%depth(1),0.2_r_2), &
+               vsnow%tsn(1), max(vsnow%kth(1),0.1_r_2), half*min(vsnow%depth(1),0.05_r_2), &
                lambdas, Tsurface, Epot, Hpot, &
                Gpot, dEdrha, dEdTs, dEdTsoil, dGdTa, dGdTsoil,iice=.TRUE.)
-    
           if (Tsurface > zero) then ! temperature of frozen surface must be <= zero
              Tsurface = 0.0_r_2
              Epot = (esat(Tsurface)*0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero)  - & ! m3 H2O (liq) m-3 (air)
@@ -2644,7 +2642,8 @@ CONTAINS
 
   !**********************************************************************************************************************
 
-  ELEMENTAL PURE SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
+ ! ELEMENTAL PURE 
+SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
        Ts, E, H, G, &
        dEdrha, dEdTs, dEdTsoil, dGdTa, dGdTsoil,iice)
 
