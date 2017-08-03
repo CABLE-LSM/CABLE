@@ -320,7 +320,7 @@ CONTAINS
           ELSE
              ssnow%rtsoil(j) = rt0(j) + rough%rt1(j)
           ENDif
-
+if(j==6) write(59,*) 'rtsoil', canopy%vlaiw(j), C%LAI_THRESH, rt0(j), rough%rt1(j),canopy%us
        ENDDO
 
 
@@ -833,6 +833,7 @@ CONTAINS
 
       canopy%us = MAX(1.e-6, lower_limit )
 
+
     END SUBROUTINE comp_friction_vel
 
     ! ------------------------------------------------------------------------------
@@ -1048,7 +1049,8 @@ CONTAINS
             met%qvair(j) =  MAX(met%qvair(j),lower_limit)
             met%qvair(j) =  MIN(met%qvair(j), upper_limit)
 
-            ! Saturated specific humidity in canopy:
+
+           ! Saturated specific humidity in canopy:
             CALL qsatfjh2(qstvair(j),met%tvair(j)-C%tfrz,met%pmb(j))
 
             ! Saturated vapour pressure deficit in canopy:
@@ -1080,7 +1082,6 @@ CONTAINS
          canopy%zetar(:,iterplus) = -( C%VONK * C%GRAV * rough%zref_tq *              &
               ( canopy%fh + 0.07 * canopy%fe ) ) /          &
               ( air%rho * C%CAPP * met%tk * canopy%us**3 )
-
          ! stability parameter at shear height: needed for Harman in-canopy stability correction
          IF (cable_user%soil_struc=='sli') THEN
             WHERE (canopy%vlaiw > C%LAI_THRESH .and. rough%hruff > rough%z0soilsn)
@@ -1795,11 +1796,11 @@ CONTAINS
 
              if (veg%iveg(i).eq.2  ) then ! evergreen broadleaf forest
 
-                rdx(i,1) = 0.50*(1.2818e-6+0.0116*veg%vcmax(i)- &
+                rdx(i,1) = 0.90*(1.2818e-6+0.0116*veg%vcmax(i)- &
                      0.0334*climate%qtemp_max_last_year(i)*1e-6)
 
                 if (cable_user%finite_gm) then
-                   rdx(i,1) = 0.50*(1.2818e-6+0.0116*veg%vcmax(i)/1.9- &
+                   rdx(i,1) = 0.90*(1.2818e-6+0.0116*veg%vcmax(i)/1.9- &
                      0.0334*climate%qtemp_max_last_year(i)*1e-6)
                 endif
 
@@ -1968,6 +1969,7 @@ CONTAINS
                SPREAD( abs_deltlf, 2, mf ),                        &
                anx(:,:), fwsoil(:), met , anrubiscox(:,:), anrubpx(:,:) &
                , eta_x(:,:), dAnx(:,:))
+
 
 !!$          gmes = 20.0 ! test
 !!$          CALL photosynthesis_gm( csx(:,:),                                           &

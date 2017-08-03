@@ -653,7 +653,7 @@ SUBROUTINE casa_rplant(veg,casabiome,casapool,casaflux,casamet,climate)
                 casaflux%frac_sapwood(npt)/vcmaxmax(npt)/0.0116      ) 
         endif
      ENDDO
-     resp_coeff = 0.50
+     resp_coeff = 0.60
   ENDIF  ! end coefficients for acclimation of autotrophic respiration Ticket #110
 
  

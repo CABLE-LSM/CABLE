@@ -1340,6 +1340,7 @@ CONTAINS
                         dx(i), theta,par(i)%css, par(i)%rho, &
                         merge(h0(kk),zero,i==1), par(i)%thre, par(i)%the, &
                         par(i)%he, one/(par(i)%lambc*freezefac)), J0(i) + LHS_h(i)*dt(kk), Tfreezing(kk)
+
                 endif
                 var(i)%thetal = tmp1d4(kk)
                 var(i)%thetai = theta - tmp1d4(kk)

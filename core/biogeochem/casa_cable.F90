@@ -87,6 +87,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    IF ( .NOT. dump_read ) THEN  ! construct casa met and flux inputs from current CABLE run
       IF ( TRIM(cable_user%MetType) .EQ. 'cru' .OR. &
            TRIM(cable_user%MetType) .EQ. 'plum') THEN
+         casaflux%Pdep = met%Pdep
          casaflux%Nmindep = met%Ndep
       ENDIF
 
@@ -540,11 +541,12 @@ END SUBROUTINE write_casa_dump
   real, dimension(mp)  :: ncleafx,npleafx, pleafx, nleafx ! local variables
   real, dimension(17)                   ::  xnslope
   data xnslope/0.80,1.00,2.00,1.00,1.00,1.00,0.50,1.00,0.34,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00/
-
+  real:: ajv, bjv
   ! first initialize
   ncleafx(:) = casabiome%ratioNCplantmax(veg%iveg(:),leaf)
   npleafx = 14.2
-
+  ajv = 1.01 ! Walker 2014
+  bjv = 0.85 ! Walker 2014
   DO np=1,mp
     ivt=veg%iveg(np)
     IF (casamet%iveg2(np)/=icewater &
@@ -590,7 +592,8 @@ END SUBROUTINE write_casa_dump
           veg%ejmax(np) = 2.0 * veg%vcmax(np)
        else
           veg%vcmax(np) = vcmax_np(nleafx(np), pleafx(np))
-          veg%ejmax(np) = 2.0 * veg%vcmax(np)
+          !veg%ejmax(np) = 2.0 * veg%vcmax(np)
+          veg%ejmax(np) = exp(log(veg%vcmax(np)*1e6)*bjv + ajv)*1e-6
           if (cable_user%finite_gm) then
               ! vcmax and jmax modifications according to Sun et al. 2014 Table S3
              if (ivt.eq.1) then
@@ -612,6 +615,7 @@ END SUBROUTINE write_casa_dump
                 veg%vcmax(np) = veg%vcmax(np) * 1.6
                 veg%ejmax(np) = veg%vcmax(np) * 1.2
              endif
+           
           endif
        endif
     else

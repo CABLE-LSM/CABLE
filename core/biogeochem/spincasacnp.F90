@@ -269,7 +269,6 @@ SUBROUTINE spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
   avg_rationcsoilslow = avg_rationcsoilslow /real(nday*myearspin)
   avg_rationcsoilpass = avg_rationcsoilpass /real(nday*myearspin)
 
-write(65,*) 'b4 analytic pool', casapool%nsoil(7,:)
 
   call analyticpool(kend,veg,soil,casabiome,casapool,                                          &
        casaflux,casamet,casabal,phen,                                         &
@@ -281,7 +280,6 @@ write(65,*) 'b4 analytic pool', casapool%nsoil(7,:)
        avg_ratioNCsoilmic,avg_ratioNCsoilslow,avg_ratioNCsoilpass,            &
        avg_nsoilmin,avg_psoillab,avg_psoilsorb,avg_psoilocc)
 
-write(65,*) 'after analytic pool', casapool%nsoil(7,:)
 
 !!$  call totcnppools(1,veg,casamet,casapool,bmcplant,bmnplant,bmpplant,bmclitter,bmnlitter,bmplitter, &
 !!$       bmcsoil,bmnsoil,bmpsoil,bmnsoilmin,bmpsoillab,bmpsoilsorb,bmpsoilocc,bmarea)
@@ -377,7 +375,7 @@ write(65,*) 'after analytic pool', casapool%nsoil(7,:)
 !!$  if(nloop>=nloop1) &
 !!$       call totcnppools(2+nloop-nloop1,veg,casamet,casapool,bmcplant,bmnplant,bmpplant,bmclitter,bmnlitter,bmplitter, &
 !!$       bmcsoil,bmnsoil,bmpsoil,bmnsoilmin,bmpsoillab,bmpsoilsorb,bmpsoilocc,bmarea)
-write(65,*) 'after nloop: ', nloop,  casapool%nsoil(7,:)
+
 ENDDO     ! end of nloop
 
 CALL casa_fluxout(CABLE_USER%CASA_SPIN_STARTYEAR + myearspin - 1 , veg, soil, casabal, casamet)

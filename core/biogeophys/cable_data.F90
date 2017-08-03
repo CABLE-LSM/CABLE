@@ -101,7 +101,7 @@ module cable_data_module
 
    type photosynthetic_constants
       integer:: maxiter=20 ! max # interations for leaf temperature
-      real :: gam0 = 28.0E-6  !mol mol^-1 @ 20C = 36.9 @ 25C
+      real :: gam0 = 42.75E-6  ! (Bernacci 2001 )36.9 @ 25C (von Cammerer)
       real :: gam1 = 0.0509
       real :: gam2 = 0.0010
       real :: rgbwc  = 1.32
