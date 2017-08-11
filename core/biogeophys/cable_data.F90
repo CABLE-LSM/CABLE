@@ -76,8 +76,8 @@ module cable_data_module
       zetneg = -15.0, & ! negative limit on za/L when niter>=3
       zetpos = 1.0,  & ! positive limit on za/L when niter>=3
       zdlin  = 1.0,  & ! height frac of d below which TL linear
-    !  umin   = 0.01
-      umin   = 1.0
+      umin   = 0.1
+    !  umin   = 1.0
    END TYPE physical_constants
 
 

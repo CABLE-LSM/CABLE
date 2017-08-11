@@ -523,30 +523,32 @@ SUBROUTINE write_casa_dump( ncfile, casamet, casaflux, phen, climate, n_call, ke
 #endif
 END SUBROUTINE write_casa_dump
 
- SUBROUTINE casa_feedback(ktau,veg,casabiome,casapool,casamet)
+ SUBROUTINE casa_feedback(ktau,veg,casabiome,casapool,casamet,climate,ktauday)
   USE cable_def_types_mod
   USE casadimension
   USE casaparm
   USE casavariable
   USE casa_cnp_module, ONLY: vcmax_np
   USE cable_common_module,  ONLY:  CABLE_USER
+  USE cable_optimise_JV_module
   IMPLICIT NONE
   INTEGER,      INTENT(IN) :: ktau ! integration step number
   TYPE (veg_parameter_type),  INTENT(INOUT) :: veg  ! vegetation parameters
   TYPE (casa_biome),          INTENT(INOUT) :: casabiome
   TYPE (casa_pool),           INTENT(IN) :: casapool
   TYPE (casa_met),            INTENT(IN) :: casamet
+  TYPE (climate_type), INTENT(IN)       :: climate  ! climate variables
+  INTEGER,      INTENT(IN) :: ktauday ! number of time steps per day 
 
   integer np,ivt
   real, dimension(mp)  :: ncleafx,npleafx, pleafx, nleafx ! local variables
   real, dimension(17)                   ::  xnslope
   data xnslope/0.80,1.00,2.00,1.00,1.00,1.00,0.50,1.00,0.34,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00/
-  real:: ajv, bjv
+  real:: ajv, bjvref
   ! first initialize
   ncleafx(:) = casabiome%ratioNCplantmax(veg%iveg(:),leaf)
   npleafx = 14.2
-  ajv = 1.01 ! Walker 2014
-  bjv = 0.85 ! Walker 2014
+  bjvref = 1.7 ! Walker 2014
   DO np=1,mp
     ivt=veg%iveg(np)
     IF (casamet%iveg2(np)/=icewater &
@@ -590,39 +592,68 @@ END SUBROUTINE write_casa_dump
        if (ivt .EQ. 7 .OR.ivt .EQ. 9  ) then
           veg%vcmax(np) = 1.0e-5 ! special for C4 grass: set here to value from  parameter file
           veg%ejmax(np) = 2.0 * veg%vcmax(np)
+       elseif (ivt.eq.2) then
+          veg%vcmax(np) = vcmax_np(nleafx(np), pleafx(np)) * 1.6
+          veg%ejmax(np) =bjvref * veg%vcmax(np)
+       elseif (ivt.eq.1) then
+          ! account here for spring recovery
+          veg%vcmax(np) = vcmax_np(nleafx(np), pleafx(np))*1.4*climate%frec(np) 
+          veg%ejmax(np) =bjvref * veg%vcmax(np)
        else
-          veg%vcmax(np) = vcmax_np(nleafx(np), pleafx(np))
-          !veg%ejmax(np) = 2.0 * veg%vcmax(np)
-          veg%ejmax(np) = exp(log(veg%vcmax(np)*1e6)*bjv + ajv)*1e-6
-          if (cable_user%finite_gm) then
-              ! vcmax and jmax modifications according to Sun et al. 2014 Table S3
-             if (ivt.eq.1) then
-                veg%vcmax(np) = veg%vcmax(np) * 2.2
-                veg%ejmax(np) = veg%vcmax(np) * 1.1
-             elseif (ivt.eq.2) then
-                veg%vcmax(np) = veg%vcmax(np) * 1.9
-                veg%ejmax(np) = veg%vcmax(np) * 1.2
-             elseif (ivt.eq.3) then
-                veg%vcmax(np) = veg%vcmax(np) * 1.4
-                veg%ejmax(np) = veg%vcmax(np) * 1.5
-             elseif (ivt.eq.4) then
-                veg%vcmax(np) = veg%vcmax(np) * 1.45
-                veg%ejmax(np) = veg%vcmax(np) * 1.3
-             elseif (ivt.eq.5) then
-                veg%vcmax(np) = veg%vcmax(np) * 1.7
-                veg%ejmax(np) = veg%vcmax(np) * 1.2
-             elseif (ivt.eq.6 .OR. ivt.eq.8  .OR. ivt.eq.9) then
-                veg%vcmax(np) = veg%vcmax(np) * 1.6
-                veg%ejmax(np) = veg%vcmax(np) * 1.2
-             endif
-           
-          endif
+          veg%vcmax(np) = vcmax_np(nleafx(np), pleafx(np))*1.5
+          veg%ejmax(np) =bjvref * veg%vcmax(np)
        endif
+       !veg%ejmax(np) = 2.0 * veg%vcmax(np)
+      
+       
+       
+
+       if (cable_user%finite_gm) then
+          ! vcmax and jmax modifications according to Sun et al. 2014 Table S3
+          if (ivt.eq.1) then
+             veg%vcmax(np) = veg%vcmax(np) * 2.2
+             veg%ejmax(np) = veg%vcmax(np) * 1.1
+          elseif (ivt.eq.2) then
+             veg%vcmax(np) = veg%vcmax(np) * 1.9
+             veg%ejmax(np) = veg%vcmax(np) * 1.2
+          elseif (ivt.eq.3) then
+             veg%vcmax(np) = veg%vcmax(np) * 1.4
+             veg%ejmax(np) = veg%vcmax(np) * 1.5
+          elseif (ivt.eq.4) then
+             veg%vcmax(np) = veg%vcmax(np) * 1.45
+             veg%ejmax(np) = veg%vcmax(np) * 1.3
+          elseif (ivt.eq.5) then
+             veg%vcmax(np) = veg%vcmax(np) * 1.7
+             veg%ejmax(np) = veg%vcmax(np) * 1.2
+          elseif (ivt.eq.6 .OR. ivt.eq.8  .OR. ivt.eq.9) then
+             veg%vcmax(np) = veg%vcmax(np) * 1.6
+             veg%ejmax(np) = veg%vcmax(np) * 1.2
+          endif
+          
+       endif
+   
+ else
+    stop('invalid vcmax flag')
+ endif
+ 
+ENDDO
+
+if (mod(ktau,ktauday) ==1) then
+   if (cable_user%call_climate .and. TRIM(cable_user%vcmax).eq.'Walker2014' ) then
+      CALL optimise_JV(veg,climate,ktauday,bjvref)
+
     else
-       stop('invalid vcmax flag')
-    endif
-  
-  ENDDO
+
+       veg%vcmax_shade = veg%vcmax
+       veg%ejmax_shade = veg%ejmax
+       
+       veg%vcmax_sun = veg%vcmax
+       veg%ejmax_sun = veg%ejmax
+   endif
+endif
+
+! for 2 day test
+!if (ktau == ) stop
 
 !991 format(i6,2x,i4,2x,2(f9.3,2x))
  END SUBROUTINE casa_feedback

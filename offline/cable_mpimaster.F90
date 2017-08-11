@@ -600,7 +600,7 @@ CONTAINS
 
 
 
-             CALL master_climate_types(comm, climate)
+             CALL master_climate_types(comm, climate, ktauday)
 
             
              ! MPI: mvtype and mstype send out here instead of inside master_casa_params
@@ -676,7 +676,7 @@ CONTAINS
              
              ! MPI: mostly original serial code follows...
           ENDIF ! CALL1
-
+write(*,*) 'after CALL1'
 
           ! Open output file:
           IF (.NOT.CASAONLY) THEN
@@ -697,7 +697,6 @@ CONTAINS
                 CALL open_output_file( dels, soil, veg, bgc, rough )
              ENDIF
           ENDIF
-
 
           ! globally (WRT code) accessible kend through USE cable_common_module
           ktau_gl = 0
@@ -725,10 +724,9 @@ CONTAINS
                 !CALL PLUME_MIP_GET_MET(PLUME, iMET, YYYY, 1, kend, &
                 !     (YYYY.EQ.CABLE_USER%YearEnd))
              ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
-                
+              
                 CALL CRU_GET_SUBDIURNAL_MET(CRU, imet, YYYY, 1, kend, &
                      (YYYY.EQ.CABLE_USER%YearEnd))  
-                                
              ELSE
                 CALL get_met_data( spinup, spinConv, imet, soil,                 &
                      rad, iveg, kend, dels, C%TFRZ, iktau+koffset,                &
@@ -1331,7 +1329,7 @@ write(*,*) 'after annual calcs'
           !CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
           
           
-          CALL WRITE_CLIMATE_RESTART_NC ( climate )
+          CALL WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
        END IF
        
     END IF
@@ -6565,7 +6563,7 @@ SUBROUTINE master_casa_types (comm, casapool, casaflux, &
 
 END SUBROUTINE master_casa_types
 
-SUBROUTINE master_climate_types (comm, climate)
+SUBROUTINE master_climate_types (comm, climate, ktauday)
 
   USE mpi
 
@@ -6574,7 +6572,7 @@ SUBROUTINE master_climate_types (comm, climate)
   USE cable_common_module, ONLY: CABLE_USER
 
   TYPE(climate_type):: climate
-  INTEGER :: comm
+  INTEGER :: comm, ktauday
   ! MPI: temp arrays for marshalling all types into a struct
   INTEGER, ALLOCATABLE, DIMENSION(:) :: blocks
   INTEGER(KIND=MPI_ADDRESS_KIND), ALLOCATABLE, DIMENSION(:) :: displs
@@ -6594,11 +6592,11 @@ SUBROUTINE master_climate_types (comm, climate)
   INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
 
   INTEGER :: rank, off, cnt
-  INTEGER :: bidx, midx, vidx, ierr, ny, nd, ndq
+  INTEGER :: bidx, midx, vidx, ierr, ny, nd, ndq, nsd
 
-  CALL climate_init (climate, mp)
+  CALL climate_init (climate, mp, ktauday)
   if (cable_user%call_climate .AND.(.NOT.cable_user%climate_fromzero)) &
-       CALL READ_CLIMATE_RESTART_NC (climate)
+       CALL READ_CLIMATE_RESTART_NC (climate, ktauday)
   ALLOCATE (climate_ts(wnp))
 
   ! MPI: allocate temp vectors used for marshalling
@@ -6628,8 +6626,9 @@ SUBROUTINE master_climate_types (comm, climate)
      ny = climate%nyear_average
      nd = climate%nday_average
      ndq = 91
+     nsd = 5 * ktauday
 
-!print*, 'master, nd ny mp', nd, ny,mp
+print*, 'master, nd ny mp nsd', nd, ny,mp, nsd
 !print*, 'master, size(climate)', size(climate%mtemp_min_20)
      bidx = bidx + 1
      !types(bidx)  = MPI_REAL
@@ -6671,7 +6670,67 @@ SUBROUTINE master_climate_types (comm, climate)
      CALL MPI_Type_create_hvector (nd, r1len, r1stride, MPI_BYTE, &
      &                                types(bidx), ierr)
      blocks(bidx) = 1
- 
+
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%APAR_leaf_sun(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector (nsd, r1len, r1stride, MPI_BYTE, &
+     &                                types(bidx), ierr)
+     blocks(bidx) = 1 
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%APAR_leaf_shade(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector (nsd, r1len, r1stride, MPI_BYTE, &
+     &                                types(bidx), ierr)
+     blocks(bidx) = 1 
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%Dleaf_sun(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector (nsd, r1len, r1stride, MPI_BYTE, &
+     &                                types(bidx), ierr)
+     blocks(bidx) = 1 
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%Dleaf_shade(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector (nsd, r1len, r1stride, MPI_BYTE, &
+     &                                types(bidx), ierr)
+     blocks(bidx) = 1 
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%Tleaf_sun(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector (nsd, r1len, r1stride, MPI_BYTE, &
+     &                                types(bidx), ierr)
+     blocks(bidx) = 1 
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%Tleaf_shade(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector (nsd, r1len, r1stride, MPI_BYTE, &
+     &                                types(bidx), ierr)
+     blocks(bidx) = 1 
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%cs_sun(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector (nsd, r1len, r1stride, MPI_BYTE, &
+     &                                types(bidx), ierr)
+     blocks(bidx) = 1 
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%cs_shade(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector (nsd, r1len, r1stride, MPI_BYTE, &
+     &                                types(bidx), ierr)
+     blocks(bidx) = 1 
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%scalex_sun(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector (nsd, r1len, r1stride, MPI_BYTE, &
+     &                                types(bidx), ierr)
+     blocks(bidx) = 1 
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%scalex_shade(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector (nsd, r1len, r1stride, MPI_BYTE, &
+     &                                types(bidx), ierr)
+     blocks(bidx) = 1 
 
  ! ------------- 1D vectors -------------
 

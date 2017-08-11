@@ -446,8 +446,8 @@ CONTAINS
                   &                        rough,rad,sum_flux,bal)
 
 
-          
-             CALL worker_climate_types(comm, climate)
+             ktauday=int(24.0*3600.0/dels)
+             CALL worker_climate_types(comm, climate, ktauday)
 
              ! MPI: mvtype and mstype send out here instead of inside worker_casa_params
              !      so that old CABLE carbon module can use them. (BP May 2013)
@@ -612,13 +612,13 @@ CONTAINS
 
              ! Feedback prognostic vcmax and daily LAI from casaCNP to CABLE
              IF (l_vcmaxFeedbk) CALL casa_feedback( ktau, veg, casabiome,    &
-                  casapool, casamet )
+                  casapool, casamet, climate, ktauday )
 
              IF (l_laiFeedbk) veg%vlai(:) = REAL(casamet%glai(:))
 
              if (cable_user%CALL_climate) &
                  CALL cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met, &
-                      climate, canopy,air, dels,mp)
+                      climate, canopy,air,rad, dels,mp)
 
 
              ! CALL land surface scheme for this timestep, all grid points:
@@ -6260,7 +6260,7 @@ ENDIF
 
 
   
-SUBROUTINE worker_climate_types (comm, climate)
+SUBROUTINE worker_climate_types (comm, climate, ktauday)
 
     USE mpi
 
@@ -6270,7 +6270,7 @@ SUBROUTINE worker_climate_types (comm, climate)
     IMPLICIT NONE
 
     TYPE(climate_type), INTENT(INOUT):: climate
-    INTEGER, INTENT(IN) :: comm
+    INTEGER, INTENT(IN) :: comm, ktauday
 
     ! MPI: temp arrays for marshalling all types into a struct
     INTEGER, ALLOCATABLE, DIMENSION(:) :: blocks
@@ -6291,7 +6291,7 @@ SUBROUTINE worker_climate_types (comm, climate)
     INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
 
     INTEGER :: rank, off, cnt
-    INTEGER :: bidx, midx, vidx, ierr, ny, nd, ndq
+    INTEGER :: bidx, midx, vidx, ierr, ny, nd, ndq, nsd
     INTEGER :: stat(MPI_STATUS_SIZE), ierr2, rcount, pos
 
 
@@ -6299,7 +6299,7 @@ SUBROUTINE worker_climate_types (comm, climate)
     
    ! CALL alloc_cbm_var(climate,mp)
 
-    CALL climate_init (climate, mp)
+    CALL climate_init (climate, mp, ktauday)
     ! MPI: allocate temp vectors used for marshalling
     ntyp = nclimate
 
@@ -6321,7 +6321,9 @@ SUBROUTINE worker_climate_types (comm, climate)
     ny = climate%nyear_average
     nd = climate%nday_average
     ndq = 91
+    nsd = ktauday * 5  ! sub-diurnal time-steps for leaf-level variables
 
+print*, 'worker, nd ny mp nsd', nd, ny,mp, nsd
     bidx = bidx + 1
     CALL MPI_Get_address (climate%mtemp_min_20(off,1), displs(bidx), ierr)
     blocks(bidx) = ny*r1len
@@ -6354,6 +6356,57 @@ SUBROUTINE worker_climate_types (comm, climate)
     CALL MPI_Get_address (climate%dmoist_31(off,1), displs(bidx), ierr)
     blocks(bidx) = nd*r1len
     types(bidx)  = MPI_BYTE
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (climate%APAR_leaf_sun(off,1), displs(bidx), ierr)
+    blocks(bidx) = nsd*r1len
+    types(bidx)  = MPI_BYTE
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (climate%APAR_leaf_shade(off,1), displs(bidx), ierr)
+    blocks(bidx) = nsd*r1len
+    types(bidx)  = MPI_BYTE
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (climate%Dleaf_sun(off,1), displs(bidx), ierr)
+    blocks(bidx) = nsd*r1len
+    types(bidx)  = MPI_BYTE
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (climate%Dleaf_shade(off,1), displs(bidx), ierr)
+    blocks(bidx) = nsd*r1len
+    types(bidx)  = MPI_BYTE
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (climate%Tleaf_sun(off,1), displs(bidx), ierr)
+    blocks(bidx) = nsd*r1len
+    types(bidx)  = MPI_BYTE
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (climate%Tleaf_shade(off,1), displs(bidx), ierr)
+    blocks(bidx) = nsd*r1len
+    types(bidx)  = MPI_BYTE
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (climate%cs_sun(off,1), displs(bidx), ierr)
+    blocks(bidx) = nsd*r1len
+    types(bidx)  = MPI_BYTE
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (climate%cs_shade(off,1), displs(bidx), ierr)
+    blocks(bidx) = nsd*r1len
+    types(bidx)  = MPI_BYTE
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (climate%scalex_sun(off,1), displs(bidx), ierr)
+    blocks(bidx) = nsd*r1len
+    types(bidx)  = MPI_BYTE
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (climate%scalex_shade(off,1), displs(bidx), ierr)
+    blocks(bidx) = nsd*r1len
+    types(bidx)  = MPI_BYTE
+
 
    
     ! ------------- 1D vectors -------------

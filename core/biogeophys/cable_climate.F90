@@ -14,12 +14,13 @@
 ! Called from: cable_driver
 !
 ! History: Vanessa Haverd Jan 2015
-
+! Aug 2017: additional leaf-level met variables stored for use in optimising ratio
+! of Jmax to Vcmax
 ! ==============================================================================
 MODULE cable_climate_mod
 
  Use cable_def_types_mod, ONLY: met_type, climate_type, canopy_type, mp, &
-      r_2, alloc_cbm_var, air_type
+      r_2, alloc_cbm_var, air_type, radiation_type
  USE TypeDef,              ONLY: i4b, dp
  USE cable_IO_vars_module, ONLY: patch
  USE CABLE_COMMON_MODULE, ONLY: CurYear, filename, cable_user, HANDLE_ERR
@@ -29,7 +30,7 @@ CONTAINS
 
 
 SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, &
-     air, dels, np)
+     air, rad, dels, np)
 
 
   IMPLICIT NONE
@@ -44,6 +45,7 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
   TYPE (climate_type), INTENT(INOUT)       :: climate  ! climate variables
   TYPE (canopy_type), INTENT(IN) :: canopy ! vegetation variables
   TYPE (air_type), INTENT(IN)       :: air
+  TYPE (radiation_type), INTENT(IN)  :: rad	   ! radiation variables
   REAL, INTENT(IN)               :: dels ! integration time setp (s)
   INTEGER,      INTENT(IN)                  :: np
   INTEGER :: d, y, k
@@ -53,7 +55,7 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
   real,      dimension(mp)  :: mtemp_last, mmoist_last, phiEq, ppc, EpsA, RhoA
   integer :: startyear
   integer :: MonthDays(12)
-  integer::  DaysInMonth, nmonth, tmp
+  integer::  DaysInMonth, nmonth, tmp, nsd
   logical :: IsLastDay ! last day of month?
   real, PARAMETER:: Gaero = 0.015  ! (m s-1) aerodynmaic conductance (for use in PT evap)
   real, PARAMETER:: Capp   = 29.09    ! isobaric spec heat air    [J/molA/K]
@@ -63,6 +65,9 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
   real, PARAMETER:: ffrost = 0.1, fdorm0 = 0.15  ! for computing fractional spring recovery
   real, PARAMETER:: gdd0_rec0 = 500.0
   real, dimension(mp) :: f1, f2, frec0
+
+  nsd = ktauday*5 ! number of subdirunal time-steps to be accumulated
+
   climate%doy = idoy
 !write(*,*) idoy, climate%frec(1)
 !!$! * Find irradiances, available energy, equilibrium latent heat flux
@@ -117,7 +122,36 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
      climate%dmoist = climate%dmoist/FLOAT(ktauday)
   ENDIF
 
+  ! accumulate sub-diurnal sun- and shade-leaf met variables that are relevant for calc of Anet
+  climate%APAR_leaf_sun(:,1:nsd-1) =  climate%APAR_leaf_sun(:,2:nsd)
+  climate%APAR_leaf_sun(:,nsd) = rad%qcan(:,1,1)*4.6 ! umol m-2 s-1
 
+  climate%APAR_leaf_shade(:,1:nsd-1) = climate%APAR_leaf_shade(:,2:nsd)
+  climate%APAR_leaf_shade(:,nsd) = rad%qcan(:,1,2)*4.6 !umol m-2 s-1
+
+  climate%Dleaf_sun(:,1:nsd-1) =  climate%Dleaf_sun(:,2:nsd)
+  climate%Dleaf_sun(:,nsd) = canopy%dlf
+
+  climate%Dleaf_shade(:,1:nsd-1) = climate%Dleaf_shade(:,2:nsd)
+  climate%Dleaf_shade(:,nsd) = canopy%dlf
+
+  climate%Tleaf_sun(:,1:nsd-1) = climate%Tleaf_sun(:,2:nsd)
+  climate%Tleaf_sun(:,nsd) = canopy%tlf
+
+  climate%Tleaf_shade(:,1:nsd-1) = climate%Tleaf_shade(:,2:nsd)
+  climate%Tleaf_shade(:,nsd) = canopy%tlf
+
+  climate%cs_sun(:,1:nsd-1) = climate%cs_sun(:,2:nsd)
+  climate%cs_sun(:,nsd) = canopy%cs_sl ! ppm
+
+  climate%cs_shade(:,1:nsd-1) = climate%cs_shade(:,2:nsd)
+  climate%cs_shade(:,nsd) = canopy%cs_sh ! ppm
+
+  climate%scalex_sun(:,1:nsd-1) = climate%scalex_sun(:,2:nsd)
+  climate%scalex_sun(:,nsd) = rad%scalex(:,1)
+
+  climate%scalex_shade(:,1:nsd-1) = climate%scalex_shade(:,2:nsd)
+  climate%scalex_shade(:,nsd) = rad%scalex(:,2)
 
   IF(MOD((ktau-kstart+1),ktauday)==0) THEN  ! end of day
      ! get month and check if end of month
@@ -637,14 +671,14 @@ END SUBROUTINE BIOME1_PFT
 
 ! ==============================================================================
 
-SUBROUTINE climate_init ( climate,np )
+SUBROUTINE climate_init ( climate,np ,ktauday )
 IMPLICIT NONE
 
 TYPE (climate_type), INTENT(INOUT)       :: climate  ! climate variables
-INTEGER, INTENT(IN) :: np
+INTEGER, INTENT(IN) :: np, ktauday
 INTEGER :: d
 
-CALL alloc_cbm_var(climate,np)
+CALL alloc_cbm_var(climate,np,ktauday)
 
 if (cable_user%climate_fromzero) then
 
@@ -689,8 +723,18 @@ if (cable_user%climate_fromzero) then
    climate%frec = 1.0
    climate%GDD0_rec = 0.0
    climate%fdorm = 1.0
+   climate%APAR_leaf_sun =0.0
+   climate%APAR_leaf_shade = 0.0
+   climate%Dleaf_sun = 0.0
+   climate%Dleaf_shade = 0.0
+   climate%Tleaf_sun = 0.0
+   climate%Tleaf_shade = 0.0
+   climate%cs_sun = 0.0
+   climate%cs_shade = 0.0
+   climate%scalex_sun = 0.0
+   climate%scalex_shade = 0.0
 else
-   CALL READ_CLIMATE_RESTART_NC (climate)
+   CALL READ_CLIMATE_RESTART_NC (climate, ktauday )
 
 endif
 !else
@@ -702,7 +746,7 @@ END SUBROUTINE climate_init
 
 ! ==============================================================================
 
-SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate )
+SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
 
   USE netcdf
 
@@ -710,12 +754,12 @@ SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate )
   IMPLICIT NONE
 
   TYPE (climate_type), INTENT(IN)       :: climate  ! climate variables
-
-  INTEGER*4 :: mp4
+  INTEGER, INTENT(IN) :: ktauday
+  INTEGER*4 :: mp4, nsd
   INTEGER*4, parameter   :: pmp4 =0
   INTEGER, parameter   :: fmp4 = kind(pmp4)
   INTEGER*4   :: STATUS
-  INTEGER*4   :: FILE_ID, land_ID, nyear_ID, nday_ID, ndayq_ID, i
+  INTEGER*4   :: FILE_ID, land_ID, nyear_ID, nday_ID, ndayq_ID, nsd_ID, i
     CHARACTER :: CYEAR*4, FNAME*99,dum*50
 
   ! 0 dim arrays
@@ -730,11 +774,14 @@ SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate )
   CHARACTER(len=20),DIMENSION(2) :: A3
   ! 2 dim arrays (npt,91)
   CHARACTER(len=20),DIMENSION(1) :: A4
+  ! 2 dim arrays (npt,ktauday*14)
+  CHARACTER(len=20),DIMENSION(10) :: A5
 
 
   INTEGER*4 ::  VID0(SIZE(A0)),VID1(SIZE(A1)),VIDI1(SIZE(AI1)), &
-       VID2(SIZE(A2)), VID3(SIZE(A3)), VID4(SIZE(A4))
+       VID2(SIZE(A2)), VID3(SIZE(A3)), VID4(SIZE(A4)), VID5(SIZE(A5))
 
+  nsd = int(ktauday*5,fmp4) ! number of sub-diurnal time-steps (for photosynthesis drivers)
   mp4=int(mp,fmp4)
   A0(1) = 'nyears'
   A0(2) = 'year'
@@ -777,6 +824,17 @@ SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate )
 
   A4(1) = 'dtemp_91'
 
+  A5(1) = 'APAR_leaf_sun'
+  A5(2) = 'APAR_leaf_shade'
+  A5(3) = 'Dleaf_sun'
+  A5(4) = 'Dleaf_shade'
+  A5(5) = 'Tleaf_sun'
+  A5(6) = 'Tleaf_shade'
+  A5(7) = 'cs_sun'
+  A5(8) = 'cs_shade'
+  A5(9) = 'scalex_sun'
+  A5(10) = 'scalex_shade'
+
 !# define UM_BUILD YES
 # ifndef UM_BUILD
 
@@ -805,6 +863,9 @@ SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate )
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
   ! number of days (stored for 91 day quarterly means)
   STATUS = NF90_def_dim(FILE_ID, 'ndayq' , 91 , ndayq_ID)
+  IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+  ! number of sub-diurnal time-steps (stored for leaf photosynthesis drivers)
+   STATUS = NF90_def_dim(FILE_ID, 'nsd' , nsd , nsd_ID)
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
   DO i = 1, SIZE(A0)
@@ -835,6 +896,11 @@ SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate )
 
   DO i = 1, SIZE(A4)
      STATUS = NF90_def_var(FILE_ID,TRIM(A4(i)) ,NF90_FLOAT,(/land_ID,ndayq_ID/),VID4(i))
+     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+  END DO
+
+  DO i = 1, SIZE(A5)
+     STATUS = NF90_def_var(FILE_ID,TRIM(A5(i)) ,NF90_FLOAT,(/land_ID,nsd_ID/),VID5(i))
      IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
   END DO
 
@@ -950,6 +1016,37 @@ STATUS = NF90_PUT_VAR(FILE_ID, VID1(5), climate%qtemp )
   STATUS = NF90_PUT_VAR(FILE_ID, VID4(1), climate%dtemp_91 )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
+  STATUS = NF90_PUT_VAR(FILE_ID, VID5(1), climate%APAR_leaf_sun )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID5(2), climate%APAR_leaf_shade )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID5(3), climate%Dleaf_sun )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID5(4), climate%Dleaf_shade )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID5(5), climate%Tleaf_sun )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID5(6), climate%Tleaf_shade )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID5(7), climate%cs_sun )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID5(8), climate%cs_shade )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID5(9), climate%scalex_sun )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID5(10), climate%scalex_shade )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+
   ! Close NetCDF file:
   STATUS = NF90_close(FILE_ID)
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
@@ -959,7 +1056,7 @@ STATUS = NF90_PUT_VAR(FILE_ID, VID1(5), climate%qtemp )
 END SUBROUTINE WRITE_CLIMATE_RESTART_NC
 ! ==============================================================================
 
-SUBROUTINE READ_CLIMATE_RESTART_NC ( climate )
+SUBROUTINE READ_CLIMATE_RESTART_NC ( climate, ktauday )
 
   USE netcdf
 
@@ -967,12 +1064,12 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate )
   IMPLICIT NONE
 
   TYPE (climate_type), INTENT(INOUT)       :: climate  ! climate variables
-
-  INTEGER*4 :: mp4
+  INTEGER, INTENT(IN) :: ktauday
+  INTEGER*4 :: mp4, nsd
   INTEGER*4, parameter   :: pmp4 =0
   INTEGER, parameter   :: fmp4 = kind(pmp4)
   INTEGER*4   :: STATUS
-  INTEGER*4   :: FILE_ID, land_ID, nyear_ID, nday_ID, dID, i, land_dim
+  INTEGER*4   :: FILE_ID, land_ID, nyear_ID, nday_ID,nsd_ID, dID, i, land_dim
   CHARACTER :: CYEAR*4, FNAME*99,dum*50
 
   ! 0 dim arrays
@@ -987,12 +1084,17 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate )
   CHARACTER(len=20),DIMENSION(2) :: A3
  ! 2 dim arrays (npt,91)
   CHARACTER(len=20),DIMENSION(1) :: A4
+  ! 2 dim arrays (npt,ktauday*5)
+  CHARACTER(len=20),DIMENSION(10) :: A5
 
   REAL(r_2), DIMENSION(mp)          :: LAT, LON, TMP
   REAL(r_2)                         :: TMP2(mp,20),TMP3(mp,31),TMP4(mp,91)
+  REAL(r_2), ALLOCATABLE:: TMP5(:,:)
   INTEGER*4 :: TMPI(mp), TMPI0
   LOGICAL            ::  EXISTFILE
 
+  nsd = int(ktauday*5,fmp4) ! number of sub-diurnal time-steps (for photosynthesis drivers)
+  ALLOCATE(TMP5(mp, nsd)) 
   mp4=int(mp,fmp4)
   A0(1) = 'nyears'
   A0(2) = 'year'
@@ -1035,6 +1137,16 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate )
   
   A4(1) = 'dtemp_91'
 
+  A5(1) = 'APAR_leaf_sun'
+  A5(2) = 'APAR_leaf_shade'
+  A5(3) = 'Dleaf_sun'
+  A5(4) = 'Dleaf_shade'
+  A5(5) = 'Tleaf_sun'
+  A5(6) = 'Tleaf_shade'
+  A5(7) = 'cs_sun'
+  A5(8) = 'cs_shade'
+  A5(9) = 'scalex_sun'
+  A5(10) = 'scalex_shade'
 
   ! Get File-Name
   WRITE(CYEAR, FMT='(I4)') CurYear + 1
@@ -1062,6 +1174,9 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate )
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
   ! number of days (stored for 31 d monthly means
   STATUS = NF90_INQ_DIMID(FILE_ID, 'nday'   , dID)
+  IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+ ! number of sub-diurnal time-steps (stored for leaf photosynthesis drivers)
+  STATUS = NF90_INQ_DIMID(FILE_ID, 'nsd'   , dID)
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
   IF ( land_dim .NE. SIZE(patch%latitude)) THEN
@@ -1180,6 +1295,29 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate )
 
      SELECT CASE ( TRIM(A4(i)))
      CASE ('dtemp_91' ) ; climate%dtemp_91 = TMP4
+     END SELECT
+  END DO
+
+! READ 2-dimensional fields (nsd)
+  DO i = 1, SIZE(A5)
+     STATUS = NF90_INQ_VARID( FILE_ID, A5(i), dID )
+     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+     STATUS = NF90_GET_VAR( FILE_ID, dID, TMP5 )
+     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+
+     SELECT CASE ( TRIM(A5(i)))
+     CASE ('APAR_leaf_sun' ) ; climate%APAR_leaf_sun  = TMP5
+     CASE ('APAR_leaf_shade' ) ; climate%APAR_leaf_shade  = TMP5
+     CASE ('Dleaf_sun' ) ; climate%Dleaf_sun  = TMP5
+     CASE ('Dleaf_shade' ) ; climate%Dleaf_shade  = TMP5
+     CASE ('Tleaf_sun' ) ; climate%Tleaf_sun  = TMP5
+     CASE ('Tleaf_shade' ) ; climate%Tleaf_shade  = TMP5
+     CASE ('cs_sun' ) ; climate%cs_sun  = TMP5
+     CASE ('cs_shade' ) ; climate%cs_shade  = TMP5
+     CASE ('scalex_sun' ) ; climate%scalex_sun  = TMP5
+     CASE ('scalex_shade' ) ; climate%scalex_shade  = TMP5
+
+
      END SELECT
   END DO
 

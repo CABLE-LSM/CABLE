@@ -246,36 +246,36 @@ END SUBROUTINE WGEN_DAILY_CONSTANTS
 
 SUBROUTINE WGEN_SUBDIURNAL_MET(WG, np, itime)
 
-!-------------------------------------------------------------------------------
-! Routine for downscaling daily met data to ntime subdiurnal values per day,
-! at the instants ((it/ntime)*2400, it=1,ntime).
-!
-! ALGORITHMS:
-! * Downward solar irradiance:
-!   * Fit a daily irradiance time series based on solar geometry, normalised to
-!     observed daily total SolarMJDay. Reference: Paltridge and Platt (1976).
-! * Downward longwave irradiance:
-!   * Computed from downscaled air temperature using Swinbank (1963) formula.
-! * Precipitation:
-!   * Assume steady through 24 hours at average value (needs improvement?)
-! * Wind:
-!   * Set RatioWindLiteDark = (daytime wind) / (nighttime wind), a predetermined
-!     value, typically 3. Then calculate wind by day and wind by night (both
-!     steady, but different) to make the average work out right.
-! * Temperature:
-!   * Fit a sine wave from sunrise (TempMinDay) to peak at TempMaxDay, another
-!     from TempMaxDay to sunset, TempMinDay, and a square-root function from
-!     sunset to sunrise the next day (Cesaraccio et al 2001).
-! * Water Vapour Pressure, Air Pressure:
-!   * Hold constant. Return rel humidity at TempMinDay as a diagnostic on obs.
-!
-! HISTORY:
-! * 04-sep-2003 (MRR): 01 Written and tested in Program SubDiurnalWeather
-! * 30-nov-2007 (PRB): 02 Vectorise with deferred shape arrays, adding np dimension.
-! * 11-dec-2007 (PRB): 03 Switch to Cesaraccio et al 2001 algorithm for temperature
-! * 28/02/2012 (VH) :  04 cahnge precip from uniform distribution to evenly distributed over
-! the periods 0600:0700; 0700:0800; 1500:1600; 1800:1900
-!-------------------------------------------------------------------------------
+  !-------------------------------------------------------------------------------
+  ! Routine for downscaling daily met data to ntime subdiurnal values per day,
+  ! at the instants ((it/ntime)*2400, it=1,ntime).
+  !
+  ! ALGORITHMS:
+  ! * Downward solar irradiance:
+  !   * Fit a daily irradiance time series based on solar geometry, normalised to
+  !     observed daily total SolarMJDay. Reference: Paltridge and Platt (1976).
+  ! * Downward longwave irradiance:
+  !   * Computed from downscaled air temperature using Swinbank (1963) formula.
+  ! * Precipitation:
+  !   * Assume steady through 24 hours at average value (needs improvement?)
+  ! * Wind:
+  !   * Set RatioWindLiteDark = (daytime wind) / (nighttime wind), a predetermined
+  !     value, typically 3. Then calculate wind by day and wind by night (both
+  !     steady, but different) to make the average work out right.
+  ! * Temperature:
+  !   * Fit a sine wave from sunrise (TempMinDay) to peak at TempMaxDay, another
+  !     from TempMaxDay to sunset, TempMinDay, and a square-root function from
+  !     sunset to sunrise the next day (Cesaraccio et al 2001).
+  ! * Water Vapour Pressure, Air Pressure:
+  !   * Hold constant. Return rel humidity at TempMinDay as a diagnostic on obs.
+  !
+  ! HISTORY:
+  ! * 04-sep-2003 (MRR): 01 Written and tested in Program SubDiurnalWeather
+  ! * 30-nov-2007 (PRB): 02 Vectorise with deferred shape arrays, adding np dimension.
+  ! * 11-dec-2007 (PRB): 03 Switch to Cesaraccio et al 2001 algorithm for temperature
+  ! * 28/02/2012 (VH) :  04 cahnge precip from uniform distribution to evenly distributed over
+  ! the periods 0600:0700; 0700:0800; 1500:1600; 1800:1900
+  !-------------------------------------------------------------------------------
 
   IMPLICIT NONE
 
@@ -289,126 +289,138 @@ SUBROUTINE WGEN_SUBDIURNAL_MET(WG, np, itime)
   REAL(sp) :: ritime    ! Real version of current time
   REAL(sp),DIMENSION(np):: PhiLd_Swinbank     ! down longwave irradiance  [W/m2]
 
-!-------------------------------------------------------------------------------
+  !-------------------------------------------------------------------------------
 
-ritime = REAL(itime)     * WG%delT/3600.  ! Convert the current time to real
-rntime = REAL(WG%ndtime) * WG%delT/3600.  ! Convert ntime to real
+  ritime = REAL(itime)     * WG%delT/3600.  ! Convert the current time to real
+  rntime = REAL(WG%ndtime) * WG%delT/3600.  ! Convert ntime to real
 
-! Instantaneous downward hemispheric solar irradiance PhiSd
-TimeNoon = ritime/rntime - 0.5   ! Time in day frac (-0.5 to 0.5, zero at noon)
-TimeRad  = 2.0*Pi*TimeNoon       ! Time in day frac (-Pi to Pi, zero at noon)
-WHERE (ritime >= WG%TimeSunrise .AND. ritime <= WG%TimeSunset&
-     .AND.WG%SolarNorm.gt.1.e-3  ) ! Sun is up
-  WG%PhiSd = MAX((WG%SolarMJDay/WG%SolarNorm)  &   ! PhiSd [MJ/m2/day]
-      * ( SIN(WG%DecRad)*SIN(WG%LatRad) + COS(WG%DecRad)*COS(WG%LatRad) &
-      * COS(TimeRad) ), 0.0)  ! fix to avoid negative PhiSD vh 13/05/08
-                                        ! Paltridge and Platt eq [3.4]
-  WG%coszen = ( SIN(WG%DecRad)*SIN(WG%LatRad) + COS(WG%DecRad)*COS(WG%LatRad)*COS(TimeRad) )
-ELSEWHERE ! sun is down
-  WG%PhiSd  = 0.0
-  WG%coszen = 0.0
-END WHERE
+  ! Instantaneous downward hemispheric solar irradiance PhiSd
+  TimeNoon = ritime/rntime - 0.5   ! Time in day frac (-0.5 to 0.5, zero at noon)
+  TimeRad  = 2.0*Pi*TimeNoon       ! Time in day frac (-Pi to Pi, zero at noon)
+  WHERE (ritime >= WG%TimeSunrise .AND. ritime <= WG%TimeSunset&
+       .AND.WG%SolarNorm.gt.1.e-3  ) ! Sun is up
+     WG%PhiSd = MAX((WG%SolarMJDay/WG%SolarNorm)  &   ! PhiSd [MJ/m2/day]
+          * ( SIN(WG%DecRad)*SIN(WG%LatRad) + COS(WG%DecRad)*COS(WG%LatRad) &
+          * COS(TimeRad) ), 0.0)  ! fix to avoid negative PhiSD vh 13/05/08
+     ! Paltridge and Platt eq [3.4]
+     WG%coszen = ( SIN(WG%DecRad)*SIN(WG%LatRad) + COS(WG%DecRad)*COS(WG%LatRad)*COS(TimeRad) )
+  ELSEWHERE ! sun is down
+     WG%PhiSd  = 0.0
+     WG%coszen = 0.0
+  END WHERE
 
-WG%PhiSd    = WG%PhiSd*1e6/SecDay       ! Convert PhiSd: [MJ/m2/day] to [W/m2]
+  WG%PhiSd    = WG%PhiSd*1e6/SecDay       ! Convert PhiSd: [MJ/m2/day] to [W/m2]
 
-! -------------
-! Precipitation
-! -------------
+  ! -------------
+  ! Precipitation
+  ! -------------
 
-!Precip = PrecipDay*1000./rntime  ! convert from m/d to mm/h
-!Precip = (PrecipDay*1000.*9./24. + PrecipDayNext*1000.*15./24.)/rntime
-!Precip = (PrecipDay*1000.*9./24. + PrecipDayNext*1000.*15./24.)/24.  ! hourly precip [mm/h]
+  !Precip = PrecipDay*1000./rntime  ! convert from m/d to mm/h
+  !Precip = (PrecipDay*1000.*9./24. + PrecipDayNext*1000.*15./24.)/rntime
+  !Precip = (PrecipDay*1000.*9./24. + PrecipDayNext*1000.*15./24.)/24.  ! hourly precip [mm/h]
 
-IF ( ABS(ritime-REAL(INT(ritime))) .GT. 1e-7) THEN
-   WRITE(*,*) "Only works for integer hourly timestep! tstep = ", ritime
-   STOP  "cable_weathergenerator.F90!"
-ENDIF
-IF ((ritime >= 15. .AND. ritime < 16.).OR.(ritime >= 18. .AND. ritime < 19.)) THEN
-   WG%Precip = WG%PrecipDay *1000./2.
-   WG%Snow   = WG%SnowDay*1000./2.
-ELSE
-   WG%Precip = 0.
-   WG%Snow   = 0.
-ENDIF
+  IF ( ABS(ritime-REAL(INT(ritime))) .GT. 1e-7) THEN
+     WRITE(*,*) "Only works for integer hourly timestep! tstep = ", ritime
+     STOP  "cable_weathergenerator.F90!"
+  ENDIF
 
-! ----
-! Wind
-! ----
+  IF ((WG%ndtime .eq. 24) .OR. (WG%ndtime .eq. 8)) then
+     IF ((ritime >= 15. .AND. ritime < 16.).OR.(ritime >= 18. .AND. ritime < 19.)) THEN
+        WG%Precip = WG%PrecipDay *1000./2.
+        WG%Snow   = WG%SnowDay*1000./2.
+     ELSE
+        WG%Precip = 0.
+        WG%Snow   = 0.
+     ENDIF
+  elseif (WG%ndtime .eq. 12) then
+     IF ((ritime >= 16. .AND. ritime < 17.).OR.(ritime >= 18. .AND. ritime < 19.)) THEN
+        WG%Precip = WG%PrecipDay *1000./2.
+        WG%Snow   = WG%SnowDay*1000./2.
+     ELSE
+        WG%Precip = 0.
+        WG%Snow   = 0.
+     ENDIF
+     
+  endif
 
-WHERE (ritime >= WG%TimeSunrise .AND. ritime <= WG%TimeSunset) ! Sun is up
-   WG%Wind = WG%WindLite
-ELSEWHERE ! Sun is down
-   WG%Wind = WG%WindDark
-END WHERE
+  ! ----
+  ! Wind
+  ! ----
 
-! -----------
-! Temperature
-! -----------
-! Calculate temperature according to Cesaraccio et al 2001, including midnight to
-! sunrise period using previous days info, and ignoring the period from after the
-! following midnight to sunrise the next day, normally calculated by Cesaraccio.
-WHERE ( ritime <= WG%TimeSunrise )
-   ! Midnight to sunrise
-   WG%Temp = WG%TempSunsetPrev + WG%TempNightRatePrev * SQRT(ritime - WG%TimeSunsetPrev)
-ELSEWHERE (ritime > WG%TimeSunrise .AND. ritime <= WG%TimeMaxTemp)
-   ! Sunrise to time of maximum temperature
-   WG%Temp = WG%TempMinDay + &
-        WG% TempRangeDay *SIN (((ritime-WG%TimeSunrise)/ &
-        (WG%TimeMaxTemp-WG%TimeSunrise))*PiBy2)
-ELSEWHERE (ritime > WG%TimeMaxTemp .AND. ritime <= WG%TimeSunset)
-   ! Time of maximum temperature to sunset
-   WG%Temp = WG%TempSunset + &
-        WG%TempRangeAft * SIN(PiBy2 + ((ritime-WG%TimeMaxTemp)/4.*PiBy2))
-ELSEWHERE (ritime > WG%TimeSunset )
-   ! Sunset to midnight
-   WG%Temp = WG%TempSunset + WG%TempNightRate * SQRT(ritime - WG%TimeSunset)
-END WHERE
+  WHERE (ritime >= WG%TimeSunrise .AND. ritime <= WG%TimeSunset) ! Sun is up
+     WG%Wind = WG%WindLite
+  ELSEWHERE ! Sun is down
+     WG%Wind = WG%WindDark
+  END WHERE
 
-! -----------------------------------
-! Water Vapour Pressure, Air Pressure
-! -----------------------------------
+  ! -----------
+  ! Temperature
+  ! -----------
+  ! Calculate temperature according to Cesaraccio et al 2001, including midnight to
+  ! sunrise period using previous days info, and ignoring the period from after the
+  ! following midnight to sunrise the next day, normally calculated by Cesaraccio.
+  WHERE ( ritime <= WG%TimeSunrise )
+     ! Midnight to sunrise
+     WG%Temp = WG%TempSunsetPrev + WG%TempNightRatePrev * SQRT(ritime - WG%TimeSunsetPrev)
+  ELSEWHERE (ritime > WG%TimeSunrise .AND. ritime <= WG%TimeMaxTemp)
+     ! Sunrise to time of maximum temperature
+     WG%Temp = WG%TempMinDay + &
+          WG% TempRangeDay *SIN (((ritime-WG%TimeSunrise)/ &
+          (WG%TimeMaxTemp-WG%TimeSunrise))*PiBy2)
+  ELSEWHERE (ritime > WG%TimeMaxTemp .AND. ritime <= WG%TimeSunset)
+     ! Time of maximum temperature to sunset
+     WG%Temp = WG%TempSunset + &
+          WG%TempRangeAft * SIN(PiBy2 + ((ritime-WG%TimeMaxTemp)/4.*PiBy2))
+  ELSEWHERE (ritime > WG%TimeSunset )
+     ! Sunset to midnight
+     WG%Temp = WG%TempSunset + WG%TempNightRate * SQRT(ritime - WG%TimeSunset)
+  END WHERE
 
-!CLN VapPmb = VapPmbDay
-!CLN Pmb    = PmbDay
-!CLN
-!CLN IF (ritime <= 9.) THEN
-!CLN    ! before 9am
-!CLN    VapPmb = VapPmb1500Prev + (VapPmb0900 - VapPmb1500Prev) * (9. + ritime)/18.
-!CLN ELSEIF (ritime > 9 .AND. ritime <= 15.) THEN
-!CLN ! between 9am and 15:00
-!CLN    VapPmb = VapPmb0900 + (VapPmb1500 - VapPmb0900) * (ritime - 9.)/(15.-9.)
-!CLN ELSEIF (ritime > 15.) THEN
-!CLN ! after 15:00
-!CLN   VapPmb  = VapPmb1500 + (VapPmb0900Next - VapPmb1500) * (ritime - 15.)/18.
-!CLN END IF
+  ! -----------------------------------
+  ! Water Vapour Pressure, Air Pressure
+  ! -----------------------------------
 
-! ----------------------------
-! Downward longwave irradiance
-! ----------------------------
+  !CLN VapPmb = VapPmbDay
+  !CLN Pmb    = PmbDay
+  !CLN
+  !CLN IF (ritime <= 9.) THEN
+  !CLN    ! before 9am
+  !CLN    VapPmb = VapPmb1500Prev + (VapPmb0900 - VapPmb1500Prev) * (9. + ritime)/18.
+  !CLN ELSEIF (ritime > 9 .AND. ritime <= 15.) THEN
+  !CLN ! between 9am and 15:00
+  !CLN    VapPmb = VapPmb0900 + (VapPmb1500 - VapPmb0900) * (ritime - 9.)/(15.-9.)
+  !CLN ELSEIF (ritime > 15.) THEN
+  !CLN ! after 15:00
+  !CLN   VapPmb  = VapPmb1500 + (VapPmb0900Next - VapPmb1500) * (ritime - 15.)/18.
+  !CLN END IF
 
-PhiLd_Swinbank = 335.97 * (((WG%Temp + 273.16) / 293.0)**6)   ! [W/m2] (Swinbank 1963)
+  ! ----------------------------
+  ! Downward longwave irradiance
+  ! ----------------------------
 
-! -------------------------------
-! Alternate longwave formulation
-! ----------------------------
+  PhiLd_Swinbank = 335.97 * (((WG%Temp + 273.16) / 293.0)**6)   ! [W/m2] (Swinbank 1963)
 
-WG%PhiLd = epsilon * SBoltz * (WG%Temp + 273.16)**4       ! [W/m2] (Brutsaert)
+  ! -------------------------------
+  ! Alternate longwave formulation
+  ! ----------------------------
 
-WHERE (WG%PhiSd.GT.50.0)
-        adjust_fac = ((1.17)**(WG%SolarNorm))/1.17
-ELSEWHERE
-        adjust_fac = 0.9
-ENDWHERE
+  WG%PhiLd = epsilon * SBoltz * (WG%Temp + 273.16)**4       ! [W/m2] (Brutsaert)
 
-WG%PhiLd = WG%PhiLd /adjust_fac * (1.0 + WG%PhiSd/8000.)       ! adjustment (formulation from Gab Abramowitz)
+  WHERE (WG%PhiSd.GT.50.0)
+     adjust_fac = ((1.17)**(WG%SolarNorm))/1.17
+  ELSEWHERE
+     adjust_fac = 0.9
+  ENDWHERE
 
-WHERE ((WG%PhiLd.GT.500.00).OR.(WG%PhiLd.LT.100.00))
-        WG%PhiLd = PhiLd_Swinbank
-ENDWHERE
+  WG%PhiLd = WG%PhiLd /adjust_fac * (1.0 + WG%PhiSd/8000.)       ! adjustment (formulation from Gab Abramowitz)
 
-IF (ANY((WG%PhiLd.GT.750.00).OR.(WG%PhiLd.LT.100.00))) THEN
-!write(*,*) 'PhiLD out of range'
-ENDIF
+  WHERE ((WG%PhiLd.GT.500.00).OR.(WG%PhiLd.LT.100.00))
+     WG%PhiLd = PhiLd_Swinbank
+  ENDWHERE
+
+  IF (ANY((WG%PhiLd.GT.750.00).OR.(WG%PhiLd.LT.100.00))) THEN
+     !write(*,*) 'PhiLD out of range'
+  ENDIF
 
 END SUBROUTINE WGEN_SUBDIURNAL_MET
 

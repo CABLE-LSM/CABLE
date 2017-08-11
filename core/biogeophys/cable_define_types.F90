@@ -274,6 +274,8 @@ MODULE cable_def_types_mod
          canst1,  & ! max intercepted water by canopy (mm/LAI)
          dleaf,   & ! chararacteristc legnth of leaf (m)
          ejmax,   & ! max pot. electron transp rate top leaf(mol/m2/s)
+         ejmax_shade,   & ! max pot. electron transp rate top leaf(mol/m2/s)
+         ejmax_sun,   & ! max pot. electron transp rate top leaf(mol/m2/s)
          meth,    & ! method for calculation of canopy fluxes and temp.
          frac4,   & ! fraction of c4 plants
          hc,      & ! roughness height of canopy (veg - snow)
@@ -289,6 +291,8 @@ MODULE cable_def_types_mod
          tmaxvj,  & ! max temperature of the start of photosynthesis
          vbeta,   & !
          vcmax,   & ! max RuBP carboxylation rate top leaf (mol/m2/s)
+         vcmax_shade,   & ! max RuBP carboxylation rate top leaf (mol/m2/s)
+         vcmax_sun,   & ! max RuBP carboxylation rate top leaf (mol/m2/s)
          xfang,   & ! leaf angle PARAMETER
          extkn,   & ! extinction coef for vertical
          vlaimax, & ! extinction coef for vertical
@@ -406,7 +410,13 @@ MODULE cable_def_types_mod
          A_shJ, &     ! gross photosynthesis from shaded leaves  (rubp limited)
          eta_A_cs, &      ! elasticity of photosynthesis wrt cs, mulitplied by gross photosythesis
          dAdcs, & ! sensitivity of photosynthesis wrt cs, mulitplied by gross photosythesis
-         cs       ! leaf surface CO2 (ppm), mulitplied by gross photosythesis
+         cs, &       ! leaf surface CO2 (ppm), mulitplied by gross photosythesis
+         cs_sl, &    !  leaf surface CO2 (ppm) (sunlit)
+         cs_sh, &    !  leaf surface CO2 (ppm) (shaded)
+         tlf, &      ! dry leaf temperature
+         dlf         ! dryleaf vp minus in-canopy vp (Pa)
+
+
      ! Additional variables:
      REAL(r_2), DIMENSION(:,:),   POINTER :: gw     ! dry canopy conductance (ms-1) edit vh 6/7/09
      REAL(r_2), DIMENSION(:,:,:), POINTER :: ancj   ! limiting photosynthetic rates (Rubisco,RuBP,sink) vh 6/7/09
@@ -608,8 +618,17 @@ MODULE cable_def_types_mod
       dtemp_31 , &    ! daily temperature for the last 31 days
       dmoist_31 , &    ! daily moisture availability for the last 31 days
       alpha_PT_20, &      ! priestley Taylor Coefft for last 20 y
-      dtemp_91     ! daily temperature for the last 91 days
-
+      dtemp_91, &     ! daily temperature for the last 91 days
+      APAR_leaf_sun, &  ! flux of PAR absrobed by sunlit leaves (subdiurnal time-step)
+      APAR_leaf_shade, & ! flux of PAR absrobed by shaded leaves (subdiurnal time-step)
+      Dleaf_sun, & ! leaf-air vapour pressure difference (sun leaves, subdiurnal time-step)
+      Dleaf_shade,  & ! leaf-air vapour pressure difference (shade leaves, subdiurnal time-step)
+      Tleaf_sun, & ! leaf T (sun leaves, subdiurnal time-step)
+      Tleaf_shade, &  ! leaf T  (shade leaves, subdiurnal time-step)
+      cs_sun, &     ! sun leaf cs (ppm CO2)
+      cs_shade, &          ! shade leaf cs (ppm CO2)
+      scalex_sun, & ! canopy depth scaling factor on vcmax and jmax (sun leaves)
+      scalex_shade ! canopy depth scaling factor on vcmax and jmax (shade leaves)
    END TYPE climate_type
 
 ! .............................................................................
@@ -894,6 +913,8 @@ SUBROUTINE alloc_veg_parameter_type(var, mp)
    ALLOCATE( var% canst1(mp) )
    ALLOCATE( var% dleaf(mp) )
    ALLOCATE( var% ejmax(mp) )
+   ALLOCATE( var% ejmax_shade(mp) )
+   ALLOCATE( var% ejmax_sun(mp) )
    ALLOCATE( var% iveg(mp) )
    ALLOCATE( var% ivegp(mp) )
    ALLOCATE( var% iLU(mp) )
@@ -912,6 +933,8 @@ SUBROUTINE alloc_veg_parameter_type(var, mp)
    ALLOCATE( var% tmaxvj(mp) )
    ALLOCATE( var% vbeta(mp) )
    ALLOCATE( var% vcmax(mp) )
+   ALLOCATE( var% vcmax_shade(mp) )
+   ALLOCATE( var% vcmax_sun(mp) )
    ALLOCATE( var% xfang(mp) )
    ALLOCATE( var%extkn(mp) )
    ALLOCATE( var%wai(mp) )
@@ -1005,6 +1028,10 @@ SUBROUTINE alloc_canopy_type(var, mp)
    ALLOCATE( var% eta_A_cs(mp) )
    ALLOCATE( var% cs(mp) )
    ALLOCATE( var% dAdcs(mp) )
+   ALLOCATE( var% cs_sl(mp) )
+   ALLOCATE( var% cs_sh(mp) )
+   ALLOCATE( var% tlf(mp) )
+   ALLOCATE( var% dlf(mp) )
 
    ALLOCATE ( var % evapfbl(mp,ms) )
    ALLOCATE( var% epot(mp) )
@@ -1164,17 +1191,16 @@ END SUBROUTINE alloc_met_type
 
 ! ------------------------------------------------------------------------------
 
-SUBROUTINE alloc_climate_type(var, mp)
+SUBROUTINE alloc_climate_type(var, mp, ktauday)
 
    IMPLICIT NONE
 
    TYPE(climate_type), INTENT(inout) :: var
-   INTEGER, INTENT(in) :: mp
+   INTEGER, INTENT(in) :: mp, ktauday
    INTEGER :: ny, nd
    ny = var%nyear_average
    nd = var%nday_average
-print*, 'ny', ny
-print*, 'nd', nd
+
 !   ALLOCATE ( var %  nyears )
 !   ALLOCATE ( var %  doy )
    ALLOCATE ( var %  dtemp(mp) )
@@ -1212,7 +1238,16 @@ print*, 'nd', nd
    ALLOCATE ( var %     dmoist_31(mp,nd) )
    ALLOCATE ( var %     dtemp_91(mp,91) )
    ALLOCATE ( var %     alpha_PT_20(mp,ny) )
-
+   ALLOCATE ( var %   APAR_leaf_sun(mp,ktauday*5) )
+   ALLOCATE ( var %   APAR_leaf_shade(mp,ktauday*5) )
+   ALLOCATE ( var %   Dleaf_sun(mp,ktauday*5) )
+   ALLOCATE ( var %   Dleaf_shade(mp,ktauday*5) )
+   ALLOCATE ( var %   Tleaf_sun(mp,ktauday*5) )
+   ALLOCATE ( var %   Tleaf_shade(mp,ktauday*5) )
+   ALLOCATE ( var %   cs_sun(mp,ktauday*5) )
+   ALLOCATE ( var %   cs_shade(mp,ktauday*5) )
+   ALLOCATE ( var %   scalex_sun(mp,ktauday*5) )
+   ALLOCATE ( var %   scalex_shade(mp,ktauday*5) )
 END SUBROUTINE alloc_climate_type
 
 ! ------------------------------------------------------------------------------
@@ -1454,6 +1489,8 @@ SUBROUTINE dealloc_veg_parameter_type(var)
    DEALLOCATE( var% canst1 )
    DEALLOCATE( var% dleaf )
    DEALLOCATE( var% ejmax )
+   DEALLOCATE( var% ejmax_shade )
+   DEALLOCATE( var% ejmax_sun )
    DEALLOCATE( var% iveg )
    DEALLOCATE( var% ivegp )
    DEALLOCATE( var% iLU )
@@ -1472,6 +1509,8 @@ SUBROUTINE dealloc_veg_parameter_type(var)
    DEALLOCATE( var% tmaxvj )
    DEALLOCATE( var% vbeta)
    DEALLOCATE( var% vcmax )
+   DEALLOCATE( var% vcmax_shade )
+   DEALLOCATE( var% vcmax_sun )
    DEALLOCATE( var% xfang )
    DEALLOCATE( var%extkn )
    DEALLOCATE( var%wai )
@@ -1562,6 +1601,11 @@ SUBROUTINE dealloc_canopy_type(var)
    DEALLOCATE( var% eta_A_cs )
    DEALLOCATE( var% cs )
    DEALLOCATE( var% dAdcs )
+   DEALLOCATE( var% cs_sl)
+   DEALLOCATE( var% cs_sh )
+   DEALLOCATE( var% tlf )
+   DEALLOCATE( var% dlf )
+
    
    DEALLOCATE ( var % evapfbl )
    DEALLOCATE( var% epot )

@@ -598,9 +598,9 @@ PROGRAM cable_offline_driver
        CALL zero_sum_casa(sum_casapool, sum_casaflux)
        count_sum_casa = 0
        
-       if (cable_user%call_climate) CALL climate_init ( climate, mp )
+       if (cable_user%call_climate) CALL climate_init ( climate, mp, ktauday )
        if (cable_user%call_climate .AND.(.NOT.cable_user%climate_fromzero)) &
-            CALL READ_CLIMATE_RESTART_NC (climate)
+            CALL READ_CLIMATE_RESTART_NC (climate, ktauday)
        
        spinConv = .FALSE. ! initialise spinup convergence variable
        IF (.NOT.spinup)	spinConv=.TRUE.
@@ -715,7 +715,7 @@ PROGRAM cable_offline_driver
              
              ! Feedback prognostic vcmax and daily LAI from casaCNP to CABLE
              IF (l_vcmaxFeedbk) CALL casa_feedback( ktau, veg, casabiome,	 &
-                  casapool, casamet )
+                  casapool, casamet, climate, ktauday )
              
              IF (l_laiFeedbk.and.icycle>0) veg%vlai(:) = casamet%glai(:)
              !veg%vlai = 2 ! test
@@ -726,7 +726,7 @@ PROGRAM cable_offline_driver
 
                  if (cable_user%CALL_climate) &
                   CALL cable_climate(ktau_tot,kstart,kend,ktauday,idoy,LOY,met, &
-                  climate, canopy, air, dels, mp)
+                  climate, canopy, air, rad, dels, mp)
                     
                     
                     ssnow%smelt = ssnow%smelt*dels
@@ -1123,7 +1123,7 @@ PROGRAM cable_offline_driver
 	  canopy, rough, rad, bgc, bal, met )
      !mpidiff
      if (cable_user%CALL_climate) &
-          CALL WRITE_CLIMATE_RESTART_NC ( climate )
+          CALL WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
 
      !--- LN ------------------------------------------[
   ENDIF

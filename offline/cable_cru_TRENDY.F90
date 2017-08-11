@@ -449,15 +449,15 @@ write(*,*) 'after alloc landmask'
 
 
     SELECT CASE ( par )
-    CASE(rain) ; FN = TRIM(FN)//"/rain/cruncepV7_rain_"//cy//".daytot.nc"
-    CASE(lwdn) ; FN = TRIM(FN)//"/lwdown/cruncepV7_lwdown_"//cy//".daymean.nc"
-    CASE(swdn) ; FN = TRIM(FN)//"/swdown/cruncepV7_swdown_"//cy//".daymean.nc"
-    CASE(pres) ; FN = TRIM(FN)//"/press/cruncepV7_press_"//cy//".daymean.nc"
-    CASE(qair) ; FN = TRIM(FN)//"/qair/cruncepV7_qair_"//cy//".daymean.nc"
-    CASE(tmax,PrevTmax) ; FN = TRIM(FN)//"/tmax/cruncepV7_tmax_"//cy//".daymax.nc"
-    CASE(tmin,NextTmin) ; FN = TRIM(FN)//"/tmin/cruncepV7_tmin_"//cy//".daymin.nc"
-    CASE(uwind) ; FN = TRIM(FN)//"/uwind/cruncepV7_uwind_"//cy//".daymean.nc"
-    CASE(vwind) ; FN = TRIM(FN)//"/vwind/cruncepV7_vwind_"//cy//".daymean.nc"
+    CASE(rain) ; FN = TRIM(FN)//"/rain/cruncepV8_rain_"//cy//".daytot.nc"
+    CASE(lwdn) ; FN = TRIM(FN)//"/lwdown/cruncepV8_lwdown_"//cy//".daymean.nc"
+    CASE(swdn) ; FN = TRIM(FN)//"/swdown/cruncepV8_swdown_"//cy//".daymean.nc"
+    CASE(pres) ; FN = TRIM(FN)//"/press/cruncepV8_press_"//cy//".daymean.nc"
+    CASE(qair) ; FN = TRIM(FN)//"/qair/cruncepV8_qair_"//cy//".daymean.nc"
+    CASE(tmax,PrevTmax) ; FN = TRIM(FN)//"/tmax/cruncepV8_tmax_"//cy//".daymax.nc"
+    CASE(tmin,NextTmin) ; FN = TRIM(FN)//"/tmin/cruncepV8_tmin_"//cy//".daymin.nc"
+    CASE(uwind) ; FN = TRIM(FN)//"/uwind/cruncepV8_uwind_"//cy//".daymean.nc"
+    CASE(vwind) ; FN = TRIM(FN)//"/vwind/cruncepV8_vwind_"//cy//".daymean.nc"
     END SELECT
 
   END SUBROUTINE CRU_GET_FILENAME
@@ -490,7 +490,7 @@ write(*,*) 'after alloc landmask'
 ! On the first call, allocate the CRU%CO2VALS array to store the entire history of annual CO2 
 ! values, open the (ascii) CO2 file and read the values into the array. 
     IF (CALL1) THEN
-      ALLOCATE( CRU%CO2VALS( 1750:2015 ) )
+      ALLOCATE( CRU%CO2VALS( 1750:2016 ) )
       CO2FILE = TRIM(CRU%BasePath)//"/co2/1750_2015_globalCO2_time_series.csv"
       CALL GET_UNIT(iunit)
       OPEN (iunit, FILE=TRIM(CO2FILE), STATUS="OLD", ACTION="READ")
@@ -579,8 +579,8 @@ write(*,*) 'after alloc landmask'
 
   IF ( TRIM(CRU%Ndep) .NE. "static1860") THEN
 
-     ! read Ndep at current year (noting that file starts at 1850)
-     CRU%Ndep_CTSTEP = CRU%CYEAR - 1850 + 1
+     ! read Ndep at current year (noting that file starts at 1850 and ends in 2015)
+     CRU%Ndep_CTSTEP = min(CRU%CYEAR, 2015) - 1850 + 1
      t =  CRU%Ndep_CTSTEP
      ErrStatus = NF90_GET_VAR(CRU%NdepF_ID, CRU%NdepV_ID, tmparr, &
           start=(/1,1,t/),count=(/xds,yds,1/) )

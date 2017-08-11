@@ -45,7 +45,7 @@ MODULE cable_canopy_module
   USE cable_IO_vars_module, ONLY: wlogn
   IMPLICIT NONE
 
-  PUBLIC define_canopy
+  PUBLIC define_canopy,  xvcmxt3,xejmxt3, ej3x , xrdt
   PRIVATE
 
   TYPE( icanopy_type ) :: C
@@ -320,7 +320,6 @@ CONTAINS
           ELSE
              ssnow%rtsoil(j) = rt0(j) + rough%rt1(j)
           ENDif
-if(j==6) write(59,*) 'rtsoil', canopy%vlaiw(j), C%LAI_THRESH, rt0(j), rough%rt1(j),canopy%us
        ENDDO
 
 
@@ -1717,6 +1716,14 @@ if(j==6) write(59,*) 'rtsoil', canopy%vlaiw(j), C%LAI_THRESH, rt0(j), rough%rt1(
              ejmxt3(i,1) = rad%scalex(i,1) * temp(i)
              ejmxt3(i,2) = rad%scalex(i,2) * temp(i)
 
+             if (cable_user%CALL_climate) then
+
+                vcmxt3(i,1) = vcmxt3(i,1)/veg%vcmax(i) * veg%vcmax_sun(i)
+                vcmxt3(i,2) = vcmxt3(i,2)/veg%vcmax(i) * veg%vcmax_shade(i)
+                ejmxt3(i,1) = ejmxt3(i,1)/veg%ejmax(i) * veg%ejmax_sun(i)
+                ejmxt3(i,2) = ejmxt3(i,2)/veg%ejmax(i) * veg%ejmax_shade(i)
+             endif
+
              ! Difference between leaf temperature and reference temperature:
              tdiff(i) = tlfx(i) - C%TREFK
 
@@ -1760,27 +1767,24 @@ if(j==6) write(59,*) 'rtsoil', canopy%vlaiw(j), C%LAI_THRESH, rt0(j), rough%rt1(
 
     
               if (cable_user%CALL_climate) then
-                 if (veg%iveg(i).eq.1) then
-
-
-                    temp2(i,1) = rad%qcan(i,1,1) * jtomol * (1.0-veg%frac4(i))
-                    temp2(i,2) = rad%qcan(i,2,1) * jtomol * (1.0-veg%frac4(i))
-!!$                    vx3(i,1)  = ej3x(temp2(i,1),climate%frec(i)*1.5*veg%alpha(i), &
+!!$                 if (veg%iveg(i).eq.1) then
+!!$
+!!$
+!!$                    temp2(i,1) = rad%qcan(i,1,1) * jtomol * (1.0-veg%frac4(i))
+!!$                    temp2(i,2) = rad%qcan(i,2,1) * jtomol * (1.0-veg%frac4(i))
+                    
+!!$
+!!$                    vx3(i,1)  = ej3x(temp2(i,1),climate%frec(i)*veg%alpha(i), &
 !!$                         veg%convex(i),ejmxt3(i,1))
-!!$                    vx3(i,2)  = ej3x(temp2(i,2),climate%frec(i)*1.5*veg%alpha(i), &
+!!$                    vx3(i,2)  = ej3x(temp2(i,2),climate%frec(i)*veg%alpha(i), &
 !!$                         veg%convex(i),ejmxt3(i,2))
-
-                    vx3(i,1)  = ej3x(temp2(i,1),climate%frec(i)*veg%alpha(i), &
-                         veg%convex(i),ejmxt3(i,1))
-                    vx3(i,2)  = ej3x(temp2(i,2),climate%frec(i)*veg%alpha(i), &
-                         veg%convex(i),ejmxt3(i,2))
-
-
-                    temp(i) =  xvcmxt3(tlfx(i)) * veg%vcmax(i) * (1.0-veg%frac4(i))
-
-                    vcmxt3(i,1) = rad%scalex(i,1) * temp(i) * climate%frec(i)
-                    vcmxt3(i,2) = rad%scalex(i,2) * temp(i) * climate%frec(i)
-                 endif
+!!$
+!!$
+!!$                    temp(i) =  xvcmxt3(tlfx(i)) * veg%vcmax(i) * (1.0-veg%frac4(i))
+!!$
+!!$                    vcmxt3(i,1) = rad%scalex(i,1) * temp(i) * climate%frec(i)
+!!$                    vcmxt3(i,2) = rad%scalex(i,2) * temp(i) * climate%frec(i)
+!!$                 endif
 
 
                  ! Atkin et al. 2015, Table S4, 
@@ -1800,7 +1804,7 @@ if(j==6) write(59,*) 'rtsoil', canopy%vlaiw(j), C%LAI_THRESH, rt0(j), rough%rt1(
                      0.0334*climate%qtemp_max_last_year(i)*1e-6)
 
                 if (cable_user%finite_gm) then
-                   rdx(i,1) = 0.90*(1.2818e-6+0.0116*veg%vcmax(i)/1.9- &
+                   rdx(i,1) = 0.9*(1.2818e-6+0.0116*veg%vcmax(i)/1.9- &
                      0.0334*climate%qtemp_max_last_year(i)*1e-6)
                 endif
 
@@ -1817,11 +1821,11 @@ if(j==6) write(59,*) 'rtsoil', canopy%vlaiw(j), C%LAI_THRESH, rt0(j), rough%rt1(
                 rdx(i,2) = rdx(i,1)
 
              elseif (veg%iveg(i).eq.1   ) then ! evergreen needleleaf forest
-                 rdx(i,1) = 1.0*(1.2877e-6+0.0116*climate%frec(i)*veg%vcmax(i)- &
+                 rdx(i,1) = 1.0*(1.2877e-6+0.0116*veg%vcmax(i)- &
                       0.0334*climate%qtemp_max_last_year(i)*1e-6)
 
                  if (cable_user%finite_gm) then
-                    rdx(i,1) = 1.0*(1.2877e-6+0.0116*climate%frec(i)*veg%vcmax(i)/2.2- &
+                    rdx(i,1) = 1.0*(1.2877e-6+0.0116*veg%vcmax(i)/2.2- &
                          0.0334*climate%qtemp_max_last_year(i)*1e-6)
                  endif
 
@@ -1855,8 +1859,7 @@ if(j==6) write(59,*) 'rtsoil', canopy%vlaiw(j), C%LAI_THRESH, rt0(j), rough%rt1(
                       0.0334*climate%qtemp_max_last_year(i)*1e-6)
                  rdx(i,2) = rdx(i,1)
               endif
-
-     
+              veg%cfrd(i) = rdx(i,1) / veg%vcmax(i)
               ! modify for leaf area and instanteous temperature response (Rd25 -> Rd)
                  rdx(i,1) = rdx(i,1) * xrdt(tlfx(i)) * rad%scalex(i,1)
                  rdx(i,2) = rdx(i,2) * xrdt(tlfx(i)) * rad%scalex(i,2)
@@ -2203,8 +2206,8 @@ if(j==6) write(59,*) 'rtsoil', canopy%vlaiw(j), C%LAI_THRESH, rt0(j), rough%rt1(
 !!$  write(3352,"(200e16.6)") met%hod
 !!$  write(3353,"(200e16.6)") an_y(:,1)
 !!$  write(3354,"(200e16.6)") an_y(:,2)
-!!$  write(3355,"(200e16.6)") veg%vcmax
-!!$  write(3356,"(200e16.6)") veg%ejmax
+!!$  write(3355,"(200e16.6)") veg%vcmax_sun
+!!$  write(3356,"(200e16.6)") veg%ejmax_sun
 !!$  write(3357,"(200e16.6)") gmes(:,1)
 !!$  write(3358,"(200e16.6)") gmes(:,2)
 !!$  write(3359,"(200e16.6)") met%ca
@@ -2219,6 +2222,10 @@ if(j==6) write(59,*) 'rtsoil', canopy%vlaiw(j), C%LAI_THRESH, rt0(j), rough%rt1(
 !!$ write(3363,"(200e16.6)") canopy%fwsoil
 !!$ write(3364,"(200e16.6)")  gs_coeff(:,1)
 !!$ write(3365,"(200e16.6)")  gs_coeff(:,2)
+!!$ write(3366,"(200e16.6)") veg%vcmax_shade
+!!$ write(3367,"(200e16.6)") veg%ejmax_shade
+!!$ write(3378,"(200e16.6)") anrubiscoy(:,2)
+!!$ write(3369,"(200e16.6)") anrubpy(:,2)
     ! dry canopy flux
     canopy%fevc = (1.0-canopy%fwet) * ecy
 
@@ -2293,9 +2300,13 @@ if(j==6) write(59,*) 'rtsoil', canopy%vlaiw(j), C%LAI_THRESH, rt0(j), rough%rt1(
 !!$       canopy%A_sl = 0.0
 !!$    end where
     
-    canopy%eta_A_cs = canopy%A_sh *eta_y(:,2) + canopy%A_sl *eta_y(:,1)
+    canopy%eta_A_cs = canopy%A_sh *min(eta_y(:,2),5.0) + canopy%A_sl *min(eta_y(:,1),5.0)
     canopy%dAdcs = canopy%A_sh *dAn_y(:,2) + canopy%A_sl *dAn_y(:,1)
     canopy%cs =  canopy%A_sh*csx(:,2)*1e6 + canopy%A_sl*csx(:,1)*1e6
+    canopy%cs_sl = csx(:,1)*1e6
+    canopy%cs_sh =  csx(:,2)*1e6
+    canopy%tlf = tlfy
+    canopy%dlf = dsx
 
     canopy%evapfbl = ssnow%evapfbl
 
@@ -2841,7 +2852,7 @@ END SUBROUTINE photosynthesis_gm
                    gammast = cx2z(i,j)/2.0 
                    Rd = rdxz(i,j)
                  
-                   ! get partial derivative of A wrt cs
+                   ! get An and partial derivative of A wrt cs
                    CALL fAndAn1(cs, g0, X*cs, gamma, beta, gammast, Rd, &
                         Am, dAmc(i,j))
 
@@ -3097,7 +3108,7 @@ END SUBROUTINE photosynthesis
     REAL, PARAMETER  :: EntropVc = 486.0  ! J/mol/K (Leuning 2002)
     REAL, PARAMETER  :: xVccoef = 1.17461 ! derived parameter
     ! xVccoef=1.0+exp((EntropJx*C%TREFK-EHdJx)/(Rconst*C%TREFK))
-
+    CALL point2constants(C)
     xvcnum=xvccoef*exp( ( ehavc / ( C%rgas*C%TREFK ) )* ( 1.-C%TREFK/x ) )
     xvcden=1.0+exp( ( entropvc*x-ehdvc ) / ( C%rgas*x ) )
     z = max( 0.0,xvcnum / xvcden )
@@ -3108,7 +3119,7 @@ END SUBROUTINE photosynthesis
   ! ------------------------------------------------------------------------------
  REAL FUNCTION xrdt(x)
 
-   !  Atkins et al. (Eq 1, New Phytologist (2015) 206: 614–636) 
+   !  Atkin et al. (Eq 1, New Phytologist (2015) 206: 614–636) 
    !variable Q10 temperature of dark respiration
    ! Originally from Tjoelker et al. 2001
 
@@ -3133,7 +3144,7 @@ END SUBROUTINE photosynthesis
     REAL, PARAMETER  :: EHdJx  = 152044.0 ! J/mol (Leuning 2002)
     REAL, PARAMETER  :: EntropJx = 495.0  ! J/mol/K (Leuning 2002)
     REAL, PARAMETER  :: xjxcoef = 1.16715 ! derived parameter
- 
+    CALL point2constants(C)
     xjxnum = xjxcoef*exp( ( ehajx / ( C%rgas*C%TREFK ) ) * ( 1.-C%TREFK / x ) )
     xjxden=1.0+exp( ( entropjx*x-ehdjx) / ( C%rgas*x ) )
     z = max(0.0, xjxnum/xjxden)
