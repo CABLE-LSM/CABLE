@@ -652,6 +652,7 @@ if (mod(ktau,ktauday) ==1) then
    endif
 endif
 
+
 ! for 2 day test
 !if (ktau == ) stop
 

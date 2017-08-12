@@ -2898,51 +2898,46 @@ END SUBROUTINE photosynthesis_gm
                    dAmp(i,j) = 0.0
                    eta_p(i,j) = 0.0
                 elseif (vcmxt4z(i,j).gt.1e-10 .and.gs_coeffz(i,j).gt.1e2  ) then
-!!$                   coef2z(i,j) = gs_coeffz(i,j)
-!!$
-!!$                   coef1z(i,j) = gswminz(i,j)*fwsoilz(i)/C%RGSWC + gs_coeffz(i,j) * rdxz(i,j)                  &
-!!$                        + effc4 * vcmxt4z(i,j)  * (1.0 - gs_coeffz(i,j) * csxz(i,j) )  
-!!$
-!!$                   coef0z(i,j) = -( gswminz(i,j)*fwsoilz(i)/C%RGSWC )*csxz(i,j)*effc4 &
-!!$                        * vcmxt4z(i,j) + rdxz(i,j) * gswminz(i,j)*fwsoilz(i)/C%RGSWC
-!!$
-!!$                   ! solve linearly
-!!$                   IF( ABS( coef2z(i,j) ) < 1.e-9 .AND.                            &
-!!$                        ABS( coef1z(i,j) ) >= 1.e-9 ) THEN
-!!$
-!!$                      ciz(i,j) = -1.0 * coef0z(i,j) / coef1z(i,j)
-!!$                      ansinkz(i,j)  = ciz(i,j)
-!!$
-!!$                   ENDIF
-!!$
-!!$                   ! solve quadratic (only take the more positive solution)
-!!$                   IF( ABS( coef2z(i,j) ) >= 1.e-9 ) THEN
-!!$
-!!$                      delcxz(i,j) = coef1z(i,j)**2 -4.0*coef0z(i,j)*coef2z(i,j)
-!!$
-!!$                      ansinkz(i,j) = (-coef1z(i,j)+SQRT (MAX(0.0_r_2,delcxz(i,j)) ) )  &
-!!$                           / ( 2.0 * coef2z(i,j) )
-!!$
-!!$
-!!$                   ENDIF
+                   coef2z(i,j) = gs_coeffz(i,j)
+
+                   coef1z(i,j) = gswminz(i,j)*fwsoilz(i)/C%RGSWC + gs_coeffz(i,j) * rdxz(i,j)                  &
+                        + effc4 * vcmxt4z(i,j)  * (1.0 - gs_coeffz(i,j) * csxz(i,j) )  
+
+                   coef0z(i,j) = -( gswminz(i,j)*fwsoilz(i)/C%RGSWC )*csxz(i,j)*effc4 &
+                        * vcmxt4z(i,j) + rdxz(i,j) * gswminz(i,j)*fwsoilz(i)/C%RGSWC
+
+                   ! no solution, give it a huge number
+                   IF( ABS( coef2z(i,j) ) < 1.0e-9 .AND.                           &
+                        ABS( coef1z(i,j)) < 1.0e-9 ) THEN
+                      
+                      ciz(i,j) = 99999.0
+                      ansinkz(i,j)  = 99999.0
+
+                   ENDIF
+
+                   ! solve linearly
+                   IF( ABS( coef2z(i,j) ) < 1.e-9 .AND.                            &
+                        ABS( coef1z(i,j) ) >= 1.e-9 ) THEN
+
+                      ciz(i,j) = -1.0 * coef0z(i,j) / coef1z(i,j)
+                      ansinkz(i,j)  = ciz(i,j)
+
+                   ENDIF
+
+                   ! solve quadratic (only take the more positive solution)
+                   IF( ABS( coef2z(i,j) ) >= 1.e-9 ) THEN
+
+                      delcxz(i,j) = coef1z(i,j)**2 -4.0*coef0z(i,j)*coef2z(i,j)
+
+                      ansinkz(i,j) = (-coef1z(i,j)+SQRT (MAX(0.0_r_2,delcxz(i,j)) ) )  &
+                           / ( 2.0 * coef2z(i,j) )
+
+
+                   ENDIF
    
                    dAmp(i,j) = 0.0
                    eta_p(i,j) = 0.0
-                   gamma = effc4 * vcmxt4z(i,j) 
-                   beta = 0.0
-                   Rd  = rdxz(i,j)
-                   X = gs_coeffz(i,j)
-                   gammast = 0.0
-                   g0 = 0.0
-                   cs = csxz(i,j)
-                   CALL fAndAn2(cs, g0, X*cs, gamma, beta, gammast, Rd, &
-                         Am, dAmp(i,j))
-                   ansinkz(i,j) = Am
-                   if (Am > 0) eta_p(i,j) = dAmp(i,j)*cs/Am
 
-
-
-!!$                   gm = 100.0
 !!$                   gamma = effc4 * vcmxt4z(i,j) 
 !!$                   beta = 0.0
 !!$                   Rd  = rdxz(i,j)
@@ -2950,13 +2945,11 @@ END SUBROUTINE photosynthesis_gm
 !!$                   gammast = 0.0
 !!$                   g0 = 0.0
 !!$                   cs = csxz(i,j)
-!!$                   CALL fAndAn1(cs, g0, X*cs, gamma, beta, gammast, Rd, &
+!!$                   CALL fAndAn2(cs, g0, X*cs, gamma, beta, gammast, Rd, &
 !!$                         Am, dAmp(i,j))
-!!$                  ! CALL fAmdAm1(cs, g0, X*cs, gamma, beta, gammast, Rd, &
-!!$                  !      gm, Am, dAmp(i,j))
-!!$                   if (Am > 0) dAmp(i,j) = dAmp(i,j)*cs/Am
-!!$                   write(62,*) Am, ansinkz(i,j), gm ,  (g0+X*Am),  dAmp(i,j)
 !!$                   ansinkz(i,j) = Am
+!!$                   if (Am > 0) eta_p(i,j) = dAmp(i,j)*cs/Am
+
 
 
                 endif
