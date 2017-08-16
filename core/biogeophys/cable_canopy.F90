@@ -2183,7 +2183,7 @@ CONTAINS
        END DO !over mp
 
     END DO  ! DO WHILE (ANY(abs_deltlf > 0.1) .AND.  k < C%MAXITER)
-
+!!$
 !!$  write(3333,"(200e16.6)") tlfx
 !!$  write(3334,"(200e16.6)") met%tvair
 !!$  write(3335,"(200e16.6)") met%tk
@@ -2194,7 +2194,7 @@ CONTAINS
 !!$  write(3340,"(200e16.6)") gbhf(:,1)
 !!$  write(3341,"(200e16.6)") gbhf(:,2)
 !!$  write(3342,"(200e16.6)") rad%qcan(:,1,1)
-!!$  write(3343,"(200e16.6)") rad%qcan(:,1,2)
+!!$  write(3343,"(200e16.6)") rad%qcan(:,2,1)
 !!$  write(3344,"(200e16.6)") gw(:,1)
 !!$  write(3345,"(200e16.6)") gw(:,2)
 !!$  write(3346,"(200e16.6)") met%dva
@@ -3370,6 +3370,7 @@ END SUBROUTINE photosynthesis
     else
        fws    = maxval(alpha_root(2:)*delta_root(2:))
     endif
+
 
   END SUBROUTINE getrex_1d
 !*****************************************************************************************

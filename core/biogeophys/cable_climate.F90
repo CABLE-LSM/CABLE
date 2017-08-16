@@ -125,10 +125,14 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
   ! accumulate sub-diurnal sun- and shade-leaf met variables that are relevant for calc of Anet
   climate%APAR_leaf_sun(:,1:nsd-1) =  climate%APAR_leaf_sun(:,2:nsd)
   climate%APAR_leaf_sun(:,nsd) = rad%qcan(:,1,1)*4.6 ! umol m-2 s-1
-
+!write(*,*) 'APAR 1a',  climate%APAR_leaf_shade(2,:)
+!write(*,*)
+!write(*,*) 'qcan', rad%qcan(2,1,1:2), met%fsd(2,:), canopy%vlaiw(2)
+!write(*,*)
   climate%APAR_leaf_shade(:,1:nsd-1) = climate%APAR_leaf_shade(:,2:nsd)
-  climate%APAR_leaf_shade(:,nsd) = rad%qcan(:,1,2)*4.6 !umol m-2 s-1
-
+  climate%APAR_leaf_shade(:,nsd) = rad%qcan(:,2,1)*4.6 !umol m-2 s-1
+!write(*,*) 'APAR 1b',  climate%APAR_leaf_shade(2,:)
+!write(*,*)
   climate%Dleaf_sun(:,1:nsd-1) =  climate%Dleaf_sun(:,2:nsd)
   climate%Dleaf_sun(:,nsd) = canopy%dlf
 

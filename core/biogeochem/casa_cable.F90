@@ -593,14 +593,14 @@ END SUBROUTINE write_casa_dump
           veg%vcmax(np) = 1.0e-5 ! special for C4 grass: set here to value from  parameter file
           veg%ejmax(np) = 2.0 * veg%vcmax(np)
        elseif (ivt.eq.2) then
-          veg%vcmax(np) = vcmax_np(nleafx(np), pleafx(np)) * 1.6
+          veg%vcmax(np) = vcmax_np(nleafx(np), pleafx(np)) * 1.10
           veg%ejmax(np) =bjvref * veg%vcmax(np)
        elseif (ivt.eq.1) then
           ! account here for spring recovery
-          veg%vcmax(np) = vcmax_np(nleafx(np), pleafx(np))*1.4*climate%frec(np) 
+          veg%vcmax(np) = vcmax_np(nleafx(np), pleafx(np))*1.25*climate%frec(np) 
           veg%ejmax(np) =bjvref * veg%vcmax(np)
        else
-          veg%vcmax(np) = vcmax_np(nleafx(np), pleafx(np))*1.5
+          veg%vcmax(np) = vcmax_np(nleafx(np), pleafx(np))*1.25
           veg%ejmax(np) =bjvref * veg%vcmax(np)
        endif
        !veg%ejmax(np) = 2.0 * veg%vcmax(np)

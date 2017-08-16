@@ -76,7 +76,7 @@ SUBROUTINE optimise_JV (veg, climate, ktauday, bjvref)
           Rd0 = veg%cfrd(k) * veg%vcmax(k)
           fwsoil =(climate%dmoist_31(k,31))
           alpha = climate%frec(k)*veg%alpha(k) ! quantum efficiency for
-          ! electron transport (adjusted down for spring recovery in conifers)
+          ! electron transport 
           convex = veg%convex(k) 
           Neff = vcmax00 + relcost_J*bjvref*vcmax00/4. ! effective nitrogen amount 
           !for distribution between e-limited and c-limited processes
@@ -88,6 +88,16 @@ SUBROUTINE optimise_JV (veg, climate, ktauday, bjvref)
           Tleaf = climate%Tleaf_shade(k,:)
           cs = climate%cs_shade(k,:)*1e-6
           scalex = climate%scalex_shade(k,:)
+
+!!$if (k==2) then
+!!$write(*,*) 'APAR',  climate%APAR_leaf_shade(k,:)
+!!$   write(5333,"(200e16.6)") APAR
+!!$   write(5334,"(200e16.6)") Dleaf
+!!$   write(5335,"(200e16.6)") Tleaf
+!!$   write(5336,"(200e16.6)") cs
+!!$   write(5337,"(200e16.6)") scalex
+!!$
+!!$endif
 
 !write(*,*) 'init guesses',total_photosynthesis_cost(bjvref) , &
 !total_photosynthesis_cost(l_bound), total_photosynthesis_cost(u_bound)
@@ -114,13 +124,7 @@ SUBROUTINE optimise_JV (veg, climate, ktauday, bjvref)
           cs = climate%cs_sun(k,:)*1e-6
           scalex = climate%scalex_sun(k,:)
 
-!if (k==7) then
-!   write(5333,"(200e16.6)") APAR
-!   write(5334,"(200e16.6)") Dleaf
-!   write(5335,"(200e16.6)") Tleaf
-!   write(5336,"(200e16.6)") cs
-!   write(5337,"(200e16.6)") scalex
-!endif
+
 
           if(total_photosynthesis_cost(bjvref).lt.total_photosynthesis_cost(l_bound).and. &
                total_photosynthesis_cost(bjvref).lt.total_photosynthesis_cost(u_bound)) then
@@ -147,19 +151,18 @@ SUBROUTINE optimise_JV (veg, climate, ktauday, bjvref)
 !           endif
 
 
-       !if (k==7) then
-       !   write(6333,"(200e16.6)") APAR
-       !   write(6334,"(200e16.6)") Dleaf
-       !   write(6335,"(200e16.6)") Tleaf
-       !   write(6336,"(200e16.6)") cs
-       !   write(6337,"(200e16.6)") scalex
-       !endif
-
-
-!if (k==7) then
-!   write(4333,"(200e16.6)") vcmax00, g1, fwsoil, alpha, convex, Rd0, veg%vcmax_shade(k) , &
-!        veg%ejmax_shade(k) , veg%vcmax_sun(k) , veg%ejmax_sun(k) 
-!endif
+!!$       if (k==2) then
+!!$          write(6333,"(200e16.6)") APAR
+!!$          write(6334,"(200e16.6)") Dleaf
+!!$          write(6335,"(200e16.6)") Tleaf
+!!$          write(6336,"(200e16.6)") cs
+!!$          write(6337,"(200e16.6)") scalex
+!!$       endif
+!!$
+!!$if (k==2) then
+!!$   write(4333,"(200e16.6)") vcmax00, g1, fwsoil, alpha, convex, Rd0, veg%vcmax_shade(k) , &
+!!$        veg%ejmax_shade(k) , veg%vcmax_sun(k) , veg%ejmax_sun(k) 
+!!$endif
 
     ENDDO
 

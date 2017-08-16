@@ -976,13 +976,23 @@ SUBROUTINE casa_xratesoil(xklitter,xksoil,veg,soil,casamet,casabiome)
         strf(npt)=exp(-3.764+0.204*tsoil(npt)*(1-0.5*tsoil(npt)/36.9))/.66
       ELSE IF (trim(cable_user%STRF_NAME)=='PnET-CN') THEN
         strf(npt)=0.68*exp(0.1*(tsoil(npt)-7.1))/12.64
+      ELSE if (trim(cable_user%STRF_NAME)=='LT1994') THEN
+        ! Lloyd & Taylor, Func. Ec. 8, 315, 1994, Eq 11.
+         strf(npt)= exp(308.56*(1.0/56.02-1.0         &
+                   / (max(tsoil(npt),-20.0)+46.02)))/5.65 
+   ! factor of 5.65 gives same value as q10=2 response at 10 degC (ref T 35 degC).
+         !strf(npt)= exp(388.56*(1.0/56.02-1.0         &
+         !          / (max(tsoil(npt),-20.0)+46.02)))/7.45 
+         ! factor of 5.65 gives same value as q10=2 response at 10 degC (ref T 35 degC).
       END IF
       !xksoil(npt) = casabiome%xkoptsoil(veg%iveg(npt))*strf(npt)*smrf(npt)
       !xklitter(npt) = casabiome%xkoptlitter(veg%iveg(npt)) *strf(npt)*smrf(npt)
       xksoil(npt) = strf(npt)*smrf(npt)
       xklitter(npt) = strf(npt)*smrf(npt)
 
-!write(67,"(i8,18e16.6)") npt, fwps(npt), smrf(npt),xkwater(npt),  xksoil(npt), xklitter(npt)
+!write(67,"(i8,18e16.6)") npt, fwps(npt), smrf(npt), strf(npt),xkwater(npt),  xktemp(npt), xklitter(npt)
+!write(67,"(i8,18e16.6)") npt, tsoil(npt), strf(npt),  xktemp(npt)
+
    END IF
   END IF
   END DO

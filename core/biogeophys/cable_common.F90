@@ -128,7 +128,8 @@ MODULE cable_common_module
      ! Custom soil respiration - see Ticket #42
      CHARACTER(LEN=15) ::                                                     &
           SMRF_NAME = 'Trudinger2016',   & ! Soil Moist Respiration Function
-          STRF_NAME = 'CASA-CNP'     ! Soil Temp Respiration Function
+          !STRF_NAME = 'CASA-CNP'     ! Soil Temp Respiration Function
+          STRF_NAME = 'LT1994'     ! Soil Temp Respiration Function
 
      LOGICAL ::                                                               &
           INITIALIZE_MAPPING    = .FALSE., & !

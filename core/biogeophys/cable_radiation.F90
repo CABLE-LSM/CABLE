@@ -161,11 +161,11 @@ SUBROUTINE init_radiation( met, rad, veg, canopy )
       rad%extkb = rad%extkd + 0.001
    END WHERE
 
-!!$   WHERE(rad%fbeam(:,1) < C%RAD_THRESH )
-!!$      ! higher value precludes sunlit leaves at night. affects
-!!$      ! nighttime evaporation - Ticket #90 
-!!$      rad%extkb=1.0e5 
-!!$    END WHERE
+   WHERE(rad%fbeam(:,1) < C%RAD_THRESH )
+      ! higher value precludes sunlit leaves at night. affects
+      ! nighttime evaporation - Ticket #90 
+      rad%extkb=1.0e5 
+    END WHERE
 
 END SUBROUTINE init_radiation
 

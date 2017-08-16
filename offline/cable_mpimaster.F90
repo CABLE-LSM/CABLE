@@ -956,7 +956,7 @@ write(*,*) 'after CALL1'
                                rad%fvlai(kk,:) ,  rad%fvlai(kk,1), &
                                rad%fvlai(kk,2), canopy%vlaiw(kk)
 
-                      CALL MPI_Abort(comm, 0, ierr)
+                     ! CALL MPI_Abort(comm, 0, ierr)
                      ENDIF
                       
                     ENDDO
