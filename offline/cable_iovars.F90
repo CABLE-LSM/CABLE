@@ -25,6 +25,8 @@ MODULE cable_IO_vars_module
 
    PUBLIC
    PRIVATE r_2, mvtype, mstype
+   !mrd561 debug
+   integer :: wlogn
 
    ! ============ Timing variables =====================
    REAL :: shod ! start time hour-of-day
@@ -102,7 +104,8 @@ MODULE cable_IO_vars_module
          PSurf, &
          Qair, &
          Tair, &
-         wind
+         wind, &
+         mask
 
    END TYPE gswp_type
 
@@ -130,7 +133,10 @@ MODULE cable_IO_vars_module
           ejmax,frac4,hc,lai,rp20,rpcoef,shelrb, vbeta, xalbnir,               &
           vcmax,xfang,ratecp,ratecs,refsbare,isoil,iveg,albsoil,               &
           taul,refl,tauw,refw,wai,vegcf,extkn,tminvj,tmaxvj,                   &
-          veg_class,soil_class,mvtype,mstype,patchfrac
+          veg_class,soil_class,mvtype,mstype,patchfrac,                        &
+           WatSat,GWWatSat,SoilMatPotSat,GWSoilMatPotSat,                       &
+          HkSat,GWHkSat,FrcSand,FrcClay,Clappb,Watr,GWWatr,sfc_vec,forg,swilt_vec, &
+          slope,slope_std,GWdz,SatFracmax,Qhmax,QhmaxEfold,HKefold,HKdepth
      INTEGER :: ishorizon,nhorizons,clitt, &
           zeta,fsatmax, &
           gamma,ZR,F10
@@ -261,6 +267,12 @@ MODULE cable_IO_vars_module
          CanT = .FALSE.,      & ! within-canopy temperature [K]
          Fwsoil = .FALSE.,      & ! soil moisture modifier to stomatal conductance
          Area = .FALSE., & ! patch area in km2
+         !mrd561
+         !MD GW
+         GWMoist = .FALSE.,   & ! water balance of aquifer [mm3/mm3]
+         WatTable = .FALSE.,  & ! water table depth [m]
+         Qrecharge=.FALSE.,   &  !recharge to /from auqifer
+         SatFrac=.FALSE.,       & ! Saturated Fraction of Gridcell (tile)
 
          !! vh_js !! additional casa variables
          NBP = .FALSE., &
@@ -341,7 +353,15 @@ MODULE cable_IO_vars_module
          patchfrac  = .FALSE.,& ! fractional cover of each veg/soil patch
          isoil  = .FALSE.,    & ! soil type from global index
          meth  = .FALSE.,     & ! method for solving turbulence in canopy scheme
-         za  = .FALSE.          ! something to do with roughness ????
+         za  = .FALSE.,       & ! something to do with roughness ????
+         slope = .false.,&      !mean subgrid slope
+         slope_std=.false.,&    !stddev of subgrid slope
+         GWdz=.false.,&         !aquifer thickness
+         SatFracmax=.false.,&
+         Qhmax=.false.,&
+         QhmaxEfold=.false.,&
+         HKefold=.false.,&
+         HKdepth
 
    END TYPE output_inclusion_type
 

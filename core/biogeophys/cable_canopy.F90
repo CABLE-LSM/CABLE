@@ -42,6 +42,7 @@
 MODULE cable_canopy_module
 
   USE cable_data_module, ONLY : icanopy_type, point2constants
+
   IMPLICIT NONE
 
   PUBLIC define_canopy
@@ -60,6 +61,8 @@ CONTAINS
     USE cable_common_module
     USE cable_roughness_module
     USE sli_utils, ONLY : potential_evap
+    USE cable_psm, ONLY:  or_soil_evap_resistance
+    USE cable_gw_hydro_module, ONLY : pore_space_relative_humidity, saturated_fraction
 
 
     TYPE (balances_type), INTENT(INOUT)  :: bal
@@ -320,6 +323,10 @@ CONTAINS
 
        ENDDO
 
+       IF (cable_user%or_evap) THEN
+          call or_soil_evap_resistance(soil,air,met,canopy,ssnow,veg,rough)
+       END IF
+
        ! Vegetation boundary-layer conductance (mol/m2/s)
        ! C%prandt = kinematic viscosity/molecular diffusivity
        ! See CSIRO SCAM, Raupach et al 1997, eq. 3.12. Top leaf:
@@ -416,6 +423,7 @@ CONTAINS
        ! Saturation specific humidity at soil/snow surface temperature:
       call qsatfjh(ssnow%qstss,ssnow%tss-C%tfrz,met%pmb)
 
+      call pore_space_relative_humidity(ssnow,soil,veg)
 
        If (cable_user%soil_struc=='default') THEN
 
@@ -437,7 +445,11 @@ CONTAINS
 
           ! Calculate soil sensible heat:
           !canopy%fhs = air%rho*C%CAPP*(ssnow%tss - met%tk) /ssnow%rtsoil
-          IF (cable_user%litter) THEN
+          IF (cable_user%gw_model .or. cable_user%or_evap) THEN
+             canopy%fhs =  air%rho*C%CAPP*(ssnow%tss - met%tk) / &
+                  (ssnow%rtsoil + ssnow%rt_qh_sublayer)
+          
+          ELSEIF (cable_user%litter) THEN
              !! vh_js !! account for additional litter resistance to sensible heat transfer
              canopy%fhs =  air%rho*C%CAPP*(ssnow%tss - met%tk) / &
                   (ssnow%rtsoil + real((1-ssnow%isflag))*veg%clitt*0.003/canopy%kthLitt/(air%rho*C%CAPP))
@@ -477,7 +489,11 @@ CONTAINS
 
           ! Soil sensible heat:
           !canopy%fhs = air%rho*C%CAPP*(ssnow%tss - met%tvair) /ssnow%rtsoil
-          IF (cable_user%litter) THEN
+          IF (cable_user%gw_model .or. cable_user%or_evap) THEN
+             canopy%fhs =  air%rho*C%CAPP*(ssnow%tss - met%tvair) / &
+                  (ssnow%rtsoil + real(ssnow%rt_qh_sublayer))
+
+          ELSEIF (cable_user%litter) THEN
              !! vh_js !! account for additional litter resistance to sensible heat transfer
              canopy%fhs =  air%rho*C%CAPP*(ssnow%tss - met%tvair) / &
                   (ssnow%rtsoil +  real((1-ssnow%isflag))*veg%clitt*0.003/canopy%kthLitt/(air%rho*C%CAPP))
@@ -708,7 +724,13 @@ CONTAINS
     IF (cable_user%soil_struc=='default') THEN
        ssnow%dfn_dtg = (-1.)*4.*C%EMSOIL*C%SBOLTZ*tss4/ssnow%tss
 
-       IF (cable_user%litter) THEN
+       IF (cable_user%gw_model .or. cable_user%or_evap) THEN
+          ssnow%dfh_dtg = air%rho*C%CAPP/(ssnow%rtsoil+ real(ssnow%rt_qh_sublayer))
+          ssnow%dfe_ddq = real(ssnow%satfrac)*air%rho*air%rlam*ssnow%cls/ &
+               (ssnow%rtsoil+ real(ssnow%rtevap_sat))  + (1.0-real(ssnow%satfrac))*real(ssnow%rh_srf)*&
+                air%rho*air%rlam*ssnow%cls/ (ssnow%rtsoil+ real(ssnow%rtevap_unsat) )
+
+       ELSEIF (cable_user%litter) THEN
           !!vh_js!!
           ssnow%dfh_dtg = air%rho*C%CAPP/(ssnow%rtsoil+ &
                real((1-ssnow%isflag))*veg%clitt*0.003/canopy%kthLitt/(air%rho*C%CAPP))
@@ -813,6 +835,9 @@ CONTAINS
            qstss             !dummy var for compilation
 
       INTEGER :: j
+      REAL, DIMENSION(mp) :: q_air
+
+      q_air = qstss - dq
 
       DO j=1,mp
          !if(ssnow%snowd(j) > 1.0) dq(j) = max( -0.1e-3, dq(j))
@@ -820,7 +845,14 @@ CONTAINS
               dq(j) = max( -0.1e-3, dq(j))
       ENDDO
 
-      IF (cable_user%litter) THEN
+      IF (cable_user%or_evap .or. cable_user%gw_model) then
+
+         ssnowpotev = air%rho * air%rlam * ( &
+                      real(ssnow%satfrac) * dq /(ssnow%rtsoil + real(ssnow%rtevap_sat)) + &
+               (1.0 - real(ssnow%satfrac))* (real(ssnow%rh_srf)*qstss-q_air)/( &
+                              ssnow%rtsoil + real(ssnow%rtevap_unsat)) )
+      
+      ELSEIF (cable_user%litter) THEN
          !! vh_js !!
          ssnowpotev =air%rho * air%rlam * dq /(ssnow%rtsoil + &
               real((1-ssnow%isflag))*veg%clitt*0.003/canopy%DvLitt)
@@ -913,6 +945,7 @@ CONTAINS
            dmce                ! C_{E} in eq. 3.41 in SCAM, CSIRO tech report 132
 
       REAL  :: lower_limit, upper_limit
+      REAL, DIMENSION(mp) :: fix_eqn,fix_eqn2
 
       INTEGER :: j
 
@@ -920,6 +953,15 @@ CONTAINS
 
       ! leaf stomatal resistance for water
       rrsw = sum(canopy%gswx,2)/air%cmolar ! MJT
+
+      IF (cable_user%or_evap) THEN
+         fix_eqn(:) = rt0(:)*(real(ssnow%satfrac(:))/(rt0(:)+real(ssnow%rtevap_sat(:))) + &
+                               (1-real(ssnow%satfrac(:)))/(rt0(:)+real(ssnow%rtevap_unsat(:))))
+         fix_eqn2(:) = rt0(:) / (rt0(:) + real(ssnow%rt_qh_sublayer) )
+      ELSE
+         fix_eqn = ssnow%wetfac
+         fix_eqn2 = 1.0
+      END IF
 
       DO j=1,mp
 
@@ -931,7 +973,7 @@ CONTAINS
             !   (Raupach, Finkele and Zhang 1997, pp 17)
             ! leaf boundary layer resistance for water
             ! A_{H} in eq. 3.41, SCAM manual, CSIRO tech doc 132
-            dmah(j) = (rt0(j)+rough%rt1(j))*((1.+air%epsi(j))*rrsw(j) + rrbw(j))  &
+            dmah(j) = (rt0(j)+fix_eqn2(j)*rough%rt1(j))*((1.+air%epsi(j))*rrsw(j) + rrbw(j))  &
                  + air%epsi(j) * (rt0(j)*rough%rt1(j))*(rrbw(j)*rrsw(j))
 
             ! B_{H} in eq. 3.41, SCAM manual, CSIRO tech doc 132
@@ -946,7 +988,7 @@ CONTAINS
                  (rrbw(j)*rrsw(j))
 
             ! B_{E} in eq. 3.41, SCAM manual, CSIRO tech doc 132
-            dmbe(j) = ( rt0(j) + ssnow%wetfac(j) * rough%rt1(j) ) *               &
+            dmbe(j) = ( rt0(j) + fix_eqn(j) * rough%rt1(j) ) *               &
                  ( (1.+air%epsi(j) ) * rrsw(j) + rrbw(j) ) +                 &
                  ( rt0(j) * rough%rt1(j) ) * ( rrbw(j) * rrsw(j) )
 
@@ -1299,6 +1341,7 @@ CONTAINS
 
     USE cable_common_module
     USE cable_def_types_mod
+    USE cable_gw_hydro_module, ONLY : calc_srf_wet_fraction
 
     TYPE (veg_parameter_type), INTENT(INOUT)    :: veg
     TYPE (soil_snow_type), intent(inout):: ssnow
@@ -1337,31 +1380,9 @@ CONTAINS
     canopy%fwet   = MAX( 0.0, MIN( 0.9, 0.8 * canopy%cansto /                   &
          MAX( cansat, 0.01 ) ) )
 
-    ssnow%wetfac = MAX( 1.e-6, MIN( 1.0,                                        &
-         ( REAL (ssnow%wb(:,1) ) - soil%swilt/ 2.0 )                  &
-         / ( soil%sfc - soil%swilt/2.0 ) ) )
-
-    DO j=1,mp
-
-       IF( ssnow%wbice(j,1) > 0. )                                              &
-            ssnow%wetfac(j) = ssnow%wetfac(j) * real(MAX( 0.5_r_2, 1._r_2 - MIN( 0.2_r_2, &
-            ( ssnow%wbice(j,1) / ssnow%wb(j,1) )**2 ) ) )
-
-       IF( ssnow%snowd(j) > 0.1) ssnow%wetfac(j) = 0.9
-
-       IF ( veg%iveg(j) == 16 .and. met%tk(j) >= C%tfrz + 5. )                  &
-            ssnow%wetfac(j) = 1.0 ! lakes: hard-wired number to be removed
-
-       IF( veg%iveg(j) == 16 .and. met%tk(j) < C%tfrz + 5. )                    &
-            ssnow%wetfac(j) = 0.7 ! lakes: hard-wired number to be removed
-
-    ENDDO
-
-
-    ! owetfac introduced to reduce sharp changes in dry regions,
-    ! especially in offline runs in which there may be discrepancies b/n
-    ! timing of precip and temperature change (EAK apr2009)
-    ssnow%wetfac = 0.5*(ssnow%wetfac + ssnow%owetfac)
+    !calc the surface wetness for soil evap in this routine
+    !include the default wetfac when or_evap and gw_model are not used
+    CALL calc_srf_wet_fraction(ssnow,soil,met%tk,veg%iveg)
 
   END SUBROUTINE Surf_wetness_fact
 
@@ -2330,9 +2351,22 @@ CONTAINS
     REAL, INTENT(OUT), DIMENSION(:):: fwsoil ! soil water modifier of stom. cond
     REAL, DIMENSION(mp) :: rwater ! soil water availability
 
-    rwater = MAX(1.0e-9,                                                    &
-         SUM(veg%froot * MAX(1.0e-9,MIN(1.0, real(ssnow%wb) -                   &
-         SPREAD(soil%swilt, 2, ms))),2) /(soil%sfc-soil%swilt))
+    !note even though swilt_vec is defined in default model it is r_2
+    !and even using real(_vec) gives results different from trunk (rounding
+    !errors)
+
+    if (.not.cable_user%gw_model) THEN
+
+       rwater = MAX(1.0e-9,                                                    &
+            SUM(veg%froot * MAX(1.0e-9,MIN(1.0, real(ssnow%wb) -                   &
+            SPREAD(soil%swilt, 2, ms))),2) /(soil%sfc-soil%swilt))
+   
+    else
+       rwater = MAX(1.0e-9,                                                    &
+            SUM(veg%froot * MAX(1.0e-9,MIN(1.0, real((ssnow%wbliq -                 &
+            soil%swilt_vec)/(soil%sfc_vec-soil%swilt_vec)) )),2) )
+
+    endif
 
    ! Remove vbeta #56
    IF(cable_user%GS_SWITCH == 'medlyn') THEN

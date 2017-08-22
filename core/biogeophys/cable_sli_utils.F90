@@ -1990,7 +1990,7 @@ CONTAINS
     REAL(r_2) :: F1, F2, F
     ! REAL(r_2) :: macropore_modifier
     REAL(r_2) :: cdry, tmp_thetai
-
+    REAL(r_2), parameter :: tol = 1e-6
     theta         = S*(parin%thre) + (parin%the - parin%thre)
     var%lambdav   = rlambda       ! latent heat of vaporisation
     var%lambdav   = 1.91846e6_r_2*((Tsoil+Tzero)/((Tsoil+Tzero)-33.91_r_2))**2  ! Henderson-Sellers, QJRMS, 1984
@@ -1998,7 +1998,7 @@ CONTAINS
     !var%Tfrz      = Tfrz(S,parin%he,one/parin%lam)
     var%Tfrz      = Tfrz(S, parin%he, one/(parin%lambc*freezefac)) ! freezefac for test of steep freezing curve
 
-    if ((Tsoil < var%Tfrz) .and. (experiment/=184)) then ! ice
+    if ((Tsoil < var%Tfrz-tol) .and. (experiment/=184)) then ! ice
        parin%lam     = parin%lambc * freezefac   ! freezefac>1 -> steeper freezing curve
        parin%eta     = two/parin%lam + two + one ! freezefac>1 -> steeper freezing curve
        thetal_max    = thetalmax(Tsoil,S,parin%he,one/parin%lam,parin%thre,parin%the)
@@ -2030,7 +2030,7 @@ CONTAINS
        var%K  = var%Ksat
        var%KS = zero
        ! var%KT = var%dthetaldT * parin%Ke * parin%eta * exp(lnS*(parin%eta-one))/parin%thre
-       var%KT = var%dthetaldT * parin%Ke * parin%eta * exp(lnS*(parin%eta-one))/(parin%thre-var%thetai)
+       var%KT = var%dthetaldT * parin%Ke * parin%eta * exp(lnS*(parin%eta-one))/max(parin%thre-var%thetai,max(parin%thr,1e-5_r_2))
        if (S < one) var%phi = var%phie
 
        ! var%phiT = parin%phie * exp(lnS*(parin%eta-one/parin%lam-one)) * var%dthetaldT * &
@@ -2086,7 +2086,7 @@ CONTAINS
        var%lambdav   = lambdas ! latent heat of sublimation
        var%KT        = zero
     endif
-    if (((Tsoil >= var%Tfrz) .or. (experiment==184)) .and. (S < one)) then ! unsaturated
+    if (((Tsoil >= var%Tfrz-tol) .or. (experiment==184)) .and. (S < one)) then ! unsaturated
        var%h    = parin%he*v3  ! matric potential
        ! dhdS     = -parin%he/parin%lam*S**(-one/parin%lam-one)
        dhdS     = -parin%he/parin%lam*exp((-one/parin%lam-one)*log(S))
@@ -2098,7 +2098,7 @@ CONTAINS
        var%phiT = zero
        var%rh   = max(exp(Mw*gravity*var%h/Rgas/(Tsoil+Tzero)),rhmin)
     endif
-    if (((Tsoil >= var%Tfrz) .or. (experiment==184)) .and. (S >= one)) then ! saturated
+    if (((Tsoil >= var%Tfrz-tol) .or. (experiment==184)) .and. (S >= one)) then ! saturated
        var%h    = parin%he
        dhdS     = zero
        var%K    = parin%Ke
@@ -2190,7 +2190,7 @@ CONTAINS
           ! Hansson et al. (2004) - Eq. 15
           F1 = 13.05_r_2
           F2 = 1.06_r_2
-          if  (Tsoil < var%Tfrz) then ! ice
+          if  (Tsoil < var%Tfrz-tol .and.  var%thetai.gt.zero ) then ! ice
              ! F  = one + F1*var%thetai**F2
              F  = one + F1*exp(F2*log(var%thetai))
              if ((C1*(theta+F*var%thetai))**E > 100.) then

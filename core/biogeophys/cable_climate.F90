@@ -568,7 +568,7 @@ INTEGER :: d
 
 CALL alloc_cbm_var(climate,np)
 
-if (cable_user%climate_fromzero) then
+if (cable_user%climate_fromzero .or. .not.cable_user%call_climate) then
 
 ! Maciej
 !   DO d=1,31

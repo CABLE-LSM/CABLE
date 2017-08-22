@@ -68,7 +68,12 @@ PROGRAM cable_offline_driver
        cable_runtime, filename, myhome,		   &
        redistrb, wiltParam, satuParam, CurYear,	   &
        IS_LEAPYEAR, IS_CASA_TIME, calcsoilalbedo,		 &
-       report_version_no, kwidth_gl
+       report_version_no, kwidth_gl, gw_params
+
+  USE cable_namelist_util, only : get_namelist_file_name,&
+                                  CABLE_NAMELIST,arg_not_namelist
+
+
   USE cable_data_module,    ONLY: driver_type, point2constants
   USE cable_input_module,   ONLY: open_met_file,load_parameters,	      &
        get_met_data,close_met_file,		   &
@@ -79,7 +84,7 @@ PROGRAM cable_offline_driver
        ncid_ps,		&
        ncid_qa,		&
        ncid_ta,		&
-       ncid_wd
+       ncid_wd,ncid_mask
   USE cable_output_module,  ONLY: create_restart,open_output_file,	      &
        write_output,close_output_file
   USE cable_write_module,   ONLY: nullify_write
@@ -119,7 +124,10 @@ PROGRAM cable_offline_driver
   IMPLICIT NONE
 
   ! CABLE namelist: model configuration, runtime/user switches
-  CHARACTER(LEN=200), PARAMETER :: CABLE_NAMELIST='cable.nml'
+  !CHARACTER(LEN=200), PARAMETER :: CABLE_NAMELIST='cable.nml'
+  ! try to read in namelist from command line argument
+  ! allows simple way of not hard coding cable.nml
+  ! defaults to using cable.nml if no file specified
 
   ! timing variables
   INTEGER, PARAMETER ::	 kstart = 1   ! start of simulation
@@ -208,16 +216,21 @@ PROGRAM cable_offline_driver
        delsoilM,	 & ! allowed variation in soil moisture for spin up
        delsoilT		   ! allowed variation in soil temperature for spin up
 
+  REAL :: delgwM = 1e-4
+
   ! temporary storage for soil moisture/temp. in spin up mode
   REAL, ALLOCATABLE, DIMENSION(:,:)  :: &
        soilMtemp,			  &
        soilTtemp
+
+  REAL, ALLOCATABLE, DIMENSION(:) :: GWtemp
 
   ! timing
   REAL:: etime ! Declare the type of etime(), For receiving user and system time, total time
 
   !___ unique unit/file identifiers for cable_diag: arbitrarily 5 here
   INTEGER, SAVE :: iDiagZero=0, iDiag1=0, iDiag2=0, iDiag3=0, iDiag4=0
+
 
   ! switches etc defined thru namelist (by default cable.nml)
   NAMELIST/CABLE/		   &
@@ -227,6 +240,7 @@ PROGRAM cable_offline_driver
        calcsoilalbedo,	 & ! albedo considers soil color Ticket #27
        spinup,		 & ! spinup model (soil) to steady state
        delsoilM,delsoilT,& !
+       delgwM,           &
        output,		 &
        patchout,	 &
        check,		 &
@@ -246,7 +260,9 @@ PROGRAM cable_offline_driver
        redistrb,	 &
        wiltParam,	 &
        satuParam,	 &
-       cable_user	    ! additional USER switches
+       cable_user,       &   ! additional USER switches
+       gw_params
+
   !mpidiff
   INTEGER :: i,x,kk
 
@@ -267,6 +283,12 @@ PROGRAM cable_offline_driver
   INTEGER :: count_bal = 0
   ! END header
 
+  !check to see if first argument passed to cable is
+  !the name of the namelist file
+  !if not use cable.nml
+  CALL get_namelist_file_name()
+
+  WRITE(*,*) "THE NAME LIST IS ",CABLE_NAMELIST
   ! Open, read and close the namelist file.
   OPEN( 10, FILE = CABLE_NAMELIST )
   READ( 10, NML=CABLE )	  !where NML=CABLE defined above
@@ -287,13 +309,13 @@ PROGRAM cable_offline_driver
 
   CALL report_version_no( logn )
 
-  IF( IARGC() > 0 ) THEN
+  IF( (IARGC() > 0 ) .and. (arg_not_namelist)) THEN
      CALL GETARG(1, filename%met)
      CALL GETARG(2, casafile%cnpipool)
   ENDIF
 
   ! INITIALISATION depending on nml settings
-  IF (TRIM(cable_user%MetType) .EQ. 'gswp') THEN
+  IF (TRIM(cable_user%MetType) .EQ. 'gswp' .or. TRIM(cable_user%MetType) .EQ. 'gswp3') THEN
      IF ( CABLE_USER%YearStart.eq.0 .and. ncciy.gt.0) THEN
         CABLE_USER%YearStart = ncciy
         CABLE_USER%YearEnd = ncciy
@@ -588,7 +610,8 @@ PROGRAM cable_offline_driver
        ! time step loop over ktau
        DO ktau=kstart, kend
           
-          
+          write(logn,*) 'Progress -',real(ktau)/real(kend)*100.0
+
           ! increment total timstep counter
           ktau_tot = ktau_tot + 1
           
@@ -918,13 +941,18 @@ PROGRAM cable_offline_driver
 
           ! evaluate spinup
 		 IF( ANY( ABS(ssnow%wb-soilMtemp)>delsoilM).OR.		      &
-		      ANY( ABS(ssnow%tgg-soilTtemp)>delsoilT) ) THEN
+		      ANY( ABS(ssnow%tgg-soilTtemp)>delsoilT) .or. &
+                       maxval(ABS(ssnow%GWwb-GWtemp),dim=1) > delgwM) THEN
 
       ! No complete convergence yet
 		    PRINT *, 'ssnow%wb : ', ssnow%wb
 		    PRINT *, 'soilMtemp: ', soilMtemp
 		    PRINT *, 'ssnow%tgg: ', ssnow%tgg
 		    PRINT *, 'soilTtemp: ', soilTtemp
+                    IF (cable_user%gw_model) then
+		       PRINT *, 'ssnow%GWwb : ', ssnow%GWwb
+		       PRINT *, 'GWtemp: ', GWtemp
+                    ENDIF
 
 		 ELSE ! spinup has converged
 
@@ -945,13 +973,22 @@ PROGRAM cable_offline_driver
 
 		 IF (.NOT.ALLOCATED(soilMtemp)) ALLOCATE(  soilMtemp(mp,ms) )
 		 IF (.NOT.ALLOCATED(soilTtemp)) ALLOCATE(  soilTtemp(mp,ms) )
+		 IF (.NOT.ALLOCATED(GWtemp)   ) ALLOCATE(  GWtemp(mp)  )
 
 	      END IF
+
+              if (cable_user%max_spins .gt. 0) then
+              if ((ktau_tot/kend .ge. cable_user%max_spins)) then
+                 spinConv = .true.
+                 write(logn,*) 'Past ',cable_user%max_spins,' spin cycles, running anyways'
+              end if
+              end if
 
        ! store soil moisture and temperature
 	      IF ( YYYY.EQ. CABLE_USER%YearEnd ) THEN
 		 soilTtemp = ssnow%tgg
 		 soilMtemp = REAL(ssnow%wb)
+                 GWtemp = ssnow%GWwb
 	      ENDIF
 
 	   ELSE

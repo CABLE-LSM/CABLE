@@ -408,6 +408,15 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
    CALL readpar(ncid_rin,'runoff',dummy,ssnow%runoff,filename%restart_in,      &
         max_vegpatches,'def',from_restart,mp)
 
+   !MD
+   ok = NF90_INQ_VARID(ncid_rin,'GWwb',parID)
+   IF(ok == NF90_NOERR) THEN 
+     CALL readpar(ncid_rin,'GWwb',dummy,ssnow%GWwb,filename%restart_in,            &
+                max_vegpatches,'def',from_restart,mp)   
+   ELSE
+      ssnow%GWwb = 0.95*soil%ssat
+   END IF
+
    IF(cable_user%SOIL_STRUC=='sli'.or.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
       CALL readpar(ncid_rin,'gamma',dummy,veg%gamma,filename%restart_in,           &
            max_vegpatches,'def',from_restart,mp)

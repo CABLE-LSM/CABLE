@@ -8,16 +8,16 @@ known_hosts()
 ## raijin.nci.org.au
 host_raij()
 {
-   module load netcdf
-   module load intel-mpi
+   module load intel-mpi/5.1.3.210 intel-fc/17.0.1.132 netcdf
    export NCDIR=$NETCDF_ROOT'/lib/Intel'
    export NCMOD=$NETCDF_ROOT'/include/Intel'
    export FC='mpif90'
-   export CFLAGS='-O0 -fp-model precise'
+   export CFLAGS='-O2 -fp-model precise'
    if [[ $1 = 'debug' ]]; then
-      export CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0'
+      #export CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0 -check all,noarg_temp_created'
+      export CFLAGS='-O0 -traceback -g -check all,noarg_temp_created'
    fi
-   export LDFLAGS='-L'$NCDIR' -O2'
+   export LDFLAGS='-L'$NCDIR' '
    export LD='-lnetcdf -lnetcdff'
    build_build
    cd ../

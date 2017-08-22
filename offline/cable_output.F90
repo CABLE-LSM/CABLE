@@ -43,7 +43,8 @@ MODULE cable_output_module
   USE cable_checks_module, ONLY: mass_balance, energy_balance, ranges
   USE cable_write_module
   USE netcdf
-  USE cable_common_module, ONLY: filename, calcsoilalbedo, CurYear,IS_LEAPYEAR, cable_user
+  USE cable_common_module, ONLY: filename, calcsoilalbedo, CurYear,IS_LEAPYEAR, cable_user,&
+                                 gw_params
   IMPLICIT NONE
   PRIVATE
   PUBLIC open_output_file, write_output, close_output_file, create_restart
@@ -67,7 +68,7 @@ MODULE cable_output_module
                     PlantTurnover, PlantTurnoverLeaf, PlantTurnoverFineRoot, &
                     PlantTurnoverWood, PlantTurnoverWoodDist, PlantTurnoverWoodCrowding, &
                     PlantTurnoverWoodResourceLim, dCdt, Area, LandUseFlux, patchfrac, &
-                    vcmax, hc
+                    vcmax,hc,WatTable,GWMoist,SatFrac,Qrecharge
   END TYPE out_varID_type
   TYPE(out_varID_type) :: ovid ! netcdf variable IDs for output variables
   TYPE(parID_type) :: opid ! netcdf variable IDs for output variables
@@ -202,6 +203,12 @@ MODULE cable_output_module
     REAL(KIND=4), POINTER, DIMENSION(:) :: vcmax
     REAL(KIND=4), POINTER, DIMENSION(:) :: patchfrac
     REAL(KIND=4), POINTER, DIMENSION(:) :: hc
+
+    REAL(KIND=4), POINTER, DIMENSION(:)   :: SatFrac         !Saturated Fraction of Grid Cell
+    REAL(KIND=4), POINTER, DIMENSION(:)   :: Qrecharge         !recharge rate Grid Cell
+    REAL(KIND=4), POINTER, DIMENSION(:)   :: GWMoist       ! water balance of aquifer [mm3/mm3]
+    REAL(KIND=4), POINTER, DIMENSION(:)   :: WatTable      ! water table depth [m]
+
  END TYPE output_temporary_type
   TYPE(output_temporary_type), SAVE :: out
   INTEGER :: ok   ! netcdf error status
@@ -731,6 +738,38 @@ CONTAINS
        out%NPP = 0.0 ! initialise
     END IF
 
+    !MD groundwater related variables
+    IF(output%soil .OR. output%WatTable) THEN
+       CALL define_ovar(ncid_out, ovid%WatTable, 'WatTable', 'm',      &
+                        'Water Table Depth', patchout%WatTable,     &
+                        'dummy', xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%WatTable(mp))
+       out%WatTable = 0.0 ! initialise
+    END IF
+    IF(output%soil .OR. output%GWMoist) THEN
+       CALL define_ovar(ncid_out, ovid%GWMoist, 'GWMoist', 'mm3/mm3',      &
+                        'Aquifer mositure content', patchout%GWMoist,     &
+                        'dummy', xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%GWMoist(mp))
+       out%GWMoist = 0.0 ! initialise
+    END IF
+
+    IF(output%soil .OR. output%SatFrac) THEN
+       CALL define_ovar(ncid_out, ovid%SatFrac, 'SatFrac', 'unitless',      &
+                        'Saturated Fraction of Gridcell', patchout%SatFrac,     &
+                        'dummy', xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%SatFrac(mp))
+       out%SatFrac = 0.0 ! initialise
+    END IF         
+
+    IF(output%soil .OR. output%Qrecharge) THEN
+       CALL define_ovar(ncid_out, ovid%Qrecharge, 'Qrecharge', 'mm/s',      &
+                           'Recharge to or from Aquifer', patchout%Qrecharge,     &
+                        'dummy', xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%Qrecharge(mp))
+       out%Qrecharge = 0.0 ! initialise
+    END IF   
+
     IF(output%casa) THEN
        CALL define_ovar(ncid_out, ovid%NBP, 'NBP', 'umol/m^2/s',               &
                         'Net Biosphere Production &
@@ -1051,6 +1090,37 @@ CONTAINS
                          'froot', '-', 'Fraction of roots in each soil layer', &
                  patchout%froot, soilID, 'soil', xID, yID, zID, landID, patchID)
 
+    IF(output%params .OR. output%slope) CALL define_ovar(ncid_out, opid%slope,   &
+           'slope', '-', 'Mean subgrid topographic slope', &
+                          patchout%slope, 'real', xID, yID, zID, landID, patchID)
+
+    IF(output%params .OR. output%slope_std) CALL define_ovar(ncid_out, opid%slope_std,   &
+           'slope_std', '-', 'Mean subgrid topographic slope_std', &
+                          patchout%slope_std, 'real', xID, yID, zID, landID, patchID)
+
+    IF(output%params .OR. output%GWdz) CALL define_ovar(ncid_out, opid%GWdz,   &
+           'GWdz', '-', 'Mean aquifer layer thickness ', &
+                          patchout%GWdz, 'real', xID, yID, zID, landID, patchID)
+
+    IF(output%params .and. cable_user%gw_model) THEN
+           CALL define_ovar(ncid_out, opid%Qhmax,   &
+                          'Qhmax', 'mm/s', 'Maximum subsurface drainage ', &
+                          patchout%Qhmax, 'real', xID, yID, zID, landID, patchID)
+           CALL define_ovar(ncid_out, opid%QhmaxEfold,   &
+                          'QhmaxEfold', 'm', 'Maximum subsurface drainage decay rate', &
+                          patchout%QhmaxEfold, 'real', xID, yID, zID, landID, patchID)
+           CALL define_ovar(ncid_out, opid%SatFracmax,   &
+                          'SatFracmax', '-', 'Controls max saturated fraction ', &
+                          patchout%SatFracmax, 'real', xID, yID, zID, landID, patchID)
+           CALL define_ovar(ncid_out, opid%HKefold,   &
+                          'HKefold', '1/m', 'Rate HK decays with depth ', &
+                          patchout%HKefold, 'real', xID, yID, zID, landID, patchID)
+           CALL define_ovar(ncid_out, opid%HKdepth,   &
+                          'HKdepth', 'm', 'Depth at which HKsat(z) is HKsat(0) ', &
+                          patchout%HKdepth, 'real', xID, yID, zID, landID, patchID)
+    END IF
+
+
     ! Write global attributes for file:
     CALL DATE_AND_TIME(todaydate, nowtime)
     todaydate = todaydate(1:4)//'/'//todaydate(5:6)//'/'//todaydate(7:8)
@@ -1259,6 +1329,36 @@ CONTAINS
                            'zse', SPREAD(REAL(soil%zse, 4), 1, mp),ranges%zse, &
                                 patchout%zse, 'soil')! no spatial dim at present
 
+    IF(output%params .OR. output%slope) CALL write_ovar(ncid_out, opid%slope,    &
+                 'slope', REAL(soil%slope, 4), (/0.0,1.0/), patchout%slope, 'real')
+    IF(output%params .OR. output%slope_std) CALL write_ovar(ncid_out, opid%slope_std,    &
+                 'slope_std', REAL(soil%slope_std, 4), (/0.0,1.0/), patchout%slope_std, 'real')
+    IF(output%params .OR. output%GWdz) CALL write_ovar(ncid_out, opid%GWdz,    &
+                 'GWdz', REAL(soil%GWdz, 4), (/0.0,10000.0/), patchout%GWdz, 'real')
+
+    IF(output%params .and. cable_user%gw_model) THEN
+                  CALL write_ovar(ncid_out, opid%SatFracmax,    &
+                       'SatFracmax', spread(REAL(gw_params%MaxSatFraction,4),1,mp), &
+                        (/0.0,100000000.0/), patchout%SatFracmax, 'real')
+
+                  CALL write_ovar(ncid_out, opid%Qhmax,    &
+                       'Qhmax', spread(REAL(gw_params%MaxHorzDrainRate, 4),1,mp), &
+                       (/0.0,100000000.0/), patchout%Qhmax, 'real')
+
+                  CALL write_ovar(ncid_out, opid%QhmaxEfold,    &
+                       'QhmaxEfold', spread(REAL(gw_params%EfoldHorzDrainRate, 4),1,mp), &
+                        (/0.0,100000000.0/), patchout%QhmaxEfold, 'real')
+
+                  CALL write_ovar(ncid_out, opid%HKefold,    &
+                       'HKefold', spread(REAL(gw_params%hkrz, 4),1,mp), &
+                        (/0.0,100000000.0/), patchout%HKefold, 'real')
+
+                  CALL write_ovar(ncid_out, opid%HKdepth,    &
+                       'HKdepth', spread(REAL(gw_params%zdepth, 4),1,mp), &
+                        (/0.0,100000000.0/), patchout%HKdepth, 'real')
+     END IF
+
+
   END SUBROUTINE open_output_file
   !=============================================================================
   SUBROUTINE write_output(dels, ktau, met, canopy, casaflux, casapool, casamet, ssnow,                       &
@@ -1295,6 +1395,8 @@ CONTAINS
     INTEGER :: iy   ! Counter
     !MC - use met%year(1) instead of CABLE_USER%YearStart for non-GSWP forcing and leap years
     INTEGER, SAVE :: YearStart
+
+    INTEGER :: ok
 
     ! IF asked to check mass/water balance:
     IF(check%mass_bal) CALL mass_balance(dels, ktau, ssnow, soil, canopy,            &
@@ -1795,6 +1897,64 @@ CONTAINS
           out%BaresoilT = 0.0
        END IF
     END IF
+
+    !MD Write the hydrology output data from the groundwater module calculations
+    !water table depth
+    IF((output%soil .OR. output%WatTable) .and. cable_user%GW_MODEL) THEN
+       !write(*,*) 'wtd'    !MDeck
+       ! Add current timestep's value to total of temporary output variable:
+       out%WatTable = out%WatTable + REAL(ssnow%wtd/1000.0, 4)
+       IF(writenow) THEN
+          ! Divide accumulated variable by number of accumulated time steps:
+          out%WatTable = out%WatTable / REAL(output%interval, 4)
+          ! Write value to file:
+          CALL write_ovar(out_timestep, ncid_out, ovid%WatTable, 'WatTable', &
+               out%WatTable, ranges%WatTable, patchout%WatTable, 'default', met)
+          ! Reset temporary output variable:
+          out%WatTable = 0.0
+       END IF
+    END IF    
+    !aquifer water content
+    IF((output%soil .OR. output%GWMoist)  .and. cable_user%GW_MODEL) THEN
+       out%GWMoist = out%GWMoist + REAL(ssnow%GWwb, 4)
+       IF(writenow) THEN
+          ! Divide accumulated variable by number of accumulated time steps:
+          out%GWMoist = out%GWMoist / REAL(output%interval, 4)
+          ! Write value to file:
+          CALL write_ovar(out_timestep, ncid_out, ovid%GWMoist, 'GWMoist', &
+               out%GWMoist, ranges%GWwb, patchout%GWMoist, 'default', met)
+          ! Reset temporary output variable:
+          out%GWMoist = 0.0
+       END IF
+    END IF   
+    IF((output%soil .OR. output%SatFrac)  .and. cable_user%GW_MODEL) THEN
+       !write(*,*) 'Qinfl'    !MDeck
+       ! Add current timestep's value to total of temporary output variable:
+       out%SatFrac = out%SatFrac + REAL(ssnow%satfrac, 4)
+       IF(writenow) THEN
+          out%SatFrac = out%SatFrac / REAL(output%interval, 4)
+          ! Write value to file:
+          CALL write_ovar(out_timestep, ncid_out, ovid%SatFrac, 'SatFrac', &
+               out%SatFrac, ranges%SatFrac, patchout%SatFrac, 'default', met)
+          ! Reset temporary output variable:
+          out%SatFrac = 0.0
+       END IF
+    END IF      
+
+    ! recharge rate
+    IF(output%soil .OR. output%Qrecharge) THEN
+       ! Add current timestep's value to total of temporary output variable:
+       out%Qrecharge = out%Qrecharge + REAL(ssnow%Qrecharge, 4)
+       IF(writenow) THEN
+          ! Divide accumulated variable by number of accumulated time steps:
+          out%Qrecharge = out%Qrecharge / REAL(output%interval, 4)
+          ! Write value to file:
+          CALL write_ovar(out_timestep, ncid_out, ovid%Qrecharge, 'Qrecharge', &
+                       out%Qrecharge, ranges%Qrecharge, patchout%Qrecharge, 'default', met)
+          ! Reset temporary output variable:
+          out%Qrecharge = 0.0
+       END IF
+    END IF   
     !----------------------WRITE SNOW STATE DATA--------------------------------
     ! SWE: snow water equivalent [kg/m^2]
     IF(output%snow .OR. output%SWE) THEN
@@ -2477,6 +2637,9 @@ CONTAINS
 
     END IF
 
+    if (cable_user%sync_nc_file) &
+    ok = NF90_SYNC(ncid_out)
+
 
   END SUBROUTINE write_output
   !=============================================================================
@@ -2563,7 +2726,7 @@ CONTAINS
                     canstoID, albsoilsnID, gammzzID, tggsnID, sghfluxID,       &
                     ghfluxID, runoffID, rnof1ID, rnof2ID, gaID, dgdtgID,       &
                     fevID, fesID, fhsID, wbtot0ID, osnowd0ID, cplantID,        &
-                    csoilID, tradID, albedoID
+                    csoilID, tradID, albedoID, gwID
     INTEGER :: h0ID, snowliqID, SID, TsurfaceID, scondsID, nsnowID, TsoilID
     CHARACTER(LEN=10) :: todaydate, nowtime ! used to timestamp netcdf file
     ! CHARACTER         :: FRST_OUT*100, CYEAR*4
@@ -2928,6 +3091,9 @@ CONTAINS
                      'Reference height (lowest atm. model layer) for scalars', &
                      .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
 
+    CALL define_ovar(ncid_restart, gwID, 'GWwb', 'mm3/mm3','GW water content',&
+                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+
     IF(cable_user%SOIL_STRUC=='sli'.OR.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
       CALL define_ovar(ncid_restart,rpid%gamma,'gamma','-', &
             'Parameter in root efficiency function (Lai and Katul 2000)', &
@@ -3198,6 +3364,9 @@ CONTAINS
                      ranges%Albedo, .TRUE., 'radiation', .TRUE.)
     CALL write_ovar (ncid_restart, tradID, 'trad',                             &
          REAL(rad%trad, 4), ranges%RadT, .TRUE., 'real', .TRUE.)
+
+    CALL write_ovar (ncid_restart, gwID, 'GWwb', REAL(ssnow%GWwb, 4),       &
+                     ranges%GWwb, .TRUE., 'real', .TRUE.)
 
     IF(cable_user%SOIL_STRUC=='sli'.OR.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
        CALL write_ovar (ncid_restart,rpid%gamma,'gamma', &

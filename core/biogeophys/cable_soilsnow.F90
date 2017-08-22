@@ -60,9 +60,10 @@ MODULE cable_soil_snow_module
 
    ! This module contains the following subroutines:
    PUBLIC soil_snow ! must be available outside this module
-   PRIVATE snowdensity, snow_melting, snowcheck, snowl_adjust
-   PRIVATE trimb, smoisturev, snow_accum, stempv
-   PRIVATE soilfreeze, remove_trans
+   PUBLIC snowdensity, snow_melting, snowcheck, snowl_adjust,snow_accum, stempv,trimb
+   PUBLIC cgsnow,csice,cswat,rhowat,snmin,max_ssdn,max_sconds,frozen_limit,C,max_glacier_snowd
+   PRIVATE smoisturev
+   PRIVATE soilfreeze,remove_trans
 
 CONTAINS
 
@@ -200,6 +201,8 @@ SUBROUTINE smoisturev (dels,ssnow,soil,veg)
       u,    & ! I/O unit
       k
 
+
+   !CALL point2constants( C )
 
 
    at = 0.0
@@ -556,6 +559,8 @@ SUBROUTINE snowdensity (dels, ssnow, soil)
    REAL, DIMENSION(mp) :: ssnow_tgg_min1
    REAL, DIMENSION(mp,3) :: dels_ssdn, ssnow_tgg_min
 
+   !CALL point2constants( C )
+
    ssnow_isflag_ssdn = SPREAD( ssnow%isflag,2,mp)
 
    dels_ssdn = SPREAD( SPREAD( dels, 1, mp ), 2,  mp )
@@ -663,6 +668,9 @@ SUBROUTINE snow_melting (dels, snowmlt, ssnow, soil )
       snowflx    !
 
    REAL, DIMENSION(mp,0:3) :: smelt1
+
+
+   !CALL point2constants( C )
 
    snowmlt= 0.0
    smelt1 = 0.0
@@ -776,6 +784,8 @@ USE cable_common_module
       xxx        !
 
    INTEGER             :: k
+
+   !CALL point2constants( C )
 
    WHERE (canopy%precis > 0.0 .and. ssnow%isflag == 0)
       ! accumulate solid part
@@ -953,6 +963,8 @@ SUBROUTINE surfbv (dels, met, ssnow, soil, veg, canopy )
 
    REAL :: wb_lake_T, rnof2_T, ratio
    INTEGER :: k,j
+
+   !CALL point2constants( C )
 
    CALL smoisturev( dels, ssnow, soil, veg )
 
@@ -1307,6 +1319,8 @@ SUBROUTINE snowcheck(dels, ssnow, soil, met )
 
    INTEGER :: k,j
 
+   !CALL point2constants( C )
+
    DO j=1,mp
 
       IF( ssnow%snowd(j) <= 0.0 ) THEN
@@ -1561,6 +1575,8 @@ SUBROUTINE soilfreeze(dels, soil, ssnow)
    REAL, DIMENSION(mp)           :: xx
    INTEGER k
 
+   !CALL point2constants( C )
+
    xx = 0.
    DO k = 1, ms
 
@@ -1625,6 +1641,8 @@ SUBROUTINE remove_trans(dels, soil, ssnow, canopy, veg)
    REAL(r_2), DIMENSION(mp,0:ms) :: diff
    REAL(r_2), DIMENSION(mp)      :: xx,xxd,evap_cur
    INTEGER k
+
+   !CALL point2constants( C )
 
   IF (cable_user%FWSOIL_switch.ne.'Haverd2013') THEN
      xx = 0.; xxd = 0.; diff(:,:) = 0.
@@ -1937,6 +1955,8 @@ SUBROUTINE hydraulic_redistribution(dels, soil, ssnow, canopy, veg, met)
       hr_perTime    !
 
    INTEGER :: j, k
+
+   !CALL point2constants( C )
 
    zsetot = sum(soil%zse)
    totalmoist(:) = 0.0

@@ -324,6 +324,8 @@ SUBROUTINE plantcarb(veg, bgc, met, canopy)
 
    REAL, PARAMETER :: sec_per_year  = 365.0*24.0*3600.0
 
+   INTEGER :: i
+
    call point2constants(C)
 
    poolcoef1=(sum(spread(bgc%ratecp,1,mp)*bgc%cplant,2) -                      &
@@ -335,9 +337,12 @@ SUBROUTINE plantcarb(veg, bgc, met, canopy)
    poolcoef1r=(sum(spread(bgc%ratecp,1,mp)*bgc%cplant,2) -                     &
         bgc%ratecp(1)*bgc%cplant(:,1) - bgc%ratecp(2)*bgc%cplant(:,2))
 
-   tmp1(:) = 3.22 - 0.046 * (met%tk(:)-C%TFRZ)
-   tmp2(:) = 0.1 * (met%tk(:)-C%TFRZ-20.0)
-   tmp3(:) = tmp1(:) ** tmp2(:)
+   !bug if temperature is too low so need max()
+   do i=1,mp
+      tmp1(i) = max(3.22 - 0.046 * (met%tk(i)-C%TFRZ),1e-6)
+      tmp2(i) = 0.1 * (met%tk(i)-C%TFRZ-20.0)
+      tmp3(i) = tmp1(i) ** tmp2(i)
+   end do
 
    canopy%frp  = veg%rp20 * tmp3 * poolcoef1  / sec_per_year
    canopy%frpw = veg%rp20 * tmp3 * poolcoef1w / sec_per_year

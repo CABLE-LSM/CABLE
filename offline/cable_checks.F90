@@ -171,7 +171,12 @@ MODULE cable_checks_module
            TotLivBiomass =  (/0.0, 1000./),      &
            TotSoilCarb =  (/0.0, 1000./),      &
            TotLittCarb =  (/0.0, 1000./), &
-           Area = (/0.0, 5000./)
+           Area = (/0.0, 5000./),&
+           !MD
+           WatTable = (/0.0,1.0e10/),          &
+           GWwb = (/0.0,1.0/),              &
+           SatFrac = (/0.0,1.0/),              &
+           Qrecharge = (/-9999.0,9999.0/) 
    END TYPE ranges_type
    TYPE(ranges_type),SAVE :: ranges
 
@@ -243,7 +248,7 @@ SUBROUTINE mass_balance(dels,ktau, ssnow,soil,canopy,met,                       
    ! which is used when nglacier=2 in soilsnow routines (BP feb2011)
    bal%wbal = REAL(met%precip - canopy%delwc - ssnow%snowd+ssnow%osnowd        &
         - ssnow%runoff-(canopy%fevw+canopy%fevc                                &
-        + canopy%fes/ssnow%cls)*dels/air%rlam - delwb)
+        + canopy%fes/ssnow%cls)*dels/air%rlam - delwb - ssnow%qrecharge)
 
    ! Canopy water balance: precip-change.can.storage-throughfall-evap+dew
    canopy_wbal = REAL(met%precip-canopy%delwc-canopy%through                   &

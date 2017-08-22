@@ -105,7 +105,8 @@ MODULE cable_mpiworker
   INTEGER :: restart_t
 
   ! worker's logfile unit
-  INTEGER :: wlogn 
+  !INTEGER :: wlogn 
+  !debug moved to iovars -- easy to pass around
 
   PUBLIC :: mpidrv_worker
 
@@ -119,12 +120,12 @@ CONTAINS
     USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,                  &
          verbose, fixedCO2,output,check,patchout,    &
          patch_type,soilparmnew,&
-         defaultLAI
+         defaultLAI, wlogn
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
          cable_runtime, filename, myhome,            &
          redistrb, wiltParam, satuParam, CurYear,    &
          IS_LEAPYEAR, IS_CASA_TIME, calcsoilalbedo,                &
-         report_version_no, kwidth_gl
+         report_version_no, kwidth_gl, gw_params
     USE cable_data_module,    ONLY: driver_type, point2constants
     USE cable_input_module,   ONLY: open_met_file,load_parameters,              &
          get_met_data,close_met_file
@@ -148,13 +149,15 @@ CONTAINS
     ! PLUME-MIP only
     USE CABLE_PLUME_MIP,      ONLY: PLUME_MIP_TYPE
 
+    USE cable_namelist_util, only : get_namelist_file_name,&
+                                  CABLE_NAMELIST,arg_not_namelist
     IMPLICIT NONE
 
     ! MPI:
     INTEGER               :: comm ! MPI communicator for comms with the workers
 
     ! CABLE namelist: model configuration, runtime/user switches 
-    CHARACTER(LEN=200), PARAMETER :: CABLE_NAMELIST='cable.nml' 
+    !CHARACTER(LEN=200), PARAMETER :: CABLE_NAMELIST='cable.nml' 
 
     ! timing variables 
     INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
@@ -270,7 +273,8 @@ CONTAINS
          redistrb,         &
          wiltParam,        &
          satuParam,        &
-         cable_user           ! additional USER switches
+         cable_user,       &  ! additional USER switches
+         gw_params
 
     INTEGER :: i,x,kk
     INTEGER :: LALLOC, iu
@@ -427,6 +431,7 @@ CONTAINS
           ! MPI: receive from master ending time fields
           CALL MPI_Bcast (kend, 1, MPI_INTEGER, 0, comm, ierr)
 
+
           IF ( CALL1 ) THEN
              ! MPI: need to know extents before creating datatypes
              CALL find_extents
@@ -444,7 +449,11 @@ CONTAINS
              CALL worker_cable_params(comm, met,air,ssnow,veg,bgc,soil,canopy,&
                   &                        rough,rad,sum_flux,bal)
 
-
+             !mrd561 debug
+             write(wlogn,*) ' ssat_vec min',minval(soil%ssat_vec),minloc(soil%ssat_vec)
+             write(wlogn,*) ' sfc_vec min',minval(soil%sfc_vec),minloc(soil%sfc_vec)
+             write(wlogn,*) ' wb min',minval(ssnow%wb),minloc(ssnow%wb)
+             call flush(wlogn)
           
              CALL worker_climate_types(comm, climate)
 
@@ -562,6 +571,9 @@ call flush(wlogn)
 
              ! increment total timstep counter
              ktau_tot = ktau_tot + 1
+
+             write(wlogn,*) 'ktau -',ktau_tot
+             call flush(wlogn)
 
              ! globally (WRT code) accessible kend through USE cable_common_module
              ktau_gl = ktau_gl + 1
@@ -2297,6 +2309,82 @@ ENDIF
     bidx = bidx + 1
     CALL MPI_Get_address (rad%longitude, displs(bidx), ierr)
     blen(bidx) = r1len
+
+!mrd add new GW parameters here
+!2D
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%ssat_vec, displs(bidx), ierr)
+  blen(bidx) = ms * r2len
+ 
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%sucs_vec, displs(bidx), ierr)
+  blen(bidx) = ms * r2len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%hyds_vec, displs(bidx), ierr)
+  blen(bidx) = ms * r2len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%bch_vec, displs(bidx), ierr)
+  blen(bidx) = ms * r2len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%watr, displs(bidx), ierr)
+  blen(bidx) = ms * r2len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%swilt_vec, displs(bidx), ierr)
+  blen(bidx) = ms * r2len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%sfc_vec, displs(bidx), ierr)
+  blen(bidx) = ms * r2len
+
+
+!1d
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%GWssat_vec, displs(bidx), ierr)
+  blen(bidx) = r2len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%GWsucs_vec, displs(bidx), ierr)
+  blen(bidx) = r2len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%GWhyds_vec, displs(bidx), ierr)
+  blen(bidx) = r2len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%GWbch_vec, displs(bidx), ierr)
+  blen(bidx) = r2len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%GWwatr, displs(bidx), ierr)
+  blen(bidx) = r2len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%GWz, displs(bidx), ierr)
+  blen(bidx) = r2len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%GWdz, displs(bidx), ierr)
+  blen(bidx) = r2len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%slope, displs(bidx), ierr)
+  blen(bidx) = r2len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%slope_std, displs(bidx), ierr)
+  blen(bidx) = r2len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%GWdz, displs(bidx), ierr)
+  blen(bidx) = r2len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (ssnow%GWwb, displs(bidx), ierr)
+  blen(bidx) = r2len
 
     ! MPI: sanity check
     IF (bidx /= ntyp) THEN
@@ -5401,6 +5489,23 @@ ENDIF
     CALL MPI_Get_address (veg%deciduous(off), displs(bidx), ierr)
     blocks(bidx) = llen
 
+!mrd 1D GW
+     bidx = bidx + 1
+     CALL MPI_Get_address (ssnow%GWwb(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (ssnow%wtd(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (ssnow%satfrac(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (ssnow%Qrecharge(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
+
      ! additional for SLI 
      bidx = bidx + 1
      CALL MPI_Get_address (ssnow%Tsurface(off), displs(bidx), ierr)
@@ -7020,6 +7125,9 @@ SUBROUTINE worker_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
   USE TypeDef,              ONLY: i4b, dp
   USE mpi
 
+   !mrd561 debug
+  USE cable_IO_vars_module, ONLY: wlogn
+
   IMPLICIT NONE
   !!CLN  CHARACTER(LEN=99), INTENT(IN)  :: fcnpspin
   REAL,    INTENT(IN)    :: dels
@@ -7342,6 +7450,9 @@ SUBROUTINE worker_CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   USE POPMODULE,            ONLY: POPStep
   USE TypeDef,              ONLY: i4b, dp
   USE mpi
+
+  !mrd561 debug
+  USE cable_IO_vars_module, ONLY: wlogn
 
   IMPLICIT NONE
   !!CLN  CHARACTER(LEN=99), INTENT(IN)  :: fcnpspin
