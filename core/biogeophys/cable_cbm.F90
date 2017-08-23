@@ -120,10 +120,10 @@ CONTAINS
    ssnow%otss = ssnow%tss
 
    ! Calculate canopy variables:
-   IF (.not.(cable_user%or_evap .or. cable_user%gw_model) ) THEN
+   IF (.not.(cable_user%or_evap .or. cable_user%gw_model .or. &
+            (cable_user%SOIL_STRUC=='sli' .and. cable_user%test_new_gw) ) ) THEN
       call set_unsed_gw_vars(ssnow,soil,canopy)
    END IF
-   !END IF
 
    CALL define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy,climate)
 
@@ -152,7 +152,8 @@ CONTAINS
          ENDIF
       ELSEIF (cable_user%SOIL_STRUC=='sli') THEN
 
-         CALL sli_hydrology(dels,ssnow,soil,veg,canopy,cable_user%test_new_gw)
+         IF (cable_user%test_new_gw) &
+            CALL sli_hydrology(dels,ssnow,soil,veg,canopy)
 
          CALL sli_main(ktau,dels,veg,soil,ssnow,met,canopy,air,rad,0)
       ENDIF

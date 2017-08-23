@@ -1508,44 +1508,35 @@ END SUBROUTINE calc_soil_hydraulic_props
 
   END SUBROUTINE pore_space_relative_humidity
 
-  SUBROUTINE sli_hydrology(dels,ssnow,soil,veg,canopy,run_hydro)
+  SUBROUTINE sli_hydrology(dels,ssnow,soil,veg,canopy)
     REAL, INTENT(IN)                         :: dels ! integration time step (s)
     TYPE(soil_snow_type), INTENT(INOUT)      :: ssnow  ! soil+snow variables
     TYPE(soil_parameter_type), INTENT(INOUT)    :: soil ! soil parameters
     TYPE(veg_parameter_type) , INTENT(INOUT)    :: veg  ! veg parameters
     TYPE (canopy_type), INTENT(INOUT)           :: canopy
-    LOGICAL, INTENT(IN) :: run_hydro
 
-    LOGICAL   :: sli_call
+    LOGICAL, SAVE :: sli_call = .true.
 
     REAL(r_2), DIMENSION(ms) :: dzmm
     REAL(r_2), DIMENSION(mp) :: zmm
     REAL(r_2), DIMENSION(mp) :: zaq
 
 
-    sli_call = .true.
+   call iterative_wtd (ssnow, soil, veg, cable_user%test_new_gw)
 
-    if (run_hydro) then
-       call iterative_wtd (ssnow, soil, veg, cable_user%test_new_gw)
-   
-       CALL calc_soil_hydraulic_props(ssnow,soil,veg)
-   
-       call  ovrlndflx (dels, ssnow, soil, veg,canopy,sli_call )
-   
-       dzmm = real(soil%zse(:),r_2)*1000._r_2
-   
-       CALL subsurface_drainage(ssnow,soil,veg,dzmm)
-   
-       zmm(:) = 1000._r_2*(sum(real(soil%zse,r_2),dim=1))
-       zaq(:) = zmm(:) + 0.5_r_2*soil%GWdz(:)*1000._r_2
-   
-       call aquifer_recharge(dels,ssnow,soil,veg,zaq,zmm,zmm)
+   CALL calc_soil_hydraulic_props(ssnow,soil,veg)
 
-    else
+   call  ovrlndflx (dels, ssnow, soil, veg,canopy,sli_call )
 
-       call set_unsed_gw_vars(ssnow,soil,canopy)
+   dzmm = real(soil%zse(:),r_2)*1000._r_2
 
-    end if
+   CALL subsurface_drainage(ssnow,soil,veg,dzmm)
+
+   zmm(:) = 1000._r_2*(sum(real(soil%zse,r_2),dim=1))
+   zaq(:) = zmm(:) + 0.5_r_2*soil%GWdz(:)*1000._r_2
+
+   call aquifer_recharge(dels,ssnow,soil,veg,zaq,zmm,zmm)
+
 
 
 
