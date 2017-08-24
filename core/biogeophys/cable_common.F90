@@ -156,6 +156,7 @@ MODULE cable_common_module
      LOGICAL :: test_new_gw=.false.
      LOGICAL :: sync_nc_file=.false.
      INTEGER :: max_spins = -1
+     LOGICAL :: fix_access_roots = .false.  !use pft dependent roots in ACCESS
 
   END TYPE kbl_user_switches
 
