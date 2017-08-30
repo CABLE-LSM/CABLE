@@ -63,11 +63,14 @@ MODULE cable_checks_module
            PSurf = (/500.0,1100.0/),           & ! mbar/hPa
            Tair = (/200.0,333.0/),             & ! K
           Qair = (/0.0,0.1/),                & ! g/g
+           Tscrn = (/-70.0,70.0/),             & ! oC - INH
+          Qscrn = (/0.0,0.1/),                & ! kg/kg
            CO2air = (/160.0,2000.0/),          & ! ppmv
            Wind = (/0.0,75.0/),                & ! m/s
            Wind_N = (/-75.0,75.0/),            & ! m/s
            Wind_E = (/-75.0,75.0/),            & ! m/s
            ! possible output variables
+          Qmom = (/-10.0,8000.0/),            & ! kg/m/s2 - (INH generous range)
           Qh = (/-2000.0,2000.0/),            & ! W/m^2
           Qle = (/-2500.0,2500.0/),           & ! W/m^2
           Qg = (/-4000.0,4000.0/),            & ! W/m^2
@@ -317,8 +320,9 @@ SUBROUTINE energy_balance( dels,ktau,met,rad,canopy,bal,ssnow,                  
          (emleaf*sboltz*(1-rad%transd)*canopy%tv**4) &
          - canopy%fnv - canopy%fns
 
-    !  soil energy balance
-    bal%EbalSoil =canopy%fns -canopy%fes*ssnow%cls &
+    !  soil energy - INH Ticket #133 corrected for consistency with %Ebal
+    !  this includes the correction terms 
+    bal%EbalSoil =canopy%fns - canopy%fes & !*ssnow%cls &
          & -canopy%fhs -canopy%ga
 
     ! canopy energy balance
@@ -331,6 +335,15 @@ SUBROUTINE energy_balance( dels,ktau,met,rad,canopy,bal,ssnow,                  
           -rad%flws*rad%transd &
          & -canopy%fev-canopy%fes & !*ssnow%cls &
          & -canopy%fh -canopy%ga
+
+    !REV_CORR - likely testing and offline-as-online cases only
+    !need to add on the correction to the soil net radiation
+    !as %fes, %fhs and %ga include the correction terms but %Ebal doesn't
+    ! %fns_cor=0 in standard offline runs
+    IF (cable_user%L_REV_CORR) THEN
+       bal%Ebal = bal%Ebal + canopy%fns_cor
+    ENDIF
+
     ! Add to cumulative balance:
     bal%ebal_tot = bal%ebal_tot + bal%ebal
     bal%RadbalSum = bal%RadbalSum + bal%Radbal
