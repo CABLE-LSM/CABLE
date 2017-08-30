@@ -188,10 +188,11 @@ MODULE cable_def_types_mod
          pudsto,  & ! puddle storage
          pudsmx,  & ! puddle storage
          cls,     & ! factor for latent heat
-         dfn_dtg, & ! d(canopy%fns)/d(ssnow%tgg)
-         dfh_dtg, & ! d(canopy%fhs)/d(ssnow%tgg)
-         dfe_ddq, & ! d(canopy%fes)/d(dq)
-         ddq_dtg, & ! d(dq)/d(ssnow%tgg)
+         dfn_dtg, & ! d(canopy%fns)/d(ssnow%tgg) 
+         dfh_dtg, & ! d(canopy%fhs)/d(ssnow%tgg) 
+         dfe_ddq, & ! d(canopy%fes)/d(dq)        - REV_CORR: no longer necessary
+         ddq_dtg, & ! d(dq)/d(ssnow%tgg)         - REV_CORR: no longer necessary
+         dfe_dtg, & ! d(canopy%fes)/d(ssnow%tgg) - REV_CORR: covers above vars
          evapsn,  & ! snow evaporation
          fwtop,   & ! water flux to the soil
          fwtop1,  & ! water flux to the soil
@@ -444,6 +445,11 @@ MODULE cable_def_types_mod
          rghlai,  & ! lai adj for snow depth for calc of resistances
          fwet       ! fraction of canopy wet
 
+      !INH - new REV_CORR coupling variables
+      REAL, DIMENSION(:), POINTER ::                                           &
+         fns_cor, & ! correction to net rad avail to soil (W/m2)
+         ga_cor  ! correction to ground heat flux (W/m2)
+
       REAL, DIMENSION(:,:), POINTER ::                                         &
          evapfbl, &
          gswx,    & ! stom cond for water
@@ -459,6 +465,11 @@ MODULE cable_def_types_mod
          fes_cor, & ! latent heatfl from soil (W/m2)
          fevc,     &  ! dry canopy transpiration (W/m2)
          ofes     ! latent heatfl from soil (W/m2)
+
+      !SSEB - new variables limits on correction terms - for future use
+      !REAL(r_2), DIMENSION(:), POINTER ::                                     &
+      !  fescor_upp,& ! upper limit on the correction term fes_cor (W/m2)
+      !  fescor_low   ! lower limit on the correction term fes_cor (W/m2)      
 
       REAL(r_2), DIMENSION(:), POINTER :: &
          sublayer_dz
@@ -872,6 +883,7 @@ SUBROUTINE alloc_soil_snow_type(var, mp)
    ALLOCATE( var% dfh_dtg(mp) )
    ALLOCATE( var% dfe_ddq(mp) )
    ALLOCATE( var% ddq_dtg(mp) )
+   ALLOCATE( var% dfe_dtg(mp) )    !REV_CORR variable
    ALLOCATE( var% evapsn(mp) )
    ALLOCATE( var% fwtop(mp) )
    ALLOCATE( var% fwtop1(mp) )
@@ -1108,6 +1120,8 @@ SUBROUTINE alloc_canopy_type(var, mp)
    ALLOCATE( var% rghlai(mp) )
    ALLOCATE( var% vlaiw(mp) )
    ALLOCATE( var% fwet(mp) )
+   ALLOCATE( var% fns_cor(mp) )    !REV_CORR variable
+   ALLOCATE( var% ga_cor(mp) )     !REV_CORR variable
    ALLOCATE ( var % evapfbl(mp,ms) )
    ALLOCATE( var% epot(mp) )
    ALLOCATE( var% fnpp(mp) )
@@ -1119,6 +1133,8 @@ SUBROUTINE alloc_canopy_type(var, mp)
    ALLOCATE( var% fhvw(mp) )
    ALLOCATE( var% fes(mp) )
    ALLOCATE( var% fes_cor(mp) )
+   !ALLOCATE( var% fescor_upp(mp) )  !SSEB variable
+   !ALLOCATE( var% fescor_low(mp) )  !SSEB variable
    ALLOCATE( var% gswx(mp,mf) )
    ALLOCATE( var% oldcansto(mp) )
    ALLOCATE( var% zetar(mp,NITER) )
@@ -1480,6 +1496,7 @@ SUBROUTINE dealloc_soil_snow_type(var)
    DEALLOCATE( var% dfh_dtg )
    DEALLOCATE( var% dfe_ddq )
    DEALLOCATE( var% ddq_dtg )
+   DEALLOCATE( var% dfe_dtg )  !REV_CORR variable
    DEALLOCATE( var% evapsn )
    DEALLOCATE( var% fwtop )
    DEALLOCATE( var% fwtop1 )
@@ -1709,6 +1726,8 @@ SUBROUTINE dealloc_canopy_type(var)
    DEALLOCATE( var% rghlai )
    DEALLOCATE( var% vlaiw )
    DEALLOCATE( var% fwet )
+   DEALLOCATE( var% fns_cor )   !REV_CORR variable
+   DEALLOCATE( var% ga_cor )    !REV_CORR variable
    DEALLOCATE ( var % evapfbl )
    DEALLOCATE( var% epot )
    DEALLOCATE( var% fnpp )
@@ -1720,6 +1739,8 @@ SUBROUTINE dealloc_canopy_type(var)
    DEALLOCATE( var% fhvw )
    DEALLOCATE( var% fes )
    DEALLOCATE( var% fes_cor )
+   !DEALLOCATE( var% fescor_upp ) !SSEB variable
+   !DEALLOCATE( var% fescor_low ) !SSEB variable
    DEALLOCATE( var% gswx )
    DEALLOCATE( var% oldcansto )
    DEALLOCATE( var% zetar )
