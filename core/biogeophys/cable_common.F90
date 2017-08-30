@@ -146,6 +146,11 @@ MODULE cable_common_module
 
           !! vh_js !!
          litter = .FALSE.
+
+     !INH -apply revised sensitvity/correction terms to soilsnow energy balance
+      LOGICAL ::                                                               &
+          L_REV_CORR = .FALSE.     !switch to revert to unchanged code
+
      !MD
       LOGICAL :: GW_MODEL = .FALSE.
       LOGICAL :: alt_forcing = .FALSE.
