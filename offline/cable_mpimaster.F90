@@ -1853,6 +1853,11 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
      CALL MPI_Get_address (ssnow%ddq_dtg(off), displs(bidx), ierr)
      blen(bidx) = r1len
 
+     !INH - REV_CORR new variable
+     bidx = bidx + 1
+     CALL MPI_Get_address (ssnow%dfe_dtg(off), displs(bidx), ierr)
+     blen(bidx) = r1len
+
      bidx = bidx + 1
      CALL MPI_Get_address (ssnow%evapsn(off), displs(bidx), ierr)
      blen(bidx) = r1len
@@ -2523,12 +2528,37 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
      CALL MPI_Get_address (canopy%fns(off), displs(bidx), ierr)
      blen(bidx) = r1len
 
+    !INH - REV_CORR new variable - temporary?
+     bidx = bidx + 1
+     CALL MPI_Get_address (canopy%fns_cor(off), displs(bidx), ierr)
+     blen(bidx) = r1len
+
      bidx = bidx + 1
      CALL MPI_Get_address (canopy%fes(off), displs(bidx), ierr)
      blen(bidx) = r2len
 
+     !INH - REV_CORR new variable - temporary?
+     bidx = bidx + 1
+     CALL MPI_Get_address (canopy%fes_cor(off), displs(bidx), ierr)
+     blen(bidx) = r2len
+
+     !INH - SSEB new variable - temporary?
+     !bidx = bidx + 1
+     !CALL MPI_Get_address (canopy%fescor_upp(off), displs(bidx), ierr)
+     !blen(bidx) = r2len
+
+     !INH - SSEB new variable - temporary?
+     !bidx = bidx + 1
+     !CALL MPI_Get_address (canopy%fescor_low(off), displs(bidx), ierr)
+     !blen(bidx) = r2len
+
      bidx = bidx + 1
      CALL MPI_Get_address (canopy%fhs(off), displs(bidx), ierr)
+     blen(bidx) = r1len
+
+    !INH - REV_CORR - temporary?
+     bidx = bidx + 1
+     CALL MPI_Get_address (canopy%fhs_cor(off), displs(bidx), ierr)
      blen(bidx) = r1len
 
      bidx = bidx + 1
@@ -2537,6 +2567,11 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
 
      bidx = bidx + 1
      CALL MPI_Get_address (canopy%ga(off), displs(bidx), ierr)
+     blen(bidx) = r1len
+
+    !INH - REV_CORR - temporary?
+     bidx = bidx + 1
+     CALL MPI_Get_address (canopy%ga_cor(off), displs(bidx), ierr)
      blen(bidx) = r1len
 
      bidx = bidx + 1
@@ -5283,6 +5318,10 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      CALL MPI_Get_address (canopy%fns(off), vaddr(vidx), ierr) ! 41
      blen(vidx) = cnt * extr1
      vidx = vidx + 1
+     !INH - REV_CORR - temporary?
+     CALL MPI_Get_address (canopy%fns_cor(off), vaddr(vidx), ierr) ! 41
+     blen(vidx) = cnt * extr1
+     vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%fes(off), vaddr(vidx), ierr) ! 42
      blen(vidx) = cnt * extr2
@@ -5291,6 +5330,16 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      CALL MPI_Get_address (canopy%fes_cor(off), vaddr(vidx), ierr) ! 42
      blen(vidx) = cnt * extr2
      vidx = vidx + 1
+     !REAL(r_1)
+     !INH - SSEB  - temporary?
+     !CALL MPI_Get_address (canopy%fescor_upp(off), vaddr(vidx), ierr) ! 42
+     !blen(vidx) = cnt * extr2
+     !vidx = vidx + 1
+     !REAL(r_1)
+     !INH - SSEB - temporary?
+     !CALL MPI_Get_address (canopy%fescor_low(off), vaddr(vidx), ierr) ! 42
+     !blen(vidx) = cnt * extr2
+     !vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%fhs(off), vaddr(vidx), ierr) ! 43
      blen(vidx) = cnt * extr1
@@ -5329,6 +5378,11 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%ga(off), vaddr(vidx), ierr) ! 45
+     blen(vidx) = cnt * extr1
+     vidx = vidx + 1
+     ! REAL(r_1)
+    !INH - REV_CORR - temporary?
+     CALL MPI_Get_address (canopy%ga_cor(off), vaddr(vidx), ierr) ! 45
      blen(vidx) = cnt * extr1
      vidx = vidx + 1
      ! REAL(r_1)
@@ -5424,11 +5478,19 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      CALL MPI_Get_address (ssnow%dfh_dtg(off), vaddr(vidx), ierr) ! 62
      blen(vidx) = cnt * extr1
 
+     !INH - REV_CORR - no longer needed
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (ssnow%dfe_ddq(off), vaddr(vidx), ierr) ! +1
      blen(vidx) = cnt * extr1
 
+     !INH - REV_CORR
+     vidx = vidx + 1
+     ! REAL(r_1)
+     CALL MPI_Get_address (ssnow%dfe_dtg(off), vaddr(vidx), ierr) ! +1
+     blen(vidx) = cnt * extr1
+
+     !INH - REV_CORR - no longer needed
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (ssnow%ddq_dtg(off), vaddr(vidx), ierr) ! 63
