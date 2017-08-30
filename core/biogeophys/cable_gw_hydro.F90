@@ -28,6 +28,8 @@
 !                  (usually evergreen broadleaf and c4 grass)
 !          v2.0 ssoil variable renamed ssnow
 !          Mark Decker - used ssnow as base for ssgw.  Could be part of same module
+!          Aug 2017 - applied changes for cls and rev_corr packages
+!                   - partner changes applied in soilsnow module
 !
 ! ==============================================================================
 
@@ -968,11 +970,26 @@ SUBROUTINE soil_snow_gw(dels, soil, ssnow, canopy, met, bal, veg)
    ! correction required for energy balance in online simulations 
    IF( cable_runtime%um) THEN
 
+      !cls package - rewritten for flexibility
       canopy%fhs_cor = ssnow%dtmlt(:,1)*ssnow%dfh_dtg
-      canopy%fes_cor = ssnow%dtmlt(:,1)*(ssnow%cls*ssnow%dfe_ddq * ssnow%ddq_dtg)
+      !canopy%fes_cor = ssnow%dtmlt(:,1)*(ssnow%dfe_ddq * ssnow%ddq_dtg)
+      canopy%fes_cor = ssnow%dtmlt(:,1)*ssnow%dfe_dtg
 
       canopy%fhs = canopy%fhs+canopy%fhs_cor
       canopy%fes = canopy%fes+canopy%fes_cor
+
+      !REV_CORR associated changes to other energy balance terms
+      !NB canopy%fns changed not rad%flws as the correction term needs to
+      !pass through the canopy in entirety, not be partially absorbed
+      IF (cable_user%L_REV_CORR) THEN
+         canopy%fns_cor = ssnow%dtmlt(:,1)*ssnow%dfn_dtg
+         canopy%ga_cor = ssnow%dtmlt(:,1)*canopy%dgdtg
+
+         canopy%fns = canopy%fns + canopy%fns_cor
+         canopy%ga = canopy%ga + canopy%ga_cor
+
+         canopy%fess = canopy%fess + canopy%fes_cor
+      ENDIF
 
    ENDIF
 
