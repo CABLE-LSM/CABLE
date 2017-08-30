@@ -27,6 +27,7 @@
 !               NB Currently hard-wired to veg types 2 and 7
 !                  (usually evergreen broadleaf and c4 grass)
 !          v2.0 ssoil variable renamed ssnow
+!          Aug 2017 - applied changes for cls and rev_corr packages
 !
 ! ==============================================================================
 
@@ -52,6 +53,7 @@ MODULE cable_soil_snow_module
       max_ssdn = 750.0,    & !
       max_sconds = 2.51,   & !
       frozen_limit = 0.85    ! EAK Feb2011 (could be 0.95)
+                             ! INH if changed see latent_heat() in _canopy
 
    REAL :: cp    ! specific heat capacity for air
 
@@ -907,7 +909,12 @@ USE cable_common_module
    ssnow%evapsn = 0
 
    ! Snow evaporation and dew on snow
-   WHERE( ssnow%snowd > 0.1 )
+   ! NB the conditions on when %fes applies to %segg or %evapsn MUST(!!)
+   ! match those used to set %cls in the latent_heat_flux calculations 
+   ! for moisture conservation purposes 
+   ! Ticket 137 - using %cls as the trigger not %snowd
+   WHERE ( ssnow%cls == 1.1335 )
+   !WHERE( ssnow%snowd > 0.1 )
 
       ssnow%evapsn = dels * ( canopy%fess + canopy%fes_cor ) / ( C%HL + C%HLF )
       xxx = ssnow%evapsn
@@ -926,6 +933,10 @@ USE cable_common_module
       END WHERE
 
       canopy%segg = 0.0
+
+      !INH: cls package 
+      !we still need to conserve moisture/energy when evapsn is limited
+      !this is a key point of moisture non-conservation
 
    END WHERE
 
@@ -1882,11 +1893,27 @@ SUBROUTINE soil_snow(dels, soil, ssnow, canopy, met, bal, veg)
 
    ! correction required for energy balance in online simulations
    IF( cable_runtime%um ) THEN
+
+      !cls package - rewritten for flexibility
       canopy%fhs_cor = ssnow%dtmlt(:,1)*ssnow%dfh_dtg
-      canopy%fes_cor = ssnow%dtmlt(:,1)*(ssnow%dfe_ddq * ssnow%ddq_dtg)
+      !canopy%fes_cor = ssnow%dtmlt(:,1)*(ssnow%dfe_ddq * ssnow%ddq_dtg)
+      canopy%fes_cor = ssnow%dtmlt(:,1)*ssnow%dfe_dtg
 
       canopy%fhs = canopy%fhs+canopy%fhs_cor
       canopy%fes = canopy%fes+canopy%fes_cor
+
+      !REV_CORR associated changes to other energy balance terms
+      !NB canopy%fns changed not rad%flws as the correction term needs to
+      !pass through the canopy in entirety, not be partially absorbed
+      IF (cable_user%L_REV_CORR) THEN
+         canopy%fns_cor = ssnow%dtmlt(:,1)*ssnow%dfn_dtg
+         canopy%ga_cor = ssnow%dtmlt(:,1)*canopy%dgdtg
+
+         canopy%fns = canopy%fns + canopy%fns_cor
+         canopy%ga = canopy%ga + canopy%ga_cor
+
+         canopy%fess = canopy%fess + canopy%fes_cor
+      ENDIF
    ENDIF
 
    ! redistrb (set in cable.nml) by default==.FALSE.
