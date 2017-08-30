@@ -52,8 +52,9 @@ MODULE cable_output_module
   REAL :: missing_value = -999999.0 ! for netcdf output
   TYPE out_varID_type ! output variable IDs in netcdf file
     INTEGER ::      SWdown, LWdown, Wind, Wind_E, PSurf,                       &
-                    Tair, Qair, Rainf, Snowf, CO2air,                          &
-                    Qle, Qh, Qg, NEE, SWnet,                                   &
+                    Tair, Qair, Tscrn, Qscrn, Rainf, Snowf, CO2air,            &
+                    Tmx, Tmn, Txx, Tnn,                                        &
+                    Qmom, Qle, Qh, Qg, NEE, SWnet,                             &
                     LWnet, SoilMoist, SoilTemp, Albedo,                        &
                     visAlbedo, nirAlbedo, SoilMoistIce,                        &
                     Qs, Qsb, Evap, BaresoilT, SWE, SnowT,                      &
@@ -83,6 +84,23 @@ MODULE cable_output_module
     REAL(KIND=4), POINTER, DIMENSION(:) :: Tair   ! 11 surface air temperature
                                                   ! [K]
     REAL(KIND=4), POINTER, DIMENSION(:) :: Qair   ! 12 specific humidity [kg/kg]
+    !INH new output variables
+    REAL(KIND=4), POINTER, DIMENSION(:) :: Tscrn  ! -- screen-level air 
+                                                  ! temperature [oC]
+    REAL(KIND=4), POINTER, DIMENSION(:) :: Qscrn  ! -- screen level specific 
+                                                  ! humidity [kg/kg]  
+    REAL(KIND=4), POINTER, DIMENSION(:) :: Tmx    ! -- averaged daily maximum
+                                                  ! screen level temp [oC]
+    REAL(KIND=4), POINTER, DIMENSION(:) :: Txx    ! -- max screen level temp 
+                                                  ! in averaging period [oC]  
+    REAL(KIND=4), POINTER, DIMENSION(:) :: Tmn    ! -- averaged daily minimum
+                                                  ! screen level temp [oC]
+    REAL(KIND=4), POINTER, DIMENSION(:) :: Tnn    ! -- min screen level temp
+                                                  ! in averaging period [oC]
+    REAL(KIND=4), POINTER, DIMENSION(:) :: Tdaymx ! -- daily maximum
+                                                  ! screen level temp [oC]
+    REAL(KIND=4), POINTER, DIMENSION(:) :: Tdaymn ! -- daily maximum
+                                                  ! screen level temp [oC]    
     REAL(KIND=4), POINTER, DIMENSION(:) :: CO2air ! 13 CO2 concentration [ppmv]
     REAL(KIND=4), POINTER, DIMENSION(:) :: Wind   ! 14 windspeed [m/s]
     REAL(KIND=4), POINTER, DIMENSION(:) :: Wind_N ! 15 surface wind speed, N
@@ -90,6 +108,7 @@ MODULE cable_output_module
     REAL(KIND=4), POINTER, DIMENSION(:) :: Wind_E ! 16 surface wind speed, E
                                                   ! component [m/s]
     REAL(KIND=4), POINTER, DIMENSION(:) :: LAI
+    REAL(KIND=4), POINTER, DIMENSION(:) :: Qmom   ! -- momentum flux [kg/m/s2]
     REAL(KIND=4), POINTER, DIMENSION(:) :: Qh     ! 17 sensible heat flux [W/m2]
     REAL(KIND=4), POINTER, DIMENSION(:) :: Qle    ! 18 latent heat flux [W/m2]
     REAL(KIND=4), POINTER, DIMENSION(:) :: Qg     ! 19 ground heat flux [W/m2]
@@ -444,6 +463,13 @@ CONTAINS
     END IF
     ! Define surface flux variables in output file and allocate temp output
     ! vars:
+    IF(output%flux .OR. output%Qmom) THEN    
+       CALL define_ovar(ncid_out, ovid%Qmom, 'Qmom', 'kg/m/s2',                &
+                        'Surface momentum flux',patchout%Qmom,'dummy',       &
+                        xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%Qmom(mp))
+       out%Qmom = 0.0 ! initialise
+    END IF
     IF(output%flux .OR. output%Qle) THEN
        CALL define_ovar(ncid_out, ovid%Qle, 'Qle', 'W/m^2',                    &
                         'Surface latent heat flux',patchout%Qle,'dummy',       &
@@ -651,6 +677,57 @@ CONTAINS
        out%RadT = 0.0 ! initialise
     END IF
     ! Define vegetation variables in output file and allocate temp output vars:
+    ! REV_CORR - new output variables.
+    IF(output%Tscrn .OR. output%veg) THEN
+       CALL define_ovar(ncid_out, ovid%Tscrn,                                  &
+                        'Tscrn', 'oC', 'screen level air temperature', &        
+                        patchout%Tscrn, &
+                        'ALMA', xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%Tscrn(mp))
+       out%Tscrn = 0.0 ! initialise
+    END IF
+    IF (output%Tex .OR. output%veg) THEN 
+       IF((output%averaging(1:2) == 'da').OR.(output%averaging(1:2)=='mo')) THEN
+          CALL define_ovar(ncid_out, ovid%Txx,                                 &
+                         'Txx', 'oC', 'max screen-level T in reporting period',&
+                         patchout%Tex,                                         &
+                         'ALMA', xID, yID, zID, landID, patchID, tID)
+           ALLOCATE(out%Txx(mp))
+           out%Txx = -1.0E6 !initialise extremes at unreasonable value 
+           CALL define_ovar(ncid_out, ovid%Tnn,                                &
+                         'Tnn', 'oC', 'min screen-level T in reporting period',&
+                         patchout%Tex,                                         &
+                         'ALMA', xID, yID, zID, landID, patchID, tID)
+           ALLOCATE(out%Tnn(mp))
+           out%Tnn = 1.0E6 !initialise extremes at unreasonable value
+       ENDIF
+       IF (output%averaging(1:2)=='mo') THEN
+           !%Tdaymx is the current day max T - this is a working variable)
+           !%Tmx is average of those values to be output
+           CALL define_ovar(ncid_out, ovid%Tmx,                                &
+                         'Tmx', 'oC', 'averaged daily maximum screen-level T', &
+                         patchout%Tex,                                         &
+                         'ALMA', xID, yID, zID, landID, patchID, tID)
+           ALLOCATE(out%Tmx(mp), out%Tdaymx(mp))
+           out%Tmx = 0.0 !initialise average
+           out%Tdaymx = -1.0E6 !initialise extremes at unreasonable value
+           CALL define_ovar(ncid_out, ovid%Tmn,                                &
+                         'Tmn', 'oC', 'averaged daily minimum screen-level T', &
+                         patchout%Tex,                                         &
+                         'ALMA', xID, yID, zID, landID, patchID, tID)
+           ALLOCATE(out%Tmn(mp),out%Tdaymn(mp))
+           out%Tmn = 0.0
+           out%Tdaymn = 1.0E6
+       ENDIF
+    ENDIF
+    IF(output%Qscrn .OR. output%veg) THEN
+       CALL define_ovar(ncid_out, ovid%Qscrn,                                  &
+                        'Qscrn', 'kg/kg', 'screen level specific humdity',     &
+                        patchout%Qscrn, &
+                        'ALMA', xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%Qscrn(mp))
+       out%Qscrn = 0.0 ! initialise
+    END IF
     IF(output%veg .OR. output%VegT) THEN
        CALL define_ovar(ncid_out, ovid%VegT, 'VegT', 'K',                      &
                         'Average vegetation temperature', patchout%VegT,       &
@@ -1661,6 +1738,20 @@ CONTAINS
        END IF
     END IF
     !-----------------------WRITE FLUX DATA-------------------------------------
+    ! Qmom: momentum flux [kg/m/s2] INH
+    IF(output%flux .OR. output%Qmom) THEN
+       ! Add current timestep's value to total of temporary output variable:
+       out%Qmom = out%Qmom + REAL(air%rho,4)*(REAL(canopy%us,4)**2.)
+       IF(writenow) THEN
+          ! Divide accumulated variable by number of accumulated time steps:
+          out%Qmom = out%Qmom / REAL(output%interval, 4)
+          ! Write value to file:
+          CALL write_ovar(out_timestep, ncid_out, ovid%Qmom, 'Qmom', out%Qmom, &
+                          ranges%Qmom, patchout%Qmom, 'default', met)
+          ! Reset temporary output variable:
+          out%Qmom = 0.0
+       END IF
+    END IF
     ! Qle: latent heat flux [W/m^2]
     IF(output%flux .OR. output%Qle) THEN
        ! Add current timestep's value to total of temporary output variable:
@@ -2035,6 +2126,14 @@ CONTAINS
        out%LWnet = out%LWnet +                                                 &
           REAL(met%fld - sboltz * emleaf * canopy%tv ** 4 * (1 - rad%transd) - &
                rad%flws * rad%transd, 4)
+
+       ! REV_CORR (needed for testing and offline-as-online cases):
+       ! correction term added in entirety onto %LWnet not (1-rad%transd)*
+       ! for standard offline cases %fns_cor = 0. 
+       IF (cable_user%L_REV_CORR) THEN
+          out%LWnet = out%LWnet + canopy%fns_cor
+       ENDIF
+
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
           out%LWnet = out%LWnet / REAL(output%interval, 4)
@@ -2052,6 +2151,14 @@ CONTAINS
                                   (1 - rad%transd) -rad%flws * rad%transd +    &
                                   SUM(rad%qcan(:, :, 1), 2) +                  &
                                   SUM(rad%qcan(:, :, 2), 2) + rad%qssabs, 4)
+       
+       ! REV_CORR (needed for testing and offline-as-online cases):
+       ! correction term added in entirety onto %Rnet not (1-rad%transd)*
+       ! for standard offline cases %fns_cor = 0. 
+       IF (cable_user%L_REV_CORR) THEN
+          out%Rnet = out%Rnet + canopy%fns_cor
+       ENDIF
+
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
           out%Rnet = out%Rnet / REAL(output%interval, 4)
@@ -2112,6 +2219,89 @@ CONTAINS
        END IF
     END IF
     !------------------------WRITE VEGETATION DATA------------------------------
+    ! Tscrn: screen level air temperature [oC]
+    IF(output%Tscrn .OR. output%veg) THEN
+       ! Add current timestep's value to total of temporary output variable:
+       out%Tscrn = out%Tscrn + REAL(canopy%tscrn, 4)
+       IF(writenow) THEN
+          ! Divide accumulated variable by number of accumulated time steps:
+          out%Tscrn = out%Tscrn/REAL(output%interval, 4)
+          ! Write value to file:
+          CALL write_ovar(out_timestep, ncid_out, ovid%Tscrn, 'Tscrn',         &
+                           out%Tscrn, ranges%Tscrn, patchout%Tscrn, 'ALMA', met)
+          ! Reset temporary output variable:
+          out%Tscrn = 0.0
+       END IF
+    END IF
+    !INH - extremes in screen level air temperature [oC]
+    IF(output%Tex .OR. output%veg) THEN
+       !if 'daily' then only daily values - using variables Txx and Tnn
+       IF (output%averaging(1:2) == 'da') THEN
+          DO iy=1,mp
+             out%Txx(iy) = MAX(out%Txx(iy),REAL(canopy%tscrn(iy),4))
+             out%Tnn(iy) = MIN(out%Tnn(iy),REAL(canopy%tscrn(iy),4))
+          ENDDO
+          IF(writenow) THEN
+             CALL write_ovar(out_timestep,ncid_out,ovid%Txx, 'Txx',            &
+                           out%Txx, ranges%Tscrn, patchout%Tex, 'ALMA', met)
+             CALL write_ovar(out_timestep,ncid_out,ovid%Tnn, 'Tnn',           &
+                           out%Tnn, ranges%Tscrn, patchout%Tex, 'ALMA', met)
+             !Reset temporary output variables:
+             out%Txx = -1.0E6
+             out%Tnn = 1.0E6
+          ENDIF
+       ENDIF
+ 
+       IF (output%averaging(1:2)=='mo') THEN
+          !if monthly then both full extremes and averaged extremes
+          DO iy=1,mp
+             out%Txx(iy) = MAX(out%Txx(iy),REAL(canopy%tscrn(iy),4))
+             out%Tnn(iy) = MIN(out%Tnn(iy),REAL(canopy%tscrn(iy),4))
+             out%Tdaymx(iy) = MAX(out%Tdaymx(iy),REAL(canopy%tscrn(iy),4))
+             out%Tdaymn(iy) = MIN(out%Tdaymn(iy),REAL(canopy%tscrn(iy),4))
+          ENDDO
+          !take copy of day's max/min for averaged output - reset Tdaymx/mn
+          IF (mod(ktau,24*3600/INT(dels))==0) THEN  
+             out%Tmx = out%Tmx + out%Tdaymx
+             out%Tmn = out%Tmn + out%Tdaymn
+             out%Tdaymx = -1.0E6
+             out%Tdaymn = 1.0E6
+          ENDIF
+          IF(writenow) THEN
+             !divide by number of records in average (dels*%interval/24/3600)
+             out%Tmx = REAL(86400,4)*out%Tmx/REAL(output%interval*INT(dels),4)
+             out%Tmn = REAL(86400,4)*out%Tmn/REAL(output%interval*INT(dels),4)
+             !write to file
+             CALL write_ovar(out_timestep,ncid_out,ovid%Txx, 'Txx',            &
+                           out%Txx, ranges%Tscrn, patchout%Tex, 'ALMA', met)
+             CALL write_ovar(out_timestep,ncid_out,ovid%Tnn, 'Tnn',           &
+                          out%Tnn, ranges%Tscrn, patchout%Tex, 'ALMA', met)
+             CALL write_ovar(out_timestep,ncid_out,ovid%Tmx, 'Tmx',           &
+                          out%Tmx, ranges%Tscrn, patchout%Tex, 'ALMA', met)
+             CALL write_ovar(out_timestep,ncid_out,ovid%Tmn, 'Tmn',           &
+                          out%Tmn, ranges%Tscrn, patchout%Tex, 'ALMA', met)
+             !Reset temporary output variables:
+             out%Txx = -1.0E6
+             out%Tnn = 1.0E6
+             out%Tmx = 0.0
+             out%Tmn = 0.0
+          ENDIF
+       ENDIF
+    ENDIF
+    ! Qscrn: screen level specific humdity [kg/kg]
+    IF(output%Qscrn .OR. output%veg) THEN
+       ! Add current timestep's value to total of temporary output variable:
+       out%Qscrn = out%Qscrn + REAL(canopy%qscrn, 4)
+       IF(writenow) THEN
+          ! Divide accumulated variable by number of accumulated time steps:
+          out%qscrn = out%qscrn/REAL(output%interval, 4)
+          ! Write value to file:
+          CALL write_ovar(out_timestep, ncid_out, ovid%Qscrn, 'Qscrn',        &
+                           out%Qscrn, ranges%Qscrn, patchout%Qscrn, 'ALMA', met)
+          ! Reset temporary output variable:
+          out%Qscrn = 0.0
+       END IF
+    END IF
     ! VegT: vegetation temperature [K]
     IF(output%veg .OR. output%VegT) THEN
        ! Add current timestep's value to total of temporary output variable:
