@@ -104,7 +104,7 @@ MODULE cable_common_module
           CALL_POP               = .FALSE., & !
           POP_fromZero           = .FALSE., &
           CALL_Climate           = .FALSE., &
-          Climate_fromZero       = .FALSE., &
+          Climate_fromZero       = .TRUE., &
           CASA_fromZero          = .FALSE., &
           POPLUC                 = .FALSE.
     
