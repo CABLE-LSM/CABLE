@@ -19,15 +19,16 @@ MODULE CABLE_LUC_EXPT
      LOGICAL  :: DirectRead, READrst, WRITErst
      LOGICAL, ALLOCATABLE ::  prim_only(:)
      LOGICAL, ALLOCATABLE :: ptos(:), ptog(:), stog(:), gtos(:)
+     LOGICAL, ALLOCATABLE :: ptoc(:), ptoq(:), stoc(:), stoq(:), ctos(:), qtos(:)
      INTEGER, ALLOCATABLE :: ivegp(:)
      INTEGER, ALLOCATABLE :: biome(:)
      INTEGER :: YearStart, YearEnd, nfile
      INTEGER :: CTSTEP
-     REAL, ALLOCATABLE :: primaryf(:), mtemp_min20(:), grass(:), secdf(:)
-     CHARACTER(len=200),DIMENSION(9) :: TransFile
-     CHARACTER(len=12) ,DIMENSION(9) :: VAR_NAME
-     INTEGER,           DIMENSION(9) :: F_ID, V_ID
-     TYPE(LUC_INPUT_TYPE), DIMENSION(9):: INPUT
+     REAL, ALLOCATABLE :: primaryf(:), mtemp_min20(:), grass(:), secdf(:), crop(:), past(:)
+     CHARACTER(len=200),DIMENSION(17) :: TransFile
+     CHARACTER(len=12) ,DIMENSION(17) :: VAR_NAME
+     INTEGER,           DIMENSION(17) :: F_ID, V_ID
+     TYPE(LUC_INPUT_TYPE), DIMENSION(17):: INPUT
      INTEGER :: YEAR, ydimsize, xdimsize, nrec, FirstYear
 
   END TYPE LUC_EXPT_TYPE
@@ -43,13 +44,21 @@ MODULE CABLE_LUC_EXPT
        primffrac    =  6, &
        pharv        =  7, &
        smharv       =  8, &
-       syharv       =  9
+       syharv       =  9, &
+       ptoc         =  10, &
+       ptoq         =  11, &
+       stoc         =  12, &
+       stoq         =  13, &
+       ctos         =  14, &
+       qtos         =  15, &
+       cropfrac = 16, &
+       pastfrac = 17
 
 
 CONTAINS
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  ! CALBE_LUC_EXPT routines
+  ! CABLE_LUC_EXPT routines
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 ! ==============================================================================
@@ -79,9 +88,17 @@ CONTAINS
     ALLOCATE( LUC_EXPT%ptog(mland) )
     ALLOCATE( LUC_EXPT%stog(mland) )
     ALLOCATE( LUC_EXPT%gtos(mland) )
+    ALLOCATE( LUC_EXPT%ptoc(mland) )
+    ALLOCATE( LUC_EXPT%ptoq(mland) )
+    ALLOCATE( LUC_EXPT%ctos(mland) )
+    ALLOCATE( LUC_EXPT%qtos(mland) )
+    ALLOCATE( LUC_EXPT%stoc(mland) )
+    ALLOCATE( LUC_EXPT%stoq(mland) )
     ALLOCATE( LUC_EXPT%primaryf(mland) )
     ALLOCATE( LUC_EXPT%secdf(mland) )
     ALLOCATE( LUC_EXPT%grass(mland) )
+    ALLOCATE( LUC_EXPT%crop(mland) )
+    ALLOCATE( LUC_EXPT%past(mland) )
     ALLOCATE( LUC_EXPT%mtemp_min20(mland) )
 
     
@@ -114,6 +131,16 @@ CONTAINS
     LUC_EXPT%TransFile(8) = TRIM(LUC_EXPT%TransitionFilePath)//"/smharv.nc"
     LUC_EXPT%TransFile(9) = TRIM(LUC_EXPT%TransitionFilePath)//"/syharv.nc"
 
+    LUC_EXPT%TransFile(10) = TRIM(LUC_EXPT%TransitionFilePath)//"/ptoc.nc"
+    LUC_EXPT%TransFile(11) = TRIM(LUC_EXPT%TransitionFilePath)//"/ptoq.nc"
+    LUC_EXPT%TransFile(12) = TRIM(LUC_EXPT%TransitionFilePath)//"/stoc.nc"
+    LUC_EXPT%TransFile(13) = TRIM(LUC_EXPT%TransitionFilePath)//"/stoq.nc"
+    LUC_EXPT%TransFile(14) = TRIM(LUC_EXPT%TransitionFilePath)//"/ctos.nc"
+    LUC_EXPT%TransFile(15) = TRIM(LUC_EXPT%TransitionFilePath)//"/qtos.nc"
+    LUC_EXPT%TransFile(16) = TRIM(LUC_EXPT%TransitionFilePath)//"/crop.nc"
+    LUC_EXPT%TransFile(17) = TRIM(LUC_EXPT%TransitionFilePath)//"/past.nc"
+
+
     LUC_EXPT%VAR_NAME(1) = 'ptos'
     LUC_EXPT%VAR_NAME(2) = 'ptog'
     LUC_EXPT%VAR_NAME(3) = 'stog'
@@ -123,8 +150,18 @@ CONTAINS
     LUC_EXPT%VAR_NAME(7) = 'pharv'
     LUC_EXPT%VAR_NAME(8) = 'smharv'
     LUC_EXPT%VAR_NAME(9) = 'syharv'
+    
+    LUC_EXPT%VAR_NAME(10) = 'ptoc'
+    LUC_EXPT%VAR_NAME(11) = 'ptoq'
+    LUC_EXPT%VAR_NAME(12) = 'stoc'
+    LUC_EXPT%VAR_NAME(13) = 'stoq'
+    LUC_EXPT%VAR_NAME(14) = 'ctos'
+    LUC_EXPT%VAR_NAME(15) = 'qtos'
+    LUC_EXPT%VAR_NAME(16) = 'crop'
+    LUC_EXPT%VAR_NAME(17) = 'past'
 
-    LUC_EXPT%nfile = 9
+
+    LUC_EXPT%nfile = 17
 
     DO x = 1, LUC_EXPT%nfile
        ALLOCATE( LUC_EXPT%INPUT(x)%VAL(mland) )
@@ -218,11 +255,50 @@ CONTAINS
 
     ENDIF
 
+    i = cropfrac
+    IF ( LUC_EXPT%DirectRead ) THEN
+       DO k = 1, mland
+          STATUS = NF90_GET_VAR( LUC_EXPT%F_ID(i), LUC_EXPT%V_ID(i), tmp, &
+               start=(/land_x(k),land_y(k),LUC_EXPT%CTSTEP/) )
+          CALL HANDLE_ERR(STATUS, "Reading direct from "//LUC_EXPT%TransFile(i) )
+          LUC_EXPT%crop(k) = tmp
+       END DO
+    ELSE
+       STATUS = NF90_GET_VAR(LUC_EXPT%F_ID(i), LUC_EXPT%V_ID(i), tmparr, &
+            start=(/1,1,LUC_EXPT%CTSTEP/),count=(/xds,yds,1/) )
+       CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )
+       
+       DO k = 1, mland
+          LUC_EXPT%crop(k) = tmparr( land_x(k), land_y(k) )
+       END DO
+       
+    ENDIF
 
+
+    i = pastfrac
+    IF ( LUC_EXPT%DirectRead ) THEN
+       DO k = 1, mland
+          STATUS = NF90_GET_VAR( LUC_EXPT%F_ID(i), LUC_EXPT%V_ID(i), tmp, &
+               start=(/land_x(k),land_y(k),LUC_EXPT%CTSTEP/) )
+          CALL HANDLE_ERR(STATUS, "Reading direct from "//LUC_EXPT%TransFile(i) )
+          LUC_EXPT%past(k) = tmp
+       END DO
+    ELSE
+       STATUS = NF90_GET_VAR(LUC_EXPT%F_ID(i), LUC_EXPT%V_ID(i), tmparr, &
+            start=(/1,1,LUC_EXPT%CTSTEP/),count=(/xds,yds,1/) )
+       CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )
+       
+       DO k = 1, mland
+          LUC_EXPT%past(k) = tmparr( land_x(k), land_y(k) )
+       END DO
+       
+    ENDIF 
 
     LUC_EXPT%grass = min(LUC_EXPT%grass, 1.0)
     LUC_EXPT%primaryf = min(LUC_EXPT%primaryf, 1.0- LUC_EXPT%grass)
     LUC_EXPT%secdf = max((1.0 -  LUC_EXPT%grass - LUC_EXPT%primaryf), 0.0)
+    LUC_EXPT%crop = max(min( LUC_EXPT%crop, LUC_EXPT%grass),0.0)
+    LUC_EXPT%past =max( min(LUC_EXPT%grass - LUC_EXPT%crop, LUC_EXPT%past), 0.0)
 
 
     CALL READ_ClimateFile(LUC_EXPT)

@@ -215,7 +215,10 @@ MODULE casavariable
 !! vh_js !! the 3 variables below are needed for POP coupling to CASA
                                        stemnpp, &
                                        frac_sapwood, &
-                                       sapwood_area
+                                       sapwood_area, &
+                                       Charvest, &  ! leaf biomass removed due to crop or pasture management
+                                       Nharvest, & ! leaf N removed due to crop or pasture management
+                                       fHarvest  ! fraction leaf biomass removed due to crop or pasture management
     REAL(r_2), DIMENSION(:,:),POINTER :: fracCalloc,  &
                                        fracNalloc,    &
                                        fracPalloc,    &
@@ -524,6 +527,9 @@ SUBROUTINE alloc_casavariable(casabiome,casapool,casaflux, &
            casaflux%stemnpp(arraysize),                  &
            casaflux%frac_sapwood(arraysize),             &
            casaflux%sapwood_area(arraysize), &
+           casaflux%fharvest(arraysize), &
+           casaflux%Charvest(arraysize), &
+           casaflux%Nharvest(arraysize), &
            casaflux%Cplant_turnover(arraysize,mplant) , &
            casaflux%Cplant_turnover_disturbance(arraysize) , &
            casaflux%Cplant_turnover_crowding(arraysize) , &

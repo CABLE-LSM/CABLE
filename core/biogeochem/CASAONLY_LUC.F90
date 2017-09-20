@@ -15,7 +15,8 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   USE POPMODULE,            ONLY: POPStep, POP_init_single
   USE TypeDef,              ONLY: i4b, dp
   USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE, read_LUH2,&
-       ptos,ptog,stog,gtos,grassfrac, pharv, smharv, syharv
+       ptos,ptog,stog,gtos,grassfrac, pharv, smharv, syharv, &
+       ptoc,ptoq, stoc, stoq, ctos, qtos, cropfrac, pastfrac
   USE POPLUC_Types
   USE POPLUC_Module, ONLY: POPLUCStep, POPLUC_weights_Transfer, WRITE_LUC_OUTPUT_NC, &
        POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, READ_LUC_RESTART_NC, &
@@ -161,9 +162,9 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
              pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
 
  
-IF (YYYY.EQ.1610) THEN
-  write(69,*) casapool%ctot(4)-casapool%ctot_0(4), casabal%FCneeyear(4), casabal%dcdtyear(4)
-ENDIF
+!IF (YYYY.EQ.1610) THEN
+!  write(69,*) casapool%ctot(4)-casapool%ctot_0(4), casabal%FCneeyear(4), casabal%dcdtyear(4)
+!ENDIF
 
 
        ! update time-aggregates of casa pools and fluxes
@@ -202,6 +203,14 @@ ENDIF
               POPLUC%pharv(k) = LUC_EXPT%INPUT(pharv)%VAL(k)
               POPLUC%smharv(k) = LUC_EXPT%INPUT(smharv)%VAL(k)
               POPLUC%syharv(k) = LUC_EXPT%INPUT(syharv)%VAL(k)
+
+              POPLUC%ptoc(k) = LUC_EXPT%INPUT(ptoc)%VAL(k)
+              POPLUC%ptoq(k) = LUC_EXPT%INPUT(ptoq)%VAL(k)
+              POPLUC%stoc(k) = LUC_EXPT%INPUT(stoc)%VAL(k)
+              POPLUC%stoq(k) = LUC_EXPT%INPUT(stoq)%VAL(k)
+              POPLUC%ctos(k) = LUC_EXPT%INPUT(ctos)%VAL(k)
+              POPLUC%qtos(k) = LUC_EXPT%INPUT(qtos)%VAL(k)
+             
               POPLUC%thisyear = yyyy
            ENDDO
            !stop

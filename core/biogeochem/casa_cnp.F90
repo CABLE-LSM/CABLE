@@ -160,8 +160,11 @@ SUBROUTINE casa_xnp(xnplimit,xNPuptake,veg,casabiome,casapool,casaflux,casamet)
   xNPuptake(:)     = min(xnuptake(:), xpuptake(:))
   do np =1, mp
      if(casamet%iveg2(np)/=icewater.and.casaflux%cnpp(np) > 0.0.and.xNPuptake(np) < 1.0) then
-        casaflux%fracClabile(np) =min(1.0,max(0.0,(1.0- xNPuptake(np)))) * max(0.0,casaflux%cnpp(np))/(casaflux%cgpp(np) +1.0e-10)
-        casaflux%cnpp(np)    = casaflux%cnpp(np) - casaflux%fracClabile(np) * casaflux%cgpp(np)
+
+        if (casaflux%fHarvest(np) .lt. 0.01) then   ! N limitation on growth not applied to crop/pasture
+           casaflux%fracClabile(np) =min(1.0,max(0.0,(1.0- xNPuptake(np)))) * max(0.0,casaflux%cnpp(np))/(casaflux%cgpp(np) +1.0e-10)
+           casaflux%cnpp(np)    = casaflux%cnpp(np) - casaflux%fracClabile(np) * casaflux%cgpp(np)
+        endif
      endif
 
    enddo
@@ -1056,6 +1059,12 @@ SUBROUTINE casa_coeffplant(xkleafcold,xkleafdry,xkleaf,veg,casabiome,casapool, &
 
     casaflux%kplant(:,wood)        = casabiome%plantrate(veg%iveg(:),wood)
     casaflux%kplant(:,froot)       = casabiome%plantrate(veg%iveg(:),froot)
+
+
+    ! adjust leaf flux to litter for crop/pasture removal
+   
+    casaflux%fromPtoL(:,str,leaf) = casaflux%fromPtoL(:,str,leaf)*(1. -  casaflux%fharvest) 
+    casaflux%fromPtoL(:,metb,leaf) =  casaflux%fromPtoL(:,metb,leaf)*(1. -  casaflux%fharvest) 
   ENDWHERE
 
 
@@ -1291,6 +1300,10 @@ SUBROUTINE casa_delplant(veg,casabiome,casapool,casaflux,casamet,            &
         croot2str(npt) = casaflux%fromPtoL(npt,str,froot)  * casaflux%kplant(npt,froot) * casapool%cplant(npt,froot)
         cwood2cwd(npt) = casaflux%fromPtoL(npt,cwd,wood)   * casaflux%kplant(npt,wood)  * casapool%cplant(npt,wood)
 
+!write(*,*) npt,  casaflux%Charvest(npt),  casaflux%kplant(npt,leaf) ,  casapool%cplant(npt,leaf), casaflux%fharvest(npt)
+
+        casaflux%Charvest(npt) = casaflux%Charvest(npt) + &
+             casaflux%kplant(npt,leaf)  * casapool%cplant(npt,leaf) *  casaflux%fharvest(npt)
         !    PRINT *, 'npt, mp, iveg', npt, mp, veg%iveg(npt)
         IF(icycle > 1) THEN
            !    PRINT *, 'casapool%Nplant(npt,:) = ', casapool%Nplant(npt,:)
@@ -1317,10 +1330,16 @@ SUBROUTINE casa_delplant(veg,casabiome,casapool,casaflux,casamet,            &
            nroot2str(npt) = casaflux%fromPtoL(npt,str,froot)* casaflux%kplant(npt,froot) &
                 * casapool%cplant(npt,froot)      * ratioNCstrfix
 
-           nleaf2met(npt) = - casapool%dNplantdt(npt,leaf)  - nleaf2str(npt)
+           !nleaf2met(npt) = - casapool%dNplantdt(npt,leaf)  - nleaf2str(npt)
            nroot2met(npt) = - casapool%dNplantdt(npt,froot) - nroot2str(npt)
 
            nwood2cwd(npt) = -casapool%dNplantdt(npt,wood)
+
+           casaflux%Nharvest(npt) = casaflux%Nharvest(npt) + &
+             casaflux%kplant(npt,leaf)  * casapool%nplant(npt,leaf) *  casaflux%fharvest(npt)
+
+           nleaf2met(npt) = - casapool%dNplantdt(npt,leaf)   - nleaf2str(npt) &
+               - casaflux%kplant(npt,leaf)  * casapool%nplant(npt,leaf) *  casaflux%fharvest(npt)
 
         ENDIF
 
