@@ -2299,7 +2299,7 @@ END SUBROUTINE POPLUC_SET_PATCHFRAC
     ! 1 dim arrays (mp )
     CHARACTER(len=20),DIMENSION(2) :: A0
     ! 2 dim real arrays (mp,t)
-    CHARACTER(len=20),DIMENSION(23):: A1
+    CHARACTER(len=20),DIMENSION(24):: A1
     ! 2 dim integer arrays (mp,t)
     CHARACTER(len=20),DIMENSION(1):: AI1
     ! 3 dim real arrays (mp,age_max,t)
