@@ -485,7 +485,7 @@ CONTAINS
                      CALL worker_casa_dump_types(comm, casamet, casaflux, phen, climate)
 
                 IF ( CABLE_USER%POPLUC ) &
-                     CALL worker_casa_LUC_types( comm, casapool, casabal)
+                     CALL worker_casa_LUC_types( comm, casapool, casabal, casaflux)
                 
 
                 ! MPI: casa parameters received only if cnp module is active
@@ -6891,11 +6891,11 @@ SUBROUTINE worker_casa_dump_types(comm, casamet, casaflux, phen, climate)
 
 END SUBROUTINE worker_casa_dump_types
 
-SUBROUTINE worker_casa_LUC_types(comm, casapool, casabal)
+SUBROUTINE worker_casa_LUC_types(comm, casapool, casabal, casaflux)
 
  USE mpi
 
- USE casavariable, ONLY: casa_pool, mplant, mlitter, msoil, casa_balance
+ USE casavariable, ONLY: casa_pool, mplant, mlitter, msoil, casa_balance, casa_flux
 
  IMPLICIT NONE
 
@@ -6903,6 +6903,7 @@ SUBROUTINE worker_casa_LUC_types(comm, casapool, casabal)
  INTEGER, INTENT(IN) :: comm  ! MPI communicator
  TYPE (casa_pool)   , INTENT(IN) :: casapool
  TYPE (casa_balance),        INTENT(IN) :: casabal
+ TYPE (casa_flux),        INTENT(IN) :: casaflux
  
  ! local vars
 

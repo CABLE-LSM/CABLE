@@ -642,7 +642,7 @@ CONTAINS
                      CALL master_casa_dump_types( comm, casamet, casaflux, phen, climate )
                   write(*,*) 'cable_mpimaster, POPLUC: ' ,  CABLE_USER%POPLUC
                 IF ( CABLE_USER%POPLUC ) &
-                     CALL master_casa_LUC_types( comm, casapool, casabal)
+                     CALL master_casa_LUC_types( comm, casapool, casabal,casaflux)
                 
              END IF
 
@@ -7478,16 +7478,17 @@ SUBROUTINE master_casa_dump_types(comm, casamet, casaflux, phen, climate )
 END SUBROUTINE master_casa_dump_types
 ! #############################################################################################################
 ! MPI: Casa-LUC: exchanging casapools between master and worker, as required for LUC updates
-SUBROUTINE master_casa_LUC_types(comm, casapool, casabal )
+SUBROUTINE master_casa_LUC_types(comm, casapool, casabal, casaflux )
 
   USE mpi
 
-  USE casavariable, ONLY: casa_pool, mplant, mlitter, msoil, casa_balance
+  USE casavariable, ONLY: casa_pool, mplant, mlitter, msoil, casa_balance, casa_flux
   IMPLICIT NONE
   
   INTEGER,INTENT(IN) :: comm
   TYPE (casa_pool),           INTENT(IN) :: casapool
   TYPE (casa_balance),        INTENT(IN) :: casabal
+  TYPE (casa_balance),        INTENT(IN) :: casaflux
  
   ! local vars
 
@@ -7568,7 +7569,7 @@ SUBROUTINE master_casa_LUC_types(comm, casapool, casabal )
           &                             types(bidx), ierr)
      blocks(bidx) = 1
 
-     bidx = bidx + 1
+     bidx = bidx + 1     bidx = bidx + 1
      CALL MPI_Get_address (casapool%nlitter(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (mlitter, r2len, r2stride, MPI_BYTE, &
           &                             types(bidx), ierr)
