@@ -7488,7 +7488,7 @@ SUBROUTINE master_casa_LUC_types(comm, casapool, casabal, casaflux )
   INTEGER,INTENT(IN) :: comm
   TYPE (casa_pool),           INTENT(IN) :: casapool
   TYPE (casa_balance),        INTENT(IN) :: casabal
-  TYPE (casa_balance),        INTENT(IN) :: casaflux
+  TYPE (casa_flux),        INTENT(IN) :: casaflux
  
   ! local vars
 
@@ -7569,7 +7569,7 @@ SUBROUTINE master_casa_LUC_types(comm, casapool, casabal, casaflux )
           &                             types(bidx), ierr)
      blocks(bidx) = 1
 
-     bidx = bidx + 1     bidx = bidx + 1
+     bidx = bidx + 1   
      CALL MPI_Get_address (casapool%nlitter(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (mlitter, r2len, r2stride, MPI_BYTE, &
           &                             types(bidx), ierr)
