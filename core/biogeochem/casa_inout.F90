@@ -1560,7 +1560,7 @@ SUBROUTINE WRITE_CASA_RESTART_NC ( casamet, casapool, casaflux, phen, CASAONLY )
   ! CHARACTER(len=20),DIMENSION(3), PARAMETER :: A4 = (/ 'csoil', 'nsoil', 'psoil' /)
 
   ! 1 dim arrays (npt )
-  CHARACTER(len=20),DIMENSION(12) :: A1
+  CHARACTER(len=20),DIMENSION(14) :: A1
   CHARACTER(len=20),DIMENSION(2) :: AI1
   ! 2 dim arrays (npt,mplant)
   CHARACTER(len=20),DIMENSION(3) :: A2
@@ -1583,6 +1583,8 @@ SUBROUTINE WRITE_CASA_RESTART_NC ( casamet, casapool, casaflux, phen, CASAONLY )
   A1(10) = 'phen'
   A1(11) = 'aphen'
   A1(12) = 'nsoilmin'
+  A1(13) = 'fHarvest'
+  A1(14) = 'fCrop'
 
   AI1(1) = 'phase'
   AI1(2) = 'doyphase3'
@@ -1689,6 +1691,12 @@ write(*,*) 'writing casa restart', fname
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
   STATUS = NF90_PUT_VAR(FILE_ID, VID1(12), casapool%Nsoilmin )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(13), casaflux%fHarvest )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(14), casaflux%fCrop )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
   STATUS = NF90_PUT_VAR(FILE_ID, VIDI1(1), phen%phase )

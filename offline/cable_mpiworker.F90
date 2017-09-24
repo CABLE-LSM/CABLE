@@ -6230,9 +6230,18 @@ ENDIF
     CALL MPI_Get_address (casaflux%Cplant_turnover_resource_limitation(off), displs(bidx), ierr)
     blocks(bidx) = r2len
 
+    bidx = bidx + 1
+    CALL MPI_Get_address (casaflux%fHarvest(off), displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (casaflux%fCrop(off), displs(bidx), ierr)
+    blocks(bidx) = r2len
+
     ! MPI: sanity check
     IF (bidx /= ntyp) THEN
        WRITE (*,*) 'worker: invalid number of casa fields, fix it!'
+       WRITE (*,*) 'ntyp: ', ntyp, 'bidx: ', bidx
        CALL MPI_Abort (comm, 1, ierr)
     END IF
 

@@ -6512,6 +6512,14 @@ SUBROUTINE master_casa_types (comm, casapool, casaflux, &
      CALL MPI_Get_address (casaflux%Cplant_turnover_resource_limitation(off), displs(bidx), ierr)
      blocks(bidx) = r2len
 
+     bidx = bidx + 1
+     CALL MPI_Get_address (casaflux%fHarvest(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (casaflux%fCrop(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
+
      types(last2d+1:bidx) = MPI_BYTE
 
      ! MPI: sanity check

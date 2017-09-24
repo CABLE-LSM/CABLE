@@ -1137,11 +1137,11 @@ SUBROUTINE casa_coeffsoil(xklitter,xksoil,veg,soil,casabiome,casaflux,casamet)
 
     WHERE (casaflux%fcrop>0.1) ! 40% reduction in soil C in cropping areas
        casaflux%ksoil(:,mic)  = casaflux%ksoil(:,mic) * &
-            ((1.- casaflux%fcrop) + 1.67*casaflux%fcrop)
+            ((1.- casaflux%fcrop) + 1.5*casaflux%fcrop)
        casaflux%ksoil(:,slow) = casaflux%ksoil(:,slow)* &
-            ((1.- casaflux%fcrop) + 1.67*casaflux%fcrop)
+            ((1.- casaflux%fcrop) + 1.5*casaflux%fcrop)
        casaflux%ksoil(:,pass) = casaflux%ksoil(:,pass)* &
-            ((1.- casaflux%fcrop) + 1.67*casaflux%fcrop)
+            ((1.- casaflux%fcrop) + 1.5*casaflux%fcrop)
     ENDWHERE
 
                                           ! flow from litter to soil
