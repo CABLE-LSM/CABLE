@@ -758,6 +758,7 @@ ENDIF
   casaflux%fHarvest = 0.0
   casaflux%Charvest = 0.0
   casaflux%Nharvest = 0.0
+  casaflux%fcrop    = 0.0
 
   phen%doyphase(:,1) = -50
   phen%doyphase(:,2) = phen%doyphase(:,1) +14

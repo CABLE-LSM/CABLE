@@ -7001,6 +7001,10 @@ SUBROUTINE worker_casa_LUC_types(comm, casapool, casabal, casaflux)
  bidx = bidx + 1
  CALL MPI_Get_address (casaflux%nHarvest(off), displs(bidx), ierr)
  blen(bidx) = r2len
+
+ bidx = bidx + 1
+ CALL MPI_Get_address (casaflux%fcrop(off), displs(bidx), ierr)
+ blen(bidx) = r2len
  
 
 

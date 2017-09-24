@@ -161,7 +161,7 @@ SUBROUTINE casa_xnp(xnplimit,xNPuptake,veg,casabiome,casapool,casaflux,casamet)
   do np =1, mp
      if(casamet%iveg2(np)/=icewater.and.casaflux%cnpp(np) > 0.0.and.xNPuptake(np) < 1.0) then
 
-        if (casaflux%fHarvest(np) .lt. 0.01) then   ! N limitation on growth not applied to crop/pasture
+        if (casaflux%fHarvest(np) .lt. 0.1) then   ! N limitation on growth not applied to crop/pasture
            casaflux%fracClabile(np) =min(1.0,max(0.0,(1.0- xNPuptake(np)))) * max(0.0,casaflux%cnpp(np))/(casaflux%cgpp(np) +1.0e-10)
            casaflux%cnpp(np)    = casaflux%cnpp(np) - casaflux%fracClabile(np) * casaflux%cgpp(np)
         endif
@@ -1134,6 +1134,15 @@ SUBROUTINE casa_coeffsoil(xklitter,xksoil,veg,soil,casabiome,casaflux,casamet)
        casaflux%ksoil(:,slow) = casaflux%ksoil(:,slow)* 1.5
        casaflux%ksoil(:,pass) = casaflux%ksoil(:,pass)* 1.5
     ENDWHERE  !
+
+    WHERE (casaflux%fcrop>0.1) ! 40% reduction in soil C in cropping areas
+       casaflux%ksoil(:,mic)  = casaflux%ksoil(:,mic) * &
+            ((1.- casaflux%fcrop) + 1.67*casaflux%fcrop)
+       casaflux%ksoil(:,slow) = casaflux%ksoil(:,slow)* &
+            ((1.- casaflux%fcrop) + 1.67*casaflux%fcrop)
+       casaflux%ksoil(:,pass) = casaflux%ksoil(:,pass)* &
+            ((1.- casaflux%fcrop) + 1.67*casaflux%fcrop)
+    ENDWHERE
 
                                           ! flow from litter to soil
     casaflux%fromLtoS(:,mic,metb)   = 0.45

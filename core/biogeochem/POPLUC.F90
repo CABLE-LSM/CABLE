@@ -1320,12 +1320,18 @@ sum( POPLUC%biomass_age_secondary(g,:))
        POPLUC%HarvProdLoss(g,:) = kHarvProd * POPLUC%HarvProd(g,:)
        POPLUC%ClearProdLoss(g,:) = kClearProd * POPLUC%ClearProd(g,:)
        POPLUC%AgProdLoss(g) = kAgProd*POPLUC%AgProd(g)
+
+       if (POPLUC%grass(g).gt.0.0 .and. l.eq.j+2) then
        POPLUC%FAg(g) =  casaflux%Charvest(l)*patch(l)%frac
        POPLUC%AgProd(g) = POPLUC%AgProd(g) + casaflux%Charvest(l)*patch(l)%frac - POPLUC%AgProdLoss(g)
        casaflux%charvest(l) = 0.0
        casaflux%nharvest(l) = 0.0
-       casaflux%fharvest(l) = POPLUC%past(g)*0.5 + POPLUC%crop(g)*0.9 !  fraction grass AGB to be removed next year
+       casaflux%fharvest(l) = min(POPLUC%past(g)/POPLUC%grass(g),1.0)*0.5 + &
+            min(POPLUC%crop(g)/POPLUC%grass(g),1.0)*0.9 !  fraction grass AGB to be removed next year
 !write(*,*)'harvest', g,   patch(l)%frac,  casaflux%fharvest(l), POPLUC%crop(g),  POPLUC%past(g)
+       !casaflux%fharvest(l) = 0; ! test vh!
+        casaflux%fcrop(l) = min(POPLUC%crop(g)/POPLUC%grass(g), 1.0)
+       endif
        DO j=1,3
           POPLUC%HarvProd(g,j) = POPLUC%HarvProd(g,j) + &
                POPLUC%fracHarvProd(g,j)*sum(POPLUC%FHarvest(g,:)) - POPLUC%HarvProdLoss(g,j) 

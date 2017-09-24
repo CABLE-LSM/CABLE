@@ -218,7 +218,8 @@ MODULE casavariable
                                        sapwood_area, &
                                        Charvest, &  ! leaf biomass removed due to crop or pasture management
                                        Nharvest, & ! leaf N removed due to crop or pasture management
-                                       fHarvest  ! fraction leaf biomass removed due to crop or pasture management
+                                       fHarvest, &  ! fraction leaf biomass removed due to crop or pasture management
+                                       fcrop        ! fraction of 'grass' that is crop
     REAL(r_2), DIMENSION(:,:),POINTER :: fracCalloc,  &
                                        fracNalloc,    &
                                        fracPalloc,    &
@@ -530,6 +531,7 @@ SUBROUTINE alloc_casavariable(casabiome,casapool,casaflux, &
            casaflux%fharvest(arraysize), &
            casaflux%Charvest(arraysize), &
            casaflux%Nharvest(arraysize), &
+           casaflux%fcrop(arraysize), &
            casaflux%Cplant_turnover(arraysize,mplant) , &
            casaflux%Cplant_turnover_disturbance(arraysize) , &
            casaflux%Cplant_turnover_crowding(arraysize) , &

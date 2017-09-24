@@ -7626,6 +7626,10 @@ SUBROUTINE master_casa_LUC_types(comm, casapool, casabal, casaflux )
      CALL MPI_Get_address (casaflux%nHarvest(off), displs(bidx), ierr)
      blocks(bidx) = r2len
 
+     bidx = bidx + 1
+     CALL MPI_Get_address (casaflux%fcrop(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
+
 
      ! MPI: sanity check
      IF (bidx /= ntyp) THEN
