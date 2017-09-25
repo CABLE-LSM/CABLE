@@ -1279,8 +1279,10 @@ sum( POPLUC%biomass_age_secondary(g,:))
                 endif
              elseif (ilu == gr) then
                 POPLUC%grass(g) = max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0)
-                POPLUC%past(g) = max(POPLUC%past(g) + POPLUC%ptoq(g) + POPLUC%stoq(g) - POPLUC%qtos(g),0.0)
-                POPLUC%crop(g) = max(POPLUC%crop(g) + POPLUC%ptoc(g) + POPLUC%stoc(g) - POPLUC%ctos(g),0.0)
+                POPLUC%past(g) = min(max(POPLUC%past(g) + POPLUC%ptoq(g) + POPLUC%stoq(g) &
+                     - POPLUC%qtos(g),0.0), POPLUC%grass(g))
+                POPLUC%crop(g) =min( max(POPLUC%crop(g) + POPLUC%ptoc(g) + POPLUC%stoc(g) &
+                     - POPLUC%ctos(g),0.0), POPLUC%grass(g) - POPLUC%past(g))
              endif
 
              POPLUC%csoil(g,ilu) = sum(casapool%csoil(irp,:))* &
