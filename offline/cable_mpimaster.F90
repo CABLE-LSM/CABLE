@@ -3895,6 +3895,14 @@ SUBROUTINE master_casa_params (comm,casabiome,casapool,casaflux,casamet,&
   blen(bidx) = r2len
 
   bidx = bidx + 1
+  CALL MPI_Get_address (casaflux%fHarvest(off), displs(bidx), ierr)
+  blen(bidx) = r2len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (casaflux%fCrop(off), displs(bidx), ierr)
+  blen(bidx) = r2len
+
+  bidx = bidx + 1
   CALL MPI_Get_address (casaflux%klitter(off,1), displs(bidx), ierr)
   CALL MPI_Type_create_hvector (mlitter, r2len, r2stride, MPI_BYTE, &
   &                             types(bidx), ierr)

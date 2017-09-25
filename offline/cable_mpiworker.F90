@@ -2999,6 +2999,14 @@ ENDIF
     blen(bidx) = r2len
 
     bidx = bidx + 1
+    CALL MPI_Get_address (casaflux%fHarvest(off), displs(bidx), ierr)
+    blen(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (casaflux%fCrop(off), displs(bidx), ierr)
+    blen(bidx) = r2len
+
+    bidx = bidx + 1
     CALL MPI_Get_address (casaflux%klitter, displs(bidx), ierr)
     blen(bidx) = mlitter * r2len
 
