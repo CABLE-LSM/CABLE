@@ -1786,7 +1786,7 @@ SUBROUTINE READ_CASA_RESTART_NC (  casamet, casapool, casaflux,phen )
   REAL(r_2)                         :: TMP2(mp,mplant),TMP3(mp,mlitter),TMP4(mp,msoil)
 
   ! 1 dim arrays (npt )
-  CHARACTER(len=20),DIMENSION(12) :: A1
+  CHARACTER(len=20),DIMENSION(14) :: A1
   CHARACTER(len=20),DIMENSION(2) :: AI1
   ! 2 dim arrays (npt,mplant)
   CHARACTER(len=20),DIMENSION(3) :: A2
@@ -1809,6 +1809,8 @@ SUBROUTINE READ_CASA_RESTART_NC (  casamet, casapool, casaflux,phen )
   A1(10) = 'phen'
   A1(11) = 'aphen'
   A1(12) = 'nsoilmin'
+  A1(13) = 'fHarvest'
+  A1(14) = 'fCrop'
 
   AI1(1) = 'phase'
   AI1(2) = 'doyphase3'
@@ -1922,6 +1924,8 @@ SUBROUTINE READ_CASA_RESTART_NC (  casamet, casapool, casaflux,phen )
      CASE ( 'phen' ) ; phen%phen  = TMP
      CASE ( 'aphen' ) ; phen%aphen  = TMP
      CASE ( 'nsoilmin' ) ; casapool%Nsoilmin  = TMP
+     CASE ( 'fHarvest' ) ; casaflux%fHarvest  = TMP
+     CASE ( 'fCrop' ) ; casaflux%fCrop  = TMP
      END SELECT
   END DO
 IF (icycle==3) then
