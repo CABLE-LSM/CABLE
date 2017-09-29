@@ -42,8 +42,8 @@ module cable_data_module
       rmh2o  = 0.018016, & ! molecular wt: water        (kg/mol)
       sboltz = 5.67e-8, & ! Stefan-Boltz. constant (W/m2/K4)
       tfrz   = 273.16, & ! Temp (K) corresp. to 0 C
-      denliq = 1000.0,  &  !density of liquid water
-      denice = 1000.0,  &   !denisty of ice
+      density_ice = 1000.0,  &  !density of liquid water
+      density_liq = 917.0,  &   !denisty of ice
 
       ! Teten coefficients
       tetena = 6.106, & ! ??? refs?
@@ -219,7 +219,7 @@ module cable_data_module
    TYPE issnow_type
       REAL, POINTER ::                                                         &
          ! physical constants
-         CAPP, TFRZ, HL, HLF, HLS,denliq, denice
+         CAPP, TFRZ, HL, HLF, HLS,density_ice,density_liq
    END TYPE issnow_type
 
 
@@ -409,13 +409,13 @@ END SUBROUTINE rough_type_ptr
 SUBROUTINE ssnow_type_ptr(C)
    TYPE(issnow_type) :: C
    ! physical constants
-   C%CAPP  => PHYS%CAPP
-   C%TFRZ  => PHYS%TFRZ
-   C%HL    => PHYS%HL
-   C%HLF   => PHYS%HLF
-   C%HLS   => PHYS%HLS
-   C%denice=> PHYS%denice
-   C%denliq=> PHYS%denliq
+   C%CAPP        => PHYS%CAPP
+   C%TFRZ        => PHYS%TFRZ
+   C%HL          => PHYS%HL
+   C%HLF         => PHYS%HLF
+   C%HLS         => PHYS%HLS
+   C%density_ice => PHYS%density_ice
+   C%density_liq => PHYS%density_liq
    !C% => PHYS%
 END SUBROUTINE ssnow_type_ptr
 

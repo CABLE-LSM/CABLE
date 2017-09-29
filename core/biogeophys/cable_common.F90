@@ -23,11 +23,15 @@
 ! ==============================================================================
 
 MODULE cable_common_module
+
   IMPLICIT NONE
 
   !---allows reference to "gl"obal timestep in run (from atm_step)
   !---total number of timesteps, and processing node
   INTEGER, SAVE :: ktau_gl, kend_gl, knode_gl, kwidth_gl
+
+  logical :: L_fudge = .false. 
+
   INTEGER, SAVE :: CurYear  ! current year of multiannual run
 
   ! user switches turned on/off by the user thru namelists
@@ -104,7 +108,7 @@ MODULE cable_common_module
           CALL_POP               = .FALSE., & !
           POP_fromZero           = .FALSE., &
           CALL_Climate           = .FALSE., &
-          Climate_fromZero       = .FALSE., &
+          Climate_fromZero       = .TRUE., &
           CASA_fromZero          = .FALSE., &
           POPLUC                 = .FALSE.
     
@@ -152,21 +156,22 @@ MODULE cable_common_module
           L_REV_CORR = .FALSE.     !switch to revert to unchanged code
 
      !MD
-      LOGICAL :: GW_MODEL = .FALSE.
-      LOGICAL :: alt_forcing = .FALSE.
  
      !using GSWP3 forcing?
+     LOGICAL :: GW_MODEL = .FALSE.
      LOGICAL :: GSWP3 = .FALSE.
-     LOGICAL :: or_evap = .FALSE.
-     LOGICAL :: test_new_gw=.false.
-     LOGICAL :: sync_nc_file=.false.
+     LOGICAL :: or_evap = .FALSE. 
+     LOGICAL :: test_new_gw=.false.   !sli + ssgw
+     LOGICAL :: sync_nc_file=.false. !write data to file to preserve if model crashed
      INTEGER :: max_spins = -1
      LOGICAL :: fix_access_roots = .false.  !use pft dependent roots in ACCESS
-
+     LOGICAL :: fix_um_soil_comps = .false. !inverse pedotransfer funcs to get
+                                            !sand,clay,silt and then use these to get isoilm
   END TYPE kbl_user_switches
 
   ! instantiate internal switches
   TYPE(kbl_user_switches), SAVE :: cable_user
+
 
   ! external files read/written by CABLE
   TYPE filenames_type
@@ -197,7 +202,71 @@ MODULE cable_common_module
 
   ! hydraulic_redistribution parameters _soilsnow module
   REAL :: wiltParam=0.5, satuParam=0.8
+  
+  !CABLE_LSM: soil/veg params types & subr deleted here 
+  ! vn10.6-CABLE hacks-hardwires these
+  !use these as the basis for namelist vars/files later in offline apps
+  
+  !CABLE_LSM: verify these are set if commented here
+  !   !---parameters, tolerances, etc. could be set in _directives.h
+  !jhan:cable.nml   real, parameter :: RAD_TOLS = 1.0e-2
 
+  !jhan:temporary measure. improve hiding
+  !   real, dimension(:,:), pointer,save :: c1, rhoch
+
+  !soilsnow parameters
+  REAL ::                                &
+     cgsnow = 2090.0,     & ! specific heat capacity for snow
+     csice = 2.100e3,     & ! specific heat capacity for ice
+     cswat = 4.218e3,     & ! specific heat capacity for water
+     snmin = 1.,          & ! for 3-layer;
+     max_ssdn = 750.0,    & !
+     max_sconds = 2.51,   & !
+     frozen_limit = 0.85    ! EAK Feb2011 (could be 0.95)
+  
+  !jhan:make parameter
+  REAL :: max_glacier_snowd=1100.0
+  !jhan:cable.nml
+  !mrd561 best in cable.nml but 2 is only option
+  INTEGER :: nglacier = 2 ! 0 original, 1 off, 2 new Eva
+
+   TYPE organic_soil_params
+        !Below are the soil properties for fully organic soil
+
+      REAL ::    &
+        hyds_vec_organic  = 1.0e-4,&
+        sucs_vec_organic = 10.3,   &
+        clappb_organic = 2.91,     &
+        ssat_vec_organic = 0.9,    &
+        watr_organic   = 0.1,     &
+        sfc_vec_hk      = 1.157407e-06, &
+        swilt_vec_hk      = 2.31481481e-8
+
+   END TYPE organic_soil_params
+
+   TYPE gw_parameters_type
+
+      REAL ::                   &
+        MaxHorzDrainRate=1e-3,  & !anisintropy * q_max [qsub]
+        EfoldHorzDrainRate=2.5, & !e fold rate of q_horz
+        MaxSatFraction=900,     & !parameter controll max sat fraction
+        hkrz=0.0,               & !hyds_vec variation with z
+        zdepth=1.0,             & !level where hyds_vec(z) = hyds_vec(no z)
+        frozen_frac=0.05,       & !ice fraction to determine first non-frozen layer for qsub
+        SoilEvapAlpha = 1.0,    & !modify field capacity dependence of soil evap limit
+        IceAlpha=3.0,           &
+        IceBeta=1.0           
+
+      TYPE(organic_soil_params) :: org
+
+      INTEGER :: level_for_satfrac = 6
+      LOGICAL :: ssgw_ice_switch = .false.
+ 
+      LOGICAL :: subsurface_sat_drainage = .false.
+
+   END TYPE gw_parameters_type
+
+   TYPE(gw_parameters_type), SAVE :: gw_params
 
   ! soil parameters read from file(filename%soil def. in cable.nml)
   ! & veg parameters read from file(filename%veg def. in cable.nml)
@@ -277,53 +346,17 @@ MODULE cable_common_module
   TYPE(soilin_type), SAVE  :: soilin
   TYPE(vegin_type),  SAVE  :: vegin
 
-  !   !---parameters, tolerances, etc. could be set in _directives.h
-  !jhan:cable.nml   real, parameter :: RAD_TOLS = 1.0e-2
+  !CABLE_LSM: intro'd quick writing capbility. remove from here. keep for ref
+  character(len=*), parameter :: &
+    fprintf_dir_root = "/short/p66/jxs599/10.6/diag/March1/"
+  
+  character(len=200) :: fprintf_dir
 
-  !jhan:temporary measure. improve hiding
-  !   real, dimension(:,:), pointer,save :: c1, rhoch
-
-   TYPE organic_soil_params
-        !Below are the soil properties for fully organic soil
-
-      REAL ::    &
-        hyds_vec_organic  = 1.0e-4,&
-        sucs_vec_organic = 10.3,   &
-        clappb_organic = 2.91,     &
-        ssat_vec_organic = 0.9,    &
-        watr_organic   = 0.1,     &
-        sfc_vec_hk      = 1.157407e-06, &
-        swilt_vec_hk      = 2.31481481e-8
-
-   END TYPE organic_soil_params
-
-   TYPE gw_parameters_type
-
-      REAL ::                   &
-        MaxHorzDrainRate=1e-3,  & !anisintropy * q_max [qsub]
-        EfoldHorzDrainRate=2.5, & !e fold rate of q_horz
-        MaxSatFraction=900,     & !parameter controll max sat fraction
-        hkrz=0.0,               & !hyds_vec variation with z
-        zdepth=1.0,             & !level where hyds_vec(z) = hyds_vec(no z)
-        frozen_frac=0.05,       & !ice fraction to determine first non-frozen layer for qsub
-        SoilEvapAlpha = 1.0,    & !modify field capacity dependence of soil evap limit
-        IceAlpha=3.0,           &
-        IceBeta=1.0           
-
-      TYPE(organic_soil_params) :: org
-
-      INTEGER :: level_for_satfrac = 6
-      LOGICAL :: ssgw_ice_switch = .false.
- 
-      LOGICAL :: subsurface_sat_drainage = .false.
-
-   END TYPE gw_parameters_type
-
-   TYPE(gw_parameters_type), SAVE :: gw_params
-
+interface fudge_out
+   module procedure fudge_out_r2D, fudge_out_r1D, fudge_out_r3D, fudge_out_i2D
+End interface fudge_out
 
 CONTAINS
-
 
   SUBROUTINE get_type_parameters(logn,vegparmnew, classification)
 
@@ -554,7 +587,6 @@ CONTAINS
     CLOSE(40)
 
   END SUBROUTINE get_type_parameters
-
     !--- LN ------------------------------------------[
   SUBROUTINE HANDLE_ERR( status, msg )
     ! LN 06/2013
@@ -894,6 +926,81 @@ CONTAINS
     ENDIF
 
   END FUNCTION IS_CASA_TIME
+
+
+SUBROUTINE fudge_out_i2D( i,j, var, varname, vzero, vval )
+   ! interfaces on these
+   integer :: i,j
+   integer, dimension(:,:) :: var
+   ! ft changes with interface
+   character(len=*), parameter :: &
+      ft = '(  "fudge: ", A10, "(", I2.1, ",", I2.1, X, ") = ", I1.1 )'
+   
+   character(len=*) :: varname
+   logical :: vzero
+   integer :: vval
+   
+   ! content changes with interface
+   var = var(i,j) 
+   if( (vzero) ) var = vval
+   write (6, ft) varname,i, var(i,j)
+End SUBROUTINE fudge_out_i2D 
+
+
+SUBROUTINE fudge_out_r1D( i, var, varname, vzero, vval )
+   ! interfaces on these
+   integer :: i
+   real, dimension(:) :: var
+   ! ft changes with interface
+   character(len=*), parameter :: &
+      ft = '(  "fudge: ", A10, "(", I2.1, X, ") = ", F15.3 )'
+   
+   character(len=*) :: varname
+   logical :: vzero
+   real :: vval
+
+   ! content changes with interface
+   var = var(i) 
+   if( (vzero) ) var = vval
+   write (6, ft) varname,i, var(i)
+End SUBROUTINE fudge_out_r1D 
+
+SUBROUTINE fudge_out_r2D( i,j, var, varname, vzero, vval )
+   ! interfaces on these
+   integer :: i,j
+   real, dimension(:,:) :: var
+   ! ft changes with interface
+   character(len=*), parameter :: &
+      ft = '(  "fudge: ", A10, "(", I2.1, ",", I2.1, X, ") = ", F15.3 )'
+   
+   character(len=*) :: varname
+   logical :: vzero
+   real :: vval
+   
+   ! content changes with interface
+   var = var(i,j) 
+   if( (vzero) ) var = vval
+   write (6, ft) varname,i,j, var(i,j)
+End SUBROUTINE fudge_out_r2D 
+
+SUBROUTINE fudge_out_r3D( i,j,k, var, varname, vzero, vval )
+   ! interfaces on these
+   integer :: i,j,k
+   real, dimension(:,:,:) :: var
+   ! ft changes with interface
+   character(len=*), parameter :: &
+      ft = '(  "fudge: ", A10, "(",  I2.1, ",",I2.1, ",", I2.1, X, ") = ", F15.3 )'
+   
+   character(len=*) :: varname
+   logical :: vzero
+   real :: vval
+   
+   ! content changes with interface
+   var = var(i,j,k) 
+   if( (vzero) ) var = vval
+   write (6, ft) varname,i,j,k, var(i,j,k)
+End SUBROUTINE fudge_out_r3D 
+
 
 
 END MODULE cable_common_module

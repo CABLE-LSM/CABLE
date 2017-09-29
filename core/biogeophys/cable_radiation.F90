@@ -110,9 +110,9 @@ SUBROUTINE init_radiation( met, rad, veg, canopy )
 
      !INH: implementation of a VH bug
      rad%rhocdf(:,ictr) = rhoch(:,ictr) * 2. *                                 &
-                          ( C%GAUSS_W(1) * xk(:,1) / ( xk(:,1) + rad%extkd(:) )&
-                          + C%GAUSS_W(2) * xk(:,2) / ( xk(:,2) + rad%extkd(:) )&
-                          + C%GAUSS_W(3) * xk(:,3) / ( xk(:,3) + rad%extkd(:) ) )
+                          ( C%GAUSS_W(1) * 2 * xk(:,1) / ( xk(:,1) + rad%extkd(:) )&
+                          + C%GAUSS_W(2) * 2 * xk(:,2) / ( xk(:,2) + rad%extkd(:) )&
+                          + C%GAUSS_W(3) * 2 * xk(:,3) / ( xk(:,3) + rad%extkd(:) ) )
 
    ENDDO
 
@@ -208,6 +208,7 @@ SUBROUTINE radiation( ssnow, veg, air, met, rad, canopy )
    END WHERE
 
    ! Define fraction of SW beam tranmitted through canopy:
+!C!jhan: check rel. b/n extkb, extkbm,transb,cexpkbm def. cable_albedo, qsabbs    
 !! vh_js !!
    dummy2 = MIN(rad%extkb * canopy%vlaiw,30.) ! vh version to avoid floating underflow !
    dummy = EXP(-dummy2)

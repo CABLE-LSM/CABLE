@@ -1,3 +1,7 @@
+module sli_main_mod
+
+contains
+
 SUBROUTINE sli_main(ktau, dt, veg, soil, ssnow, met, canopy, air, rad, SEB_only)
 
   ! Main subroutine for Soil-litter-iso soil model
@@ -748,3 +752,5 @@ SUBROUTINE sli_main(ktau, dt, veg, soil, ssnow, met, canopy, air, rad, SEB_only)
   endif ! SEB only
 
 END SUBROUTINE sli_main
+End module sli_main_mod
+
