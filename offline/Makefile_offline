@@ -80,7 +80,7 @@ cable_air.o: cable_air.F90 cable_define_types.o cable_common.o cable_data.o
 
 cable_albedo.o: cable_albedo.F90 cable_define_types.o cable_common.o cable_data.o
 
-cable_canopy.o: cable_canopy.F90 cable_define_types.o cable_radiation.o cable_roughness.o cable_air.o cable_common.o cable_data.o cable_sli_main.o cable_gw_hydro.o cable_iovars.o cable_gw_hydro.o
+cable_canopy.o: cable_canopy.F90 cable_define_types.o cable_radiation.o cable_roughness.o cable_air.o cable_common.o cable_data.o cable_sli_main.o cable_gw_hydro.o cable_iovars.o
 
 
 cable_carbon.o: cable_carbon.F90 cable_define_types.o cable_common.o cable_data.o

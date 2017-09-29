@@ -16,7 +16,7 @@ host_mael()
    #export CFLAGS='-O3 -fp-model precise  -ipo --parallel '   
    export LDFLAGS='-L/share/apps/intel/Composer/lib/intel64 -L/share/apps/netcdf/intel/4.1.3/lib  -O2'
    if [[ $1 = 'debug' ]]; then
-      export CFLAGS='-O0 -traceback -g -fp-model precise  ' 
+      export CFLAGS='-O0 -fp-model precise -fpe0 -g -traceback -nostand -check all,nobounds,noarg_temp_created -debug all ' 
       export LDFLAGS='-L/share/apps/intel/Composer/lib/intel64 -L/share/apps/netcdf/intel/4.1.3/lib '
    fi
    export LD='-lnetcdf -lnetcdff'
@@ -201,7 +201,7 @@ host_raij()
    export FC=$F90
    export CFLAGS='-O0 -fp-model precise'
    if [[ $1 = 'debug' ]]; then
-      export CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0'
+      export CFLAGS='-O0 -fp-model precise -fpe0 -g -traceback -nostand -check all,nobounds,noarg_temp_created -debug all ' 
    fi
    export LDFLAGS='-L'$NCDIR' -O0'
    export LD='-lnetcdf -lnetcdff'

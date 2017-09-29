@@ -762,19 +762,19 @@ SUBROUTINE soil_snow_gw(dels, soil, ssnow, canopy, met, veg)
    REAL                :: zsetot
    LOGICAL :: use_sli
    LOGICAL, SAVE :: first_gw_hydro_call = .true.
-   character(len=4) :: cnode
-   character(len=4) :: c_step
-   integer :: level_num
+   !character(len=4) :: cnode
+   !character(len=4) :: c_step
+   !integer :: level_num
    integer, save :: call_num = 0
   
    use_sli = .false. 
 
    call_num = call_num + 1
 
-   write(cnode,FMT='(I4.4)') int(knode_gl,4)
-   write(c_step,FMT='(I4.4)') int(call_num,4)
-   level_num = 1031 + knode_gl 
-   open (level_num,file="/g/data1/w35/mrd561/my_ouput/681/gw_hydro_node-"//cnode//"_step"//c_step,status="replace")
+   !write(cnode,FMT='(I4.4)') int(knode_gl,4)
+   !write(c_step,FMT='(I4.4)') int(call_num,4)
+   !level_num = 1031 + knode_gl 
+   !open (level_num,file="/g/data1/w35/mrd561/my_ouput/681/gw_hydro_node-"//cnode//"_step"//c_step,status="replace")
 
    zsetot = sum(soil%zse) 
    ssnow%tggav = 0.
@@ -963,12 +963,12 @@ SUBROUTINE soil_snow_gw(dels, soil, ssnow, canopy, met, veg)
    ssnow%runoff = (ssnow%rnof1 + ssnow%rnof2)!*dels  !cable_driver converts from mm/s to mm
                                                      !rnof1 and rnof2 are already in mm/s
    ! Set weighted soil/snow surface temperature
-   write(level_num,*) 'max tgg ',maxval(ssnow%tgg,dim=1)
-   write(level_num,*) 'min tgg ',minval(ssnow%tgg,dim=1)
-   write(level_num,*) 'max tggsn ',maxval(ssnow%tggsn,dim=1)
-   write(level_num,*) 'min tggsn ',minval(ssnow%tggsn,dim=1)
-   write(level_num,*) 'max isflag ',maxval(ssnow%isflag,dim=1)
-   write(level_num,*) 'min isflag ',minval(ssnow%isflag,dim=1)
+   !write(level_num,*) 'max tgg ',maxval(ssnow%tgg,dim=1)
+   !write(level_num,*) 'min tgg ',minval(ssnow%tgg,dim=1)
+   !write(level_num,*) 'max tggsn ',maxval(ssnow%tggsn,dim=1)
+   !write(level_num,*) 'min tggsn ',minval(ssnow%tggsn,dim=1)
+   !write(level_num,*) 'max isflag ',maxval(ssnow%isflag,dim=1)
+   !write(level_num,*) 'min isflag ',minval(ssnow%isflag,dim=1)
 
    ssnow%tss =  (1-ssnow%isflag)*ssnow%tgg(:,1) + ssnow%isflag*ssnow%tggsn(:,1)
 
@@ -992,101 +992,101 @@ SUBROUTINE soil_snow_gw(dels, soil, ssnow, canopy, met, veg)
    !write(level_num,*) 'at end '
    !call write_stuff()
 
-   call flush(level_num)
-   close(level_num)
+   !call flush(level_num)
+   !close(level_num)
 !below is simply to aid in debugging
-contains
-
-    subroutine write_more_stuff()
-
-    write(level_num,*) 'ssnow%tgg '
-    do i=1,mp
-       write(level_num,*) i,' ',ssnow%tgg(i,1:6)
-    end do
-    write(level_num,*) 'ssnow%wb '
-    do i=1,mp
-       write(level_num,*) i,' ',ssnow%wb(i,1:6)
-    end do
-   
-    write(level_num,*) 'ssnow%wbice '
-    do i=1,mp
-       write(level_num,*) i,' ',ssnow%wbice(i,1:6)
-    end do
-    write(level_num,*) 'ssnow%wbliq '
-    do i=1,mp
-       write(level_num,*) i,' ',ssnow%wbliq(i,1:6)
-    end do
-
-    write(level_num,*) 'ssnow%GWwb '
-    do i=1,mp
-       write(level_num,*) i,' ',ssnow%GWwb(i)
-    end do
-    write(level_num,*) 'ssnow%qhz '
-    do i=1,mp
-       write(level_num,*) i,' ',ssnow%GWwb(i)
-    end do
-    write(level_num,*) 'ssnow%qhlev '
-    do i=1,mp
-       write(level_num,*) i,' ',ssnow%qhlev(i,1:6)
-    end do
-    write(level_num,*) 'ssnow%qrechrage '
-    do i=1,mp
-       write(level_num,*) i,' ',ssnow%qrecharge(i)
-    end do
-    write(level_num,*) 'ssnow%snowd '
-    do i=1,mp
-       write(level_num,*) i,' ',ssnow%snowd(i)
-    end do
-
-    end subroutine write_more_stuff
-
-    subroutine write_stuff()
-
-    real(r_2), dimension(ms) :: tmp_lev_vals
-
-    do k=1,ms
-       tmp_lev_vals(k) = maxval(ssnow%tgg(:,k),dim=1)
-    end do
-    write(level_num,*) 'ssnow%tgg max ',tmp_lev_vals(:)
-    do k=1,ms
-       tmp_lev_vals(k) = minval(ssnow%tgg(:,k),dim=1)
-    end do
-    write(level_num,*) 'ssnow%tgg min ',tmp_lev_vals(:)
-
-    do k=1,ms
-       tmp_lev_vals(k) = maxval(ssnow%wb(:,k),dim=1)
-    end do
-    write(level_num,*) 'max ssnow%wb ',tmp_lev_vals(:)
-    do k=1,ms
-       tmp_lev_vals(k) = minval(ssnow%wb(:,k),dim=1)
-    end do
-    write(level_num,*) 'min ssnow%wb ',tmp_lev_vals(:)
-   
-    write(level_num,*) 'max ssnow%wtd ',maxval(ssnow%wtd,dim=1)
-    write(level_num,*) 'max canopy%fes ',maxval(canopy%fes,dim=1)
-    write(level_num,*) 'max canopy%fess ',maxval(canopy%fess,dim=1)
-    write(level_num,*) 'max canopy%fev ',maxval(canopy%fev,dim=1)
-    write(level_num,*) 'max canopy%fns ',maxval(canopy%fns,dim=1)
-    write(level_num,*) 'max canopy%tscrn ',maxval(canopy%tscrn,dim=1)
-    write(level_num,*) 'max canopy%fe ',maxval(canopy%fe,dim=1)
-    write(level_num,*) 'max canopy%fh ',maxval(canopy%fh,dim=1)
-    write(level_num,*) 'max canopy%us ',maxval(canopy%us,dim=1)
-    write(level_num,*) 'max met%tvair ',maxval(met%tvair,dim=1)
-    write(level_num,*) 'max met%qvair ',maxval(met%qvair,dim=1)
-
-    write(level_num,*) 'min ssnow%wtd ',minval(ssnow%wtd,dim=1)
-    write(level_num,*) 'min canopy%fes ',minval(canopy%fes,dim=1)
-    write(level_num,*) 'min canopy%fess ',minval(canopy%fess,dim=1)
-    write(level_num,*) 'min canopy%fev ',minval(canopy%fev,dim=1)
-    write(level_num,*) 'min canopy%fns ',minval(canopy%fns,dim=1)
-    write(level_num,*) 'min canopy%tscrn ',minval(canopy%tscrn,dim=1)
-    write(level_num,*) 'min canopy%fe ',minval(canopy%fe,dim=1)
-    write(level_num,*) 'min canopy%fh ',minval(canopy%fh,dim=1)
-    write(level_num,*) 'min canopy%us ',minval(canopy%us,dim=1)
-    write(level_num,*) 'min met%tvair ',minval(met%tvair,dim=1)
-    write(level_num,*) 'min met%qvair ',minval(met%qvair,dim=1)
-
-    end subroutine write_stuff
+!contains
+!
+!    subroutine write_more_stuff()
+!
+!    write(level_num,*) 'ssnow%tgg '
+!    do i=1,mp
+!       write(level_num,*) i,' ',ssnow%tgg(i,1:6)
+!    end do
+!    write(level_num,*) 'ssnow%wb '
+!    do i=1,mp
+!       write(level_num,*) i,' ',ssnow%wb(i,1:6)
+!    end do
+!   
+!    write(level_num,*) 'ssnow%wbice '
+!    do i=1,mp
+!       write(level_num,*) i,' ',ssnow%wbice(i,1:6)
+!    end do
+!    write(level_num,*) 'ssnow%wbliq '
+!    do i=1,mp
+!       write(level_num,*) i,' ',ssnow%wbliq(i,1:6)
+!    end do
+!
+!    write(level_num,*) 'ssnow%GWwb '
+!    do i=1,mp
+!       write(level_num,*) i,' ',ssnow%GWwb(i)
+!    end do
+!    write(level_num,*) 'ssnow%qhz '
+!    do i=1,mp
+!       write(level_num,*) i,' ',ssnow%GWwb(i)
+!    end do
+!    write(level_num,*) 'ssnow%qhlev '
+!    do i=1,mp
+!       write(level_num,*) i,' ',ssnow%qhlev(i,1:6)
+!    end do
+!    write(level_num,*) 'ssnow%qrechrage '
+!    do i=1,mp
+!       write(level_num,*) i,' ',ssnow%qrecharge(i)
+!    end do
+!    write(level_num,*) 'ssnow%snowd '
+!    do i=1,mp
+!       write(level_num,*) i,' ',ssnow%snowd(i)
+!    end do
+!
+!    end subroutine write_more_stuff
+!
+!    subroutine write_stuff()
+!
+!    real(r_2), dimension(ms) :: tmp_lev_vals
+!
+!    do k=1,ms
+!       tmp_lev_vals(k) = maxval(ssnow%tgg(:,k),dim=1)
+!    end do
+!    write(level_num,*) 'ssnow%tgg max ',tmp_lev_vals(:)
+!    do k=1,ms
+!       tmp_lev_vals(k) = minval(ssnow%tgg(:,k),dim=1)
+!    end do
+!    write(level_num,*) 'ssnow%tgg min ',tmp_lev_vals(:)
+!
+!    do k=1,ms
+!       tmp_lev_vals(k) = maxval(ssnow%wb(:,k),dim=1)
+!    end do
+!    write(level_num,*) 'max ssnow%wb ',tmp_lev_vals(:)
+!    do k=1,ms
+!       tmp_lev_vals(k) = minval(ssnow%wb(:,k),dim=1)
+!    end do
+!    write(level_num,*) 'min ssnow%wb ',tmp_lev_vals(:)
+!   
+!    write(level_num,*) 'max ssnow%wtd ',maxval(ssnow%wtd,dim=1)
+!    write(level_num,*) 'max canopy%fes ',maxval(canopy%fes,dim=1)
+!    write(level_num,*) 'max canopy%fess ',maxval(canopy%fess,dim=1)
+!    write(level_num,*) 'max canopy%fev ',maxval(canopy%fev,dim=1)
+!    write(level_num,*) 'max canopy%fns ',maxval(canopy%fns,dim=1)
+!    write(level_num,*) 'max canopy%tscrn ',maxval(canopy%tscrn,dim=1)
+!    write(level_num,*) 'max canopy%fe ',maxval(canopy%fe,dim=1)
+!    write(level_num,*) 'max canopy%fh ',maxval(canopy%fh,dim=1)
+!    write(level_num,*) 'max canopy%us ',maxval(canopy%us,dim=1)
+!    write(level_num,*) 'max met%tvair ',maxval(met%tvair,dim=1)
+!    write(level_num,*) 'max met%qvair ',maxval(met%qvair,dim=1)
+!
+!    write(level_num,*) 'min ssnow%wtd ',minval(ssnow%wtd,dim=1)
+!    write(level_num,*) 'min canopy%fes ',minval(canopy%fes,dim=1)
+!    write(level_num,*) 'min canopy%fess ',minval(canopy%fess,dim=1)
+!    write(level_num,*) 'min canopy%fev ',minval(canopy%fev,dim=1)
+!    write(level_num,*) 'min canopy%fns ',minval(canopy%fns,dim=1)
+!    write(level_num,*) 'min canopy%tscrn ',minval(canopy%tscrn,dim=1)
+!    write(level_num,*) 'min canopy%fe ',minval(canopy%fe,dim=1)
+!    write(level_num,*) 'min canopy%fh ',minval(canopy%fh,dim=1)
+!    write(level_num,*) 'min canopy%us ',minval(canopy%us,dim=1)
+!    write(level_num,*) 'min met%tvair ',minval(met%tvair,dim=1)
+!    write(level_num,*) 'min met%qvair ',minval(met%qvair,dim=1)
+!
+!    end subroutine write_stuff
 
 END SUBROUTINE soil_snow_gw
 

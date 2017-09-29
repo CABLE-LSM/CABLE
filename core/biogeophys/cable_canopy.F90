@@ -923,19 +923,19 @@ CONTAINS
 
     ENDIF
 
-    write(6,*) knode_gl,' max canopy%ga ',maxval(canopy%ga,dim=1)
-    write(6,*) knode_gl,' max canopy%fns ',maxval(canopy%fns,dim=1)
-    write(6,*) knode_gl,' max canopy%fe ',maxval(canopy%fe,dim=1)
-    write(6,*) knode_gl,' max canopy%fev ',maxval(canopy%fev,dim=1)
-    write(6,*) knode_gl,' max canopy%fes ',maxval(canopy%fes,dim=1)
-    write(6,*) knode_gl,' max canopy%fh ',maxval(canopy%fh,dim=1)
+    !write(6,*) knode_gl,' max canopy%ga ',maxval(canopy%ga,dim=1)
+    !write(6,*) knode_gl,' max canopy%fns ',maxval(canopy%fns,dim=1)
+    !write(6,*) knode_gl,' max canopy%fe ',maxval(canopy%fe,dim=1)
+    !write(6,*) knode_gl,' max canopy%fev ',maxval(canopy%fev,dim=1)
+    !write(6,*) knode_gl,' max canopy%fes ',maxval(canopy%fes,dim=1)
+    !write(6,*) knode_gl,' max canopy%fh ',maxval(canopy%fh,dim=1)
 
-    write(6,*) knode_gl,' min canopy%ga ',minval(canopy%ga,dim=1)
-    write(6,*) knode_gl,' min canopy%fns ',minval(canopy%fns,dim=1)
-    write(6,*) knode_gl,' min canopy%fe ',minval(canopy%fe,dim=1)
-    write(6,*) knode_gl,' min canopy%fev ',minval(canopy%fev,dim=1)
-    write(6,*) knode_gl,' min canopy%fes ',minval(canopy%fes,dim=1)
-    write(6,*) knode_gl,' min canopy%fh ',minval(canopy%fh,dim=1)
+    !write(6,*) knode_gl,' min canopy%ga ',minval(canopy%ga,dim=1)
+    !write(6,*) knode_gl,' min canopy%fns ',minval(canopy%fns,dim=1)
+    !write(6,*) knode_gl,' min canopy%fe ',minval(canopy%fe,dim=1)
+    !write(6,*) knode_gl,' min canopy%fev ',minval(canopy%fev,dim=1)
+    !write(6,*) knode_gl,' min canopy%fes ',minval(canopy%fes,dim=1)
+    !write(6,*) knode_gl,' min canopy%fh ',minval(canopy%fh,dim=1)
 
     bal%drybal = REAL(ecy+hcy) - SUM(rad%rniso,2)                               &
          + C%CAPP*C%rmair*(tlfy-met%tk)*SUM(rad%gradis,2)  ! YP nov2009
