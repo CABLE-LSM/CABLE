@@ -42,7 +42,6 @@ contains
 
 SUBROUTINE or_soil_evap_resistance(soil,air,met,canopy,ssnow,veg,rough)!,snow_covered,dz_litter)
    USE cable_def_types_mod
-   USE cable_air_module
    USE cable_common_module   
 
    TYPE (air_type), INTENT(INOUT)       :: air

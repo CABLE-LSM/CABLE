@@ -160,7 +160,6 @@ MODULE cable_def_types_mod
          GWbch_vec,  & !clapp and horn b of the aquifer   [none]
          GWssat_vec,  & !saturated water content of the aquifer [mm3/mm3]
          GWwatr,    & !residual water content of the aquifer [mm3/mm3]
-         GWz,       & !node depth of the aquifer    [m]
          GWdz,      & !thickness of the aquifer   [m]
          GWdensoil    !density of the aquifer substrate [kg/m3]
 
@@ -829,7 +828,6 @@ SUBROUTINE alloc_soil_parameter_type(var, mp)
    allocate( var%GWssat_vec(mp) )
    allocate( var%GWwatr(mp) )
    var%GWwatr(:) = 0.05
-   allocate( var%GWz(mp) )
    allocate( var%GWdz(mp) )
    allocate( var%GWdensoil(mp) )
    !soil properties (vary by layer)
@@ -1444,7 +1442,6 @@ SUBROUTINE dealloc_soil_parameter_type(var)
    DEALLOCATE( var%GWbch_vec )
    DEALLOCATE( var%GWssat_vec )
    DEALLOCATE( var%GWwatr )
-   DEALLOCATE( var%GWz )
    DEALLOCATE( var%GWdz )
    DEALLOCATE( var%GWdensoil )
    !soil properties (vary by layer)

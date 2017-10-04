@@ -1720,7 +1720,7 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
     TYPE (balances_type),       INTENT(INOUT) :: bal
     TYPE (roughness_type),      INTENT(INOUT) :: rough
 
-    INTEGER :: j,i,klev ! do loop counter
+    INTEGER :: j,i,klev,k ! do loop counter
     REAL(r_2)    :: temp(mp)
     REAL    :: tmp2(mp)
 
@@ -1749,9 +1749,6 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
                                      ! midpoints:
     soil%zshh(ms + 1) = 0.5 * soil%zse(ms)
     soil%zshh(2:ms)   = 0.5 * (soil%zse(1:ms-1) + soil%zse(2:ms))
-
-    !MD aquifer node depth
-    soil%GWz = 0.5*soil%GWdz + sum(soil%zse)  !node is halfway through aquifer depth
 
 
     IF (cable_user%GW_MODEL) then
@@ -1832,6 +1829,24 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
                    + soil%silt * 0.265 ! set dry soil thermal conductivity
                                        ! [W/m/K]
     END IF
+
+    do k=1,ms
+       write(*,*) 'maxval ssat_vec',maxval(soil%ssat_vec(:,k))
+       write(*,*) 'minval ssat_vec',minval(soil%ssat_vec(:,k))
+
+       write(*,*) 'maxval sucs_vec',maxval(soil%sucs_vec(:,k))
+       write(*,*) 'minval sucs_vec',minval(soil%sucs_vec(:,k))
+
+       write(*,*) 'maxval bch_vec',maxval(soil%bch_vec(:,k))
+       write(*,*) 'minval bch_vec',minval(soil%bch_vec(:,k))
+
+       write(*,*) 'maxval Fsand',maxval(soil%Fsand(:,k))
+       write(*,*) 'minval Fsand',minval(soil%Fsand(:,k))
+
+       write(*,*) 'maxval Fclay',maxval(soil%Fclay(:,k))
+       write(*,*) 'minval Fclay',minval(soil%Fclay(:,k))
+
+   end do
 
     soil%hsbh   = soil%hyds*ABS(soil%sucs) * soil%bch ! difsat*etasat
     soil%ibp2   = NINT(soil%bch) + 2

@@ -35,26 +35,35 @@ MODULE cable_soil_snow_module
    USE cable_def_types_mod, ONLY : soil_snow_type, soil_parameter_type,        &
                              veg_parameter_type, canopy_type, met_type,        &
                              balances_type, r_2, ms, mp
-   USE cable_data_module, ONLY : C=>PHYS
-
-   USE cable_common_module, ONLY : cable_user, cable_runtime,&
-                                   cgsnow,csice,cswat,nglacier,snmin,&
-                                   max_ssdn,max_sconds,max_glacier_snowd,&
-                                   frozen_limit,&
-                                   wiltParam,satuParam,redistrb,&
-                                   ktau_gl
+   USE cable_data_module, ONLY : issnow_type, point2constants
 
    IMPLICIT NONE
 
    PRIVATE
 
+   TYPE ( issnow_type ) :: C
+
+   REAL, PARAMETER ::                                                          &
+      cgsnow = 2090.0,     & ! specific heat capacity for snow
+      csice = 2.100e3,     & ! specific heat capacity for ice
+      cswat = 4.218e3,     & ! specific heat capacity for water
+!jhan:clobber - effectively force single layer snow
+      !snmin = 100.0,      & ! for 1-layer; 
+      snmin = 1.,          & ! for 3-layer;
+      max_ssdn = 750.0,    & !
+      max_sconds = 2.51,   & !
+      frozen_limit = 0.85    ! EAK Feb2011 (could be 0.95)
+
    REAL :: cp    ! specific heat capacity for air
 
+   !jhan:make parameter
+   REAL,parameter :: max_glacier_snowd=1100.0
+
    ! This module contains the following subroutines:
-   PUBLIC soil_snow
-   PUBLIC snowl_adjust,snow_accum, stempv,trimb,glacier_adjustment
-   PUBLIC  snowdensity, snow_melting, snowcheck
-   PRIVATE soilfreeze,remove_trans
+   PUBLIC soil_snow ! must be available outside this module
+   PUBLIC snowdensity, snow_melting, snowcheck, snowl_adjust,snow_accum, stempv,trimb
+   PUBLIC cgsnow,csice,cswat,snmin,max_ssdn
+   PUBLIC frozen_limit,max_glacier_snowd
 
 CONTAINS
 
@@ -114,7 +123,9 @@ END SUBROUTINE trimb
 !      Science development by Eva Kowalczyk and John McGregor, CMAR
 !
 SUBROUTINE smoisturev (dels,ssnow,soil,veg)
-USE cable_common_module
+
+   USE cable_common_module
+
    REAL, INTENT(IN) :: dels    ! time step size (s)
 
    TYPE(soil_snow_type),      INTENT(INOUT) ::                                &
@@ -190,6 +201,8 @@ USE cable_common_module
       u,    & ! I/O unit
       k
 
+
+   CALL point2constants( C )
 
 
    at = 0.0
@@ -546,6 +559,7 @@ SUBROUTINE snowdensity (dels, ssnow, soil)
    REAL, DIMENSION(mp) :: ssnow_tgg_min1
    REAL, DIMENSION(mp,3) :: dels_ssdn, ssnow_tgg_min
 
+   CALL point2constants( C )
 
    ssnow_isflag_ssdn = SPREAD( ssnow%isflag,2,mp)
 
@@ -637,6 +651,7 @@ END SUBROUTINE snowdensity
 
 SUBROUTINE snow_melting (dels, snowmlt, ssnow, soil )
 
+   USE cable_common_module
 
    REAL, INTENT(IN) :: dels   ! integration time step (s)
 
@@ -654,6 +669,8 @@ SUBROUTINE snow_melting (dels, snowmlt, ssnow, soil )
 
    REAL, DIMENSION(mp,0:3) :: smelt1
 
+
+   CALL point2constants( C )
 
    snowmlt= 0.0
    smelt1 = 0.0
@@ -751,6 +768,7 @@ END SUBROUTINE snow_melting
 
 SUBROUTINE snow_accum ( dels,  canopy, met, ssnow, soil )
 
+USE cable_common_module
 
    REAL, INTENT(IN) :: dels ! integration time step (s)
 
@@ -766,6 +784,8 @@ SUBROUTINE snow_accum ( dels,  canopy, met, ssnow, soil )
       xxx        !
 
    INTEGER             :: i,j,k
+
+   CALL point2constants( C )
 
 do i=1,mp   
 
@@ -888,22 +908,17 @@ ENDdo
 
    ! Initialise snow evaporation:
    ssnow%evapsn = 0
-do i=1,mp
+do i=1,mp    
    ! Snow evaporation and dew on snow
-   ! NB the conditions on when %fes applies to %segg or %evapsn MUST(!!)
-   ! match those used to set %cls in the latent_heat_flux calculations 
-   ! for moisture conservation purposes 
-   ! Ticket 137 - using %cls as the trigger not %snowd
-   if( ssnow%cls(i) == 1.1335 ) then
-   !WHERE( ssnow%snowd > 0.1 )
+   if( ssnow%snowd(i) > 0.1 ) then
 
-      ssnow%evapsn(i) = dels * ( canopy%fess(i) + canopy%fes_cor(i) ) / ( C%HL +C%HLF )
+      ssnow%evapsn(i) = dels * ( canopy%fess(i) + canopy%fes_cor(i) ) / ( C%HL + C%HLF )
       xxx(i) = ssnow%evapsn(i)
 
-      if( ssnow%isflag(i) == 0 .AND. canopy%fess(i) + canopy%fes_cor(i).GT. 0.0)    &
+      if( ssnow%isflag(i) == 0 .AND. canopy%fess(i) + canopy%fes_cor(i).GT. 0.0 )    &
          ssnow%evapsn(i) = MIN( ssnow%snowd(i), xxx(i) )
 
-      if( ssnow%isflag(i)  > 0 .AND. canopy%fess(i) + canopy%fes_cor(i) .GT. 0.0)   &
+      if( ssnow%isflag(i)  > 0 .AND. canopy%fess(i) + canopy%fes_cor(i) .GT. 0.0 )   &
          ssnow%evapsn(i) = MIN( 0.9 * ssnow%smass(i,1), xxx(i) )
 
       ssnow%snowd(i) = ssnow%snowd(i) - ssnow%evapsn(i)
@@ -911,22 +926,20 @@ do i=1,mp
       if( ssnow%isflag(i) > 0 ) then
          ssnow%smass(i,1) = ssnow%smass(i,1)  - ssnow%evapsn(i)
          ssnow%sdepth(i,1) = MAX( 0.02, ssnow%smass(i,1) / ssnow%ssdn(i,1) )
-      ENDif
+      ENDif 
 
       canopy%segg(i) = 0.0
 
-      !INH: cls package 
-      !we still need to conserve moisture/energy when evapsn is limited
-      !this is a key point of moisture non-conservation
+   ENDif 
 
-   ENDif
-
-ENDdo
+ENDdo 
 END SUBROUTINE snow_accum
 
 ! -----------------------------------------------------------------------------
 
 SUBROUTINE surfbv (dels, met, ssnow, soil, veg, canopy )
+
+   USE cable_common_module
 
    REAL, INTENT(IN) :: dels ! integration time step (s)
 
@@ -938,6 +951,8 @@ SUBROUTINE surfbv (dels, met, ssnow, soil, veg, canopy )
    TYPE(veg_parameter_type),  INTENT(IN)     :: veg
    TYPE(soil_parameter_type), INTENT(INOUT)  :: soil  ! soil parameters
 
+!jhan:cable.nml
+   INTEGER, PARAMETER      :: nglacier = 2 ! 0 original, 1 off, 2 new Eva
 
    REAL, DIMENSION(mp) ::                                                      &
       rnof5,      & !
@@ -952,6 +967,8 @@ SUBROUTINE surfbv (dels, met, ssnow, soil, veg, canopy )
 
    REAL :: wb_lake_T, rnof2_T, ratio
    INTEGER :: k,j
+
+   CALL point2constants( C )
 
    CALL smoisturev( dels, ssnow, soil, veg )
 
@@ -972,9 +989,40 @@ SUBROUTINE surfbv (dels, met, ssnow, soil, veg, canopy )
 !jhan:replace nested wheres
 
    !---  glacier formation
+   rnof5= 0.
+
    IF (nglacier == 2) THEN
 
-      call glacier_adjustment(dels,ssnow)
+      smelt1=0.
+      WHERE( ssnow%snowd > max_glacier_snowd )
+
+         rnof5 = MIN( 0.1, ssnow%snowd - max_glacier_snowd )
+
+         !---- change local tg to account for energy - clearly not best method
+         WHERE( ssnow%isflag == 0 )
+            smasstot = 0.0
+            ssnow%tgg(:,1) = ssnow%tgg(:,1) - rnof5 * C%HLF                    &
+                             / REAL( ssnow%gammzz(:,1) )
+            ssnow%snowd = ssnow%snowd - rnof5
+         ELSEWHERE
+            smasstot = ssnow%smass(:,1) + ssnow%smass(:,2) + ssnow%smass(:,3)
+         END WHERE
+
+      END WHERE
+
+      DO k = 1, 3
+
+         WHERE( ssnow%snowd > max_glacier_snowd  .AND.  ssnow%isflag > 0 )
+            sgamm = ssnow%ssdn(:,k) * cgsnow * ssnow%sdepth(:,k)
+            smelt1(:,k) = MIN( rnof5 * ssnow%smass(:,k) / smasstot,            &
+                          0.2 * ssnow%smass(:,k) )
+            ssnow%smass(:,k) = ssnow%smass(:,k) - smelt1(:,k)
+            ssnow%snowd = ssnow%snowd - smelt1(:,k)
+         END WHERE
+
+      END DO
+
+      WHERE( ssnow%isflag > 0 ) rnof5 = smelt1(:,1) + smelt1(:,2) + smelt1(:,3)
 
    END IF
 
@@ -1021,58 +1069,6 @@ SUBROUTINE surfbv (dels, met, ssnow, soil, veg, canopy )
 END SUBROUTINE surfbv
 
 ! -----------------------------------------------------------------------------
-!  adjusts the glaciers accoring to Evas method
-!  moved to sperate subroutine so that it can be called from ssgw or sli as well
-  SUBROUTINE glacier_adjustment(dels,ssnow)
-
-  IMPLICIT NONE
-    REAL, INTENT(IN)                         :: dels ! integration time step (s)
-    TYPE(soil_snow_type), INTENT(INOUT)      :: ssnow  ! soil+snow variables
-
-    !local vars
-    INTEGER                                  :: k, i, j
-    REAL, DIMENSION(mp)                      :: rnof5
-    REAL, DIMENSION(mp)                      :: sgamm
-    REAL, DIMENSION(mp)                      :: smasstot
-    REAL, DIMENSION(mp,0:3)                  :: smelt1                   !snow melt
-   !---  glacier formation
-   rnof5= 0.
-
-   smelt1=0.
-   WHERE( ssnow%snowd > max_glacier_snowd )
-
-      rnof5 = MIN( 0.1, ssnow%snowd - max_glacier_snowd )
-
-      !---- change local tg to account for energy - clearly not best method
-      WHERE( ssnow%isflag == 0 )
-         smasstot = 0.0
-         ssnow%tgg(:,1) = ssnow%tgg(:,1) - rnof5 * C%HLF                    &
-                          / REAL( ssnow%gammzz(:,1) )
-         ssnow%snowd = ssnow%snowd - rnof5
-      ELSEWHERE
-         smasstot = ssnow%smass(:,1) + ssnow%smass(:,2) + ssnow%smass(:,3)
-      END WHERE
-
-   END WHERE
-
-   DO k = 1, 3
-      
-      WHERE( ssnow%snowd > max_glacier_snowd  .AND.  ssnow%isflag > 0 )
-         sgamm = ssnow%ssdn(:,k) * cgsnow * ssnow%sdepth(:,k)
-         smelt1(:,k) = MIN( rnof5 * ssnow%smass(:,k) / smasstot,            &
-                       0.2 * ssnow%smass(:,k) )
-         ssnow%smass(:,k) = ssnow%smass(:,k) - smelt1(:,k)
-         ssnow%snowd = ssnow%snowd - smelt1(:,k)
-      END WHERE
-   
-   END DO
-   
-   WHERE( ssnow%isflag > 0 ) rnof5 = smelt1(:,1) + smelt1(:,2) + smelt1(:,3)
-
-   ssnow%rnof1 = ssnow%rnof1 + rnof5/dels   !include this runoff in suface runoff term
-   
-
-  END SUBROUTINE glacier_adjustment
 
 ! calculates temperatures of the soil
 ! tgg - new soil/snow temperature
@@ -1109,6 +1105,8 @@ SUBROUTINE stempv(dels, canopy, ssnow, soil)
    INTEGER :: j,k
    REAL :: snow_ccnsw, exp_arg
    LOGICAL :: direct2min = .FALSE.
+
+   CALL point2constants( C )
 
    at = 0.0
    bt = 1.0
@@ -1182,7 +1180,7 @@ SUBROUTINE stempv(dels, canopy, ssnow, soil)
 
       ssnow%gammzz(:,k) = MAX( ( 1.0 - soil%ssat ) * soil%css * soil%rhosoil   &
                           + soil%ssat * ( wblfsp * cswat * C%density_liq +            &
-                          ssnow%wbfice(:,k) * csice * C%density_ice ), xx )     &
+                          ssnow%wbfice(:,k) * csice * C%density_liq * 0.9 ), xx )     &
                           * soil%zse(k)
 
       ssnow%gammzz(:,k) = ssnow%gammzz(:,k) + cgsnow * ssnow%snowd
@@ -1204,7 +1202,7 @@ SUBROUTINE stempv(dels, canopy, ssnow, soil)
 
          ssnow%gammzz(:,k) = MAX( ( 1.0 - soil%ssat ) * soil%css * soil%rhosoil&
                              + soil%ssat * ( wblfsp * cswat * C%density_liq +         &
-                             ssnow%wbfice(:,k) * csice * C%density_ice ), xx )  &
+                             ssnow%wbfice(:,k) * csice * C%density_liq * 0.9 ), xx )  &
                              * soil%zse(k)
 
          dtg = dels / ssnow%gammzz(:,k)
@@ -1274,8 +1272,8 @@ SUBROUTINE stempv(dels, canopy, ssnow, soil)
 
          ssnow%gammzz(:,k) = MAX( ( 1.0 - soil%ssat ) * soil%css *             &
                              soil%rhosoil + soil%ssat * ( wblfsp * cswat *     &
-                             C%density_liq + ssnow%wbfice(:,k) * csice *C%density_ice)&
-                             , xx ) * soil%zse(k)
+                             C%density_liq + ssnow%wbfice(:,k) * csice * C%density_liq *     &
+                             0.9) , xx ) * soil%zse(k)
 
          dtg = dels / ssnow%gammzz(:,k)
          at(:,k) = - dtg * coeff(:,k)
@@ -1315,6 +1313,8 @@ END SUBROUTINE stempv
 
 SUBROUTINE snowcheck(dels, ssnow, soil, met )
 
+   USE cable_common_module
+
    REAL, INTENT(IN) :: dels ! integration time step (s)
 
    TYPE(soil_snow_type), INTENT(INOUT) :: ssnow
@@ -1323,6 +1323,8 @@ SUBROUTINE snowcheck(dels, ssnow, soil, met )
    TYPE(soil_parameter_type), INTENT(INOUT) :: soil  ! soil parameters
 
    INTEGER :: k,j
+
+   CALL point2constants( C )
 
    DO j=1,mp
 
@@ -1436,6 +1438,8 @@ SUBROUTINE snowl_adjust(dels, ssnow, canopy )
    REAL, DIMENSION(mp) :: osm
 
    INTEGER :: api ! active patch counter
+
+   CALL point2constants( C )
 
 
    ! adjust levels in the snowpack due to snow accumulation/melting,
@@ -1569,6 +1573,7 @@ END SUBROUTINE snowl_adjust
 ! -----------------------------------------------------------------------------
 
 SUBROUTINE soilfreeze(dels, soil, ssnow)
+   USE cable_common_module
    REAL, INTENT(IN)                    :: dels ! integration time step (s)
    TYPE(soil_snow_type), INTENT(INOUT)      :: ssnow
    TYPE(soil_parameter_type), INTENT(INOUT) :: soil
@@ -1576,6 +1581,8 @@ SUBROUTINE soilfreeze(dels, soil, ssnow)
    REAL(r_2), DIMENSION(mp)           :: sicemelt
    REAL, DIMENSION(mp)           :: xx
    INTEGER k
+
+   CALL point2constants( C )
 
    xx = 0.
    DO k = 1, ms
@@ -1592,7 +1599,7 @@ SUBROUTINE soilfreeze(dels, soil, ssnow)
          ssnow%gammzz(:,k) = MAX(                                              &
              REAL((1.0 - soil%ssat) * soil%css * soil%rhosoil ,r_2)            &
              + (ssnow%wb(:,k) - ssnow%wbice(:,k)) * REAL(cswat * C%density_liq,r_2)   &
-             + ssnow%wbice(:,k) * REAL(csice * C%density_ice,r_2),              &
+             + ssnow%wbice(:,k) * REAL(csice * C%density_liq * 0.9,r_2),              &
              REAL(xx,r_2)) * REAL( soil%zse(k),r_2 )
 
          WHERE (k == 1 .AND. ssnow%isflag == 0)
@@ -1612,7 +1619,7 @@ SUBROUTINE soilfreeze(dels, soil, ssnow)
          ssnow%gammzz(:,k) = MAX(                                              &
               REAL((1.0-soil%ssat) * soil%css * soil%rhosoil,r_2)             &
               + (ssnow%wb(:,k) - ssnow%wbice(:,k)) * REAL(cswat*C%density_liq,r_2)   &
-              + ssnow%wbice(:,k) * REAL(csice * C%density_ice,r_2),            &
+              + ssnow%wbice(:,k) * REAL(csice * C%density_liq * 0.9,r_2),            &
               REAL(xx,r_2) ) * REAL(soil%zse(k),r_2)
          WHERE (k == 1 .AND. ssnow%isflag == 0)
             ssnow%gammzz(:,k) = ssnow%gammzz(:,k) + cgsnow * ssnow%snowd
@@ -1630,6 +1637,7 @@ END SUBROUTINE soilfreeze
 
 SUBROUTINE remove_trans(dels, soil, ssnow, canopy, veg)
 
+   USE cable_common_module, ONLY : redistrb, cable_user
 
    ! Removes transpiration water from soil.
    REAL, INTENT(IN)                    :: dels ! integration time step (s)
@@ -1640,6 +1648,8 @@ SUBROUTINE remove_trans(dels, soil, ssnow, canopy, veg)
    REAL(r_2), DIMENSION(mp,0:ms) :: diff
    REAL(r_2), DIMENSION(mp)      :: xx,xxd,evap_cur
    INTEGER k
+
+   CALL point2constants( C )
 
   IF (cable_user%FWSOIL_switch.ne.'Haverd2013') THEN
      xx = 0.; xxd = 0.; diff(:,:) = 0.
@@ -1700,6 +1710,7 @@ END SUBROUTINE remove_trans
 ! Output
 !        ssnow
 SUBROUTINE soil_snow(dels, soil, ssnow, canopy, met, bal, veg)
+   USE cable_common_module
    REAL, INTENT(IN)                    :: dels ! integration time step (s)
    TYPE(soil_parameter_type), INTENT(INOUT) :: soil
    TYPE(soil_snow_type), INTENT(INOUT)      :: ssnow
@@ -1716,6 +1727,7 @@ SUBROUTINE soil_snow(dels, soil, ssnow, canopy, met, bal, veg)
    REAL                :: zsetot
    INTEGER, SAVE :: ktau =0
 
+   CALL point2constants( C )
    cp = C%CAPP
 
    ktau = ktau +1
@@ -1908,6 +1920,7 @@ END SUBROUTINE soil_snow
 ! Fixed problem of negative wb in global run by BP Mar 2011
 SUBROUTINE hydraulic_redistribution(dels, soil, ssnow, canopy, veg, met)
 
+   USE cable_common_module, ONLY : wiltParam, satuParam
 
    REAL, INTENT(IN) :: dels ! integration time step (s)
 
@@ -1949,6 +1962,8 @@ SUBROUTINE hydraulic_redistribution(dels, soil, ssnow, canopy, veg, met)
       hr_perTime    !
 
    INTEGER :: j, k
+
+   CALL point2constants( C )
 
    zsetot = sum(soil%zse)
    totalmoist(:) = 0.0
