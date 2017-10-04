@@ -1,13 +1,27 @@
 MODULE cable_psm
-USE cable_def_types_mod
+
+   USE cable_def_types_mod, only : r_2,ms,mp,air_type,met_type,soil_snow_type,&
+                                  canopy_type,soil_parameter_type,veg_parameter_type,&
+                                  roughness_type
+   USE cable_common_module, only : cable_user
 
 implicit none
 
-PUBLIC  or_soil_evap_resistance
+
+   REAL(r_2), parameter :: Dff=2.5e-5, &  !diffusivity water vapor in air
+                      lm=1.73e-5, &       !converts units
+                      pi = 3.14159265358979324, &  !obvous
+                      c2 = 2.0,&                  !params
+                      litter_thermal_diff=8.3e-6  !param based on vh thermal diffusivity
+
+   real(r_2), parameter :: rtevap_max = 10000.0
+
+PUBLIC  or_soil_evap_resistance,update_or_soil_resis
 
 contains
 
   recursive function my_gamma(a) result(g)
+
    
     real(r_2), intent(in) :: a 
     real(r_2) :: g 
@@ -40,9 +54,7 @@ contains
     end if
   end function my_gamma
 
-SUBROUTINE or_soil_evap_resistance(soil,air,met,canopy,ssnow,veg,rough)!,snow_covered,dz_litter)
-   USE cable_def_types_mod
-   USE cable_common_module   
+SUBROUTINE or_soil_evap_resistance(soil,air,met,canopy,ssnow,veg,rough)
 
    TYPE (air_type), INTENT(INOUT)       :: air
    TYPE (met_type), INTENT(INOUT)       :: met
@@ -51,8 +63,6 @@ SUBROUTINE or_soil_evap_resistance(soil,air,met,canopy,ssnow,veg,rough)!,snow_co
    TYPE (soil_parameter_type), INTENT(INOUT)   :: soil 
    TYPE (veg_parameter_type), INTENT(INOUT) :: veg
    TYPE (roughness_type), INTENT(INOUT) :: rough
-   !integer, dimension(:), intent(in)  :: snow_covered
-   !real, dimension(:), intent(in) :: dz_litter
 
 
 
@@ -65,13 +75,6 @@ SUBROUTINE or_soil_evap_resistance(soil,air,met,canopy,ssnow,veg,rough)!,snow_co
    INTEGER, DIMENSION(mp) :: int_eddy_shape
 
    !
-   REAL(r_2), parameter :: Dff=2.5e-5, &  !diffusivity water vapor in air
-                      lm=1.73e-5, &       !converts units
-                      pi = 3.14159265358979324, &  !obvous
-                      c2 = 2.0,&                  !params
-                      litter_thermal_diff=8.3e-6  !param based on vh thermal diffusivity
-
-   real(r_2), parameter :: rtevap_max = 10000.0
 
    integer :: i,j,k 
 
@@ -150,6 +153,40 @@ SUBROUTINE or_soil_evap_resistance(soil,air,met,canopy,ssnow,veg,rough)!,snow_co
 
 
 END SUBROUTINE or_soil_evap_resistance
+
+
+SUBROUTINE update_or_soil_resis(ssnow,canopy,veg,dq,dqu)
+
+   TYPE (soil_snow_type), INTENT(INOUT) :: ssnow
+   TYPE (canopy_type), INTENT(INOUT)    :: canopy
+   TYPE (veg_parameter_type), INTENT(INOUT) :: veg
+   REAL, DIMENSION(mp), INTENT(IN) :: dq,&
+                                      dqu
+
+   INTEGER :: i
+
+
+   do i=1,mp
+
+      if (veg%iveg(i) .lt. 16 .and. ssnow%snowd(i) .lt. 1e-7) THEN
+
+         if (dq(i) .le. 0.0) THEN
+            ssnow%rtevap_sat(i) = min(rtevap_max,canopy%sublayer_dz(i)/Dff)
+         end if
+
+         if (dqu(i) .le. 0.0) THEN
+            ssnow%rtevap_unsat(i) = min(rtevap_max,canopy%sublayer_dz(i)/Dff)
+         end if
+
+      end if
+   end do
+
+
+
+
+
+
+END SUBROUTINE update_or_soil_resis
 
 END MODULE cable_psm
 

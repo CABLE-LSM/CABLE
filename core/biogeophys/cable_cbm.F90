@@ -30,9 +30,6 @@
 
 MODULE cable_cbm_module
 
-   USE cable_canopy_module
-   USE cable_albedo_module
-  USE sli_main_mod
 
    IMPLICIT NONE
 
@@ -58,6 +55,9 @@ CONTAINS
    USE cable_data_module, ONLY : icbm_type, point2constants
    !mrd561
    USE cable_gw_hydro_module, only : soil_snow_gw,sli_hydrology
+   USE sli_main_mod, ONLY : sli_main
+   USE cable_canopy_module, only : define_canopy
+   USE cable_albedo_module, only : surface_albedo
 
    !ptrs to local constants
    TYPE( icbm_type ) :: C

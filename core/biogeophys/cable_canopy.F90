@@ -60,9 +60,8 @@ CONTAINS
     USE cable_air_module
     USE cable_common_module
     USE cable_roughness_module
-    !USE sli_utils, ONLY : potential_evap
-    !USE sli_main_mod, ONLY : sli_main
-    USE cable_psm, ONLY:  or_soil_evap_resistance
+    USE sli_main_mod, ONLY : sli_main
+    USE cable_psm, ONLY:  or_soil_evap_resistance,update_or_soil_resis
     USE cable_gw_hydro_module, ONLY : pore_space_relative_humidity
 
 
@@ -101,6 +100,7 @@ CONTAINS
          zscl,          & !
          pwet,          & !
          dq,            & ! sat sp
+         dq_unsat,      & ! spec hum diff including rh at srf
          xx1,           & !
          sum_rad_rniso, & !
          sum_rad_gradis   !
@@ -160,15 +160,11 @@ CONTAINS
     ALLOCATE( gbhf(mp,mf), csx(mp,mf))
     ALLOCATE( ghwet(mp))
 
-    write(6,*) 'canopy 162'
-
     ! BATS-type canopy saturation proportional to LAI:
     cansat = veg%canst1 * canopy%vlaiw
 
     !---compute surface wetness factor, update cansto, through
     CALL surf_wetness_fact( cansat, canopy, ssnow,veg,met, soil, dels )
-
-    write(6,*) 'canopy 171'
 
     canopy%fevw_pot = 0.0
     canopy%gswx = 1e-3     ! default stomatal conuctance
@@ -185,7 +181,6 @@ CONTAINS
     CALL define_air (met, air)
 
     CALL qsatfjh(qstvair,met%tvair-C%tfrz,met%pmb)
-    write(6,*) 'canopy 188'
 
     met%dva = (qstvair - met%qvair) *  C%rmair/C%rmh2o * met%pmb * 100.0
     dsx = met%dva     ! init. leaf surface vpd
@@ -194,11 +189,11 @@ CONTAINS
     tlfy = met%tk  ! initialise current leaf temp (K)
 
     ortsoil = ssnow%rtsoil
-    !IF (cable_user%soil_struc=='default') then
+    IF (cable_user%soil_struc=='sli') then
+       ssnow%tss = real(ssnow%Tsurface) + C%tfrz
+    ELSE
        ssnow%tss =  real((1-ssnow%isflag))*ssnow%tgg(:,1) + real(ssnow%isflag)*ssnow%tggsn(:,1)
-    !elseif (cable_user%soil_struc=='sli') then
-    !   ssnow%tss = real(ssnow%Tsurface) + C%tfrz
-    !endif
+    endif
     tss4 = ssnow%tss**4
     canopy%fes = 0.
     canopy%fess = 0.
@@ -219,7 +214,6 @@ CONTAINS
        ! AERODYNAMIC PROPERTIES: friction velocity us, thence turbulent
        ! resistances rt0, rt1 (elements of dispersion matrix):
        ! See CSIRO SCAM, Raupach et al 1997, eq. 3.46:
-    write(6,*) 'canopy 222'
        CALL comp_friction_vel()
 
        ! E.Kowalczyk 2014
@@ -245,48 +239,48 @@ CONTAINS
        rt_min = 5.
 
        !! vh_js !!
-!       IF (cable_user%soil_struc=='sli') THEN
-!          ! for stable conditions, update rough%rt0us & rough%rt1usa by replacing C%CSW by
-!          ! csw = cd/2* (U(hc)/ust)**2 according to Eqs 15 & 19 from notes by Ian Harman (9-9-2011)
-!          WHERE (canopy%vlaiw > C%LAI_thresh .and. rough%hruff > rough%z0soilsn)
-!             rt0bus = (LOG(0.1*rough%hruff/rough%z0soilsn) - psis(canopy%zetash(:,iter)) + &
-!                  psis(canopy%zetash(:,iter)*rough%z0soilsn/(0.1*rough%hruff))) / &
-!                  C%vonk/rough%term6a
-!
-!             zstar = rough%disp + 1.5*(veg%hc - rough%disp)
-!
-!             psihat = log((zstar - rough%disp)/ (veg%hc - rough%disp)) + &
-!                  (veg%hc - zstar)/(zstar - rough%disp)
-!             rL = -(C%vonk*C%grav*(zstar - rough%disp)*(canopy%fh))/ &  ! 1/Monin-Obokov Length
-!                  max( (air%rho*C%capp*met%tk*canopy%us**3), 1.e-12)
-!             phist = 1 + 5.0*(zstar - rough%disp)*rL
-!
-!             where (canopy%zetar(:,iter) .gt. 1.e-6)! stable conditions
-!
-!                csw = min(0.3*((log((veg%hc-rough%disp)/rough%z0m) + phist*psihat - &
-!                     psim(canopy%zetar(:,iter)*(veg%hc-rough%disp)/(rough%zref_tq-rough%disp))+ &
-!                     psim(canopy%zetar(:,iter)*rough%z0m/(rough%zref_tq-rough%disp)))/0.4)**2/2., 3.0)* c%csw
-!             elsewhere
-!                csw = c%csw
-!             endwhere
-!
-!             rough%term2  = EXP( 2. * CSW * canopy%rghlai * &
-!                  ( 1 - rough%disp / rough%hruff ) )
-!             rough%term3  = C%A33**2 * C%CTL * 2. * CSW * canopy%rghlai
-!             rough%term5  = MAX( ( 2. / 3. ) * rough%hruff / rough%disp, 1.0 )
-!             rough%term6 =  EXP( 3. * rough%coexp * ( rough%disp / rough%hruff -1. ) )
-!
-!             rough%rt0us  = log(rough%disp/(0.1 * rough%hruff)) * &
-!                  EXP(2. * C%CSW * canopy%rghlai) * rough%disp &
-!                  / rough%hruff / (c%a33 ** 2 * c%ctl)
-!
-!             rough%rt1usa = rough%term5 * ( rough%term2 - 1.0 ) / rough%term3
-!             rt0 = max(rt_min, rough%rt0us+rt0bus) / canopy%us
-!          ELSEWHERE
-!             rt0 = max(rt_min,rough%rt0us) / canopy%us
-!          ENDWHERE
-!
-!       ELSE
+       IF (cable_user%soil_struc=='sli') THEN
+          ! for stable conditions, update rough%rt0us & rough%rt1usa by replacing C%CSW by
+          ! csw = cd/2* (U(hc)/ust)**2 according to Eqs 15 & 19 from notes by Ian Harman (9-9-2011)
+          WHERE (canopy%vlaiw > C%LAI_thresh .and. rough%hruff > rough%z0soilsn)
+             rt0bus = (LOG(0.1*rough%hruff/rough%z0soilsn) - psis(canopy%zetash(:,iter)) + &
+                  psis(canopy%zetash(:,iter)*rough%z0soilsn/(0.1*rough%hruff))) / &
+                  C%vonk/rough%term6a
+
+             zstar = rough%disp + 1.5*(veg%hc - rough%disp)
+
+             psihat = log((zstar - rough%disp)/ (veg%hc - rough%disp)) + &
+                  (veg%hc - zstar)/(zstar - rough%disp)
+             rL = -(C%vonk*C%grav*(zstar - rough%disp)*(canopy%fh))/ &  ! 1/Monin-Obokov Length
+                  max( (air%rho*C%capp*met%tk*canopy%us**3), 1.e-12)
+             phist = 1 + 5.0*(zstar - rough%disp)*rL
+
+             where (canopy%zetar(:,iter) .gt. 1.e-6)! stable conditions
+
+                csw = min(0.3*((log((veg%hc-rough%disp)/rough%z0m) + phist*psihat - &
+                     psim(canopy%zetar(:,iter)*(veg%hc-rough%disp)/(rough%zref_tq-rough%disp))+ &
+                     psim(canopy%zetar(:,iter)*rough%z0m/(rough%zref_tq-rough%disp)))/0.4)**2/2., 3.0)* c%csw
+             elsewhere
+                csw = c%csw
+             endwhere
+
+             rough%term2  = EXP( 2. * CSW * canopy%rghlai * &
+                  ( 1 - rough%disp / rough%hruff ) )
+             rough%term3  = C%A33**2 * C%CTL * 2. * CSW * canopy%rghlai
+             rough%term5  = MAX( ( 2. / 3. ) * rough%hruff / rough%disp, 1.0 )
+             rough%term6 =  EXP( 3. * rough%coexp * ( rough%disp / rough%hruff -1. ) )
+
+             rough%rt0us  = log(rough%disp/(0.1 * rough%hruff)) * &
+                  EXP(2. * C%CSW * canopy%rghlai) * rough%disp &
+                  / rough%hruff / (c%a33 ** 2 * c%ctl)
+
+             rough%rt1usa = rough%term5 * ( rough%term2 - 1.0 ) / rough%term3
+             rt0 = max(rt_min, rough%rt0us+rt0bus) / canopy%us
+          ELSEWHERE
+             rt0 = max(rt_min,rough%rt0us) / canopy%us
+          ENDWHERE
+
+       ELSE
           rt0 = max(rt_min,rough%rt0us / canopy%us)
 
           IF (cable_user%litter) THEN
@@ -297,10 +291,8 @@ CONTAINS
              canopy%DvLitt = 3.1415841138194147e-05_r_2 ! = 2.17e-5*exp(1.0*2.6)*exp(-0.5*(2.08+(1.0*2.38)))
           ENDIF
 
-!       ENDIF
+       ENDIF
 
-
-    write(6,*) 'canopy 303'
 
        ! Aerodynamic resistance (sum 3 height integrals)/us
        ! See CSIRO SCAM, Raupach et al 1997, eq. 3.50:
@@ -329,7 +321,6 @@ CONTAINS
           ENDIF
 
        ENDDO
-    write(6,*) 'canopy 332'
 
        IF (cable_user%or_evap) THEN
           call or_soil_evap_resistance(soil,air,met,canopy,ssnow,veg,rough)
@@ -368,7 +359,6 @@ CONTAINS
        ecy = rny - hcy        ! init current estimate lat heat
 
        sum_rad_rniso = SUM(rad%rniso,2)
-    write(6,*) 'canopy 371'
 
        CALL dryLeaf( dels, rad, rough, air, met,                                &
             veg, canopy, soil, ssnow, dsx,                             &
@@ -376,8 +366,6 @@ CONTAINS
             rny, gbhu, gbhf, csx, cansat,                              &
             ghwet,  iter,climate )
 
-
-    write(6,*) 'canopy 380'
 
        CALL wetLeaf( dels, rad, rough, air, met,                                &
             veg, canopy, cansat, tlfy,                                 &
@@ -432,11 +420,15 @@ CONTAINS
 
        ! Saturation specific humidity at soil/snow surface temperature:
       call qsatfjh(ssnow%qstss,ssnow%tss-C%tfrz,met%pmb)
-    write(6,*) 'canopy 435'
 
       call pore_space_relative_humidity(ssnow,soil,veg)
 
-!       If (cable_user%soil_struc=='default') THEN
+       IF (cable_user%soil_struc=='sli') THEN
+          ! SLI SEB to get canopy%fhs, canopy%fess, canopy%ga
+          ! (Based on old Tsoil, new canopy%tv, new canopy%fns)
+          CALL sli_main(1,dels,veg,soil,ssnow,met,canopy,air,rad,1)
+
+       ELSE
 
           IF(cable_user%ssnow_POTEV== "P-M") THEN
 
@@ -447,10 +439,10 @@ CONTAINS
              
              ! Humidity deficit
              dq = ssnow%qstss - met%qv
-             ssnow%potev =  Humidity_deficit_method(dq, ssnow%qstss)
+             dq_unsat = ssnow%rh_srf*ssnow%qstss - met%qv
+             ssnow%potev =  Humidity_deficit_method(dq, dq_unsat,ssnow%qstss)
 
           ENDIF
-    write(6,*) 'canopy 453'
 
           ! Soil latent heat:
           CALL latent_heat_flux()
@@ -469,20 +461,19 @@ CONTAINS
              canopy%fhs = air%rho*C%CAPP*(ssnow%tss - met%tk) /ssnow%rtsoil
           ENDIF
 
-!       ELSEIF (cable_user%soil_struc=='sli') THEN
-!          ! SLI SEB to get canopy%fhs, canopy%fess, canopy%ga
-!          ! (Based on old Tsoil, new canopy%tv, new canopy%fns)
-!          CALL sli_main(1,dels,veg,soil,ssnow,met,canopy,air,rad,1)
-!       ENDIF
-
-    write(6,*) 'canopy 478'
+       ENDIF
 
        CALL within_canopy( gbhu, gbhf )
 
        ! Saturation specific humidity at soil/snow surface temperature:
        call qsatfjh(ssnow%qstss,ssnow%tss-C%tfrz,met%pmb)
 
-!       IF (cable_user%soil_struc=='default') THEN
+       IF (cable_user%soil_struc=='sli') THEN
+          ! SLI SEB to get canopy%fhs, canopy%fess, canopy%ga
+          ! (Based on old Tsoil, new canopy%tv, new canopy%fns)
+          CALL sli_main(1,dels,veg,soil,ssnow,met,canopy,air,rad,1)
+
+       ELSE
 
           IF(cable_user%ssnow_POTEV== "P-M") THEN
 
@@ -493,10 +484,10 @@ CONTAINS
 
              ! Humidity deficit
              dq = ssnow%qstss - met%qvair
-             ssnow%potev =  Humidity_deficit_method(dq, ssnow%qstss)
+             dq_unsat = ssnow%rh_srf*ssnow%qstss - met%qvair
+             ssnow%potev =  Humidity_deficit_method(dq, dq_unsat,ssnow%qstss)
 
           ENDIF
-    write(6,*) 'canopy 499'
 
           ! Soil latent heat:
           CALL latent_heat_flux()
@@ -518,11 +509,7 @@ CONTAINS
           !! Ticket #90 ssnow%cls factor should be retained: required for energy balance
           canopy%ga = canopy%fns-canopy%fhs-canopy%fes !*ssnow%cls
 
-!       ELSEIF (cable_user%soil_struc=='sli') THEN
-!          ! SLI SEB to get canopy%fhs, canopy%fess, canopy%ga
-!          ! (Based on old Tsoil, new canopy%tv, new canopy%fns)
-!          CALL sli_main(1,dels,veg,soil,ssnow,met,canopy,air,rad,1)
-!       ENDIF
+       ENDIF
 
        ! Set total latent heat:
        canopy%fe = canopy%fev + canopy%fes
@@ -623,7 +610,6 @@ CONTAINS
     term3 = 0. ! Work around for Intel compiler problem with nested whres
     r_sc = 0.
     zscl = MAX(rough%z0soilsn,2.0)
-    write(6,*) 'canopy 626'
 
     ! assume screen temp of bareground if all these conditions are not met
     DO j=1,mp
@@ -710,8 +696,6 @@ CONTAINS
             rough%rt1usa(j) + rough%rt1usb(j) + rt1usc(j) ) )
 
     ENDDO
-
-    write(6,*) 'canopy 714'
 
     ! Calculate dewfall: from negative lh wet canopy + neg. lh dry canopy:
     canopy%dewmm = - (min(0.0,canopy%fevw) + min(0.0_r_2,canopy%fevc)) * &
@@ -849,13 +833,14 @@ CONTAINS
 
     ! ------------------------------------------------------------------------------
     ! method alternative to P-M formula above
-    FUNCTION humidity_deficit_method(dq,qstss ) RESULT(ssnowpotev)
+    FUNCTION humidity_deficit_method(dq,dqu,qstss ) RESULT(ssnowpotev)
 
       USE cable_def_types_mod, only : mp
 
       REAL, DIMENSION(mp) ::                                                      &
            ssnowpotev,    & !
            dq,            & ! sat spec hum diff.
+           dqu,           & ! sat spec hum diff.
            qstss             !dummy var for compilation
 
       INTEGER :: j
@@ -865,15 +850,28 @@ CONTAINS
 
       DO j=1,mp
          !if(ssnow%snowd(j) > 1.0) dq(j) = max( -0.1e-3, dq(j))
-         IF( ssnow%snowd(j)>1.0 .OR. ssnow%tgg(j,1).EQ.C%tfrz)                      &
+         IF( ssnow%snowd(j)>1.0 .OR. ssnow%tgg(j,1).EQ.C%tfrz)   THEN
               dq(j) = max( -0.1e-3, dq(j))
+              dqu(j) = max( -0.1e-3, dqu(j))
+         END IF
+
+         IF (dq(j) .le. 0.0 .and. dqu(j) .lt. dq(j)) THEN
+           dqu(j) = dq(j)
+         END IF
+
+         IF (dq(j) .ge. 0.0 .and. dqu(j) .lt. 0.0) THEN
+            dqu(j) = 0.0
+         ENDIF
       ENDDO
 
       IF (cable_user%or_evap .or. cable_user%gw_model) then
 
+        IF (cable_user%or_evap) &  !no need for some resistances when flux down
+            CALL update_or_soil_resis(ssnow,canopy,veg,dq,dqu)
+
          ssnowpotev = air%rho * air%rlam * ( &
                       real(ssnow%satfrac) * dq /(ssnow%rtsoil + real(ssnow%rtevap_sat)) + &
-               (1.0 - real(ssnow%satfrac))* (real(ssnow%rh_srf)*qstss-q_air)/( &
+               (1.0 - real(ssnow%satfrac))* dqu/( &
                               ssnow%rtsoil + real(ssnow%rtevap_unsat)) )
       
       ELSEIF (cable_user%litter) THEN
@@ -1075,14 +1073,14 @@ CONTAINS
               ( air%rho * C%CAPP * met%tk * canopy%us**3 )
 
          ! stability parameter at shear height: needed for Harman in-canopy stability correction
-!         IF (cable_user%soil_struc=='sli') THEN
-!            WHERE (canopy%vlaiw > C%LAI_THRESH .and. rough%hruff > rough%z0soilsn)
-!               canopy%zetash(:,iterplus) = -(C%vonk*C%grav*(0.1*rough%hruff)*(canopy%fhs+0.07*real(canopy%fes)))/ &
-!                    max( (air%rho*C%capp*met%tk*(canopy%us*rough%term6a)**3), 1.e-12)
-!            ELSEWHERE
-!               canopy%zetash(:,iterplus) = canopy%zetash(:,iter)
-!            ENDWHERE
-!         ENDIF
+         IF (cable_user%soil_struc=='sli') THEN
+            WHERE (canopy%vlaiw > C%LAI_THRESH .and. rough%hruff > rough%z0soilsn)
+               canopy%zetash(:,iterplus) = -(C%vonk*C%grav*(0.1*rough%hruff)*(canopy%fhs+0.07*real(canopy%fes)))/ &
+                    max( (air%rho*C%capp*met%tk*(canopy%us*rough%term6a)**3), 1.e-12)
+            ELSEWHERE
+               canopy%zetash(:,iterplus) = canopy%zetash(:,iter)
+            ENDWHERE
+         ENDIF
 
          ! case NITER=2: final zetar=C%ZETmul*zetar(2) (compute only when iter=1)
          IF (NITER == 2) THEN
@@ -1090,9 +1088,9 @@ CONTAINS
             canopy%zetar(:,2) = C%ZETmul * canopy%zetar(:,2)
 
             ! stability parameter at shear height: needed for Harman in-canopy stability correction
-!            IF (cable_user%soil_struc=='sli') then
-!               canopy%zetash(:,2) = C%ZETmul * canopy%zetash(:,2)
-!            ENDIF
+            IF (cable_user%soil_struc=='sli') then
+               canopy%zetash(:,2) = C%ZETmul * canopy%zetash(:,2)
+            ENDIF
 
 
             DO j=1,mp
@@ -1108,14 +1106,14 @@ CONTAINS
          canopy%zetar(:,iterplus) = MIN(C%ZETPOS,canopy%zetar(:,iterplus))
          !jhan: to get past rigorous build - however (:,i) cant be compared 
          !if ( canopy%zetash(:,iterplus) .NE. C%ZETPOS ) &
-!            IF (cable_user%soil_struc=='sli') & 
-!           canopy%zetash(:,iterplus) = MIN(C%ZETPOS,canopy%zetash(:,iterplus))
+            IF (cable_user%soil_struc=='sli') & 
+           canopy%zetash(:,iterplus) = MIN(C%ZETPOS,canopy%zetash(:,iterplus))
 
          ! zetar too -
          canopy%zetar(:,iterplus) = MAX(C%ZETNEG,canopy%zetar(:,iterplus))
          !if ( canopy%zetash(:,iterplus) .NE. C%ZETNEG ) &
-!            IF (cable_user%soil_struc=='sli') & 
-!           canopy%zetash(:,iterplus) = MAX(C%ZETNEG,canopy%zetash(:,iterplus))
+            IF (cable_user%soil_struc=='sli') & 
+           canopy%zetash(:,iterplus) = MAX(C%ZETNEG,canopy%zetash(:,iterplus))
 
       END IF ! (iter < NITER)
 
@@ -1908,12 +1906,13 @@ CONTAINS
                            soil%zse(kk) * 1000.0 )
 
                    ENDDO
-                   !IF (cable_user%soil_struc=='default') then
+
+                   IF (cable_user%soil_struc=='sli') then
+                      canopy%fevc(i) = ecx(i)*(1.0-canopy%fwet(i))
+                   ELSE
                       canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels
                       ecx(i) = canopy%fevc(i) / (1.0-canopy%fwet(i))
-                   !ELSEIF (cable_user%soil_struc=='sli') then
-                   !   canopy%fevc(i) = ecx(i)*(1.0-canopy%fwet(i))
-                   !ENDIF
+                   ENDIF
 
                 ENDIF
 

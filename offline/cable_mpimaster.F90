@@ -1229,9 +1229,10 @@ write(*,*) 'after annual calcs'
           IF( INT( ktau_tot/kend ) > 1 ) THEN 
 
              ! evaluate spinup
-             IF( ANY( ABS(ssnow%wb-soilMtemp)>delsoilM).OR.                     &
+             IF( (ANY( ABS(ssnow%wb-soilMtemp)>delsoilM).OR.                     &
                   ANY(ABS(ssnow%tgg-soilTtemp)>delsoilT) .or. &
-                  maxval(abs(ssnow%GWwb-GWtemp),dim=1)>delgwM)  THEN
+                  maxval(abs(ssnow%GWwb-GWtemp),dim=1)>delgwM) .and. &
+                  (int(ktau_tot/kend) .lt. cable_user%max_spins) ) THEN
 
                 ! No complete convergence yet
                 !               PRINT *, 'ssnow%wb : ', ssnow%wb

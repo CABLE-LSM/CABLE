@@ -163,7 +163,7 @@ MODULE cable_common_module
      LOGICAL :: or_evap = .FALSE. 
      LOGICAL :: test_new_gw=.false.   !sli + ssgw
      LOGICAL :: sync_nc_file=.false. !write data to file to preserve if model crashed
-     INTEGER :: max_spins = -1
+     INTEGER :: max_spins = 99999999
      LOGICAL :: fix_access_roots = .false.  !use pft dependent roots in ACCESS
      LOGICAL :: fix_um_soil_comps = .false. !inverse pedotransfer funcs to get
                                             !sand,clay,silt and then use these to get isoilm

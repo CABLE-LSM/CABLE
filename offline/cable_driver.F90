@@ -940,9 +940,10 @@ PROGRAM cable_offline_driver
 		   YYYY.EQ. CABLE_USER%YearEnd ) THEN
 
           ! evaluate spinup
-		 IF( ANY( ABS(ssnow%wb-soilMtemp)>delsoilM).OR.		      &
+		 IF( (ANY( ABS(ssnow%wb-soilMtemp)>delsoilM).OR.		      &
 		      ANY( ABS(ssnow%tgg-soilTtemp)>delsoilT) .or. &
-                       maxval(ABS(ssnow%GWwb-GWtemp),dim=1) > delgwM) THEN
+                       maxval(ABS(ssnow%GWwb-GWtemp),dim=1) > delgwM) .and. &
+                       (int(ktau_tot/kend) .lt. cable_user%max_spins) ) THEN
 
       ! No complete convergence yet
 		    PRINT *, 'ssnow%wb : ', ssnow%wb
