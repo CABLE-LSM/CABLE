@@ -44,7 +44,7 @@ MODULE cable_gw_hydro_module
    USE cable_soil_snow_module, ONLY : snowdensity, snow_melting, snowcheck, &
                                        snowl_adjust,snow_accum, stempv,trimb,&
                                        cgsnow,csice,cswat,snmin,max_ssdn,&
-                                       frozen_limit,max_glacier_snowd
+                                       max_glacier_snowd
 
 
    IMPLICIT NONE
@@ -91,24 +91,24 @@ SUBROUTINE GWsoilfreeze(dels, soil, ssnow)
    REAL(r_2), DIMENSION(mp)           :: sicemelt
    REAL, DIMENSION(mp)                :: xx, ice_mass,liq_mass,tot_mass
    INTEGER :: i,j,k
-   REAL(r_2),DIMENSION(mp,ms) :: frozen_limit,iceF  !Decker and Zeng 2009
+   REAL(r_2),DIMENSION(mp,ms) :: max_ice_frac,iceF  !Decker and Zeng 2009
    CALL point2constants( C ) 
 
    do k=1,ms
    do i=1,mp
       if  (ssnow%tgg(i,k) .le. C%TFRZ) then
-         frozen_limit(i,k) = (1. - exp(-2.*(ssnow%wb(i,k)/soil%ssat_vec(i,k))**4.0 *&
+         max_ice_frac(i,k) = (1. - exp(-2.*(ssnow%wb(i,k)/soil%ssat_vec(i,k))**4.0 *&
                           (ssnow%tgg(i,k)-C%TFRZ)))/exp(1. - ssnow%wb(i,k)/soil%ssat_vec(i,k))
-         frozen_limit(i,k) = max(0.4,frozen_limit(i,k))
+         max_ice_frac(i,k) = max(0.4,max_ice_frac(i,k))
       else
-         frozen_limit(i,k) = 0.
+         max_ice_frac(i,k) = 0.
       endif
    end do
    end do
 
    !allow more freezing for permenant glacier ice regions
    do i=1,mp
-      if (soil%isoilm(i) .eq. 9) frozen_limit(i,:) = 0.95
+      if (soil%isoilm(i) .eq. 9) max_ice_frac(i,:) = 0.95
    end do
 
    xx = 0.
@@ -120,13 +120,13 @@ SUBROUTINE GWsoilfreeze(dels, soil, ssnow)
       tot_mass = liq_mass + ice_mass
       
       if (ssnow%tgg(i,k) .lt. C%TFRZ .and. &
-           frozen_limit(i,k) * ssnow%wb(i,k) - ssnow%wbice(i,k) > .001) then
+           max_ice_frac(i,k) * ssnow%wb(i,k) - ssnow%wbice(i,k) > .001) then
          
-         sicefreeze(i) = MIN( MAX( 0.0_r_2, ( frozen_limit(i,k) * ssnow%wb(i,k) -      &
+         sicefreeze(i) = MIN( MAX( 0.0_r_2, ( max_ice_frac(i,k) * ssnow%wb(i,k) -      &
                       ssnow%wbice(i,k) ) ) * soil%zse(k) * C%density_ice,             &
                       ( C%TFRZ - ssnow%tgg(i,k) ) * ssnow%gammzz(i,k) / C%HLF )
          ssnow%wbice(i,k) = MIN( ssnow%wbice(i,k) + sicefreeze(i) / (soil%zse(k)  &
-                            * 1000.0), frozen_limit(i,k) * ssnow%wb(i,k) )
+                            * 1000.0), max_ice_frac(i,k) * ssnow%wb(i,k) )
          xx(i) = soil%css(i) * soil%rhosoil(i)
          ssnow%gammzz(i,k) = MAX(                                              &
              REAL((1.0 - soil%ssat_vec(i,k)) * soil%css(i) * soil%rhosoil(i) ,r_2)            &
@@ -1025,13 +1025,28 @@ SUBROUTINE soil_snow_gw(dels, soil, ssnow, canopy, met, bal, veg)
   
    ! correction required for energy balance in online simulations 
    IF( cable_runtime%um) THEN
-      do i=1,mp
-         canopy%fhs_cor(i) = ssnow%dtmlt(i,1)*ssnow%dfh_dtg(i)
-         canopy%fes_cor(i) = ssnow%dtmlt(i,1)*(ssnow%cls(i)*ssnow%dfe_ddq(i) * ssnow%ddq_dtg(i))
-   
-         canopy%fhs(i) = canopy%fhs(i)+canopy%fhs_cor(i)
-         canopy%fes(i) = canopy%fes(i)+canopy%fes_cor(i)
-      end do
+
+      !cls package - rewritten for flexibility
+      canopy%fhs_cor = ssnow%dtmlt(:,1)*ssnow%dfh_dtg
+      !canopy%fes_cor = ssnow%dtmlt(:,1)*(ssnow%dfe_ddq * ssnow%ddq_dtg)
+      canopy%fes_cor = ssnow%dtmlt(:,1)*ssnow%dfe_dtg
+
+      canopy%fhs = canopy%fhs+canopy%fhs_cor
+      canopy%fes = canopy%fes+canopy%fes_cor
+
+      !REV_CORR associated changes to other energy balance terms
+      !NB canopy%fns changed not rad%flws as the correction term needs to
+      !pass through the canopy in entirety, not be partially absorbed
+      IF (cable_user%L_REV_CORR) THEN
+         canopy%fns_cor = ssnow%dtmlt(:,1)*ssnow%dfn_dtg
+         canopy%ga_cor = ssnow%dtmlt(:,1)*canopy%dgdtg
+
+         canopy%fns = canopy%fns + canopy%fns_cor
+         canopy%ga = canopy%ga + canopy%ga_cor
+
+         canopy%fess = canopy%fess + canopy%fes_cor
+      ENDIF
+
    ENDIF
 
    do i=1,mp

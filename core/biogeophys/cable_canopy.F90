@@ -37,6 +37,12 @@
 !          and an in-canopy stability correction is applied. 
 !        : See http://www.geosci-model-dev.net/9/3111/2016 for full documentation
 !          of last 3 changes.
+!
+!        : Feb 2017 - various changes to facilitate the cls (Ticket 137) and
+!          REV_CORR packages
+!
+!        : August 2017 - GW and Or parameterisations includes and merged with 
+!          cls and REV_CORR 
 ! ==============================================================================
 
 MODULE cable_canopy_module
@@ -103,7 +109,13 @@ CONTAINS
          dq_unsat,      & ! spec hum diff including rh at srf
          xx1,           & !
          sum_rad_rniso, & !
-         sum_rad_gradis   !
+         sum_rad_gradis,& !
+         rttsoil,       & ! REV_CORR working variable for sensitivity terms
+         rhlitt,        & ! REV_CORR working variables for litter resistances
+         relitt,        & !
+         alpm1,         & ! REV_CORR working variables for Or scheme
+         beta2          
+
 
     ! temporary buffers to simplify equations
     REAL, DIMENSION(mp) ::                                                      &
@@ -200,6 +212,20 @@ CONTAINS
     canopy%fesp = 0.
     ssnow%potev = 0.
     canopy%fevw_pot = 0.
+
+    !L_REV_CORR - initialise sensitivity/ACCESS correction terms
+    !NB %fes_cor is NOT initialised to zero at this point
+    canopy%fhs_cor = 0.0
+    canopy%fns_cor = 0.0
+    canopy%ga_cor = 0.0
+    !canopy%fes_cor = 0.0
+
+    !L_REV_CORR - new working variables
+    rttsoil = 0.
+    rhlitt = 0.
+    relitt = 0.
+    alpm1  = 0.
+    beta2  = 0.
 
     CALL radiation( ssnow, veg, air, met, rad, canopy )
 
@@ -430,6 +456,15 @@ CONTAINS
 
        ELSE
 
+          !REV_CORR - single location for calculating litter resistances
+          !can go earlier in the code if needed
+          IF (cable_user%litter) THEN
+             rhlitt = real((1-ssnow%isflag))*veg%clitt*0.003/ &
+                        canopy%kthLitt/(air%rho*C%CAPP)
+             relitt = real((1-ssnow%isflag))*veg%clitt*0.003/ &
+                        canopy%DvLitt
+          ENDIF
+
           IF(cable_user%ssnow_POTEV== "P-M") THEN
 
              !--- uses %ga from previous timestep
@@ -451,19 +486,20 @@ CONTAINS
           !canopy%fhs = air%rho*C%CAPP*(ssnow%tss - met%tk) /ssnow%rtsoil
           IF (cable_user%gw_model .or. cable_user%or_evap) THEN
              canopy%fhs =  air%rho*C%CAPP*(ssnow%tss - met%tk) / &
-                  (ssnow%rtsoil + ssnow%rt_qh_sublayer)
-          
+                  (ssnow%rtsoil + real(ssnow%rt_qh_sublayer))
+
           ELSEIF (cable_user%litter) THEN
              !! vh_js !! account for additional litter resistance to sensible heat transfer
+             !! INH simplifying code using rhlitt
              canopy%fhs =  air%rho*C%CAPP*(ssnow%tss - met%tk) / &
-                  (ssnow%rtsoil + real((1-ssnow%isflag))*veg%clitt*0.003/canopy%kthLitt/(air%rho*C%CAPP))
-          ELSE
+                  (ssnow%rtsoil + rhlitt)
+          else
              canopy%fhs = air%rho*C%CAPP*(ssnow%tss - met%tk) /ssnow%rtsoil
           ENDIF
 
        ENDIF
 
-       CALL within_canopy( gbhu, gbhf )
+       CALL within_canopy( gbhu, gbhf, rhlitt, relitt )
 
        ! Saturation specific humidity at soil/snow surface temperature:
        call qsatfjh(ssnow%qstss,ssnow%tss-C%tfrz,met%pmb)
@@ -500,13 +536,15 @@ CONTAINS
 
           ELSEIF (cable_user%litter) THEN
              !! vh_js !! account for additional litter resistance to sensible heat transfer
+             !! INH simplifying code using rhlitt
              canopy%fhs =  air%rho*C%CAPP*(ssnow%tss - met%tvair) / &
-                  (ssnow%rtsoil +  real((1-ssnow%isflag))*veg%clitt*0.003/canopy%kthLitt/(air%rho*C%CAPP))
+                  (ssnow%rtsoil + rhlitt)
           else
              canopy%fhs = air%rho*C%CAPP*(ssnow%tss - met%tvair) /ssnow%rtsoil
           ENDIF
 
           !! Ticket #90 ssnow%cls factor should be retained: required for energy balance
+          !! INH: %cls factor included in %fes already - do not include here
           canopy%ga = canopy%fns-canopy%fhs-canopy%fes !*ssnow%cls
 
        ENDIF
@@ -729,33 +767,113 @@ CONTAINS
     ! d(canopy%fns)/d(ssnow%tgg)
     ! d(canopy%fhs)/d(ssnow%tgg)
     ! d(canopy%fes)/d(dq)
-    !IF (cable_user%soil_struc=='default') THEN
+    IF (cable_user%soil_struc=='default') THEN
        ssnow%dfn_dtg = (-1.)*4.*C%EMSOIL*C%SBOLTZ*tss4/ssnow%tss
 
+       !INH: REV_CORR revised sensitivity terms working variable
+       rttsoil = ssnow%rtsoil
+       IF (cable_user%L_REV_CORR) THEN
+          WHERE (canopy%vlaiw > C%LAI_THRESH)
+             !if %vlaiw<=%LAI_THRESH then %rt1 already added to %rtsoil
+             rttsoil = rttsoil + rough%rt1
+          ENDWHERE
+       ENDIF
+
        IF (cable_user%gw_model .or. cable_user%or_evap) THEN
+          
           ssnow%dfh_dtg = air%rho*C%CAPP/(ssnow%rtsoil+ real(ssnow%rt_qh_sublayer))
-          ssnow%dfe_ddq = real(ssnow%satfrac)*air%rho*air%rlam*ssnow%cls/ &
-               (ssnow%rtsoil+ real(ssnow%rtevap_sat))  + (1.0-real(ssnow%satfrac))*real(ssnow%rh_srf)*&
-                air%rho*air%rlam*ssnow%cls/ (ssnow%rtsoil+ real(ssnow%rtevap_unsat) )
+          
+          !! INH simplifying code for legibility
+          !ssnow%dfe_ddq = real(ssnow%satfrac)*air%rho*air%rlam*ssnow%cls/ &
+          !     (ssnow%rtsoil+ real(ssnow%rtevap_sat))  + (1.0-real(ssnow%satfrac))*real(ssnow%rh_srf)*&
+          !      air%rho*air%rlam*ssnow%cls/ (ssnow%rtsoil+ real(ssnow%rtevap_unsat) )
+           ssnow%dfe_ddq = real(ssnow%satfrac)/(ssnow%rtsoil+ real(ssnow%rtevap_sat))  &
+                      + (1.0-real(ssnow%satfrac))*real(ssnow%rh_srf)                   &
+                           / (ssnow%rtsoil+ real(ssnow%rtevap_unsat) )
+
+           IF (cable_user%L_REV_CORR) THEN
+              alpm1 = real(ssnow%satfrac)/(ssnow%rtsoil+ real(ssnow%rtevap_sat)) +     &
+                       (1.0-real(ssnow%satfrac)) / (ssnow%rtsoil+ real(ssnow%rtevap_unsat) )
+              WHERE (canopy%vlaiw > C%LAI_THRESH)
+                 alpm1 = alpm1 + 1.0/rough%rt1
+              ENDWHERE
+              beta2 = real(ssnow%satfrac)/(ssnow%rtsoil+ real(ssnow%rtevap_sat)) +     &
+                       (1.0-real(ssnow%satfrac)) * real(ssnow%rh_srf)                  &
+                        / (ssnow%rtsoil+ real(ssnow%rtevap_unsat) )
+
+              ssnow%dfh_dtg = air%rho*C%CAPP/(ssnow%rtsoil + rough%rt1 +               & 
+                                        real(ssnow%rt_qh_sublayer))
+              ssnow%dfe_ddq = real(ssnow%satfrac)*(1.0-beta2/alpm1) /                  & 
+                    (ssnow%rtsoil+ real(ssnow%rtevap_sat)) +                           &
+                    (1.0-real(ssnow%satfrac))* (real(ssnow%rh_srf) - beta2/alpm1) /    &
+                    (ssnow%rtsoil+ real(ssnow%rtevap_unsat) )
+
+           ENDIF
+                
+           !cls applies for both REV_CORR false and true          
+           ssnow%dfe_ddq = ssnow%dfe_ddq*air%rho*air%rlam*ssnow%cls
+           
+           !REV_CORR: factor %wetfac needed for potev>0. and gw_model &/or snow cover
+           !NB %wetfac=1. if or_evap
+           IF (cable_user%L_REV_CORR) THEN
+             WHERE (ssnow%potev >= 0.)
+                 ssnow%dfe_ddq = ssnow%dfe_ddq*ssnow%wetfac
+             ENDWHERE       
+          ENDIF
+
 
        ELSEIF (cable_user%litter) THEN
-          !!vh_js!!
-          ssnow%dfh_dtg = air%rho*C%CAPP/(ssnow%rtsoil+ &
-               real((1-ssnow%isflag))*veg%clitt*0.003/canopy%kthLitt/(air%rho*C%CAPP))
-          ssnow%dfe_ddq = ssnow%wetfac*air%rho*air%rlam*ssnow%cls/ &
-               (ssnow%rtsoil+ real((1-ssnow%isflag))*veg%clitt*0.003/canopy%DvLitt)
+          !!vh_js!! INH simplifying code for legibility and REV_CORR
+          !ssnow%dfh_dtg = air%rho*C%CAPP/(ssnow%rtsoil+ &
+          !     real((1-ssnow%isflag))*veg%clitt*0.003/canopy%kthLitt/(air%rho*C%CAPP))
+          !ssnow%dfe_ddq = ssnow%wetfac*air%rho*air%rlam*ssnow%cls/ &
+          !     (ssnow%rtsoil+ real((1-ssnow%isflag))*veg%clitt*0.003/canopy%DvLitt)
+          
+          !recalculated - probably not needed 
+          rhlitt = real((1-ssnow%isflag))*veg%clitt*0.003/canopy%kthLitt/(air%rho*C%CAPP)
+          relitt = real((1-ssnow%isflag))*veg%clitt*0.003/canopy%DvLitt
+          
+          !incorporates REV_CORR changes
+          ssnow%dfh_dtg = air%rho*C%CAPP/(rttsoil+rhlitt)
+          ssnow%dfe_ddq = ssnow%wetfac*air%rho*air%rlam*ssnow%cls/(rttsoil+relitt)
+
+          !REV_CORR: factor ssnow%wetfac is not applied if dew/frost i.e. potev<0
+          IF (cable_user%L_REV_CORR) THEN
+             WHERE (ssnow%potev < 0.)
+                 ssnow%dfe_ddq = air%rho*air%rlam*ssnow%cls/(rttsoil+relitt)
+             ENDWHERE       
+          ENDIF
 
        ELSE
-          ssnow%dfh_dtg = air%rho*C%CAPP/ssnow%rtsoil
-          ssnow%dfe_ddq = ssnow%wetfac*air%rho*air%rlam*ssnow%cls/ssnow%rtsoil
+          !ssnow%dfh_dtg = air%rho*C%CAPP/ssnow%rtsoil
+          !ssnow%dfe_ddq = ssnow%wetfac*air%rho*air%rlam*ssnow%cls/ssnow%rtsoil
+
+          !incorporates REV_CORR changes
+          ssnow%dfh_dtg = air%rho*C%CAPP/rttsoil
+          ssnow%dfe_ddq = ssnow%wetfac*air%rho*air%rlam*ssnow%cls/rttsoil
+          
+          !REV_CORR: factor ssnow%wetfac is not applied if dew/frost i.e. potev<0
+          IF (cable_user%L_REV_CORR) THEN
+             WHERE (ssnow%potev < 0.)
+                 ssnow%dfe_ddq = air%rho*air%rlam*ssnow%cls/(rttsoil+relitt)
+             ENDWHERE       
+          ENDIF      
+
        ENDIF
 
        ssnow%ddq_dtg = (C%rmh2o/C%rmair) /met%pmb * C%TETENA*C%TETENB * C%TETENC   &
             / ( ( C%TETENC + ssnow%tss-C%tfrz )**2 )*EXP( C%TETENB *       &
             ( ssnow%tss-C%tfrz ) / ( C%TETENC + ssnow%tss-C%tfrz ) )
-       canopy%dgdtg = ssnow%dfn_dtg - ssnow%dfh_dtg - ssnow%dfe_ddq *    &
-            ssnow%ddq_dtg
-    !ENDIF
+       
+       !canopy%dgdtg = ssnow%dfn_dtg - ssnow%dfh_dtg - ssnow%dfe_ddq *    &
+       !     ssnow%ddq_dtg
+
+       !INH: REV_CORR Rewritten for flexibility
+       ssnow%dfe_dtg = ssnow%dfe_ddq * ssnow%ddq_dtg
+       canopy%dgdtg = ssnow%dfn_dtg - ssnow%dfh_dtg - ssnow%dfe_dtg
+
+    ENDIF
+
 
     bal%drybal = REAL(ecy+hcy) - SUM(rad%rniso,2)                               &
          + C%CAPP*C%rmair*(tlfy-met%tk)*SUM(rad%gradis,2)  ! YP nov2009
@@ -896,6 +1014,15 @@ CONTAINS
 
       INTEGER :: j
 
+      !Ticket 137 - adjustments made so that one of four cases occurs
+      !             i) evaporation from/dew onto surfaces with no snow, T>Tfrz
+      !            ii) sublimation from/frost onto surfaces with snow cover
+      !           iii) evaporation of liquid water if no snow but frozen soil
+      !            iv) deposition of frost onto frozen soils if no snow cover
+      !
+      !IMPORTANTLY the value of %cls set here is used to control whether
+      !water fluxes are from the snow pack or soil column in _soilsnow
+
       ! Soil latent heat:
       canopy%fess= ssnow%wetfac * ssnow%potev
       WHERE (ssnow%potev < 0. ) canopy%fess = ssnow%potev
@@ -922,6 +1049,14 @@ CONTAINS
 
             canopy%fess(j) = MIN(canopy%fess(j), real(fupper_limit(j),r_2))
 
+            !fupper_limit(j) = REAL(ssnow%wb(j,1)-ssnow%wbice(j,1)) * frescale(j)
+            !Ticket 137 - case iii)
+            !evaporation from frozen soils needs to respect the assumption that
+            !ice fraction of soil moisture cannot exceed frozen_limit=0.85
+            !see soilsnow: if frozen_limit changes need to be consistent 
+            fupper_limit(j) = REAL(ssnow%wb(j,1)-ssnow%wbice(j,1)/0.85)*frescale(j)
+            fupper_limit(j) = MAX(real(fupper_limit(j),r_2),0.)
+
             fupper_limit(j) = REAL(ssnow%wb(j,1)-ssnow%wbice(j,1)) * frescale(j)
 
             canopy%fess(j) = min(canopy%fess(j), real(fupper_limit(j),r_2))
@@ -930,9 +1065,26 @@ CONTAINS
 
          ssnow%cls(j)=1.
 
+         !Ticket 137 - case ii) deposition of frost onto snow
+         ! case of sublimation of snow overwrites later
+         IF (ssnow%snowd(j) >=0.1 ) THEN
+            ssnow%cls(j) = 1.1335
+            canopy%fess(j) = ssnow%cls(j)*ssnow%potev(j)
+         ENDIF
+
+         !Ticket 137 - case iv) deposition of frost onto frozen soil, no snow
+         IF (ssnow%snowd(j) < 0.1 .AND. ssnow%potev(j) < 0. .AND. &
+             ssnow%tss(j)<C%TFRZ) THEN
+             ssnow%cls(j)=1.1335
+             canopy%fess(j) = ssnow%cls(j)*ssnow%potev(j)
+         ENDIF
+
+         !Ticket 137 - case ii) sublimation of snow
          IF (ssnow%snowd(j) >= 0.1 .and. ssnow%potev(j) > 0.) THEN
 
             ssnow%cls(j) = 1.1335
+
+            !INH - if changes to PM routine then matching changes here
             canopy%fess(j) = MIN( (ssnow%wetfac(j)*ssnow%potev(j))*ssnow%cls(j), &
                  ssnow%snowd(j)/dels*air%rlam(j)*ssnow%cls(j))
 
@@ -948,13 +1100,18 @@ CONTAINS
 
     ! -----------------------------------------------------------------------------
 
-    SUBROUTINE within_canopy( gbhu, gbhf )
+    SUBROUTINE within_canopy( gbhu, gbhf, rt0, rhlitt, relitt )
 
       USE cable_def_types_mod, only : mp, r_2
 
       REAL(r_2), INTENT(IN), DIMENSION(:,:) ::                                    &
            gbhu,    &  ! forcedConvectionBndryLayerCond
            gbhf        ! freeConvectionBndryLayerCond
+
+     REAL, INTENT(IN), DIMENSION(mp) ::                                       &
+           rt0,     &  ! resistance from ground to canopy air
+           rhlitt,  &  ! additional litter resistance for heat (=0 by default)
+           relitt      ! additional litter resistance for water  
 
       REAL, DIMENSION(mp) ::                                                      &
            rrsw,             & ! recipr. stomatal resistance for water
@@ -978,12 +1135,15 @@ CONTAINS
 
       IF (cable_user%or_evap) THEN
          fix_eqn(:) = rt0(:)*(real(ssnow%satfrac(:))/(rt0(:)+real(ssnow%rtevap_sat(:))) + &
-                               (1-real(ssnow%satfrac(:)))/(rt0(:)+real(ssnow%rtevap_unsat(:))))
+                         (1-real(ssnow%satfrac(:)))/(rt0(:)+real(ssnow%rtevap_unsat(:))))
+         fix_eqn(:) = fix_eqn(:)*ssnow%cls(:)            !INH correction
          fix_eqn2(:) = rt0(:) / (rt0(:) + real(ssnow%rt_qh_sublayer) )
-      ELSE
-         fix_eqn = ssnow%wetfac
-         fix_eqn2 = 1.0
+      ELSE  !with INH corrections for litter and cls
+         fix_eqn(:) = ssnow%cls(:)*rt0(:)/(rt0(:)+relitt(:))
+         WHERE (ssnow%potev>0.) fix_eqn(:)=fix_eqn(:)*ssnow%wetfac(:)
+         fix_eqn2(:) = rt0(:)/(rt0(:)+rhlitt(:))
       END IF
+
 
       DO j=1,mp
 
