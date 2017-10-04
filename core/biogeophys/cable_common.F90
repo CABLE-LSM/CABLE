@@ -214,21 +214,7 @@ MODULE cable_common_module
   !jhan:temporary measure. improve hiding
   !   real, dimension(:,:), pointer,save :: c1, rhoch
 
-  !soilsnow parameters
-  REAL ::                                &
-     cgsnow = 2090.0,     & ! specific heat capacity for snow
-     csice = 2.100e3,     & ! specific heat capacity for ice
-     cswat = 4.218e3,     & ! specific heat capacity for water
-     snmin = 1.,          & ! for 3-layer;
-     max_ssdn = 750.0,    & !
-     max_sconds = 2.51,   & !
-     frozen_limit = 0.85    ! EAK Feb2011 (could be 0.95)
-  
-  !jhan:make parameter
-  REAL :: max_glacier_snowd=1100.0
   !jhan:cable.nml
-  !mrd561 best in cable.nml but 2 is only option
-  INTEGER :: nglacier = 2 ! 0 original, 1 off, 2 new Eva
 
    TYPE organic_soil_params
         !Below are the soil properties for fully organic soil
