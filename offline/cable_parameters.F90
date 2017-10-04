@@ -1790,12 +1790,8 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
        END DO
 
        !!vegetation dependent field capacity (point plants get stressed) and
-       !wilting point
-       DO i=1,mp
-          psi_tmp(i,:) = -psi_c(veg%iveg(i))
-       END DO
-       soil%sfc_vec = (soil%ssat_vec-soil%watr) * (abs(psi_tmp)/(abs(soil%sucs_vec)))**(-1.0/soil%bch_vec)+&
-                        soil%watr
+       soil%sfc_vec = (gw_params%org%sfc_vec_hk/soil%hyds_vec)**(1.0/(2.0*soil%bch_vec+3.0)) *(soil%ssat_vec-soil%watr) +&
+                     soil%watr
        DO i=1,mp
           psi_tmp(i,:) = -psi_c(veg%iveg(i))
        END DO

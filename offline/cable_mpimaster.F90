@@ -3246,14 +3246,6 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
   blen(bidx) = r2len
 
   bidx = bidx + 1
-  CALL MPI_Get_address (soil%GWz(off), displs(bidx), ierr)
-  blen(bidx) = r2len
-
-  bidx = bidx + 1
-  CALL MPI_Get_address (soil%GWdz(off), displs(bidx), ierr)
-  blen(bidx) = r2len
-
-  bidx = bidx + 1
   CALL MPI_Get_address (soil%slope(off), displs(bidx), ierr)
   blen(bidx) = r2len
 
@@ -3269,7 +3261,7 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
   CALL MPI_Get_address (ssnow%GWwb(off), displs(bidx), ierr)
   blen(bidx) = r2len
 
-
+  write(*,*) 'master bidx ',bidx
      ! MPI: sanity check
      IF (bidx /= ntyp) THEN
         WRITE (*,*) 'master: invalid number of param_t fields ',bidx,', fix it!'

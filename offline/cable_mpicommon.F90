@@ -39,7 +39,8 @@ MODULE cable_mpicommon
   !Vanessa Haverd: add 4 new params 295 -> 299
   ! VH add 9 params for sli 299 -> 308
   ! INH add 7 params for REV_CORR package
-  INTEGER, PARAMETER :: nparam = 333 !326!308   
+  !only5 in master cable params
+  INTEGER, PARAMETER :: nparam = 329 !326!308   
   ! MPI: extra params sent only if nsoilparmnew is true
   INTEGER, PARAMETER :: nsoilnew = 1
 

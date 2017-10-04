@@ -2400,14 +2400,6 @@ ENDIF
   blen(bidx) = r2len
 
   bidx = bidx + 1
-  CALL MPI_Get_address (soil%GWz, displs(bidx), ierr)
-  blen(bidx) = r2len
-
-  bidx = bidx + 1
-  CALL MPI_Get_address (soil%GWdz, displs(bidx), ierr)
-  blen(bidx) = r2len
-
-  bidx = bidx + 1
   CALL MPI_Get_address (soil%slope, displs(bidx), ierr)
   blen(bidx) = r2len
 
@@ -2422,6 +2414,8 @@ ENDIF
   bidx = bidx + 1
   CALL MPI_Get_address (ssnow%GWwb, displs(bidx), ierr)
   blen(bidx) = r2len
+
+  write(*,*) 'worker ',rank,' bidx of ',bidx
 
     ! MPI: sanity check
     IF (bidx /= ntyp) THEN
@@ -4441,6 +4435,11 @@ ENDIF
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%fns(off), displs(bidx), ierr)
     blocks(bidx) = r1len
+    !INH - REV_CORR - temporary?
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%fns_cor(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+
 
     !vidx = vidx + 1
     ! REAL(r_1)
@@ -4504,6 +4503,12 @@ ENDIF
     !blen(vidx) = cnt * extr1
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%ga(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+
+    !canopy%ga_cor
+    !REV_CORR
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%ga_cor(off), displs(bidx), ierr)
     blocks(bidx) = r1len
 
     !vidx = vidx + 1
@@ -4667,6 +4672,12 @@ ENDIF
 
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%dfe_ddq(off), displs(bidx), ierr) ! +1
+    blocks(bidx) = r1len
+
+    !REV_COR
+    !ssnow%dfe_dtg
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%dfe_dtg(off), displs(bidx), ierr) ! +1
     blocks(bidx) = r1len
 
     !vidx = vidx + 1
@@ -5569,7 +5580,7 @@ ENDIF
      blocks(bidx) = r2len
      ! end additional for SLI 
 
-
+    WRITE (*,*) 'worker ',rank,' bidx',bidx,'nvec,nmat,n3d',nvec,nmat,n3d
     ! MPI: sanity check
     IF (bidx /= ntyp) THEN
        WRITE (*,*) 'worker ',rank,': invalid outtype nmat, nvec or n3d constant, fix it!'
