@@ -499,7 +499,7 @@ CONTAINS
 
        ENDIF
 
-       CALL within_canopy( gbhu, gbhf, rhlitt, relitt )
+       CALL within_canopy( gbhu, gbhf, rt0, rhlitt, relitt )
 
        ! Saturation specific humidity at soil/snow surface temperature:
        call qsatfjh(ssnow%qstss,ssnow%tss-C%tfrz,met%pmb)
