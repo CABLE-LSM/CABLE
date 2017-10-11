@@ -150,6 +150,7 @@ MODULE cable_def_types_mod
          swilt_vec     ! wilting point (hk = 0.02 mm/day)
 
       REAL(r_2), DIMENSION(:), POINTER ::                                      &
+         elev, &  !elevation above sea level
          slope,  &  !mean slope of grid cell
          slope_std  !stddev of grid cell slope
 
@@ -845,6 +846,7 @@ SUBROUTINE alloc_soil_parameter_type(var, mp)
    allocate( var%Forg(mp,ms) )
    allocate( var%densoil(mp,ms) )
 
+   allocate( var%elev(mp) )
    allocate( var%slope(mp) )
    allocate( var%slope_std(mp) )
 
@@ -1457,6 +1459,7 @@ SUBROUTINE dealloc_soil_parameter_type(var)
    DEALLOCATE( var%Fsilt )
    DEALLOCATE( var%Forg  )
    DEALLOCATE( var%densoil )   
+   DEALLOCATE( var%elev )
    DEALLOCATE( var%slope )
    DEALLOCATE( var%slope_std )
     ! Deallocate variables for SLI soil model:

@@ -365,7 +365,8 @@ MODULE cable_IO_vars_module
          Qhmax=.false.,&
          QhmaxEfold=.false.,&
          HKefold=.false.,&
-         HKdepth
+         HKdepth=.false.,&
+         SMP=.false.
 
    END TYPE output_inclusion_type
 

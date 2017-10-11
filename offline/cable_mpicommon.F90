@@ -40,7 +40,8 @@ MODULE cable_mpicommon
   ! VH add 9 params for sli 299 -> 308
   ! INH add 7 params for REV_CORR package
   !only5 in master cable params
-  INTEGER, PARAMETER :: nparam = 329 !326!308   
+  !send ssnow%smp to workers so they can send back values if gw=false
+  INTEGER, PARAMETER :: nparam =331!  add back in elev 330! 329 !326!308   
   ! MPI: extra params sent only if nsoilparmnew is true
   INTEGER, PARAMETER :: nsoilnew = 1
 
@@ -91,7 +92,7 @@ MODULE cable_mpicommon
   !INTEGER, PARAMETER :: nmat = 29
   ! MPI: CABLE_r491, after following up with Bernard on the new variables
   ! vh sli nmat + 4 36 -> 40
-  INTEGER, PARAMETER :: nmat = 40
+  INTEGER, PARAMETER :: nmat = 41
 
   ! MPI: number of contig vector parts / worker (results)
   !INTEGER, PARAMETER :: nvec = 149

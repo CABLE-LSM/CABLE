@@ -69,7 +69,7 @@ MODULE cable_output_module
                     PlantTurnover, PlantTurnoverLeaf, PlantTurnoverFineRoot, &
                     PlantTurnoverWood, PlantTurnoverWoodDist, PlantTurnoverWoodCrowding, &
                     PlantTurnoverWoodResourceLim, dCdt, Area, LandUseFlux, patchfrac, &
-                    vcmax,hc,WatTable,GWMoist,SatFrac,Qrecharge
+                    vcmax,hc,WatTable,GWMoist,SatFrac,Qrecharge,SMP
   END TYPE out_varID_type
   TYPE(out_varID_type) :: ovid ! netcdf variable IDs for output variables
   TYPE(parID_type) :: opid ! netcdf variable IDs for output variables
@@ -227,6 +227,7 @@ MODULE cable_output_module
     REAL(KIND=4), POINTER, DIMENSION(:)   :: Qrecharge         !recharge rate Grid Cell
     REAL(KIND=4), POINTER, DIMENSION(:)   :: GWMoist       ! water balance of aquifer [mm3/mm3]
     REAL(KIND=4), POINTER, DIMENSION(:)   :: WatTable      ! water table depth [m]
+    REAL(KIND=4), POINTER, DIMENSION(:,:) :: SMP      ! soil pressure [m]
 
  END TYPE output_temporary_type
   TYPE(output_temporary_type), SAVE :: out
@@ -584,6 +585,13 @@ CONTAINS
        ALLOCATE(out%SoilTemp(mp,ms))
        out%SoilTemp = 0.0 ! initialise
     END IF
+    IF(output%soil .OR. output%SMP) THEN
+       CALL define_ovar(ncid_out, ovid%SMP, 'SMP', 'm',      &
+                        'Average layer soil pressure', patchout%SMP,     &
+                        'soil', xID, yID, zID, landID, patchID, soilID, tID)
+       ALLOCATE(out%SMP(mp,ms))
+       out%SMP = 0.0 ! initialise
+    ENDIF
     IF(output%soil .OR. output%BaresoilT) THEN
        CALL define_ovar(ncid_out, ovid%BaresoilT, 'BaresoilT',                 &
                         'K', 'Bare soil temperature', patchout%BaresoilT,      &
@@ -838,6 +846,7 @@ CONTAINS
        ALLOCATE(out%SatFrac(mp))
        out%SatFrac = 0.0 ! initialise
     END IF         
+
 
     IF(output%soil .OR. output%Qrecharge) THEN
        CALL define_ovar(ncid_out, ovid%Qrecharge, 'Qrecharge', 'mm/s',      &
@@ -2031,6 +2040,21 @@ CONTAINS
           out%SatFrac = 0.0
        END IF
     END IF      
+
+    IF((output%soil .OR. output%SMP)  .and. cable_user%GW_MODEL) THEN
+       !write(*,*) 'Qinfl'    !MDeck
+       ! Add current timestep's value to total of temporary output variable:
+       out%SMP = out%SMP + REAL(ssnow%smp, 4)
+       IF(writenow) THEN
+          out%SMP = out%SMP / REAL(output%interval, 4)
+          ! Write value to file:
+          CALL write_ovar(out_timestep, ncid_out, ovid%SMP, 'SMP', &
+               out%SMP, (/-1.0e36,1.0e36/), patchout%SMP, 'soil', met)
+          ! Reset temporary output variable:
+          out%SMP = 0.0
+       END IF
+    END IF      
+
 
     ! recharge rate
     IF(output%soil .OR. output%Qrecharge) THEN

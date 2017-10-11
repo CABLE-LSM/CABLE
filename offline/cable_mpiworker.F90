@@ -1264,6 +1264,10 @@ ENDIF
     blen(bidx) = ms * r2len
 
     bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%smp, displs(bidx), ierr)
+    blen(bidx) = ms * r2len
+
+    bidx = bidx + 1
     CALL MPI_Get_address (ssnow%wbfice, displs(bidx), ierr)
     blen(bidx) = ms * r2len
 
@@ -2397,6 +2401,10 @@ ENDIF
 
   bidx = bidx + 1
   CALL MPI_Get_address (soil%GWwatr, displs(bidx), ierr)
+  blen(bidx) = r2len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%elev, displs(bidx), ierr)
   blen(bidx) = r2len
 
   bidx = bidx + 1
@@ -3864,6 +3872,10 @@ ENDIF
     !  &            mat_t(midx, rank), ierr)
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%wb(off,1), displs(bidx), ierr)
+    blocks(bidx) = r2len * ms
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%smp(off,1), displs(bidx), ierr)
     blocks(bidx) = r2len * ms
 
     bidx = bidx + 1
