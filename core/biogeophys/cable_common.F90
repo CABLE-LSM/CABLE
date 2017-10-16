@@ -224,9 +224,7 @@ MODULE cable_common_module
         sucs_vec_organic = 10.3,   &
         clappb_organic = 2.91,     &
         ssat_vec_organic = 0.9,    &
-        watr_organic   = 0.1,     &
-        sfc_vec_hk      = 1.157407e-06, &
-        swilt_vec_hk      = 2.31481481e-8
+        watr_organic   = 0.1
 
    END TYPE organic_soil_params
 
@@ -241,7 +239,12 @@ MODULE cable_common_module
         frozen_frac=0.05,       & !ice fraction to determine first non-frozen layer for qsub
         SoilEvapAlpha = 1.0,    & !modify field capacity dependence of soil evap limit
         IceAlpha=3.0,           &
-        IceBeta=1.0           
+        IceBeta=1.0,            &
+        sfc_vec_hk      = 1.157407e-06, &
+        swilt_vec_hk      = 2.31481481e-8
+
+     LOGICAL :: sfc_clm_func=.false.
+     LOGICAL :: swilt_clm_func=.false.
 
       TYPE(organic_soil_params) :: org
 
