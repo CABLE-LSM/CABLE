@@ -942,7 +942,7 @@ PROGRAM cable_offline_driver
           ! evaluate spinup
 		 IF( (ANY( ABS(ssnow%wb-soilMtemp)>delsoilM).OR.		      &
 		      ANY( ABS(ssnow%tgg-soilTtemp)>delsoilT) .or. &
-                       any(ABS(ssnow%GWwb-GWtemp) > delgwM) ) .and. &
+                       maxval(ABS(ssnow%GWwb-GWtemp),dim=1) > delgwM) .and. &
                        ((int(ktau_tot/kend) .lt. cable_user%max_spins) .and. &
                          cable_user%max_spins .gt. 0) ) THEN
 

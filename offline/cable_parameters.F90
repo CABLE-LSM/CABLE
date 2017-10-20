@@ -117,7 +117,6 @@ MODULE cable_param_module
   REAL,    DIMENSION(:, :),     ALLOCATABLE :: inWatr
   REAL,    DIMENSION(:, :),     ALLOCATABLE :: inSlope
   REAL,    DIMENSION(:, :),     ALLOCATABLE :: inGWdz
-  REAL,    DIMENSION(:, :),     ALLOCATABLE :: indtb
   REAL,    DIMENSION(:, :),     ALLOCATABLE :: inSlopeSTD
   REAL,    DIMENSION(:, :),     ALLOCATABLE :: inORG
 
@@ -211,7 +210,7 @@ CONTAINS
     INTEGER, INTENT(OUT) :: npatch
 
     ! local variables
-    INTEGER :: ncid, ok,ok2
+    INTEGER :: ncid, ok
     INTEGER :: xID, yID, pID, sID, tID, bID
     INTEGER :: varID
     INTEGER :: nslayer, ntime, nband
@@ -234,21 +233,9 @@ CONTAINS
     ok = NF90_INQUIRE_DIMENSION(ncid, yID, LEN=nlat)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error getting y dimension.')
     ok = NF90_INQ_DIMID(ncid, 'patch', pID)
-    IF (ok /= NF90_NOERR) THEN
-    ok2 = NF90_INQ_DIMID(ncid, 'ntiles', pID)
-       IF (ok2 /= NF90_NOERR) CALL nc_abort(ok, 'Error inquiring patch dimension.')
-    ENDIF
+    IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error inquiring patch dimension.')
     ok = NF90_INQUIRE_DIMENSION(ncid, pID, LEN=npatch)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error getting patch dimension.')
-
-    IF (cable_user%super_hydro) THEN
-       IF (npatch .ne. ntiles) THEN
-          WRITE(*,*) 'The number of patches does not match model config'
-          WRITE(*,*) 'npatch is ',npatch,' while ntiles is ',ntiles
-          STOP
-       END IF
-    END IF
-
     ok = NF90_INQ_DIMID(ncid, 'soil', sID)
     ok = NF90_INQUIRE_DIMENSION(ncid, sID, LEN=nslayer)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error getting soil dimension.')
@@ -768,11 +755,7 @@ CONTAINS
 
     allocate(inGWdz(nlon,nlat),stat=ok)
     if (ok .ne. 0) CALL nc_abort(ok, 'Error allocating inGWdz ')
-    inGWdz(:,:) = 100.0
-
-    allocate(indtb(nlon,nlat),stat=ok)
-    if (ok .ne. 0) CALL nc_abort(ok, 'Error allocating indtb ')
-    indtb(:,:) = 10.0
+    inGWdz(:,:) = 20.0
 
     IF (cable_user%GW_MODEL) THEN
        ok = NF90_OPEN(trim(filename%gw_elev),NF90_NOWRITE,ncid_elev)
@@ -794,19 +777,11 @@ CONTAINS
           WRITE(logn, *) 'Could not read slope stddev data for SSGW, set to 0.0'
        END IF
 
-       ok = NF90_INQ_VARID(ncid_elev, 'GWdz', fieldID)
-       IF (ok /= NF90_NOERR) WRITE(logn,*) 'Error finding variable dtb'
-       ok = NF90_GET_VAR(ncid_elev, fieldID, inGWdz)
-       IF (ok /= NF90_NOERR) THEN
-          inGWdz = 100.0
-          WRITE(logn, *) 'Could not read dtb data for SSGW, set to 0.0'
-       END IF
-
        ok = NF90_INQ_VARID(ncid_elev, 'dtb', fieldID)
        IF (ok /= NF90_NOERR) WRITE(logn,*) 'Error finding variable dtb'
        ok = NF90_GET_VAR(ncid_elev, fieldID, inGWdz)
        IF (ok /= NF90_NOERR) THEN
-          indtb = 100.0
+          inGWdz = 20.0
           WRITE(logn, *) 'Could not read dtb data for SSGW, set to 0.0'
        END IF
 
@@ -1233,15 +1208,8 @@ CONTAINS
       case(13)
          soil%zse = (/.02,  0.0500,  0.06,  0.1300 ,   0.300 ,   0.300 ,   0.3000,  &
               0.3000,    0.3000 ,   0.3000,    0.3000,    0.7500,  1.50 /)
-      case(7)
-         soil%zse = (/.022, .058, .154, .409, 1.085, 2.872, 10.0/) ! layer thickness nov03
 
       end select
-
-      soil%zse_vec(:,1:ms-1) = (/.022, .058, .154, .409, 1.085, 2.872/)
-      sum_zse = sum(soil%zse(1:ms-1),dim=1)
-
-      soil%zse_vec(:,ms) = min(20.0,max(3.0, indtb-sum_zse) )
 
 
    !ELSE
@@ -1259,17 +1227,13 @@ CONTAINS
     ! calculate vegin%froot from using rootbeta and soil depth
     ! (Jackson et al. 1996, Oceologica, 108:389-411)
     totdepth = 0.0
-    DO is = 1, min(ms,6)
+    DO is = 1, ms
        totdepth = totdepth + soil%zse(is) * 100.0  ! unit in centimetres
        vegin%froot(is, :) = MIN(1.0, 1.0-vegin%rootbeta(:)**totdepth)
     END DO
-    DO is = min(ms,6), 2, -1
+    DO is = ms, 2, -1
        vegin%froot(is, :) = vegin%froot(is, :)-vegin%froot(is-1, :)
     END DO
-
-    if (ms .eq. 7) then
-       vegin%froot(ms,:) = 0.0
-    end if
 
     ALLOCATE(defaultLAI(mp, 12))
 
@@ -1430,7 +1394,7 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
          real(inGWssat(landpt(e)%ilon, landpt(e)%ilat),r_2)
 
       soil%GWwatr(landpt(e)%cstart:landpt(e)%cend) =                          &
-         0._r_2!
+         soil%watr(landpt(e)%cstart:landpt(e)%cend,ms)
 
       soil%slope(landpt(e)%cstart:landpt(e)%cend) =                           &
                                     min(max(inSlope(landpt(e)%ilon,landpt(e)%ilat),1e-8),0.95)
@@ -1763,20 +1727,12 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
     REAL(r_2), dimension(mp,ms) :: perc_frac
     REAL(r_2), DIMENSION(17)    :: psi_o,psi_c
     REAL(r_2), DIMENSION(mp,ms) :: psi_tmp
-    REAL(r_2), DIMENSION(mp,ms+1) :: soil_depth
+    REAL(r_2), DIMENSION(ms) :: soil_depth
 
-    soil_depth(:,1) = real(soil%zse_vec(:,1),r_2)
+    soil_depth(1) = real(soil%zse(1),r_2)
     do klev=2,ms
-       soil_depth(:,klev) = soil_depth(:,klev-1) + real(soil%zse_vec(:,klev),r_2)
+       soil_depth(klev) = soil_depth(klev-1) + real(soil%zse(klev),r_2)
     end do
-    klev=ms+1
-    soil_depth(:,klev) = soil_depth(:,klev-1) + soil%GWdz(:)
-
-    if (.not.cable_user%super_hydro) then
-       soil_depth(:,:) = max(0._r_2, soil_depth - real(gw_params%zdepth,r_2) )
-    else
-       soil_depth(:,:) = max(-100._r_2, soil_depth - real(gw_params%zdepth,r_2) )
-    end if
 
     psi_o(1:3)  = -66000._r_2
     psi_o(4)    = -35000._r_2
@@ -1794,16 +1750,12 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
     soil%zshh(ms + 1) = 0.5 * soil%zse(ms)
     soil%zshh(2:ms)   = 0.5 * (soil%zse(1:ms-1) + soil%zse(2:ms))
 
-    IF (cable_user%super_hydro) THEN
-       call read_tiled_super_soil_params(soil)
-    END IF
-
 
     IF (cable_user%GW_MODEL) then
 
        DO klev=1,ms
           soil%hyds_vec(:,klev) = 0.0070556*10.0**(-0.884 + 0.0153*soil%Fsand(:,klev)*100.0)* &
-                                  exp(-gw_params%hkrz*soil_depth(:,klev) )
+                                  exp(-gw_params%hkrz*(max(0.,soil_depth(klev)-gw_params%zdepth)))
           soil%sucs_vec(:,klev) = 10.0 * 10.0**(1.88 -0.0131*soil%Fsand(:,klev)*100.0)
           soil%bch_vec(:,klev) = 2.91 + 0.159*soil%Fclay(:,klev)*100.0
           soil%ssat_vec(:,klev) = 0.489 - 0.00126*soil%Fsand(:,klev)*100.0
@@ -1816,10 +1768,6 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
           soil%GWbch_vec(:) = soil%bch_vec(:,ms)
           soil%GWssat_vec(:) = soil%ssat_vec(:,ms)
           soil%GWwatr(:)   = soil%watr(:,ms)
-       else
-          soil%GWhyds_vec(:)  = soil%GWhyds_vec(:) * &
-                                 exp(-gw_params%hkrz*soil_depth(:,klev) )
-
        endif
        !include organin impact.  fraction of grid cell where percolation through
        !organic macropores dominates
@@ -1881,6 +1829,24 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
                    + soil%silt * 0.265 ! set dry soil thermal conductivity
                                        ! [W/m/K]
     END IF
+
+    do k=1,ms
+       write(*,*) 'maxval ssat_vec',maxval(soil%ssat_vec(:,k))
+       write(*,*) 'minval ssat_vec',minval(soil%ssat_vec(:,k))
+
+       write(*,*) 'maxval sucs_vec',maxval(soil%sucs_vec(:,k))
+       write(*,*) 'minval sucs_vec',minval(soil%sucs_vec(:,k))
+
+       write(*,*) 'maxval bch_vec',maxval(soil%bch_vec(:,k))
+       write(*,*) 'minval bch_vec',minval(soil%bch_vec(:,k))
+
+       write(*,*) 'maxval Fsand',maxval(soil%Fsand(:,k))
+       write(*,*) 'minval Fsand',minval(soil%Fsand(:,k))
+
+       write(*,*) 'maxval Fclay',maxval(soil%Fclay(:,k))
+       write(*,*) 'minval Fclay',minval(soil%Fclay(:,k))
+
+   end do
 
     soil%hsbh   = soil%hyds*ABS(soil%sucs) * soil%bch ! difsat*etasat
     soil%ibp2   = NINT(soil%bch) + 2
@@ -2685,243 +2651,6 @@ SUBROUTINE report_parameters(logn, soil, veg, bgc, rough,                    &
 
 END SUBROUTINE report_parameters
 
-!subroutine read_super_hydro(soil)
-!
-!  USE cable_IO_vars_module
-!
-!    type(soil_parameter_type), intent(inout) :: soil
-!
-!    integer :: i,j,k,ii,jj,kk,ib,ie,kb,ke
-!    integer :: ok,dist_id,elev_id,frac_id
-!
-!    integer :: ncid_el
-!    integer, dimension(3) :: ierr,vid
-!    integer, dimension(4) :: strt,cnt
-!
-!    ok = NF90_OPEN(trim(filename%gw_elev),NF90_NOWRITE,ncid_el)
-!
-!    IF (ok /= NF90_NOERR) then
-!       write(*,*) 'could not open '//trim(filename%gw_elev)
-!       soil%flow_dist(:,:) = sqrt(50000.0)/8.0
-!       soil%flow_elev(:,:) = spread(soil%elev(:),2,ntiles)
-!       soil%flow_frac(:,:) = 1.0/8.0
-!
-!    ELSE
-!
-!       ierr(1) = NF90_INQ_VARID(ncid_el, 'flow_dist', vid(1))
-!       ierr(2) = NF90_INQ_VARID(ncid_el, 'flow_elev', vid(2))
-!       ierr(3) = NF90_INQ_VARID(ncid_el, 'flow_frac', vid(3))
-!   
-!       do k=1,mland
-!   
-!          i = land_x(k)
-!          j = land_y(k)
-!   
-!          kb = landpt(k)%cstart
-!          ke = landpt(k)%cend
-!   
-!          strt = (/i,j,kb,1/)
-!          cnt = (/1,1,ke-kb+1,ntiles/)
-!   
-!          ierr(1)  = nf90_get_var(ncid_el,vid(1),soil%flow_dist(kb:ke,:),strt,cnt)
-!          ierr(2)  = nf90_get_var(ncid_el,vid(2),soil%flow_elev(kb:ke,:),strt,cnt)
-!          ierr(3)  = nf90_get_var(ncid_el,vid(3),soil%flow_frac(kb:ke,:),strt,cnt)
-!   
-!       end do
-!
-!
-!       ok = nf90_close(ncid_el)
-!
-!    END IF
-!
-!
-!end subroutine read_super_hydro
-
-subroutine read_tiled_super_soil_params(soil)
-  USE cable_IO_vars_module
-  use cable_common_module, only: filename
-
-  type(soil_parameter_type), intent(inout) :: soil
-
-
-   integer, dimension(3) :: st3d,cn3d,ierr,vid
-   integer, dimension(4) :: strt,cnt
-   real, allocatable, dimension(:,:) :: tmpin
-
-   real, allocatable, dimension(:)   :: tmp1d
-
-   real,allocatable, dimension(:) :: horizon_depth
-
-   real, dimension(ms) :: totdepth
-
-   integer, dimension(25) :: tmpid,dimid
-
-   character(len=4096) :: tmpname
-
-   ok = nf90_open(ncid,filename%gw_elev,nf90_nowrite)
-
-   IF (ok /= NF90_NOERR) then
-      write(*,*) 'could not open '//trim(filename%gw_elev)
-      soil%flow_dist(:,:) = sqrt(50000.0)/8.0
-      soil%flow_elev(:,:) = spread(soil%elev(:),2,ntiles)
-      soil%flow_frac(:,:) = 1.0/8.0
-
-    ELSE
-
-       ok = nf90_inq_dimid(ncid,dimid(1),'ntiles')
-       ok = nf90_inq_dimid(ncid,dimid(2),'nhorz')
-    
-       ok = nf90_inquire_dimension(ncid=ncid,dimid=dimid(1),name=tmpname,len=ntiles)
-       ok = nf90_inquire_dimension(ncid=ncid,dimid=dimid(2),name=tmpname,len=nhorz)
-    
-    
-       ok = nf90_inq_varid(ncid,tmpid(1),'sand')
-       ok = nf90_inq_varid(ncid,tmpid(2),'clay')
-       ok = nf90_inq_varid(ncid,tmpid(3),'silt')
-       ok = nf90_inq_varid(ncid,tmpid(4),'organic')
-       ok = nf90_inq_varid(ncid,tmpid(5),'elevation')
-       ok = nf90_inq_varid(ncid,tmpid(6),'slope')
-       ok = nf90_inq_varid(ncid,tmpid(7),'slope_std')
-       ok = nf90_inq_varid(ncid,tmpid(8),'dtb')
-       ok = nf90_inq_varid(ncid,tmpid(10),'GWssat')
-       ok = nf90_inq_varid(ncid,tmpid(11),'GWwatr')
-       ok = nf90_inq_varid(ncid,tmpid(12),'GWhyds')
-       ok = nf90_inq_varid(ncid,tmpid(13),'GWsucs')
-       ok = nf90_inq_varid(ncid,tmpid(14),'GWbch')
-    
-       allocate(tmpin(ntiles,nhorz))
-       allocate(horizon_depth(nhorz))
-       allocate(tmp1d(ntiles))
-       !ok = nf90_inq_varid(ncid,"horizon_depth",tmpid)
-       !ok = nf90_get_var(ncid,tmpid,horizon_depth)
-       horizon_depth(1) = 30.0/100.0
-       horizon_depth(2:nhorz) = 1.0e+20
-    
-       k=1
-       totdepth(k) = 0.5*soil%zse(k)
-    
-
-       do i=1,mp
-          totdepth(i,1) = 0.5*soil%zse_vec(i,1)
-          do k=2,ms
-             totdepth(i,k) = totdepth(i,k-1) + 0.5*soil%zse_vec(i,k-1) + 0.5*soil%zse_vec(i,k)
-          end do
-
-       end do
-
-
-
-       ok = NF90_INQ_VARID(ncid, 'flow_dist', vid(1))
-       ok = NF90_INQ_VARID(ncid, 'flow_elev', vid(2))
-       ok = NF90_INQ_VARID(ncid, 'flow_frac', vid(3))
-   
-       do k=1,mland
-   
-          i = land_x(k)
-          j = land_y(k)
-   
-          kb = landpt(k)%cstart
-          ke = landpt(k)%cend
-   
-          strt = (/i,j,kb,1/)
-          cnt = (/1,1,ke-kb+1,ntiles/)
-   
-          ok = nf90_get_var(ncid,vid(1),soil%flow_dist(kb:ke,:),strt,cnt)
-          ok = nf90_get_var(ncid,vid(2),soil%flow_elev(kb:ke,:),strt,cnt)
-          ok = nf90_get_var(ncid,vid(3),soil%flow_frac(kb:ke,:),strt,cnt)
-   
-       end do
-
-       do i=1,mland
-
-          ii=land_x(i)
-          jj=land_y(i)
-
-          strt = (/ii,jj,1,1/)
-          cnt = (/1,1,ntiles,nhorz/)
-
-          ok = nf90_get_var(ncid,tmpid(1),tmpin,strt,cnt)
-          do k=1,ms
-             do h=1,nhorz
-             if (totdepth(k) .le. horizon_depth(h)) then
-                soil%Fsand(ib:ie,k) = real(tmpin(:,h),r_2)
-             end if
-             end do
-          end do
-
-          ok = nf90_get_var(ncid,tmpid(2),tmpin,strt,cnt)
-          do k=1,ms
-             do h=1,nhorz
-             if (totdepth(k-1) .le. horizon_depth(h)) then
-                soil%Fclay(ib:ie,k) = real(tmpin(:,h),r_2)
-             end if
-             end do
-          end do
-
-
-          ok = nf90_get_var(ncid,tmpid(3),tmpin,strt,cnt)
-          do k=1,ms
-             do h=1,nhorz
-             if (totdepth(k-1) .le. horizon_depth(h)) then
-                soil%Fsilt(ib:ie,k) = real(tmpin(:,h),r_2)
-             end if
-             end do
-          end do
-
-
-          ok = nf90_get_var(ncid,tmpid(4),tmpin,strt,cnt)
-          do k=1,ms
-             do h=1,nhorz
-             if (totdepth(k-1) .le. horizon_depth(h)) then
-                soil%Forg(ib:ie,k) = real(tmpin(:,h),r_2)
-             end if
-             end do
-          end do
-
-
-
-          st3d = (/ii,jj,1/)
-          cn3d = (/1,1,ntiles/)
-          ok = nf90_get_var(ncid,tmpid(5),tmp1d  ,st3d,cn3d)
-          soil%elev(ib:ie)   = real(tmp1d,r_2)
-
-          ok = nf90_get_var(ncid,tmpid(6),tmp1d  ,st3d,cn3d)
-          soil%slope(ib:ie)   = real(tmp1d,r_2)
-
-          ok = nf90_get_var(ncid,tmpid(7),tmp1d  ,st3d,cn3d)
-          soil%slope_std(ib:ie)   = real(tmp1d,r_2)
-
-          ok = nf90_get_var(ncid,tmpid(8),tmp1d  ,st3d,cn3d)
-          soil%GWdz(ib:ie)   = real(tmp1d,r_2)
-
-
-          ok = nf90_get_var(ncid,tmpid(10),tmp1d  ,st3d,cn3d)
-          soil%GWssat(ib:ie)= real(tmp1d,r_2)  
-
-          ok = nf90_get_var(ncid,tmpid(11),tmp1d  ,st3d,cn3d)
-          soil%GWwatr(ib:ie)= real(tmp1d,r_2) 
-
-          ok = nf90_get_var(ncid,tmpid(12),tmp1d  ,st3d,cn3d)
-          soil%GWhyds(ib:ie)= real(tmp1d,r_2) 
-
-          ok = nf90_get_var(ncid,tmpid(13),tmp1d  ,st3d,cn3d)
-          soil%GWsucs(ib:ie)= real(tmp1d,r_2) 
-
-          ok = nf90_get_var(ncid,tmpid(14),tmp1d  ,st3d,cn3d)
-          soil%GWbch(ib:ie) = real(tmp1d,r_2) 
-
-
-          ok = nf90_close(ncid)
-
-    END IF
-
-
-   if (allocated(tmpin)) deallocate(tmpin)
-   if (allocated(tmp1d)) deallocate(tmp1d)
-   if (allocated(horizon_depth)) deallocate(horizon_depth)
-
-
-end subroutine read_tiled_soil_params
 
 END MODULE cable_param_module
 

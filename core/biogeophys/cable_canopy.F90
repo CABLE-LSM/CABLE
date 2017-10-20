@@ -1198,8 +1198,8 @@ CONTAINS
 
             !---set limits for comparisson
 
-            lower_limit =  MIN( ssnow%rh_srf(j)*ssnow%qstss(j), met%qv(j)-0.05*met%qv(j))
-            upper_limit =  MAX( ssnow%qstss(j), met%qv(j)+0.05*met%qv(j))
+            lower_limit =  MIN( ssnow%qstss(j), met%qv(j))
+            upper_limit =  MAX( ssnow%qstss(j), met%qv(j))
 
             !--- qvair within these limits
             met%qvair(j) =  MAX(met%qvair(j),lower_limit)
@@ -1294,11 +1294,7 @@ CONTAINS
 
       REAL           :: r    ! result; sat sp humidity
 
-      if (tair .ge. 0.0) then
-         r = (C%RMH2o/C%rmair) * (C%TETENA*EXP(C%TETENB*tair/(C%TETENC+tair))) / pmb
-      else
-         r = (C%RMH2o/C%rmair) * (C%TETENA_ICE*EXP(C%TETENB_ICE*tair/(C%TETENC_ICE+tair))) / pmb
-      end if
+      r = (C%RMH2o/C%rmair) * (C%TETENA*EXP(C%TETENB*tair/(C%TETENC+tair))) / pmb
     END FUNCTION qsatf
 
     ! -----------------------------------------------------------------------------
@@ -1315,13 +1311,9 @@ CONTAINS
       INTEGER :: j
 
       DO j=1,mp
-         IF (tair(j) .ge. 0.0) then
+
          var(j) = (C%RMH2o/C%rmair) * (C%TETENA*EXP(C%TETENB*tair(j)/(C%TETENC+tair(j))))    &
               / pmb(j)
-         else
-         var(j) = (C%RMH2o/C%rmair) * &
-                  (C%TETENA_ICE*EXP(C%TETENB_ICE*tair(j)/(C%TETENC_ICE+tair(j)))) / pmb(j)
-         end if
       ENDDO
 
     END SUBROUTINE qsatfjh
@@ -1337,11 +1329,7 @@ CONTAINS
       REAL, INTENT(OUT) ::                                                        &
            var             ! result; sat sp humidity
 
-      if (tair .ge. 0.0) then
-         var = (C%RMH2o/C%rmair) * (C%TETENA*EXP(C%TETENB*tair/(C%TETENC+tair))) / pmb
-      else
-         var = (C%RMH2o/C%rmair) * (C%TETENA_ICE*EXP(C%TETENB_ICE*tair/(C%TETENC_ICE+tair))) / pmb
-      end if
+      var = (C%RMH2o/C%rmair) * (C%TETENA*EXP(C%TETENB*tair/(C%TETENC+tair))) / pmb
 
     END SUBROUTINE qsatfjh2
 

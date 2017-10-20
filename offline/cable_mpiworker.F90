@@ -2382,27 +2382,6 @@ ENDIF
   blen(bidx) = ms * r2len
 
 
-  bidx = bidx + 1
-  CALL MPI_Get_address (soil%flow_dist, displs(bidx), ierr)
-  blen(bidx) = ntiles * r2len
-
-
-  bidx = bidx + 1
-  CALL MPI_Get_address (soil%flow_frac, displs(bidx), ierr)
-  blen(bidx) = ntiles * r2len
-
-
-  bidx = bidx + 1
-  CALL MPI_Get_address (soil%flow_elev, displs(bidx), ierr)
-  blen(bidx) = ntiles * r2len
-
-
-  bidx = bidx + 1
-  CALL MPI_Get_address (soil%zse_vec, displs(bidx), ierr)
-  blen(bidx) = ms * r1len
-
-
-
 !1d
   bidx = bidx + 1
   CALL MPI_Get_address (soil%GWssat_vec, displs(bidx), ierr)
@@ -5585,10 +5564,6 @@ ENDIF
 
      bidx = bidx + 1
      CALL MPI_Get_address (ssnow%Qrecharge(off), displs(bidx), ierr)
-     blocks(bidx) = r2len
-
-     bidx = bidx + 1
-     CALL MPI_Get_address (ssnow%Qconv(off), displs(bidx), ierr)
      blocks(bidx) = r2len
 
      ! additional for SLI 
