@@ -2623,7 +2623,8 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
 !    CALL get_default_inits(met,soil,ssnow,canopy,logn)
 !
 !    ! load default LAI values from global data:
-!    CALL get_default_lai
+    if (cable_user%super_hydro) &  !tiled lai plz
+       CALL get_default_lai
 
     ! Look for explicit restart file (which will have parameters):
     IF ( TRIM(filename%restart_in) .EQ. '' ) filename%restart_in = './'

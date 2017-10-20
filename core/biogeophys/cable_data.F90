@@ -46,9 +46,12 @@ module cable_data_module
       density_liq = 917.0,  &   !denisty of ice
 
       ! Teten coefficients
-      tetena = 6.106, & ! ??? refs?
+      tetena = 6.1078, & ! ??? refs?
       tetenb = 17.27, &
       tetenc = 237.3, &
+      tetena_ice = 6.1078, & ! ??? refs?
+      tetenb_ice = 21.875, &
+      tetenc_ice = 265.5, &
 
       ! Aerodynamic parameters, diffusivities, water density:
       vonk   = 0.40, & ! von Karman constant
@@ -147,6 +150,7 @@ module cable_data_module
          ! physical constants
          TFRZ, RMAIR, RGAS,                                                    &
          TETENA, TETENB, TETENC,                                               &
+         TETENA_ICE, TETENB_ICE, TETENC_ICE,                                   &
          CAPP, RMH2O, HL
    END TYPE iair_type
 
@@ -177,7 +181,8 @@ module cable_data_module
          ! math constants
          PI_C,                                                                 &
          ! other constants
-         LAI_THRESH
+         LAI_THRESH,                                                           &
+         TETENA_ICE, TETENB_ICE, TETENC_ICE         
 
       INTEGER, POINTER :: MAXITER
 
@@ -284,6 +289,9 @@ SUBROUTINE air_type_ptr(C)
    C%TFRZ  => PHYS%TFRZ
    C%RMAIR => PHYS%RMAIR
    C%RGAS  => PHYS%RGAS
+   C%TETENA_ICE => PHYS%TETENA_ICE
+   C%TETENB_ICE => PHYS%TETENB_ICE
+   C%TETENC_ICE => PHYS%TETENC_ICE
    C%TETENA => PHYS%TETENA
    C%TETENB => PHYS%TETENB
    C%TETENC => PHYS%TETENC
@@ -320,6 +328,9 @@ SUBROUTINE canopy_type_ptr(C)
    C%ZETPOS => PHYS%ZETPOS
    C%GRAV  => PHYS%GRAV
    C%UMIN  => PHYS%UMIN
+   C%TETENA_ICE => PHYS%TETENA_ICE
+   C%TETENB_ICE => PHYS%TETENB_ICE
+   C%TETENC_ICE => PHYS%TETENC_ICE
    C%TETENA => PHYS%TETENA
    C%TETENB => PHYS%TETENB
    C%TETENC => PHYS%TETENC

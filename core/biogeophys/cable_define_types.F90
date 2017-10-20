@@ -52,7 +52,10 @@ MODULE cable_def_types_mod
       swb = 2,       & ! # shortwave bands
       niter = 4,     & ! number of iterations for za/L
  !      ms = 12          ! # soil layers
-       ms = 6         ! # soil layers - standard
+       !ms = 6         ! # soil layers - standard
+       ms = 7,      & ! # soil layers - standard
+       ntiles=8       ! # number of clusters per gridcell
+
 !       ms = 13          ! for Loetschental experiment
 
 !   PRIVATE :: r_2, ms, msn, mf, nrb, ncp, ncs
@@ -174,6 +177,9 @@ MODULE cable_def_types_mod
      !REAL(r_2), DIMENSION(:,:), POINTER :: ssat_vec  ! vol H2O @ sat
      !REAL(r_2), DIMENSION(:,:), POINTER :: sfc_vec   ! vol H2O @ fc
 
+
+     real(r_2), dimension(:,:), pointer :: flow_elev,flow_dist,flow_frac
+
   END TYPE soil_parameter_type
 
 ! .............................................................................
@@ -262,6 +268,7 @@ MODULE cable_def_types_mod
       !MD variables for the revised soil moisture + GW scheme
       REAL(r_2), DIMENSION(:), POINTER   ::                                     &
          GWwb,    &  ! water content in aquifer [mm3/mm3]
+         GWtgg,    &  ! tmperature of aquifer
          GWhk,    &  ! aquifer hydraulic conductivity  [mm/s]
          GWdhkdw, &  ! aquifer d(hk) over d(water content) [(mm/s)/(mm3/mm3)]
          GWdsmpdw,&  ! aquifer d(smp) / dw   [(mm)/(mm3/mm3)]
@@ -269,6 +276,8 @@ MODULE cable_def_types_mod
          GWsmp,   &  ! aquifer soil matric potential [mm]
          GWwbeq,  &  ! equilibrium aquifer water content [mm3/mm3]
          GWzq,    &  ! equilibrium aquifer smp   [mm]
+         GWzaq,    &  ! depth to the eq of G
+         Qconv,     &  ! explicit horizontal convergnce/divergence mm/s
          qhz,     &  ! horizontal hydraulic conductivity in 1D gw model for soil layers  [mm/s] 
          satfrac, &
          Qrecharge,&
@@ -863,6 +872,10 @@ SUBROUTINE alloc_soil_parameter_type(var, mp)
    IF(.NOT.(ASSOCIATED(var % ssat_vec))) ALLOCATE ( var % ssat_vec(mp,ms) )
    IF(.NOT.(ASSOCIATED(var % sfc_vec))) ALLOCATE ( var % sfc_vec(mp,ms) )
 
+   allocate( var%flow_dist(mp,ntiles) )
+   allocate( var%flow_elev(mp,ntiles) )
+   allocate( var%flow_frac(mp,ntiles) )
+
 
 END SUBROUTINE alloc_soil_parameter_type
 
@@ -889,7 +902,7 @@ SUBROUTINE alloc_soil_snow_type(var, mp)
    ALLOCATE( var% fwtop1(mp) )
    ALLOCATE( var% fwtop2(mp) )
    ALLOCATE( var% fwtop3(mp) )
-   ALLOCATE( var% gammzz(mp,ms) )
+   ALLOCATE( var% gammzz(mp,ms+1) )
    ALLOCATE( var% isflag(mp) )
    ALLOCATE( var% osnowd(mp) )
    ALLOCATE( var% potev(mp) )
@@ -945,6 +958,7 @@ SUBROUTINE alloc_soil_snow_type(var, mp)
    !MD
    !Aquifer variables
    ALLOCATE( var%GWwb(mp) )
+   ALLOCATE( var%GWtgg(mp) )
    ALLOCATE( var%GWhk(mp) )
    ALLOCATE( var%GWdhkdw(mp) )
    ALLOCATE( var%GWdsmpdw(mp) )
@@ -952,7 +966,9 @@ SUBROUTINE alloc_soil_snow_type(var, mp)
    ALLOCATE( var%GWsmp(mp) )
    ALLOCATE( var%GWwbeq(mp) )
    ALLOCATE( var%GWzq(mp) )
+   ALLOCATE( var%GWzaq(mp) )
    ALLOCATE( var%qhz(mp) )
+   ALLOCATE( var%Qconv(mp) )
    ALLOCATE( var%qhlev(mp,ms+1) )
    ALLOCATE( var%satfrac(mp) )
    ALLOCATE( var%Qrecharge(mp) )
@@ -1477,6 +1493,9 @@ SUBROUTINE dealloc_soil_parameter_type(var)
     IF(ASSOCIATED(var % sfc_vec)) DEALLOCATE ( var % sfc_vec )
     !END IF
 
+   deallocate( var%flow_dist )
+   deallocate( var%flow_elev )
+   deallocate( var%flow_frac )
 
 END SUBROUTINE dealloc_soil_parameter_type
 
@@ -1556,6 +1575,7 @@ SUBROUTINE dealloc_soil_snow_type(var)
    !MD
    !Aquifer variables
    DEALLOCATE( var%GWwb )
+   DEALLOCATE( var%GWtgg )
    DEALLOCATE( var%GWhk )
    DEALLOCATE( var%GWdhkdw )
    DEALLOCATE( var%GWdsmpdw )
@@ -1563,7 +1583,9 @@ SUBROUTINE dealloc_soil_snow_type(var)
    DEALLOCATE( var%GWsmp )
    DEALLOCATE( var%GWwbeq )
    DEALLOCATE( var%GWzq )
+   DEALLOCATE( var%GWzaq )
    DEALLOCATE( var%qhz )
+   DEALLOCATE( var%Qconv )
    DEALLOCATE( var%qhlev )
    DEALLOCATE( var%satfrac )
    DEALLOCATE( var%Qrecharge )
