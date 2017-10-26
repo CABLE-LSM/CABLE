@@ -18,14 +18,25 @@ MODULE CABLE_WEATHERGENERATOR
      INTEGER :: ndtime   ! number of subdiurnal steps in 24 hr
      REAL    :: delT     ! subdiurnal timestep (in s)
      REAL(sp),DIMENSION(:),ALLOCATABLE :: LatDeg
-     ! Daily input
+
+     ! Daily input to subdiurnal met calculations
      REAL(sp),DIMENSION(:),ALLOCATABLE :: &
           WindDay        ,&
           TempMinDay     ,&    ! Daily minimum air temp [degC]
           TempMaxDay     ,&    ! Daily maximum air temp [degC]
           TempMinDayNext ,&    ! Daily minimum air temp tomorrow [degC]
           TempMaxDayPrev ,&    ! Daily maximum air temp yesterday [degC]
-          SolarMJDay           ! Total daily down-ward irradiation [MJ/m2/d] (swdown)
+          SolarMJDay     ,&      ! Total daily down-ward irradiation [MJ/m2/d] (swdown)
+          PrecipDay      ,&  ! 24hr-total precipitation [m/day] (current day = 24h from 0900 on previous day)
+          SnowDay        ,&  ! 24hr-total precipitation [m/day] (current day = 24h from 0900 on previous day)
+          PmbDay         ,&    ! 24hr-av pressure [mb]
+          VapPmbDay           ! 24hr-av water vapour pressure [mb]
+!CLNx     PrecipDayNext   ,&  ! 24hr-total precipitation [m/day] (next day = 24 h from 0900 on current day)
+!CLNx     VapPmb0900      ,&  ! 0900 water vapour pressure [mb]
+!CLNx     VapPmb1500      ,&  ! 1500 water vapour pressure [mb]
+!CLNx     VapPmb1500Prev  ,&  ! 1500 (prev day) water vapour pressure [mb]
+!CLNx     VapPmb0900Next  ,&  ! 0900(next day) water vapour pressure [mb]
+
      ! Daily constants
      REAL(sp) :: DecRad                                   ! Declination in radians
      REAL(sp),DIMENSION(:),ALLOCATABLE :: &
@@ -45,18 +56,6 @@ MODULE CABLE_WEATHERGENERATOR
           TempRangeDay       ,&
           TempRangeAft
 
-     ! Additional input to Subdiurnal met calculations
-     !  Daily Met
-     REAL(sp),DIMENSION(:),ALLOCATABLE :: &
-          PrecipDay       ,&  ! 24hr-total precipitation [m/day] (current day = 24h from 0900 on previous day)
-          SnowDay         ,&  ! 24hr-total precipitation [m/day] (current day = 24h from 0900 on previous day)
-!CLNx     PrecipDayNext   ,&  ! 24hr-total precipitation [m/day] (next day = 24 h from 0900 on current day)
-!CLNx     VapPmbDay       ,&  ! 24hr-av water vapour pressure [mb]
-!CLNx     VapPmb0900      ,&  ! 0900 water vapour pressure [mb]
-!CLNx     VapPmb1500      ,&  ! 1500 water vapour pressure [mb]
-!CLNx     VapPmb1500Prev  ,&  ! 1500 (prev day) water vapour pressure [mb]
-!CLNx     VapPmb0900Next  ,&  ! 0900(next day) water vapour pressure [mb]
-          PmbDay              ! 24hr-av pressure [mb]
      !   Solar and Temperature Params
      !   Hourly Met outgoing
      REAL(sp),DIMENSION(:),ALLOCATABLE :: &
@@ -114,6 +113,7 @@ SUBROUTINE WGEN_INIT( WG, np, latitude, dels )
   ALLOCATE ( WG%PrecipDay          (np) )  ! 24hr-total precipitation [m/day] (current day = 24h from 0900 on previous day)
   ALLOCATE ( WG%SnowDay            (np) )  ! [m/d]
   ALLOCATE ( WG%PmbDay             (np) )  ! 24hr-av pressure [mb]
+  ALLOCATE ( WG%VapPmbDay          (np) )  ! 24hr-av vapour pressure [mb]
   ALLOCATE ( WG%PhiSd              (np) )  ! downward solar irradiance [W/m2]
   ALLOCATE ( WG%PhiLd              (np) )  ! down longwave irradiance  [W/m2]
   ALLOCATE ( WG%Precip             (np) )  ! precip [mm/h]
@@ -379,7 +379,8 @@ SUBROUTINE WGEN_SUBDIURNAL_MET(WG, np, itime)
   ! -----------------------------------
   ! Water Vapour Pressure, Air Pressure
   ! -----------------------------------
-
+  WG%VapPmb = WG%VapPmbDay
+  WG%Pmb    = WG%PmbDay
   !CLN VapPmb = VapPmbDay
   !CLN Pmb    = PmbDay
   !CLN

@@ -229,7 +229,7 @@ build_build()
       casa_variable.o casa_cable.o casa_cnp.o casa_inout.o \
       casa_types.o casa_um_inout.o cable_iovars.o \
       cable_sli_main.o cable_sli_utils.o cable_sli_numbers.o \
-      cable_sli_roots.o cable_sli_solve.o POP.o cable_climate.o
+      cable_sli_roots.o cable_sli_solve.o POP.o cable_phenology.o cable_climate.o
 
 
    if [[ -f libcable.a ]]; then

@@ -329,6 +329,11 @@ CONTAINS
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
              (ok, 'Error defining time variable attributes in output file. '// &
                                                 '(SUBROUTINE open_output_file)')
+    ok = NF90_PUT_ATT(ncid_out, ovid%tvar, 'calendar', calendar)
+    IF (ok /= NF90_NOERR) CALL nc_abort                                        &
+             (ok, 'Error defining time variable attributes in output file. '// &
+                                                '(SUBROUTINE open_output_file)')
+
     ! Define latitude and longitude variable (ALMA):
     ok = NF90_DEF_VAR(ncid_out, 'latitude', NF90_FLOAT, (/xID, yID/), latID)
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
@@ -2804,6 +2809,10 @@ CONTAINS
     ok = NF90_PUT_ATT(ncid_restart, tvarID, 'coordinate', time_coord)
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
             (ok, 'Error defining time variable attributes in restart file. '// &
+             '(SUBROUTINE create_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, tvarID, 'calendar', calendar)
+    IF (ok /= NF90_NOERR) CALL nc_abort                                        &
+            (ok, 'Error defining time variable attribute calendar in restart file. '// &
              '(SUBROUTINE create_restart)')
     ! Define latitude and longitude variable:
     ok=NF90_DEF_VAR(ncid_restart, 'latitude', NF90_FLOAT, (/mlandID/), latID)

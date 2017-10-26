@@ -193,6 +193,9 @@ CONTAINS
          PLUME_MIP_INIT
     USE CABLE_CRU,            ONLY: CRU_TYPE, CRU_GET_SUBDIURNAL_MET, CRU_INIT
 
+    ! BIOS only
+    USE cable_bios_met_obs_params,   ONLY:  cable_bios_read_met, cable_bios_init, &
+                                            cable_bios_load_params
 
     IMPLICIT NONE
 
@@ -448,7 +451,8 @@ CONTAINS
     ! latitudes, longitudes, number of sites.
     IF ( TRIM(cable_user%MetType) .NE. "gswp" .AND. &
          TRIM(cable_user%MetType) .NE. "gpgs" .AND. &
-         TRIM(cable_user%MetType) .NE. "plum"  .AND. &
+         TRIM(cable_user%MetType) .NE. "plum" .AND. &
+         TRIM(cable_user%MetType) .NE. "bios" .AND. &
          TRIM(cable_user%MetType) .NE. "cru") THEN
        CALL open_met_file( dels, koffset, kend, spinup, C%TFRZ )
        IF ( koffset .NE. 0 .AND. CABLE_USER%CALL_POP ) THEN
@@ -464,6 +468,30 @@ CONTAINS
     ktau_tot = 0 
     ktau     = 0
     SPINLOOP:DO
+
+! Bios initialisation
+
+        IF (TRIM(cable_user%MetType) .EQ. "bios") THEN
+
+          CALL CPU_TIME(etime)
+          
+          CALL cable_bios_init(dels,curyear,met,kend,ktauday)
+
+          koffset   = 0
+          leaps = .true.
+
+          write(str1,'(i4)') curyear
+          str1 = adjustl(str1)
+          write(str2,'(i2)') 1
+          str2 = adjustl(str2)
+          write(str3,'(i2)') 1
+          str3 = adjustl(str3)
+          timeunits="seconds since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" &
+                            00:00"
+        ENDIF
+
+! End of Bios initialisation
+
        YEARLOOP: DO YYYY= CABLE_USER%YearStart,  CABLE_USER%YearEnd
 
           CurYear = YYYY
@@ -492,6 +520,11 @@ CONTAINS
 
              ENDIF
              kend = NINT(24.0*3600.0/dels) * LOY
+ 
+          ELSE IF ( TRIM(cable_user%MetType) .EQ. 'bios' ) THEN
+             
+              kend = NINT(24.0*3600.0/dels) * LOY
+
           ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
 	      ! CLN HERE CRU modfications
 	      IF ( CALL1 ) THEN
@@ -552,6 +585,13 @@ CONTAINS
 
              IF (CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static') &
                   CABLE_USER%POPLUC= .FALSE.
+
+          ! Having read the default parameters, if this is a bios run we will now
+          ! overwrite the subset of them required for bios.
+             IF ( TRIM(cable_user%MetType) .EQ. 'bios' ) THEN
+               CALL cable_bios_load_params (soil)
+             ENDIF
+
             
              ssnow%otss_0 = ssnow%tgg(:,1)
              ssnow%otss = ssnow%tgg(:,1)
@@ -723,6 +763,11 @@ write(*,*) 'after CALL1'
                      (YYYY.EQ.CABLE_USER%YearEnd .AND. 1.EQ.kend))
                 !CALL PLUME_MIP_GET_MET(PLUME, iMET, YYYY, 1, kend, &
                 !     (YYYY.EQ.CABLE_USER%YearEnd))
+             ELSE IF ( TRIM(cable_user%MetType) .EQ. 'bios' ) THEN
+                CALL  cable_bios_read_met(iMET, CurYear, ktau, kend, &
+                       (YYYY.EQ.CABLE_USER%YearEnd .AND. ktau.EQ.kend), dels )
+          
+
              ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
               
                 CALL CRU_GET_SUBDIURNAL_MET(CRU, imet, YYYY, 1, kend, &
@@ -792,7 +837,11 @@ write(*,*) 'after CALL1'
              IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN                  
                 CALL PLUME_MIP_GET_MET(PLUME, iMET, YYYY, iktau, kend, &
                      (YYYY.EQ.CABLE_USER%YearEnd .AND. iktau.EQ.kend))
-
+             ELSE IF ( TRIM(cable_user%MetType) .EQ. 'bios' ) THEN
+                IF (( .NOT. CASAONLY ).OR. (CASAONLY.and.CALL1))  THEN               
+                  CALL  cable_bios_read_met(MET, CurYear, ktau, kend, &
+                       (YYYY.EQ.CABLE_USER%YearEnd .AND. ktau.EQ.kend), dels )
+                END IF
              ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
                 CALL CRU_GET_SUBDIURNAL_MET(CRU, imet, YYYY, iktau, kend, &
                             (YYYY.EQ.CABLE_USER%YearEnd) )  
@@ -912,6 +961,7 @@ write(*,*) 'after CALL1'
 
                    IF ( TRIM(cable_user%MetType) .EQ. 'plum' &
                         .OR. TRIM(cable_user%MetType) .EQ. 'cru'   &
+                        .OR. TRIM(cable_user%MetType) .EQ. 'bios'  &
                         .OR. TRIM(cable_user%MetType) .EQ. 'gswp') then
                       CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, &
                            casamet,ssnow,         &
@@ -1338,6 +1388,7 @@ write(*,*) 'after annual calcs'
 
     ! Close met data input file:
     IF ( TRIM(cable_user%MetType) .NE. "gswp" .AND. &
+         TRIM(cable_user%MetType) .NE. "bios" .AND. &
          TRIM(cable_user%MetType) .NE. "plum" .AND. &
          TRIM(cable_user%MetType) .NE. "cru") CALL close_met_file
     IF  (.NOT. CASAONLY) THEN

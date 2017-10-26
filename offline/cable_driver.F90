@@ -63,7 +63,7 @@ PROGRAM cable_offline_driver
   USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,		      &
        verbose, fixedCO2,output,check,patchout,	   &
        patch_type,soilparmnew,&
-       defaultLAI, sdoy, smoy, syear, timeunits, exists
+       defaultLAI, sdoy, smoy, syear, timeunits, exists, calendar
   USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
        cable_runtime, filename, myhome,		   &
        redistrb, wiltParam, satuParam, CurYear,	   &
@@ -83,7 +83,7 @@ PROGRAM cable_offline_driver
   USE cable_output_module,  ONLY: create_restart,open_output_file,	      &
        write_output,close_output_file
   USE cable_write_module,   ONLY: nullify_write
-  USE cable_IO_vars_module, ONLY: timeunits
+  USE cable_IO_vars_module, ONLY: timeunits,calendar
   USE cable_cbm_module
   USE cable_diag_module
   !mpidiff
@@ -110,6 +110,10 @@ PROGRAM cable_offline_driver
 
   USE CABLE_CRU,            ONLY: CRU_TYPE, CRU_GET_SUBDIURNAL_MET, CRU_INIT
   USE CABLE_site,           ONLY: site_TYPE, site_INIT, site_GET_CO2_Ndep
+
+  ! BIOS only
+  USE cable_bios_met_obs_params,   ONLY:  cable_bios_read_met, cable_bios_init, &
+                                          cable_bios_load_params
 
  ! LUC_EXPT only
  USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE, LUC_EXPT_INIT
@@ -357,6 +361,7 @@ PROGRAM cable_offline_driver
 
   IF ( TRIM(cable_user%MetType) .EQ. 'gpgs' ) THEN
      leaps = .TRUE.
+     calendar = "standard"
      cable_user%MetType = 'gswp'
   ENDIF
 
@@ -410,6 +415,27 @@ PROGRAM cable_offline_driver
   SPINLOOP:DO WHILE ( SPINon )
 
      NREP: DO RRRR = 1, NRRRR
+        IF (TRIM(cable_user%MetType) .EQ. "bios") THEN
+
+          CALL CPU_TIME(etime)
+          
+          CALL cable_bios_init(dels,curyear,met,kend,ktauday)
+
+          koffset   = 0
+          leaps = .true.
+
+          write(str1,'(i4)') curyear
+          str1 = adjustl(str1)
+          write(str2,'(i2)') 1
+          str2 = adjustl(str2)
+          write(str3,'(i2)') 1
+          str3 = adjustl(str3)
+          timeunits="seconds since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" &
+                            00:00"
+          calendar = 'standard'
+        ENDIF
+
+print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CABLE_USER%YearEnd
 
 	YEAR: DO YYYY= CABLE_USER%YearStart,  CABLE_USER%YearEnd
 	   CurYear = YYYY
@@ -470,10 +496,19 @@ PROGRAM cable_offline_driver
                  str3 = adjustl(str3)
                  timeunits="seconds since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" &
                             00:00"
-               
+                 if (leaps) then
+                   calendar = "standard"
+                 else
+                   calendar = "noleap"
+                 endif
 	      ENDIF
 	      IF ( .NOT. PLUME%LeapYears ) LOY = 365
 	      kend = NINT(24.0*3600.0/dels) * LOY
+
+           ELSE IF ( TRIM(cable_user%MetType) .EQ. 'bios' ) THEN
+             
+              kend = NINT(24.0*3600.0/dels) * LOY
+
 	   ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
 	      ! TRENDY experiment using CRU-NCEP
 	      IF ( CALL1 ) THEN
@@ -495,7 +530,7 @@ PROGRAM cable_offline_driver
                  str3 = adjustl(str3)
                  timeunits="seconds since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" &
                             00:00"
-
+                 calendar = "noleap"
 
 	      ENDIF
 	       LOY = 365
@@ -552,7 +587,6 @@ PROGRAM cable_offline_driver
     ! be chosen from a coarse global grid of veg and soil types, based on
     ! the lat/lon coordinates. Allocation of CABLE's main variables also here.
     IF ( CALL1 ) THEN
-       
        IF (cable_user%POPLUC) THEN
           CALL LUC_EXPT_INIT (LUC_EXPT)
        ENDIF
@@ -566,6 +600,12 @@ PROGRAM cable_offline_driver
 
        IF ( CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static') &
             CABLE_USER%POPLUC= .FALSE.
+
+    ! Having read the default parameters, if this is a bios run we will now
+    ! overwrite the subset of them required for bios.
+       IF ( TRIM(cable_user%MetType) .EQ. 'bios' ) THEN
+         CALL cable_bios_load_params (soil)
+       ENDIF
 
        ! Open output file:
        IF (.NOT.CASAONLY) THEN
@@ -661,7 +701,11 @@ PROGRAM cable_offline_driver
                      (YYYY.EQ.CABLE_USER%YearEnd .AND. ktau.EQ.kend))
                 
              ENDIF
-             
+          ELSE IF ( TRIM(cable_user%MetType) .EQ. 'bios' ) THEN
+             IF (( .NOT. CASAONLY ).OR. (CASAONLY.and.CALL1))  THEN               
+                CALL  cable_bios_read_met(MET, CurYear, ktau, kend, &
+                       (YYYY.EQ.CABLE_USER%YearEnd .AND. ktau.EQ.kend), dels )
+             END IF
           ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
                     IF (( .NOT. CASAONLY ).OR. (CASAONLY.and.CALL1))  THEN
                        CALL CRU_GET_SUBDIURNAL_MET(CRU, met, &
@@ -721,7 +765,7 @@ PROGRAM cable_offline_driver
              IF (l_laiFeedbk.and.icycle>0) veg%vlai(:) = casamet%glai(:)
              !veg%vlai = 2 ! test
              ! Call land surface scheme for this timestep, all grid points:
-write(*,*), 'ca: ', met%ca*1e6
+!write(*,*), 'ca: ', met%ca*1e6
                     CALL cbm(ktau, dels, air, bgc, canopy, met,		      &
                          bal, rad, rough, soil, ssnow,			      &
                          sum_flux, veg,climate )
@@ -775,7 +819,8 @@ write(*,*), 'ca: ', met%ca*1e6
                          MOD((ktau-kstart+1)/ktauday,LOY)==0) )THEN ! end of year
                        IF (CABLE_USER%POPLUC) THEN
                           ! Dynamic LUC
-                          CALL LUCdriver( casabiome,casapool,casaflux,POP,LUC_EXPT, POPLUC )
+                          CALL LUCdriver( casabiome,casapool,casaflux,POP,     &
+                                    LUC_EXPT, POPLUC, veg )
                        ENDIF
 
                        ! one annual time-step of POP
@@ -842,8 +887,8 @@ write(*,*), 'ca: ', met%ca*1e6
                     ! sumcflux is pulled out of subroutine cbm
                     ! so that casaCNP can be called before adding the fluxes
                     ! (Feb 2008, YP)
-                    CALL sumcflux( ktau, kstart, kend, dels, bgc,		       &
-                         canopy, soil, ssnow, sum_flux, veg,		       &
+                    CALL sumcflux( ktau, kstart, kend, dels, bgc,              &
+                         canopy, soil, ssnow, sum_flux, veg,                   &
                          met, casaflux, l_vcmaxFeedbk )
 
 
@@ -854,17 +899,17 @@ write(*,*), 'ca: ', met%ca*1e6
 
                  IF ( (.NOT. CASAONLY) .AND. spinConv ) THEN
                     !mpidiff
-                    if ( TRIM(cable_user%MetType) .EQ. 'plum' .OR.  &
-                         TRIM(cable_user%MetType) .EQ. 'cru' .OR.  &
-                       TRIM(cable_user%MetType) .EQ. 'gswp'.OR.    &
-                       TRIM(cable_user%MetType) .EQ. 'site'  ) then
-
+                    IF ( TRIM(cable_user%MetType) .EQ. 'plum'  .OR.  &
+                         TRIM(cable_user%MetType) .EQ. 'cru'   .OR.  &
+                         TRIM(cable_user%MetType) .EQ. 'bios'  .OR.  &
+                         TRIM(cable_user%MetType) .EQ. 'gswp'  .OR.  &
+                         TRIM(cable_user%MetType) .EQ. 'site' ) then
                        CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, casamet, &
                             ssnow,   rad, bal, air, soil, veg, C%SBOLTZ, C%EMLEAF, C%EMSOIL )
-                    else
+                    ELSE
                        CALL write_output( dels, ktau, met, canopy, casaflux, casapool, casamet, &
                             ssnow,rad, bal, air, soil, veg, C%SBOLTZ, C%EMLEAF, C%EMSOIL )
-                    endif
+                    ENDIF
                  ENDIF
 
 
@@ -1133,6 +1178,7 @@ write(*,*), 'ca: ', met%ca*1e6
 
 
   IF ( TRIM(cable_user%MetType) .NE. "gswp" .AND. &
+       TRIM(cable_user%MetType) .NE. "bios" .AND. &
        TRIM(cable_user%MetType) .NE. "plum" .AND. & 
        TRIM(cable_user%MetType) .NE. "cru" ) CALL close_met_file
 

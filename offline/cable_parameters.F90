@@ -949,7 +949,8 @@ CONTAINS
   !   landpt(mp)%type- via cable_IO_vars_module (%nap,cstart,cend,ilon,ilat)
   !   patch(mp)%type - via cable_IO_vars_module (%frac,longitude,latitude)
 
-    USE cable_common_module, only : vegin, soilin, calcsoilalbedo, cable_user
+    USE cable_common_module, only : vegin, soilin, calcsoilalbedo, cable_user, &
+                                    init_veg_from_vegin
     IMPLICIT NONE
     INTEGER,               INTENT(IN)    :: logn  ! log file unit number
     INTEGER,               INTENT(IN)    :: month ! month of year
@@ -1233,6 +1234,8 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
                                                           soiltype_metfile(e, :)
        END IF
 ! offline only above
+       !call veg% init that is common   
+       CALL init_veg_from_vegin(landpt(e)%cstart, landpt(e)%cend, veg)
 
        ! Prescribe parameters for current gridcell based on veg/soil type (which
        ! may have loaded from default value file or met file):
@@ -1295,7 +1298,6 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
           bgc%csoil(h,:)  = vegin%csoil(:, veg%iveg(h))
           bgc%ratecp(:)   = vegin%ratecp(:, veg%iveg(h))
           bgc%ratecs(:)   = vegin%ratecs(:, veg%iveg(h))
-          veg%froot(h,:)  = vegin%froot(:, veg%iveg(h))
          ! soil%silt(h)    =  soilin%silt(soil%isoilm(h))
          ! soil%clay(h)    =  soilin%clay(soil%isoilm(h))
          ! soil%sand(h)    =  soilin%sand(soil%isoilm(h))
@@ -1316,6 +1318,7 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
           rad%latitude(h) = latitude(e)
             !IF(hide%Ticket49Bug4) &
           rad%longitude(h) = longitude(e)
+          !jhan:is this done online? YES
           veg%ejmax(h) = 2.0 * veg%vcmax(h)
 
  

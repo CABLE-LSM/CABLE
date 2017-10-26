@@ -1950,7 +1950,6 @@ CONTAINS
     
        if (cable_user%finite_gm) then
 
-
           CALL photosynthesis_gm( csx(:,:),                                           &
                SPREAD( cx1(:), 2, mf ),                            &
                SPREAD( cx2(:), 2, mf ),                            &
@@ -2276,7 +2275,6 @@ CONTAINS
     canopy%frday = 12.0 * SUM(rdy, 2)
 !! vh !! inserted min to avoid -ve values of GPP
     canopy%fpn = min(-12.0 * SUM(an_y, 2), canopy%frday)
-
     ! additional diagnostic variables for assessing contributions of rubisco and rubp limited photosynthesis to
     ! gross photosynthesis in sunlit and shaded leaves.
     canopy%A_sh = an_y(:,2) + rdy(:,2) 
@@ -2358,8 +2356,8 @@ CONTAINS
 
     DO i=1,mp
 
-       !IF (sum(vlaiz(i,:)) .GT. C%LAI_THRESH.and.fwsoilz(i).gt.1.e-3) THEN
        IF (sum(vlaiz(i,:)) .GT. C%LAI_THRESH) THEN
+
           DO j=1,mf
 
              IF( vlaiz(i,j) .GT. C%LAI_THRESH .AND. deltlfz(i,j) .GT. 0.1) THEN

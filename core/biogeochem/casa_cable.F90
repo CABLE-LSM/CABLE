@@ -22,7 +22,7 @@
 !
 ! ==============================================================================
 
-!#     define UM_BUILD YES
+!#define UM_BUILD YES
 SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
                      climate,casabiome,casapool,casaflux,casamet,casabal,phen, &
                      pop, spinConv, spinup, ktauday, idoy,loy, dump_read,   &
@@ -83,7 +83,6 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    INTEGER , parameter :: wlogn=6
 
   
-   
    IF ( .NOT. dump_read ) THEN  ! construct casa met and flux inputs from current CABLE run
       IF ( TRIM(cable_user%MetType) .EQ. 'cru' .OR. &
            TRIM(cable_user%MetType) .EQ. 'plum') THEN
@@ -310,7 +309,6 @@ SUBROUTINE read_casa_dump(  ncfile, casamet, casaflux,phen, climate, ncall, kend
          ncok = NF90_OPEN(TRIM(ncfile), nf90_nowrite, ncrid)
          IF (ncok /= nf90_noerr ) CALL stderr_nc(ncok,'re-opening ', ncfile)
       ENDIF
-#     endif
       IF ( allATonce ) THEN
          DO idoy=1,mdyear
 
@@ -382,7 +380,6 @@ SUBROUTINE read_casa_dump(  ncfile, casamet, casaflux,phen, climate, ncall, kend
 
       ENDIF
 
-#     ifndef UM_BUILD
       IF ( allATonce .OR. ncall .EQ. kend ) THEN
          ncok = NF90_CLOSE(ncrid)
          IF (ncok /= nf90_noerr ) CALL stderr_nc(ncok,'closing ', ncfile)

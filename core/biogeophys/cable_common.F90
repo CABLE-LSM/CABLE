@@ -764,6 +764,8 @@ CONTAINS
             veg%ekc(h)    = vegin%ekc(veg%iveg(h))
             veg%eko(h)    = vegin%eko(veg%iveg(h))
             veg%froot(h,:)  = vegin%froot(:, veg%iveg(h))
+            veg%zr(h)       = vegin%zr(veg%iveg(h))
+            veg%clitt(h)    = vegin%clitt(veg%iveg(h))
          END DO ! over each veg patch in land point
   
   END SUBROUTINE init_veg_from_vegin 
