@@ -904,7 +904,7 @@ PROGRAM cable_offline_driver
                                "Writing new_sumbal to the file:", TRIM(Fnew_sumbal)
 
                           OPEN( 12, FILE = Fnew_sumbal )
-                          WRITE( 12, '(F20.7)' ) new_sumbal  ! written by previous trunk version
+                          WRITE( 12, * ) new_sumbal  ! written by previous trunk version
                           CLOSE(12)
 
                        ENDIF
