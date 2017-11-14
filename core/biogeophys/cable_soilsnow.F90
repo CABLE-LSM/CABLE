@@ -41,7 +41,7 @@ MODULE cable_soil_snow_module
 
    PRIVATE
 
-   TYPE ( issnow_type ) :: C
+   TYPE ( issnow_type ), SAVE :: C
 
    REAL, PARAMETER ::                                                          &
       cgsnow = 2090.0,     & ! specific heat capacity for snow
@@ -62,7 +62,7 @@ MODULE cable_soil_snow_module
    ! This module contains the following subroutines:
    PUBLIC soil_snow ! must be available outside this module
    PUBLIC snowdensity, snow_melting, snowcheck, snowl_adjust,snow_accum, stempv,trimb
-   PUBLIC cgsnow,csice,cswat,snmin,max_ssdn
+   PUBLIC cgsnow,csice,cswat,snmin,max_ssdn,max_sconds
    PUBLIC frozen_limit,max_glacier_snowd
 
 CONTAINS

@@ -3229,6 +3229,32 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
   &                             types(bidx), ierr)
   blen(bidx) = 1
 
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%css_vec(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%rhosoil_vec(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%cnsd_vec(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%zse_vec(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+
+
 
 !1D
   bidx = bidx + 1
@@ -6003,7 +6029,6 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      ! REAL(r_2)
      CALL MPI_Get_address (ssnow%Qrecharge(off), vaddr(vidx), ierr) ! 40
      blen(vidx) = cnt * extr2
-
 
       ! additional for SLI 
      vidx = vidx + 1

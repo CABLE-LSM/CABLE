@@ -14,7 +14,7 @@ host_raij()
    export FC='mpif90'
    export CFLAGS='-O2 -fp-model precise'
    if [[ $1 = 'debug' ]]; then
-      export CFLAGS='-O0 -fp-model precise -fpe0 -g -traceback  ' 
+      export CFLAGS='-O0 -fp-model precise -fpe0 -g -traceback  -mcmodel=medium' 
    fi
    export LDFLAGS='-L'$NCDIR' '
    export LD='-lnetcdf -lnetcdff'

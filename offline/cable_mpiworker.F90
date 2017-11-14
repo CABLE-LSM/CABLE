@@ -2381,6 +2381,21 @@ ENDIF
   CALL MPI_Get_address (soil%sfc_vec, displs(bidx), ierr)
   blen(bidx) = ms * r2len
 
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%css_vec, displs(bidx), ierr)
+  blen(bidx) = ms * r1len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%rhosoil_vec, displs(bidx), ierr)
+  blen(bidx) = ms * r1len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%cnsd_vec, displs(bidx), ierr)
+  blen(bidx) = ms * r2len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%zse_vec, displs(bidx), ierr)
+  blen(bidx) = ms * r1len
 
 !1d
   bidx = bidx + 1

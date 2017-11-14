@@ -127,6 +127,12 @@ MODULE cable_def_types_mod
          soilcol, & ! keep color for all patches/tiles
          albsoilf   ! soil reflectance
 
+      REAL, DIMENSION(:,:), POINTER :: &  !leaving as r_1 now preserves bit reproductin of trunks
+        zse_vec,css_vec
+
+      REAL(r_2), DIMENSION(:,:), POINTER :: & 
+        cnsd_vec
+
       REAL(r_2), DIMENSION(:), POINTER ::                                      &
          cnsd,    & ! thermal conductivity of dry soil [W/m/K]
          pwb_min    ! working variable (swilt/ssat)**ibp2
@@ -143,7 +149,7 @@ MODULE cable_def_types_mod
          Fsand,  & !fraction of soil that is sand [frac]
          Fsilt,  & !fraction of soil that is silt [frac]
          Forg,   & !fration of soil made of organic soils [frac]
-         densoil,& !soil density  [kg/m3]
+         rhosoil_vec,& !soil density  [kg/m3]
          ssat_vec, & !volumetric water content at saturation [mm3/mm3]
          watr,   & !residual water content of the soil [mm3/mm3]
          sfc_vec, & !field capcacity (hk = 1 mm/day)
@@ -162,7 +168,7 @@ MODULE cable_def_types_mod
          GWssat_vec,  & !saturated water content of the aquifer [mm3/mm3]
          GWwatr,    & !residual water content of the aquifer [mm3/mm3]
          GWdz,      & !thickness of the aquifer   [m]
-         GWdensoil    !density of the aquifer substrate [kg/m3]
+         GWrhosoil_vec    !density of the aquifer substrate [kg/m3]
 
      ! Additional SLI parameters
      INTEGER,   DIMENSION(:),   POINTER :: nhorizons ! number of soil horizons
@@ -830,8 +836,11 @@ SUBROUTINE alloc_soil_parameter_type(var, mp)
    allocate( var%GWwatr(mp) )
    var%GWwatr(:) = 0.05
    allocate( var%GWdz(mp) )
-   allocate( var%GWdensoil(mp) )
+   allocate( var%GWrhosoil_vec(mp) )
    !soil properties (vary by layer)
+   allocate( var% zse_vec(mp,ms) )
+   allocate( var% css_vec(mp,ms) )
+   allocate( var% cnsd_vec(mp,ms) )
    allocate( var%hyds_vec(mp,ms) )
    allocate( var%sucs_vec(mp,ms) )
    allocate( var%bch_vec(mp,ms) )
@@ -844,7 +853,7 @@ SUBROUTINE alloc_soil_parameter_type(var, mp)
    allocate( var%Fclay(mp,ms) )
    allocate( var%Fsilt(mp,ms) )
    allocate( var%Forg(mp,ms) )
-   allocate( var%densoil(mp,ms) )
+   allocate( var%rhosoil_vec(mp,ms) )
 
    allocate( var%elev(mp) )
    allocate( var%slope(mp) )
@@ -1445,8 +1454,11 @@ SUBROUTINE dealloc_soil_parameter_type(var)
    DEALLOCATE( var%GWssat_vec )
    DEALLOCATE( var%GWwatr )
    DEALLOCATE( var%GWdz )
-   DEALLOCATE( var%GWdensoil )
+   DEALLOCATE( var%GWrhosoil_vec )
    !soil properties (vary by layer)
+   deallocate( var% zse_vec )
+   deallocate( var% css_vec )
+   deallocate( var% cnsd_vec )
    DEALLOCATE( var%hyds_vec )
    DEALLOCATE( var%sucs_vec )
    DEALLOCATE( var%bch_vec )
@@ -1458,7 +1470,7 @@ SUBROUTINE dealloc_soil_parameter_type(var)
    DEALLOCATE( var%Fclay )
    DEALLOCATE( var%Fsilt )
    DEALLOCATE( var%Forg  )
-   DEALLOCATE( var%densoil )   
+   DEALLOCATE( var%rhosoil_vec )   
    DEALLOCATE( var%elev )
    DEALLOCATE( var%slope )
    DEALLOCATE( var%slope_std )

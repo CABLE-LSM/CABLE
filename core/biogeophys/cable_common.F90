@@ -220,11 +220,13 @@ MODULE cable_common_module
         !Below are the soil properties for fully organic soil
 
       REAL ::    &
-        hyds_vec_organic  = 1.0e-4,&
-        sucs_vec_organic = 10.3,   &
-        clappb_organic = 2.91,     &
-        ssat_vec_organic = 0.9,    &
-        watr_organic   = 0.1
+        hyds_vec  = 1.0e-4,&
+        sucs_vec = 10.3,   &
+        clappb = 2.91,     &
+        ssat_vec = 0.9,    &
+        watr   = 0.1,&
+        css  = 2.5e6,&
+        cnsd = 0.05
 
    END TYPE organic_soil_params
 
