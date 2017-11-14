@@ -1569,7 +1569,7 @@ CONTAINS
 
     !calc the surface wetness for soil evap in this routine
     !include the default wetfac when or_evap and gw_model are not used
-    CALL calc_srf_wet_fraction(ssnow,soil,met%tk,veg%iveg)
+    CALL calc_srf_wet_fraction(ssnow,soil,met,veg)
 
   END SUBROUTINE Surf_wetness_fact
 

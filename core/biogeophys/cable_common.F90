@@ -245,6 +245,8 @@ MODULE cable_common_module
         sfc_vec_hk      = 1.157407e-06, &
         swilt_vec_hk      = 2.31481481e-8
 
+     REAL :: ice_impedence=5.0
+
      LOGICAL :: sfc_clm_func=.false.
      LOGICAL :: swilt_clm_func=.false.
 

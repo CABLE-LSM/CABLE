@@ -1764,7 +1764,7 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
           soil%watr(:,klev) = 0.02 + 0.00018*soil%Fclay(:,klev)*100.0
           soil%css_vec(:,klev) = real( (2.128*soil%Fsand(:,klev)+2.385*soil%Fclay(:,klev))/&
                                  (soil%Fclay(:,klev)+soil%Fsand(:,klev)) )
-          soil%rhosoil_vec(:,klev) =  2700.0*(1.0-real(soil%ssat_vec(i,k)))
+          soil%rhosoil_vec(:,klev) =  2700.0*(1.0-real(soil%ssat_vec(:,klev)))
           soil%cnsd_vec(:,klev) = (0.135*soil%rhosoil_vec(:,klev)+64.7)/&
                                   (2700.0-0.947*soil%rhosoil_vec(:,klev))
        ENDDO
