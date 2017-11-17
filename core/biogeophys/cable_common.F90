@@ -190,7 +190,9 @@ MODULE cable_common_module
           soilcolor,  & ! file for soil color(soilcolor_global_1x1.nc)
           inits,      & ! name of file for initialisations
           soilIGBP,   & ! name of file for IGBP soil map
-          gw_elev       !name of file for gw/elevation data
+          gw_elev,    &  !name of file for gw/elevation data
+          gw_soils,   & !file with vertical profiles of soil texture
+          gw_tiles
 
   END TYPE filenames_type
 

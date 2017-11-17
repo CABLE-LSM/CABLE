@@ -37,27 +37,27 @@ MODULE cable_gw_hydro_module
                              veg_parameter_type, canopy_type, met_type,        &
                              balances_type, r_2, ms, mp           
 
-   USE cable_data_module, ONLY : issnow_type, point2constants,C=>PHYS
+   USE cable_data_module, ONLY : issnow_type, point2constants
 
-   USE cable_common_module, ONLY : gw_params,cable_user
+   USE cable_common_module, ONLY : gw_params,cable_user,knode_gl
 
    USE cable_soil_snow_module, ONLY : snowdensity, snow_melting, snowcheck, &
-                                       snowl_adjust,snow_accum, trimb,&
+                                       snowl_adjust,snow_accum, stempv,trimb,&
                                        cgsnow,csice,cswat,snmin,max_ssdn,&
-                                       max_glacier_snowd,&
-                                      cswat,csice,cgsnow,snmin,max_ssdn,max_sconds
+                                       max_glacier_snowd,max_sconds
 
+   USE cable_IO_vars_module, ONLY: wlogn
 
    IMPLICIT NONE
 
    PRIVATE
-   
-  !TYPE ( issnow_type ), SAVE :: C
+
+  TYPE ( issnow_type ), SAVE :: C
   
 
    !mrd561 GW params
    !Should read some in from namelist
-   REAL(r_2), SAVE :: smp_cor
+   REAL(r_2), SAVE :: smp_cor = 8.0
 
    REAL(r_2), PARAMETER :: sucmin  = -1.0e8, &! minimum soil pressure head [mm]
                       volwatmin    = 1e-4,        &!min soil water [mm]      
@@ -66,7 +66,7 @@ MODULE cable_gw_hydro_module
                       wtd_min      = 100.0,       &! minimum wtd [mm]
                       dri          = 1.0           !ratio of density of ice to density of liquid [unitless]
 
-   INTEGER, PARAMETER :: wtd_iter_max = 20 ! maximum number of iterations to find the water table depth                    
+   INTEGER, PARAMETER :: wtd_iter_max = 25 ! maximum number of iterations to find the water table depth                    
    
   ! ! This module contains the following subroutines:
    PUBLIC soil_snow_gw,calc_srf_wet_fraction,sli_hydrology ! must be available outside this module
@@ -95,7 +95,7 @@ SUBROUTINE GWsoilfreeze(dels, soil, ssnow)
    REAL, DIMENSION(mp)                :: ice_mass,liq_mass,tot_mass
    INTEGER :: i,j,k
    REAL(r_2),DIMENSION(mp,ms) :: max_ice_frac,iceF  !Decker and Zeng 2009
-   !CALL point2constants( C ) 
+   CALL point2constants( C ) 
 
    do k=1,ms
    do i=1,mp
@@ -129,10 +129,11 @@ SUBROUTINE GWsoilfreeze(dels, soil, ssnow)
                       ( C%TFRZ - ssnow%tgg(i,k) ) * ssnow%gammzz(i,k) / C%HLF )
          ssnow%wbice(i,k) = MIN( ssnow%wbice(i,k) + sicefreeze(i) / (soil%zse(k)  &
                             * 1000.0), max_ice_frac(i,k) * ssnow%wb(i,k) )
-         ssnow%gammzz(i,k) = soil%zse_vec(i,k)*(                                   &
-               soil%css_vec(i,k) * soil%rhosoil_vec(i,k)     &
+         ssnow%gammzz(i,k) = soil%zse_vec(i,k)*max((1.0-soil%ssat_vec(i,k))*  &
+                soil%css_vec(i,k) * soil%rhosoil_vec(i,k)     &
               + (ssnow%wb(i,k) - ssnow%wbice(i,k)) * REAL(cswat*C%density_liq,r_2)   &
-              + ssnow%wbice(i,k) * REAL(csice * C%density_ice,r_2) )
+              + ssnow%wbice(i,k) * REAL(csice * C%density_ice,r_2),&
+                      soil%css_vec(i,k) * soil%rhosoil_vec(i,k) )
 
         if (k .eq. 1 .and. ssnow%isflag(i) .eq. 0) then
            ssnow%gammzz(i,k) = ssnow%gammzz(i,k) + cgsnow * ssnow%snowd(i)
@@ -149,10 +150,11 @@ SUBROUTINE GWsoilfreeze(dels, soil, ssnow)
          
          ssnow%wbice(i,k) = MAX( 0.0_r_2, ssnow%wbice(i,k) - sicemelt(i)          &
                             / (soil%zse(k) * C%density_ice) )
-         ssnow%gammzz(i,k) = soil%zse_vec(i,k)*(                                   &
+         ssnow%gammzz(i,k) = soil%zse_vec(i,k)*max((1.0-soil%ssat_vec(i,k))*&
                 soil%css_vec(i,k) * soil%rhosoil_vec(i,k)     &
               + (ssnow%wb(i,k) - ssnow%wbice(i,k)) * REAL(cswat*C%density_liq,r_2)   &
-              + ssnow%wbice(i,k) * REAL(csice * C%density_ice,r_2) )
+              + ssnow%wbice(i,k) * REAL(csice * C%density_ice,r_2),&
+                      soil%css_vec(i,k) * soil%rhosoil_vec(i,k) )
          if (k .eq. 1 .and. ssnow%isflag(i) .eq. 0) then
            ssnow%gammzz(i,k) = ssnow%gammzz(i,k) + cgsnow * ssnow%snowd(i)
          end if
@@ -161,10 +163,10 @@ SUBROUTINE GWsoilfreeze(dels, soil, ssnow)
        
       END IF
       !update the liq and ice volume and mass
-      ice_mass(i)   = ssnow%wbice(i,k)*real(soil%zse(k)*C%density_ice,r_2)
+      ice_mass(i)   = ssnow%wbice(i,k)*real(soil%zse_vec(i,k)*C%density_ice,r_2)
       liq_mass(i)   = tot_mass(i) - ice_mass(i)
-      ssnow%wbliq(i,k) = liq_mass(i) / real(soil%zse(k)*C%density_liq,r_2)
-      ssnow%wbice(i,k) = ice_mass(i) / real(soil%zse(k)*C%density_ice,r_2)
+      ssnow%wbliq(i,k) = liq_mass(i) / real(soil%zse_vec(i,k)*C%density_liq,r_2)
+      ssnow%wbice(i,k) = ice_mass(i) / real(soil%zse_vec(i,k)*C%density_ice,r_2)
       ssnow%wb(i,k)    = ssnow%wbliq(i,k) + ssnow%wbice(i,k)
     
    END DO
@@ -191,7 +193,7 @@ SUBROUTINE remove_transGW(dels, soil, ssnow, canopy, veg)
    REAL(r_2), DIMENSION(mp,ms) :: zse_mp_mm
    INTEGER :: k,i
 
-   !CALL point2constants( C ) 
+   CALL point2constants( C ) 
 
    do k=1,ms
       do i=1,mp
@@ -285,7 +287,7 @@ END SUBROUTINE remove_transGW
     REAL(r_2)                          :: fice
     REAL(r_2)                          :: dzmm,slopeSTDmm
 
-   !CALL point2constants( C ) 
+   CALL point2constants( C ) 
     
    !For now assume there is no puddle
    dzmm = 1000._r_2 * soil%zse(1)
@@ -453,7 +455,7 @@ END SUBROUTINE remove_transGW
   REAL(r_2)                     :: deffunc,tempa,tempb,derv,calc,tmpc
   REAL(r_2), DIMENSION(mp)      :: invB,Nsucs_vec  !inverse of C&H B,Nsucs_vec
   INTEGER :: k,i,wttd,jlp
-
+  LOGICAL, SAVE :: first_call=.true.
   !make code cleaner define these here 
   invB     = 1._r_2/soil%bch_vec(:,ms)                                !1 over C&H B
   Nsucs_vec  = soil%sucs_vec(:,ms)                                !psi_saturated mm
@@ -491,9 +493,11 @@ END SUBROUTINE remove_transGW
              (1._r_2-((Nsucs_vec(i)+total_depth_column(i))/Nsucs_vec(i))**(1._r_2-invB(i)))) 
      defc(i) = max(0.1_r_2,defc(i)) 
 
-     !initial guess at wtd
-     ssnow%wtd(:) = total_depth_column(:)*def(:)/defc(:)
   end do
+
+  !initial guess at wtd
+  ssnow%wtd(:) = total_depth_column(:)*def(:)/defc(:)
+
 
 
  !use newtons method to solve for wtd, note this assumes homogenous column but
@@ -591,6 +595,7 @@ END SUBROUTINE remove_transGW
      ssnow%wtd(i) = min(wtd_max,max(wtd_min,ssnow%wtd(i) ) )
   end do
 
+  first_call=.false.
 
   END SUBROUTINE iterative_wtd
 
@@ -844,7 +849,6 @@ END SUBROUTINE remove_transGW
 ! Output
 !	 ssnow
 SUBROUTINE soil_snow_gw(dels, soil, ssnow, canopy, met, bal, veg)
-   USE cable_IO_vars_module, ONLY: wlogn
 
    USE cable_common_module
    REAL                     , INTENT(IN)     :: dels ! integration time step (s)
@@ -869,7 +873,7 @@ SUBROUTINE soil_snow_gw(dels, soil, ssnow, canopy, met, bal, veg)
   
    use_sli = .false. 
 
-   !CALL point2constants( C ) 
+   CALL point2constants( C ) 
     
    ktau = ktau +1 
 
@@ -935,10 +939,12 @@ SUBROUTINE soil_snow_gw(dels, soil, ssnow, canopy, met, bal, veg)
          END WHERE
          
          xx=soil%css * soil%rhosoil
-
-         ssnow%gammzz(:,1) =( soil%css_vec(:,1) * soil%rhosoil_vec(:,1) &
-              & + (ssnow%wb(:,1) - ssnow%wbice(:,1) ) * cswat * C%density_liq &
-              & + ssnow%wbice(:,1) * csice * C%density_ice) * soil%zse_vec(:,1)
+         ssnow%gammzz(:,:) =max( (1.0-soil%ssat_vec(:,:))*soil%css_vec(:,:) * soil%rhosoil_vec(:,:) +&
+                  (ssnow%wb(:,:) - ssnow%wbice(:,:) ) * cswat * C%density_liq +&
+                   ssnow%wbice(:,:) * csice * C%density_ice,&
+                   soil%css_vec(:,:) * soil%rhosoil_vec(:,:)) * soil%zse_vec(:,:) 
+        ssnow%gammzz(:,1) = ssnow%gammzz(:,1) + &
+                            (1. - ssnow%isflag(:)) * cgsnow * ssnow%snowd(:)
 
    ENDIF  ! if(.NOT.cable_runtime_coupled) and first_gw_hydro_call
 
@@ -956,11 +962,16 @@ SUBROUTINE soil_snow_gw(dels, soil, ssnow, canopy, met, bal, veg)
       end do
    end do
 
-   IF (first_gw_hydro_call) &
-   ssnow%gammzz(:,1) =( soil%css_vec(:,1) * soil%rhosoil_vec(:,1) +&
-            (ssnow%wb(:,1) - ssnow%wbice(:,1) ) * cswat * C%density_liq +&
-             ssnow%wbice(:,1) * csice * C%density_ice) * soil%zse_vec(:,1) + &
-            (1. - ssnow%isflag(i)) * cgsnow * ssnow%snowd(i)
+   IF (first_gw_hydro_call) then
+     do i=1,mp
+     ssnow%gammzz(i,1) =max( (1.0-soil%ssat_vec(i,1))*soil%css_vec(i,1) * soil%rhosoil_vec(i,1) +&
+              (ssnow%wb(i,1) - ssnow%wbice(i,1) ) * cswat * C%density_liq +&
+               ssnow%wbice(i,1) * csice * C%density_ice,&
+               soil%css_vec(i,1) * soil%rhosoil_vec(i,1)) * soil%zse_vec(i,1) + &
+              (1. - ssnow%isflag(i)) * cgsnow * ssnow%snowd(i)
+
+     end do
+   end if
 
    do i=1,mp
 
@@ -990,7 +1001,10 @@ SUBROUTINE soil_snow_gw(dels, soil, ssnow, canopy, met, bal, veg)
 
    CALL snowl_adjust(dels, ssnow, canopy )
 
-   CALL GWstempv(dels, canopy, ssnow, soil)
+   ssnow%wblf(:,:)   = max(ssnow%wbliq(:,:)/soil%ssat_vec(:,:),0.01_r_2)
+   ssnow%wbfice(:,:) = max(ssnow%wbice(:,:)/soil%ssat_vec(:,:),0._r_2)
+
+   CALL stempv(dels, canopy, ssnow, soil)
 
    !do the soil and snow melting, freezing prior to water movement
    do i=1,mp
@@ -1777,7 +1791,7 @@ SUBROUTINE GWstempv(dels, canopy, ssnow, soil)
 
    dels_r2 = real(dels,r_2)
 
-   !CALL point2constants( C )
+   CALL point2constants( C )
 
    at = 0.0
    bt = 1.0
@@ -1851,9 +1865,7 @@ SUBROUTINE GWstempv(dels, canopy, ssnow, soil)
       ssnow%gammzz(:,k) =(  soil%css_vec(:,k) * soil%rhosoil_vec(:,k)   &
                           +( ssnow%wbliq(:,k) * cswat * C%density_liq +            &
                           ssnow%wbice(:,k) * csice * C%density_ice))     &
-                          * soil%zse_vec(:,k)
-
-      ssnow%gammzz(:,k) = ssnow%gammzz(:,k) + cgsnow * ssnow%snowd
+                          * soil%zse_vec(:,k) + cgsnow * ssnow%snowd(:)
 
       dtg = dels_r2 / ssnow%gammzz(:,k)
 

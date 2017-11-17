@@ -3237,7 +3237,7 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
 
   bidx = bidx + 1
   CALL MPI_Get_address (soil%rhosoil_vec(off,1), displs(bidx), ierr)
-  CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
   &                             types(bidx), ierr)
   blen(bidx) = 1
 
@@ -3252,6 +3252,36 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
   CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
   &                             types(bidx), ierr)
   blen(bidx) = 1
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%sand_vec(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%clay_vec(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%silt_vec(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%org_vec(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
 
 
 

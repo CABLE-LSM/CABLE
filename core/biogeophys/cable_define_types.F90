@@ -145,10 +145,10 @@ MODULE cable_def_types_mod
          sucs_vec, & !psi at saturation in [mm]
          hyds_vec,  & !saturated hydraulic conductivity  [mm/s]
          bch_vec, & !C and H B [none]
-         Fclay,  & !fraction of soil that is clay [frac]
-         Fsand,  & !fraction of soil that is sand [frac]
-         Fsilt,  & !fraction of soil that is silt [frac]
-         Forg,   & !fration of soil made of organic soils [frac]
+         clay_vec,  & !fraction of soil that is clay [frac]
+         sand_vec,  & !fraction of soil that is sand [frac]
+         silt_vec,  & !fraction of soil that is silt [frac]
+         org_vec,   & !fration of soil made of organic soils [frac]
          rhosoil_vec,& !soil density  [kg/m3]
          ssat_vec, & !volumetric water content at saturation [mm3/mm3]
          watr,   & !residual water content of the soil [mm3/mm3]
@@ -849,10 +849,10 @@ SUBROUTINE alloc_soil_parameter_type(var, mp)
    var%watr(:,:) = 0.05
    allocate( var%sfc_vec(mp,ms) )
    allocate( var%swilt_vec(mp,ms) )
-   allocate( var%Fsand(mp,ms) )
-   allocate( var%Fclay(mp,ms) )
-   allocate( var%Fsilt(mp,ms) )
-   allocate( var%Forg(mp,ms) )
+   allocate( var%sand_vec(mp,ms) )
+   allocate( var%clay_vec(mp,ms) )
+   allocate( var%silt_vec(mp,ms) )
+   allocate( var%org_vec(mp,ms) )
    allocate( var%rhosoil_vec(mp,ms) )
 
    allocate( var%elev(mp) )
@@ -1466,10 +1466,10 @@ SUBROUTINE dealloc_soil_parameter_type(var)
    DEALLOCATE( var%watr )
    DEALLOCATE( var%sfc_vec )
    DEALLOCATE( var%swilt_vec )
-   DEALLOCATE( var%Fsand )
-   DEALLOCATE( var%Fclay )
-   DEALLOCATE( var%Fsilt )
-   DEALLOCATE( var%Forg  )
+   DEALLOCATE( var%sand_vec )
+   DEALLOCATE( var%clay_vec )
+   DEALLOCATE( var%silt_vec )
+   DEALLOCATE( var%org_vec  )
    DEALLOCATE( var%rhosoil_vec )   
    DEALLOCATE( var%elev )
    DEALLOCATE( var%slope )

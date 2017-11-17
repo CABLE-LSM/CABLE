@@ -804,7 +804,6 @@ do i=1,mp
       if( canopy%precis(i) > 0.0 .AND. ssnow%tgg(i,1) < C%TFRZ ) then
 
          ssnow%snowd(i) = MAX(ssnow%snowd(i) + canopy%precis(i), 0.0)
-
          ssnow%tgg(i,1) = ssnow%tgg(i,1) + canopy%precis(i) * C%HLF               &
                           / ( REAL( ssnow%gammzz(i,1) ) + cswat *canopy%precis(i) )  
          ! change density due to water being added
