@@ -251,6 +251,7 @@ MODULE cable_common_module
 
      LOGICAL :: sfc_clm_func=.false.
      LOGICAL :: swilt_clm_func=.false.
+     LOGICAL :: no_aquifer_flux=.false.
 
       TYPE(organic_soil_params) :: org
 

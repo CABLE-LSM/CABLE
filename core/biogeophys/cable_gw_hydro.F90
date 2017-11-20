@@ -1504,6 +1504,8 @@ END SUBROUTINE calc_soil_hydraulic_props
        end if
     end do
 
+    if (gw_params%no_aquifer_flux) ssnow%Qrecharge(i) = 0._r_2
+
 
   END SUBROUTINE aquifer_recharge
 
