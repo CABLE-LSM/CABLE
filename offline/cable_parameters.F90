@@ -2807,7 +2807,7 @@ subroutine read_tiled_soil_params(soil)
 
        soillev_ext = nf90_inq_dimid(ncid,'soil_level',dimid(2))
        if (soillev_ext .ne. nf90_noerr) &
-          soillev_ierr = nf90_inquire_dimension(ncid=ncid,dimid=dimid(1),name=tmpname,len=num_tiles)
+          soillev_ierr = nf90_inquire_dimension(ncid=ncid,dimid=dimid(1),name=tmpname,len=num_horz)
 
        ok = nf90_inq_dimid(ncid,'latitude'  ,dimid(3))
        if (ok .ne. nf90_noerr) &  !must have lat/lon
