@@ -59,7 +59,8 @@ MODULE cable_param_module
   USE phenvariable
   USE cable_abort_module
   USE cable_IO_vars_module
-  USE cable_common_module, ONLY: cable_user, hide, gw_params,init_veg_from_vegin
+  USE cable_common_module, ONLY: cable_user, hide, &
+                                 gw_params,init_veg_from_vegin,filename
   USE CABLE_LUC_EXPT, ONLY: LUC_EXPT, LUC_EXPT_TYPE, LUC_EXPT_SET_TILES
   IMPLICIT NONE
   PRIVATE
@@ -1769,6 +1770,17 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
     soil%zshh(ms + 1) = 0.5 * soil%zse(ms)
     soil%zshh(2:ms)   = 0.5 * (soil%zse(1:ms-1) + soil%zse(2:ms))
 
+    IF (len(trim(filename%gw_soils)) .GT. 3 .AND. cable_user%gw_model) THEN
+       CALL read_tiled_soil_params(soil)
+       do i=1,mp
+          do klev=1,ms
+             write(*,*) 'Level - ',klev,' sand_vec ',soil%sand_vec(i,klev)
+             write(*,*) 'Level - ',klev,' clay_vec ',soil%clay_vec(i,klev)
+             write(*,*) 'Level - ',klev,' sily_vec ',soil%silt_vec(i,klev)
+             write(*,*) 'Level - ',klev,' org_vec ',soil%org_vec(i,klev)
+          end do
+       end do
+    END IF
 
     IF (cable_user%GW_MODEL) then
 
@@ -2760,15 +2772,23 @@ subroutine read_tiled_soil_params(soil)
    real,allocatable, dimension(:) :: horizon_depth
 
    real, dimension(mp,0:ms+1) :: totdepth
-
-   real, pointer, dimension(:) :: datain_ptr
+   real, allocatable, dimension(:,:)   :: matching_depth
+   real, allocatable, dimension(:)     :: total_matching_depth
+   real, pointer   ,dimension(:)      :: horizon_depth_int_one  !assumeed interfaces
+                                                           !for soil texture,
+                                                           !soilgrids doe not
+                                                           !specifiy actual
+                                                           !layers just depths
+   real, pointer :: horizon_depth_int(:)
+   real :: tmpA,tmpB,tmpC
+   real, pointer, dimension(:) :: datain_ptr  !not used for now
 
    integer, dimension(0:25) :: tmpid,dimid
 
    character(len=4096) :: tmpname
 
    integer :: ok,ncid,num_tiles,num_horz,num_lat,num_lon,&
-              i,j,k,h,kb,ke,ib,ie,ii,jj,kk,hh,ij,ivar
+              i,j,k,h,kb,ke,ib,ie,ii,jj,kk,hh,ij,ivar,khorz
 
    integer :: ntiles_ierr,soillev_ierr,longitude_ierr,latitude_ierr,&
               ntiles_ext,soillev_ext,&   !dis exist in file
@@ -2801,13 +2821,15 @@ subroutine read_tiled_soil_params(soil)
        num_lon   = 1
 
     
-       ntiles_ext = nf90_inq_dimid(ncid,'ntiles'    ,dimid(1))
-       if (ntiles_ext .ne. nf90_noerr) &
-          ntiles_ierr = nf90_inquire_dimension(ncid=ncid,dimid=dimid(1),name=tmpname,len=num_tiles)
+       soillev_ext = nf90_inq_dimid(ncid,'soil_depth',dimid(2))
+       soillev_ierr = nf90_inquire_dimension(ncid=ncid,dimid=dimid(2),name=tmpname,len=num_horz)
 
-       soillev_ext = nf90_inq_dimid(ncid,'soil_level',dimid(2))
-       if (soillev_ext .ne. nf90_noerr) &
-          soillev_ierr = nf90_inquire_dimension(ncid=ncid,dimid=dimid(1),name=tmpname,len=num_horz)
+       if (soillev_ext .ne. nf90_noerr .or. soillev_ierr .ne. nf90_noerr) then
+          write(*,*) 'soil_depth  dimension problem gw_soils, stopping'
+          stop
+       end if
+
+       write(*,*) 'num_horz is ',num_horz
 
        ok = nf90_inq_dimid(ncid,'latitude'  ,dimid(3))
        if (ok .ne. nf90_noerr) &  !must have lat/lon
@@ -2817,61 +2839,19 @@ subroutine read_tiled_soil_params(soil)
        if (ok .ne. nf90_noerr) &
           stop
 
-       tiles_and_horz = .false.
+       allocate(strt(3))
+       allocate(cnt(3))
 
-       if ( (ntiles_ext .ne. nf90_noerr) .and. (soillev_ext .ne. nf90_noerr) ) then
-          allocate(strt(4))
-          allocate(cnt(4))
-          tiles_and_horz = .true.
-       elseif ((ntiles_ext .ne. nf90_noerr) .or. (soillev_ext .ne. nf90_noerr) ) then
-          allocate(strt(3))
-          allocate(cnt(3))
-       else
-          allocate(strt(2))
-          allocate(cnt(2))
-       end if
+       ok = nf90_inq_varid(ncid,'soil_depth'  ,tmpid(0))
 
-    
-    
-       ok = nf90_inq_varid(ncid,'soil_depths'  ,tmpid(0))
-
-       if (num_horz .gt. 1) then
-       ok = nf90_inq_varid(ncid,'sand_vec' ,tmpid(1))
-       ok = nf90_inq_varid(ncid,'clay_vec' ,tmpid(2))
-       ok = nf90_inq_varid(ncid,'silt_vec' ,tmpid(3))
-       ok = nf90_inq_varid(ncid,'org_vec' ,tmpid(4))
+       ok = nf90_inq_varid(ncid,'Fsand' ,tmpid(1))
+       ok = nf90_inq_varid(ncid,'Fclay' ,tmpid(2))
+       ok = nf90_inq_varid(ncid,'Fsilt' ,tmpid(3))
+       ok = nf90_inq_varid(ncid,'Forg' ,tmpid(4))
        ok = nf90_inq_varid(ncid,'rho_soil' ,tmpid(5))
-       end if
-
-       if (num_tiles .gt. 1) then
-       ok = nf90_inq_varid(ncid,'elevation' ,tmpid(5))
-       ok = nf90_inq_varid(ncid,'slope' ,tmpid(6))
-       ok = nf90_inq_varid(ncid,'slope_std' ,tmpid(7))
-       ok = nf90_inq_varid(ncid,'dtb' ,tmpid(8))
-       ok = nf90_inq_varid(ncid,'GWssat' ,tmpid(10))
-       ok = nf90_inq_varid(ncid,'GWwatr' ,tmpid(11))
-       ok = nf90_inq_varid(ncid,'GWhyds' ,tmpid(12))
-       ok = nf90_inq_varid(ncid,'GWsucs' ,tmpid(13))
-       ok = nf90_inq_varid(ncid,'GWbch'  ,tmpid(14))
-       ok = nf90_inq_varid(ncid,'GWdz'  ,tmpid(15))
-       end if
-    
-
-       allocate(tmpin(num_tiles,num_horz))
        allocate(horizon_depth(num_horz))
-       allocate(tmp1d_tile(num_tiles))
        allocate(tmp1d_horz(num_horz))
 
-       ok = nf90_get_var(ncid,tmpid(0),horizon_depth)
-    
-       totdepth(:,:) = 0.
-       do i=1,mp
-          totdepth(i,1) = 0.5*soil%zse_vec(i,1)
-          do k=2,ms
-             totdepth(i,k) = totdepth(i,k-1) + 0.5*soil%zse_vec(i,k-1) + 0.5*soil%zse_vec(i,k)
-          end do
-          totdepth(i,ms+1) = totdepth(i,ms) + 0.5*soil%GWdz(j)
-       end do
 
       if (num_lat*num_lon .gt. 1 .and. ( (num_lat .ne. ydimsize) .or. &
                                          (num_lon .ne. xdimsize) ) ) then
@@ -2905,56 +2885,34 @@ subroutine read_tiled_soil_params(soil)
              ii=land_x(i)
              jj=land_y(i)
   
-             if (size(strt,dim=1) .eq. 4) then 
-                strt = (/ii,jj,1,1/)
-                cnt = (/1,1,num_tiles,num_horz/)
-             elseif (size(strt,dim=1) .eq. 3) then
-                strt = (/ii,jj,1/)
-                cnt  = (/1,1,max(num_tiles,num_horz)/)  !only one larger than 1
-             else
-                strt = (/ii,jj/)
-                cnt  = (/1,1/)
-             end if 
+             strt = (/ii,jj,1/)
+             cnt  = (/1,1,ms/)
    
-             ib = landpt(j)%cstart
-             ie = landpt(j)%cend
+             ib = landpt(i)%cstart
+             ie = landpt(i)%cend
 
              do ivar=1,5
-
-                if (tiles_and_horz)  then
-                  ok = nf90_get_var(ncid,tmpid(ivar),tmpin,strt,cnt)
-                  datain_ptr(1:num_tiles*num_horz) => tmpin(:,:)
-                elseif (soillev_ext) then
-                  ok = nf90_get_var(ncid,tmpid(ivar),tmp1d_horz,strt,cnt)
-                  datain_ptr => tmp1d_horz
-                else
-                  ok = nf90_get_var(ncid,tmpid(ivar),tmp1d_tile,strt,cnt)
-                  datain_ptr => tmp1d_tile
-                end if
-
-                do k=1,ms
-                   do h=1,num_horz
-                      do ij=ib,ie
-                         if (totdepth(ij,k) .le. horizon_depth(h)) then
-
-                            select case (ivar)
-                              case (1)
-                                soil%sand_vec(ij,k) = real(datain_ptr(ij-ib+1 + (h-1)*(ij-ib+1))  ,r_2) 
-                              case (2)
-                                soil%clay_vec(ij,k) = real(datain_ptr(ij-ib+1 + (h-1)*(ij-ib+1))  ,r_2) 
-                              case (3)
-                                soil%silt_vec(ij,k) = real(datain_ptr(ij-ib+1 + (h-1)*(ij-ib+1))  ,r_2) 
-                              case (4)
-                                soil%org_vec(ij,k) = real(datain_ptr(ij-ib+1 + (h-1)*(ij-ib+1))  ,r_2)
-                              case (5)
-                                soil%rhosoil_vec(ij,k) = real(datain_ptr(ij-ib+1 + (h-1)*(ij-ib+1))  ,r_2) 
-                              end select
-                            
-                         end if
-                      end do
-                   end do
-                end do
-  
+                ok = nf90_get_var(ncid,tmpid(ivar),tmp1d_horz,strt,cnt)
+                        
+                 do k=1,ms
+                    !do h=1,num_horz
+                       do ij=ib,ie
+                           select case (ivar)
+                           case (1)
+                             soil%sand_vec(ij,k) =  tmp1d_horz(k)
+                           case (2)
+                             soil%clay_vec(ij,k) =  tmp1d_horz(k)
+                           case (3)
+                             soil%silt_vec(ij,k) =  tmp1d_horz(k)
+                           case (4)
+                             soil%org_vec(ij,k) =  tmp1d_horz(k)
+                           case (5)
+                             soil%rhosoil_vec(ij,k) =  tmp1d_horz(k)
+                           end select
+                             
+                       end do
+                    !end do
+                 end do
              end do
              !st3d = (/ii,jj,1/)
              !cn3d = (/1,1,num_tiles/)

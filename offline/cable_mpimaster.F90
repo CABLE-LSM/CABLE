@@ -1232,7 +1232,8 @@ write(*,*) 'after annual calcs'
              IF( (ANY( ABS(ssnow%wb-soilMtemp)>delsoilM).OR.                     &
                   ANY(ABS(ssnow%tgg-soilTtemp)>delsoilT) .or. &
                   maxval(abs(ssnow%GWwb-GWtemp),dim=1)>delgwM) .and. &
-                  (int(ktau_tot/kend) .lt. cable_user%max_spins) ) THEN
+                      ( (int(ktau_tot/kend) .lt. cable_user%max_spins)  .and.&
+                        (cable_user%max_spins .gt. 0) ) ) THEN
 
                 ! No complete convergence yet
                 !               PRINT *, 'ssnow%wb : ', ssnow%wb
