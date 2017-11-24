@@ -29,8 +29,13 @@ host_mael()
 
 host_ccrc()
 {
-   export NCDIR='/usr/local/netcdf/intel/4.1.3/lib'
-   export NCMOD='/usr/local/netcdf/intel/4.1.3/include'
+
+   netcdfversion=$(nc-config --version | cut -c 8-12)
+
+   ifortversion=$(ifort --version | head -n 1 | cut -c 15-18)
+
+   export NCDIR="/usr/local/netcdf/intel/${netcdfversion}/lib"
+   export NCMOD="/usr/local/netcdf/intel/${netcdfversion}/include"
    export FC=ifort
    export CFLAGS='-O2 -fp-model precise '   #-traceback
    if [[ $1 = 'debug' ]]; then
@@ -38,9 +43,9 @@ host_ccrc()
 # -diag-enable sc2 -diag-enable sc-single-file
    fi
    export LD='-lnetcdf -lnetcdff'
-   export LDFLAGS='-L/usr/local/intel/Compiler/11.1/lib/intel64 -L//usr/local/netcdf/intel/4.1.3/lib -O2'
+   export LDFLAGS="-L/usr/local/intel/Compiler/${ifortversion}/lib/intel64 -L//usr/local/netcdf/intel/${netcdfversion}/lib -O2"
    if [[ $1 = 'debug' ]]; then
-      export LDFLAGS='-L/usr/local/intel/Compiler/11.1/lib/intel64 -L//usr/local/netcdf/intel/4.1.3/lib -O0 -debug -g -ftrapuv -diag-enable warn'
+      export LDFLAGS="-L/usr/local/intel/Compiler/${ifortversion}/lib/intel64 -L//usr/local/netcdf/intel/${netcdfversion}/lib -O0 -debug -g -ftrapuv -diag-enable warn"
 # -diag-enable sc2 -diag-enable sc-single-file
    fi
    build_build
