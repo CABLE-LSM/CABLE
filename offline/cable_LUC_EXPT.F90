@@ -68,7 +68,8 @@ CONTAINS
     
     TYPE (LUC_EXPT_TYPE), INTENT(INOUT) :: LUC_EXPT
     
-    REAL    :: tmparr(720,360), tmp
+    REAL :: tmp
+    REAL,ALLOCATABLE :: tmparr(:,:)
     INTEGER :: t, i, ii, k, x, y, realk
     INTEGER :: fID, vID, timID,latID, lonID, tdimsize, xdimsize, ydimsize
     INTEGER :: xds, yds, tds
@@ -207,11 +208,11 @@ CONTAINS
      !write(*,*) 'length LUH2 data: ', tdimsize
     ENDDO
 
-
-
- LUC_EXPT%FirstYEAR = 850
+    LUC_EXPT%FirstYEAR = 850
   ! Set internal counter
     LUC_EXPT%CTSTEP = 1 +  LUC_EXPT%YearStart- LUC_EXPT%FirstYEAR
+
+    allocate(tmparr(xds,yds))
 
  ! READ initial states
     i = grassfrac
@@ -382,8 +383,6 @@ CONTAINS
        END WHERE
     END WHERE
 
-
-    
  END SUBROUTINE LUC_EXPT_INIT
   
 ! ==============================================================================
@@ -615,6 +614,9 @@ IMPLICIT NONE
              LUC_EXPT%INPUT(i)%VAL(k) = tmp
           END DO
        ELSE
+
+write(6,*) 'land_x=',land_x
+write(6,*) 'land_y=',land_y
           STATUS = NF90_GET_VAR(LUC_EXPT%F_ID(i), LUC_EXPT%V_ID(i), tmparr, &
                start=(/1,1,t/),count=(/xds,yds,1/) )
           CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )
