@@ -589,6 +589,10 @@ MODULE cable_def_types_mod
       REAL, DIMENSION(:), POINTER ::                                           &
       dtemp,        & ! daily mean temperature
       dmoist,        & ! daily moisture availability
+      dmoist_min,        & ! minimum daily moisture availability over the year
+      dmoist_min20,        & ! min daily moisture avail over the year, averaged over 20 y
+      dmoist_max,        & ! maximum daily moisture availability over the year
+      dmoist_max20,        & ! max daily moisture avail over the year, averaged over 20 y
       mtemp,       & ! mean temperature over the last 31 days
       qtemp,       & ! mean temperature over the last 91 days
       mmoist,        & ! monthly moisture availability
@@ -615,6 +619,8 @@ MODULE cable_def_types_mod
       REAL, DIMENSION(:,:), POINTER ::                                   &
       mtemp_min_20, & ! mimimum monthly temperatures for the last 20 y
       mtemp_max_20, & ! maximum monthly temperatures for the last 20 y
+      dmoist_min_20, & ! min daily moisture for the last 20 y
+      dmoist_max_20, & ! max daily moisture for the last 20 y
       dtemp_31 , &    ! daily temperature for the last 31 days
       dmoist_31 , &    ! daily moisture availability for the last 31 days
       alpha_PT_20, &      ! priestley Taylor Coefft for last 20 y
@@ -1205,6 +1211,10 @@ SUBROUTINE alloc_climate_type(var, mp, ktauday)
 !   ALLOCATE ( var %  doy )
    ALLOCATE ( var %  dtemp(mp) )
    ALLOCATE ( var %  dmoist(mp) )
+   ALLOCATE ( var %  dmoist_min(mp) )
+   ALLOCATE ( var %  dmoist_min20(mp) )
+   ALLOCATE ( var %  dmoist_max(mp) )
+   ALLOCATE ( var %  dmoist_max20(mp) )
    ALLOCATE ( var % mtemp(mp) )
    ALLOCATE ( var % qtemp(mp) )
    ALLOCATE ( var % mmoist(mp) )
@@ -1234,6 +1244,8 @@ SUBROUTINE alloc_climate_type(var, mp, ktauday)
 
    ALLOCATE ( var % mtemp_min_20(mp,ny) )
    ALLOCATE ( var %     mtemp_max_20(mp,ny) )
+   ALLOCATE ( var % dmoist_min_20(mp,ny) )
+   ALLOCATE ( var % dmoist_max_20(mp,ny) )
    ALLOCATE ( var %     dtemp_31(mp,nd) )
    ALLOCATE ( var %     dmoist_31(mp,nd) )
    ALLOCATE ( var %     dtemp_91(mp,91) )
@@ -1248,6 +1260,8 @@ SUBROUTINE alloc_climate_type(var, mp, ktauday)
    ALLOCATE ( var %   cs_shade(mp,ktauday*5) )
    ALLOCATE ( var %   scalex_sun(mp,ktauday*5) )
    ALLOCATE ( var %   scalex_shade(mp,ktauday*5) )
+
+   
 END SUBROUTINE alloc_climate_type
 
 ! ------------------------------------------------------------------------------

@@ -69,7 +69,7 @@ CONTAINS
     TYPE (LUC_EXPT_TYPE), INTENT(INOUT) :: LUC_EXPT
     
     REAL :: tmp
-    REAL,ALLOCATABLE :: tmparr(:,:)
+    REAL,ALLOCATABLE :: tmparr(:,:)  , lattmp(:),lontmp(:)
     INTEGER :: t, i, ii, k, x, y, realk
     INTEGER :: fID, vID, timID,latID, lonID, tdimsize, xdimsize, ydimsize
     INTEGER :: xds, yds, tds
@@ -301,7 +301,7 @@ CONTAINS
 
 
     CALL READ_ClimateFile(LUC_EXPT)
-
+    
     ! hot desert
     WHERE (LUC_EXPT%biome.eq.15 )
        LUC_EXPT%ivegp = 14

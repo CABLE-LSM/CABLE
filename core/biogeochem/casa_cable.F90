@@ -39,7 +39,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    USE POPMODULE,            ONLY: POPStep
    USE POP_TYPES,            ONLY: POP_TYPE
    USE cable_phenology_module, ONLY: cable_phenology_clim
-
+   USE  cable_IO_vars_module, ONLY: wlogn
    IMPLICIT NONE
 
    INTEGER,      INTENT(IN) :: ktau ! integration step number
@@ -79,8 +79,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    CHARACTER                                 :: ncfile*99
  
 
-  ! INTEGER, INTENT(IN) :: wlogn
-   INTEGER , parameter :: wlogn=6
+  
 
   
    IF ( .NOT. dump_read ) THEN  ! construct casa met and flux inputs from current CABLE run
@@ -130,6 +129,9 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
                 nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
                 pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
 
+            write(wlogn,*),'after biogeochem npp:', casaflux%cnpp
+            write(wlogn,*),'after biogeochem npp:', casapool%cplant
+            
             IF (cable_user%CALL_POP) THEN ! accumulate input variables for POP
                ! accumulate annual variables for use in POP
                IF(MOD(ktau/ktauday,LOY)==1 ) THEN

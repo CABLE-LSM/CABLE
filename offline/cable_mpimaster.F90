@@ -764,10 +764,12 @@ write(*,*) 'after CALL1'
                 !CALL PLUME_MIP_GET_MET(PLUME, iMET, YYYY, 1, kend, &
                 !     (YYYY.EQ.CABLE_USER%YearEnd))
              ELSE IF ( TRIM(cable_user%MetType) .EQ. 'bios' ) THEN
-                CALL  cable_bios_read_met(iMET, CurYear, ktau, kend, &
-                       (YYYY.EQ.CABLE_USER%YearEnd .AND. ktau.EQ.kend), dels )
-          
 
+                
+                CALL  cable_bios_read_met(iMET, CurYear, iktau, kend, &
+                       (YYYY.EQ.CABLE_USER%YearEnd .AND. 1.EQ.kend), dels )
+
+               
              ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
               
                 CALL CRU_GET_SUBDIURNAL_MET(CRU, imet, YYYY, 1, kend, &
@@ -839,8 +841,8 @@ write(*,*) 'after CALL1'
                      (YYYY.EQ.CABLE_USER%YearEnd .AND. iktau.EQ.kend))
              ELSE IF ( TRIM(cable_user%MetType) .EQ. 'bios' ) THEN
                 IF (( .NOT. CASAONLY ).OR. (CASAONLY.and.CALL1))  THEN               
-                  CALL  cable_bios_read_met(MET, CurYear, ktau, kend, &
-                       (YYYY.EQ.CABLE_USER%YearEnd .AND. ktau.EQ.kend), dels )
+                  CALL  cable_bios_read_met(iMET, CurYear, iktau, kend, &
+                       (YYYY.EQ.CABLE_USER%YearEnd .AND. iktau.EQ.kend), dels )
                 END IF
              ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
                 CALL CRU_GET_SUBDIURNAL_MET(CRU, imet, YYYY, iktau, kend, &
@@ -875,8 +877,9 @@ write(*,*) 'after CALL1'
                 IF ( icycle > 0 ) THEN
                    ! receive casa update from worker
                    CALL master_receive (ocomm, oktau, casa_ts)
-                   
-    
+                  ! write(*,*) 'after master_receive casa_ts'
+                   CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
+                  ! write(*,*) 'after master_receive casa_ts waitall'
                    ! receive casa dump requirements from worker
                    IF ( ((.NOT.spinup).OR.(spinup.AND.spinConv)) .AND.   &
                         ( IS_CASA_TIME("dwrit", yyyy, oktau, kstart, &
@@ -1006,7 +1009,7 @@ write(*,*) 'after CALL1'
                                rad%fvlai(kk,:) ,  rad%fvlai(kk,1), &
                                rad%fvlai(kk,2), canopy%vlaiw(kk)
 
-                     ! CALL MPI_Abort(comm, 0, ierr)
+                      CALL MPI_Abort(comm, 0, ierr)
                      ENDIF
                       
                     ENDDO
@@ -1070,6 +1073,7 @@ write(*,*) 'after CALL1'
 
              IF ( IS_CASA_TIME("write", yyyy, oktau, kstart, &
                   koffset, kend, ktauday, logn) ) THEN
+               
                 CALL master_receive (ocomm, oktau, casa_ts)
 
 !                CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)              
@@ -1086,6 +1090,7 @@ write(*,*) 'after CALL1'
           ENDIF
         
           IF ( .NOT. CASAONLY ) THEN
+            ! write(*,*) 'master_receive 6'
              CALL master_receive (ocomm, oktau, recv_ts)
       !       CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
           ENDIF
@@ -1159,8 +1164,7 @@ write(*,*) 'after annual calcs'
                       CALL POP_IO( pop, casamet, CurYear, 'WRITE_EPI', &
                            (CurYear.EQ.CABLE_USER%YearEnd) )
                    ENDIF
-               
-
+ 
                 ENDIF
              END IF
         
@@ -6696,9 +6700,8 @@ SUBROUTINE master_climate_types (comm, climate, ktauday)
      nsd = 5 * ktauday
 
 print*, 'master, nd ny mp nsd', nd, ny,mp, nsd
-!print*, 'master, size(climate)', size(climate%mtemp_min_20)
+
      bidx = bidx + 1
-     !types(bidx)  = MPI_REAL
      CALL MPI_Get_address (climate%mtemp_min_20(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (ny, r1len, r1stride, MPI_BYTE, &
      &                                types(bidx), ierr)
@@ -6799,7 +6802,20 @@ print*, 'master, nd ny mp nsd', nd, ny,mp, nsd
      &                                types(bidx), ierr)
      blocks(bidx) = 1 
 
- ! ------------- 1D vectors -------------
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%dmoist_min_20(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector (ny, r1len, r1stride, MPI_BYTE, &
+     &                                types(bidx), ierr)
+     blocks(bidx) = 1
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%dmoist_max_20(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector (ny, r1len, r1stride, MPI_BYTE, &
+     &                                types(bidx), ierr)
+     blocks(bidx) = 1
+
+
+     ! ------------- 1D vectors -------------
 
      bidx = bidx + 1
      CALL MPI_Get_address (climate%chilldays(off), displs(bidx), ierr)
@@ -6933,6 +6949,16 @@ print*, 'master, nd ny mp nsd', nd, ny,mp, nsd
      blocks(bidx) = r1len
      types(bidx)  = MPI_BYTE
 
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%dmoist_min20(off), displs(bidx), ierr)
+     blocks(bidx) = r1len
+     types(bidx)  = MPI_BYTE
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%dmoist_max20(off), displs(bidx), ierr)
+     blocks(bidx) = r1len
+     types(bidx)  = MPI_BYTE
+
  ! ------------- scalars  -------------
 
      bidx = bidx + 1
@@ -6986,8 +7012,8 @@ print*, 'master, nd ny mp nsd', nd, ny,mp, nsd
           &               inp_req(rank), ierr)
        
   END DO
-  
-  CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
+
+   CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
   
 
   DEALLOCATE(types)
@@ -7897,7 +7923,6 @@ SUBROUTINE master_send_input (comm, dtypes, ktau)
   !IF (.NOT. ALLOCATED(inp_stats)) THEN
   !   ALLOCATE (inp_stats(MPI_STATUS_SIZE, wnp))
   !END IF
-
   CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
 
   RETURN
@@ -7934,6 +7959,7 @@ SUBROUTINE master_receive(comm, ktau, types)
   END DO
 
   ! MPI: we need all timesteps data before processing/saving
+  !write(*,*) 'waitall 3'
   CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
 
   RETURN

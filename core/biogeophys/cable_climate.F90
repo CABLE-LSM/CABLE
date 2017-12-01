@@ -125,14 +125,8 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
   ! accumulate sub-diurnal sun- and shade-leaf met variables that are relevant for calc of Anet
   climate%APAR_leaf_sun(:,1:nsd-1) =  climate%APAR_leaf_sun(:,2:nsd)
   climate%APAR_leaf_sun(:,nsd) = rad%qcan(:,1,1)*4.6 ! umol m-2 s-1
-!write(*,*) 'APAR 1a',  climate%APAR_leaf_shade(2,:)
-!write(*,*)
-!write(*,*) 'qcan', rad%qcan(2,1,1:2), met%fsd(2,:), canopy%vlaiw(2)
-!write(*,*)
   climate%APAR_leaf_shade(:,1:nsd-1) = climate%APAR_leaf_shade(:,2:nsd)
   climate%APAR_leaf_shade(:,nsd) = rad%qcan(:,2,1)*4.6 !umol m-2 s-1
-!write(*,*) 'APAR 1b',  climate%APAR_leaf_shade(2,:)
-!write(*,*)
   climate%Dleaf_sun(:,1:nsd-1) =  climate%Dleaf_sun(:,2:nsd)
   climate%Dleaf_sun(:,nsd) = canopy%dlf
 
@@ -179,7 +173,10 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
         climate%agdd0=0.0
         climate%evap_PT = 0     ! annual PT evap [mm]
         climate%aevap  = 0      ! annual evap [mm]  
-    
+
+        ! ... reset annual min and max soil moisture
+        climate%dmoist_min = climate%dmoist
+        climate%dmoist_max = climate%dmoist
 
      ENDIF
 
@@ -193,7 +190,7 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
         ! reset day degree sum related to spring photosynthetic recovery
         climate%gdd0_rec = 0.0
         ! In mid-winter, reset dormancy fraction
-       ! climate%fdorm = 1.0
+       ! climate%fdorm = 1.0bios_climate_rst.nc
 
      END WHERE
 
@@ -211,6 +208,10 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
 
      climate%gdd5 = climate%gdd5 + max(0.0,climate%dtemp-5.0)
      climate%agdd5= climate%agdd5 + max(0.0,climate%dtemp-5.0)
+
+     ! Update min and max daily soil moisture
+     climate%dmoist_min = min(climate%dmoist, climate%dmoist_min)
+     climate%dmoist_max = max(climate%dmoist, climate%dmoist_max)
 
      ! Update dormancy fraction if there has been a frost
      WHERE (climate%dtemp_min .GE. T6 .AND. climate%dtemp_min .LT. 0.0)
@@ -255,14 +256,16 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
      WHERE (climate%dtemp<5.0 .and. climate%chilldays<=365)
         climate%chilldays = climate%chilldays + 1
      ENDWHERE
-
+     
      ! update GMD (growing moisture day) counter
-    where (climate%dmoist .gt. moisture_min)
-     climate%gmd = climate%gmd + 1
-    elsewhere
-     climate%gmd = 0
-    endwhere
-
+     !where (climate%dmoist .gt. moisture_min)
+     where (climate%dmoist .gt. &
+          climate%dmoist_min20 + 0.3*(climate%dmoist_max20 - climate%dmoist_min20))
+        climate%gmd = climate%gmd + 1
+     elsewhere
+        climate%gmd = 0
+     endwhere
+     
      ! Save yesterday's mean temperature for the last month
      mtemp_last=climate%mtemp
 
@@ -333,6 +336,9 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
            climate%mtemp_max20=0.0
            climate%alpha_PT20 = 0.0
 
+           climate%dmoist_min20 = 0.0
+           climate%dmoist_max20 = 0.0
+
            if (startyear<20) then
               DO y=startyear,19
                  climate%mtemp_min_20(:,y)=climate%mtemp_min_20(:,y+1)
@@ -344,16 +350,25 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
                  climate%alpha_PT_20(:,y)=climate%alpha_PT_20(:,y+1)
                  climate%alpha_PT20 =climate%alpha_PT20 + &
                       climate%alpha_PT_20(:,y)
+                 
+                 climate%dmoist_min_20(:,y) = climate%dmoist_min_20(:,y+1)
+                 climate%dmoist_max_20(:,y) = climate%dmoist_max_20(:,y+1)
+                 climate%dmoist_min20 = climate%dmoist_min20 + climate%dmoist_min_20(:,y)
+                 climate%dmoist_max20 = climate%dmoist_max20 + climate%dmoist_max_20(:,y)
               ENDDO
 
               climate%mtemp_min20=climate%mtemp_min20/real(20-startyear)
               climate%mtemp_max20=climate%mtemp_max20/real(20-startyear)
               climate%alpha_PT20=climate%alpha_PT20/real(20-startyear)
+              climate%dmoist_min20 = climate%dmoist_min20/real(20-startyear)
+              climate%dmoist_max20 = climate%dmoist_max20/real(20-startyear)
            else
               ! only occurs when climate%nyears = 1
               climate%mtemp_min20 = climate%mtemp_min
               climate%mtemp_max20 = climate%mtemp_max
               climate%alpha_PT20 = climate%alpha_PT
+              climate%dmoist_min20 = climate%dmoist_min
+              climate%dmoist_max20 = climate%dmoist_max
            endif
 
            climate%mtemp_min_20(:,20)=climate%mtemp_min
@@ -362,7 +377,9 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
 
            climate%alpha_PT = max(climate%aevap/climate%evap_PT, 0.0)     ! ratio of annual evap to annual PT evap
            climate%alpha_PT_20(:,20)=climate%alpha_PT
-
+ 
+           climate%dmoist_min_20(:,20)= climate%dmoist_min 
+           climate%dmoist_max_20(:,20)= climate%dmoist_max
 
           CALL biome1_pft(climate,np)
 
@@ -374,6 +391,7 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
 
 
   ENDIF ! end of day
+
 
 END SUBROUTINE cable_climate
 !###############################################################################
@@ -434,17 +452,19 @@ ALLOCATE(pft_biome1(np,4))
 ALLOCATE(alpha_PT_scaled(np))
 alpha_PT_scaled =  min(climate%alpha_PT20, 1.0)
 
+
 DO k=1,np
 
    pft_biome1(k,:) = 999
 
    IF (climate%mtemp_min20(k) .GE. 15.5) THEN
-      IF (alpha_PT_scaled(k).GE.0.80) THEN
+      IF (alpha_PT_scaled(k).GE.0.85) THEN
          pft_biome1(k,1) = 1
-         IF (alpha_PT_scaled(k).LE.0.85) THEN
+         IF (alpha_PT_scaled(k).LE.0.90) THEN
+         !IF (alpha_PT_scaled(k).LE.0.95) THEN
             pft_biome1(k,2) = 2
          ENDIF
-      ELSEIF (alpha_PT_scaled(k).GE.0.4 .and. alpha_PT_scaled(k).LT.0.80) THEN
+      ELSEIF (alpha_PT_scaled(k).GE.0.4 .and. alpha_PT_scaled(k).LT.0.85) THEN
          pft_biome1(k,1) = 2
       ENDIF
    ENDIF
@@ -643,6 +663,7 @@ endif
 if ((climate%iveg(k)==1 .OR.climate%iveg(k)==3 .OR. climate%iveg(k)==4) &
      .and. patch(k)%latitude<0) THEN
    climate%iveg(k) = 2
+   climate%biome(k) = 4
 endif
 
 
@@ -737,6 +758,14 @@ if (cable_user%climate_fromzero) then
    climate%cs_shade = 0.0
    climate%scalex_sun = 0.0
    climate%scalex_shade = 0.0
+   climate%dmoist = 0.0
+   climate%dmoist_min = 0.0
+   climate%dmoist_max = 0.0
+   climate%dmoist_min20 = 0.0
+   climate%dmoist_max20 = 0.0
+   climate%dmoist_min_20 = 0.0
+   climate%dmoist_max_20 = 0.0
+   
 else
    CALL READ_CLIMATE_RESTART_NC (climate, ktauday )
 
@@ -769,11 +798,11 @@ SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
   ! 0 dim arrays
   CHARACTER(len=20),DIMENSION(2) :: A0
   ! 1 dim arrays (npt )
-  CHARACTER(len=20),DIMENSION(23) :: A1
+  CHARACTER(len=20),DIMENSION(25) :: A1
  ! 1 dim arrays (integer) (npt )
   CHARACTER(len=20),DIMENSION(4) :: AI1
   ! 2 dim arrays (npt,20)
-  CHARACTER(len=20),DIMENSION(3) :: A2
+  CHARACTER(len=20),DIMENSION(5) :: A2
   ! 2 dim arrays (npt,31)
   CHARACTER(len=20),DIMENSION(2) :: A3
   ! 2 dim arrays (npt,91)
@@ -813,6 +842,8 @@ SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
   A1(21) = 'GDD0_rec'
   A1(22) = 'frec'
   A1(23) = 'fdorm'
+  A1(24) = 'dmoist_min20'
+  A1(25) = 'dmoist_max20'
 
   AI1(1) = 'chilldays'
   AI1(2) = 'iveg'
@@ -822,6 +853,8 @@ SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
   A2(1) = 'mtemp_min_20'
   A2(2) = 'mtemp_max_20'
   A2(3) = 'alpha_PT_20'
+  A2(4) = 'dmoist_min_20'
+  A2(5) = 'dmoist_max_20'
 
   A3(1) = 'dtemp_31'
   A3(2) = 'dmoist_31'
@@ -990,6 +1023,12 @@ STATUS = NF90_PUT_VAR(FILE_ID, VID1(5), climate%qtemp )
   STATUS = NF90_PUT_VAR(FILE_ID, VID1(23), climate%fdorm )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(24), climate%dmoist_min20 )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(25), climate%dmoist_max20 )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
   STATUS = NF90_PUT_VAR(FILE_ID, VIDI1(1), climate%chilldays )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
@@ -1009,6 +1048,12 @@ STATUS = NF90_PUT_VAR(FILE_ID, VID1(5), climate%qtemp )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
   STATUS = NF90_PUT_VAR(FILE_ID, VID2(3), climate%alpha_PT_20 )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID2(4), climate%dmoist_min_20 )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID2(5), climate%dmoist_max_20 )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
   STATUS = NF90_PUT_VAR(FILE_ID, VID3(1), climate%dtemp_31 )
@@ -1079,11 +1124,11 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate, ktauday )
   ! 0 dim arrays
   CHARACTER(len=20),DIMENSION(2) :: A0
   ! 1 dim arrays (npt )
-  CHARACTER(len=20),DIMENSION(23) :: A1
+  CHARACTER(len=20),DIMENSION(25) :: A1
  ! 1 dim arrays (integer) (npt )
   CHARACTER(len=20),DIMENSION(4) :: AI1
   ! 2 dim arrays (npt,20)
-  CHARACTER(len=20),DIMENSION(3) :: A2
+  CHARACTER(len=20),DIMENSION(5) :: A2
   ! 2 dim arrays (npt,31)
   CHARACTER(len=20),DIMENSION(2) :: A3
  ! 2 dim arrays (npt,91)
@@ -1126,6 +1171,8 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate, ktauday )
   A1(21) = 'GDD0_rec'
   A1(22) = 'frec'
   A1(23) = 'fdorm'
+  A1(24) = 'dmoist_min20'
+  A1(25) = 'dmoist_max20'
   
   AI1(1) = 'chilldays'
   AI1(2) = 'iveg'
@@ -1135,6 +1182,8 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate, ktauday )
   A2(1) = 'mtemp_min_20'
   A2(2) = 'mtemp_max_20'
   A2(3) = 'alpha_PT_20'
+  A2(4) = 'dmoist_min_20'
+  A2(5) = 'dmoist_max_20'
 
   A3(1) = 'dtemp_31'
   A3(2) = 'dmoist_31'
@@ -1241,6 +1290,8 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate, ktauday )
      CASE ('GDD0_rec'  ) ; climate%GDD0_rec  = TMP
      CASE ('frec'  ) ; climate%frec  = TMP
      CASE ('fdorm'  ) ; climate%fdorm  = TMP
+     CASE ('dmoist_min20'  ) ; climate%dmoist_min20  = TMP
+     CASE ('dmoist_max20'  ) ; climate%dmoist_max20  = TMP
      END SELECT
   END DO
 
@@ -1274,6 +1325,8 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate, ktauday )
      CASE ('mtemp_min_20' ) ; climate%mtemp_min_20 = TMP2
      CASE ('mtemp_max_20' ) ; climate%mtemp_max_20 = TMP2
      CASE ('alpha_PT_20' ) ; climate%alpha_PT_20 = TMP2
+     CASE ('dmoist_min_20' ) ; climate%dmoist_min_20 = TMP2
+     CASE ('dmoist_max_20' ) ; climate%dmoist_max_20 = TMP2 
      END SELECT
   END DO
 

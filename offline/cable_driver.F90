@@ -704,7 +704,8 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
           ELSE IF ( TRIM(cable_user%MetType) .EQ. 'bios' ) THEN
              IF (( .NOT. CASAONLY ).OR. (CASAONLY.and.CALL1))  THEN               
                 CALL  cable_bios_read_met(MET, CurYear, ktau, kend, &
-                       (YYYY.EQ.CABLE_USER%YearEnd .AND. ktau.EQ.kend), dels )
+                     (YYYY.EQ.CABLE_USER%YearEnd .AND. ktau.EQ.kend), dels )
+               
              END IF
           ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
                     IF (( .NOT. CASAONLY ).OR. (CASAONLY.and.CALL1))  THEN

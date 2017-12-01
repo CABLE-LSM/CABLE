@@ -51,7 +51,7 @@ SUBROUTINE cable_phenology_clim (veg, climate, phen)
   REAL:: gdd0
   REAL(r_2) :: phen_tmp
   REAL, PARAMETER :: k_chilla = 0, k_chillb = 100, k_chillk = 0.05
-  REAL, PARAMETER :: APHEN_MAX = 200.0, mmoisture_min=0.30,  ndays_raingreenup = 21
+  REAL, PARAMETER :: APHEN_MAX = 200.0, mmoisture_min=0.30,  ndays_raingreenup = 40
   INTEGER, PARAMETER:: COLDEST_DAY_NHEMISPHERE = 355
   INTEGER, PARAMETER:: COLDEST_DAY_SHEMISPHERE = 172
   REAL :: phengdd5ramp

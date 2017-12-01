@@ -56,6 +56,7 @@ USE casadimension
 USE casaparm
 USE casavariable
 USE phenvariable
+USE  cable_IO_vars_module, ONLY: wlogn
 USE cable_common_module, only: cable_user ! Custom soil respiration: Ticket #42
 IMPLICIT NONE
   REAL(r_2), PARAMETER :: zero = 0.0_r_2
@@ -317,7 +318,7 @@ SUBROUTINE casa_allocation(veg,soil,casabiome,casaflux,casapool,casamet,phen,LAL
         END WHERE
 
         WHERE(phen%phase==1)
-           casaflux%fracCalloc(:,leaf)  = 0.8
+           casaflux%fracCalloc(:,leaf)  = 0.95
            WHERE(casamet%lnonwood==0)  !woodland or forest
               casaflux%fracCalloc(:,froot) = 0.5*(1.0-casaflux%fracCalloc(:,leaf))
               casaflux%fracCalloc(:,wood)  = 0.5*(1.0-casaflux%fracCalloc(:,leaf))
@@ -813,7 +814,11 @@ SUBROUTINE casa_xrateplant(xkleafcold,xkleafdry,xkleaf,veg,casabiome, &
     ! vh_js
     if (trim(cable_user%PHENOLOGY_SWITCH)=='climate') then
        ! increases base turnover rate by a factor of 13 (for base turnover time of 1y, this reduces it to 4 weeks)
-       IF (phen%phase(npt)==3.or.phen%phase(npt)==0) xkleaf(npt)= 13. 
+       IF ((phen%phase(npt)==3.or.phen%phase(npt)==0).and.casamet%lnonwood(npt)==0) &
+                xkleaf(npt)= 13.
+        IF ((phen%phase(npt)==3.or.phen%phase(npt)==0).and.casamet%lnonwood(npt)==1) &
+                xkleaf(npt)= 13.
+           
     endif
   END IF
   END DO

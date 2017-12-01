@@ -633,7 +633,7 @@ CONTAINS
 
 
              CALL CPU_TIME(etime)
-             !write(wlogn,*) ktau,  etime-etimelast
+             write(wlogn,*) ktau,  etime-etimelast
             
 
              !jhan this is insufficient testing. condition for 
@@ -646,15 +646,15 @@ CONTAINS
                      casapool, casaflux, casamet, casabal,              &
                      phen, pop, spinConv, spinup, ktauday, idoy, loy,   &
                      .FALSE., .FALSE., LALLOC )
-                
+                 write(wlogn,*) 'after bgcdriver', MPI_BOTTOM,1, casa_t,0,ktau_gl,ocomm,ierr
                 ! IF(MOD((ktau-kstart+1),ktauday)==0) THEN
                    CALL MPI_Send (MPI_BOTTOM,1, casa_t,0,ktau_gl,ocomm,ierr)
- 
+                  write(wlogn,*) 'after casa mpi_send', ktau
               !  ENDIF
 
                 IF ( IS_CASA_TIME("write", yyyy, ktau, kstart, &
                      koffset, kend, ktauday, wlogn) ) THEN
-             ! write(wlogn,*), 'IN IS_CASA', casapool%cplant(:,1)
+                   write(wlogn,*), 'IN IS_CASA', casapool%cplant(:,1)
              !      CALL MPI_Send (MPI_BOTTOM,1, casa_t,0,ktau_gl,ocomm,ierr)
                 ENDIF
 
@@ -672,7 +672,7 @@ CONTAINS
              CALL sumcflux( ktau, kstart, kend, dels, bgc,              &
                   canopy, soil, ssnow, sum_flux, veg,                   &
                   met, casaflux, l_vcmaxFeedbk )
-
+             write(wlogn,*) 'after sumcflux', ktau
              ! MPI: send the results back to the master
              CALL MPI_Send (MPI_BOTTOM, 1, send_t, 0, ktau_gl, ocomm, ierr)
 
@@ -685,8 +685,9 @@ CONTAINS
              !                      C%EMLEAF, C%EMSOIL )
 
    
-          CALL1 = .FALSE.
-
+             CALL1 = .FALSE.
+             write(wlogn,*) 'after send results back to master', ktau
+ 
           END DO KTAULOOP ! END Do loop over timestep ktau
       ! ELSE 
 
@@ -694,7 +695,8 @@ CONTAINS
       ! ENDIF
 
     
-call flush(wlogn)
+          call flush(wlogn)
+       
 IF (icycle >0 .and.   cable_user%CALL_POP) THEN
    
    IF (CABLE_USER%POPLUC) THEN
@@ -6424,6 +6426,15 @@ print*, 'worker, nd ny mp nsd', nd, ny,mp, nsd
     blocks(bidx) = nsd*r1len
     types(bidx)  = MPI_BYTE
 
+    bidx = bidx + 1
+    CALL MPI_Get_address (climate%dmoist_min_20(off,1), displs(bidx), ierr)
+    blocks(bidx) = ny*r1len
+    types(bidx)  = MPI_BYTE
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (climate%dmoist_max_20(off,1), displs(bidx), ierr)
+    blocks(bidx) = ny*r1len
+    types(bidx)  = MPI_BYTE
 
    
     ! ------------- 1D vectors -------------
@@ -6562,6 +6573,16 @@ print*, 'worker, nd ny mp nsd', nd, ny,mp, nsd
 
     bidx = bidx + 1
     CALL MPI_Get_address (climate%fdorm(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+    types(bidx)  = MPI_BYTE
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (climate%dmoist_min20(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+    types(bidx)  = MPI_BYTE
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (climate%dmoist_max20(off), displs(bidx), ierr)
     blocks(bidx) = r1len
     types(bidx)  = MPI_BYTE
 
