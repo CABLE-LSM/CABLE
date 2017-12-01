@@ -185,11 +185,21 @@ CONTAINS
           STATUS = NF90_INQUIRE_DIMENSION(FID,latID,len=ydimsize)
           CALL HANDLE_ERR(STATUS, "Inquiring 'lat'"//TRIM(LUC_EXPT%TransFile(i)))
           LUC_EXPT%ydimsize = ydimsize
+    !      allocate(lattmp(LUC_EXPT%ydimsize))
+    !      STATUS = NF90_INQ_VARID( FID, 'lat', vID )
+    !      IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+    !      STATUS = NF90_GET_VAR(FID, vID,lattmp)     
+    !      IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
           STATUS = NF90_INQ_DIMID(FID,'lon',lonID)
           STATUS = NF90_INQUIRE_DIMENSION(FID,lonID,len=xdimsize)
           CALL HANDLE_ERR(STATUS, "Inquiring 'lon'"//TRIM(LUC_EXPT%TransFile(i)))
           LUC_EXPT%xdimsize = xdimsize
+    !      allocate(lontmp(LUC_EXPT%xdimsize))
+    !      STATUS = NF90_INQ_VARID( FID, 'lon', vID )
+    !      IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+    !      STATUS = NF90_GET_VAR(FID, vID,lontmp)
+    !      IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
           STATUS = NF90_INQ_DIMID(FID,'time',timID)
           STATUS = NF90_INQUIRE_DIMENSION(FID,timID,len=tdimsize)
@@ -200,7 +210,6 @@ CONTAINS
 !!$               start=(/1,1,1/) )
 !!$          CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )
 
-         
 
           xds = LUC_EXPT%xdimsize
           yds = LUC_EXPT%ydimsize
@@ -229,10 +238,11 @@ CONTAINS
             start=(/1,1,LUC_EXPT%CTSTEP/),count=(/xds,yds,1/) )
        CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )
        
+       !write(6,*) 'k,land_x(k),land_y(k),lattmp(land_y(k)),lontmp(land_x(k))'
        DO k = 1, mland
+          !write(6,*) k,land_x(k),land_y(k),lattmp(land_y(k)),lontmp(land_x(k))
           LUC_EXPT%grass(k) = tmparr( land_x(k), land_y(k) )
        END DO
-
     ENDIF
 
     i = primffrac
