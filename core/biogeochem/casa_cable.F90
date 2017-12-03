@@ -129,8 +129,8 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
                 nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
                 pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
 
-            write(wlogn,*),'after biogeochem npp:', casaflux%cnpp
-            write(wlogn,*),'after biogeochem npp:', casapool%cplant
+            !write(wlogn,*),'after biogeochem npp:', casaflux%cnpp
+            !write(wlogn,*),'after biogeochem npp:', casapool%cplant
             
             IF (cable_user%CALL_POP) THEN ! accumulate input variables for POP
                ! accumulate annual variables for use in POP

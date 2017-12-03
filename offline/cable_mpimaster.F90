@@ -1192,7 +1192,8 @@ write(*,*) 'after annual calcs'
 
              IF ( (.NOT. CASAONLY) .AND. spinConv ) THEN
                 IF ( TRIM(cable_user%MetType) .EQ. 'plum' &
-                         .OR. TRIM(cable_user%MetType) .EQ. 'cru'   &
+                     .OR. TRIM(cable_user%MetType) .EQ. 'cru'   &
+                       .OR. TRIM(cable_user%MetType) .EQ. 'bios'   &
                        .OR. TRIM(cable_user%MetType) .EQ. 'gswp') then
 
                    CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, &

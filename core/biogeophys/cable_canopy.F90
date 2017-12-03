@@ -395,7 +395,6 @@ CONTAINS
        ecy = rny - hcy        ! init current estimate lat heat
 
        sum_rad_rniso = SUM(rad%rniso,2)
-
        CALL dryLeaf( dels, rad, rough, air, met,                                &
             veg, canopy, soil, ssnow, dsx,                             &
             fwsoil, tlfx, tlfy, ecy, hcy,                              &

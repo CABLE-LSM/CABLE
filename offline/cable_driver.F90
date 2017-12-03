@@ -766,7 +766,7 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
              IF (l_laiFeedbk.and.icycle>0) veg%vlai(:) = casamet%glai(:)
              !veg%vlai = 2 ! test
              ! Call land surface scheme for this timestep, all grid points:
-!write(*,*), 'ca: ', met%ca*1e6
+
                     CALL cbm(ktau, dels, air, bgc, canopy, met,		      &
                          bal, rad, rough, soil, ssnow,			      &
                          sum_flux, veg,climate )
@@ -897,7 +897,6 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
 
                  ! Write timestep's output to file if either: we're not spinning up
                  ! or we're spinning up and the spinup has converged:
-
                  IF ( (.NOT. CASAONLY) .AND. spinConv ) THEN
                     !mpidiff
                     IF ( TRIM(cable_user%MetType) .EQ. 'plum'  .OR.  &
@@ -905,6 +904,8 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
                          TRIM(cable_user%MetType) .EQ. 'bios'  .OR.  &
                          TRIM(cable_user%MetType) .EQ. 'gswp'  .OR.  &
                          TRIM(cable_user%MetType) .EQ. 'site' ) then
+
+                    
                        CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, casamet, &
                             ssnow,   rad, bal, air, soil, veg, C%SBOLTZ, C%EMLEAF, C%EMSOIL )
                     ELSE

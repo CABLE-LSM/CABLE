@@ -545,10 +545,10 @@ MODULE cable_bios_met_obs_params
   TYPE(dmydate)       :: dummydate     ! Dummy date for when keeping the date is not required
   TYPE(dmydate),SAVE  :: MetDate       ! Date of met to access (equals current date for normals runs, but
                                        ! must be calculated for spinup and initialisation runs (for dates before 1900)
-  INTEGER(i4b),PARAMETER :: recycle_met_startdate = 1900 ! range for met to be recycled for spinup and initialisation
-  INTEGER(i4b),PARAMETER :: recycle_met_enddate = 1930 
+  INTEGER(i4b),PARAMETER :: recycle_met_startdate = 1901 ! range for met to be recycled for spinup and initialisation
+  INTEGER(i4b),PARAMETER :: recycle_met_enddate = 1930
   INTEGER(i4b)   :: skipdays                        ! Days of met to skip when user_startdate is after bios_startdate
-
+  TYPE(dmydate), SAVE  :: bios_startdate, bios_enddate    ! First and last dates found in bios met files (read from rain file)
   REAL(sp), PRIVATE, PARAMETER :: SecDay = 86400.
   TYPE(WEATHER_GENERATOR_TYPE), SAVE :: WG
 
@@ -591,7 +591,7 @@ CONTAINS
   REAL(sp),     ALLOCATABLE :: LandMaskReal(:,:)    ! Real land mask as read from landmask file
   INTEGER(i4b), ALLOCATABLE :: ColRowGrid(:,:)      ! Temp grid to hold col or row numbers for packing to land_x or land_y
   
-  TYPE(dmydate)  :: bios_startdate, bios_enddate    ! First and last dates found in bios met files (read from rain file)
+ ! TYPE(dmydate)  :: bios_startdate, bios_enddate    ! First and last dates found in bios met files (read from rain file)
   TYPE(dmydate)  :: user_startdate, user_enddate    ! First and last run dates specified by user (read from cable_user%)
   INTEGER(i4b)   :: bios_rundays                    ! Days in run, from bios_startdate or user_startdate to bios_enddate 
   INTEGER(i4b)   :: co2_startyear, co2_endyear      ! First and last years found in bios global CO2 files 
@@ -873,14 +873,17 @@ CONTAINS
       shod        = 0.
       sdoy        = 1
       smoy        = 1
-      syear       = curyear
-      
+      syear       = 1691
+      write(*,*) 'prev:',previous_date%year,previous_date%month,previous_date%day
+      write(*,*) 'run:',  user_startdate%year, user_startdate%month,  user_startdate%day      
 ! For spinup and initialisation before met begins (1900), calculate the required met year for repeatedly cycling through the
 ! spinup meteorology between recycle_met_startdate - recycle_met_enddate. For normal runs (1900-2015), MetDate%Year = curyear.
       MetDate%day = 1
       MetDate%month = 1
       IF (TRIM(MetForcing) .EQ. 'recycled') THEN
-        MetDate%Year = recycle_met_startdate + MOD(curyear-syear,recycle_met_enddate-recycle_met_startdate+1)
+         MetDate%Year = recycle_met_startdate + MOD(curyear-syear,recycle_met_enddate-recycle_met_startdate+1)
+         write(*,*) 'metdatestart,: ',  MetDate%Year,  recycle_met_startdate,  curyear, syear, &
+                       recycle_met_enddate, recycle_met_startdate,  MOD(curyear-syear,recycle_met_enddate-recycle_met_startdate+1)
       ELSE IF (TRIM(MetForcing) .EQ. 'actual' ) THEN
         MetDate%Year = curyear
       ENDIF
@@ -952,7 +955,7 @@ CONTAINS
   ! Likewise, skip through the annual CO2 records to position for reading
   ! the first relevant year.
   DO iyear = 1,co2_skipyears
-    READ (co2_unit) dummydate, co2air_year
+     READ (co2_unit) dummydate, co2air_year
   END DO
   
   CONTAINS
@@ -1033,7 +1036,7 @@ CONTAINS
 
     newday = ( met%hod(landpt(1)%cstart).EQ. 0 )
     IF ( newday ) THEN
-        
+    
        ! get current day's met
        READ (rain_unit) bios_rundate, rain_day          ! Packed vector of daily AWAP/BIOS rain (mm) 
        READ (swdown_unit) bios_rundate, swdown_day        ! Packed vector of daily AWAP/BIOS swdown (MJ)
@@ -1048,13 +1051,15 @@ CONTAINS
 
        ! Increment MetDate. 
        MetDate = MetDate + 1
-
+  
        ! If MetForcing is 'recycled', check whether we need to rewind files and skip to correct position
        if (MetForcing .eq. 'recycled') then
          if (MetDate%Year .gt. recycle_met_enddate) then
            MetDate%Day = 1
            MetDate%Month = 1
            MetDate%Year = recycle_met_startdate
+           skipdays = DayDifference(MetDate, bios_startdate)
+           write(*,*) 'skipdays', skipdays
            REWIND (rain_unit)
            REWIND (swdown_unit)
            REWIND (tairmax_unit)
@@ -1068,7 +1073,8 @@ CONTAINS
            END DO
            dummydate = dummydate + 1
            IF (skipdays .gt. 0) THEN
-             write(*,*) 'Met skipped, ready to read from ',dummydate
+              write(*,*) 'Met skipped, ready to read from ',dummydate
+            
              write(logn,*) 'Met skipped, ready to read from ',dummydate
            END IF
          endif
@@ -1111,16 +1117,14 @@ CONTAINS
            READ (co2_unit) dummydate, co2air_year          ! Single global value of co2 (ppm)
            met%ca(:) = CO2air_year / 1.e+6   
          END IF
-       END IF
-
-       ! Finished operations for this day, so the current date becomes the previous date.  
+      END IF
+    
+      ! Finished operations for this day, so the current date becomes the previous date.  
        previous_date = bios_rundate
 
        CALL WGEN_DAILY_CONSTANTS( WG, mland, INT(met%doy(1))+1 )
   
     END IF
-
-
 
  CALL WGEN_SUBDIURNAL_MET( WG, mland, NINT(met%hod(1)*3600./dels) )
  
