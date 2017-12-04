@@ -1068,28 +1068,23 @@ write(*,*) 'after CALL1'
           ktau_tot = ktau_tot + 1
           ktau_gl  = oktau
       
-          IF( icycle >0 ) THEN
+          IF ( .NOT. CASAONLY ) THEN
 
+             IF ( icycle >0 ) THEN
 
-             IF ( IS_CASA_TIME("write", yyyy, oktau, kstart, &
-                  koffset, kend, ktauday, logn) ) THEN
-               
                 CALL master_receive (ocomm, oktau, casa_ts)
 
 !                CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)              
 
+                IF ( ((.NOT.spinup).OR.(spinup.AND.spinConv)) .AND. &
+                     ( IS_CASA_TIME("dwrit", yyyy, oktau, kstart, &
+                     koffset, kend, ktauday, logn) ) ) THEN
+                    CALL master_receive ( ocomm, oktau, casa_dump_ts )
+           !         CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
+                ENDIF
+
              ENDIF
-
-
-             IF( ((.NOT.spinup).OR.(spinup.AND.spinConv)) .AND. &
-                  CABLE_USER%CASA_DUMP_WRITE )  THEN
-                CALL master_receive ( ocomm, oktau, casa_dump_ts )
-        !        CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
-             ENDIF
-
-          ENDIF
         
-          IF ( .NOT. CASAONLY ) THEN
             ! write(*,*) 'master_receive 6'
              CALL master_receive (ocomm, oktau, recv_ts)
       !       CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
@@ -1193,7 +1188,7 @@ write(*,*) 'after annual calcs'
              IF ( (.NOT. CASAONLY) .AND. spinConv ) THEN
                 IF ( TRIM(cable_user%MetType) .EQ. 'plum' &
                      .OR. TRIM(cable_user%MetType) .EQ. 'cru'   &
-                       .OR. TRIM(cable_user%MetType) .EQ. 'bios'   &
+                      .OR. TRIM(cable_user%MetType) .EQ. 'bios'   &
                        .OR. TRIM(cable_user%MetType) .EQ. 'gswp') then
 
                    CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, &
