@@ -2042,7 +2042,7 @@ CONTAINS
 
                 call getrex_1d(real(ssnow%wb(i,:)-ssnow%wbice(i,:),r_2), ssnow%rex(i,:), &
                      canopy%fwsoil(i), &
-                     real(veg%froot(i,:),r_2), SPREAD(real(soil%ssat(i),r_2),1,ms), &
+                     real(soil%froot(i,:),r_2), SPREAD(real(soil%ssat(i),r_2),1,ms), &
                       SPREAD(real(soil%swilt(i),r_2),1,ms), &
                       max(real(canopy%fevc(i)/air%rlam(i)/1000_r_2,r_2),0.0_r_2), &
                      real(veg%gamma(i),r_2), &
@@ -2060,7 +2060,7 @@ CONTAINS
 
                    DO kk = 1,ms
 
-                      ssnow%evapfbl(i,kk) = MIN( evapfb(i) * veg%froot(i,kk),      &
+                      ssnow%evapfbl(i,kk) = MIN( evapfb(i) * soil%froot(i,kk),      &
                            MAX( 0.0, REAL( ssnow%wb(i,kk) ) -     &
                            1.1 * soil%swilt(i) ) *                &
                            soil%zse(kk) * 1000.0 )
@@ -2201,7 +2201,7 @@ CONTAINS
     canopy%frday = 12.0 * SUM(rdy, 2)
 !! vh !! inserted min to avoid -ve values of GPP
     canopy%fpn = min(-12.0 * SUM(an_y, 2), canopy%frday)
-    canopy%evapfbl = ssnow%evapfbl
+    ssnow%evapfbl = ssnow%evapfbl
 
 
     DEALLOCATE( gswmin )
@@ -2546,12 +2546,12 @@ CONTAINS
     if (.not.cable_user%gw_model) THEN
 
        rwater = MAX(1.0e-9,                                                    &
-            SUM(veg%froot * MAX(1.0e-9,MIN(1.0, real(ssnow%wb) -                   &
+            SUM(soil%froot * MAX(1.0e-9,MIN(1.0, real(ssnow%wb) -                   &
             SPREAD(soil%swilt, 2, ms))),2) /(soil%sfc-soil%swilt))
    
     else
        rwater = MAX(1.0e-9,                                                    &
-            SUM(veg%froot * MAX(1.0e-9,MIN(1.0, real((ssnow%wbliq -                 &
+            SUM(soil%froot * MAX(1.0e-9,MIN(1.0, real((ssnow%wbliq -                 &
             soil%swilt_vec)/(soil%sfc_vec-soil%swilt_vec)) )),2) )
 
     endif
@@ -2578,7 +2578,7 @@ CONTAINS
     INTEGER :: j
 
     rwater = MAX(1.0e-9,                                                    &
-         SUM(veg%froot * MAX(0.0,MIN(1.0, real(ssnow%wb) -                   &
+         SUM(soil%froot * MAX(0.0,MIN(1.0, real(ssnow%wb) -                   &
          SPREAD(soil%swilt, 2, ms))),2) /(soil%sfc-soil%swilt))
 
     fwsoil = 1.
@@ -2638,7 +2638,7 @@ CONTAINS
 
        fwsoil(:) = min(1.0,max(fwsoil(:),frwater(:,ns)))
 
-       normFac(:) = normFac(:) + frwater(:,ns) * veg%froot(:,ns)
+       normFac(:) = normFac(:) + frwater(:,ns) * soil%froot(:,ns)
 
     ENDDO
 
@@ -2662,7 +2662,7 @@ CONTAINS
        alpha2_root = 0.0
     ENDWHERE
 
-    WHERE (veg%froot>0.0)
+    WHERE (soil%froot>0.0)
        delta_root = 1.0
     ELSEWHERE
        delta_root = 0.0

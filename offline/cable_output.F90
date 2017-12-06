@@ -1410,7 +1410,7 @@ CONTAINS
     opid%ratecs, 'ratecs', SPREAD(REAL(bgc%ratecs, 4), 1, mp), ranges%ratecs,  &
                        patchout%ratecs, 'soilcarbon')! no spatial dim at present
     IF(output%params .OR. output%froot) CALL write_ovar (ncid_out, opid%froot, &
-              'froot', REAL(veg%froot, 4), ranges%froot, patchout%froot, 'soil')
+              'froot', REAL(soil%froot, 4), ranges%froot, patchout%froot, 'soil')
     IF(output%params .OR. output%zse) CALL write_ovar(ncid_out, opid%zse,      &
                            'zse', SPREAD(REAL(soil%zse, 4), 1, mp),ranges%zse, &
                                 patchout%zse, 'soil')! no spatial dim at present
@@ -3445,7 +3445,7 @@ CONTAINS
     CALL write_ovar (ncid_restart, rpid%swilt, 'swilt', REAL(soil%swilt, 4),   &
                      ranges%swilt, .TRUE., 'real', .TRUE.)
     ! Soil dimensioned variables/parameters:
-    CALL write_ovar (ncid_restart, rpid%froot, 'froot', REAL(veg%froot, 4),    &
+    CALL write_ovar (ncid_restart, rpid%froot, 'froot', REAL(soil%froot, 4),    &
                      ranges%froot, .TRUE., 'soil', .TRUE.)
     CALL write_ovar (ncid_restart, tggID, 'tgg', REAL(ssnow%tgg, 4),           &
                      ranges%SoilTemp, .TRUE., 'soil', .TRUE.)

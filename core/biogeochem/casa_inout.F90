@@ -294,7 +294,7 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
     iv1=veg%iveg(npt)
     iso=casamet%isorder(npt)
     ! The following to be commented out when coupled to CABLE
-!    veg%froot(npt,:) =fracroot(iv1,:)
+!    soil%froot(npt,:) =fracroot(iv1,:)
 !    PRINT *, 'npt,iv1,iso ', npt,iv1, iso
     casamet%iveg2(npt) =casabiome%ivt2(iv1)
     casamet%lnonwood(npt) = 1

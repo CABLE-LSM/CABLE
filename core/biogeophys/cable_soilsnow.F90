@@ -1654,7 +1654,7 @@ SUBROUTINE remove_trans(dels, soil, ssnow, canopy, veg)
 
            ! Calculate the amount (perhaps moisture/ice limited)
            ! which can be removed:
-           xx = canopy%fevc * dels / C%HL * veg%froot(:,k) + diff(:,k-1)   ! kg/m2
+           xx = canopy%fevc * dels / C%HL * soil%froot(:,k) + diff(:,k-1)   ! kg/m2
            diff(:,k) = MAX( 0.0_r_2, ssnow%wb(:,k) - soil%swilt) &      ! m3/m3
                 * soil%zse(k)*1000.0
            xxd = xx - diff(:,k)
@@ -1992,9 +1992,9 @@ SUBROUTINE hydraulic_redistribution(dels, soil, ssnow, canopy, veg, met)
          temp(:)        = 0.0
          available(:)   = 0.0
          accommodate(:) = 0.0
-         frootX= max(0.01,max( veg%froot(:,k),veg%froot(:,j)))
+         frootX= max(0.01,max( soil%froot(:,k),soil%froot(:,j)))
          hr_term(:,k,j) = CRT*(wpsy(:,j)-wpsy(:,k))*MAX(C_hr(:,k),C_hr(:,j)) &
-                        *(veg%froot(:,k)*veg%froot(:,j))/(1-frootX) * Dtran
+                        *(soil%froot(:,k)*soil%froot(:,j))/(1-frootX) * Dtran
          hr_perTime(:,k,j) = hr_term(:,k,j)*1.0E-2/3600.0*dels ! m per timestep
          hr_perTime(:,j,k) = -1.0 * hr_perTime(:,k,j)
          hr_perTime(:,k,j) = hr_perTime(:,k,j)/soil%zse(k)
@@ -2070,9 +2070,9 @@ SUBROUTINE hydraulic_redistribution(dels, soil, ssnow, canopy, veg, met)
          temp(:)        = 0.0
          available(:)   = 0.0
          accommodate(:) = 0.0
-         frootX= max(0.01,max( veg%froot(:,k),veg%froot(:,j)))
+         frootX= max(0.01,max( soil%froot(:,k),soil%froot(:,j)))
          hr_term(:,k,j) = CRT*(wpsy(:,j)-wpsy(:,k))*MAX(C_hr(:,k),C_hr(:,j)) &
-            *(max(0.01,veg%froot(:,k))*max(0.01,veg%froot(:,j)))/(1-frootX)*Dtran
+            *(max(0.01,soil%froot(:,k))*max(0.01,soil%froot(:,j)))/(1-frootX)*Dtran
          hr_perTime(:,k,j) = hr_term(:,k,j)*1.0E-2/3600.0*dels ! m per timestep
          hr_perTime(:,j,k) = -1.0 * hr_perTime(:,k,j)
          hr_perTime(:,k,j) = hr_perTime(:,k,j)/soil%zse(k)

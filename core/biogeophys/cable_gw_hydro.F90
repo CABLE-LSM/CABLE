@@ -76,7 +76,7 @@ MODULE cable_gw_hydro_module
    PRIVATE subsurface_drainage,iterative_wtd,ovrlndflx,aquifer_recharge, calc_soil_hydraulic_props
    PRIVATE calc_equilibrium_water_content
    PRIVATE GWsoilfreeze, remove_transGW,simple_wtd
-   PRIVATE smoistgw,my_erf
+   PRIVATE smoistgw,my_erf,iterative_wtd_onetile
 
 CONTAINS
 
@@ -213,7 +213,7 @@ SUBROUTINE remove_transGW(dels, soil, ssnow, canopy, veg)
    
             if (canopy%fevc(i) .gt. 0._r_2) then
    
-               xx(i) = canopy%fevc(i) * dels / C%HL * veg%froot(i,k) + diff(i,k-1)
+               xx(i) = canopy%fevc(i) * dels / C%HL * soil%froot(i,k) + diff(i,k-1)
                diff(i,k) = max(0._r_2,ssnow%wbliq(i,k)-soil%swilt_vec(i,k)) &
                           * zse_mp_mm(i,k)
                xxd(i) = xx(i) - diff(i,k)
@@ -429,6 +429,144 @@ END SUBROUTINE remove_transGW
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
 
+  !----------------------------------------------------------------------
+  ! SUBROUTINE iterative_wtd_onetile
+  !
+  ! Iteratively calcs the water table depth by equating the mass of water in the
+  ! soil column to the mass of a hydrostatic column inegrated from the surface to the 
+  ! water table depth
+  !  
+  SUBROUTINE iterative_wtd_onetile (wbliq,wbice,bch_vec,sucs_vec,ssat_vec,zse_vec,wtd)
+  IMPLICIT NONE
+  real(r_2), intent(in), dimension(:) :: wbliq,wbice,bch_vec,sucs_vec,ssat_vec
+  real,      intent(in), dimension(:) :: zse_vec
+  real(r_2), intent(inout) :: wtd
+ 
+  !Local vars 
+  REAL(r_2), DIMENSION(ms)   :: dzmm_mp,tmp_def
+  REAL(r_2), DIMENSION(0:ms)    :: zimm
+  REAL(r_2), DIMENSION(ms)      :: zmm
+  REAL(r_2)       :: GWzimm,temp
+  REAL(r_2)       :: def,defc,total_depth_column
+
+  REAL(r_2)                     :: deffunc,tempa,tempb,derv,calc,tmpc
+  REAL(r_2)      :: invB,Nsucs_vec  !inverse of C&H B,Nsucs_vec
+  INTEGER :: k,i,wttd,jlp
+  LOGICAL, SAVE :: first_call=.true.
+  !make code cleaner define these here 
+  invB     = 1._r_2/bch_vec(ms)                                !1 over C&H B
+  Nsucs_vec  = sucs_vec(ms)                                !psi_saturated mm
+  dzmm_mp  = zse_vec * 1000.0
+  zimm(0)  = 0.0_r_2                                          !depth of layer interfaces mm
+
+  !total depth of soil column
+  do k=1,ms
+    zimm(k) = zimm(k-1) + zse_vec(k)*1000._r_2
+  end do
+
+  !comute the total mass away from full saturation
+  def = 0.0
+  do k=1,ms
+       def = def +                                                           &
+                max(0._r_2,(ssat_vec(k)-(wbliq(k)+dri*wbice(k)))*zse_vec(k)*1000.0)
+  end do  !ms
+
+  !find the deficit if the water table is at the bottom of the soil column
+     defc = (ssat_vec(ms))*(total_depth_column+Nsucs_vec/(1._r_2-invB)*            &
+             (1._r_2-((Nsucs_vec+total_depth_column)/Nsucs_vec)**(1._r_2-invB))) 
+     defc = max(0.1_r_2,defc) 
+
+  !initial guess at wtd
+  wtd = total_depth_column*def/defc
+
+ !use newtons method to solve for wtd, note this assumes homogenous column but
+ !that is ok 
+
+      if (defc > def) then                 !iterate tfor wtd
+
+        jlp=0
+
+        mainloop: DO
+
+          tempa   = 1.0_r_2
+          tempb   = (1._r_2+wtd/Nsucs_vec)**(-invB)
+          derv    = (ssat_vec(ms))*(tempa-tempb) + &
+                                       ssat_vec(ms)
+
+          if (abs(derv) .lt. real(1e-8,r_2)) derv = sign(real(1e-8,r_2),derv)
+
+          tempa   = 1.0_r_2
+          tempb   = (1._r_2+wtd/Nsucs_vec)**(1._r_2-invB)
+          deffunc = (ssat_vec(ms))*(wtd +&
+                           Nsucs_vec/(1-invB)* &
+                     (tempa-tempb)) - def
+          calc    = wtd - deffunc/derv
+
+          IF ((abs(calc-wtd)) .le. wtd_uncert) THEN
+
+            wtd = calc
+            EXIT mainloop
+
+          ELSEIF (jlp .ge. wtd_iter_max) THEN
+
+            EXIT mainloop
+
+          ELSE
+
+            jlp=jlp+1
+            wtd = calc
+
+          END IF
+
+        END DO mainloop  !defc .gt. def
+
+      elseif (defc .lt. def) then
+
+        jlp=0
+
+        mainloop2: DO
+
+          tmpc     = Nsucs_vec+wtd-total_depth_column
+          tempa    = (abs(tmpc/Nsucs_vec))**(-invB)
+          tempb    = (1._r_2+wtd/Nsucs_vec)**(-invB)
+          derv     = (ssat_vec(ms))*(tempa-tempb)
+          if (abs(derv) .lt. real(1e-8,r_2)) derv = sign(real(1e-8,r_2),derv)
+
+          tempa    = (abs((Nsucs_vec+wtd-total_depth_column)/Nsucs_vec))**(1._r_2-invB)
+          tempb    = (1._r_2+wtd/Nsucs_vec)**(1._r_2-invB)
+          deffunc  = (ssat_vec(ms))*(total_depth_column +&
+                     Nsucs_vec/(1._r_2-invB)*(tempa-tempb))-def
+          calc     = wtd - deffunc/derv
+
+          IF ((abs(calc-wtd)) .le. wtd_uncert) THEN
+
+            wtd = calc
+            EXIT mainloop2
+
+          ELSEIF (jlp==wtd_iter_max) THEN
+
+            EXIT mainloop2
+
+          ELSE
+
+            jlp=jlp+1
+            wtd = calc
+
+          END IF
+
+        END DO mainloop2  !defc .lt. def
+
+      else  !water table depth is exactly on bottom boundary
+
+        wtd = total_depth_column
+
+      endif
+
+     wtd = min(total_depth_column,max(wtd_min,wtd ) )
+
+
+  END SUBROUTINE iterative_wtd_onetile
+
 
   !----------------------------------------------------------------------
   ! SUBROUTINE iterative_wtd
@@ -589,6 +727,15 @@ END SUBROUTINE remove_transGW
 
   end do   !mp loop
 
+  if (.not.gw_params%default_aq) then
+     do i=1,mp
+        if (ssnow%wtd(i)/1000.0 .gt. sum(soil%zse_vec(i,:),dim=1)) then
+           ssnow%wtd(i) = 1000.0 * (sum(soil%zse_vec(i,:),dim=1) + &
+                                 ssnow%GWwb(i)*soil%GWdz(i)/soil%GWssat_vec(i))
+        end if
+      end do
+  end if
+
 
   !limit wtd to be within a psecified range
   do i=1,mp
@@ -640,7 +787,7 @@ END SUBROUTINE remove_transGW
     REAL(r_2), DIMENSION(mp,ms)         :: dzmm_mp
     REAL(r_2), DIMENSION(0:ms+1)        :: zimm
     REAL(r_2), DIMENSION(ms)            :: zmm
-    REAL(r_2), DIMENSION(mp)            :: GWzimm,xs,zaq,s_mid,GWdzmm
+    REAL(r_2), DIMENSION(mp)            :: GWzimm,xs,zaq,s_mid,GWdzmm,tmp_recharge
     REAL(r_2), DIMENSION(mp)            :: xs1,GWmsliq!xsi    !mass (mm) of liquid over/under saturation, mass of aquifer water
     REAL(r_2)                           :: xsi
     REAL(r_2), DIMENSION(mp,ms+1)       :: del_wb
@@ -680,7 +827,7 @@ END SUBROUTINE remove_transGW
 
     CALL calc_soil_hydraulic_props(ssnow,soil,veg)
 
-    CALL subsurface_drainage(ssnow,soil,veg,dzmm)
+    CALL subsurface_drainage(dels,ssnow,soil,veg,dzmm)
 
     k = 1     !top soil layer
     do i=1,mp
@@ -747,11 +894,19 @@ END SUBROUTINE remove_transGW
        end do
     end do
 
+   do i=1,mp
+      if (ssnow%apply_qrecharge(i)) then
+         tmp_recharge(i) = ssnow%Qrecharge(i)
+      else
+         tmp_recharge(i) = 0.0
+      end if
+   end do
+
     do i=1,mp
-       ssnow%wbliq(i,ms) = ssnow%wbliq(i,ms) - ssnow%Qrecharge(i)*dels/dzmm(ms)
+       ssnow%wbliq(i,ms) = ssnow%wbliq(i,ms) - tmp_recharge(i)*dels/dzmm(ms)
     end do
     do i=1,mp
-       ssnow%GWwb(i) = ssnow%GWwb(i)  +  (ssnow%Qrecharge(i)-ssnow%qhlev(i,ms+1))*dels/GWdzmm(i)
+       ssnow%GWwb(i) = ssnow%GWwb(i)  +  (tmp_recharge(i)-ssnow%qhlev(i,ms+1))*dels/GWdzmm(i)
     end do
 
     !determine the available pore space
@@ -1025,7 +1180,7 @@ SUBROUTINE soil_snow_gw(dels, soil, ssnow, canopy, met, bal, veg)
    ssnow%fwtop = canopy%precis/dels + ssnow%smelt/dels   !water from canopy and snowmelt [mm/s]   
    !ssnow%rnof1 = ssnow%rnof1 + ssnow%smelt / dels          !adding snow melt directly to the runoff
 
-   CALL iterative_wtd (ssnow, soil, veg, .true. )  
+   CALL iterative_wtd (ssnow, soil, veg, gw_params%default_aq ) 
    !CALL simple_wtd(ssnow, soil, veg)
 
    CALL ovrlndflx (dels, ssnow, soil, veg, canopy,use_sli )         !surface runoff, incorporate ssnow%pudsto?
@@ -1486,21 +1641,75 @@ END SUBROUTINE calc_soil_hydraulic_props
     REAL(r_2), dimension(:), intent(in)       :: zaq
     REAL(r_2), dimension(:), intent(in)       :: zmm,dzmm
 
-    integer :: i    
+    integer                     :: wtd_lev
+    real(r_2)                   :: new_wtd,can_add
+    real(r_2), dimension(mp,ms) :: tmp_wbliq
+    real(r_2), dimension(mp) :: readd_qh_mass
 
+    integer :: i,k,j
+
+    readd_qh_mass = 0.0
     !Doing the recharge outside of the soln of Richards Equation makes it easier to track total recharge amount.
     !Add to ssnow at some point 
+
+    tmp_wbliq = ssnow%wbliq
+    readd_qh_mass(:) = ssnow%qhz(:)*dt
     do i=1,mp
-       if ((ssnow%wtd(i) .le. sum(dzmm,dim=1)) .or. &
-           (veg%iveg(i) .ge. 16) .or. &
+       do k=1,ms
+          if (readd_qh_mass(i) .gt. 0.0) then
+
+             can_add = (soil%ssat_vec(i,k) - tmp_wbliq(i,k) -ssnow%wbice(i,k))*soil%zse_vec(i,k)*1000.0
+             if (can_add .ge. readd_qh_mass(i)) then
+
+                tmp_wbliq(i,k) = tmp_wbliq(i,k) + readd_qh_mass(i)/soil%zse_vec(i,k)*1000.0
+                readd_qh_mass(i) = 0.0
+
+             else
+
+                readd_qh_mass(i) = readd_qh_mass(i) - ((soil%ssat_vec(i,k) - &
+                                   tmp_wbliq(i,k) -ssnow%wbice(i,k))*soil%zse_vec(i,k)*1000.0)
+                tmp_wbliq(i,k) = soil%ssat_vec(i,k) - ssnow%wbice(i,k)
+              end if
+           end if
+        end do
+     end do
+
+    
+    do i=1,mp
+       ssnow%apply_qrecharge(i) = .true.
+
+       if ( (veg%iveg(i) .ge. 16) .or. &
            (soil%isoilm(i) .eq. 9))  then
 
           ssnow%Qrecharge(i) = 0._r_2
+          ssnow%apply_qrecharge(i) = .false.
+
+       elseif ((.not.gw_params%default_aq) .and. (ssnow%wtd(i) .le. sum(dzmm,dim=1))) then
+          !Find the recharge that went to sat region while within soil column
+          call iterative_wtd_onetile(ssnow%wbliq(i,:),ssnow%wbice(i,:),soil%bch_vec(i,:),&
+                     soil%sucs_vec(i,:),soil%ssat_vec(i,:),soil%zse_vec(i,:),new_wtd)
+
+
+          wtd_lev = ms
+          do k=ms-1,1,-1
+             if (0.5*(new_wtd+ssnow%wtd(i)) .le. sum(dzmm(1:k),dim=1)) then
+                wtd_lev = k
+             end if
+          end do
+          ssnow%Qrecharge(i) = (new_wtd - ssnow%wtd(i))*soil%ssat_vec(i,wtd_lev)/dt
+          ssnow%apply_qrecharge(i) = .false.
+
+       elseif (.not.gw_params%default_aq) then
+          ssnow%Qrecharge(i) = -0.5*(ssnow%hk(i,ms)+soil%GWhyds_vec(i))*&
+                               ((-ssnow%smp(i,ms)) -&
+                                (-ssnow%zq(i,ms))) / &
+                                (ssnow%wtd(i) - zmm(ms))
        else
-          ssnow%Qrecharge(i) = -ssnow%hk(i,ms)*&
+          ssnow%Qrecharge(i) = -0.5*(ssnow%hk(i,ms)+soil%GWhyds_vec(i))*&
                                ((ssnow%GWsmp(i)-ssnow%smp(i,ms)) -&
                                 (ssnow%GWzq(i)-ssnow%zq(i,ms))) / &
                                 (zaq(i) - zmm(ms))
+
        end if
     end do
 
@@ -1509,16 +1718,17 @@ END SUBROUTINE calc_soil_hydraulic_props
 
   END SUBROUTINE aquifer_recharge
 
-  SUBROUTINE subsurface_drainage(ssnow,soil,veg,dzmm)
+  SUBROUTINE subsurface_drainage(dels,ssnow,soil,veg,dzmm)
   USE cable_common_module
 
   IMPLICIT NONE
-  
+    real, intent(in) :: dels
     TYPE (soil_snow_type), INTENT(INOUT)      :: ssnow ! soil and snow variables
     TYPE (soil_parameter_type), INTENT(INOUT)    :: soil  ! soil parameters
     TYPE (veg_parameter_type), INTENT(INOUT)     :: veg
     REAL(r_2), dimension(:), intent(in)       :: dzmm
     REAL(r_2), dimension(mp)                  :: sm_tot
+    real(r_2)                                 :: wtd_rel_aq_dz
     INTEGER, dimension(mp)                    :: k_drain
     integer :: i,k
 
@@ -1531,10 +1741,10 @@ END SUBROUTINE calc_soil_hydraulic_props
 
        !Note: future revision will have interaction with river here. nned to
        !work on router and add river type cells
-       ssnow%qhz(i)  = min(max(soil%slope(i),0.00001),0.1)*&
+       ssnow%qhz(i)  = min(max(soil%slope(i),0.000001),0.9)*&
                        gw_params%MaxHorzDrainRate* &
-                        exp(-ssnow%wtd(i)/(1000._r_2*&
-                       (gw_params%EfoldHorzDrainRate*Efold_mod(veg%iveg(i)))))
+                        exp(-ssnow%wtd(i)/1000._r_2*&
+                        soil%drain_dens(i)/Efold_mod(veg%iveg(i)))
 
        if (gw_params%subsurface_sat_drainage) then
           !drain from sat layers
@@ -1569,8 +1779,11 @@ END SUBROUTINE calc_soil_hydraulic_props
                  ssnow%qhlev(i,k) = ssnow%qhz(i)*max(&
                                    ssnow%wbliq(i,k)-soil%watr(i,k),0._r_2)/sm_tot(i)
               end do
-              ssnow%qhlev(i,ms+1) = max((ssnow%GWwb(i) - soil%watr(i,ms))*&
-                                    (1._r_2-ssnow%fracice(i,ms)), 0.)*ssnow%qhz(i)/sm_tot(i)
+              wtd_rel_aq_dz = 1000.0*(soil%GWdz(i) - max(ssnow%wtd(i)/1000.0 -&
+                                    sum(soil%zse_vec(i,:),dim=1),0.0) *&
+                                    sqrt(soil%elev_std(i)))/dels
+              ssnow%qhlev(i,ms+1) =min(soil%GWhyds_vec(i)*wtd_rel_aq_dz,  max((ssnow%GWwb(i) - soil%watr(i,ms))*&
+                                    (1._r_2-ssnow%fracice(i,ms)), 0.)*ssnow%qhz(i)/sm_tot(i) )
           endif
 
        else  !second option
@@ -1588,8 +1801,10 @@ END SUBROUTINE calc_soil_hydraulic_props
              endif
 
           else
-
-             ssnow%qhlev(i,ms+1) = ssnow%qhz(i)*(1._r_2-ssnow%fracice(i,ms))
+              wtd_rel_aq_dz = 1000.0*(soil%GWdz(i) - max(ssnow%wtd(i)/1000.0 -&
+                                    sum(soil%zse_vec(i,:),dim=1),0.0) *&
+                                    sqrt(soil%elev_std(i)))/dels
+             ssnow%qhlev(i,ms+1) = min( soil%GWhyds_vec(i)*wtd_rel_aq_dz,ssnow%qhz(i))*(1._r_2-ssnow%fracice(i,ms))
 
           end if
 
@@ -1699,7 +1914,7 @@ END SUBROUTINE calc_soil_hydraulic_props
 
    dzmm = real(soil%zse(:),r_2)*1000._r_2
 
-   CALL subsurface_drainage(ssnow,soil,veg,dzmm)
+   CALL subsurface_drainage(dels,ssnow,soil,veg,dzmm)
 
    zmm(:) = 1000._r_2*(sum(real(soil%zse,r_2),dim=1))
    zaq(:) = zmm(:) + 0.5_r_2*soil%GWdz(:)*1000._r_2

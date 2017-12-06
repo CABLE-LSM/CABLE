@@ -249,6 +249,8 @@ MODULE cable_common_module
 
      REAL :: ice_impedence=5.0
 
+     logical :: default_aq = .true.  !false means calc flux using head at wtd
+
      LOGICAL :: sfc_clm_func=.false.
      LOGICAL :: swilt_clm_func=.false.
      LOGICAL :: no_aquifer_flux=.false.
@@ -798,13 +800,14 @@ CONTAINS
 
   END SUBROUTINE report_version_no
 
-  SUBROUTINE init_veg_from_vegin(ifmp,fmp, veg) 
-     use cable_def_types_mod, ONLY : veg_parameter_type
+  SUBROUTINE init_veg_from_vegin(ifmp,fmp, veg,soil) 
+     use cable_def_types_mod, ONLY : veg_parameter_type,soil_parameter_type
      integer ::  ifmp,  & ! start local mp, # landpoints (jhan:when is this not 1 )      
                  fmp     ! local mp, # landpoints       
   
      type(veg_parameter_type) :: veg
-     
+     type(soil_parameter_type) :: soil
+
      integer :: h
      
          ! Prescribe parameters for current gridcell based on veg/soil type (which
@@ -846,7 +849,7 @@ CONTAINS
             veg%conko0(h) = vegin%conko0(veg%iveg(h))
             veg%ekc(h)    = vegin%ekc(veg%iveg(h))
             veg%eko(h)    = vegin%eko(veg%iveg(h))
-            veg%froot(h,:)  = vegin%froot(:, veg%iveg(h))
+            soil%froot(h,:)  = vegin%froot(:, veg%iveg(h))
             veg%zr(h)       = vegin%zr(veg%iveg(h))
             veg%clitt(h)    = vegin%clitt(veg%iveg(h))
          END DO ! over each veg patch in land point

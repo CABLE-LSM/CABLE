@@ -592,7 +592,7 @@ ENDIF
 !         max_vegpatches,'def',from_restart,mp)
    CALL readpar(ncid_rin,'rs20',dummy,veg%rs20,filename%restart_in,            &
                 max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'froot',dummy,veg%froot,filename%restart_in,          &
+   CALL readpar(ncid_rin,'froot',dummy,soil%froot,filename%restart_in,          &
                 max_vegpatches,'ms',from_restart,mp)
    CALL readpar(ncid_rin,'hc',dummy,veg%hc,filename%restart_in,                &
                 max_vegpatches,'def',from_restart,mp)

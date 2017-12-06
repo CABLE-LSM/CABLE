@@ -666,7 +666,7 @@ CONTAINS
              ! MPI: create type to send restart data back to the master
              ! only if restart file is to be created
              IF(output%restart) THEN
-                CALL master_restart_types (comm, canopy, air)
+                CALL master_restart_types (comm, canopy, air, ssnow)
              END IF
 
            !  CALL zero_sum_casa(sum_casapool, sum_casaflux)
@@ -2121,7 +2121,7 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
      blen(bidx) = r1len
 
      bidx = bidx + 1
-     CALL MPI_Get_address (veg%froot(off,1), displs(bidx), ierr)
+     CALL MPI_Get_address (soil%froot(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
           &                             types(bidx), ierr)
      blen(bidx) = 1
@@ -2649,7 +2649,7 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
      !  !blen(bidx) = ms * r1len
 
      bidx = bidx + 1
-     CALL MPI_Get_address (canopy%evapfbl(off,1), displs(bidx), ierr)
+     CALL MPI_Get_address (ssnow%evapfbl(off,1), displs(bidx), ierr)
      ! MPI: gol124: changed to r1 when Bernard ported to CABLE_r491
      CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
           &                             types(bidx), ierr)
@@ -3313,6 +3313,10 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
   blen(bidx) = r2len
 
   bidx = bidx + 1
+  CALL MPI_Get_address (soil%elev_std(off), displs(bidx), ierr)
+  blen(bidx) = r2len
+
+  bidx = bidx + 1
   CALL MPI_Get_address (soil%slope(off), displs(bidx), ierr)
   blen(bidx) = r2len
 
@@ -3326,6 +3330,10 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
 
   bidx = bidx + 1
   CALL MPI_Get_address (ssnow%GWwb(off), displs(bidx), ierr)
+  blen(bidx) = r2len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%drain_dens(off), displs(bidx), ierr)
   blen(bidx) = r2len
 
   write(*,*) 'master bidx ',bidx
@@ -4911,7 +4919,7 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      ! MPI: gol124: backport to r1134 changes r_2 to r_1
      ! MPI: gol124: in newest CABLE-cnp it's r_2 again
      midx = midx + 1
-     CALL MPI_Get_address (canopy%evapfbl(off,1), maddr(midx), ierr) ! 2
+     CALL MPI_Get_address (ssnow%evapfbl(off,1), maddr(midx), ierr) ! 2
      ! MPI: gol124: changed to r1 when Bernard ported to CABLE_r491
      CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
           &                        mat_t(midx, rank), ierr)
@@ -5181,7 +5189,7 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
 
      midx = midx + 1
      ! REAL(r_1)
-     CALL MPI_Get_address (veg%froot(off,1), maddr(midx), ierr) ! 29
+     CALL MPI_Get_address (soil%froot(off,1), maddr(midx), ierr) ! 29
      CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
           &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
@@ -7264,7 +7272,7 @@ END SUBROUTINE master_climate_types
 !CLNEND SUBROUTINE master_casa_restart_types
 
 ! MPI: creates datatype handles to receive restart data from workers
-SUBROUTINE master_restart_types (comm, canopy, air)
+SUBROUTINE master_restart_types (comm, canopy, air, ssnow)
 
   USE mpi
 
@@ -7278,6 +7286,7 @@ SUBROUTINE master_restart_types (comm, canopy, air)
 
   TYPE(canopy_type), INTENT(IN) :: canopy
   TYPE (air_type),INTENT(IN)        :: air
+  TYPE(soil_snow_type), INTENT(IN) :: ssnow
 !  TYPE (casa_pool),           INTENT(INOUT) :: casapool
 !  TYPE (casa_flux),           INTENT(INOUT) :: casaflux
 !  TYPE (casa_met),            INTENT(INOUT) :: casamet
@@ -7336,7 +7345,7 @@ SUBROUTINE master_restart_types (comm, canopy, air)
 !     blocks(bidx) = 1
 
      bidx = bidx + 1
-     CALL MPI_Get_address (canopy%evapfbl(off,1), displs(bidx), ierr) ! 2
+     CALL MPI_Get_address (ssnow%evapfbl(off,1), displs(bidx), ierr) ! 2
      ! MPI: gol124: changed to r1 when Bernard ported to CABLE_r491
      CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
      &                             types(bidx), ierr)

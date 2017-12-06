@@ -2801,7 +2801,7 @@ SUBROUTINE get_parameters_met(soil,veg,bgc,rough,completeSet)
                 nmetpatches,'def')
    CALL readpar(ncid_met,'albsoil',completeSet,soil%albsoil,filename%met,      &
                 nmetpatches,'nrb')
-   CALL readpar(ncid_met,'froot',completeSet,veg%froot,filename%met,           &
+   CALL readpar(ncid_met,'froot',completeSet,soil%froot,filename%met,           &
                 nmetpatches,'ms')
    CALL readpar(ncid_met,'hc',completeSet,veg%hc,filename%met,                 &
                 nmetpatches,'def')
