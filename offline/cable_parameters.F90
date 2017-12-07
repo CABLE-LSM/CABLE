@@ -2798,32 +2798,23 @@ subroutine read_tiled_soil_params(soil)
 
   type(soil_parameter_type), intent(inout) :: soil
 
-   integer, allocatable, dimension(:)  :: strt,cnt
+   integer, allocatable, dimension(:)  :: strt,cnt,strt_soil,strt_gw,cnt_soil,cnt_gw
    integer, dimension(2)               :: st2d,cn2d
    integer, dimension(4)               :: st4d,cn4d
 
-   real, pointer, contiguous, dimension(:,:) :: tmpin,tmp1d_var
-   real, pointer, contiguous, dimension(:,:,:) :: tmp_tile_var
+   real, allocatable, dimension(:,:) :: tmpin,tmp_xy
 
-   real, pointer, dimension(:,:,:)   :: tmp1d_horz,tmp1d_tile
+   real, pointer, dimension(:,:,:)   :: tmp_xysoil,tmp_xytile
    real, pointer, dimension(:,:,:,:) ::  tmp4d
 
 
    real,allocatable, dimension(:) :: horizon_depth
 
-   real, dimension(mp,0:ms+1) :: totdepth
-   real, allocatable, dimension(:,:)   :: matching_depth
-   real, allocatable, dimension(:)     :: total_matching_depth
-   real, pointer   ,dimension(:)      :: horizon_depth_int_one  !assumeed interfaces
-                                                           !for soil texture,
-                                                           !soilgrids doe not
-                                                           !specifiy actual
-                                                           !layers just depths
-   real, pointer :: horizon_depth_int(:)
    real :: tmpA,tmpB,tmpC
-   real, pointer, dimension(:) :: datain_ptr  !not used for now
 
    integer, dimension(0:25) :: tmpid,dimid
+
+   integer :: ndims_soil,ndims_gw
 
    character(len=4096) :: tmpname
 
@@ -2832,7 +2823,7 @@ subroutine read_tiled_soil_params(soil)
 
    integer :: ntiles_ierr,soillev_ierr,longitude_ierr,latitude_ierr,&
               ntiles_ext,soillev_ext,&   !dis exist in file
-              sand_vec_ierr,clay_vec_ierr,silt_vec_ierr,org_vec_ierr
+              sand_vec_ierr,clay_vec_ierr,silt_vec_ierr,org_vec_ierr,ntileID
 
    !if the grid in the gw_tiles file matches that of gridinfo that we use the
    !land_x and land_y indices found from read grid info
@@ -2862,12 +2853,15 @@ subroutine read_tiled_soil_params(soil)
 
     
        soillev_ext = nf90_inq_dimid(ncid,'soil_depth',dimid(2))
-       soillev_ierr = nf90_inquire_dimension(ncid=ncid,dimid=dimid(2),name=tmpname,len=num_horz)
+       soillev_ierr = nf90_inquire_dimension(ncid=ncid,dimid=dimid(2),len=num_horz)
 
        if (soillev_ext .ne. nf90_noerr .or. soillev_ierr .ne. nf90_noerr) then
           write(*,*) 'soil_depth  dimension problem gw_soils, stopping'
           stop
        end if
+
+       ok = nf90_inq_dimid(ncid,'num_tiles',ntileID)
+       if (ok .eq. nf90_noerr) ok = nf90_inquire_dimension(ncid=ncid,dimid=ntileID,len=num_tiles)
 
        write(*,*) 'num_horz is ',num_horz
 
@@ -2878,10 +2872,6 @@ subroutine read_tiled_soil_params(soil)
        ok = nf90_inq_dimid(ncid,'longitude' ,dimid(4))
        if (ok .ne. nf90_noerr) &
           stop
-
-        
-       allocate(strt(3))
-       allocate(cnt(3))
 
        ok = nf90_inq_varid(ncid,'soil_depth'  ,tmpid(0))
 
@@ -2896,9 +2886,20 @@ subroutine read_tiled_soil_params(soil)
        ok = nf90_inq_varid(ncid,'drainage_density' ,tmpid(12))
        ok = nf90_inq_varid(ncid,'Sy' ,tmpid(13))
 
+       !determine if num_tiles is a dim of soil data
+       ok = nf90_inquire_variable(ncid=ncid,varid=tmpid(1),ndims=ndims_soil)
+       ok = nf90_inquire_variable(ncid=ncid,varid=tmpid(10),ndims=ndims_gw)
+
+       allocate(strt_soil(ndims_soil))
+       allocate(cnt_soil(ndims_soil))
+       allocate(strt_gw(ndims_gw))
+       allocate(cnt_gw(ndims_gw))
 
        allocate(horizon_depth(num_horz))
-       allocate(tmp1d_horz(1,1,num_horz))
+
+       allocate(tmp_xysoil(1,1,num_horz))
+       allocate(tmp_xy(1,1))
+       allocate(tmp_xytile(1,1,num_tiles))
        allocate(tmp4d(1,1,num_horz,max(1,num_tiles)))
 
       if (num_lat*num_lon .gt. 1 .and. ( (num_lat .ne. ydimsize) .or. &
@@ -2933,39 +2934,42 @@ subroutine read_tiled_soil_params(soil)
              ii=land_x(i)
              jj=land_y(i)
   
-             strt = (/ii,jj,1/)
-             cnt  = (/1,1,ms/)
-   
+             if (ndims_soil .eq. 3) then
+                strt_soil = (/ii,jj,1/)
+                cnt_soil  = (/1,1,ms/)
+             elseif (ndims_soil .eq. 4) then
+                strt_soil = (/ii,jj,1,1/)
+                cnt_soil  = (/1,1,ms,num_tiles/)
+             end if
+
              ib = landpt(i)%cstart
              ie = landpt(i)%cend
 
              do ivar=1,5
 
-                if (num_tiles .lt. 1) then
-                   ok = nf90_get_var(ncid,tmpid(ivar),tmp1d_horz,strt,cnt)
+                if (ndims_soil .eq. 3) then
+                   ok = nf90_get_var(ncid,tmpid(ivar),tmp_xysoil,strt_soil,cnt_soil)
                         
                     do k=1,ms
                     !do h=1,num_horz
                        do ij=ib,ie
                            select case (ivar)
                            case (1)
-                             soil%sand_vec(ij,k) =  tmp1d_horz(1,1,k)
+                             soil%sand_vec(ij,k) =  tmp_xysoil(1,1,k)
                            case (2)
-                             soil%clay_vec(ij,k) =  tmp1d_horz(1,1,k)
+                             soil%clay_vec(ij,k) =  tmp_xysoil(1,1,k)
                            case (3)
-                             soil%silt_vec(ij,k) =  tmp1d_horz(1,1,k)
+                             soil%silt_vec(ij,k) =  tmp_xysoil(1,1,k)
                            case (4)
-                             soil%org_vec(ij,k) =  tmp1d_horz(1,1,k)
+                             soil%org_vec(ij,k) =  tmp_xysoil(1,1,k)
                            case (5)
-                             soil%rhosoil_vec(ij,k) =  tmp1d_horz(1,1,k)
+                             soil%rhosoil_vec(ij,k) =  tmp_xysoil(1,1,k)
                            end select
                              
                        end do
                     end do
                  else
-                   st4d = (/ii,jj,1,k/)
-                   cn4d = (/1, 1, ms,max(1,num_tiles)/)
-                   ok = nf90_get_var(ncid,tmpid(ivar),tmp4d,st4d,cn4d)
+                   ok = nf90_get_var(ncid,tmpid(ivar),tmp4d,strt_soil,cnt_soil)
                     do k=1,ms
                     !do h=1,num_horz
                        do ij=ib,ie
@@ -2986,46 +2990,51 @@ subroutine read_tiled_soil_params(soil)
                     end do
                end if
              end do
-             if (num_tiles .lt. 1) then
 
-                st2d = (/ii,jj/)
-                cn2d = (/1,1/)
+             if (ndims_gw .eq. 2) then
+                strt_gw = (/ii,jj/)
+                cnt_gw = (/1,1/)
+             else
+                strt_gw = (/ii,jj,1/)
+                cnt_gw = (/1,1,num_tiles/)
+             end if
+
+             if (ndims_gw .eq. 2) then
+
 
                 !note that ie=ib since only one tile per grid cell
-                ok = nf90_get_var(ncid,tmpid(10),tmp1d_var,st2d,cn2d)
-                soil%GWhyds_vec(ib) = tmp1d_var(1,1)*1000.0*9.81/0.001003 * 1000.0 !mm/s
+                ok = nf90_get_var(ncid,tmpid(10),tmp_xy,strt_gw,cnt_gw)
+                soil%GWhyds_vec(ib) = tmp_xy(1,1)*1000.0*9.81/0.001003 * 1000.0 !mm/s
 
-                ok = nf90_get_var(ncid,tmpid(11),tmp1d_var,st2d,cn2d)
-                soil%GWdz(ib) = max(5.0, tmp1d_var(1,1) - sum(soil%zse_vec(ib,:),dim=1))
+                ok = nf90_get_var(ncid,tmpid(11),tmp_xy,strt_gw,cnt_gw)
+                soil%GWdz(ib) = max(5.0, tmp_xy(1,1) - sum(soil%zse_vec(ib,:),dim=1))
 
-                ok = nf90_get_var(ncid,tmpid(12),tmp1d_var,st2d,cn2d)
-                soil%drain_dens(ib) = tmp1d_var(1,1)
+                ok = nf90_get_var(ncid,tmpid(12),tmp_xy,strt_gw,cnt_gw)
+                soil%drain_dens(ib) = tmp_xy(1,1)
 
-                ok = nf90_get_var(ncid,tmpid(13),tmp1d_var,st2d,cn2d)
-                soil%GWssat_vec(ib) = tmp1d_var(1,1)
+                ok = nf90_get_var(ncid,tmpid(13),tmp_xy,strt_gw,cnt_gw)
+                soil%GWssat_vec(ib) = tmp_xy(1,1)
 
             else
-                strt = (/ii,jj,1/)
-                cnt = (/1,1,num_tiles/)
 
-                ok = nf90_get_var(ncid,tmpid(10),tmp_tile_var,strt,cnt)
+                ok = nf90_get_var(ncid,tmpid(10),tmp_xytile,strt_gw,cnt_gw)
                 do ij=ib,ie
-                soil%GWhyds_vec(ij) = tmp_tile_var(1,1,ij-ib+1)*1000.0*9.81/0.001003 * 1000.0 !mm/s
+                soil%GWhyds_vec(ij) = tmp_xytile(1,1,ij-ib+1)*1000.0*9.81/0.001003 !m/s
                 end do
 
-                ok = nf90_get_var(ncid,tmpid(11),tmp_tile_var,strt,cnt)
+                ok = nf90_get_var(ncid,tmpid(11),tmp_xytile,strt_gw,cnt_gw)
                 do ij=ib,ie
-                soil%GWdz(ij) = max(5.0, tmp_tile_var(1,1,ij-ib+1) - sum(soil%zse_vec(ij,:),dim=1))
+                soil%GWdz(ij) = max(5.0, tmp_xytile(1,1,ij-ib+1) - sum(soil%zse_vec(ij,:),dim=1))
                 end do
 
-                ok = nf90_get_var(ncid,tmpid(12),tmp_tile_var,strt,cnt)
+                ok = nf90_get_var(ncid,tmpid(12),tmp_xytile,strt_gw,cnt_gw)
                 do ij=ib,ie
-                soil%drain_dens(ij) = tmp_tile_var(1,1,ij-ib+1)
+                soil%drain_dens(ij) = tmp_xytile(1,1,ij-ib+1)
                 end do
 
-                ok = nf90_get_var(ncid,tmpid(13),tmp_tile_var,strt,cnt)
+                ok = nf90_get_var(ncid,tmpid(13),tmp_xytile,strt_gw,cnt_gw)
                 do ij=ib,ie
-                soil%GWssat_vec(ij) = tmp_tile_var(1,1,ij-ib+1)
+                soil%GWssat_vec(ij) = tmp_xytile(1,1,ij-ib+1)
                 end do
 
             end if
@@ -3068,19 +3077,12 @@ subroutine read_tiled_soil_params(soil)
 
           if (associated(gw_land_x)) nullify(gw_land_x)
           if (associated(gw_land_y)) nullify(gw_land_y)
-          if (associated(datain_ptr)) nullify(datain_ptr)
 
        end if  !  check gw_tiles grid same as gridinfo or a single point
    
        ok = nf90_close(ncid)  !close
 
     END IF
-
-   !why bother, yeah for allocatable!
-   if (associated(tmpin))         deallocate(tmpin)
-   if (associated(tmp1d_horz))    deallocate(tmp1d_horz)
-   if (associated(tmp1d_tile))   deallocate(tmp1d_tile)
-   if (allocated(horizon_depth)) deallocate(horizon_depth)
 
 
 end subroutine read_tiled_soil_params
