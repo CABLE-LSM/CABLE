@@ -126,6 +126,9 @@ MODULE cable_param_module
   ! vars intro for Ticket #27
   INTEGER, DIMENSION(:, :),     ALLOCATABLE :: inSoilColor
 
+
+  real, pointer, dimension(:) :: soil_dz
+
 CONTAINS
 
   SUBROUTINE get_default_params(logn, vegparmnew, LUC_EXPT)
@@ -148,12 +151,21 @@ CONTAINS
     INTEGER :: nlon
     INTEGER :: nlat
 
+
     ! Get parameter values for all default veg and soil types:
     CALL get_type_parameters(logn, vegparmnew, classification)
 
     WRITE(logn,*) ' Reading grid info from ', TRIM(filename%type)
     WRITE(logn,*) ' And assigning C4 fraction according to veg classification.'
     WRITE(logn,*)
+
+    if (cable_user%gw_model .and. cable_user%change_soil_depths) then
+       call find_soil_depths()
+    else
+       allocate(soil_dz(ms))
+       soil_dz(:) = -1.0
+    end if
+
     CALL read_gridinfo(nlon,nlat,npatch)
    
 ! Overwrite veg type and inital patch frac with land-use info 
@@ -1246,18 +1258,29 @@ CONTAINS
                                       ! should be in restart file
 
       ! parameters that are not spatially dependent
-      select case(ms)
 
-      case(6)
-         soil%zse = (/.022, .058, .154, .409, 1.085, 2.872/) ! layer thickness nov03
-      case(12)
-         soil%zse = (/.022,  0.0500,    0.1300 ,   0.3250 ,   0.3250 ,   0.3000,  &
-              0.3000,    0.3000 ,   0.3000,    0.3000,    0.7500,  1.50 /)
-      case(13)
-         soil%zse = (/.02,  0.0500,  0.06,  0.1300 ,   0.300 ,   0.300 ,   0.3000,  &
-              0.3000,    0.3000 ,   0.3000,    0.3000,    0.7500,  1.50 /)
+      if (any(soil_dz .le. 0.0)) then
 
-      end select
+         select case(ms)
+   
+         case(6)
+            soil%zse = (/.022, .058, .154, .409, 1.085, 2.872/) ! layer thickness nov03
+         case(12)
+            soil%zse = (/.022,  0.0500,    0.1300 ,   0.3250 ,   0.3250 ,   0.3000,  &
+                 0.3000,    0.3000 ,   0.3000,    0.3000,    0.7500,  1.50 /)
+         case(13)
+            soil%zse = (/.02,  0.0500,  0.06,  0.1300 ,   0.300 ,   0.300 ,   0.3000,  &
+                 0.3000,    0.3000 ,   0.3000,    0.3000,    0.7500,  1.50 /)
+   
+         end select
+
+      else
+
+         soil%zse = soil_dz
+
+      end if
+
+      nullify(soil_dz)
 
       soil%zse_vec = real(spread(soil%zse,1,mp),r_2)
 
@@ -3090,9 +3113,51 @@ subroutine read_tiled_soil_params(soil)
     END IF
 
 
-end subroutine read_tiled_soil_params
+
+subroutine find_soil_depths()
+
+   real, allocatable, dimension(:) :: node_depths
+
+   integer :: ncid,ok,ms,i,k,j,dimid,varid,num_horz
+
+   ok = nf90_open(trim(filename%gw_soils),nf90_nowrite,ncid)
+
+   IF (ok /= NF90_NOERR) THEN
+
+        call nc_abort(ok,'could not open '//trim(filename%gw_soils))
+
+   ELSE
+
+    
+       ok = nf90_inq_dimid(ncid,'soil_depth',dimid)
+       if (ok .ne. nf90_noerr) call nc_abort(ok,'soil_depth dim error')
+       ok = nf90_inquire_dimension(ncid=ncid,dimid=dimid,len=num_horz)
+       if (ok .ne. nf90_noerr) call nc_abort(ok,'soil_depth dim length error')
+
+       if (num_horz .ne. ms) call abort('num_horz .ne. ms')
+
+       allocate(soil_dz(ms))
+       allocate(node_depths(ms))
+
+       ok = nf90_inq_varid(ncid,'soil_depth'  ,varid)
+       if (ok .ne. nf90_noerr) call nc_abort(ok,'soil_depth var inq error')
+
+       ok = nf90_get_var(ncid,varid,node_depths)
+       if (ok .ne. nf90_noerr) call nc_abort(ok,'soil_depth var read error')
+
+       soil_dz(1) = 2.0 * node_depths(1)
+
+       do k=2,ms
+          soil_dz(k) = 2.0*(node_depths(k)-node_depths(k-1)-0.5*soil_dz(k-1)
+       end do
 
 
+   END IF
+
+
+   ok = nf90_close(ncid)
+
+end find_soil_depths
 
 
 END MODULE cable_param_module

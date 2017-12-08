@@ -167,6 +167,9 @@ MODULE cable_common_module
      LOGICAL :: fix_access_roots = .false.  !use pft dependent roots in ACCESS
      LOGICAL :: fix_um_soil_comps = .false. !inverse pedotransfer funcs to get
                                             !sand,clay,silt and then use these to get isoilm
+
+     LOGICAL :: change_soil_depths=.false.
+
   END TYPE kbl_user_switches
 
   ! instantiate internal switches
