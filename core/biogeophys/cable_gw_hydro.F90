@@ -464,6 +464,8 @@ END SUBROUTINE remove_transGW
     zimm(k) = zimm(k-1) + zse_vec(k)*1000._r_2
   end do
 
+  total_depth_column = zimm(ms)
+
   !comute the total mass away from full saturation
   def = 0.0
   do k=1,ms
@@ -597,20 +599,20 @@ END SUBROUTINE remove_transGW
   !make code cleaner define these here 
   invB     = 1._r_2/soil%bch_vec(:,ms)                                !1 over C&H B
   Nsucs_vec  = soil%sucs_vec(:,ms)                                !psi_saturated mm
-  dzmm_mp  = real(spread((soil%zse(:)) * 1000.0,1,mp),r_2)    !layer thickness mm
+  dzmm_mp    = 1000.0*soil%zse_vec(:,:)
   zimm(0)  = 0.0_r_2                                          !depth of layer interfaces mm
 
   !total depth of soil column
   do k=1,ms
     zimm(k) = zimm(k-1) + soil%zse(k)*1000._r_2
   end do
-
+  total_depth_column(:) = sum(dzmm_mp,dim=2)
   def(:) = 0._r_2
 
   if (include_aquifer) then  !do we include the aquifer in the calculation of wtd?
 
      do i=1,mp
-        total_depth_column(i) = zimm(ms) + soil%GWdz(i)*1000._r_2
+        total_depth_column(i) = total_depth_column(i) + soil%GWdz(i)*1000._r_2
         def(i) = def(i) + max(0._r_2,soil%GWssat_vec(i)-ssnow%GWwb(i))*soil%GWdz(i)*1000._r_2
      end do   
 
@@ -731,7 +733,7 @@ END SUBROUTINE remove_transGW
      do i=1,mp
         if (ssnow%wtd(i)/1000.0 .gt. sum(soil%zse_vec(i,:),dim=1)) then
            ssnow%wtd(i) = 1000.0 * (sum(soil%zse_vec(i,:),dim=1) + &
-                                 ssnow%GWwb(i)*soil%GWdz(i)/soil%GWssat_vec(i))
+                                 (soil%GWssat_vec(i)-ssnow%GWwb(i))*soil%GWdz(i)/soil%GWssat_vec(i))
         end if
       end do
   end if
@@ -1743,8 +1745,8 @@ END SUBROUTINE calc_soil_hydraulic_props
        !work on router and add river type cells
        ssnow%qhz(i)  = min(max(soil%slope(i),0.000001),0.9)*&
                        gw_params%MaxHorzDrainRate* &
-                        exp(-ssnow%wtd(i)/1000._r_2*&
-                        soil%drain_dens(i)/Efold_mod(veg%iveg(i)))
+                        exp(-ssnow%wtd(i)/1000._r_2/&
+                        (1.0/(600.0*(soil%drain_dens(i)+1.0e-3))*Efold_mod(veg%iveg(i))))
 
        if (gw_params%subsurface_sat_drainage) then
           !drain from sat layers

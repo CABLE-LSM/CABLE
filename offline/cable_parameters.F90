@@ -749,25 +749,27 @@ CONTAINS
 
 
     allocate(inElev(nlon,nlat),stat=ok)
-    allocate(inElevSTD(nlon,nlat),stat=ok)
-    if (ok .ne. 0) CALL nc_abort(ok, 'Error allocating inElevSTD ')
+    if (ok .ne. 0) CALL abort('Error allocating inElev ')
     inElevSTD(:,:) = 0.0
+    allocate(inElevSTD(nlon,nlat),stat=ok)
+    if (ok .ne. 0) CALL abort('Error allocating inElevSTD ')
     inElev(:,:) = 0.0
 
     allocate(inSlope(nlon,nlat),stat=ok)
-    if (ok .ne. 0) CALL nc_abort(ok, 'Error allocating inSlope ')
+    if (ok .ne. 0) CALL abort('Error allocating inSlope ')
     inSlope(:,:) = 0.0
 
     allocate(inSlopeSTD(nlon,nlat),stat=ok)
-    if (ok .ne. 0) CALL nc_abort(ok, 'Error allocating inSlopeSTD ')
+    if (ok .ne. 0) CALL abort('Error allocating inSlopeSTD ')
     inSlopeSTD(:,:) = 0.0
 
     allocate(inGWdz(nlon,nlat),stat=ok)
-    if (ok .ne. 0) CALL nc_abort(ok, 'Error allocating inGWdz ')
-    inGWdz(:,:) = 20.0
+    if (ok .ne. 0) CALL abort('Error allocating inGWdz ')
+    inGWdz(:,:) = 0.0
 
     allocate(inDrainDens(nlon,nlat),stat=ok)
-    inDrainDens(:,:) = 0.33
+    if (ok .ne. 0) CALL abort('Error allocating inDrainDens ')
+    inDrainDens(:,:) = 0.0
 
     IF (cable_user%GW_MODEL) THEN
        ok = NF90_OPEN(trim(filename%gw_elev),NF90_NOWRITE,ncid_elev)
@@ -827,7 +829,8 @@ CONTAINS
        IF (ok /= NF90_NOERR) WRITE(logn,*) 'Error finding variable drain dens'
        ok = NF90_GET_VAR(ncid_elev, fieldID, inDrainDens)
        IF (ok /= NF90_NOERR) THEN
-          inGWdz = 0.25
+          inDrainDens = 0.999/600.0  !default (0.0016667) so that (1.0/(600*def_val)+1e-3) =
+                                   !1.0 so the subsurface completely defined by qhmaxefold
           WRITE(logn, *) 'Could not read drain dens data for SSGW, set to 0.25'
        END IF
        ok = NF90_CLOSE(ncid_elev)
@@ -1468,6 +1471,8 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
       soil%clay(landpt(e)%cstart:landpt(e)%cend) =                             &
                                           inclay(landpt(e)%ilon, landpt(e)%ilat)
 
+      soil%drain_dens(landpt(e)%cstart:landpt(e)%cend) =                             &
+                                          inDrainDens(landpt(e)%ilon, landpt(e)%ilat)
       ENDIF
 
       ! vars intro for Ticket #27
