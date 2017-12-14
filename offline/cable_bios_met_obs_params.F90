@@ -545,8 +545,8 @@ MODULE cable_bios_met_obs_params
   TYPE(dmydate)       :: dummydate     ! Dummy date for when keeping the date is not required
   TYPE(dmydate),SAVE  :: MetDate       ! Date of met to access (equals current date for normals runs, but
                                        ! must be calculated for spinup and initialisation runs (for dates before 1900)
-  INTEGER(i4b),PARAMETER :: recycle_met_startdate = 1901 ! range for met to be recycled for spinup and initialisation
-  INTEGER(i4b),PARAMETER :: recycle_met_enddate = 1930
+  INTEGER(i4b),PARAMETER :: recycle_met_startdate = 1900 ! range for met to be recycled for spinup and initialisation
+  INTEGER(i4b),PARAMETER :: recycle_met_enddate = 1929
   INTEGER(i4b)   :: skipdays                        ! Days of met to skip when user_startdate is after bios_startdate
   TYPE(dmydate), SAVE  :: bios_startdate, bios_enddate    ! First and last dates found in bios met files (read from rain file)
   REAL(sp), PRIVATE, PARAMETER :: SecDay = 86400.
@@ -873,11 +873,11 @@ CONTAINS
       shod        = 0.
       sdoy        = 1
       smoy        = 1
-      syear       = 1691
+      syear       = 1690
       write(*,*) 'prev:',previous_date%year,previous_date%month,previous_date%day
       write(*,*) 'run:',  user_startdate%year, user_startdate%month,  user_startdate%day      
-! For spinup and initialisation before met begins (1900), calculate the required met year for repeatedly cycling through the
-! spinup meteorology between recycle_met_startdate - recycle_met_enddate. For normal runs (1900-2015), MetDate%Year = curyear.
+! For spinup and initialisation before bios met begins (1900), calculate the required met year for repeatedly cycling through the
+! spinup meteorology between recycle_met_startdate - recycle_met_enddate (1900-1929). For normal runs (e.g. 1900-2016), MetDate%Year = curyear.
       MetDate%day = 1
       MetDate%month = 1
       IF (TRIM(MetForcing) .EQ. 'recycled') THEN
@@ -890,6 +890,7 @@ CONTAINS
 
 ! The user-specified run startdate must be no earlier than the first available met.
 ! Stop if the user startdate is mis-specified in this way.
+write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
       skipdays = DayDifference(MetDate, bios_startdate)
       IF (skipdays < 0) THEN
         STOP "ERROR in cable_bios_init: user_startdate < bios_startdate"
