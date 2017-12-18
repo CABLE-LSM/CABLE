@@ -763,20 +763,26 @@ CONTAINS
     landpt(:)%ilon = -999
     landpt(:)%ilat = -999
     ncount = 0
+   
     DO kk = 1, mland
        distance = 3.0 ! initialise, units are degrees
        DO jj = 1, nlat
           DO ii = 1, nlon
-             IF (inVeg(ii,jj, 1) > 0) THEN
+             IF (inVeg(ii,jj, 1) > 0 .and. inTgg(ii,jj,1,1).gt.0.0) THEN
                 newLength = SQRT((inLon(ii) - longitude(kk))**2                      &
                      + (inLat(jj) -  latitude(kk))**2)
                 IF (newLength < distance) THEN
                    distance = newLength
                    landpt(kk)%ilon = ii
                    landpt(kk)%ilat = jj
+                   
                 END IF
              END IF
+            if (kk.eq.426) then
+             write(61,*) jj, ii, inLon(ii), inLat(jj)
+          endif 
           END DO
+          
        END DO
        IF (landpt(kk)%ilon < -900 .OR. landpt(kk)%ilat < -900) THEN
           PRINT *, 'Land point ', kk, ' cannot find the nearest grid!'
@@ -785,7 +791,9 @@ CONTAINS
           PRINT *, 'inLat range:', MINVAL(inLat), MAXVAL(inLat)
           STOP
        END IF
-       
+       if (kk.eq.426) then
+          write(61,*) latitude(kk), longitude(kk), distance
+          endif
     END DO
 
 
@@ -835,7 +843,8 @@ CONTAINS
        distance = 3.0 ! initialise, units are degrees
        DO jj = 1, nlat
           DO ii = 1, nlon
-             IF (inVeg(ii,jj, 1) > 0) THEN
+           
+             IF (inVeg(ii,jj, 1) > 0 .and. inTgg(ii,jj,1,1).gt.0.0 ) THEN
                 newLength = SQRT((inLon(ii) - longitude(kk))**2                      &
                      + (inLat(jj) -  latitude(kk))**2)
                 IF (newLength < distance) THEN
@@ -843,8 +852,10 @@ CONTAINS
                    landpt(kk)%ilon = ii
                    landpt(kk)%ilat = jj
                 END IF
+               
              END IF
           END DO
+        
        END DO
        IF (landpt(kk)%ilon < -900 .OR. landpt(kk)%ilat < -900) THEN
           PRINT *, 'Land point ', kk, ' cannot find the nearest grid!'
@@ -853,7 +864,9 @@ CONTAINS
           PRINT *, 'inLat range:', MINVAL(inLat), MAXVAL(inLat)
           STOP
        END IF
-       
+        if (kk.eq.426) then
+          write(62,*) latitude(kk), longitude(kk), distance,  landpt(kk)%ilon,  landpt(kk)%ilat 
+          endif
        landpt(kk)%nap = 0
        landpt(kk)%cstart = ncount + 1
        IF (ASSOCIATED(vegtype_metfile)) THEN
@@ -1132,7 +1145,8 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
          ssnow%wb(landpt(e)%cstart:landpt(e)%cend, is) =                        &
                 inWB(landpt(e)%ilon, landpt(e)%ilat, min(is,size(inTGG,3)), month)
       END DO
-
+     
+      !write(61,*) e, ssnow%tgg(landpt(e)%cstart:landpt(e)%cend,:) , landpt(e)%ilon,landpt(e)%ilat
 
    !ELSE
 
@@ -1328,8 +1342,11 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
 
     ! check tgg and alb
     IF(ANY(ssnow%tgg > 350.0) .OR. ANY(ssnow%tgg < 180.0))                     &
-           CALL abort('Soil temps nuts')
+         !write(*,*) 'Soil temps nuts' 
+          CALL abort('Soil temps nuts')
     IF(ANY(ssnow%albsoilsn > 1.0) .OR. ANY(ssnow%albsoilsn < 0.0))             &
+         !write(*,*) 'Albedo nuts'
+           
            CALL abort('Albedo nuts')
 
     WRITE(logn, *)
