@@ -778,9 +778,7 @@ CONTAINS
                    
                 END IF
              END IF
-            if (kk.eq.426) then
-             write(61,*) jj, ii, inLon(ii), inLat(jj)
-          endif 
+            
           END DO
           
        END DO
