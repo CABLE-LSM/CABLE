@@ -425,6 +425,8 @@ CONTAINS
     IF ( TRIM(cable_user%MetType) .EQ. 'gpgs' ) THEN
        leaps = .TRUE.
        cable_user%MetType = 'gswp'
+    ELSEIF ( TRIM(cable_user%MetType) .EQ. 'bios' ) THEN
+       leaps = .TRUE.
     ENDIF
 
     cable_runtime%offline = .TRUE.
@@ -524,7 +526,7 @@ CONTAINS
           ELSE IF ( TRIM(cable_user%MetType) .EQ. 'bios' ) THEN
              
               kend = NINT(24.0*3600.0/dels) * LOY
-
+                   
           ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
 	      ! CLN HERE CRU modfications
 	      IF ( CALL1 ) THEN
