@@ -260,7 +260,7 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
      ! update GMD (growing moisture day) counter
      !where (climate%dmoist .gt. moisture_min)
      where (climate%dmoist .gt. &
-          climate%dmoist_min20 + 0.3*(climate%dmoist_max20 - climate%dmoist_min20))
+          climate%dmoist_min20 + 0.2*(climate%dmoist_max20 - climate%dmoist_min20))
         climate%gmd = climate%gmd + 1
      elsewhere
         climate%gmd = 0
