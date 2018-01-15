@@ -15,7 +15,7 @@ MODULE CABLE_LUC_EXPT
   END TYPE LUC_INPUT_TYPE
 
   TYPE LUC_EXPT_TYPE
-     CHARACTER(len=200)::	TransitionFilePath,ClimateFile, Run  
+     CHARACTER(len=400)::	TransitionFilePath,ClimateFile, Run, NotPrimOnlyFile 
      LOGICAL  :: DirectRead, READrst, WRITErst
      LOGICAL, ALLOCATABLE ::  prim_only(:)
      LOGICAL, ALLOCATABLE :: ptos(:), ptog(:), stog(:), gtos(:)
@@ -75,12 +75,14 @@ CONTAINS
     INTEGER :: xds, yds, tds
     INTEGER :: STATUS,  iu
     CHARACTER(len=15)    :: Run
-    CHARACTER(len=200)   :: TransitionFilePath, ClimateFile
+    CHARACTER(len=400)   :: TransitionFilePath, ClimateFile, NotPrimOnlyFile
     LOGICAL :: DirectRead
     INTEGER :: YearStart, YearEnd
     REAL, ALLOCATABLE :: tmpvec(:), tmparr3(:,:,:)
+    INTEGER :: NotPrimOnly_fID, NotPrimOnly_vID
        
-    NAMELIST /LUCNML/  TransitionFilePath, ClimateFile, Run, DirectRead, YearStart, YearEnd
+    NAMELIST /LUCNML/  TransitionFilePath, ClimateFile, Run, DirectRead, YearStart, YearEnd, &
+         NotPrimOnlyFile
     
     ALLOCATE( LUC_EXPT%prim_only(mland) )
     ALLOCATE( LUC_EXPT%ivegp(mland) )
@@ -101,7 +103,7 @@ CONTAINS
     ALLOCATE( LUC_EXPT%crop(mland) )
     ALLOCATE( LUC_EXPT%past(mland) )
     ALLOCATE( LUC_EXPT%mtemp_min20(mland) )
-
+    LUC_EXPT%NotPrimOnlyFile = 'none'
     ! READ LUC_EXPT settings
     CALL GET_UNIT(iu)
     OPEN (iu,FILE="LUC.nml",STATUS='OLD',ACTION='READ')
@@ -112,6 +114,7 @@ CONTAINS
     LUC_EXPT%DirectRead         = DirectRead
     LUC_EXPT%YearStart          = YearStart
     LUC_EXPT%YearEnd            = YearEnd
+    LUC_EXPT%NotPrimOnlyFile      = NotPrimOnlyFile
 
     WRITE(*   ,*)"================== LUC_EXPT  ============"
     WRITE(*   ,*)"LUC_EXPT settings chosen:"
@@ -336,39 +339,55 @@ CONTAINS
        LUC_EXPT%primaryf =  LUC_EXPT%primaryf *0.7
        LUC_EXPT%secdf =  LUC_EXPT%secdf * 0.7
     END WHERE
-   
- 
-! READ transitions from primary to see if primary remains primary
-         
-    LUC_EXPT%prim_only = .TRUE.
-    IF(.NOT.ALLOCATED(tmpvec)) ALLOCATE(tmpvec(tdimsize))
-    IF(.NOT.ALLOCATED(tmparr3)) ALLOCATE(tmparr3(xds,yds,tdimsize))
-    DO i=1,2 ! ptos and ptog
-       IF ( LUC_EXPT%DirectRead ) THEN
-          DO k = 1, mland
 
-             STATUS = NF90_GET_VAR( LUC_EXPT%F_ID(i), LUC_EXPT%V_ID(i), tmpvec, &
-                  start=(/land_x(k),land_y(k),1/), &
-                  count=(/1,1,tdimsize/) )
-             CALL HANDLE_ERR(STATUS, "Reading direct from "//LUC_EXPT%TransFile(i) )
+    write(59,*) TRIM(LUC_EXPT%NotPrimOnlyFile), (TRIM(LUC_EXPT%NotPrimOnlyFile).EQ.'none')
+    ! READ transitions from primary to see if primary remains primary
+    if (TRIM(LUC_EXPT%NotPrimOnlyFile).EQ.'none')   THEN     
+       LUC_EXPT%prim_only = .TRUE.
+       IF(.NOT.ALLOCATED(tmpvec)) ALLOCATE(tmpvec(tdimsize))
+       IF(.NOT.ALLOCATED(tmparr3)) ALLOCATE(tmparr3(xds,yds,tdimsize))
+       DO i=1,2 ! ptos and ptog
+          IF ( LUC_EXPT%DirectRead ) THEN
+             DO k = 1, mland
+                
+                STATUS = NF90_GET_VAR( LUC_EXPT%F_ID(i), LUC_EXPT%V_ID(i), tmpvec, &
+                     start=(/land_x(k),land_y(k),1/), &
+                     count=(/1,1,tdimsize/) )
+                CALL HANDLE_ERR(STATUS, "Reading direct from "//LUC_EXPT%TransFile(i) )
 
-             !IF (sum(tmpvec).gt.1e-3 .OR. LUC_EXPT%primaryf(k).lt.0.99) LUC_EXPT%prim_only(k) = .FALSE.
-             IF (sum(tmpvec).gt.1e-3 ) LUC_EXPT%prim_only(k) = .FALSE.
-          END DO
+                !IF (sum(tmpvec).gt.1e-3 .OR. LUC_EXPT%primaryf(k).lt.0.99) LUC_EXPT%prim_only(k) = .FALSE.
+                IF (sum(tmpvec).gt.1e-3 ) LUC_EXPT%prim_only(k) = .FALSE.
+             END DO
+             
+          ELSE
+             STATUS = NF90_GET_VAR(LUC_EXPT%F_ID(i), LUC_EXPT%V_ID(i), tmparr3, &
+                  start=(/1,1,1/),count=(/xds,yds,tdimsize/) )
+             CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )
+             DO k = 1, mland
+                tmpvec = tmparr3(  land_x(k), land_y(k) , :)
+                ! IF (sum(tmpvec).gt.1e-3.OR. LUC_EXPT%primaryf(k).lt.0.99) LUC_EXPT%prim_only(k) = .FALSE.
+                IF (sum(tmpvec).gt.1e-3) LUC_EXPT%prim_only(k) = .FALSE.
+             END DO
+             
+          ENDIF
+          
+       END DO
+    ELSE
+       LUC_EXPT%prim_only = .TRUE.
+       Status = NF90_OPEN(TRIM(NotPrimOnlyFile), NF90_NOWRITE, NotPrimOnly_fID)
+       Status = NF90_INQ_VARID( NotPrimOnly_fID,'cum_frac_prim_loss',  NotPrimOnly_vID)
+       STATUS = NF90_GET_VAR(NotPrimOnly_FID, NotPrimOnly_vID , tmparr, &
+            start=(/1,1/),count=(/xds,yds/) )
+       DO k = 1, mland
+          if (tmparr( land_x(k), land_y(k)) .gt. 1e-3) LUC_EXPT%prim_only(k) = .FALSE.
+       ENDDO
+       STATUS = NF90_CLOSE(NotPrimOnly_fID)
+    ENDIF
+    
+      
 
-       ELSE
-          STATUS = NF90_GET_VAR(LUC_EXPT%F_ID(i), LUC_EXPT%V_ID(i), tmparr3, &
-            start=(/1,1,1/),count=(/xds,yds,tdimsize/) )
-          CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )
-          DO k = 1, mland
-               tmpvec = tmparr3(  land_x(k), land_y(k) , :)
-          ! IF (sum(tmpvec).gt.1e-3.OR. LUC_EXPT%primaryf(k).lt.0.99) LUC_EXPT%prim_only(k) = .FALSE.
-           IF (sum(tmpvec).gt.1e-3) LUC_EXPT%prim_only(k) = .FALSE.
-          END DO
 
-       ENDIF
-
-    END DO
+    
 
     ! set secondary vegetation area to be zero where land use transitions don't occur
     ! set grass component of primary vegetation cover
