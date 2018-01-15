@@ -131,7 +131,8 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 
             !write(wlogn,*),'after biogeochem npp:', casaflux%cnpp
             !write(wlogn,*),'after biogeochem npp:', casapool%cplant
-            
+
+           
             IF (cable_user%CALL_POP) THEN ! accumulate input variables for POP
                ! accumulate annual variables for use in POP
                IF(MOD(ktau/ktauday,LOY)==1 ) THEN
@@ -152,7 +153,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 
          ENDIF  ! icycle .gt. 0
 
-      ENDIF  ! end of day
+        ENDIF  ! end of day
 
    ELSE ! dump_read: ! use casa met and flux inputs from dumpfile
 

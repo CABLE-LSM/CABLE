@@ -410,12 +410,13 @@ CONTAINS
        YEAR: DO YYYY= CABLE_USER%YearStart,  CABLE_USER%YearEnd
           CurYear = YYYY
 
+         
           IF ( leaps .AND. IS_LEAPYEAR( YYYY ) ) THEN
              LOY = 366
           ELSE
              LOY = 365
           ENDIF
-
+ 
           IF ( CALL1 ) THEN
 
              IF (.NOT.spinup)	spinConv=.TRUE.

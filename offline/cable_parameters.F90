@@ -185,22 +185,29 @@ CONTAINS
   ! soil profiles with the correct monthly average values (BP apr2010)
 
     USE netcdf
-    use cable_common_module, only : filename
+    use cable_common_module, only : filename, cable_user
 
     IMPLICIT NONE
     INTEGER, INTENT(OUT) :: nlon
     INTEGER, INTENT(OUT) :: nlat
-    INTEGER, INTENT(OUT) :: npatch
+    INTEGER, INTENT(INOUT) :: npatch
 
     ! local variables
     INTEGER :: ncid, ok
     INTEGER :: xID, yID, pID, sID, tID, bID
     INTEGER :: varID
     INTEGER :: nslayer, ntime, nband
-    INTEGER :: ii, jj, kk,pp
-    INTEGER, DIMENSION(:, :),     ALLOCATABLE :: idummy
-    REAL,    DIMENSION(:, :),     ALLOCATABLE :: rdummy
+    INTEGER :: ii, jj, kk,pp, npatch_LUC
+    INTEGER, DIMENSION(:, :,:),     ALLOCATABLE :: idummy
+    REAL,    DIMENSION(:, :,:),     ALLOCATABLE :: rdummy
     REAL,    DIMENSION(:, :, :),  ALLOCATABLE :: r3dum, r3dum2
+
+
+    if (cable_user%POPLUC) then
+       npatch_LUC = 3
+    else
+       npatch_LUC = 0
+    endif
 
     ok = NF90_OPEN(filename%type, 0, ncid)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error opening grid info file.')
@@ -244,19 +251,39 @@ CONTAINS
       END IF
 
 
-    ALLOCATE( inLon(nlon), inLat(nlat) )
-    ALLOCATE( inVeg(nlon, nlat, npatch) )
-    ALLOCATE( inPFrac(nlon, nlat, npatch) )
-    ALLOCATE( inSoil(nlon, nlat) )
-    ALLOCATE( idummy(nlon, nlat) )
-    ALLOCATE( rdummy(nlon, nlat) )
-    ALLOCATE(  inWB(nlon, nlat, nslayer,ntime) )
-    ALLOCATE( inTGG(nlon, nlat, nslayer,ntime) )
-    ALLOCATE( inALB(nlon, nlat, npatch,nband) )
-    ALLOCATE( inSND(nlon, nlat, npatch,ntime) )
-    ALLOCATE( inLAI(nlon, nlat, ntime) )
-    ALLOCATE( r3dum(nlon, nlat, nband) )
-    ALLOCATE( r3dum2(nlon, nlat, ntime) )
+      if (npatch_LUC .gt. npatch) then
+
+         ALLOCATE( inLon(nlon), inLat(nlat) )
+         ALLOCATE( inVeg(nlon, nlat, npatch_LUC) )
+         ALLOCATE( inPFrac(nlon, nlat, npatch_LUC) )
+         ALLOCATE( inSoil(nlon, nlat) )
+         ALLOCATE( idummy(nlon, nlat, npatch) )
+         ALLOCATE( rdummy(nlon, nlat, npatch) )
+         ALLOCATE(  inWB(nlon, nlat, nslayer,ntime) )
+         ALLOCATE( inTGG(nlon, nlat, nslayer,ntime) )
+         ALLOCATE( inALB(nlon, nlat, npatch_LUC,nband) )
+         ALLOCATE( inSND(nlon, nlat, npatch_LUC,ntime) )
+         ALLOCATE( inLAI(nlon, nlat, ntime) )
+         ALLOCATE( r3dum(nlon, nlat, nband) )
+         ALLOCATE( r3dum2(nlon, nlat, ntime) )
+         
+      else
+         
+      
+         ALLOCATE( inLon(nlon), inLat(nlat) )
+         ALLOCATE( inVeg(nlon, nlat, npatch) )
+         ALLOCATE( inPFrac(nlon, nlat, npatch) )
+         ALLOCATE( inSoil(nlon, nlat) )
+        
+         ALLOCATE(  inWB(nlon, nlat, nslayer,ntime) )
+         ALLOCATE( inTGG(nlon, nlat, nslayer,ntime) )
+         ALLOCATE( inALB(nlon, nlat, npatch,nband) )
+         ALLOCATE( inSND(nlon, nlat, npatch,ntime) )
+         ALLOCATE( inLAI(nlon, nlat, ntime) )
+         ALLOCATE( r3dum(nlon, nlat, nband) )
+         ALLOCATE( r3dum2(nlon, nlat, ntime) )
+
+    endif
 
     ok = NF90_INQ_VARID(ncid, 'longitude', varID)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
@@ -272,19 +299,41 @@ CONTAINS
 
     ok = NF90_INQ_VARID(ncid, 'iveg', varID)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error finding variable iveg.')
-!CLN    ok = NF90_GET_VAR(ncid, varID, idummy)
-    ok = NF90_GET_VAR(ncid, varID, inVeg)
+
+    if (npatch_LUC .gt. npatch) then
+       ok = NF90_GET_VAR(ncid, varID, idummy)
+       DO pp=1,npatch_LUC
+           if (pp.eq.1) then
+              inVeg(:, :, pp) = idummy(:,:,1) ! npatch=1 in 1x1 degree input
+           else
+              inVeg(:, :, pp) = 0.0
+           endif
+       ENDDO
+    else
+       ok = NF90_GET_VAR(ncid, varID, inVeg)
+    ENDIF
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error reading variable iveg.')
-!CLN    inVeg(:, :, 1) = idummy(:,:) ! npatch=1 in 1x1 degree input
+
 
     ok = NF90_INQ_VARID(ncid, 'patchfrac', varID)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
                                         'Error finding variable patchfrac.')
-    ok = NF90_GET_VAR(ncid, varID, inPFrac)
-    IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
-                                        'Error reading variable patchfrac.')
-!CLN    inPFrac(:, :, 1) = rdummy(:, :)
 
+    if (npatch_LUC .gt. npatch) then
+       ok = NF90_GET_VAR(ncid, varID, rdummy)
+       DO pp=1,npatch_LUC
+          if (pp.eq.1) then
+             inPFrac(:, :, pp) = rdummy(:,:,1) ! npatch=1 in 1x1 degree input
+          else
+             inPFrac(:, :, pp) = 0.0
+          end if
+       ENDDO
+    else
+       ok = NF90_GET_VAR(ncid, varID, inPFrac)
+    endif
+    IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
+         'Error reading variable patchfrac.')
+       
     ok = NF90_INQ_VARID(ncid, 'isoil', varID)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error finding variable isoil.')
     ok = NF90_GET_VAR(ncid, varID, inSoil)
@@ -309,13 +358,22 @@ CONTAINS
  !   DO kk = 1, nband
  !     inALB(:,:,1,kk) = r3dum(:,:,kk)
  !   ENDDO
-! vh!
-    DO kk = 1, nband
-       DO pp = 1,npatch
-          inALB(:,:,pp,kk) = r3dum(:,:,kk)
-       ENDDO
-    ENDDO
+    ! vh!
 
+
+    
+    DO kk = 1, nband
+       if (npatch_LUC .gt. npatch) then
+          DO pp = 1,npatch_LUC
+             inALB(:,:,pp,kk) = r3dum(:,:,kk)
+          ENDDO
+       else
+          DO pp = 1,npatch
+             inALB(:,:,pp,kk) = r3dum(:,:,kk)
+          ENDDO
+       endif
+    ENDDO
+    
     ok = NF90_INQ_VARID(ncid, 'SnowDepth', varID)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
                                         'Error finding variable SnowDepth.')
@@ -327,10 +385,20 @@ CONTAINS
    ! ENDDO
 
     DO kk = 1, ntime
-       DO pp = 1,npatch
-          inSND(:, :, pp, kk) = r3dum2(:, :, kk)
-       ENDDO
+       if (npatch_LUC .gt. npatch) then
+          DO pp = 1,npatch_LUC
+             inSND(:, :, pp, kk) = r3dum2(:, :, kk)
+          ENDDO
+       else
+          DO pp = 1,npatch
+             inSND(:, :, pp, kk) = r3dum2(:, :, kk)
+          ENDDO
+       endif
     ENDDO
+
+    if (npatch_LUC .gt. npatch) then
+       npatch = npatch_LUC
+    endif
 
     ok = NF90_INQ_VARID(ncid, 'LAI', varID)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error finding variable LAI.')
@@ -789,9 +857,6 @@ CONTAINS
           PRINT *, 'inLat range:', MINVAL(inLat), MAXVAL(inLat)
           STOP
        END IF
-       if (kk.eq.426) then
-          write(61,*) latitude(kk), longitude(kk), distance
-          endif
     END DO
 
 
@@ -862,9 +927,7 @@ CONTAINS
           PRINT *, 'inLat range:', MINVAL(inLat), MAXVAL(inLat)
           STOP
        END IF
-        if (kk.eq.426) then
-          write(62,*) latitude(kk), longitude(kk), distance,  landpt(kk)%ilon,  landpt(kk)%ilat 
-          endif
+
        landpt(kk)%nap = 0
        landpt(kk)%cstart = ncount + 1
        IF (ASSOCIATED(vegtype_metfile)) THEN

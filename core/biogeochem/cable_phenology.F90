@@ -59,7 +59,7 @@ SUBROUTINE cable_phenology_clim (veg, climate, phen)
 DO np= 1,mp
    phen_tmp = 1.0_r_2
    ! evergreen pfts
-   if (veg%iveg(np) == 31 .or. veg%iveg(np) == 2 .or. veg%iveg(np) == 5) then
+   if (veg%iveg(np) == 1 .or. veg%iveg(np) == 2 .or. veg%iveg(np) == 5) then
       phen%doyphase(np,1) = -50
       phen%doyphase(np,2) = phen%doyphase(np,1) +14
       phen%doyphase(np,3) = 367

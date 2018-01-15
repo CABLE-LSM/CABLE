@@ -2052,6 +2052,8 @@ CONTAINS
                  
                 canopy%fevc(i) = ecx(i)*(1.0-canopy%fwet(i))
 
+                
+                
                 call getrex_1d(real(ssnow%wb(i,:)-ssnow%wbice(i,:),r_2), ssnow%rex(i,:), &
                      canopy%fwsoil(i), &
                      real(veg%froot(i,:),r_2), SPREAD(real(soil%ssat(i),r_2),1,ms), &
@@ -3319,7 +3321,7 @@ END SUBROUTINE photosynthesis
        alpha_root(:) = zero
     endwhere
 
-    where (Fs(:) > zero .and. layer_depth < zr )  ! where there are roots and we are aobe max rooting depth
+    where (Fs(:) > zero .and. layer_depth < zr )  ! where there are roots and we are above max rooting depth
        delta_root(:) = one
     elsewhere
        delta_root(:) = zero
@@ -3338,7 +3340,7 @@ END SUBROUTINE photosynthesis
 
     ! reduce extraction efficiency where total extraction depletes soil moisture below wilting point
     where (((rex*dt) > (theta(:)-thetaw(:))*dx(:)) .and. ((rex*dt) > zero))
-       alpha_root = alpha_root*(theta(:)-thetaw(:))*dx(:)/(1.1_r_2*rex*dt)
+      alpha_root = alpha_root*(theta(:)-thetaw(:))*dx(:)/(1.1_r_2*rex*dt)
     endwhere
     rex(:) = alpha_root(:)*Fs(:)
 

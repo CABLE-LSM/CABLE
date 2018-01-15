@@ -913,8 +913,8 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
     READ (co2_unit) dummydate, co2air_year
     co2_startyear = dummydate%year
     DO WHILE (.not.EOF(co2_unit))
-      READ (co2_unit) dummydate, co2air_year
-      co2_endyear = dummydate%year
+       READ (co2_unit) dummydate, co2air_year
+       co2_endyear = dummydate%year
     END DO
     REWIND (co2_unit)
 

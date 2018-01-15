@@ -1044,6 +1044,7 @@ SUBROUTINE casa_coeffplant(xkleafcold,xkleafdry,xkleaf,veg,casabiome,casapool, &
   casaflux%fromPtoL(:,:,:)      = 0.0
   casaflux%kplant(:,:)          = 0.0   ! (BPjun2010)
 
+    
   WHERE(casamet%iveg2/=icewater)
   ! using max function to avoid dividing by zero, ypw 14/may/2008
     ratioLignintoN(:,leaf) = (casapool%Cplant(:,leaf) &

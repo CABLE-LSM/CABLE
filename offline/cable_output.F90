@@ -1448,7 +1448,6 @@ CONTAINS
                 out_timestep = out_timestep + 1
                 ! set numbr of time steps in output period
                 output%interval = daysml(out_month) * 24 * 3600 / INT(dels)
-                write(72,*) CurYear, is_leapyear(CurYear), dday, ktau
              ELSE
                 writenow = .FALSE.
              END IF
@@ -1482,8 +1481,7 @@ CONTAINS
              out_timestep = out_timestep + 1
              ! set numbr of time steps in output period
              output%interval = daysm(out_month) * 24 * 3600 / INT(dels)
-             write(73,*) CurYear, is_leapyear(CurYear), dday, ktau
-          ELSE
+            ELSE
              writenow = .FALSE.
           END IF
        END IF ! using leap year timing or not

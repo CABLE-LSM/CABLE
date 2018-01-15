@@ -22,7 +22,8 @@ MODULE CABLE_PLUME_MIP
      LOGICAL  :: DirectRead, LeapYears
      LOGICAL,DIMENSION(:,:),ALLOCATABLE :: LandMask
      CHARACTER(len=15) :: Run,Forcing,RCP, CO2, NDEP,RCPdir
-     CHARACTER(len=200):: BasePath, MetPath, LandMaskFile
+     CHARACTER(len=400):: BasePath, MetPath, LandMaskFile, &
+          LMFILE, CO2file,NDEPfile
      CHARACTER(len=12) ,DIMENSION(9) :: VAR_NAME
      CHARACTER(len=200),DIMENSION(9) :: MetFile
      TYPE(PLUME_MET_TYPE), DIMENSION(11) :: MET
@@ -79,12 +80,13 @@ CONTAINS
     LOGICAL              :: DirectRead = .FALSE.
     LOGICAL              :: ERR = .FALSE.
     CHARACTER(len=15)    :: Run, Forcing, RCP, CO2, NDEP
-    CHARACTER(len=200)   :: BasePath, LandMaskFile, LMFILE
+    CHARACTER(len=400)   :: BasePath, LandMaskFile, LMfile, CO2file,NDEPfile
     REAL                 :: DT
     REAL,DIMENSION(:)  ,ALLOCATABLE :: plume_lats, plume_lons
     INTEGER,DIMENSION(:,:),ALLOCATABLE :: landmask
 
-    NAMELIST /PLUMENML/ BasePath, LandMaskFile, Run, Forcing, RCP, CO2, NDEP, DT, DirectRead
+    NAMELIST /PLUMENML/ BasePath, LandMaskFile, Run, Forcing, RCP, CO2, CO2file, &
+    NDEP, NdepFILE, DT, DirectRead
 
     ! Read PLUME settings
 
@@ -99,7 +101,9 @@ CONTAINS
     PLUME%Forcing      = Forcing
     PLUME%RCP          = RCP
     PLUME%CO2          = CO2
+    PLUME%CO2file      = CO2file
     PLUME%NDEP         = NDEP
+    PLUME%NDEPfile     = NDEPfile
     PLUME%DT           = int(DT * 3600.)  ! in seconds
     PLUME%DirectRead   = DirectRead
     ! Print settings
@@ -228,11 +232,14 @@ CONTAINS
     IF ( TRIM(PLUME%Forcing) .EQ. "watch" ) THEN
        PLUME%MetPath = TRIM(PLUME%BasePath)//"/WATCH/"
     ELSE
-       PLUME%MetPath = TRIM(PLUME%BasePath)//"/GCM/"//TRIM(PLUME%Forcing)//"/"
+       !PLUME%MetPath = TRIM(PLUME%BasePath)//"/GCM/"//TRIM(PLUME%Forcing)//"/"
+       PLUME%MetPath = TRIM(PLUME%BasePath)//"/"
+       write(*,*) 'metpath', PLUME%MetPath
     ENDIF
 
     IF (TRIM(PLUME%Run) .EQ. "spinup" .OR. TRIM(PLUME%Run) .EQ. "1850_1900") THEN
-       PLUME%MetPath = TRIM(PLUME%MetPath)//"spinup_data/"
+       !PLUME%MetPath = TRIM(PLUME%MetPath)//"spinup_data/"
+       PLUME%MetPath = TRIM(PLUME%MetPath)//"hist/"
     ELSE
        SELECT CASE(TRIM(PLUME%RCP))
        CASE ( "hist" ); PLUME%RCPdir = "hist"
@@ -246,15 +253,14 @@ CONTAINS
 
     IF ((TRIM(PLUME%Run) .EQ. "spinup" .OR. TRIM(PLUME%Run) .EQ. "1850_1900" ) &
          .and. TRIM(PLUME%Forcing) .NE. 'watch') THEN
-       PLUME%MetPath = TRIM(PLUME%MetPath)//"hist/1901_1930/"
+       !PLUME%MetPath = TRIM(PLUME%MetPath)//"hist/1901_1930/"
     ENDIF
 
     ! Set Leap-years according to dataset
-    IF ( TRIM(PLUME%Forcing) .EQ. "watch".OR. &
-         TRIM(PLUME%Forcing) .EQ. "ipsl-cm5a-lr"  ) THEN
+    IF ( TRIM(PLUME%Forcing) .EQ. "watch" ) THEN
        PLUME%LeapYears = .FALSE.
     ELSE
-       PLUME%LeapYears = .TRUE.
+       PLUME%LeapYears = .FALSE.
     ENDIF
 
     ! Set varialbe names in files
@@ -486,32 +492,55 @@ CONTAINS
        ! hist spinup only
    
        IF ( TRIM(PLUME%Run) .EQ. "spinup" ) THEN
-          FN = TRIM(mp)//"/"//TRIM(PREF(par))
-          IF ( par .NE. rhum ) FN = TRIM(FN)//"Adjust"
-          FN = TRIM(FN)//"_"//TRIM(fc)//"_"//TRIM(rcp)//"_"
-          IF ( par .NE. wind ) FN = TRIM(FN)//"detrended_"
-          FN = TRIM(FN)//"1901-1930/"
+!!$          FN = TRIM(mp)//"/"//TRIM(PREF(par))
+!!$          IF ( par .NE. rhum ) FN = TRIM(FN)//"Adjust"
+!!$          FN = TRIM(FN)//"_"//TRIM(fc)//"_"//TRIM(rcp)//"_"
+!!$          IF ( par .NE. wind ) FN = TRIM(FN)//"detrended_"
+!!$          FN = TRIM(FN)//"1901-1930/"
+!!$
+!!$          FN = TRIM(FN)//"/"//TRIM(PREF(par))
+!!$          IF ( par .NE. rhum ) FN = TRIM(FN)//"Adjust"
+!!$          FN = TRIM(FN)//"_"//TRIM(fc)//"_"//TRIM(rcp)//"_"
+!!$          IF ( par .NE. wind ) FN = TRIM(FN)//"detrended_"
+!!$          FN = TRIM(FN)//cy//".nc"
 
-          FN = TRIM(FN)//"/"//TRIM(PREF(par))
-          IF ( par .NE. rhum ) FN = TRIM(FN)//"Adjust"
-          FN = TRIM(FN)//"_"//TRIM(fc)//"_"//TRIM(rcp)//"_"
-          IF ( par .NE. wind ) FN = TRIM(FN)//"detrended_"
-          FN = TRIM(FN)//cy//".nc"
+
+    
+          FN = TRIM(mp)//"/"//TRIM(PREF(par))//"_"
+          IF ( par .NE. rhum )  FN = TRIM(FN)//"bced_1960_1999_"
+          FN = TRIM(FN)//TRIM(fc)//"_"//Trim(rcp)//"_"//cy//".nc"
+          
+!!$hurs_ipsl-cm5a-lr_hist_1950.nc
+!!$pr_bced_1960_1999_ipsl-cm5a-lr_hist_1950.nc
+!!$prsn_bced_1960_1999_ipsl-cm5a-lr_hist_1950.nc
+!!$ps_bced_1960_1999_ipsl-cm5a-lr_hist_1950.nc
+!!$rlds_bced_1960_1999_ipsl-cm5a-lr_hist_1950.nc
+!!$rsds_bced_1960_1999_ipsl-cm5a-lr_hist_1950.nc
+!!$tasmax_bced_1960_1999_ipsl-cm5a-lr_hist_1950.nc
+!!$tasmin_bced_1960_1999_ipsl-cm5a-lr_hist_1950.nc
+!!$wind_bced_1960_1999_ipsl-cm5a-lr_hist_1950.nc
+          
 
 
-       ELSE IF ( TRIM(PLUME%Run) .EQ. "1850_1900" ) THEN
+       ELSE IF ( TRIM(PLUME%Run) .EQ. "1850_1900" .OR. &
+            TRIM(PLUME%Run) .EQ. "1901_2005" ) THEN
 
-          FN = TRIM(mp)//"/"//TRIM(PREF(par))
-          IF ( par .NE. rhum ) FN = TRIM(FN)//"Adjust"
-          FN = TRIM(FN)//"_"//TRIM(fc)//"_"//TRIM(rcp)//"_"
-          IF ( par .NE. wind ) FN = TRIM(FN)//"detrended_"
-          FN = TRIM(FN)//"1901-1930/"
+!!$          FN = TRIM(mp)//"/"//TRIM(PREF(par))
+!!$          IF ( par .NE. rhum ) FN = TRIM(FN)//"Adjust"
+!!$          FN = TRIM(FN)//"_"//TRIM(fc)//"_"//TRIM(rcp)//"_"
+!!$          IF ( par .NE. wind ) FN = TRIM(FN)//"detrended_"
+!!$          FN = TRIM(FN)//"1901-1930/"
+!!$
+!!$          FN = TRIM(FN)//"/"//TRIM(PREF(par))
+!!$          IF ( par .NE. rhum ) FN = TRIM(FN)//"Adjust"
+!!$          FN = TRIM(FN)//"_"//TRIM(fc)//"_"//TRIM(rcp)//"_"
+!!$          IF ( par .NE. wind ) FN = TRIM(FN)//"detrended_"
+!!$          FN = TRIM(FN)//cy//".nc"
 
-          FN = TRIM(FN)//"/"//TRIM(PREF(par))
-          IF ( par .NE. rhum ) FN = TRIM(FN)//"Adjust"
-          FN = TRIM(FN)//"_"//TRIM(fc)//"_"//TRIM(rcp)//"_"
-          IF ( par .NE. wind ) FN = TRIM(FN)//"detrended_"
-          FN = TRIM(FN)//cy//".nc"
+          FN = TRIM(mp)//"/"//TRIM(PREF(par))//"_"
+          IF ( par .NE. rhum )  FN = TRIM(FN)//"bced_1960_1999_"
+          FN = TRIM(FN)//TRIM(fc)//"_"//Trim(rcp)//"_"//cy//".nc"
+          
           !STOP "Not yet implemented! PLUME: GET_FILE_NAMES"
        ELSE
           ! real runs
@@ -556,7 +585,8 @@ CONTAINS
     ENDIF
 
     IF ( TRIM(PLUME%Forcing) .EQ. "ipsl-cm5a-lr" .AND. &
-         (TRIM(PLUME%Run) .EQ. "spinup" .OR. TRIM(PLUME%Run) .EQ. "1850_1900") ) THEN
+         (TRIM(PLUME%Run) .EQ. "spinup" .OR. TRIM(PLUME%Run) .EQ. "1850_1900") &
+        .OR. TRIM(PLUME%Run) .EQ. "1901_2005" ) THEN
        FILE_SWITCH = .TRUE.
        RETURN
     ENDIF
@@ -609,11 +639,13 @@ CONTAINS
     REAL, INTENT(OUT)    :: CO2air
 
     INTEGER              :: i, iu, f, IOS = 0
-    CHARACTER            :: CO2FILE*200
+    CHARACTER            :: CO2FILE*400
 
     IF ( TRIM(PLUME%Run) .EQ. "spinup" .OR. TRIM(PLUME%CO2) .EQ. "static1850") THEN
        ! fixed 1850 value
-       CO2air = 284.72501
+       !Co2air = 284.72501
+       ! fixed 1860 value
+       Co2air = 286.42 
     ELSE IF ( TRIM(PLUME%CO2) .EQ. "static1990" ) THEN
        ! fixed 1990 value
        CO2air = 353.85501
@@ -632,17 +664,19 @@ CONTAINS
 
        IF ( .NOT. ALLOCATED( PLUME%CO2VALS) ) THEN
           IF ( PLUME%CYEAR .LE. 2005 ) THEN
-             ALLOCATE( PLUME%CO2VALS( 1850:2005 ) )
-             CO2FILE = TRIM(PLUME%BasePath)//"/CO2/co2_1850_2005_hist.dat"
+             ALLOCATE( PLUME%CO2VALS( 1750:2016 ) )
+             !CO2FILE = TRIM(PLUME%BasePath)//"/CO2/co2_1850_2005_hist.dat"
+             CO2FILE=PLUME%CO2file
           ELSE
              ALLOCATE( PLUME%CO2VALS( 2006:2100 ) )
-             CO2FILE = TRIM(PLUME%BasePath)//"/CO2/co2_2006_2100_"
-             SELECT CASE(TRIM(PLUME%RCP))
-             CASE ( "2.6"  ); CO2FILE = TRIM(CO2FILE)//"rcp26.dat"
-             CASE ( "4.5"  ); CO2FILE = TRIM(CO2FILE)//"rcp45.dat"
-             CASE ( "6.0"  ); CO2FILE = TRIM(CO2FILE)//"rcp60.dat"
-             CASE ( "8.5"  ); CO2FILE = TRIM(CO2FILE)//"rcp85.dat"
-             END SELECT
+!!$             CO2FILE = TRIM(PLUME%BasePath)//"/CO2/co2_2006_2100_"
+!!$             SELECT CASE(TRIM(PLUME%RCP))
+!!$             CASE ( "2.6"  ); CO2FILE = TRIM(CO2FILE)//"rcp26.dat"
+!!$             CASE ( "4.5"  ); CO2FILE = TRIM(CO2FILE)//"rcp45.dat"
+!!$             CASE ( "6.0"  ); CO2FILE = TRIM(CO2FILE)//"rcp60.dat"
+!!$             CASE ( "8.5"  ); CO2FILE = TRIM(CO2FILE)//"rcp85.dat"
+!!$             END SELECT
+              CO2FILE=PLUME%CO2file
           ENDIF
 
           ! open CO2 file and read
@@ -672,39 +706,28 @@ CONTAINS
   IMPLICIT NONE
   
   TYPE(PLUME_MIP_TYPE), INTENT(INOUT) :: PLUME           ! All the info needed for PLUME met runs
-  REAL    :: tmparr(720,360)        ! Temporary array for reading one day of met before 
+  !REAL    :: tmparr(360,150) !tmparr(720,360)        ! Temporary array for reading one day of met before 
                                     ! packing into PLUME%NdepVALS(k)
  
   INTEGER              :: i, iunit, iyear, IOS = 0, k, t  
   INTEGER :: xds, yds        ! Ndep file dimensions of long (x), lat (y)
  
   LOGICAL,        SAVE :: CALL1 = .TRUE.  ! A *local* variable recording the first call of this routine 
-  CHARACTER(200) :: NdepFILE
+  CHARACTER(400) :: NdepFILE
+  REAL,ALLOCATABLE :: tmparr(:,:) 
 
   ! Abbreviate dimensions for readability.
   xds = PLUME%xdimsize
   yds = PLUME%ydimsize
 
-  ! For S0_TRENDY, use only static 1860 CO2 value and return immediately
-
-
-
-  ! On the first call, allocate the PLUME%CO2VALS array to store the entire history of annual CO2 
-  ! values, open the (ascii) CO2 file and read the values into the array. 
+  allocate(tmparr(xds,yds))
+ 
   IF (CALL1) THEN
 
-     NdepFILE = TRIM(PLUME%BasePath)// &
-          "/NDEP/NOy_plus_NHx_dry_plus_wet_deposition_hist_1850_2015_annual.nc"
-     IF (TRIM(PLUME%RCP).EQ."8.5") THEN
-        NdepFILE = TRIM(PLUME%BasePath)// &
-          "/NDEP/ndep_total_mean_annual_series_2000-2109_0.5x0.5_RCP85.nc"
-     ELSEIF  (TRIM(PLUME%RCP).EQ."4.5") THEN    
-        NdepFILE = TRIM(PLUME%BasePath)// &
-             "/NDEP/ndep_total_mean_annual_series_2000-2109_0.5x0.5_RCP45.nc"
-     ENDIF
+     NdepFILE = PLUME%NDEPfile
      ! Open the NDep and access the variables by their name and variable id.
-     WRITE(*   ,*) 'Opening ndep data file: ', NdepFILE
-     WRITE(logn,*) 'Opening ndep data file: ', NdepFILE
+     WRITE(*   ,*) 'Opening ndep data file: ', trim(NdepFILE)
+     WRITE(logn,*) 'Opening ndep data file: ', trim(NdepFILE)
 
 
      Status = NF90_OPEN(TRIM(NdepFILE), NF90_NOWRITE, PLUME%NdepF_ID)  
@@ -718,7 +741,7 @@ CONTAINS
 
      IF ( TRIM(PLUME%Ndep) .EQ. "static1850") THEN
        ! read Ndep at year 1860 (noting that file starts at 1850)
-        PLUME%Ndep_CTSTEP = 1
+        PLUME%Ndep_CTSTEP = 11
         t =  PLUME%Ndep_CTSTEP
         Status = NF90_GET_VAR(PLUME%NdepF_ID, PLUME%NdepV_ID, tmparr, &
              start=(/1,1,t/),count=(/xds,yds,1/) )
@@ -795,6 +818,7 @@ END SUBROUTINE GET_PLUME_Ndep
 
     IF (TRIM(PLUME%FORCING) .NE. 'watch' .AND.  TRIM(PLUME%Run) .NE. 'spinup' &
          .AND. TRIM(PLUME%Run) .NE. '1850_1900' &
+         .AND. TRIM(PLUME%Run) .NE. '1901_2005' &
          .AND. PLUME%CYEAR .GT. PLUME%MetStart ) THEN
        DO yy = PLUME%MetStart, PLUME%CYEAR - 1
           PLUME%CTSTEP = PLUME%CTSTEP + 365 + LEAP_DAY( yy )
@@ -822,13 +846,14 @@ END SUBROUTINE GET_PLUME_Ndep
 
     TYPE(PLUME_MIP_TYPE) :: PLUME
     LOGICAL, INTENT(IN)  :: TminFlag, islast
-    REAL    :: tmparr(720,360), tmp, stmp(365)
+    !REAL    :: tmparr(720,360), tmp, stmp(365)
+    REAL    :: tmp, stmp(365)
     INTEGER :: t, i, ii, k, x, y, realk
     INTEGER :: fid, vid, tid
     INTEGER :: xds, yds, tds, CYEAR, NYEAR
     LOGICAL, SAVE :: CALL1 = .TRUE.
     CHARACTER(LEN=200) :: filename
-
+    REAL,ALLOCATABLE :: tmparr(:,:)
 
     ! Set previous day's Tmax to current (last step's) Tmax
     IF ( .NOT. CALL1 ) THEN
@@ -847,6 +872,8 @@ END SUBROUTINE GET_PLUME_Ndep
     xds = PLUME%xdimsize
     yds = PLUME%ydimsize
 
+    allocate(tmparr(xds,yds))
+
     DO i= 1, PLUME%NMET
 
        IF ( i .EQ. Tmin  )THEN
@@ -864,14 +891,15 @@ END SUBROUTINE GET_PLUME_Ndep
 
                    STATUS = NF90_GET_VAR( PLUME%F_ID(i), PLUME%V_ID(i), tmp, &
                         start=(/land_x(k),land_y(k),t-1/) )
-                   CALL HANDLE_ERR(STATUS, "Reading direct from "//PLUME%MetFile(i) )
+                   CALL HANDLE_ERR(STATUS, "Reading direct from "//PLUME%MetFile(i))
                    PLUME%MET(i)%VAL(k) = tmp
                 END DO
 
              ELSE
                 STATUS = NF90_GET_VAR(PLUME%F_ID(i), PLUME%V_ID(i), tmparr, &
                      start=(/1,1,t-1/),count=(/xds,yds,1/) )
-                CALL HANDLE_ERR(STATUS, "Reading from "//PLUME%MetFile(i) )
+               
+                CALL HANDLE_ERR(STATUS, "Reading from "//PLUME%MetFile(i))
 
                 DO k = 1, PLUME%mland
                    PLUME%MET(i)%VAL(k) = tmparr( land_x(k), land_y(k) )
@@ -940,10 +968,10 @@ END SUBROUTINE GET_PLUME_Ndep
              END DO
 
           ELSE
-
              STATUS = NF90_GET_VAR(PLUME%F_ID(i), PLUME%V_ID(i), tmparr, &
                   start=(/1,1,t/),count=(/xds,yds,1/) )
-             CALL HANDLE_ERR(STATUS, "Reading from "//PLUME%MetFile(i) )
+               CALL HANDLE_ERR(STATUS, "Reading from "//PLUME%MetFile(i) )
+             
              DO k = 1, PLUME%mland
                 PLUME%MET(ii)%VAL(k) = tmparr( land_x(k), land_y(k) )
              END DO
@@ -978,7 +1006,6 @@ END SUBROUTINE GET_PLUME_Ndep
                 END DO
 
              ELSE
-
                 STATUS = NF90_GET_VAR(fid, vid, tmparr, &
                      start=(/1,1,tds/),count=(/xds,yds,1/) )
                 CALL HANDLE_ERR(STATUS, "Reading from "//filename )

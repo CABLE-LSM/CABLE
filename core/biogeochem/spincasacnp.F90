@@ -382,35 +382,35 @@ CALL casa_fluxout(CABLE_USER%CASA_SPIN_STARTYEAR + myearspin - 1 , veg, soil, ca
 
 !STOP
 
-! write the last five loop pool size by PFT type
-open(92,file='cnpspinlast5.txt')
-write(92,921)
-921 format('PFT total area in 10**12 m2', f12.4)
-  do nvt=1,mvtype
-     write(92,*) bmarea(nvt)
-  enddo
-
-  do nvt=1,mvtype
-     if(bmarea(nvt) >0.0) then
-        do kloop=1,5
-           write(92,922) nvt, bmcplant(kloop,nvt,:),bmclitter(kloop,nvt,:),bmcsoil(kloop,nvt,:)
-        enddo
-        if (icycle >1) then
-           do kloop=1,5
-              write(92,922) nvt, bmnplant(kloop,nvt,:),bmnlitter(kloop,nvt,:),bmnsoil(kloop,nvt,:), bmnsoilmin(kloop,nvt)
-           enddo
-        endif
-
-        if(icycle >2) then
-           do kloop=1,5
-              write(92,922) nvt, bmpplant(kloop,nvt,:),bmplitter(kloop,nvt,:),bmpsoil(kloop,nvt,:),  &
-                   bmpsoillab(kloop,nvt), bmpsoilsorb(kloop,nvt), bmpsoilocc(kloop,nvt)
-           enddo
-        endif
-     endif
-  enddo
-922 format(i4,20(f10.4,2x))
-  CLOSE(92)
+!!$! write the last five loop pool size by PFT type
+!!$open(92,file='cnpspinlast5.txt')
+!!$write(92,921)
+!!$921 format('PFT total area in 10**12 m2', f12.4)
+!!$  do nvt=1,mvtype
+!!$     write(92,*) bmarea(nvt)
+!!$  enddo
+!!$
+!!$  do nvt=1,mvtype
+!!$     if(bmarea(nvt) >0.0) then
+!!$        do kloop=1,5
+!!$           write(92,922) nvt, bmcplant(kloop,nvt,:),bmclitter(kloop,nvt,:),bmcsoil(kloop,nvt,:)
+!!$        enddo
+!!$        if (icycle >1) then
+!!$           do kloop=1,5
+!!$              write(92,922) nvt, bmnplant(kloop,nvt,:),bmnlitter(kloop,nvt,:),bmnsoil(kloop,nvt,:), bmnsoilmin(kloop,nvt)
+!!$           enddo
+!!$        endif
+!!$
+!!$        if(icycle >2) then
+!!$           do kloop=1,5
+!!$              write(92,922) nvt, bmpplant(kloop,nvt,:),bmplitter(kloop,nvt,:),bmpsoil(kloop,nvt,:),  &
+!!$                   bmpsoillab(kloop,nvt), bmpsoilsorb(kloop,nvt), bmpsoilocc(kloop,nvt)
+!!$           enddo
+!!$        endif
+!!$     endif
+!!$  enddo
+!!$922 format(i4,20(f10.4,2x))
+!!$  CLOSE(92)
 
 
 151 FORMAT(i6,100(f12.5,2x))
