@@ -361,6 +361,7 @@ CONTAINS
           
        END DO
     ELSE
+       tmparr = 0.0
        LUC_EXPT%prim_only = .TRUE.
        Status = NF90_OPEN(TRIM(NotPrimOnlyFile), NF90_NOWRITE, NotPrimOnly_fID)
        Status = NF90_INQ_VARID( NotPrimOnly_fID,'cum_frac_prim_loss',  NotPrimOnly_vID)
@@ -374,6 +375,7 @@ CONTAINS
           endif
        ENDDO
        PRINT *,  "number of not prim_only grid-cells: ", i
+       PRINT *,  "number grid-cells: ", mland
        STATUS = NF90_CLOSE(NotPrimOnly_fID)
     ENDIF
     
