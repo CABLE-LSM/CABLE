@@ -364,9 +364,13 @@ CONTAINS
        tmparr = 0.0
        LUC_EXPT%prim_only = .TRUE.
        Status = NF90_OPEN(TRIM(NotPrimOnlyFile), NF90_NOWRITE, NotPrimOnly_fID)
+       CALL HANDLE_ERR(STATUS, "Opening NotPrimOnlyFile"//TRIM(NotPrimOnlyFile ))
        Status = NF90_INQ_VARID( NotPrimOnly_fID,'cum_frac_prim_loss',  NotPrimOnly_vID)
+       CALL HANDLE_ERR(STATUS, "Inquiring cum_frac_prim_loss &
+             in "//TRIM(NotPrimOnlyFile ) )
        STATUS = NF90_GET_VAR(NotPrimOnly_FID, NotPrimOnly_vID , tmparr, &
             start=(/1,1/),count=(/xds,yds/) )
+       CALL HANDLE_ERR(STATUS, "Reading from "//TRIM(NotPrimOnlyFile ) )
        i = 0
        DO k = 1, mland
           if (tmparr( land_x(k), land_y(k)) .gt. 1e-3) then
