@@ -643,8 +643,6 @@ IMPLICIT NONE
           END DO
        ELSE
 
-write(6,*) 'land_x=',land_x
-write(6,*) 'land_y=',land_y
           STATUS = NF90_GET_VAR(LUC_EXPT%F_ID(i), LUC_EXPT%V_ID(i), tmparr, &
                start=(/1,1,t/),count=(/xds,yds,1/) )
           CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )
