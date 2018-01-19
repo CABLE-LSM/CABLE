@@ -237,7 +237,8 @@ CONTAINS
        write(*,*) 'metpath', PLUME%MetPath
     ENDIF
 
-    IF (TRIM(PLUME%Run) .EQ. "spinup" .OR. TRIM(PLUME%Run) .EQ. "1850_1900") THEN
+    IF (TRIM(PLUME%Run) .EQ. "spinup" .OR. TRIM(PLUME%Run) .EQ. "1850_1900" &
+        .OR. TRIM(PLUME%Run) .EQ. "1901_2005"  ) THEN
        !PLUME%MetPath = TRIM(PLUME%MetPath)//"spinup_data/"
        PLUME%MetPath = TRIM(PLUME%MetPath)//"hist/"
     ELSE
@@ -522,8 +523,10 @@ CONTAINS
           
 
 
-       ELSE IF ( TRIM(PLUME%Run) .EQ. "1850_1900" .OR. &
-            TRIM(PLUME%Run) .EQ. "1901_2005" ) THEN
+!!$       ELSE IF ( TRIM(PLUME%Run) .EQ. "1850_1900" .OR. &
+!!$            TRIM(PLUME%Run) .EQ. "1901_2005" ) THEN
+
+       ELSE IF (  TRIM(PLUME%Forcing) .EQ. "ipsl-cm5a-lr") THEN
 
 !!$          FN = TRIM(mp)//"/"//TRIM(PREF(par))
 !!$          IF ( par .NE. rhum ) FN = TRIM(FN)//"Adjust"
@@ -584,9 +587,10 @@ CONTAINS
        RETURN
     ENDIF
 
-    IF ( TRIM(PLUME%Forcing) .EQ. "ipsl-cm5a-lr" .AND. &
-         (TRIM(PLUME%Run) .EQ. "spinup" .OR. TRIM(PLUME%Run) .EQ. "1850_1900") &
-        .OR. TRIM(PLUME%Run) .EQ. "1901_2005" ) THEN
+!!$    IF ( TRIM(PLUME%Forcing) .EQ. "ipsl-cm5a-lr" .AND. &
+!!$         (TRIM(PLUME%Run) .EQ. "spinup" .OR. TRIM(PLUME%Run) .EQ. "1850_1900") &
+!!$         .OR. TRIM(PLUME%Run) .EQ. "1901_2005" ) THEN
+    IF ( TRIM(PLUME%Forcing) .EQ. "ipsl-cm5a-lr") THEN
        FILE_SWITCH = .TRUE.
        RETURN
     ENDIF
