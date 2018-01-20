@@ -542,7 +542,14 @@ CONTAINS
 
           FN = TRIM(mp)//"/"//TRIM(PREF(par))//"_"
           IF ( par .NE. rhum )  FN = TRIM(FN)//"bced_1960_1999_"
-          FN = TRIM(FN)//TRIM(fc)//"_"//Trim(rcp)//"_"//cy//".nc"
+          SELECT CASE(TRIM(PLUME%RCP))
+          CASE ( "hist"  ); FN = TRIM(FN)//TRIM(fc)//"_"//Trim(rcp)//"_"//cy//".nc"
+          CASE ( "2.6"   ); FN = TRIM(FN)//TRIM(fc)//"_"//"rcp2p6"//"_"//cy//".nc"
+          CASE ( "4.5"   ); FN = TRIM(FN)//TRIM(fc)//"_"//"rcp4p5"//"_"//cy//".nc"
+          CASE ( "6.0"   ); FN = TRIM(FN)//TRIM(fc)//"_"//"rcp6p0"//"_"//cy//".nc"
+          CASE ( "8.5"   ); FN = TRIM(FN)//TRIM(fc)//"_"//"rcp8p5"//"_"//cy//".nc"
+          END SELECT
+          
           
           !STOP "Not yet implemented! PLUME: GET_FILE_NAMES"
        ELSE
@@ -765,6 +772,8 @@ CONTAINS
      PLUME%Ndep_CTSTEP = PLUME%CYEAR - 1850 + 1
      IF (TRIM(PLUME%RCP).EQ."8.5") PLUME%Ndep_CTSTEP = PLUME%CYEAR - 2000 + 1
      IF (TRIM(PLUME%RCP).EQ."4.5") PLUME%Ndep_CTSTEP = PLUME%CYEAR - 2000 + 1
+     IF (TRIM(PLUME%RCP).EQ."6.0") PLUME%Ndep_CTSTEP = PLUME%CYEAR - 2000 + 1
+     IF (TRIM(PLUME%RCP).EQ."2.6") PLUME%Ndep_CTSTEP = PLUME%CYEAR - 2000 + 1
      t =  PLUME%Ndep_CTSTEP
      Status = NF90_GET_VAR(PLUME%NdepF_ID, PLUME%NdepV_ID, tmparr, &
           start=(/1,1,t/),count=(/xds,yds,1/) )
@@ -819,11 +828,13 @@ END SUBROUTINE GET_PLUME_Ndep
     PLUME%CTSTEP = 1
     ! For first call there might be an offset
 
+    
 
     IF (TRIM(PLUME%FORCING) .NE. 'watch' .AND.  TRIM(PLUME%Run) .NE. 'spinup' &
          .AND. TRIM(PLUME%Run) .NE. '1850_1900' &
          .AND. TRIM(PLUME%Run) .NE. '1901_2005' &
-         .AND. PLUME%CYEAR .GT. PLUME%MetStart ) THEN
+         .AND. PLUME%CYEAR .GT. PLUME%MetStart &
+         .AND. TRIM(PLUME%FORCING) .NE. 'ipsl-cm5a-lr') THEN
        DO yy = PLUME%MetStart, PLUME%CYEAR - 1
           PLUME%CTSTEP = PLUME%CTSTEP + 365 + LEAP_DAY( yy )
        END DO
@@ -972,7 +983,7 @@ END SUBROUTINE GET_PLUME_Ndep
              END DO
 
           ELSE
-             STATUS = NF90_GET_VAR(PLUME%F_ID(i), PLUME%V_ID(i), tmparr, &
+                 STATUS = NF90_GET_VAR(PLUME%F_ID(i), PLUME%V_ID(i), tmparr, &
                   start=(/1,1,t/),count=(/xds,yds,1/) )
                CALL HANDLE_ERR(STATUS, "Reading from "//PLUME%MetFile(i) )
              
