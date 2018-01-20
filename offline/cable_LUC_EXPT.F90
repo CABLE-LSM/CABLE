@@ -80,6 +80,9 @@ CONTAINS
     INTEGER :: YearStart, YearEnd
     REAL, ALLOCATABLE :: tmpvec(:), tmparr3(:,:,:)
     INTEGER :: NotPrimOnly_fID, NotPrimOnly_vID
+    INTEGER :: TimeVarID, Idash
+    CHARACTER(len=100)    :: time_units
+    CHARACTER(len=4) :: yearstr
        
     NAMELIST /LUCNML/  TransitionFilePath, ClimateFile, Run, DirectRead, YearStart, YearEnd, &
          NotPrimOnlyFile
@@ -195,22 +198,31 @@ CONTAINS
           LUC_EXPT%xdimsize = xdimsize
 
           STATUS = NF90_INQ_DIMID(FID,'time',timID)
-          STATUS = NF90_INQUIRE_DIMENSION(FID,timID,len=tdimsize)
+          STATUS = NF90_INQUIRE_Dimension(FID,timID,len=tdimsize)
           CALL HANDLE_ERR(STATUS, "Inquiring 'time'"//TRIM(LUC_EXPT%TransFile(i)))
           LUC_EXPT%nrec = tdimsize
+
+          
 
 !!$          STATUS = NF90_GET_VAR( Luc_expt%f_id(i), timID, tmp, &
 !!$               start=(/1,1,1/) )
 !!$          CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )
+          STATUS = NF90_INQ_VARID(FID,"time",TimeVarID)
+          STATUS = nf90_get_att(FID, TimeVarID, "units", time_units)
+          Idash = SCAN(time_units, '-')
+          yearstr = time_units(Idash-4:Idash-1)
+          read(yearstr,*)  LUC_EXPT%FirstYEAR
+!!$          write(*,*) 'LUH2 time units: ', TRIM(time_units), Idash, time_units(Idash-4:Idash-1)
 
-
+         write(*,*) 'LUH2 first year', LUC_EXPT%FirstYEAR 
           xds = LUC_EXPT%xdimsize
           yds = LUC_EXPT%ydimsize
        ENDIF
      !write(*,*) 'length LUH2 data: ', tdimsize
     ENDDO
 
-    LUC_EXPT%FirstYEAR = 850
+    write(*,*) 'LUH2 first year', LUC_EXPT%FirstYEAR
+  !  LUC_EXPT%FirstYEAR = 850
   ! Set internal counter
     LUC_EXPT%CTSTEP = 1 +  LUC_EXPT%YearStart- LUC_EXPT%FirstYEAR
 
