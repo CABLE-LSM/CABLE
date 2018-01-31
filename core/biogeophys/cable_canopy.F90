@@ -3024,12 +3024,13 @@ END SUBROUTINE photosynthesis
 
   FUNCTION ej4x(parx,alpha,convex,x) RESULT(z)
 
-    REAL, INTENT(IN)     :: parx
-    REAL, INTENT(IN)     :: alpha
-    REAL, INTENT(IN)     :: convex
-    REAL, INTENT(IN)     :: x
-    REAL                 :: z
+    REAL, INTENT(IN)     :: parx ! Q mol photon m-2 s-1
+    REAL, INTENT(IN)     :: alpha ! quantum efficiency in mol C (mol photon)-1
+    REAL, INTENT(IN)     :: convex ! convexity parameter
+    REAL, INTENT(IN)     :: x  ! vcmax
+    REAL                 :: z  ! rubsico-limited gross photosynthesis
 
+   
     z = MAX(0.0,                                                                &
          (alpha*parx+x-sqrt((alpha*parx+x)**2 -                           &
          4.0*convex*alpha*parx*x))/(2.0*convex))

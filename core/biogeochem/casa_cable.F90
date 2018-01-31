@@ -119,6 +119,10 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
             IF (trim(cable_user%PHENOLOGY_SWITCH)=='climate') THEN
                ! get climate_dependent phenology
                call cable_phenology_clim(veg, climate, phen)
+!!$               write(667,91) canopy%fwsoil(3), real(climate%GMD(3)), real(phen%phase(3)), &
+!!$                    casamet%glai(3),  casaflux%fracCalloc(3,1), casaflux%cnpp(3), casaflux%cgpp(3), real(climate%gdd5(3))
+!!$91             format (100(f12.4,2x))
+
 
             ENDIF
   

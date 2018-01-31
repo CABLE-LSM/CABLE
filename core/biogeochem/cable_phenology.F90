@@ -51,7 +51,7 @@ SUBROUTINE cable_phenology_clim (veg, climate, phen)
   REAL:: gdd0
   REAL(r_2) :: phen_tmp
   REAL, PARAMETER :: k_chilla = 0, k_chillb = 100, k_chillk = 0.05
-  REAL, PARAMETER :: APHEN_MAX = 200.0, mmoisture_min=0.30,  ndays_raingreenup = 40
+  REAL, PARAMETER :: APHEN_MAX = 200.0, mmoisture_min=0.30,  ndays_raingreenup = 60
   INTEGER, PARAMETER:: COLDEST_DAY_NHEMISPHERE = 355
   INTEGER, PARAMETER:: COLDEST_DAY_SHEMISPHERE = 172
   REAL :: phengdd5ramp
@@ -102,7 +102,6 @@ DO np= 1,mp
 if (1.eq.1) then
    ! raingreen pfts
    if (veg%iveg(np).ge.6.and.veg%iveg(np).le.10) then ! (grass or crops) need to include raingreen savanna trees here too
-
      ! if (climate%dmoist(np).lt. mmoisture_min) phen_tmp = 0.0
       if (climate%GMD(np) .GE. 1 .and. climate%GMD(np) .LT. ndays_raingreenup) THEN
          phen_tmp = min(phen_tmp, 0.99)

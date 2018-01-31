@@ -184,7 +184,7 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
           (patch%latitude<0.0 .and. idoy==COLDEST_DAY_SHEMISPHERE) )
 
         ! In midwinter, reset GDD counter for summergreen phenology
-        climate%gdd5=0.0
+        !climate%gdd5=0.0
         climate%gdd0=0.0
    
         ! reset day degree sum related to spring photosynthetic recovery
