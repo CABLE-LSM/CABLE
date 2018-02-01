@@ -76,8 +76,8 @@ MODULE cable_param_module
   INTEGER, DIMENSION(:, :, :),    ALLOCATABLE :: inVeg
   REAL,    DIMENSION(:, :, :),    ALLOCATABLE :: inPFrac
   INTEGER, DIMENSION(:, :),       ALLOCATABLE :: inSoil
-  REAL,    DIMENSION(:, :, :, :), ALLOCATABLE :: inWB
-  REAL,    DIMENSION(:, :, :, :), ALLOCATABLE :: inTGG
+  REAL,    DIMENSION(:, :, :, :), ALLOCATABLE :: inWB,intWB
+  REAL,    DIMENSION(:, :, :, :), ALLOCATABLE :: inTGG,intTGG
   REAL,    DIMENSION(:),          ALLOCATABLE :: inLon
   REAL,    DIMENSION(:),          ALLOCATABLE :: inLat
   REAL,    DIMENSION(:, :, :, :), ALLOCATABLE :: inALB
@@ -89,6 +89,8 @@ MODULE cable_param_module
   REAL,    DIMENSION(:, :),       ALLOCATABLE :: inNfix
   REAL,    DIMENSION(:, :),       ALLOCATABLE :: inPwea
   REAL,    DIMENSION(:, :),       ALLOCATABLE :: inPdust
+
+  REAL,    DIMENSION(:, :),       ALLOCATABLE :: inZSE
 
   ! Temporary values for reading IGBP soil map Q.Zhang @ 12/20/2010
   REAL,    DIMENSION(:, :),     ALLOCATABLE :: inswilt
@@ -127,7 +129,13 @@ MODULE cable_param_module
   INTEGER, DIMENSION(:, :),     ALLOCATABLE :: inSoilColor
 
 
-  real, pointer, dimension(:) :: soil_dz
+  real, pointer, dimension(:),save :: soil_dz
+  logical,save :: interpolate
+
+
+   INTERFACE to_nodes
+      MODULE PROCEDURE to_nodes_sp,to_nodes_r2
+   END INTERFACE
 
 CONTAINS
 
@@ -263,15 +271,11 @@ CONTAINS
 
     ! check dimensions of soil-layers and time
      !! vh_js !!
-      IF ( (nslayer /= ms) .OR. (ntime /= 12)) THEN
+      IF ( ntime /= 12 ) THEN
          PRINT *, 'Variable dimensions do not match:'
-         PRINT *, 'nslayer and ms = ', nslayer, ms
          PRINT *, 'ntime not equal 12 months: ', ntime
          IF (ntime /=12) THEN
             CALL abort('Variable dimensions do not match (read_gridinfo)')
-         ELSE
-            PRINT*, 'warning: soil layers below nslayer will be initialsed with moisture'
-            PRINT*,    'and temperature of lowest layer in grid_info'
          ENDIF
       END IF
 
@@ -282,13 +286,36 @@ CONTAINS
     ALLOCATE( inSoil(nlon, nlat) )
     ALLOCATE( idummy(nlon, nlat) )
     ALLOCATE( rdummy(nlon, nlat) )
-    ALLOCATE(  inWB(nlon, nlat, nslayer,ntime) )
-    ALLOCATE( inTGG(nlon, nlat, nslayer,ntime) )
+    ALLOCATE(  inWB(nlon, nlat, ms,ntime) )
+    ALLOCATE( inTGG(nlon, nlat, ms,ntime) )
+    ALLOCATE(  intWB(nlon, nlat, nslayer,ntime) )
+    ALLOCATE( intTGG(nlon, nlat, nslayer,ntime) )
     ALLOCATE( inALB(nlon, nlat, npatch,nband) )
     ALLOCATE( inSND(nlon, nlat, npatch,ntime) )
     ALLOCATE( inLAI(nlon, nlat, ntime) )
     ALLOCATE( r3dum(nlon, nlat, nband) )
     ALLOCATE( r3dum2(nlon, nlat, ntime) )
+    ALLOCATE( inZSE(nslayer) )
+
+    ok = NF90_INQ_VARID(ncid, 'zse', varID)
+    IF (ok .ne. nf90_noerr) THEN
+       IF (nslayer .eq. ms ) then
+          inZSE = (/.022, .058, .154, .409, 1.085, 2.872/) 
+       ELSE
+          call abort('variable zse must be in  filename%type when layers change')
+       END IF
+    ELSE
+       ok = nf90_get_var(ncid,varID,inZSE)
+       IF (ok .ne. nf90_noerr) call nc_abort(ok,'inZSE read error')
+    END IF
+
+    interpolate = .false.
+    IF (nslayer .ne. ms) THEN
+       interpolate=.true.
+    ELSEIF (abs(sum(inZSE(:)-dz_soils(:),dim=1)) .gt. 1.0e-6) THEN
+       interpolate=.true.
+    END IF
+
 
     ok = NF90_INQ_VARID(ncid, 'longitude', varID)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
@@ -331,13 +358,19 @@ CONTAINS
     ok = NF90_INQ_VARID(ncid, 'SoilMoist', varID)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
                                         'Error finding variable SoilMoist.')
-    ok = NF90_GET_VAR(ncid, varID, inWB)
+
+    IF (.not.interpolate) THEN
+       inWB = intWB
+    else
+       call linearly_interpolate(intWB,inZSE,inWB,dz_soils)
+    end if
+    ok = NF90_GET_VAR(ncid, varID, intWB)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
                                         'Error reading variable SoilMoist.')
 
     ok = NF90_INQ_VARID(ncid, 'SoilTemp', varID)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error finding variable SoilTemp.')
-    ok = NF90_GET_VAR(ncid, varID, inTGG)
+    ok = NF90_GET_VAR(ncid, varID, intTGG)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error reading variable SoilTemp.')
 
     ok = NF90_INQ_VARID(ncid, 'Albedo', varID)
@@ -424,6 +457,8 @@ CONTAINS
 
     ok = NF90_CLOSE(ncid)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error closing grid info file.')
+
+    IF (ms .ne. nslayer) THEN  !interpolate intWB and intTGG to inWB inTGG
 
   END SUBROUTINE read_gridinfo
   !============================================================================
@@ -3134,7 +3169,14 @@ subroutine find_soil_depths()
        ok = nf90_inquire_dimension(ncid=ncid,dimid=dimid,len=num_horz)
        if (ok .ne. nf90_noerr) call nc_abort(ok,'soil_depth dim length error')
 
-       if (num_horz .ne. ms) call abort('num_horz .ne. ms')
+       if (num_horz .ne. ms) then !call abort('num_horz .ne. ms')
+          write(*,*) 'num_horz is not ',ms,' and may differ from '
+          write(*,*) trim(filename%type)
+          write(*,*) ' will attempt to linearly interpoate '
+          write(*,*) 'you are in uncharted, untested, and unvalidated territory!'
+          ms = num_horz
+       end if
+
 
        allocate(soil_dz(ms))
        allocate(node_depths(ms))
@@ -3157,8 +3199,177 @@ subroutine find_soil_depths()
 
    ok = nf90_close(ncid)
 
-end find_soil_depths
+end subroutine find_soil_depths
 
+subroutine linearly_interpolate (array_in,levels_in,array_out,levels_out)  
+! nd, xd, yd, ni, xi, yi )
+
+!*****************************************************************************80
+!
+!! PWL_VALUE_1D evaluates the piecewise linear interpolant.
+!
+!  Discussion:
+!
+!    The piecewise linear interpolant L(ND,XD,YD)(X) is the piecewise
+!    linear function which interpolates the data (XD(I),YD(I)) for I = 1
+!    to ND.
+!
+!  Licensing:
+!
+!    This code is distributed under the GNU LGPL license.
+!
+!  Modified:
+!
+!    22 September 2012
+!
+!  Author:
+!
+!    John Burkardt
+!
+!  Parameters:
+!
+!    Input, integer ( kind = 4 ) ND, the number of data points.
+!    ND must be at least 1.
+!
+!    Input, real ( kind = 8 ) XD(ND), the data points.
+!
+!    Input, real ( kind = 8 ) YD(ND), the data values.
+!
+!    Input, integer ( kind = 4 ) NI, the number of interpolation points.
+!
+!    Input, real ( kind = 8 ) XI(NI), the interpolation points.
+!
+!    Output, real ( kind = 8 ) YI(NI), the interpolated values.
+!
+  implicit none
+
+  real, dimension(:,:,:,:), intent(in) :: array_in
+  real, dimension(:),       intent(in) :: levels_in
+  real, dimension(:,:,:,:), intent(in) :: array_out
+  real, dimension(:),       intent(in) :: levels_out
+
+  integer :: n_in,n_out,i,j,k
+  integer, dimension(4) :: dimsizes_in
+  real, allocatable, dimension(:) :: node_levels_in,node_levels_out
+
+  real :: tmp_var
+
+  integer ( kind = 4 ) nd
+  integer ( kind = 4 ) ni
+
+  integer ( kind = 4 ) i
+  integer ( kind = 4 ) k
+  real ( kind = 8 ) t
+  real ( kind = 8 ) xd(nd)
+  real ( kind = 8 ) yd(nd)
+  real ( kind = 8 ) xi(ni)
+  real ( kind = 8 ) yi(ni)
+
+  dimsizes_in = size(array_in)
+  n_in = size(levels_in,dim=1)
+  n_out = size(levels_out,dim=1)
+
+  if (n_in .eq. 1) then
+     do i=1,n_out
+        array_out(:,:,i,:) = array_in(:,:,n_in,:)
+     end do
+
+  else
+
+     allocate(node_levels_in(n_in))
+     allocate(node_levels_out(n_out))
+
+     node_levels_in  = to_nodes(levels_in)
+     node_levels_out = to_nodes(levels_out)
+
+
+  do l=1,n_out
+     if (node_levels_in(l) .le. node_levels_out(l)) then 
+
+     do k=1,dimsizes_in(4)
+
+        do j=1,dimsizes_in(2)
+
+           do i=1,dimsizes_in(1)
+
+
+              
+  yi(1:ni) = 0.0D+00
+
+  if ( nd == 1 ) then
+    yi(1:ni) = yd(1)
+    return
+  end if
+
+  do i = 1, ni
+
+    if ( xi(i) <= xd(1) ) then
+
+      t = ( xi(i) - xd(1) ) / ( xd(2) - xd(1) )
+      yi(i) = ( 1.0D+00 - t ) * yd(1) + t * yd(2)
+
+    else if ( xd(nd) <= xi(i) ) then
+
+      t = ( xi(i) - xd(nd-1) ) / ( xd(nd) - xd(nd-1) )
+      yi(i) = ( 1.0D+00 - t ) * yd(nd-1) + t * yd(nd)
+
+    else
+
+      do k = 2, nd
+
+        if ( xd(k-1) <= xi(i) .and. xi(i) <= xd(k) ) then
+
+          t = ( xi(i) - xd(k-1) ) / ( xd(k) - xd(k-1) )
+          yi(i) = ( 1.0D+00 - t ) * yd(k-1) + t * yd(k)
+          exit
+
+        end if
+
+      end do
+
+    end if
+
+  end do
+  
+  return
+end subroutine linearly_interpolate
+
+function to_nodes_r2(dz) result(z)
+
+    real(r_2), dimension(:), intent(in) :: dz
+
+    real(r_2), dimension(size(dz,dim=1)) :: z
+    integer :: n,i
+
+    n = size(dz,dim=1)
+
+    z(1) = 0.5*dz(1)
+    do i=2,n
+       z(i) = z(i-1)+0.5*(dz(i-1)+dz(i))
+    end do
+
+   return
+
+end function to_nodes_r2
+
+
+function to_nodes_sp(dz) result(z)
+
+    real, dimension(:), intent(in) :: dz
+
+    real, dimension(size(dz,dim=1)) :: z
+    integer :: n,i
+
+    n = size(dz,dim=1)
+
+    z(1) = 0.5*dz(1)
+    do i=2,n
+       z(i) = z(i-1)+0.5*(dz(i-1)+dz(i))
+    end do
+
+   return
+
+end function to_nodes_sp
 
 END MODULE cable_param_module
 
