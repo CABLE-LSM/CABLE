@@ -1432,7 +1432,7 @@ CONTAINS
                        (/0.0,100000000.0/), patchout%Qhmax, 'real')
 
                   CALL write_ovar(ncid_out, opid%QhmaxEfold,    &
-                       'QhmaxEfold', spread(REAL(gw_params%EfoldHorzDrainRate, 4),1,mp), &
+                       'QhmaxEfold', spread(REAL(soil%drain_dens, 4),1,mp), &
                         (/0.0,100000000.0/), patchout%QhmaxEfold, 'real')
 
                   CALL write_ovar(ncid_out, opid%HKefold,    &
