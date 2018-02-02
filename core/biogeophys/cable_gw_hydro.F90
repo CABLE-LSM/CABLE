@@ -129,11 +129,10 @@ SUBROUTINE GWsoilfreeze(dels, soil, ssnow)
                       ( C%TFRZ - ssnow%tgg(i,k) ) * ssnow%gammzz(i,k) / C%HLF )
          ssnow%wbice(i,k) = MIN( ssnow%wbice(i,k) + sicefreeze(i) / (soil%zse(k)  &
                             * 1000.0), max_ice_frac(i,k) * ssnow%wb(i,k) )
-         ssnow%gammzz(i,k) = soil%zse_vec(i,k)*max((1.0-soil%ssat_vec(i,k))*  &
+         ssnow%gammzz(i,k) = soil%zse_vec(i,k)*((1.0-soil%ssat_vec(i,k))*  &
                 soil%css_vec(i,k) * soil%rhosoil_vec(i,k)     &
               + (ssnow%wb(i,k) - ssnow%wbice(i,k)) * REAL(cswat*C%density_liq,r_2)   &
-              + ssnow%wbice(i,k) * REAL(csice * C%density_ice,r_2),&
-                      soil%css_vec(i,k) * soil%rhosoil_vec(i,k) )
+              + ssnow%wbice(i,k) * REAL(csice * C%density_ice,r_2) )
 
         if (k .eq. 1 .and. ssnow%isflag(i) .eq. 0) then
            ssnow%gammzz(i,k) = ssnow%gammzz(i,k) + cgsnow * ssnow%snowd(i)
@@ -150,11 +149,10 @@ SUBROUTINE GWsoilfreeze(dels, soil, ssnow)
          
          ssnow%wbice(i,k) = MAX( 0.0_r_2, ssnow%wbice(i,k) - sicemelt(i)          &
                             / (soil%zse(k) * C%density_ice) )
-         ssnow%gammzz(i,k) = soil%zse_vec(i,k)*max((1.0-soil%ssat_vec(i,k))*&
+         ssnow%gammzz(i,k) = soil%zse_vec(i,k)*((1.0-soil%ssat_vec(i,k))*&
                 soil%css_vec(i,k) * soil%rhosoil_vec(i,k)     &
               + (ssnow%wb(i,k) - ssnow%wbice(i,k)) * REAL(cswat*C%density_liq,r_2)   &
-              + ssnow%wbice(i,k) * REAL(csice * C%density_ice,r_2),&
-                      soil%css_vec(i,k) * soil%rhosoil_vec(i,k) )
+              + ssnow%wbice(i,k) * REAL(csice * C%density_ice,r_2) )
          if (k .eq. 1 .and. ssnow%isflag(i) .eq. 0) then
            ssnow%gammzz(i,k) = ssnow%gammzz(i,k) + cgsnow * ssnow%snowd(i)
          end if
@@ -1096,10 +1094,9 @@ SUBROUTINE soil_snow_gw(dels, soil, ssnow, canopy, met, bal, veg)
          END WHERE
          
          xx=soil%css * soil%rhosoil
-         ssnow%gammzz(:,:) =max( (1.0-soil%ssat_vec(:,:))*soil%css_vec(:,:) * soil%rhosoil_vec(:,:) +&
+         ssnow%gammzz(:,:) =( (1.0-soil%ssat_vec(:,:))*soil%css_vec(:,:) * soil%rhosoil_vec(:,:) +&
                   (ssnow%wb(:,:) - ssnow%wbice(:,:) ) * cswat * C%density_liq +&
-                   ssnow%wbice(:,:) * csice * C%density_ice,&
-                   soil%css_vec(:,:) * soil%rhosoil_vec(:,:)) * soil%zse_vec(:,:) 
+                   ssnow%wbice(:,:) * csice * C%density_ice ) * soil%zse_vec(:,:)
         ssnow%gammzz(:,1) = ssnow%gammzz(:,1) + &
                             (1. - ssnow%isflag(:)) * cgsnow * ssnow%snowd(:)
 
@@ -1121,10 +1118,9 @@ SUBROUTINE soil_snow_gw(dels, soil, ssnow, canopy, met, bal, veg)
 
    IF (first_gw_hydro_call) then
      do i=1,mp
-     ssnow%gammzz(i,1) =max( (1.0-soil%ssat_vec(i,1))*soil%css_vec(i,1) * soil%rhosoil_vec(i,1) +&
+     ssnow%gammzz(i,1) =( (1.0-soil%ssat_vec(i,1))*soil%css_vec(i,1) * soil%rhosoil_vec(i,1) +&
               (ssnow%wb(i,1) - ssnow%wbice(i,1) ) * cswat * C%density_liq +&
-               ssnow%wbice(i,1) * csice * C%density_ice,&
-               soil%css_vec(i,1) * soil%rhosoil_vec(i,1)) * soil%zse_vec(i,1) + &
+               ssnow%wbice(i,1) * csice * C%density_ice ) * soil%zse_vec(i,1)+&
               (1. - ssnow%isflag(i)) * cgsnow * ssnow%snowd(i)
 
      end do
