@@ -824,7 +824,7 @@ CONTAINS
        IF (ok /= NF90_NOERR) WRITE(logn,*) 'Error finding variable elev std'
        ok = NF90_GET_VAR(ncid_elev, fieldID, inSlope)
        IF (ok /= NF90_NOERR) THEN
-          inElevSTD = inSlopeSTD*1000.0
+          inSlope = inSlopeSTD*1000.0
           WRITE(logn, *) 'Could not read elev std data for SSGW, set to 5.0*slope_std'
        END IF
 
