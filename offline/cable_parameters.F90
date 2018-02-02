@@ -798,7 +798,7 @@ CONTAINS
 
        ok = NF90_INQ_VARID(ncid_elev, 'elevation_std', fieldID)
        IF (ok /= NF90_NOERR) WRITE(logn,*) 'Error finding variable elev std'
-       ok = NF90_GET_VAR(ncid_elev, fieldID, inSlope)
+       ok = NF90_GET_VAR(ncid_elev, fieldID, inElevSTD)
        IF (ok /= NF90_NOERR) THEN
           inElevSTD = 50.0
           WRITE(logn, *) 'Could not read elev std data for SSGW, set to 50.0'
