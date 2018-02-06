@@ -1421,6 +1421,8 @@ CONTAINS
                  'slope_std', REAL(soil%slope_std, 4), (/0.0,1.0/), patchout%slope_std, 'real')
     IF(output%params .OR. output%GWdz) CALL write_ovar(ncid_out, opid%GWdz,    &
                  'GWdz', REAL(soil%GWdz, 4), (/0.0,10000.0/), patchout%GWdz, 'real')
+    IF(output%params .OR. output%GWdz) CALL write_ovar(ncid_out, opid%QhmaxEfold,    &
+                 'QhmaxEfold', REAL(soil%drain_dens, 4), (/0.0,1000000.0/), patchout%QhmaxEfold, 'real')
 
     IF(output%params .and. cable_user%gw_model) THEN
                   CALL write_ovar(ncid_out, opid%SatFracmax,    &
@@ -1430,10 +1432,6 @@ CONTAINS
                   CALL write_ovar(ncid_out, opid%Qhmax,    &
                        'Qhmax', spread(REAL(gw_params%MaxHorzDrainRate, 4),1,mp), &
                        (/0.0,100000000.0/), patchout%Qhmax, 'real')
-
-                  CALL write_ovar(ncid_out, opid%QhmaxEfold,    &
-                       'QhmaxEfold', spread(REAL(soil%drain_dens, 4),1,mp), &
-                        (/0.0,100000000.0/), patchout%QhmaxEfold, 'real')
 
                   CALL write_ovar(ncid_out, opid%HKefold,    &
                        'HKefold', spread(REAL(gw_params%hkrz, 4),1,mp), &

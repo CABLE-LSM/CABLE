@@ -326,7 +326,15 @@ do_i_no_u()
 
 build_status()
 {
+
    if [[ -f .mpitmp/cable-mpi ]]; then
+      if [[ $1 = 'debug' ]]; then
+         print '\nNack up .mpitmp in .mpitmp_debug'
+         cp -r  .mpitmp  .mpitmp_debug
+      else
+         print '\nNack up .mpitmp in .mpitmp_opt'
+         cp -r  .mpitmp  .mpitmp_opt
+      fi
    	mv .mpitmp/cable-mpi .
    	print '\nBUILD OK\n'
    else
@@ -371,6 +379,16 @@ build_build()
  
    if [[ ! -d .mpitmp ]]; then
       mkdir .mpitmp
+   fi
+
+   if [[ $1 = 'debug' ]]; then
+      if [[ -d .mpitmp_debug ]]; then
+         mv .mpitmp_debug  .mpitmp
+      fi
+   else
+      if [[ -d .mpitmp_opt ]]; then
+         mv .mpitmp_opt  .mpitmp
+      fi
    fi
    
    if [[ -f cable-mpi ]]; then

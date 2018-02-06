@@ -562,7 +562,6 @@ CONTAINS
     !MD try to read aquifer properties from the file
     ! if they don't exist set aquifer properties to the same as the soil
     ok = NF90_INQ_VARID(ncid, 'Watr', fieldID)
-    write(*,*) NF90_NOERR
     ok2= ok
     IF (ok .eq. NF90_NOERR) then
       ok2 = NF90_GET_VAR(ncid, fieldID, inWatr)
@@ -574,7 +573,6 @@ CONTAINS
     found_explicit_gw_parameters = .true.
 
     ok = NF90_INQ_VARID(ncid, 'GWssat', fieldID)
-    write(*,*) NF90_NOERR
     ok2= ok
     IF (ok .eq. NF90_NOERR) then
       ok2 = NF90_GET_VAR(ncid, fieldID, inGWssat)
@@ -1319,8 +1317,8 @@ CONTAINS
       patch(landpt(e)%cstart:landpt(e)%cend)%frac =                            &
                         inPFrac(landpt(e)%ilon, landpt(e)%ilat, 1:landpt(e)%nap)
 
-write(*,*) 'iveg', e,  veg%iveg(landpt(e)%cstart:landpt(e)%cend) 
-write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
+!write(*,*) 'iveg', e,  veg%iveg(landpt(e)%cstart:landpt(e)%cend) 
+!write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
 
       ! set land use (1 = primary; 2 = secondary, 3 = open)
       if (cable_user%popluc) then
@@ -1833,14 +1831,14 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
 
     IF (len(trim(filename%gw_soils)) .GT. 3 .AND. cable_user%gw_model) THEN
        CALL read_tiled_soil_params(soil)
-       do i=1,mp
-          do klev=1,ms
-             write(*,*) 'Level - ',klev,' sand_vec ',soil%sand_vec(i,klev)
-             write(*,*) 'Level - ',klev,' clay_vec ',soil%clay_vec(i,klev)
-             write(*,*) 'Level - ',klev,' sily_vec ',soil%silt_vec(i,klev)
-             write(*,*) 'Level - ',klev,' org_vec ',soil%org_vec(i,klev)
-          end do
-       end do
+       !do i=1,mp
+       !   do klev=1,ms
+       !      write(*,*) 'Level - ',klev,' sand_vec ',soil%sand_vec(i,klev)
+       !      write(*,*) 'Level - ',klev,' clay_vec ',soil%clay_vec(i,klev)
+       !      write(*,*) 'Level - ',klev,' sily_vec ',soil%silt_vec(i,klev)
+       !      write(*,*) 'Level - ',klev,' org_vec ',soil%org_vec(i,klev)
+       !   end do
+       !end do
     else
        soil%drain_dens(:) = 1.0 / gw_params%EfoldHorzDrainRate
     END IF
@@ -1997,23 +1995,6 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
                                        ! [W/m/K]
     END IF
 
-    do k=1,ms
-       write(*,*) 'maxval ssat_vec',maxval(soil%ssat_vec(:,k))
-       write(*,*) 'minval ssat_vec',minval(soil%ssat_vec(:,k))
-
-       write(*,*) 'maxval sucs_vec',maxval(soil%sucs_vec(:,k))
-       write(*,*) 'minval sucs_vec',minval(soil%sucs_vec(:,k))
-
-       write(*,*) 'maxval bch_vec',maxval(soil%bch_vec(:,k))
-       write(*,*) 'minval bch_vec',minval(soil%bch_vec(:,k))
-
-       write(*,*) 'maxval sand_vec',maxval(soil%sand_vec(:,k))
-       write(*,*) 'minval sand_vec',minval(soil%sand_vec(:,k))
-
-       write(*,*) 'maxval clay_vec',maxval(soil%clay_vec(:,k))
-       write(*,*) 'minval clay_vec',minval(soil%clay_vec(:,k))
-
-   end do
 
     soil%hsbh   = soil%hyds*ABS(soil%sucs) * soil%bch ! difsat*etasat
     soil%ibp2   = NINT(soil%bch) + 2
