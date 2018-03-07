@@ -65,7 +65,6 @@ SUBROUTINE ruff_resist(veg, rough, ssnow, canopy)
    canopy%vlaiw = veg%vlai * rough%hruff / MAX( 0.01, veg%hc )
    canopy%rghlai = canopy%vlaiw
 
-
     IF (cable_user%soil_struc=='default') THEN
 
        ! Roughness length of bare soil (m): new formulation- E.Kowalczyk 2014

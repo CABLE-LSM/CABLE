@@ -54,6 +54,7 @@ MODULE cable_input_module
    USE cable_init_module
    USE netcdf ! link must be made in cd to netcdf-x.x.x/src/f90/netcdf.mod
    USE cable_common_module, ONLY : filename, cable_user, CurYear, HANDLE_ERR, is_leapyear
+   USE casa_inout_module, ONLY: casa_readbiome, casa_readphen, casa_init 
 
    IMPLICIT NONE
 
@@ -332,8 +333,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
         imin,&
         isec,&
         ishod, &
-        dnsec  = 0,&
-        ntstp
+        dnsec  = 0
    INTEGER,DIMENSION(1)        ::                                         &
         timedimID,              & ! time dimension ID number
         data1i                    ! temp variable for netcdf reading
@@ -491,11 +491,9 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
     IF (.not.LAT1D) THEN
        ok= NF90_GET_VAR(ncid_met,latitudeID,temparray2)
     ELSE
-       IF (ALLOCATED(temparray1)) DEALLOCATE(temparray1)
-       ALLOCATE(temparray1(ydimsize))
-       ok= NF90_GET_VAR(ncid_met,latitudeID,temparray1)
-       temparray2 = spread(temparray1,1,xdimsize)
-       DEALLOCATE(temparray1)
+       DO x=1,xdimsize
+          ok= NF90_GET_VAR(ncid_met,latitudeID,temparray2(x,:))
+       ENDDO
     END IF
     IF(ok /= NF90_NOERR) CALL nc_abort &
          (ok,'Error reading latitude variable in met data file ' &
@@ -521,10 +519,9 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
     IF (.not.LON1D) then
        ok= NF90_GET_VAR(ncid_met,longitudeID,temparray2)
     ELSE
-       ALLOCATE(temparray1(xdimsize))
-       ok= NF90_GET_VAR(ncid_met,longitudeID,temparray1)
-       temparray2 = spread(temparray1,2,ydimsize)
-       DEALLOCATE(temparray1)
+       DO y=1,ydimsize
+          ok= NF90_GET_VAR(ncid_met,longitudeID,temparray2(:,y))
+       ENDDO
     END IF
     IF(ok /= NF90_NOERR) CALL nc_abort &
          (ok,'Error reading longitude variable in met data file ' &
@@ -685,6 +682,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
     WHERE(longitude>180.0)
        longitude = longitude - 360.0
     END WHERE
+
     ! Check ranges for latitude and longitude:
     IF(ANY(longitude>180.0).OR.ANY(longitude<-180.0)) &
          CALL abort('Longitudes read from '//TRIM(filename%met)// &
@@ -2571,7 +2569,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
 
     ! Write parameter values to CABLE's parameter variables:
     CALL write_default_params(met,air,ssnow,veg,bgc,soil,canopy,rough, &
-            rad,logn,vegparmnew,smoy, TFRZ)
+            rad,logn,vegparmnew,smoy, TFRZ, LUC_EXPT)
 
 
 
@@ -2623,6 +2621,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
 !    CALL get_default_inits(met,soil,ssnow,canopy,logn)
 !
 !    ! load default LAI values from global data:
+!    CALL get_default_lai
 
     ! Look for explicit restart file (which will have parameters):
     IF ( TRIM(filename%restart_in) .EQ. '' ) filename%restart_in = './'
@@ -2801,7 +2800,7 @@ SUBROUTINE get_parameters_met(soil,veg,bgc,rough,completeSet)
                 nmetpatches,'def')
    CALL readpar(ncid_met,'albsoil',completeSet,soil%albsoil,filename%met,      &
                 nmetpatches,'nrb')
-   CALL readpar(ncid_met,'froot',completeSet,soil%froot,filename%met,           &
+   CALL readpar(ncid_met,'froot',completeSet,veg%froot,filename%met,           &
                 nmetpatches,'ms')
    CALL readpar(ncid_met,'hc',completeSet,veg%hc,filename%met,                 &
                 nmetpatches,'def')

@@ -1664,17 +1664,17 @@ SUBROUTINE avgsoil(veg,soil,casamet)
 
   DO ns = 1, ms
   DO nland=1,mp
-    casamet%tsoilavg(nland)  = casamet%tsoilavg(nland)+soil%froot(nland,ns)  &
+    casamet%tsoilavg(nland)  = casamet%tsoilavg(nland)+veg%froot(nland,ns)  &
                              * casamet%tsoil(nland,ns)
-    casamet%moistavg(nland)  = casamet%moistavg(nland)+ soil%froot(nland,ns) &
+    casamet%moistavg(nland)  = casamet%moistavg(nland)+ veg%froot(nland,ns) &
                            * min(soil%sfc(nland),casamet%moist(nland,ns))
-    casamet%btran(nland)     = casamet%btran(nland)+ soil%froot(nland,ns)  &
+    casamet%btran(nland)     = casamet%btran(nland)+ veg%froot(nland,ns)  &
             * (min(soil%sfc(nland),casamet%moist(nland,ns))-soil%swilt(nland)) &
             /(soil%sfc(nland)-soil%swilt(nland))
 
  ! Ticket#121
 
-    casamet%btran(nland)     = casamet%btran(nland)+ soil%froot(nland,ns)  &
+    casamet%btran(nland)     = casamet%btran(nland)+ veg%froot(nland,ns)  &
             * (max(min(soil%sfc(nland),casamet%moist(nland,ns))-soil%swilt(nland),0.0)) &
             /(soil%sfc(nland)-soil%swilt(nland))
 

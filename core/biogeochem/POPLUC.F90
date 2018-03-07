@@ -9,7 +9,7 @@
 ! in each directory containing CABLE code.
 !
 ! ==============================================================================
-! Purpose: module for land-use change which interacts with POP dmeography 
+! Purpose: module for land-use change which interacts with POP demography 
 ! via secondary forest age-distribution, and updates casa stocks according to land-use transitions
 !
 ! Called from: cable_driver or cable_mpimaster
@@ -312,6 +312,7 @@ CONTAINS
           else
              POPLUC%freq_age_secondary(g,1) = POPLUC%freq_age_secondary(g,1) + &
                   POPLUC%freq_age_secondary(g,i)
+             remaining = remaining - POPLUC%freq_age_secondary(g,i)
              POPLUC%freq_age_secondary(g,i) = 0.0
              i = i-1;
           end if
@@ -1884,7 +1885,7 @@ END SUBROUTINE POPLUC_SET_PATCHFRAC
        END SELECT
     END DO
 
- ! READ 2-dimensional fields (nprod)
+ ! READ 3-dimensional fields (nprod)
     DO i = 1, SIZE(A3)
        STATUS = NF90_INQ_VARID( FILE_ID, A3(i), dID )
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
@@ -1892,8 +1893,8 @@ END SUBROUTINE POPLUC_SET_PATCHFRAC
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
        SELECT CASE ( TRIM(A3(i)))
-       CASE ('HarvProd' ) ; POPLUC%HarvProd = TMP2
-       CASE ('ClearProd' ) ; POPLUC%ClearProd = TMP2
+       CASE ('HarvProd' ) ; POPLUC%HarvProd = TMP3
+       CASE ('ClearProd' ) ; POPLUC%ClearProd = TMP3
        END SELECT
     END DO
 

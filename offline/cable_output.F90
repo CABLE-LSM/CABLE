@@ -1040,39 +1040,69 @@ CONTAINS
     IF(output%params .OR. output%isoil) CALL define_ovar(ncid_out, opid%isoil, &
                          'isoil', '-', 'Soil type', patchout%isoil, 'integer', &
                                                  xID, yID, zID, landID, patchID)
+    !IF(output%params .OR. output%bch) CALL define_ovar(ncid_out, opid%bch,     &
+    !       'bch', '-', 'Parameter b, Campbell eqn 1985', patchout%bch, 'real', &
+    !                                             xID, yID, zID, landID, patchID)
+    !IF(output%params .OR. output%clay) CALL define_ovar(ncid_out, opid%clay,   &
+    !     'clay', '-', 'Fraction of soil which is clay', patchout%clay, 'real', &
+    !                                             xID, yID, zID, landID, patchID)
+    !IF(output%params .OR. output%sand) CALL define_ovar(ncid_out, opid%sand,   &
+    !     'sand', '-', 'Fraction of soil which is sand', patchout%sand, 'real', &
+    !                                             xID, yID, zID, landID, patchID)
+    !IF(output%params .OR. output%silt) CALL define_ovar(ncid_out, opid%silt,   &
+    !     'silt', '-', 'Fraction of soil which is silt', patchout%silt, 'real', &
+    !                                             xID, yID, zID, landID, patchID)
+    !IF(output%params .OR. output%ssat) CALL define_ovar(ncid_out, opid%ssat,   &
+    !       'ssat', '-', 'Fraction of soil volume which is water @ saturation', &
+    !                      patchout%ssat, soilID,'soil', xID, yID, zID, landID, patchID)
+    !IF(output%params .OR. output%sfc) CALL define_ovar(ncid_out, opid%sfc,     &
+    !    'sfc', '-', 'Fraction of soil volume which is water @ field capacity', &
+    !                       patchout%sfc, 'real', xID, yID, zID, landID, patchID)
+    !IF(output%params .OR. output%swilt) CALL define_ovar(ncid_out, opid%swilt, &
+    !   'swilt', '-', 'Fraction of soil volume which is water @ wilting point', &
+    !                     patchout%swilt, 'real', xID, yID, zID, landID, patchID)
+    !IF(output%params .OR. output%hyds) CALL define_ovar(ncid_out, opid%hyds,   &
+    !                     'hyds', 'm/s', 'Hydraulic conductivity @ saturation', &
+    !                      patchout%hyds, 'real', xID, yID, zID, landID, patchID)
+    !IF(output%params .OR. output%sucs) CALL define_ovar(ncid_out, opid%sucs,   &
+    !                                      'sucs', 'm', 'Suction @ saturation', &
+    !                      patchout%sucs, 'real', xID, yID, zID, landID, patchID)
+    !IF(output%params .OR. output%css) CALL define_ovar(ncid_out, opid%css,     &
+    !                        'css', 'J/kg/C', 'Heat capacity of soil minerals', &
+    !                       patchout%css, 'real', xID, yID, zID, landID, patchID)
     IF(output%params .OR. output%bch) CALL define_ovar(ncid_out, opid%bch,     &
-           'bch', '-', 'Parameter b, Campbell eqn 1985', patchout%bch, 'real', &
+           'bch', '-', 'Parameter b, Campbell eqn 1985', patchout%bch, soilID,'soil', &
                                                  xID, yID, zID, landID, patchID)
     IF(output%params .OR. output%clay) CALL define_ovar(ncid_out, opid%clay,   &
-         'clay', '-', 'Fraction of soil which is clay', patchout%clay, 'real', &
+         'clay', '-', 'Fraction of soil which is clay', patchout%clay, soilID,'soil', &
                                                  xID, yID, zID, landID, patchID)
     IF(output%params .OR. output%sand) CALL define_ovar(ncid_out, opid%sand,   &
-         'sand', '-', 'Fraction of soil which is sand', patchout%sand, 'real', &
+         'sand', '-', 'Fraction of soil which is sand', patchout%sand, soilID,'soil', &
                                                  xID, yID, zID, landID, patchID)
     IF(output%params .OR. output%silt) CALL define_ovar(ncid_out, opid%silt,   &
-         'silt', '-', 'Fraction of soil which is silt', patchout%silt, 'real', &
+         'silt', '-', 'Fraction of soil which is silt', patchout%silt, soilID,'soil', &
                                                  xID, yID, zID, landID, patchID)
     IF(output%params .OR. output%ssat) CALL define_ovar(ncid_out, opid%ssat,   &
            'ssat', '-', 'Fraction of soil volume which is water @ saturation', &
-                          patchout%ssat, 'real', xID, yID, zID, landID, patchID)
+                          patchout%ssat, soilID,'soil', xID, yID, zID, landID, patchID)
     IF(output%params .OR. output%sfc) CALL define_ovar(ncid_out, opid%sfc,     &
         'sfc', '-', 'Fraction of soil volume which is water @ field capacity', &
-                           patchout%sfc, 'real', xID, yID, zID, landID, patchID)
+                           patchout%sfc, soilID,'soil', xID, yID, zID, landID, patchID)
     IF(output%params .OR. output%swilt) CALL define_ovar(ncid_out, opid%swilt, &
        'swilt', '-', 'Fraction of soil volume which is water @ wilting point', &
-                         patchout%swilt, 'real', xID, yID, zID, landID, patchID)
+                         patchout%swilt, soilID,'soil', xID, yID, zID, landID, patchID)
     IF(output%params .OR. output%hyds) CALL define_ovar(ncid_out, opid%hyds,   &
                          'hyds', 'm/s', 'Hydraulic conductivity @ saturation', &
-                          patchout%hyds, 'real', xID, yID, zID, landID, patchID)
+                          patchout%hyds, soilID,'soil', xID, yID, zID, landID, patchID)
     IF(output%params .OR. output%sucs) CALL define_ovar(ncid_out, opid%sucs,   &
                                           'sucs', 'm', 'Suction @ saturation', &
-                          patchout%sucs, 'real', xID, yID, zID, landID, patchID)
+                          patchout%sucs, soilID,'soil', xID, yID, zID, landID, patchID)
     IF(output%params .OR. output%css) CALL define_ovar(ncid_out, opid%css,     &
                             'css', 'J/kg/C', 'Heat capacity of soil minerals', &
-                           patchout%css, 'real', xID, yID, zID, landID, patchID)
+                           patchout%css, soilID,'soil', xID, yID, zID, landID, patchID)
     IF(output%params .OR. output%rhosoil) CALL define_ovar(ncid_out,           &
                 opid%rhosoil, 'rhosoil', 'kg/m^3', 'Density of soil minerals', &
-                       patchout%rhosoil, 'real', xID, yID, zID, landID, patchID)
+                       patchout%rhosoil, soilID,'soil', xID, yID, zID, landID, patchID)
     IF(output%params .OR. output%rs20) CALL define_ovar(ncid_out, opid%rs20,   &
                            'rs20', '-', 'Soil respiration coefficient at 20C', &
                           patchout%rs20, 'real', xID, yID, zID, landID, patchID)
@@ -1176,14 +1206,22 @@ CONTAINS
                          'froot', '-', 'Fraction of roots in each soil layer', &
                  patchout%froot, soilID, 'soil', xID, yID, zID, landID, patchID)
 
-    IF(output%params .OR. output%slope) CALL define_ovar(ncid_out, opid%slope,   &
-           'slope', '-', 'Mean subgrid topographic slope', &
-                          patchout%slope, 'real', xID, yID, zID, landID, patchID)
+    IF(output%params .OR. output%slope) THEN
+            call define_ovar(ncid_out, opid%slope,   &
+           'slope', '-', 'mean subgrid topographic slope', &
+                          patchout%slope, 'real', xid, yid, zid, landid, patchid)
+            call define_ovar(ncid_out, opid%elev,   &
+           'elev', '-', 'mean subgrid topographic elev', &
+                          patchout%elev, 'real', xid, yid, zid, landid, patchid)
+    ENDIF
 
-    IF(output%params .OR. output%slope_std) CALL define_ovar(ncid_out, opid%slope_std,   &
+    IF(output%params .OR. output%slope_std) THEN
+           CALL define_ovar(ncid_out, opid%slope_std,   &
            'slope_std', '-', 'Mean subgrid topographic slope_std', &
                           patchout%slope_std, 'real', xID, yID, zID, landID, patchID)
-
+   
+   
+    ENDIF
     IF(output%params .OR. output%GWdz) CALL define_ovar(ncid_out, opid%GWdz,   &
            'GWdz', '-', 'Mean aquifer layer thickness ', &
                           patchout%GWdz, 'real', xID, yID, zID, landID, patchID)
@@ -1192,9 +1230,11 @@ CONTAINS
            CALL define_ovar(ncid_out, opid%Qhmax,   &
                           'Qhmax', 'mm/s', 'Maximum subsurface drainage ', &
                           patchout%Qhmax, 'real', xID, yID, zID, landID, patchID)
+
            CALL define_ovar(ncid_out, opid%QhmaxEfold,   &
                           'QhmaxEfold', 'm', 'Maximum subsurface drainage decay rate', &
                           patchout%QhmaxEfold, 'real', xID, yID, zID, landID, patchID)
+
            CALL define_ovar(ncid_out, opid%SatFracmax,   &
                           'SatFracmax', '-', 'Controls max saturated fraction ', &
                           patchout%SatFracmax, 'real', xID, yID, zID, landID, patchID)
@@ -1318,31 +1358,31 @@ CONTAINS
     IF(output%params .OR. output%isoil) CALL write_ovar(ncid_out, opid%isoil,  &
           'isoil', REAL(soil%isoilm, 4), ranges%isoil, patchout%isoil,'integer')
     IF(output%params .OR. output%bch) CALL write_ovar(ncid_out, opid%bch,      &
-                     'bch', REAL(soil%bch, 4), ranges%bch, patchout%bch, 'real')
+                     'bch', REAL(soil%bch_vec, 4), ranges%bch, patchout%bch, 'soil')
     IF(output%params .OR. output%clay) CALL write_ovar(ncid_out, opid%clay,    &
-                 'clay', REAL(soil%clay, 4), ranges%clay, patchout%clay, 'real')
+                 'clay', REAL(soil%clay_vec, 4), ranges%clay, patchout%clay, 'soil')
     IF(output%params .OR. output%sand) CALL write_ovar(ncid_out, opid%sand,    &
-                 'sand', REAL(soil%sand, 4), ranges%sand, patchout%sand, 'real')
+                 'sand', REAL(soil%sand_vec, 4), ranges%sand, patchout%sand, 'soil')
     IF(output%params .OR. output%silt) CALL write_ovar(ncid_out, opid%silt,    &
-                 'silt', REAL(soil%silt, 4), ranges%silt, patchout%silt, 'real')
+                 'silt', REAL(soil%silt_vec, 4), ranges%silt, patchout%silt, 'soil')
     IF(output%params .OR. output%css) CALL write_ovar(ncid_out, opid%css,      &
-                     'css', REAL(soil%css, 4), ranges%css, patchout%css, 'real')
+                     'css', REAL(soil%css_vec, 4), ranges%css, patchout%css, 'soil')
     IF(output%params .OR. output%rhosoil) CALL write_ovar(ncid_out,            &
-                                 opid%rhosoil, 'rhosoil',REAL(soil%rhosoil,4), &
-                                       ranges%rhosoil, patchout%rhosoil, 'real')
+                                 opid%rhosoil, 'rhosoil',REAL(soil%rhosoil_vec,4), &
+                                       ranges%rhosoil, patchout%rhosoil, 'soil')
     IF(output%params .OR. output%hyds) CALL write_ovar(ncid_out, opid%hyds,    &
-                 'hyds', REAL(soil%hyds, 4), ranges%hyds, patchout%hyds, 'real')
+                 'hyds', REAL(soil%hyds_vec, 4), ranges%hyds, patchout%hyds, 'soil')
     IF(output%params .OR. output%sucs) CALL write_ovar(ncid_out, opid%sucs,    &
-                 'sucs', REAL(soil%sucs, 4), ranges%sucs, patchout%sucs, 'real')
+                 'sucs', REAL(soil%sucs_vec, 4), ranges%sucs, patchout%sucs, 'soil')
     IF(output%params .OR. output%rs20) CALL write_ovar(ncid_out, opid%rs20,    &
                   'rs20', REAL(veg%rs20, 4), ranges%rs20, patchout%rs20, 'real')
 !         'rs20',REAL(soil%rs20,4),ranges%rs20,patchout%rs20,'real')
     IF(output%params .OR. output%ssat) CALL write_ovar(ncid_out, opid%ssat,    &
-                 'ssat', REAL(soil%ssat, 4), ranges%ssat, patchout%ssat, 'real')
+                 'ssat', REAL(soil%ssat_vec, 4), ranges%ssat, patchout%ssat, 'soil')
     IF(output%params .OR. output%sfc) CALL write_ovar(ncid_out, opid%sfc,      &
-                     'sfc', REAL(soil%sfc, 4), ranges%sfc, patchout%sfc, 'real')
+                     'sfc', REAL(soil%sfc_vec, 4), ranges%sfc, patchout%sfc, 'soil')
     IF(output%params .OR. output%swilt) CALL write_ovar(ncid_out, opid%swilt,  &
-             'swilt', REAL(soil%swilt, 4), ranges%swilt, patchout%swilt, 'real')
+             'swilt', REAL(soil%swilt_vec, 4), ranges%swilt, patchout%swilt, 'soil')
     IF(output%params .OR. output%albsoil) CALL write_ovar(ncid_out,            &
                                opid%albsoil, 'albsoil', REAL(soil%albsoil, 4), &
                                   ranges%albsoil, patchout%albsoil, 'radiation')
@@ -1410,36 +1450,44 @@ CONTAINS
     opid%ratecs, 'ratecs', SPREAD(REAL(bgc%ratecs, 4), 1, mp), ranges%ratecs,  &
                        patchout%ratecs, 'soilcarbon')! no spatial dim at present
     IF(output%params .OR. output%froot) CALL write_ovar (ncid_out, opid%froot, &
-              'froot', REAL(soil%froot, 4), ranges%froot, patchout%froot, 'soil')
+              'froot', REAL(veg%froot, 4), ranges%froot, patchout%froot, 'soil')
     IF(output%params .OR. output%zse) CALL write_ovar(ncid_out, opid%zse,      &
-                           'zse', SPREAD(REAL(soil%zse, 4), 1, mp),ranges%zse, &
+                           'zse', REAL(soil%zse_vec, 4),ranges%zse, &
                                 patchout%zse, 'soil')! no spatial dim at present
 
-    IF(output%params .OR. output%slope) CALL write_ovar(ncid_out, opid%slope,    &
-                 'slope', REAL(soil%slope, 4), (/0.0,1.0/), patchout%slope, 'real')
-    IF(output%params .OR. output%slope_std) CALL write_ovar(ncid_out, opid%slope_std,    &
-                 'slope_std', REAL(soil%slope_std, 4), (/0.0,1.0/), patchout%slope_std, 'real')
+    IF(output%params .OR. output%slope) THEN
+                  CALL write_ovar(ncid_out, opid%slope,    &
+                 'slope', REAL(soil%slope, 4), (/0.0,9999.0/), patchout%slope, 'real')
+                  CALL write_ovar(ncid_out, opid%elev,    &
+                 'elev', REAL(soil%elev, 4), (/0.0,9999999.0/), patchout%elev, 'real')
+
+    ENDIF
+    IF(output%params .OR. output%slope_std) THEN
+                  CALL write_ovar(ncid_out, opid%slope_std,    &
+                 'slope_std', REAL(soil%slope_std, 4), (/0.0,9999.0/), patchout%slope_std, 'real')
+
+    ENDIF
     IF(output%params .OR. output%GWdz) CALL write_ovar(ncid_out, opid%GWdz,    &
-                 'GWdz', REAL(soil%GWdz, 4), (/0.0,10000.0/), patchout%GWdz, 'real')
+                 'GWdz', REAL(soil%GWdz, 4), (/0.0,999999.0/), patchout%GWdz, 'real')
     IF(output%params .OR. output%GWdz) CALL write_ovar(ncid_out, opid%QhmaxEfold,    &
-                 'QhmaxEfold', REAL(soil%drain_dens, 4), (/0.0,1000000.0/), patchout%QhmaxEfold, 'real')
+                 'QhmaxEfold', REAL(soil%drain_dens, 4), (/0.0,999999.0/), patchout%QhmaxEfold, 'real')
 
     IF(output%params .and. cable_user%gw_model) THEN
                   CALL write_ovar(ncid_out, opid%SatFracmax,    &
                        'SatFracmax', spread(REAL(gw_params%MaxSatFraction,4),1,mp), &
-                        (/0.0,100000000.0/), patchout%SatFracmax, 'real')
+                        (/0.0,1000000.0/), patchout%SatFracmax, 'real')
 
                   CALL write_ovar(ncid_out, opid%Qhmax,    &
                        'Qhmax', spread(REAL(gw_params%MaxHorzDrainRate, 4),1,mp), &
-                       (/0.0,100000000.0/), patchout%Qhmax, 'real')
+                       (/0.0,1000000.0/), patchout%Qhmax, 'real')
 
                   CALL write_ovar(ncid_out, opid%HKefold,    &
                        'HKefold', spread(REAL(gw_params%hkrz, 4),1,mp), &
-                        (/0.0,100000000.0/), patchout%HKefold, 'real')
+                        (/0.0,1000000.0/), patchout%HKefold, 'real')
 
                   CALL write_ovar(ncid_out, opid%HKdepth,    &
                        'HKdepth', spread(REAL(gw_params%zdepth, 4),1,mp), &
-                        (/0.0,100000000.0/), patchout%HKdepth, 'real')
+                        (/0.0,1000000.0/), patchout%HKdepth, 'real')
      END IF
 
 
@@ -2938,7 +2986,7 @@ CONTAINS
                     canstoID, albsoilsnID, gammzzID, tggsnID, sghfluxID,       &
                     ghfluxID, runoffID, rnof1ID, rnof2ID, gaID, dgdtgID,       &
                     fevID, fesID, fhsID, wbtot0ID, osnowd0ID, cplantID,        &
-                    csoilID, tradID, albedoID, gwID
+                    csoilID, tradID, albedoID, gwID,subdzID
     INTEGER :: h0ID, snowliqID, SID, TsurfaceID, scondsID, nsnowID, TsoilID
     CHARACTER(LEN=10) :: todaydate, nowtime ! used to timestamp netcdf file
     ! CHARACTER         :: FRST_OUT*100, CYEAR*4
@@ -3306,6 +3354,9 @@ CONTAINS
     CALL define_ovar(ncid_restart, gwID, 'GWwb', 'mm3/mm3','GW water content',&
                      .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
 
+    CALL define_ovar(ncid_restart, subdzID, 'sublayer_dz', 'm','depth of viscous sublayer',&
+                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+
     IF(cable_user%SOIL_STRUC=='sli'.OR.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
       CALL define_ovar(ncid_restart,rpid%gamma,'gamma','-', &
             'Parameter in root efficiency function (Lai and Katul 2000)', &
@@ -3443,7 +3494,7 @@ CONTAINS
     CALL write_ovar (ncid_restart, rpid%swilt, 'swilt', REAL(soil%swilt, 4),   &
                      ranges%swilt, .TRUE., 'real', .TRUE.)
     ! Soil dimensioned variables/parameters:
-    CALL write_ovar (ncid_restart, rpid%froot, 'froot', REAL(soil%froot, 4),    &
+    CALL write_ovar (ncid_restart, rpid%froot, 'froot', REAL(veg%froot, 4),    &
                      ranges%froot, .TRUE., 'soil', .TRUE.)
     CALL write_ovar (ncid_restart, tggID, 'tgg', REAL(ssnow%tgg, 4),           &
                      ranges%SoilTemp, .TRUE., 'soil', .TRUE.)
@@ -3579,6 +3630,9 @@ CONTAINS
 
     CALL write_ovar (ncid_restart, gwID, 'GWwb', REAL(ssnow%GWwb, 4),       &
                      ranges%GWwb, .TRUE., 'real', .TRUE.)
+
+    CALL write_ovar (ncid_restart, subdzID, 'sublayer_dz', REAL(canopy%sublayer_dz, 4),       &
+                     (/0.0,1.0e2/), .TRUE., 'real', .TRUE.)
 
     IF(cable_user%SOIL_STRUC=='sli'.OR.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
        CALL write_ovar (ncid_restart,rpid%gamma,'gamma', &

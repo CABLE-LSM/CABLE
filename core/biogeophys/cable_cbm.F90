@@ -46,18 +46,20 @@ CONTAINS
    USE cable_carbon_module
    USE cable_soil_snow_module, only : soil_snow
    USE cable_def_types_mod
-   USE cable_roughness_module
-   USE cable_radiation_module
-   USE cable_air_module
+   USE cable_roughness_module, only : ruff_resist
+   USE cable_radiation_module, only : init_radiation
+   USE cable_air_module, only : define_air
 #ifndef NO_CASA_YET
    USE casadimension,     only : icycle ! used in casa_cnp
 #endif
    USE cable_data_module, ONLY : icbm_type, point2constants
    !mrd561
-   USE cable_gw_hydro_module, only : soil_snow_gw,sli_hydrology
-   USE sli_main_mod, ONLY : sli_main
+   USE cable_gw_hydro_module, only : sli_hydrology,&
+                                     soil_snow_gw
    USE cable_canopy_module, only : define_canopy
    USE cable_albedo_module, only : surface_albedo
+   USE sli_main_mod, only : sli_main
+                                   
 
    !ptrs to local constants
    TYPE( icbm_type ) :: C
@@ -85,6 +87,8 @@ CONTAINS
    ICYCLE = 0
 #endif
 
+  cable_user%soil_struc="default"
+
    ! assign local ptrs to constants defined in cable_data_module
    CALL point2constants(C)
 
@@ -94,15 +98,15 @@ CONTAINS
 
       IF( cable_runtime%um_explicit ) THEN
          CALL ruff_resist(veg, rough, ssnow, canopy)
-         met%tk = met%tk + C%grav/C%capp*(rough%zref_tq + 0.9*rough%z0m)
       ENDIF
+      met%tk = met%tk + C%grav/C%capp*(rough%zref_tq + 0.9*rough%z0m)
 
       CALL define_air (met, air)
 
    ELSE
       call ruff_resist(veg, rough, ssnow, canopy)
    ENDIF
-   
+
    CALL init_radiation(met,rad,veg, canopy) ! need to be called at every dt
 
    IF( cable_runtime%um ) THEN
@@ -115,23 +119,19 @@ CONTAINS
       CALL surface_albedo(ssnow, veg, met, rad, soil, canopy)
    ENDIf
 
+   ! Calculate canopy variables:
+
    !! vh_js !!
    !CABLE_LSM:check
    IF( cable_runtime%um .AND. first_call ) then
-     ssnow%tss = ssnow%tgg(:,1)
+     ssnow%tss=(1-ssnow%isflag)*ssnow%tgg(:,1) + ssnow%isflag*ssnow%tggsn(:,1) 
      ssnow%otss = ssnow%tss
      first_call = .false.
    endif
-
    ssnow%otss_0 = ssnow%otss  ! vh should be before call to canopy?
    ssnow%otss = ssnow%tss
 
-   ! Calculate canopy variables:
    CALL define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy,climate)
-   
-   !ssnow%otss_0 = ssnow%otss
-   !ssnow%otss = ssnow%tss
-
    ! RML moved out of following IF after discussion with Eva
    ssnow%owetfac = ssnow%wetfac
 
@@ -139,7 +139,7 @@ CONTAINS
 
      IF( cable_runtime%um_implicit ) THEN
         IF (cable_user%gw_model) then
-           call soil_snow_gw(dels, soil, ssnow, canopy, met, bal, veg)
+           CALL soil_snow_gw(dels, soil, ssnow, canopy, met, bal,veg)
         ELSE
             CALL soil_snow(dels, soil, ssnow, canopy, met, bal,veg)
          ENDIF
@@ -148,7 +148,7 @@ CONTAINS
    ELSE
       IF(cable_user%SOIL_STRUC=='default') THEN
         IF (cable_user%gw_model) then
-           call soil_snow_gw(dels, soil, ssnow, canopy, met, bal, veg)
+           CALL soil_snow_gw(dels, soil, ssnow, canopy, met, bal,veg)
         ELSE
             CALL soil_snow(dels, soil, ssnow, canopy, met, bal,veg)
          ENDIF
@@ -209,6 +209,7 @@ CONTAINS
       ENDIF
    ENDIF
    
+
    ! need to adjust fe after soilsnow
    canopy%fev  = canopy%fevc + canopy%fevw
 
@@ -219,8 +220,17 @@ CONTAINS
    canopy%rnet = canopy%fns + canopy%fnv
 
    ! Calculate radiative/skin temperature:
+   if (cable_runtime%um) then
+       !Jan 2018: UM assumes a single emissivity for the surface in the radiation scheme
+       !To accommodate this a single value of is 1. is assumed in ACCESS
+       ! any leaf/soil emissivity /=1 must be incorporated into rad%trad.  
+       ! check that emissivities (pft and nvg) set = 1 within the UM i/o configuration
+       rad%trad = ( ( 1.-rad%transd ) * C%emleaf * canopy%tv**4 +                             &
+              rad%transd * C%emsoil * ssnow%tss**4 )**0.25
+   else       
    rad%trad = ( ( 1.-rad%transd ) * canopy%tv**4 +                             &
               rad%transd * ssnow%tss**4 )**0.25
+   endif
 
    ! rml 17/1/11 move all plant resp and soil resp calculations here
    ! from canopy. in UM only call on implicit step.

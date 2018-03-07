@@ -139,7 +139,13 @@ SUBROUTINE get_default_inits(met,soil,ssnow,canopy,logn, EMSOIL)
    canopy%fev     = 0.0   ! latent heat flux from vegetation (W/m2)
    canopy%fes     = 0.0   ! latent heat flux from soil (W/m2)
    canopy%fhs     = 0.0   ! sensible heat flux from soil (W/m2)
-   canopy%us = 0.1 ! friction velocity (needed in roughness before first call to canopy: should in be in restart?)
+   canopy%us      = 0.1   ! friction velocity (needed in roughness before first call to canopy: should in be in restart?)
+   canopy%sublayer_dz = 0.001
+   ssnow%rtevap_sat   = 0.0
+   ssnow%rtevap_unsat = 0.0
+   ssnow%satfrac    = 1.0e-12
+   ssnow%qhz        = 0.0
+   ssnow%wtd        = 1000.0
 
 END SUBROUTINE get_default_inits
 
@@ -409,12 +415,27 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
         max_vegpatches,'def',from_restart,mp)
 
    !MD
+   IF (cable_user%gw_model) THEN
    ok = NF90_INQ_VARID(ncid_rin,'GWwb',parID)
    IF(ok == NF90_NOERR) THEN 
      CALL readpar(ncid_rin,'GWwb',dummy,ssnow%GWwb,filename%restart_in,            &
                 max_vegpatches,'def',from_restart,mp)   
    ELSE
       ssnow%GWwb = 0.95*soil%ssat
+   END IF
+   END IF
+
+   IF (cable_user%or_evap) then
+   ok = NF90_INQ_VARID(ncid_rin,'sublayer_dz',parID)
+   IF(ok == NF90_NOERR) THEN 
+     CALL readpar(ncid_rin,'sublayer_dz',dummy,canopy%sublayer_dz,filename%restart_in,            &
+                max_vegpatches,'def',from_restart,mp)   
+   ELSE
+      canopy%sublayer_dz(:) = 0.01
+   END IF
+   if (any(canopy%sublayer_dz .lt. 0.0) .or. any(canopy%sublayer_dz .gt. 0.5))then
+      WRITE(*,*) 'problem with sublayer_dz and restart.  check restart values!'
+   end if
    END IF
 
    IF(cable_user%SOIL_STRUC=='sli'.or.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
@@ -592,7 +613,7 @@ ENDIF
 !         max_vegpatches,'def',from_restart,mp)
    CALL readpar(ncid_rin,'rs20',dummy,veg%rs20,filename%restart_in,            &
                 max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'froot',dummy,soil%froot,filename%restart_in,          &
+   CALL readpar(ncid_rin,'froot',dummy,veg%froot,filename%restart_in,          &
                 max_vegpatches,'ms',from_restart,mp)
    CALL readpar(ncid_rin,'hc',dummy,veg%hc,filename%restart_in,                &
                 max_vegpatches,'def',from_restart,mp)

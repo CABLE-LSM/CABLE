@@ -135,8 +135,9 @@ MODULE cable_IO_vars_module
           taul,refl,tauw,refw,wai,vegcf,extkn,tminvj,tmaxvj,                   &
           veg_class,soil_class,mvtype,mstype,patchfrac,                        &
            WatSat,GWWatSat,SoilMatPotSat,GWSoilMatPotSat,                       &
-          HkSat,GWHkSat,FrcSand,FrcClay,Clappb,Watr,GWWatr,sfc_vec,forg,swilt_vec, &
-          slope,slope_std,GWdz,SatFracmax,Qhmax,QhmaxEfold,HKefold,HKdepth
+          HkSat,GWHkSat,sand_vec,clay_vec,bch_vec,Watr,GWWatr,sfc_vec,forg,swilt_vec, &
+          slope,slope_std,GWdz,SatFracmax,Qhmax,QhmaxEfold,HKefold,HKdepth,&
+          elev,elev_std
      INTEGER :: ishorizon,nhorizons,clitt, &
           zeta,fsatmax, &
           gamma,ZR,F10
@@ -358,6 +359,8 @@ MODULE cable_IO_vars_module
          isoil  = .FALSE.,    & ! soil type from global index
          meth  = .FALSE.,     & ! method for solving turbulence in canopy scheme
          za  = .FALSE.,       & ! something to do with roughness ????
+         elev = .false.,&      !mean subgrid elev
+         elev_std=.false.,&    !stddev of subgrid elev
          slope = .false.,&      !mean subgrid slope
          slope_std=.false.,&    !stddev of subgrid slope
          GWdz=.false.,&         !aquifer thickness

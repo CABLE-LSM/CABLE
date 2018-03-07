@@ -174,9 +174,9 @@ SUBROUTINE sli_main(ktau, dt, veg, soil, ssnow, met, canopy, air, rad, SEB_only)
   setroot = 0  ! reset rooting depths
   if (setroot == 1) then
      call setroots(x*100.0_r_2, real(veg%F10,r_2), real(veg%ZR,r_2)*100.0_r_2, FS)
-     soil%froot = FS
+     veg%froot = FS
   else
-     FS = real(soil%froot,r_2)
+     FS = real(veg%froot,r_2)
   endif
   ! set required soil hydraulic params
   if (.not. allocated(par)) then

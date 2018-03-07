@@ -11,8 +11,10 @@ host_mael()
    export NCMOD='/share/apps/netcdf/intel/4.1.3/include'
    export FC='mpif90'
    export CFLAGS='-O2 -fp-model precise  '
-   #export CFLAGS='-O3 -fp-model precise  -ipo --parallel '   
-   export LDFLAGS='-L/share/apps/intel/Composer/lib/intel64 -L/share/apps/netcdf/intel/4.1.3/lib  -O2'
+   if [[ $1 = 'fast' ]]; then
+      export CFLAGS='-O3 -fp-model precise  -ipo  -mcore-avx2  '   
+   fi
+   export LDFLAGS='-L/share/apps/intel/Composer/lib/intel64 -L/share/apps/netcdf/intel/4.1.3/lib  '
    if [[ $1 = 'debug' ]]; then
       export CFLAGS='-O0 -fp-model precise -fpe0 -g -traceback -nostand -check all,nobounds,noarg_temp_created -debug all ' 
       export LDFLAGS='-L/share/apps/intel/Composer/lib/intel64 -L/share/apps/netcdf/intel/4.1.3/lib '
@@ -328,13 +330,6 @@ build_status()
 {
 
    if [[ -f .mpitmp/cable-mpi ]]; then
-      if [[ $1 = 'debug' ]]; then
-         print '\nNack up .mpitmp in .mpitmp_debug'
-         cp -r  .mpitmp  .mpitmp_debug
-      else
-         print '\nNack up .mpitmp in .mpitmp_opt'
-         cp -r  .mpitmp  .mpitmp_opt
-      fi
    	mv .mpitmp/cable-mpi .
    	print '\nBUILD OK\n'
    else
@@ -381,15 +376,6 @@ build_build()
       mkdir .mpitmp
    fi
 
-   if [[ $1 = 'debug' ]]; then
-      if [[ -d .mpitmp_debug ]]; then
-         mv .mpitmp_debug  .mpitmp
-      fi
-   else
-      if [[ -d .mpitmp_opt ]]; then
-         mv .mpitmp_opt  .mpitmp
-      fi
-   fi
    
    if [[ -f cable-mpi ]]; then
       print '\ncable-mpi executable exists. copying to a dated backup file\n' 

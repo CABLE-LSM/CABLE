@@ -21,8 +21,13 @@
 !          ssoil changed to ssnow
 !
 ! ==============================================================================
-
+!CABLE_LSM:This has to be commented for offline
 !#define UM_BUILD YES
+
+module casa_cable
+
+contains
+
 SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
                      climate,casabiome,casapool,casaflux,casamet,casabal,phen, &
                      pop, spinConv, spinup, ktauday, idoy,loy, dump_read,   &
@@ -39,7 +44,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    USE POPMODULE,            ONLY: POPStep
    USE POP_TYPES,            ONLY: POP_TYPE
    USE cable_phenology_module, ONLY: cable_phenology_clim
-
+  USE casa_inout_module
    IMPLICIT NONE
 
    INTEGER,      INTENT(IN) :: ktau ! integration step number
@@ -256,6 +261,7 @@ SUBROUTINE read_casa_dump(  ncfile, casamet, casaflux,phen, climate, ncall, kend
       USE casadimension,         ONLY : mplant,mdyear
       USE casavariable,          ONLY : casa_met, casa_flux
       USE phenvariable
+      USE cable_common_module,  ONLY:  CABLE_USER
 #     ifndef UM_BUILD
       USE cable_diag_module,     ONLY : get_var_ncr2, &
                                         get_var_ncr3, stderr_nc
@@ -373,7 +379,9 @@ SUBROUTINE read_casa_dump(  ncfile, casamet, casaflux,phen, climate, ncall, kend
          phen%doyphase(:,2) = int(phendoyphase2)
          phen%doyphase(:,3) = int(phendoyphase3)
          phen%doyphase(:,4) = int(phendoyphase4)
+         IF (cable_user%CALL_climate) THEN 
          climate%mtemp_max = mtemp
+         ENDIF
          casaflux%Nmindep = Ndep
 
       ENDIF
@@ -399,6 +407,7 @@ SUBROUTINE write_casa_dump( ncfile, casamet, casaflux, phen, climate, n_call, ke
   USE casavariable,          ONLY : CASA_MET, CASA_FLUX
   USE casadimension,         ONLY : mplant
   USE phenvariable
+  USE cable_common_module,  ONLY:  CABLE_USER
 
   IMPLICIT NONE
 
@@ -508,7 +517,9 @@ SUBROUTINE write_casa_dump( ncfile, casamet, casaflux, phen, climate, n_call, ke
   CALL put_var_ncr2(ncid, var_name(10), real(phen%doyphase(:,2), r_2)    ,n_call )
   CALL put_var_ncr2(ncid, var_name(11), real(phen%doyphase(:,3), r_2)    ,n_call )
   CALL put_var_ncr2(ncid, var_name(12), real(phen%doyphase(:,4), r_2)    ,n_call )
+  IF (cable_user%CALL_climate) THEN 
   CALL put_var_ncr2(ncid, var_name(13), real(climate%mtemp_max,r_2)    ,n_call )
+  ENDIF
   CALL put_var_ncr2(ncid, var_name(14), real(casaflux%Nmindep,r_2)    ,n_call )
 
 
@@ -946,3 +957,4 @@ END SUBROUTINE sumcflux
   END SUBROUTINE analyticpool
 
 
+End module casa_cable

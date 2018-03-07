@@ -7,6 +7,8 @@ SUBROUTINE spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
   USE cable_common_module, ONLY: CABLE_USER
   USE casadimension
   USE casaparm
+USE casa_cable !jhan:also put this in mod
+USE casa_inout_module
   USE casavariable
   USE phenvariable
   USE POP_Types,  Only: POP_TYPE

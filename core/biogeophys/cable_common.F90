@@ -24,7 +24,12 @@
 
 MODULE cable_common_module
 
+  use cable_pft_params_mod, ONLY : vegin
+  use cable_soil_params_mod, ONLY : soilin
+  
   IMPLICIT NONE
+
+  LOGICAL :: report_parameters_to_log=.false.
 
   !---allows reference to "gl"obal timestep in run (from atm_step)
   !---total number of timesteps, and processing node
@@ -42,15 +47,7 @@ MODULE cable_common_module
           ! L.Stevens - Test Switches
           L_NEW_ROUGHNESS_SOIL  = .FALSE., & ! from Ticket?
           L_NEW_RUNOFF_SPEED    = .FALSE., & ! from Ticket?
-          L_NEW_REDUCE_SOILEVP  = .FALSE., & ! from Ticket?
-          Ticket46 = .FALSE.,              & !
-          !jhan: default should be FALSE, bu set up nml etc
-          Ticket49Bug1 = .false.,           & !
-          Ticket49Bug2 = .false.,           & !
-          Ticket49Bug3 = .false.,           & !
-          Ticket49Bug4 = .false.,           & !
-          Ticket49Bug5 = .false.,           & !
-          Ticket49Bug6 = .false.              !
+          L_NEW_REDUCE_SOILEVP  = .FALSE.    ! from Ticket?
 
   END TYPE hide_switches
 
@@ -109,7 +106,7 @@ MODULE cable_common_module
           POP_fromZero           = .FALSE., &
           CALL_Climate           = .FALSE., &
           Climate_fromZero       = .TRUE., &
-          CASA_fromZero          = .FALSE., &
+          CASA_fromZero          = .TRUE., &
           POPLUC                 = .FALSE.
     
      INTEGER  :: &
@@ -151,30 +148,33 @@ MODULE cable_common_module
           !! vh_js !!
          litter = .FALSE.
 
+     !INH - new switch for revised coupling on implicit step of ACCESS-CM2 Ticket #132
+      LOGICAL :: l_revised_coupling = .FALSE.
+
      !INH -apply revised sensitvity/correction terms to soilsnow energy balance
-      LOGICAL ::                                                               &
-          L_REV_CORR = .FALSE.     !switch to revert to unchanged code
+      LOGICAL :: L_REV_CORR = .FALSE.     !switch to revert to unchanged code
 
      !MD
+      LOGICAL :: GW_MODEL = .FALSE.
+      LOGICAL :: alt_forcing = .FALSE.
  
      !using GSWP3 forcing?
-     LOGICAL :: GW_MODEL = .FALSE.
      LOGICAL :: GSWP3 = .FALSE.
-     LOGICAL :: or_evap = .FALSE. 
-     LOGICAL :: test_new_gw=.false.   !sli + ssgw
-     LOGICAL :: sync_nc_file=.false. !write data to file to preserve if model crashed
-     INTEGER :: max_spins = 99999999
+     LOGICAL :: or_evap = .FALSE.
+     LOGICAL :: test_new_gw=.false.
+     LOGICAL :: sync_nc_file=.false.
+     INTEGER :: max_spins = -1
+     !just need to test
      LOGICAL :: fix_access_roots = .false.  !use pft dependent roots in ACCESS
-     LOGICAL :: fix_um_soil_comps = .false. !inverse pedotransfer funcs to get
-                                            !sand,clay,silt and then use these to get isoilm
-
+     !ticket#179
+     LOGICAL :: soil_thermal_fix=.false.
      LOGICAL :: change_soil_depths=.false.
 
+     INTEGER :: force_npatches_as=-1
   END TYPE kbl_user_switches
 
   ! instantiate internal switches
   TYPE(kbl_user_switches), SAVE :: cable_user
-
 
   ! external files read/written by CABLE
   TYPE filenames_type
@@ -193,9 +193,9 @@ MODULE cable_common_module
           soilcolor,  & ! file for soil color(soilcolor_global_1x1.nc)
           inits,      & ! name of file for initialisations
           soilIGBP,   & ! name of file for IGBP soil map
-          gw_elev,    &  !name of file for gw/elevation data
-          gw_soils,   & !file with vertical profiles of soil texture
-          gw_tiles
+          gw_elev='', & !name of file for gw/elevation datq
+          gw_soils=''   !itled/layerd soil params
+                        !give default as not not required
 
   END TYPE filenames_type
 
@@ -207,7 +207,92 @@ MODULE cable_common_module
 
   ! hydraulic_redistribution parameters _soilsnow module
   REAL :: wiltParam=0.5, satuParam=0.8
+ 
+   TYPE organic_soil_params
+        !Below are the soil properties for fully organic soil
+
+      REAL ::    &    
+        hyds_vec  = 1.0e-4,&
+        sucs_vec = 10.3,   &
+        clappb = 2.91,     &    
+        ssat_vec = 0.9,    &    
+        watr   = 0.1,&
+        css  = 2.5e6,&
+        cnsd = 0.05 
+
+   END TYPE organic_soil_params
+ 
+   TYPE gw_parameters_type
+
+      REAL ::                   &
+        MaxHorzDrainRate=2e-4,  & !anisintropy * q_max [qsub]
+        EfoldHorzDrainRate=2.0, & !e fold rate of q_horz
+        MaxSatFraction=2500.0,     & !parameter controll max sat fraction
+        hkrz=0.5,               & !hyds_vec variation with z
+        zdepth=1.5,             & !level where hyds_vec(z) = hyds_vec(no z)
+        frozen_frac=0.05,       & !ice fraction to determine first non-frozen layer for qsub
+        SoilEvapAlpha = 1.0,    & !modify field capacity dependence of soil evap limit
+        IceAlpha=3.0,           &
+        IceBeta=1.0,            &
+        sfc_vec_hk      = 1.157407e-06, &
+        swilt_vec_hk      = 2.31481481e-8
+
+
+      REAL :: ice_impedence=5.0
+
+      TYPE(organic_soil_params) :: org
+
+      INTEGER :: level_for_satfrac = 6
+      LOGICAL :: ssgw_ice_switch = .false.
+ 
+      LOGICAL :: subsurface_sat_drainage = .true.
+
+   END TYPE gw_parameters_type
+
+
   
+   TYPE gw_default_inputs
+      CHARACTER(len=500), DIMENSION(10):: v_names= &
+                                        (/'elevation',&
+                                          'elevation_std',&
+                                          'slope',&
+                                          'slope_std',&
+                                          'dtb',&
+                                          'drainage_density',&
+                                          'permeability','Sy','head','Bgw'/)
+
+      real, dimension(10):: const_inGW = &
+                                    (/100.0,50.0,0.001,&
+                                      0.0005,25.0,0.00165,&
+                                     1.0e-7,0.2,0.0,4.0/)
+
+   END TYPE gw_default_inputs 
+
+   TYPE(gw_default_inputs), SAVE, TARGET :: default_GW_inputs
+
+   TYPE gw_nondefault_inputs
+
+      CHARACTER(len=500), POINTER, DIMENSION(:) :: gw_v_names
+      real, pointer, dimension(:) :: default_inGW
+
+   END TYPE gw_nondefault_inputs
+
+   TYPE(gw_nondefault_inputs), POINTER, SAVE :: nondefault_inGW
+
+   INTEGER, SAVE :: n_gw_params = 10
+
+   TYPE(gw_parameters_type), SAVE :: gw_params
+
+   REAL, SAVE ::        &!should be able to change parameters!!!
+      max_glacier_snowd=1100.0,&
+      snow_ccnsw = 2.0, &
+!jh!an:clobber - effectively force single layer snow
+      !snmin = 100.0,      & ! for 1-layer; 
+      snmin = 1.,          & ! for 3-layer;
+      max_ssdn = 750.0,    & !
+      max_sconds = 2.51,   & !
+      frozen_limit = 0.85    ! EAK Feb2011 (could be 0.95)
+
   !CABLE_LSM: soil/veg params types & subr deleted here 
   ! vn10.6-CABLE hacks-hardwires these
   !use these as the basis for namelist vars/files later in offline apps
@@ -219,139 +304,12 @@ MODULE cable_common_module
   !jhan:temporary measure. improve hiding
   !   real, dimension(:,:), pointer,save :: c1, rhoch
 
-  !jhan:cable.nml
-
-   TYPE organic_soil_params
-        !Below are the soil properties for fully organic soil
-
-      REAL ::    &
-        hyds_vec  = 1.0e-4,&
-        sucs_vec = 10.3,   &
-        clappb = 2.91,     &
-        ssat_vec = 0.9,    &
-        watr   = 0.1,&
-        css  = 2.5e6,&
-        cnsd = 0.05
-
-   END TYPE organic_soil_params
-
-   TYPE gw_parameters_type
-
-      REAL ::                   &
-        MaxHorzDrainRate=1e-3,  & !anisintropy * q_max [qsub]
-        EfoldHorzDrainRate=2.5, & !e fold rate of q_horz
-        MaxSatFraction=900,     & !parameter controll max sat fraction
-        hkrz=0.0,               & !hyds_vec variation with z
-        zdepth=1.0,             & !level where hyds_vec(z) = hyds_vec(no z)
-        frozen_frac=0.05,       & !ice fraction to determine first non-frozen layer for qsub
-        SoilEvapAlpha = 1.0,    & !modify field capacity dependence of soil evap limit
-        IceAlpha=3.0,           &
-        IceBeta=1.0,            &
-        sfc_vec_hk      = 1.157407e-06, &
-        swilt_vec_hk      = 2.31481481e-8
-
-     REAL :: ice_impedence=5.0
-
-     logical :: default_aq = .true.  !false means calc flux using head at wtd
-
-     LOGICAL :: sfc_clm_func=.false.
-     LOGICAL :: swilt_clm_func=.false.
-     LOGICAL :: no_aquifer_flux=.false.
-
-      TYPE(organic_soil_params) :: org
-
-      INTEGER :: level_for_satfrac = 6
-      LOGICAL :: ssgw_ice_switch = .false.
- 
-      LOGICAL :: subsurface_sat_drainage = .false.
-
-   END TYPE gw_parameters_type
-
-   TYPE(gw_parameters_type), SAVE :: gw_params
-
-  ! soil parameters read from file(filename%soil def. in cable.nml)
-  ! & veg parameters read from file(filename%veg def. in cable.nml)
-  TYPE soilin_type
-
-     REAL, DIMENSION(:),ALLOCATABLE ::                                        &
-          silt,    & !
-          clay,    & !
-          sand,    & !
-          swilt,   & !
-          sfc,     & !
-          ssat,    & !
-          bch,     & !
-          hyds,    & !
-          sucs,    & !
-          rhosoil, & !
-          css,     & !
-          c3         !
-
-  END TYPE soilin_type
-
-
-  TYPE vegin_type
-
-     REAL, DIMENSION(:),ALLOCATABLE ::                                        &
-          canst1,     & !
-          dleaf,      & !
-          length,     & !
-          width,      & !
-          vcmax,      & !
-          ejmax,      & !
-          hc,         & !
-          xfang,      & !
-          rp20,       & !
-          rpcoef,     & !
-          rs20,       & !
-          wai,        & !
-          rootbeta,   & !
-          shelrb,     & !
-          vegcf,      & !
-          frac4,      & !
-          xalbnir,    & !
-          extkn,      & !
-          tminvj,     & !
-          tmaxvj,     & !
-          vbeta,      &
-          a1gs,       &
-          d0gs,       &
-          alpha,      &
-          convex,     &
-          cfrd,       &
-          gswmin,     &
-          conkc0,     &
-          conko0,     &
-          ekc,        &
-          eko,        &
-          g0,         & !  Ticket #56
-          g1,         & !  Ticket #56 
-          zr,         &
-          clitt
-
-     REAL, DIMENSION(:,:),ALLOCATABLE ::                                      &
-          froot,      & !
-          cplant,     & !
-          csoil,      & !
-          ratecp,     & !
-          ratecs,     & !
-          refl,     & !
-          taul        !
-
-  END TYPE vegin_type
-
-  CHARACTER(LEN=70), DIMENSION(:), POINTER ::                                 &
-       veg_desc,   & ! decriptions of veg type
-       soil_desc     ! decriptns of soil type
-
-  TYPE(soilin_type), SAVE  :: soilin
-  TYPE(vegin_type),  SAVE  :: vegin
-
   !CABLE_LSM: intro'd quick writing capbility. remove from here. keep for ref
   character(len=*), parameter :: &
-    fprintf_dir_root = "/short/p66/jxs599/10.6/diag/March1/"
+    fprintf_dir_root = "/short/w35/mrd561/10.6/diag/"
   
   character(len=200) :: fprintf_dir
+
 
 interface fudge_out
    module procedure fudge_out_r2D, fudge_out_r1D, fudge_out_r3D, fudge_out_i2D
@@ -359,235 +317,6 @@ End interface fudge_out
 
 CONTAINS
 
-  SUBROUTINE get_type_parameters(logn,vegparmnew, classification)
-
-    ! Gets parameter values for each vegetation type and soil type.
-
-    USE cable_def_types_mod, ONLY : mvtype, ms, ncs, ncp, mstype, nrb
-
-    INTEGER,INTENT(IN) :: logn     ! log file unit number
-
-    CHARACTER(LEN=4), INTENT(INOUT), OPTIONAL :: classification
-
-    LOGICAL,INTENT(IN)      :: vegparmnew ! new format input file
-
-    CHARACTER(LEN=80) :: comments
-    CHARACTER(LEN=10) :: vegtypetmp
-    CHARACTER(LEN=25) :: vegnametmp
-
-    REAL    :: notused
-    INTEGER :: ioerror ! input error integer
-    INTEGER :: a, jveg ! do loop counter
-
-
-
-    !================= Read in vegetation type specifications: ============
-    OPEN(40,FILE=filename%veg,STATUS='old',ACTION='READ',IOSTAT=ioerror)
-
-    IF(ioerror/=0) then
-       STOP 'CABLE_log: Cannot open veg type definitions.'
-    ENDIF
-
-    IF (vegparmnew) THEN
-
-       ! assume using IGBP/CSIRO vegetation types
-       READ(40,*) comments
-       READ(40,*) mvtype
-       IF( present(classification) )                                         &
-            WRITE(classification,'(a4)') comments(1:4)
-
-    ELSE
-
-       ! assume using CASA vegetation types
-       !classification = 'CASA'
-       READ(40,*)
-       READ(40,*)
-       READ(40,*) mvtype ! read # vegetation types
-       READ(40,*)
-       READ(40,*)
-       comments = 'CASA'
-
-    END IF
-
-    WRITE(logn, '(A31,I3,1X,A10)') '  Number of vegetation types = ',        &
-         mvtype,TRIM(comments)
-
-
-    ! Allocate memory for type-specific vegetation parameters:
-    ALLOCATE (                                                               &
-         vegin%canst1( mvtype ), vegin%dleaf( mvtype ),                        &
-         vegin%length( mvtype ), vegin%width( mvtype ),                        &
-         vegin%vcmax( mvtype ),  vegin%ejmax( mvtype ),                        &
-         vegin%hc( mvtype ), vegin%xfang( mvtype ),                            &
-         vegin%rp20( mvtype ), vegin%rpcoef( mvtype ),                         &
-         vegin%rs20( mvtype ), vegin%wai( mvtype ),                            &
-         vegin%rootbeta( mvtype ), vegin%shelrb( mvtype ),                     &
-         vegin%vegcf( mvtype ), vegin%frac4( mvtype ),                         &
-         vegin%xalbnir( mvtype ), vegin%extkn( mvtype ),                       &
-         vegin%tminvj( mvtype ), vegin%tmaxvj( mvtype ),                       &
-         vegin%vbeta( mvtype ), vegin%froot( ms, mvtype ),                     &
-         vegin%cplant( ncp, mvtype ), vegin%csoil( ncs, mvtype ),              &
-         vegin%ratecp( ncp, mvtype ), vegin%ratecs( ncs, mvtype ),             &
-         vegin%refl( nrb, mvtype ), vegin%taul( nrb, mvtype ),                 &
-         veg_desc( mvtype ),                                                   &
-         vegin%a1gs(mvtype), vegin%d0gs(mvtype),                               &
-         vegin%alpha(mvtype),vegin%convex(mvtype),vegin%cfrd(mvtype),          &
-         vegin%gswmin(mvtype),vegin%conkc0(mvtype), vegin%conko0(mvtype),      &
-         vegin%ekc(mvtype), vegin%eko(mvtype),                                 &
-         ! Ticket #56
-         vegin%g0( mvtype ), vegin%g1( mvtype ),                               &
-         !! vh_veg_params !!
-         vegin%zr(mvtype), vegin%clitt(mvtype) )
-
-
-    IF( vegparmnew ) THEN    ! added to read new format (BP dec 2007)
-
-       ! Read in parameter values for each vegetation type:
-       DO a = 1,mvtype
-
-          READ(40,*) jveg, vegtypetmp, vegnametmp
-
-          IF( jveg .GT. mvtype )                                             &
-               STOP 'jveg out of range in parameter file'
-
-          veg_desc(jveg) = vegnametmp
-
-          READ(40,*) vegin%hc(jveg), vegin%xfang(jveg), vegin%width(jveg),   &
-               vegin%length(jveg), vegin%frac4(jveg)
-          ! only refl(1:2) and taul(1:2) used
-          READ(40,*) vegin%refl(1:3,jveg) ! rhowood not used ! BP may2011
-          READ(40,*) vegin%taul(1:3,jveg) ! tauwood not used ! BP may2011
-          READ(40,*) notused, notused, notused, vegin%xalbnir(jveg)
-          READ(40,*) notused, vegin%wai(jveg), vegin%canst1(jveg),           &
-               vegin%shelrb(jveg), vegin%vegcf(jveg), vegin%extkn(jveg)
-
-          READ(40,*) vegin%vcmax(jveg), vegin%rp20(jveg),                    &
-               vegin%rpcoef(jveg),                                     &
-               vegin%rs20(jveg)
-          READ(40,*) vegin%tminvj(jveg), vegin%tmaxvj(jveg),                 &
-               vegin%vbeta(jveg), vegin%rootbeta(jveg),                      &
-               vegin%zr(jveg), vegin%clitt(jveg)
-          READ(40,*) vegin%cplant(1:3,jveg), vegin%csoil(1:2,jveg)
-          ! rates not currently set to vary with veg type
-          READ(40,*) vegin%ratecp(1:3,jveg), vegin%ratecs(1:2,jveg)
-          READ(40,*) vegin%a1gs(jveg), vegin%d0gs(jveg), vegin%alpha(jveg), vegin%convex(jveg), vegin%cfrd(jveg)
-          READ(40,*) vegin%gswmin(jveg), vegin%conkc0(jveg), vegin%conko0(jveg), vegin%ekc(jveg), vegin%eko(jveg)
-          READ(40,*) vegin%g0(jveg), vegin%g1(jveg)      ! Ticket #56
-
-       END DO
-
-    ELSE
-
-       DO a = 1,mvtype
-          READ(40,'(8X,A70)') veg_desc(a) ! Read description of each veg type
-       END DO
-
-       READ(40,*); READ(40,*)
-       READ(40,*) vegin%canst1
-       READ(40,*) vegin%width
-       READ(40,*) vegin%length
-       READ(40,*) vegin%vcmax
-       READ(40,*) vegin%hc
-       READ(40,*) vegin%xfang
-       READ(40,*) vegin%rp20
-       READ(40,*) vegin%rpcoef
-       READ(40,*) vegin%rs20
-       READ(40,*) vegin%shelrb
-       READ(40,*) vegin%frac4
-       READ(40,*) vegin%wai
-       READ(40,*) vegin%vegcf
-       READ(40,*) vegin%extkn
-       READ(40,*) vegin%tminvj
-       READ(40,*) vegin%tmaxvj
-       READ(40,*) vegin%vbeta
-       READ(40,*) vegin%xalbnir
-       READ(40,*) vegin%rootbeta
-       READ(40,*) vegin%cplant(1,:)
-       READ(40,*) vegin%cplant(2,:)
-       READ(40,*) vegin%cplant(3,:)
-       READ(40,*) vegin%csoil(1,:)
-       READ(40,*) vegin%csoil(2,:)
-       READ(40,*)
-       READ(40,*) vegin%ratecp(:,1)
-       READ(40,*) vegin%a1gs
-       READ(40,*) vegin%d0gs
-       READ(40,*) vegin%alpha
-       READ(40,*) vegin%convex
-       READ(40,*) vegin%cfrd
-       READ(40,*) vegin%gswmin
-       READ(40,*) vegin%conkc0
-       READ(40,*) vegin%conko0
-       READ(40,*) vegin%ekc
-       READ(40,*) vegin%eko
-
-       ! Set ratecp to be the same for all veg types:
-       vegin%ratecp(1,:)=vegin%ratecp(1,1)
-       vegin%ratecp(2,:)=vegin%ratecp(2,1)
-       vegin%ratecp(3,:)=vegin%ratecp(3,1)
-       READ(40,*)
-       READ(40,*) vegin%ratecs(:,1)
-       vegin%ratecs(1,:)=vegin%ratecs(1,1)
-       vegin%ratecs(2,:)=vegin%ratecs(2,1)
-
-       ! old table does not have taul and refl ! BP may2011
-       vegin%taul(1,:) = 0.07
-       vegin%taul(2,:) = 0.425
-       vegin%taul(3,:) = 0.0
-       vegin%refl(1,:) = 0.07
-       vegin%refl(2,:) = 0.425
-       vegin%refl(3,:) = 0.0
-
-       READ(40,*) vegin%g0 ! Ticket #56
-       READ(40,*) vegin%g1 ! Ticket #56
-
-    ENDIF
-
-    WRITE(6,*)'CABLE_log:Closing veg params file: ',trim(filename%veg)
-
-    CLOSE(40)
-
-    ! new calculation dleaf since April 2012 (cable v1.8 did not use width)
-    vegin%dleaf = SQRT(vegin%width * vegin%length)
-
-
-
-    !================= Read in soil type specifications: ============
-    OPEN(40,FILE=filename%soil,STATUS='old',ACTION='READ',IOSTAT=ioerror)
-
-    IF(ioerror/=0) then
-       STOP 'CABLE_log: Cannot open soil type definitions.'
-    ENDIF
-
-    READ(40,*); READ(40,*)
-    READ(40,*) mstype ! Number of soil types
-    READ(40,*); READ(40,*)
-
-    ALLOCATE ( soil_desc(mstype) )
-    ALLOCATE ( soilin%silt(mstype), soilin%clay(mstype), soilin%sand(mstype) )
-    ALLOCATE ( soilin%swilt(mstype), soilin%sfc(mstype), soilin%ssat(mstype) )
-    ALLOCATE ( soilin%bch(mstype), soilin%hyds(mstype), soilin%sucs(mstype) )
-    ALLOCATE ( soilin%rhosoil(mstype), soilin%css(mstype) )
-
-    DO a = 1,mstype
-       READ(40,'(8X,A70)') soil_desc(a) ! Read description of each soil type
-    END DO
-
-    READ(40,*); READ(40,*)
-    READ(40,*) soilin%silt
-    READ(40,*) soilin%clay
-    READ(40,*) soilin%sand
-    READ(40,*) soilin%swilt
-    READ(40,*) soilin%sfc
-    READ(40,*) soilin%ssat
-    READ(40,*) soilin%bch
-    READ(40,*) soilin%hyds
-    READ(40,*) soilin%sucs
-    READ(40,*) soilin%rhosoil
-    READ(40,*) soilin%css
-
-    CLOSE(40)
-
-  END SUBROUTINE get_type_parameters
     !--- LN ------------------------------------------[
   SUBROUTINE HANDLE_ERR( status, msg )
     ! LN 06/2013
@@ -599,7 +328,7 @@ CONTAINS
        IF ( PRESENT( msg ) ) WRITE(*,*)msg
 !#define Vanessas_common
 !#ifdef Vanessas_common
-       WRITE(*,*) TRIM(NF90_strerror(status))
+       WRITE(*,*) TRIM(NF90_strerror(INT(status,4)))
 !#else       
 !       WRITE(*,*) "UM builds with -i8. Therefore call to nf90_strerror is ", & 
 !       " invalid. Quick fix to eliminate for now. Build NF90 with -i8, force -i4?" 
@@ -803,14 +532,13 @@ CONTAINS
 
   END SUBROUTINE report_version_no
 
-  SUBROUTINE init_veg_from_vegin(ifmp,fmp, veg,soil) 
-     use cable_def_types_mod, ONLY : veg_parameter_type,soil_parameter_type
+  SUBROUTINE init_veg_from_vegin(ifmp,fmp, veg) 
+     use cable_def_types_mod, ONLY : veg_parameter_type
      integer ::  ifmp,  & ! start local mp, # landpoints (jhan:when is this not 1 )      
                  fmp     ! local mp, # landpoints       
   
      type(veg_parameter_type) :: veg
-     type(soil_parameter_type) :: soil
-
+     
      integer :: h
      
          ! Prescribe parameters for current gridcell based on veg/soil type (which
@@ -852,7 +580,7 @@ CONTAINS
             veg%conko0(h) = vegin%conko0(veg%iveg(h))
             veg%ekc(h)    = vegin%ekc(veg%iveg(h))
             veg%eko(h)    = vegin%eko(veg%iveg(h))
-            soil%froot(h,:)  = vegin%froot(:, veg%iveg(h))
+            veg%froot(h,:)  = vegin%froot(:, veg%iveg(h))
             veg%zr(h)       = vegin%zr(veg%iveg(h))
             veg%clitt(h)    = vegin%clitt(veg%iveg(h))
          END DO ! over each veg patch in land point

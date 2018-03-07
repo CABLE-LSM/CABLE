@@ -58,19 +58,19 @@ MODULE POP_Constants
 
 
   REAL(dp),PARAMETER:: FULTON_ALPHA= 3.5 ! recruitment scalar alpha in Fulton (1991)
-  REAL(dp),PARAMETER:: DENSINDIV_MAX=0.5  !  Maximum density of individuals within a cohort indiv/m2
+  REAL(dp),PARAMETER:: DENSINDIV_MAX=0.2   !  Maximum density of individuals within a cohort indiv/m2
   REAL(dp),PARAMETER:: DENSINDIV_MIN=1e-9 !
   REAL(dp),PARAMETER:: Kbiometric=50.0 ! Constant in height-diameter relationship
   REAL(dp),PARAMETER:: WD= 300.0 ! Wood density kgC/m3
-  REAL(dp),PARAMETER:: GROWTH_EFFICIENCY_MIN=0.0075 ! 0.008 ! threshold growth efficiency for enhanced mortality (higher value gives higher biomass turnover)
-  REAL(dp),PARAMETER:: Pmort=2.0 ! exponent in mortality formula
-  REAL(dp),PARAMETER:: MORT_MAX=0.2 ! upper asymptote for enhanced mortality
+  REAL(dp),PARAMETER:: GROWTH_EFFICIENCY_MIN=0.008  ! threshold growth efficiency for enhanced mortality (higher value gives higher biomass turnover)
+  REAL(dp),PARAMETER:: Pmort=5.0 ! exponent in mortality formula
+  REAL(dp),PARAMETER:: MORT_MAX=0.3 ! upper asymptote for enhanced mortality
   REAL(dp),PARAMETER:: THETA_recruit=0.95 ! shape parameter in recruitment equation
   REAL(dp),PARAMETER:: CMASS_STEM_INIT= 1e-4 ! initial biomass kgC/m2
   REAL(dp),PARAMETER:: POWERbiomass=0.67 ! exponent for biomass in proportion to which cohorts preempt resources
   REAL(dp),PARAMETER:: POWERGrowthEfficiency = 0.67
   REAL(dp),PARAMETER:: CrowdingFactor = 0.029
-  REAL(dp),PARAMETER:: ALPHA_CPC = 10.0
+  REAL(dp),PARAMETER:: ALPHA_CPC = 3.5
   REAL(dp),PARAMETER:: k_allom1 = 200.0 ! crown area =  k_allom1 * diam ** k_rp
   REAL(dp),PARAMETER:: k_rp = 1.67  ! constant in crown area relation to tree diameter
   REAL(dp),PARAMETER:: ksapwood = 0.05 ! rate constant for conversion of sapwood to heartwood (y-1)
@@ -271,9 +271,6 @@ CONTAINS
 
 
     np = SIZE(pop%pop_grid)
-  
-
-
 ! optional interger n intended for zeroing secondary forest tiles
     
     IF (PRESENT(n)) THEN
@@ -857,7 +854,8 @@ END SUBROUTINE InitPOP2D_Poisson
                    ! fraction net resource uptake = fraction NPP
 
                    pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%frac_resource_uptake = &
-                        pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%frac_NPP *pop%pop_grid(j)%patch(k)%frac_NPP
+                        pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%frac_NPP * &
+                        pop%pop_grid(j)%patch(k)%frac_NPP
 
                 endif
 
@@ -993,16 +991,20 @@ END SUBROUTINE InitPOP2D_Poisson
 
              ! mort = 0 ! test
 
-             pop%pop_grid(j)%patch(k)%stress_mortality = pop%pop_grid(j)%patch(k)%stress_mortality + mort*cmass_stem
-
-             if (ALLOM_SWITCH.eq.1) then
-                ! assumes crown radius (m) = 0.14 * dbh (cm)
-                crown_area = crown_area + pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%density* &
-                     PI*(pop%pop_grid(j)%patch(k)%layer(1)%cohort(c)%diameter*100.*0.14)**2
-             else
-                crown_area = crown_area + pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%density* &
-                     k_allom1 * pop%pop_grid(j)%patch(k)%layer(1)%cohort(c)%diameter ** k_rp
-             endif
+             pop%pop_grid(j)%patch(k)%stress_mortality = pop%pop_grid(j)%patch(k)%stress_mortality &
+                  + mort*cmass_stem
+             IF (pop%pop_grid(j)%patch(k)%layer(1)%cohort(c)%diameter*100.GT.1.) THEN
+                if (ALLOM_SWITCH.eq.1) then
+                   ! assumes crown radius (m) = 0.14 * dbh (cm)
+                   crown_area = crown_area + pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%density* &
+                        PI*(pop%pop_grid(j)%patch(k)%layer(1)%cohort(c)%diameter*100.*0.14)**2
+                else
+                   crown_area = crown_area + pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%density* &
+                        k_allom1 * pop%pop_grid(j)%patch(k)%layer(1)%cohort(c)%diameter ** k_rp
+                endif
+             ELSE
+                crown_area = crown_area + 0.5*pop%pop_grid(j)%patch(k)%layer(1)%cohort(c)%LAI
+             ENDIF
 
              cpc = 1. - exp(-crown_area)
              pop%pop_grid(j)%patch(k)%cpc = cpc
@@ -1466,7 +1468,7 @@ END SUBROUTINE InitPOP2D_Poisson
                   pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%sapwood
              pop%pop_grid(g)%patch(p)%sapwood_area = pop%pop_grid(g)%patch(p)%sapwood_area + &
                   pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%sapwood_area
-             pop%pop_grid(g)%patch(p)%heartwood = pop%pop_grid(g)%patch(p)%sapwood + &
+             pop%pop_grid(g)%patch(p)%heartwood = pop%pop_grid(g)%patch(p)%heartwood + &
                   pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%heartwood
              pop%pop_grid(g)%patch(p)%biomass = pop%pop_grid(g)%patch(p)%biomass + cmass_stem
              pop%pop_grid(g)%cmass_stem_bin(ct) = pop%pop_grid(g)%cmass_stem_bin(ct) + freq*cmass_stem
@@ -1560,15 +1562,15 @@ ENDIF
              ! leaf area index in each cohort
              pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%LAI = LAI(g) * &
                   min(pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%sapwood_area  &
-                  /max(pop%pop_grid(g)%sapwood_area,1e-3), 1.0_dp)
+                  /max(pop%pop_grid(g)%sapwood_area,1e-3), 10.0_dp)
              pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%Cleaf = Cleaf(g) * &
                   min(pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%sapwood_area  &
-                  /max(pop%pop_grid(g)%sapwood_area,1.e-3), 1.0_dp)
+                  /max(pop%pop_grid(g)%sapwood_area,1.e-3), 10.0_dp)
              pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%Croot = Croot(g) * &
                   min(pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%sapwood_area  &
-                  /max(pop%pop_grid(g)%sapwood_area,1e-3), 1.0_dp)
+                  /max(pop%pop_grid(g)%sapwood_area,1e-3), 10.0_dp)
           ENDDO ! cohorts
-          pop%pop_grid(g)%patch(p)%LAI = sum(pop%pop_grid(g)%patch(p)%layer(1)%&
+          pop%pop_grid(g)%patch(p)%LAI = sum(pop%pop_grid(g)%patch(p)%layer(1)% &
                cohort(1:pop%pop_grid(g)%patch(p)%layer(1)%ncohort)%LAI)
        ENDDO ! patches
 
@@ -1595,7 +1597,7 @@ ENDIF
              ENDIF
 
 
-             IF (diam*100.GT.5.) THEN
+             IF (diam*100.GT.1.) THEN
 
                 if (ALLOM_SWITCH.eq.1) then
                    !! assumes crown radius (m) = 0.1492 * dbh (cm) (from G. Cook, pers. comm.)
@@ -3305,7 +3307,7 @@ END FUNCTION Area_Triangle
     
     
     POP%it_pop(n) = 0
-    CALL ZeroPOP(pop,n)
+    CALL ZeroPOP(pop,INT(n))   !mrd561: types do not match unless converted here
     CALL InitPOP2D_Poisson(pop,INT(disturbance_interval,i4b),n)
 
     DO j=n,n

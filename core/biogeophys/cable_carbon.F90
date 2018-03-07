@@ -148,7 +148,7 @@ SUBROUTINE carbon_pl(dels, soil, ssnow, veg, canopy, bgc)
 
    ! Limit size of exponent to avoif overflow when tv is very cold
    coef_cold = EXP( MIN( 1., -( canopy%tv - tvclst( veg%iveg ) ) ) )
-   wbav = SUM( soil%froot * real(ssnow%wb), 2)
+   wbav = SUM( veg%froot * real(ssnow%wb), 2)
    wbav = max( 0.01, wbav )  ! EAK Jan2011
 
    ! drought stress
@@ -247,8 +247,8 @@ SUBROUTINE soilcarb( soil, ssnow, veg, bgc, met, canopy)
 
       ! key parameter for this scheme is veg%rs20
 
-      avgwrs = SUM( soil%froot * real(ssnow%wb), 2 )
-      avgtrs = MAX( 0.0, SUM( soil%froot * ssnow%tgg, 2 )- C%TFRZ )
+      avgwrs = SUM( veg%froot * real(ssnow%wb), 2 )
+      avgtrs = MAX( 0.0, SUM( veg%froot * ssnow%tgg, 2 )- C%TFRZ )
 
       canopy%frs = veg%rs20 * MIN( 1.0, MAX( 0.0, MIN(                         &
                    -0.0178 + 0.2883 * avgwrs + 5.0176 * avgwrs * avgwrs        &
@@ -272,18 +272,18 @@ SUBROUTINE soilcarb( soil, ssnow, veg, bgc, met, canopy)
 
       den = MAX( 0.07,soil%sfc - soil%swilt )
 
-      rswc = MAX(0.0001, soil%froot(:,1)*(REAL(ssnow%wb(:,2)) - soil%swilt))&
+      rswc = MAX(0.0001, veg%froot(:,1)*(REAL(ssnow%wb(:,2)) - soil%swilt))&
          & / den
-      tsoil = soil%froot(:,1) * ssnow%tgg(:,2) - C%TFRZ
+      tsoil = veg%froot(:,1) * ssnow%tgg(:,2) - C%TFRZ
 
       tref = MAX( 0., ssnow%tgg(:,ms) - (C%TFRZ-.05 ) )
 
       DO k = 2,ms
 
-         rswc = rswc + MAX( 0.0001, soil%froot(:,k)                             &
+         rswc = rswc + MAX( 0.0001, veg%froot(:,k)                             &
                 * ( REAL( ssnow%wb(:,k) ) - soil%swilt ) ) / den
 
-         tsoil = tsoil + soil%froot(:,k) * ssnow%tgg(:,k)
+         tsoil = tsoil + veg%froot(:,k) * ssnow%tgg(:,k)
 
       ENDDO
 

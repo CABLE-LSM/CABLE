@@ -16,13 +16,16 @@
 ! History: Vanessa Haverd Jan 2015
 
 ! ==============================================================================
-!#define UM_BUILD YES
+#define UM_BUILD YES
 MODULE cable_climate_mod
 
  Use cable_def_types_mod, ONLY: met_type, climate_type, canopy_type, mp, &
       r_2, alloc_cbm_var, air_type
  USE TypeDef,              ONLY: i4b, dp
+!CABLE_LSM: see CABLE Ticket#149. yet still inclueded file?? legacy-hack??
+# ifndef UM_BUILD
  USE cable_IO_vars_module, ONLY: patch
+# endif 
  USE CABLE_COMMON_MODULE, ONLY: CurYear, filename, cable_user, HANDLE_ERR
 
 CONTAINS
@@ -139,6 +142,8 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
 
      ENDIF
 
+!jhan: see CABLE Ticket#149 and above CABLE_LSM: comment
+# ifndef UM_BUILD
      WHERE ((patch%latitude>=0.0 .and. idoy==COLDEST_DAY_NHEMISPHERE).OR. &
           (patch%latitude<0.0 .and. idoy==COLDEST_DAY_SHEMISPHERE) )
 
@@ -146,7 +151,7 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
         climate%gdd5=0.0
         climate%gdd0=0.0
      END WHERE
-
+# endif
      ! Update GDD counters and chill day count
      climate%gdd0 = climate%gdd0 + max(0.0,climate%dtemp-0.0)
      climate%agdd0= climate%agdd0 + max(0.0,climate%dtemp-0.0)
@@ -533,11 +538,14 @@ if(climate%biome(k)==999) then
        climate%iveg(k) = 17  !
 endif
 
+!jhan: see CABLE Ticket#149 and above CABLE_LSM: comment
+# ifndef UM_BUILD
 ! check for DBL or NEL in SH: set to EBL instead
 if ((climate%iveg(k)==1 .OR.climate%iveg(k)==3 .OR. climate%iveg(k)==4) &
      .and. patch(k)%latitude<0) THEN
    climate%iveg(k) = 2
 endif
+# endif
 
 !"(/grass:1/shrub:2/woody:3"
 !1,3,Evergreen Needleleaf Forest

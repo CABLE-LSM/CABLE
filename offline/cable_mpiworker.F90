@@ -33,14 +33,8 @@
 !                 casadimension
 !                 casavariable
 !                 phenvariable
-!
-! CALLs:       point2constants
-!              casa_feedback
-!              cbm
-!              bgcdriver
-!              sumcflux
-!              find_extents
-!              worker_decomp
+!                 casa_cable
+!                 casa_inout_module
 !              worker_cable_params
 !              worker_casa_params
 !              worker_intype
@@ -64,7 +58,9 @@
 MODULE cable_mpiworker
 
   USE cable_mpicommon
-
+  USE casa_inout_module
+  USE casa_cable   
+  
  
   IMPLICIT NONE
 
@@ -118,8 +114,8 @@ CONTAINS
 
     USE cable_def_types_mod
     USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,                  &
-         verbose, fixedCO2,output,check,patchout,    &
-         patch_type,soilparmnew,&
+         verbose, fixedCO2,output,check,    &
+         patch_type,soilparmnew,patchout,&
          defaultLAI, wlogn
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
          cable_runtime, filename, myhome,            &
@@ -505,7 +501,7 @@ call flush(wlogn)
              ! only if restart file is to be created
              IF(output%restart) THEN
 
-                CALL worker_restart_type (comm, canopy, air, ssnow)
+                CALL worker_restart_type (comm, canopy, air)
 
              END IF
 
@@ -633,6 +629,13 @@ call flush(wlogn)
                  CALL cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met, &
                       climate, canopy,air, dels,mp)
 
+
+             do i=1,mp
+               if (met%ua(i) .gt. 50.0) then
+                  write(wlogn,*) 'ua error',i,met%ua(i)
+                  write(wlogn,*) 't error',i,met%tk(i)
+               end if
+            end do
 
              ! CALL land surface scheme for this timestep, all grid points:
              CALL cbm( ktau, dels, air, bgc, canopy, met,                  &
@@ -1264,10 +1267,6 @@ ENDIF
     blen(bidx) = ms * r2len
 
     bidx = bidx + 1
-    CALL MPI_Get_address (ssnow%smp, displs(bidx), ierr)
-    blen(bidx) = ms * r2len
-
-    bidx = bidx + 1
     CALL MPI_Get_address (ssnow%wbfice, displs(bidx), ierr)
     blen(bidx) = ms * r2len
 
@@ -1375,7 +1374,7 @@ ENDIF
     blen(bidx) = r1len
 
     bidx = bidx + 1
-    CALL MPI_Get_address (soil%froot, displs(bidx), ierr)
+    CALL MPI_Get_address (veg%froot, displs(bidx), ierr)
     blen(bidx) = ms * r1len
 
     bidx = bidx + 1
@@ -1871,7 +1870,7 @@ ENDIF
     !  blen(bidx) = ms * r1len
 
     bidx = bidx + 1
-    CALL MPI_Get_address (ssnow%evapfbl, displs(bidx), ierr)
+    CALL MPI_Get_address (canopy%evapfbl, displs(bidx), ierr)
     ! MPI: gol124: changed to r1 when Bernard ported to CABLE_r491
     blen(bidx) = ms * r1len
 
@@ -1901,6 +1900,11 @@ ENDIF
 
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%fwsoil, displs(bidx), ierr)
+    blen(bidx) = r2len
+
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%sublayer_dz, displs(bidx), ierr)
     blen(bidx) = r2len
 
     bidx = bidx + 1
@@ -2381,21 +2385,26 @@ ENDIF
   CALL MPI_Get_address (soil%sfc_vec, displs(bidx), ierr)
   blen(bidx) = ms * r2len
 
+
   bidx = bidx + 1
   CALL MPI_Get_address (soil%css_vec, displs(bidx), ierr)
-  blen(bidx) = ms * r1len
+  blen(bidx) = ms * r2len
+
 
   bidx = bidx + 1
   CALL MPI_Get_address (soil%rhosoil_vec, displs(bidx), ierr)
   blen(bidx) = ms * r2len
 
+
   bidx = bidx + 1
   CALL MPI_Get_address (soil%cnsd_vec, displs(bidx), ierr)
   blen(bidx) = ms * r2len
 
+
   bidx = bidx + 1
   CALL MPI_Get_address (soil%zse_vec, displs(bidx), ierr)
-  blen(bidx) = ms * r1len
+  blen(bidx) = ms * r2len
+
 
   bidx = bidx + 1
   CALL MPI_Get_address (soil%sand_vec, displs(bidx), ierr)
@@ -2415,7 +2424,6 @@ ENDIF
   bidx = bidx + 1
   CALL MPI_Get_address (soil%org_vec, displs(bidx), ierr)
   blen(bidx) = ms * r2len
-
 
 !1d
   bidx = bidx + 1
@@ -2439,11 +2447,11 @@ ENDIF
   blen(bidx) = r2len
 
   bidx = bidx + 1
-  CALL MPI_Get_address (soil%elev, displs(bidx), ierr)
+  CALL MPI_Get_address (soil%GWdz, displs(bidx), ierr)
   blen(bidx) = r2len
 
   bidx = bidx + 1
-  CALL MPI_Get_address (soil%elev_std, displs(bidx), ierr)
+  CALL MPI_Get_address (soil%elev, displs(bidx), ierr)
   blen(bidx) = r2len
 
   bidx = bidx + 1
@@ -2455,22 +2463,17 @@ ENDIF
   blen(bidx) = r2len
 
   bidx = bidx + 1
-  CALL MPI_Get_address (soil%GWdz, displs(bidx), ierr)
+  CALL MPI_Get_address (soil%drain_dens, displs(bidx), ierr)
   blen(bidx) = r2len
 
   bidx = bidx + 1
   CALL MPI_Get_address (ssnow%GWwb, displs(bidx), ierr)
   blen(bidx) = r2len
 
-  bidx = bidx + 1
-  CALL MPI_Get_address (soil%drain_dens, displs(bidx), ierr)
-  blen(bidx) = r2len
-
-  write(*,*) 'worker ',rank,' bidx of ',bidx
-
     ! MPI: sanity check
     IF (bidx /= ntyp) THEN
        WRITE (*,*) 'worker ',rank,' invalid number of param_t fields',bidx,', fix it!'
+       WRITE (*,*) 'worker ',rank,' invalid number ntyp is ',ntyp,', fix it!'
        CALL MPI_Abort (comm, 1, ierr)
     END IF
 
@@ -3651,6 +3654,10 @@ ENDIF
     ! MPI: sanity check
     IF (bidx /= ntyp) THEN
        WRITE (*,*) 'worker ',rank,': invalid intype nmat, nvec or n3d constant, fix it!'
+       WRITE(*,*) 'bidx: ', bidx
+       WRITE(*,*) 'nvec: ', nvec
+       WRITE(*,*) 'n3d:', n3d
+       WRITE(*,*) 'ntyp', ntyp
        CALL MPI_Abort (comm, 1, ierr)
     END IF
 
@@ -3803,13 +3810,13 @@ ENDIF
 
     ! midx = midx + 1
     ! REAL(r_2)
-    ! CALL MPI_Get_address (ssnow%evapfbl(off,1), maddr(midx), ierr) ! 2
+    ! CALL MPI_Get_address (canopy%evapfbl(off,1), maddr(midx), ierr) ! 2
     !CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
     !  &            mat_t(midx, rank), ierr)
 
     ! TODO: skip, used for restart but not output
     bidx = bidx + 1
-    CALL MPI_Get_address (ssnow%evapfbl(off,1), displs(bidx), ierr)
+    CALL MPI_Get_address (canopy%evapfbl(off,1), displs(bidx), ierr)
     ! MPI: gol124: changed to r1 when Bernard ported to CABLE_r491
     blocks(bidx) = r1len * ms
 
@@ -4119,11 +4126,11 @@ ENDIF
 
     !midx = midx + 1
     ! REAL(r_1)
-    !CALL MPI_Get_address (soil%froot(off,1), maddr(midx), ierr) ! 29
+    !CALL MPI_Get_address (veg%froot(off,1), maddr(midx), ierr) ! 29
     !CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
     !  &            mat_t(midx, rank), ierr)
     bidx = bidx + 1
-    CALL MPI_Get_address (soil%froot(off,1), displs(bidx), ierr)
+    CALL MPI_Get_address (veg%froot(off,1), displs(bidx), ierr)
     blocks(bidx) = r1len * ms
 
 
@@ -4490,8 +4497,8 @@ ENDIF
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%fns(off), displs(bidx), ierr)
     blocks(bidx) = r1len
-    !INH - REV_CORR - temporary?
-    bidx = bidx + 1
+
+     bidx = bidx + 1
     CALL MPI_Get_address (canopy%fns_cor(off), displs(bidx), ierr)
     blocks(bidx) = r1len
 
@@ -4560,9 +4567,7 @@ ENDIF
     CALL MPI_Get_address (canopy%ga(off), displs(bidx), ierr)
     blocks(bidx) = r1len
 
-    !canopy%ga_cor
-    !REV_CORR
-    bidx = bidx + 1
+      bidx = bidx + 1
     CALL MPI_Get_address (canopy%ga_cor(off), displs(bidx), ierr)
     blocks(bidx) = r1len
 
@@ -4686,6 +4691,10 @@ ENDIF
     CALL MPI_Get_address (canopy%fwsoil(off), displs(bidx), ierr)
     blocks(bidx) = r2len
 
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%sublayer_dz(off), displs(bidx), ierr)
+    blocks(bidx) = r2len
+
     ! MPI: 2D vars moved above
     ! rwater
     ! evapfbl
@@ -4729,8 +4738,6 @@ ENDIF
     CALL MPI_Get_address (ssnow%dfe_ddq(off), displs(bidx), ierr) ! +1
     blocks(bidx) = r1len
 
-    !REV_COR
-    !ssnow%dfe_dtg
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%dfe_dtg(off), displs(bidx), ierr) ! +1
     blocks(bidx) = r1len
@@ -5635,10 +5642,14 @@ ENDIF
      blocks(bidx) = r2len
      ! end additional for SLI 
 
-    WRITE (*,*) 'worker ',rank,' bidx',bidx,'nvec,nmat,n3d',nvec,nmat,n3d
+
     ! MPI: sanity check
     IF (bidx /= ntyp) THEN
        WRITE (*,*) 'worker ',rank,': invalid outtype nmat, nvec or n3d constant, fix it!'
+       WRITE(*,*) 'bidx: ', bidx
+       WRITE(*,*) 'nvec: ', nvec
+       WRITE(*,*) 'n3d:', n3d
+       WRITE(*,*) 'ntyp', ntyp
        CALL MPI_Abort (comm, 1, ierr)
     END IF
 
@@ -6666,7 +6677,7 @@ END SUBROUTINE worker_climate_types
 ! MPI: creates restart_t type to send to the master the fields
 ! that are only required for the restart file but not included in the
 ! results sent at the end of each time step
-SUBROUTINE worker_restart_type (comm, canopy, air, ssnow)
+SUBROUTINE worker_restart_type (comm, canopy, air)
 
  USE mpi
 
@@ -6678,7 +6689,6 @@ SUBROUTINE worker_restart_type (comm, canopy, air, ssnow)
 
  TYPE(canopy_type), INTENT(IN) :: canopy
  TYPE (air_type),INTENT(IN)     :: air
- TYPE(soil_snow_type), INTENT(IN) :: ssnow
 
  ! MPI: temp arrays for marshalling all types into a struct
  INTEGER, ALLOCATABLE, DIMENSION(:) :: blocks
@@ -6717,7 +6727,7 @@ SUBROUTINE worker_restart_type (comm, canopy, air, ssnow)
  !  blocks(bidx) = r1len * ms
 
  bidx = bidx + 1
- CALL MPI_Get_address (ssnow%evapfbl(off,1), displs(bidx), ierr)
+ CALL MPI_Get_address (canopy%evapfbl(off,1), displs(bidx), ierr)
  ! MPI: gol124: changed to r1 when Bernard ported to CABLE_r491
  blocks(bidx) = r1len * ms
 

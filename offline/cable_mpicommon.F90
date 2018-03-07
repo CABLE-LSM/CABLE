@@ -39,12 +39,8 @@ MODULE cable_mpicommon
   !Vanessa Haverd: add 4 new params 295 -> 299
   ! VH add 9 params for sli 299 -> 308
   ! INH add 7 params for REV_CORR package
-  !only5 in master cable params
-  !send ssnow%smp to workers so they can send back values if gw=false
-  !INTEGER, PARAMETER :: nparam =331!  add back in elev 330! 329 !326!308   
-  INTEGER, PARAMETER :: nparam =341 !css_vec,cnsd_vec, densoil,elev, zse_vec,
-                                    !sand,silt,clay,org by layer,drain_dens
-                                    !elev_std
+  ! mrd561 9 more: vector soils
+  INTEGER, PARAMETER :: nparam =340! 341!1 !326!308   
   ! MPI: extra params sent only if nsoilparmnew is true
   INTEGER, PARAMETER :: nsoilnew = 1
 
@@ -112,7 +108,7 @@ MODULE cable_mpicommon
   ! vh sli nvec + 6 162 -> 168
   ! INTEGER, PARAMETER :: nvec = 172! 168
   ! INH REV_CORR +3  (SSEB +2 will be needed)
-   INTEGER, PARAMETER :: nvec = 175
+   INTEGER, PARAMETER :: nvec = 176!175
 
   ! MPI: number of final casa result matrices and vectors to receive
   ! by the master for casa_poolout and casa_fluxout
