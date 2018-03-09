@@ -246,6 +246,7 @@ MODULE cable_common_module
       LOGICAL :: ssgw_ice_switch = .false.
  
       LOGICAL :: subsurface_sat_drainage = .true.
+      LOGICAL :: cosby_univariate=.false.
 
    END TYPE gw_parameters_type
 

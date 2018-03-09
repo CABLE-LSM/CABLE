@@ -1686,12 +1686,29 @@ CONTAINS
                  endif
 
              if (soil%isoilm(i) .ne. 9 .and. veg%iveg(i) .lt. 16) then
-                soil%hyds_vec(i,klev) = 0.0070556*10.0**(-0.884 + 0.0153*soil%sand_vec(i,klev)*100.0)* &
-                                        exp(-gw_params%hkrz*(max(0.,soil_depth(klev)-gw_params%zdepth)))
-                soil%sucs_vec(i,klev) = abs(10.0 * 10.0**(1.88 -0.0131*soil%sand_vec(i,klev)*100.0))
-                soil%bch_vec(i,klev) = 2.91 + 0.159*soil%clay_vec(i,klev)*100.0
-                soil%ssat_vec(i,klev) = min(0.489,max(0.1, 0.489 - 0.00126*soil%sand_vec(i,klev)*100.0 ) )
-                soil%watr(i,klev) = 0.02 + 0.00018*soil%clay_vec(i,klev)*100.0
+                !single parameter fit cosby 1984 WRR
+                if (gw_params%cosby_univariate) then
+                  soil%hyds_vec(i,klev) = 0.0070556*10.0**(-0.884 + 1.53*soil%sand_vec(i,klev))* &
+                                           exp(gw_params%hkrz*(soil_depth(klev)-gw_params%zdepth))
+                  soil%sucs_vec(i,klev) = 10.0 * 10.0**(1.88 -1.31*soil%sand_vec(i,klev))
+                  soil%bch_vec(i,klev) = 2.91 + 15.9*soil%clay_vec(i,klev)
+                  soil%ssat_vec(i,klev) = min(0.489,max(0.1, 0.489 - 0.126*soil%sand_vec(i,klev) ) )
+                  !forgot source but not from cosby and not for BC characteristic function
+                  soil%watr(i,klev) = 0.02 + 0.018*soil%clay_vec(i,klev) !forgot
+                !!!2 parameters
+                else
+                  soil%hyds_vec(i,klev) = 0.00706*(10.0**(-0.60 + 1.26*soil%sand_vec(i,klev) + &
+                                                          -0.64*soil%clay_vec(i,klev) ) )*&
+                                           exp(gw_params%hkrz*(soil_depth(klev)-gw_params%zdepth))
+                  soil%sucs_vec(i,klev) = 10.0 * 10.0**(1.54 - 0.95*soil%sand_vec(i,klev) + &  
+                                                            0.63*soil%silt_vec(i,klev) ) 
+                  soil%bch_vec(i,klev) = 3.1 + 15.4*soil%clay_vec(i,klev) -  &
+                                                 0.3*soil%sand_vec(i,klev)
+                  soil%ssat_vec(i,klev) = 0.505 - 0.142*soil%sand_vec(i,klev) - &
+                                                  0.037*soil%clay_vec(i,klev)
+                  !forgot source but not from cosby and not for BC characteristic function
+                  soil%watr(i,klev) = 0.02 + 0.018*soil%clay_vec(i,klev) 
+                end if
 
             else
                 soil%hyds_vec(i,klev) = 1000.0*soil%hyds(i) * &
