@@ -498,57 +498,54 @@ END SUBROUTINE remove_transGW
 
  
   !Local vars 
-  REAL(r_2), DIMENSION(mp,ms)   :: dzmm_mp,tmp_def
-  REAL(r_2), DIMENSION(0:ms)    :: zimm
-  REAL(r_2), DIMENSION(ms)      :: zmm
-  REAL(r_2), DIMENSION(mp)      :: GWzimm,temp
+  REAL(r_2), DIMENSION(mp,ms)   :: tmp_def
+  REAL(r_2), DIMENSION(mp)      :: temp
   REAL(r_2), DIMENSION(mp)      :: def,defc,total_depth_column
-
   REAL(r_2)                     :: deffunc,tempa,tempb,derv,calc,tmpc
-  REAL(r_2), DIMENSION(mp)      :: invB,Nsucs_vec  !inverse of C&H B,Nsucs_vec
+  REAL(r_2), DIMENSION(mp)      :: lam,Nsucs_vec  !inverse of C&H B,Nsucs_vec
   INTEGER :: k,i,wttd,jlp
 
   !make code cleaner define these here 
-  invB     = 1._r_2/soil%bch_vec(:,ms)                                !1 over C&H B
-  Nsucs_vec  = soil%sucs_vec(:,ms)                                !psi_saturated mm
-  dzmm_mp  = real(spread((soil%zse(:)) * 1000.0,1,mp),r_2)    !layer thickness mm
-  zimm(0)  = 0.0_r_2                                          !depth of layer interfaces mm
-
-  !total depth of soil column
-  do k=1,ms
-    zimm(k) = zimm(k-1) + soil%zse(k)*1000._r_2
-  end do
-  
-  def(:) = 0._r_2
+  lam(:)        = 1._r_2/soil%bch_vec(:,ms)                                !1 over C&H B
+  Nsucs_vec(:)  = soil%sucs_vec(:,ms)                                !psi_saturated mm
 
   if (include_aquifer) then  !do we include the aquifer in the calculation of wtd?
 
      do i=1,mp
-        total_depth_column(i) = zimm(ms) + soil%GWdz(i)*1000._r_2
-        def(i) = def(i) + max(0._r_2,soil%GWssat_vec(i)-ssnow%GWwb(i))*soil%GWdz(i)*1000._r_2
+        total_depth_column(i) = soil%GWdz(i)*1000._r_2
+        def(i) = max(0._r_2,soil%GWssat_vec(i)-ssnow%GWwb(i))*soil%GWdz(i)*1000._r_2
      end do   
 
+  else
+     def(:) = 0._r_2
+     total_depth_column(:) = 0._r_2
   end if
 
+  !total depth of soil column
+  do k=1,ms
+     do i=1,mp
+         total_depth_column(i) = total_depth_column(i) + soil%zse_vec(i,k)*1000.0
+     end do
+  end do
+  
   !comute the total mass away from full saturation
   do k=1,ms
      do i=1,mp
 
        def(i) = def(i) +                                                           &
-                max(0._r_2,(soil%ssat_vec(i,k)-(ssnow%wbliq(i,k)+ssnow%wbice(i,k)))*dzmm_mp(i,k))
+                max(0._r_2,(soil%ssat_vec(i,k)-(ssnow%wbliq(i,k)+ssnow%wbice(i,k)))*soil%zse_vec(i,k)*1000._r_2)
       end do  !mp
   end do  !ms
 
   !find the deficit if the water table is at the bottom of the soil column
   do i=1,mp
-     defc(i) = (soil%ssat_vec(i,ms))*(total_depth_column(i)+Nsucs_vec(i)/(1._r_2-invB(i))*            &
-             (1._r_2-((Nsucs_vec(i)+total_depth_column(i))/Nsucs_vec(i))**(1._r_2-invB(i)))) 
+     defc(i) = (soil%ssat_vec(i,ms))*(total_depth_column(i)+Nsucs_vec(i)/(1._r_2-lam(i))*            &
+             (1._r_2-((Nsucs_vec(i)+total_depth_column(i))/Nsucs_vec(i))**(1._r_2-lam(i)))) 
      defc(i) = max(0.1_r_2,defc(i)) 
-
-     !initial guess at wtd
-     ssnow%wtd(:) = total_depth_column(:)*def(:)/defc(:)
   end do
 
+  !initial guess at wtd
+  ssnow%wtd(:) = total_depth_column(:)*def(:)/defc(:)
 
  !use newtons method to solve for wtd, note this assumes homogenous column but
  !that is ok 
@@ -562,16 +559,16 @@ END SUBROUTINE remove_transGW
         mainloop: DO
 
           tempa   = 1.0_r_2
-          tempb   = (1._r_2+ssnow%wtd(i)/Nsucs_vec(i))**(-invB(i))
+          tempb   = (1._r_2+ssnow%wtd(i)/Nsucs_vec(i))**(-lam(i))
           derv    = (soil%ssat_vec(i,ms))*(tempa-tempb) + &
                                        soil%ssat_vec(i,ms)
 
           if (abs(derv) .lt. real(1e-8,r_2)) derv = sign(real(1e-8,r_2),derv)
 
           tempa   = 1.0_r_2
-          tempb   = (1._r_2+ssnow%wtd(i)/Nsucs_vec(i))**(1._r_2-invB(i))
+          tempb   = (1._r_2+ssnow%wtd(i)/Nsucs_vec(i))**(1._r_2-lam(i))
           deffunc = (soil%ssat_vec(i,ms))*(ssnow%wtd(i) +&
-                           Nsucs_vec(i)/(1-invB(i))* &
+                           Nsucs_vec(i)/(1-lam(i))* &
                      (tempa-tempb)) - def(i)
           calc    = ssnow%wtd(i) - deffunc/derv
 
@@ -600,15 +597,15 @@ END SUBROUTINE remove_transGW
         mainloop2: DO
 
           tmpc     = Nsucs_vec(i)+ssnow%wtd(i)-total_depth_column(i)
-          tempa    = (abs(tmpc/Nsucs_vec(i)))**(-invB(i))
-          tempb    = (1._r_2+ssnow%wtd(i)/Nsucs_vec(i))**(-invB(i))
+          tempa    = (abs(tmpc/Nsucs_vec(i)))**(-lam(i))
+          tempb    = (1._r_2+ssnow%wtd(i)/Nsucs_vec(i))**(-lam(i))
           derv     = (soil%ssat_vec(i,ms))*(tempa-tempb)
           if (abs(derv) .lt. real(1e-8,r_2)) derv = sign(real(1e-8,r_2),derv)
 
-          tempa    = (abs((Nsucs_vec(i)+ssnow%wtd(i)-total_depth_column(i))/Nsucs_vec(i)))**(1._r_2-invB(i))
-          tempb    = (1._r_2+ssnow%wtd(i)/Nsucs_vec(i))**(1._r_2-invB(i))
+          tempa    = (abs((Nsucs_vec(i)+ssnow%wtd(i)-total_depth_column(i))/Nsucs_vec(i)))**(1._r_2-lam(i))
+          tempb    = (1._r_2+ssnow%wtd(i)/Nsucs_vec(i))**(1._r_2-lam(i))
           deffunc  = (soil%ssat_vec(i,ms))*(total_depth_column(i) +&
-                     Nsucs_vec(i)/(1._r_2-invB(i))*(tempa-tempb))-def(i)
+                     Nsucs_vec(i)/(1._r_2-lam(i))*(tempa-tempb))-def(i)
           calc     = ssnow%wtd(i) - deffunc/derv
 
           IF ((abs(calc-ssnow%wtd(i))) .le. wtd_uncert) THEN
