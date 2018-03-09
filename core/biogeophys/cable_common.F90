@@ -262,9 +262,9 @@ MODULE cable_common_module
                                           'permeability','Sy','head','Bgw'/)
 
       real, dimension(10):: const_inGW = &
-                                    (/100.0,50.0,0.001,&
-                                      0.0005,25.0,0.00165,&
-                                     1.0e-7,0.2,0.0,4.0/)
+                                    (/100.0,50.0,0.01,&
+                                      0.005,25.0,0.00165,&
+                                     1.0e-7,0.2,100.0,4.0/)
 
    END TYPE gw_default_inputs 
 
