@@ -1,4 +1,4 @@
-!==============================================================================
+!================================================================================
 ! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
 ! This work is licensed under the CSIRO Open Source Software License
@@ -57,7 +57,6 @@
 !	       restart_out.nc
 !	       poolcnpOut.csv -- from CASA-CNP
 !==============================================================================
-
 PROGRAM cable_offline_driver
   USE cable_def_types_mod
   USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,		      &
@@ -120,6 +119,8 @@ PROGRAM cable_offline_driver
 #ifdef NAG
   USE F90_UNIX
 #endif
+  use casa_inout_module
+  use casa_cable   
 
   IMPLICIT NONE
 
@@ -779,8 +780,10 @@ PROGRAM cable_offline_driver
                           ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
 
                           IF (TRIM(cable_user%MetType).EQ.'' ) THEN
-                             CALL write_casa_dump( ncfile, casamet , casaflux, phen, climate,&
-                                  INT(met%doy), LOY )
+                               CALL write_casa_dump( ncfile, casamet , casaflux, phen, climate, idoy, &    
+                                 kend/ktauday )
+                       !      CALL write_casa_dump( ncfile, casamet , casaflux, phen, climate,&
+                       !           INT(met%doy(lbound(met%doy,dim=1))), LOY )
                           ELSE
                              CALL write_casa_dump( ncfile, casamet , casaflux, &
                                     phen, climate, idoy, kend/ktauday )
