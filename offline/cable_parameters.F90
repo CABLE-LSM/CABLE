@@ -114,6 +114,7 @@ MODULE cable_param_module
   LOGICAL, ALLOCATABLE, DIMENSION(:)        :: found_explicit_gw_parameters
   REAL,    DIMENSION(:, :),     ALLOCATABLE :: inGWtmp
   REAL,    DIMENSION(:, :),     ALLOCATABLE :: all_inGW  !var number, mp
+  REAL,    DIMENSION(:,:,:),    ALLOCATABLE :: all_soil_texture
 
   ! vars intro for Ticket #27
   INTEGER, DIMENSION(:, :),     ALLOCATABLE :: inSoilColor
@@ -1263,19 +1264,24 @@ CONTAINS
                         real(incnsd(landpt(e)%ilon, landpt(e)%ilat),r_2)
 
         soil%clay_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
-            real(inclay(landpt(e)%ilon, landpt(e)%ilat),r_2)                 
+            real(all_soil_texture(landpt(e)%cstart:landpt(e)%cend,klev,2),r_2)
+            !real(inclay(landpt(e)%ilon, landpt(e)%ilat),r_2)                 
 
         soil%sand_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
-            real(insand(landpt(e)%ilon, landpt(e)%ilat),r_2)                  
+            real(all_soil_texture(landpt(e)%cstart:landpt(e)%cend,klev,1),r_2)
+            !real(insand(landpt(e)%ilon, landpt(e)%ilat),r_2)                  
 
         soil%silt_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
-            real(insilt(landpt(e)%ilon, landpt(e)%ilat),r_2)
+            real(all_soil_texture(landpt(e)%cstart:landpt(e)%cend,klev,3),r_2)
+            !real(insilt(landpt(e)%ilon, landpt(e)%ilat),r_2)
 
         soil%rhosoil_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                  &
-           real(inrhosoil(landpt(e)%ilon, landpt(e)%ilat),r_2)                    
+            real(all_soil_texture(landpt(e)%cstart:landpt(e)%cend,klev,4),r_2)
+           !real(inrhosoil(landpt(e)%ilon, landpt(e)%ilat),r_2)                    
 
         soil%org_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
-           real(inORG(landpt(e)%ilon, landpt(e)%ilat),r_2)
+            real(all_soil_texture(landpt(e)%cstart:landpt(e)%cend,klev,5),r_2)
+           !real(inORG(landpt(e)%ilon, landpt(e)%ilat),r_2)
 
         soil%watr(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
            real(inWatr(landpt(e)%ilon, landpt(e)%ilat),r_2)
@@ -1289,7 +1295,7 @@ CONTAINS
       !Aquifer properties  same as bottom soil layer for now
       DO is=landpt(e)%cstart,landpt(e)%cend
 
-      soil%GWsucs_vec(is) =       real(all_inGW(is,9),r_2)
+      soil%GWsucs_vec(is) =       real(abs(all_inGW(is,9)),r_2)
 
       soil%GWhyds_vec(is) =   real(all_inGW(is,7),r_2)
 
@@ -1437,6 +1443,7 @@ CONTAINS
     if (allocated(inGWtmp))    deallocate(inGWtmp)
     if (allocated(inWatr    )) deallocate(inWatr)
     if (allocated(inORG     )) deallocate(inORG)
+    IF (allocated(all_soil_texture)) deallocate(all_soil_texture)
 
     ! BP dec 2007
     !    IF (.NOT. vegparmnew) THEN
@@ -1554,7 +1561,11 @@ CONTAINS
    soil%hyds_vec(:,:)  = real(spread(soil%hyds(:),2,ms),r_2)
    soil%css_vec(:,:)  = spread(soil%css(:),2,ms)
    soil%cnsd_vec(:,:)  = spread(soil%cnsd(:),2,ms)
+   IF (.not.cable_user%gw_model) then
    soil%rhosoil_vec(:,:) = spread(soil%rhosoil,2,ms)
+   ELSE
+      soil%sucs_vec(:,:)  = abs(soil%sucs_vec(:,:) )
+   ENDIF
 
   END SUBROUTINE write_default_params
   !=============================================================================
@@ -1677,10 +1688,18 @@ CONTAINS
              if (soil%isoilm(i) .ne. 9 .and. veg%iveg(i) .lt. 16) then
                 soil%hyds_vec(i,klev) = 0.0070556*10.0**(-0.884 + 0.0153*soil%sand_vec(i,klev)*100.0)* &
                                         exp(-gw_params%hkrz*(max(0.,soil_depth(klev)-gw_params%zdepth)))
-                soil%sucs_vec(i,klev) = 10.0 * 10.0**(1.88 -0.0131*soil%sand_vec(i,klev)*100.0)
+                soil%sucs_vec(i,klev) = abs(10.0 * 10.0**(1.88 -0.0131*soil%sand_vec(i,klev)*100.0))
                 soil%bch_vec(i,klev) = 2.91 + 0.159*soil%clay_vec(i,klev)*100.0
                 soil%ssat_vec(i,klev) = min(0.489,max(0.1, 0.489 - 0.00126*soil%sand_vec(i,klev)*100.0 ) )
                 soil%watr(i,klev) = 0.02 + 0.00018*soil%clay_vec(i,klev)*100.0
+
+            else
+                soil%hyds_vec(i,klev) = 1000.0*soil%hyds(i) * &
+                                        exp(-gw_params%hkrz*(max(0.,soil_depth(klev)-gw_params%zdepth)))
+                soil%sucs_vec(i,klev) = abs(1000.0 * soil%sucs(i))
+                soil%bch_vec(i,klev) =  soil%bch(i)
+                soil%ssat_vec(i,klev) = soil%ssat(i)
+                soil%watr(i,klev) = 0.0
             end if
           end do
        END DO
@@ -1689,7 +1708,7 @@ CONTAINS
        !organic macropores dominates
        soil%org_vec = max(0._r_2,soil%org_vec)
        soil%org_vec = min(1._r_2,soil%org_vec)
-       DO klev=1,3  !0-23.3 cm, data really is to 30cm
+       DO klev=1,ms  !0-23.3 cm, data really is to 30cm
           do i=1,mp
              if (soil%isoilm(i) .ne. 9 .and. veg%iveg(i) .lt. 16 .and.&
                  soil%org_vec(i,klev) .gt. 1.0e-6) then
@@ -1713,10 +1732,10 @@ CONTAINS
           do i=1,mp
              if (soil%isoilm(i) .ne. 9 .and. veg%iveg(i) .lt. 16) then
 
-                psi_tmp(i,klev) = -psi_c(veg%iveg(i))
+                psi_tmp(i,klev) = abs(psi_c(veg%iveg(i)))
          
                 soil%swilt_vec(i,klev) = (soil%ssat_vec(i,klev)-soil%watr(i,klev)) * &
-                                         (abs(psi_tmp(i,klev))/(abs(soil%sucs_vec(i,klev))))&
+                                         (psi_tmp(i,klev)/soil%sucs_vec(i,klev))&
                                           **(-1.0/soil%bch_vec(i,klev))+&
                                          soil%watr(i,klev)
                 soil%sfc_vec(i,klev) = (gw_params%sfc_vec_hk/soil%hyds_vec(i,klev))&
@@ -1724,6 +1743,11 @@ CONTAINS
                                         (soil%ssat_vec(i,klev)-soil%watr(i,klev)) + soil%watr(i,klev)
          
                 soil%swilt_vec(i,klev) = min(0.95*soil%sfc_vec(i,klev),soil%swilt_vec(i,klev))
+
+             else
+
+                soil%swilt_vec(i,klev) = soil%swilt(i)
+                soil%sfc_vec(i,klev) = soil%sfc(i)
 
              end if
           end do
@@ -1779,19 +1803,31 @@ CONTAINS
     
       rho_soil_bulk(:,:) = min(2500.0, max(500.0 , &
                              (2700.0*(1.0 - ssat_bounded(:,:)) ) ) )
-    
-    
-       do k=1,ms
+ 
+       do klev=1,ms
           do i=1,mp
     
     
              if (soil%isoilm(i) .ne. 9 .and. veg%iveg(i) .lt. 16) then
     
-                soil%rhosoil_vec(i,k) = 2700.0
+                soil%rhosoil_vec(i,klev) = 2700.0
     
-                soil%cnsd_vec(i,k) = ( (0.135*(1.0-ssat_bounded(i,k))) +&
-                                    (64.7/rho_soil_bulk(i,k)) ) / &
-                                  (1.0 - 0.947*(1.0-ssat_bounded(i,k)))
+                soil%cnsd_vec(i,klev) = ( (0.135*(1.0-ssat_bounded(i,klev))) +&
+                                    (64.7/rho_soil_bulk(i,klev)) ) / &
+                                  (1.0 - 0.947*(1.0-ssat_bounded(i,klev)))
+                 soil%css_vec(i,klev) =  max(910.6479*soil%silt_vec(i,klev) +&
+                                          916.4438 * soil%clay_vec(i,klev) +&
+                                          740.7491*soil%sand_vec(i,klev), 800.0)
+                                     !took avg of results from  
+                                     !A New Perspective on Soil Thermal
+                                     !Properties
+                                     !Tyson E. Ochsner, Robert Horton,* and
+                                     !Tusheng Re
+                                     !Soil Sci Soc America 2001
+                                     !to find what silt (1.0-sand-clay) is
+                                     !simply
+                                     !regress to his means
+                                     !in J/kg/K
     
              end if
     
@@ -1803,11 +1839,12 @@ CONTAINS
           if (soil%isoilm(i) .ne. 9) then
              soil%rhosoil(i) = soil%rhosoil_vec(i,1)
              soil%cnsd(i)    = soil%cnsd_vec(i,1)
+             soil%css(i)     = soil%css_vec(i,1)
           end if
        end do
 
        IF (cable_user%gw_model) then  !organic correction?
-          do klev=1,3
+          do klev=1,ms
              do i=1,mp
                 soil%css_vec(i,klev) = (1.-soil%org_vec(i,klev))*soil%css_vec(i,klev) + &
                                           real(soil%org_vec(i,klev)*gw_params%org%css)
@@ -1918,7 +1955,10 @@ CONTAINS
           DO j=landpt(i)%cstart,landpt(i)%cend
              IF (soil%isoilm(j) .lt. 1 .or. soil%isoilm(j) .gt. mstype) THEN
                 write(*,*) 'AT ',i,j,' indices '
-                write(*,*) '~~~~~~~~~~~~~~lat/lon=>',landpt(i)%latitude,landpt(i)%longitude
+                write(*,*) '~~~~~~~~~~~~~~lat=>',&
+                            patch(landpt(i)%cstart:landpt(i)%cend)%latitude
+                write(*,*) '~~~~~~~~~~~~~~lon=>',&
+                            patch(landpt(i)%cstart:landpt(i)%cend)%longitude
                 write(*,*) '~~~~~~~~~~~~~~soil%isoilm',soil%isoilm(j)
              END IF
           ENDDO
@@ -2658,8 +2698,12 @@ END SUBROUTINE report_parameters
     ! local variables
     INTEGER :: ncid, ok, ii, jj, kk, ok2, ncid_elev,e,i,j,k
     INTEGER :: xID, yID, fieldID,igw,is
-    INTEGER :: xlon, xlat,ok_gw_elev
+    INTEGER :: xlon, xlat,ok_gw_elev,ok_file,klev
     INTEGER, DIMENSION(25) :: in_gwvarID
+    CHARACTER(len=250) :: varname
+    INTEGER :: invar,in_gw_var_id
+    REAL, ALLOCATABLE, DIMENSION(:,:,:,:) :: inGW4dtmp
+    REAL, ALLOCATABLE, DIMENSION(:,:) :: in2d
     !MD Aquifer properties
 
     ALLOCATE( found_explicit_gw_parameters(n_gw_params) )
@@ -2828,6 +2872,76 @@ END SUBROUTINE report_parameters
     ENDIF
 
     ok = NF90_CLOSE(ncid_elev)
+
+
+    !set all_soil_texture to values read in by default
+    if (allocated(all_soil_texture)) deallocate(all_soil_texture)
+    allocate(all_soil_texture(mp,ms,5))
+
+    DO e=1,mland
+    DO is=landpt(e)%cstart,landpt(e)%cend
+      j=is-landpt(e)%cstart+1
+      DO klev=1,ms
+         all_soil_texture(is,klev,1) = insand(landpt(e)%ilon,landpt(e)%ilat)
+         all_soil_texture(is,klev,2) = inclay(landpt(e)%ilon,landpt(e)%ilat)
+         all_soil_texture(is,klev,3) = insilt(landpt(e)%ilon,landpt(e)%ilat)
+         all_soil_texture(is,klev,4) = inorg(landpt(e)%ilon,landpt(e)%ilat)
+         IF (klev .gt. 3) all_soil_texture(is,klev,4) =  0.0
+         all_soil_texture(is,klev,5) = inrhosoil(landpt(e)%ilon,landpt(e)%ilat)
+      END DO
+    ENDDO
+    ENDDO
+
+    IF (len_trim(filename%gw_soils) .gt. 3) then
+
+      if (allocated(in2d)) deallocate(in2d)
+      allocate(in2d(nlon,nlat))
+      if (allocated(inGW4dtmp)) deallocate(inGW4dtmp)
+      allocate(inGW4dtmp(npatch,ms,nlon,nlat))
+
+      ok_file = nf90_open(trim(filename%gw_soils),NF90_NOWRITE,ncid_elev)
+
+      IF (ok_file .eq. NF90_noerr) THEN
+      DO invar=1,5
+         select case (invar)
+           case(1) 
+               varname='sand_vec'
+               in2d=insand
+           case(2) 
+               varname='clay_vec'
+               in2d=inclay
+           case(3) 
+               varname='silt_vec'
+               in2d=insilt
+           case(4) 
+               varname='rhosoil_vec'
+               in2d=inrhosoil
+           case(5) 
+               varname='org_vec'
+               in2d=inOrg
+         end select
+
+         DO klev=1,ms
+         DO j=1,npatch
+            inGW4dtmp(j,klev,:,:) = in2d(:,:)
+         END DO
+         ENDDO
+         ok = NF90_INQ_VARID(ncid_elev, trim(varname), in_GW_var_id)
+         ok = NF90_GET_VAR(ncid_elev, in_GW_var_id, inGW4dtmp)
+         DO e=1,mland
+         DO is=landpt(e)%cstart,landpt(e)%cend
+           j=is-landpt(e)%cstart+1
+           DO klev=1,ms
+              all_soil_texture(is,klev,1) = inGW4dtmp(j,klev,landpt(e)%ilon,landpt(e)%ilat)
+           END DO
+         ENDDO
+         ENDDO
+
+      END DO !five layerd vars
+
+      ENDIF
+   ENDIF
+
 
   END SUBROUTINE GWspatialParameters
 
