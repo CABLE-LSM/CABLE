@@ -1600,17 +1600,17 @@ SUBROUTINE calc_soil_hydraulic_props(ssnow,soil,veg)
        s_mid(i) = min(max(s_mid(i),0.001_r_2),1._r_2)
        s2(i)    = soil%GWhyds_vec(i)*s_mid(i)**(2._r_2*soil%GWbch_vec(i)+2._r_2)
 
-       !ssnow%GWhk(i)     =s_mid(i)*s2(i) * hk_ice_factor(i,ms+1)
-       !ssnow%GWdhkdw(i)  =  (2._r_2*soil%GWbch_vec(i)+3._r_2)*&
-       !                    s2(i)*0.5_r_2/(soil%GWssat_vec(i)-soil%GWwatr(i)) *&
-       !                    hk_ice_factor(i,ms+1)
+       ssnow%GWhk(i)     =s_mid(i)*s2(i) * hk_ice_factor(i,ms+1)
+       ssnow%GWdhkdw(i)  =  (2._r_2*soil%GWbch_vec(i)+3._r_2)*&
+                           s2(i)*0.5_r_2/(soil%GWssat_vec(i)-soil%GWwatr(i)) *&
+                           hk_ice_factor(i,ms+1)
 
-       ssnow%GWhk(i)     = soil%GWhyds_vec(i) * hk_ice_factor(i,ms+1)*&
-                            exp(-ssnow%wtd(i)/1000._r_2/&
-                            (1.0/(120*(soil%drain_dens(i)+1.0e-3))))
-       !d(h)*Sy=dW
-       ssnow%GWdhkdw(i)  = ssnow%GWhk(i)/(soil%GWssat_vec(i)-soil%GWwatr(i))*&
-                           (0.001/(120*(soil%drain_dens(i)+1.0e-3)))
+       !ssnow%GWhk(i)     = soil%GWhyds_vec(i) * hk_ice_factor(i,ms+1)*&
+       !                     exp(-ssnow%wtd(i)/1000._r_2/&
+       !                     (1.0/(120*(soil%drain_dens(i)+1.0e-3))))
+       !!d(h)*Sy=dW
+       !ssnow%GWdhkdw(i)  = ssnow%GWhk(i)/(soil%GWssat_vec(i)-soil%GWwatr(i))*&
+       !                    (0.001/(120*(soil%drain_dens(i)+1.0e-3)))
 
        s_mid(i) = (wb_temp(i,ms+1)-soil%GWwatr(i))/(soil%GWssat_vec(i)-soil%GWwatr(i))
        s_mid(i) = min(max(s_mid(i),0.001_r_2),1._r_2)

@@ -212,13 +212,13 @@ MODULE cable_common_module
         !Below are the soil properties for fully organic soil
 
       REAL ::    &    
-        hyds_vec  = 1.0e-4,&
+        hyds_vec = 1.0e-4,&
         sucs_vec = 10.3,   &
-        clappb = 2.91,     &    
+        bch_vec  = 2.91,     &    
         ssat_vec = 0.9,    &    
-        watr   = 0.1,&
-        css  = 2.5e6,&
-        cnsd = 0.05 
+        watr     = 0.1,&
+        css_vec  = 2.5e6,&
+        cnsd_vec = 0.05 
 
    END TYPE organic_soil_params
  
@@ -247,40 +247,9 @@ MODULE cable_common_module
  
       LOGICAL :: subsurface_sat_drainage = .true.
       LOGICAL :: cosby_univariate=.false.
+      LOGICAL :: cosby_multivariate=.false.
 
    END TYPE gw_parameters_type
-
-
-  
-   TYPE gw_default_inputs
-      CHARACTER(len=500), DIMENSION(10):: v_names= &
-                                        (/'elevation',&
-                                          'elevation_std',&
-                                          'slope',&
-                                          'slope_std',&
-                                          'dtb',&
-                                          'drainage_density',&
-                                          'permeability','Sy','head','Bgw'/)
-
-      real, dimension(10):: const_inGW = &
-                                    (/100.0,50.0,0.01,&
-                                      0.005,25.0,0.00165,&
-                                     1.0e-7,0.2,100.0,4.0/)
-
-   END TYPE gw_default_inputs 
-
-   TYPE(gw_default_inputs), SAVE, TARGET :: default_GW_inputs
-
-   TYPE gw_nondefault_inputs
-
-      CHARACTER(len=500), POINTER, DIMENSION(:) :: gw_v_names
-      real, pointer, dimension(:) :: default_inGW
-
-   END TYPE gw_nondefault_inputs
-
-   TYPE(gw_nondefault_inputs), POINTER, SAVE :: nondefault_inGW
-
-   INTEGER, SAVE :: n_gw_params = 10
 
    TYPE(gw_parameters_type), SAVE :: gw_params
 

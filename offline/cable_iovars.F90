@@ -135,8 +135,8 @@ MODULE cable_IO_vars_module
           taul,refl,tauw,refw,wai,vegcf,extkn,tminvj,tmaxvj,                   &
           veg_class,soil_class,mvtype,mstype,patchfrac,                        &
            WatSat,GWWatSat,SoilMatPotSat,GWSoilMatPotSat,                       &
-          HkSat,GWHkSat,sand_vec,clay_vec,bch_vec,Watr,GWWatr,sfc_vec,forg,swilt_vec, &
-          slope,slope_std,GWdz,SatFracmax,Qhmax,QhmaxEfold,HKefold,HKdepth,&
+          HkSat,GWHkSat,sand_vec,clay_vec,bch_vec,Watr,GWWatr,sfc_vec,swilt_vec, &
+          org_vec,slope,slope_std,GWdz,SatFracmax,Qhmax,QhmaxEfold,HKefold,HKdepth,&
           elev,elev_std
      INTEGER :: ishorizon,nhorizons,clitt, &
           zeta,fsatmax, &
