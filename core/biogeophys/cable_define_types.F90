@@ -222,7 +222,6 @@ MODULE cable_def_types_mod
          owetfac, & ! surface wetness fact. at previous time step
          t_snwlr, & ! top snow layer depth in 3 layer snowpack
          tggav,   & ! mean soil temperature in K
-         otgg,    & ! soil temperature in K
          otss,    & ! surface temperature (weighted soil, snow)
          otss_0,  & ! surface temperature (weighted soil, snow)
          tprecip, &
@@ -249,6 +248,7 @@ MODULE cable_def_types_mod
          sdepth,     & ! snow depth
          smass,      & ! snow mass
          ssdn,       & ! snow densities
+         otgg,       & ! soil temperature in K
          tgg,        & ! soil temperature in K
          tggsn,      & ! snow temperature in K
          dtmlt,      & ! water flux to the soil
@@ -943,7 +943,7 @@ SUBROUTINE alloc_soil_snow_type(var, mp)
    ALLOCATE( var%t_snwlr(mp) )
    ALLOCATE( var%wbfice(mp,ms) )
    ALLOCATE( var%tggav(mp) )
-   ALLOCATE( var%otgg(mp) )
+   ALLOCATE( var%otgg(mp,ms) )
    ALLOCATE( var%otss(mp) )
    ALLOCATE( var%otss_0(mp) )
    ALLOCATE( var%tprecip(mp) )

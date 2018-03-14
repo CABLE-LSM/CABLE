@@ -217,8 +217,8 @@ MODULE cable_common_module
         bch_vec  = 2.91,     &    
         ssat_vec = 0.9,    &    
         watr     = 0.1,&
-        css_vec  = 2.5e6,&
-        cnsd_vec = 0.05 
+        css_vec  = 4000.0,&
+        cnsd_vec = 0.1 
 
    END TYPE organic_soil_params
  

@@ -887,8 +887,6 @@ CONTAINS
                  ssnow%dfe_ddq = ssnow%dfe_ddq*ssnow%wetfac
              ENDWHERE       
           ENDIF
-
- 
        !my fixes but ians are better
        !    IF (cable_user%L_REV_CORR) THEN
        !       alpm1_r2 = ssnow%satfrac/(real(ssnow%rtsoil,r_2)+ ssnow%rtevap_sat) +     &
@@ -921,18 +919,6 @@ CONTAINS
        !                       / (ssnow%rtsoil+ real(ssnow%rtevap_unsat) )
        !    ENDIF
                 
-           !cls applies for both REV_CORR false and true          
-           ssnow%dfe_ddq = ssnow%dfe_ddq*air%rho*air%rlam*ssnow%cls
-           
-           !REV_CORR: factor %wetfac needed for potev>0. and gw_model &/or snow cover
-           !NB %wetfac=1. if or_evap
-           IF (cable_user%L_REV_CORR) THEN
-             WHERE (ssnow%potev >= 0.)
-                 ssnow%dfe_ddq = ssnow%dfe_ddq*ssnow%wetfac
-             ENDWHERE       
-          ENDIF
-
-
        ELSEIF (cable_user%litter) THEN
           !!vh_js!! INH simplifying code for legibility and REV_CORR
           !ssnow%dfh_dtg = air%rho*C%CAPP/(ssnow%rtsoil+ &
