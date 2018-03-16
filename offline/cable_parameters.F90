@@ -1054,7 +1054,6 @@ CONTAINS
     canopy%fe    = 0.0  ! sensible heat flux
     !mrd
     ssnow%qrecharge = 0.0
-    ssnow%GWwb = 0.3
     ssnow%wtd = 1.0
     canopy%sublayer_dz = 0.01  !could go into restart to ensure starting/stopping runs gives identical results
                                 !however the impact is negligible
@@ -1475,7 +1474,7 @@ CONTAINS
    ssnow%rtevap_unsat = 0.0
    ssnow%satfrac = 0.5
    ssnow%wbliq = ssnow%wb - ssnow%wbice
-   ssnow%GWwb = 0.9*soil%ssat
+   ssnow%GWwb = soil%GWssat_vec
 
    !IF(hide%Ticket49Bug5) THEN
 
@@ -1670,7 +1669,7 @@ CONTAINS
                      !forgot source but not from cosby and not for BC characteristic function
                      soil%watr(i,klev) = 0.02 + 0.018*soil%clay_vec(i,klev) !forgot
                    !!!2 parameters
-                   else
+                   elseif (gw_params%cosby_multivariate) then
                      soil%hyds_vec(i,klev) = 0.00706*(10.0**(-0.60 + 1.26*soil%sand_vec(i,klev) + &
                                                              -0.64*soil%clay_vec(i,klev) ) )*&
                                               exp(-gw_params%hkrz*(soil_depth(klev)-gw_params%zdepth))
@@ -1682,6 +1681,10 @@ CONTAINS
                                                      0.037*soil%clay_vec(i,klev)
                      !forgot source but not from cosby and not for BC characteristic function
                      soil%watr(i,klev) = 0.02 + 0.018*soil%clay_vec(i,klev) 
+
+                     else
+                      soil%hyds_vec(i,klev) = soil%hyds_vec(i,klev) *exp(-gw_params%hkrz*(soil_depth(klev)-gw_params%zdepth))
+
                    end if
 
                !else
@@ -2799,21 +2802,23 @@ END SUBROUTINE report_parameters
     !5
     const2d(:,:) = 25.0
     inGWtmp(:,:) = get_gw_data(ncid_elev,file_status,'dtb',const2d,nlon,nlat)
+    where(inGWtmp(:,:) .lt. 5.0)  inGWtmp(:,:) = 5.0
+    where(inGWtmp(:,:) .gt. 50.0) inGWtmp(:,:) = 50.0
     DO e=1,mland
        soil%GWdz(landpt(e)%cstart:landpt(e)%cend) =&
                          inGWtmp(landpt(e)%ilon,landpt(e)%ilat)
     END DO
 
     !6
-    const2d(:,:) = 7.0e-5
+    const2d(:,:) = 0.0008
     inGWtmp(:,:) = get_gw_data(ncid_elev,file_status,'drainage_density',const2d,nlon,nlat)
     where( inGWtmp(:,:) .lt. 1.0e-6) inGWtmp(:,:)=1.0e-6
-    where( inGWtmp(:,:) .gt. 1.0e-2) inGWtmp(:,:)=1.0e-2
+    where( inGWtmp(:,:) .gt. 0.02  ) inGWtmp(:,:)=0.02
 
     !scale by 1000, org grid 1km makes unitless
     DO e=1,mland
        soil%drain_dens(landpt(e)%cstart:landpt(e)%cend) =&  
-                         0.001 / inGWtmp(landpt(e)%ilon,landpt(e)%ilat)
+                         inGWtmp(landpt(e)%ilon,landpt(e)%ilat)
     END DO
 
     !7
@@ -2821,27 +2826,27 @@ END SUBROUTINE report_parameters
     inGWtmp(:,:) = get_gw_data(ncid_elev,file_status,'permeability',const2d,nlon,nlat)
     DO e=1,mland
        soil%GWhyds_vec(landpt(e)%cstart:landpt(e)%cend) =&
-                         10.0*inGWtmp(landpt(e)%ilon,landpt(e)%ilat)
+                         1000.0*inGWtmp(landpt(e)%ilon,landpt(e)%ilat)
     END DO
 
     !8
     inGWtmp(:,:) = get_gw_data(ncid_elev,file_status,'Sy',inssat(:,:),nlon,nlat)
     DO e=1,mland
        soil%GWssat_vec(landpt(e)%cstart:landpt(e)%cend) =&
-                         inGWtmp(landpt(e)%ilon,landpt(e)%ilat)
+                         max(inGWtmp(landpt(e)%ilon,landpt(e)%ilat),0.23)
     END DO
 
     !9
-    DO e=1,mland
-       soil%GWsucs_vec(landpt(e)%cstart:landpt(e)%cend) =&
-                   1000.0*abs(insucs(landpt(e)%ilon,landpt(e)%ilat))
-    END DO
+    !DO e=1,mland
+    !   soil%GWsucs_vec(landpt(e)%cstart:landpt(e)%cend) =-1.0e+36
+    !               !1000.0*abs(insucs(landpt(e)%ilon,landpt(e)%ilat))
+    !END DO
 
-    !10
-    DO e=1,mland
-       soil%GWbch_vec(landpt(e)%cstart:landpt(e)%cend) =&
-                    inbch(landpt(e)%ilon,landpt(e)%ilat)
-    END DO
+    !!10
+    !DO e=1,mland
+    !   soil%GWbch_vec(landpt(e)%cstart:landpt(e)%cend) =&
+    !                inbch(landpt(e)%ilon,landpt(e)%ilat)
+    !END DO
 
     !! really not needed
     soil%GWwatr(:) = 0.0
@@ -2883,12 +2888,12 @@ END SUBROUTINE report_parameters
        END DO
     END DO
 
-    inGWtmp(:,:) = 100.0*inhyds(:,:)
+    inGWtmp(:,:) = 1000.0*inhyds(:,:)
     inGW3dtmp(:,:,:) = get_gw_data(ncid_elev,file_status,'hyds_vec',inGWtmp(:,:),nlon,nlat,ms)
     DO e=1,mland
        DO klev=1,ms
           soil%hyds_vec(landpt(e)%cstart:landpt(e)%cend,klev) =& !5
-                   10.0 * inGW3dtmp(landpt(e)%ilon,landpt(e)%ilat,klev)
+                   inGW3dtmp(landpt(e)%ilon,landpt(e)%ilat,klev)
        END DO
     END DO
 
@@ -2897,22 +2902,33 @@ END SUBROUTINE report_parameters
     DO e=1,mland
        DO klev=1,ms
           soil%sucs_vec(landpt(e)%cstart:landpt(e)%cend,klev) =&  !6
-                   inGW3dtmp(landpt(e)%ilon,landpt(e)%ilat,klev)
+                   abs(inGW3dtmp(landpt(e)%ilon,landpt(e)%ilat,klev))
        END DO
+    END DO
+    !add last laery to aquifer
+    !should have zero head at top of aquifer, however this can be well below
+    !the soil column, so reading below we can treat top part of whenm dry
+    !as unsat flow
+    DO e=1,mland
+       soil%GWsucs_vec(landpt(e)%cstart:landpt(e)%cend) =&  !9 for GW
+                abs(inGW3dtmp(landpt(e)%ilon,landpt(e)%ilat,ms))
     END DO
 
     inGW3dtmp(:,:,:) = get_gw_data(ncid_elev,file_status,'bch_vec',inbch(:,:),nlon,nlat,ms)
     DO e=1,mland
        DO klev=1,ms
-          soil%bch_vec(landpt(e)%cstart:landpt(e)%cend,klev) =&  !7
+          soil%bch_vec(landpt(e)%cstart:landpt(e)%cend,klev) =&  !10 for GW
                    inGW3dtmp(landpt(e)%ilon,landpt(e)%ilat,klev)
        END DO
+    END DO
+    DO e=1,mland
+       soil%GWbch_vec(landpt(e)%cstart:landpt(e)%cend) =&  !6
+                inGW3dtmp(landpt(e)%ilon,landpt(e)%ilat,ms)
     END DO
 
     inGW3dtmp(:,:,:) = get_gw_data(ncid_elev,file_status,'rhosoil_vec',inrhosoil(:,:),nlon,nlat,ms)
     DO e=1,mland
        DO klev=1,ms
-          !layered_in_soils(landpt(e)%cstart:landpt(e)%cend,klev,8) =&
           soil%rhosoil_vec(landpt(e)%cstart:landpt(e)%cend,klev) =&
                    inGW3dtmp(landpt(e)%ilon,landpt(e)%ilat,klev)
        END DO
@@ -2921,7 +2937,6 @@ END SUBROUTINE report_parameters
     inGW3dtmp(:,:,:) = get_gw_data(ncid_elev,file_status,'css_vec',incss(:,:),nlon,nlat,ms)
     DO e=1,mland
        DO klev=1,ms
-          !layered_in_soils(landpt(e)%cstart:landpt(e)%cend,klev,9) =&
           soil%css_vec(landpt(e)%cstart:landpt(e)%cend,klev) =&
                    inGW3dtmp(landpt(e)%ilon,landpt(e)%ilat,klev)
        END DO
@@ -2930,7 +2945,6 @@ END SUBROUTINE report_parameters
     inGW3dtmp(:,:,:) = get_gw_data(ncid_elev,file_status,'cnsd_vec',incnsd(:,:),nlon,nlat,ms)
     DO e=1,mland
        DO klev=1,ms
-          !layered_in_soils(landpt(e)%cstart:landpt(e)%cend,klev,10) =&
           soil%cnsd_vec(landpt(e)%cstart:landpt(e)%cend,klev) =&
                    inGW3dtmp(landpt(e)%ilon,landpt(e)%ilat,klev)
        END DO
