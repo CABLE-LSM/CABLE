@@ -68,7 +68,7 @@ CONTAINS
     USE cable_roughness_module
     USE cable_psm, ONLY: or_soil_evap_resistance,rtevap_max,&
                          rt_Dff
-    USE cable_gw_hydro_module, ONLY : pore_space_relative_humidity
+    USE cable_gw_hydro_module, ONLY : pore_space_relative_humidity,set_wbliq
     USE sli_main_mod, ONLY : sli_main
 
 
@@ -192,8 +192,6 @@ CONTAINS
     met%qvair = met%qv
     canopy%tv = met%tvair
 
-    ssnow%wbliq = ssnow%wb - ssnow%wbice
-
     CALL define_air (met, air)
 
     CALL qsatfjh(qstvair,met%tvair-C%tfrz,met%pmb)
@@ -217,6 +215,8 @@ CONTAINS
     canopy%fesp = 0.
     ssnow%potev = 0.
     canopy%fevw_pot = 0.
+
+    ssnow%wbliq(:,:) = set_wbliq(ssnow%wb,ssnow%wbice)
 
     !L_REV_CORR - initialise sensitivity/ACCESS correction terms
     !NB %fes_cor is NOT initialised to zero at this point
