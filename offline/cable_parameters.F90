@@ -2897,12 +2897,13 @@ END SUBROUTINE report_parameters
        END DO
     END DO
 
-    inGWtmp(:,:) = 1000.0*abs(insucs(:,:))
+    inGWtmp(:,:) = abs(insucs(:,:))
     inGW3dtmp(:,:,:) = get_gw_data(ncid_elev,file_status,'sucs_vec',inGWtmp(:,:),nlon,nlat,ms)
+    inGW3dtmp(:,:,:) =  1000._r_2* abs(inGW3dtmp(:,:,:)  )
     DO e=1,mland
        DO klev=1,ms
           soil%sucs_vec(landpt(e)%cstart:landpt(e)%cend,klev) =&  !6
-                   abs(inGW3dtmp(landpt(e)%ilon,landpt(e)%ilat,klev))
+                   inGW3dtmp(landpt(e)%ilon,landpt(e)%ilat,klev)
        END DO
     END DO
     !add last laery to aquifer
@@ -2911,7 +2912,7 @@ END SUBROUTINE report_parameters
     !as unsat flow
     DO e=1,mland
        soil%GWsucs_vec(landpt(e)%cstart:landpt(e)%cend) =&  !9 for GW
-                abs(inGW3dtmp(landpt(e)%ilon,landpt(e)%ilat,ms))
+                inGW3dtmp(landpt(e)%ilon,landpt(e)%ilat,ms)
     END DO
 
     inGW3dtmp(:,:,:) = get_gw_data(ncid_elev,file_status,'bch_vec',inbch(:,:),nlon,nlat,ms)
