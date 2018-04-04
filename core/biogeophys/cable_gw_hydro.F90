@@ -136,7 +136,7 @@ SUBROUTINE GWsoilfreeze(dels, soil, ssnow)
             delta_ice_vol(i,k) = min(ssnow%wbliq(i,k)*0.921, max(0._r_2, delta_ice_vol(i,k) ) )
 
             delta_ice_vol(i,k) = min(delta_ice_vol(i,k), &
-                                     max(0._r_2,(ssnow%otgg(i,k)-ssnow%tgg(i,k),r_2)*ssnow%gammzz(i,k)/&
+                                     max(0._r_2,real(ssnow%otgg(i,k)-ssnow%tgg(i,k),r_2)*ssnow%gammzz(i,k)/&
                                      (soil%zse_vec(i,k)*real(C%HLF*C%density_ice,r_2)) ) )
 
          else
