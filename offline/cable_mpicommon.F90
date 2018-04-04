@@ -40,7 +40,7 @@ MODULE cable_mpicommon
   ! VH add 9 params for sli 299 -> 308
   ! INH add 7 params for REV_CORR package
   ! mrd561 9 more: vector soils
-  INTEGER, PARAMETER :: nparam =340! 341!1 !326!308   
+  INTEGER, PARAMETER :: nparam =346! 341!1 !326!308   
   ! MPI: extra params sent only if nsoilparmnew is true
   INTEGER, PARAMETER :: nsoilnew = 1
 

@@ -1206,27 +1206,23 @@ CONTAINS
                          'froot', '-', 'Fraction of roots in each soil layer', &
                  patchout%froot, soilID, 'soil', xID, yID, zID, landID, patchID)
 
-    IF(output%params .OR. output%slope) THEN
+    IF(output%params .and. cable_user%gw_model) THEN
             call define_ovar(ncid_out, opid%slope,   &
            'slope', '-', 'mean subgrid topographic slope', &
                           patchout%slope, 'real', xid, yid, zid, landid, patchid)
             call define_ovar(ncid_out, opid%elev,   &
            'elev', '-', 'mean subgrid topographic elev', &
                           patchout%elev, 'real', xid, yid, zid, landid, patchid)
-    ENDIF
 
-    IF(output%params .OR. output%slope_std) THEN
            CALL define_ovar(ncid_out, opid%slope_std,   &
            'slope_std', '-', 'Mean subgrid topographic slope_std', &
                           patchout%slope_std, 'real', xID, yID, zID, landID, patchID)
    
    
-    ENDIF
-    IF(output%params .OR. output%GWdz) CALL define_ovar(ncid_out, opid%GWdz,   &
+           CALL define_ovar(ncid_out, opid%GWdz,   &
            'GWdz', '-', 'Mean aquifer layer thickness ', &
                           patchout%GWdz, 'real', xID, yID, zID, landID, patchID)
 
-    IF(output%params .and. cable_user%gw_model) THEN
            CALL define_ovar(ncid_out, opid%Qhmax,   &
                           'Qhmax', 'mm/s', 'Maximum subsurface drainage ', &
                           patchout%Qhmax, 'real', xID, yID, zID, landID, patchID)
@@ -1455,39 +1451,41 @@ CONTAINS
                            'zse', REAL(soil%zse_vec, 4),ranges%zse, &
                                 patchout%zse, 'soil')! no spatial dim at present
 
-    IF(output%params .OR. output%slope) THEN
-                  CALL write_ovar(ncid_out, opid%slope,    &
-                 'slope', REAL(soil%slope, 4), (/0.0,9999.0/), patchout%slope, 'real')
-                  CALL write_ovar(ncid_out, opid%elev,    &
-                 'elev', REAL(soil%elev, 4), (/0.0,9999999.0/), patchout%elev, 'real')
+    IF(output%params .AND. cable_user%gw_model) THEN
+          CALL write_ovar(ncid_out, opid%slope,    &
+                'slope', REAL(soil%slope, 4), &
+                 (/0.0,9999.0/), patchout%slope, 'real')
 
-    ENDIF
-    IF(output%params .OR. output%slope_std) THEN
-                  CALL write_ovar(ncid_out, opid%slope_std,    &
-                 'slope_std', REAL(soil%slope_std, 4), (/0.0,9999.0/), patchout%slope_std, 'real')
+          CALL write_ovar(ncid_out, opid%elev,    &
+                'elev', REAL(soil%elev, 4),&
+                  (/0.0,9999999.0/), patchout%elev, 'real')
 
-    ENDIF
-    IF(output%params .OR. output%GWdz) CALL write_ovar(ncid_out, opid%GWdz,    &
-                 'GWdz', REAL(soil%GWdz, 4), (/0.0,999999.0/), patchout%GWdz, 'real')
-    IF(output%params .OR. output%GWdz) CALL write_ovar(ncid_out, opid%QhmaxEfold,    &
-                 'QhmaxEfold', REAL(soil%drain_dens, 4), (/0.0,999999.0/), patchout%QhmaxEfold, 'real')
+          CALL write_ovar(ncid_out, opid%slope_std,    &
+                'slope_std', REAL(soil%slope_std, 4),&
+                 (/0.0,9999.0/), patchout%slope_std, 'real')
 
-    IF(output%params .and. cable_user%gw_model) THEN
-                  CALL write_ovar(ncid_out, opid%SatFracmax,    &
-                       'SatFracmax', spread(REAL(gw_params%MaxSatFraction,4),1,mp), &
-                        (/0.0,1000000.0/), patchout%SatFracmax, 'real')
+          CALL write_ovar(ncid_out, opid%GWdz,    &
+                'GWdz', REAL(soil%GWdz, 4), &
+                 (/0.0,999999.0/), patchout%GWdz, 'real')
+          CALL write_ovar(ncid_out, opid%QhmaxEfold,    &
+             '  QhmaxEfold', REAL(soil%drain_dens, 4), &
+                (/0.0,999999.0/), patchout%QhmaxEfold, 'real')
 
-                  CALL write_ovar(ncid_out, opid%Qhmax,    &
-                       'Qhmax', spread(REAL(gw_params%MaxHorzDrainRate, 4),1,mp), &
-                       (/0.0,1000000.0/), patchout%Qhmax, 'real')
+          CALL write_ovar(ncid_out, opid%SatFracmax,    &
+               'SatFracmax', spread(REAL(sqrt(gw_params%MaxSatFraction),4),1,mp), &
+                (/0.0,1000000.0/), patchout%SatFracmax, 'real')
 
-                  CALL write_ovar(ncid_out, opid%HKefold,    &
-                       'HKefold', spread(REAL(gw_params%hkrz, 4),1,mp), &
-                        (/0.0,1000000.0/), patchout%HKefold, 'real')
+          CALL write_ovar(ncid_out, opid%Qhmax,    &
+               'Qhmax', REAL(soil%qhz_max, 4), &
+               (/0.0,1000000.0/), patchout%Qhmax, 'real')
 
-                  CALL write_ovar(ncid_out, opid%HKdepth,    &
-                       'HKdepth', spread(REAL(gw_params%zdepth, 4),1,mp), &
-                        (/0.0,1000000.0/), patchout%HKdepth, 'real')
+          CALL write_ovar(ncid_out, opid%HKefold,    &
+               'HKefold', REAL(soil%hkrz, 4), &
+                (/0.0,1000000.0/), patchout%HKefold, 'real')
+
+          CALL write_ovar(ncid_out, opid%HKdepth,    &
+               'HKdepth', REAL(soil%zdepth, 4), &
+                (/0.0,1000000.0/), patchout%HKdepth, 'real')
      END IF
 
 

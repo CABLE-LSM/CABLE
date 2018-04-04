@@ -241,7 +241,7 @@ MODULE cable_common_module
       REAL :: ice_impedence=5.0
 
       TYPE(organic_soil_params) :: org
-
+      INTEGER :: aquifer_recharge_function=-1  !0=>no flux,1=>assume gw at hydrostat eq
       INTEGER :: level_for_satfrac = 6
       LOGICAL :: ssgw_ice_switch = .false.
  

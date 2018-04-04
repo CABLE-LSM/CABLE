@@ -2466,6 +2466,37 @@ ENDIF
   CALL MPI_Get_address (soil%drain_dens, displs(bidx), ierr)
   blen(bidx) = r2len
 
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%hkrz, displs(bidx), ierr)
+  blen(bidx) = r2len
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%zdepth, displs(bidx), ierr)
+  blen(bidx) = r2len
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%srf_frac_ma, displs(bidx), ierr)
+  blen(bidx) = r2len
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%edepth_ma, displs(bidx), ierr)
+  blen(bidx) = r2len
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%qhz_max, displs(bidx), ierr)
+  blen(bidx) = r2len
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%qhz_efold, displs(bidx), ierr)
+  blen(bidx) = r2len
+
+
   bidx = bidx + 1
   CALL MPI_Get_address (ssnow%GWwb, displs(bidx), ierr)
   blen(bidx) = r2len

@@ -64,6 +64,9 @@ MODULE cable_gw_hydro_module
    REAL(r_2), PARAMETER :: close_to_one = 0.9999
    REAL(r_2), PARAMETER :: Sy_deep = 0.1
    REAL(r_2), PARAMETER :: dz_deep = 50000.0
+   REAL(r_2), PARAMETER :: m2mm = 1000.0
+   REAL(r_2), PARAMETER :: mm2m = 0.001
+  
 
   INTEGER, PARAMETER :: wtd_iter_max = 20 ! maximum number of iterations to find the water table depth                    
 
@@ -320,7 +323,7 @@ END SUBROUTINE remove_transGW
     REAL(r_2)                          :: dzmm,slopeSTDmm
 
    !For now assume there is no puddle
-   dzmm = 1000._r_2 * soil%zse(1)
+   dzmm = m2mm * soil%zse(1)
 
    if (sli_call) then
       do i=1,mp
@@ -355,7 +358,7 @@ END SUBROUTINE remove_transGW
       tmpa = ssnow%wbliq(i,1) / efpor(i)
       tmpb = max( (tmpa-satfrac_liqice(i))/max(0.01_r_2,(1._r_2-satfrac_liqice(i))), 0._r_2)
       tmpa = -2._r_2*soil%bch_vec(i,1)*soil%sucs_vec(i,1)/dzmm
-      qinmax = (1._r_2 + tmpa*(tmpb-1._r_2))*soil%hyds_vec(i,1)*exp(-gw_params%hkrz*(0.5*dzmm/1000.0_r_2-gw_params%zdepth))
+      qinmax = (1._r_2 + tmpa*(tmpb-1._r_2))*soil%hyds_vec(i,1)*exp(-gw_params%hkrz*(0.5*dzmm/m2mm-gw_params%zdepth))
 
       ssnow%rnof1(i) = satfrac_liqice(i) * ssnow%fwtop(i) + &
                          (1._r_2-satfrac_liqice(i))*max((ssnow%fwtop(i)-qinmax) , 0._r_2)
@@ -442,14 +445,14 @@ END SUBROUTINE remove_transGW
   end do
   do k  = 1, ms
      do i=1,mp
-        wmean(i) = wmean(i) + stot(i,k)*soil%zse(k)*1000._r_2
-        ztot(i)  = ztot(i) + soil%zse(k)*1000._r_2
+        wmean(i) = wmean(i) + stot(i,k)*soil%zse(k)*m2mm
+        ztot(i)  = ztot(i) + soil%zse(k)*m2mm
      end do
   end do
 
   do i=1,mp
-     wmean(i) = wmean(i) + ssnow%GWwb(i)/soil%GWssat_vec(i) * soil%GWdz(i)*1000._r_2
-     ztot(i)  = ztot(i) + soil%GWdz(i)*1000._r_2
+     wmean(i) = wmean(i) + ssnow%GWwb(i)/soil%GWssat_vec(i) * soil%GWdz(i)*m2mm
+     ztot(i)  = ztot(i) + soil%GWdz(i)*m2mm
 
      ssnow%wtd(i) = min(200000._r_2, fz(i) * (ztot(i) - wmean(i)))
   end do
@@ -491,8 +494,8 @@ END SUBROUTINE remove_transGW
   if (include_aquifer) then  !do we include the aquifer in the calculation of wtd?
 
      do i=1,mp
-        total_depth_column(i) = soil%GWdz(i)*1000._r_2
-        def(i) = max(0._r_2,soil%GWssat_vec(i)-ssnow%GWwb(i))*soil%GWdz(i)*1000._r_2
+        total_depth_column(i) = soil%GWdz(i)*m2mm
+        def(i) = max(0._r_2,soil%GWssat_vec(i)-ssnow%GWwb(i))*soil%GWdz(i)*m2mm
      end do   
 
   else
@@ -503,7 +506,7 @@ END SUBROUTINE remove_transGW
   !total depth of soil column
   do k=1,ms
      do i=1,mp
-         total_depth_column(i) = total_depth_column(i) + soil%zse_vec(i,k)*1000.0
+         total_depth_column(i) = total_depth_column(i) + soil%zse_vec(i,k)*m2mm
      end do
   end do
   
@@ -512,7 +515,7 @@ END SUBROUTINE remove_transGW
      do i=1,mp
 
        def(i) = def(i) +                                                           &
-                max(0._r_2,(soil%ssat_vec(i,k)-(ssnow%wbliq(i,k)+ssnow%wbice(i,k)))*soil%zse_vec(i,k)*1000._r_2)
+                max(0._r_2,(soil%ssat_vec(i,k)-(ssnow%wbliq(i,k)+ssnow%wbice(i,k)))*soil%zse_vec(i,k)*m2mm)
       end do  !mp
   end do  !ms
 
@@ -673,7 +676,7 @@ END SUBROUTINE remove_transGW
     INTEGER :: imp,ims,k_drain
 
     !make code cleaner define these here
-    dzmm(:) = 1000.0_r_2 * real(soil%zse(:),r_2)
+    dzmm(:) = m2mm * real(soil%zse(:),r_2)
     do i=1,mp
        dzmm_mp(i,:) = dzmm(:)
     end do
@@ -683,7 +686,7 @@ END SUBROUTINE remove_transGW
     zmm(1:ms)  = zimm(0:(ms-1)) + 0.5_r_2*dzmm(1:ms)
 
     do i=1,mp
-       GWdzmm(i) = real(soil%GWdz(i),r_2)*1000._r_2
+       GWdzmm(i) = real(soil%GWdz(i),r_2)*m2mm
        GWzimm(i) = zimm(ms)+GWdzmm(i)
        zaq(i)    = zimm(ms) + 0.5_r_2*GWdzmm(i)
     end do
@@ -1127,7 +1130,7 @@ SUBROUTINE calc_equilibrium_water_content(ssnow,soil)
     end if
 
     !make code cleaner define these here
-    dzmm    = 1000.0_r_2 * real(soil%zse(:),r_2)
+    dzmm    = m2mm * real(soil%zse(:),r_2)
     zimm(0) = 0._r_2
 
     do k=1,ms
@@ -1136,7 +1139,7 @@ SUBROUTINE calc_equilibrium_water_content(ssnow,soil)
     end do 
 
     do i=1,mp
-       GWdzmm(i) = real(soil%GWdz(i),r_2)*1000._r_2
+       GWdzmm(i) = real(soil%GWdz(i),r_2)*m2mm
        GWzimm(i) = zimm(ms)+GWdzmm(i)
        zaq(i)    = zimm(ms) + 0.5_r_2*GWdzmm(i)
     end do
@@ -1298,7 +1301,7 @@ SUBROUTINE calc_srf_wet_fraction(ssnow,soil,met,veg)
 
    
        do i = 1,mp
-          dzmm_one  = 1000._r_2 * real(soil%zse_vec(i,1),r_2)
+          dzmm_one  = m2mm * real(soil%zse_vec(i,1),r_2)
           icemass  = ssnow%wbice(i,1) * dzmm_one
           liqmass  = (ssnow%wb(i,1)-ssnow%wbice(i,1)) * dzmm_one
           totmass  = max(liqmass+icemass,real(1e-2,r_2))
@@ -1593,7 +1596,7 @@ SUBROUTINE calc_soil_hydraulic_props(ssnow,soil,veg)
     do i=1,mp
        s_mid(i) = (wb_temp(i,ms+1)-soil%GWwatr(i))/&
                     (soil%GWssat_vec(i)-soil%GWwatr(i))
-       s_mid(i) = min(max(s_mid(i),0.001_r_2),1._r_2)
+       s_mid(i) = min(max(s_mid(i),0.01_r_2),1._r_2)
        s2(i)    = soil%GWhyds_vec(i)*s_mid(i)**(2._r_2*soil%GWbch_vec(i)+2._r_2)
 
        ssnow%GWhk(i)     =s_mid(i)*s2(i) * hk_ice_factor(i,ms+1)
@@ -1601,15 +1604,9 @@ SUBROUTINE calc_soil_hydraulic_props(ssnow,soil,veg)
                            s2(i)*0.5_r_2/(soil%GWssat_vec(i)-soil%GWwatr(i)) *&
                            hk_ice_factor(i,ms+1)
 
-       !ssnow%GWhk(i)     = soil%GWhyds_vec(i) * hk_ice_factor(i,ms+1)*&
-       !                     exp(-ssnow%wtd(i)/1000._r_2/&
-       !                     (1.0/(120*(soil%drain_dens(i)+1.0e-3))))
-       !!d(h)*Sy=dW
-       !ssnow%GWdhkdw(i)  = ssnow%GWhk(i)/(soil%GWssat_vec(i)-soil%GWwatr(i))*&
-       !                    (0.001/(120*(soil%drain_dens(i)+1.0e-3)))
 
        s_mid(i) = (wb_temp(i,ms+1)-soil%GWwatr(i))/(soil%GWssat_vec(i)-soil%GWwatr(i))
-       s_mid(i) = min(max(s_mid(i),0.001_r_2),1._r_2)
+       s_mid(i) = min(max(s_mid(i),0.01_r_2),1._r_2)
 
        ssnow%GWsmp(i)    = -soil%GWsucs_vec(i)*s_mid(i)**(-soil%GWbch_vec(i))
        ssnow%GWsmp(i)    = max(min(ssnow%GWsmp(i),-soil%GWsucs_vec(i)),sucmin)
@@ -1681,21 +1678,40 @@ END SUBROUTINE calc_soil_hydraulic_props
     integer :: i    
     !Doing the recharge outside of the soln of Richards Equation makes it easier to track total recharge amount.
     !Add to ssnow at some point 
-    do i=1,mp
-       if ((ssnow%wtd(i) .le. sum(dzmm,dim=1)) .or. &
-           (veg%iveg(i) .ge. 16) .or. &
-           (soil%isoilm(i) .eq. 9))  then
+    select case (gw_params%aquifer_recharge_function)
+       case(0)
+          ssnow%Qrecharge(:) = 0._r_2
+       case(1)
+          do i=1,mp
+             if ((ssnow%wtd(i) .le. sum(dzmm,dim=1)) .or. &
+                 (veg%iveg(i) .ge. 16) .or. &
+                 (soil%isoilm(i) .eq. 9))  then
+      
+                ssnow%Qrecharge(i) = 0._r_2
+             else
+                ssnow%Qrecharge(i) = -0.5*(ssnow%hk(i,ms)+ssnow%GWhk(i))*&
+                                     ((-ssnow%smp(i,ms)) -&
+                                      (-ssnow%zq(i,ms))) / &
+                                      (ssnow%wtd(i) - &
+                                       (zmm(ms)-0.5*soil%zse_vec(i,ms)*m2mm))
+             end if
+          end do
 
-          ssnow%Qrecharge(i) = 0._r_2
-       else
-          ssnow%Qrecharge(i) = -0.5*(ssnow%hk(i,ms)*ssnow%GWhk(i))*&
-                               ((-ssnow%smp(i,ms)) -&
-                                (-ssnow%zq(i,ms))) / &
-                                (ssnow%wtd(i) - &
-                                 (zmm(ms)-0.5*soil%zse_vec(i,ms)*1000.0))
-       end if
-    end do
-
+       case default
+          do i=1,mp
+             if ((ssnow%wtd(i) .le. sum(dzmm,dim=1)) .or. &
+                 (veg%iveg(i) .ge. 16) .or. &
+                 (soil%isoilm(i) .eq. 9))  then
+      
+                ssnow%Qrecharge(i) = 0._r_2
+             else
+                ssnow%Qrecharge(i) = -(ssnow%hk(i,ms)+ssnow%GWhk(i))*&
+                                     ((ssnow%GWsmp(i)-ssnow%smp(i,ms)) -&
+                                      (ssnow%GWzq(i)-ssnow%zq(i,ms))) / &
+                                     (m2mm*(soil%GWdz(i)+soil%zse_vec(i,ms)))
+             end if
+          end do
+    end select
 
   END SUBROUTINE aquifer_recharge
 
@@ -1724,13 +1740,8 @@ END SUBROUTINE calc_soil_hydraulic_props
 
        !Note: future revision will have interaction with river here. nned to
        !work on router and add river type cells
-       ssnow%qhz(i)  = min(max(soil%slope(i),0.000001),0.9)*&
-                       gw_params%MaxHorzDrainRate* &
-                        exp(-ssnow%wtd(i)/1000._r_2/((1.0+soil%drain_dens(i))*&
-                              gw_params%EfoldHorzDrainRate)) 
-                        !(1.0/(60.0*gw_params%EfoldHorzDrainRate*&
-                        ! (soil%drain_dens(i)+1.0e-3))*Efold_mod(veg%iveg(i))))
-
+       ssnow%qhz(i)  = soil%slope(i)*soil%qhz_max(i)*&
+                        exp( -mm2m*ssnow%wtd(i)/ soil%qhz_efold(i) )
 
        if (gw_params%subsurface_sat_drainage) then
           !drain from sat layers
@@ -1873,7 +1884,7 @@ END SUBROUTINE calc_soil_hydraulic_props
           if (gw_params%MaxSatFraction .gt. 1e-7 .and. veg%iveg(i) .lt. 16) then 
              slopeSTDmm = sqrt(min(max(&
                            gw_params%MaxSatFraction*soil%slope_std(i),&
-                           1e-5),10000._r_2)) ! ensure some variability
+                           1e-5),m2mm)) ! ensure some variability
              ssnow%satfrac(i)    = max(0._r_2,min(0.99_r_2,&
                  !note UM wants std03, and erf is not included then
                                    1._r_2 - my_erf( slopeSTDmm / sqrt(2.0* S(i)) ) ) )  
@@ -1918,7 +1929,7 @@ END SUBROUTINE calc_soil_hydraulic_props
                          (max(0.001, (unsat_wb(i)-soil%watr(i,1))/(soil%ssat_vec(i,1)-&
                          soil%watr(i,1)) ) )** (-soil%bch_vec(i,1)) )
 
-          unsat_smp(i) = max(-1.0e7,unsat_smp(i) )/1000._r_2 !m
+          unsat_smp(i) = max(-1.0e7,unsat_smp(i) )/m2mm !m
 
           ssnow%rh_srf(i) = max(0.,min(1., &
                          exp(9.81*unsat_smp(i)/(ssnow%tgg(i,1)*461.4)) ) )
@@ -1954,12 +1965,12 @@ END SUBROUTINE calc_soil_hydraulic_props
  
     call  ovrlndflx (dels, ssnow, soil, veg,canopy,sli_call )
  
-    dzmm = real(soil%zse(:),r_2)*1000._r_2
+    dzmm = real(soil%zse(:),r_2)*m2mm
  
     CALL subsurface_drainage(ssnow,soil,veg,dzmm)
  
-    zmm(:) = 1000._r_2*(sum(real(soil%zse,r_2),dim=1))
-    zaq(:) = zmm(:) + 0.5_r_2*soil%GWdz(:)*1000._r_2
+    zmm(:) = m2mm*(sum(real(soil%zse,r_2),dim=1))
+    zaq(:) = zmm(:) + 0.5_r_2*soil%GWdz(:)*m2mm
  
     call aquifer_recharge(dels,ssnow,soil,veg,zaq,zmm,zmm)
 

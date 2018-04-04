@@ -38,7 +38,9 @@ MODULE cable_def_types_mod
    INTEGER :: mp,    & ! # total no of patches/tiles
               mvtype,& ! total # vegetation types,   from input
               mstype,& ! total # soil types,         from input
-              mland                           ! # land grid cells
+              mland,& !                         ! # land grid cells
+              mpatch  !number of patches per tile 
+                      !allows for setting this to a const value
 
    INTEGER, PARAMETER ::                                                        &
       i_d  = KIND(9), &
@@ -156,6 +158,12 @@ MODULE cable_def_types_mod
          swilt_vec     ! wilting point (hk = 0.02 mm/day)
 
       REAL(r_2), DIMENSION(:), POINTER ::                                      &
+         hkrz,&! rate hyds changes with depth
+         zdepth,&!  depth [m] where hkrz has zero impact
+         srf_frac_ma,&! fraction of surface with macropores 
+         edepth_ma,&!  e fold depth macropore fraction
+         qhz_max,&!  maximum base flow when fully sat
+         qhz_efold,&!  base flow efold rate dep on wtd, from drain-dens and param
          drain_dens,&!  drainage density ( mean dist to rivers/streams )
          elev, &  !elevation above sea level
          elev_std, &  !elevation above sea level
@@ -861,6 +869,12 @@ SUBROUTINE alloc_soil_parameter_type(var, mp)
    allocate( var%rhosoil_vec(mp,ms) )
 
    allocate( var%drain_dens(mp) )
+   allocate( var%hkrz(mp) )
+   allocate( var%zdepth(mp) )
+   allocate( var%srf_frac_ma(mp) )
+   allocate( var%edepth_ma(mp) )
+   allocate( var%qhz_max(mp) )
+   allocate( var%qhz_efold(mp) )
    allocate( var%elev(mp) )
    allocate( var%elev_std(mp) )
    allocate( var%slope(mp) )
@@ -1486,6 +1500,13 @@ SUBROUTINE dealloc_soil_parameter_type(var)
    DEALLOCATE( var%elev_std )
    DEALLOCATE( var%slope )
    DEALLOCATE( var%slope_std )
+   DEALLOCATE( var%drain_dens )
+   DEALLOCATE( var%hkrz )
+   DEALLOCATE( var%zdepth )
+   DEALLOCATE( var%srf_frac_ma )
+   DEALLOCATE( var%edepth_ma )
+   DEALLOCATE( var%qhz_max )
+   DEALLOCATE( var%qhz_efold )
     ! Deallocate variables for SLI soil model:
     !IF(cable_user%SOIL_STRUC=='sli') THEN
     DEALLOCATE ( var % nhorizons)
