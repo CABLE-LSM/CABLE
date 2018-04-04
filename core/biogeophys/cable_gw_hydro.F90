@@ -177,7 +177,7 @@ SUBROUTINE GWsoilfreeze(dels, soil, ssnow)
 
 
          ssnow%tgg(i,k) = ssnow%tgg(i,k) + real( delta_ice_vol(i,k)*soil%zse_vec(i,k)  *&
-                                       * real(C%hlf*C%density_ice,r_2) / ssnow%gammzz(i,k) )
+                                       real(C%hlf*C%density_ice,r_2) / ssnow%gammzz(i,k) )
 
      elseif (delta_ice_vol(i,k) .lt. 0._r_2) then
 
@@ -192,7 +192,7 @@ SUBROUTINE GWsoilfreeze(dels, soil, ssnow)
                              )*soil%zse_vec(i,k) + gammzz_snow(i,k)           
 
          ssnow%tgg(i,k) = ssnow%tgg(i,k) + real( delta_ice_vol(i,k)*soil%zse_vec(i,k)  *&
-                                       * real(C%hlf*C%density_ice,r_2) / ssnow%gammzz(i,k) )
+                                       real(C%hlf*C%density_ice,r_2) / ssnow%gammzz(i,k) )
 
       END IF
 
