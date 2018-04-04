@@ -247,6 +247,10 @@ CONTAINS
     ok = NF90_INQUIRE_DIMENSION(ncid, bID, LEN=nband)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error getting rad dimension.')
 
+    !pass npatch to the def_types module
+    !enables a future where npatch can be set to any value by reading in
+    !tile info from gridinfo like file
+
     ! check dimensions of soil-layers and time
      !! vh_js !!
       IF ( (nslayer /= ms) .OR. (ntime /= 12)) THEN
@@ -865,6 +869,9 @@ CONTAINS
     REAL :: lon2, distance, newLength
     INTEGER :: ii, jj, kk, tt, ncount
 
+    !set mpatch, the publically available number of patches
+    mpatch = npatch
+
     ! range of longitudes from input file (inLon) should be -180 to 180,
     ! and longitude(:) has already been converted to -180 to 180 for CABLE.
     landpt(:)%ilon = -999
@@ -908,12 +915,25 @@ CONTAINS
              STOP
           END IF
           ! CLN added for npatches
-       ELSE IF ( npatch .GT. 1 ) THEN
+       ELSE IF ( npatch .GT. 1 .AND. cable_user%force_npatches_as .le. 0) THEN
           DO tt = 1, npatch
              IF (inVeg(landpt(kk)%ilon,landpt(kk)%ilat,tt) > 0) THEN
                 landpt(kk)%nap = landpt(kk)%nap + 1
              ENDIF
           END DO
+          ncount = ncount + landpt(kk)%nap
+          landpt(kk)%cend = ncount
+          IF (landpt(kk)%cend < landpt(kk)%cstart) THEN
+             PRINT *, 'Land point ', kk, ' does not have veg type!'
+             PRINT *, 'landpt%cstart, cend = ', landpt(kk)%cstart, landpt(kk)%cend
+             PRINT *, 'vegtype_metfile = ', vegtype_metfile(kk,:)
+             STOP
+        END IF
+          ! CLN added for npatches
+       ELSE IF ( npatch .GT. 1 .AND. cable_user%force_npatches_as .eq. npatch) THEN
+          !force the number of tiles per cell
+          !will read in the tile info from the GWspatial subroutine
+          landpt(kk)%nap = npatch
           ncount = ncount + landpt(kk)%nap
           landpt(kk)%cend = ncount
           IF (landpt(kk)%cend < landpt(kk)%cstart) THEN
@@ -945,6 +965,7 @@ CONTAINS
   
     ! Set the maximum number of active patches to that read from met file:
   max_vegpatches = MAXVAL(landpt(:)%nap)
+  mpatch         = max_vegpatches
   !CLN    IF (max_vegpatches /= nmetpatches) THEN
     IF (max_vegpatches /= nmetpatches .and. npatch == 1) THEN
       PRINT *, 'Error! Met file claiming to have more active patches than'
@@ -1208,91 +1229,12 @@ CONTAINS
                                            incss(landpt(e)%ilon, landpt(e)%ilat)
       soil%cnsd(landpt(e)%cstart:landpt(e)%cend) =                             &
                                           incnsd(landpt(e)%ilon, landpt(e)%ilat)
-      !!possibly heterogeneous soil properties
-      !DO klev=1,ms
-
-      !   soil%ssat_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                  &
-      !       real(layered_in_soils(landpt(e)%cstart:landpt(e)%cend,klev,1),r_2)                 
-
-      !   soil%sfc_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                  &
-      !       real(layered_in_soils(landpt(e)%cstart:landpt(e)%cend,klev,2),r_2)                 
-
-
-      !   soil%swilt_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                  &
-      !       real(layered_in_soils(landpt(e)%cstart:landpt(e)%cend,klev,3),r_2)                 
-
-
-      !   soil%watr(landpt(e)%cstart:landpt(e)%cend,klev) =                  &
-      !       real(layered_in_soils(landpt(e)%cstart:landpt(e)%cend,klev,4),r_2)                 
-
-
-      !   soil%hyds_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                  &
-      !       real(layered_in_soils(landpt(e)%cstart:landpt(e)%cend,klev,5),r_2)                 
-
-
-      !   soil%sucs_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                  &
-      !       real(layered_in_soils(landpt(e)%cstart:landpt(e)%cend,klev,6),r_2)                 
-
-
-      !   soil%bch_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                  &
-      !       real(layered_in_soils(landpt(e)%cstart:landpt(e)%cend,klev,7),r_2)                 
-
-
-      !   soil%rhosoil_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                  &
-      !       real(layered_in_soils(landpt(e)%cstart:landpt(e)%cend,klev,8),r_2)                 
-
-      !   soil%css_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
-      !       real(layered_in_soils(landpt(e)%cstart:landpt(e)%cend,klev,9),r_2)                 
-
-      !   soil%cnsd_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                     &
-      !       real(layered_in_soils(landpt(e)%cstart:landpt(e)%cend,klev,10),r_2)                 
-
-      !   soil%sand_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
-      !       real(all_soil_texture(landpt(e)%cstart:landpt(e)%cend,klev,1),r_2)
-
-      !   soil%clay_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
-      !       real(all_soil_texture(landpt(e)%cstart:landpt(e)%cend,klev,2),r_2)
-
-      !   soil%silt_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
-      !       real(all_soil_texture(landpt(e)%cstart:landpt(e)%cend,klev,3),r_2)
-
-      !   soil%org_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
-      !       real(all_soil_texture(landpt(e)%cstart:landpt(e)%cend,klev,4),r_2)
-
-      !END DO
-
-      !soil%GWwatr(landpt(e)%cstart:landpt(e)%cend) =     0._r_2
-   
-      !!Aquifer properties  same as bottom soil layer for now
-      !soil%elev(landpt(e)%cstart:landpt(e)%cend)       =  &
-      !                                         real(all_inGW(landpt(e)%cstart:landpt(e)%cend,1),r_2)
-
-      !soil%elev_std(landpt(e)%cstart:landpt(e)%cend)   =  &
-      !                                         real(all_inGW(landpt(e)%cstart:landpt(e)%cend,2),r_2)
-
-      !soil%slope(landpt(e)%cstart:landpt(e)%cend)      =  &
-      !                                        real(all_inGW(landpt(e)%cstart:landpt(e)%cend,3),r_2)
-
-      !soil%slope_std(landpt(e)%cstart:landpt(e)%cend)  =  &
-      !                                        real(all_inGW(landpt(e)%cstart:landpt(e)%cend,4),r_2)
-
-      !soil%GWdz(landpt(e)%cstart:landpt(e)%cend)       =  &
-      !                                       real(all_inGW(landpt(e)%cstart:landpt(e)%cend,5),r_2)
-
-      !soil%drain_dens(landpt(e)%cstart:landpt(e)%cend) =  &
-      !                                       real(all_inGW(landpt(e)%cstart:landpt(e)%cend,6),r_2)
-
-      !soil%GWhyds_vec(landpt(e)%cstart:landpt(e)%cend) =  &
-      !                                       real(all_inGW(landpt(e)%cstart:landpt(e)%cend,7),r_2)
-
-      !soil%GWssat_vec(landpt(e)%cstart:landpt(e)%cend) =  &
-      !                                       real(all_inGW(landpt(e)%cstart:landpt(e)%cend,8),r_2)
-
-      !soil%GWsucs_vec(landpt(e)%cstart:landpt(e)%cend) =  &
-      !                                       real(all_inGW(landpt(e)%cstart:landpt(e)%cend,9),r_2)
-
-      !soil%GWbch_vec(landpt(e)%cstart:landpt(e)%cend)  =  &
-      !                                       real(all_inGW(landpt(e)%cstart:landpt(e)%cend,10),r_2)
+      soil%sand(landpt(e)%cstart:landpt(e)%cend) =                             &
+                                          insand(landpt(e)%ilon, landpt(e)%ilat)
+      soil%clay(landpt(e)%cstart:landpt(e)%cend) =                             &
+                                          inclay(landpt(e)%ilon, landpt(e)%ilat)
+      soil%silt(landpt(e)%cstart:landpt(e)%cend) =                             &
+                                          insilt(landpt(e)%ilon, landpt(e)%ilat)
       ENDIF
 
       ! vars intro for Ticket #27
@@ -1636,6 +1578,16 @@ CONTAINS
 
     IF (cable_user%GW_MODEL) then
 
+       soil%qhz_max(:) = real(gw_params%MaxHorzDrainRate,r_2)  !enable distributed values
+       soil%hkrz(:)    = real(gw_params%hkrz,r_2)
+       soil%zdepth(:)  = real(gw_params%zdepth,r_2)
+
+       !placeholder
+       soil%srf_frac_ma(:) = 0._r_2
+       soil%edepth_ma(:)   = 0._r_2
+
+       soil%qhz_efold(:) = (1._r_2+soil%drain_dens(:))*real(gw_params%EfoldHorzDrainRate,r_2)
+
        !include organin impact.  fraction of grid cell where percolation through
        !organic macropores dominates
        soil%org_vec = max(0._r_2,soil%org_vec)
@@ -1662,7 +1614,7 @@ CONTAINS
                    !single parameter fit cosby 1984 WRR
                    if (gw_params%cosby_univariate) then
                      soil%hyds_vec(i,klev) = 0.0070556*10.0**(-0.884 + 1.53*soil%sand_vec(i,klev))* &
-                                              exp(-gw_params%hkrz*(soil_depth(klev)-gw_params%zdepth))
+                                              exp(-soil%hkrz(i)*(soil_depth(klev)-soil%zdepth(i)))
                      soil%sucs_vec(i,klev) = 10.0 * 10.0**(1.88 -1.31*soil%sand_vec(i,klev))
                      soil%bch_vec(i,klev) = 2.91 + 15.9*soil%clay_vec(i,klev)
                      soil%ssat_vec(i,klev) = min(0.489,max(0.1, 0.489 - 0.126*soil%sand_vec(i,klev) ) )
@@ -1672,7 +1624,7 @@ CONTAINS
                    elseif (gw_params%cosby_multivariate) then
                      soil%hyds_vec(i,klev) = 0.00706*(10.0**(-0.60 + 1.26*soil%sand_vec(i,klev) + &
                                                              -0.64*soil%clay_vec(i,klev) ) )*&
-                                              exp(-gw_params%hkrz*(soil_depth(klev)-gw_params%zdepth))
+                                              exp(-soil%hkrz(i)*(soil_depth(klev)-soil%zdepth(i)))
                      soil%sucs_vec(i,klev) = 10.0 * 10.0**(1.54 - 0.95*soil%sand_vec(i,klev) + &  
                                                                0.63*soil%silt_vec(i,klev) ) 
                      soil%bch_vec(i,klev) = 3.1 + 15.4*soil%clay_vec(i,klev) -  &
@@ -1683,13 +1635,13 @@ CONTAINS
                      soil%watr(i,klev) = 0.02 + 0.018*soil%clay_vec(i,klev) 
 
                      else
-                      soil%hyds_vec(i,klev) = soil%hyds_vec(i,klev) *exp(-gw_params%hkrz*(soil_depth(klev)-gw_params%zdepth))
+                      soil%hyds_vec(i,klev) = soil%hyds_vec(i,klev) *exp(-soil%hkrz(i)*(soil_depth(klev)-soil%zdepth(i)))
 
                    end if
 
                !else
                !    soil%hyds_vec(i,klev) = 1000.0*soil%hyds(i) * &
-               !                            exp(-gw_params%hkrz*(max(0.,soil_depth(klev)-gw_params%zdepth)))
+               !                            exp(-soil%hkrz(i)*(max(0.,soil_depth(klev)-soil%zdepth(i))))
                !    soil%sucs_vec(i,klev) = abs(1000.0 * soil%sucs(i))
                !    soil%bch_vec(i,klev) =  soil%bch(i)
                !    soil%ssat_vec(i,klev) = soil%ssat(i)
@@ -1704,7 +1656,7 @@ CONTAINS
                     !soil%org_vec(i,klev) .gt. 1.0e-6) then
                    soil%hyds_vec(i,klev)  = (1.-soil%org_vec(i,klev))*soil%hyds_vec(i,klev) + &
                                                 soil%org_vec(i,klev)*gw_params%org%hyds_vec*&
-                                                 exp(-gw_params%hkrz*(soil_depth(klev)-gw_params%zdepth))
+                                                 exp(-soil%hkrz(i)*(soil_depth(klev)-soil%zdepth(i)))
                    soil%sucs_vec(i,klev) = (1.-soil%org_vec(i,klev))*soil%sucs_vec(i,klev) + &
                                                soil%org_vec(i,klev)*gw_params%org%sucs_vec
                    soil%bch_vec(i,klev) = (1.-soil%org_vec(i,klev))*soil%bch_vec(i,klev) +&
@@ -1746,7 +1698,7 @@ CONTAINS
        ELSE
 
           DO klev=1,ms
-              soil%hyds_vec(:,klev) = soil%hyds_vec(:,klev)*exp(-gw_params%hkrz*(soil_depth(klev)-gw_params%zdepth))
+              soil%hyds_vec(:,klev) = soil%hyds_vec(:,klev)*exp(-soil%hkrz(i)*(soil_depth(klev)-soil%zdepth(i)))
           END DO
 
        END IF  !use either uni or multi cosby transfer func
@@ -1769,8 +1721,8 @@ CONTAINS
        soil%silt = real(soil%silt_vec(:,1))
 
        do i=1,mp
-          soil%slope(i) = min(0.9,max(1e-9,soil%slope(i)))
-          soil%slope_std(i) = min(0.9,max(1e-9,soil%slope_std(i)))
+          soil%slope(i) = min(0.9,max(1e-5,soil%slope(i)))
+          soil%slope_std(i) = min(0.9,max(1e-5,soil%slope_std(i)))
        end do
 
        if ((gw_params%MaxSatFraction .lt. -9999.9) .and. (mp .eq. 1)) soil%slope(:) = 0.01    
@@ -2756,16 +2708,6 @@ END SUBROUTINE report_parameters
        ENDIF
 
 
-
-    ELSE
-       file_status = NF90_NOERR - 10
-    ENDIF
-
-    allocate(inGW4dtmp(nlon,nlat,ms,npatch))
-    allocate(inGW3dtmp(nlon,nlat,ms))
-    allocate(inGWtmp(nlon,nlat))
-    allocate(const2d(nlon,nlat))
-
     !1
     const2d(:,:) = 50.0
     inGWtmp(:,:) = get_gw_data(ncid_elev,file_status,'elevation',const2d,nlon,nlat)
@@ -2953,19 +2895,71 @@ END SUBROUTINE report_parameters
 
     if (file_status .eq. nf90_noerr) &
          file_status = nf90_close(ncid_elev)
+
+    ELSE  !gw_model=false
+
+    DO e=1,mland
+        soil%elev(landpt(e)%cstart:landpt(e)%cend) = 50.0
+       soil%elev_std(landpt(e)%cstart:landpt(e)%cend) =25
+       soil%slope(landpt(e)%cstart:landpt(e)%cend) =0.08
+       soil%slope_std(landpt(e)%cstart:landpt(e)%cend) =0.03
+       soil%GWdz(landpt(e)%cstart:landpt(e)%cend) =25.0
+       soil%drain_dens(landpt(e)%cstart:landpt(e)%cend) =0.008
+       soil%GWhyds_vec(landpt(e)%cstart:landpt(e)%cend) =1.0e-6
+       soil%GWssat_vec(landpt(e)%cstart:landpt(e)%cend) =0.23
+       soil%GWwatr(landpt(e)%cstart:landpt(e)%cend) =0.0
+       DO klev=1,ms
+          !layered_in_soils(landpt(e)%cstart:landpt(e)%cend,klev,1) =&
+          soil%ssat_vec(landpt(e)%cstart:landpt(e)%cend,klev) =& !1
+             inssat(landpt(e)%ilon,landpt(e)%ilat)
+
+
+          soil%sfc_vec(landpt(e)%cstart:landpt(e)%cend,klev) =& !1
+             insfc(landpt(e)%ilon,landpt(e)%ilat)
+
+
+          soil%swilt_vec(landpt(e)%cstart:landpt(e)%cend,klev) =& !1
+             inswilt(landpt(e)%ilon,landpt(e)%ilat)
+
+
+          soil%hyds_vec(landpt(e)%cstart:landpt(e)%cend,klev) =& !1
+             inhyds(landpt(e)%ilon,landpt(e)%ilat)
+
+
+          soil%sucs_vec(landpt(e)%cstart:landpt(e)%cend,klev) =& !1
+             insucs(landpt(e)%ilon,landpt(e)%ilat)
+
+
+          soil%bch_vec(landpt(e)%cstart:landpt(e)%cend,klev) =& !1
+             inbch(landpt(e)%ilon,landpt(e)%ilat)
+
+
+          soil%rhosoil_vec(landpt(e)%cstart:landpt(e)%cend,klev) =& !1
+             inrhosoil(landpt(e)%ilon,landpt(e)%ilat)
+
+
+          soil%cnsd_vec(landpt(e)%cstart:landpt(e)%cend,klev) =& !1
+             incnsd(landpt(e)%ilon,landpt(e)%ilat)
+
+
+          soil%css_vec(landpt(e)%cstart:landpt(e)%cend,klev) =& !1
+             incss(landpt(e)%ilon,landpt(e)%ilat)
+
+          end do
+       end do
+   end if
     
     DO e=1,mland
-    DO ii=landpt(e)%cstart,landpt(e)%cend
-      jj = ii-landpt(e)%cstart+1
+      ii=landpt(e)%cstart
+      jj=landpt(e)%cend
       DO klev=1,ms
-         soil%sand_vec(ii,klev) = insand(landpt(e)%ilon,landpt(e)%ilat)
-         soil%clay_vec(ii,klev) = inclay(landpt(e)%ilon,landpt(e)%ilat)
-         soil%silt_vec(ii,klev) = insilt(landpt(e)%ilon,landpt(e)%ilat)
-         soil%org_vec(ii,klev)  = inorg(landpt(e)%ilon,landpt(e)%ilat)
+         soil%sand_vec(ii:jj,klev) = insand(landpt(e)%ilon,landpt(e)%ilat)
+         soil%clay_vec(ii:jj,klev) = inclay(landpt(e)%ilon,landpt(e)%ilat)
+         soil%silt_vec(ii:jj,klev) = insilt(landpt(e)%ilon,landpt(e)%ilat)
+         soil%org_vec(ii:jj,klev)  = inorg(landpt(e)%ilon,landpt(e)%ilat)
          !
          IF (klev .gt. 3) soil%org_vec(ii,klev) =  0.0
       END DO
-    ENDDO
     ENDDO
 
     !removed gw_soils for now
@@ -2986,6 +2980,11 @@ END SUBROUTINE report_parameters
          integer :: varid
          integer :: varinq_status,varget_status
 
+         if (.not.cable_user%gw_model) then
+
+            GW2d_data(:,:) = default_data(:,:)
+
+         else
 
          if (try_it .ne. nf90_noerr) then
             varinq_status = try_it
@@ -3004,7 +3003,7 @@ END SUBROUTINE report_parameters
          if (try_it.ne. nf90_noerr .or. varget_status .ne. nf90_noerr) then
             GW2d_data(:,:) = default_data(:,:)
          end if
-
+         end if
          return
 
    end function
@@ -3023,6 +3022,12 @@ END SUBROUTINE report_parameters
          integer :: varid
          integer :: varinq_status,varget_status
 
+         if (.not. cable_user%gw_model) then
+            do k=1,ms
+               GW3d_data(:,:,k) = default_data(:,:)
+            end do
+
+         else
          if (try_it .ne. nf90_noerr) then
             varinq_status = try_it
             varget_status = try_it
@@ -3038,11 +3043,13 @@ END SUBROUTINE report_parameters
          end if
 
          if (try_it.ne. nf90_noerr .or. varget_status .ne. nf90_noerr) then
-            do k=1,size(GW3d_data,dim=3)
+            do k=1,ms
                GW3d_data(:,:,k) = default_data(:,:)
             end do
          end if
 
+
+         end if
          return
 
    end function
@@ -3061,6 +3068,14 @@ END SUBROUTINE report_parameters
          integer :: varid
          integer :: varinq_status,varget_status
 
+
+         if (.not.cable_user%gw_model) then
+            do k=1,ms
+               do n=1,npatch
+                  GW4d_data(:,:,k,n) = default_data(:,:)
+               end do
+            end do
+         else
          if (try_it .ne. nf90_noerr) then
             varinq_status = try_it
             varget_status = try_it
@@ -3081,6 +3096,9 @@ END SUBROUTINE report_parameters
                   GW4d_data(:,:,k,n) = default_data(:,:)
                end do
             end do
+         end if
+
+
          end if
 
          return
