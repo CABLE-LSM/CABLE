@@ -246,6 +246,9 @@ MODULE cable_common_module
       TYPE(organic_soil_params) :: org
 
       INTEGER :: level_for_satfrac = 6
+
+      INTEGER :: aq_recharge=1
+
       LOGICAL :: ssgw_ice_switch = .false.
  
       LOGICAL :: subsurface_sat_drainage = .true.
