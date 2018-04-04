@@ -237,18 +237,12 @@ MODULE cable_common_module
         sfc_vec_hk      = 1.157407e-06, &
         swilt_vec_hk      = 2.31481481e-8
 
-      REAL :: macro_down = 1.0,&
-              GWmacro_down = 1.1
 
-      REAL :: Tmlt = 271.16  !soil temperature we start to melt ice
       REAL :: ice_impedence=5.0
 
       TYPE(organic_soil_params) :: org
 
       INTEGER :: level_for_satfrac = 6
-
-      INTEGER :: aq_recharge=1
-
       LOGICAL :: ssgw_ice_switch = .false.
  
       LOGICAL :: subsurface_sat_drainage = .true.
