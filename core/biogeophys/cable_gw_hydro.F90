@@ -99,11 +99,9 @@ SUBROUTINE GWsoilfreeze(dels, soil, ssnow)
  
    max_ice_frac(:,:) = 0.0
    delta_ice_vol(:,:) = 0.0
-   tgg_old(:,:) = real(ssnow%otgg(:,:),r_2)
-   tgg_new(:,:) = real(ssnow%tgg(:,:),r_2)
-   tgg_tmp(:,:) = tgg_old(:,:)
-
+   tgg_tmp(:,:) = ssnow%tgg(:,:)
    gammzz_snow(:,:) = 0._r_2
+
    k=1
    do i=1,mp
       if (ssnow%isflag(i) .eq. 0 .and. soil%isoilm(i) .ne. 9) then
