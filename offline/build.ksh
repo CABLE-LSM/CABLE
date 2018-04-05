@@ -409,6 +409,7 @@ i_do_now()
 
 build_build()
 {
+   bash ./my_banner.sh
    if [[ ${dosvn} -eq 1 ]] ; then
        # write file for consumption by Fortran code
        # get SVN revision number 
