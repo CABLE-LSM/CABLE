@@ -1769,7 +1769,7 @@ END SUBROUTINE calc_soil_hydraulic_props
           end if
        end if
 
-       ssnow%qhlev(i,:) = ssnow%qhlev(i,:) + ssnow%qhz(i)
+       ssnow%qhlev(i,:) = ssnow%qhlev(i,:) * ssnow%qhz(i)
 
        !incase every layer is frozen very dry
        ssnow%qhz(i) = sum(ssnow%qhlev(i,:),dim=1)
