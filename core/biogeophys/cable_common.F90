@@ -227,6 +227,7 @@ MODULE cable_common_module
       REAL ::                   &
         MaxHorzDrainRate=2e-4,  & !anisintropy * q_max [qsub]
         EfoldHorzDrainRate=2.0, & !e fold rate of q_horz
+        EfoldHorzDrainScale=1.0, & !e fold rate of q_horz
         MaxSatFraction=2500.0,     & !parameter controll max sat fraction
         hkrz=0.5,               & !hyds_vec variation with z
         zdepth=1.5,             & !level where hyds_vec(z) = hyds_vec(no z)

@@ -1552,14 +1552,14 @@ CONTAINS
     REAL(r_2), dimension(mp,ms) :: perc_frac
     REAL(r_2), DIMENSION(17)    :: psi_o,psi_c
     REAL(r_2), DIMENSION(mp,ms) :: psi_tmp
-    REAL(r_2), DIMENSION(ms) :: soil_depth
+    REAL(r_2), DIMENSION(mp,ms) :: soil_depth
     REAL(r_2), DIMENSION(:,:), ALLOCATABLE :: ssat_bounded,rho_soil_bulk
 
     where(veg%iveg .eq. 17) soil%isoilm = 9
 
-    soil_depth(1) = real(soil%zse(1),r_2)
+    soil_depth(:,1) = soil%zse_vec(:,1)
     do klev=2,ms
-       soil_depth(klev) = soil_depth(klev-1) + real(soil%zse(klev),r_2)
+       soil_depth(:,klev) = soil_depth(:,klev-1) + soil%zse_vec(:,klev)
     end do
 
     psi_o(1:3)  = -66000._r_2
@@ -1589,7 +1589,8 @@ CONTAINS
        soil%srf_frac_ma(:) = 0._r_2
        soil%edepth_ma(:)   = 0._r_2
 
-       soil%qhz_efold(:) = (1._r_2+soil%drain_dens(:))*real(gw_params%EfoldHorzDrainRate,r_2)
+       soil%qhz_efold(:) = (1._r_2+real(gw_params%EfoldHorzDrainScale,r_2)*soil%drain_dens(:))*&
+                                         real(gw_params%EfoldHorzDrainRate,r_2)
 
        !include organin impact.  fraction of grid cell where percolation through
        !organic macropores dominates
@@ -1617,7 +1618,7 @@ CONTAINS
                    !single parameter fit cosby 1984 WRR
                    if (gw_params%cosby_univariate) then
                      soil%hyds_vec(i,klev) = 0.0070556*10.0**(-0.884 + 1.53*soil%sand_vec(i,klev))* &
-                                              exp(-soil%hkrz(i)*(soil_depth(klev)-soil%zdepth(i)))
+                                              exp(-soil%hkrz(i)*(soil_depth(i,klev)-soil%zdepth(i)))
                      soil%sucs_vec(i,klev) = 10.0 * 10.0**(1.88 -1.31*soil%sand_vec(i,klev))
                      soil%bch_vec(i,klev) = 2.91 + 15.9*soil%clay_vec(i,klev)
                      soil%ssat_vec(i,klev) = min(0.489,max(0.1, 0.489 - 0.126*soil%sand_vec(i,klev) ) )
@@ -1627,7 +1628,7 @@ CONTAINS
                    elseif (gw_params%cosby_multivariate) then
                      soil%hyds_vec(i,klev) = 0.00706*(10.0**(-0.60 + 1.26*soil%sand_vec(i,klev) + &
                                                              -0.64*soil%clay_vec(i,klev) ) )*&
-                                              exp(-soil%hkrz(i)*(soil_depth(klev)-soil%zdepth(i)))
+                                              exp(-soil%hkrz(i)*(soil_depth(i,klev)-soil%zdepth(i)))
                      soil%sucs_vec(i,klev) = 10.0 * 10.0**(1.54 - 0.95*soil%sand_vec(i,klev) + &  
                                                                0.63*soil%silt_vec(i,klev) ) 
                      soil%bch_vec(i,klev) = 3.1 + 15.4*soil%clay_vec(i,klev) -  &
@@ -1638,18 +1639,10 @@ CONTAINS
                      soil%watr(i,klev) = 0.02 + 0.018*soil%clay_vec(i,klev) 
 
                      else
-                      soil%hyds_vec(i,klev) = soil%hyds_vec(i,klev) *exp(-soil%hkrz(i)*(soil_depth(klev)-soil%zdepth(i)))
+                      soil%hyds_vec(i,klev) = soil%hyds_vec(i,klev) *exp(-soil%hkrz(i)*(soil_depth(i,klev)-soil%zdepth(i)))
 
                    end if
 
-               !else
-               !    soil%hyds_vec(i,klev) = 1000.0*soil%hyds(i) * &
-               !                            exp(-soil%hkrz(i)*(max(0.,soil_depth(klev)-soil%zdepth(i))))
-               !    soil%sucs_vec(i,klev) = abs(1000.0 * soil%sucs(i))
-               !    soil%bch_vec(i,klev) =  soil%bch(i)
-               !    soil%ssat_vec(i,klev) = soil%ssat(i)
-               !    soil%watr(i,klev) = 0.0
-               !end if
             end do
            END DO
 
@@ -1659,7 +1652,7 @@ CONTAINS
                     !soil%org_vec(i,klev) .gt. 1.0e-6) then
                    soil%hyds_vec(i,klev)  = (1.-soil%org_vec(i,klev))*soil%hyds_vec(i,klev) + &
                                                 soil%org_vec(i,klev)*gw_params%org%hyds_vec*&
-                                                 exp(-soil%hkrz(i)*(soil_depth(klev)-soil%zdepth(i)))
+                                                 exp(-soil%hkrz(i)*(soil_depth(i,klev)-soil%zdepth(i)))
                    soil%sucs_vec(i,klev) = (1.-soil%org_vec(i,klev))*soil%sucs_vec(i,klev) + &
                                                soil%org_vec(i,klev)*gw_params%org%sucs_vec
                    soil%bch_vec(i,klev) = (1.-soil%org_vec(i,klev))*soil%bch_vec(i,klev) +&
@@ -1701,7 +1694,7 @@ CONTAINS
        ELSE
 
           DO klev=1,ms
-              soil%hyds_vec(:,klev) = soil%hyds_vec(:,klev)*exp(-soil%hkrz(i)*(soil_depth(klev)-soil%zdepth(i)))
+              soil%hyds_vec(:,klev) = soil%hyds_vec(:,klev)*exp(-soil%hkrz(:)*(soil_depth(:,klev)-soil%zdepth(:)))
           END DO
 
        END IF  !use either uni or multi cosby transfer func
