@@ -61,7 +61,7 @@ MODULE cable_param_module
   USE cable_IO_vars_module
   USE cable_common_module, ONLY: cable_user, hide, &
                                  gw_params,init_veg_from_vegin,filename,&
-                                 report_parameters_to_log
+                                 report_parameters_to_log,psi_c,psi_o
   USE cable_pft_params_mod
   USE cable_soil_params_mod
   USE CABLE_LUC_EXPT, ONLY: LUC_EXPT, LUC_EXPT_TYPE, LUC_EXPT_SET_TILES
@@ -1421,6 +1421,12 @@ CONTAINS
    ssnow%wbliq = ssnow%wb - ssnow%wbice
    ssnow%GWwb = soil%GWssat_vec
 
+   ssnow%wb_hys = -1.0e+36
+   ssnow%hys_fac = 1.0
+   ssnow%watr_hys = soil%watr
+   ssnow%ssat_hys = soil%ssat_vec
+   ssnow%smp_hys  = -1.0e+36
+
    !IF(hide%Ticket49Bug5) THEN
 
 !! vh_js !! neeed to remove this if to enable the code below
@@ -1550,9 +1556,9 @@ CONTAINS
     REAL    :: tmp2(mp)
 
     REAL(r_2), dimension(mp,ms) :: perc_frac
-    REAL(r_2), DIMENSION(17)    :: psi_o,psi_c
+    !REAL(r_2), DIMENSION(17)    :: psi_o,psi_c
     REAL(r_2), DIMENSION(mp,ms) :: psi_tmp
-    REAL(r_2), DIMENSION(mp,ms) :: soil_depth
+    REAL(r_2), DIMENSION(mp,ms) :: soil_depth,rhosoil_temp
     REAL(r_2), DIMENSION(:,:), ALLOCATABLE :: ssat_bounded,rho_soil_bulk
 
     where(veg%iveg .eq. 17) soil%isoilm = 9
@@ -1562,14 +1568,14 @@ CONTAINS
        soil_depth(:,klev) = soil_depth(:,klev-1) + soil%zse_vec(:,klev)
     end do
 
-    psi_o(1:3)  = -66000._r_2
-    psi_o(4)    = -35000._r_2
-    psi_o(5)    = -83000._r_2
-    psi_o(6:17) = -74000._r_2
-    psi_c(1:3)  = -2550000._r_2
-    psi_c(4)    = -2240000._r_2
-    psi_c(5)    = -4280000._r_2
-    psi_c(6:17) = -2750000._r_2
+    !psi_o(1:3)  = -66000._r_2
+    !psi_o(4)    = -35000._r_2
+    !psi_o(5)    = -83000._r_2
+    !psi_o(6:17) = -74000._r_2
+    !psi_c(1:3)  = -2550000._r_2
+    !psi_c(4)    = -2240000._r_2
+    !psi_c(5)    = -4280000._r_2
+    !psi_c(6:17) = -2750000._r_2
     ! Construct derived parameters and zero initialisations,
     ! regardless of where parameters and other initialisations
     ! have loaded from:
@@ -1589,8 +1595,8 @@ CONTAINS
        soil%srf_frac_ma(:) = 0._r_2
        soil%edepth_ma(:)   = 0._r_2
 
-       soil%qhz_efold(:) = (1._r_2+real(gw_params%EfoldHorzDrainScale,r_2)*soil%drain_dens(:))*&
-                                         real(gw_params%EfoldHorzDrainRate,r_2)
+       soil%qhz_efold(:) = real(gw_params%EfoldHorzDrainScale,r_2)*soil%drain_dens(:)&
+                                   +   real(gw_params%EfoldHorzDrainRate,r_2)
 
        !include organin impact.  fraction of grid cell where percolation through
        !organic macropores dominates
@@ -1609,47 +1615,93 @@ CONTAINS
        END DO
 
        !use single var (uni) or two var (multi) regression from COsby 1984 
-       if (gw_params%cosby_univariate .or. gw_params%cosby_multivariate) THEN
+       if (gw_params%cosby_univariate .or. &
+           gw_params%cosby_multivariate .or. &
+           gw_params%HC_SWC ) THEN
 
-          DO klev=1,ms
-             do i=1,mp
+           rhosoil_temp(:,:) = (1.0-soil%org_vec(:,:))* 2.7*(1.0-soil%ssat_vec(:,:))+&
+                          soil%org_vec(:,:)*gw_params%org%ssat_vec
 
-               ! if (soil%isoilm(i) .ne. 9 .and. veg%iveg(i) .ne. 16) then
-                   !single parameter fit cosby 1984 WRR
-                   if (gw_params%cosby_univariate) then
-                     soil%hyds_vec(i,klev) = 0.0070556*10.0**(-0.884 + 1.53*soil%sand_vec(i,klev))* &
-                                              exp(-soil%hkrz(i)*(soil_depth(i,klev)-soil%zdepth(i)))
-                     soil%sucs_vec(i,klev) = 10.0 * 10.0**(1.88 -1.31*soil%sand_vec(i,klev))
-                     soil%bch_vec(i,klev) = 2.91 + 15.9*soil%clay_vec(i,klev)
-                     soil%ssat_vec(i,klev) = min(0.489,max(0.1, 0.489 - 0.126*soil%sand_vec(i,klev) ) )
-                     !forgot source but not from cosby and not for BC characteristic function
-                     soil%watr(i,klev) = 0.02 + 0.018*soil%clay_vec(i,klev) !forgot
-                   !!!2 parameters
-                   elseif (gw_params%cosby_multivariate) then
-                     soil%hyds_vec(i,klev) = 0.00706*(10.0**(-0.60 + 1.26*soil%sand_vec(i,klev) + &
-                                                             -0.64*soil%clay_vec(i,klev) ) )*&
-                                              exp(-soil%hkrz(i)*(soil_depth(i,klev)-soil%zdepth(i)))
-                     soil%sucs_vec(i,klev) = 10.0 * 10.0**(1.54 - 0.95*soil%sand_vec(i,klev) + &  
-                                                               0.63*soil%silt_vec(i,klev) ) 
-                     soil%bch_vec(i,klev) = 3.1 + 15.4*soil%clay_vec(i,klev) -  &
-                                                    0.3*soil%sand_vec(i,klev)
-                     soil%ssat_vec(i,klev) = 0.505 - 0.142*soil%sand_vec(i,klev) - &
-                                                     0.037*soil%clay_vec(i,klev)
-                     !forgot source but not from cosby and not for BC characteristic function
-                     soil%watr(i,klev) = 0.02 + 0.018*soil%clay_vec(i,klev) 
+          DO klev=1,ms;do i=1,mp
+            if (gw_params%cosby_univariate) then
+                soil%hyds_vec(i,klev) = 0.0070556*10.0**(-0.884 + 1.53*soil%sand_vec(i,klev))* &
+                                         exp(-soil%hkrz(i)*(soil_depth(i,klev)-soil%zdepth(i)))
+                soil%sucs_vec(i,klev) = 10.0 * 10.0**(1.88 -1.31*soil%sand_vec(i,klev))
+                soil%bch_vec(i,klev) = 2.91 + 15.9*soil%clay_vec(i,klev)
+                soil%ssat_vec(i,klev) = min(0.489,max(0.1, 0.489 - 0.126*soil%sand_vec(i,klev) ) )
+                !forgot source but not from cosby and not for BC characteristic function
+                soil%watr(i,klev) = 0.02 + 0.018*soil%clay_vec(i,klev) !forgot
+              !!!2 parameters
+                 soil%wbc_vec(i,klev) = 0.0
+                 soil%smpc_vec(i,klev) = 0.0
+            elseif (gw_params%cosby_multivariate) then
+                soil%hyds_vec(i,klev) = 0.00706*(10.0**(-0.60 + 1.26*soil%sand_vec(i,klev) + &
+                                                        -0.64*soil%clay_vec(i,klev) ) )*&
+                                         exp(-soil%hkrz(i)*(soil_depth(i,klev)-soil%zdepth(i)))
+                soil%sucs_vec(i,klev) = 10.0 * 10.0**(1.54 - 0.95*soil%sand_vec(i,klev) + &  
+                                                          0.63*soil%silt_vec(i,klev) ) 
+                soil%bch_vec(i,klev) = 3.1 + 15.4*soil%clay_vec(i,klev) -  &
+                                               0.3*soil%sand_vec(i,klev)
+                soil%ssat_vec(i,klev) = 0.505 - 0.142*soil%sand_vec(i,klev) - &
+                                                0.037*soil%clay_vec(i,klev)
+                !forgot source but not from cosby and not for BC characteristic function
+                soil%watr(i,klev) = 0.02 + 0.018*soil%clay_vec(i,klev) 
+                 soil%wbc_vec(i,klev) = 0.0
+                 soil%smpc_vec(i,klev) = 0.0
 
-                     else
-                      soil%hyds_vec(i,klev) = soil%hyds_vec(i,klev) *exp(-soil%hkrz(i)*(soil_depth(i,klev)-soil%zdepth(i)))
+              elseif (gw_params%HC_SWC) THEN
+                !Hutson-Cass SWC : seperate dry/wet
+                !avoid discont in derv at smp=sucs
+                !pedo transfer from T. Mayr, N.J. JarÕisr Geoderma 91
+                ! 1999
+                soil%sucs_vec(i,klev) = 10.0 * 10.0** ( -4.98403 +& 
+                                         5.0922*soil%sand_vec(i,klev) +            & 
+                                         15.751*soil%silt_vec(i,klev) +            & 
+                                         0.124090*rhosoil_temp(i,klev) -     & 
+                                         16.4000*soil%org_vec(i,klev) -            &   
+                                         21.76*(soil%silt_vec(i,klev)**2.0) +      &   
+                                         14.382*(soil%silt_vec(i,klev)**3.0) +     &   
+                                         8.0407*(soil%clay_vec(i,klev)**2.0) +     &  
+                                         44.06*(soil%org_vec(i,klev)**2.0) )
 
-                   end if
+                soil%bch_vec(i,klev) = 10.0**(1.0 / (-0.84669 - &
+                                            0.4680*soil%sand_vec(i,klev) &
+                                            +.9246*soil%silt_vec(i,klev)  &
+                                            -0.4543*rhosoil_temp(i,klev) &
+                                            -0.04979*soil%org_vec(i,klev) &
+                                            +3.2947*(soil%sand_vec(i,klev)**2.0) &
+                                            -1.689*(soil%sand_vec(i,klev)**3.0) &
+                                            +11.2*(soil%org_vec(i,klev)**3.0) ))
 
-            end do
-           END DO
+                soil%ssat_vec(i,klev) = 0.234597 +    &
+                                       0.466142*soil%sand_vec(i,klev) + &
+                                       0.88163*soil%silt_vec(i,klev) + &
+                                       0.643386*soil%clay_vec(i,klev) - &
+                                       0.3028160*rhosoil_temp(i,klev) + &
+                                       0.179762*(soil%sand_vec(i,klev)**2.0) - &
+                                       0.03134631*(soil%silt_vec(i,klev)**2.0)
 
-          DO klev=1,ms  !0-23.3 cm, data really is to 30cm
-             do i=1,mp
-!                if (soil%isoilm(i) .ne. 9 .and. veg%iveg(i) .ne. 16 .and.&
-                    !soil%org_vec(i,klev) .gt. 1.0e-6) then
+                soil%hyds_vec(i,klev) = 0.00706*(10.0**(&
+                                             -0.60 + 1.26*soil%sand_vec(i,klev)+&
+                                             -0.64*soil%clay_vec(i,klev) ) )*&
+                                         exp(-soil%hkrz(i)*&
+                                 (soil_depth(i,klev)-soil%zdepth(i)))
+
+                soil%watr(i,klev) = 0.0
+                if (klev .eq. 1) soil%GWwatr(i) = 0.0
+
+                else
+
+                 soil%hyds_vec(i,klev) = soil%hyds_vec(i,klev) *&
+                                           exp(-soil%hkrz(i)*(soil_depth(i,klev)-soil%zdepth(i)))
+
+              end if
+
+          end do; end do
+
+          if (.not.gw_params%HC_SWC) then
+             DO klev=1,ms  !0-23.3 cm, data really is to 30cm
+                do i=1,mp
                    soil%hyds_vec(i,klev)  = (1.-soil%org_vec(i,klev))*soil%hyds_vec(i,klev) + &
                                                 soil%org_vec(i,klev)*gw_params%org%hyds_vec*&
                                                  exp(-soil%hkrz(i)*(soil_depth(i,klev)-soil%zdepth(i)))
@@ -1661,10 +1713,9 @@ CONTAINS
                                                soil%org_vec(i,klev)*gw_params%org%ssat_vec
                    soil%watr(i,klev)   = (1.-soil%org_vec(i,klev))*soil%watr(i,klev) + &
                                              soil%org_vec(i,klev)*gw_params%org%watr
-!                end if
+                END DO
              END DO
-          END DO
-
+          end if
           !!vegetation dependent field capacity (point plants get stressed) and
           do klev=1,ms
              do i=1,mp
@@ -1672,13 +1723,21 @@ CONTAINS
 
                    psi_tmp(i,klev) = abs(psi_c(veg%iveg(i)))
             
-                   soil%swilt_vec(i,klev) = (soil%ssat_vec(i,klev)-soil%watr(i,klev)) * &
+                   soil%swilt_vec(i,klev) = (ssnow%ssat_hys(i,klev)-ssnow%watr_hys(i,klev)) * &
                                             (psi_tmp(i,klev)/soil%sucs_vec(i,klev))&
                                              **(-1.0/soil%bch_vec(i,klev))+&
-                                            soil%watr(i,klev)
+                                            ssnow%watr_hys(i,klev)
                    soil%sfc_vec(i,klev) = (gw_params%sfc_vec_hk/soil%hyds_vec(i,klev))&
                                            **(1.0/(2.0*soil%bch_vec(i,klev)+3.0)) *&
-                                           (soil%ssat_vec(i,klev)-soil%watr(i,klev)) + soil%watr(i,klev)
+                                           (ssnow%ssat_hys(i,klev)-ssnow%watr_hys(i,klev)) + ssnow%watr_hys(i,klev)
+            
+                   !soil%swilt_vec(i,klev) = (soil%ssat_vec(i,klev)-soil%watr(i,klev)) * &
+                   !                         (psi_tmp(i,klev)/soil%sucs_vec(i,klev))&
+                   !                          **(-1.0/soil%bch_vec(i,klev))+&
+                   !                         soil%watr(i,klev)
+                   !soil%sfc_vec(i,klev) = (gw_params%sfc_vec_hk/soil%hyds_vec(i,klev))&
+                   !                        **(1.0/(2.0*soil%bch_vec(i,klev)+3.0)) *&
+                   !                        (soil%ssat_vec(i,klev)-soil%watr(i,klev)) + soil%watr(i,klev)
             
                    soil%swilt_vec(i,klev) = min(0.95*soil%sfc_vec(i,klev),soil%swilt_vec(i,klev))
 
@@ -1878,6 +1937,43 @@ CONTAINS
     ssnow%wblf =0.01
     ssnow%wbfice =0.99
   endwhere
+
+  do k=1,ms
+     do i=1,mp
+        if (ssnow%wb_hys(i,k) .lt. 0._r_2) then
+           ssnow%wb_hys(i,k) = ssnow%wb(i,k)
+        end if
+        ssnow%wb_hys(i,k)  = max(soil%watr(i,k) ,min(soil%ssat_vec(i,k), ssnow%wb_hys(i,k)))
+
+       if (ssnow%smp_hys(i,k) .lt. -1.0e+30_r_2) then  !set to missing, calc
+          ssnow%smp_hys(i,k) = -soil%sucs_vec(i,k)*  &
+                               ( (ssnow%wb_hys(i,k)-ssnow%watr_hys(i,k))/&
+                                 (ssnow%ssat_hys(i,k)-ssnow%watr_hys(i,k)) )**&
+                                (-1._r_2/soil%bch_vec(i,k) )
+       end if
+       ssnow%smp_hys(i,k) = max(-1.0e10,min(-soil%sucs_vec(i,k),ssnow%smp_hys(i,k) ))
+    end do
+  end do
+  
+  if (cable_user%gw_model .and. gw_params%bc_hysteresis) then
+      do klev=1,ms
+         do i=1,mp
+            if (soil%isoilm(i) .ne. 9 .and. veg%iveg(i) .le. 16) then
+
+               psi_tmp(i,klev) = abs(psi_c(veg%iveg(i)))
+        
+               soil%swilt_vec(i,klev) = (ssnow%ssat_hys(i,klev)-ssnow%watr_hys(i,klev)) * &
+                                        (psi_tmp(i,klev)/soil%sucs_vec(i,klev))&
+                                         **(-1.0/soil%bch_vec(i,klev))+&
+                                        ssnow%watr_hys(i,klev)
+               soil%sfc_vec(i,klev) = (gw_params%sfc_vec_hk/soil%hyds_vec(i,klev))&
+                                       **(1.0/(2.0*soil%bch_vec(i,klev)+3.0)) *&
+                                       (ssnow%ssat_hys(i,klev)-ssnow%watr_hys(i,klev)) + ssnow%watr_hys(i,klev)
+            end if
+        end do
+     end do
+
+   end if
   END SUBROUTINE derived_parameters
   !============================================================================
   SUBROUTINE check_parameter_values(soil, veg, ssnow)
@@ -2768,6 +2864,12 @@ END SUBROUTINE report_parameters
 
     if (file_status .eq. nf90_noerr) &
          file_status = nf90_close(ncid_elev)
+
+    !set the default IC for hysteresis state
+    ssnow%smp_hys(:,:) = -soil%sucs_vec(:,:)
+    ssnow%hys_fac(:,:) = 1.0
+    ssnow%watr_hys(:,:) = soil%watr(:,:)
+    ssnow%ssat_hys(:,:) = soil%ssat_vec(:,:)
 
     ELSE  !gw_model=false
 

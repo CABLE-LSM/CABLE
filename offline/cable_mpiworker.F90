@@ -272,7 +272,7 @@ CONTAINS
          cable_user,       &  ! additional USER switches
          gw_params
 
-    INTEGER :: i,x,kk
+    INTEGER :: i,x,kk,klev
     INTEGER :: LALLOC, iu
     ! END header
 
@@ -647,6 +647,61 @@ call flush(wlogn)
              ssnow%rnof2  = ssnow%rnof2*dels
              ssnow%runoff = ssnow%runoff*dels
 
+                    ! check for Nans in biophysical outputs and abort if there are any          
+                    DO kk=1,mp
+
+                     IF (canopy%fe(kk).NE. canopy%fe(kk)) THEN
+                      WRITE(wlogn,*) 'Nan in evap flux'
+                      write(wlogn,*) 'mp ',kk
+                      write(wlogn,*) 'ktau ',ktau
+                       write(wlogn,*) 'qv-',met%qv(kk)
+                       write(wlogn,*) 'precip',met%precip(kk)
+                       write(wlogn,*) 'sn-',met%precip_sn(kk)
+                      write(wlogn,*) 'fld-',met%fld(kk)
+                      write(wlogn,*) 'fsd1',met%fsd(kk,1)
+                      write(wlogn,*) 'fsd2',met%fsd(kk,2)
+                      write(wlogn,*) 'tk', met%tk(kk)
+                      write(wlogn,*) 'ua', met%ua(kk)
+                      write(wlogn,*) 'potev',ssnow%potev(kk)
+                      write(wlogn,*) 'pmb', met%pmb(kk)
+                      write(wlogn,*) 'ga', canopy%ga(kk)
+                      do klev=1,ms
+                         write(wlogn,*) 'lvl',klev,'tgg',ssnow%tgg(kk,klev)
+                         write(wlogn,*) 'lvl',klev,'wb',ssnow%wb(kk,klev)
+                         write(wlogn,*) 'lvl',klev,'wbliq',ssnow%wbliq(kk,klev)
+                         write(wlogn,*) 'lvl',klev,'wbice',ssnow%wbice   (kk,klev)  
+                         write(wlogn,*) 'lvl',klev,'smp',ssnow%smp     (kk,klev)  
+                         write(wlogn,*) 'lvl',klev,'hk',ssnow%hk      (kk,klev) 
+                         write(wlogn,*) 'lvl',klev,'smp_hys',ssnow%smp_hys (kk,klev) 
+                         write(wlogn,*) 'lvl',klev,'ssat_hys',ssnow%ssat_hys(kk,klev)  
+                         write(wlogn,*) 'lvl',klev,'watr_hys',ssnow%watr_hys(kk,klev)  
+                         write(wlogn,*) 'lvl',klev,'wb_hys',ssnow%wb_hys  (kk,klev) 
+                         write(wlogn,*) 'lvl',klev,'hys_fac',ssnow%hys_fac (kk,klev)  
+
+                         write(wlogn,*) 'lvl',klev,'ssuc_vec',soil%sucs_vec(kk,klev)  
+                         write(wlogn,*) 'lvl',klev,'ssat_vec',soil%ssat_vec(kk,klev)  
+                         write(wlogn,*) 'lvl',klev,'watr_hys',soil%watr(kk,klev)  
+                      end do
+                      write(wlogn,*) 'rh',ssnow%rh_srf(kk)
+                      write(wlogn,*) 'or sat',ssnow%rtevap_sat(kk)
+                      write(wlogn,*) 'or unsat',ssnow%rtevap_unsat(kk)
+                      write(wlogn,*) 'sub dz',canopy%sublayer_dz(kk)
+                      write(wlogn,*) 'fwsoil',canopy%fwsoil(kk)
+                      write(wlogn,*) 'vlai1',rad%fvlai(kk,1) 
+                      write(wlogn,*) 'vlai2',rad%fvlai(kk,2)
+                      write(wlogn,*) 'vlaiw', canopy%vlaiw(kk)
+                      write(wlogn,*) 'snowd',ssnow%snowd(kk)
+                      write(wlogn,*) 'satfrac',ssnow%satfrac(kk)
+                      write(wlogn,*) 'GWwb',ssnow%GWwb(kk)
+                      write(wlogn,*) 'wtd',ssnow%wtd(kk)
+                      write(wlogn,*) 'rnof1',ssnow%rnof1(kk)
+                      write(wlogn,*) 'rnof2',ssnow%rnof2(kk)
+                      write(wlogn,*) 'isoil',soil%isoilm(kk)
+                      write(wlogn,*) 'iveg',veg%iveg(kk)
+                     end if
+
+                      
+                    ENDDO
 
              !jhan this is insufficient testing. condition for 
              !spinup=.false. & we want CASA_dump.nc (spinConv=.true.)
@@ -2425,6 +2480,30 @@ ENDIF
   CALL MPI_Get_address (soil%org_vec, displs(bidx), ierr)
   blen(bidx) = ms * r2len
 
+  bidx = bidx + 1
+  CALL MPI_Get_address (ssnow%ssat_hys, displs(bidx), ierr)
+  blen(bidx) = ms * r2len
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (ssnow%watr_hys, displs(bidx), ierr)
+  blen(bidx) = ms * r2len
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (ssnow%smp_hys, displs(bidx), ierr)
+  blen(bidx) = ms * r2len
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (ssnow%wb_hys, displs(bidx), ierr)
+  blen(bidx) = ms * r2len
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (ssnow%hys_fac, displs(bidx), ierr)
+  blen(bidx) = ms * r2len
+
 !1d
   bidx = bidx + 1
   CALL MPI_Get_address (soil%GWssat_vec, displs(bidx), ierr)
@@ -3957,6 +4036,26 @@ ENDIF
 
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%smp(off,1), displs(bidx), ierr)
+    blocks(bidx) = r2len * ms
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%wb_hys(off,1), displs(bidx), ierr)
+    blocks(bidx) = r2len * ms
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%smp_hys(off,1), displs(bidx), ierr)
+    blocks(bidx) = r2len * ms
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%ssat_hys(off,1), displs(bidx), ierr)
+    blocks(bidx) = r2len * ms
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%watr_hys(off,1), displs(bidx), ierr)
+    blocks(bidx) = r2len * ms
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%hys_fac(off,1), displs(bidx), ierr)
     blocks(bidx) = r2len * ms
 
     bidx = bidx + 1
@@ -7741,4 +7840,5 @@ END SUBROUTINE WORKER_CASAONLY_LUC
 
 
 END MODULE cable_mpiworker
+
 

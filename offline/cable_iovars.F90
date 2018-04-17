@@ -369,10 +369,15 @@ MODULE cable_IO_vars_module
          QhmaxEfold=.false.,&
          HKefold=.false.,&
          HKdepth=.false.,&
-         SMP=.false.
+         SMP=.false.,&
+         SMP_hys=.false.,&
+         WB_hys=.false.,&
+         SSAT_hys=.false.,&
+         WATR_hys=.false.,&
+         hys_fac=.false.
+
 
    END TYPE output_inclusion_type
-
 
    TYPE(output_inclusion_type),SAVE :: output
    TYPE(output_inclusion_type),SAVE :: patchout ! do we want patch-specific info

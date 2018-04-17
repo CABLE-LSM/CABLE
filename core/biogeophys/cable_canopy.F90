@@ -192,11 +192,8 @@ CONTAINS
     met%qvair = met%qv
     canopy%tv = met%tvair
 
-    if (cable_user%gw_model) then
-       ssnow%wbliq = ssnow%wb - 0.921*ssnow%wbice
-    else
-       ssnow%wbliq = ssnow%wb - ssnow%wbice
-    end if
+    ssnow%wbliq = ssnow%wb - ssnow%wbice
+
     CALL define_air (met, air)
 
     CALL qsatfjh(qstvair,met%tvair-C%tfrz,met%pmb)
