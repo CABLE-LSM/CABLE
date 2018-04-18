@@ -2992,11 +2992,23 @@ CONTAINS
     TYPE(balances_type),INTENT(INOUT)    :: bal
 
     INTEGER :: i ! do loop counter
+    character(len=:), allocatable :: str,alt_filename
+    integer :: cut_ind
 
     ! Close file
     ok = NF90_CLOSE(ncid_out)
     IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error closing output file '        &
                         //TRIM(filename%out)// '(SUBROUTINE close_output_file)')
+
+    if (cable_user%compress_output) then
+        cut_ind = scan(trim(filename%out),".", BACK= .true.)
+        if (cut_ind < 0 ) cut_ind = len(filename%out)
+
+        alt_filename = filename%out(1:cut_ind)//'_compressed.nc'
+
+        str=trim('ncks -O -4 -L 5 '//trim(filename%out)//' '//alt_filename)
+        call execute_command_line(str,wait=.false.)
+    end if
 
     ! Report balance info to log file if verbose writing is requested:
     IF(output%balances .AND. verbose) THEN
@@ -3477,7 +3489,7 @@ CONTAINS
             .TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
     END IF ! SLI soil model
 
-    if (cable_user%gw_model .and. gw_params%bc_hysteresis) then
+    if (cable_user%gw_model) then
        CALL define_ovar(ncid_restart,hys(1),'wb_hys','-',&
             'water (volumetric) at dry/wet switch', &
             .TRUE.,soilID,'soil',0,0,0,mpID,dummy,.TRUE.)
@@ -3760,7 +3772,7 @@ CONTAINS
             (/-99999.0,99999.0/),.TRUE.,'real',.TRUE.)
 
     END IF
-    if (cable_user%gw_model .and. gw_params%bc_hysteresis) then
+    if (cable_user%gw_model) then
        CALL write_ovar (ncid_restart,hys(1),'wb_hys',REAL(ssnow%wb_hys,4), &
             (/0.0,1.0/),.TRUE.,'soil',.TRUE.)
        CALL write_ovar (ncid_restart,hys(2),'smp_hys',REAL(ssnow%smp_hys,4), &
