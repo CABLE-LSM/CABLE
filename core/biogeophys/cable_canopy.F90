@@ -67,8 +67,9 @@ CONTAINS
     USE cable_common_module
     USE cable_roughness_module
     USE cable_psm, ONLY: or_soil_evap_resistance,rtevap_max,&
-                         rt_Dff
-    USE cable_gw_hydro_module, ONLY : pore_space_relative_humidity
+                         rt_Dff,update_or_soil_resis
+    USE cable_gw_hydro_module, ONLY : pore_space_relative_humidity,&
+                                     den_rat,set_den_rat
     USE sli_main_mod, ONLY : sli_main
 
 
@@ -115,9 +116,8 @@ CONTAINS
          rhlitt,        & ! REV_CORR working variables for litter resistances
          relitt,        & !
          alpm1,         & ! REV_CORR working variables for Or scheme
-         beta2          
-
-    REAL(r_2),DIMENSION(mp) :: alpm1_r2,beta2_r2
+         beta2,         & ! beta_div_alpm1 = beta2/alpm1 (goes to zero without 
+         beta_div_alpm    ! division when no canopy)
 
     ! temporary buffers to simplify equations
     REAL, DIMENSION(mp) ::                                                      &
@@ -191,8 +191,7 @@ CONTAINS
     met%tvair = met%tk
     met%qvair = met%qv
     canopy%tv = met%tvair
-
-    ssnow%wbliq = ssnow%wb - ssnow%wbice
+    canopy%fwsoil = 1.0
 
     CALL define_air (met, air)
 
@@ -210,6 +209,12 @@ CONTAINS
     ELSE
        ssnow%tss =  real((1-ssnow%isflag))*ssnow%tgg(:,1) +                    &
                         real(ssnow%isflag)*ssnow%tggsn(:,1)
+    endif
+    IF (cable_user%gw_model) then
+       if (call_number .eq. 1) call set_den_rat()
+       ssnow%wbliq(:,:) = ssnow%wb(:,:) - den_rat*ssnow%wbice(:,:)
+    else
+       ssnow%wbliq(:,:) = ssnow%wb(:,:) - ssnow%wbice(:,:)
     endif
     tss4 = ssnow%tss**4
     canopy%fes = 0.
@@ -231,8 +236,6 @@ CONTAINS
     relitt = 0.
     alpm1  = 0.
     beta2  = 0.
-    alpm1_r2  = 0.
-    beta2_r2  = 0.
 
     CALL radiation( ssnow, veg, air, met, rad, canopy )
 
@@ -848,77 +851,52 @@ CONTAINS
           !     (1.0-real(ssnow%satfrac))*real(ssnow%rh_srf)*&
           !      air%rho*air%rlam*ssnow%cls/ (ssnow%rtsoil+
           !      real(ssnow%rtevap_unsat) )
-           ssnow%dfe_ddq = real(ssnow%satfrac)/(ssnow%rtsoil+real(ssnow%rtevap_sat))  &
-                      + (1.0-real(ssnow%satfrac))*real(ssnow%rh_srf)&
+           ssnow%dfe_ddq = real(ssnow%satfrac)/(ssnow%rtsoil+ real(ssnow%rtevap_sat))  &
+                      + (1.0-real(ssnow%satfrac))*real(ssnow%rh_srf)                   &
                            / (ssnow%rtsoil+ real(ssnow%rtevap_unsat) )
 
+       !mrd561 fixes.  Do same thing as INH but has been tested.
            IF (cable_user%L_REV_CORR) THEN
-              !see Ticket #164 
-              !no REVCOR changes if %vlaiw < %LAI_THRESH as %rtsoil already
-              !includes %rt1 
+              alpm1  = real(ssnow%satfrac/(real(ssnow%rtsoil,r_2)+ ssnow%rtevap_sat) +     &
+                       (1.0-ssnow%satfrac) / (real(ssnow%rtsoil,r_2)+ ssnow%rtevap_unsat ) )
+              beta2 = real(ssnow%satfrac/(real(ssnow%rtsoil,r_2)+ ssnow%rtevap_sat) +     &
+                       (1.0-ssnow%satfrac) * ssnow%rh_srf                  &
+                        / (real(ssnow%rtsoil,r_2)+ ssnow%rtevap_unsat ) )
               WHERE (canopy%vlaiw > C%LAI_THRESH)
-                   alpm1 = real(ssnow%satfrac)/(ssnow%rtsoil+real(ssnow%rtevap_sat))+ &
-                       (1.0-real(ssnow%satfrac)) / (ssnow%rtsoil+&  
-                       real(ssnow%rtevap_unsat) ) + 1.0/rough%rt1
-                   
-                   beta2 = real(ssnow%satfrac)/(ssnow%rtsoil+real(ssnow%rtevap_sat))+ &
-                       (1.0-real(ssnow%satfrac)) * real(ssnow%rh_srf)&
-                        / (ssnow%rtsoil+ real(ssnow%rtevap_unsat) )
+                 alpm1 = alpm1 + 1._r_2/real(rough%rt1,r_2)
+                 beta_div_alpm  = beta2 / alpm1  !might need limit here
+                 rttsoil = ssnow%rtsoil + rough%rt1
+              ELSEWHERE!if there is no canopy then qa should not change
+                 beta_div_alpm=0.0  !do not divide by aplm1 prevent issues
+                 rttsoil = ssnow%rtsoil 
+              ENDWHERE
+              ssnow%dfh_dtg = air%rho*C%CAPP/(rttsoil +               & 
+                                        real(ssnow%rt_qh_sublayer))
+              ssnow%dfe_ddq = real(ssnow%satfrac*(1.0-real(beta_div_alpm,r_2)) /        & 
+                    (real(ssnow%rtsoil,r_2)+ ssnow%rtevap_sat) +           &
+                    (1.0-ssnow%satfrac)* (ssnow%rh_srf - real(beta_div_alpm,r_2)) /    &
+                    (real(ssnow%rtsoil,r_2)+ ssnow%rtevap_unsat ) )
 
-                   !Note use of rttsoil
-                   ssnow%dfh_dtg = air%rho*C%CAPP/(rttsoil +real(ssnow%rt_qh_sublayer))
-                   
-                   ssnow%dfe_ddq = real(ssnow%satfrac)*(1.0-beta2/alpm1) /& 
-                        (ssnow%rtsoil+ real(ssnow%rtevap_sat)) +&
-                        (1.0-real(ssnow%satfrac))* (real(ssnow%rh_srf) -beta2/alpm1) /&
-                        (ssnow%rtsoil+ real(ssnow%rtevap_unsat) )
-               ENDWHERE
+          ELSE
+             ssnow%dfh_dtg = air%rho*C%CAPP/(ssnow%rtsoil+ real(ssnow%rt_qh_sublayer))
 
+             ssnow%dfe_ddq = real(ssnow%satfrac)/(ssnow%rtsoil+ real(ssnow%rtevap_sat))  &
+                         + (1.0-real(ssnow%satfrac))*real(ssnow%rh_srf)                   &
+                              / (ssnow%rtsoil+ real(ssnow%rtevap_unsat) )
            ENDIF
                 
            !cls applies for both REV_CORR false and true          
            ssnow%dfe_ddq = ssnow%dfe_ddq*air%rho*air%rlam*ssnow%cls
            
-           !REV_CORR: factor %wetfac needed for potev>0. and gw_model &/or snow
-           !cover
+           !REV_CORR: factor %wetfac needed for potev>0. and gw_model &/or snow cover
            !NB %wetfac=1. if or_evap
            IF (cable_user%L_REV_CORR) THEN
              WHERE (ssnow%potev >= 0.)
                  ssnow%dfe_ddq = ssnow%dfe_ddq*ssnow%wetfac
              ENDWHERE       
           ENDIF
-       !my fixes but ians are better
-       !    IF (cable_user%L_REV_CORR) THEN
-       !       alpm1_r2 = ssnow%satfrac/(real(ssnow%rtsoil,r_2)+ ssnow%rtevap_sat) +     &
-       !                (1.0-ssnow%satfrac) / (real(ssnow%rtsoil,r_2)+ ssnow%rtevap_unsat )
-       !       beta2_r2 = ssnow%satfrac/(real(ssnow%rtsoil,r_2)+ ssnow%rtevap_sat) +     &
-       !                (1.0-ssnow%satfrac) * ssnow%rh_srf                  &
-       !                 / (real(ssnow%rtsoil,r_2)+ ssnow%rtevap_unsat )
-       !       WHERE (canopy%vlaiw > C%LAI_THRESH)
-       !          alpm1_r2 = alpm1_r2 + 1._r_2/real(rough%rt1,r_2)
-       !          beta2_r2 = beta2_r2 / alpm1_r2
-       !          rttsoil = ssnow%rtsoil + rough%rt1
-       !       ELSEWHERE!if there is no canopy then qa should not change
-       !          beta2_r2=0.0  !do not divide by aplm1 prevent issues
-       !          rttsoil = ssnow%rtsoil 
-       !       ENDWHERE
-       !       beta2 = real(beta2_r2)
-       !       alpm1 = real(alpm1_r2)
-       !       ssnow%dfh_dtg = air%rho*C%CAPP/(rttsoil +               & 
-       !                                 real(ssnow%rt_qh_sublayer))
-       !       ssnow%dfe_ddq = real(ssnow%satfrac*(1.0-beta2_r2) /        & 
-       !             (real(ssnow%rtsoil,r_2)+ ssnow%rtevap_sat) +           &
-       !             (1.0-ssnow%satfrac)* (ssnow%rh_srf - beta2_r2) /    &
-       !             (real(ssnow%rtsoil,r_2)+ ssnow%rtevap_unsat ) )
 
-       !   ELSE
-       !      ssnow%dfh_dtg = air%rho*C%CAPP/(ssnow%rtsoil+ real(ssnow%rt_qh_sublayer))
 
-       !      ssnow%dfe_ddq = real(ssnow%satfrac)/(ssnow%rtsoil+ real(ssnow%rtevap_sat))  &
-       !                  + (1.0-real(ssnow%satfrac))*real(ssnow%rh_srf)                   &
-       !                       / (ssnow%rtsoil+ real(ssnow%rtevap_unsat) )
-       !    ENDIF
-                
        ELSEIF (cable_user%litter) THEN
           !!vh_js!! INH simplifying code for legibility and REV_CORR
           !ssnow%dfh_dtg = air%rho*C%CAPP/(ssnow%rtsoil+ &
@@ -1176,15 +1154,12 @@ CONTAINS
 
             canopy%fess(j) = MIN(canopy%fess(j), real(fupper_limit(j),r_2))
 
-            !fupper_limit(j) = REAL(ssnow%wb(j,1)-ssnow%wbice(j,1)) * frescale(j)
             !Ticket 137 - case iii)
             !evaporation from frozen soils needs to respect the assumption that
             !ice fraction of soil moisture cannot exceed frozen_limit=0.85
             !see soilsnow: if frozen_limit changes need to be consistent 
             fupper_limit(j) = REAL(ssnow%wb(j,1)-ssnow%wbice(j,1)/0.85)*frescale(j)
             fupper_limit(j) = MAX(real(fupper_limit(j),r_2),0.)
-
-            fupper_limit(j) = REAL(ssnow%wb(j,1)-ssnow%wbice(j,1)) * frescale(j)
 
             canopy%fess(j) = min(canopy%fess(j), real(fupper_limit(j),r_2))
 
@@ -1318,7 +1293,6 @@ CONTAINS
                  (air%rho(j)*air%rlam(j))
 
             ! Within canopy air temperature:
-            !met%tvair(j) = met%tvair(j) + ( dmbe(j) * dmch(j) - dmbh(j) * dmce(j) )  &
             met%tvair(j) = met%tk(j) + ( dmbe(j) * dmch(j) - dmbh(j) * dmce(j) )  &
                  / (dmah(j)*dmbe(j)-dmae(j)*dmbh(j)+1.0e-12)
 
@@ -1331,7 +1305,6 @@ CONTAINS
             met%tvair(j) = MIN(met%tvair(j) , upper_limit)
 
             ! recalculate using canopy within temperature
-            !met%qvair(j) = met%qvair(j) + (dmah(j)*dmce(j)-dmae(j)*dmch(j)) /        &
             met%qvair(j) = met%qv(j) + (dmah(j)*dmce(j)-dmae(j)*dmch(j)) /        &
                  ( dmah(j)*dmbe(j)-dmae(j)*dmbh(j)+1.0e-12)
             met%qvair(j) = MAX(0.0,met%qvair(j))
@@ -1434,6 +1407,7 @@ CONTAINS
       REAL           :: r    ! result; sat sp humidity
 
       r = (C%RMH2o/C%rmair) * (C%TETENA*EXP(C%TETENB*tair/(C%TETENC+tair))) / pmb
+
     END FUNCTION qsatf
 
     ! -----------------------------------------------------------------------------
@@ -1824,7 +1798,7 @@ CONTAINS
 
     INTEGER :: i, j, k, kk  ! iteration count
     REAL :: vpd, g1 ! Ticket #56   
-!#define VanessasCanopy
+#define VanessasCanopy
 #ifdef VanessasCanopy
     REAL, DIMENSION(mp,mf)  ::                                                  &
          xleuning    ! leuning stomatal coeff

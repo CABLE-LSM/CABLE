@@ -83,7 +83,7 @@ MODULE cable_gw_hydro_module
   ! ! This module contains the following subroutines that
   !are called from other modules
    PUBLIC :: soil_snow_gw,calc_srf_wet_fraction,sli_hydrology,& 
-             pore_space_relative_humidity,set_unsed_gw_vars
+             pore_space_relative_humidity,set_unsed_gw_vars,den_rat,set_den_rat
 
 CONTAINS
 
@@ -927,7 +927,7 @@ SUBROUTINE soil_snow_gw(dels, soil, ssnow, canopy, met, bal, veg)
    END DO 
 
    if (first_gw_hydro_call) then
-      den_rat = set_den_rat()
+      call set_den_rat()
    end if
 
    IF( cable_runtime%offline .or. cable_runtime%mk3l ) ssnow%t_snwlr = 0.05_r_2
@@ -1028,6 +1028,8 @@ SUBROUTINE soil_snow_gw(dels, soil, ssnow, canopy, met, bal, veg)
 
    IF (gw_params%BC_hysteresis)  &
              CALL swc_hyst_direction(soil,ssnow,veg)
+
+   call swc_smp_dsmpdw(soil,ssnow)
   
    ! correction required for energy balance in online simulations
    IF( cable_runtime%um ) THEN 
@@ -2266,9 +2268,6 @@ END SUBROUTINE calc_soil_hydraulic_props
 
   end function my_erf
 
-  real(r_2) function set_den_rat
-     set_den_rat = real(C%density_ice,r_2)/real(C%density_liq,r_2)
-  end function
 
    subroutine brook_corey_swc_smp(soil,ssnow)
       type(soil_parameter_type), intent(inout) :: soil
@@ -2479,7 +2478,9 @@ subroutine swc_hyst_direction(soil,ssnow,veg)
    real(r_2) :: tmp_smp
 
    delta_wbliq = ssnow%wbliq - ssnow%wbliq_old
-    !switch drying/wetting curve
+   !soil hydraulic state/props  so smp out matches the wb out
+   call swc_smp_dsmpdw(soil,ssnow)
+     !switch drying/wetting curve
     do k=1,ms
        do i=1,mp
           if (delta_wbliq(i,k) .gt. 0.0 .and. &
@@ -2710,5 +2711,9 @@ subroutine swc_hyst_direction(soil,ssnow,veg)
 !`   END DO
 !`
 !`END SUBROUTINE GWsoilfreeze
+
+  subroutine set_den_rat()
+      den_rat = real(C%density_ice/C%density_liq,r_2)
+  end subroutine set_den_rat
 
 END MODULE cable_gw_hydro_module
