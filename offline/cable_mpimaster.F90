@@ -186,7 +186,8 @@ CONTAINS
     USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE, LUC_EXPT_INIT
     USE POPLUC_Types, ONLY : POPLUC_Type
     USE POPLUC_Module, ONLY:  WRITE_LUC_OUTPUT_NC, WRITE_LUC_OUTPUT_GRID_NC, &
-       POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, POPLUC_set_patchfrac 
+         POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, POPLUC_set_patchfrac, &
+         READ_LUC_RESTART_NC, alloc_popluc
     
     ! PLUME-MIP only
     USE CABLE_PLUME_MIP,      ONLY: PLUME_MIP_TYPE, PLUME_MIP_GET_MET,&
@@ -574,6 +575,20 @@ CONTAINS
 
              IF (cable_user%POPLUC) THEN
                 CALL LUC_EXPT_INIT (LUC_EXPT)
+                call alloc_POPLUC(POPLUC, mland)
+                POPLUC%np = mland
+
+                IF (trim(cable_user%POPLUC_RunType) .EQ. 'restart') THEN
+                   CALL  READ_LUC_RESTART_NC (POPLUC)
+                   LUC_EXPT%grass = POPLUC%grass
+                   LUC_EXPT%primaryf = min(POPLUC%primf, 1.0- POPLUC%grass)
+                   LUC_EXPT%secdf = max((1.0 -  LUC_EXPT%grass - LUC_EXPT%primaryf), 0.0)
+                   LUC_EXPT%crop = max(min( POPLUC%crop, POPLUC%grass),0.0)
+                   LUC_EXPT%past = max( min(LUC_EXPT%grass - LUC_EXPT%crop, &
+                        POPLUC%past), 0.0)
+                   
+                ENDIF
+                
              ENDIF
              
 

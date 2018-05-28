@@ -190,7 +190,7 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
         ! reset day degree sum related to spring photosynthetic recovery
         climate%gdd0_rec = 0.0
         ! In mid-winter, reset dormancy fraction
-       ! climate%fdorm = 1.0bios_climate_rst.nc
+       ! climate%fdorm = 1.0
 
      END WHERE
 
@@ -260,7 +260,7 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
      ! update GMD (growing moisture day) counter
      !where (climate%dmoist .gt. moisture_min)
      where (climate%dmoist .gt. &
-          climate%dmoist_min20 + 0.2*(climate%dmoist_max20 - climate%dmoist_min20))
+          climate%dmoist_min20 + 0.15*(climate%dmoist_max20 - climate%dmoist_min20))
         climate%gmd = climate%gmd + 1
      elsewhere
         climate%gmd = 0
@@ -1232,6 +1232,8 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate, ktauday )
   STATUS = NF90_INQ_DIMID(FILE_ID, 'nsd'   , dID)
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
+
+write(*,*) 'patch%latitude',  SIZE(patch%latitude)
   IF ( land_dim .NE. SIZE(patch%latitude)) THEN
      WRITE(*,*) "Dimension misfit, ", fname
      WRITE(*,*) "land_dim", land_dim, SIZE(patch%latitude)

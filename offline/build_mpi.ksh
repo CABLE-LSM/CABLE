@@ -8,16 +8,26 @@ known_hosts()
 ## raijin.nci.org.au
 host_raij()
 {
-   module load netcdf
-   module load intel-mpi
+   #module load netcdf
+   #module load intel-mpi
+   module del intel-cc intel-fc
+   module add intel-cc/16.0.1.150 intel-fc/16.0.1.150
+   #module load intel-cc/17.0.1.132 intel-cc/17.0.1.132   
+   module add netcdf/4.3.3.1  openmpi/1.10.2
+   #openmpi/1.8.8
    export NCDIR=$NETCDF_ROOT'/lib/Intel'
    export NCMOD=$NETCDF_ROOT'/include/Intel'
    export FC='mpif90'
-   export CFLAGS='-O0 -fp-model precise'
+  export CFLAGS='-O2 -fp-model precise -xCORE-AVX2'
+  # export CFLAGS='-O3 -fp-model precise -g -debug all -traceback'
+ #export CFLAGS='  -g -debug -traceback   -check all,noarg_temp_created -fp-stack-check -O0 -debug -fpe0 -no-ftz -ftrapuv -fpstkchk  -xCORE-AVX2'
+
+  # export CFLAGS='-O0 -traceback -g -debug -fp-model precise -ftz -fpe0 -check all,noarg_temp_created -fp-stack-check -no-ftz -ftrapuv'
    if [[ $1 = 'debug' ]]; then
-      export CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0'
+      #export CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0'
+      export CFLAGS='  -g -debug -traceback   -check all,noarg_temp_created -fp-stack-check -O0 -debug -fpe=0 -fpe-all=0 -no-ftz -ftrapuv'
    fi
-   export LDFLAGS='-L'$NCDIR' -O2'
+   export LDFLAGS='-L'$NCDIR' -O2 -xCORE-AVX2'
    export LD='-lnetcdf -lnetcdff'
    build_build
    cd ../
@@ -94,12 +104,13 @@ module add netcdf/4.3.3.1 openmpi/1.8.8
 ###   export CFLAGS='-O0 -fp-model precise'
 #   export CFLAGS='-O0 -C'
 #   best settings for debugging
-#   export CFLAGS='-O0 -C -g -debug all -traceback   -check all,noarg_temp_created, -C  '
-#    export CFLAGS='-O0 -fp-model precise -g -debug -traceback -fp-stack-check -fpe=0 -no-ftz -ftrapuv   -check all,noarg_temp_created -C '
-#   export CFLAGS='-O3 '
-   export CFLAGS='-O2 -fp-model precise'
-#   export CFLAGS='-O2 -fp-model precise -g -debug all -traceback -fpe0 '
+#   export CFLAGS='-O0 -C -g -debug all -traceback -check all,noarg_temp_created, -C  '
+#   export CFLAGS='-O0 '
+
+   export CFLAGS='-O0 -fp-model precise -g -debug -traceback '
+#   export CFLAGS='-O0 -fp-model precise -g -debug all -traceback -fpe0 '
 #   export CFLAGS='  -g -debug -traceback -fp-stack-check -O0 -debug -fpe0 -no-ftz -ftrapuv'
+
 #   best debugg flags
 #   export LDFLAGS='-g -L'$NCDIR  #'-L'$NCDIR' -O2'
    export LDFLAGS='-O2 -L'$NCDIR''

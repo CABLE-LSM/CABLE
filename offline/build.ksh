@@ -154,15 +154,20 @@ host_vayu()
 ## raijin.nci.org.au
 host_raij()
 {
-   module load netcdf
+   module del intel-cc intel-fc
+   module add intel-cc/16.0.1.150 intel-fc/16.0.1.150
+   module add netcdf/4.3.3.1
    export NCDIR=$NETCDF_ROOT'/lib/Intel'
    export NCMOD=$NETCDF_ROOT'/include/Intel'
    export FC=$F90
    export CFLAGS='-O0 -fp-model precise'
+   #export CFLAGS='-O2 -fp-model precise -xCORE-AVX2'
+
    if [[ $1 = 'debug' ]]; then
       export CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0'
    fi
    export LDFLAGS='-L'$NCDIR' -O0'
+   #export LDFLAGS='-L'$NCDIR' -O2 -xCORE-AVX2'
    export LD='-lnetcdf -lnetcdff'
    build_build
    cd ../
