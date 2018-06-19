@@ -1373,6 +1373,7 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
           bgc%csoil(h,:)  = vegin%csoil(:, veg%iveg(h))
           bgc%ratecp(:)   = vegin%ratecp(:, veg%iveg(h))
           bgc%ratecs(:)   = vegin%ratecs(:, veg%iveg(h))
+          veg%froot(h,:)  = vegin%froot(:, veg%iveg(h))
          ! soil%silt(h)    =  soilin%silt(soil%isoilm(h))
          ! soil%clay(h)    =  soilin%clay(soil%isoilm(h))
          ! soil%sand(h)    =  soilin%sand(soil%isoilm(h))

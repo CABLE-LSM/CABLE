@@ -264,7 +264,7 @@ CONTAINS
        PLUME%LeapYears = .FALSE.
     ENDIF
 
-    ! Set varialbe names in files
+    ! Set variable names in files
 
     PLUME%NMET = 9
     IF ( TRIM(PLUME%Forcing) .EQ. "watch") THEN
@@ -1207,8 +1207,8 @@ END SUBROUTINE GET_PLUME_Ndep
     DO i = 1, PLUME%mland
        is = landpt(i)%cstart
        ie = landpt(i)%cend
-       met%precip    (is:ie)   = WG%Precip (i) +  WG%Snow  (i)
-       met%precip_sn (is:ie)   = WG%Snow   (i)
+       met%precip    (is:ie)   = WG%Precip (i) !+  WG%Snow  (i)
+       met%precip_sn (is:ie)   = min(WG%Snow   (i),  WG%Precip (i))
        met%fld       (is:ie)   = PLUME%MET( lwdn )%VAL(i) * WG%PhiLD(i) / PLUME%AVG_LWDN(i)
        met%fsd       (is:ie,1) = WG%PhiSD(i) * 0.5
        met%fsd       (is:ie,2) = WG%PhiSD(i) * 0.5
