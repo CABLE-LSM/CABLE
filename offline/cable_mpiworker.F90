@@ -648,10 +648,10 @@ CONTAINS
                      phen, pop, spinConv, spinup, ktauday, idoy, loy,   &
                      .FALSE., .FALSE., LALLOC )
                  write(wlogn,*) 'after bgcdriver', MPI_BOTTOM,1, casa_t,0,ktau_gl,ocomm,ierr
-                ! IF(MOD((ktau-kstart+1),ktauday)==0) THEN
+                 IF(MOD((ktau-kstart+1),ktauday).EQ.0) THEN
                    CALL MPI_Send (MPI_BOTTOM,1, casa_t,0,ktau_gl,ocomm,ierr)
                   write(wlogn,*) 'after casa mpi_send', ktau
-              !  ENDIF
+                 ENDIF
 
                 IF ( IS_CASA_TIME("write", yyyy, ktau, kstart, &
                      koffset, kend, ktauday, wlogn) ) THEN

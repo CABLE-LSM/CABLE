@@ -893,9 +893,12 @@ write(*,*) 'after CALL1'
                              
                 IF ( icycle > 0 ) THEN
                    ! receive casa update from worker
-                   CALL master_receive (ocomm, oktau, casa_ts)
+		   IF ( MOD((oktau-kstart+1+koffset),ktauday).EQ.0 ) THEN
+                      CALL master_receive (ocomm, oktau, casa_ts)
+		   		   	
                   ! write(*,*) 'after master_receive casa_ts'
                    CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
+		   ENDIF
                   ! write(*,*) 'after master_receive casa_ts waitall'
                    ! receive casa dump requirements from worker
                    IF ( ((.NOT.spinup).OR.(spinup.AND.spinConv)) .AND.   &
