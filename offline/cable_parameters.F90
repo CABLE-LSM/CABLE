@@ -60,7 +60,7 @@ MODULE cable_param_module
   USE cable_abort_module
   USE cable_IO_vars_module
   USE cable_common_module, ONLY: cable_user, hide
-  USE CABLE_LUC_EXPT, ONLY: LUC_EXPT, LUC_EXPT_TYPE, LUC_EXPT_SET_TILES
+  USE CABLE_LUC_EXPT, ONLY: LUC_EXPT, LUC_EXPT_TYPE, LUC_EXPT_SET_TILES, LUC_EXPT_SET_TILES_BIOS
   IMPLICIT NONE
   PRIVATE
   PUBLIC get_default_params, write_default_params, derived_parameters,         &
@@ -139,7 +139,11 @@ CONTAINS
 ! Overwrite veg type and inital patch frac with land-use info 
     IF (CABLE_USER%POPLUC) then
        CALL get_land_index(nlon, nlat)
-       CALL LUC_EXPT_SET_TILES(inVeg, inPfrac, LUC_EXPT)
+       IF (TRIM(cable_user%MetType) .EQ. "bios") THEN
+          CALL LUC_EXPT_SET_TILES_BIOS(inVeg, inPfrac, LUC_EXPT)
+       ELSE
+          CALL LUC_EXPT_SET_TILES(inVeg, inPfrac, LUC_EXPT)
+       ENDIF
     ENDIF
  
 
@@ -1274,8 +1278,9 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
                                           insand(landpt(e)%ilon, landpt(e)%ilat)
 
       soil%clay(landpt(e)%cstart:landpt(e)%cend) =                             &
-                                          inclay(landpt(e)%ilon, landpt(e)%ilat)
+           inclay(landpt(e)%ilon, landpt(e)%ilat)
 
+    
       ENDIF
 
       ! vars intro for Ticket #27
@@ -1348,21 +1353,23 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
           veg%alpha(h)  = vegin%alpha(veg%iveg(h))
           if (cable_user%POPLUC) THEN
 
-             if (LUC_EXPT%biome(e).eq.4 .and.veg%iveg(h).eq.2 ) THEN
+!!$             if (LUC_EXPT%biome(e).eq.4 .and.veg%iveg(h).eq.2 ) THEN
 !!$                if (cable_user%finite_gm) THEN
 !!$                   veg%alpha(h) = 0.28  ! fininte gm
 !!$                else  
 !!$                   veg%alpha(h) = 0.28  ! infinite gm
 !!$                endif
-                veg%d0gs(h) = 1500.0
-                veg%g1(h) = 3.37   ! temperate EBL
-             ENDIF
-             if (LUC_EXPT%biome(e).eq.3 .and.veg%iveg(h).eq.2 ) THEN
-                !veg%g1(h) = 2.98   ! savanna
-             ENDIF
+!!$                veg%d0gs(h) = 1500.0
+!!$                veg%g1(h) = 3.37   ! temperate EBL
+!!$             ENDIF
+!!$             if (LUC_EXPT%biome(e).eq.3 .and.veg%iveg(h).eq.2 ) THEN
+!!$                !veg%g1(h) = 2.98   ! savanna
+!!$             ENDIF
 
           endif
           veg%convex(h) = vegin%convex(veg%iveg(h))
+	  ! Alexis, adding gamma
+	  veg%gamma(h) = vegin%gamma(veg%iveg(h))
           veg%cfrd(h)   = vegin%cfrd(veg%iveg(h))
           veg%gswmin(h) = vegin%gswmin(veg%iveg(h))
           veg%conkc0(h) = vegin%conkc0(veg%iveg(h))
@@ -1432,7 +1439,8 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
                vegin%tmaxvj, vegin%vbeta,vegin%clitt, vegin%zr, vegin%rootbeta, vegin%froot,         &
                vegin%cplant, vegin%csoil, vegin%ratecp, vegin%ratecs,          &
                vegin%xalbnir, vegin%length, vegin%width,                       &
-               vegin%g0, vegin%g1,                                             & 
+	       ! gamma added by Alexis below
+               vegin%g0, vegin%g1, vegin%gamma,                               & 
                vegin%a1gs, vegin%d0gs, vegin%alpha, vegin%convex, vegin%cfrd,  &
                vegin%gswmin, vegin%conkc0,vegin%conko0,vegin%ekc,vegin%eko   )
     !         vegf_temp,urbanf_temp,lakef_temp,icef_temp, &
@@ -1506,18 +1514,10 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
          veg%ZR = 5.0
       END IF
 
-      IF(cable_user%SOIL_STRUC=='sli'.or.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
-
-        ! where (veg%iveg.eq.2 ) 
-        !    veg%gamma = 1.e-2
-        ! elsewhere
-            veg%gamma = 3.e-2
-        !endwhere
-         !veg%clitt = 5.0 ! (tC / ha)
-      ENDIF
+     
 !! vh_js !!
       IF(cable_user%CALL_POP) THEN
-         veg%disturbance_interval = 100
+         veg%disturbance_interval = 200
          veg%disturbance_intensity = 0.
       ENDIF
 

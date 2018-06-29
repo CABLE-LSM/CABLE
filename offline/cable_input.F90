@@ -100,6 +100,9 @@ MODULE cable_input_module
            CO2air,       &
            Elev,         &
            LAI,          &
+	   ! line added by Alexis
+	   vcmax, 	 &
+	   ! end line added by Alexis
            avPrecip,     &
            iveg,         &
            isoil,        &
@@ -318,6 +321,9 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
         mland_ctr,              & ! counter for number of land points read from file
         mland_fromfile,         & ! number of land points in file
         lai_dims,               & ! number of dims of LAI var if in met file
+	! Alexis
+	vcmax_dims,		& ! number of dims of vcmax var if in met file
+	! Alexis
         iveg_dims,              & ! number of dims of iveg var if in met file
         isoil_dims,             & ! number of dims of isoil var if in met file
         tsmin,tsdoy,tsyear,     & ! temporary variables
@@ -336,6 +342,9 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
         timedimID,              & ! time dimension ID number
         data1i                    ! temp variable for netcdf reading
    INTEGER,DIMENSION(4)        :: laidimids ! for checking lai variable
+   ! Alexis
+   INTEGER,DIMENSION(4)	       :: vcmaxdimids ! for checking vcmax variable
+   ! Alexis
    INTEGER,DIMENSION(1,1)      :: data2i ! temp variable for netcdf reading
    INTEGER,POINTER,DIMENSION(:)     ::land_xtmp,land_ytmp ! temp indicies
    REAL,POINTER, DIMENSION(:)  :: lat_temp, lon_temp ! lat and lon
@@ -1138,8 +1147,38 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
        WRITE(logn,*) 'Snowf not present in met file; ', &
             'Assumed to be contained in Rainf variable'
     END IF
+
+    ! Alexis
+    ! Look for vcmax
+    write(logn,*) 'looking for vcmax'
+    ok = NF90_INQ_VARID(ncid_met,'vcmax',id%vcmax)
+    write(logn,*) 'exists vcmax: ' , (ok==NF90_NOERR) 
+    IF(ok == NF90_NOERR) THEN ! If inquiry is okay
+       exists%vcmax = .TRUE. ! vcmax is present in met file
+       ! Check dimension of vcmax variable:
+       ok=NF90_INQUIRE_VARIABLE(ncid_met,id%vcmax, &
+            ndims=vcmax_dims,dimids=vcmaxdimids)
+	    write(logn,*) 'time dim ' , timedimID(1)
+	    write(logn,*) 'vcmax dim ' , vcmaxdimids 
+	    write(logn,*) 'vcmax dim = time dim ' , (ANY(vcmaxdimids==timedimID(1)))
+       ! If any of vcmax's dimensions are the time dimension
+       IF(ANY(vcmaxdimids==timedimID(1))) THEN
+          exists%vcmax_T = .TRUE. ! i.e. time varying vcmax
+          WRITE(logn,*) 'vcmax found in met file - time dependent;'
+       ELSE
+          exists%vcmax_T = .FALSE. ! i.e. not time varying vcmax
+       END IF
+    ELSE
+       exists%vcmax = .FALSE. ! vcmax is not present in met file
+       ! Report to log file
+       WRITE(logn,*) 'vcmax not present in met file;'
+    END IF
+    ! Alexis
+
     ! Look for LAI - - - - - - - - - - - - - - - - - - - - - - - - -
+    write(logn,*) 'looking for LAI'
     ok = NF90_INQ_VARID(ncid_met,'LAI',id%LAI)
+    write(logn,*) 'exists LAI: ' , (ok==NF90_NOERR) 
     IF(ok == NF90_NOERR) THEN ! If inquiry is okay
        exists%LAI = .TRUE. ! LAI is present in met file
        ! LAI will be read in which ever land grid is used
@@ -1843,6 +1882,28 @@ SUBROUTINE get_met_data(spinup,spinConv,met,soil,rad,                          &
         ! Fix CO2 air concentration:
         met%ca(:) = fixedCO2 /1000000.0
       END IF
+
+     ! Alexis
+     ! Get vcmax, if it's present, for mask grid:- - - - - - - - - - - - -
+     write(logn,*)
+     IF(exists%vcmax) THEN ! If vcmax exists in met file
+     write(logn,*) 'vcmax exists'
+       IF(exists%vcmax_T) THEN ! i.e. time dependent vcmax
+       write(logn,*) 'vcmax_T exists'
+	    ok= NF90_GET_VAR(ncid_met,id%vcmax,tmpDat3, &
+                 start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
+ 	    IF(ok /= NF90_NOERR) CALL nc_abort &
+                 (ok,'Error reading vcmax in met2 data file ' &
+                 //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+      DO i=1,mland ! over all land points/grid cells
+         veg%vcmax(landpt(i)%cstart:landpt(i)%cend) = &
+              REAL(tmpDat3(land_x(i),land_y(i),1))
+      ENDDO
+
+       END IF
+      END IF
+     ! Alexis
+     write(logn,*) 'vcmax data has been read? now reading LAI'
 
       ! Get LAI, if it's present, for mask grid:- - - - - - - - - - - - -
       IF(exists%LAI) THEN ! If LAI exists in met file

@@ -153,7 +153,7 @@ SUBROUTINE spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
              nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
              pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
 
-
+         !write(6699,*) casapool%nminsoil(1),casaflux%Nmindep(1),  casaflux%Nminfix(1)
         IF (cable_user%CALL_POP .and. POP%np.gt.0) THEN ! CALL_POP
 
            IF (cable_user%CALL_POP) THEN ! accumulate input variables for POP

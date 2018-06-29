@@ -95,8 +95,13 @@ MODULE cable_common_module
      CHARACTER(LEN=10) :: RunIden       = 'STANDARD'  !
      CHARACTER(LEN=4)  :: MetType       = ' ' !
      CHARACTER(LEN=20) :: SOIL_STRUC    = "default" ! 'default' or 'sli'
-     CHARACTER(LEN=3)  :: POP_out       = 'rst' ! POP output type ('epi' or 'rst')
-     CHARACTER(LEN=50) :: POP_rst       = ' ' !
+     CHARACTER(LEN=3)  :: POP_out       = 'rst' ! POP output type ('epi' or 'rst' or 'ini')
+     CHARACTER(LEN=50) :: POP_rst       = '' !
+     CHARACTER(LEN=200) :: POP_restart_in = ''
+     CHARACTER(LEN=200) :: POP_restart_out = ''
+     CHARACTER(LEN=200) :: POP_outfile       = '' !
+     CHARACTER(LEN=200) :: climate_restart_in = ''
+     CHARACTER(LEN=200) :: climate_restart_out = ''
      CHARACTER(LEN=8)  :: CASA_OUT_FREQ = 'annually' ! 'daily', 'monthly', 'annually'
      CHARACTER(LEN=10)  :: vcmax = 'standard' ! "standard" or "Walker2014"
      CHARACTER(LEN=10)  :: POPLUC_RunType = 'static' ! 'static', 'init', 'restart' 
@@ -242,7 +247,8 @@ MODULE cable_common_module
           g0,         & !  Ticket #56
           g1,         & !  Ticket #56 
           zr,         &
-          clitt
+          clitt,      &
+          gamma
 
      REAL, DIMENSION(:,:),ALLOCATABLE ::                                      &
           froot,      & !
@@ -349,8 +355,8 @@ CONTAINS
          ! Ticket #56
          vegin%g0( mvtype ), vegin%g1( mvtype ),                               &
          !! vh_veg_params !!
-         vegin%zr(mvtype), vegin%clitt(mvtype) )
-
+         vegin%zr(mvtype), vegin%clitt(mvtype), vegin%gamma(mvtype))
+  
 
     IF( vegparmnew ) THEN    ! added to read new format (BP dec 2007)
 
@@ -385,7 +391,7 @@ CONTAINS
           READ(40,*) vegin%a1gs(jveg), vegin%d0gs(jveg), vegin%alpha(jveg), vegin%convex(jveg), vegin%cfrd(jveg)
           READ(40,*) vegin%gswmin(jveg), vegin%conkc0(jveg), vegin%conko0(jveg), vegin%ekc(jveg), vegin%eko(jveg)
           READ(40,*) vegin%g0(jveg), vegin%g1(jveg)      ! Ticket #56
-
+          READ(40,*) vegin%gamma(jveg)
        END DO
 
     ELSE

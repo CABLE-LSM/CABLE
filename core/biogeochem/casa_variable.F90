@@ -137,7 +137,10 @@ MODULE casavariable
                                        maxfinelitter,  &
                                        maxcwd,         &
                                        nintercept,     &
-                                       nslope
+                                       nslope,         &
+                                       la_to_sa,       &
+                                       vcmax_scalar,   &
+                                       disturbance_interval     
 
     REAL(r_2), DIMENSION(:,:),POINTER :: plantrate,     &
                                        rmplant,         &
@@ -367,6 +370,7 @@ MODULE casavariable
     LOGICAL           :: l_ndep
 ! added vh
     CHARACTER(LEN=99) :: c2cdumppath='' ! cable2casa dump for casa spinup
+    CHARACTER(LEN=200) :: out    ! casa output file
   END TYPE casafiles_type
   TYPE(casafiles_type) :: casafile
 
@@ -431,7 +435,10 @@ SUBROUTINE alloc_casavariable(casabiome,casapool,casaflux, &
          !  casabiome%ratioPcplantmin(mvtype,leaf)    &
          !! vh_js !!
            casabiome%ratioPcplantmax(mvtype,mplant),   &
-           casabiome%ratioPcplantmin(mvtype,mplant)    &
+           casabiome%ratioPcplantmin(mvtype,mplant),    &
+           casabiome%la_to_sa(mvtype),                 &
+           casabiome%vcmax_scalar(mvtype),             &
+           casabiome%disturbance_interval(mvtype)     &
           )
 
   ALLOCATE(casapool%Clabile(arraysize),               &

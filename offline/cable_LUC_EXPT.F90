@@ -63,11 +63,13 @@ CONTAINS
 
 ! ==============================================================================
   SUBROUTINE LUC_EXPT_INIT( LUC_EXPT)
+    USE cable_common_module,  ONLY: cable_user
+    USE  cable_bios_met_obs_params, ONLY: cable_bios_load_biome
 
     IMPLICIT NONE
-    
+
     TYPE (LUC_EXPT_TYPE), INTENT(INOUT) :: LUC_EXPT
-    
+
     REAL :: tmp
     REAL,ALLOCATABLE :: tmparr(:,:)  , lattmp(:),lontmp(:)
     INTEGER :: t, i, ii, k, x, y, realk
@@ -78,15 +80,16 @@ CONTAINS
     CHARACTER(len=400)   :: TransitionFilePath, ClimateFile, NotPrimOnlyFile
     LOGICAL :: DirectRead
     INTEGER :: YearStart, YearEnd
-    REAL, ALLOCATABLE :: tmpvec(:), tmparr3(:,:,:)
+    REAL, ALLOCATABLE :: tmpvec(:), tmparr3(:,:,:), CPC(:)
+    INTEGER:: MVG(mland)
     INTEGER :: NotPrimOnly_fID, NotPrimOnly_vID
     INTEGER :: TimeVarID, Idash
     CHARACTER(len=100)    :: time_units
     CHARACTER(len=4) :: yearstr
-       
+
     NAMELIST /LUCNML/  TransitionFilePath, ClimateFile, Run, DirectRead, YearStart, YearEnd, &
          NotPrimOnlyFile
-    
+
     ALLOCATE( LUC_EXPT%prim_only(mland) )
     ALLOCATE( LUC_EXPT%ivegp(mland) )
     ALLOCATE( LUC_EXPT%biome(mland) )
@@ -106,6 +109,7 @@ CONTAINS
     ALLOCATE( LUC_EXPT%crop(mland) )
     ALLOCATE( LUC_EXPT%past(mland) )
     ALLOCATE( LUC_EXPT%mtemp_min20(mland) )
+    ALLOCATE( CPC(mland))
     LUC_EXPT%NotPrimOnlyFile = 'none'
     ! READ LUC_EXPT settings
     CALL GET_UNIT(iu)
@@ -155,7 +159,7 @@ CONTAINS
     LUC_EXPT%VAR_NAME(7) = 'pharv'
     LUC_EXPT%VAR_NAME(8) = 'smharv'
     LUC_EXPT%VAR_NAME(9) = 'syharv'
-    
+
     LUC_EXPT%VAR_NAME(10) = 'ptoc'
     LUC_EXPT%VAR_NAME(11) = 'ptoq'
     LUC_EXPT%VAR_NAME(12) = 'stoc'
@@ -172,12 +176,12 @@ CONTAINS
        ALLOCATE( LUC_EXPT%INPUT(x)%VAL(mland) )
     END DO
 
-! OPEN LUC INPUT FILES
+    ! OPEN LUC INPUT FILES
     DO i = 1, LUC_EXPT%nfile
 
        WRITE(*   ,*) 'LUC input data file: ', LUC_EXPT%TransFile(i)
        WRITE(logn,*) 'LUC input data file: ', LUC_EXPT%TransFile(i)
-      
+
        STATUS = NF90_OPEN(TRIM(LUC_EXPT%TransFile(i)), NF90_NOWRITE, LUC_EXPT%F_ID(i))
        CALL HANDLE_ERR(STATUS, "Opening LUH2 file "//LUC_EXPT%TransFile(i) )
        STATUS = NF90_INQ_VARID(LUC_EXPT%F_ID(i),TRIM(LUC_EXPT%VAR_NAME(i)), LUC_EXPT%V_ID(i))
@@ -202,7 +206,7 @@ CONTAINS
           CALL HANDLE_ERR(STATUS, "Inquiring 'time'"//TRIM(LUC_EXPT%TransFile(i)))
           LUC_EXPT%nrec = tdimsize
 
-          
+
 
 !!$          STATUS = NF90_GET_VAR( Luc_expt%f_id(i), timID, tmp, &
 !!$               start=(/1,1,1/) )
@@ -214,21 +218,21 @@ CONTAINS
           read(yearstr,*)  LUC_EXPT%FirstYEAR
 !!$          write(*,*) 'LUH2 time units: ', TRIM(time_units), Idash, time_units(Idash-4:Idash-1)
 
-         write(*,*) 'LUH2 first year', LUC_EXPT%FirstYEAR 
+          write(*,*) 'LUH2 first year', LUC_EXPT%FirstYEAR 
           xds = LUC_EXPT%xdimsize
           yds = LUC_EXPT%ydimsize
        ENDIF
-     !write(*,*) 'length LUH2 data: ', tdimsize
+       !write(*,*) 'length LUH2 data: ', tdimsize
     ENDDO
 
     write(*,*) 'LUH2 first year', LUC_EXPT%FirstYEAR
-  !  LUC_EXPT%FirstYEAR = 850
-  ! Set internal counter
+    !  LUC_EXPT%FirstYEAR = 850
+    ! Set internal counter
     LUC_EXPT%CTSTEP = 1 +  LUC_EXPT%YearStart- LUC_EXPT%FirstYEAR
 
     allocate(tmparr(xds,yds))
 
- ! READ initial states
+    ! READ initial states
     i = grassfrac
     IF ( LUC_EXPT%DirectRead ) THEN
 
@@ -242,7 +246,7 @@ CONTAINS
        STATUS = NF90_GET_VAR(LUC_EXPT%F_ID(i), LUC_EXPT%V_ID(i), tmparr, &
             start=(/1,1,LUC_EXPT%CTSTEP/),count=(/xds,yds,1/) )
        CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )
-       
+
        DO k = 1, mland
           LUC_EXPT%grass(k) = tmparr( land_x(k), land_y(k) )
        END DO
@@ -251,7 +255,7 @@ CONTAINS
     i = primffrac
     IF ( LUC_EXPT%DirectRead ) THEN
        DO k = 1, mland
-           STATUS = NF90_GET_VAR( LUC_EXPT%F_ID(i), LUC_EXPT%V_ID(i), tmp, &
+          STATUS = NF90_GET_VAR( LUC_EXPT%F_ID(i), LUC_EXPT%V_ID(i), tmp, &
                start=(/land_x(k),land_y(k),LUC_EXPT%CTSTEP/) )
           CALL HANDLE_ERR(STATUS, "Reading direct from "//LUC_EXPT%TransFile(i) )
           LUC_EXPT%primaryf(k) = tmp
@@ -260,7 +264,7 @@ CONTAINS
        STATUS = NF90_GET_VAR(LUC_EXPT%F_ID(i), LUC_EXPT%V_ID(i), tmparr, &
             start=(/1,1,LUC_EXPT%CTSTEP/),count=(/xds,yds,1/) )
        CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )
-       
+
        DO k = 1, mland
           LUC_EXPT%primaryf(k) = tmparr( land_x(k), land_y(k) )
        END DO
@@ -279,11 +283,11 @@ CONTAINS
        STATUS = NF90_GET_VAR(LUC_EXPT%F_ID(i), LUC_EXPT%V_ID(i), tmparr, &
             start=(/1,1,LUC_EXPT%CTSTEP/),count=(/xds,yds,1/) )
        CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )
-       
+
        DO k = 1, mland
           LUC_EXPT%crop(k) = tmparr( land_x(k), land_y(k) )
        END DO
-       
+
     ENDIF
 
 
@@ -299,12 +303,12 @@ CONTAINS
        STATUS = NF90_GET_VAR(LUC_EXPT%F_ID(i), LUC_EXPT%V_ID(i), tmparr, &
             start=(/1,1,LUC_EXPT%CTSTEP/),count=(/xds,yds,1/) )
        CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )
-       
+
        DO k = 1, mland
           LUC_EXPT%past(k) = tmparr( land_x(k), land_y(k) )
        END DO
-       
-    ENDIF 
+
+    ENDIF
 
     LUC_EXPT%grass = min(LUC_EXPT%grass, 1.0)
     LUC_EXPT%primaryf = min(LUC_EXPT%primaryf, 1.0- LUC_EXPT%grass)
@@ -313,34 +317,117 @@ CONTAINS
     LUC_EXPT%past =max( min(LUC_EXPT%grass - LUC_EXPT%crop, LUC_EXPT%past), 0.0)
 
 
-    CALL READ_ClimateFile(LUC_EXPT)
-    
-    ! hot desert
-    WHERE (LUC_EXPT%biome.eq.15 )
-       LUC_EXPT%ivegp = 14
-    ENDWHERE
 
-    WHERE (LUC_EXPT%biome .eq. 3 .or. LUC_EXPT%biome .eq. 11) ! savanna/ xerophytic woods
-       LUC_EXPT%grass = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf)*3.0/5.0
-       LUC_EXPT%primaryf =  LUC_EXPT%primaryf * 2.0/5.0
-       LUC_EXPT%secdf =  LUC_EXPT%secdf * 2.0/5.0
-    ELSEWHERE (LUC_EXPT%biome .eq. 12 .or. LUC_EXPT%biome .eq. 13 & ! shrub
-         .or. LUC_EXPT%biome .eq. 15 .or. LUC_EXPT%biome .eq. 16  )
-       LUC_EXPT%grass = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf)*4.0/5.0
-       LUC_EXPT%primaryf =  LUC_EXPT%primaryf * 1.0/5.0
-       LUC_EXPT%secdf =  LUC_EXPT%secdf * 1.0/5.0
-    ELSEWHERE (LUC_EXPT%biome .eq. 7 .or. LUC_EXPT%biome .eq. 8 &  ! boreal
-         .or. LUC_EXPT%biome .eq. 9 .or. LUC_EXPT%biome .eq. 10  )
-       LUC_EXPT%grass = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf)*1.0/5.0
-       LUC_EXPT%primaryf =  LUC_EXPT%primaryf * 4.0/5.0
-       LUC_EXPT%secdf =  LUC_EXPT%secdf * 4.0/5.0
-    ELSEWHERE (LUC_EXPT%biome .eq. 5 .or. LUC_EXPT%biome .eq. 6 ) ! DBL
-       LUC_EXPT%grass = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf)*0.3
-       LUC_EXPT%primaryf =  LUC_EXPT%primaryf *0.7
-       LUC_EXPT%secdf =  LUC_EXPT%secdf * 0.7
-    END WHERE
+    IF (TRIM(cable_user%MetType) .EQ. "bios") THEN
 
-    write(59,*) TRIM(LUC_EXPT%NotPrimOnlyFile), (TRIM(LUC_EXPT%NotPrimOnlyFile).EQ.'none')
+       ! read bios parameter file to NVIS Major Vegetation Group "biomes"
+        CALL cable_bios_load_biome(MVG)
+       ! adjust fraction woody cover based on Major Vegetation Group
+       LUC_EXPT%biome = MVG
+       LUC_EXPT%ivegp = 2
+       WHERE (LUC_EXPT%biome .eq. 1)
+          CPC = 0.89
+       ELSEWHERE (LUC_EXPT%biome .eq. 2)
+          CPC = 0.81
+       ELSEWHERE (LUC_EXPT%biome .eq. 3)
+          CPC = 0.79
+       ELSEWHERE (LUC_EXPT%biome .eq. 4)
+          CPC = 0.50
+       ELSEWHERE (LUC_EXPT%biome .eq. 5)
+          CPC = 0.31
+       ELSEWHERE (LUC_EXPT%biome .eq. 6)
+          CPC = 0.15
+       ELSEWHERE (LUC_EXPT%biome .eq. 7)
+          CPC = 0.37
+       ELSEWHERE (LUC_EXPT%biome .eq. 8)
+          CPC = 0.27
+       ELSEWHERE (LUC_EXPT%biome .eq. 9)
+          CPC = 0.23
+       ELSEWHERE (LUC_EXPT%biome .eq. 10)
+          CPC = 0.24
+       ELSEWHERE (LUC_EXPT%biome .eq. 11)
+          CPC = 0.19
+       ELSEWHERE (LUC_EXPT%biome .eq. 12)
+          CPC = 0.25
+       ELSEWHERE (LUC_EXPT%biome .eq. 13)
+          CPC = 0.14
+       ELSEWHERE (LUC_EXPT%biome .eq. 14)
+          CPC = 0.33
+       ELSEWHERE (LUC_EXPT%biome .eq. 15)
+          CPC = 0.29
+       ELSEWHERE (LUC_EXPT%biome .eq. 16)
+          CPC = 0.13
+       ELSEWHERE (LUC_EXPT%biome .eq. 17)
+          CPC = 0.21
+       ELSEWHERE (LUC_EXPT%biome .eq. 18)
+          CPC = 0.34
+       ELSEWHERE (LUC_EXPT%biome .eq. 19)
+          CPC = 0.05
+       ELSEWHERE (LUC_EXPT%biome .eq. 20)
+          CPC = 0.16
+       ELSEWHERE (LUC_EXPT%biome .eq. 21)
+          CPC = 0.11
+       ELSEWHERE (LUC_EXPT%biome .eq. 22)
+          CPC = 0.06
+       ELSEWHERE (LUC_EXPT%biome .eq. 23)
+          CPC = 1.0
+       ELSEWHERE (LUC_EXPT%biome .eq. 24)
+          CPC = 0.04
+       ELSEWHERE (LUC_EXPT%biome .eq. 25)
+          CPC= 0.1
+       ELSEWHERE (LUC_EXPT%biome .eq. 26)
+          CPC= 0.1
+       ELSEWHERE (LUC_EXPT%biome .eq. 27)
+          CPC = 0.02
+       ELSEWHERE (LUC_EXPT%biome .eq. 28)
+          CPC = 0.1
+       ELSEWHERE (LUC_EXPT%biome .eq. 29)
+          CPC = 0.1
+       ELSEWHERE (LUC_EXPT%biome .eq. 30)
+          CPC = 0.5
+       ELSEWHERE (LUC_EXPT%biome .eq. 31)
+          CPC= 0.20
+       ELSEWHERE (LUC_EXPT%biome .eq. 32)
+          CPC = 0.24
+       ELSEWHERE
+          CPC= 0.1
+       ENDWHERE
+
+       LUC_EXPT%grass = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf)*(1-CPC)
+       LUC_EXPT%primaryf =  LUC_EXPT%primaryf * CPC
+       LUC_EXPT%secdf =  LUC_EXPT%secdf * CPC
+
+
+
+    ELSE
+       CALL READ_ClimateFile(LUC_EXPT)
+       ! hot desert
+       WHERE (LUC_EXPT%biome.eq.15 )
+          LUC_EXPT%ivegp = 14
+       ENDWHERE
+
+       WHERE (LUC_EXPT%biome .eq. 3 .or. LUC_EXPT%biome .eq. 11) ! savanna/ xerophytic woods
+          LUC_EXPT%grass = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf)*3.0/5.0
+          LUC_EXPT%primaryf =  LUC_EXPT%primaryf * 2.0/5.0
+          LUC_EXPT%secdf =  LUC_EXPT%secdf * 2.0/5.0
+       ELSEWHERE (LUC_EXPT%biome .eq. 12 .or. LUC_EXPT%biome .eq. 13 & ! shrub
+            .or. LUC_EXPT%biome .eq. 15 .or. LUC_EXPT%biome .eq. 16  )
+          LUC_EXPT%grass = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf)*4.0/5.0
+          LUC_EXPT%primaryf =  LUC_EXPT%primaryf * 1.0/5.0
+          LUC_EXPT%secdf =  LUC_EXPT%secdf * 1.0/5.0
+       ELSEWHERE (LUC_EXPT%biome .eq. 7 .or. LUC_EXPT%biome .eq. 8 &  ! boreal
+            .or. LUC_EXPT%biome .eq. 9 .or. LUC_EXPT%biome .eq. 10  )
+          LUC_EXPT%grass = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf)*1.0/5.0
+          LUC_EXPT%primaryf =  LUC_EXPT%primaryf * 4.0/5.0
+          LUC_EXPT%secdf =  LUC_EXPT%secdf * 4.0/5.0
+       ELSEWHERE (LUC_EXPT%biome .eq. 5 .or. LUC_EXPT%biome .eq. 6 ) ! DBL
+          LUC_EXPT%grass = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf)*0.3
+          LUC_EXPT%primaryf =  LUC_EXPT%primaryf *0.7
+          LUC_EXPT%secdf =  LUC_EXPT%secdf * 0.7
+       END WHERE
+    ENDIF
+
+   ! write(59,*) TRIM(LUC_EXPT%NotPrimOnlyFile), (TRIM(LUC_EXPT%NotPrimOnlyFile).EQ.'none')
     ! READ transitions from primary to see if primary remains primary
     if (TRIM(LUC_EXPT%NotPrimOnlyFile).EQ.'none')   THEN     
        LUC_EXPT%prim_only = .TRUE.
@@ -349,7 +436,7 @@ CONTAINS
        DO i=1,2 ! ptos and ptog
           IF ( LUC_EXPT%DirectRead ) THEN
              DO k = 1, mland
-                
+
                 STATUS = NF90_GET_VAR( LUC_EXPT%F_ID(i), LUC_EXPT%V_ID(i), tmpvec, &
                      start=(/land_x(k),land_y(k),1/), &
                      count=(/1,1,tdimsize/) )
@@ -358,7 +445,7 @@ CONTAINS
                 !IF (sum(tmpvec).gt.1e-3 .OR. LUC_EXPT%primaryf(k).lt.0.99) LUC_EXPT%prim_only(k) = .FALSE.
                 IF (sum(tmpvec).gt.1e-3 ) LUC_EXPT%prim_only(k) = .FALSE.
              END DO
-             
+
           ELSE
              STATUS = NF90_GET_VAR(LUC_EXPT%F_ID(i), LUC_EXPT%V_ID(i), tmparr3, &
                   start=(/1,1,1/),count=(/xds,yds,tdimsize/) )
@@ -368,9 +455,9 @@ CONTAINS
                 ! IF (sum(tmpvec).gt.1e-3.OR. LUC_EXPT%primaryf(k).lt.0.99) LUC_EXPT%prim_only(k) = .FALSE.
                 IF (sum(tmpvec).gt.1e-3) LUC_EXPT%prim_only(k) = .FALSE.
              END DO
-             
+
           ENDIF
-          
+
        END DO
     ELSE
        tmparr = 0.0
@@ -379,7 +466,7 @@ CONTAINS
        CALL HANDLE_ERR(STATUS, "Opening NotPrimOnlyFile"//TRIM(NotPrimOnlyFile ))
        Status = NF90_INQ_VARID( NotPrimOnly_fID,'cum_frac_prim_loss',  NotPrimOnly_vID)
        CALL HANDLE_ERR(STATUS, "Inquiring cum_frac_prim_loss &
-             in "//TRIM(NotPrimOnlyFile ) )
+            in "//TRIM(NotPrimOnlyFile ) )
        STATUS = NF90_GET_VAR(NotPrimOnly_FID, NotPrimOnly_vID , tmparr, &
             start=(/1,1/),count=(/xds,yds/) )
        CALL HANDLE_ERR(STATUS, "Reading from "//TRIM(NotPrimOnlyFile ) )
@@ -394,36 +481,46 @@ CONTAINS
        PRINT *,  "number grid-cells: ", mland
        STATUS = NF90_CLOSE(NotPrimOnly_fID)
     ENDIF
-    
-      
 
 
-    
+    IF (TRIM(cable_user%MetType) .EQ. "bios") THEN
+       WHERE (LUC_EXPT%prim_only .eq. .TRUE.)
+           LUC_EXPT%grass = LUC_EXPT%primaryf*(1-CPC)
+           LUC_EXPT%primaryf =  LUC_EXPT%primaryf *CPC 
 
-    ! set secondary vegetation area to be zero where land use transitions don't occur
-    ! set grass component of primary vegetation cover
-    WHERE (LUC_EXPT%prim_only .eq. .TRUE.)
-       LUC_EXPT%secdf = 0.0
-       LUC_EXPT%primaryf = 1.0
-       LUC_EXPT%grass = 0.0
-       WHERE (LUC_EXPT%biome .eq. 3 .or. LUC_EXPT%biome .eq. 11) ! savanna/ xerophytic woods
-          LUC_EXPT%grass = LUC_EXPT%primaryf*3.0/5.0
-          LUC_EXPT%primaryf =  LUC_EXPT%primaryf * 2.0/5.0
-       ELSEWHERE (LUC_EXPT%biome .eq. 12 .or. LUC_EXPT%biome .eq. 13 &
-            .or. LUC_EXPT%biome .eq. 15 .or. LUC_EXPT%biome .eq. 16  ) ! shrub
-          LUC_EXPT%grass = LUC_EXPT%primaryf*4.0/5.0
-          LUC_EXPT%primaryf =  LUC_EXPT%primaryf * 1.0/5.0
-       ELSEWHERE (LUC_EXPT%biome .eq. 7 .or. LUC_EXPT%biome .eq. 8 &
-            .or. LUC_EXPT%biome .eq. 9 .or. LUC_EXPT%biome .eq. 10) ! boreal
-          LUC_EXPT%grass = LUC_EXPT%primaryf*1.0/5.0
-          LUC_EXPT%primaryf =  LUC_EXPT%primaryf * 4.0/5.0
-       ELSEWHERE (LUC_EXPT%biome .eq. 5 .or. LUC_EXPT%biome .eq. 6 ) ! DBL
-          LUC_EXPT%grass = LUC_EXPT%primaryf*0.3
-          LUC_EXPT%primaryf =  LUC_EXPT%primaryf *0.7
+        ENDWHERE
+        DEALLOCATE (CPC)
+
+    ELSE
+       ! set secondary vegetation area to be zero where land use transitions don't occur
+       ! set grass component of primary vegetation cover
+       WHERE (LUC_EXPT%prim_only .eq. .TRUE.)
+          LUC_EXPT%secdf = 0.0
+          LUC_EXPT%primaryf = 1.0
+          LUC_EXPT%grass = 0.0
+          WHERE (LUC_EXPT%biome .eq. 3 .or. LUC_EXPT%biome .eq. 11) ! savanna/ xerophytic woods
+             LUC_EXPT%grass = LUC_EXPT%primaryf*3.0/5.0
+             LUC_EXPT%primaryf =  LUC_EXPT%primaryf * 2.0/5.0
+          ELSEWHERE (LUC_EXPT%biome .eq. 12 .or. LUC_EXPT%biome .eq. 13 &
+               .or. LUC_EXPT%biome .eq. 15 .or. LUC_EXPT%biome .eq. 16  ) ! shrub
+             LUC_EXPT%grass = LUC_EXPT%primaryf*4.0/5.0
+             LUC_EXPT%primaryf =  LUC_EXPT%primaryf * 1.0/5.0
+          ELSEWHERE (LUC_EXPT%biome .eq. 7 .or. LUC_EXPT%biome .eq. 8 &
+               .or. LUC_EXPT%biome .eq. 9 .or. LUC_EXPT%biome .eq. 10) ! boreal
+             LUC_EXPT%grass = LUC_EXPT%primaryf*1.0/5.0
+             LUC_EXPT%primaryf =  LUC_EXPT%primaryf * 4.0/5.0
+          ELSEWHERE (LUC_EXPT%biome .eq. 5 .or. LUC_EXPT%biome .eq. 6 ) ! DBL
+             LUC_EXPT%grass = LUC_EXPT%primaryf*0.3
+             LUC_EXPT%primaryf =  LUC_EXPT%primaryf *0.7
+          END WHERE
        END WHERE
-    END WHERE
+    ENDIF
 
- END SUBROUTINE LUC_EXPT_INIT
+
+
+ 
+    
+  END SUBROUTINE LUC_EXPT_INIT
   
 ! ==============================================================================
 
@@ -501,6 +598,57 @@ CONTAINS
 991  format(1166(e12.4,2x)) 
 
 END SUBROUTINE LUC_EXPT_SET_TILES
+! ==============================================================================
+
+
+SUBROUTINE LUC_EXPT_SET_TILES_BIOS(inVeg, inPfrac, LUC_EXPT )
+
+  IMPLICIT NONE
+
+  INTEGER, INTENT(INOUT) :: inVeg(:,:,:)
+  REAL,   INTENT(INOUT) :: inPFrac(:,:,:)
+  TYPE (LUC_EXPT_TYPE), INTENT(INOUT) :: LUC_EXPT
+  INTEGER :: k, m, n
+
+
+
+
+  DO k=1,mland
+     m = landpt(k)%ilon
+     n = landpt(k)%ilat
+
+     if (LUC_EXPT%prim_only(k) ) then
+
+        inVeg(m,n,1) = LUC_EXPT%ivegp(k)
+        inVeg(m,n,2:3) = 0
+        inPFrac(m,n,2:3) = 0
+        inPFrac(m,n,1) = 1.0
+        if ( LUC_EXPT%grass(k) .gt. 0.01) then
+           inVeg(m,n,2) = 6 ! C3 grass
+           !inVeg(m,n,2) = 7 ! C4 grass
+           inPFrac(m,n,1) =  min(LUC_EXPT%primaryf(k),1.0)
+           inPFrac(m,n,2) = 1.0 -  min(LUC_EXPT%primaryf(k),1.0)
+        endif
+
+     elseif ((.NOT.LUC_EXPT%prim_only(k)) ) then
+        inVeg(m,n,1) = LUC_EXPT%ivegp(k)
+        inVeg(m,n,2) = LUC_EXPT%ivegp(k)
+
+        inVeg(m,n,3) = 6 ! C3 grass
+        !inVeg(m,n,3) = 7 ! C4 grass
+        inPFrac(m,n,1) = min(LUC_EXPT%primaryf(k),1.0)
+        inPFrac(m,n,2) = min(LUC_EXPT%secdf(k),1.0)
+        inPFrac(m,n,3) = 1.0 - inPFrac(m,n,1) - inPFrac(m,n,2) 
+
+
+     endif
+  ENDDO
+
+
+
+991 format(1166(e12.4,2x)) 
+
+END SUBROUTINE LUC_EXPT_SET_TILES_BIOS
 ! ==============================================================================
 
 SUBROUTINE READ_ClimateFile(LUC_EXPT)

@@ -290,14 +290,33 @@ SUBROUTINE POP_IO ( POP, casamet, YEAR, ACTION, CF )
            WRITE( dum, FMT="(I4)")YEAR
         ENDIF
 
+!!$
+!!$        IF (typ.eq.'ini') THEN
+!!$           fname = TRIM(cable_user%POP_rst)//'/'//'pop_'//TRIM(cable_user%RunIDEN)&
+!!$                //'_'//typ//'.nc'
+!!$        ELSE
+!!$           fname = TRIM(filename%path)//'/'//TRIM(cable_user%RunIden)//'_'//&
+!!$                TRIM(dum)//'_pop_'//typ//'.nc'
+!!$        ENDIF
 
-        IF (typ.eq.'ini') THEN
-           fname = TRIM(cable_user%POP_rst)//'/'//'pop_'//TRIM(cable_user%RunIDEN)&
-                //'_'//typ//'.nc'
+        
+        IF ((typ.eq.'ini').OR.(typ.eq.'rst')) THEN
+           IF (LEN_TRIM( TRIM(cable_user%POP_restart_out) ) .gt. 0 ) THEN
+              fname = TRIM(cable_user%POP_restart_out)
+           ELSE
+              fname = TRIM(filename%path)//'/'//'pop_'//TRIM(cable_user%RunIDEN)&
+                   //'_'//typ//'.nc'
+           ENDIF
         ELSE
-           fname = TRIM(filename%path)//'/'//TRIM(cable_user%RunIden)//'_'//&
-                TRIM(dum)//'_pop_'//typ//'.nc'
+           IF  (LEN_TRIM( TRIM(cable_user%POP_outfile) ) .gt. 0 ) THEN
+              fname = TRIM(cable_user%POP_outfile)
+           ELSE
+              fname = TRIM(filename%path)//'/'//TRIM(cable_user%RunIden)//'_'//&
+                   TRIM(dum)//'_pop_'//typ//'.nc'
+           ENDIF
         ENDIF
+        
+        
 
         INQUIRE( FILE=TRIM( fname ), EXIST=EXISTFILE )
         EXISTFILE = .FALSE.
@@ -929,24 +948,30 @@ SUBROUTINE POP_IO ( POP, casamet, YEAR, ACTION, CF )
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   ELSE IF ( INDEX(ACTION,'READ') .GT. 0 ) THEN
-
-     WRITE( dum, FMT="(I4)")YEAR-1
-     fname = TRIM(cable_user%POP_rst)//'/'//TRIM(dum)//'_pop_'//TRIM(cable_user%RunIDEN)//'_'//typ//'.nc'
+     
+     IF (LEN_TRIM(TRIM(cable_user%POP_restart_in)).gt.0) THEN
+        fname = TRIM(cable_user%POP_restart_in)
+     ELSE
+        WRITE( dum, FMT="(I4)")YEAR-1
+        fname = TRIM(cable_user%POP_rst)//'/'//TRIM(dum)//'_pop_'//TRIM(cable_user%RunIDEN)//'_'//typ//'.nc'
+     ENDIF
      INQUIRE( FILE=TRIM(fname), EXIST=EXISTFILE )
      ! If suitable restart-file, try ini-restart
      IF ( .NOT. EXISTFILE ) THEN
         WRITE(*,*) "Restart file not found: ",TRIM(fname)
         WRITE(*,*) "Looking for initialization file..."
         fname = TRIM(cable_user%POP_rst)//'/'//'pop_'//TRIM(cable_user%RunIDEN)//'_ini.nc'
-        INQUIRE( FILE=TRIM(fname), EXIST=EXISTFILE )
-        IF (.NOT. EXISTFILE) THEN
-           WRITE(*,*) " No ini-restart file found either! ", TRIM(fname)
-           STOP -1
-        ELSE
-           typ = "ini"
-        ENDIF
+     ENDIF
+     INQUIRE( FILE=TRIM(fname), EXIST=EXISTFILE )
+     IF (.NOT. EXISTFILE) THEN
+        WRITE(*,*) " No ini-restart file found either! ", TRIM(fname)
+        STOP -1
+     ELSE
+        typ = "ini"
+     ENDIF
 
-     END IF
+ 
+
      WRITE(*,*)"Reading POP-rst file: ", TRIM(fname)
 
      STATUS = NF90_OPEN( TRIM(fname), NF90_NOWRITE, FILE_ID )

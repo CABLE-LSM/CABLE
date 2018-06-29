@@ -525,7 +525,7 @@ MODULE cable_bios_met_obs_params
     b1_file, b2_file, bulkdens1_kgm3_file, bulkdens2_kgm3_file, clayfrac1_file, clayfrac2_file, &
     csoil1_file, csoil2_file, depth1_m_file, depth2_m_file, hyk1sat_ms_file, hyk2sat_ms_file, & 
     psie1_m_file, psie2_m_file, siltfrac1_file, siltfrac2_file, wvol1fc_m3m3_file, wvol2fc_m3m3_file, &
-    wvol1sat_m3m3_file, wvol2sat_m3m3_file, wvol1w_m3m3_file, wvol2w_m3m3_file !, &
+    wvol1sat_m3m3_file, wvol2sat_m3m3_file, wvol1w_m3m3_file, wvol2w_m3m3_file, MVG_file !, &
 !    slope_deg_file  ! Terrain slope in degrees
 
 ! Define the daily bios met variables and file unit numbers which are required by multiple subroutines.
@@ -602,7 +602,7 @@ CONTAINS
     b1_file, b2_file, bulkdens1_kgm3_file, bulkdens2_kgm3_file, clayfrac1_file, clayfrac2_file, &
     csoil1_file, csoil2_file, depth1_m_file, depth2_m_file, hyk1sat_ms_file, hyk2sat_ms_file, & 
     psie1_m_file, psie2_m_file, siltfrac1_file, siltfrac2_file, wvol1fc_m3m3_file, wvol2fc_m3m3_file, &
-    wvol1sat_m3m3_file, wvol2sat_m3m3_file, wvol1w_m3m3_file, wvol2w_m3m3_file, &
+    wvol1sat_m3m3_file, wvol2sat_m3m3_file, wvol1w_m3m3_file, wvol2w_m3m3_file, MVG_file, &
 !    slope_deg_file, &  ! Terrain slope in degrees
     dels               ! time step size in seconds
   
@@ -692,6 +692,7 @@ CONTAINS
   WRITE(*   ,*)" wvol2sat_m3m3_file  = ",TRIM(wvol2sat_m3m3_file)
   WRITE(*   ,*)" wvol1w_m3m3_file    = ",TRIM(wvol1w_m3m3_file)
   WRITE(*   ,*)" wvol2w_m3m3_file    = ",TRIM(wvol2w_m3m3_file)
+   WRITE(*   ,*)" MVG_file    = ",TRIM(MVG_file)
   !WRITE(*   ,*)" slope_deg_file      = ",TRIM(slope_deg_file)
   WRITE(*   ,*)" DT(secs): ",dels
 
@@ -732,6 +733,7 @@ CONTAINS
   WRITE(logn,*)" wvol2sat_m3m3_file  = ",TRIM(wvol2sat_m3m3_file)
   WRITE(logn,*)" wvol1w_m3m3_file    = ",TRIM(wvol1w_m3m3_file)
   WRITE(logn,*)" wvol2w_m3m3_file    = ",TRIM(wvol2w_m3m3_file)
+  WRITE(logn,*)" MVG_file    = ",TRIM(MVG_file)
   !WRITE(logn,*)" slope_deg_file      = ",TRIM(slope_deg_file)
   WRITE(logn,*)" timestep in secs  = ",dels
   WRITE(logn,*)" DT(secs): ",dels
@@ -1499,6 +1501,52 @@ DEALLOCATE (wvol1w_m3m3, wvol2w_m3m3)
 END SUBROUTINE cable_bios_load_params
 
 !******************************************************************************
+
+SUBROUTINE cable_bios_load_biome(MVG)
+
+  USE cable_def_types_mod,  ONLY: mland
+
+
+  IMPLICIT NONE
+
+
+INTEGER(i4b) :: is, ie ! Index start/end points within cable spatial vectors
+                                ! for the current land-cell's tiles. These are just 
+                                ! aliases to improve code readability
+INTEGER(i4b) :: iland         ! loop counter through mland land cells
+INTEGER(i4b) :: param_unit    ! Unit number for reading (all) parameter files.
+INTEGER(i4b) :: error_status  ! Error status returned by OPENs
+REAL(sp), ALLOCATABLE :: tmp(:)
+INTEGER, INTENT(INOUT)       :: MVG(:) ! climate variables
+
+
+! Temporary soil parameter variables. Varnames match corresponding bios parameter filenames (roughly).
+! Dimensions are mland, which will be mapped to the more complicated mland+tiles dimensions of the 
+! equivalent cable soil variables. Filenames for these variables are defined at module level
+! because they are read in from bios.nml as part of the initialisation but only accessed here,
+! after the default cable params are read in by cable_driver. 
+
+
+ALLOCATE (tmp(mland))
+
+CALL GET_UNIT(param_unit)  ! Obtain an unused unit number for file reading, reused for all soil vars.
+
+! Open, read, and close each soil parameter in turn, stopping for any missing file.
+OPEN (param_unit, FILE=TRIM(param_path)//TRIM(MVG_file), FORM='BINARY', STATUS='OLD',IOSTAT=error_status)
+IF (error_status > 0) THEN
+  WRITE (*,'("STOP - File not found: ", A<LEN_TRIM(TRIM(param_path)//TRIM(MVG_file))>)') TRIM(param_path)//TRIM(MVG_file) ; STOP ''
+ELSE
+  READ (param_unit) tmp
+  CLOSE (param_unit)
+END IF
+
+MVG = int(tmp)
+
+END SUBROUTINE cable_bios_load_biome
+
+!******************************************************************************
+
+
   
 END MODULE cable_bios_met_obs_params
     

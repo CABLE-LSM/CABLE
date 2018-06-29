@@ -2655,6 +2655,19 @@ ENDIF
     CALL MPI_Get_address (casabiome%ratioNPplantmax, displs(bidx), ierr)
     blen(bidx) = mvtype * mplant * extr2
 
+    ! added by vh
+    bidx = bidx + 1
+    CALL MPI_Get_address (casabiome%la_to_sa, displs(bidx), ierr)
+    blen(bidx) = mvtype  * extr2
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (casabiome%vcmax_scalar, displs(bidx), ierr)
+    blen(bidx) = mvtype  * extr2
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (casabiome%disturbance_interval, displs(bidx), ierr)
+    blen(bidx) = mvtype  * extr2
+
     ! ------ casapool ----
 
     bidx = bidx + 1

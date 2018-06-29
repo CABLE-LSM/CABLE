@@ -876,9 +876,15 @@ SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
 # ifndef UM_BUILD
 
   ! Get File-Name
-  WRITE(CYEAR, FMT='(I4)') CurYear + 1
-  fname = TRIM(filename%path)//'/'//TRIM( cable_user%RunIden )//&
-       '_climate_rst.nc'
+  IF (LEN_TRIM(cable_user%climate_restart_out).gt.0) THEN
+     fname = TRIM(cable_user%climate_restart_out)
+  ELSE
+
+
+     WRITE(CYEAR, FMT='(I4)') CurYear + 1
+     fname = TRIM(filename%path)//'/'//TRIM( cable_user%RunIden )//&
+          '_climate_rst.nc'
+  ENDIF
   ! Create NetCDF file:
   STATUS = NF90_create(fname, NF90_CLOBBER, FILE_ID)
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
@@ -1202,10 +1208,13 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate, ktauday )
   A5(10) = 'scalex_shade'
 
   ! Get File-Name
-  WRITE(CYEAR, FMT='(I4)') CurYear + 1
-  fname = TRIM(filename%path)//'/'//TRIM( cable_user%RunIden )//&
-       '_climate_rst.nc'
-
+  IF (LEN_TRIM(cable_user%climate_restart_in).gt.0) THEN
+     fname = TRIM(cable_user%climate_restart_in)
+  ELSE
+     WRITE(CYEAR, FMT='(I4)') CurYear + 1
+     fname = TRIM(filename%path)//'/'//TRIM( cable_user%RunIden )//&
+          '_climate_rst.nc'
+  ENDIF
   INQUIRE( FILE=TRIM( fname ), EXIST=EXISTFILE )
 
         IF ( .NOT.EXISTFILE) write(*,*) fname, ' does not exist!!'

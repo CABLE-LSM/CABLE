@@ -82,7 +82,10 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
   INTEGER :: i,iv1,nv,ns,npt,iv,is,iso
   INTEGER :: nv0,nv1,nv2,nv3,nv4,nv5,nv6,nv7,nv8,nv9,nv10,nv11,nv12
   REAL(r_2), DIMENSION(mvtype)       :: xxnpmax,xq10soil,xxkoptlitter,xxkoptsoil,xprodptase, &
-                                        xcostnpup,xmaxfinelitter,xmaxcwd,xnintercept,xnslope
+       xcostnpup,xmaxfinelitter,xmaxcwd,xnintercept,xnslope
+
+  
+  REAL(r_2), DIMENSION(mvtype)       :: la_to_sa, vcmax_scalar, disturbance_interval
   REAL(r_2), DIMENSION(mso)          :: xxkplab,xxkpsorb,xxkpocc
 
 
@@ -230,7 +233,14 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
          xxnpmax(nv),xq10soil(nv),xxkoptlitter(nv),xxkoptsoil(nv),xprodptase(nv), &
          xcostnpup(nv),xmaxfinelitter(nv),xmaxcwd(nv),xnintercept(nv),xnslope(nv)
   ENDDO
-!@@@@@@@@@@@@@@@@@@@@@
+  !@@@@@@@@@@@@@@@@@@@@@
+
+  READ(101,*)
+  READ(101,*)
+  DO nv=1,mvtype
+    READ(101,*) nv12, &
+         la_to_sa(nv),disturbance_interval(nv),vcmax_scalar(nv)
+  ENDDO
 
   CLOSE(101)
 
@@ -277,6 +287,10 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
     casabiome%maxcwd(nv)          = xmaxcwd(nv)
     casabiome%nintercept(nv)      = xnintercept(nv)
     casabiome%nslope(nv)          = xnslope(nv)
+
+    casabiome%la_to_sa(nv)        = la_to_sa(nv)
+    casabiome%vcmax_scalar(nv)        = vcmax_scalar(nv)
+    casabiome%disturbance_interval(nv)        = disturbance_interval(nv)
 !@@@@@@@@@@@@@@
   ENDDO
 
@@ -290,7 +304,7 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
 !@@@@@@@@@@@@@@
 
  ! PRINT *, 'casabiome%xkoptsoil = ', casabiome%xkoptsoil(2)
-
+write(*,*) 'isorder', casamet%isorder
   DO npt = 1, mp
     iv1=veg%iveg(npt)
     iso=casamet%isorder(npt)
@@ -1606,10 +1620,13 @@ SUBROUTINE WRITE_CASA_RESTART_NC ( casamet, casapool, casaflux, phen, CASAONLY )
   ! Get File-Name
   WRITE(CYEAR, FMT='(I4)') CurYear + 1
 
-  !fname = TRIM(filename%path)//'/'//TRIM( cable_user%RunIden )//&
-  !     '_'//CYEAR//'_casa_rst.nc'
-  fname = TRIM(filename%path)//'/'//TRIM( cable_user%RunIden )//&
-       '_casa_rst.nc'
+    IF (( LEN_TRIM(casafile%cnpepool) ) .gt. 0) THEN
+        fname=TRIM(casafile%cnpepool)
+    ELSE
+        fname = TRIM(filename%path)//'/'//TRIM( cable_user%RunIden )//&
+            '_casa_rst.nc'
+    ENDIF
+
   ! Create NetCDF file:
   STATUS = NF90_create(fname, NF90_CLOBBER, FILE_ID)
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
@@ -2201,20 +2218,23 @@ SUBROUTINE WRITE_CASA_OUTPUT_NC ( veg, casamet, casapool, casabal, casaflux, &
 
   IF ( CALL1 ) THEN
      ! Get File-Name
-
-     IF (TRIM(cable_user%MetType).NE.'' ) THEN
-
-        WRITE( dum, FMT="(I4,'_',I4)")CABLE_USER%YEARSTART,CABLE_USER%YEAREND
-        IF (CABLE_USER%YEARSTART.lt.1000.and.CABLE_USER%YEAREND.lt.1000) THEN
-           WRITE( dum, FMT="(I3,'_',I3)")CABLE_USER%YEARSTART,CABLE_USER%YEAREND
-        ELSEIF (CABLE_USER%YEARSTART.lt.1000) THEN
-           WRITE( dum, FMT="(I3,'_',I4)")CABLE_USER%YEARSTART,CABLE_USER%YEAREND
-        ENDIF
-        fname = TRIM(filename%path)//'/'//TRIM(cable_user%RunIden)//'_'//&
-             TRIM(dum)//'_casa_out.nc'
+     IF (TRIM(casafile%out).NE.'' ) THEN
+        fname = TRIM(casafile%out)
      ELSE
-        ! site data
-        fname = TRIM(filename%path)//'/'//TRIM(cable_user%RunIden)//'_casa_out.nc'
+        IF (TRIM(cable_user%MetType).NE.'' ) THEN
+
+           WRITE( dum, FMT="(I4,'_',I4)")CABLE_USER%YEARSTART,CABLE_USER%YEAREND
+           IF (CABLE_USER%YEARSTART.lt.1000.and.CABLE_USER%YEAREND.lt.1000) THEN
+              WRITE( dum, FMT="(I3,'_',I3)")CABLE_USER%YEARSTART,CABLE_USER%YEAREND
+           ELSEIF (CABLE_USER%YEARSTART.lt.1000) THEN
+              WRITE( dum, FMT="(I3,'_',I4)")CABLE_USER%YEARSTART,CABLE_USER%YEAREND
+           ENDIF
+           fname = TRIM(filename%path)//'/'//TRIM(cable_user%RunIden)//'_'//&
+                TRIM(dum)//'_casa_out.nc'
+        ELSE
+           ! site data
+           fname = TRIM(filename%path)//'/'//TRIM(cable_user%RunIden)//'_casa_out.nc'
+        ENDIF
      ENDIF
      INQUIRE( FILE=TRIM( fname ), EXIST=EXRST )
      EXRST = .FALSE.
