@@ -1902,9 +1902,7 @@ SUBROUTINE get_met_data(spinup,spinConv,met,soil,rad,                          &
 
        END IF
       END IF
-     ! Alexis
-     write(logn,*) 'vcmax data has been read? now reading LAI'
-
+    
       ! Get LAI, if it's present, for mask grid:- - - - - - - - - - - - -
       IF(exists%LAI) THEN ! If LAI exists in met file
         IF(exists%LAI_T) THEN ! i.e. time dependent LAI
