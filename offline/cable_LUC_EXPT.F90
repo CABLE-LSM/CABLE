@@ -484,7 +484,7 @@ CONTAINS
 
 
     IF (TRIM(cable_user%MetType) .EQ. "bios") THEN
-       WHERE (LUC_EXPT%prim_only .eq. .TRUE.)
+       WHERE (LUC_EXPT%prim_only .eqv. .TRUE.)
            LUC_EXPT%grass = LUC_EXPT%primaryf*(1-CPC)
            LUC_EXPT%primaryf =  LUC_EXPT%primaryf *CPC 
 
@@ -494,7 +494,7 @@ CONTAINS
     ELSE
        ! set secondary vegetation area to be zero where land use transitions don't occur
        ! set grass component of primary vegetation cover
-       WHERE (LUC_EXPT%prim_only .eq. .TRUE.)
+       WHERE (LUC_EXPT%prim_only .eqv. .TRUE.)
           LUC_EXPT%secdf = 0.0
           LUC_EXPT%primaryf = 1.0
           LUC_EXPT%grass = 0.0
