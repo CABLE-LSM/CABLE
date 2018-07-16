@@ -549,6 +549,7 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
           str3 = adjustl(str3)
           timeunits="seconds since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" &
                00:00"
+          calendar = 'standard'
 
        ENDIF
        LOY = 365
