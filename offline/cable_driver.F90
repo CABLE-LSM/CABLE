@@ -374,7 +374,7 @@ PROGRAM cable_offline_driver
        STOP 'icycle must be 1 to 3 when using casaCNP'
   !IF( ( l_laiFeedbk .OR. l_vcmaxFeedbk ) )	  &
   !   STOP 'casaCNP required to get prognostic LAI or Vcmax'
-  IF( l_vcmaxFeedbk .AND. icycle < 2 )					   &
+  IF( l_vcmaxFeedbk .AND. icycle < 1 )					   &
        STOP 'icycle must be 2 to 3 to get prognostic Vcmax'
   IF( icycle > 0 .AND. ( .NOT. soilparmnew ) )				   &
        STOP 'casaCNP must use new soil parameters'
@@ -761,8 +761,16 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
           IF ( .NOT. CASAONLY ) THEN
              
              ! Feedback prognostic vcmax and daily LAI from casaCNP to CABLE
-             IF (l_vcmaxFeedbk) CALL casa_feedback( ktau, veg, casabiome,	 &
-                  casapool, casamet, climate, ktauday )
+             IF (l_vcmaxFeedbk) then
+                CALL casa_feedback( ktau, veg, casabiome,	 &
+                     casapool, casamet, climate, ktauday )
+             ELSE
+                veg%vcmax_shade = veg%vcmax
+                veg%ejmax_shade = veg%ejmax
+       
+                veg%vcmax_sun = veg%vcmax
+                veg%ejmax_sun = veg%ejmax
+             ENDIF
              
              IF (l_laiFeedbk.and.icycle>0) veg%vlai(:) = casamet%glai(:)
              !veg%vlai = 2 ! test
