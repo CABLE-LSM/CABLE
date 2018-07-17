@@ -130,17 +130,17 @@ SUBROUTINE sli_main(ktau, dt, veg, soil, ssnow, met, canopy, air, rad, SEB_only)
 
   ! output files for testing purposes
   if (first) then
-     open (unit=332,file="vh08.out",status="replace",position="rewind")
-     open (unit=334,file="S.out",status="replace",position="rewind")
-     open (unit=336,file="Tsoil.out",status="replace",position="rewind")
-     open (unit=335,file="SEB.out",status="replace",position="rewind")
-     open (unit=337,file="soil_log.out",status="replace",position="rewind")
-     open(unit=338, file="thetai.out", status="replace", position="rewind")
-     open(unit=340, file="snow.out", status="replace", position="rewind")
-     open(unit=346, file="diags.out",status="replace", position="rewind")
-     open(unit=369, file="vmet.out", status="replace", position="rewind", recl=20*20)
-     open(unit=370, file="qex.out",status="replace", position="rewind")
-     open(unit=371, file="q.out",status="replace", position="rewind")
+!!$     open (unit=332,file="vh08.out",status="replace",position="rewind")
+!!$     open (unit=334,file="S.out",status="replace",position="rewind")
+!!$     open (unit=336,file="Tsoil.out",status="replace",position="rewind")
+!!$     open (unit=335,file="SEB.out",status="replace",position="rewind")
+!!$     open (unit=337,file="soil_log.out",status="replace",position="rewind")
+!!$     open(unit=338, file="thetai.out", status="replace", position="rewind")
+!!$     open(unit=340, file="snow.out", status="replace", position="rewind")
+!!$     open(unit=346, file="diags.out",status="replace", position="rewind")
+!!$     open(unit=369, file="vmet.out", status="replace", position="rewind", recl=20*20)
+!!$     open(unit=370, file="qex.out",status="replace", position="rewind")
+!!$     open(unit=371, file="q.out",status="replace", position="rewind")
 
      !open(unit=339, file="latlong.out",status="replace", position="rewind")
     ! write(339,"(20000f8.2)") rad%latitude
