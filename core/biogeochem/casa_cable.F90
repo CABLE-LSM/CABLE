@@ -658,7 +658,8 @@ END SUBROUTINE write_casa_dump
 ENDDO
 
 if (mod(ktau,ktauday) ==1) then
-   if (cable_user%call_climate .and. TRIM(cable_user%vcmax).eq.'Walker2014' ) then
+   if (cable_user%call_climate .and. (TRIM(cable_user%vcmax).eq.'Walker2014' .OR. &
+        TRIM(cable_user%vcmax).eq.'standard')  ) then
       CALL optimise_JV(veg,climate,ktauday,bjvref)
 
     else
@@ -671,6 +672,7 @@ if (mod(ktau,ktauday) ==1) then
    endif
 endif
 
+write(55,*)  veg%vcmax_shade, veg%ejmax_shade
 
 ! for 2 day test
 !if (ktau == ) stop
