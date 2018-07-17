@@ -672,7 +672,7 @@ if (mod(ktau,ktauday) ==1) then
    endif
 endif
 
-write(55,*)  veg%vcmax_shade, veg%ejmax_shade
+
 
 ! for 2 day test
 !if (ktau == ) stop

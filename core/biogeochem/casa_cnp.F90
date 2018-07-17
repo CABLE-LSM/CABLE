@@ -1753,6 +1753,22 @@ IF(casamet%iveg2(nland)/=icewater) THEN
                                  + casaflux%kpocc(nland) * casapool%Psoilocc(nland)
       ! here the dPsoillabdt =(dPsoillabdt+dPsoilsorbdt)
       ! dPsoilsorbdt  = xdplabsorb
+
+!  np=1
+!!$  write(66,912) casaflux%Psnet(nland) , fluxptase(nland),         &
+!!$                                 + casaflux%Pdep(nland) , casaflux%Pwea(nland)   ,   &
+!!$                                 - casaflux%Pleach(nland),-casaflux%pupland(nland) ,   &
+!!$                                 - casaflux%kpsorb(nland)*casapool%Psoilsorb(nland) , &
+!!$                                 + casaflux%kpocc(nland) * casapool%Psoilocc(nland), &
+!!$                                 casapool%dPsoillabdt(nland), xdplabsorb(nland), &
+!!$                                 casapool%dPsoillabdt(nland)/xdplabsorb(nland)
+!!$               
+!!$
+!!$
+!!$
+!!$912 format(100(e12.3,2x))
+
+      
       casapool%dPsoillabdt(nland)  = casapool%dPsoillabdt(nland)/xdplabsorb(nland)
       casapool%dPsoilsorbdt(nland) = 0.0
 
@@ -2280,9 +2296,10 @@ SUBROUTINE casa_cnpcycle(veg,casabiome,casapool,casaflux,casamet, LALLOC)
       casapool%Plitter(np,:) = casapool%Plitter(np,:) &
                              + casapool%dPlitterdt(np,:)* deltpool
       casapool%Psoil(np,:)   = casapool%Psoil(np,:)   &
-                             + casapool%dPsoildt(np,:)  * deltpool
-      casapool%Psoillab(np)  = casapool%Psoillab(np)  &
-                             + casapool%dPsoillabdt(np) * deltpool
+           + casapool%dPsoildt(np,:)  * deltpool
+      ! vh ! put lower bound of 1.e-3 to prevent Psoillab from going negative
+      casapool%Psoillab(np)  = max(casapool%Psoillab(np)  &
+                             + casapool%dPsoillabdt(np) * deltpool, 1.e-3)
       casapool%Psoilsorb(np) = casaflux%Psorbmax(np)*casapool%Psoillab(np) &
                              /(casaflux%kmlabp(np)+casapool%Psoillab(np))
 !      casapool%Psoilsorb(np) = casapool%Psoilsorb(np)  &
