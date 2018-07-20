@@ -577,9 +577,9 @@ SUBROUTINE casa_rplant(veg,casabiome,casapool,casaflux,casamet,climate)
         pleaf(npt) = casabiome%ratioPcplantmax(ivt,leaf)/casabiome%sla(ivt)  
         if (ivt .EQ. 7) then
            ! special for C4 grass: set here to value from  parameter file
-           vcmaxmax(npt) = 1.0e-5 
+           vcmaxmax(npt) = veg%vcmax(npt)
         else
-           vcmaxmax(npt) = vcmax_np(nleaf(npt), pleaf(npt))
+           vcmaxmax(npt) = vcmax_np(nleaf(npt), pleaf(npt))*casabiome%vcmax_scalar(ivt)
         endif
          
         if (cable_user%finite_gm) then

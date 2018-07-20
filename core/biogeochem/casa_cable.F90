@@ -551,20 +551,23 @@ END SUBROUTINE write_casa_dump
   real:: ajv, bjvref
   ! first initialize
   ncleafx(:) = casabiome%ratioNCplantmax(veg%iveg(:),leaf)
-  npleafx = 14.2
+  npleafx(:) = casabiome%ratioNPplantmin(veg%iveg(:),leaf)
   bjvref = 1.7 ! Walker 2014
   DO np=1,mp
     ivt=veg%iveg(np)
     IF (casamet%iveg2(np)/=icewater &
         .AND. casamet%glai(np)>casabiome%glaimin(ivt)  &
         .AND. casapool%cplant(np,leaf)>0.0) THEN
-      ncleafx(np) = MIN(casabiome%ratioNCplantmax(ivt,leaf), &
-                        MAX(casabiome%ratioNCplantmin(ivt,leaf), &
-                            casapool%nplant(np,leaf)/casapool%cplant(np,leaf)))
-      IF (icycle>2 .AND. casapool%pplant(np,leaf)>0.0) THEN
-        npleafx(np) = MIN(30.0,MAX(8.0,real(casapool%nplant(np,leaf) &
-                /casapool%pplant(np,leaf))))
-      ENDIF
+
+       IF (icycle>1 .AND. casapool%cplant(np,leaf)>0.0) THEN
+          ncleafx(np) = MIN(casabiome%ratioNCplantmax(ivt,leaf), &
+               MAX(casabiome%ratioNCplantmin(ivt,leaf), &
+               casapool%nplant(np,leaf)/casapool%cplant(np,leaf)))
+       ENDIF
+       IF (icycle>2 .AND. casapool%pplant(np,leaf)>0.0) THEN
+          npleafx(np) = MIN(30.0,MAX(8.0,real(casapool%nplant(np,leaf) &
+               /casapool%pplant(np,leaf))))
+       ENDIF
     ENDIF
 
     IF (TRIM(cable_user%vcmax).eq.'standard') then
