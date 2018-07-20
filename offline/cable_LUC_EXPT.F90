@@ -700,9 +700,8 @@ USE netcdf
      write(*,*) 'reading biome from : ', fname
   ENDIF
   ! Open NetCDF file:
-  STATUS = NF90_OPEN(fname, NF90_NOWRITE, FILE_ID)
+  STATUS = NF90_OPEN(TRIM(fname), NF90_NOWRITE, FILE_ID)
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-
 
   ! dimensions:
   ! Land (number of points)
@@ -768,6 +767,7 @@ USE netcdf
   STATUS = NF90_close(FILE_ID)
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
+write(*,*) "end read_climatefile"  
 
 END SUBROUTINE READ_CLIMATEFILE
 
