@@ -614,7 +614,9 @@ MODULE cable_def_types_mod
       GDD0_rec, &    ! growing degree day sum related to spring photosynthetic recovery
       frec, &           ! fractional photosynthetic recovery
       dtemp_min, &      ! daily minimum temperature
-      fdorm ! dormancy fraction (1 prior to first autumn frost; 0 after 10 severe frosts)
+      fdorm, & ! dormancy fraction (1 prior to first autumn frost; 0 after 10 severe frosts)
+      fapar_ann_max, & ! maximum midday fpar so far this year
+      fapar_ann_max_last_year ! maximum midday fpar last year
 
       REAL, DIMENSION(:,:), POINTER ::                                   &
       mtemp_min_20, & ! mimimum monthly temperatures for the last 20 y
@@ -1241,6 +1243,8 @@ SUBROUTINE alloc_climate_type(var, mp, ktauday)
    ALLOCATE ( var % frec(mp) )
    ALLOCATE ( var % dtemp_min(mp) )
    ALLOCATE ( var % fdorm(mp) )
+   ALLOCATE ( var % fapar_ann_max(mp) )
+   ALLOCATE ( var % fapar_ann_max_last_year(mp) )
 
    ALLOCATE ( var % mtemp_min_20(mp,ny) )
    ALLOCATE ( var %     mtemp_max_20(mp,ny) )

@@ -624,8 +624,10 @@ CONTAINS
          canopy%vlaiw(:))*canopy%gswx(:,2)
 
     ! The surface conductance below is required by dust scheme; it is composed from canopy and soil conductances
-    canopy%gswx_T = (1.-rad%transd)*max(1.e-06,canopy%gswx_T ) +  &   !contribution from  canopy conductance
-         rad%transd*(.01*ssnow%wb(:,1)/soil%sfc)**2 ! + soil conductance; this part is done as in Moses
+
+    !vh ! this line is causing a floating overflow error
+    !canopy%gswx_T = (1.-rad%transd)*max(1.e-06,canopy%gswx_T ) +  &   !contribution from  canopy conductance
+     !    rad%transd*(.01*ssnow%wb(:,1)/soil%sfc)**2 ! + soil conductance; this part is done as in Moses
     where ( soil%isoilm == 9 ) canopy%gswx_T = 1.e6   ! this is a value taken from Moses for ice points
 
     canopy%cdtq = canopy%cduv *( LOG( rough%zref_uv / rough%z0m) -              &

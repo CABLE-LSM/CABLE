@@ -6988,6 +6988,16 @@ print*, 'master, nd ny mp nsd', nd, ny,mp, nsd
      blocks(bidx) = r1len
      types(bidx)  = MPI_BYTE
 
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%fapar_ann_max(off), displs(bidx), ierr)
+     blocks(bidx) = r1len
+     types(bidx)  = MPI_BYTE
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%fapar_ann_max_last_year(off), displs(bidx), ierr)
+     blocks(bidx) = r1len
+     types(bidx)  = MPI_BYTE
+
  ! ------------- scalars  -------------
 
      bidx = bidx + 1
