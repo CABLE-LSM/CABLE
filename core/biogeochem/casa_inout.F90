@@ -80,12 +80,13 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
                 xratioNPwoodmin,xratioNPwoodmax,         &
                 xratioNPfrootmin,xratioNPfrootmax
   INTEGER :: i,iv1,nv,ns,npt,iv,is,iso
-  INTEGER :: nv0,nv1,nv2,nv3,nv4,nv5,nv6,nv7,nv8,nv9,nv10,nv11,nv12
+  INTEGER :: nv0,nv1,nv2,nv3,nv4,nv5,nv6,nv7,nv8,nv9,nv10,nv11,nv12,nv13
   REAL(r_2), DIMENSION(mvtype)       :: xxnpmax,xq10soil,xxkoptlitter,xxkoptsoil,xprodptase, &
        xcostnpup,xmaxfinelitter,xmaxcwd,xnintercept,xnslope
 
   
   REAL(r_2), DIMENSION(mvtype)       :: la_to_sa, vcmax_scalar, disturbance_interval
+  REAL(r_2), DIMENSION(mvtype)       :: DAMM_EnzPool, DAMM_KMO2,DAMM_KMcp, DAMM_Ea, DAMM_alpha 
   REAL(r_2), DIMENSION(mso)          :: xxkplab,xxkpsorb,xxkpocc
 
 
@@ -242,6 +243,13 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
          la_to_sa(nv),disturbance_interval(nv),vcmax_scalar(nv)
   ENDDO
 
+  READ(101,*)
+  READ(101,*)
+  DO nv=1,mvtype
+    READ(101,*) nv13, &
+         DAMM_EnzPool(nv), DAMM_KMO2(nv),DAMM_KMcp(nv), DAMM_Ea(nv), DAMM_alpha(nv)
+  ENDDO
+
   CLOSE(101)
 
   fracroot   = 0.0
@@ -291,6 +299,11 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
     casabiome%la_to_sa(nv)        = la_to_sa(nv)
     casabiome%vcmax_scalar(nv)        = vcmax_scalar(nv)
     casabiome%disturbance_interval(nv)        = disturbance_interval(nv)
+    casabiome%DAMM_EnzPool(nv) = DAMM_EnzPool(nv)
+    casabiome%DAMM_KMO2(nv) = DAMM_KMO2(nv)
+    casabiome%DAMM_KMcp(nv) = DAMM_KMcp(nv)
+    casabiome%DAMM_Ea(nv) = DAMM_Ea(nv)
+    casabiome%DAMM_alpha(nv) = DAMM_alpha(nv)
 !@@@@@@@@@@@@@@
   ENDDO
 

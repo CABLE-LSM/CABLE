@@ -3444,8 +3444,10 @@ SUBROUTINE master_casa_params (comm,casabiome,casapool,casaflux,casamet,&
   bidx = bidx + 1
   CALL MPI_Get_address (casabiome%nslope, displs(bidx), ierr)
   blen(bidx) = mvtype * extr2
- 
-!==================================================================
+
+
+
+  !==================================================================
   bidx = bidx + 1
   CALL MPI_Get_address (casabiome%plantrate, displs(bidx), ierr)
   blen(bidx) = mvtype * mplant * extr2
@@ -3522,6 +3524,27 @@ SUBROUTINE master_casa_params (comm,casabiome,casapool,casaflux,casamet,&
   bidx = bidx + 1
   CALL MPI_Get_address (casabiome%disturbance_interval, displs(bidx), ierr)
   blen(bidx) = mvtype * extr2
+
+    bidx = bidx + 1
+  CALL MPI_Get_address (casabiome%DAMM_EnzPool, displs(bidx), ierr)
+  blen(bidx) = mvtype * extr2
+  
+  bidx = bidx + 1
+  CALL MPI_Get_address (casabiome%DAMM_KMO2, displs(bidx), ierr)
+  blen(bidx) = mvtype * extr2
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (casabiome%DAMM_KMcp, displs(bidx), ierr)
+  blen(bidx) = mvtype * extr2
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (casabiome%DAMM_Ea, displs(bidx), ierr)
+  blen(bidx) = mvtype * extr2
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (casabiome%DAMM_alpha, displs(bidx), ierr)
+  blen(bidx) = mvtype * extr2
+
  
   
   ! ------ casapool ----

@@ -168,13 +168,13 @@ CONTAINS
       ! get past header
       READ(iunit, *)
       DO WHILE( IOS .EQ. 0 )
-        READ(iunit, FMT=*, IOSTAT=IOS) iyear, site%CO2VALS(iyear), site%NdepVALS(iyear), &
+        READ(iunit, FMT=* , IOSTAT=IOS) iyear, site%CO2VALS(iyear), site%NdepVALS(iyear), &
              site%PdepVALS(iyear)
       END DO
       CLOSE(iunit)
       CALL1 = .FALSE.
     END IF
-
+91 format (i4,',',f5.1,',',f4.2,',',f5.3)
 ! In all varying CO2 cases, return the element of the array for the current year
 ! as a single CO2 value.
 ! 

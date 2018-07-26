@@ -69,13 +69,14 @@ SUBROUTINE spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
    REAL(dp), allocatable, save ::  LAImax(:)    , Cleafmean(:),  Crootmean(:)
    REAL(dp), allocatable :: NPPtoGPP(:)
    INTEGER, allocatable :: Iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
-
+   INTEGER ::ctime
    if (.NOT.Allocated(LAIMax)) allocate(LAIMax(mp))
    if (.NOT.Allocated(Cleafmean))  allocate(Cleafmean(mp))
    if (.NOT.Allocated(Crootmean)) allocate(Crootmean(mp))
    if (.NOT.Allocated(NPPtoGPP)) allocate(NPPtoGPP(mp))
    if (.NOT.Allocated(Iw)) allocate(Iw(POP%np))
 
+   ctime = 1
    LOY = 365
    !! vh_js !!
     IF (cable_user%CALL_POP) THEN
@@ -178,13 +179,15 @@ SUBROUTINE spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
 
               CALL POPdriver(casaflux,casabal,veg, POP)
 
-              CALL POP_IO( pop, casamet, nyear, 'WRITE_EPI', &
-			 (.FALSE.))
+             ! CALL POP_IO( pop, casamet, nyear, 'WRITE_EPI', &
+	!		 (.FALSE.))
            ENDIF  ! end of year
         ELSE
            casaflux%stemnpp = 0.
         ENDIF ! CALL_POP
-
+         !CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
+         !     .true., ctime, .FALSE.  )
+         ctime = ctime+1
 
 !!$        WHERE(xkNlimiting .eq. 0)  !Chris Lu 4/June/2012
 !!$           xkNlimiting = 0.001
@@ -359,15 +362,18 @@ SUBROUTINE spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
               IF(idoy==mdyear) THEN ! end of year
 
                  CALL POPdriver(casaflux,casabal,veg, POP)
-                 CALL POP_IO( pop, casamet, NYEAR, 'WRITE_EPI', &
-			 (nloop.eq.mloop .and. nyear.eq.myearspin) )
+                ! CALL POP_IO( pop, casamet, NYEAR, 'WRITE_EPI', &
+		!	 (nloop.eq.mloop .and. nyear.eq.myearspin) )
                  
            ENDIF  ! end of year
         ELSE
            casaflux%stemnpp = 0.
         ENDIF ! CALL_POP
         
-        
+       ! CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
+        !     .TRUE., ctime, &
+        !     (nloop.eq.mloop .and. nyear.eq.myearspin.and.idoy.eq.mdyear)  )
+        ctime = ctime+1
      ENDDO   ! end of idoy
   ENDDO   ! end of nyear
 

@@ -895,6 +895,14 @@ SUBROUTINE casa_xratesoil(xklitter,xksoil,veg,soil,casamet,casabiome)
 !!$REAL(r_2), parameter :: wfpsquad=0
 
 
+ ! DAMM parameters
+ REAL(r_2), parameter ::  EnzPool = 10.0
+ REAL(r_2), parameter :: KMO2 = 0.01
+ REAL(r_2), parameter :: KMcp = 0.1
+ REAL(r_2), parameter :: Ea = 62
+ REAL(r_2), parameter :: alpha  = 10.6
+ REAL(r_2) :: O2, vol_air_content, Enz
+
   REAL(r_2), DIMENSION(mp)       :: xkwater,xktemp
   REAL(r_2), DIMENSION(mp)       :: fwps,tsavg
   ! Custom soil respiration - see Ticket #42
@@ -991,15 +999,39 @@ SUBROUTINE casa_xratesoil(xklitter,xksoil,veg,soil,casamet,casabiome)
         ! Lloyd & Taylor, Func. Ec. 8, 315, 1994, Eq 11.
          strf(npt)= exp(308.56*(1.0/56.02-1.0         &
                    / (max(tsoil(npt),-20.0)+46.02)))/5.65 
-   ! factor of 5.65 gives same value as q10=2 response at 10 degC (ref T 35 degC).
+         ! factor of 5.65 gives same value as q10=2 response at 10 degC (ref T 35 degC).
          !strf(npt)= exp(388.56*(1.0/56.02-1.0         &
          !          / (max(tsoil(npt),-20.0)+46.02)))/7.45 
          ! factor of 5.65 gives same value as q10=2 response at 10 degC (ref T 35 degC).
       END IF
+
+      IF (trim(cable_user%STRF_NAME)=='DAMM') THEN
+                   vol_air_content = max(soil%ssat(npt) - casamet%moistavg(npt), 0.0)
+                   O2 = 1.67 * 0.209 * (vol_air_content**(4./3.))
+                   Enz=casabiome%DAMM_EnzPool(veg%iveg(npt))*3.17 &
+                        *( casamet%moistavg(npt)**3)
+                   xksoil(npt) = (10**casabiome%DAMM_alpha(veg%iveg(npt)))* &
+                        exp(-casabiome%DAMM_Ea(veg%iveg(npt))/(8.314e-3 &
+                        * (casamet%tsoilavg(npt)))) * &
+                        (Enz/(Enz+casabiome%DAMM_KMcp(veg%iveg(npt)))) &
+                        * (O2/(casabiome%DAMM_KMO2(veg%iveg(npt))+O2))
+                   xklitter(npt) = xksoil(npt)
+
+        
+!!$                   vol_air_content = max(soil%ssat(npt) - casamet%moist(npt,1), 0.0)
+!!$                   O2 = 1.67 * 0.209 * (vol_air_content**(4./3.))
+!!$                   Enz=Enzpool*3.17*( casamet%moist(npt,1)**3)
+!!$                   xklitter(npt) = (10**alpha)* &
+!!$                         exp(-Ea/(8.314e-3 * (casamet%tsoil(npt,1)))) * &
+!!$				 (Enz/(Enz+KMcp)) * (O2/(KMO2+O2))
+
+				
+      ELSE
       !xksoil(npt) = casabiome%xkoptsoil(veg%iveg(npt))*strf(npt)*smrf(npt)
       !xklitter(npt) = casabiome%xkoptlitter(veg%iveg(npt)) *strf(npt)*smrf(npt)
       xksoil(npt) = strf(npt)*smrf(npt)
       xklitter(npt) = strf(npt)*smrf(npt)
+      ENDIF
 
 !write(67,"(i8,18e16.6)") npt, fwps(npt), smrf(npt), strf(npt),xkwater(npt),  xktemp(npt), xklitter(npt)
 !write(67,"(i8,18e16.6)") npt, tsoil(npt), strf(npt),  xktemp(npt)
@@ -1819,9 +1851,6 @@ SUBROUTINE avgsoil(veg,soil,casamet)
     ENDIF
 
 
-
-
- 
 
  ! Ticket#121
 

@@ -136,7 +136,8 @@ MODULE cable_common_module
      CHARACTER(LEN=15) ::                                                     &
           SMRF_NAME = 'Trudinger2016',   & ! Soil Moist Respiration Function
           !STRF_NAME = 'CASA-CNP'     ! Soil Temp Respiration Function
-          STRF_NAME = 'LT1994'     ! Soil Temp Respiration Function
+          !STRF_NAME = 'LT1994'    ! Soil Temp Respiration Function
+          STRF_NAME = 'DAMM'       ! DAMM Reverse M-M Enzyme Kinetics (Sihi et al, AFM 2018)
 
      LOGICAL ::                                                               &
           INITIALIZE_MAPPING    = .FALSE., & !

@@ -140,7 +140,12 @@ MODULE casavariable
                                        nslope,         &
                                        la_to_sa,       &
                                        vcmax_scalar,   &
-                                       disturbance_interval     
+                                       disturbance_interval, &
+                                       DAMM_EnzPool, &
+                                       DAMM_KMO2, &
+                                       DAMM_KMcp, &
+                                       DAMM_Ea, &
+                                       DAMM_alpha
 
     REAL(r_2), DIMENSION(:,:),POINTER :: plantrate,     &
                                        rmplant,         &
@@ -438,7 +443,12 @@ SUBROUTINE alloc_casavariable(casabiome,casapool,casaflux, &
            casabiome%ratioPcplantmin(mvtype,mplant),    &
            casabiome%la_to_sa(mvtype),                 &
            casabiome%vcmax_scalar(mvtype),             &
-           casabiome%disturbance_interval(mvtype)     &
+           casabiome%disturbance_interval(mvtype),     &
+           casabiome%DAMM_EnzPool(mvtype),     &
+           casabiome%DAMM_KMO2(mvtype),     &
+           casabiome%DAMM_KMcp(mvtype),     &
+           casabiome%DAMM_Ea(mvtype),     &
+           casabiome%DAMM_alpha(mvtype)     &
           )
 
   ALLOCATE(casapool%Clabile(arraysize),               &

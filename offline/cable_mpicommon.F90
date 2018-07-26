@@ -50,7 +50,8 @@ MODULE cable_mpicommon
  ! INTEGER, PARAMETER :: ncasaparam = 212  ! changed lpn added 9 variables 
 !  (casaflux%frac_sapwood/sapwood_area,casabiome,casabiome%ratioNPplantmin,%ratioNPplantmax)
   ! casapool%ratioNPplant,%ratioNPlitter,ratioNPsoil
-  INTEGER, PARAMETER :: ncasaparam = 215 ! vh added 3 variables la_tosa, vcmax_scalar, disturbance_interval
+  !INTEGER, PARAMETER :: ncasaparam = 215 ! vh added 3 variables la_tosa, vcmax_scalar, disturbance_interval
+  INTEGER, PARAMETER :: ncasaparam = 220 ! vh added 5 variables DAMM_EnzPool, DAMM_KMO2, DAMM_KMcp, DAMM_Ea, DAMM_alpha
   ! MPI: base number of casa_init parameters sent to the workers
   INTEGER, PARAMETER :: ncinit = 18
 
