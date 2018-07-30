@@ -258,6 +258,11 @@ END SUBROUTINE cable_diag_data1
          (/ dimID(1),dimID(3)/), varID(14))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(14))
 
+    !Pdep
+    ncok = NF90_DEF_VAR(ncid, trim(var_name(15)), xtype, &
+         (/ dimID(1),dimID(3)/), varID(15))
+    if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(15))
+
     return
   end subroutine def_vars
 

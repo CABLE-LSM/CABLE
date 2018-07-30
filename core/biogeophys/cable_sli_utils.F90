@@ -2783,23 +2783,23 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
        par(:,i)%LambdaS    = 2830_r_2 ! Sispat Manual Table 2
     enddo
     
-! special for Cumberland: set soil params to clay                                                                                    
-                                                                                                                                     
-    do i=1,ms                                                                                                                        
-      par(:,i)%thw        = 0.286                                                                                                    
-      par(:,i)%thfc       = 0.367                                                                                                    
-      par(:,i)%the        = 0.482                                                                                                    
-      par(:,i)%thre       = real(soil%ssat(index),r_2) - par(:,i)%thr                                                                
-      par(:,i)%he         = -0.405                                                                                                   
-      par(:,i)%Ke         = 1e-6                                                                                                     
-      par(:,i)%lam        = 1./11.4                                                                                                  
-      par(:,i)%eta        = two/par(:,i)%lam + two + one                                                                             
-      par(:,i)%KSe        = par(:,i)%eta * par(:,i)%Ke    ! dK/dS at he                                                              
-      par(:,i)%phie       = par(:,i)%Ke * par(:,i)%he / (one - par(:,i)%lam * par(:,i)%eta) ! MFP at he                              
-      par(:,i)%phiSe      = (par(:,i)%eta - one/par(:,i)%lam) * par(:,i)%phie    ! dphi/dS at he                                     
-      par(:,i)%clay       = 0.67                                                                                                     
-                                                                                                                                     
-    enddo                                                                                                                            
+!!$! special for Cumberland: set soil params to clay                                                                                    
+!!$                                                                                                                                     
+!!$    do i=1,ms                                                                                                                        
+!!$      par(:,i)%thw        = 0.286                                                                                                    
+!!$      par(:,i)%thfc       = 0.367                                                                                                    
+!!$      par(:,i)%the        = 0.482                                                                                                    
+!!$      par(:,i)%thre       = real(soil%ssat(index),r_2) - par(:,i)%thr                                                                
+!!$      par(:,i)%he         = -0.405                                                                                                   
+!!$      par(:,i)%Ke         = 1e-6                                                                                                     
+!!$      par(:,i)%lam        = 1./11.4                                                                                                  
+!!$      par(:,i)%eta        = two/par(:,i)%lam + two + one                                                                             
+!!$      par(:,i)%KSe        = par(:,i)%eta * par(:,i)%Ke    ! dK/dS at he                                                              
+!!$      par(:,i)%phie       = par(:,i)%Ke * par(:,i)%he / (one - par(:,i)%lam * par(:,i)%eta) ! MFP at he                              
+!!$      par(:,i)%phiSe      = (par(:,i)%eta - one/par(:,i)%lam) * par(:,i)%phie    ! dphi/dS at he                                     
+!!$      par(:,i)%clay       = 0.67                                                                                                     
+!!$                                                                                                                                     
+!!$    enddo                                                                                                                            
                                                                                                                                      
 !!$   ! special for Cumberland: set top 3 layers to sand                                                                             
 !!$   do i=1,3                                                                                                                       

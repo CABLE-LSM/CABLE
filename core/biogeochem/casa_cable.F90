@@ -280,7 +280,7 @@ SUBROUTINE read_casa_dump(  ncfile, casamet, casaflux,phen, climate, ncall, kend
       LOGICAL, INTENT(in)             :: allATonce
 
       !netcdf IDs/ names
-      INTEGER, PARAMETER :: num_vars=14
+      INTEGER, PARAMETER :: num_vars=15
       INTEGER, PARAMETER :: num_dims=3
       INTEGER, SAVE                        :: ncrid  ! netcdf file ID
       INTEGER , DIMENSION(num_vars)        :: varrID ! (1) tvair, (2) pmb
@@ -300,10 +300,11 @@ SUBROUTINE read_casa_dump(  ncfile, casamet, casaflux,phen, climate, ncall, kend
                             "phendoyphase3", &
                             "phendoyphase4", &
                             "mtemp        ", &
-                            "Ndep         " /)
+                            "Ndep         ", &
+                            "Pdep         " /)
 
       REAL     , DIMENSION(mp)        :: lat, lon
-      REAL(r_2), DIMENSION(mp)        :: tairk,  cgpp, mtemp, Ndep
+      REAL(r_2), DIMENSION(mp)        :: tairk,  cgpp, mtemp, Ndep, Pdep
       REAL(r_2), DIMENSION(mp,ms)     :: tsoil, moist
       REAL(r_2), DIMENSION(mp,mplant) :: crmplant
       REAL(r_2), DIMENSION(mp)        :: phenphase, phendoyphase1, &
@@ -331,6 +332,7 @@ SUBROUTINE read_casa_dump(  ncfile, casamet, casaflux,phen, climate, ncall, kend
             CALL get_var_ncr2(ncrid, var_name(12), phendoyphase4, idoy)
             CALL get_var_ncr2(ncrid, var_name(13), mtemp   , idoy )
             CALL get_var_ncr2(ncrid, var_name(14), Ndep   , idoy )
+            CALL get_var_ncr2(ncrid, var_name(15), Pdep   , idoy )
 
             casamet%Tairkspin(:,idoy) = tairk
             casamet%cgppspin (:,idoy) = cgpp
@@ -356,6 +358,7 @@ SUBROUTINE read_casa_dump(  ncfile, casamet, casaflux,phen, climate, ncall, kend
             phen%doyphasespin_4(:,idoy) = int(phendoyphase4)
             casamet%mtempspin(:,idoy) = mtemp
             casaflux%Nmindep = Ndep
+            casaflux%Pdep = Pdep
          END DO
       ELSE
 
@@ -371,6 +374,7 @@ SUBROUTINE read_casa_dump(  ncfile, casamet, casaflux,phen, climate, ncall, kend
          CALL get_var_ncr2(ncrid, var_name(12), phendoyphase4    ,ncall )
          CALL get_var_ncr2(ncrid, var_name(13), mtemp   , ncall )
          CALL get_var_ncr2(ncrid, var_name(14), Ndep   , ncall )
+         CALL get_var_ncr2(ncrid, var_name(15), Pdep   , ncall )
 
          casamet%tairk     = tairk
          casamet%tsoil     = tsoil
@@ -384,6 +388,7 @@ SUBROUTINE read_casa_dump(  ncfile, casamet, casaflux,phen, climate, ncall, kend
          phen%doyphase(:,4) = int(phendoyphase4)
          climate%mtemp_max = mtemp
          casaflux%Nmindep = Ndep
+         casaflux%Pdep = Pdep
 
       ENDIF
 
@@ -425,7 +430,7 @@ SUBROUTINE write_casa_dump( ncfile, casamet, casaflux, phen, climate, n_call, ke
 
   !netcdf IDs/ names
   CHARACTER(len=*)   :: ncfile
-  INTEGER, PARAMETER :: num_vars=14
+  INTEGER, PARAMETER :: num_vars=15
   INTEGER, PARAMETER :: num_dims=3
   INTEGER, SAVE :: ncid       ! netcdf file ID
 
@@ -444,7 +449,8 @@ SUBROUTINE write_casa_dump( ncfile, casamet, casaflux, phen, climate, n_call, ke
        "phendoyphase3", &
        "phendoyphase4", &
        "mtemp        ", &
-       "Ndep         " /)
+       "Ndep         ", &
+       "Pdep         " /)
 
 
   INTEGER, DIMENSION(num_vars) :: varID ! (1) tvair, (2) pmb
@@ -519,6 +525,7 @@ SUBROUTINE write_casa_dump( ncfile, casamet, casaflux, phen, climate, n_call, ke
   CALL put_var_ncr2(ncid, var_name(12), real(phen%doyphase(:,4), r_2)    ,n_call )
   CALL put_var_ncr2(ncid, var_name(13), real(climate%mtemp_max,r_2)    ,n_call )
   CALL put_var_ncr2(ncid, var_name(14), real(casaflux%Nmindep,r_2)    ,n_call )
+  CALL put_var_ncr2(ncid, var_name(15), real(casaflux%Pdep,r_2)    ,n_call )
 
 
   IF (n_call == kend ) &
@@ -1006,22 +1013,44 @@ END SUBROUTINE sumcflux
             casapool%psoilocc(npt) = totpsoil(npt) *fracPocc(casamet%isorder(npt))
         ELSE
         ! compute the steady-state litter and soil P pools
-          casapool%plitter(npt,metb) = (avgpleaf2met(npt)+avgproot2met(npt))/casaflux%klitter(npt,metb)
+!!$          casapool%plitter(npt,metb) = (avgpleaf2met(npt)+avgproot2met(npt))/casaflux%klitter(npt,metb)
+!!$          casapool%plitter(npt,str) = (avgpleaf2str(npt)+avgproot2str(npt))/casaflux%klitter(npt,str)
+!!$          casapool%plitter(npt,cwd) = (avgpwood2cwd(npt))/casaflux%klitter(npt,cwd)
+!!$
+!!$          casapool%psoil(npt,mic)   = (casaflux%fromLtoS(npt,mic,metb)*casaflux%klitter(npt,metb)*casapool%clitter(npt,metb)   &
+!!$                                     +casaflux%fromLtoS(npt,mic,str) *casaflux%klitter(npt,str)*casapool%clitter(npt,str)  &
+!!$                                     +casaflux%fromLtoS(npt,mic,cwd) *casaflux%klitter(npt,cwd)*casapool%clitter(npt,cwd) ) &
+!!$                                     * (casapool%ratioNCsoil(npt,mic)/casapool%ratioNPsoil(npt,mic))/casaflux%ksoil(npt,mic)
+!!$          
+!!$          casapool%psoil(npt,slow)  = (casaflux%fromLtoS(npt,slow,metb)*casaflux%klitter(npt,metb)*casapool%clitter(npt,metb) &
+!!$                                     + casaflux%fromLtoS(npt,slow,str)*casaflux%klitter(npt,str)*casapool%clitter(npt,str) &
+!!$                                     + casaflux%fromLtoS(npt,slow,cwd)*casaflux%klitter(npt,cwd)*casapool%clitter(npt,cwd) &
+!!$                                     + casaflux%fromStoS(npt,slow,mic) *casaflux%ksoil(npt,mic) *casapool%csoil(npt,mic)  ) &
+!!$                                   * (casapool%ratioNCsoil(npt,slow)/casapool%ratioNPsoil(npt,slow))/casaflux%ksoil(npt,slow)
+!!$          casapool%psoil(npt,pass)  = (casaflux%fromStoS(npt,pass,mic) *casaflux%ksoil(npt,mic) *casapool%csoil(npt,mic)    &
+!!$                                     +casaflux%fromStoS(npt,pass,slow)*casaflux%ksoil(npt,slow)*casapool%csoil(npt,slow) ) &
+!!$                                     *  (casapool%ratioNCsoil(npt,pass)/casapool%ratioNPsoil(npt,pass))/casaflux%ksoil(npt,pass)
+
+
+              casapool%plitter(npt,metb) = (avgpleaf2met(npt)+avgproot2met(npt))/casaflux%klitter(npt,metb)
           casapool%plitter(npt,str) = (avgpleaf2str(npt)+avgproot2str(npt))/casaflux%klitter(npt,str)
           casapool%plitter(npt,cwd) = (avgpwood2cwd(npt))/casaflux%klitter(npt,cwd)
 
-          casapool%psoil(npt,mic)   = (casaflux%fromLtoS(npt,mic,metb)*casaflux%klitter(npt,metb)*casapool%clitter(npt,metb)   &
-                                     +casaflux%fromLtoS(npt,mic,str) *casaflux%klitter(npt,str)*casapool%clitter(npt,str)  &
-                                     +casaflux%fromLtoS(npt,mic,cwd) *casaflux%klitter(npt,cwd)*casapool%clitter(npt,cwd) ) &
-                                   * (casapool%ratioNCsoil(npt,mic)/casapool%ratioNPsoil(npt,mic))/casaflux%ksoil(npt,mic)
-          casapool%psoil(npt,slow)  = (casaflux%fromLtoS(npt,slow,metb)*casaflux%klitter(npt,metb)*casapool%clitter(npt,metb) &
-                                     + casaflux%fromLtoS(npt,slow,str)*casaflux%klitter(npt,str)*casapool%clitter(npt,str) &
-                                     + casaflux%fromLtoS(npt,slow,cwd)*casaflux%klitter(npt,cwd)*casapool%clitter(npt,cwd) &
-                                     + casaflux%fromStoS(npt,slow,mic) *casaflux%ksoil(npt,mic) *casapool%csoil(npt,mic)  ) &
-                                   * (casapool%ratioNCsoil(npt,slow)/casapool%ratioNPsoil(npt,slow))/casaflux%ksoil(npt,slow)
-          casapool%psoil(npt,pass)  = (casaflux%fromStoS(npt,pass,mic) *casaflux%ksoil(npt,mic) *casapool%csoil(npt,mic)    &
-                                     +casaflux%fromStoS(npt,pass,slow)*casaflux%ksoil(npt,slow)*casapool%csoil(npt,slow) ) &
-                                   *  (casapool%ratioNCsoil(npt,pass)/casapool%ratioNPsoil(npt,pass))/casaflux%ksoil(npt,pass)
+          casapool%psoil(npt,mic)   = (casaflux%fromLtoS(npt,mic,metb)*casaflux%klitter(npt,metb)*casapool%Nlitter(npt,metb)   &
+                                     +casaflux%fromLtoS(npt,mic,str) *casaflux%klitter(npt,str)*casapool%Nlitter(npt,str)  &
+                                     +casaflux%fromLtoS(npt,mic,cwd) *casaflux%klitter(npt,cwd)*casapool%Nlitter(npt,cwd) ) &
+                                     / casapool%ratioNPsoil(npt,mic)/casaflux%ksoil(npt,mic)
+
+
+          
+          casapool%psoil(npt,slow)  = (casaflux%fromLtoS(npt,slow,metb)*casaflux%klitter(npt,metb)*casapool%Nlitter(npt,metb) &
+                                     + casaflux%fromLtoS(npt,slow,str)*casaflux%klitter(npt,str)*casapool%Nlitter(npt,str) &
+                                     + casaflux%fromLtoS(npt,slow,cwd)*casaflux%klitter(npt,cwd)*casapool%Nlitter(npt,cwd) &
+                                     + casaflux%fromStoS(npt,slow,mic) *casaflux%ksoil(npt,mic) *casapool%Nsoil(npt,mic)  ) &
+                                    /casapool%ratioNPsoil(npt,slow)/casaflux%ksoil(npt,slow)
+          casapool%psoil(npt,pass)  = (casaflux%fromStoS(npt,pass,mic) *casaflux%ksoil(npt,mic) *casapool%Nsoil(npt,mic)    &
+                                     +casaflux%fromStoS(npt,pass,slow)*casaflux%ksoil(npt,slow)*casapool%Nsoil(npt,slow) ) &
+                                  /casapool%ratioNPsoil(npt,pass)/casaflux%ksoil(npt,pass)
           ! assign the mineral pools
           casapool%psoillab(npt)      = avgpsoillab(npt)
           casapool%psoilsorb(npt)     = avgPsoilsorb(npt)

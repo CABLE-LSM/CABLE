@@ -154,7 +154,7 @@ SUBROUTINE spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
              nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
              pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
 
-         !write(6699,*) casapool%nminsoil(1),casaflux%Nmindep(1),  casaflux%Nminfix(1)
+         
         IF (cable_user%CALL_POP .and. POP%np.gt.0) THEN ! CALL_POP
 
            IF (cable_user%CALL_POP) THEN ! accumulate input variables for POP
@@ -179,16 +179,26 @@ SUBROUTINE spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
 
               CALL POPdriver(casaflux,casabal,veg, POP)
 
-             ! CALL POP_IO( pop, casamet, nyear, 'WRITE_EPI', &
-	!		 (.FALSE.))
+              CALL POP_IO( pop, casamet, nyear, 'WRITE_EPI', &
+              		 (.FALSE.))
+             CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
+              .true., ctime, .FALSE.  )
+             ctime = ctime+1
+
            ENDIF  ! end of year
+        
         ELSE
+           IF(idoy==mdyear) THEN ! end of year
+
+             CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
+              .true., ctime, .FALSE.  )
+             ctime = ctime+1
+
+           ENDIF  ! end of year
+           
            casaflux%stemnpp = 0.
         ENDIF ! CALL_POP
-         !CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
-         !     .true., ctime, .FALSE.  )
-         ctime = ctime+1
-
+      
 !!$        WHERE(xkNlimiting .eq. 0)  !Chris Lu 4/June/2012
 !!$           xkNlimiting = 0.001
 !!$        END WHERE
@@ -272,7 +282,8 @@ SUBROUTINE spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
   avg_rationcsoilslow = avg_rationcsoilslow /real(nday*myearspin)
   avg_rationcsoilpass = avg_rationcsoilpass /real(nday*myearspin)
 
-
+  write(600,*) 'pmet pre-analytic: ' ,  casapool%plitter(1,metb)
+  write(600,*) 'nmet pre-analytic: ' ,  casapool%nlitter(1,metb)
   call analyticpool(kend,veg,soil,casabiome,casapool,                                          &
        casaflux,casamet,casabal,phen,                                         &
        avg_cleaf2met,avg_cleaf2str,avg_croot2met,avg_croot2str,avg_cwood2cwd, &
@@ -283,6 +294,8 @@ SUBROUTINE spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
        avg_ratioNCsoilmic,avg_ratioNCsoilslow,avg_ratioNCsoilpass,            &
        avg_nsoilmin,avg_psoillab,avg_psoilsorb,avg_psoilocc)
 
+  write(600,*) 'pmet post analytic: ', avg_pleaf2met, avg_proot2met, casaflux%klitter(1,metb), casapool%plitter(1,metb)
+   write(600,*) 'nmet post analytic: ', avg_nleaf2met, avg_nroot2met, casaflux%klitter(1,metb), casapool%nlitter(1,metb)
 
 !!$  call totcnppools(1,veg,casamet,casapool,bmcplant,bmnplant,bmpplant,bmclitter,bmnlitter,bmplitter, &
 !!$       bmcsoil,bmnsoil,bmpsoil,bmnsoilmin,bmpsoillab,bmpsoilsorb,bmpsoilocc,bmarea)
@@ -338,7 +351,6 @@ SUBROUTINE spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
                 pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
 
 
-
            IF (cable_user%CALL_POP .and. POP%np.gt.0) THEN ! CALL_POP
 
               IF (cable_user%CALL_POP) THEN ! accumulate input variables for POP
@@ -362,18 +374,30 @@ SUBROUTINE spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
               IF(idoy==mdyear) THEN ! end of year
 
                  CALL POPdriver(casaflux,casabal,veg, POP)
-                ! CALL POP_IO( pop, casamet, NYEAR, 'WRITE_EPI', &
-		!	 (nloop.eq.mloop .and. nyear.eq.myearspin) )
+                 CALL POP_IO( pop, casamet, NYEAR, 'WRITE_EPI', &
+                 	 (nloop.eq.mloop .and. nyear.eq.myearspin) )
+                 CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
+                                             .TRUE., ctime, &
+                             (nloop.eq.mloop .and. nyear.eq.myearspin.and.idoy.eq.mdyear)  )
+                 ctime = ctime+1               
                  
-           ENDIF  ! end of year
-        ELSE
+              ENDIF  ! end of year
+
+           ELSE
+
+           IF(idoy==mdyear) THEN ! end of year
+
+               
+                 CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
+                                             .TRUE., ctime, &
+                             (nloop.eq.mloop .and. nyear.eq.myearspin.and.idoy.eq.mdyear)  )
+                 ctime = ctime+1               
+                 
+            ENDIF  ! end of year   
            casaflux%stemnpp = 0.
         ENDIF ! CALL_POP
         
-       ! CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
-        !     .TRUE., ctime, &
-        !     (nloop.eq.mloop .and. nyear.eq.myearspin.and.idoy.eq.mdyear)  )
-        ctime = ctime+1
+     
      ENDDO   ! end of idoy
   ENDDO   ! end of nyear
 

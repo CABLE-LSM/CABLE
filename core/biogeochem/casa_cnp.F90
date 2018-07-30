@@ -1005,7 +1005,7 @@ SUBROUTINE casa_xratesoil(xklitter,xksoil,veg,soil,casamet,casabiome)
          ! factor of 5.65 gives same value as q10=2 response at 10 degC (ref T 35 degC).
       END IF
 
-      IF (trim(cable_user%STRF_NAME)=='DAMM') THEN
+      IF (trim(cable_user%STRF_NAME)=='DAMM' .and. trim(cable_user%SMRF_NAME)=='DAMM') THEN
                    vol_air_content = max(soil%ssat(npt) - casamet%moistavg(npt), 0.0)
                    O2 = 1.67 * 0.209 * (vol_air_content**(4./3.))
                    Enz=casabiome%DAMM_EnzPool(veg%iveg(npt))*3.17 &
@@ -1478,7 +1478,7 @@ SUBROUTINE casa_delplant(veg,casabiome,casapool,casaflux,casamet,            &
                 + casaflux%Plabuptake(npt)*casaflux%fracPalloc(npt,:)
            !       casapool%Psoillab(npt)    = casapool%Psoillab(npt) - casaflux%Plabuptake(npt) * deltpool
         ENDIF  !of "icycle >2"
-    
+        write(599,*)  casaflux%FluxPtolitter(npt,metb), casaflux%FluxNtolitter(npt,metb)
 
      ENDIF
   ENDDO
@@ -1542,7 +1542,16 @@ IF(casamet%iveg2(nland)/=icewater) THEN
       !vh! set klitter to zero where Nlitter will go -ve 
       !(occurs occasionally for metabolic litter pool) Ticket#108
       where (casaflux%klitter(nland,:) * max(0.0,casapool%Nlitter(nland,:)).gt. &
-           casapool%Nlitter(nland,:)+casaflux%fluxNtolitter(nland,:)) casaflux%klitter(nland,:) = 0.0
+           casapool%Nlitter(nland,:)+casaflux%fluxNtolitter(nland,:)) &
+           casaflux%klitter(nland,:) = 0.0
+   endif
+
+   IF(icycle > 2) THEN
+      !vh! set klitter to zero where Plitter will go -ve 
+      !(occurs occasionally for metabolic litter pool) Ticket#108
+      where (casaflux%klitter(nland,:) * max(0.0,casapool%Plitter(nland,:)).gt. &
+           casapool%Plitter(nland,:)+casaflux%fluxPtolitter(nland,:)) &
+           casaflux%klitter(nland,:) = 0.0
    endif
 
    DO nL=1,mlitter
@@ -1703,7 +1712,9 @@ IF(casamet%iveg2(nland)/=icewater) THEN
                                     * casaflux%ksoil(nland,kk)      &
                                     * casapool%Nsoil(nland,kk)      &
                                     /casapool%ratioNPsoil(nland,k)
-!                                    * casapool%ratioPCsoil(nland,k)/casapool%ratioNCsoil(nland,k)
+               !                                    * casapool%ratioPCsoil(nland,k)/casapool%ratioNCsoil(nland,k)
+
+             
             ENDIF
          ENDDO ! end of "kk"
       ENDDO    ! end of "k"
@@ -1711,6 +1722,10 @@ IF(casamet%iveg2(nland)/=icewater) THEN
    ENDIF
 ENDIF  ! end of /=icewater
 ENDDO  ! end of nland
+
+write(55,*) casapool%ratioNPsoil(1,:)
+write(56,*)  casapool%ratioPCsoil(1,:)/casapool%ratioNCsoil(1,:)
+
 
 DO nland=1,mp
 IF(casamet%iveg2(nland)/=icewater) THEN
