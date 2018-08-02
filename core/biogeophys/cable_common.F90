@@ -135,10 +135,10 @@ MODULE cable_common_module
 
      ! Custom soil respiration - see Ticket #42
      CHARACTER(LEN=15) ::                                                     &
-          SMRF_NAME = 'Trudinger2016',   & ! Soil Moist Respiration Function
+          !SMRF_NAME = 'Trudinger2016',   & ! Soil Moist Respiration Function
           !STRF_NAME = 'CASA-CNP'     ! Soil Temp Respiration Function
           !STRF_NAME = 'LT1994'    ! Soil Temp Respiration Function
-          STRF_NAME = 'DAMM'       ! DAMM Reverse M-M Enzyme Kinetics (Sihi et al, AFM 2018)
+          STRF_NAME = 'DAMM',  &     ! DAMM Reverse M-M Enzyme Kinetics (Sihi et al, AFM 2018)
           SMRF_NAME = 'DAMM'       ! ditto
      LOGICAL ::                                                               &
           INITIALIZE_MAPPING    = .FALSE., & !
