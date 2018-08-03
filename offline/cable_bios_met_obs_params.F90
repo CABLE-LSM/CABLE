@@ -521,7 +521,8 @@ MODULE cable_bios_met_obs_params
 
 
   CHARACTER(200) :: met_path, param_path, landmaskflt_file, landmaskhdr_file, &
-    rain_file, swdown_file, tairmax_file, tairmin_file, co2_file, &
+       rain_file, swdown_file, tairmax_file, tairmin_file, wind_file, &
+       vp0900_file, vp1500_file, co2_file, &
     b1_file, b2_file, bulkdens1_kgm3_file, bulkdens2_kgm3_file, clayfrac1_file, clayfrac2_file, &
     csoil1_file, csoil2_file, depth1_m_file, depth2_m_file, hyk1sat_ms_file, hyk2sat_ms_file, & 
     psie1_m_file, psie2_m_file, siltfrac1_file, siltfrac2_file, wvol1fc_m3m3_file, wvol2fc_m3m3_file, &
@@ -536,10 +537,16 @@ MODULE cable_bios_met_obs_params
   REAL(sp),     ALLOCATABLE :: tairmin_day(:)       ! Packed vector of daily AWAP/BIOS min air temp (deg C)
   REAL(sp),     ALLOCATABLE :: prev_tairmax_day(:)       ! Packed vector of previous day's AWAP/BIOS max air temp (deg C)
   REAL(sp),     ALLOCATABLE :: next_tairmin_day(:)       ! Packed vector of next day's AWAP/BIOS min air temp (deg C)
+  REAL(sp),     ALLOCATABLE :: wind_day(:)          ! Packed vector of daily wind (ms-1)
+  REAL(sp),     ALLOCATABLE :: vp0900(:)          ! Packed vector of 9am vapour pressure (mb)
+  REAL(sp),     ALLOCATABLE :: vp1500(:)          ! Packed vector of 3pm vapour pressure (mb)
+  REAL(sp),     ALLOCATABLE :: prev_vp1500(:)          ! Packed vector of 3pm vapour pressure (mb)
+  REAL(sp),     ALLOCATABLE :: next_vp0900(:)          ! Packed vector of 9am vapour pressure (mb)
+
   REAL(sp)                  :: co2air_year          ! Single global value of co2 (ppm)
   
   INTEGER(i4b),  SAVE :: rain_unit, swdown_unit, tairmax_unit, tairmin_unit, co2_unit ! Met file unit numbers
-  
+  INTEGER(i4b),  SAVE :: wind_unit, vp1500_unit, vp0900_unit
   TYPE(dmydate), SAVE :: previous_date ! The day before the current date, for noting changes of year
   TYPE(dmydate), SAVE :: bios_rundate  ! The day before the current date, for noting changes of year
   TYPE(dmydate)       :: dummydate     ! Dummy date for when keeping the date is not required
@@ -823,6 +830,11 @@ CONTAINS
     ALLOCATE (tairmin_day(mland))
     ALLOCATE (prev_tairmax_day(mland))
     ALLOCATE (next_tairmin_day(mland))
+    ALLOCATE (wind_day(mland))
+    ALLOCATE (vp0900(mland))
+    ALLOCATE (vp1500(mland))
+    ALLOCATE (prev_vp1500(mland))
+    ALLOCATE (next_vp0900(mland))
 
 ! Whether start and end dates are user specified or not, we need to know 
 ! what the date range in the met files is, so dummy-read the rainfall.
@@ -939,6 +951,9 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
     REWIND (swdown_unit)
     REWIND (tairmax_unit)  
     REWIND (tairmin_unit)
+    REWIND (wind_unit)
+    REWIND (vp0900_unit)
+    REWIND (vp1500_unit)
     REWIND (co2_unit)
   END IF
   
@@ -951,6 +966,9 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
     READ (swdown_unit) dummydate, swdown_day
     READ (tairmax_unit) dummydate, tairmax_day
     READ (tairmin_unit) dummydate, tairmin_day
+    READ (wind_unit) dummydate, wind_day
+    READ (vp0900_unit) dummydate, vp0900
+    READ (vp1500_unit) dummydate, vp1500
   END DO
   dummydate = dummydate + 1
   IF (skipdays .gt. 0) THEN
@@ -999,7 +1017,28 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
     IF (error_status > 0) THEN
       WRITE (*,'("STOP - File not found: ")') TRIM(met_path)//TRIM(tairmin_file)
       STOP ''
-    END IF
+   END IF
+
+     CALL GET_UNIT(wind_unit)  ! wind speed  
+    OPEN (wind_unit, FILE=TRIM(met_path)//TRIM(wind_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+    IF (error_status > 0) THEN
+      WRITE (*,'("STOP - File not found: ")') TRIM(met_path)//TRIM(wind_file)
+      STOP ''
+   END IF
+
+     CALL GET_UNIT(vp0900_unit)  ! vp 0900  
+    OPEN (vp0900_unit, FILE=TRIM(met_path)//TRIM(vp0900_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+    IF (error_status > 0) THEN
+      WRITE (*,'("STOP - File not found: ")') TRIM(met_path)//TRIM(vp0900_file)
+      STOP ''
+   END IF
+
+    CALL GET_UNIT(vp1500_unit)  ! vp 1500
+    OPEN (vp1500_unit, FILE=TRIM(met_path)//TRIM(vp1500_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+    IF (error_status > 0) THEN
+      WRITE (*,'("STOP - File not found: ")') TRIM(met_path)//TRIM(vp1500_file)
+      STOP ''
+    END IF   
   
     CALL GET_UNIT(co2_unit)  ! CO2
     OPEN (co2_unit, FILE=TRIM(met_path)//TRIM(co2_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
@@ -1048,6 +1087,10 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
        READ (swdown_unit) bios_rundate, swdown_day        ! Packed vector of daily AWAP/BIOS swdown (MJ)
        READ (tairmax_unit) bios_rundate, tairmax_day       ! Packed vector of daily AWAP/BIOS max air temp (deg C)
        READ (tairmin_unit) bios_rundate, tairmin_day       ! Packed vector of daily AWAP/BIOS min air temp (deg C)
+       READ (wind_unit) bios_rundate, wind_day          !
+       READ (vp0900_unit) bios_rundate, vp0900          !
+       READ (vp1500_unit) bios_rundate, vp1500          !
+       
 
        IF (MetDate /= bios_rundate) THEN
          write(*,*) 'Expecting to read met for ',MetDate,' but actually read met for ',bios_rundate
@@ -1076,6 +1119,9 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
              READ (swdown_unit) dummydate, swdown_day
              READ (tairmax_unit) dummydate, tairmax_day
              READ (tairmin_unit) dummydate, tairmin_day
+             READ (wind_unit) dummydate, wind_day
+             READ (vp0900_unit) dummydate, vp0900
+             READ (vp1500_unit) dummydate, vp1500
            END DO
            dummydate = dummydate + 1
            IF (skipdays .gt. 0) THEN
@@ -1097,13 +1143,22 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
        !   READ (tairmin_unit) bios_rundate, next_tairmin_day       ! Packed vector of daily AWAP/BIOS min air temp (deg C)
        !   BACKSPACE(tairmin_unit)
        !endif
+
+       next_tairmin_day =   tairmin_day
+       prev_vp1500 = vp1500
+       next_vp0900 = vp0900
   
-       WG%WindDay        = 2.0 ! fixed value, pending ingestion of McVicar data set
+       WG%WindDay        = wind_day 
        WG%TempMinDay     = tairmin_day  
        WG%TempMaxDay     = tairmax_day  
        WG%TempMinDayNext =  next_tairmin_day
 
        WG%VapPmbDay = esatf(tairmin_day)
+
+       WG%VapPmb0900 = vp0900
+       WG%VapPmb1500 = vp1500
+       WG%VapPmb1500Prev = prev_vp1500
+       WG%VapPmb0900Next = next_vp0900
           
        WG%SolarMJDay     = swdown_day
        WG%PrecipDay      = rain_day / 1000. ! ->[m/d]

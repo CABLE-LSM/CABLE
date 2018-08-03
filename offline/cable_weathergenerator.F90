@@ -1,5 +1,5 @@
 MODULE CABLE_WEATHERGENERATOR
-
+  USE CABLE_COMMON_MODULE, ONLY:  cable_user
   IMPLICIT NONE
 
   ! Parameters
@@ -30,12 +30,12 @@ MODULE CABLE_WEATHERGENERATOR
           PrecipDay      ,&  ! 24hr-total precipitation [m/day] (current day = 24h from 0900 on previous day)
           SnowDay        ,&  ! 24hr-total precipitation [m/day] (current day = 24h from 0900 on previous day)
           PmbDay         ,&    ! 24hr-av pressure [mb]
-          VapPmbDay           ! 24hr-av water vapour pressure [mb]
+          VapPmbDay      ,&           ! 24hr-av water vapour pressure [mb]
 !CLNx     PrecipDayNext   ,&  ! 24hr-total precipitation [m/day] (next day = 24 h from 0900 on current day)
-!CLNx     VapPmb0900      ,&  ! 0900 water vapour pressure [mb]
-!CLNx     VapPmb1500      ,&  ! 1500 water vapour pressure [mb]
-!CLNx     VapPmb1500Prev  ,&  ! 1500 (prev day) water vapour pressure [mb]
-!CLNx     VapPmb0900Next  ,&  ! 0900(next day) water vapour pressure [mb]
+          VapPmb0900      ,&  ! 0900 water vapour pressure [mb]
+          VapPmb1500      ,&  ! 1500 water vapour pressure [mb]
+          VapPmb1500Prev  ,&  ! 1500 (prev day) water vapour pressure [mb]
+          VapPmb0900Next    ! 0900(next day) water vapour pressure [mb]
 
      ! Daily constants
      REAL(sp) :: DecRad                                   ! Declination in radians
@@ -123,6 +123,11 @@ SUBROUTINE WGEN_INIT( WG, np, latitude, dels )
   ALLOCATE ( WG%VapPmb             (np) )  ! vapour pressure [mb]
   ALLOCATE ( WG%Pmb                (np) )  ! pressure [mb]
   ALLOCATE ( WG%coszen             (np) )  ! cos(theta)
+  
+  ALLOCATE ( WG%VapPmb0900         (np) )   ! 0900 water vapour pressure [mb]
+  ALLOCATE ( WG%VapPmb1500         (np) )  ! 1500 water vapour pressure [mb]
+  ALLOCATE ( WG%VapPmb1500Prev     (np) )  ! 1500 (prev day) water vapour pressure [mb]
+  ALLOCATE ( WG%VapPmb0900Next     (np) )  ! 0900(next day) water vapour pressure [mb]
 
   WG%LatDeg(:) = latitude(:)
 
@@ -379,21 +384,28 @@ SUBROUTINE WGEN_SUBDIURNAL_MET(WG, np, itime)
   ! -----------------------------------
   ! Water Vapour Pressure, Air Pressure
   ! -----------------------------------
-  WG%VapPmb = WG%VapPmbDay
+  !WG%VapPmb = WG%VapPmbDay
   WG%Pmb    = WG%PmbDay
-  !CLN VapPmb = VapPmbDay
-  !CLN Pmb    = PmbDay
-  !CLN
-  !CLN IF (ritime <= 9.) THEN
-  !CLN    ! before 9am
-  !CLN    VapPmb = VapPmb1500Prev + (VapPmb0900 - VapPmb1500Prev) * (9. + ritime)/18.
-  !CLN ELSEIF (ritime > 9 .AND. ritime <= 15.) THEN
-  !CLN ! between 9am and 15:00
-  !CLN    VapPmb = VapPmb0900 + (VapPmb1500 - VapPmb0900) * (ritime - 9.)/(15.-9.)
-  !CLN ELSEIF (ritime > 15.) THEN
-  !CLN ! after 15:00
-  !CLN   VapPmb  = VapPmb1500 + (VapPmb0900Next - VapPmb1500) * (ritime - 15.)/18.
-  !CLN END IF
+
+  IF (TRIM(cable_user%MetType).EQ.'bios') THEN
+     
+     IF (ritime <= 9.) THEN
+        ! before 9am
+        WG%VapPmb = WG%VapPmb1500Prev + (WG%VapPmb0900 - WG%VapPmb1500Prev) * (9. + ritime)/18.
+     ELSEIF (ritime > 9 .AND. ritime <= 15.) THEN
+        ! between 9am and 15:00
+        WG%VapPmb = WG%VapPmb0900 + (WG%VapPmb1500 - WG%VapPmb0900) * (ritime - 9.)/(15.-9.)
+     ELSEIF (ritime > 15.) THEN
+        ! after 15:00
+        WG%VapPmb  = WG%VapPmb1500 + (WG%VapPmb0900Next - WG%VapPmb1500) * (ritime - 15.)/18.
+     END IF
+ 
+  
+  ELSE
+     WG%VapPmb = WG%VapPmbDay
+  ENDIF
+
+  
 
   ! ----------------------------
   ! Downward longwave irradiance
