@@ -1478,8 +1478,7 @@ SUBROUTINE casa_delplant(veg,casabiome,casapool,casaflux,casamet,            &
                 + casaflux%Plabuptake(npt)*casaflux%fracPalloc(npt,:)
            !       casapool%Psoillab(npt)    = casapool%Psoillab(npt) - casaflux%Plabuptake(npt) * deltpool
         ENDIF  !of "icycle >2"
-        write(599,*)  casaflux%FluxPtolitter(npt,metb), casaflux%FluxNtolitter(npt,metb)
-
+  
      ENDIF
   ENDDO
 npt=2
@@ -1723,8 +1722,7 @@ IF(casamet%iveg2(nland)/=icewater) THEN
 ENDIF  ! end of /=icewater
 ENDDO  ! end of nland
 
-write(55,*) casapool%ratioNPsoil(1,:)
-write(56,*)  casapool%ratioPCsoil(1,:)/casapool%ratioNCsoil(1,:)
+
 
 
 DO nland=1,mp

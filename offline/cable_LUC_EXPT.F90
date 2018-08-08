@@ -86,6 +86,7 @@ CONTAINS
     INTEGER :: TimeVarID, Idash
     CHARACTER(len=100)    :: time_units
     CHARACTER(len=4) :: yearstr
+    REAL :: projection_factor
 
     NAMELIST /LUCNML/  TransitionFilePath, ClimateFile, Run, DirectRead, YearStart, YearEnd, &
          NotPrimOnlyFile
@@ -325,6 +326,7 @@ CONTAINS
        ! adjust fraction woody cover based on Major Vegetation Group
        LUC_EXPT%biome = MVG
        LUC_EXPT%ivegp = 2
+       projection_factor = 0.71 
        WHERE (LUC_EXPT%biome .eq. 1)
           CPC = 0.89
        ELSEWHERE (LUC_EXPT%biome .eq. 2)
@@ -392,6 +394,8 @@ CONTAINS
        ELSEWHERE
           CPC= 0.1
        ENDWHERE
+
+       CPC = max(CPC/projection_factor, 1.0)
 
        LUC_EXPT%grass = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf)*(1-CPC)
        LUC_EXPT%primaryf =  LUC_EXPT%primaryf * CPC

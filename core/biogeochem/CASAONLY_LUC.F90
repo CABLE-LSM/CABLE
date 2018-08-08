@@ -125,6 +125,8 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
 
 
      call read_casa_dump( ncfile,casamet, casaflux, phen,climate, 1,1,.TRUE. )
+
+     write(*,*) casaflux%cgpp(:)  
      !!CLN901  format(A99)
      do idoy=1,mdyear
         ktau=(idoy-1)*ktauday +ktauday
@@ -187,7 +189,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
            casabal%Crootmean = casabal%Crootmean +casapool%cplant(:,3)/real(mdyear)/1000.
         ENDIF
 
-
+      IF (CABLE_USER%POPLUC) THEN
         IF(idoy==mdyear) THEN ! end of year
            LUC_EXPT%CTSTEP = yyyy -  LUC_EXPT%FirstYear + 1
 
@@ -272,7 +274,12 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
            CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT) 
 
         ENDIF  ! end of year
+     ELSE
+        CALL POPdriver(casaflux,casabal,veg, POP)
 
+       ! CALL POP_IO( pop, casamet, YYYY, 'WRITE_EPI', &
+       !         ( YYYY.EQ.cable_user%YearEnd ) )
+     ENDIF ! IF (CABLE_USER%POPLUC) 
 
         IF ( IS_CASA_TIME("write", yyyy, ktau, kstart, &
              0, kend, ktauday, logn) ) THEN
@@ -290,7 +297,8 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
         ENDIF
      enddo
   enddo
-  CALL WRITE_LUC_RESTART_NC ( POPLUC, YYYY )
+
+  IF (CABLE_USER%POPLUC) CALL WRITE_LUC_RESTART_NC ( POPLUC, YYYY )
 
 
 END SUBROUTINE CASAONLY_LUC

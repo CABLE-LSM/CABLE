@@ -645,6 +645,8 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
        
        spinConv = .FALSE. ! initialise spinup convergence variable
        IF (.NOT.spinup)	spinConv=.TRUE.
+
+       write(*,*) 'spin', casaonly,  spincasa
        IF( icycle>0 .AND. spincasa) THEN
           PRINT *, 'EXT spincasacnp enabled with mloop= ', mloop
           PRINT *, 'Nminsoil', casapool%Nsoilmin
@@ -653,7 +655,8 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
           SPINon = .FALSE.
           SPINconv = .FALSE. 
 
-       ELSEIF ( casaonly .AND. (.NOT. spincasa) .AND. cable_user%popluc) THEN
+       !ELSEIF ( casaonly .AND. (.NOT. spincasa) .AND. cable_user%popluc) THEN
+       ELSEIF ( casaonly .AND. (.NOT. spincasa)) THEN
 
            CALL CASAONLY_LUC(dels,kstart,kend,veg,soil,casabiome,casapool, &
                casaflux,casamet,casabal,phen,POP,climate,LALLOC, LUC_EXPT, POPLUC, &
@@ -726,8 +729,10 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
                          kstart+koffset )
 
              IF (TRIM(cable_user%MetType) .EQ. 'site' ) THEN
-                 CALL site_get_CO2_Ndep(site)
-                 met%ca = site%CO2 / 1.e+6
+                CALL site_get_CO2_Ndep(site)
+                 WHERE ( met%ca .eq. fixedCO2 /1000000.0)  ! not read in metfile
+                    met%ca = site%CO2 / 1.e+6
+                 ENDWHERE
                  met%Ndep = site%Ndep  *1000./10000./365. ! kg ha-1 y-1 > g m-2 d-1
                  met%Pdep = site%Pdep  *1000./10000./365. ! kg ha-1 y-1 > g m-2 d-1
                  met%fsd = max(met%fsd,0.0)

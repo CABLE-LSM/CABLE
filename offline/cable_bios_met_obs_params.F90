@@ -589,7 +589,7 @@ CONTAINS
   INTEGER(i4b)   :: iunit  
   INTEGER(i4b)   :: MaskCols, MaskRows  ! Landmask col and row dimensions
   REAL(sp)       :: MaskBndW, MaskBndS  ! Landmask outer bound dimensions in decimal degrees (West & South)
-  REAL(sp)       :: MaskCtrW, MaskCtrS 
+  REAL(sp)       :: MaskCtrW, MaskCtrS , tmp
   REAL(sp)       :: MaskRes, NoDataVal  ! Landmask resolution (dec deg) and no-data value
   
   INTEGER(i4b)   :: icol, irow, iland   ! Loop counters for cols, rows, land cells
@@ -606,7 +606,9 @@ CONTAINS
   INTEGER(i4b)   :: iday, iyear ! counters
   INTEGER :: error_status
   NAMELIST /biosnml/ Run, met_path, param_path, landmaskflt_file, landmaskhdr_file, &
-    rain_file, swdown_file, tairmax_file, tairmin_file, co2_file, &
+       rain_file, swdown_file, tairmax_file, tairmin_file, &
+       wind_file, &
+       vp0900_file, vp1500_file, co2_file, &
     b1_file, b2_file, bulkdens1_kgm3_file, bulkdens2_kgm3_file, clayfrac1_file, clayfrac2_file, &
     csoil1_file, csoil2_file, depth1_m_file, depth2_m_file, hyk1sat_ms_file, hyk2sat_ms_file, & 
     psie1_m_file, psie2_m_file, siltfrac1_file, siltfrac2_file, wvol1fc_m3m3_file, wvol2fc_m3m3_file, &
@@ -755,10 +757,12 @@ CONTAINS
   
   CALL GET_UNIT(iunit)
   CALL ReadArcFltHeader(iunit,landmaskhdr_file,MaskCols,MaskRows,MaskBndW, & 
-                        MaskBndS,MaskRes,NoDataVal)
+       MaskBndS,MaskRes,NoDataVal)
+  CLOSE (iunit) 
  
   xdimsize = MaskCols
   ydimsize = MaskRows
+  write(*,*) ' MaskCols,MaskRows', MaskCols, MaskRows 
   ALLOCATE (LandMaskLogical(MaskCols,MaskRows))
   ALLOCATE (mask           (MaskCols,MaskRows))   ! mask: CABLE's integer land mask
   ALLOCATE (LandMaskReal   (MaskCols,MaskRows))
@@ -766,8 +770,14 @@ CONTAINS
   ! Read the real land mask.
   
   CALL GET_UNIT(iunit)
-  OPEN (iunit,file=landmaskflt_file,form='unformatted',status='old')
+  OPEN (iunit,file=landmaskflt_file,access='stream',form='unformatted',status='old')
+  write(*,*) 'after landmask_flt_file open'
+  !READ (iunit) tmp
+  !READ (iunit) tmp
+  !write(*,*) tmp
+  REWIND (iunit) 
   READ (iunit) LandMaskReal
+  write(*,*) 'after landmask_flt_file read'
   CLOSE (iunit)
   
   ! Initialise CABLE (mask) and logical landmasks, and assign them from the  
@@ -992,56 +1002,56 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
   ! Open each met file for the first time, stopping if the file is not found.
   
     CALL GET_UNIT(rain_unit)  ! Rainfall
-    OPEN (rain_unit, FILE=TRIM(met_path)//TRIM(rain_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+    OPEN (rain_unit, FILE=TRIM(met_path)//TRIM(rain_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
     IF (error_status > 0) THEN
       WRITE (*,'("STOP - File not found: ")') TRIM(met_path)//TRIM(rain_file)
       STOP ''
     END IF
   
     CALL GET_UNIT(swdown_unit)  ! Shortwave downward solar radiation
-    OPEN (swdown_unit, FILE=TRIM(met_path)//TRIM(swdown_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+    OPEN (swdown_unit, FILE=TRIM(met_path)//TRIM(swdown_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
     IF (error_status > 0) THEN
       WRITE (*,'("STOP - File not found: ")') TRIM(met_path)//TRIM(swdown_file)
       STOP ''
     END IF
   
     CALL GET_UNIT(tairmax_unit)  ! Maximum air temperature
-    OPEN (tairmax_unit, FILE=TRIM(met_path)//TRIM(tairmax_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+    OPEN (tairmax_unit, FILE=TRIM(met_path)//TRIM(tairmax_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
     IF (error_status > 0) THEN
       WRITE (*,'("STOP - File not found: ")') TRIM(met_path)//TRIM(tairmax_file)
       STOP ''
     END IF   
   
     CALL GET_UNIT(tairmin_unit)  ! Minimum air temperature  
-    OPEN (tairmin_unit, FILE=TRIM(met_path)//TRIM(tairmin_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+    OPEN (tairmin_unit, FILE=TRIM(met_path)//TRIM(tairmin_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
     IF (error_status > 0) THEN
       WRITE (*,'("STOP - File not found: ")') TRIM(met_path)//TRIM(tairmin_file)
       STOP ''
    END IF
 
      CALL GET_UNIT(wind_unit)  ! wind speed  
-    OPEN (wind_unit, FILE=TRIM(met_path)//TRIM(wind_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+    OPEN (wind_unit, FILE=TRIM(met_path)//TRIM(wind_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
     IF (error_status > 0) THEN
       WRITE (*,'("STOP - File not found: ")') TRIM(met_path)//TRIM(wind_file)
       STOP ''
    END IF
 
      CALL GET_UNIT(vp0900_unit)  ! vp 0900  
-    OPEN (vp0900_unit, FILE=TRIM(met_path)//TRIM(vp0900_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+    OPEN (vp0900_unit, FILE=TRIM(met_path)//TRIM(vp0900_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
     IF (error_status > 0) THEN
       WRITE (*,'("STOP - File not found: ")') TRIM(met_path)//TRIM(vp0900_file)
       STOP ''
    END IF
 
     CALL GET_UNIT(vp1500_unit)  ! vp 1500
-    OPEN (vp1500_unit, FILE=TRIM(met_path)//TRIM(vp1500_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+    OPEN (vp1500_unit, FILE=TRIM(met_path)//TRIM(vp1500_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
     IF (error_status > 0) THEN
       WRITE (*,'("STOP - File not found: ")') TRIM(met_path)//TRIM(vp1500_file)
       STOP ''
     END IF   
   
     CALL GET_UNIT(co2_unit)  ! CO2
-    OPEN (co2_unit, FILE=TRIM(met_path)//TRIM(co2_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+    OPEN (co2_unit, FILE=TRIM(met_path)//TRIM(co2_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
     IF (error_status > 0) THEN
       WRITE (*,'("STOP - File not found: ")') TRIM(met_path)//TRIM(co2_file)
       STOP ''
@@ -1081,16 +1091,15 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
 
     newday = ( met%hod(landpt(1)%cstart).EQ. 0 )
     IF ( newday ) THEN
-    
        ! get current day's met
        READ (rain_unit) bios_rundate, rain_day          ! Packed vector of daily AWAP/BIOS rain (mm) 
+
        READ (swdown_unit) bios_rundate, swdown_day        ! Packed vector of daily AWAP/BIOS swdown (MJ)
        READ (tairmax_unit) bios_rundate, tairmax_day       ! Packed vector of daily AWAP/BIOS max air temp (deg C)
        READ (tairmin_unit) bios_rundate, tairmin_day       ! Packed vector of daily AWAP/BIOS min air temp (deg C)
-       READ (wind_unit) bios_rundate, wind_day          !
-       READ (vp0900_unit) bios_rundate, vp0900          !
-       READ (vp1500_unit) bios_rundate, vp1500          !
-       
+        READ (wind_unit) bios_rundate, wind_day          !
+        READ (vp0900_unit) bios_rundate, vp0900          !
+        READ (vp1500_unit) bios_rundate, vp1500          !
 
        IF (MetDate /= bios_rundate) THEN
          write(*,*) 'Expecting to read met for ',MetDate,' but actually read met for ',bios_rundate
@@ -1113,6 +1122,9 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
            REWIND (swdown_unit)
            REWIND (tairmax_unit)
            REWIND (tairmin_unit)
+           REWIND (wind_unit)
+           REWIND (vp0900_unit)
+           REWIND (vp1500_unit)
            REWIND (co2_unit)
            DO iday = 1,skipdays
              READ (rain_unit) dummydate, rain_day
@@ -1301,7 +1313,7 @@ ALLOCATE (wvol1w_m3m3(mland), wvol2w_m3m3(mland))
 CALL GET_UNIT(param_unit)  ! Obtain an unused unit number for file reading, reused for all soil vars.
 
 ! Open, read, and close each soil parameter in turn, stopping for any missing file.
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(b1_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+OPEN (param_unit, FILE=TRIM(param_path)//TRIM(b1_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 IF (error_status > 0) THEN
   WRITE (*,'("STOP - File not found: ")') TRIM(param_path)//TRIM(b1_file) ; STOP ''
 ELSE
@@ -1309,7 +1321,7 @@ ELSE
   CLOSE (param_unit)
 END IF
 
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(b2_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+OPEN (param_unit, FILE=TRIM(param_path)//TRIM(b2_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 IF (error_status > 0) THEN
   WRITE (*,'("STOP - File not found: ")') TRIM(param_path)//TRIM(b2_file) ; STOP ''
 ELSE
@@ -1317,7 +1329,7 @@ ELSE
   CLOSE (param_unit)
 END IF
 
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(bulkdens1_kgm3_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+OPEN (param_unit, FILE=TRIM(param_path)//TRIM(bulkdens1_kgm3_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 IF (error_status > 0) THEN
   WRITE (*,'("STOP - File not found: ")') TRIM(param_path)//TRIM(bulkdens1_kgm3_file) ; STOP ''
 ELSE
@@ -1325,7 +1337,7 @@ ELSE
   CLOSE (param_unit)
 END IF
 
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(bulkdens2_kgm3_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+OPEN (param_unit, FILE=TRIM(param_path)//TRIM(bulkdens2_kgm3_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 IF (error_status > 0) THEN
   WRITE (*,'("STOP - File not found: ")') TRIM(param_path)//TRIM(bulkdens2_kgm3_file) ; STOP ''
 ELSE
@@ -1333,7 +1345,7 @@ ELSE
   CLOSE (param_unit)
 END IF
 
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(clayfrac1_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+OPEN (param_unit, FILE=TRIM(param_path)//TRIM(clayfrac1_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 IF (error_status > 0) THEN
   WRITE (*,'("STOP - File not found: ")') TRIM(param_path)//TRIM(clayfrac1_file) ; STOP ''
 ELSE
@@ -1341,7 +1353,7 @@ ELSE
   CLOSE (param_unit)
 END IF
 
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(clayfrac2_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+OPEN (param_unit, FILE=TRIM(param_path)//TRIM(clayfrac2_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 IF (error_status > 0) THEN
   WRITE (*,'("STOP - File not found: ")') TRIM(param_path)//TRIM(clayfrac2_file) ; STOP ''
 ELSE
@@ -1349,7 +1361,7 @@ ELSE
   CLOSE (param_unit)
 END IF
 
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(csoil1_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+OPEN (param_unit, FILE=TRIM(param_path)//TRIM(csoil1_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 IF (error_status > 0) THEN
   WRITE (*,'("STOP - File not found: ")') TRIM(param_path)//TRIM(csoil1_file) ; STOP ''
 ELSE
@@ -1357,7 +1369,7 @@ ELSE
   CLOSE (param_unit)
 END IF
 
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(csoil2_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+OPEN (param_unit, FILE=TRIM(param_path)//TRIM(csoil2_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 IF (error_status > 0) THEN
   WRITE (*,'("STOP - File not found: ")') TRIM(param_path)//TRIM(csoil2_file) ; STOP ''
 ELSE
@@ -1365,7 +1377,7 @@ ELSE
   CLOSE (param_unit)
 END IF
 
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(depth1_m_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+OPEN (param_unit, FILE=TRIM(param_path)//TRIM(depth1_m_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 IF (error_status > 0) THEN
   WRITE (*,'("STOP - File not found: ")') TRIM(param_path)//TRIM(depth1_m_file) ; STOP ''
 ELSE
@@ -1373,7 +1385,7 @@ ELSE
   CLOSE (param_unit)
 END IF
 
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(depth2_m_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+OPEN (param_unit, FILE=TRIM(param_path)//TRIM(depth2_m_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 IF (error_status > 0) THEN
   WRITE (*,'("STOP - File not found: ")') TRIM(param_path)//TRIM(depth2_m_file) ; STOP ''
 ELSE
@@ -1381,7 +1393,7 @@ ELSE
   CLOSE (param_unit)
 END IF
 
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(hyk1sat_ms_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+OPEN (param_unit, FILE=TRIM(param_path)//TRIM(hyk1sat_ms_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 IF (error_status > 0) THEN
   WRITE (*,'("STOP - File not found: ")') TRIM(param_path)//TRIM(hyk1sat_ms_file) ; STOP ''
 ELSE
@@ -1389,7 +1401,7 @@ ELSE
   CLOSE (param_unit)
 END IF
 
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(hyk2sat_ms_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+OPEN (param_unit, FILE=TRIM(param_path)//TRIM(hyk2sat_ms_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 IF (error_status > 0) THEN
   WRITE (*,'("STOP - File not found: ")') TRIM(param_path)//TRIM(hyk2sat_ms_file) ; STOP ''
 ELSE
@@ -1397,7 +1409,7 @@ ELSE
   CLOSE (param_unit)
 END IF
 
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(psie1_m_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+OPEN (param_unit, FILE=TRIM(param_path)//TRIM(psie1_m_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 IF (error_status > 0) THEN
   WRITE (*,'("STOP - File not found: ")') TRIM(param_path)//TRIM(psie1_m_file); STOP ''
 ELSE
@@ -1405,7 +1417,7 @@ ELSE
   CLOSE (param_unit)
 END IF
 
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(psie2_m_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+OPEN (param_unit, FILE=TRIM(param_path)//TRIM(psie2_m_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 IF (error_status > 0) THEN
   WRITE (*,'("STOP - File not found: ")') TRIM(param_path)//TRIM(psie2_m_file); STOP ''
 ELSE
@@ -1413,7 +1425,7 @@ ELSE
   CLOSE (param_unit)
 END IF
 
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(siltfrac1_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+OPEN (param_unit, FILE=TRIM(param_path)//TRIM(siltfrac1_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 IF (error_status > 0) THEN
   WRITE (*,'("STOP - File not found: ")') TRIM(param_path)//TRIM(siltfrac1_file); STOP ''
 ELSE
@@ -1421,7 +1433,7 @@ ELSE
   CLOSE (param_unit)
 END IF
 
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(siltfrac2_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+OPEN (param_unit, FILE=TRIM(param_path)//TRIM(siltfrac2_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 IF (error_status > 0) THEN
   WRITE (*,'("STOP - File not found: ")') TRIM(param_path)//TRIM(siltfrac2_file) ; STOP ''
 ELSE
@@ -1429,7 +1441,7 @@ ELSE
   CLOSE (param_unit)
 END IF
 
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(wvol1fc_m3m3_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+OPEN (param_unit, FILE=TRIM(param_path)//TRIM(wvol1fc_m3m3_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 IF (error_status > 0) THEN
   WRITE (*,'("STOP - File not found: ")') TRIM(param_path)//TRIM(wvol1fc_m3m3_file); STOP ''
 ELSE
@@ -1437,7 +1449,7 @@ ELSE
   CLOSE (param_unit)
 END IF
 
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(wvol2fc_m3m3_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)   
+OPEN (param_unit, FILE=TRIM(param_path)//TRIM(wvol2fc_m3m3_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)   
 IF (error_status > 0) THEN
   WRITE (*,'("STOP - File not found: ")') TRIM(param_path)//TRIM(wvol2fc_m3m3_file); STOP ''
 ELSE
@@ -1445,7 +1457,7 @@ ELSE
   CLOSE (param_unit)
 END IF
 
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(wvol1sat_m3m3_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+OPEN (param_unit, FILE=TRIM(param_path)//TRIM(wvol1sat_m3m3_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 IF (error_status > 0) THEN
   WRITE (*,'("STOP - File not found: ")') TRIM(param_path)//TRIM(wvol1sat_m3m3_file) ; STOP ''
 ELSE
@@ -1453,7 +1465,7 @@ ELSE
   CLOSE (param_unit)
 END IF
 
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(wvol2sat_m3m3_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+OPEN (param_unit, FILE=TRIM(param_path)//TRIM(wvol2sat_m3m3_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 IF (error_status > 0) THEN
   WRITE (*,'("STOP - File not found: ")') TRIM(param_path)//TRIM(wvol2sat_m3m3_file) ; STOP ''
 ELSE
@@ -1461,7 +1473,7 @@ ELSE
   CLOSE (param_unit)
 END IF
 
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(wvol1w_m3m3_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+OPEN (param_unit, FILE=TRIM(param_path)//TRIM(wvol1w_m3m3_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 IF (error_status > 0) THEN
   WRITE (*,'("STOP - File not found: ")') TRIM(param_path)//TRIM(wvol1w_m3m3_file) ; STOP ''
 ELSE
@@ -1469,7 +1481,7 @@ ELSE
   CLOSE (param_unit)
 END IF
 
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(wvol2w_m3m3_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+OPEN (param_unit, FILE=TRIM(param_path)//TRIM(wvol2w_m3m3_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 IF (error_status > 0) THEN
   WRITE (*,'("STOP - File not found: ")') TRIM(param_path)//TRIM(wvol2w_m3m3_file) ; STOP ''
 ELSE
@@ -1477,7 +1489,7 @@ ELSE
   CLOSE (param_unit)
 END IF
 
-!OPEN (param_unit, FILE=TRIM(param_path)//TRIM(slope_deg_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+!OPEN (param_unit, FILE=TRIM(param_path)//TRIM(slope_deg_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 !IF (error_status > 0) THEN
 !  WRITE (*,'("STOP - File not found: ",  LEN_TRIM(TRIM(param_path)//TRIM(slope_deg_file)))') ; STOP ''
 !ELSE
@@ -1590,7 +1602,7 @@ ALLOCATE (tmp(mland))
 CALL GET_UNIT(param_unit)  ! Obtain an unused unit number for file reading, reused for all soil vars.
 
 ! Open, read, and close each soil parameter in turn, stopping for any missing file.
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(MVG_file), FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+OPEN (param_unit, FILE=TRIM(param_path)//TRIM(MVG_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 IF (error_status > 0) THEN
   WRITE (*,'("STOP - File not found: ")') TRIM(param_path)//TRIM(MVG_file) ; STOP ''
 ELSE
