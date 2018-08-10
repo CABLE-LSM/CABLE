@@ -79,7 +79,9 @@ MODULE CABLE_CRU
 
 ! Filename prefix expected in the names of met files. Used by CRU_GET_FILENAME to construct met file names.
   CHARACTER(len=6), DIMENSION(9), PARAMETER, PRIVATE :: &
-       PREF = (/ "rain  ", "lwdown", "swdown", "press ", "qair  ", "tmax  ", "tmin  ", "uwind ", "vwind " /)
+     !  PREF = (/ "rain  ", "lwdown", "swdown", "press ", "qair  ", "tmax  ", "tmin  ", "uwind ", "vwind " /)
+
+         PREF = (/ "pre  ", "dlwrf", "dswrf", "pres", "spfh", "tmax", "tmin", "ugrd", "vgrd" /)
 
 CONTAINS
 
@@ -268,18 +270,30 @@ CONTAINS
     !ENDIF
 
     ! Set variable names to their NetCDF 'Names' (i.e. not their 'Titles')
+!!$    CRU%NMET = 9
+!!$    CRU%VAR_NAME(rain)  = "Total_Precipitation"
+!!$    CRU%VAR_NAME(lwdn)  = "Incoming_Long_Wave_Radiation"
+!!$    CRU%VAR_NAME(swdn)  = "Incoming_Short_Wave_Radiation"
+!!$    CRU%VAR_NAME(pres)  = "Pression"
+!!$    CRU%VAR_NAME(qair)  = "Air_Specific_Humidity"
+!!$   ! CRU%VAR_NAME(tmax)  = "maximum_6h_air_temperature"
+!!$   ! CRU%VAR_NAME(tmin)  = "minimum_6h_air_temperature"
+!!$    CRU%VAR_NAME(tmax)  = "maximum_air_temperature"
+!!$    CRU%VAR_NAME(tmin)  = "minimum_air_temperature"
+!!$    CRU%VAR_NAME(uwind) = "U_wind_component"
+!!$    CRU%VAR_NAME(vwind) = "V_wind_component"
+
+
     CRU%NMET = 9
-    CRU%VAR_NAME(rain)  = "Total_Precipitation"
-    CRU%VAR_NAME(lwdn)  = "Incoming_Long_Wave_Radiation"
-    CRU%VAR_NAME(swdn)  = "Incoming_Short_Wave_Radiation"
-    CRU%VAR_NAME(pres)  = "Pression"
-    CRU%VAR_NAME(qair)  = "Air_Specific_Humidity"
-   ! CRU%VAR_NAME(tmax)  = "maximum_6h_air_temperature"
-   ! CRU%VAR_NAME(tmin)  = "minimum_6h_air_temperature"
-    CRU%VAR_NAME(tmax)  = "maximum_air_temperature"
-    CRU%VAR_NAME(tmin)  = "minimum_air_temperature"
-    CRU%VAR_NAME(uwind) = "U_wind_component"
-    CRU%VAR_NAME(vwind) = "V_wind_component" 
+    CRU%VAR_NAME(rain)  = "pre"
+    CRU%VAR_NAME(lwdn)  = "dlwrf"
+    CRU%VAR_NAME(swdn)  = "dswrf"
+    CRU%VAR_NAME(pres)  = "pres"
+    CRU%VAR_NAME(qair)  = "spfh"
+    CRU%VAR_NAME(tmax)  = "tmax"
+    CRU%VAR_NAME(tmin)  = "tmin"
+    CRU%VAR_NAME(uwind) = "ugrd"
+    CRU%VAR_NAME(vwind) = "vgrd"
 
     WRITE(*   ,*)"========================================= CRU ============"
     WRITE(logn,*)"========================================= CRU ============"
@@ -448,16 +462,29 @@ write(*,*) 'after alloc landmask'
 !!$    END SELECT
 
 
+!!$    SELECT CASE ( par )
+!!$    CASE(rain) ; FN = TRIM(FN)//"/rain/cruncepV8_rain_"//cy//".daytot.nc"
+!!$    CASE(lwdn) ; FN = TRIM(FN)//"/lwdown/cruncepV8_lwdown_"//cy//".daymean.nc"
+!!$    CASE(swdn) ; FN = TRIM(FN)//"/swdown/cruncepV8_swdown_"//cy//".daymean.nc"
+!!$    CASE(pres) ; FN = TRIM(FN)//"/press/cruncepV8_press_"//cy//".daymean.nc"
+!!$    CASE(qair) ; FN = TRIM(FN)//"/qair/cruncepV8_qair_"//cy//".daymean.nc"
+!!$    CASE(tmax,PrevTmax) ; FN = TRIM(FN)//"/tmax/cruncepV8_tmax_"//cy//".daymax.nc"
+!!$    CASE(tmin,NextTmin) ; FN = TRIM(FN)//"/tmin/cruncepV8_tmin_"//cy//".daymin.nc"
+!!$    CASE(uwind) ; FN = TRIM(FN)//"/uwind/cruncepV8_uwind_"//cy//".daymean.nc"
+!!$    CASE(vwind) ; FN = TRIM(FN)//"/vwind/cruncepV8_vwind_"//cy//".daymean.nc"
+!!$    END SELECT
+
+   
     SELECT CASE ( par )
-    CASE(rain) ; FN = TRIM(FN)//"/rain/cruncepV8_rain_"//cy//".daytot.nc"
-    CASE(lwdn) ; FN = TRIM(FN)//"/lwdown/cruncepV8_lwdown_"//cy//".daymean.nc"
-    CASE(swdn) ; FN = TRIM(FN)//"/swdown/cruncepV8_swdown_"//cy//".daymean.nc"
-    CASE(pres) ; FN = TRIM(FN)//"/press/cruncepV8_press_"//cy//".daymean.nc"
-    CASE(qair) ; FN = TRIM(FN)//"/qair/cruncepV8_qair_"//cy//".daymean.nc"
-    CASE(tmax,PrevTmax) ; FN = TRIM(FN)//"/tmax/cruncepV8_tmax_"//cy//".daymax.nc"
-    CASE(tmin,NextTmin) ; FN = TRIM(FN)//"/tmin/cruncepV8_tmin_"//cy//".daymin.nc"
-    CASE(uwind) ; FN = TRIM(FN)//"/uwind/cruncepV8_uwind_"//cy//".daymean.nc"
-    CASE(vwind) ; FN = TRIM(FN)//"/vwind/cruncepV8_vwind_"//cy//".daymean.nc"
+    CASE(rain) ; FN = TRIM(FN)//"/pre/crujra.V1.1.5d.pre."//cy//".365d.noc.daytot.1deg.nc"
+    CASE(lwdn) ; FN = TRIM(FN)//"/dlwrf/crujra.V1.1.5d.dlwrf."//cy//".365d.noc.daymean.1deg.nc"
+    CASE(swdn) ; FN = TRIM(FN)//"/dswrf/crujra.V1.1.5d.dswrf."//cy//".365d.noc.daymean.1deg.nc"
+    CASE(pres) ; FN = TRIM(FN)//"/pres/crujra.V1.1.5d.pres."//cy//".365d.noc.daymean.1deg.nc"
+    CASE(qair) ; FN = TRIM(FN)//"/spfh/crujra.V1.1.5d.spfh."//cy//".365d.noc.daymean.1deg.nc"
+    CASE(tmax,PrevTmax) ; FN = TRIM(FN)//"/tmax/crujra.V1.1.5d.tmax."//cy//".365d.noc.daymax.1deg.nc"
+    CASE(tmin,NextTmin) ; FN = TRIM(FN)//"/tmin/crujra.V1.1.5d.tmin."//cy//".365d.noc.daymin.1deg.nc"
+    CASE(uwind) ; FN = TRIM(FN)//"/ugrd/crujra.V1.1.5d.ugrd."//cy//".365d.noc.daymean.1deg.nc"
+    CASE(vwind) ; FN = TRIM(FN)//"/vgrd/crujra.V1.1.5d.vgrd."//cy//".365d.noc.daymean.1deg.nc"
     END SELECT
 
   END SUBROUTINE CRU_GET_FILENAME
@@ -490,8 +517,8 @@ write(*,*) 'after alloc landmask'
 ! On the first call, allocate the CRU%CO2VALS array to store the entire history of annual CO2 
 ! values, open the (ascii) CO2 file and read the values into the array. 
     IF (CALL1) THEN
-      ALLOCATE( CRU%CO2VALS( 1750:2016 ) )
-      CO2FILE = TRIM(CRU%BasePath)//"/co2/1750_2015_globalCO2_time_series.csv"
+      ALLOCATE( CRU%CO2VALS( 1700:2017 ) )
+      CO2FILE = TRIM(CRU%BasePath)//"/co2/global_co2_ann_1700_2017.csv"
       CALL GET_UNIT(iunit)
       OPEN (iunit, FILE=TRIM(CO2FILE), STATUS="OLD", ACTION="READ")
       DO WHILE( IOS .EQ. 0 )
@@ -523,19 +550,16 @@ write(*,*) 'after alloc landmask'
   IMPLICIT NONE
   
   TYPE(CRU_TYPE), INTENT(INOUT) :: CRU           ! All the info needed for CRU met runs
-  REAL    :: tmparr(720,360)        ! Temporary array for reading one day of met before 
-                                    ! packing into CRU%NdepVALS(k)
- 
+  REAL,ALLOCATABLE :: tmparr(:,:) 
   INTEGER              :: i, iunit, iyear, IOS = 0, k, t  
   INTEGER :: xds, yds        ! Ndep file dimensions of long (x), lat (y)
  
   LOGICAL,        SAVE :: CALL1 = .TRUE.  ! A *local* variable recording the first call of this routine 
-  CHARACTER(200) :: NdepFILE
-
+  CHARACTER(400) :: NdepFILE
   ! Abbreviate dimensions for readability.
   xds = CRU%xdimsize
   yds = CRU%ydimsize
-
+  allocate(tmparr(xds,yds))
   ! For S0_TRENDY, use only static 1860 CO2 value and return immediately
 
 
@@ -545,8 +569,8 @@ write(*,*) 'after alloc landmask'
   IF (CALL1) THEN
 
      NdepFILE = TRIM(CRU%BasePath)// &
-          "/ndep/NOy_plus_NHx_dry_plus_wet_deposition_hist_1850_2015_annual.nc"
-
+          "/ndep/NOy_plus_NHx_dry_plus_wet_deposition_hist_1850_2015_annual_1deg.nc"
+    
      ! Open the NDep and access the variables by their name and variable id.
      WRITE(*   ,*) 'Opening ndep data file: ', NdepFILE
      WRITE(logn,*) 'Opening ndep data file: ', NdepFILE
@@ -709,8 +733,6 @@ END SUBROUTINE GET_CRU_Ndep
 
   TYPE(CRU_TYPE) :: CRU
   LOGICAL, INTENT(IN)  :: LastDayOfYear, LastYearOfMet
-  REAL    :: tmparr(720,360)        ! Temporary array for reading one day of met before 
-                                    ! packing into CRU%MET(iVar)%METVALS(k)
   REAL    :: tmp, stmp(365)
   INTEGER :: iVar, ii, k, x, y, realk
   INTEGER :: t, tplus1              ! The current and next timestep
@@ -723,7 +745,7 @@ END SUBROUTINE GET_CRU_Ndep
   INTEGER, SAVE       :: RunStartYear    ! The value of CRU%CYEAR on the first call, also equals syear.
                                          ! Allows the calculation of MetYear during S0_TRENDY and init runs.
   LOGICAL, SAVE :: CALL1 = .TRUE.   ! A *local* variable recording the first call of this routine
-
+  REAL,ALLOCATABLE :: tmparr(:,:)  ! packing into CRU%MET(iVar)%METVALS(k)
 
 ! If first call...
 ! Keep the initial value of CYEAR for calculation of different MetYear if required.
@@ -738,7 +760,11 @@ END SUBROUTINE GET_CRU_Ndep
   ELSE
     CRU%MET(prevTmax)%METVALS(:) = CRU%MET(  Tmax  )%METVALS(:)
     CRU%MET(  Tmin  )%METVALS(:) = CRU%MET(NextTmin)%METVALS(:)
-  ENDIF
+ ENDIF
+
+  xds = CRU%xdimsize
+  yds = CRU%ydimsize
+  allocate(tmparr(xds,yds))
 
 ! For S0_TRENDY and initialisation, calculate the year of meteorology as mod 50, so we repeatedly cycle  
 ! through the 50 years of 1951-2000 spinup meteorology. For normal runs 1901-2015, MetYear = CYEAR.

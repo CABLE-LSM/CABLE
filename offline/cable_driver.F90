@@ -646,7 +646,7 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
        spinConv = .FALSE. ! initialise spinup convergence variable
        IF (.NOT.spinup)	spinConv=.TRUE.
 
-       write(*,*) 'spin', casaonly,  spincasa
+      
        IF( icycle>0 .AND. spincasa) THEN
           PRINT *, 'EXT spincasacnp enabled with mloop= ', mloop
           PRINT *, 'Nminsoil', casapool%Nsoilmin
@@ -1285,7 +1285,7 @@ SUBROUTINE LUCdriver( casabiome,casapool, &
 
  
  
-  write(*,*) 'cablecasa_LUC', CurYear
+  
   yyyy = CurYear
 
 
