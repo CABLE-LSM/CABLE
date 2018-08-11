@@ -19,7 +19,7 @@
 ! ==============================================================================
 MODULE cable_climate_mod
 
- Use cable_def_types_mod, ONLY: met_type, climate_type, canopy_type, mp, &
+ Use cable_def_types_mod, ONLY: met_type, climate_type, canopy_type,soil_snow_type, mp, &
       r_2, alloc_cbm_var, air_type, radiation_type
  USE TypeDef,              ONLY: i4b, dp
  USE cable_IO_vars_module, ONLY: patch
@@ -30,7 +30,7 @@ CONTAINS
 
 
 SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, &
-     air, rad, dels, np)
+     ssnow,air, rad, dels, np)
 
 
   IMPLICIT NONE
@@ -44,6 +44,7 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
   TYPE (met_type), INTENT(IN)       :: met  ! met input variables
   TYPE (climate_type), INTENT(INOUT)       :: climate  ! climate variables
   TYPE (canopy_type), INTENT(IN) :: canopy ! vegetation variables
+  TYPE (soil_snow_type), INTENT(IN) :: ssnow
   TYPE (air_type), INTENT(IN)       :: air
   TYPE (radiation_type), INTENT(IN)  :: rad	   ! radiation variables
   REAL, INTENT(IN)               :: dels ! integration time setp (s)
@@ -110,11 +111,13 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
   ! accumulate daily temperature, evap and potential evap
   IF(MOD(ktau,ktauday)==1) THEN
      climate%dtemp = met%tk - 273.15
-     climate%dmoist = canopy%fwsoil
+    ! climate%dmoist = canopy%fwsoil
+     climate%dmoist = ssnow%wb(:,2)
      climate%dtemp_min =  climate%dtemp 
   ELSE
      climate%dtemp = climate%dtemp + met%tk - 273.15
-     climate%dmoist = climate%dmoist + canopy%fwsoil
+     !climate%dmoist = climate%dmoist + canopy%fwsoil
+     climate%dmoist =  ssnow%wb(:,2)
      climate%dtemp_min = min(met%tk - 273.15, climate%dtemp_min)
   ENDIF
 

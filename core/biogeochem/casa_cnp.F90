@@ -818,7 +818,7 @@ SUBROUTINE casa_xrateplant(xkleafcold,xkleafdry,xkleaf,veg,casabiome, &
     if (trim(cable_user%PHENOLOGY_SWITCH)=='climate') then
        ! increases base turnover rate by a factor of 13 (for base turnover time of 1y, this reduces it to 4 weeks)
        IF ((phen%phase(npt)==3.or.phen%phase(npt)==0).and.casamet%lnonwood(npt)==0) &
-                xkleaf(npt)= 13.*2.
+                xkleaf(npt)= 13.
         IF ((phen%phase(npt)==3.or.phen%phase(npt)==0).and.casamet%lnonwood(npt)==1) &
                 xkleaf(npt)= 13.
            

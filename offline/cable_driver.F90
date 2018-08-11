@@ -649,7 +649,6 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
       
        IF( icycle>0 .AND. spincasa) THEN
           PRINT *, 'EXT spincasacnp enabled with mloop= ', mloop
-          PRINT *, 'Nminsoil', casapool%Nsoilmin
           CALL spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
                casaflux,casamet,casabal,phen,POP,climate,LALLOC)
           SPINon = .FALSE.
@@ -787,7 +786,7 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
 
                  if (cable_user%CALL_climate) &
                   CALL cable_climate(ktau_tot,kstart,kend,ktauday,idoy,LOY,met, &
-                  climate, canopy, air, rad, dels, mp)
+                  climate, canopy, ssnow,air, rad, dels, mp)
                     
                     
                     ssnow%smelt = ssnow%smelt*dels
