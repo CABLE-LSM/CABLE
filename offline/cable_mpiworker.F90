@@ -619,7 +619,7 @@ CONTAINS
 
              if (cable_user%CALL_climate) &
                  CALL cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met, &
-                      climate, canopy,air,rad, dels,mp)
+                      climate, canopy, ssnow, air,rad, dels,mp)
 
 
              ! CALL land surface scheme for this timestep, all grid points:
