@@ -3334,30 +3334,30 @@ CONTAINS
 !!$    ! Soil dimensioned variables/parameters:
 !!$    CALL write_ovar (ncid_restart, rpid%froot, 'froot', REAL(veg%froot, 4),    &
 !!$                     ranges%froot, .TRUE., 'soil', .TRUE.)
-!!$    CALL write_ovar (ncid_restart, tggID, 'tgg', REAL(ssnow%tgg, 4),           &
-!!$                     ranges%SoilTemp, .TRUE., 'soil', .TRUE.)
-!!$    CALL write_ovar (ncid_restart, wbID, 'wb', ssnow%wb, ranges%SoilMoist,     &
-!!$                     .TRUE., 'soil', .TRUE.)
-!!$    CALL write_ovar (ncid_restart, wbiceID, 'wbice', ssnow%wbice,              &
-!!$                     ranges%SoilMoist, .TRUE., 'soil', .TRUE.)
-!!$    CALL write_ovar (ncid_restart, gammzzID, 'gammzz', ssnow%gammzz,           &
-!!$                     (/-99999.0, 9999999.0/), .TRUE., 'soil', .TRUE.)
-!!$    ! Snow dimensioned variables/parameters:
-!!$    CALL write_ovar (ncid_restart, ssdnID, 'ssdn', REAL(ssnow%ssdn, 4),        &
-!!$                     (/0.0, 9999.0/), .TRUE., 'snow', .TRUE.)
-!!$    CALL write_ovar (ncid_restart, smassID, 'smass', REAL(ssnow%smass, 4),     &
-!!$                     (/0.0, 9999.0/), .TRUE., 'snow', .TRUE.)
-!!$    CALL write_ovar (ncid_restart, sdepthID, 'sdepth', REAL(ssnow%sdepth, 4),  &
-!!$                     (/0.0, 9999.0/), .TRUE., 'snow', .TRUE.)
-!!$    CALL write_ovar (ncid_restart, tggsnID, 'tggsn', REAL(ssnow%tggsn, 4),     &
-!!$                     (/100.0, 300.0/), .TRUE., 'snow', .TRUE.)
-!!$    ! Other dims
-!!$    CALL write_ovar (ncid_restart, albsoilsnID, 'albsoilsn',                   &
-!!$            REAL(ssnow%albsoilsn, 4), (/0.0, 1.0/), .TRUE., 'radiation', .TRUE.)
-!!$    CALL write_ovar (ncid_restart, cplantID, 'cplant', REAL(bgc%cplant, 4),    &
-!!$                     (/-99999.0, 9999999.0/), .TRUE., 'plantcarbon', .TRUE.)
-!!$    CALL write_ovar (ncid_restart, csoilID, 'csoil', REAL(bgc%csoil, 4),       &
-!!$                     (/-99999.0, 9999999.0/), .TRUE., 'soilcarbon', .TRUE.)
+    CALL write_ovar (ncid_restart, tggID, 'tgg', REAL(ssnow%tgg, 4),           &
+                     ranges%SoilTemp, .TRUE., 'soil', .TRUE.)
+    CALL write_ovar (ncid_restart, wbID, 'wb', ssnow%wb, ranges%SoilMoist,     &
+                     .TRUE., 'soil', .TRUE.)
+    CALL write_ovar (ncid_restart, wbiceID, 'wbice', ssnow%wbice,              &
+                     ranges%SoilMoist, .TRUE., 'soil', .TRUE.)
+    CALL write_ovar (ncid_restart, gammzzID, 'gammzz', ssnow%gammzz,           &
+                     (/-99999.0, 9999999.0/), .TRUE., 'soil', .TRUE.)
+    ! Snow dimensioned variables/parameters:
+    CALL write_ovar (ncid_restart, ssdnID, 'ssdn', REAL(ssnow%ssdn, 4),        &
+                     (/0.0, 9999.0/), .TRUE., 'snow', .TRUE.)
+    CALL write_ovar (ncid_restart, smassID, 'smass', REAL(ssnow%smass, 4),     &
+                     (/0.0, 9999.0/), .TRUE., 'snow', .TRUE.)
+    CALL write_ovar (ncid_restart, sdepthID, 'sdepth', REAL(ssnow%sdepth, 4),  &
+                     (/0.0, 9999.0/), .TRUE., 'snow', .TRUE.)
+    CALL write_ovar (ncid_restart, tggsnID, 'tggsn', REAL(ssnow%tggsn, 4),     &
+                     (/100.0, 300.0/), .TRUE., 'snow', .TRUE.)
+    ! Other dims
+    CALL write_ovar (ncid_restart, albsoilsnID, 'albsoilsn',                   &
+            REAL(ssnow%albsoilsn, 4), (/0.0, 1.0/), .TRUE., 'radiation', .TRUE.)
+    CALL write_ovar (ncid_restart, cplantID, 'cplant', REAL(bgc%cplant, 4),    &
+                     (/-99999.0, 9999999.0/), .TRUE., 'plantcarbon', .TRUE.)
+    CALL write_ovar (ncid_restart, csoilID, 'csoil', REAL(bgc%csoil, 4),       &
+                     (/-99999.0, 9999999.0/), .TRUE., 'soilcarbon', .TRUE.)
     ok = NF90_PUT_VAR(ncid_restart, rpid%zse, REAL(soil%zse, 4))
     IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing zse parameter to '   &
          //TRIM(frst_out)// '(SUBROUTINE create_restart)')

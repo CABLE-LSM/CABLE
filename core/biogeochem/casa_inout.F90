@@ -2949,7 +2949,6 @@ CASE(3)
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
 END SELECT
-write(*,*) final, fname
   IF ( FINAL ) THEN
      ! Close NetCDF file:
      STATUS = NF90_close(FILE_ID)

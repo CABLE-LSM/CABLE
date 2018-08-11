@@ -780,6 +780,7 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
              IF (l_laiFeedbk.and.icycle>0) veg%vlai(:) = casamet%glai(:)
              !veg%vlai = 2 ! test
              ! Call land surface scheme for this timestep, all grid points:
+ 
                     CALL cbm(ktau, dels, air, bgc, canopy, met,		      &
                          bal, rad, rough, soil, ssnow,			      &
                          sum_flux, veg,climate )
@@ -973,7 +974,7 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
 			 canopy%ga(kk), ssnow%tgg(kk,:), canopy%fwsoil(kk)
 
 
-		    !stop
+		    stop
 		 endif
 		 if ( casaflux%cnpp(kk).NE. casaflux%cnpp(kk)) then
 		    write(*,*) 'npp nan', kk, ktau,  casaflux%cnpp(kk)
