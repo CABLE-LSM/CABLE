@@ -6852,6 +6852,12 @@ print*, 'master, nd ny mp nsd', nd, ny,mp, nsd
      CALL MPI_Get_address (climate%scalex_shade(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (nsd, r1len, r1stride, MPI_BYTE, &
      &                                types(bidx), ierr)
+     blocks(bidx) = 1
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%fwsoil(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector (nsd, r1len, r1stride, MPI_BYTE, &
+     &                                types(bidx), ierr)
      blocks(bidx) = 1 
 
      bidx = bidx + 1

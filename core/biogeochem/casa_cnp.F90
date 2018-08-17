@@ -380,7 +380,7 @@ SUBROUTINE casa_allocation(veg,soil,casabiome,casaflux,casapool,casamet,phen,LAL
 
         WHERE(phen%phase==1.and.casamet%lnonwood==1)
 
-           casaflux%fracCalloc(:,leaf)  = 0.95
+           casaflux%fracCalloc(:,leaf)  = 0.80
            casaflux%fracCalloc(:,froot) = 1.0-casaflux%fracCalloc(:,leaf)
            casaflux%fracCalloc(:,wood) = 0.0
         ENDWHERE
@@ -820,7 +820,7 @@ SUBROUTINE casa_xrateplant(xkleafcold,xkleafdry,xkleaf,veg,casabiome, &
        IF ((phen%phase(npt)==3.or.phen%phase(npt)==0).and.casamet%lnonwood(npt)==0) &
                 xkleaf(npt)= 13.
         IF ((phen%phase(npt)==3.or.phen%phase(npt)==0).and.casamet%lnonwood(npt)==1) &
-                xkleaf(npt)= 13.
+                xkleaf(npt)= 13.*0.5
            
     endif
   END IF
@@ -1853,7 +1853,8 @@ SUBROUTINE avgsoil(veg,soil,casamet)
                              * casamet%tsoil(nland,ns)
 
     
-    IF (trim(cable_user%SMRF_NAME)=='Trudinger2016') THEN
+    IF (trim(cable_user%SMRF_NAME)=='Trudinger2016' .OR. &
+        trim(cable_user%SMRF_NAME)=='DAMM' ) THEN
       
         casamet%moistavg(nland)  = casamet%moistavg(nland)+ veg%froot(nland,ns) &
             *casamet%moist(nland,ns) 

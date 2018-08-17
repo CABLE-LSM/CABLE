@@ -619,7 +619,7 @@ CONTAINS
 
              if (cable_user%CALL_climate) &
                  CALL cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met, &
-                      climate, canopy, ssnow, air,rad, dels,mp)
+                      climate, canopy, veg, ssnow, air,rad, dels,mp)
 
 
              ! CALL land surface scheme for this timestep, all grid points:
@@ -6459,6 +6459,11 @@ print*, 'worker, nd ny mp nsd', nd, ny,mp, nsd
 
     bidx = bidx + 1
     CALL MPI_Get_address (climate%scalex_shade(off,1), displs(bidx), ierr)
+    blocks(bidx) = nsd*r1len
+    types(bidx)  = MPI_BYTE
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (climate%fwsoil(off,1), displs(bidx), ierr)
     blocks(bidx) = nsd*r1len
     types(bidx)  = MPI_BYTE
 

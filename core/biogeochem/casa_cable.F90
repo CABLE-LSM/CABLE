@@ -670,7 +670,7 @@ ENDDO
 if (mod(ktau,ktauday) ==1) then
    if (cable_user%call_climate .and. (TRIM(cable_user%vcmax).eq.'Walker2014' .OR. &
         TRIM(cable_user%vcmax).eq.'standard')  ) then
-      CALL optimise_JV(veg,climate,ktauday,bjvref)
+       CALL optimise_JV(veg,climate,ktauday,bjvref)
 
     else
 

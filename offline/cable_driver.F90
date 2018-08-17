@@ -786,7 +786,7 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
 
                  if (cable_user%CALL_climate) &
                   CALL cable_climate(ktau_tot,kstart,kend,ktauday,idoy,LOY,met, &
-                  climate, canopy, ssnow,air, rad, dels, mp)
+                  climate, canopy,veg, ssnow,air, rad, dels, mp)
                     
                     
                     ssnow%smelt = ssnow%smelt*dels

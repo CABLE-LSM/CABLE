@@ -636,7 +636,8 @@ MODULE cable_def_types_mod
       cs_sun, &     ! sun leaf cs (ppm CO2)
       cs_shade, &          ! shade leaf cs (ppm CO2)
       scalex_sun, & ! canopy depth scaling factor on vcmax and jmax (sun leaves)
-      scalex_shade ! canopy depth scaling factor on vcmax and jmax (shade leaves)
+      scalex_shade, & ! canopy depth scaling factor on vcmax and jmax (shade leaves)
+      fwsoil         ! soil-moisture modifier to stomatal conductance
    END TYPE climate_type
 
 ! .............................................................................
@@ -1264,6 +1265,7 @@ SUBROUTINE alloc_climate_type(var, mp, ktauday)
    ALLOCATE ( var %   cs_shade(mp,ktauday*5) )
    ALLOCATE ( var %   scalex_sun(mp,ktauday*5) )
    ALLOCATE ( var %   scalex_shade(mp,ktauday*5) )
+   ALLOCATE ( var %   fwsoil(mp,ktauday*5) )
 
    
 END SUBROUTINE alloc_climate_type

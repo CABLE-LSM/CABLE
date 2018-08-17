@@ -29,8 +29,8 @@ MODULE cable_optimise_JV_module
  TYPE( icanopy_type ) :: C
 
  ! variables local to module
- REAL, ALLOCATABLE :: APAR(:), Dleaf(:), Tleaf(:), cs(:), scalex(:)
- REAL :: Anet, vcmax00, bjv, g1, fwsoil, Kc0, Ko0, ekc, eko, alpha
+ REAL, ALLOCATABLE :: APAR(:), Dleaf(:), Tleaf(:), cs(:), scalex(:), fwsoil(:)
+ REAL :: Anet, vcmax00, bjv, g1, Kc0, Ko0, ekc, eko, alpha
  REAL ::     convex, Neff, Rd0
  INTEGER :: nt
  !REAL, PARAMETER :: relcost_J = 1.6 ! Chen et al. Oecologia, 1993, 93: 63-69
@@ -58,6 +58,7 @@ SUBROUTINE optimise_JV (veg, climate, ktauday, bjvref)
   ALLOCATE(Tleaf(nt))
   ALLOCATE(cs(nt))
   ALLOCATE(scalex(nt))
+  ALLOCATE(fwsoil(nt))
 
   ! assign local ptrs to constants defined in cable_data_module
     CALL point2constants(C)
@@ -74,7 +75,10 @@ SUBROUTINE optimise_JV (veg, climate, ktauday, bjvref)
           eko = veg%eko(k)
           g1 = veg%g1(k)
           Rd0 = veg%cfrd(k) * veg%vcmax(k)
-          fwsoil =(climate%dmoist_31(k,31))
+          !fwsoil =(climate%dmoist_31(k,31))
+          ! soil-moisture modifier to stomatal conductance
+          fwsoil = climate%fwsoil(k,:)
+          !fwsoil = 1.0
           alpha = climate%frec(k)*veg%alpha(k) ! quantum efficiency for
           ! electron transport 
           convex = veg%convex(k) 
@@ -171,6 +175,7 @@ DEALLOCATE(Dleaf)
 DEALLOCATE(Tleaf)
 DEALLOCATE(cs)
 DEALLOCATE(scalex)
+DEALLOCATE(fwsoil)
 
 END SUBROUTINE optimise_JV
  ! ------------------------------------------------------------------------------
@@ -202,7 +207,7 @@ REAL:: Anc, Ane, vcmax0
 REAL :: An(nt)
 
 CALL point2constants(C)
-!write(*,*) C%TrefK
+
 An = 0.0
 j = 1
 vcmax0 = Neff/(1.+relcost_J*bjv/4.0);
@@ -211,7 +216,7 @@ DO k=1,nt
    if (APAR(k) .gt. 60e-6) then
 
       g0 = 0.0
-      x = 1.0  + (g1 * fwsoil) / SQRT(Dleaf(k))
+      x = 1.0  + (g1 * fwsoil(k)) / SQRT(Dleaf(k))
       gamma =  Vcmax0*scalex(k)*xvcmxt3(Tleaf(k)) 
       tdiff = Tleaf(k) - C%Trefk
       gammastar = C%gam0 * ( 1.0 + C%gam1 * tdiff                  &
@@ -265,7 +270,7 @@ DO k=1,nt
    if (APAR(k) .gt. 60e-6) then
 
       g0 = 0.0
-      x = 1.0  + (g1 * fwsoil) / SQRT(Dleaf(k))
+      x = 1.0  + (g1 * fwsoil(k)) / SQRT(Dleaf(k))
       gamma =  Vcmax0*scalex(k)*xvcmxt3(Tleaf(k))
       tdiff = Tleaf(k) - C%Trefk
       gammastar = C%gam0 * ( 1.0 + C%gam1 * tdiff                  &

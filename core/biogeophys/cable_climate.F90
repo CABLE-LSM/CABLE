@@ -20,7 +20,7 @@
 MODULE cable_climate_mod
 
  Use cable_def_types_mod, ONLY: met_type, climate_type, canopy_type,soil_snow_type, mp, &
-      r_2, alloc_cbm_var, air_type, radiation_type
+      r_2, alloc_cbm_var, air_type, radiation_type, veg_parameter_type
  USE TypeDef,              ONLY: i4b, dp
  USE cable_IO_vars_module, ONLY: patch
  USE CABLE_COMMON_MODULE, ONLY: CurYear, filename, cable_user, HANDLE_ERR
@@ -30,7 +30,7 @@ CONTAINS
 
 
 SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, &
-     ssnow,air, rad, dels, np)
+     veg,ssnow,air, rad, dels, np)
 
 
   IMPLICIT NONE
@@ -47,6 +47,7 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
   TYPE (soil_snow_type), INTENT(IN) :: ssnow
   TYPE (air_type), INTENT(IN)       :: air
   TYPE (radiation_type), INTENT(IN)  :: rad	   ! radiation variables
+  TYPE (veg_parameter_type), INTENT(IN)  :: veg  ! vegetation parameters
   REAL, INTENT(IN)               :: dels ! integration time setp (s)
   INTEGER,      INTENT(IN)                  :: np
   INTEGER :: d, y, k
@@ -61,7 +62,7 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
   real, PARAMETER:: Gaero = 0.015  ! (m s-1) aerodynmaic conductance (for use in PT evap)
   real, PARAMETER:: Capp   = 29.09    ! isobaric spec heat air    [J/molA/K]
   real, PARAMETER:: SBoltz  = 5.67e-8  ! Stefan-Boltzmann constant [W/m2/K4]
-  real, PARAMETER:: moisture_min = 0.30
+  real, PARAMETER:: moisture_min = 0.15 ! threshold for setting "growing moisture days", as required for drought-deciduous phenology
   real, PARAMETER:: T1 = 0.0, T2 = -3.0, T3 = -4.0, T6 = -5.0 ! for computing fractional spring recovery
   real, PARAMETER:: ffrost = 0.1, fdorm0 = 0.15  ! for computing fractional spring recovery
   real, PARAMETER:: gdd0_rec0 = 500.0
@@ -111,13 +112,11 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
   ! accumulate daily temperature, evap and potential evap
   IF(MOD(ktau,ktauday)==1) THEN
      climate%dtemp = met%tk - 273.15
-    ! climate%dmoist = canopy%fwsoil
-     climate%dmoist = ssnow%wb(:,2)
+     climate%dmoist = sum(ssnow%wb(:,:)*veg%froot(:,:),2)
      climate%dtemp_min =  climate%dtemp 
   ELSE
      climate%dtemp = climate%dtemp + met%tk - 273.15
-     !climate%dmoist = climate%dmoist + canopy%fwsoil
-     climate%dmoist =  ssnow%wb(:,2)
+     climate%dmoist =  climate%dmoist + sum(ssnow%wb(:,:)*veg%froot(:,:),2)
      climate%dtemp_min = min(met%tk - 273.15, climate%dtemp_min)
   ENDIF
 
@@ -145,6 +144,8 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
   climate%APAR_leaf_shade(:,nsd) = rad%qcan(:,2,1)*4.6 !umol m-2 s-1
   climate%Dleaf_sun(:,1:nsd-1) =  climate%Dleaf_sun(:,2:nsd)
   climate%Dleaf_sun(:,nsd) = canopy%dlf
+  climate%fwsoil(:,1:nsd-1) =  climate%fwsoil(:,2:nsd)
+  climate%fwsoil(:,nsd) = canopy%fwsoil
 
   climate%Dleaf_shade(:,1:nsd-1) = climate%Dleaf_shade(:,2:nsd)
   climate%Dleaf_shade(:,nsd) = canopy%dlf
@@ -274,9 +275,8 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
      ENDWHERE
      
      ! update GMD (growing moisture day) counter
-     !where (climate%dmoist .gt. moisture_min)
      where (climate%dmoist .gt. &
-          climate%dmoist_min20 + 0.15*(climate%dmoist_max20 - climate%dmoist_min20))
+          climate%dmoist_min20 + moisture_min*(climate%dmoist_max20 - climate%dmoist_min20))
         climate%gmd = climate%gmd + 1
      elsewhere
         climate%gmd = 0
@@ -776,6 +776,7 @@ if (cable_user%climate_fromzero) then
    climate%cs_shade = 0.0
    climate%scalex_sun = 0.0
    climate%scalex_shade = 0.0
+   climate%fwsoil = 0.0
    climate%dmoist = 0.0
    climate%dmoist_min = 0.0
    climate%dmoist_max = 0.0
@@ -827,7 +828,7 @@ SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
   ! 2 dim arrays (npt,91)
   CHARACTER(len=20),DIMENSION(1) :: A4
   ! 2 dim arrays (npt,ktauday*14)
-  CHARACTER(len=20),DIMENSION(10) :: A5
+  CHARACTER(len=20),DIMENSION(11) :: A5
 
 
   INTEGER*4 ::  VID0(SIZE(A0)),VID1(SIZE(A1)),VIDI1(SIZE(AI1)), &
@@ -891,6 +892,7 @@ SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
   A5(8) = 'cs_shade'
   A5(9) = 'scalex_sun'
   A5(10) = 'scalex_shade'
+  A5(11) = 'fwsoil'
 
 !# define UM_BUILD YES
 # ifndef UM_BUILD
@@ -1124,6 +1126,9 @@ STATUS = NF90_PUT_VAR(FILE_ID, VID1(5), climate%qtemp )
   STATUS = NF90_PUT_VAR(FILE_ID, VID5(10), climate%scalex_shade )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
+  STATUS = NF90_PUT_VAR(FILE_ID, VID5(11), climate%fwsoil )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
 
   ! Close NetCDF file:
   STATUS = NF90_close(FILE_ID)
@@ -1163,7 +1168,7 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate, ktauday )
  ! 2 dim arrays (npt,91)
   CHARACTER(len=20),DIMENSION(1) :: A4
   ! 2 dim arrays (npt,ktauday*5)
-  CHARACTER(len=20),DIMENSION(10) :: A5
+  CHARACTER(len=20),DIMENSION(11) :: A5
 
   REAL(r_2), DIMENSION(mp)          :: LAT, LON, TMP
   REAL(r_2)                         :: TMP2(mp,20),TMP3(mp,31),TMP4(mp,91)
@@ -1230,6 +1235,7 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate, ktauday )
   A5(8) = 'cs_shade'
   A5(9) = 'scalex_sun'
   A5(10) = 'scalex_shade'
+  A5(11) = 'fwsoil'
 
   ! Get File-Name
   IF (LEN_TRIM(cable_user%climate_restart_in).gt.0) THEN
@@ -1409,6 +1415,7 @@ write(*,*) 'patch%latitude',  SIZE(patch%latitude)
      CASE ('cs_shade' ) ; climate%cs_shade  = TMP5
      CASE ('scalex_sun' ) ; climate%scalex_sun  = TMP5
      CASE ('scalex_shade' ) ; climate%scalex_shade  = TMP5
+     CASE ('fwsoil' ) ; climate%fwsoil  = TMP5
 
 
      END SELECT
