@@ -34,7 +34,7 @@ MODULE cable_optimise_JV_module
  REAL ::     convex, Neff, Rd0
  INTEGER :: nt
  !REAL, PARAMETER :: relcost_J = 1.6 ! Chen et al. Oecologia, 1993, 93: 63-69
- REAL, PARAMETER :: relcost_J = 2.0
+ REAL, PARAMETER :: relcost_J = 2.3
 CONTAINS
 ! ==============================================================================
 

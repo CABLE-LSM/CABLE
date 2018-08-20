@@ -271,7 +271,7 @@ CONTAINS
          spinConv      = .FALSE., & ! has spinup converged?
          spincasainput = .FALSE., & ! TRUE: SAVE input req'd to spin CASA-CNP;
                                     ! FALSE: READ input to spin CASA-CNP 
-         spincasa      = .FALSE., & ! TRUE: CASA-CNP Will spin mloop times,
+         spincasa      = .FALSE., & ! TRUE: CASA-CNP Will spin mloop,
                                     ! FALSE: no spin up
          l_casacnp     = .FALSE., & ! using CASA-CNP with CABLE
          l_laiFeedbk   = .FALSE., & ! using prognostic LAI
@@ -347,7 +347,7 @@ CONTAINS
          cable_user           ! additional USER switches 
     INTEGER :: i,x,kk
     INTEGER :: LALLOC
-    INTEGER, PARAMETER ::	 mloop	= 10   ! CASA-CNP PreSpinup loops
+    INTEGER, PARAMETER ::	 mloop	= 30   ! CASA-CNP PreSpinup loops
     REAL    :: etime, etimelast
 
     ! END header

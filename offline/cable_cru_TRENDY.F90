@@ -508,7 +508,8 @@ write(*,*) 'after alloc landmask'
 
 ! For S0_TRENDY, use only static 1860 CO2 value and return immediately
   IF ( TRIM(CRU%CO2) .EQ. "static1860") THEN
-    CO2air = 286.42   ! CO2 in ppm for 1860
+    !CO2air = 286.42   ! CO2 in ppm for 1860
+    CO2air = 276.59   ! CO2 in ppm for 1700
     RETURN
 
 ! If not S0_TRENDY, varying CO2 values will be used...
@@ -585,7 +586,7 @@ write(*,*) 'after alloc landmask'
      ! Set internal counter
      CRU%Ndep_CTSTEP = 1
 
-     IF ( TRIM(CRU%Ndep) .EQ. "static1860") THEN
+     IF ( TRIM(CRU%Ndep) .EQ. "static1860" .OR. CRU%CYEAR<=1860) THEN
        ! read Ndep at year 1860 (noting that file starts at 1850)
         CRU%Ndep_CTSTEP = 11
         t =  CRU%Ndep_CTSTEP
@@ -601,8 +602,8 @@ write(*,*) 'after alloc landmask'
      CALL1 = .FALSE.
   END IF
 
-  IF ( TRIM(CRU%Ndep) .NE. "static1860") THEN
-
+  IF ( TRIM(CRU%Ndep) .NE. "static1860" .and.  CRU%CYEAR>1860) THEN
+  
      ! read Ndep at current year (noting that file starts at 1850 and ends in 2015)
      CRU%Ndep_CTSTEP = min(CRU%CYEAR, 2015) - 1850 + 1
      t =  CRU%Ndep_CTSTEP

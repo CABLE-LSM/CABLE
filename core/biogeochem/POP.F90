@@ -78,7 +78,7 @@ MODULE POP_Constants
   REAL(dp),PARAMETER:: DENSINDIV_MIN=1e-9 !
   REAL(dp),PARAMETER:: Kbiometric=50.0 ! Constant in height-diameter relationship
   REAL(dp),PARAMETER:: WD= 300.0 ! Wood density kgC/m3
-  REAL(dp),PARAMETER:: GROWTH_EFFICIENCY_MIN= 0.010 ! 0.012 ! 0.0095   !0.0089  !0.0084 ! threshold growth efficiency for enhanced mortality (higher value gives higher biomass turnover)
+  REAL(dp),PARAMETER:: GROWTH_EFFICIENCY_MIN=  0.012 ! 0.0095   !0.0089  !0.0084 ! threshold growth efficiency for enhanced mortality (higher value gives higher biomass turnover)
   REAL(dp),PARAMETER:: Pmort=5.0 ! exponent in mortality formula
   REAL(dp),PARAMETER:: MORT_MAX=0.3 ! upper asymptote for enhanced mortality
   REAL(dp),PARAMETER:: THETA_recruit=0.95 ! shape parameter in recruitment equation
@@ -89,7 +89,7 @@ MODULE POP_Constants
   REAL(dp),PARAMETER:: ALPHA_CPC = 3.5
   REAL(dp),PARAMETER:: k_allom1 = 200.0 ! crown area =  k_allom1 * diam ** k_rp
   REAL(dp),PARAMETER:: k_rp = 1.67  ! constant in crown area relation to tree diameter
-  REAL(dp),PARAMETER:: ksapwood = 0.04 ! rate constant for conversion of sapwood to heartwood (y-1)
+  REAL(dp),PARAMETER:: ksapwood = 0.05 ! rate constant for conversion of sapwood to heartwood (y-1)
   REAL(dp),PARAMETER:: Q=7.0 ! governs rate of increase of mortality with age (2=exponential)
   REAL(dp),PARAMETER:: shootfrac = 0.63
   REAL(dp),PARAMETER:: CtoNw = 400
