@@ -157,7 +157,7 @@ CONTAINS
     LUC_EXPT%VAR_NAME(4) = 'gtos'
     LUC_EXPT%VAR_NAME(5) = 'grass'
     LUC_EXPT%VAR_NAME(6) = 'primaryf'
-    LUC_EXPT%VAR_NAME(7) = 'pharv'
+    LUC_EXPT%VAR_NAME(7) = 'ptos'
     LUC_EXPT%VAR_NAME(8) = 'smharv'
     LUC_EXPT%VAR_NAME(9) = 'syharv'
 

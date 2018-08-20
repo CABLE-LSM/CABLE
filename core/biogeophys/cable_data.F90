@@ -104,6 +104,7 @@ module cable_data_module
       !real :: gam0 = 42.75E-6  ! (Bernacci 2001 )36.9 @ 25C (von Cammerer)
       !real :: gam0 = 34.6E-6
       real :: gam0 = 28.0E-6
+      !real :: gam0 = 34.6E-6
       real :: gam1 = 0.0509
       real :: gam2 = 0.0010
       real :: rgbwc  = 1.32

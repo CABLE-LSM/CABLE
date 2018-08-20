@@ -1782,8 +1782,13 @@ END SUBROUTINE POPLUC_SET_PATCHFRAC
        ELSEIF (CABLE_USER%YEARSTART.lt.1000) THEN
           WRITE( dum, FMT="(I3,'_',I4)")CABLE_USER%YEARSTART,CABLE_USER%YEAREND
        ENDIF
-       fname = TRIM(filename%path)//'/'//TRIM(cable_user%RunIden)//'_'//&
-            TRIM(dum)//'_LUC_out.nc'
+
+       IF  (LEN_TRIM( TRIM(cable_user%LUC_outfile) ) .gt. 0 ) THEN
+          fname = TRIM(cable_user%LUC_outfile)
+       ELSE
+          fname = TRIM(filename%path)//'/'//TRIM(cable_user%RunIden)//'_'//&
+               TRIM(dum)//'_LUC_out.nc'
+       ENDIF
 
        ! Create NetCDF file:
        STATUS = NF90_create(fname, NF90_CLOBBER, FILE_ID)
@@ -2074,7 +2079,12 @@ END SUBROUTINE POPLUC_SET_PATCHFRAC
     ELSEIF (CABLE_USER%YEARSTART.lt.1000) THEN
        WRITE( dum, FMT="(I3,'_',I4)")CABLE_USER%YEARSTART,CABLE_USER%YEAREND
     ENDIF
-    fname = TRIM(filename%path)//'/'//TRIM(cable_user%RunIden)//'_'//'LUC_rst.nc'
+
+    IF (LEN_TRIM( TRIM(cable_user%LUC_restart_out) ) .gt. 0 ) THEN
+       fname = TRIM(cable_user%LUC_restart_out)
+    ELSE
+       fname = TRIM(filename%path)//'/'//TRIM(cable_user%RunIden)//'_'//'LUC_rst.nc'
+    ENDIF
 
     ! Create NetCDF file:
     STATUS = NF90_create(fname, NF90_CLOBBER, FILE_ID)
@@ -2211,10 +2221,12 @@ END SUBROUTINE POPLUC_SET_PATCHFRAC
 
 
 
-    !fname = TRIM(filename%path)//'/'//TRIM( cable_user%RunIden )//&
-    !     '_LUC_rst.nc'
-
- fname = TRIM(filename%path)//'/'//TRIM(cable_user%RunIden)//'_'//'LUC_rst.nc'
+   
+    IF (LEN_TRIM( TRIM(cable_user%LUC_restart_in) ) .gt. 0 ) THEN
+       fname = TRIM(cable_user%LUC_restart_in)
+    ELSE
+       fname = TRIM(filename%path)//'/'//TRIM(cable_user%RunIden)//'_'//'LUC_rst.nc'
+    ENDIF
     STATUS = NF90_OPEN( TRIM(fname), NF90_NOWRITE, FILE_ID )
     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 

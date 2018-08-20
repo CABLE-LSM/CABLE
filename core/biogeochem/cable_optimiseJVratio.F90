@@ -78,7 +78,6 @@ SUBROUTINE optimise_JV (veg, climate, ktauday, bjvref)
           !fwsoil =(climate%dmoist_31(k,31))
           ! soil-moisture modifier to stomatal conductance
           fwsoil = climate%fwsoil(k,:)
-          !fwsoil = 1.0
           alpha = climate%frec(k)*veg%alpha(k) ! quantum efficiency for
           ! electron transport 
           convex = veg%convex(k) 

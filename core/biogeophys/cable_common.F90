@@ -102,6 +102,9 @@ MODULE cable_common_module
      CHARACTER(LEN=200) :: POP_outfile       = '' !
      CHARACTER(LEN=200) :: climate_restart_in = ''
      CHARACTER(LEN=200) :: climate_restart_out = ''
+     CHARACTER(LEN=200) :: LUC_outfile       = '' !
+     CHARACTER(LEN=200) :: LUC_restart_in = ''
+     CHARACTER(LEN=200) :: LUC_restart_out = ''
      CHARACTER(LEN=8)  :: CASA_OUT_FREQ = 'annually' ! 'daily', 'monthly', 'annually'
      CHARACTER(LEN=10)  :: vcmax = 'standard' ! "standard" or "Walker2014"
      CHARACTER(LEN=10)  :: POPLUC_RunType = 'static' ! 'static', 'init', 'restart' 
