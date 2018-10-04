@@ -315,7 +315,6 @@ SUBROUTINE WGEN_SUBDIURNAL_MET(WG, np, itime)
   END WHERE
 
   WG%PhiSd    = WG%PhiSd*1e6/SecDay       ! Convert PhiSd: [MJ/m2/day] to [W/m2]
-
   ! -------------
   ! Precipitation
   ! -------------

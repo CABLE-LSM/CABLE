@@ -1353,15 +1353,15 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
           veg%alpha(h)  = vegin%alpha(veg%iveg(h))
           if (cable_user%POPLUC) THEN
 
-             if (LUC_EXPT%biome(e).eq.4 .and.veg%iveg(h).eq.2 ) THEN
-                if (cable_user%finite_gm) THEN
-                   veg%alpha(h) = 0.28  ! fininte gm
-                else  
-                   veg%alpha(h) = 0.22  ! infinite gm
-                endif
-                veg%d0gs(h) = 1500.0
-                veg%g1(h) = 3.37   ! temperate EBL
-             ENDIF
+!!$             if (LUC_EXPT%biome(e).eq.4 .and.veg%iveg(h).eq.2 ) THEN
+!!$                if (cable_user%finite_gm) THEN
+!!$                   veg%alpha(h) = 0.28  ! fininte gm
+!!$                else  
+!!$                   veg%alpha(h) = 0.22  ! infinite gm
+!!$                endif
+!!$                veg%d0gs(h) = 1500.0
+!!$                veg%g1(h) = 3.37   ! temperate EBL
+!!$             ENDIF
 !!$             if (LUC_EXPT%biome(e).eq.3 .and.veg%iveg(h).eq.2 ) THEN
 !!$                !veg%g1(h) = 2.98   ! savanna
 !!$             ENDIF

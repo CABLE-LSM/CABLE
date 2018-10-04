@@ -157,7 +157,7 @@ CONTAINS
     LUC_EXPT%VAR_NAME(4) = 'gtos'
     LUC_EXPT%VAR_NAME(5) = 'grass'
     LUC_EXPT%VAR_NAME(6) = 'primaryf'
-    LUC_EXPT%VAR_NAME(7) = 'ptos'
+    LUC_EXPT%VAR_NAME(7) = 'pharv'
     LUC_EXPT%VAR_NAME(8) = 'smharv'
     LUC_EXPT%VAR_NAME(9) = 'syharv'
 
@@ -395,12 +395,15 @@ CONTAINS
           CPC= 0.1
        ENDWHERE
 
-       CPC = max(CPC/projection_factor, 1.0)
+       CPC = min(CPC/projection_factor, 1.0)
+
+       !write(*,*)  LUC_EXPT%grass(93), LUC_EXPT%primaryf(93), LUC_EXPT%secdf(93), CPC
 
        LUC_EXPT%grass = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf)*(1-CPC)
        LUC_EXPT%primaryf =  LUC_EXPT%primaryf * CPC
        LUC_EXPT%secdf =  LUC_EXPT%secdf * CPC
 
+       !write(*,*)  LUC_EXPT%grass(93), LUC_EXPT%primaryf(93), LUC_EXPT%secdf(93)
 
 
     ELSE
@@ -489,8 +492,11 @@ CONTAINS
 
     IF (TRIM(cable_user%MetType) .EQ. "bios") THEN
        WHERE (LUC_EXPT%prim_only .eqv. .TRUE.)
-           LUC_EXPT%grass = LUC_EXPT%primaryf*(1-CPC)
-           LUC_EXPT%primaryf =  LUC_EXPT%primaryf *CPC 
+          LUC_EXPT%secdf = 0.0
+          LUC_EXPT%primaryf = 1.0
+          LUC_EXPT%grass = 0.0         
+          LUC_EXPT%grass = LUC_EXPT%primaryf*(1-CPC)
+          LUC_EXPT%primaryf =  LUC_EXPT%primaryf *CPC 
 
         ENDWHERE
         DEALLOCATE (CPC)
@@ -606,17 +612,18 @@ END SUBROUTINE LUC_EXPT_SET_TILES
 
 
 SUBROUTINE LUC_EXPT_SET_TILES_BIOS(inVeg, inPfrac, LUC_EXPT )
-
+  USE  cable_bios_met_obs_params, ONLY: cable_bios_load_fracC4
   IMPLICIT NONE
 
   INTEGER, INTENT(INOUT) :: inVeg(:,:,:)
   REAL,   INTENT(INOUT) :: inPFrac(:,:,:)
   TYPE (LUC_EXPT_TYPE), INTENT(INOUT) :: LUC_EXPT
+  REAL:: fracC4(mland)
   INTEGER :: k, m, n
 
 
-
-
+  CALL cable_bios_load_fracC4(fracC4)
+  
   DO k=1,mland
      m = landpt(k)%ilon
      n = landpt(k)%ilat
@@ -627,9 +634,12 @@ SUBROUTINE LUC_EXPT_SET_TILES_BIOS(inVeg, inPfrac, LUC_EXPT )
         inVeg(m,n,2:3) = 0
         inPFrac(m,n,2:3) = 0
         inPFrac(m,n,1) = 1.0
-        if ( LUC_EXPT%grass(k) .gt. 0.01) then
-           inVeg(m,n,2) = 6 ! C3 grass
-           !inVeg(m,n,2) = 7 ! C4 grass
+        if ( LUC_EXPT%grass(k) .gt. 0.01 ) then
+           if (fracC4(k).gt.0.5) then
+              inVeg(m,n,2) = 7 ! C4 grass
+           else
+              inVeg(m,n,2) = 6 ! C3 grass
+           endif
            inPFrac(m,n,1) =  min(LUC_EXPT%primaryf(k),1.0)
            inPFrac(m,n,2) = 1.0 -  min(LUC_EXPT%primaryf(k),1.0)
         endif
@@ -637,9 +647,11 @@ SUBROUTINE LUC_EXPT_SET_TILES_BIOS(inVeg, inPfrac, LUC_EXPT )
      elseif ((.NOT.LUC_EXPT%prim_only(k)) ) then
         inVeg(m,n,1) = LUC_EXPT%ivegp(k)
         inVeg(m,n,2) = LUC_EXPT%ivegp(k)
-
-        inVeg(m,n,3) = 6 ! C3 grass
-        !inVeg(m,n,3) = 7 ! C4 grass
+        if (fracC4(k).gt.0.5) then
+           inVeg(m,n,3) = 7 ! C4 grass
+        else
+           inVeg(m,n,3) = 6 ! C3 grass
+        endif
         inPFrac(m,n,1) = min(LUC_EXPT%primaryf(k),1.0)
         inPFrac(m,n,2) = min(LUC_EXPT%secdf(k),1.0)
         inPFrac(m,n,3) = 1.0 - inPFrac(m,n,1) - inPFrac(m,n,2) 

@@ -780,7 +780,8 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
              !veg%vlai = 2 ! test
              ! Call land surface scheme for this timestep, all grid points:
  
-                    CALL cbm(ktau, dels, air, bgc, canopy, met,		      &
+
+             CALL cbm(ktau, dels, air, bgc, canopy, met,		      &
                          bal, rad, rough, soil, ssnow,			      &
                          sum_flux, veg,climate )
 
