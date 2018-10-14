@@ -32,7 +32,7 @@ MODULE cable_optimise_JV_module
  REAL, ALLOCATABLE :: APAR(:), Dleaf(:), Tleaf(:), cs(:), scalex(:), fwsoil(:)
  REAL :: Anet, vcmax00, bjv, g1, Kc0, Ko0, ekc, eko, alpha
  REAL ::     convex, Neff, Rd0
- INTEGER :: nt
+ INTEGER :: nt,kk
  !REAL, PARAMETER :: relcost_J = 1.6 ! Chen et al. Oecologia, 1993, 93: 63-69
  REAL, PARAMETER :: relcost_J = 2.3
 CONTAINS
@@ -49,6 +49,7 @@ SUBROUTINE optimise_JV (veg, climate, ktauday, bjvref)
   REAL, INTENT(IN) :: bjvref
   INTEGER:: k
   REAL :: Anet_cost, bjv_new
+  REAL :: An, Ac, Aj, tmp
   REAL, PARAMETER :: l_bound = 0.5
   REAL, PARAMETER :: u_bound = 3.0
 
@@ -78,7 +79,7 @@ SUBROUTINE optimise_JV (veg, climate, ktauday, bjvref)
           !fwsoil =(climate%dmoist_31(k,31))
           ! soil-moisture modifier to stomatal conductance
           fwsoil = climate%fwsoil(k,:)
-          alpha = climate%frec(k)*veg%alpha(k) ! quantum efficiency for
+          alpha = veg%alpha(k) ! quantum efficiency for
           ! electron transport 
           convex = veg%convex(k) 
           Neff = vcmax00 + relcost_J*bjvref*vcmax00/4. ! effective nitrogen amount 
@@ -135,6 +136,14 @@ SUBROUTINE optimise_JV (veg, climate, ktauday, bjvref)
              Anet_cost = golden(l_bound,bjvref,u_bound,total_photosynthesis_cost,0.01,bjv_new)
              veg%vcmax_sun(k) = Neff/(1.+relcost_J*bjv_new/4.0)
              veg%ejmax_sun(k) = veg%vcmax_sun(k)*bjv_new
+             write(*,*) bjv_new
+             do kk=1,100
+                
+                tmp = l_bound + (u_bound-l_bound)/100*kk
+                call total_An_Ac_Aj(tmp,An,Ac,Aj)
+                write(999,"(200e16.6)") tmp, total_photosynthesis_cost(tmp), Aj/An
+             enddo
+             stop
           else
              bjv_new = bjvref
              veg%vcmax_sun(k) = veg%vcmax(k)
@@ -149,9 +158,11 @@ SUBROUTINE optimise_JV (veg, climate, ktauday, bjvref)
           veg%vcmax_sun(k) = veg%vcmax(k)
           veg%ejmax_sun(k) = veg%ejmax(k)
        endif
-!           if (k==1 ) then
-!              write(99,"(200e16.6)") bjv_new, total_photosynthesis(bjv_new), maxval(APAR*1e6), maxval(Tleaf) - 273.15, maxval(Dleaf), maxval(scalex), maxval(cs)*1e6, total_photosynthesis(1.38)
-!           endif
+           if (k==1 ) then
+            !  write(99,"(200e16.6)") bjv_new, total_photosynthesis(bjv_new), bjvref, total_photosynthesis(bjvref)
+              call total_An_Ac_Aj(bjv_new,An,Ac,Aj)
+               write(99,"(200e16.6)") bjv_new,An,Ac,Aj, Aj/(Ac+Aj)
+           endif
 
 
 !!$       if (k==2) then
@@ -367,6 +378,83 @@ END FUNCTION total_photosynthesis
 	END SUBROUTINE shft3
 	END FUNCTION golden
 
+
+
+
+
+
+
+
+
+SUBROUTINE total_An_Ac_Aj(bjv, total_An, total_Ac, total_Aj)
+USE cable_canopy_module, ONLY :  xvcmxt3,xejmxt3, ej3x, xrdt
+!TYPE( icanopy_type ) :: C
+REAL, INTENT(IN) :: bjv
+INTEGER :: k, j
+REAL :: kct, kot, tdiff
+REAL :: g0, x, gamma,  beta, gammastar, Rd, a, b, c1, jmaxt
+REAL:: Anc, Ane, vcmax0
+REAL :: An(nt), Ac(nt), Aj(nt)
+REAL, INTENT(OUT) :: total_An, total_Ac, total_Aj
+
+CALL point2constants(C)
+!write(*,*) C%TrefK
+An = 0.0
+j = 1
+vcmax0 = Neff/(1.+relcost_J*bjv/4.0);
+Ac = 0
+Aj=0
+DO k=1,nt
+   if (APAR(k) .gt. 60e-6) then
+      Ac(j) = 0.0
+      Aj(j) = 0.0
+      g0 = 0.0
+      x = 1.0  + (g1 * fwsoil(k)) / SQRT(Dleaf(k))
+      gamma =  Vcmax0*scalex(k)*xvcmxt3(Tleaf(k))
+      tdiff = Tleaf(k) - C%Trefk
+      gammastar = C%gam0 * ( 1.0 + C%gam1 * tdiff                  &
+                                          + C%gam2 * tdiff * tdiff )
+      Rd  =Rd0*scalex(k)*xrdt(Tleaf(k))
+      kct = kc0 * EXP( ( ekc / (C%rgas*C%trefk) ) &
+                                              * ( 1.0 - C%trefk/Tleaf(k) ) )
+      kot = ko0 *EXP( ( eko / (C%rgas*C%trefk) ) &
+                                              * ( 1.0 - C%trefk/Tleaf(k) ) )
+
+      beta = kct * (1.0+0.21/kot)
+      CALL fabc(cs(k), g0, x, gamma, beta, gammastar, Rd, a, b, c1)
+      CALL fAn(a,b,c1,Anc) ! rubisco-limited
+      jmaxt = bjv*Vcmax0*scalex(k)*xejmxt3(Tleaf(k))
+      gamma = ej3x(APAR(k), alpha,convex, jmaxt) 
+      beta = 2.0 * gammastar
+      CALL fabc(cs(k), g0, x, gamma, beta, gammastar, Rd, a, b, c1)
+      CALL fAn(a,b,c1,Ane) ! e-transport limited
+      An(j) = min(Anc, Ane)
+      write(*,*) An(j), Anc, Ane
+      if (Anc < Ane) Ac(j) = Anc
+      if (Ane < Anc) Aj(j) = Ane
+      
+   else
+      An(j) = 0.0
+   endif
+   j = j+1
+ENDDO
+
+
+total_An = sum(An)
+total_Ac = sum(Ac)
+total_Aj = sum(Aj)
+
+
+END SUBROUTINE total_An_Ac_Aj
+
+
+
+
+
+
+
+
+ 
 
 
 ! ==============================================================================
