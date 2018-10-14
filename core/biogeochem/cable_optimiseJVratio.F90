@@ -48,9 +48,9 @@ SUBROUTINE optimise_JV (veg, climate, ktauday, bjvref)
   INTEGER, INTENT(IN) :: ktauday
   REAL, INTENT(IN) :: bjvref
   INTEGER:: k
-  REAL :: Anet_cost, bjv_new
+  REAL :: Anet_cost, bjv_new, min_diff, vcmax_new
   REAL :: An, Ac, Aj, tmp
-  REAL, PARAMETER :: l_bound = 0.5
+  REAL, PARAMETER :: l_bound = 0.1
   REAL, PARAMETER :: u_bound = 3.0
 
   nt = ktauday * 5
@@ -150,6 +150,18 @@ SUBROUTINE optimise_JV (veg, climate, ktauday, bjvref)
              veg%ejmax_sun(k) = veg%ejmax(k)
           endif
 
+          if(diff_Ac_Aj(vcmax00*l_bound)/diff_Ac_Aj(vcmax00*u_bound) .lt. 0.0)  then
+             min_diff =  golden(vcmax00*l_bound, vcmax00, vcmax00*u_bound , diff_Ac_Aj, 0.01e-6, vcmax_new)
+             veg%vcmax_sun(k) = vcmax_new
+             bjv_new =  (Neff-vcmax00)/(relcost_J*vcmax00/4.)
+             veg%ejmax_sun(k) = veg%vcmax_sun(k)*bjv_new
+             write(99,"(200e16.6)") bjv_new, diff_Ac_Aj(vcmax_new), diff_Ac_Aj(vcmax00), vcmax_new, vcmax00
+             stop
+           endif
+             
+          
+
+          
        else
           bjv_new = bjvref
           veg%vcmax_shade(k) = veg%vcmax(k)
@@ -311,7 +323,66 @@ ENDDO
    total_photosynthesis = sum(An)
 
 
-END FUNCTION total_photosynthesis
+ END FUNCTION total_photosynthesis
+
+ REAL FUNCTION diff_Ac_Aj(vcmax0)
+   USE cable_canopy_module, ONLY :  xvcmxt3,xejmxt3, ej3x, xrdt
+   !TYPE( icanopy_type ) :: C
+   REAL, INTENT(IN) :: vcmax0
+   INTEGER :: k, j
+   REAL :: kct, kot, tdiff
+   REAL :: g0, x, gamma,  beta, gammastar, Rd, a, b, c1, jmaxt
+   REAL:: Anc, Ane, bjv
+   REAL :: An(nt), Ac(nt), Aj(nt)
+   REAL :: total_An, total_Ac, total_Aj
+   CALL point2constants(C)
+   An = 0.0
+   Ac = 0.0
+   Aj = 0.0
+   j = 1
+   !vcmax0 = Neff/(1.+relcost_J*bjv/4.0);
+   bjv = (vcmax0/Neff -1.)*4.0/relcost_J
+
+   DO k=1,nt
+      if (APAR(k) .gt. 60e-6) then
+         Ac(j) = 0.0
+         Aj(j) = 0.0
+         g0 = 0.0
+         x = 1.0  + (g1 * fwsoil(k)) / SQRT(Dleaf(k))
+         gamma =  Vcmax0*scalex(k)*xvcmxt3(Tleaf(k))
+         tdiff = Tleaf(k) - C%Trefk
+         gammastar = C%gam0 * ( 1.0 + C%gam1 * tdiff                  &
+              + C%gam2 * tdiff * tdiff )
+         Rd  =Rd0*scalex(k)*xrdt(Tleaf(k))
+         kct = kc0 * EXP( ( ekc / (C%rgas*C%trefk) ) &
+              * ( 1.0 - C%trefk/Tleaf(k) ) )
+         kot = ko0 *EXP( ( eko / (C%rgas*C%trefk) ) &
+              * ( 1.0 - C%trefk/Tleaf(k) ) )
+
+         beta = kct * (1.0+0.21/kot)
+         CALL fabc(cs(k), g0, x, gamma, beta, gammastar, Rd, a, b, c1)
+         CALL fAn(a,b,c1,Anc) ! rubisco-limited
+         jmaxt = bjv*Vcmax0*scalex(k)*xejmxt3(Tleaf(k))
+         gamma = ej3x(APAR(k), alpha,convex, jmaxt) 
+         beta = 2.0 * gammastar
+         CALL fabc(cs(k), g0, x, gamma, beta, gammastar, Rd, a, b, c1)
+         CALL fAn(a,b,c1,Ane) ! e-transport limited
+         An(j) = min(Anc, Ane)
+         if (Anc < Ane) Ac(j) = Anc
+         if (Ane < Anc) Aj(j) = Ane
+      else
+         An(j) = 0.0
+      endif
+      j = j+1
+   ENDDO
+
+   total_An = sum(An)
+   total_Ac = sum(Ac)
+   total_Aj = sum(Aj)
+   diff_Ac_Aj = total_Ac - total_Aj
+
+ END FUNCTION diff_Ac_Aj
+
 
 
 	FUNCTION golden(ax,bx,cx,func,tol,xmin)

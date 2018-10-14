@@ -4,7 +4,80 @@ export dosvn=1 # 1/0: do/do not check svn
 
 known_hosts()
 {
-   set -A kh vayu cher pear shin jigg nXXX raij ces2
+   set -A kh vayu cher pear shin jigg nXXX raij ces2 ccrc mael valh
+}
+
+## 
+host_valh()
+{
+   # GFORTRAN
+   export FC=gfortran
+   # debug
+   export CFLAGS="-Wall -W -O -g -Wno-maybe-uninitialized -cpp -ffree-form -ffixed-line-length-132 -Wno-tabs -Wconversion" # -DVanessas_common"
+   # # release
+   # export CFLAGS="-O3 -Wno-aggressive-loop-optimizations -cpp -ffree-form -ffixed-line-length-132"
+   export LD=''
+   export NCROOT='/usr/local/netcdf-fortran-4.4.2-gfortran/'
+
+   # # NAG
+   # export FC=nagfor
+   # # debug
+   # export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -DNAG"
+   # # # release
+   # # export CFLAGS="-O4 -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free"
+   # export LD='-ideclient -unsharedrts'
+   # export NCROOT='/usr/local/netcdf-fortran-4.4.2-nagfor'
+
+   # All compilers
+   export NCCROOT='/usr/local'
+   export NCCLIB=${NCROOT}'/lib'
+   export NCLIB=${NCROOT}'/lib'
+   export NCMOD=${NCROOT}'/include'
+   export LDFLAGS="-L${NCCLIB} -L${NCLIB} -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz"
+   export dosvn=0
+   build_build
+   cd ../
+   build_status
+}
+host_mael()
+{
+   export NCDIR='/share/apps/netcdf/intel/4.1.3/lib'
+   export NCMOD='/share/apps/netcdf/intel/4.1.3/include'
+   export FC=ifort
+   export CFLAGS='-O2 -fp-model precise  '
+   #export CFLAGS='-O3 -fp-model precise  -ipo --parallel '   
+   export LDFLAGS='-L/share/apps/intel/Composer/lib/intel64 -L/share/apps/netcdf/intel/4.1.3/lib  -O2'
+   if [[ $1 = 'debug' ]]; then
+      export CFLAGS='-O0 -traceback -g -fp-model precise  ' 
+      export LDFLAGS='-L/share/apps/intel/Composer/lib/intel64 -L/share/apps/netcdf/intel/4.1.3/lib '
+   fi
+   export LD='-lnetcdf -lnetcdff'
+   build_build
+   cd ../
+   build_status
+}
+
+
+
+host_ccrc()
+{
+   export NCDIR='/usr/local/netcdf/intel/4.1.3/lib'
+   export NCMOD='/usr/local/netcdf/intel/4.1.3/include'
+   export FC=ifort
+   export CFLAGS='-O2 -fp-model precise '   #-traceback
+   if [[ $1 = 'debug' ]]; then
+      export CFLAGS='-O0 -debug -g -ftrapuv -CB -check bounds -diag-enable warn'
+# -diag-enable sc2 -diag-enable sc-single-file
+   fi
+   export LD='-lnetcdf -lnetcdff'
+   export LDFLAGS='-L/usr/local/intel/Compiler/11.1/lib/intel64 -L//usr/local/netcdf/intel/4.1.3/lib -O2'
+   if [[ $1 = 'debug' ]]; then
+      export LDFLAGS='-L/usr/local/intel/Compiler/11.1/lib/intel64 -L//usr/local/netcdf/intel/4.1.3/lib -O0 -debug -g -ftrapuv -diag-enable warn'
+# -diag-enable sc2 -diag-enable sc-single-file
+   fi
+   build_build
+   cd ../
+   build_status
 }
 
 
@@ -78,23 +151,6 @@ host_jigg()
 }
 
 
-## shine-cl.nexus.csiro.au 
-host_shin()
-{
-   export NCDIR='/usr/local/intel/lib'
-   export NCMOD='/usr/local/intel/include'
-   export FC=ifort
-   export CFLAGS='-O2 -fp-model precise -ftz -fpe0'
-   export LD='-lnetcdf'
-   export LDFLAGS='-L/usr/local/intel/lib -O2'
-   build_build
-   cd ../
-   build_status
-}
-
- #export CFLAGS='  -g -debug -traceback -fp-stack-check -O0 -debug -fpe=0 -fpe-all=0 -no-ftz -ftrapuv'
-#export CFLAGS='-warn all,nounused  -check all,noarg_temp_created -g -debug -traceback -fp-stack-check -O0 -debug -fpe1 -no-ftz -ftrapuv'
-
 
 ## pearcey.hpsc.csiro.au 
 host_pear()
@@ -108,9 +164,9 @@ host_pear()
    export NCDIR=$NETCDF_ROOT'/lib/'
    export NCMOD=$NETCDF_ROOT'/include/'
    export FC='ifort'
-   export CFLAGS='-O0 -fp-model precise -g -debug -traceback -fp-stack-check -no-ftz -ftrapuv   -check all,noarg_temp_created -C '
-   #export CFLAGS='-O0 -fp-model precise'
-   #export CFLAGS='  -g -debug -traceback -fp-stack-check -O0 -debug -fpe=0  -no-ftz -ftrapuv -check bounds'
+  # export CFLAGS='-O0 -fp-model precise -g -debug -traceback -fp-stack-check -no-ftz -ftrapuv   -check all,noarg_temp_created -C '
+   export CFLAGS='-O0 -fp-model precise'
+  # export CFLAGS='  -g -debug -traceback -fp-stack-check -O0 -debug -fpe=0 -fpe-all=0 -no-ftz -ftrapuv -check bounds'
    export LDFLAGS='-g -L'$NCDIR' -O0'
    export LD='-lnetcdf -lnetcdff'
    build_build
@@ -119,37 +175,6 @@ host_pear()
 }
 
 
-## cherax.hpsc.csiro.au 
-host_cher()
-{
-   export NCDIR=$NETCDF_ROOT'/lib/'
-   export NCMOD=$NETCDF_ROOT'/include/'
-   export FC=$F90
-   export CFLAGS='-O2 -fp-model precise'
-   export LDFLAGS='-L'$NCDIR' -O2'
-   export LD='-lnetcdf -lnetcdff'
-   build_build
-   cd ../
-   build_status
-}
-
-
-## vayu.nci.org.au
-host_vayu()
-{
-   export NCDIR=$NETCDF_ROOT'/lib/Intel'
-   export NCMOD=$NETCDF_ROOT'/include/Intel'
-   export FC=$F90
-   export CFLAGS='-O0 -fp-model precise'
-   if [[ $1 = 'debug' ]]; then      
-      export CFLAGS='-O2 -traceback -g -fp-model precise -ftz -fpe0' 
-   fi
-   export LDFLAGS='-L'$NCDIR' -O0'
-   export LD='-lnetcdf'
-   build_build
-   cd ../
-   build_status
-}
 
 ## raijin.nci.org.au
 host_raij()
@@ -157,18 +182,15 @@ host_raij()
    module del intel-cc intel-fc
    module add intel-cc/16.0.1.150 intel-fc/16.0.1.150
    module add netcdf/4.3.3.1
+
    export NCDIR=$NETCDF_ROOT'/lib/Intel'
    export NCMOD=$NETCDF_ROOT'/include/Intel'
    export FC=$F90
-   #export CFLAGS='-O0 -fp-model precise'
-   #export CFLAGS='-O0 -fp-model precise -xCORE-AVX2'
-   export CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0  -xCORE-AVX2'
-
+   export CFLAGS='-O0 -fp-model precise'
    if [[ $1 = 'debug' ]]; then
       export CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0'
    fi
-   #export LDFLAGS='-L'$NCDIR' -O0'
-   export LDFLAGS='-L'$NCDIR' -O0 -xCORE-AVX2'
+   export LDFLAGS='-L'$NCDIR' -O0'
    export LD='-lnetcdf -lnetcdff'
    build_build
    cd ../
@@ -250,7 +272,7 @@ host_write()
    print '' >> junk
    print 'known_hosts()' >> junk
    print '{' >> junk
-   print '   set -A kh' ${kh[*]} $HOST_MACH >> junk
+   print '   set -A kh' ${kh[*]} $HOST_MACH >> junk ccrc ccrc Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart ccrc ccrc Mart ccrc ccrc ccrc ccrc ccrc ccrc ccrc ccrc
    print '}' >> junk
    print '' >> junk
    print '' >> junk
@@ -394,11 +416,13 @@ build_build()
    fi
    
    # directories contain source code
-   CORE="../core/biogeophys"
+   PHYS="../core/biogeophys"
+   UTIL="../core/utils"
    DRV="."
    CASA="../core/biogeochem"
    
-   /bin/cp -p $CORE/*90 ./.tmp
+   /bin/cp -p $PHYS/*90 ./.tmp
+   /bin/cp -p $UTIL/*90 ./.tmp
    /bin/cp -p $DRV/*90 ./.tmp
    /bin/cp -p $CASA/*90 ./.tmp
    

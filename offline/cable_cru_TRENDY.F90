@@ -81,7 +81,7 @@ MODULE CABLE_CRU
   CHARACTER(len=6), DIMENSION(9), PARAMETER, PRIVATE :: &
      !  PREF = (/ "rain  ", "lwdown", "swdown", "press ", "qair  ", "tmax  ", "tmin  ", "uwind ", "vwind " /)
 
-         PREF = (/ "pre  ", "dlwrf", "dswrf", "pres", "spfh", "tmax", "tmin", "ugrd", "vgrd" /)
+         PREF = (/ "pre   ", "dlwrf ", "dswrf ", "pres  ", "spfh  ", "tmax  ", "tmin  ", "ugrd  ", "vgrd  " /)
 
 CONTAINS
 
