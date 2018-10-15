@@ -49,7 +49,7 @@ SUBROUTINE optimise_JV (veg, climate, ktauday, bjvref)
   REAL, INTENT(IN) :: bjvref
   INTEGER:: k
   REAL :: Anet_cost, bjv_new, min_diff, vcmax_new
-  REAL :: An, Ac, Aj, tmp
+  REAL :: An, Ac, Aj, tmp, total_An, total_Ac, total_Aj
   REAL, PARAMETER :: l_bound = 0.1
   REAL, PARAMETER :: u_bound = 3.0
 
@@ -150,12 +150,17 @@ SUBROUTINE optimise_JV (veg, climate, ktauday, bjvref)
              veg%ejmax_sun(k) = veg%ejmax(k)
           endif
 
-          if(diff_Ac_Aj(vcmax00*l_bound)/diff_Ac_Aj(vcmax00*u_bound) .lt. 0.0)  then
-             min_diff =  golden(vcmax00*l_bound, vcmax00, vcmax00*u_bound , diff_Ac_Aj, 0.01e-6, vcmax_new)
-             veg%vcmax_sun(k) = vcmax_new
-             bjv_new =  (Neff-vcmax00)/(relcost_J*vcmax00/4.)
+          call total_An_Ac_Aj(l_bound, total_An, total_Ac, total_Aj)
+          write(*,*) 'l_bound, total_An, total_Ac, total_Aj: ', l_bound, total_An, total_Ac, total_Aj, total_Ac-total_Aj
+          call total_An_Ac_Aj(u_bound, total_An, total_Ac, total_Aj)
+          write(*,*) 'u_bound, total_An, total_Ac, total_Aj: ', u_bound, total_An, total_Ac, total_Aj, total_Ac-total_Aj
+          write(*,*) 'diff_Ac_Aj', diff_Ac_Aj(l_bound), diff_Ac_Aj(u_bound)
+          
+          if(diff_Ac_Aj(l_bound)/diff_Ac_Aj(u_bound) .lt. 0.0)  then
+             min_diff =  golden(l_bound, bjvref, u_bound , diff_Ac_Aj, 0.01, bjv_new)
+             veg%vcmax_sun(k) = Neff/(1.+relcost_J*bjv_new/4.0)
              veg%ejmax_sun(k) = veg%vcmax_sun(k)*bjv_new
-             write(99,"(200e16.6)") bjv_new, diff_Ac_Aj(vcmax_new), diff_Ac_Aj(vcmax00), vcmax_new, vcmax00
+             write(99,"(200e16.6)") bjv_new, diff_Ac_Aj(bjvref), diff_Ac_Aj(bjv_new), veg%vcmax_sun(k), vcmax00
              stop
            endif
              
@@ -325,14 +330,14 @@ ENDDO
 
  END FUNCTION total_photosynthesis
 
- REAL FUNCTION diff_Ac_Aj(vcmax0)
+ REAL FUNCTION diff_Ac_Aj(bjv)
    USE cable_canopy_module, ONLY :  xvcmxt3,xejmxt3, ej3x, xrdt
    !TYPE( icanopy_type ) :: C
-   REAL, INTENT(IN) :: vcmax0
+   REAL, INTENT(IN) :: bjv
    INTEGER :: k, j
    REAL :: kct, kot, tdiff
    REAL :: g0, x, gamma,  beta, gammastar, Rd, a, b, c1, jmaxt
-   REAL:: Anc, Ane, bjv
+   REAL:: Anc, Ane, vcmax0
    REAL :: An(nt), Ac(nt), Aj(nt)
    REAL :: total_An, total_Ac, total_Aj
    CALL point2constants(C)
@@ -340,8 +345,8 @@ ENDDO
    Ac = 0.0
    Aj = 0.0
    j = 1
-   !vcmax0 = Neff/(1.+relcost_J*bjv/4.0);
-   bjv = (vcmax0/Neff -1.)*4.0/relcost_J
+   vcmax0 = Neff/(1.+relcost_J*bjv/4.0);
+   !bjv = (vcmax0/Neff -1.)*4.0/relcost_J
 
    DO k=1,nt
       if (APAR(k) .gt. 60e-6) then
