@@ -141,7 +141,7 @@ SUBROUTINE optimise_JV (veg, climate, ktauday, bjvref)
                 
                 tmp = l_bound + (u_bound-l_bound)/100*kk
                 call total_An_Ac_Aj(tmp,An,Ac,Aj)
-                write(999,"(200e16.6)") tmp, total_photosynthesis_cost(tmp), Aj/An
+                write(999,"(200e16.6)") tmp, total_photosynthesis_cost(tmp), Aj/An, Ac-Aj, diff_Ac_Aj(tmp)
              enddo
              stop
           else
@@ -150,16 +150,22 @@ SUBROUTINE optimise_JV (veg, climate, ktauday, bjvref)
              veg%ejmax_sun(k) = veg%ejmax(k)
           endif
 
-          call total_An_Ac_Aj(l_bound, total_An, total_Ac, total_Aj)
-          write(*,*) 'l_bound, total_An, total_Ac, total_Aj: ', l_bound, total_An, total_Ac, total_Aj, total_Ac-total_Aj
-          call total_An_Ac_Aj(u_bound, total_An, total_Ac, total_Aj)
-          write(*,*) 'u_bound, total_An, total_Ac, total_Aj: ', u_bound, total_An, total_Ac, total_Aj, total_Ac-total_Aj
-          write(*,*) 'diff_Ac_Aj', diff_Ac_Aj(l_bound), diff_Ac_Aj(u_bound)
+!!$          call total_An_Ac_Aj(l_bound, total_An, total_Ac, total_Aj)
+!!$          write(*,*) 'l_bound, total_An, total_Ac, total_Aj: ', l_bound, total_An, total_Ac, total_Aj, total_Ac-total_Aj
+!!$          call total_An_Ac_Aj(u_bound, total_An, total_Ac, total_Aj)
+!!$          write(*,*) 'u_bound, total_An, total_Ac, total_Aj: ', u_bound, total_An, total_Ac, total_Aj, total_Ac-total_Aj
+!!$          write(*,*) 'diff_Ac_Aj', diff_Ac_Aj(l_bound), diff_Ac_Aj(u_bound)
+
+          if(diff_Ac_Aj(l_bound)/diff_Ac_Aj(u_bound)<0) then
           
-          if(diff_Ac_Aj(l_bound)/diff_Ac_Aj(u_bound) .lt. 0.0)  then
-             min_diff =  golden(l_bound, bjvref, u_bound , diff_Ac_Aj, 0.01, bjv_new)
+             !min_diff =  golden(l_bound, bjvref, u_bound , diff_Ac_Aj, 0.01, bjv_new)
+             bjv_new = rtbis(diff_Ac_Aj,l_bound,u_bound,0.01)
+             
              veg%vcmax_sun(k) = Neff/(1.+relcost_J*bjv_new/4.0)
              veg%ejmax_sun(k) = veg%vcmax_sun(k)*bjv_new
+
+             
+             
              write(99,"(200e16.6)") bjv_new, diff_Ac_Aj(bjvref), diff_Ac_Aj(bjv_new), veg%vcmax_sun(k), vcmax00
              stop
            endif
@@ -384,7 +390,7 @@ ENDDO
    total_An = sum(An)
    total_Ac = sum(Ac)
    total_Aj = sum(Aj)
-   diff_Ac_Aj = total_Ac - total_Aj
+   diff_Ac_Aj = (total_An - total_Aj) - 0.5
 
  END FUNCTION diff_Ac_Aj
 
@@ -526,12 +532,46 @@ END SUBROUTINE total_An_Ac_Aj
 
 
 
+FUNCTION rtbis(func,x1,x2,xacc)
+	!USE nrtype; USE nrutil, ONLY : nrerror
+	IMPLICIT NONE
+	REAL, INTENT(IN) :: x1,x2,xacc
+	REAL :: rtbis
+	INTERFACE
+		FUNCTION func(x)
+		!USE nrtype
+		IMPLICIT NONE
+		REAL, INTENT(IN) :: x
+		REAL :: func
+		END FUNCTION func
+	END INTERFACE
+	INTEGER, PARAMETER :: MAXIT=40
+	INTEGER :: j
+	REAL :: dx,f,fmid,xmid
+	fmid=func(x2)
+	f=func(x1)
+	if (f*fmid >= 0.0) stop('rtbis: root must be bracketed')
+	if (f < 0.0) then
+		rtbis=x1
+		dx=x2-x1
+	else
+		rtbis=x2
+		dx=x1-x2
+	end if
+	do j=1,MAXIT
+		dx=dx*0.5
+		xmid=rtbis+dx
+		fmid=func(xmid)
+		if (fmid <= 0.0) rtbis=xmid
+		if (abs(dx) < xacc .or. fmid == 0.0) RETURN
+	end do
+	stop('rtbis: too many bisections')
+	END FUNCTION rtbis
 
 
 
 
  
-
 
 ! ==============================================================================
 END MODULE cable_optimise_JV_module
