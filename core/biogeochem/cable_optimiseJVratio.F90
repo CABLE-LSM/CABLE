@@ -132,12 +132,12 @@ CONTAINS
                    call total_An_Ac_Aj(tmp,An,Ac,Aj)
                    write(999,"(200e16.6)") tmp, Ac,Aj,An, Ac-Aj, diff_Ac_Aj(tmp)
                 enddo
-                stop
                 bjv_new = bjvref
              endif
              veg%vcmax_sun(k) = Neff/(1.+relcost_J*bjv_new/4.0)
              veg%ejmax_sun(k) = veg%vcmax_sun(k)*bjv_new
-             write(799,"(200e16.6)") bjv_new, diff_Ac_Aj(bjvref), diff_Ac_Aj(bjv_new), veg%vcmax_sun(k), vcmax00
+             call total_An_Ac_Aj(bjv_new,An,Ac,Aj)
+             write(799,"(200e16.6)") bjv_new, diff_Ac_Aj(bjvref), diff_Ac_Aj(bjv_new), veg%vcmax_sun(k),An,Ac,Aj
 
           else
 
@@ -152,6 +152,8 @@ CONTAINS
                 veg%vcmax_sun(k) = veg%vcmax(k)
                 veg%ejmax_sun(k) = veg%ejmax(k)
              endif
+             call total_An_Ac_Aj(bjv_new,An,Ac,Aj)
+             write(799,"(200e16.6)") bjv_new, diff_Ac_Aj(bjvref), diff_Ac_Aj(bjv_new), veg%vcmax_sun(k),An,Ac,Aj
           endif
 
        else !C4
