@@ -51,7 +51,7 @@ SUBROUTINE optimise_JV (veg, climate, ktauday, bjvref)
   REAL :: Anet_cost, bjv_new, min_diff, vcmax_new
   REAL :: An, Ac, Aj, tmp, total_An, total_Ac, total_Aj
   REAL, PARAMETER :: l_bound = 0.1
-  REAL, PARAMETER :: u_bound = 3.0
+  REAL, PARAMETER :: u_bound = 6.0
 
   nt = ktauday * 5
   ALLOCATE(APAR(nt))
@@ -136,14 +136,8 @@ SUBROUTINE optimise_JV (veg, climate, ktauday, bjvref)
              Anet_cost = golden(l_bound,bjvref,u_bound,total_photosynthesis_cost,0.01,bjv_new)
              veg%vcmax_sun(k) = Neff/(1.+relcost_J*bjv_new/4.0)
              veg%ejmax_sun(k) = veg%vcmax_sun(k)*bjv_new
-             write(*,*) bjv_new
-             do kk=1,100
-                
-                tmp = l_bound + (u_bound-l_bound)/100*kk
-                call total_An_Ac_Aj(tmp,An,Ac,Aj)
-                write(999,"(200e16.6)") tmp, total_photosynthesis_cost(tmp), Aj/An, Ac-Aj, diff_Ac_Aj(tmp)
-             enddo
-             stop
+             
+            ! stop
           else
              bjv_new = bjvref
              veg%vcmax_sun(k) = veg%vcmax(k)
@@ -154,7 +148,13 @@ SUBROUTINE optimise_JV (veg, climate, ktauday, bjvref)
 !!$          write(*,*) 'l_bound, total_An, total_Ac, total_Aj: ', l_bound, total_An, total_Ac, total_Aj, total_Ac-total_Aj
 !!$          call total_An_Ac_Aj(u_bound, total_An, total_Ac, total_Aj)
 !!$          write(*,*) 'u_bound, total_An, total_Ac, total_Aj: ', u_bound, total_An, total_Ac, total_Aj, total_Ac-total_Aj
-!!$          write(*,*) 'diff_Ac_Aj', diff_Ac_Aj(l_bound), diff_Ac_Aj(u_bound)
+          write(*,*) 'diff_Ac_Aj', diff_Ac_Aj(l_bound), diff_Ac_Aj(u_bound)
+          do kk=1,100
+                
+                tmp = l_bound + (u_bound-l_bound)/100*kk
+                call total_An_Ac_Aj(tmp,An,Ac,Aj)
+                write(999,"(200e16.6)") tmp, total_photosynthesis_cost(tmp), Aj/An, Ac-Aj, diff_Ac_Aj(tmp)
+             enddo
 
           if(diff_Ac_Aj(l_bound)/diff_Ac_Aj(u_bound)<0) then
           
@@ -166,10 +166,19 @@ SUBROUTINE optimise_JV (veg, climate, ktauday, bjvref)
 
              
              
-             write(99,"(200e16.6)") bjv_new, diff_Ac_Aj(bjvref), diff_Ac_Aj(bjv_new), veg%vcmax_sun(k), vcmax00
-             stop
-           endif
+             write(799,"(200e16.6)") bjv_new, diff_Ac_Aj(bjvref), diff_Ac_Aj(bjv_new), veg%vcmax_sun(k), vcmax00
+             !stop
+         
              
+          else
+             
+             bjv_new = bjvref
+             veg%vcmax_sun(k) = veg%vcmax(k)
+             veg%ejmax_sun(k) = veg%ejmax(k)
+             
+          endif
+          
+         
           
 
           
@@ -184,9 +193,12 @@ SUBROUTINE optimise_JV (veg, climate, ktauday, bjvref)
            if (k==1 ) then
             !  write(99,"(200e16.6)") bjv_new, total_photosynthesis(bjv_new), bjvref, total_photosynthesis(bjvref)
               call total_An_Ac_Aj(bjv_new,An,Ac,Aj)
-               write(99,"(200e16.6)") bjv_new,An,Ac,Aj, Aj/(Ac+Aj)
-           endif
+              write(99,"(200e16.6)") bjv_new,An,Ac,Aj, Aj/(Ac+Aj),veg%vcmax_sun(k)
+              if ((Aj/(Ac+Aj)) .gt. 0.6) then
+                 stop
 
+              endif
+           endif
 
 !!$       if (k==2) then
 !!$          write(6333,"(200e16.6)") APAR
@@ -386,11 +398,11 @@ ENDDO
       endif
       j = j+1
    ENDDO
-
+   ! write(*,*) 'An, Ac, Aj: ',   total_An, total_A, total_Aj
    total_An = sum(An)
    total_Ac = sum(Ac)
    total_Aj = sum(Aj)
-   diff_Ac_Aj = (total_An - total_Aj) - 0.5
+   diff_Ac_Aj = total_Ac-total_Aj
 
  END FUNCTION diff_Ac_Aj
 
@@ -511,7 +523,7 @@ DO k=1,nt
       CALL fabc(cs(k), g0, x, gamma, beta, gammastar, Rd, a, b, c1)
       CALL fAn(a,b,c1,Ane) ! e-transport limited
       An(j) = min(Anc, Ane)
-      write(*,*) An(j), Anc, Ane
+      !write(*,*) An(j), Anc, Ane
       if (Anc < Ane) Ac(j) = Anc
       if (Ane < Anc) Aj(j) = Ane
       
@@ -571,7 +583,7 @@ FUNCTION rtbis(func,x1,x2,xacc)
 
 
 
- 
+
 
 ! ==============================================================================
 END MODULE cable_optimise_JV_module
