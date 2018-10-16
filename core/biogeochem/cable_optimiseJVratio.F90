@@ -35,39 +35,38 @@ MODULE cable_optimise_JV_module
  INTEGER :: nt,kk
  !REAL, PARAMETER :: relcost_J = 1.6 ! Chen et al. Oecologia, 1993, 93: 63-69
  REAL, PARAMETER :: relcost_J = 2.3
+ LOGICAL, PARAMETER :: coord = .TRUE.  ! adjust ratioJV to force co-oridnation.
+ ! otherwise maximise photosynthesis
 CONTAINS
 ! ==============================================================================
 
 
-SUBROUTINE optimise_JV (veg, climate, ktauday, bjvref)
+  SUBROUTINE optimise_JV (veg, climate, ktauday, bjvref)
 
-  IMPLICIT NONE
+    IMPLICIT NONE
 
-  TYPE (veg_parameter_type), INTENT(IN)    :: veg  ! vegetation parameters
-  TYPE (climate_type), INTENT(IN)       :: climate  ! climate variables
-  INTEGER, INTENT(IN) :: ktauday
-  REAL, INTENT(IN) :: bjvref
-  INTEGER:: k
-  REAL :: Anet_cost, bjv_new, min_diff, vcmax_new
-  REAL :: An, Ac, Aj, tmp, total_An, total_Ac, total_Aj
-  REAL, PARAMETER :: l_bound = 0.1
-  REAL, PARAMETER :: u_bound = 6.0
+    TYPE (veg_parameter_type), INTENT(IN)    :: veg  ! vegetation parameters
+    TYPE (climate_type), INTENT(IN)       :: climate  ! climate variables
+    INTEGER, INTENT(IN) :: ktauday
+    REAL, INTENT(IN) :: bjvref
+    INTEGER:: k
+    REAL :: Anet_cost, bjv_new, min_diff, vcmax_new
+    REAL :: An, Ac, Aj, tmp, total_An, total_Ac, total_Aj
+    REAL, PARAMETER :: l_bound = 0.1
+    REAL, PARAMETER :: u_bound = 6.0
 
-  nt = ktauday * 5
-  ALLOCATE(APAR(nt))
-  ALLOCATE(Dleaf(nt))
-  ALLOCATE(Tleaf(nt))
-  ALLOCATE(cs(nt))
-  ALLOCATE(scalex(nt))
-  ALLOCATE(fwsoil(nt))
+    nt = ktauday * 5
+    ALLOCATE(APAR(nt))
+    ALLOCATE(Dleaf(nt))
+    ALLOCATE(Tleaf(nt))
+    ALLOCATE(cs(nt))
+    ALLOCATE(scalex(nt))
+    ALLOCATE(fwsoil(nt))
 
-  ! assign local ptrs to constants defined in cable_data_module
+    ! assign local ptrs to constants defined in cable_data_module
     CALL point2constants(C)
 
-
-    
     DO k=1,mp
-    !DO k=7,7
        if (veg%frac4(k).lt.0.001) then ! not C4
           vcmax00 = veg%vcmax(k) ! vcmax at standard temperature, and bjvref
           Kc0 = veg%conkc0(k)
@@ -76,15 +75,12 @@ SUBROUTINE optimise_JV (veg, climate, ktauday, bjvref)
           eko = veg%eko(k)
           g1 = veg%g1(k)
           Rd0 = veg%cfrd(k) * veg%vcmax(k)
-          !fwsoil =(climate%dmoist_31(k,31))
           ! soil-moisture modifier to stomatal conductance
           fwsoil = climate%fwsoil(k,:)
-          alpha = veg%alpha(k) ! quantum efficiency for
-          ! electron transport 
+          alpha = veg%alpha(k) ! quantum efficiency for electron transport 
           convex = veg%convex(k) 
           Neff = vcmax00 + relcost_J*bjvref*vcmax00/4. ! effective nitrogen amount 
           !for distribution between e-limited and c-limited processes
- 
 
           ! optimisation for shade leaves
           APAR = climate%APAR_leaf_shade(k,:)*1e-6;
@@ -93,34 +89,30 @@ SUBROUTINE optimise_JV (veg, climate, ktauday, bjvref)
           cs = climate%cs_shade(k,:)*1e-6
           scalex = climate%scalex_shade(k,:)
 
-!!$if (k==2) then
-!!$write(*,*) 'APAR',  climate%APAR_leaf_shade(k,:)
-!!$   write(5333,"(200e16.6)") APAR
-!!$   write(5334,"(200e16.6)") Dleaf
-!!$   write(5335,"(200e16.6)") Tleaf
-!!$   write(5336,"(200e16.6)") cs
-!!$   write(5337,"(200e16.6)") scalex
-!!$
-!!$endif
 
-!write(*,*) 'init guesses',total_photosynthesis_cost(bjvref) , &
-!total_photosynthesis_cost(l_bound), total_photosynthesis_cost(u_bound)
-!write(*,*)
-          if(total_photosynthesis_cost(bjvref).lt.total_photosynthesis_cost(l_bound).and. &
-               total_photosynthesis_cost(bjvref).lt.total_photosynthesis_cost(u_bound)) then
-
-             Anet_cost = golden(l_bound,bjvref,u_bound,total_photosynthesis_cost,0.01,bjv_new)
-             veg%vcmax_shade(k) = Neff/(1.+relcost_J*bjv_new/4.0)
-             veg%ejmax_shade(k) = veg%vcmax_shade(k)*bjv_new
+          if (coord) then
+             if(diff_Ac_Aj(l_bound)/diff_Ac_Aj(u_bound)<0) then
+                bjv_new = rtbis(diff_Ac_Aj,l_bound,u_bound,0.01)
+             else
+                bjv_new = bjvref
+             endif
+             veg%vcmax_sun(k) = Neff/(1.+relcost_J*bjv_new/4.0)
+             veg%ejmax_sun(k) = veg%vcmax_sun(k)*bjv_new
           else
-             bjv_new = bjvref
-             veg%vcmax_shade(k) = veg%vcmax(k)
-             veg%ejmax_shade(k) = veg%ejmax(k)
+
+             if(total_photosynthesis_cost(bjvref).lt.total_photosynthesis_cost(l_bound).and. &
+                  total_photosynthesis_cost(bjvref).lt.total_photosynthesis_cost(u_bound)) then
+
+                Anet_cost = golden(l_bound,bjvref,u_bound,total_photosynthesis_cost,0.01,bjv_new)
+                veg%vcmax_shade(k) = Neff/(1.+relcost_J*bjv_new/4.0)
+                veg%ejmax_shade(k) = veg%vcmax_shade(k)*bjv_new
+             else
+                bjv_new = bjvref
+                veg%vcmax_shade(k) = veg%vcmax(k)
+                veg%ejmax_shade(k) = veg%ejmax(k)
+             endif
           endif
-          
-          !Anet = total_photosynthesis(bjv_new)
-!write(*,*) bjv_new, Anet,  total_photosynthesis(bjvref), veg%vcmax_shade(k),  veg%ejmax_shade(k),veg%vcmax(k),   veg%ejmax(k)
-   
+
           ! optimisation for sun leaves
           APAR = climate%APAR_leaf_sun(k,:)*1e-6;
           Dleaf = max(climate%Dleaf_sun(k,:), 50.0)*1e-3 ! Pa -> kPa
@@ -128,61 +120,41 @@ SUBROUTINE optimise_JV (veg, climate, ktauday, bjvref)
           cs = climate%cs_sun(k,:)*1e-6
           scalex = climate%scalex_sun(k,:)
 
+          if (coord) then
+             write(*,*) 'diff_Ac_Aj', diff_Ac_Aj(l_bound), diff_Ac_Aj(u_bound)
 
 
-          if(total_photosynthesis_cost(bjvref).lt.total_photosynthesis_cost(l_bound).and. &
-               total_photosynthesis_cost(bjvref).lt.total_photosynthesis_cost(u_bound)) then
-
-             Anet_cost = golden(l_bound,bjvref,u_bound,total_photosynthesis_cost,0.01,bjv_new)
+             if(diff_Ac_Aj(l_bound)/diff_Ac_Aj(u_bound)<0) then
+                bjv_new = rtbis(diff_Ac_Aj,l_bound,u_bound,0.01)
+             else
+                do kk=1,100
+                   tmp = l_bound + (u_bound-l_bound)/100*kk
+                   call total_An_Ac_Aj(tmp,An,Ac,Aj)
+                   write(999,"(200e16.6)") tmp, Ac,Aj,An, Ac-Aj, diff_Ac_Aj(tmp)
+                enddo
+                stop
+                bjv_new = bjvref
+             endif
              veg%vcmax_sun(k) = Neff/(1.+relcost_J*bjv_new/4.0)
              veg%ejmax_sun(k) = veg%vcmax_sun(k)*bjv_new
-             
-            ! stop
-          else
-             bjv_new = bjvref
-             veg%vcmax_sun(k) = veg%vcmax(k)
-             veg%ejmax_sun(k) = veg%ejmax(k)
-          endif
-
-!!$          call total_An_Ac_Aj(l_bound, total_An, total_Ac, total_Aj)
-!!$          write(*,*) 'l_bound, total_An, total_Ac, total_Aj: ', l_bound, total_An, total_Ac, total_Aj, total_Ac-total_Aj
-!!$          call total_An_Ac_Aj(u_bound, total_An, total_Ac, total_Aj)
-!!$          write(*,*) 'u_bound, total_An, total_Ac, total_Aj: ', u_bound, total_An, total_Ac, total_Aj, total_Ac-total_Aj
-          write(*,*) 'diff_Ac_Aj', diff_Ac_Aj(l_bound), diff_Ac_Aj(u_bound)
-          do kk=1,100
-                
-                tmp = l_bound + (u_bound-l_bound)/100*kk
-                call total_An_Ac_Aj(tmp,An,Ac,Aj)
-                write(999,"(200e16.6)") tmp, total_photosynthesis_cost(tmp), Aj/An, Ac-Aj, diff_Ac_Aj(tmp)
-             enddo
-
-          if(diff_Ac_Aj(l_bound)/diff_Ac_Aj(u_bound)<0) then
-          
-             !min_diff =  golden(l_bound, bjvref, u_bound , diff_Ac_Aj, 0.01, bjv_new)
-             bjv_new = rtbis(diff_Ac_Aj,l_bound,u_bound,0.01)
-             
-             veg%vcmax_sun(k) = Neff/(1.+relcost_J*bjv_new/4.0)
-             veg%ejmax_sun(k) = veg%vcmax_sun(k)*bjv_new
-
-             
-             
              write(799,"(200e16.6)") bjv_new, diff_Ac_Aj(bjvref), diff_Ac_Aj(bjv_new), veg%vcmax_sun(k), vcmax00
-             !stop
-         
-             
-          else
-             
-             bjv_new = bjvref
-             veg%vcmax_sun(k) = veg%vcmax(k)
-             veg%ejmax_sun(k) = veg%ejmax(k)
-             
-          endif
-          
-         
-          
 
-          
-       else
+          else
+
+             if(total_photosynthesis_cost(bjvref).lt.total_photosynthesis_cost(l_bound).and. &
+                  total_photosynthesis_cost(bjvref).lt.total_photosynthesis_cost(u_bound)) then
+
+                Anet_cost = golden(l_bound,bjvref,u_bound,total_photosynthesis_cost,0.01,bjv_new)
+                veg%vcmax_sun(k) = Neff/(1.+relcost_J*bjv_new/4.0)
+                veg%ejmax_sun(k) = veg%vcmax_sun(k)*bjv_new
+             else
+                bjv_new = bjvref
+                veg%vcmax_sun(k) = veg%vcmax(k)
+                veg%ejmax_sun(k) = veg%ejmax(k)
+             endif
+          endif
+
+       else !C4
           bjv_new = bjvref
           veg%vcmax_shade(k) = veg%vcmax(k)
           veg%ejmax_shade(k) = veg%ejmax(k)
@@ -190,39 +162,18 @@ SUBROUTINE optimise_JV (veg, climate, ktauday, bjvref)
           veg%vcmax_sun(k) = veg%vcmax(k)
           veg%ejmax_sun(k) = veg%ejmax(k)
        endif
-           if (k==1 ) then
-            !  write(99,"(200e16.6)") bjv_new, total_photosynthesis(bjv_new), bjvref, total_photosynthesis(bjvref)
-              call total_An_Ac_Aj(bjv_new,An,Ac,Aj)
-              write(99,"(200e16.6)") bjv_new,An,Ac,Aj, Aj/(Ac+Aj),veg%vcmax_sun(k)
-              if ((Aj/(Ac+Aj)) .gt. 0.6) then
-                 stop
 
-              endif
-           endif
-
-!!$       if (k==2) then
-!!$          write(6333,"(200e16.6)") APAR
-!!$          write(6334,"(200e16.6)") Dleaf
-!!$          write(6335,"(200e16.6)") Tleaf
-!!$          write(6336,"(200e16.6)") cs
-!!$          write(6337,"(200e16.6)") scalex
-!!$       endif
-!!$
-!!$if (k==2) then
-!!$   write(4333,"(200e16.6)") vcmax00, g1, fwsoil, alpha, convex, Rd0, veg%vcmax_shade(k) , &
-!!$        veg%ejmax_shade(k) , veg%vcmax_sun(k) , veg%ejmax_sun(k) 
-!!$endif
 
     ENDDO
 
-DEALLOCATE(APAR)
-DEALLOCATE(Dleaf)
-DEALLOCATE(Tleaf)
-DEALLOCATE(cs)
-DEALLOCATE(scalex)
-DEALLOCATE(fwsoil)
+    DEALLOCATE(APAR)
+    DEALLOCATE(Dleaf)
+    DEALLOCATE(Tleaf)
+    DEALLOCATE(cs)
+    DEALLOCATE(scalex)
+    DEALLOCATE(fwsoil)
 
-END SUBROUTINE optimise_JV
+  END SUBROUTINE optimise_JV
  ! ------------------------------------------------------------------------------
 subroutine fAn(a,b,c,A2)
   REAL, INTENT(IN) :: a,b,c
@@ -398,7 +349,6 @@ ENDDO
       endif
       j = j+1
    ENDDO
-   ! write(*,*) 'An, Ac, Aj: ',   total_An, total_A, total_Aj
    total_An = sum(An)
    total_Ac = sum(Ac)
    total_Aj = sum(Aj)
