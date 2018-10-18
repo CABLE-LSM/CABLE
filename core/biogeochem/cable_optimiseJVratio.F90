@@ -35,7 +35,7 @@ MODULE cable_optimise_JV_module
  INTEGER :: nt,kk
  !REAL, PARAMETER :: relcost_J = 1.6 ! Chen et al. Oecologia, 1993, 93: 63-69
  REAL, PARAMETER :: relcost_J = 2.3
- LOGICAL, PARAMETER :: coord = .TRUE.  ! adjust ratioJV to force co-oridnation.
+ LOGICAL, PARAMETER :: coord = .False.  ! adjust ratioJV to force co-oridnation.
  ! otherwise maximise photosynthesis
 CONTAINS
 ! ==============================================================================
@@ -52,8 +52,8 @@ CONTAINS
     INTEGER:: k
     REAL :: Anet_cost, bjv_new, min_diff, vcmax_new
     REAL :: An, Ac, Aj, tmp, total_An, total_Ac, total_Aj
-    REAL, PARAMETER :: l_bound = 0.1
-    REAL, PARAMETER :: u_bound = 6.0
+    REAL, PARAMETER :: l_bound = 0.5
+    REAL, PARAMETER :: u_bound = 4.0
 
     nt = ktauday * 5
     ALLOCATE(APAR(nt))
@@ -121,14 +121,17 @@ CONTAINS
           scalex = climate%scalex_sun(k,:)
 
           if (coord) then
-             write(*,*) 'diff_Ac_Aj', diff_Ac_Aj(l_bound), diff_Ac_Aj(u_bound)
+             !write(*,*) 'diff_Ac_Aj', diff_Ac_Aj(l_bound), diff_Ac_Aj(u_bound)
 
 
              if(diff_Ac_Aj(l_bound)/diff_Ac_Aj(u_bound)<0) then
                 bjv_new = rtbis(diff_Ac_Aj,l_bound,u_bound,0.01)
+                call total_An_Ac_Aj(bjv_new,An,Ac,Aj)
+                 write(*,*) 'bjv, An,Ac,Aj,Aj/An: ' ,bjv_new,An,Ac,Aj, Aj/An
+                
              else
                 do kk=1,100
-                   tmp = l_bound + (u_bound-l_bound)/100*kk
+                   tmp = l_bound + (u_bound-l_bound)/100*(kk-1)
                    call total_An_Ac_Aj(tmp,An,Ac,Aj)
                    write(999,"(200e16.6)") tmp, Ac,Aj,An, Ac-Aj, diff_Ac_Aj(tmp)
                 enddo
@@ -137,7 +140,8 @@ CONTAINS
              veg%vcmax_sun(k) = Neff/(1.+relcost_J*bjv_new/4.0)
              veg%ejmax_sun(k) = veg%vcmax_sun(k)*bjv_new
              call total_An_Ac_Aj(bjv_new,An,Ac,Aj)
-             write(799,"(200e16.6)") bjv_new, diff_Ac_Aj(bjvref), diff_Ac_Aj(bjv_new), veg%vcmax_sun(k),An,Ac,Aj
+             
+        
 
           else
 
@@ -153,8 +157,9 @@ CONTAINS
                 veg%ejmax_sun(k) = veg%ejmax(k)
              endif
              call total_An_Ac_Aj(bjv_new,An,Ac,Aj)
-             write(799,"(200e16.6)") bjv_new, diff_Ac_Aj(bjvref), diff_Ac_Aj(bjv_new), veg%vcmax_sun(k),An,Ac,Aj
+            
           endif
+          write(799,"(200e16.6)") bjv_new,An,Ac,Aj, Aj/An,veg%vcmax_sun(k)
 
        else !C4
           bjv_new = bjvref
