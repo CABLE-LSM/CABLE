@@ -1142,8 +1142,8 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
        ENDIF
 
        IF (MetDate /= bios_rundate) THEN
-         write(*,*) 'Expecting to read met for ',MetDate,' &
-              but actually read met for ',bios_rundate
+         write(*,*) 'Expecting to read met for ',MetDate, &
+              'but actually read met for ',bios_rundate
          write(*,*) 'Program stopped'
          STOP
        END IF

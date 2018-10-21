@@ -612,8 +612,16 @@ CONTAINS
              met%tvrad = met%tk
 
              ! Feedback prognostic vcmax and daily LAI from casaCNP to CABLE
-             IF (l_vcmaxFeedbk) CALL casa_feedback( ktau, veg, casabiome,    &
-                  casapool, casamet, climate, ktauday )
+             IF (l_vcmaxFeedbk) then
+                CALL casa_feedback( ktau, veg, casabiome,    &
+                     casapool, casamet, climate, ktauday )
+             ELSE
+                veg%vcmax_shade = veg%vcmax
+                veg%ejmax_shade = veg%ejmax
+       
+                veg%vcmax_sun = veg%vcmax
+                veg%ejmax_sun = veg%ejmax
+             ENDIF
 
              IF (l_laiFeedbk) veg%vlai(:) = REAL(casamet%glai(:))
 

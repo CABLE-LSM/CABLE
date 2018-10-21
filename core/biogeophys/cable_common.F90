@@ -84,14 +84,15 @@ MODULE cable_common_module
 
      CHARACTER(LEN=20) ::                                                     &
           FWSOIL_SWITCH, &     !
-          PHENOLOGY_SWITCH = 'MODIS'   ! alternative is 'climate'
+          PHENOLOGY_SWITCH = 'climate'   ! alternative is 'climate'
     !--- LN ------------------------------------------[
 
      ! Ticket #56
      CHARACTER(LEN=20) ::                                                     &
     ! GS_SWITCH='leuning'
      GS_SWITCH='medlyn'
-      
+     
+     
      CHARACTER(LEN=10) :: RunIden       = 'STANDARD'  !
      CHARACTER(LEN=4)  :: MetType       = ' ' !
      CHARACTER(LEN=20) :: SOIL_STRUC    = "default" ! 'default' or 'sli'
@@ -117,10 +118,10 @@ MODULE cable_common_module
           POPLUC                 = .FALSE., &
           finite_gm              = .FALSE., &     ! finite mesophyll conductance
           acclim_auto            = .FALSE., &
-          coordinate_photosyn    = .FALSE., &
+          coordinate_photosyn    = .TRUE., &
           limit_labile           = .FALSE.
     
-     INTEGER  :: &
+     INTEGER  ::  &
           CASA_SPIN_STARTYEAR = 1950, &
           CASA_SPIN_ENDYEAR   = 1960, &
           YEARSTART           = 0, &

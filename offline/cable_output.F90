@@ -67,7 +67,7 @@ MODULE cable_output_module
                     PlantTurnover, PlantTurnoverLeaf, PlantTurnoverFineRoot, &
                     PlantTurnoverWood, PlantTurnoverWoodDist, PlantTurnoverWoodCrowding, &
                     PlantTurnoverWoodResourceLim, dCdt, Area, LandUseFlux, patchfrac, &
-                    vcmax, hc, GPP_sh, GPP_sl, GPP_shC, GPP_slC, GPP_shJ, GPP_slJ, eta_GPP_cs, &
+                    vcmax,ejmax, hc, GPP_sh, GPP_sl, GPP_shC, GPP_slC, GPP_shJ, GPP_slJ, eta_GPP_cs, &
                     dGPPdcs, CO2s
   END TYPE out_varID_type
   TYPE(out_varID_type) :: ovid ! netcdf variable IDs for output variables
@@ -201,6 +201,7 @@ MODULE cable_output_module
     REAL(KIND=4), POINTER, DIMENSION(:) :: Area
     REAL(KIND=4), POINTER, DIMENSION(:) :: LandUseFlux
     REAL(KIND=4), POINTER, DIMENSION(:) :: vcmax
+    REAL(KIND=4), POINTER, DIMENSION(:) :: ejmax
     REAL(KIND=4), POINTER, DIMENSION(:) :: patchfrac
     REAL(KIND=4), POINTER, DIMENSION(:) :: hc
     REAL(KIND=4), POINTER, DIMENSION(:) :: GPP_sh
@@ -699,10 +700,16 @@ CONTAINS
     ! Alexis
     IF(output%veg) THEN
        CALL define_ovar(ncid_out, ovid%vcmax, 'vcmax', '-',                        &
-                        'Vcmax', patchout%LAI, 'dummy', xID,         &
+                        'Vcmax at 25 degC [molC/m^2/s]', patchout%LAI, 'dummy', xID,         &
                         yID, zID, landID, patchID, tID)
        ALLOCATE(out%vcmax(mp))
        out%vcmax = 0.0 ! initialise
+
+       CALL define_ovar(ncid_out, ovid%ejmax, 'jmax', '-',                        &
+                        'jmax at 25 degC [mol(e)/m^2/s]', patchout%LAI, 'dummy', xID,         &
+                        yID, zID, landID, patchID, tID)
+       ALLOCATE(out%ejmax(mp))
+       out%ejmax = 0.0 ! initialise
     END IF
     ! Alexis
 
@@ -843,8 +850,8 @@ CONTAINS
 
     IF(output%carbon .OR. output%NBP) THEN    
        CALL define_ovar(ncid_out, ovid%NBP, 'NBP', 'umol/m^2/s',               &
-                        'Net Biosphere Production &
-                        (uptake +ve)', patchout%NBP,         &
+                        'Net Biosphere Production (uptake +ve)'           &
+                        , patchout%NBP,         &
                         'dummy', xID, yID, zID, landID, patchID, tID)
        ALLOCATE(out%NBP(mp))
        out%NBP = 0.0 ! initialise
@@ -1091,9 +1098,9 @@ CONTAINS
     IF(output%params .OR. output%frac4) CALL define_ovar(ncid_out, opid%frac4, &
                               'frac4', '-', 'Fraction of plants which are C4', &
                          patchout%frac4, 'real', xID, yID, zID, landID, patchID)
-    IF(output%params .OR. output%ejmax) CALL define_ovar(ncid_out, opid%ejmax, &
-       'ejmax', 'mol/m^2/s', 'Max potential electron transport rate top leaf', &
-                         patchout%ejmax, 'real', xID, yID, zID, landID, patchID)
+!!$    IF(output%params .OR. output%ejmax) CALL define_ovar(ncid_out, opid%ejmax, &
+!!$       'ejmax', 'mol/m^2/s', 'Max potential electron transport rate top leaf', &
+!!$                         patchout%ejmax, 'real', xID, yID, zID, landID, patchID)
     ! Alexis
     !IF(output%params .OR. output%vcmax) CALL define_ovar(ncid_out, opid%vcmax, &
     !         'vcmax', 'mol/m^2/s', 'Maximum RuBP carboxylation rate top leaf', &
@@ -1311,8 +1318,8 @@ CONTAINS
                                          ranges%canst1, patchout%canst1, 'real')
     IF(output%params .OR. output%dleaf) CALL write_ovar(ncid_out, opid%dleaf,  &
               'dleaf', REAL(veg%dleaf, 4), ranges%dleaf, patchout%dleaf, 'real')
-    IF(output%params .OR. output%ejmax) CALL write_ovar(ncid_out, opid%ejmax,  &
-              'ejmax', REAL(veg%ejmax, 4), ranges%ejmax, patchout%ejmax, 'real')
+!!$    IF(output%params .OR. output%ejmax) CALL write_ovar(ncid_out, opid%ejmax,  &
+!!$              'ejmax', REAL(veg%ejmax, 4), ranges%ejmax, patchout%ejmax, 'real')
     !Alexis
     !IF(output%params .OR. output%vcmax) CALL write_ovar(ncid_out, opid%vcmax,  &
     !          'vcmax', REAL(veg%vcmax, 4), ranges%vcmax, patchout%vcmax, 'real')
@@ -2174,6 +2181,18 @@ CONTAINS
           ! Reset temporary output variable:
           out%vcmax = 0.0
        END IF
+
+       out%ejmax = out%ejmax + REAL(veg%ejmax, 4)
+       IF(writenow) THEN
+          ! Divide accumulated variable by number of accumulated time steps:
+          out%ejmax = out%ejmax/REAL(output%interval, 4)
+          ! Write value to file:
+          CALL write_ovar(out_timestep, ncid_out, ovid%ejmax, 'jmax', out%ejmax,    &
+                          ranges%vcmax, patchout%LAI, 'default', met)
+          ! Reset temporary output variable:
+          out%ejmax = 0.0
+       END IF
+       
     END IF
 
     !------------------------WRITE BALANCES DATA--------------------------------
@@ -2236,6 +2255,10 @@ CONTAINS
        out%dGPPdcs =  out%dGPPdcs + REAL(canopy%dAdcs/ 1e-6 , 4)
        out%CO2s =  out%CO2s + REAL(canopy%cs/ 1e-6 , 4)
        IF(writenow) THEN
+          ! the three variables below were constructed as  sums over sl & sh leaves, weighted by GPP
+          out%eta_GPP_cs = out%eta_GPP_cs/REAL(output%interval, 4)
+          out%dGPPdcs = out%dGPPdcs/REAL(output%interval, 4)
+          out%CO2s = out%CO2s/REAL(output%interval, 4)
           ! Divide accumulated variable by number of accumulated time steps:
           out%GPP_sh = out%GPP_sh/REAL(output%interval, 4)
           out%GPP_sl = out%GPP_sl/REAL(output%interval, 4)
@@ -2243,9 +2266,7 @@ CONTAINS
           out%GPP_slC = out%GPP_slC/REAL(output%interval, 4)
           out%GPP_shJ = out%GPP_shJ/REAL(output%interval, 4)
           out%GPP_slJ = out%GPP_slJ/REAL(output%interval, 4)
-          out%eta_GPP_cs = out%eta_GPP_cs/REAL(output%interval, 4)
-          out%dGPPdcs = out%dGPPdcs/REAL(output%interval, 4)
-          out%CO2s = out%CO2s/REAL(output%interval, 4)
+          
           
           ! Write value to file:
           CALL write_ovar(out_timestep, ncid_out, ovid%GPP_sh, 'GPP_sh', out%GPP_sh,    &

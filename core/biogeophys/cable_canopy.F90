@@ -2292,6 +2292,7 @@ CONTAINS
     where (anrubiscoy(:,1) .gt. an_y(:,1)) canopy%A_slC = 0.0
     where (anrubpy(:,1) .gt. an_y(:,1))    canopy%A_slJ = 0.0
 
+
 !!$    where (sum(met%fsd,2) < 40.0)
 !!$       canopy%A_shC = 0.0
 !!$       canopy%A_shJ = 0.0

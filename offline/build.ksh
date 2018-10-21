@@ -13,7 +13,8 @@ host_valh()
    # GFORTRAN
    export FC=gfortran
    # debug
-   export CFLAGS="-Wall -W -O -g -Wno-maybe-uninitialized -cpp -ffree-form -ffixed-line-length-132 -Wno-tabs -Wconversion" # -DVanessas_common"
+  
+   export CFLAGS=" -Wall -W -O -g -Wno-maybe-uninitialized -cpp -ffree-form -ffixed-line-length-132 -Wno-tabs -Wconversion" # -DVanessas_common"
    # # release
    # export CFLAGS="-O3 -Wno-aggressive-loop-optimizations -cpp -ffree-form -ffixed-line-length-132"
    export LD=''

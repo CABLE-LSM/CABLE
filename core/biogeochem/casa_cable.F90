@@ -619,7 +619,7 @@ END SUBROUTINE write_casa_dump
 !!$       endif
        
        if (ivt .EQ. 7 .OR.ivt .EQ. 9  ) then
-          veg%vcmax(np) = 1.0e-5 ! special for C4 grass: set here to value from  parameter file
+          ! special for C4 grass: keep value from  parameter file
           veg%ejmax(np) = 2.0 * veg%vcmax(np)
        elseif (ivt.eq.1) then
            ! account here for spring recovery
@@ -668,19 +668,22 @@ END SUBROUTINE write_casa_dump
 ENDDO
 
 if (mod(ktau,ktauday) ==1) then
-   if (cable_user%call_climate .and. (TRIM(cable_user%vcmax).eq.'Walker2014' .OR. &
-        TRIM(cable_user%vcmax).eq.'standard')  ) then
-       CALL optimise_JV(veg,climate,ktauday,bjvref)
-
-    else
-
-       veg%vcmax_shade = veg%vcmax
-       veg%ejmax_shade = veg%ejmax
-       
-       veg%vcmax_sun = veg%vcmax
-       veg%ejmax_sun = veg%ejmax
+   if (cable_user%coordinate_photosyn) then
+      CALL optimise_JV(veg,climate,ktauday,bjvref)
    endif
 endif
+
+if (cable_user%coordinate_photosyn) then
+   veg%vcmax = veg%vcmax_sun ! diagnostic only
+   veg%ejmax = veg%ejmax_sun ! diagnostic only
+else
+   veg%vcmax_shade = veg%vcmax
+   veg%ejmax_shade = veg%ejmax
+   
+   veg%vcmax_sun = veg%vcmax
+   veg%ejmax_sun = veg%ejmax
+endif
+
 
 
 
