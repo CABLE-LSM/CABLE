@@ -187,6 +187,12 @@ CONTAINS
     met%qvair = met%qv
     canopy%tv = met%tvair
 
+    ! Initialise sunlit and shaded Ac and Aj diagnostics
+    canopy%A_shC = 0.0
+    canopy%A_shJ = 0.0
+    canopy%A_slC = 0.0
+    canopy%A_slJ = 0.0
+
     CALL define_air (met, air)
 
     CALL qsatfjh(qstvair,met%tvair-C%tfrz,met%pmb)
