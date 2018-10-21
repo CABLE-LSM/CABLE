@@ -2953,7 +2953,7 @@ END SELECT
      ! Close NetCDF file:
      STATUS = NF90_close(FILE_ID)
      IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-     WRITE(*,*) " Casa Output written to ",fname
+     WRITE(*,*) " Casa Output written to ", TRIM(fname)
   ENDIF
 
 END SUBROUTINE WRITE_CASA_OUTPUT_NC
