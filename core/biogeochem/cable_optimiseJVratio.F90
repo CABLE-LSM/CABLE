@@ -91,7 +91,7 @@ CONTAINS
 
 
           if (coord) then
-             if(diff_Ac_Aj(l_bound)/diff_Ac_Aj(u_bound)<0) then
+             if(diff_Ac_Aj(l_bound)*diff_Ac_Aj(u_bound)<0) then
                 bjv_new = rtbis(diff_Ac_Aj,l_bound,u_bound,0.01)
              else
                 bjv_new = bjvref
@@ -124,7 +124,7 @@ CONTAINS
              !write(*,*) 'diff_Ac_Aj', diff_Ac_Aj(l_bound), diff_Ac_Aj(u_bound)
 
 
-             if(diff_Ac_Aj(l_bound)/diff_Ac_Aj(u_bound)<0) then
+             if(diff_Ac_Aj(l_bound)*diff_Ac_Aj(u_bound)<0) then
                 bjv_new = rtbis(diff_Ac_Aj,l_bound,u_bound,0.01)
                 !call total_An_Ac_Aj(bjv_new,An,Ac,Aj)
                 ! write(*,*) 'coord: bjv, An,Ac,Aj,Aj/An: ' ,bjv_new,An,Ac,Aj, Aj/An

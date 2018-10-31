@@ -118,7 +118,7 @@ MODULE cable_common_module
           POPLUC                 = .FALSE., &
           finite_gm              = .FALSE., &     ! finite mesophyll conductance
           acclim_auto            = .FALSE., &
-          coordinate_photosyn    = .TRUE., &
+          coordinate_photosyn    = .FALSE., &
           limit_labile           = .FALSE.
     
      INTEGER  ::  &
@@ -142,8 +142,8 @@ MODULE cable_common_module
           !SMRF_NAME = 'Trudinger2016',   & ! Soil Moist Respiration Function
           !STRF_NAME = 'CASA-CNP'     ! Soil Temp Respiration Function
           !STRF_NAME = 'LT1994'    ! Soil Temp Respiration Function
-          STRF_NAME = 'DAMM',  &     ! DAMM Reverse M-M Enzyme Kinetics (Sihi et al, AFM 2018)
-          SMRF_NAME = 'DAMM'       ! ditto
+          STRF_NAME = 'CASA-CNP',  &     ! DAMM Reverse M-M Enzyme Kinetics (Sihi et al, AFM 2018)
+          SMRF_NAME = 'CASA-CNP'       ! ditto
      LOGICAL ::                                                               &
           INITIALIZE_MAPPING    = .FALSE., & !
           CONSISTENCY_CHECK     = .FALSE., & !
