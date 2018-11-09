@@ -2784,7 +2784,8 @@ END SUBROUTINE report_parameters
           nhorz=ms
        ENDIF
 
-       IF ((nlon*nlat*npatch*nhorz .ne. xdimsize*ydimsize*ms*mpatch)) THEN
+       IF ((nlon*nlat*npatch*nhorz .ne. xdimsize*ydimsize*ms*mpatch) .and. &
+           cable_user%MetType .ne. 'site') THEN
           WRITE(logn,*) 'Errors reading the dimensions from '//filename%gw_elev
 
           IF (nlon .lt. 0 .or. nlon .ne. xdimsize) &
@@ -2797,6 +2798,8 @@ END SUBROUTINE report_parameters
              WRITE(logn,*) 'npatch: found ',npatch,' need to have ',mpatch,' to match forcing.'
    
              WRITE(logn,*) 'Setting dims to forcing file values, CHECK THE OUTPUT!'
+             !amu561: code should probably stop here instead of re-writing
+             !dimensions?
              nlon=xdimsize; nlat=ydimsize; npatch=mpatch; nhorz=ms
        ENDIF
 
