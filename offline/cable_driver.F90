@@ -426,12 +426,11 @@ PROGRAM cable_offline_driver
 
           write(str1,'(i4)') curyear
           str1 = adjustl(str1)
-          write(str2,'(i2)') 1
+          write(str2,'(i02)') 1
           str2 = adjustl(str2)
-          write(str3,'(i2)') 1
+          write(str3,'(i02)') 1
           str3 = adjustl(str3)
-          timeunits="seconds since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" &
-                            00:00"
+          timeunits="seconds since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" 00:00:00"
           calendar = 'standard'
         ENDIF
 
@@ -490,9 +489,9 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
 
                  write(str1,'(i4)') CurYear
                  str1 = adjustl(str1)
-                 write(str2,'(i2)') 1
+                 write(str2,'(i02)') 1
                  str2 = adjustl(str2)
-                 write(str3,'(i2)') 1
+                 write(str3,'(i02)') 1
                  str3 = adjustl(str3)
                  timeunits="seconds since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" &
                             00:00"
@@ -524,12 +523,11 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
 
                  write(str1,'(i4)') CurYear
                  str1 = adjustl(str1)
-                 write(str2,'(i2)') 1
+                 write(str2,'(a)') '01'
                  str2 = adjustl(str2)
-                 write(str3,'(i2)') 1
+                 write(str3,'(a)') '01'
                  str3 = adjustl(str3)
-                 timeunits="seconds since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" &
-                            00:00"
+                 timeunits="seconds since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" 00:00:00"
                  calendar = "noleap"
 
 	      ENDIF
@@ -543,12 +541,11 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
           CALL site_INIT( site )
           write(str1,'(i4)') CurYear
           str1 = adjustl(str1)
-          write(str2,'(i2)') 1
+          write(str2,'(i02)') 1
           str2 = adjustl(str2)
-          write(str3,'(i2)') 1
+          write(str3,'(i02)') 1
           str3 = adjustl(str3)
-          timeunits="seconds since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" &
-               00:00"
+          timeunits="seconds since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" 00:00:00"
           calendar = 'standard'
 
        ENDIF

@@ -84,9 +84,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   INTEGER, allocatable :: Iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
   INTEGER :: count_sum_casa ! number of time steps over which casa pools &
   !and fluxes are aggregated (for output)
-  ! timing
-  REAL:: etime, etime0, etime1, etime2, etime3 ! Declare the type of etime(), For receiving user and system time, total time
-  REAL:: etime12, etime13, etime14,etime15,etime16
+
   
   if (.NOT.Allocated(Iw)) allocate(Iw(POP%np))
 
@@ -109,8 +107,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
      yyyy  = yyyy+1
 
      write(*,*) 'casaonly_LUC', YYYY
-     CALL CPU_TIME(etime0)
-     print*, 'etime0: ', etime0
+
      nyear_dump = MOD(nyear, &
           CABLE_USER%CASA_SPIN_ENDYEAR - CABLE_USER%CASA_SPIN_STARTYEAR + 1)
      if (nyear_dump == 0) &
@@ -128,9 +125,8 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
 
 
      call read_casa_dump( ncfile,casamet, casaflux, phen,climate, 1,1,.TRUE. )
-     CALL CPU_TIME(etime1)
-     print* , 'readdump time: ', etime1 -etime0
- 
+
+    
      !!CLN901  format(A99)
      do idoy=1,mdyear
         ktau=(idoy-1)*ktauday +ktauday
@@ -159,15 +155,14 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
         phen%doyphase(:,4) =  phen%doyphasespin_4(:,idoy)
         climate%qtemp_max_last_year(:) =  casamet%mtempspin(:,idoy)
 
-       CALL CPU_TIME(etime12)
+      
         CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
              casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter, &
              xksoil,xkleaf,xkleafcold,xkleafdry,&
              cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
              nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
              pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
-        CALL CPU_TIME(etime13)
-        print* , 'biogeochem time: ', etime13 -etime12
+
  
 !IF (YYYY.EQ.1610) THEN
 !  write(69,*) casapool%ctot(4)-casapool%ctot_0(4), casabal%FCneeyear(4), casabal%dcdtyear(4)
@@ -178,8 +173,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
         CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
              & .TRUE. , .FALSE., 1)
         count_sum_casa = count_sum_casa + 1
-        CALL CPU_TIME(etime14)
-        print* , 'update casa time: ', etime14 -etime13
+
 
         
         ! accumulate annual variables for use in POP
@@ -281,17 +275,15 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
         ENDIF  ! end of year
      ELSE
         IF(idoy==mdyear) THEN ! end of year
-           CALL CPU_TIME(etime15)
+          
            CALL POPdriver(casaflux,casabal,veg, POP)
-           CALL CPU_TIME(etime16)
-           print*, 'POP: ', etime16 -etime15
+          
+          
         endif
        ! CALL POP_IO( pop, casamet, YYYY, 'WRITE_EPI', &
        !         ( YYYY.EQ.cable_user%YearEnd ) )
      ENDIF ! IF (CABLE_USER%POPLUC) 
 
-     CALL CPU_TIME(etime2)
-    
         IF ( IS_CASA_TIME("write", yyyy, ktau, kstart, &
              0, kend, ktauday, logn) ) THEN
            ctime = ctime +1
@@ -304,8 +296,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
                 cable_user%YearEnd ) )
            count_sum_casa = 0
            CALL zero_sum_casa(sum_casapool, sum_casaflux)
-           CALL CPU_TIME(etime3)
-           print*, 'casaout: ', etime3 -etime2
+
         ENDIF
      enddo
      

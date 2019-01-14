@@ -155,7 +155,7 @@ CONTAINS
     USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,                  &
          verbose, fixedCO2,output,check,patchout,    &
          patch_type,soilparmnew,&
-         defaultLAI, sdoy, smoy, syear, timeunits, exists, output
+         defaultLAI, sdoy, smoy, syear, timeunits, exists, output,calendar
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
          cable_runtime, fileName, myhome,            &
          redistrb, wiltParam, satuParam, CurYear,    &
@@ -485,12 +485,11 @@ CONTAINS
 
           write(str1,'(i4)') curyear
           str1 = adjustl(str1)
-          write(str2,'(i2)') 1
+          write(str2,'(i02)') 1
           str2 = adjustl(str2)
-          write(str3,'(i2)') 1
+          write(str3,'(i02)') 1
           str3 = adjustl(str3)
-          timeunits="seconds since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" &
-                            00:00"
+          timeunits="seconds since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" 00:00:00"
         ENDIF
 
 ! End of Bios initialisation
@@ -514,12 +513,11 @@ CONTAINS
                 leaps = PLUME%LeapYears
                 write(str1,'(i4)') CurYear
                 str1 = adjustl(str1)
-                write(str2,'(i2)') 1
+                write(str2,'(i02)') 1
                 str2 = adjustl(str2)
-                write(str3,'(i2)') 1
+                write(str3,'(i02)') 1
                 str3 = adjustl(str3)
-                timeunits="seconds since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" &
-                     00:00"
+                timeunits="seconds since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" 00:00:00"
 
              ENDIF
              kend = NINT(24.0*3600.0/dels) * LOY
@@ -543,12 +541,12 @@ CONTAINS
 
                  write(str1,'(i4)') CurYear
                  str1 = adjustl(str1)
-                 write(str2,'(i2)') 1
+                 write(str2,'(a)') '01'
                  str2 = adjustl(str2)
-                 write(str3,'(i2)') 1
+                 write(str3,'(a)') '01'
                  str3 = adjustl(str3)
-                 timeunits="seconds since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" &
-                            00:00"
+                 timeunits="seconds since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" 00:00:00"
+                 calendar = "standard"
 
 
 	      ENDIF

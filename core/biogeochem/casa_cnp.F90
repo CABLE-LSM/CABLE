@@ -544,12 +544,10 @@ SUBROUTINE casa_rplant(veg,casabiome,casapool,casaflux,casamet,climate)
   real(r_2), dimension(mp)        :: Ygrow        ! growth efficiency Q.Zhang 22/02/2011
   real(r_2), dimension(mp,mplant) :: ratioPNplant ! Q.Zhang 22/02/2011
   real(r_2), dimension(mp)        :: delcrmwood,delcrmfroot    ! reduction in wood and root respiration when NPP <0.0
-  real(r_2), dimension(mp)        :: resp_coeff_root, resp_coeff_sapwood, resp_coeff
+  real(r_2), dimension(mp)        :: resp_coeff_root, resp_coeff_sapwood
   real,  dimension(mp)        :: nleaf, pleaf, vcmaxmax
   real(r_2) :: c1, c2, c3, c5 ! coefficients for acclimation of maintenance respiration
 
-
-  resp_coeff = 1
   resp_coeff_root = 1
   resp_coeff_sapwood = 1
   ratioPNplant = 0.0
@@ -568,7 +566,7 @@ SUBROUTINE casa_rplant(veg,casabiome,casapool,casaflux,casamet,climate)
   casaflux%crgplant = 0.0
   casaflux%clabloss = 0.0
   
-   if (cable_user%CALL_climate) then
+  if (cable_user%CALL_climate) then
   ! coefficients required to implement T-acclimation of autotrophic respiration (Ticket # 110)
   ! adapted from Atkin et al., New Phyt., 2015)
      DO npt = 1, mp
