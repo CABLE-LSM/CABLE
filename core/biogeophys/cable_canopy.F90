@@ -1340,6 +1340,7 @@ CONTAINS
             canopy%fwet(j) = MAX( 0.0, MIN( 1.0,                                  &
                  0.8 * canopy%cansto(j) / MAX( cansat(j), 0.01 ) ) )
 
+         
             ! Calculate lat heat from wet canopy, may be neg. if dew on wet canopy
             ! to avoid excessive evaporation:
             ccfevw(j) = MIN(canopy%cansto(j) * air%rlam(j) / dels, &
@@ -1578,7 +1579,8 @@ CONTAINS
     REAL, DIMENSION(mp,2) ::  gsw_term, lower_limit2  ! local temp var
 
     INTEGER :: i, j, k, kk  ! iteration count
-    REAL :: vpd, g1 ! Ticket #56   
+    REAL :: vpd, g1 ! Ticket #56
+    REAL :: qstvair
 #define VanessasCanopy
 #ifdef VanessasCanopy
     REAL, DIMENSION(mp,mf)  ::                                                  &
@@ -2191,6 +2193,12 @@ CONTAINS
        END DO !over mp
 
     END DO  ! DO WHILE (ANY(abs_deltlf > 0.1) .AND.  k < C%MAXITER)
+
+
+
+   
+ 
+    
 !!$
 !!$  write(3333,"(200e16.6)") tlfx
 !!$  write(3334,"(200e16.6)") met%tvair

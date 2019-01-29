@@ -750,6 +750,8 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
           ! Zero out lai where there is no vegetation acc. to veg. index
           WHERE ( veg%iveg(:) .GE. 14 ) veg%vlai = 0.
 
+
+         
           ! At first time step of year, set tile area according to updated LU areas
           ! and zero casa fluxes
 

@@ -120,6 +120,9 @@ CONTAINS
    ! Calculate canopy variables:
         CALL define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy,climate)
 
+       ! write(*,*) 'hod, TVeg: ', met%hod(1), canopy%fevc(1), canopy%fwsoil(1)
+       ! if (met%hod(1).gt.12.0) stop
+        
    !ssnow%otss_0 = ssnow%otss
    !ssnow%otss = ssnow%tss
 

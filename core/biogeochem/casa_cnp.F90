@@ -31,6 +31,8 @@
 !           leaf:wood allocation set to maintain LA:SA ratio
 !           below target value (requires casaflux%sapwood_area 
 !           inherited from POP demography module. (Ticket#61)
+! Feb 2019 : DAMM Enzyme kinetics implemented as a switchable option for soil and litter
+! carbon tunover responses to temperature and moisture
 ! ==============================================================================
 !
 ! This module contains the following subroutines:
@@ -847,34 +849,29 @@ SUBROUTINE casa_xratesoil(xklitter,xksoil,veg,soil,casamet,casabiome)
 !!$REAL(r_2), parameter :: wfpsquad=0
 
 
- ! DAMM parameters
- REAL(r_2), parameter ::  EnzPool = 10.0
- REAL(r_2), parameter :: KMO2 = 0.01
- REAL(r_2), parameter :: KMcp = 0.1
- REAL(r_2), parameter :: Ea = 62
- REAL(r_2), parameter :: alpha  = 10.6
- REAL(r_2) :: O2, vol_air_content, Enz
+ ! DAMM temporary variables
+ REAL(r_2) :: O2, vol_air_content, Enz, Dliq, Dva
 
-  REAL(r_2), DIMENSION(mp)       :: xkwater,xktemp
-  REAL(r_2), DIMENSION(mp)       :: fwps,tsavg
+ REAL(r_2), DIMENSION(mp)       :: xkwater,xktemp
+ REAL(r_2), DIMENSION(mp)       :: fwps,tsavg
   ! Custom soil respiration - see Ticket #42
-  REAL(r_2), DIMENSION(mp)       :: smrf,strf,slopt,wlt,tsoil,fcap,sopt
-  REAL(r_2) :: f0
-!,tsurfavg  !!, msurfavg
-  INTEGER :: npt
-
-  xklitter(:) = 1.0
-  xksoil(:)   = 1.0
-  fwps(:)     =  casamet%moistavg(:)/soil%ssat(:)
-  tsavg(:)    =  casamet%tsoilavg(:)
-
-  ! Custom soil respiration - see Ticket #42
-  tsoil(:)    =  tsavg(:)-TKzeroC !tsoil in C
-  strf(:)     = 1.0
-  smrf(:)     = 1.0
-  slopt(:)    = 1.0
-  sopt(:)     = 1.0
-
+ REAL(r_2), DIMENSION(mp)       :: smrf,strf,slopt,wlt,tsoil,fcap,sopt
+ REAL(r_2) :: f0
+ !,tsurfavg  !!, msurfavg
+ INTEGER :: npt
+ 
+ xklitter(:) = 1.0
+ xksoil(:)   = 1.0
+ fwps(:)     =  casamet%moistavg(:)/soil%ssat(:)
+ tsavg(:)    =  casamet%tsoilavg(:)
+ 
+ ! Custom soil respiration - see Ticket #42
+ tsoil(:)    =  tsavg(:)-TKzeroC !tsoil in C
+ strf(:)     = 1.0
+ smrf(:)     = 1.0
+ slopt(:)    = 1.0
+ sopt(:)     = 1.0
+ 
 
   ! BP changed the WHERE construct to DO-IF for Mk3L (jun2010)
   DO npt=1,mp
@@ -948,36 +945,56 @@ SUBROUTINE casa_xratesoil(xklitter,xksoil,veg,soil,casamet,casabiome)
       ELSE IF (trim(cable_user%STRF_NAME)=='PnET-CN') THEN
         strf(npt)=0.68*exp(0.1*(tsoil(npt)-7.1))/12.64
       ELSE if (trim(cable_user%STRF_NAME)=='LT1994') THEN
-        ! Lloyd & Taylor, Func. Ec. 8, 315, 1994, Eq 11.
+         ! Lloyd & Taylor, Func. Ec. 8, 315, 1994, Eq 11.
+         ! Normalised to 10 deg C
          strf(npt)= exp(308.56*(1.0/56.02-1.0         &
-                   / (max(tsoil(npt),-20.0)+46.02)))/5.65 
-         ! factor of 5.65 gives same value as q10=2 response at 10 degC (ref T 35 degC).
-         !strf(npt)= exp(388.56*(1.0/56.02-1.0         &
-         !          / (max(tsoil(npt),-20.0)+46.02)))/7.45 
-         ! factor of 5.65 gives same value as q10=2 response at 10 degC (ref T 35 degC).
+              / (max(tsoil(npt),-20.0)+46.02)))/ &
+              (exp(308.56*(1.0/56.02-1.0         &
+              / (10.0 + 46.02))))
+         
+      ELSE if (trim(cable_user%STRF_NAME)=='Q10') THEN
+         ! Q10 normalised to 10 deg C
+          strf(npt) = casabiome%q10soil(veg%iveg(npt))**(0.1*(tsavg(npt)-TKzeroC-10.0))
+         
+         
       END IF
 
       IF (trim(cable_user%STRF_NAME)=='DAMM' .and. trim(cable_user%SMRF_NAME)=='DAMM') THEN
-                   vol_air_content = max(soil%ssat(npt) - casamet%moistavg(npt), 0.0)
-                   O2 = 1.67 * 0.209 * (vol_air_content**(4./3.))
-                   Enz=casabiome%DAMM_EnzPool(veg%iveg(npt))*3.17 &
-                        *( casamet%moistavg(npt)**3)
-                   xksoil(npt) = (10**casabiome%DAMM_alpha(veg%iveg(npt)))* &
-                        exp(-casabiome%DAMM_Ea(veg%iveg(npt))/(8.314e-3 &
-                        * (casamet%tsoilavg(npt)))) * &
-                        (Enz/(Enz+casabiome%DAMM_KMcp(veg%iveg(npt)))) &
-                        * (O2/(casabiome%DAMM_KMO2(veg%iveg(npt))+O2))
-                   xklitter(npt) = xksoil(npt)
 
-        
-!!$                   vol_air_content = max(soil%ssat(npt) - casamet%moist(npt,1), 0.0)
-!!$                   O2 = 1.67 * 0.209 * (vol_air_content**(4./3.))
-!!$                   Enz=Enzpool*3.17*( casamet%moist(npt,1)**3)
-!!$                   xklitter(npt) = (10**alpha)* &
-!!$                         exp(-Ea/(8.314e-3 * (casamet%tsoil(npt,1)))) * &
-!!$				 (Enz/(Enz+KMcp)) * (O2/(KMO2+O2))
+         ! Implementation follows Sihi et al., AFM 252 (2018) 155-166.
+         ! The key difference is that we use the DAMM model to provide rate constant modifiers
+         ! for soil and litter carbon turnover, whereas Sihi et al. apply the model directly
+         ! to heterotrophic respiration. Also, we account here for T-dependence of O2 diffusion
+         ! and diffusivity of Enzyme in the liquid phase (T-dependences of diffusivities taken from
+         ! (Haverd and Cuntz 2010, J. Hyd., 388, (2010), 438-455 ).
+         
+         vol_air_content = max(soil%ssat(npt) - casamet%moistavg(npt), 0.0)
 
-				
+         Dva = 1.67 * 0.209 * ((casamet%tsoilavg(npt)/TKzeroC) ** 1.88 )/ &
+               (((10.0  + TKzeroC) / TKzeroC) ** 1.88 )
+         O2 = Dva * (vol_air_content**(4./3.))
+
+         Dliq = 3.17 * ( casamet%moistavg(npt)**3) * exp(-577.0/(casamet%tsoilavg(npt)-145.))/ &
+              exp(-577.0/((10.0 + 273.15)-145.))
+                   
+         Enz=casabiome%DAMM_EnzPool(veg%iveg(npt))* Dliq 
+         
+         ! Arrhenius temperature response function, normalised to 10 deg C.
+         strf(npt) = exp(-casabiome%DAMM_Ea(veg%iveg(npt))/(8.314e-3 &
+              * (casamet%tsoilavg(npt)))) /                   &
+         (exp(-casabiome%DAMM_Ea(veg%iveg(npt))/(8.314e-3 &
+              * 283.0)))
+         
+         ! moisture response function 
+         smrf(npt) =  (Enz/(Enz+casabiome%DAMM_KMcp(veg%iveg(npt)))) &
+              * (O2/(casabiome%DAMM_KMO2(veg%iveg(npt))+O2))
+
+         
+         xksoil(npt) =  (10**casabiome%DAMM_alpha(veg%iveg(npt)))* smrf(npt) * strf(npt)
+         xklitter(npt) = xksoil(npt)
+
+         
+         
       ELSE
       !xksoil(npt) = casabiome%xkoptsoil(veg%iveg(npt))*strf(npt)*smrf(npt)
       !xklitter(npt) = casabiome%xkoptlitter(veg%iveg(npt)) *strf(npt)*smrf(npt)
@@ -1631,6 +1648,8 @@ IF(casamet%iveg2(nland)/=icewater) THEN
          ENDDO
       ENDDO  ! immobilization
 
+ 
+ ! write(*, "( 200e16.6)")  , casaflux%Plittermin, casaflux%Psmin, +casaflux%Psimm
       casaflux%Psnet(nland)=casaflux%Plittermin(nland) &
                                  +casaflux%Psmin(nland)   &
                                  +casaflux%Psimm(nland)
@@ -1723,9 +1742,10 @@ IF(casamet%iveg2(nland)/=icewater) THEN
                                         - 15.0 )                               &
                                ) + 150.0                                       &
                           )
+       xdplabsorb(nland) = 1.0+ casaflux%Psorbmax(nland)*casaflux%kmlabp(nland) &
+           /((casaflux%kmlabp(nland)+casapool%Psoillab(nland))**2)
 
-      xdplabsorb(nland) = 1.0+ casaflux%Psorbmax(nland)*casaflux%kmlabp(nland) &
-                        /((casaflux%kmlabp(nland)+casapool%Psoillab(nland))**2)
+     !  write(*,*) 'xdplabsorb:',  xdplabsorb(nland), casaflux%Psorbmax(nland), casaflux%kmlabp(nland), casaflux%kmlabp(nland), casapool%Psoillab(nland)
       casapool%dPlitterdt(nland,:) = casaflux%fluxPtolitter(nland,:)  &
                                    - casaflux%klitter(nland,:)                 &
                                    * max(zero,casapool%Plitter(nland,:))
@@ -1743,11 +1763,14 @@ IF(casamet%iveg2(nland)/=icewater) THEN
                                  - fluxptase(nland) * casaflux%ksoil(nland,3)*casapool%Psoil(nland,3) &
                                   /(casaflux%ksoil(nland,2)*casapool%Psoil(nland,2)+casaflux%ksoil(nland,3)*casapool%Psoil(nland,3))
 
+     
+      
       casapool%dPsoillabdt(nland)= casaflux%Psnet(nland) + fluxptase(nland)         &
                                  + casaflux%Pdep(nland) + casaflux%Pwea(nland)      &
                                  - casaflux%Pleach(nland)-casaflux%pupland(nland)   &
                                  - casaflux%kpsorb(nland)*casapool%Psoilsorb(nland) &
                                  + casaflux%kpocc(nland) * casapool%Psoilocc(nland)
+
       ! here the dPsoillabdt =(dPsoillabdt+dPsoilsorbdt)
       ! dPsoilsorbdt  = xdplabsorb
 
@@ -1765,13 +1788,14 @@ IF(casamet%iveg2(nland)/=icewater) THEN
 !!$
 !!$912 format(100(e12.3,2x))
 
-      
+ !     write(*,*) 'dPsoillabdt: ' ,  casapool%dPsoillabdt,  xdplabsorb(nland)
       casapool%dPsoillabdt(nland)  = casapool%dPsoillabdt(nland)/xdplabsorb(nland)
+  !    write(*,*) 'dPsoillabdt: ' ,  casapool%dPsoillabdt
       casapool%dPsoilsorbdt(nland) = 0.0
 
       casapool%dPsoiloccdt(nland)  = casaflux%kpsorb(nland)* casapool%Psoilsorb(nland) &
                                    - casaflux%kpocc(nland) * casapool%Psoilocc(nland)
-      ! P loss to non-available P pools
+      ! P loss to non-ravailable P pools
 !      casaflux%Ploss(nland)        = casaflux%kpocc(nland) * casapool%Psoilocc(nland)
 
 !      casaflux%Ploss(nland)       = casaflux%fPleach(nland) &

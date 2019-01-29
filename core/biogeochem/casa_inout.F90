@@ -389,6 +389,7 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
     casapool%psoillab(npt)    = xplab(iv1)
     casapool%psoilsorb(npt)   = xpsorb(iv1)
     casapool%psoilocc(npt)    = xpocc(iv1)
+    casapool%Psoillab(npt)    = 0.0
     casaflux%kmlabp(npt)      = xkmlabp(iso)
     casaflux%psorbmax(npt)    = xpsorbmax(iso)
     casaflux%fpleach(npt)     = xfPleach(iso) /(365.0)    ! convert from 1/year to 1/day
@@ -764,7 +765,7 @@ ENDIF
   casaflux%kplab        = 0.
   casaflux%kpsorb       = 0.
   casaflux%kpocc        = 0.
-  casaflux%kmlabp       = 0.
+!  casaflux%kmlabp       = 0.  !vh ! this should be a paramter, not a flux variable
 !  casaflux%Psorbmax     = 0. !vh ! this should be a paramter, not a flux variable
 
   casaflux%klitter      = 0.

@@ -953,9 +953,10 @@ SUBROUTINE update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
            sum_casapool%ratioNCsoilnew = sum_casapool%ratioNCsoilnew + casapool%ratioNCsoilnew
            sum_casapool%ratioNCsoilmin =  sum_casapool%ratioNCsoilmin + casapool%ratioNCsoilmin
            sum_casapool%ratioNCsoilmax = sum_casapool%ratioNCsoilmax + casapool%ratioNCsoilmax
-           sum_casapool%ratioPcsoil =  sum_casapool%ratioPcsoil  + casapool%ratioPcsoil
-           sum_casapool%ratioPcplant =  sum_casapool%ratioPcplant + casapool%ratioPcplant
-           sum_casapool%ratioPclitter =   sum_casapool%ratioPclitter + casapool%ratioPclitter
+           
+           !sum_casapool%ratioPcsoil =  sum_casapool%ratioPcsoil  + casapool%ratioPcsoil
+           !sum_casapool%ratioPcplant =  sum_casapool%ratioPcplant + casapool%ratioPcplant
+           !sum_casapool%ratioPclitter =   sum_casapool%ratioPclitter + casapool%ratioPclitter
 
            sum_casaflux%Cgpp = sum_casaflux%Cgpp  + casaflux%Cgpp
            sum_casaflux%Cnpp = sum_casaflux%Cnpp + casaflux%Cnpp

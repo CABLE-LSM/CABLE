@@ -118,7 +118,7 @@ MODULE cable_common_module
           POPLUC                 = .FALSE., &
           finite_gm              = .FALSE., &     ! finite mesophyll conductance
           acclim_auto            = .FALSE., &
-          coordinate_photosyn    = .FALSE., &
+          coordinate_photosyn    = .TRUE., &
           limit_labile           = .FALSE.
     
      INTEGER  ::  &

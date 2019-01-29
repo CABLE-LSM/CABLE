@@ -1290,7 +1290,9 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
    ! initialise within canopy air temp
    met%tvair(is:ie)     = met%tk(is:ie) 
    met%tvrad(is:ie)     = met%tk(is:ie)
- end do 
+end do
+
+
 
 !*******************************************************************************
 CONTAINS
