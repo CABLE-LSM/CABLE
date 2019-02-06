@@ -396,6 +396,7 @@ PROGRAM cable_offline_driver
   IF (TRIM(cable_user%MetType) .EQ. 'site' .OR. &
        TRIM(cable_user%MetType) .EQ. '') THEN
      CALL open_met_file( dels, koffset, kend, spinup, C%TFRZ )
+     write(*,*) 'after open_met_file'
      IF ( koffset .NE. 0 .AND. CABLE_USER%CALL_POP ) THEN
 	WRITE(*,*)"When using POP, episode must start at Jan 1st!"
 	STOP 991
@@ -779,7 +780,6 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
              !veg%vlai = 2 ! test
              ! Call land surface scheme for this timestep, all grid points:
  
-
              CALL cbm(ktau, dels, air, bgc, canopy, met,		      &
                          bal, rad, rough, soil, ssnow,			      &
                          sum_flux, veg,climate )

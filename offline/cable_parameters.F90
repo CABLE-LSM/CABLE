@@ -271,6 +271,22 @@ CONTAINS
          ALLOCATE( r3dum(nlon, nlat, nband) )
          ALLOCATE( r3dum2(nlon, nlat, ntime) )
          
+      elseif (nmetpatches .gt. npatch) then
+
+         ALLOCATE( inLon(nlon), inLat(nlat) )
+         ALLOCATE( inVeg(nlon, nlat, nmetpatches) )
+         ALLOCATE( inPFrac(nlon, nlat, nmetpatches) )
+         ALLOCATE( inSoil(nlon, nlat) )
+         ALLOCATE( idummy(nlon, nlat, npatch) )
+         ALLOCATE( rdummy(nlon, nlat, npatch) )
+         ALLOCATE(  inWB(nlon, nlat, nslayer,ntime) )
+         ALLOCATE( inTGG(nlon, nlat, nslayer,ntime) )
+         ALLOCATE( inALB(nlon, nlat, nmetpatches,nband) )
+         ALLOCATE( inSND(nlon, nlat, nmetpatches,ntime) )
+         ALLOCATE( inLAI(nlon, nlat, ntime) )
+         ALLOCATE( r3dum(nlon, nlat, nband) )
+         ALLOCATE( r3dum2(nlon, nlat, ntime) )
+
       else
          
       
@@ -307,11 +323,20 @@ CONTAINS
     if (npatch_LUC .gt. npatch) then
        ok = NF90_GET_VAR(ncid, varID, idummy)
        DO pp=1,npatch_LUC
-           if (pp.eq.1) then
-              inVeg(:, :, pp) = idummy(:,:,1) ! npatch=1 in 1x1 degree input
-           else
-              inVeg(:, :, pp) = 0.0
-           endif
+          if (pp.eq.1) then
+             inVeg(:, :, pp) = idummy(:,:,1) ! npatch=1 in 1x1 degree input
+          else
+             inVeg(:, :, pp) = 0.0
+          endif
+       ENDDO
+    elseif (nmetpatches .gt. npatch) then
+       ok = NF90_GET_VAR(ncid, varID, idummy)
+       DO pp=1,nmetpatches
+          if (pp.eq.1) then
+             inVeg(:, :, pp) = idummy(:,:,1) ! npatch=1 in 1x1 degree input
+          else
+             inVeg(:, :, pp) = 0.0
+          endif
        ENDDO
     else
        ok = NF90_GET_VAR(ncid, varID, inVeg)
@@ -332,6 +357,16 @@ CONTAINS
              inPFrac(:, :, pp) = 0.0
           end if
        ENDDO
+    elseif (nmetpatches .gt. npatch) then
+        ok = NF90_GET_VAR(ncid, varID, rdummy)
+       DO pp=1,nmetpatches
+          if (pp.eq.1) then
+             inPFrac(:, :, pp) = rdummy(:,:,1) ! npatch=1 in 1x1 degree input
+          else
+             inPFrac(:, :, pp) = 0.0
+          end if
+       ENDDO
+       
     else
        ok = NF90_GET_VAR(ncid, varID, inPFrac)
     endif
@@ -1153,9 +1188,6 @@ CONTAINS
       patch(landpt(e)%cstart:landpt(e)%cend)%frac =                            &
                         inPFrac(landpt(e)%ilon, landpt(e)%ilat, 1:landpt(e)%nap)
 
-write(*,*) 'iveg', e,  veg%iveg(landpt(e)%cstart:landpt(e)%cend) 
-write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
-
       ! set land use (1 = primary; 2 = secondary, 3 = open)
       veg%iLU(landpt(e)%cstart:landpt(e)%cend)= 1
       veg%ivegp(landpt(e)%cstart:landpt(e)%cend) = veg%iveg(landpt(e)%cstart:landpt(e)%cend)
@@ -1298,7 +1330,8 @@ write(*,*) 'patchfrac', e,  patch(landpt(e)%cstart:landpt(e)%cend)%frac
           ! Overwrite iveg for those patches available in met file,
           ! which are currently set to def values above:
           veg%iveg(landpt(e)%cstart:landpt(e)%cstart + nmetpatches - 1) =      &
-                                                           vegtype_metfile(e, :)
+               vegtype_metfile(e, :)
+
           ! In case gridinfo file provides more patches than met file(BP may08)
           DO f = nmetpatches+1, landpt(e)%nap
              IF (patch(landpt(e)%cstart + f - 1)%frac > 0.0) THEN

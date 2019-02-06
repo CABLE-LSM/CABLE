@@ -636,6 +636,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
        ok = NF90_INQUIRE_DIMENSION(ncid_met,patchdimID,len=nmetpatches)
     END IF
 
+   
     ! Check if monthly dimension exists for LAI info
     ok = NF90_INQ_DIMID(ncid_met,'monthly', monthlydimID)
     IF(ok==NF90_NOERR) THEN ! if found
@@ -1335,6 +1336,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
        ALLOCATE(vegtype_metfile(mland,nmetpatches))
        ! Check dimension of veg type:
        ok=NF90_INQUIRE_VARIABLE(ncid_met,id%iveg,ndims=iveg_dims)
+       write(*,*) 'iveg_dims', iveg_dims, 'metgrid: ', metgrid
        IF(metGrid=='mask') THEN ! i.e. at least two spatial dimensions
           IF(iveg_dims==2) THEN ! no patch specific iveg information, just x,y
              DO i = 1, mland
@@ -1363,8 +1365,12 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
                      (ok,'Error reading iveg in met data file ' &
                      //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
              END DO
+              write(*,*) 'nmetpatches', nmetpatches
+              write(*,*) 'vegtype_metfile(i,:): ', vegtype_metfile(:,:)
+   
           END IF
        ELSE IF(metGrid=='land') THEN
+          
           ! Collect data from land only grid in netcdf file:
           IF(iveg_dims==1) THEN ! i.e. no patch specific iveg information
              DO i = 1, mland
@@ -1376,11 +1382,13 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
                 ! Set all veg patches in grid cell to be this single type
                 vegtype_metfile(i,:) = data1i(1)
              END DO
-          ELSE IF(iveg_dims==2) THEN ! i.e. patch specific iveg information
+          ELSE IF(iveg_dims == 2) THEN ! i.e. patch specific iveg information
              ! Patch-specific iveg variable MUST be accompanied by
              ! patchfrac variable with same dimensions. So,
              ! Make sure that the patchfrac variable exists:
+              write(*,*) 'iveg_dims ', iveg_dims
              ok = NF90_INQ_VARID(ncid_met,'patchfrac',id%patchfrac)
+             write(*,*) 'ok: ', ok
              IF(ok /= NF90_NOERR) CALL nc_abort & ! check read ok
                   (ok,'Patch-specific vegetation type (iveg) must be accompanied'// &
                   'by a patchfrac variable - this was not found in met data file '&
@@ -1390,6 +1398,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
                 ok= NF90_GET_VAR(ncid_met, id%iveg, &
                      vegtype_metfile(i,:),&
                      start=(/i,1/), count=(/1,nmetpatches/))
+               
                 IF(ok /= NF90_NOERR) CALL nc_abort &
                      (ok,'Error reading iveg in met data file ' &
                      //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
@@ -2581,8 +2590,9 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
     END IF ! if restart file exists
 
     ! Overwrite default values by those available in met file:
+    write(*,*) 'before get_parameters_met'
     CALL get_parameters_met(soil,veg,bgc,rough,completeSet)
-
+    write(*,*) 'after get_parameters_met'
     ! Results of looking for parameters in the met file:
     WRITE(logn,*)
     IF(exists%parameters.AND.completeSet) THEN
@@ -2670,7 +2680,7 @@ SUBROUTINE get_parameters_met(soil,veg,bgc,rough,completeSet)
    !    CALL readpar(ncid_met,'iveg',completeSet,veg%iveg,filename%met, &
    !         nmetpatches,'def')
    CALL readpar(ncid_met,'patchfrac',completeSet,patch(:)%frac,filename%met,   &
-                nmetpatches,'def')
+        nmetpatches,'def')
 !    CALL readpar(ncid_met,'isoil',completeSet,soil%isoilm,filename%met, &
 !         nmetpatches,'def')
    CALL readpar(ncid_met,'clay',completeSet,soil%clay,filename%met,            &

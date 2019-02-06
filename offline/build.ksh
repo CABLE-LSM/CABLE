@@ -165,7 +165,7 @@ host_pear()
    export NCDIR=$NETCDF_ROOT'/lib/'
    export NCMOD=$NETCDF_ROOT'/include/'
    export FC='ifort'
- #  export CFLAGS='-O0 -fp-model precise -g -debug -traceback -fpe=1 -fp-stack-check -no-ftz -ftrapuv   -check all,noarg_temp_created -C '
+#   export CFLAGS='-O0 -fp-model precise -g -debug -traceback -fpe=0 -fp-stack-check -no-ftz -ftrapuv   -check all,noarg_temp_created -C '
    export CFLAGS='-O2 -fp-model precise'
    #export CFLAGS='  -g -debug -traceback -fp-stack-check -O0 -debug -fpe=0 -fpe-all=0 -no-ftz -ftrapuv -check bounds'
    export LDFLAGS='-g -L'$NCDIR' -O2'
