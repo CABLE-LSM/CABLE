@@ -680,7 +680,7 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
     
        ! time step loop over ktau
        DO ktau=kstart, kend
-          
+  
          
           ! increment total timstep counter
           ktau_tot = ktau_tot + 1
@@ -719,7 +719,7 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
              IF (TRIM(cable_user%MetType) .EQ. 'site') &
                   CALL get_met_data( spinup, spinConv, met, soil,		 &
                   rad, veg, kend, dels, C%TFRZ, ktau+koffset_met,		 &
-                         kstart+koffset_met )
+                  kstart+koffset_met )
              IF (TRIM(cable_user%MetType) .EQ. '') &
                   CALL get_met_data( spinup, spinConv, met, soil,		 &
                   rad, veg, kend, dels, C%TFRZ, ktau+koffset,		 &
