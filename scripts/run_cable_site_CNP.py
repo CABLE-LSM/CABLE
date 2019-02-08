@@ -31,13 +31,13 @@ import numpy as np
 
 class RunCable(object):
 
-    def __init__(self, experiment_id, driver_dir, param_dir, output_dir, restart_dir,
+    def __init__(self, experiment_id, namelist_dir, param_dir, output_dir, restart_dir,
                  dump_dir, met_fname, co2_ndep_fname, nml_fn, site_nml_fn,
                  veg_param_fn,log_dir, exe, aux_dir, biogeochem, call_pop,
                  verbose):
 
         self.experiment_id = experiment_id
-        self.driver_dir = driver_dir
+        self.namelist_dir = namelist_dir
         self.param_dir = param_dir
         self.output_dir = output_dir
         self.restart_dir = restart_dir
@@ -246,9 +246,9 @@ class RunCable(object):
         """
         Setup CABLE namelist file for spinup from zero
         """
-        shutil.copyfile(os.path.join(self.driver_dir, "site.nml"),
+        shutil.copyfile(os.path.join(self.namelist_dir, "site.nml"),
                         self.site_nml_fn)
-        shutil.copyfile(os.path.join(self.driver_dir, "cable.nml"),
+        shutil.copyfile(os.path.join(self.namelist_dir, "cable.nml"),
                         self.nml_fn)
         #self.add_missing_options_to_nml_file(self.nml_fn)
 
@@ -637,8 +637,8 @@ class RunCable(object):
 if __name__ == "__main__":
 
     cwd = os.getcwd()
-    driver_dir = "driver_files"
-    param_dir = driver_dir
+    namelist_dir = "namelists"
+    param_dir = "params"
     dump_dir = "dump"
     met_dir = "met"
     co2_ndep_dir = "met"
@@ -652,15 +652,15 @@ if __name__ == "__main__":
     met_fname = os.path.join(met_dir, 'AU_Cum_2014_2017_met_LAIv.nc')
     co2_ndep_fname = os.path.join(co2_ndep_dir,
                                   "AmaFACE_co2npdepforcing_1850_2100_AMB.csv")
-    veg_param_fn = "def_veg_params.txt"
-    bgc_param_fn = "pftlookup.csv"
+    veg_param_fn = "Cumberland_veg_params.txt"
+    bgc_param_fn = "Cumberland_pftlookup.csv"
     soil_param_fn = "def_soil_params.txt"   # only used when soilparmnew = .FALSE. in cable.nml
     exe = "./cable"
 
     # special for PEST
-    veg_param_fn = "def_veg_params_pest.txt"
-    bgc_param_fn = "pftlookup_pest.csv"
-    param_dir = "./"
+    #veg_param_fn = "def_veg_params_pest.txt"
+    #bgc_param_fn = "pftlookup_pest.csv"
+    #param_dir = "./"
 
 
 
@@ -683,8 +683,8 @@ if __name__ == "__main__":
     for biogeochem in ["CNP"]:
 
         experiment_id = "Cumberland_POP_%s" % (biogeochem)
-        C = RunCable(experiment_id, driver_dir, param_dir, output_dir, restart_dir,
+        C = RunCable(experiment_id, namelist_dir, param_dir, output_dir, restart_dir,
                      dump_dir, met_fname, co2_ndep_fname, nml_fn, site_nml_fn,
                      veg_param_fn, log_dir, exe, aux_dir, biogeochem, call_pop,
                      verbose)
-        C.main(SPIN_UP=False, TRANSIENT=False, SIMULATION=True)
+        C.main(SPIN_UP=True, TRANSIENT=True, SIMULATION=True)
