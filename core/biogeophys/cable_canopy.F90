@@ -3388,7 +3388,6 @@ END SUBROUTINE photosynthesis
        fws    = maxval(alpha_root(2:)*delta_root(2:))
     endif
 
-
   END SUBROUTINE getrex_1d
 !*****************************************************************************************
 SUBROUTINE cubic_root_solver(a0,a1,a2,x1,x2,x3)

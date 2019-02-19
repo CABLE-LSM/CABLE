@@ -326,7 +326,7 @@ CONTAINS
        ! adjust fraction woody cover based on Major Vegetation Group
        LUC_EXPT%biome = MVG
        LUC_EXPT%ivegp = 2
-       projection_factor = 0.71 
+       projection_factor = 0.65
        WHERE (LUC_EXPT%biome .eq. 1)
           CPC = 0.89
        ELSEWHERE (LUC_EXPT%biome .eq. 2)

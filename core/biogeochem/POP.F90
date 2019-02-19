@@ -78,7 +78,7 @@ MODULE POP_Constants
   REAL(dp),PARAMETER:: DENSINDIV_MIN=1e-9 !
   REAL(dp),PARAMETER:: Kbiometric=50.0 ! Constant in height-diameter relationship
   REAL(dp),PARAMETER:: WD= 300.0 ! Wood density kgC/m3
-  REAL(dp),PARAMETER:: GROWTH_EFFICIENCY_MIN=  0.012 ! 0.0095   !0.0089  !0.0084 ! threshold growth efficiency for enhanced mortality (higher value gives higher biomass turnover)
+  REAL(dp),PARAMETER:: GROWTH_EFFICIENCY_MIN=  0.009 ! 0.0095   !0.0089  !0.0084 ! threshold growth efficiency for enhanced mortality (higher value gives higher biomass turnover)
   REAL(dp),PARAMETER:: Pmort=5.0 ! exponent in mortality formula
   REAL(dp),PARAMETER:: MORT_MAX=0.3 ! upper asymptote for enhanced mortality
   REAL(dp),PARAMETER:: THETA_recruit=0.95 ! shape parameter in recruitment equation
@@ -113,7 +113,7 @@ MODULE POP_Constants
   ! for sampling disturbance probabilities from Poisson distribution
   INTEGER(i4b),PARAMETER :: TIMEBASE_FACTOR=50
   REAL(dp),PARAMETER:: PI=3.14159265358979323846264
-  INTEGER(i4b),PARAMETER :: ALLOM_SWITCH = 0 ! 0 == default; 1 = top-end allometry (requires precip as input to POPSTEP)
+  INTEGER(i4b),PARAMETER :: ALLOM_SWITCH = 2 ! 0 == default; 1 = top-end allometry (requires precip as input to POPSTEP); 2 = Allometry following Williams 2005, Model 5b
   ! 0 == binnned max height variable; 1 = continuous (needs lots of memory); 2 = binned by integer heights
   INTEGER(i4b),PARAMETER :: MAX_HEIGHT_SWITCH = 2
   INTEGER(i4b),PARAMETER :: RESOURCE_SWITCH = 1 ! 0 = default; 1  fraction net resource uptake

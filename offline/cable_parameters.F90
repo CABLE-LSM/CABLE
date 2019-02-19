@@ -1144,13 +1144,15 @@ CONTAINS
       select case(ms)
 
       case(6)
-         soil%zse = (/.022, .058, .154, .409, 1.085, 2.872/) ! layer thickness nov03
+         soil%zse = (/.022, .058, .154, .409, 1.085, 6.872/) ! layer thickness nov03
       case(12)
          soil%zse = (/.022,  0.0500,    0.1300 ,   0.3250 ,   0.3250 ,   0.3000,  &
               0.3000,    0.3000 ,   0.3000,    0.3000,    0.7500,  1.50 /)
       case(13)
          soil%zse = (/.02,  0.0500,  0.06,  0.1300 ,   0.300 ,   0.300 ,   0.3000,  &
               0.3000,    0.3000 ,   0.3000,    0.3000,    0.7500,  1.50 /)
+      case(10)
+        soil%zse = (/ 0.022, 0.058, 0.07, 0.15, 0.30, 0.30, 0.30, 1.20, 3.0,4.5 /)
 
       end select
 
@@ -1543,8 +1545,8 @@ CONTAINS
       IF(cable_user%SOIL_STRUC=='sli') THEN
          soil%nhorizons = 1 ! use 1 soil horizon globally
         ! veg%clitt = 5.0 ! (tC / ha)
-         veg%F10 = 0.85
-         veg%ZR = 5.0
+        ! veg%F10 = 0.85
+        ! veg%ZR = 5.0
       END IF
 
      

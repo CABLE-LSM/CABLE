@@ -396,7 +396,6 @@ PROGRAM cable_offline_driver
   IF (TRIM(cable_user%MetType) .EQ. 'site' .OR. &
        TRIM(cable_user%MetType) .EQ. '') THEN
      CALL open_met_file( dels, koffset, kend, spinup, C%TFRZ )
-     write(*,*) 'after open_met_file'
      IF ( koffset .NE. 0 .AND. CABLE_USER%CALL_POP ) THEN
 	WRITE(*,*)"When using POP, episode must start at Jan 1st!"
 	STOP 991
@@ -625,6 +624,8 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
              CALL open_output_file( dels, soil, veg, bgc, rough )
           ENDIF
        ENDIF
+
+ 
        
        ssnow%otss_0 = ssnow%tgg(:,1)
        ssnow%otss = ssnow%tgg(:,1)
@@ -751,7 +752,6 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
           ! Zero out lai where there is no vegetation acc. to veg. index
           WHERE ( veg%iveg(:) .GE. 14 ) veg%vlai = 0.
 
-
          
           ! At first time step of year, set tile area according to updated LU areas
           ! and zero casa fluxes
@@ -783,7 +783,7 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
              CALL cbm(ktau, dels, air, bgc, canopy, met,		      &
                          bal, rad, rough, soil, ssnow,			      &
                          sum_flux, veg,climate )
-
+      
                  if (cable_user%CALL_climate) &
                   CALL cable_climate(ktau_tot,kstart,kend,ktauday,idoy,LOY,met, &
                   climate, canopy,veg, ssnow,air, rad, dels, mp)
@@ -922,6 +922,7 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
                        CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, casamet, &
                             ssnow,   rad, bal, air, soil, veg, C%SBOLTZ, C%EMLEAF, C%EMSOIL )
                     ELSE
+
                        CALL write_output( dels, ktau, met, canopy, casaflux, casapool, casamet, &
                             ssnow,rad, bal, air, soil, veg, C%SBOLTZ, C%EMLEAF, C%EMSOIL )
                     ENDIF
@@ -931,7 +932,6 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
                  ! dump bitwise reproducible testing data
                  IF( cable_user%RUN_DIAG_LEVEL == 'zero') THEN
                     IF (.NOT.CASAONLY) THEN
-                       WRITE(*,*) 'before diags'
                        IF((.NOT.spinup).OR.(spinup.AND.spinConv))			 &
                             CALL cable_diag( iDiagZero, "FLUXES", mp, kend, ktau,			 &
                             knode_gl, "FLUXES",				&

@@ -640,8 +640,8 @@ ENDIF
 !!$      CALL readpar(ncid_rin,'za_tq',dummy,rough%za_tq,filename%restart_in,     &
 !!$                   max_vegpatches,'def',from_restart,mp)
 !!$   ENDIF
-   CALL readpar(ncid_rin,'zse',dummy,soil%zse,filename%restart_in,             &
-                max_vegpatches,'ms',from_restart,mp)
+!!$   CALL readpar(ncid_rin,'zse',dummy,soil%zse,filename%restart_in,             &
+!!$                max_vegpatches,'ms',from_restart,mp)
 !!$   CALL readpar(ncid_rin,'ratecp',dummy,bgc%ratecp,filename%restart_in,        &
 !!$                max_vegpatches,'ncp',from_restart,mp)
 !!$   CALL readpar(ncid_rin,'ratecs',dummy,bgc%ratecs,filename%restart_in,        &
