@@ -125,12 +125,25 @@ MODULE cable_mpimaster
   ! climate derived type
   INTEGER, ALLOCATABLE, DIMENSION(:) :: climate_ts
 
+  ! MPI derived datatype handles for Sending/receiving vals results for BLAZE
+  INTEGER, ALLOCATABLE, DIMENSION(:) :: blaze_out_ts
+  INTEGER, ALLOCATABLE, DIMENSION(:) :: blaze_restart_ts
+  
+  ! MPI derived datatype handles for Sending/receiving vals results for SIMFIRE
+  INTEGER, ALLOCATABLE, DIMENSION(:) :: simfire_inp_ts
+  INTEGER, ALLOCATABLE, DIMENSION(:) :: simfire_out_ts
+  INTEGER, ALLOCATABLE, DIMENSION(:) :: simfire_recv_ts
+  INTEGER, ALLOCATABLE, DIMENSION(:) :: simfire_restart_ts
+    
   ! POP related derived types
   
   ! MPI derived datatype handles for receiving POP results from the workers
   INTEGER :: pop_ts
 
-  ! MPI: isend request array for scattering input data to the workers
+  ! MPI derived datatype handles for receiving POP results from the workers
+  INTEGER :: blaze_ts
+
+   ! MPI: isend request array for scattering input data to the workers
   INTEGER, ALLOCATABLE, DIMENSION(:) :: inp_req
   ! MPI: isend status array for scattering input data to the workers
   INTEGER, ALLOCATABLE, DIMENSION(:,:) :: inp_stats
@@ -189,6 +202,11 @@ CONTAINS
          POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, POPLUC_set_patchfrac, &
          READ_LUC_RESTART_NC, alloc_popluc
     
+    ! modules related to fire
+    USE BLAZE_MOD,            ONLY: TYPE_BLAZE
+    USE BLAZE_MPI,            ONLY: MASTER_BLAZE_TYPES, MASTER_SIMFIRE_TYPES
+    USE SIMFIRE_MOD,          ONLY: TYPE_SIMFIRE
+
     ! PLUME-MIP only
     USE CABLE_PLUME_MIP,      ONLY: PLUME_MIP_TYPE, PLUME_MIP_GET_MET,&
          PLUME_MIP_INIT
@@ -257,13 +275,17 @@ CONTAINS
     TYPE (casa_balance)   :: casabal
     TYPE (phen_variable)  :: phen
     TYPE (POP_TYPE)       :: POP
-    TYPE(POPLUC_TYPE) :: POPLUC
-    TYPE (LUC_EXPT_TYPE) :: LUC_EXPT
+    TYPE (POPLUC_TYPE)    :: POPLUC
+    TYPE (LUC_EXPT_TYPE)  :: LUC_EXPT
     TYPE (PLUME_MIP_TYPE) :: PLUME
     TYPE (CRU_TYPE)       :: CRU
     CHARACTER             :: cyear*4
     CHARACTER             :: ncfile*99
 
+    ! BLAZE variables
+    TYPE (TYPE_BLAZE)    :: BLAZE
+    TYPE (TYPE_SIMFIRE)  :: SIMFIRE
+    
     ! declare vars for switches (default .FALSE.) etc declared thru namelist
     LOGICAL, SAVE           :: &
          vegparmnew    = .FALSE., & ! using new format input file (BP dec 2007)
@@ -378,25 +400,25 @@ CONTAINS
     ENDIF
 
     ! INITIALISATION depending on nml settings
-  IF (TRIM(cable_user%MetType) .EQ. 'gswp') THEN
-     IF ( CABLE_USER%YearStart.eq.0 .and. ncciy.gt.0) THEN
-        CABLE_USER%YearStart = ncciy
-        CABLE_USER%YearEnd = ncciy
-     ELSEIF  ( CABLE_USER%YearStart.eq.0 .and. ncciy.eq.0) THEN
-        PRINT*, 'undefined start year for gswp met: '
-        PRINT*, 'enter value for ncciy or'  
-        PRINT*, '(CABLE_USER%YearStart and  CABLE_USER%YearEnd) &
-             in cable.nml'
-
-        write(logn,*) 'undefined start year for gswp met: '
-        write(logn,*) 'enter value for ncciy or'  
-        write(logn,*) '(CABLE_USER%YearStart and  CABLE_USER%YearEnd) &
-             in cable.nml'
-
-        stop
-     ENDIF
-  ENDIF
-
+    IF (TRIM(cable_user%MetType) .EQ. 'gswp') THEN
+       IF ( CABLE_USER%YearStart.eq.0 .and. ncciy.gt.0) THEN
+          CABLE_USER%YearStart = ncciy
+          CABLE_USER%YearEnd   = ncciy
+       ELSEIF  ( CABLE_USER%YearStart.eq.0 .and. ncciy.eq.0) THEN
+          PRINT*, 'undefined start year for gswp met: '
+          PRINT*, 'enter value for ncciy or'  
+          PRINT*, '(CABLE_USER%YearStart and  CABLE_USER%YearEnd) &
+               in cable.nml'
+          
+          write(logn,*) 'undefined start year for gswp met: '
+          write(logn,*) 'enter value for ncciy or'  
+          write(logn,*) '(CABLE_USER%YearStart and  CABLE_USER%YearEnd) &
+               in cable.nml'
+          
+          stop
+       ENDIF
+    ENDIF
+    
     CurYear = CABLE_USER%YearStart
 
     IF ( icycle .GE. 11 ) THEN
@@ -407,6 +429,7 @@ CONTAINS
     ELSEIF ( icycle .EQ. 0 ) THEN
        CABLE_USER%CASA_DUMP_READ  = .FALSE.
        CABLE_USER%CALL_POP        = .FALSE.
+       CABLE_USER%CALL_BLAZE      = .FALSE.
     ENDIF
 
     !! vh_js !!
@@ -459,7 +482,7 @@ CONTAINS
          TRIM(cable_user%MetType) .NE. "cru") THEN
        CALL open_met_file( dels, koffset, kend, spinup, C%TFRZ )
        IF ( koffset .NE. 0 .AND. CABLE_USER%CALL_POP ) THEN
-          WRITE(*,*)"When using POP, episode must start at Jan 1st!"
+          WRITE(*,*)"When using POP, episode must start on Jan 1st!"
           STOP 991
        ENDIF
     ENDIF
@@ -472,17 +495,16 @@ CONTAINS
     ktau     = 0
     SPINLOOP:DO
 
-! Bios initialisation
-
-        IF (TRIM(cable_user%MetType) .EQ. "bios") THEN
+       ! Bios initialisation
+       IF (TRIM(cable_user%MetType) .EQ. "bios") THEN
 
           CALL CPU_TIME(etime)
           
           CALL cable_bios_init(dels,curyear,met,kend,ktauday)
-
+          
           koffset   = 0
           leaps = .true.
-
+          
           write(str1,'(i4)') curyear
           str1 = adjustl(str1)
           write(str2,'(i02)') 1
@@ -490,10 +512,9 @@ CONTAINS
           write(str3,'(i02)') 1
           str3 = adjustl(str3)
           timeunits="seconds since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" 00:00:00"
-        ENDIF
+       ENDIF
 
-! End of Bios initialisation
-
+       ! Loop through simulation years
        YEARLOOP: DO YYYY= CABLE_USER%YearStart,  CABLE_USER%YearEnd
 
           CurYear = YYYY
@@ -503,9 +524,9 @@ CONTAINS
           ELSE
              LOY = 365
           ENDIF
-
+!!!! CLN FROM HERE extract CALL1 and put LOY computation to end of CALL1 block ===[
           IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN
-             ! CLN HERE PLUME modfications
+
              IF ( CALL1 ) THEN 
                 CALL PLUME_MIP_INIT( PLUME )
                 dels      = PLUME%dt
@@ -527,15 +548,15 @@ CONTAINS
               kend = NINT(24.0*3600.0/dels) * LOY
                    
           ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
-	      ! CLN HERE CRU modfications
+	      
 	      IF ( CALL1 ) THEN
 
 		 CALL CPU_TIME(etime)
 		 CALL CRU_INIT( CRU )
 
-		 dels	   = CRU%dtsecs
-		 koffset   = 0
-		 leaps = .false.         ! No leap years in CRU-NCEP
+		 dels	      = CRU%dtsecs
+		 koffset      = 0
+		 leaps        = .false.  ! No leap years in CRU-NCEP
                  exists%Snowf = .false.  ! No snow in CRU-NCEP, so ensure it will
                                          ! be determined from temperature in CABLE
 
@@ -559,6 +580,7 @@ CONTAINS
              CALL prepareFiles(ncciy)
              CALL open_met_file( dels, koffset, kend, spinup, C%TFRZ )
           ENDIF
+!!!! CLN TO HERE extract CALL1 and put LOY computation to end of CALL1 block ===]
 
           ! somethings (e.g. CASA-CNP) only need to be done once per day
           ktauday=INT(24.0*3600.0/dels)
@@ -596,8 +618,11 @@ CONTAINS
                   bal, logn, vegparmnew, casabiome, casapool,		 &
                   casaflux, sum_casapool, sum_casaflux, &
                   casamet, casabal, phen, POP, spinup,	       &
-                  C%EMSOIL, C%TFRZ, LUC_EXPT, POPLUC )
+                  C%EMSOIL, C%TFRZ, LUC_EXPT, POPLUC, BLAZE, SIMFIRE )
 
+             ! Abort, if an error occurred during BLAZE/SIMFIRE init
+             IF ( BLAZE%ERR ) CALL MPI_Abort(comm,0,ierr)
+             
              IF (CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static') &
                   CABLE_USER%POPLUC= .FALSE.
 
@@ -615,6 +640,10 @@ CONTAINS
              canopy%fhs_cor = 0.
              met%ofsd = 0.1
 
+
+             !! CLN BLAZE
+             !! IF ( cable_user%CALL_BLAZE ) &
+                  
 
              IF (.NOT.spinup)	spinConv=.TRUE.
              
@@ -669,7 +698,23 @@ CONTAINS
                 CALL master_casa_params (comm,casabiome,casapool,casaflux,casamet,&
                      &                        casabal,phen)
 
+                ! Create and Send POP ini/restart data
                 IF ( CABLE_USER%CALL_POP ) CALL master_pop_types (comm,casamet,pop)
+                
+                ! Fire init and 
+                IF ( CABLE_USER%CALL_BLAZE ) THEN
+                   !CREATE handles for restart-data 
+                   CALL master_blaze_types(comm, wland, mp, BLAZE, blaze_restart_ts, blaze_out_ts)
+                   IF ( .NOT. spinup ) &
+                        CALL master_send_input(icomm, blaze_restart_ts, ktau)
+                   IF ( TRIM(cable_user%BURNT_AREA) == "SIMFIRE" ) THEN
+                      CALL master_simfire_types(comm, wland, mp, SIMFIRE, &
+                           simfire_restart_ts, simfire_inp_ts,simfire_out_ts)
+                      IF ( .NOT. spinup ) &
+                           CALL master_send_input(icomm,simfire_restart_ts, ktau)
+                   END IF
+                END IF
+                
              END IF
 
              ! MPI: allocate read ahead buffers for input met and veg data
@@ -7962,6 +8007,190 @@ SUBROUTINE master_receive_pop (POP, comm)
   ! NO Waitall here as some workers might not be involved!!!
 
 END SUBROUTINE master_receive_pop
+
+!!CLNSUBROUTINE master_blaze_types (comm, BLAZE)
+!!CLN
+!!CLN  ! Send blaze restart data to workers  
+!!CLN  
+!!CLN  USE mpi
+!!CLN
+!!CLN  USE blaze, ONLY: TYPE_BLAZE
+!!CLN
+!!CLN  IMPLICIT NONE
+!!CLN
+!!CLN  INTEGER :: comm ! MPI communicator to talk to the workers
+!!CLN
+!!CLN  TYPE(TYPE_BLAZE), INTENT(IN) :: BLAZE
+!!CLN
+!!CLN
+!!CLN  
+!!CLN  ! MPI: temp arrays for marshalling all types into a struct
+!!CLN  INTEGER, ALLOCATABLE, DIMENSION(:) :: blocks
+!!CLN  INTEGER(KIND=MPI_ADDRESS_KIND), ALLOCATABLE, DIMENSION(:) :: displs
+!!CLN  INTEGER, ALLOCATABLE, DIMENSION(:) :: types
+!!CLN  INTEGER :: ntyp ! number of worker's types
+!!CLN
+!!CLN  INTEGER :: last2d, i
+!!CLN
+!!CLN  ! MPI: block lenghts for hindexed representing all vectors
+!!CLN  INTEGER, ALLOCATABLE, DIMENSION(:) :: blen
+!!CLN
+!!CLN  ! MPI: block lengths and strides for hvector representing matrices
+!!CLN  INTEGER :: r1len, r2len
+!!CLN  INTEGER(KIND=MPI_ADDRESS_KIND) :: r1stride, r2stride
+!!CLN
+!!CLN  INTEGER :: tsize, totalrecv, totalsend
+!!CLN  INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
+!!CLN
+!!CLN  INTEGER :: rank, off, cnt
+!!CLN  INTEGER :: bidx, midx, vidx, ierr
+!!CLN
+!!CLN
+!!CLN  ! Restart value handles (restart_blaze_ts()) 
+!!CLN  
+!!CLN  ntyp = 9
+!!CLN
+!!CLN  !INTEGER,  DIMENSION(:),  ALLOCATABLE :: DSLR,
+!!CLN  !REAL,     DIMENSION(:),  ALLOCATABLE :: RAINF, KBDI, LR
+!!CLN  !REAL,     DIMENSION(:,:),ALLOCATABLE :: AnnRAINF, DEADWOOD, AGLB_w, AGLB_g, AGLit_w, AGLit_g
+!!CLN
+!!CLN  ALLOCATE (blocks(ntyp))
+!!CLN  ALLOCATE (displs(ntyp))
+!!CLN  ALLOCATE (types(ntyp))
+!!CLN
+!!CLN  istride  = mp * extid ! short integer 
+!!CLN  r1stride = mp * extr1 ! single precision
+!!CLN  r2stride = mp * extr2 ! double precision
+!!CLN
+!!CLN  DO rank = 1, wnp
+!!CLN     off = wland(rank)%patch0
+!!CLN     cnt = wland(rank)%npatch
+!!CLN
+!!CLN     i1len = cnt * extid  
+!!CLN     r1len = cnt * extr1
+!!CLN     r2len = cnt * extr2
+!!CLN
+!!CLN     bidx = 0
+!!CLN
+!!CLN     ! ------------- 2D arrays -------------
+!!CLN
+!!CLN     ! Annual (daily) rainfall (ncells,366)
+!!CLN     bidx = bidx + 1
+!!CLN     CALL MPI_Get_address (BLAZE%AnnRainf(off,1), displs(bidx), ierr) ! 1
+!!CLN     CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
+!!CLN     &                             types(bidx), ierr)
+!!CLN     blocks(bidx) = 1
+!!CLN
+!!CLN     ! Above ground life woody biomass 
+!!CLN     bidx = bidx + 1
+!!CLN     CALL MPI_Get_address (BLAZE%AGLB_w(off,1), displs(bidx), ierr) ! 2
+!!CLN     CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
+!!CLN     &                             types(bidx), ierr)
+!!CLN     blocks(bidx) = 1
+!!CLN
+!!CLN     ! Above ground life grassy biomass 
+!!CLN     bidx = bidx + 1
+!!CLN     CALL MPI_Get_address (BLAZE%AGLB_g(off,1), displs(bidx), ierr) ! 3
+!!CLN     CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
+!!CLN     &                             types(bidx), ierr)
+!!CLN     blocks(bidx) = 1
+!!CLN
+!!CLN     ! Above ground woody litter
+!!CLN     bidx = bidx + 1
+!!CLN     CALL MPI_Get_address (BLAZE%AGLit_w(off,1), displs(bidx), ierr) ! 4
+!!CLN     CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
+!!CLN     &                             types(bidx), ierr)
+!!CLN     blocks(bidx) = 1
+!!CLN
+!!CLN     ! Above ground grassy litter 
+!!CLN     bidx = bidx + 1
+!!CLN     CALL MPI_Get_address (BLAZE%AGLit_g(off,1), displs(bidx), ierr) ! 5
+!!CLN     CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
+!!CLN     &                             types(bidx), ierr)
+!!CLN     blocks(bidx) = 1
+!!CLN
+!!CLN     last2d = bidx
+!!CLN     
+!!CLN     ! ------------- 1D vectors -------------
+!!CLN
+!!CLN     ! Integer days since last rainfall
+!!CLN     bidx = bidx + 1
+!!CLN     CALL MPI_Get_address (BLAZE%DSLR(off), displs(bidx), ierr)
+!!CLN     blocks(bidx) = i1len
+!!CLN
+!!CLN     ! Real(sp) Last rainfall
+!!CLN     bidx = bidx + 1
+!!CLN     CALL MPI_Get_address (BLAZE%LR(off), displs(bidx), ierr)
+!!CLN     blocks(bidx) = r1len
+!!CLN
+!!CLN     ! current KBDI
+!!CLN     bidx = bidx + 1
+!!CLN     CALL MPI_Get_address (BLAZE%KBDI(off), displs(bidx), ierr)
+!!CLN     blocks(bidx) = r1len
+!!CLN
+!!CLN     ! DEADWOOD
+!!CLN     bidx = bidx + 1
+!!CLN     CALL MPI_Get_address (BLAZE%DEADWOOD(off), displs(bidx), ierr)
+!!CLN     blocks(bidx) = r1len
+!!CLN
+!!CLN     ! ------------- Wrap up -------------
+!!CLN
+!!CLN     types(last2d+1:bidx) = MPI_BYTE
+!!CLN
+!!CLN     ! MPI: sanity check
+!!CLN     IF (bidx /= ntyp) THEN
+!!CLN        WRITE (*,*) 'invalid blaze ntyp constant, fix it!'
+!!CLN        CALL MPI_Abort (comm, 1, ierr)
+!!CLN     END IF
+!!CLN
+!!CLN     CALL MPI_Type_create_struct (bidx, blocks, displs, types, blaze_restart_ts(rank), ierr)
+!!CLN     CALL MPI_Type_commit (blaze_restart_ts(rank), ierr)
+!!CLN
+!!CLN     CALL MPI_Type_size (blaze_restart_ts(rank), tsize, ierr)
+!!CLN     CALL MPI_Type_get_extent (blaze_restart_ts(rank), tmplb, text, ierr)
+!!CLN
+!!CLN     WRITE (*,*) 'restart results recv from worker, size, extent, lb: ', &
+!!CLN   &       rank,tsize,text,tmplb
+!!CLN
+!!CLN     totalrecv = totalrecv + tsize
+!!CLN
+!!CLN     ! free the partial types used for matrices
+!!CLN     DO i = 1, last2d
+!!CLN        CALL MPI_Type_free (types(i), ierr)
+!!CLN     END DO
+!!CLN
+!!CLN  END DO
+!!CLN
+!!CLN  WRITE (*,*) 'total size of restart fields received from all workers: ', totalrecv
+!!CLN
+!!CLN  ! MPI: check whether total size of received data equals total
+!!CLN  ! data sent by all the workers
+!!CLN  totalsend = 0
+!!CLN  CALL MPI_Reduce (MPI_IN_PLACE, totalsend, 1, MPI_INTEGER, MPI_SUM, &
+!!CLN    &     0, comm, ierr)
+!!CLN
+!!CLN  WRITE (*,*) 'total size of restart fields sent by all workers: ', totalsend
+!!CLN
+!!CLN  IF (totalrecv /= totalsend) THEN
+!!CLN          WRITE (*,*) 'error: restart fields totalsend and totalrecv differ'
+!!CLN          CALL MPI_Abort (comm, 0, ierr)
+!!CLN  END IF
+!!CLN
+!!CLN  DEALLOCATE(types)
+!!CLN  DEALLOCATE(displs)
+!!CLN  DEALLOCATE(blocks)
+!!CLN
+!!CLN
+!!CLN  ! Standard desired IO (restart_blaze_ts()) 
+!!CLN
+!!CLN
+!!CLN
+!!CLN
+!!CLN  
+!!CLN  RETURN
+!!CLN     
+!!CLNEND SUBROUTINE master_blaze_types
+!!CLN
 
 
 ! MPI: scatters input data for timestep ktau to all workers

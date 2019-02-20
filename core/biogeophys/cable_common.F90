@@ -113,6 +113,7 @@ MODULE cable_common_module
           CALL_POP               = .FALSE., & !
           POP_fromZero           = .FALSE., &
           CALL_Climate           = .FALSE., &
+          CALL_BLAZE             = .FALSE., &
           Climate_fromZero       = .FALSE., &
           CASA_fromZero          = .FALSE., &
           POPLUC                 = .FALSE., &
@@ -127,6 +128,13 @@ MODULE cable_common_module
           YEARSTART           = 0, &
           YEAREND             = 0, &
           CASA_NREP           = 1
+     CHARACTER(len=7) :: &
+          BURNT_AREA          = "SIMFIRE" ! either SIMFIRE or GFED31
+     CHARACTER(len=8) :: &
+          BLAZE_TSTEP         = "DAILY"   ! either DAILY, MONTHLY, ANNUALLY
+     CHARACTER(len=6) :: &
+          SIMFIRE_REGION      = "GLOBAL"  ! either GLOBAL, EUROPE, ANZ
+     
     !--- LN ------------------------------------------]
 
      CHARACTER(LEN=5) ::                                                      &
@@ -853,6 +861,31 @@ CONTAINS
     ENDIF
 
   END FUNCTION IS_CASA_TIME
+  
+  FUNCTION Esatf(TC)
+    !-------------------------------------------------------------------------------
+    ! At temperature TC [deg C], return saturation water vapour pressure Esatf [mb] 
+    ! from Teten formula.
+    ! MRR, xx/1987
+    ! PRB, 09/1999:   Convert to F95 elemental function; works on scalars and arrays
+    !                 just like intrinsic functions.
+    ! MRR, 12-mar-02: Convert Qsatf (specific humidity routine) to Esatf
+    !-------------------------------------------------------------------------------
+
+    IMPLICIT NONE
+    REAL, INTENT(in):: TC           ! temp [deg C]
+    REAL:: Esatf                    ! saturation vapour pressure [mb]
+    REAL:: TCtmp                    ! local
+    REAL,PARAMETER:: A = 6.106      ! Teten coefficients
+    REAL,PARAMETER:: B = 17.27      ! Teten coefficients
+    REAL,PARAMETER:: C = 237.3      ! Teten coefficients
+!-------------------------------------------------------------------------------
+    TCtmp = TC                          ! preserve TC
+    IF (TCtmp.GT.100.0) TCtmp = 100.0   ! constrain TC to (-40.0,100.0)
+    IF (TCtmp.LT.-40.0) TCtmp = -40.0
+    Esatf = A*EXP(B*TCtmp/(C+TCtmp))    ! sat vapour pressure (mb)
+    
+  END FUNCTION Esatf
 
 
 END MODULE cable_common_module

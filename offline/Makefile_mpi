@@ -4,7 +4,7 @@
 # This work is licensed under the CABLE Academic User Licence Agreement 
 # (the "Licence").
 # You may not use this file except in compliance with the Licence.
-# A copy of the Licence and registration form can be obtained from 
+# A copy of the Licence and registration form ca≈n be obtained from 
 # http://www.cawcr.gov.au/projects/access/cable
 # You need to register and read the Licence agreement before use.
 # Please contact cable_help@nf.nci.org.au for any questions on 
@@ -24,6 +24,7 @@
 # History: Additions for CASA-CNP
 #          Additions for mpi wrapper
 #
+# Additions for BLAZE (Lars Nieradzik)
 # Additions for SLI (Vanessa Haverd)
 # Additions for SpinCASA (Lars Nieradzik)
 # Additions for POP, climate and phenology (Vanessa Haverd)
@@ -46,7 +47,8 @@ LSRC = cable_data.F90 cable_common.F90 cable_define_types.F90 cable_iovars.F90 \
 	cable_diag.F90 POP.F90 pop_io.F90 pop_mpi.F90 cable_plume_mip.F90 \
 	cable_weathergenerator.F90 cable_climate.F90 cable_phenology.F90 \
 	cable_cru_TRENDY.F90 POPLUC.F90 CASAONLY_LUC.F90 cable_LUC_EXPT.F90 \
-	cable_optimiseJVratio.F90 cable_bios_met_obs_params.F90	   
+	cable_optimiseJVratio.F90 cable_bios_met_obs_params.F90	\
+	blaze.F90 blaze_mpi.F90 blaze_driver.F90 simfire.F90
 
 # this is the executable we are building
 PROG = cable-mpi
@@ -99,12 +101,12 @@ cable_mpimaster.o: cable_mpimaster.F90 cable_mpicommon.o cable_output.o \
 	casa_inout.o cable_input.o cable_define_types.o cable_common.o \
 	cable_data.o cable_sli_main.o cable_plume_mip.o pop_io.o pop_mpi.o \
 	cable_climate.o cable_cru_TRENDY.o POPLUC.o cable_LUC_EXPT.o \
-	CASAONLY_LUC.o cable_bios_met_obs_params.o
+	CASAONLY_LUC.o cable_bios_met_obs_params.o blaze_mpi.o blaze_driver.o
 
 cable_mpiworker.o: cable_mpiworker.F90 cable_mpicommon.o cable_output.o \
 	cable_iovars.o cable_cbm.o  casa_variable.o casa_cable.o casa_cnp.o \
 	casa_inout.o cable_input.o cable_define_types.o  cable_common.o pop_mpi.o \
-	cable_climate.o
+	cable_climate.o blaze_mpi.o
 
 cable_mpidrv.o: cable_mpidrv.F90 cable_mpicommon.o cable_mpimaster.o cable_mpiworker.o
 
@@ -121,7 +123,7 @@ cable_write.o: cable_write.F90 cable_iovars.o cable_abort.o cable_define_types.o
 
 cable_input.o: cable_input.F90 POP.o cable_checks.o cable_abort.o cable_read.o \
 	 cable_initialise.o cable_radiation.o cable_parameters.o cable_common.o \
-	 cable_LUC_EXPT.o POPLUC.o
+	 cable_LUC_EXPT.o POPLUC.o simfire.o blaze.o
 
 cable_output.o: cable_output.F90 cable_checks.o cable_write.o cable_common.o \
 	cable_abort.o casa_variable.o
@@ -193,6 +195,15 @@ cable_optimiseJVratio.o : cable_optimiseJVratio.F90 cable_define_types.o
 
 cable_bios_met_obs_params.o: cable_bios_met_obs_params.F90 cable_iovars.o cable_define_types.o cable_checks.o \
                              cable_weathergenerator.o casa_variable.o
+
+# BLAZE related dependencies
+blaze.o: blaze.F90
+
+simfire.o: simfire.F90
+
+blaze_driver.o: blaze_driver.F90 blaze.o simfire.o
+
+blaze_mpi.o: blaze_mpi.F90 
 
 # make clean option
 clean:

@@ -104,6 +104,10 @@ PROGRAM cable_offline_driver
        POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, POPLUC_set_patchfrac 
   USE POP_Constants,	    ONLY: HEIGHT_BINS, NCOHORT_MAX
 
+  ! Fire Model BLAZE
+  USE BLAZE_MOD,            ONLY: TYPE_BLAZE
+  USE SIMFIRE_MOD,          ONLY: TYPE_SIMFIRE
+
   ! PLUME-MIP only
   USE CABLE_PLUME_MIP,	    ONLY: PLUME_MIP_TYPE, PLUME_MIP_GET_MET,&
        PLUME_MIP_INIT
@@ -334,6 +338,7 @@ PROGRAM cable_offline_driver
 
      !! vh_js !!
      CABLE_USER%CALL_POP	= .FALSE.
+     CABLE_USER%BLAZE    	= .FALSE.
   ENDIF
 
   !! vh_js !!
@@ -594,7 +599,7 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
             bal, logn, vegparmnew, casabiome, casapool,		 &
             casaflux, sum_casapool, sum_casaflux, &
             casamet, casabal, phen, POP, spinup,	       &
-            C%EMSOIL, C%TFRZ, LUC_EXPT, POPLUC )
+            C%EMSOIL, C%TFRZ, LUC_EXPT, POPLUC, BLAZE, SIMFIRE )
 
        IF ( CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static') &
             CABLE_USER%POPLUC= .FALSE.
@@ -819,6 +824,16 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
                          CABLE_USER%CASA_DUMP_READ, CABLE_USER%CASA_DUMP_WRITE,   &
                          LALLOC )
 
+                    IF ( BLAZE%CTRL .GT. 0) &
+                         CALL blazedriver(BLAZE,met,?NCELLS?,casapool,casaflux,?lat?,?lon?, & 
+                         ?shootfrac?,?FAPAR?,,)
+
+                    !! put igbp_modis into ini (including read where from???)
+                    !! inot BLAZE_TYPE: BLAZEFLAG,AvgAnnMaxFAPAR, modis_igbp,
+                    !! AvgAnnRainf, idoy, curyear, FLI, DFLI, FFDI, AB, POPFLAG, CTLFLAG,
+                    !! BLAZEFLX, POP_TO, POP_CWD,POP_STR, IAC, popd, mnest, BLAZE_FSTEP
+
+                    
                     IF(MOD((ktau-kstart+1),ktauday)==0) THEN
                     
                        !mpidiff
@@ -847,6 +862,11 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
                           CALL WRITE_LUC_OUTPUT_NC( POPLUC, YYYY, ( YYYY.EQ.cable_user%YearEnd ))
 
                        ENDIF
+
+                       CALL BLAZE_TURNOVER()
+                       
+                       !! CLN BLAZE TURNOVER 
+                       
                     ENDIF
 
                  ENDIF
@@ -1112,12 +1132,14 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
 	      END if
 	      IF ( cable_user%CALL_POP.and.POP%np.gt.0 ) then
 
-		 IF (TRIM(cable_user%POP_out).eq.'epi') THEN
-		    CALL POP_IO( pop, casamet, RYEAR, 'WRITE_EPI', &
-			 (YYYY.EQ.CABLE_USER%YearEnd .AND. RRRR.EQ.NRRRR) )
+          IF (TRIM(cable_user%POP_out).eq.'epi') THEN
+             CALL POP_IO( pop, casamet, RYEAR, 'WRITE_EPI', &
+                  (YYYY.EQ.CABLE_USER%YearEnd .AND. RRRR.EQ.NRRRR) )
+             
+          ENDIF
+       ENDIF
 
-		 ENDIF
-	      ENDIF
+       !! CLN WRT BLAZE_OUT here
 
 	   ENDIF
     ! Close met data input file:
@@ -1164,6 +1186,7 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
      ENDIF
   ENDIF
 
+  !!CLN BLAZE WRITE RST
 
 
   IF (icycle > 0) THEN

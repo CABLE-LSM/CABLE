@@ -39,22 +39,24 @@ MODULE cable_input_module
 !
    USE cable_abort_module,      ONLY: abort, nc_abort
    USE cable_def_types_mod
-   USE casadimension,     ONLY: icycle
+   USE casadimension,           ONLY: icycle
    USE casavariable
-   USE casaparm, ONLY: forest, shrub
+   USE casaparm,                ONLY: forest, shrub
    USE phenvariable
 !! vh_js !!
    USE POP_Types,               Only: POP_TYPE
-   USE POPLUC_Types,               Only: POPLUC_TYPE
+   USE POPLUC_Types,            Only: POPLUC_TYPE
    USE cable_param_module
    USE cable_checks_module,     ONLY: ranges, rh_sh
    USE cable_radiation_module,  ONLY: sinbet
    USE cable_IO_vars_module
    USE cable_read_module,       ONLY: readpar
    USE cable_init_module
-   USE netcdf ! link must be made in cd to netcdf-x.x.x/src/f90/netcdf.mod
-   USE cable_common_module, ONLY : filename, cable_user, CurYear, HANDLE_ERR, is_leapyear
-
+   USE netcdf                   ! link must be made in cd to netcdf-x.x.x/src/f90/netcdf.mod
+   USE cable_common_module,     ONLY : filename, cable_user, CurYear, HANDLE_ERR, is_leapyear
+   USE BLAZE_MOD,               ONLY: TYPE_BLAZE
+   USE SIMFIRE_MOD,             ONLY: TYPE_SIMFIRE
+   
    IMPLICIT NONE
 
    PRIVATE
@@ -300,7 +302,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
    REAL, INTENT(IN) :: TFRZ
    INTEGER, INTENT(INOUT)      :: koffset ! offset between met file and desired period
    INTEGER, INTENT(OUT)        :: kend   ! number of time steps in simulation
-   LOGICAL, INTENT(IN)              :: spinup ! will a model spinup be performed?
+   LOGICAL, INTENT(IN)         :: spinup ! will a model spinup be performed?
 
    ! Local variables
    INTEGER                     ::                                         &
@@ -2378,7 +2380,7 @@ END SUBROUTINE close_met_file
 SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad,        &
        sum_flux,bal,logn,vegparmnew,casabiome,casapool,    &
        casaflux,sum_casapool, sum_casaflux,casamet,casabal,phen,POP,spinup,EMSOIL, &
-       TFRZ, LUC_EXPT, POPLUC)
+       TFRZ, LUC_EXPT, POPLUC, BLAZE, SIMFIRE)
    ! Input variables not listed:
    !   filename%type  - via cable_IO_vars_module
    !   exists%type    - via cable_IO_vars_module
@@ -2388,9 +2390,13 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
    !   landpt%type    - via cable_IO_vars_module (nap,cstart,cend,ilon,ilat)
    !   max_vegpatches - via cable_IO_vars_module
 !! vh_js !!
-   USE POPmodule, ONLY: POP_INIT
-   USE POPLUC_module, ONLY: POPLUC_INIT 
+   USE POPmodule,      ONLY: POP_INIT
+   USE POPLUC_module,  ONLY: POPLUC_INIT 
    USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE
+
+   USE BLAZE_MOD,      ONLY: TYPE_BLAZE, INI_BLAZE
+   USE SIMFIRE_MOD,    ONLY: TYPE_SIMFIRE, INI_SIMFIRE
+
 
    IMPLICIT NONE
 
@@ -2399,7 +2405,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
    TYPE (air_type), INTENT(INOUT)          :: air
    TYPE (soil_snow_type), INTENT(OUT)      :: ssnow
    TYPE (veg_parameter_type), INTENT(OUT)  :: veg
-   TYPE (climate_type), INTENT(INOUT)          :: climate
+   TYPE (climate_type), INTENT(INOUT)      :: climate
    TYPE (bgc_pool_type), INTENT(OUT)       :: bgc
    TYPE (soil_parameter_type), INTENT(OUT) :: soil
    TYPE (canopy_type), INTENT(OUT)         :: canopy
@@ -2416,8 +2422,10 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
    TYPE (casa_balance), INTENT(OUT)        :: casabal
    TYPE(phen_variable), INTENT(OUT)        :: phen
    TYPE( POP_TYPE ), INTENT(INOUT)         :: POP
-   TYPE( POPLUC_TYPE ), INTENT(INOUT)         :: POPLUC
-   TYPE (LUC_EXPT_TYPE), INTENT(INOUT) :: LUC_EXPT
+   TYPE( POPLUC_TYPE ), INTENT(INOUT)      :: POPLUC
+   TYPE (LUC_EXPT_TYPE), INTENT(INOUT)     :: LUC_EXPT
+   TYPE (TYPE_BLAZE), INTENT(INOUT)        :: BLAZE
+   TYPE (TYPE_SIMFIRE), INTENT(INOUT)      :: SIMFIRE
    INTEGER,INTENT(IN)                      :: logn     ! log file unit number
    LOGICAL,INTENT(IN)                      :: &
          vegparmnew, &  ! are we using the new format?
@@ -2521,6 +2529,28 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
          CALL POPLUC_init(POPLUC,LUC_EXPT, casapool, casaflux, casabiome, veg, POP, mland)
       ENDIF
 
+      ! CLN ALLOCATE BLAZE Arrays 
+      IF ( cable_user%CALL_BLAZE ) THEN
+         ! CLN ?VH is rad%lat/lon below correct? 
+         CALL INI_BLAZE ( cable_user%CALL_POP, cable_user%BURNT_AREA, &
+                 cable_user%BLAZE_TSTEP, mland, rad%latitude, rad%longitude, BLAZE )
+         !CLNIF ( .NOT. spinup) CALL READ_BLAZE_RESTART(...)
+
+         IF ( TRIM(cable_user%BURNT_AREA) == "SIMFIRE" ) THEN
+            CALL INI_SIMFIRE(mland,cable_user%SIMFIRE_REGION,SIMFIRE) !CLN here we need to check for the SIMFIRE biome setting
+            
+            IF ( spinup ) THEN
+               !CLN get_biomes
+            ELSE
+               !CLN CALL READ_SIMFIRE_RESTART(...)
+            END IF
+         END IF
+
+         ! CLN enter gfed & PRESCRIBED here
+         
+         IF ( BLAZE%ERR ) RETURN            
+         ! Read restart values
+      ENDIF
    ENDIF
 
 ! removed get_default_inits and get_default_lai as they are already done
