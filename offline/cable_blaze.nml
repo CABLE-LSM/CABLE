@@ -90,7 +90,7 @@
    cable_user%RunIden       = 'plume' ! Unique identifier for model Run, will be used in Filenames 
    cable_user%YearStart     = 1961         ! YYYY 4 digit year
    cable_user%YearEnd       = 1990       ! YYYY 4 digit year
-   cable_user%MetType       = 'cru'        ! Either 'gswp' or 'plum' for PLUME
+   cable_user%MetType       = 'bios'        ! Either 'gswp' or 'plum' for PLUME
    cable_user%CASA_OUT_FREQ = 'monthly'        ! casa standard output freq [d]
    cable_user%CLIMATE_fromZero =.F.
    cable_user%CALL_CLIMATE =.T.
