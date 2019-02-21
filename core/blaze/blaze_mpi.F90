@@ -7,7 +7,7 @@ MODULE BLAZE_MPI
   USE SIMFIRE_MOD
 
   ! Total number of restart parameters for BLAZE
-  INTEGER, PARAMETER :: n_blaze_restart = 9
+  INTEGER, PARAMETER :: n_blaze_restart = 7
 
   ! Total number of output parameters for BLAZE
   ! for BLAZE%OUTMODE == "std"
@@ -508,7 +508,7 @@ SUBROUTINE worker_blaze_types(comm, mp, BLAZE, blaze_restart_t, blaze_out_t)
  
   ! MPI: sanity check
   IF (bidx /= ntyp) THEN
-     WRITE (*,*) 'invalid nrestart constant, fix it!'
+     WRITE (*,*) 'invalid nrestart constant for blaze, fix it!'
      CALL MPI_Abort (comm, 1, ierr)
   END IF
 
