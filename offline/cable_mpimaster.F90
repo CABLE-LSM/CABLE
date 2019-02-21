@@ -6072,7 +6072,7 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
   WRITE (*,*) 'total data size sent by all workers: ', totalsend
 
   IF (totalrecv /= totalsend) THEN
-          WRITE (*,*) 'error master: totalsend and totalrecv differ'
+          WRITE (*,*) 'error master: totalsend and totalrecv differ',totalsend,totalrecv
           CALL MPI_Abort (comm, 0, ierr)
   END IF
 
