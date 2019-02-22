@@ -156,10 +156,14 @@ SUBROUTINE master_blaze_types (comm, wland, mp, BLAZE, blaze_restart_ts, blaze_o
      END IF
 
      CALL MPI_Type_create_struct (bidx, blocks, displs, types, blaze_restart_ts(rank), ierr)
+write(*,*)" CLN ierr1 " , ierr
      CALL MPI_Type_commit (blaze_restart_ts(rank), ierr)
+write(*,*)" CLN ierr2 " , ierr
 
      CALL MPI_Type_size (blaze_restart_ts(rank), tsize, ierr)
+write(*,*)" CLN ierr3 " , ierr
      CALL MPI_Type_get_extent (blaze_restart_ts(rank), tmplb, text, ierr)
+write(*,*)" CLN ierr4 " , ierr
 
      WRITE (*,*) 'restart results recv from worker, size, extent, lb: ', &
    &       rank,tsize,text,tmplb
