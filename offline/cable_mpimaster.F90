@@ -704,11 +704,11 @@ CONTAINS
                 ! Fire init and 
                 IF ( CABLE_USER%CALL_BLAZE ) THEN
                    !CREATE handles for restart-data 
-                   CALL master_blaze_types(comm, wland, mp, BLAZE, blaze_restart_ts, blaze_out_ts)
+                   CALL master_blaze_types(comm, wland, wnp, mp, BLAZE, blaze_restart_ts, blaze_out_ts)
                    IF ( .NOT. spinup ) &
                         CALL master_send_input(icomm, blaze_restart_ts, ktau)
                    IF ( TRIM(cable_user%BURNT_AREA) == "SIMFIRE" ) THEN
-                      CALL master_simfire_types(comm, wland, mp, SIMFIRE, &
+                      CALL master_simfire_types(comm, wland, wnp, mp, SIMFIRE, &
                            simfire_restart_ts, simfire_inp_ts,simfire_out_ts)
                       IF ( .NOT. spinup ) &
                            CALL master_send_input(icomm,simfire_restart_ts, ktau)

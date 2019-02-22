@@ -29,7 +29,7 @@ MODULE BLAZE_MPI
   
 CONTAINS
 
-SUBROUTINE master_blaze_types (comm, wland, mp, BLAZE, blaze_restart_ts, blaze_out_ts)
+SUBROUTINE master_blaze_types (comm, wland, wnp, mp, BLAZE, blaze_restart_ts, blaze_out_ts)
   
   ! Send blaze restart data to workers  
   
@@ -37,6 +37,7 @@ SUBROUTINE master_blaze_types (comm, wland, mp, BLAZE, blaze_restart_ts, blaze_o
   
   INTEGER              , INTENT(IN)  :: comm ! MPI communicator to talk to the workers
   INTEGER              , INTENT(IN)  :: mp   ! Number of gridcells
+  INTEGER              , INTENT(IN)  :: wnp  ! Number workers
   TYPE(TYPE_BLAZE)     , INTENT(IN)  :: BLAZE
   TYPE(lpdecomp_t), DIMENSION(:) , INTENT(IN)  :: wland
   INTEGER, DIMENSION(:), INTENT(OUT) :: blaze_restart_ts,blaze_out_ts 
@@ -59,7 +60,7 @@ SUBROUTINE master_blaze_types (comm, wland, mp, BLAZE, blaze_restart_ts, blaze_o
   INTEGER :: tsize, totalrecv, totalsend
   INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
 
-  INTEGER :: rank, off, cnt, wnp
+  INTEGER :: rank, off, cnt
   INTEGER :: bidx, midx, vidx, ierr
 
   ! Restart value handles (restart_blaze_ts()) 
@@ -185,7 +186,7 @@ write(*,*)" CLN ierr4 " , ierr
   CALL MPI_Reduce (MPI_IN_PLACE, totalsend, 1, MPI_INTEGER, MPI_SUM, &
     &     0, comm, ierr)
 
-  WRITE (*,*) 'blaze total size of restart fields sent by all workers: ', totalsend
+  WRITE (*,*) 'CLN rw1 blaze total size of restart fields sent by all workers: ', totalsend
 
   IF (totalrecv /= totalsend) THEN
           WRITE (*,*) 'error: blaze restart fields totalsend and totalrecv differ', totalsend,totalrecv
@@ -452,7 +453,7 @@ SUBROUTINE worker_blaze_types(comm, mp, BLAZE, blaze_restart_t, blaze_out_t)
   r1len = cnt * extr1
   r2len = cnt * extr2
   i1len = cnt * extid
-  llen  = cnt * extl
+!  llen  = cnt * extl
 
   off  = 1
   bidx = 0
@@ -694,7 +695,7 @@ SUBROUTINE worker_blaze_types(comm, mp, BLAZE, blaze_restart_t, blaze_out_t)
      
 END SUBROUTINE worker_blaze_types
 
-SUBROUTINE master_simfire_types(comm, wland, mp, SF, simfire_restart_ts, simfire_inp_ts,simfire_out_ts)
+SUBROUTINE master_simfire_types(comm, wland, wnp, mp, SF, simfire_restart_ts, simfire_inp_ts,simfire_out_ts)
 
   ! Send simfire restart data to workers  
   
@@ -703,6 +704,7 @@ SUBROUTINE master_simfire_types(comm, wland, mp, SF, simfire_restart_ts, simfire
   INTEGER              , INTENT(IN)  :: comm ! MPI communicator to talk to the workers
   TYPE(lpdecomp_t), DIMENSION(:)     , INTENT(IN)  :: wland
   INTEGER              , INTENT(IN)  :: mp   ! Number of gridcells
+  INTEGER              , INTENT(IN)  :: wnp  ! Number of workers
   TYPE(TYPE_SIMFIRE)   , INTENT(IN)  :: SF
   INTEGER, DIMENSION(:), INTENT(OUT) :: simfire_restart_ts,simfire_inp_ts,simfire_out_ts 
 
@@ -724,7 +726,7 @@ SUBROUTINE master_simfire_types(comm, wland, mp, SF, simfire_restart_ts, simfire
   INTEGER :: tsize, totalrecv, totalsend
   INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
 
-  INTEGER :: rank, off, cnt, wnp
+  INTEGER :: rank, off, cnt
   INTEGER :: bidx, midx, vidx, ierr
 
   ! Restart value handles (simfire_restart_ts) 
