@@ -173,7 +173,7 @@ SUBROUTINE master_blaze_types (comm, wland, mp, BLAZE, blaze_restart_ts, blaze_o
 
   END DO
 
-  WRITE (*,*) 'blaze total size of restart fields received from all workers: ', totalrecv
+  WRITE (*,*) 'CLN rw1 blaze total size of restart fields received from all workers: ', totalrecv
 
   ! MPI: check whether total size of received data equals total
   ! data sent by all the workers
