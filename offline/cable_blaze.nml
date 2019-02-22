@@ -97,7 +97,7 @@
    cable_user%PHENOLOGY_SWITCH = 'climate'
    cable_user%POPLUC = .T.	       
    cable_user%CALL_BLAZE       = .T.		! Switch on/off Fire-model BLAZE
-   cable_user%BLAZE_Tstep      = "daily"	! Call frequency ("daily","monthly","annually")
+   cable_user%BLAZE_Tstep      = "annually"	! Call frequency ("daily","monthly","annually")
    cable_user%BURNT_AREA       = "SIMFIRE"    	! Burnt Area ("PRESCRIBED","SIMFIRE","GFED3.1") 
    cable_user%SIMFIRE_REGION   = "GLOBAL"    	! ("ANZ","EUROPE","GLOBAL") 
 

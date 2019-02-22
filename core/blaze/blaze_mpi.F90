@@ -184,7 +184,7 @@ SUBROUTINE master_blaze_types (comm, wland, mp, BLAZE, blaze_restart_ts, blaze_o
   WRITE (*,*) 'blaze total size of restart fields sent by all workers: ', totalsend
 
   IF (totalrecv /= totalsend) THEN
-          WRITE (*,*) 'error: blaze restart fields totalsend and totalrecv differ'
+          WRITE (*,*) 'error: blaze restart fields totalsend and totalrecv differ', totalsend,totalrecv
           CALL MPI_Abort (comm, 0, ierr)
   END IF
 
