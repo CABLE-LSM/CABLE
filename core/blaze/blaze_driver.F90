@@ -24,7 +24,8 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool, casaflux, casamet, shootf
   TYPE (casa_flux), INTENT(IN)         :: casaflux
   TYPE (casa_met ), INTENT(IN)         :: casamet
   INTEGER,          INTENT(IN)         :: idoy, CurYear, CTLFLAG,ncells
-  REAL,DIMENSION(NCELLS),INTENT(IN)    :: shootfrac
+  !REAL,DIMENSION(NCELLS),INTENT(IN)    :: shootfrac
+  REAL, INTENT(IN)    :: shootfrac
 !CLN  REAL,DIMENSION(NCELLS,13), INTENT(INOUT) :: BLAZEFLX
 
   INTEGER, PARAMETER        :: NPOOLS = 3

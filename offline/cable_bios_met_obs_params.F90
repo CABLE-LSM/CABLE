@@ -527,7 +527,8 @@ MODULE cable_bios_met_obs_params
     csoil1_file, csoil2_file, depth1_m_file, depth2_m_file, hyk1sat_ms_file, hyk2sat_ms_file, & 
     psie1_m_file, psie2_m_file, siltfrac1_file, siltfrac2_file, wvol1fc_m3m3_file, wvol2fc_m3m3_file, &
     wvol1sat_m3m3_file, wvol2sat_m3m3_file, wvol1w_m3m3_file, wvol2w_m3m3_file, MVG_file , &
-    c4frac_file !, &
+    c4frac_file , vegtypeigbp_file, MAP_file, avgannmax_fapar_file 
+    !, &
 !    slope_deg_file  ! Terrain slope in degrees
 
 ! Define the daily bios met variables and file unit numbers which are required by multiple subroutines.
@@ -614,7 +615,7 @@ CONTAINS
     csoil1_file, csoil2_file, depth1_m_file, depth2_m_file, hyk1sat_ms_file, hyk2sat_ms_file, & 
     psie1_m_file, psie2_m_file, siltfrac1_file, siltfrac2_file, wvol1fc_m3m3_file, wvol2fc_m3m3_file, &
     wvol1sat_m3m3_file, wvol2sat_m3m3_file, wvol1w_m3m3_file, wvol2w_m3m3_file, MVG_file, &
-    c4frac_file, &
+    c4frac_file, vegtypeigbp_file, MAP_file, avgannmax_fapar_file, &
 !    slope_deg_file, &  ! Terrain slope in degrees
     dels               ! time step size in seconds
   
@@ -709,6 +710,9 @@ CONTAINS
   WRITE(*   ,*)" wvol2w_m3m3_file    = ",TRIM(wvol2w_m3m3_file)
   WRITE(*   ,*)" MVG_file    = ",TRIM(MVG_file)
   WRITE(*   ,*)" c4frac_file    = ",TRIM(c4frac_file)
+  WRITE(*   ,*)" vegtypeigbp_file    = ",TRIM(vegtypeigbp_file)
+  WRITE(*   ,*)" MAP_file    = ",TRIM(MAP_file)
+  WRITE(*   ,*)" avgannmax_fapar_file   = ",TRIM(avgannmax_fapar_file)
   !WRITE(*   ,*)" slope_deg_file      = ",TRIM(slope_deg_file)
   WRITE(*   ,*)" DT(secs): ",dels
 
@@ -750,7 +754,10 @@ CONTAINS
   WRITE(logn,*)" wvol1w_m3m3_file    = ",TRIM(wvol1w_m3m3_file)
   WRITE(logn,*)" wvol2w_m3m3_file    = ",TRIM(wvol2w_m3m3_file)
   WRITE(logn,*)" MVG_file    = ",TRIM(MVG_file)
-  WRITE(logn   ,*)" c4frac_file    = ",TRIM(c4frac_file)
+  WRITE(logn ,*)" c4frac_file    = ",TRIM(c4frac_file)
+  WRITE(logn,*)" vegtypeigbp_file    = ",TRIM(vegtypeigbp_file)
+  WRITE(logn ,*)" MAP_file    = ",TRIM(MAP_file)
+  WRITE(logn,*)" avgannmax_fapar_file   = ",TRIM(avgannmax_fapar_file)
   !WRITE(logn,*)" slope_deg_file      = ",TRIM(slope_deg_file)
   WRITE(logn,*)" timestep in secs  = ",dels
   WRITE(logn,*)" DT(secs): ",dels
@@ -1286,7 +1293,8 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
    met%coszen(is:ie)    = WG%coszen(iland)
    met%qv(is:ie)        = WG%VapPmb(iland)/WG%Pmb(iland)*RMWbyRMA ! specific humidity (kg/kg)
    met%pmb(is:ie)       = WG%Pmb(iland)
-  
+   met%rhum(is:ie)  =  WG%VapPmb(iland)/esatf(real(WG%Temp(iland),sp))
+   met%u10(is:ie) = met%ua(is:ie) 
    ! initialise within canopy air temp
    met%tvair(is:ie)     = met%tk(is:ie) 
    met%tvrad(is:ie)     = met%tk(is:ie)
@@ -1755,8 +1763,68 @@ fracC4 = tmp
 END SUBROUTINE cable_bios_load_fracC4
 
 !******************************************************************************
+SUBROUTINE cable_bios_load_climate_params(climate)
+
+USE cable_def_types_mod,  ONLY: mland, climate_type
+
+  IMPLICIT NONE
 
 
+INTEGER(i4b) :: is, ie ! Index start/end points within cable spatial vectors
+                                ! for the current land-cell's tiles. These are just 
+                                ! aliases to improve code readability
+INTEGER(i4b) :: iland         ! loop counter through mland land cells
+INTEGER(i4b) :: param_unit    ! Unit number for reading (all) parameter files.
+INTEGER(i4b) :: error_status  ! Error status returned by OPENs
+TYPE(climate_type), INTENT(INOUT)       :: climate ! climate variables
+
+REAL(sp), ALLOCATABLE :: vegtypeigbp(:)
+REAL(sp), ALLOCATABLE :: MAP(:)
+REAL(sp), ALLOCATABLE :: avgannmax_fapar(:)
+
+
+ALLOCATE (vegtypeigbp(mland), MAP(mland),  avgannmax_fapar(mland))
+
+CALL GET_UNIT(param_unit)  ! Obtain an unused unit number for file reading, reused for all soil vars.
+
+OPEN (param_unit, FILE=TRIM(param_path)//TRIM(vegtypeigbp_file), ACCESS='STREAM', &
+     FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+IF (error_status > 0) THEN
+  WRITE (*,'("STOP - File not found: ")') TRIM(param_path)//TRIM(vegtypeigbp_file) ; STOP ''
+ELSE
+  READ (param_unit) vegtypeigbp
+  CLOSE (param_unit)
+END IF
+
+OPEN (param_unit, FILE=TRIM(param_path)//TRIM(MAP_file), ACCESS='STREAM', &
+     FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+IF (error_status > 0) THEN
+  WRITE (*,'("STOP - File not found: ")') TRIM(param_path)//TRIM(MAP_file) ; STOP ''
+ELSE
+  READ (param_unit) MAP
+  CLOSE (param_unit)
+END IF
+
+OPEN (param_unit, FILE=TRIM(param_path)//TRIM(avgannmax_fapar_file), ACCESS='STREAM', &
+     FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+IF (error_status > 0) THEN
+  WRITE (*,'("STOP - File not found: ")') TRIM(param_path)//TRIM(avgannmax_fapar_file) ; STOP ''
+ELSE
+  READ (param_unit) avgannmax_fapar
+  CLOSE (param_unit)
+END IF
+
+DO iland = 1,mland ! For each land cell...
+   is = landpt(iland)%cstart  ! Index position for the first tile of this land cell.
+   ie = landpt(iland)%cend    ! Index position for the last tile of this land cell.
+   climate%modis_igbp(is:ie) = INT(vegtypeigbp(iland))
+   climate%AvgAnnRainf(is:ie) = MAP(iland)
+   climate%AvgAnnMaxFAPAR(is:ie) = avgannmax_fapar(iland)
+ENDDO
+
+
+END SUBROUTINE cable_bios_load_climate_params
+!******************************************************************************
   
 END MODULE cable_bios_met_obs_params
     

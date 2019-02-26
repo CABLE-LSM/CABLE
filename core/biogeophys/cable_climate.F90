@@ -785,6 +785,10 @@ if (cable_user%climate_fromzero) then
    climate%dmoist_min_20 = 0.0
    climate%dmoist_max_20 = 0.0
    climate%fapar_ann_max_last_year = 0.0
+
+   climate%modis_igbp = 0
+   climate%AvgAnnRainf = 0.0
+   climate%AvgAnnMaxFAPAR = 0.0
    
 else
    CALL READ_CLIMATE_RESTART_NC (climate, ktauday )

@@ -51,18 +51,18 @@ CONTAINS
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-SUBROUTINE INI_SIMFIRE( NCELLS, SIMFIRE_REGION, SF )
+SUBROUTINE INI_SIMFIRE( NCELLS, SIMFIRE_REGION, SF, modis_igbp )
 
   USE CABLE_COMMON_MODULE,  ONLY: GET_UNIT
   USE CABLE_IO_VARS_MODULE, ONLY: LATITUDE, LONGITUDE
+  USE cable_IO_vars_module, ONLY:  landpt
 
   IMPLICIT NONE
   
   TYPE (TYPE_SIMFIRE), INTENT(INOUT) :: SF
-  INTEGER,             INTENT(IN)    :: NCELLS
+  INTEGER,             INTENT(IN)    :: NCELLS, modis_igbp(NCELLS)
   CHARACTER(len=*),    INTENT(IN)    :: SIMFIRE_REGION
-  INTEGER, DIMENSION(NCELLS)         :: modis_igbp
-
+  
   INTEGER :: i
   
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -93,6 +93,10 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SIMFIRE_REGION, SF )
   ! IGBP, SF-BIOME and REGION(of optimization)
 
   !CLN READ modis-IGBP here!!!
+  !vh!
+  ! inherit modis_igbp from climate variable
+
+  SF%IGBP = modis_igbp
 
   DO i = 1, NCELLS
      IF ( SF%IGBP(i) .LT. 1 .OR. SF%IGBP(i) .GT. 16 ) THEN

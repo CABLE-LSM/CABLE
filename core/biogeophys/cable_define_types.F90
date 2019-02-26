@@ -586,7 +586,8 @@ MODULE cable_def_types_mod
        chilldays, &   ! length of chilling period (period with T<5deg)
        iveg, &        ! potential vegetation type based on climatic constraints
        biome, &
-       GMD            ! growing moisture days (== number days since min moisture threshold)
+       GMD , &           ! growing moisture days (== number days since min moisture threshold)
+       modis_igbp     ! IGBP biome classification
 
       REAL, DIMENSION(:), POINTER ::                                           &
       dtemp,        & ! daily mean temperature
@@ -618,8 +619,10 @@ MODULE cable_def_types_mod
       dtemp_min, &      ! daily minimum temperature
       fdorm, & ! dormancy fraction (1 prior to first autumn frost; 0 after 10 severe frosts)
       fapar_ann_max, & ! maximum midday fpar so far this year
-      fapar_ann_max_last_year ! maximum midday fpar last year
-
+      fapar_ann_max_last_year, & ! maximum midday fpar last year
+      AvgAnnRainf, &   ! average annual rainfall
+      AvgAnnMaxFAPAR  ! average annual maximum FAPAR
+      
       REAL, DIMENSION(:,:), POINTER ::                                   &
       mtemp_min_20, & ! mimimum monthly temperatures for the last 20 y
       mtemp_max_20, & ! maximum monthly temperatures for the last 20 y
@@ -1059,8 +1062,8 @@ SUBROUTINE alloc_canopy_type(var, mp)
    ALLOCATE( var% oldcansto(mp) )
    ALLOCATE( var% zetar(mp,NITER) )
    ALLOCATE( var% zetash(mp,NITER) )
-    ALLOCATE ( var % fwsoil(mp) )
-    ALLOCATE ( var % ofes(mp) )
+   ALLOCATE ( var % fwsoil(mp) )
+   ALLOCATE ( var % ofes(mp) )
 
     ALLOCATE ( var % gw(mp,mf) )     ! dry canopy conductance (ms-1) edit vh 6/7/09
     ALLOCATE ( var % ancj(mp,mf,3) ) ! limiting photosynthetic rates (Rubisco,RuBP,sink) vh 6/7/09
@@ -1198,6 +1201,8 @@ SUBROUTINE alloc_met_type(var, mp)
    ALLOCATE ( var % coszen(mp) )
    ALLOCATE ( var % Ndep(mp) )
    ALLOCATE ( var % Pdep(mp) )
+   ALLOCATE ( var % rhum(mp) )
+   ALLOCATE ( var % u10(mp) )
 END SUBROUTINE alloc_met_type
 
 ! ------------------------------------------------------------------------------
@@ -1248,6 +1253,9 @@ SUBROUTINE alloc_climate_type(var, mp, ktauday)
    ALLOCATE ( var % fdorm(mp) )
    ALLOCATE ( var % fapar_ann_max(mp) )
    ALLOCATE ( var % fapar_ann_max_last_year(mp) )
+   ALLOCATE ( var % modis_igbp(mp) )
+   ALLOCATE ( var % AvgAnnRainf(mp) )
+   ALLOCATE ( var % AvgAnnMaxFAPAR(mp) )
 
    ALLOCATE ( var % mtemp_min_20(mp,ny) )
    ALLOCATE ( var %     mtemp_max_20(mp,ny) )
@@ -1769,6 +1777,8 @@ SUBROUTINE dealloc_met_type(var)
    DEALLOCATE ( var % coszen )
    DEALLOCATE ( var % Ndep )
    DEALLOCATE ( var % Pdep )
+   DEALLOCATE ( var % rhum )
+   DEALLOCATE ( var % u10 )
 END SUBROUTINE dealloc_met_type
 
 ! ------------------------------------------------------------------------------

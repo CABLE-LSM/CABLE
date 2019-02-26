@@ -2529,28 +2529,30 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
          CALL POPLUC_init(POPLUC,LUC_EXPT, casapool, casaflux, casabiome, veg, POP, mland)
       ENDIF
 
-      ! CLN ALLOCATE BLAZE Arrays 
-      IF ( cable_user%CALL_BLAZE ) THEN
-         ! CLN ?VH is rad%lat/lon below correct? 
-         CALL INI_BLAZE ( cable_user%CALL_POP, cable_user%BURNT_AREA, &
-                 cable_user%BLAZE_TSTEP, mland, rad%latitude, rad%longitude, BLAZE )
-         !CLNIF ( .NOT. spinup) CALL READ_BLAZE_RESTART(...)
-
-         IF ( TRIM(cable_user%BURNT_AREA) == "SIMFIRE" ) THEN
-            CALL INI_SIMFIRE(mland,cable_user%SIMFIRE_REGION,SIMFIRE) !CLN here we need to check for the SIMFIRE biome setting
-            
-            IF ( spinup ) THEN
-               !CLN get_biomes
-            ELSE
-               !CLN CALL READ_SIMFIRE_RESTART(...)
-            END IF
-         END IF
-
-         ! CLN enter gfed & PRESCRIBED here
-         
-         IF ( BLAZE%ERR ) RETURN            
-         ! Read restart values
-      ENDIF
+!!$      ! CLN ALLOCATE BLAZE Arrays 
+!!$      IF ( cable_user%CALL_BLAZE ) THEN
+!!$         ! CLN ?VH is rad%lat/lon below correct? 
+!!$         CALL INI_BLAZE ( cable_user%CALL_POP, cable_user%BURNT_AREA, &
+!!$              cable_user%BLAZE_TSTEP, mland, rad%latitude(landpt(:)%cstart), &
+!!$              rad%longitude(landpt(:)%cstart), BLAZE )
+!!$         !CLNIF ( .NOT. spinup) CALL READ_BLAZE_RESTART(...)
+!!$
+!!$         IF ( TRIM(cable_user%BURNT_AREA) == "SIMFIRE" ) THEN
+!!$            CALL INI_SIMFIRE(mland,cable_user%SIMFIRE_REGION,SIMFIRE, &
+!!$                 climate%modis_igbp(landpt(:)%cstart) ) !CLN here we need to check for the SIMFIRE biome setting
+!!$            
+!!$            IF ( spinup ) THEN
+!!$               !CLN get_biomes
+!!$            ELSE
+!!$               !CLN CALL READ_SIMFIRE_RESTART(...)
+!!$            END IF
+!!$         END IF
+!!$
+!!$         ! CLN enter gfed & PRESCRIBED here
+!!$         
+!!$         IF ( BLAZE%ERR ) RETURN            
+!!$         ! Read restart values
+!!$      ENDIF
    ENDIF
 
 ! removed get_default_inits and get_default_lai as they are already done

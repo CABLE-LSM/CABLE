@@ -63,7 +63,7 @@ PROGRAM cable_offline_driver
   USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,		      &
        verbose, fixedCO2,output,check,patchout,	   &
        patch_type,soilparmnew,&
-       defaultLAI, sdoy, smoy, syear, timeunits, exists, calendar
+       defaultLAI, sdoy, smoy, syear, timeunits, exists, calendar, landpt
   USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
        cable_runtime, filename, myhome,		   &
        redistrb, wiltParam, satuParam, CurYear,	   &
@@ -88,6 +88,8 @@ PROGRAM cable_offline_driver
   USE cable_diag_module
   !mpidiff
   USE cable_climate_mod
+  USE BLAZE_MOD,      ONLY: TYPE_BLAZE, INI_BLAZE
+  USE SIMFIRE_MOD,    ONLY: TYPE_SIMFIRE, INI_SIMFIRE
 
   ! modules related to CASA-CNP
   USE casadimension,	    ONLY: icycle
@@ -102,10 +104,10 @@ PROGRAM cable_offline_driver
   USE POPLUC_Types, ONLY : POPLUC_Type
   USE POPLUC_Module, ONLY:  WRITE_LUC_OUTPUT_NC, WRITE_LUC_OUTPUT_GRID_NC, &
        POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, POPLUC_set_patchfrac 
-  USE POP_Constants,	    ONLY: HEIGHT_BINS, NCOHORT_MAX
+  USE POP_Constants,	    ONLY: HEIGHT_BINS, NCOHORT_MAX, shootfrac
 
   ! Fire Model BLAZE
-  USE BLAZE_MOD,            ONLY: TYPE_BLAZE
+  USE BLAZE_MOD,            ONLY: TYPE_BLAZE, BLAZE_ACCOUNTING
   USE SIMFIRE_MOD,          ONLY: TYPE_SIMFIRE
 
   ! PLUME-MIP only
@@ -117,7 +119,8 @@ PROGRAM cable_offline_driver
 
   ! BIOS only
   USE cable_bios_met_obs_params,   ONLY:  cable_bios_read_met, cable_bios_init, &
-                                          cable_bios_load_params
+                                          cable_bios_load_params, &
+                                          cable_bios_load_climate_params
 
  ! LUC_EXPT only
  USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE, LUC_EXPT_INIT
@@ -198,6 +201,10 @@ PROGRAM cable_offline_driver
   TYPE (LUC_EXPT_TYPE) :: LUC_EXPT
   CHARACTER		:: cyear*4
   CHARACTER		:: ncfile*99
+
+  ! BLAZE variables
+  TYPE (TYPE_BLAZE)    :: BLAZE
+  TYPE (TYPE_SIMFIRE)  :: SIMFIRE
 
   ! declare vars for switches (default .FALSE.) etc declared thru namelist
   LOGICAL, SAVE		  :: &
@@ -338,7 +345,7 @@ PROGRAM cable_offline_driver
 
      !! vh_js !!
      CABLE_USER%CALL_POP	= .FALSE.
-     CABLE_USER%BLAZE    	= .FALSE.
+     CABLE_USER%CALL_BLAZE    	= .FALSE.
   ENDIF
 
   !! vh_js !!
@@ -593,6 +600,9 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
        IF (cable_user%POPLUC) THEN
           CALL LUC_EXPT_INIT (LUC_EXPT)
        ENDIF
+
+      
+       
        !! vh_js !!
        CALL load_parameters( met, air, ssnow, veg,climate,bgc,		&
             soil, canopy, rough, rad, sum_flux,			 &
@@ -607,7 +617,7 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
     ! Having read the default parameters, if this is a bios run we will now
     ! overwrite the subset of them required for bios.
        IF ( TRIM(cable_user%MetType) .EQ. 'bios' ) THEN
-         CALL cable_bios_load_params (soil)
+          CALL cable_bios_load_params (soil)
        ENDIF
 
        ! Open output file:
@@ -643,10 +653,7 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
        CALL zero_sum_casa(sum_casapool, sum_casaflux)
        count_sum_casa = 0
        
-       if (cable_user%call_climate) CALL climate_init ( climate, mp, ktauday )
-       if (cable_user%call_climate .AND.(.NOT.cable_user%climate_fromzero)) &
-            CALL READ_CLIMATE_RESTART_NC (climate, ktauday)
-       
+             
        spinConv = .FALSE. ! initialise spinup convergence variable
        IF (.NOT.spinup)	spinConv=.TRUE.
 
@@ -669,6 +676,31 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
           ktau = kend
           
        ENDIF
+
+       if (cable_user%call_climate) CALL climate_init ( climate, mp, ktauday )
+       if (cable_user%call_climate .AND.(.NOT.cable_user%climate_fromzero)) &
+            CALL READ_CLIMATE_RESTART_NC (climate, ktauday)
+
+       IF ( TRIM(cable_user%MetType) .EQ. 'bios' ) THEN
+          CALL cable_bios_load_climate_params(climate)  ! additional params needed for BLAZE
+       ENDIF
+
+       IF ( cable_user%CALL_BLAZE ) THEN
+          ! CLN ?VH is rad%lat/lon below correct? 
+          CALL INI_BLAZE ( cable_user%CALL_POP, cable_user%BURNT_AREA, &
+               cable_user%BLAZE_TSTEP, mland, rad%latitude(landpt(:)%cstart), &
+               rad%longitude(landpt(:)%cstart), BLAZE )
+          !CLNIF ( .NOT. spinup) CALL READ_BLAZE_RESTART(...)
+          
+          IF ( TRIM(cable_user%BURNT_AREA) == "SIMFIRE" ) THEN
+             CALL INI_SIMFIRE(mland,cable_user%SIMFIRE_REGION,SIMFIRE, &
+                  climate%modis_igbp(landpt(:)%cstart) ) !CLN here we need to check for the SIMFIRE biome setting
+          ENDIF
+       ENDIF
+          
+
+          
+
        
        
        
@@ -824,9 +856,17 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
                          CABLE_USER%CASA_DUMP_READ, CABLE_USER%CASA_DUMP_WRITE,   &
                          LALLOC )
 
-                    IF ( BLAZE%CTRL .GT. 0) &
-                         CALL blazedriver(BLAZE,met,?NCELLS?,casapool,casaflux,?lat?,?lon?, & 
-                         ?shootfrac?,?FAPAR?,,)
+
+                   IF ( cable_user%CALL_BLAZE ) THEN
+                      CALL BLAZE_ACCOUNTING(BLAZE, met, ktau, dels, YYYY, idoy)
+                      If ( MOD(ktau,ktauday).EQ.0 ) &
+                           call blaze_driver(blaze%ncells,blaze, simfire, casapool, casaflux, &
+                           shootfrac, idoy, YYYY, 1)
+                   ENDIF
+
+!!$                    IF ( BLAZE%CTRL .GT. 0) &
+!!$                         CALL blazedriver(BLAZE,met,?NCELLS?,casapool,casaflux,?lat?,?lon?, & 
+!!$                         ?shootfrac?,?FAPAR?,,)
 
                     !! put igbp_modis into ini (including read where from???)
                     !! inot BLAZE_TYPE: BLAZEFLAG,AvgAnnMaxFAPAR, modis_igbp,
@@ -863,7 +903,7 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
 
                        ENDIF
 
-                       CALL BLAZE_TURNOVER()
+                       !!CALL BLAZE_TURNOVER()
                        
                        !! CLN BLAZE TURNOVER 
                        

@@ -105,6 +105,7 @@ SUBROUTINE INI_BLAZE (POPFLAG, BURNT_AREA_SOURCE, TSTEP, np, LAT, LON, BLAZE)
   ALLOCATE ( BLAZE%TMIN    ( np ) )
 !  ALLOCATE ( BLAZE%F       ( np ) )
   ALLOCATE ( BLAZE%FLI     ( np ) )
+  ALLOCATE ( BLAZE%FFDI     ( np ) )
   ALLOCATE ( BLAZE%FLIx    ( np ) )
   ALLOCATE ( BLAZE%DFLI    ( np ) )
   ALLOCATE ( BLAZE%ROS     ( np ) )
@@ -113,7 +114,9 @@ SUBROUTINE INI_BLAZE (POPFLAG, BURNT_AREA_SOURCE, TSTEP, np, LAT, LON, BLAZE)
   ALLOCATE ( BLAZE%w       ( np ) )
   ALLOCATE ( BLAZE%TO      ( np, NTO ) )
   ALLOCATE ( BLAZE%AnnRainf( np, 366 ) )
-  ALLOCATE ( BLAZE%DEADWOOD( np ) ) 
+  ALLOCATE ( BLAZE%CAvgAnnRainf(np))
+  ALLOCATE ( BLAZE%DEADWOOD( np ) )
+  ALLOCATE ( BLAZE%SHOOTFRAC( np ) ) 
   ! POP related vars
   ALLOCATE ( BLAZE%POP_TO  ( np ) )
   ALLOCATE ( BLAZE%POP_CWD ( np ) )
@@ -168,6 +171,7 @@ SUBROUTINE INI_BLAZE (POPFLAG, BURNT_AREA_SOURCE, TSTEP, np, LAT, LON, BLAZE)
   BLAZE%FT    = 30               
   ! Read initial Annual Rainfall Data
   ! CLN check for validity and more options...
+  ! vh ! needs a BLAZE restart file?
   
 END SUBROUTINE INI_BLAZE
 
@@ -175,6 +179,7 @@ SUBROUTINE BLAZE_ACCOUNTING(BLAZE, met, ktau, dels, year, doy)
 
   USE CABLE_DEF_TYPES_MOD, ONLY: MET_TYPE
   USE CABLE_COMMON_MODULE, ONLY: IS_LEAPYEAR
+  USE cable_IO_vars_module, ONLY:  landpt
 
   IMPLICIT NONE 
 
@@ -215,11 +220,11 @@ SUBROUTINE BLAZE_ACCOUNTING(BLAZE, met, ktau, dels, year, doy)
   END IF
 
   DO i = 1, mp
-     BLAZE%AnnRAINF(i,doy) = BLAZE%AnnRAINF(i,doy) + met%precip(i)    
-     BLAZE%U10 (i) = MAX(met%u10(i),BLAZE%U10(i))        ! m/s -> km/s
-     BLAZE%RH  (i) = BLAZE%RH(i) + met%rhum(i)/t_fac     ! daily average rel. humidity
-     BLAZE%TMAX(i) = MAX(met%tvair(i),BLAZE%TMAX(i))
-     BLAZE%TMIN(i) = MIN(met%tvair(i),BLAZE%TMIN(i))     
+     BLAZE%AnnRAINF(i,doy) = BLAZE%AnnRAINF(i,doy) + met%precip(landpt(i)%cstart)    
+     BLAZE%U10 (i) = MAX(met%u10(landpt(i)%cstart),BLAZE%U10(i))        ! m/s -> km/s
+     BLAZE%RH  (i) = BLAZE%RH(i) + met%rhum(landpt(i)%cstart)/t_fac     ! daily average rel. humidity
+     BLAZE%TMAX(i) = MAX(met%tvair(landpt(i)%cstart),BLAZE%TMAX(i))
+     BLAZE%TMIN(i) = MIN(met%tvair(landpt(i)%cstart),BLAZE%TMIN(i))     
   END DO
 
   if ( .NOT. is_leapyear(year) .AND. doy .EQ. 365 ) BLAZE%AnnRAINF(:,366) = 0.
