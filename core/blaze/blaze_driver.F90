@@ -10,7 +10,7 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool, casaflux, casamet, shootf
        METB, STR, CWD, LEAF, WOOD, FROOT, TYPE_BLAZE
   USE SIMFIRE_MOD,         ONLY: TYPE_SIMFIRE
   !vhc
-  USE cable_IO_vars_module, ONLY: landpt
+  USE cable_IO_vars_module, ONLY: landpt, patch
 
   
   !RLN USE UTILS,               ONLY: Esatf
@@ -48,7 +48,7 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool, casaflux, casamet, shootf
   REAL,   DIMENSION(NCELLS) :: AB, relhum, U10, FLI, DFLI, FFDI !CRM , popd, mnest
 !CRM  REAL,   DIMENSION(NCELLS) :: AvgAnnMaxFAPAR, AvgAnnRainf, ag_lit, tot_lit
 
-  INTEGER       :: MM, DD, i, np, j, patch, p
+  INTEGER       :: MM, DD, i, np, j, patch_index, p
   REAL          :: TSTP, C_CHKSUM
   REAL          :: ag_lit, tot_lit
   REAL          :: CPLANT_g (ncells,3),CPLANT_w (ncells,3)
@@ -86,14 +86,18 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool, casaflux, casamet, shootf
   ! BLAZE _g and _w pools need to be summed over tiles in each gridcell, weighted by patchfrac
   DO i = 1, BLAZE%NCELLS
      DO p = 1, landpt(i)%nap  ! loop over number of active patches
-        patch = landpt(i)%cstart + p - 1 ! patch index in CABLE vector
+        patch_index = landpt(i)%cstart + p - 1 ! patch index in CABLE vector
         DO j = 1, 3 
-           IF ( casamet%lnonwood(patch) == 1 ) THEN ! Here non-wood
-              CPLANT_g (:,i) = CPLANT_g (:,i) + casapool%cplant (patch,i)
-              CLITTER_g(:,i) = CLITTER_g(:,i) + casapool%clitter(patch,i)
-           ELSEIF ( casamet%lnonwood(patch) == 0 ) THEN ! Here woody patches
-              CPLANT_w (:,i) = CPLANT_w (:,i) + casapool%cplant (patch,i)
-              CLITTER_w(:,i) = CLITTER_w(:,i) + casapool%clitter(patch,i)
+           IF ( casamet%lnonwood(patch_index) == 1 ) THEN ! Here non-wood
+              CPLANT_g (:,i) = CPLANT_g (:,i) + &
+                   casapool%cplant (patch_index,i)*patch(patch_index)%frac
+              CLITTER_g(:,i) = CLITTER_g(:,i) + &
+                   casapool%clitter(patch_index,i)*patch(patch_index)%frac
+           ELSEIF ( casamet%lnonwood(patch_index) == 0 ) THEN ! Here woody patches
+              CPLANT_w (:,i) = CPLANT_w (:,i) + &
+                   casapool%cplant (patch_index,i)*patch(patch_index)%frac
+              CLITTER_w(:,i) = CLITTER_w(:,i) + &
+                   casapool%clitter(patch_index,i)*patch(patch_index)%frac
            ENDIF
         END DO
      ENDDO
