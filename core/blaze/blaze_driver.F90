@@ -9,6 +9,10 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool, casaflux, casamet, shootf
   USE BLAZE_MOD,           ONLY: RUN_BLAZE, TYPE_TURNOVER, BLAZE_TURNOVER, NTO, &
        METB, STR, CWD, LEAF, WOOD, FROOT, TYPE_BLAZE
   USE SIMFIRE_MOD,         ONLY: TYPE_SIMFIRE
+  !vhc
+  USE cable_IO_vars_module, ONLY: landpt
+
+  
   !RLN USE UTILS,               ONLY: Esatf
   !RLN USE BGCMODULE,           ONLY: tile_index
 
@@ -44,7 +48,7 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool, casaflux, casamet, shootf
   REAL,   DIMENSION(NCELLS) :: AB, relhum, U10, FLI, DFLI, FFDI !CRM , popd, mnest
 !CRM  REAL,   DIMENSION(NCELLS) :: AvgAnnMaxFAPAR, AvgAnnRainf, ag_lit, tot_lit
 
-  INTEGER       :: MM, DD, i, np
+  INTEGER       :: MM, DD, i, np, j, patch, p
   REAL          :: TSTP, C_CHKSUM
   REAL          :: ag_lit, tot_lit
   REAL          :: CPLANT_g (ncells,3),CPLANT_w (ncells,3)
@@ -78,15 +82,22 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool, casaflux, casamet, shootf
   CPLANT_w  = 0.
   CLITTER_w = 0.
 
-  DO i = 1, 3 
-     WHERE ( casamet%lnonwood == 1 ) ! Here non-wood
-        CPLANT_g (:,i) = casapool%cplant (:,i)
-        CLITTER_g(:,i) = casapool%clitter(:,i)
-     ELSEWHERE
-        CPLANT_w (:,i) = casapool%cplant (:,i)
-        CLITTER_w(:,i) = casapool%clitter(:,i)
-     END WHERE
-  END DO
+  !CVH
+  ! BLAZE _g and _w pools need to be summed over tiles in each gridcell, weighted by patchfrac
+  DO i = 1, BLAZE%NCELLS
+     DO p = 1, landpt(i)%nap  ! loop over number of active patches
+        patch = landpt(i)%cstart + p - 1 ! patch index in CABLE vector
+        DO j = 1, 3 
+           IF ( casamet%lnonwood(patch) == 1 ) THEN ! Here non-wood
+              CPLANT_g (:,i) = CPLANT_g (:,i) + casapool%cplant (patch,i)
+              CLITTER_g(:,i) = CLITTER_g(:,i) + casapool%clitter(patch,i)
+           ELSEIF ( casamet%lnonwood(patch) == 0 ) THEN ! Here woody patches
+              CPLANT_w (:,i) = CPLANT_w (:,i) + casapool%cplant (patch,i)
+              CLITTER_w(:,i) = CLITTER_w(:,i) + casapool%clitter(patch,i)
+           ENDIF
+        END DO
+     ENDDO
+  ENDDO
 
   ! CLN needs to be altered for beginning of spinup only!!!
   

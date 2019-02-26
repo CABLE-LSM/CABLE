@@ -2529,6 +2529,8 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
          CALL POPLUC_init(POPLUC,LUC_EXPT, casapool, casaflux, casabiome, veg, POP, mland)
       ENDIF
 
+!CVH moved initialisations to cable_driver.F90 because climate%modis_igpb is needed, and teh climate structure has not been initialised at this point.      
+
 !!$      ! CLN ALLOCATE BLAZE Arrays 
 !!$      IF ( cable_user%CALL_BLAZE ) THEN
 !!$         ! CLN ?VH is rad%lat/lon below correct? 
