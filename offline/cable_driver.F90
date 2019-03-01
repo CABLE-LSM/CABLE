@@ -861,7 +861,7 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
                       CALL BLAZE_ACCOUNTING(BLAZE, met, ktau, dels, YYYY, idoy)
                       If ( MOD(ktau,ktauday).EQ.0 ) &
                            call blaze_driver(blaze%ncells,blaze, simfire, casapool, casaflux, &
-                           shootfrac, idoy, YYYY, 1)
+                           casamet, shootfrac, idoy, YYYY, 1)
                    ENDIF
 
 !!$                    IF ( BLAZE%CTRL .GT. 0) &

@@ -289,6 +289,14 @@ MODULE casavariable
     REAL(r_2), DIMENSION(:),POINTER    :: FluxPtoclear
     REAL(r_2), DIMENSION(:),POINTER    :: CtransferLUC
 
+    !CVH variables inherited from BLAZE
+    REAL(r_2), DIMENSION(:,:,:),POINTER :: fromPtoL_fire
+    REAL(r_2), DIMENSION(:,:),POINTER    :: klitter_fire
+    REAL(r_2), DIMENSION(:,:),POINTER    :: kplant_fire
+
+    !CVH diagnostic: CO2 emissions from fire
+    REAL(r_2), DIMENSION(:),POINTER      :: FluxCtoCO2_fire
+    
   
   END TYPE casa_flux
 
@@ -554,6 +562,12 @@ SUBROUTINE alloc_casavariable(casabiome,casapool,casaflux, &
            casaflux%Cplant_turnover_crowding(arraysize) , &
            casaflux%Cplant_turnover_resource_limitation(arraysize))
 
+  !CVH Alllocate fire turnover rates and plant-to-litter partitioning coefficients
+  ALLOCATE(casaflux%fromPtoL_fire(arraysize,mlitter,mplant), &
+       casaflux%kplant_fire(arraysize,mplant),        &
+       casaflux%klitter_fire(arraysize,mlitter),           &
+       casaflux%FluxCtoCO2_fire(arraysize))
+  
   ALLOCATE(casaflux%FluxCtolitter(arraysize,mlitter),    &
            casaflux%FluxNtolitter(arraysize,mlitter),    &
            casaflux%FluxPtolitter(arraysize,mlitter))

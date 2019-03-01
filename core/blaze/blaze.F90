@@ -372,6 +372,7 @@ SUBROUTINE BLAZE_TURNOVER(AB, CPLANT_g, CPLANT_w, AGL_g, AGL_w, &
   MTO(LEAF )%TO_ATM = fAB * TO(LEAF )%TO_ATM * CPLANT_w (LEAF )
   MTO(WOOD )%TO_ATM = fAB * TO(WOOD )%TO_ATM * CPLANT_w (WOOD )
   MTO(LEAF )%TO_STR = fAB * TO(LEAF )%TO_STR * CPLANT_w (LEAF )
+  !CVH should the line below use only the above-ground wood pool?
   MTO(WOOD )%TO_STR = fAB * TO(WOOD )%TO_STR * CPLANT_w (WOOD )
   MTO(WOOD )%TO_CWD = fAB * TO(WOOD )%TO_CWD * CPLANT_w (WOOD )
   MTO(FROOT)%TO_ATM = fAB * TO(FROOT)%TO_ATM * CPLANT_w (FROOT)
@@ -410,7 +411,7 @@ SUBROUTINE BLAZE_TURNOVER(AB, CPLANT_g, CPLANT_w, AGL_g, AGL_w, &
 !CLN  PRINT*,'BT(13) =  AB * CLITTER_g(STR  )',AB * AGL_g(STR )
 
   ! Update Pools
-
+!CVH what about BGL_g?
   ! Grass fuels burned by area
   CPLANT_g (LEAF)  = CPLANT_g (LEAF) * (1. - AB)
   AGL_g(METB)      = AGL_g(METB)     * (1. - AB)
@@ -821,7 +822,7 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO ) !, CTR
              BLAZE%shootfrac(np), TO(np,:), BLAZE%FLUXES(np,:), BLAZE%BURNMODE )
 !CRM        CALL BLAZE_TURNOVER( BLAZE%AB(np), CPLANT_g(np,:), CPLANT_w(np,:), &
 !CRM             AGL_g(np,:), AGL_w(np,:),BGL_g(np,:), BGL_w(np,:), &
-!CRM             shootfrac(np), TO(np,:), POPFLAG, BLAZEFLX(np,:) )
+!CRM             shootrfac(np), TO(np,:), POPFLAG, BLAZEFLX(np,:) )
      ENDIF
 
      ! FLI Accounting for POP
