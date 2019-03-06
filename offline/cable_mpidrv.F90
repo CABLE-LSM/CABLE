@@ -24,15 +24,24 @@ PROGRAM mpi_driver
   USE cable_mpicommon
   USE cable_mpimaster
   USE cable_mpiworker
+  USE cable_namelist_util, only: get_namelist_file_name,&
+                                 CABLE_NAMELIST,arg_not_namelist
 
   IMPLICIT NONE
 
   INTEGER :: comm, np, rank, ierr
   REAL    :: etime ! Declare the type of etime()
 
+
+
   CALL MPI_Init (ierr)
   CALL MPI_Comm_dup (MPI_COMM_WORLD, comm, ierr)
   CALL MPI_Comm_size (comm, np, ierr)
+
+  !check to see if first argument passed to cable is
+  !the name of the namelist file
+  !if not use cable.nml
+  CALL get_namelist_file_name()
 
   IF (np < 2) THEN
      WRITE (*,*) 'This program needs at least 2 processes to run!'

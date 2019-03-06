@@ -33,6 +33,8 @@
 !                 casadimension
 !                 casavariable
 !                 phenvariable
+!                 casa_cable
+!                 casa_inout_module
 !
 ! CALLs:       point2constants
 !              open_met_file
@@ -75,6 +77,8 @@
 MODULE cable_mpimaster
 
   USE cable_mpicommon
+  USE casa_cable
+  USE casa_inout_module
 
   IMPLICIT NONE
 
@@ -155,12 +159,13 @@ CONTAINS
     USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,                  &
          verbose, fixedCO2,output,check,patchout,    &
          patch_type,soilparmnew,&
-         defaultLAI, sdoy, smoy, syear, timeunits, exists, output
+         defaultLAI, sdoy, smoy, syear, timeunits, exists, output, &
+         latitude,longitude
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
          cable_runtime, fileName, myhome,            &
          redistrb, wiltParam, satuParam, CurYear,    &
          IS_LEAPYEAR, IS_CASA_TIME, calcsoilalbedo,                &
-         report_version_no, kwidth_gl
+         report_version_no, kwidth_gl, gw_params
     USE cable_data_module,    ONLY: driver_type, point2constants
     USE cable_input_module,   ONLY: open_met_file,load_parameters,              &
          get_met_data,close_met_file
@@ -176,6 +181,8 @@ CONTAINS
     USE casavariable,         ONLY: casafile, casa_biome, casa_pool, casa_flux,  &
          casa_met, casa_balance, zero_sum_casa, update_sum_casa
     USE phenvariable,         ONLY: phen_variable
+    USE casa_cable
+    USE casa_inout_module
 
     !CLN added
     ! modules related to POP
@@ -193,6 +200,8 @@ CONTAINS
          PLUME_MIP_INIT
     USE CABLE_CRU,            ONLY: CRU_TYPE, CRU_GET_SUBDIURNAL_MET, CRU_INIT
 
+    USE cable_namelist_util, only : get_namelist_file_name,&
+                                  CABLE_NAMELIST,arg_not_namelist
 
     IMPLICIT NONE
 
@@ -200,7 +209,7 @@ CONTAINS
     INTEGER               :: comm ! MPI communicator for comms with the workers
 
     ! CABLE namelist: model configuration, runtime/user switches 
-    CHARACTER(LEN=200), PARAMETER :: CABLE_NAMELIST='cable.nml' 
+    !CHARACTER(LEN=200), PARAMETER :: CABLE_NAMELIST='cable.nml' 
 
     ! timing variables 
     INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
@@ -279,10 +288,15 @@ CONTAINS
          delsoilM,         & ! allowed variation in soil moisture for spin up
          delsoilT            ! allowed variation in soil temperature for spin up
 
+         REAL :: delgwM = 1e-4
+
     ! temporary storage for soil moisture/temp. in spin up mode
     REAL, ALLOCATABLE, DIMENSION(:,:)  :: & 
          soilMtemp,                         &   
          soilTtemp      
+
+    REAL, ALLOCATABLE, DIMENSION(:) :: &
+         GWtemp
  
     ! MPI:
     TYPE (met_type)       :: imet  ! read ahead met input variables
@@ -340,11 +354,13 @@ CONTAINS
          redistrb,         &
          wiltParam,        &
          satuParam,        &
-         cable_user           ! additional USER switches 
+         cable_user,       &  ! additional USER switches 
+         gw_params
     INTEGER :: i,x,kk
     INTEGER :: LALLOC
     INTEGER, PARAMETER ::	 mloop	= 30   ! CASA-CNP PreSpinup loops
     REAL    :: etime
+
 
     ! END header
 
@@ -374,7 +390,7 @@ CONTAINS
     ENDIF
 
     ! INITIALISATION depending on nml settings
-  IF (TRIM(cable_user%MetType) .EQ. 'gswp') THEN
+  IF (TRIM(cable_user%MetType) .EQ. 'gswp' .or. TRIM(cable_user%MetType) .EQ. 'gswp3') THEN
      IF ( CABLE_USER%YearStart.eq.0 .and. ncciy.gt.0) THEN
         CABLE_USER%YearStart = ncciy
         CABLE_USER%YearEnd = ncciy
@@ -447,6 +463,7 @@ CONTAINS
     ! This retrieves time step size, number of timesteps, starting date,
     ! latitudes, longitudes, number of sites.
     IF ( TRIM(cable_user%MetType) .NE. "gswp" .AND. &
+         TRIM(cable_user%MetType) .NE. "gswp3" .AND. &
          TRIM(cable_user%MetType) .NE. "gpgs" .AND. &
          TRIM(cable_user%MetType) .NE. "plum"  .AND. &
          TRIM(cable_user%MetType) .NE. "cru") THEN
@@ -519,10 +536,15 @@ CONTAINS
 
 	       LOY = 365
 	       kend = NINT(24.0*3600.0/dels) * LOY
-          ELSE IF (TRIM(cable_user%MetType) .EQ. 'gswp' ) THEN
+          ELSE IF (TRIM(cable_user%MetType) .EQ. 'gswp') THEN 
              ncciy = CurYear
              WRITE(*,*) 'Looking for global offline run info.'
              CALL prepareFiles(ncciy)
+             CALL open_met_file( dels, koffset, kend, spinup, C%TFRZ )
+
+          ELSE IF (TRIM(cable_user%MetType) .EQ. 'gswp3') THEN
+             ncciy = CurYear
+             WRITE(*,*) 'Looking for global offline run info.'
              CALL open_met_file( dels, koffset, kend, spinup, C%TFRZ )
           ENDIF
 
@@ -569,6 +591,7 @@ CONTAINS
              ! MPI: bcast to workers so that they don't need to open the met
              ! file themselves
              CALL MPI_Bcast (dels, 1, MPI_REAL, 0, comm, ierr)
+
           ENDIF
 
           CALL MPI_Bcast (kend, 1, MPI_INTEGER, 0, comm, ierr)
@@ -758,8 +781,8 @@ CONTAINS
 
            !  CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
           ELSE 
-         !    CALL master_send_input (icomm, casa_dump_ts, iktau)
-          !   CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
+             CALL master_send_input (icomm, casa_dump_ts, iktau)
+             CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
           ENDIF
 
           IF (spincasa.OR. casaonly) THEN
@@ -772,6 +795,8 @@ CONTAINS
              !         ktau_tot = ktau_tot + 1
              iktau = iktau + 1
              oktau = oktau + 1
+
+             write(logn,*) 'Progress -',real(ktau)/real(kend)*100.0
 
              met%year = imet%year
              met%doy = imet%doy
@@ -804,7 +829,8 @@ CONTAINS
                      kstart+koffset )
  
              ENDIF
-             IF ( TRIM(cable_user%MetType) .NE. 'gswp' ) CurYear = met%year(1)
+             IF ( (TRIM(cable_user%MetType) .NE. 'gswp') .and. &
+                  (TRIM(cable_user%MetType) .NE. 'gswp3') ) CurYear = met%year(1)
 
 !!$             IF ( CASAONLY .AND. IS_CASA_TIME("dread", yyyy, iktau, kstart, koffset, &
 !!$                  kend, ktauday, logn) )  THEN          
@@ -828,7 +854,7 @@ CONTAINS
                    ! receive casa update from worker
                    CALL master_receive (ocomm, oktau, casa_ts)
                    
-    
+                   CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
                    ! receive casa dump requirements from worker
                    IF ( ((.NOT.spinup).OR.(spinup.AND.spinConv)) .AND.   &
                         ( IS_CASA_TIME("dwrit", yyyy, oktau, kstart, &
@@ -911,9 +937,10 @@ CONTAINS
                 
                 IF ( (.NOT. CASAONLY).AND. spinConv  ) THEN
 
-                   IF ( TRIM(cable_user%MetType) .EQ. 'plum' &
+                   IF ( TRIM(cable_user%MetType) .EQ. 'plum'       &
                         .OR. TRIM(cable_user%MetType) .EQ. 'cru'   &
-                        .OR. TRIM(cable_user%MetType) .EQ. 'gswp') then
+                        .OR. TRIM(cable_user%MetType) .EQ. 'gswp'  &
+                        .OR. TRIM(cable_user%MetType) .EQ. 'gswp3') then
                       CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, &
                            casamet,ssnow,         &
                            rad, bal, air, soil, veg, C%SBOLTZ,     &
@@ -1011,40 +1038,35 @@ CONTAINS
           oktau    = oktau + 1
           ktau_tot = ktau_tot + 1
           ktau_gl  = oktau
-      
-          IF( icycle >0 ) THEN
 
+          IF ( .NOT. CASAONLY ) THEN
 
-             IF ( IS_CASA_TIME("write", yyyy, oktau, kstart, &
-                  koffset, kend, ktauday, logn) ) THEN
+             IF ( icycle >0 ) THEN
+
                 CALL master_receive (ocomm, oktau, casa_ts)
 
-!                CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)              
+                IF ( ((.NOT.spinup).OR.(spinup.AND.spinConv)) .AND. &
+                     ( IS_CASA_TIME("dwrit", yyyy, oktau, kstart, &
+                     koffset, kend, ktauday, logn) ) ) THEN
+                    CALL master_receive ( ocomm, oktau, casa_dump_ts )
+           
+                ENDIF
 
              ENDIF
-
-
-             IF( ((.NOT.spinup).OR.(spinup.AND.spinConv)) .AND. &
-                  CABLE_USER%CASA_DUMP_WRITE )  THEN
-                CALL master_receive ( ocomm, oktau, casa_dump_ts )
-        !        CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
-             ENDIF
-
-          ENDIF
         
-          IF ( .NOT. CASAONLY ) THEN
+           
              CALL master_receive (ocomm, oktau, recv_ts)
-      !       CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
+      
           ENDIF
-
+      
           met%ofsd = met%fsd(:,1) + met%fsd(:,2)
           canopy%oldcansto=canopy%cansto
                     
-          IF ( TRIM(cable_user%MetType) .EQ. "gswp" ) &
+          IF ( (TRIM(cable_user%MetType) .EQ. "gswp") .or. (TRIM(cable_user%MetType) .EQ. "gswp3") ) &
                CALL close_met_file
 
-IF (icycle>0 .and.   cable_user%CALL_POP)  THEN
-  write(*,*), 'b4 annual calcs'
+          IF (icycle>0 .and.   cable_user%CALL_POP)  THEN
+             write(*,*), 'b4 annual calcs'
        
                       IF (CABLE_USER%POPLUC) THEN
 
@@ -1088,7 +1110,7 @@ IF (icycle>0 .and.   cable_user%CALL_POP)  THEN
      
                  
                    ENDIF
-write(*,*) 'after annual calcs'
+                   write(*,*) 'after annual calcs'
 
 
           ! WRITE OUTPUT
@@ -1136,7 +1158,8 @@ write(*,*) 'after annual calcs'
              IF ( (.NOT. CASAONLY) .AND. spinConv ) THEN
                 IF ( TRIM(cable_user%MetType) .EQ. 'plum' &
                          .OR. TRIM(cable_user%MetType) .EQ. 'cru'   &
-                       .OR. TRIM(cable_user%MetType) .EQ. 'gswp') then
+                       .OR. TRIM(cable_user%MetType) .EQ. 'gswp' &
+                       .OR. TRIM(cable_user%MetType) .EQ. 'gswp3') then
 
                    CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, &
                         casamet, ssnow,         &
@@ -1208,7 +1231,8 @@ write(*,*) 'after annual calcs'
 
              ! evaluate spinup
              IF( ANY( ABS(ssnow%wb-soilMtemp)>delsoilM).OR.                     &
-                  ANY(ABS(ssnow%tgg-soilTtemp)>delsoilT) ) THEN
+                  ANY(ABS(ssnow%tgg-soilTtemp)>delsoilT) .or. &
+                  maxval(abs(ssnow%GWwb-GWtemp),dim=1)>delgwM)  THEN
 
                 ! No complete convergence yet
                 !               PRINT *, 'ssnow%wb : ', ssnow%wb
@@ -1223,6 +1247,13 @@ write(*,*) 'after annual calcs'
                 PRINT *, 'Example location of temperature non-convergence: ',maxdiff
                 PRINT *, 'ssnow%tgg: ', ssnow%tgg(maxdiff(1),maxdiff(2))
                 PRINT *, 'soilTtemp: ', soilTtemp(maxdiff(1),maxdiff(2))
+
+                IF (cable_user%gw_model) then
+                   maxdiff(1) = MAXLOC(ABS(ssnow%GWwb-GWtemp),dim=1)
+                   PRINT *,'ssnow%GWwb: ', ssnow%GWwb(maxdiff(1))
+                   PRINT *, 'GWtemp: ', GWtemp(maxdiff(1))
+                ENDIF
+
 
              ELSE ! spinup has converged
 
@@ -1243,7 +1274,19 @@ write(*,*) 'after annual calcs'
 
              IF (.NOT.ALLOCATED(soilMtemp)) ALLOCATE(  soilMtemp(mp,ms) )
              IF (.NOT.ALLOCATED(soilTtemp)) ALLOCATE(  soilTtemp(mp,ms) )
+             IF (.NOT.ALLOCATED(GWtemp))    ALLOCATE(  GWtemp(mp) )
 
+          END IF
+
+         IF (cable_user%max_spins .gt. 0) THEN
+            IF (INT( ktau_tot/kend ) .gt. cable_user%max_spins ) THEN
+               spinConv = .TRUE.
+               ! Write to screen and log file:
+               WRITE(*,*) ' Spinup exceeded max ',cable_user%max_spins,' cycles '
+               WRITE(*,*) ' Forcing the final run without spin up convergence '
+               WRITE(logn,*) ' Spinup exceeded max ',cable_user%max_spins,' cycles '
+               WRITE(logn,*) ' Forcing the final run without spin up convergence '
+             END IF
           END IF
 
           IF ( YYYY.EQ. CABLE_USER%YearEnd ) THEN
@@ -1332,8 +1375,9 @@ write(*,*) 'after annual calcs'
    
 
     ! Close met data input file:
-    IF ( TRIM(cable_user%MetType) .NE. "gswp" .AND. &
-         TRIM(cable_user%MetType) .NE. "plum" .AND. &
+    IF ( TRIM(cable_user%MetType) .NE. "gswp"  .AND. &
+         TRIM(cable_user%MetType) .NE. "gswp3" .AND. &
+         TRIM(cable_user%MetType) .NE. "plum"  .AND. &
          TRIM(cable_user%MetType) .NE. "cru") CALL close_met_file
     IF  (.NOT. CASAONLY) THEN
        ! Close output file and deallocate main variables:
@@ -1803,12 +1847,18 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
      blen(bidx) = r1len
 
      bidx = bidx + 1
-     CALL MPI_Get_address (ssnow%dfe_ddq(off), displs(bidx), ierr)
+     CALL MPI_Get_address (ssnow%dfe_dtg(off), displs(bidx), ierr)
      blen(bidx) = r1len
 
      bidx = bidx + 1
+     CALL MPI_Get_address (ssnow%dfe_ddq(off), displs(bidx), ierr)
+     blen(bidx) = r1len
+
+     !INH - REV_CORR new variable
+     bidx = bidx + 1
      CALL MPI_Get_address (ssnow%ddq_dtg(off), displs(bidx), ierr)
      blen(bidx) = r1len
+
 
      bidx = bidx + 1
      CALL MPI_Get_address (ssnow%evapsn(off), displs(bidx), ierr)
@@ -2480,12 +2530,37 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
      CALL MPI_Get_address (canopy%fns(off), displs(bidx), ierr)
      blen(bidx) = r1len
 
+    !INH - REV_CORR new variable - temporary?
+     bidx = bidx + 1
+     CALL MPI_Get_address (canopy%fns_cor(off), displs(bidx), ierr)
+     blen(bidx) = r1len
+
      bidx = bidx + 1
      CALL MPI_Get_address (canopy%fes(off), displs(bidx), ierr)
      blen(bidx) = r2len
 
+     !INH - REV_CORR new variable - temporary?
+     bidx = bidx + 1
+     CALL MPI_Get_address (canopy%fes_cor(off), displs(bidx), ierr)
+     blen(bidx) = r2len
+
+     !INH - SSEB new variable - temporary?
+     !bidx = bidx + 1
+     !CALL MPI_Get_address (canopy%fescor_upp(off), displs(bidx), ierr)
+     !blen(bidx) = r2len
+
+     !INH - SSEB new variable - temporary?
+     !bidx = bidx + 1
+     !CALL MPI_Get_address (canopy%fescor_low(off), displs(bidx), ierr)
+     !blen(bidx) = r2len
+
      bidx = bidx + 1
      CALL MPI_Get_address (canopy%fhs(off), displs(bidx), ierr)
+     blen(bidx) = r1len
+
+    !INH - REV_CORR - temporary?
+     bidx = bidx + 1
+     CALL MPI_Get_address (canopy%fhs_cor(off), displs(bidx), ierr)
      blen(bidx) = r1len
 
      bidx = bidx + 1
@@ -2494,6 +2569,11 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
 
      bidx = bidx + 1
      CALL MPI_Get_address (canopy%ga(off), displs(bidx), ierr)
+     blen(bidx) = r1len
+
+    !INH - REV_CORR - temporary?
+     bidx = bidx + 1
+     CALL MPI_Get_address (canopy%ga_cor(off), displs(bidx), ierr)
      blen(bidx) = r1len
 
      bidx = bidx + 1
@@ -3038,11 +3118,6 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
      CALL MPI_Get_address (ssnow%wbtot1(off), displs(bidx), ierr)
      blen(bidx) = r1len
 
-! Maciej: duplicate!
-!     bidx = bidx + 1
-!     CALL MPI_Get_address (ssnow%wbtot1(off), displs(bidx), ierr)
-!     blen(bidx) = r1len
-
      bidx = bidx + 1
      CALL MPI_Get_address (ssnow%tprecip(off), displs(bidx), ierr)
      blen(bidx) = r1len
@@ -3101,7 +3176,96 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
      CALL MPI_Get_address (rad%longitude(off), displs(bidx), ierr)
      blen(bidx) = r1len
 
+ !mrd need to add parameters here...
+!2D
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%ssat_vec(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
  
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%sucs_vec(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%hyds_vec(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%bch_vec(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%watr(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%swilt_vec(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%sfc_vec(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+
+!1D
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%GWssat_vec(off), displs(bidx), ierr)
+  blen(bidx) = r2len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%GWsucs_vec(off), displs(bidx), ierr)
+  blen(bidx) = r2len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%GWhyds_vec(off), displs(bidx), ierr)
+  blen(bidx) = r2len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%GWbch_vec(off), displs(bidx), ierr)
+  blen(bidx) = r2len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%GWwatr(off), displs(bidx), ierr)
+  blen(bidx) = r2len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%GWz(off), displs(bidx), ierr)
+  blen(bidx) = r2len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%GWdz(off), displs(bidx), ierr)
+  blen(bidx) = r2len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%slope(off), displs(bidx), ierr)
+  blen(bidx) = r2len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%slope_std(off), displs(bidx), ierr)
+  blen(bidx) = r2len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%GWdz(off), displs(bidx), ierr)
+  blen(bidx) = r2len
+ 
+  bidx = bidx + 1
+  CALL MPI_Get_address (ssnow%GWwb(off), displs(bidx), ierr)
+  blen(bidx) = r2len
+
 
      ! MPI: sanity check
      IF (bidx /= ntyp) THEN
@@ -5151,6 +5315,10 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      CALL MPI_Get_address (canopy%fns(off), vaddr(vidx), ierr) ! 41
      blen(vidx) = cnt * extr1
      vidx = vidx + 1
+     !INH - REV_CORR - temporary?
+     CALL MPI_Get_address (canopy%fns_cor(off), vaddr(vidx), ierr) ! 41
+     blen(vidx) = cnt * extr1
+     vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%fes(off), vaddr(vidx), ierr) ! 42
      blen(vidx) = cnt * extr2
@@ -5159,6 +5327,16 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      CALL MPI_Get_address (canopy%fes_cor(off), vaddr(vidx), ierr) ! 42
      blen(vidx) = cnt * extr2
      vidx = vidx + 1
+     !REAL(r_1)
+     !INH - SSEB  - temporary?
+     !CALL MPI_Get_address (canopy%fescor_upp(off), vaddr(vidx), ierr) ! 42
+     !blen(vidx) = cnt * extr2
+     !vidx = vidx + 1
+     !REAL(r_1)
+     !INH - SSEB - temporary?
+     !CALL MPI_Get_address (canopy%fescor_low(off), vaddr(vidx), ierr) ! 42
+     !blen(vidx) = cnt * extr2
+     !vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%fhs(off), vaddr(vidx), ierr) ! 43
      blen(vidx) = cnt * extr1
@@ -5197,6 +5375,11 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%ga(off), vaddr(vidx), ierr) ! 45
+     blen(vidx) = cnt * extr1
+     vidx = vidx + 1
+     ! REAL(r_1)
+    !INH - REV_CORR - temporary?
+     CALL MPI_Get_address (canopy%ga_cor(off), vaddr(vidx), ierr) ! 45
      blen(vidx) = cnt * extr1
      vidx = vidx + 1
      ! REAL(r_1)
@@ -5292,11 +5475,19 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      CALL MPI_Get_address (ssnow%dfh_dtg(off), vaddr(vidx), ierr) ! 62
      blen(vidx) = cnt * extr1
 
+     !INH - REV_CORR - no longer needed
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (ssnow%dfe_ddq(off), vaddr(vidx), ierr) ! +1
      blen(vidx) = cnt * extr1
 
+     !INH - REV_CORR
+     vidx = vidx + 1
+     ! REAL(r_1)
+     CALL MPI_Get_address (ssnow%dfe_dtg(off), vaddr(vidx), ierr) ! +1
+     blen(vidx) = cnt * extr1
+
+     !INH - REV_CORR - no longer needed
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (ssnow%ddq_dtg(off), vaddr(vidx), ierr) ! 63
@@ -5781,6 +5972,27 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      ! LOGICAL
      CALL MPI_Get_address (veg%deciduous(off), vaddr(vidx), ierr) ! 163
      blen(vidx) = cnt * extl
+
+     vidx = vidx + 1
+     ! REAL(r_2)
+     CALL MPI_Get_address (ssnow%GWwb(off), vaddr(vidx), ierr) ! 40
+     blen(vidx) = cnt * extr2
+
+     vidx = vidx + 1
+     ! REAL(r_2)
+     CALL MPI_Get_address (ssnow%wtd(off), vaddr(vidx), ierr) ! 40
+     blen(vidx) = cnt * extr2
+
+     vidx = vidx + 1
+     ! REAL(r_2)
+     CALL MPI_Get_address (ssnow%satfrac(off), vaddr(vidx), ierr) ! 40
+     blen(vidx) = cnt * extr2
+
+     vidx = vidx + 1
+     ! REAL(r_2)
+     CALL MPI_Get_address (ssnow%Qrecharge(off), vaddr(vidx), ierr) ! 40
+     blen(vidx) = cnt * extr2
+
 
       ! additional for SLI 
      vidx = vidx + 1
@@ -7945,7 +8157,7 @@ SUBROUTINE master_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
   nloop1= max(1,mloop-3)
 
   DO nloop=1,mloop
-write(*,*) 'nloop =', nloop
+     write(*,*) 'nloop =', nloop
      !!CLN  OPEN(91,file=fcnpspin)
      !!CLN  read(91,*)
      DO nyear=1,myearspin
@@ -8327,7 +8539,7 @@ SUBROUTINE LUCdriver( casabiome,casapool, &
   USE POPLUC_Module, ONLY: POPLUCStep, POPLUC_weights_Transfer, WRITE_LUC_OUTPUT_NC, &
        POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, READ_LUC_RESTART_NC
 
-
+   USE casa_cable
 
   IMPLICIT NONE
 

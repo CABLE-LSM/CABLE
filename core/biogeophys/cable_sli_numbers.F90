@@ -5,89 +5,91 @@ MODULE sli_numbers
   IMPLICIT NONE
 
   ! define some numbers
-  REAL(r_2), PARAMETER :: zero      = 0.0
-  REAL(r_2), PARAMETER :: half      = 0.5
-  REAL(r_2), PARAMETER :: one       = 1.0
-  REAL(r_2), PARAMETER :: two       = 2.0
-  REAL(r_2), PARAMETER :: four      = 4.0
-  REAL(r_2), PARAMETER :: thousand  = 1000.
-  REAL(r_2), PARAMETER :: e1        = 1.e-1
-  REAL(r_2), PARAMETER :: e2        = 1.e-2
-  REAL(r_2), PARAMETER :: e3        = 1.e-3
-  REAL(r_2), PARAMETER :: e4        = 1.e-4
-  REAL(r_2), PARAMETER :: e5        = 1.e-5
-  REAL(r_2), PARAMETER :: e6        = 1.e-6
-  REAL(r_2), PARAMETER :: e7        = 1.e-7
+  REAL(r_2), PARAMETER :: zero      = 0.0_r_2
+  REAL(r_2), PARAMETER :: half      = 0.5_r_2
+  REAL(r_2), PARAMETER :: one       = 1.0_r_2
+  REAL(r_2), PARAMETER :: two       = 2.0_r_2
+  REAL(r_2), PARAMETER :: four      = 4.0_r_2
+  REAL(r_2), PARAMETER :: thousand  = 1000._r_2
+  REAL(r_2), PARAMETER :: e1        = 1.e-1_r_2
+  REAL(r_2), PARAMETER :: e2        = 1.e-2_r_2
+  REAL(r_2), PARAMETER :: e3        = 1.e-3_r_2
+  REAL(r_2), PARAMETER :: e4        = 1.e-4_r_2
+  REAL(r_2), PARAMETER :: e5        = 1.e-5_r_2
+  REAL(r_2), PARAMETER :: e6        = 1.e-6_r_2
+  REAL(r_2), PARAMETER :: e7        = 1.e-7_r_2
 
   ! define some constants
-  REAL(r_2), PARAMETER :: pi        = 3.1415927
-  REAL(r_2), PARAMETER :: Tzero     = 273.16          ! Celcius -> Kelvin
-  REAL(r_2), PARAMETER :: gravity   = 9.8086          ! gravitation constant [m/s2]
-  REAL(r_2), PARAMETER :: Mw        = 0.018016        ! weight of 1 mol of water [kg]
-  REAL(r_2), PARAMETER :: rmair     = 0.02897         ! molecular wt: dry air (kg/mol)
-  REAL(r_2), PARAMETER :: Mw18      = 0.018           ! weight of 1 mol of water [kg] (main isotopologue only)
-  REAL(r_2), PARAMETER :: cpa       = 1004.64         ! specific heat capacity of dry air at 0-40 degC [J/kgK]
-  REAL(r_2), PARAMETER :: esata     = 6.106*100.0_r_2 ! constants for saturated vapour pressure calculation
-  REAL(r_2), PARAMETER :: esatb     = 17.27           ! %
-  REAL(r_2), PARAMETER :: esatc     = 237.3           ! %
+  REAL(r_2), PARAMETER :: pi        = 3.1415927_r_2
+  REAL(r_2), PARAMETER :: Tzero     = 273.16_r_2          ! Celcius -> Kelvin
+  REAL(r_2), PARAMETER :: gravity   = 9.8086_r_2          ! gravitation constant [m/s2]
+  REAL(r_2), PARAMETER :: Mw        = 0.018016_r_2        ! weight of 1 mol of water [kg]
+  REAL(r_2), PARAMETER :: rmair     = 0.02897_r_2         ! molecular wt: dry air (kg/mol)
+  REAL(r_2), PARAMETER :: Mw18      = 0.018_r_2           ! weight of 1 mol of water [kg] (main isotopologue only)
+  REAL(r_2), PARAMETER :: cpa       = 1004.64_r_2         ! specific heat capacity of dry air at 0-40 degC [J/kgK]
+  REAL(r_2), PARAMETER :: esata     = 6.106_r_2*100.0_r_2 ! constants for saturated vapour pressure calculation
+  REAL(r_2), PARAMETER :: esatb     = 17.27_r_2           ! %
+  REAL(r_2), PARAMETER :: esatc     = 237.3_r_2           ! %
 
-  REAL(r_2), PARAMETER :: rlambda   = 2.442e6  ! latent heat of condensation at 25 degC [J/kg]
-  REAL(r_2), PARAMETER :: lambdaf   = 335000.  ! latent heat of fusion (J kg-1)
-  REAL(r_2), PARAMETER :: lambdas   = 2835000. ! latent heat of sublimation (J kg-1)
-  REAL(r_2), PARAMETER :: Dva       = 2.17e-5  ! vapour diffusivity of water in air at 0 degC [m2/s]
-  REAL(r_2), PARAMETER :: rhow      = 1000.0   ! denisty of water [kg/m3]
-  REAL(r_2), PARAMETER :: rhoi      = 920.     ! density of ice (kg m-3)
+  REAL(r_2), PARAMETER :: rlambda   = 2.442e6_r_2  ! latent heat of condensation at 25 degC [J/kg]
+  REAL(r_2), PARAMETER :: lambdaf   = 335000._r_2  ! latent heat of fusion (J kg-1)
+  REAL(r_2), PARAMETER :: lambdas   = 2835000._r_2 ! latent heat of sublimation (J kg-1)
+  REAL(r_2), PARAMETER :: Dva       = 2.17e-5_r_2  ! vapour diffusivity of water in air at 0 degC [m2/s]
+  REAL(r_2), PARAMETER :: rhow      = 1000.0_r_2   ! denisty of water [kg/m3]
+  REAL(r_2), PARAMETER :: rhoi      = 920._r_2     ! density of ice (kg m-3)
 
-  REAL(r_2), PARAMETER :: rhoa      = 1.184    ! denisty of dry air at std (25 degC) [kg/m3]
-  REAL(r_2), PARAMETER :: rhocp     = 1189.8   ! cpa*rhoa at std (25 degC) [J/m3K]
+  REAL(r_2), PARAMETER :: rhoa      = 1.184_r_2    ! denisty of dry air at std (25 degC) [kg/m3]
+  REAL(r_2), PARAMETER :: rhocp     = 1189.8_r_2   ! cpa*rhoa at std (25 degC) [J/m3K]
 
-  REAL(r_2), PARAMETER :: esata_ice = 611.2   ! constants for saturated vapour pressure calculation over ice (WMO, 2008)
-  REAL(r_2), PARAMETER :: esatb_ice = 22.46   ! %
-  REAL(r_2), PARAMETER :: esatc_ice = 272.62  ! %
-  REAL(r_2), PARAMETER :: csice     = 2.100e3 ! specific heat capacity for ice
-  REAL(r_2), PARAMETER :: cswat     = 4.218e3 ! specific heat capacity for water
-  REAL(r_2), PARAMETER :: rgas      = 8.3143  ! universal gas const  (J/mol/K)
-  REAL(r_2), PARAMETER :: kw        = 0.58    ! dito
+  REAL(r_2), PARAMETER :: esata_ice = 611.2_r_2   ! constants for saturated vapour pressure calculation over ice (WMO, 2008)
+  REAL(r_2), PARAMETER :: esatb_ice = 22.46_r_2   ! %
+  REAL(r_2), PARAMETER :: esatc_ice = 272.62_r_2  ! %
+  REAL(r_2), PARAMETER :: csice     = 2.100e3_r_2 ! specific heat capacity for ice
+  REAL(r_2), PARAMETER :: cswat     = 4.218e3_r_2 ! specific heat capacity for water
+  REAL(r_2), PARAMETER :: rgas      = 8.3143_r_2  ! universal gas const  (J/mol/K)
+  REAL(r_2), PARAMETER :: kw        = 0.58_r_2    ! dito
 
   ! numerical limits
-  REAL(r_2), PARAMETER :: dSfac        = 1.25
-  REAL(r_2), PARAMETER :: dpmaxr       = 0.5
-  REAL(r_2), PARAMETER :: h0min        = -2.e-3
-  REAL(r_2), PARAMETER :: snmin        = 0.005 ! depth of snowpack (m) without dedicated snow layer(s)
-  REAL(r_2), PARAMETER :: fsnowliq_max = 0.03  ! max fraction of snow water in liquid phase
+  REAL(r_2), PARAMETER :: dSfac        = 5.25_r_2
+  !REAL(r_2), PARAMETER :: dSfac        = 1.25_r_2
+  REAL(r_2), PARAMETER :: dpmaxr       = 0.5_r_2
+  REAL(r_2), PARAMETER :: h0min        = -5.e-3_r_2
+  REAL(r_2), PARAMETER :: snmin        = 0.005_r_2 ! depth of snowpack (m) without dedicated snow layer(s)
+  REAL(r_2), PARAMETER :: fsnowliq_max = 0.03_r_2  ! max fraction of snow water in liquid phase
   INTEGER(i_d), PARAMETER :: nsnow_max = 1     ! maximum number of dedicated snow layers (1 or 2)
 
-  REAL(r_2), PARAMETER :: dh0max    = 0.0001
-  REAL(r_2), PARAMETER :: SLmax     = 1.01
-  REAL(r_2), PARAMETER :: SLmin     = 0.001
-  REAL(r_2), PARAMETER :: Smax      = 1.05
-  REAL(r_2), PARAMETER :: h0max     = 0.005
-  REAL(r_2), PARAMETER :: qprecmax  = 1.0e10
-  !REAL(r_2), PARAMETER :: dSmax     = 0.5
-  !REAL(r_2), PARAMETER :: dSmaxr    = 0.5
-  REAL(r_2), PARAMETER :: dSmax     = 0.1
-  REAL(r_2), PARAMETER :: dSmaxr    = 0.1
-  REAL(r_2), PARAMETER :: dtmax     = 86400. 
-  REAL(r_2), PARAMETER :: dtmin     = 0.01
-  REAL(r_2), PARAMETER :: dsmmax    = 1.0
-  REAL(r_2), PARAMETER :: dTsoilmax = 5.0
-  REAL(r_2), PARAMETER :: dTLmax    = 5.0
-  !REAL(r_2), PARAMETER :: dTsoilmax = 1.0
-  !REAL(r_2), PARAMETER :: dTLmax    = 1.0
+  REAL(r_2), PARAMETER :: dh0max    = 0.0001_r_2
+  REAL(r_2), PARAMETER :: SLmax     = 1.01_r_2
+  REAL(r_2), PARAMETER :: SLmin     = 0.001_r_2
+  REAL(r_2), PARAMETER :: Smax      = 1.05_r_2
+  REAL(r_2), PARAMETER :: h0max     = 0.005_r_2
+  REAL(r_2), PARAMETER :: qprecmax  = 1.0e10_r_2
+  !REAL(r_2), PARAMETER :: dSmax     = 0.5_r_2
+  !REAL(r_2), PARAMETER :: dSmaxr    = 0.5_r_2
+  REAL(r_2), PARAMETER :: dSmax     = 0.1_r_2
+  !REAL(r_2), PARAMETER :: dSmaxr    = 0.1_r_2
+  REAL(r_2), PARAMETER :: dSmaxr    = 0.4_r_2
+  REAL(r_2), PARAMETER :: dtmax     = 86400._r_2
+  REAL(r_2), PARAMETER :: dtmin     = 0.01_r_2
+  REAL(r_2), PARAMETER :: dsmmax    = 1.0_r_2
+  REAL(r_2), PARAMETER :: dTsoilmax = 30.0_r_2
+  REAL(r_2), PARAMETER :: dTLmax    = 30.0_r_2
+  !REAL(r_2), PARAMETER :: dTsoilmax = 1.0_r_2
+  !REAL(r_2), PARAMETER :: dTLmax    = 1.0_r_2
   REAL(r_2), PARAMETER :: tol_dthetaldT = 1.e-12_r_2
-  INTEGER(i_d), PARAMETER ::nsteps_ice_max = 20
-  INTEGER(i_d), PARAMETER ::nsteps_max = 2000
+  INTEGER(i_d), PARAMETER :: nsteps_ice_max = 20
+  INTEGER(i_d), PARAMETER :: nsteps_max = 200
   !MC-ToDo! Identify why smaller time-steps are needed for isotopes
   ! With isotopes  REAL(r_2), PARAMETER :: dSmax=0.1_r_2, dSmaxr=0.1_r_2, dtmax=0.05_r_2*3600.,
   !                                        dtmin=0.0_r_2, dsmmax=1.0_r_2
   ! With isotopes   REAL(r_2), PARAMETER ::  dTsoilmax=1.0_r_2, dTLmax=1.0_r_2
-  REAL(r_2), PARAMETER :: gf        = 1.0    ! gravity factor for flow direction (usually 1 for straight down).
-  REAL(r_2), PARAMETER :: hmin      = -1.0e6 ! minimum matric head h (used by MF).
-  REAL(r_2), PARAMETER :: csol      = 0.0    ! solute concentration (mol kg-1 soil water)
-  REAL(r_2), PARAMETER :: rhmin     = 0.05   ! minimum relative humidity in soil and litter
+  REAL(r_2), PARAMETER :: gf        = 1.0_r_2    ! gravity factor for flow direction (usually 1 for straight down).
+  REAL(r_2), PARAMETER :: hmin      = -1.0e6_r_2 ! minimum matric head h (used by MF).
+  REAL(r_2), PARAMETER :: csol      = 0.0_r_2    ! solute concentration (mol kg-1 soil water)
+  REAL(r_2), PARAMETER :: rhmin     = 0.05_r_2   ! minimum relative humidity in soil and litter
 
   ! boundary conditions
-  REAL(r_2), PARAMETER :: hbot  = 0.0
+  REAL(r_2), PARAMETER :: hbot  = 0.0_r_2
   CHARACTER(LEN=20)    :: botbc = "free drainage"
   ! CHARACTER(LEN=20)    :: botbc = "zero flux"
   ! CHARACTER(LEN=20)    :: botbc = "aquifer"
@@ -101,7 +103,7 @@ MODULE sli_numbers
   INTEGER(i_d) :: experiment = 0
 
   ! Steeper freezing curve factor: 1=normal, >1=steeper (e.g. 1.5-2.0)
-  REAL(r_2), PARAMETER :: freezefac = 1.0
+  REAL(r_2), PARAMETER :: freezefac = 1.0_r_2
 
   ! Topmodel approach
   ! 0: normal ponding and free drainage
@@ -109,8 +111,8 @@ MODULE sli_numbers
   ! 2: topmodel deep drainage
   ! 3: topmodel surface runoff and deep drainage
   INTEGER(i_d), PARAMETER :: topmodel = 0
-  REAL(r_2),    PARAMETER :: alpha    = 0.1 ! anistropy param for lateral flow (topmodel)
-  REAL(r_2),    PARAMETER :: fsat_max = 2.0 ! exponent for vertical profile of Ksat (topmodel)
+  REAL(r_2),    PARAMETER :: alpha    = 0.1_r_2 ! anistropy param for lateral flow (topmodel)
+  REAL(r_2),    PARAMETER :: fsat_max = 2.0_r_2 ! exponent for vertical profile of Ksat (topmodel)
 
   ! Thermal conductivity of soil
   ! 0: Campbell (1985)
@@ -170,7 +172,5 @@ MODULE sli_numbers
      INTEGER(i_d) :: k
      REAL(r_2)    :: T1, Ta, cva, Rnet, hr1, hra, Dv, gv, gh, Dh, dz, phie, he, K1, eta,lambda, Ks, lambdav
   END TYPE solve_type
-
-
 
 END MODULE sli_numbers

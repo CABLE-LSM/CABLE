@@ -54,7 +54,7 @@ SUBROUTINE init_casacnp(sin_theta_latitude,cpool_tile,npool_tile,ppool_tile, &
     USE casavariable
     USE phenvariable
     USE casa_types_mod
-    !USE casa_inout
+    USE casa_inout_module, only : casa_readbiome, casa_readphen
 
 IMPLICIT NONE
 

@@ -20,14 +20,14 @@
 ! ==============================================================================
 
 MODULE cable_um_init_subrs_mod
+   
    IMPLICIT NONE
-
 
 CONTAINS
 
    subroutine initialize_maps(latitude,longitude, tile_index_mp)
       use cable_data_module, only : cable
-      use cable_um_tech_mod, only : um1
+      use cable_um_tech_mod, only : um1, veg
       use cable_def_types_mod, only : mp
 
       use cable_diag_module, only : cable_diag 
@@ -44,11 +44,37 @@ CONTAINS
       INTEGER :: i, j
 
       real :: dlon
-      real, dimension(um1%row_length) :: tlong,acoslong
+      real, dimension(um1%row_length) :: tlong,acoslong, acoslon1
       real, dimension(um1%row_length, um1%rows) :: new_longitude
 
       integer, save :: iDiag0, iDiag1, iDiag2, iDiag3, iDiag4, iDiag5 
-
+      real, dimension(um1%row_length,um1%rows) :: &
+         asinlatitude, acoslat, acoslon
+      !decs to write text files mapping mp points to lat/lon, i/j 
+      character(len=*), parameter :: hcomp="mype"
+      character(len=*), parameter :: hcompa ="i"
+      character(len=*), parameter :: hcompb ="j"
+      character(len=*), parameter :: hcompc ="l"
+      character(len=*), parameter :: hcompd ="n"
+      character(len=*), parameter :: hcomp1 ="mp "
+      character(len=*), parameter :: hcomp2 ="lat "
+      character(len=*), parameter :: hcomp3 ="lon"
+      character(len=*), parameter :: hcomp4 ="frac"
+      character(len=*), parameter :: hcomp5 ="iveg"
+      character(len=*), parameter :: footer1 =""
+      character(len=*), parameter :: footer2 = &
+                  "------------------------------------------------------------"
+      character(len=*), parameter :: hfmt1 = &
+                  '(A8, 4X, A8, 4X, A8, 4X, A8, 4X, A8, 4X, A8, 4X, A8,   4X, A8,   4X, A8,    4X, A8)'
+      character(len=*), parameter :: dfmt1 = &
+                  '(I8, 4X, I8, 4X, I8, 4X, I8, 4X, I8, 4X, I8, 4X, F8.3, 4X, F8.3, 4X, ES8.2, 4X, I8)'
+      character(len=30) :: chnode
+      character(len=12) :: filename
+      character(len=9), parameter :: basename="cable_mp_"
+      integer, dimension(um1%row_length,um1%rows) ::umi, umj 
+      integer, dimension(um1%land_pts, um1%ntiles) :: uml,umn 
+      integer, dimension(mp) :: cable_umi,cable_umj, cable_uml,cable_umn 
+ 
            
             allocate( cable%lat(mp), cable%lon(mp), cable%tile(mp), cable%tile_frac(mp) )
 
@@ -56,53 +82,100 @@ CONTAINS
             !---make indexes for tile, lat, lon
             !-------------------------------------   
            
+            !=== LaTITUDE 
+            !form acoslat(:,:) & acoslon(:,:)
+            !acoslat = ( latitude ) /cable%const%math%pi180
+            
             !--- get latitude index corresponding to cable points
-            call um2cable_rr( (asin(latitude)/cable%const%math%pi180), cable%lat )
+            !call um2cable_rr( (asin(latitude)/cable%const%math%pi180), cable%lat )
+            !call um2cable_rr( ((latitude)/cable%const%math%pi180), cable%lat )
+            !call um2cable_rr( acoslat, cable%lat )
+            call um2cable_rr( latitude, cable%lat )
+           
+            !==================================================================
 
-            !--- get longitude index corresponding to cable points.
-            !--- this is not so straight forward as UM longitude index 
-            !--- contains ambiguity. thus define "new_longitude" first
-            acoslong =  acos( longitude(:,1) ) /cable%const%math%pi180  
+            !=== LONGITUDE 
+            !acoslong =  ( longitude(:,2) ) /cable%const%math%pi180  
+            !!acoslon =  ( longitude ) /cable%const%math%pi180  
+            !acoslon1 =  acoslon(:,1) 
+            !!acoslong =  acos( longitude(:,1) ) /cable%const%math%pi180  
        
-            tlong(1) = acoslong(1)
-            do j=2, um1%row_length
-               if( acoslong(j) < acoslong(j-1) ) then  
-                  dlon = acoslong(j) - acoslong(j-1)
-                  tlong(j) = tlong(j-1) - dlon   
-               else 
-                  tlong(j) = acoslong(j)
-               endif           
-            enddo
+            !!--- get longitude index corresponding to cable points.
+            !!--- this is not so straight forward as UM longitude index 
+            !!--- contains ambiguity. thus define "new_longitude" first
+            !tlong(1) = acoslong(1)
+            !do j=2, um1%row_length
+            !   if( acoslong(j) < acoslong(j-1) ) then  
+            !      dlon = acoslong(j) - acoslong(j-1)
+            !      tlong(j) = tlong(j-1) - dlon   
+            !   else 
+            !      tlong(j) = acoslong(j)
+            !   endif           
+            !enddo
+            !
+            !do j=1, um1%row_length
+            !   new_longitude(j,:) = tlong(j)
+            !enddo
             
-            do j=1, um1%row_length
-               new_longitude(j,:) = tlong(j)
-            enddo
+            call um2cable_rr( longitude, cable%lon )
             
-            call um2cable_rr( new_longitude, cable%lon )
-         
-         
             !--- get tile index/fraction  corresponding to cable points
             cable%tile = pack(tile_index_mp, um1%l_tile_pts)
             cable%tile_frac = pack(um1%tile_frac, um1%l_tile_pts)
 
-         !--- write all these maps.  cable_user%initialize_mapping can be 
-         !--- set in namelist cable.nml
-         !if ( cable_user%initialize_mapping ) then
-            !write indexes for tile, lat, lon
-      !do i=1, um1%row_length      
-      !   do j=1, um1%rows     
-      !      !if( latitude(i,j) > 0. ) & 
-      !      !   print *, "jhan: _init_ sin_theta_latitude ", &
-      !      !            asin( latitude(i,j) ) /cable%const%math%pi180
-      !      if( new_longitude(i,j) > 0. ) & 
-      !         print *, "jhan: _init_ longitude ", new_longitude(i,j)
-      !   enddo
-      !enddo
- 
-            print *, "jhan: _init_ latitude ", shape(latitude), um1%rows
-            call cable_diag( iDiag0, 'latitude', um1%rows, 1, ktau_gl,  & 
-                  knode_gl, 'latitude', ( asin( latitude(1,:) ) /cable%const%math%pi180 ) ) 
+return          
+            !--- write all these maps.  cable_user%initialize_mapping can be 
+            !--- set in namelist cable.nml
+            !if ( cable_user%initialize_mapping ) then
+            !write indexes for tile, lat, lon  !fudge
+            !asinlatitude = ( latitude ) /cable%const%math%pi180
+             
+            !call cable_diag( iDiag0, 'latitude', um1%rows, 1, ktau_gl,  & 
+            !      knode_gl, 'latitude',asinlatitude(1,:)  ) 
+
+
+            ! ----------------------------------------------------------------------------------
+            write(chnode,10) knode_gl
+   10       format(I3.3)   
+            filename=trim(trim(basename)//trim(chnode))
             
+            umi=0; umj=0; uml=0; umn=0            
+            do i=1, um1%row_length      
+               do j=1, um1%rows     
+                 umi(i,j) = i 
+                 umj(i,j) = j 
+               enddo   
+            enddo   
+            
+            do i=1, um1%land_pts
+               do j=1, um1%ntiles
+                 uml(i,j) = i 
+                 umn(i,j) = j 
+               enddo   
+            enddo   
+
+            call um2cable_irr( umi, cable_umi )
+            call um2cable_irr( umj, cable_umj )
+            
+            cable_uml = pack(uml, um1%l_tile_pts)
+            cable_umn = pack(umn, um1%l_tile_pts)
+            
+            !open(unit=12517,file=filename,status="unknown", &
+            !      action="write", form="formatted",position='append' )
+            !   
+            !   write (12517, hfmt1) hcomp, hcompa, hcompb, hcompc, hcompd,hcomp1, hcomp2, hcomp3, hcomp4, hcomp5
+            !   write (12517, *) footer2 
+            !   do i=1, mp 
+            !      WRITE(12517,dfmt1) , knode_gl, cable_umi(i), cable_umj(i), cable_uml(i), cable_umn(i), &
+            !                        i, cable%lat(i), cable%lon(i),    &
+            !                        cable%tile_frac(i), veg%iveg(i)  
+            !   enddo   
+            !   write (12517, *) footer1 
+            !
+            !close(12517)
+
+            ! ----------------------------------------------------------------------------------
+             
             call cable_diag( iDiag1, 'longitude', um1%row_length, 1, ktau_gl,  & 
                   knode_gl, 'longitude', ( new_longitude(:,1) ) ) 
         
@@ -119,8 +192,6 @@ CONTAINS
             call cable_diag( iDiag5, 'tile_frac', mp, 1, ktau_gl,  & 
                   knode_gl, 'tile_frac', cable%tile_frac )
             
-          !endif  
-         
       
       return
    end subroutine initialize_maps
@@ -129,12 +200,13 @@ CONTAINS
         
 SUBROUTINE initialize_soil( bexp, hcon, satcon, sathh, smvcst, smvcwt,         &
                             smvccl, albsoil, tsoil_tile, sthu, sthu_tile,      &
-                            dzsoil ) 
+                            dzsoil, slope_avg, slope_std,&
+                             dz_gw,aq_perm,drain_dens ) 
 
    USE cable_def_types_mod, ONLY : ms, mstype, mp, r_2
    USE cable_um_tech_mod,   ONLY : um1, soil, veg, ssnow 
    USE cable_common_module, ONLY : cable_runtime, cable_user,                  &
-                                   soilin, get_type_parameters
+                                   soilin, knode_gl, gw_params
    
    REAL, INTENT(IN), DIMENSION(um1%land_pts) :: &
       bexp, &
@@ -146,6 +218,11 @@ SUBROUTINE initialize_soil( bexp, hcon, satcon, sathh, smvcst, smvcwt,         &
       smvccl, &
       albsoil 
    
+   REAL, INTENT(IN), DIMENSION(um1%land_pts) :: &
+      slope_avg, &
+      slope_std, &
+      dz_gw,aq_perm,drain_dens
+
    REAL, INTENT(IN), DIMENSION(um1%land_pts, um1%sm_levels) :: sthu
    
    REAL, INTENT(IN), DIMENSION(um1%land_pts, um1%ntiles, um1%sm_levels) :: &
@@ -157,8 +234,32 @@ SUBROUTINE initialize_soil( bexp, hcon, satcon, sathh, smvcst, smvcwt,         &
    !___defs 1st call to CABLE in this run
    LOGICAL, SAVE :: first_call= .TRUE.
    INTEGER :: i,j,k,L,n
-   REAL, ALLOCATABLE :: tempvar(:), tempvar2(:)
+   REAL, ALLOCATABLE :: tempvar(:), tempvar2(:),fwork(:,:)
    LOGICAL, PARAMETER :: skip =.TRUE. 
+   REAL, DIMENSION(mstype) :: dummy 
+   REAL :: tmp_clay, tmp_sand
+   REAL, ALLOCATABLE :: znode(:), ssat_bounded(:,:),rho_soil_bulk(:,:)
+
+   REAL, PARAMETER :: snow_ccnsw = 2.0,&
+                      ssat_lo = 0.15,&
+                      ssat_hi = 0.65,&
+                      rhob_lo = 810.0,&
+                      rhob_hi = 2300.0
+
+   REAL :: sucs_sign_factor,hyds_unit_factor,sucs_min_magnitude
+
+
+   IF (cable_user%gw_model) THEN
+      sucs_sign_factor = 1.0
+      hyds_unit_factor = 1.0
+      sucs_min_magnitude = 106.0
+   ELSE
+      sucs_sign_factor = 1.0
+      hyds_unit_factor = 1.0/1000.0
+      sucs_min_magnitude = 106.0/1000.0
+   END IF
+      
+      dummy=0. 
 
       IF( first_call ) THEN 
 
@@ -181,18 +282,26 @@ SUBROUTINE initialize_soil( bexp, hcon, satcon, sathh, smvcst, smvcwt,         &
            
          !--- set CABLE-var soil%albsoil from UM var albsoil
          ! (see below ~ um2cable_lp)
-         CALL um2cable_lp( albsoil, albsoil, soil%albsoil(:,1),                &
+         CALL um2cable_lp( albsoil, dummy, soil%albsoil(:,1),                &
                            soil%isoilm, skip )
 
          !--- defined in soil_thick.h in UM
          soil%zse = dzsoil
+         soil%zse_vec = spread(dzsoil,1,mp)
          
          ! distance between consecutive layer midpoints
          soil%zshh(1)=0.5*soil%zse(1) 
          soil%zshh(ms+1)=0.5*soil%zse(ms)
          soil%zshh(2:ms) = 0.5 * (soil%zse(1:ms-1) + soil%zse(2:ms))
 
+         !node depths
+         IF (allocated(znode)) deallocate(znode)
+         allocate(znode(ms))
 
+         znode(1) = soil%zshh(1)
+         do k=2,ms
+            znode(k) = znode(k-1) * 0.5*(soil%zse(k-1)+soil%zse(k))
+         end do
 
          !-------------------------------------------------------------------
          !--- UM met forcing vars needed by CABLE which have UM dimensions
@@ -213,6 +322,7 @@ SUBROUTINE initialize_soil( bexp, hcon, satcon, sathh, smvcst, smvcwt,         &
          CALL um2cable_lp( BEXP, soilin%bch, soil%bch, soil%isoilm)
          
          ALLOCATE( tempvar(mstype), tempvar2(mp) )
+   
          tempvar = soilin%sand(9) * 0.3  + soilin%clay(9) *0.25 +              &
                    soilin%silt(9) * 0.265
          
@@ -229,25 +339,110 @@ SUBROUTINE initialize_soil( bexp, hcon, satcon, sathh, smvcst, smvcwt,         &
          CALL um2cable_lp( smvccl, soilin%sfc, soil%sfc, soil%isoilm)
    
     
+         !mrd561
+         if (allocated(fwork)) deallocate(fwork) 
+
+         ALLOCATE( fwork(um1%land_pts,um1%ntiles) )
+
+         fwork(:,:) = 20.0
+         DO n=1,um1%NTILES
+           do k=1,um1%TILE_PTS(N)
+              i = um1%tile_index(k,n)
+              fwork(i,n) = dz_gw(i)
+            end do
+         end do
+
+         soil%GWdz(:) = pack(fwork(:,:),um1%l_tile_pts)
+
+         do i=1,mp 
+            if (soil%GWdz(i) .lt. 20.0) soil%GWdz(i) = 20.0
+            if (soil%GWdz(i) .gt. 150.0) soil%GWdz(i) = 150.0
+            if (veg%iveg(i) .eq. 16) soil%GWdz(i) = 150.0
+         end do
+
+         fwork(:,:) = 0.02
+         DO n=1,um1%NTILES
+           do k=1,um1%TILE_PTS(N)
+              i = um1%tile_index(k,n)
+              fwork(i,n) = slope_avg(i)
+            end do
+         end do
+         soil%slope(:) = pack(fwork(:,:),um1%l_tile_pts)
+         do i=1,mp 
+            if (soil%slope(i) .lt. 0.0002) soil%slope(i) = 0.0002
+            if (soil%slope(i) .gt. 0.2) soil%slope(i) = 0.2
+            if (veg%iveg(i) .eq. 16) soil%slope(i) = 0.0002
+         end do
+ 
+         fwork(:,:) = .005 
+         DO n=1,um1%NTILES
+           do k=1,um1%TILE_PTS(N)
+              i = um1%tile_index(k,n)
+              fwork(i,n) = slope_std(i)
+            end do
+         end do
+         soil%slope_std(:) = pack(fwork(:,:),um1%l_tile_pts) 
+         do i=1,mp 
+            if (soil%slope_std(i) .lt. 0.00002) soil%slope_std(i) = 0.00002
+            if (soil%slope_std(i) .gt. 0.2) soil%slope_std(i) = 0.2
+            if (veg%iveg(i) .eq. 16) soil%slope_std(i) = 0.00002
+         end do
+         fwork(:,:) = 0.0008
+         soil%drain_dens(:) = 0.0
+         DO n=1,um1%NTILES
+           do k=1,um1%TILE_PTS(N)
+              i = um1%tile_index(k,n)
+              fwork(i,n) = drain_dens(i)
+            end do
+         end do
+         soil%drain_dens(:) = pack(fwork(:,:),um1%l_tile_pts)
+         do i=1,mp 
+            if (soil%drain_dens(i) .lt. 1.0e-6) soil%drain_dens(i) = 1.0e-6
+            if (soil%drain_dens(i) .gt. 0.02) soil%drain_dens(i) = 0.02
+            if (veg%iveg(i) .eq. 16) soil%drain_dens(i) = 0.02
+         end do
+
+         WRITE(6,*) 'maxval soil%drain_dens',maxval(soil%drain_dens,dim=1)
+         WRITE(6,*) 'minval soil%drain_dens',minval(soil%drain_dens,dim=1)
+         IF (any(soil%drain_dens(:) .eq. 0.0)) &
+                           write(*,*) 'drain_dens has values of zero'
+
+ 
+
+         soil%GWhyds_vec(:) = 0.0
+         fwork = 3.0e-6
+         DO n=1,um1%NTILES
+           do k=1,um1%TILE_PTS(N)
+              i = um1%tile_index(k,n)
+              fwork(i,n) = aq_perm(i)/10.0
+            end do
+         end do
+         soil%GWhyds_vec(:) = pack(fwork(:,:),um1%l_tile_pts) 
+         do i=1,mp 
+            if (soil%GWhyds_vec(i) .lt. 1.0e-8) soil%GWhyds_vec(i) =1.0e-8
+            if (soil%GWhyds_vec(i) .gt. 1.0e-3) soil%GWhyds_vec(i) =1.0e-3
+         end do
+
+         WRITE(6,*) 'maxval soil%GWhyds_vec',maxval(soil%GWhyds_vec,dim=1)
+         WRITE(6,*) 'minval soil%GWhyds_vec',minval(soil%GWhyds_vec,dim=1)
+         IF (any(soil%GWhyds_vec(:) .eq. 0.0)) &
+                           write(*,*) 'hyds_vec has values of zero'
+
+         deallocate(fwork) 
             
          !--- (re)set values for CABLE
          soil%ibp2    =  NINT(soil%bch)+2
          soil%i2bp3   =  2*NINT(soil%bch)+3
          
          ! satcon in UM is in mm/s; Cable needs m/s
-         soil%hyds    =  soil%hyds / 1000.
-         if (.not.cable_user%SOIL_STRUC=='sli') then
-         soil%sucs    =  ABS( soil%sucs )
-         soil%sucs    =  MAX(0.106,soil%sucs)
-         else
-         where (soil%isoilm /= 9 ) soil%sucs = (-1)* soil%sucs
-         endif
-         ! Lestevens - what to do here for sli ?
-         !soil%sucs    =  MAX(0.106,soil%sucs)
+         soil%hyds    = hyds_unit_factor * soil%hyds
+         soil%sucs    = ABS( soil%sucs) * sucs_sign_factor
+         soil%sucs    =  MAX(sucs_min_magnitude,soil%sucs)
+         soil%ssat    =  MAX( soil%ssat, soil%sfc + 0.01 )
+
          
          !jhan:coupled runs 
          soil%hsbh    =  soil%hyds*ABS(soil%sucs)*soil%bch
-         soil%ssat    =  MAX( soil%ssat, soil%sfc + 0.01 )
 
          WHERE(soil%ssat > 0. )                                                &
             soil%pwb_min =  (soil%swilt / soil%ssat )**soil%ibp2
@@ -256,27 +451,147 @@ SUBROUTINE initialize_soil( bexp, hcon, satcon, sathh, smvcst, smvcwt,         &
          soil%rhosoil =  soilin%rhosoil(soil%isoilm)
          soil%css     =  soilin%css(soil%isoilm)
 
+         do k=1,ms
+            soil%ssat_vec(:,k)      = real(soil%ssat(:)   ,r_2)    
+            soil%sucs_vec(:,k)      = real(soil%sucs(:)   ,r_2)   
+            soil%hyds_vec(:,k)      = real(soil%hyds(:)   ,r_2)  
+            soil%swilt_vec(:,k)     = real(soil%swilt(:)  ,r_2)  
+            soil%bch_vec(:,k)       = real(soil%bch(:)    ,r_2)
+            soil%sfc_vec(:,k)       = real(soil%sfc(:)    ,r_2)
+            soil%rhosoil_vec(:,k)   = real(soil%rhosoil(:),r_2)   
+            soil%cnsd_vec(:,k)      = real(soil%cnsd      ,r_2)
+            soil%css_vec(:,k)       = real(soil%css       ,r_2)
+            soil%watr(:,k)          = 0.001_r_2
+         end do
+
+         where (soil%ssat_vec .le. 0.0 .and. soil%sfc_vec .gt. 0.0)
+              soil%ssat_vec = soil%sfc_vec + 0.05
+         end where
          !--- Lestevens 28 Sept 2012 - Fix Init for soil% textures 
          !--- needed for CASA-CNP
+
+         !default values, overwrite if cable_uer%gw_model selected
          soil%clay = soilin%clay(soil%isoilm)
          soil%silt = soilin%silt(soil%isoilm)
          soil%sand = soilin%sand(soil%isoilm)
+         do k=1,ms
+             !should read texture by layer evantually
+              soil%clay_vec(:,k) = soil%clay(:)
+              soil%sand_vec(:,k) = soil%sand(:)
+              soil%silt_vec(:,k) = soil%silt(:)
+         end do
          
+         do k=1,ms
+            do i=1,mp
+
+               if ( (soil%silt_vec(i,k) .gt. 0.99) .or. &
+                    (soil%silt_vec(i,k) .lt. 0.01) .or. &
+                    (soil%sand_vec(i,k) .gt. 0.99) .or. &
+                    (soil%sand_vec(i,k) .lt. 0.01) .or. &
+                    (soil%clay_vec(i,k) .gt. 0.99) .or. &
+                    (soil%clay_vec(i,k) .lt. 0.01) ) then
+
+                    !all bad
+                    soil%clay_vec(i,k) = 0.3
+                    soil%sand_vec(i,k) = 0.3
+                    soil%silt_vec(i,k) = 0.4
+
+               end if
+
+            end do
+
+         end do
+
+
+         IF (cable_user%gw_model) THEN
+           
+            DO k=1,ms
+
+               do i=1,mp  !from reversing pedotransfer functions
+                          !,ay cause io issues because not passed into um
+
+                  if (soil%isoilm(i) .ne. 9) then
+
+                        soil%hyds_vec(i,k) = soil%hyds_vec(i,k) * &   !change in hyds
+                                            exp(-gw_params%hkrz*( znode(k)-gw_params%zdepth) )
+  
+                  end if
+
+
+               end do
+            end do
+
+            k=1
+            soil%hyds(:) = soil%hyds_vec(:,k)
+
+         END IF
+
+         IF (cable_user%soil_thermal_fix) then
+
+           if (allocated(ssat_bounded)) deallocate(ssat_bounded)
+           if (allocated(rho_soil_bulk)) deallocate(rho_soil_bulk)
+
+           allocate(ssat_bounded(size(soil%ssat_vec,dim=1),&
+                                 size(soil%ssat_vec,dim=2) ) )
+
+           ssat_bounded(:,:) = min( ssat_hi, max(ssat_lo, &
+                                              soil%ssat_vec(:,:) ) )
+
+           allocate(rho_soil_bulk(size(soil%rhosoil_vec,dim=1),&
+                                  size(soil%rhosoil_vec,dim=2) ) )
+
+           rho_soil_bulk(:,:) = min(rhob_hi, max(rhob_lo , &
+                                  (2700.0*(1.0 - ssat_bounded(:,:)) ) ) )
+
+
+            do k=1,ms
+               do i=1,mp
+
+
+                  if (soil%isoilm(i) .ne. 9) then
+
+                     soil%rhosoil_vec(i,k) = 2700.0
+
+                     soil%cnsd_vec(i,k) = ( (0.135*(1.0-ssat_bounded(i,k))) +&
+                                         (64.7/rho_soil_bulk(i,k)) ) / &
+                                       (1.0 - 0.947*(1.0-ssat_bounded(i,k)))
+
+                  end if
+
+               end do
+            end do
+
+            k=1
+            do i=1,mp
+               if (soil%isoilm(i) .ne. 9) then
+                  soil%rhosoil(i) = soil%rhosoil_vec(i,1)
+                  soil%cnsd(i)    = soil%cnsd_vec(i,1)
+               end if
+            end do
+
+           if (allocated(ssat_bounded)) deallocate(ssat_bounded)
+           if (allocated(rho_soil_bulk)) deallocate(rho_soil_bulk)
+
+         END IF
+
+         !always set these though not needed unless gw_model - true
+         !should read in the values but they need calibration
+         !where (soil%GWssat_vec .lt. 0.0) &
+         where(soil%isoilm .eq. 9 .or. veg%iveg .eq. 16)
+         !CAN leave these read in, not enough testing for now
+                soil%GWhyds_vec = soil%hyds_vec(:,ms)
+         endwhere
+         soil%GWssat_vec = soil%ssat_vec(:,ms)
+         soil%GWsucs_vec = soil%sucs_vec(:,ms)
+         soil%GWbch_vec  = soil%bch_vec(:,ms)
+         soil%GWwatr     = 0.0
+
+         
+         !for sli   
+         soil%nhorizons = 1 ! use 1 soil horizon globally
+            
          first_call= .FALSE.
       ENDIF
-
-         IF(cable_user%SOIL_STRUC=='sli') THEN
-            soil%nhorizons = 2 ! use 2 soil horizons globally
-            soil%clitt     = 5.0 ! (tC / ha)
-            soil%zeta      = 0.
-            soil%fsatmax   = 0.
-            soil%swilt_vec = SPREAD(soil%swilt,2,ms)
-            soil%ssat_vec  = SPREAD(soil%ssat,2,ms)
-            soil%sfc_vec   = SPREAD(soil%sfc,2,ms)
-            ! Arbitrarily set A horiz depth to be first half of the layers
-            soil%ishorizon(:,1:ms/2)  = 1
-            soil%ishorizon(:,ms/2+1:) = 2
-         END IF
 
    END SUBROUTINE initialize_soil
  
@@ -284,11 +599,12 @@ SUBROUTINE initialize_soil( bexp, hcon, satcon, sathh, smvcst, smvcwt,         &
 !========================================================================
 !========================================================================
           
-SUBROUTINE initialize_veg( canht_ft, lai_ft) 
+SUBROUTINE initialize_veg( canht_ft, lai_ft, soil_zse ) 
    USE cable_um_tech_mod
    USE cable_common_module, ONLY : cable_runtime, cable_user, vegin
    
-   REAL, INTENT(IN), DIMENSION(um1%land_pts, um1%npft) :: canht_ft, lai_ft 
+  REAL, INTENT(IN), DIMENSION(um1%land_pts, um1%npft) :: canht_ft, lai_ft 
+  real, dimension(ms) :: soil_zse 
    
    LOGICAL, SAVE :: first_call= .TRUE. ! defs 1st call to CABLE in this run
 
@@ -297,29 +613,12 @@ SUBROUTINE initialize_veg( canht_ft, lai_ft)
       
       !--- veg params were read from initialize_soil() 
       IF(first_call)  THEN
-         CALL init_veg_pars_fr_vegin() 
+         CALL init_veg_pars_fr_vegin( soil_zse ) 
          ! Fix in-canopy turbulence scheme globally:
          veg%meth = 1
       ENDIF
       first_call= .FALSE.
-
-      !IF (cable_user%CANOPY_STRUC=='canopy_vh') THEN
-      !   veg%d0c3 = 1500.
-      !   veg%a1c3 = 9.0
-      !   veg%gamma = 1.e-2
-      !END IF
-
-      IF(cable_user%SOIL_STRUC=='sli') THEN
-         veg%gamma = 1.e-2
-         veg%F10 = 0.85
-         veg%ZR = 5.0
-      END IF
-
-      IF(cable_user%CALL_POP) THEN
-         veg%disturbance_interval = 100
-         veg%disturbance_intensity = 0.
-      ENDIF
-
+     
 END SUBROUTINE initialize_veg
 
 !========================================================================
@@ -425,67 +724,32 @@ END SUBROUTINE init_respiration
 !========================================================================
 !========================================================================
 
-SUBROUTINE init_veg_pars_fr_vegin() 
-   USE cable_common_module, ONLY : vegin, init_veg_from_vegin
-   USE cable_um_tech_mod,   ONLY : veg, soil 
-   USE cable_def_types_mod, ONLY : mp
+SUBROUTINE init_veg_pars_fr_vegin( soil_zse ) 
+  USE cable_common_module, ONLY : vegin, init_veg_from_vegin,cable_user, &
+                                  knode_gl, ktau_gl
+  USE cable_um_tech_mod,   ONLY : veg, soil 
+  USE cable_def_types_mod, ONLY : mp,ms
 
-   INTEGER :: j, k
+  real, dimension(ms) :: soil_zse 
 
-   CALL init_veg_from_vegin(1, mp, veg) 
+  CALL init_veg_from_vegin(1, mp, veg, soil_zse) 
 
-      !do j=1,mp
-      !   veg%canst1(j)   = vegin%canst1(veg%iveg(j) )
-      !   veg%ejmax(j)    = 2.*vegin%vcmax(veg%iveg(j) )
-      !   veg%frac4(j)    = vegin%frac4(veg%iveg(j) )
-      !   veg%tminvj(j)   = vegin%tminvj(veg%iveg(j) )
-      !   veg%tmaxvj(j)   = vegin%tmaxvj(veg%iveg(j) )
-      !   veg%vbeta(j)    = vegin%vbeta(veg%iveg(j) )
-      !   veg%rp20(j)     = vegin%rp20(veg%iveg(j) )
-      !   veg%rpcoef(j)   = vegin%rpcoef(veg%iveg(j) )
-      !   veg%shelrb(j)   = vegin%shelrb(veg%iveg(j) )
-      !   veg%vegcf(j)    = vegin%vegcf(veg%iveg(j) )
-      !   veg%extkn(j)    = vegin%extkn(veg%iveg(j) )
-      !   veg%vcmax(j)    = vegin%vcmax(veg%iveg(j) )
-      !   veg%xfang(j)    = vegin%xfang(veg%iveg(j) )
-      !   veg%dleaf(j)    = vegin%dleaf(veg%iveg(j) )
-      !   veg%xalbnir(j)  = vegin%xalbnir(veg%iveg(j) )
-      !   veg%rs20(j)     = vegin%rs20(veg%iveg(j) )
- 
-      !   ! jtk561
-      !   veg%g0(j)       = vegin%g0(veg%iveg(j))
-      !   veg%g1(j)       = vegin%g1(veg%iveg(j))
-   
-      !   ! Ammendments to Ticket #2
-      !   veg%a1gs(j)     = vegin%a1gs(veg%iveg(j))
-      !   veg%d0gs(j)     = vegin%d0gs(veg%iveg(j))
-      !   veg%convex(j)   = vegin%convex(veg%iveg(j))
-      !   veg%gswmin(j)   = vegin%gswmin(veg%iveg(j))
-      !   veg%conkc0(j)   = vegin%conkc0(veg%iveg(j))
-      !   veg%conko0(j)   = vegin%conko0(veg%iveg(j))
-      !   veg%ekc(j)      = vegin%ekc(veg%iveg(j))
-      !   veg%eko(j)      = vegin%eko(veg%iveg(j))
-   
-      !   veg%cfrd(j)     = vegin%cfrd(veg%iveg(j)) !never used
-      !   veg%wai(j)      = vegin%wai(veg%iveg(j)) !never used
+  !For Legacy sake - ACCESS1.3 froot distribution WAS fixed for all veg types
+  IF (cable_user%access13roots) THEN
+    veg%froot(:,1) = 0.05
+    veg%froot(:,2) = 0.20
+    veg%froot(:,3) = 0.20
+    veg%froot(:,4) = 0.20
+    veg%froot(:,5) = 0.20
+    veg%froot(:,6) = 0.15
+  ENDIF
 
-      !      do k=1,2
-      !        veg%refl(j,k)   = vegin%refl(k,veg%iveg(j) )
-      !        veg%taul(j,k)   = vegin%taul(k,veg%iveg(j) )
-      !      enddo
+  veg%ejmax    = 2.*veg%vcmax
+  
+  !offline set init _parameters
+  veg%gamma = 3.e-2 !for Haverd2013 switch 
+  veg%F10 = 0.85 
 
-      !enddo
-
-      !froot fixed here for all vegetation types for ACCESS
-      !need more flexibility in next version to read in or parameterise
-      veg%froot(:,1) = 0.05
-      veg%froot(:,2) = 0.20
-      veg%froot(:,3) = 0.20
-      veg%froot(:,4) = 0.20
-      veg%froot(:,5) = 0.20
-      veg%froot(:,6) = 0.15
-
-      veg%ejmax    = 2.*veg%vcmax
 END SUBROUTINE init_veg_pars_fr_vegin
 
 !========================================================================
@@ -500,9 +764,9 @@ SUBROUTINE initialize_radiation( sw_down, lw_down, cos_zenith_angle,           &
 
    USE cable_def_types_mod, ONLY : mp
    USE cable_data_module,   ONLY : PHYS, OTHER
-   USE cable_um_tech_mod,   ONLY : um1, rad, soil, met,                        & 
+   USE cable_um_tech_mod,   ONLY : um1, rad, soil, met,                        &
                                    conv_rain_prevstep, conv_snow_prevstep
-   USE cable_common_module, ONLY : cable_runtime, cable_user
+   USE cable_common_module, ONLY : cable_runtime, cable_user, ktau_gl, kwidth_gl
 
    REAL, INTENT(INOUT), DIMENSION(um1%row_length, um1%rows) :: sw_down
    
@@ -528,7 +792,7 @@ SUBROUTINE initialize_radiation( sw_down, lw_down, cos_zenith_angle,           &
    INTEGER, INTENT(IN) ::                              &
       CO2_DIM_LEN                                      &
      ,CO2_DIM_ROW
-   REAL, INTENT(IN) :: CO2_3D(CO2_DIM_LEN,CO2_DIM_ROW)  ! co2 mass mixing ratio
+   REAL, INTENT(IN) :: CO2_3D(:,:)  ! co2 mass mixing ratio
              
    !___defs 1st call to CABLE in this run. OK in UM & coupled
    LOGICAL, SAVE :: first_call= .TRUE.
@@ -540,7 +804,7 @@ SUBROUTINE initialize_radiation( sw_down, lw_down, cos_zenith_angle,           &
      
       IF( first_call ) THEN
          rad%albedo_T = soil%albsoil(:,1)
-         first_call = .FALSE.
+         !first_call = .FALSE.            !second use of first_call later
          ALLOCATE( conv_rain_prevstep(mp), conv_snow_prevstep(mp) )
          conv_rain_prevstep = 0. 
          conv_snow_prevstep = 0.
@@ -566,13 +830,14 @@ SUBROUTINE initialize_radiation( sw_down, lw_down, cos_zenith_angle,           &
       
       ! CABLE met type forcings, not set by um2cable_met_rad()
       CALL um2cable_rr( LW_DOWN, met%fld)
-      CALL um2cable_rr( (LS_RAIN*um1%TIMESTEP), met%precip)
-      CALL um2cable_rr( (LS_SNOW*um1%TIMESTEP), met%precip_sn)
+      CALL um2cable_rr( (LS_RAIN*kwidth_gl), met%precip)
+      CALL um2cable_rr( (LS_SNOW*kwidth_gl), met%precip_sn)
       CALL um2cable_rr( TL_1, met%tk)
+
       CALL um2cable_rr( QW_1, met%qv)
       CALL um2cable_rr( VSHR_LAND, met%ua)
       CALL um2cable_rr( PSTAR*0.01, met%pmb)
-   
+      
       !---re-set some of CABLE's forcing variables
       met%precip   =  met%precip + met%precip_sn 
       !met%precip   =  (met%precip + conv_rain_prevstep) &
@@ -580,7 +845,13 @@ SUBROUTINE initialize_radiation( sw_down, lw_down, cos_zenith_angle,           &
       !               + (met%precip_sn +  conv_rain_prevstep)
       met%tvair =     met%tk
       met%tvrad =     met%tk
-      met%coszen =    max(met%coszen,1e-8) 
+      met%coszen =    max(met%coszen,1e-8)
+
+      !initialise rad%trad on first call only
+      IF (first_call) THEN
+         rad%trad = met%tk
+         first_call = .FALSE.
+      END IF 
 
       !---this is necessary clobrring at present 
       WHERE(met%ua < 0.001 ) met%ua = 0.001
@@ -589,12 +860,12 @@ SUBROUTINE initialize_radiation( sw_down, lw_down, cos_zenith_angle,           &
       ! by radiation scheme).  Option in future to have cable see interactive 
       ! (3d) CO2 field Convert CO2 from kg/kg to mol/mol ( m_air, 
       ! 28.966 taken from include/constant/ccarbon.h file )
-      ! rml 2/7/13 Add in co2_interactive option
-      IF (L_CO2_INTERACTIVE) THEN
-        CALL um2cable_rr(CO2_3D, met%ca)
-      ELSE
+      ! r935 rml 2/7/13 Add in co2_interactive option
+      !IF (L_CO2_INTERACTIVE) THEN
+      !  CALL um2cable_rr(CO2_3D, met%ca)
+      !ELSE
         met%ca = CO2_MMR
-      ENDIF
+      !ENDIF
       met%ca = met%ca * 28.966/44.
 
       WHERE (met%coszen < RAD_THRESH ) 
@@ -613,11 +884,12 @@ END SUBROUTINE initialize_radiation
 !========================================================================
 !========================================================================
           
-SUBROUTINE initialize_canopy(canopy_tile)
+SUBROUTINE initialize_canopy(canopy_tile,visc_sublayer_dz)
    USE cable_um_tech_mod,   ONLY : um1, canopy 
    USE cable_common_module, ONLY : cable_runtime, cable_user
    
    REAL, INTENT(IN),DIMENSION(um1%land_pts, um1%ntiles) :: canopy_tile
+   REAL, INTENT(IN),DIMENSION(um1%land_pts, um1%ntiles) :: visc_sublayer_dz
    
    ! defs 1st call to CABLE in this run. OK in UM & coupled
    LOGICAL, SAVE :: first_call= .TRUE.
@@ -629,24 +901,24 @@ SUBROUTINE initialize_canopy(canopy_tile)
          canopy%us = 0.01
          canopy%fes_cor = 0.
          canopy%fhs_cor = 0.
+         canopy%fwsoil = 1.
          first_call = .FALSE.
-
-      IF (cable_user%SOIL_STRUC=='sli') THEN
-       canopy%ofes    = 0.0  ! latent heat flux from soil (W/m2)
-       canopy%fevc    = 0.0  !vh!
-       canopy%fevw    = 0.0  !vh!
-       canopy%fns     = 0.0
-       canopy%fnv     = 0.0
-       canopy%fhv     = 0.0
-       canopy%fwsoil  = 1.0 ! vh -should be calculated from soil moisture or
-       !! be in restart file
-      ENDIF
-
       ENDIF
 
      !---set canopy storage (already in dim(land_pts,ntiles) ) 
      canopy%cansto = pack(CANOPY_TILE, um1%l_tile_pts)
      canopy%oldcansto=canopy%cansto
+     canopy%sublayer_dz(:) = 0.0  !junk
+     canopy%sublayer_dz(:) = pack(visc_sublayer_dz(:,:),um1%l_tile_pts) 
+     where (canopy%sublayer_dz .lt. 1.0e-8) canopy%sublayer_dz = 1.0e-8
+     where (canopy%sublayer_dz .gt. 1.0) canopy%sublayer_dz = 1.0
+
+     IF (first_call ) THEN
+
+        WRITE(6,*) 'maxval canopy%sublayer_dz',maxval(canopy%sublayer_dz,dim=1)
+        WRITE(6,*) 'minval canopy%sublayer_dz',minval(canopy%sublayer_dz,dim=1)
+
+     END IF
 
 END SUBROUTINE initialize_canopy
 
@@ -654,16 +926,16 @@ END SUBROUTINE initialize_canopy
 !========================================================================
 !========================================================================
  
-SUBROUTINE initialize_soilsnow( smvcst, tsoil_tile, sthf_tile, smcl_tile,      &
-                                snow_tile, snow_rho1l, snage_tile, isnow_flg3l,&
+SUBROUTINE initialize_soilsnow( smvcst, tsoil_tile, sthf_tile,smcl_tile,smgw_tile, &
+                                snow_tile, snow_rho1l, snow_age, isnow_flg3l,&
                                 snow_rho3l, snow_cond, snow_depth3l,           &
                                 snow_mass3l, snow_tmp3l, fland,                &
                                 sin_theta_latitude ) 
 
-   USE cable_def_types_mod,  ONLY : mp, msn, ms, r_2
+   USE cable_def_types_mod,  ONLY : mp, msn, ms, r_2,mstype
    USE cable_data_module,   ONLY : PHYS
    USE cable_um_tech_mod,   ONLY : um1, soil, ssnow, met, bal, veg
-   USE cable_common_module, ONLY : cable_runtime, cable_user
+   USE cable_common_module, ONLY : cable_runtime, cable_user, ktau_gl
    
    REAL, INTENT(IN), DIMENSION(um1%land_pts) :: smvcst
    
@@ -672,13 +944,16 @@ SUBROUTINE initialize_soilsnow( smvcst, tsoil_tile, sthf_tile, smcl_tile,      &
       smcl_tile, &   !
       tsoil_tile     !
 
+   REAL, INTENT(IN), DIMENSION(um1%land_pts, um1%ntiles) ::    &
+      smgw_tile
+
    INTEGER, INTENT(IN), DIMENSION(um1%land_pts, um1%ntiles) :: isnow_flg3l 
 
    REAL, INTENT(INOUT), DIMENSION(um1%land_pts, um1%ntiles) :: snow_tile
 
    REAL, INTENT(IN), DIMENSION(um1%land_pts, um1%ntiles) ::                    &
       snow_rho1l, &  !
-      snage_tile     !
+      snow_age     !
 
    REAL, INTENT(INOUT), DIMENSION(um1%land_pts, um1%ntiles,3) :: snow_cond
 
@@ -694,24 +969,38 @@ SUBROUTINE initialize_soilsnow( smvcst, tsoil_tile, sthf_tile, smcl_tile,      &
    
    INTEGER :: i,j,k,L,n
    REAL  :: zsetot, max_snow_depth=50000.
-   REAL, ALLOCATABLE:: fwork(:,:,:), sfact(:), fvar(:), rtemp(:)
+   REAL, ALLOCATABLE:: fwork(:,:,:), sfact(:), fvar(:), rtemp(:),&
+                       tot_mass_tmp(:,:,:), ice_vol_tmp(:,:,:)
    REAL, POINTER :: TFRZ
    LOGICAL :: skip =.TRUE. 
-   LOGICAL :: first_call = .TRUE.
+   LOGICAL, save :: first_call = .TRUE.
+   REAL, DIMENSION(mstype) :: dummy 
+      
+      dummy=0. 
 
 !     not sure if this is in restart file hence repeated again
-      ssnow%pudsto = 0.0; ssnow%pudsmx = 0.0
+      IF( first_call) THEN 
+        ssnow%pudsto = 0.0 
+      endif
+      ssnow%pudsmx = 0.0
       ssnow%wbtot1 = 0
       ssnow%wbtot2 = 0
       ssnow%wb_lake = 0.
 
+      !local pntrs to derived type data
       TFRZ => PHYS%TFRZ
-
-      snow_tile = MIN(max_snow_depth, snow_tile)
+       !why is snow updated from um values every timestep
+       !but soil moisture not?
+      
+      !line removed Jun 2018 to assist with water conservation
+      !in coupled runs alongside the ice-berg scheme
+      !snow_tile = MIN(max_snow_depth, snow_tile)
 
       ssnow%snowd  = PACK(SNOW_TILE,um1%l_tile_pts)
       ssnow%ssdnn  = PACK(SNOW_RHO1L,um1%l_tile_pts)  
-      ssnow%isflag = PACK(ISNOW_FLG3L,um1%l_tile_pts)  
+      ssnow%isflag = PACK(int(ISNOW_FLG3L),um1%l_tile_pts)  
+!jhan: clobber
+!ssnow%isflag = 0. 
       
       DO J=1, msn
          
@@ -721,31 +1010,22 @@ SUBROUTINE initialize_soilsnow( smvcst, tsoil_tile, sthf_tile, smcl_tile,      &
          ssnow%tggsn(:,J) = PACK(SNOW_TMP3L(:,:,J),um1%l_tile_pts)  
          ssnow%sconds(:,J)= PACK(SNOW_COND(:,:,J),um1%l_tile_pts)  
          
-         !WHERE( veg%iveg == 16 .and. ssnow%wb(:,J) < soil%sfc ) ! lakes: remove hard-wired number in future version
-         !   ssnow%wbtot1 = ssnow%wbtot1 + REAL( ssnow%wb(:,J) ) * 1000.0 *     &
-         !                  soil%zse(J)
-         !   ssnow%wb(:,J) = soil%sfc
-         !   ssnow%wbtot2 = ssnow%wbtot2 + REAL( ssnow%wb(:,J) ) * 1000.0 *     &
-         !                  soil%zse(J)
-         !ENDWHERE
-      
       ENDDO 
       !ssnow%wb_lake = MAX( ssnow%wbtot2 - ssnow%wbtot1, 0.)
        
       DO J=1,um1%sm_levels
          ssnow%tgg(:,J) = PACK(TSOIL_TILE(:,:,J),um1%l_tile_pts)
       ENDDO 
+      ssnow%snage = PACK(SNOW_AGE, um1%l_tile_pts)
 
-      !do k=1,mp
-      ! print *, 'expl_tgg', k,ssnow%tgg(k,:)
-      !enddo
-      
-      ssnow%snage = PACK(SNAGE_TILE, um1%l_tile_pts)
+      ssnow%GWwb(:) = pack(smgw_tile(:,:),um1%l_tile_pts)
+      where (ssnow%GWwb .gt. soil%GWssat_vec) ssnow%GWwb = soil%GWssat_vec
 
       IF( first_call) THEN 
         
          ssnow%wbtot = 0.
          ssnow%wb_lake = 0.0
+         ssnow%totwblake = 0.0  ! wb_lake integrated over river timestep
          ssnow%tggav = 0.
          ssnow%rtsoil = 50.
          ssnow%t_snwlr = 0.05
@@ -777,36 +1057,55 @@ SUBROUTINE initialize_soilsnow( smvcst, tsoil_tile, sthf_tile, smcl_tile,      &
                fvar(L) = real(L)
             ENDDO
          ENDDO
-         CALL um2cable_lp( fland, fland, ssnow%fland, soil%isoilm, skip )
-         CALL um2cable_lp( fvar, fvar, ssnow%ifland, soil%isoilm, skip )
+         CALL um2cable_lp( fland,dummy , ssnow%fland, soil%isoilm, skip )
+         CALL um2cable_lp( fvar, dummy, ssnow%ifland, soil%isoilm, skip )
          DEALLOCATE( fvar )
          
          !--- updated via smcl,sthf etc 
-         ALLOCATE( fwork(um1%land_pts,um1%ntiles,2*um1%sm_levels) )
+         !previous code required rho_water == rho_ice
+         !GWmodel correctly uses rho_ice ~= 0.92*rho_water
+         !code now handles when densities are ice==water and ice!=water
+         IF (ALLOCATED(tot_mass_tmp)) DEALLOCATE(tot_mass_tmp)
+         IF (ALLOCATED(ice_vol_tmp)) DEALLOCATE(ice_vol_tmp)
+
+         ALLOCATE( ice_vol_tmp(um1%land_pts,um1%ntiles,um1%sm_levels) )
+         ALLOCATE( tot_mass_tmp(um1%land_pts,um1%ntiles,um1%sm_levels) )
+
+         ice_vol_tmp(:,:,:) = 0.
+         tot_mass_tmp(:,:,:) = 0.
+
          DO N=1,um1%NTILES                                                   
            DO K=1,um1%TILE_PTS(N)                                           
            I = um1%TILE_INDEX(K,N)                                      
              DO J = 1,um1%SM_LEVELS
-               fwork(I,N,J) = SMCL_TILE(I,N,J)/soil%zse(j) / um1%RHO_WATER
-               fwork(I,N,J+um1%SM_LEVELS) = STHF_TILE(I,N,J)*SMVCST(I)
+               tot_mass_tmp(I,N,J) = SMCL_TILE(I,N,J)
+               ice_vol_tmp(I,N,J) = STHF_TILE(I,N,J)*SMVCST(I)
              ENDDO ! J
            ENDDO
          ENDDO
    
          DO J = 1,um1%SM_LEVELS
-            ssnow%wb(:,J)  = pack(fwork(:,:,J),um1%l_tile_pts)
-            ssnow%wbice(:,J) = pack(fwork(:,:,J+um1%SM_LEVELS),um1%l_tile_pts)
-            ssnow%wbice(:,J) = max(0.,ssnow%wbice(:,J))
+            !ice volume
+            ssnow%wbice(:,J) = pack(ice_vol_tmp(:,:,J),um1%l_tile_pts)
+            ssnow%wbice(:,J) = max(0.,ssnow%wbice(:,J))  !should not be needed -- mrd561
+            !liq volume  from (tot_mass - ice_mass) / (dz*rho_liq)
+            ssnow%wbliq(:,j)= (pack(tot_mass_tmp(:,:,J),um1%l_tile_pts) -  &!total mass
+                               ssnow%wbice(:,J)*soil%zse(j)*um1%RHO_ICE &!subtract ice mass 
+                               )/(soil%zse(j)*um1%RHO_WATER)            !convert units
+            ssnow%wb(:,J)    = ssnow%wbice(:,J) + ssnow%wbliq(:,j) 
             ! lakes: removed hard-wired number in future version
             !WHERE( veg%iveg == 16 ) ssnow%wb(:,J) = 0.95*soil%ssat
             !WHERE( veg%iveg == 16 ) ssnow%wb(:,J) = soil%sfc
          ENDDO
          
-         DEALLOCATE( fwork )
+         DEALLOCATE( tot_mass_tmp )
+         DEALLOCATE( ice_vol_tmp )
+
          
          ssnow%owetfac = MAX( 0., MIN( 1.0,                                    &
                          ( ssnow%wb(:,1) - soil%swilt ) /                      &
-                         ( soil%sfc - soil%swilt) ) )
+                         ( max(0.083, (soil%sfc - soil%swilt) ) )              &
+                         ) )
 
          ! Temporay fix for accounting for reduction of soil evaporation 
          ! due to freezing
@@ -818,17 +1117,26 @@ SUBROUTINE initialize_soilsnow( smvcst, tsoil_tile, sthf_tile, smcl_tile,      &
       
          !jhan: do we want to do this before %owetfac is set 
          DO J = 1, um1%sm_levels
+            !should be removed!!!!!!!! This cannot conserve if there are any
+            !dynamics 
             WHERE( soil%isoilm == 9 ) ! permanent ice: remove hard-wired no. in future
                ssnow%wb(:,J) = 0.95*soil%ssat
-               ssnow%wbice(:,J) = 0.8*soil%ssat
+               ssnow%wbice(:,J) = 0.85*ssnow%wb(:,J)
             ENDWHERE
-            ssnow%wbtot  = ssnow%wbtot + ssnow%wb(:,j) * soil%zse(j) * 1000.0
+            !no not force rho_water==rho_ice==1000.0
+            ssnow%wbtot = ssnow%wbtot + soil%zse(j)*&
+                                       (ssnow%wbliq(:,j)*um1%RHO_WATER+&
+                                        ssnow%wbice(:,j)*um1%RHO_ICE )                     
          ENDDO
+         IF (cable_user%gw_model) THEN
+            ssnow%wbtot = ssnow%wbtot + ssnow%GWwb(:)*soil%GWdz*um1%RHO_WATER
+         ENDIF
      
          bal%wbtot0 = ssnow%wbtot
 
          !---set antartic flag using  sin_theta_latitude(row_length,rows)
          ALLOCATE( fwork(1,um1%land_pts,um1%ntiles) )
+         fwork = 0.0
          DO N=1,um1%NTILES                     
             DO K=1,um1%TILE_PTS(N)
                L = um1%TILE_INDEX(K,N)
@@ -860,12 +1168,23 @@ SUBROUTINE initialize_soilsnow( smvcst, tsoil_tile, sthf_tile, smcl_tile,      &
 
       ENDIF ! END: if (first_call)       
 
+      !mrd561
+      !should be initialized but not sure if here
+      ssnow%qrecharge    = 0.0
+      ssnow%wtd          = 1.0
+      ssnow%rtevap_sat   = 0.0
+      ssnow%rtevap_unsat = 0.0
+      ssnow%satfrac      = 0.5
+      ssnow%qhz          = 0.0
+      ssnow%qhlev        = 0.0
+      ssnow%wbliq = ssnow%wb - ssnow%wbice
+
       ! SLI specific initialisations:
       IF(cable_user%SOIL_STRUC=='sli') THEN
          ssnow%h0(:)        = 0.0
-         ssnow%S(:,:)       = ssnow%wb(:,:)/SPREAD(soil%ssat,2,ms)
+         ssnow%S(:,:)       = ssnow%wb(:,:)/soil%ssat_vec !SPREAD(soil%ssat,2,ms)
          ssnow%snowliq(:,:) = 0.0
-         ssnow%Tsurface     = 25.0
+         ssnow%Tsurface     = 25.0  !why not ssnow%tgg(:,1) - 273.16
          ssnow%nsnow        = 0
          ssnow%Tsoil        = ssnow%tgg - 273.16
          ssnow%kth          = 0.3
@@ -876,10 +1195,33 @@ SUBROUTINE initialize_soilsnow( smvcst, tsoil_tile, sthf_tile, smcl_tile,      &
       END IF
 
 
+      IF (cable_user%gw_model) THEN
+         ssnow%wb_lake(:) = 0.0  !already prevent drainage unless fully
+                                 !saturated and can take from GWwb
+         ssnow%wbtot1 = 0.0
+         ssnow%wbtot2 = 0.0
+         ssnow%wbtot1 = max(0., &
+                            (soil%sfc_vec(:,1) - ssnow%wb(:,1))*soil%zse(1)/soil%GWdz(:) )
+
+         WHERE( veg%iveg == 16 .and. &
+                ssnow%wb(:,1) < soil%sfc_vec(:,1) .and. &
+                ssnow%GWwb(:) .gt. ssnow%wbtot1)
+
+                ssnow%wb(:,1) = soil%sfc_vec(:,1)
+                ssnow%GWwb(:) = ssnow%GWwb(:) -  ssnow%wbtot1(:)
+
+          ENDWHERE
+
+          ssnow%wbtot1 = 0.0
+          
+      ELSE
 !     DO J=1, msn
+         ssnow%wbtot1 = 0.0
+         ssnow%wbtot2 = 0.0
       DO J=1, 1
 
-         WHERE( veg%iveg == 16 .and. ssnow%wb(:,J) < soil%sfc ) ! lakes: remove hard-wired number in future version
+            WHERE( veg%iveg == 16 .and. ssnow%wb(:,J) < soil%sfc ) 
+                ! lakes: remove hard-wired number in future version
             ssnow%wbtot1 = ssnow%wbtot1 + REAL( ssnow%wb(:,J) ) * 1000.0 *     &
                            soil%zse(J)
             ssnow%wb(:,J) = soil%sfc
@@ -889,6 +1231,7 @@ SUBROUTINE initialize_soilsnow( smvcst, tsoil_tile, sthf_tile, smcl_tile,      &
 
       ENDDO
       ssnow%wb_lake = MAX( ssnow%wbtot2 - ssnow%wbtot1, 0.)
+      END IF 
 
 END SUBROUTINE initialize_soilsnow
  
@@ -1038,8 +1381,31 @@ SUBROUTINE um2cable_rr(umvar,cablevar)
 
 END SUBROUTINE um2cable_rr
 
-
 !========================================================================
+
+SUBROUTINE um2cable_irr(umvar,cablevar)
+   USE cable_def_types_mod, ONLY : mp
+   USE cable_um_tech_mod,   ONLY :um1
+ 
+   integer, INTENT(IN), DIMENSION(um1%row_length, um1%rows) :: umvar   
+   integer, INTENT(INOUT), DIMENSION(mp) :: cablevar
+   integer, DIMENSION(um1%land_pts,um1%ntiles) :: fvar   
+   INTEGER :: n,k,l,j,i
+
+      fvar = 0.0
+      DO N=1,um1%NTILES                     
+         DO K=1,um1%TILE_PTS(N)
+            L = um1%TILE_INDEX(K,N)
+            J=(um1%LAND_INDEX(L)-1)/um1%row_length + 1
+            I = um1%LAND_INDEX(L) - (J-1)*um1%row_length
+            fvar(L,N) = umvar(I,J)
+         ENDDO
+      ENDDO
+      cablevar =  pack(fvar,um1%l_tile_pts)
+
+END SUBROUTINE um2cable_irr
+
+
 !========================================================================
 !========================================================================
 
@@ -1063,12 +1429,18 @@ SUBROUTINE um2cable_lp(umvar, defaultin, cablevar, soiltype, skip )
          
       ALLOCATE( fvar(um1%land_pts,um1%ntiles) )
       fvar = 0.0
-      !hardwired 9= mstype 9 = permafrost
+
+      ! loop over Ntiles
       DO N=1,um1%NTILES
+         ! loop over number of points per tile
          DO K=1,um1%TILE_PTS(N)
+            ! index of each point per tile in an array of dim=(land_pts,ntiles)
             L = um1%TILE_INDEX(K,N)
+            ! at this point fvar=umvar, ELSE=0.0 
             fvar(L,N) = umvar(L)
+            ! unless explicitly SKIPPED by including arg in subr call
             IF(.NOT. PRESENT(skip) ) THEN
+               ! on perma frost tile, set fvar=defaultin
                IF( N == um1%ntiles ) THEN
                   fvar(L,N) =  defaultin(9)
                ENDIF
@@ -1078,8 +1450,10 @@ SUBROUTINE um2cable_lp(umvar, defaultin, cablevar, soiltype, skip )
      
       cablevar     =  PACK(fvar,um1%l_tile_pts)
   
+      ! unless explicitly SKIPPED by including arg in subr call
       IF(.NOT. PRESENT(skip) ) THEN
          DO i=1,mp
+            ! soiltype=9 for perma-frost tiles 
             IF(soiltype(i)==9) cablevar(i) =  defaultin(9)         
          ENDDO        
       ENDIF

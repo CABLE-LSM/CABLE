@@ -51,7 +51,7 @@ MODULE cable_um_tech_mod
                  sm_levels, timestep 
       INTEGER, ALLOCATABLE, DIMENSION(:) :: tile_pts, land_index
       INTEGER, ALLOCATABLE, DIMENSION(:,:) :: tile_index
-      REAL :: rho_water
+      REAL :: rho_water,rho_ice
       REAL,ALLOCATABLE, DIMENSION(:,:) :: tile_frac
       REAL,ALLOCATABLE, DIMENSION(:,:) :: latitude, longitude
       LOGICAL,ALLOCATABLE, DIMENSION(:,:) :: l_tile_pts
@@ -59,16 +59,20 @@ MODULE cable_um_tech_mod
 
    TYPE derived_veg_pars
       INTEGER, DIMENSION(:,:), POINTER ::                                      &
-         ivegt(:,:),    & ! vegetation  types
-         isoilm(:,:)      ! soil types
+         ivegt(:,:) => NULL(),    & ! vegetation  types
+         isoilm(:,:) => NULL()     ! soil types
       REAL, DIMENSION(:,:), POINTER ::                                         &
-         htveg(:,:),    &
-         laift(:,:)       ! hruffmax(:.:)
+         htveg(:,:) => NULL(),    &
+         laift(:,:) => NULL()       ! hruffmax(:.:)
    END TYPE derived_veg_pars
 
    INTERFACE check_nmlvar 
-      MODULE PROCEDURE check_chvar, check_intvar!, check_lgvar
+      MODULE PROCEDURE check_chvar, check_intvar, check_lgvar
    END INTERFACE check_nmlvar 
+ 
+   INTERFACE basic_diag 
+      MODULE PROCEDURE basic_chdiag 
+   END INTERFACE basic_diag 
  
       TYPE(derived_rad_bands), SAVE :: kblum_rad    
       TYPE(derived_veg_pars),  SAVE :: kblum_veg    
@@ -86,7 +90,9 @@ SUBROUTINE cable_um_runtime_vars(runtime_vars_file)
    USE cable_common_module, ONLY : cable_runtime, cable_user, filename,        &
                                    cable_user, knode_gl, redistrb, wiltParam,  &
                                    satuParam, l_casacnp, l_laiFeedbk,          &
-                                   l_vcmaxFeedbk
+                                   l_vcmaxFeedbk, gw_params
+   USE cable_fFile_module, ONLY : fprintf_dir_root, L_cable_fprint,            &
+                                  L_cable_Pyfprint, unique_subdir
    USE casavariable, ONLY : casafile
    USE casadimension, ONLY : icycle
 
@@ -95,9 +101,10 @@ SUBROUTINE cable_um_runtime_vars(runtime_vars_file)
    INTEGER :: funit=88
    
    !--- namelist for CABLE runtime vars, files, switches 
-   NAMELIST/CABLE/filename, l_casacnp, l_laiFeedbk, l_vcmaxFeedbk, icycle,   &
-                  casafile, cable_user, redistrb, wiltParam, satuParam
-
+   NAMELIST/CABLE/filename, l_casacnp, l_laiFeedbk, l_vcmaxFeedbk, icycle,     &
+                  casafile, cable_user, redistrb, wiltParam, satuParam,        &
+                  gw_params, fprintf_dir_root, L_cable_fprint,                 &
+                  L_cable_Pyfprint, unique_subdir
       !--- assume namelist exists. no iostatus check 
       OPEN(unit=funit,FILE= runtime_vars_file)
          READ(funit,NML=CABLE)
@@ -141,7 +148,7 @@ SUBROUTINE cable_um_runtime_vars(runtime_vars_file)
       !                   cable_user%l_new_roughness_soil)
       !CALL check_nmlvar('cable_user%l_new_roughness_soil',                     &
       !                   cable_user%l_new_roughness_soil)
-
+!jhan:revise add reading/checking/reporting - more useful
 END SUBROUTINE cable_um_runtime_vars
 
 !jhan: also add real, logical, int interfaces
@@ -177,23 +184,41 @@ SUBROUTINE check_intvar(this_var, val_var)
       ENDIF
 
 END SUBROUTINE check_intvar
+ 
+SUBROUTINE basic_chdiag(upto, message)
+   USE cable_common_module, ONLY : knode_gl
 
-!SUBROUTINE check_lgvar(this_var, val_var)
-!   USE cable_common_module, ONLY : knode_gl
-!
-!   CHARACTER(LEN=*), INTENT(IN) :: this_var
-!   LOGICAL, INTENT(IN) :: val_var
-!
-!      IF (knode_gl==0) THEN
-!         PRINT *, '  '; PRINT *, 'CABLE_log:'
-!         PRINT *, '   run time variable - '
-!         PRINT *, '  ', trim(this_var)
-!         PRINT *, '   defined as - '
-!         PRINT *, '  ', (val_var)
-!         PRINT *, 'End CABLE_log:'; PRINT *, '  '
-!      ENDIf
-!
-!END SUBROUTINE check_lgvar
+   CHARACTER(LEN=*), INTENT(IN) :: upto, message 
+   
+      IF (knode_gl==0) THEN
+         PRINT *, '  '; PRINT *, 'CABLE_log:' 
+         PRINT *, '   From subroutine:- '
+         PRINT *, '  ', trim(upto) 
+         PRINT *, '   broadcast - '
+         PRINT *, '  ', trim(message) 
+         PRINT *, 'End CABLE_log:'; PRINT *, '  '
+      ENDIf
+
+END SUBROUTINE basic_chdiag 
+
+   
+
+SUBROUTINE check_lgvar(this_var, val_var)
+   USE cable_common_module, ONLY : knode_gl
+
+   CHARACTER(LEN=*), INTENT(IN) :: this_var
+   LOGICAL, INTENT(IN) :: val_var
+
+      IF (knode_gl==0) THEN
+         PRINT *, '  '; PRINT *, 'CABLE_log:'
+         PRINT *, '   run time variable - '
+         PRINT *, '  ', trim(this_var)
+         PRINT *, '   defined as - '
+         PRINT *, '  ', (val_var)
+         PRINT *, 'End CABLE_log:'; PRINT *, '  '
+      ENDIf
+
+END SUBROUTINE check_lgvar
     
 !========================================================================= 
 !=========================================================================
@@ -205,23 +230,39 @@ SUBROUTINE alloc_um_interface_types( row_length, rows, land_pts, ntiles,       &
       
       INTEGER,INTENT(IN) :: row_length, rows, land_pts, ntiles, sm_levels   
 
-         ALLOCATE( um1%land_index(land_pts) )
-         ALLOCATE( um1%tile_pts(ntiles) )
-         ALLOCATE( um1%tile_frac(land_pts, ntiles) )
-         ALLOCATE( um1%tile_index(land_pts, ntiles) )
-         ALLOCATE( um1%latitude(row_length, rows) )
-         ALLOCATE( um1%longitude(row_length, rows) )
-         ALLOCATE( um1%l_tile_pts(land_pts, ntiles) ) 
-        !-------------------------------------------------------
-         ALLOCATE( kblum_rad%sw_down_dir(row_length,rows) )
-         ALLOCATE( kblum_rad%sw_down_dif(row_length,rows) )
-         ALLOCATE( kblum_rad%sw_down_vis(row_length,rows) )
-         ALLOCATE( kblum_rad%sw_down_nir(row_length,rows) )
-         ALLOCATE( kblum_rad%fbeam(row_length,rows,3) )
-         ALLOCATE( kblum_veg%htveg(land_pts,ntiles) )
-         ALLOCATE( kblum_veg%laift(land_pts,ntiles) )
-         ALLOCATE( kblum_veg%ivegt(land_pts,ntiles) )
-         ALLOCATE( kblum_veg%isoilm(land_pts,ntiles) ) 
+       if(.NOT. allocated ( um1%land_index ) ) &
+                  ALLOCATE( um1%land_index(land_pts) )
+       if(.NOT. allocated ( um1%tile_pts ) )  & 
+                  ALLOCATE( um1%tile_pts(ntiles) )
+       if(.NOT. allocated ( um1%tile_frac ) )  &
+                  ALLOCATE( um1%tile_frac(land_pts, ntiles) )
+       if(.NOT. allocated ( um1%tile_index ) )  &
+                  ALLOCATE( um1%tile_index(land_pts, ntiles) )
+       if(.NOT. allocated ( um1%latitude ) )  &
+                  ALLOCATE( um1%latitude(row_length, rows) )
+       if(.NOT. allocated ( um1%longitude ) )  &
+                  ALLOCATE( um1%longitude(row_length, rows) )
+       if(.NOT. allocated ( um1%l_tile_pts ) )  &
+                  ALLOCATE( um1%l_tile_pts(land_pts, ntiles) ) 
+
+       if(.NOT. allocated ( kblum_rad%sw_down_dir ) )  &
+                  ALLOCATE( kblum_rad%sw_down_dir(row_length,rows) )
+       if(.NOT. allocated ( kblum_rad%sw_down_dif ) )  &
+                  ALLOCATE( kblum_rad%sw_down_dif(row_length,rows) )
+       if(.NOT. allocated ( kblum_rad%sw_down_vis ) )  &
+                  ALLOCATE( kblum_rad%sw_down_vis(row_length,rows) )
+       if(.NOT. allocated ( kblum_rad%sw_down_nir ) )  &
+                  ALLOCATE( kblum_rad%sw_down_nir(row_length,rows) )
+       if(.NOT. allocated ( kblum_rad%fbeam) )  &
+                  ALLOCATE( kblum_rad%fbeam(row_length,rows,3) )
+       if(.NOT. associated ( kblum_veg%htveg ) )  &
+                  ALLOCATE( kblum_veg%htveg(land_pts,ntiles) )
+       if(.NOT. associated ( kblum_veg%laift ) )  &
+                  ALLOCATE( kblum_veg%laift(land_pts,ntiles) )
+       if(.NOT. associated ( kblum_veg%ivegt ) )  &
+                  ALLOCATE( kblum_veg%ivegt(land_pts,ntiles) )
+       if(.NOT. associated ( kblum_veg%isoilm ) )  &
+                  ALLOCATE( kblum_veg%isoilm(land_pts,ntiles) ) 
          
 END SUBROUTINE alloc_um_interface_types 
 
@@ -256,9 +297,7 @@ SUBROUTINE dealloc_vegin_soilin()
       DEALLOCATE(vegin%csoil)
       DEALLOCATE(vegin%ratecp)
       DEALLOCATE(vegin%ratecs)
-      DEALLOCATE(vegin%g0)
-      DEALLOCATE(vegin%g1)
- 
+     
       DEALLOCATE(soilin%silt)
       DEALLOCATE(soilin%clay)
       DEALLOCATE(soilin%sand)

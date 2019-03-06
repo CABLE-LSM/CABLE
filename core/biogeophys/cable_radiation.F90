@@ -34,6 +34,9 @@ CONTAINS
 
 SUBROUTINE init_radiation( met, rad, veg, canopy )
 
+   ! Alternate version of init_radiation that uses only the
+   ! zenith angle instead of the fluxes. This means it can be called
+   ! before the cable albedo calculation.
    USE cable_def_types_mod, ONLY : radiation_type, met_type, canopy_type,      &
                                    veg_parameter_type, nrb, mp
    USE cable_common_module
@@ -61,7 +64,6 @@ SUBROUTINE init_radiation( met, rad, veg, canopy )
       rhoch
 
 
-   LOGICAL, DIMENSION(mp)    :: mask   ! select points for calculation
 
    INTEGER :: ictr
 
@@ -100,15 +102,13 @@ SUBROUTINE init_radiation( met, rad, veg, canopy )
       rad%extkd = 0.7
    END WHERE
 
-   mask = canopy%vlaiw > C%LAI_THRESH  .AND.                                   &
-          ( met%fsd(:,1) + met%fsd(:,2) ) > C%RAD_THRESH
 
    CALL calc_rhoch( veg, c1, rhoch )
 
    ! Canopy REFLection of diffuse radiation for black leaves:
    DO ictr=1,nrb
 
-     rad%rhocdf(:,ictr) = rhoch(:,ictr) *                                      &
+     rad%rhocdf(:,ictr) = rhoch(:,ictr) *  2. *                                &
                           ( C%GAUSS_W(1) * xk(:,1) / ( xk(:,1) + rad%extkd(:) )&
                           + C%GAUSS_W(2) * xk(:,2) / ( xk(:,2) + rad%extkd(:) )&
                           + C%GAUSS_W(3) * xk(:,3) / ( xk(:,3) + rad%extkd(:) ) )
@@ -133,7 +133,7 @@ SUBROUTINE init_radiation( met, rad, veg, canopy )
    ! In gridcells where vegetation exists....
 
 !!vh !! include RAD_THRESH in condition
-   WHERE (canopy%vlaiw > C%LAI_THRESH .and. rad%fbeam(:,1).GE.C%RAD_THRESH   )
+   WHERE (canopy%vlaiw > C%LAI_THRESH .and. met%coszen > 1.e-6 )
 
       ! SW beam extinction coefficient ("black" leaves, extinction neglects
       ! leaf SW transmittance and REFLectance):
@@ -147,7 +147,7 @@ SUBROUTINE init_radiation( met, rad, veg, canopy )
       rad%extkb = rad%extkd + 0.001
    END WHERE
 
-   WHERE(rad%fbeam(:,1) < C%RAD_THRESH )
+   WHERE( met%coszen < 1.e-6 )
       ! higher value precludes sunlit leaves at night. affects
       ! nighttime evaporation - Ticket #90 
       rad%extkb=1.0e5 
@@ -207,6 +207,7 @@ SUBROUTINE radiation( ssnow, veg, air, met, rad, canopy )
    END WHERE
 
    ! Define fraction of SW beam tranmitted through canopy:
+!C!jhan: check rel. b/n extkb, extkbm,transb,cexpkbm def. cable_albedo, qsabbs    
 !! vh_js !!
    dummy2 = MIN(rad%extkb * canopy%vlaiw,30.) ! vh version to avoid floating underflow !
    dummy = EXP(-dummy2)
@@ -230,14 +231,14 @@ SUBROUTINE radiation( ssnow, veg, air, met, rad, canopy )
 
       ! Define radiative conductance (Leuning et al, 1995), eq. D7:
       rad%gradis(:,1) = ( 4.0 * C%EMLEAF / (C%CAPP * air%rho) ) * flpwb        &
-                        / (met%tk) * rad%extkd                              &
+                        / (met%tvrad) * rad%extkd                              &
                         * ( ( 1.0 - rad%transb * rad%transd ) /                &
                         ( rad%extkb + rad%extkd )                              &
                         + ( rad%transd - rad%transb ) /                        &
                         ( rad%extkb - rad%extkd ) )
 
       rad%gradis(:,2) = ( 8.0 * C%EMLEAF / ( C%CAPP * air%rho ) ) *            &
-                        flpwb / met%tk * rad%extkd *                        &
+                        flpwb / met%tvrad * rad%extkd *                        &
                         ( 1.0 - rad%transd ) / rad%extkd - rad%gradis(:,1)
 
       ! Longwave radiation absorbed by sunlit canopy fraction:

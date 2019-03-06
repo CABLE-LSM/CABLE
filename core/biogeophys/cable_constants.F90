@@ -35,6 +35,12 @@ MODULE physical_constants
 
   IMPLICIT NONE
 
+  !mrd561
+  !constants from/for soilsnow and gw_hydro
+  REAL,    PARAMETER :: hl = 2.5014e6  ! air spec. heat (J/kg/K)
+  REAL,    PARAMETER :: hlf = 0.334e6  ! latent heat of fusion
+  REAL,    PARAMETER :: hls = 2.8350e6  ! latent heat of sublimation (J/kg)
+
   REAL,    PARAMETER :: capp   = 1004.64  ! air spec. heat capacity (J/kg/K)
   REAL,    PARAMETER :: dheat  = 21.5E-6  ! molecular diffusivity for heat
   REAL,    PARAMETER :: grav   = 9.80     ! gravity acceleration (m/s2)
@@ -47,6 +53,10 @@ MODULE physical_constants
   REAL,    PARAMETER :: tetena = 6.106    ! ??? refs?
   REAL,    PARAMETER :: tetenb = 17.27
   REAL,    PARAMETER :: tetenc = 237.3
+  !mrd561 the parameters for sat above ice
+  REAL,    PARAMETER :: tetena_ice = 6.1078  ! ??? refs?
+  REAL,    PARAMETER :: tetenb_ice = 21.875 
+  REAL,    PARAMETER :: tetenc_ice = 265.5 
   ! Aerodynamic parameters, diffusivities, water density:
   REAL,    PARAMETER :: vonk   = 0.40     ! von Karman constant
   REAL,    PARAMETER :: a33    = 1.25     ! inertial sublayer sw/us
@@ -58,7 +68,7 @@ MODULE physical_constants
   REAL,    PARAMETER :: diffwc = 1.60     ! diffw/diffc = H2O/CO2 diffusivity
   REAL,    PARAMETER :: rhow   = 1000.0   ! liquid water density   [kg/m3]
   REAL,    PARAMETER :: emleaf = 1.0      ! leaf emissivity
-  REAL,    PARAMETER :: emsoil = 0.95     ! soil emissivity
+  REAL,    PARAMETER :: emsoil = 1.0      ! soil emissivity
   REAL,    PARAMETER :: cr     = 0.3      ! element drag coefficient
   REAL,    PARAMETER :: cs     = 0.003    ! substrate drag coefficient
   REAL,    PARAMETER :: beta   = cr/cs    ! ratio cr/cs
@@ -80,7 +90,7 @@ END MODULE physical_constants
 
 MODULE other_constants
 
-  USE cable_def_types_mod, ONLY : i_d, nrb
+  USE cable_def_types_mod, ONLY : i_d, nrb,r_2
 
   IMPLICIT NONE
 
@@ -104,6 +114,7 @@ MODULE other_constants
   INTEGER(i_d), PARAMETER                 :: iresp   = 0                      ! unscaled (iresp=0) or scaled (iresp=1) respiration
 
 END MODULE other_constants
+
 
 !=========================================================================
 

@@ -29,7 +29,7 @@ module cable_data_module
    TYPE physical_constants
       real ::                                                                  &
       capp   = 1004.64, & ! air spec. heat (J/kg/K)
-      hl = 2.5014e6, & ! air spec. heat (J/kg/K)
+      hl = 2.5014e6, & ! latent heat of vaporization (J/s/m2)
       hlf = 0.334e6, & ! latent heat of fusion
       hls = 2.8350e6, & ! latent heat of sublimation (J/kg)
       !hl = 2.5104e6, & ! air spec. heat (J/kg/K)
@@ -42,11 +42,22 @@ module cable_data_module
       rmh2o  = 0.018016, & ! molecular wt: water        (kg/mol)
       sboltz = 5.67e-8, & ! Stefan-Boltz. constant (W/m2/K4)
       tfrz   = 273.16, & ! Temp (K) corresp. to 0 C
+      cgsnow = 2090.0,&      ! specific heat capacity for snow
+      cs_rho_ice = 1.9341e6,&    !heat capacity * density ice
+      cs_rho_wat = 4.218e6,&    ! heat capacity * density  water
+      csice = 2.100e3,&      ! specific heat capacity for ice
+      cswat = 4.218e3,&      ! specific heat capacity for water
+      density_liq = 1000.0,  &  !density of liquid water
+      density_ice = 921.0,&     !denisty of ice
 
       ! Teten coefficients
-      tetena = 6.106, & ! ??? refs?
+      tetena = 6.106, & ! ??? refs?  mrd561 Magnus Tetans (Murray 1967)
       tetenb = 17.27, &
       tetenc = 237.3, &
+      !mrd561 the parameters for sat above ice
+      tetena_ice = 6.1078, & ! ??? refs?
+      tetenb_ice = 21.875, &
+      tetenc_ice = 265.5, &
 
       ! Aerodynamic parameters, diffusivities, water density:
       vonk   = 0.40, & ! von Karman constant
@@ -76,7 +87,8 @@ module cable_data_module
       zetneg = -15.0, & ! negative limit on za/L when niter>=3
       zetpos = 1.0,  & ! positive limit on za/L when niter>=3
       zdlin  = 1.0,  & ! height frac of d below which TL linear
-      umin   = 0.01
+      !revised upwards from 0.01 to guarantee convergence, unnecessary now ?
+      umin   = 1.0
 
    END TYPE physical_constants
 
@@ -136,7 +148,7 @@ module cable_data_module
    TYPE icbm_type
       REAL, POINTER ::                                                         &
          ! physical constants
-         GRAV, CAPP
+         GRAV, CAPP, EMLEAF, EMSOIL, SBOLTZ
    END TYPE icbm_type
 
 
@@ -145,6 +157,7 @@ module cable_data_module
          ! physical constants
          TFRZ, RMAIR, RGAS,                                                    &
          TETENA, TETENB, TETENC,                                               &
+         TETENA_ICE, TETENB_ICE, TETENC_ICE,                                   &
          CAPP, RMH2O, HL
    END TYPE iair_type
 
@@ -175,7 +188,8 @@ module cable_data_module
          ! math constants
          PI_C,                                                                 &
          ! other constants
-         LAI_THRESH
+         LAI_THRESH,                                                           &
+         TETENA_ICE, TETENB_ICE, TETENC_ICE
 
       INTEGER, POINTER :: MAXITER
 
@@ -217,8 +231,18 @@ module cable_data_module
    TYPE issnow_type
       REAL, POINTER ::                                                         &
          ! physical constants
-         CAPP, TFRZ, HL, HLF, HLS
+         CAPP, TFRZ, HL, HLF, HLS,density_liq,&
+         density_ice,cgsnow,cswat,csice,cs_rho_wat,cs_rho_ice
    END TYPE issnow_type
+
+
+   TYPE igwhydro_type
+      REAL, POINTER ::                                                         &
+         ! physical constants
+         TFRZ, HL, HLF, HLS,density_liq,&
+         density_ice,cgsnow,cs_rho_wat,cs_rho_ice,PI
+   END TYPE igwhydro_type
+
 
 
    TYPE const_type
@@ -247,7 +271,8 @@ module cable_data_module
    INTERFACE point2constants
       MODULE PROCEDURE driver_type_ptr, cbm_type_ptr, air_type_ptr,            &
                        albedo_type_ptr, canopy_type_ptr, carbon_type_ptr,      &
-                       rad_type_ptr, rough_type_ptr, ssnow_type_ptr
+                       rad_type_ptr, rough_type_ptr, ssnow_type_ptr,&
+                        gwhydro_type_ptr
    END INTERFACE
 
 CONTAINS
@@ -271,6 +296,9 @@ SUBROUTINE cbm_type_ptr(C)
    ! physical constants
    C%GRAV  => PHYS%GRAV
    C%CAPP  => PHYS%CAPP
+   C%EMLEAF => PHYS%EMLEAF
+   C%EMSOIL => PHYS%EMSOIL
+   C%SBOLTZ => PHYS%SBOLTZ
 END SUBROUTINE cbm_type_ptr
 
 ! ------------------------------------------------------------------------------
@@ -282,6 +310,9 @@ SUBROUTINE air_type_ptr(C)
    C%TFRZ  => PHYS%TFRZ
    C%RMAIR => PHYS%RMAIR
    C%RGAS  => PHYS%RGAS
+   C%TETENA_ICE => PHYS%TETENA_ICE
+   C%TETENB_ICE => PHYS%TETENB_ICE
+   C%TETENC_ICE => PHYS%TETENC_ICE
    C%TETENA => PHYS%TETENA
    C%TETENB => PHYS%TETENB
    C%TETENC => PHYS%TETENC
@@ -318,6 +349,9 @@ SUBROUTINE canopy_type_ptr(C)
    C%ZETPOS => PHYS%ZETPOS
    C%GRAV  => PHYS%GRAV
    C%UMIN  => PHYS%UMIN
+   C%TETENA_ICE => PHYS%TETENA_ICE
+   C%TETENB_ICE => PHYS%TETENB_ICE
+   C%TETENC_ICE => PHYS%TETENC_ICE
    C%TETENA => PHYS%TETENA
    C%TETENB => PHYS%TETENB
    C%TETENC => PHYS%TETENC
@@ -412,7 +446,31 @@ SUBROUTINE ssnow_type_ptr(C)
    C%HL    => PHYS%HL
    C%HLF   => PHYS%HLF
    C%HLS   => PHYS%HLS
+   C%density_ice=> PHYS%density_ice
+   C%density_liq=> PHYS%density_liq
+   C%CSWAT   => PHYS%CSWAT
+   C%CGSNOW   => PHYS%CGSNOW
+   C%CSICE   => PHYS%CSICE
+   C%cs_rho_wat   => PHYS%cs_rho_wat
+   C%cs_rho_ice   => PHYS%cs_rho_ice
    !C% => PHYS%
 END SUBROUTINE ssnow_type_ptr
+
+
+SUBROUTINE gwhydro_type_ptr(C)
+   TYPE(igwhydro_type) :: C
+   ! physical constants
+   C%PI    => MATH%PI_C
+   C%TFRZ  => PHYS%TFRZ
+   C%HL    => PHYS%HL
+   C%HLF   => PHYS%HLF
+   C%HLS   => PHYS%HLS
+   C%density_ice=> PHYS%density_ice
+   C%density_liq=> PHYS%density_liq
+   C%cs_rho_wat   => PHYS%cs_rho_wat
+   C%cs_rho_ice   => PHYS%cs_rho_ice
+   C%CGSNOW   => PHYS%CGSNOW
+   !C% => PHYS%
+END SUBROUTINE gwhydro_type_ptr
 
 END MODULE cable_data_module

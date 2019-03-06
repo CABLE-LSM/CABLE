@@ -408,10 +408,19 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
    CALL readpar(ncid_rin,'runoff',dummy,ssnow%runoff,filename%restart_in,      &
         max_vegpatches,'def',from_restart,mp)
 
-   IF(cable_user%SOIL_STRUC=='sli'.or.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
-      CALL readpar(ncid_rin,'gamma',dummy,veg%gamma,filename%restart_in,           &
-           max_vegpatches,'def',from_restart,mp)
-   ENDIF
+   !MD
+   ok = NF90_INQ_VARID(ncid_rin,'GWwb',parID)
+   IF(ok == NF90_NOERR) THEN
+     CALL readpar(ncid_rin,'GWwb',dummy,ssnow%GWwb,filename%restart_in,            &
+                max_vegpatches,'def',from_restart,mp)
+   ELSE
+      ssnow%GWwb = 0.95*soil%ssat
+   END IF
+
+!!$   IF(cable_user%SOIL_STRUC=='sli'.or.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
+!!$      CALL readpar(ncid_rin,'gamma',dummy,veg%gamma,filename%restart_in,           &
+!!$           max_vegpatches,'def',from_restart,mp)
+!!$   ENDIF
 
     IF(cable_user%SOIL_STRUC=='sli') THEN
        CALL readpar(ncid_rin,'S',dummy,ssnow%S,filename%restart_in, &
@@ -428,23 +437,23 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
             max_vegpatches,'snow',from_restart,mp)
        CALL readpar(ncid_rin,'sconds',dummy,ssnow%sconds,filename%restart_in, &
             max_vegpatches,'snow',from_restart,mp)
-       CALL readpar(ncid_rin,'ZR',dummy,veg%ZR, &
-            filename%restart_in,max_vegpatches,'def',from_restart,mp)
-       CALL readpar(ncid_rin,'F10',dummy,veg%F10, &
-            filename%restart_in,max_vegpatches,'def',from_restart,mp)
-       CALL readpar(ncid_rin,'zeta',dummy,soil%zeta,filename%restart_in,           &
-            max_vegpatches,'def',from_restart,mp)
-       CALL readpar(ncid_rin,'fsatmax',dummy,soil%fsatmax,filename%restart_in,           &
-            max_vegpatches,'def',from_restart,mp)
-       CALL readpar(ncid_rin,'nhorizons',dummy,soil%nhorizons,filename%restart_in,           &
-            max_vegpatches,'def',from_restart,mp)
-       ALLOCATE(var_r2(mp,ms))
-       CALL readpar(ncid_rin,'ishorizon',dummy,var_r2,filename%restart_in,           &
-            max_vegpatches,'ms',from_restart,mp)
-       soil%ishorizon = int(var_r2)
-       DEALLOCATE(var_r2)
-       CALL readpar(ncid_rin,'clitt',dummy,veg%clitt,filename%restart_in,           &
-            max_vegpatches,'def',from_restart,mp)
+!!$       CALL readpar(ncid_rin,'ZR',dummy,veg%ZR, &
+!!$            filename%restart_in,max_vegpatches,'def',from_restart,mp)
+!!$       CALL readpar(ncid_rin,'F10',dummy,veg%F10, &
+!!$            filename%restart_in,max_vegpatches,'def',from_restart,mp)
+!!$       CALL readpar(ncid_rin,'zeta',dummy,soil%zeta,filename%restart_in,           &
+!!$            max_vegpatches,'def',from_restart,mp)
+!!$       CALL readpar(ncid_rin,'fsatmax',dummy,soil%fsatmax,filename%restart_in,           &
+!!$            max_vegpatches,'def',from_restart,mp)
+!!$       CALL readpar(ncid_rin,'nhorizons',dummy,soil%nhorizons,filename%restart_in,           &
+!!$            max_vegpatches,'def',from_restart,mp)
+!!$       ALLOCATE(var_r2(mp,ms))
+!!$       CALL readpar(ncid_rin,'ishorizon',dummy,var_r2,filename%restart_in,           &
+!!$            max_vegpatches,'ms',from_restart,mp)
+!!$       soil%ishorizon = int(var_r2)
+!!$       DEALLOCATE(var_r2)
+!!$       CALL readpar(ncid_rin,'clitt',dummy,veg%clitt,filename%restart_in,           &
+!!$            max_vegpatches,'def',from_restart,mp)
     ENDIF
    CALL readpar(ncid_rin,'cansto',dummy,canopy%cansto,filename%restart_in,     &
                 max_vegpatches,'def',from_restart,mp)
@@ -538,115 +547,115 @@ ENDIF
    ENDIF
 !    CALL readpar(ncid_rin,'isoil',dummy,soil%isoilm,filename%restart_in,       &
 !         max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'clay',dummy,soil%clay,filename%restart_in,           &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'sand',dummy,soil%sand,filename%restart_in,           &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'silt',dummy,soil%silt,filename%restart_in,           &
-                max_vegpatches,'def',from_restart,mp)
-   IF ( .NOT. soilparmnew) THEN  ! Q.Zhang @12/20/2010
-      CALL readpar(ncid_rin,'ssat',dummy,soil%ssat,filename%restart_in,        &
-                   max_vegpatches,'def',from_restart,mp)
-      CALL readpar(ncid_rin,'sfc',dummy,soil%sfc,filename%restart_in,          &
-                   max_vegpatches,'def',from_restart,mp)
-      CALL readpar(ncid_rin,'swilt',dummy,soil%swilt,filename%restart_in,      &
-                   max_vegpatches,'def',from_restart,mp)
-      CALL readpar(ncid_rin,'bch',dummy,soil%bch,filename%restart_in,          &
-                   max_vegpatches,'def',from_restart,mp)
-      CALL readpar(ncid_rin,'hyds',dummy,soil%hyds,filename%restart_in,        &
-                   max_vegpatches,'def',from_restart,mp)
-      CALL readpar(ncid_rin,'sucs',dummy,soil%sucs,filename%restart_in,        &
-                   max_vegpatches,'def',from_restart,mp)
-      CALL readpar(ncid_rin,'css',dummy,soil%css,filename%restart_in,          &
-                   max_vegpatches,'def',from_restart,mp)
-      CALL readpar(ncid_rin,'rhosoil',dummy,soil%rhosoil,filename%restart_in,  &
-                   max_vegpatches,'def',from_restart,mp)
-      IF (ncciy > 0 .AND. filename%restart_in(22:23) == 'HQ') THEN
-         ok = NF90_INQ_VARID(ncid_rin,'albsoil',parID)
-         IF(ok == NF90_NOERR) THEN
-            ALLOCATE(var_r(mp))
-            ok= NF90_GET_VAR(ncid_rin,parID,var_r,start=(/1/),count=(/mp/))
-            IF(ok /= NF90_NOERR) CALL nc_abort                                 &
-                 (ok,'Error reading '//'albsoil'//' in file '                  &
-                 //TRIM(filename%restart_in)//' (SUBROUTINE get_restart_data)')
-            soil%albsoil(:,1) = var_r / 3.0
-            soil%albsoil(:,2) = var_r * 2.0 / 3.0
-            soil%albsoil(:,3) = 0.005
-            DEALLOCATE(var_r)
-         END IF
-      ELSE
-         CALL readpar(ncid_rin,'albsoil',dummy,soil%albsoil,filename%restart_in, &
-                      max_vegpatches,'nrb',from_restart,mp)
-      END IF
-   END IF
+!   CALL readpar(ncid_rin,'clay',dummy,soil%clay,filename%restart_in,           &
+!                max_vegpatches,'def',from_restart,mp)
+!   CALL readpar(ncid_rin,'sand',dummy,soil%sand,filename%restart_in,           &
+!                max_vegpatches,'def',from_restart,mp)
+!   CALL readpar(ncid_rin,'silt',dummy,soil%silt,filename%restart_in,           &
+!                max_vegpatches,'def',from_restart,mp)
+!   IF ( .NOT. soilparmnew) THEN  ! Q.Zhang @12/20/2010
+!      CALL readpar(ncid_rin,'ssat',dummy,soil%ssat,filename%restart_in,        &
+!                   max_vegpatches,'def',from_restart,mp)
+!      CALL readpar(ncid_rin,'sfc',dummy,soil%sfc,filename%restart_in,          &
+!                   max_vegpatches,'def',from_restart,mp)
+!      CALL readpar(ncid_rin,'swilt',dummy,soil%swilt,filename%restart_in,      &
+!                   max_vegpatches,'def',from_restart,mp)
+!      CALL readpar(ncid_rin,'bch',dummy,soil%bch,filename%restart_in,          &
+!                   max_vegpatches,'def',from_restart,mp)
+!      CALL readpar(ncid_rin,'hyds',dummy,soil%hyds,filename%restart_in,        &
+!                  max_vegpatches,'def',from_restart,mp)
+!      CALL readpar(ncid_rin,'sucs',dummy,soil%sucs,filename%restart_in,        &
+!                   max_vegpatches,'def',from_restart,mp)
+!      CALL readpar(ncid_rin,'css',dummy,soil%css,filename%restart_in,          &
+!                   max_vegpatches,'def',from_restart,mp)
+!      CALL readpar(ncid_rin,'rhosoil',dummy,soil%rhosoil,filename%restart_in,  &
+!                   max_vegpatches,'def',from_restart,mp)
+!      IF (ncciy > 0 .AND. filename%restart_in(22:23) == 'HQ') THEN
+!         ok = NF90_INQ_VARID(ncid_rin,'albsoil',parID)
+!         IF(ok == NF90_NOERR) THEN
+!            ALLOCATE(var_r(mp))
+!            ok= NF90_GET_VAR(ncid_rin,parID,var_r,start=(/1/),count=(/mp/))
+!            IF(ok /= NF90_NOERR) CALL nc_abort                                 &
+!                 (ok,'Error reading '//'albsoil'//' in file '                  &
+!                 //TRIM(filename%restart_in)//' (SUBROUTINE get_restart_data)')
+!            soil%albsoil(:,1) = var_r / 3.0
+!            soil%albsoil(:,2) = var_r * 2.0 / 3.0
+!            soil%albsoil(:,3) = 0.005
+!            DEALLOCATE(var_r)
+!         END IF
+!      ELSE
+!         CALL readpar(ncid_rin,'albsoil',dummy,soil%albsoil,filename%restart_in, &
+!                      max_vegpatches,'nrb',from_restart,mp)
+!      END IF
+!   END IF
 !    CALL readpar(ncid_rin,'rs20',dummy,soil%rs20,filename%restart_in,          &
 !         max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'rs20',dummy,veg%rs20,filename%restart_in,            &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'froot',dummy,veg%froot,filename%restart_in,          &
-                max_vegpatches,'ms',from_restart,mp)
-   CALL readpar(ncid_rin,'hc',dummy,veg%hc,filename%restart_in,                &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'canst1',dummy,veg%canst1,filename%restart_in,        &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'dleaf',dummy,veg%dleaf,filename%restart_in,          &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'frac4',dummy,veg%frac4,filename%restart_in,          &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'ejmax',dummy,veg%ejmax,filename%restart_in,          &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'vcmax',dummy,veg%vcmax,filename%restart_in,          &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'rp20',dummy,veg%rp20,filename%restart_in,            &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'rpcoef',dummy,veg%rpcoef,filename%restart_in,        &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'shelrb',dummy,veg%shelrb,filename%restart_in,        &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'xfang',dummy,veg%xfang,filename%restart_in,          &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'wai',dummy,veg%wai,filename%restart_in,              &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'vegcf',dummy,veg%vegcf,filename%restart_in,          &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'extkn',dummy,veg%extkn,filename%restart_in,          &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'tminvj',dummy,veg%tminvj,filename%restart_in,        &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'tmaxvj',dummy,veg%tmaxvj,filename%restart_in,        &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'vbeta',dummy,veg%vbeta,filename%restart_in,          &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'xalbnir',dummy,veg%xalbnir,filename%restart_in,      &
-                max_vegpatches,'def',from_restart,mp)
-   veg%xalbnir = 1.0   ! xalbnir will soon be removed totally
-   CALL readpar(ncid_rin,'g0',dummy,veg%g0,filename%restart_in,            &
-                max_vegpatches,'def',from_restart,mp) ! Ticket #56
-   CALL readpar(ncid_rin,'g1',dummy,veg%g1,filename%restart_in,            &
-                max_vegpatches,'def',from_restart,mp) ! Ticket #56 
-   CALL readpar(ncid_rin,'meth',dummy,veg%meth,filename%restart_in,            &
-                max_vegpatches,'def',from_restart,mp)
-   ! special treatment of za with the introduction of za_uv and za_tq
+!   CALL readpar(ncid_rin,'rs20',dummy,veg%rs20,filename%restart_in,            &
+!                max_vegpatches,'def',from_restart,mp)
+!   CALL readpar(ncid_rin,'froot',dummy,veg%froot,filename%restart_in,          &
+!                max_vegpatches,'ms',from_restart,mp)
+!   CALL readpar(ncid_rin,'hc',dummy,veg%hc,filename%restart_in,                &
+!                max_vegpatches,'def',from_restart,mp)
+!   CALL readpar(ncid_rin,'canst1',dummy,veg%canst1,filename%restart_in,        &
+!                max_vegpatches,'def',from_restart,mp)
+!   CALL readpar(ncid_rin,'dleaf',dummy,veg%dleaf,filename%restart_in,          &
+!                max_vegpatches,'def',from_restart,mp)
+!   CALL readpar(ncid_rin,'frac4',dummy,veg%frac4,filename%restart_in,          &
+!                max_vegpatches,'def',from_restart,mp)
+!   CALL readpar(ncid_rin,'ejmax',dummy,veg%ejmax,filename%restart_in,          &
+!                max_vegpatches,'def',from_restart,mp)
+!   CALL readpar(ncid_rin,'vcmax',dummy,veg%vcmax,filename%restart_in,          &
+!                max_vegpatches,'def',from_restart,mp)
+!   CALL readpar(ncid_rin,'rp20',dummy,veg%rp20,filename%restart_in,            &
+!                max_vegpatches,'def',from_restart,mp)
+!   CALL readpar(ncid_rin,'rpcoef',dummy,veg%rpcoef,filename%restart_in,        &
+!                max_vegpatches,'def',from_restart,mp)
+!   CALL readpar(ncid_rin,'shelrb',dummy,veg%shelrb,filename%restart_in,        &
+!                max_vegpatches,'def',from_restart,mp)
+!   CALL readpar(ncid_rin,'xfang',dummy,veg%xfang,filename%restart_in,          &
+!                max_vegpatches,'def',from_restart,mp)
+!   CALL readpar(ncid_rin,'wai',dummy,veg%wai,filename%restart_in,              &
+!                max_vegpatches,'def',from_restart,mp)
+!   CALL readpar(ncid_rin,'vegcf',dummy,veg%vegcf,filename%restart_in,          &
+!                max_vegpatches,'def',from_restart,mp)
+!   CALL readpar(ncid_rin,'extkn',dummy,veg%extkn,filename%restart_in,          &
+!                max_vegpatches,'def',from_restart,mp)
+!   CALL readpar(ncid_rin,'tminvj',dummy,veg%tminvj,filename%restart_in,        &
+!                max_vegpatches,'def',from_restart,mp)
+!   CALL readpar(ncid_rin,'tmaxvj',dummy,veg%tmaxvj,filename%restart_in,        &
+!                max_vegpatches,'def',from_restart,mp)
+!   CALL readpar(ncid_rin,'vbeta',dummy,veg%vbeta,filename%restart_in,          &
+!                max_vegpatches,'def',from_restart,mp)
+!   CALL readpar(ncid_rin,'xalbnir',dummy,veg%xalbnir,filename%restart_in,      &
+!                max_vegpatches,'def',from_restart,mp)
+!   veg%xalbnir = 1.0   ! xalbnir will soon be removed totally
+!   CALL readpar(ncid_rin,'g0',dummy,veg%g0,filename%restart_in,            &
+!                max_vegpatches,'def',from_restart,mp) ! Ticket #56
+!   CALL readpar(ncid_rin,'g1',dummy,veg%g1,filename%restart_in,            &
+!                max_vegpatches,'def',from_restart,mp) ! Ticket #56
+!   CALL readpar(ncid_rin,'meth',dummy,veg%meth,filename%restart_in,            &
+!                max_vegpatches,'def',from_restart,mp)
+!   ! special treatment of za with the introduction of za_uv and za_tq
    ! in case an old restart file is used
-   ok = NF90_INQ_VARID(ncid_rin,'za',parID)
-   IF(ok == NF90_NOERR) THEN ! if it does exist
-      CALL readpar(ncid_rin,'za',dummy,rough%za_uv,filename%restart_in,        &
-                   max_vegpatches,'def',from_restart,mp)
-      CALL readpar(ncid_rin,'za',dummy,rough%za_tq,filename%restart_in,        &
-                   max_vegpatches,'def',from_restart,mp)
-   ELSE
-      CALL readpar(ncid_rin,'za_uv',dummy,rough%za_uv,filename%restart_in,     &
-                   max_vegpatches,'def',from_restart,mp)
-      CALL readpar(ncid_rin,'za_tq',dummy,rough%za_tq,filename%restart_in,     &
-                   max_vegpatches,'def',from_restart,mp)
-   ENDIF
+!   ok = NF90_INQ_VARID(ncid_rin,'za',parID)
+!   IF(ok == NF90_NOERR) THEN ! if it does exist
+!      CALL readpar(ncid_rin,'za',dummy,rough%za_uv,filename%restart_in,        &
+!                   max_vegpatches,'def',from_restart,mp)
+!      CALL readpar(ncid_rin,'za',dummy,rough%za_tq,filename%restart_in,        &
+!                   max_vegpatches,'def',from_restart,mp)
+!   ELSE
+!      CALL readpar(ncid_rin,'za_uv',dummy,rough%za_uv,filename%restart_in,     &
+!                   max_vegpatches,'def',from_restart,mp)
+!      CALL readpar(ncid_rin,'za_tq',dummy,rough%za_tq,filename%restart_in,     &
+!                   max_vegpatches,'def',from_restart,mp)
+!   ENDIF
    CALL readpar(ncid_rin,'zse',dummy,soil%zse,filename%restart_in,             &
                 max_vegpatches,'ms',from_restart,mp)
-   CALL readpar(ncid_rin,'ratecp',dummy,bgc%ratecp,filename%restart_in,        &
-                max_vegpatches,'ncp',from_restart,mp)
-   CALL readpar(ncid_rin,'ratecs',dummy,bgc%ratecs,filename%restart_in,        &
-                max_vegpatches,'ncs',from_restart,mp)
-
+!   CALL readpar(ncid_rin,'ratecp',dummy,bgc%ratecp,filename%restart_in,        &
+!                max_vegpatches,'ncp',from_restart,mp)
+!   CALL readpar(ncid_rin,'ratecs',dummy,bgc%ratecs,filename%restart_in,        &
+!                max_vegpatches,'ncs',from_restart,mp)
+!
    ! Close restart file:
    ok = NF90_CLOSE(ncid_rin)
    IF(ok/=NF90_NOERR) CALL nc_abort(ok,'Error closing restart file '           &
@@ -841,4 +850,3 @@ SUBROUTINE extraRestart(INpatch,ssnow,canopy,rough,bgc,                        &
 END SUBROUTINE extraRestart
 
 END MODULE cable_init_module
-

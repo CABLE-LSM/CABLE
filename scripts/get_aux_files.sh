@@ -31,7 +31,7 @@ CABLE_AUX="https://trac.nci.org.au/svn/cable/branches/Share/CABLE-AUX"
 # See `svn help export` for more detail.
 
 # Required for all modes
-svn export --force ${CABLE_AUX}/core/biogeophys/def_veg_params_zr_clitt.txt ${OUTDIR}/def_veg_params.txt
+svn export --force ${CABLE_AUX}/core/biogeophys/def_veg_params_zr_clitt_albedo_fix.txt ${OUTDIR}/def_veg_params.txt
 svn export --force ${CABLE_AUX}/core/biogeophys/def_soil_params.txt ${OUTDIR}/def_soil_params.txt
 
 if [[ $MODE == offline* ]]; then

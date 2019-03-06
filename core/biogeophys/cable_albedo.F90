@@ -304,10 +304,12 @@ SUBROUTINE surface_albedosn(ssnow, veg, met, soil)
    ssnow%albsoilsn(:,1) = MIN( alvo,                                           &
                           ( 1. - snrat ) * ssnow%albsoilsn(:,1) + snrat * alv )
 
-   WHERE (soil%isoilm == 9)          ! use dry snow albedo
-     ssnow%albsoilsn(:,2) = 0.82
-     ssnow%albsoilsn(:,1) = 0.82
+   WHERE (soil%isoilm == 9) ! use dry snow albedo: 1=vis, 2=nir
+     ssnow%albsoilsn(:,1) = alvo - 0.05 ! al*o = albedo appropriate for new snow 
+     ssnow%albsoilsn(:,2) = aliro - 0.05 ! => here al*o LESS arbitrary aging 0.05
    END WHERE
+
+return
 
 END SUBROUTINE surface_albedosn
 

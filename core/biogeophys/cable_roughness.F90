@@ -54,23 +54,24 @@ SUBROUTINE ruff_resist(veg, rough, ssnow, canopy)
    REAL, DIMENSION(mp) ::                                                      &
       xx,      & ! =C%CCD*LAI; working variable
       dh         ! d/h where d is zero-plane displacement
-
+  real, parameter :: z0soilsn_min = 1.e-7
+  real, parameter :: z0soilsn_min_PF = 1.e-4
+  
    CALL point2constants( C )
 
    ! Set canopy height above snow level:
-   rough%hruff = MAX( 1.e-6, veg%hc - 1.2 * ssnow%snowd /                       &
+   rough%hruff = MAX( 10. * z0soilsn_min, veg%hc - 1.2 * ssnow%snowd /                       &
                  MAX( ssnow%ssdnn, 100. ) )
 
    ! LAI decreases due to snow:
    canopy%vlaiw = veg%vlai * rough%hruff / MAX( 0.01, veg%hc )
    canopy%rghlai = canopy%vlaiw
 
-
     IF (cable_user%soil_struc=='default') THEN
 
        ! Roughness length of bare soil (m): new formulation- E.Kowalczyk 2014
-       IF (.not.cable_user%l_new_roughness_soil) THEN
-          rough%z0soil = 0.0009*min(1.0,canopy%vlaiw) + 1.e-4
+       IF (.not.cable_user%l_new_roughness_soil .and. (.not.cable_user%or_evap)) THEN
+          rough%z0soil = 0.0009*min(1.0,canopy%vlaiw) + 1.e-4 
           rough%z0soilsn = rough%z0soil
        ELSE
           rough%z0soil = 0.01*min(1.0,canopy%vlaiw) + 0.02*min(canopy%us**2/C%GRAV,1.0)
@@ -78,7 +79,10 @@ SUBROUTINE ruff_resist(veg, rough, ssnow, canopy)
        ENDIF
 
        WHERE( ssnow%snowd .GT. 0.01   )  &
-            rough%z0soilsn =  max( 1.e-7, rough%z0soil - rough%z0soil*min(ssnow%snowd,10.)/10.)
+         rough%z0soilsn =  max(z0soilsn_min, &
+                              rough%z0soil - rough%z0soil*min(ssnow%snowd,10.)/10.)
+       WHERE( ssnow%snowd .GT. 0.01 .AND. veg%iveg == 17  )  &
+         rough%z0soilsn =  max(rough%z0soilsn, z0soilsn_min_PF ) 
 
     ELSEIF (cable_user%soil_struc=='sli') THEN
 
@@ -100,9 +104,14 @@ SUBROUTINE ruff_resist(veg, rough, ssnow, canopy)
       rough%disp = 0.0
 
       ! Reference height zref is height above the displacement height
-      rough%zref_uv = MAX( 3.5, rough%za_uv )
-      rough%zref_tq = MAX( 3.5, rough%za_tq )
-
+      ! Ticket #148: Reference height is height above the displacement height
+      ! noting that this must be above the roughness length and rough%hruff-rough%disp
+      ! (though second case is unlikely to be attained)
+      rough%zref_uv = MAX( 3.5 + rough%z0m, rough%za_uv )
+      rough%zref_tq = MAX( 3.5 + rough%z0m, rough%za_tq )
+      rough%zref_uv = MAX( rough%zref_uv, rough%hruff-rough%disp )
+      rough%zref_tq = MAX( rough%zref_tq, rough%hruff-rough%disp )
+      
       rough%zruffs = 0.0
       rough%rt1usa = 0.0
       rough%rt1usb = 0.0
@@ -138,13 +147,18 @@ SUBROUTINE ruff_resist(veg, rough, ssnow, canopy)
       ! Calculate zero-plane displacement:
       rough%disp = dh * rough%hruff
 
-      ! Reference height zref is height above the displacement height
-      rough%zref_uv = MAX( 3.5, rough%za_uv )
-      rough%zref_tq = MAX( 3.5, rough%za_tq )
 
       ! Calculate roughness length:
       rough%z0m = ( (1.0 - dh) * EXP( LOG( C%CCW_C ) - 1. + 1. / C%CCW_C       &
                   - C%VONK / rough%usuh ) ) * rough%hruff
+ 
+     ! Reference height zref is height above the displacement height
+      ! Ticket #148: Reference height is height above the displacement height
+      ! noting that this must be above the roughness length and rough%hruff-rough%disp
+      rough%zref_uv = MAX( 3.5 + rough%z0m, rough%za_uv )
+      rough%zref_tq = MAX( 3.5 + rough%z0m, rough%za_tq )
+      rough%zref_uv = MAX( rough%zref_uv, rough%hruff-rough%disp )
+      rough%zref_tq = MAX( rough%zref_tq, rough%hruff-rough%disp )
 
       ! find coexp: see notes "simplified wind model ..." eq 34a
       ! Extinction coefficient for wind profile in canopy:

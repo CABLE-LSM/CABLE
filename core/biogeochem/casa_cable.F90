@@ -1,11 +1,11 @@
 !==============================================================================
-! This source code is part of the 
+! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
 ! This work is licensed under the CSIRO Open Source Software License
 ! Agreement (variation of the BSD / MIT License).
-! 
+!
 ! You may not use this file except in compliance with this License.
-! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located 
+! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located
 ! in each directory containing CABLE code.
 !
 ! ==============================================================================
@@ -21,8 +21,13 @@
 !          ssoil changed to ssnow
 !
 ! ==============================================================================
-
+!CABLE_LSM:This has to be commented for offline
 !#define UM_BUILD YES
+
+module casa_cable
+
+contains
+
 SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
                      climate,casabiome,casapool,casaflux,casamet,casabal,phen, &
                      pop, spinConv, spinup, ktauday, idoy,loy, dump_read,   &
@@ -39,7 +44,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    USE POPMODULE,            ONLY: POPStep
    USE POP_TYPES,            ONLY: POP_TYPE
    USE cable_phenology_module, ONLY: cable_phenology_clim
-
+  USE casa_inout_module
    IMPLICIT NONE
 
    INTEGER,      INTENT(IN) :: ktau ! integration step number
@@ -77,12 +82,12 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    REAL(dp)                               :: StemNPP(mp,2)
    CHARACTER                                 :: cyear*4
    CHARACTER                                 :: ncfile*99
- 
+
 
   ! INTEGER, INTENT(IN) :: wlogn
    INTEGER , parameter :: wlogn=6
 
-  
+
    IF ( .NOT. dump_read ) THEN  ! construct casa met and flux inputs from current CABLE run
       IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
          casaflux%Nmindep = met%Ndep
@@ -92,7 +97,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
          casamet%tairk  = 0.0
          casamet%tsoil  = 0.0
          casamet%moist  = 0.0
-  
+
       ENDIF
 
       IF(MOD(ktau,ktauday)==1) THEN
@@ -120,7 +125,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
                call cable_phenology_clim(veg, climate, phen)
 
             ENDIF
-  
+
             CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
                 casamet,casabal,phen,POP,climate, xnplimit,xkNlimiting,xklitter,xksoil, &
                 xkleaf,xkleafcold,xkleafdry,&
@@ -131,7 +136,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
             IF (cable_user%CALL_POP) THEN ! accumulate input variables for POP
                ! accumulate annual variables for use in POP
                IF(MOD(ktau/ktauday,LOY)==1 ) THEN
-                  casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7 
+                  casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7
                   ! (assumes 70% of wood NPP is allocated above ground)
                   casabal%LAImax = casamet%glai
                   casabal%Cleafmean = casapool%cplant(:,1)/real(LOY)/1000.
@@ -165,7 +170,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 
             ! accumulate annual variables for use in POP
             IF(MOD(ktau/ktauday,LOY)==1) THEN
-               casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7 
+               casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7
                ! (assumes 70% of wood NPP is allocated above ground)
                casabal%LAImax = casamet%glai
                casabal%Cleafmean = casapool%cplant(:,1)/real(LOY)/1000.
@@ -203,7 +208,7 @@ SUBROUTINE POPdriver(casaflux,casabal,veg, POP)
 
   IMPLICIT NONE
 
-  
+
   TYPE (veg_parameter_type),  INTENT(IN) :: veg  ! vegetation parameters
   TYPE (casa_flux),           INTENT(IN) :: casaflux
   TYPE (casa_balance),        INTENT(IN) :: casabal
@@ -230,7 +235,7 @@ SUBROUTINE POPdriver(casaflux,casabal,veg, POP)
   IF (cable_user%CALL_POP .and. POP%np.gt.0) THEN ! CALL_POP
      Iw = POP%Iwood
 
-     StemNPP(:,1) = casaflux%stemnpp 
+     StemNPP(:,1) = casaflux%stemnpp
      StemNPP(:,2) = 0.0
      WHERE (casabal%FCgppyear > 1.e-5 .and. casabal%FCnppyear > 1.e-5  )
         NPPtoGPP = casabal%FCnppyear/casabal%FCgppyear
@@ -256,6 +261,7 @@ SUBROUTINE read_casa_dump(  ncfile, casamet, casaflux,phen, climate, ncall, kend
       USE casadimension,         ONLY : mplant,mdyear
       USE casavariable,          ONLY : casa_met, casa_flux
       USE phenvariable
+      USE cable_common_module,  ONLY:  CABLE_USER
 #     ifndef UM_BUILD
       USE cable_diag_module,     ONLY : get_var_ncr2, &
                                         get_var_ncr3, stderr_nc
@@ -373,7 +379,9 @@ SUBROUTINE read_casa_dump(  ncfile, casamet, casaflux,phen, climate, ncall, kend
          phen%doyphase(:,2) = int(phendoyphase2)
          phen%doyphase(:,3) = int(phendoyphase3)
          phen%doyphase(:,4) = int(phendoyphase4)
+         IF (cable_user%CALL_climate) THEN
          climate%mtemp_max = mtemp
+         ENDIF
          casaflux%Nmindep = Ndep
 
       ENDIF
@@ -399,6 +407,7 @@ SUBROUTINE write_casa_dump( ncfile, casamet, casaflux, phen, climate, n_call, ke
   USE casavariable,          ONLY : CASA_MET, CASA_FLUX
   USE casadimension,         ONLY : mplant
   USE phenvariable
+  USE cable_common_module,  ONLY:  CABLE_USER
 
   IMPLICIT NONE
 
@@ -470,7 +479,7 @@ SUBROUTINE write_casa_dump( ncfile, casamet, casaflux, phen, climate, n_call, ke
 
 
   IF (n_call == 1) THEN
- 
+
      ! create netCDF dataset: enter define mode
      ncok = nf90_create(path = TRIM(ncfile), cmode = nf90_clobber, ncid = ncid)
      IF (ncok /= nf90_noerr) CALL stderr_nc(ncok,'ncdf creating ', ncfile)
@@ -490,10 +499,10 @@ SUBROUTINE write_casa_dump( ncfile, casamet, casaflux, phen, climate, n_call, ke
      ncok = nf90_enddef(ncid)
      if (ncok /= nf90_noerr) call stderr_nc(ncok,'end def mode', ncfile)
 
- 
+
      CALL put_var_ncr1(ncid, var_name(1), REAL(casamet%lat)  )
      CALL put_var_ncr1(ncid, var_name(2), REAL(casamet%lon)  )
-    
+
 
   ENDIF
 
@@ -508,7 +517,9 @@ SUBROUTINE write_casa_dump( ncfile, casamet, casaflux, phen, climate, n_call, ke
   CALL put_var_ncr2(ncid, var_name(10), real(phen%doyphase(:,2), r_2)    ,n_call )
   CALL put_var_ncr2(ncid, var_name(11), real(phen%doyphase(:,3), r_2)    ,n_call )
   CALL put_var_ncr2(ncid, var_name(12), real(phen%doyphase(:,4), r_2)    ,n_call )
+  IF (cable_user%CALL_climate) THEN
   CALL put_var_ncr2(ncid, var_name(13), real(climate%mtemp_max,r_2)    ,n_call )
+  ENDIF
   CALL put_var_ncr2(ncid, var_name(14), real(casaflux%Nmindep,r_2)    ,n_call )
 
 
@@ -574,8 +585,8 @@ END SUBROUTINE write_casa_dump
        ENDIF
 
     elseif (TRIM(cable_user%vcmax).eq.'Walker2014') then
-       !Walker, A. P. et al.: The relationship of leaf photosynthetic traits – Vcmax and Jmax – 
-       !to leaf nitrogen, leaf phosphorus, and specific leaf area: 
+       !Walker, A. P. et al.: The relationship of leaf photosynthetic traits – Vcmax and Jmax –
+       !to leaf nitrogen, leaf phosphorus, and specific leaf area:
        !a meta-analysis and modeling study, Ecology and Evolution, 4, 3218-3235, 2014.
        ! veg%vcmax(np) = exp(3.946 + 0.921*log(nleafx(np)) + 0.121*log(pleafx(np)) + &
        !      0.282*log(pleafx(np))*log(nleafx(np))) * 1.0e-6
@@ -587,9 +598,9 @@ END SUBROUTINE write_casa_dump
           veg%vcmax(np) = vcmax_np(nleafx(np), pleafx(np))
        endif
     else
-       stop('invalid vcmax flag')
+       stop ('invalid vcmax flag')
     endif
-  
+
   ENDDO
 
   veg%ejmax = 2.0 * veg%vcmax
@@ -946,3 +957,4 @@ END SUBROUTINE sumcflux
   END SUBROUTINE analyticpool
 
 
+End module casa_cable

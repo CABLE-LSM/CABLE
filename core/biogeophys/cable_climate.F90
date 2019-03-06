@@ -20,9 +20,12 @@
 MODULE cable_climate_mod
 
  Use cable_def_types_mod, ONLY: met_type, climate_type, canopy_type, mp, &
-      r_2, alloc_cbm_var, air_type
+      r_2, alloc_cbm_var, air_type, radiation_type
  USE TypeDef,              ONLY: i4b, dp
+!CABLE_LSM: see CABLE Ticket#149. yet still inclueded file?? legacy-hack??
+# ifndef UM_BUILD
  USE cable_IO_vars_module, ONLY: patch
+# endif
  USE CABLE_COMMON_MODULE, ONLY: CurYear, filename, cable_user, HANDLE_ERR
 
 CONTAINS
@@ -30,7 +33,7 @@ CONTAINS
 
 
 SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, &
-     air, dels, np)
+     air, rad, dels, np)
 
 
   IMPLICIT NONE
@@ -45,6 +48,7 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
   TYPE (climate_type), INTENT(INOUT)       :: climate  ! climate variables
   TYPE (canopy_type), INTENT(IN) :: canopy ! vegetation variables
   TYPE (air_type), INTENT(IN)       :: air
+  TYPE (radiation_type), INTENT(IN)  :: rad        ! radiation variables
   REAL, INTENT(IN)               :: dels ! integration time setp (s)
   INTEGER,      INTENT(IN)                  :: np
   INTEGER :: d, y, k
@@ -73,13 +77,13 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
 !!$PhiEq  = PhiAi * (PPc*EpsA) / (PPc*EpsA + 1.0)      ! equil ltnt heat flux  [W/m2]
 !!$PhiEq  = max(PhiEq, 1.0)                            ! PhiEq > +1 W/m2, so non-negative
 !!$                                    ! precipitation         [m/day]
-!!$FWPT   = CoeffPT * PhiEq * ((DayltFrac*SecDay) / (RhoW*Rlat))     
+!!$FWPT   = CoeffPT * PhiEq * ((DayltFrac*SecDay) / (RhoW*Rlat))
 
      ! accumulate annual evaporation and potential evaporation
   !ppc = 1.0
   RhoA = met%pmb * 100.0 / (8.314 * (met%tk)) ! air density [molA/m3]
   PPc    = Gaero / ( Gaero + 4.0*SBoltz*((met%tk**3)/(RhoA*Capp) ))
-  
+
   EpSA = Epsif(met%tk - 273.16, met%pmb)
   phiEq = canopy%rniso * (PPc*EpsA) / (PPc*EpsA + 1.0)      ! equil ltnt heat flux  [W/m2]
 
@@ -134,11 +138,13 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
         climate%agdd5=0.0
         climate%agdd0=0.0
         climate%evap_PT = 0     ! annual PT evap [mm]
-        climate%aevap  = 0      ! annual evap [mm]  
+        climate%aevap  = 0      ! annual evap [mm]
 
 
      ENDIF
 
+!jhan: see CABLE Ticket#149 and above CABLE_LSM: comment
+# ifndef UM_BUILD
      WHERE ((patch%latitude>=0.0 .and. idoy==COLDEST_DAY_NHEMISPHERE).OR. &
           (patch%latitude<0.0 .and. idoy==COLDEST_DAY_SHEMISPHERE) )
 
@@ -146,7 +152,7 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
         climate%gdd5=0.0
         climate%gdd0=0.0
      END WHERE
-
+# endif
      ! Update GDD counters and chill day count
      climate%gdd0 = climate%gdd0 + max(0.0,climate%dtemp-0.0)
      climate%agdd0= climate%agdd0 + max(0.0,climate%dtemp-0.0)
@@ -252,7 +258,7 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
 
            climate%mtemp_min_20(:,20)=climate%mtemp_min
            climate%mtemp_max_20(:,20)=climate%mtemp_max
-           
+
 
            climate%alpha_PT = max(climate%aevap/climate%evap_PT, 0.0)     ! ratio of annual evap to annual PT evap
            climate%alpha_PT_20(:,20)=climate%alpha_PT
@@ -274,12 +280,12 @@ END SUBROUTINE cable_climate
 
 ELEMENTAL FUNCTION Epsif(TC,Pmb)
 !-------------------------------------------------------------------------------
-! At temperature TC [deg C] and pressure Pmb [mb], return 
+! At temperature TC [deg C] and pressure Pmb [mb], return
 ! epsi = (RLAM/CAPP) * d(sat spec humidity)/dT [(kg/kg)/K], from Teten formula.
 ! MRR, xx/1987, 27-jan-94
 ! PRB, 09/1999:   Convert to F95 elemental function; works on scalars and arrays
 !                 just like intrinsic functions.
-! MRR, 28-mar-05: use Rlat [J/molW], Capp [J/molA/K] from MODULE Constants, 
+! MRR, 28-mar-05: use Rlat [J/molW], Capp [J/molA/K] from MODULE Constants,
 !                 to ensure consistency with other uses of Rlat, Capp
 ! MRR, 28-mar-05: Remove dependence of Rlat (latent heat vaporisation of water)
 !                 on temperature, use value at 20 C
@@ -320,8 +326,8 @@ REAL, ALLOCATABLE:: alpha_PT_scaled(:)
 ! TABLE 1 , Prentice et al. J. Biogeog., 19, 117-134, 1992
 ! pft_biome1: Trees (1)tropical evergreen; (2) tropical raingreen; (3) warm temp evergreen ;
 ! (4) temperate summergreen; (5) cool-temperate conifer; (6) boreal evergreen conifer;
-! (7) boreal summergreen;  
-! Non-trees: (8) sclerophyll/succulent; (9) warm grass/shrub; (10) cool grass/shrub; 
+! (7) boreal summergreen;
+! Non-trees: (8) sclerophyll/succulent; (9) warm grass/shrub; (10) cool grass/shrub;
 ! (11) cold grass/shrub; (12) hot desert shrub; (13) cold desert shrub.
 
 ALLOCATE(pft_biome1(np,4))
@@ -343,19 +349,19 @@ DO k=1,np
       ENDIF
    ENDIF
 
-   
+
    IF (climate%mtemp_min20(k).GE.5 .and.alpha_PT_scaled(k).GE.0.4 &
         .and. pft_biome1(k,1).eq.999 ) THEN
       pft_biome1(k,1) = 3
    ENDIF
 
-   
+
    IF (climate%mtemp_min20(k).GE.-15 .and. climate%mtemp_min20(k).LE.15.5 .and. &
         alpha_PT_scaled(k).GE.0.35 .and. climate%agdd5(k).gt.1200 & !
         .and. pft_biome1(k,1).gt.3 ) THEN
       pft_biome1(k,1) = 4
    ENDIF
-   
+
    IF (climate%mtemp_min20(k).GE.-19 .and. climate%mtemp_min20(k).LE.5 .and. &
         alpha_PT_scaled(k).GE.0.35 .and. climate%agdd5(k).gt.900 )  THEN
       IF (pft_biome1(k,1).gt.4 ) THEN
@@ -364,7 +370,7 @@ DO k=1,np
          pft_biome1(k,2) = 5
       ENDIF
    ENDIF
-   
+
    IF (climate%mtemp_min20(k).GE.-35 .and. climate%mtemp_min20(k).LE.-2 .and. &
      alpha_PT_scaled(k).GE.0.35 .and. climate%agdd5(k).gt.350 )  THEN
       IF (pft_biome1(k,1).eq.999 ) THEN
@@ -375,7 +381,7 @@ DO k=1,np
          pft_biome1(k,3) = 6
       ENDIF
    ENDIF
-   
+
    IF ( climate%mtemp_min20(k).LE. 5 .and. &
         alpha_PT_scaled(k).GE.0.45 .and. climate%agdd5(k).gt.350 )  THEN
       IF (pft_biome1(k,1).eq.999 ) THEN
@@ -383,43 +389,43 @@ DO k=1,np
       ELSEIF (pft_biome1(k,2).eq.999 ) THEN
          pft_biome1(k,2) = 7
       ELSEIF (pft_biome1(k,3).eq.999 ) THEN
-         pft_biome1(k,3) = 7  
+         pft_biome1(k,3) = 7
       ELSE
          pft_biome1(k,4) = 7
       ENDIF
    ENDIF
-   
+
    IF (climate%mtemp_min20(k).GE.5 .and.alpha_PT_scaled(k).GE.0.2 &
         .and. pft_biome1(k,1).eq.999 ) THEN
       pft_biome1(k,1) = 8
    ENDIF
-   
+
    IF (climate%mtemp_max20(k).GE.22 .and.alpha_PT_scaled(k).GE.0.1 &
         .and. pft_biome1(k,1).eq.999 ) THEN
       pft_biome1(k,1) = 9
    ENDIF
-   
+
    IF (climate%agdd5(k).GE.500 .and.alpha_PT_scaled(k).GE.0.33 &
    .and. pft_biome1(k,1).eq.999 ) THEN
       pft_biome1(k,1) = 10
    ENDIF
-   
-   IF (climate%agdd0(k).GE.100 .and.alpha_PT_scaled(k).GE.0.33) THEN 
+
+   IF (climate%agdd0(k).GE.100 .and.alpha_PT_scaled(k).GE.0.33) THEN
       IF (pft_biome1(k,1).eq.999 ) THEN
          pft_biome1(k,1) = 11
       ELSEIF (pft_biome1(k,1).eq.10) THEN
          pft_biome1(k,2) = 11
       ENDIF
    ENDIF
-   
+
    IF (climate%mtemp_max20(k).GE.22 .and. pft_biome1(k,1).eq.999 ) THEN
       pft_biome1(k,1) = 12
    ENDIF
-   
+
    IF (climate%agdd0(k).GE.100 .and. pft_biome1(k,1).eq.999 ) THEN
       pft_biome1(k,1) = 13
    ENDIF
-   
+
    ! end of evironmental constraints on pft
   npft = 0
   Do j=1,4
@@ -533,11 +539,14 @@ if(climate%biome(k)==999) then
        climate%iveg(k) = 17  !
 endif
 
+!jhan: see CABLE Ticket#149 and above CABLE_LSM: comment
+# ifndef UM_BUILD
 ! check for DBL or NEL in SH: set to EBL instead
 if ((climate%iveg(k)==1 .OR.climate%iveg(k)==3 .OR. climate%iveg(k)==4) &
      .and. patch(k)%latitude<0) THEN
    climate%iveg(k) = 2
 endif
+# endif
 
 !"(/grass:1/shrub:2/woody:3"
 !1,3,Evergreen Needleleaf Forest
@@ -548,27 +557,27 @@ endif
 !6,1,C3 grass,,,,,,,,,,,,,,,,,,
 !7,1,C4 grass,,,,,,,,,,,,,,,,,,
 !8,1,tundra,,,,,,,,,
-   ! 1. 
+   ! 1.
 
 
 
-END DO 
+END DO
 
 
 END SUBROUTINE BIOME1_PFT
 
 ! ==============================================================================
 
-SUBROUTINE climate_init ( climate,np )
+SUBROUTINE climate_init ( climate,np, ktauday )
 IMPLICIT NONE
 
 TYPE (climate_type), INTENT(INOUT)       :: climate  ! climate variables
-INTEGER, INTENT(IN) :: np
+INTEGER, INTENT(IN) :: np, ktauday
 INTEGER :: d
 
 CALL alloc_cbm_var(climate,np)
 
-if (cable_user%climate_fromzero) then
+if (cable_user%climate_fromzero .or. .not.cable_user%call_climate) then
 
 ! Maciej
 !   DO d=1,31
@@ -610,7 +619,7 @@ if (cable_user%climate_fromzero) then
 
 
 else
-   CALL READ_CLIMATE_RESTART_NC (climate)
+   CALL READ_CLIMATE_RESTART_NC (climate, ktauday)
 
 endif
 !else
@@ -622,7 +631,7 @@ END SUBROUTINE climate_init
 
 ! ==============================================================================
 
-SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate )
+SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
 
   USE netcdf
 
@@ -630,7 +639,7 @@ SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate )
   IMPLICIT NONE
 
   TYPE (climate_type), INTENT(IN)       :: climate  ! climate variables
-
+  INTEGER, INTENT(IN) :: ktauday
   INTEGER*4 :: mp4
   INTEGER*4, parameter   :: pmp4 =0
   INTEGER, parameter   :: fmp4 = kind(pmp4)
@@ -819,10 +828,10 @@ STATUS = NF90_PUT_VAR(FILE_ID, VID1(5), climate%qtemp )
 
   STATUS = NF90_PUT_VAR(FILE_ID, VID1(18), climate%evap_PT )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  
+
   STATUS = NF90_PUT_VAR(FILE_ID, VID1(19), climate%aevap )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  
+
   STATUS = NF90_PUT_VAR(FILE_ID, VID1(20), climate%alpha_PT )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
@@ -858,12 +867,12 @@ STATUS = NF90_PUT_VAR(FILE_ID, VID1(5), climate%qtemp )
   STATUS = NF90_close(FILE_ID)
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
-# endif 
+# endif
 
 END SUBROUTINE WRITE_CLIMATE_RESTART_NC
 ! ==============================================================================
 
-SUBROUTINE READ_CLIMATE_RESTART_NC ( climate )
+SUBROUTINE READ_CLIMATE_RESTART_NC ( climate, ktauday )
 
   USE netcdf
 
@@ -871,7 +880,7 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate )
   IMPLICIT NONE
 
   TYPE (climate_type), INTENT(INOUT)       :: climate  ! climate variables
-
+  INTEGER, INTENT(IN) :: ktauday
   INTEGER*4 :: mp4
   INTEGER*4, parameter   :: pmp4 =0
   INTEGER, parameter   :: fmp4 = kind(pmp4)
@@ -921,7 +930,7 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate )
   A1(18) = 'evap_PT'
   A1(19) = 'aevap'
   A1(20)  = 'alpha_PT'
-  
+
   AI1(1) = 'chilldays'
   AI1(2) = 'iveg'
   AI1(3) = 'biome'
@@ -932,7 +941,7 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate )
 
   A3(1) = 'dtemp_31'
   A3(2) = 'dmoist_31'
-  
+
   A4(1) = 'dtemp_91'
 
 
@@ -1083,7 +1092,7 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate )
   ! Close NetCDF file:
   STATUS = NF90_close(FILE_ID)
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-# endif 
+# endif
 
 
 END SUBROUTINE  READ_CLIMATE_RESTART_NC
