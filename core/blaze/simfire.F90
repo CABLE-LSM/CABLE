@@ -421,7 +421,7 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY, YEAR, AB )
   INTEGER :: DOY, i
   
   ! Housekeeping first
-  PRINT*, "Put different timesteps in!"
+  !CLN "Cycling max to be implemented! 
   IF ( DOY.EQ. 1 ) THEN
      SF%MAX_NESTEROV(:) = 0.
      !CLN needs to go to 

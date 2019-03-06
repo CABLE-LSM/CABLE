@@ -105,17 +105,18 @@ SUBROUTINE INI_BLAZE (POPFLAG, BURNT_AREA_SOURCE, TSTEP, np, LAT, LON, BLAZE)
   ALLOCATE ( BLAZE%TMIN    ( np ) )
 !  ALLOCATE ( BLAZE%F       ( np ) )
   ALLOCATE ( BLAZE%FLI     ( np ) )
-  ALLOCATE ( BLAZE%FFDI     ( np ) )
+  ALLOCATE ( BLAZE%FFDI    ( np ) )
   ALLOCATE ( BLAZE%FLIx    ( np ) )
   ALLOCATE ( BLAZE%DFLI    ( np ) )
   ALLOCATE ( BLAZE%ROS     ( np ) )
   ALLOCATE ( BLAZE%Z       ( np ) )
   ALLOCATE ( BLAZE%D       ( np ) )
   ALLOCATE ( BLAZE%w       ( np ) )
-  ALLOCATE ( BLAZE%TO      ( np, NTO ) )
-  ALLOCATE ( BLAZE%AnnRainf( np, 366 ) )
-  ALLOCATE ( BLAZE%CAvgAnnRainf(np))
-  ALLOCATE ( BLAZE%DEADWOOD( np ) )
+  ALLOCATE ( BLAZE%TO          ( np, NTO ) )
+  ALLOCATE ( BLAZE%AnnRainf    ( np, 366 ) )
+  ALLOCATE ( BLAZE%CAvgAnnRainf( np ))
+  ALLOCATE ( BLAZE%AvgAnnRainf ( np, T_AVG ) )
+  ALLOCATE ( BLAZE%DEADWOOD ( np ) )
   ALLOCATE ( BLAZE%SHOOTFRAC( np ) ) 
   ! POP related vars
   ALLOCATE ( BLAZE%POP_TO  ( np ) )
@@ -198,6 +199,15 @@ SUBROUTINE BLAZE_ACCOUNTING(BLAZE, met, ktau, dels, year, doy)
   
   is_new_day    = (MOD((ktau-1) * NINT(dels), sod) == 0 )
   is_end_of_day = (MOD( ktau    * NINT(dels), sod) == 0 )
+  
+  ! reset values for each BLAZE time step
+  IF ( is_new_day ) THEN
+     IF ( ( TRIM(BLAZE%FSTEP) .EQ. "annual" .AND. doy == 1 ) .OR. &
+          ( TRIM(BLAZE%FSTEP) .EQ. "daily" ) ) THEN
+        BLAZE%FFDI = 0.
+        ! ??? Maybe more ... 
+     ENDIF
+  ENDIF
   
   ! factor to get to daily data
   t_fac = 86400. / dels
@@ -741,7 +751,7 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO ) !, CTR
 !!CLN     BCALL1 = .FALSE.
 !!CLN  END IF
 
-  IF ( DD .EQ. 1 ) BLAZE%FLI(:) = 0.
+!! CRM  IF ( DD .EQ. 1 ) BLAZE%FLI(:) = 0. now in accounting
 
   ! READ GFED BA DATA
   AB(:) = 0.
