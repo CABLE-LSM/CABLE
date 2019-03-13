@@ -1462,20 +1462,20 @@ CONTAINS
       ENDIF
 
    !set vectorized versions as same as defaut for now
-   !soil%swilt_vec(:,:)  = real(spread(soil%swilt(:),2,ms),r_2)
-   !soil%sfc_vec(:,:)  = real(spread(soil%sfc(:),2,ms),r_2)
-   !soil%sucs_vec(:,:)  = real(spread(soil%sucs(:),2,ms),r_2)
-   !soil%bch_vec(:,:)  = real(spread(soil%bch(:),2,ms),r_2)
-   !soil%ssat_vec(:,:)  = real(spread(soil%ssat(:),2,ms),r_2)
-   !soil%hyds_vec(:,:)  = real(spread(soil%hyds(:),2,ms),r_2)
-   !soil%css_vec(:,:)  = spread(soil%css(:),2,ms)
-   !soil%cnsd_vec(:,:)  = spread(soil%cnsd(:),2,ms)
-   !IF (.not.cable_user%gw_model) then
-   !soil%rhosoil_vec(:,:) = spread(soil%rhosoil,2,ms)
-   !ELSE
-   !   soil%sucs_vec(:,:)  = abs(soil%sucs_vec(:,:) )
-   !ENDIF
-
+!   soil%swilt_vec(:,:)  = real(spread(soil%swilt(:),2,ms),r_2)
+!   soil%sfc_vec(:,:)  = real(spread(soil%sfc(:),2,ms),r_2)
+!   soil%sucs_vec(:,:)  = real(spread(soil%sucs(:),2,ms),r_2)
+!   soil%bch_vec(:,:)  = real(spread(soil%bch(:),2,ms),r_2)
+!   soil%ssat_vec(:,:)  = real(spread(soil%ssat(:),2,ms),r_2)
+!   soil%hyds_vec(:,:)  = real(spread(soil%hyds(:),2,ms),r_2)
+!   soil%css_vec(:,:)  = spread(soil%css(:),2,ms)
+!   soil%cnsd_vec(:,:)  = spread(soil%cnsd(:),2,ms)
+!   IF (.not.cable_user%gw_model) then
+!   soil%rhosoil_vec(:,:) = spread(soil%rhosoil,2,ms)
+!   ELSE
+!      soil%sucs_vec(:,:)  = abs(soil%sucs_vec(:,:) )
+!   ENDIF
+!
   END SUBROUTINE write_default_params
   !=============================================================================
   SUBROUTINE write_cnp_params(veg, casaflux, casamet)
@@ -2785,7 +2785,7 @@ END SUBROUTINE report_parameters
        ENDIF
 
        IF ((nlon*nlat*npatch*nhorz .ne. xdimsize*ydimsize*ms*mpatch) .and. &
-           cable_user%MetType .ne. 'site') THEN
+           xdimsize*ydimsize .ne. 1) THEN
           WRITE(logn,*) 'Errors reading the dimensions from '//filename%gw_elev
 
           IF (nlon .lt. 0 .or. nlon .ne. xdimsize) &
@@ -2848,7 +2848,7 @@ END SUBROUTINE report_parameters
 
     inGWtmp(:,:) = abs(insucs(:,:))
     soil%sucs_vec(:,:) = get_gw_data(ncid_elev,file_status,'sucs_vec',inGWtmp(:,:),nlon,nlat,ms)
-    soil%sucs_vec(:,:) =  1000._r_2* abs(soil%sucs_vec(:,:)  )
+    soil%sucs_vec(:,:) =  1000._r_2*abs(soil%sucs_vec(:,:)  )
 
     !add last laery to aquifer
     !should have zero head at top of aquifer, however this can be well below

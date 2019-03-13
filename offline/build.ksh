@@ -4,10 +4,28 @@ export dosvn=1 # 1/0: do/do not check svn
 
 known_hosts()
 {
-   set -A kh vayu cher pear shin jigg nXXX raij ces2 ccrc mael
+   set -A kh vayu cher pear shin jigg nXXX raij ces2 ccrc mael bliz
 }
 
 host_mael()
+{
+   export NCDIR='/share/apps/netcdf/intel/4.1.3/lib'
+   export NCMOD='/share/apps/netcdf/intel/4.1.3/include'
+   export FC=ifort
+   export CFLAGS='-O2 -fp-model precise  '
+   #export CFLAGS='-O3 -fp-model precise  -ipo --parallel '   
+   export LDFLAGS='-L/share/apps/intel/Composer/lib/intel64 -L/share/apps/netcdf/intel/4.1.3/lib  -O2'
+   if [[ $1 = 'debug' ]]; then
+      export CFLAGS='-O0 -fp-model precise -fpe0 -g -traceback -nostand -check all,nobounds,noarg_temp_created -debug all ' 
+      export LDFLAGS='-L/share/apps/intel/Composer/lib/intel64 -L/share/apps/netcdf/intel/4.1.3/lib '
+   fi
+   export LD='-lnetcdf -lnetcdff'
+   build_build
+   cd ../
+   build_status
+}
+
+host_bliz()
 {
    export NCDIR='/share/apps/netcdf/intel/4.1.3/lib'
    export NCMOD='/share/apps/netcdf/intel/4.1.3/include'
