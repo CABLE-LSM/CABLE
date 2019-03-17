@@ -587,7 +587,10 @@ MODULE cable_def_types_mod
        iveg, &        ! potential vegetation type based on climatic constraints
        biome, &
        GMD , &           ! growing moisture days (== number days since min moisture threshold)
-       modis_igbp     ! IGBP biome classification
+       modis_igbp, &    ! IGBP biome classification
+       DSLR  , &           ! days since last rain
+       NDAY_Nesterov
+ 
 
       REAL, DIMENSION(:), POINTER ::                                           &
       dtemp,        & ! daily mean temperature
@@ -620,9 +623,22 @@ MODULE cable_def_types_mod
       fdorm, & ! dormancy fraction (1 prior to first autumn frost; 0 after 10 severe frosts)
       fapar_ann_max, & ! maximum midday fpar so far this year
       fapar_ann_max_last_year, & ! maximum midday fpar last year
-      AvgAnnRainf, &   ! average annual rainfall
-      AvgAnnMaxFAPAR  ! average annual maximum FAPAR
-      
+      AvgAnnMaxFAPAR, &  ! average annual maximum FAPAR
+      dtemp_max , &       ! daily maximum temperature
+      drhum,      &       ! daily average relative humidity
+      du10_max,   &       ! daily max wind speed at 10 m
+      dprecip ,   &            ! daily total precip (mm)
+      aprecip ,   &            ! total precip accumulated over the current year (mm)
+      aprecip_av20, &       ! annual precip averaged over the last 20 y
+      last_precip, &        ! rainfall accumulated since last day without rain
+      KBDI     ,  &         ! Keetch-Byram-Drought-Index (Keetch, 1968)
+      FFDI     , &          ! Forest Fire Danger Index
+      D_MacArthur, &           ! MacArthur Drought Factor
+      Nesterov_current , &         ! current nesterov index
+      Nesterov_ann_max  , &            ! annual maximum nesterov index (current year)
+      Nesterov_ann_max_last_year  , &            ! annual maximum nesterov index (last year)
+      Nesterov_ann_running_max 
+
       REAL, DIMENSION(:,:), POINTER ::                                   &
       mtemp_min_20, & ! mimimum monthly temperatures for the last 20 y
       mtemp_max_20, & ! maximum monthly temperatures for the last 20 y
@@ -642,7 +658,8 @@ MODULE cable_def_types_mod
       cs_shade, &          ! shade leaf cs (ppm CO2)
       scalex_sun, & ! canopy depth scaling factor on vcmax and jmax (sun leaves)
       scalex_shade, & ! canopy depth scaling factor on vcmax and jmax (shade leaves)
-      fwsoil         ! soil-moisture modifier to stomatal conductance
+      fwsoil, &         ! soil-moisture modifier to stomatal conductance
+      aprecip_20     ! annual average rainfall for the last 20 years
    END TYPE climate_type
 
 ! .............................................................................
@@ -1254,8 +1271,23 @@ SUBROUTINE alloc_climate_type(var, mp, ktauday)
    ALLOCATE ( var % fapar_ann_max(mp) )
    ALLOCATE ( var % fapar_ann_max_last_year(mp) )
    ALLOCATE ( var % modis_igbp(mp) )
-   ALLOCATE ( var % AvgAnnRainf(mp) )
+   ALLOCATE ( var % DSLR(mp) )
+   ALLOCATE ( var % NDAY_Nesterov(mp) )
    ALLOCATE ( var % AvgAnnMaxFAPAR(mp) )
+   ALLOCATE ( var % dtemp_max(mp) )
+   ALLOCATE ( var % drhum(mp) )
+   ALLOCATE ( var % du10_max(mp) )
+   ALLOCATE ( var % dprecip(mp) )
+   ALLOCATE ( var % aprecip(mp) )
+   ALLOCATE ( var % aprecip_av20(mp) )
+   ALLOCATE ( var % last_precip(mp) )
+   ALLOCATE ( var % KBDI(mp) )
+   ALLOCATE ( var % FFDI(mp) )
+   ALLOCATE ( var % D_MacArthur(mp) )
+   ALLOCATE ( var % Nesterov_Current(mp) )
+   ALLOCATE ( var % Nesterov_ann_max(mp) )
+   ALLOCATE ( var % Nesterov_ann_max_last_year(mp) )
+   ALLOCATE ( var % Nesterov_ann_running_max(mp) )
 
    ALLOCATE ( var % mtemp_min_20(mp,ny) )
    ALLOCATE ( var %     mtemp_max_20(mp,ny) )
@@ -1276,6 +1308,7 @@ SUBROUTINE alloc_climate_type(var, mp, ktauday)
    ALLOCATE ( var %   scalex_sun(mp,ktauday*5) )
    ALLOCATE ( var %   scalex_shade(mp,ktauday*5) )
    ALLOCATE ( var %   fwsoil(mp,ktauday*5) )
+   ALLOCATE ( var % aprecip_20(mp,ny) )
 
    
 END SUBROUTINE alloc_climate_type

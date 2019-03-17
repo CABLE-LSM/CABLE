@@ -67,7 +67,9 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SIMFIRE_REGION, SF, modis_igbp )
   
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-  SF%RES    = 0.5
+ ! SF%RES    = 1./12.
+ 
+ ! SF%RES = 0.5
   SF%NCELLS = NCELLS
 
   ALLOCATE( SF%IGBP        (NCELLS) )
@@ -170,7 +172,7 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
   ELSE
      ISTEP = 5
   END IF
-
+ SF%RES    = HYRES
   IF ( CALL1 ) THEN
      RF = NINT(SF%RES/HYRES)
      ! Check for Res being an integral multiple of 5' [RES] = fract. deg
@@ -214,6 +216,8 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
         X(i) = INT( (SF%LON(i) + 180.) / SF%RES ) + 1
         Y(i) = INT( (SF%LAT(i) +  90.) / SF%RES ) + 1
      END DO
+
+     write(*,*) 'X,Y:', X, Y,SF%RES
      NREAD = 2
      CALL1 = .FALSE.
   ELSE IF ( YEAR .GE. FINAL_YEAR ) THEN
@@ -228,6 +232,12 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
   ELSE
      NREAD = 0
   END IF
+
+  SF%RES = 1./12.
+  RF = NINT(SF%RES/HYRES)
+
+  write(*,*) 'SF%RES', SF%RES, HYRES, RF, X, Y
+  
 
   IF ( NREAD .GT. 0 ) THEN
      CALL GET_UNIT(iu)     
@@ -266,17 +276,20 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
            READ(iu,*)
         END DO
         ! Read data backwards ( llcorner is -180E, 90N )
+        write(*,*) NLAT, NLON
         DO j = NLAT, 1, -1 
            READ(iu,*)(RVAL(i,j),i=1,NLON)
+          ! write(3334,"(4320e16.6)") (RVAL(i,j),i=1,NLON)
         END DO
         CLOSE(iu)
+  
 
         DO i = 1, SF%NCELLS
 
            ix0 = RF * (X(i)-1) + 1
            jy0 = RF * (Y(i)-1) + 1
            dxy = RF - 1
-
+!write(*,*) 'ix0,iy0', RF,ix0, jy0
            ! average over sub-gridcells, weighted by land area of cell
            wPOPD = 0.
            wTOT  = 0.
@@ -285,6 +298,8 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
                  IF ( RVAL(ix,jy) .LT. 0. ) CYCLE
                  wPOPD = wPOPD + RVAL(ix,jy) * LAND_AREA(ix,jy)
                  wTOT  = wTOT  + LAND_AREA(ix,jy)
+
+                 write(*,*) 'RVAL: ',   RVAL(ix,jy), ix, jy
               END DO
            END DO
 
@@ -305,6 +320,10 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
   tf = REAL( SF%EYEAR - YEAR ) / REAL(ISTEP)
   
   SF%POPD = tf * SPOPD + (1.-tf) * EPOPD
+
+  !write(*,*) 'POPD', SPOPD, EPOPD,  SF%POPD , SF%LON, SF%LAT
+
+  !stop
 
 END SUBROUTINE GET_POPDENS
 
@@ -359,6 +378,7 @@ REAL, DIMENSION(3), PARAMETER :: e = (/-0.0168, & ! GLOBAL
 REAL, PARAMETER :: fpar_corr1 = 0.428
 REAL, PARAMETER :: fpar_corr2 = 0.148
 REAL, PARAMETER :: scalar     = 1e-5
+
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 IF ( REGIO_FLAG .LT. 1 .OR. REGIO_FLAG .GT. 3 )THEN
@@ -382,6 +402,10 @@ IF ( BIOME .EQ. 0 ) THEN
    ANNUAL_BA = 0.
 ELSE
    ANNUAL_BA = &
+        a(BIOME,ai) * FAPAR ** b(ai) * (scalar * FIRE_IDX) ** c(ai) * EXP(e(ai)*POPDENS)
+
+
+    ANNUAL_BA = &
         a(BIOME,ai) * FAPAR ** b(ai) * (scalar * FIRE_IDX) ** c(ai) * EXP(e(ai)*POPDENS) 
 !CLNELSE
 !CLN ! W.KNORR: Instead of fpar_corr1 * fpar_leafon + fpar_corr2 * fpar_leafon * fpar_leafon, 
@@ -407,9 +431,12 @@ SUBROUTINE UPDATE_FIRE_BIOME
   
 END SUBROUTINE UPDATE_FIRE_BIOME
 
-SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY, YEAR, AB )
+SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY, YEAR, AB, climate )
 
   USE CABLE_COMMON_MODULE, ONLY: IS_LEAPYEAR
+  USE cable_IO_vars_module, ONLY:  landpt
+  
+  USE CABLE_DEF_TYPES_MOD, ONLY:  climate_type
 
   IMPLICIT NONE
 
@@ -417,36 +444,32 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY, YEAR, AB )
   REAL,    INTENT(IN) :: RAINF(*), TMAX(*), TMIN(*)
   REAL,    INTENT(OUT):: AB(*)
   INTEGER, INTENT(IN) :: YEAR
+  TYPE (CLIMATE_TYPE), INTENT(IN)     :: climate
+  
 
   INTEGER :: DOY, i
+
+  
+  
+  SF%FAPAR = climate%AvgAnnMaxFAPAR(landpt(:)%cstart)
+  SF%MAX_NESTEROV =  climate%Nesterov_ann_running_max(landpt(:)%cstart)
   
   ! Housekeeping first
-  !CLN "Cycling max to be implemented! 
   IF ( DOY.EQ. 1 ) THEN
-     SF%MAX_NESTEROV(:) = 0.
-     !CLN needs to go to 
      CALL GET_POPDENS ( SF, YEAR )
   ENDIF
 
-  DO i = 1, SF%NCELLS
-     IF ( RAINF(i) .GE. 3. .OR. (TMAX(i)-TMIN(i)) .LT. 4.) THEN
-        SF%CNEST(i) = 0.
-        SF%NDAY(i)  = 0
-     ELSE
-        SF%CNEST(i) = SF%CNEST(i) + ( TMAX(i)-TMIN(i) + 4. ) * TMAX(i)
-        SF%NDAY(i)  = SF%NDAY(i) + 1
-     END IF
-     SF%MAX_NESTEROV(i) = MAX(SF%CNEST(i),SF%MAX_NESTEROV(i))
-     SF%MAX_NESTEROV(i) = MIN(150000.,SF%MAX_NESTEROV(i))
-  END DO
 
-  IF ( DOY .EQ. 366 .OR. ( (.NOT. IS_LEAPYEAR(YEAR)) .AND. DOY .EQ. 365 )) THEN
+ ! IF ( DOY .EQ. 366 .OR. ( (.NOT. IS_LEAPYEAR(YEAR)) .AND. DOY .EQ. 365 )) THEN
      DO i = 1, SF%NCELLS
         AB(i) = ANNUAL_BA( SF%FAPAR(i), SF%MAX_NESTEROV(i), SF%POPD(i), SF%BIOME(i), SF%REGION(i) )
         AB(i) = MAX( 0., MIN(AB(i),.99) )
-
+write(*,*) 'SF%FAPAR, SF%MAX_NESTEROV, SF%POPD, SF%BIOME, SF%REGION, AB'
+ write(*,"(200e16.6)") ,SF%FAPAR(i), SF%MAX_NESTEROV(i), SF%POPD(i), real(SF%BIOME(i)), real(SF%REGION(i)), AB(i)
+        
      END DO
-  ENDIF
+  !ENDIF
+
 
 
 END SUBROUTINE SIMFIRE

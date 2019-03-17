@@ -563,7 +563,7 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
        ENDIF
        LOY = 365
 
-      IF (IS_LEAPYEAR(CurYear)) LOY = 366
+      IF (IS_LEAPYEAR(MetYear)) LOY = 366
        kend = NINT(24.0*3600.0/dels) * LOY
        ! get koffset to add to time-step of sitemet
        IF (TRIM(site%RunType)=='historical') THEN
@@ -726,7 +726,13 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
           ! globally (WRT code) accessible kend through USE cable_common_module
           ktau_gl = ktau_tot
           
-          idoy =INT( MOD(REAL(CEILING(REAL((ktau+koffset)/ktauday))),REAL(LOY)))
+          !idoy =INT( MOD(REAL(CEILING(REAL((ktau+koffset)/ktauday))),REAL(LOY)))
+
+           idoy =INT( MOD(REAL(CEILING((real(ktau+koffset))/real(ktauday))),REAL(LOY)))
+        !  write(*,*) 'idoy: ', ktauday, ktau, koffset, idoy, (REAL((real(ktau+koffset))/real(ktauday)))
+
+          
+          
           IF ( idoy .EQ. 0 ) idoy = LOY
 
           ! needed for CASA-CNP
@@ -856,25 +862,18 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
                          CABLE_USER%CASA_DUMP_READ, CABLE_USER%CASA_DUMP_WRITE,   &
                          LALLOC )
 
+                    IF(MOD((ktau-kstart+1),ktauday)==0) THEN ! end of day
 
-                   IF ( cable_user%CALL_BLAZE ) THEN
-                      CALL BLAZE_ACCOUNTING(BLAZE, met, ktau, dels, YYYY, idoy)
-                      If ( MOD(ktau,ktauday).EQ.0 ) &
-                           call blaze_driver(blaze%ncells,blaze, simfire, casapool, casaflux, &
-                           casamet, shootfrac, idoy, YYYY, 1)
+                       IF ( cable_user%CALL_BLAZE ) THEN
+                          CALL BLAZE_ACCOUNTING(BLAZE, met, climate, ktau, dels, YYYY, idoy)
+                          
+                          call blaze_driver(blaze%ncells,blaze, simfire, casapool, casaflux, &
+                               casamet, climate,shootfrac, idoy, YYYY, 1)
+                       ENDIF
+                          
                    ENDIF
-
-!!$                    IF ( BLAZE%CTRL .GT. 0) &
-!!$                         CALL blazedriver(BLAZE,met,?NCELLS?,casapool,casaflux,?lat?,?lon?, & 
-!!$                         ?shootfrac?,?FAPAR?,,)
-
-                    !! put igbp_modis into ini (including read where from???)
-                    !! inot BLAZE_TYPE: BLAZEFLAG,AvgAnnMaxFAPAR, modis_igbp,
-                    !! AvgAnnRainf, idoy, curyear, FLI, DFLI, FFDI, AB, POPFLAG, CTLFLAG,
-                    !! BLAZEFLX, POP_TO, POP_CWD,POP_STR, IAC, popd, mnest, BLAZE_FSTEP
-
-                    
-                    IF(MOD((ktau-kstart+1),ktauday)==0) THEN
+                   
+                    IF(MOD((ktau-kstart+1),ktauday)==0) THEN ! end of day
                     
                        !mpidiff
                        ! update time-aggregates of casa pools and fluxes

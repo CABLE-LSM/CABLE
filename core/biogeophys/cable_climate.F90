@@ -66,28 +66,15 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
   real, PARAMETER:: T1 = 0.0, T2 = -3.0, T3 = -4.0, T6 = -5.0 ! for computing fractional spring recovery
   real, PARAMETER:: ffrost = 0.1, fdorm0 = 0.15  ! for computing fractional spring recovery
   real, PARAMETER:: gdd0_rec0 = 500.0
-  real, dimension(mp) :: f1, f2, frec0
+  real, dimension(mp) :: f1, f2, frec0, dkbdi
 
-  nsd = ktauday*5 ! number of subdirunal time-steps to be accumulated
+  nsd = ktauday*5 ! number of subdirunal time-steps
+                  ! to be accumulated for storing variables needed to implement
+                  ! coordination of photosynthesis
 
   climate%doy = idoy
-!write(*,*) idoy, climate%frec(1)
-!!$! * Find irradiances, available energy, equilibrium latent heat flux
-!!$PPc    = Gaero / ( Gaero + 4.0*SBoltz*((TempA+273.16)**3)/(RhoA*Capp) )
-!!$                                                    ! PPc = Ga/(Ga+Gr)      [-]
-!!$EpsA   = Epsif(TempA, Pmb)                          ! Epsi at TempA         [-]
-!!$PhiSd  = SolarMJ * 1.0e6 / (DayltFrac*SecDay)       ! daylt down solar      [W/m2]
-!!$PhiLd  = 335.97 * (((TempA + 273.16) / 293.0)**6)   ! daylt down thermal    [W/m2]
-!!$                                                    !   (Swinbank formula)
-!!$PhiAi  = (1.0-Albedo)*PhiSd + Emis *    &           ! daylt iso-avail engy  [W/m2]
-!!$         (PhiLd - SBoltz*((TempA + 273.16)**4))     !   (veg + soil)
-!!$PhiEq  = PhiAi * (PPc*EpsA) / (PPc*EpsA + 1.0)      ! equil ltnt heat flux  [W/m2]
-!!$PhiEq  = max(PhiEq, 1.0)                            ! PhiEq > +1 W/m2, so non-negative
-!!$                                    ! precipitation         [m/day]
-!!$FWPT   = CoeffPT * PhiEq * ((DayltFrac*SecDay) / (RhoW*Rlat))     
 
-     ! accumulate annual evaporation and potential evaporation
-  !ppc = 1.0
+  ! accumulate annual evaporation and potential evaporation
   RhoA = met%pmb * 100.0 / (8.314 * (met%tk)) ! air density [molA/m3]
   PPc    = Gaero / ( Gaero + 4.0*SBoltz*((met%tk**3)/(RhoA*Capp) ))
   
@@ -95,10 +82,7 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
   phiEq = canopy%rniso * (PPc*EpsA) / (PPc*EpsA + 1.0)      ! equil ltnt heat flux  [W/m2]
 
   IF (idoy==1 .and. MOD(ktau,ktauday)==1 ) THEN   ! first time step of year
-      !  climate%evap_PT =  max(phiEq,1.0)*CoeffPT/air%rlam*dels  ! mm
         climate%evap_PT =  phiEq*CoeffPT/2.5014e6*dels  ! mm
-      !  climate%evap_PT = canopy%epot  ! mm
-      !  climate%aevap  =   canopy%fe/air%rlam*dels ! mm
         climate%aevap = met%precip ! mm
         climate%fapar_ann_max = 0.0 
   ELSE
@@ -113,16 +97,99 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
   IF(MOD(ktau,ktauday)==1) THEN
      climate%dtemp = met%tk - 273.15
      climate%dmoist = sum(ssnow%wb(:,:)*veg%froot(:,:),2)
-     climate%dtemp_min =  climate%dtemp 
+     climate%dtemp_min =  climate%dtemp
+     climate%dtemp_max =  climate%dtemp
+     climate%drhum = met%rhum
+     climate%du10_max = met%u10
+     climate%dprecip = met%precip
   ELSE
      climate%dtemp = climate%dtemp + met%tk - 273.15
      climate%dmoist =  climate%dmoist + sum(ssnow%wb(:,:)*veg%froot(:,:),2)
      climate%dtemp_min = min(met%tk - 273.15, climate%dtemp_min)
+     climate%dtemp_max = max(met%tk - 273.15, climate%dtemp_max)
+     climate%drhum = climate%drhum + met%rhum
+     climate%du10_max = max(met%u10, climate%du10_max)
+     climate%dprecip = climate%dprecip + met%precip
   ENDIF
 
   IF(MOD((ktau-kstart+1),ktauday)==0) THEN  ! end of day
+     ! compute daily averages
      climate%dtemp = climate%dtemp/FLOAT(ktauday)
      climate%dmoist = climate%dmoist/FLOAT(ktauday)
+     climate%drhum = climate%drhum/FLOAT(ktauday)
+
+     ! update days since last rain and precip since last day without rain
+     WHERE (climate%dprecip .gt. 0.01)
+        WHERE (climate%DSLR .gt. 0)
+           climate%last_precip = climate%dprecip
+        ELSEWHERE
+           climate%last_precip = climate%last_precip + climate%dprecip
+        END WHERE
+        climate%DSLR = 0  ! reset days since last rain
+     ELSEWHERE
+        climate%DSLR =climate%DSLR + 1 
+     END WHERE
+
+     ! calculate Keetch-Byram Drought Index
+     WHERE ( climate%DSLR == 0 ) 
+        WHERE ( climate%last_precip > 5. ) 
+           dkbdi = 5. - climate%last_precip
+        ELSEWHERE
+           dkbdi = 0.
+        END WHERE
+        
+     ELSEWHERE
+        dkbdi = (( 800. - climate%KBDI ) * (.968 * EXP(.0486 * &
+             (climate%dtemp_max * 9./5. + 32.)) &
+             - 8.3) / 1000. / (1. + 10.88 * &
+             EXP(-.0441 * climate%aprecip_av20 /25.4)) * .254)
+     ENDWHERE
+     climate%KBDI = max(0.0, dkbdi + climate%KBDI)
+
+     ! calcululate MacArthur Drought-Factor D
+     climate%D_MacArthur = .191 * (climate%KBDI + 104.) * &
+                            (real(climate%DSLR) + 1.)**1.5 / &
+                            ( 3.52 * (real(climate%DSLR) + 1.)**1.5 &
+                            + climate%last_precip - 1. )
+     climate%D_MacArthur =  MAX(0.,MIN(10.,climate%D_MacArthur))
+ 
+
+        ! MacArthur FFDI
+     climate%FFDI = 2. * EXP( -.45 + .987 * LOG(climate%D_MacArthur + .001) &
+           - .03456 *  climate%drhum + .0338 * climate%dtemp_max  + &
+           .0234 *  climate%du10_max )
+
+     ! Nesterov Index
+
+     WHERE ( climate%dprecip .GE. 3. .OR. (climate%dtemp_max -climate%dtemp_min) .LT. 4.) 
+        climate%Nesterov_Current = 0
+     ELSEWHERE
+        climate%Nesterov_Current = climate%Nesterov_Current + &
+             ( climate%dtemp_max -climate%dtemp_min + 4. ) * climate%dtemp_max 
+     END WHERE
+     climate%Nesterov_ann_max = MAX(climate%Nesterov_Current,climate%Nesterov_ann_max)
+     climate%Nesterov_ann_max = MIN(150000.,climate%Nesterov_ann_max)
+
+     WHERE (climate%NDAY_Nesterov .gt. 365)
+        climate%NDAY_Nesterov= 0
+        climate%Nesterov_ann_running_max = climate%Nesterov_ann_max       
+     ELSEWHERE (climate%NDAY_Nesterov .le. 365)
+
+        WHERE (climate%Nesterov_Current >  climate%Nesterov_ann_running_max)
+           climate%Nesterov_ann_running_max = MIN(150000.,climate%Nesterov_Current)
+           climate%NDAY_Nesterov = 0
+        ELSEWHERE (climate%Nesterov_ann_running_max >= climate%Nesterov_Current)
+           climate%NDAY_Nesterov = climate%NDAY_Nesterov + 1
+        ENDWHERE
+        
+     ENDWHERE
+    
+
+     write(3333,"(200f16.6)") real(idoy), real(climate%NDAY_Nesterov(1)), &
+          climate%Nesterov_Current(1), &
+          climate%Nesterov_ann_max(1), climate%Nesterov_ann_max_last_year(1), &
+          climate%Nesterov_ann_running_max(1),  climate%FFDI(1), climate%D_MacArthur(1), &
+          climate%KBDI(1), climate%dprecip(1)
   ENDIF
 
   !  midday fraction of incoming visible radiation absorbed by the canopy
@@ -135,7 +202,7 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
              climate%fapar_ann_max)
      ENDWHERE
   
-   ENDIF
+  ENDIF
 
   ! accumulate sub-diurnal sun- and shade-leaf met variables that are relevant for calc of Anet
   climate%APAR_leaf_sun(:,1:nsd-1) =  climate%APAR_leaf_sun(:,2:nsd)
@@ -195,21 +262,24 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
         climate%dmoist_min = climate%dmoist
         climate%dmoist_max = climate%dmoist
 
+        ! ... reset annual precip
+        climate%aprecip = 0.0
+
+        ! ...reset annual max nesterov index
+        climate%Nesterov_ann_max = 0.0
+        climate%fapar_ann_max = 0.0
+
      ENDIF
 
      WHERE ((patch%latitude>=0.0 .and. idoy==COLDEST_DAY_NHEMISPHERE).OR. &
           (patch%latitude<0.0 .and. idoy==COLDEST_DAY_SHEMISPHERE) )
-
         ! In midwinter, reset GDD counter for summergreen phenology
         !climate%gdd5=0.0
         climate%gdd0=0.0
    
         ! reset day degree sum related to spring photosynthetic recovery
         climate%gdd0_rec = 0.0
-        ! In mid-winter, reset dormancy fraction
-       ! climate%fdorm = 1.0
-
-     END WHERE
+      END WHERE
 
      WHERE ((patch%latitude<=0.0 .and. idoy==COLDEST_DAY_NHEMISPHERE).OR. &
           (patch%latitude>0.0 .and. idoy==COLDEST_DAY_SHEMISPHERE) )
@@ -229,6 +299,9 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
      ! Update min and max daily soil moisture
      climate%dmoist_min = min(climate%dmoist, climate%dmoist_min)
      climate%dmoist_max = max(climate%dmoist, climate%dmoist_max)
+
+     ! Update annual rainfall total
+     climate%aprecip =  climate%aprecip + climate%dprecip
 
      ! Update dormancy fraction if there has been a frost
      WHERE (climate%dtemp_min .GE. T6 .AND. climate%dtemp_min .LT. 0.0)
@@ -355,7 +428,11 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
            climate%dmoist_min20 = 0.0
            climate%dmoist_max20 = 0.0
 
-           climate%fapar_ann_max_last_year =  climate%fapar_ann_max 
+           climate%aprecip_av20 = 0.0
+
+           climate%fapar_ann_max_last_year =  climate%fapar_ann_max
+
+           climate%Nesterov_ann_max_last_year = climate%Nesterov_ann_max
 
            if (startyear<20) then
               DO y=startyear,19
@@ -373,6 +450,9 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
                  climate%dmoist_max_20(:,y) = climate%dmoist_max_20(:,y+1)
                  climate%dmoist_min20 = climate%dmoist_min20 + climate%dmoist_min_20(:,y)
                  climate%dmoist_max20 = climate%dmoist_max20 + climate%dmoist_max_20(:,y)
+
+                 climate%aprecip_20(:,y) = climate%aprecip_20(:,y+1)
+                 climate%aprecip_av20 =  climate%aprecip_av20 + climate%aprecip_20(:,y)
               ENDDO
 
               climate%mtemp_min20=climate%mtemp_min20/real(20-startyear)
@@ -380,6 +460,7 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
               climate%alpha_PT20=climate%alpha_PT20/real(20-startyear)
               climate%dmoist_min20 = climate%dmoist_min20/real(20-startyear)
               climate%dmoist_max20 = climate%dmoist_max20/real(20-startyear)
+              climate%aprecip_av20 = climate%aprecip_av20/real(20-startyear)
            else
               ! only occurs when climate%nyears = 1
               climate%mtemp_min20 = climate%mtemp_min
@@ -387,6 +468,7 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
               climate%alpha_PT20 = climate%alpha_PT
               climate%dmoist_min20 = climate%dmoist_min
               climate%dmoist_max20 = climate%dmoist_max
+              climate%aprecip_av20 = climate%aprecip
            endif
 
            climate%mtemp_min_20(:,20)=climate%mtemp_min
@@ -398,6 +480,8 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
  
            climate%dmoist_min_20(:,20)= climate%dmoist_min 
            climate%dmoist_max_20(:,20)= climate%dmoist_max
+
+           climate%aprecip_20(:,20) = climate%aprecip
 
           CALL biome1_pft(climate,np)
 
@@ -723,7 +807,7 @@ INTEGER :: d
 
 CALL alloc_cbm_var(climate,np,ktauday)
 
-if (cable_user%climate_fromzero) then
+
 
 ! Maciej
 !   DO d=1,31
@@ -787,17 +871,29 @@ if (cable_user%climate_fromzero) then
    climate%fapar_ann_max_last_year = 0.0
 
    climate%modis_igbp = 0
-   climate%AvgAnnRainf = 0.0
    climate%AvgAnnMaxFAPAR = 0.0
+   climate%dtemp_max = 0.0
+   climate%drhum = 0.0
+   climate%du10_max = 0.0
+   climate%dprecip = 0.0
+   climate%aprecip = 0.0
+   climate%last_precip = 0.0
+   climate%KBDI = 0.0
+   climate%FFDI = 0.0
+   climate%D_MacArthur = 0.0
+   climate%Nesterov_Current = 0.0
+
+   climate%aprecip_20 = 0.0
+
+   climate%Nesterov_ann_max_last_year = 0.0
+   climate%Nesterov_ann_max = 0.0
+   climate%Nesterov_ann_running_max = 0.0
+   climate%NDAY_Nesterov= 0
    
-else
+if (.not.cable_user%climate_fromzero) then
    CALL READ_CLIMATE_RESTART_NC (climate, ktauday )
-
 endif
-!else
-  ! CALL READ_CLIMATE_RESTART_NC (climate)
 
-!endif
 
 END SUBROUTINE climate_init
 
@@ -822,11 +918,11 @@ SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
   ! 0 dim arrays
   CHARACTER(len=20),DIMENSION(2) :: A0
   ! 1 dim arrays (npt )
-  CHARACTER(len=30),DIMENSION(26) :: A1
+  CHARACTER(len=30),DIMENSION(33) :: A1
  ! 1 dim arrays (integer) (npt )
-  CHARACTER(len=20),DIMENSION(4) :: AI1
+  CHARACTER(len=20),DIMENSION(6) :: AI1
   ! 2 dim arrays (npt,20)
-  CHARACTER(len=20),DIMENSION(5) :: A2
+  CHARACTER(len=20),DIMENSION(6) :: A2
   ! 2 dim arrays (npt,31)
   CHARACTER(len=20),DIMENSION(2) :: A3
   ! 2 dim arrays (npt,91)
@@ -870,16 +966,30 @@ SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
   A1(25) = 'dmoist_max20'
   A1(26) =  'fapar_ann_max_last_year'
 
+  A1(27) = 'last_precip'
+  A1(28) = 'Nesterov_Current'
+  A1(29) = 'KBDI'
+  A1(30) = 'aprecip_av20'
+  A1(31) = 'Nesterov_ann_max'
+  A1(32) = 'Nesterov_ann_max_last_year'
+  A1(33) = 'Nesterov_ann_running_max'
+  
+
   AI1(1) = 'chilldays'
   AI1(2) = 'iveg'
   AI1(3) = 'biome'
   AI1(4) = 'GMD'
+
+  AI1(5) = 'DSLR'
+  AI1(6) = 'NDAY_Nesterov'
 
   A2(1) = 'mtemp_min_20'
   A2(2) = 'mtemp_max_20'
   A2(3) = 'alpha_PT_20'
   A2(4) = 'dmoist_min_20'
   A2(5) = 'dmoist_max_20'
+
+  A2(6) = 'aprecip_20'
 
   A3(1) = 'dtemp_31'
   A3(2) = 'dmoist_31'
@@ -1064,6 +1174,29 @@ STATUS = NF90_PUT_VAR(FILE_ID, VID1(5), climate%qtemp )
   STATUS = NF90_PUT_VAR(FILE_ID, VID1(26), climate%fapar_ann_max_last_year )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(27), climate%last_precip )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(28), climate%Nesterov_Current )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(29), climate%KBDI )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(30), climate%aprecip_av20 )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(31), climate%Nesterov_ann_max )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(32), climate%Nesterov_ann_max_last_year )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(33), climate%Nesterov_ann_running_max )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  
+
   STATUS = NF90_PUT_VAR(FILE_ID, VIDI1(1), climate%chilldays )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
@@ -1076,6 +1209,14 @@ STATUS = NF90_PUT_VAR(FILE_ID, VID1(5), climate%qtemp )
   STATUS = NF90_PUT_VAR(FILE_ID, VIDI1(4), climate%GMD )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
+  STATUS = NF90_PUT_VAR(FILE_ID, VIDI1(5), climate%DSLR )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VIDI1(6), climate%NDAY_Nesterov )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+
+  
   STATUS = NF90_PUT_VAR(FILE_ID, VID2(1), climate%mtemp_min_20 )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
@@ -1090,6 +1231,10 @@ STATUS = NF90_PUT_VAR(FILE_ID, VID1(5), climate%qtemp )
 
   STATUS = NF90_PUT_VAR(FILE_ID, VID2(5), climate%dmoist_max_20 )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID2(6), climate%aprecip_20 )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  
 
   STATUS = NF90_PUT_VAR(FILE_ID, VID3(1), climate%dtemp_31 )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
@@ -1162,11 +1307,11 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate, ktauday )
   ! 0 dim arrays
   CHARACTER(len=20),DIMENSION(2) :: A0
   ! 1 dim arrays (npt )
-  CHARACTER(len=30),DIMENSION(26) :: A1
+  CHARACTER(len=30),DIMENSION(33) :: A1
  ! 1 dim arrays (integer) (npt )
-  CHARACTER(len=20),DIMENSION(4) :: AI1
+  CHARACTER(len=20),DIMENSION(6) :: AI1
   ! 2 dim arrays (npt,20)
-  CHARACTER(len=20),DIMENSION(5) :: A2
+  CHARACTER(len=20),DIMENSION(6) :: A2
   ! 2 dim arrays (npt,31)
   CHARACTER(len=20),DIMENSION(2) :: A3
  ! 2 dim arrays (npt,91)
@@ -1212,17 +1357,30 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate, ktauday )
   A1(24) = 'dmoist_min20'
   A1(25) = 'dmoist_max20'
   A1(26) =  'fapar_ann_max_last_year'
+
+  A1(27) = 'last_precip'
+  A1(28) = 'Nesterov_Current'
+  A1(29) = 'KBDI'
+  A1(30) = 'aprecip_av20'
+  A1(31) = 'Nesterov_ann_max'
+  A1(32) = 'Nesterov_ann_max_last_year'
+  A1(33) = 'Nesterov_ann_running_max'
   
   AI1(1) = 'chilldays'
   AI1(2) = 'iveg'
   AI1(3) = 'biome'
   AI1(4) = 'GMD'
 
+  AI1(5) = 'DSLR'
+  AI1(6) = 'NDAY_Nesterov'
+
   A2(1) = 'mtemp_min_20'
   A2(2) = 'mtemp_max_20'
   A2(3) = 'alpha_PT_20'
   A2(4) = 'dmoist_min_20'
   A2(5) = 'dmoist_max_20'
+
+  A2(6) = 'aprecip_20'
 
   A3(1) = 'dtemp_31'
   A3(2) = 'dmoist_31'
@@ -1338,6 +1496,14 @@ write(*,*) 'patch%latitude',  SIZE(patch%latitude)
      CASE ('dmoist_min20'  ) ; climate%dmoist_min20  = TMP
      CASE ('dmoist_max20'  ) ; climate%dmoist_max20  = TMP
      CASE ('fapar_ann_max_last_year'  ) ; climate%fapar_ann_max_last_year  = TMP
+     CASE ('last_precip' ) ; climate%last_precip = TMP
+     CASE ('Nesterov_Current' ); climate%Nesterov_Current = TMP
+     CASE ('KBDI' ); climate%KBDI = TMP
+     CASE ('aprecip_av20' ); climate%aprecip_av20 = TMP
+     CASE ('Nesterov_ann_max' ); climate%Nesterov_ann_max = TMP
+     CASE ('Nesterov_ann_max_last_year' ); climate%Nesterov_ann_max_last_year = TMP
+     CASE ('Nesterov_ann_running_max' ); climate%Nesterov_ann_running_max = TMP
+        
      END SELECT
   END DO
 
@@ -1355,6 +1521,9 @@ write(*,*) 'patch%latitude',  SIZE(patch%latitude)
      CASE ('iveg'      ) ; climate%iveg     = TMPI
      CASE ('biome'      ) ; climate%biome     = TMPI
      CASE ('GMD'      ) ; climate%GMD     = TMPI
+
+     CASE ('DSLR' ) ; climate%DSLR = TMPI
+     CASE ('NDAY_Nesterov' ) ; climate%NDAY_Nesterov = TMPI
      END SELECT
   END DO
 
@@ -1372,7 +1541,8 @@ write(*,*) 'patch%latitude',  SIZE(patch%latitude)
      CASE ('mtemp_max_20' ) ; climate%mtemp_max_20 = TMP2
      CASE ('alpha_PT_20' ) ; climate%alpha_PT_20 = TMP2
      CASE ('dmoist_min_20' ) ; climate%dmoist_min_20 = TMP2
-     CASE ('dmoist_max_20' ) ; climate%dmoist_max_20 = TMP2 
+     CASE ('dmoist_max_20' ) ; climate%dmoist_max_20 = TMP2
+     CASE ('aprecip_20' )    ; climate%aprecip_20 = TMP2
      END SELECT
   END DO
 

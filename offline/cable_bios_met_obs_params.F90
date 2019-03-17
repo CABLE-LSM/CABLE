@@ -1293,7 +1293,7 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
    met%coszen(is:ie)    = WG%coszen(iland)
    met%qv(is:ie)        = WG%VapPmb(iland)/WG%Pmb(iland)*RMWbyRMA ! specific humidity (kg/kg)
    met%pmb(is:ie)       = WG%Pmb(iland)
-   met%rhum(is:ie)  =  WG%VapPmb(iland)/esatf(real(WG%Temp(iland),sp))
+   met%rhum(is:ie)  =  WG%VapPmb(iland)/esatf(real(WG%Temp(iland),sp)) *100.0 ! rel humidity (%)
    met%u10(is:ie) = met%ua(is:ie) 
    ! initialise within canopy air temp
    met%tvair(is:ie)     = met%tk(is:ie) 
@@ -1796,14 +1796,14 @@ ELSE
   CLOSE (param_unit)
 END IF
 
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(MAP_file), ACCESS='STREAM', &
-     FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
-IF (error_status > 0) THEN
-  WRITE (*,'("STOP - File not found: ")') TRIM(param_path)//TRIM(MAP_file) ; STOP ''
-ELSE
-  READ (param_unit) MAP
-  CLOSE (param_unit)
-END IF
+!!$OPEN (param_unit, FILE=TRIM(param_path)//TRIM(MAP_file), ACCESS='STREAM', &
+!!$     FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+!!$IF (error_status > 0) THEN
+!!$  WRITE (*,'("STOP - File not found: ")') TRIM(param_path)//TRIM(MAP_file) ; STOP ''
+!!$ELSE
+!!$  READ (param_unit) MAP
+!!$  CLOSE (param_unit)
+!!$END IF
 
 OPEN (param_unit, FILE=TRIM(param_path)//TRIM(avgannmax_fapar_file), ACCESS='STREAM', &
      FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
@@ -1818,8 +1818,9 @@ DO iland = 1,mland ! For each land cell...
    is = landpt(iland)%cstart  ! Index position for the first tile of this land cell.
    ie = landpt(iland)%cend    ! Index position for the last tile of this land cell.
    climate%modis_igbp(is:ie) = INT(vegtypeigbp(iland))
-   climate%AvgAnnRainf(is:ie) = MAP(iland)
+   !climate%AvgAnnRainf(is:ie) = MAP(iland)
    climate%AvgAnnMaxFAPAR(is:ie) = avgannmax_fapar(iland)
+   write(*,*) 'AvgAnnMaxFAPAR:' , climate%AvgAnnMaxFAPAR(1)
 ENDDO
 
 
