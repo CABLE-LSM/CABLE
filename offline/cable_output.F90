@@ -3000,15 +3000,15 @@ CONTAINS
     IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error closing output file '        &
                         //TRIM(filename%out)// '(SUBROUTINE close_output_file)')
 
-    if (cable_user%compress_output) then
-        cut_ind = scan(trim(filename%out),".", BACK= .true.)
-        if (cut_ind < 0 ) cut_ind = len(filename%out)
+   ! if (cable_user%compress_output) then
+   !     cut_ind = scan(trim(filename%out),".", BACK= .true.)
+   !     if (cut_ind < 0 ) cut_ind = len(filename%out)
 
-        alt_filename = filename%out(1:cut_ind)//'_compressed.nc'
+    !    alt_filename = filename%out(1:cut_ind)//'_compressed.nc'
 
-        str=trim('ncks -O -4 -L 5 '//trim(filename%out)//' '//alt_filename)
-        call execute_command_line(str,wait=.false.)
-    end if
+     !   str=trim('ncks -O -4 -L 5 '//trim(filename%out)//' '//alt_filename)
+     !   call execute_command_line(str,wait=.false.)
+    !end if
 
     ! Report balance info to log file if verbose writing is requested:
     IF(output%balances .AND. verbose) THEN
