@@ -292,10 +292,16 @@ MODULE casavariable
     !CVH variables inherited from BLAZE
     REAL(r_2), DIMENSION(:,:,:),POINTER :: fromPtoL_fire
     REAL(r_2), DIMENSION(:,:),POINTER    :: klitter_fire
+    REAL(r_2), DIMENSION(:,:),POINTER    :: klitter_tot  ! sum of fire turnover and non-fire turnover (litter)
     REAL(r_2), DIMENSION(:,:),POINTER    :: kplant_fire
+    REAL(r_2), DIMENSION(:,:),POINTER    :: kplant_tot  ! sum of fire turnover and non-fire turnover (plants)
 
     !CVH diagnostic: CO2 emissions from fire
-    REAL(r_2), DIMENSION(:),POINTER      :: FluxCtoCO2_fire
+    REAL(r_2), DIMENSION(:),POINTER      :: fluxCtoCO2_plant_fire
+    REAL(r_2), DIMENSION(:),POINTER      :: fluxCtoCO2_litter_fire
+    REAL(r_2), DIMENSION(:),POINTER      :: fluxNtoAtm_fire
+    REAL(r_2), DIMENSION(:,:,:),POINTER      :: fire_mortality_vs_height
+    
     
   
   END TYPE casa_flux
@@ -566,7 +572,14 @@ SUBROUTINE alloc_casavariable(casabiome,casapool,casaflux, &
   ALLOCATE(casaflux%fromPtoL_fire(arraysize,mlitter,mplant), &
        casaflux%kplant_fire(arraysize,mplant),        &
        casaflux%klitter_fire(arraysize,mlitter),           &
-       casaflux%FluxCtoCO2_fire(arraysize))
+       casaflux%kplant_tot(arraysize,mplant),        &
+       casaflux%klitter_tot(arraysize,mlitter),           &
+       casaflux%FluxCtoCO2_plant_fire(arraysize)),             &
+       casaflux%FluxCtoCO2_litter_fire(arraysize)),             &
+       casaflux%FluxNtoAtm_fire(arraysize)),           &
+       casaflux%fire_mortality_vs_height(arraysize,30,2))
+       
+       
   
   ALLOCATE(casaflux%FluxCtolitter(arraysize,mlitter),    &
            casaflux%FluxNtolitter(arraysize,mlitter),    &
@@ -792,7 +805,16 @@ SUBROUTINE alloc_sum_casavariable(  sum_casapool, sum_casaflux &
 
   ALLOCATE(sum_casaflux%FluxCtosoil(arraysize,msoil),        &
            sum_casaflux%FluxNtosoil(arraysize,msoil),        &
-           sum_casaflux%FluxPtosoil(arraysize,msoil))
+           (arraysize,msoil))
+
+  ALLOCATE(sum_casaflux%fromPtoL_fire(arraysize,mlitter,mplant), &
+       sum_casaflux%kplant_fire(arraysize,mplant),        &
+       sum_casaflux%klitter_fire(arraysize,mlitter),           &
+       sum_casaflux%kplant_tot(arraysize,mplant),        &
+       sum_casaflux%klitter_tot(arraysize,mlitter),           &
+       sum_casaflux%FluxCtoCO2_plant_fire(arraysize)),             &
+       sum_casaflux%FluxCtoCO2_litter_fire(arraysize)),             &
+       sum_casaflux%FluxNtoAtm_fire(arraysize))
 
   ALLOCATE(sum_casaflux%FluxCtoco2(arraysize))
 
@@ -910,6 +932,16 @@ SUBROUTINE zero_sum_casa(sum_casapool, sum_casaflux)
            sum_casaflux%FluxPtosoil = 0
 
            sum_casaflux%FluxCtoco2 = 0
+           
+           sum_casaflux%fromPtoL_fire = 0
+           sum_casaflux%kplant_fire = 0
+           sum_casaflux%klitter_fire = 0
+           sum_casaflux%kplant_tot = 0
+           sum_casaflux%klitter_tot = 0
+           sum_casaflux%FluxCtoCO2_plant_fire = 0
+           sum_casaflux%FluxCtoCO2_litter_fire = 0
+           sum_casaflux%FluxNtoAtm_fire = 0
+           
 
 
 
@@ -1041,6 +1073,16 @@ SUBROUTINE update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
            sum_casaflux%FluxPtosoil = sum_casaflux%FluxPtosoil  + casaflux%FluxPtosoil
 
            sum_casaflux%FluxCtoco2 =  sum_casaflux%FluxCtoco2 + casaflux%FluxCtoco2
+
+           sum_casaflux%fromPtoL_fire = sum_casaflux%fromPtoL_fire + casaflux%fromPtoL_fire
+           sum_casaflux%kplant_fire = sum_casaflux%kplant_fire + casaflux%kplant_fire
+           sum_casaflux%klitter_fire = sum_casaflux%klitter_fire + casaflux%klitter_fire
+           sum_casaflux%kplant_tot = sum_casaflux%kplant_tot + casaflux%kplant_tot
+           sum_casaflux%klitter_tot = sum_casaflux%klitter_tot + casaflux%klitter_tot
+           sum_casaflux%FluxCtoCO2_plant_fire = sum_casaflux%FluxCtoCO2_plant_fire + casaflux%FluxCtoCO2_plant_fire
+           sum_casaflux%FluxCtoCO2_litter_fire = sum_casaflux%FluxCtoCO2_litter_fire + casaflux%FluxCtoCO2_litter_fire
+           sum_casaflux%FluxNtoAtm_fire = sum_casaflux%FluxNtoAtm_fire + casaflux%FluxNtoAtm_fire
+           
         endif
 
            if (average_now) then
@@ -1163,6 +1205,15 @@ SUBROUTINE update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
            sum_casaflux%FluxPtosoil = sum_casaflux%FluxPtosoil /real(nsteps)
 
            sum_casaflux%FluxCtoco2 =  sum_casaflux%FluxCtoco2/real(nsteps)
+
+           sum_casaflux%fromPtoL_fire = sum_casaflux%fromPtoL_fire/real(nsteps)
+           sum_casaflux%kplant_fire = sum_casaflux%kplant_fire/real(nsteps)
+           sum_casaflux%klitter_fire = sum_casaflux%klitter_fire/real(nsteps)
+           sum_casaflux%kplant_tot = sum_casaflux%kplant_tot/real(nsteps)
+           sum_casaflux%klitter_tot = sum_casaflux%klitter_tot/real(nsteps)
+           sum_casaflux%FluxCtoCO2_plant_fire = sum_casaflux%FluxCtoCO2_plant_fire/real(nsteps)
+           sum_casaflux%FluxCtoCO2_litter_fire = sum_casaflux%FluxCtoCO2_litter_fire/real(nsteps)
+           sum_casaflux%FluxNtoAtm_fire = sum_casaflux%FluxNtoAtm_fire/real(nsteps)
         endif
 
 
