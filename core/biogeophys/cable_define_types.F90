@@ -43,9 +43,10 @@ MODULE cable_def_types_mod
               mvtype,& ! total # vegetation types,   from input
               mstype,& ! total # soil types,         from input
               mland                           ! # land grid cells
-   
+   integer*8 :: x 
+   INTEGER, PARAMETER :: r_2  = KIND(x)
+
    INTEGER, PARAMETER ::                                                        &
-      r_2  = KIND(1.0), &
       n_tiles = 17,  & ! # possible no of different 
       ncp = 3,       & ! # vegetation carbon stores
       ncs = 2,       & ! # soil carbon stores

@@ -113,6 +113,9 @@ MODULE cable_common_module
    LOGICAL ::                                                                  &
       redistrb = .FALSE.  ! Turn on/off the hydraulic redistribution
    
+   LOGICAL ::                                                                  &
+         calcsoilalbedo = .FALSE.
+   
    ! hydraulic_redistribution parameters _soilsnow module
    REAL :: wiltParam=0.5, satuParam=0.8
 
