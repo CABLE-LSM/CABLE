@@ -1,14 +1,22 @@
 !==============================================================================
 ! This source code is part of the 
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
-! This work is licensed under the CSIRO Open Source Software License
-! Agreement (variation of the BSD / MIT License).
-! 
-! You may not use this file except in compliance with this License.
-! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located 
-! in each directory containing CABLE code.
+! This work is licensed under the CABLE Academic User Licence Agreement 
+! (the "Licence").
+! You may not use this file except in compliance with the Licence.
+! A copy of the Licence and registration form can be obtained from 
+! http://www.cawcr.gov.au/projects/access/cable
+! You need to register and read the Licence agreement before use.
+! Please contact cable_help@nf.nci.org.au for any questions on 
+! registration and the Licence.
 !
+! Unless required by applicable law or agreed to in writing, 
+! software distributed under the Licence is distributed on an "AS IS" BASIS,
+! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+! See the Licence for the specific language governing permissions and 
+! limitations under the Licence.
 ! ==============================================================================
+!
 ! Purpose: Initialize and update CABLE variables from UM forcing, calls to 
 !          memory allocation and initialization subroutines
 !
@@ -44,14 +52,18 @@ SUBROUTINE interface_UM_data( row_length, rows, land_pts, ntiles,              &
                               tsoil_tile, canht_ft, lai_ft, sin_theta_latitude,&
                               dzsoil, CPOOL_TILE, NPOOL_TILE, PPOOL_TILE,      &
                               SOIL_ORDER, NIDEP, NIFIX, PWEA, PDUST, GLAI,     &
-                              PHENPHASE, NPP_FT_ACC, RESP_W_FT_ACC )
+                              PHENPHASE,WOOD_HVEST_C,WOOD_HVEST_N,WOOD_HVEST_P,& 
+                              WOOD_FLUX_C,WOOD_FLUX_N,WOOD_FLUX_P,             & 
+                              WRESP_C,WRESP_N,WRESP_P,THINNING,                & 
+                              PREV_YR_SFRAC, NPP_FT_ACC, RESP_W_FT_ACC,        &
+                              RESP_S_ACC, iday )
 
    USE cable_um_init_subrs_mod          ! where most subrs called from here reside
    
    USE cable_um_tech_mod,   ONLY :                                             &
       alloc_um_interface_types,  & ! mem. allocation subr (um1, kblum%) 
       dealloc_vegin_soilin,      & ! mem. allocation subr (vegin%,soilin%)
-      um1,                       & ! um1% type UM basics 4 convenience
+      um1,soil,                  & ! um1% type UM basics 4 convenience
       kblum_veg                    ! kblum_veg% reset UM veg vars 4 CABLE use
 
    USE cable_common_module, ONLY :                                             &
@@ -62,7 +74,7 @@ SUBROUTINE interface_UM_data( row_length, rows, land_pts, ntiles,              &
       l_casacnp,           & !
       knode_gl               !
 
-   USE cable_def_types_mod, ONLY : mp ! number of points CABLE works on
+   USE cable_def_types_mod, ONLY : mp, mland ! number of points CABLE works on
 
    USE casa_um_inout_mod
 
@@ -163,7 +175,8 @@ SUBROUTINE interface_UM_data( row_length, rows, land_pts, ntiles,              &
    LOGICAL, INTENT(IN) :: L_CO2_INTERACTIVE
    INTEGER, INTENT(IN) ::                              &
       CO2_DIM_LEN                                      &
-     ,CO2_DIM_ROW
+     ,CO2_DIM_ROW &
+     , iday
    REAL, INTENT(IN) :: CO2_3D(CO2_DIM_LEN,CO2_DIM_ROW)  ! co2 mass mixing ratio
 
    LOGICAL, INTENT(INOUT),DIMENSION(land_pts, ntiles) ::                       &
@@ -188,13 +201,27 @@ SUBROUTINE interface_UM_data( row_length, rows, land_pts, ntiles,              &
       PDUST
 
    REAL, INTENT(INOUT), DIMENSION(land_pts,ntiles) :: &
-      GLAI, &
+      GLAI,         &
    !INTEGER, INTENT(INOUT), DIMENSION(land_pts,ntiles) :: &
-      PHENPHASE
+      PHENPHASE,    &
+      PREV_YR_SFRAC,&
+      WOOD_FLUX_C,  &
+      WOOD_FLUX_N,  &
+      WOOD_FLUX_P,  &
+      THINNING
+
+  REAL, INTENT(INOUT), DIMENSION(land_pts,ntiles,3) :: &
+      WOOD_HVEST_C,&
+      WOOD_HVEST_N,&
+      WOOD_HVEST_P,&
+      WRESP_C,&
+      WRESP_N,&
+      WRESP_P
 
    REAL, INTENT(INOUT), DIMENSION(land_pts,ntiles) :: &
       NPP_FT_ACC,   &
-      RESP_W_FT_ACC
+      RESP_W_FT_ACC, &
+      RESP_S_ACC
 
    !------------------------------------------------------------------------- 
    !--- end INPUT ARGS FROM cable_explicit_driver() -------------------------
@@ -230,6 +257,9 @@ SUBROUTINE interface_UM_data( row_length, rows, land_pts, ntiles,              &
                                     rho_water  )
 
 
+      !print *, 'DEBUG tile_frac', tile_frac(6805,:), um1%tile_frac(6805,:)
+
+
 
       !---------------------------------------------------------------------!
       !--- CABLE vars are initialized/updated from passed UM vars       ----!
@@ -241,6 +271,7 @@ SUBROUTINE interface_UM_data( row_length, rows, land_pts, ntiles,              &
       
          um1%L_TILE_PTS = .FALSE.
          mp = SUM(um1%TILE_PTS)
+         mland = LAND_PTS
          
          CALL alloc_cable_types()
          
@@ -260,8 +291,8 @@ SUBROUTINE interface_UM_data( row_length, rows, land_pts, ntiles,              &
          
       !jhan: turn this off until implementation finalised
       !--- initialize latitude/longitude & mapping IF required
-      if ( first_call ) & 
-         call initialize_maps(latitude,longitude, tile_index_mp)
+      !if ( first_call ) & 
+      !   call initialize_maps(latitude,longitude, tile_index_mp)
 
 
 
@@ -305,7 +336,8 @@ SUBROUTINE interface_UM_data( row_length, rows, land_pts, ntiles,              &
       !--- initialize respiration for CASA-CNP
       !--- Lestevens 23apr13
       !IF (l_casacnp) THEN ?
-         CALL init_respiration(NPP_FT_ACC,RESP_W_FT_ACC)
+         CALL init_respiration(NPP_FT_ACC,RESP_W_FT_ACC,RESP_S_ACC)
+      ENDIF      
 
       ! Lestevens 28 Sept 2012 - Initialize CASA-CNP here
          if (l_casacnp) then
@@ -315,11 +347,20 @@ SUBROUTINE interface_UM_data( row_length, rows, land_pts, ntiles,              &
              print *, '  l_casacnp = ',l_casacnp
              print *, 'End CASA_log:'; print *, '  '
            endif
+      IF( first_call ) THEN
            call init_casacnp(sin_theta_latitude,cpool_tile,npool_tile,&
                              ppool_tile,soil_order,nidep,nifix,pwea,pdust,&
-                             GLAI,PHENPHASE)
+                             wood_hvest_c,wood_hvest_n,wood_hvest_p, &
+                             wood_flux_c,wood_flux_n,wood_flux_p, &
+                             wresp_c,wresp_n,wresp_p,thinning, &
+                             GLAI,PHENPHASE,PREV_YR_SFRAC,iday)
+      ENDIF      
+      ! Lestevens 4 sept 2018 - init Ndep every tstep for ancil updates
+           call casa_ndep_pk(nidep)
+
          endif
 
+      IF( first_call ) THEN
          CALL dealloc_vegin_soilin()
          first_call = .FALSE. 
       ENDIF      

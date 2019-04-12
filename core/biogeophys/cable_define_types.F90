@@ -1,14 +1,22 @@
 !==============================================================================
 ! This source code is part of the 
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
-! This work is licensed under the CSIRO Open Source Software License
-! Agreement (variation of the BSD / MIT License).
-! 
-! You may not use this file except in compliance with this License.
-! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located 
-! in each directory containing CABLE code.
+! This work is licensed under the CABLE Academic User Licence Agreement 
+! (the "Licence").
+! You may not use this file except in compliance with the Licence.
+! A copy of the Licence and registration form can be obtained from 
+! http://www.cawcr.gov.au/projects/access/cable
+! You need to register and read the Licence agreement before use.
+! Please contact cable_help@nf.nci.org.au for any questions on 
+! registration and the Licence.
 !
+! Unless required by applicable law or agreed to in writing, 
+! software distributed under the Licence is distributed on an "AS IS" BASIS,
+! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+! See the Licence for the specific language governing permissions and 
+! limitations under the Licence.
 ! ==============================================================================
+!
 ! Purpose: defines parameters, variables and derived types, allocation and 
 !          deallocation of these derived types
 !
@@ -37,7 +45,7 @@ MODULE cable_def_types_mod
               mland                           ! # land grid cells
    
    INTEGER, PARAMETER ::                                                        &
-      r_2  = SELECTED_REAL_KIND(12, 50), &
+      r_2  = KIND(1.0), &
       n_tiles = 17,  & ! # possible no of different 
       ncp = 3,       & ! # vegetation carbon stores
       ncs = 2,       & ! # soil carbon stores
@@ -112,8 +120,6 @@ MODULE cable_def_types_mod
          swilt,   & ! vol H2O @ wilting
          zse,     & ! thickness of each soil layer (1=top) in m
          zshh,    & ! distance between consecutive layer midpoints (m)
-  		 ! vars intro for Ticket #27
-         soilcol, & ! keep color for all patches/tiles
          albsoilf   ! soil reflectance
      
       REAL(r_2), DIMENSION(:), POINTER ::                                      &
@@ -231,24 +237,13 @@ MODULE cable_def_types_mod
          shelrb,  & ! sheltering factor (dimensionless)
          vegcf,   & ! kdcorbin, 08/10
          tminvj,  & ! min temperature of the start of photosynthesis
-         toptvj,  & ! opt temperature of the start of photosynthesis
          tmaxvj,  & ! max temperature of the start of photosynthesis
          vbeta,   & ! 
          vcmax,   & ! max RuBP carboxylation rate top leaf (mol/m2/s)
          xfang,   & ! leaf angle PARAMETER
          extkn,   & ! extinction coef for vertical
          vlaimax, & ! extinction coef for vertical
-         wai,     & ! wood area index (stem+branches+twigs)
-         a1gs,    & ! a1 parameter in stomatal conductance model
-         d0gs,    & ! d0 in stomatal conductance model      
-         alpha,   & ! initial slope of J-Q response curve   
-         convex,  & ! convexity of J-Q response curve       
-         cfrd,    & ! ratio of day respiration to vcmax
-         gswmin,  & ! minimal stomatal conductance
-         conkc0,  &  ! Michaelis-menton constant for caroxylase
-         conko0,  &  ! Michaelis-menton constant for oxygenase
-         ekc,     & ! activation energy for caroxylagse
-         eko        ! acvtivation enegery for oxygenase
+         wai        ! wood area index (stem+branches+twigs)
 
       LOGICAL, DIMENSION(:), POINTER ::                                        &
          deciduous ! flag used for phenology fix
@@ -598,8 +593,7 @@ SUBROUTINE alloc_soil_parameter_type(var, mp)
    allocate( var% cnsd(mp) )  
    allocate( var% albsoil(mp, nrb) )  
    allocate( var% pwb_min(mp) )  
-   allocate( var% albsoilf(mp) ) 
-   allocate( var% soilcol(mp) )
+   allocate( var% albsoilf(mp) )  
 
 END SUBROUTINE alloc_soil_parameter_type
  
@@ -701,7 +695,6 @@ SUBROUTINE alloc_veg_parameter_type(var, mp)
    ALLOCATE( var% shelrb(mp) ) 
    ALLOCATE( var% vegcf(mp) )  
    ALLOCATE( var% tminvj(mp) ) 
-   ALLOCATE( var% toptvj(mp) ) 
    ALLOCATE( var% tmaxvj(mp) ) 
    ALLOCATE( var% vbeta(mp) )  
    ALLOCATE( var% vcmax(mp) )  
@@ -714,16 +707,6 @@ SUBROUTINE alloc_veg_parameter_type(var, mp)
    ALLOCATE( var%refl(mp,2) ) !jhan:swb?
    ALLOCATE( var%taul(mp,2) ) 
    ALLOCATE( var%vlaimax(mp) ) 
-   ALLOCATE( var%a1gs(mp) ) 
-   ALLOCATE( var%d0gs(mp) ) 
-   ALLOCATE( var%alpha(mp) ) 
-   ALLOCATE( var%convex(mp) ) 
-   ALLOCATE( var%cfrd(mp) ) 
-   ALLOCATE( var%gswmin(mp) ) 
-   ALLOCATE( var%conkc0(mp) ) 
-   ALLOCATE( var%conko0(mp) ) 
-   ALLOCATE( var%ekc(mp) ) 
-   ALLOCATE( var%eko(mp) ) 
 
 END SUBROUTINE alloc_veg_parameter_type
 
@@ -1010,8 +993,7 @@ SUBROUTINE dealloc_soil_parameter_type(var)
    DEALLOCATE( var% albsoil )  
    DEALLOCATE( var% cnsd )  
    DEALLOCATE( var% pwb_min)  
-   DEALLOCATE( var% albsoilf )
-   DEALLOCATE( var% soilcol )  
+   DEALLOCATE( var% albsoilf )  
    
 END SUBROUTINE dealloc_soil_parameter_type
  
@@ -1111,7 +1093,6 @@ SUBROUTINE dealloc_veg_parameter_type(var)
    DEALLOCATE( var% shelrb ) 
    DEALLOCATE( var% vegcf )  
    DEALLOCATE( var% tminvj ) 
-   DEALLOCATE( var% toptvj ) 
    DEALLOCATE( var% tmaxvj ) 
    DEALLOCATE( var% vbeta)  
    DEALLOCATE( var% vcmax )  
@@ -1122,16 +1103,6 @@ SUBROUTINE dealloc_veg_parameter_type(var)
    DEALLOCATE( var%froot) 
    DEALLOCATE( var%refl )
    DEALLOCATE( var%taul ) 
-   DEALLOCATE( var%a1gs ) 
-   DEALLOCATE( var%d0gs ) 
-   DEALLOCATE( var%alpha ) 
-   DEALLOCATE( var%convex ) 
-   DEALLOCATE( var%cfrd ) 
-   DEALLOCATE( var%gswmin ) 
-   DEALLOCATE( var%conkc0 ) 
-   DEALLOCATE( var%conko0 ) 
-   DEALLOCATE( var%ekc ) 
-   DEALLOCATE( var%eko ) 
    
 END SUBROUTINE dealloc_veg_parameter_type
    

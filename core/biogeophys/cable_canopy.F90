@@ -1,14 +1,22 @@
 !==============================================================================
 ! This source code is part of the 
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
-! This work is licensed under the CSIRO Open Source Software License
-! Agreement (variation of the BSD / MIT License).
-! 
-! You may not use this file except in compliance with this License.
-! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located 
-! in each directory containing CABLE code.
+! This work is licensed under the CABLE Academic User Licence Agreement 
+! (the "Licence").
+! You may not use this file except in compliance with the Licence.
+! A copy of the Licence and registration form can be obtained from 
+! http://www.cawcr.gov.au/projects/access/cable
+! You need to register and read the Licence agreement before use.
+! Please contact cable_help@nf.nci.org.au for any questions on 
+! registration and the Licence.
 !
+! Unless required by applicable law or agreed to in writing, 
+! software distributed under the Licence is distributed on an "AS IS" BASIS,
+! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+! See the Licence for the specific language governing permissions and 
+! limitations under the Licence.
 ! ==============================================================================
+!
 ! Purpose: Calculates surface exchange fluxes through the solution of surface 
 !          energy balance and its interaction with plant physiology. Specific 
 !        representation of the transport of scalars within a canopy is included.
@@ -489,9 +497,9 @@ SUBROUTINE define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy)
             r_sc(j) = rough%rt0us(j) + rough%rt1usa(j) + rough%rt1usb(j) +     &
                       ( LOG( (zscl(j) - rough%disp(j)) /                       &
                       MAX( rough%zruffs(j)-rough%disp(j),                      &
-                      rough%z0soilsn(j) ) ) - psis( (zscl(j)-rough%disp(j))    &
+                      rough%z0soilsn(j) ) ) - psis1( (zscl(j)-rough%disp(j))   &
                       / (rough%zref_tq(j)/canopy%zetar(j,iterplus) ) )         &
-                      + psis( (rough%zruffs(j) - rough%disp(j) )               &
+                      + psis1( (rough%zruffs(j) - rough%disp(j) )              &
                       / (rough%zref_tq(j)/canopy%zetar(j,iterplus ) ) ) )      &
                       / C%VONK
 
@@ -543,13 +551,16 @@ SUBROUTINE define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy)
    canopy%spill=max(0.0, canopy%cansto-cansat)
 
    ! Move excess canopy water to throughfall:
-   ! %through is /dels in UM app. (unpacked in hyd driver) for STASH output  
    canopy%through = canopy%through + canopy%spill
    
    ! Initialise 'throughfall to soil' as 'throughfall from canopy'; 
    ! snow may absorb
    canopy%precis = max(0.,canopy%through)
 
+   ! this change of units does not affect next timestep as canopy%through is
+   ! re-calc in surf_wetness_fact routine
+   canopy%through = canopy%through / dels   ! change units for stash output
+   
    ! Update canopy storage term:
    canopy%cansto=canopy%cansto - canopy%spill
    
@@ -994,6 +1005,45 @@ END FUNCTION psis
 
 ! -----------------------------------------------------------------------------
 
+FUNCTION psis1(zeta) RESULT(r)
+   ! mrr, 16-sep-92 (from function psi: mrr, edinburgh 1977)
+   ! computes integrated stability function psis(z/l) (z/l=zeta)
+   ! for scalars, using the businger-dyer form for unstable cases
+   ! and the webb form for stable cases. see paulson (1970).
+   REAL, INTENT(IN)     :: zeta
+   
+   REAL, PARAMETER      :: gu = 16.0
+   REAL, PARAMETER      :: gs = 5.0
+   REAL, PARAMETER      :: a = 1.0
+   REAL, PARAMETER      :: b = 0.667
+   REAL, PARAMETER      :: c = 5.0
+   REAL, PARAMETER      :: d = 0.35
+ 
+   REAL                 :: r
+   REAL                 :: stable
+   REAL                 :: unstable
+   REAL                 :: stzeta
+ 
+   REAL                 :: z
+   REAL                 :: y
+   !REAL                 :: stable
+   !REAL                 :: unstable
+ 
+   z      = 0.5 + sign(0.5,zeta)    ! z=1 in stable, 0 in unstable 
+   
+   ! Beljaars and Holtslag (1991) for stable
+   stzeta = max(0.,zeta)
+   stable = -(1.+2./3.*a*stzeta)**(3./2.) -  &
+             b*(stzeta-c/d)*exp(-d*stzeta) - b*c/d + 1.
+ 
+   y      = (1.0 + gu*abs(zeta))**0.5
+   unstable = 2.0 * alog((1+y)*0.5)
+   r   = z*stable + (1.0-z)*unstable
+
+END FUNCTION psis1
+
+! -----------------------------------------------------------------------------
+
 ELEMENTAL FUNCTION rplant(rpconst, rpcoef, tair) result(z)
    REAL, INTENT(IN)     :: rpconst
    REAL, INTENT(IN)     :: rpcoef
@@ -1302,8 +1352,9 @@ SUBROUTINE dryLeaf( dels, rad, rough, air, met,                                &
 
    ! weight min stomatal conductance by C3 an C4 plant fractions
    frac42 = SPREAD(veg%frac4, 2, mf) ! frac C4 plants
-   gsw_term = SPREAD(veg%gswmin,2,mf)
-   lower_limit2 = rad%scalex * gsw_term
+
+   gsw_term = C%gsw03 * (1. - frac42) + C%gsw04 * frac42
+   lower_limit2 = rad%scalex * (C%gsw03 * (1. - frac42) + C%gsw04 * frac42)
    gswmin = max(1.e-6,lower_limit2)
          
 
@@ -1412,39 +1463,48 @@ SUBROUTINE dryLeaf( dels, rad, rough, air, met,                                &
             tdiff(i) = tlfx(i) - C%TREFK
             
             ! Michaelis menten constant of Rubisco for CO2:
-            conkct(i) = veg%conkc0(i) * EXP( ( veg%ekc(i) / (C%rgas*C%trefk) ) &
-                                             * ( 1.0 - C%trefk/tlfx(i) ) )
+            conkct(i) = C%conkc0 * EXP( (C%ekc / ( C%rgas*C%trefk) ) *         &
+                        ( 1.0 - C%trefk/tlfx(i) ) )
 
             ! Michaelis menten constant of Rubisco for oxygen:
-            conkot(i) = veg%conko0(i) * EXP( ( veg%eko(i) / (C%rgas*C%trefk) ) &
-                                             * ( 1.0 - C%trefk/tlfx(i) ) )
-
+            conkot(i) = C%conko0 * EXP( ( C%eko / (C%rgas*C%trefk) ) *         &
+                        ( 1.0 - C%trefk/tlfx(i) ) )
+   
             ! Store leaf temperature
             tlfxx(i) = tlfx(i)
    
             ! "d_{3}" in Wang and Leuning, 1998, appendix E:
             cx1(i) = conkct(i) * (1.0+0.21/conkot(i))
-            cx2(i) = 2.0 * C%gam0 * ( 1.0 + C%gam1 * tdiff(i)                  &
-                                          + C%gam2 * tdiff(i) * tdiff(i) )
+            cx2(i) = 2.0 * C%gam0 * ( 1.0 + C%gam1 * tdiff(i) +                    &
+                     C%gam2 * tdiff(i) * tdiff(i ))
     
             ! All equations below in appendix E in Wang and Leuning 1998 are
             ! for calculating anx, csx and gswx for Rubisco limited,
             ! RuBP limited, sink limited
             temp2(i,1) = rad%qcan(i,1,1) * jtomol * (1.0-veg%frac4(i))
             temp2(i,2) = rad%qcan(i,2,1) * jtomol * (1.0-veg%frac4(i))
-            vx3(i,1)  = ej3x(temp2(i,1),veg%alpha(i),veg%convex(i),ejmxt3(i,1))
-            vx3(i,2)  = ej3x(temp2(i,2),veg%alpha(i),veg%convex(i),ejmxt3(i,2))
+            vx3(i,1)  = ej3x(temp2(i,1),ejmxt3(i,1))
+            vx3(i,2)  = ej3x(temp2(i,2),ejmxt3(i,2))
+    
             temp2(i,1) = rad%qcan(i,1,1) * jtomol * veg%frac4(i)
             temp2(i,2) = rad%qcan(i,2,1) * jtomol * veg%frac4(i)
-            vx4(i,1)  = ej4x(temp2(i,1),veg%alpha(i),veg%convex(i),vcmxt4(i,1))
-            vx4(i,2)  = ej4x(temp2(i,2),veg%alpha(i),veg%convex(i),vcmxt4(i,2))
+            vx4(i,1)  = ej4x(temp2(i,1),vcmxt4(i,1))
+            vx4(i,2)  = ej4x(temp2(i,2),vcmxt4(i,2))
     
-            rdx(i,1) = (veg%cfrd(i)*vcmxt3(i,1) + veg%cfrd(i)*vcmxt4(i,1))
-            rdx(i,2) = (veg%cfrd(i)*vcmxt3(i,2) + veg%cfrd(i)*vcmxt4(i,2))
+            rdx(i,1) = (C%cfrd3*vcmxt3(i,1) + C%cfrd4*vcmxt4(i,1))
+            rdx(i,2) = (C%cfrd3*vcmxt3(i,2) + C%cfrd4*vcmxt4(i,2))
+            
             xleuning(i,1) = ( fwsoil(i) / ( csx(i,1) - co2cp3 ) )              &
-                          * ( veg%a1gs(i) / ( 1.0 + dsx(i)/veg%d0gs(i)))
-            xleuning(i,2) = ( fwsoil(i) / ( csx(i,2) - co2cp3 ) )              &
-                          * ( veg%a1gs(i) / ( 1.0 + dsx(i)/veg%d0gs(i)))
+                          * ( ( 1.0 - veg%frac4(i) ) * C%A1C3 / ( 1.0 + dsx(i) &
+                          / C%d0c3 ) + veg%frac4(i)    * C%A1C4 / (1.0+dsx(i)/ &
+                          C%d0c4) )
+
+            xleuning(i,2) = ( fwsoil(i) / ( csx(i,2)-co2cp3 ) )                &
+                            * ( (1.0-veg%frac4(i) ) * C%A1C3 / ( 1.0 + dsx(i) /&
+                            C%d0c3 ) + veg%frac4(i)    * C%A1C4 / (1.0+ dsx(i)/&
+                            C%d0c4) )
+    
+         
          ENDIF
          
       ENDDO !i=1,mp
@@ -1863,33 +1923,30 @@ END SUBROUTINE photosynthesis
 
 ! ------------------------------------------------------------------------------
 
-FUNCTION ej3x(parx,alpha,convex,x) RESULT(z)
+FUNCTION ej3x(parx,x) RESULT(z)
    
    REAL, INTENT(IN)     :: parx
-   REAL, INTENT(IN)     :: alpha
-   REAL, INTENT(IN)     :: convex
    REAL, INTENT(IN)     :: x
    REAL                 :: z
    
    z = MAX(0.0,                                                                &
-       0.25*((alpha*parx+x-sqrt((alpha*parx+x)**2 -                      &
-       4.0*convex*alpha*parx*x)) /(2.0*convex)) )
+       0.25*((C%alpha3*parx+x-sqrt((C%alpha3*parx+x)**2 -                      &
+       4.0*C%convx3*C%alpha3*parx*x)) /(2.0*C%convx3)) )
+
 END FUNCTION ej3x
 
 ! ------------------------------------------------------------------------------
 
-FUNCTION ej4x(parx,alpha,convex,x) RESULT(z)
+FUNCTION ej4x(parx,x) RESULT(z)
    
    REAL, INTENT(IN)     :: parx
-   REAL, INTENT(IN)     :: alpha
-   REAL, INTENT(IN)     :: convex
    REAL, INTENT(IN)     :: x
    REAL                 :: z
  
    z = MAX(0.0,                                                                &
-        (alpha*parx+x-sqrt((alpha*parx+x)**2 -                           &
-        4.0*convex*alpha*parx*x))/(2.0*convex))
-
+        (C%alpha4*parx+x-sqrt((C%alpha4*parx+x)**2 -                           &
+        4.0*C%convx4*C%alpha4*parx*x))/(2.0*C%convx4))
+ 
 END FUNCTION ej4x
 
 ! ------------------------------------------------------------------------------

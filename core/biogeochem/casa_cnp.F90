@@ -1,14 +1,22 @@
 !==============================================================================
 ! This source code is part of the 
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
-! This work is licensed under the CSIRO Open Source Software License
-! Agreement (variation of the BSD / MIT License).
-! 
-! You may not use this file except in compliance with this License.
-! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located 
-! in each directory containing CABLE code.
+! This work is licensed under the CABLE Academic User Licence Agreement 
+! (the "Licence").
+! You may not use this file except in compliance with the Licence.
+! A copy of the Licence and registration form can be obtained from 
+! http://www.cawcr.gov.au/projects/access/cable
+! You need to register and read the Licence agreement before use.
+! Please contact cable_help@nf.nci.org.au for any questions on 
+! registration and the Licence.
 !
+! Unless required by applicable law or agreed to in writing, 
+! software distributed under the Licence is distributed on an "AS IS" BASIS,
+! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+! See the Licence for the specific language governing permissions and 
+! limitations under the Licence.
 ! ==============================================================================
+!
 ! Purpose: subroutines for calculating carbon, nitrogen, phosphorus cycle 
 !          including plant growth
 !
@@ -46,7 +54,6 @@ USE casadimension
 USE casaparm
 USE casavariable
 USE phenvariable
-USE cable_common_module, only: cable_user ! Custom soil respiration: Ticket #42
 IMPLICIT NONE
 CONTAINS
 
@@ -66,12 +73,29 @@ SUBROUTINE casa_xnp(xnplimit,xNPuptake,veg,casabiome,casapool,casaflux,casamet)
   INTEGER :: np
   REAL(r_2), DIMENSION(mp)        :: xnlimit,xplimit
   REAL(r_2), DIMENSION(mp)        :: xncleaf,xpcleaf
+  REAL(r_2), DIMENSION(17)        :: xnpmax
   REAL(r_2), DIMENSION(mp)        :: xnCnpp,xpCnpp
   REAL(r_2), DIMENSION(mp,mplant) :: Nreqmax, Nreqmin, NtransPtoP
   REAL(r_2), DIMENSION(mp)        :: totNreqmax,totNreqmin
   REAL(r_2), DIMENSION(mp)        :: xNuptake,xPuptake
   REAL(r_2), DIMENSION(mp,mplant) :: Preqmax, Preqmin, PtransPtoP
   REAL(r_2), DIMENSION(mp)        :: totPreqmax,totPreqmin
+
+! reorder xnpmax to CSIRO type by Q.Zhang on 02/02/2011
+  data xnpmax/1.510856726,1.27916225,1.591076159,1.186066584,1.358075681, &
+              1.45621905,1.45621905,1.45621905,1.210382326,1.210382326, &
+              1.45621905,1.365993164,1.210382326,1.0,1.399652677,1.0,1.0/
+
+! comment out IGBP xnpmax by Q.Zhang on 02/02/2011
+!  data xnpmax/1.510856726,1.27916225,1.591076159,1.42066584,1.422381577,  &
+!              1.422381577,1.358075681,1.303616589,1.259345709,1.45621905, &
+!              1.45621905,1.210382326,1.210382326,1.210382326,1.399652677, &
+!              1.365993164,1.0/
+
+!  data xnpmax/1.704157915,1.340437397,1.891451696,1.663696963,1.721120997, &
+!              1.422381577,1.427608017,1.191800718,1.189404926,1.786772008, &
+!              1.45621905,1.320445186,1.210382326,1.210382326,1.399652677,  &
+!              1.308011639,1.0/
 
   xnlimit  = 1.0
   xplimit  = 1.0
@@ -86,7 +110,7 @@ SUBROUTINE casa_xnp(xnplimit,xNPuptake,veg,casabiome,casapool,casaflux,casamet)
       !xnlimit(:) = xncleaf(:)/(xncleaf(:)+casabiome%KminN(veg%iveg(:)))
       xnlimit(:) = xncleaf(:)/(xncleaf(:)+0.01)
       xplimit(:) = 1.0
-      xnplimit(:) =min(xnlimit(:),xplimit(:)) * casabiome%xnpmax(veg%iveg(:))
+      xnplimit(:) =min(xnlimit(:),xplimit(:)) * xnpmax(veg%iveg(:))
     ENDWHERE
   CASE(3)
     WHERE(casamet%iveg2/=icewater) 
@@ -96,7 +120,7 @@ SUBROUTINE casa_xnp(xnplimit,xNPuptake,veg,casabiome,casapool,casaflux,casamet)
       !xplimit(:) = xpcleaf(:)/(xpcleaf(:)+casabiome%Kuplabp(veg%iveg(:)))
       xplimit(:) = xpcleaf(:)/(xpcleaf(:)+0.0006)
       !xnplimit(:) = min(1.0,casabiome%Kuptake(veg%iveg(:))*min(xnlimit(:),xplimit(:)))
-      xnplimit(:) =min(xnlimit(:),xplimit(:)) * casabiome%xnpmax(veg%iveg(:))
+      xnplimit(:) =min(xnlimit(:),xplimit(:)) * xnpmax(veg%iveg(:))
     ENDWHERE
   END SELECT
 
@@ -318,6 +342,7 @@ SUBROUTINE casa_rplant(veg,casabiome,casapool,casaflux,casamet)
 
   real(r_2), dimension(mp)        :: Ygrow        ! growth efficiency Q.Zhang 22/02/2011
   real(r_2), dimension(mp,mplant) :: ratioPNplant ! Q.Zhang 22/02/2011
+  real(r_2), dimension(mp)        :: delcrmleaf, delcrmwood,delcrmfroot    ! reduction in wood and root respiration when NPP <0.0
 
   ratioPNplant = 0.0
   Ygrow        = 0.0
@@ -330,6 +355,9 @@ SUBROUTINE casa_rplant(veg,casabiome,casapool,casaflux,casamet)
 
   casaflux%crmplant(:,wood) = 0.0
   casaflux%crmplant(:,froot) = 0.0
+  delcrmleaf   = 0.0
+  delcrmwood   = 0.0
+  delcrmfroot  = 0.0
   casaflux%crgplant = 0.0
   casaflux%clabloss = 0.0
 
@@ -352,7 +380,7 @@ SUBROUTINE casa_rplant(veg,casabiome,casapool,casaflux,casamet)
                                  * exp(308.56*(1.0/56.02-1.0            &
                                  / (casamet%tsoilavg(:)+46.02-tkzeroc)))
     ENDWHERE
-!    casaflux%crmplant(:,leaf) = casaflux%crmplant(:,leaf) + casaflux%clabloss(:)
+    casaflux%crmplant(:,leaf) = casaflux%crmplant(:,leaf) + casaflux%clabloss(:)
 
     WHERE((casaflux%Cgpp-SUM(casaflux%crmplant,2))>0.0)
     !casaflux%crgplant(:)  = 0.25* max(0.0,casaflux%Cgpp(:)-SUM(casaflux%crmplant(:,:),2))
@@ -363,13 +391,41 @@ SUBROUTINE casa_rplant(veg,casabiome,casapool,casaflux,casamet)
       casaflux%crgplant(:) = 0.0
     ENDWHERE
 
-    casaflux%Cnpp(:) = casaflux%Cgpp(:)-SUM(casaflux%crmplant(:,:),2) - casaflux%crgplant(:)
-    !casaflux%Cnpp(:) = MAX(0.0,(casaflux%Cgpp(:)-SUM(casaflux%crmplant(:,:),2) &
-    !                 - casaflux%crgplant(:))) 
+!!!!!!!!!!!!!!!!!!!!!!! begin from YPW 02/10/17 !!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    casaflux%Cnpp(:) = casaflux%Cgpp(:) - SUM(casaflux%crmplant(:,:),2) &
+                     - casaflux%crgplant(:)
+
+    WHERE(casaflux%Cnpp < 0.0)
+! change made here by ypw on 11-7-2016 to include leaf maintenance respiration
+      delcrmleaf(:)  = casaflux%Cnpp(:) * casaflux%crmplant(:,leaf) &
+                     / max(0.01,(casaflux%crmplant(:,leaf)+casaflux%crmplant(:,wood) &
+                               + casaflux%crmplant(:,froot)))
+      delcrmwood(:)  = casaflux%Cnpp(:) * casaflux%crmplant(:,wood) &
+                     / max(0.01,(casaflux%crmplant(:,leaf)+casaflux%crmplant(:,wood) &
+                               + casaflux%crmplant(:,froot)))
+      delcrmfroot(:) = casaflux%Cnpp(:) * casaflux%crmplant(:,froot) &
+                     / max(0.01,(casaflux%crmplant(:,leaf)+casaflux%crmplant(:,wood) &
+                               + casaflux%crmplant(:,froot)))
+
+         casaflux%crmplant(:,leaf)  = casaflux%crmplant(:,leaf)  + delcrmleaf(:)
+      casaflux%crmplant(:,wood)  = casaflux%crmplant(:,wood)  + delcrmwood(:)
+      casaflux%crmplant(:,froot) = casaflux%crmplant(:,froot) + delcrmfroot(:)
+  !    casaflux%Cnpp(:) = casaflux%Cnpp(:) -delcrmwood(:)-delcrmfroot(:)
+      casaflux%crgplant(:) = 0.0
+    ENDWHERE
+
+!!!!!!!!!!!!!!!!!!!!!!! end from YPW 02/10/17 !!!!!!!!!!!!!!!!!!!!!!!!!!!
   ENDWHERE
+
+  casaflux%Cnpp(:) = casaflux%Cgpp(:) - SUM(casaflux%crmplant(:,:),2) &
+                   - casaflux%crgplant(:)
+
 
 !  print *, 'calling rplant',veg%iveg(1),casamet%tairk(1)
 !,tkzeroc,casapool%nplant(1,:),casaflux%crmplant(1,:),casaflux%crgplant(1)
+
+
 
 END SUBROUTINE casa_rplant
 
@@ -454,7 +510,7 @@ SUBROUTINE casa_xrateplant(xkleafcold,xkleafdry,xkleaf,veg,casabiome, &
 END SUBROUTINE casa_xrateplant
 
 
-SUBROUTINE casa_xratesoil(xklitter,xksoil,veg,soil,casamet,casabiome)
+SUBROUTINE casa_xratesoil(xklitter,xksoil,veg,soil,casamet)
 !  to account for cold and drought stress on death rate of leaf: xleafcold,xleafdry
 !  to account for effects of T and W on litter decomposition: xk, xksurf
 !  inputs:
@@ -469,7 +525,6 @@ SUBROUTINE casa_xratesoil(xklitter,xksoil,veg,soil,casamet,casabiome)
   TYPE (veg_parameter_type),    INTENT(INOUT) :: veg  ! vegetation parameters
   TYPE (soil_parameter_type),   INTENT(INOUT) :: soil ! soil parameters  
   TYPE (casa_met),              INTENT(INOUT) :: casamet
-  TYPE (casa_biome),            INTENT(INOUT) :: casabiome
 
   ! local variables
   INTEGER nland,np         
@@ -482,10 +537,48 @@ SUBROUTINE casa_xratesoil(xklitter,xksoil,veg,soil,casamet,casabiome)
   REAL(r_2), parameter :: xkalpha=-3.764   ! Kirschbaum (1995, SBB)
   REAL(r_2), parameter :: xkbeta=0.204
   REAL(r_2), parameter :: xktoptc=36.9
+
+  ! Q10 parameters
+!  REAL(r_2), parameter :: xkbeta=0.11  !based on Jackson's work
+!  REAL(r_2), parameter :: xktoptc=25.0
+  REAL(r_2), parameter :: q10soil=1.72  ! based on Zhou et al. 2009
+
+  REAL(r_2), DIMENSION(17)      :: xkoptlitter,xkoptsoil
+!  data xktcoeff/0.6940,0.2963,0.9332,0.6251,1.0134,0.2500,0.4687,0.3476, &
+!             0.2858,0.3060,4.4644,0.2471,0.2500,0.2500,0.0110,0.0797,0.2500/
+!  data xktcoeff/0.74801402,0.20855194,0.57821072,6.251,1.60025994,0.23795, &
+!             0.44610866,0.2735612,0.0640192,0.155754,2.2723796,2.1888118, &
+!             0.25,0.25,0.25,0.01,0.25/
+!  ! parameter calibrated for Kirschbaum's temperature function
+!  data xkoptlitter/1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, &
+!             1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1/
+!  data xkoptsoil/3.59677845,0.2369689,5.712,0.9672,2.40451356,0.905175,2.0, &
+!             1.05894502,0.09346995,0.6874269,1.1,0.71651541,1.1,0.71651541, &
+!             1.1,1.00,1.1/
+
+  ! parameter for Q10 function
+  data xkoptlitter/0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, &
+                 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4/
+  ! add xkoptsoil defined by CSIRO classification. Q.Zhang @ 02/02/2011
+  ! data xkoptsoil/0.28113,0.2553,1.15865,0.298998,0.10343498, &
+  !                0.25652738,0.25652738,0.25652738,10.0,10.0,1.0,0.01,0.5,1.0,0.5,1.0,1.0/
+  ! comment out xkoptsoil defined by IGBP classification. Q.Zhang @ 02/02/2011
+!    data xkoptsoil/0.28113,0.2553,1.15865,0.298998,0.495,0.5, &
+!                   0.10343498,0.46494,0.168633,0.25652738,1.0,10.0,0.5,0.5,0.5,0.01,1.0/
+!  ! test new parameters
+!  ! set c3 grass, crop and barren as 0.5652738 (Q.Zhang 23/05/2011)
+!   data xkoptsoil/0.28113,0.6553,1.15865,0.298998,0.343498, &
+!                  0.5652738,0.25652738,0.25652738,0.5652738, &
+!                  0.25652738,1.0,0.652738,0.5,1.0,0.5,1.0,1.0/
+!  change from the above on 4 aug 2011 by ypwang, calibrated by ypw using igbp soil c (CNP cycle simulation only)
+   data xkoptsoil/0.33,0.60,0.15,0.60,0.16, &
+                  0.40,0.30,0.20,0.20, &
+                  0.25,1.0,0.65,0.5,2.0,0.5,1.0,1.0/
+
+
+
   REAL(r_2), DIMENSION(mp)       :: xkwater,xktemp
   REAL(r_2), DIMENSION(mp)       :: fwps,tsavg
-  ! Custom soil respiration - see Ticket #42 
-  REAL(r_2), DIMENSION(mp)       :: smrf,strf,slopt,wlt,tsoil,fcap,sopt 
 !,tsurfavg  !!, msurfavg
   INTEGER :: npt
 
@@ -494,67 +587,38 @@ SUBROUTINE casa_xratesoil(xklitter,xksoil,veg,soil,casamet,casabiome)
   fwps(:)     =  casamet%moistavg(:)/soil%ssat(:)
   tsavg(:)    =  casamet%tsoilavg(:) 
 
-  ! Custom soil respiration - see Ticket #42
-  tsoil(:)    =  tsavg(:)-TKzeroC !tsoil in C
-  strf(:)     = 1.0
-  smrf(:)     = 1.0
-  slopt(:)    = 1.0
-  sopt(:)     = 1.0
-
+!  PRINT *, 'Starting xratesoil; mp = ', mp
 
   ! BP changed the WHERE construct to DO-IF for Mk3L (jun2010)
   DO npt=1,mp
   IF(casamet%iveg2(npt)/=icewater) THEN
-    xktemp(npt)  = casabiome%q10soil(veg%iveg(npt))**(0.1*(tsavg(npt)-TKzeroC-35.0))
+    ! Kirschbaum function
+    xktemp(npt)  = q10soil**(0.1*(tsavg(npt)-TKzeroC-35.0))
     xkwater(npt) = ((fwps(npt)-wfpscoefb)/(wfpscoefa-wfpscoefb))**wfpscoefe    &
                * ((fwps(npt)-wfpscoefc)/(wfpscoefa-wfpscoefc))**wfpscoefd
     IF (veg%iveg(npt) == cropland .OR. veg%iveg(npt) == croplnd2) &
                xkwater(npt)=1.0
-    xklitter(npt) = casabiome%xkoptlitter(veg%iveg(npt)) * xktemp(npt) * xkwater(npt)
-    IF( .NOT. cable_user%SRF) THEN
-	! Use original function, ELSE Ticket #42	
-       xksoil(npt)   = casabiome%xkoptsoil(veg%iveg(npt))   * xktemp(npt) * xkwater(npt)
-    ELSE
-    ! Custom soil respiration - see Ticket #42
-    ! Implementing alternative parameterizations
-      IF(trim(cable_user%SMRF_NAME)=='CASA-CNP') THEN
-         smrf(npt)=xkwater(npt)
-      ELSE IF (trim(cable_user%SMRF_NAME)=='SOILN') then
-         sopt(npt)=0.92
-         slopt(npt)=wlt(npt)+0.1          !SLOPT is the lower optimum
-         IF (fwps(npt)>sopt(npt)) THEN
-           smrf(npt)=0.2+0.8*(1.0-fwps(npt))/(1.0-sopt(npt))
-         ELSE IF(slopt(npt)<=fwps(npt) .AND. fwps(npt)<=sopt(npt)) THEN
-           smrf(npt) = 1.0
-         ELSE IF (wlt(npt)<=fwps(npt) .AND. fwps(npt) <slopt(npt)) THEN
-           smrf(npt)=0.01+0.99*(fwps(npt)-wlt(npt))/(slopt(npt)-wlt(npt))
-         ELSE IF (fwps(npt)<wlt(npt)) THEN
-           smrf(npt) = 0.01
-         END IF
-      ELSE IF (trim(cable_user%SMRF_NAME)=='TRIFFID') THEN
-         sopt(npt) = 0.5 * (1+wlt(npt))
-         IF (fwps(npt) > sopt(npt)) THEN
-           smrf(npt) =1.0-0.8*(fwps(npt)-sopt(npt))
-         ELSE IF (wlt(npt)<fwps(npt) .AND. fwps(npt)<=sopt(npt)) THEN
-           smrf(npt)=0.01+0.8*((fwps(npt)-wlt(npt))/(sopt(npt)-wlt(npt)))
-         ELSE IF (fwps(npt)<wlt(npt)) THEN
-           smrf(npt) = 0.2
-         END IF
-      END IF
-
-      IF(trim(cable_user%STRF_NAME)=='CASA-CNP') THEN
-        strf(npt)=xktemp(npt)
-      ELSE if (trim(cable_user%STRF_NAME)=='K1995') THEN
-      !Kirschbaum from Kirschbaum 1995, eq (4) in SBB, .66 is to collapse smrf
-      !to same area
-        strf(npt)=exp(-3.764+0.204*tsoil(npt)*(1-0.5*tsoil(npt)/36.9))/.66
-      ELSE IF (trim(cable_user%STRF_NAME)=='PnET-CN') THEN
-        strf(npt)=0.68*exp(0.1*(tsoil(npt)-7.1))/12.64
-      END IF
-      xksoil(npt) = casabiome%xkoptsoil(veg%iveg(npt))*strf(npt)*smrf(npt)
-    END IF
+    xklitter(npt) = xkoptlitter(veg%iveg(npt)) * xktemp(npt) * xkwater(npt)
+    xksoil(npt)   = xkoptsoil(veg%iveg(npt))   * xktemp(npt) * xkwater(npt)
   END IF
   END DO
+!  WHERE(casamet%iveg2/=icewater)  
+!!    ! Kirschbaum function
+!!    xktemp(:) = exp(xkalpha + xkbeta*(tsavg(:)-TKzeroC) &
+!!              * (1.0-0.5*(tsavg(:)-TKzeroc)/xktoptc))
+!    ! add by ypwang on 3/april/2009
+!!    xktemp(:) = xkoptcoeff(veg%iveg(:))*exp(xkbeta*(tsavg(:)-TKzeroC-xktoptc))
+!    xktemp(:)  = q10soil**(0.1*(tsavg(:)-TKzeroC-35.0))
+!    xkwater(:) = ((fwps(:)-wfpscoefb)/(wfpscoefa-wfpscoefb))**wfpscoefe    &
+!               * ((fwps(:)-wfpscoefc)/(wfpscoefa-wfpscoefc))**wfpscoefd
+!    WHERE(veg%iveg==12)
+!      xkwater(:)=1.0
+!    ENDWHERE
+!    xklitter(:) = xkoptlitter(veg%iveg(:)) * xktemp(:) * xkwater(:)
+!    xksoil(:)   = xkoptsoil(veg%iveg(:))   * xktemp(:) * xkwater(:)
+!  ENDWHERE
+!  print *, 'xratesoil', mp, casamet%moistavg(:),soil%ssat(:),casamet%tsoilavg(:),xklitter(:),tsavg(:),xksoil(:)
+
 END SUBROUTINE casa_xratesoil
 
 SUBROUTINE casa_coeffplant(xkleafcold,xkleafdry,xkleaf,veg,casabiome,casapool, &
@@ -664,9 +728,9 @@ SUBROUTINE casa_coeffsoil(xklitter,xksoil,veg,soil,casabiome,casaflux,casamet)
                                * (1.0 - 0.75 *(soil%silt(:)+soil%clay(:)))
     casaflux%ksoil(:,slow)     = xksoil(:) * casabiome%soilrate(veg%iveg(:),slow)
     casaflux%ksoil(:,pass)     = xksoil(:) * casabiome%soilrate(veg%iveg(:),pass)
-    casaflux%kplab(:)          = xksoil(:) * casabiome%xkplab(casamet%isorder(:))
-    casaflux%kpsorb(:)         = xksoil(:) * casabiome%xkpsorb(casamet%isorder(:))
-    casaflux%kpocc(:)          = xksoil(:) * casabiome%xkpocc(casamet%isorder(:))
+    casaflux%kplab(:)          = xksoil(:) * xkplab
+    casaflux%kpsorb(:)         = xksoil(:) * xkpsorb
+    casaflux%kpocc(:)          = xksoil(:) * xkpocc
 
 
     WHERE(veg%iveg==cropland)      ! for cultivated land type
@@ -832,7 +896,7 @@ SUBROUTINE casa_delplant(veg,casabiome,casapool,casaflux,casamet)
 
 END SUBROUTINE casa_delplant
 
-SUBROUTINE casa_delsoil(veg,casapool,casaflux,casamet,casabiome)
+SUBROUTINE casa_delsoil(veg,casapool,casaflux,casamet)
 ! calculate changes in litter and soil pools
 
   IMPLICIT NONE
@@ -840,12 +904,30 @@ SUBROUTINE casa_delsoil(veg,casapool,casaflux,casamet,casabiome)
   TYPE (casa_pool),             INTENT(INOUT) :: casapool
   TYPE (casa_flux),             INTENT(INOUT) :: casaflux
   TYPE (casa_met),              INTENT(INOUT) :: casamet
-  TYPE (casa_biome),            INTENT(INOUT) :: casabiome
 
   ! local variables
   REAL(r_2), DIMENSION(mp)    :: xdplabsorb, fluxptase
-  INTEGER i,j,jj,k,kk,kkk,n,iv,npt,nL,nS,nSS,nland
+  REAL(r_2), DIMENSION(17)          :: prodptase, costNpup
+  REAL(r_2), DIMENSION(12)          :: xkpsorb
 
+  data xkpsorb/0.67,0.75,0.50,0.54,0.78,0.87,0.71,0.77,0.99,0.77,0.99,0.77/
+
+!  add prodptase and costNpup defined by CSIRO type. Q.Zhang @ 02/02/2011
+  data prodptase/0.5, 0.2,  0.5, 0.5,  0.5, 0.5, 0.5, 0.5, 0.5, 0.5, &
+                 0.5, 4.0,  0.5, 0.5,  0.5, 0.5, 0.5/
+
+  data costNpup/40.0, 25.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0, &
+                40.0, 40.0, 40.0, 40.0, 40.0, 40.0/
+
+!  comment out prodptase and costNpup defined by IGBP classification. Q.Zhang @02/02/2011
+!   data prodptase/1.6, 1.04, 1.6, 1.6, 0.64, 0.8, 1.6, 1.6, 0.81, 1.6, &
+!                  0.8, 0.30, 0.8, 0.8, 0.8,  1.6, 0.8/
+!
+!   data costNpup/40.0, 25.0, 40.0, 40.0, 40.0, 40.0, 40.0, 25.0, 25.0, 40.0, 40.0, 40.0, 40.0, &
+!                 40.0, 40.0, 40.0, 40.0/
+
+  INTEGER i,j,jj,k,kk,kkk,n,iv,npt,nL,nS,nSS,nland
+   
   casaflux%fluxCtoCO2    = 0.0
   casaflux%fluxCtosoil   = 0.0
   casaflux%fluxNtosoil   = 0.0
@@ -1060,20 +1142,15 @@ IF(casamet%iveg2(nland)/=icewater) THEN
 
    IF(icycle >2) THEN
 
-      fluxptase(nland) =  casabiome%prodptase( veg%iveg(nland) ) * deltcasa    &
-                       * max( 0.0, ( casapool%Psoil(nland,2)                   &
-                                      * casaflux%ksoil(nland,2)                &
-                                      + casapool%Psoil(nland,3)                &
-                                      * casaflux%ksoil(nland,3) )              &
-                             )                                                 &
-                        * max( 0.0, ( casabiome%costNPup( veg%iveg(nland) )    &
-                                      - 15.0 )                                 &
-                             )                                                 &
-                        / ( max( 0.0, ( casabiome%costNPup( veg%iveg(nland) )  &
-                                        - 15.0 )                               &
-                               ) + 150.0                                       &
-                          )
+!      fluxptase(nland) =  prodptase(veg%iveg(nland))  &
+!                       *  max(0.0,(casapool%Psoil(nland,2)+casapool%Psoil(nland,3))) &
+!                       *  max(0.0,(costNpup(veg%iveg(nland))-15.0))/(max(0.0,(costNpup(veg%iveg(nland))-15.0)) + 150.0)
 
+      fluxptase(nland) =  prodptase(veg%iveg(nland))*deltcasa  &
+                       *  max(0.0,(casapool%Psoil(nland,2)*casaflux%ksoil(nland,2)+casapool%Psoil(nland,3)*casaflux%ksoil(nland,3))) &
+                       *  max(0.0,(costNpup(veg%iveg(nland))-15.0))/(max(0.0,(costNpup(veg%iveg(nland))-15.0)) + 150.0)
+
+      !fluxptase(nland)  = 0.0
       xdplabsorb(nland) = 1.0+ casaflux%Psorbmax(nland)*casaflux%kmlabp(nland) &
                         /((casaflux%kmlabp(nland)+casapool%Psoillab(nland))**2)
       casapool%dPlitterdt(nland,:) = casaflux%fluxPtolitter(nland,:)  &
@@ -1096,14 +1173,14 @@ IF(casamet%iveg2(nland)/=icewater) THEN
       casapool%dPsoillabdt(nland)= casaflux%Psnet(nland) + fluxptase(nland)         &
                                  + casaflux%Pdep(nland) + casaflux%Pwea(nland)      &
                                  - casaflux%Pleach(nland)-casaflux%pupland(nland)   &
-                                 - casaflux%kpsorb(nland)*casapool%Psoilsorb(nland) &
+                                 - xkpsorb(casamet%isorder(nland))*casaflux%kpsorb(nland)*casapool%Psoilsorb(nland) &
                                  + casaflux%kpocc(nland) * casapool%Psoilocc(nland)
       ! here the dPsoillabdt =(dPsoillabdt+dPsoilsorbdt)
       ! dPsoilsorbdt  = xdplabsorb
       casapool%dPsoillabdt(nland)  = casapool%dPsoillabdt(nland)/xdplabsorb(nland)
       casapool%dPsoilsorbdt(nland) = 0.0
 
-      casapool%dPsoiloccdt(nland)  = casaflux%kpsorb(nland)* casapool%Psoilsorb(nland) &
+      casapool%dPsoiloccdt(nland)  = xkpsorb(casamet%isorder(nland))*casaflux%kpsorb(nland)* casapool%Psoilsorb(nland) &
                                    - casaflux%kpocc(nland) * casapool%Psoilocc(nland)
       ! P loss to non-available P pools
 !      casaflux%Ploss(nland)        = casaflux%kpocc(nland) * casapool%Psoilocc(nland)
@@ -1148,7 +1225,7 @@ SUBROUTINE avgsoil(veg,soil,casamet)
 
 END SUBROUTINE avgsoil
 
-SUBROUTINE casa_xkN(xkNlimiting,casapool,casaflux,casamet,casabiome,veg)
+SUBROUTINE casa_xkN(xkNlimiting,casapool,casaflux,casamet,veg)
 ! computing the reduction in litter and SOM decomposition 
 ! when decomposition rate is N-limiting
   IMPLICIT NONE
@@ -1156,8 +1233,6 @@ SUBROUTINE casa_xkN(xkNlimiting,casapool,casaflux,casamet,casabiome,veg)
   TYPE (casa_pool),         INTENT(INOUT) :: casapool
   TYPE (casa_flux),         INTENT(INOUT) :: casaflux
   TYPE (casa_met),          INTENT(INOUT) :: casamet
-  TYPE (casa_biome),        INTENT(INOUT) :: casabiome
-!    
   TYPE (veg_parameter_type),   INTENT(IN) :: veg  ! vegetation parameters
 
   ! local variables
@@ -1171,6 +1246,15 @@ SUBROUTINE casa_xkN(xkNlimiting,casapool,casaflux,casamet,casabiome,veg)
 !  real(r_2), dimension(17)         :: xClitter
 !  data xClitter/100.0,100.0,100.0,100.0,50.0,150.0,150.0,100.0,&
 !                150.0,150.0,100.0, 20.0,20.0, 20.0, 20.0, 20.0,20.0/
+  real(r_2) maxfinelitter(17),maxcwd(17)
+  data maxfinelitter/1524.0, 384.0, 1527.0, 887.0, 157.0, &
+                      361.0, 225.0,  913.0, 660.0, 100.0, &
+                      100.0, 100.0,  100.0,  83.0, 100.0, &
+                      100.0, 100.0/
+  data maxcwd/1795.0, 613.0, 1918.0, 1164.0, 107.0,  &
+               420.0, 228.0,  573.0,  811.0, 100.0,  &
+               100.0, 100.0,  100.0,   23.0, 100.0,  &
+               100.0, 100.0/
 
   xkNlimiting  = 1.0
 !  set N mineral N fluxes to zero
@@ -1251,7 +1335,7 @@ SUBROUTINE casa_xkN(xkNlimiting,casapool,casaflux,casamet,casabiome,veg)
 !     xkNlimiting(:) = 1.0
 !    end where
 ! end (Q.Zhang 23/05/2011)
-    where(sum(casapool%clitter,2) > casabiome%maxfinelitter(veg%iveg(:)) + casabiome%maxcwd(veg%iveg(:)))
+    where(sum(casapool%clitter,2) > maxfinelitter(veg%iveg(:)) + maxcwd(veg%iveg(:)))
      xkNlimiting(:) = 1.0
     end where
   ENDWHERE
@@ -1319,6 +1403,7 @@ END SUBROUTINE casa_nuptake
 
 SUBROUTINE casa_Nrequire(xnCnpp,Nreqmin,Nreqmax,NtransPtoP,veg, &
                          casabiome,casapool,casaflux,casamet)
+
 !
   IMPLICIT NONE
   REAL(r_2), DIMENSION(mp),        INTENT(IN)    :: xnCnpp
@@ -1679,6 +1764,7 @@ SUBROUTINE casa_cnpbal(casapool,casaflux,casabal)
                  +(SUM((casaflux%kplant*casabal%cplantlast),2)-casaflux%Crsoil(:))*deltpool
 
    casabal%cbalance(:) = Cbalplant(:) + Cbalsoil(:)
+
 
  !  npt=1
 

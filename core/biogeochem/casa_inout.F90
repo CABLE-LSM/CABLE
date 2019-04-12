@@ -1,14 +1,22 @@
 !==============================================================================
 ! This source code is part of the 
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
-! This work is licensed under the CSIRO Open Source Software License
-! Agreement (variation of the BSD / MIT License).
-! 
-! You may not use this file except in compliance with this License.
-! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located 
-! in each directory containing CABLE code.
+! This work is licensed under the CABLE Academic User Licence Agreement 
+! (the "Licence").
+! You may not use this file except in compliance with the Licence.
+! A copy of the Licence and registration form can be obtained from 
+! http://www.cawcr.gov.au/projects/access/cable
+! You need to register and read the Licence agreement before use.
+! Please contact cable_help@nf.nci.org.au for any questions on 
+! registration and the Licence.
 !
+! Unless required by applicable law or agreed to in writing, 
+! software distributed under the Licence is distributed on an "AS IS" BASIS,
+! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+! See the Licence for the specific language governing permissions and 
+! limitations under the Licence.
 ! ==============================================================================
+!
 ! Purpose: Input and output code for CASA-CNP when run offline
 !          ACCESS version may use some of this code but split into different files?
 !
@@ -29,6 +37,9 @@
 !   casa_poolout
 !   casa_cnpflux  (not used?)
 !   biogeochem
+module casa_inout_mod
+
+contains
 
 SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
 ! mst actually not used in this routine (BP sep2010)
@@ -78,11 +89,7 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
                 xratioNPwoodmin,xratioNPwoodmax,         &
                 xratioNPfrootmin,xratioNPfrootmax
   INTEGER :: i,iv1,nv,ns,npt,iv,is,iso
-  INTEGER :: nv0,nv1,nv2,nv3,nv4,nv5,nv6,nv7,nv8,nv9,nv10,nv11,nv12
-  REAL(r_2), DIMENSION(mvtype)       :: xxnpmax,xq10soil,xxkoptlitter,xxkoptsoil,xprodptase, &
-                                        xcostnpup,xmaxfinelitter,xmaxcwd,xnintercept,xnslope
-  REAL(r_2), DIMENSION(mso)          :: xxkplab,xxkpsorb,xxkpocc
- 
+  INTEGER :: nv0,nv1,nv2,nv3,nv4,nv5,nv6,nv7,nv8,nv9,nv10
 
   OPEN(101,file=casafile%cnpbiome)
 
@@ -208,10 +215,10 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
   READ(101,*)
   DO iso=1,mso
     READ(101,*) nv9,xkmlabp(iso),xpsorbmax(iso),xfPleach(iso), &
-                ratioNPsoil(iso,mic),ratioNPsoil(iso,slow),ratioNPsoil(iso,pass), &
-                xxkplab(iso),xxkpsorb(iso),xxkpocc(iso)
+                ratioNPsoil(iso,mic),ratioNPsoil(iso,slow),ratioNPsoil(iso,pass)
 !     PRINT *, 'nv9',nv9
   ENDDO
+
   READ(101,*)
   READ(101,*)
   DO nv=1,mvtype
@@ -220,17 +227,6 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
          xpmic(nv),xpslow(nv),xppass(nv),xplab(nv),xpsorb(nv),xpocc(nv)
 !     PRINT *, 'nv10',nv10
   ENDDO
-
- !@@@@@@@@@@@@@@@@@@@@@@@@@
-  READ(101,*)
-  READ(101,*)
-  DO nv=1,mvtype
-    READ(101,*) nv11, &
-         xxnpmax(nv),xq10soil(nv),xxkoptlitter(nv),xxkoptsoil(nv),xprodptase(nv), &
-         xcostnpup(nv),xmaxfinelitter(nv),xmaxcwd(nv),xnintercept(nv),xnslope(nv)                   
-  ENDDO
-!@@@@@@@@@@@@@@@@@@@@@
-
   CLOSE(101)
 
   fracroot   = 0.0
@@ -268,29 +264,7 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
 !    casabiome%kuplabp(nv)         = xkuplabp(nv)
     casabiome%rmplant(nv,:)       = casabiome%rmplant(nv,:)*deltcasa 
     casabiome%kclabrate(nv)       = deltcasa/clabileage(nv)
-
-!@@@@@@@@@@@@@@@@@
-    casabiome%xnpmax(nv)          = xxnpmax(nv)
-    casabiome%q10soil(nv)         = xq10soil(nv)
-    casabiome%xkoptlitter(nv)     = xxkoptlitter(nv)
-    casabiome%xkoptsoil(nv)       = xxkoptsoil(nv)
-    casabiome%prodptase(nv)       = xprodptase(nv)
-    casabiome%costnpup(nv)        = xcostnpup(nv)
-    casabiome%maxfinelitter(nv)   = xmaxfinelitter(nv)
-    casabiome%maxcwd(nv)          = xmaxcwd(nv)
-    casabiome%nintercept(nv)      = xnintercept(nv)
-    casabiome%nslope(nv)          = xnslope(nv)
-!@@@@@@@@@@@@@@
   ENDDO
-
-!@@@@@@@@@@@@@@
-  DO ns=1,mso
-    casabiome%xkplab(ns)          =  xxkplab(ns)
-    casabiome%xkpsorb(ns)         =  xxkpsorb(ns)
-    casabiome%xkpocc(ns)          =  xxkpocc(ns)
-  ENDDO
- 
-!@@@@@@@@@@@@@@
 
 !  PRINT *, 'casabiome%ivt2 = ', casabiome%ivt2
 
@@ -909,10 +883,6 @@ SUBROUTINE casa_fluxout(myear,veg,soil,casabal,casamet)
   xyear=1.0/FLOAT(myear)
   casabal%FCgppyear=casabal%FCgppyear * xyear
   casabal%FCnppyear=casabal%FCnppyear * xyear
-  casabal%FCrmleafyear=casabal%FCrmleafyear * xyear
-  casabal%FCrmwoodyear=casabal%FCrmwoodyear * xyear
-  casabal%FCrmrootyear=casabal%FCrmrootyear * xyear
-  casabal%FCrgrowyear=casabal%FCrgrowyear * xyear
   casabal%FCrsyear=casabal%FCrsyear * xyear
   casabal%FCneeyear=casabal%FCneeyear * xyear
   casabal%FNdepyear=casabal%FNdepyear * xyear
@@ -938,9 +908,7 @@ SUBROUTINE casa_fluxout(myear,veg,soil,casabal,casamet)
         WRITE(nout,92) myear,npt,veg%iveg(npt),soil%isoilm(npt),    &
             casamet%isorder(npt),casamet%lat(npt),casamet%lon(npt), &
             casamet%areacell(npt)*(1.0e-9),casabal%Fcgppyear(npt),  &
-            casabal%Fcnppyear(npt),                                 &
-            casabal%Fcrmleafyear(npt),casabal%Fcrmwoodyear(npt),     &
-            casabal%Fcrmrootyear(npt),casabal%Fcrgrowyear(npt),     &
+            casabal%Fcnppyear(npt),  &
             casabal%Fcrsyear(npt),casabal%Fcneeyear(npt)  ! ,           &
 !            clitterinput(npt,:),csoilinput(npt,:)
 
@@ -948,10 +916,7 @@ SUBROUTINE casa_fluxout(myear,veg,soil,casabal,casamet)
         WRITE(nout,92) myear,npt,veg%iveg(npt),soil%isoilm(npt),    &
             casamet%isorder(npt),casamet%lat(npt),casamet%lon(npt), &
             casamet%areacell(npt)*(1.0e-9),casabal%Fcgppyear(npt),  &
-            casabal%FCnppyear(npt),                                 &
-            casabal%Fcrmleafyear(npt),casabal%Fcrmwoodyear(npt),     &
-            casabal%Fcrmrootyear(npt),casabal%Fcrgrowyear(npt),     &
-            casabal%FCrsyear(npt), casabal%FCneeyear(npt),          &
+        casabal%FCnppyear(npt),casabal%FCrsyear(npt), casabal%FCneeyear(npt), &
 !        clitterinput(npt,:),csoilinput(npt,:), &
         casabal%FNdepyear(npt),casabal%FNfixyear(npt),casabal%FNsnetyear(npt), &
         casabal%FNupyear(npt), casabal%FNleachyear(npt),casabal%FNlossyear(npt)
@@ -959,11 +924,8 @@ SUBROUTINE casa_fluxout(myear,veg,soil,casabal,casamet)
       CASE(3)
         WRITE(nout,92) myear,npt,veg%iveg(npt),soil%isoilm(npt), &
         casamet%isorder(npt),casamet%lat(npt),casamet%lon(npt),  &
-        casamet%areacell(npt)*(1.0e-9),casabal%Fcgppyear(npt),   &
-        casabal%FCnppyear(npt),                                  &
-            casabal%Fcrmleafyear(npt),casabal%Fcrmwoodyear(npt),     &
-            casabal%Fcrmrootyear(npt),casabal%Fcrgrowyear(npt),     &
-        casabal%FCrsyear(npt),   casabal%FCneeyear(npt),         &
+        casamet%areacell(npt)*(1.0e-9),casabal%Fcgppyear(npt), &
+       casabal%FCnppyear(npt),casabal%FCrsyear(npt),   casabal%FCneeyear(npt),&
 !        clitterinput(npt,:),csoilinput(npt,:), &
        casabal%FNdepyear(npt),casabal%FNfixyear(npt),  casabal%FNsnetyear(npt),&
        casabal%FNupyear(npt), casabal%FNleachyear(npt),casabal%FNlossyear(npt),&
@@ -994,16 +956,12 @@ SUBROUTINE casa_cnpflux(casaflux,casabal)
 !  REAL(r_2), INTENT(INOUT) :: clitterinput(mp,3),csoilinput(mp,3)
   INTEGER n
 
-  casabal%FCgppyear        = casabal%FCgppyear + casaflux%Cgpp   * deltpool
-  casabal%FCrpyear         = casabal%FCrpyear  + casaflux%Crp    * deltpool
-  casabal%FCrmleafyear(:)  = casabal%FCrmleafyear(:)  + casaflux%Crmplant(:,leaf)    * deltpool
-  casabal%FCrmwoodyear(:)  = casabal%FCrmwoodyear(:)  + casaflux%Crmplant(:,wood)    * deltpool
-  casabal%FCrmrootyear(:)  = casabal%FCrmrootyear(:)  + casaflux%Crmplant(:,froot)    * deltpool
-  casabal%FCrgrowyear      = casabal%FCrgrowyear  + casaflux%Crgplant              * deltpool
-  casabal%FCnppyear        = casabal%FCnppyear + casaflux%Cnpp   * deltpool
-  casabal%FCrsyear         = casabal%FCrsyear  + casaflux%Crsoil * deltpool
-  casabal%FCneeyear        = casabal%FCneeyear &
-                           + (casaflux%Cnpp-casaflux%Crsoil) * deltpool
+  casabal%FCgppyear = casabal%FCgppyear + casaflux%Cgpp   * deltpool
+  casabal%FCrpyear  = casabal%FCrpyear  + casaflux%Crp    * deltpool
+  casabal%FCnppyear = casabal%FCnppyear + casaflux%Cnpp   * deltpool
+  casabal%FCrsyear  = casabal%FCrsyear  + casaflux%Crsoil * deltpool
+  casabal%FCneeyear = casabal%FCneeyear &
+                    + (casaflux%Cnpp-casaflux%Crsoil) * deltpool
  
 !  DO n=1,3
 !    clitterinput(:,n)= clitterinput(:,n) + casaflux%kplant(:,n) * casapool%cplant(:,n) * deltpool
@@ -1069,11 +1027,11 @@ SUBROUTINE biogeochem(ktau,dels,idoy,veg,soil,casabiome,casapool,casaflux, &
 
   call casa_xnp(xnplimit,xNPuptake,veg,casabiome,casapool,casaflux,casamet)
 
-  call casa_xratesoil(xklitter,xksoil,veg,soil,casamet,casabiome)
+  call casa_xratesoil(xklitter,xksoil,veg,soil,casamet)
   call casa_coeffsoil(xklitter,xksoil,veg,soil,casabiome,casaflux,casamet)
 
   IF (icycle>1) THEN
-    call casa_xkN(xkNlimiting,casapool,casaflux,casamet,casabiome,veg)
+    call casa_xkN(xkNlimiting,casapool,casaflux,casamet,veg)
     DO j=1,mlitter
       casaflux%klitter(:,j) = casaflux%klitter(:,j)* xkNlimiting(:)
     ENDDO
@@ -1084,7 +1042,7 @@ SUBROUTINE biogeochem(ktau,dels,idoy,veg,soil,casabiome,casapool,casaflux, &
 
   call casa_delplant(veg,casabiome,casapool,casaflux,casamet)
 
-  call casa_delsoil(veg,casapool,casaflux,casamet,casabiome)
+  call casa_delsoil(veg,casapool,casaflux,casamet)
 
   call casa_cnpcycle(veg,casabiome,casapool,casaflux,casamet)
 
@@ -1097,10 +1055,11 @@ SUBROUTINE biogeochem(ktau,dels,idoy,veg,soil,casabiome,casapool,casaflux, &
   call casa_cnpflux(casaflux,casabal)
 
   ! for spinning up only
-  casapool%Nsoilmin = max(casapool%Nsoilmin,0.5)
-  casapool%Psoillab = max(casapool%Psoillab,0.1)
+  !casapool%Nsoilmin = max(casapool%Nsoilmin,0.5)
+  !casapool%Psoillab = max(casapool%Psoillab,0.1)
 
 
 
 END SUBROUTINE biogeochem
 
+End module casa_inout_mod

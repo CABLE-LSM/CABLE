@@ -1,14 +1,22 @@
 !==============================================================================
 ! This source code is part of the 
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
-! This work is licensed under the CSIRO Open Source Software License
-! Agreement (variation of the BSD / MIT License).
-! 
-! You may not use this file except in compliance with this License.
-! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located 
-! in each directory containing CABLE code.
+! This work is licensed under the CABLE Academic User Licence Agreement 
+! (the "Licence").
+! You may not use this file except in compliance with the Licence.
+! A copy of the Licence and registration form can be obtained from 
+! http://www.cawcr.gov.au/projects/access/cable
+! You need to register and read the Licence agreement before use.
+! Please contact cable_help@nf.nci.org.au for any questions on 
+! registration and the Licence.
 !
+! Unless required by applicable law or agreed to in writing, 
+! software distributed under the Licence is distributed on an "AS IS" BASIS,
+! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+! See the Licence for the specific language governing permissions and 
+! limitations under the Licence.
 ! ==============================================================================
+!
 ! Purpose: defines/allocates variables for CASA-CNP
 !
 ! Contact: Yingping.Wang@csiro.au
@@ -18,87 +26,6 @@
 !
 !
 ! ==============================================================================
-! casa_variable.f90
-!
-! the following modules are used when "casacnp" is coupled to "cable"
-!   casadimension
-!   casaparm
-!   casavariable with subroutine alloc_casavariable
-!   phenvariable with subroutine alloc_phenvariable
-
-MODULE casadimension
-   
-   USE cable_def_types_mod, ONLY : mp, r_2, mvtype, ms
-   
-   IMPLICIT NONE
-  
-
-  
-  INTEGER, PARAMETER :: mdyear=365         ! days per year
-  INTEGER, PARAMETER :: mdmonth=30         ! days per month
-  INTEGER, PARAMETER :: mdweek=7           ! days per week
-  INTEGER, PARAMETER :: mmyear=12          ! month per year
-  INTEGER, PARAMETER :: mt=36500           ! integration time step
-  INTEGER, PARAMETER :: mpftmax=2          ! max. PFT/cell
-  INTEGER, PARAMETER :: mplant = 3         ! plant pools
-  INTEGER, PARAMETER :: mlitter= 3         ! litter pools
-  INTEGER, PARAMETER :: msoil  = 3         ! soil pools
-  INTEGER, PARAMETER :: mso    = 12        ! soil order number
-! BP put icycle into namelist file
-  INTEGER            :: icycle
-!  INTEGER, PARAMETER :: icycle=3           ! =1 for C, =2 for C+N; =3 for C+N+P
-  INTEGER, PARAMETER :: mstart=1           ! starting time step
-  INTEGER, PARAMETER :: mphase=4           ! phen. phases
-  REAL(r_2),    PARAMETER :: deltcasa=1.0/365.0 ! year
-  REAL(r_2),    PARAMETER :: deltpool=1.0       ! pool delt(1day)
-
-END MODULE casadimension
-
-MODULE casaparm
-  USE casadimension
-
-  IMPLICIT NONE
-  INTEGER, PARAMETER :: initcasa= 1   ! =0 spin; 1 restart file
-  INTEGER, PARAMETER :: iceland  = 17 !=13 for casa vegtype =15 for IGBP vegtype
-  INTEGER, PARAMETER :: cropland = 9  ! 12 and 14 for IGBP vegtype 
-  INTEGER, PARAMETER :: croplnd2 =10  ! ditto
-  INTEGER, PARAMETER :: forest  = 3
-  INTEGER, PARAMETER :: shrub   = 2
-  INTEGER, PARAMETER :: grass   = 1
-  INTEGER, PARAMETER :: icewater= 0
-  INTEGER, PARAMETER :: LEAF    = 1
-  INTEGER, PARAMETER :: WOOD    = 2
-  INTEGER, PARAMETER :: FROOT   = 3
-!  INTEGER, PARAMETER :: LABILE  = 4
-  INTEGER, PARAMETER :: METB    = 1
-  INTEGER, PARAMETER :: STR     = 2
-  INTEGER, PARAMETER :: CWD     = 3
-  INTEGER, PARAMETER :: MIC     = 1
-  INTEGER, PARAMETER :: SLOW    = 2
-  INTEGER, PARAMETER :: PASS    = 3
-  INTEGER, PARAMETER :: PLAB    = 1
-  INTEGER, PARAMETER :: PSORB   = 2
-  INTEGER, PARAMETER :: POCC    = 3
-  INTEGER, PARAMETER :: LALLOC  = 0      !=0 constant; 1 variable
-  REAL(r_2), PARAMETER :: z30=0.3
-  REAL(r_2), PARAMETER :: R0=0.3
-  REAL(r_2), PARAMETER :: S0=0.3
-  REAL(r_2), PARAMETER :: fixed_stem=1.0/3.0
-  REAL(r_2), PARAMETER :: Q10alloc=2.0
-  REAL(r_2), PARAMETER :: ratioNCstrfix = 1.0/150.0
-  REAL(r_2), PARAMETER :: ratioPCstrfix = ratioNCstrfix/25.0
-  REAL(r_2), PARAMETER :: fracCbiomass = 0.50
-  REAL(r_2), PARAMETER :: tsoilrefc=25.0
-  REAL(r_2), PARAMETER :: tkzeroc=273.15
-  REAL(r_2), PARAMETER :: frootparma = 0.3192
-  REAL(r_2), PARAMETER :: frootparmb =-0.0485
-  REAL(r_2), PARAMETER :: frootparmc = 0.1755
-  REAL(r_2), PARAMETER :: xweightalloc = 0.2
-!  REAL(r_2), PARAMETER :: xkplab=0.5*deltcasa
-!  REAL(r_2), PARAMETER :: xkpsorb=0.01*deltcasa
-!  REAL(r_2), PARAMETER :: xkpocc =0.01*deltcasa
-END MODULE casaparm
-
 MODULE casavariable
   USE casadimension
   IMPLICIT NONE
@@ -119,20 +46,7 @@ MODULE casavariable
                                        kuptake,        &
                                        kminN,          &
                                        kuplabP,        &
-                                       kclabrate,      &
-                                       xnpmax,         &
-                                       q10soil,        &
-                                       xkoptlitter,    &
-                                       xkoptsoil,      &
-                                       xkplab,         &
-                                       xkpsorb,        &
-                                       xkpocc,         &
-                                       prodptase,      &
-                                       costnpup,       &
-                                       maxfinelitter,  &
-                                       maxcwd,         &             
-                                       nintercept,     &  
-                                       nslope             
+                                       kclabrate
 
     REAL(r_2), DIMENSION(:,:),POINTER :: plantrate,     &
                                        rmplant,         &
@@ -246,6 +160,8 @@ MODULE casavariable
     REAL(r_2), DIMENSION(:,:),POINTER    :: FluxNtosoil
     REAL(r_2), DIMENSION(:,:),POINTER    :: FluxPtosoil
     REAL(r_2), DIMENSION(:),POINTER      :: FluxCtoCO2
+    REAL(r_2), DIMENSION(:),POINTER      :: meangpp
+    REAL(r_2), DIMENSION(:),POINTER      :: meanrleaf 
   END TYPE casa_flux
 
   TYPE casa_met
@@ -267,8 +183,7 @@ MODULE casavariable
   END TYPE casa_met
 
   TYPE casa_balance
-    REAL(r_2), DIMENSION(:),POINTER   :: FCgppyear,FCnppyear,                 &
-            FCrmleafyear,FCrmwoodyear,FCrmrootyear,FCrgrowyear,               &
+    REAL(r_2), DIMENSION(:),POINTER   :: FCgppyear,FCnppyear,             &
             FCrpyear, FCrsyear,FCneeyear,                                     &
             FNdepyear,FNfixyear, FNsnetyear,FNupyear, FNleachyear,FNlossyear, &
             FPweayear,FPdustyear,FPsnetyear,FPupyear, FPleachyear,FPlossyear
@@ -337,19 +252,6 @@ SUBROUTINE alloc_casavariable(casabiome,casapool,casaflux,casamet, &
            casabiome%kminN(mvtype),                  &
            casabiome%KuplabP(mvtype),                &
            casabiome%kclabrate(mvtype),              &
-           casabiome%xnpmax(mvtype),                 &
-           casabiome%q10soil(mvtype),                &
-           casabiome%xkoptlitter(mvtype),            &
-           casabiome%xkoptsoil(mvtype),              &
-           casabiome%xkplab(mso),                    &
-           casabiome%xkpsorb(mso),                   &
-           casabiome%xkpocc(mso),                    &
-           casabiome%prodptase(mvtype),              &
-           casabiome%costnpup(mvtype),               &
-           casabiome%maxfinelitter(mvtype),          &
-           casabiome%maxcwd(mvtype),                 &
-           casabiome%nintercept(mvtype),             &
-           casabiome%nslope(mvtype),                 &
            casabiome%plantrate(mvtype,mplant),       &
            casabiome%rmplant(mvtype,mplant),         &
            casabiome%fracnpptoP(mvtype,mplant),      &
@@ -462,6 +364,9 @@ SUBROUTINE alloc_casavariable(casabiome,casapool,casaflux,casamet, &
 
   ALLOCATE(casaflux%FluxCtoco2(arraysize))
 
+  ALLOCATE(casaflux%meangpp(arraysize))
+  ALLOCATE(casaflux%meanrleaf(arraysize))
+
   ALLOCATE(casamet%glai(arraysize),                &
            casamet%lnonwood(arraysize),            &
            casamet%Tairk(arraysize),               &
@@ -481,10 +386,6 @@ SUBROUTINE alloc_casavariable(casabiome,casapool,casaflux,casamet, &
   ALLOCATE(casabal%FCgppyear(arraysize),           &
            casabal%FCnppyear(arraysize),           &
            casabal%FCrpyear(arraysize),            &
-           casabal%FCrmleafyear(arraysize),        &
-           casabal%FCrmwoodyear(arraysize),        &
-           casabal%FCrmrootyear(arraysize),        &
-           casabal%FCrgrowyear(arraysize),         &
            casabal%FCrsyear(arraysize),            &
            casabal%FCneeyear(arraysize),           &
            casabal%FNdepyear(arraysize),           &
@@ -529,31 +430,4 @@ SUBROUTINE alloc_casavariable(casabiome,casapool,casaflux,casamet, &
 END SUBROUTINE alloc_casavariable
 
 END MODULE casavariable
-
-
-MODULE phenvariable
-  USE casadimension
-  IMPLICIT NONE
-  TYPE phen_variable
-    INTEGER,   DIMENSION(:),  POINTER :: phase        
-    REAL(r_2), DIMENSION(:),  POINTER :: TKshed
-    INTEGER,   DIMENSION(:,:),POINTER :: doyphase
-  END type phen_variable
-
-CONTAINS
-
-SUBROUTINE alloc_phenvariable(phen,arraysize)
-!SUBROUTINE alloc_phenvariable(phen,arraysize,mvt)
-  IMPLICIT NONE
-  TYPE(phen_variable), INTENT(INOUT) :: phen
-  INTEGER,             INTENT(IN) :: arraysize
-!  INTEGER,        INTENT(IN) :: mvt
-
-  ALLOCATE(phen%Tkshed(mvtype))
-!  ALLOCATE(phen%Tkshed(mvt))
-  ALLOCATE(phen%phase(arraysize),         &
-           phen%doyphase(arraysize,mphase))
-END SUBROUTINE alloc_phenvariable
-
-End MODULE phenvariable
 

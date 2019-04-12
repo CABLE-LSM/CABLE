@@ -1,14 +1,22 @@
 !==============================================================================
 ! This source code is part of the 
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
-! This work is licensed under the CSIRO Open Source Software License
-! Agreement (variation of the BSD / MIT License).
-! 
-! You may not use this file except in compliance with this License.
-! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located 
-! in each directory containing CABLE code.
+! This work is licensed under the CABLE Academic User Licence Agreement 
+! (the "Licence").
+! You may not use this file except in compliance with the Licence.
+! A copy of the Licence and registration form can be obtained from 
+! http://www.cawcr.gov.au/projects/access/cable
+! You need to register and read the Licence agreement before use.
+! Please contact cable_help@nf.nci.org.au for any questions on 
+! registration and the Licence.
 !
+! Unless required by applicable law or agreed to in writing, 
+! software distributed under the Licence is distributed on an "AS IS" BASIS,
+! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+! See the Licence for the specific language governing permissions and 
+! limitations under the Licence.
 ! ==============================================================================
+!
 ! Purpose: Routines to read CABLE namelist, check variables, allocate and 
 !          deallocate CABLE arrays
 !
@@ -86,7 +94,7 @@ SUBROUTINE cable_um_runtime_vars(runtime_vars_file)
    USE cable_common_module, ONLY : cable_runtime, cable_user, filename,        &
                                    cable_user, knode_gl, redistrb, wiltParam,  &
                                    satuParam, l_casacnp, l_laiFeedbk,          &
-                                   l_vcmaxFeedbk
+                                   l_vcmaxFeedbk, l_luc, l_thinforest
    USE casavariable, ONLY : casafile
    USE casadimension, ONLY : icycle
 
@@ -95,7 +103,8 @@ SUBROUTINE cable_um_runtime_vars(runtime_vars_file)
    INTEGER :: funit=88
    
    !--- namelist for CABLE runtime vars, files, switches 
-   NAMELIST/CABLE/filename, l_casacnp, l_laiFeedbk, l_vcmaxFeedbk, icycle,   &
+   NAMELIST/CABLE/filename, l_thinforest, l_luc, l_casacnp, l_laiFeedbk, &
+                  l_vcmaxFeedbk, icycle,   &
                   casafile, cable_user, redistrb, wiltParam, satuParam
 
       !--- assume namelist exists. no iostatus check 

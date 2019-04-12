@@ -1,14 +1,22 @@
 !==============================================================================
 ! This source code is part of the 
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
-! This work is licensed under the CSIRO Open Source Software License
-! Agreement (variation of the BSD / MIT License).
-! 
-! You may not use this file except in compliance with this License.
-! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located 
-! in each directory containing CABLE code.
+! This work is licensed under the CABLE Academic User Licence Agreement 
+! (the "Licence").
+! You may not use this file except in compliance with the Licence.
+! A copy of the Licence and registration form can be obtained from 
+! http://www.cawcr.gov.au/projects/access/cable
+! You need to register and read the Licence agreement before use.
+! Please contact cable_help@nf.nci.org.au for any questions on 
+! registration and the Licence.
 !
+! Unless required by applicable law or agreed to in writing, 
+! software distributed under the Licence is distributed on an "AS IS" BASIS,
+! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+! See the Licence for the specific language governing permissions and 
+! limitations under the Licence.
 ! ==============================================================================
+!
 ! Purpose: Updates CABLE variables (as altered by first pass through boundary 
 !          layer and convection scheme), calls cbm, passes CABLE variables back 
 !          to UM. 'Implicit' is the second call to cbm in each UM timestep.
@@ -42,8 +50,11 @@ subroutine cable_implicit_driver( LS_RAIN, CON_RAIN, LS_SNOW, CONV_SNOW,       &
                                   DIM_CS2, NPP, NPP_FT, GPP, GPP_FT, RESP_S,   &
                                   RESP_S_TOT, RESP_S_TILE, RESP_P, RESP_P_FT,  &
                                   G_LEAF, TRANSP_TILE, CPOOL_TILE, NPOOL_TILE, &
-                                  PPOOL_TILE, GLAI, PHENPHASE, NPP_FT_ACC,     &
-                                  RESP_W_FT_ACC, idoy )
+                                  PPOOL_TILE, GLAI, PHENPHASE,  &
+                                  !WOOD_HVEST_C,WOOD_HVEST_N,WOOD_HVEST_P,      &
+                                  !WOOD_FLUX_C,WOOD_FLUX_N,WOOD_FLUX_P,         &
+                                  !WRESP_C,WRESP_N,WRESP_P,THINNING,            &
+                                  NPP_FT_ACC,RESP_W_FT_ACC,RESP_S_ACC,idoy )
 
    USE cable_def_types_mod, ONLY : mp
    USE cable_data_module,   ONLY : PHYS
@@ -58,7 +69,8 @@ subroutine cable_implicit_driver( LS_RAIN, CON_RAIN, LS_SNOW, CONV_SNOW,       &
    USE casavariable
    USE phenvariable
    USE casa_types_mod
-   !USE casa_cable
+   USE bgcdriver_mod, ONLY : bgcdriver
+   USE sumcflux_mod, ONLY : sumcflux
    USE casa_um_inout_mod
 
    IMPLICIT NONE
@@ -187,14 +199,27 @@ subroutine cable_implicit_driver( LS_RAIN, CON_RAIN, LS_SNOW, CONV_SNOW,       &
    REAL, DIMENSION(um1%LAND_PTS,um1%NTILES,12) ::                              &
       PPOOL_TILE
    REAL, DIMENSION(um1%LAND_PTS,um1%NTILES) ::                                 &
-      GLAI, &
+      GLAI,       &
    !INTEGER, DIMENSION(um1%LAND_PTS,um1%NTILES) ::                              &
-      PHENPHASE
+      PHENPHASE!,  &
+      !WOOD_FLUX_C,&
+      !WOOD_FLUX_N,&
+      !WOOD_FLUX_P,&
+      !THINNING
+
+   !REAL, DIMENSION(um1%LAND_PTS,um1%NTILES,3) ::                                 &
+   !   WOOD_HVEST_C,&
+   !   WOOD_HVEST_N,&
+   !   WOOD_HVEST_P!,&
+      !WRESP_C,&
+      !WRESP_N,&
+      !WRESP_P
 
    ! Lestevens 23apr13
    REAL, DIMENSION(um1%LAND_PTS,um1%NTILES) ::                                 &
       NPP_FT_ACC, &
-      RESP_W_FT_ACC
+      RESP_W_FT_ACC, &
+      RESP_S_ACC
 
    INTEGER ::     &
       ktauday,    &  ! day counter for CASA-CNP
@@ -277,7 +302,7 @@ subroutine cable_implicit_driver( LS_RAIN, CON_RAIN, LS_SNOW, CONV_SNOW,       &
                             Q1P5M_TILE, CANOPY_GB, FLAND, MELT_TILE, DIM_CS1,  &
                             DIM_CS2, NPP, NPP_FT, GPP, GPP_FT, RESP_S,         &
                             RESP_S_TOT, RESP_S_TILE, RESP_P, RESP_P_FT, G_LEAF,& 
-                            TRANSP_TILE, NPP_FT_ACC, RESP_W_FT_ACC )
+                            TRANSP_TILE, NPP_FT_ACC, RESP_W_FT_ACC, RESP_S_ACC)
 
 ! Lestevens Sept2012 - Call CASA-CNP
       if (l_casacnp) then
@@ -317,12 +342,13 @@ SUBROUTINE implicit_unpack( TSOIL, TSOIL_TILE, SMCL, SMCL_TILE,                &
                             Q1P5M_TILE, CANOPY_GB, FLAND, MELT_TILE, DIM_CS1,  &
                             DIM_CS2, NPP, NPP_FT, GPP, GPP_FT, RESP_S,         &
                             RESP_S_TOT, RESP_S_TILE, RESP_P, RESP_P_FT, G_LEAF,&
-                            TRANSP_TILE, NPP_FT_ACC, RESP_W_FT_ACC )
+                            TRANSP_TILE, NPP_FT_ACC, RESP_W_FT_ACC, RESP_S_ACC)
  
    USE cable_def_types_mod, ONLY : mp
    USE cable_data_module,   ONLY : PHYS
    USE cable_um_tech_mod,   ONLY : um1 ,canopy, rad, soil, ssnow, air
    USE cable_common_module, ONLY : cable_runtime, cable_user
+   USE casa_types_mod
    IMPLICIT NONE
  
    !jhan:these need to be cleaned out to what is actualllly passed
@@ -410,8 +436,9 @@ SUBROUTINE implicit_unpack( TSOIL, TSOIL_TILE, SMCL, SMCL_TILE,                &
    ! Lestevens 23apr13
    REAL, DIMENSION(um1%land_pts,um1%ntiles) ::                                 &
       NPP_FT_ACC,    & ! sresp for CASA-CNP
-      RESP_W_FT_ACC    ! presp for CASA-CNP
-   
+      RESP_W_FT_ACC, & ! presp for CASA-CNP
+      RESP_S_ACC       ! NPP for CASA-CNP   
+
    REAL, DIMENSION(um1%land_pts,um1%ntiles) ::                                 &
       SNOW_TILE,     & !
       SNOW_RHO1L,    & ! Mean snow density
@@ -553,20 +580,32 @@ SUBROUTINE implicit_unpack( TSOIL, TSOIL_TILE, SMCL, SMCL_TILE,                &
      CANOPY_GB      = SUM(um1%TILE_FRAC * CANOPY_TILE,2)
 
      ! Lestevens - Passing CO2 from CABLE to bl_trmix_dd.F90
-     FRS_TILE       = UNPACK(canopy%frs, um1%L_TILE_PTS, miss)
-     NEE_TILE       = UNPACK(canopy%fnee, um1%L_TILE_PTS, miss)
-     NPP_TILE       = UNPACK(canopy%fnpp, um1%L_TILE_PTS, miss)
-     GLEAF_TILE     = UNPACK(canopy%frday,um1%L_TILE_PTS, miss)
+!     FRS_TILE       = UNPACK(canopy%frs, um1%L_TILE_PTS, miss)
+!     NEE_TILE       = UNPACK(canopy%fnee, um1%L_TILE_PTS, miss)
+!     NPP_TILE       = UNPACK(canopy%fnpp, um1%L_TILE_PTS, miss)
+!     GLEAF_TILE     = UNPACK(canopy%frday,um1%L_TILE_PTS, miss)
 
-      IF( cable_user%leaf_respiration == 'on' .OR.                             &
-           cable_user%leaf_respiration == 'ON') THEN
-         GPP_TILE = UNPACK(canopy%fnpp+canopy%frp, um1%L_TILE_PTS, miss)
-      ELSE 
-         GPP_TILE = UNPACK(canopy%fnpp+canopy%frp+canopy%frday,  &
-                            um1%L_TILE_PTS, miss)
-      ENDIF
+! TZ: output casa fluxes instead of canopy fluxes
+     FRS_TILE    = UNPACK((casaflux%crsoil)/86400.0, um1%L_TILE_PTS, miss)
+     NPP_TILE    = UNPACK((casaflux%cnpp)/86400.0, um1%L_TILE_PTS, miss)
+     NEE_TILE    = UNPACK((casaflux%crsoil-casaflux%cnpp)/86400.0, um1%L_TILE_PTS, miss)
+     GLEAF_TILE  = UNPACK((casaflux%crmplant(:,1))/86400.0, um1%L_TILE_PTS, miss)
+     FRP_TILE    = UNPACK((casaflux%crmplant(:,2)+casaflux%crmplant(:,3)+casaflux%crgplant)/86400.0, um1%L_TILE_PTS, miss)
+     IF( cable_user%leaf_respiration == 'on' .OR. cable_user%leaf_respiration == 'ON') THEN
+        GPP_TILE = UNPACK((casaflux%cnpp+casaflux%crmplant(:,2)+casaflux%crmplant(:,3)+casaflux%crgplant)/86400.0, um1%L_TILE_PTS, miss)
+     ELSE  
+        GPP_TILE = UNPACK((casaflux%cnpp+casaflux%crmplant(:,1)+casaflux%crmplant(:,2)+casaflux%crmplant(:,3)+casaflux%crgplant)/86400.0, um1%L_TILE_PTS, miss)
+     ENDIF
 
-     FRP_TILE       = UNPACK(canopy%frp, um1%L_TILE_PTS, miss)
+!      IF( cable_user%leaf_respiration == 'on' .OR.                             &
+!           cable_user%leaf_respiration == 'ON') THEN
+!         GPP_TILE = UNPACK(canopy%fnpp+canopy%frp, um1%L_TILE_PTS, miss)
+!      ELSE 
+!         GPP_TILE = UNPACK(canopy%fnpp+canopy%frp+canopy%frday,  &
+!                            um1%L_TILE_PTS, miss)
+!      ENDIF
+
+!     FRP_TILE       = UNPACK(canopy%frp, um1%L_TILE_PTS, miss)
      NPP_FT_old     = NPP_FT
      GPP_FT_old     = GPP_FT
      RESP_P_FT_old  = RESP_P_FT
@@ -633,6 +672,7 @@ SUBROUTINE implicit_unpack( TSOIL, TSOIL_TILE, SMCL, SMCL_TILE,                &
            !---convert units to kg C m-2 s-1
            NPP_FT_ACC(L,N)    = FRS_TILE(L,N)*1.e-3
            RESP_W_FT_ACC(L,N) = FRP_TILE(L,N)*1.e-3
+           RESP_S_ACC(L,N) = NPP_TILE(L,N)*1.e-3
         ENDDO
      ENDDO
 

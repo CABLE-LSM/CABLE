@@ -1,14 +1,22 @@
 !==============================================================================
 ! This source code is part of the 
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
-! This work is licensed under the CSIRO Open Source Software License
-! Agreement (variation of the BSD / MIT License).
-! 
-! You may not use this file except in compliance with this License.
-! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located 
-! in each directory containing CABLE code.
+! This work is licensed under the CABLE Academic User Licence Agreement 
+! (the "Licence").
+! You may not use this file except in compliance with the Licence.
+! A copy of the Licence and registration form can be obtained from 
+! http://www.cawcr.gov.au/projects/access/cable
+! You need to register and read the Licence agreement before use.
+! Please contact cable_help@nf.nci.org.au for any questions on 
+! registration and the Licence.
 !
+! Unless required by applicable law or agreed to in writing, 
+! software distributed under the Licence is distributed on an "AS IS" BASIS,
+! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+! See the Licence for the specific language governing permissions and 
+! limitations under the Licence.
 ! ==============================================================================
+!
 ! Purpose: Passes UM variables to CABLE, calls cbm, passes CABLE variables 
 !          back to UM. 'Explicit' is the first of two routines that call cbm at 
 !          different parts of the UM timestep.
@@ -48,8 +56,12 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
                                   Z0M_TILE, RECIP_L_MO_TILE, EPOT_TILE,        &
                                   CPOOL_TILE, NPOOL_TILE, PPOOL_TILE,          &
                                   SOIL_ORDER, NIDEP, NIFIX, PWEA, PDUST,       &
-                                  GLAI, PHENPHASE, NPP_FT_ACC, RESP_W_FT_ACC,  &
-                                  endstep, timestep_number, mype )    
+                                  GLAI, PHENPHASE, PREV_YR_SFRAC,              &
+                                  WOOD_HVEST_C,WOOD_HVEST_n,WOOD_HVEST_p,      &
+                                  WOOD_FLUX_C,WOOD_FLUX_n,WOOD_FLUX_p,         &
+                                  WRESP_C,WRESP_n,WRESP_p,THINNING,            &
+                                  NPP_FT_ACC, RESP_W_FT_ACC, RESP_S_ACC,       &
+                                  iday, endstep, timestep_number, mype )    
    
    !--- reads runtime and user switches and reports
    USE cable_um_tech_mod, ONLY : cable_um_runtime_vars, air, bgc, canopy,      &
@@ -59,7 +71,7 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
    USE cable_common_module, ONLY : cable_runtime, cable_user, ktau_gl,         &
                                    knode_gl, kwidth_gl, kend_gl,               &
                                    report_version_no,                          & 
-                                   l_vcmaxFeedbk, l_laiFeedbk
+                                   l_vcmaxFeedbk, l_laiFeedbk,l_luc
    
    !--- subr to (manage)interface UM data to CABLE
    USE cable_um_init_mod, ONLY : interface_UM_data
@@ -67,13 +79,15 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
    !--- subr to call CABLE model
    USE cable_cbm_module, ONLY : cbm
 
-   USE cable_def_types_mod, ONLY : mp, ms, ssnow, rough, canopy, air, rad,     &
-                                   met
+   USE cable_def_types_mod, ONLY : mp
 
    !--- include subr called to write data for testing purposes 
    USE cable_diag_module
+   USE casa_um_inout_mod
    USE casavariable
    USE casa_types_mod
+
+  USE feedback_mod
 
    IMPLICIT NONE
  
@@ -97,7 +111,7 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
    ! # of land points on each tile
    INTEGER, INTENT(IN), DIMENSION(ntiles) :: tile_pts 
    
-   INTEGER, INTENT(IN), DIMENSION(land_pts, ntiles) ::                         & 
+   INTEGER, INTENT(INOUT), DIMENSION(land_pts, ntiles) ::                         & 
       tile_index ,& ! index of tile points being processed
       isnow_flg3l   ! 3 layer snow flag
 
@@ -125,10 +139,8 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
       sw_down,          & 
       cos_zenith_angle
    
-   REAL, INTENT(INOUT), DIMENSION(row_length,rows) ::                             &
-      latitude
-   
    REAL, INTENT(IN), DIMENSION(row_length,rows) ::                             &
+      latitude,   &
       longitude,  &
       lw_down,    &
       ls_rain,    &
@@ -143,7 +155,7 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
    REAL, INTENT(INOUT), DIMENSION(land_pts, ntiles) ::                         &
       snow_tile
 
-   REAL, INTENT(IN), DIMENSION(land_pts, ntiles) ::                            &
+   REAL, INTENT(INOUT), DIMENSION(land_pts, ntiles) ::                            &
       tile_frac,  &    
       snow_rho1l, &
       snage_tile
@@ -154,13 +166,13 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
    REAL, INTENT(IN), DIMENSION(land_pts, npft) ::                              &
       canht_ft, lai_ft 
    
-   REAL, INTENT(IN),DIMENSION(land_pts, ntiles) ::                             &
+   REAL, INTENT(INOUT),DIMENSION(land_pts, ntiles) ::                             &
       canopy_tile
    
    REAL, INTENT(INOUT), DIMENSION(land_pts, ntiles,3) ::                       &
       snow_cond
    
-   REAL, INTENT(IN), DIMENSION(land_pts, ntiles,3) ::                          &
+   REAL, INTENT(INOUT), DIMENSION(land_pts, ntiles,3) ::                          &
       snow_rho3l,    &
       snow_depth3l,  &
       snow_mass3l,   &
@@ -169,7 +181,7 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
    REAL, INTENT(IN), DIMENSION(land_pts, sm_levels) ::                         &
       sthu 
    
-   REAL, INTENT(IN), DIMENSION(land_pts, ntiles, sm_levels) :: & 
+   REAL, INTENT(INOUT), DIMENSION(land_pts, ntiles, sm_levels) :: & 
       sthu_tile, &
       sthf_tile, &
       smcl_tile, &
@@ -223,10 +235,11 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
       U_S_CAB     ! Surface friction velocity (m/s)
 
    ! end step of experiment, this step, step width, processor num
-   INTEGER, INTENT(IN) :: endstep, timestep_number, mype
+   INTEGER, INTENT(IN) :: endstep, timestep_number, mype, iday
    REAL, INTENT(IN) ::  timestep     
    
    INTEGER:: itimestep
+   INTEGER:: mtau
     
    !___return miscelaneous 
    REAL, INTENT(OUT), DIMENSION(land_pts,ntiles) :: &
@@ -256,12 +269,26 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
       PDUST            ! Phosphorus from Dust
 
    REAL, INTENT(INOUT), DIMENSION(land_pts,ntiles) :: &
-      GLAI, &          ! Leaf Area Index for Prognostics LAI
-      PHENPHASE        ! Phenology Phase for Casa-CNP
+      GLAI,         &    ! Leaf Area Index for Prognostics LAI
+      PHENPHASE,    &    ! Phenology Phase for Casa-CNP
+      PREV_YR_SFRAC,&    ! user_anc1, previous years surface fractions
+      WOOD_FLUX_C,  &
+      WOOD_FLUX_N,  &
+      WOOD_FLUX_P,  &
+      THINNING
+
+   REAL, INTENT(INOUT), DIMENSION(land_pts,ntiles,3) :: &
+      WOOD_HVEST_C,&
+      WOOD_HVEST_N,&
+      WOOD_HVEST_P,&
+      WRESP_C,&
+      WRESP_N,&
+      WRESP_P
                                   
    REAL, INTENT(INOUT), DIMENSION(land_pts,ntiles) :: &
       NPP_FT_ACC,     &
-      RESP_W_FT_ACC
+      RESP_W_FT_ACC,  &
+      RESP_S_ACC  
      
    !-------------------------------------------------------------------------- 
    !--- end INPUT ARGS FROM sf_exch() ----------------------------------------
@@ -269,7 +296,6 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
    
 
 
-   
    !___ declare local vars 
    
    !___ location of namelist file defining runtime vars
@@ -280,23 +306,8 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
    !___ 1st call in RUN (!=ktau_gl -see below) 
    LOGICAL, SAVE :: first_cable_call = .TRUE.
  
-   !___ unique unit/file identifiers for cable_diag: arbitrarily 5 here 
-   INTEGER, SAVE :: iDiagZero=0, iDiag1=0, iDiag2=0, iDiag3=0, iDiag4=0
 
-
-   ! Vars for standard for quasi-bitwise reproducability b/n runs
-   ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
-   CHARACTER(len=30), PARAMETER ::                                             &
-      Ftrunk_sumbal  = ".trunk_sumbal",                                        &
-      Fnew_sumbal    = "new_sumbal"
-
-   DOUBLE PRECISION, save ::                                                         &
-      trunk_sumbal = 0.0, & !
-      new_sumbal = 0.0
-
-   INTEGER :: ioerror=0
-
-   ! END header
+   
 
    !--- initialize cable_runtime% switches 
    IF(first_cable_call) THEN
@@ -305,23 +316,23 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
       write(6,*) "CABLE_log"
       CALL report_version_no(6) ! wriite revision number to stdout(6)
    ENDIF
+   
+write(6,*) "jhan:ESM1.5 test SB,BW 2"
       
    !--- basic info from global model passed to cable_common_module 
    !--- vars so don't need to be passed around, just USE _module
    ktau_gl = timestep_number     !timestep of EXPERIMENT not necesarily 
                                  !the same as timestep of particular RUN
    knode_gl = mype               !which processor am i on?
-   itimestep = INT(timestep)    !realize for 'call cbm' pass
-   kwidth_gl = itimestep          !width of timestep (secs)
+   itimestep = INT(timestep)     !realize for 'call cbm' pass
+   kwidth_gl = itimestep         !width of timestep (secs)
    kend_gl = endstep             !timestep of EXPERIMENT not necesarily 
 
    !--- internal FLAGS def. specific call of CABLE from UM
    !--- from cable_common_module
    cable_runtime%um_explicit = .TRUE.
-   
-   !--- UM7.3 latitude is not passed correctly. hack 
-   IF(first_cable_call) latitude = sin_theta_latitude
 
+   
    !--- user FLAGS, variables etc def. in cable.nml is read on 
    !--- first time step of each run. these variables are read at 
    !--- runtime and for the most part do not require a model rebuild.
@@ -329,19 +340,28 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
       CALL cable_um_runtime_vars(runtime_vars_file) 
       first_cable_call = .FALSE.
    ENDIF      
+   
 
-   ! Open, read and close the consistency check file.
-   ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
-   IF(cable_user%consistency_check) THEN 
-      OPEN( 11, FILE = Ftrunk_sumbal,STATUS='old',ACTION='READ',IOSTAT=ioerror )
-         IF(ioerror==0) then
-            READ( 11, * ) trunk_sumbal  ! written by previous trunk version
-         ENDIF
-      CLOSE(11)
-   ENDIF
-
-
-
+  mtau = mod(ktau_gl,int(24.*3600./timestep))
+  if (l_luc .and. iday==1 .and. mtau==1) then
+   ! resdistr(frac,in,out) - Lestevens 10oct17
+   call redistr_luc(PREV_YR_SFRAC,tsoil_tile   ,tsoil_tile)   ! ssnow%tgg
+   call redistr_luc(PREV_YR_SFRAC,smcl_tile    ,smcl_tile)    ! ssnow%wb
+   call redistr_luc(PREV_YR_SFRAC,sthf_tile    ,sthf_tile)    ! ssnow%wbice
+   call redistr_luc(PREV_YR_SFRAC,snow_depth3L ,snow_depth3l) ! ssnow%sdepth
+   call redistr_luc(PREV_YR_SFRAC,snow_mass3L  ,snow_mass3l)  ! ssnow%smass
+   call redistr_luc(PREV_YR_SFRAC,snow_tmp3L   ,snow_tmp3l)   ! ssnow%tggsn
+   call redistr_luc(PREV_YR_SFRAC,snow_rho3L   ,snow_rho3l)   ! ssnow%ssdn
+   call redistr_luc(PREV_YR_SFRAC,snow_rho1l   ,snow_rho1l)   ! ssnow%ssdnn
+   call redistr_luc(PREV_YR_SFRAC,snage_tile   ,snage_tile)   ! ssnow%snage
+   !call redistr_luc_i(PREV_YR_SFRAC,isnow_flg3l  ,isnow_flg3l)  ! ssnow%isflag
+   call redistr_luc(PREV_YR_SFRAC,snow_tile    ,snow_tile)    ! ssnow%snowd
+   call redistr_luc(PREV_YR_SFRAC,snow_cond    ,snow_cond)    ! scond
+   call redistr_luc(PREV_YR_SFRAC,canopy_tile  ,canopy_tile)  ! canopy%oldcansto
+   call redistr_luc(PREV_YR_SFRAC,npp_ft_acc   ,npp_ft_acc)   ! frs
+   call redistr_luc(PREV_YR_SFRAC,resp_w_ft_acc,resp_w_ft_acc)! frp
+   call redistr_luc(PREV_YR_SFRAC,resp_s_acc,resp_s_acc)! npp
+  endif
 
    !---------------------------------------------------------------------!
    !--- initialize CABLE using UM forcings etc. these args are passed ---!
@@ -364,7 +384,11 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
                            sin_theta_latitude, dzsoil,                         &
                            CPOOL_TILE, NPOOL_TILE, PPOOL_TILE, SOIL_ORDER,     &
                            NIDEP, NIFIX, PWEA, PDUST, GLAI, PHENPHASE,         &
-                           NPP_FT_ACC,RESP_W_FT_ACC )
+                           WOOD_HVEST_C,WOOD_HVEST_N,WOOD_HVEST_P,             &
+                           WOOD_FLUX_C,WOOD_FLUX_N,WOOD_FLUX_P,                &
+                           WRESP_C,WRESP_N,WRESP_P, THINNING,                  &
+                           PREV_YR_SFRAC,NPP_FT_ACC,RESP_W_FT_ACC,RESP_S_ACC,  &
+                           iday )
 
    !---------------------------------------------------------------------!
    !--- Feedback prognostic vcmax and daily LAI from casaCNP to CABLE ---!
@@ -382,42 +406,11 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
    CALL cbm( timestep, air, bgc, canopy, met, bal,                             &
              rad, rough, soil, ssnow, sum_flux, veg )
 
-   !---------------------------------------------------------------------!
-   ! Check this run against standard for quasi-bitwise reproducability   !  
-   ! Check triggered by cable_user%consistency_check=.TRUE. in cable.nml !
-   !---------------------------------------------------------------------!
-   IF(cable_user%consistency_check) THEN 
-         
-      IF( knode_gl==1 ) &
-         new_sumbal = new_sumbal + ( SUM(canopy%fe) + SUM(canopy%fh)           &
-                    + SUM(ssnow%wb(:,1)) + SUM(ssnow%tgg(:,1)) )
-     
-      IF( knode_gl==1 .and. ktau_gl==kend_gl ) then 
-         
-         IF( abs(new_sumbal-trunk_sumbal) < 1.e-7 ) THEN
-   
-            print *, ""
-            print *, &
-            "Internal check shows this version reproduces the trunk sumbal"
-         
-         ELSE
-   
-            print *, ""
-            print *, &
-            "Internal check shows in this version new_sumbal != trunk sumbal"
-            print *, "The difference is: ", new_sumbal - trunk_sumbal
-            print *, &
-            "Writing new_sumbal to the file:", TRIM(Fnew_sumbal)
-                  
-            OPEN( 12, FILE = Fnew_sumbal )
-               WRITE( 12, '(F20.7)' ) new_sumbal  ! written by previous trunk version
-            CLOSE(12)
-         
-         ENDIF   
-      
-      ENDIF   
-   
-   ENDIF
+! output CO2_MMR value used in CABLE (passed from UM)
+  if ( (knode_gl.eq.1) .and. (ktau_gl.eq.1) ) then
+        write(6,*) 'CO2_MMR in CABLE: ',  met%ca(1)*44./28.966
+  end if
+
 
 
    !---------------------------------------------------------------------!
@@ -439,7 +432,7 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
 
    ! dump bitwise reproducible testing data
    IF( cable_user%RUN_DIAG_LEVEL == 'zero')                                    &
-      call cable_diag( iDiagZero, "FLUXES", mp, kend_gl, ktau_gl, knode_gl,            &
+      call cable_diag( 1, "FLUXES", mp, kend_gl, ktau_gl, knode_gl,            &
                           "FLUXES", canopy%fe + canopy%fh )
                 
 
