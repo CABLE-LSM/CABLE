@@ -41,6 +41,7 @@ MODULE cable_input_module
    USE cable_def_types_mod
    USE casadimension,     ONLY: icycle
    USE casavariable
+  USE casa_inout_mod
    USE phenvariable
    USE cable_param_module
    USE cable_checks_module,     ONLY: ranges, rh_sh

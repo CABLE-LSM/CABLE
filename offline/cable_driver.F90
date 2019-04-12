@@ -81,7 +81,9 @@ PROGRAM cable_offline_driver
    USE casavariable,        ONLY: casafile, casa_biome, casa_pool, casa_flux,  &
                                   casa_met, casa_balance
    USE phenvariable,        ONLY: phen_variable
+  USE casa_inout_mod
 
+use bgcdriver_mod, ONLY : bgcdriver
    IMPLICIT NONE
    
    ! CABLE namelist: model configuration, runtime/user switches 

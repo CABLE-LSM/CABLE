@@ -28,7 +28,7 @@
 ##########################################################################
                
 # these are all the files we are compiling
-LSRC = cable_data.F90 cable_diag.F90 cable_common.F90 cable_define_types.F90 cable_iovars.F90 cable_abort.F90 casa_variable.F90 cable_parameters.F90 cable_soilsnow.F90 cable_air.F90 cable_albedo.F90 cable_radiation.F90 cable_roughness.F90 cable_carbon.F90 cable_canopy.F90 cable_cbm.F90 cable_checks.F90 cable_read.F90 cable_initialise.F90 cable_input.F90 cable_write.F90 cable_output.F90 casa_cnp.F90 casa_cable.F90 casa_inout.F90 cable_driver.F90 
+LSRC = cable_data.F90 cable_diag.F90 cable_common.F90 cable_define_types.F90 cable_iovars.F90 cable_abort.F90 cable_parameters.F90 cable_soilsnow.F90 cable_air.F90 cable_albedo.F90 cable_radiation.F90 cable_roughness.F90 cable_carbon.F90 cable_canopy.F90 cable_cbm.F90 cable_checks.F90 cable_read.F90 cable_initialise.F90 cable_input.F90 cable_write.F90 cable_output.F90 casa_bgcdriver.F90  casa_cnp.F90  casa_dimension.F90  casa_feedback.F90  casa_inout.F90  casa_landuse.F90  casa_parm.F90  casa_phenvar.F90 casa_sumcflux.F90  casa_types.F90 casa_variable.F90  cable_driver.F90
 
 # this is the executable we are building
 PROG = cable
@@ -74,7 +74,7 @@ cable_cbm.o: cable_cbm.F90 cable_carbon.o cable_soilsnow.o cable_canopy.o cable_
 
 cable_checks.o: cable_checks.F90 cable_radiation.o cable_common.o
 
-cable_driver.o: cable_driver.F90 cable_output.o cable_iovars.o cable_cbm.o cable_diag.o   casa_variable.o casa_cable.o casa_cnp.o casa_inout.o cable_input.o cable_common.o cable_data.o
+cable_driver.o: cable_driver.F90 cable_output.o cable_iovars.o cable_cbm.o cable_diag.o   casa_variable.o casa_cnp.o casa_inout.o cable_input.o cable_common.o cable_data.o casa_bgcdriver.o
 
 cable_define_types.o: cable_define_types.F90
 
@@ -86,11 +86,11 @@ cable_initialise.o: cable_initialise.F90 cable_read.o cable_iovars.o cable_abort
 
 cable_write.o: cable_write.F90 cable_iovars.o cable_abort.o cable_define_types.o 
 
-cable_input.o: cable_input.F90 cable_checks.o cable_abort.o cable_read.o cable_initialise.o cable_radiation.o cable_parameters.o cable_common.o
+cable_input.o: cable_input.F90 cable_checks.o cable_abort.o cable_read.o cable_initialise.o cable_radiation.o cable_parameters.o cable_common.o casa_bgcdriver.o
 
 cable_output.o: cable_output.F90 cable_abort.o cable_checks.o cable_write.o cable_common.o
 
-cable_parameters.o: cable_parameters.F90 cable_define_types.o cable_iovars.o cable_abort.o casa_variable.o cable_common.o
+cable_parameters.o: cable_parameters.F90 cable_define_types.o cable_iovars.o cable_abort.o casa_variable.o cable_common.o casa_dimension.o
 
 cable_radiation.o: cable_radiation.F90 cable_define_types.o cable_common.o cable_data.o 
 
@@ -98,11 +98,17 @@ cable_roughness.o: cable_roughness.F90 cable_define_types.o cable_common.o cable
 
 cable_soilsnow.o: cable_soilsnow.F90 cable_iovars.o cable_define_types.o cable_common.o cable_data.o
 
-casa_variable.o: casa_variable.F90 
+casa_dimension.o: casa_dimension.F90 
 
-casa_cable.o: casa_cable.F90 cable_define_types.o  cable_carbon.o casa_variable.o 
+casa_variable.o: casa_variable.F90 casa_dimension.o
 
-casa_cnp.o: casa_cnp.F90 cable_define_types.o  casa_variable.o 
+casa_phenvar.o: casa_phenvar.F90
+
+casa_parm.o: casa_parm.F90
+
+casa_cnp.o: casa_cnp.F90 cable_define_types.o  casa_variable.o casa_parm.o casa_phenvar.o
+
+casa_bgcdriver.o: casa_bgcdriver.F90  casa_feedback.o casa_inout.o casa_landuse.o casa_parm.o casa_phenvar.o casa_sumcflux.o  casa_types.o casa_variable.o casa_cnp.o casa_dimension.o
 
 casa_inout.o: casa_inout.F90 cable_define_types.o  cable_iovars.o casa_variable.o casa_cnp.o
 
