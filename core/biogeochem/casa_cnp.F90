@@ -1263,6 +1263,10 @@ SUBROUTINE casa_delplant(veg,casabiome,casapool,casaflux,casamet,            &
 
   casaflux%fluxCtoCO2_plant_fire = 0.0
   casaflux%fluxNtoAtm_fire = 0.0
+  
+  casaflux%FluxFromPtoL = 0.0
+  casaflux%FluxFromPtoCO2 = 0.0
+  
 
   ! added by ypwang following Chris Lu 5/nov/2012
 
@@ -1383,12 +1387,31 @@ SUBROUTINE casa_delplant(veg,casabiome,casapool,casaflux,casamet,            &
                 casapool%cplant(npt,nP) * &
                 (1. - casaflux%fromPtoL_fire(npt,metb,nP) - &
                 casaflux%fromPtoL_fire(npt,str,nP) - &
-                 casaflux%fromPtoL_fire(npt,cwd,nP))
+                casaflux%fromPtoL_fire(npt,cwd,nP))
+
+           casaflux%FluxFromPtoCO2(npt,nP) = (1. - casaflux%kplant(npt,nP))*casaflux%kplant_fire(npt,nP)  *  &
+                casapool%cplant(npt,nP) * &
+                (1. - casaflux%fromPtoL_fire(npt,metb,nP) - &
+                casaflux%fromPtoL_fire(npt,str,nP) - &
+                casaflux%fromPtoL_fire(npt,cwd,nP))
         ENDDO
 
         ! Crop Harvest Flux
         casaflux%Charvest(npt) = casaflux%Charvest(npt) + &
              casaflux%kplant(npt,leaf)  * casapool%cplant(npt,leaf) *  casaflux%fharvest(npt)
+
+
+         casaflux%FluxFromPtoL(npt,leaf,metb) =  cleaf2met(npt)
+         casaflux%FluxFromPtoL(npt,froot,metb) =  croot2met(npt)
+         casaflux%FluxFromPtoL(npt,wood,metb) =  0.0
+
+         casaflux%FluxFromPtoL(npt,leaf,str) =  cleaf2str(npt)
+         casaflux%FluxFromPtoL(npt,froot,str) =  croot2str(npt)
+         casaflux%FluxFromPtoL(npt,wood,str) =  0.0
+
+         casaflux%FluxFromPtoL(npt,leaf,cwd) =  0.0
+         casaflux%FluxFromPtoL(npt,froot,cwd) = 0.0
+         casaflux%FluxFromPtoL(npt,wood,cwd) =  cwood2cwd(npt)
 
 
         
@@ -1644,7 +1667,12 @@ SUBROUTINE casa_delsoil(veg,casapool,casaflux,casamet,casabiome)
   fluxptase = 0.0
 
   casaflux%fluxCtoCO2_litter_fire = 0.0
-
+  casaflux%FluxFromLtoS = 0.0
+  casaflux%FluxFromStoS = 0.0
+  casaflux%FluxFromStoCO2 = 0.0
+  casaflux%FluxFromLtoCO2 = 0.0
+  
+        
 DO nland=1,mp
 IF(casamet%iveg2(nland)/=icewater) THEN
 
@@ -1670,6 +1698,10 @@ IF(casamet%iveg2(nland)/=icewater) THEN
       casaflux%fluxCtoCO2_litter_fire(nland) = casaflux%fluxCtoCO2_litter_fire(nland) + &
            (1. - casaflux%klitter(nland,nL))*casaflux%klitter_fire(nland,nL)  * &
            casapool%clitter(nland,nL)
+
+
+      casaflux%FluxFromLtoCO2(nland,nL) = (1. - casaflux%klitter(nland,nL))*casaflux%klitter_fire(nland,nL)  * &
+           casapool%clitter(nland,nL)
    ENDDO
 
    DO nS=1,msoil
@@ -1678,11 +1710,20 @@ IF(casamet%iveg2(nland)/=icewater) THEN
                                + casaflux%fromLtoS(nland,nS,nL) &
                                * casaflux%klitter(nland,nL) &
                                * casapool%clitter(nland,nL)
+
+         casaflux%FluxFromLtoS(nland,nL,nS) = casaflux%fromLtoS(nland,nS,nL) &
+                               * casaflux%klitter(nland,nL) &
+                               * casapool%clitter(nland,nL)
+
       ENDDO
       DO nSS=1,msoil
          IF(nSS/=nS) THEN
             casaflux%fluxCtosoil(nland,nS) = casaflux%fluxCtosoil(nland,nS) &
                                   + casaflux%fromStoS(nland,nS,nSS) &
+                                  * casaflux%ksoil(nland,nSS) &
+                                  * casapool%csoil(nland,nSS)
+
+            casaflux%FluxFromStoS(nland,nSS,nS) = casaflux%fromStoS(nland,nS,nSS) &
                                   * casaflux%ksoil(nland,nSS) &
                                   * casapool%csoil(nland,nSS)
          ENDIF
@@ -1691,8 +1732,13 @@ IF(casamet%iveg2(nland)/=icewater) THEN
                         + casaflux%fromStoCO2(nland,nS) &
                         * casaflux%ksoil(nland,nS) &
                         * casapool%csoil(nland,nS)
+
+      casaflux%FluxFromStoCO2(nland,nS) =  casaflux%fromStoCO2(nland,nS) &
+                        * casaflux%ksoil(nland,nS) &
+                        * casapool%csoil(nland,nS)
    ENDDO
 
+   
    IF(icycle>1) THEN
       DO j=1,mlitter
          casaflux%Nlittermin(nland) = casaflux%Nlittermin(nland) &

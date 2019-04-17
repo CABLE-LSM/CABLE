@@ -782,6 +782,13 @@ ENDIF
   casaflux%FluxPtosoil  = 0.
   casaflux%FluxCtoCO2   = 0.
 
+  casaflux%FluxFromPtoL = 0.
+  casaflux%FluxFromLtoS = 0.
+  casaflux%FluxFromStoS = 0.
+  casaflux%FluxFromPtoCO2 = 0.
+  casaflux%FluxFromLtoCO2 = 0.
+  casaflux%FluxFromStoCO2 = 0.
+
   casaflux%Cplant_turnover = 0.
   casaflux%fHarvest = 0.0
   casaflux%Charvest = 0.0
