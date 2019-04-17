@@ -1405,7 +1405,7 @@ CONTAINS
     TYPE(casa_flux), INTENT(IN) :: casaflux ! casa fluxes
     TYPE(casa_pool), INTENT(IN) :: casapool ! casa fluxes
     TYPE(balances_type), INTENT(INOUT) :: bal
-    TYPE (casa_met), INTENT(IN)	:: casamet
+    TYPE (casa_met), INTENT(IN) :: casamet
 
     REAL(r_2), DIMENSION(1) :: timetemp ! temporary variable for storing time
                                         ! value

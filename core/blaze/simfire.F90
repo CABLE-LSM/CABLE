@@ -41,9 +41,10 @@ END TYPE TYPE_SIMFIRE
 ! 16 Barren or Sparsely Vegetated % 16: <10% vegetation cover all year
 ! 17 Unclassified / No data
 !
-INTEGER, DIMENSION(16,2), PARAMETER :: IGBP2BIOME = &
-     (/ 2, 3, 2, 3, 4, 5, 5, 6, 6, 6, 0, 1, 1, 1, 0, 8 , &  ! LAT  < 50 
-        2, 3, 2, 3, 4, 7, 7, 6, 6, 6, 0, 1, 1, 1, 0, 7 /)   ! LAT >= 50
+INTEGER, DIMENSION(16,2), PARAMETER :: IGBP2BIOME = reshape( &
+     (/ 2, 3, 2, 3, 4, 5, 5, 6, 6, 6, 0, 1, 1, 1, 0, 8 ,   & ! LAT  < 50 
+        2, 3, 2, 3, 4, 7, 7, 6, 6, 6, 0, 1, 1, 1, 0, 7 /), & ! LAT >= 50
+     (/16,2/) )
 
 INTEGER, PARAMETER :: FAPAR_AVG_INT = 3
 
@@ -348,10 +349,11 @@ INTEGER :: ai
 ! PARAMETERS FOR SIMFIRE:
 ! GLOBAL (1) , AUSTRALIA-NZ-OPTIMISED (2), AND EUROPE (3) 
 ! BIOME COEFFICIENTS a(BIOME)
-REAL, DIMENSION(8,3), PARAMETER :: a = &
-     (/0.110,  0.095    ,0.092  ,0.127  ,0.470  ,0.889 ,0.059  ,0.113, & ! GLOBAL
-       0.06974,0.6535   ,0.6341 ,0.6438 ,2.209  ,1.710 ,    0. ,2.572, & ! ANZ
-       0.02589,0.0008087,0.04896,0.06248,0.01966,0.1191,0.01872,0.08873/)! EUR   
+REAL, DIMENSION(8,3), PARAMETER :: a = reshape( &
+     (/0.110,  0.095    ,0.092  ,0.127  ,0.470  ,0.889 ,0.059  ,0.113,     & ! GLOBAL
+       0.06974,0.6535   ,0.6341 ,0.6438 ,2.209  ,1.710 ,    0. ,2.572,     & ! ANZ
+       0.02589,0.0008087,0.04896,0.06248,0.01966,0.1191,0.01872,0.08873/), & ! EUR
+       (/8,3/) )
 ! Biome:  crop NLfor     BLfor   mixedfor shrub  grass  tundra  barren 
 !
 ! fAPAR EXPONENT b
@@ -477,16 +479,13 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate )
       STATUS = NF90_OPEN(TRIM(SF%BA_CLIM_FILE), NF90_NOWRITE, F_ID)
       CALL HANDLE_ERR(STATUS, "Opening BA Clim File "//SF%BA_CLIM_FILE )
       STATUS = NF90_INQ_VARID(F_ID,'monthly_ba', V_ID)
-      CALL HANDLE_ERR(STATUS, "Inquiring  var monthly_ba &
-           in "//SF%BA_CLIM_FILE )
+      CALL HANDLE_ERR(STATUS, "Inquiring  var monthly_ba in "//SF%BA_CLIM_FILE )
 
       STATUS = NF90_INQ_VARID(F_ID,'latitude', V_ID_lat)
-      CALL HANDLE_ERR(STATUS, "Inquiring  var latitude &
-           in "//SF%BA_CLIM_FILE )
+      CALL HANDLE_ERR(STATUS, "Inquiring  var latitude in "//SF%BA_CLIM_FILE )
 
       STATUS = NF90_INQ_VARID(F_ID,'longitude', V_ID_lon)
-      CALL HANDLE_ERR(STATUS, "Inquiring  var longitude &
-           in "//SF%BA_CLIM_FILE )
+      CALL HANDLE_ERR(STATUS, "Inquiring  var longitude in "//SF%BA_CLIM_FILE )
 
       STATUS = NF90_GET_VAR( F_ID, V_ID_lat, lat_BA, &
                start=(/1/) )

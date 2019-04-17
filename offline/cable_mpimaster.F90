@@ -369,7 +369,7 @@ CONTAINS
          cable_user           ! additional USER switches 
     INTEGER :: i,x,kk
     INTEGER :: LALLOC
-    INTEGER, PARAMETER ::	 mloop	= 30   ! CASA-CNP PreSpinup loops
+    INTEGER, PARAMETER ::        mloop  = 30   ! CASA-CNP PreSpinup loops
     REAL    :: etime, etimelast
 
     ! END header
@@ -407,13 +407,10 @@ CONTAINS
        ELSEIF  ( CABLE_USER%YearStart.eq.0 .and. ncciy.eq.0) THEN
           PRINT*, 'undefined start year for gswp met: '
           PRINT*, 'enter value for ncciy or'  
-          PRINT*, '(CABLE_USER%YearStart and  CABLE_USER%YearEnd) &
-               in cable.nml'
-          
+          PRINT*, '(CABLE_USER%YearStart and  CABLE_USER%YearEnd) in cable.nml'
           write(logn,*) 'undefined start year for gswp met: '
           write(logn,*) 'enter value for ncciy or'  
-          write(logn,*) '(CABLE_USER%YearStart and  CABLE_USER%YearEnd) &
-               in cable.nml'
+          write(logn,*) '(CABLE_USER%YearStart and  CABLE_USER%YearEnd) in cable.nml'
           
           stop
        ENDIF
@@ -548,15 +545,15 @@ CONTAINS
               kend = NINT(24.0*3600.0/dels) * LOY
                    
           ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
-	      
-	      IF ( CALL1 ) THEN
+              
+              IF ( CALL1 ) THEN
 
-		 CALL CPU_TIME(etime)
-		 CALL CRU_INIT( CRU )
+                 CALL CPU_TIME(etime)
+                 CALL CRU_INIT( CRU )
 
-		 dels	      = CRU%dtsecs
-		 koffset      = 0
-		 leaps        = .false.  ! No leap years in CRU-NCEP
+                 dels         = CRU%dtsecs
+                 koffset      = 0
+                 leaps        = .false.  ! No leap years in CRU-NCEP
                  exists%Snowf = .false.  ! No snow in CRU-NCEP, so ensure it will
                                          ! be determined from temperature in CABLE
 
@@ -570,10 +567,10 @@ CONTAINS
                  calendar = "standard"
 
 
-	      ENDIF
+              ENDIF
 
-	       LOY = 365
-	       kend = NINT(24.0*3600.0/dels) * LOY
+               LOY = 365
+               kend = NINT(24.0*3600.0/dels) * LOY
           ELSE IF (TRIM(cable_user%MetType) .EQ. 'gswp' ) THEN
              ncciy = CurYear
              WRITE(*,*) 'Looking for global offline run info.'
@@ -613,11 +610,11 @@ CONTAINS
              
 
              !! vh_js !!
-             CALL load_parameters( met, air, ssnow, veg,climate,bgc,		&
-                  soil, canopy, rough, rad, sum_flux,			 &
-                  bal, logn, vegparmnew, casabiome, casapool,		 &
+             CALL load_parameters( met, air, ssnow, veg,climate,bgc,            &
+                  soil, canopy, rough, rad, sum_flux,                    &
+                  bal, logn, vegparmnew, casabiome, casapool,            &
                   casaflux, sum_casapool, sum_casaflux, &
-                  casamet, casabal, phen, POP, spinup,	       &
+                  casamet, casabal, phen, POP, spinup,         &
                   C%EMSOIL, C%TFRZ, LUC_EXPT, POPLUC, BLAZE, SIMFIRE )
 
              ! Abort, if an error occurred during BLAZE/SIMFIRE init
@@ -645,7 +642,7 @@ CONTAINS
              !! IF ( cable_user%CALL_BLAZE ) &
                   
 
-             IF (.NOT.spinup)	spinConv=.TRUE.
+             IF (.NOT.spinup)   spinConv=.TRUE.
              
              ! MPI: above was standard serial code
              ! now it's time to initialize the workers
@@ -936,12 +933,12 @@ write(*,*) 'after CALL1'
                              
                 IF ( icycle > 0 ) THEN
                    ! receive casa update from worker
-		   IF ( MOD((oktau-kstart+1+koffset),ktauday).EQ.0 ) THEN
+                   IF ( MOD((oktau-kstart+1+koffset),ktauday).EQ.0 ) THEN
                       CALL master_receive (ocomm, oktau, casa_ts)
-		   		   	
+                                        
                   ! write(*,*) 'after master_receive casa_ts'
                    CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
-		   ENDIF
+                   ENDIF
                   ! write(*,*) 'after master_receive casa_ts waitall'
                    ! receive casa dump requirements from worker
                    IF ( ((.NOT.spinup).OR.(spinup.AND.spinConv)) .AND.   &
@@ -1278,16 +1275,14 @@ write(*,*) 'after annual calcs'
                 if (ktau == kend) PRINT*, "time-space-averaged energy & water balances"
                 if (ktau == kend) PRINT*,"Ebal_tot[Wm-2], Wbal_tot[mm per timestep]", &
                      sum(bal%ebal_tot)/mp/count_bal, sum(bal%wbal_tot)/mp/count_bal
-                if (ktau == kend) PRINT*, "time-space-averaged latent heat and &
-                     net photosynthesis"
+                if (ktau == kend) PRINT*, "time-space-averaged latent heat and net photosynthesis"
                 if (ktau == kend) PRINT*, "sum_fe[Wm-2], sum_fpn[umol/m2/s]",  &
                      new_sumfe/count_bal, new_sumfpn/count_bal
                 if (ktau == kend) write(logn,*)
                 if (ktau == kend) write(logn,*), "time-space-averaged energy & water balances"
                 if (ktau == kend) write(logn,*),"Ebal_tot[Wm-2], Wbal_tot[mm per timestep]", &
                      sum(bal%ebal_tot)/mp/count_bal, sum(bal%wbal_tot)/mp/count_bal
-                if (ktau == kend) write(logn,*), "time-space-averaged latent heat and &
-                     net photosynthesis"
+                if (ktau == kend) write(logn,*), "time-space-averaged latent heat and net photosynthesis"
                 if (ktau == kend) write(logn,*), "sum_fe[Wm-2], sum_fpn[umol/m2/s]",  &
                      new_sumfe/count_bal, new_sumfpn/count_bal
 

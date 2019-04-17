@@ -15,7 +15,7 @@ MODULE CABLE_LUC_EXPT
   END TYPE LUC_INPUT_TYPE
 
   TYPE LUC_EXPT_TYPE
-     CHARACTER(len=400)::	TransitionFilePath,ClimateFile, Run, NotPrimOnlyFile 
+     CHARACTER(len=400)::       TransitionFilePath,ClimateFile, Run, NotPrimOnlyFile 
      LOGICAL  :: DirectRead, READrst, WRITErst
      LOGICAL, ALLOCATABLE ::  prim_only(:)
      LOGICAL, ALLOCATABLE :: ptos(:), ptog(:), stog(:), gtos(:)
@@ -472,8 +472,7 @@ CONTAINS
        Status = NF90_OPEN(TRIM(NotPrimOnlyFile), NF90_NOWRITE, NotPrimOnly_fID)
        CALL HANDLE_ERR(STATUS, "Opening NotPrimOnlyFile"//TRIM(NotPrimOnlyFile ))
        Status = NF90_INQ_VARID( NotPrimOnly_fID,'cum_frac_prim_loss',  NotPrimOnly_vID)
-       CALL HANDLE_ERR(STATUS, "Inquiring cum_frac_prim_loss &
-            in "//TRIM(NotPrimOnlyFile ) )
+       CALL HANDLE_ERR(STATUS, "Inquiring cum_frac_prim_loss in "//TRIM(NotPrimOnlyFile ) )
        STATUS = NF90_GET_VAR(NotPrimOnly_FID, NotPrimOnly_vID , tmparr, &
             start=(/1,1/),count=(/xds,yds/) )
        CALL HANDLE_ERR(STATUS, "Reading from "//TRIM(NotPrimOnlyFile ) )

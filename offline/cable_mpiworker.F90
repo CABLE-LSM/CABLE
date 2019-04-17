@@ -440,7 +440,7 @@ CONTAINS
  
           IF ( CALL1 ) THEN
 
-             IF (.NOT.spinup)	spinConv=.TRUE.
+             IF (.NOT.spinup)   spinConv=.TRUE.
 
              ! MPI: bcast to workers so that they don't need to open the met
              ! file themselves
@@ -696,9 +696,10 @@ CONTAINS
                 ENDIF
                 
                 IF ( cable_user%CALL_BLAZE ) THEN
-                   CALL BLAZE_ACCOUNTING(BLAZE, met, ktau, dels, YYYY, idoy)
+                   CALL BLAZE_ACCOUNTING(BLAZE, met, climate, ktau, dels, YYYY, idoy)
                    IF ( MOD(ktau,ktauday).EQ.0 ) &
-                        call blaze_driver(blaze%ncells,blaze, simfire, casapool, casaflux, shootfrac, idoy, YYYY, 1)
+                        call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
+                                          casamet, climate, real(shootfrac), idoy, YYYY, 1)
                 ENDIF
                  !!! CLN HERE BLAZE daily
 
@@ -789,7 +790,8 @@ CONTAINS
                    POP_STR = 0.
                 END WHERE
 
-                call blaze_driver(blaze%ncells,blaze, simfire, casapool, casaflux, shootfrac, idoy, YYYY, -1)
+                call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
+                     casamet, climate, real(shootfrac), idoy, YYYY, -1)
              ENDIF
              
              CALL worker_send_pop (POP, ocomm) 
@@ -5692,8 +5694,8 @@ CONTAINS
              met%moy(landpt(i)%cstart) = smoy
              met%year(landpt(i)%cstart) = syear
           CASE DEFAULT
-             CALL abort('Unknown time coordinate! ' &
-                  //' (SUBROUTINE get_met_data)')
+             write(*,*) 'Unknown time coordinate! (SUBROUTINE get_met_data)'
+             CALL abort()
           END SELECT
        ELSE
           ! increment hour-of-day by time step size:
@@ -7650,7 +7652,8 @@ SUBROUTINE worker_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
                  
                  CALL POPdriver(casaflux,casabal,veg, POP)
                  !CLN Check here accounting missing
-                 CALL BLAZE_DRIVER(blaze, simfire, casapool, casaflux, shootfrac, idoy, 1900, 1)
+                 call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
+                      casamet, climate, real(shootfrac), idoy, 1900, 1)
 
                  !! CLN BLAZE TURNOVER
                  

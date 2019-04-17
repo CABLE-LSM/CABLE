@@ -153,9 +153,9 @@ MODULE cable_IO_vars_module
          Snowf,   & ! T=> snowfall variable is present in met file
          avPrecip,& ! T=> ave rainfall present in met file (use for spinup)
          LAI,     & ! T=> LAI is present in the met file
-	 vcmax,	  & ! T=> vcmax is present in the met file
+         vcmax,   & ! T=> vcmax is present in the met file
          LAI_T,   & ! T=> LAI is time dependent, for each time step
-	 vcmax_T, & ! T=> vcmax is time dependent, for each time step
+         vcmax_T, & ! T=> vcmax is time dependent, for each time step
          LAI_M,   & ! T=> LAI is time dependent, for each month
          LAI_P,   & ! T=> LAI is patch dependent
          parameters,&! TRUE if non-default parameters are found

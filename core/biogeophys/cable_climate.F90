@@ -46,7 +46,7 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
   TYPE (canopy_type), INTENT(IN) :: canopy ! vegetation variables
   TYPE (soil_snow_type), INTENT(IN) :: ssnow
   TYPE (air_type), INTENT(IN)       :: air
-  TYPE (radiation_type), INTENT(IN)  :: rad	   ! radiation variables
+  TYPE (radiation_type), INTENT(IN)  :: rad        ! radiation variables
   TYPE (veg_parameter_type), INTENT(IN)  :: veg  ! vegetation parameters
   REAL, INTENT(IN)               :: dels ! integration time setp (s)
   INTEGER,      INTENT(IN)                  :: np

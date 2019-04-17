@@ -292,7 +292,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
                 .FALSE. , .TRUE. , count_sum_casa)
 
            CALL WRITE_CASA_OUTPUT_NC ( veg, casamet, sum_casapool, casabal, sum_casaflux, &
-                .true., ctime, ( idoy.eq.mdyear .AND. YYYY .EQ.	       &
+                .true., ctime, ( idoy.eq.mdyear .AND. YYYY .EQ.        &
                 cable_user%YearEnd ) )
            count_sum_casa = 0
            CALL zero_sum_casa(sum_casapool, sum_casaflux)

@@ -380,69 +380,69 @@ ENDDO
 
 
 
-	FUNCTION golden(ax,bx,cx,func,tol,xmin)
-	!USE nrtype
-	IMPLICIT NONE
-	REAL, INTENT(IN) :: ax,bx,cx,tol
-	REAL, INTENT(OUT) :: xmin
-	REAL :: golden
-	INTERFACE
-		FUNCTION func(x)
-		!USE nrtype
-		IMPLICIT NONE
-		REAL, INTENT(IN) :: x
-		REAL :: func
-		END FUNCTION func
-	END INTERFACE
-	REAL, PARAMETER :: R=0.61803399,C=1.0-R
-	REAL :: f1,f2,x0,x1,x2,x3
-	x0=ax
-	x3=cx
-	if (abs(cx-bx) > abs(bx-ax)) then
-		x1=bx
-		x2=bx+C*(cx-bx)
-	else
-		x2=bx
-		x1=bx-C*(bx-ax)
-	end if
-	f1=func(x1)
-	f2=func(x2)
-	do
-		if (abs(x3-x0) <= tol*(abs(x1)+abs(x2))) exit
-		if (f2 < f1) then
-			call shft3(x0,x1,x2,R*x2+C*x3)
-			call shft2(f1,f2,func(x2))
-		else
-			call shft3(x3,x2,x1,R*x1+C*x0)
-			call shft2(f2,f1,func(x1))
-		end if
-	end do
-	if (f1 < f2) then
-		golden=f1
-		xmin=x1
-	else
-		golden=f2
-		xmin=x2
-	end if
-	CONTAINS
+        FUNCTION golden(ax,bx,cx,func,tol,xmin)
+        !USE nrtype
+        IMPLICIT NONE
+        REAL, INTENT(IN) :: ax,bx,cx,tol
+        REAL, INTENT(OUT) :: xmin
+        REAL :: golden
+        INTERFACE
+                FUNCTION func(x)
+                !USE nrtype
+                IMPLICIT NONE
+                REAL, INTENT(IN) :: x
+                REAL :: func
+                END FUNCTION func
+        END INTERFACE
+        REAL, PARAMETER :: R=0.61803399,C=1.0-R
+        REAL :: f1,f2,x0,x1,x2,x3
+        x0=ax
+        x3=cx
+        if (abs(cx-bx) > abs(bx-ax)) then
+                x1=bx
+                x2=bx+C*(cx-bx)
+        else
+                x2=bx
+                x1=bx-C*(bx-ax)
+        end if
+        f1=func(x1)
+        f2=func(x2)
+        do
+                if (abs(x3-x0) <= tol*(abs(x1)+abs(x2))) exit
+                if (f2 < f1) then
+                        call shft3(x0,x1,x2,R*x2+C*x3)
+                        call shft2(f1,f2,func(x2))
+                else
+                        call shft3(x3,x2,x1,R*x1+C*x0)
+                        call shft2(f2,f1,func(x1))
+                end if
+        end do
+        if (f1 < f2) then
+                golden=f1
+                xmin=x1
+        else
+                golden=f2
+                xmin=x2
+        end if
+        CONTAINS
 !BL
-	SUBROUTINE shft2(a,b,c)
-	REAL, INTENT(OUT) :: a
-	REAL, INTENT(INOUT) :: b
-	REAL, INTENT(IN) :: c
-	a=b
-	b=c
-	END SUBROUTINE shft2
+        SUBROUTINE shft2(a,b,c)
+        REAL, INTENT(OUT) :: a
+        REAL, INTENT(INOUT) :: b
+        REAL, INTENT(IN) :: c
+        a=b
+        b=c
+        END SUBROUTINE shft2
 !BL
-	SUBROUTINE shft3(a,b,c,d)
-	REAL, INTENT(OUT) :: a
-	REAL, INTENT(INOUT) :: b,c
-	REAL, INTENT(IN) :: d
-	a=b
-	b=c
-	c=d
-	END SUBROUTINE shft3
-	END FUNCTION golden
+        SUBROUTINE shft3(a,b,c,d)
+        REAL, INTENT(OUT) :: a
+        REAL, INTENT(INOUT) :: b,c
+        REAL, INTENT(IN) :: d
+        a=b
+        b=c
+        c=d
+        END SUBROUTINE shft3
+        END FUNCTION golden
 
 
 
@@ -518,40 +518,40 @@ END SUBROUTINE total_An_Ac_Aj
 
 
 FUNCTION rtbis(func,x1,x2,xacc)
-	!USE nrtype; USE nrutil, ONLY : nrerror
-	IMPLICIT NONE
-	REAL, INTENT(IN) :: x1,x2,xacc
-	REAL :: rtbis
-	INTERFACE
-		FUNCTION func(x)
-		!USE nrtype
-		IMPLICIT NONE
-		REAL, INTENT(IN) :: x
-		REAL :: func
-		END FUNCTION func
-	END INTERFACE
-	INTEGER, PARAMETER :: MAXIT=40
-	INTEGER :: j
-	REAL :: dx,f,fmid,xmid
-	fmid=func(x2)
-	f=func(x1)
-	if (f*fmid >= 0.0) stop('rtbis: root must be bracketed')
-	if (f < 0.0) then
-		rtbis=x1
-		dx=x2-x1
-	else
-		rtbis=x2
-		dx=x1-x2
-	end if
-	do j=1,MAXIT
-		dx=dx*0.5
-		xmid=rtbis+dx
-		fmid=func(xmid)
-		if (fmid <= 0.0) rtbis=xmid
-		if (abs(dx) < xacc .or. fmid == 0.0) RETURN
-	end do
-	stop('rtbis: too many bisections')
-	END FUNCTION rtbis
+        !USE nrtype; USE nrutil, ONLY : nrerror
+        IMPLICIT NONE
+        REAL, INTENT(IN) :: x1,x2,xacc
+        REAL :: rtbis
+        INTERFACE
+                FUNCTION func(x)
+                !USE nrtype
+                IMPLICIT NONE
+                REAL, INTENT(IN) :: x
+                REAL :: func
+                END FUNCTION func
+        END INTERFACE
+        INTEGER, PARAMETER :: MAXIT=40
+        INTEGER :: j
+        REAL :: dx,f,fmid,xmid
+        fmid=func(x2)
+        f=func(x1)
+        if (f*fmid >= 0.0) stop('rtbis: root must be bracketed')
+        if (f < 0.0) then
+                rtbis=x1
+                dx=x2-x1
+        else
+                rtbis=x2
+                dx=x1-x2
+        end if
+        do j=1,MAXIT
+                dx=dx*0.5
+                xmid=rtbis+dx
+                fmid=func(xmid)
+                if (fmid <= 0.0) rtbis=xmid
+                if (abs(dx) < xacc .or. fmid == 0.0) RETURN
+        end do
+        stop('rtbis: too many bisections')
+        END FUNCTION rtbis
 
 
 

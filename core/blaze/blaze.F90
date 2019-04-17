@@ -51,18 +51,20 @@ INTEGER, PARAMETER :: NFLUX       = 12
 
 ! Turn Over Factors Suravski et al. 2012
 REAL, DIMENSION(5,12),PARAMETER   ::   &
-     TOF = (/ .0 , .0 , .05, .2 , .2 , &  !  1 Stems       -> ATM
-              .0 , .0 , .15, .2 , .2 , &  !  2 Branches    -> ATM
-              .03, .13, .25, .5 , .5 , &  !  3 Bark        -> ATM
-              .02, .05, .1 , .6 , .6 , &  !  4 Leaves      -> ATM
-              .0 , .0 , .05, .2 , .8 , &  !  5 Stems       -> Litter (CWD) !corrected*
-              .0 , .02, .07, .2 , .8 , &  !  6 Branches    -> Litter (CWD) !corrected*
-              .03, .13, .25, .5 , .5 , &  !  7 Bark        -> Litter (str)
-              .05, .1 , .15, .3 , .4 , &  !  8 Leaves      -> Litter (str)
-              .0 , .02, .02, .04, .04, &  !  9 FDEAD roots -> ATM
-              .5 , .75, .75, .8 , .8 , &  ! 10 Deadwood    -> ATM
-              .6 , .65, .85, 1. , 1. , &  ! 11 Bark Litter -> ATM
-              .6 , .65, .85, 1. , 1. /)   ! 12 Leaf Litter -> ATM
+     TOF = reshape( &
+           (/ .0 , .0 , .05, .2 , .2 , &   !  1 Stems       -> ATM
+              .0 , .0 , .15, .2 , .2 , &   !  2 Branches    -> ATM
+              .03, .13, .25, .5 , .5 , &   !  3 Bark        -> ATM
+              .02, .05, .1 , .6 , .6 , &   !  4 Leaves      -> ATM
+              .0 , .0 , .05, .2 , .8 , &   !  5 Stems       -> Litter (CWD) !corrected*
+              .0 , .02, .07, .2 , .8 , &   !  6 Branches    -> Litter (CWD) !corrected*
+              .03, .13, .25, .5 , .5 , &   !  7 Bark        -> Litter (str)
+              .05, .1 , .15, .3 , .4 , &   !  8 Leaves      -> Litter (str)
+              .0 , .02, .02, .04, .04, &   !  9 FDEAD roots -> ATM
+              .5 , .75, .75, .8 , .8 , &   ! 10 Deadwood    -> ATM
+              .6 , .65, .85, 1. , 1. , &   ! 11 Bark Litter -> ATM
+              .6 , .65, .85, 1. , 1. /), & ! 12 Leaf Litter -> ATM
+              (/5,12/) )
 !CLN DEADWOOD!!!
 !CLN              .7 , .75, .8, .8 , .8 , &  ! 10 Deadwood    -> ATM
 !CLN              .9 , .95, .95, 1. , 1. , &  ! 11 Bark Litter -> ATM

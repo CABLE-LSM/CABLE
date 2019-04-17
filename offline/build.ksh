@@ -4,8 +4,9 @@ export dosvn=1 # 1/0: do/do not check svn
 
 known_hosts()
 {
-   set -A kh vayu cher pear shin jigg nXXX raij ces2 ccrc mael valh
+   set -A kh vayu cher pear shin jigg nXXX raij ces2 ccrc mael valh mcin
 }
+
 
 ## 
 host_valh()
@@ -40,6 +41,8 @@ host_valh()
    cd ../
    build_status
 }
+
+
 host_mael()
 {
    export NCDIR='/share/apps/netcdf/intel/4.1.3/lib'
@@ -57,7 +60,6 @@ host_mael()
    cd ../
    build_status
 }
-
 
 
 host_ccrc()
@@ -116,8 +118,6 @@ host_ces2()
 }
 
 
-
-
 ## Interactive Job nXXX@burnet.hpsc.csiro.au  
 host_nXXX()
 {
@@ -137,6 +137,7 @@ host_nXXX()
    build_status
 }
 
+
 ## jiggle
 host_jigg()
 {
@@ -150,7 +151,6 @@ host_jigg()
    cd ../
    build_status
 }
-
 
 
 ## pearcey.hpsc.csiro.au 
@@ -176,7 +176,6 @@ host_pear()
 }
 
 
-
 ## raijin.nci.org.au
 host_raij()
 {
@@ -197,6 +196,58 @@ host_raij()
    cd ../
    build_status
 }
+
+
+# Matthias@INRA
+host_mcin()
+{    
+   # GFORTRAN
+   export FC=gfortran
+   # release
+   export CFLAGS="-O3 -Wno-aggressive-loop-optimizations -cpp -ffree-form -ffixed-line-length-132"
+   if [[ $1 = 'debug' ]] ; then
+       # debug
+       export CFLAGS="-pedantic-errors -Wall -W -O -g -Wno-maybe-uninitialized -cpp -ffree-form -ffixed-line-length-132"
+   fi
+   export LD=''
+   export NCROOT='/usr/local/netcdf-fortran-4.4.4-gfortran'
+
+   # # NAG - Does not work for pop_io.f90
+   # export FC=nagfor
+   # # release
+   # export CFLAGS="-O4 -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free"
+   # if [[ $1 = 'debug' ]] ; then
+   #     # debug
+   #     export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -DNAG"
+   # fi
+   # export LD='-ideclient -unsharedrts'
+   # export NCROOT='/usr/local/netcdf-fortran-4.4.4-nagfor'
+
+   # # INTEL
+   # /opt/intel/compilers_and_libraries/mac/bin/compilervars.sh intel64
+   # export FC=ifort
+   # # release
+   # export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
+   # if [[ $1 = 'debug' ]] ; then
+   #     # debug
+   #     export CFLAGS="-check all -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
+   # fi
+   # export LD=''
+   # export NCROOT='/usr/local/netcdf-fortran-4.4.4-ifort'
+
+   # All compilers
+   export NCCROOT='/usr/local'
+   export NCCLIB=${NCROOT}'/lib'
+   export NCLIB=${NCROOT}'/lib'
+   export NCMOD=${NCROOT}'/include'
+   export LDFLAGS="-L${NCCLIB} -L${NCLIB} -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz"
+   export dosvn=0
+   export MFLAGS= #'-j 8'
+   build_build
+   cd ../
+   build_status
+}
+
 
 ## unknown machine, user entering options stdout 
 host_read()
@@ -262,8 +313,6 @@ host_read()
    else   
       export LD=$LDRESPONSE
    fi
-
-
 }
 
 
@@ -299,11 +348,9 @@ clean_build()
 {
       print '\ncleaning up\n'
       print '\n\tPress Enter too continue buiding, Control-C to abort now.\n'
-      read dummy 
+      read dummy
       rm -fr .tmp
 }
-
-
 
 
 not_recognized()
@@ -436,19 +483,20 @@ build_build()
    /bin/cp -p Makefile_offline  ./.tmp
    
    cd .tmp/
-   make -f Makefile_offline
- 
+   make -f Makefile_offline ${MFLAGS}
+
 }
+
 
 ###########################################
 ## build.ksh - MAIN SCRIPT STARTS HERE   ##
 ###########################################
 
 if [[ $1 = 'clean' ]]; then
-   clean_build
+    clean_build
+    shift 1
 fi
 
-   
 known_hosts
 
 HOST_MACH=`uname -n | cut -c 1-4`

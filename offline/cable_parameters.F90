@@ -1403,8 +1403,8 @@ CONTAINS
 
           endif
           veg%convex(h) = vegin%convex(veg%iveg(h))
-	  ! Alexis, adding gamma
-	  veg%gamma(h) = vegin%gamma(veg%iveg(h))
+          ! Alexis, adding gamma
+          veg%gamma(h) = vegin%gamma(veg%iveg(h))
           veg%cfrd(h)   = vegin%cfrd(veg%iveg(h))
           veg%gswmin(h) = vegin%gswmin(veg%iveg(h))
           veg%conkc0(h) = vegin%conkc0(veg%iveg(h))
@@ -1474,7 +1474,7 @@ CONTAINS
                vegin%tmaxvj, vegin%vbeta,vegin%clitt, vegin%zr, vegin%rootbeta, vegin%froot,         &
                vegin%cplant, vegin%csoil, vegin%ratecp, vegin%ratecs,          &
                vegin%xalbnir, vegin%length, vegin%width,                       &
-	       ! gamma added by Alexis below
+               ! gamma added by Alexis below
                vegin%g0, vegin%g1, vegin%gamma,                               & 
                vegin%a1gs, vegin%d0gs, vegin%alpha, vegin%convex, vegin%cfrd,  &
                vegin%gswmin, vegin%conkc0,vegin%conko0,vegin%ekc,vegin%eko   )
