@@ -2463,15 +2463,15 @@ CONTAINS
     IF(output%carbon .OR. output%NBP) THEN
        ! Add current timestep's value to total of temporary output variable:
        IF (cable_user%POPLUC) THEN
-           out%NBP = out%NBP + -REAL((casaflux%Crsoil-casaflux%cnpp &
+           out%NBP = out%NBP + (-REAL((casaflux%Crsoil-casaflux%cnpp &
             - casapool%dClabiledt)/86400.0 &
-            / 1.201E-5, 4) !-  &
+            / 1.201E-5, 4)) !-  &
             !REAL((casaflux%FluxCtohwp + casaflux%FluxCtoclear  )/86400.0 &
             !/ 1.201E-5, 4)
        ELSE
-          out%NBP = out%NBP + -REAL((casaflux%Crsoil-casaflux%cnpp &
+          out%NBP = out%NBP + (-REAL((casaflux%Crsoil-casaflux%cnpp &
                - casapool%dClabiledt)/86400.0 &
-               / 1.201E-5, 4)
+               / 1.201E-5, 4))
        ENDIF
 
        IF(writenow) THEN

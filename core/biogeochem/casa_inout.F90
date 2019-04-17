@@ -1442,16 +1442,16 @@ SUBROUTINE biogeochem(ktau,dels,idoY,LALLOC,veg,soil,casabiome,casapool,casaflux
 
             casaflux%kplant(POP%Iwood,2) =  1.0 -  &
               (1.0-  max( min((POP%pop_grid(:)%stress_mortality + &
-              POP%pop_grid(:)%crowding_mortality+ &
-              + POP%pop_grid(:)%fire_mortality ) &
+              POP%pop_grid(:)%crowding_mortality + &
+              POP%pop_grid(:)%fire_mortality ) &
               /(POP%pop_grid(:)%cmass_sum+POP%pop_grid(:)%growth) + &
               1.0/veg%disturbance_interval(POP%Iwood,1), 0.99), 0.0))**(1.0/365.0)
 
         ELSEWHERE
             casaflux%kplant(POP%Iwood,2) =  1.0 -  &
               (1.0-  max( min((POP%pop_grid(:)%stress_mortality + &
-              POP%pop_grid(:)%crowding_mortality+ &
-              + POP%pop_grid(:)%fire_mortality+POP%pop_grid(:)%cat_mortality  ) &
+              POP%pop_grid(:)%crowding_mortality + &
+              POP%pop_grid(:)%fire_mortality+POP%pop_grid(:)%cat_mortality  ) &
               /(POP%pop_grid(:)%cmass_sum+POP%pop_grid(:)%growth), 0.99), 0.0))**(1.0/365.0)
 
          ENDWHERE
