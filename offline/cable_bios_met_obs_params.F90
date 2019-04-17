@@ -527,7 +527,7 @@ MODULE cable_bios_met_obs_params
     csoil1_file, csoil2_file, depth1_m_file, depth2_m_file, hyk1sat_ms_file, hyk2sat_ms_file, & 
     psie1_m_file, psie2_m_file, siltfrac1_file, siltfrac2_file, wvol1fc_m3m3_file, wvol2fc_m3m3_file, &
     wvol1sat_m3m3_file, wvol2sat_m3m3_file, wvol1w_m3m3_file, wvol2w_m3m3_file, MVG_file , &
-    c4frac_file , vegtypeigbp_file, MAP_file, avgannmax_fapar_file 
+    c4frac_file , vegtypeigbp_file, avgannmax_fapar_file 
     !, &
 !    slope_deg_file  ! Terrain slope in degrees
 
@@ -615,7 +615,7 @@ CONTAINS
     csoil1_file, csoil2_file, depth1_m_file, depth2_m_file, hyk1sat_ms_file, hyk2sat_ms_file, & 
     psie1_m_file, psie2_m_file, siltfrac1_file, siltfrac2_file, wvol1fc_m3m3_file, wvol2fc_m3m3_file, &
     wvol1sat_m3m3_file, wvol2sat_m3m3_file, wvol1w_m3m3_file, wvol2w_m3m3_file, MVG_file, &
-    c4frac_file, vegtypeigbp_file, MAP_file, avgannmax_fapar_file, &
+    c4frac_file, vegtypeigbp_file, avgannmax_fapar_file, &
 !    slope_deg_file, &  ! Terrain slope in degrees
     dels               ! time step size in seconds
   
@@ -711,7 +711,6 @@ CONTAINS
   WRITE(*   ,*)" MVG_file    = ",TRIM(MVG_file)
   WRITE(*   ,*)" c4frac_file    = ",TRIM(c4frac_file)
   WRITE(*   ,*)" vegtypeigbp_file    = ",TRIM(vegtypeigbp_file)
-  WRITE(*   ,*)" MAP_file    = ",TRIM(MAP_file)
   WRITE(*   ,*)" avgannmax_fapar_file   = ",TRIM(avgannmax_fapar_file)
   !WRITE(*   ,*)" slope_deg_file      = ",TRIM(slope_deg_file)
   WRITE(*   ,*)" DT(secs): ",dels
@@ -756,7 +755,6 @@ CONTAINS
   WRITE(logn,*)" MVG_file    = ",TRIM(MVG_file)
   WRITE(logn ,*)" c4frac_file    = ",TRIM(c4frac_file)
   WRITE(logn,*)" vegtypeigbp_file    = ",TRIM(vegtypeigbp_file)
-  WRITE(logn ,*)" MAP_file    = ",TRIM(MAP_file)
   WRITE(logn,*)" avgannmax_fapar_file   = ",TRIM(avgannmax_fapar_file)
   !WRITE(logn,*)" slope_deg_file      = ",TRIM(slope_deg_file)
   WRITE(logn,*)" timestep in secs  = ",dels
@@ -1779,16 +1777,16 @@ INTEGER(i4b) :: error_status  ! Error status returned by OPENs
 TYPE(climate_type), INTENT(INOUT)       :: climate ! climate variables
 
 REAL(sp), ALLOCATABLE :: vegtypeigbp(:)
-REAL(sp), ALLOCATABLE :: MAP(:)
 REAL(sp), ALLOCATABLE :: avgannmax_fapar(:)
 
 
-ALLOCATE (vegtypeigbp(mland), MAP(mland),  avgannmax_fapar(mland))
+ALLOCATE (vegtypeigbp(mland),  avgannmax_fapar(mland))
 
 CALL GET_UNIT(param_unit)  ! Obtain an unused unit number for file reading, reused for all soil vars.
 
 OPEN (param_unit, FILE=TRIM(param_path)//TRIM(vegtypeigbp_file), ACCESS='STREAM', &
      FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+print*, TRIM(param_path)//TRIM(vegtypeigbp_file)
 IF (error_status > 0) THEN
   WRITE (*,'("STOP - File not found: ")') TRIM(param_path)//TRIM(vegtypeigbp_file) ; STOP ''
 ELSE
@@ -1796,14 +1794,7 @@ ELSE
   CLOSE (param_unit)
 END IF
 
-!!$OPEN (param_unit, FILE=TRIM(param_path)//TRIM(MAP_file), ACCESS='STREAM', &
-!!$     FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
-!!$IF (error_status > 0) THEN
-!!$  WRITE (*,'("STOP - File not found: ")') TRIM(param_path)//TRIM(MAP_file) ; STOP ''
-!!$ELSE
-!!$  READ (param_unit) MAP
-!!$  CLOSE (param_unit)
-!!$END IF
+
 
 OPEN (param_unit, FILE=TRIM(param_path)//TRIM(avgannmax_fapar_file), ACCESS='STREAM', &
      FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)

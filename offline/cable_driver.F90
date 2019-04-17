@@ -107,7 +107,7 @@ PROGRAM cable_offline_driver
   USE POP_Constants,	    ONLY: HEIGHT_BINS, NCOHORT_MAX, shootfrac
 
   ! Fire Model BLAZE
-  USE BLAZE_MOD,            ONLY: TYPE_BLAZE, BLAZE_ACCOUNTING
+  USE BLAZE_MOD,            ONLY: TYPE_BLAZE, BLAZE_ACCOUNTING,  WRITE_BLAZE_OUTPUT_NC
   USE SIMFIRE_MOD,          ONLY: TYPE_SIMFIRE
 
   ! PLUME-MIP only
@@ -657,6 +657,14 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
        spinConv = .FALSE. ! initialise spinup convergence variable
        IF (.NOT.spinup)	spinConv=.TRUE.
 
+       if (cable_user%call_climate) CALL climate_init ( climate, mp, ktauday )
+       if (cable_user%call_climate .AND.(.NOT.cable_user%climate_fromzero)) &
+            CALL READ_CLIMATE_RESTART_NC (climate, ktauday)
+
+       IF ( TRIM(cable_user%MetType) .EQ. 'bios' ) THEN
+          CALL cable_bios_load_climate_params(climate)  ! additional params needed for BLAZE
+       ENDIF
+
       
        IF( icycle>0 .AND. spincasa) THEN
           PRINT *, 'EXT spincasacnp enabled with mloop= ', mloop
@@ -677,13 +685,7 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
           
        ENDIF
 
-       if (cable_user%call_climate) CALL climate_init ( climate, mp, ktauday )
-       if (cable_user%call_climate .AND.(.NOT.cable_user%climate_fromzero)) &
-            CALL READ_CLIMATE_RESTART_NC (climate, ktauday)
-
-       IF ( TRIM(cable_user%MetType) .EQ. 'bios' ) THEN
-          CALL cable_bios_load_climate_params(climate)  ! additional params needed for BLAZE
-       ENDIF
+       
 
        IF ( cable_user%CALL_BLAZE ) THEN
           ! CLN ?VH is rad%lat/lon below correct? 
@@ -866,9 +868,12 @@ print *, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CAB
 
                        IF ( cable_user%CALL_BLAZE ) THEN
                           CALL BLAZE_ACCOUNTING(BLAZE, met, climate, ktau, dels, YYYY, idoy)
-                          
+                 
                           call blaze_driver(blaze%ncells,blaze, simfire, casapool, casaflux, &
                                casamet, climate,shootfrac, idoy, YYYY, 1)
+                        
+                          call write_blaze_output_nc( BLAZE, &
+                               ktau.EQ.kend .AND. YYYY.EQ.cable_user%YearEnd)
                        ENDIF
                           
                    ENDIF

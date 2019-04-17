@@ -226,6 +226,7 @@ MODULE casavariable
                                        sapwood_area, &
                                        Charvest, &  ! leaf biomass removed due to crop or pasture management
                                        Nharvest, & ! leaf N removed due to crop or pasture management
+                                       Pharvest, & ! leaf P removed due to crop or pasture management
                                        fHarvest, &  ! fraction leaf biomass removed due to crop or pasture management
                                        fcrop        ! fraction of 'grass' that is crop
     REAL(r_2), DIMENSION(:,:),POINTER :: fracCalloc,  &
@@ -562,6 +563,7 @@ SUBROUTINE alloc_casavariable(casabiome,casapool,casaflux, &
            casaflux%fharvest(arraysize), &
            casaflux%Charvest(arraysize), &
            casaflux%Nharvest(arraysize), &
+           casaflux%Pharvest(arraysize), &
            casaflux%fcrop(arraysize), &
            casaflux%Cplant_turnover(arraysize,mplant) , &
            casaflux%Cplant_turnover_disturbance(arraysize) , &
@@ -574,9 +576,9 @@ SUBROUTINE alloc_casavariable(casabiome,casapool,casaflux, &
        casaflux%klitter_fire(arraysize,mlitter),           &
        casaflux%kplant_tot(arraysize,mplant),        &
        casaflux%klitter_tot(arraysize,mlitter),           &
-       casaflux%FluxCtoCO2_plant_fire(arraysize)),             &
-       casaflux%FluxCtoCO2_litter_fire(arraysize)),             &
-       casaflux%FluxNtoAtm_fire(arraysize)),           &
+       casaflux%FluxCtoCO2_plant_fire(arraysize),             &
+       casaflux%FluxCtoCO2_litter_fire(arraysize),             &
+       casaflux%FluxNtoAtm_fire(arraysize),           &
        casaflux%fire_mortality_vs_height(arraysize,30,2))
        
        
@@ -805,15 +807,15 @@ SUBROUTINE alloc_sum_casavariable(  sum_casapool, sum_casaflux &
 
   ALLOCATE(sum_casaflux%FluxCtosoil(arraysize,msoil),        &
            sum_casaflux%FluxNtosoil(arraysize,msoil),        &
-           (arraysize,msoil))
+           sum_casaflux%FluxPtosoil(arraysize,msoil))
 
   ALLOCATE(sum_casaflux%fromPtoL_fire(arraysize,mlitter,mplant), &
        sum_casaflux%kplant_fire(arraysize,mplant),        &
        sum_casaflux%klitter_fire(arraysize,mlitter),           &
        sum_casaflux%kplant_tot(arraysize,mplant),        &
        sum_casaflux%klitter_tot(arraysize,mlitter),           &
-       sum_casaflux%FluxCtoCO2_plant_fire(arraysize)),             &
-       sum_casaflux%FluxCtoCO2_litter_fire(arraysize)),             &
+       sum_casaflux%FluxCtoCO2_plant_fire(arraysize),             &
+       sum_casaflux%FluxCtoCO2_litter_fire(arraysize),             &
        sum_casaflux%FluxNtoAtm_fire(arraysize))
 
   ALLOCATE(sum_casaflux%FluxCtoco2(arraysize))

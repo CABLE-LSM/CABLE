@@ -2348,7 +2348,7 @@ CONTAINS
        ! Add current timestep's value to total of temporary output variable:
        !out%AutoResp = out%AutoResp + REAL((canopy%frp + canopy%frday + casaflux%clabloss/86400.0)          &
        !                                    / 1.201E-5, 4)
-       ! vh ! expression below can be slightly different form that above in cases where 
+       ! vh ! expression below can be slightly different from that above in cases where 
        ! leaf maintenance respiration is reduced in CASA
        ! (relative to its original value calculated in cable_canopy)
        ! in order to avoid negative carbon stores.

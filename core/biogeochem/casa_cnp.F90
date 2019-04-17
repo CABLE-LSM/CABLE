@@ -1046,8 +1046,8 @@ SUBROUTINE casa_coeffplant(xkleafcold,xkleafdry,xkleaf,veg,casabiome,casapool, &
   INTEGER npt
 
   casaflux%fromPtoL(:,:,:)      = 0.0
-  casaflux%kplant(:,:)          = 0.0   ! (BPjun2010)
-
+  casaflux%kplant(:,:)          = 0.0  
+  casaflux%kplant_tot(:,:)      = 0.0 
     
   WHERE(casamet%iveg2/=icewater)
   ! using max function to avoid dividing by zero, ypw 14/may/2008
@@ -1081,16 +1081,17 @@ SUBROUTINE casa_coeffplant(xkleafcold,xkleafdry,xkleaf,veg,casabiome,casapool, &
 
     ! total turnover rate includes turnover by fire
     casaflux%kplant_tot(:,leaf) =  casaflux%kplant(:,leaf) + &
-         (1. - casaflux%kplant(:,leaf))*casaflux%kplant_fire(patch_index,LEAF)
+         (1. - casaflux%kplant(:,leaf))*casaflux%kplant_fire(:,leaf)
     casaflux%kplant_tot(:,froot) =  casaflux%kplant(:,froot) + &
-         (1. - casaflux%kplant(:,froot))*casaflux%kplant_fire(patch_index,froot)
+         (1. - casaflux%kplant(:,froot))*casaflux%kplant_fire(:,froot)
     casaflux%kplant_tot(:,wood) =  casaflux%kplant(:,wood) + &
-         (1. - casaflux%kplant(:,wood))*casaflux%kplant_fire(patch_index,wood)
+         (1. - casaflux%kplant(:,wood))*casaflux%kplant_fire(:,wood)
 
  ! adjust leaf flux to litter for crop/pasture removal
    
     casaflux%fromPtoL(:,str,leaf) = casaflux%fromPtoL(:,str,leaf)*(1. -  casaflux%fharvest) 
-    casaflux%fromPtoL(:,metb,leaf) =  casaflux%fromPtoL(:,metb,leaf)*(1. -  casaflux%fharvest) 
+    casaflux%fromPtoL(:,metb,leaf) =  casaflux%fromPtoL(:,metb,leaf)*(1. -  casaflux%fharvest)
+    
   ENDWHERE
 
 
@@ -1261,7 +1262,7 @@ SUBROUTINE casa_delplant(veg,casabiome,casapool,casaflux,casamet,            &
   casaflux%FluxPtolitter = 0.0
 
   casaflux%fluxCtoCO2_plant_fire = 0.0
-  casaflux%NtoAtm_fire = 0.0
+  casaflux%fluxNtoAtm_fire = 0.0
 
   ! added by ypwang following Chris Lu 5/nov/2012
 
@@ -1304,10 +1305,12 @@ SUBROUTINE casa_delplant(veg,casabiome,casapool,casaflux,casamet,            &
                   .OR. ((casapool%dcplantdt(npt,2:3)*deltpool + casapool%cplant(npt,2:3)) &
                   .lt. 0.5 * casapool%cplant(npt,2:3) ))
            casaflux%kplant_tot(npt,2:3) = 0.0
+           casaflux%kplant(npt,2:3) = 0.0
            casaflux%crmplant(npt,2:3)= 0.0
         endwhere
         IF(ANY((casapool%dcplantdt(npt,:)*deltpool + casapool%cplant(npt,:)).lt. 0.0)) THEN
            casaflux%kplant_tot(npt,1) = 0.0
+           casaflux%kplant(npt,1) = 0.0
            casaflux%crmplant(npt,1)= min(casaflux%crmplant(npt,1),0.5*casaflux%Cgpp(npt))
         ENDIF
 
@@ -1362,7 +1365,7 @@ SUBROUTINE casa_delplant(veg,casabiome,casapool,casaflux,casamet,            &
         cleaf2str(npt) = cleaf2str(npt) + casaflux%fromPtoL_fire(npt,str,leaf) &
              * casaflux%kplant_fire(npt,leaf)*(1.- casaflux%kplant(npt,leaf)) &
              * casapool%cplant(npt,leaf)
-        croot2met(npt) = croot2met(npt) + casaflux%fromPtoL_fire(npt,met,froot) &
+        croot2met(npt) = croot2met(npt) + casaflux%fromPtoL_fire(npt,metb,froot) &
              * casaflux%kplant_fire(npt,froot)*(1.- casaflux%kplant(npt,froot)) &
              * casapool%cplant(npt,froot)
         croot2str(npt) = croot2str(npt) + casaflux%fromPtoL_fire(npt,str,froot) &
@@ -1373,11 +1376,13 @@ SUBROUTINE casa_delplant(veg,casabiome,casapool,casaflux,casamet,            &
              * casapool%cplant(npt,wood)
 
 
-        ! fire flux to atmopshere from burnt plant material
+        ! fire flux to atmosphere from burnt plant material
         DO nP=1,mplant
-           casaflux%fluxCtoCO2_plant_fire(nland) = casaflux%fluxCtoCO2_plant_fire(nland) + &
-                (1. - casaflux%kplant(:,nL))*casaflux%klitter_fire(:,nL)  * casapool%clitter(nland,nL) * &
-                (1. - casaflux%fromPtoL_fire(npt,metb,nP) - casaflux%fromPtoL_fire(npt,str,nP) - &
+           casaflux%fluxCtoCO2_plant_fire(npt) = casaflux%fluxCtoCO2_plant_fire(npt) + &
+                (1. - casaflux%kplant(npt,nP))*casaflux%kplant_fire(npt,nP)  *  &
+                casapool%cplant(npt,nP) * &
+                (1. - casaflux%fromPtoL_fire(npt,metb,nP) - &
+                casaflux%fromPtoL_fire(npt,str,nP) - &
                  casaflux%fromPtoL_fire(npt,cwd,nP))
         ENDDO
 
@@ -1445,11 +1450,14 @@ SUBROUTINE casa_delplant(veg,casabiome,casapool,casaflux,casamet,            &
                 casaflux%kplant(npt,leaf)  * casapool%nplant(npt,leaf) *  casaflux%fharvest(npt)
 
            ! Nitrogen lost to fire
-           casaflux%NtoAtm_fire(npt) =  (1. -casaflux%kplant(npt,leaf))*casaflux%kplant_fire(npt,leaf) * casapool%Nplant(npt,leaf) &
+           casaflux%fluxNtoAtm_fire(npt) =  (1. -casaflux%kplant(npt,leaf))* &
+                casaflux%kplant_fire(npt,leaf) * casapool%Nplant(npt,leaf) &
                 * (1. -  casaflux%fromPtoL_fire(npt,str,leaf)) + &
-                (1. -casaflux%kplant(npt,froot))*casaflux%kplant_fire(npt,froot) * casapool%Nplant(npt,froot) &
+                (1. -casaflux%kplant(npt,froot))*casaflux%kplant_fire(npt,froot) * &
+                casapool%Nplant(npt,froot) &
                 * (1. -  casaflux%fromPtoL_fire(npt,str,froot)) + &
-                (1. -casaflux%kplant(npt,wood))*casaflux%kplant_fire(npt,wood) * casapool%Nplant(npt,wood) &
+                (1. -casaflux%kplant(npt,wood))*casaflux%kplant_fire(npt,wood) * &
+                casapool%Nplant(npt,wood) &
                 * (1. -  casaflux%fromPtoL_fire(npt,str,wood))    
                 
                 
@@ -1527,7 +1535,7 @@ SUBROUTINE casa_delplant(veg,casabiome,casapool,casaflux,casamet,            &
 !!$           ENDDO
 !!$        ENDDO
 
-        casaflux%FluxCtolitter(npt,met) =  cleaf2met(npt) + croot2met(npt)
+        casaflux%FluxCtolitter(npt,metb) =  cleaf2met(npt) + croot2met(npt)
         casaflux%FluxCtolitter(npt,str) =  cleaf2str(npt) + croot2str(npt)
         casaflux%FluxCtolitter(npt,wood) =  cwood2cwd(npt) 
         
@@ -1660,7 +1668,8 @@ IF(casamet%iveg2(nland)/=icewater) THEN
    ! fire flux to atmopshere from burnt litter material
    DO nL=1,mlitter
       casaflux%fluxCtoCO2_litter_fire(nland) = casaflux%fluxCtoCO2_litter_fire(nland) + &
-           (1. - casaflux%klitter(:,nL))*casaflux%klitter_fire(:,nL)  * casapool%clitter(nland,nL)
+           (1. - casaflux%klitter(nland,nL))*casaflux%klitter_fire(nland,nL)  * &
+           casapool%clitter(nland,nL)
    ENDDO
 
    DO nS=1,msoil

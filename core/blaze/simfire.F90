@@ -6,7 +6,7 @@ TYPE TYPE_SIMFIRE
    REAL,    DIMENSION(:,:), ALLOCATABLE  :: SAV_NESTEROV, SAV_FAPAR
    INTEGER   :: SYEAR, EYEAR, NCELLS
    REAL      :: RES, RESF
-   CHARACTER :: IGBPFILE*120, HYDEPATH*100, OUTMODE*6
+   CHARACTER :: IGBPFILE*120, HYDEPATH*100, OUTMODE*6, BA_CLIM_FILE*100
 END TYPE TYPE_SIMFIRE
 
 ! IGBP2BIOME MAPPING:
@@ -156,7 +156,7 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
   LOGICAL, SAVE :: CALL1 = .TRUE.
   
   ! CLN Put into cable_in
-  SF%HYDEPATH = "/data/nie06a/HYDE3.1"
+  SF%HYDEPATH = "/OSM/CBR/OA_GLOBALCABLE/work/Data_BLAZE/HYDE3.1"
   
   !=============================================================================
   ! POPDENS Population Density from HYDE 3.1 popd comes at 5' res
@@ -236,9 +236,7 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
   SF%RES = 1./12.
   RF = NINT(SF%RES/HYRES)
 
-  write(*,*) 'SF%RES', SF%RES, HYRES, RF, X, Y
-  
-
+ 
   IF ( NREAD .GT. 0 ) THEN
      CALL GET_UNIT(iu)     
      DO nr = 1, NREAD 
@@ -431,44 +429,81 @@ SUBROUTINE UPDATE_FIRE_BIOME
   
 END SUBROUTINE UPDATE_FIRE_BIOME
 
-SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY, YEAR, AB, climate )
+SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate )
 
-  USE CABLE_COMMON_MODULE, ONLY: IS_LEAPYEAR
+  USE CABLE_COMMON_MODULE, ONLY: IS_LEAPYEAR, HANDLE_ERR
   USE cable_IO_vars_module, ONLY:  landpt
   
   USE CABLE_DEF_TYPES_MOD, ONLY:  climate_type
+  USE netcdf
 
   IMPLICIT NONE
 
   TYPE (TYPE_SIMFIRE) :: SF
   REAL,    INTENT(IN) :: RAINF(*), TMAX(*), TMIN(*)
   REAL,    INTENT(OUT):: AB(*)
-  INTEGER, INTENT(IN) :: YEAR
+  INTEGER, INTENT(IN) :: YEAR, MM
   TYPE (CLIMATE_TYPE), INTENT(IN)     :: climate
   
 
-  INTEGER :: DOY, i
+  INTEGER :: i, DOM(12), DOY
+  INTEGER :: F_ID, V_ID, V_ID_lat, V_ID_lon, ilat,ilon, STATUS
+  REAL:: monthly_ba
 
+  REAL, DIMENSION(720):: lon_BA
+  REAL, DIMENSION(360):: lat_BA
   
+
+  DOM = (/ 31,28,31,30,31,30,31,31,30,31,30,31 /)
+  IF ( IS_LEAPYEAR(YEAR) ) DOM(2) = 29
   
   SF%FAPAR = climate%AvgAnnMaxFAPAR(landpt(:)%cstart)
   SF%MAX_NESTEROV =  climate%Nesterov_ann_running_max(landpt(:)%cstart)
+  SF%BA_CLIM_FILE = "/OSM/CBR/OA_GLOBALCABLE/work/Data_BLAZE/simfire_monthly_ba.nc"
   
   ! Housekeeping first
   IF ( DOY.EQ. 1 ) THEN
      CALL GET_POPDENS ( SF, YEAR )
   ENDIF
 
+  DO i = 1, SF%NCELLS
+     AB(i) = ANNUAL_BA( SF%FAPAR(i), SF%MAX_NESTEROV(i), SF%POPD(i), SF%BIOME(i), SF%REGION(i) )
+     AB(i) = MAX( 0., MIN(AB(i),.99) )
+     !write(*,*) 'SF%FAPAR, SF%MAX_NESTEROV, SF%POPD, SF%BIOME, SF%REGION, AB'
+     !write(*,"(200e16.6)") ,SF%FAPAR(i), SF%MAX_NESTEROV(i), SF%POPD(i), real(SF%BIOME(i)), real(SF%REGION(i)), AB(i)
 
- ! IF ( DOY .EQ. 366 .OR. ( (.NOT. IS_LEAPYEAR(YEAR)) .AND. DOY .EQ. 365 )) THEN
-     DO i = 1, SF%NCELLS
-        AB(i) = ANNUAL_BA( SF%FAPAR(i), SF%MAX_NESTEROV(i), SF%POPD(i), SF%BIOME(i), SF%REGION(i) )
-        AB(i) = MAX( 0., MIN(AB(i),.99) )
-write(*,*) 'SF%FAPAR, SF%MAX_NESTEROV, SF%POPD, SF%BIOME, SF%REGION, AB'
- write(*,"(200e16.6)") ,SF%FAPAR(i), SF%MAX_NESTEROV(i), SF%POPD(i), real(SF%BIOME(i)), real(SF%REGION(i)), AB(i)
-        
-     END DO
-  !ENDIF
+     ! convert to daily burned area using GFED climatology
+
+      STATUS = NF90_OPEN(TRIM(SF%BA_CLIM_FILE), NF90_NOWRITE, F_ID)
+      CALL HANDLE_ERR(STATUS, "Opening BA Clim File "//SF%BA_CLIM_FILE )
+      STATUS = NF90_INQ_VARID(F_ID,'monthly_ba', V_ID)
+      CALL HANDLE_ERR(STATUS, "Inquiring  var monthly_ba &
+           in "//SF%BA_CLIM_FILE )
+
+      STATUS = NF90_INQ_VARID(F_ID,'latitude', V_ID_lat)
+      CALL HANDLE_ERR(STATUS, "Inquiring  var latitude &
+           in "//SF%BA_CLIM_FILE )
+
+      STATUS = NF90_INQ_VARID(F_ID,'longitude', V_ID_lon)
+      CALL HANDLE_ERR(STATUS, "Inquiring  var longitude &
+           in "//SF%BA_CLIM_FILE )
+
+      STATUS = NF90_GET_VAR( F_ID, V_ID_lat, lat_BA, &
+               start=(/1/) )
+      STATUS = NF90_GET_VAR( F_ID, V_ID_lon, lon_BA, &
+           start=(/1/)  )
+
+      ilat = MINLOC(ABS(lat_BA - SF%LAT(i)),DIM=1)
+      ilon = MINLOC(ABS(lon_BA - SF%LON(i)),DIM=1)
+      
+      STATUS = NF90_GET_VAR( F_ID, V_ID, monthly_ba, &
+           start=(/MM,ilon,ilat/) )
+      CALL HANDLE_ERR(STATUS, "Reading direct from "//SF%BA_CLIM_FILE )
+
+      ! Daily Burned Area
+      AB(i) = AB(i) * monthly_ba / DOM(MM)
+
+   END DO
 
 
 
