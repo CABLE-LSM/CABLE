@@ -23,7 +23,7 @@ MODULE cable_c13o2_def
 
   ! types
   type c13o2_pool
-     integer                           :: nland, nplant, nlitter, nsoil
+     integer                           :: nland, nplant, nlitter, nsoil, npools
      real(dp), dimension(:),   pointer :: clabile
      real(dp), dimension(:,:), pointer :: cplant
      real(dp), dimension(:,:), pointer :: clitter
@@ -54,6 +54,7 @@ contains
     c13o2pools%nplant  = mplant
     c13o2pools%nlitter = mlitter
     c13o2pools%nsoil   = msoil
+    c13o2pools%npools  = mplant + mlitter + msoil + 1
     allocate(c13o2pools%clabile(nland))
     allocate(c13o2pools%cplant(nland,mplant))
     allocate(c13o2pools%clitter(nland,mlitter))

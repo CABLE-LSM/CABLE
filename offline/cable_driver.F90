@@ -111,7 +111,7 @@ PROGRAM cable_offline_driver
   USE SIMFIRE_MOD,          ONLY: TYPE_SIMFIRE
 
   ! 13CO2
-  use cable_c13o2_def,      only: c13o2_pool
+  use cable_c13o2_def,      only: c13o2_pool, zero_sum_c13o2
 
   ! PLUME-MIP only
   USE CABLE_PLUME_MIP,      ONLY: PLUME_MIP_TYPE, PLUME_MIP_GET_MET,&
@@ -502,8 +502,6 @@ PROGRAM cable_offline_driver
                  CALL CPU_TIME(etime)
                  CALL PLUME_MIP_INIT( PLUME )
 
-
-
                  dels      = PLUME%dt
                  koffset   = 0
                  leaps = PLUME%LeapYears
@@ -646,8 +644,6 @@ PROGRAM cable_offline_driver
                  ENDIF
               ENDIF
 
-
-
               ssnow%otss_0 = ssnow%tgg(:,1)
               ssnow%otss = ssnow%tgg(:,1)
               ssnow%tss = ssnow%tgg(:,1)
@@ -655,10 +651,9 @@ PROGRAM cable_offline_driver
               canopy%fhs_cor = 0.
               met%ofsd = 0.1
 
-
               CALL zero_sum_casa(sum_casapool, sum_casaflux)
               count_sum_casa = 0
-
+              if (cable_user%c13o2) call zero_sum_c13o2(sum_c13o2pools)
 
               spinConv = .FALSE. ! initialise spinup convergence variable
               IF (.NOT.spinup) spinConv=.TRUE.
@@ -675,7 +670,7 @@ PROGRAM cable_offline_driver
               IF( icycle>0 .AND. spincasa) THEN
                  PRINT *, 'EXT spincasacnp enabled with mloop= ', mloop
                  CALL spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
-                      casaflux,casamet,casabal,phen,POP,climate,LALLOC)
+                      casaflux,casamet,casabal,phen,POP,climate,LALLOC,c13o2pools)
                  SPINon = .FALSE.
                  SPINconv = .FALSE. 
 

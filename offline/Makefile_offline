@@ -46,22 +46,25 @@ LSRC = cable_data.F90 cable_common.F90 cable_define_types.F90 cable_iovars.F90 \
 	cable_cru_TRENDY.F90 POPLUC.F90 CASAONLY_LUC.F90 cable_LUC_EXPT.F90 \
 	cable_site.F90 cable_optimiseJVratio.F90 cable_bios_met_obs_params.F90\
 	blaze.F90 blaze_driver.F90 simfire.F90 \
-	cable_c13o2_def.F90 cable_c13o2.F90
+	cable_c13o2.F90 cable_c13o2_def.F90
+LSRCf90 = mo_isotope_pool_model.f90 mo_utils.f90 mo_kind.f90
 
 # this is the executable we are building
 PROG = cable
 
 # from the compiled object files 
-OBJS	= ${LSRC:.F90=.o} 
+OBJS = ${LSRC:.F90=.o} ${LSRCf90:.f90=.o}
 
 #compiler switches and flags
 CINC = -I$(NCMOD)
 
 #suffixes we use
 .SUFFIXES:
-.SUFFIXES: .F90 .o 
+.SUFFIXES: .f90 .F90 .o 
 #default rules for these suffixes
 .F90.o:
+	$(FC) $(CFLAGS) $(CINC) -c $<
+.f90.o:
 	$(FC) $(CFLAGS) $(CINC) -c $<
 
 # default target by convention is ``all''
@@ -124,7 +127,7 @@ cable_soilsnow.o: cable_soilsnow.F90 cable_iovars.o cable_define_types.o cable_c
 
 casa_variable.o: casa_variable.F90 POP.o  
 
-spincasacnp.o: spincasacnp.F90  cable_define_types.o  cable_carbon.o cable_common.o casa_variable.o
+spincasacnp.o: spincasacnp.F90  cable_define_types.o  cable_carbon.o cable_common.o casa_variable.o cable_c13o2.o
 
 #cable_LUC.o: cable_LUC.F90 cable_carbon.o cable_common.o casa_variable.o POP.o POPLUC.o cable_LUC_EXPT.o
 
@@ -183,7 +186,10 @@ simfire.o: simfire.F90
 blaze_driver.o: blaze_driver.F90 blaze.o simfire.o
 
 cable_c13o2_def.o: cable_c13o2_def.F90 cable_define_types.o casa_variable.o
-cable_c13o2.o: cable_c13o2.F90 cable_c13o2_def.o cable_define_types.o
+cable_c13o2.o: cable_c13o2.F90 cable_c13o2_def.o cable_define_types.o casa_variable.o mo_isotope_pool_model.o
+mo_isotope_pool_model.o: mo_isotope_pool_model.f90 mo_utils.o mo_kind.o
+mo_utils.o: mo_utils.f90 mo_kind.o
+mo_kind.o: mo_kind.f90
 
 
 # make clean option

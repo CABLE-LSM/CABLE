@@ -198,54 +198,68 @@ host_raij()
 }
 
 
-# Matthias@INRA
+# MatthiasCuntz@INRA
 host_mcin()
-{    
-   # GFORTRAN
-   export FC=gfortran
-   # release
-   export CFLAGS="-O3 -Wno-aggressive-loop-optimizations -cpp -ffree-form -ffixed-line-length-132"
-   if [[ $1 = 'debug' ]] ; then
-       # debug
-       export CFLAGS="-pedantic-errors -Wall -W -O -g -Wno-maybe-uninitialized -cpp -ffree-form -ffixed-line-length-132"
-   fi
-   export LD=''
-   export NCROOT='/usr/local/netcdf-fortran-4.4.4-gfortran'
+{
+    idebug=0
+    iintel=0
+    np=$#
+    for ((i=0; i<${np}; i++)) ; do
+	if [[ "${1}" == "debug" ]] ; then
+	    idebug=1
+	    shift 1
+	elif [[ "${1}" == "ifort" || "${1}" == "intel" ]] ; then
+	    iintel=1
+	    shift 1
+	fi
+    done
+    if [[ ${iintel} -eq 1 ]] ;  then
+	# INTEL
+	/opt/intel/compilers_and_libraries/mac/bin/compilervars.sh intel64
+	export FC=ifort
+	# release
+	export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
+	if [[ ${idebug} -eq 1 ]] ; then
+	    # debug
+	    export CFLAGS="-check all -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
+	fi
+	export LD=''
+	export NCROOT='/usr/local/netcdf-fortran-4.4.4-ifort'
+    else
+	# GFORTRAN
+	export FC=gfortran
+	# release
+	export CFLAGS="-O3 -Wno-aggressive-loop-optimizations -cpp -ffree-form -ffixed-line-length-132"
+	if [[ ${idebug} -eq 1 ]] ; then
+	    # debug
+	    export CFLAGS="-pedantic-errors -Wall -W -O -g -Wno-maybe-uninitialized -cpp -ffree-form -ffixed-line-length-132"
+	fi
+	export LD=''
+	export NCROOT='/usr/local/netcdf-fortran-4.4.4-gfortran'
+    fi
 
-   # # NAG - Does not work for pop_io.f90
-   # export FC=nagfor
-   # # release
-   # export CFLAGS="-O4 -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free"
-   # if [[ $1 = 'debug' ]] ; then
-   #     # debug
-   #     export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -DNAG"
-   # fi
-   # export LD='-ideclient -unsharedrts'
-   # export NCROOT='/usr/local/netcdf-fortran-4.4.4-nagfor'
+    # # NAG - Does not work for pop_io.f90
+    # export FC=nagfor
+    # # release
+    # export CFLAGS="-O4 -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free"
+    # if [[ ${1} = 'debug' ]] ; then
+    #     # debug
+    #     export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -DNAG"
+    # fi
+    # export LD='-ideclient -unsharedrts'
+    # export NCROOT='/usr/local/netcdf-fortran-4.4.4-nagfor'
 
-   # # INTEL
-   # /opt/intel/compilers_and_libraries/mac/bin/compilervars.sh intel64
-   # export FC=ifort
-   # # release
-   # export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
-   # if [[ $1 = 'debug' ]] ; then
-   #     # debug
-   #     export CFLAGS="-check all -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
-   # fi
-   # export LD=''
-   # export NCROOT='/usr/local/netcdf-fortran-4.4.4-ifort'
-
-   # All compilers
-   export NCCROOT='/usr/local'
-   export NCCLIB=${NCROOT}'/lib'
-   export NCLIB=${NCROOT}'/lib'
-   export NCMOD=${NCROOT}'/include'
-   export LDFLAGS="-L${NCCLIB} -L${NCLIB} -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz"
-   export dosvn=0
-   export MFLAGS= #'-j 8'
-   build_build
-   cd ../
-   build_status
+    # All compilers
+    export NCCROOT='/usr/local'
+    export NCCLIB=${NCROOT}'/lib'
+    export NCLIB=${NCROOT}'/lib'
+    export NCMOD=${NCROOT}'/include'
+    export LDFLAGS="-L${NCCLIB} -L${NCLIB} -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz"
+    export dosvn=0
+    export MFLAGS= #'-j 8'
+    build_build
+    cd ../
+    build_status
 }
 
 
@@ -401,7 +415,7 @@ do_i_no_u()
       if [[ $HOST_MACH = ${kh[$k]} ]];then
          print 'Host recognized as' $HOST_MACH
          subr=host_${kh[$k]}
-         $subr $1
+         $subr $*
       fi        
       (( k = k + 1 ))
    done 
@@ -475,10 +489,6 @@ build_build()
    /bin/cp -p $DRV/*90 ./.tmp
    /bin/cp -p $CASA/*90 ./.tmp
    /bin/cp -p $BLAZE/*90 ./.tmp
-   
-   print "\n\n\tPlease note: CASA-CNP files are included in build only for " 
-   print "\ttechnical reasons. Implementation is not officially available with" 
-   print "\tthe release of CABLE 2.0\n"
     
    /bin/cp -p Makefile_offline  ./.tmp
    
@@ -501,7 +511,7 @@ known_hosts
 
 HOST_MACH=`uname -n | cut -c 1-4`
 
-do_i_no_u $1
+do_i_no_u $*
 
 not_recognized
 

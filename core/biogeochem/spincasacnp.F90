@@ -1,5 +1,5 @@
-SUBROUTINE spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
-     casaflux,casamet,casabal,phen,POP,climate,LALLOC )
+SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
+     casaflux,casamet,casabal,phen,POP,climate,LALLOC,c13o2pools)
 
 
   USE cable_def_types_mod
@@ -12,6 +12,8 @@ SUBROUTINE spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
   USE POP_Types,  Only: POP_TYPE
   USE POPMODULE,            ONLY: POPStep
   USE TypeDef,              ONLY: i4b, dp
+  use cable_c13o2_def, only: c13o2_pool
+  use cable_c13o2,     only: c13o2_save_casapool, c13o2_update_pools
 
   IMPLICIT NONE
   !!CLN  CHARACTER(LEN=99), INTENT(IN)  :: fcnpspin
@@ -30,7 +32,7 @@ SUBROUTINE spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
   TYPE (phen_variable),         INTENT(INOUT) :: phen
   TYPE (POP_TYPE), INTENT(INOUT)     :: POP
   TYPE (climate_TYPE), INTENT(INOUT)     :: climate
-
+  type(c13o2_pool), intent(inout) :: c13o2pools
 
   TYPE (casa_met)  :: casaspin
 
@@ -70,6 +72,9 @@ SUBROUTINE spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
    REAL(dp), allocatable :: NPPtoGPP(:)
    INTEGER, allocatable :: Iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
    INTEGER ::ctime
+
+   real(dp), dimension(mp,c13o2pools%npools) :: casasave ! c13o2pools%nland or mp?
+   
    if (.NOT.Allocated(LAIMax)) allocate(LAIMax(mp))
    if (.NOT.Allocated(Cleafmean))  allocate(Cleafmean(mp))
    if (.NOT.Allocated(Crootmean)) allocate(Crootmean(mp))
@@ -145,15 +150,20 @@ SUBROUTINE spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
         phen%doyphase(:,4) =  phen%doyphasespin_4(:,idoy)
         climate%qtemp_max_last_year(:) =  casamet%mtempspin(:,idoy)
 
-      ! write(6699,*) casaflux%cgpp(1), climate%mtemp(1),  casaflux%crmplant(1,1)
+        ! write(6699,*) casaflux%cgpp(1), climate%mtemp(1),  casaflux%crmplant(1,1)
 
+        if (cable_user%c13o2) then
+           call c13o2_save_casapool(casapool, casasave)
+        endif
         CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
              casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter, &
              xksoil,xkleaf,xkleafcold,xkleafdry,&
              cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
              nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
              pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
-
+        if (cable_user%c13o2) then
+           call c13o2_update_pools(casasave, casaflux, c13o2pools)
+        endif
          
         IF (cable_user%CALL_POP .and. POP%np.gt.0) THEN ! CALL_POP
 
@@ -342,14 +352,18 @@ SUBROUTINE spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
            climate%qtemp_max_last_year(:) =  casamet%mtempspin(:,idoy)
            
 
-
+           if (cable_user%c13o2) then
+              call c13o2_save_casapool(casapool, casasave)
+           endif
            call biogeochem(ktauy,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
                 casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter,xksoil,xkleaf,&
                 xkleafcold,xkleafdry,&
                 cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
                 nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
                 pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
-
+           if (cable_user%c13o2) then
+              call c13o2_update_pools(casasave, casaflux, c13o2pools)
+           endif
 
            IF (cable_user%CALL_POP .and. POP%np.gt.0) THEN ! CALL_POP
 

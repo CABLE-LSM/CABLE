@@ -1366,18 +1366,22 @@ SUBROUTINE casa_cnpflux(casaflux,casapool,casabal,zeroflux)
      ENDIF
   ENDIF
 END SUBROUTINE casa_cnpflux
+
 ! changed by yp wang following Chris Lu 5/nov/2012
 SUBROUTINE biogeochem(ktau,dels,idoY,LALLOC,veg,soil,casabiome,casapool,casaflux, &
      casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter,xksoil,xkleaf,xkleafcold,xkleafdry,&
      cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
      nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
-                      pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
+     pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
+  
   USE cable_def_types_mod
   USE casadimension
   USE casa_cnp_module
   USE POP_TYPES,            ONLY: POP_TYPE
   USE cable_IO_vars_module, ONLY: wlogn
+  
   IMPLICIT NONE
+  
   INTEGER, INTENT(IN)    :: ktau
   REAL,    INTENT(IN)    :: dels
   INTEGER, INTENT(IN)    :: idoy
@@ -1390,8 +1394,8 @@ SUBROUTINE biogeochem(ktau,dels,idoY,LALLOC,veg,soil,casabiome,casapool,casaflux
   TYPE (casa_met),              INTENT(INOUT) :: casamet
   TYPE (casa_balance),          INTENT(INOUT) :: casabal
   TYPE (phen_variable),         INTENT(INOUT) :: phen
-  TYPE(POP_TYPE),             INTENT(IN) :: POP
-  TYPE(climate_TYPE),             INTENT(IN) :: climate
+  TYPE(POP_TYPE),               INTENT(IN)    :: POP
+  TYPE(climate_TYPE),           INTENT(IN)    :: climate
 
   ! local variables added by ypwang following Chris Lu 5/nov/2012
 
