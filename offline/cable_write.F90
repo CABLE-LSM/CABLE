@@ -983,6 +983,8 @@ CONTAINS
     TYPE(met_type), INTENT(IN) :: met  ! met data
 
     INTEGER :: i, j, k ! do loop counter
+    integer :: n2 ! 2nd dimension of input var
+    real(kind=4) :: rout
 
     ! First, decide which grid to use. If user has forced grid using output%grid
     ! in the namelist file, use this grid. Else use format of met file.
@@ -1154,6 +1156,38 @@ CONTAINS
           ok = NF90_PUT_VAR(ncid, varID, REAL(otmp5xypsct(:, :, :, :, 1), 4),  &
                             start = (/1, 1, 1, 1, ktau/),                      &
                          count = (/xdimsize, ydimsize, max_vegpatches, ncs, 1/))
+        else if(dimswitch == 'generic') then ! other dim is determined from var_r2
+          n2 = size(var_r2,2)
+          do i = 1, mland ! over all land grid points
+            ! first write data for active patches:
+             otmp5xypsnt(land_x(i), land_y(i), 1:landpt(i)%nap, :, 1) = &
+                  var_r2(landpt(i)%cstart:landpt(i)%cend, :)
+             ! then write data for inactive patches as dummy value:
+             if (landpt(i)%nap < max_vegpatches) &
+                  otmp5xypsnt(land_x(i), land_y(i), (landpt(i)%nap+1):max_vegpatches, :, 1) = ncmissingr
+            if (check%ranges) then  ! check ranges for active patches:
+               if (any(otmp5xypsnt(land_x(i), land_y(i), 1:landpt(i)%nap, 1:n2, 1) < vrange(1))  &
+                    .or. any(otmp5xypsnt(land_x(i), land_y(i), 1:landpt(i)%nap, 1:n2, 1) > vrange(2))) then
+                  if (any(otmp5xypsnt(land_x(i), land_y(i), 1:landpt(i)%nap, 1:n2, 1) < vrange(1))) &
+                       rout = minval(otmp5xypsnt(land_x(i), land_y(i), 1:landpt(i)%nap, 1:n2, 1))
+                  if (any(otmp5xypsnt(land_x(i), land_y(i), 1:landpt(i)%nap, 1:n2, 1) > vrange(2))) &
+                       rout = maxval(otmp5xypsnt(land_x(i), land_y(i), 1:landpt(i)%nap, 1:n2, 1))
+                  call range_abort(vname//' is out of specified ranges!', &
+                       ktau, met, rout, vrange, i, land_x(i), land_y(i))
+               end if
+            endif
+          end do
+          ! fill non-land points with dummy value:
+          do j = 1, max_vegpatches
+             do k = 1, n2
+                ! not land
+                where (mask /= 1) otmp5xypsnt(:, :, j, k, 1) = ncmissingr
+             end do
+          end do
+          ! write data to file:
+          ok = NF90_PUT_VAR(ncid, varid, real(otmp5xypsnt(:, :, :, :, 1), 4),  &
+                            start = (/1, 1, 1, 1, ktau/),                      &
+                            count = (/xdimsize, ydimsize, max_vegpatches, n2, 1/))
         ELSE
           CALL abort('Variable '//vname//                                      &
                      ' defined with unknown dimension switch - '//dimswitch//  &
@@ -1290,6 +1324,32 @@ CONTAINS
           ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4xysct, 4),                  &
                             start = (/1, 1, 1, ktau/),                         &
                     count = (/xdimsize, ydimsize, ncs, 1/)) ! write data to file
+        else if(dimswitch == 'generic') then ! other dim is determined from var_r2
+          n2 = size(var_r2,2)
+          do i = 1, mland ! over all land grid points
+            ! write to temporary variable (sum over patches & weight by fraction):
+            do j = 1, n2
+               otmp4xysnt(land_x(i), land_y(i), j, 1) = &
+                    sum(var_r2(landpt(i)%cstart:landpt(i)%cend, j) *  &
+                        patch(landpt(i)%cstart:landpt(i)%cend)%frac)
+            end do
+            if (check%ranges) then  ! check ranges:
+              do j = 1, n2
+                if ((otmp4xysnt(land_x(i), land_y(i), j, 1) < vrange(1)) .or.   &
+                     (otmp4xysnt(land_x(i), land_y(i), j, 1) > vrange(2)))     &
+                     call range_abort(vname//' is out of specified ranges!',   &
+                     ktau, met, otmp4xysnt(land_x(i), land_y(i), j, 1),        &
+                     vrange, i, land_x(i), land_y(i))
+              end do
+            end if
+          end do
+          ! fill non-land points with dummy value:
+          do j = 1, n2
+            where (mask /= 1) otmp4xysnt(:, :, j, 1) = ncmissingr ! not land
+          end do
+          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4xysnt, 4),                  &
+                            start = (/1, 1, 1, ktau/),                         &
+                            count = (/xdimsize, ydimsize, n2, 1/)) ! write data to file
         ELSE
           CALL abort('Variable '//vname//                                      &
                      ' defined with unknown dimension switch - '//dimswitch//  &
@@ -1422,6 +1482,30 @@ CONTAINS
           ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4lpsct(:, :, :, 1), 4),      &
                             start = (/1, 1, 1, ktau/),                         &
                             count = (/mland, max_vegpatches, ncs, 1/))
+       else if (dimswitch == 'generic') then ! other dim is snow
+          n2 = size(var_r2,2)
+          do i = 1, mland ! over all land grid points
+            ! first write data for active patches:
+              otmp4lpsnt(i, 1:landpt(i)%nap, :, 1) =                           &
+                   var_r2(landpt(i)%cstart:landpt(i)%cend, :)
+              ! then write data for inactive patches as dummy value:
+              if(landpt(i)%nap < max_vegpatches) otmp4lpsnt(i,                 &
+                          (landpt(i)%nap + 1):max_vegpatches, :, 1) = ncmissingr
+            if (check%ranges) then  ! check ranges for active patches:
+              do j = 1, landpt(i)%nap
+                do k = 1, n2
+                  if ((otmp4lpsnt(i, j, k, 1) < vrange(1)) .or.                 &
+                       (otmp4lpsnt(i, j, k, 1) > vrange(2)))                   &
+                       call range_abort(vname//' is out of specified ranges!', &
+                       ktau, met, otmp4lpsnt(i, j, k, 1), vrange, i)
+               end do
+              end do
+            end if
+          end do
+          ! write data to file
+          ok = nf90_put_var(ncid, varid, real(otmp4lpsnt(:, :, :, 1), 4),      &
+                            start = (/1, 1, 1, ktau/),                         &
+                            count = (/mland, max_vegpatches, n2, 1/))
         ELSE
           CALL abort('Variable '//vname//                                      &
                      ' defined with unknown dimension switch - '//dimswitch//  &
@@ -1532,6 +1616,28 @@ CONTAINS
           ok = NF90_PUT_VAR(ncid, varID, REAL(otmp3lsct, 4),                   &
                             start = (/1, 1, ktau/),                            &
                             count = (/mland, ncs, 1/)) ! write data to file
+        else if (dimswitch == 'generic') then ! other dim is snow
+          n2 = size(var_r2,2)
+          do i = 1, mland ! over all land grid points
+            ! write to temporary variable (sum over patches & weight by
+            ! fraction):
+            do j = 1, n2
+               otmp3lsnt(i, j, 1) = &
+                    sum(var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
+                        patch(landpt(i)%cstart:landpt(i)%cend)%frac)
+            end do
+            if (check%ranges) then  ! check ranges:
+              do j = 1, n2
+                if ((otmp3lsnt(i, j, 1) < vrange(1)) .or.                       &
+                     (otmp3lsnt(i, j, 1) > vrange(2)))                         &
+                     call range_abort(vname//' is out of specified ranges!',   &
+                     ktau, met, otmp3lsnt(i, j, 1), vrange, i)
+              end do
+            end if
+          end do
+          ok = nf90_put_var(ncid, varid, real(otmp3lsnt, 4),                   &
+                            start = (/1, 1, ktau/),                            &
+                            count = (/mland, n2, 1/)) ! write data to file
         ELSE
           CALL abort('Variable '//vname//                                      &
                      ' defined with unknown dimension switch - '//dimswitch//  &

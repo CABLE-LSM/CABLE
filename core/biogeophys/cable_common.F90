@@ -169,7 +169,11 @@ MODULE cable_common_module
           SRF = .TRUE., &
 
           !! vh_js !!
-         litter = .FALSE.
+          litter = .FALSE.
+     
+     logical ::            c13o2 = .false.        ! switch on 13CO2 calculations     
+     character(len=200) :: c13o2_restart_in  = '' ! 13CO2 restart input file
+     character(len=200) :: c13o2_restart_out = '' ! 13CO2 restart output file
 
   END TYPE kbl_user_switches
 

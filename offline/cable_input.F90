@@ -2380,7 +2380,7 @@ END SUBROUTINE close_met_file
 SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad,        &
        sum_flux,bal,logn,vegparmnew,casabiome,casapool,    &
        casaflux,sum_casapool, sum_casaflux,casamet,casabal,phen,POP,spinup,EMSOIL, &
-       TFRZ, LUC_EXPT, POPLUC, BLAZE, SIMFIRE)
+       TFRZ, LUC_EXPT, POPLUC, BLAZE, SIMFIRE, c13o2pools, sum_c13o2pools)
    ! Input variables not listed:
    !   filename%type  - via cable_IO_vars_module
    !   exists%type    - via cable_IO_vars_module
@@ -2390,13 +2390,14 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
    !   landpt%type    - via cable_IO_vars_module (nap,cstart,cend,ilon,ilat)
    !   max_vegpatches - via cable_IO_vars_module
 !! vh_js !!
-   USE POPmodule,      ONLY: POP_INIT
-   USE POPLUC_module,  ONLY: POPLUC_INIT 
-   USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE
+   USE POPmodule,       ONLY: POP_INIT
+   USE POPLUC_module,   ONLY: POPLUC_INIT 
+   USE CABLE_LUC_EXPT,  ONLY: LUC_EXPT_TYPE
 
-   USE BLAZE_MOD,      ONLY: TYPE_BLAZE, INI_BLAZE
-   USE SIMFIRE_MOD,    ONLY: TYPE_SIMFIRE, INI_SIMFIRE
-
+   USE BLAZE_MOD,       ONLY: TYPE_BLAZE, INI_BLAZE
+   USE SIMFIRE_MOD,     ONLY: TYPE_SIMFIRE, INI_SIMFIRE
+   use cable_c13o2_def, only: c13o2_pool, alloc_c13o2
+   use cable_c13o2,     only: c13o2_init, c13o2_init_restart
 
    IMPLICIT NONE
 
@@ -2426,6 +2427,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
    TYPE (LUC_EXPT_TYPE), INTENT(INOUT)     :: LUC_EXPT
    TYPE (TYPE_BLAZE), INTENT(INOUT)        :: BLAZE
    TYPE (TYPE_SIMFIRE), INTENT(INOUT)      :: SIMFIRE
+   type(c13o2_pool), intent(out)           :: c13o2pools, sum_c13o2pools
    INTEGER,INTENT(IN)                      :: logn     ! log file unit number
    LOGICAL,INTENT(IN)                      :: &
          vegparmnew, &  ! are we using the new format?
@@ -2469,11 +2471,14 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
             sum_flux,veg,mp)
     WRITE(logn,*) ' CABLE variables allocated with ', mp, ' patch(es).'
 
-    IF (icycle > 0 .OR. CABLE_USER%CASA_DUMP_WRITE ) &
-      CALL alloc_casavariable(casabiome,casapool,casaflux, &
-      casamet,casabal,mp)
+    IF (icycle > 0 .OR. CABLE_USER%CASA_DUMP_WRITE ) then
+       CALL alloc_casavariable(casabiome,casapool,casaflux, &
+            casamet,casabal,mp)
+       if (cable_user%c13o2) call alloc_c13o2(c13o2pools, mp)
+    endif
 !mpdiff
     CALL alloc_sum_casavariable(sum_casapool,sum_casaflux,mp)
+    if (cable_user%c13o2) call alloc_c13o2(sum_c13o2pools, mp)
     IF (icycle > 0) THEN
        CALL alloc_phenvariable(phen,mp)
     ENDIF
@@ -2481,8 +2486,6 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
     ! Write parameter values to CABLE's parameter variables:
     CALL write_default_params(met,air,ssnow,veg,bgc,soil,canopy,rough, &
             rad,logn,vegparmnew,smoy, TFRZ, LUC_EXPT)
-
-
 
     ! Zero out lai where there is no vegetation acc. to veg. index
     WHERE ( veg%iveg(:) .GE. 14 ) veg%vlai = 0.
@@ -2494,6 +2497,8 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
       IF (cable_user%PHENOLOGY_SWITCH.eq.'MODIS') CALL casa_readphen(veg,casamet,phen)
 
       CALL casa_init(casabiome,casamet,casaflux,casapool,casabal,veg,phen)
+      if (cable_user%c13o2) call c13o2_init(c13o2pools)
+      if (cable_user%c13o2 .and. (.not. spinup)) call c13o2_init_restart(cable_user%c13o2_restart_in, c13o2pools)
 !! vh_js !!
       IF ( CABLE_USER%CALL_POP ) THEN
          ! evaluate mp_POP and POP_array

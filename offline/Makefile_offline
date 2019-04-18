@@ -45,7 +45,8 @@ LSRC = cable_data.F90 cable_common.F90 cable_define_types.F90 cable_iovars.F90 \
 	cable_weathergenerator.F90 cable_climate.F90 cable_phenology.F90 \
 	cable_cru_TRENDY.F90 POPLUC.F90 CASAONLY_LUC.F90 cable_LUC_EXPT.F90 \
 	cable_site.F90 cable_optimiseJVratio.F90 cable_bios_met_obs_params.F90\
-	blaze.F90 blaze_driver.F90 simfire.F90
+	blaze.F90 blaze_driver.F90 simfire.F90 \
+	cable_c13o2_def.F90 cable_c13o2.F90
 
 # this is the executable we are building
 PROG = cable
@@ -96,7 +97,7 @@ cable_driver.o: cable_driver.F90 pop_io.o cable_diag.o cable_output.o \
 		casa_inout.o cable_input.o cable_common.o cable_data.o cable_sli_main.o \
 		cable_plume_mip.o cable_climate.o cable_cru_TRENDY.o POPLUC.o cable_LUC_EXPT.o \
 		CASAONLY_LUC.o cable_site.o cable_bios_met_obs_params.o \
-		blaze_driver.o simfire.o
+		blaze_driver.o simfire.o cable_c13o2_def.o
 
 cable_define_types.o: cable_define_types.F90
 
@@ -109,9 +110,9 @@ cable_initialise.o: cable_initialise.F90 cable_read.o cable_iovars.o cable_abort
 cable_write.o: cable_write.F90 cable_iovars.o cable_abort.o cable_define_types.o 
 
 cable_input.o: cable_input.F90 POP.o cable_checks.o cable_abort.o cable_read.o cable_initialise.o cable_radiation.o \
-	       cable_parameters.o cable_common.o cable_LUC_EXPT.o POPLUC.o simfire.o blaze.o
+	       cable_parameters.o cable_common.o cable_LUC_EXPT.o POPLUC.o simfire.o blaze.o cable_c13o2_def.o cable_c13o2.o
 
-cable_output.o: cable_output.F90 cable_abort.o cable_checks.o cable_write.o cable_common.o
+cable_output.o: cable_output.F90 cable_abort.o cable_checks.o cable_write.o cable_common.o casa_variable.o
 
 cable_parameters.o: cable_parameters.F90 cable_define_types.o cable_iovars.o cable_abort.o casa_variable.o cable_common.o cable_LUC_EXPT.o
 
@@ -180,6 +181,9 @@ blaze.o: blaze.F90
 simfire.o: simfire.F90
 
 blaze_driver.o: blaze_driver.F90 blaze.o simfire.o
+
+cable_c13o2_def.o: cable_c13o2_def.F90 cable_define_types.o casa_variable.o
+cable_c13o2.o: cable_c13o2.F90 cable_c13o2_def.o cable_define_types.o
 
 
 # make clean option
