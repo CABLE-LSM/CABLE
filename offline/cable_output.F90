@@ -35,7 +35,6 @@
 !
 MODULE cable_output_module
 
-
   USE cable_abort_module, ONLY: abort, nc_abort
   USE cable_def_types_mod
   USE casavariable, ONLY: casa_pool, casa_flux, casa_met
@@ -45,9 +44,13 @@ MODULE cable_output_module
   USE netcdf
   USE cable_common_module, ONLY: filename, calcsoilalbedo, CurYear,IS_LEAPYEAR, cable_user
   USE cable_c13o2_def, only: c13o2_pool
+
   IMPLICIT NONE
+
   PRIVATE
-  PUBLIC open_output_file, write_output, close_output_file, create_restart
+
+  PUBLIC :: open_output_file, write_output, close_output_file, create_restart
+
   INTEGER :: ncid_out ! output data netcdf file ID
   REAL :: missing_value = -999999.0 ! for netcdf output
   TYPE out_varID_type ! output variable IDs in netcdf file
