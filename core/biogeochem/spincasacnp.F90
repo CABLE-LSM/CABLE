@@ -30,11 +30,11 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
   TYPE (casa_met),              INTENT(INOUT) :: casamet
   TYPE (casa_balance),          INTENT(INOUT) :: casabal
   TYPE (phen_variable),         INTENT(INOUT) :: phen
-  TYPE (POP_TYPE), INTENT(INOUT)     :: POP
-  TYPE (climate_TYPE), INTENT(INOUT)     :: climate
-  type(c13o2_pool), intent(inout) :: c13o2pools
+  TYPE (POP_TYPE),              INTENT(INOUT) :: POP
+  TYPE (climate_TYPE),          INTENT(INOUT) :: climate
+  type(c13o2_pool),             intent(inout) :: c13o2pools
 
-  TYPE (casa_met)  :: casaspin
+  ! TYPE(casa_met) :: casaspin
 
   ! local variables
   real,      dimension(:), allocatable, save  :: avg_cleaf2met, avg_cleaf2str, avg_croot2met, avg_croot2str, avg_cwood2cwd
@@ -74,6 +74,7 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
    INTEGER ::ctime
 
    real(dp), dimension(mp,c13o2pools%npools) :: casasave ! c13o2pools%nland or mp?
+
    
    if (.NOT.Allocated(LAIMax)) allocate(LAIMax(mp))
    if (.NOT.Allocated(Cleafmean))  allocate(Cleafmean(mp))
@@ -152,18 +153,14 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
 
         ! write(6699,*) casaflux%cgpp(1), climate%mtemp(1),  casaflux%crmplant(1,1)
 
-        if (cable_user%c13o2) then
-           call c13o2_save_casapool(casapool, casasave)
-        endif
+        if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
         CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
              casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter, &
              xksoil,xkleaf,xkleafcold,xkleafdry,&
              cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
              nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
              pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
-        if (cable_user%c13o2) then
-           call c13o2_update_pools(casasave, casaflux, c13o2pools)
-        endif
+        if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2pools)
          
         IF (cable_user%CALL_POP .and. POP%np.gt.0) THEN ! CALL_POP
 
@@ -350,20 +347,15 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
            phen%doyphase(:,3) =  phen%doyphasespin_3(:,idoy)
            phen%doyphase(:,4) =  phen%doyphasespin_4(:,idoy)
            climate%qtemp_max_last_year(:) =  casamet%mtempspin(:,idoy)
-           
 
-           if (cable_user%c13o2) then
-              call c13o2_save_casapool(casapool, casasave)
-           endif
+           if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
            call biogeochem(ktauy,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
                 casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter,xksoil,xkleaf,&
                 xkleafcold,xkleafdry,&
                 cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
                 nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
                 pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
-           if (cable_user%c13o2) then
-              call c13o2_update_pools(casasave, casaflux, c13o2pools)
-           endif
+           if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2pools)
 
            IF (cable_user%CALL_POP .and. POP%np.gt.0) THEN ! CALL_POP
 
@@ -400,7 +392,6 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
            ELSE
 
            IF(idoy==mdyear) THEN ! end of year
-
                
                 ! CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
                 !                             .TRUE., ctime, &

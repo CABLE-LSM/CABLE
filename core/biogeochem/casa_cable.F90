@@ -26,7 +26,7 @@
 SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
                      climate,casabiome,casapool,casaflux,casamet,casabal,phen, &
                      pop, spinConv, spinup, ktauday, idoy,loy, dump_read,   &
-                     dump_write, LALLOC)
+                     dump_write, LALLOC, c13o2pools)
 
    USE cable_def_types_mod
    USE cable_common_module, only: cable_runtime
@@ -40,6 +40,9 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    USE POP_TYPES,            ONLY: POP_TYPE
    USE cable_phenology_module, ONLY: cable_phenology_clim
    USE  cable_IO_vars_module, ONLY: wlogn
+   use cable_c13o2_def, only: c13o2_pool
+   use cable_c13o2,     only: c13o2_save_casapool, c13o2_update_pools
+
    IMPLICIT NONE
 
    INTEGER,      INTENT(IN) :: ktau ! integration step number
@@ -66,6 +69,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    TYPE (phen_variable),       INTENT(INOUT) :: phen
    TYPE(POP_TYPE),             INTENT(INOUT) :: POP
    TYPE (climate_type), INTENT(IN)       :: climate  ! climate variables
+   type(c13o2_pool),           intent(inout) :: c13o2pools
 
    ! local variables added ypwang 5/nov/2012
    real,      dimension(mp)  :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
@@ -78,8 +82,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    CHARACTER                                 :: cyear*4
    CHARACTER                                 :: ncfile*99
  
-
-  
+   real(dp), dimension(mp,c13o2pools%npools) :: casasave ! c13o2pools%nland or mp?
 
   
    IF ( .NOT. dump_read ) THEN  ! construct casa met and flux inputs from current CABLE run
@@ -126,12 +129,14 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 
             ENDIF
   
+            if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
             CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
                 casamet,casabal,phen,POP,climate, xnplimit,xkNlimiting,xklitter,xksoil, &
                 xkleaf,xkleafcold,xkleafdry,&
                 cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
                 nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
                 pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
+            if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2pools)
 
             !write(wlogn,*),'after biogeochem npp:', casaflux%cnpp
             !write(wlogn,*),'after biogeochem npp:', casapool%cplant
@@ -163,12 +168,14 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 
       IF( MOD((ktau-kstart+1),ktauday) == 0 ) THEN  ! end of day
 
+         if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
          CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
               casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter,xksoil,xkleaf, &
               xkleafcold,xkleafdry,&
               cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
               nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
               pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
+         if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2pools)
 
          IF (cable_user%CALL_POP) THEN ! accumulate input variables for POP
 

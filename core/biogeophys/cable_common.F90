@@ -174,6 +174,7 @@ MODULE cable_common_module
      logical ::            c13o2 = .false.        ! switch on 13CO2 calculations     
      character(len=200) :: c13o2_restart_in  = '' ! 13CO2 restart input file
      character(len=200) :: c13o2_restart_out = '' ! 13CO2 restart output file
+     character(len=200) :: c13o2_outfile = ''     ! 13C pools output file
 
   END TYPE kbl_user_switches
 

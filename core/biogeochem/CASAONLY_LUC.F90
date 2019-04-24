@@ -1,6 +1,6 @@
 SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
      casaflux,casamet,casabal,phen,POP,climate,LALLOC,LUC_EXPT, POPLUC, &
-     sum_casapool, sum_casaflux )
+     sum_casapool, sum_casaflux, c13o2pools, sum_c13o2pools )
 
 
   USE cable_def_types_mod
@@ -21,33 +21,35 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   USE POPLUC_Module, ONLY: POPLUCStep, POPLUC_weights_Transfer, WRITE_LUC_OUTPUT_NC, &
        POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, READ_LUC_RESTART_NC, &
        POPLUC_set_patchfrac, WRITE_LUC_OUTPUT_GRID_NC
-   
-
+  use cable_c13o2_def, only: c13o2_pool, update_sum_c13o2, zero_sum_c13o2
+  use cable_c13o2,     only: c13o2_save_casapool, c13o2_update_pools, &
+       c13o2_create_output, c13o2_write_output, c13o2_close_output
 
   IMPLICIT NONE
+  
   !!CLN  CHARACTER(LEN=99), INTENT(IN)  :: fcnpspin
   REAL,    INTENT(IN)    :: dels
   INTEGER, INTENT(IN)    :: kstart
   INTEGER, INTENT(IN)    :: kend
   INTEGER, INTENT(IN)    :: LALLOC
-  TYPE (veg_parameter_type),    INTENT(INOUT) :: veg  ! vegetation parameters
-  TYPE (soil_parameter_type),   INTENT(INOUT) :: soil ! soil parameters
-  TYPE (casa_biome),            INTENT(INOUT) :: casabiome
-  TYPE (casa_pool),             INTENT(INOUT) :: casapool
-  TYPE (casa_flux),             INTENT(INOUT) :: casaflux
-  TYPE (casa_met),              INTENT(INOUT) :: casamet
-  TYPE (casa_balance),          INTENT(INOUT) :: casabal
-  TYPE (phen_variable),         INTENT(INOUT) :: phen
-  TYPE (POP_TYPE), INTENT(INOUT)     :: POP
-  TYPE (climate_TYPE), INTENT(INOUT)     :: climate
-  TYPE (LUC_EXPT_TYPE), INTENT(INOUT) :: LUC_EXPT
-  TYPE(POPLUC_TYPE), INTENT(INOUT) :: POPLUC
-  TYPE (casa_pool)   , INTENT(INOUT) :: sum_casapool
-  TYPE (casa_flux)   , INTENT(INOUT) :: sum_casaflux
+  TYPE (veg_parameter_type),  INTENT(INOUT) :: veg  ! vegetation parameters
+  TYPE (soil_parameter_type), INTENT(INOUT) :: soil ! soil parameters
+  TYPE (casa_biome),          INTENT(INOUT) :: casabiome
+  TYPE (casa_pool),           INTENT(INOUT) :: casapool
+  TYPE (casa_flux),           INTENT(INOUT) :: casaflux
+  TYPE (casa_met),            INTENT(INOUT) :: casamet
+  TYPE (casa_balance),        INTENT(INOUT) :: casabal
+  TYPE (phen_variable),       INTENT(INOUT) :: phen
+  TYPE (POP_TYPE),            INTENT(INOUT) :: POP
+  TYPE (climate_TYPE),        INTENT(INOUT) :: climate
+  TYPE (LUC_EXPT_TYPE),       INTENT(INOUT) :: LUC_EXPT
+  TYPE(POPLUC_TYPE),          INTENT(INOUT) :: POPLUC
+  TYPE (casa_pool),           INTENT(INOUT) :: sum_casapool
+  TYPE (casa_flux),           INTENT(INOUT) :: sum_casaflux
+  type(c13o2_pool),           intent(inout) :: c13o2pools
+  type(c13o2_pool),           intent(inout) :: sum_c13o2pools
 
-
-
-  TYPE (casa_met)  :: casaspin
+  ! TYPE(casa_met) :: casaspin
 
   ! local variables
   real,      dimension(:), allocatable, save  :: avg_cleaf2met, avg_cleaf2str, avg_croot2met, avg_croot2str, avg_cwood2cwd
@@ -85,6 +87,12 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   INTEGER :: count_sum_casa ! number of time steps over which casa pools &
   !and fluxes are aggregated (for output)
 
+  real(dp), dimension(mp,c13o2pools%npools) :: casasave ! c13o2pools%nland or mp?
+  integer                             :: c13o2_file_id
+  integer, parameter :: nvars = 7
+  character(len=20), dimension(nvars) :: c13o2_vars
+  integer,           dimension(nvars) :: c13o2_var_ids
+
   
   if (.NOT.Allocated(Iw)) allocate(Iw(POP%np))
 
@@ -97,8 +105,8 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   nday=(kend-kstart+1)/ktauday
   ctime = 0
   CALL zero_sum_casa(sum_casapool, sum_casaflux)
+  if (cable_user%c13o2) call zero_sum_c13o2(sum_c13o2pools)
   count_sum_casa = 0
-
 
   myearspin = CABLE_USER%YEAREND - CABLE_USER%YEARSTART + 1
   yyyy = CABLE_USER%YEARSTART - 1
@@ -113,19 +121,11 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
      if (nyear_dump == 0) &
           nyear_dump = CABLE_USER%CASA_SPIN_ENDYEAR - CABLE_USER%CASA_SPIN_STARTYEAR + 1
 
-
-
-
-
      WRITE(CYEAR,FMT="(I4)") CABLE_USER%CASA_SPIN_STARTYEAR + nyear_dump - 1
-
-
 
      ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
 
-
      call read_casa_dump( ncfile,casamet, casaflux, phen,climate, 1,1,.TRUE. )
-
     
      !!CLN901  format(A99)
      do idoy=1,mdyear
@@ -155,27 +155,26 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
         phen%doyphase(:,4) =  phen%doyphasespin_4(:,idoy)
         climate%qtemp_max_last_year(:) =  casamet%mtempspin(:,idoy)
 
-      
+        if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
         CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
              casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter, &
              xksoil,xkleaf,xkleafcold,xkleafdry,&
              cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
              nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
              pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
-
+        if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2pools)
  
 !IF (YYYY.EQ.1610) THEN
 !  write(69,*) casapool%ctot(4)-casapool%ctot_0(4), casabal%FCneeyear(4), casabal%dcdtyear(4)
 !ENDIF
 
-
        ! update time-aggregates of casa pools and fluxes
         CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
              & .TRUE. , .FALSE., 1)
+        if (cable_user%c13o2) &
+             call update_sum_c13o2(sum_c13o2pools, c13o2pools, .true., .false., 1)
         count_sum_casa = count_sum_casa + 1
 
-
-        
         ! accumulate annual variables for use in POP
         IF(idoy==1 ) THEN
            casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7 ! (assumes 70% of wood NPP is allocated above ground)
@@ -239,6 +238,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
                     endif
                  enddo
 
+                 !MC13 ToDo - LUC
                  casapool%cplant(j,leaf) = 0.01
                  casapool%nplant(j,leaf)= casabiome%ratioNCplantmin(veg%iveg(j),leaf)* casapool%cplant(j,leaf)
                  casapool%pplant(j,leaf)= casabiome%ratioPCplantmin(veg%iveg(j),leaf)* casapool%cplant(j,leaf)
@@ -267,7 +267,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
            CALL POP_IO( pop, casamet, YYYY, 'WRITE_EPI', &
                 ( YYYY.EQ.cable_user%YearEnd ) )
 
-
+           !MC13 ToDo - LUC
            CALL POP_LUC_CASA_transfer(POPLUC,POP,LUC_EXPT,casapool,casabal,casaflux,ktauday)
            CALL WRITE_LUC_OUTPUT_NC( POPLUC, YYYY, ( YYYY.EQ.cable_user%YearEnd ))
            CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT) 
@@ -276,33 +276,43 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
      ELSE
         IF(idoy==mdyear) THEN ! end of year
           
-           CALL POPdriver(casaflux,casabal,veg, POP)
-          
+           !MC13 ToDo - LUC
+           CALL POPdriver(casaflux,casabal,veg, POP)          
           
         endif
        ! CALL POP_IO( pop, casamet, YYYY, 'WRITE_EPI', &
        !         ( YYYY.EQ.cable_user%YearEnd ) )
      ENDIF ! IF (CABLE_USER%POPLUC) 
 
-        IF ( IS_CASA_TIME("write", yyyy, ktau, kstart, &
-             0, kend, ktauday, logn) ) THEN
-           ctime = ctime +1
+        IF ( IS_CASA_TIME("write", yyyy, ktau, kstart, 0, kend, ktauday, logn) ) THEN
+           ctime = ctime + 1
 
            CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
                 .FALSE. , .TRUE. , count_sum_casa)
+           if (cable_user%c13o2) then
+              call update_sum_c13o2(sum_c13o2pools, c13o2pools, &
+                   .false., .true., count_sum_casa)
+           endif
 
-           CALL WRITE_CASA_OUTPUT_NC ( veg, casamet, sum_casapool, casabal, sum_casaflux, &
-                .true., ctime, ( idoy.eq.mdyear .AND. YYYY .EQ.        &
-                cable_user%YearEnd ) )
+           CALL WRITE_CASA_OUTPUT_NC( veg, casamet, sum_casapool, casabal, sum_casaflux, &
+                .true., ctime, ( idoy.eq.mdyear .AND. YYYY .EQ. cable_user%YearEnd ) )
+           if (cable_user%c13o2) then
+              if (ctime == 1) &
+                   call c13o2_create_output(casamet, sum_c13o2pools, c13o2_file_id, c13o2_vars, c13o2_var_ids)
+              call c13o2_write_output(c13o2_file_id, c13o2_vars, c13o2_var_ids, ctime, sum_c13o2pools)
+              if ( (idoy == mdyear) .and. (YYYY == cable_user%YearEnd) ) &
+                   call c13o2_close_output(c13o2_file_id)
+           end if
            count_sum_casa = 0
            CALL zero_sum_casa(sum_casapool, sum_casaflux)
+           if (cable_user%c13o2) call zero_sum_c13o2(sum_c13o2pools)
 
         ENDIF
      enddo
      
   enddo
 
-  IF (CABLE_USER%POPLUC) CALL WRITE_LUC_RESTART_NC ( POPLUC, YYYY )
+  IF (CABLE_USER%POPLUC) CALL WRITE_LUC_RESTART_NC( POPLUC, YYYY )
 
 
 END SUBROUTINE CASAONLY_LUC

@@ -2397,7 +2397,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
    USE BLAZE_MOD,       ONLY: TYPE_BLAZE, INI_BLAZE
    USE SIMFIRE_MOD,     ONLY: TYPE_SIMFIRE, INI_SIMFIRE
    use cable_c13o2_def, only: c13o2_pool, alloc_c13o2
-   use cable_c13o2,     only: c13o2_init, c13o2_init_restart
+   use cable_c13o2,     only: c13o2_init, c13o2_read_restart
 
    IMPLICIT NONE
 
@@ -2498,7 +2498,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
 
       CALL casa_init(casabiome,casamet,casaflux,casapool,casabal,veg,phen)
       if (cable_user%c13o2) call c13o2_init(c13o2pools)
-      if (cable_user%c13o2 .and. (.not. spinup)) call c13o2_init_restart(cable_user%c13o2_restart_in, c13o2pools)
+      if (cable_user%c13o2 .and. (.not. spinup)) call c13o2_read_restart(cable_user%c13o2_restart_in, c13o2pools)
 !! vh_js !!
       IF ( CABLE_USER%CALL_POP ) THEN
          ! evaluate mp_POP and POP_array
