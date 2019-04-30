@@ -1,6 +1,6 @@
 SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
      casaflux,casamet,casabal,phen,POP,climate,LALLOC,LUC_EXPT, POPLUC, &
-     sum_casapool, sum_casaflux, c13o2pools, sum_c13o2pools )
+     sum_casapool, sum_casaflux, c13o2pools, sum_c13o2pools, c13o2luc )
 
 
   USE cable_def_types_mod
@@ -21,9 +21,10 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   USE POPLUC_Module, ONLY: POPLUCStep, POPLUC_weights_Transfer, WRITE_LUC_OUTPUT_NC, &
        POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, READ_LUC_RESTART_NC, &
        POPLUC_set_patchfrac, WRITE_LUC_OUTPUT_GRID_NC
-  use cable_c13o2_def, only: c13o2_pool, update_sum_c13o2, zero_sum_c13o2
-  use cable_c13o2,     only: c13o2_save_casapool, c13o2_update_pools, &
+  use cable_c13o2_def, only: c13o2_pool, c13o2_luc, c13o2_update_sum_pools, c13o2_zero_sum_pools
+  use cable_c13o2,     only: c13o2_save_casapool, c13o2_update_pools, c13o2_save_luc, c13o2_update_luc, &
        c13o2_create_output, c13o2_write_output, c13o2_close_output
+  use mo_isotope,      only: vpdbc13
 
   IMPLICIT NONE
   
@@ -48,6 +49,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   TYPE (casa_flux),           INTENT(INOUT) :: sum_casaflux
   type(c13o2_pool),           intent(inout) :: c13o2pools
   type(c13o2_pool),           intent(inout) :: sum_c13o2pools
+  type(c13o2_luc),            intent(inout) :: c13o2luc
 
   ! TYPE(casa_met) :: casaspin
 
@@ -87,7 +89,9 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   INTEGER :: count_sum_casa ! number of time steps over which casa pools &
   !and fluxes are aggregated (for output)
 
-  real(dp), dimension(mp,c13o2pools%npools) :: casasave ! c13o2pools%nland or mp?
+  ! 13C
+  real(dp), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
+  real(dp), dimension(c13o2luc%nland,c13o2luc%npools)     :: lucsave
   integer                             :: c13o2_file_id
   integer, parameter :: nvars = 7
   character(len=20), dimension(nvars) :: c13o2_vars
@@ -105,7 +109,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   nday=(kend-kstart+1)/ktauday
   ctime = 0
   CALL zero_sum_casa(sum_casapool, sum_casaflux)
-  if (cable_user%c13o2) call zero_sum_c13o2(sum_c13o2pools)
+  if (cable_user%c13o2) call c13o2_zero_sum_pools(sum_c13o2pools)
   count_sum_casa = 0
 
   myearspin = CABLE_USER%YEAREND - CABLE_USER%YEARSTART + 1
@@ -172,7 +176,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
         CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
              & .TRUE. , .FALSE., 1)
         if (cable_user%c13o2) &
-             call update_sum_c13o2(sum_c13o2pools, c13o2pools, .true., .false., 1)
+             call c13o2_update_sum_pools(sum_c13o2pools, c13o2pools, .true., .false., 1)
         count_sum_casa = count_sum_casa + 1
 
         ! accumulate annual variables for use in POP
@@ -196,7 +200,6 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
            DO k=1,mland
               POPLUC%ptos(k) = LUC_EXPT%INPUT(ptos)%VAL(k)
               POPLUC%ptog(k) = LUC_EXPT%INPUT(ptog)%VAL(k)
-              POPLUC%stop(k) = 0.0
               POPLUC%stog(k) = LUC_EXPT%INPUT(stog)%VAL(k) 
               POPLUC%gtop(k) = 0.0
               POPLUC%gtos(k) = LUC_EXPT%INPUT(gtos)%VAL(k)
@@ -238,7 +241,6 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
                     endif
                  enddo
 
-                 !MC13 ToDo - LUC
                  casapool%cplant(j,leaf) = 0.01
                  casapool%nplant(j,leaf)= casabiome%ratioNCplantmin(veg%iveg(j),leaf)* casapool%cplant(j,leaf)
                  casapool%pplant(j,leaf)= casabiome%ratioPCplantmin(veg%iveg(j),leaf)* casapool%cplant(j,leaf)
@@ -252,11 +254,13 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
                  casapool%pplant(j,wood)= casabiome%ratioPCplantmin(veg%iveg(j),wood)* casapool%cplant(j,wood)
                  casaflux%frac_sapwood(j) = 1.0
 
+                 if (cable_user%c13o2) then
+                    c13o2pools%cplant(j,leaf)  = 0.01 * vpdbc13
+                    c13o2pools%cplant(j,wood)  = 0.01 * vpdbc13
+                    c13o2pools%cplant(j,froot) = 0.01 * vpdbc13
+                 endif
               endif
-
            ENDDO
-
-
 
            CALL POPLUCStep(POPLUC,yyyy)
 
@@ -267,18 +271,16 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
            CALL POP_IO( pop, casamet, YYYY, 'WRITE_EPI', &
                 ( YYYY.EQ.cable_user%YearEnd ) )
 
-           !MC13 ToDo - LUC
+           if (cable_user%c13o2) call c13o2_save_luc(casapool, popluc, casasave, lucsave)
            CALL POP_LUC_CASA_transfer(POPLUC,POP,LUC_EXPT,casapool,casabal,casaflux,ktauday)
+           if (cable_user%c13o2) call c13o2_update_luc(casasave, lucsave, popluc, luc_expt%prim_only, c13o2pools, c13o2luc)
            CALL WRITE_LUC_OUTPUT_NC( POPLUC, YYYY, ( YYYY.EQ.cable_user%YearEnd ))
            CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT) 
 
         ENDIF  ! end of year
      ELSE
-        IF(idoy==mdyear) THEN ! end of year
-          
-           !MC13 ToDo - LUC
-           CALL POPdriver(casaflux,casabal,veg, POP)          
-          
+        IF(idoy==mdyear) THEN ! end of year          
+           CALL POPdriver(casaflux, casabal, veg, POP)
         endif
        ! CALL POP_IO( pop, casamet, YYYY, 'WRITE_EPI', &
        !         ( YYYY.EQ.cable_user%YearEnd ) )
@@ -290,7 +292,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
            CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
                 .FALSE. , .TRUE. , count_sum_casa)
            if (cable_user%c13o2) then
-              call update_sum_c13o2(sum_c13o2pools, c13o2pools, &
+              call c13o2_update_sum_pools(sum_c13o2pools, c13o2pools, &
                    .false., .true., count_sum_casa)
            endif
 
@@ -305,7 +307,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
            end if
            count_sum_casa = 0
            CALL zero_sum_casa(sum_casapool, sum_casaflux)
-           if (cable_user%c13o2) call zero_sum_c13o2(sum_c13o2pools)
+           if (cable_user%c13o2) call c13o2_zero_sum_pools(sum_c13o2pools)
 
         ENDIF
      enddo
@@ -314,6 +316,4 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
 
   IF (CABLE_USER%POPLUC) CALL WRITE_LUC_RESTART_NC( POPLUC, YYYY )
 
-
 END SUBROUTINE CASAONLY_LUC
-

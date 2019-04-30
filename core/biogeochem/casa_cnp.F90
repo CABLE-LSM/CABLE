@@ -1266,6 +1266,8 @@ SUBROUTINE casa_delplant(veg,casabiome,casapool,casaflux,casamet,            &
   
   casaflux%FluxFromPtoL = 0.0
   casaflux%FluxFromPtoCO2 = 0.0
+
+  casaflux%FluxFromPtoHarvest = 0.0
   
 
   ! added by ypwang following Chris Lu 5/nov/2012
@@ -1400,21 +1402,22 @@ SUBROUTINE casa_delplant(veg,casabiome,casapool,casaflux,casamet,            &
         casaflux%Charvest(npt) = casaflux%Charvest(npt) + &
              casaflux%kplant(npt,leaf)  * casapool%cplant(npt,leaf) *  casaflux%fharvest(npt)
 
+        ! between-pool fluxes for 13CO2
+        casaflux%FluxFromPtoL(npt,leaf,metb) =  cleaf2met(npt)
+        casaflux%FluxFromPtoL(npt,froot,metb) =  croot2met(npt)
+        casaflux%FluxFromPtoL(npt,wood,metb) =  0.0
 
-         casaflux%FluxFromPtoL(npt,leaf,metb) =  cleaf2met(npt)
-         casaflux%FluxFromPtoL(npt,froot,metb) =  croot2met(npt)
-         casaflux%FluxFromPtoL(npt,wood,metb) =  0.0
+        casaflux%FluxFromPtoL(npt,leaf,str) =  cleaf2str(npt)
+        casaflux%FluxFromPtoL(npt,froot,str) =  croot2str(npt)
+        casaflux%FluxFromPtoL(npt,wood,str) =  0.0
 
-         casaflux%FluxFromPtoL(npt,leaf,str) =  cleaf2str(npt)
-         casaflux%FluxFromPtoL(npt,froot,str) =  croot2str(npt)
-         casaflux%FluxFromPtoL(npt,wood,str) =  0.0
+        casaflux%FluxFromPtoL(npt,leaf,cwd) =  0.0
+        casaflux%FluxFromPtoL(npt,froot,cwd) = 0.0
+        casaflux%FluxFromPtoL(npt,wood,cwd) =  cwood2cwd(npt)
 
-         casaflux%FluxFromPtoL(npt,leaf,cwd) =  0.0
-         casaflux%FluxFromPtoL(npt,froot,cwd) = 0.0
-         casaflux%FluxFromPtoL(npt,wood,cwd) =  cwood2cwd(npt)
+        casaflux%FluxFromPtoHarvest(npt) = casaflux%kplant(npt,leaf) * casapool%cplant(npt,leaf) * casaflux%fharvest(npt)
 
 
-        
         IF(icycle > 1) THEN
 
            IF(casaflux%fracNalloc(npt,leaf)==0.0) THEN
@@ -1670,8 +1673,7 @@ SUBROUTINE casa_delsoil(veg,casapool,casaflux,casamet,casabiome)
   casaflux%FluxFromLtoS = 0.0
   casaflux%FluxFromStoS = 0.0
   casaflux%FluxFromStoCO2 = 0.0
-  casaflux%FluxFromLtoCO2 = 0.0
-  
+  casaflux%FluxFromLtoCO2 = 0.0  
         
 DO nland=1,mp
 IF(casamet%iveg2(nland)/=icewater) THEN

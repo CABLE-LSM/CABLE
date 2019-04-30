@@ -101,19 +101,19 @@ PROGRAM cable_offline_driver
 
   !! vh_js !!
   ! modules related to POP
-  USE POP_Types,            ONLY: POP_TYPE
-  USE POPLUC_Types, ONLY : POPLUC_Type
-  USE POPLUC_Module, ONLY:  WRITE_LUC_OUTPUT_NC, WRITE_LUC_OUTPUT_GRID_NC, &
+  USE POP_Types,     ONLY: POP_TYPE
+  USE POPLUC_Types,  ONLY: POPLUC_Type
+  USE POPLUC_Module, ONLY: WRITE_LUC_OUTPUT_NC, WRITE_LUC_OUTPUT_GRID_NC, &
        POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, POPLUC_set_patchfrac 
-  USE POP_Constants,        ONLY: HEIGHT_BINS, NCOHORT_MAX, shootfrac
+  USE POP_Constants, ONLY: HEIGHT_BINS, NCOHORT_MAX, shootfrac
 
   ! Fire Model BLAZE
   USE BLAZE_MOD,            ONLY: TYPE_BLAZE, BLAZE_ACCOUNTING,  WRITE_BLAZE_OUTPUT_NC
   USE SIMFIRE_MOD,          ONLY: TYPE_SIMFIRE
 
-  ! 13CO2
-  use cable_c13o2_def,      only: c13o2_pool, update_sum_c13o2, zero_sum_c13o2
-  use cable_c13o2,          only: c13o2_write_restart, &
+  ! 13C
+  use cable_c13o2_def,      only: c13o2_pool, c13o2_luc, c13o2_update_sum_pools, c13o2_zero_sum_pools
+  use cable_c13o2,          only: c13o2_save_luc, c13o2_update_luc, c13o2_write_restart_pools, &
        c13o2_create_output, c13o2_write_output, c13o2_close_output
 
   ! PLUME-MIP only
@@ -200,12 +200,12 @@ PROGRAM cable_offline_driver
   TYPE (casa_balance)   :: casabal
   TYPE (phen_variable)  :: phen
   !! vh_js !!
-  TYPE (POP_TYPE)       :: POP
-  TYPE(POPLUC_TYPE) :: POPLUC
-  TYPE (PLUME_MIP_TYPE) :: PLUME
-  TYPE (CRU_TYPE)       :: CRU
-  TYPE (site_TYPE)       :: site
-  TYPE (LUC_EXPT_TYPE) :: LUC_EXPT
+  TYPE(POP_TYPE)        :: POP
+  TYPE(POPLUC_TYPE)     :: POPLUC
+  TYPE(PLUME_MIP_TYPE)  :: PLUME
+  TYPE(CRU_TYPE)        :: CRU
+  TYPE(site_TYPE)       :: site
+  TYPE(LUC_EXPT_TYPE)   :: LUC_EXPT
   CHARACTER             :: cyear*4
   CHARACTER             :: ncfile*99
 
@@ -213,12 +213,15 @@ PROGRAM cable_offline_driver
   TYPE (TYPE_BLAZE)    :: BLAZE
   TYPE (TYPE_SIMFIRE)  :: SIMFIRE
 
-  ! 13CO2
+  ! 13C
   type(c13o2_pool)                    :: c13o2pools, sum_c13o2pools
+  type(c13o2_luc)                     :: c13o2luc
   integer                             :: c13o2_file_id
   integer, parameter :: nvars = 7
   character(len=20), dimension(nvars) :: c13o2_vars
   integer,           dimension(nvars) :: c13o2_var_ids
+  real(dp), dimension(:,:), allocatable :: casasave
+  real(dp), dimension(:,:), allocatable :: lucsave
 
   ! declare vars for switches (default .FALSE.) etc declared thru namelist
   LOGICAL, SAVE           :: &
@@ -622,7 +625,9 @@ PROGRAM cable_offline_driver
                    casaflux, sum_casapool, sum_casaflux, &
                    casamet, casabal, phen, POP, spinup,               &
                    C%EMSOIL, C%TFRZ, LUC_EXPT, POPLUC, BLAZE, SIMFIRE, &
-                   c13o2pools, sum_c13o2pools)
+                   c13o2pools, sum_c13o2pools, c13o2luc)
+              if (cable_user%c13o2) allocate(casasave(c13o2pools%ntile,c13o2pools%npools))
+              if (cable_user%c13o2 .and. cable_user%popluc) allocate(lucsave(c13o2luc%nland,c13o2luc%npools))
 
               IF ( CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static') &
                    CABLE_USER%POPLUC= .FALSE.
@@ -661,7 +666,7 @@ PROGRAM cable_offline_driver
               met%ofsd = 0.1
 
               CALL zero_sum_casa(sum_casapool, sum_casaflux)
-              if (cable_user%c13o2) call zero_sum_c13o2(sum_c13o2pools)
+              if (cable_user%c13o2) call c13o2_zero_sum_pools(sum_c13o2pools)
               count_sum_casa = 0
 
               spinConv = .FALSE. ! initialise spinup convergence variable
@@ -687,7 +692,7 @@ PROGRAM cable_offline_driver
               ELSEIF ( casaonly .AND. (.NOT. spincasa)) THEN
                  CALL CASAONLY_LUC(dels,kstart,kend,veg,soil,casabiome,casapool, &
                       casaflux,casamet,casabal,phen,POP,climate,LALLOC, LUC_EXPT, POPLUC, &
-                      sum_casapool, sum_casaflux, c13o2pools, sum_c13o2pools)
+                      sum_casapool, sum_casaflux, c13o2pools, sum_c13o2pools, c13o2luc)
                  SPINon = .FALSE.
                  SPINconv = .FALSE. 
                  ktau = kend
@@ -807,18 +812,15 @@ PROGRAM cable_offline_driver
               ! and zero casa fluxes
 
               IF (ktau == 1) THEN
-                 !MC13 ToDo - Initialisation
                  if (icycle>1) CALL casa_cnpflux(casaflux,casapool,casabal,.TRUE.)
-                 if ( CABLE_USER%POPLUC) CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT)   
+                 if (CABLE_USER%POPLUC) CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT)   
               ENDIF
 
               IF ( .NOT. CASAONLY ) THEN
 
                  ! Feedback prognostic vcmax and daily LAI from casaCNP to CABLE
                  IF (l_vcmaxFeedbk) then
-                    !MC13 ToDo - Check
-                    CALL casa_feedback( ktau, veg, casabiome,        &
-                         casapool, casamet, climate, ktauday )
+                    CALL casa_feedback( ktau, veg, casabiome, casapool, casamet, climate, ktauday )
                  ELSE
                     veg%vcmax_shade = veg%vcmax
                     veg%ejmax_shade = veg%ejmax
@@ -837,9 +839,8 @@ PROGRAM cable_offline_driver
                       sum_flux, veg, climate)
 
                  if (cable_user%CALL_climate) then
-                    !MC13 ToDo - Check
                     call cable_climate(ktau_tot, kstart, kend, ktauday, idoy, LOY, met, &
-                         climate, canopy, veg, ssnow, air, rad, dels, mp)
+                                       climate, canopy, veg, ssnow, air, rad, dels, mp)
                  endif
 
                  ssnow%smelt = ssnow%smelt*dels
@@ -888,7 +889,7 @@ PROGRAM cable_offline_driver
                     CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
                          & .TRUE. , .FALSE., 1)
                     if (cable_user%c13o2) &
-                         call update_sum_c13o2(sum_c13o2pools, c13o2pools, .true., .false., 1)
+                         call c13o2_update_sum_pools(sum_c13o2pools, c13o2pools, .true., .false., 1)
                     count_sum_casa = count_sum_casa + 1
                  ENDIF
 
@@ -897,9 +898,7 @@ PROGRAM cable_offline_driver
                       MOD((ktau-kstart+1)/ktauday,LOY)==0) )THEN ! end of year
                     IF (CABLE_USER%POPLUC) THEN
                        ! Dynamic LUC
-                       CALL LUCdriver( casabiome,casapool,casaflux,POP,     &
-                            LUC_EXPT, POPLUC, veg )
-                       !MC13 ToDo - LUC
+                       CALL LUCdriver(casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg, c13o2pools)
                     ENDIF
 
                     ! one annual time-step of POP
@@ -907,11 +906,13 @@ PROGRAM cable_offline_driver
 
                     IF (CABLE_USER%POPLUC) THEN
                        ! Dynamic LUC: update casa pools according to LUC transitions
-                       !MC13 ToDo - LUC
+                       if (cable_user%c13o2) call c13o2_save_luc(casapool, popluc, casasave, lucsave)
                        CALL POP_LUC_CASA_transfer(POPLUC,POP,LUC_EXPT,casapool,casabal,casaflux,ktauday)
+                       if (cable_user%c13o2) then
+                          call c13o2_update_luc(casasave, lucsave, popluc, luc_expt%prim_only, c13o2pools, c13o2luc)
+                       endif
                        ! Dynamic LUC: write output
                        CALL WRITE_LUC_OUTPUT_NC( POPLUC, YYYY, ( YYYY.EQ.cable_user%YearEnd ))
-
                     ENDIF
 
                     !!CALL BLAZE_TURNOVER()
@@ -932,7 +933,7 @@ PROGRAM cable_offline_driver
                     CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
                          .FALSE., .TRUE., count_sum_casa)
                     if (cable_user%c13o2) &
-                         call update_sum_c13o2(sum_c13o2pools, c13o2pools, .false., .true., count_sum_casa)
+                         call c13o2_update_sum_pools(sum_c13o2pools, c13o2pools, .false., .true., count_sum_casa)
                     CALL WRITE_CASA_OUTPUT_NC (veg, casamet, sum_casapool, casabal, sum_casaflux, &
                          CASAONLY, ctime, ( ktau.EQ.kend .AND. YYYY .EQ. cable_user%YearEnd.AND. RRRR .EQ.NRRRR ) )
                     if (cable_user%c13o2) then
@@ -945,7 +946,7 @@ PROGRAM cable_offline_driver
                     !mpidiff
                     count_sum_casa = 0
                     CALL zero_sum_casa(sum_casapool, sum_casaflux)
-                    if (cable_user%c13o2) call zero_sum_c13o2(sum_c13o2pools)
+                    if (cable_user%c13o2) call c13o2_zero_sum_pools(sum_c13o2pools)
                  ENDIF
 
 
@@ -1205,6 +1206,11 @@ PROGRAM cable_offline_driver
                    NRRRR .GT. 1 ) DEALLOCATE ( GSWP_MID )
            ENDIF
 
+           ! set tile area according to updated LU areas
+           IF (CABLE_USER%POPLUC) THEN
+              CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT) 
+           ENDIF
+
            IF ((icycle.gt.0).AND.(.NOT.casaonly)) THEN
               ! re-initalise annual flux sums
               casabal%FCgppyear=0.0
@@ -1248,7 +1254,7 @@ PROGRAM cable_offline_driver
      !CALL casa_poolout( ktau, veg, soil, casabiome,              &
     !     casapool, casaflux, casamet, casabal, phen )
      CALL write_casa_restart_nc( casamet, casapool,casaflux,phen, CASAONLY )
-     if (cable_user%c13o2) call c13o2_write_restart(c13o2pools)
+     if (cable_user%c13o2) call c13o2_write_restart_pools(c13o2pools)
 
   END IF
 
@@ -1327,11 +1333,9 @@ END SUBROUTINE renameFiles
 ! and tranferring LUC-based age weights for secondary forest to POP structure
 
 
-SUBROUTINE LUCdriver( casabiome,casapool, &
-     casaflux,POP,LUC_EXPT, POPLUC, veg )
+SUBROUTINE LUCdriver( casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg, c13o2pools )
 
-
-  USE cable_def_types_mod , ONLY: veg_parameter_type, mland
+  USE cable_def_types_mod, ONLY: veg_parameter_type, mland
   USE cable_carbon_module
   USE cable_common_module, ONLY: CABLE_USER, is_casa_time, CurYear
   USE cable_IO_vars_module, ONLY: logn, landpt, patch
@@ -1346,8 +1350,8 @@ SUBROUTINE LUCdriver( casabiome,casapool, &
   USE POPLUC_Types
   USE POPLUC_Module, ONLY: POPLUCStep, POPLUC_weights_Transfer, WRITE_LUC_OUTPUT_NC, &
        POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, READ_LUC_RESTART_NC
-
-
+  use cable_c13o2_def, only: c13o2_pool
+  use mo_isotope,      only: vpdbc13
 
   IMPLICIT NONE
 
@@ -1358,15 +1362,12 @@ SUBROUTINE LUCdriver( casabiome,casapool, &
   TYPE (LUC_EXPT_TYPE), INTENT(INOUT) :: LUC_EXPT
   TYPE(POPLUC_TYPE), INTENT(INOUT) :: POPLUC
   TYPE (veg_parameter_type),    INTENT(IN) :: veg  ! vegetation parameters
+  type(c13o2_pool),             intent(inout) :: c13o2pools
 
   integer ::  k, j, l, yyyy
 
- 
- 
   
   yyyy = CurYear
-
-
 
   LUC_EXPT%CTSTEP = yyyy -  LUC_EXPT%FirstYear + 1
 
@@ -1375,7 +1376,6 @@ SUBROUTINE LUCdriver( casabiome,casapool, &
   DO k=1,mland
      POPLUC%ptos(k) = LUC_EXPT%INPUT(ptos)%VAL(k)
      POPLUC%ptog(k) = LUC_EXPT%INPUT(ptog)%VAL(k)
-     POPLUC%stop(k) = 0.0
      POPLUC%stog(k) = LUC_EXPT%INPUT(stog)%VAL(k) 
      POPLUC%gtop(k) = 0.0
      POPLUC%gtos(k) = LUC_EXPT%INPUT(gtos)%VAL(k)
@@ -1409,8 +1409,12 @@ SUBROUTINE LUCdriver( casabiome,casapool, &
         casapool%nplant(j,wood)= casabiome%ratioNCplantmin(veg%iveg(j),wood)* casapool%cplant(j,wood)
         casapool%pplant(j,wood)= casabiome%ratioPCplantmin(veg%iveg(j),wood)* casapool%cplant(j,wood)
         casaflux%frac_sapwood(j) = 1.0
-        !MC13 ToDo - LUC
 
+        if (cable_user%c13o2) then
+           c13o2pools%cplant(j,leaf)  = 0.01 * vpdbc13
+           c13o2pools%cplant(j,wood)  = 0.01 * vpdbc13
+           c13o2pools%cplant(j,froot) = 0.01 * vpdbc13
+        endif
      endif
   ENDDO
 

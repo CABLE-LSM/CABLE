@@ -171,10 +171,12 @@ MODULE cable_common_module
           !! vh_js !!
           litter = .FALSE.
      
-     logical ::            c13o2 = .false.        ! switch on 13CO2 calculations     
-     character(len=200) :: c13o2_restart_in  = '' ! 13CO2 restart input file
-     character(len=200) :: c13o2_restart_out = '' ! 13CO2 restart output file
-     character(len=200) :: c13o2_outfile = ''     ! 13C pools output file
+     logical ::            c13o2 = .false.              ! switch on 13CO2 calculations     
+     character(len=200) :: c13o2_restart_in_pools  = '' ! 13CO2 restart Casa input file
+     character(len=200) :: c13o2_restart_out_pools = '' ! 13CO2 restart Casa output file
+     character(len=200) :: c13o2_restart_in_luc    = '' ! 13CO2 restart LUC input file
+     character(len=200) :: c13o2_restart_out_luc   = '' ! 13CO2 restart LUC output file
+     character(len=200) :: c13o2_outfile = ''           ! 13C Casa and LUC output file
 
   END TYPE kbl_user_switches
 

@@ -2380,7 +2380,7 @@ END SUBROUTINE close_met_file
 SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad,        &
        sum_flux,bal,logn,vegparmnew,casabiome,casapool,    &
        casaflux,sum_casapool, sum_casaflux,casamet,casabal,phen,POP,spinup,EMSOIL, &
-       TFRZ, LUC_EXPT, POPLUC, BLAZE, SIMFIRE, c13o2pools, sum_c13o2pools)
+       TFRZ, LUC_EXPT, POPLUC, BLAZE, SIMFIRE, c13o2pools, sum_c13o2pools, c13o2luc)
    ! Input variables not listed:
    !   filename%type  - via cable_IO_vars_module
    !   exists%type    - via cable_IO_vars_module
@@ -2396,8 +2396,8 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
 
    USE BLAZE_MOD,       ONLY: TYPE_BLAZE, INI_BLAZE
    USE SIMFIRE_MOD,     ONLY: TYPE_SIMFIRE, INI_SIMFIRE
-   use cable_c13o2_def, only: c13o2_pool, alloc_c13o2
-   use cable_c13o2,     only: c13o2_init, c13o2_read_restart
+   use cable_c13o2_def, only: c13o2_pool, c13o2_luc, c13o2_alloc_pools
+   use cable_c13o2,     only: c13o2_init_pools, c13o2_init_luc, c13o2_read_restart_pools
 
    IMPLICIT NONE
 
@@ -2428,6 +2428,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
    TYPE (TYPE_BLAZE), INTENT(INOUT)        :: BLAZE
    TYPE (TYPE_SIMFIRE), INTENT(INOUT)      :: SIMFIRE
    type(c13o2_pool), intent(out)           :: c13o2pools, sum_c13o2pools
+   type(c13o2_luc),  intent(out)           :: c13o2luc
    INTEGER,INTENT(IN)                      :: logn     ! log file unit number
    LOGICAL,INTENT(IN)                      :: &
          vegparmnew, &  ! are we using the new format?
@@ -2474,11 +2475,11 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
     IF (icycle > 0 .OR. CABLE_USER%CASA_DUMP_WRITE ) then
        CALL alloc_casavariable(casabiome,casapool,casaflux, &
             casamet,casabal,mp)
-       if (cable_user%c13o2) call alloc_c13o2(c13o2pools, mp)
+       if (cable_user%c13o2) call c13o2_alloc_pools(c13o2pools, mp)
     endif
 !mpdiff
     CALL alloc_sum_casavariable(sum_casapool,sum_casaflux,mp)
-    if (cable_user%c13o2) call alloc_c13o2(sum_c13o2pools, mp)
+    if (cable_user%c13o2) call c13o2_alloc_pools(sum_c13o2pools, mp)
     IF (icycle > 0) THEN
        CALL alloc_phenvariable(phen,mp)
     ENDIF
@@ -2497,8 +2498,8 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
       IF (cable_user%PHENOLOGY_SWITCH.eq.'MODIS') CALL casa_readphen(veg,casamet,phen)
 
       CALL casa_init(casabiome,casamet,casaflux,casapool,casabal,veg,phen)
-      if (cable_user%c13o2) call c13o2_init(c13o2pools)
-      if (cable_user%c13o2 .and. (.not. spinup)) call c13o2_read_restart(cable_user%c13o2_restart_in, c13o2pools)
+      if (cable_user%c13o2) call c13o2_init_pools(c13o2pools)
+      if (cable_user%c13o2 .and. (.not. spinup)) call c13o2_read_restart_pools(cable_user%c13o2_restart_in_pools, c13o2pools)
 !! vh_js !!
       IF ( CABLE_USER%CALL_POP ) THEN
          ! evaluate mp_POP and POP_array
@@ -2513,62 +2514,63 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
             ENDIF
          ENDDO
 
-             CALL POP_init( POP, veg%disturbance_interval(Iwood,:), mp_POP, Iwood )
+         CALL POP_init( POP, veg%disturbance_interval(Iwood,:), mp_POP, Iwood )
          IF ( .NOT. (spinup .OR. CABLE_USER%POP_fromZero )) &
               CALL POP_IO( POP, casamet, cable_user%YearStart, "READ_rst " , .TRUE.)
 
       ENDIF
 
       IF (CABLE_USER%POPLUC) then
-
-! reset alpha for extra-tropical iveg2
-
-        ! where (veg%iveg==2 .and. climate%biome.eq.4)
-        !    veg%alpha = 0.1
-        ! endwhere
-
+         ! reset alpha for extra-tropical iveg2
+         !
+         ! where (veg%iveg==2 .and. climate%biome.eq.4)
+         !    veg%alpha = 0.1
+         ! endwhere
+         !
          ! initialise POPLUC structure and params
-         !zero biomass in secondary forest tiles
+         ! zero biomass in secondary forest tiles
          ! read POP_LUC restart file here
          ! set POP%LU here for secondary tiles if cable_user%POPLUC_RunType is not 'static'
-         CALL POPLUC_init(POPLUC,LUC_EXPT, casapool, casaflux, casabiome, veg, POP, mland)
+         CALL POPLUC_init(POPLUC, LUC_EXPT, casapool, casaflux, casabiome, veg, POP, mland)
+         if (cable_user%c13o2) call c13o2_init_luc(c13o2luc, c13o2pools, veg, mland)
       ENDIF
 
-!CVH moved initialisations to cable_driver.F90 because climate%modis_igpb is needed, and teh climate structure has not been initialised at this point.      
+      !CVH moved initialisations to cable_driver.F90 because climate%modis_igpb is needed,
+      !    and the climate structure has not been initialised at this point.
 
-!!$      ! CLN ALLOCATE BLAZE Arrays 
-!!$      IF ( cable_user%CALL_BLAZE ) THEN
-!!$         ! CLN ?VH is rad%lat/lon below correct? 
-!!$         CALL INI_BLAZE ( cable_user%CALL_POP, cable_user%BURNT_AREA, &
-!!$              cable_user%BLAZE_TSTEP, mland, rad%latitude(landpt(:)%cstart), &
-!!$              rad%longitude(landpt(:)%cstart), BLAZE )
-!!$         !CLNIF ( .NOT. spinup) CALL READ_BLAZE_RESTART(...)
-!!$
-!!$         IF ( TRIM(cable_user%BURNT_AREA) == "SIMFIRE" ) THEN
-!!$            CALL INI_SIMFIRE(mland,cable_user%SIMFIRE_REGION,SIMFIRE, &
-!!$                 climate%modis_igbp(landpt(:)%cstart) ) !CLN here we need to check for the SIMFIRE biome setting
-!!$            
-!!$            IF ( spinup ) THEN
-!!$               !CLN get_biomes
-!!$            ELSE
-!!$               !CLN CALL READ_SIMFIRE_RESTART(...)
-!!$            END IF
-!!$         END IF
-!!$
-!!$         ! CLN enter gfed & PRESCRIBED here
-!!$         
-!!$         IF ( BLAZE%ERR ) RETURN            
-!!$         ! Read restart values
-!!$      ENDIF
+      ! ! CLN ALLOCATE BLAZE Arrays 
+      ! IF ( cable_user%CALL_BLAZE ) THEN
+      !    ! CLN ?VH is rad%lat/lon below correct? 
+      !    CALL INI_BLAZE ( cable_user%CALL_POP, cable_user%BURNT_AREA, &
+      !         cable_user%BLAZE_TSTEP, mland, rad%latitude(landpt(:)%cstart), &
+      !         rad%longitude(landpt(:)%cstart), BLAZE )
+      !    !CLNIF ( .NOT. spinup) CALL READ_BLAZE_RESTART(...)
+
+      !    IF ( TRIM(cable_user%BURNT_AREA) == "SIMFIRE" ) THEN
+      !       CALL INI_SIMFIRE(mland,cable_user%SIMFIRE_REGION,SIMFIRE, &
+      !            climate%modis_igbp(landpt(:)%cstart) ) !CLN here we need to check for the SIMFIRE biome setting
+            
+      !       IF ( spinup ) THEN
+      !          !CLN get_biomes
+      !       ELSE
+      !          !CLN CALL READ_SIMFIRE_RESTART(...)
+      !       END IF
+      !    END IF
+
+      !    ! CLN enter gfed & PRESCRIBED here
+         
+      !    IF ( BLAZE%ERR ) RETURN            
+      !    ! Read restart values
+      ! ENDIF
    ENDIF
 
-! removed get_default_inits and get_default_lai as they are already done
-! in write_default_params
-!    ! Load default initialisations from Mk3L climatology:
-!    CALL get_default_inits(met,soil,ssnow,canopy,logn)
-!
-!    ! load default LAI values from global data:
-!    CALL get_default_lai
+   ! removed get_default_inits and get_default_lai as they are already done
+   ! in write_default_params
+   !    ! Load default initialisations from Mk3L climatology:
+   !    CALL get_default_inits(met,soil,ssnow,canopy,logn)
+   !
+   !    ! load default LAI values from global data:
+   !    CALL get_default_lai
 
     ! Look for explicit restart file (which will have parameters):
     IF ( TRIM(filename%restart_in) .EQ. '' ) filename%restart_in = './'

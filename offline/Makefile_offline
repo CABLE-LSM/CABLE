@@ -144,7 +144,7 @@ cable_common.o: cable_common.F90  cable_iovars.o
 
 POP.o: POP.F90 cable_define_types.o
 
-POPLUC.o: POPLUC.F90 cable_define_types.o cable_iovars.o casa_variable.o cable_common.o
+POPLUC.o: POPLUC.F90 cable_define_types.o cable_iovars.o casa_variable.o cable_common.o cable_LUC_EXPT.o
 
 cable_LUC_EXPT.o: cable_LUC_EXPT.F90 cable_define_types.o cable_iovars.o casa_variable.o cable_common.o cable_bios_met_obs_params.o
 
@@ -185,9 +185,11 @@ simfire.o: simfire.F90
 
 blaze_driver.o: blaze_driver.F90 blaze.o simfire.o
 
-cable_c13o2_def.o: cable_c13o2_def.F90 cable_define_types.o casa_variable.o
-cable_c13o2.o: cable_c13o2.F90 cable_c13o2_def.o cable_define_types.o cable_iovars.o cable_common.o casa_variable.o mo_isotope_pool_model.o 
+cable_c13o2_def.o: cable_c13o2_def.F90 cable_define_types.o casa_variable.o POPLUC.o
+cable_c13o2.o: cable_c13o2.F90 cable_c13o2_def.o cable_define_types.o cable_iovars.o cable_common.o casa_variable.o mo_isotope_pool_model.o mo_isotope.o
 mo_isotope_pool_model.o: mo_isotope_pool_model.f90 mo_utils.o mo_kind.o
+mo_isotope.o: mo_isotope.f90 mo_constants.o mo_kind.o
+mo_constants.o: mo_constants.f90 mo_kind.o
 mo_utils.o: mo_utils.f90 mo_kind.o
 mo_kind.o: mo_kind.f90
 

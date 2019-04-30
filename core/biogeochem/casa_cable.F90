@@ -81,8 +81,9 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    REAL(dp)                               :: StemNPP(mp,2)
    CHARACTER                                 :: cyear*4
    CHARACTER                                 :: ncfile*99
- 
-   real(dp), dimension(mp,c13o2pools%npools) :: casasave ! c13o2pools%nland or mp?
+
+   ! 13C
+   real(dp), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
 
   
    IF ( .NOT. dump_read ) THEN  ! construct casa met and flux inputs from current CABLE run
@@ -203,7 +204,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 END SUBROUTINE bgcdriver
 ! ==============================================================================
 
-SUBROUTINE POPdriver(casaflux,casabal,veg, POP)
+SUBROUTINE POPdriver(casaflux, casabal, veg, POP)
 
   USE cable_def_types_mod
   USE cable_common_module, only: cable_runtime

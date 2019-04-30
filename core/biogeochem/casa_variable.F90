@@ -44,8 +44,8 @@ MODULE casadimension
   INTEGER, PARAMETER :: mlitter= 3         ! litter pools
   INTEGER, PARAMETER :: msoil  = 3         ! soil pools
   INTEGER, PARAMETER :: mso    = 12        ! soil order number
-  INTEGER, PARAMETER :: mhwp  = 1         ! harvested wood pools
-  INTEGER, PARAMETER :: mclear  = 1         ! forest clearing pools
+  INTEGER, PARAMETER :: mhwp  = 1          ! harvested wood pools
+  INTEGER, PARAMETER :: mclear  = 1        ! forest clearing pools
 ! BP put icycle into namelist file
   INTEGER            :: icycle
 !  INTEGER, PARAMETER :: icycle=3           ! =1 for C, =2 for C+N; =3 for C+N+P
@@ -310,6 +310,7 @@ MODULE casavariable
     REAL(r_2), DIMENSION(:,:),POINTER    :: FluxFromPtoCO2
     REAL(r_2), DIMENSION(:,:),POINTER    :: FluxFromLtoCO2
     REAL(r_2), DIMENSION(:,:),POINTER    :: FluxFromStoCO2
+    REAL(r_2), DIMENSION(:),POINTER    :: FluxFromPtoHarvest
       
   END TYPE casa_flux
 
@@ -612,7 +613,8 @@ SUBROUTINE alloc_casavariable(casabiome,casapool,casaflux, &
        casaflux%FluxFromStoS(arraysize,msoil,msoil), &
        casaflux%FluxFromPtoCO2(arraysize,mplant), &
        casaflux%FluxFromLtoCO2(arraysize,mlitter), &
-       casaflux%FluxFromStoCO2(arraysize,msoil))
+       casaflux%FluxFromStoCO2(arraysize,msoil), &
+       casaflux%FluxFromPtoHarvest(arraysize))
 
   ALLOCATE(casamet%glai(arraysize),                &
            casamet%lnonwood(arraysize),            &
@@ -834,7 +836,8 @@ SUBROUTINE alloc_sum_casavariable(  sum_casapool, sum_casaflux &
        sum_casaflux%FluxFromStoS(arraysize,msoil,msoil), &
        sum_casaflux%FluxFromPtoCO2(arraysize,mplant), &
        sum_casaflux%FluxFromLtoCO2(arraysize,mlitter), &
-       sum_casaflux%FluxFromStoCO2(arraysize,msoil))
+       sum_casaflux%FluxFromStoCO2(arraysize,msoil), &
+       sum_casaflux%FluxFromPtoHarvest(arraysize))
 
 
   ALLOCATE(sum_casaflux%FluxCtoco2(arraysize))
@@ -969,6 +972,7 @@ SUBROUTINE zero_sum_casa(sum_casapool, sum_casaflux)
            sum_casaflux%FluxFromPtoCO2 = 0
            sum_casaflux%FluxFromLtoCO2 = 0
            sum_casaflux%FluxFromStoCO2 = 0
+           sum_casaflux%FluxFromPtoHarvest = 0
 
 END SUBROUTINE zero_sum_casa
 
@@ -1113,6 +1117,7 @@ SUBROUTINE update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
            sum_casaflux%FluxFromPtoCO2 = sum_casaflux%FluxFromPtoCO2 + casaflux%FluxFromPtoCO2
            sum_casaflux%FluxFromLtoCO2 = sum_casaflux%FluxFromLtoCO2 + casaflux%FluxFromLtoCO2
            sum_casaflux%FluxFromStoCO2 = sum_casaflux%FluxFromStoCO2 + casaflux%FluxFromStoCO2
+           sum_casaflux%FluxFromPtoHarvest = sum_casaflux%FluxFromPtoHarvest + casaflux%FluxFromPtoHarvest
 
         endif
 
@@ -1252,6 +1257,7 @@ SUBROUTINE update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
            sum_casaflux%FluxFromPtoCO2 = sum_casaflux%FluxFromPtoCO2/real(nsteps)
            sum_casaflux%FluxFromLtoCO2 = sum_casaflux%FluxFromLtoCO2/real(nsteps)
            sum_casaflux%FluxFromStoCO2 = sum_casaflux%FluxFromStoCO2/real(nsteps)
+           sum_casaflux%FluxFromPtoHarvest = sum_casaflux%FluxFromPtoHarvest/real(nsteps)
 
         endif
 

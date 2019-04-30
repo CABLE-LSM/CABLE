@@ -40,9 +40,11 @@ MODULE cable_def_types_mod
               mstype,& ! total # soil types,         from input
               mland                           ! # land grid cells
 
-   INTEGER, PARAMETER ::                                                        &
-      i_d  = KIND(9), &
-      r_2  = SELECTED_REAL_KIND(12, 50), &
+   INTEGER, PARAMETER :: &
+      ! i_d  = KIND(9), &                  ! probably unintended
+      i_d  = SELECTED_INT_KIND(9), &       ! as in pop.f90
+      ! r_2  = SELECTED_REAL_KIND(12, 50), & ! old
+      r_2  = KIND(1.0d0), &                ! as in pop.f90
       n_tiles = 17,  & ! # possible no of different
       ncp = 3,       & ! # vegetation carbon stores
       ncs = 2,       & ! # soil carbon stores

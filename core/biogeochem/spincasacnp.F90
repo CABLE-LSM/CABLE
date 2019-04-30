@@ -73,7 +73,8 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
    INTEGER, allocatable :: Iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
    INTEGER ::ctime
 
-   real(dp), dimension(mp,c13o2pools%npools) :: casasave ! c13o2pools%nland or mp?
+   ! 13C
+   real(dp), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
 
    
    if (.NOT.Allocated(LAIMax)) allocate(LAIMax(mp))

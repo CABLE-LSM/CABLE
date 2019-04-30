@@ -788,6 +788,7 @@ ENDIF
   casaflux%FluxFromPtoCO2 = 0.
   casaflux%FluxFromLtoCO2 = 0.
   casaflux%FluxFromStoCO2 = 0.
+  casaflux%FluxFromPtoHarvest = 0.
 
   casaflux%Cplant_turnover = 0.
   casaflux%fHarvest = 0.0
@@ -1279,7 +1280,7 @@ SUBROUTINE casa_cnpflux(casaflux,casapool,casabal,zeroflux)
   USE casavariable
   IMPLICIT NONE
   TYPE (casa_flux),    INTENT(INOUT) :: casaflux
-  TYPE (casa_pool),    INTENT(INOUT) :: casapool
+  TYPE (casa_pool),    INTENT(IN)    :: casapool
   TYPE (casa_balance), INTENT(INOUT) :: casabal
   LOGICAL :: zeroflux
   !  REAL(r_2), INTENT(INOUT) :: clitterinput(mp,3),csoilinput(mp,3)
