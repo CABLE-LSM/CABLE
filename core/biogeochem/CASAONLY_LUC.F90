@@ -23,7 +23,8 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
        POPLUC_set_patchfrac, WRITE_LUC_OUTPUT_GRID_NC
   use cable_c13o2_def, only: c13o2_pool, c13o2_luc, c13o2_update_sum_pools, c13o2_zero_sum_pools
   use cable_c13o2,     only: c13o2_save_casapool, c13o2_update_pools, c13o2_save_luc, c13o2_update_luc, &
-       c13o2_create_output, c13o2_write_output, c13o2_close_output
+       c13o2_create_output, c13o2_write_output, c13o2_close_output, &
+       c13o2_print_delta_pools, c13o2_print_delta_luc
   use mo_isotope,      only: vpdbc13
 
   IMPLICIT NONE
@@ -160,6 +161,10 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
         climate%qtemp_max_last_year(:) =  casamet%mtempspin(:,idoy)
 
         if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
+        if (cable_user%c13o2) then
+           write(*,*) '13C in casaonly_luc - 01'
+           call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
+        endif
         CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
              casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter, &
              xksoil,xkleaf,xkleafcold,xkleafdry,&
@@ -167,6 +172,10 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
              nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
              pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
         if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2pools)
+        if (cable_user%c13o2) then
+           write(*,*) '13C in casaonly_luc - 01'
+           call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
+        endif
  
 !IF (YYYY.EQ.1610) THEN
 !  write(69,*) casapool%ctot(4)-casapool%ctot_0(4), casabal%FCneeyear(4), casabal%dcdtyear(4)
@@ -272,8 +281,18 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
                 ( YYYY.EQ.cable_user%YearEnd ) )
 
            if (cable_user%c13o2) call c13o2_save_luc(casapool, popluc, casasave, lucsave)
+           if (cable_user%c13o2) then
+              write(*,*) '13C in casaonly_luc - 03'
+              call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
+              call c13o2_print_delta_luc(popluc, c13o2luc)
+           endif
            CALL POP_LUC_CASA_transfer(POPLUC,POP,LUC_EXPT,casapool,casabal,casaflux,ktauday)
            if (cable_user%c13o2) call c13o2_update_luc(casasave, lucsave, popluc, luc_expt%prim_only, c13o2pools, c13o2luc)
+           if (cable_user%c13o2) then
+              write(*,*) '13C in casaonly_luc - 04'
+              call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
+              call c13o2_print_delta_luc(popluc, c13o2luc)
+           endif
            CALL WRITE_LUC_OUTPUT_NC( POPLUC, YYYY, ( YYYY.EQ.cable_user%YearEnd ))
            CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT) 
 

@@ -13,7 +13,8 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
   USE POPMODULE,            ONLY: POPStep
   USE TypeDef,              ONLY: i4b, dp
   use cable_c13o2_def, only: c13o2_pool
-  use cable_c13o2,     only: c13o2_save_casapool, c13o2_update_pools
+  use cable_c13o2,     only: c13o2_save_casapool, c13o2_update_pools, &
+       c13o2_print_delta_pools
 
   IMPLICIT NONE
   !!CLN  CHARACTER(LEN=99), INTENT(IN)  :: fcnpspin
@@ -155,6 +156,10 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
         ! write(6699,*) casaflux%cgpp(1), climate%mtemp(1),  casaflux%crmplant(1,1)
 
         if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
+        if (cable_user%c13o2) then
+           write(*,*) '13C in spincasacnp - 01'
+           call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
+        endif
         CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
              casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter, &
              xksoil,xkleaf,xkleafcold,xkleafdry,&
@@ -162,6 +167,10 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
              nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
              pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
         if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2pools)
+        if (cable_user%c13o2) then
+           write(*,*) '13C in spincasacnp - 02'
+           call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
+        endif
          
         IF (cable_user%CALL_POP .and. POP%np.gt.0) THEN ! CALL_POP
 
@@ -350,6 +359,10 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
            climate%qtemp_max_last_year(:) =  casamet%mtempspin(:,idoy)
 
            if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
+           if (cable_user%c13o2) then
+              write(*,*) '13C in spincasacnp - 03'
+              call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
+           endif
            call biogeochem(ktauy,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
                 casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter,xksoil,xkleaf,&
                 xkleafcold,xkleafdry,&
@@ -357,6 +370,10 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
                 nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
                 pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
            if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2pools)
+           if (cable_user%c13o2) then
+              write(*,*) '13C in spincasacnp - 04'
+              call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
+           endif
 
            IF (cable_user%CALL_POP .and. POP%np.gt.0) THEN ! CALL_POP
 

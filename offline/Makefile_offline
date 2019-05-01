@@ -47,7 +47,7 @@ LSRC = cable_data.F90 cable_common.F90 cable_define_types.F90 cable_iovars.F90 \
 	cable_site.F90 cable_optimiseJVratio.F90 cable_bios_met_obs_params.F90\
 	blaze.F90 blaze_driver.F90 simfire.F90 \
 	cable_c13o2.F90 cable_c13o2_def.F90
-LSRCf90 = mo_isotope_pool_model.f90 mo_utils.f90 mo_kind.f90
+LSRCf90 = mo_isotope_pool_model.f90 mo_isotope.f90 mo_constants.f90 mo_utils.f90 mo_kind.f90
 
 # this is the executable we are building
 PROG = cable

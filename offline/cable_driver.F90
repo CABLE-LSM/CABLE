@@ -114,7 +114,9 @@ PROGRAM cable_offline_driver
   ! 13C
   use cable_c13o2_def,      only: c13o2_pool, c13o2_luc, c13o2_update_sum_pools, c13o2_zero_sum_pools
   use cable_c13o2,          only: c13o2_save_luc, c13o2_update_luc, c13o2_write_restart_pools, &
-       c13o2_create_output, c13o2_write_output, c13o2_close_output
+       c13o2_create_output, c13o2_write_output, c13o2_close_output, &
+       c13o2_print_delta_pools, c13o2_print_delta_luc
+
 
   ! PLUME-MIP only
   USE CABLE_PLUME_MIP,      ONLY: PLUME_MIP_TYPE, PLUME_MIP_GET_MET,&
@@ -835,8 +837,8 @@ PROGRAM cable_offline_driver
 
                  !MC13 ToDo - Photosynthesis
                  CALL cbm(ktau, dels, air, bgc, canopy, met, &
-                      bal, rad, rough, soil, ssnow, &
-                      sum_flux, veg, climate)
+                          bal, rad, rough, soil, ssnow, &
+                          sum_flux, veg, climate)
 
                  if (cable_user%CALL_climate) then
                     call cable_climate(ktau_tot, kstart, kend, ktauday, idoy, LOY, met, &
@@ -907,9 +909,19 @@ PROGRAM cable_offline_driver
                     IF (CABLE_USER%POPLUC) THEN
                        ! Dynamic LUC: update casa pools according to LUC transitions
                        if (cable_user%c13o2) call c13o2_save_luc(casapool, popluc, casasave, lucsave)
+                       if (cable_user%c13o2) then
+                          write(*,*) '13C in cable_driver - 01'
+                          call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
+                          call c13o2_print_delta_luc(popluc, c13o2luc)
+                       endif
                        CALL POP_LUC_CASA_transfer(POPLUC,POP,LUC_EXPT,casapool,casabal,casaflux,ktauday)
                        if (cable_user%c13o2) then
                           call c13o2_update_luc(casasave, lucsave, popluc, luc_expt%prim_only, c13o2pools, c13o2luc)
+                       endif
+                       if (cable_user%c13o2) then
+                          write(*,*) '13C in cable_driver - 02'
+                          call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
+                          call c13o2_print_delta_luc(popluc, c13o2luc)
                        endif
                        ! Dynamic LUC: write output
                        CALL WRITE_LUC_OUTPUT_NC( POPLUC, YYYY, ( YYYY.EQ.cable_user%YearEnd ))

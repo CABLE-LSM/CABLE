@@ -16,16 +16,24 @@ MODULE cable_c13o2_def
   private
 
   ! types
+  public :: c13o2_flux
   public :: c13o2_pool
   public :: c13o2_luc
   ! routines
+  public :: c13o2_alloc_flux
   public :: c13o2_alloc_pools
   public :: c13o2_alloc_luc
+  public :: c13o2_zero_flux
   public :: c13o2_update_sum_pools
   public :: c13o2_zero_sum_pools
   public :: c13o2_zero_luc
 
   ! types
+  type c13o2_flux
+     integer                         :: ntile
+     real(dp), dimension(:), pointer :: ass   ! net assimilation 13CO2 flux [mol/m2s]
+  end type c13o2_flux
+
   type c13o2_pool
      integer                           :: ntile, nplant, nlitter, nsoil, npools
      real(dp), dimension(:,:), pointer :: cplant   ! 13C content in plants: leaves, wood, fine roots
@@ -50,6 +58,21 @@ MODULE cable_c13o2_def
   ! ------------------------------------------------------------------
 
 contains
+
+  ! ------------------------------------------------------------------
+
+  ! Allocate all 13C fluxes
+  subroutine c13o2_alloc_flux(c13o2flux, ntile)
+
+    implicit none
+    
+    type(c13o2_flux), intent(inout) :: c13o2flux
+    integer,          intent(in)    :: ntile
+
+    c13o2flux%ntile = ntile
+    allocate(c13o2flux%ass(ntile))
+    
+  end subroutine c13o2_alloc_flux
 
   ! ------------------------------------------------------------------
 
@@ -97,6 +120,20 @@ contains
     allocate(c13o2luc%cagric(nland))
 
   end subroutine c13o2_alloc_luc
+
+  ! ------------------------------------------------------------------
+
+  subroutine c13o2_zero_flux(c13o2flux)
+
+    use cable_def_types_mod, only: dp => r_2
+
+    implicit none
+
+    type(c13o2_flux), intent(inout) :: c13o2flux
+
+    c13o2flux%ass  = 0._dp
+
+  end subroutine c13o2_zero_flux
 
   ! ------------------------------------------------------------------
 

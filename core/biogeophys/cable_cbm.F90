@@ -118,10 +118,10 @@ CONTAINS
    ssnow%otss = ssnow%tss
 
    ! Calculate canopy variables:
-        CALL define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy,climate)
+   CALL define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy,climate)
 
-       ! write(*,*) 'hod, TVeg: ', met%hod(1), canopy%fevc(1), canopy%fwsoil(1)
-       ! if (met%hod(1).gt.12.0) stop
+   ! write(*,*) 'hod, TVeg: ', met%hod(1), canopy%fevc(1), canopy%fwsoil(1)
+   ! if (met%hod(1).gt.12.0) stop
         
    !ssnow%otss_0 = ssnow%otss
    !ssnow%otss = ssnow%tss
@@ -154,11 +154,11 @@ CONTAINS
 
       canopy%fh = canopy%fhv + canopy%fhs
 
-   canopy%fes = canopy%fes + ( ssnow%tss-ssnow%otss ) *                        &
+      canopy%fes = canopy%fes + ( ssnow%tss-ssnow%otss ) *                        &
                 ( ssnow%dfe_ddq * ssnow%ddq_dtg )
                 !( ssnow%cls * ssnow%dfe_ddq * ssnow%ddq_dtg )
 
-   canopy%fes_cor = canopy%fes_cor + ( ssnow%tss-ssnow%otss ) *                &
+      canopy%fes_cor = canopy%fes_cor + ( ssnow%tss-ssnow%otss ) *                &
                     ( ssnow%cls * ssnow%dfe_ddq * ssnow%ddq_dtg )
 
    ENDIF

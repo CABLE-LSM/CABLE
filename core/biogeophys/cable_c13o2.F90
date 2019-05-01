@@ -37,6 +37,10 @@ MODULE cable_c13o2
   public :: c13o2_read_restart_luc    ! Read 13CO2 restart_in_luc file
   public :: c13o2_write_restart_luc   ! Write 13CO2 restart_out_luc file
 
+  ! Generell
+  public :: c13o2_print_delta_pools ! Print delta values of all Casa pools on screen
+  public :: c13o2_print_delta_luc   ! Print delta values of all LUC pools on screen
+
   ! ------------------------------------------------------------------
   ! Private
 
@@ -272,9 +276,9 @@ contains
     type(c13o2_luc),          intent(inout) :: c13o2luc
     
     real(dp), dimension(size(casasave,1),size(casasave,2))   :: c13o2savepools, rsavepools ! 13C conc, isotope ratio
-    real(dp), dimension(nLU)                                 :: A        ! patch fractions
-    real(dp), dimension(nLU,nLU)                             :: dA       ! area change matrix
-    real(dp), dimension(nLU)                                 :: c13sluc  ! 13C source
+    real(dp), dimension(nLU)                                 :: A, Anew  ! patch fractions
+    real(dp), dimension(nLU,nLU)                             :: dA, dAp  ! area change matrix
+    real(dp), dimension(nLU)                                 :: c13sluc, tluc ! 13C source, C sink
     real(dp), dimension(c13o2luc%nharvest)                   :: c13sharv ! 13C source
     real(dp), dimension(c13o2luc%nharvest,c13o2luc%nharvest) :: fharv    ! fake harvest flux matrix
     real(dp), dimension(c13o2luc%nclearance)                     :: c13sclear ! 13C source
@@ -317,15 +321,12 @@ contains
              dA(2,3) = popluc%stog(g)
              dA(3,2) = popluc%gtos(g)
              ! plant
+             dAp  = 0.
+             Anew = A - sum(dA, dim=2) + sum(dA, dim=1)
              do c=1, nplant
                 cs = c
-                ! Either give old and new A but dA=0, and sinks
-                !   Anew       = A - sum(dA,dim=2) + sum(dA,dim=1)
-                !   dA         = 0._dp
-                !   plantsinks = FluxtoHarvest + FluxtoClearance + FluxtoLitter
-                !   call isotope_luc_model(c13o2pools%cplant(i,j), A, dA, C=casasave(i,j), T=plantsinks(i,j), At=Anew)
-                ! or make dA/=0 and no sinks
-                call isotope_luc_model(c13o2pools%cplant(j:l,c), A, dA, C=casasave(j:l,cs))
+                tluc = casasave(j:l,cs) * sum(dA, dim=2)
+                call isotope_luc_model(c13o2pools%cplant(j:l,c), A, dAp, C=casasave(j:l,cs), T=tluc, At=Anew)
              end do
              ! litter
              do c=1, nlitter
@@ -1060,6 +1061,69 @@ contains
          call c13o2_err_handler('Could not close c13o2 restart_out_luc file: '//trim(fname))
 
   end subroutine c13o2_write_restart_luc
+
+  ! ------------------------------------------------------------------
+  
+  ! Generell
+  
+  ! ------------------------------------------------------------------
+
+  ! Print 13C delta values of Casa pools on screen
+  subroutine c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
+
+    use cable_def_types_mod, only: dp => r_2
+    use casavariable,        only: casa_pool
+    use casavariable,        only: casa_flux
+    use cable_c13o2_def,     only: c13o2_pool
+    use mo_isotope,          only: delta1000, vpdbc13
+
+    implicit none
+
+    type(casa_pool),  intent(in) :: casapool
+    type(casa_flux),  intent(in) :: casaflux
+    type(c13o2_pool), intent(in) :: c13o2pools
+
+    ! integer :: nplant, nlitter, nsoil
+
+    ! nplant  = size(casapool%cplant,2)
+    ! nlitter = size(casapool%clitter,2)
+    ! nsoil   = size(casapool%csoil,2)
+
+    write(*,*) 'delta-13C of Casa pools'
+    write(*,*) '    plant:    ', delta1000(c13o2pools%cplant,   casapool%cplant,   vpdbc13, -1000._dp, tiny(1.0_dp))
+    write(*,*) '    litter:   ', delta1000(c13o2pools%clitter,  casapool%clitter,  vpdbc13, -1000._dp, tiny(1.0_dp))
+    write(*,*) '    soil:     ', delta1000(c13o2pools%csoil,    casapool%csoil,    vpdbc13, -1000._dp, tiny(1.0_dp))
+    write(*,*) '    labile:   ', delta1000(c13o2pools%clabile,  casapool%clabile,  vpdbc13, -1000._dp, tiny(1.0_dp))
+    write(*,*) '    Charvest: ', delta1000(c13o2pools%charvest, casaflux%Charvest, vpdbc13, -1000._dp, tiny(1.0_dp))
+
+  end subroutine c13o2_print_delta_pools
+
+  ! ------------------------------------------------------------------
+
+  ! Print 13C delta values of LUC pools on screen
+  subroutine c13o2_print_delta_luc(popluc, c13o2luc)
+
+    use cable_def_types_mod, only: dp => r_2
+    use popluc_types,        only: popluc_type
+    use cable_c13o2_def,     only: c13o2_luc
+    use mo_isotope,          only: delta1000, vpdbc13
+
+    implicit none
+
+    type(popluc_type), intent(in) :: popluc
+    type(c13o2_luc),   intent(in) :: c13o2luc
+
+    ! integer :: nharvest, nclearance
+
+    ! nharvest   = size(popluc%HarvProd,2)
+    ! nclearance = size(popluc%ClearProd,2)
+
+    write(*,*) 'delta-13C of LUC pools'
+    write(*,*) '    harvest:   ', delta1000(c13o2luc%charvest,   popluc%HarvProd,  vpdbc13, -1000._dp, tiny(1.0_dp))
+    write(*,*) '    clearance: ', delta1000(c13o2luc%cclearance, popluc%ClearProd, vpdbc13, -1000._dp, tiny(1.0_dp))
+    write(*,*) '    agric:     ', delta1000(c13o2luc%cagric,     popluc%AgProd,    vpdbc13, -1000._dp, tiny(1.0_dp))
+
+  end subroutine c13o2_print_delta_luc
 
   ! ------------------------------------------------------------------
   
