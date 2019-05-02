@@ -109,7 +109,6 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
                 xfherbivore(nv),leafage(nv),woodage(nv),frootage(nv), &
                 metage(nv),strage(nv),cwdage(nv),  &
                 micage(nv),slowage(nv),passage(nv),clabileage(nv),slax(nv)
-!     PRINT *, 'nv1',nv,nv1
   ENDDO
 
   READ(101,*)
@@ -119,7 +118,6 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
                 casabiome%fracnpptoP(nv,leaf),casabiome%fracnpptoP(nv,wood), &
                 casabiome%fracnpptoP(nv,froot),casabiome%rmplant(nv,leaf),   &
                 casabiome%rmplant(nv,wood),casabiome%rmplant(nv,froot)
-!     PRINT *, 'nv2', nv2
   ENDDO
 
   READ(101,*)

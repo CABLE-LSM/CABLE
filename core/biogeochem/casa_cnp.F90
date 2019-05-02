@@ -952,6 +952,7 @@ SUBROUTINE casa_xratesoil(xklitter,xksoil,veg,soil,casamet,casabiome)
               (exp(308.56*(1.0/56.02-1.0         &
               / (10.0 + 46.02))))
          
+         
       ELSE if (trim(cable_user%STRF_NAME)=='Q10') THEN
          ! Q10 normalised to 10 deg C
           strf(npt) = casabiome%q10soil(veg%iveg(npt))**(0.1*(tsavg(npt)-TKzeroC-10.0))

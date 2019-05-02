@@ -332,12 +332,13 @@ CONTAINS
     ErrStatus = NF90_INQ_VARID(FID,'longitude',lonID)
     CALL HANDLE_ERR(ErrStatus, "Inquiring 'longitudes'"//TRIM(LandMaskFile))
     ErrStatus = NF90_GET_VAR(FID,lonID,CRU_lons)
+    where (CRU_lons.gt.180.0)
+       CRU_lons = CRU_lons - 360.0
+    end where
     CALL HANDLE_ERR(ErrStatus, "Reading 'longitudes'"//TRIM(LandMaskFile))
 
     ! Allocate the landmask arrays for... 
-write(*,*) 'b4 alloc landmask'
     ALLOCATE( CRU%landmask ( xdimsize, ydimsize) )  ! Passing out to other CRU routines (logical)
-write(*,*) 'after alloc landmask'
     ALLOCATE( landmask ( xdimsize, ydimsize) )      ! Local use in this routine (integer)
     ALLOCATE ( mask( xdimsize, ydimsize) )          ! Use by CABLE
 
@@ -709,7 +710,7 @@ END SUBROUTINE GET_CRU_Ndep
     CALL CRU_GET_FILENAME( CRU, MetYear, iVar, CRU%MetFile(iVar) ) ! Call routine to build the filenames.
 
 ! Open the new met files and access the variables by their name and variable id.
-    WRITE(*   ,*) 'Opening met data file: ', CRU%MetFile(iVar)
+    !WRITE(*   ,*) 'Opening met data file: ', CRU%MetFile(iVar)
     WRITE(logn,*) 'Opening met data file: ', CRU%MetFile(iVar)
 
     ErrStatus = NF90_OPEN(TRIM(CRU%MetFile(iVar)), NF90_NOWRITE, CRU%F_ID(iVar))  
