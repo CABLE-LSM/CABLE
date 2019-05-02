@@ -185,11 +185,11 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
      ENDWHERE
     
 
-     write(3333,"(200f16.6)") real(idoy), real(climate%NDAY_Nesterov(1)), &
-          climate%Nesterov_Current(1), &
-          climate%Nesterov_ann_max(1), climate%Nesterov_ann_max_last_year(1), &
-          climate%Nesterov_ann_running_max(1),  climate%FFDI(1), climate%D_MacArthur(1), &
-          climate%KBDI(1), climate%dprecip(1)
+!!$     write(3333,"(200f16.6)") real(idoy), real(climate%NDAY_Nesterov(1)), &
+!!$          climate%Nesterov_Current(1), &
+!!$          climate%Nesterov_ann_max(1), climate%Nesterov_ann_max_last_year(1), &
+!!$          climate%Nesterov_ann_running_max(1),  climate%FFDI(1), climate%D_MacArthur(1), &
+!!$          climate%KBDI(1), climate%dprecip(1)
   ENDIF
 
   !  midday fraction of incoming visible radiation absorbed by the canopy
