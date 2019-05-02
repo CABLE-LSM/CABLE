@@ -529,8 +529,6 @@ CONTAINS
        POPLUC%kNatDist(g) = 0.0
     endif
 
-write(509,*) 'knatdist', POPLUC%thisyear,g, sum( POPLUC%freq_age_secondary(g,:)), &
-sum( POPLUC%biomass_age_secondary(g,:))
 
   END SUBROUTINE INCREMENT_AGE
   !*******************************************************************************
