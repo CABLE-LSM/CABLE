@@ -1,115 +1,113 @@
 MODULE cable_Pyfprint_module
   USE cable_fFile_module
 
-   interface cable_Pyfprintf
-      module procedure cable_Pyfprintf1, cable_Pyfprintf2
-   end interface cable_Pyfprintf
+  INTERFACE cable_Pyfprintf
+     MODULE PROCEDURE cable_Pyfprintf1, cable_Pyfprintf2
+  END INTERFACE
 
 CONTAINS
 
-! 1-D REAL
-!==========================================================================!
+  ! 1-D REAL
+  !==========================================================================!
 
-SUBROUTINE cable_Pyfprintf1( iDiag, basename, var1, dimx, L_fprint )
-  USE cable_fFile_module
-  USE cable_common_module, only : knode_gl, ktau_gl
-  implicit none  
-  ! IN vars
-  integer :: iDiag  ! f^n creates unique unidID to be returned to calling point
-  integer :: dimx   ! 1-D length
-  real, dimension(dimx) :: var1    ! var CALLed    
-  ! writes file per processor (basename+node)
-  character(len=*) :: basename     ! filename based on var
-  logical :: L_fprint
-  ! LOCAL vars
-  integer, SAVE :: pDiag=1713      ! give unique SEED per module procedure 
+  SUBROUTINE cable_Pyfprintf1( iDiag, basename, var1, dimx, L_fprint )
+    USE cable_fFile_module
+    USE cable_common_module, ONLY : knode_gl, ktau_gl
+    IMPLICIT NONE
+    ! IN vars
+    INTEGER :: iDiag  ! f^n creates unique unidID to be returned to calling point
+    INTEGER :: dimx   ! 1-D length
+    REAL, DIMENSION(dimx) :: var1    ! var CALLed
+    ! writes file per processor (basename+node)
+    CHARACTER(len=*) :: basename     ! filename based on var
+    LOGICAL :: L_fprint
+    ! LOCAL vars
+    INTEGER, SAVE :: pDiag=1713      ! give unique SEED per module procedure
 
-  if( .NOT. L_fprint ) return
+    IF( .NOT. L_fprint ) RETURN
 
-  ! Returns unique unit=iDiag and modified basename
-  call open_file_per_node( iDiag, pDiag, fprintf_dir, basename, knode_gl )
-  write(6,*) "jh:Pytest:iDiag ",  iDiag
-  write(6,*) "jh:Pytest:pDiag ", pdiag 
-  write(6,*) "jh:Pytest:fprintf_dir ",  fprintf_dir
-  write(6,*) "jh:Pytest:basename ",  basename
-  write(6,*) "jh:Pytest:knode_gl  ",  knode_gl 
-   
-  call cable_Pyprint1( idiag, dimx, var1, ktau_gl )
-                             
-END SUBROUTINE cable_Pyfprintf1
+    ! Returns unique unit=iDiag and modified basename
+    CALL open_file_per_node( iDiag, pDiag, fprintf_dir, basename, knode_gl )
+    WRITE(6,*) "jh:Pytest:iDiag ",  iDiag
+    WRITE(6,*) "jh:Pytest:pDiag ", pdiag
+    WRITE(6,*) "jh:Pytest:fprintf_dir ",  fprintf_dir
+    WRITE(6,*) "jh:Pytest:basename ",  basename
+    WRITE(6,*) "jh:Pytest:knode_gl  ",  knode_gl
 
+    CALL cable_Pyprint1( idiag, dimx, var1, ktau_gl )
 
-SUBROUTINE cable_Pyprint1(idiag,dimx,field, ktau)
-  implicit none  
-  integer :: idiag
-  integer :: dimx
-  real, dimension(dimx) :: field
-  integer :: ktau 
-  
-  integer :: j
-
-  write(6,*) "jh:2Pytest:iDiag ",  iDiag
-  write(6,*) "jh:2Pytest:dimx ", dimx 
-  write(6,*) "jh:2Pytest:ktau  ",  ktau     
-  do j=1, dimx  
-      write (iDiag,*) field(j) 
-  enddo
-
-END SUBROUTINE cable_Pyprint1
-
-! 2-D REAL
-!==========================================================================!
-
-SUBROUTINE cable_Pyfprintf2( iDiag, basename, var1, dimx, dimy, L_fprint )
-  USE cable_fFile_module
-  USE cable_common_module, only : knode_gl, ktau_gl
-  implicit none  
-  ! IN vars
-  integer :: iDiag  ! f^n creates unique unidID to be returned to calling point
-  integer :: dimx, dimy   ! 2-D length
-  real, dimension(dimx,dimy) :: var1    ! var CALLed    
-  ! writes file per processor (basename+node)
-  character(len=*) :: basename     ! filename based on var
-  logical :: L_fprint
-  ! LOCAL vars
-  integer, SAVE :: pDiag=2713      ! give unique SEED per module procedure 
-
-  if( .NOT. L_fprint ) return
-
-  ! Returns unique unit=iDiag and modified basename
-  call open_file_per_node( iDiag, pDiag, fprintf_dir, basename, knode_gl )
-  write(6,*) "jh:Pytest:iDiag ",  iDiag
-  write(6,*) "jh:Pytest:pDiag ", pdiag 
-  write(6,*) "jh:Pytest:fprintf_dir ",  fprintf_dir
-  write(6,*) "jh:Pytest:basename ",  basename
-  write(6,*) "jh:Pytest:knode_gl  ",  knode_gl 
-   
-  call cable_Pyprint2( iDiag, dimx, dimy, var1, ktau_gl )
-                             
-END SUBROUTINE cable_Pyfprintf2
+  END SUBROUTINE cable_Pyfprintf1
 
 
-SUBROUTINE cable_Pyprint2(idiag,dimx,dimy, field, ktau)
-  implicit none  
-  integer :: idiag
-  integer :: dimx, dimy
-  real, dimension(dimx, dimy) :: field
-  integer :: ktau 
-  
-  integer :: i,j
+  SUBROUTINE cable_Pyprint1(idiag,dimx,field, ktau)
+    IMPLICIT NONE
+    INTEGER :: idiag
+    INTEGER :: dimx
+    REAL, DIMENSION(dimx) :: field
+    INTEGER :: ktau
 
-  write(6,*) "jh:2Pytest:iDiag ",  iDiag
-  write(6,*) "jh:2Pytest:dimx ", dimx 
-  write(6,*) "jh:2Pytest:dimy ", dimy 
-  write(6,*) "jh:2Pytest:ktau  ",  ktau     
-  do i=1, dimx  
-  do j=1, dimy  
-      write (iDiag,*) field(i,j) 
-  enddo
-  enddo
+    INTEGER :: j
 
-END SUBROUTINE cable_Pyprint2
+    WRITE(6,*) "jh:2Pytest:iDiag ",  iDiag
+    WRITE(6,*) "jh:2Pytest:dimx ", dimx
+    WRITE(6,*) "jh:2Pytest:ktau  ",  ktau
+    DO j=1, dimx
+       WRITE (iDiag,*) field(j)
+    ENDDO
+
+  END SUBROUTINE cable_Pyprint1
+
+  ! 2-D REAL
+  !==========================================================================!
+
+  SUBROUTINE cable_Pyfprintf2( iDiag, basename, var1, dimx, dimy, L_fprint )
+    USE cable_fFile_module
+    USE cable_common_module, ONLY : knode_gl, ktau_gl
+    IMPLICIT NONE
+    ! IN vars
+    INTEGER :: iDiag  ! f^n creates unique unidID to be returned to calling point
+    INTEGER :: dimx, dimy   ! 2-D length
+    REAL, DIMENSION(dimx,dimy) :: var1    ! var CALLed
+    ! writes file per processor (basename+node)
+    CHARACTER(len=*) :: basename     ! filename based on var
+    LOGICAL :: L_fprint
+    ! LOCAL vars
+    INTEGER, SAVE :: pDiag=2713      ! give unique SEED per module procedure
+
+    IF( .NOT. L_fprint ) RETURN
+
+    ! Returns unique unit=iDiag and modified basename
+    CALL open_file_per_node( iDiag, pDiag, fprintf_dir, basename, knode_gl )
+    WRITE(6,*) "jh:Pytest:iDiag ",  iDiag
+    WRITE(6,*) "jh:Pytest:pDiag ", pdiag
+    WRITE(6,*) "jh:Pytest:fprintf_dir ",  fprintf_dir
+    WRITE(6,*) "jh:Pytest:basename ",  basename
+    WRITE(6,*) "jh:Pytest:knode_gl  ",  knode_gl
+
+    CALL cable_Pyprint2( iDiag, dimx, dimy, var1, ktau_gl )
+
+  END SUBROUTINE cable_Pyfprintf2
+
+
+  SUBROUTINE cable_Pyprint2(idiag,dimx,dimy, field, ktau)
+    IMPLICIT NONE
+    INTEGER :: idiag
+    INTEGER :: dimx, dimy
+    REAL, DIMENSION(dimx, dimy) :: field
+    INTEGER :: ktau
+
+    INTEGER :: i,j
+
+    WRITE(6,*) "jh:2Pytest:iDiag ",  iDiag
+    WRITE(6,*) "jh:2Pytest:dimx ", dimx
+    WRITE(6,*) "jh:2Pytest:dimy ", dimy
+    WRITE(6,*) "jh:2Pytest:ktau  ",  ktau
+    DO i=1, dimx
+       DO j=1, dimy
+          WRITE (iDiag,*) field(i,j)
+       ENDDO
+    ENDDO
+
+  END SUBROUTINE cable_Pyprint2
 
 END MODULE cable_Pyfprint_module
-
-

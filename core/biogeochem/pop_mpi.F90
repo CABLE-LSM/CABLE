@@ -950,4 +950,3 @@ CONTAINS
   END SUBROUTINE create_pop_gridcell_type
 
 END MODULE pop_mpi
-

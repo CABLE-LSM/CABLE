@@ -97,7 +97,7 @@ CONTAINS
     PLUME%RCP          = RCP
     PLUME%CO2          = CO2
     PLUME%NDEP         = NDEP
-    PLUME%DT           = int(DT * 3600.)  ! in seconds
+    PLUME%DT           = INT(DT * 3600.)  ! in seconds
     PLUME%DirectRead   = DirectRead
     ! Print settings
 
@@ -1038,8 +1038,8 @@ CONTAINS
        met%ua        (is:ie)   = WG%Wind(i)
        met%coszen    (is:ie)   = WG%coszen(i)
        ! compute qv
-      ! CALL rh_sh ( PLUME%MET(rhum)%VAL(i), met%tk(is), met%pmb(is), met%qv(is) )
-      ! met%qv        (is:ie)   = met%qv(is)
+       ! CALL rh_sh ( PLUME%MET(rhum)%VAL(i), met%tk(is), met%pmb(is), met%qv(is) )
+       ! met%qv        (is:ie)   = met%qv(is)
        met%qv        (is:ie) = PLUME%MET(rhum)%VAL(i)
     END DO
 

@@ -17,12 +17,12 @@ MODULE sli_roots
   INTERFACE setroots
      MODULE PROCEDURE setroots_1d
      MODULE PROCEDURE setroots_2d
-  END INTERFACE setroots
+  END INTERFACE
 
   INTERFACE getrex
      MODULE PROCEDURE getrex_1d
      MODULE PROCEDURE getrex_2d
-  END INTERFACE getrex
+  END INTERFACE
 
   ! Definitions:
   ! setroots - subroutine to set current root distribution based on Li, K.Y., De Jong, R. and J.B. Boisvert (2001).
@@ -51,31 +51,31 @@ CONTAINS
     ! Zr   - rooting depth (cm).
     INTEGER(i_d)                    :: ms
     REAL(r_2)                       :: b, extr
-    REAL(r_2), DIMENSION(1:size(x)) :: ext0, ext1, xend, Fi
+    REAL(r_2), DIMENSION(1:SIZE(x)) :: ext0, ext1, xend, Fi
     REAL(r_2)                       :: tmp
 
-    ms = size(x) ! soil layers
+    ms = SIZE(x) ! soil layers
 
     xend(1)    = zero
     xend(2:ms) = x(1:ms-1)
     b          = b1 * F10**b2 / Zr ! root distrib param
-    extr       = exp(-b*Zr)
-    ext1(:)    = exp(-b*x(:))
+    extr       = EXP(-b*Zr)
+    ext1(:)    = EXP(-b*x(:))
     ext0(1)    = one
     ext0(2:ms) = ext1(1:ms-1)
     ! get fraction of root length density in layer i
-    Fi(:) = (log((one+ext0(:))/(one+ext1(:))) + half*(ext0(:)-ext1(:))) / &
-         (log(two/(one+extr)) + half*(one-extr))
-    Fs(:) = exp(lambda*log(Fi(:))) ! weighted Fi
-    where (xend(:) >= Zr) Fs(:) = zero
+    Fi(:) = (LOG((one+ext0(:))/(one+ext1(:))) + half*(ext0(:)-ext1(:))) / &
+         (LOG(two/(one+extr)) + half*(one-extr))
+    Fs(:) = EXP(lambda*LOG(Fi(:))) ! weighted Fi
+    WHERE (xend(:) >= Zr) Fs(:) = zero
 
     ! ensure Fs sums to one
-    tmp = sum(Fs(:))
-    if (tmp > zero) then
+    tmp = SUM(Fs(:))
+    IF (tmp > zero) THEN
        Fs(:) = Fs(:)/tmp
-    else
+    ELSE
        Fs(:) = zero
-    endif
+    ENDIF
 
   END SUBROUTINE setroots_1d
 
@@ -89,12 +89,12 @@ CONTAINS
     REAL(r_2), DIMENSION(:,:), INTENT(OUT) :: Fs
 
     INTEGER(i_d)                      :: i
-    REAL(r_2), DIMENSION(1:size(x,2)) :: out
+    REAL(r_2), DIMENSION(1:SIZE(x,2)) :: out
 
-    do i=1, size(x,1) ! landpoints
-       call setroots_1d(x(i,:), F10(i), Zr(i), out)
+    DO i=1, SIZE(x,1) ! landpoints
+       CALL setroots_1d(x(i,:), F10(i), Zr(i), out)
        Fs(i,:) = out
-    end do
+    END DO
 
   END SUBROUTINE setroots_2d
 
@@ -121,66 +121,66 @@ CONTAINS
     ! Gets rate of water extraction compatible with CABLE stomatal conductance model
     ! theta(:) - soil moisture(m3 m-3)
     ! rex(:)   - rate of water extraction by roots from layers (cm/h).
-    REAL(r_2), DIMENSION(1:size(S)) :: theta, lthetar, alpha_root, delta_root
+    REAL(r_2), DIMENSION(1:SIZE(S)) :: theta, lthetar, alpha_root, delta_root
     REAL(r_2)                       :: trex
 
     theta(:)   = S(:)*thetaS(:)
-    lthetar(:) = log(max(theta(:)-thetaw(:),e3)/thetaS(:))
+    lthetar(:) = LOG(MAX(theta(:)-thetaw(:),e3)/thetaS(:))
 
-    where ((theta(:)-thetaw(:)) > e3)
-       alpha_root(:) = exp( gamma/max(theta(:)-thetaw(:), e3) * lthetar(:) )
-    elsewhere
+    WHERE ((theta(:)-thetaw(:)) > e3)
+       alpha_root(:) = EXP( gamma/MAX(theta(:)-thetaw(:), e3) * lthetar(:) )
+    ELSEWHERE
        alpha_root(:) = zero
     endwhere
 
-    where (Fs(:) > zero)
+    WHERE (Fs(:) > zero)
        delta_root(:) = one
-    elsewhere
+    ELSEWHERE
        delta_root(:) = zero
     endwhere
 
     rex(:) = alpha_root(:)*Fs(:)
 
-    trex = sum(rex(:))
-    if (trex > zero) then
+    trex = SUM(rex(:))
+    IF (trex > zero) THEN
        rex(:) = rex(:)/trex
-    else
+    ELSE
        rex(:) = zero
-    endif
+    ENDIF
     rex(:) = Etrans*rex(:)
 
     ! reduce extraction efficiency where total extraction depletes soil moisture below wilting point
     !where ((rex*dt) > (theta(:)-0.01_r_2)*dx(:))
-    where (((rex*dt) > (theta(:)-thetaw(:))*dx(:)) .and. ((rex*dt) > zero))
+    WHERE (((rex*dt) > (theta(:)-thetaw(:))*dx(:)) .AND. ((rex*dt) > zero))
        alpha_root = alpha_root*(theta(:)-thetaw(:))*dx(:)/(rex*dt)
     endwhere
     rex(:) = alpha_root(:)*Fs(:)
 
-    trex = sum(rex(:))
-    if (trex > zero) then
+    trex = SUM(rex(:))
+    IF (trex > zero) THEN
        rex(:) = rex(:)/trex
-    else
+    ELSE
        rex(:) = zero
-    endif
+    ENDIF
     rex(:) = Etrans*rex(:)
 
     ! check that the water available in each layer exceeds the extraction
     !if (any((rex*dt) > (theta(:)-0.01_r_2)*dx(:))) then
-    if (any(((rex*dt) > (theta(:)-thetaw(:))*dx(:)) .and. ((rex*dt) > zero))) then
+    IF (ANY(((rex*dt) > (theta(:)-thetaw(:))*dx(:)) .AND. ((rex*dt) > zero))) THEN
        fws = zero
        ! distribute extraction according to available water
        !rex(:) = (theta(:)-0.01_r_2)*dx(:)
-       rex(:) = max((theta(:)-thetaw(:))*dx(:),zero)
-       trex = sum(rex(:))
-       if (trex > zero) then
+       rex(:) = MAX((theta(:)-thetaw(:))*dx(:),zero)
+       trex = SUM(rex(:))
+       IF (trex > zero) THEN
           rex(:) = rex(:)/trex
-       else
+       ELSE
           rex(:) = zero
-       endif
+       ENDIF
        rex(:) = Etrans*rex(:)
-    else
-       fws    = maxval(alpha_root(2:)*delta_root(2:))
-    endif
+    ELSE
+       fws    = MAXVAL(alpha_root(2:)*delta_root(2:))
+    ENDIF
 
   END SUBROUTINE getrex_1d
 
@@ -200,15 +200,15 @@ CONTAINS
     REAL(r_2),                 INTENT(IN)    :: dt
 
     INTEGER(i_d)                      :: i
-    REAL(r_2), DIMENSION(1:size(S,2)) :: rout
+    REAL(r_2), DIMENSION(1:SIZE(S,2)) :: rout
     REAL(r_2)                         :: fout
 
-    do i=1, size(S,1) ! landpoints
+    DO i=1, SIZE(S,1) ! landpoints
        fout = fws(i)
-       call getrex_1d(S(i,:), rout, fout, Fs(i,:), thetaS(i,:), thetaw(i,:), Etrans(i), gamma(i), dx(i,:), dt)
+       CALL getrex_1d(S(i,:), rout, fout, Fs(i,:), thetaS(i,:), thetaw(i,:), Etrans(i), gamma(i), dx(i,:), dt)
        rex(i,:) = rout
        fws(i)   = fout
-    end do
+    END DO
 
   END SUBROUTINE getrex_2d
 

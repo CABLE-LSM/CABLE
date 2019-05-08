@@ -55,8 +55,8 @@ MODULE physical_constants
   REAL,    PARAMETER :: tetenc = 237.3
   !mrd561 the parameters for sat above ice
   REAL,    PARAMETER :: tetena_ice = 6.1078  ! ??? refs?
-  REAL,    PARAMETER :: tetenb_ice = 21.875 
-  REAL,    PARAMETER :: tetenc_ice = 265.5 
+  REAL,    PARAMETER :: tetenb_ice = 21.875
+  REAL,    PARAMETER :: tetenc_ice = 265.5
   ! Aerodynamic parameters, diffusivities, water density:
   REAL,    PARAMETER :: vonk   = 0.40     ! von Karman constant
   REAL,    PARAMETER :: a33    = 1.25     ! inertial sublayer sw/us

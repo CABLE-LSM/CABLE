@@ -106,7 +106,7 @@ MODULE POP_Constants
   INTEGER(i4b),PARAMETER :: SMOOTH_SWITCH = 0 ! smooth disturbance flux
   INTEGER(i4b),PARAMETER :: NYEAR_SMOOTH = 11 ! smoothing window (y)
   INTEGER(i4b),PARAMETER :: NYEAR_HISTORY =  NYEAR_SMOOTH-NYEAR_SMOOTH/2
-  INTEGER(i4b),PARAMETER :: AGEMAX = 1000 
+  INTEGER(i4b),PARAMETER :: AGEMAX = 1000
 END MODULE POP_Constants
 !*******************************************************************************
 MODULE POP_Types
@@ -237,9 +237,9 @@ MODULE POP_Types
 
   TYPE POP_TYPE
      TYPE(Landscape), DIMENSION(:), ALLOCATABLE :: pop_grid
-     INTEGER , DIMENSION(:), Allocatable    :: it_pop
+     INTEGER , DIMENSION(:), ALLOCATABLE    :: it_pop
      INTEGER :: np
-     INTEGER, DIMENSION(:), Allocatable :: Iwood ! , LU
+     INTEGER, DIMENSION(:), ALLOCATABLE :: Iwood ! , LU
   END TYPE POP_TYPE
 
 END MODULE POP_Types
@@ -271,8 +271,8 @@ CONTAINS
 
 
     np = SIZE(pop%pop_grid)
-! optional interger n intended for zeroing secondary forest tiles
-    
+    ! optional interger n intended for zeroing secondary forest tiles
+
     IF (PRESENT(n)) THEN
        a = n
        b = n
@@ -283,8 +283,8 @@ CONTAINS
        b = np
        !pop%LU = 1
        POP%pop_grid%LU = 1
-    endif
- 
+    ENDIF
+
 
     DO g=a,b
        POP%pop_grid(g)%freq = 0 ! patch weighting
@@ -402,82 +402,82 @@ CONTAINS
 
   END SUBROUTINE ZeroPOP
   !*******************************************************************************
- SUBROUTINE InitPOP2D_Poisson(POP, mean_disturbance_interval, m)
-  ! Initialises vector of patches with maximum age correpondding to 95% of pdf
-  ! Starting year: uniform distribution up to maximum age
+  SUBROUTINE InitPOP2D_Poisson(POP, mean_disturbance_interval, m)
+    ! Initialises vector of patches with maximum age correpondding to 95% of pdf
+    ! Starting year: uniform distribution up to maximum age
 
-  IMPLICIT NONE
+    IMPLICIT NONE
 
-  TYPE(POP_TYPE), INTENT(INOUT) :: POP
-  INTEGER(i4b), INTENT(IN) ::  mean_disturbance_interval(:,:)
-  INTEGER(i4b), INTENT(IN), optional :: m 
-  INTEGER(i4b) :: j, k, g, ipatch, idist, p, c, n, i
-  INTEGER(i4b) :: disturbance_interval
-  INTEGER(i4b):: patch_disturbance_interval_idist(NDISTURB,NPATCH2D)
-  INTEGER(i4b):: patch_first_disturbance_year_idist(NDISTURB,NPATCH2D), &
-       patch_first_disturbance_year_unique(NDISTURB,NPATCH2D)
+    TYPE(POP_TYPE), INTENT(INOUT) :: POP
+    INTEGER(i4b), INTENT(IN) ::  mean_disturbance_interval(:,:)
+    INTEGER(i4b), INTENT(IN), OPTIONAL :: m
+    INTEGER(i4b) :: j, k, g, ipatch, idist, p, c, n, i
+    INTEGER(i4b) :: disturbance_interval
+    INTEGER(i4b):: patch_disturbance_interval_idist(NDISTURB,NPATCH2D)
+    INTEGER(i4b):: patch_first_disturbance_year_idist(NDISTURB,NPATCH2D), &
+         patch_first_disturbance_year_unique(NDISTURB,NPATCH2D)
 
-  INTEGER(i4b):: Poisson_age(1000),Poisson_freq(1000)
-  REAL(dp):: Poisson_weight(1000), CumPoisson_weight(1000)
-  INTEGER(i4b):: disturbances_per_timebase, timebase
-  INTEGER:: i_min, i_max, age_sample(2,NAGE_MAX**2), tmp(NAGE_MAX**2)
-  INTEGER:: age_tmp, tmp_unique(NAGE_MAX**2), n_age, np
-  REAL(dp):: disturbance_freq, tmp1
-  INTEGER:: tmp2(PATCH_REPS1) ,  n_first_disturbance_year(NDISTURB), tmp3(PATCH_REPS2)
-  INTEGER:: a,b
-  np = SIZE(POP%pop_grid)
-  a = 1
-  b = np
-  IF (PRESENT(m)) THEN
-     a = m
-     b = m
-  ENDIF
+    INTEGER(i4b):: Poisson_age(1000),Poisson_freq(1000)
+    REAL(dp):: Poisson_weight(1000), CumPoisson_weight(1000)
+    INTEGER(i4b):: disturbances_per_timebase, timebase
+    INTEGER:: i_min, i_max, age_sample(2,NAGE_MAX**2), tmp(NAGE_MAX**2)
+    INTEGER:: age_tmp, tmp_unique(NAGE_MAX**2), n_age, np
+    REAL(dp):: disturbance_freq, tmp1
+    INTEGER:: tmp2(PATCH_REPS1) ,  n_first_disturbance_year(NDISTURB), tmp3(PATCH_REPS2)
+    INTEGER:: a,b
+    np = SIZE(POP%pop_grid)
+    a = 1
+    b = np
+    IF (PRESENT(m)) THEN
+       a = m
+       b = m
+    ENDIF
 
 
 
-  DO g=a,b
+    DO g=a,b
 
-     ! calculate Poisson weights for each of the 2 mean disturbance intervals
-     IF (NPATCH.gt.1) THEN
-        DO idist=1,NDISTURB
-           disturbance_freq=1.0/REAL(mean_disturbance_interval(g,idist))
-           DO p = 1,1000
-              Poisson_age(p) = p
-              Poisson_weight(p) = Exponential(disturbance_freq,p)
-              CumPoisson_weight(p) = CumExponential(disturbance_freq,REAL(p,dp))
-           ENDDO
-           ! set max age to correspond to 95% percentile of cum pdf
-           DO k =1,NPATCH2D
-              i_max = MAXLOC(Poisson_age,1,CumPoisson_weight.LE.0.95)
-              POP%pop_grid(g)%patch(k)%disturbance_interval(idist) = Poisson_age(i_max)
-              POP%pop_grid(g)%patch(k)%id = k
-              POP%pop_grid(g)%patch(k)%age = 0
-           ENDDO
-        ENDDO
-!!
+       ! calculate Poisson weights for each of the 2 mean disturbance intervals
+       IF (NPATCH.GT.1) THEN
+          DO idist=1,NDISTURB
+             disturbance_freq=1.0/REAL(mean_disturbance_interval(g,idist))
+             DO p = 1,1000
+                Poisson_age(p) = p
+                Poisson_weight(p) = Exponential(disturbance_freq,p)
+                CumPoisson_weight(p) = CumExponential(disturbance_freq,REAL(p,dp))
+             ENDDO
+             ! set max age to correspond to 95% percentile of cum pdf
+             DO k =1,NPATCH2D
+                i_max = MAXLOC(Poisson_age,1,CumPoisson_weight.LE.0.95)
+                POP%pop_grid(g)%patch(k)%disturbance_interval(idist) = Poisson_age(i_max)
+                POP%pop_grid(g)%patch(k)%id = k
+                POP%pop_grid(g)%patch(k)%age = 0
+             ENDDO
+          ENDDO
+          !!
 
-       DO idist =1,ndisturb
-        ! set first disturbance year for first dist interval class
-        if (idist .eq. 1) then
-        disturbance_interval = POP%pop_grid(g)%patch(1)%disturbance_interval(idist)
-        DO c = 1,PATCH_REPS1
-           if (c==1) then
-              tmp2(1) = 1
-           else
-              tmp2(1) = max(disturbance_interval*(c-1)/(PATCH_REPS1),1)+1
-           endif
-           tmp2(2) = max(disturbance_interval*c/(PATCH_REPS1),1)
-           tmp2(3) = tmp2(1)
-       !    write(*,*) 'tmp2', c, disturbance_interval, tmp2(1),tmp2(2)
-           DO j = 1,PATCH_REPS2
-              ipatch = (c-1)*PATCH_REPS2 + j
-              POP%pop_grid(g)%patch(ipatch)%first_disturbance_year(idist) = tmp2(3)
-              tmp2(3)=tmp2(3)+1
-              if (tmp2(3)>tmp2(2)) then
-                 tmp2(3) = tmp2(1)
-              ENDIF
-           ENDDO
-        ENDDO
+          DO idist =1,ndisturb
+             ! set first disturbance year for first dist interval class
+             IF (idist .EQ. 1) THEN
+                disturbance_interval = POP%pop_grid(g)%patch(1)%disturbance_interval(idist)
+                DO c = 1,PATCH_REPS1
+                   IF (c==1) THEN
+                      tmp2(1) = 1
+                   ELSE
+                      tmp2(1) = MAX(disturbance_interval*(c-1)/(PATCH_REPS1),1)+1
+                   ENDIF
+                   tmp2(2) = MAX(disturbance_interval*c/(PATCH_REPS1),1)
+                   tmp2(3) = tmp2(1)
+                   !    write(*,*) 'tmp2', c, disturbance_interval, tmp2(1),tmp2(2)
+                   DO j = 1,PATCH_REPS2
+                      ipatch = (c-1)*PATCH_REPS2 + j
+                      POP%pop_grid(g)%patch(ipatch)%first_disturbance_year(idist) = tmp2(3)
+                      tmp2(3)=tmp2(3)+1
+                      IF (tmp2(3)>tmp2(2)) THEN
+                         tmp2(3) = tmp2(1)
+                      ENDIF
+                   ENDDO
+                ENDDO
 
 !!$        ! set first disturbance year for first dist interval class
 !!$        idist = 1
@@ -509,49 +509,49 @@ CONTAINS
 !!$        ENDDO
 
 
-    ! set first disturbance year for first 2nd interval class
-        ELSEIF (idist.eq.2) then
-           disturbance_interval = POP%pop_grid(g)%patch(1)%disturbance_interval(idist)
-           DO c = 1,PATCH_REPS2
-              tmp3(c) = max(disturbance_interval*(c-1)/(PATCH_REPS2),1)
-           ENDDO
+                ! set first disturbance year for first 2nd interval class
+             ELSEIF (idist.EQ.2) THEN
+                disturbance_interval = POP%pop_grid(g)%patch(1)%disturbance_interval(idist)
+                DO c = 1,PATCH_REPS2
+                   tmp3(c) = MAX(disturbance_interval*(c-1)/(PATCH_REPS2),1)
+                ENDDO
 
-           DO c = 1,PATCH_REPS2
-              i = 0
-              DO j = 1,PATCH_REPS1
-                  ipatch = (j-1)*PATCH_REPS2 + c
-                  POP%pop_grid(g)%patch(ipatch)%first_disturbance_year(idist) = &
-                       tmp3(c) +(j-1)*max((tmp3(idist)-tmp3(1))/PATCH_REPS1,1)
+                DO c = 1,PATCH_REPS2
+                   i = 0
+                   DO j = 1,PATCH_REPS1
+                      ipatch = (j-1)*PATCH_REPS2 + c
+                      POP%pop_grid(g)%patch(ipatch)%first_disturbance_year(idist) = &
+                           tmp3(c) +(j-1)*MAX((tmp3(idist)-tmp3(1))/PATCH_REPS1,1)
 
-               !  i = i+1
-               !  if (i.gt.(tmp3(2)-tmp3(1))) i = 0
-              ENDDO
-           ENDDO
-        ENDIF
-
-
-
-
-        ENDDO
+                      !  i = i+1
+                      !  if (i.gt.(tmp3(2)-tmp3(1))) i = 0
+                   ENDDO
+                ENDDO
+             ENDIF
 
 
 
-     ELSE   ! NPATCH =1 (single patch mode)
-        k = 1
-        DO idist=1,NDISTURB
-           POP%pop_grid(g)%patch(k)%disturbance_interval(idist) = mean_disturbance_interval(g,idist)
-           POP%pop_grid(g)%patch(k)%first_disturbance_year(idist) = 113
-           POP%pop_grid(g)%patch(k)%age = 0
-           POP%pop_grid(g)%patch(k)%id = k
-        ENDDO
-     ENDIF
 
-     POP%pop_grid(g)%npatch_active = NPATCH
+          ENDDO
 
-  ENDDO
 
-END SUBROUTINE InitPOP2D_Poisson
-!
+
+       ELSE   ! NPATCH =1 (single patch mode)
+          k = 1
+          DO idist=1,NDISTURB
+             POP%pop_grid(g)%patch(k)%disturbance_interval(idist) = mean_disturbance_interval(g,idist)
+             POP%pop_grid(g)%patch(k)%first_disturbance_year(idist) = 113
+             POP%pop_grid(g)%patch(k)%age = 0
+             POP%pop_grid(g)%patch(k)%id = k
+          ENDDO
+       ENDIF
+
+       POP%pop_grid(g)%npatch_active = NPATCH
+
+    ENDDO
+
+  END SUBROUTINE InitPOP2D_Poisson
+  !
   !*******************************************************************************
 
   SUBROUTINE POPStep(POP, StemNPP, disturbance_interval, disturbance_intensity,LAI,Cleaf,Croot, &
@@ -569,7 +569,7 @@ END SUBROUTINE InitPOP2D_Poisson
     REAL(dp), INTENT(IN), OPTIONAL :: frac_intensity1(:), precip(:)
     REAL(dp), INTENT(IN), OPTIONAL :: StemNPP_av(:)
     INTEGER(i4b) :: idisturb,np,g
-    INTEGER(i4b), allocatable :: it(:)
+    INTEGER(i4b), ALLOCATABLE :: it(:)
     REAL(dp):: dallocW
 
     !INTEGER, INTENT(IN) :: wlogn
@@ -577,18 +577,18 @@ END SUBROUTINE InitPOP2D_Poisson
 
     !it = pop%it_pop(1)
     np = SIZE(POP%POP_grid)
-    allocate(it(np))
+    ALLOCATE(it(np))
 
-    do g=1,np
-       it(g) =  maxval(pop%pop_grid(g)%patch(:)%age(1)) + 1
-    enddo
+    DO g=1,np
+       it(g) =  MAXVAL(pop%pop_grid(g)%patch(:)%age(1)) + 1
+    ENDDO
 !!$    DO idisturb = 1,NDISTURB
 !!$       CALL GetUniqueAgeFrequencies(POP, disturbance_interval, idisturb, it)
 !!$    ENDDO
 !!$
 !!$    CALL GetPatchFrequencies(POP,it)
 
-   !call flush(wlogn)
+    !call flush(wlogn)
     IF (PRESENT(precip)) THEN
        IF(PRESENT(StemNPP_av)) THEN
           CALL PatchAnnualDynamics(POP, StemNPP,NPPtoGPP,disturbance_interval, it, precip=precip,StemNPP_av=StemNPP_av)
@@ -691,8 +691,8 @@ END SUBROUTINE InitPOP2D_Poisson
        tmp_light = 0.0
        tmp_respiration = 0.0
        tmp_fracNPP = 0.0
-  
-       if (NPATCH2D >1.and.it(j) > 1.and. RESOURCE_SWITCH>0) then
+
+       IF (NPATCH2D >1.AND.it(j) > 1.AND. RESOURCE_SWITCH>0) THEN
           DO k=1,NPATCH2D
              freq =  pop%pop_grid(j)%freq(pop%pop_grid(j)%patch(k)%id)
              nc = pop%pop_grid(j)%patch(k)%Layer(1)%ncohort
@@ -705,22 +705,22 @@ END SUBROUTINE InitPOP2D_Poisson
              ENDDO
              tmp_light = tmp_light + freq*(1. - pop%pop_grid(j)%patch(k)%Pgap)
           ENDDO
-          IF (tmp_respiration .gt. 1.e-8 .and. tmp_light .gt. 1.e-8) then
+          IF (tmp_respiration .GT. 1.e-8 .AND. tmp_light .GT. 1.e-8) THEN
              DO k=1,NPATCH2D
                 ! fraction respiration and un-normalised NPP for each patch
                 nc = pop%pop_grid(j)%patch(k)%Layer(1)%ncohort
                 freq =  pop%pop_grid(j)%freq(pop%pop_grid(j)%patch(k)%id)
                 ! frac autotrophic resp
-              
+
                 pop%pop_grid(j)%patch(k)%frac_respiration = &
-                     sum(pop%pop_grid(j)%patch(k)%Layer(1)%cohort(1:nc)%respiration_scalar)/tmp_respiration
+                     SUM(pop%pop_grid(j)%patch(k)%Layer(1)%cohort(1:nc)%respiration_scalar)/tmp_respiration
 
                 ! frac gpp
                 pop%pop_grid(j)%patch(k)%frac_light_uptake = &
                      (1. - pop%pop_grid(j)%patch(k)%pgap) /tmp_light
                 ! frac npp
                 pop%pop_grid(j)%patch(k)%frac_NPP = &
-                     max(pop%pop_grid(j)%patch(k)%frac_light_uptake*(1/NPPtoGPP(j)) - &
+                     MAX(pop%pop_grid(j)%patch(k)%frac_light_uptake*(1/NPPtoGPP(j)) - &
                      pop%pop_grid(j)%patch(k)%frac_respiration*(1/NPPtoGPP(j)-1.0),0.0_dp)
 
                 tmp_fracNPP = tmp_fracNPP + freq*pop%pop_grid(j)%patch(k)%frac_NPP
@@ -741,11 +741,11 @@ END SUBROUTINE InitPOP2D_Poisson
 
 
           ENDIF
-       else
+       ELSE
           pop%pop_grid(j)%patch(:)%frac_NPP = 1.0
           pop%pop_grid(j)%patch(:)%frac_respiration = 1.0
           pop%pop_grid(j)%patch(:)%frac_light_uptake = 1.0
-       endif
+       ENDIF
        ! End Get fraction allocation for each patch
 
        ! Get fraction allocation for each cohort in each patch
@@ -754,7 +754,7 @@ END SUBROUTINE InitPOP2D_Poisson
           tmp_light = 0.0
           tmp_respiration = 0.0
           tmp_fracNPP = 0.0
-          if (pop%pop_grid(j)%patch(k)%Layer(1)%ncohort>1) then
+          IF (pop%pop_grid(j)%patch(k)%Layer(1)%ncohort>1) THEN
              nc = pop%pop_grid(j)%patch(k)%Layer(1)%ncohort
              DO c=1,pop%pop_grid(j)%patch(k)%Layer(1)%ncohort
 
@@ -769,12 +769,12 @@ END SUBROUTINE InitPOP2D_Poisson
                    CALL GET_ALLOMETRY( ALLOM_SWITCH,  cmass_stem, densindiv, ht, diam, basal_old )
                 ENDIF
 
-                if (ALLOM_SWITCH.eq.1) then
+                IF (ALLOM_SWITCH.EQ.1) THEN
                    !! assumes crown radius (m) = 0.1492 * dbh (cm) (from G. Cook, pers. comm.)
                    crown_area = densindiv*PI*(diam*100.*0.1492)**2
-                else
+                ELSE
                    crown_area = densindiv*PI*(((k_allom1 * diam ** k_rp )/PI)**0.5)**2
-                endif
+                ENDIF
 
                 tmp = tmp + (pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%biomass/ &  ! sum over all cohorts
                      pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%density)**POWERbiomass * &
@@ -784,7 +784,7 @@ END SUBROUTINE InitPOP2D_Poisson
 
                 tmp_respiration = tmp_respiration + pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%respiration_scalar
 
-                tmp2(c) = sum((pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c:nc)%biomass/ &  ! sum over all cohorts c:nc
+                tmp2(c) = SUM((pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c:nc)%biomass/ &  ! sum over all cohorts c:nc
                      pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c:nc)%density)**POWERbiomass * &
                      pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c:nc)%density)
 
@@ -794,12 +794,12 @@ END SUBROUTINE InitPOP2D_Poisson
              ! where cohort competes with older cohorts and where it does not
              DO c=1,pop%pop_grid(j)%patch(k)%Layer(1)%ncohort
 
-                if (RESOURCE_SWITCH ==1) then
+                IF (RESOURCE_SWITCH ==1) THEN
                    pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%frac_interception = &
                         pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%frac_interception/tmp_light
-                else
+                ELSE
                    pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%frac_interception = 1.0
-                endif
+                ENDIF
 
              ENDDO
 
@@ -809,7 +809,7 @@ END SUBROUTINE InitPOP2D_Poisson
                 !normalised fractional gross resource uptake
                 pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%frac_light_uptake = &
                      pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%frac_interception/ &
-                     sum(pop%pop_grid(j)%patch(k)%Layer(1)%cohort(1:nc)%frac_interception)
+                     SUM(pop%pop_grid(j)%patch(k)%Layer(1)%cohort(1:nc)%frac_interception)
              ENDDO
 
 
@@ -820,7 +820,7 @@ END SUBROUTINE InitPOP2D_Poisson
 
 
                 pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%frac_NPP = &
-                     max(pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%frac_light_uptake*(1/NPPtoGPP(j)) - &
+                     MAX(pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%frac_light_uptake*(1/NPPtoGPP(j)) - &
                      pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%frac_respiration*(1/NPPtoGPP(j)-1.0),0.0_dp)
 
 
@@ -840,7 +840,7 @@ END SUBROUTINE InitPOP2D_Poisson
 
              DO c=1,pop%pop_grid(j)%patch(k)%Layer(1)%ncohort
 
-                if (RESOURCE_SWITCH==0) then
+                IF (RESOURCE_SWITCH==0) THEN
 
                    ! default net fraction resource uptake
                    pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%frac_resource_uptake = &
@@ -849,7 +849,7 @@ END SUBROUTINE InitPOP2D_Poisson
                         pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%density/tmp
 
 
-                elseif (RESOURCE_SWITCH==1) then
+                ELSEIF (RESOURCE_SWITCH==1) THEN
 
                    ! fraction net resource uptake = fraction NPP
 
@@ -857,11 +857,11 @@ END SUBROUTINE InitPOP2D_Poisson
                         pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%frac_NPP * &
                         pop%pop_grid(j)%patch(k)%frac_NPP
 
-                endif
+                ENDIF
 
              ENDDO
 
-          else
+          ELSE
              c = 1
              pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%frac_NPP = 1
              tmp_fracNPP = 1
@@ -869,11 +869,11 @@ END SUBROUTINE InitPOP2D_Poisson
              pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%frac_light_uptake =1
              pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%frac_resource_uptake = 1
 
-             if (RESOURCE_SWITCH==1) then
+             IF (RESOURCE_SWITCH==1) THEN
                 pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%frac_resource_uptake = pop%pop_grid(j)%patch(k)%frac_NPP
-             endif
+             ENDIF
 
-          endif
+          ENDIF
 
 
        ENDDO
@@ -980,12 +980,12 @@ END SUBROUTINE InitPOP2D_Poisson
              cmass_stem = pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%biomass
              cmass_stem_inc=StemNPP(j,1)*pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%frac_resource_uptake
 
-             if (present(StemNPP_av)) then
+             IF (PRESENT(StemNPP_av)) THEN
                 growth_efficiency=pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%frac_resource_uptake* &
                      StemNPP_av(j)  /(cmass_stem**(POWERGrowthEfficiency))
-             else
+             ELSE
                 growth_efficiency=cmass_stem_inc/(cmass_stem**(POWERGrowthEfficiency))
-             endif
+             ENDIF
              ! growth_efficiency=cmass_stem_inc/(pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%sapwood**(POWERGrowthEfficiency))
              mort=MORT_MAX/(1.0+(growth_efficiency/GROWTH_EFFICIENCY_MIN)**Pmort)
 
@@ -994,31 +994,31 @@ END SUBROUTINE InitPOP2D_Poisson
              pop%pop_grid(j)%patch(k)%stress_mortality = pop%pop_grid(j)%patch(k)%stress_mortality &
                   + mort*cmass_stem
              IF (pop%pop_grid(j)%patch(k)%layer(1)%cohort(c)%diameter*100.GT.1.) THEN
-                if (ALLOM_SWITCH.eq.1) then
+                IF (ALLOM_SWITCH.EQ.1) THEN
                    ! assumes crown radius (m) = 0.14 * dbh (cm)
                    crown_area = crown_area + pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%density* &
                         PI*(pop%pop_grid(j)%patch(k)%layer(1)%cohort(c)%diameter*100.*0.14)**2
-                else
+                ELSE
                    crown_area = crown_area + pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%density* &
                         k_allom1 * pop%pop_grid(j)%patch(k)%layer(1)%cohort(c)%diameter ** k_rp
-                endif
+                ENDIF
              ELSE
                 crown_area = crown_area + 0.5*pop%pop_grid(j)%patch(k)%layer(1)%cohort(c)%LAI
              ENDIF
 
-             cpc = 1. - exp(-crown_area)
+             cpc = 1. - EXP(-crown_area)
              pop%pop_grid(j)%patch(k)%cpc = cpc
-             if (cpc.gt.1e-3 .and.  alpha_cpc * (1. - 1./cpc).gt.-50.0) then
-                mort_cpc = exp(alpha_cpc * (1. - 1./cpc))
-             else
+             IF (cpc.GT.1e-3 .AND.  alpha_cpc * (1. - 1./cpc).GT.-50.0) THEN
+                mort_cpc = EXP(alpha_cpc * (1. - 1./cpc))
+             ELSE
                 mort_cpc = 0.
-             endif
+             ENDIF
 
              !mort_cpc = 0 ! test
              pop%pop_grid(j)%patch(k)%crowding_mortality = pop%pop_grid(j)%patch(k)%crowding_mortality + &
-                  min((mort_cpc*CrowdingFactor),cmass_stem_inc/cmass_stem)*cmass_stem
+                  MIN((mort_cpc*CrowdingFactor),cmass_stem_inc/cmass_stem)*cmass_stem
 
-             mort = mort + min((mort_cpc*CrowdingFactor),cmass_stem_inc/cmass_stem)
+             mort = mort + MIN((mort_cpc*CrowdingFactor),cmass_stem_inc/cmass_stem)
 
              pop%pop_grid(j)%patch(k)%mortality = pop%pop_grid(j)%patch(k)%mortality + mort*cmass_stem
 
@@ -1210,7 +1210,7 @@ END SUBROUTINE InitPOP2D_Poisson
                 bound(i, 2) = Poisson_age(i_max)
              ENDIF
           ENDIF
-          
+
 
        ENDDO
 
@@ -1287,7 +1287,7 @@ END SUBROUTINE InitPOP2D_Poisson
        ENDDO ! end loop over idist
 
        sum_freq = SUM(pop%pop_grid(g)%freq)
-       if (sum_freq.gt.0.0) pop%pop_grid(g)%freq = pop%pop_grid(g)%freq/sum_freq
+       IF (sum_freq.GT.0.0) pop%pop_grid(g)%freq = pop%pop_grid(g)%freq/sum_freq
 
     ENDDO
 
@@ -1319,7 +1319,7 @@ END SUBROUTINE InitPOP2D_Poisson
     INTEGER(i4b), PARAMETER :: HEIGHT_BINS_highres=100 ! bins for assessing height_max
     REAL(dp), ALLOCATABLE :: limits_highres(:), DENSINDIV_HIGHRES(:)
     REAL(dp) :: a, b, C, res_flux, fire_flux, cat_flux, vol, vol1, tmp, tmp2
-    integer :: arg1
+    INTEGER :: arg1
 
     fmt = '(f5.1)'
     limits(1) = 0.
@@ -1336,7 +1336,7 @@ END SUBROUTINE InitPOP2D_Poisson
           ALLOCATE(height_list(NPATCH2D*NCOHORT_MAX))
           ALLOCATE(height_list_weight(NPATCH2D*NCOHORT_MAX))
        ENDIF
-     !  IF(.NOT.ALLOCATED(MASK)) ALLOCATE(MASK(POP%pop_grid%npatch_active))
+       !  IF(.NOT.ALLOCATED(MASK)) ALLOCATE(MASK(POP%pop_grid%npatch_active))
 
 
 
@@ -1394,7 +1394,7 @@ END SUBROUTINE InitPOP2D_Poisson
           pop%pop_grid(g)%patch(p)%layer(1)%density = 0.0
           patch_crown_area(p) = 0.0
           patch_crown_cover(p) = 0.0
-          tmp2 = sum(pop%pop_grid(g)%patch(p)%layer(1)%cohort(1:pop%pop_grid(g)%patch(p)%layer(1)%ncohort)%sapwood_area)
+          tmp2 = SUM(pop%pop_grid(g)%patch(p)%layer(1)%cohort(1:pop%pop_grid(g)%patch(p)%layer(1)%ncohort)%sapwood_area)
 
           freq =  pop%pop_grid(g)%freq(pop%pop_grid(g)%patch(p)%id)
           freq_old = pop%pop_grid(g)%freq_old(pop%pop_grid(g)%patch(p)%id)
@@ -1422,7 +1422,7 @@ END SUBROUTINE InitPOP2D_Poisson
                   pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%heartwood/(ht*WD)*1.e4
 
              pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%sapwood_area = &
-                  max(pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%sapwood_area, 0.0)
+                  MAX(pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%sapwood_area, 0.0)
 
              ! get bin
              ct = 1
@@ -1450,17 +1450,17 @@ END SUBROUTINE InitPOP2D_Poisson
              ENDIF
 
              IF (diam*100..GT.5.) THEN
-                if (ALLOM_SWITCH.eq.1) then
+                IF (ALLOM_SWITCH.EQ.1) THEN
                    !! assumes crown radius (m) = 0.1492 * dbh (cm) (from G. Cook, pers. comm.)
                    ! assumes vertical radius = 1.5 * horizontal radius
                    pop%pop_grid(g)%crown_volume = pop%pop_grid(g)%crown_volume + &
                         freq*densindiv*(4./3.)*PI*(diam*100.*0.1492)**2*(1.5*(diam*100.*0.1492))
-                else
+                ELSE
                    !! global allometry
                    ! assumes vertical radius = 1.5 * horizontal radius
                    pop%pop_grid(g)%crown_volume = pop%pop_grid(g)%crown_volume + &
                         freq*densindiv*(4./3.)*PI*1.5*((k_allom1 * diam ** k_rp )/PI)**1.5
-                endif
+                ENDIF
 
              ENDIF
 
@@ -1497,7 +1497,7 @@ END SUBROUTINE InitPOP2D_Poisson
                freq*pop%pop_grid(g)%patch(p)%crowding_mortality
 
           pop%pop_grid(g)%sapwood_area = pop%pop_grid(g)%sapwood_area + &
-               freq*sum(pop%pop_grid(g)%patch(p)%layer(1)%cohort(1:pop%pop_grid(g)%patch(p)%layer(1)%ncohort)%sapwood_area)
+               freq*SUM(pop%pop_grid(g)%patch(p)%layer(1)%cohort(1:pop%pop_grid(g)%patch(p)%layer(1)%ncohort)%sapwood_area)
 
           pop%pop_grid(g)%sapwood_loss = pop%pop_grid(g)%sapwood_loss + &
                freq*pop%pop_grid(g)%patch(p)%sapwood_loss
@@ -1529,24 +1529,24 @@ END SUBROUTINE InitPOP2D_Poisson
 
 
 
-IF (INTERP_SWITCH==1.and.NDISTURB.eq.2) then
-   !CALL INTERPOLATE_BIOMASS_2D(pop, disturbance_interval,it)
-   CALL INTERPOLATE_BIOMASS_2D(pop, disturbance_interval,it(g),g)
+       IF (INTERP_SWITCH==1.AND.NDISTURB.EQ.2) THEN
+          !CALL INTERPOLATE_BIOMASS_2D(pop, disturbance_interval,it)
+          CALL INTERPOLATE_BIOMASS_2D(pop, disturbance_interval,it(g),g)
 
-ELSEIF (INTERP_SWITCH==1.and.NDISTURB.eq.1) then
+       ELSEIF (INTERP_SWITCH==1.AND.NDISTURB.EQ.1) THEN
 
-   CALL INTERPOLATE_BIOMASS_1D(pop, disturbance_interval,it(g),g)
+          CALL INTERPOLATE_BIOMASS_1D(pop, disturbance_interval,it(g),g)
 
-ENDIF
+       ENDIF
 
-arg1 = NYEAR_SMOOTH-(NYEAR_SMOOTH/2)
-IF (SMOOTH_SWITCH==1) THEN
-   IF (it(g).LE.NYEAR_SMOOTH-NYEAR_SMOOTH/2) THEN
-      CALL SMOOTH_FLUX(POP,g,it(g))
-   ELSE
-      CALL SMOOTH_FLUX(POP,g,int(arg1,i4b))
-   ENDIF
-ENDIF
+       arg1 = NYEAR_SMOOTH-(NYEAR_SMOOTH/2)
+       IF (SMOOTH_SWITCH==1) THEN
+          IF (it(g).LE.NYEAR_SMOOTH-NYEAR_SMOOTH/2) THEN
+             CALL SMOOTH_FLUX(POP,g,it(g))
+          ELSE
+             CALL SMOOTH_FLUX(POP,g,INT(arg1,i4b))
+          ENDIF
+       ENDIF
 
 
        ! leaf area index in each cohort
@@ -1561,26 +1561,26 @@ ENDIF
                   (pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%diameter/2.0)*densindiv*1.e4
              ! leaf area index in each cohort
              pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%LAI = LAI(g) * &
-                  min(pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%sapwood_area  &
-                  /max(pop%pop_grid(g)%sapwood_area,1e-3), 10.0_dp)
+                  MIN(pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%sapwood_area  &
+                  /MAX(pop%pop_grid(g)%sapwood_area,1e-3), 10.0_dp)
              pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%Cleaf = Cleaf(g) * &
-                  min(pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%sapwood_area  &
-                  /max(pop%pop_grid(g)%sapwood_area,1.e-3), 10.0_dp)
+                  MIN(pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%sapwood_area  &
+                  /MAX(pop%pop_grid(g)%sapwood_area,1.e-3), 10.0_dp)
              pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%Croot = Croot(g) * &
-                  min(pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%sapwood_area  &
-                  /max(pop%pop_grid(g)%sapwood_area,1e-3), 10.0_dp)
+                  MIN(pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%sapwood_area  &
+                  /MAX(pop%pop_grid(g)%sapwood_area,1e-3), 10.0_dp)
           ENDDO ! cohorts
-          pop%pop_grid(g)%patch(p)%LAI = sum(pop%pop_grid(g)%patch(p)%layer(1)% &
+          pop%pop_grid(g)%patch(p)%LAI = SUM(pop%pop_grid(g)%patch(p)%layer(1)% &
                cohort(1:pop%pop_grid(g)%patch(p)%layer(1)%ncohort)%LAI)
        ENDDO ! patches
 
        ! PGap = (1-fcover) calculation
 
-       if (pop%pop_grid(g)%crown_volume>0.0) then
+       IF (pop%pop_grid(g)%crown_volume>0.0) THEN
           FAVD = LAI(g)/pop%pop_grid(g)%crown_volume ! foliage area volume density
-       else
+       ELSE
           FAVD = 0.0
-       endif
+       ENDIF
 
        DO P = 1, npatch_active
           freq =  pop%pop_grid(g)%freq(pop%pop_grid(g)%patch(p)%id)
@@ -1599,44 +1599,44 @@ ENDIF
 
              IF (diam*100.GT.1.) THEN
 
-                if (ALLOM_SWITCH.eq.1) then
+                IF (ALLOM_SWITCH.EQ.1) THEN
                    !! assumes crown radius (m) = 0.1492 * dbh (cm) (from G. Cook, pers. comm.)
                    pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area = densindiv*PI*(diam*100.*0.1492)**2
                    Pwc = EXP(-0.5 * pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%LAI/ &
                         pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area)
                    pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area = densindiv*PI*(diam*100.*0.1492)**2*(1.-Pwc)
 
-                else
+                ELSE
                    !! global allometry
                    pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area = &
                         densindiv*PI*(((k_allom1 * diam ** k_rp )/PI)**0.5)**2
-                   Pwc = EXP(max(-0.5 * pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%LAI/ &
-                        max(pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area,1.e-3),-20.0))
+                   Pwc = EXP(MAX(-0.5 * pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%LAI/ &
+                        MAX(pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area,1.e-3),-20.0))
 
                    pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area = &
                         pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area*(1.-Pwc) !*1.4142
-                endif
+                ENDIF
 
              ELSE
                 pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area = &
                      0.5*pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%LAI !*1.4142
              ENDIF
              pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area= &
-                  max(pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area,0.01)
+                  MAX(pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area,0.01)
 
              pop%pop_grid(g)%crown_area = pop%pop_grid(g)%crown_area + &
                   freq*pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area
 
-             IF (i.eq.1) THEN ! top cohort
+             IF (i.EQ.1) THEN ! top cohort
                 pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%Pgap = &
-                     exp(-pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area)
+                     EXP(-pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area)
 
                 pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%frac_interception = &
-                     1- exp(-pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area)
+                     1- EXP(-pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area)
              ELSE
                 pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%Pgap = &
                      pop%pop_grid(g)%patch(p)%layer(1)%cohort(i-1)%Pgap* &
-                     exp(-pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area)
+                     EXP(-pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area)
                 pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%frac_interception = &
                      pop%pop_grid(g)%patch(p)%layer(1)%cohort(i-1)%Pgap - &
                      pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%Pgap
@@ -1658,11 +1658,11 @@ ENDIF
 
        ENDDO ! patches
 
-       pop%pop_grid(g)%Kclump = max(pop%pop_grid(g)%crown_area/(0.5*LAI(g)),0.1_dp)
+       pop%pop_grid(g)%Kclump = MAX(pop%pop_grid(g)%crown_area/(0.5*LAI(g)),0.1_dp)
        pop%pop_grid(g)%crown_cover = 1.-EXP(-pop%pop_grid(g)%crown_area)
 
-      
-       pop%pop_grid(g)%height_mean = pop%pop_grid(g)%height_mean/max(pop%pop_grid(g)%densindiv,1.0e-5)
+
+       pop%pop_grid(g)%height_mean = pop%pop_grid(g)%height_mean/MAX(pop%pop_grid(g)%densindiv,1.0e-5)
 
        ! Height Diagnostics
        IF (MAX_HEIGHT_SWITCH.EQ.0) THEN
@@ -1670,7 +1670,7 @@ ENDIF
           cump = 0.
           j = 1
           DO WHILE (cump.LT.0.95)
-             cump = cump + pop%pop_grid(g)%densindiv_bin(j)/max(pop%pop_grid(g)%densindiv,1.0e-5)
+             cump = cump + pop%pop_grid(g)%densindiv_bin(j)/MAX(pop%pop_grid(g)%densindiv,1.0e-5)
              pop%pop_grid(g)%height_max = pop%pop_grid(g)%height_bin(j)
              j = j+1
           ENDDO
@@ -1705,14 +1705,14 @@ ENDIF
        ELSEIF (MAX_HEIGHT_SWITCH.EQ.2) THEN
           cump = 0.
           j = 1
-          densindiv_highres= densindiv_highres/max(SUM(densindiv_highres),1.0e-5)
+          densindiv_highres= densindiv_highres/MAX(SUM(densindiv_highres),1.0e-5)
           DO WHILE ((cump.LT.0.95).AND.(j.LE.HEIGHT_BINS_highres))
              cump = cump + densindiv_highres(j)
              pop%pop_grid(g)%height_max = (limits_highres(j+1) + limits_highres(j))/2.
              j = j+1
           ENDDO
        ENDIF
-    !deallocate(MASK)
+       !deallocate(MASK)
 
     ENDDO ! end loop over grid cells
 
@@ -1879,15 +1879,15 @@ ENDIF
              DO c = 1, pop%pop_grid(j)%patch(k)%layer(1)%ncohort
                 ! kill fraction of each cohort, up to 80% of patch biomass
 
-                if (pop%pop_grid(j)%patch(k)%cat_mortality  < 0.8 * pop%pop_grid(j)%patch(k)%Layer(1)%biomass ) then
+                IF (pop%pop_grid(j)%patch(k)%cat_mortality  < 0.8 * pop%pop_grid(j)%patch(k)%Layer(1)%biomass ) THEN
 
-                   Pmort = min(  (0.8*pop%pop_grid(j)%patch(k)%Layer(1)%biomass-pop%pop_grid(j)%patch(k)%fire_mortality) &
+                   Pmort = MIN(  (0.8*pop%pop_grid(j)%patch(k)%Layer(1)%biomass-pop%pop_grid(j)%patch(k)%fire_mortality) &
                         /pop%pop_grid(j)%patch(k)%layer(1)%cohort(c)%biomass, 1.0_dp)
 
-                else
+                ELSE
 
                    Pmort = 0.0
-                endif
+                ENDIF
                 Psurvival = 1- Pmort
 
 
@@ -1970,7 +1970,7 @@ ENDIF
        DO k=1,NPATCH2D
           pop%pop_grid(j)%patch(k)%cat_mortality = 0.
           IF (pop%pop_grid(j)%patch(k)%first_disturbance_year(idisturb).NE.0) THEN
-             IF ((pop%pop_grid(j)%patch(k)%first_disturbance_year(idisturb).EQ.pop%pop_grid(j)%patch(k)%age(idisturb)).or. &
+             IF ((pop%pop_grid(j)%patch(k)%first_disturbance_year(idisturb).EQ.pop%pop_grid(j)%patch(k)%age(idisturb)).OR. &
                   (pop%pop_grid(j)%patch(k)%disturbance_interval(idisturb).EQ.pop%pop_grid(j)%patch(k)%age(idisturb)) ) THEN
                 ! kill entire layer
                 nc = pop%pop_grid(j)%patch(k)%layer(1)%ncohort
@@ -2078,10 +2078,10 @@ ENDIF
           IF (RECRUIT_SWITCH==0) THEN
              pop%pop_grid(j)%patch(k)%factor_recruit = EXP(-0.6*((pop%pop_grid(j)%patch(k)%Layer(1)%biomass)**(0.6667)))
           ELSEIF (RECRUIT_SWITCH==1) THEN
-             pop%pop_grid(j)%patch(k)%factor_recruit = max(pop%pop_grid(j)%patch(k)%pgap,1e-3)
+             pop%pop_grid(j)%patch(k)%factor_recruit = MAX(pop%pop_grid(j)%patch(k)%pgap,1e-3)
           ENDIF
           f = pop%pop_grid(j)%patch(k)%factor_recruit
-          mu=EXP(max(FULTON_ALPHA*(1.0-2*THETA_recruit/(f+1-SQRT((f+1)*(f+1)-4*THETA_recruit*f))),-50.0));
+          mu=EXP(MAX(FULTON_ALPHA*(1.0-2*THETA_recruit/(f+1-SQRT((f+1)*(f+1)-4*THETA_recruit*f))),-50.0));
           densindiv=DENSINDIV_MAX*mu;
           cmass=CMASS_STEM_INIT*densindiv/DENSINDIV_MAX;
 
@@ -2251,7 +2251,7 @@ ENDIF
 
     ! Standard Allometry
     IF (ALLOM_SWITCH.EQ.0) THEN
-       ht   = (Kbiometric**(3.0/4.0))*(4.*biomass/(max(density,1e-5)*WD*PI))**(1.0/4.0)
+       ht   = (Kbiometric**(3.0/4.0))*(4.*biomass/(MAX(density,1e-5)*WD*PI))**(1.0/4.0)
        diam = (ht/Kbiometric)**(1.5)
        basal= PI * (diam/2.0) * (diam/2.0) * density * 1.e4
 
@@ -2336,270 +2336,270 @@ ENDIF
     GetHeight=xmid
 
   END FUNCTION GetHeight
-!*******************************************************************************
-SUBROUTINE INTERPOLATE_BIOMASS_1D(pop, disturbance_interval,it,g)
-IMPLICIT NONE
+  !*******************************************************************************
+  SUBROUTINE INTERPOLATE_BIOMASS_1D(pop, disturbance_interval,it,g)
+    IMPLICIT NONE
 
-TYPE(POP_TYPE), INTENT(INOUT) :: POP
-INTEGER(i4b), INTENT(IN) ::  disturbance_interval(:,:)
-INTEGER(i4b), INTENT(IN) ::  it,g
+    TYPE(POP_TYPE), INTENT(INOUT) :: POP
+    INTEGER(i4b), INTENT(IN) ::  disturbance_interval(:,:)
+    INTEGER(i4b), INTENT(IN) ::  it,g
 
-INTEGER(i4b) :: nage,iage, i_min, i_max, tmp_array(NPATCH2D)
-INTEGER(i4b) :: i_min_growth, i_max_growth
-REAL(dp) :: disturbance_freq,tmp_min,tmp_max, tmp1_min, tmp1_max
-REAL(dp) :: tmp2_min, tmp2_max
-REAL(dp) :: tmp3_min, tmp3_max
-REAL(dp) :: tmp4_min, tmp4_max
-LOGICAL :: MASK(NPATCH2D)
-INTEGER(i4b) :: age_min, age_max
-INTEGER(i4b) :: age_min_growth, age_max_growth
-INTEGER(i4b), ALLOCATABLE :: age(:)
-REAL(dp), ALLOCATABLE ::cmass_age(:), stress_mort_age(:), crowd_mort_age(:)
-REAL(dp), ALLOCATABLE ::csapwood_age(:), sapwood_area_age(:), growth_age(:)
-REAL(dp), ALLOCATABLE ::freq_age(:)
+    INTEGER(i4b) :: nage,iage, i_min, i_max, tmp_array(NPATCH2D)
+    INTEGER(i4b) :: i_min_growth, i_max_growth
+    REAL(dp) :: disturbance_freq,tmp_min,tmp_max, tmp1_min, tmp1_max
+    REAL(dp) :: tmp2_min, tmp2_max
+    REAL(dp) :: tmp3_min, tmp3_max
+    REAL(dp) :: tmp4_min, tmp4_max
+    LOGICAL :: MASK(NPATCH2D)
+    INTEGER(i4b) :: age_min, age_max
+    INTEGER(i4b) :: age_min_growth, age_max_growth
+    INTEGER(i4b), ALLOCATABLE :: age(:)
+    REAL(dp), ALLOCATABLE ::cmass_age(:), stress_mort_age(:), crowd_mort_age(:)
+    REAL(dp), ALLOCATABLE ::csapwood_age(:), sapwood_area_age(:), growth_age(:)
+    REAL(dp), ALLOCATABLE ::freq_age(:)
 
-! get interpolated biomass,sapwood, stress mortality, crowding mortality, disturbance mortality
-POP%pop_grid(g)%cmass_sum= 0
-POP%pop_grid(g)%stress_mortality = 0
-POP%pop_grid(g)%cat_mortality = 0
-pop%pop_grid(g)%crowding_mortality = 0
-pop%pop_grid(g)%csapwood_sum = 0
-pop%pop_grid(g)%sapwood_area = 0
-tmp_array = 0
-nage =  min(POP%pop_grid(g)%patch(1)%disturbance_interval(1),it)+1 ! maximum age
-!nage = maxval(pop%pop_grid(g)%patch(:)%age(1))
-disturbance_freq=1.0/REAL(disturbance_interval(g,1))
-IF(.NOT.ALLOCATED(age)) ALLOCATE(age(nage))
-IF(.NOT.ALLOCATED(freq_age)) ALLOCATE(freq_age(nage))
-IF(.NOT.ALLOCATED(cmass_age)) ALLOCATE(cmass_age(nage))
-IF(.NOT.ALLOCATED(growth_age)) ALLOCATE(growth_age(nage))
-IF(.NOT.ALLOCATED(csapwood_age)) ALLOCATE(csapwood_age(nage))
-IF(.NOT.ALLOCATED(sapwood_area_age)) ALLOCATE(sapwood_area_age(nage))
-IF(.NOT.ALLOCATED(stress_mort_age)) ALLOCATE(stress_mort_age(nage))
-IF(.NOT.ALLOCATED(crowd_mort_age)) ALLOCATE(crowd_mort_age(nage))
-!pop%pop_grid(g)%biomass_age(2:agemax) = pop%pop_grid(g)%biomass_age(1:agemax-1)
-!pop%pop_grid(g)%biomass_age(1) = 0.0
-!cmass_age = pop%pop_grid(g)%biomass_age
-tmp_min = 0.0
-tmp_max = 0.0
-pop%pop_grid(g)%biomass_age = 0.0
-
-
-!IF (pop%LU(g)==2) THEN  ! secondary forest
-IF (POP%pop_grid(g)%LU==2) then ! secondary forest
-   DO iage = 1, nage
-      age(iage) = iage-1
-      freq_age(iage) =  pop%pop_grid(g)%freq_age(iage)
-   ENDDO
-ELSE
-   DO iage = 1, nage
-      age(iage) = iage-1
-      freq_age(iage) =  REALExponential(disturbance_freq,REAL(age(iage),dp))
-      pop%pop_grid(g)%freq_age(iage) = freq_age(iage)
-     
-   END DO
-
-ENDIF
-if (sum(freq_age)>0.0) freq_age = freq_age/sum(freq_age)
-
-DO iage = 1, nage
-   ! get nearest ages bracketing age(iage)
-   if (any(pop%pop_grid(g)%patch(:)%age(1).LE.age(iage))) then
-      age_min = MAXVAL(pop%pop_grid(g)%patch(:)%age(1), &
-           pop%pop_grid(g)%patch(:)%age(1).LE.age(iage))
-      i_min = MAXLOC(pop%pop_grid(g)%patch(:)%age(1), 1, &
-           pop%pop_grid(g)%patch(:)%age(1).LE.age(iage))
-   else
-      age_min = 0
-      i_min = 0
-   endif
-   if (any(pop%pop_grid(g)%patch(:)%age(1).GE.age(iage))) then
-      age_max = MINVAL(pop%pop_grid(g)%patch(:)%age(1), &
-           pop%pop_grid(g)%patch(:)%age(1).GE.age(iage))
-      i_max = MINLOC(pop%pop_grid(g)%patch(:)%age(1), 1, &
-           pop%pop_grid(g)%patch(:)%age(1).GE.age(iage))
-   else
-      age_max = 0
-      i_max = 0
-   endif
-
-   age_min_growth = age_min
-   age_max_growth = age_max
-   i_min_growth = i_min
-   i_max_growth = i_max
-!write(*,*) 'I0',it, age(iage), age_min, age_max, i_min, i_max 
-   if ((i_min.gt.0).and.(i_max.gt.0).and.(age_max.eq.age_min)) then
-      ! no need to interpolate
-
-      MASK = pop%pop_grid(g)%patch(:)%age(1).eq.age_min
-      where (MASK)
-         tmp_array= 1
-      elsewhere
-         tmp_array=0
-      endwhere
-      cmass_age(iage) =  &
-           SUM(pop%pop_grid(g)%patch(:)%layer(1)%biomass,MASK)/SUM(tmp_array)
-      growth_age(iage) =  &
-           SUM(pop%pop_grid(g)%patch(:)%growth,MASK)/SUM(tmp_array)
-      csapwood_age(iage) = SUM(pop%pop_grid(g)%patch(:)%sapwood,MASK)/SUM(tmp_array)
-      sapwood_area_age(iage) = & 
-           SUM(pop%pop_grid(g)%patch(:)%sapwood_area,MASK)/SUM(tmp_array)
-      stress_mort_age(iage)= &
-           SUM(pop%pop_grid(g)%patch(:)%stress_mortality,MASK)/SUM(tmp_array)
-      crowd_mort_age(iage)= &
-           SUM(pop%pop_grid(g)%patch(:)%crowding_mortality,MASK)/SUM(tmp_array)
-   else
-      ! interpolate or extrapolate
-      if ((i_min.eq.0).and.(i_max.gt.0)) then
-         ! interpolate to zero
-         age_min = 0
-         i_min = 0
-      elseif  ((i_max.eq.0).and.(i_min.gt.0)) then
-         ! extrapolate to higher age
-         age_max = age_min
-         i_max = i_min
-         age_min = MAXVAL(pop%pop_grid(g)%patch(:)%age(1), &
-              pop%pop_grid(g)%patch(:)%age(1).LT.age_max)
-         i_min = MAXLOC(pop%pop_grid(g)%patch(:)%age(1),1, &
-              pop%pop_grid(g)%patch(:)%age(1).LT.age_max)
-      endif
-
-      ! interpolate or extrapolate (growth)
-      if ((i_min_growth.eq.0).and.(i_max_growth.gt.0).and.age(iage).LE.2) then
-         ! interpolate to zero
-         age_min_growth = 0
-         i_min_growth = 0
-      elseif (((age_min_growth.LE.2).OR.(i_min_growth.eq.0)).and. &
-           (i_max_growth.gt.0).and.age(iage).GT.2) then
-         ! extrapolate to lower age
-         age_min_growth = age_max_growth
-         i_min_growth = i_max_growth
-
-         age_max_growth = MINVAL(pop%pop_grid(g)%patch(:)%age(1), &
-              pop%pop_grid(g)%patch(:)%age(1).GT.age_min_growth)
-         i_max_growth = MINLOC(pop%pop_grid(g)%patch(:)%age(1), 1, &
-              pop%pop_grid(g)%patch(:)%age(1).GT.age_min_growth)
-      elseif  ((i_max_growth.eq.0).and.(i_min_growth.gt.0)) then
-         ! extrapolate to higher age
-         age_max_growth = age_min_growth
-         i_max_growth = i_min_growth
-
-         age_min_growth = MAXVAL(pop%pop_grid(g)%patch(:)%age(1), &
-              pop%pop_grid(g)%patch(:)%age(1).LT.age_max_growth)
-         i_min_growth = MAXLOC(pop%pop_grid(g)%patch(:)%age(1),1, &
-              pop%pop_grid(g)%patch(:)%age(1).LT.age_max_growth)
-      endif
-     
-
-      if (i_min.ne.0.and.age_min.ne.0) then
-         MASK = pop%pop_grid(g)%patch(:)%age(1).eq.age_min
-         where (MASK)
-            tmp_array= 1
-         elsewhere
-            tmp_array=0
-         endwhere
-         tmp_min = SUM(pop%pop_grid(g)%patch(:)%layer(1)%biomass,MASK)/SUM(tmp_array)
-         tmp1_min = SUM(pop%pop_grid(g)%patch(:)%stress_mortality,MASK)/SUM(tmp_array)
-         tmp2_min = SUM(pop%pop_grid(g)%patch(:)%crowding_mortality,MASK)/SUM(tmp_array)
-         tmp3_min = SUM(pop%pop_grid(g)%patch(:)%sapwood,MASK)/SUM(tmp_array)
-         tmp4_min = SUM(pop%pop_grid(g)%patch(:)%sapwood_area,MASK)/SUM(tmp_array)
-      else
-         tmp_min = 0.0
-         tmp1_min = 0.0
-         tmp2_min = 0.0
-         tmp3_min = 0.0
-         tmp4_min = 0.0
-      endif
-
-      MASK = pop%pop_grid(g)%patch(:)%age(1).eq.age_max
-      where (MASK)
-         tmp_array= 1
-      elsewhere
-         tmp_array=0
-      endwhere
-      tmp_max = SUM(pop%pop_grid(g)%patch(:)%layer(1)%biomass,MASK)/SUM(tmp_array)
-      tmp1_max = SUM(pop%pop_grid(g)%patch(:)%stress_mortality,MASK)/SUM(tmp_array)
-      tmp2_max = SUM(pop%pop_grid(g)%patch(:)%crowding_mortality,MASK)/SUM(tmp_array)
-      tmp3_max = SUM(pop%pop_grid(g)%patch(:)%sapwood,MASK)/SUM(tmp_array)
-      tmp4_max = SUM(pop%pop_grid(g)%patch(:)%sapwood_area,MASK)/SUM(tmp_array)
-
-      cmass_age(iage) = tmp_min + (tmp_max-tmp_min)/real(age_max-age_min)* &
-           real(age(iage)-age_min)
-
-      stress_mort_age(iage) = tmp1_min + (tmp1_max-tmp1_min)/real(age_max-age_min)* &
-           real(age(iage)-age_min)
-
-      crowd_mort_age(iage) = tmp2_min + (tmp2_max-tmp2_min)/real(age_max-age_min)* &
-           real(age(iage)-age_min)
-
-      csapwood_age(iage) = tmp3_min + (tmp3_max-tmp3_min)/real(age_max-age_min)* &
-           real(age(iage)-age_min)
-
-      sapwood_area_age(iage) = tmp4_min + (tmp4_max-tmp4_min)/real(age_max-age_min)* &
-           real(age(iage)-age_min)
+    ! get interpolated biomass,sapwood, stress mortality, crowding mortality, disturbance mortality
+    POP%pop_grid(g)%cmass_sum= 0
+    POP%pop_grid(g)%stress_mortality = 0
+    POP%pop_grid(g)%cat_mortality = 0
+    pop%pop_grid(g)%crowding_mortality = 0
+    pop%pop_grid(g)%csapwood_sum = 0
+    pop%pop_grid(g)%sapwood_area = 0
+    tmp_array = 0
+    nage =  MIN(POP%pop_grid(g)%patch(1)%disturbance_interval(1),it)+1 ! maximum age
+    !nage = maxval(pop%pop_grid(g)%patch(:)%age(1))
+    disturbance_freq=1.0/REAL(disturbance_interval(g,1))
+    IF(.NOT.ALLOCATED(age)) ALLOCATE(age(nage))
+    IF(.NOT.ALLOCATED(freq_age)) ALLOCATE(freq_age(nage))
+    IF(.NOT.ALLOCATED(cmass_age)) ALLOCATE(cmass_age(nage))
+    IF(.NOT.ALLOCATED(growth_age)) ALLOCATE(growth_age(nage))
+    IF(.NOT.ALLOCATED(csapwood_age)) ALLOCATE(csapwood_age(nage))
+    IF(.NOT.ALLOCATED(sapwood_area_age)) ALLOCATE(sapwood_area_age(nage))
+    IF(.NOT.ALLOCATED(stress_mort_age)) ALLOCATE(stress_mort_age(nage))
+    IF(.NOT.ALLOCATED(crowd_mort_age)) ALLOCATE(crowd_mort_age(nage))
+    !pop%pop_grid(g)%biomass_age(2:agemax) = pop%pop_grid(g)%biomass_age(1:agemax-1)
+    !pop%pop_grid(g)%biomass_age(1) = 0.0
+    !cmass_age = pop%pop_grid(g)%biomass_age
+    tmp_min = 0.0
+    tmp_max = 0.0
+    pop%pop_grid(g)%biomass_age = 0.0
 
 
-      if (i_min_growth.ne.0.and.age_min_growth.ne.0) then
-         MASK = pop%pop_grid(g)%patch(:)%age(1).eq.age_min_growth
-         where (MASK)
-            tmp_array= 1
-         elsewhere
-            tmp_array=0
-         endwhere
-         tmp_min = SUM(pop%pop_grid(g)%patch(:)%growth,MASK)/SUM(tmp_array)
-      else
-         tmp_min = 0.0
-      endif
+    !IF (pop%LU(g)==2) THEN  ! secondary forest
+    IF (POP%pop_grid(g)%LU==2) THEN ! secondary forest
+       DO iage = 1, nage
+          age(iage) = iage-1
+          freq_age(iage) =  pop%pop_grid(g)%freq_age(iage)
+       ENDDO
+    ELSE
+       DO iage = 1, nage
+          age(iage) = iage-1
+          freq_age(iage) =  REALExponential(disturbance_freq,REAL(age(iage),dp))
+          pop%pop_grid(g)%freq_age(iage) = freq_age(iage)
 
-      MASK = pop%pop_grid(g)%patch(:)%age(1).eq.age_max_growth
-      where (MASK)
-         tmp_array= 1
-      elsewhere
-         tmp_array=0
-      endwhere
-      tmp_max = SUM(pop%pop_grid(g)%patch(:)%growth,MASK)/SUM(tmp_array)
+       END DO
 
-      growth_age(iage) = tmp_min + (tmp_max-tmp_min)/real(age_max_growth-age_min_growth)* &
-           real(age(iage)-age_min_growth)
+    ENDIF
+    IF (SUM(freq_age)>0.0) freq_age = freq_age/SUM(freq_age)
 
-      !cmass_age(iage) = cmass_age(iage) + growth_age(iage) -  stress_mort_age(iage) - crowd_mort_age(iage)
-   endif
-   ! write(*,*) 'age_min, age_max 1:', age(iage), age_min, age_max, i_min, i_max
+    DO iage = 1, nage
+       ! get nearest ages bracketing age(iage)
+       IF (ANY(pop%pop_grid(g)%patch(:)%age(1).LE.age(iage))) THEN
+          age_min = MAXVAL(pop%pop_grid(g)%patch(:)%age(1), &
+               pop%pop_grid(g)%patch(:)%age(1).LE.age(iage))
+          i_min = MAXLOC(pop%pop_grid(g)%patch(:)%age(1), 1, &
+               pop%pop_grid(g)%patch(:)%age(1).LE.age(iage))
+       ELSE
+          age_min = 0
+          i_min = 0
+       ENDIF
+       IF (ANY(pop%pop_grid(g)%patch(:)%age(1).GE.age(iage))) THEN
+          age_max = MINVAL(pop%pop_grid(g)%patch(:)%age(1), &
+               pop%pop_grid(g)%patch(:)%age(1).GE.age(iage))
+          i_max = MINLOC(pop%pop_grid(g)%patch(:)%age(1), 1, &
+               pop%pop_grid(g)%patch(:)%age(1).GE.age(iage))
+       ELSE
+          age_max = 0
+          i_max = 0
+       ENDIF
 
-   !if (it.eq.403) then
-   !   witer(58,*) age(iage),age_min, age_max, tmp1_min, tmp1_max,  stress_mort_age(iage), i_min
-   !endif
+       age_min_growth = age_min
+       age_max_growth = age_max
+       i_min_growth = i_min
+       i_max_growth = i_max
+       !write(*,*) 'I0',it, age(iage), age_min, age_max, i_min, i_max
+       IF ((i_min.GT.0).AND.(i_max.GT.0).AND.(age_max.EQ.age_min)) THEN
+          ! no need to interpolate
 
-   POP%pop_grid(g)%cmass_sum =  POP%pop_grid(g)%cmass_sum + &
-        freq_age(iage)*cmass_age(iage)
-   POP%pop_grid(g)%csapwood_sum =  POP%pop_grid(g)%csapwood_sum + &
-        freq_age(iage)*csapwood_age(iage)
-   POP%pop_grid(g)%sapwood_area =  POP%pop_grid(g)%sapwood_area + &
-        freq_age(iage)*sapwood_area_age(iage)
+          MASK = pop%pop_grid(g)%patch(:)%age(1).EQ.age_min
+          WHERE (MASK)
+             tmp_array= 1
+          ELSEWHERE
+             tmp_array=0
+          endwhere
+          cmass_age(iage) =  &
+               SUM(pop%pop_grid(g)%patch(:)%layer(1)%biomass,MASK)/SUM(tmp_array)
+          growth_age(iage) =  &
+               SUM(pop%pop_grid(g)%patch(:)%growth,MASK)/SUM(tmp_array)
+          csapwood_age(iage) = SUM(pop%pop_grid(g)%patch(:)%sapwood,MASK)/SUM(tmp_array)
+          sapwood_area_age(iage) = &
+               SUM(pop%pop_grid(g)%patch(:)%sapwood_area,MASK)/SUM(tmp_array)
+          stress_mort_age(iage)= &
+               SUM(pop%pop_grid(g)%patch(:)%stress_mortality,MASK)/SUM(tmp_array)
+          crowd_mort_age(iage)= &
+               SUM(pop%pop_grid(g)%patch(:)%crowding_mortality,MASK)/SUM(tmp_array)
+       ELSE
+          ! interpolate or extrapolate
+          IF ((i_min.EQ.0).AND.(i_max.GT.0)) THEN
+             ! interpolate to zero
+             age_min = 0
+             i_min = 0
+          ELSEIF  ((i_max.EQ.0).AND.(i_min.GT.0)) THEN
+             ! extrapolate to higher age
+             age_max = age_min
+             i_max = i_min
+             age_min = MAXVAL(pop%pop_grid(g)%patch(:)%age(1), &
+                  pop%pop_grid(g)%patch(:)%age(1).LT.age_max)
+             i_min = MAXLOC(pop%pop_grid(g)%patch(:)%age(1),1, &
+                  pop%pop_grid(g)%patch(:)%age(1).LT.age_max)
+          ENDIF
 
-!!$if (g==2) then 
+          ! interpolate or extrapolate (growth)
+          IF ((i_min_growth.EQ.0).AND.(i_max_growth.GT.0).AND.age(iage).LE.2) THEN
+             ! interpolate to zero
+             age_min_growth = 0
+             i_min_growth = 0
+          ELSEIF (((age_min_growth.LE.2).OR.(i_min_growth.EQ.0)).AND. &
+               (i_max_growth.GT.0).AND.age(iage).GT.2) THEN
+             ! extrapolate to lower age
+             age_min_growth = age_max_growth
+             i_min_growth = i_max_growth
+
+             age_max_growth = MINVAL(pop%pop_grid(g)%patch(:)%age(1), &
+                  pop%pop_grid(g)%patch(:)%age(1).GT.age_min_growth)
+             i_max_growth = MINLOC(pop%pop_grid(g)%patch(:)%age(1), 1, &
+                  pop%pop_grid(g)%patch(:)%age(1).GT.age_min_growth)
+          ELSEIF  ((i_max_growth.EQ.0).AND.(i_min_growth.GT.0)) THEN
+             ! extrapolate to higher age
+             age_max_growth = age_min_growth
+             i_max_growth = i_min_growth
+
+             age_min_growth = MAXVAL(pop%pop_grid(g)%patch(:)%age(1), &
+                  pop%pop_grid(g)%patch(:)%age(1).LT.age_max_growth)
+             i_min_growth = MAXLOC(pop%pop_grid(g)%patch(:)%age(1),1, &
+                  pop%pop_grid(g)%patch(:)%age(1).LT.age_max_growth)
+          ENDIF
+
+
+          IF (i_min.NE.0.AND.age_min.NE.0) THEN
+             MASK = pop%pop_grid(g)%patch(:)%age(1).EQ.age_min
+             WHERE (MASK)
+                tmp_array= 1
+             ELSEWHERE
+                tmp_array=0
+             endwhere
+             tmp_min = SUM(pop%pop_grid(g)%patch(:)%layer(1)%biomass,MASK)/SUM(tmp_array)
+             tmp1_min = SUM(pop%pop_grid(g)%patch(:)%stress_mortality,MASK)/SUM(tmp_array)
+             tmp2_min = SUM(pop%pop_grid(g)%patch(:)%crowding_mortality,MASK)/SUM(tmp_array)
+             tmp3_min = SUM(pop%pop_grid(g)%patch(:)%sapwood,MASK)/SUM(tmp_array)
+             tmp4_min = SUM(pop%pop_grid(g)%patch(:)%sapwood_area,MASK)/SUM(tmp_array)
+          ELSE
+             tmp_min = 0.0
+             tmp1_min = 0.0
+             tmp2_min = 0.0
+             tmp3_min = 0.0
+             tmp4_min = 0.0
+          ENDIF
+
+          MASK = pop%pop_grid(g)%patch(:)%age(1).EQ.age_max
+          WHERE (MASK)
+             tmp_array= 1
+          ELSEWHERE
+             tmp_array=0
+          endwhere
+          tmp_max = SUM(pop%pop_grid(g)%patch(:)%layer(1)%biomass,MASK)/SUM(tmp_array)
+          tmp1_max = SUM(pop%pop_grid(g)%patch(:)%stress_mortality,MASK)/SUM(tmp_array)
+          tmp2_max = SUM(pop%pop_grid(g)%patch(:)%crowding_mortality,MASK)/SUM(tmp_array)
+          tmp3_max = SUM(pop%pop_grid(g)%patch(:)%sapwood,MASK)/SUM(tmp_array)
+          tmp4_max = SUM(pop%pop_grid(g)%patch(:)%sapwood_area,MASK)/SUM(tmp_array)
+
+          cmass_age(iage) = tmp_min + (tmp_max-tmp_min)/REAL(age_max-age_min)* &
+               REAL(age(iage)-age_min)
+
+          stress_mort_age(iage) = tmp1_min + (tmp1_max-tmp1_min)/REAL(age_max-age_min)* &
+               REAL(age(iage)-age_min)
+
+          crowd_mort_age(iage) = tmp2_min + (tmp2_max-tmp2_min)/REAL(age_max-age_min)* &
+               REAL(age(iage)-age_min)
+
+          csapwood_age(iage) = tmp3_min + (tmp3_max-tmp3_min)/REAL(age_max-age_min)* &
+               REAL(age(iage)-age_min)
+
+          sapwood_area_age(iage) = tmp4_min + (tmp4_max-tmp4_min)/REAL(age_max-age_min)* &
+               REAL(age(iage)-age_min)
+
+
+          IF (i_min_growth.NE.0.AND.age_min_growth.NE.0) THEN
+             MASK = pop%pop_grid(g)%patch(:)%age(1).EQ.age_min_growth
+             WHERE (MASK)
+                tmp_array= 1
+             ELSEWHERE
+                tmp_array=0
+             endwhere
+             tmp_min = SUM(pop%pop_grid(g)%patch(:)%growth,MASK)/SUM(tmp_array)
+          ELSE
+             tmp_min = 0.0
+          ENDIF
+
+          MASK = pop%pop_grid(g)%patch(:)%age(1).EQ.age_max_growth
+          WHERE (MASK)
+             tmp_array= 1
+          ELSEWHERE
+             tmp_array=0
+          endwhere
+          tmp_max = SUM(pop%pop_grid(g)%patch(:)%growth,MASK)/SUM(tmp_array)
+
+          growth_age(iage) = tmp_min + (tmp_max-tmp_min)/REAL(age_max_growth-age_min_growth)* &
+               REAL(age(iage)-age_min_growth)
+
+          !cmass_age(iage) = cmass_age(iage) + growth_age(iage) -  stress_mort_age(iage) - crowd_mort_age(iage)
+       ENDIF
+       ! write(*,*) 'age_min, age_max 1:', age(iage), age_min, age_max, i_min, i_max
+
+       !if (it.eq.403) then
+       !   witer(58,*) age(iage),age_min, age_max, tmp1_min, tmp1_max,  stress_mort_age(iage), i_min
+       !endif
+
+       POP%pop_grid(g)%cmass_sum =  POP%pop_grid(g)%cmass_sum + &
+            freq_age(iage)*cmass_age(iage)
+       POP%pop_grid(g)%csapwood_sum =  POP%pop_grid(g)%csapwood_sum + &
+            freq_age(iage)*csapwood_age(iage)
+       POP%pop_grid(g)%sapwood_area =  POP%pop_grid(g)%sapwood_area + &
+            freq_age(iage)*sapwood_area_age(iage)
+
+!!$if (g==2) then
 !!$write(71, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage), growth_age(iage),  stress_mort_age(iage), &
 !!$ crowd_mort_age(iage), tmp_min, tmp_max, real(age_max_growth), real(age_min_growth)
-!!$endif 
+!!$endif
 
 !!$if (g==2) write(72, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage)
 !!$if (g==1) write(71, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage)
-   POP%pop_grid(g)%stress_mortality =  POP%pop_grid(g)%stress_mortality + &
-        freq_age(iage)*stress_mort_age(iage)
-   POP%pop_grid(g)%crowding_mortality =  POP%pop_grid(g)%crowding_mortality + &
-        freq_age(iage)*crowd_mort_age(iage)
+       POP%pop_grid(g)%stress_mortality =  POP%pop_grid(g)%stress_mortality + &
+            freq_age(iage)*stress_mort_age(iage)
+       POP%pop_grid(g)%crowding_mortality =  POP%pop_grid(g)%crowding_mortality + &
+            freq_age(iage)*crowd_mort_age(iage)
 
-   POP%pop_grid(g)%cat_mortality = POP%pop_grid(g)%growth - &
-        POP%pop_grid(g)%stress_mortality - &
-        POP%pop_grid(g)%crowding_mortality - &
-        ( POP%pop_grid(g)%cmass_sum- POP%pop_grid(g)%cmass_sum_old)
+       POP%pop_grid(g)%cat_mortality = POP%pop_grid(g)%growth - &
+            POP%pop_grid(g)%stress_mortality - &
+            POP%pop_grid(g)%crowding_mortality - &
+            ( POP%pop_grid(g)%cmass_sum- POP%pop_grid(g)%cmass_sum_old)
 
-   POP%pop_grid(g)%fire_mortality = 0.0
-   POP%pop_grid(g)%res_mortality = 0.0
+       POP%pop_grid(g)%fire_mortality = 0.0
+       POP%pop_grid(g)%res_mortality = 0.0
 
-   pop%pop_grid(g)%biomass_age(iage) = cmass_age(iage)
+       pop%pop_grid(g)%biomass_age(iage) = cmass_age(iage)
 
-enddo
+    ENDDO
 !!$if (it.gt.400) then
 !!$   write(*,*) 'it, nage', it, nage
 !!$   write(591, "(350e16.6)") freq_age
@@ -2607,594 +2607,594 @@ enddo
 !!$   write(602,"(350e16.6)") stress_mort_age
 !!$   write(603,"(350e16.6)") real(age)
 !!$endif
-DEALLOCATE(age)
-DEALLOCATE(freq_age)
-DEALLOCATE(cmass_age)
-DEALLOCATE(stress_mort_age)
-
-
-
-
-END SUBROUTINE INTERPOLATE_BIOMASS_1D
-!*******************************************************************************
-SUBROUTINE INTERPOLATE_BIOMASS_2D(pop, disturbance_interval,it,g)
-IMPLICIT NONE
-
-TYPE(POP_TYPE), INTENT(INOUT) :: POP
-INTEGER(i4b), INTENT(IN) ::  disturbance_interval(:,:)
-INTEGER(i4b), INTENT(IN) ::  it,g
-INTEGER(i4b), allocatable :: A1(:), A2(:) ! interpolated ages
-INTEGER(i4b), allocatable :: xobs(:), yobs(:)     ! observed ages
-REAL(dp), allocatable :: z1obs(:), z2obs(:), z3obs(:) ! observed biomass, stress_mort, crowd_mort
-REAL(dp), allocatable :: z1interp(:), z2interp(:), z3interp(:) ! interpolated biomass, stress mortality, crowding mortality
-REAL(dp), allocatable :: freq_interp(:) ! weightings for interpolated age pairs
-REAL(dp), allocatable :: zp(:)  ! euclidean distance from interpolated age pair to observed age pairs
-INTEGER(i4b) :: age_max(2), nrep(NPATCH2D+1)
-INTEGER(i4b) :: tmp1, tmp2, I1, I2,I3,I4
-INTEGER(i4b) :: x1, x2, x3, x4, y1, y2, y3, y4
-INTEGER(i4b) :: p, j, k, n, np, nobs, count_extrap,l, ct
-LOGICAL :: flag
-REAL(dp) :: biomass(NPATCH2D+1), stress_mort(NPATCH2D+1), crowd_mort(NPATCH2D+1)
-INTEGER(i4b) :: age1(NPATCH2D+1),  age2(NPATCH2D+1)
-REAL(dp) :: zmin
-INTEGER(i4b), allocatable :: interp_case(:), tmp_array(:), tmp(:)
-REAL(dp) :: area(4,4), x(4), y(4),  disturbance_freq1,  disturbance_freq2
-INTEGER(i4b) :: triangle_points(4,3), I_inside_triangle, Ineighbour(8)
-LOGICAL ::  MASK_INSIDE_TRIANGLE(4), IS_NEIGHBOUR(8), tmp_logical
-LOGICAL, allocatable :: MASK2(:), MASK3(:), MASK4(:)
-INTEGER(i4b), allocatable :: address(:,:)
-
- POP%pop_grid(g)%cmass_sum = 0.0
- POP%pop_grid(g)%stress_mortality = 0.0
- POP%pop_grid(g)%crowding_mortality = 0.0
-
-! Construct Age  Interpolating Grid
-age_max(1) =  min(POP%pop_grid(g)%patch(1)%disturbance_interval(1),it)+1 ! maximum age
-age_max(2) =  min(POP%pop_grid(g)%patch(1)%disturbance_interval(NDISTURB),it)+1 ! maximum age
-
-p=0;
-DO j=0,age_max(1)
-   DO k=0, age_max(2)
-      IF (k>j) THEN
-         p=p+1
-      ENDIF
-   ENDDO
-ENDDO
-np = p
-
-ALLOCATE(A1(np))
-ALLOCATE(A2(np))
-ALLOCATE(z1interp(np))
-ALLOCATE(z2interp(np))
-ALLOCATE(z3interp(np))
-ALLOCATE(freq_interp(np))
-ALLOCATE(interp_case(np))
-ALLOCATE(tmp_array(np))
-ALLOCATE(tmp(np))
-ALLOCATE(address(age_max(1)+1,age_max(2)+1))
-p=0;
-address = -9999
-DO j=0,age_max(1)
-   DO k=0, age_max(2)
-      IF (k>j) THEN
-         p=p+1
-         A1(p) = j
-         A2(p) = k
-         address(j+1,k+1) = p
-      ENDIF
-   ENDDO
-ENDDO
-
-! Construct Age observations
-
-nrep = 1
-flag = .false.
-j = 1
-! create "observed" age pair (0,0) with zero biomass
-stress_mort(j) = 0.0
-biomass(j) = 0.0
-crowd_mort(j) = 0.0
-age1(j) = 0
-age2(j) = 0
-j = j+1
-
-
-do k=1,NPATCH2D
-   tmp1 = pop%pop_grid(g)%patch(k)%age(1)
-   tmp2 = pop%pop_grid(g)%patch(k)%age(NDISTURB)
-   if (j.gt.1) then
-      do n=1,j-1
-         if (tmp1 == age1(n) .and. tmp2==age2(n)) then
-            flag = .true.
-            nrep(n) = nrep(n) + 1
-            biomass(n) = biomass(n) + pop%pop_grid(g)%patch(k)%layer(1)%biomass
-            stress_mort(n) = stress_mort(n) + pop%pop_grid(g)%patch(k)%stress_mortality
-            crowd_mort(n) = crowd_mort(n) +  pop%pop_grid(g)%patch(k)%crowding_mortality
-         endif
-      enddo
-   endif
-   if (flag .eqv. .false.) then
-       age1(j) = tmp1
-       age2(j) = tmp2
-       biomass(j) =  pop%pop_grid(g)%patch(k)%layer(1)%biomass
-       stress_mort(j) =  pop%pop_grid(g)%patch(k)%stress_mortality
-       crowd_mort(j) =  pop%pop_grid(g)%patch(k)%crowding_mortality
-       if (k.ne.NPATCH2D) j = j+1
-    else
-       flag = .false.
-    endif
-enddo
-nobs = j
-biomass(1:nobs) = biomass(1:nobs)/nrep(1:nobs)
-stress_mort(1:nobs) = stress_mort(1:nobs)/nrep(1:nobs)
-crowd_mort(1:nobs) = crowd_mort(1:nobs)/nrep(1:nobs)
-ALLOCATE(xobs(nobs))
-ALLOCATE(yobs(nobs))
-ALLOCATE(z1obs(nobs))
-ALLOCATE(z2obs(nobs))
-ALLOCATE(z3obs(nobs))
-ALLOCATE(zp(nobs))
-ALLOCATE(MASK2(nobs))
-ALLOCATE(MASK3(nobs))
-ALLOCATE(MASK4(nobs))
-xobs = age1(1:nobs)
-yobs = age2(1:nobs)
-z1obs = biomass(1:nobs)
-z2obs = stress_mort(1:nobs)
-z3obs = crowd_mort(1:nobs)
-
-if (it.eq.500) then
- do k=1,nobs
-    write(502, "(2i5,2e16.6,i5)") xobs(k), yobs(k), z1obs(k), z3obs(k), nrep(k)
- enddo
-endif
-
-! get weightings for each interpolated age pair
-do k = 1, np
-   disturbance_freq1=1.0/REAL(disturbance_interval(g,1))
-   disturbance_freq2=1.0/REAL(disturbance_interval(g,2))
-
-   freq_interp(k) = REALExponential(disturbance_freq1,REAL(A1(k),dp)) * &
-        REALExponential(disturbance_freq2,REAL(A2(k),dp))
-
-ENDDO
-freq_interp = freq_interp/sum(freq_interp)
-
-! interpolate
-DO p=1,np   ! loop over interpolated age pairs
-   ! get distance to all observations
-   DO j=1,nobs
-      zp(j) = sqrt((real(A1(p))-real(xobs(j)))**2+(real(A2(p))-real(yobs(j)))**2)
-   ENDDO
-
-   ! get closest point
-   zmin = MINVAL(zp)
-   I1 = MINLOC(zp,1)
-   x1 = xobs(I1)
-   y1 = yobs(I1)
-
-
-   ! check for obs locations forming a quadrangle around interpolating point
-   MASK2 = (sign(1,A1(p)-xobs)== -sign(1,A1(p)-x1)).AND.(sign(1,A2(p)-yobs)== sign(1,A2(p)-y1).and.A1(p).NE.xobs)
-   MASK3 = (sign(1,A1(p)-xobs)== sign(1,A1(p)-x1)).AND.(sign(1,A2(p)-yobs)== -sign(1,A2(p)-y1).and.A2(p).NE.yobs)
-   MASK4 = (sign(1,A1(p)-xobs)== -sign(1,A1(p)-x1)).AND.(sign(1,A2(p)-yobs)== -sign(1,A2(p)-y1) &
-        .and.A1(p).NE.xobs.and.A2(p).NE.yobs)
-
-   IF ((ANY(MASK2)).and.(ANY(MASK3)).and.(ANY(MASK4)))    THEN
-      ! get nearest point with opposing sign of x displacement
-      I2 =  MINLOC(zp,1, MASK2)
-      x2 = xobs(I2)
-      y2 = yobs(I2)
-      ! get nearest point with opposing sign of y displacement
-      I3 =  MINLOC(zp,1, MASK3)
-      x3 = xobs(I3)
-      y3 = yobs(I3)
-      ! get nearest point with opposing sign of x & y displacements
-      I4 =  MINLOC(zp,1, MASK4)
-      x4 = xobs(I4)
-      y4 = yobs(I4)
-
-    tmp_logical = .NOT.( (x2.eq.0.and.y2.eq.0).OR.(x3.eq.0.and.y3.eq.0).OR.(x4.eq.0.and.y4.eq.0))
-   ENDIF
-
-
-
-
-   IF ((A1(p)==x1).and.(A2(p)==y1)) THEN
-      interp_case(p)=1
-   ELSEIF ((ANY(MASK2)).and.(ANY(MASK3)).and.(ANY(MASK4)) .AND.tmp_logical) THEN ! quadrangle (without (0,0)) exists
-      interp_case(p) = 2
-   ELSE
-      interp_case(p) = 3
-   ENDIF!j=1
-
-
-
-   select case (interp_case(p))
-
-   case(1) ! interpolated point is the same as observation
-      z1interp(p) = z1obs(I1)
-      z2interp(p) = z2obs(I1)
-      z3interp(p) = z3obs(I1)
-   case(3) ! extrapolation required: set to value of nearest observation
-      z1interp(p) = z1obs(I1)
-      z2interp(p) = z2obs(I1)
-      z3interp(p) = z3obs(I1)
-   case(2)  ! quadrangle
-      ! get nearest point with opposing sign of x displacement
-      I2 =  MINLOC(zp,1, MASK2)
-      x2 = xobs(I2)
-      y2 = yobs(I2)
-      ! get nearest point with opposing sign of y displacement
-      I3 =  MINLOC(zp,1, MASK3)
-      x3 = xobs(I3)
-      y3 = yobs(I3)
-      ! get nearest point with opposing sign of x & y displacements
-      I4 =  MINLOC(zp,1, MASK4)
-      x4 = xobs(I4)
-      y4 = yobs(I4)
-
-
-      x=real((/x1, x2, x3, x4/),dp)
-      y =real((/y1, y2, y3, y4/),dp)
-
-      ! get area of four possible triangles from 4 vertices, and corresponding 3 partial
-      ! triangles, with observation as one vertex
-      area = 0.0
-      triangle_points = 0
-      triangle_points(1,:) = (/I1, I2, I3/)
-      area(1,1) = area_triangle(x(1), y(1),x(2), y(2),x(3), y(3))
-      area(1,2) = area_triangle(real(A1(p),dp), real(A2(p),dp), x(2), y(2), x(3), y(3))
-      area(1,3) = area_triangle(real(A1(p),dp), real(A2(p),dp), x(1), y(1), x(3), y(3))
-      area(1,4) = area_triangle(real(A1(p),dp), real(A2(p),dp), x(1), y(1), x(2), y(2))
-
-      triangle_points(2,:) =  (/I1, I2, I4/)
-      area(2,1) = area_triangle(x(1), y(1), x(2), y(2), x(4), y(4))
-      area(2,2) = area_triangle(real(A1(p),dp), real(A2(p),dp), x(2), y(2), x(4), y(4))
-      area(2,3) = area_triangle(real(A1(p),dp), real(A2(p),dp), x(1), y(1), x(4), y(4))
-      area(2,4) = area_triangle(real(A1(p),dp), real(A2(p),dp), x(1), y(1), x(2), y(2))
-
-      triangle_points(3,:) =  (/I1, I4, I3/)
-      area(3,1) = area_triangle(x(1) , y(1), x(3), y(3),x(4), y(4))
-      area(3,2) = area_triangle(real(A1(p),dp), real(A2(p),dp), x(4), y(4), x(3), y(3))
-      area(3,3) = area_triangle(real(A1(p),dp), real(A2(p),dp), x(1), y(1), x(3), y(3))
-      area(3,4) = area_triangle(real(A1(p),dp), real(A2(p),dp), x(1), y(1), x(4), y(4))
-
-      triangle_points(4,:) =  (/I2, I4, I3/)
-      area(4,1) = area_triangle(x(2), y(2), x(3), y(3), x(4), y(4));
-      area(4,2) = area_triangle(real(A1(p),dp), real(A2(p),dp), x(4), y(4), x(3), y(3))
-      area(4,3) = area_triangle(real(A1(p),dp), real(A2(p),dp), x(2), y(2), x(3), y(3))
-      area(4,4) = area_triangle(real(A1(p),dp), real(A2(p),dp), x(2), y(2), x(4), y(4))
-
-      MASK_INSIDE_TRIANGLE=(area(:,1)==sum(area(:,2:4),2));
-      I_inside_triangle = MINLOC(area(:,1),1,MASK_INSIDE_TRIANGLE)
-      z1interp(p) =SUM( z1obs(triangle_points(I_inside_triangle,:))* &
-           area(I_inside_triangle,2:4))/sum(area(I_inside_triangle,2:4))
-      z2interp(p) =SUM( z2obs(triangle_points(I_inside_triangle,:))* &
-           area(I_inside_triangle,2:4))/sum(area(I_inside_triangle,2:4))
-      z3interp(p) =SUM( z3obs(triangle_points(I_inside_triangle,:))* &
-           area(I_inside_triangle,2:4))/sum(area(I_inside_triangle,2:4))
-
-
-   case default
-      write(*,*) " illegal interpolation case."
-      stop
-   end select ! interpolation case
-
-ENDDO ! loop over interpolated age pairs
-
-p = 0 ! counter for while loop
-count_extrap = 0
-! Extrapolation
-
-IF (ANY(interp_case.NE.3)) THEN
-   DO WHILE (ANY(interp_case==3))
-      DO ct = 3,3
-         DO p=1,np
-            ! find number of neighbours for each extrapolable point
-            is_neighbour = .FALSE.
-            Ineighbour = 1
-            tmp(p) = 0
-            IF (interp_case(p)==3) THEN
-
-               DO k=1,8
-                  if(k==1) then
-                     tmp1=A1(p)-1
-                     tmp2=A2(p)
-                  elseif(k==2) then
-                     tmp1 = A1(p)+1
-                     tmp2 =  A2(p)
-                  elseif (k==3) then
-                     tmp1 = A1(p)
-                     tmp2 =  A2(p)-1
-                  elseif (k==4) then
-                     tmp1 = A1(p)
-                     tmp2 =  A2(p)+1
-                  elseif (k==5) then
-                     tmp1=A1(p)-1
-                     tmp2=A2(p)-1
-                  elseif (k==6) then
-                     tmp1=A1(p)+1
-                     tmp2=A2(p)+1
-                  elseif (k==7) then
-                     tmp1=A1(p)+1
-                     tmp2=A2(p)-1
-                  elseif (k==8) then
-                     tmp1=A1(p)-1
-                     tmp2=A2(p)+1
-                  endif
-                  IF(tmp1.ge.0.and.tmp1.LE.age_max(1).and.tmp2.ge.0.and.tmp2.LE.age_max(2).and.tmp2.gt.tmp1) THEN
-                     is_neighbour(k) = (interp_case(address(tmp1+1,tmp2+1)).ne.3)
-                     Ineighbour(k) = address(tmp1+1,tmp2+1)
-                  ENDIF
-
-               ENDDO
-
-
-               tmp(p) = COUNT(is_neighbour)
-               if (tmp(p).GE.ct) then
-                  z1interp(p) = sum(z1interp(Ineighbour) ,is_neighbour)/real(tmp(p))
-                  z2interp(p) = sum(z2interp(Ineighbour) ,is_neighbour)/real(tmp(p))
-                  z3interp(p) = sum(z3interp(Ineighbour) ,is_neighbour)/real(tmp(p))
-                  interp_case(p) = 2
-               endif
-            ENDIF
-         ENDDO !1, np
-      ENDDO
-      IF (ALL(tmp.lt.3)) THEN
-         ! maximum of one neighbour
-         p = MAXLOC(tmp,1)
-         is_neighbour = .FALSE.
-         Ineighbour = 1
-         tmp(p) = 0
-         DO k=1,8
-            if(k==1) then
-               tmp1=A1(p)-1
-               tmp2=A2(p)
-            elseif(k==2) then
-               tmp1 = A1(p)+1
-               tmp2 =  A2(p)
-            elseif (k==3) then
-               tmp1 = A1(p)
-               tmp2 =  A2(p)-1
-            elseif (k==4) then
-               tmp1 = A1(p)
-               tmp2 =  A2(p)+1
-            elseif (k==5) then
-               tmp1=A1(p)-1
-               tmp2=A2(p)-1
-            elseif (k==6) then
-               tmp1=A1(p)+1
-               tmp2=A2(p)+1
-            elseif (k==7) then
-               tmp1=A1(p)+1
-               tmp2=A2(p)-1
-            elseif (k==8) then
-               tmp1=A1(p)-1
-               tmp2=A2(p)+1
-            endif
-            IF(tmp1.ge.0.and.tmp1.LE.age_max(1).and.tmp2.ge.0.and.tmp2.LE.age_max(2).and.tmp2.gt.tmp1) THEN
-               is_neighbour(k) = (interp_case(address(tmp1+1,tmp2+1)).ne.3)
-               Ineighbour(k) = address(tmp1+1,tmp2+1)
-            ENDIF
-
-         ENDDO
-
-         tmp(p) = COUNT(is_neighbour)
-         z1interp(p) = sum(z1interp(Ineighbour) ,is_neighbour)/real(tmp(p))
-         z2interp(p) = sum(z2interp(Ineighbour) ,is_neighbour)/real(tmp(p))
-         z3interp(p) = sum(z3interp(Ineighbour) ,is_neighbour)/real(tmp(p))
-         interp_case(p) = 2
-
-      ENDIF  ! ALL(tmp.lt.2)
-
-   ENDDO ! do while
-ENDIF
-
-
-DO p = 1,np
-   POP%pop_grid(g)%cmass_sum =  POP%pop_grid(g)%cmass_sum + &
-        freq_interp(p)*z1interp(p)
-   POP%pop_grid(g)%stress_mortality =  POP%pop_grid(g)%stress_mortality + &
-        freq_interp(p)*z2interp(p)
-   POP%pop_grid(g)%crowding_mortality =  POP%pop_grid(g)%crowding_mortality + &
-        freq_interp(p)*z3interp(p)
-
-
-ENDDO
-
-POP%pop_grid(g)%cat_mortality = POP%pop_grid(g)%cmass_sum *  disturbance_freq2
-POP%pop_grid(g)%fire_mortality = POP%pop_grid(g)%growth - &
-     POP%pop_grid(g)%cat_mortality - &
-     POP%pop_grid(g)%stress_mortality - &
-     POP%pop_grid(g)%crowding_mortality - &
-     ( POP%pop_grid(g)%cmass_sum- POP%pop_grid(g)%cmass_sum_old)
-
-
-DEALLOCATE(xobs)
-DEALLOCATE(yobs)
-DEALLOCATE(z1obs)
-DEALLOCATE(z2obs)
-DEALLOCATE(z3obs)
-DEALLOCATE(zp)
-DEALLOCATE(MASK2)
-DEALLOCATE(MASK3)
-DEALLOCATE(MASK4)
-DEALLOCATE(A1)
-DEALLOCATE(A2)
-DEALLOCATE(z1interp)
-DEALLOCATE(z2interp)
-DEALLOCATE(z3interp)
-DEALLOCATE(freq_interp)
-DEALLOCATE(interp_case)
-DEALLOCATE(tmp)
-DEALLOCATE(tmp_array)
-DEALLOCATE(address)
-
-END SUBROUTINE INTERPOLATE_BIOMASS_2D
-
-!******************************************************************************
-SUBROUTINE SMOOTH_FLUX(POP,g,t)
-IMPLICIT NONE
-
-TYPE(POP_TYPE), INTENT(INOUT) :: POP
-INTEGER(i4b), INTENT(IN) :: g, t
-INTEGER(i4b), PARAMETER :: SPAN = NYEAR_SMOOTH/2
-REAL(dp) :: x(SPAN+1), y(SPAN+1), a, b, r
-REAL(dp) :: sumflux, sumsmooth, flux(NYEAR_HISTORY), smoothed_flux
-REAL(dp) :: dbuf
-INTEGER(i4b) :: t0, tt, n, k
-
-! update fire_mortality_history
-
-IF (t.gt.NYEAR_HISTORY) THEN
-   DO k = 1, NYEAR_HISTORY-1
-      POP%pop_grid(g)%fire_mortality_history(k) = POP%pop_grid(g)%fire_mortality_history(k+1)
-   ENDDO
-ENDIF
-POP%pop_grid(g)%fire_mortality_history(t) = POP%pop_grid(g)%fire_mortality
-
-flux = POP%pop_grid(g)%fire_mortality_history
-t0 = t-SPAN
-n = 0
-sumflux = 0.0
-sumsmooth = 0.0
-
-DO tt = 1,NYEAR_SMOOTH
-   IF ((t0+tt).GE.1 .AND. (t0+tt).LE.t+1) THEN
-      sumflux = sumflux + flux(t0+tt)
-      y(tt) = flux(t0+tt)
-      x(tt) = tt
-      n = n+1
-      IF ((t0+tt).eq.t+1) THEN
-         CALL regress(x,y,n,a,b,r)
-      ENDIF
-   ELSE
-      sumflux = sumflux + (a + b*tt)
-      n = n+ 1
-   ENDIF
-ENDDO
-
-dbuf =POP%pop_grid(g)%smoothing_buffer/(real(NYEAR_SMOOTH)/2.0)
-!MC smoothed_flux=max(sumflux/real(n)+dbuf, 0.0)
-smoothed_flux=max(sumflux/real(n)+dbuf, 0.0_dp)
-POP%pop_grid(g)%smoothing_buffer = POP%pop_grid(g)%smoothing_buffer + flux(t) - smoothed_flux
-
-POP%pop_grid(g)%fire_mortality_smoothed = smoothed_flux
-
-
-
-END SUBROUTINE SMOOTH_FLUX
-!******************************************************************************
-SUBROUTINE SMOOTH_FLUX_cat(POP,g,t)
-IMPLICIT NONE
-
-TYPE(POP_TYPE), INTENT(INOUT) :: POP
-INTEGER(i4b), INTENT(IN) :: g, t
-INTEGER(i4b), PARAMETER :: SPAN = NYEAR_SMOOTH/2
-REAL(dp) :: x(SPAN+1), y(SPAN+1), a, b, r
-REAL(dp) :: sumflux, sumsmooth, flux(NYEAR_HISTORY), smoothed_flux
-REAL(dp) :: dbuf
-INTEGER(i4b) :: t0, tt, n, k
-
-! update fire_mortality_history
-
-IF (t.gt.NYEAR_HISTORY) THEN
-   DO k = 1, NYEAR_HISTORY-1
-      POP%pop_grid(g)%cat_mortality_history(k) = POP%pop_grid(g)%cat_mortality_history(k+1)
-   ENDDO
-ENDIF
-POP%pop_grid(g)%cat_mortality_history(t) = POP%pop_grid(g)%cat_mortality
-
-flux = POP%pop_grid(g)%cat_mortality_history
-t0 = t-SPAN
-n = 0
-sumflux = 0.0
-sumsmooth = 0.0
-
-DO tt = 1,NYEAR_SMOOTH
-   IF ((t0+tt).GE.1 .AND. (t0+tt).LE.t+1) THEN
-      sumflux = sumflux + flux(t0+tt-1)
-      y(tt) = flux(t0+tt-1)
-      x(tt) = tt
-      n = n+1
-      IF ((t0+tt).eq.t+1) THEN
-         CALL regress(x,y,n,a,b,r)
-      ENDIF
-   ELSE
-      sumflux = sumflux + (a + b*tt)
-      n = n+ 1
-   ENDIF
-ENDDO
-
-dbuf =POP%pop_grid(g)%smoothing_buffer_cat/(real(NYEAR_SMOOTH)/2.0)
-!MC smoothed_flux=max(sumflux/real(n)+dbuf, 0.0)
-smoothed_flux=max(sumflux/real(n)+dbuf, 0.0_dp)
-POP%pop_grid(g)%smoothing_buffer_cat = POP%pop_grid(g)%smoothing_buffer_cat + flux(t) - smoothed_flux
-
-POP%pop_grid(g)%cat_mortality_smoothed = smoothed_flux
-
-
-
-END SUBROUTINE SMOOTH_FLUX_cat
-!******************************************************************************
-SUBROUTINE REGRESS(x, y, n, a, b, r)
-IMPLICIT NONE
-REAL(dp), INTENT(IN) :: x(:), y(:)
-REAL(dp), INTENT(OUT) :: a, b, r
-INTEGER(i4b), INTENT(IN) :: n
-REAL(dp)::  sx,sy,sxx,sxy,delta,meanx,meany,sdx,sdy
-INTEGER(i4b) :: i
-
-!Performs a linear regression of array y on array x (n values)
-! returning parameters a and b in the fitted model: y=a+bx
-! Source: Press et al 1986, Sect 14.2
-!  also returns Pearson r
-
-
-sx=0.0
-sy=0.0
-sxx=0.0
-sxy=0.0
-DO i=1,n
-   sx = sx + x(i)
-   sy = sy + y(i)
-   sxx = sxx + x(i) * y(i)
-   sxy = sxy + x(i)*y(i)
-ENDDO
-delta = real(n)*sxx - sx*sx
-a=(sxx*sy-sx*sxy)/delta
-b=(real(n)*sxy-sx*sy)/delta
-meanx=sx/real(n)
-meany=sy/real(n)
-sdx = 0.0
-sdy = 0.0
-DO i=1,n
-   sdx = sdx + (x(i)-meanx)*(x(i)-meanx)
-   sdy = sdy + (y(i)-meany)*(y(i)-meany)
-ENDDO
-sdx=sqrt(sdx/real(n-1))
-sdy=sqrt(sdy/real(n-1))
-!MC if (sdx .eq. 0.0 .or. sdy .eq. 0.0) then
-if ((abs(sdx) .lt. tiny(0.0_dp)) .or. (abs(sdy) .lt. tiny(0.0_dp))) then
-   r = 0.0_dp
-else
-   r =b*sdx/sdy
-ENDIF
-
-
-END SUBROUTINE REGRESS
-!******************************************************************************
-REAL(dp) FUNCTION Area_Triangle(x1,y1,x2,y2,x3,y3)
-IMPLICIT NONE
-REAL(dp), INTENT(IN) :: x1, y1, x2, y2, x3, y3
-
-area_triangle = abs((x1*(y2-y3) + x2*(y3-y1)+ x3*(y1-y2))/2.0);
-
-END FUNCTION Area_Triangle
-
-
-!******************************************************************************
+    DEALLOCATE(age)
+    DEALLOCATE(freq_age)
+    DEALLOCATE(cmass_age)
+    DEALLOCATE(stress_mort_age)
+
+
+
+
+  END SUBROUTINE INTERPOLATE_BIOMASS_1D
+  !*******************************************************************************
+  SUBROUTINE INTERPOLATE_BIOMASS_2D(pop, disturbance_interval,it,g)
+    IMPLICIT NONE
+
+    TYPE(POP_TYPE), INTENT(INOUT) :: POP
+    INTEGER(i4b), INTENT(IN) ::  disturbance_interval(:,:)
+    INTEGER(i4b), INTENT(IN) ::  it,g
+    INTEGER(i4b), ALLOCATABLE :: A1(:), A2(:) ! interpolated ages
+    INTEGER(i4b), ALLOCATABLE :: xobs(:), yobs(:)     ! observed ages
+    REAL(dp), ALLOCATABLE :: z1obs(:), z2obs(:), z3obs(:) ! observed biomass, stress_mort, crowd_mort
+    REAL(dp), ALLOCATABLE :: z1interp(:), z2interp(:), z3interp(:) ! interpolated biomass, stress mortality, crowding mortality
+    REAL(dp), ALLOCATABLE :: freq_interp(:) ! weightings for interpolated age pairs
+    REAL(dp), ALLOCATABLE :: zp(:)  ! euclidean distance from interpolated age pair to observed age pairs
+    INTEGER(i4b) :: age_max(2), nrep(NPATCH2D+1)
+    INTEGER(i4b) :: tmp1, tmp2, I1, I2,I3,I4
+    INTEGER(i4b) :: x1, x2, x3, x4, y1, y2, y3, y4
+    INTEGER(i4b) :: p, j, k, n, np, nobs, count_extrap,l, ct
+    LOGICAL :: flag
+    REAL(dp) :: biomass(NPATCH2D+1), stress_mort(NPATCH2D+1), crowd_mort(NPATCH2D+1)
+    INTEGER(i4b) :: age1(NPATCH2D+1),  age2(NPATCH2D+1)
+    REAL(dp) :: zmin
+    INTEGER(i4b), ALLOCATABLE :: interp_case(:), tmp_array(:), tmp(:)
+    REAL(dp) :: area(4,4), x(4), y(4),  disturbance_freq1,  disturbance_freq2
+    INTEGER(i4b) :: triangle_points(4,3), I_inside_triangle, Ineighbour(8)
+    LOGICAL ::  MASK_INSIDE_TRIANGLE(4), IS_NEIGHBOUR(8), tmp_logical
+    LOGICAL, ALLOCATABLE :: MASK2(:), MASK3(:), MASK4(:)
+    INTEGER(i4b), ALLOCATABLE :: address(:,:)
+
+    POP%pop_grid(g)%cmass_sum = 0.0
+    POP%pop_grid(g)%stress_mortality = 0.0
+    POP%pop_grid(g)%crowding_mortality = 0.0
+
+    ! Construct Age  Interpolating Grid
+    age_max(1) =  MIN(POP%pop_grid(g)%patch(1)%disturbance_interval(1),it)+1 ! maximum age
+    age_max(2) =  MIN(POP%pop_grid(g)%patch(1)%disturbance_interval(NDISTURB),it)+1 ! maximum age
+
+    p=0;
+    DO j=0,age_max(1)
+       DO k=0, age_max(2)
+          IF (k>j) THEN
+             p=p+1
+          ENDIF
+       ENDDO
+    ENDDO
+    np = p
+
+    ALLOCATE(A1(np))
+    ALLOCATE(A2(np))
+    ALLOCATE(z1interp(np))
+    ALLOCATE(z2interp(np))
+    ALLOCATE(z3interp(np))
+    ALLOCATE(freq_interp(np))
+    ALLOCATE(interp_case(np))
+    ALLOCATE(tmp_array(np))
+    ALLOCATE(tmp(np))
+    ALLOCATE(address(age_max(1)+1,age_max(2)+1))
+    p=0;
+    address = -9999
+    DO j=0,age_max(1)
+       DO k=0, age_max(2)
+          IF (k>j) THEN
+             p=p+1
+             A1(p) = j
+             A2(p) = k
+             address(j+1,k+1) = p
+          ENDIF
+       ENDDO
+    ENDDO
+
+    ! Construct Age observations
+
+    nrep = 1
+    flag = .FALSE.
+    j = 1
+    ! create "observed" age pair (0,0) with zero biomass
+    stress_mort(j) = 0.0
+    biomass(j) = 0.0
+    crowd_mort(j) = 0.0
+    age1(j) = 0
+    age2(j) = 0
+    j = j+1
+
+
+    DO k=1,NPATCH2D
+       tmp1 = pop%pop_grid(g)%patch(k)%age(1)
+       tmp2 = pop%pop_grid(g)%patch(k)%age(NDISTURB)
+       IF (j.GT.1) THEN
+          DO n=1,j-1
+             IF (tmp1 == age1(n) .AND. tmp2==age2(n)) THEN
+                flag = .TRUE.
+                nrep(n) = nrep(n) + 1
+                biomass(n) = biomass(n) + pop%pop_grid(g)%patch(k)%layer(1)%biomass
+                stress_mort(n) = stress_mort(n) + pop%pop_grid(g)%patch(k)%stress_mortality
+                crowd_mort(n) = crowd_mort(n) +  pop%pop_grid(g)%patch(k)%crowding_mortality
+             ENDIF
+          ENDDO
+       ENDIF
+       IF (flag .EQV. .FALSE.) THEN
+          age1(j) = tmp1
+          age2(j) = tmp2
+          biomass(j) =  pop%pop_grid(g)%patch(k)%layer(1)%biomass
+          stress_mort(j) =  pop%pop_grid(g)%patch(k)%stress_mortality
+          crowd_mort(j) =  pop%pop_grid(g)%patch(k)%crowding_mortality
+          IF (k.NE.NPATCH2D) j = j+1
+       ELSE
+          flag = .FALSE.
+       ENDIF
+    ENDDO
+    nobs = j
+    biomass(1:nobs) = biomass(1:nobs)/nrep(1:nobs)
+    stress_mort(1:nobs) = stress_mort(1:nobs)/nrep(1:nobs)
+    crowd_mort(1:nobs) = crowd_mort(1:nobs)/nrep(1:nobs)
+    ALLOCATE(xobs(nobs))
+    ALLOCATE(yobs(nobs))
+    ALLOCATE(z1obs(nobs))
+    ALLOCATE(z2obs(nobs))
+    ALLOCATE(z3obs(nobs))
+    ALLOCATE(zp(nobs))
+    ALLOCATE(MASK2(nobs))
+    ALLOCATE(MASK3(nobs))
+    ALLOCATE(MASK4(nobs))
+    xobs = age1(1:nobs)
+    yobs = age2(1:nobs)
+    z1obs = biomass(1:nobs)
+    z2obs = stress_mort(1:nobs)
+    z3obs = crowd_mort(1:nobs)
+
+    IF (it.EQ.500) THEN
+       DO k=1,nobs
+          WRITE(502, "(2i5,2e16.6,i5)") xobs(k), yobs(k), z1obs(k), z3obs(k), nrep(k)
+       ENDDO
+    ENDIF
+
+    ! get weightings for each interpolated age pair
+    DO k = 1, np
+       disturbance_freq1=1.0/REAL(disturbance_interval(g,1))
+       disturbance_freq2=1.0/REAL(disturbance_interval(g,2))
+
+       freq_interp(k) = REALExponential(disturbance_freq1,REAL(A1(k),dp)) * &
+            REALExponential(disturbance_freq2,REAL(A2(k),dp))
+
+    ENDDO
+    freq_interp = freq_interp/SUM(freq_interp)
+
+    ! interpolate
+    DO p=1,np   ! loop over interpolated age pairs
+       ! get distance to all observations
+       DO j=1,nobs
+          zp(j) = SQRT((REAL(A1(p))-REAL(xobs(j)))**2+(REAL(A2(p))-REAL(yobs(j)))**2)
+       ENDDO
+
+       ! get closest point
+       zmin = MINVAL(zp)
+       I1 = MINLOC(zp,1)
+       x1 = xobs(I1)
+       y1 = yobs(I1)
+
+
+       ! check for obs locations forming a quadrangle around interpolating point
+       MASK2 = (SIGN(1,A1(p)-xobs)== -SIGN(1,A1(p)-x1)).AND.(SIGN(1,A2(p)-yobs)== SIGN(1,A2(p)-y1).AND.A1(p).NE.xobs)
+       MASK3 = (SIGN(1,A1(p)-xobs)== SIGN(1,A1(p)-x1)).AND.(SIGN(1,A2(p)-yobs)== -SIGN(1,A2(p)-y1).AND.A2(p).NE.yobs)
+       MASK4 = (SIGN(1,A1(p)-xobs)== -SIGN(1,A1(p)-x1)).AND.(SIGN(1,A2(p)-yobs)== -SIGN(1,A2(p)-y1) &
+            .AND.A1(p).NE.xobs.AND.A2(p).NE.yobs)
+
+       IF ((ANY(MASK2)).AND.(ANY(MASK3)).AND.(ANY(MASK4)))    THEN
+          ! get nearest point with opposing sign of x displacement
+          I2 =  MINLOC(zp,1, MASK2)
+          x2 = xobs(I2)
+          y2 = yobs(I2)
+          ! get nearest point with opposing sign of y displacement
+          I3 =  MINLOC(zp,1, MASK3)
+          x3 = xobs(I3)
+          y3 = yobs(I3)
+          ! get nearest point with opposing sign of x & y displacements
+          I4 =  MINLOC(zp,1, MASK4)
+          x4 = xobs(I4)
+          y4 = yobs(I4)
+
+          tmp_logical = .NOT.( (x2.EQ.0.AND.y2.EQ.0).OR.(x3.EQ.0.AND.y3.EQ.0).OR.(x4.EQ.0.AND.y4.EQ.0))
+       ENDIF
+
+
+
+
+       IF ((A1(p)==x1).AND.(A2(p)==y1)) THEN
+          interp_case(p)=1
+       ELSEIF ((ANY(MASK2)).AND.(ANY(MASK3)).AND.(ANY(MASK4)) .AND.tmp_logical) THEN ! quadrangle (without (0,0)) exists
+          interp_case(p) = 2
+       ELSE
+          interp_case(p) = 3
+       ENDIF!j=1
+
+
+
+       SELECT CASE (interp_case(p))
+
+       CASE(1) ! interpolated point is the same as observation
+          z1interp(p) = z1obs(I1)
+          z2interp(p) = z2obs(I1)
+          z3interp(p) = z3obs(I1)
+       CASE(3) ! extrapolation required: set to value of nearest observation
+          z1interp(p) = z1obs(I1)
+          z2interp(p) = z2obs(I1)
+          z3interp(p) = z3obs(I1)
+       CASE(2)  ! quadrangle
+          ! get nearest point with opposing sign of x displacement
+          I2 =  MINLOC(zp,1, MASK2)
+          x2 = xobs(I2)
+          y2 = yobs(I2)
+          ! get nearest point with opposing sign of y displacement
+          I3 =  MINLOC(zp,1, MASK3)
+          x3 = xobs(I3)
+          y3 = yobs(I3)
+          ! get nearest point with opposing sign of x & y displacements
+          I4 =  MINLOC(zp,1, MASK4)
+          x4 = xobs(I4)
+          y4 = yobs(I4)
+
+
+          x=REAL((/x1, x2, x3, x4/),dp)
+          y =REAL((/y1, y2, y3, y4/),dp)
+
+          ! get area of four possible triangles from 4 vertices, and corresponding 3 partial
+          ! triangles, with observation as one vertex
+          area = 0.0
+          triangle_points = 0
+          triangle_points(1,:) = (/I1, I2, I3/)
+          area(1,1) = area_triangle(x(1), y(1),x(2), y(2),x(3), y(3))
+          area(1,2) = area_triangle(REAL(A1(p),dp), REAL(A2(p),dp), x(2), y(2), x(3), y(3))
+          area(1,3) = area_triangle(REAL(A1(p),dp), REAL(A2(p),dp), x(1), y(1), x(3), y(3))
+          area(1,4) = area_triangle(REAL(A1(p),dp), REAL(A2(p),dp), x(1), y(1), x(2), y(2))
+
+          triangle_points(2,:) =  (/I1, I2, I4/)
+          area(2,1) = area_triangle(x(1), y(1), x(2), y(2), x(4), y(4))
+          area(2,2) = area_triangle(REAL(A1(p),dp), REAL(A2(p),dp), x(2), y(2), x(4), y(4))
+          area(2,3) = area_triangle(REAL(A1(p),dp), REAL(A2(p),dp), x(1), y(1), x(4), y(4))
+          area(2,4) = area_triangle(REAL(A1(p),dp), REAL(A2(p),dp), x(1), y(1), x(2), y(2))
+
+          triangle_points(3,:) =  (/I1, I4, I3/)
+          area(3,1) = area_triangle(x(1) , y(1), x(3), y(3),x(4), y(4))
+          area(3,2) = area_triangle(REAL(A1(p),dp), REAL(A2(p),dp), x(4), y(4), x(3), y(3))
+          area(3,3) = area_triangle(REAL(A1(p),dp), REAL(A2(p),dp), x(1), y(1), x(3), y(3))
+          area(3,4) = area_triangle(REAL(A1(p),dp), REAL(A2(p),dp), x(1), y(1), x(4), y(4))
+
+          triangle_points(4,:) =  (/I2, I4, I3/)
+          area(4,1) = area_triangle(x(2), y(2), x(3), y(3), x(4), y(4));
+          area(4,2) = area_triangle(REAL(A1(p),dp), REAL(A2(p),dp), x(4), y(4), x(3), y(3))
+          area(4,3) = area_triangle(REAL(A1(p),dp), REAL(A2(p),dp), x(2), y(2), x(3), y(3))
+          area(4,4) = area_triangle(REAL(A1(p),dp), REAL(A2(p),dp), x(2), y(2), x(4), y(4))
+
+          MASK_INSIDE_TRIANGLE=(area(:,1)==SUM(area(:,2:4),2));
+          I_inside_triangle = MINLOC(area(:,1),1,MASK_INSIDE_TRIANGLE)
+          z1interp(p) =SUM( z1obs(triangle_points(I_inside_triangle,:))* &
+               area(I_inside_triangle,2:4))/SUM(area(I_inside_triangle,2:4))
+          z2interp(p) =SUM( z2obs(triangle_points(I_inside_triangle,:))* &
+               area(I_inside_triangle,2:4))/SUM(area(I_inside_triangle,2:4))
+          z3interp(p) =SUM( z3obs(triangle_points(I_inside_triangle,:))* &
+               area(I_inside_triangle,2:4))/SUM(area(I_inside_triangle,2:4))
+
+
+       CASE default
+          WRITE(*,*) " illegal interpolation case."
+          STOP
+       END SELECT ! interpolation case
+
+    ENDDO ! loop over interpolated age pairs
+
+    p = 0 ! counter for while loop
+    count_extrap = 0
+    ! Extrapolation
+
+    IF (ANY(interp_case.NE.3)) THEN
+       DO WHILE (ANY(interp_case==3))
+          DO ct = 3,3
+             DO p=1,np
+                ! find number of neighbours for each extrapolable point
+                is_neighbour = .FALSE.
+                Ineighbour = 1
+                tmp(p) = 0
+                IF (interp_case(p)==3) THEN
+
+                   DO k=1,8
+                      IF(k==1) THEN
+                         tmp1=A1(p)-1
+                         tmp2=A2(p)
+                      ELSEIF(k==2) THEN
+                         tmp1 = A1(p)+1
+                         tmp2 =  A2(p)
+                      ELSEIF (k==3) THEN
+                         tmp1 = A1(p)
+                         tmp2 =  A2(p)-1
+                      ELSEIF (k==4) THEN
+                         tmp1 = A1(p)
+                         tmp2 =  A2(p)+1
+                      ELSEIF (k==5) THEN
+                         tmp1=A1(p)-1
+                         tmp2=A2(p)-1
+                      ELSEIF (k==6) THEN
+                         tmp1=A1(p)+1
+                         tmp2=A2(p)+1
+                      ELSEIF (k==7) THEN
+                         tmp1=A1(p)+1
+                         tmp2=A2(p)-1
+                      ELSEIF (k==8) THEN
+                         tmp1=A1(p)-1
+                         tmp2=A2(p)+1
+                      ENDIF
+                      IF(tmp1.GE.0.AND.tmp1.LE.age_max(1).AND.tmp2.GE.0.AND.tmp2.LE.age_max(2).AND.tmp2.GT.tmp1) THEN
+                         is_neighbour(k) = (interp_case(address(tmp1+1,tmp2+1)).NE.3)
+                         Ineighbour(k) = address(tmp1+1,tmp2+1)
+                      ENDIF
+
+                   ENDDO
+
+
+                   tmp(p) = COUNT(is_neighbour)
+                   IF (tmp(p).GE.ct) THEN
+                      z1interp(p) = SUM(z1interp(Ineighbour) ,is_neighbour)/REAL(tmp(p))
+                      z2interp(p) = SUM(z2interp(Ineighbour) ,is_neighbour)/REAL(tmp(p))
+                      z3interp(p) = SUM(z3interp(Ineighbour) ,is_neighbour)/REAL(tmp(p))
+                      interp_case(p) = 2
+                   ENDIF
+                ENDIF
+             ENDDO !1, np
+          ENDDO
+          IF (ALL(tmp.LT.3)) THEN
+             ! maximum of one neighbour
+             p = MAXLOC(tmp,1)
+             is_neighbour = .FALSE.
+             Ineighbour = 1
+             tmp(p) = 0
+             DO k=1,8
+                IF(k==1) THEN
+                   tmp1=A1(p)-1
+                   tmp2=A2(p)
+                ELSEIF(k==2) THEN
+                   tmp1 = A1(p)+1
+                   tmp2 =  A2(p)
+                ELSEIF (k==3) THEN
+                   tmp1 = A1(p)
+                   tmp2 =  A2(p)-1
+                ELSEIF (k==4) THEN
+                   tmp1 = A1(p)
+                   tmp2 =  A2(p)+1
+                ELSEIF (k==5) THEN
+                   tmp1=A1(p)-1
+                   tmp2=A2(p)-1
+                ELSEIF (k==6) THEN
+                   tmp1=A1(p)+1
+                   tmp2=A2(p)+1
+                ELSEIF (k==7) THEN
+                   tmp1=A1(p)+1
+                   tmp2=A2(p)-1
+                ELSEIF (k==8) THEN
+                   tmp1=A1(p)-1
+                   tmp2=A2(p)+1
+                ENDIF
+                IF(tmp1.GE.0.AND.tmp1.LE.age_max(1).AND.tmp2.GE.0.AND.tmp2.LE.age_max(2).AND.tmp2.GT.tmp1) THEN
+                   is_neighbour(k) = (interp_case(address(tmp1+1,tmp2+1)).NE.3)
+                   Ineighbour(k) = address(tmp1+1,tmp2+1)
+                ENDIF
+
+             ENDDO
+
+             tmp(p) = COUNT(is_neighbour)
+             z1interp(p) = SUM(z1interp(Ineighbour) ,is_neighbour)/REAL(tmp(p))
+             z2interp(p) = SUM(z2interp(Ineighbour) ,is_neighbour)/REAL(tmp(p))
+             z3interp(p) = SUM(z3interp(Ineighbour) ,is_neighbour)/REAL(tmp(p))
+             interp_case(p) = 2
+
+          ENDIF  ! ALL(tmp.lt.2)
+
+       ENDDO ! do while
+    ENDIF
+
+
+    DO p = 1,np
+       POP%pop_grid(g)%cmass_sum =  POP%pop_grid(g)%cmass_sum + &
+            freq_interp(p)*z1interp(p)
+       POP%pop_grid(g)%stress_mortality =  POP%pop_grid(g)%stress_mortality + &
+            freq_interp(p)*z2interp(p)
+       POP%pop_grid(g)%crowding_mortality =  POP%pop_grid(g)%crowding_mortality + &
+            freq_interp(p)*z3interp(p)
+
+
+    ENDDO
+
+    POP%pop_grid(g)%cat_mortality = POP%pop_grid(g)%cmass_sum *  disturbance_freq2
+    POP%pop_grid(g)%fire_mortality = POP%pop_grid(g)%growth - &
+         POP%pop_grid(g)%cat_mortality - &
+         POP%pop_grid(g)%stress_mortality - &
+         POP%pop_grid(g)%crowding_mortality - &
+         ( POP%pop_grid(g)%cmass_sum- POP%pop_grid(g)%cmass_sum_old)
+
+
+    DEALLOCATE(xobs)
+    DEALLOCATE(yobs)
+    DEALLOCATE(z1obs)
+    DEALLOCATE(z2obs)
+    DEALLOCATE(z3obs)
+    DEALLOCATE(zp)
+    DEALLOCATE(MASK2)
+    DEALLOCATE(MASK3)
+    DEALLOCATE(MASK4)
+    DEALLOCATE(A1)
+    DEALLOCATE(A2)
+    DEALLOCATE(z1interp)
+    DEALLOCATE(z2interp)
+    DEALLOCATE(z3interp)
+    DEALLOCATE(freq_interp)
+    DEALLOCATE(interp_case)
+    DEALLOCATE(tmp)
+    DEALLOCATE(tmp_array)
+    DEALLOCATE(address)
+
+  END SUBROUTINE INTERPOLATE_BIOMASS_2D
+
+  !******************************************************************************
+  SUBROUTINE SMOOTH_FLUX(POP,g,t)
+    IMPLICIT NONE
+
+    TYPE(POP_TYPE), INTENT(INOUT) :: POP
+    INTEGER(i4b), INTENT(IN) :: g, t
+    INTEGER(i4b), PARAMETER :: SPAN = NYEAR_SMOOTH/2
+    REAL(dp) :: x(SPAN+1), y(SPAN+1), a, b, r
+    REAL(dp) :: sumflux, sumsmooth, flux(NYEAR_HISTORY), smoothed_flux
+    REAL(dp) :: dbuf
+    INTEGER(i4b) :: t0, tt, n, k
+
+    ! update fire_mortality_history
+
+    IF (t.GT.NYEAR_HISTORY) THEN
+       DO k = 1, NYEAR_HISTORY-1
+          POP%pop_grid(g)%fire_mortality_history(k) = POP%pop_grid(g)%fire_mortality_history(k+1)
+       ENDDO
+    ENDIF
+    POP%pop_grid(g)%fire_mortality_history(t) = POP%pop_grid(g)%fire_mortality
+
+    flux = POP%pop_grid(g)%fire_mortality_history
+    t0 = t-SPAN
+    n = 0
+    sumflux = 0.0
+    sumsmooth = 0.0
+
+    DO tt = 1,NYEAR_SMOOTH
+       IF ((t0+tt).GE.1 .AND. (t0+tt).LE.t+1) THEN
+          sumflux = sumflux + flux(t0+tt)
+          y(tt) = flux(t0+tt)
+          x(tt) = tt
+          n = n+1
+          IF ((t0+tt).EQ.t+1) THEN
+             CALL regress(x,y,n,a,b,r)
+          ENDIF
+       ELSE
+          sumflux = sumflux + (a + b*tt)
+          n = n+ 1
+       ENDIF
+    ENDDO
+
+    dbuf =POP%pop_grid(g)%smoothing_buffer/(REAL(NYEAR_SMOOTH)/2.0)
+    !MC smoothed_flux=max(sumflux/real(n)+dbuf, 0.0)
+    smoothed_flux=MAX(sumflux/REAL(n)+dbuf, 0.0_dp)
+    POP%pop_grid(g)%smoothing_buffer = POP%pop_grid(g)%smoothing_buffer + flux(t) - smoothed_flux
+
+    POP%pop_grid(g)%fire_mortality_smoothed = smoothed_flux
+
+
+
+  END SUBROUTINE SMOOTH_FLUX
+  !******************************************************************************
+  SUBROUTINE SMOOTH_FLUX_cat(POP,g,t)
+    IMPLICIT NONE
+
+    TYPE(POP_TYPE), INTENT(INOUT) :: POP
+    INTEGER(i4b), INTENT(IN) :: g, t
+    INTEGER(i4b), PARAMETER :: SPAN = NYEAR_SMOOTH/2
+    REAL(dp) :: x(SPAN+1), y(SPAN+1), a, b, r
+    REAL(dp) :: sumflux, sumsmooth, flux(NYEAR_HISTORY), smoothed_flux
+    REAL(dp) :: dbuf
+    INTEGER(i4b) :: t0, tt, n, k
+
+    ! update fire_mortality_history
+
+    IF (t.GT.NYEAR_HISTORY) THEN
+       DO k = 1, NYEAR_HISTORY-1
+          POP%pop_grid(g)%cat_mortality_history(k) = POP%pop_grid(g)%cat_mortality_history(k+1)
+       ENDDO
+    ENDIF
+    POP%pop_grid(g)%cat_mortality_history(t) = POP%pop_grid(g)%cat_mortality
+
+    flux = POP%pop_grid(g)%cat_mortality_history
+    t0 = t-SPAN
+    n = 0
+    sumflux = 0.0
+    sumsmooth = 0.0
+
+    DO tt = 1,NYEAR_SMOOTH
+       IF ((t0+tt).GE.1 .AND. (t0+tt).LE.t+1) THEN
+          sumflux = sumflux + flux(t0+tt-1)
+          y(tt) = flux(t0+tt-1)
+          x(tt) = tt
+          n = n+1
+          IF ((t0+tt).EQ.t+1) THEN
+             CALL regress(x,y,n,a,b,r)
+          ENDIF
+       ELSE
+          sumflux = sumflux + (a + b*tt)
+          n = n+ 1
+       ENDIF
+    ENDDO
+
+    dbuf =POP%pop_grid(g)%smoothing_buffer_cat/(REAL(NYEAR_SMOOTH)/2.0)
+    !MC smoothed_flux=max(sumflux/real(n)+dbuf, 0.0)
+    smoothed_flux=MAX(sumflux/REAL(n)+dbuf, 0.0_dp)
+    POP%pop_grid(g)%smoothing_buffer_cat = POP%pop_grid(g)%smoothing_buffer_cat + flux(t) - smoothed_flux
+
+    POP%pop_grid(g)%cat_mortality_smoothed = smoothed_flux
+
+
+
+  END SUBROUTINE SMOOTH_FLUX_cat
+  !******************************************************************************
+  SUBROUTINE REGRESS(x, y, n, a, b, r)
+    IMPLICIT NONE
+    REAL(dp), INTENT(IN) :: x(:), y(:)
+    REAL(dp), INTENT(OUT) :: a, b, r
+    INTEGER(i4b), INTENT(IN) :: n
+    REAL(dp)::  sx,sy,sxx,sxy,delta,meanx,meany,sdx,sdy
+    INTEGER(i4b) :: i
+
+    !Performs a linear regression of array y on array x (n values)
+    ! returning parameters a and b in the fitted model: y=a+bx
+    ! Source: Press et al 1986, Sect 14.2
+    !  also returns Pearson r
+
+
+    sx=0.0
+    sy=0.0
+    sxx=0.0
+    sxy=0.0
+    DO i=1,n
+       sx = sx + x(i)
+       sy = sy + y(i)
+       sxx = sxx + x(i) * y(i)
+       sxy = sxy + x(i)*y(i)
+    ENDDO
+    delta = REAL(n)*sxx - sx*sx
+    a=(sxx*sy-sx*sxy)/delta
+    b=(REAL(n)*sxy-sx*sy)/delta
+    meanx=sx/REAL(n)
+    meany=sy/REAL(n)
+    sdx = 0.0
+    sdy = 0.0
+    DO i=1,n
+       sdx = sdx + (x(i)-meanx)*(x(i)-meanx)
+       sdy = sdy + (y(i)-meany)*(y(i)-meany)
+    ENDDO
+    sdx=SQRT(sdx/REAL(n-1))
+    sdy=SQRT(sdy/REAL(n-1))
+    !MC if (sdx .eq. 0.0 .or. sdy .eq. 0.0) then
+    IF ((ABS(sdx) .LT. TINY(0.0_dp)) .OR. (ABS(sdy) .LT. TINY(0.0_dp))) THEN
+       r = 0.0_dp
+    ELSE
+       r =b*sdx/sdy
+    ENDIF
+
+
+  END SUBROUTINE REGRESS
+  !******************************************************************************
+  REAL(dp) FUNCTION Area_Triangle(x1,y1,x2,y2,x3,y3)
+    IMPLICIT NONE
+    REAL(dp), INTENT(IN) :: x1, y1, x2, y2, x3, y3
+
+    area_triangle = ABS((x1*(y2-y3) + x2*(y3-y1)+ x3*(y1-y2))/2.0);
+
+  END FUNCTION Area_Triangle
+
+
+  !******************************************************************************
   ! Top-End Allometry
   ! Computes tree stem diameter (m) and basal area (m2/ha)
   ! given height (m), stem biomass (kgC/m2) and tree population density (indiv/m2)
@@ -3238,7 +3238,7 @@ END FUNCTION Area_Triangle
     REAL(dp), PARAMETER  :: gC2DM = 1./0.49  ! ratio Dry matter mass to g(C)
 
     ! Compute dbh using model 5b and converting from cm -> m
-    dbh    = ( agbiomass * gC2DM / density / exp(beta0) ) ** (1./beta1)
+    dbh    = ( agbiomass * gC2DM / density / EXP(beta0) ) ** (1./beta1)
     dbh    = dbh * 0.01
     ! Compute basal area [m^2/m^2]
     basal  = PI * (0.5 * dbh)**2 * density
@@ -3263,12 +3263,12 @@ END FUNCTION Area_Triangle
 
 
 
- 
-    CALL alloc_POP(pop,int(np))
+
+    CALL alloc_POP(pop,INT(np))
     POP%np = np
     POP%Iwood = Iwood
     !POP%LU = 1  ! initialise to primary forest
-    POP%pop_grid(:)%LU =1 
+    POP%pop_grid(:)%LU =1
     POP%it_pop = 0
     CALL ZeroPOP(pop)
     CALL InitPOP2D_Poisson(pop,INT(disturbance_interval,i4b))
@@ -3302,10 +3302,10 @@ END FUNCTION Area_Triangle
 
 
 
- 
-    
-    
-    
+
+
+
+
     POP%it_pop(n) = 0
     CALL ZeroPOP(pop,INT(n))   !mrd561: types do not match unless converted here
     CALL InitPOP2D_Poisson(pop,INT(disturbance_interval,i4b),n)
@@ -3329,8 +3329,8 @@ END FUNCTION Area_Triangle
   !*******************************************************************************
   SUBROUTINE alloc_POP(POP, arraysize)
 
-    USE TypeDef,   Only: i4b, dp
-    USE POP_Types, Only: POP_TYPE
+    USE TypeDef,   ONLY: i4b, dp
+    USE POP_Types, ONLY: POP_TYPE
 
 
     TYPE( POP_TYPE ),INTENT(INOUT) :: POP
