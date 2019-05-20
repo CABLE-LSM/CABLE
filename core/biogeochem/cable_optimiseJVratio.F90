@@ -33,7 +33,7 @@ MODULE cable_optimise_JV_module
  REAL :: Anet, vcmax00, bjv, g1, Kc0, Ko0, ekc, eko, alpha
  REAL ::     convex, Neff, Rd0
  INTEGER :: nt,kk
- REAL, PARAMETER :: relcost_J = 1.6 ! Chen et al. Oecologia, 1993, 93: 63-69
+ REAL, PARAMETER :: relcost_J = 1.6 ! Chen et al. Oecologia, 1993, 93: 63-69 (use this value for forced co-ordination
  !REAL, PARAMETER :: relcost_J = 2.3  ! use this value for optimisation algorithm
  LOGICAL, PARAMETER :: coord = .True.  ! adjust ratioJV to force co-oridnation.
  ! otherwise maximise photosynthesis
@@ -97,7 +97,7 @@ CONTAINS
                 bjv_new = bjvref
              endif
              veg%vcmax_shade(k) = Neff/(1.+relcost_J*bjv_new/4.0)
-             veg%ejmax_shade(k) = veg%vcmax_sun(k)*bjv_new
+             veg%ejmax_shade(k) = veg%vcmax_shade(k)*bjv_new
           else
 
              if(total_photosynthesis_cost(bjvref).lt.total_photosynthesis_cost(l_bound).and. &

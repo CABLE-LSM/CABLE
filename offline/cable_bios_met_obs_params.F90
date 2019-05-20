@@ -1811,7 +1811,6 @@ DO iland = 1,mland ! For each land cell...
    climate%modis_igbp(is:ie) = INT(vegtypeigbp(iland))
    !climate%AvgAnnRainf(is:ie) = MAP(iland)
    climate%AvgAnnMaxFAPAR(is:ie) = avgannmax_fapar(iland)
-   write(*,*) 'AvgAnnMaxFAPAR:' , climate%AvgAnnMaxFAPAR(1)
 ENDDO
 
 
