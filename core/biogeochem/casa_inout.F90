@@ -758,15 +758,7 @@ CONTAINS
     casaflux%FluxCtoCO2   = 0.
 
     casaflux%Cplant_turnover = 0.
-
-    phen%doyphase(:,1) = -50
-    phen%doyphase(:,2) = phen%doyphase(:,1) +14
-    phen%doyphase(:,3) = 367
-    phen%doyphase(:,4) = phen%doyphase(:,3) + 14
-    phen%phase(:) = 2
-    phen%phen(:) = 1
-    phen%aphen(:) = 0
-    !CLN add more if necessary
+!Ticket #204 - rm phen% clobbing here AND incorrectly so anyway
 
     IF (initcasa==1) THEN
        IF (.NOT.cable_user%casa_fromzero) THEN
