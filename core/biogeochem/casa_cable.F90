@@ -172,6 +172,11 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 
          ENDIF  ! icycle .gt. 0
 
+         
+!!$         write(912,92) real(idoy), casaflux%stemnpp(1), &
+!!$                 casaflux%cnpp(1) * casaflux%fracCalloc(1,2) * 0.7, casapool%cplant(1,2)*0.7*1000, &
+!!$                 casaflux%kplant_tot(1,2)*1000, casaflux%kplant(1,2)*1000
+!!$            92 format (100(f16.8,2x))
         ENDIF  ! end of day
 
    ELSE ! dump_read: ! use casa met and flux inputs from dumpfile
@@ -211,6 +216,10 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
                casabal%Crootmean = casabal%Crootmean +casapool%cplant(:,3)/real(LOY)/1000.
             ENDIF
 
+!!$            write(912,91) real(idoy), casaflux%stemnpp(1), &
+!!$                 casaflux%cnpp(1) * casaflux%fracCalloc(1,2) * 0.7, casapool%cplant(1,2)*0.7, &
+!!$                 casaflux%kplant(1,2)
+!!$            91 format (100(f12.4,2x))
 
          ENDIF ! CALL_POP
 

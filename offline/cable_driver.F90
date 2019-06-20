@@ -580,30 +580,60 @@ PROGRAM cable_offline_driver
                  calendar = 'standard'
 
               ENDIF
-              LOY = 365
 
-              IF (IS_LEAPYEAR(MetYear)) LOY = 366
-              kend = NINT(24.0*3600.0/dels) * LOY
+
               ! get koffset to add to time-step of sitemet
               IF (TRIM(site%RunType)=='historical') THEN
                  MetYear = CurYear
+                 LOY = 365
+                 IF (IS_LEAPYEAR(MetYear)) LOY = 366
+                 kend = NINT(24.0*3600.0/dels) * LOY
               ELSEIF (TRIM(site%RunType)=='spinup' .OR. TRIM(site%RunType)=='transient') THEN
                  ! setting met year so we end the spin-up at the end of the site data-years.
                  MetYear = site%spinstartyear + &
                       MOD(CurYear- &
                       (site%spinstartyear-(site%spinendyear-site%spinstartyear +1)*100), &
                       (site%spinendyear-site%spinstartyear +1))
+                 LOY = 365
+                 kend = NINT(24.0*3600.0/dels) * LOY
+          
               ENDIF
-              write(*,*) 'MetYear: ', MetYear
-              write(*,*) 'Simulation Year: ', CurYear
-              koffset_met = 0
-              if (MetYear .gt. site%spinstartyear) then
-                 DO Y = site%spinstartyear, MetYear-1
-                    LOYtmp = 365
-                    IF (IS_LEAPYEAR(Y)) LOYtmp = 366
-                    koffset_met = koffset_met + INT( REAL(LOYtmp) * 86400./REAL(dels) )
-                 ENDDO
-              endif
+               write(*,*) 'MetYear: ', MetYear
+               write(*,*) 'Simulation Year: ', CurYear
+               koffset_met = 0
+               if (MetYear .gt. site%spinstartyear) then
+                  DO Y = site%spinstartyear, MetYear-1
+                     LOYtmp = 365
+                     IF (IS_LEAPYEAR(Y)) LOYtmp = 366
+                     koffset_met = koffset_met + INT( REAL(LOYtmp) * 86400./REAL(dels) )
+                  ENDDO
+               endif
+
+              
+!!$              LOY = 365
+!!$
+!!$              IF (IS_LEAPYEAR(MetYear)) LOY = 366
+!!$              kend = NINT(24.0*3600.0/dels) * LOY
+!!$              ! get koffset to add to time-step of sitemet
+!!$              IF (TRIM(site%RunType)=='historical') THEN
+!!$                 MetYear = CurYear
+!!$              ELSEIF (TRIM(site%RunType)=='spinup' .OR. TRIM(site%RunType)=='transient') THEN
+!!$                 ! setting met year so we end the spin-up at the end of the site data-years.
+!!$                 MetYear = site%spinstartyear + &
+!!$                      MOD(CurYear- &
+!!$                      (site%spinstartyear-(site%spinendyear-site%spinstartyear +1)*100), &
+!!$                      (site%spinendyear-site%spinstartyear +1))
+!!$              ENDIF
+!!$              write(*,*) 'MetYear: ', MetYear
+!!$              write(*,*) 'Simulation Year: ', CurYear
+!!$              koffset_met = 0
+!!$              if (MetYear .gt. site%spinstartyear) then
+!!$                 DO Y = site%spinstartyear, MetYear-1
+!!$                    LOYtmp = 365
+!!$                    IF (IS_LEAPYEAR(Y)) LOYtmp = 366
+!!$                    koffset_met = koffset_met + INT( REAL(LOYtmp) * 86400./REAL(dels) )
+!!$                 ENDDO
+!!$              endif
 
            ENDIF
 
@@ -633,6 +663,8 @@ PROGRAM cable_offline_driver
 
               IF ( CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static') &
                    CABLE_USER%POPLUC= .FALSE.
+
+              print*, 'after load_parameters'
 
               ! Having read the default parameters, if this is a bios run we will now
               ! overwrite the subset of them required for bios.
@@ -673,14 +705,16 @@ PROGRAM cable_offline_driver
 
               spinConv = .FALSE. ! initialise spinup convergence variable
               IF (.NOT.spinup) spinConv=.TRUE.
-
+ print*, 'b4 climate_init'
               if (cable_user%call_climate) CALL climate_init ( climate, mp, ktauday )
+              print*, 'b4 read_climate_restart'
               if (cable_user%call_climate .AND.(.NOT.cable_user%climate_fromzero)) &
                    CALL READ_CLIMATE_RESTART_NC (climate, ktauday)
 
               IF ( TRIM(cable_user%MetType) .EQ. 'bios' ) THEN
                  CALL cable_bios_load_climate_params(climate)  ! additional params needed for BLAZE
               ENDIF
+
 
 
               IF ((icycle>0) .AND. spincasa) THEN
@@ -1200,6 +1234,7 @@ PROGRAM cable_offline_driver
               IF ( cable_user%CALL_POP.and.POP%np.gt.0 ) then
 
                  IF (TRIM(cable_user%POP_out).eq.'epi') THEN
+                    print*, 'writing episodic POP output'
                     CALL POP_IO( pop, casamet, RYEAR, 'WRITE_EPI', &
                          (YYYY.EQ.CABLE_USER%YearEnd .AND. RRRR.EQ.NRRRR) )
 

@@ -214,7 +214,14 @@ CONTAINS
 
     ! BIOS only
     USE cable_bios_met_obs_params,   ONLY:  cable_bios_read_met, cable_bios_init, &
-                                            cable_bios_load_params
+         cable_bios_load_params
+
+     ! 13C
+    use cable_c13o2_def,      only: c13o2_pool, c13o2_luc, c13o2_update_sum_pools, c13o2_zero_sum_pools
+    use cable_c13o2,          only: c13o2_save_luc, c13o2_update_luc, c13o2_write_restart_pools, &
+       c13o2_create_output, c13o2_write_output, c13o2_close_output, &
+       c13o2_print_delta_pools, c13o2_print_delta_luc
+
 
     IMPLICIT NONE
 
@@ -285,6 +292,16 @@ CONTAINS
     ! BLAZE variables
     TYPE (TYPE_BLAZE)    :: BLAZE
     TYPE (TYPE_SIMFIRE)  :: SIMFIRE
+
+    ! 13C
+    type(c13o2_pool)                    :: c13o2pools, sum_c13o2pools
+    type(c13o2_luc)                     :: c13o2luc
+    integer                             :: c13o2_file_id
+    integer, parameter :: nvars = 7
+    character(len=20), dimension(nvars) :: c13o2_vars
+    integer,           dimension(nvars) :: c13o2_var_ids
+    real(dp), dimension(:,:), allocatable :: casasave
+    real(dp), dimension(:,:), allocatable :: lucsave
     
     ! declare vars for switches (default .FALSE.) etc declared thru namelist
     LOGICAL, SAVE           :: &
@@ -615,7 +632,10 @@ CONTAINS
                   bal, logn, vegparmnew, casabiome, casapool,            &
                   casaflux, sum_casapool, sum_casaflux, &
                   casamet, casabal, phen, POP, spinup,         &
-                  C%EMSOIL, C%TFRZ, LUC_EXPT, POPLUC, BLAZE, SIMFIRE )
+                  C%EMSOIL, C%TFRZ, LUC_EXPT, POPLUC, BLAZE, SIMFIRE, &
+                  c13o2pools, sum_c13o2pools, c13o2luc)
+             if (cable_user%c13o2) allocate(casasave(c13o2pools%ntile,c13o2pools%npools))
+             if (cable_user%c13o2 .and. cable_user%popluc) allocate(lucsave(c13o2luc%nland,c13o2luc%npools))
 
              ! Abort, if an error occurred during BLAZE/SIMFIRE init
              IF ( BLAZE%ERR ) CALL MPI_Abort(comm,0,ierr)
@@ -1029,11 +1049,11 @@ write(*,*) 'after CALL1'
                       CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, &
                            casamet,ssnow,         &
                            rad, bal, air, soil, veg, C%SBOLTZ,     &
-                           C%EMLEAF, C%EMSOIL )
+                           C%EMLEAF, C%EMSOIL, c13o2pools )
                    else
                       CALL write_output( dels, ktau, met, canopy, casaflux, casapool, &
                            casamet, ssnow,   &
-                           rad, bal, air, soil, veg, C%SBOLTZ, C%EMLEAF, C%EMSOIL )
+                           rad, bal, air, soil, veg, C%SBOLTZ, C%EMLEAF, C%EMSOIL, c13o2pools )
 
                    ENDIF
                 END IF
@@ -1254,11 +1274,11 @@ write(*,*) 'after annual calcs'
                    CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, &
                         casamet, ssnow,         &
                         rad, bal, air, soil, veg, C%SBOLTZ,     &
-                        C%EMLEAF, C%EMSOIL )
+                        C%EMLEAF, C%EMSOIL, c13o2pools )
                 else
                    CALL write_output( dels, ktau, met, canopy, casaflux, casapool, casamet, &
                         ssnow,   &
-                        rad, bal, air, soil, veg, C%SBOLTZ, C%EMLEAF, C%EMSOIL )
+                        rad, bal, air, soil, veg, C%SBOLTZ, C%EMLEAF, C%EMSOIL, c13o2pools )
                    
                 ENDIF
               
@@ -8732,7 +8752,6 @@ SUBROUTINE master_CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
            DO k=1,mland
               POPLUC%ptos(k) = LUC_EXPT%INPUT(ptos)%VAL(k)
               POPLUC%ptog(k) = LUC_EXPT%INPUT(ptog)%VAL(k)
-              POPLUC%stop(k) = 0.0
               POPLUC%stog(k) = LUC_EXPT%INPUT(stog)%VAL(k) 
               POPLUC%gtop(k) = 0.0
               POPLUC%gtos(k) = LUC_EXPT%INPUT(gtos)%VAL(k)
@@ -8895,7 +8914,6 @@ SUBROUTINE LUCdriver( casabiome,casapool, &
   DO k=1,mland
      POPLUC%ptos(k) = LUC_EXPT%INPUT(ptos)%VAL(k)
      POPLUC%ptog(k) = LUC_EXPT%INPUT(ptog)%VAL(k)
-     POPLUC%stop(k) = 0.0
      POPLUC%stog(k) = LUC_EXPT%INPUT(stog)%VAL(k) 
      POPLUC%gtop(k) = 0.0
      POPLUC%gtos(k) = LUC_EXPT%INPUT(gtos)%VAL(k)

@@ -736,6 +736,8 @@ ENDIF
   casaflux%fracPalloc   = 0.
   casaflux%Crmplant     = 0.
   casaflux%kplant       = 0.
+  casaflux%kplant_fire  = 0.
+  casaflux%kplant_tot   = 0.0
 
   casaflux%fromPtoL     = 0.
 
@@ -770,6 +772,7 @@ ENDIF
 !  casaflux%Psorbmax     = 0. !vh ! this should be a paramter, not a flux variable
 
   casaflux%klitter      = 0.
+  casaflux%klitter_fire = 0.
   casaflux%ksoil        = 0.
   casaflux%fromLtoS     = 0.
   casaflux%fromStoS     = 0.
@@ -782,8 +785,11 @@ ENDIF
   casaflux%FluxNtosoil  = 0.
   casaflux%FluxPtosoil  = 0.
   casaflux%FluxCtoCO2   = 0.
+  casaflux%FluxCtoCO2_plant_fire = 0.
+  casaflux%FluxCtoCO2_litter_fire = 0.
 
   casaflux%FluxFromPtoL = 0.
+  casaflux%fromPtoL_fire = 0.
   casaflux%FluxFromLtoS = 0.
   casaflux%FluxFromStoS = 0.
   casaflux%FluxFromPtoCO2 = 0.
@@ -1469,7 +1475,8 @@ SUBROUTINE biogeochem(ktau,dels,idoY,LALLOC,veg,soil,casabiome,casapool,casaflux
          casaflux%kplant(POP%Iwood,2) = 0.0
          veg%hc(POP%Iwood) = POP%pop_grid(:)%height_max
       ENDWHERE
-
+      casaflux%kplant_tot(POP%Iwood,2) = casaflux%kplant(POP%Iwood,2) + &
+           (1. -casaflux%kplant(POP%Iwood,2))* casaflux%kplant_fire(POP%Iwood,2)
    ENDIF
 !!$if (idoy.eq.365) then
 !!$ write(667,*) pop%LU

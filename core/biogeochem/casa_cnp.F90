@@ -585,7 +585,7 @@ SUBROUTINE casa_rplant(veg,casabiome,casapool,casaflux,casamet,climate)
         endif
          
         if (veg%iveg(npt).eq.2 .or. veg%iveg(npt).eq. 4  ) then 
-           ! broadleaf forest
+           ! broadleaf forestNESP2pt9_BLAZE
            c1 = 1.2818 * 1.e-6
            ! c1 = 1.3805e-6 ! null model
         elseif(veg%iveg(npt).eq.1 .or. veg%iveg(npt).eq. 3  ) then 
@@ -599,7 +599,7 @@ SUBROUTINE casa_rplant(veg,casabiome,casapool,casaflux,casamet,climate)
         else 
            ! shrubs and other (C4 grass and crop)
            c1 = 1.5758 * 1.e-6
-           c1 = 1.7265e-6 ! null model
+           !c1 = 1.7265e-6 ! null model
         endif
           c2 = 0.0116
           c3 = -0.0334*1.e-6 
@@ -609,7 +609,7 @@ SUBROUTINE casa_rplant(veg,casabiome,casapool,casaflux,casamet,climate)
 
           resp_coeff_sapwood(npt) = casapool%nplant(npt,wood) *casaflux%frac_sapwood(npt)* c5 * &
                 (c1 + c2 *vcmaxmax(npt)*climate%frec(npt)  + c3 * climate%qtemp_max_last_year(npt) )
-          ! null model (use this with numm-model c1 coefft to turno off T-acclimation)
+          ! null model (use this with null-model c1 coefft to turn off T-acclimation)
 !!$          resp_coeff_root(npt) = casapool%nplant(npt,froot) *c1
 !!$          resp_coeff_sapwood(npt) = casapool%nplant(npt,wood) *casaflux%frac_sapwood(npt)*c1
            
@@ -1073,10 +1073,7 @@ SUBROUTINE casa_coeffplant(xkleafcold,xkleafdry,xkleaf,veg,casabiome,casapool, &
 
  ENDWHERE
 
- ! set leaf turnover to be the same as froot turnover for C3 & C4 grass
- where (veg%iveg==7 .OR. veg%iveg==6)
-     casaflux%kplant(:,froot) = casaflux%kplant(:,leaf)
- endwhere
+ 
 
  WHERE(casamet%iveg2/=icewater)
 
@@ -1088,6 +1085,8 @@ SUBROUTINE casa_coeffplant(xkleafcold,xkleafdry,xkleaf,veg,casabiome,casapool, &
     casaflux%kplant_tot(:,wood) =  casaflux%kplant(:,wood) + &
          (1. - casaflux%kplant(:,wood))*casaflux%kplant_fire(:,wood)
 
+    
+
  ! adjust leaf flux to litter for crop/pasture removal
    
     casaflux%fromPtoL(:,str,leaf) = casaflux%fromPtoL(:,str,leaf)*(1. -  casaflux%fharvest) 
@@ -1098,9 +1097,17 @@ SUBROUTINE casa_coeffplant(xkleafcold,xkleafdry,xkleaf,veg,casabiome,casapool, &
 
   ! When glai<glaimin,leaf biomass will not decrease anymore. (Q.Zhang 10/03/2011)
   DO npt = 1,mp
-    if(casamet%glai(npt).le.casabiome%glaimin(veg%iveg(npt))) casaflux%kplant_tot(npt,leaf) = 0.0
- ENDDO
+     if(casamet%glai(npt).le.casabiome%glaimin(veg%iveg(npt))) then
+        casaflux%kplant_tot(npt,leaf) = 0.0
+        casaflux%kplant(npt,leaf) = 0.0
+     endif
+  ENDDO
 
+  
+! set leaf turnover to be the same as froot turnover for C3 & C4 grass
+ where (veg%iveg==7 .OR. veg%iveg==6)
+     casaflux%kplant(:,froot) = casaflux%kplant(:,leaf)
+ endwhere
  
 
  
@@ -1552,19 +1559,19 @@ SUBROUTINE casa_delplant(veg,casabiome,casapool,casaflux,casamet,            &
 
         ENDIF
 
-!!$        DO nL=1,mlitter
-!!$           DO nP=1,mplant
-!!$              casaflux%FluxCtolitter(npt,nL) = casaflux%FluxCtolitter(npt,nL) &
-!!$                   + casaflux%fromPtoL(npt,nL,nP) &
-!!$                   * casaflux%kplant(npt,nP) &
-!!$                   * casapool%cplant(npt,nP)
-!!$
-!!$           ENDDO
-!!$        ENDDO
+        DO nL=1,mlitter
+           DO nP=1,mplant
+              casaflux%FluxCtolitter(npt,nL) = casaflux%FluxCtolitter(npt,nL) &
+                   + casaflux%fromPtoL(npt,nL,nP) &
+                   * casaflux%kplant(npt,nP) &
+                   * casapool%cplant(npt,nP)
 
-        casaflux%FluxCtolitter(npt,metb) =  cleaf2met(npt) + croot2met(npt)
-        casaflux%FluxCtolitter(npt,str) =  cleaf2str(npt) + croot2str(npt)
-        casaflux%FluxCtolitter(npt,wood) =  cwood2cwd(npt) 
+           ENDDO
+        ENDDO
+
+!!$        casaflux%FluxCtolitter(npt,metb) =  cleaf2met(npt) + croot2met(npt)
+!!$        casaflux%FluxCtolitter(npt,str) =  cleaf2str(npt) + croot2str(npt)
+!!$        casaflux%FluxCtolitter(npt,wood) =  cwood2cwd(npt) 
         
 
         !    PRINT *, 'before 2nd icycle >1; npt, mp', npt, mp
@@ -1575,16 +1582,16 @@ SUBROUTINE casa_delplant(veg,casabiome,casapool,casaflux,casamet,            &
 !!$                               * casapool%cplant(npt,froot)      * ratioNCstrfix
 !!$
 !!$           !vh! to avoid -ve Nitrogen pools Ticket#108
-!!$           casaflux%FluxNtolitter(npt,str) = min(casaflux%fromPtoL(npt,str,leaf) * &
-!!$                casaflux%kplant(npt,leaf)  &
-!!$                * casapool%cplant(npt,leaf)       * ratioNCstrfix &
-!!$                , -casapool%dNplantdt(npt,leaf))             &
-!!$                + min(casaflux%fromPtoL(npt,str,froot)* casaflux%kplant(npt,froot) &
-!!$                * casapool%cplant(npt,froot)      * ratioNCstrfix &
-!!$                , -casapool%dNplantdt(npt,froot))
+           casaflux%FluxNtolitter(npt,str) = min(casaflux%fromPtoL(npt,str,leaf) * &
+                casaflux%kplant(npt,leaf)  &
+                * casapool%cplant(npt,leaf)       * ratioNCstrfix &
+                , -casapool%dNplantdt(npt,leaf))             &
+                + min(casaflux%fromPtoL(npt,str,froot)* casaflux%kplant(npt,froot) &
+                * casapool%cplant(npt,froot)      * ratioNCstrfix &
+                , -casapool%dNplantdt(npt,froot))
 
-           casaflux%FluxNtolitter(npt,str) =  min(nleaf2str(npt),  -casapool%dNplantdt(npt,leaf)) &
-                + min(nroot2str(npt), -casapool%dNplantdt(npt,froot))
+!!$           casaflux%FluxNtolitter(npt,str) =  min(nleaf2str(npt),  -casapool%dNplantdt(npt,leaf)) &
+!!$                + min(nroot2str(npt), -casapool%dNplantdt(npt,froot))
 
            casaflux%FluxNtolitter(npt,metb) = - casapool%dNplantdt(npt,leaf)-casapool%dNplantdt(npt,froot) &
                 - casaflux%FluxNtolitter(npt,str)
@@ -1696,7 +1703,7 @@ IF(casamet%iveg2(nland)/=icewater) THEN
    endif
 
 
-   ! fire flux to atmopshere from burnt litter material
+   ! fire flux to atmosphere from burnt litter material
    DO nL=1,mlitter
       casaflux%fluxCtoCO2_litter_fire(nland) = casaflux%fluxCtoCO2_litter_fire(nland) + &
            (1. - casaflux%klitter(nland,nL))*casaflux%klitter_fire(nland,nL)  * &
@@ -1705,6 +1712,11 @@ IF(casamet%iveg2(nland)/=icewater) THEN
 
       casaflux%FluxFromLtoCO2(nland,nL) = (1. - casaflux%klitter(nland,nL))*casaflux%klitter_fire(nland,nL)  * &
            casapool%clitter(nland,nL)
+
+       casaflux%fluxCtoCO2(nland) = casaflux%fluxCtoCO2(nland)  &
+                        + casaflux%fromLtoCO2(nland,nL)  &
+                        * casaflux%klitter(nland,nL) &
+                        * casapool%clitter(nland,nL)
    ENDDO
 
    DO nS=1,msoil

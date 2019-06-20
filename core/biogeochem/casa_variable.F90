@@ -1041,7 +1041,12 @@ SUBROUTINE update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
            sum_casaflux%Plabuptake =  sum_casaflux%Plabuptake + casaflux%Plabuptake
            sum_casaflux%Clabloss =  sum_casaflux%Clabloss + casaflux%Clabloss
            sum_casaflux%fracClabile = sum_casaflux%fracClabile +  casaflux%fracClabile
-           sum_casaflux%fracCalloc =  sum_casaflux%fracCalloc + casaflux%fracCalloc*casapool%cplant
+           sum_casaflux%fracCalloc(:,1) =  sum_casaflux%fracCalloc(:,1) + &
+                casaflux%fracCalloc(:,1)*casaflux%Cnpp
+           sum_casaflux%fracCalloc(:,2) =  sum_casaflux%fracCalloc(:,2) + &
+                casaflux%fracCalloc(:,3)*casaflux%Cnpp
+           sum_casaflux%fracCalloc(:,3) =  sum_casaflux%fracCalloc(:,3) + &
+                casaflux%fracCalloc(:,3)*casaflux%Cnpp
            sum_casaflux%fracNalloc = sum_casaflux%fracNalloc + casaflux%fracNalloc
            sum_casaflux%fracPalloc =  sum_casaflux%fracPalloc + casaflux%fracPalloc
            sum_casaflux%kplant =  sum_casaflux%kplant + casaflux%kplant*casapool%cplant
@@ -1124,10 +1129,14 @@ SUBROUTINE update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
            if (average_now) then
            sum_casapool%Clabile = sum_casapool%Clabile/real(nsteps)
            sum_casapool%dClabiledt = sum_casapool%Clabile/real(nsteps)
-           where (sum_casapool%Cplant.gt.1.e-12) 
-              sum_casaflux%fracCalloc =  sum_casaflux%fracCalloc/sum_casapool%Cplant
+           where (sum_casaflux%Cnpp.gt.1.e-12) 
+              sum_casaflux%fracCalloc(:,1) =  sum_casaflux%fracCalloc(:,1)/sum_casaflux%cnpp
+              sum_casaflux%fracCalloc(:,2) =  sum_casaflux%fracCalloc(:,2)/sum_casaflux%cnpp
+              sum_casaflux%fracCalloc(:,3) =  sum_casaflux%fracCalloc(:,3)/sum_casaflux%cnpp
            elsewhere
-              sum_casaflux%fracCalloc = 0.0
+              sum_casaflux%fracCalloc(:,1) = 0.0
+              sum_casaflux%fracCalloc(:,2) = 0.0
+              sum_casaflux%fracCalloc(:,3) = 0.0
            endwhere
 
            where (sum_casapool%Cplant.gt.1.e-12) 

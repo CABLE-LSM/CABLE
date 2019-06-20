@@ -1468,11 +1468,12 @@ write(*,*) 'patch%latitude',  SIZE(patch%latitude)
 
 ! READ 1-dimensional real fields
   DO i = 3, SIZE(A1)
+     print*,  TRIM(A1(i))
      STATUS = NF90_INQ_VARID( FILE_ID, A1(i), dID )
      IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
      STATUS = NF90_GET_VAR( FILE_ID, dID, TMP )
      IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-
+     
      SELECT CASE ( TRIM(A1(i)))
      CASE ('mtemp'      ) ; climate%mtemp       = TMP
      CASE ('qtemp'      ) ; climate%mtemp       = TMP
@@ -1510,7 +1511,7 @@ write(*,*) 'patch%latitude',  SIZE(patch%latitude)
 ! READ 1-dimensional integer fields
   DO i = 1, SIZE(AI1)
 
-     write(*,*)  TRIM(AI1(i))
+     print*,  TRIM(AI1(i))
      STATUS = NF90_INQ_VARID( FILE_ID, AI1(i), dID )
      IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
      STATUS = NF90_GET_VAR( FILE_ID, dID, TMPI )
