@@ -623,7 +623,7 @@ CONTAINS
 
 
 
-             CALL master_climate_types(comm, climate)
+             CALL master_climate_types(comm, climate, ktauday)
 
 
              ! MPI: mvtype and mstype send out here instead of inside master_casa_params
@@ -1367,7 +1367,7 @@ CONTAINS
           !CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
 
 
-          CALL WRITE_CLIMATE_RESTART_NC ( climate )
+          CALL WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
        END IF
 
     END IF
@@ -6730,7 +6730,7 @@ CONTAINS
 
   END SUBROUTINE master_casa_types
 
-  SUBROUTINE master_climate_types (comm, climate)
+  SUBROUTINE master_climate_types (comm, climate, ktauday)
 
     USE mpi
 
@@ -6746,7 +6746,7 @@ CONTAINS
     INTEGER, ALLOCATABLE, DIMENSION(:) :: types
     INTEGER :: ntyp ! number of worker's types
 
-    INTEGER :: last2d, i
+    INTEGER :: last2d, i, ktauday
 
     ! MPI: block lenghts for hindexed representing all vectors
     INTEGER, ALLOCATABLE, DIMENSION(:) :: blen
@@ -6761,9 +6761,9 @@ CONTAINS
     INTEGER :: rank, off, cnt
     INTEGER :: bidx, midx, vidx, ierr, ny, nd, ndq
 
-    CALL climate_init (climate, mp)
+    IF (cable_user%call_climate) CALL climate_init ( climate, mp, ktauday )
     IF (cable_user%call_climate .AND.(.NOT.cable_user%climate_fromzero)) &
-         CALL READ_CLIMATE_RESTART_NC (climate)
+      CALL READ_CLIMATE_RESTART_NC (climate, ktauday)
     ALLOCATE (climate_ts(wnp))
 
     ! MPI: allocate temp vectors used for marshalling

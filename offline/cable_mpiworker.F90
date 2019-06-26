@@ -66,6 +66,7 @@
 MODULE cable_mpiworker
 
   USE cable_mpicommon
+  USE cable_common_module,  ONLY: cable_user
   USE casa_inout_module
   USE casa_cable
 
@@ -459,7 +460,7 @@ CONTAINS
              WRITE(wlogn,*) ' wb min',MINVAL(ssnow%wb),MINLOC(ssnow%wb)
              CALL flush(wlogn)
 
-             CALL worker_climate_types(comm, climate)
+             CALL worker_climate_types(comm, climate, ktauday )
 
              ! MPI: mvtype and mstype send out here instead of inside worker_casa_params
              !      so that old CABLE carbon module can use them. (BP May 2013)
@@ -634,8 +635,8 @@ CONTAINS
              IF (l_laiFeedbk) veg%vlai(:) = REAL(casamet%glai(:))
 
              IF (cable_user%CALL_climate) &
-                  CALL cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met, &
-                  climate, canopy,air, dels,mp)
+                  CALL cable_climate(ktau_tot,kstart,kend,ktauday,idoy,LOY,met, &
+                  climate, canopy, air, rad, dels, mp)
 
 
              ! CALL land surface scheme for this timestep, all grid points:
@@ -6350,7 +6351,7 @@ CONTAINS
 
 
 
-  SUBROUTINE worker_climate_types (comm, climate)
+  SUBROUTINE worker_climate_types (comm, climate, ktauday )
 
     USE mpi
 
@@ -6360,7 +6361,7 @@ CONTAINS
     IMPLICIT NONE
 
     TYPE(climate_type), INTENT(INOUT):: climate
-    INTEGER, INTENT(IN) :: comm
+    INTEGER, INTENT(IN) :: comm, ktauday 
 
     ! MPI: temp arrays for marshalling all types into a struct
     INTEGER, ALLOCATABLE, DIMENSION(:) :: blocks
@@ -6389,7 +6390,7 @@ CONTAINS
 
     ! CALL alloc_cbm_var(climate,mp)
 
-    CALL climate_init (climate, mp)
+    IF (cable_user%call_climate) CALL climate_init ( climate, mp, ktauday )
     ! MPI: allocate temp vectors used for marshalling
     ntyp = nclimate
 
