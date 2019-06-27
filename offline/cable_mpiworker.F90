@@ -659,15 +659,17 @@ CONTAINS
 
              IF (l_laiFeedbk) veg%vlai(:) = REAL(casamet%glai(:))
 
-             if (cable_user%CALL_climate) &
-                 CALL cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met, &
-                      climate, canopy, veg, ssnow, air,rad, dels,mp)
+            
 
 
              ! CALL land surface scheme for this timestep, all grid points:
              CALL cbm( ktau, dels, air, bgc, canopy, met,                  &
                   bal, rad, rough, soil, ssnow,                            &
                   sum_flux, veg, climate)
+
+              if (cable_user%CALL_climate) &
+                 CALL cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met, &
+                      climate, canopy, veg, ssnow, air,rad, dels,mp)
              
              ssnow%smelt  = ssnow%smelt*dels
              ssnow%rnof1  = ssnow%rnof1*dels
