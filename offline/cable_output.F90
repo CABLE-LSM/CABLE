@@ -842,7 +842,7 @@ CONTAINS
             patchout%GPP,              &
                         'dummy', xID, yID, zID, landID, patchID, tID)
        ALLOCATE(out%GPP_slJ(mp))
-       out%GPP_shJ = 0.0 ! initialise
+       out%GPP_slJ = 0.0 ! initialise
 
 
        CALL define_ovar(ncid_out, ovid%eta_GPP_cs, 'eta_GPP_cs', 'umol/m^2/s',               &
