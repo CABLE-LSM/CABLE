@@ -99,13 +99,13 @@ host_pear()
    export NCDIR=$NETCDF_ROOT'/lib/'
    export NCMOD=$NETCDF_ROOT'/include/'
    export FC='mpifort' #'mpif90'
-###   export CFLAGS='-O0 -fp-model precise'
+   export CFLAGS='-O2 -fp-model precise'
 #   export CFLAGS='-O0 -C'
 #   best settings for debugging
 #   export CFLAGS='-O0 -C -g -debug all -traceback -check all,noarg_temp_created, -C  '
 #   export CFLAGS='-O0 '
 
-   export CFLAGS='-O2 -fp-model precise -g -debug -traceback '
+#   export CFLAGS='-O0 -fp-model precise -g -debug -traceback '
 #   export CFLAGS='-O0 -fp-model precise -g -debug all -traceback -fpe0 '
 #   export CFLAGS='  -g -debug -traceback -fp-stack-check -O0 -debug -fpe0 -no-ftz -ftrapuv'
 

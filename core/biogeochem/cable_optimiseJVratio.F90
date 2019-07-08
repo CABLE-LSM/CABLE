@@ -92,7 +92,7 @@ CONTAINS
 
           if (coord) then
              if(diff_Ac_Aj(l_bound)*diff_Ac_Aj(u_bound)<0) then
-                bjv_new = rtbis(diff_Ac_Aj,l_bound,u_bound,0.01)
+                bjv_new = rtbis(diff_Ac_Aj,l_bound,u_bound,0.001)
              else
                 bjv_new = bjvref
              endif
@@ -106,6 +106,10 @@ CONTAINS
                 Anet_cost = golden(l_bound,bjvref,u_bound,total_photosynthesis_cost,0.01,bjv_new)
                 veg%vcmax_shade(k) = Neff/(1.+relcost_J*bjv_new/4.0)
                 veg%ejmax_shade(k) = veg%vcmax_shade(k)*bjv_new
+
+!!$                if (k==1) then
+!!$                   write(799,"(200e16.6)") veg%vcmax_shade(k), sum(APAR), sum(Dleaf), sum(Tleaf), sum(cs), sum(scalex)
+!!$                endif
              else
                 bjv_new = bjvref
                 veg%vcmax_shade(k) = veg%vcmax(k)
@@ -125,7 +129,7 @@ CONTAINS
 
 
              if(diff_Ac_Aj(l_bound)*diff_Ac_Aj(u_bound)<0) then
-                bjv_new = rtbis(diff_Ac_Aj,l_bound,u_bound,0.01)
+                bjv_new = rtbis(diff_Ac_Aj,l_bound,u_bound,0.001)
                 !call total_An_Ac_Aj(bjv_new,An,Ac,Aj)
                 ! write(*,*) 'coord: bjv, An,Ac,Aj,Aj/An: ' ,bjv_new,An,Ac,Aj, Aj/An
 
@@ -156,7 +160,9 @@ CONTAINS
              veg%ejmax_sun(k) = veg%vcmax_sun(k)*bjv_new
              !call total_An_Ac_Aj(bjv_new,An,Ac,Aj)
              
-        
+!!$             if (k==1) then
+!!$                write(899,"(200e16.6)") veg%vcmax_sun(k), sum(APAR), sum(Dleaf), sum(Tleaf), sum(cs), sum(scalex)            
+!!$             endif
 
           else
 

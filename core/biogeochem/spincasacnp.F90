@@ -118,6 +118,9 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
   avg_nsoilmin=0.0;  avg_psoillab=0.0;    avg_psoilsorb=0.0; avg_psoilocc=0.0
   avg_rationcsoilmic=0.0;avg_rationcsoilslow=0.0;avg_rationcsoilpass=0.0
 
+write(600,*) 'csoil3 init: ', casapool%csoil(3,:)
+  write(600,*) 'csoil1 init: ', casapool%csoil(1,:)
+  
   do nyear=1,myearspin
      !     read(91,901) ncfile
      WRITE(CYEAR,FMT="(I4)") CABLE_USER%CASA_SPIN_STARTYEAR + nyear - 1
@@ -152,8 +155,6 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
         phen%doyphase(:,3) =  phen%doyphasespin_3(:,idoy)
         phen%doyphase(:,4) =  phen%doyphasespin_4(:,idoy)
         climate%qtemp_max_last_year(:) =  casamet%mtempspin(:,idoy)
-
-        ! write(6699,*) casaflux%cgpp(1), climate%mtemp(1),  casaflux%crmplant(1,1)
 
         if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
         if (cable_user%c13o2) then
@@ -191,7 +192,9 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
                casaflux%stemnpp = 0.
             ENDIF ! CALL_POP
 
- 
+ !CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
+ !            .true., ctime, .FALSE.  )
+ !            ctime = ctime+1
            IF(idoy==mdyear) THEN ! end of year
 
               CALL POPdriver(casaflux,casabal,veg, POP)
@@ -200,7 +203,7 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
              ! 		 (.FALSE.))
              !CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
              ! .true., ctime, .FALSE.  )
-             ctime = ctime+1
+             !ctime = ctime+1
 
            ENDIF  ! end of year
         
@@ -301,6 +304,8 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
 
   !write(600,*) 'pmet pre-analytic: ' ,  casapool%plitter(1,metb)
   !write(600,*) 'nmet pre-analytic: ' ,  casapool%nlitter(1,metb)
+  write(600,*) 'csoil3 pre-analytic: ', casapool%csoil(3,:)
+  write(600,*) 'csoil1 pre-analytic: ', casapool%csoil(1,:)
   call analyticpool(kend,veg,soil,casabiome,casapool,                                          &
        casaflux,casamet,casabal,phen,                                         &
        avg_cleaf2met,avg_cleaf2str,avg_croot2met,avg_croot2str,avg_cwood2cwd, &
@@ -310,6 +315,8 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
        avg_xnplimit,avg_xkNlimiting,avg_xklitter,avg_xksoil,                  &
        avg_ratioNCsoilmic,avg_ratioNCsoilslow,avg_ratioNCsoilpass,            &
        avg_nsoilmin,avg_psoillab,avg_psoilsorb,avg_psoilocc)
+  write(600,*) 'csoil3 post-analytic: ', casapool%csoil(3,:)
+  write(600,*) 'csoil1 post-analytic: ', casapool%csoil(1,:)
 
   !write(600,*) 'pmet post analytic: ', avg_pleaf2met, avg_proot2met, casaflux%klitter(1,metb), casapool%plitter(1,metb)
   ! write(600,*) 'nmet post analytic: ', avg_nleaf2met, avg_nroot2met, casaflux%klitter(1,metb), casapool%nlitter(1,metb)
@@ -358,6 +365,14 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
            phen%doyphase(:,4) =  phen%doyphasespin_4(:,idoy)
            climate%qtemp_max_last_year(:) =  casamet%mtempspin(:,idoy)
 
+           if (nloop==1 .and. nyear==1) then
+              write(6002, "(200e16.6)") casamet%tairk(3), casamet%tsoil(3,:),  casamet%moist(3,:), &
+                   casaflux%cgpp(3) ,casaflux%crmplant(3,1), real(phen%phase(3)) ,  &
+                    real(phen%doyphase(3,:)), climate%qtemp_max_last_year(3)
+                   
+
+           endif
+
            if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
            if (cable_user%c13o2) then
               write(*,*) '13C in spincasacnp - 03'
@@ -374,6 +389,13 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
               write(*,*) '13C in spincasacnp - 04'
               call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
            endif
+
+            if (nloop==mloop .and. nyear==1) then
+              CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
+                                             .TRUE., ctime, &
+                             (nloop.eq.mloop .and. nyear.eq.myearspin.and.idoy.eq.mdyear)  )
+              ctime = ctime+1
+            endif
 
            IF (cable_user%CALL_POP .and. POP%np.gt.0) THEN ! CALL_POP
 
@@ -409,14 +431,14 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
 
            ELSE
 
-           IF(idoy==mdyear) THEN ! end of year
+           !IF(idoy==mdyear) THEN ! end of year
                
-                ! CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
-                !                             .TRUE., ctime, &
-                !             (nloop.eq.mloop .and. nyear.eq.myearspin.and.idoy.eq.mdyear)  )
-                 ctime = ctime+1               
+               !  CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
+               !                              .TRUE., ctime, &
+               !              (nloop.eq.mloop .and. nyear.eq.myearspin.and.idoy.eq.mdyear)  )
+               !  ctime = ctime+1               
                  
-            ENDIF  ! end of year   
+           ! ENDIF  ! end of year   
            casaflux%stemnpp = 0.
         ENDIF ! CALL_POP
         
@@ -434,7 +456,9 @@ ENDDO     ! end of nloop
 CALL casa_fluxout(CABLE_USER%CASA_SPIN_STARTYEAR + myearspin - 1 , veg, soil, casabal, casamet)
 
 !STOP
-
+write(600,*) 'csoil3 end: ', casapool%csoil(3,:)
+  write(600,*) 'csoil1 end: ', casapool%csoil(1,:)
+  
 !!$! write the last five loop pool size by PFT type
 !!$open(92,file='cnpspinlast5.txt')
 !!$write(92,921)

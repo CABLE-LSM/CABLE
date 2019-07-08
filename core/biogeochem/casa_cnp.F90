@@ -1073,8 +1073,13 @@ SUBROUTINE casa_coeffplant(xkleafcold,xkleafdry,xkleaf,veg,casabiome,casapool, &
 
  ENDWHERE
 
- 
+ ! set leaf turnover to be the same as froot turnover for C3 & C4 grass
+ where (veg%iveg==7 .OR. veg%iveg==6)
+     casaflux%kplant(:,froot) = casaflux%kplant(:,leaf)
+ endwhere
 
+ 
+!print*, 'casaflux%kplant_fire', casaflux%kplant_fire(3,2), casaflux%kplant(3,2) 
  WHERE(casamet%iveg2/=icewater)
 
     ! total turnover rate includes turnover by fire
@@ -1093,7 +1098,7 @@ SUBROUTINE casa_coeffplant(xkleafcold,xkleafdry,xkleaf,veg,casabiome,casapool, &
     casaflux%fromPtoL(:,metb,leaf) =  casaflux%fromPtoL(:,metb,leaf)*(1. -  casaflux%fharvest)
     
   ENDWHERE
-
+!print*, 'casaflux%kplant_tot', casaflux%kplant_tot(3,2), casaflux%kplant(3,2) 
 
   ! When glai<glaimin,leaf biomass will not decrease anymore. (Q.Zhang 10/03/2011)
   DO npt = 1,mp
@@ -1104,10 +1109,7 @@ SUBROUTINE casa_coeffplant(xkleafcold,xkleafdry,xkleaf,veg,casabiome,casapool, &
   ENDDO
 
   
-! set leaf turnover to be the same as froot turnover for C3 & C4 grass
- where (veg%iveg==7 .OR. veg%iveg==6)
-     casaflux%kplant(:,froot) = casaflux%kplant(:,leaf)
- endwhere
+
  
 
  
@@ -1558,7 +1560,7 @@ SUBROUTINE casa_delplant(veg,casabiome,casapool,casaflux,casamet,            &
            pwood2cwd(npt) = -casapool%dPplantdt(npt,wood)
 
         ENDIF
-
+!vh check this code!
         DO nL=1,mlitter
            DO nP=1,mplant
               casaflux%FluxCtolitter(npt,nL) = casaflux%FluxCtolitter(npt,nL) &
@@ -2658,18 +2660,23 @@ SUBROUTINE casa_cnpbal(casapool,casaflux,casabal)
 
    casabal%cbalance(:) = Cbalplant(:) + Cbalsoil(:)
 
+   !print*, casaflux%kplant_tot(3,:), casaflux%Crsoil(3)
 
 !!$ do npt=1,mp
 !!$    IF(abs(casabal%cbalance(npt))>1e-10) THEN
-!!$      write(*,*) 'cbalance',  npt, Cbalplant(npt), Cbalsoil(npt)
-!!$      write(*,*) 'cplant', casapool%cplant(npt,:)
-!!$      write(*,*) 'gpp, npp',casaflux%Cgpp(npt) , &
+!!$       write(*,*) 'cbalance',  npt, Cbalplant(npt), Cbalsoil(npt)
+!!$       write(*,*) 'soil input', SUM((casaflux%kplant_tot(npt,:)*casabal%cplantlast(npt,:))), casaflux%kplant_tot(npt,1), casaflux%kplant_tot(npt,3),casaflux%kplant(npt,1), casaflux%kplant(npt,3) 
+!!$       write(*,*)  'soil efflux', casaflux%Crsoil(npt)
+!!$       write(*,*) 'dclitter', casapool%clitter(npt,:) -  casabal%clitterlast(npt,:)
+!!$       write(*,*) 'dcsoil', casapool%csoil(npt,:) -  casabal%csoillast(npt,:)
+!!$       write(*,*) 'cplant', casapool%cplant(npt,:)
+!!$       write(*,*) 'gpp, npp',casaflux%Cgpp(npt) , &
 !!$           casaflux%Cnpp(npt)
 !!$      write(*,*) 'dcplandt',  casapool%dcplantdt(npt,:), sum(casapool%dcplantdt(npt,:))
 !!$      write(*,*) 'rmplant, rgplant',  casaflux%crmplant(npt,:) , casaflux%crgplant(npt)
 !!$      write(*,*), 'dclabile',  casapool%dClabiledt(npt)* deltpool
 !!$       
-!!$     !  STOP
+!!$       !STOP
 !!$    ENDIF
 !!$ ENDDO
 

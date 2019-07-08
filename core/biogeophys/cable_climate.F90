@@ -805,7 +805,7 @@ TYPE (climate_type), INTENT(INOUT)       :: climate  ! climate variables
 INTEGER, INTENT(IN) :: np, ktauday
 INTEGER :: d
 
-CALL alloc_cbm_var(climate,np,ktauday)
+!CALL alloc_cbm_var(climate,np,ktauday)
 
 
 
@@ -890,9 +890,9 @@ CALL alloc_cbm_var(climate,np,ktauday)
    climate%Nesterov_ann_running_max = 0.0
    climate%NDAY_Nesterov= 0
    
-if (.not.cable_user%climate_fromzero) then
-   CALL READ_CLIMATE_RESTART_NC (climate, ktauday )
-endif
+!if (.not.cable_user%climate_fromzero) then
+!   CALL READ_CLIMATE_RESTART_NC (climate, ktauday )
+!endif
 
 
 END SUBROUTINE climate_init

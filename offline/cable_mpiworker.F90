@@ -6433,9 +6433,9 @@ SUBROUTINE worker_climate_types (comm, climate, ktauday)
 
     CHARACTER, DIMENSION(:), ALLOCATABLE :: rbuf
     
-   ! CALL alloc_cbm_var(climate,mp)
+    CALL alloc_cbm_var(climate,mp,ktauday)
 
-    CALL climate_init (climate, mp, ktauday)
+    !CALL climate_init (climate, mp, ktauday)
     ! MPI: allocate temp vectors used for marshalling
     ntyp = nclimate
 
@@ -7013,7 +7013,7 @@ SUBROUTINE worker_casa_dump_types(comm, casamet, casaflux, phen, climate)
      blen(bidx) = mphase * i1len
      
      bidx = bidx + 1
-     CALL MPI_Get_address (climate%mtemp_max, displs(bidx), ierr)
+     CALL MPI_Get_address (climate%qtemp_max_last_year, displs(bidx), ierr)
      blen(bidx) = r1len
  
 !****************************************************************
@@ -7473,14 +7473,16 @@ SUBROUTINE worker_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
 
   do idoy=1,mdyear
      ktau=(idoy-1)*ktauday +1
-     CALL MPI_Recv (MPI_BOTTOM, 1, casa_dump_t, 0, idoy, icomm, stat, ierr) 
+     CALL MPI_Recv (MPI_BOTTOM, 1, casa_dump_t, 0, idoy, icomm, stat, ierr)
+ 
      CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
           casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter, &
           xksoil,xkleaf,xkleafcold,xkleafdry,&
           cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
           nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
           pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
-     
+  
+        
      
      IF (cable_user%CALL_POP .and. POP%np.gt.0) THEN ! CALL_POP
 !!$           ! accumulate annual variables for use in POP
@@ -7620,6 +7622,7 @@ SUBROUTINE worker_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
            ktauy=idoy*ktauday
            ktau=(idoy-1)*ktauday +1
            CALL MPI_Recv (MPI_BOTTOM, 1, casa_dump_t, 0, idoy, icomm, stat, ierr) 
+
 
            call biogeochem(ktauy,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
                 casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter,xksoil,xkleaf,&

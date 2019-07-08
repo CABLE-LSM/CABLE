@@ -705,8 +705,11 @@ PROGRAM cable_offline_driver
 
               spinConv = .FALSE. ! initialise spinup convergence variable
               IF (.NOT.spinup) spinConv=.TRUE.
- print*, 'b4 climate_init'
+              print*, 'b4 climate_init'
+              if (cable_user%call_climate) CALL alloc_cbm_var(climate,mp,ktauday)
               if (cable_user%call_climate) CALL climate_init ( climate, mp, ktauday )
+
+              
               print*, 'b4 read_climate_restart'
               if (cable_user%call_climate .AND.(.NOT.cable_user%climate_fromzero)) &
                    CALL READ_CLIMATE_RESTART_NC (climate, ktauday)

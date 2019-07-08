@@ -643,6 +643,12 @@ CONTAINS
              IF (CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static') &
                   CABLE_USER%POPLUC= .FALSE.
 
+              if (cable_user%call_climate) CALL alloc_cbm_var(climate,mp,ktauday)
+              if (cable_user%call_climate) CALL climate_init ( climate, mp, ktauday )
+              if (cable_user%call_climate .AND.(.NOT.cable_user%climate_fromzero)) &
+                   CALL READ_CLIMATE_RESTART_NC (climate, ktauday)
+
+
           ! Having read the default parameters, if this is a bios run we will now
           ! overwrite the subset of them required for bios.
              IF ( TRIM(cable_user%MetType) .EQ. 'bios' ) THEN
@@ -6775,9 +6781,9 @@ SUBROUTINE master_climate_types (comm, climate, ktauday)
   INTEGER :: rank, off, cnt
   INTEGER :: bidx, midx, vidx, ierr, ny, nd, ndq, nsd
 
-  CALL climate_init (climate, mp, ktauday)
-  if (cable_user%call_climate .AND.(.NOT.cable_user%climate_fromzero)) &
-       CALL READ_CLIMATE_RESTART_NC (climate, ktauday)
+!!$  CALL climate_init (climate, mp, ktauday)
+!!$  if (cable_user%call_climate .AND.(.NOT.cable_user%climate_fromzero)) &
+!!$       CALL READ_CLIMATE_RESTART_NC (climate, ktauday)
   ALLOCATE (climate_ts(wnp))
 
   ! MPI: allocate temp vectors used for marshalling
@@ -7633,7 +7639,7 @@ SUBROUTINE master_casa_dump_types(comm, casamet, casaflux, phen, climate )
      blocks(bidx) = 1
      
      bidx = bidx + 1
-     CALL MPI_Get_address (climate%mtemp_max(off), displs(bidx), ierr)
+     CALL MPI_Get_address (climate%qtemp_max_last_year(off), displs(bidx), ierr)
      blocks(bidx) = r1len
   
 !****************************************************************
@@ -8481,7 +8487,7 @@ SUBROUTINE master_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
         phen%doyphase(:,2) =  phen%doyphasespin_2(:,idoy)
         phen%doyphase(:,3) =  phen%doyphasespin_3(:,idoy)
         phen%doyphase(:,4) =  phen%doyphasespin_4(:,idoy)
-        climate%mtemp_max(:) =  casamet%mtempspin(:,idoy)
+        climate%qtemp_max_last_year(:) =  casamet%mtempspin(:,idoy)
   
 
         CALL master_send_input (icomm, casa_dump_ts, idoy)
@@ -8525,7 +8531,7 @@ write(*,*) 'nloop =', nloop
            phen%doyphase(:,2) =  phen%doyphasespin_2(:,idoy)
            phen%doyphase(:,3) =  phen%doyphasespin_3(:,idoy)
            phen%doyphase(:,4) =  phen%doyphasespin_4(:,idoy)
-           climate%mtemp_max(:) =  casamet%mtempspin(:,idoy)
+           climate%qtemp_max_last_year(:) =  casamet%mtempspin(:,idoy)
         CALL master_send_input (icomm, casa_dump_ts, idoy)
      ENDDO ! end doy
  
@@ -8703,7 +8709,7 @@ SUBROUTINE master_CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
         phen%doyphase(:,2) =  phen%doyphasespin_2(:,idoy)
         phen%doyphase(:,3) =  phen%doyphasespin_3(:,idoy)
         phen%doyphase(:,4) =  phen%doyphasespin_4(:,idoy)
-        climate%mtemp_max(:) =  casamet%mtempspin(:,idoy)
+        climate%qtemp_max_last_year(:) =  casamet%mtempspin(:,idoy)
         CALL master_send_input (icomm, casa_dump_ts, idoy)
 
 

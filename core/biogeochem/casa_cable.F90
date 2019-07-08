@@ -136,6 +136,9 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
                write(*,*) '13C in casa_cable - 01'
                call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
             endif
+
+            
+            
             CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
                 casamet,casabal,phen,POP,climate, xnplimit,xkNlimiting,xklitter,xksoil, &
                 xkleaf,xkleafcold,xkleafdry,&
@@ -420,7 +423,7 @@ SUBROUTINE read_casa_dump(  ncfile, casamet, casaflux,phen, climate, ncall, kend
          phen%doyphase(:,2) = int(phendoyphase2)
          phen%doyphase(:,3) = int(phendoyphase3)
          phen%doyphase(:,4) = int(phendoyphase4)
-         climate%mtemp_max = mtemp
+         climate%qtemp_max_last_year = mtemp
          casaflux%Nmindep = Ndep
          casaflux%Pdep = Pdep
 
@@ -557,12 +560,11 @@ SUBROUTINE write_casa_dump( ncfile, casamet, casaflux, phen, climate, n_call, ke
   CALL put_var_ncr2(ncid, var_name(10), real(phen%doyphase(:,2), r_2)    ,n_call )
   CALL put_var_ncr2(ncid, var_name(11), real(phen%doyphase(:,3), r_2)    ,n_call )
   CALL put_var_ncr2(ncid, var_name(12), real(phen%doyphase(:,4), r_2)    ,n_call )
-  CALL put_var_ncr2(ncid, var_name(13), real(climate%mtemp_max,r_2)    ,n_call )
+  CALL put_var_ncr2(ncid, var_name(13), real(climate%qtemp_max_last_year,r_2)    ,n_call )
   CALL put_var_ncr2(ncid, var_name(14), real(casaflux%Nmindep,r_2)    ,n_call )
   CALL put_var_ncr2(ncid, var_name(15), real(casaflux%Pdep,r_2)    ,n_call )
 
-
-  IF (n_call == kend ) &
+   IF (n_call == kend ) &
        ncok = nf90_close(ncid)            ! close: save new netCDF dataset
 
 #endif
