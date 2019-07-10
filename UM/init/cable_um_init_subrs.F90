@@ -854,7 +854,7 @@ SUBROUTINE initialize_radiation( sw_down, lw_down, cos_zenith_angle,           &
       END IF 
 
       !---this is necessary clobrring at present 
-      WHERE(met%ua < 0.001 ) met%ua = 0.001
+      WHERE(met%ua < PHYS%UMIN ) met%ua = PHYS%UMIN
       
       ! rml 24/2/11 Set atmospheric CO2 seen by cable to CO2_MMR (value seen 
       ! by radiation scheme).  Option in future to have cable see interactive 
