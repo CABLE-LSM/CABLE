@@ -622,9 +622,9 @@ CONTAINS
                   &                         rough,rad,sum_flux,bal)
 
 
-
-             CALL master_climate_types(comm, climate, ktauday)
-
+             IF (cable_user%call_climate) THEN
+                CALL master_climate_types(comm, climate, ktauday)
+             ENDIF
 
              ! MPI: mvtype and mstype send out here instead of inside master_casa_params
              !      so that old CABLE carbon module can use them. (BP May 2013)
