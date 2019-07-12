@@ -489,6 +489,13 @@ PROGRAM cable_offline_driver
                  ncid_wd   = GSWP_MID(8,YYYY)
                  kend	   = ktauday * LOY
               ENDIF
+
+              IF (leaps) THEN
+                 calendar = "standard"
+              ELSE
+                 calendar = "noleap"
+              ENDIF
+
            ELSE IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN
               ! PLUME experiment setup using WATCH
               IF ( CALL1 ) THEN
