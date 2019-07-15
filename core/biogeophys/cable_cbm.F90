@@ -142,7 +142,7 @@ CONTAINS
           IF (cable_user%gw_model) THEN
              CALL soil_snow_gw(dels, soil, ssnow, canopy, met, bal,veg)
           ELSE
-             CALL soil_snow(dels, soil, ssnow, canopy, met, bal,veg)
+             CALL soil_snow(dels, soil, ssnow, canopy, met, bal,veg, bgc)
           ENDIF
        ENDIF
 

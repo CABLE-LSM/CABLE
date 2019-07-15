@@ -1699,7 +1699,7 @@ CONTAINS
   !        ivegt - vegetation type
   ! Output
   !        ssnow
-  SUBROUTINE soil_snow(dels, soil, ssnow, canopy, met, bal, veg)
+  SUBROUTINE soil_snow(dels, soil, ssnow, canopy, met, bal, veg, bgc)
     USE cable_common_module
     REAL, INTENT(IN)                    :: dels ! integration time step (s)
     TYPE(soil_parameter_type), INTENT(INOUT) :: soil
@@ -1709,7 +1709,7 @@ CONTAINS
     TYPE(met_type), INTENT(INOUT)            :: met ! all met forcing
     TYPE (balances_type), INTENT(INOUT)      :: bal
     TYPE (bgc_pool_type), INTENT(IN)         :: bgc
-    
+
     INTEGER             :: k
     REAL, DIMENSION(mp) :: snowmlt
     REAL, DIMENSION(mp) :: totwet
