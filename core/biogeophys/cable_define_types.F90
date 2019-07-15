@@ -509,6 +509,11 @@ MODULE cable_def_types_mod
      !! vh_js !! !litter thermal conductivity (Wm-2K-1) and vapour diffusivity (m2s-1)
      REAL(r_2), DIMENSION(:), POINTER :: kthLitt, DvLitt
 
+     ! mgk576, 10/10/2017: plant hydraulics
+     REAL, DIMENSION(:), POINTER :: psi_leaf, psi_leaf_prev
+     REAL, DIMENSION(:), POINTER :: flx_to_stem, flx_to_leaf
+     REAL, DIMENSION(:), POINTER :: psi_stem, psi_stem_prev, psi_soil_prev
+     REAL, DIMENSION(:), POINTER :: ksoil2stem, Cl, Cs, kstem2leaf
 
   END TYPE canopy_type
 
@@ -1196,6 +1201,19 @@ CONTAINS
     ALLOCATE (var % kthLitt(mp))
     ALLOCATE (var % DvLitt(mp))
 
+    !  mgk576, 10/10/2017: plant hydraulics
+    ALLOCATE( var%psi_leaf(mp) )
+    ALLOCATE( var%psi_leaf_prev(mp) )
+    ALLOCATE( var%psi_stem(mp) )
+    ALLOCATE( var%psi_stem_prev(mp) )
+    ALLOCATE( var%psi_soil_prev(mp) )
+    ALLOCATE( var%flx_to_leaf(mp) )
+    ALLOCATE( var%flx_to_stem(mp) )
+    ALLOCATE( var%ksoil2stem(mp) )
+    ALLOCATE( var%kstem2leaf(mp) )
+    ALLOCATE( var%Cl(mp) )
+    ALLOCATE( var%Cs(mp) )
+
   END SUBROUTINE alloc_canopy_type
 
   ! ------------------------------------------------------------------------------
@@ -1809,6 +1827,19 @@ CONTAINS
     !! vh_js !! liiter resistances to heat and vapour transfer
     DEALLOCATE (var % kthLitt)
     DEALLOCATE (var % DvLitt)
+
+    ! mgk576, 10/10/2017: plant hydraulics
+    DEALLOCATE( var%psi_leaf )
+    DEALLOCATE( var%psi_leaf_prev )
+    DEALLOCATE( var%psi_stem )
+    DEALLOCATE( var%psi_stem_prev )
+    DEALLOCATE( var%psi_soil_prev )
+    DEALLOCATE( var%flx_to_stem )
+    DEALLOCATE( var%flx_to_leaf )
+    DEALLOCATE( var%ksoil2stem )
+    DEALLOCATE( var%kstem2leaf )
+    DEALLOCATE( var%Cl )
+    DEALLOCATE( var%Cs )
 
   END SUBROUTINE dealloc_canopy_type
 
