@@ -287,6 +287,19 @@ MODULE cable_def_types_mod
           rtevap_unsat,&
           rt_qh_sublayer
 
+      ! mgk576
+      ! Plant hydraulics variables
+      REAL(r_2), DIMENSION(:), POINTER ::                                      &
+          tot_bg_resist   ! Total belowground resistance across layers (excludes
+                          ! root resistance).
+
+      REAL(r_2), DIMENSION(:), POINTER :: weighted_psi_soil
+
+      REAL(r_2), DIMENSION(:,:), POINTER ::                                      &
+          soilR, & !
+          psi_soil,&
+          fraction_uptake
+
      REAL(r_2), DIMENSION(:,:), POINTER  ::                                     &
           wbeq,    &    ! equilibrium water content [mm3/mm3]
           zq,      &    ! equilibrium smp       [mm]
@@ -994,6 +1007,13 @@ CONTAINS
     ALLOCATE( var%wmice(mp,ms) )
     ALLOCATE( var%wmtot(mp,ms) )
 
+    ! Allocate variables for plant hydraulics, mgk576, 9/10/17
+    ALLOCATE ( var%tot_bg_resist(mp) )
+    ALLOCATE ( var%soilR(mp,ms) )
+    ALLOCATE ( var%fraction_uptake(mp,ms) )
+    ALLOCATE ( var%psi_soil(mp,ms) )
+    ALLOCATE ( var%weighted_psi_soil(mp) )
+
     ! Allocate variables for SLI soil model:
     !IF(cable_user%SOIL_STRUC=='sli') THEN
     ALLOCATE ( var % S(mp,ms) )
@@ -1614,6 +1634,13 @@ CONTAINS
     DEALLOCATE( var%wmliq )
     DEALLOCATE( var%wmice )
     DEALLOCATE( var%wmtot )
+
+    ! Deallocate variables for plant hydraulics, mgk576, 9/10/17
+    DEALLOCATE( var%tot_bg_resist  )
+    DEALLOCATE( var%soilR  )
+    DEALLOCATE( var%fraction_uptake  )
+    DEALLOCATE( var%psi_soil )
+    DEALLOCATE( var%weighted_psi_soil )
 
     !IF(cable_user%SOIL_STRUC=='sli') THEN
     DEALLOCATE ( var % S )
