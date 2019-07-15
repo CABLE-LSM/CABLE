@@ -1788,6 +1788,12 @@ CONTAINS
 
     REAL, DIMENSION(mp,2) ::  gsw_term, lower_limit2  ! local temp var
 
+    REAL :: trans_mmol, conv, e_test
+    REAL, PARAMETER :: KG_2_G = 1000.0
+    REAL, PARAMETER :: G_WATER_TO_MOL = 1.0 / 18.01528
+    REAL, PARAMETER :: MOL_2_MMOL = 1000.0
+    REAL, PARAMETER :: MB_TO_PA = 100.
+
     INTEGER :: i, j, k, kk  ! iteration count
     REAL :: vpd, g1, ktot, inferred_stress, fw ! Ticket #56
 #define VanessasCanopy
@@ -1803,14 +1809,17 @@ CONTAINS
 
     ! Soil water limitation on stomatal conductance:
     IF( iter ==1) THEN
-       IF ((cable_user%soil_struc=='default').AND.(cable_user%FWSOIL_SWITCH.NE.'Haverd2013')) THEN
+       IF ((cable_user%soil_struc=='default').and.(cable_user%FWSOIL_SWITCH.ne.'Haverd2013')) THEN
           IF(cable_user%FWSOIL_SWITCH == 'standard') THEN
              CALL fwsoil_calc_std( fwsoil, soil, ssnow, veg)
-          ELSEIF (cable_user%FWSOIL_SWITCH == 'non-linear extrapolation') THEN
+          ELSEIf (cable_user%FWSOIL_SWITCH == 'non-linear extrapolation') THEN
              !EAK, 09/10 - replace linear approx by polynomial fitting
              CALL fwsoil_calc_non_linear(fwsoil, soil, ssnow, veg)
           ELSEIF(cable_user%FWSOIL_SWITCH == 'Lai and Ktaul 2000') THEN
              CALL fwsoil_calc_Lai_Ktaul(fwsoil, soil, ssnow, veg)
+          ! Water stress is inferred from the hydraulics approach instead.
+          ELSE IF(cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+             fwsoil = 1.0
           ELSE
              STOP 'fwsoil_switch failed.'
           ENDIF
@@ -2059,7 +2068,8 @@ CONTAINS
                      * ( veg%a1gs(i) / ( 1.0 + dsx(i)/veg%d0gs(i)))
 
                 ! Medlyn BE et al (2011) Global Change Biology 17: 2134-2144.
-             ELSEIF(cable_user%GS_SWITCH == 'medlyn') THEN
+             ELSEIF(cable_user%GS_SWITCH == 'medlyn' .AND. &
+                    cable_user%FWSOIL_SWITCH  /= 'hydraulics') THEN
 
                 gswmin = veg%g0(i)
 
