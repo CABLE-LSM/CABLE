@@ -1708,6 +1708,8 @@ CONTAINS
     TYPE(veg_parameter_type), INTENT(INOUT)  :: veg
     TYPE(met_type), INTENT(INOUT)            :: met ! all met forcing
     TYPE (balances_type), INTENT(INOUT)      :: bal
+    TYPE (bgc_pool_type), INTENT(IN)         :: bgc
+    
     INTEGER             :: k
     REAL, DIMENSION(mp) :: snowmlt
     REAL, DIMENSION(mp) :: totwet
