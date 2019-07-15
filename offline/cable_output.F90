@@ -633,6 +633,16 @@ CONTAINS
 
     ! mgk576, 19/2/2019
     IF(output%soil .OR. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+       CALL define_ovar(ncid_out, ovid%weighted_psi_soil, &
+                        'weighted_psi_soil', 'MPa', 'weighted psi soil', &
+                        patchout%weighted_psi_soil, 'dummy', xID, yID, zID, &
+                        landID, patchID, tID)
+       ALLOCATE(out%weighted_psi_soil(mp))
+       out%weighted_psi_soil = 0.0 ! initialise
+    END IF
+    
+    ! mgk576, 19/2/2019
+    IF(output%soil .OR. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
        CALL define_ovar(ncid_out, ovid%psi_soil, &
                         'psi_soil', 'MPa', 'psi soil', &
                         patchout%psi_soil, 'soil', xID, yID, zID, &
