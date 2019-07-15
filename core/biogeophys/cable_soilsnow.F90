@@ -1710,7 +1710,7 @@ CONTAINS
     TYPE (balances_type), INTENT(INOUT)      :: bal
     TYPE (bgc_pool_type), INTENT(IN)         :: bgc
 
-    INTEGER             :: k
+    INTEGER             :: k, i
     REAL, DIMENSION(mp) :: snowmlt
     REAL, DIMENSION(mp) :: totwet
     REAL, DIMENSION(mp) :: weting
