@@ -303,6 +303,12 @@ MODULE cable_IO_vars_module
           PlantTurnoverWoodCrowding = .FALSE., &
           PlantTurnoverWoodResourceLim = .FALSE., &
           LandUseFlux = .FALSE., &
+
+          ! mgdk, 19/2/2019, plant hydraulics
+          weighted_psi_soil = .FALSE., &
+          psi_soil = .FALSE., &
+          psi_leaf = .FALSE., &
+
                                 !parameters
           bch = .FALSE.,       & ! parameter b in Campbell equation 1985
           latitude = .FALSE.,  & ! site latitude
