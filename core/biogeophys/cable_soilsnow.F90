@@ -35,7 +35,7 @@ MODULE cable_soil_snow_module
 
   USE cable_def_types_mod, ONLY : soil_snow_type, soil_parameter_type,        &
        veg_parameter_type, canopy_type, met_type,        &
-       balances_type, r_2, ms, mp
+       balances_type, r_2, ms, mp, bgc_pool_type
 
   USE cable_data_module, ONLY : issnow_type, point2constants
 
@@ -1718,6 +1718,8 @@ CONTAINS
     REAL(r_2), DIMENSION(mp) :: xxx,deltat,sinfil1,sinfil2,sinfil3
     REAL                :: zsetot
     INTEGER, SAVE :: ktau =0
+
+    REAL, DIMENSION(ms) :: root_length
 
     CALL point2constants( C )
 
