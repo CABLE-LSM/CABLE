@@ -2623,6 +2623,18 @@ CONTAINS
 
     ENDIF
 
+    ! mgk576, 27 Nov 2016
+    canopy%psi_leaf = -1.0
+    canopy%psi_stem = -0.5
+    canopy%psi_leaf_prev = -1.0
+    canopy%psi_stem_prev = -0.5
+    canopy%psi_soil_prev = -0.001
+
+    ssnow%tot_bg_resist = 1E9
+
+    canopy%Cl = 1000.  ! Leaf capacitance (mmol MPa-1) (total plant)
+    canopy%Cs = 12000. ! Stem capacitance (mmol MPa-1)
+
     ! removed get_default_inits and get_default_lai as they are already done
     ! in write_default_params
     !    ! Load default initialisations from Mk3L climatology:
