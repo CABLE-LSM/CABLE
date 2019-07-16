@@ -1545,7 +1545,7 @@ CONTAINS
     veg%deciduous = .FALSE.
     IF (mvtype == 13) THEN
        WHERE (veg%iveg == 2 .OR. veg%iveg == 5) veg%deciduous = .TRUE.
-    ELSE IF (mvtype == 15 .OR. mvtype == 16 .OR. mvtype == 17 OR. mvtype == 22) THEN
+    ELSE IF (mvtype == 15 .OR. mvtype == 16 .OR. mvtype == 17 .OR. mvtype == 22) THEN
        WHERE (veg%iveg == 3 .OR. veg%iveg == 4) veg%deciduous = .TRUE.
     ELSE
        STOP 'Warning. Check number of vegetation types.'
