@@ -2091,21 +2091,22 @@ CONTAINS
                    gs_coeff(i,1) = (fwsoil(i) / medlyn_lim + (g1 * fwsoil(i)) / SQRT(vpd)) / csx(i,1)
                    gs_coeff(i,2) = (fwsoil(i) / medlyn_lim + (g1 * fwsoil(i)) / SQRT(vpd)) / csx(i,2)
                 END IF
+
              ELSE IF (cable_user%GS_SWITCH == 'medlyn' .AND. &
                       cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
 
-               CALL calc_hydr_conduc(canopy, ssnow, rad, i)
+                CALL calc_hydr_conduc(canopy, ssnow, rad, i)
 
-               ! Sensitivity of stomata to leaf water potential [0-1]
-               fw = f_tuzet(canopy%psi_leaf_prev(i))
+                ! Sensitivity of stomata to leaf water potential [0-1]
+                fw = f_tuzet(canopy%psi_leaf_prev(i))
 
-               !g1 = veg%g1(i)
-               ! JED 15 for teretoconis seedlings, using Jim's value for Eucface
-               g1 = 12.0
+                !g1 = veg%g1(i)
+                ! JED 15 for teretoconis seedlings, using Jim's value for Eucface
+                g1 = 12.0
 
-               ! convert to conductance to CO2
-               gs_coeff(i,1) = (g1 / csx(i,1) * fw) / C%RGSWC
-               gs_coeff(i,2) = (g1 / csx(i,2) * fw) / C%RGSWC
+                ! convert to conductance to CO2
+                gs_coeff(i,1) = (g1 / csx(i,1) * fw) / C%RGSWC
+                gs_coeff(i,2) = (g1 / csx(i,2) * fw) / C%RGSWC
 
              ELSE
                 STOP 'gs_model_switch failed.'
