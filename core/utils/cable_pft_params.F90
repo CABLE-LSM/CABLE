@@ -1279,6 +1279,65 @@ CONTAINS
        vegin%zr(19) =        3.000000
        vegin%clitt(19) =        6.000000
 
+       !PFT: New Dry sclerophyll forests (DSF) mgk576, 16/7/19
+       !=========================================================
+       vegin%canst1(20) =        0.100000
+       vegin%length(20) =        0.100000
+       vegin%width(20) =        0.050000
+       vegin%vcmax(20) =        0.000055
+       vegin%ejmax(20) =        0.000000
+       vegin%hc(20) =       35.000000
+       vegin%xfang(20) =        0.100000
+       vegin%rp20(20) =        0.600000
+       vegin%rpcoef(20) =        0.083200
+       vegin%rs20(20) =        1.000000
+       vegin%wai(20) =        1.000000
+       vegin%rootbeta(20) =        0.962000
+       vegin%shelrb(20) =        2.000000
+       vegin%vegcf(20) =       14.000000
+       vegin%frac4(20) =        0.000000
+       vegin%xalbnir(20) =        1.000000
+       vegin%extkn(20) =        0.001000
+       vegin%tminvj(20) =      -15.000000
+       vegin%tmaxvj(20) =      -10.000000
+       vegin%vbeta(20) =        2.000000
+       vegin%froot(1,20) =        0.200000
+       vegin%froot(2,20) =        0.200000
+       vegin%froot(3,20) =        0.200000
+       vegin%froot(4,20) =        0.200000
+       vegin%froot(5,20) =        0.200000
+       vegin%froot(6,20) =        0.200000
+       vegin%refl(1,20) =        0.090000
+       vegin%taul(1,20) =        0.090000
+       vegin%refl(2,20) =        0.290000
+       vegin%taul(2,20) =        0.290000
+       vegin%refl(3,20) =        0.010000
+       vegin%taul(3,20) =        0.010000
+       vegin%csoil(1,20) =      303.000000
+       vegin%ratecs(1,20) =        2.000000
+       vegin%csoil(2,20) =      606.000000
+       vegin%ratecs(2,20) =        0.500000
+       vegin%cplant(1,20) =      300.000000
+       vegin%ratecp(1,20) =        1.000000
+       vegin%cplant(2,20) =    16833.000000
+       vegin%ratecp(2,20) =        0.030000
+       vegin%cplant(3,20) =     1443.000000
+       vegin%ratecp(3,20) =        0.140000
+       vegin%a1gs(20) =        9.000000
+       vegin%d0gs(20) =     1500.000000
+       vegin%alpha(20) =        0.200000
+       vegin%convex(20) =        0.700000
+       vegin%cfrd(20) =        0.015000
+       vegin%gswmin(20) =        0.010000
+       vegin%conkc0(20) =        0.000302
+       vegin%conko0(20) =        0.256000
+       vegin%ekc(20) =    59430.000000
+       vegin%eko(20) =    36000.000000
+       vegin%g0(20) =        0.000000
+       vegin%g1(20) =        4.114762
+       vegin%zr(20) =        3.000000
+       vegin%clitt(20) =        6.000000
+
     ENDIF
 
     first_call = .FALSE.
