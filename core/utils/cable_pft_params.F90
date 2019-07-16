@@ -1338,6 +1338,65 @@ CONTAINS
        vegin%zr(20) =        3.000000
        vegin%clitt(20) =        6.000000
 
+       !PFT: New Grassy woodland (GRW) mgk576, 16/7/19
+       !=========================================================
+       vegin%canst1(21) =        0.100000
+       vegin%length(21) =        0.100000
+       vegin%width(21) =        0.050000
+       vegin%vcmax(21) =        0.000055
+       vegin%ejmax(21) =        0.000000
+       vegin%hc(21) =       35.000000
+       vegin%xfang(21) =        0.100000
+       vegin%rp20(21) =        0.600000
+       vegin%rpcoef(21) =        0.083200
+       vegin%rs20(21) =        1.000000
+       vegin%wai(21) =        1.000000
+       vegin%rootbeta(21) =        0.962000
+       vegin%shelrb(21) =        2.000000
+       vegin%vegcf(21) =       14.000000
+       vegin%frac4(21) =        0.000000
+       vegin%xalbnir(21) =        1.000000
+       vegin%extkn(21) =        0.001000
+       vegin%tminvj(21) =      -15.000000
+       vegin%tmaxvj(21) =      -10.000000
+       vegin%vbeta(21) =        2.000000
+       vegin%froot(1,21) =        0.200000
+       vegin%froot(2,21) =        0.200000
+       vegin%froot(3,21) =        0.200000
+       vegin%froot(4,21) =        0.200000
+       vegin%froot(5,21) =        0.200000
+       vegin%froot(6,21) =        0.200000
+       vegin%refl(1,21) =        0.090000
+       vegin%taul(1,21) =        0.090000
+       vegin%refl(2,21) =        0.290000
+       vegin%taul(2,21) =        0.290000
+       vegin%refl(3,21) =        0.010000
+       vegin%taul(3,21) =        0.010000
+       vegin%csoil(1,21) =      303.000000
+       vegin%ratecs(1,21) =        2.000000
+       vegin%csoil(2,21) =      606.000000
+       vegin%ratecs(2,21) =        0.500000
+       vegin%cplant(1,21) =      300.000000
+       vegin%ratecp(1,21) =        1.000000
+       vegin%cplant(2,21) =    16833.000000
+       vegin%ratecp(2,21) =        0.030000
+       vegin%cplant(3,21) =     1443.000000
+       vegin%ratecp(3,21) =        0.140000
+       vegin%a1gs(21) =        9.000000
+       vegin%d0gs(21) =     1500.000000
+       vegin%alpha(21) =        0.200000
+       vegin%convex(21) =        0.700000
+       vegin%cfrd(21) =        0.015000
+       vegin%gswmin(21) =        0.010000
+       vegin%conkc0(21) =        0.000302
+       vegin%conko0(21) =        0.256000
+       vegin%ekc(21) =    59430.000000
+       vegin%eko(21) =    36000.000000
+       vegin%g0(21) =        0.000000
+       vegin%g1(21) =        4.114762
+       vegin%zr(21) =        3.000000
+       vegin%clitt(21) =        6.000000
+
     ENDIF
 
     first_call = .FALSE.
