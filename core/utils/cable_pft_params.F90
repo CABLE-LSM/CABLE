@@ -1397,6 +1397,65 @@ CONTAINS
        vegin%zr(21) =        3.000000
        vegin%clitt(21) =        6.000000
 
+       !PFT: New Semi-arid woodland (SAW) mgk576, 16/7/19
+       !=========================================================
+       vegin%canst1(22) =        0.100000
+       vegin%length(22) =        0.100000
+       vegin%width(22) =        0.050000
+       vegin%vcmax(22) =        0.000055
+       vegin%ejmax(22) =        0.000000
+       vegin%hc(22) =       35.000000
+       vegin%xfang(22) =        0.100000
+       vegin%rp20(22) =        0.600000
+       vegin%rpcoef(22) =        0.083200
+       vegin%rs20(22) =        1.000000
+       vegin%wai(22) =        1.000000
+       vegin%rootbeta(22) =        0.962000
+       vegin%shelrb(22) =        2.000000
+       vegin%vegcf(22) =       14.000000
+       vegin%frac4(22) =        0.000000
+       vegin%xalbnir(22) =        1.000000
+       vegin%extkn(22) =        0.001000
+       vegin%tminvj(22) =      -15.000000
+       vegin%tmaxvj(22) =      -10.000000
+       vegin%vbeta(22) =        2.000000
+       vegin%froot(1,22) =        0.200000
+       vegin%froot(2,22) =        0.200000
+       vegin%froot(3,22) =        0.200000
+       vegin%froot(4,22) =        0.200000
+       vegin%froot(5,22) =        0.200000
+       vegin%froot(6,22) =        0.200000
+       vegin%refl(1,22) =        0.090000
+       vegin%taul(1,22) =        0.090000
+       vegin%refl(2,22) =        0.290000
+       vegin%taul(2,22) =        0.290000
+       vegin%refl(3,22) =        0.010000
+       vegin%taul(3,22) =        0.010000
+       vegin%csoil(1,22) =      303.000000
+       vegin%ratecs(1,22) =        2.000000
+       vegin%csoil(2,22) =      606.000000
+       vegin%ratecs(2,22) =        0.500000
+       vegin%cplant(1,22) =      300.000000
+       vegin%ratecp(1,22) =        1.000000
+       vegin%cplant(2,22) =    16833.000000
+       vegin%ratecp(2,22) =        0.030000
+       vegin%cplant(3,22) =     1443.000000
+       vegin%ratecp(3,22) =        0.140000
+       vegin%a1gs(22) =        9.000000
+       vegin%d0gs(22) =     1500.000000
+       vegin%alpha(22) =        0.200000
+       vegin%convex(22) =        0.700000
+       vegin%cfrd(22) =        0.015000
+       vegin%gswmin(22) =        0.010000
+       vegin%conkc0(22) =        0.000302
+       vegin%conko0(22) =        0.256000
+       vegin%ekc(22) =    59430.000000
+       vegin%eko(22) =    36000.000000
+       vegin%g0(22) =        0.000000
+       vegin%g1(22) =        4.114762
+       vegin%zr(22) =        3.000000
+       vegin%clitt(22) =        6.000000
+
     ENDIF
 
     first_call = .FALSE.
