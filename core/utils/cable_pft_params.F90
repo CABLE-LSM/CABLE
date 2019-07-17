@@ -66,7 +66,7 @@ CONTAINS
 
     INTEGER :: a, jveg ! do loop counter
     LOGICAL, SAVE :: first_call = .TRUE.
-    mvtype=22
+    mvtype=17
 
     ! Allocate memory for type-specific vegetation parameters:
     IF( first_call ) THEN
