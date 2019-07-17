@@ -1882,7 +1882,6 @@ CONTAINS
     deltlfy = abs_deltlf
     k = 0
 
-
     !kdcorbin, 08/10 - doing all points all the time
     DO WHILE (k < C%MAXITER)
        k = k + 1
@@ -2058,6 +2057,7 @@ CONTAINS
                 rdx(i,2) = (veg%cfrd(i)*vcmxt3(i,2) + veg%cfrd(i)*vcmxt4(i,2))
 
              ENDIF !cable_user%call_climate
+
 
              ! Ticket #56 added switch for Belinda Medlyn's model
              IF (cable_user%GS_SWITCH == 'leuning') THEN

@@ -1229,7 +1229,8 @@ CONTAINS
 
     veg%meth = 1 ! canopy turbulence parameterisation method: 0 or 1
 
-    ALLOCATE(defaultLAI(mp, 12))
+    !ALLOCATE(defaultLAI(mp, 12))
+    ALLOCATE(defaultLAI(mp, 17)) ! Added 5 more PFTs
 
     DO e = 1, mland ! over all land grid points
 

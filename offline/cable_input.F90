@@ -2587,7 +2587,6 @@ CONTAINS
     ! Zero out lai where there is no vegetation acc. to veg. index
     WHERE ( veg%iveg(:) .GE. 14 .AND. veg%iveg(:) .LE. 17 ) veg%vlai = 0.
 
-
     IF (icycle > 0) THEN
        CALL write_cnp_params(veg,casaflux,casamet)
        CALL casa_readbiome(veg,soil,casabiome,casapool,casaflux, &
