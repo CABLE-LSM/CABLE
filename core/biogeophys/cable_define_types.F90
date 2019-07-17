@@ -43,7 +43,8 @@ MODULE cable_def_types_mod
   INTEGER, PARAMETER ::                                                        &
        i_d  = KIND(9), &
        r_2  = KIND(1.d0),&!SELECTED_REAL_KIND(12, 50), &
-       n_tiles = 17,  & ! # possible no of different
+       !n_tiles = 17,  & ! # possible no of different
+       n_tiles = 18,  & ! # possible no of different !mgk576
        ncp = 3,       & ! # vegetation carbon stores
        ncs = 2,       & ! # soil carbon stores
        mf = 2,        & ! # leaves (sunlit, shaded)

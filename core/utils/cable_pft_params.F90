@@ -66,7 +66,8 @@ CONTAINS
 
     INTEGER :: a, jveg ! do loop counter
     LOGICAL, SAVE :: first_call = .TRUE.
-    mvtype=17
+    !mvtype=17
+    mvtype=18 ! mgk576
 
     ! Allocate memory for type-specific vegetation parameters:
     IF( first_call ) THEN
@@ -1101,6 +1102,66 @@ CONTAINS
        vegin%g1(17) =        5.248500
        vegin%zr(17) =        1.000000
        vegin%clitt(17) =        0.000000
+
+       !PFT: New NSW PFT, rainforest (RAF) mgk576, 16/7/19
+       !=========================================================
+       vegin%canst1(18) =        0.100000
+       vegin%length(18) =        0.100000
+       vegin%width(18) =        0.050000
+       vegin%vcmax(18) =        0.000055
+       vegin%ejmax(18) =        0.000000
+       vegin%hc(18) =       35.000000
+       vegin%xfang(18) =        0.100000
+       vegin%rp20(18) =        0.600000
+       vegin%rpcoef(18) =        0.083200
+       vegin%rs20(18) =        1.000000
+       vegin%wai(18) =        1.000000
+       vegin%rootbeta(18) =        0.962000
+       vegin%shelrb(18) =        2.000000
+       vegin%vegcf(18) =       14.000000
+       vegin%frac4(18) =        0.000000
+       vegin%xalbnir(18) =        1.000000
+       vegin%extkn(18) =        0.001000
+       vegin%tminvj(18) =      -15.000000
+       vegin%tmaxvj(18) =      -10.000000
+       vegin%vbeta(18) =        2.000000
+       vegin%froot(1,18) =        0.200000
+       vegin%froot(2,18) =        0.200000
+       vegin%froot(3,18) =        0.200000
+       vegin%froot(4,18) =        0.200000
+       vegin%froot(5,18) =        0.200000
+       vegin%froot(6,18) =        0.200000
+       vegin%refl(1,18) =        0.090000
+       vegin%taul(1,18) =        0.090000
+       vegin%refl(2,18) =        0.290000
+       vegin%taul(2,18) =        0.290000
+       vegin%refl(3,18) =        0.010000
+       vegin%taul(3,18) =        0.010000
+       vegin%csoil(1,18) =      303.000000
+       vegin%ratecs(1,18) =        2.000000
+       vegin%csoil(2,18) =      606.000000
+       vegin%ratecs(2,18) =        0.500000
+       vegin%cplant(1,18) =      300.000000
+       vegin%ratecp(1,18) =        1.000000
+       vegin%cplant(2,18) =    16833.000000
+       vegin%ratecp(2,18) =        0.030000
+       vegin%cplant(3,18) =     1443.000000
+       vegin%ratecp(3,18) =        0.140000
+       vegin%a1gs(18) =        9.000000
+       vegin%d0gs(18) =     1500.000000
+       vegin%alpha(18) =        0.200000
+       vegin%convex(18) =        0.700000
+       vegin%cfrd(18) =        0.015000
+       vegin%gswmin(18) =        0.010000
+       vegin%conkc0(18) =        0.000302
+       vegin%conko0(18) =        0.256000
+       vegin%ekc(18) =    59430.000000
+       vegin%eko(18) =    36000.000000
+       vegin%g0(18) =        0.000000
+       vegin%g1(18) =        4.114762
+       vegin%zr(18) =        3.000000
+       vegin%clitt(18) =        6.000000
+
     ENDIF
 
     first_call = .FALSE.
