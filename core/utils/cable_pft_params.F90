@@ -46,7 +46,7 @@ MODULE cable_pft_params_mod
           s50,        & ! mgk576MPa
           kp_sat,     & ! mgk576MPa
           Cl,         & ! mgk576MPa
-          CS
+          Cs
 
      REAL, DIMENSION(:,:),ALLOCATABLE ::                                      &
           froot,      & !
