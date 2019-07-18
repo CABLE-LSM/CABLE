@@ -2079,10 +2079,9 @@ CONTAINS
                 gs_coeff(i,2) = ( fwsoil(i) / ( csx(i,2) - co2cp3 ) )              &
                      * ( veg%a1gs(i) / ( 1.0 + dsx(i)/veg%d0gs(i)))
 
-                ! Medlyn BE et al (2011) Global Change Biology 17: 2134-2144.
+             ! Medlyn BE et al (2011) Global Change Biology 17: 2134-2144.
              ELSEIF(cable_user%GS_SWITCH == 'medlyn' .AND. &
-                    cable_user%FWSOIL_SWITCH  /= 'hydraulics' .AND. &
-                    veg%iveg(i) /= 2) THEN
+                    cable_user%FWSOIL_SWITCH  /= 'hydraulics') THEN
 
                 gswmin = veg%g0(i)
 
@@ -2106,8 +2105,7 @@ CONTAINS
                 END IF
 
              ELSE IF (cable_user%GS_SWITCH == 'medlyn' .AND. &
-                      cable_user%FWSOIL_SWITCH == 'hydraulics' .AND. &
-                      veg%iveg(i) == 2) THEN
+                      cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
 
                 CALL calc_hydr_conduc(canopy, ssnow, rad, veg, veg%kp_sat(i), i)
 
@@ -2121,6 +2119,7 @@ CONTAINS
                 gs_coeff(i,2) = (g1 / csx(i,2) * fw) / C%RGSWC
 
              ELSE
+                print*, cable_user%GS_SWITCH, cable_user%FWSOIL_SWITCH, veg%iveg(i)
                 STOP 'gs_model_switch failed.'
              ENDIF ! IF (cable_user%GS_SWITCH == 'leuning') THEN
              !#endif
