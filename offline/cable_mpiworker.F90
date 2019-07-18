@@ -1534,37 +1534,37 @@ CONTAINS
     ! Ticket #56, finish adding new veg parms
 
     ! Plant hydraulics, mgk576
-    bidx = bidx + 1
-    CALL MPI_Get_address (veg%sf, displs(bidx), ierr)
-    blen(bidx) = r1len
+    !bidx = bidx + 1
+    !CALL MPI_Get_address (veg%sf, displs(bidx), ierr)
+    !blen(bidx) = r1len
 
-    bidx = bidx + 1
-    CALL MPI_Get_address (veg%psi_f, displs(bidx), ierr)
-    blen(bidx) = r1len
+    !bidx = bidx + 1
+    !CALL MPI_Get_address (veg%psi_f, displs(bidx), ierr)
+    !blen(bidx) = r1len
 
-    bidx = bidx + 1
-    CALL MPI_Get_address (veg%X_hyd, displs(bidx), ierr)
-    blen(bidx) = r1len
+    !bidx = bidx + 1
+    !CALL MPI_Get_address (veg%X_hyd, displs(bidx), ierr)
+    !blen(bidx) = r1len
 
-    bidx = bidx + 1
-    CALL MPI_Get_address (veg%p50, displs(bidx), ierr)
-    blen(bidx) = r1len
+    !bidx = bidx + 1
+    !CALL MPI_Get_address (veg%p50, displs(bidx), ierr)
+    !blen(bidx) = r1len
 
-    bidx = bidx + 1
-    CALL MPI_Get_address (veg%s50, displs(bidx), ierr)
-    blen(bidx) = r1len
+    !bidx = bidx + 1
+    !CALL MPI_Get_address (veg%s50, displs(bidx), ierr)
+    !blen(bidx) = r1len
 
-    bidx = bidx + 1
-    CALL MPI_Get_address (veg%kp_sat, displs(bidx), ierr)
-    blen(bidx) = r1len
+    !bidx = bidx + 1
+    !CALL MPI_Get_address (veg%kp_sat, displs(bidx), ierr)
+    !blen(bidx) = r1len
 
-    bidx = bidx + 1
-    CALL MPI_Get_address (veg%Cl, displs(bidx), ierr)
-    blen(bidx) = r1len
+    !bidx = bidx + 1
+    !CALL MPI_Get_address (veg%Cl, displs(bidx), ierr)
+    !blen(bidx) = r1len
 
-    bidx = bidx + 1
-    CALL MPI_Get_address (veg%Cs, displs(bidx), ierr)
-    blen(bidx) = r1len
+    !bidx = bidx + 1
+    !CALL MPI_Get_address (veg%Cs, displs(bidx), ierr)
+    !blen(bidx) = r1len
 
     ! ----------- bgc --------------
 
