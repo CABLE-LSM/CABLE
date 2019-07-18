@@ -136,7 +136,7 @@ CONTAINS
        tvclst = (/ 235., 283., 268., 278., 278., 235., 278.0, 278.0,         &
             278.0, 278.0, 278.0, 278., 278., 278., 268., 278., 278. /)
 
-      CASE (22)     ! IGBP vegetation types with water bodies ; new pfts mgk576
+      CASE (22)     ! IGBP vegetation types with water bodies
 
          ! rml: may not be the best values for our current 17 types,
          ! but will be superceeded by CASA-CNP anyway
@@ -150,7 +150,7 @@ CONTAINS
 
          tvclst = (/ 235., 283., 268., 278., 278., 235., 278.0, 278.0,         &
               278.0, 278.0, 278.0, 278., 278., 278., 268., 278., 278.,         &
-              283., 283., 283., 283., 283./)
+              283., 283., 283., 283., 283. /)
 
     CASE DEFAULT
 

@@ -312,7 +312,8 @@ CONTAINS
           ok=NF90_GET_VAR(ncid_rin,mvtypeID,INvegt)
           IF(ok/=NF90_NOERR) CALL nc_abort(ok,'Error reading nvegt in file '    &
                //TRIM(filename%restart_in)// '(SUBROUTINE get_restart)')
-          IF(INvegt > 17) CALL nc_abort(ok,'Error: nvegt value in file '        &
+          !IF(INvegt > 17) CALL nc_abort(ok,'Error: nvegt value in file '        &
+          IF(INvegt > 22) CALL nc_abort(ok,'Error: nvegt value in file '        &
                //TRIM(filename%restart_in)// ' out of range')
           IF (INvegt /= mvtype) PRINT *, 'Warning: INvegt, nvegt = ', INvegt, mvtype
        ENDIF

@@ -1220,7 +1220,6 @@ CONTAINS
        vegin%g1(19) =        4.114762
        vegin%zr(19) =        3.000000
        vegin%clitt(19) =        6.000000
-
        !PFT: New Dry sclerophyll forests (DSF) mgk576, 16/7/19
        !=========================================================
        vegin%canst1(20) =        0.100000
@@ -1279,7 +1278,6 @@ CONTAINS
        vegin%g1(20) =        4.114762
        vegin%zr(20) =        3.000000
        vegin%clitt(20) =        6.000000
-
        !PFT: New Grassy woodland (GRW) mgk576, 16/7/19
        !=========================================================
        vegin%canst1(21) =        0.100000
@@ -1338,7 +1336,6 @@ CONTAINS
        vegin%g1(21) =        4.114762
        vegin%zr(21) =        3.000000
        vegin%clitt(21) =        6.000000
-
        !PFT: New Semi-arid woodland (SAW) mgk576, 16/7/19
        !=========================================================
        vegin%canst1(22) =        0.100000
@@ -1397,7 +1394,6 @@ CONTAINS
        vegin%g1(22) =        4.114762
        vegin%zr(22) =        3.000000
        vegin%clitt(22) =        6.000000
-
     ENDIF
 
     first_call = .FALSE.
