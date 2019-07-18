@@ -1828,6 +1828,8 @@ CONTAINS
           fwsoil = canopy%fwsoil
        ENDIF
 
+
+
     ENDIF
 
     ! weight min stomatal conductance by C3 an C4 plant fractions
@@ -1887,6 +1889,16 @@ CONTAINS
     DO WHILE (k < C%MAXITER)
        k = k + 1
        DO i=1,mp
+
+
+          ! *** Remove after GSWP3 testing... ***
+          IF (cable_user%FWSOIL_SWITCH  == 'hydraulics' .AND. &
+              veg%iveg(i) /= 2) THEN
+
+             cable_user%FWSOIL_SWITCH = 'standard'
+             CALL fwsoil_calc_std( fwsoil, soil, ssnow, veg)
+          ENDIF
+
 
           IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. abs_deltlf(i) > 0.1) THEN
 
@@ -2069,7 +2081,8 @@ CONTAINS
 
                 ! Medlyn BE et al (2011) Global Change Biology 17: 2134-2144.
              ELSEIF(cable_user%GS_SWITCH == 'medlyn' .AND. &
-                    cable_user%FWSOIL_SWITCH  /= 'hydraulics') THEN
+                    cable_user%FWSOIL_SWITCH  /= 'hydraulics' .AND. &
+                    veg%iveg(i) /= 2) THEN
 
                 gswmin = veg%g0(i)
 
@@ -2093,7 +2106,8 @@ CONTAINS
                 END IF
 
              ELSE IF (cable_user%GS_SWITCH == 'medlyn' .AND. &
-                      cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+                      cable_user%FWSOIL_SWITCH == 'hydraulics' .AND. &
+                      veg%iveg(i) == 2) THEN
 
                 CALL calc_hydr_conduc(canopy, ssnow, rad, veg, veg%kp_sat(i), i)
 
