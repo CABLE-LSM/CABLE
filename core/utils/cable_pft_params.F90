@@ -38,7 +38,13 @@ MODULE cable_pft_params_mod
           g0,         & !  Ticket #56
           g1,         & !  Ticket #56
           zr,         &
-          clitt
+          clitt,      &
+          sf,         & ! mgk576
+          psi_f ,     & ! mgk576
+          X_hyd,      & ! mgk576
+          p50,        & ! mgk576MPa
+          s50,        & ! mgk576MPa
+          kp_sat
 
      REAL, DIMENSION(:,:),ALLOCATABLE ::                                      &
           froot,      & !
@@ -95,7 +101,12 @@ CONTAINS
                                 ! Ticket #56
             vegin%g0( mvtype ), vegin%g1( mvtype ),                               &
                                 !! vh_veg_params !!
-            vegin%zr(mvtype), vegin%clitt(mvtype) )
+            vegin%zr(mvtype), vegin%clitt(mvtype) ,                               &
+            !mgk576
+            vegin%sf(mvtype), vegin%psi_f(mvtype) ,                               &
+            vegin%X_hyd(mvtype), vegin%p50(mvtype), vegin%s50(mvtype),           &
+            vegin%kp_sat(mvtype) )
+
 
        !PFT parameters: description and corresponding variable name in code.
        !PFT parameters are assigned as TYPE vegin% but later used as veg%
@@ -1158,9 +1169,19 @@ CONTAINS
        vegin%ekc(18) =    59430.000000
        vegin%eko(18) =    36000.000000
        vegin%g0(18) =        0.000000
-       vegin%g1(18) =        4.114762
+       !vegin%g1(18) =        4.114762
+
        vegin%zr(18) =        3.000000
        vegin%clitt(18) =        6.000000
+
+       ! mgk576, hydraulics stuff
+       vegin%g1(18) = 12.0  ! JED 15 for teretoconis seedlings, using Jim's value for Eucface
+       vegin%sf(18) = 8.0
+       vegin%psi_f(18) = -2.0
+       vegin%X_hyd(18) = 50.0
+       vegin%p50(18) = -4.
+       vegin%s50(18) = 30.0
+       vegin%kp_sat(18) = 4.0
 
        !PFT: New Wet sclerophyll forests (WSF) mgk576, 16/7/19
        !=========================================================

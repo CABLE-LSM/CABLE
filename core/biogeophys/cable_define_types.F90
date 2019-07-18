@@ -390,7 +390,13 @@ MODULE cable_def_types_mod
           ekc,     &  ! activation energy for caroxylagse
           eko,     &  ! acvtivation enegery for oxygenase
           g0,      & ! Belinda's stomatal model intercept, Ticket #56.
-          g1         ! Belinda's stomatal model slope, Ticket #56.
+          g1,      & ! Belinda's stomatal model slope, Ticket #56.
+          sf,      & ! sensitivity parameter, MPa-1
+          psi_f,   & ! reference potential for Tuzet model, MPa
+          X_hyd,   & ! pressure loss (%)
+          p50,     & ! xylem pressure inducing 50% loss of hydraulic conductivity due to embolism, MPa
+          s50,     & ! is slope of the curve at P50 used in weibull model, % MPa-1
+          kp_sat     ! Tim Brodribb pers comm
 
      LOGICAL, DIMENSION(:), POINTER ::                                        &
           deciduous ! flag used for phenology fix
@@ -1102,8 +1108,6 @@ CONTAINS
     ALLOCATE( var%eko(mp) )
     ALLOCATE( var% g0(mp) )   ! Ticket #56.
     ALLOCATE( var% g1(mp) )   ! Ticket #56.
-
-
     ALLOCATE ( var % rootbeta(mp) )
     ALLOCATE ( var % gamma(mp) )
     ALLOCATE ( var % F10(mp) )
@@ -1113,6 +1117,13 @@ CONTAINS
     ALLOCATE ( var % disturbance_interval(mp,2) )
     ALLOCATE ( var % disturbance_intensity(mp,2) )
 
+    ! mgk576, hydraulics stuff
+    ALLOCATE( var% sf(mp) )   ! mgk576
+    ALLOCATE( var% psi_f(mp) )   ! mgk576
+    ALLOCATE( var% X_hyd(mp) )   ! mgk576
+    ALLOCATE( var% p50(mp) )   ! mgk576
+    ALLOCATE( var% s50(mp) )   ! mgk576
+    ALLOCATE( var% kp_sat(mp) )   ! mgk576
 
 
   END SUBROUTINE alloc_veg_parameter_type
@@ -1739,6 +1750,14 @@ CONTAINS
     DEALLOCATE( var%eko )
     DEALLOCATE( var%g0 ) ! Ticket #56.
     DEALLOCATE( var%g1 ) ! Ticket #56.
+
+    ! mgk576, hydraulics stuff
+    DEALLOCATE( var% sf )   ! mgk576
+    DEALLOCATE( var% psi_f )   ! mgk576
+    DEALLOCATE( var% X_hyd )   ! mgk576
+    DEALLOCATE( var% p50 )   ! mgk576
+    DEALLOCATE( var% s50 )   ! mgk576
+    DEALLOCATE( var% kp_sat )   ! mgk576
 
     ! Deallocate variables for SLI soil model:
     !IF(cable_user%SOIL_STRUC=='sli') THEN

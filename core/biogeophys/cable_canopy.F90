@@ -2095,17 +2095,12 @@ CONTAINS
              ELSE IF (cable_user%GS_SWITCH == 'medlyn' .AND. &
                       cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
 
-
-
-
-                CALL calc_hydr_conduc(canopy, ssnow, rad, i)
+                CALL calc_hydr_conduc(canopy, ssnow, rad, veg, veg%kp_sat(i), i)
 
                 ! Sensitivity of stomata to leaf water potential [0-1]
-                fw = f_tuzet(canopy%psi_leaf_prev(i))
+                fw = f_tuzet(canopy%psi_leaf_prev(i), veg%sf(i), veg%psi_f(i))
 
-                !g1 = veg%g1(i)
-                ! JED 15 for teretoconis seedlings, using Jim's value for Eucface
-                g1 = 12.0
+                g1 = veg%g1(i)
 
                 ! convert to conductance to CO2
                 gs_coeff(i,1) = (g1 / csx(i,1) * fw) / C%RGSWC
@@ -2944,7 +2939,7 @@ CONTAINS
   !*********************************************************************************************************************
 
   ! ----------------------------------------------------------------------------
-  FUNCTION f_tuzet(psi_leaf) RESULT(fw)
+  FUNCTION f_tuzet(psi_leaf, sf, psi_f) RESULT(fw)
      ! Empirical logistic function to describe the sensitivity of stomata
      ! to leaf water potential.
      !
@@ -2963,9 +2958,7 @@ CONTAINS
      IMPLICIT NONE
 
      REAL             :: num, den, fw
-     REAL, INTENT(IN) :: psi_leaf
-     REAL, PARAMETER  :: sf = 8.0     ! sensitivity parameter, MPa-1
-     REAL, PARAMETER  :: psi_f = -2.0 ! reference potential for Tuzet model, MPa
+     REAL, INTENT(IN) :: psi_leaf, sf, psi_f
 
      num = 1.0 + EXP(sf * psi_f)
      den = 1.0 + EXP(sf * (psi_f - psi_leaf))
@@ -2975,7 +2968,7 @@ CONTAINS
   ! ----------------------------------------------------------------------------
 
   ! ----------------------------------------------------------------------------
-  SUBROUTINE calc_hydr_conduc(canopy, ssnow, rad, i)
+  SUBROUTINE calc_hydr_conduc(canopy, ssnow, rad, veg, kp_sat, i)
      ! Calculate conductance terms (root to stem & stem to leaf)
      !
      ! Martin De Kauwe, 3rd June, 2019
@@ -2985,12 +2978,13 @@ CONTAINS
 
      IMPLICIT NONE
 
-     TYPE (canopy_type), INTENT(INOUT)    :: canopy
-     TYPE (soil_snow_type), INTENT(INOUT) :: ssnow
-     TYPE (radiation_type), INTENT(INOUT) :: rad
+     TYPE (canopy_type), INTENT(INOUT)          :: canopy
+     TYPE (soil_snow_type), INTENT(INOUT)       :: ssnow
+     TYPE (radiation_type), INTENT(INOUT)       :: rad
+     TYPE (veg_parameter_type), INTENT(INOUT)   :: veg
 
      INTEGER, INTENT(IN) :: i ! patch
-     REAL, PARAMETER     :: kp_sat = 4.0 ! Tim Brodribb pers comm
+     REAL, INTENT(IN)    :: kp_sat
      REAL                :: ksoil, kroot2stem, kplant
 
      ! Convert total below ground resistance to leaf-specific resistance.
@@ -3008,7 +3002,8 @@ CONTAINS
 
      ! Plant hydraulic conductance (mmol m-2 s-1 MPa-1). NB. depends on stem
      ! water potential from the previous timestep.
-     kplant = kp_sat * fsig_hydr(canopy%psi_stem_prev(i))
+     kplant = kp_sat * fsig_hydr(canopy%psi_stem_prev(i), veg%X_hyd(i), &
+                                 veg%p50(i), veg%s50(i))
 
      ! Conductance from root surface to the stem water pool (assumed to be
      ! halfway to the leaves)
@@ -3024,20 +3019,15 @@ CONTAINS
   ! ----------------------------------------------------------------------------
 
   ! ----------------------------------------------------------------------------
-  FUNCTION fsig_hydr(psi_stem_prev) RESULT(relk)
+  FUNCTION fsig_hydr(psi_stem_prev, X_hyd, p50, s50) RESULT(relk)
      ! Calculate relative plant conductance as a function of xylem pressure
      !
      ! Martin De Kauwe, 3rd June, 2019
 
      IMPLICIT NONE
 
-     REAL             :: X, PX, V, p, relk, p50, s50, PX50
-     REAL, INTENT(IN) :: psi_stem_prev
-
-     X = 50.0     ! pressure loss (%)
-     p50 = -4.    ! xylem pressure inducing 50% loss of hydraulic
-                  ! conductivity due to embolism, MPa
-     s50 = 30.0   ! is slope of the curve at P50 used in weibull model, % MPa-1
+     REAL             :: PX, V, p, relk, PX50
+     REAL, INTENT(IN) :: psi_stem_prev, X_hyd, p50, s50
 
      ! xylem pressure
      PX = ABS(psi_stem_prev)
@@ -3045,11 +3035,11 @@ CONTAINS
      ! the xylem pressure (P) x% of the conductivity is lost
      PX50 = ABS(p50)
 
-     V = (X - 100.) * LOG(1.0 - X / 100.)
+     V = (X_hyd - 100.) * LOG(1.0 - X_hyd / 100.)
      p = (PX / PX50)**((PX50 * s50) / V)
 
      ! relative conductance (K/Kmax) as a funcion of xylem pressure
-     relk = (1. - X / 100.)**p
+     relk = (1. - X_hyd / 100.)**p
 
   END FUNCTION fsig_hydr
   ! ----------------------------------------------------------------------------

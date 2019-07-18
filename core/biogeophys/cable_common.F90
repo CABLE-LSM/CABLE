@@ -539,6 +539,15 @@ CONTAINS
        veg%rootbeta(h)  = vegin%rootbeta(veg%iveg(h))
        veg%zr(h)       = vegin%zr(veg%iveg(h))
        veg%clitt(h)    = vegin%clitt(veg%iveg(h))
+
+       ! mgk576, hydraulics stuff
+       veg%sf(h)       = vegin%sf(veg%iveg(h))       ! mgk576
+       veg%psi_f(h)    = vegin%psi_f(veg%iveg(h))    ! mgk576
+       veg%X_hyd(h)    = vegin%X_hyd(veg%iveg(h))    ! mgk576
+       veg%p50(h)      = vegin%p50(veg%iveg(h))      ! mgk576
+       veg%s50(h)      = vegin%s50(veg%iveg(h))      ! mgk576
+       veg%kp_sat(h)   = vegin%kp_sat(veg%iveg(h))      ! mgk576
+
     END DO ! over each veg patch in land point
 
     ! calculate vegin%froot from using rootbeta and soil depth
