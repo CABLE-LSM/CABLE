@@ -1795,7 +1795,7 @@ CONTAINS
     REAL, PARAMETER :: MB_TO_PA = 100.
 
     INTEGER :: i, j, k, kk  ! iteration count
-    REAL :: vpd, g1, ktot, inferred_stress, fw ! Ticket #56
+    REAL :: vpd, g1, ktot, fw ! Ticket #56
 #define VanessasCanopy
 #ifdef VanessasCanopy
     REAL, DIMENSION(mp,mf)  ::                                                  &
@@ -2208,18 +2208,18 @@ CONTAINS
                    END IF
 
                    ! Calculate the leaf water potential.
-                   CALL calc_psi_leaf(canopy, trans_mmol, dels, i)
+                   CALL calc_psi_leaf(canopy, trans_mmol, dels, veg%Cl(i), i)
 
                    ! Flux from stem to leaf (mmol s-1) = change in leaf storage,
                    ! plus transpiration
-                   CALL calc_flux_to_leaf(canopy, trans_mmol, dels, i)
+                   CALL calc_flux_to_leaf(canopy, trans_mmol, dels, veg%Cl(i), i)
 
                    ! Update stem water potential
-                   CALL update_stem_wp(canopy, ssnow, dels, i)
+                   CALL update_stem_wp(canopy, ssnow, dels, veg%Cs(i), i)
 
                    ! Flux from the soil to the stem = change in storage +
                    ! flux_to_leaf
-                   CALL calc_flux_to_stem(canopy, dels, i)
+                   CALL calc_flux_to_stem(canopy, dels, veg%Cs(i), i)
 
                    ! store current water potentials for next time step
                    canopy%psi_leaf_prev(i) = canopy%psi_leaf(i)
@@ -3045,7 +3045,7 @@ CONTAINS
   ! ----------------------------------------------------------------------------
 
   ! ----------------------------------------------------------------------------
-  SUBROUTINE calc_flux_to_leaf(canopy, transpiration, dels, i)
+  SUBROUTINE calc_flux_to_leaf(canopy, transpiration, dels, Cl, i)
      ! Flux from stem to leaf = change in leaf storage, plus transpiration
      !
      ! Martin De Kauwe, 3rd June, 2019
@@ -3057,20 +3057,19 @@ CONTAINS
 
      TYPE (canopy_type), INTENT(INOUT)    :: canopy
 
-     REAL, INTENT(IN)    :: transpiration
+     REAL, INTENT(IN)    :: transpiration, Cl
      REAL, INTENT(IN)    :: dels ! integration time step (s)
      INTEGER, INTENT(IN) :: i
 
      canopy%flx_to_leaf(i) = (canopy%psi_leaf(i) - canopy%psi_leaf_prev(i)) * &
-                              canopy%Cl(i) / dels + canopy%vlaiw(i) * &
-                              transpiration
+                              Cl / dels + canopy%vlaiw(i) * transpiration
 
 
   END SUBROUTINE calc_flux_to_leaf
   ! ----------------------------------------------------------------------------
 
   ! ----------------------------------------------------------------------------
-  SUBROUTINE calc_flux_to_stem(canopy, dels, i)
+  SUBROUTINE calc_flux_to_stem(canopy, dels, Cs, i)
      ! Calculate the flux from the root to the stem, i.e. the root water
      ! uptake (mmol s-1) = change in stem storage plus flux_to_leaf
      !
@@ -3085,15 +3084,16 @@ CONTAINS
 
      INTEGER, INTENT(IN) :: i
      REAL, INTENT(IN)    :: dels ! integration time step (s)
+     REAL, INTENT(IN)    :: Cs
 
      canopy%flx_to_stem(i) = ((canopy%psi_stem(i) - canopy%psi_stem_prev(i)) * &
-                               canopy%Cs(i) / dels + canopy%flx_to_leaf(i))
+                               Cs / dels + canopy%flx_to_leaf(i))
 
   END SUBROUTINE calc_flux_to_stem
   ! ----------------------------------------------------------------------------
 
   ! ----------------------------------------------------------------------------
-  SUBROUTINE update_stem_wp(canopy, ssnow, dels, i)
+  SUBROUTINE update_stem_wp(canopy, ssnow, dels, Cs, i)
      ! Calculate the flux from the stem to the leaf = change in leaf storage
      ! plus transpiration
      !
@@ -3122,11 +3122,12 @@ CONTAINS
 
      REAL                :: ap, bp
      REAL, INTENT(IN)    :: dels ! integration time step (s)
+     REAL, INTENT(IN)    :: Cs
      INTEGER, INTENT(IN) :: i
 
-     ap = -(canopy%vlaiw(i) * canopy%ksoil2stem(i) / canopy%Cs(i))
+     ap = -(canopy%vlaiw(i) * canopy%ksoil2stem(i) / Cs)
      bp = (canopy%vlaiw(i) * canopy%ksoil2stem(i) * canopy%psi_soil_prev(i) - &
-           canopy%flx_to_leaf(i)) / canopy%Cs(i)
+           canopy%flx_to_leaf(i)) / Cs
 
      canopy%psi_stem(i) = ((ap * canopy%psi_stem_prev(i) + bp) * &
                            EXP(ap * dels) - bp) / ap
@@ -3136,7 +3137,7 @@ CONTAINS
   ! ----------------------------------------------------------------------------
 
   ! ----------------------------------------------------------------------------
-  SUBROUTINE calc_psi_leaf(canopy, transpiration, dels, i)
+  SUBROUTINE calc_psi_leaf(canopy, transpiration, dels, Cl, i)
      ! Calculate the leaf water potential (MPa)
      ! Following Xu et al, see Appendix + code
      !
@@ -3163,10 +3164,11 @@ CONTAINS
      REAL, INTENT(IN)    :: transpiration
      REAL                :: ap, bp
      REAL, INTENT(IN)    :: dels ! integration time step (s)
+     REAL, INTENT(IN)    :: Cl
 
-     ap = -(canopy%vlaiw(i) * canopy%kstem2leaf(i) / canopy%Cl(i))
+     ap = -(canopy%vlaiw(i) * canopy%kstem2leaf(i) / Cl)
      bp = (canopy%vlaiw(i) * canopy%kstem2leaf(i) * canopy%psi_stem_prev(i) - &
-            canopy%vlaiw(i) * transpiration) / canopy%Cl(i)
+            canopy%vlaiw(i) * transpiration) / Cl
 
      canopy%psi_leaf(i) = ((ap * canopy%psi_leaf_prev(i) + bp) *  &
                               EXP(ap * dels) - bp) / ap

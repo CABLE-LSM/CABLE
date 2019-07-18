@@ -44,7 +44,9 @@ MODULE cable_pft_params_mod
           X_hyd,      & ! mgk576
           p50,        & ! mgk576MPa
           s50,        & ! mgk576MPa
-          kp_sat
+          kp_sat,     & ! mgk576MPa
+          Cl,         & ! mgk576MPa
+          CS
 
      REAL, DIMENSION(:,:),ALLOCATABLE ::                                      &
           froot,      & !
@@ -105,7 +107,7 @@ CONTAINS
             !mgk576
             vegin%sf(mvtype), vegin%psi_f(mvtype) ,                               &
             vegin%X_hyd(mvtype), vegin%p50(mvtype), vegin%s50(mvtype),           &
-            vegin%kp_sat(mvtype) )
+            vegin%kp_sat(mvtype), vegin%Cl(mvtype), vegin%Cs(mvtype))
 
 
        !PFT parameters: description and corresponding variable name in code.
@@ -228,6 +230,17 @@ CONTAINS
        vegin%g1(2) =        4.114762
        vegin%zr(2) =        3.000000
        vegin%clitt(2) =        6.000000
+
+       ! mgk576, hydraulics stuff
+       vegin%g1(2) = 12.0  ! JED 15 for teretoconis seedlings, using Jim's value for Eucface
+       vegin%sf(2) = 8.0
+       vegin%psi_f(2) = -2.0
+       vegin%X_hyd(2) = 50.0
+       vegin%p50(2) = -4.
+       vegin%s50(2) = 30.0
+       vegin%kp_sat(2) = 4.0
+       vegin%Cl(2) = 10000.
+       vegin%Cs(2) = 120000.
 
        !PFT: deciduous_needleleaf
        !=========================================================
@@ -1182,6 +1195,8 @@ CONTAINS
        vegin%p50(18) = -4.
        vegin%s50(18) = 30.0
        vegin%kp_sat(18) = 4.0
+       vegin%Cl(2) = 10000.
+       vegin%Cs(2) = 120000.
 
        !PFT: New Wet sclerophyll forests (WSF) mgk576, 16/7/19
        !=========================================================

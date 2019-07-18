@@ -396,7 +396,9 @@ MODULE cable_def_types_mod
           X_hyd,   & ! pressure loss (%)
           p50,     & ! xylem pressure inducing 50% loss of hydraulic conductivity due to embolism, MPa
           s50,     & ! is slope of the curve at P50 used in weibull model, % MPa-1
-          kp_sat     ! Tim Brodribb pers comm
+          kp_sat,  & ! Tim Brodribb pers comm
+          Cl,      & ! Leaf capacitance (mmol MPa-1) (total plant)
+          Cs         ! Stem capacitance (mmol MPa-1)
 
      LOGICAL, DIMENSION(:), POINTER ::                                        &
           deciduous ! flag used for phenology fix
@@ -520,7 +522,7 @@ MODULE cable_def_types_mod
      REAL, DIMENSION(:), POINTER :: psi_leaf, psi_leaf_prev
      REAL, DIMENSION(:), POINTER :: flx_to_stem, flx_to_leaf
      REAL, DIMENSION(:), POINTER :: psi_stem, psi_stem_prev, psi_soil_prev
-     REAL, DIMENSION(:), POINTER :: ksoil2stem, Cl, Cs, kstem2leaf
+     REAL, DIMENSION(:), POINTER :: ksoil2stem, kstem2leaf
 
   END TYPE canopy_type
 
@@ -1124,6 +1126,8 @@ CONTAINS
     ALLOCATE( var% p50(mp) )   ! mgk576
     ALLOCATE( var% s50(mp) )   ! mgk576
     ALLOCATE( var% kp_sat(mp) )   ! mgk576
+    ALLOCATE( var% Cl(mp) )   ! mgk576
+    ALLOCATE( var% Cs(mp) )   ! mgk576
 
 
   END SUBROUTINE alloc_veg_parameter_type
@@ -1223,8 +1227,6 @@ CONTAINS
     ALLOCATE( var%flx_to_stem(mp) )
     ALLOCATE( var%ksoil2stem(mp) )
     ALLOCATE( var%kstem2leaf(mp) )
-    ALLOCATE( var%Cl(mp) )
-    ALLOCATE( var%Cs(mp) )
 
   END SUBROUTINE alloc_canopy_type
 
@@ -1758,6 +1760,8 @@ CONTAINS
     DEALLOCATE( var% p50 )   ! mgk576
     DEALLOCATE( var% s50 )   ! mgk576
     DEALLOCATE( var% kp_sat )   ! mgk576
+    DEALLOCATE( var% Cl )   ! mgk576
+    DEALLOCATE( var% Cs )   ! mgk576
 
     ! Deallocate variables for SLI soil model:
     !IF(cable_user%SOIL_STRUC=='sli') THEN
@@ -1858,8 +1862,6 @@ CONTAINS
     DEALLOCATE( var%flx_to_leaf )
     DEALLOCATE( var%ksoil2stem )
     DEALLOCATE( var%kstem2leaf )
-    DEALLOCATE( var%Cl )
-    DEALLOCATE( var%Cs )
 
   END SUBROUTINE dealloc_canopy_type
 

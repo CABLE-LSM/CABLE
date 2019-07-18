@@ -547,6 +547,8 @@ CONTAINS
        veg%p50(h)      = vegin%p50(veg%iveg(h))      ! mgk576
        veg%s50(h)      = vegin%s50(veg%iveg(h))      ! mgk576
        veg%kp_sat(h)   = vegin%kp_sat(veg%iveg(h))      ! mgk576
+       veg%Cl(h)       = vegin%Cl(veg%iveg(h))      ! mgk576
+       veg%Cs(h)       = vegin%Cs(veg%iveg(h))      ! mgk576
 
     END DO ! over each veg patch in land point
 
