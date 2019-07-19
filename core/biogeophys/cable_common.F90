@@ -489,9 +489,8 @@ CONTAINS
     USE cable_def_types_mod, ONLY : veg_parameter_type, ms
     INTEGER ::  ifmp,  & ! start local mp, # landpoints (jhan:when is this not 1 )
          fmp     ! local mp, # landpoints
-    !REAL, DIMENSION(ms) :: soil_zse
-    REAL, INTENT(IN) :: soil_zse
-
+    REAL, DIMENSION(ms) :: soil_zse
+   
     TYPE(veg_parameter_type) :: veg
 
     INTEGER :: is
