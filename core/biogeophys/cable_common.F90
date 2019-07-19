@@ -489,7 +489,8 @@ CONTAINS
     USE cable_def_types_mod, ONLY : veg_parameter_type, ms
     INTEGER ::  ifmp,  & ! start local mp, # landpoints (jhan:when is this not 1 )
          fmp     ! local mp, # landpoints
-    REAL, DIMENSION(ms) :: soil_zse
+    !REAL, DIMENSION(ms) :: soil_zse
+    REAL, INTENT(IN) :: soil_zse
 
     TYPE(veg_parameter_type) :: veg
 
@@ -557,8 +558,6 @@ CONTAINS
     totdepth = 0.0
     DO is = 1, ms-1
        totdepth = totdepth + soil_zse(is) * 100.0  ! unit in centimetres
-       print*, "wtf", is, veg%rootbeta, totdepth, soil_zse(is), SUM(soil_zse)
-       print*, soil_zse
        veg%froot(:, is) = MIN( 1.0, 1.0-veg%rootbeta(:)**totdepth )
     END DO
     veg%froot(:, ms) = 1.0 - veg%froot(:, ms-1)
