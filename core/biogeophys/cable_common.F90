@@ -558,6 +558,7 @@ CONTAINS
     DO is = 1, ms-1
        totdepth = totdepth + soil_zse(is) * 100.0  ! unit in centimetres
        print*, "wtf", is, veg%rootbeta, totdepth, soil_zse(is), SUM(soil_zse)
+       print*, soil_zse
        veg%froot(:, is) = MIN( 1.0, 1.0-veg%rootbeta(:)**totdepth )
     END DO
     veg%froot(:, ms) = 1.0 - veg%froot(:, ms-1)
