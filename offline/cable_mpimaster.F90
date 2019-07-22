@@ -546,7 +546,12 @@ CONTAINS
              ncciy = CurYear
              WRITE(*,*) 'Looking for global offline run info.'
              CALL open_met_file( dels, koffset, kend, spinup, C%TFRZ )
-             calendar = "standard"
+
+             IF ( leaps .AND. IS_LEAPYEAR( YYYY ) ) THEN
+                calendar = "standard"
+             ELSE
+                calendar = "noleap"
+             ENDIF
           ENDIF
 
           ! somethings (e.g. CASA-CNP) only need to be done once per day
