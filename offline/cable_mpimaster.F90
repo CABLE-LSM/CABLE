@@ -2286,37 +2286,37 @@ CONTAINS
        ! Ticket #56, finish adding new veg parms
 
        ! Plant hydraulics, mgk576
-       !bidx = bidx + 1
-       !CALL MPI_Get_address (veg%sf(off), displs(bidx), ierr)
-       !blen(bidx) = r1len
+       bidx = bidx + 1
+       CALL MPI_Get_address (veg%sf(off), displs(bidx), ierr)
+       blen(bidx) = r1len
 
-       !bidx = bidx + 1
-       !CALL MPI_Get_address (veg%psi_f(off), displs(bidx), ierr)
-       !blen(bidx) = r1len
+       bidx = bidx + 1
+       CALL MPI_Get_address (veg%psi_f(off), displs(bidx), ierr)
+       blen(bidx) = r1len
 
-       !bidx = bidx + 1
-       !CALL MPI_Get_address (veg%X_hyd(off), displs(bidx), ierr)
-       !blen(bidx) = r1len
+       bidx = bidx + 1
+       CALL MPI_Get_address (veg%X_hyd(off), displs(bidx), ierr)
+       blen(bidx) = r1len
 
-       !bidx = bidx + 1
-       !CALL MPI_Get_address (veg%p50(off), displs(bidx), ierr)
-       !blen(bidx) = r1len
+       bidx = bidx + 1
+       CALL MPI_Get_address (veg%p50(off), displs(bidx), ierr)
+       blen(bidx) = r1len
 
-       !bidx = bidx + 1
-       !CALL MPI_Get_address (veg%s50(off), displs(bidx), ierr)
-       !blen(bidx) = r1len
+       bidx = bidx + 1
+       CALL MPI_Get_address (veg%s50(off), displs(bidx), ierr)
+       blen(bidx) = r1len
 
-       !bidx = bidx + 1
-       !CALL MPI_Get_address (veg%kp_sat(off), displs(bidx), ierr)
-       !blen(bidx) = r1len
+       bidx = bidx + 1
+       CALL MPI_Get_address (veg%kp_sat(off), displs(bidx), ierr)
+       blen(bidx) = r1len
 
-       !bidx = bidx + 1
-       !CALL MPI_Get_address (veg%Cl(off), displs(bidx), ierr)
-       !blen(bidx) = r1len
+       bidx = bidx + 1
+       CALL MPI_Get_address (veg%Cl(off), displs(bidx), ierr)
+       blen(bidx) = r1len
 
-       !bidx = bidx + 1
-       !CALL MPI_Get_address (veg%CS(off), displs(bidx), ierr)
-       !blen(bidx) = r1len
+       bidx = bidx + 1
+       CALL MPI_Get_address (veg%CS(off), displs(bidx), ierr)
+       blen(bidx) = r1len
 
 
        ! ----------- bgc --------------
