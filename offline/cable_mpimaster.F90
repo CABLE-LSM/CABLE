@@ -160,7 +160,7 @@ CONTAINS
          verbose, fixedCO2,output,check,patchout,    &
          patch_type,soilparmnew,&
          defaultLAI, sdoy, smoy, syear, timeunits, exists, output, &
-         latitude,longitude
+         latitude,longitude, calendar
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
          cable_runtime, fileName, myhome,            &
          redistrb, wiltParam, satuParam, CurYear,    &
