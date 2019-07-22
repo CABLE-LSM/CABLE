@@ -2450,10 +2450,14 @@ CONTAINS
        !blen(bidx) = ms * extr1
 
        bidx = bidx + 1
-       CALL MPI_Get_address (soil%zse(off,1), displs(bidx), ierr)
-       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
-            &                             types(bidx), ierr)
-       blen(bidx) = 1
+       CALL MPI_Get_address (soil%zse(off), displs(bidx), ierr)
+       blen(bidx) = r1len
+
+       !bidx = bidx + 1
+       !CALL MPI_Get_address (soil%zse(off,1), displs(bidx), ierr)
+       !CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+       !      &                             types(bidx), ierr)
+       !blen(bidx) = 1
 
        ! constant * (ms+1), each worker gets the same copy of whole array
        bidx = bidx + 1
