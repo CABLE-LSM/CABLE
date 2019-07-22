@@ -2445,14 +2445,21 @@ CONTAINS
        ! end extra sli
 
        ! constant * ms, each worker gets the same copy of whole array
+       !bidx = bidx + 1
+       !CALL MPI_Get_address (soil%zse, displs(bidx), ierr)
+       !blen(bidx) = ms * extr1
+
        bidx = bidx + 1
-       CALL MPI_Get_address (soil%zse, displs(bidx), ierr)
-       blen(bidx) = ms * extr1
+       CALL MPI_Get_address (soil%zse(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                             types(bidx), ierr)
+       blen(bidx) = 1
 
        ! constant * (ms+1), each worker gets the same copy of whole array
        bidx = bidx + 1
        CALL MPI_Get_address (soil%zshh, displs(bidx), ierr)
-       blen(bidx) = (ms + 1) * extr1
+       !blen(bidx) = (ms + 1) * extr1
+       blen(bidx) = ms * extr1
 
        ! vars intro for Ticket #27
        IF (calcsoilalbedo) THEN
