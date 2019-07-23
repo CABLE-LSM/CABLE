@@ -4982,11 +4982,11 @@ CONTAINS
 
        !  plant hydraulics, mgdk576, 23/07/2019
        ! REAL(r_1)
-       CALL MPI_Get_address (ssnow%psi_soil(off,1), maddr(midx), ierr) ! 12
-       CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
-            &                        mat_t(midx, rank), ierr)
-       CALL MPI_Type_commit (mat_t(midx, rank), ierr)
-       midx = midx + 1
+       !CALL MPI_Get_address (ssnow%psi_soil(off,1), maddr(midx), ierr) ! 12
+       !CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
+      !      &                        mat_t(midx, rank), ierr)
+       !CALL MPI_Type_commit (mat_t(midx, rank), ierr)
+       !midx = midx + 1
 
        ! REAL(r_1)
        CALL MPI_Get_address (ssnow%evapfbl(off,1), maddr(midx), ierr) ! 12
