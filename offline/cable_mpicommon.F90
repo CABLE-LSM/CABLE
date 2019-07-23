@@ -40,7 +40,8 @@ MODULE cable_mpicommon
   ! VH add 9 params for sli 299 -> 308
   ! INH add 7 params for REV_CORR package
   !INTEGER, PARAMETER :: nparam = 331 !326!308
-  INTEGER, PARAMETER :: nparam = 342 ! mgk576, added 11 plant hydraulics params
+  !INTEGER, PARAMETER :: nparam = 342 ! mgk576, added 11 plant hydraulics params
+  INTEGER, PARAMETER :: nparam = 339 ! mgk576, added 8 plant hydraulics params
   ! MPI: extra params sent only if nsoilparmnew is true
   INTEGER, PARAMETER :: nsoilnew = 1
 
