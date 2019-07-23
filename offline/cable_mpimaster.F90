@@ -3202,6 +3202,18 @@ CONTAINS
        CALL MPI_Get_address (ssnow%qssrf(off), displs(bidx), ierr)
        blen(bidx) = r1len
 
+       ! plant hydraulics, mgdk576, 23/07/2019
+       bidx = bidx + 1
+       CALL MPI_Get_address (ssnow%weighted_psi_soil(off), displs(bidx), ierr)
+       blen(bidx) = r1len
+
+       !  plant hydraulics, mgdk576, 23/07/2019
+       CALL MPI_Get_address (ssnow%psi_soil(off,1), maddr(midx), ierr) ! 12
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                        mat_t(midx, rank), ierr)
+       CALL MPI_Type_commit (mat_t(midx, rank), ierr)
+       midx = midx + 1
+
        bidx = bidx + 1
        CALL MPI_Get_address (veg%vlaimax(off), displs(bidx), ierr)
        blen(bidx) = r1len
@@ -5337,6 +5349,13 @@ CONTAINS
        CALL MPI_Get_address (canopy%fevw(off), vaddr(vidx), ierr) ! 37
        blen(vidx) = cnt * extr1
        vidx = vidx + 1
+
+       ! plant hydraulics, mgdk576, 23/07/2019
+       CALL MPI_Get_address (canopy%psi_leaf(off), vaddr(vidx), ierr) ! 37
+       blen(vidx) = cnt * extr1
+       vidx = vidx + 1
+
+
        !     ! REAL(r_2)
        !     CALL MPI_Get_address (canopy%potev_c(off), vaddr(vidx), ierr) ! 38
        !     blen(vidx) = cnt * extr2
