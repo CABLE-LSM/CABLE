@@ -3203,9 +3203,9 @@ CONTAINS
        blen(bidx) = r1len
 
        ! plant hydraulics, mgdk576, 23/07/2019
-       bidx = bidx + 1
-       CALL MPI_Get_address (ssnow%weighted_psi_soil(off), displs(bidx), ierr)
-       blen(bidx) = r1len
+       !bidx = bidx + 1
+       !CALL MPI_Get_address (ssnow%weighted_psi_soil(off), displs(bidx), ierr)
+       !blen(bidx) = r1len
 
        bidx = bidx + 1
        CALL MPI_Get_address (veg%vlaimax(off), displs(bidx), ierr)
@@ -5353,9 +5353,9 @@ CONTAINS
        vidx = vidx + 1
 
        ! plant hydraulics, mgdk576, 23/07/2019
-       CALL MPI_Get_address (canopy%psi_leaf(off), vaddr(vidx), ierr) ! 37
-       blen(vidx) = cnt * extr1
-       vidx = vidx + 1
+       !CALL MPI_Get_address (canopy%psi_leaf(off), vaddr(vidx), ierr) ! 37
+       !blen(vidx) = cnt * extr1
+       !vidx = vidx + 1
 
 
        !     ! REAL(r_2)
