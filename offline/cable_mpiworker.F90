@@ -4696,6 +4696,12 @@ CONTAINS
     CALL MPI_Get_address (canopy%fwsoil(off), displs(bidx), ierr)
     blocks(bidx) = r2len
 
+    ! plant hydraulics, mgdk576, 23/07/2019
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%psi_leaf(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+
+
     ! MPI: 2D vars moved above
     ! rwater
     ! evapfbl
