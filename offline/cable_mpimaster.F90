@@ -3203,9 +3203,9 @@ CONTAINS
        blen(bidx) = r1len
 
        ! plant hydraulics, mgdk576, 23/07/2019
-       bidx = bidx + 1
-       CALL MPI_Get_address (ssnow%weighted_psi_soil(off), displs(bidx), ierr)
-       blen(bidx) = r2len
+       !bidx = bidx + 1
+       !CALL MPI_Get_address (ssnow%weighted_psi_soil(off), displs(bidx), ierr)
+       !blen(bidx) = r2len
 
        bidx = bidx + 1
        CALL MPI_Get_address (veg%vlaimax(off), displs(bidx), ierr)
@@ -5352,11 +5352,6 @@ CONTAINS
        blen(vidx) = cnt * extr1
        vidx = vidx + 1
 
-       ! plant hydraulics, mgdk576, 23/07/2019
-       CALL MPI_Get_address (canopy%psi_leaf(off), vaddr(vidx), ierr) ! 37
-       blen(vidx) = cnt * extr1
-       vidx = vidx + 1
-
 
        !     ! REAL(r_2)
        !     CALL MPI_Get_address (canopy%potev_c(off), vaddr(vidx), ierr) ! 38
@@ -5504,6 +5499,12 @@ CONTAINS
        ! REAL(r_2)
        CALL MPI_Get_address (canopy%fwsoil(off), vaddr(vidx), ierr) ! 59
        blen(vidx) = cnt * extr2
+       vidx = vidx + 1
+
+       ! plant hydraulics, mgdk576, 23/07/2019
+       CALL MPI_Get_address (canopy%psi_leaf(off), vaddr(vidx), ierr) ! 37
+       blen(vidx) = cnt * extr1
+       vidx = vidx + 1
 
        ! MPI: 2D vars moved above
        ! rwater
@@ -5513,7 +5514,9 @@ CONTAINS
        ! MPI: 2D vars moved above
        ! albsoilsn
 
-       vidx = vidx + 1
+
+
+
        CALL MPI_Get_address (ssnow%pudsto(off), vaddr(vidx), ierr)
        blen(vidx) = r1len
 

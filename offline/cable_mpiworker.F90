@@ -1778,11 +1778,6 @@ CONTAINS
     CALL MPI_Get_address (canopy%fevw, displs(bidx), ierr)
     blen(bidx) = r1len
 
-    ! plant hydraulics, mgdk576, 23/07/2019
-    bidx = bidx + 1
-    CALL MPI_Get_address (canopy%psi_leaf, displs(bidx), ierr)
-    blen(bidx) = r1len
-
     !  bidx = bidx + 1
     !  CALL MPI_Get_address (canopy%potev_c, displs(bidx), ierr)
     !  blen(bidx) = r2len
@@ -1951,6 +1946,13 @@ CONTAINS
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%zetar, displs(bidx), ierr)
     blen(bidx) = niter * r1len
+
+
+    ! plant hydraulics, mgdk576, 23/07/2019
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%psi_leaf, displs(bidx), ierr)
+    blen(bidx) = r1len
+
 
     ! ------- rough -------
 
@@ -2393,9 +2395,9 @@ CONTAINS
     blen(bidx) = r1len
 
     ! plant hydraulics, mgdk576, 23/07/2019
-    bidx = bidx + 1
-    CALL MPI_Get_address (ssnow%weighted_psi_soil, displs(bidx), ierr)
-    blen(bidx) = r2len
+    !bidx = bidx + 1
+    !CALL MPI_Get_address (ssnow%weighted_psi_soil, displs(bidx), ierr)
+    !blen(bidx) = r2len
 
     !mrd add new GW parameters here
     !2D
