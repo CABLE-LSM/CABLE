@@ -1779,9 +1779,9 @@ CONTAINS
     blen(bidx) = r1len
 
     ! plant hydraulics, mgdk576, 23/07/2019
-    !bidx = bidx + 1
-    !CALL MPI_Get_address (canopy%psi_leaf, displs(bidx), ierr)
-    !blen(bidx) = r1len
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%psi_leaf, displs(bidx), ierr)
+    blen(bidx) = r1len
 
     !  bidx = bidx + 1
     !  CALL MPI_Get_address (canopy%potev_c, displs(bidx), ierr)
