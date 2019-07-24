@@ -97,7 +97,6 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
 
   DO nv=1,mvtype
     READ(101,*) nv0,casabiome%ivt2(nv)
-!     PRINT *, nv,nv0,casabiome%ivt2(nv)
   ENDDO
 
   READ(101,*)
@@ -136,9 +135,8 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
          ratioCNsoil(nv,mic),ratioCNsoil(nv,slow),ratioCNsoil(nv,pass),  &
          ratioCNsoilmin(nv,mic),ratioCNsoilmin(nv,slow),ratioCNsoilmin(nv,pass),  &
          ratioCNsoilmax(nv,mic),ratioCNsoilmax(nv,slow),ratioCNsoilmax(nv,pass),  &
-!         xfherbivore(nv),casabiome%ratiofrootleaf(nv),                  &
+         ! xfherbivore(nv),casabiome%ratiofrootleaf(nv),                  &
          casabiome%glaimax(nv),casabiome%glaimin(nv)
-!     PRINT *, 'nv22',nv2
   ENDDO
 
   READ(101,*)
@@ -146,7 +144,6 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
   DO nv=1,mvtype
     READ(101,*) nv3, cleaf(nv),cwood(nv),cfroot(nv),cmet(nv),   &
                 cstr(nv),ccwd(nv), cmic(nv), cslow(nv),cpass(nv)
-!     PRINT *, 'nv3',nv3
   ENDDO
 
   READ(101,*)
@@ -155,7 +152,6 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
     READ(101,*) nv4, &
          phen%TKshed(nv),xxkleafcoldmax(nv),casabiome%xkleafcoldexp(nv), &
          xxkleafdrymax(nv),casabiome%xkleafdryexp(nv)
-!     PRINT *, 'nv4',nv4
   ENDDO
 !  READ(101,*)
 !  READ(101,*)
@@ -173,7 +169,6 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
       casabiome%ratioNCplantmin(nv,wood),casabiome%ratioNCplantmax(nv,wood), &
       casabiome%ratioNCplantmin(nv,froot),casabiome%ratioNCplantmax(nv,froot), &
       xfNminloss(nv), xfNminleach(nv),xnfixrate(nv)
-!     PRINT *, 'nv6',nv6
   ENDDO
 
   READ(101,*)
@@ -182,7 +177,6 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
     READ(101,*) nv7,nleaf(nv),nwood(nv),nfroot(nv), &
                 nmet(nv),nstr(nv), ncwd(nv), &
                 nmic(nv),nslow(nv),npass(nv),xnsoilmin(nv)
-!     PRINT *, 'nv7',nv7
   ENDDO
 
   READ(101,*)
@@ -216,7 +210,6 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
     READ(101,*) nv9,xkmlabp(iso),xpsorbmax(iso),xfPleach(iso), &
                 ratioNPsoil(iso,mic),ratioNPsoil(iso,slow),ratioNPsoil(iso,pass), &
                 xxkplab(iso),xxkpsorb(iso),xxkpocc(iso)
-!     PRINT *, 'nv9',nv9
   ENDDO
   READ(101,*)
   READ(101,*)
@@ -224,7 +217,6 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
     READ(101,*) nv10, &
          xpleaf(nv),xpwood(nv),xpfroot(nv),xpmet(nv),xpstr(nv),xpcwd(nv), &
          xpmic(nv),xpslow(nv),xppass(nv),xplab(nv),xpsorb(nv),xpocc(nv)
-!     PRINT *, 'nv10',nv10
   ENDDO
 
  !@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -323,8 +315,8 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
     iv1=veg%iveg(npt)
     iso=casamet%isorder(npt)
     ! The following to be commented out when coupled to CABLE
-!    veg%froot(npt,:) =fracroot(iv1,:)
-!    PRINT *, 'npt,iv1,iso ', npt,iv1, iso
+    !    veg%froot(npt,:) =fracroot(iv1,:)
+    !    PRINT *, 'npt,iv1,iso ', npt,iv1, iso
     casamet%iveg2(npt) =casabiome%ivt2(iv1)
     casamet%lnonwood(npt) = 1
     casapool%cplant(npt,wood)  = 0.0
@@ -382,7 +374,7 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
     casapool%pplant(npt,leaf) = xpleaf(iv1)
     casapool%pplant(npt,froot)= xpfroot(iv1)
     casapool%plitter(npt,metb) = xpmet(iv1)
-!    casapool%plitter(npt,str) = xpstr(iv1)
+    ! casapool%plitter(npt,str) = xpstr(iv1)
     casapool%plitter(npt,str) = casapool%nlitter(npt,str)/ratioNPstrfix
     casapool%psoil(npt,mic)   = xpmic(iv1)
     casapool%psoil(npt,slow)  = xpslow(iv1)
@@ -394,8 +386,8 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
     casaflux%kmlabp(npt)      = xkmlabp(iso)
     casaflux%psorbmax(npt)    = xpsorbmax(iso)
     casaflux%fpleach(npt)     = xfPleach(iso) /(365.0)    ! convert from 1/year to 1/day
-!   we used the spatially explicit estimate N fixation by Wang and Houlton (GRL)
-!    casaflux%Nminfix(npt)     = xnfixrate(iv1)/365.0
+    ! we used the spatially explicit estimate N fixation by Wang and Houlton (GRL)
+    !   casaflux%Nminfix(npt)     = xnfixrate(iv1)/365.0
 
     casapool%ratioNCplant(npt,:)  = 1.0/ratioCNplant(iv1,:)
     casapool%ratioNPplant(npt,:)  = casabiome%ratioNPplantmin(iv1,:)
@@ -418,11 +410,11 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
                             /(casaflux%kmlabp(:)+casapool%psoillab(:))
    endif
 
-!  DO npt=1,mp
-!    IF (veg%iveg(npt)==12) PRINT *, npt, veg%iveg(npt), &
-!         casapool%Psoil(npt,:),casapool%psoilsorb(npt), &
-!         casaflux%psorbmax(npt),casapool%psoillab(npt),casaflux%kmlabp(npt)
-!  ENDDO
+   !  DO npt=1,mp
+   !    IF (veg%iveg(npt)==12) PRINT *, npt, veg%iveg(npt), &
+   !         casapool%Psoil(npt,:),casapool%psoilsorb(npt), &
+   !         casaflux%psorbmax(npt),casapool%psoillab(npt),casaflux%kmlabp(npt)
+   !  ENDDO
 
 END SUBROUTINE casa_readbiome
 
@@ -710,10 +702,10 @@ SUBROUTINE casa_init(casabiome,casamet,casaflux,casapool,casabal,veg,phen)
   LOGICAL   :: EXRST
 
   
-if (.NOT.cable_user%casa_fromzero) THEN
-   PRINT *, 'initial pool from restart file'
-ENDIF
-  PRINT *, 'icycle,initcasa,mp ', icycle,initcasa,mp
+  if (.NOT.cable_user%casa_fromzero) THEN
+     write(*,*) 'initial pool from restart file'
+  ENDIF
+  write(*,*) 'icycle,initcasa,mp ', icycle,initcasa,mp
   !phen%phase = 2
 
   !CLN initialise all !!!!! THIS NEEDS FIXING because of e.g. ICE-WATER
@@ -1084,10 +1076,10 @@ SUBROUTINE casa_poolout(ktau,veg,soil,casabiome,casapool,casaflux,casamet, &
 !  DATA fracPorg/0.25,0.30,0.05,0.15,0.17,0.34,0.41,0.19,0.20,0.43,0.26,0.12/
 !  DATA xpsoil50/1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0/
 
-  PRINT *, 'Within casa_poolout, mp = ', mp
+  write(*,*) 'Within casa_poolout, mp = ', mp
   nout=103
   OPEN(nout,file=casafile%cnpepool)
-  PRINT *, 'Opened file ', casafile%cnpepool
+  write(*,*) 'Opened file ', casafile%cnpepool
 
   casabal%sumcbal=MIN(9999.0,MAX(-9999.0,casabal%sumcbal))
   casabal%sumnbal=MIN(9999.0,MAX(-9999.0,casabal%sumnbal))
@@ -1224,7 +1216,7 @@ SUBROUTINE casa_fluxout(myear,veg,soil,casabal,casamet)
 !  clitterinput = clitterinput * xyear
 !  csoilinput   = csoilinput   * xyear
 
-  print *, 'writing CNP fluxes out to file ', casafile%cnpflux
+  write(*,*) 'writing CNP fluxes out to file ', casafile%cnpflux
   OPEN(nout,file=casafile%cnpflux)
     DO npt =1,mp
       SELECT CASE(icycle)
@@ -1272,8 +1264,8 @@ SUBROUTINE casa_fluxout(myear,veg,soil,casabal,casamet)
       totNPP = totNPP+casabal%Fcnppyear(npt)* casamet%areacell(npt)
     ENDDO
 
-    print *, 'totGPP global = ', totGPP*(1.0e-15)
-    print *, 'totNPP global = ', totNPP*(1.0e-15)
+    write(*,*) 'totGPP global = ', totGPP*(1.0e-15)
+    write(*,*) 'totNPP global = ', totNPP*(1.0e-15)
   CLOSE(nout)
 92    format(5(i6,',',2x),100(f15.6,',',2x))
 END SUBROUTINE casa_fluxout
@@ -1666,7 +1658,7 @@ SUBROUTINE WRITE_CASA_RESTART_NC ( casamet, casapool, casaflux, phen, CASAONLY )
   ! Create NetCDF file:
   STATUS = NF90_create(fname, NF90_CLOBBER, FILE_ID)
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-write(*,*) 'writing casa restart', fname 
+  write(*,*) 'Writing casa restart: ', fname 
   ! Put the file in define mode:
   STATUS = NF90_redef(FILE_ID)
 
@@ -1889,7 +1881,7 @@ SUBROUTINE READ_CASA_RESTART_NC (  casamet, casapool, casaflux,phen )
   IF (EXISTFILE) THEN
      STATUS = NF90_OPEN( TRIM(fname), NF90_NOWRITE, FILE_ID )
      IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-     PRINT *, 'initial pool from restart file: ', fname
+     write(*,*) 'initial pool from restart file: ', fname
   ELSE
      write(*,*) 'CASA restart file:', TRIM(fname), ' does not exist'
      fname = TRIM(filename%path)//'/'//TRIM( cable_user%RunIden )//&
@@ -1898,7 +1890,7 @@ SUBROUTINE READ_CASA_RESTART_NC (  casamet, casapool, casaflux,phen )
      IF (EXISTFILE1) THEN
         STATUS = NF90_OPEN( TRIM(fname), NF90_NOWRITE, FILE_ID )
         IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-        PRINT *, 'initial pool from restart file: ', fname
+        write(*,*) 'initial pool from restart file: ', fname
      ELSE
         write(*,*) 'CASA restart file:', TRIM(fname), ' does not exist either'
         write(*,*) 'Set cable_user%CASA_fromZero to true to initialise without restart file.'

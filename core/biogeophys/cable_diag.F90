@@ -178,7 +178,7 @@ END SUBROUTINE cable_diag_data1
 
 
 
-  subroutine def_vars(nv, ncid,  xtype, dimID, var_name,varID )
+  subroutine def_vars(nv, ncid, xtype, dimID, var_name, varID)
     use netcdf
     implicit none
     integer, intent(in) :: nv, ncid, xtype
@@ -262,6 +262,16 @@ END SUBROUTINE cable_diag_data1
     ncok = NF90_DEF_VAR(ncid, trim(var_name(15)), xtype, &
          (/ dimID(1),dimID(3)/), varID(15))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(15))
+
+    !cAn12
+    ncok = NF90_DEF_VAR(ncid, trim(var_name(16)), xtype, &
+         (/ dimID(1),dimID(3)/), varID(16))
+    if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(16))
+
+    !cAn13
+    ncok = NF90_DEF_VAR(ncid, trim(var_name(17)), xtype, &
+         (/ dimID(1),dimID(3)/), varID(17))
+    if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(17))
 
     return
   end subroutine def_vars

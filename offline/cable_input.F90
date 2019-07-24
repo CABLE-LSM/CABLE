@@ -387,42 +387,42 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
     WRITE(logn,*) 'Opening met data file: ', TRIM(gswpfile%rainf), ' and 7 more'
     ok = NF90_OPEN(gswpfile%rainf,0,ncid_rain)
        IF (ok /= NF90_NOERR) THEN
-          PRINT*,'rainf'
+          WRITE(*,*) 'rainf'
           CALL handle_err( ok )
        ENDIF
     ok = NF90_OPEN(gswpfile%snowf,0,ncid_snow)
        IF (ok /= NF90_NOERR) THEN
-          PRINT*,'snow'
+          WRITE(*,*) 'snow'
           CALL handle_err( ok )
        ENDIF
     ok = NF90_OPEN(gswpfile%LWdown,0,ncid_lw)
        IF (ok /= NF90_NOERR) THEN
-          PRINT*,'lw'
+          WRITE(*,*) 'lw'
           CALL handle_err( ok )
        ENDIF
     ok = NF90_OPEN(gswpfile%SWdown,0,ncid_sw)
        IF (ok /= NF90_NOERR) THEN
-          PRINT*,'sw'
+          WRITE(*,*) 'sw'
           CALL handle_err( ok )
        ENDIF
     ok = NF90_OPEN(gswpfile%PSurf,0,ncid_ps)
        IF (ok /= NF90_NOERR) THEN
-          PRINT*,'ps'
+          WRITE(*,*) 'ps'
           CALL handle_err( ok )
        ENDIF
     ok = NF90_OPEN(gswpfile%Qair,0,ncid_qa)
        IF (ok /= NF90_NOERR) THEN
-          PRINT*,'qa'
+          WRITE(*,*) 'qa'
           CALL handle_err( ok )
        ENDIF
     ok = NF90_OPEN(gswpfile%Tair,0,ncid_ta)
        IF (ok /= NF90_NOERR) THEN
-          PRINT*,'ta'
+          WRITE(*,*) 'ta'
           CALL handle_err( ok )
        ENDIF
     ok = NF90_OPEN(gswpfile%wind,0,ncid_wd)
        IF (ok /= NF90_NOERR) THEN
-          PRINT*,'wind',ncid_wd
+          WRITE(*,*) 'wind', ncid_wd
           CALL handle_err( ok )
        ENDIF
     ncid_met = ncid_rain
@@ -695,11 +695,11 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
 
     !********* gswp input file has bug in timevar **************
     IF (ncciy > 0) THEN
-      PRINT *, 'original timevar(kend) = ', timevar(kend)
+      write(*,*) 'original timevar(kend) = ', timevar(kend)
       DO i = 1, kend - 1
         timevar(i+1) = timevar(i) + dels
       ENDDO
-      PRINT *, 'New      timevar(kend) = ', timevar(kend)
+      write(*,*) 'New      timevar(kend) = ', timevar(kend)
 !! hacking (BP feb2011)
 !      kend = 16   ! 2 days for 1986
 !!      kend = 480  ! 2 months for 1986
@@ -2200,7 +2200,7 @@ SUBROUTINE get_met_data(spinup,spinConv,met,soil,rad,                          &
                  //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
             DO i=1,mland ! over all land points/grid cells
               IF ( (landpt(i)%cend - landpt(i)%cstart + 1) < nmetpatches) THEN
-                PRINT *, 'not enough patches at land point ', i
+                write(*,*) 'not enough patches at land point ', i
                 STOP
               END IF
               DO j=1, nmetpatches
@@ -2380,7 +2380,7 @@ END SUBROUTINE close_met_file
 SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad,        &
        sum_flux,bal,logn,vegparmnew,casabiome,casapool,    &
        casaflux,sum_casapool, sum_casaflux,casamet,casabal,phen,POP,spinup,EMSOIL, &
-       TFRZ, LUC_EXPT, POPLUC, BLAZE, SIMFIRE, c13o2pools, sum_c13o2pools, c13o2luc)
+       TFRZ, LUC_EXPT, POPLUC, BLAZE, SIMFIRE, c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc)
    ! Input variables not listed:
    !   filename%type  - via cable_IO_vars_module
    !   exists%type    - via cable_IO_vars_module
@@ -2396,8 +2396,9 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
 
    USE BLAZE_MOD,       ONLY: TYPE_BLAZE, INI_BLAZE
    USE SIMFIRE_MOD,     ONLY: TYPE_SIMFIRE, INI_SIMFIRE
-   use cable_c13o2_def, only: c13o2_pool, c13o2_luc, c13o2_alloc_pools
-   use cable_c13o2,     only: c13o2_init_pools, c13o2_init_luc, c13o2_read_restart_pools
+   use casaparm,        only: initcasa
+   use cable_c13o2_def, only: c13o2_flux, c13o2_pool, c13o2_luc, c13o2_alloc_flux, c13o2_alloc_pools, c13o2_zero_flux
+   use cable_c13o2,     only: c13o2_init_flux, c13o2_init_pools, c13o2_init_luc, c13o2_read_restart_pools
 
    IMPLICIT NONE
 
@@ -2427,6 +2428,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
    TYPE (LUC_EXPT_TYPE), INTENT(INOUT)     :: LUC_EXPT
    TYPE (TYPE_BLAZE), INTENT(INOUT)        :: BLAZE
    TYPE (TYPE_SIMFIRE), INTENT(INOUT)      :: SIMFIRE
+   type(c13o2_flux), intent(out)           :: c13o2flux
    type(c13o2_pool), intent(out)           :: c13o2pools, sum_c13o2pools
    type(c13o2_luc),  intent(out)           :: c13o2luc
    INTEGER,INTENT(IN)                      :: logn     ! log file unit number
@@ -2470,6 +2472,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
     CALL get_default_params(logn,vegparmnew,LUC_EXPT)
     CALL allocate_cable_vars(air,bgc,canopy,met,bal,rad,rough,soil,ssnow, &
             sum_flux,veg,mp)
+    if (cable_user%c13o2) call c13o2_alloc_flux(c13o2flux, mp)
     WRITE(logn,*) ' CABLE variables allocated with ', mp, ' patch(es).'
 
     IF (icycle > 0 .OR. CABLE_USER%CASA_DUMP_WRITE ) then
@@ -2487,6 +2490,10 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
     ! Write parameter values to CABLE's parameter variables:
     CALL write_default_params(met,air,ssnow,veg,bgc,soil,canopy,rough, &
             rad,logn,vegparmnew,smoy, TFRZ, LUC_EXPT)
+    if (cable_user%c13o2) then
+       call c13o2_zero_flux(c13o2flux)
+       call c13o2_init_flux(met, c13o2flux)
+    endif
 
     ! Zero out lai where there is no vegetation acc. to veg. index
     WHERE ( veg%iveg(:) .GE. 14 ) veg%vlai = 0.
@@ -2498,9 +2505,13 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
       IF (cable_user%PHENOLOGY_SWITCH.eq.'MODIS') CALL casa_readphen(veg,casamet,phen)
 
       CALL casa_init(casabiome,casamet,casaflux,casapool,casabal,veg,phen)
-      if (cable_user%c13o2) call c13o2_init_pools(c13o2pools)
-      if (cable_user%c13o2 .and. (.not. spinup)) call c13o2_read_restart_pools(cable_user%c13o2_restart_in_pools, c13o2pools)
-!! vh_js !!
+      if (cable_user%c13o2) then
+         call c13o2_init_pools(casapool, casaflux, c13o2pools)
+         ! if (.not. spinup) &
+         if ((initcasa==1) .and. (.not. cable_user%casa_fromzero)) &
+              call c13o2_read_restart_pools(cable_user%c13o2_restart_in_pools, c13o2pools)
+      endif
+      !! vh_js !!
       IF ( CABLE_USER%CALL_POP ) THEN
          ! evaluate mp_POP and POP_array
          mp_POP = COUNT(casamet%iveg2==forest)+COUNT(casamet%iveg2==shrub)
@@ -2631,9 +2642,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
     END IF ! if restart file exists
 
     ! Overwrite default values by those available in met file:
-    write(*,*) 'before get_parameters_met'
     CALL get_parameters_met(soil,veg,bgc,rough,completeSet)
-    write(*,*) 'after get_parameters_met'
     ! Results of looking for parameters in the met file:
     WRITE(logn,*)
     IF(exists%parameters.AND.completeSet) THEN

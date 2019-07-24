@@ -294,6 +294,7 @@ CONTAINS
     TYPE (TYPE_SIMFIRE)  :: SIMFIRE
 
     ! 13C
+    type(c13o2_flux)                    :: c13o2flux
     type(c13o2_pool)                    :: c13o2pools, sum_c13o2pools
     type(c13o2_luc)                     :: c13o2luc
     integer                             :: c13o2_file_id
@@ -782,7 +783,7 @@ CONTAINS
              IF( icycle>0 .AND. spincasa) THEN
                 PRINT *, 'EXT spincasacnp enabled with mloop= ', mloop, dels, kstart, kend
                 CALL master_spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
-                     casaflux,casamet,casabal,phen,POP,climate,LALLOC, icomm, ocomm)
+                     casaflux,casamet,casabal,phen,POP,climate,LALLOC, c13o2flux, c13o2pools, icomm, ocomm)
                 SPINconv = .FALSE.
                 CASAONLY                   = .TRUE.
                ktau_gl = 0
@@ -8379,7 +8380,7 @@ SUBROUTINE master_end (icycle, restart)
 END SUBROUTINE master_end
 
 SUBROUTINE master_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
-     casaflux,casamet,casabal,phen,POP,climate,LALLOC, icomm, ocomm )
+     casaflux,casamet,casabal,phen,POP,climate,LALLOC, c13o2flux, c13o2pools, icomm, ocomm )
 
   !USE cable_mpimaster
   USE cable_def_types_mod
@@ -8389,9 +8390,10 @@ SUBROUTINE master_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
   USE casaparm
   USE casavariable
   USE phenvariable
-  USE POP_Types,  Only: POP_TYPE
-  USE POPMODULE,            ONLY: POPStep
-  USE TypeDef,              ONLY: i4b, dp
+  USE POP_Types,           Only: POP_TYPE
+  USE POPMODULE,           ONLY: POPStep
+  USE TypeDef,             ONLY: i4b, dp
+  use cable_c13o2_def,     only: c13o2_pool, c13o2_flux
 
   IMPLICIT NONE
   !!CLN  CHARACTER(LEN=99), INTENT(IN)  :: fcnpspin
@@ -8408,10 +8410,11 @@ SUBROUTINE master_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
   TYPE (casa_met),              INTENT(INOUT) :: casamet
   TYPE (casa_balance),          INTENT(INOUT) :: casabal
   TYPE (phen_variable),         INTENT(INOUT) :: phen
-  TYPE (POP_TYPE), INTENT(INOUT)     :: POP
-  TYPE (climate_TYPE), INTENT(INOUT)     :: climate
- 
-   ! communicator for error-messages
+  TYPE (POP_TYPE),              INTENT(INOUT) :: POP
+  TYPE (climate_TYPE),          INTENT(INOUT) :: climate
+  type(c13o2_flux),             intent(in)    :: c13o2flux
+  type(c13o2_pool),             intent(inout) :: c13o2pools
+  ! communicator for error-messages
   INTEGER, INTENT(IN)  :: icomm, ocomm
 
   TYPE (casa_met)  :: casaspin
@@ -8461,8 +8464,8 @@ SUBROUTINE master_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
      WRITE(CYEAR,FMT="(I4)") CABLE_USER%CASA_SPIN_STARTYEAR + nyear - 1
      ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
 
-     call read_casa_dump( ncfile,casamet, casaflux, phen,climate, ktau ,kend,.TRUE. )
-    
+     call read_casa_dump(ncfile, casamet, casaflux, phen, climate, c13o2flux, ktau, kend, .TRUE.)
+
      do idoy=1,mdyear
         ktau=(idoy-1)*ktauday +1
         casamet%tairk(:)       = casamet%Tairkspin(:,idoy)
@@ -8488,24 +8491,26 @@ SUBROUTINE master_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
         phen%doyphase(:,3) =  phen%doyphasespin_3(:,idoy)
         phen%doyphase(:,4) =  phen%doyphasespin_4(:,idoy)
         climate%qtemp_max_last_year(:) =  casamet%mtempspin(:,idoy)
-  
+        if (cable_user%c13o2) then
+           c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
+           c13o2flux%cAn13(:) = casamet%cAn13spin(:,idoy)
+        endif
 
         CALL master_send_input (icomm, casa_dump_ts, idoy)
      enddo
   enddo
 
-
   nloop1= max(1,mloop-3)
 
   DO nloop=1,mloop
-write(*,*) 'nloop =', nloop
+     write(*,*) 'nloop =', nloop
      !!CLN  OPEN(91,file=fcnpspin)
      !!CLN  read(91,*)
      DO nyear=1,myearspin
         
         WRITE(CYEAR,FMT="(I4)") CABLE_USER%CASA_SPIN_STARTYEAR + nyear - 1
         ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
-        call read_casa_dump( ncfile, casamet, casaflux, phen,climate, ktau, kend, .TRUE. )
+        call read_casa_dump(ncfile, casamet, casaflux, phen, climate, c13o2flux, ktau, kend, .TRUE.)
 
         DO idoy=1,mdyear
            ktauy=idoy*ktauday
@@ -8532,8 +8537,12 @@ write(*,*) 'nloop =', nloop
            phen%doyphase(:,3) =  phen%doyphasespin_3(:,idoy)
            phen%doyphase(:,4) =  phen%doyphasespin_4(:,idoy)
            climate%qtemp_max_last_year(:) =  casamet%mtempspin(:,idoy)
-        CALL master_send_input (icomm, casa_dump_ts, idoy)
-     ENDDO ! end doy
+           if (cable_user%c13o2) then
+              c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
+              c13o2flux%cAn13(:) = casamet%cAn13spin(:,idoy)
+           endif           
+           CALL master_send_input(icomm, casa_dump_ts, idoy)
+        ENDDO ! end doy
  
      ENDDO   ! end of nyear
 
@@ -8681,8 +8690,7 @@ SUBROUTINE master_CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
 
      ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
 
-
-     call read_casa_dump( ncfile,casamet, casaflux, phen,climate, 1,1,.TRUE. )
+     call read_casa_dump(ncfile, casamet, casaflux, phen, climate, c13o2flux, 1, 1, .TRUE.)
      !!CLN901  format(A99)
      do idoy=1,mdyear
         ktau=(idoy-1)*ktauday +ktauday
@@ -8710,9 +8718,11 @@ SUBROUTINE master_CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
         phen%doyphase(:,3) =  phen%doyphasespin_3(:,idoy)
         phen%doyphase(:,4) =  phen%doyphasespin_4(:,idoy)
         climate%qtemp_max_last_year(:) =  casamet%mtempspin(:,idoy)
-        CALL master_send_input (icomm, casa_dump_ts, idoy)
-
-
+        if (cable_user%c13o2) then
+           c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
+           c13o2flux%cAn13(:) = casamet%cAn13spin(:,idoy)
+        endif
+        CALL master_send_input(icomm, casa_dump_ts, idoy)
 
 !!$        ! zero annual sums
 !!$        if (idoy==1) CALL casa_cnpflux(casaflux,casapool,casabal,.TRUE.)

@@ -4,7 +4,7 @@
 # This work is licensed under the CABLE Academic User Licence Agreement 
 # (the "Licence").
 # You may not use this file except in compliance with the Licence.
-# A copy of the Licence and registration form ca≈n be obtained from 
+# A copy of the Licence and registration form can be obtained from 
 # http://www.cawcr.gov.au/projects/access/cable
 # You need to register and read the Licence agreement before use.
 # Please contact cable_help@nf.nci.org.au for any questions on 
@@ -50,14 +50,13 @@ LSRC = cable_data.F90 cable_common.F90 cable_define_types.F90 cable_iovars.F90 \
 	cable_optimiseJVratio.F90 cable_bios_met_obs_params.F90	\
 	blaze.F90 blaze_mpi.F90 blaze_driver.F90 simfire.F90 \
 	cable_c13o2.F90 cable_c13o2_def.F90
-LSRCf90 = mo_isotope_pool_model.f90 mo_isotope.f90 mo_constants.f90 mo_utils.f90 mo_kind.f90
+LSRCf90 = mo_isotope_luc_model.f90 mo_isotope_pool_model.f90 mo_isotope.f90 mo_constants.f90 mo_utils.f90 mo_kind.f90
 
 # this is the executable we are building
 PROG = cable-mpi
 
-# from the compiled object files
+# from the compiled object files 
 OBJS = ${LSRC:.F90=.o} ${LSRCf90:.f90=.o}
-
 
 #compiler switches and flags
 CINC = -I$(NCMOD)
@@ -212,23 +211,14 @@ blaze_driver.o: blaze_driver.F90 blaze.o simfire.o
 
 blaze_mpi.o: blaze_mpi.F90
 
-
-mo_kind.o: mo_kind.f90
-mo_utils.o: mo_utils.f90 mo_kind.o
-mo_constants.o: mo_constants.f90 mo_kind.o
-mo_isotope.o: mo_isotope.f90 mo_constants.o mo_kind.o
-mo_isotope_pool_model.o: mo_isotope_pool_model.f90 mo_utils.o mo_kind.o
 cable_c13o2_def.o: cable_c13o2_def.F90 cable_define_types.o casa_variable.o POPLUC.o
-cable_c13o2.o: cable_c13o2.F90 cable_c13o2_def.o cable_define_types.o cable_iovars.o cable_common.o casa_variable.o mo_isotope_pool_model.o mo_isotope.o
-
-
-#cable_c13o2_def.o: cable_c13o2_def.F90 cable_define_types.o casa_variable.o POPLUC.o
-#cable_c13o2.o: cable_c13o2.F90 cable_c13o2_def.o cable_define_types.o cable_iovars.o cable_common.o casa_variable.o mo_isotope_pool_model.o mo_isotope.o
-#mo_isotope_pool_model.o: mo_isotope_pool_model.f90 mo_utils.o mo_kind.o
-#mo_isotope.o: mo_isotope.f90 mo_constants.o mo_kind.o
-#mo_constants.o: mo_constants.f90 mo_kind.o
-#mo_utils.o: mo_utils.f90 mo_kind.o
-#mo_kind.o: mo_kind.f90
+cable_c13o2.o: cable_c13o2.F90 cable_c13o2_def.o cable_define_types.o cable_iovars.o cable_common.o casa_variable.o mo_isotope_luc_model.o mo_isotope_pool_model.o mo_isotope.o
+mo_isotope_luc_model.o: mo_isotope_luc_model.f90 mo_utils.o mo_kind.o
+mo_isotope_pool_model.o: mo_isotope_pool_model.f90 mo_utils.o mo_kind.o
+mo_isotope.o: mo_isotope.f90 mo_constants.o mo_kind.o
+mo_constants.o: mo_constants.f90 mo_kind.o
+mo_utils.o: mo_utils.f90 mo_kind.o
+mo_kind.o: mo_kind.f90
 
 # make clean option
 clean:

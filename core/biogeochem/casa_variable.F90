@@ -233,8 +233,8 @@ MODULE casavariable
                                        fracNalloc,    &
                                        fracPalloc,    &
                                        Crmplant,      &
-                                       kplant, &
-!! vh_js !! additional diagnostic
+                                       kplant,        &
+                                       !! vh_js !! additional diagnostic
                                        Cplant_turnover
     REAL(r_2), DIMENSION(:,:,:),POINTER :: fromPtoL
     REAL(r_2), DIMENSION(:),POINTER :: Cnep,        &
@@ -291,7 +291,7 @@ MODULE casavariable
     REAL(r_2), DIMENSION(:),POINTER    :: CtransferLUC
 
     !CVH variables inherited from BLAZE
-    REAL(r_2), DIMENSION(:,:,:),POINTER :: fromPtoL_fire
+    REAL(r_2), DIMENSION(:,:,:),POINTER  :: fromPtoL_fire
     REAL(r_2), DIMENSION(:,:),POINTER    :: klitter_fire
     REAL(r_2), DIMENSION(:,:),POINTER    :: klitter_tot  ! sum of fire turnover and non-fire turnover (litter)
     REAL(r_2), DIMENSION(:,:),POINTER    :: kplant_fire
@@ -301,16 +301,16 @@ MODULE casavariable
     REAL(r_2), DIMENSION(:),POINTER      :: fluxCtoCO2_plant_fire
     REAL(r_2), DIMENSION(:),POINTER      :: fluxCtoCO2_litter_fire
     REAL(r_2), DIMENSION(:),POINTER      :: fluxNtoAtm_fire
-    REAL(r_2), DIMENSION(:,:,:),POINTER      :: fire_mortality_vs_height
+    REAL(r_2), DIMENSION(:,:,:),POINTER  :: fire_mortality_vs_height
 
     ! Diagnostic fluxes for use in 13C
-    REAL(r_2), DIMENSION(:,:,:),POINTER    :: FluxFromPtoL
-    REAL(r_2), DIMENSION(:,:,:),POINTER    :: FluxFromLtoS
-    REAL(r_2), DIMENSION(:,:,:),POINTER    :: FluxFromStoS
-    REAL(r_2), DIMENSION(:,:),POINTER    :: FluxFromPtoCO2
-    REAL(r_2), DIMENSION(:,:),POINTER    :: FluxFromLtoCO2
-    REAL(r_2), DIMENSION(:,:),POINTER    :: FluxFromStoCO2
-    REAL(r_2), DIMENSION(:),POINTER    :: FluxFromPtoHarvest
+    REAL(r_2), DIMENSION(:,:,:), POINTER :: FluxFromPtoL
+    REAL(r_2), DIMENSION(:,:,:), POINTER :: FluxFromLtoS
+    REAL(r_2), DIMENSION(:,:,:), POINTER :: FluxFromStoS
+    REAL(r_2), DIMENSION(:,:),   POINTER :: FluxFromPtoCO2
+    REAL(r_2), DIMENSION(:,:),   POINTER :: FluxFromLtoCO2
+    REAL(r_2), DIMENSION(:,:),   POINTER :: FluxFromStoCO2
+    REAL(r_2), DIMENSION(:),     POINTER :: FluxFromPtoHarvest
       
   END TYPE casa_flux
 
@@ -349,6 +349,9 @@ MODULE casavariable
                                           moistspin_5,&
                                           moistspin_6, &
                                           mtempspin
+    ! 13C
+    real(r_2), dimension(:,:), pointer :: cAn12spin ! daily cumulated total 12CO2 net assimilation in [g(C)/m2]
+    real(r_2), dimension(:,:), pointer :: cAn13spin ! daily cumulated total 13CO2 net assimilation in [g(13C)/m2]
 
   END TYPE casa_met
 
@@ -616,22 +619,21 @@ SUBROUTINE alloc_casavariable(casabiome,casapool,casaflux, &
        casaflux%FluxFromStoCO2(arraysize,msoil), &
        casaflux%FluxFromPtoHarvest(arraysize))
 
-  ALLOCATE(casamet%glai(arraysize),                &
-           casamet%lnonwood(arraysize),            &
-           casamet%Tairk(arraysize),               &
-           casamet%precip(arraysize),              &
-           casamet%tsoilavg(arraysize),            &
-           casamet%moistavg(arraysize),            &
-           casamet%btran(arraysize),               &
-           casamet%Tsoil(arraysize,ms),            &
-           casamet%moist(arraysize,ms),            &
-           casamet%iveg2(arraysize),               &
-           casamet%ijgcm(arraysize),               &
-           casamet%isorder(arraysize),             &
-           casamet%lat(arraysize),                 &
-           casamet%lon(arraysize),                 &
+  ALLOCATE(casamet%glai(arraysize),                 &
+           casamet%lnonwood(arraysize),             &
+           casamet%Tairk(arraysize),                &
+           casamet%precip(arraysize),               &
+           casamet%tsoilavg(arraysize),             &
+           casamet%moistavg(arraysize),             &
+           casamet%btran(arraysize),                &
+           casamet%Tsoil(arraysize,ms),             &
+           casamet%moist(arraysize,ms),             &
+           casamet%iveg2(arraysize),                &
+           casamet%ijgcm(arraysize),                &
+           casamet%isorder(arraysize),              &
+           casamet%lat(arraysize),                  &
+           casamet%lon(arraysize),                  &
            casamet%areacell(arraysize),             &
-
            casamet%Tairkspin(arraysize,mdyear),     &
            casamet%cgppspin(arraysize,mdyear),      &
            casamet%crmplantspin_1(arraysize,mdyear),&
@@ -649,7 +651,9 @@ SUBROUTINE alloc_casavariable(casabiome,casapool,casaflux, &
            casamet%moistspin_4(arraysize,mdyear),   &
            casamet%moistspin_5(arraysize,mdyear),   &
            casamet%moistspin_6(arraysize,mdyear),  &
-           casamet%mtempspin(arraysize,mdyear))     
+           casamet%mtempspin(arraysize,mdyear))
+  allocate(casamet%cAn12spin(arraysize,mdyear), &
+           casamet%cAn13spin(arraysize,mdyear))
 
   ALLOCATE(casabal%FCgppyear(arraysize),           &
            casabal%FCnppyear(arraysize),           &

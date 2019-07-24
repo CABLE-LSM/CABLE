@@ -1,6 +1,6 @@
 SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
      casaflux,casamet,casabal,phen,POP,climate,LALLOC,LUC_EXPT, POPLUC, &
-     sum_casapool, sum_casaflux, c13o2pools, sum_c13o2pools, c13o2luc )
+     sum_casapool, sum_casaflux, c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc )
 
 
   USE cable_def_types_mod
@@ -21,7 +21,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   USE POPLUC_Module, ONLY: POPLUCStep, POPLUC_weights_Transfer, WRITE_LUC_OUTPUT_NC, &
        POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, READ_LUC_RESTART_NC, &
        POPLUC_set_patchfrac, WRITE_LUC_OUTPUT_GRID_NC
-  use cable_c13o2_def, only: c13o2_pool, c13o2_luc, c13o2_update_sum_pools, c13o2_zero_sum_pools
+  use cable_c13o2_def, only: c13o2_flux, c13o2_pool, c13o2_luc, c13o2_update_sum_pools, c13o2_zero_sum_pools
   use cable_c13o2,     only: c13o2_save_casapool, c13o2_update_pools, c13o2_save_luc, c13o2_update_luc, &
        c13o2_create_output, c13o2_write_output, c13o2_close_output, &
        c13o2_print_delta_pools, c13o2_print_delta_luc
@@ -48,6 +48,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   TYPE(POPLUC_TYPE),          INTENT(INOUT) :: POPLUC
   TYPE (casa_pool),           INTENT(INOUT) :: sum_casapool
   TYPE (casa_flux),           INTENT(INOUT) :: sum_casaflux
+  type(c13o2_flux),           intent(inout) :: c13o2flux
   type(c13o2_pool),           intent(inout) :: c13o2pools
   type(c13o2_pool),           intent(inout) :: sum_c13o2pools
   type(c13o2_luc),            intent(inout) :: c13o2luc
@@ -130,7 +131,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
 
      ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
 
-     call read_casa_dump( ncfile,casamet, casaflux, phen,climate, 1,1,.TRUE. )
+     call read_casa_dump( ncfile, casamet, casaflux, phen, climate, c13o2flux, 1, 1, .TRUE. )
     
      !!CLN901  format(A99)
      do idoy=1,mdyear
@@ -159,6 +160,10 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
         phen%doyphase(:,3) =  phen%doyphasespin_3(:,idoy)
         phen%doyphase(:,4) =  phen%doyphasespin_4(:,idoy)
         climate%qtemp_max_last_year(:) =  casamet%mtempspin(:,idoy)
+        if (cable_user%c13o2) then
+           c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
+           c13o2flux%cAn13(:) = casamet%cAn13spin(:,idoy)
+        endif
 
         if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
         if (cable_user%c13o2) then
@@ -171,7 +176,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
              cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
              nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
              pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
-        if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2pools)
+        if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
         if (cable_user%c13o2) then
            write(*,*) '13C in casaonly_luc - 01'
            call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)

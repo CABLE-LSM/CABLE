@@ -193,6 +193,10 @@ CONTAINS
     canopy%A_slC = 0.0
     canopy%A_slJ = 0.0
 
+    ! 13C
+    canopy%An = 0.0
+    canopy%Rd = 0.0
+
     CALL define_air (met, air)
 
     CALL qsatfjh(qstvair,met%tvair-C%tfrz,met%pmb)
@@ -2194,12 +2198,6 @@ CONTAINS
 
     END DO  ! DO WHILE (ANY(abs_deltlf > 0.1) .AND.  k < C%MAXITER)
 
-
-
-   
- 
-    
-
 !!$  write(3333,"(200e16.6)") tlfx
 !!$  write(3334,"(200e16.6)") met%tvair
 !!$  write(3335,"(200e16.6)") met%tk
@@ -2325,6 +2323,12 @@ CONTAINS
     canopy%dlf = dsx
 
     canopy%evapfbl = ssnow%evapfbl
+
+    ! 13C
+    canopy%An(:,1) = an_y(:,1)
+    canopy%An(:,2) = an_y(:,2)
+    canopy%Rd(:,1) = rdy(:,1)
+    canopy%Rd(:,2) = rdy(:,2)
 
     DEALLOCATE( gswmin )
 
@@ -2507,11 +2511,6 @@ CONTAINS
                    Rd = rdxz(i,j)
                    CALL fAndAn1(cs, g0, X*cs, gamma, beta, gammast, Rd, &
                         Am, dAme(i,j))
-                
- 
-
-
-               
 
                 ENDIF
 

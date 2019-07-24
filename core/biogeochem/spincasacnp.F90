@@ -1,5 +1,5 @@
 SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
-     casaflux,casamet,casabal,phen,POP,climate,LALLOC,c13o2pools)
+     casaflux,casamet,casabal,phen,POP,climate,LALLOC, c13o2flux, c13o2pools)
 
 
   USE cable_def_types_mod
@@ -12,7 +12,7 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
   USE POP_Types,  Only: POP_TYPE
   USE POPMODULE,            ONLY: POPStep
   USE TypeDef,              ONLY: i4b, dp
-  use cable_c13o2_def, only: c13o2_pool
+  use cable_c13o2_def, only: c13o2_pool, c13o2_flux
   use cable_c13o2,     only: c13o2_save_casapool, c13o2_update_pools, &
        c13o2_print_delta_pools
 
@@ -33,6 +33,7 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
   TYPE (phen_variable),         INTENT(INOUT) :: phen
   TYPE (POP_TYPE),              INTENT(INOUT) :: POP
   TYPE (climate_TYPE),          INTENT(INOUT) :: climate
+  type(c13o2_flux),             intent(in)    :: c13o2flux
   type(c13o2_pool),             intent(inout) :: c13o2pools
 
   ! TYPE(casa_met) :: casaspin
@@ -127,7 +128,7 @@ write(600,*) 'csoil3 init: ', casapool%csoil(3,:)
      ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
 
 
-     call read_casa_dump( ncfile,casamet, casaflux, phen,climate, ktau ,kend,.TRUE. )
+     call read_casa_dump( ncfile, casamet, casaflux, phen, climate, c13o2flux, ktau, kend, .TRUE. )
      !!CLN901  format(A99)
      do idoy=1,mdyear
         ktau=(idoy-1)*ktauday +1
@@ -155,6 +156,10 @@ write(600,*) 'csoil3 init: ', casapool%csoil(3,:)
         phen%doyphase(:,3) =  phen%doyphasespin_3(:,idoy)
         phen%doyphase(:,4) =  phen%doyphasespin_4(:,idoy)
         climate%qtemp_max_last_year(:) =  casamet%mtempspin(:,idoy)
+        if (cable_user%c13o2) then
+           c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
+           c13o2flux%cAn13(:) = casamet%cAn13spin(:,idoy)
+        endif
 
         if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
         if (cable_user%c13o2) then
@@ -167,7 +172,7 @@ write(600,*) 'csoil3 init: ', casapool%csoil(3,:)
              cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
              nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
              pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
-        if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2pools)
+        if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
         if (cable_user%c13o2) then
            write(*,*) '13C in spincasacnp - 02'
            call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
@@ -335,7 +340,7 @@ write(600,*) 'csoil3 init: ', casapool%csoil(3,:)
         !write(*,*) 'spincasa CYEAR', CYEAR, ncfile
         WRITE(CYEAR,FMT="(I4)") CABLE_USER%CASA_SPIN_STARTYEAR + nyear - 1
         ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
-        call read_casa_dump( ncfile, casamet, casaflux, phen,climate, ktau, kend, .TRUE. )
+        call read_casa_dump( ncfile, casamet, casaflux, phen, climate, c13o2flux, ktau, kend, .TRUE. )
 
         DO idoy=1,mdyear
            ktauy=idoy*ktauday
@@ -364,6 +369,10 @@ write(600,*) 'csoil3 init: ', casapool%csoil(3,:)
            phen%doyphase(:,3) =  phen%doyphasespin_3(:,idoy)
            phen%doyphase(:,4) =  phen%doyphasespin_4(:,idoy)
            climate%qtemp_max_last_year(:) =  casamet%mtempspin(:,idoy)
+           if (cable_user%c13o2) then
+              c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
+              c13o2flux%cAn13(:) = casamet%cAn13spin(:,idoy)
+           endif
 
            if (nloop==1 .and. nyear==1) then
               write(6002, "(200e16.6)") casamet%tairk(3), casamet%tsoil(3,:),  casamet%moist(3,:), &
@@ -384,7 +393,7 @@ write(600,*) 'csoil3 init: ', casapool%csoil(3,:)
                 cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
                 nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
                 pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
-           if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2pools)
+           if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
            if (cable_user%c13o2) then
               write(*,*) '13C in spincasacnp - 04'
               call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)

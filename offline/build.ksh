@@ -221,7 +221,7 @@ host_mcin()
 	export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
 	if [[ ${idebug} -eq 1 ]] ; then
 	    # debug
-	    export CFLAGS="-check all -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
+	    export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
 	fi
 	export LD=''
 	export NCROOT='/usr/local/netcdf-fortran-4.4.4-ifort'

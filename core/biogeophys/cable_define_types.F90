@@ -53,14 +53,14 @@ MODULE cable_def_types_mod
       msn = 3,       & ! max # snow layers
       swb = 2,       & ! # shortwave bands
       niter = 4,     & ! number of iterations for za/L
- !      ms = 12          ! # soil layers
+      ! ms = 12          ! # soil layers
        ms = 6         ! # soil layers - standard
-      !       ms = 13          ! for Loetschental experiment
-     ! ms = 10
+      ! ms = 13          ! for Loetschental experiment
+      ! ms = 10
 
-!   PRIVATE :: r_2, ms, msn, mf, nrb, ncp, ncs
+   !   PRIVATE :: r_2, ms, msn, mf, nrb, ncp, ncs
 
-! .............................................................................
+   ! .............................................................................
 
    ! Energy and water balance variables:
    TYPE balances_type
@@ -100,7 +100,7 @@ MODULE cable_def_types_mod
 
    END TYPE balances_type
 
-! .............................................................................
+   ! .............................................................................
 
    ! Soil parameters:
    TYPE soil_parameter_type
@@ -149,7 +149,7 @@ MODULE cable_def_types_mod
 
   END TYPE soil_parameter_type
 
-! .............................................................................
+  ! .............................................................................
 
    ! Soil and snow variables:
    TYPE soil_snow_type
@@ -219,7 +219,6 @@ MODULE cable_def_types_mod
          evapfbl,    & !
          tilefrac      ! factor for latent heat
 
-
       REAL(r_2), DIMENSION(:), POINTER ::                                      &
          wbtot   ! total soil water (mm)
 
@@ -229,7 +228,6 @@ MODULE cable_def_types_mod
          wbice,   & ! soil ice
          wblf,    & !
          wbfice     !
-
 
      ! Additional SLI variables:
      REAL(r_2), DIMENSION(:,:), POINTER :: S         ! moisture content relative to sat value    (edit vh 23/01/08)
@@ -260,24 +258,23 @@ MODULE cable_def_types_mod
      REAL(r_2), DIMENSION(:),   POINTER :: Qprec_daily ! liquid precip, daily average (m s-1)
      REAL(r_2), DIMENSION(:),   POINTER :: Qprec_snow_daily ! solid precip, daily average (m s-1)
 
-
-
    END TYPE soil_snow_type
 
-! .............................................................................
+   ! .............................................................................
 
    ! Vegetation parameters:
    TYPE veg_parameter_type
 
-      INTEGER, DIMENSION(:), POINTER ::                                        &
-         iveg , &      ! vegetation type
-         ivegp , &      ! dominant potential vegetation type
-         iLU ! land use type
-      REAL, DIMENSION(:), POINTER ::                                           &
+      INTEGER, DIMENSION(:), POINTER :: &
+         iveg ,   & ! vegetation type
+         ivegp ,  & ! dominant potential vegetation type
+         iLU        ! land use type
+      
+      REAL, DIMENSION(:), POINTER :: &
          canst1,  & ! max intercepted water by canopy (mm/LAI)
          dleaf,   & ! chararacteristc legnth of leaf (m)
          ejmax,   & ! max pot. electron transp rate top leaf(mol/m2/s)
-         ejmax_shade,   & ! max pot. electron transp rate top leaf(mol/m2/s)
+         ejmax_shade, & ! max pot. electron transp rate top leaf(mol/m2/s)
          ejmax_sun,   & ! max pot. electron transp rate top leaf(mol/m2/s)
          meth,    & ! method for calculation of canopy fluxes and temp.
          frac4,   & ! fraction of c4 plants
@@ -294,7 +291,7 @@ MODULE cable_def_types_mod
          tmaxvj,  & ! max temperature of the start of photosynthesis
          vbeta,   & !
          vcmax,   & ! max RuBP carboxylation rate top leaf (mol/m2/s)
-         vcmax_shade,   & ! max RuBP carboxylation rate top leaf (mol/m2/s)
+         vcmax_shade, & ! max RuBP carboxylation rate top leaf (mol/m2/s)
          vcmax_sun,   & ! max RuBP carboxylation rate top leaf (mol/m2/s)
          xfang,   & ! leaf angle PARAMETER
          extkn,   & ! extinction coef for vertical
@@ -306,17 +303,17 @@ MODULE cable_def_types_mod
          convex,  & ! convexity of J-Q response curve
          cfrd,    & ! ratio of day respiration to vcmax
          gswmin,  & ! minimal stomatal conductance
-         conkc0,  &  ! Michaelis-menton constant for carboxylase
-         conko0,  &  ! Michaelis-menton constant for oxygenase
-         ekc,     &  ! activation energy for caroxylagse
-         eko,     &  ! acvtivation enegery for oxygenase
+         conkc0,  & ! Michaelis-Menten constant for carboxylase
+         conko0,  & ! Michaelis-Menten constant for oxygenase
+         ekc,     & ! activation energy for carboxylase
+         eko,     & ! activation energy for oxygenase
          g0,      & ! Belinda's stomatal model intercept, Ticket #56.
          g1         ! Belinda's stomatal model slope, Ticket #56.   
 
-      LOGICAL, DIMENSION(:), POINTER ::                                        &
+      LOGICAL, DIMENSION(:), POINTER :: &
          deciduous ! flag used for phenology fix
 
-      REAL, DIMENSION(:,:), POINTER ::                                         &
+      REAL, DIMENSION(:,:), POINTER :: &
          refl,    &
          taul,    &
          froot      ! fraction of root in each soil layer
@@ -330,8 +327,8 @@ MODULE cable_def_types_mod
      REAL(r_2), DIMENSION(:), POINTER :: clitt     !
 
      ! Additional POP veg param
-     INTEGER, DIMENSION(:,:), POINTER ::  disturbance_interval
-     REAL(r_2), DIMENSION(:,:), POINTER ::  disturbance_intensity
+     INTEGER,   DIMENSION(:,:), POINTER :: disturbance_interval
+     REAL(r_2), DIMENSION(:,:), POINTER :: disturbance_intensity
 
    END TYPE veg_parameter_type
 
@@ -374,7 +371,7 @@ MODULE cable_def_types_mod
          precis,  & ! throughfall to soil, after snow (mm)
          qscrn,   & ! specific humudity at screen height (g/g)
          rnet,    & ! net radiation absorbed by surface (W/m2)
-         rniso,    & !isothermal net radiation absorbed by surface (W/m2)
+         rniso,   & ! isothermal net radiation absorbed by surface (W/m2)
          segg,    & ! latent heatfl from soil mm
          sghflux, & ! ground heat flux (W/m2) ???
          through, & ! canopy throughfall (mm)
@@ -386,15 +383,14 @@ MODULE cable_def_types_mod
          uscrn,   & ! wind speed at screen height (m/s)
          vlaiw,   & ! lai adj for snow depth for calc of resistances
          rghlai,  & ! lai adj for snow depth for calc of resistances
-         fwet     ! fraction of canopy wet
-      
-         
+         fwet       ! fraction of canopy wet
+               
       REAL, DIMENSION(:,:), POINTER ::                                         &
          evapfbl, &
          gswx,    & ! stom cond for water
-         zetar, &   ! stability parameter (ref height)
-          !! vh_js !!
-         zetash      ! stability parameter (shear height)
+         zetar,   & ! stability parameter (ref height)
+         !! vh_js !!
+         zetash     ! stability parameter (shear height)
 
       REAL(r_2), DIMENSION(:), POINTER ::                                      &
          fess,    & ! latent heatfl from soil (W/m2)
@@ -402,22 +398,21 @@ MODULE cable_def_types_mod
          dgdtg,   & ! derivative of gflux wrt soil temp
          fes,     & ! latent heatfl from soil (W/m2)
          fes_cor, & ! latent heatfl from soil (W/m2)
-         fevc,     &  ! dry canopy transpiration (W/m2)
-         ofes,     &   ! latent heatfl from soil (W/m2)
+         fevc,    & ! dry canopy transpiration (W/m2)
+         ofes,    & ! latent heatfl from soil (W/m2)
          A_sh,    & ! gross photosynthesis from shaded leaves
          A_sl,    & ! gross photosynthesis from sunlit leaves
          A_slC,   & ! gross photosynthesis from sunlit leaves (rubisco limited)
          A_shC,   & ! gross photosynthesis from shaded leaves  (rubisco limited)
          A_slJ,   & ! gross photosynthesis from sunlit leaves (rubp limited)
-         A_shJ, &     ! gross photosynthesis from shaded leaves  (rubp limited)
-         eta_A_cs, &      ! elasticity of photosynthesis wrt cs, mulitplied by gross photosythesis
-         dAdcs, & ! sensitivity of photosynthesis wrt cs, mulitplied by gross photosythesis
-         cs, &       ! leaf surface CO2 (ppm), mulitplied by gross photosythesis
-         cs_sl, &    !  leaf surface CO2 (ppm) (sunlit)
-         cs_sh, &    !  leaf surface CO2 (ppm) (shaded)
-         tlf, &      ! dry leaf temperature
-         dlf         ! dryleaf vp minus in-canopy vp (Pa)
-
+         A_shJ,   & ! gross photosynthesis from shaded leaves  (rubp limited)
+         eta_A_cs,& ! elasticity of photosynthesis wrt cs, mulitplied by gross photosythesis
+         dAdcs,   & ! sensitivity of photosynthesis wrt cs, mulitplied by gross photosythesis
+         cs,      & ! leaf surface CO2 (ppm), mulitplied by gross photosythesis
+         cs_sl,   & ! leaf surface CO2 (ppm) (sunlit)
+         cs_sh,   & ! leaf surface CO2 (ppm) (shaded)
+         tlf,     & ! dry leaf temperature
+         dlf        ! dryleaf vp minus in-canopy vp (Pa)
 
      ! Additional variables:
      REAL(r_2), DIMENSION(:,:),   POINTER :: gw     ! dry canopy conductance (ms-1) edit vh 6/7/09
@@ -428,13 +423,16 @@ MODULE cable_def_types_mod
      REAL(r_2), DIMENSION(:,:,:), POINTER :: ci     ! intra-cellular CO2 vh 6/7/09
      REAL(r_2), DIMENSION(:),     POINTER :: fwsoil !
 
-!! vh_js !! !litter thermal conductivity (Wm-2K-1) and vapour diffusivity (m2s-1)
-      REAL(r_2), DIMENSION(:), POINTER :: kthLitt, DvLitt
+     ! vh_js - litter thermal conductivity (Wm-2K-1) and vapour diffusivity (m2s-1)
+     REAL(r_2), DIMENSION(:), POINTER :: kthLitt, DvLitt
 
+     ! 13C
+     real(r_2), dimension(:,:), pointer :: An ! sunlit and shaded net assimilation (mol/m2/s)
+     real(r_2), dimension(:,:), pointer :: Rd ! sunlit and shaded leaf respiration (mol/m2/s)
 
    END TYPE canopy_type
 
-! .............................................................................
+   ! .............................................................................
 
    ! Radiation variables:
    TYPE radiation_type
@@ -475,10 +473,9 @@ MODULE cable_def_types_mod
       REAL, DIMENSION(:,:,:), POINTER ::                                       &
          qcan ! absorbed radiation for canopy (W/m^2)
 
-
   END TYPE radiation_type
 
-! .............................................................................
+  ! .............................................................................
 
    ! Roughness variables:
    TYPE roughness_type
@@ -513,11 +510,9 @@ MODULE cable_def_types_mod
       REAL, DIMENSION(:), POINTER ::                                           &
          term2, term3, term5, term6, term6a ! for aerodyn resist. calc.
 
-
-
    END TYPE roughness_type
 
-! .............................................................................
+   ! .............................................................................
 
    ! Air variables:
    TYPE air_type
@@ -535,7 +530,7 @@ MODULE cable_def_types_mod
 
    END TYPE air_type
 
-! .............................................................................
+   ! .............................................................................
 
    ! Meterological data:
    TYPE met_type
@@ -1083,17 +1078,21 @@ SUBROUTINE alloc_canopy_type(var, mp)
    ALLOCATE ( var % fwsoil(mp) )
    ALLOCATE ( var % ofes(mp) )
 
-    ALLOCATE ( var % gw(mp,mf) )     ! dry canopy conductance (ms-1) edit vh 6/7/09
-    ALLOCATE ( var % ancj(mp,mf,3) ) ! limiting photosynthetic rates (Rubisco,RuBP,sink) vh 6/7/09
-    ALLOCATE ( var % tlfy(mp,mf) )   ! sunlit and shaded leaf temperatures
-    ALLOCATE ( var % ecy(mp,mf) )    ! sunlit and shaded leaf transpiration (dry canopy)
-    ALLOCATE ( var % ecx(mp,mf) )    ! sunlit and shaded leaf latent heat flux
-    ALLOCATE ( var % ci(mp,mf,3) )   ! intra-cellular CO2 vh 6/7/09
-    ALLOCATE ( var % fwsoil (mp) )
+   ALLOCATE ( var % gw(mp,mf) )     ! dry canopy conductance (ms-1) edit vh 6/7/09
+   ALLOCATE ( var % ancj(mp,mf,3) ) ! limiting photosynthetic rates (Rubisco,RuBP,sink) vh 6/7/09
+   ALLOCATE ( var % tlfy(mp,mf) )   ! sunlit and shaded leaf temperatures
+   ALLOCATE ( var % ecy(mp,mf) )    ! sunlit and shaded leaf transpiration (dry canopy)
+   ALLOCATE ( var % ecx(mp,mf) )    ! sunlit and shaded leaf latent heat flux
+   ALLOCATE ( var % ci(mp,mf,3) )   ! intra-cellular CO2 vh 6/7/09
+   ALLOCATE ( var % fwsoil (mp) )
 
-!! vh_js !! liiter resistances to heat and vapour transfer
+   ! vh_js - litter resistances to heat and vapour transfer
    ALLOCATE (var % kthLitt(mp))
    ALLOCATE (var % DvLitt(mp))
+
+   ! 13C
+   allocate(var%An(mp,mf))
+   allocate(var%Rd(mp,mf))
 
 END SUBROUTINE alloc_canopy_type
 
