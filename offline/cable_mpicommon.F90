@@ -92,7 +92,8 @@ MODULE cable_mpicommon
   !INTEGER, PARAMETER :: nmat = 29
   ! MPI: CABLE_r491, after following up with Bernard on the new variables
   ! vh sli nmat + 4 36 -> 40
-  INTEGER, PARAMETER :: nmat = 40
+  !INTEGER, PARAMETER :: nmat = 40
+  INTEGER, PARAMETER :: nmat = 41! added 1 more plant hydraulics mgk576
 
   ! MPI: number of contig vector parts / worker (results)
   !INTEGER, PARAMETER :: nvec = 149
@@ -110,7 +111,7 @@ MODULE cable_mpicommon
   ! INTEGER, PARAMETER :: nvec = 172! 168
   ! INH REV_CORR +3  (SSEB +2 will be needed)
   !INTEGER, PARAMETER :: nvec = 175
-  INTEGER, PARAMETER :: nvec = 178 ! added 3 more plant hydraulics mgk576
+  INTEGER, PARAMETER :: nvec = 177 ! added 2 more plant hydraulics mgk576
 
   ! MPI: number of final casa result matrices and vectors to receive
   ! by the master for casa_poolout and casa_fluxout
