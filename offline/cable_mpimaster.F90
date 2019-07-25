@@ -1915,7 +1915,7 @@ CONTAINS
 
        bidx = bidx + 1
        CALL MPI_Get_address (ssnow%weighted_psi_soil(off), displs(bidx), ierr)
-       blen(bidx) = r1len
+       blen(bidx) = r2len
 
        bidx = bidx + 1
        CALL MPI_Get_address (ssnow%rnof1(off), displs(bidx), ierr)
