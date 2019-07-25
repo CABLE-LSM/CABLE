@@ -1913,6 +1913,7 @@ CONTAINS
        CALL MPI_Get_address (ssnow%runoff(off), displs(bidx), ierr)
        blen(bidx) = r1len
 
+       ! plant hydraulics, mgdk576, 23/07/2019
        bidx = bidx + 1
        CALL MPI_Get_address (ssnow%weighted_psi_soil(off), displs(bidx), ierr)
        blen(bidx) = r2len
@@ -1997,6 +1998,13 @@ CONTAINS
             &                             types(bidx), ierr)
        blen(bidx) = 1
        !blen(bidx) = ms * r2len
+
+       !  plant hydraulics, mgdk576, 23/07/2019
+       bidx = bidx + 1
+       CALL MPI_Get_address (ssnow%psi_soil(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                             types(bidx), ierr)
+       blen(bidx) = 1
 
        bidx = bidx + 1
        CALL MPI_Get_address (ssnow%wbfice(off,1), displs(bidx), ierr)
@@ -4991,12 +4999,12 @@ CONTAINS
        midx = midx + 1
 
        !  plant hydraulics, mgdk576, 23/07/2019
-       ! REAL(r_1)
-       !CALL MPI_Get_address (ssnow%psi_soil(off,1), maddr(midx), ierr) ! 12
-       !CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
-      !      &                        mat_t(midx, rank), ierr)
-       !CALL MPI_Type_commit (mat_t(midx, rank), ierr)
-       !midx = midx + 1
+       ! REAL(r_2)
+       CALL MPI_Get_address (ssnow%psi_soil(off,1), maddr(midx), ierr) ! 12
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                        mat_t(midx, rank), ierr)
+       CALL MPI_Type_commit (mat_t(midx, rank), ierr)
+       midx = midx + 1
 
        ! REAL(r_1)
        CALL MPI_Get_address (ssnow%evapfbl(off,1), maddr(midx), ierr) ! 12
