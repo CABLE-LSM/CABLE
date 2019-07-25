@@ -2717,6 +2717,12 @@ CONTAINS
        CALL MPI_Get_address (canopy%fwsoil(off), displs(bidx), ierr)
        blen(bidx) = r2len
 
+       ! plant hydraulics, mgdk576, 23/07/2019
+       bidx = bidx + 1
+       CALL MPI_Get_address (canopy%psi_leaf(off), displs(bidx), ierr)
+       blen(bidx) = r1len
+
+
        bidx = bidx + 1
        CALL MPI_Get_address (canopy%gswx(off,1), displs(bidx), ierr)
        CALL MPI_Type_create_hvector (mf, r1len, r1stride, MPI_BYTE, &
@@ -2729,10 +2735,8 @@ CONTAINS
             &                             types(bidx), ierr)
        blen(bidx) = 1
 
-       bidx = bidx + 1
-       CALL MPI_Get_address (canopy%psi_leaf(off), displs(bidx), ierr)
-       blen(bidx) = r1len
-      
+
+
 
        ! ------- rough -------
 
@@ -5506,9 +5510,10 @@ CONTAINS
        vidx = vidx + 1
 
        ! plant hydraulics, mgdk576, 23/07/2019
-       CALL MPI_Get_address (canopy%psi_leaf(off), vaddr(vidx), ierr) ! 37
+       CALL MPI_Get_address (canopy%psi_leaf(off), vaddr(vidx), ierr) ! 159
        blen(vidx) = cnt * extr1
        vidx = vidx + 1
+
 
        ! MPI: 2D vars moved above
        ! rwater

@@ -1954,6 +1954,8 @@ CONTAINS
     blen(bidx) = r1len
 
 
+
+
     ! ------- rough -------
 
     bidx = bidx + 1
@@ -4700,7 +4702,6 @@ CONTAINS
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%psi_leaf(off), displs(bidx), ierr)
     blocks(bidx) = r1len
-
 
     ! MPI: 2D vars moved above
     ! rwater
