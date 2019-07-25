@@ -1914,6 +1914,10 @@ CONTAINS
        blen(bidx) = r1len
 
        bidx = bidx + 1
+       CALL MPI_Get_address (ssnow%weighted_psi_soil(off), displs(bidx), ierr)
+       blen(bidx) = r1len
+
+       bidx = bidx + 1
        CALL MPI_Get_address (ssnow%rnof1(off), displs(bidx), ierr)
        blen(bidx) = r1len
 
@@ -3127,6 +3131,8 @@ CONTAINS
        CALL MPI_Get_address (bal%qssrf_tot(off), displs(bidx), ierr)
        blen(bidx) = r1len
 
+
+
        ! additional field missing from previous versions;
        ! added when trying to fix a bug in the new mpi code
        ! the order of these new fields follows the order of their
@@ -3210,10 +3216,6 @@ CONTAINS
        CALL MPI_Get_address (ssnow%qssrf(off), displs(bidx), ierr)
        blen(bidx) = r1len
 
-       ! plant hydraulics, mgdk576, 23/07/2019
-       !bidx = bidx + 1
-       !CALL MPI_Get_address (ssnow%weighted_psi_soil(off), displs(bidx), ierr)
-       !blen(bidx) = r2len
 
        bidx = bidx + 1
        CALL MPI_Get_address (veg%vlaimax(off), displs(bidx), ierr)
@@ -5607,6 +5609,13 @@ CONTAINS
        CALL MPI_Get_address (ssnow%runoff(off), vaddr(vidx), ierr) ! 70
        blen(vidx) = cnt * extr1
        vidx = vidx + 1
+
+       ! plant hydraulics, mgdk576, 23/07/2019
+       CALL MPI_Get_address (ssnow%weighted_psi_soil(off), vaddr(vidx), ierr) ! 69
+       blen(vidx) = cnt * extr2
+       vidx = vidx + 1
+
+
        ! REAL(r_1)
        CALL MPI_Get_address (ssnow%rnof1(off), vaddr(vidx), ierr) ! 71
        blen(vidx) = cnt * extr1

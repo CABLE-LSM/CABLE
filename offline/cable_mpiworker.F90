@@ -1210,6 +1210,12 @@ CONTAINS
     CALL MPI_Get_address (ssnow%runoff, displs(bidx), ierr)
     blen(bidx) = r1len
 
+    ! plant hydraulics, mgdk576, 23/07/2019
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%weighted_psi_soil, displs(bidx), ierr)
+    blen(bidx) = r2len
+
+
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%rnof1, displs(bidx), ierr)
     blen(bidx) = r1len
@@ -2395,11 +2401,6 @@ CONTAINS
     bidx = bidx + 1
     CALL MPI_Get_address (rad%longitude, displs(bidx), ierr)
     blen(bidx) = r1len
-
-    ! plant hydraulics, mgdk576, 23/07/2019
-    !bidx = bidx + 1
-    !CALL MPI_Get_address (ssnow%weighted_psi_soil, displs(bidx), ierr)
-    !blen(bidx) = r2len
 
     !mrd add new GW parameters here
     !2D
@@ -4827,6 +4828,11 @@ CONTAINS
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%runoff(off), displs(bidx), ierr)
     blocks(bidx) = r1len
+
+    ! plant hydraulics, mgdk576, 23/07/2019
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%weighted_psi_soil(off), displs(bidx), ierr)
+    blocks(bidx) = r2len
 
     !vidx = vidx + 1
     ! REAL(r_1)
