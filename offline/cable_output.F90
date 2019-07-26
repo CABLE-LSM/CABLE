@@ -2006,7 +2006,8 @@ CONTAINS
     END IF
 
     ! mgk576, 19/2/2019
-     IF((output%soil) .and. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+     !IF((output%soil) .and. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+     IF(output%soil) THEN
        ! Add current timestep's value to total of temporary output variable:
        out%weighted_psi_soil = out%weighted_psi_soil + &
                                   REAL(ssnow%weighted_psi_soil, 4)
@@ -2025,7 +2026,8 @@ CONTAINS
      END IF
 
      ! mgk576, 19/2/2019
-     IF((output%soil) .and. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+     !IF((output%soil) .and. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+     IF(output%soil) THEN
        ! Add current timestep's value to total of temporary output variable:
        out%psi_soil = out%psi_soil + REAL(ssnow%psi_soil, 4)
        IF(writenow) THEN
@@ -2042,7 +2044,8 @@ CONTAINS
      END IF
 
      ! mgk576, 19/2/2019
-     IF((output%veg) .and. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+     !IF((output%veg) .and. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+     IF(output%veg) THEN
         ! Add current timestep's value to total of temporary output variable:
         out%psi_leaf = out%psi_leaf + REAL(canopy%psi_leaf, 4)
         IF(writenow) THEN
