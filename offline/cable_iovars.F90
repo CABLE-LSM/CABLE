@@ -305,9 +305,13 @@ MODULE cable_IO_vars_module
           LandUseFlux = .FALSE., &
 
           ! mgdk, 19/2/2019, plant hydraulics
-          weighted_psi_soil = .FALSE., &
-          psi_soil = .FALSE., &
-          psi_leaf = .FALSE., &
+          !weighted_psi_soil = .FALSE., &
+          !psi_soil = .FALSE., &
+          !psi_leaf = .FALSE., &
+
+          weighted_psi_soil = .TRUE., &
+          psi_soil = .TRUE., &
+          psi_leaf = .TRUE., &
 
                                 !parameters
           bch = .FALSE.,       & ! parameter b in Campbell equation 1985

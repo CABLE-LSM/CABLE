@@ -631,8 +631,9 @@ CONTAINS
        out%SnowDepth = 0.0 ! initialise
     END IF
 
-    ! mgk576, 19/2/2019
-    IF(output%soil .OR. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+    ! mgk576, 19/2/2019 - I think the issue is that I turn this off for other PFTs?
+    !IF(output%soil .OR. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+    IF(output%soil) THEN
        CALL define_ovar(ncid_out, ovid%weighted_psi_soil, &
                         'weighted_psi_soil', 'MPa', 'weighted psi soil', &
                         patchout%weighted_psi_soil, 'dummy', xID, yID, zID, &
@@ -640,9 +641,10 @@ CONTAINS
        ALLOCATE(out%weighted_psi_soil(mp))
        out%weighted_psi_soil = 0.0 ! initialise
     END IF
-    
-    ! mgk576, 19/2/2019
-    IF(output%soil .OR. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+
+    ! mgk576, 19/2/2019 - I think the issue is that I turn this off for other PFTs?
+    !IF(output%soil .OR. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+    IF(output%soil) THEN
        CALL define_ovar(ncid_out, ovid%psi_soil, &
                         'psi_soil', 'MPa', 'psi soil', &
                         patchout%psi_soil, 'soil', xID, yID, zID, &
@@ -651,8 +653,9 @@ CONTAINS
        out%psi_soil = 0.0 ! initialise
     END IF
 
-    ! mgk576, 19/2/2019
-    IF(output%soil .OR. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+    ! mgk576, 19/2/2019 - I think the issue is that I turn this off for other PFTs?
+    !IF(output%soil .OR. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+    IF(output%soil) THEN
        CALL define_ovar(ncid_out, ovid%psi_leaf, &
                         'psi_leaf', 'MPa', 'psi leaf', &
                         patchout%psi_leaf, 'dummy', xID, yID, zID, &
