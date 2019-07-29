@@ -2288,7 +2288,7 @@ CONTAINS
     ENDIF
 
     canopy%frday = 12.0 * SUM(rdy, 2)
-!! vh !! inserted min to avoid -ve values of GPP
+    !! vh !! inserted min to avoid -ve values of GPP
     canopy%fpn = min(-12.0 * SUM(an_y, 2), canopy%frday)
     ! additional diagnostic variables for assessing contributions of rubisco and rubp limited photosynthesis to
     ! gross photosynthesis in sunlit and shaded leaves.

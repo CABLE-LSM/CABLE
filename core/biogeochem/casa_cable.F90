@@ -1,11 +1,11 @@
 !==============================================================================
-! This source code is part of the 
+! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
 ! This work is licensed under the CSIRO Open Source Software License
 ! Agreement (variation of the BSD / MIT License).
-! 
+!
 ! You may not use this file except in compliance with this License.
-! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located 
+! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located
 ! in each directory containing CABLE code.
 !
 ! ==============================================================================
@@ -39,7 +39,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    USE POPMODULE,            ONLY: POPStep
    USE POP_TYPES,            ONLY: POP_TYPE
    USE cable_phenology_module, ONLY: cable_phenology_clim
-   USE  cable_IO_vars_module, ONLY: wlogn
+   USE cable_IO_vars_module, ONLY: wlogn
    use cable_c13o2_def, only: c13o2_pool, c13o2_flux
    use cable_c13o2,     only: c13o2_save_casapool, c13o2_update_pools, &
        c13o2_print_delta_pools
@@ -74,9 +74,9 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    type(c13o2_pool),           intent(inout) :: c13o2pools
 
    ! local variables added ypwang 5/nov/2012
-   real,      dimension(mp)  :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
-   real,      dimension(mp)  :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
-   real,      dimension(mp)  :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
+   real(r_2), dimension(mp)  :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
+   real(r_2), dimension(mp)  :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
+   real(r_2), dimension(mp)  :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
    real(r_2), dimension(mp)  :: xnplimit,  xkNlimiting, xklitter, xksoil ,xkleaf,xkleafcold,xkleafdry
 
    INTEGER                                   :: it, nit
@@ -87,7 +87,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    ! 13C
    real(dp), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
 
-  
+
    IF ( .NOT. dump_read ) THEN  ! construct casa met and flux inputs from current CABLE run
       IF ( TRIM(cable_user%MetType) .EQ. 'cru' .OR. &
            TRIM(cable_user%MetType) .EQ. 'plum') THEN
@@ -99,7 +99,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
          casamet%tairk  = 0.0
          casamet%tsoil  = 0.0
          casamet%moist  = 0.0
-  
+
       ENDIF
 
       IF(MOD(ktau,ktauday)==1) THEN
@@ -109,8 +109,8 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
          casaflux%cgpp = (-canopy%fpn+canopy%frday)*dels
          casaflux%crmplant(:,leaf) = canopy%frday*dels
          if (cable_user%c13o2) then
-            c13o2flux%cAn12 = 12.0_dp * sum(canopy%An,2) * dels
-            c13o2flux%cAn13 = 13.0_dp * sum(c13o2flux%An,2) * dels
+            c13o2flux%cAn12 = sum(canopy%An,2)    * dels
+            c13o2flux%cAn   = sum(c13o2flux%An,2) * dels
          endif
       ELSE
          Casamet%tairk  =casamet%tairk + met%tk
@@ -119,8 +119,8 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
          casaflux%cgpp = casaflux%cgpp + (-canopy%fpn+canopy%frday)*dels
          casaflux%crmplant(:,leaf) = casaflux%crmplant(:,leaf) + canopy%frday*dels
          if (cable_user%c13o2) then
-            c13o2flux%cAn12 = c13o2flux%cAn12 + 12.0_dp * sum(canopy%An,2) * dels
-            c13o2flux%cAn13 = c13o2flux%cAn13 + 13.0_dp * sum(c13o2flux%An,2) * dels
+            c13o2flux%cAn12 = c13o2flux%cAn12 + sum(canopy%An,2)    * dels
+            c13o2flux%cAn   = c13o2flux%cAn   + sum(c13o2flux%An,2) * dels
          endif
       ENDIF
 
@@ -139,32 +139,36 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 
 
             ENDIF
-  
+
             if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
-            ! if (cable_user%c13o2) then
-            !    print*, '13C in casa_cable - 01'
-            !    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-            ! endif
+            if (cable_user%c13o2) then
+               print*, '13C in casa_cable - 31'
+               call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
+            endif
+            if (cable_user%c13o2) &
+                 print*, 'Old pools 01.3 ', casapool%cplant, casapool%clitter, casapool%csoil, casapool%clabile
             CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
-                casamet,casabal,phen,POP,climate, xnplimit,xkNlimiting,xklitter,xksoil, &
-                xkleaf,xkleafcold,xkleafdry,&
-                cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
-                nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
-                pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
-            if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
-            ! if (cable_user%c13o2) then
-            !    print*, '13C in casa_cable - 02'
-            !    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-            ! endif
+                 casamet,casabal,phen,POP,climate, xnplimit,xkNlimiting,xklitter,xksoil, &
+                 xkleaf,xkleafcold,xkleafdry,&
+                 cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
+                 nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
+                 pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
+            if (cable_user%c13o2) &
+                 print*, 'New pools 01.3 ', casapool%cplant, casapool%clitter, casapool%csoil, casapool%clabile
+            if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools, casapool)
+            if (cable_user%c13o2) then
+               print*, '13C in casa_cable - 32'
+               call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
+            endif
 
             !write(wlogn,*),'after biogeochem npp:', casaflux%cnpp
             !write(wlogn,*),'after biogeochem npp:', casapool%cplant
 
-           
+
             IF (cable_user%CALL_POP) THEN ! accumulate input variables for POP
                ! accumulate annual variables for use in POP
                IF(MOD(ktau/ktauday,LOY)==1 ) THEN
-                  casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7 
+                  casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7
                   ! (assumes 70% of wood NPP is allocated above ground)
                   casabal%LAImax = casamet%glai
                   casabal%Cleafmean = casapool%cplant(:,1)/real(LOY)/1000.
@@ -181,12 +185,12 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 
          ENDIF  ! icycle .gt. 0
 
-         
+
 !!$         write(912,92) real(idoy), casaflux%stemnpp(1), &
 !!$                 casaflux%cnpp(1) * casaflux%fracCalloc(1,2) * 0.7, casapool%cplant(1,2)*0.7*1000, &
 !!$                 casaflux%kplant_tot(1,2)*1000, casaflux%kplant(1,2)*1000
 !!$            92 format (100(f16.8,2x))
-        ENDIF  ! end of day
+      ENDIF  ! end of day
 
    ELSE ! dump_read: ! use casa met and flux inputs from dumpfile
 
@@ -194,18 +198,22 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 
          if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
          if (cable_user%c13o2) then
-            print*, '13C in casa_cable - 03'
+            print*, '13C in casa_cable - 11'
             call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
          endif
+         if (cable_user%c13o2) &
+              print*, 'Old pools 01.1 ', casapool%cplant, casapool%clitter, casapool%csoil, casapool%clabile
          CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
               casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter,xksoil,xkleaf, &
               xkleafcold,xkleafdry,&
               cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
               nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
               pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
+         if (cable_user%c13o2) &
+              print*, 'New pools 01.1 ', casapool%cplant, casapool%clitter, casapool%csoil, casapool%clabile
          if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
          if (cable_user%c13o2) then
-            print*, '13C in casa_cable - 04'
+            print*, '13C in casa_cable - 12'
             call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
          endif
 
@@ -213,7 +221,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 
             ! accumulate annual variables for use in POP
             IF(MOD(ktau/ktauday,LOY)==1) THEN
-               casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7 
+               casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7
                ! (assumes 70% of wood NPP is allocated above ground)
                casabal%LAImax = casamet%glai
                casabal%Cleafmean = casapool%cplant(:,1)/real(LOY)/1000.
@@ -236,370 +244,370 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 
    ENDIF ! dump_read
 
-END SUBROUTINE bgcdriver
-! ==============================================================================
+ END SUBROUTINE bgcdriver
+ ! ==============================================================================
 
-SUBROUTINE POPdriver(casaflux, casabal, veg, POP)
+ SUBROUTINE POPdriver(casaflux, casabal, veg, POP)
 
-  USE cable_def_types_mod
-  USE cable_common_module, only: cable_runtime
-  USE casadimension
-  USE casaparm
-  USE casavariable
-  USE phenvariable
-  USE cable_common_module,  ONLY: CurYear, CABLE_USER
-  USE TypeDef,              ONLY: i4b, dp
-  USE POPMODULE,            ONLY: POPStep
-  USE POP_TYPES,            ONLY: POP_TYPE
-
-
-  IMPLICIT NONE
-
-  
-  TYPE (veg_parameter_type),  INTENT(IN) :: veg  ! vegetation parameters
-  TYPE (casa_flux),           INTENT(IN) :: casaflux
-  TYPE (casa_balance),        INTENT(IN) :: casabal
-  TYPE(POP_TYPE),             INTENT(INOUT) :: POP
-
-  INTEGER                                   :: it, nit
-  REAL(dp)                               :: StemNPP(mp,2)
-  REAL(dp), allocatable :: NPPtoGPP(:)
-  REAL(dp), allocatable ::  LAImax(:)  , Cleafmean(:),  Crootmean(:)
-  CHARACTER                                 :: cyear*4
-  CHARACTER                                 :: ncfile*99
-  !! vh_js !!
-  INTEGER, allocatable :: Iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
-
-  ! INTEGER, INTENT(IN) :: wlogn
-  INTEGER , parameter :: wlogn=6
-
-  if (.NOT.Allocated(LAIMax)) allocate(LAIMax(mp))
-  if (.NOT.Allocated(Cleafmean))  allocate(Cleafmean(mp))
-  if (.NOT.Allocated(Crootmean)) allocate(Crootmean(mp))
-  if (.NOT.Allocated(NPPtoGPP)) allocate(NPPtoGPP(mp))
-  if (.NOT.Allocated(Iw)) allocate(Iw(POP%np))
-
-  IF (cable_user%CALL_POP .and. POP%np.gt.0) THEN ! CALL_POP
-     Iw = POP%Iwood
-
-     StemNPP(:,1) = casaflux%stemnpp 
-     StemNPP(:,2) = 0.0
-     WHERE (casabal%FCgppyear > 1.e-5 .and. casabal%FCnppyear > 1.e-5  )
-        NPPtoGPP = casabal%FCnppyear/casabal%FCgppyear
-     ELSEWHERE
-        NPPtoGPP = 0.5
-     ENDWHERE
-     LAImax = casabal%LAImax
-     Cleafmean = casabal%cleafmean
-     Crootmean = casabal%Crootmean
-
-     CALL POPStep(pop, max(StemNPP(Iw,:)/1000.,0.0001), int(veg%disturbance_interval(Iw,:), i4b),&
-          real(veg%disturbance_intensity(Iw,:),dp)      ,&
-          max(LAImax(Iw),0.001), Cleafmean(Iw), Crootmean(Iw), NPPtoGPP(Iw))
+   USE cable_def_types_mod
+   USE cable_common_module, only: cable_runtime
+   USE casadimension
+   USE casaparm
+   USE casavariable
+   USE phenvariable
+   USE cable_common_module,  ONLY: CurYear, CABLE_USER
+   USE TypeDef,              ONLY: i4b, dp
+   USE POPMODULE,            ONLY: POPStep
+   USE POP_TYPES,            ONLY: POP_TYPE
 
 
-  ENDIF ! CALL_POP
+   IMPLICIT NONE
 
-END SUBROUTINE POPdriver
-! ==============================================================================
-SUBROUTINE read_casa_dump( ncfile, casamet, casaflux,phen, climate, c13o2flux, ncall, kend, allATonce )
 
-      use netcdf
-      use cable_def_types_mod, only: r_2, ms, mp, climate_type
-      use casadimension,       only: mplant, mdyear
-      use casavariable,        only: casa_met, casa_flux
-      use phenvariable
+   TYPE (veg_parameter_type),  INTENT(IN) :: veg  ! vegetation parameters
+   TYPE (casa_flux),           INTENT(IN) :: casaflux
+   TYPE (casa_balance),        INTENT(IN) :: casabal
+   TYPE(POP_TYPE),             INTENT(INOUT) :: POP
+
+   INTEGER                                   :: it, nit
+   REAL(dp)                               :: StemNPP(mp,2)
+   REAL(dp), allocatable :: NPPtoGPP(:)
+   REAL(dp), allocatable ::  LAImax(:)  , Cleafmean(:),  Crootmean(:)
+   CHARACTER                                 :: cyear*4
+   CHARACTER                                 :: ncfile*99
+   !! vh_js !!
+   INTEGER, allocatable :: Iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
+
+   ! INTEGER, INTENT(IN) :: wlogn
+   INTEGER , parameter :: wlogn=6
+
+   if (.NOT.Allocated(LAIMax)) allocate(LAIMax(mp))
+   if (.NOT.Allocated(Cleafmean))  allocate(Cleafmean(mp))
+   if (.NOT.Allocated(Crootmean)) allocate(Crootmean(mp))
+   if (.NOT.Allocated(NPPtoGPP)) allocate(NPPtoGPP(mp))
+   if (.NOT.Allocated(Iw)) allocate(Iw(POP%np))
+
+   IF (cable_user%CALL_POP .and. POP%np.gt.0) THEN ! CALL_POP
+      Iw = POP%Iwood
+
+      StemNPP(:,1) = casaflux%stemnpp
+      StemNPP(:,2) = 0.0
+      WHERE (casabal%FCgppyear > 1.e-5 .and. casabal%FCnppyear > 1.e-5  )
+         NPPtoGPP = casabal%FCnppyear/casabal%FCgppyear
+      ELSEWHERE
+         NPPtoGPP = 0.5
+      ENDWHERE
+      LAImax = casabal%LAImax
+      Cleafmean = casabal%cleafmean
+      Crootmean = casabal%Crootmean
+
+      CALL POPStep(pop, max(StemNPP(Iw,:)/1000.,0.0001), int(veg%disturbance_interval(Iw,:), i4b),&
+           real(veg%disturbance_intensity(Iw,:),dp)      ,&
+           max(LAImax(Iw),0.001), Cleafmean(Iw), Crootmean(Iw), NPPtoGPP(Iw))
+
+
+   ENDIF ! CALL_POP
+
+ END SUBROUTINE POPdriver
+ ! ==============================================================================
+ SUBROUTINE read_casa_dump( ncfile, casamet, casaflux,phen, climate, c13o2flux, ncall, kend, allATonce )
+
+   use netcdf
+   use cable_def_types_mod, only: r_2, ms, mp, climate_type
+   use casadimension,       only: mplant, mdyear
+   use casavariable,        only: casa_met, casa_flux
+   use phenvariable
 #ifndef UM_BUILD
-      USE cable_diag_module,   ONLY: get_var_ncr2, get_var_ncr3, stderr_nc
+   USE cable_diag_module,   ONLY: get_var_ncr2, get_var_ncr3, stderr_nc
 #endif
-      use cable_common_module, only: cable_user
-      use cable_c13o2_def,     only: c13o2_flux
-      
-      implicit none
+   use cable_common_module, only: cable_user
+   use cable_c13o2_def,     only: c13o2_flux
 
-      type(casa_flux),     intent(inout) :: casaflux
-      type(casa_met),      intent(inout) :: casamet
-      type(phen_variable), intent(inout) :: phen
-      type(climate_type),  intent(inout) :: climate  ! climate variables
-      type(c13o2_flux),    intent(inout) :: c13o2flux
-      integer,             intent(in)    :: kend, ncall
-      character(len=*),    intent(in)    :: ncfile
-      logical,             intent(in)    :: allATonce
+   implicit none
 
-      !netcdf IDs/ names
-      INTEGER, PARAMETER :: num_vars=17
-      INTEGER, PARAMETER :: num_dims=3
-      INTEGER, SAVE                        :: ncrid  ! netcdf file ID
-      INTEGER , DIMENSION(num_vars)        :: varrID ! (1) tvair, (2) pmb
+   type(casa_flux),     intent(inout) :: casaflux
+   type(casa_met),      intent(inout) :: casamet
+   type(phen_variable), intent(inout) :: phen
+   type(climate_type),  intent(inout) :: climate  ! climate variables
+   type(c13o2_flux),    intent(inout) :: c13o2flux
+   integer,             intent(in)    :: kend, ncall
+   character(len=*),    intent(in)    :: ncfile
+   logical,             intent(in)    :: allATonce
 
-      !vars
-      CHARACTER(len=*), DIMENSION(num_vars), PARAMETER :: &
-            var_name =  (/  "lat          ", &
-                            "lon          ", &
-                            "casamet_tairk", &
-                            "tsoil        ", &
-                            "moist        ", &
-                            "cgpp         ", &
-                            "crmplant     ", &
-                            "phenphase    ", &
-                            "phendoyphase1", &
-                            "phendoyphase2", &
-                            "phendoyphase3", &
-                            "phendoyphase4", &
-                            "mtemp        ", &
-                            "Ndep         ", &
-                            "Pdep         ", &
-                            "cAn12        ", &
-                            "cAn13        "  &
-                            /)
+   !netcdf IDs/ names
+   INTEGER, PARAMETER :: num_vars=17
+   INTEGER, PARAMETER :: num_dims=3
+   INTEGER, SAVE                        :: ncrid  ! netcdf file ID
+   INTEGER , DIMENSION(num_vars)        :: varrID ! (1) tvair, (2) pmb
 
-      real     , dimension(mp)        :: lat, lon
-      real(r_2), dimension(mp)        :: tairk,  cgpp, mtemp, Ndep, Pdep, cAn12, cAn13
-      real(r_2), dimension(mp,ms)     :: tsoil, moist
-      real(r_2), dimension(mp,mplant) :: crmplant
-      real(r_2), dimension(mp)        :: phenphase, phendoyphase1, &
-           phendoyphase2,  phendoyphase3,  phendoyphase4
-      integer :: ncok,  idoy
+   !vars
+   CHARACTER(len=*), DIMENSION(num_vars), PARAMETER :: &
+        var_name =  (/  "lat          ", &
+        "lon          ", &
+        "casamet_tairk", &
+        "tsoil        ", &
+        "moist        ", &
+        "cgpp         ", &
+        "crmplant     ", &
+        "phenphase    ", &
+        "phendoyphase1", &
+        "phendoyphase2", &
+        "phendoyphase3", &
+        "phendoyphase4", &
+        "mtemp        ", &
+        "Ndep         ", &
+        "Pdep         ", &
+        "cAn12        ", &
+        "cAn13        "  &
+        /)
+
+   real     , dimension(mp)        :: lat, lon
+   real(r_2), dimension(mp)        :: tairk,  cgpp, mtemp, Ndep, Pdep, cAn12, cAn13
+   real(r_2), dimension(mp,ms)     :: tsoil, moist
+   real(r_2), dimension(mp,mplant) :: crmplant
+   real(r_2), dimension(mp)        :: phenphase, phendoyphase1, &
+        phendoyphase2,  phendoyphase3,  phendoyphase4
+   integer :: ncok,  idoy
 
 #ifndef UM_BUILD
 
- IF ( allATonce .OR. ncall .EQ. 1 ) THEN
-         ncok = NF90_OPEN(TRIM(ncfile), nf90_nowrite, ncrid)
-         IF (ncok /= nf90_noerr ) CALL stderr_nc(ncok,'re-opening ', ncfile)
-      ENDIF
-      IF ( allATonce ) THEN
-         DO idoy=1,mdyear
+   IF ( allATonce .OR. ncall .EQ. 1 ) THEN
+      ncok = NF90_OPEN(TRIM(ncfile), nf90_nowrite, ncrid)
+      IF (ncok /= nf90_noerr ) CALL stderr_nc(ncok,'re-opening ', ncfile)
+   ENDIF
+   IF ( allATonce ) THEN
+      DO idoy=1,mdyear
 
-            CALL get_var_ncr2(ncrid, var_name(3),  tairk, idoy)
-            CALL get_var_ncr3(ncrid, var_name(4),  tsoil, idoy, ms)
-            CALL get_var_ncr3(ncrid, var_name(5),  moist, idoy, ms)
-            CALL get_var_ncr2(ncrid, var_name(6),  cgpp,  idoy)
-            CALL get_var_ncr3(ncrid, var_name(7),  crmplant,  idoy, mplant)
-            CALL get_var_ncr2(ncrid, var_name(8),  phenphase, idoy)
-            CALL get_var_ncr2(ncrid, var_name(9),  phendoyphase1, idoy)
-            CALL get_var_ncr2(ncrid, var_name(10), phendoyphase2, idoy)
-            CALL get_var_ncr2(ncrid, var_name(11), phendoyphase3, idoy)
-            CALL get_var_ncr2(ncrid, var_name(12), phendoyphase4, idoy)
-            CALL get_var_ncr2(ncrid, var_name(13), mtemp, idoy)
-            CALL get_var_ncr2(ncrid, var_name(14), Ndep,  idoy)
-            CALL get_var_ncr2(ncrid, var_name(15), Pdep,  idoy)
-            if (cable_user%c13o2) then
-               CALL get_var_ncr2(ncrid, var_name(16), cAn12, idoy)
-               CALL get_var_ncr2(ncrid, var_name(17), cAn13, idoy)
-            endif
-
-            casamet%Tairkspin(:,idoy) = tairk
-            casamet%cgppspin(:,idoy)  = cgpp
-            casamet%crmplantspin_1(:,idoy) = crmplant(:,1)
-            casamet%crmplantspin_2(:,idoy) = crmplant(:,2)
-            casamet%crmplantspin_3(:,idoy) = crmplant(:,3)
-            casamet%Tsoilspin_1(:,idoy)    = tsoil(:,1)
-            casamet%Tsoilspin_2(:,idoy)    = tsoil(:,2)
-            casamet%Tsoilspin_3(:,idoy)    = tsoil(:,3)
-            casamet%Tsoilspin_4(:,idoy)    = tsoil(:,4)
-            casamet%Tsoilspin_5(:,idoy)    = tsoil(:,5)
-            casamet%Tsoilspin_6(:,idoy)    = tsoil(:,6)
-            casamet%moistspin_1(:,idoy)    = moist(:,1)
-            casamet%moistspin_2(:,idoy)    = moist(:,2)
-            casamet%moistspin_3(:,idoy)    = moist(:,3)
-            casamet%moistspin_4(:,idoy)    = moist(:,4)
-            casamet%moistspin_5(:,idoy)    = moist(:,5)
-            casamet%moistspin_6(:,idoy)    = moist(:,6)
-            phen%phasespin(:,idoy) = int(phenphase)
-            phen%doyphasespin_1(:,idoy) = int(phendoyphase1)
-            phen%doyphasespin_2(:,idoy) = int(phendoyphase2)
-            phen%doyphasespin_3(:,idoy) = int(phendoyphase3)
-            phen%doyphasespin_4(:,idoy) = int(phendoyphase4)
-            casamet%mtempspin(:,idoy) = mtemp
-            casaflux%Nmindep = Ndep
-            casaflux%Pdep = Pdep
-            if (cable_user%c13o2) then
-               casamet%cAn12spin(:,idoy) = cAn12
-               casamet%cAn13spin(:,idoy) = cAn13
-            endif
-         END DO
-      ELSE
-
-         CALL get_var_ncr2(ncrid, var_name(3), tairk   ,ncall )
-         CALL get_var_ncr3(ncrid, var_name(4), tsoil   ,ncall , ms)
-         CALL get_var_ncr3(ncrid, var_name(5), moist   ,ncall , ms)
-         CALL get_var_ncr2(ncrid, var_name(6), cgpp    ,ncall )
-         CALL get_var_ncr3(ncrid, var_name(7), crmplant,ncall , mplant)
-         CALL get_var_ncr2(ncrid, var_name(8), phenphase    ,ncall )
-         CALL get_var_ncr2(ncrid, var_name(9), phendoyphase1    ,ncall )
-         CALL get_var_ncr2(ncrid, var_name(10), phendoyphase2    ,ncall )
-         CALL get_var_ncr2(ncrid, var_name(11), phendoyphase3    ,ncall )
-         CALL get_var_ncr2(ncrid, var_name(12), phendoyphase4    ,ncall )
-         CALL get_var_ncr2(ncrid, var_name(13), mtemp   , ncall )
-         CALL get_var_ncr2(ncrid, var_name(14), Ndep   , ncall )
-         CALL get_var_ncr2(ncrid, var_name(15), Pdep   , ncall )
+         CALL get_var_ncr2(ncrid, var_name(3),  tairk, idoy)
+         CALL get_var_ncr3(ncrid, var_name(4),  tsoil, idoy, ms)
+         CALL get_var_ncr3(ncrid, var_name(5),  moist, idoy, ms)
+         CALL get_var_ncr2(ncrid, var_name(6),  cgpp,  idoy)
+         CALL get_var_ncr3(ncrid, var_name(7),  crmplant,  idoy, mplant)
+         CALL get_var_ncr2(ncrid, var_name(8),  phenphase, idoy)
+         CALL get_var_ncr2(ncrid, var_name(9),  phendoyphase1, idoy)
+         CALL get_var_ncr2(ncrid, var_name(10), phendoyphase2, idoy)
+         CALL get_var_ncr2(ncrid, var_name(11), phendoyphase3, idoy)
+         CALL get_var_ncr2(ncrid, var_name(12), phendoyphase4, idoy)
+         CALL get_var_ncr2(ncrid, var_name(13), mtemp, idoy)
+         CALL get_var_ncr2(ncrid, var_name(14), Ndep,  idoy)
+         CALL get_var_ncr2(ncrid, var_name(15), Pdep,  idoy)
          if (cable_user%c13o2) then
-            CALL get_var_ncr2(ncrid, var_name(16), cAn12, ncall)
-            CALL get_var_ncr2(ncrid, var_name(17), cAn13, ncall)
+            CALL get_var_ncr2(ncrid, var_name(16), cAn12, idoy)
+            CALL get_var_ncr2(ncrid, var_name(17), cAn13, idoy)
          endif
 
-         casamet%tairk     = tairk
-         casamet%tsoil     = tsoil
-         casamet%moist     = moist
-         casaflux%cgpp     = cgpp
-         casaflux%crmplant = crmplant
-         phen%phase = int(phenphase)
-         phen%doyphase(:,1) = int(phendoyphase1)
-         phen%doyphase(:,2) = int(phendoyphase2)
-         phen%doyphase(:,3) = int(phendoyphase3)
-         phen%doyphase(:,4) = int(phendoyphase4)
-         climate%qtemp_max_last_year = mtemp
+         casamet%Tairkspin(:,idoy) = tairk
+         casamet%cgppspin(:,idoy)  = cgpp
+         casamet%crmplantspin_1(:,idoy) = crmplant(:,1)
+         casamet%crmplantspin_2(:,idoy) = crmplant(:,2)
+         casamet%crmplantspin_3(:,idoy) = crmplant(:,3)
+         casamet%Tsoilspin_1(:,idoy)    = tsoil(:,1)
+         casamet%Tsoilspin_2(:,idoy)    = tsoil(:,2)
+         casamet%Tsoilspin_3(:,idoy)    = tsoil(:,3)
+         casamet%Tsoilspin_4(:,idoy)    = tsoil(:,4)
+         casamet%Tsoilspin_5(:,idoy)    = tsoil(:,5)
+         casamet%Tsoilspin_6(:,idoy)    = tsoil(:,6)
+         casamet%moistspin_1(:,idoy)    = moist(:,1)
+         casamet%moistspin_2(:,idoy)    = moist(:,2)
+         casamet%moistspin_3(:,idoy)    = moist(:,3)
+         casamet%moistspin_4(:,idoy)    = moist(:,4)
+         casamet%moistspin_5(:,idoy)    = moist(:,5)
+         casamet%moistspin_6(:,idoy)    = moist(:,6)
+         phen%phasespin(:,idoy) = int(phenphase)
+         phen%doyphasespin_1(:,idoy) = int(phendoyphase1)
+         phen%doyphasespin_2(:,idoy) = int(phendoyphase2)
+         phen%doyphasespin_3(:,idoy) = int(phendoyphase3)
+         phen%doyphasespin_4(:,idoy) = int(phendoyphase4)
+         casamet%mtempspin(:,idoy) = mtemp
          casaflux%Nmindep = Ndep
          casaflux%Pdep = Pdep
          if (cable_user%c13o2) then
-            c13o2flux%cAn12 = cAn12
-            c13o2flux%cAn13 = cAn13
+            casamet%cAn12spin(:,idoy) = cAn12
+            casamet%cAn13spin(:,idoy) = cAn13
          endif
-      ENDIF
+      END DO
+   ELSE
 
-      IF ( allATonce .OR. ncall .EQ. kend ) THEN
-         ncok = NF90_CLOSE(ncrid)
-         IF (ncok /= nf90_noerr ) CALL stderr_nc(ncok,'closing ', ncfile)
-      ENDIF
+      CALL get_var_ncr2(ncrid, var_name(3), tairk   ,ncall )
+      CALL get_var_ncr3(ncrid, var_name(4), tsoil   ,ncall , ms)
+      CALL get_var_ncr3(ncrid, var_name(5), moist   ,ncall , ms)
+      CALL get_var_ncr2(ncrid, var_name(6), cgpp    ,ncall )
+      CALL get_var_ncr3(ncrid, var_name(7), crmplant,ncall , mplant)
+      CALL get_var_ncr2(ncrid, var_name(8), phenphase    ,ncall )
+      CALL get_var_ncr2(ncrid, var_name(9), phendoyphase1    ,ncall )
+      CALL get_var_ncr2(ncrid, var_name(10), phendoyphase2    ,ncall )
+      CALL get_var_ncr2(ncrid, var_name(11), phendoyphase3    ,ncall )
+      CALL get_var_ncr2(ncrid, var_name(12), phendoyphase4    ,ncall )
+      CALL get_var_ncr2(ncrid, var_name(13), mtemp   , ncall )
+      CALL get_var_ncr2(ncrid, var_name(14), Ndep   , ncall )
+      CALL get_var_ncr2(ncrid, var_name(15), Pdep   , ncall )
+      if (cable_user%c13o2) then
+         CALL get_var_ncr2(ncrid, var_name(16), cAn12, ncall)
+         CALL get_var_ncr2(ncrid, var_name(17), cAn13, ncall)
+      endif
+
+      casamet%tairk     = tairk
+      casamet%tsoil     = tsoil
+      casamet%moist     = moist
+      casaflux%cgpp     = cgpp
+      casaflux%crmplant = crmplant
+      phen%phase = int(phenphase)
+      phen%doyphase(:,1) = int(phendoyphase1)
+      phen%doyphase(:,2) = int(phendoyphase2)
+      phen%doyphase(:,3) = int(phendoyphase3)
+      phen%doyphase(:,4) = int(phendoyphase4)
+      climate%qtemp_max_last_year = mtemp
+      casaflux%Nmindep = Ndep
+      casaflux%Pdep = Pdep
+      if (cable_user%c13o2) then
+         c13o2flux%cAn12 = cAn12
+         c13o2flux%cAn   = cAn13
+      endif
+   ENDIF
+
+   IF ( allATonce .OR. ncall .EQ. kend ) THEN
+      ncok = NF90_CLOSE(ncrid)
+      IF (ncok /= nf90_noerr ) CALL stderr_nc(ncok,'closing ', ncfile)
+   ENDIF
 #endif
 
-   END SUBROUTINE read_casa_dump
+ END SUBROUTINE read_casa_dump
 
 
-SUBROUTINE write_casa_dump( ncfile, casamet, casaflux, phen, climate, c13o2flux, n_call, kend )
-  USE netcdf
-  USE cable_def_types_mod,   ONLY : r_2,ms,mp, climate_type
-  USE cable_common_module,   ONLY : kend_gl, cable_user
+ SUBROUTINE write_casa_dump( ncfile, casamet, casaflux, phen, climate, c13o2flux, n_call, kend )
+   USE netcdf
+   USE cable_def_types_mod,   ONLY : r_2,ms,mp, climate_type
+   USE cable_common_module,   ONLY : kend_gl, cable_user
 #ifndef UM_BUILD
-  USE cable_diag_module,     ONLY : def_dims, def_vars, def_var_atts, &
-       put_var_nc, stderr_nc
+   USE cable_diag_module,     ONLY : def_dims, def_vars, def_var_atts, &
+        put_var_nc, stderr_nc
 #endif
-  USE casavariable,          ONLY : CASA_MET, CASA_FLUX
-  USE casadimension,         ONLY : mplant
-  USE phenvariable
-  use cable_c13o2_def,       only: c13o2_flux
-  use netcdf
+   USE casavariable,          ONLY : CASA_MET, CASA_FLUX
+   USE casadimension,         ONLY : mplant
+   USE phenvariable
+   use cable_c13o2_def,       only: c13o2_flux
+   use netcdf
 
-  IMPLICIT NONE
+   IMPLICIT NONE
 
-  INTEGER, INTENT(in) :: &
-       n_call, &         ! this timestep #
-       kend              ! final timestep of run
+   INTEGER, INTENT(in) :: &
+        n_call, &         ! this timestep #
+        kend              ! final timestep of run
 
-  TYPE (casa_flux),     INTENT(IN) :: casaflux
-  TYPE (casa_met),      INTENT(IN) :: casamet
-  TYPE (phen_variable), INTENT(IN) :: phen
-  TYPE (climate_type),  INTENT(IN) :: climate  ! climate variables
-  type(c13o2_flux),     intent(in) :: c13o2flux
+   TYPE (casa_flux),     INTENT(IN) :: casaflux
+   TYPE (casa_met),      INTENT(IN) :: casamet
+   TYPE (phen_variable), INTENT(IN) :: phen
+   TYPE (climate_type),  INTENT(IN) :: climate  ! climate variables
+   type(c13o2_flux),     intent(in) :: c13o2flux
 
-  !number of instances. dummied here and so=1
-  !integer :: inst =1
+   !number of instances. dummied here and so=1
+   !integer :: inst =1
 
-  !netcdf IDs/ names
-  CHARACTER(len=*)   :: ncfile
-  INTEGER, PARAMETER :: num_vars=17
-  INTEGER, PARAMETER :: num_dims=3
-  INTEGER, SAVE :: ncid       ! netcdf file ID
+   !netcdf IDs/ names
+   CHARACTER(len=*)   :: ncfile
+   INTEGER, PARAMETER :: num_vars=17
+   INTEGER, PARAMETER :: num_dims=3
+   INTEGER, SAVE :: ncid       ! netcdf file ID
 
-  !vars
-  CHARACTER(len=*), DIMENSION(num_vars), PARAMETER :: &
-       var_name =  (/ &
-       "lat          ", &
-       "lon          ", &
-       "casamet_tairk", &
-       "tsoil        ", &
-       "moist        ", &
-       "cgpp         ", &
-       "crmplant     ", &
-       "phenphase    ", &
-       "phendoyphase1", &
-       "phendoyphase2", &
-       "phendoyphase3", &
-       "phendoyphase4", &
-       "mtemp        ", &
-       "Ndep         ", &
-       "Pdep         ", &
-       "cAn12        ", &
-       "cAn13        "  &
-       /)
+   !vars
+   CHARACTER(len=*), DIMENSION(num_vars), PARAMETER :: &
+        var_name =  (/ &
+        "lat          ", &
+        "lon          ", &
+        "casamet_tairk", &
+        "tsoil        ", &
+        "moist        ", &
+        "cgpp         ", &
+        "crmplant     ", &
+        "phenphase    ", &
+        "phendoyphase1", &
+        "phendoyphase2", &
+        "phendoyphase3", &
+        "phendoyphase4", &
+        "mtemp        ", &
+        "Ndep         ", &
+        "Pdep         ", &
+        "cAn12        ", &
+        "cAn13        "  &
+        /)
 
 
-  INTEGER, DIMENSION(num_vars) :: varID ! (1) tvair, (2) pmb
+   INTEGER, DIMENSION(num_vars) :: varID ! (1) tvair, (2) pmb
 
-  !dims
-  CHARACTER(len=*), DIMENSION(num_dims), PARAMETER :: &
-       dim_name =  (/ "pnt ", &
-       "soil", &
-       "time" /)
+   !dims
+   CHARACTER(len=*), DIMENSION(num_dims), PARAMETER :: &
+        dim_name =  (/ "pnt ", &
+        "soil", &
+        "time" /)
 
-  INTEGER, PARAMETER :: soil_dim = 6
+   INTEGER, PARAMETER :: soil_dim = 6
 
-  INTEGER, DIMENSION(soil_dim), PARAMETER  :: soil = (/ 1,2,3,4,5,6 /)
+   INTEGER, DIMENSION(soil_dim), PARAMETER  :: soil = (/ 1,2,3,4,5,6 /)
 
-  INTEGER, DIMENSION(num_dims)  :: &
-       dimID   ! (1) x, (2) y, (3) time
+   INTEGER, DIMENSION(num_dims)  :: &
+        dimID   ! (1) x, (2) y, (3) time
 
-  INTEGER, DIMENSION(num_dims)  :: &
-                                !x,y generally lat/lon BUT for single site = 1,1
-       dim_len = (/-1,soil_dim,-1/)  ! (1) mp, (2) soil, (3) time [re-set]
+   INTEGER, DIMENSION(num_dims)  :: &
+        !x,y generally lat/lon BUT for single site = 1,1
+        dim_len = (/-1,soil_dim,-1/)  ! (1) mp, (2) soil, (3) time [re-set]
 
-  !local only
-  INTEGER :: ncok      !ncdf return status
+   !local only
+   INTEGER :: ncok      !ncdf return status
 
-  ! END header
+   ! END header
 #ifndef UM_BUILD
-  dim_len(1)        = mp
-  dim_len(num_dims) = NF90_unlimited
+   dim_len(1)        = mp
+   dim_len(num_dims) = NF90_unlimited
 
-  IF (n_call == 1) THEN
- 
-     ! create netCDF dataset: enter define mode
-     ncok = nf90_create(path = TRIM(ncfile), cmode = nf90_clobber, ncid = ncid)
-     IF (ncok /= nf90_noerr) CALL stderr_nc(ncok,'ncdf creating ', ncfile)
+   IF (n_call == 1) THEN
 
-     !ncok = nf90_redef(ncid)
-     !if (ncok /= nf90_noerr) call stderr_nc(ncok,'enter def mode', ncfile)
+      ! create netCDF dataset: enter define mode
+      ncok = nf90_create(path = TRIM(ncfile), cmode = nf90_clobber, ncid = ncid)
+      IF (ncok /= nf90_noerr) CALL stderr_nc(ncok,'ncdf creating ', ncfile)
 
-     ! define dimensions: from name and length
-     CALL def_dims(num_dims, ncid, dimID, dim_len, dim_name )
+      !ncok = nf90_redef(ncid)
+      !if (ncok /= nf90_noerr) call stderr_nc(ncok,'enter def mode', ncfile)
 
-     ! define variables: from name, type, dims
-     CALL def_vars(num_vars, ncid,  nf90_float, dimID, var_name, varID)
+      ! define dimensions: from name and length
+      CALL def_dims(num_dims, ncid, dimID, dim_len, dim_name )
 
-     ! define variable attributes
-     !CLN LATER!             CALL def_var_atts( ncfile, ncid, varID )
+      ! define variables: from name, type, dims
+      CALL def_vars(num_vars, ncid,  nf90_float, dimID, var_name, varID)
 
-     ncok = nf90_enddef(ncid)
-     if (ncok /= nf90_noerr) call stderr_nc(ncok,'end def mode', ncfile)
+      ! define variable attributes
+      !CLN LATER!             CALL def_var_atts( ncfile, ncid, varID )
 
- 
-     CALL put_var_nc(ncid, var_name(1), REAL(casamet%lat))
-     CALL put_var_nc(ncid, var_name(2), REAL(casamet%lon))
+      ncok = nf90_enddef(ncid)
+      if (ncok /= nf90_noerr) call stderr_nc(ncok,'end def mode', ncfile)
 
-  ENDIF
 
-  CALL put_var_nc(ncid, var_name(3), casamet%tairk, n_call)
-  CALL put_var_nc(ncid, var_name(4), casamet%tsoil, n_call, ms)
-  CALL put_var_nc(ncid, var_name(5), casamet%moist, n_call, ms)
-  CALL put_var_nc(ncid, var_name(6), casaflux%cgpp, n_call)
-  CALL put_var_nc(ncid, var_name(7), casaflux%crmplant, n_call, mplant)
-  CALL put_var_nc(ncid, var_name(8), real(phen%phase,r_2), n_call)
-  CALL put_var_nc(ncid, var_name(9), real(phen%doyphase(:,1),r_2), n_call)
-  CALL put_var_nc(ncid, var_name(10), real(phen%doyphase(:,2),r_2), n_call)
-  CALL put_var_nc(ncid, var_name(11), real(phen%doyphase(:,3),r_2), n_call)
-  CALL put_var_nc(ncid, var_name(12), real(phen%doyphase(:,4),r_2), n_call)
-  CALL put_var_nc(ncid, var_name(13), real(climate%qtemp_max_last_year,r_2), n_call)
-  CALL put_var_nc(ncid, var_name(14), real(casaflux%Nmindep,r_2), n_call)
-  CALL put_var_nc(ncid, var_name(15), real(casaflux%Pdep,r_2), n_call)
-  if (cable_user%c13o2) then
-     CALL put_var_nc(ncid, var_name(16), c13o2flux%cAn12, n_call)
-     CALL put_var_nc(ncid, var_name(17), c13o2flux%cAn13, n_call)
-  endif
+      CALL put_var_nc(ncid, var_name(1), REAL(casamet%lat))
+      CALL put_var_nc(ncid, var_name(2), REAL(casamet%lon))
 
-  IF (n_call == kend ) ncok = nf90_close(ncid) ! close: save new netCDF dataset
+   ENDIF
+
+   CALL put_var_nc(ncid, var_name(3), casamet%tairk, n_call)
+   CALL put_var_nc(ncid, var_name(4), casamet%tsoil, n_call, ms)
+   CALL put_var_nc(ncid, var_name(5), casamet%moist, n_call, ms)
+   CALL put_var_nc(ncid, var_name(6), casaflux%cgpp, n_call)
+   CALL put_var_nc(ncid, var_name(7), casaflux%crmplant, n_call, mplant)
+   CALL put_var_nc(ncid, var_name(8), real(phen%phase,r_2), n_call)
+   CALL put_var_nc(ncid, var_name(9), real(phen%doyphase(:,1),r_2), n_call)
+   CALL put_var_nc(ncid, var_name(10), real(phen%doyphase(:,2),r_2), n_call)
+   CALL put_var_nc(ncid, var_name(11), real(phen%doyphase(:,3),r_2), n_call)
+   CALL put_var_nc(ncid, var_name(12), real(phen%doyphase(:,4),r_2), n_call)
+   CALL put_var_nc(ncid, var_name(13), real(climate%qtemp_max_last_year,r_2), n_call)
+   CALL put_var_nc(ncid, var_name(14), real(casaflux%Nmindep,r_2), n_call)
+   CALL put_var_nc(ncid, var_name(15), real(casaflux%Pdep,r_2), n_call)
+   if (cable_user%c13o2) then
+      CALL put_var_nc(ncid, var_name(16), c13o2flux%cAn12, n_call)
+      CALL put_var_nc(ncid, var_name(17), c13o2flux%cAn, n_call)
+   endif
+
+   IF (n_call == kend ) ncok = nf90_close(ncid) ! close: save new netCDF dataset
 
 #endif
-END SUBROUTINE write_casa_dump
+ END SUBROUTINE write_casa_dump
 
 
  SUBROUTINE casa_feedback(ktau,veg,casabiome,casapool,casamet,climate,ktauday)
@@ -617,7 +625,7 @@ END SUBROUTINE write_casa_dump
   TYPE (casa_pool),           INTENT(IN) :: casapool
   TYPE (casa_met),            INTENT(IN) :: casamet
   TYPE (climate_type), INTENT(IN)       :: climate  ! climate variables
-  INTEGER,      INTENT(IN) :: ktauday ! number of time steps per day 
+  INTEGER,      INTENT(IN) :: ktauday ! number of time steps per day
 
   integer np,ivt
   real, dimension(mp)  :: ncleafx,npleafx, pleafx, nleafx ! local variables
@@ -664,9 +672,9 @@ END SUBROUTINE write_casa_dump
        ENDIF
        veg%ejmax = 2.0 * veg%vcmax
     elseif (TRIM(cable_user%vcmax).eq.'Walker2014') then
-       !Walker, A. P. et al.: The relationship of leaf photosynthetic traits – Vcmax and Jmax – 
-       !to leaf nitrogen, leaf phosphorus, and specific leaf area: 
-       !a meta-analysis and modeling study, Ecology and Evolution, 4, 3218-3235, 2014.
+       ! Walker, A. P. et al.: The relationship of leaf photosynthetic traits - Vcmax and Jmax -
+       !   to leaf nitrogen, leaf phosphorus, and specific leaf area: a meta-analysis and modeling study,
+       !   Ecology and Evolution, 4, 3218-3235, 2014.
        ! veg%vcmax(np) = exp(3.946 + 0.921*log(nleafx(np)) + 0.121*log(pleafx(np)) + &
        !      0.282*log(pleafx(np))*log(nleafx(np))) * 1.0e-6
        nleafx(np) = ncleafx(np)/casabiome%sla(ivt) ! leaf N in g N m-2 leaf
@@ -679,31 +687,31 @@ END SUBROUTINE write_casa_dump
 !!$          veg%ejmax(np) =bjvref * veg%vcmax(np)
 !!$       elseif (ivt.eq.1) then
 !!$          ! account here for spring recovery
-!!$          veg%vcmax(np) = vcmax_np(nleafx(np), pleafx(np))*1.25*climate%frec(np) 
+!!$          veg%vcmax(np) = vcmax_np(nleafx(np), pleafx(np))*1.25*climate%frec(np)
 !!$          veg%ejmax(np) =bjvref * veg%vcmax(np)
 !!$       else
 !!$          veg%vcmax(np) = vcmax_np(nleafx(np), pleafx(np))*1.25
 !!$          veg%ejmax(np) =bjvref * veg%vcmax(np)
 !!$       endif
-       
+
        if (ivt .EQ. 7 .OR.ivt .EQ. 9  ) then
           ! special for C4 grass: keep value from  parameter file
           veg%ejmax(np) = 2.0 * veg%vcmax(np)
        elseif (ivt.eq.1) then
            ! account here for spring recovery
           veg%vcmax(np) = vcmax_np(nleafx(np), pleafx(np))*casabiome%vcmax_scalar(ivt) &
-               *climate%frec(np) 
+               *climate%frec(np)
           veg%ejmax(np) =bjvref * veg%vcmax(np)
        else
           veg%vcmax(np) = vcmax_np(nleafx(np), pleafx(np))*casabiome%vcmax_scalar(ivt)
           veg%ejmax(np) =bjvref * veg%vcmax(np)
        endif
-          
-       
+
+
        !veg%ejmax(np) = 2.0 * veg%vcmax(np)
-      
-       
-       
+
+
+
 
        if (cable_user%finite_gm) then
           ! vcmax and jmax modifications according to Sun et al. 2014 Table S3
@@ -726,13 +734,13 @@ END SUBROUTINE write_casa_dump
              veg%vcmax(np) = veg%vcmax(np) * 1.6
              veg%ejmax(np) = veg%vcmax(np) * 1.2
           endif
-          
+
        endif
-   
+
  else
     stop('invalid vcmax flag')
  endif
- 
+
 ENDDO
 
 if (mod(ktau,ktauday) ==1) then
@@ -747,7 +755,7 @@ if (cable_user%coordinate_photosyn) then
 else
    veg%vcmax_shade = veg%vcmax
    veg%ejmax_shade = veg%ejmax
-   
+
    veg%vcmax_sun = veg%vcmax
    veg%ejmax_sun = veg%ejmax
 endif
@@ -935,9 +943,9 @@ END SUBROUTINE sumcflux
 
 
   ! local variables
-  real, dimension(mp)      :: avgcleaf2met,avgcleaf2str,avgcroot2met,avgcroot2str,avgcwood2cwd
-  real, dimension(mp)      :: avgnleaf2met,avgnleaf2str,avgnroot2met,avgnroot2str,avgnwood2cwd
-  real, dimension(mp)      :: avgpleaf2met,avgpleaf2str,avgproot2met,avgproot2str,avgpwood2cwd
+  real(r_2), dimension(mp) :: avgcleaf2met,avgcleaf2str,avgcroot2met,avgcroot2str,avgcwood2cwd
+  real(r_2), dimension(mp) :: avgnleaf2met,avgnleaf2str,avgnroot2met,avgnroot2str,avgnwood2cwd
+  real(r_2), dimension(mp) :: avgpleaf2met,avgpleaf2str,avgproot2met,avgproot2str,avgpwood2cwd
   real, dimension(mp)      :: avgcgpp, avgcnpp, avgnuptake, avgpuptake
   real(r_2), dimension(mp) :: avgxnplimit,avgxkNlimiting,avgxklitter,avgxksoil
   real, dimension(mp)      :: avgratioNCsoilmic,  avgratioNCsoilslow,  avgratioNCsoilpass
@@ -1092,7 +1100,7 @@ END SUBROUTINE sumcflux
 !!$                                     +casaflux%fromLtoS(npt,mic,str) *casaflux%klitter(npt,str)*casapool%clitter(npt,str)  &
 !!$                                     +casaflux%fromLtoS(npt,mic,cwd) *casaflux%klitter(npt,cwd)*casapool%clitter(npt,cwd) ) &
 !!$                                     * (casapool%ratioNCsoil(npt,mic)/casapool%ratioNPsoil(npt,mic))/casaflux%ksoil(npt,mic)
-!!$          
+!!$
 !!$          casapool%psoil(npt,slow)  = (casaflux%fromLtoS(npt,slow,metb)*casaflux%klitter(npt,metb)*casapool%clitter(npt,metb) &
 !!$                                     + casaflux%fromLtoS(npt,slow,str)*casaflux%klitter(npt,str)*casapool%clitter(npt,str) &
 !!$                                     + casaflux%fromLtoS(npt,slow,cwd)*casaflux%klitter(npt,cwd)*casapool%clitter(npt,cwd) &
@@ -1113,7 +1121,7 @@ END SUBROUTINE sumcflux
                                      / casapool%ratioNPsoil(npt,mic)/casaflux%ksoil(npt,mic)
 
 
-          
+
           casapool%psoil(npt,slow)  = (casaflux%fromLtoS(npt,slow,metb)*casaflux%klitter(npt,metb)*casapool%Nlitter(npt,metb) &
                                      + casaflux%fromLtoS(npt,slow,str)*casaflux%klitter(npt,str)*casapool%Nlitter(npt,str) &
                                      + casaflux%fromLtoS(npt,slow,cwd)*casaflux%klitter(npt,cwd)*casapool%Nlitter(npt,cwd) &
@@ -1131,5 +1139,3 @@ END SUBROUTINE sumcflux
   ENDDO
 
   END SUBROUTINE analyticpool
-
-

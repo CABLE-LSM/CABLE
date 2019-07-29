@@ -38,7 +38,7 @@ MODULE cable_c13o2_def
      ! daily cumulated total 12CO2 net assimilation in [g(C)/m2]
      real(dp), dimension(:), pointer   :: cAn12
      ! daily cumulated total 13CO2 net assimilation in [g(13C)/m2]
-     real(dp), dimension(:), pointer   :: cAn13
+     real(dp), dimension(:), pointer   :: cAn
      ! ! Transitory starch concentration in leaf [mol(CO2)/m2]
      ! real(dp), dimension(:,:), pointer :: Vstarch
      ! ! Isotopic composition if leaf sucrose
@@ -85,8 +85,8 @@ contains
     c13o2flux%nleaf = mf
     allocate(c13o2flux%ca(ntile))
     allocate(c13o2flux%An(ntile,mf))
-    allocate(c13o2flux%cAn12(ntile)) ! ToDo: mf
-    allocate(c13o2flux%cAn13(ntile)) ! ToDo: mf
+    allocate(c13o2flux%cAn12(ntile))
+    allocate(c13o2flux%cAn(ntile))
     ! allocate(c13o2flux%Vstarch(ntile,mf))
     ! allocate(c13o2flux%Rsucrose(ntile,mf))
     ! allocate(c13o2flux%Rphoto(ntile,mf))
@@ -154,7 +154,7 @@ contains
     c13o2flux%ca       = 0._dp
     c13o2flux%An       = 0._dp
     c13o2flux%cAn12    = 0._dp
-    c13o2flux%cAn13    = 0._dp
+    c13o2flux%cAn      = 0._dp
     ! c13o2flux%Vstarch  = 0._dp
     ! c13o2flux%Rsucrose = 0._dp
     ! c13o2flux%Rphoto   = 0._dp

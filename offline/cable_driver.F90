@@ -438,6 +438,7 @@ PROGRAM cable_offline_driver
   ! if (cable_user%c13o2) then
   !    call open_c13o2_input_file(dels, koffset, kend, spinup, C%TFRZ)
   ! endif
+  !MC13 ToDo - open input file
 
   ! outer loop - spinup loop no. ktau_tot :
   RYEAR = 0
@@ -827,12 +828,12 @@ PROGRAM cable_offline_driver
               ! Zero out lai where there is no vegetation acc. to veg. index
               WHERE ( veg%iveg(:) .GE. 14 ) veg%vlai = 0.
 
-              !MC13 - ToDo - read input
+              !MC13 ToDo - read input
               ! if (cable_user%c13o2) then
               !    call read_c13o2_input_file(dels, koffset, kend, spinup, C%TFRZ)
               ! endif
               if (cable_user%c13o2) c13o2flux%ca = met%ca * vpdbc13 ! Test
-              !MC13 - ToDo - read input
+              !MC13 ToDo - read input
 
               ! At first time step of year, set tile area according to updated LU areas
               ! and zero casa fluxes
@@ -864,10 +865,10 @@ PROGRAM cable_offline_driver
                           bal, rad, rough, soil, ssnow, &
                           sum_flux, veg, climate)
                  if (cable_user%c13o2) then
-                    !call c13o2_update_flux(canopy, met, c13o2flux)
-                    ! Test
-                    c13o2flux%An = canopy%An * spread(c13o2flux%ca,2,2)
+                    ! call c13o2_update_flux(canopy, met, c13o2flux)
+                    c13o2flux%An = canopy%An * vpdbc13 ! Test
                  endif
+                 !MC13 ToDo - Photosynthesis
 
                  if (cable_user%CALL_climate) then
                     call cable_climate(ktau_tot, kstart, kend, ktauday, idoy, LOY, met, &
@@ -893,18 +894,22 @@ PROGRAM cable_offline_driver
               IF(icycle >0 .OR.       CABLE_USER%CASA_DUMP_WRITE ) THEN
                  !! vh_js !!
 
-                 ! print*, 'Cable driver 07'
-                 ! call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-                 ! call c13o2_print_delta_luc(popluc, c13o2luc)
+                 if (cable_user%c13o2) then
+                    print*, 'Cable driver 07'
+                    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
+                    call c13o2_print_delta_luc(popluc, c13o2luc)
+                 endif
                  CALL bgcdriver( ktau, kstart, kend, dels, met,                     &
                       ssnow, canopy, veg, soil, climate, casabiome,                  &
                       casapool, casaflux, casamet, casabal,                 &
                       phen, pop, spinConv, spinup, ktauday, idoy, loy,              &
                       CABLE_USER%CASA_DUMP_READ, CABLE_USER%CASA_DUMP_WRITE,   &
                       LALLOC, c13o2flux, c13o2pools )
-                 ! print*, 'Cable driver 08'
-                 ! call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-                 ! call c13o2_print_delta_luc(popluc, c13o2luc)
+                 if (cable_user%c13o2) then
+                    print*, 'Cable driver 08'
+                    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
+                    call c13o2_print_delta_luc(popluc, c13o2luc)
+                 endif
 
                  IF(MOD((ktau-kstart+1),ktauday)==0) THEN ! end of day
 

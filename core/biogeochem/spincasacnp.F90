@@ -33,15 +33,15 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
   TYPE (phen_variable),         INTENT(INOUT) :: phen
   TYPE (POP_TYPE),              INTENT(INOUT) :: POP
   TYPE (climate_TYPE),          INTENT(INOUT) :: climate
-  type(c13o2_flux),             intent(in)    :: c13o2flux
+  type(c13o2_flux),             intent(inout) :: c13o2flux
   type(c13o2_pool),             intent(inout) :: c13o2pools
 
   ! TYPE(casa_met) :: casaspin
 
   ! local variables
-  real,      dimension(:), allocatable, save  :: avg_cleaf2met, avg_cleaf2str, avg_croot2met, avg_croot2str, avg_cwood2cwd
-  real,      dimension(:), allocatable, save  :: avg_nleaf2met, avg_nleaf2str, avg_nroot2met, avg_nroot2str, avg_nwood2cwd
-  real,      dimension(:), allocatable, save  :: avg_pleaf2met, avg_pleaf2str, avg_proot2met, avg_proot2str, avg_pwood2cwd
+  real(r_2), dimension(:), allocatable, save  :: avg_cleaf2met, avg_cleaf2str, avg_croot2met, avg_croot2str, avg_cwood2cwd
+  real(r_2), dimension(:), allocatable, save  :: avg_nleaf2met, avg_nleaf2str, avg_nroot2met, avg_nroot2str, avg_nwood2cwd
+  real(r_2), dimension(:), allocatable, save  :: avg_pleaf2met, avg_pleaf2str, avg_proot2met, avg_proot2str, avg_pwood2cwd
   real,      dimension(:), allocatable, save  :: avg_cgpp,      avg_cnpp,      avg_nuptake,   avg_puptake
   real,      dimension(:), allocatable, save  :: avg_nsoilmin,  avg_psoillab,  avg_psoilsorb, avg_psoilocc
   !chris 12/oct/2012 for spin up casa
@@ -54,9 +54,9 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
   CHARACTER(LEN=4)         :: cyear
   INTEGER                  :: ktau,ktauday,nday,idoy,ktaux,ktauy,nloop, LOY
   INTEGER, save            :: ndays
-  real,      dimension(mp)      :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
-  real,      dimension(mp)      :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
-  real,      dimension(mp)      :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
+  real(r_2), dimension(mp)      :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
+  real(r_2), dimension(mp)      :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
+  real(r_2), dimension(mp)      :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
   real,      dimension(mp)      :: xcgpp,     xcnpp,     xnuptake,  xpuptake
   real,      dimension(mp)      :: xnsoilmin, xpsoillab, xpsoilsorb,xpsoilocc
   real(r_2), dimension(mp)      :: xnplimit,  xkNlimiting, xklitter, xksoil,xkleaf, xkleafcold, xkleafdry
@@ -158,23 +158,27 @@ write(600,*) 'csoil3 init: ', casapool%csoil(3,:)
         climate%qtemp_max_last_year(:) =  casamet%mtempspin(:,idoy)
         if (cable_user%c13o2) then
            c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
-           c13o2flux%cAn13(:) = casamet%cAn13spin(:,idoy)
+           c13o2flux%cAn(:)   = casamet%cAn13spin(:,idoy)
         endif
 
         if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
         if (cable_user%c13o2) then
-           write(*,*) '13C in spincasacnp - 01'
+           write(*,*) '13C in spincasacnp - 41'
            call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
         endif
+        if (cable_user%c13o2) &
+             print*, 'Old pools 01.4 ', casapool%cplant, casapool%clitter, casapool%csoil, casapool%clabile
         CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
              casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter, &
              xksoil,xkleaf,xkleafcold,xkleafdry,&
              cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
              nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
              pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
+        if (cable_user%c13o2) &
+             print*, 'New pools 01.4 ', casapool%cplant, casapool%clitter, casapool%csoil, casapool%clabile
         if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
         if (cable_user%c13o2) then
-           write(*,*) '13C in spincasacnp - 02'
+           write(*,*) '13C in spincasacnp - 42'
            call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
         endif
          
@@ -371,7 +375,7 @@ write(600,*) 'csoil3 init: ', casapool%csoil(3,:)
            climate%qtemp_max_last_year(:) =  casamet%mtempspin(:,idoy)
            if (cable_user%c13o2) then
               c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
-              c13o2flux%cAn13(:) = casamet%cAn13spin(:,idoy)
+              c13o2flux%cAn(:)   = casamet%cAn13spin(:,idoy)
            endif
 
            if (nloop==1 .and. nyear==1) then
@@ -384,18 +388,22 @@ write(600,*) 'csoil3 init: ', casapool%csoil(3,:)
 
            if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
            if (cable_user%c13o2) then
-              write(*,*) '13C in spincasacnp - 03'
+              write(*,*) '13C in spincasacnp - 51'
               call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
            endif
+           if (cable_user%c13o2) &
+                print*, 'Old pools 01.5 ', casapool%cplant, casapool%clitter, casapool%csoil, casapool%clabile
            call biogeochem(ktauy,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
                 casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter,xksoil,xkleaf,&
                 xkleafcold,xkleafdry,&
                 cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
                 nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
                 pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
+           if (cable_user%c13o2) &
+                print*, 'New pools 01.5 ', casapool%cplant, casapool%clitter, casapool%csoil, casapool%clabile
            if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
            if (cable_user%c13o2) then
-              write(*,*) '13C in spincasacnp - 04'
+              write(*,*) '13C in spincasacnp - 52'
               call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
            endif
 

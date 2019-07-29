@@ -147,8 +147,8 @@ cable_soilsnow.o: cable_soilsnow.F90 cable_iovars.o cable_define_types.o cable_c
 
 casa_variable.o: casa_variable.F90 POP.o  
 
-spincasacnp.o: spincasacnp.F90  cable_define_types.o  cable_carbon.o cable_common.o \
-	 casa_variable.o cable_c13o2.o cable_c13o2_def.o
+spincasacnp.o: spincasacnp.F90 cable_define_types.o cable_carbon.o cable_common.o \
+	 casa_variable.o cable_c13o2.o cable_c13o2_def.o casa_inout.o casa_cable.o
 
 CASAONLY_LUC.o: CASAONLY_LUC.F90  cable_define_types.o  cable_carbon.o cable_common.o \
 		casa_variable.o POP.o POPLUC.o cable_LUC_EXPT.o cable_c13o2.o cable_c13o2_def.o
@@ -158,7 +158,7 @@ CASAONLY_LUC.o: CASAONLY_LUC.F90  cable_define_types.o  cable_carbon.o cable_com
 #	 casa_variable.o cable_mpicommon.o cable_mpimaster.o
 
 casa_cable.o: casa_cable.F90 POP.o cable_define_types.o  cable_carbon.o casa_variable.o \
-	 spincasacnp.o cable_diag.o cable_phenology.o casa_cnp.o cable_optimiseJVratio.o \
+	 cable_diag.o cable_phenology.o casa_cnp.o cable_optimiseJVratio.o \
 	 cable_c13o2.o cable_c13o2_def.o
 
 casa_cnp.o: casa_cnp.F90 cable_define_types.o  casa_variable.o 

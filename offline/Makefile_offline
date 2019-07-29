@@ -100,7 +100,7 @@ cable_driver.o: cable_driver.F90 pop_io.o cable_diag.o cable_output.o \
 		casa_inout.o cable_input.o cable_common.o cable_data.o cable_sli_main.o \
 		cable_plume_mip.o cable_climate.o cable_cru_TRENDY.o POPLUC.o cable_LUC_EXPT.o \
 		CASAONLY_LUC.o cable_site.o cable_bios_met_obs_params.o \
-		blaze_driver.o simfire.o cable_c13o2_def.o
+		blaze_driver.o simfire.o cable_c13o2_def.o spincasacnp.o
 
 cable_define_types.o: cable_define_types.F90
 
@@ -127,14 +127,14 @@ cable_soilsnow.o: cable_soilsnow.F90 cable_iovars.o cable_define_types.o cable_c
 
 casa_variable.o: casa_variable.F90 POP.o  
 
-spincasacnp.o: spincasacnp.F90  cable_define_types.o  cable_carbon.o cable_common.o casa_variable.o cable_c13o2.o cable_c13o2_def.o
+spincasacnp.o: spincasacnp.F90 cable_define_types.o cable_carbon.o cable_common.o casa_variable.o cable_c13o2.o cable_c13o2_def.o casa_inout.o casa_cable.o
 
 #cable_LUC.o: cable_LUC.F90 cable_carbon.o cable_common.o casa_variable.o POP.o POPLUC.o cable_LUC_EXPT.o
 
 CASAONLY_LUC.o: CASAONLY_LUC.F90  cable_define_types.o  cable_carbon.o cable_common.o casa_variable.o POP.o POPLUC.o cable_LUC_EXPT.o cable_c13o2.o cable_c13o2_def.o
 
 casa_cable.o: casa_cable.F90 POP.o cable_define_types.o  cable_carbon.o casa_variable.o \
-	      spincasacnp.o cable_diag.o cable_phenology.o casa_cnp.o cable_optimiseJVratio.o cable_c13o2.o cable_c13o2_def.o
+	      cable_diag.o cable_phenology.o casa_cnp.o cable_optimiseJVratio.o cable_c13o2.o cable_c13o2_def.o
 
 casa_cnp.o: casa_cnp.F90 cable_define_types.o  casa_variable.o 
 

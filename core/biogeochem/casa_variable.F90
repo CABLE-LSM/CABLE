@@ -32,8 +32,6 @@ MODULE casadimension
 
    IMPLICIT NONE
 
-
-
   INTEGER, PARAMETER :: mdyear=365         ! days per year
   INTEGER, PARAMETER :: mdmonth=30         ! days per month
   INTEGER, PARAMETER :: mdweek=7           ! days per week

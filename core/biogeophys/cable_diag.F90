@@ -263,12 +263,12 @@ END SUBROUTINE cable_diag_data1
          (/ dimID(1),dimID(3)/), varID(15))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(15))
 
-    !cAn12
+    !cAn12spin
     ncok = NF90_DEF_VAR(ncid, trim(var_name(16)), xtype, &
          (/ dimID(1),dimID(3)/), varID(16))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(16))
 
-    !cAn13
+    !cAn13spin
     ncok = NF90_DEF_VAR(ncid, trim(var_name(17)), xtype, &
          (/ dimID(1),dimID(3)/), varID(17))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(17))

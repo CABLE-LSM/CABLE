@@ -1399,8 +1399,8 @@ SUBROUTINE biogeochem(ktau,dels,idoY,LALLOC,veg,soil,casabiome,casapool,casaflux
 
   ! local variables added by ypwang following Chris Lu 5/nov/2012
 
-  real, dimension(mp), INTENT(OUT)   :: cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
-       nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
+  real(r_2), dimension(mp),     INTENT(OUT)   :: cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd, &
+       nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd, &
        pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd
 
   ! local variables
@@ -1518,9 +1518,9 @@ SUBROUTINE biogeochem(ktau,dels,idoY,LALLOC,veg,soil,casabiome,casapool,casaflux
 !!$  ENDIF
 
   ! changed by ypwang following Chris Lu on 5/nov/2012
-  call casa_delplant(veg,casabiome,casapool,casaflux,casamet,                &
-       cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,  &
-       nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,  &
+  call casa_delplant(veg,casabiome,casapool,casaflux,casamet, &
+       cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd, &
+       nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd, &
        pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
 
   casaflux%Cplant_turnover_disturbance = 0
@@ -1563,10 +1563,8 @@ SUBROUTINE biogeochem(ktau,dels,idoY,LALLOC,veg,soil,casabiome,casapool,casaflux
      casapool%Psoillab = max(casapool%Psoillab,1.0)
   ENDIF
 
-
-
-
 END SUBROUTINE biogeochem
+
 
 #ifndef UM_BUILD
 SUBROUTINE WRITE_CASA_RESTART_NC ( casamet, casapool, casaflux, phen, CASAONLY )
