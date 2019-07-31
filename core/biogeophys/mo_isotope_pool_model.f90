@@ -208,7 +208,8 @@ contains
     endif
 
     ! Isotope ratio
-    R(:) = 0._dp
+    ! R(:) = 0._dp
+    R(:) = 1._dp ! could be zero as well to assure no isotopic fluxes if initial C=0
     where (C > 0._dp) R = Ci / C
 
     ! alpha * F
@@ -391,7 +392,8 @@ contains
     if (present(Rt)) then
        iRt = Rt
     else
-       iRt = 1._dp ! could be zero as well to assure no isotopic sink if C=0
+       iRt = 0._dp
+       ! iRt = 1._dp ! could be zero as well to assure no isotopic sink if C=0
        where (C > 0._dp) iRt = Ci / C
     endif
     if (present(alpha)) then
@@ -415,6 +417,7 @@ contains
 
     ! Isotope ratio
     R(:,:) = 0._dp
+    ! R(:,:) = 1._dp ! could be zero as well to assure no isotopic fluxes if initial C=0
     where (C > 0._dp) R = Ci / C
 
     ! alpha * F
@@ -438,11 +441,13 @@ contains
     if (any(Ci < 0._dp)) then
        itrash = itrash + merge(abs(Ci), 0._dp, Ci < 0._dp)
        Ci = merge(0._dp, Ci, Ci < 0._dp)
+       print*, 'Ha01 Ha01 Ha01 Ha01 Ha01 Ha01 Ha01 Ha01 Ha01 Ha01 Ha01 Ha01 Ha01 Ha01 Ha01 Ha01'
     endif
     ! Non-isotope pool == 0. but isotope pool > 0.
     if (any(eq(C,0._dp) .and. (Ci > 0._dp))) then
        itrash = itrash + merge(Ci, 0._dp, eq(C,0._dp) .and. (Ci > 0._dp))
        Ci = merge(0._dp, Ci, eq(C,0._dp) .and. (Ci > 0._dp))
+       print*, 'Ha02 Ha02 Ha02 Ha02 Ha02 Ha02 Ha02 Ha02 Ha02 Ha02 Ha02 Ha02 Ha02 Ha02 Ha02 Ha02'
     endif
     ! Non-isotope pool >0. but isotope pool == 0.
     ! ???

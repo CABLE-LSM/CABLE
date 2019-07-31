@@ -25,7 +25,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   use cable_c13o2,     only: c13o2_save_casapool, c13o2_update_pools, c13o2_save_luc, c13o2_update_luc, &
        c13o2_create_output, c13o2_write_output, c13o2_close_output, &
        c13o2_print_delta_pools, c13o2_print_delta_luc
-  use mo_isotope,      only: vpdbc13
+  ! use mo_isotope,      only: vpdbc13
 
   IMPLICIT NONE
   
@@ -273,9 +273,9 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
                  casaflux%frac_sapwood(j) = 1.0
 
                  if (cable_user%c13o2) then
-                    c13o2pools%cplant(j,leaf)  = 0.01 * vpdbc13
-                    c13o2pools%cplant(j,wood)  = 0.01 * vpdbc13
-                    c13o2pools%cplant(j,froot) = 0.01 * vpdbc13
+                    c13o2pools%cplant(j,leaf)  = 0.01 ! * vpdbc13 / vpdbc13 ! Divide by 13C
+                    c13o2pools%cplant(j,wood)  = 0.01 ! * vpdbc13 / vpdbc13 ! so that about same numerical precision as 12C
+                    c13o2pools%cplant(j,froot) = 0.01 ! * vpdbc13 / vpdbc13 !
                  endif
               endif
            ENDDO

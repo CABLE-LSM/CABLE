@@ -31,14 +31,16 @@ MODULE cable_c13o2_def
   ! types
   type c13o2_flux ! all fluxes in units mol(13CO2)/m2s
      integer                           :: ntile, nleaf
-     ! atmospheric 13CO2 cencentration [mol(13CO2)/mol(air)]
+     ! atmospheric 13CO2 concentration [mol(13CO2)/mol(air)]
      real(dp), dimension(:),  pointer  :: ca
-     ! net assimilation 13CO2 flux [mol(13CO2)/m2s]
+     ! net assimilation 13CO2 flux divided by VPDB [mol(CO2)/m2s]
      real(dp), dimension(:,:), pointer :: An
-     ! daily cumulated total 12CO2 net assimilation in [g(C)/m2]
+     ! daily cumulated total 12CO2 net assimilation in [mol(CO2)/m2]
      real(dp), dimension(:), pointer   :: cAn12
-     ! daily cumulated total 13CO2 net assimilation in [g(13C)/m2]
+     ! daily cumulated total 13CO2 net assimilation divided by VPDB in [mol(CO2)/m2]
      real(dp), dimension(:), pointer   :: cAn
+     ! isotope ratio of daily cumulated total 13CO2 net assimilation over 12CO2 net assimilation divided by VPDB
+     real(dp), dimension(:), pointer   :: RAn
      ! ! Transitory starch concentration in leaf [mol(CO2)/m2]
      ! real(dp), dimension(:,:), pointer :: Vstarch
      ! ! Isotopic composition if leaf sucrose
@@ -49,7 +51,7 @@ MODULE cable_c13o2_def
      ! real(dp), dimension(:,:), pointer :: Rstarch
   end type c13o2_flux
 
-  type c13o2_pool ! all pools in units g(13C)/m2
+  type c13o2_pool ! all pools in units g(C)/m2
      integer                           :: ntile, nplant, nlitter, nsoil, npools
      real(dp), dimension(:,:), pointer :: cplant   ! 13C content in plants: leaves, wood, fine roots
      real(dp), dimension(:,:), pointer :: clitter  ! 13C content in litter: metabolic, fine structural, coarse woody debris
@@ -58,7 +60,7 @@ MODULE cable_c13o2_def
      real(dp), dimension(:),   pointer :: charvest ! 13C content in agricultural harvest products
   end type c13o2_pool
   
-  type c13o2_luc  ! all pools in units g(13C)/m2
+  type c13o2_luc  ! all pools in units g(C)/m2
      integer                           :: nland, nharvest, nclearance, npools
      real(dp), dimension(:,:), pointer :: charvest   ! 13C content in harvest products
      real(dp), dimension(:,:), pointer :: cclearance ! 13C content in clearance products
@@ -87,6 +89,7 @@ contains
     allocate(c13o2flux%An(ntile,mf))
     allocate(c13o2flux%cAn12(ntile))
     allocate(c13o2flux%cAn(ntile))
+    allocate(c13o2flux%RAn(ntile))
     ! allocate(c13o2flux%Vstarch(ntile,mf))
     ! allocate(c13o2flux%Rsucrose(ntile,mf))
     ! allocate(c13o2flux%Rphoto(ntile,mf))
@@ -151,14 +154,9 @@ contains
 
     type(c13o2_flux), intent(inout) :: c13o2flux
 
-    c13o2flux%ca       = 0._dp
     c13o2flux%An       = 0._dp
     c13o2flux%cAn12    = 0._dp
     c13o2flux%cAn      = 0._dp
-    ! c13o2flux%Vstarch  = 0._dp
-    ! c13o2flux%Rsucrose = 0._dp
-    ! c13o2flux%Rphoto   = 0._dp
-    ! c13o2flux%Rstarch  = 0._dp
 
   end subroutine c13o2_zero_flux
 

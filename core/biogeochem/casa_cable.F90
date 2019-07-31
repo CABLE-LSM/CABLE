@@ -70,7 +70,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    TYPE (phen_variable),       INTENT(INOUT) :: phen
    TYPE(POP_TYPE),             INTENT(INOUT) :: POP
    TYPE (climate_type),        INTENT(IN)    :: climate  ! climate variables
-   type(c13o2_flux),           intent(in)    :: c13o2flux
+   type(c13o2_flux),           intent(inout) :: c13o2flux
    type(c13o2_pool),           intent(inout) :: c13o2pools
 
    ! local variables added ypwang 5/nov/2012
@@ -133,33 +133,28 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
             IF (trim(cable_user%PHENOLOGY_SWITCH)=='climate') THEN
                ! get climate_dependent phenology
                call cable_phenology_clim(veg, climate, phen)
-!!$               write(667,91) canopy%fwsoil(3), real(climate%GMD(3)), real(phen%phase(3)), &
-!!$                    casamet%glai(3),  casaflux%fracCalloc(3,1), casaflux%cnpp(3), casaflux%cgpp(3), real(climate%gdd5(3))
-!!$91             format (100(f12.4,2x))
-
-
             ENDIF
 
             if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
-            if (cable_user%c13o2) then
-               print*, '13C in casa_cable - 31'
-               call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-            endif
-            if (cable_user%c13o2) &
-                 print*, 'Old pools 01.3 ', casapool%cplant, casapool%clitter, casapool%csoil, casapool%clabile
-            CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
-                 casamet,casabal,phen,POP,climate, xnplimit,xkNlimiting,xklitter,xksoil, &
-                 xkleaf,xkleafcold,xkleafdry,&
-                 cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
-                 nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
-                 pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
-            if (cable_user%c13o2) &
-                 print*, 'New pools 01.3 ', casapool%cplant, casapool%clitter, casapool%csoil, casapool%clabile
+            ! if (cable_user%c13o2) then
+            !    print*, '13C in casa_cable - 31'
+            !    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
+            ! endif
+            CALL biogeochem(ktau, dels, idoy, LALLOC, veg, soil, casabiome, casapool, casaflux, &
+                 casamet, casabal, phen, POP, climate,  xnplimit, xkNlimiting, xklitter, xksoil, &
+                 xkleaf, xkleafcold, xkleafdry, &
+                 cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd, &
+                 nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd, &
+                 pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd)
+#ifdef C13DEBUG
             if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools, casapool)
-            if (cable_user%c13o2) then
-               print*, '13C in casa_cable - 32'
-               call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-            endif
+#else
+            if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
+#endif
+            ! if (cable_user%c13o2) then
+            !    print*, '13C in casa_cable - 32'
+            !    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
+            ! endif
 
             !write(wlogn,*),'after biogeochem npp:', casaflux%cnpp
             !write(wlogn,*),'after biogeochem npp:', casapool%cplant
@@ -197,25 +192,25 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
       IF( MOD((ktau-kstart+1),ktauday) == 0 ) THEN  ! end of day
 
          if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
-         if (cable_user%c13o2) then
-            print*, '13C in casa_cable - 11'
-            call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-         endif
-         if (cable_user%c13o2) &
-              print*, 'Old pools 01.1 ', casapool%cplant, casapool%clitter, casapool%csoil, casapool%clabile
+         ! if (cable_user%c13o2) then
+         !    print*, '13C in casa_cable - 11'
+         !    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
+         ! endif
          CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
               casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter,xksoil,xkleaf, &
               xkleafcold,xkleafdry,&
               cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
               nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
               pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
-         if (cable_user%c13o2) &
-              print*, 'New pools 01.1 ', casapool%cplant, casapool%clitter, casapool%csoil, casapool%clabile
+#ifdef C13DEBUG
+         if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools, casapool)
+#else
          if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
-         if (cable_user%c13o2) then
-            print*, '13C in casa_cable - 12'
-            call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-         endif
+#endif
+         ! if (cable_user%c13o2) then
+         !    print*, '13C in casa_cable - 12'
+         !    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
+         ! endif
 
          IF (cable_user%CALL_POP) THEN ! accumulate input variables for POP
 

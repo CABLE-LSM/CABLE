@@ -51,7 +51,7 @@ MODULE cable_c13o2
   private :: c13o2_fluxmatrix_pools ! Flux matrix between Casa pools
   private :: c13o2_sinks_pools      ! Sinks of isotope pool model
   private :: c13o2_sources_pools    ! Sources of isotope pool model
-  private :: c13o2_sources_pools_nofrac ! Same but Rass=1, i.e. simply 12C sources
+  private :: c13o2_sources_pools_nofrac ! Same but RAn=1, i.e. simply 12C sources
   private :: c13o2_save_c13o2pools  ! Save 13C Casa pools before update
   private :: c13o2_c13o2pools_back  ! Write 13C Casa pools to c13o2pools after update
 
@@ -77,6 +77,7 @@ contains
   ! Initialise all 13CO2 flux variables
   subroutine c13o2_init_flux(met, c13o2flux)
 
+    use cable_def_types_mod, only: dp => r_2
     use cable_def_types_mod, only: met_type
     use cable_c13o2_def,     only: c13o2_flux
     use mo_isotope,          only: vpdbc13
@@ -86,7 +87,12 @@ contains
     type(met_type),   intent(inout) :: met
     type(c13o2_flux), intent(inout) :: c13o2flux
 
-    c13o2flux%ca = met%ca * vpdbc13
+    c13o2flux%ca  = met%ca * vpdbc13
+    c13o2flux%RAn = 1.0_dp ! vpdbc13 / vpdbc13 ! Divide by 13C so that about same numerical precision as 12C
+    ! c13o2flux%Vstarch  = 0._dp
+    ! c13o2flux%Rsucrose = vpdbc13
+    ! c13o2flux%Rphoto   = vpdbc13
+    ! c13o2flux%Rstarch  = vpdbc13
 
   end subroutine c13o2_init_flux
 
@@ -101,7 +107,7 @@ contains
 
     use casavariable,        only: casa_pool, casa_flux
     use cable_c13o2_def,     only: c13o2_pool
-    use mo_isotope,          only: vpdbc13
+    ! use mo_isotope,          only: vpdbc13
 
     implicit none
 
@@ -109,11 +115,11 @@ contains
     type(casa_flux),  intent(in)    :: casaflux
     type(c13o2_pool), intent(inout) :: c13o2pools
 
-    c13o2pools%cplant   = casapool%cplant   * vpdbc13
-    c13o2pools%clitter  = casapool%clitter  * vpdbc13
-    c13o2pools%csoil    = casapool%csoil    * vpdbc13
-    c13o2pools%clabile  = casapool%clabile  * vpdbc13
-    c13o2pools%charvest = casaflux%Charvest * vpdbc13
+    c13o2pools%cplant   = casapool%cplant   ! * vpdbc13 / vpdbc13 ! Divide by 13C
+    c13o2pools%clitter  = casapool%clitter  ! * vpdbc13 / vpdbc13 ! so that about same numerical precision as 12C
+    c13o2pools%csoil    = casapool%csoil    ! * vpdbc13 / vpdbc13
+    c13o2pools%clabile  = casapool%clabile  ! * vpdbc13 / vpdbc13
+    c13o2pools%charvest = casaflux%Charvest ! * vpdbc13 / vpdbc13
 
   end subroutine c13o2_init_pools
 
@@ -160,27 +166,39 @@ contains
   ! ------------------------------------------------------------------
   
   ! Calculate the generic isotope pool model, updating 13C concentrations in Casa pools
+#ifdef C13DEBUG
   subroutine c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools, casapool)
+#else
+  subroutine c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
+#endif
 
     use cable_def_types_mod,   only: dp => r_2
+    use casadimension,         only: deltpool
     use casavariable,          only: casa_flux
     use casaparm,              only: leaf
     use cable_c13o2_def,       only: c13o2_flux, c13o2_pool
     use mo_isotope_pool_model, only: isotope_pool_model
+#ifdef C13DEBUG
     use casavariable,          only: casa_pool
+#endif
     
     implicit none
 
     real(dp), dimension(:,:), intent(in)    :: casasave
     type(casa_flux),          intent(in)    :: casaflux
-    type(c13o2_flux),         intent(in)    :: c13o2flux
+    type(c13o2_flux),         intent(inout) :: c13o2flux
     type(c13o2_pool),         intent(inout) :: c13o2pools
+#ifdef C13DEBUG
     type(casa_pool), optional,intent(in)    :: casapool
+#endif
 
-    real(dp), dimension(size(casasave,1),size(casasave,2)) :: c13o2save, casasources, casasinks, casatmp, casasourcestmp
+    real(dp), dimension(size(casasave,1),size(casasave,2)) :: c13o2save, casasources, casasinks
     real(dp), dimension(size(casasave,1),size(casasave,2),size(casasave,2)) :: fluxmatrix
+#ifdef C13DEBUG
+    real(dp), dimension(size(casasave,1),size(casasave,2)) :: casatmp, casasourcestmp
     real(dp) :: inew
     integer :: i, j, mp
+#endif
 
     ! update 13C of cumulative harvest
     where (casasave(:,leaf) > 0._dp) c13o2pools%charvest = c13o2pools%charvest + &
@@ -194,48 +212,85 @@ contains
     call c13o2_fluxmatrix_pools(casaflux, fluxmatrix)
     ! sources such as photosynthesis
     call c13o2_sources_pools(c13o2flux, casaflux, casasources)
-    call c13o2_sources_pools_nofrac(c13o2flux, casaflux, casasourcestmp)
+    ! #ifdef C13DEBUG
+    ! call c13o2_sources_pools_nofrac(c13o2flux, casaflux, casasourcestmp)
+    ! #endif
     ! sinks such as respiration
     call c13o2_sinks_pools(casaflux, casasinks)
     
-    ! Check C fluxes
-    ! casasources(:,1:nplant) = casaflux%fracCalloc * spread(casaflux%Cnpp * Rass, 2, nplant)
-    ! casasources(:,nstart) = casaflux%fracClabile * casaflux%Cgpp * Rass
-    ! casasinks(:,nstart:nend) = casaflux%FluxFromPtoCO2
-    ! casasinks(:,nstart:nend) = casaflux%FluxFromLtoCO2
-    ! casasinks(:,nstart:nend) = casaflux%FluxFromStoCO2
-    ! casasinks(:,nstart) = casaflux%clabloss
-    ! fluxmatrix(:,nstartr:nendr,nstartc:nendc) = casaflux%FluxFromPtoL
-    ! fluxmatrix(:,nstartr:nendr,nstartc:nendc) = casaflux%FluxFromLtoS
-    ! fluxmatrix(:,nstartr:nendr,nstartc:nendc) = casaflux%FluxFromStoS
+    ! #ifdef C13DEBUG
+    ! ! Check C fluxes
     ! mp = size(casasave,1)
     ! do i=1, mp
     !    do j=1, 3 ! pools
-    !       inew = casasave(i,j) + casaflux%fracCalloc(i,j) * casaflux%Cnpp(i) &
-    !            - casaflux%FluxFromPtoCO2(i,j) - sum(casaflux%FluxFromPtoL(i,j,:))
-    !       print*, 'Plant ', i, j, casapool%cplant(i,j)-inew
-    !       inew = casasave(i,3+j) &
-    !            - casaflux%FluxFromLtoCO2(i,j) + sum(casaflux%FluxFromPtoL(i,:,j)) - sum(casaflux%FluxFromLtoS(i,j,:))
-    !       print*, 'Litter ', i, j, casapool%clitter(i,j)-inew
+    !       ! inew = casasave(i,j) + casaflux%fracCalloc(i,j) * casaflux%Cnpp(i) &
+    !       !      - casaflux%FluxFromPtoCO2(i,j) - sum(casaflux%FluxFromPtoL(i,j,:))
+    !       ! print*, 'Plant ', i, j, casapool%cplant(i,j)-inew
+    !       ! inew = casasave(i,3+j) &
+    !       !      - casaflux%FluxFromLtoCO2(i,j) + sum(casaflux%FluxFromPtoL(i,:,j)) - sum(casaflux%FluxFromLtoS(i,j,:))
+    !       ! print*, 'Litter ', i, j, casapool%clitter(i,j)-inew
     !       inew = casasave(i,6+j) &
     !            - casaflux%FluxFromStoCO2(i,j) + sum(casaflux%FluxFromLtoS(i,:,j)) - sum(casaflux%FluxFromStoS(i,j,:)) &
     !            + sum(casaflux%FluxFromStoS(i,:,j))
-    !       print*, 'Soil ', i, j, casapool%csoil(i,j)-inew
+    !       print*, '    Soil ', i, j, mydiff(casapool%csoil(i,j),inew)
+    !       ! if (abs(casapool%csoil(i,j)-inew) > 1e-12_dp) then
+    !       !    print*, 's01 ', casasave(i,6+j), casaflux%FluxFromStoCO2(i,j), sum(casaflux%FluxFromLtoS(i,:,j))
+    !       !    print*, 's02 ', sum(casaflux%FluxFromStoS(i,j,:)), sum(casaflux%FluxFromStoS(i,:,j))
+    !       ! endif
     !    end do
     ! end do
+    ! #endif
 
     ! Calc the isotope pool model
-    print*, 'Old pools 02 ', casasave(:,1:3), casasave(:,4:6), casasave(:,7:9), casasave(:,10)
-    call isotope_pool_model(1.0_dp, c13o2save, casasave, fluxmatrix, S=casasources, T=casasinks, trans=.true.)
-    casatmp = casasave
-    call isotope_pool_model(1.0_dp, casatmp, casasave, fluxmatrix, S=casasourcestmp, T=casasinks, trans=.true.)
-    print*, 'New pools 02 ', casatmp(:,1:3), casatmp(:,4:6), casatmp(:,7:9), casatmp(:,10)
-    if (present(casapool)) then
-         print*, 'Diff plant  ', casapool%cplant-casatmp(:,1:3)
-         print*, 'Diff litter ', casapool%clitter-casatmp(:,4:6)
-         print*, 'Diff soil   ', casapool%csoil-casatmp(:,7:9)
-         print*, 'Diff labile ', casapool%clabile-casatmp(:,10)
-      endif
+    ! print*, '    DSoil11 ', mydiff(casasave(:,7:9), c13o2save(:,7:9))
+    ! print*, '    Sour01 ', casasources(:,7:9)
+    ! print*, '    Sink01 ', mydiff(casasinks(:,7:9), casaflux%FluxFromStoCO2)
+    ! print*, '    Flux01 ',  sum(casaflux%FluxFromLtoS,2) + sum(casaflux%FluxFromStoS,2) - sum(fluxmatrix(:,4:9,7:9),2)
+    ! print*, '    Flux02 ',  sum(casaflux%FluxFromStoS,3) - sum(fluxmatrix(:,7:9,4:9), dim=3)
+    ! print*, '    iSour01 ', mydiff(sum(casaflux%FluxFromLtoS,2) + sum(casaflux%FluxFromStoS,2), sum(fluxmatrix(:,:,7:9),2))
+    ! print*, '    iSink01 ', mydiff(sum(casaflux%FluxFromStoS,3), sum(fluxmatrix(:,7:9,:), dim=3))
+    ! print*, 'Ci01 ', casapool%cplant, casapool%clitter, casapool%csoil, casapool%clabile
+    call isotope_pool_model(deltpool, c13o2save, casasave, fluxmatrix, S=casasources, T=casasinks, trans=.true.)
+    ! print*, 'Ci03 ', c13o2save
+    ! #ifdef C13DEBUG
+    ! print*, '    Diff1 plant ', mydiff(casapool%cplant,c13o2save(:,1:3))
+    ! print*, '    Diff1 litter ', mydiff(casapool%clitter,c13o2save(:,4:6))
+    ! print*, '    Diff1 soil ', mydiff(casapool%csoil,c13o2save(:,7:9))
+    ! print*, '    Diff1 labile ', casapool%clabile-c13o2save(:,10)
+    ! casatmp = casasave
+    ! call isotope_pool_model(deltpool, casatmp, casasave, fluxmatrix, S=casasourcestmp, T=casasinks, trans=.true.)
+    ! print*, '    DSoil12 ', mydiff(casatmp(:,7:9),c13o2save(:,7:9))
+    ! print*, '    Diff2 plant ', mydiff(casapool%cplant,casatmp(:,1:3))
+    ! print*, '    Diff2 litter ', mydiff(casapool%clitter,casatmp(:,4:6))
+    ! print*, '    Diff2 soil ', mydiff(casapool%csoil,casatmp(:,7:9))
+    ! print*, '    Diff2 labile ', casapool%clabile-casatmp(:,10)
+    ! print*, '    Sources01 ', casasources
+    ! print*, '    Sources01 ', casasourcestmp
+    ! if (any(abs(c13o2save(:,1:3) - casatmp(:,1:3)) > c13o2save(:,1:3)*epsilon(1.0_dp)*10._dp)) then
+    !    print*, '    DPlant01 ', casapool%cplant
+    !    print*, '    DPlant02 ', c13o2save(:,1:3)
+    !    print*, '    DPlant03 ', casatmp(:,1:3)
+    !    print*, '    DPlant04 ', mydiff(casapool%cplant,c13o2save(:,1:3))
+    ! endif
+    ! if (any(abs(c13o2save(:,4:6) - casatmp(:,4:6)) > c13o2save(:,4:6)*epsilon(1.0_dp)*10._dp)) then
+    !    print*, '    DLitter01 ', casapool%clitter
+    !    print*, '    DLitter02 ', c13o2save(:,4:6)
+    !    print*, '    DLitter03 ', casatmp(:,4:6)
+    !    print*, '    DLitter04 ', casapool%clitter-c13o2save(:,4:6)
+    ! endif
+    ! if (any(abs(c13o2save(:,7:9) - casatmp(:,7:9)) > c13o2save(:,7:9)*epsilon(1.0_dp)*10._dp)) then
+    !    print*, '    DSoil01 ', casapool%csoil
+    !    print*, '    DSoil02 ', c13o2save(:,7:9)
+    !    print*, '    DSoil03 ', casatmp(:,7:9)
+    !    print*, '    DSoil04 ', mydiff(casapool%csoil,c13o2save(:,7:9))
+    ! endif
+    ! if (any(abs(c13o2save(:,10) - casatmp(:,10)) > c13o2save(:,10)*epsilon(1.0_dp)*10._dp)) then
+    !    print*, '    DLabile01 ', casapool%clabile
+    !    print*, '    DLabile02 ', c13o2save(:,10)
+    !    print*, '    DLabile03 ', casatmp(:,10)
+    !    print*, '    DLabile04 ', casapool%clabile-c13o2save(:,10)
+    ! endif
+    ! #endif
 
     ! put new solution into initial c13o2_pool type
     call c13o2_c13o2pools_back(c13o2pools, c13o2save)    
@@ -256,7 +311,7 @@ contains
     use casavariable,        only: casa_pool
     use casaparm,            only: leaf, wood, froot
     use cable_c13o2_def,     only: c13o2_luc, c13o2_pool, c13o2_alloc_luc, c13o2_zero_luc
-    use mo_isotope,          only: vpdbc13
+    ! use mo_isotope,          only: vpdbc13
 
     implicit none
 
@@ -271,9 +326,9 @@ contains
     if (cable_user%POPLUC_RunType == 'init') then
        ! zero biomass in secondary forest tiles (both CASA and POP variables)
        where (veg%iLU(:) == 2)
-          c13o2pools%cplant(:,leaf)  = 0.01 * vpdbc13
-          c13o2pools%cplant(:,wood)  = 0.01 * vpdbc13
-          c13o2pools%cplant(:,froot) = 0.01 * vpdbc13
+          c13o2pools%cplant(:,leaf)  = 0.01 ! * vpdbc13 / vpdbc13 ! Divide by 13C
+          c13o2pools%cplant(:,wood)  = 0.01 ! * vpdbc13 / vpdbc13 ! so that about same numerical precision as 12C
+          c13o2pools%cplant(:,froot) = 0.01 ! * vpdbc13 / vpdbc13
        end where
     else if (cable_user%POPLUC_RunType == 'restart') then
        call c13o2_read_restart_luc(cable_user%c13o2_restart_in_luc, c13o2luc)
@@ -1142,10 +1197,9 @@ contains
   subroutine c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
 
     use cable_def_types_mod, only: dp => r_2
-    use casavariable,        only: casa_pool
-    use casavariable,        only: casa_flux
+    use casavariable,        only: casa_pool, casa_flux
     use cable_c13o2_def,     only: c13o2_pool
-    use mo_isotope,          only: delta1000, vpdbc13
+    use mo_isotope,          only: delta1000!, vpdbc13
 
     implicit none
 
@@ -1153,28 +1207,38 @@ contains
     type(casa_flux),  intent(in) :: casaflux
     type(c13o2_pool), intent(in) :: c13o2pools
 
-    ! integer :: nplant, nlitter, nsoil
+    integer :: nplant, nlitter, nsoil, mp
+    character(len=30) :: form1
 
-    ! nplant  = size(casapool%cplant,2)
-    ! nlitter = size(casapool%clitter,2)
-    ! nsoil   = size(casapool%csoil,2)
+    mp      = size(casapool%cplant,1)
+    nplant  = size(casapool%cplant,2)
+    nlitter = size(casapool%clitter,2)
+    nsoil   = size(casapool%csoil,2)
 
     write(*,*) '    delta-13C of Casa pools'
+    !write(form1,'(A,I3,A)') '(a,', nplant*mp, 'f20.14)'
+    !write(form1,'(A,I3,A)') '(a,', nplant*mp, 'es22.14)'
+    write(form1,'(A,I3,A)') '(a,', nplant*mp, 'g15.6e3)'
     ! write(*,*) '        plant12:    ', casapool%cplant
     ! write(*,*) '        plant13:    ', c13o2pools%cplant
-    write(*,*) '        plant:      ', delta1000(c13o2pools%cplant,   casapool%cplant,   vpdbc13, -999._dp, tiny(1.0_dp))
+    ! write(*,form1) '        plant:      ', delta1000(c13o2pools%cplant,   casapool%cplant,   vpdbc13, -999._dp, tiny(1.0_dp))
+    write(*,form1) '        plant:      ', delta1000(c13o2pools%cplant,   casapool%cplant,   1.0_dp, -999._dp, tiny(1.0_dp))
+    write(form1,'(A,I3,A)') '(a,', nlitter*mp, 'g15.6e3)'
     ! write(*,*) '        litter12:   ', casapool%clitter
     ! write(*,*) '        litter13:   ', c13o2pools%clitter
-    write(*,*) '        litter:     ', delta1000(c13o2pools%clitter,  casapool%clitter,  vpdbc13, -999._dp, tiny(1.0_dp))
+    write(*,form1) '        litter:     ', delta1000(c13o2pools%clitter,  casapool%clitter,  1.0_dp, -999._dp, tiny(1.0_dp))
+    write(form1,'(A,I3,A)') '(a,', nsoil*mp, 'g15.6e3)'
     ! write(*,*) '        soil12:     ', casapool%csoil
     ! write(*,*) '        soil13:     ', c13o2pools%csoil
-    write(*,*) '        soil:       ', delta1000(c13o2pools%csoil,    casapool%csoil,    vpdbc13, -999._dp, tiny(1.0_dp))
+    write(*,form1) '        soil:       ', delta1000(c13o2pools%csoil,    casapool%csoil,    1.0_dp, -999._dp, tiny(1.0_dp))
+    write(form1,'(A,I3,A)') '(a,', 1*mp, 'g15.6e3)'
     ! write(*,*) '        labile12:   ', casapool%clabile
     ! write(*,*) '        labile13:   ', c13o2pools%clabile
-    write(*,*) '        labile:     ', delta1000(c13o2pools%clabile,  casapool%clabile,  vpdbc13, -999._dp, tiny(1.0_dp))
+    write(*,form1) '        labile:     ', delta1000(c13o2pools%clabile,  casapool%clabile,  1.0_dp, -999._dp, tiny(1.0_dp))
+    write(form1,'(A,I3,A)') '(a,', 1*mp, 'g15.6e3)'
     ! write(*,*) '        Charvest12: ', casaflux%Charvest
     ! write(*,*) '        Charvest13: ', c13o2pools%charvest
-    write(*,*) '        Charvest:   ', delta1000(c13o2pools%charvest, casaflux%Charvest, vpdbc13, -999._dp, tiny(1.0_dp))
+    write(*,form1) '        Charvest:   ', delta1000(c13o2pools%charvest, casaflux%Charvest, 1.0_dp, -999._dp, tiny(1.0_dp))
 
   end subroutine c13o2_print_delta_pools
 
@@ -1186,22 +1250,28 @@ contains
     use cable_def_types_mod, only: dp => r_2
     use popluc_types,        only: popluc_type
     use cable_c13o2_def,     only: c13o2_luc
-    use mo_isotope,          only: delta1000, vpdbc13
+    use mo_isotope,          only: delta1000!, vpdbc13
 
     implicit none
 
     type(popluc_type), intent(in) :: popluc
     type(c13o2_luc),   intent(in) :: c13o2luc
 
-    ! integer :: nharvest, nclearance
+    integer :: nharvest, nclearance, mp
+    character(len=30) :: form1
 
-    ! nharvest   = size(popluc%HarvProd,2)
-    ! nclearance = size(popluc%ClearProd,2)
+    mp         = size(popluc%HarvProd,1)
+    nharvest   = size(popluc%HarvProd,2)
+    nclearance = size(popluc%ClearProd,2)
 
     write(*,*) '    delta-13C of LUC pools'
-    write(*,*) '        harvest:   ', delta1000(c13o2luc%charvest,   popluc%HarvProd,  vpdbc13, -999._dp, tiny(1.0_dp))
-    write(*,*) '        clearance: ', delta1000(c13o2luc%cclearance, popluc%ClearProd, vpdbc13, -999._dp, tiny(1.0_dp))
-    write(*,*) '        agric:     ', delta1000(c13o2luc%cagric,     popluc%AgProd,    vpdbc13, -999._dp, tiny(1.0_dp))
+    write(form1,'(A,I3,A)') '(a,', nharvest*mp, 'g15.6e3)'
+    ! write(*,form1) '        harvest:   ', delta1000(c13o2luc%charvest,   popluc%HarvProd,  vpdbc13, -999._dp, tiny(1.0_dp))
+    write(*,form1) '        harvest:   ', delta1000(c13o2luc%charvest,   popluc%HarvProd,  1.0_dp, -999._dp, tiny(1.0_dp))
+    write(form1,'(A,I3,A)') '(a,', nclearance*mp, 'g15.6e3)'
+    write(*,form1) '        clearance: ', delta1000(c13o2luc%cclearance, popluc%ClearProd, 1.0_dp, -999._dp, tiny(1.0_dp))
+    write(form1,'(A,I3,A)') '(a,', 1*mp, 'g15.6e3)'
+    write(*,form1) '        agric:     ', delta1000(c13o2luc%cagric,     popluc%AgProd,    1.0_dp, -999._dp, tiny(1.0_dp))
 
   end subroutine c13o2_print_delta_luc
 
@@ -1309,35 +1379,34 @@ contains
     
     implicit none
 
-    type(c13o2_flux),         intent(in)  :: c13o2flux
-    type(casa_flux),          intent(in)  :: casaflux
-    real(dp), dimension(:,:), intent(out) :: casasources
+    type(c13o2_flux),         intent(inout) :: c13o2flux
+    type(casa_flux),          intent(in)    :: casaflux
+    real(dp), dimension(:,:), intent(out)   :: casasources
 
     integer :: nplant, nlitter, nsoil, nstart, nend
-    real(dp), dimension(c13o2flux%ntile) :: Rass
     
     nplant  = size(casaflux%fracCalloc,2)
     nlitter = size(casaflux%FluxFromLtoCO2,2)
     nsoil   = size(casaflux%FluxFromStoCO2,2)
 
-    Rass = 0._dp
-    where (abs(c13o2flux%cAn12) > 0._dp) Rass = c13o2flux%cAn / c13o2flux%cAn12
+    ! Stay with old isotope ratio if net assimilation < 0. because no NSC pool
+    where (abs(c13o2flux%cAn12) > 0._dp) c13o2flux%RAn = c13o2flux%cAn / c13o2flux%cAn12
     
     casasources = 0._dp
 
     ! Use leaf discrimination for net assimilation and GPP
-    ! plant - spread(x, dim, ncopies)
-    casasources(:,1:nplant) = casaflux%fracCalloc * spread(casaflux%Cnpp * Rass, 2, nplant)
+    ! plant
+    casasources(:,1:nplant) = casaflux%fracCalloc * spread(casaflux%Cnpp * c13o2flux%RAn, 2, nplant)
     ! litter = 0.
     ! soil = 0.
     ! labile
     nstart = nplant + nlitter + nsoil + 1
     nend   = nstart
-    casasources(:,nstart) = casaflux%fracClabile * casaflux%Cgpp * Rass
+    casasources(:,nstart) = casaflux%fracClabile * casaflux%Cgpp * c13o2flux%RAn
 
   end subroutine c13o2_sources_pools
 
-  ! Same but with Rass=1 - to check isotope code
+  ! Same but with c13o2flux%RAn=1 - to check isotope code
   subroutine c13o2_sources_pools_nofrac(c13o2flux, casaflux, casasources)
 
     use cable_def_types_mod, only: dp => r_2
@@ -1351,25 +1420,22 @@ contains
     real(dp), dimension(:,:), intent(out) :: casasources
 
     integer :: nplant, nlitter, nsoil, nstart, nend
-    real(dp), dimension(c13o2flux%ntile) :: Rass
     
     nplant  = size(casaflux%fracCalloc,2)
     nlitter = size(casaflux%FluxFromLtoCO2,2)
     nsoil   = size(casaflux%FluxFromStoCO2,2)
 
-    Rass = 1._dp
-    
     casasources = 0._dp
 
     ! Use leaf discrimination for net assimilation and GPP
     ! plant - spread(x, dim, ncopies)
-    casasources(:,1:nplant) = casaflux%fracCalloc * spread(casaflux%Cnpp * Rass, 2, nplant)
+    casasources(:,1:nplant) = casaflux%fracCalloc * spread(casaflux%Cnpp * 1.0_dp, 2, nplant)
     ! litter = 0.
     ! soil = 0.
     ! labile
     nstart = nplant + nlitter + nsoil + 1
     nend   = nstart
-    casasources(:,nstart) = casaflux%fracClabile * casaflux%Cgpp * Rass
+    casasources(:,nstart) = casaflux%fracClabile * casaflux%Cgpp * 1.0_dp
 
   end subroutine c13o2_sources_pools_nofrac
 
@@ -1454,7 +1520,7 @@ contains
   ! General
   
   ! ------------------------------------------------------------------
-
+  
   ! Write out error message and stop program
   subroutine c13o2_err_handler(message)
     
@@ -1466,5 +1532,32 @@ contains
     stop 9
 
   end subroutine c13o2_err_handler
-     
+
+  ! give diff in order of epsilon
+  elemental pure function mydiff(v1, v2)
+
+    use mo_kind, only: dp
+    
+    implicit none
+
+    real(dp), intent(in) :: v1, v2
+    real(dp)             :: mydiff
+
+    ! integer  :: n
+    real(dp) :: nn
+
+    if (v1 > 0._dp) then
+       nn = log10(v1)
+       mydiff = (v1-v2) * 10.**(-nn) / epsilon(1.0_dp)
+       ! n  = int(nn)
+       ! mydiff = (v1-v2) * 10.**(-n) / epsilon(1.0_dp)
+    else
+       mydiff = (v1-v2) / epsilon(1.0_dp)
+    endif
+
+    return
+
+  end function mydiff
+
+  
 END MODULE cable_c13o2

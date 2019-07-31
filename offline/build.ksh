@@ -237,6 +237,7 @@ host_mcin()
 	export LD=''
 	export NCROOT='/usr/local/netcdf-fortran-4.4.4-gfortran'
     fi
+    # export CFLAGS="${CFLAGS} -DC13DEBUG"
 
     # # NAG - Does not work for pop_io.f90
     # export FC=nagfor

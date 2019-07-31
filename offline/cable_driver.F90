@@ -583,7 +583,6 @@ PROGRAM cable_offline_driver
 
               ENDIF
 
-
               ! get koffset to add to time-step of sitemet
               IF (TRIM(site%RunType)=='historical') THEN
                  MetYear = CurYear
@@ -610,7 +609,6 @@ PROGRAM cable_offline_driver
                      koffset_met = koffset_met + INT( REAL(LOYtmp) * 86400./REAL(dels) )
                   ENDDO
                endif
-
               
 !!$              LOY = 365
 !!$
@@ -867,6 +865,9 @@ PROGRAM cable_offline_driver
                  if (cable_user%c13o2) then
                     ! call c13o2_update_flux(canopy, met, c13o2flux)
                     c13o2flux%An = canopy%An * vpdbc13 ! Test
+                    ! Divide 13C net assimilation by VPDB so that about same numerical precision as 12C
+                    ! delta values are then calculated simply by 13C/12C-1.
+                    c13o2flux%An = c13o2flux%An / vpdbc13
                  endif
                  !MC13 ToDo - Photosynthesis
 
@@ -894,22 +895,22 @@ PROGRAM cable_offline_driver
               IF(icycle >0 .OR.       CABLE_USER%CASA_DUMP_WRITE ) THEN
                  !! vh_js !!
 
-                 if (cable_user%c13o2) then
-                    print*, 'Cable driver 07'
-                    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-                    call c13o2_print_delta_luc(popluc, c13o2luc)
-                 endif
+                 ! if (cable_user%c13o2) then
+                 !    print*, 'Cable driver 07'
+                 !    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
+                 !    call c13o2_print_delta_luc(popluc, c13o2luc)
+                 ! endif
                  CALL bgcdriver( ktau, kstart, kend, dels, met,                     &
                       ssnow, canopy, veg, soil, climate, casabiome,                  &
                       casapool, casaflux, casamet, casabal,                 &
                       phen, pop, spinConv, spinup, ktauday, idoy, loy,              &
                       CABLE_USER%CASA_DUMP_READ, CABLE_USER%CASA_DUMP_WRITE,   &
                       LALLOC, c13o2flux, c13o2pools )
-                 if (cable_user%c13o2) then
-                    print*, 'Cable driver 08'
-                    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-                    call c13o2_print_delta_luc(popluc, c13o2luc)
-                 endif
+                 ! if (cable_user%c13o2) then
+                 !    print*, 'Cable driver 08'
+                 !    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
+                 !    call c13o2_print_delta_luc(popluc, c13o2luc)
+                 ! endif
 
                  IF(MOD((ktau-kstart+1),ktauday)==0) THEN ! end of day
 
@@ -1277,8 +1278,13 @@ PROGRAM cable_offline_driver
            CALL CPU_TIME(etime)
            PRINT *, 'Finished. ', etime, ' seconds needed for year'
 
-        END DO YEAR
+           !MC - While testing
+           if (cable_user%c13o2) then
+              call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
+              if (cable_user%POPLUC) call c13o2_print_delta_luc(popluc, c13o2luc)
+           endif
 
+        END DO YEAR
 
      END DO NREP
 
@@ -1303,14 +1309,11 @@ PROGRAM cable_offline_driver
 
   !!CLN BLAZE WRITE RST
 
-
   IF (icycle > 0) THEN
-
      !CALL casa_poolout( ktau, veg, soil, casabiome,              &
-    !     casapool, casaflux, casamet, casabal, phen )
+     !     casapool, casaflux, casamet, casabal, phen )
      CALL write_casa_restart_nc( casamet, casapool,casaflux,phen, CASAONLY )
      if (cable_user%c13o2) call c13o2_write_restart_pools(c13o2pools)
-
   END IF
 
   IF (cable_user%POPLUC .AND. .NOT. CASAONLY ) THEN
@@ -1325,24 +1328,18 @@ PROGRAM cable_offline_driver
      !mpidiff
      if (cable_user%CALL_climate) &
           CALL WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
-
      !--- LN ------------------------------------------[
   ENDIF
-
-
 
   IF ( TRIM(cable_user%MetType) .NE. "gswp" .AND. &
        TRIM(cable_user%MetType) .NE. "bios" .AND. &
        TRIM(cable_user%MetType) .NE. "plum" .AND. &
        TRIM(cable_user%MetType) .NE. "cru" ) CALL close_met_file
 
-  !WRITE(logn,*) bal%wbal_tot, bal%ebal_tot, bal%ebal_tot_cncheck
-  CALL CPU_TIME(etime)
-  WRITE(logn,*) 'Finished. ', etime, ' seconds needed for ', kend,' hours'
-  ! Close log file
-  CLOSE(logn)
-  CALL CPU_TIME(etime)
-  PRINT *, 'Finished. ', etime, ' seconds needed for ', kend,' hours'
+  call cpu_time(etime)
+  write(logn,*) 'Finished. ', etime, ' seconds needed for ', kend,' hours'
+  close(logn) ! Close log file
+  write(*,*) 'Finished. ', etime, ' seconds needed for ', kend,' hours'
 
 END PROGRAM cable_offline_driver
 
@@ -1406,7 +1403,7 @@ SUBROUTINE LUCdriver( casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg,
   USE POPLUC_Module, ONLY: POPLUCStep, POPLUC_weights_Transfer, WRITE_LUC_OUTPUT_NC, &
        POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, READ_LUC_RESTART_NC
   use cable_c13o2_def, only: c13o2_pool
-  use mo_isotope,      only: vpdbc13
+  ! use mo_isotope,      only: vpdbc13
 
   IMPLICIT NONE
 
@@ -1466,9 +1463,9 @@ SUBROUTINE LUCdriver( casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg,
         casaflux%frac_sapwood(j) = 1.0
 
         if (cable_user%c13o2) then
-           c13o2pools%cplant(j,leaf)  = 0.01 * vpdbc13
-           c13o2pools%cplant(j,wood)  = 0.01 * vpdbc13
-           c13o2pools%cplant(j,froot) = 0.01 * vpdbc13
+           c13o2pools%cplant(j,leaf)  = 0.01 ! * vpdbc13 / vpdbc13 ! Divide by 13C
+           c13o2pools%cplant(j,wood)  = 0.01 ! * vpdbc13 / vpdbc13 ! so that about same numerical precision as 12C
+           c13o2pools%cplant(j,froot) = 0.01 ! * vpdbc13 / vpdbc13 !
         endif
      endif
   ENDDO

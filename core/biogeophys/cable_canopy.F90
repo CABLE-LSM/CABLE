@@ -2304,15 +2304,14 @@ CONTAINS
     where (anrubiscoy(:,1) .gt. an_y(:,1)) canopy%A_slC = 0.0
     where (anrubpy(:,1) .gt. an_y(:,1))    canopy%A_slJ = 0.0
 
-
-!!$    where (sum(met%fsd,2) < 40.0)
-!!$       canopy%A_shC = 0.0
-!!$       canopy%A_shJ = 0.0
-!!$       canopy%A_slC = 0.0
-!!$       canopy%A_slJ = 0.0
-!!$       canopy%A_sh = 0.0
-!!$       canopy%A_sl = 0.0
-!!$    end where
+    !    where (sum(met%fsd,2) < 40.0)
+    !       canopy%A_shC = 0.0
+    !       canopy%A_shJ = 0.0
+    !       canopy%A_slC = 0.0
+    !       canopy%A_slJ = 0.0
+    !       canopy%A_sh = 0.0
+    !       canopy%A_sl = 0.0
+    !    end where
     
     canopy%eta_A_cs = canopy%A_sh *min(eta_y(:,2),5.0) + canopy%A_sl *min(eta_y(:,1),5.0)
     canopy%dAdcs = canopy%A_sh *dAn_y(:,2) + canopy%A_sl *dAn_y(:,1)
