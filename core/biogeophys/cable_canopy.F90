@@ -1893,9 +1893,7 @@ CONTAINS
 
           ! *** Remove after GSWP3 testing... ***
           IF (cable_user%FWSOIL_SWITCH  == 'hydraulics' .AND. &
-              veg%iveg(i) /= 2) THEN
-
-             cable_user%FWSOIL_SWITCH = 'standard'
+              veg%iveg(i) .NE. 2) THEN
              CALL fwsoil_calc_std( fwsoil, soil, ssnow, veg)
           ENDIF
 
@@ -2081,7 +2079,8 @@ CONTAINS
 
              ! Medlyn BE et al (2011) Global Change Biology 17: 2134-2144.
              ELSEIF(cable_user%GS_SWITCH == 'medlyn' .AND. &
-                    cable_user%FWSOIL_SWITCH  /= 'hydraulics') THEN
+                    cable_user%FWSOIL_SWITCH == 'hydraulics' .AND. &
+                    veg%iveg(i) .NE. 2) THEN
 
                 gswmin = veg%g0(i)
 
@@ -2105,7 +2104,8 @@ CONTAINS
                 END IF
 
              ELSE IF (cable_user%GS_SWITCH == 'medlyn' .AND. &
-                      cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+                      cable_user%FWSOIL_SWITCH == 'hydraulics' .AND. &
+                      veg%iveg(i) .EQ. 2) THEN
 
                 CALL calc_hydr_conduc(canopy, ssnow, rad, veg, veg%kp_sat(i), i)
 
@@ -2210,7 +2210,8 @@ CONTAINS
                 ! PH: mgk576, 13/10/17
                 ! This is over the combined direct & diffuse leaves due to the
                 ! way the loops fall above
-                IF (cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+                IF (cable_user%FWSOIL_SWITCH == 'hydraulics' .AND. &
+                    veg%iveg(i) .EQ. 2) THEN
 
                    ! Transpiration: W m-2 -> kg m-2 s-1 -> mmol m-2 s-1
                    IF (ecx(i) > 0.0) THEN

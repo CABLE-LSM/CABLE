@@ -1600,7 +1600,7 @@ CONTAINS
     REAL(r_2), DIMENSION(mp)      :: needed, available, difference
     INTEGER k, i
 
-    IF (cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+    IF (cable_user%FWSOIL_SWITCH == 'hydraulics' .AND. veg%iveg(i) .EQ. 2) THEN
        ! This follows the default extraction logic, but instead of weighting
        ! by froot, we are weighting by the frac uptake we calculated when we
        ! were weighting the soil water potential.
@@ -1640,6 +1640,18 @@ CONTAINS
 
           END WHERE   !fvec > 0
        END DO   !ms
+
+    ELSE IF (cable_user%FWSOIL_SWITCH == 'hydraulics' .AND. veg%iveg(i) .NE. 2) THEN
+      WHERE (canopy%fevc .LT. 0.0_r_2)
+         canopy%fevw = canopy%fevw+canopy%fevc
+         canopy%fevc = 0.0_r_2
+      END WHERE
+      DO k = 1,ms
+         ssnow%wb(:,k) = ssnow%wb(:,k) - ssnow%evapfbl(:,k)/(soil%zse(k)*1000.0)
+
+         !  write(59,*) k,  ssnow%wb(:,k),  ssnow%evapfbl(:,k)/(soil%zse(k)*1000.0)
+         !  write(59,*)
+      ENDDO
 
     ELSE IF (cable_user%FWSOIL_switch.NE.'Haverd2013') THEN
        xx = 0.; xxd = 0.; diff(:,:) = 0.
@@ -1864,7 +1876,7 @@ CONTAINS
     ssnow%smelt = ssnow%smelt + snowmlt
 
     ! PH: mgk576, 13/10/17, added two funcs
-    IF (cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+    IF (cable_user%FWSOIL_SWITCH == 'hydraulics' .AND. veg%iveg(i) .NE. 2) THEN
        DO i = 1, mp
           CALL calc_soil_root_resistance(ssnow, soil, veg, bgc, root_length, i)
           CALL calc_swp(ssnow, soil, i)
