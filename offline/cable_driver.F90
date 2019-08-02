@@ -113,7 +113,8 @@ PROGRAM cable_offline_driver
 
   ! 13C
   use cable_c13o2_def,      only: c13o2_flux, c13o2_pool, c13o2_luc, c13o2_update_sum_pools, c13o2_zero_sum_pools
-  use cable_c13o2,          only: c13o2_save_luc, c13o2_update_luc, c13o2_write_restart_pools, &
+  use cable_c13o2,          only: c13o2_save_luc, c13o2_update_luc, &
+       c13o2_write_restart_pools,  c13o2_write_restart_luc, &
        c13o2_create_output, c13o2_write_output, c13o2_close_output, &
        c13o2_print_delta_pools, c13o2_print_delta_luc
   use mo_isotope,           only: vpdbc13
@@ -976,11 +977,9 @@ PROGRAM cable_offline_driver
 
               ENDIF
               ! WRITE CASA OUTPUT
-              IF(icycle >0) THEN
+              IF (icycle >0) THEN
 
-
-                 IF ( IS_CASA_TIME("write", yyyy, ktau, kstart, &
-                      koffset, kend, ktauday, logn) ) THEN
+                 IF ( IS_CASA_TIME("write", yyyy, ktau, kstart, koffset, kend, ktauday, logn) ) THEN
                     ctime = ctime + 1
                     !mpidiff
                     CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
@@ -1313,7 +1312,13 @@ PROGRAM cable_offline_driver
      !CALL casa_poolout( ktau, veg, soil, casabiome,              &
      !     casapool, casaflux, casamet, casabal, phen )
      CALL write_casa_restart_nc( casamet, casapool,casaflux,phen, CASAONLY )
-     if (cable_user%c13o2) call c13o2_write_restart_pools(c13o2pools)
+     if (cable_user%c13o2) then
+        call c13o2_write_restart_pools(c13o2pools)
+        if (cable_user%POPLUC) call c13o2_write_restart_luc(c13o2luc)
+     endif
+     !MC - While testing
+     call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
+     if (cable_user%POPLUC) call c13o2_print_delta_luc(popluc, c13o2luc)
   END IF
 
   IF (cable_user%POPLUC .AND. .NOT. CASAONLY ) THEN

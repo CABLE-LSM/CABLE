@@ -1292,7 +1292,6 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate, ktauday )
 
   USE netcdf
 
-
   IMPLICIT NONE
 
   TYPE (climate_type), INTENT(INOUT)       :: climate  ! climate variables
@@ -1319,9 +1318,13 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate, ktauday )
   ! 2 dim arrays (npt,ktauday*5)
   CHARACTER(len=20),DIMENSION(11) :: A5
 
-  REAL(r_2), DIMENSION(mp)          :: LAT, LON, TMP
-  REAL(r_2)                         :: TMP2(mp,20),TMP3(mp,31),TMP4(mp,91)
-  REAL(r_2), ALLOCATABLE:: TMP5(:,:)
+  ! MC - climate variables are in single precision
+  ! REAL(r_2), DIMENSION(mp)          :: LAT, LON, TMP
+  ! REAL(r_2)                         :: TMP2(mp,20),TMP3(mp,31),TMP4(mp,91)
+  ! REAL(r_2), ALLOCATABLE:: TMP5(:,:)
+  real, dimension(mp) :: LAT, LON, TMP
+  real                :: TMP2(mp,20), TMP3(mp,31), TMP4(mp,91)
+  real, allocatable   :: TMP5(:,:)
   INTEGER*4 :: TMPI(mp), TMPI0
   LOGICAL            ::  EXISTFILE
 

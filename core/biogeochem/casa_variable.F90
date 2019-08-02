@@ -388,21 +388,21 @@ MODULE casavariable
 ! Added filename type for casaCNP (BP apr2010)
   TYPE casafiles_type
     CHARACTER(LEN=200) :: cnpbiome    ! file for biome-specific BGC parameters
-    CHARACTER(LEN=99) :: cnppoint    ! file for point-specific BGC inputs
+    CHARACTER(LEN=200) :: cnppoint    ! file for point-specific BGC inputs
     CHARACTER(LEN=200) :: cnpepool    ! file for end-of-run pool sizes
     CHARACTER(LEN=200) :: cnpipool=''    ! file for inital pool sizes
-    CHARACTER(LEN=99) :: cnpmetin      ! met file for spin up
-    CHARACTER(LEN=99) :: cnpmetout     ! met file for spin up
-    CHARACTER(LEN=99) :: ndep          ! N deposition input file
+    CHARACTER(LEN=200) :: cnpmetin      ! met file for spin up
+    CHARACTER(LEN=200) :: cnpmetout     ! met file for spin up
+    CHARACTER(LEN=200) :: ndep          ! N deposition input file
 ! added yp wang
-    CHARACTER(LEN=99) :: cnpspin       ! input file for spin up
-    CHARACTER(LEN=99) :: dump_cnpspin  ! name of dump file for spinning casa-cnp
+    CHARACTER(LEN=200) :: cnpspin       ! input file for spin up
+    CHARACTER(LEN=200) :: dump_cnpspin  ! name of dump file for spinning casa-cnp
 
-    CHARACTER(LEN=99) :: phen        ! leaf phenology datafile
-    CHARACTER(LEN=99) :: cnpflux     ! modelled mean yearly CNP fluxes
-    LOGICAL           :: l_ndep
+    CHARACTER(LEN=200) :: phen        ! leaf phenology datafile
+    CHARACTER(LEN=200) :: cnpflux     ! modelled mean yearly CNP fluxes
+    LOGICAL            :: l_ndep
 ! added vh
-    CHARACTER(LEN=99) :: c2cdumppath='' ! cable2casa dump for casa spinup
+    CHARACTER(LEN=200) :: c2cdumppath='' ! cable2casa dump for casa spinup
     CHARACTER(LEN=200) :: out=''    ! casa output file
   END TYPE casafiles_type
   TYPE(casafiles_type) :: casafile

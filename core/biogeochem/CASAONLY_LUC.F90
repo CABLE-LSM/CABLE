@@ -324,11 +324,15 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
                    .false., .true., count_sum_casa)
            endif
 
+           print*, 'Ha04 ', ctime
            CALL WRITE_CASA_OUTPUT_NC( veg, casamet, sum_casapool, casabal, sum_casaflux, &
                 .true., ctime, ( idoy.eq.mdyear .AND. YYYY .EQ. cable_user%YearEnd ) )
            if (cable_user%c13o2) then
-              if (ctime == 1) &
-                   call c13o2_create_output(casamet, sum_c13o2pools, c13o2_file_id, c13o2_vars, c13o2_var_ids)
+              if (ctime == 1) then
+                 print*, 'Ha05'
+                 call c13o2_create_output(casamet, sum_c13o2pools, c13o2_file_id, c13o2_vars, c13o2_var_ids)
+              endif
+              print*, 'Ha06'
               call c13o2_write_output(c13o2_file_id, c13o2_vars, c13o2_var_ids, ctime, sum_c13o2pools)
               if ( (idoy == mdyear) .and. (YYYY == cable_user%YearEnd) ) &
                    call c13o2_close_output(c13o2_file_id)

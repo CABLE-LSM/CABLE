@@ -1681,7 +1681,7 @@ SUBROUTINE WRITE_CASA_RESTART_NC ( casamet, casapool, casaflux, phen, CASAONLY )
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
   DO i = 1, SIZE(A1)
-     STATUS = NF90_def_var(FILE_ID,TRIM(A1(i)) ,NF90_FLOAT,(/land_ID/),VID1(i))
+     STATUS = NF90_def_var(FILE_ID,TRIM(A1(i)) ,NF90_DOUBLE,(/land_ID/),VID1(i))
      IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
   END DO
 
@@ -1691,17 +1691,17 @@ SUBROUTINE WRITE_CASA_RESTART_NC ( casamet, casapool, casaflux, phen, CASAONLY )
   END DO
 
   DO i = 1, SIZE(A2)
-     STATUS = NF90_def_var(FILE_ID,TRIM(A2(i)) ,NF90_FLOAT,(/land_ID,plnt_ID/),VID2(i))
+     STATUS = NF90_def_var(FILE_ID,TRIM(A2(i)) ,NF90_DOUBLE,(/land_ID,plnt_ID/),VID2(i))
      IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
   END DO
 
   DO i = 1, SIZE(A3)
-     STATUS = NF90_def_var(FILE_ID,TRIM(A3(i)) ,NF90_FLOAT,(/land_ID,litt_ID/),VID3(i))
+     STATUS = NF90_def_var(FILE_ID,TRIM(A3(i)) ,NF90_DOUBLE,(/land_ID,litt_ID/),VID3(i))
      IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
   END DO
 
   DO i = 1, SIZE(A4)
-     STATUS = NF90_def_var(FILE_ID,TRIM(A4(i)) ,NF90_FLOAT,(/land_ID,soil_ID/),VID4(i))
+     STATUS = NF90_def_var(FILE_ID,TRIM(A4(i)) ,NF90_DOUBLE,(/land_ID,soil_ID/),VID4(i))
      IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
   END DO
 
@@ -1795,6 +1795,7 @@ SUBROUTINE WRITE_CASA_RESTART_NC ( casamet, casapool, casaflux, phen, CASAONLY )
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
 END SUBROUTINE WRITE_CASA_RESTART_NC
+
 
 #ifndef UM_BUILD
 SUBROUTINE READ_CASA_RESTART_NC (  casamet, casapool, casaflux,phen )
@@ -2086,15 +2087,13 @@ ENDIF
 
 END SUBROUTINE READ_CASA_RESTART_NC
 #endif
-SUBROUTINE WRITE_CASA_OUTPUT_NC ( veg, casamet, casapool, casabal, casaflux, &
-     CASAONLY, ctime, FINAL )
+
+
+SUBROUTINE WRITE_CASA_OUTPUT_NC( veg, casamet, casapool, casabal, casaflux, CASAONLY, ctime, FINAL )
 
   USE CASAVARIABLE
-  USE CABLE_COMMON_MODULE
-
-  
+  USE CABLE_COMMON_MODULE  
   USE cable_def_types_mod, ONLY: veg_parameter_type
-  
   USE netcdf
 
   IMPLICIT NONE
@@ -2110,6 +2109,7 @@ SUBROUTINE WRITE_CASA_OUTPUT_NC ( veg, casamet, casapool, casabal, casaflux, &
   LOGICAL   :: CASAONLY, FINAL
   CHARACTER :: CYEAR*4, FNAME*99,dum*50
   LOGICAL, SAVE :: CALL1 = .TRUE.
+  integer, parameter :: sp = kind(1.0)
 
   ! ! 1 dim arrays (mp )
   ! CHARACTER(len=20),DIMENSION(2), PARAMETER :: A0 = (/ 'latitude', 'longitude' /)
@@ -2420,240 +2420,53 @@ SUBROUTINE WRITE_CASA_OUTPUT_NC ( veg, casamet, casapool, casabal, casaflux, &
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
 SELECT CASE(icycle)
-CASE(1)
+CASE(1) ! icycle
   ! PUT 2D VARS ( mp, t )
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 1), casamet%glai,        start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 1), real(casamet%glai,sp),        start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 2), casapool%clabile,    start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 2), real(casapool%clabile,sp),    start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 6), casabal%sumcbal,     start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 6), real(casabal%sumcbal,sp),     start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 7), casabal%sumnbal,     start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 7), real(casabal%sumnbal,sp),     start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 9), casaflux%Cgpp,       start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 9), real(casaflux%Cgpp,sp),       start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(10), REAL(casaflux%Cnpp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(10), real(casaflux%Cnpp,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(11), casaflux%stemnpp,    start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(11), real(casaflux%stemnpp,sp),    start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(12), casaflux%Crp,        start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(12), real(casaflux%Crp,sp),        start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(13), casaflux%Crgplant,   start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(13), real(casaflux%Crgplant,sp),   start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(16), casaflux%Clabloss,   start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(16), real(casaflux%Clabloss,sp),   start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(17), casaflux%fracClabile,start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(17), real(casaflux%fracClabile,sp),start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(18), casaflux%Cnep,       start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(18), real(casaflux%Cnep,sp),       start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(19), casaflux%Crsoil,     start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(19), real(casaflux%Crsoil,sp),     start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
   
-  
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(45), casabal%FCgppyear,   start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(45), real(casabal%FCgppyear,sp),   start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(46), casabal%FCrpyear,    start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(46), real(casabal%FCrpyear,sp),    start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(47), casabal%FCnppyear,   start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(47), real(casabal%FCnppyear,sp),   start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(48), casabal%FCrsyear,    start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(48), real(casabal%FCrsyear,sp),    start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(49), casabal%FCneeyear,   start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(49), real(casabal%FCneeyear,sp),   start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(50), veg%vcmax,   start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-! PUT 3D VARS ( mp, mplant, t )
-  STATUS = NF90_PUT_VAR(FILE_ID, VID2(1), casapool%cplant,   &
-       start=(/ 1,1,CNT /), count=(/ mp,mplant,1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID2(4), casaflux%fracCalloc,   &
-       start=(/ 1,1,CNT /), count=(/ mp,mplant,1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID2(7), casaflux%kplant,   &
-       start=(/ 1,1,CNT /), count=(/ mp,mplant,1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID2(8), casaflux%Crmplant,   &
-       start=(/ 1,1,CNT /), count=(/ mp,mplant,1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-! PUT 3D VARS ( mp, mlitter, t )
-  STATUS = NF90_PUT_VAR(FILE_ID, VID3(1), casapool%clitter,   &
-       start=(/ 1,1,CNT /), count=(/ mp,mlitter,1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-  STATUS = NF90_PUT_VAR(FILE_ID, VID3(4), casaflux%klitter,   &
-       start=(/ 1,1,CNT /), count=(/ mp,mlitter,1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-  STATUS = NF90_PUT_VAR(FILE_ID, VID3(5), casaflux%fromLtoCO2,   &
-       start=(/ 1,1,CNT /), count=(/ mp,mlitter,1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-  STATUS = NF90_PUT_VAR(FILE_ID, VID3(6), casaflux%FluxCtolitter,   &
-       start=(/ 1,1,CNT /), count=(/ mp,mlitter,1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-
-  ! PUT 3D VARS ( mp, msoil, t )
-  STATUS = NF90_PUT_VAR(FILE_ID, VID4(1), casapool%csoil,   &
-       start=(/ 1,1,CNT /), count=(/ mp,msoil,1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-  STATUS = NF90_PUT_VAR(FILE_ID, VID4(4), casaflux%ksoil,   &
-       start=(/ 1,1,CNT /), count=(/ mp,msoil,1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-  STATUS = NF90_PUT_VAR(FILE_ID, VID4(5), casaflux%fromStoCO2,   &
-       start=(/ 1,1,CNT /), count=(/ mp,msoil,1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-  STATUS = NF90_PUT_VAR(FILE_ID, VID4(6), casaflux%FluxCtosoil,   &
-       start=(/ 1,1,CNT /), count=(/ mp,msoil,1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-
-! PUT 4D VARS ( mp, mlitter,mplant, t )
-  STATUS = NF90_PUT_VAR(FILE_ID, VID5(1), casaflux%fromPtoL,   &
-       start=(/ 1,1,1,CNT /), count=(/ mp,mlitter,mplant,1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-  ! PUT 4D VARS ( mp, msoil, mlitter, t )
-  STATUS = NF90_PUT_VAR(FILE_ID, VID6(1), casaflux%fromLtoS,   &
-       start=(/ 1,1,1,CNT /), count=(/ mp,msoil,mlitter,1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-  ! PUT 4D VARS ( mp, msoil, msoil, t )
-  STATUS = NF90_PUT_VAR(FILE_ID, VID7(1), casaflux%fromStoS,   &
-       start=(/ 1,1,1,CNT /), count=(/ mp,msoil,msoil,1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-CASE(2)
-
-
-  ! PUT 2D VARS ( mp, t )
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 1), casamet%glai,        start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 2), casapool%clabile,    start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 3), casapool%psoillab,   start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 4), casapool%psoilsorb,  start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 5), casapool%psoilocc,   start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 6), casabal%sumcbal,     start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 7), casabal%sumnbal,     start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 8), casabal%sumpbal,     start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 9), casaflux%Cgpp,       start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(10), casaflux%Cnpp,       start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(11), casaflux%stemnpp,    start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(12), casaflux%Crp,        start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(13), casaflux%Crgplant,   start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(14), casaflux%Nminfix,    start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
- ! STATUS = NF90_PUT_VAR(FILE_ID, VID1(15), casaflux%Nminuptake, start=(/ 1, CNT /), count=(/ mp, 1 /) )
- ! IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(15), casaflux%Plabuptake, start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(16), casaflux%Clabloss,   start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(17), casaflux%fracClabile,start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(18), casaflux%Cnep,       start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(19), casaflux%Crsoil,     start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(20), casaflux%Nmindep,    start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(21), casaflux%Nminloss,   start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(22), casaflux%Nminleach,  start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(23), casaflux%Nupland,    start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(24), casaflux%Nlittermin, start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(25), casaflux%Nsmin,      start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(26), casaflux%Nsimm,      start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(27), casaflux%Nsnet,      start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(28), casaflux%fNminloss,  start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(29), casaflux%Pdep,       start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(30), casaflux%Pwea,       start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(31), casaflux%Pleach,     start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(32), casaflux%Ploss,      start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(33), casaflux%Pupland,    start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(34), casaflux%Plittermin, start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(35), casaflux%Psmin,      start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(36), casaflux%Psimm,      start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(37), casaflux%Psnet,      start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(38), casaflux%fPleach,    start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(39), casaflux%kplab,      start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(40), casaflux%kpsorb,     start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(41), casaflux%kpocc,      start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(42), casaflux%kmlabP,     start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(43), casaflux%Psorbmax,   start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(44), casaflux%FluxCtoco2,    start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(45), casabal%FCgppyear,   start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(46), casabal%FCrpyear,    start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(47), casabal%FCnppyear,   start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(48), casabal%FCrsyear,    start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(49), casabal%FCneeyear,   start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(50), veg%vcmax,   start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(51), casapool%Nsoilmin,   start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(50), real(veg%vcmax,sp),   start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
   ! PUT 3D VARS ( mp, mplant, t )
   STATUS = NF90_PUT_VAR(FILE_ID, VID2(1), casapool%cplant,   &
        start=(/ 1,1,CNT /), count=(/ mp,mplant,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID2(2), casapool%nplant,   &
-       start=(/ 1,1,CNT /), count=(/ mp,mplant,1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID2(3), casapool%pplant,   &
-       start=(/ 1,1,CNT /), count=(/ mp,mplant,1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
   STATUS = NF90_PUT_VAR(FILE_ID, VID2(4), casaflux%fracCalloc,   &
-       start=(/ 1,1,CNT /), count=(/ mp,mplant,1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID2(5), casaflux%fracNalloc,   &
-       start=(/ 1,1,CNT /), count=(/ mp,mplant,1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID2(6), casaflux%fracPalloc,   &
        start=(/ 1,1,CNT /), count=(/ mp,mplant,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
   STATUS = NF90_PUT_VAR(FILE_ID, VID2(7), casaflux%kplant,   &
@@ -2664,298 +2477,485 @@ CASE(2)
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
   ! PUT 3D VARS ( mp, mlitter, t )
-  STATUS = NF90_PUT_VAR(FILE_ID, VID3(1), casapool%clitter,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID3(1), real(casapool%clitter,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,mlitter,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-  STATUS = NF90_PUT_VAR(FILE_ID, VID3(2), casapool%nlitter,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID3(4), real(casaflux%klitter,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,mlitter,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-  STATUS = NF90_PUT_VAR(FILE_ID, VID3(3), casapool%plitter,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID3(5), real(casaflux%fromLtoCO2,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,mlitter,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-  STATUS = NF90_PUT_VAR(FILE_ID, VID3(4), casaflux%klitter,   &
-       start=(/ 1,1,CNT /), count=(/ mp,mlitter,1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-  STATUS = NF90_PUT_VAR(FILE_ID, VID3(5), casaflux%fromLtoCO2,   &
-       start=(/ 1,1,CNT /), count=(/ mp,mlitter,1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-  STATUS = NF90_PUT_VAR(FILE_ID, VID3(6), casaflux%FluxCtolitter,   &
-       start=(/ 1,1,CNT /), count=(/ mp,mlitter,1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-  STATUS = NF90_PUT_VAR(FILE_ID, VID3(7), casaflux%FluxNtolitter,   &
-       start=(/ 1,1,CNT /), count=(/ mp,mlitter,1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-  STATUS = NF90_PUT_VAR(FILE_ID, VID3(8), casaflux%FluxPtolitter,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID3(6), real(casaflux%FluxCtolitter,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,mlitter,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
   ! PUT 3D VARS ( mp, msoil, t )
-  STATUS = NF90_PUT_VAR(FILE_ID, VID4(1), casapool%csoil,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID4(1), real(casapool%csoil,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,msoil,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-  STATUS = NF90_PUT_VAR(FILE_ID, VID4(2), casapool%nsoil,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID4(4), real(casaflux%ksoil,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,msoil,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-  STATUS = NF90_PUT_VAR(FILE_ID, VID4(3), casapool%psoil,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID4(5), real(casaflux%fromStoCO2,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,msoil,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-  STATUS = NF90_PUT_VAR(FILE_ID, VID4(4), casaflux%ksoil,   &
-       start=(/ 1,1,CNT /), count=(/ mp,msoil,1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-  STATUS = NF90_PUT_VAR(FILE_ID, VID4(5), casaflux%fromStoCO2,   &
-       start=(/ 1,1,CNT /), count=(/ mp,msoil,1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-  STATUS = NF90_PUT_VAR(FILE_ID, VID4(6), casaflux%FluxCtosoil,   &
-       start=(/ 1,1,CNT /), count=(/ mp,msoil,1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-  STATUS = NF90_PUT_VAR(FILE_ID, VID4(7), casaflux%FluxNtosoil,   &
-       start=(/ 1,1,CNT /), count=(/ mp,msoil,1 /) )
-  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-  STATUS = NF90_PUT_VAR(FILE_ID, VID4(8), casaflux%FluxPtosoil,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID4(6), real(casaflux%FluxCtosoil,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,msoil,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
   ! PUT 4D VARS ( mp, mlitter,mplant, t )
-  STATUS = NF90_PUT_VAR(FILE_ID, VID5(1), casaflux%fromPtoL,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID5(1), real(casaflux%fromPtoL,sp),   &
        start=(/ 1,1,1,CNT /), count=(/ mp,mlitter,mplant,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
   ! PUT 4D VARS ( mp, msoil, mlitter, t )
-  STATUS = NF90_PUT_VAR(FILE_ID, VID6(1), casaflux%fromLtoS,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID6(1), real(casaflux%fromLtoS,sp),   &
        start=(/ 1,1,1,CNT /), count=(/ mp,msoil,mlitter,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
   ! PUT 4D VARS ( mp, msoil, msoil, t )
-  STATUS = NF90_PUT_VAR(FILE_ID, VID7(1), casaflux%fromStoS,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID7(1), real(casaflux%fromStoS,sp),   &
+       start=(/ 1,1,1,CNT /), count=(/ mp,msoil,msoil,1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  
+CASE(2) ! icycle
+   
+  ! PUT 2D VARS ( mp, t )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 1), real(casamet%glai,sp),        start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 2), real(casapool%clabile,sp),    start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 3), real(casapool%psoillab,sp),   start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 4), real(casapool%psoilsorb,sp),  start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 5), real(casapool%psoilocc,sp),   start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 6), real(casabal%sumcbal,sp),     start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 7), real(casabal%sumnbal,sp),     start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 8), real(casabal%sumpbal,sp),     start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 9), real(casaflux%Cgpp,sp),       start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(10), real(casaflux%Cnpp,sp),       start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(11), real(casaflux%stemnpp,sp),    start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(12), real(casaflux%Crp,sp),        start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(13), real(casaflux%Crgplant,sp),   start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(14), real(casaflux%Nminfix,sp),    start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+ ! STATUS = NF90_PUT_VAR(FILE_ID, VID1(15), real(casaflux%Nminuptake,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+ ! IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(15), real(casaflux%Plabuptake,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(16), real(casaflux%Clabloss,sp),   start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(17), real(casaflux%fracClabile,sp),start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(18), real(casaflux%Cnep,sp),       start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(19), real(casaflux%Crsoil,sp),     start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(20), real(casaflux%Nmindep,sp),    start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(21), real(casaflux%Nminloss,sp),   start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(22), real(casaflux%Nminleach,sp),  start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(23), real(casaflux%Nupland,sp),    start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(24), real(casaflux%Nlittermin,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(25), real(casaflux%Nsmin,sp),      start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(26), real(casaflux%Nsimm,sp),      start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(27), real(casaflux%Nsnet,sp),      start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(28), real(casaflux%fNminloss,sp),  start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(29), real(casaflux%Pdep,sp),       start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(30), real(casaflux%Pwea,sp),       start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(31), real(casaflux%Pleach,sp),     start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(32), real(casaflux%Ploss,sp),      start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(33), real(casaflux%Pupland,sp),    start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(34), real(casaflux%Plittermin,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(35), real(casaflux%Psmin,sp),      start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(36), real(casaflux%Psimm,sp),      start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(37), real(casaflux%Psnet,sp),      start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(38), real(casaflux%fPleach,sp),    start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(39), real(casaflux%kplab,sp),      start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(40), real(casaflux%kpsorb,sp),     start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(41), real(casaflux%kpocc,sp),      start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(42), real(casaflux%kmlabP,sp),     start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(43), real(casaflux%Psorbmax,sp),   start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(44), real(casaflux%FluxCtoco2,sp),    start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(45), real(casabal%FCgppyear,sp),   start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(46), real(casabal%FCrpyear,sp),    start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(47), real(casabal%FCnppyear,sp),   start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(48), real(casabal%FCrsyear,sp),    start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(49), real(casabal%FCneeyear,sp),   start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(50), real(veg%vcmax,sp),   start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(51), real(casapool%Nsoilmin,sp),   start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  ! PUT 3D VARS ( mp, mplant, t )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID2(1), real(casapool%cplant,sp),   &
+       start=(/ 1,1,CNT /), count=(/ mp,mplant,1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID2(2), real(casapool%nplant,sp),   &
+       start=(/ 1,1,CNT /), count=(/ mp,mplant,1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID2(3), real(casapool%pplant,sp),   &
+       start=(/ 1,1,CNT /), count=(/ mp,mplant,1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID2(4), real(casaflux%fracCalloc,sp),   &
+       start=(/ 1,1,CNT /), count=(/ mp,mplant,1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID2(5), real(casaflux%fracNalloc,sp),   &
+       start=(/ 1,1,CNT /), count=(/ mp,mplant,1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID2(6), real(casaflux%fracPalloc,sp),   &
+       start=(/ 1,1,CNT /), count=(/ mp,mplant,1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID2(7), real(casaflux%kplant,sp),   &
+       start=(/ 1,1,CNT /), count=(/ mp,mplant,1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+  STATUS = NF90_PUT_VAR(FILE_ID, VID2(8), real(casaflux%Crmplant,sp),   &
+       start=(/ 1,1,CNT /), count=(/ mp,mplant,1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  ! PUT 3D VARS ( mp, mlitter, t )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID3(1), real(casapool%clitter,sp),   &
+       start=(/ 1,1,CNT /), count=(/ mp,mlitter,1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID3(2), real(casapool%nlitter,sp),   &
+       start=(/ 1,1,CNT /), count=(/ mp,mlitter,1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID3(3), real(casapool%plitter,sp),   &
+       start=(/ 1,1,CNT /), count=(/ mp,mlitter,1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID3(4), real(casaflux%klitter,sp),   &
+       start=(/ 1,1,CNT /), count=(/ mp,mlitter,1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID3(5), real(casaflux%fromLtoCO2,sp),   &
+       start=(/ 1,1,CNT /), count=(/ mp,mlitter,1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID3(6), real(casaflux%FluxCtolitter,sp),   &
+       start=(/ 1,1,CNT /), count=(/ mp,mlitter,1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID3(7), real(casaflux%FluxNtolitter,sp),   &
+       start=(/ 1,1,CNT /), count=(/ mp,mlitter,1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID3(8), real(casaflux%FluxPtolitter,sp),   &
+       start=(/ 1,1,CNT /), count=(/ mp,mlitter,1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  ! PUT 3D VARS ( mp, msoil, t )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID4(1), real(casapool%csoil,sp),   &
+       start=(/ 1,1,CNT /), count=(/ mp,msoil,1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID4(2), real(casapool%nsoil,sp),   &
+       start=(/ 1,1,CNT /), count=(/ mp,msoil,1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID4(3), real(casapool%psoil,sp),   &
+       start=(/ 1,1,CNT /), count=(/ mp,msoil,1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID4(4), real(casaflux%ksoil,sp),   &
+       start=(/ 1,1,CNT /), count=(/ mp,msoil,1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID4(5), real(casaflux%fromStoCO2,sp),   &
+       start=(/ 1,1,CNT /), count=(/ mp,msoil,1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID4(6), real(casaflux%FluxCtosoil,sp),   &
+       start=(/ 1,1,CNT /), count=(/ mp,msoil,1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID4(7), real(casaflux%FluxNtosoil,sp),   &
+       start=(/ 1,1,CNT /), count=(/ mp,msoil,1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  STATUS = NF90_PUT_VAR(FILE_ID, VID4(8), real(casaflux%FluxPtosoil,sp),   &
+       start=(/ 1,1,CNT /), count=(/ mp,msoil,1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  ! PUT 4D VARS ( mp, mlitter,mplant, t )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID5(1), real(casaflux%fromPtoL,sp),   &
+       start=(/ 1,1,1,CNT /), count=(/ mp,mlitter,mplant,1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  ! PUT 4D VARS ( mp, msoil, mlitter, t )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID6(1), real(casaflux%fromLtoS,sp),   &
+       start=(/ 1,1,1,CNT /), count=(/ mp,msoil,mlitter,1 /) )
+  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+  ! PUT 4D VARS ( mp, msoil, msoil, t )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID7(1), real(casaflux%fromStoS,sp),   &
        start=(/ 1,1,1,CNT /), count=(/ mp,msoil,msoil,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
 CASE(3)
   ! PUT 2D VARS ( mp, t )
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 1), casamet%glai,        start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 1), real(casamet%glai,sp),        start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 2), casapool%clabile,    start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 2), real(casapool%clabile,sp),    start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 3), casapool%psoillab,   start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 3), real(casapool%psoillab,sp),   start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 4), casapool%psoilsorb,  start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 4), real(casapool%psoilsorb,sp),  start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 5), casapool%psoilocc,   start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 5), real(casapool%psoilocc,sp),   start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 6), casabal%sumcbal,     start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 6), real(casabal%sumcbal,sp),     start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 7), casabal%sumnbal,     start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 7), real(casabal%sumnbal,sp),     start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 8), casabal%sumpbal,     start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 8), real(casabal%sumpbal,sp),     start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 9), casaflux%Cgpp,       start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1( 9), real(casaflux%Cgpp,sp),       start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(10), casaflux%Cnpp,       start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(10), real(casaflux%Cnpp,sp),       start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(11), casaflux%stemnpp,    start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(11), real(casaflux%stemnpp,sp),    start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(12), casaflux%Crp,        start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(12), real(casaflux%Crp,sp),        start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(13), casaflux%Crgplant,   start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(13), real(casaflux%Crgplant,sp),   start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(14), casaflux%Nminfix,    start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(14), real(casaflux%Nminfix,sp),    start=(/ 1, CNT /), count=(/ mp, 1 /) )
 !  IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-!  STATUS = NF90_PUT_VAR(FILE_ID, VID1(15), casaflux%Nminuptake, start=(/ 1, CNT /), count=(/ mp, 1 !/) )
+!  STATUS = NF90_PUT_VAR(FILE_ID, VID1(15), real(casaflux%Nminuptake,sp), start=(/ 1, CNT /), count=(/ mp, 1 !/) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(15), casaflux%Plabuptake, start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(15), real(casaflux%Plabuptake,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(16), casaflux%Clabloss,   start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(16), real(casaflux%Clabloss,sp),   start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(17), casaflux%fracClabile,start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(17), real(casaflux%fracClabile,sp),start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(18), casaflux%Cnep,       start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(18), real(casaflux%Cnep,sp),       start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(19), casaflux%Crsoil,     start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(19), real(casaflux%Crsoil,sp),     start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(20), casaflux%Nmindep,    start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(20), real(casaflux%Nmindep,sp),    start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(21), casaflux%Nminloss,   start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(21), real(casaflux%Nminloss,sp),   start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(22), casaflux%Nminleach,  start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(22), real(casaflux%Nminleach,sp),  start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(23), casaflux%Nupland,    start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(23), real(casaflux%Nupland,sp),    start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(24), casaflux%Nlittermin, start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(24), real(casaflux%Nlittermin,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(25), casaflux%Nsmin,      start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(25), real(casaflux%Nsmin,sp),      start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(26), casaflux%Nsimm,      start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(26), real(casaflux%Nsimm,sp),      start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(27), casaflux%Nsnet,      start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(27), real(casaflux%Nsnet,sp),      start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(28), casaflux%fNminloss,  start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(28), real(casaflux%fNminloss,sp),  start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(29), casaflux%Pdep,       start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  print*, 'Before Pdep 02'
+  print*, casaflux%Pdep
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(29), real(casaflux%Pdep,sp),       start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  print*, 'After Pdep 02'
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(30), casaflux%Pwea,       start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(30), real(casaflux%Pwea,sp),       start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(31), casaflux%Pleach,     start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(31), real(casaflux%Pleach,sp),     start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(32), casaflux%Ploss,      start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(32), real(casaflux%Ploss,sp),      start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(33), casaflux%Pupland,    start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(33), real(casaflux%Pupland,sp),    start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(34), casaflux%Plittermin, start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(34), real(casaflux%Plittermin,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(35), casaflux%Psmin,      start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(35), real(casaflux%Psmin,sp),      start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(36), casaflux%Psimm,      start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(36), real(casaflux%Psimm,sp),      start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(37), casaflux%Psnet,      start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(37), real(casaflux%Psnet,sp),      start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(38), casaflux%fPleach,    start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(38), real(casaflux%fPleach,sp),    start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(39), casaflux%kplab,      start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(39), real(casaflux%kplab,sp),      start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(40), casaflux%kpsorb,     start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(40), real(casaflux%kpsorb,sp),     start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(41), casaflux%kpocc,      start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(41), real(casaflux%kpocc,sp),      start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(42), casaflux%kmlabP,     start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(42), real(casaflux%kmlabP,sp),     start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(43), casaflux%Psorbmax,   start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(43), real(casaflux%Psorbmax,sp),   start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(44), casaflux%FluxCtoCo2,   start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(44), real(casaflux%FluxCtoCo2,sp),   start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(45), casabal%FCgppyear,   start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(45), real(casabal%FCgppyear,sp),   start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(46), casabal%FCrpyear,    start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(46), real(casabal%FCrpyear,sp),    start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(47), casabal%FCnppyear,   start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(47), real(casabal%FCnppyear,sp),   start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(48), casabal%FCrsyear,    start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(48), real(casabal%FCrsyear,sp),    start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(49), casabal%FCneeyear,   start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(49), real(casabal%FCneeyear,sp),   start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(50), veg%vcmax,   start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(50), real(veg%vcmax,sp),   start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID1(51), casapool%Nsoilmin,   start=(/ 1, CNT /), count=(/ mp, 1 /) )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(51), real(casapool%Nsoilmin,sp),   start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
 
   ! PUT 3D VARS ( mp, mplant, t )
-  STATUS = NF90_PUT_VAR(FILE_ID, VID2(1), casapool%cplant,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID2(1), real(casapool%cplant,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,mplant,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID2(2), casapool%nplant,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID2(2), real(casapool%nplant,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,mplant,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID2(3), casapool%pplant,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID2(3), real(casapool%pplant,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,mplant,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID2(4), casaflux%fracCalloc,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID2(4), real(casaflux%fracCalloc,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,mplant,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID2(5), casaflux%fracNalloc,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID2(5), real(casaflux%fracNalloc,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,mplant,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID2(6), casaflux%fracPalloc,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID2(6), real(casaflux%fracPalloc,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,mplant,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID2(7), casaflux%kplant,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID2(7), real(casaflux%kplant,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,mplant,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  STATUS = NF90_PUT_VAR(FILE_ID, VID2(8), casaflux%Crmplant,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID2(8), real(casaflux%Crmplant,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,mplant,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
   ! PUT 3D VARS ( mp, mlitter, t )
-  STATUS = NF90_PUT_VAR(FILE_ID, VID3(1), casapool%clitter,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID3(1), real(casapool%clitter,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,mlitter,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-  STATUS = NF90_PUT_VAR(FILE_ID, VID3(2), casapool%nlitter,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID3(2), real(casapool%nlitter,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,mlitter,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-  STATUS = NF90_PUT_VAR(FILE_ID, VID3(3), casapool%plitter,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID3(3), real(casapool%plitter,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,mlitter,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-  STATUS = NF90_PUT_VAR(FILE_ID, VID3(4), casaflux%klitter,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID3(4), real(casaflux%klitter,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,mlitter,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-  STATUS = NF90_PUT_VAR(FILE_ID, VID3(5), casaflux%fromLtoCO2,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID3(5), real(casaflux%fromLtoCO2,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,mlitter,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-  STATUS = NF90_PUT_VAR(FILE_ID, VID3(6), casaflux%FluxCtolitter,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID3(6), real(casaflux%FluxCtolitter,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,mlitter,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-  STATUS = NF90_PUT_VAR(FILE_ID, VID3(7), casaflux%FluxNtolitter,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID3(7), real(casaflux%FluxNtolitter,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,mlitter,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-  STATUS = NF90_PUT_VAR(FILE_ID, VID3(8), casaflux%FluxPtolitter,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID3(8), real(casaflux%FluxPtolitter,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,mlitter,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
   ! PUT 3D VARS ( mp, msoil, t )
-  STATUS = NF90_PUT_VAR(FILE_ID, VID4(1), casapool%csoil,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID4(1), real(casapool%csoil,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,msoil,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-  STATUS = NF90_PUT_VAR(FILE_ID, VID4(2), casapool%nsoil,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID4(2), real(casapool%nsoil,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,msoil,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-  STATUS = NF90_PUT_VAR(FILE_ID, VID4(3), casapool%psoil,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID4(3), real(casapool%psoil,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,msoil,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-  STATUS = NF90_PUT_VAR(FILE_ID, VID4(4), casaflux%ksoil,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID4(4), real(casaflux%ksoil,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,msoil,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-  STATUS = NF90_PUT_VAR(FILE_ID, VID4(5), casaflux%fromStoCO2,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID4(5), real(casaflux%fromStoCO2,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,msoil,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-  STATUS = NF90_PUT_VAR(FILE_ID, VID4(6), casaflux%FluxCtosoil,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID4(6), real(casaflux%FluxCtosoil,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,msoil,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-  STATUS = NF90_PUT_VAR(FILE_ID, VID4(7), casaflux%FluxNtosoil,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID4(7), real(casaflux%FluxNtosoil,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,msoil,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-  STATUS = NF90_PUT_VAR(FILE_ID, VID4(8), casaflux%FluxPtosoil,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID4(8), real(casaflux%FluxPtosoil,sp),   &
        start=(/ 1,1,CNT /), count=(/ mp,msoil,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
   ! PUT 4D VARS ( mp, mlitter,mplant, t )
-  STATUS = NF90_PUT_VAR(FILE_ID, VID5(1), casaflux%fromPtoL,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID5(1), real(casaflux%fromPtoL,sp),   &
        start=(/ 1,1,1,CNT /), count=(/ mp,mlitter,mplant,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
   ! PUT 4D VARS ( mp, msoil, mlitter, t )
-  STATUS = NF90_PUT_VAR(FILE_ID, VID6(1), casaflux%fromLtoS,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID6(1), real(casaflux%fromLtoS,sp),   &
        start=(/ 1,1,1,CNT /), count=(/ mp,msoil,mlitter,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
   ! PUT 4D VARS ( mp, msoil, msoil, t )
-  STATUS = NF90_PUT_VAR(FILE_ID, VID7(1), casaflux%fromStoS,   &
+  STATUS = NF90_PUT_VAR(FILE_ID, VID7(1), real(casaflux%fromStoS,sp),   &
        start=(/ 1,1,1,CNT /), count=(/ mp,msoil,msoil,1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 

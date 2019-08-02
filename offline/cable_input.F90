@@ -53,7 +53,7 @@ MODULE cable_input_module
    USE cable_read_module,       ONLY: readpar
    USE cable_init_module
    USE netcdf                   ! link must be made in cd to netcdf-x.x.x/src/f90/netcdf.mod
-   USE cable_common_module,     ONLY : filename, cable_user, CurYear, HANDLE_ERR, is_leapyear
+   USE cable_common_module,     ONLY: filename, cable_user, CurYear, HANDLE_ERR, is_leapyear
    USE BLAZE_MOD,               ONLY: TYPE_BLAZE
    USE SIMFIRE_MOD,             ONLY: TYPE_SIMFIRE
    

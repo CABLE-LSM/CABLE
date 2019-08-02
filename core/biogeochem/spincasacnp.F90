@@ -1,7 +1,6 @@
 SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
      casaflux,casamet,casabal,phen,POP,climate,LALLOC, c13o2flux, c13o2pools)
 
-
   USE cable_def_types_mod
   USE cable_carbon_module
   USE cable_common_module, ONLY: CABLE_USER
@@ -13,8 +12,8 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
   USE POPMODULE,            ONLY: POPStep
   USE TypeDef,              ONLY: i4b, dp
   use cable_c13o2_def, only: c13o2_pool, c13o2_flux
-  use cable_c13o2,     only: c13o2_save_casapool, c13o2_update_pools, &
-       c13o2_print_delta_pools
+  use cable_c13o2,     only: c13o2_save_casapool, c13o2_update_pools, c13o2_print_delta_pools, &
+       c13o2_create_output, c13o2_write_output, c13o2_close_output
 
   IMPLICIT NONE
   
@@ -78,6 +77,10 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
 
    ! 13C
    real(dp), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
+   integer                             :: c13o2_file_id
+   integer, parameter :: nvars = 7
+   character(len=20), dimension(nvars) :: c13o2_vars
+   integer,           dimension(nvars) :: c13o2_var_ids
 
    
    if (.NOT.Allocated(LAIMax)) allocate(LAIMax(mp))
@@ -119,14 +122,11 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
    write(600,*) 'csoil3 init: ', casapool%csoil(3,:)
    write(600,*) 'csoil1 init: ', casapool%csoil(1,:)
   
-  do nyear=1,myearspin
-     !     read(91,901) ncfile
+   do nyear=1,myearspin
      WRITE(CYEAR,FMT="(I4)") CABLE_USER%CASA_SPIN_STARTYEAR + nyear - 1
      ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
-
-
      call read_casa_dump( ncfile, casamet, casaflux, phen, climate, c13o2flux, ktau, kend, .TRUE. )
-     !!CLN901  format(A99)
+     
      do idoy=1,mdyear
         ktau=(idoy-1)*ktauday +1
 
@@ -159,25 +159,21 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
         endif
 
         if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
-        if (cable_user%c13o2) then
-           write(*,*) '13C in spincasacnp - 41'
-           call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-        endif
-        if (cable_user%c13o2) &
-             print*, 'Old pools 01.4 ', casapool%cplant, casapool%clitter, casapool%csoil, casapool%clabile
+        ! if (cable_user%c13o2) then
+        !    write(*,*) '13C in spincasacnp - 41'
+        !    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
+        ! endif
         CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
              casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter, &
              xksoil,xkleaf,xkleafcold,xkleafdry,&
              cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
              nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
              pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
-        if (cable_user%c13o2) &
-             print*, 'New pools 01.4 ', casapool%cplant, casapool%clitter, casapool%csoil, casapool%clabile
         if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
-        if (cable_user%c13o2) then
-           write(*,*) '13C in spincasacnp - 42'
-           call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-        endif
+        ! if (cable_user%c13o2) then
+        !    write(*,*) '13C in spincasacnp - 42'
+        !    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
+        ! endif
          
         IF (cable_user%CALL_POP .and. POP%np.gt.0) THEN ! CALL_POP
 
@@ -198,9 +194,9 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
                casaflux%stemnpp = 0.
             ENDIF ! CALL_POP
 
- !CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
- !            .true., ctime, .FALSE.  )
- !            ctime = ctime+1
+            !CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
+            !            .true., ctime, .FALSE.  )
+            !            ctime = ctime+1
            IF(idoy==mdyear) THEN ! end of year
 
               CALL POPdriver(casaflux,casabal,veg, POP)
@@ -379,40 +375,44 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
               write(6002, "(200e16.6)") casamet%tairk(3), casamet%tsoil(3,:),  casamet%moist(3,:), &
                    casaflux%cgpp(3) ,casaflux%crmplant(3,1), real(phen%phase(3)) ,  &
                     real(phen%doyphase(3,:)), climate%qtemp_max_last_year(3)
-                   
-
            endif
 
            if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
-           if (cable_user%c13o2) then
-              write(*,*) '13C in spincasacnp - 51'
-              call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-           endif
-           if (cable_user%c13o2) &
-                print*, 'Old pools 01.5 ', casapool%cplant, casapool%clitter, casapool%csoil, casapool%clabile
+           ! if (cable_user%c13o2) then
+           !    write(*,*) '13C in spincasacnp - 51'
+           !    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
+           ! endif
            call biogeochem(ktauy,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
                 casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter,xksoil,xkleaf,&
                 xkleafcold,xkleafdry,&
                 cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
                 nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
                 pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
-           if (cable_user%c13o2) &
-                print*, 'New pools 01.5 ', casapool%cplant, casapool%clitter, casapool%csoil, casapool%clabile
            if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
-           if (cable_user%c13o2) then
-              write(*,*) '13C in spincasacnp - 52'
-              call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-           endif
+           ! if (cable_user%c13o2) then
+           !    write(*,*) '13C in spincasacnp - 52'
+           !    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
+           ! endif
 
-            if (nloop==mloop .and. nyear==1) then
-              CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
-                                             .TRUE., ctime, &
-                             (nloop.eq.mloop .and. nyear.eq.myearspin.and.idoy.eq.mdyear)  )
+           !MC - Question2VH: Should this be nyear==myearspin?
+           if (nloop==mloop .and. nyear==1) then
+              !MC - Question2VH: Should ctime be replaced by idoy?
+              CALL WRITE_CASA_OUTPUT_NC( veg, casamet, casapool, casabal, casaflux, &
+                   .true., ctime, (nloop.eq.mloop .and. nyear.eq.myearspin .and. idoy.eq.mdyear) )
+              if (cable_user%c13o2) then
+                 if (idoy == 1) then
+                    call c13o2_create_output(casamet, c13o2pools, c13o2_file_id, c13o2_vars, c13o2_var_ids)
+                 endif
+                 call c13o2_write_output(c13o2_file_id, c13o2_vars, c13o2_var_ids, ctime, c13o2pools)
+              end if
               ctime = ctime+1
-            endif
+           endif
+           if (cable_user%c13o2) then
+              if ( (nloop.eq.mloop) .and. (nyear.eq.myearspin) .and. (idoy.eq.mdyear) ) &
+                   call c13o2_close_output(c13o2_file_id)
+           end if
 
            IF (cable_user%CALL_POP .and. POP%np.gt.0) THEN ! CALL_POP
-
               IF (cable_user%CALL_POP) THEN ! accumulate input variables for POP
                  ! accumulate annual variables for use in POP
                  IF(MOD(ktau/ktauday,LOY)==1 ) THEN
@@ -429,48 +429,37 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
               ELSE
                  casaflux%stemnpp = 0.
               ENDIF ! CALL_POP
-              
-           
-              IF(idoy==mdyear) THEN ! end of year
+                         
+              IF (idoy==mdyear) THEN ! end of year
 
                  CALL POPdriver(casaflux,casabal,veg, POP)
                  !CALL POP_IO( pop, casamet, NYEAR, 'WRITE_EPI', &
-                ! 	 (nloop.eq.mloop .and. nyear.eq.myearspin) )
+                 ! 	 (nloop.eq.mloop .and. nyear.eq.myearspin) )
                  !CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
                  !                            .TRUE., ctime, &
-                  !           (nloop.eq.mloop .and. nyear.eq.myearspin.and.idoy.eq.mdyear)  )
+                 !           (nloop.eq.mloop .and. nyear.eq.myearspin.and.idoy.eq.mdyear)  )
                  ctime = ctime+1               
-                 
               ENDIF  ! end of year
-
            ELSE
-
-           !IF(idoy==mdyear) THEN ! end of year
-               
-               !  CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
-               !                              .TRUE., ctime, &
-               !              (nloop.eq.mloop .and. nyear.eq.myearspin.and.idoy.eq.mdyear)  )
-               !  ctime = ctime+1               
-                 
-           ! ENDIF  ! end of year   
-           casaflux%stemnpp = 0.
-        ENDIF ! CALL_POP
+              !IF(idoy==mdyear) THEN ! end of year
+              !  CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
+              !                              .TRUE., ctime, &
+              !              (nloop.eq.mloop .and. nyear.eq.myearspin.and.idoy.eq.mdyear)  )
+              !  ctime = ctime+1               
+              ! ENDIF  ! end of year   
+              casaflux%stemnpp = 0.
+           ENDIF ! CALL_POP
+             
+        ENDDO ! end of idoy
         
-     
-     ENDDO   ! end of idoy
-  ENDDO   ! end of nyear
+     ENDDO ! end of nyear
 
-  
-!!$  if(nloop>=nloop1) &
-!!$       call totcnppools(2+nloop-nloop1,veg,casamet,casapool,bmcplant,bmnplant,bmpplant,bmclitter,bmnlitter,bmplitter, &
-!!$       bmcsoil,bmnsoil,bmpsoil,bmnsoilmin,bmpsoillab,bmpsoilsorb,bmpsoilocc,bmarea)
+  ENDDO     ! end of nloop
 
-ENDDO     ! end of nloop
+  CALL casa_fluxout(CABLE_USER%CASA_SPIN_STARTYEAR + myearspin - 1 , veg, soil, casabal, casamet)
 
-CALL casa_fluxout(CABLE_USER%CASA_SPIN_STARTYEAR + myearspin - 1 , veg, soil, casabal, casamet)
-
-!STOP
-write(600,*) 'csoil3 end: ', casapool%csoil(3,:)
+  !STOP
+  write(600,*) 'csoil3 end: ', casapool%csoil(3,:)
   write(600,*) 'csoil1 end: ', casapool%csoil(1,:)
   
 !!$! write the last five loop pool size by PFT type
@@ -505,4 +494,5 @@ write(600,*) 'csoil3 end: ', casapool%csoil(3,:)
 
 
 151 FORMAT(i6,100(f12.5,2x))
+
 END SUBROUTINE spincasacnp

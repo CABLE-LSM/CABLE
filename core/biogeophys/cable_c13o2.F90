@@ -478,12 +478,12 @@ contains
              call isotope_luc_model(c13o2pools%clabile(j:l), A, dA, C=casasave(j:l,cs))
              ! harvest
              cs = 1
-             ce = cs + nharvest
+             ce = nharvest
              c13sharv = popluc%fracHarvProd(g,:) * sum(popluc%FHarvest(g,:) * rsavepools(j:l,2))
              call isotope_pool_model(1.0_dp, c13o2luc%charvest(g,:), lucsave(g,cs:ce), fharv, S=c13sharv, beta=kHarvProd)
              ! clearance
              cs = nharvest + 1
-             ce = cs + nclearance
+             ce = nharvest + nclearance
              c13sclear = popluc%fracClearProd(g,:) * sum(popluc%FClearance(g,:) * rsavepools(j:l,2))
              call isotope_pool_model(1.0_dp, c13o2luc%cclearance(g,:), lucsave(g,cs:ce), fclear, S=c13sclear, beta=kClearProd)
              ! agric
@@ -494,7 +494,7 @@ contains
           end if
        end if
     end do
-    
+
   end subroutine c13o2_update_luc
 
   ! ------------------------------------------------------------------
@@ -602,7 +602,7 @@ contains
 
     ! output file name
     if (len_trim(cable_user%c13o2_outfile) > 0) then
-       fname = trim(cable_user%c13o2_restart_out_pools)
+       fname = trim(cable_user%c13o2_outfile)
     else
        if (len_trim(casafile%out) > 0) then
           olen = len_trim(casafile%out)
@@ -623,10 +623,10 @@ contains
     endif
 
     ! create output file
-    status = nf90_create(fname, nf90_clobber, file_id)
+    write(*,*) 'Defining 13CO2 output file: ', trim(fname)
+    status = nf90_create(trim(fname), nf90_clobber, file_id)
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could not open c13o2 output file: '//trim(fname))
-    write(*,*) 'Defining 13CO2 output file'
     ! status = nf90_redef(file_id)
     ! if (status /= nf90_noerr) &
     !      call c13o2_err_handler('Could not redef c13o2 output file: '//trim(fname))
@@ -739,6 +739,7 @@ contains
     ! local variables
     integer :: i, status
     integer :: nvars, nland, nplant, nlitter, nsoil
+    integer, parameter :: sp = kind(1.0)
 
     nvars   = size(vars,1)
     nland   = c13o2pools%ntile
@@ -751,19 +752,19 @@ contains
           status = nf90_put_var(file_id, var_ids(i), timestep, &
                start=(/timestep/))
        else if (trim(vars(i)) == 'cplant') then
-          status = nf90_put_var(file_id, var_ids(i), c13o2pools%cplant, &
+          status = nf90_put_var(file_id, var_ids(i), real(c13o2pools%cplant,sp), &
                start=(/1,1,timestep/), count=(/nland,nplant,1/))
        else if (trim(vars(i)) == 'clitter') then
-          status = nf90_put_var(file_id, var_ids(i), c13o2pools%clitter, &
+          status = nf90_put_var(file_id, var_ids(i), real(c13o2pools%clitter,sp), &
                start=(/1,1,timestep/), count=(/nland,nlitter,1/))
        else if (trim(vars(i)) == 'csoil') then
-          status = nf90_put_var(file_id, var_ids(i), c13o2pools%csoil, &
+          status = nf90_put_var(file_id, var_ids(i), real(c13o2pools%csoil,sp), &
                start=(/1,1,timestep/), count=(/nland,nsoil,1/))
        else if (trim(vars(i)) == 'clabile') then
-          status = nf90_put_var(file_id, var_ids(i), c13o2pools%clabile, &
+          status = nf90_put_var(file_id, var_ids(i), real(c13o2pools%clabile,sp), &
                start=(/1,timestep/), count=(/nland,1/))
        ! else if (trim(vars(i)) == 'charvest') then
-       !    status = nf90_put_var(file_id, var_ids(i), c13o2pools%charvest, &
+       !    status = nf90_put_var(file_id, var_ids(i), real(c13o2pools%charvest,sp), &
        !         start=(/1,timestep/), count=(/nland,1/))
        endif
        if (status /= nf90_noerr) then
@@ -925,10 +926,10 @@ contains
     endif
 
     ! create restart file
-    status = nf90_create(fname, nf90_clobber, file_id)
+    write(*,*) 'Writing 13CO2 Casa restart file: ', trim(fname)
+    status = nf90_create(trim(fname), nf90_clobber, file_id)
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could not open c13o2 restart_out_pools file: '//trim(fname))
-    write(*,*) 'Defining 13CO2 restart file'
     ! status = nf90_redef(file_id)
     ! if (status /= nf90_noerr) &
     !      call c13o2_err_handler('Could not redef c13o2 restart_out_pools file: '//trim(fname))
@@ -1117,10 +1118,10 @@ contains
     endif
 
     ! create restart file
-    status = nf90_create(fname, nf90_clobber, file_id)
+    write(*,*) 'Writing 13CO2 LUC restart file: ', trim(fname)
+    status = nf90_create(trim(fname), nf90_clobber, file_id)
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could not open c13o2 restart_out_luc file: '//trim(fname))
-    write(*,*) 'Defining 13CO2 restart file'
     ! status = nf90_redef(file_id)
     ! if (status /= nf90_noerr) &
     !      call c13o2_err_handler('Could not redef c13o2 restart_out_luc file: '//trim(fname))
