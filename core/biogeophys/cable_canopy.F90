@@ -1891,12 +1891,6 @@ CONTAINS
        DO i=1,mp
 
 
-          ! *** Remove after GSWP3 testing... ***
-          IF (cable_user%FWSOIL_SWITCH  == 'hydraulics' .AND. &
-              veg%iveg(i) .NE. 2) THEN
-             CALL fwsoil_calc_std( fwsoil, soil, ssnow, veg)
-          ENDIF
-
 
           IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. abs_deltlf(i) > 0.1) THEN
 
@@ -2079,8 +2073,7 @@ CONTAINS
 
              ! Medlyn BE et al (2011) Global Change Biology 17: 2134-2144.
              ELSEIF(cable_user%GS_SWITCH == 'medlyn' .AND. &
-                    cable_user%FWSOIL_SWITCH == 'hydraulics' .AND. &
-                    veg%iveg(i) .NE. 2) THEN
+                    cable_user%FWSOIL_SWITCH == 'standard') THEN
 
                 gswmin = veg%g0(i)
 
@@ -2118,11 +2111,33 @@ CONTAINS
                 gs_coeff(i,1) = (g1 / csx(i,1) * fw) / C%RGSWC
                 gs_coeff(i,2) = (g1 / csx(i,2) * fw) / C%RGSWC
 
-             ELSE
-                print*, cable_user%GS_SWITCH, cable_user%FWSOIL_SWITCH, veg%iveg(i)
-                STOP 'gs_model_switch failed.'
-             ENDIF ! IF (cable_user%GS_SWITCH == 'leuning') THEN
-             !#endif
+             ELSE IF (cable_user%GS_SWITCH == 'medlyn' .AND. &
+                      cable_user%FWSOIL_SWITCH == 'hydraulics' .AND. &
+                      veg%iveg(i) .NE. 2) THEN
+
+
+                CALL fwsoil_calc_std( fwsoil, soil, ssnow, veg)
+
+                gswmin = veg%g0(i)
+
+                IF (dsx(i) < 50.0) THEN
+                   vpd  = 0.05 ! kPa
+                ELSE
+                   vpd = dsx(i) * 1E-03 ! Pa -> kPa
+                END IF
+
+                g1 = veg%g1(i)
+
+                gs_coeff(i,1) = (1.0 + (g1 * fwsoil(i)) / SQRT(vpd)) / csx(i,1)
+                gs_coeff(i,2) = (1.0 + (g1 * fwsoil(i)) / SQRT(vpd)) / csx(i,2)
+
+                !INH 2018: enforce gs_coeff to vary proportionally to fwsoil in dry soil conditions
+                ! required to avoid transpiration without soil water extraction
+                medlyn_lim = 0.05
+                IF (fwsoil(i) <= medlyn_lim) THEN
+                   gs_coeff(i,1) = (fwsoil(i) / medlyn_lim + (g1 * fwsoil(i)) / SQRT(vpd)) / csx(i,1)
+                   gs_coeff(i,2) = (fwsoil(i) / medlyn_lim + (g1 * fwsoil(i)) / SQRT(vpd)) / csx(i,2)
+                END IF
 
           ENDIF !IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. abs_deltlf(i) > 0.1)
 
