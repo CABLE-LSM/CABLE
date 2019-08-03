@@ -3012,6 +3012,15 @@ CONTAINS
      END IF
 
      ! soil-to-root hydraulic conductance (mmol m-2 leaf area s-1 MPa-1)
+
+     ! weird issue with patchfrac, not sure if this is an initialisiation call
+     ! issue because canopy is called before soilsnow? Check. Add this so it
+     ! runs
+     IF (ssnow%tot_bg_resist(i) < 0.0000000001) THEN
+        ssnow%tot_bg_resist(i) = 1E9
+     END IF
+
+
      ksoil = 1.0 / ssnow%tot_bg_resist(i)
 
      ! Plant hydraulic conductance (mmol m-2 s-1 MPa-1). NB. depends on stem
