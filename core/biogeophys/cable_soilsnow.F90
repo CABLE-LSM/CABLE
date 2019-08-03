@@ -1876,12 +1876,17 @@ CONTAINS
     ssnow%smelt = ssnow%smelt + snowmlt
 
     ! PH: mgk576, 13/10/17, added two funcs
-    IF (cable_user%FWSOIL_SWITCH == 'hydraulics' .AND. veg%iveg(i) .NE. 2) THEN
+    IF (cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
        DO i = 1, mp
-          CALL calc_soil_root_resistance(ssnow, soil, veg, bgc, root_length, i)
-          CALL calc_swp(ssnow, soil, i)
-          CALL calc_weighted_swp_and_frac_uptake(ssnow, soil, canopy, &
-                                                 root_length, i)
+
+          IF (veg%iveg(i) .EQ. 2) THEN
+             CALL calc_soil_root_resistance(ssnow, soil, veg, bgc, &
+                                            root_length, i)
+             CALL calc_swp(ssnow, soil, i)
+             CALL calc_weighted_swp_and_frac_uptake(ssnow, soil, canopy, &
+                                                    root_length, i)
+          END IF
+
        END DO
     END IF
 
