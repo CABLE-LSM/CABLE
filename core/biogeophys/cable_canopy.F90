@@ -2139,8 +2139,14 @@ CONTAINS
                    gs_coeff(i,2) = (fwsoil(i) / medlyn_lim + (g1 * fwsoil(i)) / SQRT(vpd)) / csx(i,2)
                 END IF
 
-          ENDIF !IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. abs_deltlf(i) > 0.1)
+             ELSE
+               print*, cable_user%GS_SWITCH, cable_user%FWSOIL_SWITCH, veg%iveg(i)
+               STOP 'gs_model_switch failed.'
+            ENDIF ! IF (cable_user%GS_SWITCH == 'leuning') THEN
+            !#endif
 
+          ENDIF !IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. abs_deltlf(i) > 0.1)
+         
        ENDDO !i=1,mp
 
        CALL photosynthesis( csx(:,:),                                           &
