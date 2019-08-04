@@ -2073,7 +2073,7 @@ CONTAINS
 
              ! Medlyn BE et al (2011) Global Change Biology 17: 2134-2144.
              ELSEIF(cable_user%GS_SWITCH == 'medlyn' .AND. &
-                    cable_user%FWSOIL_SWITCH == 'standard') THEN
+                    cable_user%FWSOIL_SWITCH /= 'hydraulics') THEN
 
                 gswmin = veg%g0(i)
 
