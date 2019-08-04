@@ -1867,8 +1867,7 @@ CONTAINS
     IF (cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
        DO i = 1, mp
 
-          CALL calc_soil_root_resistance(ssnow, soil, veg, bgc, &
-                                         root_length, i)
+          CALL calc_soil_root_resistance(ssnow, soil, veg, bgc, root_length, i)
           CALL calc_swp(ssnow, soil, i)
           CALL calc_weighted_swp_and_frac_uptake(ssnow, soil, canopy, &
                                                  root_length, i)
