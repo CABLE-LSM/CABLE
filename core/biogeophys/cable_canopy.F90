@@ -2096,9 +2096,12 @@ CONTAINS
                    gs_coeff(i,2) = (fwsoil(i) / medlyn_lim + (g1 * fwsoil(i)) / SQRT(vpd)) / csx(i,2)
                 END IF
 
+             !ELSE IF (cable_user%GS_SWITCH == 'medlyn' .AND. &
+            !          cable_user%FWSOIL_SWITCH == 'hydraulics' .AND. &
+            !          veg%iveg(i) .EQ. 2) THEN
+
              ELSE IF (cable_user%GS_SWITCH == 'medlyn' .AND. &
-                      cable_user%FWSOIL_SWITCH == 'hydraulics' .AND. &
-                      veg%iveg(i) .EQ. 2) THEN
+                     cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
 
                 CALL calc_hydr_conduc(canopy, ssnow, rad, veg, veg%kp_sat(i), i)
 
@@ -2111,33 +2114,33 @@ CONTAINS
                 gs_coeff(i,1) = (g1 / csx(i,1) * fw) / C%RGSWC
                 gs_coeff(i,2) = (g1 / csx(i,2) * fw) / C%RGSWC
 
-             ELSE IF (cable_user%GS_SWITCH == 'medlyn' .AND. &
-                      cable_user%FWSOIL_SWITCH == 'hydraulics' .AND. &
-                      veg%iveg(i) .NE. 2) THEN
-
-
-                CALL fwsoil_calc_std( fwsoil, soil, ssnow, veg)
-
-                gswmin = veg%g0(i)
-
-                IF (dsx(i) < 50.0) THEN
-                   vpd  = 0.05 ! kPa
-                ELSE
-                   vpd = dsx(i) * 1E-03 ! Pa -> kPa
-                END IF
-
-                g1 = veg%g1(i)
-
-                gs_coeff(i,1) = (1.0 + (g1 * fwsoil(i)) / SQRT(vpd)) / csx(i,1)
-                gs_coeff(i,2) = (1.0 + (g1 * fwsoil(i)) / SQRT(vpd)) / csx(i,2)
-
-                !INH 2018: enforce gs_coeff to vary proportionally to fwsoil in dry soil conditions
-                ! required to avoid transpiration without soil water extraction
-                medlyn_lim = 0.05
-                IF (fwsoil(i) <= medlyn_lim) THEN
-                   gs_coeff(i,1) = (fwsoil(i) / medlyn_lim + (g1 * fwsoil(i)) / SQRT(vpd)) / csx(i,1)
-                   gs_coeff(i,2) = (fwsoil(i) / medlyn_lim + (g1 * fwsoil(i)) / SQRT(vpd)) / csx(i,2)
-                END IF
+             !ELSE IF (cable_user%GS_SWITCH == 'medlyn' .AND. &
+            !          cable_user%FWSOIL_SWITCH == 'hydraulics' .AND. &
+            !          veg%iveg(i) .NE. 2) THEN
+            !
+            !
+            !    CALL fwsoil_calc_std( fwsoil, soil, ssnow, veg)
+            !
+            !    gswmin = veg%g0(i)
+            !
+            !    IF (dsx(i) < 50.0) THEN
+            !       vpd  = 0.05 ! kPa
+            !    ELSE
+            !       vpd = dsx(i) * 1E-03 ! Pa -> kPa
+            !    END IF
+            !
+            !    g1 = veg%g1(i)
+            !
+            !    gs_coeff(i,1) = (1.0 + (g1 * fwsoil(i)) / SQRT(vpd)) / csx(i,1)
+            !    gs_coeff(i,2) = (1.0 + (g1 * fwsoil(i)) / SQRT(vpd)) / csx(i,2)
+            !
+            !    !INH 2018: enforce gs_coeff to vary proportionally to fwsoil in dry soil conditions
+            !    ! required to avoid transpiration without soil water extraction
+            !    medlyn_lim = 0.05
+            !    IF (fwsoil(i) <= medlyn_lim) THEN
+            !       gs_coeff(i,1) = (fwsoil(i) / medlyn_lim + (g1 * fwsoil(i)) / SQRT(vpd)) / csx(i,1)
+            !       gs_coeff(i,2) = (fwsoil(i) / medlyn_lim + (g1 * fwsoil(i)) / SQRT(vpd)) / csx(i,2)
+            !    END IF
 
              ELSE
                print*, cable_user%GS_SWITCH, cable_user%FWSOIL_SWITCH, veg%iveg(i)
@@ -2231,8 +2234,9 @@ CONTAINS
                 ! PH: mgk576, 13/10/17
                 ! This is over the combined direct & diffuse leaves due to the
                 ! way the loops fall above
-                IF (cable_user%FWSOIL_SWITCH == 'hydraulics' .AND. &
-                    veg%iveg(i) .EQ. 2) THEN
+                !IF (cable_user%FWSOIL_SWITCH == 'hydraulics' .AND. &
+               !     veg%iveg(i) .EQ. 2) THEN
+                IF (cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
 
                    ! Transpiration: W m-2 -> kg m-2 s-1 -> mmol m-2 s-1
                    IF (ecx(i) > 0.0) THEN
