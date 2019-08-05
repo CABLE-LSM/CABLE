@@ -2279,9 +2279,11 @@ CONTAINS
                            soil%zse(kk) * 1000.0 )
 
                    ENDDO
-                   IF (cable_user%soil_struc=='default') THEN
+                   IF (cable_user%soil_struc=='default' .AND. cable_user%fwsoil_switch.NE.'hydraulics') THEN
                       canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels
                       ecx(i) = canopy%fevc(i) / (1.0-canopy%fwet(i))
+                   ELSEIF (cable_user%soil_struc=='default' .AND. cable_user%fwsoil_switch.EQ.'hydraulics') THEN
+                       canopy%fevc(i) = ecx(i)*(1.0-canopy%fwet(i))
                    ELSEIF (cable_user%soil_struc=='sli') THEN
                       canopy%fevc(i) = ecx(i)*(1.0-canopy%fwet(i))
                    ENDIF
