@@ -512,7 +512,7 @@ contains
     use cable_c13o2_def,      only: c13o2_pool
     use netcdf,               only: nf90_create, nf90_clobber, nf90_noerr, &
          nf90_put_att, nf90_global, nf90_def_dim, nf90_unlimited, &
-         nf90_def_var, nf90_float, nf90_int, nf90_enddef, nf90_put_var
+         nf90_def_var, nf90_double, nf90_int, nf90_enddef, nf90_put_var
 
     implicit none
 
@@ -592,13 +592,13 @@ contains
     ! dvars(8) = 2 ! ntile, time
     ! variable type
     tvars(1) = nf90_int
-    tvars(2) = nf90_float
-    tvars(3) = nf90_float
-    tvars(4) = nf90_float
-    tvars(5) = nf90_float
-    tvars(6) = nf90_float
-    tvars(7) = nf90_float
-    ! tvars(8) = nf90_float
+    tvars(2) = nf90_double
+    tvars(3) = nf90_double
+    tvars(4) = nf90_double
+    tvars(5) = nf90_double
+    tvars(6) = nf90_double
+    tvars(7) = nf90_double
+    ! tvars(8) = nf90_double
 
     ! output file name
     if (len_trim(cable_user%c13o2_outfile) > 0) then
@@ -882,7 +882,7 @@ contains
     use cable_c13o2_def,     only: c13o2_pool
     use netcdf,              only: nf90_create, nf90_clobber, nf90_noerr, &
          nf90_put_att, nf90_global, nf90_def_dim, &
-         nf90_def_var, nf90_float, nf90_enddef, nf90_put_var, nf90_close
+         nf90_def_var, nf90_double, nf90_enddef, nf90_put_var, nf90_close
 
     implicit none
 
@@ -956,28 +956,28 @@ contains
     
     ! define variables
     do i=1, nlandvars
-       status = nf90_def_var(file_id, trim(landvars(i)), nf90_float, &
+       status = nf90_def_var(file_id, trim(landvars(i)), nf90_double, &
             (/land_id/), landvars_id(i))
        if (status /= nf90_noerr) &
             call c13o2_err_handler('Could not define variable '//trim(landvars(i))// &
             ' in c13o2 restart_out_pools file: '//trim(fname))
     end do
     do i=1, nplantvars
-       status = nf90_def_var(file_id, trim(plantvars(i)), nf90_float, &
+       status = nf90_def_var(file_id, trim(plantvars(i)), nf90_double, &
             (/land_id,plant_id/), plantvars_id(i))
        if (status /= nf90_noerr) &
             call c13o2_err_handler('Could not define variable '//trim(plantvars(i))// &
             ' in c13o2 restart_out_pools file: '//trim(fname))
     end do
     do i=1, nlittervars
-       status = nf90_def_var(file_id, trim(littervars(i)), nf90_float, &
+       status = nf90_def_var(file_id, trim(littervars(i)), nf90_double, &
             (/land_id,litter_id/), littervars_id(i))
        if (status /= nf90_noerr) &
             call c13o2_err_handler('Could not define variable '//trim(littervars(i))// &
             ' in c13o2 restart_out_pools file: '//trim(fname))
     end do
     do i=1, nsoilvars
-       status = nf90_def_var(file_id, trim(soilvars(i)), nf90_float, &
+       status = nf90_def_var(file_id, trim(soilvars(i)), nf90_double, &
             (/land_id,soil_id/), soilvars_id(i))
        if (status /= nf90_noerr) &
             call c13o2_err_handler('Could not define variable '//trim(soilvars(i))// &
@@ -1080,7 +1080,7 @@ contains
     use cable_c13o2_def,     only: c13o2_luc
     use netcdf,              only: nf90_create, nf90_clobber, nf90_noerr, &
          nf90_put_att, nf90_global, nf90_def_dim, &
-         nf90_def_var, nf90_float, nf90_enddef, nf90_put_var, nf90_close
+         nf90_def_var, nf90_double, nf90_enddef, nf90_put_var, nf90_close
 
     implicit none
 
@@ -1145,21 +1145,21 @@ contains
     
     ! define variables
     do i=1, nlandvars
-       status = nf90_def_var(file_id, trim(landvars(i)), nf90_float, &
+       status = nf90_def_var(file_id, trim(landvars(i)), nf90_double, &
             (/land_id/), landvars_id(i))
        if (status /= nf90_noerr) &
             call c13o2_err_handler('Could not define variable '//trim(landvars(i))// &
             ' in c13o2 restart_out_luc file: '//trim(fname))
     end do
     do i=1, nharvestvars
-       status = nf90_def_var(file_id, trim(harvestvars(i)), nf90_float, &
+       status = nf90_def_var(file_id, trim(harvestvars(i)), nf90_double, &
             (/land_id,harvest_id/), harvestvars_id(i))
        if (status /= nf90_noerr) &
             call c13o2_err_handler('Could not define variable '//trim(harvestvars(i))// &
             ' in c13o2 restart_out_luc file: '//trim(fname))
     end do
     do i=1, nclearancevars
-       status = nf90_def_var(file_id, trim(clearancevars(i)), nf90_float, &
+       status = nf90_def_var(file_id, trim(clearancevars(i)), nf90_double, &
             (/land_id,clearance_id/), clearancevars_id(i))
        if (status /= nf90_noerr) &
             call c13o2_err_handler('Could not define variable '//trim(clearancevars(i))// &

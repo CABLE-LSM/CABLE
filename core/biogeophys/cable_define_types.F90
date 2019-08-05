@@ -332,7 +332,7 @@ MODULE cable_def_types_mod
 
    END TYPE veg_parameter_type
 
-! .............................................................................
+   ! .............................................................................
 
    ! Canopy/vegetation variables:
    TYPE canopy_type
@@ -566,14 +566,14 @@ MODULE cable_def_types_mod
 
    END TYPE met_type
 
-! .............................................................................
+   ! .............................................................................
 
    ! Climate data:
    TYPE climate_type
 
       INTEGER :: nyear_average = 20
       INTEGER :: nday_average  = 31
-!      INTEGER, POINTER ::                                                  &
+      !      INTEGER, POINTER ::                                                  &
       INTEGER ::                                                  &
        nyears, & ! number of years in climate record
        doy ! day of year
@@ -658,7 +658,7 @@ MODULE cable_def_types_mod
       aprecip_20     ! annual average rainfall for the last 20 years
    END TYPE climate_type
 
-! .............................................................................
+   ! .............................................................................
 
    ! Cumulative flux variables:
    TYPE sum_flux_type
@@ -679,22 +679,20 @@ MODULE cable_def_types_mod
 
    END TYPE sum_flux_type
 
-! .............................................................................
+   ! .............................................................................
 
    TYPE bgc_pool_type
 
       REAL, DIMENSION(:,:), POINTER ::                                         &
          cplant,  & ! plant carbon (g C/m2))
-         csoil   ! soil carbon (g C/m2)
-
+         csoil      ! soil carbon (g C/m2)
 
       REAL, DIMENSION(ncp)  :: ratecp ! plant carbon rate constant (1/year)
-
       REAL, DIMENSION(ncs)  :: ratecs ! soil carbon rate constant (1/year)
 
    END TYPE bgc_pool_type
 
-! .............................................................................
+   ! .............................................................................
 
    ! Functions for allocating these types
    ! All overloaded so code only needs to call alloc_cbm_var

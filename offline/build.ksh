@@ -257,7 +257,7 @@ host_mcin()
     export NCMOD=${NCROOT}'/include'
     export LDFLAGS="-L${NCCLIB} -L${NCLIB} -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz"
     export dosvn=0
-    export MFLAGS= #'-j 8'
+    export MFLAGS='-j 8'
     build_build
     cd ../
     build_status
