@@ -361,7 +361,6 @@ PROGRAM cable_offline_driver
   ELSEIF ( icycle .EQ. 0 ) THEN
      CABLE_USER%CASA_DUMP_READ  = .FALSE.
      spincasa                   = .FALSE.
-
      !! vh_js !!
      CABLE_USER%CALL_POP        = .FALSE.
      CABLE_USER%CALL_BLAZE      = .FALSE.
