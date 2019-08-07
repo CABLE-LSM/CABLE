@@ -493,7 +493,11 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
 
 
   ENDIF ! end of day
-
+  ! test for seasonal acclimation
+  !write(5669,*) climate%qtemp_max_last_year(1), climate%mtemp(1)
+  if (cable_user%acclimate_autoresp_seasonal) then
+     climate%qtemp_max_last_year =  climate%mtemp
+  endif
 
 END SUBROUTINE cable_climate
 !###############################################################################

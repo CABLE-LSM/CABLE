@@ -91,8 +91,8 @@ MODULE cable_common_module
      CHARACTER(LEN=20) ::                                                     &
     ! GS_SWITCH='leuning'
      GS_SWITCH='medlyn'
-     
-     
+
+     CHARACTER(LEN=20) :: g0_switch = 'default'  ! 'maximum',takes max of g0 and A*X, 'standard' is additive
      CHARACTER(LEN=10) :: RunIden       = 'STANDARD'  !
      CHARACTER(LEN=4)  :: MetType       = ' ' !
      CHARACTER(LEN=20) :: SOIL_STRUC    = "default" ! 'default' or 'sli'
@@ -121,6 +121,8 @@ MODULE cable_common_module
           finite_gm              = .FALSE., &     ! finite mesophyll conductance
           acclim_auto            = .FALSE., &
           coordinate_photosyn    = .TRUE., &
+          acclimate_photosyn      = .FALSE., &
+          acclimate_autoresp_seasonal = .FALSE., &
           limit_labile           = .FALSE.
     
      INTEGER  ::  &

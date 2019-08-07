@@ -25,17 +25,18 @@ MODULE cable_optimise_JV_module
  
  USE cable_data_module, ONLY : icanopy_type, point2constants
  USE TypeDef,              ONLY: i4b, dp
+ USE cable_common_module, ONLY: cable_user
 
  TYPE( icanopy_type ) :: C
 
  ! variables local to module
  REAL, ALLOCATABLE :: APAR(:), Dleaf(:), Tleaf(:), cs(:), scalex(:), fwsoil(:)
- REAL :: Anet, vcmax00, bjv, g1, Kc0, Ko0, ekc, eko, alpha
+ REAL :: Anet, vcmax00, bjv, g1, Kc0, Ko0, ekc, eko, alpha, g0, Tgrowth, Thome
  REAL ::     convex, Neff, Rd0
  INTEGER :: nt,kk
- REAL, PARAMETER :: relcost_J = 1.6 ! Chen et al. Oecologia, 1993, 93: 63-69 (use this value for forced co-ordination
- !REAL, PARAMETER :: relcost_J = 2.3  ! use this value for optimisation algorithm
- LOGICAL, PARAMETER :: coord = .True.  ! adjust ratioJV to force co-oridnation.
+ !REAL, PARAMETER :: relcost_J = 1.6 ! Chen et al. Oecologia, 1993, 93: 63-69 (use this value for forced co-ordination)
+ REAL, PARAMETER :: relcost_J = 2.3  ! use this value for optimisation algorithm
+ LOGICAL, PARAMETER :: coord = .False.  ! adjust ratioJV to force co-oridnation.
  ! otherwise maximise photosynthesis
 CONTAINS
 ! ==============================================================================
@@ -62,7 +63,7 @@ CONTAINS
     ALLOCATE(cs(nt))
     ALLOCATE(scalex(nt))
     ALLOCATE(fwsoil(nt))
-
+    
     ! assign local ptrs to constants defined in cable_data_module
     CALL point2constants(C)
 
@@ -74,6 +75,7 @@ CONTAINS
           ekc = veg%ekc(k)
           eko = veg%eko(k)
           g1 = veg%g1(k)
+          g0 = veg%g0(k)/1.67
           Rd0 = veg%cfrd(k) * veg%vcmax(k)
           ! soil-moisture modifier to stomatal conductance
           fwsoil = climate%fwsoil(k,:)
@@ -89,6 +91,11 @@ CONTAINS
           cs = climate%cs_shade(k,:)*1e-6
           scalex = climate%scalex_shade(k,:)
 
+          if (cable_user%acclimate_photosyn) then
+             Tgrowth = climate%mtemp(k)
+             Thome = climate%mtemp_max20(k)
+          endif
+          
 
           if (coord) then
              if(diff_Ac_Aj(l_bound)*diff_Ac_Aj(u_bound)<0) then
@@ -106,14 +113,14 @@ CONTAINS
                 Anet_cost = golden(l_bound,bjvref,u_bound,total_photosynthesis_cost,0.01,bjv_new)
                 veg%vcmax_shade(k) = Neff/(1.+relcost_J*bjv_new/4.0)
                 veg%ejmax_shade(k) = veg%vcmax_shade(k)*bjv_new
+                call total_An_Ac_Aj(bjv_new,An,Ac,Aj)
+                write(*,*) 'total shade', bjv_new,An,Ac,Aj, Aj/An
 
-!!$                if (k==1) then
-!!$                   write(799,"(200e16.6)") veg%vcmax_shade(k), sum(APAR), sum(Dleaf), sum(Tleaf), sum(cs), sum(scalex)
-!!$                endif
-             else
+           else
                 bjv_new = bjvref
                 veg%vcmax_shade(k) = veg%vcmax(k)
                 veg%ejmax_shade(k) = veg%ejmax(k)
+                print*, 'out of bounds'
              endif
           endif
 
@@ -131,22 +138,7 @@ CONTAINS
              if(diff_Ac_Aj(l_bound)*diff_Ac_Aj(u_bound)<0) then
                 bjv_new = rtbis(diff_Ac_Aj,l_bound,u_bound,0.001)
                 !call total_An_Ac_Aj(bjv_new,An,Ac,Aj)
-                ! write(*,*) 'coord: bjv, An,Ac,Aj,Aj/An: ' ,bjv_new,An,Ac,Aj, Aj/An
-
-!!$                ! call optimisation algorithm too to compare:
-!!$                if(total_photosynthesis_cost(bjvref).lt.total_photosynthesis_cost(l_bound).and. &
-!!$                  total_photosynthesis_cost(bjvref).lt.total_photosynthesis_cost(u_bound)) then
-!!$                
-!!$                  
-!!$                   Anet_cost = golden(l_bound,bjvref,u_bound,total_photosynthesis_cost,0.01,bjv_new)
-!!$                   !call total_An_Ac_Aj(bjv_new,An1,Ac1,Aj1)
-!!$                   !write(*,*) 'opt: bjv, An1,Ac1,Aj1,Aj1/An1: ' ,bjv_new,An,Ac,Aj, Aj/An
-!!$                   !if (An1.lt.An) then
-!!$                   !   stop('An1<An')
-!!$                   !endif
-!!$          
-!!$                endif
-                
+         
              else
 !!$                do kk=1,100
 !!$                   tmp = l_bound + (u_bound-l_bound)/100*(kk-1)
@@ -159,11 +151,7 @@ CONTAINS
              veg%vcmax_sun(k) = Neff/(1.+relcost_J*bjv_new/4.0)
              veg%ejmax_sun(k) = veg%vcmax_sun(k)*bjv_new
              !call total_An_Ac_Aj(bjv_new,An,Ac,Aj)
-             
-!!$             if (k==1) then
-!!$                write(899,"(200e16.6)") veg%vcmax_sun(k), sum(APAR), sum(Dleaf), sum(Tleaf), sum(cs), sum(scalex)            
-!!$             endif
-
+ 
           else
 
              if(total_photosynthesis_cost(bjvref).lt.total_photosynthesis_cost(l_bound).and. &
@@ -180,7 +168,7 @@ CONTAINS
              call total_An_Ac_Aj(bjv_new,An,Ac,Aj)
             
           endif
-          !write(799,"(200e16.6)") bjv_new,An,Ac,Aj, Aj/An,veg%vcmax_sun(k)
+          write(*,*) 'total sun', bjv_new,An,Ac,Aj, Aj/An
 
        else !C4
           bjv_new = bjvref
@@ -221,27 +209,33 @@ end subroutine fabc
  ! ------------------------------------------------------------------------------
 
 REAL FUNCTION total_photosynthesis_cost(bjv)
-USE cable_canopy_module, ONLY :  xvcmxt3,xejmxt3, ej3x, xrdt 
+USE cable_canopy_module, ONLY :  xvcmxt3,xejmxt3, ej3x, xrdt, &
+                                   xvcmxt3_acclim, xejmxt3_acclim 
 !TYPE( icanopy_type ) :: C
   REAL, INTENT(IN) :: bjv
 INTEGER :: k, j
 REAL :: kct, kot, tdiff
-REAL :: g0, x, gamma,  beta, gammastar, Rd, a, b, c1, jmaxt
-REAL:: Anc, Ane, vcmax0
-REAL :: An(nt)
+REAL ::  x, gamma,  beta, gammastar, Rd, a, b, c1, jmaxt
+REAL:: Anc, Ane, vcmax0, trf
+REAL :: An(nt), Ac(nt), Aj(nt)
 
 CALL point2constants(C)
 
 An = 0.0
+Ac = 0.0
+Aj = 0.0
 j = 1
 vcmax0 = Neff/(1.+relcost_J*bjv/4.0);
 
 DO k=1,nt
    if (APAR(k) .gt. 60e-6) then
-
-      g0 = 0.0
-      x = 1.0  + (g1 * fwsoil(k)) / SQRT(Dleaf(k))
-      gamma =  Vcmax0*scalex(k)*xvcmxt3(Tleaf(k)) 
+     x = 1.0  + (g1 * fwsoil(k)) / SQRT(Dleaf(k))
+      if (cable_user%acclimate_photosyn) then
+         cALL xvcmxt3_acclim(Tleaf(k), Tgrowth, trf)
+         gamma =  Vcmax0*scalex(k)*trf
+      else
+         gamma =  Vcmax0*scalex(k)*xvcmxt3(Tleaf(k))
+      endif
       tdiff = Tleaf(k) - C%Trefk
       gammastar = C%gam0 * ( 1.0 + C%gam1 * tdiff                  &
                                           + C%gam2 * tdiff * tdiff )
@@ -252,13 +246,41 @@ DO k=1,nt
                                               * ( 1.0 - C%trefk/Tleaf(k) ) )
 
       beta = kct * (1.0+0.21/kot)
-      CALL fabc(cs(k), g0, x, gamma, beta, gammastar, Rd, a, b, c1)
-      CALL fAn(a,b,c1,Anc) ! rubisco-limited
-      jmaxt = bjv*Vcmax0*scalex(k)*xejmxt3(Tleaf(k))
+      if (TRIM(cable_user%g0_switch) == 'default') then
+         CALL fabc(cs(k), g0*fwsoil(k), x, gamma, beta, gammastar, Rd, a, b, c1)
+         CALL fAn(a,b,c1,Anc) ! rubisco-limited
+      elseif (TRIM(cable_user%g0_switch) == 'maximum') then
+         
+         CALL fabc(cs(k), real(0.0), x, gamma, beta, gammastar, Rd, a, b, c1)
+         CALL fAn(a,b,c1,Anc) ! rubisco-limited
+         if (g0*fwsoil(k) .gt. Anc*x/cs(k)) then
+            CALL fabc(cs(k), g0*fwsoil(k), real(0.0), gamma, beta, gammastar, Rd, a, b, c1)
+            CALL fAn(a,b,c1,Anc) ! rubisco-limited
+         endif
+      endif
+         
+
+      if (cable_user%acclimate_photosyn) then
+         call xejmxt3_acclim(Tleaf(k), Thome, trf)
+         jmaxt = bjv*Vcmax0*scalex(k)*trf
+      else
+         jmaxt = bjv*Vcmax0*scalex(k)*xejmxt3(Tleaf(k))
+      endif
       gamma = ej3x(APAR(k), alpha,convex, jmaxt) 
       beta = 2.0 * gammastar
-      CALL fabc(cs(k), g0, x, gamma, beta, gammastar, Rd, a, b, c1)
-      CALL fAn(a,b,c1,Ane) ! e-transport limited
+
+         if (TRIM(cable_user%g0_switch) == 'default') then
+            CALL fabc(cs(k), g0*fwsoil(k), x, gamma, beta, gammastar, Rd, a, b, c1)
+            CALL fAn(a,b,c1,Ane) ! e-transport limited
+         elseif (TRIM(cable_user%g0_switch) == 'maximum') then  
+            CALL fabc(cs(k), real(0.0), x, gamma, beta, gammastar, Rd, a, b, c1)
+            CALL fAn(a,b,c1,Ane) ! e-transport limited
+            if (g0*fwsoil(k) .gt. Ane*x/cs(k)) then
+               CALL fabc(cs(k), g0*fwsoil(k), real(0.0), gamma, beta, gammastar, Rd, a, b, c1)
+               CALL fAn(a,b,c1,Ane) ! e-transport limited
+            endif
+         endif
+    
       An(j) = min(Anc, Ane)
    else
       An(j) = 0.0
@@ -275,13 +297,14 @@ endif
 END FUNCTION total_photosynthesis_cost
 
 REAL FUNCTION total_photosynthesis(bjv)
-USE cable_canopy_module, ONLY :  xvcmxt3,xejmxt3, ej3x, xrdt
+USE cable_canopy_module, ONLY :  xvcmxt3,xejmxt3, ej3x, xrdt, &
+                                   xvcmxt3_acclim, xejmxt3_acclim
 !TYPE( icanopy_type ) :: C
 REAL, INTENT(IN) :: bjv
 INTEGER :: k, j
 REAL :: kct, kot, tdiff
 REAL :: g0, x, gamma,  beta, gammastar, Rd, a, b, c1, jmaxt
-REAL:: Anc, Ane, vcmax0
+REAL:: Anc, Ane, vcmax0, trf
 REAL :: An(nt)
 
 CALL point2constants(C)
@@ -292,10 +315,13 @@ vcmax0 = Neff/(1.+relcost_J*bjv/4.0);
 
 DO k=1,nt
    if (APAR(k) .gt. 60e-6) then
-
-      g0 = 0.0
       x = 1.0  + (g1 * fwsoil(k)) / SQRT(Dleaf(k))
-      gamma =  Vcmax0*scalex(k)*xvcmxt3(Tleaf(k))
+      if (cable_user%acclimate_photosyn) then
+         cALL xvcmxt3_acclim(Tleaf(k), Tgrowth, trf)
+         gamma =  Vcmax0*scalex(k)*trf
+      else
+         gamma =  Vcmax0*scalex(k)*xvcmxt3(Tleaf(k))
+      endif
       tdiff = Tleaf(k) - C%Trefk
       gammastar = C%gam0 * ( 1.0 + C%gam1 * tdiff                  &
                                           + C%gam2 * tdiff * tdiff )
@@ -306,15 +332,44 @@ DO k=1,nt
                                               * ( 1.0 - C%trefk/Tleaf(k) ) )
 
       beta = kct * (1.0+0.21/kot)
-      CALL fabc(cs(k), g0, x, gamma, beta, gammastar, Rd, a, b, c1)
-      CALL fAn(a,b,c1,Anc) ! rubisco-limited
-      jmaxt = bjv*Vcmax0*scalex(k)*xejmxt3(Tleaf(k))
+      if (TRIM(cable_user%g0_switch) == 'default') then
+         CALL fabc(cs(k), g0*fwsoil(k), x, gamma, beta, gammastar, Rd, a, b, c1)
+         CALL fAn(a,b,c1,Anc) ! rubisco-limited
+      elseif (TRIM(cable_user%g0_switch) == 'maximum') then    
+         CALL fabc(cs(k),real(0.0), x, gamma, beta, gammastar, Rd, a, b, c1)
+         CALL fAn(a,b,c1,Anc) ! rubisco-limited
+      
+         if (g0*fwsoil(k) .gt. Anc*x/cs(k)) then
+            CALL fabc(cs(k), g0*fwsoil(k), real(0.0), gamma, beta, gammastar, Rd, a, b, c1)
+            CALL fAn(a,b,c1,Anc) ! rubisco-limited
+         endif
+      endif
+      
+      if (cable_user%acclimate_photosyn) then
+         call xejmxt3_acclim(Tleaf(k), Thome, trf)
+         jmaxt = bjv*Vcmax0*scalex(k)*trf
+      else
+         jmaxt = bjv*Vcmax0*scalex(k)*xejmxt3(Tleaf(k))
+      endif
       gamma = ej3x(APAR(k), alpha,convex, jmaxt) 
       beta = 2.0 * gammastar
-      CALL fabc(cs(k), g0, x, gamma, beta, gammastar, Rd, a, b, c1)
-      CALL fAn(a,b,c1,Ane) ! e-transport limited
+      if (TRIM(cable_user%g0_switch) == 'default') then
+         CALL fabc(cs(k), g0*fwsoil(k), x, gamma, beta, gammastar, Rd, a, b, c1)
+         CALL fAn(a,b,c1,Anc) ! rubisco-limited
+      elseif (TRIM(cable_user%g0_switch) == 'maximum') then    
+      
+         CALL fabc(cs(k), real(0.0), x, gamma, beta, gammastar, Rd, a, b, c1)
+         CALL fAn(a,b,c1,Ane) ! e-transport limited
+         if (g0*fwsoil(k) .gt. Ane*x/cs(k)) then
+            CALL fabc(cs(k), g0*fwsoil(k), real(0.0), gamma, beta, gammastar, Rd, a, b, c1)
+            CALL fAn(a,b,c1,Ane) ! e-transport limited
+         endif
+      endif
+
+      
       An(j) = min(Anc, Ane)
-      write(3368,"(200e16.6)") An(j), Ane,Anc,Tleaf(k),APAR(k),x,cs(k),scalex(k)
+
+     
    else
       An(j) = 0.0
    endif
@@ -328,12 +383,13 @@ ENDDO
  END FUNCTION total_photosynthesis
 
  REAL FUNCTION diff_Ac_Aj(bjv)
-   USE cable_canopy_module, ONLY :  xvcmxt3,xejmxt3, ej3x, xrdt
+   USE cable_canopy_module, ONLY :  xvcmxt3,xejmxt3, ej3x, xrdt, &
+                                   xvcmxt3_acclim, xejmxt3_acclim
    !TYPE( icanopy_type ) :: C
    REAL, INTENT(IN) :: bjv
    INTEGER :: k, j
    REAL :: kct, kot, tdiff
-   REAL :: g0, x, gamma,  beta, gammastar, Rd, a, b, c1, jmaxt
+   REAL ::  x, gamma,  beta, gammastar, Rd, a, b, c1, jmaxt
    REAL:: Anc, Ane, vcmax0
    REAL :: An(nt), Ac(nt), Aj(nt)
    REAL :: total_An, total_Ac, total_Aj
@@ -344,14 +400,18 @@ ENDDO
    j = 1
    vcmax0 = Neff/(1.+relcost_J*bjv/4.0);
    !bjv = (vcmax0/Neff -1.)*4.0/relcost_J
-
+  
    DO k=1,nt
       if (APAR(k) .gt. 60e-6) then
          Ac(j) = 0.0
          Aj(j) = 0.0
-         g0 = 0.0
          x = 1.0  + (g1 * fwsoil(k)) / SQRT(Dleaf(k))
-         gamma =  Vcmax0*scalex(k)*xvcmxt3(Tleaf(k))
+         if (cable_user%acclimate_photosyn) then
+            cALL xvcmxt3_acclim(Tleaf(k), Tgrowth, trf)
+            gamma =  Vcmax0*scalex(k)*trf
+         else
+            gamma =  Vcmax0*scalex(k)*xvcmxt3(Tleaf(k))
+         endif
          tdiff = Tleaf(k) - C%Trefk
          gammastar = C%gam0 * ( 1.0 + C%gam1 * tdiff                  &
               + C%gam2 * tdiff * tdiff )
@@ -362,21 +422,53 @@ ENDDO
               * ( 1.0 - C%trefk/Tleaf(k) ) )
 
          beta = kct * (1.0+0.21/kot)
-         CALL fabc(cs(k), g0, x, gamma, beta, gammastar, Rd, a, b, c1)
-         CALL fAn(a,b,c1,Anc) ! rubisco-limited
-         jmaxt = bjv*Vcmax0*scalex(k)*xejmxt3(Tleaf(k))
+         if (TRIM(cable_user%g0_switch) == 'default') then
+            CALL fabc(cs(k), g0*fwsoil(k), x, gamma, beta, gammastar, Rd, a, b, c1)
+            CALL fAn(a,b,c1,Anc) ! rubisco-limited
+         elseif (TRIM(cable_user%g0_switch) == 'maximum') then
+         
+            CALL fabc(cs(k), real(0.0), x, gamma, beta, gammastar, Rd, a, b, c1)
+            CALL fAn(a,b,c1,Anc) ! rubisco-limited
+            if (g0*fwsoil(k) .gt. Anc*x/cs(k)) then
+               CALL fabc(cs(k), g0*fwsoil(k), real(0.0), gamma, beta, gammastar, Rd, a, b, c1)
+               CALL fAn(a,b,c1,Anc) ! rubisco-limited
+            endif
+         endif
+         
+         if (cable_user%acclimate_photosyn) then
+            call xejmxt3_acclim(Tleaf(k), Thome, trf)
+            jmaxt = bjv*Vcmax0*scalex(k)*trf
+         else
+            jmaxt = bjv*Vcmax0*scalex(k)*xejmxt3(Tleaf(k))
+         endif
          gamma = ej3x(APAR(k), alpha,convex, jmaxt) 
          beta = 2.0 * gammastar
-         CALL fabc(cs(k), g0, x, gamma, beta, gammastar, Rd, a, b, c1)
-         CALL fAn(a,b,c1,Ane) ! e-transport limited
+
+         if (TRIM(cable_user%g0_switch) == 'default') then
+            CALL fabc(cs(k), g0*fwsoil(k), x, gamma, beta, gammastar, Rd, a, b, c1)
+            CALL fAn(a,b,c1,Ane) ! e-transport limited
+         elseif (TRIM(cable_user%g0_switch) == 'maximum') then  
+            CALL fabc(cs(k), real(0.0), x, gamma, beta, gammastar, Rd, a, b, c1)
+            CALL fAn(a,b,c1,Ane) ! e-transport limited
+            if (g0*fwsoil(k) .gt. Ane*x/cs(k)) then
+               CALL fabc(cs(k), g0*fwsoil(k), real(0.0), gamma, beta, gammastar, Rd, a, b, c1)
+               CALL fAn(a,b,c1,Ane) ! e-transport limited
+            endif
+         endif
+            
          An(j) = min(Anc, Ane)
          if (Anc < Ane) Ac(j) = Anc
          if (Ane < Anc) Aj(j) = Ane
       else
          An(j) = 0.0
       endif
+
+     
+              
       j = j+1
    ENDDO
+   
+  
    total_An = sum(An)
    total_Ac = sum(Ac)
    total_Aj = sum(Aj)
@@ -459,12 +551,14 @@ ENDDO
 
 
 SUBROUTINE total_An_Ac_Aj(bjv, total_An, total_Ac, total_Aj)
-USE cable_canopy_module, ONLY :  xvcmxt3,xejmxt3, ej3x, xrdt
+  USE cable_canopy_module, ONLY :  xvcmxt3, xejmxt3, ej3x, xrdt, &
+                                   xvcmxt3_acclim, xejmxt3_acclim
+  
 !TYPE( icanopy_type ) :: C
 REAL, INTENT(IN) :: bjv
 INTEGER :: k, j
 REAL :: kct, kot, tdiff
-REAL :: g0, x, gamma,  beta, gammastar, Rd, a, b, c1, jmaxt
+REAL ::  x, gamma,  beta, gammastar, Rd, a, b, c1, jmaxt
 REAL:: Anc, Ane, vcmax0
 REAL :: An(nt), Ac(nt), Aj(nt)
 REAL, INTENT(OUT) :: total_An, total_Ac, total_Aj
@@ -476,13 +570,20 @@ j = 1
 vcmax0 = Neff/(1.+relcost_J*bjv/4.0);
 Ac = 0
 Aj=0
+
+ 
 DO k=1,nt
    if (APAR(k) .gt. 60e-6) then
       Ac(j) = 0.0
       Aj(j) = 0.0
-      g0 = 0.0
       x = 1.0  + (g1 * fwsoil(k)) / SQRT(Dleaf(k))
-      gamma =  Vcmax0*scalex(k)*xvcmxt3(Tleaf(k))
+      if (cable_user%acclimate_photosyn) then
+         cALL xvcmxt3_acclim(Tleaf(k), Tgrowth, trf)
+         gamma =  Vcmax0*scalex(k)*trf
+      else
+         gamma =  Vcmax0*scalex(k)*xvcmxt3(Tleaf(k))
+      endif
+       
       tdiff = Tleaf(k) - C%Trefk
       gammastar = C%gam0 * ( 1.0 + C%gam1 * tdiff                  &
                                           + C%gam2 * tdiff * tdiff )
@@ -493,14 +594,32 @@ DO k=1,nt
                                               * ( 1.0 - C%trefk/Tleaf(k) ) )
 
       beta = kct * (1.0+0.21/kot)
-      CALL fabc(cs(k), g0, x, gamma, beta, gammastar, Rd, a, b, c1)
+      CALL fabc(cs(k), real(0.0), x, gamma, beta, gammastar, Rd, a, b, c1)
       CALL fAn(a,b,c1,Anc) ! rubisco-limited
+      if (g0*fwsoil(k) .gt. Anc*x/cs(k)) then
+         CALL fabc(cs(k), g0*fwsoil(k), real(0.0), gamma, beta, gammastar, Rd, a, b, c1)
+         CALL fAn(a,b,c1,Anc) ! rubisco-limited
+      endif
+
       
-      jmaxt = bjv*Vcmax0*scalex(k)*xejmxt3(Tleaf(k))
+      if (cable_user%acclimate_photosyn) then
+           call xejmxt3_acclim(Tleaf(k), Thome, trf)
+           jmaxt = bjv*Vcmax0*scalex(k)*trf
+      else
+           jmaxt = bjv*Vcmax0*scalex(k)*xejmxt3(Tleaf(k))
+      endif
+ 
       gamma = ej3x(APAR(k), alpha,convex, jmaxt) 
       beta = 2.0 * gammastar
-      CALL fabc(cs(k), g0, x, gamma, beta, gammastar, Rd, a, b, c1)
+      CALL fabc(cs(k), real(0.0), x, gamma, beta, gammastar, Rd, a, b, c1)
       CALL fAn(a,b,c1,Ane) ! e-transport limited
+      if (g0*fwsoil(k) .gt. Ane*x/cs(k)) then
+            CALL fabc(cs(k), g0*fwsoil(k), real(0.0), gamma, beta, gammastar, Rd, a, b, c1)
+            CALL fAn(a,b,c1,Ane) ! e-transport limited
+      endif
+
+
+      
       An(j) = min(Anc, Ane)
       !write(*,*) An(j), Anc, Ane
       if (Anc < Ane) Ac(j) = Anc
@@ -508,6 +627,11 @@ DO k=1,nt
       
    else
       An(j) = 0.0
+   endif
+
+   if (j == 108) then
+      write(3355,"(200e16.6)")  X/cs(k), cs(k), g0*fwsoil(k), Rd, gammastar, &
+           Vcmax0*scalex(k)*trf, kct * (1.0+0.21/kot), Anc,  gamma, beta, Ane
    endif
    j = j+1
 ENDDO

@@ -173,7 +173,7 @@ cable_climate.o: cable_climate.F90 cable_define_types.o cable_iovars.o  cable_co
 
 cable_phenology.o: cable_phenology.F90 cable_define_types.o cable_iovars.o  cable_common.o  casa_variable.o
 
-cable_optimiseJVratio.o: cable_optimiseJVratio.F90 cable_define_types.o cable_canopy.o
+cable_optimiseJVratio.o : cable_optimiseJVratio.F90 cable_define_types.o cable_common.o
 
 cable_bios_met_obs_params.o: cable_bios_met_obs_params.F90 cable_iovars.o cable_define_types.o cable_checks.o \
                     cable_weathergenerator.o casa_variable.o

@@ -1235,6 +1235,7 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
           WG%VapPmb1500 = vp1500
           WG%VapPmb1500Prev = prev_vp1500
           WG%VapPmb0900Next = next_vp0900
+       
        ELSE
           WG%VapPmb0900 =  WG%VapPmbDay 
           WG%VapPmb1500 =   WG%VapPmbDay 
@@ -1298,7 +1299,7 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
    met%tvrad(is:ie)     = met%tk(is:ie)
 end do
 
-
+  
 
 !*******************************************************************************
 CONTAINS

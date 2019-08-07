@@ -430,6 +430,7 @@ MODULE cable_def_types_mod
      real(r_2), dimension(:,:), pointer :: An ! sunlit and shaded net assimilation (mol/m2/s)
      real(r_2), dimension(:,:), pointer :: Rd ! sunlit and shaded leaf respiration (mol/m2/s)
 
+
    END TYPE canopy_type
 
    ! .............................................................................
@@ -655,7 +656,9 @@ MODULE cable_def_types_mod
       scalex_sun, & ! canopy depth scaling factor on vcmax and jmax (sun leaves)
       scalex_shade, & ! canopy depth scaling factor on vcmax and jmax (shade leaves)
       fwsoil, &         ! soil-moisture modifier to stomatal conductance
-      aprecip_20     ! annual average rainfall for the last 20 years
+      aprecip_20, &    ! annual average rainfall for the last 20 years
+      Rd_sun, &
+      Rd_shade
    END TYPE climate_type
 
    ! .............................................................................
@@ -1307,6 +1310,8 @@ SUBROUTINE alloc_climate_type(var, mp, ktauday)
    ALLOCATE ( var %   scalex_shade(mp,ktauday*5) )
    ALLOCATE ( var %   fwsoil(mp,ktauday*5) )
    ALLOCATE ( var % aprecip_20(mp,ny) )
+   ALLOCATE ( var %   Rd_sun(mp,ktauday*5) )
+   ALLOCATE ( var %   Rd_shade(mp,ktauday*5) )
 
    
 END SUBROUTINE alloc_climate_type
