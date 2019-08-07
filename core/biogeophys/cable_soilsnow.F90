@@ -2042,7 +2042,8 @@ CONTAINS
           ! Overwrite to give zero redistribution for all types except
           ! evergreen broadleaf (2) and c4 grass (7)
           ! NB: Hard-wired numbers should be removed in future version
-          WHERE( .NOT.(veg%iveg == 2 .OR. veg%iveg == 7 ) )
+          !WHERE( .NOT.(veg%iveg == 2 .OR. veg%iveg == 7 ) )
+          WHERE( .NOT.(veg%iveg == 2 .OR. veg%iveg == 7 .OR. veg%iveg >= 18) )
              hr_perTime(:,k,j) = 0.0
              hr_perTime(:,j,k) = 0.0
           ENDWHERE
@@ -2120,7 +2121,8 @@ CONTAINS
           ! Overwrite to give zero redistribution for all types except
           ! evergreen broadleaf (2) and c4 grass (7)
           ! NB: Hard-wired numbers should be removed in future version
-          WHERE( .NOT.( veg%iveg == 2 .OR. veg%iveg == 7 ) )
+          !WHERE( .NOT.( veg%iveg == 2 .OR. veg%iveg == 7 ) )
+          WHERE( .NOT.( veg%iveg == 2 .OR. veg%iveg == 7 .OR. veg%iveg >= 18) )
              hr_perTime(:,k,j) = 0.0
              hr_perTime(:,j,k) = 0.0
           ENDWHERE

@@ -1195,8 +1195,8 @@ CONTAINS
        vegin%p50(18) = -4.
        vegin%s50(18) = 30.0
        vegin%kp_sat(18) = 4.0
-       vegin%Cl(2) = 10000.
-       vegin%Cs(2) = 120000.
+       vegin%Cl(18) = 10000.
+       vegin%Cs(18) = 120000.
 
        !PFT: New Wet sclerophyll forests (WSF) mgk576, 16/7/19
        !=========================================================

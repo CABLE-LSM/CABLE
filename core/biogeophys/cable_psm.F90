@@ -96,7 +96,10 @@ CONTAINS
     int_eddy_shape = FLOOR(eddy_shape)
     eddy_mod(:) = 0.0
     DO i=1,mp
-       IF (veg%iveg(i) .LT. 16) THEN
+       !IF (veg%iveg(i) .LT. 16) THEN
+
+       ! fix for new pfts
+       IF (veg%iveg(i) .LT. 16 .OR. veg%iveg(i) .GE. 18) THEN
           eddy_mod(i) = 2.2*SQRT(112.0*(pi_r_2)) / (2.0**(eddy_shape(i)+1.0) * SQRT(eddy_shape(i)+1.0))
 
           IF (int_eddy_shape(i) .GT. 0) THEN
@@ -117,7 +120,9 @@ CONTAINS
     END DO
 
     DO i=1,mp
-       IF (veg%iveg(i) .LT. 16) THEN
+       !IF (veg%iveg(i) .LT. 16) THEN
+       IF (veg%iveg(i) .LT. 16 .OR. veg%iveg(i) .GE. 18) THEN
+
 
           wb_liq(i) = REAL(MAX(0.0001,MIN((pi_r_2)/4.0, &
                (ssnow%wb(i,1)-ssnow%wbice(i,1) - ssnow%satfrac(i)*soil%ssat_vec(i,1)) / &
@@ -192,7 +197,8 @@ CONTAINS
 
     DO i=1,mp
 
-       IF (veg%iveg(i) .LT. 16 .AND. ssnow%snowd(i) .LT. 1e-7) THEN
+       !IF (veg%iveg(i) .LT. 16 .AND. ssnow%snowd(i) .LT. 1e-7) THEN
+       IF ((veg%iveg(i) .LT. 16 .OR. veg%iveg(i) .GE. 18) .AND. ssnow%snowd(i) .LT. 1e-7) THEN
 
           IF (dq(i) .LE. 0.0) THEN
              ssnow%rtevap_sat(i) = MIN(rtevap_max,canopy%sublayer_dz(i)/rt_Dff)
