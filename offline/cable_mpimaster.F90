@@ -776,7 +776,10 @@ CONTAINS
           canopy%oldcansto=canopy%cansto
 
           ! Zero out lai where there is no vegetation acc. to veg. index
-          WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.
+          !WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.
+
+          ! fix for new PFTs
+          WHERE ( iveg%iveg(:) .GE. 14 .AND. iveg%iveg(:) .LT. 18) iveg%vlai = 0.
 
 
 
