@@ -1188,27 +1188,29 @@ CONTAINS
        vegin%clitt(18) =        6.000000
 
        ! mgk576, hydraulics stuff
-       !vegin%g1(18) = 12.0  ! JED 15 for teretoconis seedlings, using Jim's value for Eucface
-       !vegin%sf(18) = 8.0
-       !vegin%psi_f(18) = -2.0
-       !vegin%X_hyd(18) = 50.0
-       !vegin%p50(18) = -4.
-       !vegin%s50(18) = 30.0
-       !vegin%kp_sat(18) = 4.0
-       !vegin%Cl(18) = 10000.
-       !vegin%Cs(18) = 120000.
-
-       vegin%vcmax(18) = 0.000044
-       vegin%ejmax(18) = 0.000074
-       vegin%g1(18) = 4.192749
-       vegin%sf(18) = 2.000000
-       vegin%psi_f(18) = -2.046428
+       vegin%vcmax(18) =        0.000055
+       vegin%ejmax(18) =        0.000000
+       vegin%g1(18) = 12.0  ! JED 15 for teretoconis seedlings, using Jim's value for Eucface
+       vegin%sf(18) = 8.0
+       vegin%psi_f(18) = -2.0
        vegin%X_hyd(18) = 50.0
-       vegin%p50(18) = -4.32945
-       vegin%s50(18) = 74.283377
-       vegin%kp_sat(18) = 0.851595
-       vegin%Cl(18) = 659.0
-       vegin%Cs(18) = 7408.266534
+       vegin%p50(18) = -4.
+       vegin%s50(18) = 30.0
+       vegin%kp_sat(18) = 4.0
+       vegin%Cl(18) = 10000.
+       vegin%Cs(18) = 120000.
+
+       !vegin%vcmax(18) = 0.000044
+       !vegin%ejmax(18) = 0.000074
+       !vegin%g1(18) = 4.192749
+       !vegin%sf(18) = 2.000000
+       !vegin%psi_f(18) = -2.046428
+       !vegin%X_hyd(18) = 50.0
+       !vegin%p50(18) = -4.32945
+       !vegin%s50(18) = 74.283377
+       !vegin%kp_sat(18) = 0.851595
+       !vegin%Cl(18) = 659.0
+       !vegin%Cs(18) = 7408.266534
 
 
 
@@ -1271,17 +1273,29 @@ CONTAINS
        vegin%zr(19) =        3.000000
        vegin%clitt(19) =        6.000000
 
-       vegin%vcmax(19) = 0.000085
-       vegin%ejmax(19) = 0.000142
-       vegin%g1(19) = 3.154297
-       vegin%sf(19) = 2.000000
-       vegin%psi_f(19) = -2.455474
+       vegin%vcmax(19) =        0.000055
+       vegin%ejmax(19) =        0.000000
+       vegin%g1(19) = 12.0  ! JED 15 for teretoconis seedlings, using Jim's value for Eucface
+       vegin%sf(19) = 8.0
+       vegin%psi_f(19) = -2.0
        vegin%X_hyd(19) = 50.0
-       vegin%p50(19) = -3.002384
-       vegin%s50(19) = 35.26948
-       vegin%kp_sat(19) = 1.686987
-       vegin%Cl(19) = 342.904821
-       vegin%Cs(19) = 31622.004690
+       vegin%p50(19) = -4.
+       vegin%s50(19) = 30.0
+       vegin%kp_sat(19) = 4.0
+       vegin%Cl(19) = 10000.
+       vegin%Cs(19) = 120000.
+
+       !vegin%vcmax(19) = 0.000085
+       !vegin%ejmax(19) = 0.000142
+       !vegin%g1(19) = 3.154297
+       !vegin%sf(19) = 2.000000
+       !vegin%psi_f(19) = -2.455474
+       !vegin%X_hyd(19) = 50.0
+       !vegin%p50(19) = -3.002384
+       !vegin%s50(19) = 35.26948
+       !vegin%kp_sat(19) = 1.686987
+       !vegin%Cl(19) = 342.904821
+       !vegin%Cs(19) = 31622.004690
 
 
        !PFT: New Dry sclerophyll forests (DSF) mgk576, 16/7/19
@@ -1343,17 +1357,30 @@ CONTAINS
        vegin%zr(20) =        3.000000
        vegin%clitt(20) =        6.000000
 
-       vegin%vcmax(20) = 0.000076
-       vegin%ejmax(20) = 0.000126
-       vegin%g1(20) = 4.788591
-       vegin%sf(20) = 2.000000
-       vegin%psi_f(20) = -1.668544
+       vegin%vcmax(20) =        0.000055
+       vegin%ejmax(20) =        0.000000
+       vegin%g1(20) = 12.0  ! JED 15 for teretoconis seedlings, using Jim's value for Eucface
+       vegin%sf(20) = 8.0
+       vegin%psi_f(20) = -2.0
        vegin%X_hyd(20) = 50.0
-       vegin%p50(20) = -3.504141
-       vegin%s50(20) = 30.468839
-       vegin%kp_sat(20) = 3.142807
-       vegin%Cl(20) = 349.193238
-       vegin%Cs(20) = 13072.60759
+       vegin%p50(20) = -4.
+       vegin%s50(20) = 30.0
+       vegin%kp_sat(20) = 4.0
+       vegin%Cl(20) = 10000.
+       vegin%Cs(20) = 120000.
+
+
+       !vegin%vcmax(20) = 0.000076
+       !vegin%ejmax(20) = 0.000126
+       !vegin%g1(20) = 4.788591
+       !vegin%sf(20) = 2.000000
+       !vegin%psi_f(20) = -1.668544
+       !vegin%X_hyd(20) = 50.0
+       !vegin%p50(20) = -3.504141
+       !vegin%s50(20) = 30.468839
+       !vegin%kp_sat(20) = 3.142807
+       !vegin%Cl(20) = 349.193238
+       !vegin%Cs(20) = 13072.60759
 
        !PFT: New Grassy woodland (GRW) mgk576, 16/7/19
        !=========================================================
@@ -1414,17 +1441,30 @@ CONTAINS
        vegin%zr(21) =        3.000000
        vegin%clitt(21) =        6.000000
 
-       vegin%vcmax(21) = 0.000062
-       vegin%ejmax(21) = 0.000104
-       vegin%g1(21) = 4.811896
-       vegin%sf(21) = 2.000000
-       vegin%psi_f(21) = -3.406408
+       vegin%vcmax(21) =        0.000055
+       vegin%ejmax(21) =        0.000000
+       vegin%g1(21) = 12.0  ! JED 15 for teretoconis seedlings, using Jim's value for Eucface
+       vegin%sf(21) = 8.0
+       vegin%psi_f(21) = -2.0
        vegin%X_hyd(21) = 50.0
-       vegin%p50(21) = -4.32945
-       vegin%s50(21) = 26.690161
-       vegin%kp_sat(21) = 3.215984
-       vegin%Cl(21) = 405.135682
-       vegin%Cs(21) = 19657.019111
+       vegin%p50(21) = -4.
+       vegin%s50(21) = 30.0
+       vegin%kp_sat(21) = 4.0
+       vegin%Cl(21) = 10000.
+       vegin%Cs(21) = 120000.
+
+
+       !vegin%vcmax(21) = 0.000062
+       !vegin%ejmax(21) = 0.000104
+       !vegin%g1(21) = 4.811896
+       !vegin%sf(21) = 2.000000
+       !vegin%psi_f(21) = -3.406408
+       !vegin%X_hyd(21) = 50.0
+       !vegin%p50(21) = -4.32945
+       !vegin%s50(21) = 26.690161
+       !vegin%kp_sat(21) = 3.215984
+       !vegin%Cl(21) = 405.135682
+       !vegin%Cs(21) = 19657.019111
 
        !PFT: New Semi-arid woodland (SAW) mgk576, 16/7/19
        !=========================================================
@@ -1485,17 +1525,30 @@ CONTAINS
        vegin%zr(22) =        3.000000
        vegin%clitt(22) =        6.000000
 
-       vegin%vcmax(22) = 0.000093
-       vegin%ejmax(22) = 0.000155
-       vegin%g1(22) = 5.112146
-       vegin%sf(22) = 2.000000
-       vegin%psi_f(22) = -3.688683
+       vegin%vcmax(22) =        0.000055
+       vegin%ejmax(22) =        0.000000
+       vegin%g1(22) = 12.0  ! JED 15 for teretoconis seedlings, using Jim's value for Eucface
+       vegin%sf(22) = 8.0
+       vegin%psi_f(22) = -2.0
        vegin%X_hyd(22) = 50.0
-       vegin%p50(22) = -7.093755
-       vegin%s50(22) = 17.798
-       vegin%kp_sat(22) = 0.851595
-       vegin%Cl(22) = 509.05840
-       vegin%Cs(22) = 8699.750085
+       vegin%p50(22) = -4.
+       vegin%s50(22) = 30.0
+       vegin%kp_sat(22) = 4.0
+       vegin%Cl(22) = 10000.
+       vegin%Cs(22) = 120000.
+
+
+       !vegin%vcmax(22) = 0.000093
+       !vegin%ejmax(22) = 0.000155
+       !vegin%g1(22) = 5.112146
+       !vegin%sf(22) = 2.000000
+       !vegin%psi_f(22) = -3.688683
+       !vegin%X_hyd(22) = 50.0
+       !vegin%p50(22) = -7.093755
+       !vegin%s50(22) = 17.798
+       !vegin%kp_sat(22) = 0.851595
+       !vegin%Cl(22) = 509.05840
+       !vegin%Cs(22) = 8699.750085
 
     ENDIF
 
