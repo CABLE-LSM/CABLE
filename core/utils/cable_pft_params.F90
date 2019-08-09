@@ -1267,7 +1267,7 @@ CONTAINS
        vegin%ekc(19) =    59430.000000
        vegin%eko(19) =    36000.000000
        vegin%g0(19) =        0.000000
-       vegin%g1(19) =        4.114762
+       !vegin%g1(19) =        4.114762
        vegin%zr(19) =        3.000000
        vegin%clitt(19) =        6.000000
 
@@ -1339,7 +1339,7 @@ CONTAINS
        vegin%ekc(20) =    59430.000000
        vegin%eko(20) =    36000.000000
        vegin%g0(20) =        0.000000
-       vegin%g1(20) =        4.114762
+       !vegin%g1(20) =        4.114762
        vegin%zr(20) =        3.000000
        vegin%clitt(20) =        6.000000
 
@@ -1410,7 +1410,7 @@ CONTAINS
        vegin%ekc(21) =    59430.000000
        vegin%eko(21) =    36000.000000
        vegin%g0(21) =        0.000000
-       vegin%g1(21) =        4.114762
+       !vegin%g1(21) =        4.114762
        vegin%zr(21) =        3.000000
        vegin%clitt(21) =        6.000000
 
@@ -1481,7 +1481,7 @@ CONTAINS
        vegin%ekc(22) =    59430.000000
        vegin%eko(22) =    36000.000000
        vegin%g0(22) =        0.000000
-       vegin%g1(22) =        4.114762
+       !vegin%g1(22) =        4.114762
        vegin%zr(22) =        3.000000
        vegin%clitt(22) =        6.000000
 
