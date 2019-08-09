@@ -2103,6 +2103,10 @@ CONTAINS
              ELSE IF (cable_user%GS_SWITCH == 'medlyn' .AND. &
                      cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
 
+                print*, veg%iveg(i), veg%g1(i), veg%vcmax(i)*1e6, veg%ejmax(i)*1e6
+                print*, veg%Cl(i), veg%Cs(i)
+                print*, " "
+                 
                 CALL calc_hydr_conduc(canopy, ssnow, rad, veg, veg%kp_sat(i), i)
 
                 ! Sensitivity of stomata to leaf water potential [0-1]
