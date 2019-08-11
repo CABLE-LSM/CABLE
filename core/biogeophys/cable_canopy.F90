@@ -2103,10 +2103,10 @@ CONTAINS
              ELSE IF (cable_user%GS_SWITCH == 'medlyn' .AND. &
                      cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
 
-                print*, veg%iveg(i), veg%g1(i), veg%vcmax(i)*1e6, veg%ejmax(i)*1e6
-                print*, veg%Cl(i), veg%Cs(i)
-                print*, " "
-                 
+                !print*, veg%iveg(i), veg%g1(i), veg%vcmax(i)*1e6, veg%ejmax(i)*1e6
+                !print*, veg%Cl(i), veg%Cs(i)
+                !print*, " "
+
                 CALL calc_hydr_conduc(canopy, ssnow, rad, veg, veg%kp_sat(i), i)
 
                 ! Sensitivity of stomata to leaf water potential [0-1]
@@ -2268,6 +2268,10 @@ CONTAINS
                    canopy%psi_leaf_prev(i) = canopy%psi_leaf(i)
                    canopy%psi_soil_prev(i) = ssnow%weighted_psi_soil(i)
                    canopy%psi_stem_prev(i) = canopy%psi_stem(i)
+
+
+
+                   canopy%fevc(i) = ecx(i)*(1.0-canopy%fwet(i))
                 ENDIF
 
 
@@ -2287,7 +2291,8 @@ CONTAINS
                       canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels
                       ecx(i) = canopy%fevc(i) / (1.0-canopy%fwet(i))
                    ELSEIF (cable_user%soil_struc=='default' .AND. cable_user%fwsoil_switch.EQ.'hydraulics') THEN
-                       canopy%fevc(i) = ecx(i)*(1.0-canopy%fwet(i))
+                      canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels
+                      ecx(i) = canopy%fevc(i) / (1.0-canopy%fwet(i))
                    ELSEIF (cable_user%soil_struc=='sli') THEN
                       canopy%fevc(i) = ecx(i)*(1.0-canopy%fwet(i))
                    ENDIF
