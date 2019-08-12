@@ -3049,6 +3049,7 @@ CONTAINS
         ssnow%tot_bg_resist(i) = ssnow%tot_bg_resist(i) * canopy%vlaiw(i)
      END IF
 
+     print*, "LAI check", canopy%vlaiw(i), canopy%vlaiw
      ! soil-to-root hydraulic conductance (mmol m-2 leaf area s-1 MPa-1)
 
      ! weird issue with patchfrac, not sure if this is an initialisiation call
