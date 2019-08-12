@@ -3010,6 +3010,7 @@ CONTAINS
      REAL             :: num, den, fw
      REAL, INTENT(IN) :: psi_leaf, sf, psi_f
 
+     print*, "tuzet", sf, psi_f, psi_leaf
      num = 1.0 + EXP(sf * psi_f)
      den = 1.0 + EXP(sf * (psi_f - psi_leaf))
      !fw = num / den
