@@ -3012,7 +3012,8 @@ CONTAINS
 
      num = 1.0 + EXP(sf * psi_f)
      den = 1.0 + EXP(sf * (psi_f - psi_leaf))
-     fw = num / den
+     !fw = num / den
+     fw = MAX(1.0e-9, MIN(1.0, num / den))
 
   END FUNCTION f_tuzet
   ! ----------------------------------------------------------------------------
