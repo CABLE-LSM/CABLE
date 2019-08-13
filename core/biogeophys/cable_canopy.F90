@@ -3010,7 +3010,7 @@ CONTAINS
      REAL             :: num, den, fw
      REAL, INTENT(IN) :: psi_leaf, sf, psi_f
 
-     print*, "tuzet", sf, psi_f, psi_leaf
+     !print*, "tuzet", sf, psi_f, psi_leaf
      num = 1.0 + EXP(sf * psi_f)
      den = 1.0 + EXP(sf * (psi_f - psi_leaf))
      !fw = num / den
@@ -3049,7 +3049,8 @@ CONTAINS
         ssnow%tot_bg_resist(i) = ssnow%tot_bg_resist(i) * canopy%vlaiw(i)
      END IF
 
-     print*, "LAI check", canopy%vlaiw(i), canopy%vlaiw
+     !print*, "LAI check", canopy%vlaiw(i), canopy%vlaiw
+
      ! soil-to-root hydraulic conductance (mmol m-2 leaf area s-1 MPa-1)
 
      ! weird issue with patchfrac, not sure if this is an initialisiation call
