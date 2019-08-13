@@ -2265,7 +2265,7 @@ CONTAINS
                 canopy%psi_soil_prev(i) = ssnow%weighted_psi_soil(i)
                 canopy%psi_stem_prev(i) = canopy%psi_stem(i)
 
-                
+
                 !IF (ecx(i) > 0.0 .AND. canopy%fwet(i) < 1.0) THEN
                 !    evapfb(i) = ( 1.0 - canopy%fwet(i)) * REAL( ecx(i) ) *dels      &
                 !         / air%rlam(i)
@@ -2300,6 +2300,7 @@ CONTAINS
                      REAL(veg%gamma(i),r_2), &
                      REAL(soil%zse,r_2), REAL(dels,r_2), REAL(veg%zr(i),r_2))
 
+                canopy%fwsoil(i) = 1.0
                 ssnow%evapfbl(i,:) = ssnow%rex(i,:)*dels*1000_r_2 ! mm water &
 
              ELSE
