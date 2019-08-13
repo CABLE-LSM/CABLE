@@ -2233,46 +2233,77 @@ CONTAINS
                 ssnow%evapfbl(i,:) = ssnow%rex(i,:)*dels*1000_r_2 ! mm water &
                 !(root water extraction) per time step
 
+             ! PH: mgk576, 13/10/17
+             ! This is over the combined direct & diffuse leaves due to the
+             ! way the loops fall above
+             ELSEIF (cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+
+                ! Transpiration: W m-2 -> kg m-2 s-1 -> mmol m-2 s-1
+                IF (ecx(i) > 0.0) THEN
+                   conv = KG_2_G * G_WATER_TO_MOL * MOL_2_MMOL
+                   trans_mmol = ecx(i) / air%rlam(i) * conv
+                ELSE
+                   trans_mmol = 0.0
+                END IF
+
+                ! Calculate the leaf water potential.
+                CALL calc_psi_leaf(canopy, trans_mmol, dels, veg%Cl(i), i)
+
+                ! Flux from stem to leaf (mmol s-1) = change in leaf storage,
+                ! plus transpiration
+                CALL calc_flux_to_leaf(canopy, trans_mmol, dels, veg%Cl(i), i)
+
+                ! Update stem water potential
+                CALL update_stem_wp(canopy, ssnow, dels, veg%Cs(i), i)
+
+                ! Flux from the soil to the stem = change in storage +
+                ! flux_to_leaf
+                CALL calc_flux_to_stem(canopy, dels, veg%Cs(i), i)
+
+                ! store current water potentials for next time step
+                canopy%psi_leaf_prev(i) = canopy%psi_leaf(i)
+                canopy%psi_soil_prev(i) = ssnow%weighted_psi_soil(i)
+                canopy%psi_stem_prev(i) = canopy%psi_stem(i)
+
+                
+                !IF (ecx(i) > 0.0 .AND. canopy%fwet(i) < 1.0) THEN
+                !    evapfb(i) = ( 1.0 - canopy%fwet(i)) * REAL( ecx(i) ) *dels      &
+                !         / air%rlam(i)
+                !
+                !    DO kk = 1,ms
+                !
+                !       ssnow%evapfbl(i,kk) = MIN( evapfb(i) * ssnow%fraction_uptake(i,k),      &
+                !            MAX( 0.0, REAL( ssnow%wb(i,kk) ) -     &
+                !            1.1 * soil%swilt(i) ) *                &
+                !            soil%zse(kk) * 1000.0 )
+                !
+                !   ENDDO
+                !
+                !      IF (cable_user%soil_struc=='default') THEN
+                !       canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels
+                !         ecx(i) = canopy%fevc(i) / (1.0-canopy%fwet(i))
+                !   ENDIF
+                !
+                ! ENDIF
+
+                ! We shouldn't be using this, but I need to figure out how to
+                ! correctly do the above...
+                canopy%fevc(i) = ecx(i)*(1.0-canopy%fwet(i))
+
+                CALL getrex_1d(ssnow%wbliq(i,:),&
+                     ssnow%rex(i,:), &
+                     canopy%fwsoil(i), &
+                     REAL(veg%froot(i,:),r_2),&
+                     soil%ssat_vec(i,:), &
+                     soil%swilt_vec(i,:), &
+                     MAX(REAL(canopy%fevc(i)/air%rlam(i)/1000_r_2,r_2),0.0_r_2), &
+                     REAL(veg%gamma(i),r_2), &
+                     REAL(soil%zse,r_2), REAL(dels,r_2), REAL(veg%zr(i),r_2))
+
+                ssnow%evapfbl(i,:) = ssnow%rex(i,:)*dels*1000_r_2 ! mm water &
+
              ELSE
 
-                ! PH: mgk576, 13/10/17
-                ! This is over the combined direct & diffuse leaves due to the
-                ! way the loops fall above
-                !IF (cable_user%FWSOIL_SWITCH == 'hydraulics' .AND. &
-               !     veg%iveg(i) .EQ. 2) THEN
-                IF (cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
-
-                   ! Transpiration: W m-2 -> kg m-2 s-1 -> mmol m-2 s-1
-                   IF (ecx(i) > 0.0) THEN
-                      conv = KG_2_G * G_WATER_TO_MOL * MOL_2_MMOL
-                      trans_mmol = ecx(i) / air%rlam(i) * conv
-                   ELSE
-                      trans_mmol = 0.0
-                   END IF
-
-                   ! Calculate the leaf water potential.
-                   CALL calc_psi_leaf(canopy, trans_mmol, dels, veg%Cl(i), i)
-
-                   ! Flux from stem to leaf (mmol s-1) = change in leaf storage,
-                   ! plus transpiration
-                   CALL calc_flux_to_leaf(canopy, trans_mmol, dels, veg%Cl(i), i)
-
-                   ! Update stem water potential
-                   CALL update_stem_wp(canopy, ssnow, dels, veg%Cs(i), i)
-
-                   ! Flux from the soil to the stem = change in storage +
-                   ! flux_to_leaf
-                   CALL calc_flux_to_stem(canopy, dels, veg%Cs(i), i)
-
-                   ! store current water potentials for next time step
-                   canopy%psi_leaf_prev(i) = canopy%psi_leaf(i)
-                   canopy%psi_soil_prev(i) = ssnow%weighted_psi_soil(i)
-                   canopy%psi_stem_prev(i) = canopy%psi_stem(i)
-
-
-
-                   !canopy%fevc(i) = ecx(i)*(1.0-canopy%fwet(i))
-                ENDIF
 
 
                 IF (ecx(i) > 0.0 .AND. canopy%fwet(i) < 1.0) THEN
@@ -2287,12 +2318,12 @@ CONTAINS
                            soil%zse(kk) * 1000.0 )
 
                    ENDDO
-                   !IF (cable_user%soil_struc=='default' .AND. cable_user%fwsoil_switch.NE.'hydraulics') THEN
-                   IF (cable_user%soil_struc=='default') THEN
+                   IF (cable_user%soil_struc=='default' .AND. cable_user%fwsoil_switch.NE.'hydraulics') THEN
+                   !IF (cable_user%soil_struc=='default') THEN
                       canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels
                       ecx(i) = canopy%fevc(i) / (1.0-canopy%fwet(i))
-                   ELSEIF (cable_user%soil_struc=='sli') THEN
-                   !ELSEIF (cable_user%soil_struc=='default' .AND. cable_user%fwsoil_switch.EQ.'hydraulics') THEN
+                   !ELSEIF (cable_user%soil_struc=='sli') THEN
+                   ELSEIF (cable_user%soil_struc=='default' .AND. cable_user%fwsoil_switch.EQ.'hydraulics') THEN
                       canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels
                       ecx(i) = canopy%fevc(i) / (1.0-canopy%fwet(i))
                    ELSEIF (cable_user%soil_struc=='sli') THEN
