@@ -988,7 +988,7 @@ SUBROUTINE casa_xratesoil(xklitter,xksoil,veg,soil,casamet,casabiome)
          xklitter(npt) = strf(npt)*smrf(npt)
       ENDIF
 
-!write(67,"(i8,18e16.6)") npt, fwps(npt), smrf(npt), strf(npt),xkwater(npt),  xktemp(npt), xklitter(npt)
+!write(67,"(i8,18e16.6)") npt, tsoil(npt), fwps(npt), smrf(npt), strf(npt),xkwater(npt),  xktemp(npt), xklitter(npt)
 !write(67,"(i8,18e16.6)") npt, tsoil(npt), strf(npt),  xktemp(npt)
 
    END IF
@@ -1479,6 +1479,9 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
                    + casaflux%fromPtoL(npt,nL,nP) * casaflux%kplant(npt,nP) * casapool%cplant(npt,nP)
            enddo
         enddo
+
+        !print*,  casaflux%FluxCtolitter(1,:)
+        !stop
         !MC - the c-quantities should include fire        
         ! casaflux%FluxCtolitter(npt,metb) = cleaf2met(npt) + croot2met(npt)
         ! casaflux%FluxCtolitter(npt,str)  = cleaf2str(npt) + croot2str(npt)
@@ -1799,7 +1802,12 @@ SUBROUTINE casa_delsoil(veg, casapool, casaflux, casamet, casabiome)
         casapool%dCsoildt(nland,:)   = casaflux%fluxCtosoil(nland,:)   - casaflux%ksoil(nland,:)   * casapool%csoil(nland,:)
         casaflux%Crsoil(nland)       = casaflux%fluxCtoCO2(nland)
         casaflux%cnep(nland)         = casaflux%cnpp(nland) - casaflux%Crsoil(nland)
-
+!!$        if (nland ==1) then
+!!$           print*,  casaflux%fluxCtolitter(nland,:)
+!!$           print*,  casaflux%klitter(nland,:)
+!!$           print*,  casapool%clitter(nland,:)
+!!$        stop
+!!$        endif
         ! Nitrogen
         IF (icycle > 1) THEN
            casapool%dNlitterdt(nland,:) =  casaflux%fluxNtolitter(nland,:)  &

@@ -1983,7 +1983,7 @@ CONTAINS
                gs_coeff(:,:), rad%fvlai(:,:),& 
                SPREAD( abs_deltlf, 2, mf ),                        &
                anx(:,:), fwsoil(:),gmes(:,:), met, &
-                anrubiscox(:,:), anrubpx(:,:), eta_x(:,:), dAnx(:,:) )
+               anrubiscox(:,:), anrubpx(:,:), eta_x(:,:), dAnx(:,:) )
        ELSE
           CALL photosynthesis( csx(:,:),                                           &
                SPREAD( cx1(:), 2, mf ),                            &
@@ -1996,18 +1996,6 @@ CONTAINS
                anx(:,:), fwsoil(:), met , anrubiscox(:,:), anrubpx(:,:) &
                , eta_x(:,:), dAnx(:,:))
 
-
-!!$          gmes = 20.0 ! test
-!!$          CALL photosynthesis_gm( csx(:,:),                                           &
-!!$               SPREAD( cx1(:), 2, mf ),                            &
-!!$               SPREAD( cx2(:), 2, mf ),                            &
-!!$               gswmin(:,:), rdx(:,:), vcmxt3(:,:),                 &
-!!$               vcmxt4(:,:), vx3(:,:), vx4(:,:),                    &
-!!$               ! Ticket #56, xleuning replaced with gs_coeff here
-!!$               gs_coeff(:,:), rad%fvlai(:,:),& 
-!!$               SPREAD( abs_deltlf, 2, mf ),                        &
-!!$               anx(:,:), fwsoil(:),gmes(:,:), met, &
-!!$                anrubiscox(:,:), anrubpx(:,:), eta_x(:,:), dAnx(:,:) )
 
 !!$          CALL photosynthesis_orig( csx(:,:),                                           &
 !!$               SPREAD( cx1(:), 2, mf ),                            &
@@ -2103,6 +2091,11 @@ CONTAINS
                 fwsoil(i) = canopy%fwsoil(i)
                 ssnow%evapfbl(i,:) = ssnow%rex(i,:)*dels*1000_r_2 ! mm water &
                 !(root water extraction) per time step
+
+                if (cable_user%Cumberland_soil) then
+                   canopy%fwsoil(i) = max(canopy%fwsoil(i), 0.6)
+                   fwsoil(i) = canopy%fwsoil(i)
+                endif
 
              ELSE
 
@@ -2613,7 +2606,7 @@ CONTAINS
        vx4z, gs_coeffz, vlaiz, deltlfz, anxz, fwsoilz, &
        gmes,met, anrubiscoz, anrubpz, eta, dA )
     USE cable_def_types_mod, only : mp, mf, r_2, met_type
-
+    USE cable_common_module, only: cable_user
     REAL(r_2), DIMENSION(mp,mf), INTENT(IN) :: csxz, gmes
     TYPE (met_type),       INTENT(IN) :: met
     REAL, DIMENSION(mp,mf), INTENT(IN) ::                                       &
@@ -2645,7 +2638,6 @@ CONTAINS
     REAL(r_2) :: a0, a1, a2, ap0, ap1, ap2,ap3, cc, x1, x2, x3
     REAL(r_2) :: Q, R,a, b, c1, Am, Am1, Am2, gsm
     INTEGER :: i,j
-    logical :: gmflag
 
    
     DO i=1,mp
@@ -2668,7 +2660,6 @@ CONTAINS
                 eta(i,j) = 0.0
 
                 ! Rubisco limited:
-                gmflag = .FALSE.
 
                 if ( vcmxt3z(i,j).gt.1e-8 .and. gs_coeffz(i,j) .gt. 1e2  ) then  ! C3
 
@@ -2680,11 +2671,21 @@ CONTAINS
                    gammast = cx2z(i,j)/2.0 
                    Rd = rdxz(i,j)
                    gm = gmes(i,j)
+                   if (TRIM(cable_user%g0_switch) == 'default') then
+                      ! get partial derivative of A wrt cs
+                      CALL fAmdAm1(cs, g0, X*cs, gamma, beta, gammast, Rd, &
+                           gm, Am, dAmc(i,j))
+                   elseif (TRIM(cable_user%g0_switch) == 'maximum') then
+                      ! set g0 to zero initially
+                      CALL fAmdAm1(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
+                           gm, Am, dAmc(i,j))
+                      ! repeat calculation if g0 > A*X
+                      if (g0 .gt. Am*X) then
+                         CALL fAmdAm1(cs, g0, 0.0_r_2, gamma, beta, gammast, Rd, &
+                              gm, Am, dAmc(i,j))
+                      endif
 
-                   ! get partial derivative of A wrt cs
-                   CALL fAmdAm1(cs, g0, X*cs, gamma, beta, gammast, Rd, &
-                        gm, Am, dAmc(i,j))
-
+                   endif
                    anrubiscoz(i,j) = Am
                    gsm = (gm* (g0+X*Am))/(gm + (g0+X*Am))
                    cc = cs - Am/gsm
@@ -2710,8 +2711,18 @@ CONTAINS
                    Rd = rdxz(i,j)
                    gm = gmes(i,j)
 
-                   CALL fAmdAm1(cs, g0, X*cs, gamma, beta, gammast, Rd, &
-                        gm, Am, dAme(i,j))
+                   if (TRIM(cable_user%g0_switch) == 'default') then
+                      CALL fAmdAm1(cs, g0, X*cs, gamma, beta, gammast, Rd, &
+                           gm, Am, dAme(i,j))
+                   elseif (TRIM(cable_user%g0_switch) == 'maximum') then
+                      CALL fAmdAm1(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
+                           gm, Am, dAme(i,j))
+                       ! repeat calculation if g0 > A*X
+                      if (g0 .gt. Am*X) then
+                         CALL fAmdAm1(cs, g0, 0.0_r_2, gamma, beta, gammast, Rd, &
+                           gm, Am, dAme(i,j))
+                      endif
+                   endif
                   
                    anrubpz(i,j) = Am
                    if (Am > 0) eta_e(i,j) = dAme(i,j)*cs/Am
@@ -2732,33 +2743,6 @@ CONTAINS
                    dAmp(i,j) = 0.0
                    eta_p(i,j) = 0.0
                 elseif (vcmxt4z(i,j).gt.1e-10 .and.gs_coeffz(i,j).gt.1e2  ) then
-!!$                   coef2z(i,j) = gs_coeffz(i,j)
-!!$
-!!$                   coef1z(i,j) = gswminz(i,j)*fwsoilz(i)/C%RGSWC + gs_coeffz(i,j) * rdxz(i,j)                  &
-!!$                        + effc4 * vcmxt4z(i,j)  * (1.0 - gs_coeffz(i,j) * csxz(i,j) )  
-!!$
-!!$                   coef0z(i,j) = -( gswminz(i,j)*fwsoilz(i)/C%RGSWC )*csxz(i,j)*effc4 &
-!!$                        * vcmxt4z(i,j) + rdxz(i,j) * gswminz(i,j)*fwsoilz(i)/C%RGSWC
-!!$
-!!$                   ! solve linearly
-!!$                   IF( ABS( coef2z(i,j) ) < 1.e-9 .AND.                            &
-!!$                        ABS( coef1z(i,j) ) >= 1.e-9 ) THEN
-!!$
-!!$                      ciz(i,j) = -1.0 * coef0z(i,j) / coef1z(i,j)
-!!$                      ansinkz(i,j)  = ciz(i,j)
-!!$
-!!$                   ENDIF
-!!$
-!!$                   ! solve quadratic (only take the more positive solution)
-!!$                   IF( ABS( coef2z(i,j) ) >= 1.e-9 ) THEN
-!!$
-!!$                      delcxz(i,j) = coef1z(i,j)**2 -4.0*coef0z(i,j)*coef2z(i,j)
-!!$
-!!$                      ansinkz(i,j) = (-coef1z(i,j)+SQRT (MAX(0.0_r_2,delcxz(i,j)) ) )  &
-!!$                           / ( 2.0 * coef2z(i,j) )
-!!$
-!!$
-!!$                   ENDIF
                    dAmp(i,j) = 0.0
                    eta_p(i,j) = 0.0
                    gamma = effc4 * vcmxt4z(i,j) 
@@ -2769,13 +2753,24 @@ CONTAINS
                    g0 = 0.0
                    cs = csxz(i,j)
                    gm = gmes(i,j)
-                   CALL fAndAn2(cs, g0, X*cs, gamma, beta, gammast, Rd, &
-                         Am, dAmp(i,j))
+
+                   if (TRIM(cable_user%g0_switch) == 'default') then
+                      CALL fAndAn2(cs, g0, X*cs, gamma, beta, gammast, Rd, &
+                        Am, dAmp(i,j))
+                   elseif (TRIM(cable_user%g0_switch) == 'maximum') then
+                      CALL fAndAn2(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
+                           Am, dAmp(i,j))
+                      if (g0 .gt. Am*X) then
+                         CALL fAndAn2(cs, g0, 0.0_r_2, gamma, beta, gammast, Rd, &
+                              Am, dAmp(i,j))
+                      endif
+                   endif
+                   
+                   
                   ! CALL fAmdAm2(cs, g0, X*cs, gamma, beta, gammast, Rd, &
-                  !      gm, Am, dAmp(i,j))
+                  !      gm, Am, dAmp(i,j))  ! vh ! not sure why this one is commented out: need to test
+
                    if (Am > 0) eta_p(i,j) = dAmp(i,j)*cs/Am
-!!$                  if (floor(met%hod(1))==12) &
-!!$                       write(62,"(200e16.6)") Am, ansinkz(i,j), gm ,  (g0+X*Am),  dAmp(i,j)
                    ansinkz(i,j) = Am
 
 
@@ -2951,13 +2946,6 @@ SUBROUTINE photosynthesis( csxz, cx1z, cx2z, gswminz,                          &
 
 
               endif  ! end RuBp c3 calculation
-
-
-!!$                if (i==1 .and. j==1 .and. floor(met%hod(1))==12 ) then
-!!$                   write(372,"(200e16.6)") met%hod(1),met%doy(1), X, cs, g0, Rd, gammast, &
-!!$                        vcmxt3z(i,j), &
-!!$                        cx1z(i,j),  anrubiscoz(i,j),vx3z(i,j), cx2z(i,j),anrubpz(i,j)
-!!$                endif
 
 
               ! C4 RubP calculation

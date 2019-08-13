@@ -119,11 +119,12 @@ MODULE cable_common_module
           CASA_fromZero          = .FALSE., &
           POPLUC                 = .FALSE., &
           finite_gm              = .FALSE., &     ! finite mesophyll conductance
-          acclim_auto            = .FALSE., &
+          acclim_autoresp            = .TRUE., &
           coordinate_photosyn    = .TRUE., &
           acclimate_photosyn      = .FALSE., &
-          acclimate_autoresp_seasonal = .FALSE., &
-          limit_labile           = .FALSE.
+          acclimate_autoresp_seasonal = .FALSE., &  ! acclimates to last 30 d, otherwise annual.
+          limit_labile           = .FALSE., &
+          Cumberland_soil        = .FALSE.   ! sets special CP soil params in calbe_sli_utils.F90
     
      INTEGER  ::  &
           CASA_SPIN_STARTYEAR = 1950, &

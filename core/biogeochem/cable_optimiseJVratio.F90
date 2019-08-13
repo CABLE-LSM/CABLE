@@ -113,8 +113,6 @@ CONTAINS
                 Anet_cost = golden(l_bound,bjvref,u_bound,total_photosynthesis_cost,0.01,bjv_new)
                 veg%vcmax_shade(k) = Neff/(1.+relcost_J*bjv_new/4.0)
                 veg%ejmax_shade(k) = veg%vcmax_shade(k)*bjv_new
-                call total_An_Ac_Aj(bjv_new,An,Ac,Aj)
-                write(*,*) 'total shade', bjv_new,An,Ac,Aj, Aj/An
 
            else
                 bjv_new = bjvref
@@ -132,20 +130,11 @@ CONTAINS
           scalex = climate%scalex_sun(k,:)
 
           if (coord) then
-             !write(*,*) 'diff_Ac_Aj', diff_Ac_Aj(l_bound), diff_Ac_Aj(u_bound)
-
-
-             if(diff_Ac_Aj(l_bound)*diff_Ac_Aj(u_bound)<0) then
+              if(diff_Ac_Aj(l_bound)*diff_Ac_Aj(u_bound)<0) then
                 bjv_new = rtbis(diff_Ac_Aj,l_bound,u_bound,0.001)
                 !call total_An_Ac_Aj(bjv_new,An,Ac,Aj)
          
              else
-!!$                do kk=1,100
-!!$                   tmp = l_bound + (u_bound-l_bound)/100*(kk-1)
-!!$                   call total_An_Ac_Aj(tmp,An,Ac,Aj)
-!!$                   write(999,"(200e16.6)") real(kk),tmp, Neff/(1.+relcost_J*tmp/4.0),An,Ac,Aj
-!!$                enddo    
-!!$                stop('no co-ord soln')
                 bjv_new = bjvref
              endif
              veg%vcmax_sun(k) = Neff/(1.+relcost_J*bjv_new/4.0)
@@ -165,11 +154,10 @@ CONTAINS
                 veg%vcmax_sun(k) = veg%vcmax(k)
                 veg%ejmax_sun(k) = veg%ejmax(k)
              endif
-             call total_An_Ac_Aj(bjv_new,An,Ac,Aj)
+             !call total_An_Ac_Aj(bjv_new,An,Ac,Aj)
             
           endif
-          write(*,*) 'total sun', bjv_new,An,Ac,Aj, Aj/An
-
+      
        else !C4
           bjv_new = bjvref
           veg%vcmax_shade(k) = veg%vcmax(k)

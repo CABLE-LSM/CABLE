@@ -859,6 +859,7 @@ PROGRAM cable_offline_driver
                  ! Call land surface scheme for this timestep, all grid points:
 
                  !MC13 ToDo - Photosynthesis
+               
                  CALL cbm(ktau, dels, air, bgc, canopy, met, &
                           bal, rad, rough, soil, ssnow, &
                           sum_flux, veg, climate)
@@ -1314,10 +1315,11 @@ PROGRAM cable_offline_driver
      if (cable_user%c13o2) then
         call c13o2_write_restart_pools(c13o2pools)
         if (cable_user%POPLUC) call c13o2_write_restart_luc(c13o2luc)
-     endif
+     
      !MC - While testing
      call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
      if (cable_user%POPLUC) call c13o2_print_delta_luc(popluc, c13o2luc)
+     endif ! vh moved endif
   END IF
 
   IF (cable_user%POPLUC .AND. .NOT. CASAONLY ) THEN

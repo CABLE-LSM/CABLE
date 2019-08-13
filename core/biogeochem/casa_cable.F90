@@ -105,7 +105,8 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
       IF(MOD(ktau,ktauday)==1) THEN
          casamet%tairk = met%tk
          casamet%tsoil = ssnow%tgg
-         casamet%moist = max(ssnow%wb - ssnow%wbice, 0.0)
+         !casamet%moist = max(ssnow%wb - ssnow%wbice, 0.0)
+         casamet%moist = max(ssnow%wb, 0.0)
          casaflux%cgpp = (-canopy%fpn+canopy%frday)*dels
          casaflux%crmplant(:,leaf) = canopy%frday*dels
          if (cable_user%c13o2) then
@@ -115,7 +116,8 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
       ELSE
          Casamet%tairk  =casamet%tairk + met%tk
          casamet%tsoil = casamet%tsoil + ssnow%tgg
-         casamet%moist = casamet%moist + max(ssnow%wb -  ssnow%wbice, 0.0)
+         !casamet%moist = casamet%moist + max(ssnow%wb -  ssnow%wbice, 0.0)
+         casamet%moist = casamet%moist + max(ssnow%wb, 0.0)
          casaflux%cgpp = casaflux%cgpp + (-canopy%fpn+canopy%frday)*dels
          casaflux%crmplant(:,leaf) = casaflux%crmplant(:,leaf) + canopy%frday*dels
          if (cable_user%c13o2) then

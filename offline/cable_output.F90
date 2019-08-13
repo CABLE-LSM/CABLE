@@ -3717,7 +3717,10 @@ CONTAINS
             (/0.0,1.5/),.TRUE.,'soil',.TRUE.)
        CALL write_ovar (ncid_restart,TsoilID,'Tsoil',ssnow%Tsoil, &
             (/-100.0,100.0/),.TRUE.,'soil',.TRUE.)
-       CALL write_ovar (ncid_restart,snowliqID,'snowliq',ssnow%snowliq, &
+!!$       CALL write_ovar (ncid_restart,snowliqID,'snowliq',ssnow%snowliq, &
+!!$            (/-99999.0,99999.0/),.TRUE.,'snow',.TRUE.) ! vh ! needs fixing
+
+       CALL write_ovar (ncid_restart,snowliqID,'snowliq',REAL(ssnow%snowliq,4), &
             (/-99999.0,99999.0/),.TRUE.,'snow',.TRUE.)
        CALL write_ovar (ncid_restart,scondsID,'sconds',REAL(ssnow%sconds,4), &
             (/-99999.0,99999.0/),.TRUE.,'snow',.TRUE.)
