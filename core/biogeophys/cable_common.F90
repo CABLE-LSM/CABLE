@@ -490,7 +490,7 @@ CONTAINS
     INTEGER ::  ifmp,  & ! start local mp, # landpoints (jhan:when is this not 1 )
          fmp     ! local mp, # landpoints
     REAL, DIMENSION(ms) :: soil_zse
-   
+
     TYPE(veg_parameter_type) :: veg
 
     INTEGER :: is
