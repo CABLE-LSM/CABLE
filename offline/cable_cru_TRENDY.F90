@@ -476,16 +476,29 @@ CONTAINS
 !!$    END SELECT
 
    
+!!$    SELECT CASE ( par )
+!!$    CASE(rain) ; FN = TRIM(FN)//"/pre/crujra.V1.1.5d.pre."//cy//".365d.noc.daytot.1deg.nc"
+!!$    CASE(lwdn) ; FN = TRIM(FN)//"/dlwrf/crujra.V1.1.5d.dlwrf."//cy//".365d.noc.daymean.1deg.nc"
+!!$    CASE(swdn) ; FN = TRIM(FN)//"/dswrf/crujra.V1.1.5d.dswrf."//cy//".365d.noc.daymean.1deg.nc"
+!!$    CASE(pres) ; FN = TRIM(FN)//"/pres/crujra.V1.1.5d.pres."//cy//".365d.noc.daymean.1deg.nc"
+!!$    CASE(qair) ; FN = TRIM(FN)//"/spfh/crujra.V1.1.5d.spfh."//cy//".365d.noc.daymean.1deg.nc"
+!!$    CASE(tmax,PrevTmax) ; FN = TRIM(FN)//"/tmax/crujra.V1.1.5d.tmax."//cy//".365d.noc.daymax.1deg.nc"
+!!$    CASE(tmin,NextTmin) ; FN = TRIM(FN)//"/tmin/crujra.V1.1.5d.tmin."//cy//".365d.noc.daymin.1deg.nc"
+!!$    CASE(uwind) ; FN = TRIM(FN)//"/ugrd/crujra.V1.1.5d.ugrd."//cy//".365d.noc.daymean.1deg.nc"
+!!$    CASE(vwind) ; FN = TRIM(FN)//"/vgrd/crujra.V1.1.5d.vgrd."//cy//".365d.noc.daymean.1deg.nc"
+!!$    END SELECT
+
+   
     SELECT CASE ( par )
-    CASE(rain) ; FN = TRIM(FN)//"/pre/crujra.V1.1.5d.pre."//cy//".365d.noc.daytot.1deg.nc"
-    CASE(lwdn) ; FN = TRIM(FN)//"/dlwrf/crujra.V1.1.5d.dlwrf."//cy//".365d.noc.daymean.1deg.nc"
-    CASE(swdn) ; FN = TRIM(FN)//"/dswrf/crujra.V1.1.5d.dswrf."//cy//".365d.noc.daymean.1deg.nc"
-    CASE(pres) ; FN = TRIM(FN)//"/pres/crujra.V1.1.5d.pres."//cy//".365d.noc.daymean.1deg.nc"
-    CASE(qair) ; FN = TRIM(FN)//"/spfh/crujra.V1.1.5d.spfh."//cy//".365d.noc.daymean.1deg.nc"
-    CASE(tmax,PrevTmax) ; FN = TRIM(FN)//"/tmax/crujra.V1.1.5d.tmax."//cy//".365d.noc.daymax.1deg.nc"
-    CASE(tmin,NextTmin) ; FN = TRIM(FN)//"/tmin/crujra.V1.1.5d.tmin."//cy//".365d.noc.daymin.1deg.nc"
-    CASE(uwind) ; FN = TRIM(FN)//"/ugrd/crujra.V1.1.5d.ugrd."//cy//".365d.noc.daymean.1deg.nc"
-    CASE(vwind) ; FN = TRIM(FN)//"/vgrd/crujra.V1.1.5d.vgrd."//cy//".365d.noc.daymean.1deg.nc"
+    CASE(rain) ; FN = TRIM(FN)//"/pre/crujra.V2.0.5d.pre."//cy//".365d.noc.daytot.1deg.nc"
+    CASE(lwdn) ; FN = TRIM(FN)//"/dlwrf/crujra.V2.0.5d.dlwrf."//cy//".365d.noc.daymean.1deg.nc"
+    CASE(swdn) ; FN = TRIM(FN)//"/dswrf/crujra.V2.0.5d.dswrf."//cy//".365d.noc.daymean.1deg.nc"
+    CASE(pres) ; FN = TRIM(FN)//"/pres/crujra.V2.0.5d.pres."//cy//".365d.noc.daymean.1deg.nc"
+    CASE(qair) ; FN = TRIM(FN)//"/spfh/crujra.V2.0.5d.spfh."//cy//".365d.noc.daymean.1deg.nc"
+    CASE(tmax,PrevTmax) ; FN = TRIM(FN)//"/tmax/crujra.V2.0.5d.tmax."//cy//".365d.noc.daymax.1deg.nc"
+    CASE(tmin,NextTmin) ; FN = TRIM(FN)//"/tmin/crujra.V2.0.5d.tmin."//cy//".365d.noc.daymin.1deg.nc"
+    CASE(uwind) ; FN = TRIM(FN)//"/ugrd/crujra.V2.0.5d.ugrd."//cy//".365d.noc.daymean.1deg.nc"
+    CASE(vwind) ; FN = TRIM(FN)//"/vgrd/crujra.V2.0.5d.vgrd."//cy//".365d.noc.daymean.1deg.nc"
     END SELECT
 
   END SUBROUTINE CRU_GET_FILENAME
@@ -519,8 +532,8 @@ CONTAINS
 ! On the first call, allocate the CRU%CO2VALS array to store the entire history of annual CO2 
 ! values, open the (ascii) CO2 file and read the values into the array. 
     IF (CALL1) THEN
-      ALLOCATE( CRU%CO2VALS( 1700:2017 ) )
-      CO2FILE = TRIM(CRU%BasePath)//"/co2/global_co2_ann_1700_2017.csv"
+      ALLOCATE( CRU%CO2VALS( 1700:2018 ) )
+      CO2FILE = TRIM(CRU%BasePath)//"/co2/global_co2_ann_1700_2018.csv"
       CALL GET_UNIT(iunit)
       OPEN (iunit, FILE=TRIM(CO2FILE), STATUS="OLD", ACTION="READ")
       DO WHILE( IOS .EQ. 0 )
@@ -571,7 +584,7 @@ CONTAINS
   IF (CALL1) THEN
 
      NdepFILE = TRIM(CRU%BasePath)// &
-          "/ndep/NOy_plus_NHx_dry_plus_wet_deposition_hist_1850_2015_annual_1deg.nc"
+          "/ndep/NOy_plus_NHx_dry_plus_wet_deposition_1850_2099_annual.1deg.nc"
     
      ! Open the NDep and access the variables by their name and variable id.
      WRITE(*   ,*) 'Opening ndep data file: ', NdepFILE
