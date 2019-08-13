@@ -1964,6 +1964,18 @@ CONTAINS
     CALL MPI_Get_address (canopy%psi_leaf, displs(bidx), ierr)
     blen(bidx) = r1len
 
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%psi_leaf_prev, displs(bidx), ierr)
+    blen(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%psi_soil_prev, displs(bidx), ierr)
+    blen(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%psi_stem_prev, displs(bidx), ierr)
+    blen(bidx) = r1len
+
 
 
 
@@ -4707,6 +4719,18 @@ CONTAINS
     ! plant hydraulics, mgdk576, 23/07/2019
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%psi_leaf(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%psi_leaf_prev(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%psi_soil_prev(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%psi_stem_prev(off), displs(bidx), ierr)
     blocks(bidx) = r1len
 
     ! MPI: 2D vars moved above
