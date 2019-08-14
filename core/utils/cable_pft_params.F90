@@ -1220,7 +1220,8 @@ CONTAINS
        vegin%p50(18) = -4.32945
        vegin%s50(18) = 74.283377
        vegin%kp_sat(18) = 0.851595
-       vegin%Cl(18) = 659.0
+       !vegin%Cl(18) = 659.0
+       vegin%Cl(18) = 5000.0
        vegin%Cs(18) = 7408.266534
 
 
@@ -1305,7 +1306,8 @@ CONTAINS
        vegin%p50(19) = -3.002384
        vegin%s50(19) = 35.26948
        vegin%kp_sat(19) = 1.686987
-       vegin%Cl(19) = 342.904821
+       !vegin%Cl(19) = 342.904821
+       vegin%Cl(19) = 8000.0
        vegin%Cs(19) = 31622.004690
 
 
@@ -1390,7 +1392,8 @@ CONTAINS
        vegin%p50(20) = -3.504141
        vegin%s50(20) = 30.468839
        vegin%kp_sat(20) = 3.142807
-       vegin%Cl(20) = 349.193238
+       !vegin%Cl(20) = 349.193238
+       vegin%Cl(20) = 5000.
        vegin%Cs(20) = 13072.60759
 
        !PFT: New Grassy woodland (GRW) mgk576, 16/7/19
