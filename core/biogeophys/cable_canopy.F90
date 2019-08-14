@@ -2260,6 +2260,19 @@ CONTAINS
                 ! flux_to_leaf
                 CALL calc_flux_to_stem(canopy, dels, veg%Cs(i), i)
 
+
+                canopy%psi_stem_prev(i) = canopy%psi_stem(i)
+
+                ! Update stem water potential
+                CALL update_stem_wp_again(canopy, ssnow, dels, veg%Cs(i), &
+                                          veg%Cl(i), trans_mmol, i)
+
+                ! Flux from the soil to the stem = change in storage +
+                ! flux_to_leaf
+                CALL calc_flux_to_stem_again(canopy, dels, veg%Cs(i), &
+                                             trans_mmol, i)
+
+
                 ! store current water potentials for next time step
                 canopy%psi_leaf_prev(i) = canopy%psi_leaf(i)
                 canopy%psi_soil_prev(i) = ssnow%weighted_psi_soil(i)
@@ -3047,8 +3060,8 @@ CONTAINS
      !print*, "tuzet", sf, psi_f, psi_leaf
      num = 1.0 + EXP(sf * psi_f)
      den = 1.0 + EXP(sf * (psi_f - psi_leaf))
-     !fw = num / den
-     fw = MAX(1.0e-9, MIN(1.0, num / den))
+     fw = num / den
+     !fw = MAX(1.0e-9, MIN(1.0, num / den))
 
   END FUNCTION f_tuzet
   ! ----------------------------------------------------------------------------
@@ -3137,6 +3150,7 @@ CONTAINS
 
      ! relative conductance (K/Kmax) as a funcion of xylem pressure
      relk = (1. - X_hyd / 100.)**p
+     !relk = max(1.0e-9, min(1.0, relk))
 
   END FUNCTION fsig_hydr
   ! ----------------------------------------------------------------------------
@@ -3158,8 +3172,21 @@ CONTAINS
      REAL, INTENT(IN)    :: dels ! integration time step (s)
      INTEGER, INTENT(IN) :: i
 
-     canopy%flx_to_leaf(i) = (canopy%psi_leaf(i) - canopy%psi_leaf_prev(i)) * &
-                              Cl / dels + canopy%vlaiw(i) * transpiration
+     ! there is conductance in the trunk
+     IF (canopy%kstem2leaf(i) * canopy%vlaiw(i) > 1E-09) THEN
+
+        ! sapflow rate from stem to leaf within the time step
+        canopy%flx_to_leaf(i) = (canopy%psi_leaf(i) - &
+                                 canopy%psi_leaf_prev(i)) * &
+                                 Cl / dels + canopy%vlaiw(i) * transpiration
+     ! no conductance in the trunk
+     ELSE
+        ! # sapflow rate from stem to leaf within the time step
+        canopy%flx_to_leaf(i) = 0.0
+     ENDIF
+
+     !canopy%flx_to_leaf(i) = (canopy%psi_leaf(i) - canopy%psi_leaf_prev(i)) * &
+      !                        Cl / dels + canopy%vlaiw(i) * transpiration
 
 
   END SUBROUTINE calc_flux_to_leaf
@@ -3183,11 +3210,59 @@ CONTAINS
      REAL, INTENT(IN)    :: dels ! integration time step (s)
      REAL, INTENT(IN)    :: Cs
 
-     canopy%flx_to_stem(i) = ((canopy%psi_stem(i) - canopy%psi_stem_prev(i)) * &
-                               Cs / dels + canopy%flx_to_leaf(i))
+     ! plant can take up water
+     IF (canopy%ksoil2stem(i) * canopy%vlaiw(i) > 1E-09) THEN
+        canopy%flx_to_stem(i) = ((canopy%psi_stem(i) - &
+                                  canopy%psi_stem_prev(i)) * &
+                                  Cs / dels + canopy%flx_to_leaf(i))
+     ! plant cannot take up water, change of psi_stem is solely due to
+     ! flux_to_leaf (J_rl)
+     ELSE
+        canopy%flx_to_stem(i) = 0.0
+     ENDIF
+
+     !canopy%flx_to_stem(i) = ((canopy%psi_stem(i) - canopy%psi_stem_prev(i)) * &
+     !                            Cs / dels + canopy%flx_to_leaf(i))
 
   END SUBROUTINE calc_flux_to_stem
   ! ----------------------------------------------------------------------------
+
+  ! ----------------------------------------------------------------------------
+  SUBROUTINE calc_flux_to_stem_again(canopy, dels, Cs, transpiration, i)
+     ! Calculate the flux from the root to the stem, i.e. the root water
+     ! uptake (mmol s-1) = change in stem storage plus flux_to_leaf
+     !
+     ! Martin De Kauwe, 3rd June, 2019
+
+     USE cable_common_module
+     USE cable_def_types_mod
+
+     IMPLICIT NONE
+
+     TYPE (canopy_type), INTENT(INOUT)    :: canopy
+
+     INTEGER, INTENT(IN) :: i
+     REAL, INTENT(IN)    :: dels ! integration time step (s)
+     REAL, INTENT(IN)    :: Cs
+     REAL, INTENT(IN)    :: transpiration
+
+     ! plant can take up water
+     IF (canopy%ksoil2stem(i) * canopy%vlaiw(i) > 1E-09) THEN
+        canopy%flx_to_stem(i) = ((canopy%psi_stem(i) - &
+                                  canopy%psi_stem_prev(i)) * &
+                                  Cs / dels + (transpiration * canopy%vlaiw(i)))
+     ! plant cannot take up water, change of psi_stem is solely due to
+     ! flux_to_leaf (J_rl)
+     ELSE
+        canopy%flx_to_stem(i) = 0.0
+     ENDIF
+
+     !canopy%flx_to_stem(i) = ((canopy%psi_stem(i) - canopy%psi_stem_prev(i)) * &
+     !                            Cs / dels + canopy%flx_to_leaf(i))
+
+  END SUBROUTINE calc_flux_to_stem_again
+  ! ----------------------------------------------------------------------------
+
 
   ! ----------------------------------------------------------------------------
   SUBROUTINE update_stem_wp(canopy, ssnow, dels, Cs, i)
@@ -3222,6 +3297,20 @@ CONTAINS
      REAL, INTENT(IN)    :: Cs
      INTEGER, INTENT(IN) :: i
 
+     ! plant can take up water
+     IF (canopy%ksoil2stem(i) * canopy%vlaiw(i) > 1E-09) THEN
+        ap = -(canopy%vlaiw(i) * canopy%ksoil2stem(i) / Cs)
+        bp = (canopy%psi_soil_prev(i) - canopy%flx_to_leaf(i)) / Cs
+        canopy%psi_stem(i) = ((ap * canopy%psi_stem_prev(i) + bp) * &
+                             EXP(ap * dels) - bp) / ap
+     ! plant cannot take up water, change of psi_stem is solely due to
+     ! flux_to_leaf (J_rl)
+     ELSE
+        canopy%psi_stem(i) = canopy%psi_stem_prev(i) - &
+                                 canopy%flx_to_leaf(i) * dels   / Cs
+
+     ENDIF
+
      ap = -(canopy%vlaiw(i) * canopy%ksoil2stem(i) / Cs)
      bp = (canopy%vlaiw(i) * canopy%ksoil2stem(i) * canopy%psi_soil_prev(i) - &
            canopy%flx_to_leaf(i)) / Cs
@@ -3232,6 +3321,66 @@ CONTAINS
 
   END SUBROUTINE update_stem_wp
   ! ----------------------------------------------------------------------------
+
+  ! ----------------------------------------------------------------------------
+  SUBROUTINE update_stem_wp_again(canopy, ssnow, dels, Cs, Cl, transpiration, i)
+     ! Calculate the flux from the stem to the leaf = change in leaf storage
+     ! plus transpiration
+     !
+     !  This is a simplified equation based on Xu et al., using the water
+     !  potentials from the previous timestep
+     !
+     ! Reference:
+     ! ==========
+     ! * Xu, X., Medvigy, D., Powers, J. S., Becknell, J. M. and Guan, K.
+     !   (2016), Diversity in plant hydraulic traits explains seasonal and
+     !    inter-annual variations of vegetation dynamics in seasonally dry
+     !    tropical forests. New Phytol, 212: 80–95. doi:10.1111/nph.14009.
+     !
+     ! Can write the dynamic equation as: dpsi_leaf_dt = b + a*psi_leaf
+     ! Then it follows (Xu et al. 2016, Appendix, and Code).”
+     !
+     ! Martin De Kauwe, 3rd June, 2019
+
+     USE cable_common_module
+     USE cable_def_types_mod
+
+     IMPLICIT NONE
+
+     TYPE (canopy_type), INTENT(INOUT)    :: canopy
+     TYPE (soil_snow_type), INTENT(INOUT) :: ssnow
+
+     REAL                :: ap, bp
+     REAL, INTENT(IN)    :: dels ! integration time step (s)
+     REAL, INTENT(IN)    :: Cs, Cl, transpiration
+     INTEGER, INTENT(IN) :: i
+
+     ! plant can take up water
+     IF (canopy%ksoil2stem(i) * canopy%vlaiw(i) > 1E-09) THEN
+        ap = -(canopy%vlaiw(i) * canopy%ksoil2stem(i) / (Cs + Cl))
+        bp = (canopy%psi_soil_prev(i) - &
+              (canopy%vlaiw(i) * transpiration)) / (Cs + Cl)
+        canopy%psi_stem(i) = ((ap * canopy%psi_stem_prev(i) + bp) * &
+                             EXP(ap * dels) - bp) / ap
+     ! plant cannot take up water, change of psi_stem is solely due to
+     ! flux_to_leaf (J_rl)
+     ELSE
+        canopy%psi_stem(i) = canopy%psi_stem_prev(i) - &
+                                 canopy%flx_to_leaf(i) * dels   / Cs
+
+     ENDIF
+
+     !ap = -(canopy%vlaiw(i) * canopy%ksoil2stem(i) / Cs)
+     !bp = (canopy%vlaiw(i) * canopy%ksoil2stem(i) * canopy%psi_soil_prev(i) - &
+     !        canopy%flx_to_leaf(i)) / Cs
+     !
+     !canopy%psi_stem(i) = ((ap * canopy%psi_stem_prev(i) + bp) * &
+      !                     EXP(ap * dels) - bp) / ap
+
+
+  END SUBROUTINE update_stem_wp_again
+  ! ----------------------------------------------------------------------------
+
 
   ! ----------------------------------------------------------------------------
   SUBROUTINE calc_psi_leaf(canopy, transpiration, dels, Cl, i)
@@ -3263,12 +3412,28 @@ CONTAINS
      REAL, INTENT(IN)    :: dels ! integration time step (s)
      REAL, INTENT(IN)    :: Cl
 
-     ap = -(canopy%vlaiw(i) * canopy%kstem2leaf(i) / Cl)
-     bp = (canopy%vlaiw(i) * canopy%kstem2leaf(i) * canopy%psi_stem_prev(i) - &
-            canopy%vlaiw(i) * transpiration) / Cl
+     ! there is conductance in the trunk
+     IF (canopy%kstem2leaf(i) * canopy%vlaiw(i) > 1E-09) THEN
 
-     canopy%psi_leaf(i) = ((ap * canopy%psi_leaf_prev(i) + bp) *  &
-                              EXP(ap * dels) - bp) / ap
+        ap = -(canopy%vlaiw(i) * canopy%kstem2leaf(i) / Cl)
+        bp = (canopy%psi_stem_prev(i) * canopy%vlaiw(i) * &
+              canopy%kstem2leaf(i) - &
+              canopy%vlaiw(i) * transpiration) / Cl
+        canopy%psi_leaf(i) = ((ap * canopy%psi_leaf_prev(i) + bp) *  &
+                                EXP(ap * dels) - bp) / ap
+     ! No conductance in the trunk, delta psi_leaf is due only to
+     ! transpiration
+     ELSE
+        canopy%psi_leaf(i) = (canopy%psi_leaf_prev(i) - &
+                              canopy%vlaiw(i) * transpiration * dels) / Cl
+     ENDIF
+
+     !ap = -(canopy%vlaiw(i) * canopy%kstem2leaf(i) / Cl)
+     !bp = (canopy%vlaiw(i) * canopy%kstem2leaf(i) * canopy%psi_stem_prev(i) - &
+      !      canopy%vlaiw(i) * transpiration) / Cl
+
+     !canopy%psi_leaf(i) = ((ap * canopy%psi_leaf_prev(i) + bp) *  &
+      !                        EXP(ap * dels) - bp) / ap
 
   END SUBROUTINE calc_psi_leaf
   ! ----------------------------------------------------------------------------
