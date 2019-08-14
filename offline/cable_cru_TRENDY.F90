@@ -516,6 +516,19 @@ CONTAINS
     case(vwind) ; fn = trim(fn)//"/vgrd/"//cruver//".5d.vgrd."//cy//".365d.noc.daymean.1deg.nc"
     end select
 
+   
+    SELECT CASE ( par )
+    CASE(rain) ; FN = TRIM(FN)//"/pre/crujra.v2.0.5d.pre."//cy//".365d.noc.daytot.1deg.nc"
+    CASE(lwdn) ; FN = TRIM(FN)//"/dlwrf/crujra.v2.0.5d.dlwrf."//cy//".365d.noc.daymean.1deg.nc"
+    CASE(swdn) ; FN = TRIM(FN)//"/dswrf/crujra.v2.0.5d.dswrf."//cy//".365d.noc.daymean.1deg.nc"
+    CASE(pres) ; FN = TRIM(FN)//"/pres/crujra.v2.0.5d.pres."//cy//".365d.noc.daymean.1deg.nc"
+    CASE(qair) ; FN = TRIM(FN)//"/spfh/crujra.v2.0.5d.spfh."//cy//".365d.noc.daymean.1deg.nc"
+    CASE(tmax,PrevTmax) ; FN = TRIM(FN)//"/tmax/crujra.v2.0.5d.tmax."//cy//".365d.noc.daymax.1deg.nc"
+    CASE(tmin,NextTmin) ; FN = TRIM(FN)//"/tmin/crujra.v2.0.5d.tmin."//cy//".365d.noc.daymin.1deg.nc"
+    CASE(uwind) ; FN = TRIM(FN)//"/ugrd/crujra.v2.0.5d.ugrd."//cy//".365d.noc.daymean.1deg.nc"
+    CASE(vwind) ; FN = TRIM(FN)//"/vgrd/crujra.v2.0.5d.vgrd."//cy//".365d.noc.daymean.1deg.nc"
+    END SELECT
+
   END SUBROUTINE CRU_GET_FILENAME
 
 !**************************************************************************************************
