@@ -75,6 +75,7 @@ MODULE mo_isotope_pool_model
   !>                                   T supercedes beta, i.e. T will be taken if beta and T are given.
   !>        \param[inout] "real(dp), optional :: trash(1:n[,1:m])"     Container to store possible inconsistencies,
   !>                                   might be numeric, between non-isotope and isotope model.
+  !>                                   Consistency checks are only performed if trash is given in call.
   !>        \param[inout] "logical,  optional :: trans"          Assumed order of pools and fluxes in 2D case
   !>                                   If .true.,  input order is [m,n] for pools and [m,n,n] for fluxes
   !>                                   If .false., input order is [n,m] for pools and [n,n,m] for fluxes
@@ -125,13 +126,14 @@ contains
     integer(i4) :: nn ! number of pools
     real(dp), dimension(size(Ci,1)) :: R                 ! Isotope ratio of pool
     ! defaults for optional inputs
-    real(dp), dimension(size(Ci,1))            :: iS, iRs, iT, iRt, itrash
+    real(dp), dimension(size(Ci,1))            :: iS, iRs, iT, iRt
     real(dp), dimension(size(Ci,1),size(Ci,1)) :: ialpha
     real(dp), dimension(size(Ci,1),size(Ci,1)) :: alphaF ! alpha*F
     real(dp), dimension(size(Ci,1)) :: sink              ! not-between pools sink
     real(dp), dimension(size(Ci,1)) :: source            ! not-between pools source
     real(dp), dimension(size(Ci,1)) :: isink             ! between pools sink
     real(dp), dimension(size(Ci,1)) :: isource           ! between pools source
+    real(dp), dimension(size(Ci,1)) :: Cnew              ! New pool size for check
 
     ! Check sizes
     nn = size(Ci,1)
@@ -201,11 +203,6 @@ contains
     if (present(beta) .and. (.not. present(T))) then
        iT = beta * C
     endif
-    if (present(trash)) then
-       itrash = trash
-    else
-       itrash = 0._dp
-    endif
 
     ! Isotope ratio
     ! R(:) = 0._dp
@@ -224,21 +221,22 @@ contains
     ! Explicit solution
     Ci = Ci - sink + source - isink + isource
 
-    ! Check final pools
-    ! Isotope pool became < 0.
-    if (any(Ci < 0._dp)) then
-       itrash = itrash + merge(abs(Ci), 0._dp, Ci < 0._dp)
-       Ci = merge(0._dp, Ci, Ci < 0._dp)
+    if (present(trash)) then
+       ! Check final pools
+       ! Isotope pool became < 0.
+       if (any(Ci < 0._dp)) then
+          trash = trash + merge(abs(Ci), 0._dp, Ci < 0._dp)
+          Ci = merge(0._dp, Ci, Ci < 0._dp)
+       endif
+       ! Non-isotope pool == 0. but isotope pool > 0.
+       Cnew = C - iT * dt + iS * dt - sum(F, dim=2)* dt + sum(F, dim=1) * dt
+       if (any(eq(Cnew,0._dp) .and. (Ci > 0._dp))) then
+          trash = trash + merge(Ci, 0._dp, eq(Cnew,0._dp) .and. (Ci > 0._dp))
+          Ci = merge(0._dp, Ci, eq(Cnew,0._dp) .and. (Ci > 0._dp))
+       endif
+       ! Non-isotope pool >0. but isotope pool == 0.
+       ! ???
     endif
-    ! Non-isotope pool == 0. but isotope pool > 0.
-    if (any(eq(C,0._dp) .and. (Ci > 0._dp))) then
-       itrash = itrash + merge(Ci, 0._dp, eq(C,0._dp) .and. (Ci > 0._dp))
-       Ci = merge(0._dp, Ci, eq(C,0._dp) .and. (Ci > 0._dp))
-    endif
-    ! Non-isotope pool >0. but isotope pool == 0.
-    ! ???
-
-    if (present(trash)) trash = itrash
 
     return
 
@@ -271,13 +269,14 @@ contains
     integer(i4) :: nn    ! number of pools
     real(dp), dimension(size(Ci,1),size(Ci,2)) :: R       ! Isotope ratio of pool
     ! defaults for optional inputs
-    real(dp), dimension(size(Ci,1),size(Ci,2)) :: iS, iRs, iT, iRt, itrash
+    real(dp), dimension(size(Ci,1),size(Ci,2)) :: iS, iRs, iT, iRt
     real(dp), dimension(:,:,:), allocatable :: ialpha
     real(dp), dimension(:,:,:), allocatable :: alphaF     ! alpha*F
     real(dp), dimension(size(Ci,1),size(Ci,2)) :: sink    ! not-between pools sink
     real(dp), dimension(size(Ci,1),size(Ci,2)) :: source  ! not-between pools source
     real(dp), dimension(size(Ci,1),size(Ci,2)) :: isink   ! between pools sink
     real(dp), dimension(size(Ci,1),size(Ci,2)) :: isource ! between pools source
+    real(dp), dimension(size(Ci,1),size(Ci,2)) :: Cnew    ! New pool size for check
     logical :: itrans                                     ! transposed order pools and fluxes
 
     ! Determine order of dimensions
@@ -392,8 +391,8 @@ contains
     if (present(Rt)) then
        iRt = Rt
     else
-       iRt = 0._dp
-       ! iRt = 1._dp ! could be zero as well to assure no isotopic sink if C=0
+       ! iRt = 0._dp
+       iRt = 1._dp ! could be zero as well to assure no isotopic sink if C=0
        where (C > 0._dp) iRt = Ci / C
     endif
     if (present(alpha)) then
@@ -409,15 +408,10 @@ contains
     if (present(beta) .and. (.not. present(T))) then
        iT = beta * C
     endif
-    if (present(trash)) then
-       itrash = trash
-    else
-       itrash = 0._dp
-    endif
 
     ! Isotope ratio
-    R(:,:) = 0._dp
-    ! R(:,:) = 1._dp ! could be zero as well to assure no isotopic fluxes if initial C=0
+    ! R(:,:) = 0._dp
+    R(:,:) = 1._dp ! could be zero as well to assure no isotopic fluxes if initial C=0
     where (C > 0._dp) R = Ci / C
 
     ! alpha * F
@@ -436,23 +430,26 @@ contains
     ! Explicit solution
     Ci = Ci - sink + source - isink + isource
 
-    ! Check final pools
-    ! Isotope pool became < 0.
-    if (any(Ci < 0._dp)) then
-       itrash = itrash + merge(abs(Ci), 0._dp, Ci < 0._dp)
-       Ci = merge(0._dp, Ci, Ci < 0._dp)
-       print*, 'Ha01 Ha01 Ha01 Ha01 Ha01 Ha01 Ha01 Ha01 Ha01 Ha01 Ha01 Ha01 Ha01 Ha01 Ha01 Ha01'
-    endif
-    ! Non-isotope pool == 0. but isotope pool > 0.
-    if (any(eq(C,0._dp) .and. (Ci > 0._dp))) then
-       itrash = itrash + merge(Ci, 0._dp, eq(C,0._dp) .and. (Ci > 0._dp))
-       Ci = merge(0._dp, Ci, eq(C,0._dp) .and. (Ci > 0._dp))
-       print*, 'Ha02 Ha02 Ha02 Ha02 Ha02 Ha02 Ha02 Ha02 Ha02 Ha02 Ha02 Ha02 Ha02 Ha02 Ha02 Ha02'
-    endif
-    ! Non-isotope pool >0. but isotope pool == 0.
-    ! ???
-
-    if (present(trash)) trash = itrash
+    if (present(trash)) then
+        ! Check final pools
+        ! Isotope pool became < 0.
+        if (any(Ci < 0._dp)) then
+           trash = trash + merge(abs(Ci), 0._dp, Ci < 0._dp)
+           Ci = merge(0._dp, Ci, Ci < 0._dp)
+        endif
+        ! Non-isotope pool == 0. but isotope pool > 0.
+        if (itrans) then
+           Cnew = C - iT * dt + iS * dt - sum(F, dim=3)* dt + sum(F, dim=2) * dt
+        else
+           Cnew = C - iT * dt + iS * dt - sum(F, dim=2)* dt + sum(F, dim=1) * dt
+        endif
+        if (any(eq(Cnew,0._dp) .and. (Ci > 0._dp))) then
+           trash = trash + merge(Ci, 0._dp, eq(Cnew,0._dp) .and. (Ci > 0._dp))
+           Ci = merge(0._dp, Ci, eq(Cnew,0._dp) .and. (Ci > 0._dp))
+        endif
+        ! Non-isotope pool >0. but isotope pool == 0.
+        ! ???
+     endif
 
     deallocate(ialpha)
     deallocate(alphaF)

@@ -918,7 +918,6 @@ END SUBROUTINE sumcflux
     USE phenvariable
     use cable_common_module, only: cable_user
     use cable_c13o2_def,     only: c13o2_pool
-    use mo_isotope,          only: isoratio
     
     implicit none
     

@@ -941,7 +941,6 @@ CONTAINS
     ncount = 0
     DO kk = 1, mland
 
-
        distance = 3.0 ! initialise, units are degrees
        DO jj = 1, nlat
           DO ii = 1, nlon
@@ -1085,7 +1084,7 @@ CONTAINS
     INTEGER :: is     ! YP oct07
     INTEGER :: ir     ! BP sep2010
     REAL :: totdepth  ! YP oct07
-    REAL :: tmp       ! BP sep2010
+    REAL(r_2) :: tmp       ! BP sep2010
 
 !    The following is for the alternate method to calculate froot by Zeng 2001
 !    REAL :: term1(17), term2(17)                ! (BP may2010)
@@ -1188,7 +1187,7 @@ CONTAINS
       veg%iveg(landpt(e)%cstart:landpt(e)%cend) =                              &
                           inVeg(landpt(e)%ilon, landpt(e)%ilat, 1:landpt(e)%nap)
       patch(landpt(e)%cstart:landpt(e)%cend)%frac =                            &
-                        inPFrac(landpt(e)%ilon, landpt(e)%ilat, 1:landpt(e)%nap)
+                        real(inPFrac(landpt(e)%ilon, landpt(e)%ilat, 1:landpt(e)%nap), r_2)
 
       ! set land use (1 = primary; 2 = secondary, 3 = open)
       veg%iLU(landpt(e)%cstart:landpt(e)%cend)= 1
@@ -1207,24 +1206,22 @@ CONTAINS
 
       endif
       ! Check that patch fractions total to 1
-      tmp = 0
+      tmp = 0.0_r_2
       IF (landpt(e)%cstart == landpt(e)%cend) THEN
-        patch(landpt(e)%cstart)%frac = 1.0
+        patch(landpt(e)%cstart)%frac = 1.0_r_2
       ELSE
         DO is = landpt(e)%cstart, landpt(e)%cend
           tmp = tmp + patch(is)%frac
         END DO
-        IF (ABS(1.0 - tmp) > 0.001) THEN
-          IF ((1.0 - tmp) < -0.001 .OR. (1.0 - tmp) > 0.5) THEN
-            PRINT *, 'Investigate the discrepancy in patch fractions:'
-            PRINT *, 'patch%frac = ',                                          &
-                                     patch(landpt(e)%cstart:landpt(e)%cend)%frac
-            PRINT *, 'landpoint # ', e
-            PRINT *, 'veg types = ', veg%iveg(landpt(e)%cstart:landpt(e)%cend)
+        IF (ABS(1.0_r_2 - tmp) > 0.001_r_2) THEN
+          IF ((1.0_r_2 - tmp) < -0.001_r_2 .OR. (1.0_r_2 - tmp) > 0.5_r_2) THEN
+            write(*,*) 'Investigate the discrepancy in patch fractions:'
+            write(*,*) 'patch%frac = ', patch(landpt(e)%cstart:landpt(e)%cend)%frac
+            write(*,*) 'landpoint # ', e
+            write(*,*) 'veg types = ', veg%iveg(landpt(e)%cstart:landpt(e)%cend)
             STOP
           END IF
-          patch(landpt(e)%cstart)%frac = patch(landpt(e)%cstart)%frac + 1.0    &
-                                         - tmp
+          patch(landpt(e)%cstart)%frac = patch(landpt(e)%cstart)%frac + 1.0_r_2 - tmp
         END IF
       END IF
 
@@ -1336,10 +1333,10 @@ CONTAINS
 
           ! In case gridinfo file provides more patches than met file(BP may08)
           DO f = nmetpatches+1, landpt(e)%nap
-             IF (patch(landpt(e)%cstart + f - 1)%frac > 0.0) THEN
+             IF (patch(landpt(e)%cstart + f - 1)%frac > 0.0_r_2) THEN
                 patch(landpt(e)%cstart)%frac = patch(landpt(e)%cstart)%frac    &
                                           + patch(landpt(e)%cstart + f - 1)%frac
-                patch(landpt(e)%cstart + f - 1)%frac = 0.0
+                patch(landpt(e)%cstart + f - 1)%frac = 0.0_r_2
              END IF
           END DO
        END IF
@@ -1586,21 +1583,21 @@ CONTAINS
       DO hh = landpt(ee)%cstart, landpt(ee)%cend  ! each patch in current grid
         casamet%lon(hh) = patch(hh)%longitude
         casamet%lat(hh) = patch(hh)%latitude
-        casamet%areacell(hh) = patch(hh)%frac                                  &
+        !MC- casamet%areacell should also be r_2 but it is not really used except for output in single precision
+        casamet%areacell(hh) = real(patch(hh)%frac)                            &
                                * inArea(landpt(ee)%ilon, landpt(ee)%ilat)
         casaflux%Nmindep(hh) = patch(hh)%frac                                  &
-                               * inNdep(landpt(ee)%ilon, landpt(ee)%ilat)
+                               * real(inNdep(landpt(ee)%ilon, landpt(ee)%ilat), r_2)
         casaflux%Nminfix(hh) = patch(hh)%frac                                  &
-                               * inNfix(landpt(ee)%ilon, landpt(ee)%ilat)
+                               * real(inNfix(landpt(ee)%ilon, landpt(ee)%ilat), r_2)
         casaflux%Pdep(hh)    = patch(hh)%frac                                  &
-                               * inPdust(landpt(ee)%ilon, landpt(ee)%ilat)
+                               * real(inPdust(landpt(ee)%ilon, landpt(ee)%ilat), r_2)
         casaflux%Pwea(hh)    = patch(hh)%frac                                  &
-                               * inPwea(landpt(ee)%ilon, landpt(ee)%ilat)
+                               * real(inPwea(landpt(ee)%ilon, landpt(ee)%ilat), r_2)
         !! vh !! fluxes shouldn't be weighted by patch frac.
      !   IF (CABLE_USER%POPLUC) then
            casaflux%Nmindep(hh) =  inNdep(landpt(ee)%ilon, landpt(ee)%ilat)
-           casaflux%Nminfix(hh) = max( inNfix(landpt(ee)%ilon, landpt(ee)%ilat), &
-                8.0e-4)  
+           casaflux%Nminfix(hh) = max(inNfix(landpt(ee)%ilon, landpt(ee)%ilat), 8.0e-4_r_2)  
 !vh ! minimum fixation rate of 3 kg N ha-1y-1 (8e-4 g N m-2 d-1)
 ! Cleveland, Cory C., et al. "Global patterns of terrestrial biological nitrogen (N2) &
 !fixation in natural ecosystems." Global biogeochemical cycles 13.2 (1999): 623-645.
@@ -1612,9 +1609,9 @@ CONTAINS
         IF (veg%iveg(hh) == cropland .OR. veg%iveg(hh) == croplnd2) then
           ! P fertilizer =13 Mt P globally in 1994
           casaflux%Pdep(hh)    = casaflux%Pdep(hh)                             &
-                                 + patch(hh)%frac * 0.7 / 365.0
+                                 + patch(hh)%frac * 0.7_r_2 / 365.0_r_2
           casaflux%Nmindep(hh) = casaflux%Nmindep(hh)                          &
-                                 + patch(hh)%frac * 4.0 / 365.0
+                                 + patch(hh)%frac * 4.0_r_2 / 365.0_r_2
         ENDIF
       ENDDO
     ENDDO
@@ -1745,8 +1742,8 @@ CONTAINS
           CALL abort('Unknown soil type! Aborting.')
        END IF
        ! Check patch fractions sum to 1 in each grid cell:
-       IF((SUM(patch(landpt(i)%cstart:landpt(i)%cend)%frac) - 1.0)             &
-          > 1.0E-6) THEN
+       IF((SUM(patch(landpt(i)%cstart:landpt(i)%cend)%frac) - 1.0_r_2)             &
+          > 1.0E-6_r_2) THEN
           WRITE(*,*) 'SUBROUTINE load_parameters:'
           WRITE(*,*) 'At land point number', i
           WRITE(*,*) 'And patch numbers:  ', landpt(i)%cstart, landpt(i)%cend
@@ -1890,7 +1887,7 @@ SUBROUTINE report_parameters(logn, soil, veg, bgc, rough,                    &
                      '------'
       DO g = 1, landpt(e)%nap
          WRITE(logn, '(A7, I2, A3, F6.2, A11, I3, 1X, A30)') ' patch ',       &
-               g,':  ', patch(landpt(e)%cstart + g - 1)%frac * 100.0,         &
+               g,':  ', patch(landpt(e)%cstart + g - 1)%frac * 100.0_r_2, &
                '% veg type ', veg%iveg(landpt(e)%cstart + g - 1),             &
                TRIM(veg_desc(veg%iveg(landpt(e)%cstart + g - 1)))
          WRITE(logn,'(18X, A11, I3, 1X, A45)') '  soil type',                 &

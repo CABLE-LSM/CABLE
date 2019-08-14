@@ -2399,6 +2399,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
    use casaparm,        only: initcasa
    use cable_c13o2_def, only: c13o2_flux, c13o2_pool, c13o2_luc, c13o2_alloc_flux, c13o2_alloc_pools, c13o2_zero_flux
    use cable_c13o2,     only: c13o2_init_flux, c13o2_init_pools, c13o2_init_luc, c13o2_read_restart_pools
+   use cable_c13o2,     only: c13o2_print_delta_pools, c13o2_print_delta_luc
 
    IMPLICIT NONE
 
@@ -2703,7 +2704,8 @@ SUBROUTINE get_parameters_met(soil,veg,bgc,rough,completeSet)
    LOGICAL, INTENT(OUT)                      :: completeSet ! were all pars found?
 
    ! Local variables
-   INTEGER                              :: parID ! parameter's netcdf ID
+   INTEGER                         :: parID ! parameter's netcdf ID
+   real, dimension(:), allocatable :: tmp   ! for reading patch%frac in single precision
 
 ! removed the following section because already in IGBP types (BP apr08)
 !    ! First, if user defined surface type ratios are present in the
@@ -2729,10 +2731,16 @@ SUBROUTINE get_parameters_met(soil,veg,bgc,rough,completeSet)
    ! veg and soil types already obtained in sub open_met_file
    !    CALL readpar(ncid_met,'iveg',completeSet,veg%iveg,filename%met, &
    !         nmetpatches,'def')
-   CALL readpar(ncid_met,'patchfrac',completeSet,patch(:)%frac,filename%met,   &
-        nmetpatches,'def')
-!    CALL readpar(ncid_met,'isoil',completeSet,soil%isoilm,filename%met, &
-!         nmetpatches,'def')
+   ! CALL readpar(ncid_met,'patchfrac',completeSet,patch(:)%frac,filename%met,   &
+   !      nmetpatches,'def')
+   if (allocated(tmp)) deallocate(tmp)
+   allocate(tmp(size(patch(:)%frac,1)))
+   ! CALL readpar(ncid_met,'patchfrac',completeSet,patch(:)%frac,filename%met, nmetpatches,'def')
+   CALL readpar(ncid_met, 'patchfrac', completeSet, tmp, filename%met, nmetpatches, 'def')
+   if (completeSet) patch(:)%frac = real(tmp,r_2)
+   deallocate(tmp)
+   ! CALL readpar(ncid_met,'isoil',completeSet,soil%isoilm,filename%met, &
+   !      nmetpatches,'def')
    CALL readpar(ncid_met,'clay',completeSet,soil%clay,filename%met,            &
                 nmetpatches,'def')
    CALL readpar(ncid_met,'sand',completeSet,soil%sand,filename%met,            &
@@ -2838,6 +2846,7 @@ END SUBROUTINE get_parameters_met
 SUBROUTINE allocate_cable_vars(air,bgc,canopy,met,bal,                         &
                                rad,rough,soil,ssnow,sum_flux,                  &
                                veg,arraysize)
+
    TYPE (met_type), INTENT(INOUT)            :: met
    TYPE (air_type), INTENT(INOUT)            :: air
    TYPE (soil_snow_type), INTENT(INOUT)      :: ssnow
@@ -2862,7 +2871,6 @@ SUBROUTINE allocate_cable_vars(air,bgc,canopy,met,bal,                         &
    CALL alloc_cbm_var(ssnow, arraysize)
    CALL alloc_cbm_var(sum_flux, arraysize)
    CALL alloc_cbm_var(veg, arraysize)
-
 
    ! Allocate patch fraction variable:
    ALLOCATE(patch(arraysize))

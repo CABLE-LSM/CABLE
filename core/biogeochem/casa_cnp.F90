@@ -362,7 +362,7 @@ SUBROUTINE casa_allocation(veg,soil,casabiome,casaflux,casapool,casamet,phen,LAL
         !! vh_js !!
         !! as long as biomass is positive, adjust allocation to be
         !! proportional to stock when NPP -ve (Ticket#108)
-        WHERE(casaflux%Cnpp<0.0_r_2 .and. sum(casapool%Cplant,2)>0  )
+        WHERE(casaflux%Cnpp<0.0_r_2 .and. sum(casapool%Cplant,2)>0.0_r_2  )
            casaflux%fracCalloc(:,leaf)  = casapool%Cplant(:,leaf)  / sum(casapool%Cplant,2)
            casaflux%fracCalloc(:,wood)  = casapool%Cplant(:,wood)  / sum(casapool%Cplant,2)
            casaflux%fracCalloc(:,froot) = casapool%Cplant(:,froot) / sum(casapool%Cplant,2)
@@ -440,7 +440,7 @@ SUBROUTINE casa_allocation(veg,soil,casabiome,casaflux,casapool,casamet,phen,LAL
         ENDWHERE
 
         !! vh_js !!  Ticket#108
-        WHERE(casaflux%Cnpp<0.0_r_2 .and. sum(casapool%Cplant,2)>0  )
+        WHERE(casaflux%Cnpp<0.0_r_2 .and. sum(casapool%Cplant,2)>0.0_r_2  )
            WHERE(casamet%lnonwood==0)  !woodland or forest
               casaflux%fracCalloc(:,leaf)  = casapool%Cplant(:,leaf)  / sum(casapool%Cplant,2)
               casaflux%fracCalloc(:,wood)  = casapool%Cplant(:,wood)  / sum(casapool%Cplant,2)
@@ -1069,7 +1069,7 @@ SUBROUTINE casa_coeffplant(xkleafcold, xkleafdry, xkleaf, veg, casabiome, casapo
      casaflux%fromPtoL(:,str,leaf)  = casaflux%fromPtoL(:,str,leaf)  * (1.-casaflux%fharvest)
      casaflux%fromPtoL(:,metb,leaf) = casaflux%fromPtoL(:,metb,leaf) * (1.-casaflux%fharvest)
   endwhere
-  if (any(casaflux%fharvest > 0.0_r_2)) print*, 'We have Harvest 01 ', casaflux%fharvest
+  !MC if (any(casaflux%fharvest > 0.0_r_2)) print*, 'We have Harvest 01 ', casaflux%fharvest
 
   ! When glai<glaimin, leaf biomass will not decrease anymore. (Q.Zhang 10/03/2011)
   do npt=1, mp
@@ -1343,8 +1343,10 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
         casaflux%FluxFromPtoL(npt,froot,cwd) = 0.0_r_2
         casaflux%FluxFromPtoL(npt,wood,cwd)  = cwood2cwd(npt)
 
-        casaflux%FluxFromPtoHarvest(npt) = casaflux%fharvest(npt) * casaflux%kplant(npt,leaf) * casapool%cplant(npt,leaf)
-        if (casaflux%FluxFromPtoHarvest(npt) > 0.) print*, 'We have Harvest 02 ', npt, casaflux%FluxFromPtoHarvest(npt)
+        casaflux%FluxFromPtoHarvest(npt) = casaflux%FluxFromPtoHarvest(npt) + &
+             casaflux%fharvest(npt) * casaflux%kplant(npt,leaf) * casapool%cplant(npt,leaf)
+        ! if (casaflux%FluxFromPtoHarvest(npt) > 0.) &
+        !      print*, 'We have Harvest 02 ', npt, casaflux%FluxFromPtoHarvest(npt)
 
         ! Nitrogen
         IF (icycle > 1) THEN
@@ -1479,9 +1481,6 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
                    + casaflux%fromPtoL(npt,nL,nP) * casaflux%kplant(npt,nP) * casapool%cplant(npt,nP)
            enddo
         enddo
-
-        !print*,  casaflux%FluxCtolitter(1,:)
-        !stop
         !MC - the c-quantities should include fire        
         ! casaflux%FluxCtolitter(npt,metb) = cleaf2met(npt) + croot2met(npt)
         ! casaflux%FluxCtolitter(npt,str)  = cleaf2str(npt) + croot2str(npt)
@@ -1802,12 +1801,7 @@ SUBROUTINE casa_delsoil(veg, casapool, casaflux, casamet, casabiome)
         casapool%dCsoildt(nland,:)   = casaflux%fluxCtosoil(nland,:)   - casaflux%ksoil(nland,:)   * casapool%csoil(nland,:)
         casaflux%Crsoil(nland)       = casaflux%fluxCtoCO2(nland)
         casaflux%cnep(nland)         = casaflux%cnpp(nland) - casaflux%Crsoil(nland)
-!!$        if (nland ==1) then
-!!$           print*,  casaflux%fluxCtolitter(nland,:)
-!!$           print*,  casaflux%klitter(nland,:)
-!!$           print*,  casapool%clitter(nland,:)
-!!$        stop
-!!$        endif
+
         ! Nitrogen
         IF (icycle > 1) THEN
            casapool%dNlitterdt(nland,:) =  casaflux%fluxNtolitter(nland,:)  &

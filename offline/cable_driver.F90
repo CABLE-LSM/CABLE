@@ -115,8 +115,8 @@ PROGRAM cable_offline_driver
   use cable_c13o2_def,      only: c13o2_flux, c13o2_pool, c13o2_luc, c13o2_update_sum_pools, c13o2_zero_sum_pools
   use cable_c13o2,          only: c13o2_save_luc, c13o2_update_luc, &
        c13o2_write_restart_pools,  c13o2_write_restart_luc, &
-       c13o2_create_output, c13o2_write_output, c13o2_close_output, &
-       c13o2_print_delta_pools, c13o2_print_delta_luc
+       c13o2_create_output, c13o2_write_output, c13o2_close_output
+  use cable_c13o2,          only: c13o2_print_delta_pools, c13o2_print_delta_luc
   use mo_isotope,           only: vpdbc13
 
   ! PLUME-MIP only
@@ -646,9 +646,7 @@ PROGRAM cable_offline_driver
            ! be chosen from a coarse global grid of veg and soil types, based on
            ! the lat/lon coordinates. Allocation of CABLE's main variables also here.
            IF ( CALL1 ) THEN
-              IF (cable_user%POPLUC) THEN
-                 CALL LUC_EXPT_INIT (LUC_EXPT)
-              ENDIF
+              IF (cable_user%POPLUC) CALL LUC_EXPT_INIT(LUC_EXPT)
 
               !! vh_js !!
               CALL load_parameters( met, air, ssnow, veg,climate,bgc,          &
@@ -958,7 +956,11 @@ PROGRAM cable_offline_driver
                        ! endif
                        CALL POP_LUC_CASA_transfer(POPLUC,POP,LUC_EXPT,casapool,casabal,casaflux,ktauday)
                        if (cable_user%c13o2) then
+#ifdef C13DEBUG
+                          call c13o2_update_luc(casasave, lucsave, popluc, luc_expt%prim_only, c13o2pools, c13o2luc, casapool)
+#else
                           call c13o2_update_luc(casasave, lucsave, popluc, luc_expt%prim_only, c13o2pools, c13o2luc)
+#endif
                        endif
                        ! if (cable_user%c13o2) then
                        !    write(*,*) '13C in cable_driver - 02'
@@ -1315,11 +1317,10 @@ PROGRAM cable_offline_driver
      if (cable_user%c13o2) then
         call c13o2_write_restart_pools(c13o2pools)
         if (cable_user%POPLUC) call c13o2_write_restart_luc(c13o2luc)
-     
-     !MC - While testing
-     call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-     if (cable_user%POPLUC) call c13o2_print_delta_luc(popluc, c13o2luc)
-     endif ! vh moved endif
+        !MC - While testing
+        call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
+        if (cable_user%POPLUC) call c13o2_print_delta_luc(popluc, c13o2luc)
+     endif
   END IF
 
   IF (cable_user%POPLUC .AND. .NOT. CASAONLY ) THEN

@@ -493,12 +493,19 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
       ! no problem with overwriting default values
       veg%iveg = INvar
    ENDIF
-!    CALL readpar(ncid_rin,'iveg',dummy,veg%iveg,filename%restart_in,           &
-!         max_vegpatches,'def',from_restart,mp)
-IF (.NOT.CABLE_USER%POPLUC) then
-   CALL readpar(ncid_rin,'patchfrac',dummy,patch(:)%frac,filename%restart_in,  &
-                max_vegpatches,'def',from_restart,mp)
-ENDIF
+   ! CALL readpar(ncid_rin,'iveg',dummy,veg%iveg,filename%restart_in,           &
+   !      max_vegpatches,'def',from_restart,mp)
+   IF (.NOT.CABLE_USER%POPLUC) then
+      ! CALL readpar(ncid_rin,'patchfrac',dummy,patch(:)%frac,filename%restart_in,  &
+      !      max_vegpatches,'def',from_restart,mp)
+      if (allocated(var_r)) deallocate(var_r)
+      allocate(var_r(size(patch(:)%frac,1)))
+      dummy = .true.
+      CALL readpar(ncid_rin,'patchfrac',dummy,var_r,filename%restart_in,  &
+           max_vegpatches,'def',from_restart,mp)
+      if (dummy) patch(:)%frac = real(var_r,r_2)
+      deallocate(var_r)
+   ENDIF
 !    DO i=1, mland
 !    DO jj = landpt(i)%cstart, landpt(i)%cend
 !      IF (INvar(jj) /= veg%iveg(jj)) THEN

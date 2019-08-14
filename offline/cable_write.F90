@@ -886,7 +886,7 @@ CONTAINS
              ! patches):
              otmp4xyzt(land_x(i), land_y(i), 1, 1) =                           &
                                                   SUM(var_r1(landpt(i)%cstart: &
-                  landpt(i)%cend) * patch(landpt(i)%cstart:landpt(i)%cend)%frac)
+                  landpt(i)%cend) * real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
             IF(check%ranges) THEN  ! Check ranges:
               IF((otmp4xyzt(land_x(i), land_y(i), 1, 1) < vrange(1)) .OR.      &
                  (otmp4xyzt(land_x(i), land_y(i), 1, 1) > vrange(2)))          &
@@ -905,7 +905,7 @@ CONTAINS
             ! Write to temporary variable (area weighted average across all
             ! patches):
             otmp3xyt(land_x(i), land_y(i), 1) = SUM(var_r1(landpt(i)%cstart:   &
-                  landpt(i)%cend) * patch(landpt(i)%cstart:landpt(i)%cend)%frac)
+                  landpt(i)%cend) * real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
             IF(check%ranges) THEN  ! Check ranges:
               IF((otmp3xyt(land_x(i), land_y(i), 1) < vrange(1)) .OR.          &
                  (otmp3xyt(land_x(i), land_y(i), 1) > vrange(2)))              &
@@ -949,7 +949,7 @@ CONTAINS
           ! Write to temporary variable (area weighted average across all
           ! patches):
           otmp2lt(i, 1) = SUM(var_r1(landpt(i)%cstart:                         &
-                  landpt(i)%cend) * patch(landpt(i)%cstart:landpt(i)%cend)%frac)
+                  landpt(i)%cend) * real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
           IF(check%ranges) THEN  ! Check ranges:
             IF((otmp2lt(i, 1) < vrange(1)) .OR.                                &
                  (otmp2lt(i, 1) > vrange(2)))                                  &
@@ -1204,7 +1204,7 @@ CONTAINS
             DO j = 1, ms
                otmp4xyst(land_x(i), land_y(i), j, 1) = SUM(                    &
                                  var_r2(landpt(i)%cstart:landpt(i)%cend, j) *  &
-                                    patch(landpt(i)%cstart:landpt(i)%cend)%frac)
+                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
             END DO
             IF(check%ranges) THEN  ! Check ranges:
               DO j = 1, ms
@@ -1230,7 +1230,7 @@ CONTAINS
             DO j = 1, msn
                otmp4xysnt(land_x(i), land_y(i), j, 1) = SUM(                   &
                                  var_r2(landpt(i)%cstart:landpt(i)%cend, j) *  &
-                                    patch(landpt(i)%cstart:landpt(i)%cend)%frac)
+                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
             END DO
             IF(check%ranges) THEN  ! Check ranges:
               DO j = 1, msn
@@ -1256,7 +1256,7 @@ CONTAINS
             DO j = 1, nrb
                otmp4xyrt(land_x(i), land_y(i), j, 1) = SUM(                    &
                                   var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
-                                    patch(landpt(i)%cstart:landpt(i)%cend)%frac)
+                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
             END DO
             IF(check%ranges) THEN  ! Check ranges:
               DO j = 1, nrb
@@ -1282,7 +1282,7 @@ CONTAINS
             DO j = 1, ncp
                otmp4xypct(land_x(i), land_y(i), j, 1) = SUM(                   &
                                   var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
-                                    patch(landpt(i)%cstart:landpt(i)%cend)%frac)
+                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
             END DO
             IF(check%ranges) THEN  ! Check ranges:
               DO j = 1, ncp
@@ -1307,7 +1307,7 @@ CONTAINS
             DO j = 1, ncs
                otmp4xysct(land_x(i), land_y(i), j, 1) = SUM(                   &
                                   var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
-                                    patch(landpt(i)%cstart:landpt(i)%cend)%frac)
+                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
             END DO
             IF(check%ranges) THEN  ! Check ranges:
               DO j = 1, ncs
@@ -1333,7 +1333,7 @@ CONTAINS
             do j = 1, n2
                otmp4xysnt(land_x(i), land_y(i), j, 1) = &
                     sum(var_r2(landpt(i)%cstart:landpt(i)%cend, j) *  &
-                        patch(landpt(i)%cstart:landpt(i)%cend)%frac)
+                        real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
             end do
             if (check%ranges) then  ! check ranges:
               do j = 1, n2
@@ -1522,7 +1522,7 @@ CONTAINS
             DO j = 1, ms
                otmp3lst(i, j, 1) = SUM(                                        &
                                   var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
-                                    patch(landpt(i)%cstart:landpt(i)%cend)%frac)
+                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
             END DO
             IF(check%ranges) THEN  ! Check ranges:
               DO j = 1, ms
@@ -1543,7 +1543,7 @@ CONTAINS
             DO j = 1, msn
                otmp3lsnt(i, j, 1) = SUM(                                       &
                                   var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
-                                    patch(landpt(i)%cstart:landpt(i)%cend)%frac)
+                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
             END DO
             IF(check%ranges) THEN  ! Check ranges:
               DO j = 1, msn
@@ -1563,7 +1563,7 @@ CONTAINS
             DO j = 1, nrb
                otmp3lrt(i, j, 1) = SUM(                                        &
                                   var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
-                                    patch(landpt(i)%cstart:landpt(i)%cend)%frac)
+                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
             END DO
             IF(check%ranges) THEN  ! Check ranges:
               DO j = 1, nrb
@@ -1584,7 +1584,7 @@ CONTAINS
             DO j = 1, ncp
                otmp3lpct(i, j, 1) = SUM(                                       &
                                   var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
-                                    patch(landpt(i)%cstart:landpt(i)%cend)%frac)
+                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
             END DO
             IF(check%ranges) THEN  ! Check ranges:
               DO j = 1, ncp
@@ -1604,7 +1604,7 @@ CONTAINS
             DO j = 1, ncs
                otmp3lsct(i, j, 1) = SUM(                                       &
                                   var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
-                                    patch(landpt(i)%cstart:landpt(i)%cend)%frac)
+                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
             END DO
             IF(check%ranges) THEN  ! Check ranges:
               DO j = 1, ncs
@@ -1626,7 +1626,7 @@ CONTAINS
             do j = 1, n2
                otmp3lsnt(i, j, 1) = &
                     sum(var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
-                        patch(landpt(i)%cstart:landpt(i)%cend)%frac)
+                        real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
             end do
             if (check%ranges) then  ! check ranges:
               do j = 1, n2

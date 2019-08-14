@@ -66,10 +66,8 @@ MODULE cable_IO_vars_module
    ! For vegetated surface type
    TYPE patch_type
 
-      REAL ::                                                                  &
-         frac,    &  ! fractional cover of each veg patch
-         latitude,&
-         longitude
+      REAL(r_2) :: frac ! fractional cover of each veg patch
+      REAL :: latitude, longitude
 
    END TYPE patch_type
 

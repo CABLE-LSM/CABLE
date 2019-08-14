@@ -87,6 +87,7 @@ MODULE mo_isotope_luc_model
   !>                                   (default: calculated from A and dA)
   !>        \param[inout] "real(dp), optional :: trash(1:n)"     Container to store possible inconsistencies,
   !>                                   might be numeric, between non-isotope and isotope model [kg/m^2].
+  !>                                   Consistency checks are only performed if trash is given in call.
 
   !     HISTORY
   !>        \author Written Matthias Cuntz
@@ -113,9 +114,9 @@ contains
     real(dp), dimension(:,:), intent(in)              :: dA     ! Area changes between land-use classes
     real(dp), dimension(:),   intent(in),    optional :: C      ! Non-iso land-use class
     real(dp), dimension(:),   intent(in),    optional :: S      ! Source
-    real(dp), dimension(:),   intent(in),    optional :: Rs     ! Isotope ration of source
+    real(dp), dimension(:),   intent(in),    optional :: Rs     ! Isotope ratio of source
     real(dp), dimension(:),   intent(in),    optional :: T      ! Sink
-    real(dp), dimension(:),   intent(in),    optional :: Rt     ! Isotope ration of sink
+    real(dp), dimension(:),   intent(in),    optional :: Rt     ! Isotope ratio of sink
     real(dp), dimension(:),   intent(in),    optional :: At     ! New area land-use class
     real(dp), dimension(:),   intent(inout), optional :: trash  ! garbage can for numerical inconsistencies
 
@@ -124,8 +125,9 @@ contains
     integer(i4) :: nn ! number of pools
     real(dp), dimension(size(Ci,1)) :: R    ! Isotope ratio of pool
     ! defaults for optional inputs
-    real(dp), dimension(size(Ci,1)) :: iC, iS, iRs, iT, iRt, itrash
+    real(dp), dimension(size(Ci,1)) :: iC, iS, iRs, iT, iRt
     real(dp), dimension(size(Ci,1)) :: Anew ! A at t+dt
+    real(dp), dimension(size(Ci,1)) :: Cnew ! New C pools
 
     ! Check sizes
     nn = size(Ci,1)
@@ -213,40 +215,42 @@ contains
     else
        Anew = A - sum(dA, dim=2) + sum(dA, dim=1)
     endif
-    if (present(trash)) then
-       itrash = trash
-    else
-       itrash = 0._dp
-    endif
 
     ! Isotope ratio
     R(:) = 1._dp
     where (iC > 0._dp) R = Ci / iC
 
     ! isotopic LUC model
-    Ci = R * iC * (A - sum(dA, dim=2)) + sum(dA * spread(R*iC, dim=2, ncopies=nn), dim=1) + iRs*iS - iRt*iT
-    where (Anew > 0._dp)
-       Ci = Ci / Anew
-    elsewhere
-       Ci     = 0._dp
-       itrash = itrash + Ci
-    endwhere
-
-    ! Check final land-use classes
-    ! Isotope land-use class became < 0.
-    if (any(Ci < 0._dp)) then
-       itrash = itrash + merge(abs(Ci), 0._dp, Ci < 0._dp)
-       Ci = merge(0._dp, Ci, Ci < 0._dp)
+    ! Ci = R * iC * (A - sum(dA, dim=2)) + sum(dA * spread(R*iC, dim=2, ncopies=nn), dim=1) + iRs*iS - iRt*iT
+    Cnew = Ci * (A - sum(dA, dim=2)) + sum(dA * spread(Ci, dim=2, ncopies=nn), dim=1) + iRs*iS - iRt*iT
+    if (present(trash)) then
+       where (Anew > 0._dp)
+          Ci = Cnew / Anew
+       elsewhere
+          Ci     = 0._dp
+          trash = trash + Ci
+       endwhere
+    else
+       where (Anew > 0._dp) Ci = Cnew / Anew ! keep incoming Ci if Anew=0.
     endif
-    ! Non-isotope land-use class == 0. but isotope land-use class > 0.
-    if (any(eq(iC,0._dp) .and. (Ci > 0._dp))) then
-       itrash = itrash + merge(Ci, 0._dp, eq(iC,0._dp) .and. (Ci > 0._dp))
-       Ci = merge(0._dp, Ci, eq(iC,0._dp) .and. (Ci > 0._dp))
-    endif
-    ! Non-isotope land-use class >0. but isotope land-use class == 0.
-    ! ???
 
-    if (present(trash)) trash = itrash
+    if (present(trash)) then
+       ! Check final land-use classes
+       ! Isotope land-use class became < 0.
+       if (any(Ci < 0._dp)) then
+          trash = trash + merge(abs(Ci), 0._dp, Ci < 0._dp)
+          Ci = merge(0._dp, Ci, Ci < 0._dp)
+       endif
+       ! Non-isotope land-use class == 0. but isotope land-use class > 0.
+       Cnew = iC * (A - sum(dA, dim=2)) + sum(dA * spread(iC, dim=2, ncopies=nn), dim=1) + iS - iT
+       where (Anew > 0._dp) Cnew = Cnew / Anew
+       if (any(eq(Cnew,0._dp) .and. (Ci > 0._dp))) then
+          trash = trash + merge(Ci, 0._dp, eq(Cnew,0._dp) .and. (Ci > 0._dp))
+          Ci = merge(0._dp, Ci, eq(Cnew,0._dp) .and. (Ci > 0._dp))
+       endif
+       ! Non-isotope land-use class >0. but isotope land-use class == 0.
+       ! ???
+    endif
 
     return
 

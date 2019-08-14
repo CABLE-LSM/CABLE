@@ -206,15 +206,15 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
              pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
         if (cable_user%c13o2) then
            avg_c13leaf2met(:) = avg_c13leaf2met(:) + &
-                cleaf2met(:) * isoratio(c13o2pools%cplant(:,leaf), casasave(:,leaf), 1.0_dp) ! 0.0_dp
+                cleaf2met(:) * isoratio(c13o2pools%cplant(:,leaf), casasave(:,leaf), 0.0_dp, tiny(1.0_dp)) ! 1.0_dp
            avg_c13leaf2str(:) = avg_c13leaf2str(:) + &
-                cleaf2str(:) * isoratio(c13o2pools%cplant(:,leaf), casasave(:,leaf), 1.0_dp)
+                cleaf2str(:) * isoratio(c13o2pools%cplant(:,leaf), casasave(:,leaf), 0.0_dp, tiny(1.0_dp))
            avg_c13root2met(:) = avg_c13root2met(:) + &
-                croot2met(:) * isoratio(c13o2pools%cplant(:,froot), casasave(:,froot), 1.0_dp)
+                croot2met(:) * isoratio(c13o2pools%cplant(:,froot), casasave(:,froot), 0.0_dp, tiny(1.0_dp))
            avg_c13root2str(:) = avg_c13root2str(:) + &
-                croot2str(:) * isoratio(c13o2pools%cplant(:,froot), casasave(:,froot), 1.0_dp)
+                croot2str(:) * isoratio(c13o2pools%cplant(:,froot), casasave(:,froot), 0.0_dp, tiny(1.0_dp))
            avg_c13wood2cwd(:) = avg_c13wood2cwd(:) + &
-                cwood2cwd(:) * isoratio(c13o2pools%cplant(:,wood), casasave(:,wood), 1.0_dp)
+                cwood2cwd(:) * isoratio(c13o2pools%cplant(:,wood), casasave(:,wood), 0.0_dp, tiny(1.0_dp))
            call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
         endif
          
@@ -360,10 +360,6 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
   !write(600,*) 'nmet pre-analytic: ' ,  casapool%nlitter(1,metb)
   write(600,*) 'csoil3 pre-analytic: ', casapool%csoil(3,:)
   write(600,*) 'csoil1 pre-analytic: ', casapool%csoil(1,:)
-  if (cable_user%c13o2) then
-     print*, 'Before analytic'
-     call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-  endif
   call analyticpool(kend,veg,soil,casabiome,casapool,                                          &
        casaflux,casamet,casabal,phen,                                         &
        avg_cleaf2met,avg_cleaf2str,avg_croot2met,avg_croot2str,avg_cwood2cwd, &
@@ -375,10 +371,6 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
        avg_nsoilmin,avg_psoillab,avg_psoilsorb,avg_psoilocc, &
        avg_c13leaf2met, avg_c13leaf2str, avg_c13root2met, &
        avg_c13root2str, avg_c13wood2cwd, c13o2pools)
-  if (cable_user%c13o2) then
-     print*, 'After analytic'
-     call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-  endif
   write(600,*) 'csoil3 post-analytic: ', casapool%csoil(3,:)
   write(600,*) 'csoil1 post-analytic: ', casapool%csoil(1,:)
 

@@ -1369,9 +1369,9 @@ END SUBROUTINE casa_cnpflux
 
 ! changed by yp wang following Chris Lu 5/nov/2012
 SUBROUTINE biogeochem(ktau,dels,idoY,LALLOC,veg,soil,casabiome,casapool,casaflux, &
-     casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter,xksoil,xkleaf,xkleafcold,xkleafdry,&
-     cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
-     nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
+     casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter,xksoil,xkleaf,xkleafcold,xkleafdry, &
+     cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd, &
+     nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd, &
      pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
   
   USE cable_def_types_mod
@@ -2107,7 +2107,7 @@ SUBROUTINE WRITE_CASA_OUTPUT_NC( veg, casamet, casapool, casabal, casaflux, CASA
   INTEGER   :: STATUS, ctime
   INTEGER   :: land_ID, plnt_ID, litt_ID, soil_ID, t_ID, i
   LOGICAL   :: CASAONLY, FINAL
-  CHARACTER :: CYEAR*4, FNAME*99,dum*50
+  CHARACTER :: CYEAR*4, FNAME*99, dum*50
   LOGICAL, SAVE :: CALL1 = .TRUE.
   integer, parameter :: sp = kind(1.0)
 
@@ -2242,31 +2242,34 @@ SUBROUTINE WRITE_CASA_OUTPUT_NC( veg, casamet, casapool, casabal, casaflux, CASA
 
   CNT = CNT + 1
 
+  ! Get File-Name
+  if (len_trim(casafile%out) > 0) then
+     fname = trim(casafile%out)
+  else
+     if (len_trim(cable_user%mettype) > 0) then
+        if (cable_user%yearstart < 1000) then
+           write(dum, fmt="(i3)") cable_user%yearstart
+        else
+           write(dum, fmt="(i4)") cable_user%yearstart
+        endif
+        if (cable_user%yearend < 1000) then
+           write(dum, fmt="(a,a,i3)") trim(dum), '_', cable_user%yearend
+        else
+           write(dum, fmt="(a,a,i4)") trim(dum), '_', cable_user%yearend
+        endif
+        fname = trim(filename%path)//'/'//trim(cable_user%RunIden)//'_'//trim(dum)//'_casa_out.nc'
+     else
+        ! site data
+        fname = trim(filename%path)//'/'//trim(cable_user%RunIden)//'_casa_out.nc'
+     endif
+  endif
+
   IF ( CALL1 ) THEN
-     ! Get File-Name
-     IF (TRIM(casafile%out).NE.'' ) THEN
-        fname = TRIM(casafile%out)
-     ELSE
-        IF (TRIM(cable_user%MetType).NE.'' ) THEN
 
-           WRITE( dum, FMT="(I4,'_',I4)")CABLE_USER%YEARSTART,CABLE_USER%YEAREND
-           IF (CABLE_USER%YEARSTART.lt.1000.and.CABLE_USER%YEAREND.lt.1000) THEN
-              WRITE( dum, FMT="(I3,'_',I3)")CABLE_USER%YEARSTART,CABLE_USER%YEAREND
-           ELSEIF (CABLE_USER%YEARSTART.lt.1000) THEN
-              WRITE( dum, FMT="(I3,'_',I4)")CABLE_USER%YEARSTART,CABLE_USER%YEAREND
-           ENDIF
-           fname = TRIM(filename%path)//'/'//TRIM(cable_user%RunIden)//'_'//&
-                TRIM(dum)//'_casa_out.nc'
-        ELSE
-           ! site data
-           fname = TRIM(filename%path)//'/'//TRIM(cable_user%RunIden)//'_casa_out.nc'
-        ENDIF
-     ENDIF
-
-     INQUIRE( FILE=TRIM( fname ), EXIST=EXRST )
+     INQUIRE( FILE=TRIM(fname), EXIST=EXRST )
      EXRST = .FALSE.
      IF ( EXRST ) THEN
-        STATUS = NF90_open(fname, mode=nf90_write, ncid=FILE_ID)
+        STATUS = NF90_open(trim(fname), mode=nf90_write, ncid=FILE_ID)
         IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
         CALL1 = .FALSE.
 
@@ -2322,7 +2325,7 @@ SUBROUTINE WRITE_CASA_OUTPUT_NC( veg, casamet, casapool, casabal, casaflux, CASA
 
      ELSE
         ! Create NetCDF file:
-        STATUS = NF90_create(fname, NF90_CLOBBER, FILE_ID)
+        STATUS = NF90_create(trim(fname), NF90_CLOBBER, FILE_ID)
         IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
         ! Put the file in define mode:
@@ -2801,10 +2804,7 @@ CASE(3)
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
   STATUS = NF90_PUT_VAR(FILE_ID, VID1(28), real(casaflux%fNminloss,sp),  start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-  print*, 'Before Pdep 02'
-  print*, casaflux%Pdep
   STATUS = NF90_PUT_VAR(FILE_ID, VID1(29), real(casaflux%Pdep,sp),       start=(/ 1, CNT /), count=(/ mp, 1 /) )
-  print*, 'After Pdep 02'
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
   STATUS = NF90_PUT_VAR(FILE_ID, VID1(30), real(casaflux%Pwea,sp),       start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
@@ -2960,6 +2960,7 @@ CASE(3)
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
 END SELECT
+
   IF ( FINAL ) THEN
      ! Close NetCDF file:
      STATUS = NF90_close(FILE_ID)
