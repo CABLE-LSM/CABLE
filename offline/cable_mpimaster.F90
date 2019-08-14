@@ -217,7 +217,7 @@ CONTAINS
          cable_bios_load_params
 
      ! 13C
-    use cable_c13o2_def,      only: c13o2_pool, c13o2_luc, c13o2_update_sum_pools, c13o2_zero_sum_pools
+    use cable_c13o2_def,      only: c13o2_flux, c13o2_pool, c13o2_luc, c13o2_update_sum_pools, c13o2_zero_sum_pools
     use cable_c13o2,          only: c13o2_save_luc, c13o2_update_luc, c13o2_write_restart_pools, &
        c13o2_create_output, c13o2_write_output, c13o2_close_output, &
        c13o2_print_delta_pools, c13o2_print_delta_luc
@@ -634,7 +634,7 @@ CONTAINS
                   casaflux, sum_casapool, sum_casaflux, &
                   casamet, casabal, phen, POP, spinup,         &
                   C%EMSOIL, C%TFRZ, LUC_EXPT, POPLUC, BLAZE, SIMFIRE, &
-                  c13o2pools, sum_c13o2pools, c13o2luc)
+                  c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc)
              if (cable_user%c13o2) allocate(casasave(c13o2pools%ntile,c13o2pools%npools))
              if (cable_user%c13o2 .and. cable_user%popluc) allocate(lucsave(c13o2luc%nland,c13o2luc%npools))
 
@@ -792,6 +792,7 @@ CONTAINS
             ELSEIF ( casaonly .AND. (.NOT. spincasa) .AND. cable_user%popluc) THEN
                 CALL master_CASAONLY_LUC(dels,kstart,kend,veg,soil,casabiome,casapool, &
                      casaflux,casamet,casabal,phen,POP,climate,LALLOC, LUC_EXPT, POPLUC, &
+                     c13o2flux, c13o2pools, &
                      icomm, ocomm)
                 SPINconv = .FALSE. 
                 ktau_gl = 0
@@ -8463,7 +8464,6 @@ SUBROUTINE master_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
      
      WRITE(CYEAR,FMT="(I4)") CABLE_USER%CASA_SPIN_STARTYEAR + nyear - 1
      ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
-
      call read_casa_dump(ncfile, casamet, casaflux, phen, climate, c13o2flux, ktau, kend, .TRUE.)
 
      do idoy=1,mdyear
@@ -8569,6 +8569,7 @@ END SUBROUTINE master_spincasacnp
 !*********************************************************************************************
 SUBROUTINE master_CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
      casaflux,casamet,casabal,phen,POP,climate,LALLOC,LUC_EXPT, POPLUC, &
+     c13o2flux, c13o2pools, &
      icomm, ocomm )
 
 
@@ -8590,7 +8591,7 @@ SUBROUTINE master_CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   USE POPLUC_Module, ONLY: POPLUCStep, POPLUC_weights_Transfer, WRITE_LUC_OUTPUT_NC, &
        POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, READ_LUC_RESTART_NC, &
        POPLUC_set_patchfrac,  WRITE_LUC_OUTPUT_GRID_NC
-
+  use cable_c13o2_def,     only: c13o2_pool, c13o2_flux
 
 
   IMPLICIT NONE
@@ -8608,6 +8609,8 @@ SUBROUTINE master_CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   TYPE (phen_variable),         INTENT(INOUT) :: phen
   TYPE (POP_TYPE), INTENT(INOUT)     :: POP
   TYPE (climate_TYPE), INTENT(INOUT)     :: climate
+  type(c13o2_flux),             intent(in)    :: c13o2flux
+  type(c13o2_pool),             intent(inout) :: c13o2pools
   TYPE (LUC_EXPT_TYPE), INTENT(INOUT) :: LUC_EXPT
   TYPE(POPLUC_TYPE), INTENT(INOUT) :: POPLUC
   !TYPE (casa_pool)   , INTENT(INOUT) :: sum_casapool
