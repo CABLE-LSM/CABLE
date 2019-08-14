@@ -150,7 +150,7 @@ cable_LUC_EXPT.o: cable_LUC_EXPT.F90 cable_define_types.o cable_iovars.o casa_va
 
 pop_io.o: pop_io.F90 POP.o casa_variable.o cable_common.o
 
-cable_sli_main.o: cable_sli_main.F90  cable_define_types.o cable_sli_numbers.o cable_sli_roots.o cable_sli_solve.o cable_soilsnow.o
+cable_sli_main.o: cable_sli_main.F90 cable_define_types.o cable_common.o cable_sli_numbers.o cable_sli_roots.o cable_sli_solve.o cable_soilsnow.o
  
 cable_sli_numbers.o: cable_sli_numbers.F90  cable_define_types.o 
 
@@ -158,7 +158,7 @@ cable_sli_roots.o: cable_sli_roots.F90 cable_sli_numbers.o cable_define_types.o
 
 cable_sli_solve.o: cable_sli_solve.F90 cable_sli_numbers.o cable_sli_roots.o cable_sli_utils.o cable_define_types.o
 
-cable_sli_utils.o: cable_sli_utils.F90 cable_sli_numbers.o  cable_define_types.o
+cable_sli_utils.o: cable_sli_utils.F90 cable_sli_numbers.o cable_define_types.o cable_common.o
 
 cable_plume_mip.o: cable_plume_mip.F90 cable_iovars.o cable_define_types.o cable_checks.o cable_weathergenerator.o
 
@@ -183,7 +183,7 @@ blaze.o: blaze.F90 cable_common.o
 
 simfire.o: simfire.F90 cable_common.o
 
-blaze_driver.o: blaze_driver.F90 blaze.o simfire.o
+blaze_driver.o: blaze_driver.F90 blaze.o simfire.o casa_variable.o
 
 mo_kind.o: mo_kind.f90
 mo_utils.o: mo_utils.f90 mo_kind.o
