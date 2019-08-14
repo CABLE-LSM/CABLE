@@ -40,7 +40,7 @@ MODULE CABLE_CRU
   !
     CHARACTER(len=30)  :: Run            ! Where run type is      : "S0_TRENDY", "S1_TRENDY", "S2_TRENDY"
     CHARACTER(len=15)  :: CO2            ! CO2 takes value        : "static1860", "1860_1900", "1901_2015" 
-    CHARACTER(len=15)  :: Ndep            ! Ndep takes value        : "static1860", "1860_1900", "1901_2015"
+    CHARACTER(len=15)  :: Ndep           ! Ndep takes value        : "static1860", "1860_1900", "1901_2015"
     CHARACTER(len=15)  :: Forcing        ! Met Forcing takes value: "spinup",        "spinup", "1901_2015" 
   !         
     CHARACTER(len=200) :: BasePath       ! Full path for the location of data used for CRU runs "/x/y"
@@ -427,79 +427,94 @@ CONTAINS
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  SUBROUTINE CRU_GET_FILENAME ( CRU, cyear, par, FN )
+  SUBROUTINE CRU_GET_FILENAME(CRU, cyear, par, fn)
 
 ! Build the filename FN: One annual file of daily met for one met quantity.
 
     IMPLICIT NONE
 
-    TYPE(CRU_TYPE), INTENT(INOUT) :: CRU  ! Information about CRU
-    INTEGER,              INTENT(IN)    :: cyear  ! Current year as an integer
-    INTEGER,              INTENT(IN)    :: par    ! Index (1-9) of which met quantity will be sought
-    CHARACTER(LEN=200),   INTENT(OUT)   :: FN     ! Met filename (outgoing)
-    INTEGER   :: i, idx
-    CHARACTER(4)   :: cy  ! Character representation of cyear
-    CHARACTER(200) :: mp  ! Local repr of met path
+    type(cru_type),     intent(in)  :: CRU    ! Information about CRU
+    integer,            intent(in)  :: cyear  ! Current year as an integer
+    integer,            intent(in)  :: par    ! Index (1-9) of which met quantity will be sought
+    character(len=200), intent(out) :: fn     ! Met filename (outgoing)
+    
+    integer :: i, idx
+    character(len=4)   :: cy  ! Character representation of cyear
+    character(len=200) :: mp  ! Local repr of met path
+#ifdef CRU2018
+    character(len=*), parameter :: cruver="crujra.V1.1" ! CRU version
+#else
+    character(len=*), parameter :: cruver="crujra.V2.0" ! CRU version
+#endif
 
-! Create a character version of the year for building that part of the filename.
-    WRITE(cy,FMT='(I4)')cyear
+    ! Create a character version of the year for building that part of the filename.
+    write(cy, fmt='(i4)') cyear
 
-! Initialise the filename with the met path
-    mp = CRU%MetPath
-    FN = TRIM(mp)
+    ! Initialise the filename with the met path
+    mp = trim(CRU%MetPath)
+    fn = trim(mp)
 
-! Build the rest of the filename according to the value of par, which references 11 possible
-! types of met through the parameter names rain, lwdn, etc. 
-!!$    SELECT CASE ( par )
-!!$    CASE(rain) ; FN = TRIM(FN)//"/rain/cruncep2015_1_rain_"//cy//".daymean.nc"
-!!$    CASE(lwdn) ; FN = TRIM(FN)//"/lwdown/cruncep2015_1_lwdown_"//cy//".daymean.nc"
-!!$    CASE(swdn) ; FN = TRIM(FN)//"/swdown/cruncep2015_1_swdown_"//cy//".daymean.nc"
-!!$    CASE(pres) ; FN = TRIM(FN)//"/press/cruncep2015_1_press_"//cy//".daymean.nc"
-!!$    CASE(qair) ; FN = TRIM(FN)//"/qair/cruncep2015_1_qair_"//cy//".daymean.nc"
-!!$    CASE(tmax,PrevTmax) ; FN = TRIM(FN)//"/tmax/cruncep2015_1_tair_"//cy//".daymax.nc"
-!!$    CASE(tmin,NextTmin) ; FN = TRIM(FN)//"/tmin/cruncep2015_1_tair_"//cy//".daymin.nc"
-!!$    CASE(uwind) ; FN = TRIM(FN)//"/uwind/cruncep2015_1_uwind_"//cy//".daymean.nc"
-!!$    CASE(vwind) ; FN = TRIM(FN)//"/vwind/cruncep2015_1_vwind_"//cy//".daymean.nc"
-!!$    END SELECT
+    ! Build the rest of the filename according to the value of par, which references 11 possible
+    ! types of met through the parameter names rain, lwdn, etc. 
+    ! SELECT CASE ( par )
+    ! CASE(rain) ; FN = TRIM(FN)//"/rain/cruncep2015_1_rain_"//cy//".daymean.nc"
+    ! CASE(lwdn) ; FN = TRIM(FN)//"/lwdown/cruncep2015_1_lwdown_"//cy//".daymean.nc"
+    ! CASE(swdn) ; FN = TRIM(FN)//"/swdown/cruncep2015_1_swdown_"//cy//".daymean.nc"
+    ! CASE(pres) ; FN = TRIM(FN)//"/press/cruncep2015_1_press_"//cy//".daymean.nc"
+    ! CASE(qair) ; FN = TRIM(FN)//"/qair/cruncep2015_1_qair_"//cy//".daymean.nc"
+    ! CASE(tmax,PrevTmax) ; FN = TRIM(FN)//"/tmax/cruncep2015_1_tair_"//cy//".daymax.nc"
+    ! CASE(tmin,NextTmin) ; FN = TRIM(FN)//"/tmin/cruncep2015_1_tair_"//cy//".daymin.nc"
+    ! CASE(uwind) ; FN = TRIM(FN)//"/uwind/cruncep2015_1_uwind_"//cy//".daymean.nc"
+    ! CASE(vwind) ; FN = TRIM(FN)//"/vwind/cruncep2015_1_vwind_"//cy//".daymean.nc"
+    ! END SELECT
 
+    ! SELECT CASE ( par )
+    ! CASE(rain) ; FN = TRIM(FN)//"/rain/cruncepV8_rain_"//cy//".daytot.nc"
+    ! CASE(lwdn) ; FN = TRIM(FN)//"/lwdown/cruncepV8_lwdown_"//cy//".daymean.nc"
+    ! CASE(swdn) ; FN = TRIM(FN)//"/swdown/cruncepV8_swdown_"//cy//".daymean.nc"
+    ! CASE(pres) ; FN = TRIM(FN)//"/press/cruncepV8_press_"//cy//".daymean.nc"
+    ! CASE(qair) ; FN = TRIM(FN)//"/qair/cruncepV8_qair_"//cy//".daymean.nc"
+    ! CASE(tmax,PrevTmax) ; FN = TRIM(FN)//"/tmax/cruncepV8_tmax_"//cy//".daymax.nc"
+    ! CASE(tmin,NextTmin) ; FN = TRIM(FN)//"/tmin/cruncepV8_tmin_"//cy//".daymin.nc"
+    ! CASE(uwind) ; FN = TRIM(FN)//"/uwind/cruncepV8_uwind_"//cy//".daymean.nc"
+    ! CASE(vwind) ; FN = TRIM(FN)//"/vwind/cruncepV8_vwind_"//cy//".daymean.nc"
+    ! END SELECT
 
-!!$    SELECT CASE ( par )
-!!$    CASE(rain) ; FN = TRIM(FN)//"/rain/cruncepV8_rain_"//cy//".daytot.nc"
-!!$    CASE(lwdn) ; FN = TRIM(FN)//"/lwdown/cruncepV8_lwdown_"//cy//".daymean.nc"
-!!$    CASE(swdn) ; FN = TRIM(FN)//"/swdown/cruncepV8_swdown_"//cy//".daymean.nc"
-!!$    CASE(pres) ; FN = TRIM(FN)//"/press/cruncepV8_press_"//cy//".daymean.nc"
-!!$    CASE(qair) ; FN = TRIM(FN)//"/qair/cruncepV8_qair_"//cy//".daymean.nc"
-!!$    CASE(tmax,PrevTmax) ; FN = TRIM(FN)//"/tmax/cruncepV8_tmax_"//cy//".daymax.nc"
-!!$    CASE(tmin,NextTmin) ; FN = TRIM(FN)//"/tmin/cruncepV8_tmin_"//cy//".daymin.nc"
-!!$    CASE(uwind) ; FN = TRIM(FN)//"/uwind/cruncepV8_uwind_"//cy//".daymean.nc"
-!!$    CASE(vwind) ; FN = TRIM(FN)//"/vwind/cruncepV8_vwind_"//cy//".daymean.nc"
-!!$    END SELECT
+    ! SELECT CASE ( par )
+    ! CASE(rain) ; FN = TRIM(FN)//"/pre/crujra.V1.1.5d.pre."//cy//".365d.noc.daytot.1deg.nc"
+    ! CASE(lwdn) ; FN = TRIM(FN)//"/dlwrf/crujra.V1.1.5d.dlwrf."//cy//".365d.noc.daymean.1deg.nc"
+    ! CASE(swdn) ; FN = TRIM(FN)//"/dswrf/crujra.V1.1.5d.dswrf."//cy//".365d.noc.daymean.1deg.nc"
+    ! CASE(pres) ; FN = TRIM(FN)//"/pres/crujra.V1.1.5d.pres."//cy//".365d.noc.daymean.1deg.nc"
+    ! CASE(qair) ; FN = TRIM(FN)//"/spfh/crujra.V1.1.5d.spfh."//cy//".365d.noc.daymean.1deg.nc"
+    ! CASE(tmax,PrevTmax) ; FN = TRIM(FN)//"/tmax/crujra.V1.1.5d.tmax."//cy//".365d.noc.daymax.1deg.nc"
+    ! CASE(tmin,NextTmin) ; FN = TRIM(FN)//"/tmin/crujra.V1.1.5d.tmin."//cy//".365d.noc.daymin.1deg.nc"
+    ! CASE(uwind) ; FN = TRIM(FN)//"/ugrd/crujra.V1.1.5d.ugrd."//cy//".365d.noc.daymean.1deg.nc"
+    ! CASE(vwind) ; FN = TRIM(FN)//"/vgrd/crujra.V1.1.5d.vgrd."//cy//".365d.noc.daymean.1deg.nc"
+    ! END SELECT
+    
+    ! SELECT CASE ( par )
+    ! CASE(rain) ; FN = TRIM(FN)//"/pre/crujra.V2.0.5d.pre."//cy//".365d.noc.daytot.1deg.nc"
+    ! CASE(lwdn) ; FN = TRIM(FN)//"/dlwrf/crujra.V2.0.5d.dlwrf."//cy//".365d.noc.daymean.1deg.nc"
+    ! CASE(swdn) ; FN = TRIM(FN)//"/dswrf/crujra.V2.0.5d.dswrf."//cy//".365d.noc.daymean.1deg.nc"
+    ! CASE(pres) ; FN = TRIM(FN)//"/pres/crujra.V2.0.5d.pres."//cy//".365d.noc.daymean.1deg.nc"
+    ! CASE(qair) ; FN = TRIM(FN)//"/spfh/crujra.V2.0.5d.spfh."//cy//".365d.noc.daymean.1deg.nc"
+    ! CASE(tmax,PrevTmax) ; FN = TRIM(FN)//"/tmax/crujra.V2.0.5d.tmax."//cy//".365d.noc.daymax.1deg.nc"
+    ! CASE(tmin,NextTmin) ; FN = TRIM(FN)//"/tmin/crujra.V2.0.5d.tmin."//cy//".365d.noc.daymin.1deg.nc"
+    ! CASE(uwind) ; FN = TRIM(FN)//"/ugrd/crujra.V2.0.5d.ugrd."//cy//".365d.noc.daymean.1deg.nc"
+    ! CASE(vwind) ; FN = TRIM(FN)//"/vgrd/crujra.V2.0.5d.vgrd."//cy//".365d.noc.daymean.1deg.nc"
+    ! END SELECT
 
-   
-!!$    SELECT CASE ( par )
-!!$    CASE(rain) ; FN = TRIM(FN)//"/pre/crujra.V1.1.5d.pre."//cy//".365d.noc.daytot.1deg.nc"
-!!$    CASE(lwdn) ; FN = TRIM(FN)//"/dlwrf/crujra.V1.1.5d.dlwrf."//cy//".365d.noc.daymean.1deg.nc"
-!!$    CASE(swdn) ; FN = TRIM(FN)//"/dswrf/crujra.V1.1.5d.dswrf."//cy//".365d.noc.daymean.1deg.nc"
-!!$    CASE(pres) ; FN = TRIM(FN)//"/pres/crujra.V1.1.5d.pres."//cy//".365d.noc.daymean.1deg.nc"
-!!$    CASE(qair) ; FN = TRIM(FN)//"/spfh/crujra.V1.1.5d.spfh."//cy//".365d.noc.daymean.1deg.nc"
-!!$    CASE(tmax,PrevTmax) ; FN = TRIM(FN)//"/tmax/crujra.V1.1.5d.tmax."//cy//".365d.noc.daymax.1deg.nc"
-!!$    CASE(tmin,NextTmin) ; FN = TRIM(FN)//"/tmin/crujra.V1.1.5d.tmin."//cy//".365d.noc.daymin.1deg.nc"
-!!$    CASE(uwind) ; FN = TRIM(FN)//"/ugrd/crujra.V1.1.5d.ugrd."//cy//".365d.noc.daymean.1deg.nc"
-!!$    CASE(vwind) ; FN = TRIM(FN)//"/vgrd/crujra.V1.1.5d.vgrd."//cy//".365d.noc.daymean.1deg.nc"
-!!$    END SELECT
-
-   
-    SELECT CASE ( par )
-    CASE(rain) ; FN = TRIM(FN)//"/pre/crujra.V2.0.5d.pre."//cy//".365d.noc.daytot.1deg.nc"
-    CASE(lwdn) ; FN = TRIM(FN)//"/dlwrf/crujra.V2.0.5d.dlwrf."//cy//".365d.noc.daymean.1deg.nc"
-    CASE(swdn) ; FN = TRIM(FN)//"/dswrf/crujra.V2.0.5d.dswrf."//cy//".365d.noc.daymean.1deg.nc"
-    CASE(pres) ; FN = TRIM(FN)//"/pres/crujra.V2.0.5d.pres."//cy//".365d.noc.daymean.1deg.nc"
-    CASE(qair) ; FN = TRIM(FN)//"/spfh/crujra.V2.0.5d.spfh."//cy//".365d.noc.daymean.1deg.nc"
-    CASE(tmax,PrevTmax) ; FN = TRIM(FN)//"/tmax/crujra.V2.0.5d.tmax."//cy//".365d.noc.daymax.1deg.nc"
-    CASE(tmin,NextTmin) ; FN = TRIM(FN)//"/tmin/crujra.V2.0.5d.tmin."//cy//".365d.noc.daymin.1deg.nc"
-    CASE(uwind) ; FN = TRIM(FN)//"/ugrd/crujra.V2.0.5d.ugrd."//cy//".365d.noc.daymean.1deg.nc"
-    CASE(vwind) ; FN = TRIM(FN)//"/vgrd/crujra.V2.0.5d.vgrd."//cy//".365d.noc.daymean.1deg.nc"
-    END SELECT
+    select case ( par )
+    case(rain) ; fn = trim(fn)//"/pre/"//cruver//".5d.pre."//cy//".365d.noc.daytot.1deg.nc"
+    case(lwdn) ; fn = trim(fn)//"/dlwrf/"//cruver//".5d.dlwrf."//cy//".365d.noc.daymean.1deg.nc"
+    case(swdn) ; fn = trim(fn)//"/dswrf/"//cruver//".5d.dswrf."//cy//".365d.noc.daymean.1deg.nc"
+    case(pres) ; fn = trim(fn)//"/pres/"//cruver//".5d.pres."//cy//".365d.noc.daymean.1deg.nc"
+    case(qair) ; fn = trim(fn)//"/spfh/"//cruver//".5d.spfh."//cy//".365d.noc.daymean.1deg.nc"
+    case(tmax,PrevTmax) ; fn = trim(fn)//"/tmax/"//cruver//".5d.tmax."//cy//".365d.noc.daymax.1deg.nc"
+    case(tmin,NextTmin) ; fn = trim(fn)//"/tmin/"//cruver//".5d.tmin."//cy//".365d.noc.daymin.1deg.nc"
+    case(uwind) ; fn = trim(fn)//"/ugrd/"//cruver//".5d.ugrd."//cy//".365d.noc.daymean.1deg.nc"
+    case(vwind) ; fn = trim(fn)//"/vgrd/"//cruver//".5d.vgrd."//cy//".365d.noc.daymean.1deg.nc"
+    end select
 
   END SUBROUTINE CRU_GET_FILENAME
 
@@ -532,8 +547,13 @@ CONTAINS
 ! On the first call, allocate the CRU%CO2VALS array to store the entire history of annual CO2 
 ! values, open the (ascii) CO2 file and read the values into the array. 
     IF (CALL1) THEN
+#ifdef CRU2018
+      ALLOCATE( CRU%CO2VALS( 1700:2017 ) )
+      CO2FILE = TRIM(CRU%BasePath)//"/co2/global_co2_ann_1700_2017.csv"
+#else
       ALLOCATE( CRU%CO2VALS( 1700:2018 ) )
       CO2FILE = TRIM(CRU%BasePath)//"/co2/global_co2_ann_1700_2018.csv"
+#endif
       CALL GET_UNIT(iunit)
       OPEN (iunit, FILE=TRIM(CO2FILE), STATUS="OLD", ACTION="READ")
       DO WHILE( IOS .EQ. 0 )
@@ -577,19 +597,19 @@ CONTAINS
   allocate(tmparr(xds,yds))
   ! For S0_TRENDY, use only static 1860 CO2 value and return immediately
 
-
-
   ! On the first call, allocate the CRU%CO2VALS array to store the entire history of annual CO2 
   ! values, open the (ascii) CO2 file and read the values into the array. 
   IF (CALL1) THEN
 
-     NdepFILE = TRIM(CRU%BasePath)// &
-          "/ndep/NOy_plus_NHx_dry_plus_wet_deposition_1850_2099_annual.1deg.nc"
-    
+#ifdef CRU2018
+     NdepFILE = trim(CRU%BasePath)//"/ndep/NOy_plus_NHx_dry_plus_wet_deposition_hist_1850_2015_annual_1deg.nc"
+#else
+     NdepFILE = TRIM(CRU%BasePath)//"/ndep/NOy_plus_NHx_dry_plus_wet_deposition_1850_2099_annual.1deg.nc"
+#endif
+     
      ! Open the NDep and access the variables by their name and variable id.
      WRITE(*   ,*) 'Opening ndep data file: ', NdepFILE
      WRITE(logn,*) 'Opening ndep data file: ', NdepFILE
-
 
      ErrStatus = NF90_OPEN(TRIM(NdepFILE), NF90_NOWRITE, CRU%NdepF_ID)  
      CALL HANDLE_ERR(ErrStatus, "Opening CRU file "//NdepFILE )
@@ -629,10 +649,6 @@ CONTAINS
      END DO
     
   END IF
-
-
-     
-  
   
 END SUBROUTINE GET_CRU_Ndep
 
@@ -640,9 +656,9 @@ END SUBROUTINE GET_CRU_Ndep
 
   SUBROUTINE OPEN_CRU_MET( CRU )
 
-! Opens each of the met files required for one year. This is where the distinction is made between
-! the nominal run year (CYEAR) and the year of met required (MetYear), which is different for 
-! S0_TRENDY and S1_TRENDY than for a standard run (S2_TRENDY). 
+    ! Opens each of the met files required for one year. This is where the distinction is made between
+    ! the nominal run year (CYEAR) and the year of met required (MetYear), which is different for 
+    ! S0_TRENDY and S1_TRENDY than for a standard run (S2_TRENDY). 
 
   USE cable_IO_vars_module, ONLY: timeunits ! (Char33) Name of time units read from nc file 
 
@@ -659,18 +675,18 @@ END SUBROUTINE GET_CRU_Ndep
                                          ! Allows the calculation of MetYear during S0_TRENDY and init runs. 
   LOGICAL, SAVE       :: CALL1 = .TRUE.  ! A *local* variable recording the first call of this routine
 
-! Keep the initial value of CYEAR for calculation of different MetYear if required. 
+  ! Keep the initial value of CYEAR for calculation of different MetYear if required. 
   !IF (CALL1) RunStartYear = 1710 ! edit vh !
   IF (CALL1) RunStartYear = 1691 ! edit vh !
   DO iVar = 1, CRU%NMET  ! For each met variable
 
-! For S0_TRENDY and initialisation, calculate the required met year for repeatedly cycling through the 
-! 30 years of 1901-1930 spinup meteorology. For normal runs 1901-2015, MetYear = CYEAR.
-!!$    IF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY' .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' )) THEN
-!!$      MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
-!!$    ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY' ) THEN
-!!$      MetYear = CRU%CYEAR
-!!$    ENDIF
+     ! For S0_TRENDY and initialisation, calculate the required met year for repeatedly cycling through the 
+     ! 30 years of 1901-1930 spinup meteorology. For normal runs 1901-2015, MetYear = CYEAR.
+     !!$    IF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY' .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' )) THEN
+     !!$      MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
+     !!$    ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY' ) THEN
+     !!$      MetYear = CRU%CYEAR
+     !!$    ENDIF
      IF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY' .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' ) &
           .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2') &
           .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Ndep' )) THEN
@@ -722,7 +738,7 @@ END SUBROUTINE GET_CRU_Ndep
 
     CALL CRU_GET_FILENAME( CRU, MetYear, iVar, CRU%MetFile(iVar) ) ! Call routine to build the filenames.
 
-! Open the new met files and access the variables by their name and variable id.
+    ! Open the new met files and access the variables by their name and variable id.
     !WRITE(*   ,*) 'Opening met data file: ', CRU%MetFile(iVar)
     WRITE(logn,*) 'Opening met data file: ', CRU%MetFile(iVar)
 
@@ -733,7 +749,7 @@ END SUBROUTINE GET_CRU_Ndep
          " in "//CRU%MetFile(iVar) )
   END DO
 
-! Set internal counter
+  ! Set internal counter
   CRU%CTSTEP = 1
 
   CALL1 = .FALSE. ! No longer the first call (saved).

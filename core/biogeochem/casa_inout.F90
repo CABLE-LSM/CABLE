@@ -1569,11 +1569,10 @@ END SUBROUTINE biogeochem
 #ifndef UM_BUILD
 SUBROUTINE WRITE_CASA_RESTART_NC ( casamet, casapool, casaflux, phen, CASAONLY )
 
-  USE CASAVARIABLE, ONLY : casa_met, casa_pool, casa_flux, icycle, mplant, mlitter, msoil
   USE CABLE_COMMON_MODULE
   USE CABLE_DEF_TYPES_MOD, ONLY: MET_TYPE, mp
+  USE CASAVARIABLE,        ONLY: casa_met, casa_pool, casa_flux, icycle, mplant, mlitter, msoil, casafile
   USE phenvariable
-  USE casavariable
   USE netcdf
 
   IMPLICIT NONE
@@ -1590,7 +1589,7 @@ SUBROUTINE WRITE_CASA_RESTART_NC ( casamet, casapool, casaflux, phen, CASAONLY )
   INTEGER*4   :: STATUS
   INTEGER*4   :: FILE_ID, land_ID, plnt_ID, litt_ID, soil_ID, i
   LOGICAL   :: CASAONLY
-  CHARACTER :: CYEAR*4, FNAME*99,dum*50
+  CHARACTER :: CYEAR*4, FNAME*99, dum*50
 
   ! ! 1 dim arrays (npt )
   ! CHARACTER(len=20),DIMENSION(7), PARAMETER :: A1 = (/ 'latitude', 'longitude', 'glai', &
@@ -1654,9 +1653,9 @@ SUBROUTINE WRITE_CASA_RESTART_NC ( casamet, casapool, casaflux, phen, CASAONLY )
     ENDIF
 
   ! Create NetCDF file:
-  STATUS = NF90_create(fname, NF90_CLOBBER, FILE_ID)
+  STATUS = NF90_create(trim(fname), NF90_CLOBBER, FILE_ID)
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-  write(*,*) 'Writing casa restart: ', fname 
+  write(*,*) 'Writing casa restart: ', trim(fname)
   ! Put the file in define mode:
   STATUS = NF90_redef(FILE_ID)
 
@@ -1880,7 +1879,7 @@ SUBROUTINE READ_CASA_RESTART_NC (  casamet, casapool, casaflux,phen )
   IF (EXISTFILE) THEN
      STATUS = NF90_OPEN( TRIM(fname), NF90_NOWRITE, FILE_ID )
      IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-     write(*,*) 'initial pool from restart file: ', fname
+     write(*,*) 'initial pool from restart file: ', trim(fname)
   ELSE
      write(*,*) 'CASA restart file:', TRIM(fname), ' does not exist'
      fname = TRIM(filename%path)//'/'//TRIM( cable_user%RunIden )//&
@@ -1889,7 +1888,7 @@ SUBROUTINE READ_CASA_RESTART_NC (  casamet, casapool, casaflux,phen )
      IF (EXISTFILE1) THEN
         STATUS = NF90_OPEN( TRIM(fname), NF90_NOWRITE, FILE_ID )
         IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-        write(*,*) 'initial pool from restart file: ', fname
+        write(*,*) 'initial pool from restart file: ', trim(fname)
      ELSE
         write(*,*) 'CASA restart file:', TRIM(fname), ' does not exist either'
         write(*,*) 'Set cable_user%CASA_fromZero to true to initialise without restart file.'

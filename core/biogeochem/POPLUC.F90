@@ -2162,7 +2162,7 @@ CONTAINS
     endif
 
     ! Create NetCDF file:
-    STATUS = NF90_create(fname, NF90_CLOBBER, FILE_ID)
+    STATUS = NF90_create(trim(fname), NF90_CLOBBER, FILE_ID)
     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
     ! Put the file in define mode:
@@ -2240,7 +2240,7 @@ CONTAINS
     ! Close NetCDF file:
     STATUS = NF90_close(FILE_ID)
     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-    WRITE(*,*) " POPLUC Restart written to ",fname
+    WRITE(*,*) " POPLUC Restart written to ", trim(fname)
 
   END SUBROUTINE WRITE_LUC_RESTART_NC
 
