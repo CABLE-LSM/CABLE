@@ -931,7 +931,8 @@ write(*,*) 'after CALL1'
                 END IF
              ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
                 CALL CRU_GET_SUBDIURNAL_MET(CRU, imet, YYYY, iktau, kend, &
-                            (YYYY.EQ.CABLE_USER%YearEnd) )  
+                     (YYYY.EQ.CABLE_USER%YearEnd) )
+                IF (CALL1)  casamet%glai = 1.0  ! initialise glai for use in cable_roughness
              ELSE
               
                 CALL get_met_data( spinup, spinConv, imet, soil,                 &
