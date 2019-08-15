@@ -2260,10 +2260,8 @@ CONTAINS
                 ! flux_to_leaf
                 CALL calc_flux_to_stem(canopy, dels, veg%Cs(i), i)
 
-
+                ! Update psi_stem
                 canopy%psi_stem_prev(i) = canopy%psi_stem(i)
-
-                ! Update stem water potential
                 CALL update_stem_wp_again(canopy, ssnow, dels, veg%Cs(i), &
                                           veg%Cl(i), trans_mmol, i)
 
@@ -3172,22 +3170,18 @@ CONTAINS
      REAL, INTENT(IN)    :: dels ! integration time step (s)
      INTEGER, INTENT(IN) :: i
 
-     ! there is conductance in the trunk
+     ! is there conductance in the trunk?
      IF (canopy%kstem2leaf(i) * canopy%vlaiw(i) > 1E-09) THEN
 
         ! sapflow rate from stem to leaf within the time step
         canopy%flx_to_leaf(i) = (canopy%psi_leaf(i) - &
                                  canopy%psi_leaf_prev(i)) * &
                                  Cl / dels + canopy%vlaiw(i) * transpiration
+
      ! no conductance in the trunk
      ELSE
-        ! # sapflow rate from stem to leaf within the time step
         canopy%flx_to_leaf(i) = 0.0
      ENDIF
-
-     !canopy%flx_to_leaf(i) = (canopy%psi_leaf(i) - canopy%psi_leaf_prev(i)) * &
-      !                        Cl / dels + canopy%vlaiw(i) * transpiration
-
 
   END SUBROUTINE calc_flux_to_leaf
   ! ----------------------------------------------------------------------------
@@ -3212,17 +3206,15 @@ CONTAINS
 
      ! plant can take up water
      IF (canopy%ksoil2stem(i) * canopy%vlaiw(i) > 1E-09) THEN
-        canopy%flx_to_stem(i) = ((canopy%psi_stem(i) - &
-                                  canopy%psi_stem_prev(i)) * &
-                                  Cs / dels + canopy%flx_to_leaf(i))
+        canopy%flx_to_stem(i) = (canopy%psi_stem(i) - &
+                                 canopy%psi_stem_prev(i)) * &
+                                 Cs / dels + canopy%flx_to_leaf(i)
+
      ! plant cannot take up water, change of psi_stem is solely due to
      ! flux_to_leaf (J_rl)
      ELSE
         canopy%flx_to_stem(i) = 0.0
      ENDIF
-
-     !canopy%flx_to_stem(i) = ((canopy%psi_stem(i) - canopy%psi_stem_prev(i)) * &
-     !                            Cs / dels + canopy%flx_to_leaf(i))
 
   END SUBROUTINE calc_flux_to_stem
   ! ----------------------------------------------------------------------------
@@ -3248,17 +3240,15 @@ CONTAINS
 
      ! plant can take up water
      IF (canopy%ksoil2stem(i) * canopy%vlaiw(i) > 1E-09) THEN
-        canopy%flx_to_stem(i) = ((canopy%psi_stem(i) - &
-                                  canopy%psi_stem_prev(i)) * &
+        canopy%flx_to_stem(i) = (canopy%psi_stem(i) - &
+                                  canopy%psi_stem_prev(i) * &
                                   Cs / dels + (transpiration * canopy%vlaiw(i)))
+
      ! plant cannot take up water, change of psi_stem is solely due to
      ! flux_to_leaf (J_rl)
      ELSE
         canopy%flx_to_stem(i) = 0.0
      ENDIF
-
-     !canopy%flx_to_stem(i) = ((canopy%psi_stem(i) - canopy%psi_stem_prev(i)) * &
-     !                            Cs / dels + canopy%flx_to_leaf(i))
 
   END SUBROUTINE calc_flux_to_stem_again
   ! ----------------------------------------------------------------------------
@@ -3269,8 +3259,6 @@ CONTAINS
      ! Calculate the flux from the stem to the leaf = change in leaf storage
      ! plus transpiration
      !
-     !  This is a simplified equation based on Xu et al., using the water
-     !  potentials from the previous timestep
      !
      ! Reference:
      ! ==========
@@ -3299,25 +3287,18 @@ CONTAINS
 
      ! plant can take up water
      IF (canopy%ksoil2stem(i) * canopy%vlaiw(i) > 1E-09) THEN
-        ap = -(canopy%vlaiw(i) * canopy%ksoil2stem(i) / Cs)
+        ap = - canopy%vlaiw(i) * canopy%ksoil2stem(i) / Cs
         bp = (canopy%psi_soil_prev(i) - canopy%flx_to_leaf(i)) / Cs
         canopy%psi_stem(i) = ((ap * canopy%psi_stem_prev(i) + bp) * &
                              EXP(ap * dels) - bp) / ap
+
      ! plant cannot take up water, change of psi_stem is solely due to
      ! flux_to_leaf (J_rl)
      ELSE
         canopy%psi_stem(i) = canopy%psi_stem_prev(i) - &
-                                 canopy%flx_to_leaf(i) * dels   / Cs
+                                 canopy%flx_to_leaf(i) * dels / Cs
 
      ENDIF
-
-     ap = -(canopy%vlaiw(i) * canopy%ksoil2stem(i) / Cs)
-     bp = (canopy%vlaiw(i) * canopy%ksoil2stem(i) * canopy%psi_soil_prev(i) - &
-           canopy%flx_to_leaf(i)) / Cs
-
-     canopy%psi_stem(i) = ((ap * canopy%psi_stem_prev(i) + bp) * &
-                           EXP(ap * dels) - bp) / ap
-
 
   END SUBROUTINE update_stem_wp
   ! ----------------------------------------------------------------------------
@@ -3357,25 +3338,20 @@ CONTAINS
 
      ! plant can take up water
      IF (canopy%ksoil2stem(i) * canopy%vlaiw(i) > 1E-09) THEN
-        ap = -(canopy%vlaiw(i) * canopy%ksoil2stem(i) / (Cs + Cl))
+        ap = - canopy%vlaiw(i) * canopy%ksoil2stem(i) / (Cs + Cl)
         bp = (canopy%psi_soil_prev(i) - &
               (canopy%vlaiw(i) * transpiration)) / (Cs + Cl)
         canopy%psi_stem(i) = ((ap * canopy%psi_stem_prev(i) + bp) * &
                              EXP(ap * dels) - bp) / ap
+
      ! plant cannot take up water, change of psi_stem is solely due to
      ! flux_to_leaf (J_rl)
      ELSE
         canopy%psi_stem(i) = canopy%psi_stem_prev(i) - &
-                                 canopy%flx_to_leaf(i) * dels   / Cs
+                              (canopy%vlaiw(i) * transpiration) * dels  / &
+                              (Cs + Cl)
 
      ENDIF
-
-     !ap = -(canopy%vlaiw(i) * canopy%ksoil2stem(i) / Cs)
-     !bp = (canopy%vlaiw(i) * canopy%ksoil2stem(i) * canopy%psi_soil_prev(i) - &
-     !        canopy%flx_to_leaf(i)) / Cs
-     !
-     !canopy%psi_stem(i) = ((ap * canopy%psi_stem_prev(i) + bp) * &
-      !                     EXP(ap * dels) - bp) / ap
 
 
   END SUBROUTINE update_stem_wp_again
@@ -3385,7 +3361,7 @@ CONTAINS
   ! ----------------------------------------------------------------------------
   SUBROUTINE calc_psi_leaf(canopy, transpiration, dels, Cl, i)
      ! Calculate the leaf water potential (MPa)
-     ! Following Xu et al, see Appendix + code
+     !
      !
      ! Reference:
      ! ==========
@@ -3412,17 +3388,17 @@ CONTAINS
      REAL, INTENT(IN)    :: dels ! integration time step (s)
      REAL, INTENT(IN)    :: Cl
 
-     ! there is conductance in the trunk
+     ! is there is conductance in the trunk?
      IF (canopy%kstem2leaf(i) * canopy%vlaiw(i) > 1E-09) THEN
 
-        ap = -(canopy%vlaiw(i) * canopy%kstem2leaf(i) / Cl)
+        ap = - canopy%vlaiw(i) * canopy%kstem2leaf(i) / Cl
         bp = (canopy%psi_stem_prev(i) * canopy%vlaiw(i) * &
               canopy%kstem2leaf(i) - &
               canopy%vlaiw(i) * transpiration) / Cl
         canopy%psi_leaf(i) = ((ap * canopy%psi_leaf_prev(i) + bp) *  &
                                 EXP(ap * dels) - bp) / ap
-     ! No conductance in the trunk, delta psi_leaf is due only to
-     ! transpiration
+
+     ! No conductance in the trunk, delta psi_leaf is due to transpiration
      ELSE
         canopy%psi_leaf(i) = (canopy%psi_leaf_prev(i) - &
                               canopy%vlaiw(i) * transpiration * dels) / Cl
