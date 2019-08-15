@@ -232,15 +232,15 @@ CONTAINS
        vegin%clitt(2) =        6.000000
 
        ! mgk576, hydraulics stuff
-       !vegin%g1(2) = 12.0  ! JED 15 for teretoconis seedlings, using Jim's value for Eucface
-       !vegin%sf(2) = 8.0
-       !vegin%psi_f(2) = -2.0
-       !vegin%X_hyd(2) = 50.0
-       !vegin%p50(2) = -4.
-       !vegin%s50(2) = 30.0
-       !vegin%kp_sat(2) = 4.0
-       !vegin%Cl(2) = 10000.
-       !vegin%Cs(2) = 120000.
+       vegin%g1(2) = 12.0  ! JED 15 for teretoconis seedlings, using Jim's value for Eucface
+       vegin%sf(2) = 8.0
+       vegin%psi_f(2) = -2.0
+       vegin%X_hyd(2) = 50.0
+       vegin%p50(2) = -4.
+       vegin%s50(2) = 30.0
+       vegin%kp_sat(2) = 4.0
+       vegin%Cl(2) = 10000.
+       vegin%Cs(2) = 120000.
 
        ! mgk576, hydraulics stuff
        !vegin%g1(2) = 4.553270163
