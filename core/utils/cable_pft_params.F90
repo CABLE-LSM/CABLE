@@ -232,15 +232,15 @@ CONTAINS
        vegin%clitt(2) =        6.000000
 
        ! mgk576, hydraulics stuff
-       vegin%g1(2) = 12.0  ! JED 15 for teretoconis seedlings, using Jim's value for Eucface
-       vegin%sf(2) = 8.0
-       vegin%psi_f(2) = -2.0
-       vegin%X_hyd(2) = 50.0
-       vegin%p50(2) = -4.
-       vegin%s50(2) = 30.0
-       vegin%kp_sat(2) = 4.0
-       vegin%Cl(2) = 10000.
-       vegin%Cs(2) = 120000.
+       !vegin%g1(2) = 12.0  ! JED 15 for teretoconis seedlings, using Jim's value for Eucface
+       !vegin%sf(2) = 8.0
+       !vegin%psi_f(2) = -2.0
+       !vegin%X_hyd(2) = 50.0
+       !vegin%p50(2) = -4.
+       !vegin%s50(2) = 30.0
+       !vegin%kp_sat(2) = 4.0
+       !vegin%Cl(2) = 10000.
+       !vegin%Cs(2) = 120000.
 
        ! mgk576, hydraulics stuff
        !vegin%g1(2) = 4.553270163
@@ -1199,6 +1199,20 @@ CONTAINS
        vegin%clitt(18) =        6.000000
 
        ! mgk576, hydraulics stuff
+       vegin%vcmax(18) =        0.000055
+       vegin%ejmax(18) =        0.000000
+       vegin%g1(18) = 12.0  ! JED 15 for teretoconis seedlings, using Jim's value for Eucface
+       vegin%sf(18) = 8.0
+       vegin%psi_f(18) = -2.0
+       vegin%X_hyd(18) = 50.0
+       vegin%p50(18) = -4.
+       vegin%s50(18) = 30.0
+       vegin%kp_sat(18) = 4.0
+       vegin%Cl(18) = 10000.
+       vegin%Cs(18) = 120000.
+
+
+       ! mgk576, hydraulics stuff
        !vegin%vcmax(18) =        0.000055
        !vegin%ejmax(18) =        0.000000
        !vegin%g1(18) = 12.0  ! JED 15 for teretoconis seedlings, using Jim's value for Eucface
@@ -1211,17 +1225,17 @@ CONTAINS
        !vegin%Cl(18) = 10000.
        !vegin%Cs(18) = 120000.
 
-       vegin%vcmax(18) = 0.000044
-       vegin%ejmax(18) = 0.000074
-       vegin%g1(18) = 4.192749
-       vegin%sf(18) = 2.000000
-       vegin%psi_f(18) = -2.046428
-       vegin%X_hyd(18) = 50.0
-       vegin%p50(18) = -4.32945
-       vegin%s50(18) = 74.283377
-       vegin%kp_sat(18) = 0.851595
-       vegin%Cl(18) = 659.0
-       vegin%Cs(18) = 7408.266534
+       !vegin%vcmax(18) = 0.000044
+       !vegin%ejmax(18) = 0.000074
+       !vegin%g1(18) = 4.192749
+       !vegin%sf(18) = 2.000000
+       !vegin%psi_f(18) = -2.046428
+       !vegin%X_hyd(18) = 50.0
+       !vegin%p50(18) = -4.32945
+       !vegin%s50(18) = 74.283377
+       !vegin%kp_sat(18) = 0.851595
+       !vegin%Cl(18) = 659.0
+       !vegin%Cs(18) = 7408.266534
 
 
 
