@@ -12,7 +12,7 @@ MODULE CABLE_CRU
                                      ! in CRU-NCEP. Setting this ensures snow will be determined in CABLE from temperature.
 
   IMPLICIT NONE
-
+  integer,parameter :: sp  = kind(1.0)    
   ! Define a type for CRU-NCEP information, and the subtype METVALS
 
   TYPE CRU_MET_TYPE 
@@ -444,7 +444,7 @@ CONTAINS
 #ifdef CRU2018
     character(len=*), parameter :: cruver="crujra.V1.1" ! CRU version
 #else
-    character(len=*), parameter :: cruver="crujra.V2.0" ! CRU version
+    character(len=*), parameter :: cruver="crujra.v2.0" ! CRU version
 #endif
 
     ! Create a character version of the year for building that part of the filename.
@@ -517,17 +517,17 @@ CONTAINS
     end select
 
    
-    SELECT CASE ( par )
-    CASE(rain) ; FN = TRIM(FN)//"/pre/crujra.v2.0.5d.pre."//cy//".365d.noc.daytot.1deg.nc"
-    CASE(lwdn) ; FN = TRIM(FN)//"/dlwrf/crujra.v2.0.5d.dlwrf."//cy//".365d.noc.daymean.1deg.nc"
-    CASE(swdn) ; FN = TRIM(FN)//"/dswrf/crujra.v2.0.5d.dswrf."//cy//".365d.noc.daymean.1deg.nc"
-    CASE(pres) ; FN = TRIM(FN)//"/pres/crujra.v2.0.5d.pres."//cy//".365d.noc.daymean.1deg.nc"
-    CASE(qair) ; FN = TRIM(FN)//"/spfh/crujra.v2.0.5d.spfh."//cy//".365d.noc.daymean.1deg.nc"
-    CASE(tmax,PrevTmax) ; FN = TRIM(FN)//"/tmax/crujra.v2.0.5d.tmax."//cy//".365d.noc.daymax.1deg.nc"
-    CASE(tmin,NextTmin) ; FN = TRIM(FN)//"/tmin/crujra.v2.0.5d.tmin."//cy//".365d.noc.daymin.1deg.nc"
-    CASE(uwind) ; FN = TRIM(FN)//"/ugrd/crujra.v2.0.5d.ugrd."//cy//".365d.noc.daymean.1deg.nc"
-    CASE(vwind) ; FN = TRIM(FN)//"/vgrd/crujra.v2.0.5d.vgrd."//cy//".365d.noc.daymean.1deg.nc"
-    END SELECT
+!!$    SELECT CASE ( par )
+!!$    CASE(rain) ; FN = TRIM(FN)//"/pre/crujra.v2.0.5d.pre."//cy//".365d.noc.daytot.1deg.nc"
+!!$    CASE(lwdn) ; FN = TRIM(FN)//"/dlwrf/crujra.v2.0.5d.dlwrf."//cy//".365d.noc.daymean.1deg.nc"
+!!$    CASE(swdn) ; FN = TRIM(FN)//"/dswrf/crujra.v2.0.5d.dswrf."//cy//".365d.noc.daymean.1deg.nc"
+!!$    CASE(pres) ; FN = TRIM(FN)//"/pres/crujra.v2.0.5d.pres."//cy//".365d.noc.daymean.1deg.nc"
+!!$    CASE(qair) ; FN = TRIM(FN)//"/spfh/crujra.v2.0.5d.spfh."//cy//".365d.noc.daymean.1deg.nc"
+!!$    CASE(tmax,PrevTmax) ; FN = TRIM(FN)//"/tmax/crujra.v2.0.5d.tmax."//cy//".365d.noc.daymax.1deg.nc"
+!!$    CASE(tmin,NextTmin) ; FN = TRIM(FN)//"/tmin/crujra.v2.0.5d.tmin."//cy//".365d.noc.daymin.1deg.nc"
+!!$    CASE(uwind) ; FN = TRIM(FN)//"/ugrd/crujra.v2.0.5d.ugrd."//cy//".365d.noc.daymean.1deg.nc"
+!!$    CASE(vwind) ; FN = TRIM(FN)//"/vgrd/crujra.v2.0.5d.vgrd."//cy//".365d.noc.daymean.1deg.nc"
+!!$    END SELECT
 
   END SUBROUTINE CRU_GET_FILENAME
 
@@ -619,7 +619,8 @@ CONTAINS
 #else
      NdepFILE = TRIM(CRU%BasePath)//"/ndep/NOy_plus_NHx_dry_plus_wet_deposition_1850_2099_annual.1deg.nc"
 #endif
-     
+
+         
      ! Open the NDep and access the variables by their name and variable id.
      WRITE(*   ,*) 'Opening ndep data file: ', NdepFILE
      WRITE(logn,*) 'Opening ndep data file: ', NdepFILE
@@ -633,6 +634,7 @@ CONTAINS
      ! Set internal counter
      CRU%Ndep_CTSTEP = 1
 
+    
      IF ( TRIM(CRU%Ndep) .EQ. "static1860" .OR. CRU%CYEAR<=1860) THEN
        ! read Ndep at year 1860 (noting that file starts at 1850)
         CRU%Ndep_CTSTEP = 11
@@ -647,6 +649,8 @@ CONTAINS
        
      END IF
      CALL1 = .FALSE.
+
+     print*, 'after ndep read'
   END IF
 
   IF ( TRIM(CRU%Ndep) .NE. "static1860" .and.  CRU%CYEAR>1860) THEN
@@ -1404,7 +1408,7 @@ END SUBROUTINE GET_CRU_Ndep
     WG%PrecipDay      = max(CRU%MET(  rain  )%METVALS  / 1000., 0.0) ! ->[m/d]
     !WG%PrecipDay      = max(CRU%MET(  rain  )%METVALS  / 1000., 0.0)/2.0 ! ->[m/d] ! test vh !
     WG%SnowDay        = 0.0
-
+    WG%VapPmbDay = esatf( real(WG%TempMinDay,sp) )
     CALL WGEN_DAILY_CONSTANTS( WG, CRU%mland, INT(met%doy(1))+1 )
 
 ! To get the diurnal cycle for lwdn get whole day and scale with
@@ -1455,6 +1459,14 @@ END SUBROUTINE GET_CRU_Ndep
 ! daily value to the whole diurnal cycle 
     met%qv        (is:ie)   = CRU%MET(qair)%METVALS(iland)
 
+
+    met%rhum(is:ie)  =  WG%VapPmb(iland)/esatf(real(WG%Temp(iland),sp)) *100.0 ! rel humidity (%)
+   met%u10(is:ie) = met%ua(is:ie) 
+   ! initialise within canopy air temp
+   met%tvair(is:ie)     = met%tk(is:ie) 
+   met%tvrad(is:ie)     = met%tk(is:ie)
+   met%pdep = 0.0
+
 ! calculate snowfall based on total precip and air T 
 !(ref Jin et al. Table II, Hyd Proc, 1999)
 
@@ -1495,7 +1507,35 @@ END SUBROUTINE GET_CRU_Ndep
 
 ! CALL1 is over...
   CALL1 = .FALSE.
+!*******************************************************************************
+CONTAINS
+  ELEMENTAL FUNCTION Esatf(TC)
+!-------------------------------------------------------------------------------
+! At temperature TC [deg C], return saturation water vapour pressure Esatf [mb] 
+! from Teten formula.
+! MRR, xx/1987
+! PRB, 09/1999:   Convert to F95 elemental function; works on scalars and arrays
+!                 just like intrinsic functions.
+! MRR, 12-mar-02: Convert Qsatf (specific humidity routine) to Esatf
+!-------------------------------------------------------------------------------
+  implicit none
+  real(sp), intent(in):: TC           ! temp [deg C]
+  real(sp):: Esatf                    ! saturation vapour pressure [mb]
+  real(sp):: TCtmp                    ! local
+  real(sp),parameter:: A = 6.106      ! Teten coefficients
+  real(sp),parameter:: B = 17.27      ! Teten coefficients
+  real(sp),parameter:: C = 237.3      ! Teten coefficients
+!-------------------------------------------------------------------------------
+  TCtmp = TC                          ! preserve TC
+  if (TCtmp.gt.100.0) TCtmp = 100.0   ! constrain TC to (-40.0,100.0)
+  if (TCtmp.lt.-40.0) TCtmp = -40.0
+  Esatf = A*EXP(B*TCtmp/(C+TCtmp))    ! sat vapour pressure (mb)
+ 
+  END FUNCTION Esatf
 
-  END SUBROUTINE CRU_GET_SUBDIURNAL_MET
+!*******************************************************************************
+ 
+
+END SUBROUTINE CRU_GET_SUBDIURNAL_MET
 
 END MODULE CABLE_CRU
