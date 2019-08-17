@@ -118,7 +118,7 @@ CONTAINS
                 bjv_new = bjvref
                 veg%vcmax_shade(k) = veg%vcmax(k)
                 veg%ejmax_shade(k) = veg%ejmax(k)
-                !MC print*, 'out of bounds'
+                !print*, 'out of bounds'
              endif
           endif
 

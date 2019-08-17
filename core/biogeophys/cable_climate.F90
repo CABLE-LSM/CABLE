@@ -118,6 +118,7 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
      climate%dmoist = climate%dmoist/FLOAT(ktauday)
      climate%drhum = climate%drhum/FLOAT(ktauday)
 
+    IF(cable_user%CALL_BLAZE) then
      ! update days since last rain and precip since last day without rain
      WHERE (climate%dprecip .gt. 0.01)
         WHERE (climate%DSLR .gt. 0)
@@ -183,6 +184,7 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
         ENDWHERE
         
      ENDWHERE
+  ENDIF
     
 
 !!$     write(3333,"(200f16.6)") real(idoy), real(climate%NDAY_Nesterov(1)), &

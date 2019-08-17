@@ -1006,8 +1006,8 @@ write(*,*) 'after CALL1'
                        !CLN CHECK FOR LEAP YEAR
                        WRITE(CYEAR,FMT="(I4)") CurYear + INT((ktau-kstart)/(LOY*ktauday))
                        ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
-                       CALL write_casa_dump( ncfile, casamet , casaflux, phen, climate, idoy, &    
-                         kend/ktauday )
+                       CALL write_casa_dump( ncfile, casamet , casaflux, phen, climate, &
+                            c13o2flux, idoy, kend/ktauday )
                        
                     ENDIF
                  ENDIF
@@ -1268,8 +1268,8 @@ write(*,*) 'after annual calcs'
                    WRITE(CYEAR,FMT="(I4)") CurYear + INT((ktau-kstart)/(LOY*ktauday))
                    ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
 
-                   CALL write_casa_dump( ncfile, casamet , casaflux, phen, climate, LOY, &    
-                        kend/ktauday )
+                   CALL write_casa_dump( ncfile, casamet , casaflux, phen, climate, c13o2flux, &
+                   LOY,  kend/ktauday )
                    
                 ENDIF
              ENDIF

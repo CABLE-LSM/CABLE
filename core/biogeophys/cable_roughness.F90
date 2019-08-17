@@ -158,7 +158,7 @@ SUBROUTINE ruff_resist(veg, rough, ssnow, canopy)
       rough%term6 =  EXP( 3. * rough%coexp * ( rough%disp / rough%hruff -1. ) )
       rough%term6a = EXP(rough%coexp * ( 0.1 * rough%hruff / rough%hruff -1. ))
 
-
+     
          ! eq. 3.54, SCAM manual (CSIRO tech report 132)
          rough%rt0us  = rough%term5 * ( C%ZDLIN * LOG(                            &
               C%ZDLIN * rough%disp / rough%z0soilsn ) +                 &

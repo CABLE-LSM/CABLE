@@ -802,6 +802,20 @@ SUBROUTINE casa_init(casabiome,casamet,casaflux,casapool,casabal,veg,phen)
   phen%phase(:) = 2
   phen%phen(:) = 1
   phen%aphen(:) = 0
+
+  casapool%dCplantdt = 0
+  casapool%dNplantdt = 0
+  casapool%dPplantdt= 0
+  casapool%dNsoilmindt = 0
+  casapool%dPsoillabdt = 0
+  casapool%dPsoilsorbdt = 0
+  casapool%dPsoiloccdt = 0
+  casapool%dClitterdt = 0
+  casapool%dNlitterdt = 0
+  casapool%dPlitterdt = 0
+  casapool%dCsoildt = 0
+  casapool%dNsoildt = 0
+  casapool%dPsoildt = 0
   !CLN add more if necessary
 
   IF (initcasa==1) THEN

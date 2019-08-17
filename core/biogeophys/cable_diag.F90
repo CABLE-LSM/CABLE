@@ -332,6 +332,7 @@ END SUBROUTINE cable_diag_data1
     ncok = NF90_INQ_VARID(ncid, var_name, varId )
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'inquire var ', var_name)
 
+   
     ncok = NF90_PUT_VAR(ncid, varId, var, start=(/1,n_call /), &
          count=(/mp,1/) )
 

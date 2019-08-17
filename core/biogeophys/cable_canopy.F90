@@ -2089,6 +2089,7 @@ CONTAINS
                      real(soil%zse,r_2), real(dels,r_2), real(veg%zr(i),r_2))
 
                 fwsoil(i) = canopy%fwsoil(i)
+               
                 ssnow%evapfbl(i,:) = ssnow%rex(i,:)*dels*1000_r_2 ! mm water &
                 !(root water extraction) per time step
 

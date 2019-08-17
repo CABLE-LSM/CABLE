@@ -164,6 +164,12 @@ CONTAINS
     ! PLUME-MIP only
     USE CABLE_PLUME_MIP,      ONLY: PLUME_MIP_TYPE
 
+     ! 13C
+    use cable_c13o2_def,      only: c13o2_flux, c13o2_pool, c13o2_luc, c13o2_update_sum_pools, c13o2_zero_sum_pools
+    use cable_c13o2,          only: c13o2_save_luc, c13o2_update_luc, c13o2_write_restart_pools, &
+       c13o2_create_output, c13o2_write_output, c13o2_close_output, &
+       c13o2_print_delta_pools, c13o2_print_delta_luc
+
     IMPLICIT NONE
 
     ! MPI:
@@ -231,6 +237,17 @@ CONTAINS
     TYPE (TYPE_BLAZE)     :: BLAZE
     TYPE (TYPE_SIMFIRE)   :: SIMFIRE
     REAL, DIMENSION(:),ALLOCATABLE :: POP_TO, POP_CWD, POP_STR
+
+     ! 13C
+  type(c13o2_flux)                    :: c13o2flux
+  type(c13o2_pool)                    :: c13o2pools, sum_c13o2pools
+  type(c13o2_luc)                     :: c13o2luc
+  integer                             :: c13o2_file_id
+  integer, parameter :: nvars = 7
+  character(len=20), dimension(nvars) :: c13o2_vars
+  integer,           dimension(nvars) :: c13o2_var_ids
+  real(dp), dimension(:,:), allocatable :: casasave
+  real(dp), dimension(:,:), allocatable :: lucsave
   
     ! declare vars for switches (default .FALSE.) etc declared thru namelist
     LOGICAL, SAVE           :: &
@@ -570,6 +587,8 @@ CONTAINS
                 ktau = 0
              ENDIF
 
+             casamet%glai(:) = 1.0
+
           ELSE
              IF (icycle.gt.0) THEN
                 ! re-initalise annual flux sums
@@ -690,7 +709,7 @@ CONTAINS
                      ssnow, canopy, veg, soil,climate, casabiome,       &
                      casapool, casaflux, casamet, casabal,              &
                      phen, pop, spinConv, spinup, ktauday, idoy, loy,   &
-                     .FALSE., .FALSE., LALLOC )
+                     .FALSE., .FALSE., LALLOC, c13o2flux, c13o2pools )
                 write(wlogn,*) 'after bgcdriver', MPI_BOTTOM,1, casa_t,0,ktau_gl,ocomm,ierr
                 IF(MOD((ktau-kstart+1),ktauday).EQ.0) THEN
                    CALL MPI_Send (MPI_BOTTOM,1, casa_t,0,ktau_gl,ocomm,ierr)

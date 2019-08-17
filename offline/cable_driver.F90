@@ -563,6 +563,8 @@ PROGRAM cable_offline_driver
                  timeunits="seconds since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" 00:00:00"
                  calendar = "noleap"
 
+   
+
               ENDIF
               LOY = 365
               kend = NINT(24.0*3600.0/dels) * LOY
@@ -707,6 +709,9 @@ PROGRAM cable_offline_driver
 
               if (cable_user%call_climate .AND.(.NOT.cable_user%climate_fromzero)) &
                    CALL READ_CLIMATE_RESTART_NC(climate, ktauday)
+
+              if ( trim(cable_user%MetType) .eq. 'cru' )       &
+                   casamet%glai = 1.0  ! initialise glai for use in cable_roughness
 
               ! additional params needed for BLAZE
               if ( trim(cable_user%MetType) .eq. 'bios' ) call cable_bios_load_climate_params(climate)

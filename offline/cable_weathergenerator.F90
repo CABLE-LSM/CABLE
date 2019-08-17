@@ -401,6 +401,7 @@ SUBROUTINE WGEN_SUBDIURNAL_MET(WG, np, itime)
  
   
   ELSE
+    
      WG%VapPmb = WG%VapPmbDay
   ENDIF
 
