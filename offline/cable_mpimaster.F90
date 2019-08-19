@@ -8512,7 +8512,9 @@ SUBROUTINE master_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
         endif
 
         CALL master_send_input (icomm, casa_dump_ts, idoy)
-     enddo
+        
+      enddo
+      
   enddo
 
   nloop1= max(1,mloop-3)
@@ -8555,12 +8557,14 @@ SUBROUTINE master_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
            if (cable_user%c13o2) then
               c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
               c13o2flux%cAn(:)   = casamet%cAn13spin(:,idoy)
-           endif           
+           endif
+         
            CALL master_send_input(icomm, casa_dump_ts, idoy)
+         
         ENDDO ! end doy
- 
+  
      ENDDO   ! end of nyear
-
+ 
   ENDDO     ! end of nloop
 write(*,*) 'b4 master receive casa'
 CALL master_receive (ocomm, 0, casa_ts)

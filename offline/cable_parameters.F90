@@ -1384,21 +1384,17 @@ CONTAINS
           veg%d0gs(h)   = vegin%d0gs(veg%iveg(h))
           veg%alpha(h)  = vegin%alpha(veg%iveg(h))
           if (cable_user%POPLUC) THEN
+              if (LUC_EXPT%biome(e).eq.4 .and.veg%iveg(h).eq.2 .and. &
+                   TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
 
-!!$             if (LUC_EXPT%biome(e).eq.4 .and.veg%iveg(h).eq.2 ) THEN
-!!$                if (cable_user%finite_gm) THEN
-!!$                   veg%alpha(h) = 0.28  ! fininte gm
-!!$                else  
-!!$                   veg%alpha(h) = 0.22  ! infinite gm
-!!$                endif
-!!$                veg%d0gs(h) = 1500.0
-!!$                veg%g1(h) = 3.37   ! temperate EBL
-!!$             ENDIF
-!!$             if (LUC_EXPT%biome(e).eq.3 .and.veg%iveg(h).eq.2 ) THEN
-!!$                !veg%g1(h) = 2.98   ! savanna
-!!$             ENDIF
+                   veg%alpha(h) = 0.22  ! temperate EBL
+                   veg%g1(h) = 3.37   ! temperate EBL
+                   veg%g0(h) = 0.03
+                endif
+             endif
 
-          endif
+
+
           veg%convex(h) = vegin%convex(veg%iveg(h))
           ! Alexis, adding gamma
           veg%gamma(h) = vegin%gamma(veg%iveg(h))

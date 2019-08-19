@@ -369,12 +369,13 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 #ifndef UM_BUILD
 
    IF ( allATonce .OR. ncall .EQ. 1 ) THEN
+      print*, 'opening file'
       ncok = NF90_OPEN(TRIM(ncfile), nf90_nowrite, ncrid)
       IF (ncok /= nf90_noerr ) CALL stderr_nc(ncok,'re-opening ', ncfile)
    ENDIF
    IF ( allATonce ) THEN
       DO idoy=1,mdyear
-
+         print*, 'idoy', idoy
          CALL get_var_ncr2(ncrid, var_name(3),  tairk, idoy)
          CALL get_var_ncr3(ncrid, var_name(4),  tsoil, idoy, ms)
          CALL get_var_ncr3(ncrid, var_name(5),  moist, idoy, ms)
@@ -463,6 +464,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    ENDIF
 
    IF ( allATonce .OR. ncall .EQ. kend ) THEN
+      print*, 'closing file'
       ncok = NF90_CLOSE(ncrid)
       IF (ncok /= nf90_noerr ) CALL stderr_nc(ncok,'closing ', ncfile)
    ENDIF

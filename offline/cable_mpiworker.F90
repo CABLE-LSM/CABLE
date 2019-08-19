@@ -563,6 +563,10 @@ CONTAINS
              canopy%fhs_cor = 0.
              met%ofsd = 0.1
 
+             met%pdep = 0.0
+             casamet%glai = 1.0
+
+
             ! CALL worker_sumcasa_types(comm, sum_casapool, sum_casaflux)
 
              
@@ -572,7 +576,8 @@ CONTAINS
              IF( icycle>0 .AND. spincasa) THEN
                 WRITE(wlogn,*) 'EXT spincasacnp enabled with mloop= ', mloop
                 CALL worker_spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
-                     casaflux,casamet,casabal,phen,POP,climate,LALLOC, icomm, ocomm)
+                     casaflux,casamet,casabal,phen,POP,climate,LALLOC,c13o2flux, c13o2pools, &
+                     icomm, ocomm)
                 SPINconv = .FALSE.
                 CASAONLY                   = .TRUE.
                 ktau_gl = 0
@@ -7369,7 +7374,7 @@ END SUBROUTINE worker_end
 !*********************************************************************************************
  
 SUBROUTINE worker_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
-     casaflux,casamet,casabal,phen,POP,climate,LALLOC,  icomm, ocomm )
+     casaflux,casamet,casabal,phen,POP,climate,LALLOC,c13o2flux, c13o2pools,  icomm, ocomm )
 
  ! USE cable_mpiworker
   USE cable_def_types_mod
@@ -7382,6 +7387,13 @@ SUBROUTINE worker_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
   USE POP_Types,  Only: POP_TYPE
   USE POPMODULE,            ONLY: POPStep
   USE TypeDef,              ONLY: i4b, dp
+  use cable_c13o2_def,     only: c13o2_pool, c13o2_flux
+  use cable_c13o2,         only: c13o2_save_casapool, c13o2_update_pools, &
+       c13o2_create_output, c13o2_write_output, c13o2_close_output, &
+       c13o2_print_delta_pools
+  use mo_isotope,          only: isoratio
+
+  
   USE mpi
   ! modules related to fire
   USE BLAZE_MOD,            ONLY: TYPE_BLAZE, BLAZE_ACCOUNTING
@@ -7405,7 +7417,8 @@ SUBROUTINE worker_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
   TYPE (phen_variable),         INTENT(INOUT) :: phen
   TYPE (POP_TYPE), INTENT(INOUT)     :: POP
   TYPE (climate_TYPE), INTENT(INOUT)     :: climate
-
+  type(c13o2_flux),          intent(inout) :: c13o2flux
+  type(c13o2_pool),          intent(inout) :: c13o2pools
  
 
    ! communicator for error-messages
@@ -7454,6 +7467,16 @@ SUBROUTINE worker_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
     TYPE (TYPE_BLAZE)     :: BLAZE
     TYPE (TYPE_SIMFIRE)   :: SIMFIRE
     REAL, DIMENSION(:),ALLOCATABLE :: POP_TO, POP_CWD, POP_STR
+
+
+    ! 13C
+   real(dp), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
+   integer                             :: c13o2_file_id
+   integer, parameter :: nvars = 7
+   character(len=20), dimension(nvars) :: c13o2_vars
+   integer,           dimension(nvars) :: c13o2_var_ids
+   real(r_2), dimension(:), allocatable :: avg_c13leaf2met, avg_c13leaf2str, avg_c13root2met, &
+        avg_c13root2str, avg_c13wood2cwd
   
 
    
@@ -7480,6 +7503,14 @@ SUBROUTINE worker_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
        avg_rationcsoilmic(mp),avg_rationcsoilslow(mp),avg_rationcsoilpass(mp),                        &
        avg_nsoilmin(mp),  avg_psoillab(mp),    avg_psoilsorb(mp), avg_psoilocc(mp))
 
+
+   ! 13C - allocate in any case even if cable_user%c13o2==.false. to pass to analytic soil and litter pools
+   allocate(avg_c13leaf2met(mp))
+   allocate(avg_c13leaf2str(mp))
+   allocate(avg_c13root2met(mp))
+   allocate(avg_c13root2str(mp))
+   allocate(avg_c13wood2cwd(mp))
+
   
   myearspin = CABLE_USER%CASA_SPIN_ENDYEAR - CABLE_USER%CASA_SPIN_STARTYEAR + 1
   ! compute the mean fluxes and residence time of each carbon pool
@@ -7490,6 +7521,14 @@ SUBROUTINE worker_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
   avg_xnplimit=0.0;  avg_xkNlimiting=0.0; avg_xklitter=0.0; avg_xksoil=0.0
   avg_nsoilmin=0.0;  avg_psoillab=0.0;    avg_psoilsorb=0.0; avg_psoilocc=0.0
   avg_rationcsoilmic=0.0;avg_rationcsoilslow=0.0;avg_rationcsoilpass=0.0
+
+  if (cable_user%c13o2) then
+      avg_c13leaf2met = 0.0_dp
+      avg_c13leaf2str = 0.0_dp
+      avg_c13root2met = 0.0_dp
+      avg_c13root2str = 0.0_dp
+      avg_c13wood2cwd = 0.0_dp
+   endif
 
   do nyear=1,myearspin
      
@@ -7509,6 +7548,20 @@ SUBROUTINE worker_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
           cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
           nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
           pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
+
+      if (cable_user%c13o2) then
+           avg_c13leaf2met(:) = avg_c13leaf2met(:) + &
+                cleaf2met(:) * isoratio(c13o2pools%cplant(:,leaf), casasave(:,leaf), 0.0_dp, tiny(1.0_dp)) ! 1.0_dp
+           avg_c13leaf2str(:) = avg_c13leaf2str(:) + &
+                cleaf2str(:) * isoratio(c13o2pools%cplant(:,leaf), casasave(:,leaf), 0.0_dp, tiny(1.0_dp))
+           avg_c13root2met(:) = avg_c13root2met(:) + &
+                croot2met(:) * isoratio(c13o2pools%cplant(:,froot), casasave(:,froot), 0.0_dp, tiny(1.0_dp))
+           avg_c13root2str(:) = avg_c13root2str(:) + &
+                croot2str(:) * isoratio(c13o2pools%cplant(:,froot), casasave(:,froot), 0.0_dp, tiny(1.0_dp))
+           avg_c13wood2cwd(:) = avg_c13wood2cwd(:) + &
+                cwood2cwd(:) * isoratio(c13o2pools%cplant(:,wood), casasave(:,wood), 0.0_dp, tiny(1.0_dp))
+           call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
+        endif
   
         
      
@@ -7541,7 +7594,7 @@ SUBROUTINE worker_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
        ! WHERE(xkNlimiting .eq. 0)  !Chris Lu 4/June/2012
        !    xkNlimiting = 0.001
        ! END WHERE
-     
+       
 
         avg_cleaf2met = avg_cleaf2met + cleaf2met
         avg_cleaf2str = avg_cleaf2str + cleaf2str
@@ -7579,6 +7632,10 @@ SUBROUTINE worker_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
         avg_rationcsoilmic  = avg_rationcsoilmic  + casapool%ratioNCsoilnew(:,mic)
         avg_rationcsoilslow = avg_rationcsoilslow + casapool%ratioNCsoilnew(:,slow)
         avg_rationcsoilpass = avg_rationcsoilpass + casapool%ratioNCsoilnew(:,pass)
+
+
+       
+ 
      enddo
   enddo
 
@@ -7621,8 +7678,16 @@ SUBROUTINE worker_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
   avg_rationcsoilslow = avg_rationcsoilslow /real(nday*myearspin)
   avg_rationcsoilpass = avg_rationcsoilpass /real(nday*myearspin)
 
+  if (cable_user%c13o2) then
+          avg_c13leaf2met = avg_c13leaf2met / real(nday*myearspin, dp)
+          avg_c13leaf2str = avg_c13leaf2str / real(nday*myearspin, dp)
+          avg_c13root2met = avg_c13root2met / real(nday*myearspin, dp)
+          avg_c13root2str = avg_c13root2str / real(nday*myearspin, dp)
+          avg_c13wood2cwd = avg_c13wood2cwd / real(nday*myearspin, dp)
+  endif
+       
 
-
+ 
   call analyticpool(kend,veg,soil,casabiome,casapool,                                          &
        casaflux,casamet,casabal,phen,                                         &
        avg_cleaf2met,avg_cleaf2str,avg_croot2met,avg_croot2str,avg_cwood2cwd, &
@@ -7631,7 +7696,9 @@ SUBROUTINE worker_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
        avg_cgpp, avg_cnpp, avg_nuptake, avg_puptake,                          &
        avg_xnplimit,avg_xkNlimiting,avg_xklitter,avg_xksoil,                  &
        avg_ratioNCsoilmic,avg_ratioNCsoilslow,avg_ratioNCsoilpass,            &
-       avg_nsoilmin,avg_psoillab,avg_psoilsorb,avg_psoilocc)
+       avg_nsoilmin,avg_psoillab,avg_psoilsorb,avg_psoilocc, &
+       avg_c13leaf2met, avg_c13leaf2str, avg_c13root2met, &
+       avg_c13root2str, avg_c13wood2cwd, c13o2pools)
 
 
   nloop1= max(1,mloop-3)
@@ -7649,9 +7716,9 @@ SUBROUTINE worker_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
         DO idoy=1,mdyear
            ktauy=idoy*ktauday
            ktau=(idoy-1)*ktauday +1
+           
            CALL MPI_Recv (MPI_BOTTOM, 1, casa_dump_t, 0, idoy, icomm, stat, ierr) 
-
-
+           
            call biogeochem(ktauy,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
                 casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter,xksoil,xkleaf,&
                 xkleafcold,xkleafdry,&
@@ -7685,8 +7752,10 @@ SUBROUTINE worker_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
                  
                  CALL POPdriver(casaflux,casabal,veg, POP)
                  !CLN Check here accounting missing
-                 call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
-                      casamet, climate, real(shootfrac), idoy, 1900, 1)
+                 if (cable_user%CALL_BLAZE) then
+                    call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
+                         casamet, climate, real(shootfrac), idoy, 1900, 1)
+                 endif
 
                  !! CLN BLAZE TURNOVER
                  
@@ -7694,11 +7763,12 @@ SUBROUTINE worker_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
            ELSE
               casaflux%stemnpp = 0.
            ENDIF ! CALL_POP
-           
+           write(wlogn,*), 'idoy', idoy
            
         ENDDO   ! end of idoy
+       
      ENDDO   ! end of nyear
-     
+    
   ENDDO     ! end of nloop
   write(wlogn,*) 'b4 MPI_SEND'
   CALL MPI_Send (MPI_BOTTOM, 1, casa_t, 0, 0, ocomm, ierr) 
