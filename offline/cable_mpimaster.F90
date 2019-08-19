@@ -3939,6 +3939,12 @@ SUBROUTINE master_casa_params (comm,casabiome,casapool,casaflux,casamet,&
   &                             types(bidx), ierr)
   blen(bidx) = 1
 
+  bidx = bidx + 1
+  CALL MPI_Get_address (casaflux%kplant_fire(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (mplant, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
 
   !blen(bidx) = mplant * r2len
 
@@ -4082,6 +4088,12 @@ SUBROUTINE master_casa_params (comm,casabiome,casapool,casaflux,casamet,&
   &                             types(bidx), ierr)
   blen(bidx) = 1
   !blen(bidx) = mlitter * r2len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (casaflux%klitter_fire(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (mlitter, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
 
   bidx = bidx + 1
   CALL MPI_Get_address (casaflux%ksoil(off,1), displs(bidx), ierr)
@@ -6344,6 +6356,8 @@ SUBROUTINE master_casa_types (comm, casapool, casaflux, &
      CALL MPI_Type_create_hvector (mplant, r2len, r2stride, MPI_BYTE, &
           &                             types(bidx), ierr)
      blocks(bidx) = 1
+
+   
      
     
      ! 3D

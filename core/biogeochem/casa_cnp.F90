@@ -1624,7 +1624,7 @@ SUBROUTINE casa_delsoil(veg, casapool, casaflux, casamet, casabiome)
         ! fire flux to atmosphere from burnt litter material
         do nL=1, mlitter
            iflux = (1.-casaflux%klitter(nland,nL)) * casaflux%klitter_fire(nland,nL) * casapool%clitter(nland,nL)
-           if (iflux > 0.) print*, 'We have fire 01 ', nL, iflux
+           if (iflux > 0.) print*, 'We have fire 01 ', nL, iflux,  casaflux%klitter_fire(nland,nL)
            casaflux%fluxCtoCO2_litter_fire(nland) = casaflux%fluxCtoCO2_litter_fire(nland) + iflux
            casaflux%FluxFromLtoCO2(nland,nL)      = casaflux%FluxFromLtoCO2(nland,nL)      + iflux
            

@@ -3015,6 +3015,10 @@ CONTAINS
     CALL MPI_Get_address (casaflux%kplant, displs(bidx), ierr)
     blen(bidx) = mplant * r2len
 
+    bidx = bidx + 1
+    CALL MPI_Get_address (casaflux%kplant_fire, displs(bidx), ierr)
+    blen(bidx) = mplant * r2len
+
     ! 3D
     bidx = bidx + 1
     CALL MPI_Get_address (casaflux%fromPtoL, displs(bidx), ierr)
@@ -3148,6 +3152,10 @@ CONTAINS
     CALL MPI_Get_address (casaflux%klitter, displs(bidx), ierr)
     blen(bidx) = mlitter * r2len
 
+    bidx = bidx + 1
+    CALL MPI_Get_address (casaflux%klitter_fire, displs(bidx), ierr)
+    blen(bidx) = mlitter * r2len
+    
     bidx = bidx + 1
     CALL MPI_Get_address (casaflux%ksoil, displs(bidx), ierr)
     blen(bidx) = msoil * r2len
@@ -6059,6 +6067,7 @@ CONTAINS
     CALL MPI_Get_address (casaflux%kplant, displs(bidx), ierr)
     blocks(bidx) = mplant * r2len
 
+
     ! 3D
     bidx = bidx + 1
     CALL MPI_Get_address (casaflux%fromPtoL, displs(bidx), ierr)
@@ -7457,7 +7466,7 @@ SUBROUTINE worker_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
        Iw = POP%Iwood
 
     ENDIF
-
+   
   ktauday=int(24.0*3600.0/dels)
   nday=(kend-kstart+1)/ktauday
   LOY = 365
