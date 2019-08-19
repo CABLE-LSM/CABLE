@@ -1795,7 +1795,7 @@ CONTAINS
     REAL, PARAMETER :: MB_TO_PA = 100.
 
     INTEGER :: i, j, k, kk  ! iteration count
-    REAL :: vpd, g1, ktot, fw ! Ticket #56
+    REAL :: vpd, g1, ktot, fw, refill ! Ticket #56
 #define VanessasCanopy
 #ifdef VanessasCanopy
     REAL, DIMENSION(mp,mf)  ::                                                  &
@@ -2238,6 +2238,21 @@ CONTAINS
                 canopy%psi_soil_prev(i) = ssnow%weighted_psi_soil(i)
                 canopy%psi_stem_prev(i) = canopy%psi_stem(i)
 
+                ! Force overnight refilling
+                !IF ( (met%hod(i) >= 12 .AND. met%hod(i) < 13) .AND. &
+               !      canopy%psi_stem(i) > -4.0) THEN
+               !
+               !    refill = abs(canopy%psi_stem(i) - &
+               !                 ssnow%weighted_psi_soil(i)) * 0.7
+               !    canopy%psi_stem(i) = canopy%psi_stem(i) + refill
+               !
+               !    ! Ensure we can't refill above psi_soil
+               !    canopy%psi_stem(i) = min(canopy%psi_stem(i), &
+               !                             ssnow%weighted_psi_soil(i))
+               !
+               !    canopy%psi_stem_prev(i) = canopy%psi_stem(i)
+               !
+               ! ENDIF
 
                 !IF (ecx(i) > 0.0 .AND. canopy%fwet(i) < 1.0) THEN
                 !    evapfb(i) = ( 1.0 - canopy%fwet(i)) * REAL( ecx(i) ) *dels      &
