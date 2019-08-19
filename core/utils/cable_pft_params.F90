@@ -1232,8 +1232,10 @@ CONTAINS
        vegin%p50(18) = -4.32945
        vegin%s50(18) = 74.283377
        vegin%kp_sat(18) = 0.851595
-       vegin%Cl(18) = 659.0
-       vegin%Cs(18) = 7408.266534
+       !vegin%Cl(18) = 659.0
+       !vegin%Cs(18) = 7408.266534
+       vegin%Cl(18) = 10000.
+       vegin%Cs(18) = 120000.
 
 
 
@@ -1317,9 +1319,10 @@ CONTAINS
        vegin%p50(19) = -3.002384
        vegin%s50(19) = 35.26948
        vegin%kp_sat(19) = 1.686987
-       vegin%Cl(19) = 342.904821
-       vegin%Cs(19) = 31622.004690
-
+       !vegin%Cl(19) = 342.904821
+       !vegin%Cs(19) = 31622.004690
+       vegin%Cl(19) = 10000.
+       vegin%Cs(19) = 120000.
 
        !PFT: New Dry sclerophyll forests (DSF) mgk576, 16/7/19
        !=========================================================
@@ -1402,8 +1405,10 @@ CONTAINS
        vegin%p50(20) = -3.504141
        vegin%s50(20) = 30.468839
        vegin%kp_sat(20) = 3.142807
-       vegin%Cl(20) = 349.193238
-       vegin%Cs(20) = 13072.60759
+       !vegin%Cl(20) = 349.193238
+       !vegin%Cs(20) = 13072.60759
+       vegin%Cl(20) = 10000.
+       vegin%Cs(20) = 120000.
 
        !PFT: New Grassy woodland (GRW) mgk576, 16/7/19
        !=========================================================
@@ -1486,8 +1491,10 @@ CONTAINS
        vegin%p50(21) = -4.32945
        vegin%s50(21) = 26.690161
        vegin%kp_sat(21) = 3.215984
-       vegin%Cl(21) = 405.135682
-       vegin%Cs(21) = 19657.019111
+       !vegin%Cl(21) = 405.135682
+       !vegin%Cs(21) = 19657.019111
+       vegin%Cl(21) = 10000.
+       vegin%Cs(21) = 120000.
 
        !PFT: New Semi-arid woodland (SAW) mgk576, 16/7/19
        !=========================================================
@@ -1570,8 +1577,10 @@ CONTAINS
        vegin%p50(22) = -7.093755
        vegin%s50(22) = 17.798
        vegin%kp_sat(22) = 0.851595
-       vegin%Cl(22) = 509.05840
-       vegin%Cs(22) = 8699.750085
+       !vegin%Cl(22) = 509.05840
+       !vegin%Cs(22) = 8699.750085
+       vegin%Cl(22) = 10000.
+       vegin%Cs(22) = 120000.
 
     ENDIF
 
