@@ -1353,13 +1353,13 @@ END SUBROUTINE GET_CRU_Ndep
 
   met%moy (:) = dM     ! Record the month
 
-! It's a new day if the hour of the day is zero. 
+  ! It's a new day if the hour of the day is zero. 
   newday = ( met%hod(landpt(1)%cstart).EQ. 0 )
 
-! Beginning-of-year accounting
+  ! Beginning-of-year accounting
   IF (ktau .EQ. 1) THEN  ! ktau is always reset to 1 at the start of the year.
 
-! Read a new annual CO2 value and convert it from ppm to mol/mol
+     ! Read a new annual CO2 value and convert it from ppm to mol/mol
     CALL GET_CRU_CO2( CRU, CO2air )
     met%ca(:) = CO2air / 1.e+6  ! 
 
@@ -1368,8 +1368,7 @@ END SUBROUTINE GET_CRU_Ndep
        met%Ndep(landpt(iland)%cstart:landpt(iland)%cend) = &
             CRU%NdepVALS(iland)*86400000.  ! kg/m2/s > g/m2/d (1000.*3600.*24.)
     END DO
-    
-! Open a new annual CRU-NCEP met file.
+    ! Open a new annual CRU-NCEP met file.
     CALL OPEN_CRU_MET( CRU )
 
   ENDIF
@@ -1505,36 +1504,40 @@ END SUBROUTINE GET_CRU_Ndep
     END DO
   END IF
 
-! CALL1 is over...
+  ! CALL1 is over...
   CALL1 = .FALSE.
-!*******************************************************************************
+
+  ! *******************************************************************************
 CONTAINS
+
   ELEMENTAL FUNCTION Esatf(TC)
-!-------------------------------------------------------------------------------
-! At temperature TC [deg C], return saturation water vapour pressure Esatf [mb] 
-! from Teten formula.
-! MRR, xx/1987
-! PRB, 09/1999:   Convert to F95 elemental function; works on scalars and arrays
-!                 just like intrinsic functions.
-! MRR, 12-mar-02: Convert Qsatf (specific humidity routine) to Esatf
-!-------------------------------------------------------------------------------
-  implicit none
-  real(sp), intent(in):: TC           ! temp [deg C]
-  real(sp):: Esatf                    ! saturation vapour pressure [mb]
-  real(sp):: TCtmp                    ! local
-  real(sp),parameter:: A = 6.106      ! Teten coefficients
-  real(sp),parameter:: B = 17.27      ! Teten coefficients
-  real(sp),parameter:: C = 237.3      ! Teten coefficients
-!-------------------------------------------------------------------------------
-  TCtmp = TC                          ! preserve TC
-  if (TCtmp.gt.100.0) TCtmp = 100.0   ! constrain TC to (-40.0,100.0)
-  if (TCtmp.lt.-40.0) TCtmp = -40.0
-  Esatf = A*EXP(B*TCtmp/(C+TCtmp))    ! sat vapour pressure (mb)
+    ! ------------------------------------------------------------------------------
+    ! At temperature TC [deg C], return saturation water vapour pressure Esatf [mb] 
+    ! from Teten formula.
+    ! MRR, xx/1987
+    ! PRB, 09/1999:   Convert to F95 elemental function; works on scalars and arrays
+    !                 just like intrinsic functions.
+    ! MRR, 12-mar-02: Convert Qsatf (specific humidity routine) to Esatf
+    ! ------------------------------------------------------------------------------
+    implicit none
+    
+    real(sp), intent(in) :: TC          ! temp [deg C]
+    real(sp)             :: Esatf       ! saturation vapour pressure [mb]
+
+    real(sp) :: TCtmp                   ! local
+    real(sp),parameter:: A = 6.106      ! Teten coefficients
+    real(sp),parameter:: B = 17.27      ! Teten coefficients
+    real(sp),parameter:: C = 237.3      ! Teten coefficients
+
+    TCtmp = TC                          ! preserve TC
+    if (TCtmp .gt. 100.0) TCtmp = 100.0   ! constrain TC to (-40.0,100.0)
+    if (TCtmp .lt. -40.0) TCtmp = -40.0
+    
+    Esatf = A*EXP(B*TCtmp/(C+TCtmp))    ! sat vapour pressure (mb)
  
   END FUNCTION Esatf
 
-!*******************************************************************************
- 
+  ! *******************************************************************************
 
 END SUBROUTINE CRU_GET_SUBDIURNAL_MET
 

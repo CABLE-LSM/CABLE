@@ -48,12 +48,12 @@ host_mael()
    export NCDIR='/share/apps/netcdf/intel/4.1.3/lib'
    export NCMOD='/share/apps/netcdf/intel/4.1.3/include'
    export FC=ifort
-   export CFLAGS='-O2 -fp-model precise  '
+   export CFLAGS='-O2 -fp-model precise -fpp'
    #export CFLAGS='-O3 -fp-model precise  -ipo --parallel '   
-   export LDFLAGS='-L/share/apps/intel/Composer/lib/intel64 -L/share/apps/netcdf/intel/4.1.3/lib  -O2'
+   export LDFLAGS='-L/share/apps/intel/Composer/lib/intel64 -L/share/apps/netcdf/intel/4.1.3/lib -O2'
    if [[ $1 = 'debug' ]]; then
-      export CFLAGS='-O0 -traceback -g -fp-model precise  ' 
-      export LDFLAGS='-L/share/apps/intel/Composer/lib/intel64 -L/share/apps/netcdf/intel/4.1.3/lib '
+      export CFLAGS='-O0 -traceback -g -fp-model precise -fpp' 
+      export LDFLAGS='-L/share/apps/intel/Composer/lib/intel64 -L/share/apps/netcdf/intel/4.1.3/lib'
    fi
    export LD='-lnetcdf -lnetcdff'
    build_build
@@ -67,9 +67,9 @@ host_ccrc()
    export NCDIR='/usr/local/netcdf/intel/4.1.3/lib'
    export NCMOD='/usr/local/netcdf/intel/4.1.3/include'
    export FC=ifort
-   export CFLAGS='-O2 -fp-model precise '   #-traceback
+   export CFLAGS='-O2 -fp-model precise -fpp'   #-traceback
    if [[ $1 = 'debug' ]]; then
-      export CFLAGS='-O0 -debug -g -ftrapuv -CB -check bounds -diag-enable warn'
+      export CFLAGS='-O0 -debug -g -ftrapuv -CB -check bounds -diag-enable warn -fpp'
 # -diag-enable sc2 -diag-enable sc-single-file
    fi
    export LD='-lnetcdf -lnetcdff'
@@ -125,11 +125,11 @@ host_nXXX()
    export NCMOD=$NETCDF_ROOT'/include/'
    #export FC=$F90
    export FC=ifort
-   #vanessa's test options
-#   export CFLAGS='  -g -debug -traceback -fp-stack-check -O0 -debug -fpe=0 -fpe-all=0 -no-ftz -ftrapuv'
-# export CFLAGS='-warn all,nounused  -check all,noarg_temp_created -g -debug -traceback -fp-stack-check -O0 -debug -fpe1 -no-ftz -ftrapuv'
-#   export CFLAGS='-O0 -fp-model precise -debug all -g  '
-   export CFLAGS='-O2 -fp-model precise'
+   # vanessa's test options
+   # export CFLAGS='-fpp -g -debug -traceback -fp-stack-check -O0 -debug -fpe=0 -fpe-all=0 -no-ftz -ftrapuv'
+   # export CFLAGS='-warn all,nounused -fpp -check all,noarg_temp_created -g -debug -traceback -fp-stack-check -O0 -debug -fpe1 -no-ftz -ftrapuv'
+   # export CFLAGS='-O0 -fp-model precise -fpp -debug all -g'
+   export CFLAGS='-O2 -fp-model precise -fpp'
    export LDFLAGS='-L'$NCDIR' -O2'
    export LD='-lnetcdf -lnetcdff'
    build_build
@@ -165,9 +165,9 @@ host_pear()
    export NCDIR=$NETCDF_ROOT'/lib/'
    export NCMOD=$NETCDF_ROOT'/include/'
    export FC='ifort'
-   export CFLAGS='-O0 -fp-model precise -g -debug -traceback -fpe0 -fp-stack-check -no-ftz -ftrapuv   -check all,noarg_temp_created -C '
-   #export CFLAGS='-O2 -fp-model precise'
-   #export CFLAGS='  -g -debug -traceback -fp-stack-check -O0 -debug -fpe=0 -fpe-all=0 -no-ftz -ftrapuv -check bounds'
+   export CFLAGS='-O0 -fp-model precise -fpp -g -debug -traceback -fpe0 -fp-stack-check -no-ftz -ftrapuv -check all,noarg_temp_created -C '
+   #export CFLAGS='-O2 -fp-model precise -fpp'
+   #export CFLAGS='  -g -debug -traceback -fp-stack-check -O0 -debug -fpe=0 -fpe-all=0 -no-ftz -ftrapuv -check bounds -fpp'
    #export CFLAGS="${CFLAGS} -DCRU2018"
    export LDFLAGS='-g -L'$NCDIR' -O0'
    export LD='-lnetcdf -lnetcdff'
@@ -187,9 +187,9 @@ host_raij()
    export NCDIR=$NETCDF_ROOT'/lib/Intel'
    export NCMOD=$NETCDF_ROOT'/include/Intel'
    export FC=$F90
-   export CFLAGS='-O0 -fp-model precise'
+   export CFLAGS='-O0 -fp-model precise -fpp'
    if [[ $1 = 'debug' ]]; then
-      export CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0'
+      export CFLAGS='-O0 -traceback -g -fp-model precise -fpp -ftz -fpe0'
    fi
    export LDFLAGS='-L'$NCDIR' -O0'
    export LD='-lnetcdf -lnetcdff'

@@ -32,15 +32,17 @@ MODULE cable_c13o2_def
   type c13o2_flux ! all fluxes in units mol(13CO2)/m2s
      integer                           :: ntile, nleaf
      ! atmospheric 13CO2 concentration [mol(13CO2)/mol(air)]
-     real(dp), dimension(:),  pointer  :: ca
+     real(dp), dimension(:),   pointer :: ca
      ! net assimilation 13CO2 flux divided by VPDB [mol(CO2)/m2s]
      real(dp), dimension(:,:), pointer :: An
+     ! leaf discrimination: 1-A13/A12/Ca
+     real(dp), dimension(:,:), pointer :: Disc
      ! daily cumulated total 12CO2 net assimilation in [mol(CO2)/m2]
-     real(dp), dimension(:), pointer   :: cAn12
+     real(dp), dimension(:),   pointer :: cAn12
      ! daily cumulated total 13CO2 net assimilation divided by VPDB in [mol(CO2)/m2]
-     real(dp), dimension(:), pointer   :: cAn
+     real(dp), dimension(:),   pointer :: cAn
      ! isotope ratio of daily cumulated total 13CO2 net assimilation over 12CO2 net assimilation divided by VPDB
-     real(dp), dimension(:), pointer   :: RAn
+     real(dp), dimension(:),   pointer :: RAn
      ! ! Transitory starch concentration in leaf [mol(CO2)/m2]
      ! real(dp), dimension(:,:), pointer :: Vstarch
      ! ! Isotopic composition if leaf sucrose
@@ -87,6 +89,7 @@ contains
     c13o2flux%nleaf = mf
     allocate(c13o2flux%ca(ntile))
     allocate(c13o2flux%An(ntile,mf))
+    allocate(c13o2flux%Disc(ntile,mf))
     allocate(c13o2flux%cAn12(ntile))
     allocate(c13o2flux%cAn(ntile))
     allocate(c13o2flux%RAn(ntile))
@@ -154,9 +157,10 @@ contains
 
     type(c13o2_flux), intent(inout) :: c13o2flux
 
-    c13o2flux%An       = 0._dp
-    c13o2flux%cAn12    = 0._dp
-    c13o2flux%cAn      = 0._dp
+    c13o2flux%An       =  0.0_dp
+    c13o2flux%Disc     = -1.0_dp
+    c13o2flux%cAn12    =  0.0_dp
+    c13o2flux%cAn      =  0.0_dp
 
   end subroutine c13o2_zero_flux
 
@@ -181,7 +185,7 @@ contains
        sum_c13o2pools%csoil    = sum_c13o2pools%csoil    + c13o2pools%csoil
        sum_c13o2pools%clabile  = sum_c13o2pools%clabile  + c13o2pools%clabile
     else if (average_now) then
-       rsteps = 1._dp / real(nsteps,dp)
+       rsteps = 1.0_dp / real(nsteps,dp)
        sum_c13o2pools%cplant   = sum_c13o2pools%cplant  * rsteps
        sum_c13o2pools%clitter  = sum_c13o2pools%clitter * rsteps
        sum_c13o2pools%csoil    = sum_c13o2pools%csoil   * rsteps
@@ -199,10 +203,10 @@ contains
     
     type(c13o2_pool), intent(inout) :: sum_c13o2pools
 
-    sum_c13o2pools%cplant   = 0._dp
-    sum_c13o2pools%clitter  = 0._dp
-    sum_c13o2pools%csoil    = 0._dp
-    sum_c13o2pools%clabile  = 0._dp
+    sum_c13o2pools%cplant   = 0.0_dp
+    sum_c13o2pools%clitter  = 0.0_dp
+    sum_c13o2pools%csoil    = 0.0_dp
+    sum_c13o2pools%clabile  = 0.0_dp
 
   end subroutine c13o2_zero_sum_pools
 
@@ -216,9 +220,9 @@ contains
 
     type(c13o2_luc), intent(inout) :: c13o2luc
 
-    c13o2luc%charvest   = 0._dp
-    c13o2luc%cclearance = 0._dp
-    c13o2luc%cagric     = 0._dp
+    c13o2luc%charvest   = 0.0_dp
+    c13o2luc%cclearance = 0.0_dp
+    c13o2luc%cagric     = 0.0_dp
 
   end subroutine c13o2_zero_luc
 

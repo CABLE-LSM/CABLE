@@ -43,7 +43,7 @@ MODULE cable_output_module
   USE cable_write_module
   USE netcdf
   USE cable_common_module, ONLY: filename, calcsoilalbedo, CurYear,IS_LEAPYEAR, cable_user
-  USE cable_c13o2_def, only: c13o2_pool
+  USE cable_c13o2_def, only: c13o2_pool,  c13o2_flux
 
   IMPLICIT NONE
 
@@ -71,8 +71,9 @@ MODULE cable_output_module
                     PlantTurnover, PlantTurnoverLeaf, PlantTurnoverFineRoot, &
                     PlantTurnoverWood, PlantTurnoverWoodDist, PlantTurnoverWoodCrowding, &
                     PlantTurnoverWoodResourceLim, dCdt, Area, LandUseFlux, patchfrac, &
-                    vcmax,ejmax, hc, GPP_sh, GPP_sl, GPP_shC, GPP_slC, GPP_shJ, GPP_slJ, eta_GPP_cs, &
-                    dGPPdcs, CO2s, cplant, clitter, csoil, clabile, c13plant, c13litter, c13soil, c13labile
+                    vcmax,ejmax, hc, GPP_sh, GPP_sl, GPP_shC, GPP_slC, GPP_shJ, GPP_slJ, eta_GPP_cs, dGPPdcs, CO2s, &
+                    An, Rd, cplant, clitter, csoil, clabile, &
+                    A13n, aDisc13, c13plant, c13litter, c13soil, c13labile
   END TYPE out_varID_type
   TYPE(out_varID_type) :: ovid ! netcdf variable IDs for output variables
   TYPE(parID_type) :: opid ! netcdf variable IDs for output variables
@@ -219,14 +220,18 @@ MODULE cable_output_module
     REAL(KIND=4), POINTER, DIMENSION(:) :: CO2s
     REAL(KIND=4), POINTER, DIMENSION(:) :: RootResp   !  autotrophic root respiration [umol/m2/s]
     REAL(KIND=4), POINTER, DIMENSION(:) :: StemResp   !  autotrophic stem respiration [umol/m2/s]
-    REAL(KIND=4), POINTER, DIMENSION(:,:) :: cplant    ! plant carbon pools
-    REAL(KIND=4), POINTER, DIMENSION(:,:) :: clitter   ! litter carbon pools
-    REAL(KIND=4), POINTER, DIMENSION(:,:) :: csoil     ! soil carbon pools
-    REAL(KIND=4), POINTER, DIMENSION(:)   :: clabile   ! excess carbon pools
-    REAL(KIND=4), POINTER, DIMENSION(:,:) :: c13plant  ! 13C plant carbon pools
-    REAL(KIND=4), POINTER, DIMENSION(:,:) :: c13litter ! 13C litter carbon pools
-    REAL(KIND=4), POINTER, DIMENSION(:,:) :: c13soil   ! 13C soil carbon pools
-    REAL(KIND=4), POINTER, DIMENSION(:)   :: c13labile ! 13C excess carbon pools
+    REAL(KIND=r_2), POINTER, DIMENSION(:)   :: An        ! total net assimilation
+    REAL(KIND=r_2), POINTER, DIMENSION(:)   :: Rd        ! total leaf respiration
+    REAL(KIND=r_2), POINTER, DIMENSION(:,:) :: cplant    ! plant carbon pools
+    REAL(KIND=r_2), POINTER, DIMENSION(:,:) :: clitter   ! litter carbon pools
+    REAL(KIND=r_2), POINTER, DIMENSION(:,:) :: csoil     ! soil carbon pools
+    REAL(KIND=r_2), POINTER, DIMENSION(:)   :: clabile   ! excess carbon pools
+    REAL(KIND=r_2), POINTER, DIMENSION(:)   :: A13n      ! total 13C net assimilation
+    REAL(KIND=r_2), POINTER, DIMENSION(:)   :: aDisc13   ! 13C discrimination times gross assimilation
+    REAL(KIND=r_2), POINTER, DIMENSION(:,:) :: c13plant  ! 13C plant carbon pools
+    REAL(KIND=r_2), POINTER, DIMENSION(:,:) :: c13litter ! 13C litter carbon pools
+    REAL(KIND=r_2), POINTER, DIMENSION(:,:) :: c13soil   ! 13C soil carbon pools
+    REAL(KIND=r_2), POINTER, DIMENSION(:)   :: c13labile ! 13C excess carbon pools
  END TYPE output_temporary_type
   TYPE(output_temporary_type), SAVE :: out
   INTEGER :: ok   ! netcdf error status
@@ -1032,63 +1037,74 @@ CONTAINS
 
     ENDIF
        
-    if (cable_user%c13o2) then
-       if (output%cplant) then
-          call define_ovar(ncid_out, ovid%cplant, 'Cplant', 'kgC/m^2', &
-               'Plant carbon pools', patchout%cplant,         &
-               'dummy', xID, yID, zID, landID, patchID, nplantid, tID)
-          allocate(out%cplant(mp,mplant))
-          out%cplant = 0.0
-       endif
-       if (output%clitter) then
-          call define_ovar(ncid_out, ovid%clitter, 'Clitter', 'kgC/m^2', &
-               'Litter carbon pools', patchout%clitter,         &
-               'dummy', xID, yID, zID, landID, patchID, nlitterid, tID)
-          allocate(out%clitter(mp,mlitter))
-          out%clitter = 0.0
-       endif
-       if (output%csoil) then
-          call define_ovar(ncid_out, ovid%csoil, 'Csoil', 'kgC/m^2', &
-               'Soil carbon pools', patchout%csoil,         &
-               'dummy', xID, yID, zID, landID, patchID, nsoilid, tID)
-          allocate(out%csoil(mp,msoil))
-          out%csoil = 0.0
-       endif
-       if (output%clabile) then
-          call define_ovar(ncid_out, ovid%clabile, 'Clabile', 'kgC/m^2', &
-               'Excess carbon pool', patchout%clabile,         &
-               'dummy', xID, yID, zID, landID, patchID, tID)
-          allocate(out%clabile(mp))
-          out%clabile = 0.0
-       endif
-       if (output%c13plant) then
-          call define_ovar(ncid_out, ovid%c13plant, 'C13plant', 'kg13C/m^2', &
-               'Plant carbon pools', patchout%c13plant,         &
-               'dummy', xID, yID, zID, landID, patchID, nplantid, tID)
-          allocate(out%c13plant(mp,mplant))
-          out%c13plant = 0.0
-       endif
-       if (output%c13litter) then
-          call define_ovar(ncid_out, ovid%c13litter, 'C13litter', 'kg13C/m^2', &
-               'Litter carbon pools', patchout%c13litter,         &
-               'dummy', xID, yID, zID, landID, patchID, nlitterid, tID)
-          allocate(out%c13litter(mp,mlitter))
-          out%c13litter = 0.0
-       endif
-       if (output%c13soil) then
-          call define_ovar(ncid_out, ovid%c13soil, 'C13soil', 'kg13C/m^2', &
-               'Soil carbon pools', patchout%c13soil,         &
-               'dummy', xID, yID, zID, landID, patchID, nsoilid, tID)
-          allocate(out%c13soil(mp,msoil))
-          out%c13soil = 0.0
-       endif
-       if (output%c13labile) then
-          call define_ovar(ncid_out, ovid%c13labile, 'C13labile', 'kg13C/m^2', &
-               'Excess carbon pool', patchout%c13labile,         &
-               'dummy', xID, yID, zID, landID, patchID, tID)
-          allocate(out%c13labile(mp))
-          out%c13labile = 0.0
-       endif
+    if (cable_user%c13o2 .and. output%c13o2) then
+       ! 12C
+       allocate(out%An(mp))
+       allocate(out%Rd(mp))
+       allocate(out%cplant(mp,mplant))
+       allocate(out%clitter(mp,mlitter))
+       allocate(out%csoil(mp,msoil))
+       allocate(out%clabile(mp))
+       ! 13C
+       allocate(out%A13n(mp))
+       allocate(out%aDisc13(mp))
+       allocate(out%c13plant(mp,mplant))
+       allocate(out%c13litter(mp,mlitter))
+       allocate(out%c13soil(mp,msoil))
+       allocate(out%c13labile(mp))
+       ! 12C
+       out%An      = 0.0_r_2
+       out%Rd      = 0.0_r_2
+       out%cplant  = 0.0_r_2
+       out%clitter = 0.0_r_2
+       out%csoil   = 0.0_r_2
+       out%clabile = 0.0_r_2
+       ! 13C
+       out%A13n      = 0.0_r_2
+       out%aDisc13   = 0.0_r_2
+       out%c13plant  = 0.0_r_2
+       out%c13litter = 0.0_r_2
+       out%c13soil   = 0.0_r_2
+       out%c13labile = 0.0_r_2
+       ! 12C
+       call define_ovar(ncid_out, ovid%An, 'An', 'mol/m^2/s', &
+            'Net assimilation', patchout%c13o2, &
+            'generic', xID, yID, zID, landID, patchID, tID)
+       call define_ovar(ncid_out, ovid%Rd, 'Rd', 'mol/m^2/s', &
+            'Leaf respiration', patchout%c13o2, &
+            'generic', xID, yID, zID, landID, patchID, tID)
+       call define_ovar(ncid_out, ovid%cplant, 'Cplant', 'kgC/m^2', &
+            'Plant carbon pools', patchout%c13o2, &
+            'generic', xID, yID, zID, landID, patchID, nplantid, tID)
+       call define_ovar(ncid_out, ovid%clitter, 'Clitter', 'kgC/m^2', &
+            'Litter carbon pools', patchout%c13o2, &
+            !'littercarbon', xID, yID, zID, landID, patchID, nlitterid, tID)
+            'generic', xID, yID, zID, landID, patchID, nlitterid, tID)
+       call define_ovar(ncid_out, ovid%csoil, 'Csoil', 'kgC/m^2', &
+            'Soil carbon pools', patchout%c13o2, &
+            'generic', xID, yID, zID, landID, patchID, nsoilid, tID)
+       call define_ovar(ncid_out, ovid%clabile, 'Clabile', 'kgC/m^2', &
+            'Excess carbon pool', patchout%c13o2, &
+            'generic', xID, yID, zID, landID, patchID, tID)
+       ! 13C
+       call define_ovar(ncid_out, ovid%A13n, 'An13', 'mol/m^2/s', &
+            'Net assimilation of 13CO2', patchout%c13o2, &
+            'generic', xID, yID, zID, landID, patchID, tID)
+       call define_ovar(ncid_out, ovid%aDisc13, 'aDisc13', '1*mol/m^2/s', &
+            'Leaf discrimination times gross assimilation', patchout%c13o2, &
+            'generic', xID, yID, zID, landID, patchID, tID)
+       call define_ovar(ncid_out, ovid%c13plant, 'C13plant', 'kg13C/m^2', &
+            'Plant carbon pools', patchout%c13o2, &
+            'generic', xID, yID, zID, landID, patchID, nplantid, tID)
+       call define_ovar(ncid_out, ovid%c13litter, 'C13litter', 'kg13C/m^2', &
+            'Litter carbon pools', patchout%c13o2, &
+            'generic', xID, yID, zID, landID, patchID, nlitterid, tID)
+       call define_ovar(ncid_out, ovid%c13soil, 'C13soil', 'kg13C/m^2', &
+            'Soil carbon pools', patchout%c13o2, &
+            'generic', xID, yID, zID, landID, patchID, nsoilid, tID)
+       call define_ovar(ncid_out, ovid%c13labile, 'C13labile', 'kg13C/m^2', &
+            'Excess carbon pool', patchout%c13o2, &
+            'generic', xID, yID, zID, landID, patchID, tID)
     endif
 
     !! vh_js !!
@@ -1471,7 +1487,7 @@ CONTAINS
   END SUBROUTINE open_output_file
   !=============================================================================
   SUBROUTINE write_output(dels, ktau, met, canopy, casaflux, casapool, casamet, ssnow, &
-                          rad, bal, air, soil, veg, SBOLTZ, EMLEAF, EMSOIL, c13o2pools)
+                          rad, bal, air, soil, veg, SBOLTZ, EMLEAF, EMSOIL, c13o2pools, c13o2flux)
     ! Writes model output variables and, if requested, calls
     ! energy and mass balance routines. This subroutine is called
     ! each timestep, but may only write to the output file periodically,
@@ -1492,6 +1508,7 @@ CONTAINS
     TYPE(balances_type), INTENT(INOUT) :: bal
     TYPE (casa_met), INTENT(IN) :: casamet
     TYPE(c13o2_pool), INTENT(IN) :: c13o2pools ! 13CO2 pools
+    TYPE(c13o2_flux), INTENT(IN) :: c13o2flux  ! 13CO2 fluxes
 
     REAL(r_2), DIMENSION(1) :: timetemp ! temporary variable for storing time
                                         ! value
@@ -1506,6 +1523,8 @@ CONTAINS
     !MC - use met%year(1) instead of CABLE_USER%YearStart for non-GSWP forcing and leap years
     INTEGER, SAVE :: YearStart
     INTEGER :: ok ! for netcdf sync
+    real(r_2) :: rinterval
+    
     ! IF asked to check mass/water balance:
     IF(check%mass_bal) CALL mass_balance(dels, ktau, ssnow, soil, canopy,            &
                                          met,air,bal)
@@ -2337,7 +2356,7 @@ CONTAINS
        out%eta_GPP_cs =  out%eta_GPP_cs + REAL(canopy%eta_A_cs/ 1e-6 , 4)
        out%dGPPdcs =  out%dGPPdcs + REAL(canopy%dAdcs/ 1e-6 , 4)
        out%CO2s =  out%CO2s + REAL(canopy%cs/ 1e-6 , 4)
-       IF(writenow) THEN
+       IF (writenow) THEN
           ! the three variables below were constructed as  sums over sl & sh leaves, weighted by GPP
           out%eta_GPP_cs = out%eta_GPP_cs/REAL(output%interval, 4)
           out%dGPPdcs = out%dGPPdcs/REAL(output%interval, 4)
@@ -2349,8 +2368,7 @@ CONTAINS
           out%GPP_slC = out%GPP_slC/REAL(output%interval, 4)
           out%GPP_shJ = out%GPP_shJ/REAL(output%interval, 4)
           out%GPP_slJ = out%GPP_slJ/REAL(output%interval, 4)
-          
-          
+
           ! Write value to file:
           CALL write_ovar(out_timestep, ncid_out, ovid%GPP_sh, 'GPP_sh', out%GPP_sh,    &
                ranges%GPP, patchout%GPP, 'default', met)
@@ -2367,8 +2385,6 @@ CONTAINS
           CALL write_ovar(out_timestep, ncid_out, ovid%GPP_shJ, 'GPP_sh', out%GPP_shJ,    &
                ranges%GPP, patchout%GPP, 'default', met)
 
-        
-
           CALL write_ovar(out_timestep, ncid_out, ovid%GPP_slJ, 'GPP_sh', out%GPP_slJ,    &
                ranges%GPP, patchout%GPP, 'default', met)
 
@@ -2384,7 +2400,6 @@ CONTAINS
                out%CO2s,    &
                ranges%GPP, patchout%GPP, 'default', met)
        
-
           ! Reset temporary output variable:
           out%GPP_sh = 0.0
           out%GPP_sl = 0.0
@@ -2844,125 +2859,90 @@ CONTAINS
 
     END IF
 
-    if (cable_user%c13o2) then
-       ! Plant carbon pools
-       if (output%cplant) then
-          ! Add current timestep's value to total of temporary output variable:
-          out%cplant = out%cplant + real(casapool%cplant,4)
-          if (writenow) then
-             ! Divide accumulated variable by number of accumulated time steps:
-             out%cplant = out%cplant / real(output%interval,4)
-             ! Write value to file:
-             call write_ovar(out_timestep, ncid_out, ovid%cplant, 'Cplant',   &
-                  out%cplant, ranges%TotLivBiomass, patchout%cplant, 'generic', met)
-             ! Reset temporary output variable:
-             out%cplant = 0.0
-          endif
-       endif
-       ! Litter carbon pools
-       if (output%clitter) then
-          ! Add current timestep's value to total of temporary output variable:
-          out%clitter = out%clitter + real(casapool%clitter,4)
-          if (writenow) then
-             ! Divide accumulated variable by number of accumulated time steps:
-             out%clitter = out%clitter / real(output%interval,4)
-             ! Write value to file:
-             call write_ovar(out_timestep, ncid_out, ovid%clitter, 'Clitter',   &
-                  out%clitter, ranges%TotLittCarb, patchout%clitter, 'generic', met)
-             ! Reset temporary output variable:
-             out%clitter = 0.0
-          endif
-       endif
-       ! Soil carbon pools
-       if (output%csoil) then
-          ! Add current timestep's value to total of temporary output variable:
-          out%csoil = out%csoil + real(casapool%csoil,4)
-          if (writenow) then
-             ! Divide accumulated variable by number of accumulated time steps:
-             out%csoil = out%csoil / real(output%interval,4)
-             ! Write value to file:
-             call write_ovar(out_timestep, ncid_out, ovid%csoil, 'Csoil',   &
-                  out%csoil, ranges%TotSoilCarb, patchout%csoil, 'generic', met)
-             ! Reset temporary output variable:
-             out%csoil = 0.0
-          endif
-       endif
-       ! Excess carbon pool
-       if (output%clabile) then
-          ! Add current timestep's value to total of temporary output variable:
-          out%clabile = out%clabile + real(casapool%clabile,4)
-          if (writenow) then
-             ! Divide accumulated variable by number of accumulated time steps:
-             out%clabile = out%clabile / real(output%interval,4)
-             ! Write value to file:
-             call write_ovar(out_timestep, ncid_out, ovid%clabile, 'Clabile',   &
-                  out%clabile, ranges%TotLivBiomass, patchout%clabile, 'default', met)
-             ! Reset temporary output variable:
-             out%clabile = 0.0
-          endif
-       endif
-       ! 13C Plant carbon pools
-       if (output%c13plant) then
-          ! Add current timestep's value to total of temporary output variable:
-          out%c13plant = out%c13plant + real(c13o2pools%cplant,4)
-          if (writenow) then
-             ! Divide accumulated variable by number of accumulated time steps:
-             out%c13plant = out%c13plant / real(output%interval,4)
-             ! Write value to file:
-             call write_ovar(out_timestep, ncid_out, ovid%c13plant, 'C13plant',   &
-                  out%c13plant, ranges%TotLivBiomass, patchout%c13plant, 'generic', met)
-             ! Reset temporary output variable:
-             out%c13plant = 0.0
-          endif
-       endif
-       ! 13C Litter carbon pools
-       if (output%c13litter) then
-          ! Add current timestep's value to total of temporary output variable:
-          out%c13litter = out%c13litter + real(c13o2pools%clitter,4)
-          if (writenow) then
-             ! Divide accumulated variable by number of accumulated time steps:
-             out%c13litter = out%c13litter / real(output%interval,4)
-             ! Write value to file:
-             call write_ovar(out_timestep, ncid_out, ovid%c13litter, 'C13litter',   &
-                  out%c13litter, ranges%TotLittCarb, patchout%c13litter, 'generic', met)
-             ! Reset temporary output variable:
-             out%c13litter = 0.0
-          endif
-       endif
-       ! 13C Soil carbon pools
-       if (output%c13soil) then
-          ! Add current timestep's value to total of temporary output variable:
-          out%c13soil = out%c13soil + real(c13o2pools%csoil,4)
-          if (writenow) then
-             ! Divide accumulated variable by number of accumulated time steps:
-             out%c13soil = out%c13soil / real(output%interval,4)
-             ! Write value to file:
-             call write_ovar(out_timestep, ncid_out, ovid%c13soil, 'C13soil',   &
-                  out%c13soil, ranges%TotSoilCarb, patchout%c13soil, 'generic', met)
-             ! Reset temporary output variable:
-             out%c13soil = 0.0
-          endif
-       endif
-       ! 13C Excess carbon pool
-       if (output%c13labile) then
-          ! Add current timestep's value to total of temporary output variable:
-          out%c13labile = out%c13labile + real(c13o2pools%clabile,4)
-          if (writenow) then
-             ! Divide accumulated variable by number of accumulated time steps:
-             out%c13labile = out%c13labile / real(output%interval,4)
-             ! Write value to file:
-             call write_ovar(out_timestep, ncid_out, ovid%c13labile, 'C13labile',   &
-                  out%c13labile, ranges%TotLivBiomass, patchout%c13labile, 'default', met)
-             ! Reset temporary output variable:
-             out%c13labile = 0.0
-          endif
+    if (cable_user%c13o2 .and. output%c13o2) then
+       ! Add current timestep's value to total of temporary output variable
+       ! 12C
+       out%An      = out%An      + sum(canopy%An,2)
+       out%Rd      = out%Rd      + sum(canopy%Rd,2)
+       out%cplant  = out%cplant  + casapool%cplant
+       out%clitter = out%clitter + casapool%clitter
+       out%csoil   = out%csoil   + casapool%csoil
+       out%clabile = out%clabile + casapool%clabile
+       ! 13C
+       out%A13n      = out%A13n      + sum(c13o2flux%An,2)
+       out%aDisc13   = out%aDisc13   + sum((canopy%An+canopy%Rd)*c13o2flux%Disc,2) !MC - Check with Vanessa that no leaf area
+       out%c13plant  = out%c13plant  + c13o2pools%cplant
+       out%c13litter = out%c13litter + c13o2pools%clitter
+       out%c13soil   = out%c13soil   + c13o2pools%csoil
+       out%c13labile = out%c13labile + c13o2pools%clabile
+       if (writenow) then
+          ! Divide accumulated variable by number of accumulated time steps
+          rinterval = real(output%interval,r_2)
+          ! 12C
+          out%An      = out%An      / rinterval
+          out%Rd      = out%Rd      / rinterval
+          out%cplant  = out%cplant  / rinterval
+          out%clitter = out%clitter / rinterval
+          out%csoil   = out%csoil   / rinterval
+          out%clabile = out%clabile / rinterval
+          ! 13C
+          out%A13n      = out%A13n      / rinterval
+          out%aDisc13   = out%aDisc13   / rinterval
+          out%c13plant  = out%c13plant  / rinterval
+          out%c13litter = out%c13litter / rinterval
+          out%c13soil   = out%c13soil   / rinterval
+          out%c13labile = out%c13labile / rinterval
+          ! Write value to file
+          ! 12C
+          call write_ovar(out_timestep, ncid_out, ovid%An, 'An',   &
+               real(out%An), ranges%Wbal, patchout%c13o2, 'default', met) ! Wbal ranges -999999 to 999999
+          call write_ovar(out_timestep, ncid_out, ovid%Rd, 'Rd',   &
+               real(out%Rd), ranges%Wbal, patchout%c13o2, 'default', met)
+          call write_ovar(out_timestep, ncid_out, ovid%cplant, 'Cplant',   &
+               real(out%cplant), ranges%TotLivBiomass, patchout%c13o2, 'generic', met)
+          call write_ovar(out_timestep, ncid_out, ovid%clitter, 'Clitter',   &
+               real(out%clitter), ranges%TotLittCarb, patchout%c13o2, 'generic', met)
+          call write_ovar(out_timestep, ncid_out, ovid%csoil, 'Csoil',   &
+               real(out%csoil), ranges%TotSoilCarb, patchout%c13o2, 'generic', met)
+          call write_ovar(out_timestep, ncid_out, ovid%clabile, 'Clabile',   &
+               real(out%clabile), ranges%TotLivBiomass, patchout%c13o2, 'default', met)
+          ! 13C
+          call write_ovar(out_timestep, ncid_out, ovid%A13n, 'An13',   &
+               real(out%A13n), ranges%Wbal, patchout%c13o2, 'default', met)
+          call write_ovar(out_timestep, ncid_out, ovid%aDisc13, 'aDisc13',   &
+               real(out%aDisc13), ranges%Wbal, patchout%c13o2, 'default', met)
+          call write_ovar(out_timestep, ncid_out, ovid%c13plant, 'C13plant',   &
+               real(out%c13plant), ranges%TotLivBiomass, patchout%c13o2, 'generic', met)
+          call write_ovar(out_timestep, ncid_out, ovid%c13litter, 'C13litter',   &
+               real(out%c13litter), ranges%TotLittCarb, patchout%c13o2, 'generic', met)
+          call write_ovar(out_timestep, ncid_out, ovid%c13soil, 'C13soil',   &
+               real(out%c13soil), ranges%TotSoilCarb, patchout%c13o2, 'generic', met)
+          call write_ovar(out_timestep, ncid_out, ovid%c13labile, 'C13labile',   &
+               real(out%c13labile), ranges%TotLivBiomass, patchout%c13o2, 'default', met)
+          ! Reset temporary output variable
+          ! 12C
+          out%An      = 0.0_r_2
+          out%Rd      = 0.0_r_2
+          out%cplant  = 0.0_r_2
+          out%clitter = 0.0_r_2
+          out%csoil   = 0.0_r_2
+          out%clabile = 0.0_r_2
+          ! 13C
+          out%A13n      = 0.0_r_2
+          out%aDisc13   = 0.0_r_2
+          out%c13plant  = 0.0_r_2
+          out%c13litter = 0.0_r_2
+          out%c13soil   = 0.0_r_2
+          out%c13labile = 0.0_r_2
        endif
     endif
 
-   ok = NF90_SYNC(ncid_out)
+   ok = nf90_sync(ncid_out)
 
   END SUBROUTINE write_output
+ 
   !=============================================================================
+  
   SUBROUTINE close_output_file(bal, air, bgc, canopy, met,                     &
                                rad, rough, soil, ssnow, sum_flux, veg)
     ! Closes output file, reports cumulative mass and energy

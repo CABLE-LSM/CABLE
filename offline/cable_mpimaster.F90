@@ -1058,11 +1058,11 @@ write(*,*) 'after CALL1'
                       CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, &
                            casamet,ssnow,         &
                            rad, bal, air, soil, veg, C%SBOLTZ,     &
-                           C%EMLEAF, C%EMSOIL, c13o2pools )
+                           C%EMLEAF, C%EMSOIL, c13o2pools, c13o2flux )
                    else
                       CALL write_output( dels, ktau, met, canopy, casaflux, casapool, &
                            casamet, ssnow,   &
-                           rad, bal, air, soil, veg, C%SBOLTZ, C%EMLEAF, C%EMSOIL, c13o2pools )
+                           rad, bal, air, soil, veg, C%SBOLTZ, C%EMLEAF, C%EMSOIL, c13o2pools, c13o2flux )
 
                    ENDIF
                 END IF
@@ -1283,11 +1283,11 @@ write(*,*) 'after annual calcs'
                    CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, &
                         casamet, ssnow,         &
                         rad, bal, air, soil, veg, C%SBOLTZ,     &
-                        C%EMLEAF, C%EMSOIL, c13o2pools )
+                        C%EMLEAF, C%EMSOIL, c13o2pools, c13o2flux )
                 else
                    CALL write_output( dels, ktau, met, canopy, casaflux, casapool, casamet, &
                         ssnow,   &
-                        rad, bal, air, soil, veg, C%SBOLTZ, C%EMLEAF, C%EMSOIL, c13o2pools )
+                        rad, bal, air, soil, veg, C%SBOLTZ, C%EMLEAF, C%EMSOIL, c13o2pools, c13o2flux )
                    
                 ENDIF
               

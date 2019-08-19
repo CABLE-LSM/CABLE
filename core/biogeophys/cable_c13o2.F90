@@ -51,7 +51,9 @@ MODULE cable_c13o2
   private :: c13o2_fluxmatrix_pools ! Flux matrix between Casa pools
   private :: c13o2_sinks_pools      ! Sinks of isotope pool model
   private :: c13o2_sources_pools    ! Sources of isotope pool model
+#ifdef C13DEBUG
   private :: c13o2_sources_pools_nofrac ! Same but RAn=1, i.e. simply 12C sources
+#endif
   private :: c13o2_save_c13o2pools  ! Save 13C Casa pools before update
   private :: c13o2_c13o2pools_back  ! Write 13C Casa pools to c13o2pools after update
 
@@ -1530,6 +1532,7 @@ contains
 
   end subroutine c13o2_sources_pools
 
+#ifdef C13DEBUG
   ! Same but with c13o2flux%RAn=1 - to check isotope code
   subroutine c13o2_sources_pools_nofrac(c13o2flux, casaflux, casasources)
 
@@ -1562,6 +1565,7 @@ contains
     casasources(:,nstart) = casaflux%fracClabile * casaflux%Cgpp * 1.0_dp
 
   end subroutine c13o2_sources_pools_nofrac
+#endif
 
   ! ------------------------------------------------------------------
 

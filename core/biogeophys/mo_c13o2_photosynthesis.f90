@@ -437,6 +437,7 @@ contains
     real(dp), dimension(size(isc3)) :: Ass    ! net assimilation
     ! fractionations
     real(dp), dimension(size(isc3)) :: eps_es, eps_b4, eps_s
+    real(dp) :: eps_night
 
     nn = size(isc3,1)
     
@@ -454,37 +455,35 @@ contains
     !-- 13CO2 fluxes
     !
 
-    ! ToDo: Check nighttime a or b?
+    ! ToDo: Nighttime a or zero?
+    eps_night = 0.0_dp ! eps_a
     do jl=1, nn
        if (isc3(jl)) then
           ! C3
-          if (GPP(jl) > 0.0_dp) then
-             Disc(jl)  = eps_a+(eps_b_ci-eps_a)*ci(jl)/ca(jl)
-          else
-             Disc(jl)  = eps_a
+          if (GPP(jl) > 0.0_dp) then ! day
+             Disc(jl) = eps_a + (eps_b_ci-eps_a) * ci(jl)/ca(jl)
+          else                       ! night
+             Disc(jl) = eps_night
           end if
-          Ass13(jl) = (1.0_dp-Disc(jl))*Ass(jl)*Ra(jl)           ! D = 1 - A'/A/Ra
        else
           ! C4
-          tmp = ci(jl)*(1.0_dp-(1.0_dp-eps_a)/(1.0_dp-eps_b4(jl))*(1.0_dp-Phi) &
-               - (1.0_dp-eps_s(jl))/(1.0_dp-eps_b3)*(1.0_dp-eps_a)/(1.0_dp-eps_b4(jl))*Phi)
-          if (ca(jl) > ci(jl)) then
-             Ass13(jl) = (1.0_dp-eps_a) * ca(jl)  / (ca(jl)-tmp) ! no *A*Ra
-             Disc(jl)  = 1.0_dp - Ass13(jl)                      ! D = 1 - A'/A/Ra
-             Ass13(jl) = Ass13(jl)*Ass(jl)*Ra(jl)                ! *A*Ra
-          else
-             Disc(jl)  = eps_a
-             Ass13(jl) = (1.0_dp-eps_a)*Ra(jl)*Ass(jl)
+          tmp = ci(jl) * ( 1.0_dp - (1.0_dp-eps_a) / (1.0_dp-eps_b4(jl)) * (1.0_dp-Phi) - &
+               (1.0_dp-eps_s(jl)) / (1.0_dp-eps_b3) * (1.0_dp-eps_a) / (1.0_dp-eps_b4(jl)) *Phi )
+          if (ca(jl) > ci(jl)) then ! day
+             Ass13(jl) = (1.0_dp-eps_a) * ca(jl) / (ca(jl)-tmp) ! no *A*Ra
+             Disc(jl)  = 1.0_dp - Ass13(jl)                     ! D = 1 - A'/A/Ra
+          else                      ! night
+             Disc(jl)  = eps_night
           end if
        end if ! end C3/C4
-
     end do
+    Ass13 = (1.0_dp-Disc) * Ass * Ra ! D = 1 - A'/A/Ra
     
     return
 
   end subroutine c13o2_discrimination_simple
 
-  
+
   ! ------------------------------------------------------------------
 
   !     NAME

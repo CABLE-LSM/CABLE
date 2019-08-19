@@ -346,14 +346,7 @@ MODULE cable_IO_vars_module
          isoil  = .FALSE.,    & ! soil type from global index
          meth  = .FALSE.,     & ! method for solving turbulence in canopy scheme
          za  = .FALSE.,       & ! something to do with roughness ????
-         cplant    = .false., & ! plant carbon pools
-         clitter   = .false., & ! litter carbon pools
-         csoil     = .false., & ! soil carbon pools
-         clabile   = .false., & ! excess carbon pools
-         c13plant  = .false., & ! 13C plant carbon pools
-         c13litter = .false., & ! 13C litter carbon pools
-         c13soil   = .false., & ! 13C soil carbon pools
-         c13labile = .false.    ! 13C excess carbon pools
+         c13o2 = .false.        ! carbon pools and flux output for 13C isotopes
    END TYPE output_inclusion_type
 
    TYPE(output_inclusion_type), SAVE :: output

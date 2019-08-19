@@ -245,13 +245,13 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
 
   CLOSE(101)
 
-  fracroot   = 0.0
-  depthsoila = 0.0
-  depthsoilb = 0.0
+  fracroot   = 0.0_r_2
+  depthsoila = 0.0_r_2
+  depthsoilb = 0.0_r_2
   DO ns=1,ms
     depthsoilb(ns) = depthsoilb(ns) + soil%zse(ns)
     IF (ns==1) THEN
-      depthsoila(ns) = 0.0
+      depthsoila(ns) = 0.0_r_2
     ELSE
       depthsoila(ns) = depthsoilb(ns-1)
     ENDIF
@@ -319,12 +319,12 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
     !    PRINT *, 'npt,iv1,iso ', npt,iv1, iso
     casamet%iveg2(npt) =casabiome%ivt2(iv1)
     casamet%lnonwood(npt) = 1
-    casapool%cplant(npt,wood)  = 0.0
-    casapool%clitter(npt,cwd)  = 0.0
-    casapool%nplant(npt,wood)  = 0.0
-    casapool%nlitter(npt,cwd)  = 0.0
-    casapool%pplant(npt,wood)  = 0.0
-    casapool%plitter(npt,cwd)  = 0.0
+    casapool%cplant(npt,wood)  = 0.0_r_2
+    casapool%clitter(npt,cwd)  = 0.0_r_2
+    casapool%nplant(npt,wood)  = 0.0_r_2
+    casapool%nlitter(npt,cwd)  = 0.0_r_2
+    casapool%pplant(npt,wood)  = 0.0_r_2
+    casapool%plitter(npt,cwd)  = 0.0_r_2
     IF (casamet%iveg2(npt)==forest.or.casamet%iveg2(npt)==shrub) THEN
       casamet%lnonwood(npt) = 0
       casapool%cplant(npt,wood)  = Cwood(iv1)
@@ -335,7 +335,7 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
       casapool%plitter(npt,cwd)  = xpcwd(iv1)
       !! vh_js !!
       IF (cable_user%CALL_POP) THEN  ! initialise very small wood pool, so POP can start from zero.
-         casapool%cplant(npt,wood) = 0.01
+         casapool%cplant(npt,wood) = 0.01_r_2
          casapool%nplant(npt,wood)= casabiome%ratioNCplantmin(iv1,wood)* casapool%cplant(npt,wood)
          casapool%pplant(npt,wood)= casabiome%ratioPCplantmin(iv1,wood)* casapool%cplant(npt,wood)
       ENDIF
@@ -344,14 +344,14 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
     ENDIF
     casapool%cplant(npt,leaf)     = cleaf(iv1)
     casapool%cplant(npt,froot)    = cfroot(iv1)
-    casapool%clabile(npt)         = 0.0
+    casapool%clabile(npt)         = 0.0_r_2
     casapool%clitter(npt,metb)     = cmet(iv1)
     casapool%clitter(npt,str)     = cstr(iv1)
     casapool%csoil(npt,mic)       = cmic(iv1)
     casapool%csoil(npt,slow)      = cslow(iv1)
     casapool%csoil(npt,pass)      = cpass(iv1)
     IF (icycle==1) THEN
-      casapool%ratioNCplant(npt,:)  = 1.0/ratioCNplant(iv1,:)
+      casapool%ratioNCplant(npt,:)  = 1.0_r_2/ratioCNplant(iv1,:)
     ENDIF
 
     ! initializing glai in case not reading pool file (eg. during spin)
@@ -360,7 +360,7 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
 
     casaflux%fNminloss(npt)   = xfNminloss(iv1)
     ! comment out by ypw 12/07/2009
-    casaflux%fNminleach(npt)  = 10.0*xfNminleach(iv1) * deltcasa
+    casaflux%fNminleach(npt)  = 10.0_r_2*xfNminleach(iv1) * deltcasa
 !    casaflux%fNminleach(npt)  = xfNminleach(iv1)
     casapool%nplant(npt,leaf) = nleaf(iv1)
     casapool%nplant(npt,froot)= nfroot(iv1)
@@ -382,21 +382,21 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
     casapool%psoillab(npt)    = xplab(iv1)
     casapool%psoilsorb(npt)   = xpsorb(iv1)
     casapool%psoilocc(npt)    = xpocc(iv1)
-    casapool%Psoillab(npt)    = 0.0
+    casapool%Psoillab(npt)    = 0.0_r_2
     casaflux%kmlabp(npt)      = xkmlabp(iso)
     casaflux%psorbmax(npt)    = xpsorbmax(iso)
-    casaflux%fpleach(npt)     = xfPleach(iso) /(365.0)    ! convert from 1/year to 1/day
+    casaflux%fpleach(npt)     = xfPleach(iso) /(365.0_r_2)    ! convert from 1/year to 1/day
     ! we used the spatially explicit estimate N fixation by Wang and Houlton (GRL)
-    !   casaflux%Nminfix(npt)     = xnfixrate(iv1)/365.0
+    !   casaflux%Nminfix(npt)     = xnfixrate(iv1)/365.0_r_2
 
-    casapool%ratioNCplant(npt,:)  = 1.0/ratioCNplant(iv1,:)
+    casapool%ratioNCplant(npt,:)  = 1.0_r_2/ratioCNplant(iv1,:)
     casapool%ratioNPplant(npt,:)  = casabiome%ratioNPplantmin(iv1,:)
-    casapool%ratioNClitter(npt,:) = casapool%nlitter(npt,:)/(casapool%clitter(npt,:)+1.0e-10)
-    casapool%ratioNPlitter(npt,:) = casapool%nlitter(npt,:)/(casapool%plitter(npt,:)+1.0e-10)
-    casapool%ratioNCsoil(npt,:)   = 1.0/ratioCNsoil(iv1,:)
+    casapool%ratioNClitter(npt,:) = casapool%nlitter(npt,:)/(casapool%clitter(npt,:)+1.0e-10_r_2)
+    casapool%ratioNPlitter(npt,:) = casapool%nlitter(npt,:)/(casapool%plitter(npt,:)+1.0e-10_r_2)
+    casapool%ratioNCsoil(npt,:)   = 1.0_r_2/ratioCNsoil(iv1,:)
     casapool%ratioNPsoil(npt,:)   = ratioNPsoil(iso,:)
-    casapool%ratioNCsoilmin(npt,:)   = 1.0/ratioCNsoilmax(iv1,:)
-    casapool%ratioNCsoilmax(npt,:)   = 1.0/ratioCNsoilmin(iv1,:)
+    casapool%ratioNCsoilmin(npt,:)   = 1.0_r_2/ratioCNsoilmax(iv1,:)
+    casapool%ratioNCsoilmax(npt,:)   = 1.0_r_2/ratioCNsoilmin(iv1,:)
     casapool%ratioNCsoilnew(npt,:)   = casapool%ratioNCsoilmax(npt,:)
   ENDDO
 
@@ -709,91 +709,91 @@ SUBROUTINE casa_init(casabiome,casamet,casaflux,casapool,casabal,veg,phen)
   !phen%phase = 2
 
   !CLN initialise all !!!!! THIS NEEDS FIXING because of e.g. ICE-WATER
-  casaflux%Cgpp         = 0.
-  casaflux%Cnpp         = 0.
-  casaflux%Crp          = 0.
-  casaflux%Crgplant     = 0.
- ! casaflux%Nminfix      = 0.
-  casaflux%Nminuptake   = 0.
-  casaflux%Plabuptake   = 0.
-  casaflux%Clabloss     = 0.
-  casaflux%fracClabile  = 0.
-  casaflux%stemnpp      = 0.
-  casaflux%frac_sapwood = 0.
-  casaflux%sapwood_area = 0.
-  casaflux%FluxCtohwp = 0.
-  casaflux%FluxCtoClear = 0.
-  casaflux%fracCalloc   = 0.
-  casaflux%fracNalloc   = 0.
-  casaflux%fracPalloc   = 0.
-  casaflux%Crmplant     = 0.
-  casaflux%kplant       = 0.
-  casaflux%kplant_fire  = 0.
-  casaflux%kplant_tot   = 0.0
+  casaflux%Cgpp         = 0.0_r_2
+  casaflux%Cnpp         = 0.0_r_2
+  casaflux%Crp          = 0.0_r_2
+  casaflux%Crgplant     = 0.0_r_2
+ ! casaflux%Nminfix      = 0.0_r_2
+  casaflux%Nminuptake   = 0.0_r_2
+  casaflux%Plabuptake   = 0.0_r_2
+  casaflux%Clabloss     = 0.0_r_2
+  casaflux%fracClabile  = 0.0_r_2
+  casaflux%stemnpp      = 0.0_r_2
+  casaflux%frac_sapwood = 0.0_r_2
+  casaflux%sapwood_area = 0.0_r_2
+  casaflux%FluxCtohwp = 0.0_r_2
+  casaflux%FluxCtoClear = 0.0_r_2
+  casaflux%fracCalloc   = 0.0_r_2
+  casaflux%fracNalloc   = 0.0_r_2
+  casaflux%fracPalloc   = 0.0_r_2
+  casaflux%Crmplant     = 0.0_r_2
+  casaflux%kplant       = 0.0_r_2
+  casaflux%kplant_fire  = 0.0_r_2
+  casaflux%kplant_tot   = 0.0_r_2
 
-  casaflux%fromPtoL     = 0.
+  casaflux%fromPtoL     = 0.0_r_2
 
-  casaflux%Cnep         = 0.
-  casaflux%Crsoil       = 0.
-  casapool%dClabiledt = 0.0
-  !casaflux%Nmindep      =  casaflux%Nmindep /2.0
- !casaflux%Nmindep      = 0.
-  casaflux%Nminloss     = 0.
-  casaflux%Nminleach    = 0.
-  casaflux%Nupland      = 0.
-  casaflux%Nlittermin   = 0.
-  casaflux%Nsmin        = 0.
-  casaflux%Nsimm        = 0.
-  casaflux%Nsnet        = 0.
-  !casaflux%fNminloss    = 0.
-  !casaflux%fNminleach   = 0.
-  !casaflux%Pdep         = 0.
-  !casaflux%Pwea         = 0.
-  casaflux%Pleach       = 0.
-  casaflux%Ploss        = 0.
-  casaflux%Pupland      = 0.
-  casaflux%Plittermin   = 0.
-  casaflux%Psmin        = 0.
-  casaflux%Psimm        = 0.
-  casaflux%Psnet        = 0.
-!  casaflux%fPleach      = 0. !vh ! this should be a parameter, not a flux variable
-  casaflux%kplab        = 0.
-  casaflux%kpsorb       = 0.
-  casaflux%kpocc        = 0.
-!  casaflux%kmlabp       = 0.  !vh ! this should be a paramter, not a flux variable
-!  casaflux%Psorbmax     = 0. !vh ! this should be a paramter, not a flux variable
+  casaflux%Cnep         = 0.0_r_2
+  casaflux%Crsoil       = 0.0_r_2
+  casapool%dClabiledt = 0.0_r_2
+  !casaflux%Nmindep      =  casaflux%Nmindep /2.0_r_2
+ !casaflux%Nmindep      = 0.0_r_2
+  casaflux%Nminloss     = 0.0_r_2
+  casaflux%Nminleach    = 0.0_r_2
+  casaflux%Nupland      = 0.0_r_2
+  casaflux%Nlittermin   = 0.0_r_2
+  casaflux%Nsmin        = 0.0_r_2
+  casaflux%Nsimm        = 0.0_r_2
+  casaflux%Nsnet        = 0.0_r_2
+  !casaflux%fNminloss    = 0.0_r_2
+  !casaflux%fNminleach   = 0.0_r_2
+  !casaflux%Pdep         = 0.0_r_2
+  !casaflux%Pwea         = 0.0_r_2
+  casaflux%Pleach       = 0.0_r_2
+  casaflux%Ploss        = 0.0_r_2
+  casaflux%Pupland      = 0.0_r_2
+  casaflux%Plittermin   = 0.0_r_2
+  casaflux%Psmin        = 0.0_r_2
+  casaflux%Psimm        = 0.0_r_2
+  casaflux%Psnet        = 0.0_r_2
+!  casaflux%fPleach      = 0.0_r_2 !vh ! this should be a parameter, not a flux variable
+  casaflux%kplab        = 0.0_r_2
+  casaflux%kpsorb       = 0.0_r_2
+  casaflux%kpocc        = 0.0_r_2
+!  casaflux%kmlabp       = 0.0_r_2  !vh ! this should be a paramter, not a flux variable
+!  casaflux%Psorbmax     = 0.0_r_2 !vh ! this should be a paramter, not a flux variable
 
-  casaflux%klitter      = 0.
-  casaflux%klitter_fire = 0.
-  casaflux%ksoil        = 0.
-  casaflux%fromLtoS     = 0.
-  casaflux%fromStoS     = 0.
-  casaflux%fromLtoCO2   = 0.
-  casaflux%fromStoCO2   = 0.
-  casaflux%FluxCtolitter= 0.
-  casaflux%FluxNtolitter= 0.
-  casaflux%FluxPtolitter= 0.
-  casaflux%FluxCtosoil  = 0.
-  casaflux%FluxNtosoil  = 0.
-  casaflux%FluxPtosoil  = 0.
-  casaflux%FluxCtoCO2   = 0.
-  casaflux%FluxCtoCO2_plant_fire = 0.
-  casaflux%FluxCtoCO2_litter_fire = 0.
+  casaflux%klitter      = 0.0_r_2
+  casaflux%klitter_fire = 0.0_r_2
+  casaflux%ksoil        = 0.0_r_2
+  casaflux%fromLtoS     = 0.0_r_2
+  casaflux%fromStoS     = 0.0_r_2
+  casaflux%fromLtoCO2   = 0.0_r_2
+  casaflux%fromStoCO2   = 0.0_r_2
+  casaflux%FluxCtolitter= 0.0_r_2
+  casaflux%FluxNtolitter= 0.0_r_2
+  casaflux%FluxPtolitter= 0.0_r_2
+  casaflux%FluxCtosoil  = 0.0_r_2
+  casaflux%FluxNtosoil  = 0.0_r_2
+  casaflux%FluxPtosoil  = 0.0_r_2
+  casaflux%FluxCtoCO2   = 0.0_r_2
+  casaflux%FluxCtoCO2_plant_fire = 0.0_r_2
+  casaflux%FluxCtoCO2_litter_fire = 0.0_r_2
 
-  casaflux%FluxFromPtoL = 0.
-  casaflux%fromPtoL_fire = 0.
-  casaflux%FluxFromLtoS = 0.
-  casaflux%FluxFromStoS = 0.
-  casaflux%FluxFromPtoCO2 = 0.
-  casaflux%FluxFromLtoCO2 = 0.
-  casaflux%FluxFromStoCO2 = 0.
-  casaflux%FluxFromPtoHarvest = 0.
+  casaflux%FluxFromPtoL = 0.0_r_2
+  casaflux%fromPtoL_fire = 0.0_r_2
+  casaflux%FluxFromLtoS = 0.0_r_2
+  casaflux%FluxFromStoS = 0.0_r_2
+  casaflux%FluxFromPtoCO2 = 0.0_r_2
+  casaflux%FluxFromLtoCO2 = 0.0_r_2
+  casaflux%FluxFromStoCO2 = 0.0_r_2
+  casaflux%FluxFromPtoHarvest = 0.0_r_2
 
-  casaflux%Cplant_turnover = 0.
-  casaflux%fHarvest = 0.0
-  casaflux%Charvest = 0.0
-  casaflux%Nharvest = 0.0
-  casaflux%fcrop    = 0.0
+  casaflux%Cplant_turnover = 0.0_r_2
+  casaflux%fHarvest = 0.0_r_2
+  casaflux%Charvest = 0.0_r_2
+  casaflux%Nharvest = 0.0_r_2
+  casaflux%fcrop    = 0.0_r_2
 
   phen%doyphase(:,1) = -50
   phen%doyphase(:,2) = phen%doyphase(:,1) +14
@@ -803,19 +803,19 @@ SUBROUTINE casa_init(casabiome,casamet,casaflux,casapool,casabal,veg,phen)
   phen%phen(:) = 1
   phen%aphen(:) = 0
 
-  casapool%dCplantdt = 0
-  casapool%dNplantdt = 0
-  casapool%dPplantdt= 0
-  casapool%dNsoilmindt = 0
-  casapool%dPsoillabdt = 0
-  casapool%dPsoilsorbdt = 0
-  casapool%dPsoiloccdt = 0
-  casapool%dClitterdt = 0
-  casapool%dNlitterdt = 0
-  casapool%dPlitterdt = 0
-  casapool%dCsoildt = 0
-  casapool%dNsoildt = 0
-  casapool%dPsoildt = 0
+  casapool%dCplantdt = 0.0_r_2
+  casapool%dNplantdt = 0.0_r_2
+  casapool%dPplantdt= 0.0_r_2
+  casapool%dNsoilmindt = 0.0_r_2
+  casapool%dPsoillabdt = 0.0_r_2
+  casapool%dPsoilsorbdt = 0.0_r_2
+  casapool%dPsoiloccdt = 0.0_r_2
+  casapool%dClitterdt = 0.0_r_2
+  casapool%dNlitterdt = 0.0_r_2
+  casapool%dPlitterdt = 0.0_r_2
+  casapool%dCsoildt = 0.0_r_2
+  casapool%dNsoildt = 0.0_r_2
+  casapool%dPsoildt = 0.0_r_2
   !CLN add more if necessary
 
   IF (initcasa==1) THEN
@@ -827,13 +827,13 @@ SUBROUTINE casa_init(casabiome,casamet,casaflux,casapool,casabal,veg,phen)
         WRITE(*,*)'casa_init: not using restart file!'
         WRITE(*,*)'Using input from readbiome.!!!'
         WRITE(*,*) 'initialising frac_sapwood=1 and sapwood_area = 0)'
-        casaflux%frac_sapwood(:) = 1.0
-        casaflux%sapwood_area(:) = 0.0
+        casaflux%frac_sapwood(:) = 1.0_r_2
+        casaflux%sapwood_area(:) = 0.0_r_2
      ENDIF
   ENDIF
- WHERE(casamet%lnonwood==1) casapool%cplant(:,WOOD) = 0.0
- WHERE(casamet%lnonwood==1) casapool%nplant(:,WOOD) = 0.0
- WHERE(casamet%lnonwood==1) casapool%pplant(:,WOOD) = 0.0
+ WHERE(casamet%lnonwood==1) casapool%cplant(:,WOOD) = 0.0_r_2
+ WHERE(casamet%lnonwood==1) casapool%nplant(:,WOOD) = 0.0_r_2
+ WHERE(casamet%lnonwood==1) casapool%pplant(:,WOOD) = 0.0_r_2
 !!$IF (initcasa==1) THEN
 !!$     INQUIRE( FILE=TRIM(casafile%cnpipool), EXIST=EXRST )
 !!$!! vh_js!!
@@ -961,8 +961,8 @@ endif
   ! reset labile C pool,comment out by Q.Zhang 10/09/2011
   !  casapool%clabile    = 0.0
   ! check pool sizes
-  casapool%Ctot_0 = 0.0
-  casapool%Ctot = 0.0
+  casapool%Ctot_0 = 0.0_r_2
+  casapool%Ctot = 0.0_r_2
   casapool%cplant     = MAX(0.0,casapool%cplant)
   casapool%clitter    = MAX(0.0,casapool%clitter)
   casapool%csoil      = MAX(0.0,casapool%csoil)
@@ -974,19 +974,19 @@ endif
   casabal%FCgppyear=0.0;casabal%FCrpyear=0.0
   casabal%FCnppyear=0;casabal%FCrsyear=0.0;casabal%FCneeyear=0.0
   !vh !
-  WHERE(casamet%lnonwood==1) casapool%cplant(:,WOOD) = 0.0
+  WHERE(casamet%lnonwood==1) casapool%cplant(:,WOOD) = 0.0_r_2
   IF (icycle==1) THEN
     casapool%Nplant(:,:) = casapool%cplant(:,:) * casapool%ratioNCplant(:,:)
     casapool%Nsoil(:,:)  = casapool%ratioNCsoil(:,:) * casapool%Csoil(:,:)
     casapool%Psoil(:,:)  = casapool%Nsoil(:,:)/casapool%ratioNPsoil(:,:)
-    casapool%Nsoilmin(:) = 2.5
+    casapool%Nsoilmin(:) = 2.5_r_2
   ENDIF
 
   IF (icycle >=1) THEN
-     casapool%nplant     = MAX(1.e-6,casapool%nplant)
-     casapool%nlitter    = MAX(1.e-6,casapool%nlitter)
-     casapool%nsoil      = MAX(1.e-6,casapool%nsoil)
-     casapool%nsoilmin   = MAX(1.e-6,casapool%nsoilmin)
+     casapool%nplant     = MAX(1.e-6_r_2,casapool%nplant)
+     casapool%nlitter    = MAX(1.e-6_r_2,casapool%nlitter)
+     casapool%nsoil      = MAX(1.e-6_r_2,casapool%nsoil)
+     casapool%nsoilmin   = MAX(1.e-6_r_2,casapool%nsoilmin)
      casabal%nplantlast  = casapool%nplant
      casabal%nlitterlast = casapool%nlitter
      casabal%nsoillast   = casapool%nsoil
@@ -995,16 +995,16 @@ endif
      casabal%FNdepyear=0.0;casabal%FNfixyear=0.0;casabal%FNsnetyear=0.0
      casabal%FNupyear=0.0;casabal%FNleachyear=0.0;casabal%FNlossyear=0.0
      !vh !
-     WHERE(casamet%lnonwood==1) casapool%nplant(:,WOOD) = 0.0
+     WHERE(casamet%lnonwood==1) casapool%nplant(:,WOOD) = 0.0_r_2
   ENDIF
 
   IF (icycle >=1) THEN
-     casapool%pplant       = MAX(1.0e-7,casapool%pplant)
-     casapool%plitter      = MAX(1.0e-7,casapool%plitter)
-     casapool%psoil        = MAX(1.0e-7,casapool%psoil)
-     casapool%Psoillab     = MAX(1.0e-7,casapool%psoillab)  ! was 2.0, changed according to  YP
-     casapool%psoilsorb    = MAX(1.0e-7,casapool%psoilsorb) ! was 10.0, -
-     casapool%psoilocc     = MAX(1.0e-7,casapool%psoilocc)  ! was 50.0, -
+     casapool%pplant       = MAX(1.0e-7_r_2,casapool%pplant)
+     casapool%plitter      = MAX(1.0e-7_r_2,casapool%plitter)
+     casapool%psoil        = MAX(1.0e-7_r_2,casapool%psoil)
+     casapool%Psoillab     = MAX(1.0e-7_r_2,casapool%psoillab)  ! was 2.0, changed according to  YP
+     casapool%psoilsorb    = MAX(1.0e-7_r_2,casapool%psoilsorb) ! was 10.0, -
+     casapool%psoilocc     = MAX(1.0e-7_r_2,casapool%psoilocc)  ! was 50.0, -
      casabal%pplantlast    = casapool%pplant
      casabal%plitterlast   = casapool%plitter
      casabal%psoillast     = casapool%psoil
@@ -1015,7 +1015,7 @@ endif
      casabal%FPweayear=0.0;casabal%FPdustyear=0.0; casabal%FPsnetyear=0.0
      casabal%FPupyear=0.0;casabal%FPleachyear=0.0;casabal%FPlossyear=0.0
      !vh !
-     WHERE(casamet%lnonwood==1) casapool%pplant(:,WOOD) = 0.0
+     WHERE(casamet%lnonwood==1) casapool%pplant(:,WOOD) = 0.0_r_2
   EndIF
 
 
@@ -1326,17 +1326,17 @@ SUBROUTINE casa_cnpflux(casaflux,casapool,casabal,zeroflux)
      casabal%FPleachyear = 0.0
      casabal%FPlossyear  = 0.0
 
-     casaflux%FluxCtohwp = 0.0
-     casaflux%FluxNtohwp = 0.0
-     casaflux%FluxPtohwp = 0.0
-     casaflux%FluxCtoclear = 0.0
-     casaflux%FluxNtoclear = 0.0
-     casaflux%FluxPtoclear = 0.0
-     casaflux%CtransferLUC = 0.0
+     casaflux%FluxCtohwp = 0.0_r_2
+     casaflux%FluxNtohwp = 0.0_r_2
+     casaflux%FluxPtohwp = 0.0_r_2
+     casaflux%FluxCtoclear = 0.0_r_2
+     casaflux%FluxNtoclear = 0.0_r_2
+     casaflux%FluxPtoclear = 0.0_r_2
+     casaflux%CtransferLUC = 0.0_r_2
 
-     casaflux%Cplant_turnover_disturbance = 0
-     casaflux%Cplant_turnover_crowding = 0
-     casaflux%Cplant_turnover_resource_limitation = 0
+     casaflux%Cplant_turnover_disturbance = 0.0_r_2
+     casaflux%Cplant_turnover_crowding = 0.0_r_2
+     casaflux%Cplant_turnover_resource_limitation = 0.0_r_2
 
   ELSE
 
@@ -1424,7 +1424,7 @@ SUBROUTINE biogeochem(ktau,dels,idoY,LALLOC,veg,soil,casabiome,casapool,casaflux
   INTEGER  npt,j
   REAL, ALLOCATABLE :: tmp(:)
 
-  xKNlimiting = 1.0
+  xKNlimiting = 1.0_r_2
 
  ! zero annual sums
   if (idoy==1) CALL casa_cnpflux(casaflux,casapool,casabal,.true.)
@@ -1450,39 +1450,39 @@ SUBROUTINE biogeochem(ktau,dels,idoY,LALLOC,veg,soil,casabiome,casapool,casaflux
    IF (cable_user%CALL_POP) THEN
 
       call casa_allocation(veg,soil,casabiome,casaflux,casapool,casamet,phen,LALLOC)
-      WHERE (pop%pop_grid(:)%cmass_sum_old.gt.0.001 .and. pop%pop_grid(:)%cmass_sum.gt.0.001 )
+      WHERE (pop%pop_grid(:)%cmass_sum_old.gt.0.001_r_2 .and. pop%pop_grid(:)%cmass_sum.gt.0.001_r_2 )
          
          casaflux%frac_sapwood(POP%Iwood) = POP%pop_grid(:)%csapwood_sum/ POP%pop_grid(:)%cmass_sum
-         casaflux%sapwood_area(POP%Iwood) = max(POP%pop_grid(:)%sapwood_area/10000., 1e-6)
+         casaflux%sapwood_area(POP%Iwood) = max(POP%pop_grid(:)%sapwood_area/10000., 1e-6_r_2)
          veg%hc(POP%Iwood) = POP%pop_grid(:)%height_max
           
          WHERE (pop%pop_grid(:)%LU ==2)
 
-            casaflux%kplant(POP%Iwood,2) =  1.0 -  &
+            casaflux%kplant(POP%Iwood,2) =  1.0_r_2 -  &
               (1.0-  max( min((POP%pop_grid(:)%stress_mortality + &
               POP%pop_grid(:)%crowding_mortality + &
               POP%pop_grid(:)%fire_mortality ) &
               /(POP%pop_grid(:)%cmass_sum+POP%pop_grid(:)%growth) + &
-              1.0/veg%disturbance_interval(POP%Iwood,1), 0.99), 0.0))**(1.0/365.0)
+              1.0_r_2/veg%disturbance_interval(POP%Iwood,1), 0.99_r_2), 0.0_r_2))**(1.0_r_2/365.0_r_2)
 
         ELSEWHERE
-            casaflux%kplant(POP%Iwood,2) =  1.0 -  &
-              (1.0-  max( min((POP%pop_grid(:)%stress_mortality + &
+            casaflux%kplant(POP%Iwood,2) =  1.0_r_2 -  &
+              (1.0_r_2-  max( min((POP%pop_grid(:)%stress_mortality + &
               POP%pop_grid(:)%crowding_mortality + &
               POP%pop_grid(:)%fire_mortality+POP%pop_grid(:)%cat_mortality  ) &
-              /(POP%pop_grid(:)%cmass_sum+POP%pop_grid(:)%growth), 0.99), 0.0))**(1.0/365.0)
+              /(POP%pop_grid(:)%cmass_sum+POP%pop_grid(:)%growth), 0.99_r_2), 0.0_r_2))**(1.0_r_2/365.0_r_2)
 
          ENDWHERE
 
          veg%hc(POP%Iwood) = POP%pop_grid(:)%height_max
       ELSEWHERE
-         casaflux%frac_sapwood(POP%Iwood) = 1.0
-         casaflux%sapwood_area(POP%Iwood) = max(POP%pop_grid(:)%sapwood_area/10000., 1e-6)
-         casaflux%kplant(POP%Iwood,2) = 0.0
+         casaflux%frac_sapwood(POP%Iwood) = 1.0_r_2
+         casaflux%sapwood_area(POP%Iwood) = max(POP%pop_grid(:)%sapwood_area/10000._r_2, 1e-6_r_2)
+         casaflux%kplant(POP%Iwood,2) = 0.0_r_2
          veg%hc(POP%Iwood) = POP%pop_grid(:)%height_max
       ENDWHERE
       casaflux%kplant_tot(POP%Iwood,2) = casaflux%kplant(POP%Iwood,2) + &
-           (1. -casaflux%kplant(POP%Iwood,2))* casaflux%kplant_fire(POP%Iwood,2)
+           (1.0_r_2 -casaflux%kplant(POP%Iwood,2))* casaflux%kplant_fire(POP%Iwood,2)
    ENDIF
 !!$if (idoy.eq.365) then
 !!$ write(667,*) pop%LU
@@ -1537,16 +1537,16 @@ SUBROUTINE biogeochem(ktau,dels,idoY,LALLOC,veg,soil,casabiome,casapool,casaflux
        nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd, &
        pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
 
-  casaflux%Cplant_turnover_disturbance = 0
-  casaflux%Cplant_turnover_crowding = 0
-  casaflux%Cplant_turnover_resource_limitation = 0
+  casaflux%Cplant_turnover_disturbance = 0.0_r_2
+  casaflux%Cplant_turnover_crowding = 0.0_r_2
+  casaflux%Cplant_turnover_resource_limitation = 0.0_r_2
 
   if (cable_user%CALL_POP) THEN
      if (.not.allocated(tmp)) allocate(tmp(size(POP%pop_grid)))
      tmp = (POP%pop_grid(:)%stress_mortality + POP%pop_grid(:)%crowding_mortality &
           +POP%pop_grid(:)%cat_mortality &
           + POP%pop_grid(:)%fire_mortality  )
-     where (tmp.gt. 1.e-12)
+     where (tmp.gt. 1.e-12_r_2)
         casaflux%Cplant_turnover_disturbance(POP%Iwood) =  &
              casaflux%Cplant_turnover(POP%Iwood,2)*(POP%pop_grid(:)%cat_mortality &
              + POP%pop_grid(:)%fire_mortality  )/tmp
@@ -1573,8 +1573,8 @@ SUBROUTINE biogeochem(ktau,dels,idoY,LALLOC,veg,soil,casabiome,casapool,casaflux
 
   ! for spinning up only
   IF (cable_user%limit_labile) THEN
-     casapool%Nsoilmin = max(casapool%Nsoilmin,5.0)
-     casapool%Psoillab = max(casapool%Psoillab,1.0)
+     casapool%Nsoilmin = max(casapool%Nsoilmin,5.0_r_2)
+     casapool%Psoillab = max(casapool%Psoillab,1.0_r_2)
   ENDIF
 
 END SUBROUTINE biogeochem

@@ -343,10 +343,12 @@ CONTAINS
           ! of this dim:
           IF( .NOT. ASSOCIATED(otmp5xypsct))                                   &
                ALLOCATE(otmp5xypsct(xdimsize, ydimsize, max_vegpatches, ncs, 1))
+        else if (dimswitch == 'generic') then ! dimensions are determined from input var
+           continue
         ELSE
           CALL abort('Variable '//vname//                                      &
                       ' defined with unknown dimension switch - '//dimswitch// &
-                                   ' - in SUBROUTINE define_output_variable_r2')
+                                   ' - in SUBROUTINE define_output_variable_r2 - 01')
         END IF
       ELSE ! only grid point values, no patch-specific info
         WRITE(logn, *) 'Writing '//vname//' to output file using mask grid'
@@ -381,10 +383,12 @@ CONTAINS
           ! of this dim:
           IF( .NOT. ASSOCIATED(otmp4xysct))                                    &
                                 ALLOCATE(otmp4xysct(xdimsize, ydimsize, ncs, 1))
+        else if (dimswitch == 'generic') then ! dimensions are determined from input var
+           continue
         ELSE
           CALL abort('Variable '//vname//                                      &
                       ' defined with unknown dimension switch - '//dimswitch// &
-                                   ' - in SUBROUTINE define_output_variable_r2')
+                                   ' - in SUBROUTINE define_output_variable_r2 - 02')
         END IF
       END IF
     ELSE IF(output%grid(1:3) == 'lan'                                          &
@@ -430,10 +434,12 @@ CONTAINS
           ! of this dim:
           IF( .NOT. ASSOCIATED(otmp4xysct))                                    &
                              ALLOCATE(otmp4xysct(mland, max_vegpatches, ncs, 1))
+        else if (dimswitch == 'generic') then ! dimensions are determined from input var
+           continue
         ELSE
           CALL abort('Variable '//vname//                                      &
                       ' defined with unknown dimension switch - '//dimswitch// &
-                                   ' - in SUBROUTINE define_output_variable_r2')
+                                   ' - in SUBROUTINE define_output_variable_r2 - 03')
         END IF
       ELSE ! only grid point values, no patch-specific info
         WRITE(logn, *) 'Writing '//vname//' to output file using land grid'
@@ -463,10 +469,12 @@ CONTAINS
           ! If not already allocated, allocate a temporary storage variable
           ! of this dim:
           IF( .NOT. ASSOCIATED(otmp3lsct)) ALLOCATE(otmp3lsct(mland, ncs, 1))
+        else if (dimswitch == 'generic') then ! dimensions are determined from input var
+           continue
         ELSE
           CALL abort('Variable '//vname//                                      &
                       ' defined with unknown dimension switch - '//dimswitch// &
-                                   ' - in SUBROUTINE define_output_variable_r2')
+                                   ' - in SUBROUTINE define_output_variable_r2 - 04')
         END IF
       END IF
     ELSE
@@ -495,7 +503,9 @@ CONTAINS
                                                       '(INTERFACE define_ovar)')
 
   END SUBROUTINE define_output_variable_r2
+  
   !=============================================================================
+  
   SUBROUTINE define_output_parameter_r1(ncid, parID, pname, punits, longname,  &
                                         writepatch, dimswitch, xID, yID, zID,  &
                                         landID, patchID, restart)
@@ -638,7 +648,9 @@ CONTAINS
     end if
 
   END SUBROUTINE define_output_parameter_r1
+  
   !=============================================================================
+  
   SUBROUTINE define_output_parameter_r2(ncid, parID, pname, punits, longname,  &
                                         writepatch, othdimID, dimswitch, xID,  &
                                         yID, zID, landID, patchID, restart)
@@ -685,6 +697,8 @@ CONTAINS
           ELSE IF(dimswitch == 'radiation') THEN
              IF(.NOT. ASSOCIATED(otmp4xypr))                                   &
                     ALLOCATE(otmp4xypr(xdimsize, ydimsize, max_vegpatches, nrb))
+          else if (dimswitch == 'generic') then ! dimensions are determined from input var
+             continue
           END IF
        ELSE ! only grid point values, no patch-specific info
           WRITE(logn, *) 'Writing '//pname//' to output file using mask grid'
@@ -707,6 +721,8 @@ CONTAINS
           ELSE IF(dimswitch == 'surftype') THEN
              IF(.NOT. ASSOCIATED(otmp3xysf)) ALLOCATE(otmp3xysf(xdimsize,      &
                                                       ydimsize, 4))
+          else if (dimswitch == 'generic') then ! dimensions are determined from input var
+             continue
           END IF
           IF (ok /= NF90_NOERR) CALL nc_abort                                  &
                  (ok, 'Error defining '//pname//' variable in output file. '// &
@@ -750,6 +766,8 @@ CONTAINS
           ELSE IF(dimswitch == 'snow') THEN
              IF(.NOT. ASSOCIATED(otmp3lpsn))                                   &
                                  ALLOCATE(otmp3lpsn(mland, max_vegpatches, msn))
+          else if (dimswitch == 'generic') then ! dimensions are determined from input var
+             continue
           END IF
        ELSE ! variable has no explicit patch dimension (incl. restart file)
           ! Restart file definitions will be directed to this part of interface.
@@ -779,6 +797,8 @@ CONTAINS
              IF(.NOT.ASSOCIATED(otmp2lsn)) ALLOCATE(otmp2lsn(mland,msn))
           ELSE IF(dimswitch=='surftype') THEN
              IF(.NOT.ASSOCIATED(otmp2lsf)) ALLOCATE(otmp2lsf(mland,4))
+          else if (dimswitch == 'generic') then ! dimensions are determined from input var
+             continue
           END IF
        END IF
     ELSE
@@ -826,7 +846,9 @@ CONTAINS
     END IF
 
   END SUBROUTINE define_output_parameter_r2
+  
   !=============================================================================
+  
   SUBROUTINE write_output_variable_r1(ktau, ncid, varID, vname, var_r1,        &
                                       vrange, writepatch, dimswitch, met)
     ! Subroutine for writing a real valued 1D variable
@@ -834,8 +856,7 @@ CONTAINS
     INTEGER, INTENT(IN) :: ncid ! netcdf file ID
     INTEGER, INTENT(IN) :: varID ! variable's netcdf ID
     REAL(KIND=4), DIMENSION(:), INTENT(IN) :: var_r1 ! variable values
-    REAL, DIMENSION(2), INTENT(IN) :: vrange ! max and min for variable
-                                                  ! error checking
+    REAL, DIMENSION(2), INTENT(IN) :: vrange ! max and min for variable ! error checking
     LOGICAL, INTENT(IN) :: writepatch ! write patch-specific info for this var?
     CHARACTER(LEN=*), INTENT(IN) :: vname ! name of variable
     CHARACTER(LEN=*), INTENT(IN) :: dimswitch ! indicates dimesnion of parameter
@@ -965,11 +986,13 @@ CONTAINS
                                         '(SUBROUTINE write_output_variable_r1)')
     END IF
     ! Check writing was successful:
-    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing '//vname//           &
+    IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing '//vname//          &
                ' variable to output file (SUBROUTINE write_output_variable_r1)')
 
   END SUBROUTINE write_output_variable_r1
+  
   !=============================================================================
+  
   SUBROUTINE write_output_variable_r2(ktau, ncid, varID, vname, var_r2,        &
                                       vrange, writepatch, dimswitch, met)
     ! Subroutine for writing a real valued 2D variable
@@ -987,6 +1010,10 @@ CONTAINS
     INTEGER :: i, j, k ! do loop counter
     integer :: n2 ! 2nd dimension of input var
     real(kind=4) :: rout
+    real, dimension(:,:,:),     allocatable :: otmp3
+    real, dimension(:,:,:,:),   allocatable :: otmp4
+    real, dimension(:,:,:,:,:), allocatable :: otmp5
+ 
 
     ! First, decide which grid to use. If user has forced grid using output%grid
     ! in the namelist file, use this grid. Else use format of met file.
@@ -1158,42 +1185,42 @@ CONTAINS
           ok = NF90_PUT_VAR(ncid, varID, REAL(otmp5xypsct(:, :, :, :, 1), 4),  &
                             start = (/1, 1, 1, 1, ktau/),                      &
                          count = (/xdimsize, ydimsize, max_vegpatches, ncs, 1/))
-        else if(dimswitch == 'generic') then ! other dim is determined from var_r2
+       else if (dimswitch == 'generic') then ! dimensions are determined from var_r2
+          if (allocated(otmp5)) deallocate(otmp5)
           n2 = size(var_r2,2)
-          do i = 1, mland ! over all land grid points
-            ! first write data for active patches:
-             otmp5xypsnt(land_x(i), land_y(i), 1:landpt(i)%nap, :, 1) = &
-                  var_r2(landpt(i)%cstart:landpt(i)%cend, :)
-             ! then write data for inactive patches as dummy value:
-             if (landpt(i)%nap < max_vegpatches) &
-                  otmp5xypsnt(land_x(i), land_y(i), (landpt(i)%nap+1):max_vegpatches, :, 1) = ncmissingr
-            if (check%ranges) then  ! check ranges for active patches:
-               if (any(otmp5xypsnt(land_x(i), land_y(i), 1:landpt(i)%nap, 1:n2, 1) < vrange(1))  &
-                    .or. any(otmp5xypsnt(land_x(i), land_y(i), 1:landpt(i)%nap, 1:n2, 1) > vrange(2))) then
-                  if (any(otmp5xypsnt(land_x(i), land_y(i), 1:landpt(i)%nap, 1:n2, 1) < vrange(1))) &
-                       rout = minval(otmp5xypsnt(land_x(i), land_y(i), 1:landpt(i)%nap, 1:n2, 1))
-                  if (any(otmp5xypsnt(land_x(i), land_y(i), 1:landpt(i)%nap, 1:n2, 1) > vrange(2))) &
-                       rout = maxval(otmp5xypsnt(land_x(i), land_y(i), 1:landpt(i)%nap, 1:n2, 1))
-                  call range_abort(vname//' is out of specified ranges!', &
-                       ktau, met, rout, vrange, i, land_x(i), land_y(i))
-               end if
-            endif
+          allocate(otmp5(xdimsize, ydimsize, max_vegpatches, n2, 1))
+          
+          otmp5 = ncmissingr ! set all inactive patches and non-land points to _FillValue          
+          do i=1, mland ! all land grid points
+             ! Active patches
+             otmp5(land_x(i), land_y(i), 1:landpt(i)%nap, 1:n2, 1) = var_r2(landpt(i)%cstart:landpt(i)%cend, :)
+
+             ! Check ranges
+             if (check%ranges) then
+                if (any(otmp5(land_x(i), land_y(i), 1:landpt(i)%nap, 1:n2, 1) < vrange(1))  &
+                     .or. any(otmp5(land_x(i), land_y(i), 1:landpt(i)%nap, 1:n2, 1) > vrange(2))) then
+                   if (any(otmp5(land_x(i), land_y(i), 1:landpt(i)%nap, 1:n2, 1) < vrange(1))) &
+                        rout = minval(otmp5(land_x(i), land_y(i), 1:landpt(i)%nap, 1:n2, 1))
+                   if (any(otmp5(land_x(i), land_y(i), 1:landpt(i)%nap, 1:n2, 1) > vrange(2))) &
+                        rout = maxval(otmp5(land_x(i), land_y(i), 1:landpt(i)%nap, 1:n2, 1))
+                   call range_abort(vname//' is out of specified ranges!', &
+                        ktau, met, rout, vrange, i, land_x(i), land_y(i))
+                end if
+             endif
           end do
-          ! fill non-land points with dummy value:
-          do j = 1, max_vegpatches
-             do k = 1, n2
-                ! not land
-                where (mask /= 1) otmp5xypsnt(:, :, j, k, 1) = ncmissingr
-             end do
-          end do
-          ! write data to file:
-          ok = NF90_PUT_VAR(ncid, varid, real(otmp5xypsnt(:, :, :, :, 1), 4),  &
-                            start = (/1, 1, 1, 1, ktau/),                      &
-                            count = (/xdimsize, ydimsize, max_vegpatches, n2, 1/))
-        ELSE
+          
+          ! write data to file
+          ok = NF90_PUT_VAR(ncid, varid, &
+               real(otmp5(:, :, :, :, 1), 4), &
+               start = (/1, 1, 1, 1, ktau/), &
+               count = (/xdimsize, ydimsize, max_vegpatches, n2, 1/))
+          
+          deallocate(otmp5)
+
+        else
           CALL abort('Variable '//vname//                                      &
                      ' defined with unknown dimension switch - '//dimswitch//  &
-                     ' - in INTERFACE write_ovar')
+                     ' - in INTERFACE write_ovar - 01')
         END IF
       ELSE ! only grid point values, no patch-specific info
         ! Decide what the second dimension of this variable is:
@@ -1326,36 +1353,45 @@ CONTAINS
           ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4xysct, 4),                  &
                             start = (/1, 1, 1, ktau/),                         &
                     count = (/xdimsize, ydimsize, ncs, 1/)) ! write data to file
-        else if(dimswitch == 'generic') then ! other dim is determined from var_r2
+       else if (dimswitch == 'generic') then ! dimensions are determined from var_r2
+          if (allocated(otmp4)) deallocate(otmp4)
           n2 = size(var_r2,2)
-          do i = 1, mland ! over all land grid points
-            ! write to temporary variable (sum over patches & weight by fraction):
-            do j = 1, n2
-               otmp4xysnt(land_x(i), land_y(i), j, 1) = &
-                    sum(var_r2(landpt(i)%cstart:landpt(i)%cend, j) *  &
-                        real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
-            end do
-            if (check%ranges) then  ! check ranges:
-              do j = 1, n2
-                if ((otmp4xysnt(land_x(i), land_y(i), j, 1) < vrange(1)) .or.   &
-                     (otmp4xysnt(land_x(i), land_y(i), j, 1) > vrange(2)))     &
-                     call range_abort(vname//' is out of specified ranges!',   &
-                     ktau, met, otmp4xysnt(land_x(i), land_y(i), j, 1),        &
-                     vrange, i, land_x(i), land_y(i))
-              end do
-            end if
+          allocate(otmp4(xdimsize, ydimsize, n2, 1))
+          
+          otmp4 = ncmissingr ! set all inactive patches and non-land points to _FillValue          
+          do i=1, mland ! all land grid points
+             ! Write active patches to temporary variable (sum over patches & weight by fraction)
+             do j=1, n2
+                otmp4(land_x(i), land_y(i), j, 1) = sum( var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
+                     real(patch(landpt(i)%cstart:landpt(i)%cend)%frac) )
+             end do             
+
+             ! Check ranges
+             if (check%ranges) then
+                if (any(otmp4(land_x(i), land_y(i), 1:n2, 1) < vrange(1))  &
+                     .or. any(otmp4(land_x(i), land_y(i), 1:n2, 1) > vrange(2))) then
+                   if (any(otmp4(land_x(i), land_y(i), 1:n2, 1) < vrange(1))) &
+                        rout = minval(otmp4(land_x(i), land_y(i), 1:n2, 1))
+                   if (any(otmp4(land_x(i), land_y(i), 1:n2, 1) > vrange(2))) &
+                        rout = maxval(otmp4(land_x(i), land_y(i), 1:n2, 1))
+                   call range_abort(vname//' is out of specified ranges!', &
+                        ktau, met, rout, vrange, i, land_x(i), land_y(i))
+                end if
+             endif
           end do
-          ! fill non-land points with dummy value:
-          do j = 1, n2
-            where (mask /= 1) otmp4xysnt(:, :, j, 1) = ncmissingr ! not land
-          end do
-          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4xysnt, 4),                  &
-                            start = (/1, 1, 1, ktau/),                         &
-                            count = (/xdimsize, ydimsize, n2, 1/)) ! write data to file
-        ELSE
+          
+          ! write data to file
+          ok = NF90_PUT_VAR(ncid, varid, &
+               real(otmp4(:, :, :, 1), 4), &
+               start = (/1, 1, 1, ktau/), &
+               count = (/xdimsize, ydimsize, n2, 1/))
+
+          deallocate(otmp4)
+
+        else
           CALL abort('Variable '//vname//                                      &
                      ' defined with unknown dimension switch - '//dimswitch//  &
-                     ' - in INTERFACE write_ovar')
+                     ' - in INTERFACE write_ovar - 02')
         END IF
       END IF
     ELSE IF(output%grid(1:3) == 'lan'                                          &
@@ -1484,34 +1520,42 @@ CONTAINS
           ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4lpsct(:, :, :, 1), 4),      &
                             start = (/1, 1, 1, ktau/),                         &
                             count = (/mland, max_vegpatches, ncs, 1/))
-       else if (dimswitch == 'generic') then ! other dim is snow
+       else if (dimswitch == 'generic') then ! dimensions are determined from var_r2
+          if (allocated(otmp4)) deallocate(otmp4)
           n2 = size(var_r2,2)
-          do i = 1, mland ! over all land grid points
-            ! first write data for active patches:
-              otmp4lpsnt(i, 1:landpt(i)%nap, :, 1) =                           &
-                   var_r2(landpt(i)%cstart:landpt(i)%cend, :)
-              ! then write data for inactive patches as dummy value:
-              if(landpt(i)%nap < max_vegpatches) otmp4lpsnt(i,                 &
-                          (landpt(i)%nap + 1):max_vegpatches, :, 1) = ncmissingr
-            if (check%ranges) then  ! check ranges for active patches:
-              do j = 1, landpt(i)%nap
-                do k = 1, n2
-                  if ((otmp4lpsnt(i, j, k, 1) < vrange(1)) .or.                 &
-                       (otmp4lpsnt(i, j, k, 1) > vrange(2)))                   &
-                       call range_abort(vname//' is out of specified ranges!', &
-                       ktau, met, otmp4lpsnt(i, j, k, 1), vrange, i)
-               end do
-              end do
-            end if
+          allocate(otmp4(mland, max_vegpatches, n2, 1))
+          
+          otmp4 = ncmissingr ! set all inactive patches and non-land points to _FillValue          
+          do i=1, mland ! all land grid points
+             ! Active patches
+             otmp4(i, 1:landpt(i)%nap, 1:n2, 1) = var_r2(landpt(i)%cstart:landpt(i)%cend, :)
+             
+             ! Check ranges
+             if (check%ranges) then
+                if (any(otmp4(i, 1:landpt(i)%nap, 1:n2, 1) < vrange(1))  &
+                     .or. any(otmp4(i, 1:landpt(i)%nap, 1:n2, 1) > vrange(2))) then
+                   if (any(otmp4(i, 1:landpt(i)%nap, 1:n2, 1) < vrange(1))) &
+                        rout = minval(otmp4(i, 1:landpt(i)%nap, 1:n2, 1))
+                   if (any(otmp4(i, 1:landpt(i)%nap, 1:n2, 1) > vrange(2))) &
+                        rout = maxval(otmp4(i, 1:landpt(i)%nap, 1:n2, 1))
+                   call range_abort(vname//' is out of specified ranges!', &
+                        ktau, met, rout, vrange, i)
+                end if
+             endif
           end do
+          
           ! write data to file
-          ok = nf90_put_var(ncid, varid, real(otmp4lpsnt(:, :, :, 1), 4),      &
-                            start = (/1, 1, 1, ktau/),                         &
-                            count = (/mland, max_vegpatches, n2, 1/))
-        ELSE
+          ok = NF90_PUT_VAR(ncid, varid, &
+               real(otmp4(:, :, :, 1), 4), &
+               start = (/1, 1, 1, ktau/), &
+               count = (/mland, max_vegpatches, n2, 1/))
+          
+          deallocate(otmp4)
+
+        else
           CALL abort('Variable '//vname//                                      &
                      ' defined with unknown dimension switch - '//dimswitch//  &
-                     ' - in INTERFACE write_ovar')
+                     ' - in INTERFACE write_ovar - 03')
         END IF
       ELSE ! only grid point values, no patch-specific info
         ! Decide what the second dimension of this variable is:
@@ -1618,32 +1662,45 @@ CONTAINS
           ok = NF90_PUT_VAR(ncid, varID, REAL(otmp3lsct, 4),                   &
                             start = (/1, 1, ktau/),                            &
                             count = (/mland, ncs, 1/)) ! write data to file
-        else if (dimswitch == 'generic') then ! other dim is snow
+       else if (dimswitch == 'generic') then ! dimensions are determined from var_r2
+          if (allocated(otmp3)) deallocate(otmp3)
           n2 = size(var_r2,2)
-          do i = 1, mland ! over all land grid points
-            ! write to temporary variable (sum over patches & weight by
-            ! fraction):
-            do j = 1, n2
-               otmp3lsnt(i, j, 1) = &
-                    sum(var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
-                        real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
-            end do
-            if (check%ranges) then  ! check ranges:
-              do j = 1, n2
-                if ((otmp3lsnt(i, j, 1) < vrange(1)) .or.                       &
-                     (otmp3lsnt(i, j, 1) > vrange(2)))                         &
-                     call range_abort(vname//' is out of specified ranges!',   &
-                     ktau, met, otmp3lsnt(i, j, 1), vrange, i)
-              end do
-            end if
+          allocate(otmp3(mland, n2, 1))
+          
+          otmp3 = ncmissingr ! set all inactive patches and non-land points to _FillValue          
+          do i=1, mland ! all land grid points
+             ! Write active patches to temporary variable (sum over patches & weight by fraction)
+             do j=1, n2
+                otmp3(i, j, 1) = sum(var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
+                     real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
+             end do             
+
+             ! Check ranges
+             if (check%ranges) then
+                if (any(otmp3(i, 1:n2, 1) < vrange(1))  &
+                     .or. any(otmp3(i, 1:n2, 1) > vrange(2))) then
+                   if (any(otmp3(i, 1:n2, 1) < vrange(1))) &
+                        rout = minval(otmp3(i, 1:n2, 1))
+                   if (any(otmp3(i, 1:n2, 1) > vrange(2))) &
+                        rout = maxval(otmp3(i, 1:n2, 1))
+                   call range_abort(vname//' is out of specified ranges!', &
+                        ktau, met, rout, vrange, i)
+                end if
+             endif
           end do
-          ok = nf90_put_var(ncid, varid, real(otmp3lsnt, 4),                   &
-                            start = (/1, 1, ktau/),                            &
-                            count = (/mland, n2, 1/)) ! write data to file
-        ELSE
+          
+          ! write data to file
+          ok = NF90_PUT_VAR(ncid, varid, &
+               real(otmp3(:, :, 1), 4), &
+               start = (/1, 1, ktau/), &
+               count = (/mland, n2, 1/))
+
+          deallocate(otmp3)
+
+        else
           CALL abort('Variable '//vname//                                      &
                      ' defined with unknown dimension switch - '//dimswitch//  &
-                     ' - in SUBROUTINE write_output_variable_r2')
+                     ' - in SUBROUTINE write_output_variable_r2 - 01')
         END IF
       END IF ! patch info or no patch info
     ELSE

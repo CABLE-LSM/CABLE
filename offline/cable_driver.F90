@@ -112,12 +112,14 @@ PROGRAM cable_offline_driver
   USE SIMFIRE_MOD,          ONLY: TYPE_SIMFIRE
 
   ! 13C
-  use cable_c13o2_def,      only: c13o2_flux, c13o2_pool, c13o2_luc, c13o2_update_sum_pools, c13o2_zero_sum_pools
-  use cable_c13o2,          only: c13o2_save_luc, c13o2_update_luc, &
+  use cable_c13o2_def,         only: c13o2_flux, c13o2_pool, c13o2_luc, c13o2_update_sum_pools, c13o2_zero_sum_pools
+  use cable_c13o2,             only: c13o2_save_luc, c13o2_update_luc, &
        c13o2_write_restart_pools,  c13o2_write_restart_luc, &
        c13o2_create_output, c13o2_write_output, c13o2_close_output
-  use cable_c13o2,          only: c13o2_print_delta_pools, c13o2_print_delta_luc
-  use mo_isotope,           only: vpdbc13
+  use cable_c13o2,             only: c13o2_print_delta_pools, c13o2_print_delta_luc
+  use mo_isotope,              only: isoratio ! vpdbc13
+  use mo_c13o2_photosynthesis, only: c13o2_discrimination_simple
+  use cable_data_module,       only: icanopy_type
 
   ! PLUME-MIP only
   USE CABLE_PLUME_MIP,      ONLY: PLUME_MIP_TYPE, PLUME_MIP_GET_MET,&
@@ -217,15 +219,20 @@ PROGRAM cable_offline_driver
   TYPE (TYPE_SIMFIRE)  :: SIMFIRE
 
   ! 13C
-  type(c13o2_flux)                    :: c13o2flux
-  type(c13o2_pool)                    :: c13o2pools, sum_c13o2pools
-  type(c13o2_luc)                     :: c13o2luc
-  integer                             :: c13o2_file_id
-  integer, parameter :: nvars = 7
+  type(c13o2_flux)  :: c13o2flux
+  type(c13o2_pool)  :: c13o2pools, sum_c13o2pools
+  type(c13o2_luc)   :: c13o2luc
+  integer :: c13o2_file_id
+  integer,           parameter        :: nvars = 7
   character(len=20), dimension(nvars) :: c13o2_vars
   integer,           dimension(nvars) :: c13o2_var_ids
   real(dp), dimension(:,:), allocatable :: casasave
   real(dp), dimension(:,:), allocatable :: lucsave
+  integer            :: ileaf
+  type(icanopy_type) :: cconst
+  logical,  dimension(:),   allocatable :: isc3
+  real(dp), dimension(:,:), allocatable :: gpp, ci
+  real(dp), dimension(:),   allocatable :: Ra
 
   ! declare vars for switches (default .FALSE.) etc declared thru namelist
   LOGICAL, SAVE           :: &
@@ -399,6 +406,7 @@ PROGRAM cable_offline_driver
 
   ! associate pointers used locally with global definitions
   CALL point2constants( C )
+  if (cable_user%c13o2) call point2constants(cconst)
 
   IF( l_casacnp  .AND. ( icycle == 0 .OR. icycle > 3 ) )                   &
        STOP 'icycle must be 1 to 3 when using casaCNP'
@@ -563,8 +571,6 @@ PROGRAM cable_offline_driver
                  timeunits="seconds since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" 00:00:00"
                  calendar = "noleap"
 
-   
-
               ENDIF
               LOY = 365
               kend = NINT(24.0*3600.0/dels) * LOY
@@ -659,6 +665,10 @@ PROGRAM cable_offline_driver
                    C%EMSOIL, C%TFRZ, LUC_EXPT, POPLUC, BLAZE, SIMFIRE, &
                    c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc)
               if (cable_user%c13o2) then
+                 allocate(isc3(size(canopy%An,1)))
+                 allocate(gpp(size(canopy%An,1),size(canopy%An,2)))
+                 allocate(ci(size(canopy%An,1),size(canopy%An,2)))
+                 allocate(Ra(size(canopy%An,1)))
                  !MC13 ToDo - call c13o2_init_leaf_pools(c13o2flux, Rinitc3, Rinitc4, isc3)
                  allocate(casasave(c13o2pools%ntile,c13o2pools%npools))
                  if (cable_user%popluc) allocate(lucsave(c13o2luc%nland,c13o2luc%npools))
@@ -833,7 +843,7 @@ PROGRAM cable_offline_driver
               ! if (cable_user%c13o2) then
               !    call read_c13o2_input_file(dels, koffset, kend, spinup, C%TFRZ)
               ! endif
-              if (cable_user%c13o2) c13o2flux%ca = met%ca * vpdbc13 ! Test
+              if (cable_user%c13o2) c13o2flux%ca = 0.992_dp * met%ca ! * vpdbc13 / vpdbc13 ! -8 permil
               !MC13 ToDo - read input
 
               ! At first time step of year, set tile area according to updated LU areas
@@ -862,16 +872,53 @@ PROGRAM cable_offline_driver
                  ! Call land surface scheme for this timestep, all grid points:
 
                  !MC13 ToDo - Photosynthesis
-               
                  CALL cbm(ktau, dels, air, bgc, canopy, met, &
                           bal, rad, rough, soil, ssnow, &
                           sum_flux, veg, climate)
                  if (cable_user%c13o2) then
                     ! call c13o2_update_flux(canopy, met, c13o2flux)
-                    c13o2flux%An = canopy%An * vpdbc13 ! Test
+                    isc3 = (1.0_dp-real(veg%frac4,dp)) > epsilon(1.0_dp)
+                    gpp  = canopy%An + canopy%Rd
+                    ci   = real(spread(met%ca,2,mf) - real(canopy%An) / canopy%gswx * cconst%rgswc, dp)
+                    Ra   = isoratio(c13o2flux%ca, real(met%ca,dp), 1.0_dp)
+                    ! print*, 'V01 ', veg%frac4
+                    ! print*, 'V02 ', isc3
+                    ! print*, 'V03 ', canopy%An
+                    ! print*, 'V04 ', canopy%Rd
+                    ! print*, 'V05 ', gpp
+                    ! print*, 'V06 ', met%ca
+                    ! print*, 'V07 ', canopy%gswx
+                    ! print*, 'V08 ', ci
+                    ! print*, 'V09 ', c13o2flux%ca
+                    ! print*, 'V10 ', Ra
+                    do ileaf=1, mf
+                       call c13o2_discrimination_simple( &
+                            ! -- Input
+                            ! isc3
+                            isc3, &
+                            ! GPP and Leaf respiration
+                            gpp(:,ileaf), canopy%Rd(:,ileaf), &
+                            ! Ambient and stomatal CO2 concentration 
+                            real(met%ca,dp), ci(:,ileaf), &
+                            ! leaf temperature
+                            !MC - canopy%tv ???
+                            real(canopy%tlf,dp), &
+                            ! Ambient isotope ratio
+                            Ra, &
+                            ! -- Output
+                            ! discrimination
+                            c13o2flux%Disc(:,ileaf), &
+                            ! 13CO2 flux
+                            c13o2flux%An(:,ileaf))
+                    end do
+                    ! print*, 'V11 ', 4.4_dp + (29._dp-4.4_dp) * ci/real(spread(met%ca,2,mf),dp)
+                    ! print*, 'V12 ', c13o2flux%Disc*1000._dp
+                    ! print*, 'V13 ', canopy%An
+                    ! print*, 'V14 ', c13o2flux%An
+                    ! print*, 'V14 ', c13o2flux%An / canopy%An / spread(Ra,2,mf) - 1.0_dp
                     ! Divide 13C net assimilation by VPDB so that about same numerical precision as 12C
                     ! delta values are then calculated simply by 13C/12C-1.
-                    c13o2flux%An = c13o2flux%An / vpdbc13
+                    !c13o2flux%An = 1.005_dp * canopy%An !  * vpdbc13 / vpdbc13 ! Test 5 permil
                  endif
                  !MC13 ToDo - Photosynthesis
 
@@ -1059,10 +1106,10 @@ PROGRAM cable_offline_driver
                       TRIM(cable_user%MetType) .EQ. 'gswp'  .OR.  &
                       TRIM(cable_user%MetType) .EQ. 'site' ) then
                     CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, casamet, &
-                         ssnow, rad, bal, air, soil, veg, C%SBOLTZ, C%EMLEAF, C%EMSOIL, c13o2pools )
+                         ssnow, rad, bal, air, soil, veg, C%SBOLTZ, C%EMLEAF, C%EMSOIL, c13o2pools, c13o2flux )
                  ELSE
                     CALL write_output( dels, ktau,     met, canopy, casaflux, casapool, casamet, &
-                         ssnow, rad, bal, air, soil, veg, C%SBOLTZ, C%EMLEAF, C%EMSOIL, c13o2pools )
+                         ssnow, rad, bal, air, soil, veg, C%SBOLTZ, C%EMLEAF, C%EMSOIL, c13o2pools, c13o2flux )
                  ENDIF
               ENDIF
 

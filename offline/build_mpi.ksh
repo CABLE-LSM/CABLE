@@ -18,14 +18,14 @@ host_raij()
    export NCDIR=$NETCDF_ROOT'/lib/Intel'
    export NCMOD=$NETCDF_ROOT'/include/Intel'
    export FC='mpif90'
-  export CFLAGS='-O2 -fp-model precise -xCORE-AVX2'
+  export CFLAGS='-O2 -fp-model precise -fpp -xCORE-AVX2'
   # export CFLAGS='-O3 -fp-model precise -g -debug all -traceback'
  #export CFLAGS='  -g -debug -traceback   -check all,noarg_temp_created -fp-stack-check -O0 -debug -fpe0 -no-ftz -ftrapuv -fpstkchk  -xCORE-AVX2'
 
   # export CFLAGS='-O0 -traceback -g -debug -fp-model precise -ftz -fpe0 -check all,noarg_temp_created -fp-stack-check -no-ftz -ftrapuv'
    if [[ $1 = 'debug' ]]; then
       #export CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0'
-      export CFLAGS='  -g -debug -traceback   -check all,noarg_temp_created -fp-stack-check -O0 -debug -fpe=0 -fpe-all=0 -no-ftz -ftrapuv'
+      export CFLAGS='  -g -debug -traceback -fpp -check all,noarg_temp_created -fp-stack-check -O0 -debug -fpe=0 -fpe-all=0 -no-ftz -ftrapuv'
    fi
    export LDFLAGS='-L'$NCDIR' -O2 -xCORE-AVX2'
    export LD='-lnetcdf -lnetcdff'
@@ -40,7 +40,7 @@ host_shin()
    export NCDIR='/usr/local/intel/'
    export NCMOD='/usr/local/intel/'
    export FC=ifort    ## need to check ??
-   export CFLAGS='-O2 -fp-model precise -ftz -fpe0'
+   export CFLAGS='-O2 -fp-model precise -fpp -ftz -fpe0'
    export LD='-lnetcdf'
    export LDFLAGS='-L/usr/local/intel/lib -O2'
    build_build
@@ -59,7 +59,7 @@ host_burn()
    export NCDIR=$NETCDF_ROOT'/lib/'
    export NCMOD=$NETCDF_ROOT'/include/'
    export FC='mpif90'
-   export CFLAGS='-O2 -fp-model precise'
+   export CFLAGS='-O2 -fp-model precise -fpp'
    export LDFLAGS='-L'$NCDIR' -O2'
    export LD='-lnetcdf -lnetcdff'
    build_build
@@ -74,7 +74,7 @@ host_cher()
    export NCDIR=$NETCDF_ROOT'/lib/'
    export NCMOD=$NETCDF_ROOT'/include/'
    export FC='mpif90'
-   export CFLAGS='-O2 -fp-model precise'
+   export CFLAGS='-O2 -fp-model precise -fpp'
    export LDFLAGS='-L'$NCDIR' -O2'
    export LD='-lnetcdf -lnetcdff'
    build_build

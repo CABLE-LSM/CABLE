@@ -1888,8 +1888,6 @@ CONTAINS
                  rdx(i,1) = rdx(i,1) * xrdt(tlfx(i)) * rad%scalex(i,1)
                  rdx(i,2) = rdx(i,2) * xrdt(tlfx(i)) * rad%scalex(i,2)
       
-                     
-                
                  ! reduction of daytime leaf dark-respiration to account for 
                  !photo-inhibition
                  !Mercado, L. M., Huntingford, C., Gash, J. H. C., Cox, P. M., 
@@ -1926,8 +1924,6 @@ CONTAINS
             rdx4(i,2) = veg%cfrd(i)*vcmxt4(i,2) 
 
          endif !cable_user%call_climate
-
-
 
             ! Ticket #56 added switch for Belinda Medlyn's model
             IF (cable_user%GS_SWITCH == 'leuning') THEN
@@ -2024,27 +2020,22 @@ CONTAINS
                         gbhu(i,kk) + gbhf(i,kk) )
                    csx(i,kk) = MAX( 1.0e-4_r_2, csx(i,kk) )
 
-
                    ! Ticket #56, xleuning replaced with gs_coeff here
                    if (cable_user%g0_switch == 'default') then
                       canopy%gswx(i,kk) = MAX( 1.e-3, gswmin(i,kk)*fwsoil(i) +     &
                            MAX( 0.0, C%RGSWC * gs_coeff(i,kk) *     &
                            anx(i,kk) ) )
                    elseif (cable_user%g0_switch == 'maximum') then
-
                       ! set gsw to maximum of g0*fwsoil and humidity-dependent term,
                       ! according to third formulation suggested by Lombardozzi et al.,
                       ! GMD 10, 321–331, 2017, and applied in CLM
                       canopy%gswx(i,kk) = MAX( 1.e-3, max(gswmin(i,kk)*fwsoil(i),      &
                            MAX( 0.0, C%RGSWC * gs_coeff(i,kk) *     &
                            anx(i,kk) )) )
-
                    endif
                    !Recalculate conductance for water:
                    gw(i,kk) = 1.0 / ( 1.0 / canopy%gswx(i,kk) +                 &
                         1.0 / ( 1.075 * ( gbhu(i,kk) + gbhf(i,kk) ) ) )
-
-
 
                    gw(i,kk) = MAX( gw(i,kk), 0.00001 )
 
@@ -2055,10 +2046,6 @@ CONTAINS
                 ENDIF
 
              ENDDO
-
-!!$             if (met%hod(1) == 12.0) then
-!!$                write(596,*) met%hod(1),fwsoil(1), gswmin(1,1)*fwsoil(1),  C%RGSWC * gs_coeff(1,1) *  anx(1,1)
-!!$             endif
 
              ecx(i) = ( air%dsatdk(i) * ( rad%rniso(i,1) - C%capp * C%rmair     &
                   * ( met%tvair(i) - met%tk(i) ) * rad%gradis(i,1) )        &
@@ -2077,8 +2064,6 @@ CONTAINS
                  endif
                  
                 canopy%fevc(i) = ecx(i)*(1.0-canopy%fwet(i))
-
-                
                 
                 call getrex_1d(real(ssnow%wb(i,:)-ssnow%wbice(i,:),r_2), ssnow%rex(i,:), &
                      canopy%fwsoil(i), &
@@ -2090,7 +2075,7 @@ CONTAINS
 
                 fwsoil(i) = canopy%fwsoil(i)
                
-                ssnow%evapfbl(i,:) = ssnow%rex(i,:)*dels*1000_r_2 ! mm water &
+                ssnow%evapfbl(i,:) = ssnow%rex(i,:)*dels*1000._r_2 ! mm water &
                 !(root water extraction) per time step
 
                 if (cable_user%Cumberland_soil) then
@@ -2342,10 +2327,10 @@ CONTAINS
     canopy%evapfbl = ssnow%evapfbl
 
     ! 13C
-    canopy%An(:,1) = an_y(:,1)
-    canopy%An(:,2) = an_y(:,2)
-    canopy%Rd(:,1) = rdy(:,1)
-    canopy%Rd(:,2) = rdy(:,2)
+    canopy%An(:,1) = real(an_y(:,1),r_2)
+    canopy%An(:,2) = real(an_y(:,2),r_2)
+    canopy%Rd(:,1) = real(rdy(:,1),r_2)
+    canopy%Rd(:,2) = real(rdy(:,2),r_2)
 
     DEALLOCATE( gswmin )
 
