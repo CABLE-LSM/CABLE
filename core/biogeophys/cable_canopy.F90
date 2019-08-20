@@ -1824,7 +1824,7 @@ CONTAINS
 
              if (veg%iveg(i).eq.2  ) then ! evergreen broadleaf forest
 
-                rdx(i,1) = 0.90*(1.2818e-6+0.0116*veg%vcmax(i)- &
+                rdx(i,1) = 1.0*(1.2818e-6+0.0116*veg%vcmax(i)- &
                      0.0334*climate%qtemp_max_last_year(i)*1e-6)
 
                 if (cable_user%finite_gm) then

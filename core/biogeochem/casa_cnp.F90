@@ -2362,6 +2362,7 @@ SUBROUTINE casa_cnpcycle(veg, casabiome, casapool, casaflux, casamet, LALLOC)
   real(r_2), dimension(mp) :: plabsorb, deltap
   integer :: i, j, k, np, nland
 
+ 
   do np=1, mp
 
      if (casamet%iveg2(np) == icewater) then

@@ -868,7 +868,6 @@ PROGRAM cable_offline_driver
                  ENDIF
 
                  IF (l_laiFeedbk.and.icycle>0) veg%vlai(:) = casamet%glai(:)
-                 !veg%vlai = 2 ! test
                  ! Call land surface scheme for this timestep, all grid points:
 
                  !MC13 ToDo - Photosynthesis
