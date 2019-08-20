@@ -70,7 +70,7 @@ MODULE cable_output_module
           PlantTurnoverWood, PlantTurnoverWoodDist, PlantTurnoverWoodCrowding, &
           PlantTurnoverWoodResourceLim, dCdt, Area, LandUseFlux, patchfrac, &
           vcmax,hc,WatTable,GWMoist,SatFrac,Qrecharge, &
-          weighted_psi_soil, psi_soil, psi_leaf
+          weighted_psi_soil, psi_soil, psi_leaf, psi_stem
   END TYPE out_varID_type
   TYPE(out_varID_type) :: ovid ! netcdf variable IDs for output variables
   TYPE(parID_type) :: opid ! netcdf variable IDs for output variables
@@ -234,6 +234,7 @@ MODULE cable_output_module
      REAL(KIND=4), POINTER, DIMENSION(:)   :: weighted_psi_soil      ! mgk576
      REAL(KIND=4), POINTER, DIMENSION(:,:) :: psi_soil               ! mgk576
      REAL(KIND=4), POINTER, DIMENSION(:)   :: psi_leaf               ! mgk576
+     REAL(KIND=4), POINTER, DIMENSION(:)   :: psi_stem               ! mgk576
 
   END TYPE output_temporary_type
   TYPE(output_temporary_type), SAVE :: out
@@ -655,13 +656,22 @@ CONTAINS
 
     ! mgk576, 19/2/2019 - I think the issue is that I turn this off for other PFTs?
     !IF(output%soil .OR. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
-    IF(output%soil) THEN
+    IF(output%veg) THEN
        CALL define_ovar(ncid_out, ovid%psi_leaf, &
                         'psi_leaf', 'MPa', 'psi leaf', &
                         patchout%psi_leaf, 'dummy', xID, yID, zID, &
                         landID, patchID, tID)
        ALLOCATE(out%psi_leaf(mp))
        out%psi_leaf = 0.0 ! initialise
+    END IF
+
+    IF(output%soil) THEN
+       CALL define_ovar(ncid_out, ovid%psi_stem, &
+                        'psi_stem', 'MPa', 'psi stem', &
+                        patchout%psi_stem, 'dummy', xID, yID, zID, &
+                        landID, patchID, tID)
+       ALLOCATE(out%psi_stem(mp))
+       out%psi_stem = 0.0 ! initialise
     END IF
 
     ! Define radiative variables in output file and allocate temp output vars:
@@ -2059,6 +2069,25 @@ CONTAINS
                           'default', met)
            ! Reset temporary output variable:
            out%psi_leaf = 0.0
+        END IF
+     END IF
+
+     ! mgk576, 19/2/2019
+     !IF((output%veg) .and. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+     IF(output%veg) THEN
+        ! Add current timestep's value to total of temporary output variable:
+        out%psi_stem = out%psi_stem + REAL(canopy%psi_stem, 4)
+        IF(writenow) THEN
+           ! Divide accumulated variable by number of accumulated time steps:
+           out%psi_stem = out%psi_stem / REAL(output%interval, 4)
+           ! Write value to file:
+           CALL write_ovar(out_timestep, ncid_out, ovid%psi_stem, &
+                          'psi_stem', &
+                           out%psi_stem, ranges%psi_stem, &
+                           patchout%psi_stem, &
+                          'default', met)
+           ! Reset temporary output variable:
+           out%psi_stem = 0.0
         END IF
      END IF
 

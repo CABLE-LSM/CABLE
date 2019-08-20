@@ -181,6 +181,7 @@ MODULE cable_checks_module
           weighted_psi_soil = (/-100.,100./),          &
           psi_soil = (/-100.,100./),                   &
           psi_leaf = (/-100.,100./),                   &
+          psi_stem = (/-100.,100./),                   &
 
           !MD
           WatTable = (/0.0,1.0e10/),          &

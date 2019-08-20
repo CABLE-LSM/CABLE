@@ -312,6 +312,7 @@ MODULE cable_IO_vars_module
           weighted_psi_soil = .TRUE., &
           psi_soil = .TRUE., &
           psi_leaf = .TRUE., &
+          psi_stem = .TRUE., &
 
                                 !parameters
           bch = .FALSE.,       & ! parameter b in Campbell equation 1985

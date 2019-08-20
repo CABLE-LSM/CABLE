@@ -2737,6 +2737,10 @@ CONTAINS
        CALL MPI_Get_address (canopy%psi_leaf(off), displs(bidx), ierr)
        blen(bidx) = r1len
 
+       bidx = bidx + 1
+       CALL MPI_Get_address (canopy%psi_stem(off), displs(bidx), ierr)
+       blen(bidx) = r1len
+
 
        bidx = bidx + 1
        CALL MPI_Get_address (canopy%gswx(off,1), displs(bidx), ierr)
@@ -5527,6 +5531,10 @@ CONTAINS
        blen(vidx) = cnt * extr1
        vidx = vidx + 1
 
+       CALL MPI_Get_address (canopy%psi_stem(off), vaddr(vidx), ierr) ! 159
+       blen(vidx) = cnt * extr1
+       vidx = vidx + 1
+
 
        ! MPI: 2D vars moved above
        ! rwater
@@ -5625,7 +5633,6 @@ CONTAINS
        CALL MPI_Get_address (ssnow%weighted_psi_soil(off), vaddr(vidx), ierr) ! 69
        blen(vidx) = cnt * extr2
        vidx = vidx + 1
-
 
        ! REAL(r_1)
        CALL MPI_Get_address (ssnow%rnof1(off), vaddr(vidx), ierr) ! 71

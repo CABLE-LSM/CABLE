@@ -2242,6 +2242,7 @@ CONTAINS
                 IF ( (met%hod(i) >= 12 .AND. met%hod(i) < 13) .AND. &
                      canopy%psi_stem(i) > -4.0) THEN
 
+                   !print*, canopy%psi_stem(i)
                    refill = abs(canopy%psi_stem(i) - &
                                 ssnow%weighted_psi_soil(i)) * 0.7
                    canopy%psi_stem(i) = canopy%psi_stem(i) + refill
@@ -2251,6 +2252,8 @@ CONTAINS
                                             ssnow%weighted_psi_soil(i))
 
                    canopy%psi_stem_prev(i) = canopy%psi_stem(i)
+                   !print*, canopy%psi_stem(i)
+                   !print*, " "
 
                 ENDIF
 
