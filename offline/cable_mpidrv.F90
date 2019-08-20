@@ -1,11 +1,11 @@
 !==============================================================================
-! This source code is part of the 
+! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
 ! This work is licensed under the CSIRO Open Source Software License
 ! Agreement (variation of the BSD / MIT License).
-! 
+!
 ! You may not use this file except in compliance with this License.
-! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located 
+! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located
 ! in each directory containing CABLE code.
 !
 ! ==============================================================================
@@ -24,8 +24,8 @@ PROGRAM mpi_driver
   USE cable_mpicommon
   USE cable_mpimaster
   USE cable_mpiworker
-  USE cable_namelist_util, only: get_namelist_file_name,&
-                                 CABLE_NAMELIST,arg_not_namelist
+  USE cable_namelist_util, ONLY: get_namelist_file_name,&
+       CABLE_NAMELIST,arg_not_namelist
 
   IMPLICIT NONE
 
@@ -51,9 +51,9 @@ PROGRAM mpi_driver
   CALL MPI_Comm_rank (comm, rank, ierr)
 
   IF (rank == 0) THEN
-          CALL mpidrv_master (comm)
+     CALL mpidrv_master (comm)
   ELSE
-          CALL mpidrv_worker (comm)
+     CALL mpidrv_worker (comm)
   END IF
 
   CALL MPI_Finalize (ierr)
@@ -62,4 +62,3 @@ PROGRAM mpi_driver
   PRINT *, 'Finished. ', etime, ' seconds needed for '
 
 END PROGRAM mpi_driver
-

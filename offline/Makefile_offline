@@ -30,15 +30,6 @@
 # ==============================================================================
 ##########################################################################
 
-##thrall
-#NCDIR='/usr/lib/x86_64-linux-gnu/'
-#NCMOD='/usr/include/'
-#FC = /usr/bin/gfortran
-#CFLAGS = -O0 -x f95-cpp-input
-#CINC = -I$(NCMOD)
-#LDFLAGS = -O0
-#LD =  -L$(NCDIR) -lnetcdf -lnetcdff
-
 # these are all the files we are compiling
 LSRC = cable_pft_params.F90 cable_soil_params.F90 casa_dimension.F90 \
 	casa_phenology.F90 casa_param.F90 \
@@ -95,8 +86,6 @@ cable_fprint.o: cable_fprint.F90 cable_common.o
 cable_PyFprint.o: cable_PyFprint.F90
 
 cable_abort.o: cable_abort.F90 cable_iovars.o cable_define_types.o
-
-cable_data.o: cable_data.F90
 
 cable_diag.o: cable_diag.F90 cable_common.o cable_fFile.o
 

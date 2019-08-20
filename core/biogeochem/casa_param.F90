@@ -41,7 +41,7 @@ MODULE casaparm
   INTEGER, PARAMETER :: LEAF    = 1
   INTEGER, PARAMETER :: WOOD    = 2
   INTEGER, PARAMETER :: FROOT   = 3
-!  INTEGER, PARAMETER :: LABILE  = 4
+  !  INTEGER, PARAMETER :: LABILE  = 4
   INTEGER, PARAMETER :: METB    = 1
   INTEGER, PARAMETER :: STR     = 2
   INTEGER, PARAMETER :: CWD     = 3
@@ -51,7 +51,7 @@ MODULE casaparm
   INTEGER, PARAMETER :: PLAB    = 1
   INTEGER, PARAMETER :: PSORB   = 2
   INTEGER, PARAMETER :: POCC    = 3
- !! vh_js !! LALLOC moved to bgcdriver to allow for value to be switchable
+  !! vh_js !! LALLOC moved to bgcdriver to allow for value to be switchable
   !INTEGER, PARAMETER :: LALLOC  = 0      !=0 constant; 1 variable
   REAL(r_2), PARAMETER :: z30=0.3
   REAL(r_2), PARAMETER :: R0=0.3
@@ -67,9 +67,7 @@ MODULE casaparm
   REAL(r_2), PARAMETER :: frootparmb =-0.0485
   REAL(r_2), PARAMETER :: frootparmc = 0.1755
   REAL(r_2), PARAMETER :: xweightalloc = 0.2
-!  REAL(r_2), PARAMETER :: xkplab=0.5*deltcasa
-!  REAL(r_2), PARAMETER :: xkpsorb=0.01*deltcasa
-!  REAL(r_2), PARAMETER :: xkpocc =0.01*deltcasa
+  !  REAL(r_2), PARAMETER :: xkplab=0.5*deltcasa
+  !  REAL(r_2), PARAMETER :: xkpsorb=0.01*deltcasa
+  !  REAL(r_2), PARAMETER :: xkpocc =0.01*deltcasa
 END MODULE casaparm
-
-

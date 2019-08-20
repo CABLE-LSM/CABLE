@@ -11,7 +11,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   USE casaparm
   USE casavariable
   USE phenvariable
-  USE POP_Types,  Only: POP_TYPE
+  USE POP_Types,  ONLY: POP_TYPE
   USE POPMODULE,            ONLY: POPStep, POP_init_single
   USE TypeDef,              ONLY: i4b, dp
   USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE, read_LUH2,&
@@ -20,8 +20,8 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   USE POPLUC_Module, ONLY: POPLUCStep, POPLUC_weights_Transfer, WRITE_LUC_OUTPUT_NC, &
        POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, READ_LUC_RESTART_NC, &
        POPLUC_set_patchfrac, WRITE_LUC_OUTPUT_GRID_NC
-use casa_cable
-use casa_inout_module
+  USE casa_cable
+  USE casa_inout_module
 
 
   IMPLICIT NONE
@@ -50,43 +50,43 @@ use casa_inout_module
   TYPE (casa_met)  :: casaspin
 
   ! local variables
-  real,      dimension(:), allocatable, save  :: avg_cleaf2met, avg_cleaf2str, avg_croot2met, avg_croot2str, avg_cwood2cwd
-  real,      dimension(:), allocatable, save  :: avg_nleaf2met, avg_nleaf2str, avg_nroot2met, avg_nroot2str, avg_nwood2cwd
-  real,      dimension(:), allocatable, save  :: avg_pleaf2met, avg_pleaf2str, avg_proot2met, avg_proot2str, avg_pwood2cwd
-  real,      dimension(:), allocatable, save  :: avg_cgpp,      avg_cnpp,      avg_nuptake,   avg_puptake
-  real,      dimension(:), allocatable, save  :: avg_nsoilmin,  avg_psoillab,  avg_psoilsorb, avg_psoilocc
+  REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_cleaf2met, avg_cleaf2str, avg_croot2met, avg_croot2str, avg_cwood2cwd
+  REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_nleaf2met, avg_nleaf2str, avg_nroot2met, avg_nroot2str, avg_nwood2cwd
+  REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_pleaf2met, avg_pleaf2str, avg_proot2met, avg_proot2str, avg_pwood2cwd
+  REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_cgpp,      avg_cnpp,      avg_nuptake,   avg_puptake
+  REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_nsoilmin,  avg_psoillab,  avg_psoilsorb, avg_psoilocc
   !chris 12/oct/2012 for spin up casa
-  real,      dimension(:), allocatable, save  :: avg_ratioNCsoilmic,  avg_ratioNCsoilslow,  avg_ratioNCsoilpass
-  real(r_2), dimension(:), allocatable, save  :: avg_xnplimit,  avg_xkNlimiting,avg_xklitter, avg_xksoil
+  REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_ratioNCsoilmic,  avg_ratioNCsoilslow,  avg_ratioNCsoilpass
+  REAL(r_2), DIMENSION(:), ALLOCATABLE, SAVE  :: avg_xnplimit,  avg_xkNlimiting,avg_xklitter, avg_xksoil
 
   ! local variables
   INTEGER                  :: myearspin,nyear, yyyy, nyear_dump
   CHARACTER(LEN=99)        :: ncfile
   CHARACTER(LEN=4)         :: cyear
   INTEGER                  :: ktau,ktauday,nday,idoy,ktaux,ktauy,nloop
-  INTEGER, save            :: ndays
-  real,      dimension(mp)      :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
-  real,      dimension(mp)      :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
-  real,      dimension(mp)      :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
-  real,      dimension(mp)      :: xcgpp,     xcnpp,     xnuptake,  xpuptake
-  real,      dimension(mp)      :: xnsoilmin, xpsoillab, xpsoilsorb,xpsoilocc
-  real(r_2), dimension(mp)      :: xnplimit,  xkNlimiting, xklitter, xksoil,xkleaf, xkleafcold, xkleafdry
+  INTEGER, SAVE            :: ndays
+  REAL,      DIMENSION(mp)      :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
+  REAL,      DIMENSION(mp)      :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
+  REAL,      DIMENSION(mp)      :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
+  REAL,      DIMENSION(mp)      :: xcgpp,     xcnpp,     xnuptake,  xpuptake
+  REAL,      DIMENSION(mp)      :: xnsoilmin, xpsoillab, xpsoilsorb,xpsoilocc
+  REAL(r_2), DIMENSION(mp)      :: xnplimit,  xkNlimiting, xklitter, xksoil,xkleaf, xkleafcold, xkleafdry
 
   ! more variables to store the spinup pool size over the last 10 loops. Added by Yp Wang 30 Nov 2012
-  real,      dimension(5,mvtype,mplant)  :: bmcplant,  bmnplant,  bmpplant
-  real,      dimension(5,mvtype,mlitter) :: bmclitter, bmnlitter, bmplitter
-  real,      dimension(5,mvtype,msoil)   :: bmcsoil,   bmnsoil,   bmpsoil
-  real,      dimension(5,mvtype)         :: bmnsoilmin,bmpsoillab,bmpsoilsorb, bmpsoilocc
-  real,      dimension(mvtype)           :: bmarea
-  integer :: nptx,nvt,kloop, ctime, k, j, l
+  REAL,      DIMENSION(5,mvtype,mplant)  :: bmcplant,  bmnplant,  bmpplant
+  REAL,      DIMENSION(5,mvtype,mlitter) :: bmclitter, bmnlitter, bmplitter
+  REAL,      DIMENSION(5,mvtype,msoil)   :: bmcsoil,   bmnsoil,   bmpsoil
+  REAL,      DIMENSION(5,mvtype)         :: bmnsoilmin,bmpsoillab,bmpsoilsorb, bmpsoilocc
+  REAL,      DIMENSION(mvtype)           :: bmarea
+  INTEGER :: nptx,nvt,kloop, ctime, k, j, l
 
   REAL(dp)                               :: StemNPP(mp,2)
-  INTEGER, allocatable :: Iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
+  INTEGER, ALLOCATABLE :: Iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
   INTEGER :: count_sum_casa ! number of time steps over which casa pools &
   !and fluxes are aggregated (for output)
 
-  
-  if (.NOT.Allocated(Iw)) allocate(Iw(POP%np))
+
+  IF (.NOT.ALLOCATED(Iw)) ALLOCATE(Iw(POP%np))
 
 
   !! vh_js !!
@@ -94,7 +94,7 @@ use casa_inout_module
      Iw = POP%Iwood
   ENDIF
 
-  ktauday=int(24.0*3600.0/dels)
+  ktauday=INT(24.0*3600.0/dels)
   nday=(kend-kstart+1)/ktauday
   ctime = 0
   CALL zero_sum_casa(sum_casapool, sum_casaflux)
@@ -104,14 +104,14 @@ use casa_inout_module
   myearspin = CABLE_USER%YEAREND - CABLE_USER%YEARSTART + 1
   yyyy = CABLE_USER%YEARSTART - 1
 
-  do nyear=1,myearspin
+  DO nyear=1,myearspin
      yyyy  = yyyy+1
 
-     write(*,*) 'casaonly_LUC', YYYY
+     WRITE(*,*) 'casaonly_LUC', YYYY
 
      nyear_dump = MOD(nyear, &
           CABLE_USER%CASA_SPIN_ENDYEAR - CABLE_USER%CASA_SPIN_STARTYEAR + 1)
-     if (nyear_dump == 0) &
+     IF (nyear_dump == 0) &
           nyear_dump = CABLE_USER%CASA_SPIN_ENDYEAR - CABLE_USER%CASA_SPIN_STARTYEAR + 1
 
 
@@ -125,9 +125,9 @@ use casa_inout_module
      ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
 
 
-     call read_casa_dump( ncfile,casamet, casaflux, phen,climate, 1,1,.TRUE. )
+     CALL read_casa_dump( ncfile,casamet, casaflux, phen,climate, 1,1,.TRUE. )
      !!CLN901  format(A99)
-     do idoy=1,mdyear
+     DO idoy=1,mdyear
         ktau=(idoy-1)*ktauday +ktauday
 
         casamet%tairk(:)       = casamet%Tairkspin(:,idoy)
@@ -154,7 +154,7 @@ use casa_inout_module
         phen%doyphase(:,4) =  phen%doyphasespin_4(:,idoy)
         climate%qtemp_max_last_year(:) =  casamet%mtempspin(:,idoy)
 
-      
+
         CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
              casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter, &
              xksoil,xkleaf,xkleafcold,xkleafdry,&
@@ -168,18 +168,18 @@ use casa_inout_module
         count_sum_casa = count_sum_casa + 1
 
 
-        
+
         ! accumulate annual variables for use in POP
         IF(idoy==1 ) THEN
            casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7 ! (assumes 70% of wood NPP is allocated above ground)
            casabal%LAImax = casamet%glai
-           casabal%Cleafmean = casapool%cplant(:,1)/real(mdyear)/1000.
-           casabal%Crootmean = casapool%cplant(:,3)/real(mdyear)/1000.
+           casabal%Cleafmean = casapool%cplant(:,1)/REAL(mdyear)/1000.
+           casabal%Crootmean = casapool%cplant(:,3)/REAL(mdyear)/1000.
         ELSE
            casaflux%stemnpp = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7
-           casabal%LAImax = max(casamet%glai, casabal%LAImax)
-           casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1)/real(mdyear)/1000.
-           casabal%Crootmean = casabal%Crootmean +casapool%cplant(:,3)/real(mdyear)/1000.
+           casabal%LAImax = MAX(casamet%glai, casabal%LAImax)
+           casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1)/REAL(mdyear)/1000.
+           casabal%Crootmean = casabal%Crootmean +casapool%cplant(:,3)/REAL(mdyear)/1000.
         ENDIF
 
 
@@ -192,7 +192,7 @@ use casa_inout_module
               POPLUC%ptos(k) = LUC_EXPT%INPUT(ptos)%VAL(k)
               POPLUC%ptog(k) = LUC_EXPT%INPUT(ptog)%VAL(k)
               POPLUC%stop(k) = 0.0
-              POPLUC%stog(k) = LUC_EXPT%INPUT(stog)%VAL(k) 
+              POPLUC%stog(k) = LUC_EXPT%INPUT(stog)%VAL(k)
               POPLUC%gtop(k) = 0.0
               POPLUC%gtos(k) = LUC_EXPT%INPUT(gtos)%VAL(k)
               POPLUC%pharv(k) = LUC_EXPT%INPUT(pharv)%VAL(k)
@@ -203,27 +203,27 @@ use casa_inout_module
            !stop
            ! set landuse index for secondary forest POP landscapes
            DO k=1,POP%np
-              IF (yyyy.eq.LUC_EXPT%YearStart) THEN
-                 if (veg%iLU(POP%Iwood(k)).eq.2) then
+              IF (yyyy.EQ.LUC_EXPT%YearStart) THEN
+                 IF (veg%iLU(POP%Iwood(k)).EQ.2) THEN
                     POP%pop_grid(k)%LU = 2
-                 endif
-              endif
+                 ENDIF
+              ENDIF
            ENDDO
 
            ! zero secondary forest tiles in POP where secondary forest area is zero
            DO k=1,mland
-              if ((POPLUC%primf(k)-POPLUC%frac_forest(k))==0.0 &
-                   .and. (.not.LUC_EXPT%prim_only(k))) then
+              IF ((POPLUC%primf(k)-POPLUC%frac_forest(k))==0.0 &
+                   .AND. (.NOT.LUC_EXPT%prim_only(k))) THEN
 
                  j = landpt(k)%cstart+1
-                 do l=1,size(POP%Iwood)
-                    if( POP%Iwood(l) == j) then
+                 DO l=1,SIZE(POP%Iwood)
+                    IF( POP%Iwood(l) == j) THEN
 
                        CALL POP_init_single(POP,veg%disturbance_interval,l)
 
-                       exit
-                    endif
-                 enddo
+                       EXIT
+                    ENDIF
+                 ENDDO
 
                  casapool%cplant(j,leaf) = 0.01
                  casapool%nplant(j,leaf)= casabiome%ratioNCplantmin(veg%iveg(j),leaf)* casapool%cplant(j,leaf)
@@ -238,7 +238,7 @@ use casa_inout_module
                  casapool%pplant(j,wood)= casabiome%ratioPCplantmin(veg%iveg(j),wood)* casapool%cplant(j,wood)
                  casaflux%frac_sapwood(j) = 1.0
 
-              endif
+              ENDIF
            ENDDO
 
 
@@ -255,14 +255,14 @@ use casa_inout_module
 !!$               WHERE (pop%pop_grid(:)%cmass_sum_old.gt.0.1 .and. pop%pop_grid(:)%cmass_sum.gt.0.1 )
 !!$               casapool%Cplant(Iw,2) = casapool%Cplant(Iw,2)*(1.0- min( POP%pop_grid(:)%cat_mortality/(POP%pop_grid(:)%cmass_sum_old),0.99))
 !!$               casapool%Nplant(Iw,2) = casapool%Nplant(Iw,2)*(1.0- min( POP%pop_grid(:)%cat_mortality/(POP%pop_grid(:)%cmass_sum_old),0.99))
-!!$               ENDWHERE  
+!!$               ENDWHERE
 
 
            CALL POP_LUC_CASA_transfer(POPLUC,POP,LUC_EXPT,casapool,casabal,casaflux,ktauday)
-      
+
            CALL WRITE_LUC_OUTPUT_GRID_NC( POPLUC, YYYY, ( YYYY.EQ.cable_user%YearEnd ))
 
-           CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT) 
+           CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT)
 
         ENDIF  ! end of year
 
@@ -275,16 +275,15 @@ use casa_inout_module
                 .FALSE. , .TRUE. , count_sum_casa)
 
            CALL WRITE_CASA_OUTPUT_NC ( veg, casamet, sum_casapool, casabal, sum_casaflux, &
-                .true., ctime, ( idoy.eq.mdyear .AND. YYYY .EQ.	       &
+                .TRUE., ctime, ( idoy.EQ.mdyear .AND. YYYY .EQ.	       &
                 cable_user%YearEnd ) )
            count_sum_casa = 0
            CALL zero_sum_casa(sum_casapool, sum_casaflux)
 
         ENDIF
-     enddo
-  enddo
+     ENDDO
+  ENDDO
   CALL WRITE_LUC_RESTART_NC ( POPLUC, YYYY )
 
 
 END SUBROUTINE CASAONLY_LUC
-

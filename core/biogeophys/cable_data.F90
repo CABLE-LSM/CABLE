@@ -88,7 +88,7 @@ module cable_data_module
       zetpos = 1.0,  & ! positive limit on za/L when niter>=3
       zdlin  = 1.0,  & ! height frac of d below which TL linear
       !revised upwards from 0.01 to guarantee convergence, unnecessary now ?
-      umin   = 1.0
+      umin   = 0.1
 
    END TYPE physical_constants
 
