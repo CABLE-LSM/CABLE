@@ -2238,8 +2238,10 @@ CONTAINS
                 canopy%psi_soil_prev(i) = ssnow%weighted_psi_soil(i)
                 canopy%psi_stem_prev(i) = canopy%psi_stem(i)
 
-                ! Force overnight refilling
-                IF ( (met%hod(i) >= 12 .AND. met%hod(i) < 13) .AND. &
+                ! Force overnight refilling - we need the real time
+                ! as this won't work with 30 min and hourly
+                !IF ( (met%hod(i) >= 12 .AND. met%hod(i) < 13) .AND. &
+                IF ( (met%hod(i) >= 6 .AND. met%hod(i) < 7) .AND. &
                      canopy%psi_stem(i) > -4.0) THEN
 
                    !print*, canopy%psi_stem(i)
@@ -2250,7 +2252,7 @@ CONTAINS
                    ! Ensure we can't refill above psi_soil
                    canopy%psi_stem(i) = min(canopy%psi_stem(i), &
                                             ssnow%weighted_psi_soil(i))
-
+                   !print*, "****", canopy%psi_stem_prev(i), canopy%psi_stem(i)
                    canopy%psi_stem_prev(i) = canopy%psi_stem(i)
                    !print*, canopy%psi_stem(i)
                    !print*, " "
