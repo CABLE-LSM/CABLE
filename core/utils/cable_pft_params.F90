@@ -1324,6 +1324,7 @@ CONTAINS
        vegin%Cl(19) = 10000.
        vegin%Cs(19) = 120000.
 
+
        !PFT: New Dry sclerophyll forests (DSF) mgk576, 16/7/19
        !=========================================================
        vegin%canst1(20) =        0.100000
