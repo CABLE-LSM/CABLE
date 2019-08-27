@@ -900,7 +900,6 @@ PROGRAM cable_offline_driver
                             ! Ambient and stomatal CO2 concentration 
                             real(met%ca,dp), ci(:,ileaf), &
                             ! leaf temperature
-                            !MC - canopy%tv ???
                             real(canopy%tlf,dp), &
                             ! Ambient isotope ratio
                             Ra, &

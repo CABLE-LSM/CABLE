@@ -121,7 +121,7 @@ contains
     real(dp), dimension(:),   intent(inout), optional :: trash  ! garbage can for numerical inconsistencies
 
     ! Local variables
-    integer(i4) :: i  ! counter
+    ! integer(i4) :: i  ! counter
     integer(i4) :: nn ! number of pools
     real(dp), dimension(size(Ci,1)) :: R    ! Isotope ratio of pool
     ! defaults for optional inputs

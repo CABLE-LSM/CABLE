@@ -54,7 +54,7 @@ MODULE cable_def_types_mod
       swb = 2,       & ! # shortwave bands
       niter = 4,     & ! number of iterations for za/L
       ! ms = 12          ! # soil layers
-       ms = 6         ! # soil layers - standard
+      ms = 6           ! # soil layers - standard
       ! ms = 13          ! for Loetschental experiment
       ! ms = 10
 
@@ -126,7 +126,7 @@ MODULE cable_def_types_mod
          swilt,   & ! vol H2O @ wilting
          zse,     & ! thickness of each soil layer (1=top) in m
          zshh,    & ! distance between consecutive layer midpoints (m)
-                 ! vars intro for Ticket #27
+         ! vars intro for Ticket #27
          soilcol, & ! keep color for all patches/tiles
          albsoilf   ! soil reflectance
 

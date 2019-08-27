@@ -29,15 +29,15 @@ MODULE mo_isotope_pool_model
   !>        given sink, sources and all the fluxes between all pools,
   !>        together associated fractionation factors.
 
-  !>        The pool model for pool i is:
-  !>            dC(i)/dt = sum(F(:,i)) - sum(F(i,:)) + S(i) - T(i)
+  !>        The pool model for pool i is: \n
+  !>            dC(i)/dt = sum(F(:,i)) - sum(F(i,:)) + S(i) - T(i) \n
   !>        where C are the pools, F the fluxes between pools (F>0, F(i,i)=0),
   !>        S a pool-independent source term, and T a sink term, which can be pool-independent
   !>        or pool-dependent, i.e. T(i) = beta(i)*C(i)
 
-  !>        The isotope model for pool i is then:
+  !>        The isotope model for pool i is then:\n
   !>            dC'(i)/dt = sum(alpha(:,i)*R(:)*F(:,i)) - R(i)*sum(alpha(i,:)*F(i,:))
-  !>                       + Rs(i)*S(i) - alpha(i,i)*Rt(i)*T(i)
+  !>                       + Rs(i)*S(i) - alpha(i,i)*Rt(i)*T(i) \n
   !>        with C' the isotope pools. R are the isotope ratios of the pools at time t-dt,
   !>        and alpha are possible fractionation factors.
   !>        If Rt is not given, it is taken as the isotopic composition of the pool R(i).
@@ -52,33 +52,33 @@ MODULE mo_isotope_pool_model
   !>        \param[in]    "real(dp) :: dt"                       Time step
   !>        \param[inout] "real(dp) :: Ci(1:n[,1:m])"            Isotope concentrations in pools
   !>        \param[in]    "real(dp) :: C(1:n[,1:m])"             Non-isotope concentrations in pools at time step t-1
-  !>        \param[in]    "real(dp) :: F(1:n,1:n[,1:m])"         Non-isotope fluxes between pools (F(i,i)=0)
-  !>                                   F(i,j) positive flux from pool i to pool j
+  !>        \param[in]    "real(dp) :: F(1:n,1:n[,1:m])"         Non-isotope fluxes between pools (F(i,i)=0) \n
+  !>                                   F(i,j) positive flux from pool i to pool j \n
   !>                                   Isotope flux is alpha(i,j)*R(i)*F(i,j)
-  !>        \param[in]    "real(dp), optional :: S(1:n[,1:m])"   Non-isotope source fluxes to pools (other than between pools)
+  !>        \param[in]    "real(dp), optional :: S(1:n[,1:m])"   Non-isotope source fluxes to pools (other than between pools) \n
   !>                                   Default: 0.
-  !>        \param[in]    "real(dp), optional :: Rs(1:n[,1:m])"  Isotopic compositions of source fluxes
-  !>                                   Any fractionations during source processes should be included in Rs.
+  !>        \param[in]    "real(dp), optional :: Rs(1:n[,1:m])"  Isotopic compositions of source fluxes \n
+  !>                                   Any fractionations during source processes should be included in Rs. \n
   !>                                   Default: 1.
-  !>        \param[in]    "real(dp), optional :: T(1:n[,1:m])"   Non-isotope sinks of pools (other than between pools)
-  !>                                   Isotope flux is alpha(i,i)*Rt(i)*T(i) or alpha(i,i)*R(i)*T(i)
+  !>        \param[in]    "real(dp), optional :: T(1:n[,1:m])"   Non-isotope sinks of pools (other than between pools) \n
+  !>                                   Isotope flux is alpha(i,i)*Rt(i)*T(i) or alpha(i,i)*R(i)*T(i) \n
   !>                                   Default: 0.
-  !>        \param[in]    "real(dp), optional :: Rt(1:n[,1:m])"  Isotopic compositions of sink fluxes.
-  !>                                   If not given, the isotopic composition of the pool R(i) is taken.
+  !>        \param[in]    "real(dp), optional :: Rt(1:n[,1:m])"  Isotopic compositions of sink fluxes. \n
+  !>                                   If not given, the isotopic composition of the pool R(i) is taken. \n
   !>                                   Default: R(i)
   !>        \param[in]    "real(dp), optional :: alpha(1:n,1:n[,1:m])" Isotopic fractionation factors associated with
   !>                                   fluxes F between pools (alpha(i,j) i/=j) and of 
-  !>                                   sinks T (other than between pools) (alpha(i,i))
+  !>                                   sinks T (other than between pools) (alpha(i,i)) \n
   !>                                   Default: 1.
-  !>        \param[in]    "real(dp), optional :: beta(1:n[,1:m])"      Either T or beta can be given.
-  !>                                   If beta is given then T(i) = beta(i)*C(i).
+  !>        \param[in]    "real(dp), optional :: beta(1:n[,1:m])"      Either T or beta can be given. \n
+  !>                                   If beta is given then T(i) = beta(i)*C(i). \n
   !>                                   T supercedes beta, i.e. T will be taken if beta and T are given.
   !>        \param[inout] "real(dp), optional :: trash(1:n[,1:m])"     Container to store possible inconsistencies,
-  !>                                   might be numeric, between non-isotope and isotope model.
+  !>                                   might be numeric, between non-isotope and isotope model. \n
   !>                                   Consistency checks are only performed if trash is given in call.
-  !>        \param[inout] "logical,  optional :: trans"          Assumed order of pools and fluxes in 2D case
-  !>                                   If .true.,  input order is [m,n] for pools and [m,n,n] for fluxes
-  !>                                   If .false., input order is [n,m] for pools and [n,n,m] for fluxes
+  !>        \param[inout] "logical,  optional :: trans"          Assumed order of pools and fluxes in 2D case \n
+  !>                                   If .true.,  input order is [m,n] for pools and [m,n,n] for fluxes \n
+  !>                                   If .false., input order is [n,m] for pools and [n,n,m] for fluxes \n
   !>                                   Default: .false.
 
   !     HISTORY
