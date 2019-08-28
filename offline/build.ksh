@@ -203,7 +203,7 @@ host_raij()
 host_mcin()
 {
     idebug=0
-    iintel=0
+    iintel=1
     np=$#
     for ((i=0; i<${np}; i++)) ; do
 	if [[ "${1}" == "debug" ]] ; then
@@ -211,6 +211,9 @@ host_mcin()
 	    shift 1
 	elif [[ "${1}" == "ifort" || "${1}" == "intel" ]] ; then
 	    iintel=1
+	    shift 1
+	elif [[ "${1}" == "gfortran" || "${1}" == "gnu" ]] ; then
+	    iintel=0
 	    shift 1
 	fi
     done

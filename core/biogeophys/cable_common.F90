@@ -174,7 +174,8 @@ MODULE cable_common_module
           !! vh_js !!
           litter = .FALSE.
      
-     logical ::            c13o2 = .false.              ! switch on 13CO2 calculations     
+     logical ::            c13o2 = .false.              ! switch 13CO2 calculations on
+     logical ::            c13o2_simple_disc = .false.  ! simple or full leaf discrimination
      character(len=200) :: c13o2_restart_in_pools  = '' ! 13CO2 restart Casa input file
      character(len=200) :: c13o2_restart_out_pools = '' ! 13CO2 restart Casa output file
      character(len=200) :: c13o2_restart_in_luc    = '' ! 13CO2 restart LUC input file

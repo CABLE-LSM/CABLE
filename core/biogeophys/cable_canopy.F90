@@ -198,7 +198,7 @@ CONTAINS
     canopy%An = 0.0
     canopy%Rd = 0.0
 
-    CALL define_air (met, air)
+    CALL define_air(met, air)
 
     CALL qsatfjh(qstvair,met%tvair-C%tfrz,met%pmb)
     met%dva = (qstvair - met%qvair) *  C%rmair/C%rmh2o * met%pmb * 100.0
@@ -411,8 +411,6 @@ CONTAINS
             fwsoil, tlfx, tlfy, ecy, hcy,                              &
             rny, gbhu, gbhf, csx, cansat,                              &
             ghwet,  iter,climate, gmes )
-
-
 
        CALL wetLeaf( dels, rad, rough, air, met,                                &
             veg, canopy, cansat, tlfy,                                 &
@@ -1490,7 +1488,7 @@ CONTAINS
     REAL(R_2),INTENT(INOUT), DIMENSION(:,:) ::                                  &
          gbhu,       & ! forcedConvectionBndryLayerCond
          gbhf,       & ! freeConvectionBndryLayerCond
-         csx  ! leaf surface CO2 concentration
+         csx           ! leaf surface CO2 concentration
 
      REAL(R_2),INTENT(INOUT), DIMENSION(:,:) ::                                  & 
          gmes             ! mesophyll conductance
@@ -1526,8 +1524,7 @@ CONTAINS
          gwwet,         & ! cond for water for a wet canopy
          ghrwet,        & ! wet canopy cond: heat & thermal rad
          sum_gbh,       & !
-         ccfevw,        & ! limitation term for
-                                ! wet canopy evaporation rate
+         ccfevw,        & ! limitation term for wet canopy evaporation rate
          temp             !
 
     REAL(r_2), DIMENSION(mp)  ::                                                &
@@ -1555,8 +1552,7 @@ CONTAINS
          vcmxt4,     & ! vcmax big leaf C4
          vx3,        & ! carboxylation C3 plants
          vx4,        & ! carboxylation C4 plants
-         ! Ticket #56, xleuning is no longer used, we replace it with
-         ! gs_coeff,
+         ! Ticket #56, xleuning is no longer used, we replace it with gs_coeff,
          ! which is computed differently based on the new GS_SWITCH. If GS_SWITCH
          ! is "leuning", it's the same, if "medlyn", then the new Medlyn model
          ! xleuning,   & ! leuning stomatal coeff
@@ -2331,6 +2327,12 @@ CONTAINS
     canopy%An(:,2) = real(an_y(:,2),r_2)
     canopy%Rd(:,1) = real(rdy(:,1),r_2)
     canopy%Rd(:,2) = real(rdy(:,2),r_2)
+    ! isc3 = (1.0_dp-real(veg%frac4,dp)) > epsilon(1.0_dp)
+    ! vcmax = vcmxt3(:,:), vcmxt4(:,:)
+    ! gammastar = cx2(:)/2.
+    ! gsc = canopy%gswx(i,kk) / C%RGSWC
+    ! gbc = (gbhu(i,kk) + gbhf(i,kk)) / C%RGBWC
+    ! gac = infinite
 
     DEALLOCATE( gswmin )
 
@@ -2651,10 +2653,10 @@ CONTAINS
 
                    gamma =  vcmxt3z(i,j)
                    beta = cx1z(i,j)
-                   X = gs_coeffz(i,j) 
+                   X = gs_coeffz(i,j)
                    g0 = gswminz(i,j)*fwsoilz(i) / C%RGSWC
                    cs = csxz(i,j)
-                   gammast = cx2z(i,j)/2.0 
+                   gammast = cx2z(i,j)/2.0
                    Rd = rdxz(i,j)
                    gm = gmes(i,j)
                    if (TRIM(cable_user%g0_switch) == 'default') then

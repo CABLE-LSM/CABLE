@@ -80,9 +80,6 @@ module cable_data_module
       umin   = 1.0
    END TYPE physical_constants
 
-
-
-
    type math_constants
       real :: pi_c = 3.1415927
       !jhan:hardwire for now. note pi180= pi_c/180
@@ -117,14 +114,11 @@ module cable_data_module
       real :: trefk= 298.2  !reference temperature K
    end type photosynthetic_constants
 
-
-
    ! instantiate major types of constants
    type( physical_constants ), TARGET :: phys
    type( math_constants ), TARGET  :: math
    type( other_constants ), TARGET  :: other
    type( photosynthetic_constants ), TARGET :: photo
-
 
    ! TYPEs of local pointers to global constants defined above
 
@@ -134,13 +128,11 @@ module cable_data_module
          TFRZ, EMSOIL, EMLEAF, SBOLTZ
    END TYPE driver_type
 
-
    TYPE icbm_type
       REAL, POINTER ::                                                         &
          ! physical constants
          GRAV, CAPP
    END TYPE icbm_type
-
 
    TYPE iair_type
       REAL, POINTER ::                                                         &
@@ -150,8 +142,6 @@ module cable_data_module
          CAPP, RMH2O, HL
    END TYPE iair_type
 
-
-
    TYPE ialbedo_type
       ! local pointers to global constants defined above
       REAL, POINTER ::                                                         &
@@ -160,8 +150,6 @@ module cable_data_module
       ! other constants
          LAI_THRESH, RAD_THRESH
    END TYPE ialbedo_type
-
-
 
    TYPE icanopy_type
 
@@ -183,15 +171,11 @@ module cable_data_module
 
    END TYPE icanopy_type
 
-
-
    TYPE icarbon_type
       REAL, POINTER ::                                                         &
          ! physical constants
          TFRZ
    END TYPE icarbon_type
-
-
 
    TYPE irad_type
       REAL, POINTER ::                                                         &
@@ -206,7 +190,6 @@ module cable_data_module
          GAUSS_W
    END TYPE irad_type
 
-
    TYPE irough_type
       REAL, POINTER ::                                                         &
          ! physical constants
@@ -214,14 +197,11 @@ module cable_data_module
          A33, CTL,  ZDLIN, CSW, GRAV , LAI_THRESH  !! vh_js !! added LAI_THRESH here
    END TYPE irough_type
 
-
-
    TYPE issnow_type
       REAL, POINTER ::                                                         &
          ! physical constants
          CAPP, TFRZ, HL, HLF, HLS
    END TYPE issnow_type
-
 
    TYPE const_type
       ! instantiate major types of constants
@@ -243,8 +223,6 @@ module cable_data_module
    end TYPE cable_type
 
    TYPE (cable_type) :: cable
-
-
 
    INTERFACE point2constants
       MODULE PROCEDURE driver_type_ptr, cbm_type_ptr, air_type_ptr,            &

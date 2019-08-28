@@ -542,9 +542,8 @@ contains
     real(dp), intent(out) :: Ass13 ! 13CO2 flux [mol(13CO2)/m2s]
 
     ! Local variables
-    integer(i4) :: jl, nn
-    real(dp)    :: tmp
-    real(dp)    :: Ass    ! net assimilation
+    real(dp) :: tmp
+    real(dp) :: Ass                   ! net assimilation
     ! fractionations
     real(dp) :: eps_es, eps_b4, eps_s ! for C4
     real(dp) :: eps_night             ! fractionation during night
