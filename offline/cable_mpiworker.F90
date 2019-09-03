@@ -562,7 +562,7 @@ CONTAINS
              canopy%fes_cor = 0.
              canopy%fhs_cor = 0.
              met%ofsd = 0.1
-
+             ! vh !
              met%pdep = 0.0
              casamet%glai = 1.0
 
@@ -592,9 +592,7 @@ CONTAINS
                 ktau = 0
              ENDIF
 
-             casamet%glai(:) = 1.0
-
-          ELSE
+           ELSE
              IF (icycle.gt.0) THEN
                 ! re-initalise annual flux sums
                 casabal%FCgppyear =0.0

@@ -20,9 +20,9 @@ host_raij()
    export FC='mpif90'
   export CFLAGS='-O2 -fp-model precise -fpp -xCORE-AVX2'
   # export CFLAGS='-O3 -fp-model precise -g -debug all -traceback'
- #export CFLAGS='  -g -debug -traceback   -check all,noarg_temp_created -fp-stack-check -O0 -debug -fpe0 -no-ftz -ftrapuv -fpstkchk  -xCORE-AVX2'
+  #  export CFLAGS='  -g -debug -traceback -fpp  -check all,noarg_temp_created -fp-stack-check -O2 -debug -fpe0 -no-ftz -ftrapuv -fpstkchk  -xCORE-AVX2'
 
-  # export CFLAGS='-O0 -traceback -g -debug -fp-model precise -ftz -fpe0 -check all,noarg_temp_created -fp-stack-check -no-ftz -ftrapuv'
+   #export CFLAGS='-O0 -traceback -g -debug -fp-model precise -ftz -fpe0 -check all,noarg_temp_created -fp-stack-check -no-ftz -ftrapuv'
    if [[ $1 = 'debug' ]]; then
       #export CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0'
       export CFLAGS='  -g -debug -traceback -fpp -check all,noarg_temp_created -fp-stack-check -O0 -debug -fpe=0 -fpe-all=0 -no-ftz -ftrapuv'

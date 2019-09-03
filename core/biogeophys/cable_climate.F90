@@ -65,7 +65,7 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
   real, PARAMETER:: moisture_min = 0.15 ! threshold for setting "growing moisture days", as required for drought-deciduous phenology
   real, PARAMETER:: T1 = 0.0, T2 = -3.0, T3 = -4.0, T6 = -5.0 ! for computing fractional spring recovery
   real, PARAMETER:: ffrost = 0.1, fdorm0 = 0.15  ! for computing fractional spring recovery
-  real, PARAMETER:: gdd0_rec0 = 100.0
+  real, PARAMETER:: gdd0_rec0 = 250.0
   real, dimension(mp) :: f1, f2, frec0, dkbdi
 
   nsd = ktauday*5 ! number of subdirunal time-steps
