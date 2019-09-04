@@ -148,6 +148,7 @@ CONTAINS
     canopy%psi_stem_prev = -0.5
     canopy%psi_soil_prev = -0.001
     ssnow%tot_bg_resist = 1E9
+    ssnow%weighted_psi_soil = -0.1
 
 
   END SUBROUTINE get_default_inits
