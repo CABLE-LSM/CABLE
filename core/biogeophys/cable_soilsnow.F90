@@ -2780,8 +2780,8 @@ CONTAINS
 
      total_est_evap = 0.0
      est_evap = 0.0
-     ssnow%weighted_psi_soil(:) = 0.0
-     ssnow%fraction_uptake = 0.0
+     ssnow%weighted_psi_soil(i) = 0.0
+     ssnow%fraction_uptake(i,:) = 0.0
 
      ! Estimate max transpiration from gradient-gravity / soil resistance
      DO j = 1, ms ! Loop over 6 soil layers
