@@ -2233,8 +2233,8 @@ CONTAINS
                                              trans_mmol, i)
 
                 !print*, canopy%psi_soil_prev(i), ssnow%weighted_psi_soil(i), &
-                !      canopy%psi_stem_prev(i) , canopy%psi_stem(i), &
-                !      canopy%psi_leaf_prev(i), canopy%psi_leaf(i)
+                !         canopy%psi_stem_prev(i) , canopy%psi_stem(i), &
+                !         canopy%psi_leaf_prev(i), canopy%psi_leaf(i)
 
                 ! store current water potentials for next time step
                 canopy%psi_leaf_prev(i) = canopy%psi_leaf(i)
