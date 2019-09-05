@@ -2716,7 +2716,7 @@ CONTAINS
      REAL, PARAMETER :: KPA_2_MPa = 0.001
      REAL, PARAMETER :: M_HEAD_TO_MPa = 9.8 * KPA_2_MPa
 
-     ssnow%psi_soil(:,:) = 0.0 ! MPa
+     ssnow%psi_soil(i,:) = 0.0 ! MPa
 
      ! Soil matric potential at saturation (m of head to MPa: 9.81 * KPA_2_MPA)
      psi_sat = soil%sucs(i) * M_HEAD_TO_MPa
