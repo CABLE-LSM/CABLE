@@ -2481,9 +2481,9 @@ CONTAINS
     blen(bidx) = r2len
 
     ! duplicate call - should be deleted, mgk576
-    bidx = bidx + 1
-    CALL MPI_Get_address (soil%GWdz, displs(bidx), ierr)
-    blen(bidx) = r2len
+    !bidx = bidx + 1
+    !CALL MPI_Get_address (soil%GWdz, displs(bidx), ierr)
+    !blen(bidx) = r2len
 
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%GWwb, displs(bidx), ierr)

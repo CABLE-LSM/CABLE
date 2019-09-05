@@ -2586,7 +2586,7 @@ CONTAINS
 
     ! fix for new PFTs
     WHERE ( veg%iveg(:) .GE. 14 .AND. veg%iveg(:) .LT. 18) veg%vlai = 0.
-    
+
     IF (icycle > 0) THEN
        CALL write_cnp_params(veg,casaflux,casamet)
        CALL casa_readbiome(veg,soil,casabiome,casapool,casaflux, &

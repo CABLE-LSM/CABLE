@@ -2232,12 +2232,14 @@ CONTAINS
                 CALL calc_flux_to_stem_again(canopy, dels, veg%Cs(i), &
                                              trans_mmol, i)
 
-
+                !print*, canopy%psi_soil_prev(i), ssnow%weighted_psi_soil(i), &
+                !         canopy%psi_stem_prev(i) , canopy%psi_stem(i), &
+               !         canopy%psi_leaf_prev(i), canopy%psi_leaf(i)
+                !stop
                 ! store current water potentials for next time step
                 canopy%psi_leaf_prev(i) = canopy%psi_leaf(i)
                 canopy%psi_soil_prev(i) = ssnow%weighted_psi_soil(i)
                 canopy%psi_stem_prev(i) = canopy%psi_stem(i)
-
 
                 ! Force overnight refilling - we need the real time
                 ! as this won't work with 30 min and hourly
@@ -3393,6 +3395,7 @@ CONTAINS
 
      !canopy%psi_leaf(i) = ((ap * canopy%psi_leaf_prev(i) + bp) *  &
       !                        EXP(ap * dels) - bp) / ap
+
 
   END SUBROUTINE calc_psi_leaf
   ! ----------------------------------------------------------------------------

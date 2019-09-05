@@ -1636,6 +1636,17 @@ CONTAINS
     soil%ssat_vec(:,:)  = REAL(SPREAD(soil%ssat(:),2,ms),r_2)
     soil%hyds_vec(:,:)  = REAL(SPREAD(soil%hyds(:),2,ms),r_2)
 
+    ! plant hydraulics stuff, mgk576, 16/7/2019
+    ! This is the actual initalisation - write_default_params
+    canopy%psi_leaf = -0.1
+    canopy%psi_stem = -0.01
+    canopy%psi_leaf_prev = -0.1
+    canopy%psi_stem_prev = -0.01
+    canopy%psi_soil_prev = -0.001
+    ssnow%tot_bg_resist = 1E9
+    ssnow%weighted_psi_soil = -0.001
+
+
   END SUBROUTINE write_default_params
   !=============================================================================
   SUBROUTINE write_cnp_params(veg, casaflux, casamet)
