@@ -387,11 +387,13 @@ build_build()
    # directories contain source code
    PHYS="../core/biogeophys"
    UTIL="../core/utils"
+   DIAG=$UTIL"/diag"
    DRV="."
    CASA="../core/biogeochem"
 
    /bin/cp -p $PHYS/*90 ./.tmp
    /bin/cp -p $UTIL/*90 ./.tmp
+   /bin/cp -p $DIAG/*90 ./.tmp
    /bin/cp -p $DRV/*90 ./.tmp
    /bin/cp -p $CASA/*90 ./.tmp
 

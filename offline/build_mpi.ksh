@@ -316,11 +316,13 @@ build_build()
    
    CORE="../core/biogeophys"
    UTIL="../core/utils"
+   DIAG=$UTIL"/diag"
    DRV="."
    CASA="../core/biogeochem"
    
    /bin/cp -p $CORE/*90 ./.mpitmp
-    /bin/cp -p $UTIL/*90 ./.mpitmp
+   /bin/cp -p $UTIL/*90 ./.mpitmp
+   /bin/cp -p $DIAG/*90 ./.mpitmp
    /bin/cp -p $DRV/*90 ./.mpitmp
    /bin/cp -p $CASA/*90 ./.mpitmp
    
