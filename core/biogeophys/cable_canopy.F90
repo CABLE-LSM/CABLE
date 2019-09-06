@@ -2099,6 +2099,9 @@ CONTAINS
              ELSE IF (cable_user%GS_SWITCH == 'medlyn' .AND. &
                      cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
 
+                ! need to use gmin ...
+                gswmin = 0.0
+
                 CALL calc_hydr_conduc(canopy, ssnow, rad, veg, veg%kp_sat(i), i)
 
                 ! Sensitivity of stomata to leaf water potential [0-1]
@@ -3337,7 +3340,7 @@ CONTAINS
                               (Cs + Cl)
 
      ENDIF
-
+     !print*, "***", canopy%psi_stem(i)
 
   END SUBROUTINE update_stem_wp_again
   ! ----------------------------------------------------------------------------
