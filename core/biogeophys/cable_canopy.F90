@@ -3154,12 +3154,15 @@ CONTAINS
 
      TYPE (canopy_type), INTENT(INOUT)    :: canopy
 
+     REAL                :: stem_cond
      REAL, INTENT(IN)    :: transpiration, Cl
      REAL, INTENT(IN)    :: dels ! integration time step (s)
      INTEGER, INTENT(IN) :: i
 
+     stem_cond = canopy%kstem2leaf(i) * canopy%vlaiw(i)
+
      ! is there conductance in the trunk?
-     IF (canopy%kstem2leaf(i) * canopy%vlaiw(i) > 1E-09) THEN
+     IF (stem_cond > 1E-09) THEN
 
         ! sapflow rate from stem to leaf within the time step
         canopy%flx_to_leaf(i) = (canopy%psi_leaf(i) - &
