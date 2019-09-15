@@ -2265,19 +2265,21 @@ CONTAINS
                 !
                 !ENDIF
 
-                !IF (ecx(i) > 0.0 .AND. canopy%fwet(i) < 1.0) THEN
-                !    evapfb(i) = ( 1.0 - canopy%fwet(i)) * REAL( ecx(i) ) *dels      &
-                !         / air%rlam(i)
-                !
-                !    DO kk = 1,ms
-                !
-                !       ssnow%evapfbl(i,kk) = MIN( evapfb(i) * ssnow%fraction_uptake(i,k),      &
-                !            MAX( 0.0, REAL( ssnow%wb(i,kk) ) -     &
-                !            1.1 * soil%swilt(i) ) *                &
-                !            soil%zse(kk) * 1000.0 )
-                !
-                !   ENDDO
-                !
+                IF (ecx(i) > 0.0 .AND. canopy%fwet(i) < 1.0) THEN
+                    evapfb(i) = ( 1.0 - canopy%fwet(i)) * REAL( ecx(i) ) *dels      &
+                         / air%rlam(i)
+
+                    DO kk = 1,ms
+
+                       ssnow%evapfbl(i,kk) = MIN( evapfb(i) * ssnow%fraction_uptake(i,k),      &
+                            MAX( 0.0, REAL( ssnow%wb(i,kk) ) -     &
+                            1.1 * soil%swilt(i) ) *                &
+                            soil%zse(kk) * 1000.0 )
+
+                   ENDDO
+               ENDIF
+               canopy%fevc(i) = ecx(i)*(1.0-canopy%fwet(i))
+               !
                 !      IF (cable_user%soil_struc=='default') THEN
                 !       canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels
                 !         ecx(i) = canopy%fevc(i) / (1.0-canopy%fwet(i))
@@ -2287,20 +2289,20 @@ CONTAINS
 
                 ! We shouldn't be using this, but I need to figure out how to
                 ! correctly do the above...
-                canopy%fevc(i) = ecx(i)*(1.0-canopy%fwet(i))
+                !canopy%fevc(i) = ecx(i)*(1.0-canopy%fwet(i))
 
-                CALL getrex_1d(ssnow%wbliq(i,:),&
-                     ssnow%rex(i,:), &
-                     canopy%fwsoil(i), &
-                     REAL(veg%froot(i,:),r_2),&
-                     soil%ssat_vec(i,:), &
-                     soil%swilt_vec(i,:), &
-                     MAX(REAL(canopy%fevc(i)/air%rlam(i)/1000_r_2,r_2),0.0_r_2), &
-                     REAL(veg%gamma(i),r_2), &
-                     REAL(soil%zse,r_2), REAL(dels,r_2), REAL(veg%zr(i),r_2))
+                !CALL getrex_1d(ssnow%wbliq(i,:),&
+                  !   ssnow%rex(i,:), &
+                  !   canopy%fwsoil(i), &
+                  !   REAL(veg%froot(i,:),r_2),&
+                  !   soil%ssat_vec(i,:), &
+                  !   soil%swilt_vec(i,:), &
+                  !   MAX(REAL(canopy%fevc(i)/air%rlam(i)/1000_r_2,r_2),0.0_r_2), &
+                  !   REAL(veg%gamma(i),r_2), &
+                  !   REAL(soil%zse,r_2), REAL(dels,r_2), REAL(veg%zr(i),r_2))
 
-                canopy%fwsoil(i) = 1.0
-                ssnow%evapfbl(i,:) = ssnow%rex(i,:)*dels*1000_r_2 ! mm water &
+                !canopy%fwsoil(i) = 1.0
+                !ssnow%evapfbl(i,:) = ssnow%rex(i,:)*dels*1000_r_2 ! mm water &
 
              ELSE
 
@@ -2322,8 +2324,8 @@ CONTAINS
                    !IF (cable_user%soil_struc=='default') THEN
                       canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels
                       ecx(i) = canopy%fevc(i) / (1.0-canopy%fwet(i))
-                   !ELSEIF (cable_user%soil_struc=='sli') THEN
-                   ELSEIF (cable_user%soil_struc=='default' .AND. cable_user%fwsoil_switch.EQ.'hydraulics') THEN
+                   ELSEIF (cable_user%soil_struc=='sli') THEN
+                   !ELSEIF (cable_user%soil_struc=='default' .AND. cable_user%fwsoil_switch.EQ.'hydraulics') THEN
                       canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels
                       ecx(i) = canopy%fevc(i) / (1.0-canopy%fwet(i))
                    ELSEIF (cable_user%soil_struc=='sli') THEN
