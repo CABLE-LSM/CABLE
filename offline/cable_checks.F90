@@ -182,7 +182,7 @@ MODULE cable_checks_module
           psi_soil = (/-100.,100./),                   &
           psi_leaf = (/-100.,100./),                   &
           psi_stem = (/-100.,100./),                   &
-
+          gswx = (/-1,10/),                            &
           !MD
           WatTable = (/0.0,1.0e10/),          &
           GWwb = (/0.0,1.0/),              &

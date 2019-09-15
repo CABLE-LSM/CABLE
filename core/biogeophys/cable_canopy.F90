@@ -3288,6 +3288,10 @@ CONTAINS
 
      ENDIF
 
+     !if ( canopy%psi_stem(i) < -100.) THEN
+      !  print*, canopy%ksoil2stem(i) * canopy%vlaiw(i), canopy%psi_stem(i), canopy%flx_to_leaf(i)
+     !endif
+
   END SUBROUTINE update_stem_wp
   ! ----------------------------------------------------------------------------
 
