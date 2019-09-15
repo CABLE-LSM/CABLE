@@ -3323,16 +3323,18 @@ CONTAINS
      TYPE (canopy_type), INTENT(INOUT)    :: canopy
      TYPE (soil_snow_type), INTENT(INOUT) :: ssnow
 
-     REAL                :: ap, bp
+     REAL                :: ap, bp, total_capac
      REAL, INTENT(IN)    :: dels ! integration time step (s)
      REAL, INTENT(IN)    :: Cs, Cl, transpiration
      INTEGER, INTENT(IN) :: i
 
+     total_capac = Cs + Cl
+
      ! plant can take up water
      IF (canopy%ksoil2stem(i) * canopy%vlaiw(i) > 1E-09) THEN
-        ap = - canopy%vlaiw(i) * canopy%ksoil2stem(i) / (Cs + Cl)
+        ap = - canopy%vlaiw(i) * canopy%ksoil2stem(i) / total_capac
         bp = (canopy%psi_soil_prev(i) - &
-              (canopy%vlaiw(i) * transpiration)) / (Cs + Cl)
+              (canopy%vlaiw(i) * transpiration)) / total_capac
         canopy%psi_stem(i) = ((ap * canopy%psi_stem_prev(i) + bp) * &
                              EXP(ap * dels) - bp) / ap
 
@@ -3341,7 +3343,7 @@ CONTAINS
      ELSE
         canopy%psi_stem(i) = canopy%psi_stem_prev(i) - &
                               (canopy%vlaiw(i) * transpiration) * dels  / &
-                              (Cs + Cl)
+                              total_capac
 
      ENDIF
      !print*, "***", canopy%psi_stem(i)
@@ -3376,16 +3378,17 @@ CONTAINS
 
      INTEGER, INTENT(IN) :: i
      REAL, INTENT(IN)    :: transpiration
-     REAL                :: ap, bp
+     REAL                :: ap, bp, stem_cond
      REAL, INTENT(IN)    :: dels ! integration time step (s)
      REAL, INTENT(IN)    :: Cl
 
-     ! is there is conductance in the trunk?
-     IF (canopy%kstem2leaf(i) * canopy%vlaiw(i) > 1E-09) THEN
+     stem_cond = canopy%kstem2leaf(i) * canopy%vlaiw(i)
 
-        ap = - canopy%vlaiw(i) * canopy%kstem2leaf(i) / Cl
-        bp = (canopy%psi_stem_prev(i) * canopy%vlaiw(i) * &
-              canopy%kstem2leaf(i) - &
+     ! is there is conductance in the trunk?
+     IF (stem_cond > 1E-09) THEN
+
+        ap = - stem_cond / Cl
+        bp = (canopy%psi_stem_prev(i) * stem_cond - &
               canopy%vlaiw(i) * transpiration) / Cl
         canopy%psi_leaf(i) = ((ap * canopy%psi_leaf_prev(i) + bp) *  &
                                 EXP(ap * dels) - bp) / ap
@@ -3395,14 +3398,6 @@ CONTAINS
         canopy%psi_leaf(i) = (canopy%psi_leaf_prev(i) - &
                               canopy%vlaiw(i) * transpiration * dels) / Cl
      ENDIF
-
-     !ap = -(canopy%vlaiw(i) * canopy%kstem2leaf(i) / Cl)
-     !bp = (canopy%vlaiw(i) * canopy%kstem2leaf(i) * canopy%psi_stem_prev(i) - &
-      !      canopy%vlaiw(i) * transpiration) / Cl
-
-     !canopy%psi_leaf(i) = ((ap * canopy%psi_leaf_prev(i) + bp) *  &
-      !                        EXP(ap * dels) - bp) / ap
-
 
   END SUBROUTINE calc_psi_leaf
   ! ----------------------------------------------------------------------------
