@@ -397,8 +397,8 @@ MODULE cable_def_types_mod
           p50,     & ! xylem pressure inducing 50% loss of hydraulic conductivity due to embolism, MPa
           s50,     & ! is slope of the curve at P50 used in weibull model, % MPa-1
           kp_sat,  & ! Tim Brodribb pers comm
-          Cl,      & ! Leaf capacitance (mmol MPa-1) (total plant)
-          Cs         ! Stem capacitance (mmol MPa-1)
+          Cl,      & ! Leaf capacitance (mmol m-2 MPa-1)
+          Cs         ! Stem capacitance (mmol kg-1 MPa-1)
 
      LOGICAL, DIMENSION(:), POINTER ::                                        &
           deciduous ! flag used for phenology fix
