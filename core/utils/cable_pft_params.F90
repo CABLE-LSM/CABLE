@@ -1322,8 +1322,8 @@ CONTAINS
        !vegin%Cl(19) = 342.904821
        !vegin%Cs(19) = 31622.004690
        vegin%Cl(19) = 10000.
-       vegin%Cs(19) = 120000.
-
+       !vegin%Cs(19) = 120000.
+       vegin%Cs(19) = 53000 ! Calculated ball park from params, need to replace
 
        !PFT: New Dry sclerophyll forests (DSF) mgk576, 16/7/19
        !=========================================================

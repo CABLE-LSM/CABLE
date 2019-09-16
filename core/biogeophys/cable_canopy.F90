@@ -2265,20 +2265,20 @@ CONTAINS
                 !
                 !ENDIF
 
-                IF (ecx(i) > 0.0 .AND. canopy%fwet(i) < 1.0) THEN
-                    evapfb(i) = ( 1.0 - canopy%fwet(i)) * REAL( ecx(i) ) *dels      &
-                         / air%rlam(i)
-
-                    DO kk = 1,ms
-
-                       ssnow%evapfbl(i,kk) = MIN( evapfb(i) * ssnow%fraction_uptake(i,k),      &
-                            MAX( 0.0, REAL( ssnow%wb(i,kk) ) -     &
-                            1.1 * soil%swilt(i) ) *                &
-                            soil%zse(kk) * 1000.0 )
-
-                   ENDDO
-               ENDIF
-               canopy%fevc(i) = ecx(i)*(1.0-canopy%fwet(i))
+                !IF (ecx(i) > 0.0 .AND. canopy%fwet(i) < 1.0) THEN
+                  !  evapfb(i) = ( 1.0 - canopy%fwet(i)) * REAL( ecx(i) ) *dels      &
+                  !       / air%rlam(i)
+                  !
+                   ! DO kk = 1,ms
+                   !
+                  !     ssnow%evapfbl(i,kk) = MIN( evapfb(i) * ssnow%fraction_uptake(i,k),      &
+                  !          MAX( 0.0, REAL( ssnow%wb(i,kk) ) -     &
+                  !          1.1 * soil%swilt(i) ) *                &
+                  !          soil%zse(kk) * 1000.0 )
+                  !
+                   !ENDDO
+               !ENDIF
+               !canopy%fevc(i) = ecx(i)*(1.0-canopy%fwet(i))
                !
                 !      IF (cable_user%soil_struc=='default') THEN
                 !       canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels
@@ -2289,23 +2289,22 @@ CONTAINS
 
                 ! We shouldn't be using this, but I need to figure out how to
                 ! correctly do the above...
-                !canopy%fevc(i) = ecx(i)*(1.0-canopy%fwet(i))
+                canopy%fevc(i) = ecx(i)*(1.0-canopy%fwet(i))
 
-                !CALL getrex_1d(ssnow%wbliq(i,:),&
-                  !   ssnow%rex(i,:), &
-                  !   canopy%fwsoil(i), &
-                  !   REAL(veg%froot(i,:),r_2),&
-                  !   soil%ssat_vec(i,:), &
-                  !   soil%swilt_vec(i,:), &
-                  !   MAX(REAL(canopy%fevc(i)/air%rlam(i)/1000_r_2,r_2),0.0_r_2), &
-                  !   REAL(veg%gamma(i),r_2), &
-                  !   REAL(soil%zse,r_2), REAL(dels,r_2), REAL(veg%zr(i),r_2))
+                CALL getrex_1d(ssnow%wbliq(i,:),&
+                     ssnow%rex(i,:), &
+                     canopy%fwsoil(i), &
+                     REAL(veg%froot(i,:),r_2),&
+                     soil%ssat_vec(i,:), &
+                     soil%swilt_vec(i,:), &
+                     MAX(REAL(canopy%fevc(i)/air%rlam(i)/1000_r_2,r_2),0.0_r_2), &
+                     REAL(veg%gamma(i),r_2), &
+                     REAL(soil%zse,r_2), REAL(dels,r_2), REAL(veg%zr(i),r_2))
 
-                !canopy%fwsoil(i) = 1.0
-                !ssnow%evapfbl(i,:) = ssnow%rex(i,:)*dels*1000_r_2 ! mm water &
+                canopy%fwsoil(i) = 1.0
+                ssnow%evapfbl(i,:) = ssnow%rex(i,:)*dels*1000_r_2 ! mm water &
 
              ELSE
-
 
 
                 IF (ecx(i) > 0.0 .AND. canopy%fwet(i) < 1.0) THEN
@@ -2320,12 +2319,11 @@ CONTAINS
                            soil%zse(kk) * 1000.0 )
 
                    ENDDO
-                   IF (cable_user%soil_struc=='default' .AND. cable_user%fwsoil_switch.NE.'hydraulics') THEN
-                   !IF (cable_user%soil_struc=='default') THEN
+                   !IF (cable_user%soil_struc=='default' .AND. cable_user%fwsoil_switch.NE.'hydraulics') THEN
+                   IF (cable_user%soil_struc=='default') THEN
                       canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels
                       ecx(i) = canopy%fevc(i) / (1.0-canopy%fwet(i))
                    ELSEIF (cable_user%soil_struc=='sli') THEN
-                   !ELSEIF (cable_user%soil_struc=='default' .AND. cable_user%fwsoil_switch.EQ.'hydraulics') THEN
                       canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels
                       ecx(i) = canopy%fevc(i) / (1.0-canopy%fwet(i))
                    ELSEIF (cable_user%soil_struc=='sli') THEN
@@ -3084,18 +3082,6 @@ CONTAINS
         ssnow%tot_bg_resist(i) = ssnow%tot_bg_resist(i) * canopy%vlaiw(i)
      END IF
 
-     !print*, "LAI check", canopy%vlaiw(i), canopy%vlaiw
-
-     ! soil-to-root hydraulic conductance (mmol m-2 leaf area s-1 MPa-1)
-
-     ! weird issue with patchfrac, not sure if this is an initialisiation call
-     ! issue because canopy is called before soilsnow? Check. Add this so it
-     ! runs
-     !IF (ssnow%tot_bg_resist(i) < 0.0000000001) THEN
-     !     ssnow%tot_bg_resist(i) = 1E9
-     !END IF
-
-
      ksoil = 1.0 / ssnow%tot_bg_resist(i)
 
      ! Plant hydraulic conductance (mmol m-2 s-1 MPa-1). NB. depends on stem
@@ -3105,13 +3091,13 @@ CONTAINS
 
      ! Conductance from root surface to the stem water pool (assumed to be
      ! halfway to the leaves)
-     kroot2stem = 2.0 * kplant
+     kroot2stem = 2.0 * kplant * canopy%vlaiw(i)
 
      ! Conductance from soil to stem water store (mmol m-2 s-1 MPa-1)
      canopy%ksoil2stem(i) = 1.0 / (1.0 / ksoil + 1.0 / kroot2stem)
 
      ! Conductance from stem water store to leaf (mmol m-2 s-1 MPa-1)
-     canopy%kstem2leaf(i) = 2.0 * kplant
+     canopy%kstem2leaf(i) = 2.0 * kplant * canopy%vlaiw(i)
 
   END SUBROUTINE calc_hydr_conduc
   ! ----------------------------------------------------------------------------
@@ -3119,6 +3105,13 @@ CONTAINS
   ! ----------------------------------------------------------------------------
   FUNCTION fsig_hydr(psi_stem_prev, X_hyd, p50, s50) RESULT(relk)
      ! Calculate relative plant conductance as a function of xylem pressure
+     !
+     ! Reference:
+     ! ==========
+     ! * Xu, X., Medvigy, D., Powers, J. S., Becknell, J. M. and Guan, K.
+     !   (2016), Diversity in plant hydraulic traits explains seasonal and
+     !    inter-annual variations of vegetation dynamics in seasonally dry
+     !    tropical forests. New Phytol, 212: 80–95. doi:10.1111/nph.14009.
      !
      ! Martin De Kauwe, 3rd June, 2019
 
@@ -3144,8 +3137,15 @@ CONTAINS
   ! ----------------------------------------------------------------------------
 
   ! ----------------------------------------------------------------------------
-  SUBROUTINE calc_flux_to_leaf(canopy, transpiration, dels, Cl, i)
-     ! Flux from stem to leaf = change in leaf storage, plus transpiration
+  SUBROUTINE calc_psi_leaf(canopy, transpiration, dels, Cl, i)
+     ! Calculate the leaf water potential (MPa)
+     !
+     ! Reference:
+     ! ==========
+     ! * Xu, X., Medvigy, D., Powers, J. S., Becknell, J. M. and Guan, K.
+     !   (2016), Diversity in plant hydraulic traits explains seasonal and
+     !    inter-annual variations of vegetation dynamics in seasonally dry
+     !    tropical forests. New Phytol, 212: 80–95. doi:10.1111/nph.14009.
      !
      ! Martin De Kauwe, 3rd June, 2019
 
@@ -3156,21 +3156,67 @@ CONTAINS
 
      TYPE (canopy_type), INTENT(INOUT)    :: canopy
 
-     REAL                :: stem_cond, leaf_capac
+     INTEGER, INTENT(IN) :: i
+     REAL, INTENT(IN)    :: transpiration
+     REAL                :: ap, bp, leaf_capac
+     REAL, INTENT(IN)    :: dels ! integration time step (s)
+     REAL, INTENT(IN)    :: Cl
+
+     ! scale up leaf-specific capacitance
+     leaf_capac = Cl * canopy%vlaiw(i)
+
+     ! is there is conductance in the trunk?
+     IF (canopy%kstem2leaf(i)  > 1E-09) THEN
+        ap = - canopy%kstem2leaf(i) / leaf_capac
+        bp = (canopy%psi_stem_prev(i) * &
+              canopy%kstem2leaf(i) - transpiration) / leaf_capac
+        canopy%psi_leaf(i) = ((ap * canopy%psi_leaf_prev(i) + bp) *  &
+                              EXP(ap * dels) - bp) / ap
+
+     ! No conductance in the trunk, delta psi_leaf is due to transpiration
+     ELSE
+        canopy%psi_leaf(i) = (canopy%psi_leaf_prev(i) - transpiration * dels) &
+                            / leaf_capac
+     ENDIF
+
+  END SUBROUTINE calc_psi_leaf
+  ! ----------------------------------------------------------------------------
+
+  ! ----------------------------------------------------------------------------
+  SUBROUTINE calc_flux_to_leaf(canopy, transpiration, dels, Cl, i)
+     ! Flux from stem to leaf = change in leaf storage, plus transpiration
+     !
+     ! Reference:
+     ! ==========
+     ! * Xu, X., Medvigy, D., Powers, J. S., Becknell, J. M. and Guan, K.
+     !   (2016), Diversity in plant hydraulic traits explains seasonal and
+     !    inter-annual variations of vegetation dynamics in seasonally dry
+     !    tropical forests. New Phytol, 212: 80–95. doi:10.1111/nph.14009.
+     !
+     ! Martin De Kauwe, 3rd June, 2019
+
+     USE cable_common_module
+     USE cable_def_types_mod
+
+     IMPLICIT NONE
+
+     TYPE (canopy_type), INTENT(INOUT)    :: canopy
+
+     REAL                :: leaf_capac
      REAL, INTENT(IN)    :: transpiration, Cl
      REAL, INTENT(IN)    :: dels ! integration time step (s)
      INTEGER, INTENT(IN) :: i
 
-     stem_cond = canopy%kstem2leaf(i) * canopy%vlaiw(i)
+     ! scale up leaf-specific capacitance
      leaf_capac = Cl * canopy%vlaiw(i)
 
      ! is there conductance in the trunk?
-     IF (stem_cond > 1E-09) THEN
+     IF (canopy%kstem2leaf(i) > 1E-09) THEN
 
         ! J_rl: sapflow rate from stem to leaf within the time step
         canopy%flx_to_leaf(i) = (canopy%psi_leaf(i) - &
                                  canopy%psi_leaf_prev(i)) * &
-                                 leaf_capac / dels + canopy%vlaiw(i) * transpiration
+                                 leaf_capac / dels + transpiration
 
      ! J_rl: no conductance in the trunk
      ELSE
@@ -3197,6 +3243,10 @@ CONTAINS
      INTEGER, INTENT(IN) :: i
      REAL, INTENT(IN)    :: dels ! integration time step (s)
      REAL, INTENT(IN)    :: Cs
+     REAL                :: stem_capac
+
+     ! mmol MPA-1
+     stem_capac = Cs * scale_up_stem_capac(canopy%vlaiw(i))
 
      ! J_sr: plant cannot take up water, change of psi_stem is solely due to
      ! flux_to_leaf (J_rl)
@@ -3206,10 +3256,58 @@ CONTAINS
      ELSE
         canopy%flx_to_stem(i) = (canopy%psi_stem(i) - &
                                  canopy%psi_stem_prev(i)) * &
-                                 Cs / dels + canopy%flx_to_leaf(i)
+                                 stem_capac / dels + canopy%flx_to_leaf(i)
      ENDIF
 
   END SUBROUTINE calc_flux_to_stem
+  ! ----------------------------------------------------------------------------
+
+  ! ----------------------------------------------------------------------------
+  SUBROUTINE update_stem_wp(canopy, dels, Cs, i)
+     ! Calculate the flux from the stem to the leaf = change in leaf storage
+     ! plus transpiration
+     !
+     ! Reference:
+     ! ==========
+     ! * Xu, X., Medvigy, D., Powers, J. S., Becknell, J. M. and Guan, K.
+     !   (2016), Diversity in plant hydraulic traits explains seasonal and
+     !    inter-annual variations of vegetation dynamics in seasonally dry
+     !    tropical forests. New Phytol, 212: 80–95. doi:10.1111/nph.14009.
+     !
+     ! Martin De Kauwe, 3rd June, 2019
+
+     USE cable_common_module
+     USE cable_def_types_mod
+
+     IMPLICIT NONE
+
+     TYPE (canopy_type), INTENT(INOUT)    :: canopy
+
+     REAL, INTENT(IN)    :: dels ! integration time step (s)
+     REAL, INTENT(IN)    :: Cs
+     REAL                :: stem_capac, ap, bp
+     INTEGER, INTENT(IN) :: i
+
+     ! mmol MPA-1
+     stem_capac = Cs * scale_up_stem_capac(canopy%vlaiw(i))
+
+     ! J_sr: plant cannot take up water, change of psi_stem is solely due to
+     ! flux_to_leaf (J_rl)
+     IF (canopy%ksoil2stem(i) == 0.0) THEN
+        canopy%psi_stem(i) = canopy%psi_stem_prev(i) - canopy%flx_to_leaf(i) * &
+                              dels / stem_capac
+
+     ! plant can take up water
+     ELSE
+        ap = - canopy%ksoil2stem(i) / stem_capac
+        bp = (canopy%ksoil2stem(i) * &
+              canopy%psi_soil_prev(i) - canopy%flx_to_leaf(i)) / stem_capac
+        canopy%psi_stem(i) = ((ap * canopy%psi_stem_prev(i) + bp) * &
+                             EXP(ap * dels) - bp) / ap
+
+     ENDIF
+
+  END SUBROUTINE update_stem_wp
   ! ----------------------------------------------------------------------------
 
   ! ----------------------------------------------------------------------------
@@ -3230,6 +3328,10 @@ CONTAINS
      REAL, INTENT(IN)    :: dels ! integration time step (s)
      REAL, INTENT(IN)    :: Cs
      REAL, INTENT(IN)    :: transpiration
+     REAL                :: stem_capac
+
+     ! mmol MPA-1
+     stem_capac = Cs * scale_up_stem_capac(canopy%vlaiw(i))
 
      ! J_sr: plant cannot take up water, change of psi_stem is solely due to
      ! flux_to_leaf (J_rl)
@@ -3239,60 +3341,10 @@ CONTAINS
      ELSE
         canopy%flx_to_stem(i) = (canopy%psi_stem(i) - &
                                  canopy%psi_stem_prev(i)) * &
-                                 Cs / dels + (transpiration * canopy%vlaiw(i))
+                                 stem_capac / dels + transpiration
      ENDIF
 
   END SUBROUTINE calc_flux_to_stem_again
-  ! ----------------------------------------------------------------------------
-
-
-  ! ----------------------------------------------------------------------------
-  SUBROUTINE update_stem_wp(canopy, dels, Cs, i)
-     ! Calculate the flux from the stem to the leaf = change in leaf storage
-     ! plus transpiration
-     !
-     !
-     ! Reference:
-     ! ==========
-     ! * Xu, X., Medvigy, D., Powers, J. S., Becknell, J. M. and Guan, K.
-     !   (2016), Diversity in plant hydraulic traits explains seasonal and
-     !    inter-annual variations of vegetation dynamics in seasonally dry
-     !    tropical forests. New Phytol, 212: 80–95. doi:10.1111/nph.14009.
-     !
-     ! Can write the dynamic equation as: dpsi_leaf_dt = b + a*psi_leaf
-     ! Then it follows (Xu et al. 2016, Appendix, and Code).”
-     !
-     ! Martin De Kauwe, 3rd June, 2019
-
-     USE cable_common_module
-     USE cable_def_types_mod
-
-     IMPLICIT NONE
-
-     TYPE (canopy_type), INTENT(INOUT)    :: canopy
-
-     REAL                :: ap, bp
-     REAL, INTENT(IN)    :: dels ! integration time step (s)
-     REAL, INTENT(IN)    :: Cs
-     INTEGER, INTENT(IN) :: i
-
-     ! J_sr: plant cannot take up water, change of psi_stem is solely due to
-     ! flux_to_leaf (J_rl)
-     IF (canopy%ksoil2stem(i) == 0.0) THEN
-        canopy%psi_stem(i) = canopy%psi_stem_prev(i) - &
-                                 canopy%flx_to_leaf(i) * dels / Cs
-
-     ! plant can take up water
-     ELSE
-        ap = - canopy%vlaiw(i) * canopy%ksoil2stem(i) / Cs
-        bp = (canopy%vlaiw(i) * canopy%ksoil2stem(i) * &
-              canopy%psi_soil_prev(i) - canopy%flx_to_leaf(i)) / Cs
-        canopy%psi_stem(i) = ((ap * canopy%psi_stem_prev(i) + bp) * &
-                             EXP(ap * dels) - bp) / ap
-
-     ENDIF
-
-  END SUBROUTINE update_stem_wp
   ! ----------------------------------------------------------------------------
 
   ! ----------------------------------------------------------------------------
@@ -3322,14 +3374,17 @@ CONTAINS
 
      TYPE (canopy_type), INTENT(INOUT)    :: canopy
 
-     REAL                :: ap, bp, total_capac, leaf_capac
+     REAL                :: ap, bp, total_capac, stem_capac, leaf_capac
      REAL, INTENT(IN)    :: dels ! integration time step (s)
      REAL, INTENT(IN)    :: Cs, Cl, transpiration
      INTEGER, INTENT(IN) :: i
 
      leaf_capac = Cl * canopy%vlaiw(i)
 
-     total_capac = Cs + leaf_capac
+     ! mmol MPA-1
+     stem_capac = Cs * scale_up_stem_capac(canopy%vlaiw(i))
+
+     total_capac = stem_capac + leaf_capac
 
      ! J_sr: plant cannot take up water, change of psi_stem is solely due to
      ! flux_to_leaf (J_rl)
@@ -3340,8 +3395,8 @@ CONTAINS
 
      ! plant can take up water
      ELSE
-        ap = - canopy%vlaiw(i) * canopy%ksoil2stem(i) / total_capac
-        bp = (canopy%vlaiw(i) * canopy%ksoil2stem(i) * &
+        ap = - canopy%ksoil2stem(i) / total_capac
+        bp = (canopy%ksoil2stem(i) * &
               canopy%psi_soil_prev(i) - &
               (canopy%vlaiw(i) * transpiration)) / total_capac
         canopy%psi_stem(i) = ((ap * canopy%psi_stem_prev(i) + bp) * &
@@ -3349,60 +3404,53 @@ CONTAINS
 
      ENDIF
 
-
   END SUBROUTINE update_stem_wp_again
   ! ----------------------------------------------------------------------------
 
-
-  ! ----------------------------------------------------------------------------
-  SUBROUTINE calc_psi_leaf(canopy, transpiration, dels, Cl, i)
-     ! Calculate the leaf water potential (MPa)
+  FUNCTION scale_up_stem_capac(lai) RESULT(capac_conv)
+     ! Calculate relative plant conductance as a function of xylem pressure
      !
-     !
-     ! Reference:
+     ! References:
      ! ==========
-     ! * Xu, X., Medvigy, D., Powers, J. S., Becknell, J. M. and Guan, K.
-     !   (2016), Diversity in plant hydraulic traits explains seasonal and
-     !    inter-annual variations of vegetation dynamics in seasonally dry
-     !    tropical forests. New Phytol, 212: 80–95. doi:10.1111/nph.14009.
+     ! * Togashi et al. (2015) Morphological and moisture availability controls
+     !   of the leaf area‐to‐sapwood area ratio: analysis of measurements on
+     !   Australian trees. Ecology and Evolution, 5, 1263–1270.
+     ! * Simard et al. ( 2011) Mapping forest canopy height globally with
+     !   spaceborne lidar, J. Geophys. Res., 116, G04021.
+     ! * Bowman et al. (2005) Sap flow rates and sapwood density are critical
+     !   factors in within‐ and between‐tree variation in CO2 efflux from stems
+     !   of mature Dacrydium cupressinum trees. New Phytologist, 167: 815-828.
      !
-     ! Can write the dynamic equation as: dpsi_leaf_dt = b + a*psi_leaf
-     ! Then it follows (Xu et al. 2016, Appendix, and Code).”
-     !
-     ! Martin De Kauwe, 3rd June, 2019
-
-     USE cable_common_module
-     USE cable_def_types_mod
+     ! Martin De Kauwe, 16th September, 2019
 
      IMPLICIT NONE
 
-     TYPE (canopy_type), INTENT(INOUT)    :: canopy
+     REAL, INTENT(IN) :: lai
+     REAL             :: stem_capac, la_sa, height, sapwood_density, capac_conv
 
-     INTEGER, INTENT(IN) :: i
-     REAL, INTENT(IN)    :: transpiration
-     REAL                :: ap, bp, stem_cond, leaf_capac
-     REAL, INTENT(IN)    :: dels ! integration time step (s)
-     REAL, INTENT(IN)    :: Cl
+     ! We need to scale up the measurements to infer a total stem capacitance
+     ! These assumption will *clearly* need to be improved!
 
-     stem_cond = canopy%kstem2leaf(i) * canopy%vlaiw(i)
-     leaf_capac = Cl * canopy%vlaiw(i)
+     ! From Togashi et al. it looks like there is no obvious reln btw LA:SA
+     ! and moisture so taking a rough average LA:SA
+     la_sa = 5000 ! m2 m-2
 
-     ! is there is conductance in the trunk?
-     IF (stem_cond > 1E-09) THEN
+     ! We need a height and in the longterm we will use POP, but for now from
+     ! Simard et al. and sampling where Butt et al. say there are Eucs...we can
+     ! make an extremely horrible assumption that height is 20 m
+     height = 20.0 ! m
 
-        ap = - stem_cond / leaf_capac
-        bp = (canopy%psi_stem_prev(i) * stem_cond - &
-              canopy%vlaiw(i) * transpiration) / leaf_capac
-        canopy%psi_leaf(i) = ((ap * canopy%psi_leaf_prev(i) + bp) *  &
-                                EXP(ap * dels) - bp) / ap
+     ! From Bowman we are taking a rough sapwood density (fig 5), which seems
+     ! to agree with Xu et al.
+     sapwood_density = 500 ! kg m-3
 
-     ! No conductance in the trunk, delta psi_leaf is due to transpiration
-     ELSE
-        canopy%psi_leaf(i) = (canopy%psi_leaf_prev(i) - &
-                              canopy%vlaiw(i) * transpiration * dels) / leaf_capac
-     ENDIF
+     ! scalar to *roughly* convert stem capacitance. We are broadly matching
+     ! the spirit of Xu et al. but dropping the root capacitance they include.
+     ! We could of course include this but given this is pretty rough, this
+     ! seems OK
+     capac_conv = lai * height / la_sa * sapwood_density
 
-  END SUBROUTINE calc_psi_leaf
+  END FUNCTION scale_up_stem_capac
   ! ----------------------------------------------------------------------------
 
 END MODULE cable_canopy_module
