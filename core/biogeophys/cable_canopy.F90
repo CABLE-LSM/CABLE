@@ -3156,12 +3156,13 @@ CONTAINS
 
      TYPE (canopy_type), INTENT(INOUT)    :: canopy
 
-     REAL                :: stem_cond
+     REAL                :: stem_cond, leaf_capac
      REAL, INTENT(IN)    :: transpiration, Cl
      REAL, INTENT(IN)    :: dels ! integration time step (s)
      INTEGER, INTENT(IN) :: i
 
      stem_cond = canopy%kstem2leaf(i) * canopy%vlaiw(i)
+     leaf_capac = Cl * canopy%vlaiw(i)
 
      ! is there conductance in the trunk?
      IF (stem_cond > 1E-09) THEN
@@ -3169,7 +3170,7 @@ CONTAINS
         ! J_rl: sapflow rate from stem to leaf within the time step
         canopy%flx_to_leaf(i) = (canopy%psi_leaf(i) - &
                                  canopy%psi_leaf_prev(i)) * &
-                                 Cl / dels + canopy%vlaiw(i) * transpiration
+                                 leaf_capac / dels + canopy%vlaiw(i) * transpiration
 
      ! J_rl: no conductance in the trunk
      ELSE
@@ -3321,12 +3322,14 @@ CONTAINS
 
      TYPE (canopy_type), INTENT(INOUT)    :: canopy
 
-     REAL                :: ap, bp, total_capac
+     REAL                :: ap, bp, total_capac, leaf_capac
      REAL, INTENT(IN)    :: dels ! integration time step (s)
      REAL, INTENT(IN)    :: Cs, Cl, transpiration
      INTEGER, INTENT(IN) :: i
 
-     total_capac = Cs + Cl
+     leaf_capac = Cl * canopy%vlaiw(i)
+
+     total_capac = Cs + leaf_capac
 
      ! J_sr: plant cannot take up water, change of psi_stem is solely due to
      ! flux_to_leaf (J_rl)
@@ -3377,25 +3380,26 @@ CONTAINS
 
      INTEGER, INTENT(IN) :: i
      REAL, INTENT(IN)    :: transpiration
-     REAL                :: ap, bp, stem_cond
+     REAL                :: ap, bp, stem_cond, leaf_capac
      REAL, INTENT(IN)    :: dels ! integration time step (s)
      REAL, INTENT(IN)    :: Cl
 
      stem_cond = canopy%kstem2leaf(i) * canopy%vlaiw(i)
+     leaf_capac = Cl * canopy%vlaiw(i)
 
      ! is there is conductance in the trunk?
      IF (stem_cond > 1E-09) THEN
 
-        ap = - stem_cond / Cl
+        ap = - stem_cond / leaf_capac
         bp = (canopy%psi_stem_prev(i) * stem_cond - &
-              canopy%vlaiw(i) * transpiration) / Cl
+              canopy%vlaiw(i) * transpiration) / leaf_capac
         canopy%psi_leaf(i) = ((ap * canopy%psi_leaf_prev(i) + bp) *  &
                                 EXP(ap * dels) - bp) / ap
 
      ! No conductance in the trunk, delta psi_leaf is due to transpiration
      ELSE
         canopy%psi_leaf(i) = (canopy%psi_leaf_prev(i) - &
-                              canopy%vlaiw(i) * transpiration * dels) / Cl
+                              canopy%vlaiw(i) * transpiration * dels) / leaf_capac
      ENDIF
 
   END SUBROUTINE calc_psi_leaf
