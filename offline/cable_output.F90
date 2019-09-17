@@ -71,7 +71,9 @@ MODULE cable_output_module
                     PlantTurnover, PlantTurnoverLeaf, PlantTurnoverFineRoot, &
                     PlantTurnoverWood, PlantTurnoverWoodDist, PlantTurnoverWoodCrowding, &
                     PlantTurnoverWoodResourceLim, dCdt, Area, LandUseFlux, patchfrac, &
-                    vcmax,ejmax, hc, GPP_sh, GPP_sl, GPP_shC, GPP_slC, GPP_shJ, GPP_slJ, eta_GPP_cs, dGPPdcs, CO2s, &
+                    vcmax,ejmax, hc, GPP_sh, GPP_sl, GPP_shC, GPP_slC, GPP_shJ, GPP_slJ, &
+                    eta_GPP_cs,  eta_TVeg_cs, dGPPdcs, CO2s, gsw_sl, gsw_sh, gsw_TVeg, &
+                    vcmax_ts, jmax_ts, &
                     An, Rd, cplant, clitter, csoil, clabile, &
                     A13n, aDisc13, c13plant, c13litter, c13soil, c13labile
   END TYPE out_varID_type
@@ -216,8 +218,14 @@ MODULE cable_output_module
     REAL(KIND=4), POINTER, DIMENSION(:) :: GPP_shJ
     REAL(KIND=4), POINTER, DIMENSION(:) :: GPP_slJ
     REAL(KIND=4), POINTER, DIMENSION(:) :: eta_GPP_cs
+    REAL(KIND=4), POINTER, DIMENSION(:) :: eta_TVeg_cs
     REAL(KIND=4), POINTER, DIMENSION(:) :: dGPPdcs
     REAL(KIND=4), POINTER, DIMENSION(:) :: CO2s
+    REAL(KIND=4), POINTER, DIMENSION(:) :: gsw_TVeg
+    REAL(KIND=4), POINTER, DIMENSION(:) :: vcmax_ts
+    REAL(KIND=4), POINTER, DIMENSION(:) :: jmax_ts
+    REAL(KIND=4), POINTER, DIMENSION(:) :: gsw_sl   ! stomatal conductance (sunlit leaves)
+    REAL(KIND=4), POINTER, DIMENSION(:) :: gsw_sh   ! stomatal conductance (shaded leaves)
     REAL(KIND=4), POINTER, DIMENSION(:) :: RootResp   !  autotrophic root respiration [umol/m2/s]
     REAL(KIND=4), POINTER, DIMENSION(:) :: StemResp   !  autotrophic stem respiration [umol/m2/s]
     REAL(KIND=r_2), POINTER, DIMENSION(:)   :: An        ! total net assimilation
@@ -544,6 +552,20 @@ CONTAINS
        ALLOCATE(out%TVeg(mp))
        out%TVeg = 0.0 ! initialise
     END IF
+    IF(output%flux ) THEN
+       CALL define_ovar(ncid_out, ovid%gsw_sl, 'gsw_sl', 'mol/m^2/s',               &
+                        'stomatal conductance sl leaves', patchout%TVeg, 'dummy',    &
+                        xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%gsw_sl(mp))
+       out%gsw_sl = 0.0 ! initialise
+
+       CALL define_ovar(ncid_out, ovid%gsw_sh, 'gsw_sh', 'mol/m^2/s',               &
+                        'stomatal conductance sh leaves', patchout%TVeg, 'dummy',    &
+                        xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%gsw_sh(mp))
+       out%gsw_sh = 0.0 ! initialise
+    END IF
+    
     IF(output%flux .OR. output%ESoil) THEN
        CALL define_ovar(ncid_out, ovid%ESoil, 'ESoil', 'kg/m^2/s',             &
                         'Evaporation from soil', patchout%ESoil, 'dummy',      &
@@ -864,12 +886,40 @@ CONTAINS
        ALLOCATE(out%dGPPdcs(mp))
        out%dGPPdcs = 0.0 ! initialise
 
+       CALL define_ovar(ncid_out, ovid%eta_TVeg_cs, 'eta_TVeg_cs', 'kg/m^2/s',               &
+            'elasticity of Transpiration wrt cs, multiplied by Transpiration', &
+            patchout%GPP,              &
+                        'dummy', xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%eta_TVeg_cs(mp))
+       out%eta_TVeg_cs = 0.0 ! initialise
+
+       CALL define_ovar(ncid_out, ovid%gsw_TVeg, 'gsw_TVeg', 'mol/m^s/s * kg/m^2/s',               &
+            'stomatal conductance, multiplied by Transpiration', &
+            patchout%GPP,              &
+                        'dummy', xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%gsw_TVeg(mp))
+       out%gsw_TVeg = 0.0 ! initialise
+
        CALL define_ovar(ncid_out, ovid%CO2s, 'CO2s', 'ppm umol/m^2/s',               &
             'CO2 concentration at leaf surface , multiplied by GPP', &
             patchout%GPP,              &
                         'dummy', xID, yID, zID, landID, patchID, tID)
        ALLOCATE(out%CO2s(mp))
        out%CO2s = 0.0 ! initialise
+
+       CALL define_ovar(ncid_out, ovid%vcmax_ts, 'vcmax_time_series', 'mol/m^2/s',               &
+            'vcmax', &
+            patchout%GPP,              &
+                        'dummy', xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%vcmax_ts(mp))
+       out%vcmax_ts = 0.0 ! initialise
+
+       CALL define_ovar(ncid_out, ovid%jmax_ts, 'jmax_time_series', 'mol/m^2/s',               &
+            'jmax', &
+            patchout%GPP,              &
+                        'dummy', xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%jmax_ts(mp))
+       out%jmax_ts = 0.0 ! initialise
 
 
     END IF
@@ -1888,6 +1938,33 @@ CONTAINS
           out%ECanop = 0.0
        END IF
     END IF
+    IF(output%flux ) THEN
+       ! Add current timestep's value to total of temporary output variable:
+       out%gsw_sl = out%gsw_sl + REAL(canopy%gswx(:,1), 4)
+       IF(writenow) THEN
+          ! Divide accumulated variable by number of accumulated time steps:
+          out%gsw_sl = out%gsw_sl / REAL(output%interval, 4)
+          ! Write value to file:
+          CALL write_ovar(out_timestep, ncid_out, ovid%gsw_sl, 'gsw_sl', out%gsw_sl, &
+                          ranges%gsw_sl, patchout%Tveg, 'default', met)
+          ! Reset temporary output variable:
+          out%gsw_sl = 0.0
+       END IF
+       ! Add current timestep's value to total of temporary output variable:
+       out%gsw_sh = out%gsw_sh + REAL(canopy%gswx(:,2), 4)
+       IF(writenow) THEN
+          ! Divide accumulated variable by number of accumulated time steps:
+          out%gsw_sh = out%gsw_sh / REAL(output%interval, 4)
+          ! Write value to file:
+          CALL write_ovar(out_timestep, ncid_out, ovid%gsw_sh, 'gsw_sh', out%gsw_sh, &
+                          ranges%gsw_sh, patchout%Tveg, 'default', met)
+          ! Reset temporary output variable:
+          out%gsw_sh = 0.0
+       END IF
+
+    END IF
+
+    
     ! TVeg: vegetation transpiration [kg/m^2/s]
     IF(output%flux .OR. output%TVeg) THEN
        ! Add current timestep's value to total of temporary output variable:
@@ -1902,6 +1979,7 @@ CONTAINS
           out%TVeg = 0.0
        END IF
     END IF
+    
     ! ESoil: bare soil evaporation [kg/m^2/s]
     IF(output%flux .OR. output%ESoil) THEN
        ! Add current timestep's value to total of temporary output variable:
@@ -2355,19 +2433,49 @@ CONTAINS
        out%GPP_slJ = out%GPP_slJ +  REAL(canopy%A_slJ/ 1e-6 , 4)
        out%eta_GPP_cs =  out%eta_GPP_cs + REAL(canopy%eta_A_cs/ 1e-6 , 4)
        out%dGPPdcs =  out%dGPPdcs + REAL(canopy%dAdcs/ 1e-6 , 4)
+       out%eta_TVeg_cs =  out%eta_TVeg_cs + REAL(canopy%eta_fevc_cs/ air%rlam , 4)
        out%CO2s =  out%CO2s + REAL(canopy%cs/ 1e-6 , 4)
+       where ((rad%fvlai(:,1)+rad%fvlai(:,2)).gt.0.01)
+          out%gsw_TVeg =  out%gsw_TVeg + &
+               REAL((canopy%gswx(:,1) * rad%fvlai(:,1)/(rad%fvlai(:,1)+rad%fvlai(:,2)) + &
+               canopy%gswx(:,2) * rad%fvlai(:,2)/(rad%fvlai(:,1)+rad%fvlai(:,2))) * &
+               canopy%fevc / air%rlam, 4)
+
+          out%jmax_ts =  out%jmax_ts + &
+               REAL((veg%ejmax_sun * rad%fvlai(:,1)/(rad%fvlai(:,1)+rad%fvlai(:,2)) + &
+               veg%ejmax_shade * rad%fvlai(:,2)/(rad%fvlai(:,1)+rad%fvlai(:,2))), 4)
+
+          out%vcmax_ts =  out%vcmax_ts + &
+               REAL((veg%vcmax_sun * rad%fvlai(:,1)/(rad%fvlai(:,1)+rad%fvlai(:,2)) + &
+               veg%vcmax_shade * rad%fvlai(:,2)/(rad%fvlai(:,1)+rad%fvlai(:,2))), 4)
+
+       elsewhere
+          out%gsw_TVeg =  out%gsw_TVeg
+
+          out%vcmax_ts = out%vcmax_ts + REAL(veg%vcmax_shade, 4)
+          out%jmax_ts = out%jmax_ts + REAL(veg%ejmax_shade, 4)
+          
+       endwhere
+
+
+
+       
        IF (writenow) THEN
-          ! the three variables below were constructed as  sums over sl & sh leaves, weighted by GPP
+            ! Divide accumulated variable by number of accumulated time steps:
           out%eta_GPP_cs = out%eta_GPP_cs/REAL(output%interval, 4)
           out%dGPPdcs = out%dGPPdcs/REAL(output%interval, 4)
           out%CO2s = out%CO2s/REAL(output%interval, 4)
-          ! Divide accumulated variable by number of accumulated time steps:
+          out%eta_TVeg_cs = out%eta_TVeg_cs/REAL(output%interval, 4)
+          out%gsw_TVeg = out%gsw_TVeg/REAL(output%interval, 4)
+
           out%GPP_sh = out%GPP_sh/REAL(output%interval, 4)
           out%GPP_sl = out%GPP_sl/REAL(output%interval, 4)
           out%GPP_shC = out%GPP_shC/REAL(output%interval, 4)
           out%GPP_slC = out%GPP_slC/REAL(output%interval, 4)
           out%GPP_shJ = out%GPP_shJ/REAL(output%interval, 4)
           out%GPP_slJ = out%GPP_slJ/REAL(output%interval, 4)
+          out%vcmax_ts = out%vcmax_ts/REAL(output%interval, 4)
+          out%jmax_ts = out%jmax_ts/REAL(output%interval, 4)
 
           ! Write value to file:
           CALL write_ovar(out_timestep, ncid_out, ovid%GPP_sh, 'GPP_sh', out%GPP_sh,    &
@@ -2392,6 +2500,14 @@ CONTAINS
                out%eta_GPP_cs,    &
                ranges%GPP, patchout%GPP, 'default', met)
 
+          CALL write_ovar(out_timestep, ncid_out, ovid%eta_TVeg_cs, 'eta_TVeg_cs', &
+               out%eta_TVeg_cs,    &
+               ranges%TVeg, patchout%GPP, 'default', met)
+
+          CALL write_ovar(out_timestep, ncid_out, ovid%gsw_TVeg, 'gsw_TVeg', &
+               out%gsw_TVeg,    &
+               ranges%TVeg, patchout%GPP, 'default', met)
+
           CALL write_ovar(out_timestep, ncid_out, ovid%dGPPdcs, 'dGPPdcs', &
                out%dGPPdcs,    &
                ranges%GPP, patchout%GPP, 'default', met)
@@ -2399,6 +2515,15 @@ CONTAINS
           CALL write_ovar(out_timestep, ncid_out, ovid%CO2s, 'CO2s', &
                out%CO2s,    &
                ranges%GPP, patchout%GPP, 'default', met)
+
+          
+          CALL write_ovar(out_timestep, ncid_out, ovid%vcmax_ts, 'time-varying vcmax', &
+               out%vcmax_ts,    &
+               ranges%vcmax, patchout%GPP, 'default', met)
+
+          CALL write_ovar(out_timestep, ncid_out, ovid%jmax_ts, 'time-varying jmax', &
+               out%jmax_ts,    &
+               ranges%vcmax, patchout%GPP, 'default', met)
        
           ! Reset temporary output variable:
           out%GPP_sh = 0.0
@@ -2408,8 +2533,12 @@ CONTAINS
           out%GPP_shJ= 0.0
           out%GPP_slJ = 0.0
           out%eta_GPP_cs = 0.0
+          out%eta_TVeg_cs = 0.0
+          out%gsw_TVeg = 0.0
           out%dGPPdcs = 0.0
           out%CO2s = 0.0
+          out%vcmax_ts = 0.0
+          out%jmax_ts = 0.0
 
        ENDIF
 

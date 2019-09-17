@@ -4429,6 +4429,30 @@ CONTAINS
     CALL MPI_Get_address (canopy%cs, displs(bidx), ierr)
     blocks(bidx) = r2len
 
+        bidx = bidx + 1
+    CALL MPI_Get_address (canopy%eta_GPP_cs, displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%eta_fevc_cs, displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (veg%vcmax_shade, displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (veg%vcmax_sun, displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+     bidx = bidx + 1
+    CALL MPI_Get_address (veg%ejmax_shade, displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (veg%ejmax_sun, displs(bidx), ierr)
+    blocks(bidx) = r2len
+
 
     !vidx = vidx + 1
     ! REAL(r_1)

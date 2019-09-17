@@ -171,7 +171,9 @@ MODULE cable_checks_module
            TotLivBiomass =  (/0.0, 1000./),      &
            TotSoilCarb =  (/0.0, 1000./),      &
            TotLittCarb =  (/0.0, 1000./), &
-           Area = (/0.0, 5000./)
+           Area = (/0.0, 5000./), &
+           gsw_sl = (/0.0, 1.0/), &
+ 	   gsw_sh = (/0.0, 1.0/)  
    END TYPE ranges_type
    TYPE(ranges_type),SAVE :: ranges
 

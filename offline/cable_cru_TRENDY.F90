@@ -708,6 +708,7 @@ END SUBROUTINE GET_CRU_Ndep
           .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2') &
           .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Ndep' )) THEN
         MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
+        print*, 'metyear', MetYear
      ELSEIF  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Precip' .OR. &
           TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Precip'.OR. &
           TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Temp_Precip'.OR. &
