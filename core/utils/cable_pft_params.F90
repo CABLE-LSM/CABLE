@@ -1312,13 +1312,13 @@ CONTAINS
 
        vegin%vcmax(19) = 0.000085
        vegin%ejmax(19) = 0.000142
-       vegin%g1(19) = 3.154297
+       vegin%g1(19) = 3.154297 ! 4.12
        vegin%sf(19) = 2.000000
        vegin%psi_f(19) = -2.455474
        vegin%X_hyd(19) = 50.0
        vegin%p50(19) = -3.002384
        vegin%s50(19) = 35.26948
-       vegin%kp_sat(19) = 1.686987
+       vegin%kp_sat(19) = 1.686987 ! 4.0
        vegin%Cl(19) = 342.904821
        vegin%Cs(19) = 53266.089926
        !vegin%Cl(19) = 10000.
