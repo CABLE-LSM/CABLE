@@ -400,17 +400,29 @@ MODULE cable_def_types_mod
          fes_cor, & ! latent heatfl from soil (W/m2)
          fevc,    & ! dry canopy transpiration (W/m2)
          ofes,    & ! latent heatfl from soil (W/m2)
-         A_sh,    & ! gross photosynthesis from shaded leaves
-         A_sl,    & ! gross photosynthesis from sunlit leaves
-         A_slC,   & ! gross photosynthesis from sunlit leaves (rubisco limited)
-         A_shC,   & ! gross photosynthesis from shaded leaves  (rubisco limited)
-         A_slJ,   & ! gross photosynthesis from sunlit leaves (rubp limited)
-         A_shJ,   & ! gross photosynthesis from shaded leaves  (rubp limited)
-         eta_A_cs,& ! elasticity of photosynthesis wrt cs, mulitplied by gross photosythesis
-         dAdcs,   & ! sensitivity of photosynthesis wrt cs, mulitplied by gross photosythesis
-         cs,      & ! leaf surface CO2 (ppm), mulitplied by gross photosythesis
+         A_sh,    & ! net photosynthesis from shaded leaves
+         A_sl,    & ! net photosynthesis from sunlit leaves
+         A_slC,   & ! net photosynthesis from sunlit leaves (rubisco limited)
+         A_shC,   & ! net photosynthesis from shaded leaves  (rubisco limited)
+         A_slJ,   & ! net photosynthesis from sunlit leaves (rubp limited)
+         A_shJ,   & ! net photosynthesis from shaded leaves  (rubp limited)
+         GPP_sh, &  ! gross photosynthesis from shaded leaves
+         GPP_sl, &  ! gross photosynthesis from sunlit leaves
+         fevc_sl, &  ! dry canopy transpiration sunlit leaves (W/m2)
+         fevc_sh, &  ! dry canopy transpiration shaded leaves (W/m2)
+         eta_A_cs,& ! elasticity of net photosynthesis wrt cs, mulitplied by net  photosythesis
+         dAdcs,   & ! sensitivity of net photosynthesis wrt cs, mulitplied by net photosythesis
+         eta_GPP_cs, &      ! elasticity of gross photosynthesis wrt cs, mulitplied by net photosythesis
+         eta_A_cs_sl, &      ! elasticity of net photosynthesis wrt cs, sl leaves
+         eta_A_cs_sh, &      ! elasticity of net photosynthesis wrt cs, sh leaves
+         eta_fevc_cs_sl, &      ! elasticity of net photosynthesis wrt cs, sl leaves
+         eta_fevc_cs_sh, &      ! elasticity of net photosynthesis wrt cs, sh leaves
+         eta_fevc_cs, & ! elasticity of transpiration wrt cs, mulitplied by transpiration
+         cs,      & ! leaf surface CO2 (ppm), mulitplied by net photosythesis
          cs_sl,   & ! leaf surface CO2 (ppm) (sunlit)
          cs_sh,   & ! leaf surface CO2 (ppm) (shaded)
+         ci_sl, &    !  leaf internal CO2 (ppm) (sunlit)
+         ci_sh, &    !  leaf internal CO2 (ppm) (shaded)
          tlf,     & ! dry leaf temperature
          dlf        ! dryleaf vp minus in-canopy vp (Pa)
 
@@ -1053,11 +1065,23 @@ SUBROUTINE alloc_canopy_type(var, mp)
    ALLOCATE( var% A_shC(mp) )
    ALLOCATE( var% A_slJ(mp) )
    ALLOCATE( var% A_shJ(mp) )
+   ALLOCATE( var% GPP_sh(mp))
+   ALLOCATE( var% GPP_sl(mp))
+   ALLOCATE( var% fevc_sh(mp))
+   ALLOCATE( var% fevc_sl(mp))
+   ALLOCATE( var% eta_GPP_cs(mp) )
+   ALLOCATE( var% eta_fevc_cs(mp) )
    ALLOCATE( var% eta_A_cs(mp) )
+   ALLOCATE( var% eta_A_cs_sh(mp) )
+   ALLOCATE( var% eta_A_cs_sl(mp) )
+   ALLOCATE( var% eta_fevc_cs_sh(mp) )
+   ALLOCATE( var% eta_fevc_cs_sl(mp) )
    ALLOCATE( var% cs(mp) )
    ALLOCATE( var% dAdcs(mp) )
    ALLOCATE( var% cs_sl(mp) )
    ALLOCATE( var% cs_sh(mp) )
+   ALLOCATE( var% ci_sl(mp) )
+   ALLOCATE( var% ci_sh(mp) )
    ALLOCATE( var% tlf(mp) )
    ALLOCATE( var% dlf(mp) )
 

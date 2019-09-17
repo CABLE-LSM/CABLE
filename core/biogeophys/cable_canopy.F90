@@ -2289,30 +2289,62 @@ CONTAINS
     canopy%frday = 12.0 * SUM(rdy, 2)
     !! vh !! inserted min to avoid -ve values of GPP
     canopy%fpn = min(-12.0 * SUM(an_y, 2), canopy%frday)
-    ! additional diagnostic variables for assessing contributions of rubisco and rubp limited photosynthesis to
-    ! gross photosynthesis in sunlit and shaded leaves.
-    canopy%A_sh = an_y(:,2) + rdy(:,2) 
-    canopy%A_sl =  an_y(:,1) + rdy(:,1)
-    canopy%A_shC = anrubiscoy(:,2) + rdy(:,2)
-    canopy%A_shJ = anrubpy(:,2) + rdy(:,2)
+
+ ! additional diagnostic variables for assessing contributions of rubisco and rubp limited photosynthesis to
+    ! net photosynthesis in sunlit and shaded leaves.
+    canopy%A_sh = an_y(:,2) 
+    canopy%A_sl =  an_y(:,1)
+
+    canopy%GPP_sh = an_y(:,2)  + rdy(:,2)
+    canopy%GPP_sl =  an_y(:,1) + rdy(:,1)
+
+    canopy%A_shC = anrubiscoy(:,2)
+    canopy%A_shJ = anrubpy(:,2)
+
     where (anrubiscoy(:,2) .gt. an_y(:,2)) canopy%A_shC = 0.0
     where (anrubpy(:,2) .gt. an_y(:,2))    canopy%A_shJ = 0.0
   
-    canopy%A_slC = anrubiscoy(:,1) + rdy(:,1)
-    canopy%A_slJ = anrubpy(:,1) + rdy(:,1)
+    canopy%A_slC = anrubiscoy(:,1)
+    canopy%A_slJ = anrubpy(:,1)
+
     where (anrubiscoy(:,1) .gt. an_y(:,1)) canopy%A_slC = 0.0
     where (anrubpy(:,1) .gt. an_y(:,1))    canopy%A_slJ = 0.0
 
-    !    where (sum(met%fsd,2) < 40.0)
-    !       canopy%A_shC = 0.0
-    !       canopy%A_shJ = 0.0
-    !       canopy%A_slC = 0.0
-    !       canopy%A_slJ = 0.0
-    !       canopy%A_sh = 0.0
-    !       canopy%A_sl = 0.0
-    !    end where
-    
     canopy%eta_A_cs = canopy%A_sh *min(eta_y(:,2),5.0) + canopy%A_sl *min(eta_y(:,1),5.0)
+    where (canopy%GPP_sl-rdy(:,1) .gt. 0.0 .and. canopy%GPP_sh-rdy(:,2) .gt. 0.0)
+       canopy%eta_GPP_cs = canopy%GPP_sh  *min(eta_y(:,2),5.0) * (canopy%GPP_sh/(canopy%GPP_sh-rdy(:,2))) + &
+            canopy%GPP_sl *min(eta_y(:,1),5.0)* (canopy%GPP_sl/(canopy%GPP_sl-rdy(:,1)))
+    elsewhere  ((canopy%GPP_sl-rdy(:,1)) .le. 0.0 .and. (canopy%GPP_sh-rdy(:,2)) .gt. 0.0)
+        canopy%eta_GPP_cs =  canopy%GPP_sh  *min(eta_y(:,2),5.0) * (canopy%GPP_sh/(canopy%GPP_sh-rdy(:,2)))
+    elsewhere
+        canopy%eta_GPP_cs =  canopy%eta_A_cs
+    end where
+
+    where (canopy%GPP_sl-rdy(:,1) .gt. 0.0 )
+       canopy%eta_A_cs_sl = min(eta_y(:,1),5.0)
+       canopy%eta_fevc_cs_sl = (min(eta_y(:,1),5.0) - 1.0) *  &
+            MAX( 0.0, C%RGSWC * gs_coeff(:,1)*an_y(:,1) ) / canopy%gswx(:,1)
+    elsewhere
+       canopy%eta_A_cs_sl = 0.0
+        canopy%eta_fevc_cs_sl = 0.0
+     endwhere
+
+    where (canopy%GPP_sh-rdy(:,2) .gt. 0.0  )
+       canopy%eta_A_cs_sh = min(eta_y(:,2),5.0)
+       canopy%eta_fevc_cs_sh = (min(eta_y(:,2),5.0) - 1.0) *  &
+            MAX( 0.0, C%RGSWC * gs_coeff(:,2)*an_y(:,2) ) / canopy%gswx(:,2)
+    elsewhere
+       canopy%eta_A_cs_sh = 0.0
+       canopy%eta_fevc_cs_sh = 0.0
+    endwhere
+
+    where ((rad%fvlai(:,1)+rad%fvlai(:,2)).gt.0.01)
+       canopy%eta_fevc_cs =  (canopy%eta_fevc_cs_sh*canopy%fevc* rad%fvlai(:,2)/(rad%fvlai(:,1)+rad%fvlai(:,2)) + &
+         canopy%eta_fevc_cs_sl*canopy%fevc* rad%fvlai(:,1)/(rad%fvlai(:,1)+rad%fvlai(:,2)))
+    elsewhere
+       canopy%eta_fevc_cs = 0.0
+    endwhere
+
     canopy%dAdcs = canopy%A_sh *dAn_y(:,2) + canopy%A_sl *dAn_y(:,1)
     canopy%cs =  canopy%A_sh*csx(:,2)*1e6 + canopy%A_sl*csx(:,1)*1e6
     canopy%cs_sl = csx(:,1)*1e6

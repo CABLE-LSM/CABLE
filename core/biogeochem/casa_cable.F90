@@ -681,7 +681,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 
        if (ivt .EQ. 7 .OR.ivt .EQ. 9  ) then
           ! special for C4 grass: scale value from  parameter file
-          !veg%vcmax(np) = casabiome%vcmax_scalar(ivt) * veg%vcmax(np)
+          veg%vcmax(np) = casabiome%vcmax_scalar(ivt) * 1.0e-5
           veg%ejmax(np) = 2.0 * veg%vcmax(np)
        elseif (ivt.eq.1) then
            ! account here for spring recovery
