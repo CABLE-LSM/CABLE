@@ -3432,9 +3432,8 @@ CONTAINS
      ! These assumption will *clearly* need to be improved!
 
      ! From Togashi et al. it looks like there is no obvious reln btw LA:SA
-     ! and moisture so taking the average LA:SA for all the trunk samples from
-     ! the Euc species
-     la_sa = 4119.21 ! m2 m-2
+     ! and moisture so taking a rough average LA:SA
+     la_sa = 5000.0 ! m2 m-2
 
      ! We need a height and in the longterm we will use POP, but for now from
      ! Simard et al. and sampling where Butt et al. say there are Eucs...we can
@@ -3443,7 +3442,7 @@ CONTAINS
 
      ! From Bowman we are taking a rough sapwood density (fig 5), which seems
      ! to agree with Xu et al.
-     sapwood_density = 500 ! kg m-3
+     sapwood_density = 500.0 ! kg m-3
 
      ! scalar to *roughly* convert stem capacitance. We are broadly matching
      ! the spirit of Xu et al. but dropping the root capacitance they include.
