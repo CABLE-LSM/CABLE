@@ -393,7 +393,7 @@ CONTAINS
             veg, canopy, soil, ssnow, dsx,                             &
             fwsoil, tlfx, tlfy, ecy, hcy,                              &
             rny, gbhu, gbhf, csx, cansat,                              &
-            ghwet,  iter,climate )
+            ghwet,  iter,climate)
 
 
        CALL wetLeaf( dels, rad, rough, air, met,                                &
@@ -1684,7 +1684,7 @@ CONTAINS
        veg, canopy, soil, ssnow, dsx,                             &
        fwsoil, tlfx,  tlfy,  ecy, hcy,                            &
        rny, gbhu, gbhf, csx,                                      &
-       cansat, ghwet, iter,climate )
+       cansat, ghwet, iter,climate)
 
     USE cable_def_types_mod
     USE cable_common_module
@@ -1695,6 +1695,7 @@ CONTAINS
     TYPE (met_type),       INTENT(INOUT) :: met
     TYPE (canopy_type),    INTENT(INOUT) :: canopy
     TYPE (soil_snow_type), INTENT(INOUT) :: ssnow
+
 
     TYPE (veg_parameter_type),  INTENT(INOUT)   :: veg
     TYPE (soil_parameter_type), INTENT(inout)   :: soil
@@ -2203,6 +2204,7 @@ CONTAINS
              ! way the loops fall above
              ELSEIF (cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
 
+
                 ! Transpiration: W m-2 -> kg m-2 s-1 -> mmol m-2 s-1
                 IF (ecx(i) > 0.0) THEN
                    conv = KG_2_G * G_WATER_TO_MOL * MOL_2_MMOL
@@ -2265,19 +2267,28 @@ CONTAINS
                 !
                 !ENDIF
 
-                !IF (ecx(i) > 0.0 .AND. canopy%fwet(i) < 1.0) THEN
-                  !  evapfb(i) = ( 1.0 - canopy%fwet(i)) * REAL( ecx(i) ) *dels      &
-                  !       / air%rlam(i)
-                  !
-                   ! DO kk = 1,ms
-                   !
-                  !     ssnow%evapfbl(i,kk) = MIN( evapfb(i) * ssnow%fraction_uptake(i,k),      &
-                  !          MAX( 0.0, REAL( ssnow%wb(i,kk) ) -     &
-                  !          1.1 * soil%swilt(i) ) *                &
-                  !          soil%zse(kk) * 1000.0 )
-                  !
-                   !ENDDO
-               !ENDIF
+                IF (ecx(i) > 0.0 .AND. canopy%fwet(i) < 1.0) THEN
+                    evapfb(i) = ( 1.0 - canopy%fwet(i)) * REAL( ecx(i) ) *dels      &
+                         / air%rlam(i)
+
+                    DO kk = 1,ms
+
+                       !ssnow%evapfbl(i,kk) = MIN( evapfb(i) * &
+                        !    ssnow%fraction_uptake(i,kk),      &
+                        !    MAX( 0.0, REAL( ssnow%wb(i,kk) ) -     &
+                        !    1.1 * soil%swilt(i) ) *                &
+                        !    soil%zse(kk) * 1000.0 )
+
+                       ssnow%evapfbl(i,kk) = MIN( evapfb(i) * &
+                            ssnow%fraction_uptake(i,kk),      &
+                            MAX( 0.0, REAL( ssnow%wb(i,kk) ) -     &
+                            soil%swilt(i) ) * soil%zse(kk) * 1000.0 )
+
+                   ENDDO
+               ENDIF
+               canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels
+               ecx(i) = canopy%fevc(i) / (1.0-canopy%fwet(i))
+
                !canopy%fevc(i) = ecx(i)*(1.0-canopy%fwet(i))
                !
                 !      IF (cable_user%soil_struc=='default') THEN
@@ -2289,20 +2300,20 @@ CONTAINS
 
                 ! We shouldn't be using this, but I need to figure out how to
                 ! correctly do the above...
-                canopy%fevc(i) = ecx(i)*(1.0-canopy%fwet(i))
-
-                CALL getrex_1d(ssnow%wbliq(i,:),&
-                     ssnow%rex(i,:), &
-                     canopy%fwsoil(i), &
-                     REAL(veg%froot(i,:),r_2),&
-                     soil%ssat_vec(i,:), &
-                     soil%swilt_vec(i,:), &
-                     MAX(REAL(canopy%fevc(i)/air%rlam(i)/1000_r_2,r_2),0.0_r_2), &
-                     REAL(veg%gamma(i),r_2), &
-                     REAL(soil%zse,r_2), REAL(dels,r_2), REAL(veg%zr(i),r_2))
-
-                canopy%fwsoil(i) = 1.0
-                ssnow%evapfbl(i,:) = ssnow%rex(i,:)*dels*1000_r_2 ! mm water &
+                !canopy%fevc(i) = ecx(i)*(1.0-canopy%fwet(i))
+                !
+                !CALL getrex_1d(ssnow%wbliq(i,:),&
+               !      ssnow%rex(i,:), &
+               !      canopy%fwsoil(i), &
+               !      REAL(veg%froot(i,:),r_2),&
+               !      soil%ssat_vec(i,:), &
+               !      soil%swilt_vec(i,:), &
+               !      MAX(REAL(canopy%fevc(i)/air%rlam(i)/1000_r_2,r_2),0.0_r_2), &
+               !      REAL(veg%gamma(i),r_2), &
+               !      REAL(soil%zse,r_2), REAL(dels,r_2), REAL(veg%zr(i),r_2))
+               !
+                !canopy%fwsoil(i) = 1.0
+                !ssnow%evapfbl(i,:) = ssnow%rex(i,:)*dels*1000_r_2 ! mm water &
 
              ELSE
 
@@ -2319,7 +2330,7 @@ CONTAINS
                            soil%zse(kk) * 1000.0 )
 
                    ENDDO
-                   !IF (cable_user%soil_struc=='default' .AND. cable_user%fwsoil_switch.NE.'hydraulics') THEN
+
                    IF (cable_user%soil_struc=='default') THEN
                       canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels
                       ecx(i) = canopy%fevc(i) / (1.0-canopy%fwet(i))

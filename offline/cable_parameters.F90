@@ -1645,7 +1645,9 @@ CONTAINS
     canopy%psi_soil_prev = -0.001
     ssnow%tot_bg_resist = 1E-09
     ssnow%weighted_psi_soil = -0.001
-
+    ssnow%weighted_psi_soil = -0.001
+    ssnow%fraction_uptake(:,1:5) = 1.0 / 6.0
+    ssnow%fraction_uptake(:,6) = 1.0 - (1.0 / 6.0 * 5.)
 
   END SUBROUTINE write_default_params
   !=============================================================================
