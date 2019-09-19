@@ -2406,6 +2406,13 @@ CONTAINS
              rny(i) = rnx(i)
              hcy(i) = hcx(i)
              ecy(i) = ecx(i)
+
+             ! Catch NaN issue for big jumps, not sure of the cause?
+             ! mgk576
+             if (ecy(i)  /=ecy(i) ) then
+                ecy(i) = 0.0
+             endif
+
              rdy(i,:) = rdx(i,:)
              an_y(i,:) = anx(i,:)
              ! save last values calculated for ssnow%evapfbl
@@ -2421,7 +2428,8 @@ CONTAINS
     ! dry canopy flux
     canopy%fevc = (1.0-canopy%fwet) * ecy
 
-    IF (cable_user%fwsoil_switch.NE.'Haverd2013' .AND. cable_user%fwsoil_switch.NE.'hydraulics') THEN
+    !IF (cable_user%fwsoil_switch.NE.'Haverd2013' .AND. cable_user%fwsoil_switch.NE.'hydraulics') THEN
+    IF (cable_user%fwsoil_switch.NE.'Haverd2013') THEN
 
        ! Recalculate ssnow%evapfbl as ecy may not be updated with the ecx
        ! calculated in the last iteration.
