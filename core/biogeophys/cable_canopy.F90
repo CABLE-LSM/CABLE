@@ -3097,12 +3097,12 @@ CONTAINS
      ! layer is connected to each soil layer, so that the roots in each soil
      ! layer supply water to each canopy layer, and that the fraction of roots
      ! supplying each canopy layer is the same as the leaf area in that layer.
-     IF (canopy%vlaiw(i) > 0.0) THEN
-        ssnow%tot_bg_resist(i) = ssnow%tot_bg_resist(i) * canopy%vlaiw(i)
-     END IF
+     !IF (canopy%vlaiw(i) > 0.0) THEN
+      !  ssnow%tot_bg_resist(i) = ssnow%tot_bg_resist(i) * canopy%vlaiw(i)
+     !END IF
 
      ksoil = 1.0 / ssnow%tot_bg_resist(i)
-
+    
      ! Plant hydraulic conductance (mmol m-2 s-1 MPa-1). NB. depends on stem
      ! water potential from the previous timestep.
      kplant = kp_sat * fsig_hydr(canopy%psi_stem_prev(i), veg%X_hyd(i), &

@@ -92,7 +92,7 @@ MODULE cable_mpicommon
   ! MPI: CABLE_r491, after following up with Bernard on the new variables
   ! vh sli nmat + 4 36 -> 40
   !INTEGER, PARAMETER :: nmat = 40
-  INTEGER, PARAMETER :: nmat = 41! ! mgk576, added 1 more matrix for plant hydraulics
+  INTEGER, PARAMETER :: nmat = 42! ! mgk576, added 2 more matrix for plant hydraulics
 
   ! MPI: number of contig vector parts / worker (results)
   !INTEGER, PARAMETER :: nvec = 149
