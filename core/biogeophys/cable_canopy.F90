@@ -3401,8 +3401,7 @@ CONTAINS
      ! flux_to_leaf (J_rl)
      IF (canopy%ksoil2stem(i) == 0.0) THEN
         canopy%psi_stem(i) = canopy%psi_stem_prev(i) - &
-                             (canopy%vlaiw(i) * transpiration) * dels / &
-                             total_capac
+                             transpiration * dels / total_capac
 
      ! plant can take up water
      ELSE
