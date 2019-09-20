@@ -1282,10 +1282,6 @@ CONTAINS
     blen(bidx) = ms * r2len
 
     bidx = bidx + 1
-    CALL MPI_Get_address (ssnow%fraction_uptake, displs(bidx), ierr)
-    blen(bidx) = ms * r2len
-
-    bidx = bidx + 1
     CALL MPI_Get_address (ssnow%wbfice, displs(bidx), ierr)
     blen(bidx) = ms * r2len
 
@@ -3949,10 +3945,6 @@ CONTAINS
     !  plant hydraulics, mgdk576, 23/07/2019
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%psi_soil(off,1), displs(bidx), ierr)
-    blocks(bidx) = r2len * ms
-
-    bidx = bidx + 1
-    CALL MPI_Get_address (ssnow%fraction_uptake(off,1), displs(bidx), ierr)
     blocks(bidx) = r2len * ms
 
     bidx = bidx + 1

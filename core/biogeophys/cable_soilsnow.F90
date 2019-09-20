@@ -2774,7 +2774,7 @@ CONTAINS
 
      ! The minimum root water potential (MPa), used in determining fractional
      ! water uptake in soil layers
-     REAL, PARAMETER :: min_root_wp = -3
+     REAL, PARAMETER :: min_root_wp = -3.0
 
      REAL, DIMENSION(ms)            :: swp, est_evap
      REAL, DIMENSION(:), INTENT(IN) :: root_length
@@ -2801,8 +2801,9 @@ CONTAINS
         ELSE
            est_evap(j) = 0.0 ! when no roots present
         ENDIF
-        ! NEED TO ADD SOMETHING IF THE SOIL IS FROZEN, what is ice in CABLE?
-        !IF ( iceprop(i) .gt. 0. ) THEN
+
+        ! No uptake from frozen soils
+        !IF ( ssnow%wbice(i,j) .gt. 0.01 ) THEN
         !  est_evap(i) = 0.0
         !ENDIF
 
