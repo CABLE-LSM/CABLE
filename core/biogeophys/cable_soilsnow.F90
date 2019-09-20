@@ -2634,35 +2634,41 @@ CONTAINS
      ! Always provide a minimum root biomass
      root_biomass = MAX(5., root_biomass)
 
-     root_length = 0.0
-     DO j = 1, ms ! Loop over 6 soil layers
-
-        ! Root biomass density (g biomass m-3 soil)
-        ! Divide root mass up by the frac roots in the layer (g m-3)
-        ! plant carbon is g C m-2
-        root_mass = root_biomass * veg%froot(i,j)
-
-        ! Root length density (m root m-3 soil)
-        root_length(j) = root_mass / (root_density * root_xsec_area)
-
-     END DO
-
      ! Store each layers resistance, used in LWP calculatons
      rsum = 0.0
+     root_length = 0.0
 
      DO j = 1, ms ! Loop over 6 soil layers
 
         ! Soil Hydraulic conductivity (m s-1), Campbell 1974
-        Ksoil = soil%hyds(i) * (ssnow%wb(i,j) / &
-                  soil%ssat(i))**(2.0 * soil%bch(i) + 3.0)
+        IF (ssnow%wb(i,j) < 0.05) then ! avoid underflow problem
+           Ksoil = TINY_NUMBER
+        ELSE
+           Ksoil = soil%hyds(i) * (ssnow%wb(i,j) / &
+                     soil%ssat(i))**(2.0 * soil%bch(i) + 3.0)
+           ! Not sure why, but Remko has the exponent written differently...
+           !Ksoil = soil%hyds(i) * (ssnow%wb(i,j) / &
+           !         soil%ssat(i))**(2.0 + soil%bch(i) / 3.0)
+        ENDIF
 
         ! converts from m s-1 to m2 s-1 MPa-1
         Ksoil = Ksoil / head
+
+        ! Calculate soil-root hydraulic resistance
 
         ! prevent floating point error
         IF (Ksoil < TINY_NUMBER) THEN
            ssnow%soilR(i,j) = HUGE_NUMBER
         ELSE
+
+           ! Root biomass density (g biomass m-3 soil)
+           ! Divide root mass up by the frac roots in the layer (g m-3)
+           ! plant carbon is g C m-2
+           root_mass = root_biomass * veg%froot(i,j)
+
+           ! Root length density (m root m-3 soil)
+           root_length(j) = root_mass / (root_density * root_xsec_area)
+
            ! Conductance of the soil-to-root pathway can be estimated
            ! assuming that the root system consists of one long root that
            ! has access to a surrounding cylinder of soil
@@ -2671,14 +2677,14 @@ CONTAINS
 
            ! Soil-to-root resistance (MPa s m2 mmol-1 H2O)
            soil_resist = LOG(rs / root_radius) / &
-                              (2.0 * pi * root_length(j) * soil%zse(j) * Ksoil)
+                         (2.0 * pi * root_length(j) * soil%zse(j) * Ksoil)
 
            ! convert from MPa s m2 m-3 to MPa s m2 mmol-1
            soil_resist = soil_resist * 1E-6 * 18. * 0.001
 
-           ! MPa s m2 mmol-1 H2O
            ! root_resistance is commented out : don't use root-component of
            ! resistance (is part of plant resistance)
+           ! MPa s m2 mmol-1 H2O
            ssnow%soilR(i,j) = soil_resist !+ root_resist
         END IF
 
@@ -2689,6 +2695,9 @@ CONTAINS
         ENDIF
 
      END DO
+
+     ! rsum calc above is 1/rsum, as we're combining in parallel, turn back into
+     ! resistance (MPa s m2 mmol-1 H2O)
      ssnow%tot_bg_resist(i) = 1.0 / rsum
 
   END SUBROUTINE calc_soil_root_resistance

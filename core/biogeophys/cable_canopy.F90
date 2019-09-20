@@ -3091,16 +3091,13 @@ CONTAINS
      REAL, INTENT(IN)    :: kp_sat
      REAL                :: ksoil, kroot2stem, kplant
 
-     ! Convert total below ground resistance to leaf-specific resistance.
-     ! Belowground resistance is calculated on a ground area basis;
-     ! multiplying by LAI converts to leaf area. his assumes that each canopy
-     ! layer is connected to each soil layer, so that the roots in each soil
-     ! layer supply water to each canopy layer, and that the fraction of roots
-     ! supplying each canopy layer is the same as the leaf area in that layer.
+     ! Convert total below ground resistance (ground area basis) to
+     ! leaf-specific resistance.
      IF (canopy%vlaiw(i) > 0.0) THEN
         ssnow%tot_bg_resist(i) = ssnow%tot_bg_resist(i) * canopy%vlaiw(i)
      END IF
 
+     ! Soil-stem conductance (mmol m-2 s-1 MPa-1)
      ksoil = 1.0 / ssnow%tot_bg_resist(i)
 
      ! Plant hydraulic conductance (mmol m-2 s-1 MPa-1). NB. depends on stem
