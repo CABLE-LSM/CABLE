@@ -3104,8 +3104,8 @@ CONTAINS
      kroot2stem = 2.0 * kplant
 
      ! Conductance from soil to stem water store (mmol m-2 s-1 MPa-1)
-     canopy%ksoil2stem(i) = 1.0 / (1.0 / ksoil + 1.0 / kroot2stem)
-     canopy%ksoil2stem(i) = canopy%ksoil2stem(i) * canopy%vlaiw(i)
+     canopy%ksoil2stem(i) = (1.0 / (1.0 / ksoil + 1.0 / kroot2stem)) * &
+                             canopy%vlaiw(i)
 
      ! Conductance from stem water store to leaf (mmol m-2 s-1 MPa-1)
      canopy%kstem2leaf(i) = 2.0 * kplant * canopy%vlaiw(i)
