@@ -3091,12 +3091,6 @@ CONTAINS
      REAL, INTENT(IN)    :: kp_sat
      REAL                :: ksoil, kroot2stem, kplant
 
-     ! Convert total below ground resistance (ground area basis) to
-     ! leaf-specific resistance.
-     IF (canopy%vlaiw(i) > 0.0) THEN
-        ssnow%tot_bg_resist(i) = ssnow%tot_bg_resist(i) * canopy%vlaiw(i)
-     END IF
-
      ! Soil-stem conductance (mmol m-2 s-1 MPa-1)
      ksoil = 1.0 / ssnow%tot_bg_resist(i)
 
@@ -3107,10 +3101,11 @@ CONTAINS
 
      ! Conductance from root surface to the stem water pool (assumed to be
      ! halfway to the leaves)
-     kroot2stem = 2.0 * kplant * canopy%vlaiw(i)
+     kroot2stem = 2.0 * kplant
 
      ! Conductance from soil to stem water store (mmol m-2 s-1 MPa-1)
      canopy%ksoil2stem(i) = 1.0 / (1.0 / ksoil + 1.0 / kroot2stem)
+     canopy%ksoil2stem(i) = canopy%ksoil2stem(i) * canopy%vlaiw(i)
 
      ! Conductance from stem water store to leaf (mmol m-2 s-1 MPa-1)
      canopy%kstem2leaf(i) = 2.0 * kplant * canopy%vlaiw(i)
@@ -3412,8 +3407,7 @@ CONTAINS
      ELSE
         ap = - canopy%ksoil2stem(i) / total_capac
         bp = (canopy%ksoil2stem(i) * &
-              canopy%psi_soil_prev(i) - &
-              (canopy%vlaiw(i) * transpiration)) / total_capac
+              canopy%psi_soil_prev(i) - transpiration) / total_capac
         canopy%psi_stem(i) = ((ap * canopy%psi_stem_prev(i) + bp) * &
                              EXP(ap * dels) - bp) / ap
 
