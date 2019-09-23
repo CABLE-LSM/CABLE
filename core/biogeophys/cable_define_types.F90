@@ -523,7 +523,7 @@ MODULE cable_def_types_mod
      REAL, DIMENSION(:), POINTER :: psi_leaf, psi_leaf_prev
      REAL, DIMENSION(:), POINTER :: flx_to_stem, flx_to_leaf
      REAL, DIMENSION(:), POINTER :: psi_stem, psi_stem_prev, psi_soil_prev
-     REAL, DIMENSION(:), POINTER :: ksoil2stem, kstem2leaf
+     REAL, DIMENSION(:), POINTER :: ksoil2stem, kstem2leaf, kplant, plc
 
   END TYPE canopy_type
 
@@ -1229,6 +1229,8 @@ CONTAINS
     ALLOCATE( var%flx_to_stem(mp) )
     ALLOCATE( var%ksoil2stem(mp) )
     ALLOCATE( var%kstem2leaf(mp) )
+    ALLOCATE( var%kplant(mp) )
+    ALLOCATE( var%plc(mp) )
 
   END SUBROUTINE alloc_canopy_type
 
@@ -1865,6 +1867,8 @@ CONTAINS
     DEALLOCATE( var%flx_to_leaf )
     DEALLOCATE( var%ksoil2stem )
     DEALLOCATE( var%kstem2leaf )
+    DEALLOCATE( var%kplant )
+    DEALLOCATE( var%plc )
 
   END SUBROUTINE dealloc_canopy_type
 

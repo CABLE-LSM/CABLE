@@ -70,7 +70,9 @@ MODULE cable_output_module
           PlantTurnoverWood, PlantTurnoverWoodDist, PlantTurnoverWoodCrowding, &
           PlantTurnoverWoodResourceLim, dCdt, Area, LandUseFlux, patchfrac, &
           vcmax,hc,WatTable,GWMoist,SatFrac,Qrecharge, &
-          weighted_psi_soil, psi_soil, psi_leaf, psi_stem, gsw_sun, gsw_sha
+          weighted_psi_soil, psi_soil, psi_leaf, psi_stem, gsw_sun, gsw_sha, $
+          plc
+
   END TYPE out_varID_type
   TYPE(out_varID_type) :: ovid ! netcdf variable IDs for output variables
   TYPE(parID_type) :: opid ! netcdf variable IDs for output variables
@@ -237,6 +239,7 @@ MODULE cable_output_module
      REAL(KIND=4), POINTER, DIMENSION(:)   :: psi_stem               ! mgk576
      REAL(KIND=4), POINTER, DIMENSION(:)   :: gsw_sun                ! mgk576
      REAL(KIND=4), POINTER, DIMENSION(:)   :: gsw_sha                ! mgk576
+     REAL(KIND=4), POINTER, DIMENSION(:)   :: plc                    ! mgk576
 
   END TYPE output_temporary_type
   TYPE(output_temporary_type), SAVE :: out
@@ -683,6 +686,15 @@ CONTAINS
                         landID, patchID, tID)
        ALLOCATE(out%gsw_sha(mp))
        out%gsw_sha = 0.0 ! initialise
+    END IF
+
+    IF(output%veg) THEN
+       CALL define_ovar(ncid_out, ovid%plc, &
+                        'plc', '-', 'percentage loss of conductivity', &
+                        patchout%plc, 'dummy', xID, yID, zID, &
+                        landID, patchID, tID)
+       ALLOCATE(out%plc(mp))
+       out%plc = 0.0 ! initialise
     END IF
 
     IF(output%soil) THEN
@@ -2123,6 +2135,23 @@ CONTAINS
                           'default', met)
            ! Reset temporary output variable:
            out%gsw_sha = 0.0
+        END IF
+     END IF
+
+     IF(output%veg) THEN
+        ! Add current timestep's value to total of temporary output variable:
+        out%plc = out%plc + REAL(canopy%plc, 4)
+        IF(writenow) THEN
+           ! Divide accumulated variable by number of accumulated time steps:
+           out%plc = out%plc / REAL(output%interval, 4)
+           ! Write value to file:
+           CALL write_ovar(out_timestep, ncid_out, ovid%plc, &
+                          'plc', &
+                           out%plc, ranges%plc, &
+                           patchout%plc, &
+                          'default', met)
+           ! Reset temporary output variable:
+           out%plc = 0.0
         END IF
      END IF
 

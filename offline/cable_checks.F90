@@ -181,6 +181,7 @@ MODULE cable_checks_module
           weighted_psi_soil = (/-100.,100./),          &
           psi_soil = (/-100.,100./),                   &
           psi_leaf = (/-100.,100./),                   &
+          plc = (/0.,1./),                   &
           psi_stem = (/-100.,100./),                   &
           gswx = (/-1,10/),                            &
           !MD

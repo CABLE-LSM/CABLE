@@ -2153,6 +2153,11 @@ CONTAINS
                    ! Don't add gmin, instead use it as the lower boundary
                    IF (cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
                       gmin = veg%gmin(i) * MMOL_2_MOL
+                      ! We don't want model to crash, so if we die, reset things
+                      ! as we won't interpret things meanginfully
+                      IF (canopy%plc(i) > 88.) THEN
+                         gmin = 1E-09
+                      ENDIF
                       canopy%gswx(i,kk) = MAX(gmin,     &
                                               MAX(0.0, C%RGSWC * &
                                                        gs_coeff(i,kk) * &
@@ -2245,9 +2250,8 @@ CONTAINS
                 CALL calc_flux_to_stem_again(canopy, dels, veg%Cs(i), &
                                              trans_mmol, i)
 
-                !print*, canopy%psi_soil_prev(i), ssnow%weighted_psi_soil(i), &
-                !         canopy%psi_stem_prev(i) , canopy%psi_stem(i), &
-                !         canopy%psi_leaf_prev(i), canopy%psi_leaf(i)
+                canopy%plc(i) = calc_plc(canopy%kplant(i), veg%kp_sat(i))
+
 
                 ! store current water potentials for next time step
                 canopy%psi_leaf_prev(i) = canopy%psi_leaf(i)
@@ -3098,19 +3102,20 @@ CONTAINS
 
      ! Plant hydraulic conductance (mmol m-2 s-1 MPa-1). NB. depends on stem
      ! water potential from the previous timestep.
-     kplant = kp_sat * fsig_hydr(canopy%psi_stem_prev(i), veg%X_hyd(i), &
-                                 veg%p50(i), veg%s50(i))
+     canopy%kplant(i) = kp_sat * &
+                        fsig_hydr(canopy%psi_stem_prev(i), veg%X_hyd(i), &
+                                  veg%p50(i), veg%s50(i))
 
      ! Conductance from root surface to the stem water pool (assumed to be
      ! halfway to the leaves)
-     kroot2stem = 2.0 * kplant
+     kroot2stem = 2.0 * canopy%kplant(i)
 
      ! Conductance from soil to stem water store (mmol m-2 s-1 MPa-1)
      canopy%ksoil2stem(i) = (1.0 / (1.0 / ksoil + 1.0 / kroot2stem)) * &
                              canopy%vlaiw(i)
 
      ! Conductance from stem water store to leaf (mmol m-2 s-1 MPa-1)
-     canopy%kstem2leaf(i) = 2.0 * kplant * canopy%vlaiw(i)
+     canopy%kstem2leaf(i) = 2.0 * canopy%kplant(i) * canopy%vlaiw(i)
 
   END SUBROUTINE calc_hydr_conduc
   ! ----------------------------------------------------------------------------
@@ -3463,5 +3468,21 @@ CONTAINS
 
   END FUNCTION scale_up_stem_capac
   ! ----------------------------------------------------------------------------
+
+  FUNCTION calc_plc(kp, kp_sat) RESULT(plc)
+     ! Calculates the percent loss of conductivity, PLC (-)
+     !
+     ! Martin De Kauwe, 16th September, 2019
+
+     IMPLICIT NONE
+
+     REAL             :: plc
+     REAL, INTENT(IN) :: kp, kp_sat
+
+     ! Percent loss of conductivity (-)
+     plc = 100.0 * (1.0 - kp / kp_sat)
+
+   END FUNCTION calc_plc
+   ! ----------------------------------------------------------------------------
 
 END MODULE cable_canopy_module

@@ -1973,6 +1973,9 @@ CONTAINS
     CALL MPI_Get_address (canopy%psi_stem, displs(bidx), ierr)
     blen(bidx) = r1len
 
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%plc, displs(bidx), ierr)
+    blen(bidx) = r1len
 
 
 
@@ -4722,6 +4725,10 @@ CONTAINS
     ! plant hydraulics, mgdk576, 23/07/2019
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%psi_stem(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%plc(off), displs(bidx), ierr)
     blocks(bidx) = r1len
 
     ! MPI: 2D vars moved above
