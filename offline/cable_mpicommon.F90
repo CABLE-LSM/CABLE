@@ -40,7 +40,7 @@ MODULE cable_mpicommon
   ! VH add 9 params for sli 299 -> 308
   ! INH add 7 params for REV_CORR package
   !INTEGER, PARAMETER :: nparam = 331 !326!308  ! as it was before mgk576 changes
-  INTEGER, PARAMETER :: nparam = 343 ! mgk576, added 12 (8 params, 3 x 1D vectors & 1 x 2D matrix)
+  INTEGER, PARAMETER :: nparam = 344 ! mgk576, added 13 (9 params, 3 x 1D vectors & 1 x 2D matrix)
   ! MPI: extra params sent only if nsoilparmnew is true
   INTEGER, PARAMETER :: nsoilnew = 1
 

@@ -46,7 +46,8 @@ MODULE cable_pft_params_mod
           s50,        & ! mgk576MPa
           kp_sat,     & ! mgk576MPa
           Cl,         & ! mgk576MPa
-          Cs
+          Cs,         & ! mgk576MPa
+          gmin          ! mgk576MPa
 
      REAL, DIMENSION(:,:),ALLOCATABLE ::                                      &
           froot,      & !
@@ -1223,6 +1224,7 @@ CONTAINS
        !vegin%Cl(18) = 10000.
        !vegin%Cs(18) = 120000.
 
+       vegin%gmin(18) = 0.478135  ! mmol m-2 s-1
        vegin%vcmax(18) = 0.000044
        vegin%ejmax(18) = 0.000074
        vegin%g1(18) = 4.192749
@@ -1310,6 +1312,7 @@ CONTAINS
        !vegin%Cl(19) = 10000.
        !vegin%Cs(19) = 120000.
 
+       vegin%gmin(19) = 1.275279  ! mmol m-2 s-1
        vegin%vcmax(19) = 0.000085
        vegin%ejmax(19) = 0.000142
        vegin%g1(19) = 3.154297 ! 4.12
@@ -1395,7 +1398,7 @@ CONTAINS
        !vegin%Cl(20) = 10000.
        !vegin%Cs(20) = 120000.
 
-
+       vegin%gmin(20) = 1.441656  ! mmol m-2 s-1
        vegin%vcmax(20) = 0.000076
        vegin%ejmax(20) = 0.000126
        vegin%g1(20) = 4.788591
@@ -1481,7 +1484,7 @@ CONTAINS
        !vegin%Cl(21) = 10000.
        !vegin%Cs(21) = 120000.
 
-
+       vegin%gmin(21) = 1.319197  ! mmol m-2 s-1
        vegin%vcmax(21) = 0.000062
        vegin%ejmax(21) = 0.000104
        vegin%g1(21) = 4.811896
@@ -1567,7 +1570,7 @@ CONTAINS
        !vegin%Cl(22) = 10000.
        !vegin%Cs(22) = 120000.
 
-
+       vegin%gmin(22) = 1.644874  ! mmol m-2 s-1
        vegin%vcmax(22) = 0.000093
        vegin%ejmax(22) = 0.000155
        vegin%g1(22) = 5.112146

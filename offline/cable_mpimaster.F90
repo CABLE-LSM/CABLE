@@ -2335,7 +2335,11 @@ CONTAINS
        blen(bidx) = r1len
 
        bidx = bidx + 1
-       CALL MPI_Get_address (veg%CS(off), displs(bidx), ierr)
+       CALL MPI_Get_address (veg%Cs(off), displs(bidx), ierr)
+       blen(bidx) = r1len
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (veg%gmin(off), displs(bidx), ierr)
        blen(bidx) = r1len
 
 

@@ -1577,6 +1577,10 @@ CONTAINS
     CALL MPI_Get_address (veg%Cs, displs(bidx), ierr)
     blen(bidx) = r1len
 
+    bidx = bidx + 1
+    CALL MPI_Get_address (veg%gmin, displs(bidx), ierr)
+    blen(bidx) = r1len
+
     ! ----------- bgc --------------
 
     bidx = bidx + 1

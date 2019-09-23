@@ -1788,10 +1788,11 @@ CONTAINS
 
     REAL, DIMENSION(mp,2) ::  gsw_term, lower_limit2  ! local temp var
 
-    REAL :: trans_mmol, conv, e_test
+    REAL :: trans_mmol, conv, e_test, gmin
     REAL, PARAMETER :: KG_2_G = 1000.0
     REAL, PARAMETER :: G_WATER_TO_MOL = 1.0 / 18.01528
     REAL, PARAMETER :: MOL_2_MMOL = 1000.0
+    REAL, PARAMETER :: MMOL_2_MOL = 1.0 / MOL_2_MMOL
     REAL, PARAMETER :: MB_TO_PA = 100.
 
     INTEGER :: i, j, k, kk  ! iteration count
@@ -2149,6 +2150,14 @@ CONTAINS
                         MAX( 0.0, C%RGSWC * gs_coeff(i,kk) *     &
                         anx(i,kk) ) )
 
+                   ! Don't add gmin, instead use it as the lower boundary
+                   IF (cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+                      gmin = veg%gmin(i) * MMOL_2_MOL
+                      canopy%gswx(i,kk) = MAX(gmin,     &
+                                              MAX(0.0, C%RGSWC * &
+                                                       gs_coeff(i,kk) * &
+                                                       anx(i,kk)))
+                   ENDIF
 
                    !Recalculate conductance for water:
                    gw(i,kk) = 1.0 / ( 1.0 / canopy%gswx(i,kk) +                 &

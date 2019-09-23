@@ -398,7 +398,8 @@ MODULE cable_def_types_mod
           s50,     & ! is slope of the curve at P50 used in weibull model, % MPa-1
           kp_sat,  & ! Tim Brodribb pers comm
           Cl,      & ! Leaf capacitance (mmol m-2 MPa-1)
-          Cs         ! Stem capacitance (mmol kg-1 MPa-1)
+          Cs,      & ! Stem capacitance (mmol kg-1 MPa-1)
+          gmin       ! minimum stomatal conductance, mmol m-2 s-1
 
      LOGICAL, DIMENSION(:), POINTER ::                                        &
           deciduous ! flag used for phenology fix
@@ -1128,6 +1129,7 @@ CONTAINS
     ALLOCATE( var% kp_sat(mp) )   ! mgk576
     ALLOCATE( var% Cl(mp) )   ! mgk576
     ALLOCATE( var% Cs(mp) )   ! mgk576
+    ALLOCATE( var% gmin(mp) )   ! mgk576
 
 
   END SUBROUTINE alloc_veg_parameter_type
@@ -1762,6 +1764,7 @@ CONTAINS
     DEALLOCATE( var% kp_sat )   ! mgk576
     DEALLOCATE( var% Cl )   ! mgk576
     DEALLOCATE( var% Cs )   ! mgk576
+    DEALLOCATE( var% gmin )   ! mgk576
 
     ! Deallocate variables for SLI soil model:
     !IF(cable_user%SOIL_STRUC=='sli') THEN
