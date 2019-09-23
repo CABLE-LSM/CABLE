@@ -70,7 +70,7 @@ MODULE cable_output_module
           PlantTurnoverWood, PlantTurnoverWoodDist, PlantTurnoverWoodCrowding, &
           PlantTurnoverWoodResourceLim, dCdt, Area, LandUseFlux, patchfrac, &
           vcmax,hc,WatTable,GWMoist,SatFrac,Qrecharge, &
-          weighted_psi_soil, psi_soil, psi_leaf, psi_stem, gsw_sun, gsw_sha, $
+          weighted_psi_soil, psi_soil, psi_leaf, psi_stem, gsw_sun, gsw_sha, &
           plc
 
   END TYPE out_varID_type
