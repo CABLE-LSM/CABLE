@@ -108,8 +108,8 @@ CONTAINS
             !mgk576
             vegin%sf(mvtype), vegin%psi_f(mvtype) ,                               &
             vegin%X_hyd(mvtype), vegin%p50(mvtype), vegin%s50(mvtype),           &
-            vegin%kp_sat(mvtype), vegin%Cl(mvtype), vegin%Cs(mvtype))
-
+            vegin%kp_sat(mvtype), vegin%Cl(mvtype), vegin%Cs(mvtype),           &
+            vegin%gmin(mvtype))
 
        !PFT parameters: description and corresponding variable name in code.
        !PFT parameters are assigned as TYPE vegin% but later used as veg%
