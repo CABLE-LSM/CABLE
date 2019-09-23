@@ -2250,7 +2250,8 @@ CONTAINS
                 CALL calc_flux_to_stem_again(canopy, dels, veg%Cs(i), &
                                              trans_mmol, i)
 
-                canopy%plc(i) = calc_plc(canopy%kplant(i), veg%kp_sat(i))
+                canopy%plc(i) = calc_plc(canopy%vlaiw(i), canopy%kplant(i), &
+                                         veg%kp_sat(i))
 
 
                 ! store current water potentials for next time step
@@ -3094,27 +3095,31 @@ CONTAINS
      TYPE (veg_parameter_type), INTENT(INOUT)   :: veg
 
      INTEGER, INTENT(IN) :: i ! patch
+
+     ! plant saturated hydraulic conductance (mmol m-2 ground s-1 MPa-1)
      REAL, INTENT(IN)    :: kp_sat
      REAL                :: ksoil, kroot2stem, kplant
 
-     ! Soil-stem conductance (mmol m-2 s-1 MPa-1)
+     ! Soil-stem conductance (mmol m-2 leaf s-1 MPa-1)
      ksoil = 1.0 / ssnow%tot_bg_resist(i)
 
-     ! Plant hydraulic conductance (mmol m-2 s-1 MPa-1). NB. depends on stem
-     ! water potential from the previous timestep.
+     ! Plant hydraulic conductance (mmol m-2 leaf s-1 MPa-1). NB. depends on
+     ! stem water potential from the previous timestep.
      canopy%kplant(i) = kp_sat * &
                         fsig_hydr(canopy%psi_stem_prev(i), veg%X_hyd(i), &
                                   veg%p50(i), veg%s50(i))
 
-     ! Conductance from root surface to the stem water pool (assumed to be
-     ! halfway to the leaves)
+     ! Conductance from root surface to the stem water pool, assumed to be
+     ! halfway to the leaves (mmol m-2 ground area s-1 MPa-1)
      kroot2stem = 2.0 * canopy%kplant(i)
 
-     ! Conductance from soil to stem water store (mmol m-2 s-1 MPa-1)
+     ! Conductance from soil to stem water store
+     ! (mmol m-2 ground area s-1 MPa-1)
      canopy%ksoil2stem(i) = (1.0 / (1.0 / ksoil + 1.0 / kroot2stem)) * &
                              canopy%vlaiw(i)
 
-     ! Conductance from stem water store to leaf (mmol m-2 s-1 MPa-1)
+     ! Conductance from stem water store to leaf
+     ! mmol m-2 ground area s-1 MPa-1
      canopy%kstem2leaf(i) = 2.0 * canopy%kplant(i) * canopy%vlaiw(i)
 
   END SUBROUTINE calc_hydr_conduc
@@ -3138,16 +3143,16 @@ CONTAINS
      REAL             :: PX, V, p, relk, PX50
      REAL, INTENT(IN) :: psi_stem_prev, X_hyd, p50, s50
 
-     ! xylem pressure
+     ! xylem pressure (MPa)
      PX = ABS(psi_stem_prev)
 
-     ! the xylem pressure (P) x% of the conductivity is lost
+     ! the xylem pressure (P) x% of the conductivity is lost (MPa)
      PX50 = ABS(p50)
 
      V = (X_hyd - 100.) * LOG(1.0 - X_hyd / 100.)
      p = (PX / PX50)**((PX50 * s50) / V)
 
-     ! relative conductance (K/Kmax) as a funcion of xylem pressure
+     ! relative conductance (K/Kmax) as a funcion of xylem pressure (%)
      relk = (1. - X_hyd / 100.)**p
      !relk = max(1.0e-9, min(1.0, relk))
 
@@ -3174,27 +3179,27 @@ CONTAINS
 
      TYPE (canopy_type), INTENT(INOUT)    :: canopy
 
-     INTEGER, INTENT(IN) :: i
-     REAL, INTENT(IN)    :: transpiration
+     INTEGER, INTENT(IN) :: i ! patch
+     REAL, INTENT(IN)    :: transpiration ! mmol m-2 ground s-1
      REAL                :: ap, bp, leaf_capac
      REAL, INTENT(IN)    :: dels ! integration time step (s)
-     REAL, INTENT(IN)    :: Cl
+     REAL, INTENT(IN)    :: Cl ! Leaf capacitance (mmol m-2 leaf MPa-1)
 
-     ! scale up leaf-specific capacitance
+     ! scale up leaf-specific capacitance (mmol m-2 ground area MPa-1 s-1)
      leaf_capac = Cl * canopy%vlaiw(i)
 
      ! is there is conductance in the trunk?
      IF (canopy%kstem2leaf(i)  > 1E-09) THEN
-        ap = - canopy%kstem2leaf(i) / leaf_capac
+        ap = - canopy%kstem2leaf(i) / leaf_capac  ! unitless
         bp = (canopy%psi_stem_prev(i) * &
-              canopy%kstem2leaf(i) - transpiration) / leaf_capac
+              canopy%kstem2leaf(i) - transpiration) / leaf_capac ! MPa
         canopy%psi_leaf(i) = ((ap * canopy%psi_leaf_prev(i) + bp) *  &
-                              EXP(ap * dels) - bp) / ap
+                              EXP(ap * dels) - bp) / ap  ! MPa
 
      ! No conductance in the trunk, delta psi_leaf is due to transpiration
      ELSE
         canopy%psi_leaf(i) = (canopy%psi_leaf_prev(i) - transpiration * dels) &
-                            / leaf_capac
+                            / leaf_capac ! MPa
      ENDIF
 
   END SUBROUTINE calc_psi_leaf
@@ -3221,11 +3226,12 @@ CONTAINS
      TYPE (canopy_type), INTENT(INOUT)    :: canopy
 
      REAL                :: leaf_capac
-     REAL, INTENT(IN)    :: transpiration, Cl
+     REAL, INTENT(IN)    :: transpiration ! mmol m-2 ground s-1
+     REAL, INTENT(IN)    :: Cl ! Leaf capacitance (mmol m-2 leaf MPa-1)
      REAL, INTENT(IN)    :: dels ! integration time step (s)
-     INTEGER, INTENT(IN) :: i
+     INTEGER, INTENT(IN) :: i ! patch
 
-     ! scale up leaf-specific capacitance
+     ! scale up leaf-specific capacitance (mmol m-2 ground area MPa-1 s-1)
      leaf_capac = Cl * canopy%vlaiw(i)
 
      ! is there conductance in the trunk?
@@ -3258,12 +3264,12 @@ CONTAINS
 
      TYPE (canopy_type), INTENT(INOUT)    :: canopy
 
-     INTEGER, INTENT(IN) :: i
+     INTEGER, INTENT(IN) :: i ! patch
      REAL, INTENT(IN)    :: dels ! integration time step (s)
-     REAL, INTENT(IN)    :: Cs
-     REAL                :: stem_capac
+     REAL, INTENT(IN)    :: Cs ! Stem capacitance (mmol kg-1 MPa-1)
+     REAL                :: stem_capac ! mmol MPa-1
 
-     ! mmol MPA-1
+     ! mmol MPa-1
      stem_capac = Cs * scale_up_stem_capac(canopy%vlaiw(i))
 
      ! J_sr: plant cannot take up water, change of psi_stem is solely due to
@@ -3302,11 +3308,11 @@ CONTAINS
      TYPE (canopy_type), INTENT(INOUT)    :: canopy
 
      REAL, INTENT(IN)    :: dels ! integration time step (s)
-     REAL, INTENT(IN)    :: Cs
+     REAL, INTENT(IN)    :: Cs ! Stem capacitance (mmol kg-1 MPa-1)
      REAL                :: stem_capac, ap, bp
-     INTEGER, INTENT(IN) :: i
+     INTEGER, INTENT(IN) :: i ! patch
 
-     ! mmol MPA-1
+     ! mmol MPa-1
      stem_capac = Cs * scale_up_stem_capac(canopy%vlaiw(i))
 
      ! J_sr: plant cannot take up water, change of psi_stem is solely due to
@@ -3342,10 +3348,10 @@ CONTAINS
 
      TYPE (canopy_type), INTENT(INOUT)    :: canopy
 
-     INTEGER, INTENT(IN) :: i
+     INTEGER, INTENT(IN) :: i ! patch
      REAL, INTENT(IN)    :: dels ! integration time step (s)
-     REAL, INTENT(IN)    :: Cs
-     REAL, INTENT(IN)    :: transpiration
+     REAL, INTENT(IN)    :: Cs ! Stem capacitance (mmol kg-1 MPa-1)
+     REAL, INTENT(IN)    :: transpiration ! mmol m-2 ground s-1
      REAL                :: stem_capac
 
      ! mmol MPA-1
@@ -3394,12 +3400,15 @@ CONTAINS
 
      REAL                :: ap, bp, total_capac, stem_capac, leaf_capac
      REAL, INTENT(IN)    :: dels ! integration time step (s)
-     REAL, INTENT(IN)    :: Cs, Cl, transpiration
-     INTEGER, INTENT(IN) :: i
+     REAL, INTENT(IN)    :: Cs ! Stem capacitance (mmol kg-1 MPa-1)
+     REAL, INTENT(IN)    :: Cl ! Leaf capacitance (mmol m-2 leaf MPa-1)
+     REAL, INTENT(IN)    :: transpiration ! mmol m-2 ground s-1
+     INTEGER, INTENT(IN) :: i ! patch
 
+     ! scale up leaf-specific capacitance (mmol m-2 ground area MPa-1 s-1)
      leaf_capac = Cl * canopy%vlaiw(i)
 
-     ! mmol MPA-1
+     ! mmol MPa-1
      stem_capac = Cs * scale_up_stem_capac(canopy%vlaiw(i))
 
      total_capac = stem_capac + leaf_capac
@@ -3441,7 +3450,7 @@ CONTAINS
 
      IMPLICIT NONE
 
-     REAL, INTENT(IN) :: lai
+     REAL, INTENT(IN) :: lai ! m2 m-2
      REAL             :: stem_capac, la_sa, height, sapwood_density, capac_conv
 
      ! We need to scale up the measurements to infer a total stem capacitance
@@ -3469,15 +3478,18 @@ CONTAINS
   END FUNCTION scale_up_stem_capac
   ! ----------------------------------------------------------------------------
 
-  FUNCTION calc_plc(kp, kp_sat) RESULT(plc)
+  FUNCTION calc_plc(lai, kp, kp_sat) RESULT(plc)
      ! Calculates the percent loss of conductivity, PLC (-)
      !
      ! Martin De Kauwe, 16th September, 2019
 
      IMPLICIT NONE
 
-     REAL             :: plc
-     REAL, INTENT(IN) :: kp, kp_sat
+     REAL             :: plc, kplant
+     REAL, INTENT(IN) :: kp, kp_sat, lai
+
+     ! Convert kplant to mmol m-2 ground area MPA-1 s-1
+     kplant = kp * lai
 
      ! Percent loss of conductivity (-)
      plc = 100.0 * (1.0 - kp / kp_sat)
