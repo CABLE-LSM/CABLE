@@ -2155,7 +2155,7 @@ CONTAINS
                       gmin = veg%gmin(i) * MMOL_2_MOL
                       ! We don't want model to crash, so if we die, reset things
                       ! as we won't interpret things meanginfully
-                      IF (canopy%plc(i) > 88.) THEN
+                      IF (canopy%plc(i) >= 88.) THEN
                          gmin = 1E-09
                       ENDIF
                       canopy%gswx(i,kk) = MAX(gmin,     &
@@ -2252,7 +2252,7 @@ CONTAINS
 
                 canopy%plc(i) = calc_plc(canopy%vlaiw(i), canopy%kplant(i), &
                                          veg%kp_sat(i))
-                IF (canopy%plc(i) > 88.) THEN
+                IF (canopy%plc(i) >= 88.) THEN
                    canopy%plc(i) = 88.
                 ENDIF
 
