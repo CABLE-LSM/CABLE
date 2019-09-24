@@ -2252,7 +2252,9 @@ CONTAINS
 
                 canopy%plc(i) = calc_plc(canopy%vlaiw(i), canopy%kplant(i), &
                                          veg%kp_sat(i))
-
+                IF (canopy%plc(i) > 88.) THEN
+                   canopy%plc(i) = 88.
+                ENDIF
 
                 ! store current water potentials for next time step
                 canopy%psi_leaf_prev(i) = canopy%psi_leaf(i)
