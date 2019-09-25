@@ -2283,21 +2283,17 @@ CONTAINS
                 !ENDIF
 
                 IF (ecx(i) > 0.0 .AND. canopy%fwet(i) < 1.0) THEN
-                    evapfb(i) = ( 1.0 - canopy%fwet(i)) * REAL( ecx(i) ) *dels      &
+                    evapfb(i) = ( 1.0 - canopy%fwet(i)) * REAL( ecx(i) ) *dels  &
                          / air%rlam(i)
 
                     DO kk = 1,ms
 
-                       !ssnow%evapfbl(i,kk) = MIN( evapfb(i) * &
-                        !    ssnow%fraction_uptake(i,kk),      &
-                        !    MAX( 0.0, REAL( ssnow%wb(i,kk) ) -     &
-                        !    1.1 * soil%swilt(i) ) *                &
-                        !    soil%zse(kk) * 1000.0 )
-
-                       ssnow%evapfbl(i,kk) = MIN( evapfb(i) * &
-                            ssnow%fraction_uptake(i,kk),      &
-                            MAX( 0.0, REAL( ssnow%wb(i,kk) ) -     &
-                            soil%swilt(i) ) * soil%zse(kk) * 1000.0 )
+                       ssnow%evapfbl(i,kk) = MIN(evapfb(i) * &
+                                                 ssnow%fraction_uptake(i,kk),  &
+                                                 MAX(0.0, &
+                                                     REAL(ssnow%wb(i,kk)) -    &
+                                                     soil%swilt(i)) * &
+                                                 soil%zse(kk) * 1000.0)
 
                    ENDDO
                    canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels

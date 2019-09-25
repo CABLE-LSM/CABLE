@@ -233,26 +233,29 @@ CONTAINS
        vegin%clitt(2) =        6.000000
 
        ! mgk576, hydraulics stuff
-       vegin%g1(2) = 12.0  ! JED 15 for teretoconis seedlings, using Jim's value for Eucface
-       vegin%sf(2) = 8.0
-       vegin%psi_f(2) = -2.0
-       vegin%X_hyd(2) = 50.0
-       vegin%p50(2) = -4.
-       vegin%s50(2) = 30.0
-       vegin%kp_sat(2) = 4.0
-       vegin%Cl(2) = 10000.
-       vegin%Cs(2) = 120000.
+       !vegin%g1(2) = 12.0  ! JED 15 for teretoconis seedlings, using Jim's value for Eucface
+       !vegin%sf(2) = 8.0
+       !vegin%psi_f(2) = -2.0
+       !vegin%X_hyd(2) = 50.0
+       !vegin%p50(2) = -4.
+       !vegin%s50(2) = 30.0
+       !vegin%kp_sat(2) = 4.0
+       !vegin%Cl(2) = 10000.
+       !vegin%Cs(2) = 120000.
 
        ! mgk576, hydraulics stuff
-       !vegin%g1(2) = 4.553270163
-       !vegin%sf(2) = 2.0
-       !vegin%psi_f(2) = -2.770690085
-       !vegin%X_hyd(2) = 50.0
-       !vegin%p50(2) = -4.638377
-       !vegin%s50(2) = 30.80781833
-       !vegin%kp_sat(2) = 2.934205625!4.0
-       !vegin%Cl(2) = 427.9221659!10000.
-       !vegin%Cs(2) = 16245.03386!120000.
+       vegin%gmin(2) = 1.275279  ! mmol m-2 s-1
+       !vegin%vcmax(2) = 0.000085
+       !vegin%ejmax(2) = 0.000142
+       vegin%g1(2) = 3.154297 ! 4.12
+       vegin%sf(2) = 2.000000
+       vegin%psi_f(2) = -2.455474
+       vegin%X_hyd(2) = 50.0
+       vegin%p50(2) = -3.002384
+       vegin%s50(2) = 35.26948
+       vegin%kp_sat(2) = 1.686987 ! 4.0
+       vegin%Cl(2) = 342.904821
+       vegin%Cs(2) = 53266.089926
 
        !PFT: deciduous_needleleaf
        !=========================================================

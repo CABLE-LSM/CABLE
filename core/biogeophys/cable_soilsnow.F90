@@ -1597,7 +1597,7 @@ CONTAINS
     TYPE(veg_parameter_type), INTENT(INOUT)  :: veg
     REAL(r_2), DIMENSION(mp,0:ms) :: diff
     REAL(r_2), DIMENSION(mp)      :: xx,xxd,evap_cur
-    REAL(r_2), DIMENSION(mp)      :: needed, available, difference
+    REAL(r_2), DIMENSION(mp)      :: demand, supply, difference
     INTEGER k, i
 
     IF (cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
@@ -1607,34 +1607,34 @@ CONTAINS
        !
        ! Martin De Kauwe, 22/02/19
 
-       needed = 0._r_2
+       demand = 0._r_2
        difference = 0._r_2
-       available = 0._r_2
+       supply = 0._r_2
 
        DO k = 1, ms
           WHERE (canopy%fevc > 0.0)
 
              ! Calculate the amount of water we wish to extract from each
              ! layer, kg/m2
-             needed = canopy%fevc * dels / C%HL * &
+             demand = canopy%fevc * dels / C%HL * &
                          ssnow%fraction_uptake(:,k)
 
              ! Calculate the amount of water available in the layer
-             available = MAX(0.0, ssnow%wb(:,k) - soil%swilt) * &
+             supply = MAX(0.0, ssnow%wb(:,k) - soil%swilt) * &
                             (soil%zse(k) * C%density_liq)
 
-             difference = available - needed
+             difference = supply - demand
 
              ! Calculate new layer water balance
              WHERE (difference < 0.0)
                 ! We don't have sufficent water to supply demand, extract only
                 ! the remaining SW in the layer
-                ssnow%wb(:,k) = ssnow%wb(:,k) - available / &
+                ssnow%wb(:,k) = ssnow%wb(:,k) - supply / &
                                    (soil%zse(k) * C%density_liq)
              ELSEWHERE
                 ! We have sufficent water to supply demand, extract needed SW
                 ! from the layer
-                ssnow%wb(:,k) = ssnow%wb(:,k) - needed / &
+                ssnow%wb(:,k) = ssnow%wb(:,k) - demand / &
                                    (soil%zse(k) * C%density_liq)
              ENDWHERE
 
