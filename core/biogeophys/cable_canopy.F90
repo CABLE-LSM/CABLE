@@ -2023,6 +2023,7 @@ CONTAINS
                       canopy%gswx(i,kk) = MAX( 1.e-3, max(gswmin(i,kk)*fwsoil(i),      &
                            MAX( 0.0, C%RGSWC * gs_coeff(i,kk) *     &
                            anx(i,kk) )) )
+                                              
                    endif
                    !Recalculate conductance for water:
                    gw(i,kk) = 1.0 / ( 1.0 / canopy%gswx(i,kk) +                 &
@@ -2318,7 +2319,7 @@ CONTAINS
     where (canopy%GPP_sl-rdy(:,1) .gt. 0.0 )
        canopy%eta_A_cs_sl    =  min(eta_y(:,1),5.0)
        canopy%eta_fevc_cs_sl = (min(eta_y(:,1),5.0) - 1.0) *  &
-            MAX( 0.0, C%RGSWC * gs_coeff(:,1)*an_y(:,1) ) / canopy%gswx(:,1)
+            MAX( 0.0, gs_coeff(:,1)*an_y(:,1) ) / canopy%gswx(:,1)
     elsewhere
        canopy%eta_A_cs_sl    = 0.0
        canopy%eta_fevc_cs_sl = 0.0
@@ -2327,7 +2328,7 @@ CONTAINS
     where (canopy%GPP_sh-rdy(:,2) .gt. 0.0  )
        canopy%eta_A_cs_sh    =  min(eta_y(:,2),5.0)
        canopy%eta_fevc_cs_sh = (min(eta_y(:,2),5.0) - 1.0) *  &
-            MAX( 0.0, C%RGSWC * gs_coeff(:,2)*an_y(:,2) ) / canopy%gswx(:,2)
+            MAX( 0.0, gs_coeff(:,2)*an_y(:,2) ) / canopy%gswx(:,2)
     elsewhere
        canopy%eta_A_cs_sh    = 0.0
        canopy%eta_fevc_cs_sh = 0.0
@@ -3112,6 +3113,8 @@ SUBROUTINE photosynthesis( csxz, cx1z, cx2z, gswminz,                          &
               eta(i,:) = 0.0
            ENDIF
 
+           
+           
         ENDDO
      ENDDO
 
