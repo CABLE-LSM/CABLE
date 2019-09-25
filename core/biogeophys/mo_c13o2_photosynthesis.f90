@@ -150,7 +150,7 @@ contains
   !>        \param[in]    "real(dp) :: Vcmax"      Maximal carboxylation rate at leaf temperature Vcmax(Tl) [mol(CO2)/m^2/s]
   !>        \param[in]    "real(dp) :: GPP"        Gross assimilation [mol(CO2)/m^2/s]
   !>        \param[in]    "real(dp) :: Rd"         Leaf respiration [mol(CO2)/m^2/s]
-  !>        \param[in]    "real(dp) :: Gammstar"   CO2 compensation point in absence of dar respiration [mol(CO2)/mol(air)]
+  !>        \param[in]    "real(dp) :: Gammstar"   CO2 compensation point in absence of dark respiration [mol(CO2)/mol(air)]
   !>        \param[in]    "real(dp) :: ca"         Ambient CO2 mixing ratio [mol(CO2)/mol(air)]
   !>        \param[in]    "real(dp) :: ci"         Stomatal CO2 mixing ratio [mol(CO2)/mol(air)]
   !>        \param[in]    "real(dp) :: gs"         Stomatal conductance [mol(air)/m^2/s]

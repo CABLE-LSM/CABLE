@@ -722,7 +722,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
        endif
 
  else
-    stop('invalid vcmax flag')
+    stop 'invalid vcmax flag'
  endif
 
 ENDDO

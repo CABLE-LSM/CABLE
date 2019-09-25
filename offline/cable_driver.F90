@@ -230,8 +230,7 @@ PROGRAM cable_offline_driver
   real(dp), dimension(:,:), allocatable :: lucsave
   integer            :: ileaf
   type(icanopy_type) :: cconst
-  logical,  dimension(:),   allocatable :: isc3
-  real(dp), dimension(:,:), allocatable :: gpp, ci
+  real(dp), dimension(:,:), allocatable :: gpp, diff
   real(dp), dimension(:),   allocatable :: Ra
 
   ! declare vars for switches (default .FALSE.) etc declared thru namelist
@@ -665,10 +664,9 @@ PROGRAM cable_offline_driver
                    C%EMSOIL, C%TFRZ, LUC_EXPT, POPLUC, BLAZE, SIMFIRE, &
                    c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc)
               if (cable_user%c13o2) then
-                 allocate(isc3(size(canopy%An,1)))
                  allocate(gpp(size(canopy%An,1),size(canopy%An,2)))
-                 allocate(ci(size(canopy%An,1),size(canopy%An,2)))
                  allocate(Ra(size(canopy%An,1)))
+                 allocate(diff(size(canopy%An,1),size(canopy%An,2)))
                  !MC13 ToDo - call c13o2_init_leaf_pools(c13o2flux, Rinitc3, Rinitc4, isc3)
                  allocate(casasave(c13o2pools%ntile,c13o2pools%npools))
                  if (cable_user%popluc) allocate(lucsave(c13o2luc%nland,c13o2luc%npools))
@@ -876,30 +874,34 @@ PROGRAM cable_offline_driver
                           sum_flux, veg, climate)
                  if (cable_user%c13o2) then
                     ! call c13o2_update_flux(canopy, met, c13o2flux)
-                    isc3 = (1.0_dp-real(veg%frac4,dp)) > epsilon(1.0_dp)
                     gpp  = canopy%An + canopy%Rd
-                    ci   = real(spread(met%ca,2,mf) - real(canopy%An) / canopy%gswx * cconst%rgswc, dp)
                     Ra   = isoratio(c13o2flux%ca, real(met%ca,dp), 1.0_dp)
-                    if (cable_user%c13o2_simple_disc) then
-                        ! print*, 'V01 ', veg%frac4
-                        ! print*, 'V02 ', isc3
-                        ! print*, 'V03 ', canopy%An
-                        ! print*, 'V04 ', canopy%Rd
-                        ! print*, 'V05 ', gpp
-                        ! print*, 'V06 ', met%ca
-                        ! print*, 'V07 ', canopy%gswx
-                        ! print*, 'V08 ', ci
-                        ! print*, 'V09 ', c13o2flux%ca
-                        ! print*, 'V10 ', Ra
-                        do ileaf=1, mf
+                    diff = canopy%An - (spread(real(met%ca,dp),2,mf)-canopy%ci) * &
+                         (1.0_dp/(1.0_dp/canopy%gac+1.0_dp/canopy%gbc+1.0_dp/canopy%gsc))
+                    if (any(abs(canopy%An*diff) > epsilon(1._dp))) then
+                       print*, 'VV01 ', veg%frac4
+                       print*, 'VV02 ', canopy%vcmax
+                       print*, 'VV03 ', canopy%gammastar
+                       print*, 'VV04 ', canopy%gsc
+                       print*, 'VV05 ', canopy%gbc
+                       print*, 'VV06 ', canopy%gac
+                       print*, 'VV07 ', met%ca
+                       print*, 'VV08 ', canopy%ci
+                       print*, 'VV09 ', canopy%An
+                       print*, 'VV10 ', (spread(real(met%ca,dp),2,mf)-canopy%ci) * &
+                            (1.0_dp/(1.0_dp/canopy%gac+1.0_dp/canopy%gbc+1.0_dp/canopy%gsc))
+                       print*, 'VV11 ', diff
+                    endif
+                    do ileaf=1, mf
+                       if (cable_user%c13o2_simple_disc) then
                            call c13o2_discrimination_simple( &
                                 ! -- Input
                                 ! isc3
-                                isc3, &
+                                canopy%isc3, &
                                 ! GPP and Leaf respiration
                                 gpp(:,ileaf), canopy%Rd(:,ileaf), &
                                 ! Ambient and stomatal CO2 concentration 
-                                real(met%ca,dp), ci(:,ileaf), &
+                                real(met%ca,dp), canopy%ci(:,ileaf), &
                                 ! leaf temperature
                                 real(canopy%tlf,dp), &
                                 ! Ambient isotope ratio
@@ -908,61 +910,55 @@ PROGRAM cable_offline_driver
                                 ! discrimination
                                 c13o2flux%Disc(:,ileaf), &
                                 ! 13CO2 flux
-                                c13o2flux%An(:,ileaf))
-                        end do
-                        ! print*, 'V11 ', 4.4_dp + (29._dp-4.4_dp) * ci/real(spread(met%ca,2,mf),dp)
-                        ! print*, 'V12 ', c13o2flux%Disc*1000._dp
-                        ! print*, 'V13 ', canopy%An
-                        ! print*, 'V14 ', c13o2flux%An
-                        ! print*, 'V14 ', c13o2flux%An / canopy%An / spread(Ra,2,mf) - 1.0_dp
-                        ! Divide 13C net assimilation by VPDB so that about same numerical precision as 12C
-                        ! delta values are then calculated simply by 13C/12C-1.
-                        !c13o2flux%An = 1.005_dp * canopy%An !  * vpdbc13 / vpdbc13 ! Test 5 permil
-                     else
-                        !MC13 ToDo - full discrimination
-                        do ileaf=1, mf
-                           !MC ToDo - Interpret ga, gb, gs as conductances for CO2
-                           !          so that An = (ca-ci)/(1/ga+1/gb+1/gs)
-                           ! call c13o2_discrimination( &
-                           !      ! -- Input
-                           !      dels, isc3, &
-                           !      ! Photosynthesis variables
-                           !      Vcmax, gpp(:,ileaf), canopy%Rd(:,ileaf), Gammastar, &
-                           !      ! CO2 concentrations
-                           !      real(met%ca,dp), ci(:,ileaf), &
-                           !      ! Conductances
-                           !      ga, gb, gs, &
-                           !      ! leaf temperature
-                           !      real(canopy%tlf,dp), &
-                           !      ! Ambient isotope ratio
-                           !      Ra, &
-                           !      ! -- Inout
-                           !      ! Starch pool and isotope ratios of pools for respiration
-                           !      Vstarch, Rsucrose, Rphoto, Rstarch, &
-                           !      ! -- Output
-                           !      ! discrimination
-                           !      c13o2flux%Disc(:,ileaf), &
-                           !      ! 13CO2 flux
-                           !      c13o2flux%An(:,ileaf))
-                           call c13o2_discrimination_simple( &
-                                ! -- Input
-                                ! isc3
-                                isc3, &
-                                ! GPP and Leaf respiration
-                                gpp(:,ileaf), canopy%Rd(:,ileaf), &
-                                ! Ambient and stomatal CO2 concentration 
-                                real(met%ca,dp), ci(:,ileaf), &
-                                ! leaf temperature
-                                real(canopy%tlf,dp), &
-                                ! Ambient isotope ratio
-                                Ra, &
-                                ! -- Output
-                                ! discrimination
-                                c13o2flux%Disc(:,ileaf), &
-                                ! 13CO2 flux
-                                c13o2flux%An(:,ileaf))
-                        end do
-                     endif
+                                c13o2flux%An(:,ileaf) )
+                        else
+                            !MC13 ToDo - full discrimination
+                            !MC ToDo - Vstarch, Rsucrose, Rphoto, Rstarch
+                            !MC ToDo - Interpret ga, gb, gs as conductances for CO2 instead of H2O
+                            !          so that An = (ca-ci)/(1/ga+1/gb+1/gs)
+                            ! call c13o2_discrimination( &
+                            !      ! -- Input
+                            !      dels, canopy%isc3, &
+                            !      ! Photosynthesis variables
+                            !      canopy%vcmax(:,ileaf), gpp(:,ileaf), canopy%Rd(:,ileaf), canopy%gammastar(:,ileaf), &
+                            !      ! CO2 concentrations
+                            !      real(met%ca,dp), canopy%ci(:,ileaf), &
+                            !      ! Conductances
+                            !      canopy%gac(:,ileaf), canopy%gbc(:,ileaf), canopy%gsc(:,ileaf), &
+                            !      ! leaf temperature
+                            !      real(canopy%tlf,dp), &
+                            !      ! Ambient isotope ratio
+                            !      Ra, &
+                            !      ! -- Inout
+                            !      ! Starch pool and isotope ratios of pools for respiration
+                            !      Vstarch, Rsucrose, Rphoto, Rstarch, &
+                            !      ! -- Output
+                            !      ! discrimination
+                            !      c13o2flux%Disc(:,ileaf), &
+                            !      ! 13CO2 flux
+                            !      c13o2flux%An(:,ileaf) )
+                            call c13o2_discrimination_simple( &
+                                 ! -- Input
+                                 ! isc3
+                                 canopy%isc3, &
+                                 ! GPP and Leaf respiration
+                                 gpp(:,ileaf), canopy%Rd(:,ileaf), &
+                                 ! Ambient and stomatal CO2 concentration 
+                                 real(met%ca,dp), canopy%ci(:,ileaf), &
+                                 ! leaf temperature
+                                 real(canopy%tlf,dp), &
+                                 ! Ambient isotope ratio
+                                 Ra, &
+                                 ! -- Output
+                                 ! discrimination
+                                 c13o2flux%Disc(:,ileaf), &
+                                 ! 13CO2 flux
+                                 c13o2flux%An(:,ileaf))
+                         endif
+                      end do
+                      ! Divide 13C net assimilation by VPDB so that about same numerical precision as 12C
+                      ! delta values are then calculated simply by 13C/12C-1.
+                      !Test c13o2flux%An = 1.005_dp * canopy%An !  * vpdbc13 / vpdbc13 ! Test 5 permil
                  endif
 
                  if (cable_user%CALL_climate) then

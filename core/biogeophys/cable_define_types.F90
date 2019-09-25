@@ -421,8 +421,8 @@ MODULE cable_def_types_mod
          cs,      & ! leaf surface CO2 (ppm), mulitplied by net photosythesis
          cs_sl,   & ! leaf surface CO2 (ppm) (sunlit)
          cs_sh,   & ! leaf surface CO2 (ppm) (shaded)
-         ci_sl, &    !  leaf internal CO2 (ppm) (sunlit)
-         ci_sh, &    !  leaf internal CO2 (ppm) (shaded)
+         ! ci_sl, &    !  leaf internal CO2 (ppm) (sunlit)
+         ! ci_sh, &    !  leaf internal CO2 (ppm) (shaded)
          tlf,     & ! dry leaf temperature
          dlf        ! dryleaf vp minus in-canopy vp (Pa)
 
@@ -432,16 +432,22 @@ MODULE cable_def_types_mod
      REAL(r_2), DIMENSION(:,:),   POINTER :: tlfy   ! sunlit and shaded leaf temperatures
      REAL(r_2), DIMENSION(:,:),   POINTER :: ecy    ! sunlit and shaded leaf transpiration (dry canopy)
      REAL(r_2), DIMENSION(:,:),   POINTER :: ecx    ! sunlit and shaded leaf latent heat flux
-     REAL(r_2), DIMENSION(:,:,:), POINTER :: ci     ! intra-cellular CO2 vh 6/7/09
+     ! REAL(r_2), DIMENSION(:,:,:), POINTER :: ci     ! intra-cellular CO2 vh 6/7/09
      REAL(r_2), DIMENSION(:),     POINTER :: fwsoil !
 
      ! vh_js - litter thermal conductivity (Wm-2K-1) and vapour diffusivity (m2s-1)
      REAL(r_2), DIMENSION(:), POINTER :: kthLitt, DvLitt
 
      ! 13C
-     real(r_2), dimension(:,:), pointer :: An ! sunlit and shaded net assimilation (mol/m2/s)
-     real(r_2), dimension(:,:), pointer :: Rd ! sunlit and shaded leaf respiration (mol/m2/s)
-
+     real(r_2), dimension(:,:), pointer :: An        ! sunlit and shaded net assimilation [mol(CO2)/m2/s]
+     real(r_2), dimension(:,:), pointer :: Rd        ! sunlit and shaded leaf respiration [mol(CO2)/m2/s]
+     logical,   dimension(:),   pointer :: isc3      ! C3 / C4 mask
+     real(r_2), dimension(:,:), pointer :: vcmax     ! max RuBP carboxylation rate [mol(CO2)/m2/s]
+     real(r_2), dimension(:,:), pointer :: gammastar ! CO2 compensation point in absence of dark respiration [mol(CO2)/mol(air)]
+     real(r_2), dimension(:,:), pointer :: gsc       ! stomatal conductance for CO2 [mol(CO2)/m^2/s]
+     real(r_2), dimension(:,:), pointer :: gbc       ! leaf boundary layer conductance for CO2 [mol(CO2)/m^2/s]
+     real(r_2), dimension(:,:), pointer :: gac       ! aerodynamic conductance for CO2 [mol(CO2)/m^2/s]
+     real(r_2), dimension(:,:), pointer :: ci        ! stomatal CO2 concentration [mol(CO2)/mol(air)]
 
    END TYPE canopy_type
 
@@ -1080,8 +1086,8 @@ SUBROUTINE alloc_canopy_type(var, mp)
    ALLOCATE( var% dAdcs(mp) )
    ALLOCATE( var% cs_sl(mp) )
    ALLOCATE( var% cs_sh(mp) )
-   ALLOCATE( var% ci_sl(mp) )
-   ALLOCATE( var% ci_sh(mp) )
+   ! ALLOCATE( var% ci_sl(mp) )
+   ! ALLOCATE( var% ci_sh(mp) )
    ALLOCATE( var% tlf(mp) )
    ALLOCATE( var% dlf(mp) )
 
@@ -1108,7 +1114,7 @@ SUBROUTINE alloc_canopy_type(var, mp)
    ALLOCATE ( var % tlfy(mp,mf) )   ! sunlit and shaded leaf temperatures
    ALLOCATE ( var % ecy(mp,mf) )    ! sunlit and shaded leaf transpiration (dry canopy)
    ALLOCATE ( var % ecx(mp,mf) )    ! sunlit and shaded leaf latent heat flux
-   ALLOCATE ( var % ci(mp,mf,3) )   ! intra-cellular CO2 vh 6/7/09
+   ! ALLOCATE ( var % ci(mp,mf,3) )   ! intra-cellular CO2 vh 6/7/09
    ALLOCATE ( var % fwsoil (mp) )
 
    ! vh_js - litter resistances to heat and vapour transfer
@@ -1118,6 +1124,13 @@ SUBROUTINE alloc_canopy_type(var, mp)
    ! 13C
    allocate(var%An(mp,mf))
    allocate(var%Rd(mp,mf))
+   allocate(var%isc3(mp))
+   allocate(var%vcmax(mp,mf))
+   allocate(var%gammastar(mp,mf))
+   allocate(var%gsc(mp,mf))
+   allocate(var%gbc(mp,mf))
+   allocate(var%gac(mp,mf))
+   allocate(var%ci(mp,mf))
 
 END SUBROUTINE alloc_canopy_type
 

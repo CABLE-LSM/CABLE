@@ -653,7 +653,7 @@ FUNCTION rtbis(func,x1,x2,xacc)
         REAL :: dx,f,fmid,xmid
         fmid=func(x2)
         f=func(x1)
-        if (f*fmid >= 0.0) stop('rtbis: root must be bracketed')
+        if (f*fmid >= 0.0) stop 'rtbis: root must be bracketed'
         if (f < 0.0) then
                 rtbis=x1
                 dx=x2-x1
@@ -668,7 +668,7 @@ FUNCTION rtbis(func,x1,x2,xacc)
                 if (fmid <= 0.0) rtbis=xmid
                 if (abs(dx) < xacc .or. fmid == 0.0) RETURN
         end do
-        stop('rtbis: too many bisections')
+        stop 'rtbis: too many bisections'
         END FUNCTION rtbis
 
 

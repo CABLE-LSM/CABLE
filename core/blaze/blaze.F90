@@ -339,7 +339,7 @@ SUBROUTINE BLAZE_TURNOVER(AB, CPLANT_g, CPLANT_w, AGL_g, AGL_w, &
 !!$
 !!$  IF ( ANY ( AGL_w .LT. 0. )) THEN
 !!$     WRITE(*,*)"CLIITE_W < 0 ", AGL_w
-!!$     STOP -1
+!!$     STOP 1
 !!$  ENDIF
 
 
@@ -659,7 +659,7 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
 !     CALL GET_GFED4_BA( BLAZE )
 !     CALL GET_GFED41s_BA( BLAZE )
      WRITE(*,*)'GFED4 BA not available. Set cable_user%BURNT_AREA == "SIMFIRE"'
-     STOP(-1)
+     STOP -1
      IF ( TRIM(BLAZE%FSTEP) .EQ. "none" ) THEN
         CALL SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YYYY, BLAZE%AB, climate )
         popd = SF%POPD

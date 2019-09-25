@@ -32,10 +32,10 @@ host_valh()
 
    # All compilers
    export NCCROOT='/usr/local'
-   export NCCLIB=${NCROOT}'/lib'
+   export NCCLIB=${NCCROOT}'/lib'
    export NCLIB=${NCROOT}'/lib'
    export NCMOD=${NCROOT}'/include'
-   export LDFLAGS="-L${NCCLIB} -L${NCLIB} -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz"
+   export LDFLAGS="-L${NCLIB} -lnetcdff -L${NCCLIB} -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz"
    export dosvn=0
    build_build
    cd ../
@@ -107,7 +107,7 @@ host_ces2()
 
    # All compilers
    export NCCROOT='/usr/local'
-   export NCCLIB=${NCROOT}'/lib'
+   export NCCLIB=${NCCROOT}'/lib'
    export NCLIB=${NCROOT}'/lib'
    export NCMOD=${NCROOT}'/include'
    export LDFLAGS="-L${NCCLIB} -L${NCLIB} -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz"
@@ -228,7 +228,7 @@ host_mcin()
 	    export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
 	fi
 	export LD=''
-	export NCROOT='/usr/local/netcdf-fortran-4.4.4-ifort'
+	export NCROOT='/usr/local/netcdf-fortran-4.4.5-ifort'
     else
 	# GFORTRAN
 	export FC=gfortran
@@ -239,7 +239,7 @@ host_mcin()
 	    export CFLAGS="-pedantic-errors -Wall -W -O -g -Wno-maybe-uninitialized -cpp -ffree-form -ffixed-line-length-132"
 	fi
 	export LD=''
-	export NCROOT='/usr/local/netcdf-fortran-4.4.4-gfortran'
+	export NCROOT='/usr/local/netcdf-fortran-4.4.5-gfortran'
     fi
     # export CFLAGS="${CFLAGS} -DC13DEBUG"
     export CFLAGS="${CFLAGS} -DCRU2018"
@@ -253,11 +253,11 @@ host_mcin()
     #     export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -DNAG"
     # fi
     # export LD='-ideclient -unsharedrts'
-    # export NCROOT='/usr/local/netcdf-fortran-4.4.4-nagfor'
+    # export NCROOT='/usr/local/netcdf-fortran-4.4.5-nagfor'
 
     # All compilers
     export NCCROOT='/usr/local'
-    export NCCLIB=${NCROOT}'/lib'
+    export NCCLIB=${NCCROOT}'/lib'
     export NCLIB=${NCROOT}'/lib'
     export NCMOD=${NCROOT}'/include'
     export LDFLAGS="-L${NCCLIB} -L${NCLIB} -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz"

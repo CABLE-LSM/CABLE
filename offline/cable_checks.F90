@@ -32,7 +32,7 @@ MODULE cable_checks_module
 !
    USE cable_radiation_module, ONLY: sinbet
    USE cable_def_types_mod
-  USE cable_common_module, ONLY: cable_user
+   USE cable_common_module, ONLY: cable_user
 
    IMPLICIT NONE
 
@@ -173,7 +173,7 @@ MODULE cable_checks_module
            TotLittCarb =  (/0.0, 1000./), &
            Area = (/0.0, 5000./), &
            gsw_sl = (/0.0, 1.0/), &
- 	   gsw_sh = (/0.0, 1.0/)  
+           gsw_sh = (/0.0, 1.0/)  
    END TYPE ranges_type
    TYPE(ranges_type),SAVE :: ranges
 
