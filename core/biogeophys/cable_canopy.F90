@@ -2255,7 +2255,6 @@ CONTAINS
                 ! We've reached the point of hydraulic failure, so hold the plc
                 ! here for outputting purposes..
                 IF (canopy%plc(i) >= 88.) THEN
-
                    canopy%plc(i) = 88.
                 ENDIF
 
