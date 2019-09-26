@@ -2100,7 +2100,7 @@ CONTAINS
              ELSE IF (cable_user%GS_SWITCH == 'medlyn' .AND. &
                      cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
 
-                ! need to use gmin ...
+                ! We will use min of gmin below, this needs to be 0
                 gswmin = 0.0
 
                 CALL calc_hydr_conduc(canopy, ssnow, rad, veg, veg%kp_sat(i), i)
@@ -2252,6 +2252,9 @@ CONTAINS
 
                 canopy%plc(i) = calc_plc(canopy%vlaiw(i), canopy%kplant(i), &
                                          veg%kp_sat(i))
+
+                ! We've reached the point of hydraulic failure, so hold the plc
+                ! here for outputting purposes..
                 IF (canopy%plc(i) >= 88.) THEN
                    canopy%plc(i) = 88.
                 ENDIF
@@ -2299,32 +2302,6 @@ CONTAINS
                    canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels
                    ecx(i) = canopy%fevc(i) / (1.0-canopy%fwet(i))
                ENDIF
-
-               !canopy%fevc(i) = ecx(i)*(1.0-canopy%fwet(i))
-               !
-                !      IF (cable_user%soil_struc=='default') THEN
-                !       canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels
-                !         ecx(i) = canopy%fevc(i) / (1.0-canopy%fwet(i))
-                !   ENDIF
-                !
-                ! ENDIF
-
-                ! We shouldn't be using this, but I need to figure out how to
-                ! correctly do the above...
-                !canopy%fevc(i) = ecx(i)*(1.0-canopy%fwet(i))
-                !
-                !CALL getrex_1d(ssnow%wbliq(i,:),&
-               !      ssnow%rex(i,:), &
-               !      canopy%fwsoil(i), &
-               !      REAL(veg%froot(i,:),r_2),&
-               !      soil%ssat_vec(i,:), &
-               !      soil%swilt_vec(i,:), &
-               !      MAX(REAL(canopy%fevc(i)/air%rlam(i)/1000_r_2,r_2),0.0_r_2), &
-               !      REAL(veg%gamma(i),r_2), &
-               !      REAL(soil%zse,r_2), REAL(dels,r_2), REAL(veg%zr(i),r_2))
-               !
-                !canopy%fwsoil(i) = 1.0
-                !ssnow%evapfbl(i,:) = ssnow%rex(i,:)*dels*1000_r_2 ! mm water &
 
              ELSE
 
