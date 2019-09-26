@@ -1211,6 +1211,7 @@ CONTAINS
     END IF
     ! Look for LAI - - - - - - - - - - - - - - - - - - - - - - - - -
     ok = NF90_INQ_VARID(ncid_met,'LAI',id%LAI)
+    IF(ok .ne. NF90_NOERR) ok = NF90_INQ_VARID(ncid_met, "LAI_MODIS", id%LAI)
     IF(ok == NF90_NOERR) THEN ! If inquiry is okay
        exists%LAI = .TRUE. ! LAI is present in met file
        ! LAI will be read in which ever land grid is used

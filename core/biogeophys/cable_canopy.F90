@@ -2250,12 +2250,12 @@ CONTAINS
                 CALL calc_flux_to_stem_again(canopy, dels, veg%Cs(i), &
                                              trans_mmol, i)
 
-                canopy%plc(i) = calc_plc(canopy%vlaiw(i), canopy%kplant(i), &
-                                         veg%kp_sat(i))
+                canopy%plc(i) = calc_plc(canopy%kplant(i), veg%kp_sat(i))
 
                 ! We've reached the point of hydraulic failure, so hold the plc
                 ! here for outputting purposes..
                 IF (canopy%plc(i) >= 88.) THEN
+
                    canopy%plc(i) = 88.
                 ENDIF
 
@@ -3453,21 +3453,19 @@ CONTAINS
   END FUNCTION scale_up_stem_capac
   ! ----------------------------------------------------------------------------
 
-  FUNCTION calc_plc(lai, kp, kp_sat) RESULT(plc)
+  FUNCTION calc_plc(kplant, kp_sat) RESULT(plc)
      ! Calculates the percent loss of conductivity, PLC (-)
      !
      ! Martin De Kauwe, 16th September, 2019
 
      IMPLICIT NONE
 
-     REAL             :: plc, kplant
-     REAL, INTENT(IN) :: kp, kp_sat, lai
-
-     ! Convert kplant to mmol m-2 ground area MPA-1 s-1
-     kplant = kp * lai
+     REAL             :: plc
+     REAL, INTENT(IN) :: kplant, kp_sat
 
      ! Percent loss of conductivity (-)
-     plc = 100.0 * (1.0 - kp / kp_sat)
+     plc = 100.0 * (1.0 - kplant / kp_sat)
+     plc = max(1.0e-9, min(100.0, plc))
 
    END FUNCTION calc_plc
    ! ----------------------------------------------------------------------------
