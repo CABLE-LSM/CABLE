@@ -3190,6 +3190,10 @@ CONTAINS
          fevID, fesID, fhsID, wbtot0ID, osnowd0ID, cplantID,        &
          csoilID, tradID, albedoID, gwID
     INTEGER :: h0ID, snowliqID, SID, TsurfaceID, scondsID, nsnowID, TsoilID
+
+    ! plant hydraulics, mgk576
+    INTEGER :: psilID, psixID, plcID, bgrID, psisID
+
     CHARACTER(LEN=10) :: todaydate, nowtime ! used to timestamp netcdf file
     ! CHARACTER         :: FRST_OUT*100, CYEAR*4
     CHARACTER         :: FRST_OUT*200, CYEAR*4
@@ -3606,6 +3610,29 @@ CONTAINS
             .TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
     END IF ! SLI soil model
 
+    IF (cable_user%fwsoil_switch == 'hydraulics') THEN
+
+
+      CALL define_ovar(ncid_restart, psilID, 'psi_leaf_prev', 'MPa',           &
+           'leaf water potential', &
+           .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+      CALL define_ovar(ncid_restart, psixID, 'psi_stem_prev', 'MPa',           &
+           'stem water potential', &
+           .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+      CALL define_ovar(ncid_restart, plcID, 'plc', 'MPa',                      &
+           'percent loss of conductance', &
+           .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+      CALL define_ovar(ncid_restart, bgrID, 'tot_bg_resist',                  &
+           'mmol m-2 leaf s-1 MPa-1',                                         &
+           'tot_bg_resist', &
+           .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+      CALL define_ovar(ncid_restart, psisID, 'psi_soil_prev', 'MPa',           &
+           'previous soil weighted potential', &
+           .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+
+
+    END IF
+
     ! Write global attributes for file:
     CALL DATE_AND_TIME(todaydate, nowtime)
     todaydate = todaydate(1:4)//'/'//todaydate(5:6)//'/'//todaydate(7:8)
@@ -3868,6 +3895,26 @@ CONTAINS
             (/-99999.0,99999.0/),.TRUE.,'integer',.TRUE.)
        CALL write_ovar (ncid_restart,TsurfaceID,'Tsurface',REAL(ssnow%Tsurface,4), &
             (/-99999.0,99999.0/),.TRUE.,'real',.TRUE.)
+
+    END IF
+
+    IF (cable_user%fwsoil_switch == 'hydraulics') THEN
+
+      CALL write_ovar (ncid_restart, psilID, 'psi_leaf_prev', &
+                       REAL(canopy%psi_leaf_prev, 4),         &
+                       (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
+      CALL write_ovar (ncid_restart, psixID, 'psi_stem_prev', &
+                       REAL(canopy%psi_stem_prev, 4),         &
+                       (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
+      CALL write_ovar (ncid_restart, plcID, 'plc', &
+                       REAL(canopy%plc, 4),         &
+                       (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
+      CALL write_ovar (ncid_restart, bgrID, 'tot_bg_resist', &
+                       REAL(ssnow%tot_bg_resist, 4),         &
+                       (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
+      CALL write_ovar (ncid_restart, psisID, 'psi_soil_prev', &
+                       REAL(ssnow%weighted_psi_soil, 4),         &
+                       (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
 
     END IF
 
