@@ -3920,7 +3920,8 @@ CONTAINS
                        (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
       CALL write_ovar (ncid_restart, psiswpID, 'weighted_psi_soil', &
                        REAL(ssnow%weighted_psi_soil, 4),         &
-      
+                       (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
+
     END IF
 
     ! Close restart file
