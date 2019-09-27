@@ -1286,8 +1286,10 @@ CONTAINS
           ! Work around set everything above last input layer to the last input layer
           ssnow%tgg(landpt(e)%cstart:landpt(e)%cend, is) =                       &
                inTGG(landpt(e)%ilon,landpt(e)%ilat, MIN(is,SIZE(inTGG,3)), month)
-          ssnow%wb(landpt(e)%cstart:landpt(e)%cend, is) =                        &
-               inWB(landpt(e)%ilon, landpt(e)%ilat, MIN(is,SIZE(inTGG,3)), month)
+          !ssnow%wb(landpt(e)%cstart:landpt(e)%cend, is) =                        &
+         !      inWB(landpt(e)%ilon, landpt(e)%ilat, MIN(is,SIZE(inTGG,3)), month)
+          ! mgk576, plant hydraulics...initialise "wet"
+          ssnow%wb(landpt(e)%cstart:landpt(e)%cend, is) = inssat(landpt(e)%ilon, landpt(e)%ilat)
        END DO
 
 

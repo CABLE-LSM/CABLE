@@ -2241,22 +2241,15 @@ CONTAINS
                 CALL calc_flux_to_stem(canopy, dels, veg%Cs(i), i)
 
                 ! Update psi_stem
-                canopy%psi_stem_prev(i) = canopy%psi_stem(i)
-                CALL update_stem_wp_again(canopy, dels, veg%Cs(i), &
-                                          veg%Cl(i), trans_mmol, i)
+                !canopy%psi_stem_prev(i) = canopy%psi_stem(i)
+                !CALL update_stem_wp_again(canopy, dels, veg%Cs(i), &
+               !                           veg%Cl(i), trans_mmol, i)
 
                 ! Flux from the soil to the stem = change in storage +
                 ! flux_to_leaf
-                CALL calc_flux_to_stem_again(canopy, dels, veg%Cs(i), &
-                                             trans_mmol, i)
+                !CALL calc_flux_to_stem_again(canopy, dels, veg%Cs(i), &
+               !                              trans_mmol, i)
 
-                canopy%plc(i) = calc_plc(canopy%kplant(i), veg%kp_sat(i))
-
-                ! We've reached the point of hydraulic failure, so hold the plc
-                ! here for outputting purposes..
-                IF (canopy%plc(i) >= 88.) THEN
-                   canopy%plc(i) = 88.
-                ENDIF
 
                 ! store current water potentials for next time step
                 canopy%psi_leaf_prev(i) = canopy%psi_leaf(i)
@@ -2458,6 +2451,20 @@ CONTAINS
     !! vh !! inserted min to avoid -ve values of GPP
     canopy%fpn = MIN(-12.0 * SUM(an_y, 2), canopy%frday)
     canopy%evapfbl = ssnow%evapfbl
+
+    IF (cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+
+       DO i = 1, mp
+          canopy%plc(i) = calc_plc(canopy%kplant(i), veg%kp_sat(i))
+
+          ! We've reached the point of hydraulic failure, so hold the plc
+          ! here for outputting purposes..
+          IF (canopy%plc(i) >= 88.) THEN
+             canopy%plc(i) = 88.
+          ENDIF
+
+       END DO
+    ENDIF
 
 
     DEALLOCATE( gswmin )
@@ -3176,6 +3183,10 @@ CONTAINS
                             / leaf_capac ! MPa
      ENDIF
 
+     IF (canopy%psi_leaf(i) < -20.0) THEN
+        canopy%psi_leaf(i) = -20.0
+     ENDIF
+
   END SUBROUTINE calc_psi_leaf
   ! ----------------------------------------------------------------------------
 
@@ -3305,6 +3316,10 @@ CONTAINS
 
      ENDIF
 
+     IF (canopy%psi_stem(i) < -20.0) THEN
+        canopy%psi_stem(i) = -20.0
+     ENDIF
+
   END SUBROUTINE update_stem_wp
   ! ----------------------------------------------------------------------------
 
@@ -3401,6 +3416,10 @@ CONTAINS
         canopy%psi_stem(i) = ((ap * canopy%psi_stem_prev(i) + bp) * &
                              EXP(ap * dels) - bp) / ap
 
+     ENDIF
+
+     IF (canopy%psi_stem(i) < -20.0) THEN
+        canopy%psi_stem(i) = -20.0
      ENDIF
 
   END SUBROUTINE update_stem_wp_again

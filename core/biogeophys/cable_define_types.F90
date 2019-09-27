@@ -397,7 +397,7 @@ MODULE cable_def_types_mod
           p50,     & ! xylem pressure inducing 50% loss of hydraulic conductivity due to embolism, MPa
           s50,     & ! is slope of the curve at P50 used in weibull model, % MPa-1
           kp_sat,  & ! plant saturated hydraulic conductance (mmol m-2 s-1 MPa-1)
-          Cl,      & ! Leaf capacitance (mmol m-2 leaf MPa-1) 
+          Cl,      & ! Leaf capacitance (mmol m-2 leaf MPa-1)
           Cs,      & ! Stem capacitance (mmol kg-1 MPa-1)
           gmin       ! minimum stomatal conductance, mmol m-2 s-1
 
