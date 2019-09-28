@@ -47,6 +47,8 @@ MODULE cable_soil_snow_module
 
   PRIVATE
 
+  PUBLIC calc_soil_root_resistance, calc_swp, calc_weighted_swp_and_frac_uptake
+
   TYPE ( issnow_type ), SAVE :: C
 
   ! This module contains the following subroutines:
@@ -1863,17 +1865,18 @@ CONTAINS
     ! Add new snow melt to global snow melt variable:
     ssnow%smelt = ssnow%smelt + snowmlt
 
+    ! moved to CBM, to call prior to canopy call
     ! PH: mgk576, 13/10/17, added two funcs
-    IF (cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
-       DO i = 1, mp
-
-          CALL calc_soil_root_resistance(ssnow, soil, veg, bgc, root_length, i)
-          CALL calc_swp(ssnow, soil, i)
-          CALL calc_weighted_swp_and_frac_uptake(ssnow, soil, canopy, &
-                                                 root_length, i)
-
-       END DO
-    END IF
+    !IF (cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+    !    DO i = 1, mp
+    !
+    !       CALL calc_soil_root_resistance(ssnow, soil, veg, bgc, root_length, i)
+    !       CALL calc_swp(ssnow, soil, i)
+    !       CALL calc_weighted_swp_and_frac_uptake(ssnow, soil, canopy, &
+    !                                              root_length, i)
+    !
+    !    END DO
+    !END IF
 
     CALL remove_trans(dels, soil, ssnow, canopy, veg)
 

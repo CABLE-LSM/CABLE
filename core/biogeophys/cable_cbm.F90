@@ -44,7 +44,9 @@ CONTAINS
 
     USE cable_common_module
     USE cable_carbon_module
-    USE cable_soil_snow_module, ONLY : soil_snow
+    USE cable_soil_snow_module, ONLY : soil_snow, calc_soil_root_resistance, &
+                                       calc_swp, &
+                                       calc_weighted_swp_and_frac_uptake
     USE cable_def_types_mod
     USE cable_roughness_module, ONLY : ruff_resist
     USE cable_radiation_module, ONLY : init_radiation
@@ -78,9 +80,10 @@ CONTAINS
     TYPE (soil_parameter_type), INTENT(INOUT)   :: soil
     TYPE (veg_parameter_type),  INTENT(INOUT)    :: veg
 
+    REAL, DIMENSION(ms) :: root_length
     REAL, INTENT(IN)               :: dels ! time setp size (s)
     INTEGER, INTENT(IN) :: ktau
-    INTEGER :: k,kk,j
+    INTEGER :: k,kk,j, i
     LOGICAL, SAVE :: first_call = .TRUE.
 #ifdef NO_CASA_YET
     INTEGER :: ICYCLE
@@ -131,6 +134,20 @@ CONTAINS
     ENDIF
     ssnow%otss_0 = ssnow%otss  ! vh should be before call to canopy?
     ssnow%otss = ssnow%tss
+
+
+    ! PH: mgk576, 13/10/17, added two funcs
+    IF (cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+       DO i = 1, mp
+
+          CALL calc_soil_root_resistance(ssnow, soil, veg, bgc, root_length, i)
+          CALL calc_swp(ssnow, soil, i)
+          CALL calc_weighted_swp_and_frac_uptake(ssnow, soil, canopy, &
+                                                 root_length, i)
+
+       END DO
+    END IF
+
 
     CALL define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy,climate)
     ! RML moved out of following IF after discussion with Eva
