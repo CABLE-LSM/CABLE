@@ -2153,11 +2153,17 @@ CONTAINS
                    ! Don't add gmin, instead use it as the lower boundary
                    IF (cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
                       gmin = veg%gmin(i) * MMOL_2_MOL
-                      ! We don't want model to crash, so if we die, reset things
-                      ! as we won't interpret things meanginfully
+
+                      ! We're going to recalc this below after we've finished
+                      ! iterating, but we need to check if we've reached the
+                      ! point of hydraulic failure and if so, we don't want
+                      ! model to crash, so, reset things as we won't interpret
+                      ! things meanginfully
+                      canopy%plc(i) = calc_plc(canopy%kplant(i), veg%kp_sat(i))
                       IF (canopy%plc(i) >= 88.) THEN
                          gmin = 1E-09
                       ENDIF
+
                       canopy%gswx(i,kk) = MAX(gmin,     &
                                               MAX(0.0, C%RGSWC * &
                                                        gs_coeff(i,kk) * &
@@ -2250,11 +2256,7 @@ CONTAINS
                 !CALL calc_flux_to_stem_again(canopy, dels, veg%Cs(i), &
                !                              trans_mmol, i)
 
-                ! We've reached the point of hydraulic failure, so hold the plc
-                ! here for outputting purposes..
-                IF (canopy%plc(i) >= 88.) THEN
-                   canopy%plc(i) = 88.
-                ENDIF
+
 
                 ! store current water potentials for next time step
                 canopy%psi_leaf_prev(i) = canopy%psi_leaf(i)
@@ -2459,6 +2461,7 @@ CONTAINS
 
     IF (cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
 
+       ! Calculate this here after we've finsihed iterating...
        DO i = 1, mp
           canopy%plc(i) = calc_plc(canopy%kplant(i), veg%kp_sat(i))
 
