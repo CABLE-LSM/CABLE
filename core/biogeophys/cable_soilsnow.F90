@@ -2826,6 +2826,10 @@ CONTAINS
         ssnow%weighted_psi_soil(i) = ssnow%weighted_psi_soil(i) / SUM(soil%zse)
      END IF
 
+     IF (ssnow%weighted_psi_soil(i) < -50.0) THEN
+        ssnow%weighted_psi_soil(i) = -50.0
+     ENDIF
+
      ! SPA method to figure out relative water uptake.
      ! Fraction uptake in each layer by Emax in each layer
      IF (SPA_relative_uptake) THEN
