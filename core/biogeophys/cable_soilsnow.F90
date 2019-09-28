@@ -2662,6 +2662,7 @@ CONTAINS
         ! prevent floating point error
         IF (Ksoil < TINY_NUMBER) THEN
            ssnow%soilR(i,j) = HUGE_NUMBER
+           rsum = rsum + ( 1.0 / ssnow%soilR(i,j) ) 
         ELSE
 
            ! Root biomass density (g biomass m-3 soil)
