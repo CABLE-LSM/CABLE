@@ -2250,6 +2250,11 @@ CONTAINS
                 !CALL calc_flux_to_stem_again(canopy, dels, veg%Cs(i), &
                !                              trans_mmol, i)
 
+                ! We've reached the point of hydraulic failure, so hold the plc
+                ! here for outputting purposes..
+                IF (canopy%plc(i) >= 88.) THEN
+                   canopy%plc(i) = 88.
+                ENDIF
 
                 ! store current water potentials for next time step
                 canopy%psi_leaf_prev(i) = canopy%psi_leaf(i)
