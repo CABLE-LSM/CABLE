@@ -2240,7 +2240,7 @@ CONTAINS
                 CALL calc_flux_to_leaf(canopy, trans_mmol, dels, veg%Cl(i), i)
 
                 ! Update stem water potential
-                CALL update_stem_wp(canopy, dels, veg%Cs(i), i)
+                CALL calc_psi_stem(canopy, dels, veg%Cs(i), i)
 
                 ! Flux from the soil to the stem = change in storage +
                 ! flux_to_leaf
@@ -2248,7 +2248,7 @@ CONTAINS
 
                 ! Update psi_stem
                 !canopy%psi_stem_prev(i) = canopy%psi_stem(i)
-                !CALL update_stem_wp_again(canopy, dels, veg%Cs(i), &
+                !CALL calc_psi_stem_again(canopy, dels, veg%Cs(i), &
                !                           veg%Cl(i), trans_mmol, i)
 
                 ! Flux from the soil to the stem = change in storage +
@@ -3280,9 +3280,8 @@ CONTAINS
   ! ----------------------------------------------------------------------------
 
   ! ----------------------------------------------------------------------------
-  SUBROUTINE update_stem_wp(canopy, dels, Cs, i)
-     ! Calculate the flux from the stem to the leaf = change in leaf storage
-     ! plus transpiration
+  SUBROUTINE calc_psi_stem(canopy, dels, Cs, i)
+     ! Calculate the stem water potential (MPa)
      !
      ! Reference:
      ! ==========
@@ -3328,7 +3327,7 @@ CONTAINS
         canopy%psi_stem(i) = -20.0
      ENDIF
 
-  END SUBROUTINE update_stem_wp
+  END SUBROUTINE calc_psi_stem
   ! ----------------------------------------------------------------------------
 
   ! ----------------------------------------------------------------------------
@@ -3369,12 +3368,8 @@ CONTAINS
   ! ----------------------------------------------------------------------------
 
   ! ----------------------------------------------------------------------------
-  SUBROUTINE update_stem_wp_again(canopy, dels, Cs, Cl, transpiration, i)
-     ! Calculate the flux from the stem to the leaf = change in leaf storage
-     ! plus transpiration
-     !
-     !  This is a simplified equation based on Xu et al., using the water
-     !  potentials from the previous timestep
+  SUBROUTINE calc_psi_stem_again(canopy, dels, Cs, Cl, transpiration, i)
+     ! Calculate the stem water potential (MPa)
      !
      ! Reference:
      ! ==========
@@ -3430,7 +3425,7 @@ CONTAINS
         canopy%psi_stem(i) = -20.0
      ENDIF
 
-  END SUBROUTINE update_stem_wp_again
+  END SUBROUTINE calc_psi_stem_again
   ! ----------------------------------------------------------------------------
 
   FUNCTION scale_up_stem_capac(lai) RESULT(capac_conv)
