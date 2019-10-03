@@ -93,7 +93,7 @@ PROGRAM cable_offline_driver
   USE cable_diag_module
   !mpidiff
   USE cable_climate_mod
-
+    
   ! modules related to CASA-CNP
   USE casadimension,	    ONLY: icycle
   USE casavariable,	    ONLY: casafile, casa_biome, casa_pool, casa_flux,  &
@@ -489,6 +489,13 @@ PROGRAM cable_offline_driver
                  ncid_wd   = GSWP_MID(8,YYYY)
                  kend	   = ktauday * LOY
               ENDIF
+
+              IF (leaps) THEN
+                 calendar = "standard"
+              ELSE
+                 calendar = "noleap"
+              ENDIF
+
            ELSE IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN
               ! PLUME experiment setup using WATCH
               IF ( CALL1 ) THEN

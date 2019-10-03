@@ -160,7 +160,7 @@ CONTAINS
          verbose, fixedCO2,output,check,patchout,    &
          patch_type,soilparmnew,&
          defaultLAI, sdoy, smoy, syear, timeunits, exists, output, &
-         latitude,longitude
+         latitude,longitude, calendar
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
          cable_runtime, fileName, myhome,            &
          redistrb, wiltParam, satuParam, CurYear,    &
@@ -546,6 +546,14 @@ CONTAINS
              ncciy = CurYear
              WRITE(*,*) 'Looking for global offline run info.'
              CALL open_met_file( dels, koffset, kend, spinup, C%TFRZ )
+
+             IF ( leaps .AND. IS_LEAPYEAR( YYYY ) ) THEN
+                calendar = "standard"
+             ELSE
+                calendar = "noleap"
+             ENDIF
+
+
           ENDIF
 
           ! somethings (e.g. CASA-CNP) only need to be done once per day
@@ -622,9 +630,9 @@ CONTAINS
                   &                         rough,rad,sum_flux,bal)
 
 
-
-             CALL master_climate_types(comm, climate, ktauday)
-
+             IF (cable_user%call_climate) THEN
+                CALL master_climate_types(comm, climate, ktauday)
+             ENDIF
 
              ! MPI: mvtype and mstype send out here instead of inside master_casa_params
              !      so that old CABLE carbon module can use them. (BP May 2013)
