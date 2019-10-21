@@ -1977,6 +1977,17 @@ CONTAINS
     CALL MPI_Get_address (canopy%plc, displs(bidx), ierr)
     blen(bidx) = r1len
 
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%kplant, displs(bidx), ierr)
+    blen(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%ksoil2stem, displs(bidx), ierr)
+    blen(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%kstem2leaf, displs(bidx), ierr)
+    blen(bidx) = r1len
 
 
     ! ------- rough -------
@@ -4729,6 +4740,18 @@ CONTAINS
 
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%plc(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%kplant(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%ksoil2stem(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%kstem2leaf(off), displs(bidx), ierr)
     blocks(bidx) = r1len
 
     ! MPI: 2D vars moved above

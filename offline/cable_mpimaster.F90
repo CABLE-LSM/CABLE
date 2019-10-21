@@ -2750,6 +2750,19 @@ CONTAINS
        blen(bidx) = r1len
 
        bidx = bidx + 1
+       CALL MPI_Get_address (canopy%kplant(off), displs(bidx), ierr)
+       blen(bidx) = r1len
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (canopy%ksoil2stem(off), displs(bidx), ierr)
+       blen(bidx) = r1len
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (canopy%kstem2leaf(off), displs(bidx), ierr)
+       blen(bidx) = r1len
+
+
+       bidx = bidx + 1
        CALL MPI_Get_address (canopy%gswx(off,1), displs(bidx), ierr)
        CALL MPI_Type_create_hvector (mf, r1len, r1stride, MPI_BYTE, &
             &                             types(bidx), ierr)
@@ -5544,6 +5557,18 @@ CONTAINS
        vidx = vidx + 1
 
        CALL MPI_Get_address (canopy%plc(off), vaddr(vidx), ierr) ! 159
+       blen(vidx) = cnt * extr1
+       vidx = vidx + 1
+
+       CALL MPI_Get_address (canopy%kplant(off), vaddr(vidx), ierr) ! 159
+       blen(vidx) = cnt * extr1
+       vidx = vidx + 1
+
+       CALL MPI_Get_address (canopy%ksoil2stem(off), vaddr(vidx), ierr) ! 159
+       blen(vidx) = cnt * extr1
+       vidx = vidx + 1
+
+       CALL MPI_Get_address (canopy%kstem2leaf(off), vaddr(vidx), ierr) ! 159
        blen(vidx) = cnt * extr1
        vidx = vidx + 1
 
