@@ -463,6 +463,21 @@ CONTAINS
 !!$       CALL readpar(ncid_rin,'clitt',dummy,veg%clitt,filename%restart_in,           &
 !!$            max_vegpatches,'def',from_restart,mp)
     ENDIF
+
+
+    IF (cable_user%fwsoil_switch == 'hydraulics') THEN
+
+      CALL readpar(ncid_rin,'psi_leaf_prev',dummy,canopy%psi_leaf_prev,&
+                   filename%restart_in,max_vegpatches,'def',from_restart,mp)
+      CALL readpar(ncid_rin,'psi_stem_prev',dummy,canopy%psi_stem_prev,&
+                   filename%restart_in,max_vegpatches,'def',from_restart,mp)
+      CALL readpar(ncid_rin,'psi_soil_prev',dummy,canopy%psi_soil_prev,&
+                   filename%restart_in,max_vegpatches,'def',from_restart,mp)
+
+    END IF
+
+
+
     CALL readpar(ncid_rin,'cansto',dummy,canopy%cansto,filename%restart_in,     &
          max_vegpatches,'def',from_restart,mp)
     CALL readpar(ncid_rin,'sghflux',dummy,canopy%sghflux,filename%restart_in,   &
