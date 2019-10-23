@@ -40,7 +40,7 @@ MODULE cable_mpicommon
   ! VH add 9 params for sli 299 -> 308
   ! INH add 7 params for REV_CORR package
   !INTEGER, PARAMETER :: nparam = 331 !326!308  ! as it was before mgk576 changes
-  INTEGER, PARAMETER :: nparam = 348 ! mgk576, added 14 (9 params, 7 x 1D vectors & 1 x 2D matrix)
+  INTEGER, PARAMETER :: nparam = 351 ! mgk576, added 14 (9 params, 8 x 1D vectors & 3 x 2D matrix)
   ! MPI: extra params sent only if nsoilparmnew is true
   INTEGER, PARAMETER :: nsoilnew = 1
 
@@ -92,7 +92,7 @@ MODULE cable_mpicommon
   ! MPI: CABLE_r491, after following up with Bernard on the new variables
   ! vh sli nmat + 4 36 -> 40
   !INTEGER, PARAMETER :: nmat = 40
-  INTEGER, PARAMETER :: nmat = 41! ! mgk576, added 1 more matrix for plant hydraulics
+  INTEGER, PARAMETER :: nmat = 43! ! mgk576, added 3 more matrix for plant hydraulics
 
   ! MPI: number of contig vector parts / worker (results)
   !INTEGER, PARAMETER :: nvec = 149
@@ -110,7 +110,7 @@ MODULE cable_mpicommon
   ! INTEGER, PARAMETER :: nvec = 172! 168
   ! INH REV_CORR +3  (SSEB +2 will be needed)
   !INTEGER, PARAMETER :: nvec = 175
-  INTEGER, PARAMETER :: nvec = 182 ! mgk576, added 7 more vec. plant hydraulics
+  INTEGER, PARAMETER :: nvec = 183 ! mgk576, added 8 more vec. plant hydraulics
 
   ! MPI: number of final casa result matrices and vectors to receive
   ! by the master for casa_poolout and casa_fluxout

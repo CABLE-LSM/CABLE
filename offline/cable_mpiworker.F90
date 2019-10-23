@@ -1215,6 +1215,10 @@ CONTAINS
     CALL MPI_Get_address (ssnow%weighted_psi_soil, displs(bidx), ierr)
     blen(bidx) = r2len
 
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%tot_bg_resist, displs(bidx), ierr)
+    blen(bidx) = r2len
+
 
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%rnof1, displs(bidx), ierr)
@@ -1280,6 +1284,15 @@ CONTAINS
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%psi_soil, displs(bidx), ierr)
     blen(bidx) = ms * r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%soilR, displs(bidx), ierr)
+    blen(bidx) = ms * r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%fraction_uptake, displs(bidx), ierr)
+    blen(bidx) = ms * r2len
+
 
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%wbfice, displs(bidx), ierr)
@@ -3966,6 +3979,15 @@ CONTAINS
     blocks(bidx) = r2len * ms
 
     bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%soilR(off,1), displs(bidx), ierr)
+    blocks(bidx) = r2len * ms
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%fraction_uptake(off,1), displs(bidx), ierr)
+    blocks(bidx) = r2len * ms
+
+
+    bidx = bidx + 1
     CALL MPI_Get_address (ssnow%evapfbl(off,1), displs(bidx), ierr)
     blocks(bidx) = r1len * ms
 
@@ -4882,6 +4904,10 @@ CONTAINS
     ! plant hydraulics, mgdk576, 23/07/2019
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%weighted_psi_soil(off), displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%tot_bg_resist(off), displs(bidx), ierr)
     blocks(bidx) = r2len
 
     !vidx = vidx + 1

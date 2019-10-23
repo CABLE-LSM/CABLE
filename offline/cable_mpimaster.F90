@@ -1922,6 +1922,10 @@ CONTAINS
        blen(bidx) = r2len
 
        bidx = bidx + 1
+       CALL MPI_Get_address (ssnow%tot_bg_resist(off), displs(bidx), ierr)
+       blen(bidx) = r2len
+
+       bidx = bidx + 1
        CALL MPI_Get_address (ssnow%rnof1(off), displs(bidx), ierr)
        blen(bidx) = r1len
 
@@ -2005,6 +2009,18 @@ CONTAINS
        !  plant hydraulics, mgdk576, 23/07/2019
        bidx = bidx + 1
        CALL MPI_Get_address (ssnow%psi_soil(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                             types(bidx), ierr)
+       blen(bidx) = 1
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (ssnow%soilR(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                             types(bidx), ierr)
+       blen(bidx) = 1
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (ssnow%fraction_uptake(off,1), displs(bidx), ierr)
        CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
             &                             types(bidx), ierr)
        blen(bidx) = 1
@@ -5034,6 +5050,18 @@ CONTAINS
        CALL MPI_Type_commit (mat_t(midx, rank), ierr)
        midx = midx + 1
 
+       CALL MPI_Get_address (ssnow%soilR(off,1), maddr(midx), ierr) ! 12
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                        mat_t(midx, rank), ierr)
+       CALL MPI_Type_commit (mat_t(midx, rank), ierr)
+       midx = midx + 1
+
+       CALL MPI_Get_address (ssnow%fraction_uptake(off,1), maddr(midx), ierr) ! 12
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                        mat_t(midx, rank), ierr)
+       CALL MPI_Type_commit (mat_t(midx, rank), ierr)
+       midx = midx + 1
+
        ! REAL(r_1)
        CALL MPI_Get_address (ssnow%evapfbl(off,1), maddr(midx), ierr) ! 12
        CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
@@ -5667,6 +5695,10 @@ CONTAINS
 
        ! plant hydraulics, mgdk576, 23/07/2019
        CALL MPI_Get_address (ssnow%weighted_psi_soil(off), vaddr(vidx), ierr) ! 69
+       blen(vidx) = cnt * extr2
+       vidx = vidx + 1
+
+       CALL MPI_Get_address (ssnow%tot_bg_resist(off), vaddr(vidx), ierr) ! 69
        blen(vidx) = cnt * extr2
        vidx = vidx + 1
 
