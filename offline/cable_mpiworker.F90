@@ -1975,13 +1975,11 @@ CONTAINS
     CALL MPI_Get_address (canopy%zetar, displs(bidx), ierr)
     blen(bidx) = niter * r1len
 
-
     ! plant hydraulics, mgdk576, 23/07/2019
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%psi_leaf, displs(bidx), ierr)
     blen(bidx) = r1len
 
-    ! plant hydraulics, mgdk576, 23/07/2019
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%psi_stem, displs(bidx), ierr)
     blen(bidx) = r1len
