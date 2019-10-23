@@ -715,10 +715,10 @@ CONTAINS
 
              IF (CABLE_USER%POPLUC) THEN
 
-                WRITE(wlogn,*), 'before MPI_Send casa_LUC'
+                WRITE(wlogn,*) 'before MPI_Send casa_LUC'
                 ! worker sends casa updates required for LUC calculations here
                 CALL MPI_Send (MPI_BOTTOM, 1, casa_LUC_t, 0, 0, ocomm, ierr)
-                WRITE(wlogn,*), 'after MPI_Send casa_LUC'
+                WRITE(wlogn,*) 'after MPI_Send casa_LUC'
                 ! master calls LUCDriver here
                 ! worker receives casa and POP updates
                 CALL MPI_Recv( POP%pop_grid(1), POP%np, pop_t, 0, 0, icomm, stat, ierr )
@@ -2543,9 +2543,9 @@ CONTAINS
        pos = 0
        CALL MPI_Unpack (rbuf, tsize, pos, MPI_BOTTOM, rcount, param_t, &
             comm, ierr)
-       IF (ierr /= MPI_SUCCESS) WRITE(*,*),'cable param unpack error, rank: ',rank,ierr
+       IF (ierr /= MPI_SUCCESS) WRITE(*,*) 'cable param unpack error, rank: ',rank,ierr
     ELSE
-       WRITE(*,*),'cable param recv rank err err2 rcount: ',rank, ierr, ierr2, rcount
+       WRITE(*,*) 'cable param recv rank err err2 rcount: ',rank, ierr, ierr2, rcount
     END IF
 
     DEALLOCATE(rbuf)
@@ -3544,9 +3544,9 @@ CONTAINS
        pos = 0
        CALL MPI_Unpack (rbuf, tsize, pos, MPI_BOTTOM, rcount, casa_t, &
             comm, ierr)
-       IF (ierr /= MPI_SUCCESS) WRITE(*,*),'casa params unpack error, rank: ',rank,ierr
+       IF (ierr /= MPI_SUCCESS) WRITE(*,*) 'casa params unpack error, rank: ',rank,ierr
     ELSE
-       WRITE(*,*),'casa params recv rank err err2 rcount: ',rank, ierr, ierr2, rcount
+       WRITE(*,*) 'casa params recv rank err err2 rcount: ',rank, ierr, ierr2, rcount
     END IF
 
     DEALLOCATE(rbuf)
@@ -5775,8 +5775,10 @@ CONTAINS
              met%moy(landpt(i)%cstart) = smoy
              met%year(landpt(i)%cstart) = syear
           CASE DEFAULT
-             CALL abort('Unknown time coordinate! ' &
-                  //' (SUBROUTINE get_met_data)')
+             WRITE(*, *) "Unknown time coordinate! SUBROUTINE get_met_data"
+             STOP
+             !CALL abort('Unknown time coordinate! ' &
+            !      //' (SUBROUTINE get_met_data)')
           END SELECT
        ELSE
           ! increment hour-of-day by time step size:
@@ -7739,7 +7741,7 @@ CONTAINS
 
              CALL MPI_Comm_rank (icomm, rank, ierr)
              WRITE(wlogn,*)
-             WRITE(wlogn,*),'rank receiving pop_grid from master', rank
+             WRITE(wlogn,*) 'rank receiving pop_grid from master', rank
 !!$           write(wlogn,*) 'b4 MPI_Recv, pop_t cmass: ', POP%pop_grid%cmass_sum
 !!$           write(wlogn,*) 'b4 MPI_Recv, pop_t LU: ', POP%pop_grid%LU
              CALL MPI_Recv( POP%pop_grid(1), POP%np, pop_t, 0, 0, icomm, stat, ierr )
@@ -7748,7 +7750,7 @@ CONTAINS
              WRITE(wlogn,*) 'after MPI_Recv, pop_t '
              CALL flush(wlogn)
              IF (cable_user%CALL_POP .AND. POP%np.GT.0) THEN ! CALL_POP
-                WRITE(wlogn,*), 'b4  POPdriver', POP%pop_grid%cmass_sum
+                WRITE(wlogn,*) 'b4  POPdriver', POP%pop_grid%cmass_sum
                 CALL POPdriver(casaflux,casabal,veg, POP)
 
              ENDIF
