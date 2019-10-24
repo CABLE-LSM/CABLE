@@ -1640,9 +1640,9 @@ CONTAINS
 
     ! plant hydraulics stuff, mgk576, 16/7/2019
     ! This is the actual initalisation - write_default_params
-    canopy%psi_leaf_prev = -0.01
-    canopy%psi_stem_prev = -0.01
-    canopy%psi_soil_prev = -0.01
+    canopy%psi_leaf_prev(:) = -0.01
+    canopy%psi_stem_prev(:) = -0.01
+    canopy%psi_soil_prev(:) = -0.01
 
   END SUBROUTINE write_default_params
   !=============================================================================
