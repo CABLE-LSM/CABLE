@@ -2662,7 +2662,7 @@ CONTAINS
         ! prevent floating point error
         IF (Ksoil < TINY_NUMBER) THEN
            ssnow%soilR(i,j) = HUGE_NUMBER
-           rsum = rsum + ( 1.0 / ssnow%soilR(i,j) ) 
+           rsum = rsum + ( 1.0 / ssnow%soilR(i,j) )
         ELSE
 
            ! Root biomass density (g biomass m-3 soil)
@@ -2742,7 +2742,6 @@ CONTAINS
        ! what is used anyway
        t_over_t_sat = MAX(1.0e-9, MIN(1.0, ssnow%wb(i,j) / soil%ssat(i)))
        ssnow%psi_soil(i,j) = psi_sat * t_over_t_sat**(-soil%bch(i))
-       ssnow%psi_soil(i,j) = MAX(MIN(ssnow%psi_soil(i,j), soil%sucs(i)), sucmin)
 
     END DO
 
