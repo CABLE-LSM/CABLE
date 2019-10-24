@@ -6885,6 +6885,19 @@ CONTAINS
     CALL MPI_Get_address (canopy%fnv(off), displs(bidx), ierr)
     blocks(bidx) = r1len
 
+    ! plant hydraulics, mgdk576, 23/07/2019: +3 restart
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%psi_leaf_prev(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%psi_stem_prev(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%psi_soil_prev(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+
     bidx = bidx + 1
     CALL MPI_Get_address (air%rho(off), displs(bidx), ierr)
     blocks(bidx) = r1len
