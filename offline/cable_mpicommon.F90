@@ -40,7 +40,7 @@ MODULE cable_mpicommon
   ! VH add 9 params for sli 299 -> 308
   ! INH add 7 params for REV_CORR package
   !INTEGER, PARAMETER :: nparam = 331 !326!308  ! as it was before mgk576 changes
-  INTEGER, PARAMETER :: nparam = 351 ! mgk576, added 14 (9 params, 8 x 1D vectors & 3 x 2D matrix)
+  INTEGER, PARAMETER :: nparam = 353 ! mgk576, added 16 (9 params, 10 x 1D vectors & 3 x 2D matrix)
   ! MPI: extra params sent only if nsoilparmnew is true
   INTEGER, PARAMETER :: nsoilnew = 1
 
@@ -110,7 +110,7 @@ MODULE cable_mpicommon
   ! INTEGER, PARAMETER :: nvec = 172! 168
   ! INH REV_CORR +3  (SSEB +2 will be needed)
   !INTEGER, PARAMETER :: nvec = 175
-  INTEGER, PARAMETER :: nvec = 183 ! mgk576, added 8 more vec. plant hydraulics
+  INTEGER, PARAMETER :: nvec = 185 ! mgk576, added 10 more vec. plant hydraulics
 
   ! MPI: number of final casa result matrices and vectors to receive
   ! by the master for casa_poolout and casa_fluxout
@@ -122,7 +122,7 @@ MODULE cable_mpicommon
   ! that is returned only for creating a restart file at the end of the run
   !INTEGER, PARAMETER :: nrestart = 16
   ! MPI: gol124: canopy%rwater removed when Bernard ported to CABLE_r491
-  INTEGER, PARAMETER :: nrestart = 15
+  INTEGER, PARAMETER :: nrestart = 18 ! mgdk added 3 more
   INTEGER, PARAMETER :: nsumcasaflux = 62
   INTEGER, PARAMETER :: nsumcasapool = 40
   INTEGER, PARAMETER :: nclimate = 30
