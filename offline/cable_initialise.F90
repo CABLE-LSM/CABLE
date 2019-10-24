@@ -465,6 +465,7 @@ CONTAINS
     ENDIF
 
 
+
     IF (cable_user%fwsoil_switch == 'hydraulics') THEN
 
       CALL readpar(ncid_rin,'psi_leaf_prev',dummy,canopy%psi_leaf_prev,&
@@ -475,7 +476,11 @@ CONTAINS
                    filename%restart_in,max_vegpatches,'def',from_restart,mp)
 
     END IF
-
+    !print*, "****, reading in"
+    !print*, "****", canopy%psi_leaf_prev
+    !print*, "****", canopy%psi_stem_prev
+    !print*, "****", canopy%psi_soil_prev
+    !stop
 
 
     CALL readpar(ncid_rin,'cansto',dummy,canopy%cansto,filename%restart_in,     &

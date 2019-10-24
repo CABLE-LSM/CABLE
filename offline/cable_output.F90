@@ -3899,10 +3899,16 @@ CONTAINS
                        REAL(canopy%psi_stem_prev, 4),         &
                        (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
       CALL write_ovar (ncid_restart, psisID, 'psi_soil_prev', &
-                       REAL(ssnow%weighted_psi_soil, 4),         &
+                       REAL(canopy%psi_soil_prev, 4),         &
                        (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
 
     END IF
+
+    !print*, "****, writing out"
+    !print*, "****", canopy%psi_leaf_prev
+    !print*, "****", canopy%psi_stem_prev
+    !print*, "****", canopy%psi_soil_prev
+
 
     ! Close restart file
     ok = NF90_CLOSE(ncid_restart)
