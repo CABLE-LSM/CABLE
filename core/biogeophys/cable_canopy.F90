@@ -3097,7 +3097,7 @@ CONTAINS
      canopy%kplant(i) = kp_sat * &
                         fsig_hydr(canopy%psi_stem_prev(i), veg%X_hyd(i), &
                                   veg%p50(i), veg%s50(i))
-
+      
      ! Conductance from root surface to the stem water pool, assumed to be
      ! halfway to the leaves (mmol m-2 ground area s-1 MPa-1)
      kroot2stem = 2.0 * canopy%kplant(i)

@@ -1643,7 +1643,7 @@ CONTAINS
     canopy%psi_leaf_prev(:) = -0.01
     canopy%psi_stem_prev(:) = -0.01
     canopy%psi_soil_prev(:) = -0.01
-
+   
   END SUBROUTINE write_default_params
   !=============================================================================
   SUBROUTINE write_cnp_params(veg, casaflux, casamet)

@@ -1637,7 +1637,6 @@ CONTAINS
 
     INTEGER :: nxt, pcnt, off, cnt
 
-
     ! create MPI types for exchanging slices of landpt and patch arrays
     CALL decomp_types (landpt_t, patch_t)
 

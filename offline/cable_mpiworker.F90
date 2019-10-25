@@ -1967,13 +1967,7 @@ CONTAINS
     CALL MPI_Get_address (canopy%fwsoil, displs(bidx), ierr)
     blen(bidx) = r2len
 
-    bidx = bidx + 1
-    CALL MPI_Get_address (canopy%gswx, displs(bidx), ierr)
-    blen(bidx) = mf * r1len
 
-    bidx = bidx + 1
-    CALL MPI_Get_address (canopy%zetar, displs(bidx), ierr)
-    blen(bidx) = niter * r1len
 
     ! plant hydraulics, mgdk576, 23/07/2019: +11 vec (s1)
     bidx = bidx + 1
@@ -1984,9 +1978,11 @@ CONTAINS
     CALL MPI_Get_address (canopy%psi_stem, displs(bidx), ierr)
     blen(bidx) = r1len
 
+
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%psi_leaf_prev, displs(bidx), ierr)
     blen(bidx) = r1len
+
 
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%psi_stem_prev, displs(bidx), ierr)
@@ -2020,6 +2016,13 @@ CONTAINS
     CALL MPI_Get_address (canopy%flx_to_leaf, displs(bidx), ierr)
     blen(bidx) = r1len
 
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%gswx, displs(bidx), ierr)
+    blen(bidx) = mf * r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%zetar, displs(bidx), ierr)
+    blen(bidx) = niter * r1len
 
     ! ------- rough -------
 
