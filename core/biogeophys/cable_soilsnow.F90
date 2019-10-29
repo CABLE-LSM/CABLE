@@ -2632,7 +2632,8 @@ CONTAINS
      !print*, ht
 
      ! convert from gC to g biomass, i.e. twice the C content
-     root_biomass = bgc%cplant(i,ROOT_INDEX) * gC2DM
+     !root_biomass = bgc%cplant(i,ROOT_INDEX) * gC2DM
+     root_biomass = 1443.0 * gC2DM ! EBF value
 
      ! Always provide a minimum root biomass
      root_biomass = MAX(5., root_biomass)
@@ -2641,6 +2642,8 @@ CONTAINS
      rsum = 0.0
      root_length = 0.0
 
+     !print*, bgc%cplant
+     !stop
      DO j = 1, ms ! Loop over 6 soil layers
 
         ! Soil Hydraulic conductivity (m s-1), Campbell 1974

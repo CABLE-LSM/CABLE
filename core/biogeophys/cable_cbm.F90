@@ -136,6 +136,7 @@ CONTAINS
     ssnow%otss = ssnow%tss
 
 
+
     ! PH: mgk576, 13/10/17, added two funcs
     IF (cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
        DO i = 1, mp
@@ -147,7 +148,6 @@ CONTAINS
 
        END DO
     END IF
-
 
     CALL define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy,climate)
     ! RML moved out of following IF after discussion with Eva
