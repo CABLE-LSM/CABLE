@@ -2640,7 +2640,6 @@ CONTAINS
 
      ! Store each layers resistance, used in LWP calculatons
      rsum = 0.0
-     root_length = 0.0
 
      !print*, bgc%cplant
      !stop
