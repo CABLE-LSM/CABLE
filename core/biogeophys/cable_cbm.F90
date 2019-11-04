@@ -138,6 +138,7 @@ CONTAINS
     print*, " "
     print*, "******"
     print*, "init"
+    print, "lat:", patch%latitude, patch%longitude
 
     print*, "tot_bg_resist"
     print*, ssnow%tot_bg_resist
@@ -204,10 +205,6 @@ CONTAINS
     print*, "******"
     print*, "post init"
 
-    print*, " "
-    print*, "******"
-    print*, "init"
-
     print*, "tot_bg_resist"
     print*, ssnow%tot_bg_resist
     print*, "weighted_psi_soil"
@@ -256,7 +253,7 @@ CONTAINS
 
     print*, "******"
     print*, " "
-   
+
 
 
 
