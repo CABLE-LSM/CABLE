@@ -138,12 +138,15 @@ CONTAINS
     ssnow%otss_0 = ssnow%otss  ! vh should be before call to canopy?
     ssnow%otss = ssnow%tss
 
+
+
+
     print*, " "
     print*, "******"
     print*, "init"
     print*, "lat:", patch%latitude
     print*, "lon:", patch%longitude
-
+    print*, met%year, met%doy
     print*, "tot_bg_resist"
     print*, ssnow%tot_bg_resist
     print*, "weighted_psi_soil"
@@ -258,8 +261,12 @@ CONTAINS
     print*, "******"
     print*, " "
 
+    DO i = 1, mp
 
-
+       IF (met%doy(i) <= 2.0) THEN
+         stop
+       ENDIF
+    END DO
 
     CALL define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy,climate)
     ! RML moved out of following IF after discussion with Eva
