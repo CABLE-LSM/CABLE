@@ -141,12 +141,12 @@ CONTAINS
 
 
 
-    print*, " "
-    print*, "******"
-    print*, "init"
-    print*, "lat:", patch%latitude
-    print*, "lon:", patch%longitude
-    print*, met%year, met%doy
+    !print*, " "
+    !print*, "******"
+    !print*, "init"
+    !print*, "lat:", patch%latitude
+    !print*, "lon:", patch%longitude
+    !print*, met%year, met%doy
     !print*, "tot_bg_resist"
     !print*, ssnow%tot_bg_resist
     !print*, "weighted_psi_soil"
@@ -193,10 +193,8 @@ CONTAINS
     !print*, "Cs", veg%Cs
     !print*, "gmin", veg%gmin
 
-    print*, ssnow%wb
-
-    print*, "******"
-    print*, " "
+    !print*, "******"
+    !print*, " "
 
     ! PH: mgk576, 13/10/17, added two funcs
     IF (cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
@@ -217,12 +215,12 @@ CONTAINS
     ssnow%owetfac = ssnow%wetfac
 
 
-    print*, " "
-    print*, "******"
-    print*, "post init"
-    print*, "lat:", patch%latitude
-    print*, "lon:", patch%longitude
-    print*, " "
+    !print*, " "
+    !print*, "******"
+    !print*, "post init"
+    !print*, "lat:", patch%latitude
+    !print*, "lon:", patch%longitude
+    !print*, " "
     !print*, "tot_bg_resist"
     !print*, ssnow%tot_bg_resist
     !print*, "weighted_psi_soil"
@@ -269,17 +267,19 @@ CONTAINS
     !print*, "Cs", veg%Cs
     !print*, "gmin", veg%gmin
 
-    print*, ssnow%wb
 
-    print*, "******"
-    print*, " "
 
-    DO i = 1, mp
+    !print*, "******"
+    !print*, " "
 
-       IF (met%doy(i) <= 2.0) THEN
-         stop
-       ENDIF
-    END DO
+    !DO i = 1, mp
+    !
+      ! IF (met%doy(i) <= 2.0) THEN
+   !      stop
+   !    ENDIF
+    !END DO
+
+    print*, canopy%plc
 
     IF( cable_runtime%um ) THEN
 
