@@ -2247,21 +2247,44 @@ CONTAINS
                 CALL calc_flux_to_stem(canopy, dels, veg%Cs(i), i)
 
                 ! Update psi_stem
-                !canopy%psi_stem_prev(i) = canopy%psi_stem(i)
-                !CALL calc_psi_stem_again(canopy, dels, veg%Cs(i), &
-               !                           veg%Cl(i), trans_mmol, i)
+                canopy%psi_stem_prev(i) = canopy%psi_stem(i)
+                CALL calc_psi_stem_again(canopy, dels, veg%Cs(i), &
+                                          veg%Cl(i), trans_mmol, i)
 
                 ! Flux from the soil to the stem = change in storage +
                 ! flux_to_leaf
-                !CALL calc_flux_to_stem_again(canopy, dels, veg%Cs(i), &
-               !                              trans_mmol, i)
+                CALL calc_flux_to_stem_again(canopy, dels, veg%Cs(i), &
+                                             trans_mmol, i)
 
 
+                ! If we've reached the point of hydraulic failure, don't allow
+                ! the water potentials to fall away to silly values
+                IF (canopy%plc(i) >= 88.) THEN
+
+                   IF (canopy%psi_leaf(i) > canopy%psi_leaf_prev(i)) THEN
+                      canopy%psi_leaf_prev(i) = canopy%psi_leaf(i)
+                   ENDIF
+
+                   IF (ssnow%weighted_psi_soil(i) > canopy%psi_soil_prev(i)) THEN
+                      canopy%psi_soil_prev(i) = ssnow%weighted_psi_soil(i)
+                   ENDIF
+
+                   IF (canopy%psi_stem(i) > canopy%psi_stem_prev(i)) THEN
+                      canopy%psi_stem_prev(i) = canopy%psi_stem(i)
+                   ENDIF
+
+                ELSE
+                   ! store current water potentials for next time step
+                   canopy%psi_leaf_prev(i) = canopy%psi_leaf(i)
+                   canopy%psi_soil_prev(i) = ssnow%weighted_psi_soil(i)
+                   canopy%psi_stem_prev(i) = canopy%psi_stem(i)
+
+                ENDIF
 
                 ! store current water potentials for next time step
-                canopy%psi_leaf_prev(i) = canopy%psi_leaf(i)
-                canopy%psi_soil_prev(i) = ssnow%weighted_psi_soil(i)
-                canopy%psi_stem_prev(i) = canopy%psi_stem(i)
+                !canopy%psi_leaf_prev(i) = canopy%psi_leaf(i)
+                !canopy%psi_soil_prev(i) = ssnow%weighted_psi_soil(i)
+                !canopy%psi_stem_prev(i) = canopy%psi_stem(i)
 
                 ! Force overnight refilling - we need the real time
                 ! as this won't work with 30 min and hourly
@@ -3097,7 +3120,7 @@ CONTAINS
      canopy%kplant(i) = kp_sat * &
                         fsig_hydr(canopy%psi_stem_prev(i), veg%X_hyd(i), &
                                   veg%p50(i), veg%s50(i))
-      
+
      ! Conductance from root surface to the stem water pool, assumed to be
      ! halfway to the leaves (mmol m-2 ground area s-1 MPa-1)
      kroot2stem = 2.0 * canopy%kplant(i)
