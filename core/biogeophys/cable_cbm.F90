@@ -208,10 +208,19 @@ CONTAINS
        END DO
     END IF
 
+
+
+    CALL define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy,climate)
+    ! RML moved out of following IF after discussion with Eva
+    ssnow%owetfac = ssnow%wetfac
+
+
     print*, " "
     print*, "******"
     print*, "post init"
-
+    print*, "lat:", patch%latitude
+    print*, "lon:", patch%longitude
+    print*, " "
     print*, "tot_bg_resist"
     print*, ssnow%tot_bg_resist
     print*, "weighted_psi_soil"
@@ -267,11 +276,7 @@ CONTAINS
          stop
        ENDIF
     END DO
-
-    CALL define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy,climate)
-    ! RML moved out of following IF after discussion with Eva
-    ssnow%owetfac = ssnow%wetfac
-
+    
     IF( cable_runtime%um ) THEN
 
        IF( cable_runtime%um_implicit ) THEN
