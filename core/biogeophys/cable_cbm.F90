@@ -42,6 +42,9 @@ CONTAINS
        bal, rad, rough, soil,                                      &
        ssnow, sum_flux, veg, climate )
 
+    ! mgk576 added for debug to get lat,lon
+    USE cable_IO_vars_module, ONLY: patch
+
     USE cable_common_module
     USE cable_carbon_module
     USE cable_soil_snow_module, ONLY : soil_snow, calc_soil_root_resistance, &
@@ -138,7 +141,8 @@ CONTAINS
     print*, " "
     print*, "******"
     print*, "init"
-    print, "lat:", patch%latitude, patch%longitude
+    print*, "lat:", patch%latitude
+    print*, "lon:", patch%longitude
 
     print*, "tot_bg_resist"
     print*, ssnow%tot_bg_resist
