@@ -279,7 +279,7 @@ CONTAINS
    !    ENDIF
     !END DO
 
-    print*, canopy%plc
+    print*, "******", canopy%plc
 
     IF( cable_runtime%um ) THEN
 
