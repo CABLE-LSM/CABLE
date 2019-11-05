@@ -141,60 +141,60 @@ CONTAINS
 
 
 
-    print*, " "
-    print*, "******"
-    print*, "init"
-    print*, "lat:", patch%latitude
-    print*, "lon:", patch%longitude
-    print*, met%year, met%doy
-    print*, "tot_bg_resist"
-    print*, ssnow%tot_bg_resist
-    print*, "weighted_psi_soil"
-    print*, ssnow%weighted_psi_soil
-    print*, "soilR"
-    print*, ssnow%soilR
-    print*, "psi_soil"
-    print*, ssnow%psi_soil
-    print*, "fraction_uptake"
-    print*, ssnow%fraction_uptake
-    print*, " "
+    !print*, " "
+    !print*, "******"
+    !print*, "init"
+    !print*, "lat:", patch%latitude
+    !print*, "lon:", patch%longitude
+    !print*, met%year, met%doy
+    !print*, "tot_bg_resist"
+    !print*, ssnow%tot_bg_resist
+    !print*, "weighted_psi_soil"
+    !print*, ssnow%weighted_psi_soil
+    !print*, "soilR"
+    !print*, ssnow%soilR
+    !print*, "psi_soil"
+    !print*, ssnow%psi_soil
+    !print*, "fraction_uptake"
+    !print*, ssnow%fraction_uptake
+    !print*, " "
+    !
+    !print*, "psi_leaf"
+    !print*, canopy%psi_leaf
+    !print*, "psi_leaf_prev"
+    !print*, canopy%psi_leaf_prev
+    !print*, "psi_stem"
+    !print*, canopy%psi_stem
+    !print*, "psi_stem_prev"
+    !print*, canopy%psi_stem_prev
+    !print*, "psi_soil_prev"
+    !print*, canopy%psi_soil_prev
+    !print*, "flx_to_stem"
+    !print*, canopy%flx_to_stem
+    !print*, "flx_to_leaf"
+    !print*, canopy%flx_to_leaf
+    !print*, "ksoil2stem"
+    !print*, canopy%ksoil2stem
+    !print*, "kstem2leaf"
+    !print*, canopy%kstem2leaf
+    !print*, "kplant"
+    !print*, canopy%kplant
+    !print*, "plc"
+    !print*, canopy%plc
+    !print*, " "
 
-    print*, "psi_leaf"
-    print*, canopy%psi_leaf
-    print*, "psi_leaf_prev"
-    print*, canopy%psi_leaf_prev
-    print*, "psi_stem"
-    print*, canopy%psi_stem
-    print*, "psi_stem_prev"
-    print*, canopy%psi_stem_prev
-    print*, "psi_soil_prev"
-    print*, canopy%psi_soil_prev
-    print*, "flx_to_stem"
-    print*, canopy%flx_to_stem
-    print*, "flx_to_leaf"
-    print*, canopy%flx_to_leaf
-    print*, "ksoil2stem"
-    print*, canopy%ksoil2stem
-    print*, "kstem2leaf"
-    print*, canopy%kstem2leaf
-    print*, "kplant"
-    print*, canopy%kplant
-    print*, "plc"
-    print*, canopy%plc
-    print*, " "
+    !print*, "sf", veg%sf
+    !print*, "psi_f", veg%psi_f
+    !print*, "X_hyd", veg%X_hyd
+    !print*, "p50", veg%p50
+    !print*, "s50", veg%s50
+    !print*, "kp_sat", veg%kp_sat
+    !print*, "Cl", veg%Cl
+    !print*, "Cs", veg%Cs
+    !print*, "gmin", veg%gmin
 
-    print*, "sf", veg%sf
-    print*, "psi_f", veg%psi_f
-    print*, "X_hyd", veg%X_hyd
-    print*, "p50", veg%p50
-    print*, "s50", veg%s50
-    print*, "kp_sat", veg%kp_sat
-    print*, "Cl", veg%Cl
-    print*, "Cs", veg%Cs
-    print*, "gmin", veg%gmin
-
-    print*, "******"
-    print*, " "
+    !print*, "******"
+    !print*, " "
 
     ! PH: mgk576, 13/10/17, added two funcs
     IF (cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
@@ -215,68 +215,72 @@ CONTAINS
     ssnow%owetfac = ssnow%wetfac
 
 
-    print*, " "
-    print*, "******"
-    print*, "post init"
-    print*, "lat:", patch%latitude
-    print*, "lon:", patch%longitude
-    print*, " "
-    print*, "tot_bg_resist"
-    print*, ssnow%tot_bg_resist
-    print*, "weighted_psi_soil"
-    print*, ssnow%weighted_psi_soil
-    print*, "soilR"
-    print*, ssnow%soilR
-    print*, "psi_soil"
-    print*, ssnow%psi_soil
-    print*, "fraction_uptake"
-    print*, ssnow%fraction_uptake
-    print*, " "
+    !print*, " "
+    !print*, "******"
+    !print*, "post init"
+    !print*, "lat:", patch%latitude
+    !print*, "lon:", patch%longitude
+    !print*, " "
+    !print*, "tot_bg_resist"
+    !print*, ssnow%tot_bg_resist
+    !print*, "weighted_psi_soil"
+    !print*, ssnow%weighted_psi_soil
+    !print*, "soilR"
+    !print*, ssnow%soilR
+    !print*, "psi_soil"
+    !print*, ssnow%psi_soil
+    !print*, "fraction_uptake"
+    !print*, ssnow%fraction_uptake
+    !print*, " "
 
-    print*, "psi_leaf"
-    print*, canopy%psi_leaf
-    print*, "psi_leaf_prev"
-    print*, canopy%psi_leaf_prev
-    print*, "psi_stem"
-    print*, canopy%psi_stem
-    print*, "psi_stem_prev"
-    print*, canopy%psi_stem_prev
-    print*, "psi_soil_prev"
-    print*, canopy%psi_soil_prev
-    print*, "flx_to_stem"
-    print*, canopy%flx_to_stem
-    print*, "flx_to_leaf"
-    print*, canopy%flx_to_leaf
-    print*, "ksoil2stem"
-    print*, canopy%ksoil2stem
-    print*, "kstem2leaf"
-    print*, canopy%kstem2leaf
-    print*, "kplant"
-    print*, canopy%kplant
-    print*, "plc"
-    print*, canopy%plc
-    print*, " "
+    !print*, "psi_leaf"
+    !print*, canopy%psi_leaf
+    !print*, "psi_leaf_prev"
+    !print*, canopy%psi_leaf_prev
+    !print*, "psi_stem"
+    !print*, canopy%psi_stem
+    !print*, "psi_stem_prev"
+    !print*, canopy%psi_stem_prev
+    !print*, "psi_soil_prev"
+    !print*, canopy%psi_soil_prev
+    !print*, "flx_to_stem"
+    !print*, canopy%flx_to_stem
+    !print*, "flx_to_leaf"
+    !print*, canopy%flx_to_leaf
+    !print*, "ksoil2stem"
+    !print*, canopy%ksoil2stem
+    !print*, "kstem2leaf"
+    !print*, canopy%kstem2leaf
+    !print*, "kplant"
+    !print*, canopy%kplant
+    !print*, "plc"
+    !print*, canopy%plc
+    !print*, " "
 
-    print*, "sf", veg%sf
-    print*, "psi_f", veg%psi_f
-    print*, "X_hyd", veg%X_hyd
-    print*, "p50", veg%p50
-    print*, "s50", veg%s50
-    print*, "kp_sat", veg%kp_sat
-    print*, "Cl", veg%Cl
-    print*, "Cs", veg%Cs
-    print*, "gmin", veg%gmin
+    !print*, "sf", veg%sf
+    !print*, "psi_f", veg%psi_f
+    !print*, "X_hyd", veg%X_hyd
+    !print*, "p50", veg%p50
+    !print*, "s50", veg%s50
+    !print*, "kp_sat", veg%kp_sat
+    !print*, "Cl", veg%Cl
+    !print*, "Cs", veg%Cs
+    !print*, "gmin", veg%gmin
 
-    print*, "******"
-    print*, " "
+    !print*, "******"
+    !print*, " "
 
-    DO i = 1, mp
+    !DO i = 1, mp
+    !
+   !    IF (met%doy(i) <= 2.0) THEN
+   !      stop
+   !    ENDIF
+    !END DO
 
-       IF (met%doy(i) <= 2.0) THEN
-         stop
-       ENDIF
-    END DO
-    
+    print*, "******", canopy%plc
+
+
+
     IF( cable_runtime%um ) THEN
 
        IF( cable_runtime%um_implicit ) THEN

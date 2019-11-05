@@ -2694,7 +2694,7 @@ CONTAINS
            ssnow%soilR(i,j) = soil_resist !+ root_resist
         END IF
 
-        print*, "DEBUG soilR:", j,  ssnow%soilR(i,j), Ksoil, root_mass, root_length(j), soil_resist
+        !print*, "DEBUG soilR:", j,  ssnow%soilR(i,j), Ksoil, root_mass, root_length(j), soil_resist
 
         IF (ssnow%soilR(i,j) .GT. 0.0) THEN
            ! Need to combine resistances in parallel, but we only want the
