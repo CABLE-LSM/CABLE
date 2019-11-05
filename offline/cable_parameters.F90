@@ -1643,7 +1643,30 @@ CONTAINS
     canopy%psi_leaf_prev(:) = -0.01
     canopy%psi_stem_prev(:) = -0.01
     canopy%psi_soil_prev(:) = -0.01
-   
+
+    canopy%psi_leaf(:) = -0.01
+    canopy%psi_stem(:) = -0.01
+    canopy%flx_to_stem(:) = 0.0
+    canopy%flx_to_leaf(:) = 0.0
+    canopy%ksoil2stem(:) = 0.0
+    canopy%kstem2leaf(:) = 0.0
+    canopy%kplant(:) = 0.0
+    canopy%plc(:) = 0.0
+
+    ssnow%tot_bg_resist(:) = 0.0
+    ssnow%weighted_psi_soil(:) = 0.0
+    ssnow%soilR(:,:) = 0.0
+    ssnow%psi_soil(:,:) = 0.0
+    ssnow%fraction_uptake(:,:) = 0.0
+
+
+
+
+
+
+
+
+
   END SUBROUTINE write_default_params
   !=============================================================================
   SUBROUTINE write_cnp_params(veg, casaflux, casamet)
