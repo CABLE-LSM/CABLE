@@ -3194,6 +3194,7 @@ CONTAINS
      INTEGER, INTENT(IN) :: i ! patch
      REAL, INTENT(IN)    :: transpiration ! mmol m-2 ground s-1
      REAL                :: ap, bp, leaf_capac
+     REAL, PARAMETER     :: psi_leaf_min = -50.0 ! MPa
      REAL, INTENT(IN)    :: dels ! integration time step (s)
      REAL, INTENT(IN)    :: Cl ! Leaf capacitance (mmol m-2 leaf MPa-1)
 
@@ -3214,8 +3215,8 @@ CONTAINS
                             / leaf_capac ! MPa
      ENDIF
 
-     IF (canopy%psi_leaf(i) < -20.0) THEN
-        canopy%psi_leaf(i) = -20.0
+     IF (canopy%psi_leaf(i) < psi_leaf_min) THEN
+        canopy%psi_leaf(i) = psi_leaf_min
      ENDIF
 
   END SUBROUTINE calc_psi_leaf
