@@ -2240,7 +2240,7 @@ CONTAINS
                 CALL calc_flux_to_leaf(canopy, trans_mmol, dels, veg%Cl(i), i)
 
                 ! Update stem water potential
-                CALL calc_psi_stem(canopy, dels, veg%Cs(i), i)
+                CALL calc_psi_stem(canopy, dels, veg%Cs(i), veg%p50(i), i)
 
                 ! Flux from the soil to the stem = change in storage +
                 ! flux_to_leaf
@@ -2249,7 +2249,7 @@ CONTAINS
                 ! Update psi_stem
                 canopy%psi_stem_prev(i) = canopy%psi_stem(i)
                 CALL calc_psi_stem_again(canopy, dels, veg%Cs(i), &
-                                          veg%Cl(i), trans_mmol, i)
+                                          veg%Cl(i), trans_mmol, veg%p50(i), i)
 
                 ! Flux from the soil to the stem = change in storage +
                 ! flux_to_leaf
@@ -3304,7 +3304,7 @@ CONTAINS
   ! ----------------------------------------------------------------------------
 
   ! ----------------------------------------------------------------------------
-  SUBROUTINE calc_psi_stem(canopy, dels, Cs, i)
+  SUBROUTINE calc_psi_stem(canopy, dels, Cs, p50, i)
      ! Calculate the stem water potential (MPa)
      !
      ! Reference:
@@ -3325,8 +3325,11 @@ CONTAINS
 
      REAL, INTENT(IN)    :: dels ! integration time step (s)
      REAL, INTENT(IN)    :: Cs ! Stem capacitance (mmol kg-1 MPa-1)
-     REAL                :: stem_capac, ap, bp
+     REAL, INTENT(IN)    :: p50
+     REAL                :: stem_capac, ap, bp, psi_stem_min
      INTEGER, INTENT(IN) :: i ! patch
+
+     psi_stem_min = 2.0 * p50
 
      ! mmol MPa-1
      stem_capac = Cs * scale_up_stem_capac(canopy%vlaiw(i))
@@ -3347,8 +3350,8 @@ CONTAINS
 
      ENDIF
 
-     IF (canopy%psi_stem(i) < -20.0) THEN
-        canopy%psi_stem(i) = -20.0
+     IF (canopy%psi_stem(i) < psi_stem_min) THEN
+        canopy%psi_stem(i) = psi_stem_min
      ENDIF
 
   END SUBROUTINE calc_psi_stem
@@ -3392,7 +3395,7 @@ CONTAINS
   ! ----------------------------------------------------------------------------
 
   ! ----------------------------------------------------------------------------
-  SUBROUTINE calc_psi_stem_again(canopy, dels, Cs, Cl, transpiration, i)
+  SUBROUTINE calc_psi_stem_again(canopy, dels, Cs, Cl, transpiration, p50, i)
      ! Calculate the stem water potential (MPa)
      !
      ! Reference:
@@ -3415,11 +3418,15 @@ CONTAINS
      TYPE (canopy_type), INTENT(INOUT)    :: canopy
 
      REAL                :: ap, bp, total_capac, stem_capac, leaf_capac
+     REAL                :: psi_stem_min
      REAL, INTENT(IN)    :: dels ! integration time step (s)
      REAL, INTENT(IN)    :: Cs ! Stem capacitance (mmol kg-1 MPa-1)
      REAL, INTENT(IN)    :: Cl ! Leaf capacitance (mmol m-2 leaf MPa-1)
+     REAL, INTENT(IN)    :: p50
      REAL, INTENT(IN)    :: transpiration ! mmol m-2 ground s-1
      INTEGER, INTENT(IN) :: i ! patch
+
+     psi_stem_min = 2.0 * p50
 
      ! scale up leaf-specific capacitance (mmol m-2 ground area MPa-1 s-1)
      leaf_capac = Cl * canopy%vlaiw(i)
@@ -3445,8 +3452,9 @@ CONTAINS
 
      ENDIF
 
-     IF (canopy%psi_stem(i) < -20.0) THEN
-        canopy%psi_stem(i) = -20.0
+
+     IF (canopy%psi_stem(i) < psi_stem_min) THEN
+        canopy%psi_stem(i) = psi_stem_min
      ENDIF
 
   END SUBROUTINE calc_psi_stem_again
