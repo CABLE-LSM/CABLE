@@ -2633,7 +2633,8 @@ CONTAINS
 
      ! convert from gC to g biomass, i.e. twice the C content
      !root_biomass = bgc%cplant(i,ROOT_INDEX) * gC2DM
-     root_biomass = 1443.0 * gC2DM ! EBF value
+     !root_biomass = 1443.0 * gC2DM ! EBF value
+     root_biomass = 832.0 * gC2DM ! Eucface value
 
      ! Always provide a minimum root biomass
      root_biomass = MAX(5., root_biomass)
