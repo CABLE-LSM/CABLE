@@ -70,21 +70,12 @@ PROGRAM cable_offline_driver
        redistrb, wiltParam, satuParam, CurYear,    &
        IS_LEAPYEAR, IS_CASA_TIME, calcsoilalbedo,                &
        report_version_no, kwidth_gl
-  USE cable_data_module,    ONLY: driver_type, point2constants
-  USE cable_input_module,   ONLY: open_met_file,load_parameters,              &
-       get_met_data,close_met_file,                &
-       ncid_rain,       &
-       ncid_snow,       &
-       ncid_lw,         &
-       ncid_sw,         &
-       ncid_ps,         &
-       ncid_qa,         &
-       ncid_ta,         &
-       ncid_wd
-  USE cable_output_module,  ONLY: create_restart,open_output_file,            &
-       write_output,close_output_file
-  USE cable_write_module,   ONLY: nullify_write
-  USE cable_IO_vars_module, ONLY: timeunits,calendar
+  use cable_data_module,    only: driver_type, point2constants
+  use cable_input_module,   only: open_met_file, load_parameters, get_met_data, close_met_file, &
+       ncid_rain, ncid_snow, ncid_lw, ncid_sw, ncid_ps, ncid_qa, ncid_ta, ncid_wd
+  use cable_output_module,  only: create_restart, open_output_file, write_output, close_output_file
+  use cable_write_module,   only: nullify_write
+  use cable_io_vars_module, only: timeunits, calendar
   USE cable_cbm_module
   USE cable_diag_module
   !mpidiff
@@ -114,11 +105,11 @@ PROGRAM cable_offline_driver
   ! 13C
   use cable_c13o2_def,         only: c13o2_flux, c13o2_pool, c13o2_luc, c13o2_update_sum_pools, c13o2_zero_sum_pools
   use cable_c13o2,             only: c13o2_save_luc, c13o2_update_luc, &
-       c13o2_write_restart_pools,  c13o2_write_restart_luc, &
-       c13o2_create_output, c13o2_write_output, c13o2_close_output
-  use cable_c13o2,             only: c13o2_print_delta_pools, c13o2_print_delta_luc
+       c13o2_write_restart_flux, c13o2_write_restart_pools, c13o2_write_restart_luc, &
+       c13o2_create_output, c13o2_write_output, c13o2_close_output, c13o2_nvars_output
+  use cable_c13o2,             only: c13o2_print_delta_flux, c13o2_print_delta_pools, c13o2_print_delta_luc
   use mo_isotope,              only: isoratio ! vpdbc13
-  use mo_c13o2_photosynthesis, only: c13o2_discrimination_simple
+  use mo_c13o2_photosynthesis, only: c13o2_discrimination_simple, c13o2_discrimination
   use cable_data_module,       only: icanopy_type
 
   ! PLUME-MIP only
@@ -223,9 +214,8 @@ PROGRAM cable_offline_driver
   type(c13o2_pool)  :: c13o2pools, sum_c13o2pools
   type(c13o2_luc)   :: c13o2luc
   integer :: c13o2_file_id
-  integer,           parameter        :: nvars = 7
-  character(len=20), dimension(nvars) :: c13o2_vars
-  integer,           dimension(nvars) :: c13o2_var_ids
+  character(len=20), dimension(c13o2_nvars_output) :: c13o2_vars
+  integer,           dimension(c13o2_nvars_output) :: c13o2_var_ids
   real(dp), dimension(:,:), allocatable :: casasave
   real(dp), dimension(:,:), allocatable :: lucsave
   integer            :: ileaf
@@ -404,8 +394,7 @@ PROGRAM cable_offline_driver
   cable_runtime%offline = .TRUE.
 
   ! associate pointers used locally with global definitions
-  CALL point2constants( C )
-  if (cable_user%c13o2) call point2constants(cconst)
+  CALL point2constants(C)
 
   IF( l_casacnp  .AND. ( icycle == 0 .OR. icycle > 3 ) )                   &
        STOP 'icycle must be 1 to 3 when using casaCNP'
@@ -743,7 +732,7 @@ PROGRAM cable_offline_driver
 
               IF ( cable_user%CALL_BLAZE ) THEN
                  ! CLN ?VH is rad%lat/lon below correct?
-                 CALL INI_BLAZE ( cable_user%CALL_POP, cable_user%BURNT_AREA, &
+                 CALL INI_BLAZE( cable_user%CALL_POP, cable_user%BURNT_AREA, &
                       cable_user%BLAZE_TSTEP, mland, rad%latitude(landpt(:)%cstart), &
                       rad%longitude(landpt(:)%cstart), BLAZE )
                  !CLNIF ( .NOT. spinup) CALL READ_BLAZE_RESTART(...)
@@ -755,6 +744,7 @@ PROGRAM cable_offline_driver
               ENDIF
 
            ENDIF ! CALL 1
+
 
            ! globally (WRT code) accessible kend through USE cable_common_module
            kwidth_gl = int(dels)
@@ -865,7 +855,7 @@ PROGRAM cable_offline_driver
                     veg%ejmax_sun = veg%ejmax
                  ENDIF
 
-                 IF (l_laiFeedbk.and.icycle>0) veg%vlai(:) = casamet%glai(:)
+                 IF (l_laiFeedbk .and. icycle>0) veg%vlai(:) = casamet%glai(:)
                  ! Call land surface scheme for this timestep, all grid points:
 
                  !MC13 ToDo - Photosynthesis
@@ -873,7 +863,6 @@ PROGRAM cable_offline_driver
                           bal, rad, rough, soil, ssnow, &
                           sum_flux, veg, climate)
                  if (cable_user%c13o2) then
-                    ! call c13o2_update_flux(canopy, met, c13o2flux)
                     gpp  = canopy%An + canopy%Rd
                     Ra   = isoratio(c13o2flux%ca, real(met%ca,dp), 1.0_dp)
                     diff = canopy%An - (spread(real(met%ca,dp),2,mf)-canopy%ci) * &
@@ -894,71 +883,57 @@ PROGRAM cable_offline_driver
                     endif
                     do ileaf=1, mf
                        if (cable_user%c13o2_simple_disc) then
-                           call c13o2_discrimination_simple( &
-                                ! -- Input
-                                ! isc3
-                                canopy%isc3, &
-                                ! GPP and Leaf respiration
-                                gpp(:,ileaf), canopy%Rd(:,ileaf), &
-                                ! Ambient and stomatal CO2 concentration 
-                                real(met%ca,dp), canopy%ci(:,ileaf), &
-                                ! leaf temperature
-                                real(canopy%tlf,dp), &
-                                ! Ambient isotope ratio
-                                Ra, &
-                                ! -- Output
-                                ! discrimination
-                                c13o2flux%Disc(:,ileaf), &
-                                ! 13CO2 flux
-                                c13o2flux%An(:,ileaf) )
-                        else
-                            !MC13 ToDo - full discrimination
-                            !MC ToDo - Vstarch, Rsucrose, Rphoto, Rstarch
-                            !MC ToDo - Interpret ga, gb, gs as conductances for CO2 instead of H2O
-                            !          so that An = (ca-ci)/(1/ga+1/gb+1/gs)
-                            ! call c13o2_discrimination( &
-                            !      ! -- Input
-                            !      dels, canopy%isc3, &
-                            !      ! Photosynthesis variables
-                            !      canopy%vcmax(:,ileaf), gpp(:,ileaf), canopy%Rd(:,ileaf), canopy%gammastar(:,ileaf), &
-                            !      ! CO2 concentrations
-                            !      real(met%ca,dp), canopy%ci(:,ileaf), &
-                            !      ! Conductances
-                            !      canopy%gac(:,ileaf), canopy%gbc(:,ileaf), canopy%gsc(:,ileaf), &
-                            !      ! leaf temperature
-                            !      real(canopy%tlf,dp), &
-                            !      ! Ambient isotope ratio
-                            !      Ra, &
-                            !      ! -- Inout
-                            !      ! Starch pool and isotope ratios of pools for respiration
-                            !      Vstarch, Rsucrose, Rphoto, Rstarch, &
-                            !      ! -- Output
-                            !      ! discrimination
-                            !      c13o2flux%Disc(:,ileaf), &
-                            !      ! 13CO2 flux
-                            !      c13o2flux%An(:,ileaf) )
-                            call c13o2_discrimination_simple( &
-                                 ! -- Input
-                                 ! isc3
-                                 canopy%isc3, &
-                                 ! GPP and Leaf respiration
-                                 gpp(:,ileaf), canopy%Rd(:,ileaf), &
-                                 ! Ambient and stomatal CO2 concentration 
-                                 real(met%ca,dp), canopy%ci(:,ileaf), &
-                                 ! leaf temperature
-                                 real(canopy%tlf,dp), &
-                                 ! Ambient isotope ratio
-                                 Ra, &
-                                 ! -- Output
-                                 ! discrimination
-                                 c13o2flux%Disc(:,ileaf), &
-                                 ! 13CO2 flux
-                                 c13o2flux%An(:,ileaf))
-                         endif
-                      end do
-                      ! Divide 13C net assimilation by VPDB so that about same numerical precision as 12C
-                      ! delta values are then calculated simply by 13C/12C-1.
-                      !Test c13o2flux%An = 1.005_dp * canopy%An !  * vpdbc13 / vpdbc13 ! Test 5 permil
+                          call c13o2_discrimination_simple( &
+                               ! -- Input
+                               ! isc3
+                               real(dels,dp), canopy%isc3, &
+                               ! GPP and Leaf respiration
+                               gpp(:,ileaf), canopy%Rd(:,ileaf), &
+                               ! Ambient and stomatal CO2 concentration 
+                               real(met%ca,dp), canopy%ci(:,ileaf), &
+                               ! leaf temperature
+                               real(canopy%tlf,dp), &
+                               ! Ambient isotope ratio
+                               Ra, &
+                               ! -- Inout
+                               ! Starch pool and its isotope ratio
+                               c13o2flux%Vstarch, c13o2flux%Rstarch, &
+                               ! -- Output
+                               ! discrimination
+                               c13o2flux%Disc(:,ileaf), &
+                               ! 13CO2 flux
+                               c13o2flux%An(:,ileaf) )
+                       else
+                          call c13o2_discrimination( &
+                               ! -- Input
+                               real(dels,dp), canopy%isc3, &
+                               ! Photosynthesis variables
+                               ! Vcmax<< because of temperature dependence of Vcmax
+                               canopy%vcmax(:,ileaf), gpp(:,ileaf), canopy%Rd(:,ileaf), canopy%gammastar(:,ileaf), &
+                               ! Could use Vcmax25?
+                               ! real(veg%vcmax,dp), gpp(:,ileaf), canopy%Rd(:,ileaf), canopy%gammastar(:,ileaf), &
+                               ! CO2 concentrations
+                               real(met%ca,dp), canopy%ci(:,ileaf), &
+                               ! Conductances
+                               canopy%gac(:,ileaf), canopy%gbc(:,ileaf), canopy%gsc(:,ileaf), &
+                               ! leaf temperature
+                               real(canopy%tlf,dp), &
+                               ! Ambient isotope ratio
+                               Ra, &
+                               ! -- Inout
+                               ! Starch pool and isotope ratios of pools for respiration
+                               c13o2flux%Vstarch, c13o2flux%Rstarch, &
+                               c13o2flux%Rsucrose(:,ileaf), c13o2flux%Rphoto(:,ileaf), &
+                               ! -- Output
+                               ! discrimination
+                               c13o2flux%Disc(:,ileaf), &
+                               ! 13CO2 flux
+                               c13o2flux%An(:,ileaf) )
+                       endif
+                    end do
+                    ! Divide 13C net assimilation by VPDB so that about same numerical precision as 12C
+                    ! delta values are then calculated simply by 13C/12C-1.
+                    !Test c13o2flux%An = 1.005_dp * canopy%An !  * vpdbc13 / vpdbc13 ! Test 5 permil
                  endif
 
                  if (cable_user%CALL_climate) then
@@ -977,30 +952,18 @@ PROGRAM cable_offline_driver
                  ncfile       = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
                  casa_it = NINT( REAL(ktau / ktauday) )
                  CALL read_casa_dump( ncfile, casamet, casaflux, phen, climate, c13o2flux, casa_it, kend, .FALSE. )
-
               ENDIF
 
               !jhan this is insufficient testing. condition for
               !spinup=.false. & we want CASA_dump.nc (spinConv=.true.)
               IF(icycle >0 .OR.       CABLE_USER%CASA_DUMP_WRITE ) THEN
                  !! vh_js !!
-
-                 ! if (cable_user%c13o2) then
-                 !    print*, 'Cable driver 07'
-                 !    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-                 !    call c13o2_print_delta_luc(popluc, c13o2luc)
-                 ! endif
                  CALL bgcdriver( ktau, kstart, kend, dels, met,                     &
                       ssnow, canopy, veg, soil, climate, casabiome,                  &
                       casapool, casaflux, casamet, casabal,                 &
                       phen, pop, spinConv, spinup, ktauday, idoy, loy,              &
                       CABLE_USER%CASA_DUMP_READ, CABLE_USER%CASA_DUMP_WRITE,   &
                       LALLOC, c13o2flux, c13o2pools )
-                 ! if (cable_user%c13o2) then
-                 !    print*, 'Cable driver 08'
-                 !    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-                 !    call c13o2_print_delta_luc(popluc, c13o2luc)
-                 ! endif
 
                  IF(MOD((ktau-kstart+1),ktauday)==0) THEN ! end of day
 
@@ -1040,11 +1003,6 @@ PROGRAM cable_offline_driver
                     IF (CABLE_USER%POPLUC) THEN
                        ! Dynamic LUC: update casa pools according to LUC transitions
                        if (cable_user%c13o2) call c13o2_save_luc(casapool, popluc, casasave, lucsave)
-                       ! if (cable_user%c13o2) then
-                       !    write(*,*) '13C in cable_driver - 01'
-                       !    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-                       !    call c13o2_print_delta_luc(popluc, c13o2luc)
-                       ! endif
                        CALL POP_LUC_CASA_transfer(POPLUC,POP,LUC_EXPT,casapool,casabal,casaflux,ktauday)
                        if (cable_user%c13o2) then
 #ifdef C13DEBUG
@@ -1053,11 +1011,6 @@ PROGRAM cable_offline_driver
                           call c13o2_update_luc(casasave, lucsave, popluc, luc_expt%prim_only, c13o2pools, c13o2luc)
 #endif
                        endif
-                       ! if (cable_user%c13o2) then
-                       !    write(*,*) '13C in cable_driver - 02'
-                       !    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-                       !    call c13o2_print_delta_luc(popluc, c13o2luc)
-                       ! endif
                        ! Dynamic LUC: write output
                        CALL WRITE_LUC_OUTPUT_NC( POPLUC, YYYY, ( YYYY.EQ.cable_user%YearEnd ))
                     ENDIF
@@ -1338,7 +1291,6 @@ PROGRAM cable_offline_driver
                     write(*,*) 'writing episodic POP output'
                     CALL POP_IO( pop, casamet, RYEAR, 'WRITE_EPI', &
                          (YYYY.EQ.CABLE_USER%YearEnd .AND. RRRR.EQ.NRRRR) )
-
                  ENDIF
               ENDIF
 
@@ -1372,6 +1324,7 @@ PROGRAM cable_offline_driver
 
            !MC - While testing
            if (cable_user%c13o2) then
+              call c13o2_print_delta_flux(c13o2flux)
               call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
               if (cable_user%POPLUC) call c13o2_print_delta_luc(popluc, c13o2luc)
            endif
@@ -1409,6 +1362,7 @@ PROGRAM cable_offline_driver
         call c13o2_write_restart_pools(c13o2pools)
         if (cable_user%POPLUC) call c13o2_write_restart_luc(c13o2luc)
         !MC - While testing
+        call c13o2_print_delta_flux(c13o2flux)
         call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
         if (cable_user%POPLUC) call c13o2_print_delta_luc(popluc, c13o2luc)
      endif
@@ -1420,12 +1374,12 @@ PROGRAM cable_offline_driver
 
   IF ( .NOT. CASAONLY ) THEN
      ! Write restart file if requested:
-     IF(output%restart)                                           &
-          CALL create_restart( logn, dels, ktau, soil, veg, ssnow,  &
-          canopy, rough, rad, bgc, bal, met )
+     IF (output%restart) &
+          CALL create_restart(logn, dels, ktau, soil, veg, ssnow, canopy, rough, rad, bgc, bal, met)
      !mpidiff
      if (cable_user%CALL_climate) &
-          CALL WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
+          CALL WRITE_CLIMATE_RESTART_NC(climate, ktauday)
+     if (cable_user%c13o2) call c13o2_write_restart_flux(c13o2flux)
      !--- LN ------------------------------------------[
   ENDIF
 

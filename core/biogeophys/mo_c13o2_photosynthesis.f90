@@ -11,6 +11,30 @@
 !> \author Matthias Cuntz
 !> \date Apr 2019
 
+! License
+! -------
+! This file is part of the JAMS Fortran package, distributed under the MIT License.
+!
+! Copyright (c) 2019 Matthias Cuntz - mc (at) macu (dot) de
+!
+! Permission is hereby granted, free of charge, to any person obtaining a copy
+! of this software and associated documentation files (the "Software"), to deal
+! in the Software without restriction, including without limitation the rights
+! to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+! copies of the Software, and to permit persons to whom the Software is
+! furnished to do so, subject to the following conditions:
+!
+! The above copyright notice and this permission notice shall be included in all
+! copies or substantial portions of the Software.
+!
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+! IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+! SOFTWARE.
+
 MODULE mo_c13o2_photosynthesis
 
   use mo_kind, only: dp, i4
@@ -23,30 +47,37 @@ MODULE mo_c13o2_photosynthesis
   
   public :: c13o2_discrimination        ! Photosynthetic 13C discrimination
   public :: c13o2_discrimination_simple ! Simple 13C discrimination = a+(b-a)*ci/ca
-  public :: init_leaf_pools             ! Initialise starch pool and isotope ratios of leaf carbohydrate pools
+  public :: init_starch_pool            ! Initialise starch pool and its isotope ratio
+  public :: init_sugar_pools            ! Initialise isotope ratios of leaf carbohydrate pools
 
   ! Transitory starch concentration in leaf [mol(C)/m2]
   real(dp), dimension(:), allocatable, public :: Vstarch
+  ! Isotopic composition if transitory starch
+  real(dp), dimension(:), allocatable, public :: Rstarch
   ! Isotopic composition if leaf sucrose
   real(dp), dimension(:), allocatable, public :: Rsucrose
   ! Isotopic composition if pool used for photorespiration
   real(dp), dimension(:), allocatable, public :: Rphoto
-  ! Isotopic composition if transitory starch
-  real(dp), dimension(:), allocatable, public :: Rstarch
 
   
   ! Private parameters
   
-  ! Mesophyll conductance factor for C3; C4=2*C3: gm(co2) = meso_cond_fac*Vcmax
-  real(dp), parameter :: meso_cond_fac = 4000.0_dp ! from LSM
+  ! Mesophyll conductance factor for C3
+  ! ISOLSM takes 8000 but for C4. John Evans suggests that it should be ca. 3000 for C3.
+  ! gm for C4 is about twice that of C3 (Evans & v.Caemmerer 1996).
+  ! John Evans is critical about temp dependence of gm from Bernacchi et al. (2002)
+  ! and suggests: if any temp depence, take the one of Vcmax.
+  ! -> C3: gm(CO2) =   meso_cond_fac*Vcmax [mol(CO2) m-2 s-1]
+  !    C4: gm(CO2) = 2*meso_cond_fac*Vcmax
+  real(dp), parameter :: meso_cond_fac = 4000.0_dp
 
-  ! fraction of leaf respiration in mesophyll in C4: Rdm = frdm*Rd
+  ! fraction of leaf respiration in mesophyll in C4, rest in bundle sheats: Rdm = frdm*Rd
   real(dp), parameter :: frdm = 0.5_dp    ! von Caemmerer (2000), Table 4.1
 
   ! mesophyll to bundle sheat conductance for CO2 in C4, von Caemmerer (2000) Section 4.3.2.2
   real(dp), parameter :: gbsc = 2.e-3_dp 
 
-  ! Leakage to PEP carboxylation ratio in C4 plants during the day, von Caemmerer (2000) Section 4.3.3.2
+  ! Leakage of bundle sheat to mesophyll in C4 plants during the day, von Caemmerer (2000) Section 4.3.3.2
   ! LPJ used 0.4
   real(dp), parameter :: Phi  = 0.2_dp ! von Caemmerer (2000), Fig. 4.11
 
@@ -77,9 +108,10 @@ MODULE mo_c13o2_photosynthesis
 
   ! Photorespiration pool
   ! This is some mixed sugar/enzyme pool.
-  ! Because 90% of the sugars in leaves are sucrose, this can be maximum Vsucrose/10.
+  ! Because 90% of the sugars in leaves are sucrose, this can be a maximum 10%.
   ! This is definitely too large. It is little, though, compared to the oxygenation flux and hence mixes rapidly.
   ! Mathematically, we only need that the isotope ratio is not equal the assimilation.
+  ! Hence, take 10% of sucrose pool.
   real(dp), parameter :: Vphoto = Vsucrose/10._dp
 
   ! Fractionation of starch synthesis
@@ -88,12 +120,12 @@ MODULE mo_c13o2_photosynthesis
   real(dp), parameter :: eps_starch = -4.4e-03_dp
 
   ! Fractionation of sucrose
-  ! Tcherkez et al. (2004) models about Rcytoplasm/Rinput=1.0019, i.e. eps_sucrose = -2.
+  ! Tcherkez et al. (2004) models about Rcytoplasm/Rinput=1.0019, i.e. eps_sucrose ~ -2.
   ! Also in this simple model, sucrose and starch are linked (ca.):
-  ! A*RA = F_starch*(1-eps_starch)*RA + F_sucrose*(1-eps_sucrose)*RA
+  !   A*RA = F_starch*(1-eps_starch)*RA + F_sucrose*(1-eps_sucrose)*RA
   ! so if F_starch = A/3 and F_sucrose=2A/3 then eps_sucrose = -eps_starch/2.
   ! This is the 'wrong' direction, according to Tcherkez et al. (2004).
-  ! But the effect on sucrose is rather small so that we rather 'close the mass balance'.
+  ! But the effect on sucrose is rather small so that we rather 'close the mass balance' and take -eps_starch/2.
   real(dp), parameter :: eps_sucrose = -eps_starch * 0.5_dp
 
 contains
@@ -120,8 +152,8 @@ contains
   !>            ca is the ambient mixing ratio outside the leaf boundary layer, \n
   !>            cc is the mixing ratio at the site of carboxylation (in chloroplast), \n
   !>            a is the effective diffusion fractionation from the ambient air outside the leaf boundary layer
-  !>                into the site of carboxylation (interior of chloroplasts), \n
-  !>            b is the effective fractionation of (RUBISCO and PEPC) carboxylation, \n
+  !>                into the site of carboxylation (interior of chloroplasts for C3, mesophyll for C4), \n
+  !>            b is the effective fractionation of (RuBisCO and PEP-C) carboxylation, \n
   !>            e is the effective fractionation during mitochondrial respiration (-6. permil), \n
   !>            f is the effective fractionation during photorespiration (+10. permil), \n
   !>            da is the isotopic composition of ambient air outside the leaf boundary layer, \n
@@ -139,7 +171,7 @@ contains
   !     CALLING SEQUENCE
   !         call subroutine c13o2_discrimination(dt, isc3, Vcmax, GPP, Rd, Gammastar, &
   !                                              ca, ci, ga, gb, gs, Tl, Rair, &
-  !                                              Vstarch, Rsucrose, Rphoto, Rstarch, &
+  !                                              Vstarch, Rstarch, Rsucrose, Rphoto, &
   !                                              Disc, Ass13)
 
   !>        This is an elemental subroutine and can be called with scalars and arrays. <- ToDo
@@ -153,21 +185,21 @@ contains
   !>        \param[in]    "real(dp) :: Gammstar"   CO2 compensation point in absence of dark respiration [mol(CO2)/mol(air)]
   !>        \param[in]    "real(dp) :: ca"         Ambient CO2 mixing ratio [mol(CO2)/mol(air)]
   !>        \param[in]    "real(dp) :: ci"         Stomatal CO2 mixing ratio [mol(CO2)/mol(air)]
-  !>        \param[in]    "real(dp) :: gs"         Stomatal conductance [mol(air)/m^2/s]
-  !>        \param[in]    "real(dp) :: ga"         Aerodynamic conductance [mol(air)/m^2/s]
-  !>        \param[in]    "real(dp) :: gb"         Boundary layer conductance [mol(air)/m^2/s]
+  !>        \param[in]    "real(dp) :: gsc"        Stomatal conductance for CO2 [mol(CO2)/m^2/s]
+  !>        \param[in]    "real(dp) :: gac"        Aerodynamic conductance for CO2 [mol(CO2)/m^2/s]
+  !>        \param[in]    "real(dp) :: gbc"        Boundary layer conductance for CO2 [mol(CO2)/m^2/s]
   !>        \param[in]    "real(dp) :: Tl"         Leaf temperature [K]
   !>        \param[in]    "real(dp) :: Rair"       Isotope ratio of ambient CO2 ([13C]/[12C])
   !>        \param[inout] "real(dp) :: Vstarch"    Transitory starch pool [mol(C)/m2]
+  !>        \param[inout] "real(dp) :: Rstarch"    Isotope ratio of transitory starch ([13C]/[12C])
   !>        \param[inout] "real(dp) :: Rsucrose"   Isotope ratio of sucrose pool ([13C]/[12C])
   !>        \param[inout] "real(dp) :: Rphoto"     Isotope ratio of pool for photorespiration ([13C]/[12C])
-  !>        \param[inout] "real(dp) :: Rstarch"    Isotope ratio of transitory starch ([13C]/[12C])
   !>        \param[out]   "real(dp) :: Disc"       Leaf discrimination
   !>        \param[out]   "real(dp) :: Ass13"      13C net assimilation [mol(13CO2)/m^2/s]
 
   !     HISTORY
   !>        \author Written Matthias Cuntz
-  !>        \date Apr 2019
+  !>        \date Apr-Nov 2019
   subroutine c13o2_discrimination( &
        ! -- Input
        dt, isc3, &
@@ -176,23 +208,22 @@ contains
        ! CO2 concentrations
        ca, ci, &
        ! Conductances
-       ga, gb, gs, &
+       gac, gbc, gsc, &
        ! leaf temperature
        Tl, &
        ! Ambient isotope ratio
        Rair, &
        ! -- Inout
        ! Starch pool and isotope ratios of pools for respiration
-       Vstarch, Rsucrose, Rphoto, Rstarch, &
+       Vstarch, Rstarch, Rsucrose, Rphoto, &
        ! -- Output
        ! discrimination
        Disc, &
        ! 13CO2 flux
        Ass13)
 
-    use mo_utils,     only: ne, le
-    use mo_constants, only: twothird_dp, T0_dp
-    use mo_isotope,   only: ratio_diff_air2vap, ratio_boundary_air2vap
+    use mo_utils,     only: ne
+    use mo_constants, only: onethird_dp, twothird_dp, T0_dp
 
     implicit none
 
@@ -204,15 +235,15 @@ contains
     real(dp), dimension(:), intent(in)    :: Gammastar            ! CO2 compensation point Gamma* [ppm]
     real(dp), dimension(:), intent(in)    :: ca                   ! Ambient CO2 concentration [ppm]
     real(dp), dimension(:), intent(in)    :: ci                   ! Stomatal CO2 concentration [ppm]
-    real(dp), dimension(:), intent(in)    :: gs                   ! Stomatal conductance [mol(air)/m2s]
-    real(dp), dimension(:), intent(in)    :: ga                   ! Aerodynamic conductance [mol(air)/m2s]
-    real(dp), dimension(:), intent(in)    :: gb                   ! Boundary layer conductance [mol(air)/m2s]
+    real(dp), dimension(:), intent(in)    :: gsc                  ! Stomatal conductance for CO2 [mol(CO2)/m2s]
+    real(dp), dimension(:), intent(in)    :: gac                  ! Aerodynamic conductance for CO2 [mol(CO2)/m2s]
+    real(dp), dimension(:), intent(in)    :: gbc                  ! Boundary layer conductance for CO2 [mol(CO2)/m2s]
     real(dp), dimension(:), intent(in)    :: Tl                   ! Leaf temperature [K]
     real(dp), dimension(:), intent(in)    :: Rair                 ! Isotopic composition of ambient CO2
     real(dp), dimension(:), intent(inout) :: Vstarch              ! Transitory starch pool [mol(C)/m2]
+    real(dp), dimension(:), intent(inout) :: Rstarch              ! Isotopic composition of transitory starch
     real(dp), dimension(:), intent(inout) :: Rsucrose             ! Isotopic composition of sucrose pool
     real(dp), dimension(:), intent(inout) :: Rphoto               ! Isotopic composition of pool for photorespiration
-    real(dp), dimension(:), intent(inout) :: Rstarch              ! Isotopic composition of transitory starch
     real(dp), dimension(:), intent(out)   :: Disc                 ! Discrimination
     real(dp), dimension(:), intent(out)   :: Ass13                ! 13CO2 flux [mol(13CO2)/m2s]
 
@@ -226,7 +257,6 @@ contains
     real(dp), dimension(size(isc3)) :: Vc                          ! carboxylation rate
     real(dp), dimension(size(isc3)) :: Photo                       ! Photorespiration
     ! resistances and conductances
-    real(dp), dimension(size(isc3)) :: ra, rb, rs                            ! resistances for water
     real(dp), dimension(size(isc3)) :: rac, rbc, rsc, rmc, rwc, rmlc, rabsmc ! resistances for CO2
     real(dp), dimension(size(isc3)) :: gmc, gabsc, gabsmc                    ! conductances for CO2
     ! CO2 concentrations
@@ -273,30 +303,25 @@ contains
     ! net assimilation
     Ass = GPP - Rd
 
-
     !
     !-- Resistances & Conductances
     !
-    
+
     ! Aerodynamic resistance
-    ra  = 1.0_dp / ga ! [mol m-2 s-1]^-1
-    rac = ra          ! [mol(CO2) m-2 s-1]^-1
-    ! Leaf boundary layer conductance [mol m-2 s-1]
-    rb  = 1.0_dp / gb ! [mol m-2 s-1]^-1
-    rbc = rb * ratio_boundary_air2vap ! [mol(CO2) m-2 s-1]^-1
+    rac = 1.0_dp / gac ! [mol(CO2) m-2 s-1]^-1
+    ! Leaf boundary layer resistance
+    rbc = 1.0_dp / gbc ! [mol(CO2) m-2 s-1]^-1
     ! Stomatal resistance
-    rs  = 1.0_dp / gs ! [mol m-2 s-1]^-1
-    rsc = rs * ratio_diff_air2vap ! [mol(CO2) m-2 s-1]^-1
+    rsc = 1.0_dp / gsc ! [mol(CO2) m-2 s-1]^-1
     ! Mesophyll conductance [mol(CO2) m-2 s-1]
-    ! ISOLSM takes 8000 but this is for C4
-    ! John Evans suggests that it should be ca. 3000 for C3
+    ! ISOLSM takes 8000 for C4. John Evans suggests that it should be ca. 3000 for C3.
     ! gm for C4 is about twice that of C3 (Evans & v.Caemmerer 1996).
     ! John Evans is critical about temp dependence of gm from Bernacchi et al. (2002)
     ! and suggests: if any temp depence, take the one of Vcmax.
     where (isc3) ! c3
-       gmc =         meso_cond_fac*Vcmax
+       gmc =        meso_cond_fac*Vcmax
     elsewhere    ! c4
-       gmc =  2.0_dp*meso_cond_fac*Vcmax
+       gmc = 2.0_dp*meso_cond_fac*Vcmax
     end where
     where (gmc > 0.0_dp)
        rmc = 1.0_dp / gmc ! [mol(co2) m-2 s-1]^-1
@@ -309,19 +334,18 @@ contains
     ! Resistance from the chloroplast surface to inside the chloroplast [mol(CO2) m-2 s-1]^-1
     rmlc = (1.0_dp-0.25_dp) * rmc
 
-    ! Total conductance from canopy to stomata for CO2
+    ! Total conductance from canopy to stomatal air space for CO2
     gabsc = 1.0_dp / (rac+rbc+rsc)
     ! Total conductance from canopy to sites of carboxylation for CO2
-    rabsmc   = rac + rbc + rsc + rwc + rmlc
-    gabsmc   = 1.0_dp / rabsmc
-
+    rabsmc = rac + rbc + rsc + rwc + rmlc
+    gabsmc = 1.0_dp / rabsmc
     
     !
     !-- CO2 concentrations
     !
 
     ! CO2 at the site of carboxylation, i.e. in the chloroplasts
-    where (gmc > 0.0_dp)
+    where ((gmc > 0.0_dp) .and. (ass > 0.0_dp))
        cc = ci - ass*rmc
        cc = max(cc, 1.1*Gammastar) ! from isolsm
     elsewhere
@@ -341,7 +365,18 @@ contains
     !
 
     ! Total conductance from canopy to sites of carboxylation
-    gabsmc = gabsc * (ca-ci)/(ca-cc)
+    ! Done again to account for possible cropping of Cc.
+    ! Do not do rabsmc again so that calc of eps_a_eff is still correct.
+    where (ca > cc) gabsmc = gabsc * (ca-ci)/(ca-cc)
+    ! if (any(abs(gabsmc-1.0_dp/rabsmc)>(gabsmc*1e-6_dp))) then
+    !    print*, 'GABSMC00 ', ass
+    !    print*, 'GABSMC01 ', ca
+    !    print*, 'GABSMC02 ', ci
+    !    print*, 'GABSMC03 ', cc
+    !    print*, 'GABSMC04 ', 1.1*Gammastar
+    !    print*, 'GABSMC05 ', gabsmc
+    !    print*, 'GABSMC06 ', 1.0_dp/rabsmc
+    ! endif
 
     ! Carboxylation efficiency: initial slope of A vs Ci
     ! From Farquhar et al. (1982), eq. B11
@@ -361,14 +396,13 @@ contains
     Vc = k*ctmp
     ! Photorespiration rate = 0.5*Vo
     photo = k*Gammastar
-
     
     !
     !-- Fractionations
     !
     
     ! diffusion fractionation through lamina
-    eps_ab = (1.0_dp+eps_a)**twothird_dp - 1.0_dp
+    eps_ab = 1.0_dp - (1.0_dp-eps_a)**twothird_dp
     ! frac. during CO2 dissolution
     eps_es = (1.18_dp - 0.0041_dp*(Tl-T0_dp))*1.e-3_dp ! Vogel et al. (Z Physik, 1970), Szaran (Chemical Geology, 1998)
     ! discrimination by PEP-c (<0)
@@ -379,7 +413,6 @@ contains
     eps_s = eps_es + eps_al
     ! effective fractionation from canopy canopy to sites of carboxylation (chloroplast interior)
     eps_a_eff = (rac*0.0_dp + rbc*eps_ab + rsc*eps_a + rwc*eps_a + rmlc*eps_s) / (rabsmc)
-
     
     !
     !-- 13CO2 fluxes
@@ -387,52 +420,50 @@ contains
     
     eps_night = 0.0_dp
     do jl=1, nn
-       if (isc3(jl)) then
-          ! C3
+       if (k(jl) > 0.0_dp) then
+          ! Day
           ! Same for photorespiration as Wingate et al. (2007) for leaf respiration
-          Ass13(jl) = (1.0_dp-eps_a_eff(jl))*gabsmc(jl) &
-               / ((1.0_dp-eps_a_eff(jl))*gabsmc(jl) + (1.0_dp-eps_b(jl))*k(jl)) &
-               * ((1.0_dp-eps_b(jl))*Rair(jl)*k(jl)*ca(jl) &
-               - (1.0_dp-eps_f)*Rphoto(jl)*k(jl)*Gammastar(jl) &
-               - (1.0_dp-eps_e)*Rsucrose(jl)*Rd(jl))
-          if (ne(Ass(jl),0.0_dp)) then
-             Disc(jl) = 1.0_dp - Ass13(jl) / (Ass(jl)*Rair(jl))
-          else
-             Disc(jl) = 0.0_dp
-          end if
-          ! Night
-          if (le(k(jl),0.0_dp)) then
-             Ass13(jl) = (1.0_dp-eps_night) * Rstarch(jl) ! no *ass
-             Disc(jl)  = 1.0_dp - Ass13(jl)/Rair(jl)
-             Ass13(jl) = Ass13(jl) * Ass(jl)              ! *ass
-          end if
-       else
-          ! C4
-          ! Same for photorespiration as Wingate et al. (2007) for leaf respiration
-          if (k(jl) > 0.0_dp) then
-             ! Day
-             tmp = cc(jl)*(1.0_dp-(1.0_dp-eps_a_eff(jl))/(1.0_dp-eps_b4(jl))*Ass(jl)/Vp(jl) &
-                  - (1.0_dp-eps_s(jl))/(1.0_dp-eps_b3)*(1.0_dp-eps_a_eff(jl))/(1.0_dp-eps_b4(jl)) &
-                  *Phi1(jl)*Ass(jl)/vc(jl))
+          if (isc3(jl)) then ! C3
+             ! print*, 'DD01 ', jl, k(jl), gabsmc(jl)
+             ! print*, 'DD02 ', eps_a_eff(jl), eps_b(jl), eps_f, eps_e
+             ! print*, 'DD03 ', ca(jl), ci(jl), cc(jl), Gammastar(jl)
+             ! print*, 'DD04 ', GPP(jl), Rd(jl)
+             Ass13(jl) = (1.0_dp-eps_a_eff(jl)) * gabsmc(jl) / &
+                  ( (1.0_dp-eps_a_eff(jl)) * gabsmc(jl) + (1.0_dp-eps_b(jl)) * k(jl) ) * &
+                  ( (1.0_dp-eps_b(jl)) * Rair(jl) * k(jl) * ca(jl) - &
+                  (1.0_dp-eps_f) * Rphoto(jl) * k(jl) * Gammastar(jl) - &
+                  (1.0_dp-eps_e) * Rsucrose(jl) * Rd(jl) )
+             ! print*, 'DD05 ', Ass(jl), Ass13(jl)
+             if (ne(Ass(jl),0.0_dp)) then
+                Disc(jl) = 1.0_dp - Ass13(jl) / (Ass(jl)*Rair(jl))
+                ! print*, 'DD06 ', Ass13(jl)/Ass(jl), Disc(jl)*1000._dp
+             else
+                Disc(jl) = 0.0_dp
+             end if             
+             ! print*, 'DD07 ', ass(jl), gmc(jl), Vcmax(jl)
+          else               ! C4
+             tmp = cc(jl) * ( 1.0_dp - (1.0_dp-eps_a_eff(jl)) / (1.0_dp-eps_b4(jl)) * Ass(jl)/Vp(jl) - &
+                  (1.0_dp-eps_s(jl)) / (1.0_dp-eps_b3) * (1.0_dp-eps_a_eff(jl)) / (1.0_dp-eps_b4(jl)) * &
+                  Phi1(jl) * Ass(jl) / vc(jl) )
              if (abs(1.0_dp-tmp/ca(jl)) > 0.01_dp) then
-                Ass13(jl) = (1.0_dp-eps_a_eff(jl))*(Rair(jl)*ca(jl) & ! no *ass
-                     - (1.0_dp-eps_e)/(1.0_dp-eps_b4(jl))*Rdm(jl)/Vp(jl)*Rsucrose(jl)*cc(jl) &
-                     - (1.0_dp-eps_s(jl))/(1.0_dp-eps_b3)/(1.0_dp-eps_b4(jl))*Phi1(jl)*cc(jl) &
-                     * ((1.0_dp-eps_e)*Rsucrose(jl)*Rd(jl) &
-                     +(1.0_dp-eps_f)*Photo(jl)*Rphoto(jl))/vc(jl)) &
-                     / (ca(jl)-tmp)
+                Ass13(jl) = (1.0_dp-eps_a_eff(jl)) * ( Rair(jl)*ca(jl) - & ! no *ass
+                     (1.0_dp-eps_e) / (1.0_dp-eps_b4(jl)) * Rdm(jl) / Vp(jl) * Rsucrose(jl) * cc(jl) - &
+                     (1.0_dp-eps_s(jl)) / (1.0_dp-eps_b3) / (1.0_dp-eps_b4(jl)) * Phi1(jl) * cc(jl) * &
+                     ( (1.0_dp-eps_e) * Rsucrose(jl) * Rd(jl) + &
+                     (1.0_dp-eps_f) * Photo(jl) * Rphoto(jl) ) / vc(jl) ) / &
+                     (ca(jl)-tmp)
              else
                 Ass13(jl) = 0.0_dp
              end if
              Disc(jl)  = 1.0_dp - Ass13(jl)/Rair(jl)
-             Ass13(jl) = Ass13(jl) * Ass(jl)                        ! *ass
-          else
-             ! Night
-             Ass13(jl) = (1.0_dp-eps_night) * Rstarch(jl) ! no *ass
-             Disc(jl)  = 1.0_dp - Ass13(jl)/Rair(jl)
-             Ass13(jl) = Ass13(jl) * Ass(jl)              ! *ass
-          end if
-       end if ! end C3/C4
+             Ass13(jl) = Ass13(jl) * Ass(jl)                               ! *ass
+          endif              ! end C3/C4
+       else
+          ! Night
+          Ass13(jl) = (1.0_dp-eps_night) * Rstarch(jl) ! no *ass
+          Disc(jl)  = 1.0_dp - Ass13(jl)/Rair(jl)
+          Ass13(jl) = Ass13(jl) * Ass(jl)              ! *ass
+       end if ! end day/night
 
        !
        !-- 13CO2 pools
@@ -442,15 +473,15 @@ contains
        ! 2/3 of assimilation is sugar, 1/3 goes into starch pool
        if (Ass(jl) > 0.0_dp) then
           ! average sucrose pool (continuous)
-          add_flux     = dt*twothird_dp                   ! *Ass
-          add_r        = (1.0_dp-eps_sucrose) * Ass13(jl) ! /Ass
-          Rsucrose(jl) = (Vsucrose*Rsucrose(jl) + add_flux*add_r) / (Vsucrose + add_flux*Ass(jl))
+          add_flux     = dt * twothird_dp * Ass(jl)
+          add_r        = (1.0_dp-eps_sucrose) * Ass13(jl)/Ass(jl)
+          Rsucrose(jl) = (Vsucrose*Rsucrose(jl) + add_flux*add_r) / (Vsucrose + add_flux)
           ! average photorespiration pool (continuous)
-          add_flux    = dt*2.0_dp*Photo(jl) ! vo=2*photo
+          add_flux    = dt * 2.0_dp * Photo(jl) ! vo=2*photo
           add_r       = (1.0_dp-eps_sucrose) * Ass13(jl)/Ass(jl)
           Rphoto(jl)  = (Vphoto*Rphoto(jl) + add_flux*add_r) / (Vphoto + add_flux)
           ! integrated starch pool (new at every day)
-          add_flux    = dt*(1.0_dp-twothird_dp)*Ass(jl)
+          add_flux    = dt * onethird_dp * Ass(jl)
           add_r       = (1.0_dp-eps_starch) * Ass13(jl)/Ass(jl)
           Rstarch(jl) = (Vstarch(jl)*Rstarch(jl) + add_flux*add_r) / (Vstarch(jl) + add_flux)
           Vstarch(jl) = Vstarch(jl) + add_flux
@@ -460,7 +491,7 @@ contains
           ! Rstarch(jl)  = Rstarch(jl)
           Vstarch(jl) = 0.0_dp ! start new starch integration each day
        end if
-       
+
     end do
 
     return
@@ -488,31 +519,35 @@ contains
   !>        The routine returns discrimination D and also the 13CO2 net assimilation rate A': \n
   !>            A' = (1-D) * A * Ra \n
   !>        with the 12CO2 net assimilation rate A and the isotope ratio of the ambient air Ra.
-  !>        The routine assumes no discrimination, i.e. D=0., during times of ci >= ca, e.g. at night.
-  !>        This means that A' = A * Ra during nightime and nighttime plant respiration does hence
-  !>        not change the isotopic composition of the atmosphere. \n
+  !>        A starch pool is built up during day by 1/3 of assimilation without any fractionation.
+  !>        Mitochondrial respiration respires this starch pool at night, with the average
+  !>        isotopic composition of the pool at the beginning of the night, without fractionation. \n
 
   !     CALLING SEQUENCE
-  !         call c13o2_discrimination_simple(isc3, GPP, Rd, ca, ci, Tl, Rair, Disc, Ass13)
+  !         call c13o2_discrimination_simple(dt, isc3, GPP, Rd, ca, ci, Tl, Rair, Vstarch, Rstarch, Disc, Ass13)
 
   !>        This is an elemental subroutine and can be called with scalars and arrays.
 
   !     PARAMETER
-  !>        \param[in]  "logical  :: isc3"    C3 mask with .true. for C3 and .false. for C4 plants
-  !>        \param[in]  "real(dp) :: GPP"     Gross assimilation [mol(CO2)/m^2/s]
-  !>        \param[in]  "real(dp) :: Rd"      Leaf respiration [mol(CO2)/m^2/s]
-  !>        \param[in]  "real(dp) :: ca"      Ambient CO2 mixing ratio [mol(CO2)/mol(air)]
-  !>        \param[in]  "real(dp) :: ci"      Stomatal CO2 mixing ratio [mol(CO2)/mol(air)]
-  !>        \param[in]  "real(dp) :: Tl"      Leaf temperature [K]
-  !>        \param[in]  "real(dp) :: Rair"    Isotope ratio of ambient CO2 ([13C]/[12C])
-  !>        \param[out] "real(dp) :: Disc"    Leaf discrimination
-  !>        \param[out] "real(dp) :: Ass13"   13C net assimilation [mol(13CO2)/m^2/s]
+  !>        \param[in]    "real(dp) :: dt"        Time step [s]
+  !>        \param[in]    "logical  :: isc3"      C3 mask with .true. for C3 and .false. for C4 plants
+  !>        \param[in]    "real(dp) :: GPP"       Gross assimilation [mol(CO2)/m^2/s]
+  !>        \param[in]    "real(dp) :: Rd"        Leaf respiration [mol(CO2)/m^2/s]
+  !>        \param[in]    "real(dp) :: ca"        Ambient CO2 mixing ratio [mol(CO2)/mol(air)]
+  !>        \param[in]    "real(dp) :: ci"        Stomatal CO2 mixing ratio [mol(CO2)/mol(air)]
+  !>        \param[in]    "real(dp) :: Tl"        Leaf temperature [K]
+  !>        \param[in]    "real(dp) :: Rair"      Isotope ratio of ambient CO2 ([13C]/[12C])
+  !>        \param[inout] "real(dp) :: Vstarch"   Transitory starch pool [mol(C)/m2]
+  !>        \param[inout] "real(dp) :: Rstarch"   Isotope ratio of transitory starch ([13C]/[12C])
+  !>        \param[out]   "real(dp) :: Disc"      Leaf discrimination
+  !>        \param[out]   "real(dp) :: Ass13"     13C net assimilation [mol(13CO2)/m^2/s]
 
   !     HISTORY
   !>        \author Written Matthias Cuntz
   !>        \date Apr 2019
-  elemental pure subroutine c13o2_discrimination_simple(isc3, &
+  elemental pure subroutine c13o2_discrimination_simple( &
        ! -- Input
+       dt, isc3, &
        ! GPP and Leaf respiration
        GPP, Rd, &
        ! Ambient and stomatal CO2 mixing ratio
@@ -521,32 +556,40 @@ contains
        Tl, &
        ! Ambient isotope ratio
        Rair, &
+       ! -- Inout
+       ! Starch pool and its isotope ratio
+       Vstarch, Rstarch, &
        ! -- Output
        ! discrimination
        Disc, &
        ! 13CO2 flux
        Ass13)
 
-    use mo_constants, only: T0_dp
+    use mo_constants, only: onethird_dp, T0_dp
 
     implicit none
 
-    logical,  intent(in)  :: isc3  ! C3 mask
-    real(dp), intent(in)  :: GPP   ! A+Rd [mol(CO2)/m2s]
-    real(dp), intent(in)  :: Rd    ! Leaf respiration Rd [mol(CO2)/m2s]
-    real(dp), intent(in)  :: ci    ! Stomatal CO2 concentration [mol(CO2)/mol(air)]
-    real(dp), intent(in)  :: ca    ! Ambient CO2 concentration [mol(CO2)/mol(air)]
-    real(dp), intent(in)  :: Tl    ! Leaf temperature [K]
-    real(dp), intent(in)  :: Rair  ! Isotopic composition of ambient CO2
-    real(dp), intent(out) :: Disc  ! Discrimination
-    real(dp), intent(out) :: Ass13 ! 13CO2 flux [mol(13CO2)/m2s]
+    real(dp), intent(in)    :: dt      ! time step
+    logical,  intent(in)    :: isc3    ! C3 mask
+    real(dp), intent(in)    :: GPP     ! A+Rd [mol(CO2)/m2s]
+    real(dp), intent(in)    :: Rd      ! Leaf respiration Rd [mol(CO2)/m2s]
+    real(dp), intent(in)    :: ci      ! Stomatal CO2 concentration [mol(CO2)/mol(air)]
+    real(dp), intent(in)    :: ca      ! Ambient CO2 concentration [mol(CO2)/mol(air)]
+    real(dp), intent(in)    :: Tl      ! Leaf temperature [K]
+    real(dp), intent(in)    :: Rair    ! Isotopic composition of ambient CO2
+    real(dp), intent(inout) :: Vstarch ! Transitory starch pool [mol(C)/m2]
+    real(dp), intent(inout) :: Rstarch ! Isotopic composition of transitory starch
+    real(dp), intent(out)   :: Disc    ! Discrimination
+    real(dp), intent(out)   :: Ass13   ! 13CO2 flux [mol(13CO2)/m2s]
 
     ! Local variables
     real(dp) :: tmp
     real(dp) :: Ass                   ! net assimilation
     ! fractionations
     real(dp) :: eps_es, eps_b4, eps_s ! for C4
-    real(dp) :: eps_night             ! fractionation during night
+    ! for pool update
+    real(dp) :: add_flux  ! new flux to pool
+    real(dp) :: add_r     ! isotope ratio of new flux
 
     ! net assimilation
     Ass = GPP - Rd
@@ -563,27 +606,38 @@ contains
     !-- 13CO2 fluxes
     !
 
-    eps_night = 0.0_dp
-    if (isc3) then
-       ! C3
-       if (ca > ci) then ! day
+    if (ca > ci) then ! day
+       if (isc3) then ! C3
           Disc = eps_a + (eps_b_ci-eps_a) * ci/ca
-       else              ! night
-          Disc = eps_night
-       end if
-    else
-       ! C4
-       tmp = ci * ( 1.0_dp - (1.0_dp-eps_a) / (1.0_dp-eps_b4) * (1.0_dp-Phi) - &
-            (1.0_dp-eps_s) / (1.0_dp-eps_b3) * (1.0_dp-eps_a) / (1.0_dp-eps_b4) * Phi )
-       if (ca > ci) then ! day ! ToDo: Check ca>ci or ca>tmp
+       else           ! C4
+          tmp = ci * ( 1.0_dp - (1.0_dp-eps_a) / (1.0_dp-eps_b4) * (1.0_dp-Phi) - &
+               (1.0_dp-eps_s) / (1.0_dp-eps_b3) * (1.0_dp-eps_a) / (1.0_dp-eps_b4) * Phi )
           Ass13 = (1.0_dp-eps_a) * ca / (ca-tmp) ! no *A*Ra
           Disc  = 1.0_dp - Ass13                 ! D = 1 - A'/A/Ra
-       else              ! night
-          Disc  = eps_night
-       end if
-    end if ! end C3/C4
+       end if ! end C3/C4
+       Ass13 = (1.0_dp-Disc) * Ass * Rair        ! D = 1 - A'/A/Ra
+    else              ! night
+       Ass13 = Rstarch     ! no *ass
+       Disc  = 1.0_dp - Ass13/Rair
+       Ass13 = Ass13 * Ass ! *ass
+    endif ! end day/night
 
-    Ass13 = (1.0_dp-Disc) * Ass * Rair ! D = 1 - A'/A/Ra
+    !
+    !-- Starch pool
+    !
+
+    ! Update substrate pools
+    ! 2/3 of assimilation is sugar, 1/3 goes into starch pool
+    if (ca > ci) then ! day
+       ! integrated starch pool (new at every day)
+       add_flux = dt * onethird_dp * Ass
+       add_r    = Ass13/Ass
+       Rstarch  = (Vstarch*Rstarch + add_flux*add_r) / (Vstarch + add_flux)
+       Vstarch  = Vstarch + add_flux
+    else
+       ! Rstarch  = Rstarch
+       Vstarch = 0.0_dp ! start new starch integration each day
+    end if
 
     return
 
@@ -593,40 +647,35 @@ contains
   ! ------------------------------------------------------------------
 
   !     NAME
-  !         init_leaf_pools
+  !         init_starch_pool
 
   !     PURPOSE
-  !>        \brief Initialise transitory starch pool and isotope ratios of leaf carbohydrate pools.
+  !>        \brief Initialise transitory starch pool and its isotope ratio.
 
-  !>        \details Initialises the transitory starch pool and the isotope ratios of
-  !>        the leaf carbohydrate pools for sucrose, the pool for photorespiration,
-  !>        and transitory starch.
+  !>        \details Initialises the transitory starch pool and its isotope ratio
+  !>        in the chloroplasts.
 
   !     CALLING SEQUENCE
-  !         call init_leaf_pools(isc3, Vstarch, Rsucrose, Rphoto, Rstarch, Rinitc3, Rinitc4)
+  !         call init_starch_pool(isc3, Vstarch, Rstarch, Rinitc3, Rinitc4)
 
   !>        This is an elemental subroutine and can be called with scalars and arrays.
 
   !     PARAMETER
   !>        \param[in]    "logical  :: isc3"       C3 mask with .true. for C3 and .false. for C4 plants
   !>        \param[inout] "real(dp) :: Vstarch"    Transitory starch pool
-  !>        \param[inout] "real(dp) :: Rsucrose"   Isotope ratio of leaf sucrose
-  !>        \param[inout] "real(dp) :: Rphoto"     Isotope ratio of substrate for photorespiration
   !>        \param[inout] "real(dp) :: Rstarch"    Isotope ratio of transitory starch
   !>        \param[in]    "real(dp) :: Rinitc3"    Initial isotope ratio if isc3=.true., i.e. of C3 plants
   !>        \param[in]    "real(dp) :: Rinitc4"    Initial isotope ratio if isc3=.false., i.e. of C4 plants
 
   !     HISTORY
   !>        \author Written Matthias Cuntz
-  !>        \date Apr 2019
-  elemental pure subroutine init_leaf_pools(isc3, Vstarch, Rsucrose, Rphoto, Rstarch, Rinitc3, Rinitc4)
+  !>        \date Apr-Nov 2019
+  elemental pure subroutine init_starch_pool(isc3, Vstarch, Rstarch, Rinitc3, Rinitc4)
 
     implicit none
 
     logical,  intent(in)    :: isc3
     real(dp), intent(inout) :: Vstarch
-    real(dp), intent(inout) :: Rsucrose
-    real(dp), intent(inout) :: Rphoto
     real(dp), intent(inout) :: Rstarch
     real(dp), intent(in)    :: Rinitc3
     real(dp), intent(in)    :: Rinitc4
@@ -634,17 +683,63 @@ contains
     ! initialise
     Vstarch  = 0.0_dp
     if (isc3) then
-       Rsucrose = Rinitc3
-       Rphoto   = Rinitc3
        Rstarch  = Rinitc3
     else
-       Rsucrose = Rinitc4
-       Rphoto   = Rinitc4
        Rstarch  = Rinitc4
     endif
 
     return
 
-  end subroutine init_leaf_pools
+  end subroutine init_starch_pool
+
+
+  ! ------------------------------------------------------------------
+
+  !     NAME
+  !         init_sugar_pools
+
+  !     PURPOSE
+  !>        \brief Initialise isotope ratios of leaf carbohydrate pools.
+
+  !>        \details Initialises the isotope ratios of the leaf carbohydrate pools
+  !>        for sucrose and the pool for photorespiration.
+
+  !     CALLING SEQUENCE
+  !         call init_sugar_pools(isc3, Rsucrose, Rphoto, Rinitc3, Rinitc4)
+
+  !>        This is an elemental subroutine and can be called with scalars and arrays.
+
+  !     PARAMETER
+  !>        \param[in]    "logical  :: isc3"       C3 mask with .true. for C3 and .false. for C4 plants
+  !>        \param[inout] "real(dp) :: Rsucrose"   Isotope ratio of leaf sucrose
+  !>        \param[inout] "real(dp) :: Rphoto"     Isotope ratio of substrate for photorespiration
+  !>        \param[in]    "real(dp) :: Rinitc3"    Initial isotope ratio if isc3=.true., i.e. of C3 plants
+  !>        \param[in]    "real(dp) :: Rinitc4"    Initial isotope ratio if isc3=.false., i.e. of C4 plants
+
+  !     HISTORY
+  !>        \author Written Matthias Cuntz
+  !>        \date Apr-Nov 2019
+  elemental pure subroutine init_sugar_pools(isc3, Rsucrose, Rphoto, Rinitc3, Rinitc4)
+
+    implicit none
+
+    logical,  intent(in)    :: isc3
+    real(dp), intent(inout) :: Rsucrose
+    real(dp), intent(inout) :: Rphoto
+    real(dp), intent(in)    :: Rinitc3
+    real(dp), intent(in)    :: Rinitc4
+    
+    ! initialise
+    if (isc3) then
+       Rsucrose = Rinitc3
+       Rphoto   = Rinitc3
+    else
+       Rsucrose = Rinitc4
+       Rphoto   = Rinitc4
+    endif
+
+    return
+
+  end subroutine init_sugar_pools
 
 END MODULE mo_c13o2_photosynthesis

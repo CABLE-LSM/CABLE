@@ -4,7 +4,7 @@
 
 !> \details Routines for calculating, shuffling, reading and writing 13C within Cable.
 
-!> \author Matthias Cuntz, Juergen Knauer
+!> \author Matthias Cuntz
 !> \date Apr 2019
 
 MODULE cable_c13o2
@@ -30,17 +30,21 @@ MODULE cable_c13o2
   public :: c13o2_update_luc    ! Update 13C Casa and LUC pools
 
   ! Output
+  integer, parameter, public :: c13o2_nvars_output = 7 ! number of output variables
   public :: c13o2_create_output ! Create output netcdf file
   public :: c13o2_write_output  ! Write to output netcdf file
   public :: c13o2_close_output  ! Close output netcdf file
 
   ! Restart
+  public :: c13o2_read_restart_flux   ! Read 13CO2 restart_in_flux file
+  public :: c13o2_write_restart_flux  ! Write 13CO2 restart_out_flux file
   public :: c13o2_read_restart_pools  ! Read 13CO2 restart_in_pools file
   public :: c13o2_write_restart_pools ! Write 13CO2 restart_out_pools file
   public :: c13o2_read_restart_luc    ! Read 13CO2 restart_in_luc file
   public :: c13o2_write_restart_luc   ! Write 13CO2 restart_out_luc file
 
   ! General
+  public :: c13o2_print_delta_flux  ! Print delta values of all Canopy pools on screen
   public :: c13o2_print_delta_pools ! Print delta values of all Casa pools on screen
   public :: c13o2_print_delta_luc   ! Print delta values of all LUC pools on screen
 
@@ -77,24 +81,35 @@ contains
   ! ------------------------------------------------------------------
 
   ! Initialise all 13CO2 flux variables
-  subroutine c13o2_init_flux(met, c13o2flux)
+  subroutine c13o2_init_flux(met, canopy, c13o2flux)
 
-    use cable_def_types_mod, only: dp => r_2
-    use cable_def_types_mod, only: met_type
-    use cable_c13o2_def,     only: c13o2_flux
-    use mo_isotope,          only: vpdbc13
+    use cable_def_types_mod,     only: dp => r_2
+    use cable_def_types_mod,     only: mf, met_type, canopy_type
+    use cable_c13o2_def,         only: c13o2_flux
+    use mo_c13o2_photosynthesis, only: init_starch_pool, init_sugar_pools
 
     implicit none
 
-    type(met_type),   intent(inout) :: met
-    type(c13o2_flux), intent(inout) :: c13o2flux
+    type(met_type),    intent(inout) :: met
+    type(canopy_type), intent(inout) :: canopy
+    type(c13o2_flux),  intent(inout) :: c13o2flux
 
-    c13o2flux%ca  = met%ca * vpdbc13
-    c13o2flux%RAn = 1.0_dp ! vpdbc13 / vpdbc13 ! Divide by 13C so that about same numerical precision as 12C
-    ! c13o2flux%Vstarch  = 0.0_dp
-    ! c13o2flux%Rsucrose = vpdbc13
-    ! c13o2flux%Rphoto   = vpdbc13
-    ! c13o2flux%Rstarch  = vpdbc13
+    integer  :: i
+    real(dp) :: da, Dc3, Dc4, Rinitc3, Rinitc4
+
+    da = -6.4e-3_dp ! preindustrial atmospheric d13C
+    ! discriminations: D = Ra/Rp-1 -> Rp = Ra/(1+D)
+    Dc3 = 4.4e-3_dp + (29.e-3_dp-4.4e-3_dp) * 0.7_dp
+    Dc4 = 3.0e-3_dp
+    ! Divide by VPDB so that about same numerical precision as 12C
+    c13o2flux%ca  = (1.0_dp + da) * met%ca ! * vpdbc13 / vpdbc13
+    c13o2flux%RAn = (1.0_dp - merge(Dc3, Dc4, canopy%isc3)) * (1.0_dp + da)
+    Rinitc3 = (1.0_dp + da) / (1.0_dp + Dc3)
+    Rinitc4 = (1.0_dp + da) / (1.0_dp + Dc4)
+    call init_starch_pool(canopy%isc3, c13o2flux%Vstarch, c13o2flux%Rstarch, Rinitc3, Rinitc4)
+    do i=1, mf
+       call init_sugar_pools(canopy%isc3, c13o2flux%Rsucrose(:,i), c13o2flux%Rphoto(:,i), Rinitc3, Rinitc4)
+    enddo
 
   end subroutine c13o2_init_flux
 
@@ -642,9 +657,8 @@ contains
     type(casa_met),                  intent(in)  :: casamet
     type(c13o2_pool),                intent(in)  :: c13o2pools
     integer,                         intent(out) :: file_id
-    integer, parameter :: nvars = 7
-    character(len=20), dimension(nvars), intent(out) :: vars
-    integer,           dimension(nvars), intent(out) :: var_ids
+    character(len=20), dimension(c13o2_nvars_output), intent(out) :: vars
+    integer,           dimension(c13o2_nvars_output), intent(out) :: var_ids
 
     ! local variables
     integer :: i, status
@@ -658,10 +672,10 @@ contains
     integer,           dimension(ndims) :: ldims   ! lengths
 
     ! variables
-    character(len=40), dimension(nvars) :: lvars ! long names
-    character(len=20), dimension(nvars) :: uvars ! units
-    integer, dimension(nvars) :: dvars           ! number of dimensions
-    integer, dimension(nvars) :: tvars           ! type
+    character(len=40), dimension(c13o2_nvars_output) :: lvars ! long names
+    character(len=20), dimension(c13o2_nvars_output) :: uvars ! units
+    integer, dimension(c13o2_nvars_output) :: dvars           ! number of dimensions
+    integer, dimension(c13o2_nvars_output) :: tvars           ! type
     integer, dimension(3)     :: idids           ! tmp for dim ids
 
     ! dimension names
@@ -775,7 +789,7 @@ contains
     end do
 
     ! define variables
-    do i=1, nvars
+    do i=1, c13o2_nvars_output
        if (trim(vars(i)) == 'time') then
           idids(1) = dim_ids(5)
        else if (trim(vars(i)) == 'latitude') then
@@ -821,7 +835,7 @@ contains
           if (status /= nf90_noerr) &
                call c13o2_err_handler('Could not define calendar for variable time in c13o2 output file: '//trim(fname))
        endif
-    end do ! nvars
+    end do ! c13o2_nvars_output
 
     ! end definition phase
     status = nf90_enddef(file_id)
@@ -829,7 +843,7 @@ contains
          call c13o2_err_handler('Could not end definition phase of c13o2 output file: '//trim(fname))
 
     ! put static variables lat and lon
-    do i=1, nvars
+    do i=1, c13o2_nvars_output
        if (trim(vars(i)) == 'latitude') then
           status = nf90_put_var(file_id, var_ids(i), casamet%lat)
           if (status /= nf90_noerr) &
@@ -861,16 +875,15 @@ contains
 
     ! local variables
     integer :: i, status
-    integer :: nvars, nland, nplant, nlitter, nsoil
+    integer :: nland, nplant, nlitter, nsoil
     integer, parameter :: sp = kind(1.0)
 
-    nvars   = size(vars,1)
     nland   = c13o2pools%ntile
     nplant  = c13o2pools%nplant
     nlitter = c13o2pools%nlitter
     nsoil   = c13o2pools%nsoil
     ! define variables
-    do i=1, nvars
+    do i=1, c13o2_nvars_output
        if (trim(vars(i)) == 'time') then
           status = nf90_put_var(file_id, var_ids(i), timestep, &
                start=(/timestep/))
@@ -894,7 +907,7 @@ contains
           write(*,*) 'Var: ', trim(vars(i)), ', var_id: ', var_ids(i)
           call c13o2_err_handler('Could not put variable in c13o2 output file')
        endif
-    end do ! nvars
+    end do ! c13o2_nvars_output
 
   end subroutine c13o2_write_output
 
@@ -924,6 +937,176 @@ contains
   ! ------------------------------------------------------------------
 
 #ifndef UM_BUILD
+  ! Read 13C Canopy pools from restart file
+  subroutine c13o2_read_restart_flux(c13o2_restart_in_flux, c13o2flux)
+
+    use cable_c13o2_def,     only: c13o2_flux
+    use netcdf,              only: nf90_open, nf90_nowrite, nf90_noerr, &
+         nf90_inq_varid, nf90_get_var, nf90_close
+
+    implicit none
+
+    character(len=*), intent(in)    :: c13o2_restart_in_flux
+    type(c13o2_flux), intent(inout) :: c13o2flux
+
+    logical :: iexist
+    integer :: status, file_id, var_id
+
+    inquire(file=trim(c13o2_restart_in_flux), exist=iexist)
+    if (.not. iexist) &
+         call c13o2_err_handler('13CO2 restart_in_flux file does not exist: '//trim(c13o2_restart_in_flux))
+
+    write(*,*) 'Read 13CO2 restart_in_flux file: ', trim(c13o2_restart_in_flux)
+
+    status = nf90_open(trim(c13o2_restart_in_flux), nf90_nowrite, file_id)
+    if (status /= nf90_noerr) call c13o2_err_handler('Error 13CO2 restart_in_flux file: '//trim(c13o2_restart_in_flux))
+
+    ! Vstarch
+    status = nf90_inq_varid(file_id, 'Vstarch', var_id)
+    if (status /= nf90_noerr) &
+         call c13o2_err_handler('Variable Vstarch not found in restart_in_flux file: '//trim(c13o2_restart_in_flux))
+    status = nf90_get_var(file_id, var_id, c13o2flux%Vstarch, start=(/1/), count=(/c13o2flux%ntile/))
+    if (status /= nf90_noerr) &
+         call c13o2_err_handler('Error reading variable Vstarch from restart_in_flux file: '//trim(c13o2_restart_in_flux))
+    ! Rstarch
+    status = nf90_inq_varid(file_id, 'Rstarch', var_id)
+    if (status /= nf90_noerr) &
+         call c13o2_err_handler('Variable Rstarch not found in restart_in_flux file: '//trim(c13o2_restart_in_flux))
+    status = nf90_get_var(file_id, var_id, c13o2flux%Rstarch, start=(/1/), count=(/c13o2flux%ntile/))
+    if (status /= nf90_noerr) &
+         call c13o2_err_handler('Error reading variable Rstarch from restart_in_flux file: '//trim(c13o2_restart_in_flux))
+    ! Rsucrose
+    status = nf90_inq_varid(file_id, 'Rsucrose', var_id)
+    if (status /= nf90_noerr) &
+         call c13o2_err_handler('Variable Rsucrose not found in restart_in_flux file: '//trim(c13o2_restart_in_flux))
+    status = nf90_get_var(file_id, var_id, c13o2flux%Rsucrose, &
+         start=(/1,1/), count=(/c13o2flux%ntile, c13o2flux%nleaf/))
+    if (status /= nf90_noerr) &
+         call c13o2_err_handler('Error reading variable Rsucrose from restart_in_flux file: '//trim(c13o2_restart_in_flux))
+    ! Rphoto
+    status = nf90_inq_varid(file_id, 'Rphoto', var_id)
+    if (status /= nf90_noerr) &
+         call c13o2_err_handler('Variable Rphoto not found in restart_in_flux file: '//trim(c13o2_restart_in_flux))
+    status = nf90_get_var(file_id, var_id, c13o2flux%Rphoto, &
+         start=(/1,1/), count=(/c13o2flux%ntile, c13o2flux%nleaf/))
+    if (status /= nf90_noerr) &
+         call c13o2_err_handler('Error reading variable Rphoto from restart_in_flux file: '//trim(c13o2_restart_in_flux))
+
+    status = nf90_close(file_id)
+    if (status /= nf90_noerr) &
+         call c13o2_err_handler('Could not close the c13o2 restart_in_flux file: '//trim(c13o2_restart_in_flux))
+
+  end subroutine c13o2_read_restart_flux
+
+  ! ------------------------------------------------------------------
+
+  ! Write 13C Canopy pools into restart file
+  subroutine c13o2_write_restart_flux(c13o2flux)
+
+    use cable_common_module, only: cable_user, filename, CurYear
+    use cable_c13o2_def,     only: c13o2_flux
+    use netcdf,              only: nf90_create, nf90_clobber, nf90_noerr, &
+         nf90_put_att, nf90_global, nf90_def_dim, &
+         nf90_def_var, nf90_double, nf90_enddef, nf90_put_var, nf90_close
+
+    implicit none
+
+    type(c13o2_flux), intent(in) :: c13o2flux
+
+    ! local variables
+    integer :: file_id, land_id, leaf_id
+    integer :: i, status
+    character(len=200) :: fname, cyear
+
+    ! 1 dim arrays (npt,)
+    integer, parameter :: nlandvars = 2
+    character(len=20), dimension(nlandvars)  :: landvars
+    ! 2 dim arrays (npt,nleaf)
+    integer, parameter :: nleafvars = 2
+    character(len=20), dimension(nleafvars)  :: leafvars
+    ! variable ids
+    integer, dimension(nlandvars)   :: landvars_id
+    integer, dimension(nleafvars)  :: leafvars_id
+
+    ! Variables
+    landvars(1) = 'Vstarch'
+    landvars(2) = 'Rstarch'
+    leafvars(1) = 'Rsucrose'
+    leafvars(2) = 'Rphoto'
+
+    ! restart file name
+    if (len_trim(cable_user%c13o2_restart_out_flux) > 0) then
+       fname = trim(cable_user%c13o2_restart_out_flux)
+    else
+       fname = trim(filename%path)//'/'//trim(cable_user%RunIden)//'_c13o2_flux_rst.nc'
+    endif
+
+    ! create restart file
+    write(*,*) 'Writing 13CO2 Canopy pools restart file: ', trim(fname)
+    status = nf90_create(trim(fname), nf90_clobber, file_id)
+    if (status /= nf90_noerr) &
+         call c13o2_err_handler('Could not open c13o2 restart_out_flux file: '//trim(fname))
+    ! status = nf90_redef(file_id)
+    ! if (status /= nf90_noerr) &
+    !      call c13o2_err_handler('Could not redef c13o2 restart_out_flux file: '//trim(fname))
+
+    ! global attributes
+    write(cyear, fmt='(I4)') CurYear + 1
+    status = nf90_put_att(file_id, nf90_global, "Valid restart date", "01.01."//cyear)
+    if (status /= nf90_noerr) &
+         call c13o2_err_handler('Could not set global date attribute in c13o2 restart_out_flux file: '//trim(fname))
+
+    ! define dimensions
+    status = nf90_def_dim(file_id, 'nland', c13o2flux%ntile, land_id)
+    if (status /= nf90_noerr) &
+         call c13o2_err_handler('Could not define land dimension in c13o2 restart_out_flux file: '//trim(fname))
+    status = nf90_def_dim(file_id, 'nleaf', c13o2flux%nleaf, leaf_id)
+    if (status /= nf90_noerr) &
+         call c13o2_err_handler('Could not define leaf dimension in c13o2 restart_out_flux file: '//trim(fname))
+
+    ! define variables
+    do i=1, nlandvars
+       status = nf90_def_var(file_id, trim(landvars(i)), nf90_double, &
+            (/land_id/), landvars_id(i))
+       if (status /= nf90_noerr) &
+            call c13o2_err_handler('Could not define variable '//trim(landvars(i))// &
+            ' in c13o2 restart_out_flux file: '//trim(fname))
+    end do
+    do i=1, nleafvars
+       status = nf90_def_var(file_id, trim(leafvars(i)), nf90_double, &
+            (/land_id,leaf_id/), leafvars_id(i))
+       if (status /= nf90_noerr) &
+            call c13o2_err_handler('Could not define variable '//trim(leafvars(i))// &
+            ' in c13o2 restart_out_flux file: '//trim(fname))
+    end do
+
+    status = nf90_enddef(file_id)
+    if (status /= nf90_noerr) &
+         call c13o2_err_handler('Could not end definition phase of c13o2 restart_out_flux file: '//trim(fname))
+
+    ! put variables
+    status = nf90_put_var(file_id, landvars_id(1), c13o2flux%Vstarch)
+    if (status /= nf90_noerr) &
+         call c13o2_err_handler('Could put variable '//trim(landvars(1))//' to c13o2 restart_out_flux file: '//trim(fname))
+    status = nf90_put_var(file_id, landvars_id(2), c13o2flux%Rstarch)
+    if (status /= nf90_noerr) &
+         call c13o2_err_handler('Could put variable '//trim(landvars(2))//' to c13o2 restart_out_flux file: '//trim(fname))
+    status = nf90_put_var(file_id, leafvars_id(1), c13o2flux%Rsucrose)
+    if (status /= nf90_noerr) &
+         call c13o2_err_handler('Could put variable '//trim(leafvars(1))//' to c13o2 restart_out_flux file: '//trim(fname))
+    status = nf90_put_var(file_id, leafvars_id(2), c13o2flux%Rphoto)
+    if (status /= nf90_noerr) &
+         call c13o2_err_handler('Could put variable '//trim(leafvars(2))//' to c13o2 restart_out_flux file: '//trim(fname))
+
+    ! close restart file
+    status = nf90_close(file_id)
+    if (status /= nf90_noerr) &
+         call c13o2_err_handler('Could not close c13o2 restart_out_flux file: '//trim(fname))
+
+  end subroutine c13o2_write_restart_flux
+
+  ! ------------------------------------------------------------------
+
   ! Read 13C Casa pools from restart file
   subroutine c13o2_read_restart_pools(c13o2_restart_in_pools, c13o2pools)
 
@@ -993,11 +1176,9 @@ contains
          call c13o2_err_handler('Could not close the c13o2 restart_in_pools file: '//trim(c13o2_restart_in_pools))
 
   end subroutine c13o2_read_restart_pools
-#endif
 
   ! ------------------------------------------------------------------
 
-#ifndef UM_BUILD
   ! Write 13C Casa pools into restart file
   subroutine c13o2_write_restart_pools(c13o2pools)
 
@@ -1134,7 +1315,6 @@ contains
          call c13o2_err_handler('Could not close c13o2 restart_out_pools file: '//trim(fname))
 
   end subroutine c13o2_write_restart_pools
-#endif
 
   ! ------------------------------------------------------------------
 
@@ -1310,12 +1490,40 @@ contains
          call c13o2_err_handler('Could not close c13o2 restart_out_luc file: '//trim(fname))
 
   end subroutine c13o2_write_restart_luc
+#endif
 
   ! ------------------------------------------------------------------
 
   ! Generell
 
   ! ------------------------------------------------------------------
+
+  ! Print 13C delta values of Canopy pools on screen
+  subroutine c13o2_print_delta_flux(c13o2flux)
+
+    use cable_def_types_mod, only: dp => r_2
+    use cable_c13o2_def,     only: c13o2_flux
+    use mo_isotope,          only: delta1000!, vpdbc13
+
+    implicit none
+
+    type(c13o2_flux), intent(in) :: c13o2flux
+
+    integer :: nland, nleaf
+    character(len=30) :: form1
+
+    nland = c13o2flux%ntile
+    nleaf = c13o2flux%nleaf
+
+    write(*,*) '    delta-13C of Canopy pools'
+    write(form1,'(A,I3,A)') '(a,', nland, 'g15.6e3)'
+    write(*,form1) '        Vstarch:  ', c13o2flux%Vstarch
+    write(*,form1) '        dstarch:  ', delta1000(c13o2flux%Rstarch, 1.0_dp, 1.0_dp, -999._dp, tiny(1.0_dp))
+    write(form1,'(A,I3,A)') '(a,', nleaf*nland, 'g15.6e3)'
+    write(*,form1) '        dsucrose: ', delta1000(c13o2flux%Rsucrose, 1.0_dp, 1.0_dp, -999._dp, tiny(1.0_dp))
+    write(*,form1) '        dphoto:   ', delta1000(c13o2flux%Rphoto, 1.0_dp, 1.0_dp, -999._dp, tiny(1.0_dp))
+
+  end subroutine c13o2_print_delta_flux
 
   ! Print 13C delta values of Casa pools on screen
   subroutine c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
@@ -1359,7 +1567,6 @@ contains
     ! write(*,*) '        labile12:   ', casapool%clabile
     ! write(*,*) '        labile13:   ', c13o2pools%clabile
     write(*,form1) '        labile:     ', delta1000(c13o2pools%clabile,  casapool%clabile,  1.0_dp, -999._dp, tiny(1.0_dp))
-    write(form1,'(A,I3,A)') '(a,', 1*mp, 'g15.6e3)'
     ! write(*,*) '        Charvest12: ', casaflux%Charvest
     ! write(*,*) '        Charvest13: ', c13o2pools%charvest
     write(*,form1) '        Charvest:   ', delta1000(c13o2pools%charvest, casaflux%Charvest, 1.0_dp, -999._dp, tiny(1.0_dp))

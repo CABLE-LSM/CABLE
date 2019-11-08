@@ -60,7 +60,7 @@ MODULE cable_input_module
    IMPLICIT NONE
 
    PRIVATE
-   PUBLIC get_default_lai, open_met_file, close_met_file,load_parameters,      &
+   PUBLIC get_default_lai, open_met_file, close_met_file, load_parameters,      &
        allocate_cable_vars, get_met_data, &
        ncid_met,        &
        ncid_rain,       &
@@ -2398,64 +2398,59 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
    USE SIMFIRE_MOD,     ONLY: TYPE_SIMFIRE, INI_SIMFIRE
    use casaparm,        only: initcasa
    use cable_c13o2_def, only: c13o2_flux, c13o2_pool, c13o2_luc, c13o2_alloc_flux, c13o2_alloc_pools, c13o2_zero_flux
-   use cable_c13o2,     only: c13o2_init_flux, c13o2_init_pools, c13o2_init_luc, c13o2_read_restart_pools
-   use cable_c13o2,     only: c13o2_print_delta_pools, c13o2_print_delta_luc
+   use cable_c13o2,     only: c13o2_init_flux, c13o2_init_pools, c13o2_init_luc
+   use cable_c13o2,     only: c13o2_read_restart_flux, c13o2_read_restart_pools
 
    IMPLICIT NONE
 
    ! Input arguments
-   TYPE (met_type), INTENT(INOUT)          :: met
-   TYPE (air_type), INTENT(INOUT)          :: air
-   TYPE (soil_snow_type), INTENT(OUT)      :: ssnow
-   TYPE (veg_parameter_type), INTENT(OUT)  :: veg
-   TYPE (climate_type), INTENT(INOUT)      :: climate
-   TYPE (bgc_pool_type), INTENT(OUT)       :: bgc
-   TYPE (soil_parameter_type), INTENT(OUT) :: soil
-   TYPE (canopy_type), INTENT(OUT)         :: canopy
-   TYPE (roughness_type), INTENT(OUT)      :: rough
-   TYPE (radiation_type),INTENT(OUT)       :: rad
-   TYPE (sum_flux_type), INTENT(OUT)       :: sum_flux
-   TYPE (balances_type), INTENT(OUT)       :: bal
-   TYPE (casa_biome)  , INTENT(OUT)        :: casabiome
-   TYPE (casa_pool)   , INTENT(OUT)        :: casapool
-   TYPE (casa_flux)   , INTENT(OUT)        :: casaflux
-   TYPE (casa_pool)   , INTENT(OUT)        :: sum_casapool
-   TYPE (casa_flux)   , INTENT(OUT)        :: sum_casaflux
-   TYPE (casa_met)    , INTENT(OUT)        :: casamet
-   TYPE (casa_balance), INTENT(OUT)        :: casabal
-   TYPE(phen_variable), INTENT(OUT)        :: phen
-   TYPE( POP_TYPE ), INTENT(INOUT)         :: POP
-   TYPE( POPLUC_TYPE ), INTENT(INOUT)      :: POPLUC
-   TYPE (LUC_EXPT_TYPE), INTENT(INOUT)     :: LUC_EXPT
-   TYPE (TYPE_BLAZE), INTENT(INOUT)        :: BLAZE
-   TYPE (TYPE_SIMFIRE), INTENT(INOUT)      :: SIMFIRE
-   type(c13o2_flux), intent(out)           :: c13o2flux
-   type(c13o2_pool), intent(out)           :: c13o2pools, sum_c13o2pools
-   type(c13o2_luc),  intent(out)           :: c13o2luc
-   INTEGER,INTENT(IN)                      :: logn     ! log file unit number
-   LOGICAL,INTENT(IN)                      :: &
-         vegparmnew, &  ! are we using the new format?
-!! vh_js !!  
-       spinup         ! for POP (initialize pop)
-   REAL, INTENT(IN) :: TFRZ, EMSOIL
+   TYPE(met_type),            INTENT(INOUT) :: met
+   TYPE(air_type),            INTENT(INOUT) :: air
+   TYPE(soil_snow_type),      INTENT(OUT)   :: ssnow
+   TYPE(veg_parameter_type),  INTENT(OUT)   :: veg
+   TYPE(climate_type),        INTENT(INOUT) :: climate
+   TYPE(bgc_pool_type),       INTENT(OUT)   :: bgc
+   TYPE(soil_parameter_type), INTENT(OUT)   :: soil
+   TYPE(canopy_type),         INTENT(OUT)   :: canopy
+   TYPE(roughness_type),      INTENT(OUT)   :: rough
+   TYPE(radiation_type),      INTENT(OUT)   :: rad
+   TYPE(sum_flux_type),       INTENT(OUT)   :: sum_flux
+   TYPE(balances_type),       INTENT(OUT)   :: bal
+   TYPE(casa_biome),          INTENT(OUT)   :: casabiome
+   TYPE(casa_pool),           INTENT(OUT)   :: casapool
+   TYPE(casa_flux),           INTENT(OUT)   :: casaflux
+   TYPE(casa_pool),           INTENT(OUT)   :: sum_casapool
+   TYPE(casa_flux),           INTENT(OUT)   :: sum_casaflux
+   TYPE(casa_met),            INTENT(OUT)   :: casamet
+   TYPE(casa_balance),        INTENT(OUT)   :: casabal
+   TYPE(phen_variable),       INTENT(OUT)   :: phen
+   TYPE(POP_TYPE),            INTENT(INOUT) :: POP
+   TYPE(POPLUC_TYPE),         INTENT(INOUT) :: POPLUC
+   TYPE(LUC_EXPT_TYPE),       INTENT(INOUT) :: LUC_EXPT
+   TYPE(TYPE_BLAZE),          INTENT(INOUT) :: BLAZE
+   TYPE(TYPE_SIMFIRE),        INTENT(INOUT) :: SIMFIRE
+   type(c13o2_flux),          intent(out)   :: c13o2flux
+   type(c13o2_pool),          intent(out)   :: c13o2pools, sum_c13o2pools
+   type(c13o2_luc),           intent(out)   :: c13o2luc
+   INTEGER,                   INTENT(IN)    :: logn     ! log file unit number
+   LOGICAL,                   INTENT(IN)    :: vegparmnew, spinup ! are we using the new format? ! for POP (initialize pop)
+   REAL,                      INTENT(IN)    :: TFRZ, EMSOIL
 
    ! Local variables
-   REAL,POINTER,DIMENSION(:)          :: pfractmp ! temp store of patch fraction
-   LOGICAL                                 :: completeSet ! was a complete parameter set found?
-   LOGICAL                            :: EXRST = .FALSE. ! does a RunIden restart file exist?
-   INTEGER                            ::                                  &
-        mp_restart,        & ! total number of patches in restart file
-        mpID,              &
-        napID,             &
-        i , j                   ! do loop variables
-    !! vh_js !!
-    ! CHARACTER :: frst_in*100, CYEAR*4
+   REAL, POINTER, DIMENSION(:) :: pfractmp ! temp store of patch fraction
+   LOGICAL                     :: completeSet ! was a complete parameter set found?
+   LOGICAL                     :: EXRST = .FALSE. ! does a RunIden restart file exist?
+   INTEGER                     :: &
+        mp_restart, & ! total number of patches in restart file
+        mpID,       &
+        napID,      &
+        i , j         ! do loop variables
     CHARACTER :: frst_in*200, CYEAR*4
 
     INTEGER   :: IOS
     CHARACTER :: TACC*20
-    INTEGER,dimension(:), ALLOCATABLE :: ALLVEG
-!! vh_js !!
+    INTEGER, dimension(:), ALLOCATABLE :: ALLVEG
+    ! vh_js
     INTEGER :: mp_POP
     INTEGER, dimension(:), ALLOCATABLE :: Iwood
 
@@ -2493,7 +2488,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
             rad,logn,vegparmnew,smoy, TFRZ, LUC_EXPT)
     if (cable_user%c13o2) then
        call c13o2_zero_flux(c13o2flux)
-       call c13o2_init_flux(met, c13o2flux)
+       call c13o2_init_flux(met, canopy, c13o2flux)
     endif
 
     ! Zero out lai where there is no vegetation acc. to veg. index
@@ -2529,7 +2524,6 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
          CALL POP_init( POP, veg%disturbance_interval(Iwood,:), mp_POP, Iwood )
          IF ( .NOT. (spinup .OR. CABLE_USER%POP_fromZero )) &
               CALL POP_IO( POP, casamet, cable_user%YearStart, "READ_rst " , .TRUE.)
-
       ENDIF
 
       IF (CABLE_USER%POPLUC) then
@@ -2630,8 +2624,12 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
 
       ! Load initialisations and parameters from restart file:
       CALL get_restart_data(logn,ssnow,canopy,rough,bgc,bal,veg, &
-                            soil,rad,vegparmnew, EMSOIL )
-
+           soil,rad,vegparmnew, EMSOIL)
+      
+      if (cable_user%c13o2) then
+         call c13o2_init_flux(met, canopy, c13o2flux)
+         call c13o2_read_restart_flux(cable_user%c13o2_restart_in_flux, c13o2flux)
+      endif
     ELSE
        ! With no restart file, use default parameters already loaded
        WRITE(logn,*) ' Could neither find restart file ', TRIM(filename%restart_in)
@@ -2674,7 +2672,6 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
     ! Write per-site parameter values to log file if requested:
     CALL report_parameters(logn,soil,veg,bgc,rough,ssnow,canopy, &
          casamet,casapool,casaflux,phen,vegparmnew,verbose)
-
 
 END SUBROUTINE load_parameters
 

@@ -99,7 +99,6 @@ CONTAINS
       call ruff_resist(veg, rough, ssnow, canopy)
    ENDIF
 
-
    CALL init_radiation(met,rad,veg, canopy) ! need to be called at every dt
 
    IF( cable_runtime%um ) THEN

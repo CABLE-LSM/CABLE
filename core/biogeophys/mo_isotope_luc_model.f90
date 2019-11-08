@@ -9,6 +9,30 @@
 !> \author Matthias Cuntz
 !> \date Apr 2019
 
+! License
+! -------
+! This file is part of the JAMS Fortran package, distributed under the MIT License.
+!
+! Copyright (c) 2019 Matthias Cuntz - mc (at) macu (dot) de
+!
+! Permission is hereby granted, free of charge, to any person obtaining a copy
+! of this software and associated documentation files (the "Software"), to deal
+! in the Software without restriction, including without limitation the rights
+! to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+! copies of the Software, and to permit persons to whom the Software is
+! furnished to do so, subject to the following conditions:
+!
+! The above copyright notice and this permission notice shall be included in all
+! copies or substantial portions of the Software.
+!
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+! IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+! SOFTWARE.
+
 MODULE mo_isotope_luc_model
 
   implicit none
@@ -65,10 +89,10 @@ MODULE mo_isotope_luc_model
   !>                          Rs(i,dt)*S(i,dt) - R(i,t)*T(i,dt)) / A(i,t+dt)
 
   !     CALLING SEQUENCE
-  !         call isotope_luc_model(Ci, A, dA, C=C, S=S, Rs=Rs, T=T, Rt=Rt, At=At, trash=trash)
+  !         call isotope_luc_model(Ciso, A, dA, C=C, S=S, Rs=Rs, T=T, Rt=Rt, At=At, trash=trash)
 
   !     INTENT
-  !>        \param[inout] "real(dp) :: Ci(1:n)"
+  !>        \param[inout] "real(dp) :: Ciso(1:n)"
   !>                                   On entry: isotope concentrations in land-use classes at time step t-1 [kg/m^2]
   !>                                   On exit:  updated isotope concentrations of land-use classes at time step t [kg/m^2]
   !>        \param[in]    "real(dp) :: A(1:n)"                   Areas of land-use classes at time step t-1 [m^2]
@@ -102,14 +126,14 @@ contains
 
   ! ------------------------------------------------------------------
 
-  subroutine isotope_luc_model_1d(Ci, A, dA, C, S, Rs, T, Rt, At, trash)
+  subroutine isotope_luc_model_1d(Ciso, A, dA, C, S, Rs, T, Rt, At, trash)
 
     use mo_kind,  only: dp, i4
     use mo_utils, only: eq !, ne
 
     implicit none
 
-    real(dp), dimension(:),   intent(inout)           :: Ci     ! Iso land-use class
+    real(dp), dimension(:),   intent(inout)           :: Ciso   ! Iso land-use class
     real(dp), dimension(:),   intent(in)              :: A      ! Area land-use class
     real(dp), dimension(:,:), intent(in)              :: dA     ! Area changes between land-use classes
     real(dp), dimension(:),   intent(in),    optional :: C      ! Non-iso land-use class
@@ -123,18 +147,18 @@ contains
     ! Local variables
     ! integer(i4) :: i  ! counter
     integer(i4) :: nn ! number of pools
-    real(dp), dimension(size(Ci,1)) :: R    ! Isotope ratio of pool
+    ! real(dp), dimension(size(Ciso,1)) :: R    ! Isotope ratio of pool
     ! defaults for optional inputs
-    real(dp), dimension(size(Ci,1)) :: iC, iS, iRs, iT, iRt
-    real(dp), dimension(size(Ci,1)) :: Anew ! A at t+dt
-    real(dp), dimension(size(Ci,1)) :: Cnew ! New C pools
+    real(dp), dimension(size(Ciso,1)) :: iC, iS, iRs, iT, iRt
+    real(dp), dimension(size(Ciso,1)) :: Anew ! A at t+dt
+    real(dp), dimension(size(Ciso,1)) :: Cnew ! New C pools
 
     ! Check sizes
-    nn = size(Ci,1)
+    nn = size(Ciso,1)
     if ( (size(A,1) /= nn) .or. (size(dA,1) /= nn) .or. (size(dA,2) /= nn) ) then
        write(*,*) 'Error isotope_luc_model_1d: non-fitting dimensions between isotopic concentrations,'
        write(*,*) '                            land areas and land-area changes.'
-       write(*,*) '    size(Ci):   ', size(Ci,1)
+       write(*,*) '    size(Ciso): ', size(Ciso,1)
        write(*,*) '    size(A):    ', size(A,1)
        write(*,*) '    size(dA,1): ', size(dA,1)
        write(*,*) '    size(dA,2): ', size(dA,2)
@@ -148,15 +172,15 @@ contains
        stop 9
     endif
 
-    ! ! Check dA(i,:) == 0. if Ci(i) == 0.
-    ! if (any(eq(Ci,0._dp))) then
+    ! ! Check dA(i,:) == 0. if Ciso(i) == 0.
+    ! if (any(eq(Ciso,0._dp))) then
     !    do i=1, nn
-    !       if (eq(Ci(i),0._dp)) then
+    !       if (eq(Ciso(i),0._dp)) then
     !          if (any(ne(dA(i,:),0._dp))) then
     !             write(*,*) 'Error isotope_luc_model_1d: land area changes from land-use class i must be 0'
     !             write(*,*) '                            if isotope carbon concentration of land-use class is 0.'
-    !             write(*,*) '    i, Ci(i): ', i, Ci(i)
-    !             write(*,*) '       dA(i): ', dA(i,:)
+    !             write(*,*) '    i, Ciso(i): ', i, Ciso(i)
+    !             write(*,*) '       dA(i):   ', dA(i,:)
     !             stop 9
     !          endif
     !       endif
@@ -180,7 +204,7 @@ contains
     !    endif
     ! endif
 
-    !  Could be more checks for S, Rs, T, Rt, At
+    ! There could be more checks for S, Rs, T, Rt, At
     
     ! Set optionals
     if (present(C)) then
@@ -207,7 +231,7 @@ contains
        iRt = Rt
     else
        iRt = 1._dp
-       where (iC > 0._dp) iRt = Ci / iC
+       where (iC > 0._dp) iRt = Ciso / iC
     endif
     ! Land areas at t+dt
     if (present(At)) then
@@ -216,37 +240,37 @@ contains
        Anew = A - sum(dA, dim=2) + sum(dA, dim=1)
     endif
 
-    ! Isotope ratio
-    R(:) = 1._dp
-    where (iC > 0._dp) R = Ci / iC
+    ! ! Isotope ratio - not used -> use Ciso=R*iC directly
+    ! R(:) = 1._dp
+    ! where (iC > 0._dp) R = Ciso / iC
 
     ! isotopic LUC model
-    ! Ci = R * iC * (A - sum(dA, dim=2)) + sum(dA * spread(R*iC, dim=2, ncopies=nn), dim=1) + iRs*iS - iRt*iT
-    Cnew = Ci * (A - sum(dA, dim=2)) + sum(dA * spread(Ci, dim=2, ncopies=nn), dim=1) + iRs*iS - iRt*iT
+    ! Ciso = R * iC * (A - sum(dA, dim=2)) + sum(dA * spread(R*iC, dim=2, ncopies=nn), dim=1) + iRs*iS - iRt*iT
+    Cnew = Ciso * (A - sum(dA, dim=2)) + sum(dA * spread(Ciso, dim=2, ncopies=nn), dim=1) + iRs*iS - iRt*iT
     if (present(trash)) then
        where (Anew > 0._dp)
-          Ci = Cnew / Anew
+          Ciso = Cnew / Anew
        elsewhere
-          Ci     = 0._dp
-          trash = trash + Ci
+          Ciso     = 0._dp
+          trash = trash + Ciso
        endwhere
     else
-       where (Anew > 0._dp) Ci = Cnew / Anew ! keep incoming Ci if Anew=0.
+       where (Anew > 0._dp) Ciso = Cnew / Anew ! keep incoming Ciso if Anew=0.
     endif
 
     if (present(trash)) then
        ! Check final land-use classes
        ! Isotope land-use class became < 0.
-       if (any(Ci < 0._dp)) then
-          trash = trash + merge(abs(Ci), 0._dp, Ci < 0._dp)
-          Ci = merge(0._dp, Ci, Ci < 0._dp)
+       if (any(Ciso < 0._dp)) then
+          trash = trash + merge(abs(Ciso), 0._dp, Ciso < 0._dp)
+          Ciso = merge(0._dp, Ciso, Ciso < 0._dp)
        endif
        ! Non-isotope land-use class == 0. but isotope land-use class > 0.
        Cnew = iC * (A - sum(dA, dim=2)) + sum(dA * spread(iC, dim=2, ncopies=nn), dim=1) + iS - iT
        where (Anew > 0._dp) Cnew = Cnew / Anew
-       if (any(eq(Cnew,0._dp) .and. (Ci > 0._dp))) then
-          trash = trash + merge(Ci, 0._dp, eq(Cnew,0._dp) .and. (Ci > 0._dp))
-          Ci = merge(0._dp, Ci, eq(Cnew,0._dp) .and. (Ci > 0._dp))
+       if (any(eq(Cnew,0._dp) .and. (Ciso > 0._dp))) then
+          trash = trash + merge(Ciso, 0._dp, eq(Cnew,0._dp) .and. (Ciso > 0._dp))
+          Ciso = merge(0._dp, Ciso, eq(Cnew,0._dp) .and. (Ciso > 0._dp))
        endif
        ! Non-isotope land-use class >0. but isotope land-use class == 0.
        ! ???

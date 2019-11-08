@@ -650,7 +650,7 @@ CONTAINS
      END IF
      CALL1 = .FALSE.
 
-     print*, 'after ndep read'
+     ! print*, 'after ndep read'
   END IF
 
   IF ( TRIM(CRU%Ndep) .NE. "static1860" .and.  CRU%CYEAR>1860) THEN
@@ -708,7 +708,7 @@ END SUBROUTINE GET_CRU_Ndep
           .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2') &
           .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Ndep' )) THEN
         MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
-        print*, 'metyear', MetYear
+        ! print*, 'metyear', MetYear
      ELSEIF  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Precip' .OR. &
           TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Precip'.OR. &
           TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Temp_Precip'.OR. &
@@ -758,7 +758,7 @@ END SUBROUTINE GET_CRU_Ndep
 
     ! Open the new met files and access the variables by their name and variable id.
     !WRITE(*   ,*) 'Opening met data file: ', CRU%MetFile(iVar)
-    WRITE(logn,*) 'Opening met data file: ', CRU%MetFile(iVar)
+    !WRITE(logn,*) 'Opening met data file: ', CRU%MetFile(iVar)
 
     ErrStatus = NF90_OPEN(TRIM(CRU%MetFile(iVar)), NF90_NOWRITE, CRU%F_ID(iVar))  
     CALL HANDLE_ERR(ErrStatus, "Opening CRU file "//CRU%MetFile(iVar) )

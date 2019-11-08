@@ -43,14 +43,14 @@ MODULE cable_c13o2_def
      real(dp), dimension(:),   pointer :: cAn
      ! isotope ratio of daily cumulated total 13CO2 net assimilation over 12CO2 net assimilation divided by VPDB
      real(dp), dimension(:),   pointer :: RAn
-     ! ! Transitory starch concentration in leaf [mol(CO2)/m2]
-     ! real(dp), dimension(:,:), pointer :: Vstarch
-     ! ! Isotopic composition if leaf sucrose
-     ! real(dp), dimension(:,:), pointer :: Rsucrose
-     ! ! Isotopic composition if pool used for photorespiration
-     ! real(dp), dimension(:,:), pointer :: Rphoto
-     ! ! Isotopic composition if transitory starch
-     ! real(dp), dimension(:,:), pointer :: Rstarch
+     ! Transitory starch concentration in leaf [mol(CO2)/m2] - One pool for sun and shade leaves
+     real(dp), dimension(:),   pointer :: Vstarch
+     ! Isotopic composition of transitory starch
+     real(dp), dimension(:),   pointer :: Rstarch
+     ! Isotopic composition of leaf sucrose
+     real(dp), dimension(:,:), pointer :: Rsucrose
+     ! Isotopic composition of pool used for photorespiration
+     real(dp), dimension(:,:), pointer :: Rphoto
   end type c13o2_flux
 
   type c13o2_pool ! all pools in units g(C)/m2
@@ -93,10 +93,10 @@ contains
     allocate(c13o2flux%cAn12(ntile))
     allocate(c13o2flux%cAn(ntile))
     allocate(c13o2flux%RAn(ntile))
-    ! allocate(c13o2flux%Vstarch(ntile,mf))
-    ! allocate(c13o2flux%Rsucrose(ntile,mf))
-    ! allocate(c13o2flux%Rphoto(ntile,mf))
-    ! allocate(c13o2flux%Rstarch(ntile,mf))
+    allocate(c13o2flux%Vstarch(ntile))
+    allocate(c13o2flux%Rstarch(ntile))
+    allocate(c13o2flux%Rsucrose(ntile,mf))
+    allocate(c13o2flux%Rphoto(ntile,mf))
 
   end subroutine c13o2_alloc_flux
 
@@ -161,6 +161,10 @@ contains
     c13o2flux%Disc     = -1.0_dp
     c13o2flux%cAn12    =  0.0_dp
     c13o2flux%cAn      =  0.0_dp
+    c13o2flux%Vstarch  =  0.0_dp
+    c13o2flux%Rstarch  =  1.0_dp
+    c13o2flux%Rsucrose =  1.0_dp
+    c13o2flux%Rphoto   =  1.0_dp
 
   end subroutine c13o2_zero_flux
 

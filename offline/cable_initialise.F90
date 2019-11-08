@@ -139,7 +139,18 @@ SUBROUTINE get_default_inits(met,soil,ssnow,canopy,logn, EMSOIL)
    canopy%fev     = 0.0   ! latent heat flux from vegetation (W/m2)
    canopy%fes     = 0.0   ! latent heat flux from soil (W/m2)
    canopy%fhs     = 0.0   ! sensible heat flux from soil (W/m2)
-   canopy%us = 0.1 ! friction velocity (needed in roughness before first call to canopy: should in be in restart?)
+   canopy%us      = 0.1 ! friction velocity (needed in roughness before first call to canopy: should in be in restart?)
+
+   ! 13C
+   canopy%An        = 0.0_r_2
+   canopy%Rd        = 0.0_r_2
+   canopy%isc3      = .true.
+   canopy%vcmax     = 0.0_r_2
+   canopy%gammastar = 50.0_r_2
+   canopy%gsc       = 0.0_r_2
+   canopy%gbc       = 0.0_r_2
+   canopy%gac       = 0.0_r_2
+   canopy%ci        = spread(met%ca,2,mf)
 
 END SUBROUTINE get_default_inits
 
@@ -658,6 +669,17 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
    ok = NF90_CLOSE(ncid_rin)
    IF(ok/=NF90_NOERR) CALL nc_abort(ok,'Error closing restart file '           &
         //TRIM(filename%restart_in)// '(SUBROUTINE get_restart)')
+
+   ! 13C - not in restart
+   canopy%An        = 0.0_r_2
+   canopy%Rd        = 0.0_r_2
+   canopy%isc3      = (1.0-veg%frac4) > epsilon(1.0)
+   canopy%vcmax     = 0.0_r_2
+   canopy%gammastar = 40.e-6_r_2
+   canopy%gsc       = 0.0_r_2
+   canopy%gbc       = 0.0_r_2
+   canopy%gac       = 0.0_r_2
+   canopy%ci        = 400.e-6_r_2
 
 END SUBROUTINE get_restart_data
 

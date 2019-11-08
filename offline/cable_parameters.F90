@@ -905,9 +905,6 @@ CONTAINS
  !=============================================================================
 
 
-
-
-
   SUBROUTINE countPatch(nlon, nlat, npatch)
   ! count the total number of active patches and
   ! fill the index variable 'landpt'
@@ -1036,7 +1033,9 @@ CONTAINS
     PRINT *, 'Total number of patches (countPatch): ', ncount
 
   END SUBROUTINE countPatch
+  
   !=============================================================================
+  
   SUBROUTINE write_default_params(met,  air,    ssnow, veg, bgc,               &
                                   soil, canopy, rough, rad, logn,              &
                                   vegparmnew, month, TFRZ, LUC_EXPT)
@@ -1393,8 +1392,6 @@ CONTAINS
                 endif
              endif
 
-
-
           veg%convex(h) = vegin%convex(veg%iveg(h))
           ! Alexis, adding gamma
           veg%gamma(h) = vegin%gamma(veg%iveg(h))
@@ -1431,7 +1428,6 @@ CONTAINS
           rad%longitude(h) = longitude(e)
           !jhan:is this done online? YES
           veg%ejmax(h) = 2.0 * veg%vcmax(h)
-
  
        END DO ! over each veg patch in land point
     END DO ! over all land points
@@ -1518,41 +1514,51 @@ CONTAINS
       ssnow%wbice(:, :) = 0.0
     END WHERE
 
-   !IF(hide%Ticket49Bug5) THEN
+    ! IF(hide%Ticket49Bug5) THEN
 
-!! vh_js !! neeed to remove this if to enable the code below
+    ! vh_js ! need to remove this if to enable the code below
 
-      ! SLI specific initialisations:
+    ! SLI specific initialisations:
     !  IF(cable_user%SOIL_STRUC=='sli') THEN
-         ssnow%h0(:) = 0.0
-         ssnow%S(:,:) = ssnow%wb(:,:)/SPREAD(soil%ssat,2,ms)
-         ssnow%snowliq(:,:) = 0.0
-         ssnow%Tsurface = 25.0
-         ssnow%nsnow = 0
-         ssnow%Tsoil = ssnow%tgg - 273.15
-         ssnow%thetai = 0.0
-         soil%zeta = 0.0
-         soil%fsatmax = 0.0
-   !   END IF
+    ssnow%h0(:) = 0.0
+    ssnow%S(:,:) = ssnow%wb(:,:)/SPREAD(soil%ssat,2,ms)
+    ssnow%snowliq(:,:) = 0.0
+    ssnow%Tsurface = 25.0
+    ssnow%nsnow = 0
+    ssnow%Tsoil = ssnow%tgg - 273.15
+    ssnow%thetai = 0.0
+    soil%zeta = 0.0
+    soil%fsatmax = 0.0
+    !   END IF
 
-      IF(cable_user%SOIL_STRUC=='sli') THEN
-         soil%nhorizons = 1 ! use 1 soil horizon globally
-        ! veg%clitt = 5.0 ! (tC / ha)
-        ! veg%F10 = 0.85
-        ! veg%ZR = 5.0
-      END IF
+    IF(cable_user%SOIL_STRUC=='sli') THEN
+       soil%nhorizons = 1 ! use 1 soil horizon globally
+       ! veg%clitt = 5.0 ! (tC / ha)
+       ! veg%F10 = 0.85
+       ! veg%ZR = 5.0
+    END IF
 
-     
-!! vh_js !!
-      IF(cable_user%CALL_POP) THEN
-         veg%disturbance_interval = 100
-         veg%disturbance_intensity = 0.
-      ENDIF
+    !! vh_js !!
+    IF(cable_user%CALL_POP) THEN
+       veg%disturbance_interval = 100
+       veg%disturbance_intensity = 0.
+    ENDIF
 
-
+    ! 13C
+    canopy%An        = 0.0_r_2
+    canopy%Rd        = 0.0_r_2
+    canopy%isc3      = (1.0-veg%frac4) > epsilon(1.0)
+    canopy%vcmax     = real(spread(veg%vcmax,2,mf),r_2)
+    canopy%gammastar = 40.e-6_r_2
+    canopy%gsc       = 0.0_r_2
+    canopy%gbc       = 0.0_r_2
+    canopy%gac       = 0.0_r_2
+    canopy%ci        = real(spread(met%ca,2,mf),r_2)
 
   END SUBROUTINE write_default_params
+  
   !=============================================================================
+  
   SUBROUTINE write_cnp_params(veg, casaflux, casamet)
   ! Input variables:
   !   landpt(mp)%type- via cable_IO_vars_module (%cstart,cend,ilon,ilat)

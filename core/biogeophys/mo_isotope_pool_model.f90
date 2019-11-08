@@ -9,6 +9,30 @@
 !> \author Matthias Cuntz
 !> \date Apr 2019
 
+! License
+! -------
+! This file is part of the JAMS Fortran package, distributed under the MIT License.
+!
+! Copyright (c) 2019 Matthias Cuntz - mc (at) macu (dot) de
+!
+! Permission is hereby granted, free of charge, to any person obtaining a copy
+! of this software and associated documentation files (the "Software"), to deal
+! in the Software without restriction, including without limitation the rights
+! to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+! copies of the Software, and to permit persons to whom the Software is
+! furnished to do so, subject to the following conditions:
+!
+! The above copyright notice and this permission notice shall be included in all
+! copies or substantial portions of the Software.
+!
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+! IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+! SOFTWARE.
+
 MODULE mo_isotope_pool_model
 
   implicit none
@@ -46,11 +70,11 @@ MODULE mo_isotope_pool_model
   !>        Fluxes and fractionation factors have dimensions (n,n) or (n,n,m).
 
   !     CALLING SEQUENCE
-  !         call isotope_pool_model(dt, Ci, C, F, S=S, Rs=Rs, T=T, Rt=Rt, alpha=alpha, beta=beta, trash=trash)
+  !         call isotope_pool_model(dt, Ciso, C, F, S=S, Rs=Rs, T=T, Rt=Rt, alpha=alpha, beta=beta, trash=trash)
 
   !     INTENT
   !>        \param[in]    "real(dp) :: dt"                       Time step
-  !>        \param[inout] "real(dp) :: Ci(1:n[,1:m])"            Isotope concentrations in pools
+  !>        \param[inout] "real(dp) :: Ciso(1:n[,1:m])"          Isotope concentrations in pools
   !>        \param[in]    "real(dp) :: C(1:n[,1:m])"             Non-isotope concentrations in pools at time step t-1
   !>        \param[in]    "real(dp) :: F(1:n,1:n[,1:m])"         Non-isotope fluxes between pools (F(i,i)=0) \n
   !>                                   F(i,j) positive flux from pool i to pool j \n
@@ -102,7 +126,7 @@ contains
   
   ! ------------------------------------------------------------------
   
-  subroutine isotope_pool_model_1d(dt, Ci, C, F, S, Rs, T, Rt, alpha, beta, trash)
+  subroutine isotope_pool_model_1d(dt, Ciso, C, F, S, Rs, T, Rt, alpha, beta, trash)
 
     use mo_kind,  only: dp, i4
     use mo_utils, only: eq, ne
@@ -110,7 +134,7 @@ contains
     implicit none
 
     real(dp),                 intent(in)              :: dt     ! time step
-    real(dp), dimension(:),   intent(inout)           :: Ci     ! Iso pool
+    real(dp), dimension(:),   intent(inout)           :: Ciso   ! Iso pool
     real(dp), dimension(:),   intent(in)              :: C      ! Non-iso pool
     real(dp), dimension(:,:), intent(in)              :: F      ! Fluxes between pools
     real(dp), dimension(:),   intent(in),    optional :: S      ! Sources not between pools
@@ -124,23 +148,23 @@ contains
     ! Local variables
     integer(i4) :: i  ! counter
     integer(i4) :: nn ! number of pools
-    real(dp), dimension(size(Ci,1)) :: R                 ! Isotope ratio of pool
+    real(dp), dimension(size(Ciso,1)) :: R                   ! Isotope ratio of pool
     ! defaults for optional inputs
-    real(dp), dimension(size(Ci,1))            :: iS, iRs, iT, iRt
-    real(dp), dimension(size(Ci,1),size(Ci,1)) :: ialpha
-    real(dp), dimension(size(Ci,1),size(Ci,1)) :: alphaF ! alpha*F
-    real(dp), dimension(size(Ci,1)) :: sink              ! not-between pools sink
-    real(dp), dimension(size(Ci,1)) :: source            ! not-between pools source
-    real(dp), dimension(size(Ci,1)) :: isink             ! between pools sink
-    real(dp), dimension(size(Ci,1)) :: isource           ! between pools source
-    real(dp), dimension(size(Ci,1)) :: Cnew              ! New pool size for check
+    real(dp), dimension(size(Ciso,1))            :: iS, iRs, iT, iRt
+    real(dp), dimension(size(Ciso,1),size(Ciso,1)) :: ialpha
+    real(dp), dimension(size(Ciso,1),size(Ciso,1)) :: alphaF ! alpha*F
+    real(dp), dimension(size(Ciso,1)) :: sink                ! not-between pools sink
+    real(dp), dimension(size(Ciso,1)) :: source              ! not-between pools source
+    real(dp), dimension(size(Ciso,1)) :: isink               ! between pools sink
+    real(dp), dimension(size(Ciso,1)) :: isource             ! between pools source
+    real(dp), dimension(size(Ciso,1)) :: Cnew                ! New pool size for check
 
     ! Check sizes
-    nn = size(Ci,1)
+    nn = size(Ciso,1)
     if ( (size(C,1) /= nn) .or. (size(F,1) /= nn) .or. (size(F,2) /= nn) ) then
        write(*,*) 'Error isotope_pool_model_1d: non-fitting dimensions between isotopic pools,'
        write(*,*) '                             non-isotopic pools and fluxes.'
-       write(*,*) '    size(Ci):  ', size(Ci,1)
+       write(*,*) '    size(Ciso):', size(Ciso,1)
        write(*,*) '    size(C):   ', size(C,1)
        write(*,*) '    size(F,1): ', size(F,1)
        write(*,*) '    size(F,2): ', size(F,2)
@@ -188,7 +212,7 @@ contains
        iRt = Rt
     else
        iRt = 1._dp ! could be zero as well to assure no isotopic sink if C=0
-       where (C > 0._dp) iRt = Ci / C
+       where (C > 0._dp) iRt = Ciso / C
     endif
     if (present(alpha)) then
        ialpha = alpha
@@ -207,7 +231,7 @@ contains
     ! Isotope ratio
     ! R(:) = 0._dp
     R(:) = 1._dp ! could be zero as well to assure no isotopic fluxes if initial C=0
-    where (C > 0._dp) R = Ci / C
+    where (C > 0._dp) R = Ciso / C
 
     ! alpha * F
     alphaF = ialpha * F
@@ -219,20 +243,20 @@ contains
     isource = sum(alphaF * spread(R, dim=2, ncopies=nn), dim=1) * dt
 
     ! Explicit solution
-    Ci = Ci - sink + source - isink + isource
+    Ciso = Ciso - sink + source - isink + isource
 
     if (present(trash)) then
        ! Check final pools
        ! Isotope pool became < 0.
-       if (any(Ci < 0._dp)) then
-          trash = trash + merge(abs(Ci), 0._dp, Ci < 0._dp)
-          Ci = merge(0._dp, Ci, Ci < 0._dp)
+       if (any(Ciso < 0._dp)) then
+          trash = trash + merge(abs(Ciso), 0._dp, Ciso < 0._dp)
+          Ciso = merge(0._dp, Ciso, Ciso < 0._dp)
        endif
        ! Non-isotope pool == 0. but isotope pool > 0.
        Cnew = C - iT * dt + iS * dt - sum(F, dim=2)* dt + sum(F, dim=1) * dt
-       if (any(eq(Cnew,0._dp) .and. (Ci > 0._dp))) then
-          trash = trash + merge(Ci, 0._dp, eq(Cnew,0._dp) .and. (Ci > 0._dp))
-          Ci = merge(0._dp, Ci, eq(Cnew,0._dp) .and. (Ci > 0._dp))
+       if (any(eq(Cnew,0._dp) .and. (Ciso > 0._dp))) then
+          trash = trash + merge(Ciso, 0._dp, eq(Cnew,0._dp) .and. (Ciso > 0._dp))
+          Ciso = merge(0._dp, Ciso, eq(Cnew,0._dp) .and. (Ciso > 0._dp))
        endif
        ! Non-isotope pool >0. but isotope pool == 0.
        ! ???
@@ -243,7 +267,7 @@ contains
   end subroutine isotope_pool_model_1d
 
   
-  subroutine isotope_pool_model_2d(dt, Ci, C, F, S, Rs, T, Rt, alpha, beta, trash, trans)
+  subroutine isotope_pool_model_2d(dt, Ciso, C, F, S, Rs, T, Rt, alpha, beta, trash, trans)
 
     use mo_kind,  only: dp, i4
     use mo_utils, only: eq, ne
@@ -251,7 +275,7 @@ contains
     implicit none
 
     real(dp),                   intent(in)              :: dt     ! time step
-    real(dp), dimension(:,:),   intent(inout)           :: Ci     ! Iso pool
+    real(dp), dimension(:,:),   intent(inout)           :: Ciso   ! Iso pool
     real(dp), dimension(:,:),   intent(in)              :: C      ! Non-iso pool
     real(dp), dimension(:,:,:), intent(in)              :: F      ! Fluxes between pools
     real(dp), dimension(:,:),   intent(in),    optional :: S      ! Sources not between pools
@@ -267,17 +291,17 @@ contains
     integer(i4) :: i, j  ! counter
     integer(i4) :: nland ! number of land points
     integer(i4) :: nn    ! number of pools
-    real(dp), dimension(size(Ci,1),size(Ci,2)) :: R       ! Isotope ratio of pool
+    real(dp), dimension(size(Ciso,1),size(Ciso,2)) :: R       ! Isotope ratio of pool
     ! defaults for optional inputs
-    real(dp), dimension(size(Ci,1),size(Ci,2)) :: iS, iRs, iT, iRt
+    real(dp), dimension(size(Ciso,1),size(Ciso,2)) :: iS, iRs, iT, iRt
     real(dp), dimension(:,:,:), allocatable :: ialpha
-    real(dp), dimension(:,:,:), allocatable :: alphaF     ! alpha*F
-    real(dp), dimension(size(Ci,1),size(Ci,2)) :: sink    ! not-between pools sink
-    real(dp), dimension(size(Ci,1),size(Ci,2)) :: source  ! not-between pools source
-    real(dp), dimension(size(Ci,1),size(Ci,2)) :: isink   ! between pools sink
-    real(dp), dimension(size(Ci,1),size(Ci,2)) :: isource ! between pools source
-    real(dp), dimension(size(Ci,1),size(Ci,2)) :: Cnew    ! New pool size for check
-    logical :: itrans                                     ! transposed order pools and fluxes
+    real(dp), dimension(:,:,:), allocatable :: alphaF         ! alpha*F
+    real(dp), dimension(size(Ciso,1),size(Ciso,2)) :: sink    ! not-between pools sink
+    real(dp), dimension(size(Ciso,1),size(Ciso,2)) :: source  ! not-between pools source
+    real(dp), dimension(size(Ciso,1),size(Ciso,2)) :: isink   ! between pools sink
+    real(dp), dimension(size(Ciso,1),size(Ciso,2)) :: isource ! between pools source
+    real(dp), dimension(size(Ciso,1),size(Ciso,2)) :: Cnew    ! New pool size for check
+    logical :: itrans                                         ! transposed order pools and fluxes
 
     ! Determine order of dimensions
     if (present(trans)) then
@@ -288,13 +312,13 @@ contains
 
     ! Check sizes
     if (itrans) then
-       nn    = size(Ci,2)
-       nland = size(Ci,1)
+       nn    = size(Ciso,2)
+       nland = size(Ciso,1)
        allocate(ialpha(nland,nn,nn))
        allocate(alphaF(nland,nn,nn))
     else
-       nn    = size(Ci,1)
-       nland = size(Ci,2)
+       nn    = size(Ciso,1)
+       nland = size(Ciso,2)
        allocate(ialpha(nn,nn,nland))
        allocate(alphaF(nn,nn,nland))
     endif
@@ -302,36 +326,36 @@ contains
        if ( (size(C,2) /= nn) .or. (size(F,2) /= nn) .or. (size(F,3) /= nn) ) then
           write(*,*) 'Error isotope_pool_model_2d: non-fitting dimensions between isotopic pools,'
           write(*,*) '                             non-isotopic pools and fluxes.'
-          write(*,*) '    size(Ci,2): ', size(Ci,2)
-          write(*,*) '    size(C,2):  ', size(C,2)
-          write(*,*) '    size(F,2):  ', size(F,2)
-          write(*,*) '    size(F,3):  ', size(F,3)
+          write(*,*) '    size(Ciso,2): ', size(Ciso,2)
+          write(*,*) '    size(C,2):    ', size(C,2)
+          write(*,*) '    size(F,2):    ', size(F,2)
+          write(*,*) '    size(F,3):    ', size(F,3)
           stop 9
        endif
        if ( (size(C,1) /= nland) .or. (size(F,1) /= nland) ) then
           write(*,*) 'Error isotope_pool_model_2d: non-fitting first dimensions between isotopic pools,'
           write(*,*) '                             non-isotopic pools and fluxes.'
-          write(*,*) '    size(Ci,1): ', size(Ci,1)
-          write(*,*) '    size(C,1):  ', size(C,1)
-          write(*,*) '    size(F,1):  ', size(F,1)
+          write(*,*) '    size(Ciso,1): ', size(Ciso,1)
+          write(*,*) '    size(C,1):    ', size(C,1)
+          write(*,*) '    size(F,1):    ', size(F,1)
           stop 9
        endif
     else
        if ( (size(C,1) /= nn) .or. (size(F,1) /= nn) .or. (size(F,2) /= nn) ) then
           write(*,*) 'Error isotope_pool_model_2d: non-fitting dimensions between isotopic pools,'
           write(*,*) '                             non-isotopic pools and fluxes.'
-          write(*,*) '    size(Ci,1): ', size(Ci,1)
-          write(*,*) '    size(C,1):  ', size(C,1)
-          write(*,*) '    size(F,1):  ', size(F,1)
-          write(*,*) '    size(F,2):  ', size(F,2)
+          write(*,*) '    size(Ciso,1): ', size(Ciso,1)
+          write(*,*) '    size(C,1):    ', size(C,1)
+          write(*,*) '    size(F,1):    ', size(F,1)
+          write(*,*) '    size(F,2):    ', size(F,2)
           stop 9
        endif
        if ( (size(C,2) /= nland) .or. (size(F,3) /= nland) ) then
           write(*,*) 'Error isotope_pool_model_2d: non-fitting first dimensions between isotopic pools,'
           write(*,*) '                             non-isotopic pools and fluxes.'
-          write(*,*) '    size(Ci,2): ', size(Ci,2)
-          write(*,*) '    size(C,2):  ', size(C,2)
-          write(*,*) '    size(F,3):  ', size(F,3)
+          write(*,*) '    size(Ciso,2): ', size(Ciso,2)
+          write(*,*) '    size(C,2):    ', size(C,2)
+          write(*,*) '    size(F,3):    ', size(F,3)
           stop 9
        endif
     endif
@@ -393,7 +417,7 @@ contains
     else
        ! iRt = 0._dp
        iRt = 1._dp ! could be zero as well to assure no isotopic sink if C=0
-       where (C > 0._dp) iRt = Ci / C
+       where (C > 0._dp) iRt = Ciso / C
     endif
     if (present(alpha)) then
        ialpha = alpha
@@ -412,7 +436,7 @@ contains
     ! Isotope ratio
     ! R(:,:) = 0._dp
     R(:,:) = 1._dp ! could be zero as well to assure no isotopic fluxes if initial C=0
-    where (C > 0._dp) R = Ci / C
+    where (C > 0._dp) R = Ciso / C
 
     ! alpha * F
     alphaF = ialpha * F
@@ -428,14 +452,14 @@ contains
        isource = sum(alphaF * spread(R, dim=2, ncopies=nn), dim=1) * dt
     endif
     ! Explicit solution
-    Ci = Ci - sink + source - isink + isource
+    Ciso = Ciso - sink + source - isink + isource
 
     if (present(trash)) then
         ! Check final pools
         ! Isotope pool became < 0.
-        if (any(Ci < 0._dp)) then
-           trash = trash + merge(abs(Ci), 0._dp, Ci < 0._dp)
-           Ci = merge(0._dp, Ci, Ci < 0._dp)
+        if (any(Ciso < 0._dp)) then
+           trash = trash + merge(abs(Ciso), 0._dp, Ciso < 0._dp)
+           Ciso = merge(0._dp, Ciso, Ciso < 0._dp)
         endif
         ! Non-isotope pool == 0. but isotope pool > 0.
         if (itrans) then
@@ -443,9 +467,9 @@ contains
         else
            Cnew = C - iT * dt + iS * dt - sum(F, dim=2)* dt + sum(F, dim=1) * dt
         endif
-        if (any(eq(Cnew,0._dp) .and. (Ci > 0._dp))) then
-           trash = trash + merge(Ci, 0._dp, eq(Cnew,0._dp) .and. (Ci > 0._dp))
-           Ci = merge(0._dp, Ci, eq(Cnew,0._dp) .and. (Ci > 0._dp))
+        if (any(eq(Cnew,0._dp) .and. (Ciso > 0._dp))) then
+           trash = trash + merge(Ciso, 0._dp, eq(Cnew,0._dp) .and. (Ciso > 0._dp))
+           Ciso = merge(0._dp, Ciso, eq(Cnew,0._dp) .and. (Ciso > 0._dp))
         endif
         ! Non-isotope pool >0. but isotope pool == 0.
         ! ???

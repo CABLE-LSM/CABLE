@@ -32,8 +32,6 @@ MODULE cable_roughness_module
 
 CONTAINS
 
-
-
 SUBROUTINE ruff_resist(veg, rough, ssnow, canopy)
 
    ! m.r. raupach, 24-oct-92
@@ -64,7 +62,6 @@ SUBROUTINE ruff_resist(veg, rough, ssnow, canopy)
    ! LAI decreases due to snow:
    canopy%vlaiw = veg%vlai * rough%hruff / MAX( 0.01, veg%hc )
    canopy%rghlai = canopy%vlaiw
-
 
     IF (cable_user%soil_struc=='default') THEN
 

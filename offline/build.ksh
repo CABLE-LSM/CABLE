@@ -203,7 +203,7 @@ host_raij()
 host_mcin()
 {
     idebug=0
-    iintel=1
+    iintel=0
     np=$#
     for ((i=0; i<${np}; i++)) ; do
 	if [[ "${1}" == "debug" ]] ; then

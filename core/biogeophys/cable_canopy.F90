@@ -173,8 +173,7 @@ CONTAINS
     cansat = veg%canst1 * canopy%vlaiw
 
     !---compute surface wetness factor, update cansto, through
-    CALL surf_wetness_fact( cansat, canopy, ssnow,veg,met, soil, dels )
-
+    CALL surf_wetness_fact(cansat, canopy, ssnow, veg, met, soil, dels)
 
     canopy%fevw_pot = 0.0
     canopy%gswx = 1e-3     ! default stomatal conuctance
@@ -195,8 +194,8 @@ CONTAINS
     canopy%A_slJ = 0.0
 
     ! 13C
-    canopy%An = 0.0
-    canopy%Rd = 0.0
+    canopy%An = 0.0_r_2
+    canopy%Rd = 0.0_r_2
 
     CALL define_air(met, air)
 
@@ -235,18 +234,14 @@ CONTAINS
 !!$    !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     DO iter = 1, NITER
-
        ! AERODYNAMIC PROPERTIES: friction velocity us, thence turbulent
        ! resistances rt0, rt1 (elements of dispersion matrix):
        ! See CSIRO SCAM, Raupach et al 1997, eq. 3.46:
        CALL comp_friction_vel()
 
        ! E.Kowalczyk 2014
-       IF (cable_user%l_new_roughness_soil)                                     &
+       IF (cable_user%l_new_roughness_soil) &
             CALL ruff_resist(veg, rough, ssnow, canopy)
-
-
-
 
        ! Turbulent aerodynamic resistance from roughness sublayer depth
        ! to reference height, x=1 if zref+disp>zruffs,
@@ -318,8 +313,6 @@ CONTAINS
 
        ENDIF
 
-
-
        ! Aerodynamic resistance (sum 3 height integrals)/us
        ! See CSIRO SCAM, Raupach et al 1997, eq. 3.50:
        rough%rt1 = MAX(5.,(rough%rt1usa + rough%rt1usb + rt1usc) / canopy%us)
@@ -332,7 +325,6 @@ CONTAINS
              ssnow%rtsoil(j) = rt0(j) + rough%rt1(j)
           ENDif
        ENDDO
-
 
        ssnow%rtsoil = max(rt_min,ssnow%rtsoil)
 
@@ -352,7 +344,7 @@ CONTAINS
        ! See CSIRO SCAM, Raupach et al 1997, eq. 3.12. Top leaf:
        DO j=1,mp
 
-          IF(canopy%vlaiw(j) > C%LAI_THRESH) THEN
+          IF (canopy%vlaiw(j) > C%LAI_THRESH) THEN
              gbvtop(j) = air%cmolar(j)*C%APOL * air%visc(j) / C%prandt /        &
                   veg%dleaf(j) * (canopy%us(j) / MAX(rough%usuh(j),1.e-6)&
                   * veg%dleaf(j) / air%visc(j) )**0.5                    &
@@ -523,9 +515,6 @@ CONTAINS
 !!$       endwhere
 !!$!%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-
-
        CALL within_canopy( gbhu, gbhf )
 
        ! Saturation specific humidity at soil/snow surface temperature:
@@ -591,14 +580,10 @@ CONTAINS
 
        ENDDO
 
-
        canopy%rnet = canopy%fnv + canopy%fns
-
 
        canopy%epot = ((1.-rad%transd)*canopy%fevw_pot +                         &
             rad%transd*ssnow%potev*ssnow%cls) * dels/air%rlam
-
-
 
        canopy%rniso = sum(rad%rniso,2) + rad%qssabs + rad%transd*met%fld + &
             (1.0-rad%transd)*C%EMLEAF* &
@@ -607,23 +592,18 @@ CONTAINS
        rlower_limit = canopy%epot * air%rlam / dels
        where (rlower_limit == 0 ) rlower_limit = 1.e-7 !prevent from 0. by adding 1.e-7 (W/m2)
 
-
        canopy%wetfac_cs = max(0., min(1.0,canopy%fe / rlower_limit ))
 
        DO j=1,mp
-
           IF ( canopy%wetfac_cs(j) .LE. 0. )                                    &
                canopy%wetfac_cs(j) = MAX( 0., MIN( 1.,                            &
                MAX( canopy%fev(j)/canopy%fevw_pot(j),       &
                real(canopy%fes(j))/ssnow%potev(j) ) ) )
-
        ENDDO
 
        CALL update_zetar()
 
     END DO           ! do iter = 1, NITER
-
-
 
     canopy%cduv = canopy%us * canopy%us / (max(met%ua,C%UMIN))**2
 
@@ -1631,7 +1611,6 @@ CONTAINS
     rnx = SUM(rad%rniso,2)
     abs_deltlf = 999.0
 
-
     gras = 1.0e-6
     an_y= 0.0
     hcx = 0.0              ! init sens heat iteration memory variable
@@ -1667,7 +1646,6 @@ CONTAINS
 
     deltlfy = abs_deltlf
     k = 0
-
 
     !kdcorbin, 08/10 - doing all points all the time
     DO WHILE (k < C%MAXITER)
@@ -1710,7 +1688,7 @@ CONTAINS
              ! used for Vcmax for C3 plants:
 
              if (.not.cable_user%acclimate_photosyn) then
-                temp(i) =  xvcmxt3(tlfx(i)) * veg%vcmax(i) * (1.0-veg%frac4(i))
+                temp(i) = xvcmxt3(tlfx(i)) * veg%vcmax(i) * (1.0-veg%frac4(i))
              else
                 call  xvcmxt3_acclim(tlfx(i), climate%mtemp(i) , temp(i))
                 temp(i) = temp(i) * veg%vcmax(i) * (1.0-veg%frac4(i))
@@ -1735,8 +1713,7 @@ CONTAINS
              ejmxt3(i,1) = rad%scalex(i,1) * temp(i)
              ejmxt3(i,2) = rad%scalex(i,2) * temp(i)
 
-             if (cable_user%CALL_climate) then
-
+             if (cable_user%call_climate) then
                 vcmxt3(i,1) = vcmxt3(i,1)/veg%vcmax(i) * veg%vcmax_sun(i)
                 vcmxt3(i,2) = vcmxt3(i,2)/veg%vcmax(i) * veg%vcmax_shade(i)
                 ejmxt3(i,1) = ejmxt3(i,1)/veg%ejmax(i) * veg%ejmax_sun(i)
@@ -3313,7 +3290,7 @@ SUBROUTINE photosynthesis( csxz, cx1z, cx2z, gswminz,                          &
     xvcden=1.0+ exp( ( entropvc*Tk-EHdVc ) / ( rgas*Tk ) )
     trf = max( real(0.0),xvcnum / xvcden )
 
-   end subroutine xejmxt3_acclim
+  end subroutine xejmxt3_acclim
 
   ! ------------------------------------------------------------------------------
 

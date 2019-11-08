@@ -345,7 +345,7 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
     casapool%cplant(npt,leaf)     = cleaf(iv1)
     casapool%cplant(npt,froot)    = cfroot(iv1)
     casapool%clabile(npt)         = 0.0_r_2
-    casapool%clitter(npt,metb)     = cmet(iv1)
+    casapool%clitter(npt,metb)    = cmet(iv1)
     casapool%clitter(npt,str)     = cstr(iv1)
     casapool%csoil(npt,mic)       = cmic(iv1)
     casapool%csoil(npt,slow)      = cslow(iv1)
@@ -1426,7 +1426,7 @@ SUBROUTINE biogeochem(ktau,dels,idoY,LALLOC,veg,soil,casabiome,casapool,casaflux
 
   xKNlimiting = 1.0_r_2
 
- ! zero annual sums
+  ! zero annual sums
   if (idoy==1) CALL casa_cnpflux(casaflux,casapool,casabal,.true.)
 
   IF (cable_user%PHENOLOGY_SWITCH.eq.'MODIS') THEN
@@ -1435,43 +1435,42 @@ SUBROUTINE biogeochem(ktau,dels,idoY,LALLOC,veg,soil,casabiome,casapool,casaflux
   call avgsoil(veg,soil,casamet)
   call casa_rplant(veg,casabiome,casapool,casaflux,casamet,climate)
 
+  IF (.NOT.cable_user%CALL_POP) THEN
+     call casa_allocation(veg,soil,casabiome,casaflux,casapool,casamet,phen,LALLOC)
+  ENDIF
 
-   IF (.NOT.cable_user%CALL_POP) THEN
-      call casa_allocation(veg,soil,casabiome,casaflux,casapool,casamet,phen,LALLOC)
-   ENDIF
+  call casa_xrateplant(xkleafcold,xkleafdry,xkleaf,veg,casabiome, &
+       casamet,phen)
+  call casa_coeffplant(xkleafcold,xkleafdry,xkleaf,veg,casabiome,casapool, &
+       casaflux,casamet,phen)
 
-   call casa_xrateplant(xkleafcold,xkleafdry,xkleaf,veg,casabiome, &
-        casamet,phen)
-   call casa_coeffplant(xkleafcold,xkleafdry,xkleaf,veg,casabiome,casapool, &
-        casaflux,casamet,phen)
+  call casa_xnp(xnplimit,xNPuptake,veg,casabiome,casapool,casaflux,casamet)
 
-   call casa_xnp(xnplimit,xNPuptake,veg,casabiome,casapool,casaflux,casamet)
+  IF (cable_user%CALL_POP) THEN
 
-   IF (cable_user%CALL_POP) THEN
-
-      call casa_allocation(veg,soil,casabiome,casaflux,casapool,casamet,phen,LALLOC)
-      WHERE (pop%pop_grid(:)%cmass_sum_old.gt.0.001_r_2 .and. pop%pop_grid(:)%cmass_sum.gt.0.001_r_2 )
+     call casa_allocation(veg,soil,casabiome,casaflux,casapool,casamet,phen,LALLOC)
+     WHERE (pop%pop_grid(:)%cmass_sum_old.gt.0.001_r_2 .and. pop%pop_grid(:)%cmass_sum.gt.0.001_r_2 )
          
-         casaflux%frac_sapwood(POP%Iwood) = POP%pop_grid(:)%csapwood_sum/ POP%pop_grid(:)%cmass_sum
-         casaflux%sapwood_area(POP%Iwood) = max(POP%pop_grid(:)%sapwood_area/10000., 1e-6_r_2)
-         veg%hc(POP%Iwood) = POP%pop_grid(:)%height_max
+        casaflux%frac_sapwood(POP%Iwood) = POP%pop_grid(:)%csapwood_sum/ POP%pop_grid(:)%cmass_sum
+        casaflux%sapwood_area(POP%Iwood) = max(POP%pop_grid(:)%sapwood_area/10000., 1e-6_r_2)
+        veg%hc(POP%Iwood) = POP%pop_grid(:)%height_max
           
-         WHERE (pop%pop_grid(:)%LU ==2)
+        WHERE (pop%pop_grid(:)%LU ==2)
 
-            casaflux%kplant(POP%Iwood,2) =  1.0_r_2 -  &
-              (1.0-  max( min((POP%pop_grid(:)%stress_mortality + &
-              POP%pop_grid(:)%crowding_mortality + &
-              POP%pop_grid(:)%fire_mortality ) &
-              /(POP%pop_grid(:)%cmass_sum+POP%pop_grid(:)%growth) + &
-              1.0_r_2/veg%disturbance_interval(POP%Iwood,1), 0.99_r_2), 0.0_r_2))**(1.0_r_2/365.0_r_2)
+           casaflux%kplant(POP%Iwood,2) =  1.0_r_2 -  &
+                (1.0-  max( min((POP%pop_grid(:)%stress_mortality + &
+                POP%pop_grid(:)%crowding_mortality + &
+                POP%pop_grid(:)%fire_mortality ) &
+                /(POP%pop_grid(:)%cmass_sum+POP%pop_grid(:)%growth) + &
+                1.0_r_2/veg%disturbance_interval(POP%Iwood,1), 0.99_r_2), 0.0_r_2))**(1.0_r_2/365.0_r_2)
 
         ELSEWHERE
             casaflux%kplant(POP%Iwood,2) =  1.0_r_2 -  &
-              (1.0_r_2-  max( min((POP%pop_grid(:)%stress_mortality + &
-              POP%pop_grid(:)%crowding_mortality + &
-              POP%pop_grid(:)%fire_mortality+POP%pop_grid(:)%cat_mortality  ) &
-              /(POP%pop_grid(:)%cmass_sum+POP%pop_grid(:)%growth), 0.99_r_2), 0.0_r_2))**(1.0_r_2/365.0_r_2)
-
+                 (1.0_r_2-  max( min((POP%pop_grid(:)%stress_mortality + &
+                 POP%pop_grid(:)%crowding_mortality + &
+                 POP%pop_grid(:)%fire_mortality+POP%pop_grid(:)%cat_mortality  ) &
+                 /(POP%pop_grid(:)%cmass_sum+POP%pop_grid(:)%growth), 0.99_r_2), 0.0_r_2))**(1.0_r_2/365.0_r_2)
+            
          ENDWHERE
 
          veg%hc(POP%Iwood) = POP%pop_grid(:)%height_max

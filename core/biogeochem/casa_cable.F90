@@ -138,10 +138,6 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
             ENDIF
 
             if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
-            ! if (cable_user%c13o2) then
-            !    print*, '13C in casa_cable - 31'
-            !    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-            ! endif
             CALL biogeochem(ktau, dels, idoy, LALLOC, veg, soil, casabiome, casapool, casaflux, &
                  casamet, casabal, phen, POP, climate,  xnplimit, xkNlimiting, xklitter, xksoil, &
                  xkleaf, xkleafcold, xkleafdry, &
@@ -153,11 +149,6 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 #else
             if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
 #endif
-            ! if (cable_user%c13o2) then
-            !    print*, '13C in casa_cable - 32'
-            !    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-            ! endif
-
             !write(wlogn,*),'after biogeochem npp:', casaflux%cnpp
             !write(wlogn,*),'after biogeochem npp:', casapool%cplant
 
@@ -194,10 +185,6 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
       IF( MOD((ktau-kstart+1),ktauday) == 0 ) THEN  ! end of day
 
          if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
-         ! if (cable_user%c13o2) then
-         !    print*, '13C in casa_cable - 11'
-         !    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-         ! endif
          CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
               casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter,xksoil,xkleaf, &
               xkleafcold,xkleafdry,&
@@ -209,10 +196,6 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 #else
          if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
 #endif
-         ! if (cable_user%c13o2) then
-         !    print*, '13C in casa_cable - 12'
-         !    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-         ! endif
 
          IF (cable_user%CALL_POP) THEN ! accumulate input variables for POP
 
@@ -369,7 +352,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 #ifndef UM_BUILD
 
    IF ( allATonce .OR. ncall .EQ. 1 ) THEN
-      print*, 'opening file'
+      print*, 'opening file ', TRIM(ncfile)
       ncok = NF90_OPEN(TRIM(ncfile), nf90_nowrite, ncrid)
       IF (ncok /= nf90_noerr ) CALL stderr_nc(ncok,'re-opening ', ncfile)
    ENDIF
@@ -693,10 +676,6 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
           veg%ejmax(np) =bjvref * veg%vcmax(np)
        endif
 
-
-      
-
-
        if (cable_user%finite_gm) then
           ! vcmax and jmax modifications according to Sun et al. 2014 Table S3
           if (ivt.eq.1) then
@@ -743,9 +722,6 @@ else
    veg%vcmax_sun = veg%vcmax
    veg%ejmax_sun = veg%ejmax
 endif
-
-
-
 
 ! for 2 day test
 !if (ktau == ) stop
