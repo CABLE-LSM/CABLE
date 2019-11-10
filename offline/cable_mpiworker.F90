@@ -136,7 +136,7 @@ CONTAINS
          redistrb, wiltParam, satuParam, CurYear,    &
          IS_LEAPYEAR, IS_CASA_TIME, calcsoilalbedo,                &
          report_version_no, kwidth_gl
-    USE cable_data_module,    ONLY: driver_type, point2constants
+    USE cable_data_module,    ONLY: driver_type, icanopy_type, point2constants
     USE cable_input_module,   ONLY: open_met_file,load_parameters,              &
          get_met_data,close_met_file
     USE cable_output_module,  ONLY: create_restart,open_output_file,            &
@@ -217,6 +217,7 @@ CONTAINS
     TYPE (soil_parameter_type) :: soil ! soil parameters
     TYPE (veg_parameter_type)  :: veg  ! vegetation parameters
     TYPE (driver_type)    :: C         ! constants used locally
+    TYPE (icanopy_type)   :: PHOTO     ! photosynthesis constants
 
     TYPE (sum_flux_type)  :: sum_flux ! cumulative flux variables
     TYPE (bgc_pool_type)  :: bgc  ! carbon pool variables
@@ -668,9 +669,11 @@ CONTAINS
              met%tvrad = met%tk
 
              ! Feedback prognostic vcmax and daily LAI from casaCNP to CABLE
-             IF (l_vcmaxFeedbk) then
-                CALL casa_feedback( ktau, veg, casabiome,    &
-                     casapool, casamet, climate, ktauday )
+             IF (l_vcmaxFeedbk) THEN
+                 IF (MOD(ktau,ktauday) == 1) THEN
+                    CALL casa_feedback( ktau, veg, casabiome,    &
+                            casapool, casamet, climate, ktauday )
+                 ENDIF
              ELSE
                 veg%vcmax_shade = veg%vcmax
                 veg%ejmax_shade = veg%ejmax
@@ -1624,6 +1627,10 @@ CONTAINS
     CALL MPI_Get_address (veg%g1, displs(bidx), ierr)
     blen(bidx) = r1len
     ! Ticket #56, finish adding new veg parms
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (veg%gmmax, displs(bidx), ierr)
+    blen(bidx) = r1len
 
     ! ----------- bgc --------------
 

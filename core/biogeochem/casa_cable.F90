@@ -609,31 +609,46 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 
 
  SUBROUTINE casa_feedback(ktau,veg,casabiome,casapool,casamet,climate,ktauday)
+
   USE cable_def_types_mod
   USE casadimension
   USE casaparm
   USE casavariable
-  USE casa_cnp_module, ONLY: vcmax_np
-  USE cable_common_module,  ONLY:  CABLE_USER
+  USE casa_cnp_module,      ONLY: vcmax_np
+  USE cable_common_module,  ONLY: CABLE_USER
+  USE cable_data_module,    ONLY: icanopy_type
   USE cable_optimise_JV_module
-  IMPLICIT NONE
-  INTEGER,      INTENT(IN) :: ktau ! integration step number
-  TYPE (veg_parameter_type),  INTENT(INOUT) :: veg  ! vegetation parameters
-  TYPE (casa_biome),          INTENT(INOUT) :: casabiome
-  TYPE (casa_pool),           INTENT(IN) :: casapool
-  TYPE (casa_met),            INTENT(IN) :: casamet
-  TYPE (climate_type), INTENT(IN)       :: climate  ! climate variables
-  INTEGER,      INTENT(IN) :: ktauday ! number of time steps per day
+  USE cable_adjust_JV_gm_module
 
+  IMPLICIT NONE
+
+  INTEGER,      INTENT(IN) :: ktau ! integration step number
+  TYPE (veg_parameter_type), INTENT(INOUT) :: veg  ! vegetation parameters
+  TYPE (casa_biome),         INTENT(INOUT) :: casabiome
+  TYPE (casa_pool),          INTENT(IN)    :: casapool
+  TYPE (casa_met),           INTENT(IN)    :: casamet
+  TYPE (climate_type),       INTENT(IN)    :: climate  ! climate variables
+  INTEGER,      INTENT(IN) :: ktauday ! number of time steps per day
+  TYPE (icanopy_type)      :: PHOTO
+
+  ! local variables
   integer np,ivt
-  real, dimension(mp)  :: ncleafx,npleafx, pleafx, nleafx ! local variables
-  real, dimension(17)                   ::  xnslope
+  real, dimension(mp) :: ncleafx,npleafx, pleafx, nleafx ! local variables
+  real, dimension(17) ::  xnslope
   data xnslope/0.80,1.00,2.00,1.00,1.00,1.00,0.50,1.00,0.34,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00/
-  real:: ajv, bjvref
+  real                :: relcostJCi
+  real, dimension(mp) :: ajv, bjvref, relcostJ, Nefftmp
+  real, dimension(mp) :: vcmaxx, cfrdx  ! vcmax and cfrd of previous day
+  
+
+  vcmaxx = veg%vcmax
+  cfrdx  = veg%cfrd
+  
   ! first initialize
+  CALL point2constants(PHOTO)
   ncleafx(:) = casabiome%ratioNCplantmax(veg%iveg(:),leaf)
   npleafx(:) = casabiome%ratioNPplantmin(veg%iveg(:),leaf)
-  bjvref = 1.7 ! Walker 2014
+  bjvref(:)  = PHOTO%bjvref     ! 1.7, Walker et al. 2014
   DO np=1,mp
     ivt=veg%iveg(np)
     IF (casamet%iveg2(np)/=icewater &
@@ -666,7 +681,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
                      + casabiome%nslope(ivt)*ncleafx(np)/casabiome%sla(ivt) )*1.0e-6
              ENDIF
           ENDIF
-          veg%vcmax(np) =veg%vcmax(np)* xnslope(ivt)
+          veg%vcmax(np) = veg%vcmax(np)* xnslope(ivt)
        ENDIF
        veg%ejmax = 2.0 * veg%vcmax
     elseif (TRIM(cable_user%vcmax).eq.'Walker2014') then
@@ -686,57 +701,75 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
            ! account here for spring recovery
           veg%vcmax(np) = vcmax_np(nleafx(np), pleafx(np))*casabiome%vcmax_scalar(ivt) &
                *climate%frec(np)
-          veg%ejmax(np) =bjvref * veg%vcmax(np)
+          veg%ejmax(np) = bjvref(np) * veg%vcmax(np)
        else
           veg%vcmax(np) = vcmax_np(nleafx(np), pleafx(np))*casabiome%vcmax_scalar(ivt)
-          veg%ejmax(np) =bjvref * veg%vcmax(np)
+          veg%ejmax(np) = bjvref(np) * veg%vcmax(np)
        endif
-
+       
+ 
+       ! adjust Vcmax and Jmax accounting for gm, but only if the implicit values
+       ! have changed.
        if (cable_user%finite_gm) then
-          ! vcmax and jmax modifications according to Sun et al. 2014 Table S3
-          if (ivt.eq.1) then
-             veg%vcmax(np) = veg%vcmax(np) * 2.2
-             veg%ejmax(np) = veg%vcmax(np) * 1.1
-          elseif (ivt.eq.2) then
-             veg%vcmax(np) = veg%vcmax(np) * 1.9
-             veg%ejmax(np) = veg%vcmax(np) * 1.2
-          elseif (ivt.eq.3) then
-             veg%vcmax(np) = veg%vcmax(np) * 1.4
-             veg%ejmax(np) = veg%vcmax(np) * 1.5
-          elseif (ivt.eq.4) then
-             veg%vcmax(np) = veg%vcmax(np) * 1.45
-             veg%ejmax(np) = veg%vcmax(np) * 1.3
-          elseif (ivt.eq.5) then
-             veg%vcmax(np) = veg%vcmax(np) * 1.7
-             veg%ejmax(np) = veg%vcmax(np) * 1.2
-          elseif (ivt.eq.6 .OR. ivt.eq.8  .OR. ivt.eq.9) then
-             veg%vcmax(np) = veg%vcmax(np) * 1.6
-             veg%ejmax(np) = veg%vcmax(np) * 1.2
+          if ( ABS(vcmaxx(np) - veg%vcmax(np)) .GT. 1.0E-08 .OR. &
+               ABS(cfrdx(np) - veg%cfrd(np)) .GT. 1.0E-05 .OR. &
+               ktau .LT. ktauday ) then
+             ! The approach by Sun et al. 2014 is replaced with a subroutine
+             ! based on Knauer et al. 2019, GCB
+             CALL adjust_JV_gm(veg)
           endif
-
+             
+          ! recalculate bjvref
+          bjvref(np) = veg%ejmaxcc(np) / veg%vcmaxcc(np)
+          
+          ! recalculate relcost_J in a way that Neff is the same with
+          ! finite and infinite gm
+          if (coord) then
+             relcostJCi = PHOTO%relcostJ_coord
+          else
+             relcostJCi = PHOTO%relcostJ_optim
+          endif
+          
+          Nefftmp(np) = veg%vcmax(np) + relcostJCi * PHOTO%bjvref *  &
+                        veg%vcmax(np) / 4.0
+          relcostJ(np) = 1.0 / (bjvref(np) * veg%vcmaxcc(np) / 4.0) * &
+               (Nefftmp(np) - veg%vcmaxcc(np))
+          
+       else  ! infinite gm
+          if (coord) then
+             relcostJ(:) = PHOTO%relcostJ_coord
+          else
+             relcostJ(:) = PHOTO%relcostJ_optim
+          endif
        endif
-
- else
+       
+  else
     stop 'invalid vcmax flag'
- endif
+  endif
 
 ENDDO
 
-if (mod(ktau,ktauday) ==1) then
-   if (cable_user%coordinate_photosyn) then
-      CALL optimise_JV(veg,climate,ktauday,bjvref)
-   endif
-endif
-
+!if (mod(ktau,ktauday) ==1) then   ! JK: whole routine is now called once per day
 if (cable_user%coordinate_photosyn) then
-   veg%vcmax = veg%vcmax_sun ! diagnostic only
-   veg%ejmax = veg%ejmax_sun ! diagnostic only
-else
-   veg%vcmax_shade = veg%vcmax
-   veg%ejmax_shade = veg%ejmax
+    CALL optimise_JV(veg,climate,ktauday,bjvref,relcostJ)
+endif
+!endif
 
-   veg%vcmax_sun = veg%vcmax
-   veg%ejmax_sun = veg%ejmax
+
+if (.NOT. cable_user%coordinate_photosyn) then
+   if (cable_user%finite_gm) then
+      veg%vcmax_shade = veg%vcmaxcc
+      veg%ejmax_shade = veg%ejmaxcc
+
+      veg%vcmax_sun = veg%vcmaxcc
+      veg%ejmax_sun = veg%ejmaxcc
+   else    
+      veg%vcmax_shade = veg%vcmax
+      veg%ejmax_shade = veg%ejmax
+   
+      veg%vcmax_sun = veg%vcmax
+      veg%ejmax_sun = veg%ejmax
+   endif   
 endif
 
 ! for 2 day test

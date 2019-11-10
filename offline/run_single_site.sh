@@ -117,8 +117,8 @@ doequi1=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium wit
  nequi1=3       #      number of times to repeat steps in doequi1
 doequi2=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools (4.)
  nequi2=3       #      number of times to repeat steps in doequi2
-doiniluc=1      # 1/0: Do/Do not spinup with dynamic land use (5a)
-doinidyn=1      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
+doiniluc=0      # 1/0: Do/Do not spinup with dynamic land use (5a)
+doinidyn=0      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
 dofinal=1       # 1/0: Do/Do not final run from 1900 to 2017 (6.)
 
 # --------------------------------------------------------------------

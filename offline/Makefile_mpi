@@ -49,9 +49,9 @@ LSRC = cable_data.F90 cable_common.F90 cable_define_types.F90 cable_iovars.F90 \
 	cable_cru_TRENDY.F90 POPLUC.F90 CASAONLY_LUC.F90 cable_LUC_EXPT.F90 \
 	cable_optimiseJVratio.F90 cable_bios_met_obs_params.F90	\
 	blaze.F90 blaze_mpi.F90 blaze_driver.F90 simfire.F90 \
-	cable_c13o2.F90 cable_c13o2_def.F90
+	cable_c13o2.F90 cable_c13o2_def.F90 cable_adjustJVgm.F90
 LSRCf90 = mo_isotope_luc_model.f90 mo_isotope_pool_model.f90 mo_c13o2_photosynthesis.f90 \
-          mo_isotope.f90 mo_constants.f90 mo_utils.f90 mo_kind.f90
+          mo_isotope.f90 mo_constants.f90 mo_utils.f90 mo_kind.f90 minpack.f90
 
 # this is the executable we are building
 PROG = cable-mpi
@@ -92,7 +92,7 @@ cable_air.o: cable_air.F90 cable_define_types.o cable_common.o cable_data.o
 cable_albedo.o: cable_albedo.F90 cable_define_types.o cable_common.o cable_data.o
 
 cable_canopy.o: cable_canopy.F90 cable_define_types.o cable_radiation.o cable_roughness.o \
-		cable_air.o cable_common.o cable_data.o cable_sli_utils.o
+		cable_air.o cable_common.o cable_data.o cable_sli_utils.o mo_constants.o
 
 cable_carbon.o: cable_carbon.F90 cable_define_types.o cable_common.o cable_data.o
 
@@ -162,7 +162,7 @@ CASAONLY_LUC.o: CASAONLY_LUC.F90  cable_define_types.o  cable_carbon.o cable_com
 
 casa_cable.o: casa_cable.F90 POP.o cable_define_types.o  cable_carbon.o casa_variable.o \
 	      cable_diag.o cable_phenology.o casa_cnp.o cable_optimiseJVratio.o \
-	      cable_c13o2.o cable_c13o2_def.o
+	      cable_adjustJVgm.o cable_c13o2.o cable_c13o2_def.o
 
 casa_cnp.o: casa_cnp.F90 cable_define_types.o casa_variable.o
 
@@ -227,6 +227,9 @@ cable_c13o2_def.o: cable_c13o2_def.F90 cable_define_types.o casa_variable.o POPL
 cable_c13o2.o: cable_c13o2.F90 cable_c13o2_def.o cable_define_types.o cable_iovars.o \
 	       cable_common.o casa_variable.o mo_isotope_luc_model.o mo_isotope_pool_model.o mo_isotope.o
 mo_isotope_luc_model.o: mo_isotope_luc_model.f90 mo_utils.o mo_kind.o
+
+minpack.o: minpack.f90 cable_define_types.o
+cable_adjustJVgm.o: cable_adjustJVgm.F90 cable_define_types.o minpack.o
 
 
 # make clean option

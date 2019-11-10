@@ -99,19 +99,20 @@ host_pear()
    export NCDIR=$NETCDF_ROOT'/lib/'
    export NCMOD=$NETCDF_ROOT'/include/'
    export FC='mpifort' #'mpif90'
-   export CFLAGS='-O2 -fp-model precise -fpp'
+   #export CFLAGS='-O2 -fp-model precise -fpp'
 #   export CFLAGS='-O0 -C'
 #   best settings for debugging
 #   export CFLAGS='-O0 -C -g -debug all -traceback -check all,noarg_temp_created, -C  '
 #   export CFLAGS='-O0 '
 
-#   export CFLAGS='-O0 -fp-model precise -g -debug -traceback '
+   export CFLAGS='-O0 -fp-model precise -g -debug -traceback -fpp '
+    export CFLAGS="${CFLAGS} -DCRU2018"
 #   export CFLAGS='-O0 -fp-model precise -g -debug all -traceback -fpe0 '
 #   export CFLAGS='  -g -debug -traceback -fp-stack-check -O0 -debug -fpe0 -no-ftz -ftrapuv'
 
 #   best debugg flags
 #   export LDFLAGS='-g -L'$NCDIR  #'-L'$NCDIR' -O2'
-   export LDFLAGS='-O2 -L'$NCDIR''
+   export LDFLAGS='-O0 -L'$NCDIR''
    export LD='-lnetcdf -lnetcdff'
    build_build
    cd ../
@@ -426,12 +427,13 @@ build_build()
    DRV="."
    CASA="../core/biogeochem"
    BLAZE="../core/blaze"
+   UTIL="../core/utils"
    
    /bin/cp -p $CORE/*90 ./.mpitmp
    /bin/cp -p $DRV/*90 ./.mpitmp
    /bin/cp -p $CASA/*90 ./.mpitmp
    /bin/cp -p $BLAZE/*90 ./.mpitmp
-   
+   /bin/cp -p $UTIL/*90 ./.mpitmp
        
    /bin/cp -p Makefile_mpi  ./.mpitmp
    

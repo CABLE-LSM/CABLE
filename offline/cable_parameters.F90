@@ -1360,6 +1360,9 @@ CONTAINS
           veg%dleaf(h)    = vegin%dleaf(veg%iveg(h))
           veg%vcmax(h)    = vegin%vcmax(veg%iveg(h))
           veg%ejmax(h)    = vegin%ejmax(veg%iveg(h))
+          veg%vcmaxcc(h)  = vegin%vcmaxcc(veg%iveg(h))
+          veg%ejmaxcc(h)  = vegin%ejmaxcc(veg%iveg(h))
+          veg%gmmax(h)    = vegin%gmmax(veg%iveg(h))
           veg%hc(h)       = vegin%hc(veg%iveg(h))
           veg%xfang(h)    = vegin%xfang(veg%iveg(h))
           veg%vbeta(h)    = vegin%vbeta(veg%iveg(h))
@@ -1457,7 +1460,8 @@ CONTAINS
     DEALLOCATE(soilin%silt, soilin%clay, soilin%sand, soilin%swilt,            &
                soilin%sfc, soilin%ssat, soilin%bch, soilin%hyds, soilin%sucs,  &
                soilin%rhosoil, soilin%css, vegin%canst1, vegin%dleaf,          &
-               vegin%vcmax, vegin%ejmax, vegin%hc, vegin%xfang, vegin%rp20,    &
+               vegin%vcmax, vegin%ejmax, vegin%vcmaxcc, vegin%ejmaxcc, vegin%gmmax, &
+               vegin%hc, vegin%xfang, vegin%rp20,                              &
                vegin%rpcoef, vegin%rs20, vegin%shelrb, vegin%frac4,            &
                vegin%wai, vegin%vegcf, vegin%extkn, vegin%tminvj,              &
                vegin%tmaxvj, vegin%vbeta,vegin%clitt, vegin%zr, vegin%rootbeta, vegin%froot,         &

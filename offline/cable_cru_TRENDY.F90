@@ -373,7 +373,7 @@ CONTAINS
     END DO
     ALLOCATE( CRU%MET(prevTmax)%METVALS(CRU%mland) )
     ALLOCATE( CRU%MET(nextTmin)%METVALS(CRU%mland) )
-! allocate array for Nitrogen deposition input data
+    ! allocate array for Nitrogen deposition input data
     ALLOCATE( CRU%NdepVALS(CRU%mland) )
 
     ! Copy the col/row and lat/long positions of each land cell into the corresponding
@@ -384,9 +384,9 @@ CONTAINS
        DO xcol = 1, xdimsize
           IF ( .NOT. CRU%landmask(xcol,yrow) ) CYCLE   ! Go to next iteration if not a land cell
 
-!          WRITE(6,FMT='(A15,I5,2(1X,F8.2),2(1x,I3))')"i, lo,la, xcol,yrow",landcnt,CRU_lons(xcol),CRU_lats(yrow),xcol, yrow
+          ! WRITE(6,FMT='(A15,I5,2(1X,F8.2),2(1x,I3))')"i, lo,la, xcol,yrow",landcnt,CRU_lons(xcol),CRU_lats(yrow),xcol, yrow
 
-    ! C
+          ! C
           land_x(landcnt)    = xcol
           land_y(landcnt)    = yrow
           longitude(landcnt) = CRU_lons(xcol)
@@ -441,7 +441,7 @@ CONTAINS
     integer :: i, idx
     character(len=4)   :: cy  ! Character representation of cyear
     character(len=200) :: mp  ! Local repr of met path
-#ifdef CRU2018
+#ifdef CRU2017
     character(len=*), parameter :: cruver="crujra.V1.1" ! CRU version
 #else
     character(len=*), parameter :: cruver="crujra.v2.0" ! CRU version
@@ -560,7 +560,7 @@ CONTAINS
 ! On the first call, allocate the CRU%CO2VALS array to store the entire history of annual CO2 
 ! values, open the (ascii) CO2 file and read the values into the array. 
     IF (CALL1) THEN
-#ifdef CRU2018
+#ifdef CRU2017
       ALLOCATE( CRU%CO2VALS( 1700:2017 ) )
       CO2FILE = TRIM(CRU%BasePath)//"/co2/global_co2_ann_1700_2017.csv"
 #else
@@ -614,12 +614,11 @@ CONTAINS
   ! values, open the (ascii) CO2 file and read the values into the array. 
   IF (CALL1) THEN
 
-#ifdef CRU2018
+#ifdef CRU2017
      NdepFILE = trim(CRU%BasePath)//"/ndep/NOy_plus_NHx_dry_plus_wet_deposition_hist_1850_2015_annual_1deg.nc"
 #else
      NdepFILE = TRIM(CRU%BasePath)//"/ndep/NOy_plus_NHx_dry_plus_wet_deposition_1850_2099_annual.1deg.nc"
 #endif
-
          
      ! Open the NDep and access the variables by their name and variable id.
      WRITE(*   ,*) 'Opening ndep data file: ', NdepFILE

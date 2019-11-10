@@ -97,21 +97,37 @@ module cable_data_module
    end type other_constants
 
    type photosynthetic_constants
+      ! All parameters from Bernacchi et al., 2001, 2002, PCE
       integer:: maxiter=20 ! max # interations for leaf temperature
-      !real :: gam0 = 42.75E-6  ! (Bernacci 2001 )36.9 @ 25C (von Cammerer)
-      !real :: gam0 = 34.6E-6
-      real :: gam0 = 30.0E-6  !Adjusted lower to bring down CO2 response
-      real :: gam1 = 0.0509
-      real :: gam2 = 0.0010
-      real :: rgbwc  = 1.32
-      real :: rgswc  = 1.57
-      real :: tmaxj  = 45.0
-      real :: tmaxv  = 45.0
-      real :: tminj  = -5.0
-      real :: tminv  = -5.0
-      real :: toptj  = 20.0
-      real :: toptv  = 20.0
-      real :: trefk= 298.2  !reference temperature K
+      !real :: gam0     = 34.6E-6  ! (Bernacci 2001 )36.9 @ 25C (von Cammerer)
+      real :: bjvref    = 1.7        ! Ci-based Jmax/Vcmax ratio at 25 degC
+      real :: relcostJ_coord = 1.6   ! Ci-based relative cost of Jmax to Vcmax
+                                     ! with forced coordination (Chen et al. 1993)
+      real :: relcostJ_optim = 2.3   ! Ci-based relative cost of Jmax to Vcmax
+                                     ! with photosyn. optimisation (coord = FALSE)
+      real :: gam1      = 0.0509
+      real :: gam2      = 0.0010
+      real :: gam0      = 42.75E-6   ! Ci-based Gammastar (mol mol-1) 
+      real :: gam0cc    = 37.43E-6   ! Cc-based Gammastar (mol mol-1)
+      real :: conkc0    = 404.9E-6   ! Ci-based MM constant for CO2 (mol mol-1)
+      real :: conkc0cc  = 272.38E-6  ! Cc-based MM constant for CO2 (mol mol-1)
+      real :: conko0    = 278.4E-3   ! Ci-based MM constant for O2 (mol mol-1)
+      real :: conko0cc  = 165.82E-3  ! Cc-based MM constant for O2 (mol mol-1)
+      real :: egam      = 37830.0    ! activation energy for Gammastar_Ci (J mol-1)
+      real :: egamcc    = 24460.0    ! activation energy for Gammastar_Cc (J mol-1)
+      real :: ekc       = 79430.0    ! activation energy for conkc (J mol-1)
+      real :: ekccc     = 80990.0    ! activation energy for conkccc (J mol-1)
+      real :: eko       = 36380.0    ! activation energy for conko (J mol-1)
+      real :: ekocc     = 23720.0    ! activation energy for conkocc (J mol-1)
+      real :: rgbwc     = 1.32
+      real :: rgswc     = 1.57
+      real :: tmaxj     = 45.0
+      real :: tmaxv     = 45.0
+      real :: tminj     = -5.0
+      real :: tminv     = -5.0
+      real :: toptj     = 20.0
+      real :: toptv     = 20.0
+      real :: trefk     = 298.2  !reference temperature K
    end type photosynthetic_constants
 
    ! instantiate major types of constants
@@ -161,7 +177,13 @@ module cable_data_module
          EMLEAF, EMSOIL, SBOLTZ, PRANDT, CAPP,                                 &
          RMH2O, APOL, A33, VONK, ZETA0,                                        &
          ! photosynthetic constants
-         RGSWC, GAM0, GAM1, GAM2,RGBWC,TREFK,                                  &
+         RGSWC, BJVREF, RELCOSTJ_COORD,                                        &
+         RELCOSTJ_OPTIM, GAM1, GAM2,                                           &
+         GAM0, CONKC0, CONKO0,                                                 &
+         GAM0CC, CONKC0CC, CONKO0CC,                                           &
+         EGAM, EKC, EKO,                                                       &
+         EGAMCC, EKCCC, EKOCC,                                                 &
+         RGBWC,TREFK,                                                          &
          ! math constants
          PI_C,                                                                 &
          ! other constants
@@ -318,12 +340,27 @@ SUBROUTINE canopy_type_ptr(C)
    C%MAXITER  => PHOTO%MAXITER ! only integer here
 
    !photosynthetic constants
-   C%RGSWC => PHOTO%RGSWC
-   C%GAM0  => PHOTO%GAM0
-   C%GAM2  => PHOTO%GAM2
-   C%RGBWC  => PHOTO%RGBWC
-   C%GAM1  => PHOTO%GAM1
-   C%TREFK => PHOTO%TREFK
+   C%RGSWC     => PHOTO%RGSWC
+   C%GAM0      => PHOTO%GAM0
+   C%GAM2      => PHOTO%GAM2
+   C%RGBWC     => PHOTO%RGBWC
+   C%BJVREF    => PHOTO%BJVREF
+   C%RELCOSTJ_COORD => PHOTO%RELCOSTJ_COORD
+   C%RELCOSTJ_OPTIM => PHOTO%RELCOSTJ_OPTIM
+   C%GAM1      => PHOTO%GAM1
+   C%GAM0CC    => PHOTO%GAM0CC
+   C%CONKC0    => PHOTO%CONKC0
+   C%CONKC0CC  => PHOTO%CONKC0CC
+   C%CONKO0    => PHOTO%CONKO0
+   C%CONKO0CC  => PHOTO%CONKO0CC
+   C%EGAM      => PHOTO%EGAM
+   C%EGAMCC    => PHOTO%EGAMCC
+   C%EKC       => PHOTO%EKC
+   C%EKCCC     => PHOTO%EKCCC
+   C%EKO       => PHOTO%EKO
+   C%EKOCC     => PHOTO%EKOCC
+   C%TREFK     => PHOTO%TREFK
+
    ! math constants
    C%PI_C  => MATH%PI_C
 

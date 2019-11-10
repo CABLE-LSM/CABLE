@@ -303,12 +303,15 @@ MODULE cable_def_types_mod
          convex,  & ! convexity of J-Q response curve
          cfrd,    & ! ratio of day respiration to vcmax
          gswmin,  & ! minimal stomatal conductance
-         conkc0,  & ! Michaelis-Menten constant for carboxylase
-         conko0,  & ! Michaelis-Menten constant for oxygenase
-         ekc,     & ! activation energy for carboxylase
-         eko,     & ! activation energy for oxygenase
+         conkc0,  & ! Michaelis-menton constant for carboxylase
+         conko0,  & ! Michaelis-menton constant for oxygenase
+         ekc,     & ! activation energy for caroxylagse
+         eko,     & ! acvtivation enegery for oxygenase
          g0,      & ! Belinda's stomatal model intercept, Ticket #56.
-         g1         ! Belinda's stomatal model slope, Ticket #56.   
+         g1,      & ! Belinda's stomatal model slope, Ticket #56.
+         vcmaxcc, & ! max Cc-based carboxylation rate top leaf (mol/m2/s)
+         ejmaxcc, & ! max Cc-based RuBP regeneration rate top leaf (mol/m2/s)
+         gmmax      ! max. mesophyll conductance at 25degC top leaf
 
       LOGICAL, DIMENSION(:), POINTER :: &
          deciduous ! flag used for phenology fix
@@ -1002,6 +1005,9 @@ SUBROUTINE alloc_veg_parameter_type(var, mp)
    ALLOCATE( var%eko(mp) )
    ALLOCATE( var% g0(mp) )   ! Ticket #56. 
    ALLOCATE( var% g1(mp) )   ! Ticket #56.
+   ALLOCATE( var%vcmaxcc(mp) )
+   ALLOCATE( var%ejmaxcc(mp) )
+   ALLOCATE( var%gmmax(mp) )
 
 
     ALLOCATE ( var % rootbeta(mp) )

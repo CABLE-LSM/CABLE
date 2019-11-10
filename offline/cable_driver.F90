@@ -137,7 +137,7 @@ PROGRAM cable_offline_driver
 
   ! timing variables
   INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
-  INTEGER, PARAMETER ::  mloop  = 30   ! CASA-CNP PreSpinup loops
+  INTEGER, PARAMETER ::  mloop  = 30  ! CASA-CNP PreSpinup loops
   INTEGER :: LALLOC ! allocation coefficient for passing to spincasa
 
   INTEGER        ::                                                           &
@@ -178,9 +178,13 @@ PROGRAM cable_offline_driver
   TYPE (climate_type)   :: climate     ! climate variables
 
   ! CABLE parameters
+  ! JK: C is used for both driver_type and i_canopy_type constants throughout the code,
+  !     should be avoided ?
   TYPE (soil_parameter_type) :: soil ! soil parameters
   TYPE (veg_parameter_type)  :: veg  ! vegetation parameters
   TYPE (driver_type)    :: C         ! constants used locally
+  TYPE (icanopy_type)   :: PHOTO     ! photosynthesis constants
+
 
   TYPE (sum_flux_type)  :: sum_flux ! cumulative flux variables
   TYPE (bgc_pool_type)  :: bgc  ! carbon pool variables
@@ -221,11 +225,11 @@ PROGRAM cable_offline_driver
   ! discrimination
   integer :: ileaf
   real(dp), dimension(:,:), allocatable :: gpp, diff
-  real(dp), dimension(:),   allocatable :: Ra
+  real(dp), dimension(:),   allocatable :: Ra 
   ! delta-13C of atmospheric CO2
-  integer :: iunit, ios
-  real    :: iyear
-  integer :: c13o2_atm_syear, c13o2_atm_eyear
+  integer            :: iunit, ios
+  real               :: iyear
+  integer            :: c13o2_atm_syear, c13o2_atm_eyear
   character(len=100) :: header
 
   ! declare vars for switches (default .FALSE.) etc declared thru namelist
@@ -624,7 +628,6 @@ PROGRAM cable_offline_driver
                endif
 
              ! LOY = 365
-
              ! IF (IS_LEAPYEAR(MetYear)) LOY = 366
              ! kend = NINT(24.0*3600.0/dels) * LOY
              ! ! get koffset to add to time-step of sitemet
@@ -866,8 +869,10 @@ PROGRAM cable_offline_driver
 
                  ! Feedback prognostic vcmax and daily LAI from casaCNP to CABLE
                  IF (l_vcmaxFeedbk) then
-                    CALL casa_feedback( ktau, veg, casabiome, casapool, casamet, climate, ktauday )
-                 ELSE
+                    IF (MOD(ktau,ktauday) == 1) THEN
+                       CALL casa_feedback( ktau, veg, casabiome, casapool, casamet, climate, ktauday )
+                    ENDIF
+                 ELSE !JK: finite gm only effective if l_vcmaxFeedbk = .TRUE.
                     veg%vcmax_shade = veg%vcmax
                     veg%ejmax_shade = veg%ejmax
 

@@ -250,6 +250,9 @@ MODULE cable_common_module
           width,      & !
           vcmax,      & !
           ejmax,      & !
+          vcmaxcc,    & ! Cc-based Vcmax25
+          ejmaxcc,    & ! Cc-based Jmax25
+          gmmax,      & ! gmmax25
           hc,         & !
           xfang,      & !
           rp20,       & !
@@ -367,6 +370,8 @@ CONTAINS
          vegin%canst1( mvtype ), vegin%dleaf( mvtype ),                        &
          vegin%length( mvtype ), vegin%width( mvtype ),                        &
          vegin%vcmax( mvtype ),  vegin%ejmax( mvtype ),                        &
+         vegin%vcmaxcc(mvtype), vegin%ejmaxcc(mvtype),                         &
+         vegin%gmmax(mvtype),                                                  &
          vegin%hc( mvtype ), vegin%xfang( mvtype ),                            &
          vegin%rp20( mvtype ), vegin%rpcoef( mvtype ),                         &
          vegin%rs20( mvtype ), vegin%wai( mvtype ),                            &
@@ -422,7 +427,7 @@ CONTAINS
           READ(40,*) vegin%a1gs(jveg), vegin%d0gs(jveg), vegin%alpha(jveg), vegin%convex(jveg), vegin%cfrd(jveg)
           READ(40,*) vegin%gswmin(jveg), vegin%conkc0(jveg), vegin%conko0(jveg), vegin%ekc(jveg), vegin%eko(jveg)
           READ(40,*) vegin%g0(jveg), vegin%g1(jveg)      ! Ticket #56
-          READ(40,*) vegin%gamma(jveg)
+          READ(40,*) vegin%gamma(jveg), vegin%gmmax(jveg)
        END DO
 
     ELSE
@@ -498,7 +503,7 @@ CONTAINS
     ! new calculation dleaf since April 2012 (cable v1.8 did not use width)
     vegin%dleaf = SQRT(vegin%width * vegin%length)
 
-
+    
     !================= Read in soil type specifications: ============
     OPEN(40,FILE=filename%soil,STATUS='old',ACTION='READ',IOSTAT=ioerror)
 
@@ -773,6 +778,9 @@ CONTAINS
             veg%dleaf(h)    = vegin%dleaf(veg%iveg(h))
             veg%vcmax(h)    = vegin%vcmax(veg%iveg(h))
             veg%ejmax(h)    = vegin%ejmax(veg%iveg(h))
+            veg%vcmaxcc(h)  = vegin%vcmaxcc(veg%iveg(h))
+            veg%ejmaxcc(h)  = vegin%ejmaxcc(veg%iveg(h))
+            veg%gmmax(h)    = vegin%gmmax(veg%iveg(h))
             veg%hc(h)       = vegin%hc(veg%iveg(h))
             veg%xfang(h)    = vegin%xfang(veg%iveg(h))
             veg%vbeta(h)    = vegin%vbeta(veg%iveg(h))

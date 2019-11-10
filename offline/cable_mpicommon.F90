@@ -38,7 +38,7 @@ MODULE cable_mpicommon
   ! Ticket #56, add 2 new params for the Medlyns Stom Cond model 293 -> 295
   !Vanessa Haverd: add 4 new params 295 -> 299
   ! VH add 9 params for sli 299 -> 308
-  INTEGER, PARAMETER :: nparam = 310  
+  INTEGER, PARAMETER :: nparam = 311  
   ! MPI: extra params sent only if nsoilparmnew is true
   INTEGER, PARAMETER :: nsoilnew = 1
 

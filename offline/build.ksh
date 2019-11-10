@@ -49,8 +49,8 @@ host_mael()
    export NCMOD='/share/apps/netcdf/intel/4.1.3/include'
    export FC=ifort
    export CFLAGS='-O2 -fp-model precise -fpp'
-   #export CFLAGS='-O3 -fp-model precise  -ipo --parallel '   
-   export LDFLAGS='-L/share/apps/intel/Composer/lib/intel64 -L/share/apps/netcdf/intel/4.1.3/lib -O2'
+   export CFLAGS='-O3 -fp-model precise  -ipo --parallel '   
+   #export LDFLAGS='-L/share/apps/intel/Composer/lib/intel64 -L/share/apps/netcdf/intel/4.1.3/lib -O2'
    if [[ $1 = 'debug' ]]; then
       export CFLAGS='-O0 -traceback -g -fp-model precise -fpp' 
       export LDFLAGS='-L/share/apps/intel/Composer/lib/intel64 -L/share/apps/netcdf/intel/4.1.3/lib'
@@ -165,11 +165,12 @@ host_pear()
    export NCDIR=$NETCDF_ROOT'/lib/'
    export NCMOD=$NETCDF_ROOT'/include/'
    export FC='ifort'
-   export CFLAGS='-O0 -fp-model precise -fpp -g -debug -traceback -fpe0 -fp-stack-check -no-ftz -ftrapuv -check all,noarg_temp_created -C '
+   export  CFLAGS='-O0 -fp-model precise -fpe0 -fpp -g -debug -traceback -fp-stack-check -no-ftz -ftrapuv -check all,noarg_temp_created -C '
+   #export CFLAGS='-O0 -fpe=0 -fpe-all=0 -fpp -g -debug -traceback -fp-stack-check -no-ftz -ftrapuv -check bounds 
    export CFLAGS='-O2 -fp-model precise -fpp'
-   #export CFLAGS='  -g -debug -traceback -fp-stack-check -O0 -debug -fpe=0 -fpe-all=0 -no-ftz -ftrapuv -check bounds -fpp'
-   #export CFLAGS="${CFLAGS} -DCRU2018"
+   export CFLAGS="${CFLAGS} -DCRU2017"
    export LDFLAGS='-g -L'$NCDIR' -O2'
+   export MFLAGS='-j 8'
    export LD='-lnetcdf -lnetcdff'
    build_build
    cd ../
@@ -242,7 +243,7 @@ host_mcin()
 	export NCROOT='/usr/local/netcdf-fortran-4.4.5-gfortran'
     fi
     # export CFLAGS="${CFLAGS} -DC13DEBUG"
-    export CFLAGS="${CFLAGS} -DCRU2018"
+    export CFLAGS="${CFLAGS} -DCRU2017"
 
     # # NAG - Does not work for pop_io.f90
     # export FC=nagfor

@@ -157,7 +157,7 @@ CONTAINS
     LUC_EXPT%VAR_NAME(4) = 'gtos'
     LUC_EXPT%VAR_NAME(5) = 'grass'
     LUC_EXPT%VAR_NAME(6) = 'primaryf'
-! #ifdef CRU2018
+! #ifdef CRU2017
 !     LUC_EXPT%VAR_NAME(7) = 'pharv'
 ! #else
 !     LUC_EXPT%VAR_NAME(7) = 'ptos'
