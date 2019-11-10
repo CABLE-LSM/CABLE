@@ -43,6 +43,7 @@ MODULE cable_output_module
   USE cable_write_module
   USE netcdf
   USE cable_common_module, ONLY: filename, calcsoilalbedo, CurYear,IS_LEAPYEAR, cable_user
+  ! 13C
   USE cable_c13o2_def, only: c13o2_pool,  c13o2_flux
 
   IMPLICIT NONE
@@ -314,6 +315,7 @@ CONTAINS
                         (ok,'Error defining time dimension in output file. '// &
                         '(SUBROUTINE open_output_file)')
 
+    ! 13C
     if (cable_user%c13o2) then
        ok = NF90_DEF_DIM(ncid_out,'nplant',mplant,nplantid)
        if (ok /= NF90_NOERR) &
@@ -1087,6 +1089,7 @@ CONTAINS
 
     ENDIF
        
+    ! 13C
     if (cable_user%c13o2 .and. output%c13o2) then
        ! 12C
        allocate(out%An(mp))
@@ -1557,6 +1560,7 @@ CONTAINS
     TYPE(casa_pool), INTENT(IN) :: casapool ! casa fluxes
     TYPE(balances_type), INTENT(INOUT) :: bal
     TYPE (casa_met), INTENT(IN) :: casamet
+    ! 13C
     TYPE(c13o2_pool), INTENT(IN) :: c13o2pools ! 13CO2 pools
     TYPE(c13o2_flux), INTENT(IN) :: c13o2flux  ! 13CO2 fluxes
 
@@ -2988,6 +2992,7 @@ CONTAINS
 
     END IF
 
+    ! 13C
     if (cable_user%c13o2 .and. output%c13o2) then
        ! Add current timestep's value to total of temporary output variable
        ! 12C

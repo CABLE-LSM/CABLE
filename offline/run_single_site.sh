@@ -117,9 +117,9 @@ doequi1=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium wit
  nequi1=3       #      number of times to repeat steps in doequi1
 doequi2=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools (4.)
  nequi2=3       #      number of times to repeat steps in doequi2
-doiniluc=0      # 1/0: Do/Do not spinup with dynamic land use (5a)
-doinidyn=0      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
-dofinal=0       # 1/0: Do/Do not final run from 1900 to 2017 (6.)
+doiniluc=1      # 1/0: Do/Do not spinup with dynamic land use (5a)
+doinidyn=1      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
+dofinal=1       # 1/0: Do/Do not final run from 1900 to 2017 (6.)
 
 # --------------------------------------------------------------------
 # Other switches
@@ -135,7 +135,11 @@ c13o2_simple_disc=0 # 1/0: simple or full 13C leaf discrimination
 #   nor relative to the run path.
 #
 # Run directory
-runpath="../${sitename}/run_20190819"
+# Juergen @ pearcey
+# cablehome="/OSM/CBR/OA_GLOBALCABLE/work/Juergen/CABLE_run"
+# mcinra
+sitepath="/Users/cuntz/prog/vanessa/cable/single_sites/${sitename}"
+runpath="${sitepath}/run_20190819"
 # Cable executable
 # Juergen @ pearcey
 # cablehome="/OSM/CBR/OA_GLOBALCABLE/work/Juergen/CABLE_code"
@@ -155,16 +159,18 @@ casafile_cnpbiome="./pftlookup.csv"
 # Mask
 # pearcey
 GlobalLandMaskFile="/OSM/CBR/OA_GLOBALCABLE/work/Vanessa/MASKS/glob_ipsl_1x1.nc"
-LandMaskFile="../${sitename}/mask/glob_ipsl_1x1_HarvardForest.nc"
+LandMaskFile="${sitepath}/mask/glob_ipsl_1x1_${sitename}.nc"
 # CRU
 # pearcey
 GlobalMetPath="/OSM/CBR/OA_GLOBALCABLE/work/CRU-JRA55/crujra/daily_1deg"
-MetPath="../${sitename}/met/cru_jra_1deg"
+MetPath="${sitepath}/met/cru_jra_1deg"
 # LUC
 # pearcey
 GlobalTransitionFilePath="/OSM/CBR/OA_GLOBALCABLE/work/LUH2/v3/1deg"
-TransitionFilePath="../${sitename}/LUH2/v3/1deg"
-ClimateFile="../${sitename}/LUH2/cru_climate_rst.nc"
+TransitionFilePath="${sitepath}/LUH2/v3/1deg"
+ClimateFile="${sitepath}/LUH2/cru_climate_rst.nc"
+# 13C
+filename_d13c_atm="./graven_et_al_gmd_2017-table_s1-delta_13c-1700-2025.txt"
 
 # --------------------------------------------------------------------
 # Start Script
@@ -366,6 +372,7 @@ LandMaskFile=$(absfile ${LandMaskFile})
 filename_veg=$(absfile ${filename_veg})
 filename_soil=$(absfile ${filename_soil})
 casafile_cnpbiome=$(absfile ${casafile_cnpbiome})
+filename_d13c_atm=$(absfile ${filename_d13c_atm})
 
 
 # 1. Create climate restart file
@@ -412,6 +419,7 @@ if [[ ${doclimate} -eq 1 ]] ; then
     com=${com}$(csed "cable_user%LUC_restart_out=\"restart/cru_LUC_rst.nc\"")
     if [[ ${doc13o2} -eq 1 ]] ; then
         com=${com}$(csed "cable_user%c13o2=.true.")
+        com=${com}$(csed "cable_user%c13o2_delta_atm_file=\"${filename_d13c_atm}\"")
         com=${com}$(csed "cable_user%c13o2_outfile=\"outputs/cru_out_casa_c13o2.nc\"")
         com=${com}$(csed "cable_user%c13o2_restart_in_flux=\"\"")
         com=${com}$(csed "cable_user%c13o2_restart_out_flux=\"restart/cru_c13o2_flux_rst.nc\"")
@@ -495,6 +503,7 @@ if [[ ${dofromzero} -eq 1 ]] ; then
     com=${com}$(csed "cable_user%LUC_restart_out=\"restart/cru_LUC_rst.nc\"")
     if [[ ${doc13o2} -eq 1 ]] ; then
         com=${com}$(csed "cable_user%c13o2=.true.")
+        com=${com}$(csed "cable_user%c13o2_delta_atm_file=\"${filename_d13c_atm}\"")
         com=${com}$(csed "cable_user%c13o2_outfile=\"outputs/cru_out_casa_c13o2.nc\"")
         com=${com}$(csed "cable_user%c13o2_restart_in_flux=\"\"")
         com=${com}$(csed "cable_user%c13o2_restart_out_flux=\"restart/cru_c13o2_flux_rst.nc\"")
@@ -582,6 +591,7 @@ if [[ ${doequi1} -eq 1 ]] ; then
             com=${com}$(csed "cable_user%LUC_restart_out=\"restart/cru_LUC_rst.nc\"")
             if [[ ${doc13o2} -eq 1 ]] ; then
                 com=${com}$(csed "cable_user%c13o2=.true.")
+		com=${com}$(csed "cable_user%c13o2_delta_atm_file=\"${filename_d13c_atm}\"")
                 com=${com}$(csed "cable_user%c13o2_outfile=\"outputs/cru_out_casa_c13o2.nc\"")
                 com=${com}$(csed "cable_user%c13o2_restart_in_flux=\"restart/cru_c13o2_flux_rst.nc\"")
                 com=${com}$(csed "cable_user%c13o2_restart_out_flux=\"restart/cru_c13o2_flux_rst.nc\"")
@@ -664,6 +674,7 @@ if [[ ${doequi1} -eq 1 ]] ; then
             com=${com}$(csed "cable_user%LUC_restart_out=\"restart/cru_LUC_rst.nc\"")
             if [[ ${doc13o2} -eq 1 ]] ; then
                 com=${com}$(csed "cable_user%c13o2=.true.")
+		com=${com}$(csed "cable_user%c13o2_delta_atm_file=\"${filename_d13c_atm}\"")
                 com=${com}$(csed "cable_user%c13o2_outfile=\"outputs/cru_out_casa_c13o2.nc\"")
                 com=${com}$(csed "cable_user%c13o2_restart_in_flux=\"restart/cru_c13o2_flux_rst.nc\"")
                 com=${com}$(csed "cable_user%c13o2_restart_out_flux=\"restart/cru_c13o2_flux_rst.nc\"")
@@ -750,6 +761,7 @@ if [[ ${doequi2} -eq 1 ]] ; then
             com=${com}$(csed "cable_user%LUC_restart_out=\"restart/cru_LUC_rst.nc\"")
             if [[ ${doc13o2} -eq 1 ]] ; then
                 com=${com}$(csed "cable_user%c13o2=.true.")
+		com=${com}$(csed "cable_user%c13o2_delta_atm_file=\"${filename_d13c_atm}\"")
                 com=${com}$(csed "cable_user%c13o2_outfile=\"outputs/cru_out_casa_c13o2.nc\"")
                 com=${com}$(csed "cable_user%c13o2_restart_in_flux=\"restart/cru_c13o2_flux_rst.nc\"")
                 com=${com}$(csed "cable_user%c13o2_restart_out_flux=\"restart/cru_c13o2_flux_rst.nc\"")
@@ -832,6 +844,7 @@ if [[ ${doequi2} -eq 1 ]] ; then
             com=${com}$(csed "cable_user%LUC_restart_out=\"restart/cru_LUC_rst.nc\"")
             if [[ ${doc13o2} -eq 1 ]] ; then
                 com=${com}$(csed "cable_user%c13o2=.true.")
+		com=${com}$(csed "cable_user%c13o2_delta_atm_file=\"${filename_d13c_atm}\"")
                 com=${com}$(csed "cable_user%c13o2_outfile=\"outputs/cru_out_casa_c13o2.nc\"")
                 com=${com}$(csed "cable_user%c13o2_restart_in_flux=\"restart/cru_c13o2_flux_rst.nc\"")
                 com=${com}$(csed "cable_user%c13o2_restart_out_flux=\"restart/cru_c13o2_flux_rst.nc\"")
@@ -912,6 +925,7 @@ if [[ ${doiniluc} -eq 1 ]] ; then
     com=${com}$(csed "cable_user%LUC_restart_out=\"restart/cru_LUC_rst.nc\"")
     if [[ ${doc13o2} -eq 1 ]] ; then
         com=${com}$(csed "cable_user%c13o2=.true.")
+        com=${com}$(csed "cable_user%c13o2_delta_atm_file=\"${filename_d13c_atm}\"")
         com=${com}$(csed "cable_user%c13o2_outfile=\"outputs/cru_out_casa_c13o2.nc\"")
         com=${com}$(csed "cable_user%c13o2_restart_in_flux=\"restart/cru_c13o2_flux_rst.nc\"")
         com=${com}$(csed "cable_user%c13o2_restart_out_flux=\"restart/cru_c13o2_flux_rst.nc\"")
@@ -998,6 +1012,7 @@ if [[ ${doinidyn} -eq 1 ]] ; then
     com=${com}$(csed "cable_user%LUC_restart_out=\"restart/cru_LUC_rst.nc\"")
     if [[ ${doc13o2} -eq 1 ]] ; then
         com=${com}$(csed "cable_user%c13o2=.true.")
+        com=${com}$(csed "cable_user%c13o2_delta_atm_file=\"${filename_d13c_atm}\"")
         com=${com}$(csed "cable_user%c13o2_outfile=\"outputs/cru_out_casa_c13o2.nc\"")
         com=${com}$(csed "cable_user%c13o2_restart_in_flux=\"restart/cru_c13o2_flux_rst.nc\"")
         com=${com}$(csed "cable_user%c13o2_restart_out_flux=\"restart/cru_c13o2_flux_rst.nc\"")
@@ -1085,6 +1100,7 @@ if [[ ${dofinal} -eq 1 ]] ; then
     com=${com}$(csed "cable_user%LUC_restart_out=\"restart/cru_LUC_rst.nc\"")
     if [[ ${doc13o2} -eq 1 ]] ; then
         com=${com}$(csed "cable_user%c13o2=.true.")
+        com=${com}$(csed "cable_user%c13o2_delta_atm_file=\"${filename_d13c_atm}\"")
         com=${com}$(csed "cable_user%c13o2_outfile=\"outputs/cru_out_casa_c13o2.nc\"")
         com=${com}$(csed "cable_user%c13o2_restart_in_flux=\"restart/cru_c13o2_flux_rst.nc\"")
         com=${com}$(csed "cable_user%c13o2_restart_out_flux=\"restart/cru_c13o2_flux_rst.nc\"")

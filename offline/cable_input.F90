@@ -2397,6 +2397,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
    USE BLAZE_MOD,       ONLY: TYPE_BLAZE, INI_BLAZE
    USE SIMFIRE_MOD,     ONLY: TYPE_SIMFIRE, INI_SIMFIRE
    use casaparm,        only: initcasa
+   ! 13C
    use cable_c13o2_def, only: c13o2_flux, c13o2_pool, c13o2_luc, c13o2_alloc_flux, c13o2_alloc_pools, c13o2_zero_flux
    use cable_c13o2,     only: c13o2_init_flux, c13o2_init_pools, c13o2_init_luc
    use cable_c13o2,     only: c13o2_read_restart_flux, c13o2_read_restart_pools
@@ -2429,6 +2430,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
    TYPE(LUC_EXPT_TYPE),       INTENT(INOUT) :: LUC_EXPT
    TYPE(TYPE_BLAZE),          INTENT(INOUT) :: BLAZE
    TYPE(TYPE_SIMFIRE),        INTENT(INOUT) :: SIMFIRE
+   ! 13C
    type(c13o2_flux),          intent(out)   :: c13o2flux
    type(c13o2_pool),          intent(out)   :: c13o2pools, sum_c13o2pools
    type(c13o2_luc),           intent(out)   :: c13o2luc
@@ -2468,16 +2470,19 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
     CALL get_default_params(logn,vegparmnew,LUC_EXPT)
     CALL allocate_cable_vars(air,bgc,canopy,met,bal,rad,rough,soil,ssnow, &
             sum_flux,veg,mp)
+    ! 13C
     if (cable_user%c13o2) call c13o2_alloc_flux(c13o2flux, mp)
     WRITE(logn,*) ' CABLE variables allocated with ', mp, ' patch(es).'
 
     IF (icycle > 0 .OR. CABLE_USER%CASA_DUMP_WRITE ) then
        CALL alloc_casavariable(casabiome,casapool,casaflux, &
             casamet,casabal,mp)
+       ! 13C
        if (cable_user%c13o2) call c13o2_alloc_pools(c13o2pools, mp)
     endif
-!mpdiff
+    !mpdiff
     CALL alloc_sum_casavariable(sum_casapool,sum_casaflux,mp)
+    ! 13C
     if (cable_user%c13o2) call c13o2_alloc_pools(sum_c13o2pools, mp)
     IF (icycle > 0) THEN
        CALL alloc_phenvariable(phen,mp)
@@ -2486,6 +2491,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
     ! Write parameter values to CABLE's parameter variables:
     CALL write_default_params(met,air,ssnow,veg,bgc,soil,canopy,rough, &
             rad,logn,vegparmnew,smoy, TFRZ, LUC_EXPT)
+    ! 13C
     if (cable_user%c13o2) then
        call c13o2_zero_flux(c13o2flux)
        call c13o2_init_flux(met, canopy, c13o2flux)
@@ -2501,6 +2507,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
       IF (cable_user%PHENOLOGY_SWITCH.eq.'MODIS') CALL casa_readphen(veg,casamet,phen)
 
       CALL casa_init(casabiome,casamet,casaflux,casapool,casabal,veg,phen)
+      ! 13C
       if (cable_user%c13o2) then
          call c13o2_init_pools(casapool, casaflux, c13o2pools)
          ! if (.not. spinup) &
@@ -2538,6 +2545,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
          ! read POP_LUC restart file here
          ! set POP%LU here for secondary tiles if cable_user%POPLUC_RunType is not 'static'
          CALL POPLUC_init(POPLUC, LUC_EXPT, casapool, casaflux, casabiome, veg, POP, mland)
+         ! 13C
          if (cable_user%c13o2) call c13o2_init_luc(c13o2luc, c13o2pools, veg, mland)
       ENDIF
 
@@ -2626,6 +2634,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
       CALL get_restart_data(logn,ssnow,canopy,rough,bgc,bal,veg, &
            soil,rad,vegparmnew, EMSOIL)
       
+      ! 13C
       if (cable_user%c13o2) then
          call c13o2_init_flux(met, canopy, c13o2flux)
          call c13o2_read_restart_flux(cable_user%c13o2_restart_in_flux, c13o2flux)

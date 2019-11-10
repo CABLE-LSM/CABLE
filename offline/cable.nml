@@ -98,6 +98,7 @@
     cable_user%STRF_NAME           = 'LT1994'
     cable_user%c13o2             = .false.        ! switch 13CO2 calculations on
     cable_user%c13o2_simple_disc = .false.        ! simple or full leaf discrimination
+    cable_user%c13o2_delta_atm_file    = 'graven_et_al_gmd_2017-table_s1-delta_13c.txt' ! atmospheric 13CO2
     cable_user%c13o2_outfile           = 'outputs/cru_out_casa_c13o2.nc'  ! 13C Casa and LUC output file
     cable_user%c13o2_restart_in_flux   = 'restart/cru_c13o2_flux_rst.nc'  ! 13CO2 restart Canopy input file
     cable_user%c13o2_restart_out_flux  = 'restart/cru_c13o2_flux_rst.nc'  ! 13CO2 restart Canopy output file
