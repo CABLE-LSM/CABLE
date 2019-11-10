@@ -119,7 +119,7 @@ doequi2=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium wit
  nequi2=3       #      number of times to repeat steps in doequi2
 doiniluc=0      # 1/0: Do/Do not spinup with dynamic land use (5a)
 doinidyn=0      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
-dofinal=1       # 1/0: Do/Do not final run from 1900 to 2017 (6.)
+dofinal=0       # 1/0: Do/Do not final run from 1900 to 2017 (6.)
 
 # --------------------------------------------------------------------
 # Other switches
@@ -153,9 +153,10 @@ exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable"
 # mcinra
 aux="${cablehome}/CABLE-AUX"
 # Cable parameters
-filename_veg="./def_veg_params.txt"
-filename_soil="./def_soil_params.txt"
-casafile_cnpbiome="./pftlookup.csv"
+namelistpath="../namelists"
+filename_veg="../params/def_veg_params.txt"
+filename_soil="../params/def_soil_params.txt"
+casafile_cnpbiome="../params/pftlookup.csv"
 # Mask
 # pearcey
 GlobalLandMaskFile="/OSM/CBR/OA_GLOBALCABLE/work/Vanessa/MASKS/glob_ipsl_1x1.nc"
@@ -170,7 +171,7 @@ GlobalTransitionFilePath="/OSM/CBR/OA_GLOBALCABLE/work/LUH2/v3/1deg"
 TransitionFilePath="${sitepath}/LUH2/v3/1deg"
 ClimateFile="${sitepath}/LUH2/cru_climate_rst.nc"
 # 13C
-filename_d13c_atm="./graven_et_al_gmd_2017-table_s1-delta_13c-1700-2025.txt"
+filename_d13c_atm="../params/graven_et_al_gmd_2017-table_s1-delta_13c-1700-2025.txt"
 
 # --------------------------------------------------------------------
 # Start Script
@@ -286,6 +287,7 @@ adir=$(abspath ${aux})
 exe=$(absfile ${exe})
 mkdir -p ${runpath}
 rdir=$(abspath ${runpath})
+ndir=$(abspath ${namelistpath})
 
 #
 # prepare run directory
@@ -383,13 +385,13 @@ if [[ ${doclimate} -eq 1 ]] ; then
     irm ${rdir}/cru.nml
     com=$(csed "BasePath=\"${MetPath}\",MetPath=\"${MetPath}\",LandMaskFile=\"${LandMaskFile}\"")
     com=${com}$(csed "Run=\"S0_TRENDY\"")
-    sed ${com} ${pdir}/cru.nml > ${rdir}/cru.nml
+    sed ${com} ${ndir}/cru.nml > ${rdir}/cru.nml
     # LUC
     irm ${rdir}/LUC.nml
     com=$(csed "TransitionFilePath=\"${TransitionFilePath}\",ClimateFile=\"${ClimateFile}\"")
     com=${com}$(csed "YearStart=1700")
     com=${com}$(csed "YearEnd=2017")
-    sed ${com} ${pdir}/LUC.nml > ${rdir}/LUC.nml
+    sed ${com} ${ndir}/LUC.nml > ${rdir}/LUC.nml
     # CABLE
     irm ${rdir}/cable.nml
     com=$(csed "filename%veg=\"${filename_veg}\",filename%soil=\"${filename_soil}\"")
@@ -431,7 +433,7 @@ if [[ ${doclimate} -eq 1 ]] ; then
             com=${com}$(csed "cable_user%c13o2_simple_disc=.false.")
         fi
     fi
-    sed ${com} ${pdir}/cable.nml > ${rdir}/cable.nml
+    sed ${com} ${ndir}/cable.nml > ${rdir}/cable.nml
     # run model
     cd ${rdir}
     irm logs/log_cable.txt logs/log_out_cable.txt
@@ -467,13 +469,13 @@ if [[ ${dofromzero} -eq 1 ]] ; then
     irm ${rdir}/cru.nml
     com=$(csed "BasePath=\"${MetPath}\",MetPath=\"${MetPath}\",LandMaskFile=\"${LandMaskFile}\"")
     com=${com}$(csed "Run=\"S0_TRENDY\"")
-    sed ${com} ${pdir}/cru.nml > ${rdir}/cru.nml
+    sed ${com} ${ndir}/cru.nml > ${rdir}/cru.nml
     # LUC
     irm ${rdir}/LUC.nml
     com=$(csed "TransitionFilePath=\"${TransitionFilePath}\",ClimateFile=\"${ClimateFile}\"")
     com=${com}$(csed "YearStart=1700")
     com=${com}$(csed "YearEnd=2017")
-    sed ${com} ${pdir}/LUC.nml > ${rdir}/LUC.nml
+    sed ${com} ${ndir}/LUC.nml > ${rdir}/LUC.nml
     # CABLE
     irm ${rdir}/cable.nml
     com=$(csed "filename%veg=\"${filename_veg}\",filename%soil=\"${filename_soil}\"")
@@ -515,7 +517,7 @@ if [[ ${dofromzero} -eq 1 ]] ; then
             com=${com}$(csed "cable_user%c13o2_simple_disc=.false.")
         fi
     fi
-    sed ${com} ${pdir}/cable.nml > ${rdir}/cable.nml
+    sed ${com} ${ndir}/cable.nml > ${rdir}/cable.nml
     # run model
     cd ${rdir}
     irm logs/log_cable.txt logs/log_out_cable.txt
@@ -555,13 +557,13 @@ if [[ ${doequi1} -eq 1 ]] ; then
             irm ${rdir}/cru.nml
             com=$(csed "BasePath=\"${MetPath}\",MetPath=\"${MetPath}\",LandMaskFile=\"${LandMaskFile}\"")
             com=${com}$(csed "Run=\"S0_TRENDY\"")
-            sed ${com} ${pdir}/cru.nml > ${rdir}/cru.nml
+            sed ${com} ${ndir}/cru.nml > ${rdir}/cru.nml
             # LUC
             irm ${rdir}/LUC.nml
             com=$(csed "TransitionFilePath=\"${TransitionFilePath}\",ClimateFile=\"${ClimateFile}\"")
             com=${com}$(csed "YearStart=1700")
             com=${com}$(csed "YearEnd=2017")
-            sed ${com} ${pdir}/LUC.nml > ${rdir}/LUC.nml
+            sed ${com} ${ndir}/LUC.nml > ${rdir}/LUC.nml
             # CABLE
             irm ${rdir}/cable.nml
             com=$(csed "filename%veg=\"${filename_veg}\",filename%soil=\"${filename_soil}\"")
@@ -603,7 +605,7 @@ if [[ ${doequi1} -eq 1 ]] ; then
                     com=${com}$(csed "cable_user%c13o2_simple_disc=.false.")
                 fi
             fi
-            sed ${com} ${pdir}/cable.nml > ${rdir}/cable.nml
+            sed ${com} ${ndir}/cable.nml > ${rdir}/cable.nml
             # run model
             cd ${rdir}
 	    irm logs/log_cable.txt logs/log_out_cable.txt
@@ -638,13 +640,13 @@ if [[ ${doequi1} -eq 1 ]] ; then
             irm ${rdir}/cru.nml
             com=$(csed "BasePath=\"${MetPath}\",MetPath=\"${MetPath}\",LandMaskFile=\"${LandMaskFile}\"")
             com=${com}$(csed "Run=\"S0_TRENDY\"")
-            sed ${com} ${pdir}/cru.nml > ${rdir}/cru.nml
+            sed ${com} ${ndir}/cru.nml > ${rdir}/cru.nml
             # LUC
             irm ${rdir}/LUC.nml
             com=$(csed "TransitionFilePath=\"${TransitionFilePath}\",ClimateFile=\"${ClimateFile}\"")
             com=${com}$(csed "YearStart=1700")
             com=${com}$(csed "YearEnd=2017")
-            sed ${com} ${pdir}/LUC.nml > ${rdir}/LUC.nml
+            sed ${com} ${ndir}/LUC.nml > ${rdir}/LUC.nml
             # CABLE
             irm ${rdir}/cable.nml
             com=$(csed "filename%veg=\"${filename_veg}\",filename%soil=\"${filename_soil}\"")
@@ -686,7 +688,7 @@ if [[ ${doequi1} -eq 1 ]] ; then
                     com=${com}$(csed "cable_user%c13o2_simple_disc=.false.")
                 fi
             fi
-            sed ${com} ${pdir}/cable.nml > ${rdir}/cable.nml
+            sed ${com} ${ndir}/cable.nml > ${rdir}/cable.nml
             # run model
             cd ${rdir}
 	    irm logs/log_cable.txt logs/log_out_cable.txt
@@ -725,13 +727,13 @@ if [[ ${doequi2} -eq 1 ]] ; then
             irm ${rdir}/cru.nml
             com=$(csed "BasePath=\"${MetPath}\",MetPath=\"${MetPath}\",LandMaskFile=\"${LandMaskFile}\"")
             com=${com}$(csed "Run=\"S0_TRENDY\"")
-            sed ${com} ${pdir}/cru.nml > ${rdir}/cru.nml
+            sed ${com} ${ndir}/cru.nml > ${rdir}/cru.nml
             # LUC
             irm ${rdir}/LUC.nml
             com=$(csed "TransitionFilePath=\"${TransitionFilePath}\",ClimateFile=\"${ClimateFile}\"")
             com=${com}$(csed "YearStart=1700")
             com=${com}$(csed "YearEnd=2017")
-            sed ${com} ${pdir}/LUC.nml > ${rdir}/LUC.nml
+            sed ${com} ${ndir}/LUC.nml > ${rdir}/LUC.nml
             # CABLE
             irm ${rdir}/cable.nml
             com=$(csed "filename%veg=\"${filename_veg}\",filename%soil=\"${filename_soil}\"")
@@ -773,7 +775,7 @@ if [[ ${doequi2} -eq 1 ]] ; then
                     com=${com}$(csed "cable_user%c13o2_simple_disc=.false.")
                 fi
             fi
-            sed ${com} ${pdir}/cable.nml > ${rdir}/cable.nml
+            sed ${com} ${ndir}/cable.nml > ${rdir}/cable.nml
             # run model
             cd ${rdir}
 	    irm logs/log_cable.txt logs/log_out_cable.txt
@@ -808,13 +810,13 @@ if [[ ${doequi2} -eq 1 ]] ; then
             irm ${rdir}/cru.nml
             com=$(csed "BasePath=\"${MetPath}\",MetPath=\"${MetPath}\",LandMaskFile=\"${LandMaskFile}\"")
             com=${com}$(csed "Run=\"S0_TRENDY\"")
-            sed ${com} ${pdir}/cru.nml > ${rdir}/cru.nml
+            sed ${com} ${ndir}/cru.nml > ${rdir}/cru.nml
             # LUC
             irm ${rdir}/LUC.nml
             com=$(csed "TransitionFilePath=\"${TransitionFilePath}\",ClimateFile=\"${ClimateFile}\"")
             com=${com}$(csed "YearStart=1700")
             com=${com}$(csed "YearEnd=2017")
-            sed ${com} ${pdir}/LUC.nml > ${rdir}/LUC.nml
+            sed ${com} ${ndir}/LUC.nml > ${rdir}/LUC.nml
             # CABLE
             irm ${rdir}/cable.nml
             com=$(csed "filename%veg=\"${filename_veg}\",filename%soil=\"${filename_soil}\"")
@@ -856,7 +858,7 @@ if [[ ${doequi2} -eq 1 ]] ; then
                     com=${com}$(csed "cable_user%c13o2_simple_disc=.false.")
                 fi
             fi
-            sed ${com} ${pdir}/cable.nml > ${rdir}/cable.nml
+            sed ${com} ${ndir}/cable.nml > ${rdir}/cable.nml
             # run model
             cd ${rdir}
 	    irm logs/log_cable.txt logs/log_out_cable.txt
@@ -889,13 +891,13 @@ if [[ ${doiniluc} -eq 1 ]] ; then
     irm ${rdir}/cru.nml
     com=$(csed "BasePath=\"${MetPath}\",MetPath=\"${MetPath}\",LandMaskFile=\"${LandMaskFile}\"")
     com=${com}$(csed "Run=\"S0_TRENDY\"")
-    sed ${com} ${pdir}/cru.nml > ${rdir}/cru.nml
+    sed ${com} ${ndir}/cru.nml > ${rdir}/cru.nml
     # LUC
     irm ${rdir}/LUC.nml
     com=$(csed "TransitionFilePath=\"${TransitionFilePath}\",ClimateFile=\"${ClimateFile}\"")
     com=${com}$(csed "YearStart=1580")
     com=${com}$(csed "YearEnd=1699")
-    sed ${com} ${pdir}/LUC.nml > ${rdir}/LUC.nml
+    sed ${com} ${ndir}/LUC.nml > ${rdir}/LUC.nml
     # CABLE
     irm ${rdir}/cable.nml
     com=$(csed "filename%veg=\"${filename_veg}\",filename%soil=\"${filename_soil}\"")
@@ -937,7 +939,7 @@ if [[ ${doiniluc} -eq 1 ]] ; then
             com=${com}$(csed "cable_user%c13o2_simple_disc=.false.")
         fi
     fi
-    sed ${com} ${pdir}/cable.nml > ${rdir}/cable.nml
+    sed ${com} ${ndir}/cable.nml > ${rdir}/cable.nml
     # run model
     cd ${rdir}
     irm logs/log_cable.txt logs/log_out_cable.txt
@@ -976,13 +978,13 @@ if [[ ${doinidyn} -eq 1 ]] ; then
     irm ${rdir}/cru.nml
     com=$(csed "BasePath=\"${MetPath}\",MetPath=\"${MetPath}\",LandMaskFile=\"${LandMaskFile}\"")
     com=${com}$(csed "Run=\"S1_TRENDY\"")
-    sed ${com} ${pdir}/cru.nml > ${rdir}/cru.nml
+    sed ${com} ${ndir}/cru.nml > ${rdir}/cru.nml
     # LUC
     irm ${rdir}/LUC.nml
     com=$(csed "TransitionFilePath=\"${TransitionFilePath}\",ClimateFile=\"${ClimateFile}\"")
     com=${com}$(csed "YearStart=1700")
     com=${com}$(csed "YearEnd=1899")
-    sed ${com} ${pdir}/LUC.nml > ${rdir}/LUC.nml
+    sed ${com} ${ndir}/LUC.nml > ${rdir}/LUC.nml
     # CABLE
     irm ${rdir}/cable.nml
     com=$(csed "filename%veg=\"${filename_veg}\",filename%soil=\"${filename_soil}\"")
@@ -1026,7 +1028,7 @@ if [[ ${doinidyn} -eq 1 ]] ; then
             com=${com}$(csed "cable_user%c13o2_simple_disc=.false.")
         fi
     fi
-    sed ${com} ${pdir}/cable.nml > ${rdir}/cable.nml
+    sed ${com} ${ndir}/cable.nml > ${rdir}/cable.nml
     # run model
     cd ${rdir}
     irm logs/log_cable.txt logs/log_out_cable.txt
@@ -1064,13 +1066,13 @@ if [[ ${dofinal} -eq 1 ]] ; then
     irm ${rdir}/cru.nml
     com=$(csed "BasePath=\"${MetPath}\",MetPath=\"${MetPath}\",LandMaskFile=\"${LandMaskFile}\"")
     com=${com}$(csed "Run=\"S2_TRENDY\"")
-    sed ${com} ${pdir}/cru.nml > ${rdir}/cru.nml
+    sed ${com} ${ndir}/cru.nml > ${rdir}/cru.nml
     # LUC
     irm ${rdir}/LUC.nml
     com=$(csed "TransitionFilePath=\"${TransitionFilePath}\",ClimateFile=\"${ClimateFile}\"")
     com=${com}$(csed "YearStart=1900")
     com=${com}$(csed "YearEnd=2017")
-    sed ${com} ${pdir}/LUC.nml > ${rdir}/LUC.nml
+    sed ${com} ${ndir}/LUC.nml > ${rdir}/LUC.nml
     # CABLE
     irm ${rdir}/cable.nml
     com=$(csed "filename%veg=\"${filename_veg}\",filename%soil=\"${filename_soil}\"")
@@ -1114,7 +1116,7 @@ if [[ ${dofinal} -eq 1 ]] ; then
             com=${com}$(csed "cable_user%c13o2_simple_disc=.false.")
         fi
     fi
-    sed ${com} ${pdir}/cable.nml > ${rdir}/cable.nml
+    sed ${com} ${ndir}/cable.nml > ${rdir}/cable.nml
     # run model
     cd ${rdir}
     irm logs/log_cable.txt logs/log_out_cable.txt
