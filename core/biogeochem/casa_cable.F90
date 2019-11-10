@@ -40,6 +40,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    USE POP_TYPES,            ONLY: POP_TYPE
    USE cable_phenology_module, ONLY: cable_phenology_clim
    USE cable_IO_vars_module, ONLY: wlogn
+   ! 13C
    use cable_c13o2_def, only: c13o2_pool, c13o2_flux
    use cable_c13o2,     only: c13o2_save_casapool, c13o2_update_pools, &
        c13o2_print_delta_pools
@@ -70,6 +71,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    TYPE (phen_variable),       INTENT(INOUT) :: phen
    TYPE(POP_TYPE),             INTENT(INOUT) :: POP
    TYPE (climate_type),        INTENT(IN)    :: climate  ! climate variables
+   ! 13C
    type(c13o2_flux),           intent(inout) :: c13o2flux
    type(c13o2_pool),           intent(inout) :: c13o2pools
 
@@ -109,6 +111,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
          casamet%moist = max(ssnow%wb, 0.0)
          casaflux%cgpp = (-canopy%fpn+canopy%frday)*dels
          casaflux%crmplant(:,leaf) = canopy%frday*dels
+         ! 13C
          if (cable_user%c13o2) then
             c13o2flux%cAn12 = sum(canopy%An,2)    * dels
             c13o2flux%cAn   = sum(c13o2flux%An,2) * dels
@@ -120,6 +123,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
          casamet%moist = casamet%moist + max(ssnow%wb, 0.0)
          casaflux%cgpp = casaflux%cgpp + (-canopy%fpn+canopy%frday)*dels
          casaflux%crmplant(:,leaf) = casaflux%crmplant(:,leaf) + canopy%frday*dels
+         ! 13C
          if (cable_user%c13o2) then
             c13o2flux%cAn12 = c13o2flux%cAn12 + sum(canopy%An,2)    * dels
             c13o2flux%cAn   = c13o2flux%cAn   + sum(c13o2flux%An,2) * dels
@@ -137,6 +141,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
                call cable_phenology_clim(veg, climate, phen)
             ENDIF
 
+            ! 13C
             if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
             CALL biogeochem(ktau, dels, idoy, LALLOC, veg, soil, casabiome, casapool, casaflux, &
                  casamet, casabal, phen, POP, climate,  xnplimit, xkNlimiting, xklitter, xksoil, &
@@ -144,6 +149,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
                  cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd, &
                  nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd, &
                  pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd)
+            ! 13C
 #ifdef C13DEBUG
             if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools, casapool)
 #else
@@ -184,6 +190,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 
       IF( MOD((ktau-kstart+1),ktauday) == 0 ) THEN  ! end of day
 
+         ! 13C
          if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
          CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
               casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter,xksoil,xkleaf, &
@@ -191,6 +198,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
               cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
               nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
               pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
+         ! 13C
 #ifdef C13DEBUG
          if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools, casapool)
 #else
@@ -301,6 +309,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    USE cable_diag_module,   ONLY: get_var_ncr2, get_var_ncr3, stderr_nc
 #endif
    use cable_common_module, only: cable_user
+   ! 13C
    use cable_c13o2_def,     only: c13o2_flux
 
    implicit none
@@ -309,6 +318,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    type(casa_met),      intent(inout) :: casamet
    type(phen_variable), intent(inout) :: phen
    type(climate_type),  intent(inout) :: climate  ! climate variables
+   ! 13C
    type(c13o2_flux),    intent(inout) :: c13o2flux
    integer,             intent(in)    :: kend, ncall
    character(len=*),    intent(in)    :: ncfile
@@ -352,13 +362,12 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 #ifndef UM_BUILD
 
    IF ( allATonce .OR. ncall .EQ. 1 ) THEN
-      print*, 'opening file ', TRIM(ncfile)
+      ! print*, 'opening file ', TRIM(ncfile)
       ncok = NF90_OPEN(TRIM(ncfile), nf90_nowrite, ncrid)
       IF (ncok /= nf90_noerr ) CALL stderr_nc(ncok,'re-opening ', ncfile)
    ENDIF
    IF ( allATonce ) THEN
       DO idoy=1,mdyear
-         print*, 'idoy', idoy
          CALL get_var_ncr2(ncrid, var_name(3),  tairk, idoy)
          CALL get_var_ncr3(ncrid, var_name(4),  tsoil, idoy, ms)
          CALL get_var_ncr3(ncrid, var_name(5),  moist, idoy, ms)
@@ -372,6 +381,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
          CALL get_var_ncr2(ncrid, var_name(13), mtemp, idoy)
          CALL get_var_ncr2(ncrid, var_name(14), Ndep,  idoy)
          CALL get_var_ncr2(ncrid, var_name(15), Pdep,  idoy)
+         ! 13C
          if (cable_user%c13o2) then
             CALL get_var_ncr2(ncrid, var_name(16), cAn12, idoy)
             CALL get_var_ncr2(ncrid, var_name(17), cAn13, idoy)
@@ -402,6 +412,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
          casamet%mtempspin(:,idoy) = mtemp
          casaflux%Nmindep = Ndep
          casaflux%Pdep = Pdep
+         ! 13C
          if (cable_user%c13o2) then
             casamet%cAn12spin(:,idoy) = cAn12
             casamet%cAn13spin(:,idoy) = cAn13
@@ -422,6 +433,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
       CALL get_var_ncr2(ncrid, var_name(13), mtemp   , ncall )
       CALL get_var_ncr2(ncrid, var_name(14), Ndep   , ncall )
       CALL get_var_ncr2(ncrid, var_name(15), Pdep   , ncall )
+      ! 13C
       if (cable_user%c13o2) then
          CALL get_var_ncr2(ncrid, var_name(16), cAn12, ncall)
          CALL get_var_ncr2(ncrid, var_name(17), cAn13, ncall)
@@ -440,6 +452,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
       climate%qtemp_max_last_year = mtemp
       casaflux%Nmindep = Ndep
       casaflux%Pdep = Pdep
+      ! 13C
       if (cable_user%c13o2) then
          c13o2flux%cAn12 = cAn12
          c13o2flux%cAn   = cAn13
@@ -447,7 +460,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    ENDIF
 
    IF ( allATonce .OR. ncall .EQ. kend ) THEN
-      print*, 'closing file'
+      ! print*, 'closing file'
       ncok = NF90_CLOSE(ncrid)
       IF (ncok /= nf90_noerr ) CALL stderr_nc(ncok,'closing ', ncfile)
    ENDIF
@@ -467,6 +480,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    USE casavariable,          ONLY : CASA_MET, CASA_FLUX
    USE casadimension,         ONLY : mplant
    USE phenvariable
+   ! 13C
    use cable_c13o2_def,       only: c13o2_flux
    use netcdf
 
@@ -480,6 +494,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    TYPE (casa_met),      INTENT(IN) :: casamet
    TYPE (phen_variable), INTENT(IN) :: phen
    TYPE (climate_type),  INTENT(IN) :: climate  ! climate variables
+   ! 13C
    type(c13o2_flux),     intent(in) :: c13o2flux
 
    !number of instances. dummied here and so=1
@@ -581,6 +596,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    CALL put_var_nc(ncid, var_name(13), real(climate%qtemp_max_last_year,r_2), n_call)
    CALL put_var_nc(ncid, var_name(14), real(casaflux%Nmindep,r_2), n_call)
    CALL put_var_nc(ncid, var_name(15), real(casaflux%Pdep,r_2), n_call)
+   ! 13C
    if (cable_user%c13o2) then
       CALL put_var_nc(ncid, var_name(16), c13o2flux%cAn12, n_call)
       CALL put_var_nc(ncid, var_name(17), c13o2flux%cAn, n_call)
@@ -895,6 +911,7 @@ END SUBROUTINE sumcflux
     USE casavariable
     USE phenvariable
     use cable_common_module, only: cable_user
+    ! 13C
     use cable_c13o2_def,     only: c13o2_pool
     
     implicit none
@@ -918,6 +935,7 @@ END SUBROUTINE sumcflux
     !MC - ToDo - remove optional once coded in mpiworker
     real(r_2), dimension(mp),  intent(in)    :: avg_c13leaf2met, avg_c13leaf2str
     real(r_2), dimension(mp),  intent(in)    :: avg_c13root2met, avg_c13root2str, avg_c13wood2cwd
+    ! 13C
     type(c13o2_pool),          intent(inout) :: c13o2pools
 
     ! local variables

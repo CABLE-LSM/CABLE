@@ -1069,7 +1069,6 @@ SUBROUTINE casa_coeffplant(xkleafcold, xkleafdry, xkleaf, veg, casabiome, casapo
      casaflux%fromPtoL(:,str,leaf)  = casaflux%fromPtoL(:,str,leaf)  * (1.-casaflux%fharvest)
      casaflux%fromPtoL(:,metb,leaf) = casaflux%fromPtoL(:,metb,leaf) * (1.-casaflux%fharvest)
   endwhere
-  !MC if (any(casaflux%fharvest > 0.0_r_2)) print*, 'We have Harvest 01 ', casaflux%fharvest
 
   ! When glai<glaimin, leaf biomass will not decrease anymore. (Q.Zhang 10/03/2011)
   do npt=1, mp

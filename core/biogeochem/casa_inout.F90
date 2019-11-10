@@ -108,7 +108,7 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
                 xfherbivore(nv),leafage(nv),woodage(nv),frootage(nv), &
                 metage(nv),strage(nv),cwdage(nv),  &
                 micage(nv),slowage(nv),passage(nv),clabileage(nv),slax(nv)
-    write(59,*), nv, leafage(nv),woodage(nv),frootage(nv), &
+    write(59,*) nv, leafage(nv),woodage(nv),frootage(nv), &
                 metage(nv),strage(nv),cwdage(nv),  &
                 micage(nv),slowage(nv),passage(nv)
   ENDDO
@@ -824,8 +824,8 @@ SUBROUTINE casa_init(casabiome,casamet,casaflux,casapool,casabal,veg,phen)
         CALL READ_CASA_RESTART_NC (  casamet, casapool, casaflux, phen )
 #endif
      ELSE
-        WRITE(*,*)'casa_init: not using restart file!'
-        WRITE(*,*)'Using input from readbiome.!!!'
+        WRITE(*,*) 'casa_init: not using restart file!'
+        WRITE(*,*) 'Using input from readbiome.!!!'
         WRITE(*,*) 'initialising frac_sapwood=1 and sapwood_area = 0)'
         casaflux%frac_sapwood(:) = 1.0_r_2
         casaflux%sapwood_area(:) = 0.0_r_2
@@ -1919,8 +1919,8 @@ SUBROUTINE READ_CASA_RESTART_NC (  casamet, casapool, casaflux,phen )
   ! compare current year with restart year (only for non-site type met data)
   IF ( CDATE .NE. RSTDATE .and. &
       TRIM(cable_user%MetType).NE.'' .and. TRIM(cable_user%MetType).NE.'site' ) THEN
-     WRITE(*,*)"Restart Date in rst file doesn't match start date of Run!"
-     WRITE(*,*)"File: "//RSTDATE//' Run: '//CDATE
+     WRITE(*,*) "Restart Date in rst file doesn't match start date of Run!"
+     WRITE(*,*) "File: "//RSTDATE//' Run: '//CDATE
     ! STOP
   ENDIF
 
@@ -1947,12 +1947,12 @@ SUBROUTINE READ_CASA_RESTART_NC (  casamet, casapool, casaflux,phen )
 
   IF ( land_dim .NE. SIZE(casamet%lon) .OR. mp_dim .NE. mplant .OR. &
        ml_dim   .NE. mlitter             .OR. ms_dim .NE. msoil ) THEN
-     WRITE(*,*)"Dimension misfit!"
-     WRITE(*,*)"Restart file      Run"
-     WRITE(*,*)"# points  ",land_dim,"     ",SIZE(casamet%lon)
-     WRITE(*,*)"# mplant  ",mp_dim,"     ",mplant
-     WRITE(*,*)"# mlitter ",ml_dim,"     ",mlitter
-     WRITE(*,*)"# msoil   ",ms_dim,"     ",msoil
+     WRITE(*,*) "Dimension misfit!"
+     WRITE(*,*) "Restart file      Run"
+     WRITE(*,*) "# points  ",land_dim,"     ",SIZE(casamet%lon)
+     WRITE(*,*) "# mplant  ",mp_dim,"     ",mplant
+     WRITE(*,*) "# mlitter ",ml_dim,"     ",mlitter
+     WRITE(*,*) "# msoil   ",ms_dim,"     ",msoil
      STOP
   ENDIF
 

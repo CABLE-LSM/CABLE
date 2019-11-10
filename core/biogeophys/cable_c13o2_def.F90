@@ -15,6 +15,8 @@ MODULE cable_c13o2_def
 
   private
 
+  ! variables
+  public :: c13o2_delta_atm
   ! types
   public :: c13o2_flux
   public :: c13o2_pool
@@ -28,6 +30,9 @@ MODULE cable_c13o2_def
   public :: c13o2_zero_sum_pools
   public :: c13o2_zero_luc
 
+  ! variables
+  real(dp), dimension(:), allocatable :: c13o2_delta_atm
+  
   ! types
   type c13o2_flux ! all fluxes in units mol(13CO2)/m2s
      integer                           :: ntile, nleaf

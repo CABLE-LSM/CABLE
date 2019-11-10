@@ -1131,7 +1131,6 @@ contains
     status = nf90_open(trim(c13o2_restart_in_pools), nf90_nowrite, file_id)
     if (status /= nf90_noerr) call c13o2_err_handler('Error 13CO2 restart_in_pools file: '//trim(c13o2_restart_in_pools))
 
-    !MC13 ToDo - dimension check
     ! cplant
     status = nf90_inq_varid(file_id, 'cplant', var_id)
     if (status /= nf90_noerr) &
@@ -1342,7 +1341,6 @@ contains
     status = nf90_open(trim(c13o2_restart_in_luc), nf90_nowrite, file_id)
     if (status /= nf90_noerr) call c13o2_err_handler('Error 13CO2 restart_in_luc file: '//trim(c13o2_restart_in_luc))
 
-    !MC13 ToDo - dimension check
     ! charvest
     status = nf90_inq_varid(file_id, 'charvest', var_id)
     if (status /= nf90_noerr) &

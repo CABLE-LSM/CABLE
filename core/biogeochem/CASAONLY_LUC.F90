@@ -21,11 +21,11 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   USE POPLUC_Module, ONLY: POPLUCStep, POPLUC_weights_Transfer, WRITE_LUC_OUTPUT_NC, &
        POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, READ_LUC_RESTART_NC, &
        POPLUC_set_patchfrac, WRITE_LUC_OUTPUT_GRID_NC
+  ! 13C
   use cable_c13o2_def, only: c13o2_flux, c13o2_pool, c13o2_luc, c13o2_update_sum_pools, c13o2_zero_sum_pools
   use cable_c13o2,     only: c13o2_save_casapool, c13o2_update_pools, c13o2_save_luc, c13o2_update_luc, &
        c13o2_create_output, c13o2_write_output, c13o2_close_output, &
        c13o2_print_delta_pools, c13o2_print_delta_luc
-  ! use mo_isotope,      only: vpdbc13
 
   IMPLICIT NONE
   
@@ -48,6 +48,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   TYPE(POPLUC_TYPE),          INTENT(INOUT) :: POPLUC
   TYPE (casa_pool),           INTENT(INOUT) :: sum_casapool
   TYPE (casa_flux),           INTENT(INOUT) :: sum_casaflux
+  ! 13C
   type(c13o2_flux),           intent(inout) :: c13o2flux
   type(c13o2_pool),           intent(inout) :: c13o2pools
   type(c13o2_pool),           intent(inout) :: sum_c13o2pools
@@ -107,6 +108,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   ENDIF
 
   CALL zero_sum_casa(sum_casapool, sum_casaflux)
+  ! 13C
   if (cable_user%c13o2) call c13o2_zero_sum_pools(sum_c13o2pools)
 
   ktauday = int(24.0*3600.0/dels)
@@ -153,11 +155,13 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
         phen%doyphase(:,3) = phen%doyphasespin_3(:,idoy)
         phen%doyphase(:,4) = phen%doyphasespin_4(:,idoy)
         climate%qtemp_max_last_year(:) = casamet%mtempspin(:,idoy)
+        ! 13C
         if (cable_user%c13o2) then
            c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
            c13o2flux%cAn(:)   = casamet%cAn13spin(:,idoy)
         endif
         
+        ! 13C
         if (cable_user%c13o2) then
            print*, '13C in casaonly_luc - 00 ', nyear, idoy
            call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
@@ -170,6 +174,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
              cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
              nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
              pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
+        ! 13C
         if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
         if (cable_user%c13o2) then
            print*, '13C in casaonly_luc - 01 ', nyear, idoy
@@ -180,6 +185,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
        ! update time-aggregates of casa pools and fluxes
         CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
              & .TRUE. , .FALSE., 1)
+        ! 13C
         if (cable_user%c13o2) &
              call c13o2_update_sum_pools(sum_c13o2pools, c13o2pools, .true., .false., 1)
         count_sum_casa = count_sum_casa + 1
@@ -260,6 +266,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
                  casapool%pplant(j,wood)  = casabiome%ratioPCplantmin(veg%iveg(j),wood) * casapool%cplant(j,wood)
                  casaflux%frac_sapwood(j) = 1.0_dp
 
+                 ! 13C
                  if (cable_user%c13o2) then
                     c13o2pools%cplant(j,leaf)  = 0.01_dp ! * vpdbc13 / vpdbc13 ! Divide by 13C
                     c13o2pools%cplant(j,wood)  = 0.01_dp ! * vpdbc13 / vpdbc13 ! so that about same numerical precision as 12C
@@ -282,6 +289,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
            CALL POP_IO( pop, casamet, YYYY, 'WRITE_EPI', &
                 ( YYYY.EQ.cable_user%YearEnd ) )
 
+           ! 13C
            if (cable_user%c13o2) then
               print*, '13C in casaonly_luc - 03'
               call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
@@ -289,6 +297,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
            endif
            if (cable_user%c13o2) call c13o2_save_luc(casapool, popluc, casasave, lucsave)
            CALL POP_LUC_CASA_transfer(POPLUC,POP,LUC_EXPT,casapool,casabal,casaflux,ktauday)
+           ! 13C
 #ifdef C13DEBUG
            if (cable_user%c13o2) &
                 call c13o2_update_luc(casasave, lucsave, popluc, luc_expt%prim_only, c13o2pools, c13o2luc, casapool)
@@ -317,6 +326,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
 
            CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
                 .FALSE. , .TRUE. , count_sum_casa)
+           ! 13C
            if (cable_user%c13o2) then
               call c13o2_update_sum_pools(sum_c13o2pools, c13o2pools, &
                    .false., .true., count_sum_casa)
@@ -324,6 +334,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
 
            CALL WRITE_CASA_OUTPUT_NC( veg, casamet, sum_casapool, casabal, sum_casaflux, &
                 .true., ctime, ( idoy.eq.mdyear .AND. YYYY .EQ. cable_user%YearEnd ) )
+           ! 13C
            if (cable_user%c13o2) then
               if (ctime == 1) then
                  call c13o2_create_output(casamet, sum_c13o2pools, c13o2_file_id, c13o2_vars, c13o2_var_ids)

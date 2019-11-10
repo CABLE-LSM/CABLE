@@ -3106,8 +3106,7 @@ DO tt = 1,NYEAR_SMOOTH
    ENDIF
 ENDDO
 
-dbuf =POP%pop_grid(g)%smoothing_buffer/(real(NYEAR_SMOOTH)/2.0)
-!MC smoothed_flux=max(sumflux/real(n)+dbuf, 0.0)
+dbuf =POP%pop_grid(g)%smoothing_buffer/(real(NYEAR_SMOOTH,dp)/2.0_dp)
 smoothed_flux=max(sumflux/real(n)+dbuf, 0.0_dp)
 POP%pop_grid(g)%smoothing_buffer = POP%pop_grid(g)%smoothing_buffer + flux(t) - smoothed_flux
 
@@ -3158,8 +3157,7 @@ DO tt = 1,NYEAR_SMOOTH
    ENDIF
 ENDDO
 
-dbuf =POP%pop_grid(g)%smoothing_buffer_cat/(real(NYEAR_SMOOTH)/2.0)
-!MC smoothed_flux=max(sumflux/real(n)+dbuf, 0.0)
+dbuf = POP%pop_grid(g)%smoothing_buffer_cat/(real(NYEAR_SMOOTH,dp)/2.0_dp)
 smoothed_flux=max(sumflux/real(n)+dbuf, 0.0_dp)
 POP%pop_grid(g)%smoothing_buffer_cat = POP%pop_grid(g)%smoothing_buffer_cat + flux(t) - smoothed_flux
 
@@ -3206,11 +3204,10 @@ DO i=1,n
 ENDDO
 sdx=sqrt(sdx/real(n-1))
 sdy=sqrt(sdy/real(n-1))
-!MC if (sdx .eq. 0.0 .or. sdy .eq. 0.0) then
 if ((abs(sdx) .lt. tiny(0.0_dp)) .or. (abs(sdy) .lt. tiny(0.0_dp))) then
    r = 0.0_dp
 else
-   r =b*sdx/sdy
+   r = b*sdx/sdy
 ENDIF
 
 
