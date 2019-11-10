@@ -1,0 +1,8 @@
+&LUCNML
+    TransitionFilePath = "../LUH2/v3/1deg"
+    ClimateFile        = "../LUH2/cru_climate_rst.nc"
+    DirectRead         = .FALSE.
+    YearStart          = 1700
+    YearEnd            = 2017
+    NotPrimOnlyFile    = "none"
+/

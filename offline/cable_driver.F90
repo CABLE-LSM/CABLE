@@ -379,8 +379,8 @@ PROGRAM cable_offline_driver
 !!$   IF ( .NOT. spinup ) THEN
 !!$      IF ( spincasa ) THEN
 !!$         spincasa = .FALSE.
-!!$         WRITE(*,*)   "spinup == .FALSE. -> spincasa set to .F."
-!!$         WRITE(logn,*)"spinup == .FALSE. -> spincasa set to .F."
+!!$         WRITE(*,*)    "spinup == .FALSE. -> spincasa set to .F."
+!!$         WRITE(logn,*) "spinup == .FALSE. -> spincasa set to .F."
 !!$      ENDIF
 !!$   ENDIF
 !!$
@@ -423,7 +423,7 @@ PROGRAM cable_offline_driver
        TRIM(cable_user%MetType) .EQ. '') THEN
      CALL open_met_file( dels, koffset, kend, spinup, C%TFRZ )
      IF ( koffset .NE. 0 .AND. CABLE_USER%CALL_POP ) THEN
-        WRITE(*,*)"When using POP, episode must start at Jan 1st!"
+        WRITE(*,*) "When using POP, episode must start at Jan 1st!"
         STOP 991
      ENDIF
   ELSE IF ( NRRRR .GT. 1 ) THEN
@@ -671,8 +671,7 @@ PROGRAM cable_offline_driver
               IF (.NOT.CASAONLY) THEN
                  IF ( TRIM(filename%out) .EQ. '' ) THEN
                     IF ( CABLE_USER%YEARSTART .GT. 0 ) THEN
-                       WRITE( dum, FMT="(I4,'_',I4)")CABLE_USER%YEARSTART, &
-                            CABLE_USER%YEAREND
+                       WRITE(dum, FMT="(I4,'_',I4)") CABLE_USER%YEARSTART, CABLE_USER%YEAREND
                        filename%out = TRIM(filename%path)//'/'//&
                             TRIM(cable_user%RunIden)//'_'//&
                             TRIM(dum)//'_cable_out.nc'
@@ -948,7 +947,7 @@ PROGRAM cable_offline_driver
 
               ELSE IF ( IS_CASA_TIME("dread", yyyy, ktau, kstart, koffset, kend, ktauday, logn) ) THEN
                  ! CLN Read from file instead
-                 WRITE(CYEAR,FMT="(I4)")CurYear + INT((ktau-kstart+koffset)/(LOY*ktauday))
+                 WRITE(CYEAR,FMT="(I4)") CurYear + INT((ktau-kstart+koffset)/(LOY*ktauday))
                  ncfile       = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
                  casa_it = NINT( REAL(ktau / ktauday) )
                  CALL read_casa_dump( ncfile, casamet, casaflux, phen, climate, c13o2flux, casa_it, kend, .FALSE. )
@@ -1132,11 +1131,11 @@ PROGRAM cable_offline_driver
                  if (ktau == kend) write(*,*) "sum_fe[Wm-2], sum_fpn[umol/m2/s]",  &
                       new_sumfe/count_bal, new_sumfpn/count_bal
                  if (ktau == kend) write(logn,*) ''
-                 if (ktau == kend) write(logn,*), "time-space-averaged energy & water balances"
-                 if (ktau == kend) write(logn,*), "Ebal_tot[Wm-2], Wbal_tot[mm per timestep]", &
+                 if (ktau == kend) write(logn,*) "time-space-averaged energy & water balances"
+                 if (ktau == kend) write(logn,*) "Ebal_tot[Wm-2], Wbal_tot[mm per timestep]", &
                       sum(bal%ebal_tot)/mp/count_bal, sum(bal%wbal_tot)/mp/count_bal
-                 if (ktau == kend) write(logn,*), "time-space-averaged latent heat and net photosynthesis"
-                 if (ktau == kend) write(logn,*), "sum_fe[Wm-2], sum_fpn[umol/m2/s]",  &
+                 if (ktau == kend) write(logn,*) "time-space-averaged latent heat and net photosynthesis"
+                 if (ktau == kend) write(logn,*) "sum_fe[Wm-2], sum_fpn[umol/m2/s]",  &
                       new_sumfe/count_bal, new_sumfpn/count_bal
 
 
