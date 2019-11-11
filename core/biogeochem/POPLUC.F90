@@ -598,9 +598,10 @@ CONTAINS
     ! This subroutine transfers LUC-determined age distributions to POP
     !-------------------------------------------------------------------------------
     IMPLICIT NONE
-    TYPE(POPLUC_TYPE), INTENT(IN) :: POPLUC
-    TYPE(POP_TYPE), INTENT(INOUT) :: POP
-    TYPE (LUC_EXPT_TYPE), INTENT(IN) :: LUC_EXPT
+    
+    TYPE(POPLUC_TYPE),   INTENT(IN)    :: POPLUC
+    TYPE(POP_TYPE),      INTENT(INOUT) :: POP
+    TYPE(LUC_EXPT_TYPE), INTENT(IN)    :: LUC_EXPT
     integer:: g, k, j, l
     REAL(dp), DIMENSION(:), ALLOCATABLE:: freq_age
 

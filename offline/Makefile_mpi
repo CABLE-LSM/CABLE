@@ -29,8 +29,10 @@
 # Additions for SpinCASA (Lars Nieradzik)
 # Additions for POP, climate and phenology (Vanessa Haverd)
 # Additions for Land use change (Vanessa Haverd)
-# Additions for optimisation of ration of Jmax to Vcmax
+# Additions for optimisation of ratio of Jmax to Vcmax
 # Additions for bios climate, parameters (Peter Briggs & Vanessa Haverd)
+# Additions for 13CO2 (Matthias Cuntz)
+#
 # ==============================================================================
 ##########################################################################
                
@@ -109,12 +111,12 @@ cable_mpimaster.o: cable_mpimaster.F90 cable_mpicommon.o cable_output.o \
 	cable_data.o cable_sli_main.o cable_plume_mip.o pop_io.o pop_mpi.o \
 	cable_climate.o cable_cru_TRENDY.o POPLUC.o cable_LUC_EXPT.o \
 	CASAONLY_LUC.o cable_bios_met_obs_params.o blaze_mpi.o blaze_driver.o \
-	simfire.o cable_c13o2_def.o mo_c13o2_photosynthesis.o
+	simfire.o cable_c13o2_def.o cable_c13o2.o
 
 cable_mpiworker.o: cable_mpiworker.F90 cable_mpicommon.o cable_output.o \
 	cable_iovars.o cable_cbm.o  casa_variable.o casa_cable.o casa_cnp.o \
 	casa_inout.o cable_input.o cable_define_types.o  cable_common.o pop_mpi.o \
-	cable_climate.o blaze_mpi.o
+	cable_climate.o blaze_mpi.o cable_c13o2_def.o cable_c13o2.o mo_c13o2_photosynthesis.o
 
 cable_mpidrv.o: cable_mpidrv.F90 cable_mpicommon.o cable_mpimaster.o cable_mpiworker.o
 
@@ -151,7 +153,7 @@ cable_soilsnow.o: cable_soilsnow.F90 cable_iovars.o cable_define_types.o cable_c
 casa_variable.o: casa_variable.F90 POP.o  
 
 #spincasacnp.o: spincasacnp.F90 cable_define_types.o cable_carbon.o cable_common.o \
-#	 casa_variable.o cable_c13o2.o cable_c13o2_def.o casa_inout.o casa_cable.o
+#	 casa_variable.o cable_c13o2.o cable_c13o2_def.o casa_inout.o
 
 CASAONLY_LUC.o: CASAONLY_LUC.F90  cable_define_types.o  cable_carbon.o cable_common.o \
 		casa_variable.o POP.o POPLUC.o cable_LUC_EXPT.o cable_c13o2.o cable_c13o2_def.o
@@ -160,7 +162,7 @@ CASAONLY_LUC.o: CASAONLY_LUC.F90  cable_define_types.o  cable_carbon.o cable_com
 #		 cable_carbon.o cable_common.o \
 #	 casa_variable.o cable_mpicommon.o cable_mpimaster.o
 
-casa_cable.o: casa_cable.F90 POP.o cable_define_types.o  cable_carbon.o casa_variable.o \
+casa_cable.o: casa_cable.F90 POP.o cable_define_types.o cable_common.o cable_carbon.o casa_variable.o \
 	      cable_diag.o cable_phenology.o casa_cnp.o cable_optimiseJVratio.o \
 	      cable_adjustJVgm.o cable_c13o2.o cable_c13o2_def.o
 
@@ -209,7 +211,7 @@ cable_bios_met_obs_params.o: cable_bios_met_obs_params.F90 cable_iovars.o cable_
                              cable_weathergenerator.o casa_variable.o
 
 # BLAZE related dependencies
-blaze.o: blaze.F90 cable_common.o
+blaze.o: blaze.F90 cable_common.o simfire.o
 
 simfire.o: simfire.F90 cable_common.o
 
@@ -225,7 +227,8 @@ mo_isotope.o: mo_isotope.f90 mo_constants.o mo_kind.o
 mo_isotope_pool_model.o: mo_isotope_pool_model.f90 mo_utils.o mo_kind.o
 cable_c13o2_def.o: cable_c13o2_def.F90 cable_define_types.o casa_variable.o POPLUC.o
 cable_c13o2.o: cable_c13o2.F90 cable_c13o2_def.o cable_define_types.o cable_iovars.o \
-	       cable_common.o casa_variable.o mo_isotope_luc_model.o mo_isotope_pool_model.o mo_isotope.o
+	       cable_common.o casa_variable.o mo_isotope_luc_model.o mo_isotope_pool_model.o \
+	       mo_c13o2_photosynthesis.o mo_isotope.o
 mo_isotope_luc_model.o: mo_isotope_luc_model.f90 mo_utils.o mo_kind.o
 
 minpack.o: minpack.f90 cable_define_types.o

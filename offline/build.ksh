@@ -7,7 +7,6 @@ known_hosts()
    set -A kh vayu cher pear shin jigg nXXX raij ces2 ccrc mael valh mcin
 }
 
-
 ## 
 host_valh()
 {
@@ -343,7 +342,7 @@ host_write()
    print '' >> junk
    print 'known_hosts()' >> junk
    print '{' >> junk
-   print '   set -A kh' ${kh[*]} $HOST_MACH >> junk ccrc ccrc Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart ccrc ccrc Mart ccrc ccrc ccrc ccrc ccrc ccrc ccrc ccrc
+   print '   set -A kh' ${kh[*]} $HOST_MACH >> junk
    print '}' >> junk
    print '' >> junk
    print '' >> junk
@@ -491,17 +490,16 @@ build_build()
    CASA="../core/biogeochem"
    BLAZE="../core/blaze"
    
-   /bin/cp -p $PHYS/*90 ./.tmp
-   /bin/cp -p $UTIL/*90 ./.tmp
-   /bin/cp -p $DRV/*90 ./.tmp
-   /bin/cp -p $CASA/*90 ./.tmp
+   /bin/cp -p $PHYS/*90  ./.tmp
+   /bin/cp -p $UTIL/*90  ./.tmp
+   /bin/cp -p $DRV/*90   ./.tmp
+   /bin/cp -p $CASA/*90  ./.tmp
    /bin/cp -p $BLAZE/*90 ./.tmp
     
-   /bin/cp -p Makefile_offline  ./.tmp
+   /bin/cp -p Makefile_offline ./.tmp
    
    cd .tmp/
    make -f Makefile_offline ${MFLAGS}
-
 }
 
 
@@ -523,4 +521,3 @@ do_i_no_u $*
 not_recognized
 
 i_do_now
-

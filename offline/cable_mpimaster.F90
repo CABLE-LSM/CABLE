@@ -1,11 +1,11 @@
 !==============================================================================
-! This source code is part of the 
+! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
 ! This work is licensed under the CSIRO Open Source Software License
 ! Agreement (variation of the BSD / MIT License).
-! 
+!
 ! You may not use this file except in compliance with this License.
-! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located 
+! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located
 ! in each directory containing CABLE code.
 !
 ! ==============================================================================
@@ -59,6 +59,12 @@
 !              master_end
 !              master_casa_dump_types
 !              master_casa_LUC_types
+!              master_c13o2_flux_params
+!              master_c13o2_pool_params
+!              master_c13o2_luc_params
+!              master_c13o2_flux_types
+!              master_c13o2_pool_types
+!              master_c13o2_luc_types
 !
 ! input  file: [SiteName].nc
 !              poolcnpIn[SiteName].csv -- for CASA-CNP only
@@ -85,16 +91,14 @@ MODULE cable_mpimaster
   ! number of workers; set in master_decomp
   INTEGER :: wnp
 
-  ! TODO: m3d_t mat_t and vec_t to be factored out from here and from
-  ! master_outtypes
+  ! TODO: m3d_t mat_t and vec_t to be factored out from here and from master_outtypes
   ! MPI: slices of 3D arrays
   INTEGER, ALLOCATABLE, DIMENSION(:,:) :: m3d_t
   ! MPI: slices of matrices (2D)
   INTEGER, ALLOCATABLE, DIMENSION(:,:) :: mat_t
 
   ! MPI: parts of vectors (1D)
-  ! MPI: vec_t dimension is wnp; as each worker gets a single hindexed
-  ! with nvec blocks
+  ! MPI: vec_t dimension is wnp; as each worker gets a single indexed with nvec blocks
   INTEGER, ALLOCATABLE, DIMENSION(:) :: vec_t
 
   ! MPI derived datatype handles for sending input data to the workers
@@ -102,7 +106,7 @@ MODULE cable_mpimaster
 
   ! MPI derived datatype handles for receiving output from the workers
   INTEGER, ALLOCATABLE, DIMENSION(:) :: recv_ts
-  
+
   ! master's struct for receiving restart data from the workers
   INTEGER, ALLOCATABLE, DIMENSION(:) :: restart_ts
 
@@ -115,12 +119,12 @@ MODULE cable_mpimaster
   ! MPI derived datatype handles for send/receiving casa dump values from the workers
   INTEGER, ALLOCATABLE, DIMENSION(:) :: casa_dump_ts
 
- ! MPI derived datatype handles for send/receiving casa pool values (needed for LUC) 
- !  from the workers
+  ! MPI derived datatype handles for send/receiving casa pool values (needed for LUC)
+  !  from the workers
   INTEGER, ALLOCATABLE, DIMENSION(:) :: casa_LUC_ts
 
-!CLN  ! MPI derived datatype handles for receiving casa restart values from the workers
-!CLN  INTEGER, ALLOCATABLE, DIMENSION(:) :: casa_restart_ts
+  !CLN  ! MPI derived datatype handles for receiving casa restart values from the workers
+  !CLN  INTEGER, ALLOCATABLE, DIMENSION(:) :: casa_restart_ts
 
   ! climate derived type
   INTEGER, ALLOCATABLE, DIMENSION(:) :: climate_ts
@@ -128,22 +132,29 @@ MODULE cable_mpimaster
   ! MPI derived datatype handles for Sending/receiving vals results for BLAZE
   INTEGER, ALLOCATABLE, DIMENSION(:) :: blaze_out_ts
   INTEGER, ALLOCATABLE, DIMENSION(:) :: blaze_restart_ts
-  
+
   ! MPI derived datatype handles for Sending/receiving vals results for SIMFIRE
   INTEGER, ALLOCATABLE, DIMENSION(:) :: simfire_inp_ts
   INTEGER, ALLOCATABLE, DIMENSION(:) :: simfire_out_ts
   INTEGER, ALLOCATABLE, DIMENSION(:) :: simfire_recv_ts
   INTEGER, ALLOCATABLE, DIMENSION(:) :: simfire_restart_ts
-    
+
   ! POP related derived types
-  
+
   ! MPI derived datatype handles for receiving POP results from the workers
   INTEGER :: pop_ts
 
   ! MPI derived datatype handles for receiving POP results from the workers
   INTEGER :: blaze_ts
 
-   ! MPI: isend request array for scattering input data to the workers
+  ! 13C
+  ! MPI derived datatype handles for receiving c13o2 results from the workers
+  ! and restart values
+  INTEGER, ALLOCATABLE, DIMENSION(:) :: c13o2_flux_ts
+  INTEGER, ALLOCATABLE, DIMENSION(:) :: c13o2_pool_ts
+  INTEGER, ALLOCATABLE, DIMENSION(:) :: c13o2_luc_ts
+
+  ! MPI: isend request array for scattering input data to the workers
   INTEGER, ALLOCATABLE, DIMENSION(:) :: inp_req
   ! MPI: isend status array for scattering input data to the workers
   INTEGER, ALLOCATABLE, DIMENSION(:,:) :: inp_stats
@@ -160,19 +171,18 @@ MODULE cable_mpimaster
 
 CONTAINS
 
-  SUBROUTINE mpidrv_master (comm)
+  SUBROUTINE mpidrv_master(comm)
 
     USE mpi
 
     USE cable_def_types_mod
-    USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,                  &
-         verbose, fixedCO2,output,check,patchout,    &
-         patch_type,soilparmnew,&
-         defaultLAI, sdoy, smoy, syear, timeunits, exists, output,calendar
-    USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
-         cable_runtime, fileName, myhome,            &
-         redistrb, wiltParam, satuParam, CurYear,    &
-         IS_LEAPYEAR, IS_CASA_TIME, calcsoilalbedo,                &
+    USE cable_io_vars_module, ONLY: logn, gswpfile, ncciy, leaps, &
+         verbose, fixedCO2, output, check, patchout, soilparmnew, &
+         timeunits, exists, calendar, landpt
+    USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user, &
+         cable_runtime, filename, &
+         redistrb, wiltParam, satuParam, CurYear, &
+         IS_LEAPYEAR, IS_CASA_TIME, calcsoilalbedo, get_unit, &
          report_version_no, kwidth_gl
     USE cable_data_module,    ONLY: driver_type, icanopy_type, point2constants
     USE cable_input_module,   ONLY: open_met_file,load_parameters,              &
@@ -182,7 +192,6 @@ CONTAINS
     USE cable_write_module,   ONLY: nullify_write
     USE cable_cbm_module
     USE cable_climate_mod
-  
 
     ! modules related to CASA-CNP
     USE casadimension,        ONLY: icycle
@@ -193,45 +202,49 @@ CONTAINS
     !CLN added
     ! modules related to POP
     USE POP_Types,            ONLY: POP_TYPE
-    USE POP_Constants,        ONLY: HEIGHT_BINS, NCOHORT_MAX
-
-     ! LUC_EXPT only
-    USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE, LUC_EXPT_INIT
-    USE POPLUC_Types, ONLY : POPLUC_Type
-    USE POPLUC_Module, ONLY:  WRITE_LUC_OUTPUT_NC, WRITE_LUC_OUTPUT_GRID_NC, &
+    USE POPLUC_Types,         ONLY: POPLUC_Type
+    USE POPLUC_Module,        ONLY: WRITE_LUC_OUTPUT_NC, WRITE_LUC_OUTPUT_GRID_NC, &
          POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, POPLUC_set_patchfrac, &
          READ_LUC_RESTART_NC, alloc_popluc
-    
+    USE POP_Constants,        ONLY: HEIGHT_BINS, NCOHORT_MAX
+    ! LUC_EXPT only
+    USE CABLE_LUC_EXPT,       ONLY: LUC_EXPT_TYPE, LUC_EXPT_INIT
+
     ! modules related to fire
     USE BLAZE_MOD,            ONLY: TYPE_BLAZE
     USE BLAZE_MPI,            ONLY: MASTER_BLAZE_TYPES, MASTER_SIMFIRE_TYPES
     USE SIMFIRE_MOD,          ONLY: TYPE_SIMFIRE
 
+    ! 13C
+    use cable_c13o2_def,         only: c13o2_delta_atm, c13o2_flux, c13o2_pool, c13o2_luc, &
+         c13o2_update_sum_pools, c13o2_zero_sum_pools
+    use cable_c13o2,             only: c13o2_save_luc, c13o2_update_luc, &
+         c13o2_write_restart_flux, c13o2_write_restart_pools, c13o2_write_restart_luc, &
+         c13o2_create_output, c13o2_write_output, c13o2_close_output, c13o2_nvars_output
+    use cable_c13o2,             only: c13o2_print_delta_flux, c13o2_print_delta_pools, c13o2_print_delta_luc
+    use mo_isotope,              only: isoratio ! vpdbc13
+    use mo_c13o2_photosynthesis, only: c13o2_discrimination_simple, c13o2_discrimination
+    use cable_data_module,       only: icanopy_type
+
     ! PLUME-MIP only
     USE CABLE_PLUME_MIP,      ONLY: PLUME_MIP_TYPE, PLUME_MIP_GET_MET,&
          PLUME_MIP_INIT
+    
     USE CABLE_CRU,            ONLY: CRU_TYPE, CRU_GET_SUBDIURNAL_MET, CRU_INIT
 
     ! BIOS only
     USE cable_bios_met_obs_params,   ONLY:  cable_bios_read_met, cable_bios_init, &
          cable_bios_load_params
 
-     ! 13C
-    use cable_c13o2_def,      only: c13o2_flux, c13o2_pool, c13o2_luc, c13o2_update_sum_pools, c13o2_zero_sum_pools
-    use cable_c13o2,          only: c13o2_save_luc, c13o2_update_luc, c13o2_write_restart_pools, &
-       c13o2_create_output, c13o2_write_output, c13o2_close_output, &
-       c13o2_print_delta_pools, c13o2_print_delta_luc
-
-
     IMPLICIT NONE
 
     ! MPI:
     INTEGER               :: comm ! MPI communicator for comms with the workers
 
-    ! CABLE namelist: model configuration, runtime/user switches 
-    CHARACTER(LEN=200), PARAMETER :: CABLE_NAMELIST='cable.nml' 
+    ! CABLE namelist: model configuration, runtime/user switches
+    CHARACTER(LEN=200), PARAMETER :: CABLE_NAMELIST='cable.nml'
 
-    ! timing variables 
+    ! timing variables
     INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
 
     INTEGER        ::                                                           &
@@ -248,70 +261,79 @@ CONTAINS
          YYYY,       &  !
          LOY,        &  ! Length of Year
          count_sum_casa, & ! number of time steps over which casa pools and fluxes are aggregated (for output)
- 
+
          maxdiff(2)     ! location of maximum in convergence test
 
     REAL      :: dels   ! time step size in seconds
     CHARACTER :: dum*9, str1*9, str2*9, str3*9  ! dummy char for fileName generation
 
     ! CABLE variables
-    TYPE (met_type)       :: met     ! met input variables: see below for imet in MPI variables
-    TYPE (air_type)       :: air     ! air property variables
-    TYPE (canopy_type)    :: canopy  ! vegetation variables
-    TYPE (radiation_type) :: rad     ! radiation variables
-    TYPE (roughness_type) :: rough   ! roughness varibles
-    TYPE (balances_type)  :: bal     ! energy and water balance variables
-    TYPE (soil_snow_type) :: ssnow   ! soil and snow variables
-    TYPE (climate_type)   :: climate     ! climate variables
+    TYPE(met_type)       :: met     ! met input variables: see below for imet in MPI variables
+    TYPE(air_type)       :: air     ! air property variables
+    TYPE(canopy_type)    :: canopy  ! vegetation variables
+    TYPE(radiation_type) :: rad     ! radiation variables
+    TYPE(roughness_type) :: rough   ! roughness varibles
+    TYPE(balances_type)  :: bal     ! energy and water balance variables
+    TYPE(soil_snow_type) :: ssnow   ! soil and snow variables
+    TYPE(climate_type)   :: climate     ! climate variables
 
     ! CABLE parameters
-    TYPE (soil_parameter_type) :: soil ! soil parameters
-    TYPE (veg_parameter_type)  :: veg  ! vegetation parameters: see below for iveg in MPI variables
-    TYPE (driver_type)    :: C         ! constants used locally
-    TYPE (icanopy_type)   :: PHOTO     ! photosynthesis constants
+    TYPE(soil_parameter_type) :: soil ! soil parameters
+    TYPE(veg_parameter_type)  :: veg  ! vegetation parameters: see below for iveg in MPI variables
+    TYPE(driver_type)    :: C         ! constants used locally
+    TYPE(icanopy_type)   :: PHOTO     ! photosynthesis constants
 
-    TYPE (sum_flux_type)  :: sum_flux ! cumulative flux variables
-    TYPE (bgc_pool_type)  :: bgc  ! carbon pool variables
+    TYPE(sum_flux_type)  :: sum_flux ! cumulative flux variables
+    TYPE(bgc_pool_type)  :: bgc  ! carbon pool variables
 
-    ! CASA-CNP variables 
-    TYPE (casa_biome)     :: casabiome
-    TYPE (casa_pool)      :: casapool
-    TYPE (casa_flux)      :: casaflux
-    TYPE (casa_pool)      :: sum_casapool
-    TYPE (casa_flux)      :: sum_casaflux
-    TYPE (casa_met)       :: casamet
-    TYPE (casa_balance)   :: casabal
-    TYPE (phen_variable)  :: phen
-    TYPE (POP_TYPE)       :: POP
-    TYPE (POPLUC_TYPE)    :: POPLUC
-    TYPE (LUC_EXPT_TYPE)  :: LUC_EXPT
-    TYPE (PLUME_MIP_TYPE) :: PLUME
-    TYPE (CRU_TYPE)       :: CRU
-    CHARACTER             :: cyear*4
-    CHARACTER             :: ncfile*99
+    ! CASA-CNP variables
+    TYPE(casa_biome)     :: casabiome
+    TYPE(casa_pool)      :: casapool
+    TYPE(casa_flux)      :: casaflux
+    TYPE(casa_pool)      :: sum_casapool
+    TYPE(casa_flux)      :: sum_casaflux
+    TYPE(casa_met)       :: casamet
+    TYPE(casa_balance)   :: casabal
+    TYPE(phen_variable)  :: phen
+    TYPE(POP_TYPE)       :: POP
+    TYPE(POPLUC_TYPE)    :: POPLUC
+    TYPE(LUC_EXPT_TYPE)  :: LUC_EXPT
+    TYPE(PLUME_MIP_TYPE) :: PLUME
+    TYPE(CRU_TYPE)       :: CRU
+    CHARACTER            :: cyear*4
+    CHARACTER            :: ncfile*99
 
     ! BLAZE variables
-    TYPE (TYPE_BLAZE)    :: BLAZE
-    TYPE (TYPE_SIMFIRE)  :: SIMFIRE
+    TYPE(TYPE_BLAZE)    :: BLAZE
+    TYPE(TYPE_SIMFIRE)  :: SIMFIRE
 
     ! 13C
-    type(c13o2_flux)                    :: c13o2flux
-    type(c13o2_pool)                    :: c13o2pools, sum_c13o2pools
-    type(c13o2_luc)                     :: c13o2luc
-    integer                             :: c13o2_file_id
-    integer, parameter :: nvars = 7
-    character(len=20), dimension(nvars) :: c13o2_vars
-    integer,           dimension(nvars) :: c13o2_var_ids
-    real(dp), dimension(:,:), allocatable :: casasave
-    real(dp), dimension(:,:), allocatable :: lucsave
-    
+    type(c13o2_flux)  :: c13o2flux
+    type(c13o2_pool)  :: c13o2pools, sum_c13o2pools
+    type(c13o2_luc)   :: c13o2luc
+    real(r_2), dimension(:,:), allocatable :: casasave
+    real(r_2), dimension(:,:), allocatable :: lucsave
+    ! I/O
+    integer :: c13o2_outfile_id
+    character(len=20), dimension(c13o2_nvars_output) :: c13o2_vars
+    integer,           dimension(c13o2_nvars_output) :: c13o2_var_ids
+    ! discrimination
+    integer :: ileaf
+    real(r_2), dimension(:,:), allocatable :: gpp, diff
+    real(r_2), dimension(:),   allocatable :: Ra 
+    ! delta-13C of atmospheric CO2
+    integer            :: iunit, ios
+    real               :: iyear
+    integer            :: c13o2_atm_syear, c13o2_atm_eyear
+    character(len=100) :: header
+
     ! declare vars for switches (default .FALSE.) etc declared thru namelist
     LOGICAL, SAVE           :: &
          vegparmnew    = .FALSE., & ! using new format input file (BP dec 2007)
          spinup        = .FALSE., & ! model spinup to soil state equilibrium?
          spinConv      = .FALSE., & ! has spinup converged?
          spincasainput = .FALSE., & ! TRUE: SAVE input req'd to spin CASA-CNP;
-                                    ! FALSE: READ input to spin CASA-CNP 
+                                    ! FALSE: READ input to spin CASA-CNP
          spincasa      = .FALSE., & ! TRUE: CASA-CNP Will spin mloop,
                                     ! FALSE: no spin up
          l_casacnp     = .FALSE., & ! using CASA-CNP with CABLE
@@ -319,19 +341,19 @@ CONTAINS
          l_vcmaxFeedbk = .FALSE., & ! using prognostic Vcmax
          CASAONLY      = .FALSE., & ! ONLY Run CASA-CNP
          CALL1         = .TRUE.
-         
-         REAL              :: &  
+
+         REAL              :: &
          delsoilM,         & ! allowed variation in soil moisture for spin up
          delsoilT            ! allowed variation in soil temperature for spin up
 
     ! temporary storage for soil moisture/temp. in spin up mode
-    REAL, ALLOCATABLE, DIMENSION(:,:)  :: & 
-         soilMtemp,                         &   
-         soilTtemp      
- 
+    REAL, ALLOCATABLE, DIMENSION(:,:) :: &
+         soilMtemp, &
+         soilTtemp
+
     ! MPI:
-    TYPE (met_type)       :: imet  ! read ahead met input variables
-    TYPE (veg_parameter_type) :: iveg  ! MPI read ahead vegetation parameters
+    TYPE(met_type)           :: imet  ! read ahead met input variables
+    TYPE(veg_parameter_type) :: iveg  ! MPI read ahead vegetation parameters
     LOGICAL :: loop_exit     ! MPI: exit flag for bcast to workers
     INTEGER :: iktau    ! read ahead index of time step = 1 ..  kend
     INTEGER :: oktau    ! ktau = 1 ..  kend for output
@@ -343,15 +365,15 @@ CONTAINS
 
     ! Vars for standard for quasi-bitwise reproducability b/n runs
     ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
-    CHARACTER(len=30), PARAMETER ::                                             &
-         Ftrunk_sumbal  = ".trunk_sumbal",                                        &
+    CHARACTER(len=30), PARAMETER :: &
+         Ftrunk_sumbal  = ".trunk_sumbal", &
          Fnew_sumbal    = "new_sumbal"
 
-    DOUBLE PRECISION, SAVE ::                                                         &
+    REAL(r_2), SAVE :: &
          trunk_sumbal = 0.0, & !
          new_sumbal   = 0.0, &
          new_sumfpn   = 0.0, &
-         new_sumfe    = 0.0 
+         new_sumfe    = 0.0
 
     INTEGER :: count_bal = 0
     INTEGER :: nkend=0
@@ -360,12 +382,12 @@ CONTAINS
 
     ! switches etc defined thru namelist (by default cable.nml)
     NAMELIST/CABLE/                  &
-         filename,         & ! TYPE, containing input filenames 
+         filename,         & ! TYPE, containing input filenames
          vegparmnew,       & ! use new soil param. method
          soilparmnew,      & ! use new soil param. method
-         calcsoilalbedo,   & ! ! vars intro for Ticket #27 
-         spinup,           & ! spinup model (soil) to steady state 
-         delsoilM,delsoilT,& ! 
+         calcsoilalbedo,   & ! ! vars intro for Ticket #27
+         spinup,           & ! spinup model (soil) to steady state
+         delsoilM,delsoilT,& !
          output,           &
          patchout,         &
          check,            &
@@ -385,14 +407,16 @@ CONTAINS
          redistrb,         &
          wiltParam,        &
          satuParam,        &
-         cable_user           ! additional USER switches 
+         cable_user           ! additional USER switches
+    
     INTEGER :: i,x,kk
     INTEGER :: LALLOC
-    INTEGER, PARAMETER ::        mloop  = 30   ! CASA-CNP PreSpinup loops
-    REAL    :: etime, etimelast
-
+    INTEGER, PARAMETER :: mloop  = 30   ! CASA-CNP PreSpinup loops
+    REAL :: etime, etimelast
     ! END header
-    etimelast = 0.0  
+    
+    etimelast = 0.0
+    
     ! Open, read and close the namelist file.
     OPEN( 10, FILE = CABLE_NAMELIST, STATUS="OLD", ACTION="READ" )
     READ( 10, NML=CABLE )   !where NML=CABLE defined above
@@ -400,9 +424,9 @@ CONTAINS
 
     ! Open, read and close the consistency check file.
     ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
-    IF(cable_user%consistency_check) THEN 
+    IF (cable_user%consistency_check) THEN
        OPEN( 11, FILE = Ftrunk_sumbal,STATUS='old',ACTION='READ',IOSTAT=ioerror )
-       IF(ioerror==0) THEN
+       IF (ioerror==0) THEN
           READ( 11, * ) trunk_sumbal  ! written by previous trunk version
        ENDIF
        CLOSE(11)
@@ -425,16 +449,16 @@ CONTAINS
           CABLE_USER%YearEnd   = ncciy
        ELSEIF  ( CABLE_USER%YearStart.eq.0 .and. ncciy.eq.0) THEN
           PRINT*, 'undefined start year for gswp met: '
-          PRINT*, 'enter value for ncciy or'  
+          PRINT*, 'enter value for ncciy or'
           PRINT*, '(CABLE_USER%YearStart and  CABLE_USER%YearEnd) in cable.nml'
           write(logn,*) 'undefined start year for gswp met: '
-          write(logn,*) 'enter value for ncciy or'  
+          write(logn,*) 'enter value for ncciy or'
           write(logn,*) '(CABLE_USER%YearStart and  CABLE_USER%YearEnd) in cable.nml'
-          
+
           stop
        ENDIF
     ENDIF
-    
+
     CurYear = CABLE_USER%YearStart
 
     IF ( icycle .GE. 11 ) THEN
@@ -503,24 +527,48 @@ CONTAINS
        ENDIF
     ENDIF
 
+    ! 13C
+    ! Read atmospheric delta-13C values
+    if (cable_user%c13o2) then
+       ! get start and end year
+       call get_unit(iunit)
+       open(iunit, file=trim(cable_user%c13o2_delta_atm_file), status="old", action="read")
+       read(iunit, fmt=*, iostat=ios) header
+       read(iunit, fmt=*, iostat=ios) iyear
+       c13o2_atm_syear = floor(iyear)
+       do while (ios==0)
+          read(iunit, fmt=*, iostat=ios) iyear
+       end do
+       c13o2_atm_eyear = floor(iyear)
+       ! allocate d13ca(start:end)
+       allocate(c13o2_delta_atm(c13o2_atm_syear:c13o2_atm_eyear))
+       ! read annual global mean values
+       rewind(iunit)
+       read(iunit, fmt=*, iostat=ios) header
+       do while (ios==0)
+          read(iunit, fmt=*, iostat=ios) iyear, c13o2_delta_atm(floor(iyear))
+       end do
+       close(iunit)
+       c13o2_delta_atm = c13o2_delta_atm/1000._r_2
+    endif
+
     ! Tell the workers if we're leaping
     CALL MPI_Bcast (leaps, 1, MPI_LOGICAL, 0, comm, ierr)
 
     ! outer loop - spinup loop no. ktau_tot :
-    ktau_tot = 0 
+    ktau_tot = 0
     ktau     = 0
     SPINLOOP:DO
 
        ! Bios initialisation
        IF (TRIM(cable_user%MetType) .EQ. "bios") THEN
-
           CALL CPU_TIME(etime)
-          
+
           CALL cable_bios_init(dels,curyear,met,kend,ktauday)
-          
+
           koffset   = 0
           leaps = .true.
-          
+
           write(str1,'(i4)') curyear
           str1 = adjustl(str1)
           write(str2,'(i02)') 1
@@ -532,18 +580,16 @@ CONTAINS
 
        ! Loop through simulation years
        YEARLOOP: DO YYYY= CABLE_USER%YearStart,  CABLE_USER%YearEnd
-
           CurYear = YYYY
-
           IF ( leaps .AND. IS_LEAPYEAR( YYYY ) ) THEN
              LOY = 366
           ELSE
              LOY = 365
           ENDIF
-!!!! CLN FROM HERE extract CALL1 and put LOY computation to end of CALL1 block ===[
+          
+          ! CLN FROM HERE extract CALL1 and put LOY computation to end of CALL1 block ===[
           IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN
-
-             IF ( CALL1 ) THEN 
+             IF ( CALL1 ) THEN
                 CALL PLUME_MIP_INIT( PLUME )
                 dels      = PLUME%dt
                 koffset   = 0
@@ -555,18 +601,12 @@ CONTAINS
                 write(str3,'(i02)') 1
                 str3 = adjustl(str3)
                 timeunits="seconds since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" 00:00:00"
-
              ENDIF
              kend = NINT(24.0*3600.0/dels) * LOY
- 
           ELSE IF ( TRIM(cable_user%MetType) .EQ. 'bios' ) THEN
-             
               kend = NINT(24.0*3600.0/dels) * LOY
-                   
           ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
-              
               IF ( CALL1 ) THEN
-
                  CALL CPU_TIME(etime)
                  CALL CRU_INIT( CRU )
 
@@ -575,7 +615,6 @@ CONTAINS
                  leaps        = .false.  ! No leap years in CRU-NCEP
                  exists%Snowf = .false.  ! No snow in CRU-NCEP, so ensure it will
                                          ! be determined from temperature in CABLE
-
                  write(str1,'(i4)') CurYear
                  str1 = adjustl(str1)
                  write(str2,'(a)') '01'
@@ -584,49 +623,44 @@ CONTAINS
                  str3 = adjustl(str3)
                  timeunits="seconds since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" 00:00:00"
                  calendar = "standard"
-
-
               ENDIF
-
-               LOY = 365
-               kend = NINT(24.0*3600.0/dels) * LOY
+              LOY = 365
+              kend = NINT(24.0*3600.0/dels) * LOY
           ELSE IF (TRIM(cable_user%MetType) .EQ. 'gswp' ) THEN
              ncciy = CurYear
              WRITE(*,*) 'Looking for global offline run info.'
              CALL prepareFiles(ncciy)
              CALL open_met_file( dels, koffset, kend, spinup, C%TFRZ )
-          ENDIF
-!!!! CLN TO HERE extract CALL1 and put LOY computation to end of CALL1 block ===]
+          ENDIF ! cable_user%MetType
+          ! CLN TO HERE extract CALL1 and put LOY computation to end of CALL1 block ===]
 
           ! somethings (e.g. CASA-CNP) only need to be done once per day
           ktauday=INT(24.0*3600.0/dels)
 
           ! Checks where parameters and initialisations should be loaded from.
-          ! If they can be found in either the met file or restart file, they will 
+          ! If they can be found in either the met file or restart file, they will
           ! load from there, with the met file taking precedence. Otherwise, they'll
-          ! be chosen from a coarse global grid of veg and soil types, based on 
+          ! be chosen from a coarse global grid of veg and soil types, based on
           ! the lat/lon coordinates. Allocation of CABLE's main variables also here.
           IF ( CALL1 ) THEN
-
 
              IF (cable_user%POPLUC) THEN
                 CALL LUC_EXPT_INIT (LUC_EXPT)
                 call alloc_POPLUC(POPLUC, mland)
                 POPLUC%np = mland
 
+                !MC - Why in MPI but not in cable_driver?
                 IF (trim(cable_user%POPLUC_RunType) .EQ. 'restart') THEN
-                   CALL  READ_LUC_RESTART_NC (POPLUC)
-                   LUC_EXPT%grass = POPLUC%grass
-                   LUC_EXPT%primaryf = min(POPLUC%primf, 1.0- POPLUC%grass)
-                   LUC_EXPT%secdf = max((1.0 -  LUC_EXPT%grass - LUC_EXPT%primaryf), 0.0)
-                   LUC_EXPT%crop = max(min( POPLUC%crop, POPLUC%grass),0.0)
-                   LUC_EXPT%past = max( min(LUC_EXPT%grass - LUC_EXPT%crop, &
-                        POPLUC%past), 0.0)
-                   
+                   CALL READ_LUC_RESTART_NC(POPLUC)
+                   LUC_EXPT%grass    = POPLUC%grass
+                   LUC_EXPT%primaryf = min(POPLUC%primf, 1.0-POPLUC%grass)
+                   LUC_EXPT%secdf    = max((1.0 -  LUC_EXPT%grass - LUC_EXPT%primaryf), 0.0)
+                   LUC_EXPT%crop     = max(min( POPLUC%crop, POPLUC%grass),0.0)
+                   LUC_EXPT%past     = max( min(LUC_EXPT%grass - LUC_EXPT%crop, &
+                        POPLUC%past), 0.0 )
                 ENDIF
-                
+
              ENDIF
-             
 
              !! vh_js !!
              CALL load_parameters( met, air, ssnow, veg,climate,bgc,            &
@@ -636,28 +670,34 @@ CONTAINS
                   casamet, casabal, phen, POP, spinup,         &
                   C%EMSOIL, C%TFRZ, LUC_EXPT, POPLUC, BLAZE, SIMFIRE, &
                   c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc)
-             if (cable_user%c13o2) allocate(casasave(c13o2pools%ntile,c13o2pools%npools))
-             if (cable_user%c13o2 .and. cable_user%popluc) allocate(lucsave(c13o2luc%nland,c13o2luc%npools))
+             ! 13C
+             if (cable_user%c13o2) then
+                allocate(gpp(size(canopy%An,1),size(canopy%An,2)))
+                allocate(Ra(size(canopy%An,1)))
+                allocate(diff(size(canopy%An,1),size(canopy%An,2)))
+                allocate(casasave(c13o2pools%ntile,c13o2pools%npools))
+                if (cable_user%popluc) allocate(lucsave(c13o2luc%nland,c13o2luc%npools))
+             endif
 
              ! Abort, if an error occurred during BLAZE/SIMFIRE init
              IF ( BLAZE%ERR ) CALL MPI_Abort(comm,0,ierr)
-             
+
              IF (CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static') &
                   CABLE_USER%POPLUC= .FALSE.
 
-              if (cable_user%call_climate) CALL alloc_cbm_var(climate,mp,ktauday)
-              if (cable_user%call_climate) CALL climate_init ( climate, mp, ktauday )
-              if (cable_user%call_climate .AND.(.NOT.cable_user%climate_fromzero)) &
-                   CALL READ_CLIMATE_RESTART_NC (climate, ktauday)
+             if (cable_user%call_climate) then
+                CALL alloc_cbm_var(climate,mp,ktauday)
+                CALL climate_init( climate, mp, ktauday )
+                if (.NOT.cable_user%climate_fromzero) &
+                     CALL READ_CLIMATE_RESTART_NC(climate, ktauday)
+             endif
 
-
-          ! Having read the default parameters, if this is a bios run we will now
-          ! overwrite the subset of them required for bios.
+             ! Having read the default parameters, if this is a bios run we will now
+             ! overwrite the subset of them required for bios.
              IF ( TRIM(cable_user%MetType) .EQ. 'bios' ) THEN
-               CALL cable_bios_load_params (soil)
+                CALL cable_bios_load_params(soil)
              ENDIF
 
-            
              ssnow%otss_0 = ssnow%tgg(:,1)
              ssnow%otss = ssnow%tgg(:,1)
              ssnow%tss = ssnow%tgg(:,1)
@@ -665,26 +705,23 @@ CONTAINS
              canopy%fhs_cor = 0.
              met%ofsd = 0.1
 
-
              !! CLN BLAZE
              !! IF ( cable_user%CALL_BLAZE ) &
-                  
 
              IF (.NOT.spinup)   spinConv=.TRUE.
-             
+
              ! MPI: above was standard serial code
              ! now it's time to initialize the workers
 
-             ! MPI: bcast to workers so that they don't need to open the met
-             ! file themselves
-             CALL MPI_Bcast (dels, 1, MPI_REAL, 0, comm, ierr)
-          ENDIF
+             ! MPI: bcast to workers so that they don't need to open the met file themselves
+             CALL MPI_Bcast(dels, 1, MPI_REAL, 0, comm, ierr)
+          ENDIF ! Call1
 
-          CALL MPI_Bcast (kend, 1, MPI_INTEGER, 0, comm, ierr)
+          CALL MPI_Bcast(kend, 1, MPI_INTEGER, 0, comm, ierr)
 
           IF ( CALL1 ) THEN
              ! MPI: need to know extents before creating datatypes
-             CALL find_extents
+             CALL find_extents()
 
              ! MPI: calculate and broadcast landpoint decomposition to the workers
              CALL master_decomp(comm, mland, mp)
@@ -692,117 +729,111 @@ CONTAINS
              ! MPI: set up stuff for new irecv isend code that separates completion
              ! from posting of requests
              ! wnp is set in master_decomp above
-             ALLOCATE (inp_req(wnp))
-             ALLOCATE (inp_stats(MPI_STATUS_SIZE, wnp))
-             ALLOCATE (recv_req(wnp))
-             ALLOCATE (recv_stats(MPI_STATUS_SIZE, wnp))
-             CALL MPI_Comm_dup (comm, icomm, ierr)
-             CALL MPI_Comm_dup (comm, ocomm, ierr)
+             ALLOCATE(inp_req(wnp))
+             ALLOCATE(inp_stats(MPI_STATUS_SIZE, wnp))
+             ALLOCATE(recv_req(wnp))
+             ALLOCATE(recv_stats(MPI_STATUS_SIZE, wnp))
+             CALL MPI_Comm_dup(comm, icomm, ierr)
+             CALL MPI_Comm_dup(comm, ocomm, ierr)
 
-
-  
-             ! MPI: data set in load_parameter is now scattered out to the
-             ! workers
-
-             CALL master_cable_params(comm, met,air,ssnow,veg,bgc,soil,canopy,&
-                  &                         rough,rad,sum_flux,bal)
-
-
+             ! MPI: data set in load_parameter is now scattered out to the workers
+             CALL master_cable_params(comm, met,air,ssnow,veg,bgc,soil,canopy, &
+                  rough,rad,sum_flux,bal)
 
              CALL master_climate_types(comm, climate, ktauday)
 
-            
              ! MPI: mvtype and mstype send out here instead of inside master_casa_params
              !      so that old CABLE carbon module can use them. (BP May 2013)
-             CALL MPI_Bcast (mvtype, 1, MPI_INTEGER, 0, comm, ierr)
-             CALL MPI_Bcast (mstype, 1, MPI_INTEGER, 0, comm, ierr)
+             CALL MPI_Bcast(mvtype, 1, MPI_INTEGER, 0, comm, ierr)
+             CALL MPI_Bcast(mstype, 1, MPI_INTEGER, 0, comm, ierr)
 
              ! MPI: casa parameters scattered only if cnp module is active
              IF (icycle>0) THEN
                 ! MPI:
-                CALL master_casa_params (comm,casabiome,casapool,casaflux,casamet,&
-                     &                        casabal,phen)
+                CALL master_casa_params(comm, casabiome, casapool, casaflux, casamet, &
+                     casabal, phen)
+                if (cable_user%c13o2) then
+                   CALL master_c13o2_flux_params(comm, c13o2flux)
+                   CALL master_c13o2_pool_params(comm, c13o2pools)
+                endif
 
                 ! Create and Send POP ini/restart data
-                IF ( CABLE_USER%CALL_POP ) CALL master_pop_types (comm,casamet,pop)
-                
-                ! Fire init and 
+                IF ( CABLE_USER%CALL_POP ) CALL master_pop_types(comm,casamet,pop)
+
+                ! Fire init and
                 IF ( CABLE_USER%CALL_BLAZE ) THEN
-                   !CREATE handles for restart-data 
+                   !CREATE handles for restart-data
                    CALL master_blaze_types(comm, wland, wnp, mp, BLAZE, blaze_restart_ts, blaze_out_ts)
-                   IF ( .NOT. spinup ) &
-                        CALL master_send_input(icomm, blaze_restart_ts, ktau)
+                   IF ( .NOT. spinup ) CALL master_send_input(icomm, blaze_restart_ts, ktau)
                    IF ( TRIM(cable_user%BURNT_AREA) == "SIMFIRE" ) THEN
                       CALL master_simfire_types(comm, wland, wnp, mp, SIMFIRE, &
                            simfire_restart_ts, simfire_inp_ts,simfire_out_ts)
-                      IF ( .NOT. spinup ) &
-                           CALL master_send_input(icomm,simfire_restart_ts, ktau)
+                      IF ( .NOT. spinup ) CALL master_send_input(icomm,simfire_restart_ts, ktau)
                    END IF
                 END IF
-                
-             END IF
+             END IF ! icycle
 
              ! MPI: allocate read ahead buffers for input met and veg data
-             CALL alloc_cbm_var (imet, mp)
-             CALL alloc_cbm_var (iveg, mp)
+             CALL alloc_cbm_var(imet, mp)
+             CALL alloc_cbm_var(iveg, mp)
 
              ! MPI: create inp_t types to scatter input data to the workers
              ! at the start of every timestep
-             !CALL master_intypes (comm,met,veg)
+             !   CALL master_intypes (comm,met,veg)
              ! for read ahead use the new variables
-             CALL master_intypes (comm,imet,iveg)
+             CALL master_intypes(comm,imet,iveg)
 
              ! MPI: create recv_t types to receive results from the workers
              ! at the end of every timestep
-             CALL master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
+             CALL master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
 
              ! MPI: create type for receiving casa results
              ! only if cnp module is active
-
              IF (icycle>0) THEN
-                CALL master_casa_types (comm, casapool, casaflux, &
-                     casamet, casabal, phen)
+                CALL master_casa_types(comm, casapool, casaflux, casamet, casabal, phen)
 
                 IF ( CABLE_USER%CASA_DUMP_READ .OR. CABLE_USER%CASA_DUMP_WRITE ) &
-                     CALL master_casa_dump_types( comm, casamet, casaflux, phen, climate )
+                     CALL master_casa_dump_types( comm, casamet, casaflux, phen, climate, c13o2flux )
                   write(*,*) 'cable_mpimaster, POPLUC: ' ,  CABLE_USER%POPLUC
                 IF ( CABLE_USER%POPLUC ) &
-                     CALL master_casa_LUC_types( comm, casapool, casabal,casaflux)
-                
+                     CALL master_casa_LUC_types(comm, casapool, casabal, casaflux)
+                ! 13C
+                if (cable_user%c13o2) call master_c13o2_luc_types(comm, c13o2luc)
              END IF
 
              ! MPI: create type to send restart data back to the master
              ! only if restart file is to be created
-             IF(output%restart) THEN
-                CALL master_restart_types (comm, canopy, air)
+             IF (output%restart) THEN
+                CALL master_restart_types(comm, canopy, air)
              END IF
 
-           !  CALL zero_sum_casa(sum_casapool, sum_casaflux)
-           !  count_sum_casa = 0
+             ! CALL zero_sum_casa(sum_casapool, sum_casaflux)
+             ! ! 13C
+             ! if (cable_user%c13o2) call c13o2_zero_sum_pools(sum_c13o2pools)
+             ! count_sum_casa = 0
 
-            ! CALL master_sumcasa_types(comm, sum_casapool, sum_casaflux)
-             IF( icycle>0 .AND. spincasa) THEN
+             ! CALL master_sumcasa_types(comm, sum_casapool, sum_casaflux)
+             IF ( icycle>0 .AND. spincasa) THEN
                 PRINT *, 'EXT spincasacnp enabled with mloop= ', mloop, dels, kstart, kend
                 CALL master_spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
-                     casaflux,casamet,casabal,phen,POP,climate,LALLOC, c13o2flux, c13o2pools, icomm, ocomm)
+                     casaflux,casamet,casabal,phen,POP,climate,LALLOC, &
+                     c13o2flux, c13o2pools, c13o2luc, icomm, ocomm)
                 SPINconv = .FALSE.
-                CASAONLY                   = .TRUE.
-               ktau_gl = 0
-               ktau = 0
-
-            ELSEIF ( casaonly .AND. (.NOT. spincasa) .AND. cable_user%popluc) THEN
+                CASAONLY = .TRUE.
+                ktau_gl  = 0
+                ktau     = 0
+             ELSEIF ( casaonly .AND. (.NOT. spincasa) .AND. cable_user%popluc) THEN
                 CALL master_CASAONLY_LUC(dels,kstart,kend,veg,soil,casabiome,casapool, &
                      casaflux,casamet,casabal,phen,POP,climate,LALLOC, LUC_EXPT, POPLUC, &
-                     c13o2flux, c13o2pools, &
-                     icomm, ocomm)
-                SPINconv = .FALSE. 
-                ktau_gl = 0
-                ktau = 0
-            ENDIF
-             
+                     c13o2flux, c13o2pools, c13o2luc, icomm, ocomm)
+                SPINconv = .FALSE.
+                ktau_gl  = 0
+                ktau     = 0
+             ENDIF
+
              ! MPI: mostly original serial code follows...
           ENDIF ! CALL1
-write(*,*) 'after CALL1'
+          write(*,*) 'after CALL1'
 
           ! Open output file:
           IF (.NOT.CASAONLY) THEN
@@ -842,66 +873,55 @@ write(*,*) 'after CALL1'
           !tmp_kgl = ktau_gl
           ktau_gl = iktau
 
-          IF (.NOT.casaonly) THEN 
-
-             IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN                  
+          IF (.NOT.casaonly) THEN
+             IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN
                 CALL PLUME_MIP_GET_MET(PLUME, iMET, YYYY, 1, kend, &
                      (YYYY.EQ.CABLE_USER%YearEnd .AND. 1.EQ.kend))
                 !CALL PLUME_MIP_GET_MET(PLUME, iMET, YYYY, 1, kend, &
                 !     (YYYY.EQ.CABLE_USER%YearEnd))
              ELSE IF ( TRIM(cable_user%MetType) .EQ. 'bios' ) THEN
-
-                
                 CALL  cable_bios_read_met(iMET, CurYear, iktau, kend, &
                        (YYYY.EQ.CABLE_USER%YearEnd .AND. 1.EQ.kend), dels )
-
-               
              ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
-              
                 CALL CRU_GET_SUBDIURNAL_MET(CRU, imet, YYYY, 1, kend, &
-                     (YYYY.EQ.CABLE_USER%YearEnd))  
+                     (YYYY.EQ.CABLE_USER%YearEnd))
              ELSE
                 CALL get_met_data( spinup, spinConv, imet, soil,                 &
                      rad, iveg, kend, dels, C%TFRZ, iktau+koffset,                &
                      kstart+koffset )
-                                
              ENDIF
           ENDIF
-          
 
-        !  IF ( CASAONLY .AND. IS_CASA_TIME("dread", yyyy, iktau, kstart, koffset, &
-        !       kend, ktauday, logn) ) THEN     
-        !     WRITE(CYEAR,FMT="(I4)")CurYear + INT((ktau-kstart+koffset)/(LOY*ktauday))
-        !     ncfile  = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
-        !     casa_it = NINT( REAL(iktau / ktauday) )
-        !     CALL read_casa_dump( ncfile, casamet, casaflux,phen, casa_it, kend, .FALSE. )
-        !  ENDIF
+          ! IF ( CASAONLY .AND. IS_CASA_TIME("dread", yyyy, iktau, kstart, koffset, &
+          !      kend, ktauday, logn) ) THEN
+          !    WRITE(CYEAR,FMT="(I4)")CurYear + INT((ktau-kstart+koffset)/(LOY*ktauday))
+          !    ncfile  = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
+          !    casa_it = NINT( REAL(iktau / ktauday) )
+          !    CALL read_casa_dump( ncfile, casamet, casaflux,phen, casa_it, kend, .FALSE. )
+          ! ENDIF
 
           canopy%oldcansto=canopy%cansto
 
           ! Zero out lai where there is no vegetation acc. to veg. index
           WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.
-         
 
           IF ( .NOT. CASAONLY ) THEN
              ! MPI: scatter input data to the workers
-
-             CALL master_send_input (icomm, inp_ts, iktau)
-
-           !  CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
-          ELSE 
-         !    CALL master_send_input (icomm, casa_dump_ts, iktau)
-          !   CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
+             CALL master_send_input(icomm, inp_ts, iktau)
+             ! CALL MPI_Waitall(wnp, inp_req, in_pstats, ierr)
+          ELSE
+             ! CALL master_send_input(icomm, casa_dump_ts, iktau)
+             ! CALL MPI_Waitall(wnp, inp_req, inp_stats, ierr)
           ENDIF
 
-          IF (spincasa.OR. casaonly) THEN
+          IF (spincasa .OR. casaonly) THEN
              EXIT
           ENDIF
-          !IF (.NOT.spincasa) THEN 
+          ! IF (.NOT.spincasa) THEN
           ! time step loop over ktau
-          KTAULOOP:DO ktau=kstart, kend - 1
-             !         ! increment total timstep counter
-             !         ktau_tot = ktau_tot + 1
+          KTAULOOP: DO ktau=kstart, kend - 1
+             ! ! increment total timstep counter
+             ! !  ktau_tot = ktau_tot + 1
              iktau = iktau + 1
              oktau = oktau + 1
 
@@ -912,7 +932,7 @@ write(*,*) 'after CALL1'
              ktau_tot= ktau_tot + 1
              ktau_gl = iktau
 
-             ! some things (e.g. CASA-CNP) only need to be done once per day  
+             ! some things (e.g. CASA-CNP) only need to be done once per day
              idoy =INT( MOD((REAL(ktau+koffset)/REAL(ktauday)),REAL(LOY)))
              IF ( idoy .EQ. 0 ) idoy = LOY
 
@@ -922,11 +942,11 @@ write(*,*) 'after CALL1'
              ! Get met data and LAI, set time variables.
              ! Rainfall input may be augmented for spinup purposes:
              !          met%ofsd = met%fsd(:,1) + met%fsd(:,2)
-             IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN                  
+             IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN
                 CALL PLUME_MIP_GET_MET(PLUME, iMET, YYYY, iktau, kend, &
                      (YYYY.EQ.CABLE_USER%YearEnd .AND. iktau.EQ.kend))
              ELSE IF ( TRIM(cable_user%MetType) .EQ. 'bios' ) THEN
-                IF (( .NOT. CASAONLY ).OR. (CASAONLY.and.CALL1))  THEN               
+                IF (( .NOT. CASAONLY ).OR. (CASAONLY.and.CALL1))  THEN
                   CALL  cable_bios_read_met(iMET, CurYear, iktau, kend, &
                        (YYYY.EQ.CABLE_USER%YearEnd .AND. iktau.EQ.kend), dels )
                 END IF
@@ -935,93 +955,105 @@ write(*,*) 'after CALL1'
                      (YYYY.EQ.CABLE_USER%YearEnd) )
                 IF (CALL1)  casamet%glai = 1.0  ! initialise glai for use in cable_roughness
              ELSE
-              
                 CALL get_met_data( spinup, spinConv, imet, soil,                 &
                      rad, iveg, kend, dels, C%TFRZ, iktau+koffset,                &
                      kstart+koffset )
- 
              ENDIF
              IF ( TRIM(cable_user%MetType) .NE. 'gswp' ) CurYear = met%year(1)
 
-!!$             IF ( CASAONLY .AND. IS_CASA_TIME("dread", yyyy, iktau, kstart, koffset, &
-!!$                  kend, ktauday, logn) )  THEN          
-!!$                ! CLN READ FROM FILE INSTEAD !
-!!$                WRITE(CYEAR,FMT="(I4)")CurYear + INT((ktau-kstart+koffset)/(LOY*ktauday))
-!!$                ncfile  = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
-!!$                casa_it = NINT( REAL(iktau / ktauday) )
-!!$                CALL read_casa_dump( ncfile, casamet, casaflux, casa_it, kend, .FALSE. )
-!!$             ENDIF
+             !  IF ( CASAONLY .AND. IS_CASA_TIME("dread", yyyy, iktau, kstart, koffset, &
+             !       kend, ktauday, logn) )  THEN
+             !     ! CLN READ FROM FILE INSTEAD !
+             !     WRITE(CYEAR,FMT="(I4)")CurYear + INT((ktau-kstart+koffset)/(LOY*ktauday))
+             !     ncfile  = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
+             !     casa_it = NINT( REAL(iktau / ktauday) )
+             !     CALL read_casa_dump( ncfile, casamet, casaflux, casa_it, kend, .FALSE. )
+             !  ENDIF
 
-         
-!!$             ! At first time step of year, set tile area according to updated LU areas
-!!$             IF (ktau == 1 .and. CABLE_USER%POPLUC) THEN
-!!$               CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT)   
-!!$            ENDIF
 
+             !  ! At first time step of year, set tile area according to updated LU areas
+             !  IF (ktau == 1 .and. CABLE_USER%POPLUC) THEN
+             !    CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT)
+             ! ENDIF
+
+             ! 13C
+             ! if (cable_user%c13o2) c13o2flux%ca = 0.992_r_2 * real(met%ca,r_2) ! * vpdbc13 / vpdbc13 ! -8 permil
+             if (cable_user%c13o2) then
+                if ((CurYear < c13o2_atm_syear) .or. (CurYear > c13o2_atm_eyear)) then
+                   write(*,*) 'Current year ', CurYear, 'not in atmospheric delta-13C (min/max): ', &
+                        c13o2_atm_syear, c13o2_atm_eyear
+                   stop
+                endif
+                c13o2flux%ca = (c13o2_delta_atm(CurYear) + 1.0_r_2) * real(met%ca,r_2) ! * vpdbc13 / vpdbc13
+                ! broadcast
+                call MPI_Bcast(c13o2flux%ca, 1, MPI_DOUBLE_PRECISION, 0, comm, ierr)
+                ! or
+                ! do rank=1, wnp
+                !    call MPI_Send(c13o2flux%ca, 1, MPI_DOUBLE_PRECISION, rank, 0, icomm, ierr)
+                ! end do
+             endif
 
              IF ( .NOT. CASAONLY ) THEN
-                             
+
                 IF ( icycle > 0 ) THEN
                    ! receive casa update from worker
                    IF ( MOD((oktau-kstart+1+koffset),ktauday).EQ.0 ) THEN
-                      CALL master_receive (ocomm, oktau, casa_ts)
-                                        
-                  ! write(*,*) 'after master_receive casa_ts'
-                   CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
+                      CALL master_receive(ocomm, oktau, casa_ts)
+                      ! 13C
+                      if (cable_user%c13o2) then
+                         call master_receive(ocomm, oktau, c13o2_flux_ts)
+                         call master_receive(ocomm, oktau, c13o2_pool_ts)
+                      endif
+                      ! write(*,*) 'after master_receive casa_ts'
+                      CALL MPI_Waitall(wnp, recv_req, recv_stats, ierr)
                    ENDIF
-                  ! write(*,*) 'after master_receive casa_ts waitall'
+                   ! write(*,*) 'after master_receive casa_ts waitall'
                    ! receive casa dump requirements from worker
                    IF ( ((.NOT.spinup).OR.(spinup.AND.spinConv)) .AND.   &
                         ( IS_CASA_TIME("dwrit", yyyy, oktau, kstart, &
                         koffset, kend, ktauday, logn) ) ) THEN
-                      CALL master_receive ( ocomm, oktau, casa_dump_ts )
-                      
+                      CALL master_receive( ocomm, oktau, casa_dump_ts )
                       ! CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
                    ENDIF
                 ENDIF
 
                 ! MPI: receive this time step's results from the workers
-                CALL master_receive (ocomm, oktau, recv_ts)
-               ! CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
-
+                CALL master_receive(ocomm, oktau, recv_ts)
+                ! CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
 
                 ! MPI: scatter input data to the workers
-                CALL master_send_input (icomm, inp_ts, iktau)
-              !  CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
+                CALL master_send_input(icomm, inp_ts, iktau)
+                ! CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
 
-!!$                IF ( ((.NOT.spinup).OR.(spinup.AND.spinConv)) .AND.   &
-!!$                     ( IS_CASA_TIME("dwrit", yyyy, oktau, kstart, &
-!!$                        koffset, kend, ktauday, logn) ) ) THEN
-!!$                   WRITE(CYEAR,FMT="(I4)") CurYear + INT((ktau-kstart)/(LOY*ktauday))
-!!$                   ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
-!!$                   CALL write_casa_dump( ncfile, casamet , casaflux, idoy, &
-!!$                        kend/ktauday )
-!!$                   
-!!$                ENDIF
+                ! IF ( ((.NOT.spinup).OR.(spinup.AND.spinConv)) .AND.   &
+                !      ( IS_CASA_TIME("dwrit", yyyy, oktau, kstart, &
+                !         koffset, kend, ktauday, logn) ) ) THEN
+                !    WRITE(CYEAR,FMT="(I4)") CurYear + INT((ktau-kstart)/(LOY*ktauday))
+                !    ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
+                !    CALL write_casa_dump( ncfile, casamet , casaflux, idoy, &
+                !         kend/ktauday )
+                ! ENDIF
 
                 IF (((.NOT.spinup).OR.(spinup.AND.spinConv)).and. &
                       MOD((ktau-kstart+1),ktauday)==0) THEN
-                    IF ( CABLE_USER%CASA_DUMP_WRITE )  THEN
+                   IF ( CABLE_USER%CASA_DUMP_WRITE )  THEN
+                      !CLN CHECK FOR LEAP YEAR
+                      WRITE(CYEAR,FMT="(I4)") CurYear + INT((ktau-kstart)/(LOY*ktauday))
+                      ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
+                      CALL write_casa_dump( ncfile, casamet , casaflux, phen, climate, &
+                           c13o2flux, idoy, kend/ktauday )
+                   ENDIF
+                ENDIF
 
+             ELSE IF ( MOD((ktau-kstart+1+koffset),ktauday)==0 ) THEN
 
-                       !CLN CHECK FOR LEAP YEAR
-                       WRITE(CYEAR,FMT="(I4)") CurYear + INT((ktau-kstart)/(LOY*ktauday))
-                       ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
-                       CALL write_casa_dump( ncfile, casamet , casaflux, phen, climate, &
-                            c13o2flux, idoy, kend/ktauday )
-                       
-                    ENDIF
-                 ENDIF
+                CALL master_send_input(icomm, casa_dump_ts, iktau )
+                ! CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
 
-              ELSE IF ( MOD((ktau-kstart+1+koffset),ktauday)==0 ) THEN
-                
-                CALL master_send_input (icomm, casa_dump_ts, iktau )
-            !    CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
-             
-             ENDIF
+             ENDIF ! .NOT. CASAONLY
 
-!             CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
-!             CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
+             ! CALL MPI_Waitall(wnp, recv_req, recv_stats, ierr)
+             ! CALL MPI_Waitall(wnp, inp_req, inp_stats, ierr)
 
              met%ofsd = met%fsd(:,1) + met%fsd(:,2)
              canopy%oldcansto=canopy%cansto
@@ -1029,7 +1061,7 @@ write(*,*) 'after CALL1'
              ! Zero out lai where there is no vegetation acc. to veg. index
              WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.
 
-             ! Write time step's output to file if either: we're not spinning up 
+             ! Write time step's output to file if either: we're not spinning up
              ! or we're spinning up and the spinup has converged:
              ! MPI: TODO: pull mass and energy balance calculation from write_output
              ! and refactor into worker code
@@ -1041,17 +1073,21 @@ write(*,*) 'after CALL1'
                    IF ( IS_CASA_TIME("write", yyyy, oktau, kstart, &
                         koffset, kend, ktauday, logn) ) THEN
                       ctime = ctime +1
-
-
-                      CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
-                           CASAONLY, ctime, &
-                           ( ktau.EQ.kend .AND. YYYY .EQ.cable_user%YearEnd ) )
+                      CALL WRITE_CASA_OUTPUT_NC(veg, casamet, casapool, casabal, casaflux, &
+                           CASAONLY, ctime, ( ktau.EQ.kend .AND. YYYY .EQ.cable_user%YearEnd ) )
+                      ! 13C
+                      if (cable_user%c13o2) then
+                         if (ctime == 1) then
+                            call c13o2_create_output(casamet, sum_c13o2pools, c13o2_outfile_id, c13o2_vars, c13o2_var_ids)
+                         endif
+                         call c13o2_write_output(c13o2_outfile_id, c13o2_vars, c13o2_var_ids, ctime, sum_c13o2pools)
+                         if ( (ktau == kend) .and. (YYYY == cable_user%YearEnd) ) &
+                              call c13o2_close_output(c13o2_outfile_id)
+                      end if
                    ENDIF
                 ENDIF
-          
-                
-                IF ( (.NOT. CASAONLY).AND. spinConv  ) THEN
 
+                IF ( (.NOT. CASAONLY).AND. spinConv  ) THEN
                    IF ( TRIM(cable_user%MetType) .EQ. 'plum' &
                         .OR. TRIM(cable_user%MetType) .EQ. 'cru'   &
                         .OR. TRIM(cable_user%MetType) .EQ. 'bios'  &
@@ -1060,64 +1096,55 @@ write(*,*) 'after CALL1'
                            casamet,ssnow,         &
                            rad, bal, air, soil, veg, C%SBOLTZ,     &
                            C%EMLEAF, C%EMSOIL, c13o2pools, c13o2flux )
-                   else
+                   ELSE
                       CALL write_output( dels, ktau, met, canopy, casaflux, casapool, &
                            casamet, ssnow,   &
                            rad, bal, air, soil, veg, C%SBOLTZ, C%EMLEAF, C%EMSOIL, c13o2pools, c13o2flux )
-
                    ENDIF
                 END IF
-              ENDIF
-               
-               !---------------------------------------------------------------------!
-             ! Check this run against standard for quasi-bitwise reproducability   !  
+             ENDIF
+
+             !---------------------------------------------------------------------!
+             ! Check this run against standard for quasi-bitwise reproducability   !
              ! Check triggered by cable_user%consistency_check=.TRUE. in cable.nml !
              !---------------------------------------------------------------------!
-             IF(cable_user%consistency_check) THEN 
-
+             IF (cable_user%consistency_check) THEN
                 count_bal = count_bal +1;
                     new_sumbal = new_sumbal + SUM(bal%wbal)/mp +  SUM(bal%ebal)/mp
                     new_sumfpn = new_sumfpn + SUM(canopy%fpn)/mp
-                    new_sumfe = new_sumfe + SUM(canopy%fe)/mp
-!!$                    if (ktau == kend-1) PRINT*, "time-space-averaged energy & water balances"
-!!$                    if (ktau == kend-1) PRINT*,"Ebal_tot[Wm-2], Wbal_tot[mm]", &
-!!$                         sum(bal%ebal_tot)/mp/count_bal, sum(bal%wbal_tot)/mp/count_bal
-!!$                    if (ktau == kend-1) PRINT*, "time-space-averaged latent heat and net photosynthesis"
-!!$                    if (ktau == kend-1) PRINT*, "sum_fe[Wm-2], sum_fpn[umol/m2/s]",  &
-!!$                         new_sumfe/count_bal, new_sumfpn/count_bal
+                    new_sumfe  = new_sumfe + SUM(canopy%fe)/mp
+                    ! if (ktau == kend-1) PRINT*, "time-space-averaged energy & water balances"
+                    ! if (ktau == kend-1) PRINT*,"Ebal_tot[Wm-2], Wbal_tot[mm]", &
+                    !      sum(bal%ebal_tot)/mp/count_bal, sum(bal%wbal_tot)/mp/count_bal
+                    ! if (ktau == kend-1) PRINT*, "time-space-averaged latent heat and net photosynthesis"
+                    ! if (ktau == kend-1) PRINT*, "sum_fe[Wm-2], sum_fpn[umol/m2/s]",  &
+                    !      new_sumfe/count_bal, new_sumfpn/count_bal
 
-                    ! check for Nans in biophysical outputs and abort if there are any          
+                    ! check for Nans in biophysical outputs and abort if there are any
                 IF (any( canopy%fe.NE. canopy%fe)) THEN
-                    DO kk=1,mp
+                   DO kk=1,mp
+                      IF (canopy%fe(kk).NE. canopy%fe(kk)) THEN
+                         WRITE(*,*) 'Nan in evap flux,', kk, patch(kk)%latitude, patch(kk)%longitude
+                         write(*,*) 'fe nan', kk, ktau,met%qv(kk), met%precip(kk),met%precip_sn(kk), &
+                              met%fld(kk), met%fsd(kk,:), met%tk(kk), met%ua(kk), &
+                              ssnow%potev(kk), met%pmb(kk), &
+                              canopy%ga(kk), ssnow%tgg(kk,:), canopy%fwsoil(kk), &
+                              rad%fvlai(kk,:) ,  rad%fvlai(kk,1), &
+                              rad%fvlai(kk,2), canopy%vlaiw(kk)
+                         CALL MPI_Abort(comm, 0, ierr)
+                      ENDIF
+                   ENDDO
+                ENDIF
 
-                     IF (canopy%fe(kk).NE. canopy%fe(kk)) THEN
-                      WRITE(*,*) 'Nan in evap flux,', kk, patch(kk)%latitude, patch(kk)%longitude 
-                      write(*,*) 'fe nan', kk, ktau,met%qv(kk), met%precip(kk),met%precip_sn(kk), &
-                               met%fld(kk), met%fsd(kk,:), met%tk(kk), met%ua(kk), &
-                               ssnow%potev(kk), met%pmb(kk), &
-                               canopy%ga(kk), ssnow%tgg(kk,:), canopy%fwsoil(kk), &
-                               rad%fvlai(kk,:) ,  rad%fvlai(kk,1), &
-                               rad%fvlai(kk,2), canopy%vlaiw(kk)
-
-                      CALL MPI_Abort(comm, 0, ierr)
-                     ENDIF
-                      
-                    ENDDO
-              
-                 ENDIF
-                IF(ktau==(kend-1)) THEN 
-
+                IF (ktau==(kend-1)) THEN
                    nkend = nkend+1
                    IF( ABS(new_sumbal-trunk_sumbal) < 1.e-7) THEN
-
                       PRINT *, ""
                       PRINT *, &
                            "NB. Offline-parallel runs spinup cycles:", nkend
                       PRINT *, &
                            "Internal check shows this version reproduces the trunk sumbal"
-
                    ELSE
-
                       PRINT *, ""
                       PRINT *, &
                            "NB. Offline-parallel runs spinup cycles:", nkend
@@ -1126,30 +1153,25 @@ write(*,*) 'after CALL1'
                       PRINT *, "The difference is: ", new_sumbal - trunk_sumbal
                       PRINT *, &
                            "Writing new_sumbal to the file:", TRIM(Fnew_sumbal)
-
-!CLN                      OPEN( 12, FILE = Fnew_sumbal )
-!CLN                      WRITE( 12, '(F20.7)' ) new_sumbal  ! written by previous trunk version
-!CLN                      CLOSE(12)
-
+                      !CLN OPEN( 12, FILE = Fnew_sumbal )
+                      !CLN WRITE( 12, '(F20.7)' ) new_sumbal  ! written by previous trunk version
+                      !CLN CLOSE(12)
                    ENDIF
-                   
                 ENDIF
-
-             ENDIF
+             ENDIF ! cable_user%consistency_check
 
              CALL1 = .FALSE.
 
-!WRITE(*,*) " ktauloop end ", ktau, CurYear
-              !if (met%doy(1).eq.10) then
-                  !CALL CPU_TIME(etime)
-                  !PRINT *, 'Master ktau ',ktau,  etime, etime-etimelast, ' seconds'
-                  !etimelast = etime
-              ! endif
+             !WRITE(*,*) " ktauloop end ", ktau, CurYear
+             !if (met%doy(1).eq.10) then
+             !CALL CPU_TIME(etime)
+             !PRINT *, 'Master ktau ',ktau,  etime, etime-etimelast, ' seconds'
+             !etimelast = etime
+             ! endif
 
           END DO KTAULOOP ! END Do loop over timestep ktau
 
           CALL1 = .FALSE.
-
 
           ! MPI: read ahead tail to receive (last step and write)
           met%year = imet%year
@@ -1157,110 +1179,107 @@ write(*,*) 'after CALL1'
           oktau    = oktau + 1
           ktau_tot = ktau_tot + 1
           ktau_gl  = oktau
-      
+
           IF ( .NOT. CASAONLY ) THEN
-
              IF ( icycle >0 ) THEN
-
-                CALL master_receive (ocomm, oktau, casa_ts)
-
-!                CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)              
-
+                CALL master_receive(ocomm, oktau, casa_ts)
+                ! 13C
+                if (cable_user%c13o2) then
+                   call master_receive(ocomm, oktau, c13o2_flux_ts)
+                   call master_receive(ocomm, oktau, c13o2_pool_ts)
+                endif
+                ! CALL MPI_Waitall(wnp, recv_req, recv_stats, ierr)
                 IF ( ((.NOT.spinup).OR.(spinup.AND.spinConv)) .AND. &
                      ( IS_CASA_TIME("dwrit", yyyy, oktau, kstart, &
                      koffset, kend, ktauday, logn) ) ) THEN
-                    CALL master_receive ( ocomm, oktau, casa_dump_ts )
-           !         CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
+                    CALL master_receive( ocomm, oktau, casa_dump_ts )
+                    ! CALL MPI_Waitall(wnp, recv_req, recv_stats, ierr)
                 ENDIF
-
              ENDIF
-        
-            ! write(*,*) 'master_receive 6'
-             CALL master_receive (ocomm, oktau, recv_ts)
-      !       CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
+             ! write(*,*) 'master_receive 6'
+             CALL master_receive(ocomm, oktau, recv_ts)
+             ! CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
           ENDIF
 
           met%ofsd = met%fsd(:,1) + met%fsd(:,2)
           canopy%oldcansto=canopy%cansto
-                    
+
           IF ( TRIM(cable_user%MetType) .EQ. "gswp" ) &
-               CALL close_met_file
+               CALL close_met_file()
+          
+          IF (icycle>0 .and. cable_user%CALL_POP)  THEN
+             write(*,*), 'b4 annual calcs'
+             IF (CABLE_USER%POPLUC) THEN
+                ! master receives casa updates required for LUC calculations here
+                CALL master_receive(ocomm, 0, casa_LUC_ts)
+                if (cable_user%c13o2) call master_receive(ocomm, 0, c13o2_luc_ts)
+                ! Dynamic LUC
+                CALL LUCdriver( casabiome,casapool,casaflux,POP,LUC_EXPT, POPLUC, veg, c13o2pools )
+                ! transfer POP updates to workers
+                off = 1
+                DO rank = 1, wnp
+                   IF ( rank .GT. 1 ) off = off + wland(rank-1)%npop_iwood
+                   cnt = wland(rank)%npop_iwood
+                   CALL MPI_Send( POP%pop_grid(off), cnt, pop_ts, rank, 0, icomm, ierr )
+                END DO
+             ENDIF
 
-IF (icycle>0 .and.   cable_user%CALL_POP)  THEN
-  write(*,*), 'b4 annual calcs'
-       
-                      IF (CABLE_USER%POPLUC) THEN
+             ! one annual time-step of POP (worker calls POP here)
+             !CALL POPdriver(casaflux,casabal,veg, POP)
+             CALL master_receive_pop(POP, ocomm)
 
-
-                        ! master receives casa updates required for LUC calculations here
-                         CALL master_receive (ocomm, 0, casa_LUC_ts)
-
-                         ! Dynamic LUC
-                         CALL LUCdriver( casabiome,casapool,casaflux,POP,LUC_EXPT, POPLUC, veg )
-
-
-                         ! transfer POP updates to workers
-                         off = 1
-                         DO rank = 1, wnp
-                            IF ( rank .GT. 1 ) off = off + wland(rank-1)%npop_iwood
-                            cnt = wland(rank)%npop_iwood
-                            CALL MPI_Send( POP%pop_grid(off), cnt, pop_ts, rank, 0, icomm, ierr )
-                         END DO
-                      ENDIF
-                      
-                      ! one annual time-step of POP (worker calls POP here)
-                      !CALL POPdriver(casaflux,casabal,veg, POP)
-                      CALL master_receive_pop(POP, ocomm)
-
-                      IF (CABLE_USER%POPLUC) THEN
-                         ! Dynamic LUC: update casa pools according to LUC transitions
-                         CALL POP_LUC_CASA_transfer(POPLUC,POP,LUC_EXPT,casapool,casabal,casaflux,ktauday)
-                         ! Dynamic LUC: write output
-                         IF (output%grid(1:3) == 'lan') THEN 
-                            CALL WRITE_LUC_OUTPUT_NC( POPLUC, YYYY, ( YYYY.EQ.cable_user%YearEnd ))
-                         ELSE
-                            CALL WRITE_LUC_OUTPUT_GRID_NC( POPLUC, YYYY, ( YYYY.EQ.cable_user%YearEnd ))
-                            !CALL WRITE_LUC_OUTPUT_NC( POPLUC, YYYY, ( YYYY.EQ.cable_user%YearEnd ))
-                         ENDIF
-
-                      ENDIF
+             IF (CABLE_USER%POPLUC) THEN
+                ! Dynamic LUC: update casa pools according to LUC transitions
+                ! 13C
+                if (cable_user%c13o2) call c13o2_save_luc(casapool, popluc, casasave, lucsave)
+                CALL POP_LUC_CASA_transfer(POPLUC,POP,LUC_EXPT,casapool,casabal,casaflux,ktauday)
+                ! 13C
+                if (cable_user%c13o2) then
+                   call c13o2_update_luc(casasave, lucsave, popluc, &
+                        luc_expt%prim_only, c13o2pools, c13o2luc)
+                endif
                 
-                      IF (CABLE_USER%POPLUC) &      
-                           ! send updates for CASA pools, resulting from LUC
-                           CALL master_send_input (icomm, casa_LUC_ts, nyear)
-     
-                 
-                   ENDIF
-write(*,*) 'after annual calcs'
+                ! Dynamic LUC: write output
+                IF (output%grid(1:3) == 'lan') THEN
+                   CALL WRITE_LUC_OUTPUT_NC( POPLUC, YYYY, ( YYYY.EQ.cable_user%YearEnd ))
+                ELSE
+                   CALL WRITE_LUC_OUTPUT_GRID_NC( POPLUC, YYYY, ( YYYY.EQ.cable_user%YearEnd ))
+                   !CALL WRITE_LUC_OUTPUT_NC( POPLUC, YYYY, ( YYYY.EQ.cable_user%YearEnd ))
+                ENDIF
+             ENDIF
 
+             if (CABLE_USER%POPLUC) then
+                ! send updates for CASA pools, resulting from LUC
+                CALL master_send_input(icomm, casa_LUC_ts, nyear)
+                if (cable_user%c13o2) call master_send_input(icomm, c13o2_luc_ts, nyear)
+             endif
+          ENDIF ! icycle>0 .and. cable_user%CALL_POP
+          write(*,*) 'after annual calcs'
 
           ! WRITE OUTPUT
-          IF((.NOT.spinup).OR.(spinup.AND.spinConv)) THEN
-             IF(icycle >0) THEN
+          IF ((.NOT.spinup).OR.(spinup.AND.spinConv)) THEN
+             IF (icycle >0) THEN
                 ctime = ctime +1
-                CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
+                CALL WRITE_CASA_OUTPUT_NC(veg, casamet, casapool, casabal, casaflux, &
                      CASAONLY, ctime, ( ktau.EQ.kend .AND. YYYY .EQ.               &
                      cable_user%YearEnd ) )
                 IF ( cable_user%CALL_POP ) THEN
-
-                  ! CALL master_receive_pop(POP, ocomm)
+                   ! CALL master_receive_pop(POP, ocomm)
                    ! CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
                    IF ( TRIM(cable_user%POP_out).eq.'epi' ) THEN
                       CALL POP_IO( pop, casamet, CurYear, 'WRITE_EPI', &
                            (CurYear.EQ.CABLE_USER%YearEnd) )
                    ENDIF
- 
                 ENDIF
              END IF
-        
-!!$             IF ( CABLE_USER%CASA_DUMP_WRITE )  THEN
-!!$                !CLN CHECK FOR LEAP YEAR
-!!$                WRITE(CYEAR,FMT="(I4)") CurYear + INT((ktau-kstart)/(LOY*ktauday))
-!!$                ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
-!!$                CALL write_casa_dump( ncfile, casamet , casaflux, idoy, &
-!!$                     kend/ktauday )
-!!$                
-!!$             ENDIF
+
+             ! IF ( CABLE_USER%CASA_DUMP_WRITE )  THEN
+             !    !CLN CHECK FOR LEAP YEAR
+             !    WRITE(CYEAR,FMT="(I4)") CurYear + INT((ktau-kstart)/(LOY*ktauday))
+             !    ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
+             !    CALL write_casa_dump( ncfile, casamet , casaflux, idoy, &
+             !         kend/ktauday )
+             ! ENDIF
 
              IF (((.NOT.spinup).OR.(spinup.AND.spinConv)).and. &
                   MOD((ktau-kstart+1),ktauday)==0) THEN
@@ -1271,32 +1290,26 @@ write(*,*) 'after annual calcs'
 
                    CALL write_casa_dump( ncfile, casamet , casaflux, phen, climate, c13o2flux, &
                    LOY,  kend/ktauday )
-                   
                 ENDIF
              ENDIF
 
              IF ( (.NOT. CASAONLY) .AND. spinConv ) THEN
                 IF ( TRIM(cable_user%MetType) .EQ. 'plum' &
                      .OR. TRIM(cable_user%MetType) .EQ. 'cru'   &
-                      .OR. TRIM(cable_user%MetType) .EQ. 'bios'   &
-                       .OR. TRIM(cable_user%MetType) .EQ. 'gswp') then
-
+                     .OR. TRIM(cable_user%MetType) .EQ. 'bios'   &
+                     .OR. TRIM(cable_user%MetType) .EQ. 'gswp') then
                    CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, &
                         casamet, ssnow,         &
                         rad, bal, air, soil, veg, C%SBOLTZ,     &
                         C%EMLEAF, C%EMSOIL, c13o2pools, c13o2flux )
-                else
+                ELSE
                    CALL write_output( dels, ktau, met, canopy, casaflux, casapool, casamet, &
                         ssnow,   &
                         rad, bal, air, soil, veg, C%SBOLTZ, C%EMLEAF, C%EMSOIL, c13o2pools, c13o2flux )
-                   
                 ENDIF
-              
-
              END IF
-             
-             IF(cable_user%consistency_check) THEN 
-                
+
+             IF (cable_user%consistency_check) THEN
                 count_bal = count_bal +1;
                 new_sumbal = new_sumbal + SUM(bal%wbal)/mp +  SUM(bal%ebal)/mp
                 new_sumfpn = new_sumfpn + SUM(canopy%fpn)/mp
@@ -1315,31 +1328,25 @@ write(*,*) 'after annual calcs'
                 if (ktau == kend) write(logn,*), "time-space-averaged latent heat and net photosynthesis"
                 if (ktau == kend) write(logn,*), "sum_fe[Wm-2], sum_fpn[umol/m2/s]",  &
                      new_sumfe/count_bal, new_sumfpn/count_bal
-
-                
-                
              ENDIF
 
+          END IF ! (.NOT.spinup).OR.(spinup.AND.spinConv)
 
-
-          END IF
           ! set tile area according to updated LU areas
           IF (CABLE_USER%POPLUC) THEN
-             CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT) 
-          ENDIF
-      
-          
-       END DO YEARLOOP
- 
-         IF (spincasa.or.casaonly) THEN
-             EXIT
+             CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT)
           ENDIF
 
-       ! jhan this is insufficient testing. condition for 
+       END DO YEARLOOP
+
+       IF (spincasa.or.casaonly) THEN
+          EXIT
+       ENDIF
+
+       ! jhan this is insufficient testing. condition for
        ! spinup=.false. & we want CASA_dump.nc (spinConv=.true.)
        ! see if spinup (if conducting one) has converged:
-       IF(spinup.AND..NOT.spinConv.AND. .NOT. CASAONLY) THEN
-
+       IF (spinup.AND..NOT.spinConv.AND. .NOT. CASAONLY) THEN
           ! Write to screen and log file:
           WRITE(*,'(A18,I3,A24)') ' Spinning up: run ',INT(ktau_tot/kend),      &
                ' of data set complete...'
@@ -1347,12 +1354,11 @@ write(*,*) 'after annual calcs'
                ' of data set complete...'
 
           ! IF not 1st run through whole dataset:
-          IF( INT( ktau_tot/kend ) > 1 ) THEN 
+          IF ( INT( ktau_tot/kend ) > 1 ) THEN
 
              ! evaluate spinup
-             IF( ANY( ABS(ssnow%wb-soilMtemp)>delsoilM).OR.                     &
+             IF ( ANY( ABS(ssnow%wb-soilMtemp)>delsoilM).OR.                     &
                   ANY(ABS(ssnow%tgg-soilTtemp)>delsoilT) ) THEN
-
                 ! No complete convergence yet
                 !               PRINT *, 'ssnow%wb : ', ssnow%wb
                 !               PRINT *, 'soilMtemp: ', soilMtemp
@@ -1366,9 +1372,7 @@ write(*,*) 'after annual calcs'
                 PRINT *, 'Example location of temperature non-convergence: ',maxdiff
                 PRINT *, 'ssnow%tgg: ', ssnow%tgg(maxdiff(1),maxdiff(2))
                 PRINT *, 'soilTtemp: ', soilTtemp(maxdiff(1),maxdiff(2))
-
              ELSE ! spinup has converged
-
                 spinConv = .TRUE.
                 ! Write to screen and log file:
                 WRITE(*,'(A33)') ' Spinup has converged - final run'
@@ -1387,7 +1391,7 @@ write(*,*) 'after annual calcs'
              IF (.NOT.ALLOCATED(soilMtemp)) ALLOCATE(  soilMtemp(mp,ms) )
              IF (.NOT.ALLOCATED(soilTtemp)) ALLOCATE(  soilTtemp(mp,ms) )
 
-          END IF
+          END IF ! INT( ktau_tot/kend ) > 1
 
           IF ( YYYY.EQ. CABLE_USER%YearEnd ) THEN
              ! store soil moisture and temperature
@@ -1404,10 +1408,10 @@ write(*,*) 'after annual calcs'
           ! MPI:
           loop_exit = .TRUE.
 
-       END IF
+       END IF ! spinup.AND..NOT.spinConv.AND. .NOT. CASAONLY
 
        ! MPI: let the workers know whether it's time to quit
-       CALL MPI_Bcast (loop_exit, 1, MPI_LOGICAL, 0, comm, ierr)
+       CALL MPI_Bcast(loop_exit, 1, MPI_LOGICAL, 0, comm, ierr)
 
        IF (loop_exit) THEN
           EXIT
@@ -1417,24 +1421,33 @@ write(*,*) 'after annual calcs'
 
     IF (icycle > 0 .and. (.not.spincasa).and. (.not.casaonly)) THEN
        ! MPI: gather casa results from all the workers
-     
-       CALL master_receive (ocomm, ktau_gl, casa_ts)
+       CALL master_receive(ocomm, ktau_gl, casa_ts)
+       ! 13C
+       if (cable_user%c13o2) then
+          call master_receive(ocomm, ktau_gl, c13o2_flux_ts)
+          call master_receive(ocomm, ktau_gl, c13o2_pool_ts)
+       endif
 
-       !CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
-
-!!$       CALL casa_poolout( ktau, veg, soil, casabiome,                           &
-!!$            casapool, casaflux, casamet, casabal, phen )
+       ! CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
+       ! CALL casa_poolout( ktau, veg, soil, casabiome,                           &
+       !     casapool, casaflux, casamet, casabal, phen )
        CALL casa_fluxout( nyear, veg, soil, casabal, casamet)
-       CALL write_casa_restart_nc ( casamet, casapool,casaflux,phen,CASAONLY )
+       CALL write_casa_restart_nc( casamet, casapool,casaflux,phen,CASAONLY )
+       ! CALL write_casa_restart_nc ( casamet, casapool, met, CASAONLY )
+       ! 13C
+       if (cable_user%c13o2) then
+          call c13o2_write_restart_pools(c13o2pools)
+          if (cable_user%POPLUC) call c13o2_write_restart_luc(c13o2luc)
+          ! While testing
+          call c13o2_print_delta_flux(c13o2flux)
+          call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
+          if (cable_user%POPLUC) call c13o2_print_delta_luc(popluc, c13o2luc)
+       endif
 
-       !CALL write_casa_restart_nc ( casamet, casapool, met, CASAONLY )
-
-     
        IF ( CABLE_USER%CALL_POP .and.POP%np.gt.0 ) THEN
           IF ( CASAONLY .OR. cable_user%POP_fromZero &
                .or.TRIM(cable_user%POP_out).eq.'ini' ) THEN
              CALL POP_IO( pop, casamet, CurYear+1, 'WRITE_INI', .TRUE.)
-             
           ELSE
              CALL POP_IO( pop, casamet, CurYear+1, 'WRITE_RST', .TRUE.)
           ENDIF
@@ -1442,137 +1455,141 @@ write(*,*) 'after annual calcs'
        IF (cable_user%POPLUC .and. .NOT. CASAONLY ) THEN
           CALL WRITE_LUC_RESTART_NC ( POPLUC, YYYY )
        ENDIF
-     
-       
     END IF
-    
+
     ! Write restart file if requested:
-    IF(output%restart .AND. (.NOT. CASAONLY)) THEN
+    IF (output%restart .AND. (.NOT. CASAONLY)) THEN
        ! MPI: TODO: receive variables that are required by create_restart
        ! but not write_output
-       !CALL receive_restart (comm,ktau,dels,soil,veg,ssnow, &
-       !       &              canopy,rough,rad,bgc,bal)
+       ! CALL receive_restart(comm,ktau,dels,soil,veg,ssnow, &
+       !                      canopy,rough,rad,bgc,bal)
        ! gol124: how about call master_receive (comm, ktau, restart_ts)
        ! instead of a separate receive_restart sub?
-       CALL master_receive (comm, ktau_gl, restart_ts)
-
-!       CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
+       CALL master_receive(comm, ktau_gl, restart_ts)
+       ! CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
 
        CALL create_restart( logn, dels, ktau, soil, veg, ssnow,                 &
             canopy, rough, rad, bgc, bal, met  )
 
        if (cable_user%CALL_climate) then
           CALL master_receive (comm, ktau_gl, climate_ts)
-          
-          !CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
-          
-          
-          CALL WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
+          ! CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
+          CALL WRITE_CLIMATE_RESTART_NC( climate, ktauday )
        END IF
-       
+       ! 13C
+       if (cable_user%c13o2) then
+          call master_receive(ocomm, ktau_gl, c13o2_flux_ts)
+          call c13o2_write_restart_flux(c13o2flux)
+       endif
     END IF
-
-   
 
     ! Close met data input file:
     IF ( TRIM(cable_user%MetType) .NE. "gswp" .AND. &
          TRIM(cable_user%MetType) .NE. "bios" .AND. &
          TRIM(cable_user%MetType) .NE. "plum" .AND. &
          TRIM(cable_user%MetType) .NE. "cru") CALL close_met_file
-    IF  (.NOT. CASAONLY) THEN
+    IF (.NOT. CASAONLY) THEN
        ! Close output file and deallocate main variables:
        CALL close_output_file( bal, air, bgc, canopy, met,                         &
             rad, rough, soil, ssnow,                            &
             sum_flux, veg )
-       
       ! WRITE(logn,*) bal%wbal_tot, bal%ebal_tot, bal%ebal_tot_cncheck
     ENDIF
-    
+
     ! Close log file
     CLOSE(logn)
- 
+
     CALL CPU_TIME(etime)
-   PRINT *, 'Master End. ', etime, ' seconds'
- ! MPI: cleanup
-    CALL master_end (icycle, output%restart)
+    PRINT *, 'Master End. ', etime, ' seconds'
+    ! MPI: cleanup
+    CALL master_end(icycle, output%restart)
 
     RETURN
 
   END SUBROUTINE mpidrv_master
 
 
-SUBROUTINE prepareFiles(ncciy)
-   USE cable_IO_vars_module, ONLY: logn,gswpfile
-   IMPLICIT NONE
-   INTEGER, INTENT(IN) :: ncciy
+  SUBROUTINE prepareFiles(ncciy)
 
-   WRITE(logn,*) 'CABLE offline global run using gswp forcing for ', ncciy
-   PRINT *,      'CABLE offline global run using gswp forcing for ', ncciy
- 
-   CALL renameFiles(logn,gswpfile%rainf,ncciy,'rainf')
-   CALL renameFiles(logn,gswpfile%snowf,ncciy,'snowf')
-   CALL renameFiles(logn,gswpfile%LWdown,ncciy,'LWdown')
-   CALL renameFiles(logn,gswpfile%SWdown,ncciy,'SWdown')
-   CALL renameFiles(logn,gswpfile%PSurf,ncciy,'PSurf')
-   CALL renameFiles(logn,gswpfile%Qair,ncciy,'Qair')
-   CALL renameFiles(logn,gswpfile%Tair,ncciy,'Tair')
-   CALL renameFiles(logn,gswpfile%wind,ncciy,'wind')
+    USE cable_IO_vars_module, ONLY: logn, gswpfile
 
-END SUBROUTINE prepareFiles
+    IMPLICIT NONE
 
-SUBROUTINE renameFiles(logn,inFile,ncciy,inName)
-   IMPLICIT NONE
-   INTEGER, INTENT(IN) :: logn,ncciy
-   INTEGER:: nn
-   CHARACTER(LEN=200), INTENT(INOUT) :: inFile
-   CHARACTER(LEN=*),  INTENT(IN)    :: inName
-   INTEGER :: idummy
+    INTEGER, INTENT(IN) :: ncciy
 
-   nn = INDEX(inFile,'19')
-   READ(inFile(nn:nn+3),'(i4)') idummy
-   WRITE(inFile(nn:nn+3),'(i4.4)') ncciy
-   WRITE(logn,*) TRIM(inName), ' global data from ', TRIM(inFile)
+    WRITE(logn,*) 'CABLE offline global run using gswp forcing for ', ncciy
+    PRINT*,       'CABLE offline global run using gswp forcing for ', ncciy
 
-END SUBROUTINE renameFiles
-!CLNSUBROUTINE prepareFiles(ncciy)
-!CLN  USE cable_IO_vars_module, ONLY: logn,gswpfile
-!CLN  IMPLICIT NONE
-!CLN  INTEGER, INTENT(IN) :: ncciy
-!CLN
-!CLN  WRITE(logn,*) 'CABLE offline global run using gswp forcing for ', ncciy
-!CLN  PRINT *,      'CABLE offline global run using gswp forcing for ', ncciy
-!CLN
-!CLN  CALL renameFiles(logn,gswpfile%rainf,16,ncciy,'rainf')
-!CLN  CALL renameFiles(logn,gswpfile%snowf,16,ncciy,'snowf')
-!CLN  CALL renameFiles(logn,gswpfile%LWdown,16,ncciy,'LWdown')
-!CLN  CALL renameFiles(logn,gswpfile%SWdown,16,ncciy,'SWdown')
-!CLN  CALL renameFiles(logn,gswpfile%PSurf,16,ncciy,'PSurf')
-!CLN  CALL renameFiles(logn,gswpfile%Qair,14,ncciy,'Qair')
-!CLN  CALL renameFiles(logn,gswpfile%Tair,14,ncciy,'Tair')
-!CLN  CALL renameFiles(logn,gswpfile%wind,15,ncciy,'wind')
-!CLN
-!CLNEND SUBROUTINE prepareFiles
-!CLN
-!CLN
-!CLNSUBROUTINE renameFiles(logn,inFile,nn,ncciy,inName)
-!CLN  IMPLICIT NONE
-!CLN  INTEGER, INTENT(IN) :: logn
-!CLN  INTEGER, INTENT(IN) :: nn
-!CLN  INTEGER, INTENT(IN) :: ncciy
-!CLN  CHARACTER(LEN=99), INTENT(INOUT) :: inFile
-!CLN  CHARACTER(LEN=*),  INTENT(IN)    :: inName
-!CLN  INTEGER :: idummy
-!CLN
-!CLN  READ(inFile(nn:nn+3),'(i4)') idummy
-!CLN  IF (idummy < 1983 .OR. idummy > 1995) THEN
-!CLN    PRINT *, 'Check position of the year number in input gswp file', inFile
-!CLN    STOP
-!CLN  ELSE
-!CLN    WRITE(inFile(nn:nn+3),'(i4.4)') ncciy
-!CLN    WRITE(logn,*) TRIM(inName), ' global data from ', TRIM(inFile)
-!CLN  ENDIF
-!CLN
-!CLNEND SUBROUTINE renameFiles
+    CALL renameFiles(logn,gswpfile%rainf,ncciy,'rainf')
+    CALL renameFiles(logn,gswpfile%snowf,ncciy,'snowf')
+    CALL renameFiles(logn,gswpfile%LWdown,ncciy,'LWdown')
+    CALL renameFiles(logn,gswpfile%SWdown,ncciy,'SWdown')
+    CALL renameFiles(logn,gswpfile%PSurf,ncciy,'PSurf')
+    CALL renameFiles(logn,gswpfile%Qair,ncciy,'Qair')
+    CALL renameFiles(logn,gswpfile%Tair,ncciy,'Tair')
+    CALL renameFiles(logn,gswpfile%wind,ncciy,'wind')
+
+  END SUBROUTINE prepareFiles
+
+
+  SUBROUTINE renameFiles(logn,inFile,ncciy,inName)
+
+    IMPLICIT NONE
+
+    INTEGER, INTENT(IN) :: logn
+    CHARACTER(LEN=200), INTENT(INOUT) :: inFile
+    INTEGER, INTENT(IN) :: ncciy
+    CHARACTER(LEN=*),  INTENT(IN)    :: inName
+
+    INTEGER :: nn
+    INTEGER :: idummy
+
+    nn = INDEX(inFile,'19')
+    READ(inFile(nn:nn+3),'(i4)') idummy
+    WRITE(inFile(nn:nn+3),'(i4.4)') ncciy
+    WRITE(logn,*) TRIM(inName), ' global data from ', TRIM(inFile)
+
+  END SUBROUTINE renameFiles
+
+  !CLNSUBROUTINE prepareFiles(ncciy)
+  !CLN  USE cable_IO_vars_module, ONLY: logn,gswpfile
+  !CLN  IMPLICIT NONE
+  !CLN  INTEGER, INTENT(IN) :: ncciy
+  !CLN
+  !CLN  WRITE(logn,*) 'CABLE offline global run using gswp forcing for ', ncciy
+  !CLN  PRINT *,      'CABLE offline global run using gswp forcing for ', ncciy
+  !CLN
+  !CLN  CALL renameFiles(logn,gswpfile%rainf,16,ncciy,'rainf')
+  !CLN  CALL renameFiles(logn,gswpfile%snowf,16,ncciy,'snowf')
+  !CLN  CALL renameFiles(logn,gswpfile%LWdown,16,ncciy,'LWdown')
+  !CLN  CALL renameFiles(logn,gswpfile%SWdown,16,ncciy,'SWdown')
+  !CLN  CALL renameFiles(logn,gswpfile%PSurf,16,ncciy,'PSurf')
+  !CLN  CALL renameFiles(logn,gswpfile%Qair,14,ncciy,'Qair')
+  !CLN  CALL renameFiles(logn,gswpfile%Tair,14,ncciy,'Tair')
+  !CLN  CALL renameFiles(logn,gswpfile%wind,15,ncciy,'wind')
+  !CLN
+  !CLNEND SUBROUTINE prepareFiles
+  !CLN
+  !CLN
+  !CLNSUBROUTINE renameFiles(logn,inFile,nn,ncciy,inName)
+  !CLN  IMPLICIT NONE
+  !CLN  INTEGER, INTENT(IN) :: logn
+  !CLN  INTEGER, INTENT(IN) :: nn
+  !CLN  INTEGER, INTENT(IN) :: ncciy
+  !CLN  CHARACTER(LEN=99), INTENT(INOUT) :: inFile
+  !CLN  CHARACTER(LEN=*),  INTENT(IN)    :: inName
+  !CLN  INTEGER :: idummy
+  !CLN
+  !CLN  READ(inFile(nn:nn+3),'(i4)') idummy
+  !CLN  IF (idummy < 1983 .OR. idummy > 1995) THEN
+  !CLN    PRINT *, 'Check position of the year number in input gswp file', inFile
+  !CLN    STOP
+  !CLN  ELSE
+  !CLN    WRITE(inFile(nn:nn+3),'(i4.4)') ncciy
+  !CLN    WRITE(logn,*) TRIM(inName), ' global data from ', TRIM(inFile)
+  !CLN  ENDIF
+  !CLN
+  !CLNEND SUBROUTINE renameFiles
 
 
 ! ============== PRIVATE SUBROUTINES USED ONLY BY THE MPI MASTER ===============
@@ -1632,7 +1649,7 @@ SUBROUTINE master_decomp (comm, mland, mp)
      ! in this version of cable workers care only about the number of points
      ! CALL MPI_Send (nxt, 1, MPI_INTEGER, rank, 0, comm, ierr)
 
-     CALL MPI_Send (pcnt, 1, MPI_INTEGER, rank, 0, comm, ierr)
+     CALL MPI_Send(pcnt, 1, MPI_INTEGER, rank, 0, comm, ierr)
 
      ! MPI: should be the same as landpt(nxt)%cstart
      wland(rank)%patch0 = landpt(nxt)%cstart
@@ -1654,14 +1671,14 @@ SUBROUTINE master_decomp (comm, mland, mp)
      IF (patchcnt /= tmp) THEN
         WRITE (*,*) 'invalid patch number for worker ', &
         &           patchcnt,tmp,rank
-        CALL MPI_Abort (comm, 0, ierr)
+        CALL MPI_Abort(comm, 0, ierr)
      END IF
 
      ! MPI: at this point workers can't determine patches on their own
      ! so we need to send it explicitely
      ! in this version of cable workers care only about the number of patches
      ! CALL MPI_Send (wland(rank)%patch0, 1, MPI_INTEGER, rank, 0, comm, ierr)
-     CALL MPI_Send (wland(rank)%npatch, 1, MPI_INTEGER, rank, 0, comm, ierr)
+     CALL MPI_Send(wland(rank)%npatch, 1, MPI_INTEGER, rank, 0, comm, ierr)
 
      nxt = nxt + pcnt
   END DO
@@ -1675,7 +1692,7 @@ END SUBROUTINE master_decomp
 ! to the workers
 ! then sends the parameters
 ! and finally frees the MPI type
-SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
+SUBROUTINE master_cable_params(comm,met,air,ssnow,veg,bgc,soil,canopy,&
      rough,rad,sum_flux,bal)
 
   USE mpi
@@ -1683,7 +1700,7 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
   USE cable_def_types_mod
   USE cable_IO_vars_module
   ! switch soil colour albedo calc - Ticket #27
-  USE cable_common_module,  ONLY: calcsoilalbedo
+  USE cable_common_module, ONLY: calcsoilalbedo
 
   IMPLICIT NONE
 
@@ -1702,7 +1719,7 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
   TYPE (radiation_type),INTENT(OUT)  :: rad
   TYPE (sum_flux_type), INTENT(OUT)  :: sum_flux
   TYPE (balances_type), INTENT(OUT)  :: bal
- 
+
 
   ! local vars
 
@@ -1751,7 +1768,7 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
 
   ntyp = nparam
 
-  ! vars intro for Ticket #27 
+  ! vars intro for Ticket #27
   IF (calcsoilalbedo) THEN
      ntyp = nparam + 1
   END IF
@@ -1871,7 +1888,7 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
      CALL MPI_Get_address (met%coszen(off), displs(bidx), ierr)
      blen(bidx) = r1len
 
-  
+
      ! ----------- air --------------
 
      bidx = bidx + 1
@@ -2122,7 +2139,7 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
           &                             types(bidx), ierr)
      blen(bidx) = 1
 
-     
+
      bidx = bidx + 1
      CALL MPI_Get_address (ssnow%snowliq(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (3, r2len, r2stride, MPI_BYTE, &
@@ -2142,7 +2159,7 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
      blen(bidx) = I1len
      ! end additional for sli
 
-    
+
      !blen(bidx) = ms * r2len
 
      bidx = bidx + 1
@@ -2360,7 +2377,7 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
           &                             types(bidx), ierr)
      blen(bidx) = 1
 
-    
+
      bidx = bidx + 1
      CALL MPI_Get_address (veg%disturbance_interval(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (2, i1len, istride, MPI_BYTE, &
@@ -2384,13 +2401,13 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
      bidx = bidx + 1
      CALL MPI_Get_address (veg%g1(off), displs(bidx), ierr)
      blen(bidx) = r1len
-     ! Ticket #56, finish adding new veg parms 
-   
+     ! Ticket #56, finish adding new veg parms
+
      bidx = bidx + 1
      CALL MPI_Get_address (veg%gmmax(off), displs(bidx), ierr)
      blen(bidx) = r1len
 
-     
+
   ! ----------- bgc --------------
 
      bidx = bidx + 1
@@ -2456,20 +2473,20 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
 
      bidx = bidx + 1
      CALL MPI_Get_address (soil%i2bp3(off), displs(bidx), ierr)
-! Maciej: i2bp3 is REAL
-!     blen(bidx) = I1LEN
+     ! Maciej: i2bp3 is REAL
+     !     blen(bidx) = I1LEN
      blen(bidx) = R1LEN
 
      bidx = bidx + 1
      CALL MPI_Get_address (soil%ibp2(off), displs(bidx), ierr)
-! Maciej: ibp2 is REAL
-!     blen(bidx) = I1LEN
+     ! Maciej: ibp2 is REAL
+     !     blen(bidx) = I1LEN
      blen(bidx) = R1LEN
 
      bidx = bidx + 1
      CALL MPI_Get_address (soil%isoilm(off), displs(bidx), ierr)
-! Maciej isoilm is INTEGER
-!     blen(bidx) = r1len
+     ! Maciej isoilm is INTEGER
+     !     blen(bidx) = r1len
      blen(bidx) = i1len
 
      bidx = bidx + 1
@@ -2504,7 +2521,7 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
      CALL MPI_Get_address (soil%swilt(off), displs(bidx), ierr)
      blen(bidx) = r1len
 
-! the next two are extra for sli
+     ! the next two are extra for sli
 
      bidx = bidx + 1
      CALL MPI_Get_address (soil%zeta(off), displs(bidx), ierr)
@@ -2514,7 +2531,7 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
      CALL MPI_Get_address (soil%fsatmax(off), displs(bidx), ierr)
      blen(bidx) = r2len
 
-! end extra sli
+     ! end extra sli
 
      ! constant * ms, each worker gets the same copy of whole array
      bidx = bidx + 1
@@ -2526,7 +2543,7 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
      CALL MPI_Get_address (soil%zshh, displs(bidx), ierr)
      blen(bidx) = (ms + 1) * extr1
 
-     ! vars intro for Ticket #27  
+     ! vars intro for Ticket #27
      IF (calcsoilalbedo) THEN
         bidx = bidx + 1
         CALL MPI_Get_address (soil%soilcol(off), displs(bidx), ierr)
@@ -2766,6 +2783,59 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
           &                             types(bidx), ierr)
      blen(bidx) = 1
 
+     ! 13C
+     bidx = bidx + 1
+     CALL MPI_Get_address(canopy%An(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(mf, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blen(bidx) = 1
+
+     bidx = bidx + 1
+     CALL MPI_Get_address(canopy%Rd(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(mf, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blen(bidx) = 1
+
+     bidx = bidx + 1
+     CALL MPI_Get_address(canopy%isc3(off), displs(bidx), ierr)
+     blen(bidx) = llen
+
+     bidx = bidx + 1
+     CALL MPI_Get_address(canopy%vcmax(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(mf, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blen(bidx) = 1
+
+     bidx = bidx + 1
+     CALL MPI_Get_address(canopy%gammastar(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(mf, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blen(bidx) = 1
+
+     bidx = bidx + 1
+     CALL MPI_Get_address(canopy%gsc(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(mf, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blen(bidx) = 1
+
+     bidx = bidx + 1
+     CALL MPI_Get_address(canopy%gbc(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(mf, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blen(bidx) = 1
+
+     bidx = bidx + 1
+     CALL MPI_Get_address(canopy%gac(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(mf, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blen(bidx) = 1
+
+     bidx = bidx + 1
+     CALL MPI_Get_address(canopy%ci(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(mf, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blen(bidx) = 1
+
 
      ! ------- rough -------
 
@@ -2977,9 +3047,9 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
 
      bidx = bidx + 1
      CALL MPI_Get_address (rad%cexpkbm(off,1), displs(bidx), ierr)
-! Maciej: cexpkbm is mp*swb
-!     CALL MPI_Type_create_hvector (nrb, r1len, r1stride, MPI_BYTE, &
-!          &                             types(bidx), ierr)
+     ! Maciej: cexpkbm is mp*swb
+     !     CALL MPI_Type_create_hvector (nrb, r1len, r1stride, MPI_BYTE, &
+     !          &                             types(bidx), ierr)
      CALL MPI_Type_create_hvector (swb, r1len, r1stride, MPI_BYTE, &
           &                             types(bidx), ierr)
      blen(bidx) = 1
@@ -2987,9 +3057,9 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
 
      bidx = bidx + 1
      CALL MPI_Get_address (rad%cexpkdm(off,1), displs(bidx), ierr)
-! Maciej: cexpkdm is mp*swb
-!     CALL MPI_Type_create_hvector (nrb, r1len, r1stride, MPI_BYTE, &
-!          &                             types(bidx), ierr)
+     ! Maciej: cexpkdm is mp*swb
+     !     CALL MPI_Type_create_hvector (nrb, r1len, r1stride, MPI_BYTE, &
+     !          &                             types(bidx), ierr)
      CALL MPI_Type_create_hvector (swb, r1len, r1stride, MPI_BYTE, &
           &                             types(bidx), ierr)
      blen(bidx) = 1
@@ -2997,9 +3067,9 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
 
      bidx = bidx + 1
      CALL MPI_Get_address (rad%rhocbm(off,1), displs(bidx), ierr)
-! Maciej: rhocbm is mp*nrb
-!     CALL MPI_Type_create_hvector (swb, r1len, r1stride, MPI_BYTE, &
-!          &                             types(bidx), ierr)
+     ! Maciej: rhocbm is mp*nrb
+     !     CALL MPI_Type_create_hvector (swb, r1len, r1stride, MPI_BYTE, &
+     !          &                             types(bidx), ierr)
      CALL MPI_Type_create_hvector (nrb, r1len, r1stride, MPI_BYTE, &
           &                             types(bidx), ierr)
      blen(bidx) = 1
@@ -3193,10 +3263,10 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
      CALL MPI_Get_address (ssnow%wbtot1(off), displs(bidx), ierr)
      blen(bidx) = r1len
 
-! Maciej: duplicate!
-!     bidx = bidx + 1
-!     CALL MPI_Get_address (ssnow%wbtot1(off), displs(bidx), ierr)
-!     blen(bidx) = r1len
+     ! Maciej: duplicate!
+     !     bidx = bidx + 1
+     !     CALL MPI_Get_address (ssnow%wbtot1(off), displs(bidx), ierr)
+     !     blen(bidx) = r1len
 
      bidx = bidx + 1
      CALL MPI_Get_address (ssnow%tprecip(off), displs(bidx), ierr)
@@ -3256,7 +3326,6 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
      CALL MPI_Get_address (rad%longitude(off), displs(bidx), ierr)
      blen(bidx) = r1len
 
- 
 
      ! MPI: sanity check
      IF (bidx /= ntyp) THEN
@@ -3296,7 +3365,7 @@ SUBROUTINE master_cable_params (comm,met,air,ssnow,veg,bgc,soil,canopy,&
 
   ! so, now send all the parameters
   CALL master_send_input (comm, param_ts, 0)
-!  CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
+  !  CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
 
   ! finally free the MPI type
   DO rank = 1, wnp
@@ -3315,8 +3384,8 @@ END SUBROUTINE master_cable_params
 ! to all the workers
 ! then sends them
 ! and finally frees the MPI type
-SUBROUTINE master_casa_params (comm,casabiome,casapool,casaflux,casamet,&
-                               casabal,phen)
+SUBROUTINE master_casa_params(comm, casabiome, casapool, casaflux, casamet, &
+     casabal, phen)
 
   USE mpi
 
@@ -3329,14 +3398,13 @@ SUBROUTINE master_casa_params (comm,casabiome,casapool,casaflux,casamet,&
 
   ! sub arguments
   INTEGER, INTENT(IN) :: comm  ! MPI communicator
-
   ! TODO: have these variables been already allocated?
-  TYPE (casa_biome)   , INTENT(INOUT) :: casabiome
-  TYPE (casa_pool)   , INTENT(INOUT) :: casapool
-  TYPE (casa_flux)   , INTENT(INOUT) :: casaflux
-  TYPE (casa_met)    , INTENT(INOUT) :: casamet
-  TYPE (casa_balance), INTENT(INOUT) :: casabal
-  TYPE (phen_variable), INTENT(INOUT)  :: phen 
+  TYPE(casa_biome),    INTENT(INOUT) :: casabiome
+  TYPE(casa_pool),     INTENT(INOUT) :: casapool
+  TYPE(casa_flux),     INTENT(INOUT) :: casaflux
+  TYPE(casa_met),      INTENT(INOUT) :: casamet
+  TYPE(casa_balance),  INTENT(INOUT) :: casabal
+  TYPE(phen_variable), INTENT(INOUT) :: phen
 
   ! local vars
 
@@ -3360,9 +3428,9 @@ SUBROUTINE master_casa_params (comm,casabiome,casapool,casaflux,casamet,&
 
   INTEGER :: rank, off, cnt
 
-!  moved to calling before this subroutine (BP May 2013)
-!  CALL MPI_Bcast (mvtype, 1, MPI_INTEGER, 0, comm, ierr)
-!  CALL MPI_Bcast (mstype, 1, MPI_INTEGER, 0, comm, ierr)
+  !  moved to calling before this subroutine (BP May 2013)
+  !  CALL MPI_Bcast (mvtype, 1, MPI_INTEGER, 0, comm, ierr)
+  !  CALL MPI_Bcast (mstype, 1, MPI_INTEGER, 0, comm, ierr)
 
   ntyp = ncasaparam
 
@@ -3463,62 +3531,58 @@ SUBROUTINE master_casa_params (comm,casabiome,casapool,casaflux,casamet,&
   CALL MPI_Get_address (casabiome%kclabrate, displs(bidx), ierr)
   blen(bidx) = mvtype * extr2
 
- !===============================================================
   bidx = bidx + 1
   CALL MPI_Get_address (casabiome%xnpmax, displs(bidx), ierr)
   blen(bidx) = mvtype * extr2
- 
+
   bidx = bidx + 1
   CALL MPI_Get_address (casabiome%q10soil, displs(bidx), ierr)
   blen(bidx) = mvtype * extr2
- 
+
   bidx = bidx + 1
   CALL MPI_Get_address (casabiome%xkoptlitter, displs(bidx), ierr)
   blen(bidx) = mvtype * extr2
- 
+
   bidx = bidx + 1
   CALL MPI_Get_address (casabiome%xkoptsoil, displs(bidx), ierr)
   blen(bidx) = mvtype * extr2
- 
+
   bidx = bidx + 1
   CALL MPI_Get_address (casabiome%maxfinelitter, displs(bidx), ierr)
   blen(bidx) = mvtype * extr2
- 
+
   bidx = bidx + 1
   CALL MPI_Get_address (casabiome%maxcwd, displs(bidx), ierr)
   blen(bidx) = mvtype * extr2
- 
+
   bidx = bidx + 1
   CALL MPI_Get_address (casabiome%prodptase, displs(bidx), ierr)
   blen(bidx) = mvtype * extr2
- 
+
   bidx = bidx + 1
   CALL MPI_Get_address (casabiome%costnpup, displs(bidx), ierr)
   blen(bidx) = mvtype * extr2
- 
+
   bidx = bidx + 1
   CALL MPI_Get_address (casabiome%xkplab, displs(bidx), ierr)
   blen(bidx) = mso * extr2
- 
+
   bidx = bidx + 1
   CALL MPI_Get_address (casabiome%xkpsorb, displs(bidx), ierr)
   blen(bidx) = mso * extr2
- 
+
   bidx = bidx + 1
   CALL MPI_Get_address (casabiome%xkpocc, displs(bidx), ierr)
   blen(bidx) = mso * extr2
- 
+
   bidx = bidx + 1
   CALL MPI_Get_address (casabiome%nintercept, displs(bidx), ierr)
   blen(bidx) = mvtype * extr2
- 
+
   bidx = bidx + 1
   CALL MPI_Get_address (casabiome%nslope, displs(bidx), ierr)
   blen(bidx) = mvtype * extr2
 
-
-
-  !==================================================================
   bidx = bidx + 1
   CALL MPI_Get_address (casabiome%plantrate, displs(bidx), ierr)
   blen(bidx) = mvtype * mplant * extr2
@@ -3579,7 +3643,7 @@ SUBROUTINE master_casa_params (comm,casabiome,casapool,casaflux,casamet,&
   bidx = bidx + 1
   CALL MPI_Get_address (casabiome%ratioNPplantmin, displs(bidx), ierr)
   blen(bidx) = mvtype * mplant * extr2
-  
+
   bidx = bidx + 1
   CALL MPI_Get_address (casabiome%ratioNPplantmax, displs(bidx), ierr)
   blen(bidx) = mvtype * mplant * extr2
@@ -3599,7 +3663,7 @@ SUBROUTINE master_casa_params (comm,casabiome,casapool,casaflux,casamet,&
     bidx = bidx + 1
   CALL MPI_Get_address (casabiome%DAMM_EnzPool, displs(bidx), ierr)
   blen(bidx) = mvtype * extr2
-  
+
   bidx = bidx + 1
   CALL MPI_Get_address (casabiome%DAMM_KMO2, displs(bidx), ierr)
   blen(bidx) = mvtype * extr2
@@ -3616,8 +3680,6 @@ SUBROUTINE master_casa_params (comm,casabiome,casapool,casaflux,casamet,&
   CALL MPI_Get_address (casabiome%DAMM_alpha, displs(bidx), ierr)
   blen(bidx) = mvtype * extr2
 
- 
-  
   ! ------ casapool ----
 
   bidx = bidx + 1
@@ -3627,8 +3689,6 @@ SUBROUTINE master_casa_params (comm,casabiome,casapool,casaflux,casamet,&
   bidx = bidx + 1
   CALL MPI_Get_address (casapool%dClabiledt(off), displs(bidx), ierr)
   blen(bidx) = r2len
-
-  
 
   bidx = bidx + 1
   CALL MPI_Get_address (casapool%Cplant(off,1), displs(bidx), ierr)
@@ -3857,16 +3917,16 @@ SUBROUTINE master_casa_params (comm,casabiome,casapool,casaflux,casamet,&
 
   bidx = bidx + 1
   CALL MPI_Get_address (casapool%ratioNPlitter(off,1), displs(bidx), ierr)
-!  CALL MPI_Type_create_hvector (mplant, r2len, r2stride, MPI_BYTE, &
-! Maciej
+  !  CALL MPI_Type_create_hvector (mplant, r2len, r2stride, MPI_BYTE, &
+  ! Maciej
   CALL MPI_Type_create_hvector (mlitter, r2len, r2stride, MPI_BYTE, &
   &                             types(bidx), ierr)
   blen(bidx) = 1
 
   bidx = bidx + 1
   CALL MPI_Get_address (casapool%ratioNPsoil(off,1), displs(bidx), ierr)
-!  CALL MPI_Type_create_hvector (mplant, r2len, r2stride, MPI_BYTE, &
-! Maciej
+  !  CALL MPI_Type_create_hvector (mplant, r2len, r2stride, MPI_BYTE, &
+  ! Maciej
   CALL MPI_Type_create_hvector (msoil, r2len, r2stride, MPI_BYTE, &
   &                             types(bidx), ierr)
   blen(bidx) = 1
@@ -3948,7 +4008,6 @@ SUBROUTINE master_casa_params (comm,casabiome,casapool,casaflux,casamet,&
   CALL MPI_Type_create_hvector (mplant, r2len, r2stride, MPI_BYTE, &
   &                             types(bidx), ierr)
   blen(bidx) = 1
-
 
   !blen(bidx) = mplant * r2len
 
@@ -4069,7 +4128,6 @@ SUBROUTINE master_casa_params (comm,casabiome,casapool,casaflux,casamet,&
   CALL MPI_Get_address (casaflux%Psorbmax(off), displs(bidx), ierr)
   blen(bidx) = r2len
 
-
   bidx = bidx + 1
   CALL MPI_Get_address (casaflux%frac_sapwood(off), displs(bidx), ierr)
   blen(bidx) = r2len
@@ -4089,14 +4147,14 @@ SUBROUTINE master_casa_params (comm,casabiome,casapool,casaflux,casamet,&
   bidx = bidx + 1
   CALL MPI_Get_address (casaflux%klitter(off,1), displs(bidx), ierr)
   CALL MPI_Type_create_hvector (mlitter, r2len, r2stride, MPI_BYTE, &
-  &                             types(bidx), ierr)
+       types(bidx), ierr)
   blen(bidx) = 1
   !blen(bidx) = mlitter * r2len
 
   bidx = bidx + 1
   CALL MPI_Get_address (casaflux%klitter_fire(off,1), displs(bidx), ierr)
   CALL MPI_Type_create_hvector (mlitter, r2len, r2stride, MPI_BYTE, &
-  &                             types(bidx), ierr)
+       types(bidx), ierr)
   blen(bidx) = 1
 
   bidx = bidx + 1
@@ -4184,6 +4242,41 @@ SUBROUTINE master_casa_params (comm,casabiome,casapool,casaflux,casamet,&
   CALL MPI_Get_address (casaflux%fluxCtoCO2(off), displs(bidx), ierr)
   blen(bidx) = r2len
 
+  ! 13C
+  bidx = bidx + 1
+  CALL MPI_Get_address(casaflux%FluxFromPtoL(off,1,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector(mplant*mlitter, r2len, r2stride, MPI_BYTE, types(bidx), ierr)
+  blen(bidx) = 1
+
+  bidx = bidx + 1
+  CALL MPI_Get_address(casaflux%FluxFromLtoS(off,1,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector(mlitter*msoil, r2len, r2stride, MPI_BYTE, types(bidx), ierr)
+  blen(bidx) = 1
+
+  bidx = bidx + 1
+  CALL MPI_Get_address(casaflux%FluxFromStoS(off,1,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector(msoil*msoil, r2len, r2stride, MPI_BYTE, types(bidx), ierr)
+  blen(bidx) = 1
+
+  bidx = bidx + 1
+  CALL MPI_Get_address(casaflux%FluxFromPtoCO2(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector(mplant, r2len, r2stride, MPI_BYTE, types(bidx), ierr)
+  blen(bidx) = 1
+
+  bidx = bidx + 1
+  CALL MPI_Get_address(casaflux%FluxFromLtoCO2(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector(mlitter, r2len, r2stride, MPI_BYTE, types(bidx), ierr)
+  blen(bidx) = 1
+
+  bidx = bidx + 1
+  CALL MPI_Get_address(casaflux%FluxFromStoCO2(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector(msoil, r2len, r2stride, MPI_BYTE, types(bidx), ierr)
+  blen(bidx) = 1
+
+  bidx = bidx + 1
+  CALL MPI_Get_address(casaflux%FluxFromPtoHarvest(off), displs(bidx), ierr)
+  blen(bidx) = r2len
+
   ! ------- casamet ----
 
   bidx = bidx + 1
@@ -4234,12 +4327,12 @@ SUBROUTINE master_casa_params (comm,casabiome,casapool,casaflux,casamet,&
 
   bidx = bidx + 1
   CALL MPI_Get_address (casamet%ijgcm(off), displs(bidx), ierr)
-! Maciej: ijgcm is INTEGER
+  ! Maciej: ijgcm is INTEGER
   blen(bidx) = i1len
 
   bidx = bidx + 1
   CALL MPI_Get_address (casamet%isorder(off), displs(bidx), ierr)
-! Maciej: isorder is INTEGER
+  ! Maciej: isorder is INTEGER
   blen(bidx) = i1len
 
   bidx = bidx + 1
@@ -4484,7 +4577,6 @@ SUBROUTINE master_casa_params (comm,casabiome,casapool,casaflux,casamet,&
   bidx = bidx + 1
   CALL MPI_Get_address (phen%aphen(off), displs(bidx), ierr)
   blen(bidx) = r1len
- 
 
   bidx = bidx + 1
   CALL MPI_Get_address (phen%phasespin(off,1), displs(bidx), ierr)
@@ -4518,23 +4610,23 @@ SUBROUTINE master_casa_params (comm,casabiome,casapool,casaflux,casamet,&
 
   ! MPI: sanity check
   IF (bidx /= ntyp) THEN
-     WRITE (*,*) 'master: invalid number of casa_t param fields ',bidx,', fix it!'
-     CALL MPI_Abort (comm, 1, ierr)
+     WRITE(*,*) 'master: invalid number of casa_t param fields ',bidx,', fix it!'
+     CALL MPI_Abort(comm, 1, ierr)
   END IF
 
-  CALL MPI_Type_create_struct (bidx, blen, displs, types, casa_ts(rank), ierr)
-  CALL MPI_Type_commit (casa_ts(rank), ierr)
+  CALL MPI_Type_create_struct(bidx, blen, displs, types, casa_ts(rank), ierr)
+  CALL MPI_Type_commit(casa_ts(rank), ierr)
 
-  CALL MPI_Type_size (casa_ts(rank), tsize, ierr)
-  CALL MPI_Type_get_extent (casa_ts(rank), tmplb, text, ierr)
+  CALL MPI_Type_size(casa_ts(rank), tsize, ierr)
+  CALL MPI_Type_get_extent(casa_ts(rank), tmplb, text, ierr)
 
-  WRITE (*,*) 'master to rank casa_t param blocks, size, extent and lb: ',rank,bidx,tsize,text,tmplb
+  WRITE(*,*) 'master to rank casa_t param blocks, size, extent and lb: ', rank, bidx, tsize, text, tmplb
 
   localtotal = localtotal + tsize
 
   END DO ! rank
 
-  WRITE (*,*) 'total casa params size sent to all workers: ', localtotal
+  WRITE(*,*) 'total casa params size sent to all workers: ', localtotal
   DEALLOCATE(types)
   DEALLOCATE(displs)
   DEALLOCATE(blen)
@@ -4542,24 +4634,24 @@ SUBROUTINE master_casa_params (comm,casabiome,casapool,casaflux,casamet,&
   ! MPI: check whether total size of received data equals total
   ! data sent by all the workers
   remotetotal = 0
-  CALL MPI_Reduce (MPI_IN_PLACE, remotetotal, 1, MPI_INTEGER, MPI_SUM, 0, comm, ierr)
+  CALL MPI_Reduce(MPI_IN_PLACE, remotetotal, 1, MPI_INTEGER, MPI_SUM, 0, comm, ierr)
 
-  WRITE (*,*) 'total casa params size received by all workers: ', remotetotal
+  WRITE(*,*) 'total casa params size received by all workers: ', remotetotal
 
   IF (localtotal /= remotetotal) THEN
-          WRITE (*,*) 'error: total length of casa params sent and received differ'
-          CALL MPI_Abort (comm, 0, ierr)
+     WRITE(*,*) 'error: total length of casa params sent and received differ'
+     CALL MPI_Abort (comm, 0, ierr)
   END IF
 
-  CALL MPI_Barrier (comm, ierr)
+  CALL MPI_Barrier(comm, ierr)
 
   ! so, now send all the parameters
-  CALL master_send_input (comm, casa_ts, 0)
-!  CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
+  CALL master_send_input(comm, casa_ts, 0)
+  !  CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
 
   ! finally free the MPI type
   DO rank = 1, wnp
-     CALL MPI_Type_Free (casa_ts(rank), ierr)
+     CALL MPI_Type_Free(casa_ts(rank), ierr)
   END DO
 
   DEALLOCATE (casa_ts)
@@ -4580,7 +4672,7 @@ SUBROUTINE master_intypes (comm,met,veg)
   USE cable_def_types_mod
 
   IMPLICIT NONE
-  
+
   ! Arguments
   INTEGER,INTENT(IN) :: comm
   TYPE(met_type),INTENT(IN):: met ! meteorological data
@@ -4646,7 +4738,7 @@ SUBROUTINE master_intypes (comm,met,veg)
      CALL MPI_Type_create_hvector (swb, r1len, r1stride, MPI_BYTE, &
      &                             types(bidx), ierr)
      blocks(bidx) = 1
-     !blocks(bidx) = r1len 
+     !blocks(bidx) = r1len
 
      bidx = bidx + 1
      CALL MPI_Get_address (met%tk(off), displs(bidx), ierr)
@@ -4725,7 +4817,7 @@ SUBROUTINE master_intypes (comm,met,veg)
 
 
      ! marshall all fields into a single MPI derived datatype for worker rank
-  
+
      CALL MPI_Type_create_struct (bidx, blocks, displs, types, inp_ts(rank), ierr)
      CALL MPI_Type_commit (inp_ts(rank), ierr)
      CALL MPI_Type_size (inp_ts(rank), tsize, ierr)
@@ -4761,7 +4853,7 @@ SUBROUTINE master_intypes (comm,met,veg)
 END SUBROUTINE master_intypes
 
 ! MPI: creates out_t types to receive the results from the workers
-SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
+SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
 
   USE mpi
 
@@ -4771,14 +4863,14 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
 
   INTEGER :: comm ! MPI communicator to talk to the workers
 
-  TYPE(met_type), INTENT(IN) :: met
-  TYPE(canopy_type), INTENT(IN) :: canopy
-  TYPE(soil_snow_type), INTENT(IN) :: ssnow
-  TYPE(radiation_type), INTENT(IN) :: rad
-  TYPE (balances_type),INTENT(INOUT):: bal 
-  TYPE (air_type),INTENT(IN)        :: air
-  TYPE (soil_parameter_type),INTENT(IN) :: soil ! soil parameters
-  TYPE (veg_parameter_type),INTENT(IN) :: veg ! vegetation parameters
+  TYPE(met_type),            INTENT(IN)    :: met
+  TYPE(canopy_type),         INTENT(IN)    :: canopy
+  TYPE(soil_snow_type),      INTENT(IN)    :: ssnow
+  TYPE(radiation_type),      INTENT(IN)    :: rad
+  TYPE(balances_type),       INTENT(INOUT) :: bal
+  TYPE(air_type),            INTENT(IN)    :: air
+  TYPE(soil_parameter_type), INTENT(IN)    :: soil ! soil parameters
+  TYPE(veg_parameter_type),  INTENT(IN)    :: veg  ! vegetation parameters
 
   ! MPI: displacement (address) vector for vectors (1D arrays)
   INTEGER(KIND=MPI_ADDRESS_KIND), ALLOCATABLE, DIMENSION(:) :: vaddr
@@ -4842,7 +4934,7 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
   ALLOCATE (maddr(nmat))
   ! MPI: allocate address vectors for vectors
   ALLOCATE (vaddr(nvec))
-  ! MPI: allocate vector block lengths 
+  ! MPI: allocate vector block lengths
   ALLOCATE (blen(nvec))
 
   ! MPI: TODO: global var that holds the total number of patches/landunits?
@@ -4876,22 +4968,22 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      ! stride is global number of patches * type extent
      ! repeat/no of blocks is the 2nd rank
 
-     ! met 2D 
+     ! met 2D
      midx = 0
 
      midx = midx + 1
-     CALL MPI_Get_address (met%fsd(off,1), maddr(midx), ierr) 
+     CALL MPI_Get_address (met%fsd(off,1), maddr(midx), ierr)
      CALL MPI_Type_create_hvector (swb, r1len, r1stride, MPI_BYTE, &
           &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
 
      ! canopy 2D
-!     ! REAL(r_1)
-!     CALL MPI_Get_address (canopy%rwater(off,1), maddr(midx), ierr) ! 1
-!     CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
-!          &                        mat_t(midx, rank), ierr)
-!     CALL MPI_Type_commit (mat_t(midx, rank), ierr)
-!     midx = midx + 1
+     !     ! REAL(r_1)
+     !     CALL MPI_Get_address (canopy%rwater(off,1), maddr(midx), ierr) ! 1
+     !     CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
+     !          &                        mat_t(midx, rank), ierr)
+     !     CALL MPI_Type_commit (mat_t(midx, rank), ierr)
+     !     midx = midx + 1
      ! REAL(r_2)
      ! MPI: gol124: backport to r1134 changes r_2 to r_1
      ! MPI: gol124: in newest CABLE-cnp it's r_2 again
@@ -4913,6 +5005,56 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      CALL MPI_Type_create_hvector (niter, r1len, r1stride, MPI_BYTE, &
           &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
+     
+     ! 13C
+     ! done as canopy%gswx
+     midx = midx + 1
+     CALL MPI_Get_address(canopy%An(off,1), maddr(midx), ierr) ! 2
+     CALL MPI_Type_create_hvector(mf, r2len, r2stride, MPI_BYTE, &
+          mat_t(midx, rank), ierr)
+     CALL MPI_Type_commit(mat_t(midx, rank), ierr)
+
+     midx = midx + 1
+     CALL MPI_Get_address(canopy%Rd(off,1), maddr(midx), ierr) ! 2
+     CALL MPI_Type_create_hvector(mf, r2len, r2stride, MPI_BYTE, &
+          mat_t(midx, rank), ierr)
+     CALL MPI_Type_commit(mat_t(midx, rank), ierr)
+
+     midx = midx + 1
+     CALL MPI_Get_address(canopy%vcmax(off,1), maddr(midx), ierr) ! 2
+     CALL MPI_Type_create_hvector(mf, r2len, r2stride, MPI_BYTE, &
+          mat_t(midx, rank), ierr)
+     CALL MPI_Type_commit(mat_t(midx, rank), ierr)
+
+     midx = midx + 1
+     CALL MPI_Get_address(canopy%gammastar(off,1), maddr(midx), ierr) ! 2
+     CALL MPI_Type_create_hvector(mf, r2len, r2stride, MPI_BYTE, &
+          mat_t(midx, rank), ierr)
+     CALL MPI_Type_commit(mat_t(midx, rank), ierr)
+
+     midx = midx + 1
+     CALL MPI_Get_address(canopy%gsc(off,1), maddr(midx), ierr) ! 2
+     CALL MPI_Type_create_hvector(mf, r2len, r2stride, MPI_BYTE, &
+          mat_t(midx, rank), ierr)
+     CALL MPI_Type_commit(mat_t(midx, rank), ierr)
+
+     midx = midx + 1
+     CALL MPI_Get_address(canopy%gbc(off,1), maddr(midx), ierr) ! 2
+     CALL MPI_Type_create_hvector(mf, r2len, r2stride, MPI_BYTE, &
+          mat_t(midx, rank), ierr)
+     CALL MPI_Type_commit(mat_t(midx, rank), ierr)
+
+     midx = midx + 1
+     CALL MPI_Get_address(canopy%gac(off,1), maddr(midx), ierr) ! 2
+     CALL MPI_Type_create_hvector(mf, r2len, r2stride, MPI_BYTE, &
+          mat_t(midx, rank), ierr)
+     CALL MPI_Type_commit(mat_t(midx, rank), ierr)
+
+     midx = midx + 1
+     CALL MPI_Get_address(canopy%ci(off,1), maddr(midx), ierr) ! 2
+     CALL MPI_Type_create_hvector(mf, r2len, r2stride, MPI_BYTE, &
+          mat_t(midx, rank), ierr)
+     CALL MPI_Type_commit(mat_t(midx, rank), ierr)
 
      ! ssnow 2D
      midx = midx + 1
@@ -5007,7 +5149,7 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
           &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
 
-  ! additional  for sli
+     ! additional  for sli
      midx = midx + 1
      CALL MPI_Get_address (ssnow%S(off,1), maddr(midx), ierr) ! 15
      CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
@@ -5031,11 +5173,8 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      CALL MPI_Type_create_hvector (3, r2len, r2stride, MPI_BYTE, &
           &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
-  
- ! end additional for sli
 
-
-
+     ! end additional for sli
 
      ! rad 2D
      midx = midx + 1
@@ -5107,18 +5246,18 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      midx = midx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (rad%cexpkbm(off,1), maddr(midx), ierr) ! 26
-! Maciej: cexpkbm is mp*swb
-!     CALL MPI_Type_create_hvector (nrb, r1len, r1stride, MPI_BYTE, &
-!          &                        mat_t(midx, rank), ierr)
+     ! Maciej: cexpkbm is mp*swb
+     !     CALL MPI_Type_create_hvector (nrb, r1len, r1stride, MPI_BYTE, &
+     !          &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_create_hvector (swb, r1len, r1stride, MPI_BYTE, &
           &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
      midx = midx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (rad%cexpkdm(off,1), maddr(midx), ierr) ! 27
-! Maciej: cexpkdm is mp*swb
-!     CALL MPI_Type_create_hvector (nrb, r1len, r1stride, MPI_BYTE, &
-!          &                        mat_t(midx, rank), ierr)
+     ! Maciej: cexpkdm is mp*swb
+     !     CALL MPI_Type_create_hvector (nrb, r1len, r1stride, MPI_BYTE, &
+     !          &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_create_hvector (swb, r1len, r1stride, MPI_BYTE, &
           &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
@@ -5126,9 +5265,9 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      midx = midx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (rad%rhocbm(off,1), maddr(midx), ierr) ! 27
-! Maciej: rhocbm is mp*nrb
-!     CALL MPI_Type_create_hvector (swb, r1len, r1stride, MPI_BYTE, &
-!          &                        mat_t(midx, rank), ierr)
+     ! Maciej: rhocbm is mp*nrb
+     !     CALL MPI_Type_create_hvector (swb, r1len, r1stride, MPI_BYTE, &
+     !          &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_create_hvector (nrb, r1len, r1stride, MPI_BYTE, &
           &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
@@ -5209,7 +5348,7 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      ! REAL(r_1)
      ! MPI: gol124: changed to 2D and moved up when Bernard
      ! ported to CABLE_r491
-     !CALL MPI_Get_address (met%fsd(off,1), vaddr(vidx), ierr) 
+     !CALL MPI_Get_address (met%fsd(off,1), vaddr(vidx), ierr)
      !blen(vidx) = cnt * extr1
      vidx = vidx + 1
      ! REAL(r_1)
@@ -5307,7 +5446,6 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      blen(vidx) = cnt * extr1
      vidx = vidx + 1
 
-
      CALL MPI_Get_address (canopy%A_sh(off), vaddr(vidx), ierr) ! 27
      blen(vidx) = cnt * extr2
      vidx = vidx + 1
@@ -5336,7 +5474,6 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      blen(vidx) = cnt * extr2
      vidx = vidx + 1
 
-
      CALL MPI_Get_address (canopy%eta_GPP_cs(off), vaddr(vidx), ierr) ! 27
      blen(vidx) = cnt * extr2
      vidx = vidx + 1
@@ -5360,8 +5497,6 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      CALL MPI_Get_address (veg%ejmax_sun(off), vaddr(vidx), ierr) ! 27
      blen(vidx) = cnt * extr2
      vidx = vidx + 1
-
-
 
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%frp(off), vaddr(vidx), ierr) ! 28
@@ -5403,10 +5538,10 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      CALL MPI_Get_address (canopy%fevw(off), vaddr(vidx), ierr) ! 37
      blen(vidx) = cnt * extr1
      vidx = vidx + 1
-!     ! REAL(r_2)
-!     CALL MPI_Get_address (canopy%potev_c(off), vaddr(vidx), ierr) ! 38
-!     blen(vidx) = cnt * extr2
-!     vidx = vidx + 1
+     ! ! REAL(r_2)
+     ! CALL MPI_Get_address (canopy%potev_c(off), vaddr(vidx), ierr) ! 38
+     ! blen(vidx) = cnt * extr2
+     ! vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%fhv(off), vaddr(vidx), ierr) ! 39
      blen(vidx) = cnt * extr1
@@ -5530,6 +5665,11 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      ! REAL(r_2)
      CALL MPI_Get_address (canopy%fwsoil(off), vaddr(vidx), ierr) ! 59
      blen(vidx) = cnt * extr2
+     ! 13C
+     ! LOGICAL
+     ! done as veg%deciduous
+     CALL MPI_Get_address(canopy%isc3(off), vaddr(vidx), ierr)
+     blen(vidx) = cnt * extl
 
      ! MPI: 2D vars moved above
      ! rwater
@@ -5758,12 +5898,12 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      ! REAL(r_1)
      CALL MPI_Get_address (rad%trad(off), vaddr(vidx), ierr) ! 101
      blen(vidx) = cnt * extr1
-     
+
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (rad%transb(off), vaddr(vidx), ierr) ! 101
      blen(vidx) = cnt * extr1
-     
+
      ! MPI: 2D vars moved above
      ! reffdf
      ! reffbm
@@ -6050,7 +6190,7 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      CALL MPI_Get_address (veg%deciduous(off), vaddr(vidx), ierr) ! 163
      blen(vidx) = cnt * extl
 
-      ! additional for SLI 
+      ! additional for SLI
      vidx = vidx + 1
      CALL MPI_Get_address (ssnow%Tsurface(off), vaddr(vidx), ierr)
      blen(vidx) = cnt * extr2
@@ -6075,8 +6215,8 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      CALL MPI_Get_address (ssnow%nsteps(off), vaddr(vidx), ierr)
      blen(vidx) = cnt * extr2
 
-     ! end additional for SLI 
-  
+     ! end additional for SLI
+
      ! MPI: sanity check
      IF (vidx /= nvec) THEN
         WRITE (*,*) 'master: outtype invalid nvec ',vidx,' constant, fix it!'
@@ -6153,8 +6293,7 @@ SUBROUTINE master_outtypes (comm,met,canopy,ssnow,rad,bal,air,soil,veg)
 END SUBROUTINE master_outtypes
 
 ! MPI: creates handles for receiving casa final results from the workers
-SUBROUTINE master_casa_types (comm, casapool, casaflux, &
-     casamet, casabal, phen)
+SUBROUTINE master_casa_types(comm, casapool, casaflux, casamet, casabal, phen)
 
   USE mpi
 
@@ -6167,11 +6306,11 @@ SUBROUTINE master_casa_types (comm, casapool, casaflux, &
 
   INTEGER :: comm ! MPI communicator to talk to the workers
 
-  TYPE (casa_pool),           INTENT(INOUT) :: casapool
-  TYPE (casa_flux),           INTENT(INOUT) :: casaflux
-  TYPE (casa_met),            INTENT(INOUT) :: casamet
-  TYPE (casa_balance),        INTENT(INOUT) :: casabal
-  TYPE (phen_variable), INTENT(INOUT)  :: phen 
+  TYPE(casa_pool),     INTENT(INOUT) :: casapool
+  TYPE(casa_flux),     INTENT(INOUT) :: casaflux
+  TYPE(casa_met),      INTENT(INOUT) :: casamet
+  TYPE(casa_balance),  INTENT(INOUT) :: casabal
+  TYPE(phen_variable), INTENT(INOUT) :: phen
 
   ! MPI: temp arrays for marshalling all types into a struct
   INTEGER, ALLOCATABLE, DIMENSION(:) :: blocks
@@ -6198,9 +6337,9 @@ SUBROUTINE master_casa_types (comm, casapool, casaflux, &
 
   ! MPI: allocate temp vectors used for marshalling
   ntyp = ncasa_mat + ncasa_vec + (nphen - 1)
-  ALLOCATE (blocks(ntyp))
-  ALLOCATE (displs(ntyp))
-  ALLOCATE (types(ntyp))
+  ALLOCATE(blocks(ntyp))
+  ALLOCATE(displs(ntyp))
+  ALLOCATE(types(ntyp))
 
   r1stride = mp * extr1
   r2stride = mp * extr2
@@ -6316,7 +6455,6 @@ SUBROUTINE master_casa_types (comm, casapool, casaflux, &
           &                             types(bidx), ierr)
      blocks(bidx) = 1
 
-
      bidx = bidx + 1
      CALL MPI_Get_address (phen%phasespin(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (mdyear, I1LEN, istride, MPI_BYTE, &
@@ -6358,27 +6496,24 @@ SUBROUTINE master_casa_types (comm, casapool, casaflux, &
      CALL MPI_Type_create_hvector (mplant, r2len, r2stride, MPI_BYTE, &
           &                             types(bidx), ierr)
      blocks(bidx) = 1
-    
-     
+
      bidx = bidx + 1
      CALL MPI_Get_address (casaflux%fracNalloc(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (mplant, r2len, r2stride, MPI_BYTE, &
           &                             types(bidx), ierr)
      blocks(bidx) = 1
-    
+
      bidx = bidx + 1
      CALL MPI_Get_address (casaflux%fracPalloc(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (mplant, r2len, r2stride, MPI_BYTE, &
           &                             types(bidx), ierr)
      blocks(bidx) = 1
-    
-     
+
      bidx = bidx + 1
      CALL MPI_Get_address (casaflux%Crmplant(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (mplant, r2len, r2stride, MPI_BYTE, &
           &                             types(bidx), ierr)
      blocks(bidx) = 1
-    
 
      bidx = bidx + 1
      CALL MPI_Get_address (casaflux%kplant(off,1), displs(bidx), ierr)
@@ -6386,9 +6521,24 @@ SUBROUTINE master_casa_types (comm, casapool, casaflux, &
           &                             types(bidx), ierr)
      blocks(bidx) = 1
 
-   
-     
-    
+     bidx = bidx + 1
+     CALL MPI_Get_address(casaflux%FluxFromPtoCO2(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(mplant, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blocks(bidx) = 1
+
+     bidx = bidx + 1
+     CALL MPI_Get_address(casaflux%FluxFromLtoCO2(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(mlitter, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blocks(bidx) = 1
+
+     bidx = bidx + 1
+     CALL MPI_Get_address(casaflux%FluxFromStoCO2(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(msoil, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blocks(bidx) = 1
+
      ! 3D
      bidx = bidx + 1
      CALL MPI_Get_address (casaflux%fromPtoL(off,1,1), displs(bidx), ierr)
@@ -6396,21 +6546,21 @@ SUBROUTINE master_casa_types (comm, casapool, casaflux, &
           &                             types(bidx), ierr)
      blocks(bidx) = 1
 
-     
+
      bidx = bidx + 1
      CALL MPI_Get_address (casaflux%klitter(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (mlitter, r2len, r2stride, MPI_BYTE, &
           &                             types(bidx), ierr)
      blocks(bidx) = 1
      !blocks(bidx) = mlitter * r2len
-     
+
      bidx = bidx + 1
      CALL MPI_Get_address (casaflux%ksoil(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (msoil, r2len, r2stride, MPI_BYTE, &
           &                             types(bidx), ierr)
      blocks(bidx) = 1
      !blocks(bidx) = msoil * r2len
-     
+
      ! gol124: temp only
      ! 3D
      bidx = bidx + 1
@@ -6419,7 +6569,7 @@ SUBROUTINE master_casa_types (comm, casapool, casaflux, &
           &                             types(bidx), ierr)
      blocks(bidx) = 1
      !blocks(bidx) = msoil * mlitter * r2len
-     
+
      ! gol124: temp only
      ! 3D
      bidx = bidx + 1
@@ -6428,14 +6578,14 @@ SUBROUTINE master_casa_types (comm, casapool, casaflux, &
           &                             types(bidx), ierr)
      blocks(bidx) = 1
      !blocks(bidx) = msoil * msoil * r2len
-     
+
      bidx = bidx + 1
      CALL MPI_Get_address (casaflux%fromLtoCO2(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (mlitter, r2len, r2stride, MPI_BYTE, &
           &                             types(bidx), ierr)
      blocks(bidx) = 1
      !blocks(bidx) = mlitter * r2len
-     
+
      bidx = bidx + 1
      CALL MPI_Get_address (casaflux%fromStoCO2(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (msoil, r2len, r2stride, MPI_BYTE, &
@@ -6456,35 +6606,52 @@ SUBROUTINE master_casa_types (comm, casapool, casaflux, &
           &                             types(bidx), ierr)
      blocks(bidx) = 1
      !blocks(bidx) = mlitter * r2len
-     
+
      bidx = bidx + 1
      CALL MPI_Get_address (casaflux%fluxPtolitter(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (mlitter, r2len, r2stride, MPI_BYTE, &
           &                             types(bidx), ierr)
      blocks(bidx) = 1
      !blocks(bidx) = mlitter * r2len
-     
+
      bidx = bidx + 1
      CALL MPI_Get_address (casaflux%fluxCtosoil(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (msoil, r2len, r2stride, MPI_BYTE, &
           &                             types(bidx), ierr)
      blocks(bidx) = 1
      !blocks(bidx) = msoil * r2len
-     
+
      bidx = bidx + 1
      CALL MPI_Get_address (casaflux%fluxNtosoil(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (msoil, r2len, r2stride, MPI_BYTE, &
           &                             types(bidx), ierr)
      blocks(bidx) = 1
      !blocks(bidx) = msoil * r2len
-     
+
      bidx = bidx + 1
      CALL MPI_Get_address (casaflux%fluxPtosoil(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (msoil, r2len, r2stride, MPI_BYTE, &
           &                             types(bidx), ierr)
      blocks(bidx) = 1
      !blocks(bidx) = msoil * r2len
-     
+
+     bidx = bidx + 1
+     CALL MPI_Get_address(casaflux%FluxFromPtoL(off,1,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(mplant*mlitter, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blocks(bidx) = 1
+
+     bidx = bidx + 1
+     CALL MPI_Get_address(casaflux%FluxFromLtoS(off,1,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(mlitter*msoil, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blocks(bidx) = 1
+
+     bidx = bidx + 1
+     CALL MPI_Get_address(casaflux%FluxFromStoS(off,1,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(msoil*msoil, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blocks(bidx) = 1
 
      ! ------------- 1D vectors -------------
 
@@ -6498,8 +6665,6 @@ SUBROUTINE master_casa_types (comm, casapool, casaflux, &
      CALL MPI_Get_address (phen%phase(off), displs(bidx), ierr)
      blocks(bidx) = I1LEN
 
-
-    
      bidx = bidx + 1
      CALL MPI_Get_address (phen%phen(off), displs(bidx), ierr)
      blocks(bidx) =  r1len
@@ -6507,8 +6672,6 @@ SUBROUTINE master_casa_types (comm, casapool, casaflux, &
      bidx = bidx + 1
      CALL MPI_Get_address (phen%aphen(off), displs(bidx), ierr)
      blocks(bidx) = r1len
-
-
 
      bidx = bidx + 1
      CALL MPI_Get_address (casapool%clabile(off), displs(bidx), ierr)
@@ -6521,7 +6684,6 @@ SUBROUTINE master_casa_types (comm, casapool, casaflux, &
      bidx = bidx + 1
      CALL MPI_Get_address (casapool%Ctot_0(off), displs(bidx), ierr)
      blocks(bidx) = r2len
-
 
      bidx = bidx + 1
      CALL MPI_Get_address (casapool%nsoilmin(off), displs(bidx), ierr)
@@ -6639,83 +6801,81 @@ SUBROUTINE master_casa_types (comm, casapool, casaflux, &
      CALL MPI_Get_address (casabal%FPlossyear(off), displs(bidx), ierr)
      blocks(bidx) = r2len
 
-!*****************************
-  bidx = bidx + 1
-  CALL MPI_Get_address (casaflux%Cgpp(off), displs(bidx), ierr)
-  blocks(bidx) = r2len
+     bidx = bidx + 1
+     CALL MPI_Get_address (casaflux%Cgpp(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
 
-  bidx = bidx + 1
-  CALL MPI_Get_address (casaflux%Cnpp(off), displs(bidx), ierr)
-  blocks(bidx) = r2len
+     bidx = bidx + 1
+     CALL MPI_Get_address (casaflux%Cnpp(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
 
-  bidx = bidx + 1
-  CALL MPI_Get_address (casaflux%Crp(off), displs(bidx), ierr)
-  blocks(bidx) = r2len
+     bidx = bidx + 1
+     CALL MPI_Get_address (casaflux%Crp(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
 
-  bidx = bidx + 1
-  CALL MPI_Get_address (casaflux%Crgplant(off), displs(bidx), ierr)
-  blocks(bidx) = r2len
+     bidx = bidx + 1
+     CALL MPI_Get_address (casaflux%Crgplant(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
 
-  bidx = bidx + 1
-  CALL MPI_Get_address (casaflux%Nminfix(off), displs(bidx), ierr)
-  blocks(bidx) = r2len
+     bidx = bidx + 1
+     CALL MPI_Get_address (casaflux%Nminfix(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
 
-  bidx = bidx + 1
-  CALL MPI_Get_address (casaflux%Nminuptake(off), displs(bidx), ierr)
-  blocks(bidx) = r2len
+     bidx = bidx + 1
+     CALL MPI_Get_address (casaflux%Nminuptake(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
 
-  bidx = bidx + 1
-  CALL MPI_Get_address (casaflux%Plabuptake(off), displs(bidx), ierr)
-  blocks(bidx) = r2len
+     bidx = bidx + 1
+     CALL MPI_Get_address (casaflux%Plabuptake(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
 
-  bidx = bidx + 1
-  CALL MPI_Get_address (casaflux%Clabloss(off), displs(bidx), ierr)
-  blocks(bidx) = r2len
+     bidx = bidx + 1
+     CALL MPI_Get_address (casaflux%Clabloss(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
 
-  bidx = bidx + 1
-  CALL MPI_Get_address (casaflux%fracClabile(off), displs(bidx), ierr)
-  blocks(bidx) = r2len
+     bidx = bidx + 1
+     CALL MPI_Get_address (casaflux%fracClabile(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
 
-  bidx = bidx + 1
-  CALL MPI_Get_address (casaflux%Cnep(off), displs(bidx), ierr)
-  blocks(bidx) = r2len
+     bidx = bidx + 1
+     CALL MPI_Get_address (casaflux%Cnep(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
 
-  bidx = bidx + 1
-  CALL MPI_Get_address (casaflux%Crsoil(off), displs(bidx), ierr)
-  blocks(bidx) = r2len
+     bidx = bidx + 1
+     CALL MPI_Get_address (casaflux%Crsoil(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
 
-  bidx = bidx + 1
-  CALL MPI_Get_address (casaflux%Nmindep(off), displs(bidx), ierr)
-  blocks(bidx) = r2len
- 
-  bidx = bidx + 1
-  CALL MPI_Get_address (casaflux%Nminloss(off), displs(bidx), ierr)
-  blocks(bidx) = r2len
+     bidx = bidx + 1
+     CALL MPI_Get_address (casaflux%Nmindep(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
 
-  bidx = bidx + 1
-  CALL MPI_Get_address (casaflux%Nminleach(off), displs(bidx), ierr)
-  blocks(bidx) = r2len
+     bidx = bidx + 1
+     CALL MPI_Get_address (casaflux%Nminloss(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
 
-  bidx = bidx + 1
-  CALL MPI_Get_address (casaflux%Nupland(off), displs(bidx), ierr)
-  blocks(bidx) = r2len
+     bidx = bidx + 1
+     CALL MPI_Get_address (casaflux%Nminleach(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
 
-  bidx = bidx + 1
-  CALL MPI_Get_address (casaflux%Nlittermin(off), displs(bidx), ierr)
-  blocks(bidx) = r2len
+     bidx = bidx + 1
+     CALL MPI_Get_address (casaflux%Nupland(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
 
-  bidx = bidx + 1
-  CALL MPI_Get_address (casaflux%Nsmin(off), displs(bidx), ierr)
-  blocks(bidx) = r2len
+     bidx = bidx + 1
+     CALL MPI_Get_address (casaflux%Nlittermin(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
 
-  bidx = bidx + 1
-  CALL MPI_Get_address (casaflux%Nsimm(off), displs(bidx), ierr)
-  blocks(bidx) = r2len
+     bidx = bidx + 1
+     CALL MPI_Get_address (casaflux%Nsmin(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
 
-  bidx = bidx + 1
-  CALL MPI_Get_address (casaflux%Nsnet(off), displs(bidx), ierr)
-  blocks(bidx) = r2len
-!****************************************************
+     bidx = bidx + 1
+     CALL MPI_Get_address (casaflux%Nsimm(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (casaflux%Nsnet(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
 
      bidx = bidx + 1
      CALL MPI_Get_address (casaflux%frac_sapwood(off), displs(bidx), ierr)
@@ -6728,11 +6888,11 @@ SUBROUTINE master_casa_types (comm, casapool, casaflux, &
      bidx = bidx + 1
      CALL MPI_Get_address (casaflux%Cplant_turnover_disturbance(off), displs(bidx), ierr)
      blocks(bidx) = r2len
-     
+
      bidx = bidx + 1
      CALL MPI_Get_address (casaflux%Cplant_turnover_crowding(off), displs(bidx), ierr)
      blocks(bidx) = r2len
-     
+
      bidx = bidx + 1
      CALL MPI_Get_address (casaflux%Cplant_turnover_resource_limitation(off), displs(bidx), ierr)
      blocks(bidx) = r2len
@@ -6743,6 +6903,10 @@ SUBROUTINE master_casa_types (comm, casapool, casaflux, &
 
      bidx = bidx + 1
      CALL MPI_Get_address (casaflux%fCrop(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
+
+     bidx = bidx + 1
+     CALL MPI_Get_address(casaflux%FluxFromPtoHarvest(off), displs(bidx), ierr)
      blocks(bidx) = r2len
 
      types(last2d+1:bidx) = MPI_BYTE
@@ -6838,7 +7002,7 @@ SUBROUTINE master_climate_types (comm, climate, ktauday)
   ALLOCATE (blocks(ntyp))
   ALLOCATE (displs(ntyp))
   ALLOCATE (types(ntyp))
-  
+
   r1stride = mp * extr1
   r2stride = mp * extr2
 
@@ -6868,7 +7032,7 @@ print*, 'master, nd ny mp nsd', nd, ny,mp, nsd
      CALL MPI_Type_create_hvector (ny, r1len, r1stride, MPI_BYTE, &
      &                                types(bidx), ierr)
      blocks(bidx) = 1
- 
+
 ! print*, 'master', blocks, bidx, ny, r1len, displs, ierr, climate%mtemp_min_20(off,:)
 
      bidx = bidx + 1
@@ -6882,7 +7046,7 @@ print*, 'master, nd ny mp nsd', nd, ny,mp, nsd
      CALL MPI_Type_create_hvector (ny, r1len, r1stride, MPI_BYTE, &
      &                                types(bidx), ierr)
      blocks(bidx) = 1
- 
+
 
      bidx = bidx + 1
      CALL MPI_Get_address (climate%dtemp_31(off,1), displs(bidx), ierr)
@@ -6895,7 +7059,7 @@ print*, 'master, nd ny mp nsd', nd, ny,mp, nsd
      CALL MPI_Type_create_hvector (ndq, r1len, r1stride, MPI_BYTE, &
      &                                types(bidx), ierr)
      blocks(bidx) = 1
- 
+
 
      bidx = bidx + 1
      CALL MPI_Get_address (climate%dmoist_31(off,1), displs(bidx), ierr)
@@ -6908,55 +7072,55 @@ print*, 'master, nd ny mp nsd', nd, ny,mp, nsd
      CALL MPI_Get_address (climate%APAR_leaf_sun(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (nsd, r1len, r1stride, MPI_BYTE, &
      &                                types(bidx), ierr)
-     blocks(bidx) = 1 
+     blocks(bidx) = 1
 
      bidx = bidx + 1
      CALL MPI_Get_address (climate%APAR_leaf_shade(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (nsd, r1len, r1stride, MPI_BYTE, &
      &                                types(bidx), ierr)
-     blocks(bidx) = 1 
+     blocks(bidx) = 1
 
      bidx = bidx + 1
      CALL MPI_Get_address (climate%Dleaf_sun(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (nsd, r1len, r1stride, MPI_BYTE, &
      &                                types(bidx), ierr)
-     blocks(bidx) = 1 
+     blocks(bidx) = 1
 
      bidx = bidx + 1
      CALL MPI_Get_address (climate%Dleaf_shade(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (nsd, r1len, r1stride, MPI_BYTE, &
      &                                types(bidx), ierr)
-     blocks(bidx) = 1 
+     blocks(bidx) = 1
 
      bidx = bidx + 1
      CALL MPI_Get_address (climate%Tleaf_sun(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (nsd, r1len, r1stride, MPI_BYTE, &
      &                                types(bidx), ierr)
-     blocks(bidx) = 1 
+     blocks(bidx) = 1
 
      bidx = bidx + 1
      CALL MPI_Get_address (climate%Tleaf_shade(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (nsd, r1len, r1stride, MPI_BYTE, &
      &                                types(bidx), ierr)
-     blocks(bidx) = 1 
+     blocks(bidx) = 1
 
      bidx = bidx + 1
      CALL MPI_Get_address (climate%cs_sun(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (nsd, r1len, r1stride, MPI_BYTE, &
      &                                types(bidx), ierr)
-     blocks(bidx) = 1 
+     blocks(bidx) = 1
 
      bidx = bidx + 1
      CALL MPI_Get_address (climate%cs_shade(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (nsd, r1len, r1stride, MPI_BYTE, &
      &                                types(bidx), ierr)
-     blocks(bidx) = 1 
+     blocks(bidx) = 1
 
      bidx = bidx + 1
      CALL MPI_Get_address (climate%scalex_sun(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (nsd, r1len, r1stride, MPI_BYTE, &
      &                                types(bidx), ierr)
-     blocks(bidx) = 1 
+     blocks(bidx) = 1
 
      bidx = bidx + 1
      CALL MPI_Get_address (climate%scalex_shade(off,1), displs(bidx), ierr)
@@ -6968,7 +7132,7 @@ print*, 'master, nd ny mp nsd', nd, ny,mp, nsd
      CALL MPI_Get_address (climate%fwsoil(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (nsd, r1len, r1stride, MPI_BYTE, &
      &                                types(bidx), ierr)
-     blocks(bidx) = 1 
+     blocks(bidx) = 1
 
      bidx = bidx + 1
      CALL MPI_Get_address (climate%dmoist_min_20(off,1), displs(bidx), ierr)
@@ -7188,11 +7352,11 @@ print*, 'master, nd ny mp nsd', nd, ny,mp, nsd
 
      CALL MPI_ISend (MPI_BOTTOM, 1, climate_ts(rank), rank, 0, comm, &
           &               inp_req(rank), ierr)
-       
+
   END DO
 
    CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
-  
+
 
   DEALLOCATE(types)
   DEALLOCATE(displs)
@@ -7202,7 +7366,7 @@ print*, 'master, nd ny mp nsd', nd, ny,mp, nsd
 
 END SUBROUTINE master_climate_types
 
-!MPI 
+!MPI
 
 !CLNSUBROUTINE master_casa_restart_types( comm, casamet, casapool )
 !CLN
@@ -7211,7 +7375,7 @@ END SUBROUTINE master_climate_types
 !CLN  USE casavariable, ONLY: casa_met, casa_pool
 !CLN
 !CLN  IMPLICIT NONE
-!CLN  
+!CLN
 !CLN  INTEGER,INTENT(IN) :: comm
 !CLN  TYPE (casa_met)    , INTENT(OUT) :: casamet
 !CLN  TYPE (casa_pool)   , INTENT(OUT) :: casapool
@@ -7253,93 +7417,93 @@ END SUBROUTINE master_climate_types
 !CLN
 !CLN  ! create a separate MPI derived datatype for each worker
 !CLN  DO rank = 1, wnp
-!CLN     
+!CLN
 !CLN     ! starting patch and number for each worker rank
 !CLN     off = wland(rank)%patch0
 !CLN     cnt = wland(rank)%npatch
-!CLN     
+!CLN
 !CLN     r1len = cnt * extr1
-!CLN     
+!CLN
 !CLN     r1stride = mp * extr1
-!CLN   
+!CLN
 !CLN     ! casamet fields
 !CLN
 !CLN     bidx = 1
 !CLN     CALL MPI_Get_address (casamet%glai(off), displs(bidx), ierr)
 !CLN     blocks(bidx) = r1len
-!CLN 
+!CLN
 !CLN     ! casapool fields
 !CLN
 !CLN     bidx = bidx + 1
 !CLN     CALL MPI_Get_address (casapool%clabile(off), displs(bidx), ierr)
 !CLN     blocks(bidx) = r1len
-!CLN 
+!CLN
 !CLN     bidx = bidx + 1
 !CLN     CALL MPI_Get_address (casapool%psoillab(off), displs(bidx), ierr)
 !CLN     blocks(bidx) = r1len
-!CLN 
+!CLN
 !CLN     bidx = bidx + 1
 !CLN     CALL MPI_Get_address (casapool%psoilsorb(off), displs(bidx), ierr)
 !CLN     blocks(bidx) = r1len
-!CLN 
+!CLN
 !CLN     bidx = bidx + 1
 !CLN     CALL MPI_Get_address (casapool%psoilocc(off), displs(bidx), ierr)
 !CLN     blocks(bidx) = r1len
-!CLN 
+!CLN
 !CLN     bidx = bidx + 1
 !CLN     CALL MPI_Get_address (casapool%cplant(off,1), displs(bidx), ierr)
 !CLN     CALL MPI_Type_create_hvector (swb, r1len, r1stride, MPI_BYTE, &
 !CLN          types(bidx), ierr)
 !CLN     blocks(bidx) = 1
-!CLN     
+!CLN
 !CLN     bidx = bidx + 1
 !CLN     CALL MPI_Get_address (casapool%nplant(off,1), displs(bidx), ierr)
 !CLN     CALL MPI_Type_create_hvector (swb, r1len, r1stride, MPI_BYTE, &
 !CLN          types(bidx), ierr)
 !CLN     blocks(bidx) = 1
-!CLN     
+!CLN
 !CLN     bidx = bidx + 1
 !CLN     CALL MPI_Get_address (casapool%pplant(off,1), displs(bidx), ierr)
 !CLN     CALL MPI_Type_create_hvector (swb, r1len, r1stride, MPI_BYTE, &
 !CLN          types(bidx), ierr)
 !CLN     blocks(bidx) = 1
-!CLN     
+!CLN
 !CLN     bidx = bidx + 1
 !CLN     CALL MPI_Get_address (casapool%cplant(off,1), displs(bidx), ierr)
 !CLN     CALL MPI_Type_create_hvector (swb, r1len, r1stride, MPI_BYTE, &
 !CLN          types(bidx), ierr)
 !CLN     blocks(bidx) = 1
-!CLN     
+!CLN
 !CLN     bidx = bidx + 1
 !CLN     CALL MPI_Get_address (casapool%clitter(off,1), displs(bidx), ierr)
 !CLN     CALL MPI_Type_create_hvector (swb, r1len, r1stride, MPI_BYTE, &
 !CLN          types(bidx), ierr)
 !CLN     blocks(bidx) = 1
-!CLN     
+!CLN
 !CLN     bidx = bidx + 1
 !CLN     CALL MPI_Get_address (casapool%nlitter(off,1), displs(bidx), ierr)
 !CLN     CALL MPI_Type_create_hvector (swb, r1len, r1stride, MPI_BYTE, &
 !CLN          types(bidx), ierr)
 !CLN     blocks(bidx) = 1
-!CLN     
+!CLN
 !CLN     bidx = bidx + 1
 !CLN     CALL MPI_Get_address (casapool%csoil(off,1), displs(bidx), ierr)
 !CLN     CALL MPI_Type_create_hvector (swb, r1len, r1stride, MPI_BYTE, &
 !CLN          types(bidx), ierr)
 !CLN     blocks(bidx) = 1
-!CLN     
+!CLN
 !CLN     bidx = bidx + 1
 !CLN     CALL MPI_Get_address (casapool%nsoil(off,1), displs(bidx), ierr)
 !CLN     CALL MPI_Type_create_hvector (swb, r1len, r1stride, MPI_BYTE, &
 !CLN          types(bidx), ierr)
 !CLN     blocks(bidx) = 1
-!CLN     
+!CLN
 !CLN     bidx = bidx + 1
 !CLN     CALL MPI_Get_address (casapool%psoil(off,1), displs(bidx), ierr)
 !CLN     CALL MPI_Type_create_hvector (swb, r1len, r1stride, MPI_BYTE, &
 !CLN          types(bidx), ierr)
 !CLN     blocks(bidx) = 1
-!CLN     
+!CLN
 !CLN     ! MPI: sanity check
 !CLN     IF (bidx /= ntyp) THEN
 !CLN        WRITE (*,*) 'master: invalid intype in master_casa_dump, fix it!'
@@ -7347,7 +7511,7 @@ END SUBROUTINE master_climate_types
 !CLN     END IF
 !CLN
 !CLN     ! marshall all fields into a single MPI derived datatype for worker rank
-!CLN  
+!CLN
 !CLN     CALL MPI_Type_create_struct (bidx, blocks, displs, types, casa_restart_ts(rank), ierr)
 !CLN     CALL MPI_Type_commit (casa_restart_ts(rank), ierr)
 !CLN
@@ -7429,7 +7593,7 @@ SUBROUTINE master_restart_types (comm, canopy, air)
   ALLOCATE (blocks(ntyp))
   ALLOCATE (displs(ntyp))
   ALLOCATE (types(ntyp))
-  
+
   r1stride = mp * extr1
   r2stride = mp * extr2
 
@@ -7572,20 +7736,26 @@ WRITE(*,*) 'bidx', bidx
 END SUBROUTINE master_restart_types
 
 ! MPI: Casa - dump read and write
-SUBROUTINE master_casa_dump_types(comm, casamet, casaflux, phen, climate )
+SUBROUTINE master_casa_dump_types(comm, casamet, casaflux, phen, climate, c13o2flux )
 
   USE mpi
 
   USE casavariable, ONLY: casa_met, casa_flux
   USE cable_def_types_mod, ONLY: climate_type
   USE phenvariable
+  ! 13C
+  use cable_common_module, only: cable_user
+  use cable_c13o2_def,     only: c13o2_flux
+
   IMPLICIT NONE
-  
-  INTEGER,INTENT(IN) :: comm
-  TYPE (casa_flux)   , INTENT(INOUT) :: casaflux
-  TYPE (casa_met)    , INTENT(INOUT) :: casamet
-  TYPE (phen_variable), INTENT(INOUT)  :: phen 
-  TYPE(climate_type):: climate
+
+  INTEGER,             INTENT(IN)    :: comm
+  TYPE(casa_met),      INTENT(INOUT) :: casamet
+  TYPE(casa_flux),     INTENT(INOUT) :: casaflux
+  TYPE(phen_variable), INTENT(INOUT) :: phen
+  TYPE(climate_type),  INTENT(INOUT) :: climate
+  ! 13C
+  type(c13o2_flux),    intent(inout) :: c13o2flux
 
   ! local vars
 
@@ -7607,13 +7777,17 @@ SUBROUTINE master_casa_dump_types(comm, casamet, casaflux, phen, climate )
   INTEGER :: cnt  ! mp for a worker
   INTEGER :: ierr
 
-  ALLOCATE (casa_dump_ts(wnp))
+  ALLOCATE(casa_dump_ts(wnp))
 
-  ntyp = ncdumprw
+  if (cable_user%c13o2) then
+     ntyp = ncdumprw
+  else
+     ntyp = ncdumprw - 2
+  endif
 
-  ALLOCATE (blocks(ntyp))
-  ALLOCATE (displs(ntyp))
-  ALLOCATE (types(ntyp))
+  ALLOCATE(blocks(ntyp))
+  ALLOCATE(displs(ntyp))
+  ALLOCATE(types(ntyp))
 
   ! chunks of all 1D vectors are contiguous blocks of memory so just send them
   ! as blocks of bytes
@@ -7623,7 +7797,7 @@ SUBROUTINE master_casa_dump_types(comm, casamet, casaflux, phen, climate )
   localtotal = 0
 
   ! create a separate MPI derived datatype for each worker
-  DO rank = 1, wnp
+  DO rank=1, wnp
 
      ! starting patch and number for each worker rank
      off = wland(rank)%patch0
@@ -7642,78 +7816,83 @@ SUBROUTINE master_casa_dump_types(comm, casamet, casaflux, phen, climate )
      ! casamet fields
 
      bidx = 1
-     CALL MPI_Get_address (casamet%tairk(off), displs(bidx), ierr)
+     CALL MPI_Get_address(casamet%tairk(off), displs(bidx), ierr)
      blocks(bidx) = r2len
 
      bidx = bidx + 1
-     CALL MPI_Get_address (casamet%tsoil(off,1), displs(bidx), ierr)
-     CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+     CALL MPI_Get_address(casamet%tsoil(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(ms, r2len, r2stride, MPI_BYTE, &
           types(bidx), ierr)
      blocks(bidx) = 1
 
      bidx = bidx + 1
-     CALL MPI_Get_address (casamet%moist(off,1), displs(bidx), ierr)
-     CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+     CALL MPI_Get_address(casamet%moist(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(ms, r2len, r2stride, MPI_BYTE, &
           types(bidx), ierr)
      blocks(bidx) = 1
 
      ! casaflux fields
 
      bidx = bidx + 1
-     CALL MPI_Get_address (casaflux%cgpp(off), displs(bidx), ierr)
+     CALL MPI_Get_address(casaflux%cgpp(off), displs(bidx), ierr)
      blocks(bidx) = r2len
 
      bidx = bidx + 1
-     CALL MPI_Get_address (casaflux%crmplant(off,1), displs(bidx), ierr)
-     CALL MPI_Type_create_hvector (ncp, r2len, r2stride, MPI_BYTE, &
+     CALL MPI_Get_address(casaflux%crmplant(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(ncp, r2len, r2stride, MPI_BYTE, &
           types(bidx), ierr)
      blocks(bidx) = 1
 
-!****************************************************************
- ! phen fields
-  
-
+     ! Ndep
      bidx = bidx + 1
-     CALL MPI_Get_address (phen%phase(off), displs(bidx), ierr)
-     blocks(bidx) = I1LEN
-     
-     
-     bidx = bidx + 1
-     CALL MPI_Get_address (phen%doyphase(off,1), displs(bidx), ierr)
-     CALL MPI_Type_create_hvector (mphase, I1LEN, istride, MPI_BYTE, &
-          &                             types(bidx), ierr)
-     blocks(bidx) = 1
-     
-     bidx = bidx + 1
-     CALL MPI_Get_address (climate%qtemp_max_last_year(off), displs(bidx), ierr)
-     blocks(bidx) = r1len
-  
-!****************************************************************
-! Ndep
-     bidx = bidx + 1
-     CALL MPI_Get_address (casaflux%Nmindep(off), displs(bidx), ierr)
+     CALL MPI_Get_address(casaflux%Nmindep(off), displs(bidx), ierr)
      blocks(bidx) = r2len
 
+     ! phen fields
 
-!******************************************************************
+     bidx = bidx + 1
+     CALL MPI_Get_address(phen%phase(off), displs(bidx), ierr)
+     blocks(bidx) = I1LEN
 
+     bidx = bidx + 1
+     CALL MPI_Get_address(phen%doyphase(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(mphase, I1LEN, istride, MPI_BYTE, &
+          types(bidx), ierr)
+     blocks(bidx) = 1
 
+     ! climate fields
+
+     bidx = bidx + 1
+     CALL MPI_Get_address(climate%qtemp_max_last_year(off), displs(bidx), ierr)
+     blocks(bidx) = r1len
+
+     ! c13o2 fields
+
+     if (cable_user%c13o2) then
+        bidx = bidx + 1
+        CALL MPI_Get_address(c13o2flux%cAn12(off), displs(bidx), ierr)
+        blocks(bidx) = r2len
+
+        bidx = bidx + 1
+        CALL MPI_Get_address(c13o2flux%cAn(off), displs(bidx), ierr)
+        blocks(bidx) = r2len
+     endif
+     
      ! MPI: sanity check
      IF (bidx /= ntyp) THEN
-        WRITE (*,*) 'master: invalid intype in master_casa_dump, fix it!'
-        CALL MPI_Abort (comm, 1, ierr)
+        WRITE(*,*) 'master: invalid intype in master_casa_dump, fix it!'
+        CALL MPI_Abort(comm, 1, ierr)
      END IF
 
      ! marshall all fields into a single MPI derived datatype for worker rank
-  
-     CALL MPI_Type_create_struct (bidx, blocks, displs, types, casa_dump_ts(rank), ierr)
-     CALL MPI_Type_commit (casa_dump_ts(rank), ierr)
+     CALL MPI_Type_create_struct(bidx, blocks, displs, types, casa_dump_ts(rank), ierr)
+     CALL MPI_Type_commit(casa_dump_ts(rank), ierr)
 
-     CALL MPI_Type_size (casa_dump_ts(rank), tsize, ierr)
-     CALL MPI_Type_get_extent (casa_dump_ts(rank), tmplb, text, ierr)
+     CALL MPI_Type_size(casa_dump_ts(rank), tsize, ierr)
+     CALL MPI_Type_get_extent(casa_dump_ts(rank), tmplb, text, ierr)
 
-     WRITE (*,*) 'master to ',rank,': intype struct blocks, size, extent and lb: ', &
-                 bidx,tsize,text,tmplb
+     WRITE (*,*) 'master to ', rank, ': intype struct blocks, size, extent and lb: ', &
+          bidx, tsize, text, tmplb
 
      localtotal = localtotal + tsize
 
@@ -7723,31 +7902,33 @@ SUBROUTINE master_casa_dump_types(comm, casamet, casaflux, phen, climate )
   DEALLOCATE(displs)
   DEALLOCATE(blocks)
 
-  WRITE (*,*) 'total casa_dump size sent to all workers: ', localtotal
+  WRITE(*,*) 'total casa_dump size sent to all workers: ', localtotal
 
   ! MPI: check whether total size of send input data equals total
   ! data received by all the workers
   remotetotal = 0
-  CALL MPI_Reduce (MPI_IN_PLACE, remotetotal, 1, MPI_INTEGER, MPI_SUM, 0, comm, ierr)
+  CALL MPI_Reduce(MPI_IN_PLACE, remotetotal, 1, MPI_INTEGER, MPI_SUM, 0, comm, ierr)
 
-  WRITE (*,*) 'total input data size received by all workers: ', remotetotal
+  WRITE(*,*) 'total input data size received by all workers: ', remotetotal
 
   IF (localtotal /= remotetotal) THEN
-          WRITE (*,*) 'error: total length of input data sent and received differ'
-          CALL MPI_Abort (comm, 0, ierr)
+     WRITE (*,*) 'error: total length of input data sent and received differ'
+     CALL MPI_Abort(comm, 0, ierr)
   END IF
 
-!!$  DO rank = 1, wnp
-!!$
-!!$     CALL MPI_ISend (MPI_BOTTOM, 1, casa_dump_ts(rank), rank, 0, comm, &
-!!$          &               inp_req(rank), ierr)
-!!$       
-!!$  END DO
-!!$  
-!!$  CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
+  !  DO rank = 1, wnp
+  !
+  !     CALL MPI_ISend (MPI_BOTTOM, 1, casa_dump_ts(rank), rank, 0, comm, &
+  !          &               inp_req(rank), ierr)
+  !
+  !  END DO
+  !
+  !  CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
 
 END SUBROUTINE master_casa_dump_types
+
 ! #############################################################################################################
+
 ! MPI: Casa-LUC: exchanging casapools between master and worker, as required for LUC updates
 SUBROUTINE master_casa_LUC_types(comm, casapool, casabal, casaflux )
 
@@ -7755,12 +7936,12 @@ SUBROUTINE master_casa_LUC_types(comm, casapool, casabal, casaflux )
 
   USE casavariable, ONLY: casa_pool, mplant, mlitter, msoil, casa_balance, casa_flux
   IMPLICIT NONE
-  
+
   INTEGER,INTENT(IN) :: comm
   TYPE (casa_pool),           INTENT(IN) :: casapool
   TYPE (casa_balance),        INTENT(IN) :: casabal
   TYPE (casa_flux),        INTENT(IN) :: casaflux
- 
+
   ! local vars
 
   ! temp arrays for marshalling all fields into a single struct
@@ -7840,7 +8021,7 @@ SUBROUTINE master_casa_LUC_types(comm, casapool, casabal, casaflux )
           &                             types(bidx), ierr)
      blocks(bidx) = 1
 
-     bidx = bidx + 1   
+     bidx = bidx + 1
      CALL MPI_Get_address (casapool%nlitter(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (mlitter, r2len, r2stride, MPI_BYTE, &
           &                             types(bidx), ierr)
@@ -7909,7 +8090,7 @@ SUBROUTINE master_casa_LUC_types(comm, casapool, casabal, casaflux )
      END IF
 
      ! marshall all fields into a single MPI derived datatype for worker rank
-  
+
      CALL MPI_Type_create_struct (bidx, blocks, displs, types, casa_LUC_ts(rank), ierr)
      CALL MPI_Type_commit (casa_LUC_ts(rank), ierr)
 
@@ -7945,14 +8126,7 @@ SUBROUTINE master_casa_LUC_types(comm, casapool, casabal, casaflux )
 
 END SUBROUTINE master_casa_LUC_types
 
-
 ! *******************************************************************************************
-
-
-
-
-
-
 
 ! MPI
 ! Creates pop_ts types to broadcast/cscatter the default POP parameters
@@ -7998,7 +8172,7 @@ SUBROUTINE master_pop_types(comm, casamet, pop)
   DO rank = 1, wnp
 
      off = wland(rank)%patch0
-     
+
      ! number of forest or shrub patches per worker
      wland(rank)%npop_iwood = &
           COUNT(POP%Iwood .GE.off .AND. POP%Iwood .LT. (off+wland(rank)%npatch))
@@ -8047,7 +8221,7 @@ SUBROUTINE master_pop_types(comm, casamet, pop)
 END SUBROUTINE master_pop_types
 
 SUBROUTINE master_receive_pop (POP, comm)
-  
+
   USE MPI
   USE POP_mpi
   USE POP_Types,           ONLY: pop_type
@@ -8065,11 +8239,11 @@ SUBROUTINE master_receive_pop (POP, comm)
 
      IF ( rank .GT. 1 ) off = off + wland(rank-1)%npop_iwood
 
-     cnt = wland(rank)%npop_iwood 
+     cnt = wland(rank)%npop_iwood
      IF ( cnt .EQ. 0 ) CYCLE
 
      CALL MPI_Recv( POP%pop_grid(off), cnt, pop_ts, rank, 0, comm, stat, ierr )
-     
+
   END DO
   ! NO Waitall here as some workers might not be involved!!!
 
@@ -8077,8 +8251,8 @@ END SUBROUTINE master_receive_pop
 
 !!CLNSUBROUTINE master_blaze_types (comm, BLAZE)
 !!CLN
-!!CLN  ! Send blaze restart data to workers  
-!!CLN  
+!!CLN  ! Send blaze restart data to workers
+!!CLN
 !!CLN  USE mpi
 !!CLN
 !!CLN  USE blaze, ONLY: TYPE_BLAZE
@@ -8090,7 +8264,7 @@ END SUBROUTINE master_receive_pop
 !!CLN  TYPE(TYPE_BLAZE), INTENT(IN) :: BLAZE
 !!CLN
 !!CLN
-!!CLN  
+!!CLN
 !!CLN  ! MPI: temp arrays for marshalling all types into a struct
 !!CLN  INTEGER, ALLOCATABLE, DIMENSION(:) :: blocks
 !!CLN  INTEGER(KIND=MPI_ADDRESS_KIND), ALLOCATABLE, DIMENSION(:) :: displs
@@ -8113,8 +8287,8 @@ END SUBROUTINE master_receive_pop
 !!CLN  INTEGER :: bidx, midx, vidx, ierr
 !!CLN
 !!CLN
-!!CLN  ! Restart value handles (restart_blaze_ts()) 
-!!CLN  
+!!CLN  ! Restart value handles (restart_blaze_ts())
+!!CLN
 !!CLN  ntyp = 9
 !!CLN
 !!CLN  !INTEGER,  DIMENSION(:),  ALLOCATABLE :: DSLR,
@@ -8125,7 +8299,7 @@ END SUBROUTINE master_receive_pop
 !!CLN  ALLOCATE (displs(ntyp))
 !!CLN  ALLOCATE (types(ntyp))
 !!CLN
-!!CLN  istride  = mp * extid ! short integer 
+!!CLN  istride  = mp * extid ! short integer
 !!CLN  r1stride = mp * extr1 ! single precision
 !!CLN  r2stride = mp * extr2 ! double precision
 !!CLN
@@ -8133,7 +8307,7 @@ END SUBROUTINE master_receive_pop
 !!CLN     off = wland(rank)%patch0
 !!CLN     cnt = wland(rank)%npatch
 !!CLN
-!!CLN     i1len = cnt * extid  
+!!CLN     i1len = cnt * extid
 !!CLN     r1len = cnt * extr1
 !!CLN     r2len = cnt * extr2
 !!CLN
@@ -8148,14 +8322,14 @@ END SUBROUTINE master_receive_pop
 !!CLN     &                             types(bidx), ierr)
 !!CLN     blocks(bidx) = 1
 !!CLN
-!!CLN     ! Above ground life woody biomass 
+!!CLN     ! Above ground life woody biomass
 !!CLN     bidx = bidx + 1
 !!CLN     CALL MPI_Get_address (BLAZE%AGLB_w(off,1), displs(bidx), ierr) ! 2
 !!CLN     CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
 !!CLN     &                             types(bidx), ierr)
 !!CLN     blocks(bidx) = 1
 !!CLN
-!!CLN     ! Above ground life grassy biomass 
+!!CLN     ! Above ground life grassy biomass
 !!CLN     bidx = bidx + 1
 !!CLN     CALL MPI_Get_address (BLAZE%AGLB_g(off,1), displs(bidx), ierr) ! 3
 !!CLN     CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
@@ -8169,7 +8343,7 @@ END SUBROUTINE master_receive_pop
 !!CLN     &                             types(bidx), ierr)
 !!CLN     blocks(bidx) = 1
 !!CLN
-!!CLN     ! Above ground grassy litter 
+!!CLN     ! Above ground grassy litter
 !!CLN     bidx = bidx + 1
 !!CLN     CALL MPI_Get_address (BLAZE%AGLit_g(off,1), displs(bidx), ierr) ! 5
 !!CLN     CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
@@ -8177,7 +8351,7 @@ END SUBROUTINE master_receive_pop
 !!CLN     blocks(bidx) = 1
 !!CLN
 !!CLN     last2d = bidx
-!!CLN     
+!!CLN
 !!CLN     ! ------------- 1D vectors -------------
 !!CLN
 !!CLN     ! Integer days since last rainfall
@@ -8248,16 +8422,945 @@ END SUBROUTINE master_receive_pop
 !!CLN  DEALLOCATE(blocks)
 !!CLN
 !!CLN
-!!CLN  ! Standard desired IO (restart_blaze_ts()) 
+!!CLN  ! Standard desired IO (restart_blaze_ts())
 !!CLN
 !!CLN
 !!CLN
 !!CLN
-!!CLN  
+!!CLN
 !!CLN  RETURN
-!!CLN     
+!!CLN
 !!CLNEND SUBROUTINE master_blaze_types
 !!CLN
+
+! 13C
+! MPI: creates c13o2_flux_ts types to broadcast/scatter the default c13o2_flux parameters to all the workers
+! then sends them
+! and finally frees the MPI type
+subroutine master_c13o2_flux_params(comm, c13o2flux)
+
+  use mpi,                 only: &
+       MPI_ADDRESS_KIND, MPI_STATUS_SIZE, MPI_BYTE, &
+       MPI_Get_address, MPI_Type_create_hvector, &
+       MPI_Abort, MPI_Type_create_struct, MPI_Type_commit, MPI_Type_size, &
+       MPI_Type_get_extent, MPI_Reduce, MPI_IN_PLACE, MPI_INTEGER, MPI_SUM, &
+       MPI_Barrier
+  use cable_def_types_mod, only: mp, mf
+  use cable_c13o2_def,     only: c13o2_flux
+  use cable_mpicommon,     only: nc13o2_flux
+  
+  implicit none
+
+  integer,          intent(in)    :: comm  ! mpi communicator
+  type(c13o2_flux), intent(inout) :: c13o2flux
+
+  ! local vars
+
+  ! temp arrays for marshalling all fields into a single struct
+  integer, allocatable, dimension(:) :: blen
+  integer(kind=MPI_ADDRESS_KIND), allocatable, dimension(:) :: displs
+  integer, allocatable, dimension(:) :: types
+
+  ! temp vars for verifying block number and tot1al length of inp_t
+  integer(kind=MPI_ADDRESS_KIND) :: text, tmplb
+  integer :: tsize, localtotal, remotetotal
+
+  integer :: stat(MPI_STATUS_SIZE), ierr
+  integer, allocatable, dimension(:) :: c13o2_flux_ts
+
+  integer(kind=MPI_ADDRESS_KIND) :: r1stride, r2stride, istride
+  integer :: r1len, r2len, i1len, llen ! block lengths
+  integer :: bidx ! block index
+  integer :: ntyp ! total number of blocks
+
+  integer :: rank, off, cnt
+
+  ntyp = nc13o2_flux
+
+  allocate(c13o2_flux_ts(wnp))
+
+  allocate(blen(ntyp))
+  allocate(displs(ntyp))
+  allocate(types(ntyp))
+
+  ! MPI: array strides for multi-dimensional types
+  r1stride = mp * extr1 !MC where does extr1, etc. come from
+  r2stride = mp * extr2
+  istride  = mp * extid
+
+  ! default type is byte, to be overriden for multi-D types
+  types = MPI_BYTE
+
+  ! total size of input data sent to all workers
+  localtotal = 0
+
+  ! create a separate MPI derived datatype for each worker
+  do rank = 1, wnp
+
+     ! starting patch and number for each worker rank
+     off = wland(rank)%patch0 ! global module variable
+     cnt = wland(rank)%npatch
+
+     r1len = cnt * extr1
+     r2len = cnt * extr2
+     i1len = cnt * extid
+     llen  = cnt * extl
+
+     bidx = 0
+
+     ! 1D
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2flux%ca(off), displs(bidx), ierr)
+     blen(bidx) = r2len
+
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2flux%cAn12(off), displs(bidx), ierr)
+     blen(bidx) = r2len
+
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2flux%cAn(off), displs(bidx), ierr)
+     blen(bidx) = r2len
+
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2flux%RAn(off), displs(bidx), ierr)
+     blen(bidx) = r2len
+
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2flux%Vstarch(off), displs(bidx), ierr)
+     blen(bidx) = r2len
+
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2flux%Rstarch(off), displs(bidx), ierr)
+     blen(bidx) = r2len
+
+     ! 2D
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2flux%An(off,1), displs(bidx), ierr)
+     call MPI_Type_create_hvector(mf, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blen(bidx) = 1
+
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2flux%Disc(off,1), displs(bidx), ierr)
+     call MPI_Type_create_hvector(mf, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blen(bidx) = 1
+
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2flux%Rsucrose(off,1), displs(bidx), ierr)
+     call MPI_Type_create_hvector(mf, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blen(bidx) = 1
+
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2flux%Rphoto(off,1), displs(bidx), ierr)
+     call MPI_Type_create_hvector(mf, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blen(bidx) = 1
+
+     ! MPI: sanity check
+     if (bidx /= ntyp) then
+        write(*,*) 'master: invalid number of c13o2_flux_ts param fields ', bidx, ', fix it!'
+        call MPI_Abort(comm, 1, ierr)
+     end if
+
+     call MPI_Type_create_struct(bidx, blen, displs, types, c13o2_flux_ts(rank), ierr)
+     call MPI_Type_commit(c13o2_flux_ts(rank), ierr)
+
+     call MPI_Type_size(c13o2_flux_ts(rank), tsize, ierr)
+     call MPI_Type_get_extent(c13o2_flux_ts(rank), tmplb, text, ierr)
+
+     write(*,*) 'master to rank c13o2_flux_ts param blocks, size, extent and lb: ', rank, bidx, tsize, text, tmplb
+
+     localtotal = localtotal + tsize
+
+  end do ! rank
+
+  write(*,*) 'total c13o2_flux params size sent to all workers: ', localtotal
+  deallocate(types)
+  deallocate(displs)
+  deallocate(blen)
+
+  ! MPI: check whether total size of received data equals total data sent by all the workers
+  remotetotal = 0
+  call MPI_Reduce(MPI_IN_PLACE, remotetotal, 1, MPI_INTEGER, MPI_SUM, 0, comm, ierr)
+
+  write(*,*) 'total c13o2_flux params size received by all workers: ', remotetotal
+
+  if (localtotal /= remotetotal) then
+     write(*,*) 'error: total length of c13o2_flux params sent and received differ'
+     call MPI_Abort(comm, 0, ierr)
+  end if
+
+  call MPI_Barrier(comm, ierr)
+
+  ! so, now send all the parameters
+  call master_send_input(comm, c13o2_flux_ts, 0)
+  ! call MPI_Waitall(wnp, inp_req, inp_stats, ierr)
+
+  ! finally free the MPI type
+  do rank = 1, wnp
+     call MPI_Type_Free(c13o2_flux_ts(rank), ierr)
+  end do
+
+  deallocate(c13o2_flux_ts)
+
+  ! all c13o2_flux parameters have been sent to the workers by now
+  return
+
+end subroutine master_c13o2_flux_params
+
+
+! MPI: creates c13o2_pool_ts types to broadcast/scatter the default c13o2_pool parameters to all the workers
+! then sends them
+! and finally frees the MPI type
+subroutine master_c13o2_pool_params(comm, c13o2pools)
+
+  use mpi,                 only: &
+       MPI_ADDRESS_KIND, MPI_STATUS_SIZE, MPI_BYTE, &
+       MPI_Get_address, MPI_Type_create_hvector, &
+       MPI_Abort, MPI_Type_create_struct, MPI_Type_commit, MPI_Type_size, &
+       MPI_Type_get_extent, MPI_Reduce, MPI_IN_PLACE, MPI_INTEGER, MPI_SUM, &
+       MPI_Barrier
+  use cable_def_types_mod, only: mp
+  use casadimension,       only: mplant, mlitter, msoil
+  use cable_c13o2_def,     only: c13o2_pool
+  use cable_mpicommon,     only: nc13o2_pool
+  
+  implicit none
+
+  integer,          intent(in)    :: comm  ! mpi communicator
+  type(c13o2_pool), intent(inout) :: c13o2pools
+
+  ! local vars
+
+  ! temp arrays for marshalling all fields into a single struct
+  integer, allocatable, dimension(:) :: blen
+  integer(kind=MPI_ADDRESS_KIND), allocatable, dimension(:) :: displs
+  integer, allocatable, dimension(:) :: types
+
+  ! temp vars for verifying block number and tot1al length of inp_t
+  integer(kind=MPI_ADDRESS_KIND) :: text, tmplb
+  integer :: tsize, localtotal, remotetotal
+
+  integer :: stat(MPI_STATUS_SIZE), ierr
+  integer, allocatable, dimension(:) :: c13o2_pool_ts
+
+  integer(kind=MPI_ADDRESS_KIND) :: r1stride, r2stride, istride
+  integer :: r1len, r2len, i1len, llen ! block lengths
+  integer :: bidx ! block index
+  integer :: ntyp ! total number of blocks
+
+  integer :: rank, off, cnt
+
+  ntyp = nc13o2_pool
+
+  allocate(c13o2_pool_ts(wnp))
+
+  allocate(blen(ntyp))
+  allocate(displs(ntyp))
+  allocate(types(ntyp))
+
+  ! MPI: array strides for multi-dimensional types
+  r1stride = mp * extr1 !MC where does extr1, etc. come from
+  r2stride = mp * extr2
+  istride  = mp * extid
+
+  ! default type is byte, to be overriden for multi-D types
+  types = MPI_BYTE
+
+  ! total size of input data sent to all workers
+  localtotal = 0
+
+  ! create a separate MPI derived datatype for each worker
+  do rank = 1, wnp
+
+     ! starting patch and number for each worker rank
+     off = wland(rank)%patch0 ! global module variable
+     cnt = wland(rank)%npatch
+
+     r1len = cnt * extr1
+     r2len = cnt * extr2
+     i1len = cnt * extid
+     llen  = cnt * extl
+
+     bidx = 0
+
+     ! 1D
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2pools%clabile(off), displs(bidx), ierr)
+     blen(bidx) = r2len
+
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2pools%charvest(off), displs(bidx), ierr)
+     blen(bidx) = r2len
+
+     ! 2D
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2pools%cplant(off,1), displs(bidx), ierr)
+     call MPI_Type_create_hvector(mplant, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blen(bidx) = 1
+
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2pools%clitter(off,1), displs(bidx), ierr)
+     call MPI_Type_create_hvector(mlitter, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blen(bidx) = 1
+
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2pools%csoil(off,1), displs(bidx), ierr)
+     call MPI_Type_create_hvector(msoil, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blen(bidx) = 1
+
+     ! MPI: sanity check
+     if (bidx /= ntyp) then
+        write(*,*) 'master: invalid number of c13o2_pool_ts param fields ', bidx, ', fix it!'
+        call MPI_Abort(comm, 1, ierr)
+     end if
+
+     call MPI_Type_create_struct(bidx, blen, displs, types, c13o2_pool_ts(rank), ierr)
+     call MPI_Type_commit(c13o2_pool_ts(rank), ierr)
+
+     call MPI_Type_size(c13o2_pool_ts(rank), tsize, ierr)
+     call MPI_Type_get_extent(c13o2_pool_ts(rank), tmplb, text, ierr)
+
+     write(*,*) 'master to rank c13o2_pool_ts param blocks, size, extent and lb: ', rank, bidx, tsize, text, tmplb
+
+     localtotal = localtotal + tsize
+
+  end do ! rank
+
+  write(*,*) 'total c13o2_pool params size sent to all workers: ', localtotal
+  deallocate(types)
+  deallocate(displs)
+  deallocate(blen)
+
+  ! MPI: check whether total size of received data equals total data sent by all the workers
+  remotetotal = 0
+  call MPI_Reduce(MPI_IN_PLACE, remotetotal, 1, MPI_INTEGER, MPI_SUM, 0, comm, ierr)
+
+  write(*,*) 'total c13o2_pool params size received by all workers: ', remotetotal
+
+  if (localtotal /= remotetotal) then
+     write(*,*) 'error: total length of c13o2_pool params sent and received differ'
+     call MPI_Abort(comm, 0, ierr)
+  end if
+
+  call MPI_Barrier(comm, ierr)
+
+  ! so, now send all the parameters
+  call master_send_input(comm, c13o2_pool_ts, 0)
+  ! call MPI_Waitall(wnp, inp_req, inp_stats, ierr)
+
+  ! finally free the MPI type
+  do rank = 1, wnp
+     call MPI_Type_Free(c13o2_pool_ts(rank), ierr)
+  end do
+
+  deallocate(c13o2_pool_ts)
+
+  ! all c13o2_pool parameters have been sent to the workers by now
+  return
+
+end subroutine master_c13o2_pool_params
+
+
+! MPI: creates c13o2_luc_ts types to broadcast/scatter the default c13o2_luc parameters to all the workers
+! then sends them
+! and finally frees the MPI type
+subroutine master_c13o2_luc_params(comm, c13o2luc)
+
+  use mpi,                 only: &
+       MPI_ADDRESS_KIND, MPI_STATUS_SIZE, MPI_BYTE, &
+       MPI_Get_address, MPI_Type_create_hvector, &
+       MPI_Abort, MPI_Type_create_struct, MPI_Type_commit, MPI_Type_size, &
+       MPI_Type_get_extent, MPI_Reduce, MPI_IN_PLACE, MPI_INTEGER, MPI_SUM, &
+       MPI_Barrier
+  use cable_def_types_mod, only: mp
+  use cable_c13o2_def,     only: c13o2_luc
+  use cable_mpicommon,     only: nc13o2_luc
+  
+  implicit none
+
+  integer,          intent(in)    :: comm  ! mpi communicator
+  type(c13o2_luc), intent(inout) :: c13o2luc
+
+  ! local vars
+
+  ! temp arrays for marshalling all fields into a single struct
+  integer, allocatable, dimension(:) :: blen
+  integer(kind=MPI_ADDRESS_KIND), allocatable, dimension(:) :: displs
+  integer, allocatable, dimension(:) :: types
+
+  ! temp vars for verifying block number and tot1al length of inp_t
+  integer(kind=MPI_ADDRESS_KIND) :: text, tmplb
+  integer :: tsize, localtotal, remotetotal
+
+  integer :: stat(MPI_STATUS_SIZE), ierr
+  integer, allocatable, dimension(:) :: c13o2_luc_ts
+
+  integer(kind=MPI_ADDRESS_KIND) :: r1stride, r2stride, istride
+  integer :: r1len, r2len, i1len, llen ! block lengths
+  integer :: bidx ! block index
+  integer :: ntyp ! total number of blocks
+
+  integer :: rank, off, cnt
+
+  ntyp = nc13o2_luc
+
+  allocate(c13o2_luc_ts(wnp))
+
+  allocate(blen(ntyp))
+  allocate(displs(ntyp))
+  allocate(types(ntyp))
+
+  ! MPI: array strides for multi-dimensional types
+  r1stride = mp * extr1 !MC where does extr1, etc. come from
+  r2stride = mp * extr2
+  istride  = mp * extid
+
+  ! default type is byte, to be overriden for multi-D types
+  types = MPI_BYTE
+
+  ! total size of input data sent to all workers
+  localtotal = 0
+
+  ! create a separate MPI derived datatype for each worker
+  do rank = 1, wnp
+
+     ! starting patch and number for each worker rank
+     off = wland(rank)%patch0 ! global module variable
+     cnt = wland(rank)%npatch
+
+     r1len = cnt * extr1
+     r2len = cnt * extr2
+     i1len = cnt * extid
+     llen  = cnt * extl
+
+     bidx = 0
+
+     ! 1D
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2luc%cagric(off), displs(bidx), ierr)
+     blen(bidx) = r2len
+
+     ! 2D
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2luc%charvest(off,1), displs(bidx), ierr)
+     call MPI_Type_create_hvector(c13o2luc%nharvest, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blen(bidx) = 1
+
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2luc%cclearance(off,1), displs(bidx), ierr)
+     call MPI_Type_create_hvector(c13o2luc%nclearance, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blen(bidx) = 1
+
+     ! MPI: sanity check
+     if (bidx /= ntyp) then
+        write(*,*) 'master: invalid number of c13o2_luc_ts param fields ', bidx, ', fix it!'
+        call MPI_Abort(comm, 1, ierr)
+     end if
+
+     call MPI_Type_create_struct(bidx, blen, displs, types, c13o2_luc_ts(rank), ierr)
+     call MPI_Type_commit(c13o2_luc_ts(rank), ierr)
+
+     call MPI_Type_size(c13o2_luc_ts(rank), tsize, ierr)
+     call MPI_Type_get_extent(c13o2_luc_ts(rank), tmplb, text, ierr)
+
+     write(*,*) 'master to rank c13o2_luc_ts param blocks, size, extent and lb: ', rank, bidx, tsize, text, tmplb
+
+     localtotal = localtotal + tsize
+
+  end do ! rank
+
+  write(*,*) 'total c13o2_luc params size sent to all workers: ', localtotal
+  deallocate(types)
+  deallocate(displs)
+  deallocate(blen)
+
+  ! MPI: check whether total size of received data equals total data sent by all the workers
+  remotetotal = 0
+  call MPI_Reduce(MPI_IN_PLACE, remotetotal, 1, MPI_INTEGER, MPI_SUM, 0, comm, ierr)
+
+  write(*,*) 'total c13o2_luc params size received by all workers: ', remotetotal
+
+  if (localtotal /= remotetotal) then
+     write(*,*) 'error: total length of c13o2_luc params sent and received differ'
+     call MPI_Abort(comm, 0, ierr)
+  end if
+
+  call MPI_Barrier(comm, ierr)
+
+  ! so, now send all the parameters
+  call master_send_input(comm, c13o2_luc_ts, 0)
+  ! call MPI_Waitall(wnp, inp_req, inp_stats, ierr)
+
+  ! finally free the MPI type
+  do rank = 1, wnp
+     call MPI_Type_Free(c13o2_luc_ts(rank), ierr)
+  end do
+
+  deallocate(c13o2_luc_ts)
+
+  ! all c13o2_luc parameters have been sent to the workers by now
+  return
+
+end subroutine master_c13o2_luc_params
+
+
+! MPI: creates handles for receiving c13o2_flux final results from the workers
+subroutine master_c13o2_flux_types(comm, c13o2flux)
+
+  use mpi,                 only: &
+       MPI_BYTE, MPI_ADDRESS_KIND, MPI_Get_address, MPI_Type_create_hvector, &
+       MPI_Abort, MPI_Type_create_struct, MPI_Type_commit, MPI_Type_size, &
+       MPI_Type_get_extent, MPI_Type_free, MPI_Reduce, MPI_IN_PLACE, &
+       MPI_INTEGER, MPI_SUM
+  use cable_def_types_mod, only: mp, mf
+  use cable_c13o2_def,     only: c13o2_flux
+  use cable_mpicommon,     only: nc13o2_flux
+
+  implicit none
+
+  integer,          intent(in)    :: comm ! mpi communicator to talk to the workers
+  type(c13o2_flux), intent(inout) :: c13o2flux
+
+  ! MPI: temp arrays for marshalling all types into a struct
+  integer, allocatable, dimension(:) :: blocks
+  integer(kind=MPI_ADDRESS_KIND), allocatable, dimension(:) :: displs
+  integer, allocatable, dimension(:) :: types
+  integer :: ntyp ! number of worker's types
+
+  integer :: last2d, i
+
+  ! mpi: block lenghts for hindexed representing all vectors
+  integer, allocatable, dimension(:) :: blen
+
+  ! mpi: block lengths and strides for hvector representing matrices
+  integer :: r1len, r2len, i1len
+  integer(kind=MPI_ADDRESS_KIND) :: r1stride, r2stride, istride
+
+  integer :: tsize, totalrecv, totalsend
+  integer(kind=MPI_ADDRESS_KIND) :: text, tmplb
+
+  integer :: rank, off, cnt
+  integer :: bidx, midx, vidx, ierr
+
+  allocate(c13o2_flux_ts(wnp))
+
+  ! MPI: allocate temp vectors used for marshalling
+  ntyp = nc13o2_flux
+  allocate(blocks(ntyp))
+  allocate(displs(ntyp))
+  allocate(types(ntyp))
+
+  r1stride = mp * extr1
+  r2stride = mp * extr2
+  istride  = mp * extid
+  ! counter to sum total number of bytes receives from all workers
+  totalrecv = 0
+
+  do rank=1, wnp
+     off = wland(rank)%patch0
+     cnt = wland(rank)%npatch
+
+     r1len = cnt * extr1
+     r2len = cnt * extr2
+     i1len = cnt * extid
+
+     bidx = 0
+
+     ! ------------- 2D arrays -------------
+
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2flux%An(off,1), displs(bidx), ierr)
+     call MPI_Type_create_hvector(mf, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blocks(bidx) = 1
+
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2flux%Disc(off,1), displs(bidx), ierr)
+     call MPI_Type_create_hvector(mf, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blocks(bidx) = 1
+
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2flux%Rsucrose(off,1), displs(bidx), ierr)
+     call MPI_Type_create_hvector(mf, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blocks(bidx) = 1
+
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2flux%Rphoto(off,1), displs(bidx), ierr)
+     call MPI_Type_create_hvector(mf, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blocks(bidx) = 1
+
+     ! ------------- 1D vectors -------------
+
+     last2d = bidx
+
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2flux%ca(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
+
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2flux%cAn12(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
+
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2flux%cAn(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
+
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2flux%RAn(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
+
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2flux%Vstarch(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
+
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2flux%Rstarch(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
+
+     types(last2d+1:bidx) = MPI_BYTE
+
+     ! MPI: sanity check
+     if (bidx /= ntyp) then
+        write(*,*) 'master: invalid number of c13o2_flux fields, fix it!'
+        write(*,*) 'ntyp: ', ntyp, 'bidx: ', bidx
+        call MPI_Abort(comm, 1, ierr)
+     end if
+
+     call MPI_Type_create_struct(bidx, blocks, displs, types, c13o2_flux_ts(rank), ierr)
+     call MPI_Type_commit(c13o2_flux_ts(rank), ierr)
+
+     call MPI_Type_size(c13o2_flux_ts(rank), tsize, ierr)
+     call MPI_Type_get_extent(c13o2_flux_ts(rank), tmplb, text, ierr)
+
+     write(*,*) 'c13o2_flux results recv from worker, size, extent, lb: ', &
+          rank, tsize, text, tmplb
+
+     totalrecv = totalrecv + tsize
+
+     ! free the partial types used for matrices
+     ! TODO: also free partial types for intypes, outtypes etc.
+     do i=1, last2d
+        call MPI_Type_free(types(i), ierr)
+     end do
+
+  end do ! rank
+
+  write(*,*) 'total size of c13o2_flux results received from all workers: ', totalrecv
+
+  ! MPI: check whether total size of received data equals total
+  ! data sent by all the workers
+  totalsend = 0
+  call MPI_Reduce(MPI_IN_PLACE, totalsend, 1, MPI_INTEGER, MPI_SUM, &
+       0, comm, ierr)
+
+  write(*,*) 'total size of c13o2_flux results sent by all workers: ', totalsend
+
+  if (totalrecv /= totalsend) then
+     write(*,*) 'error: c13o2_flux results totalsend and totalrecv differ'
+     call MPI_Abort(comm, 0, ierr)
+  end if
+
+  deallocate(types)
+  deallocate(displs)
+  deallocate(blocks)
+
+  return
+
+end subroutine master_c13o2_flux_types
+
+
+! MPI: creates handles for receiving c13o2_pool final results from the workers
+subroutine master_c13o2_pool_types(comm, c13o2pools)
+
+  use mpi,                 only: &
+       MPI_BYTE, MPI_ADDRESS_KIND, MPI_Get_address, MPI_Type_create_hvector, &
+       MPI_Abort, MPI_Type_create_struct, MPI_Type_commit, MPI_Type_size, &
+       MPI_Type_get_extent, MPI_Type_free, MPI_Reduce, MPI_IN_PLACE, &
+       MPI_INTEGER, MPI_SUM
+  use cable_def_types_mod, only: mp
+  use casadimension,       only: mplant, mlitter, msoil
+  use cable_c13o2_def,     only: c13o2_pool
+  use cable_mpicommon,     only: nc13o2_pool
+
+  implicit none
+
+  integer,          intent(in)    :: comm ! mpi communicator to talk to the workers
+  type(c13o2_pool), intent(inout) :: c13o2pools
+
+  ! MPI: temp arrays for marshalling all types into a struct
+  integer, allocatable, dimension(:) :: blocks
+  integer(kind=MPI_ADDRESS_KIND), allocatable, dimension(:) :: displs
+  integer, allocatable, dimension(:) :: types
+  integer :: ntyp ! number of worker's types
+
+  integer :: last2d, i
+
+  ! mpi: block lenghts for hindexed representing all vectors
+  integer, allocatable, dimension(:) :: blen
+
+  ! mpi: block lengths and strides for hvector representing matrices
+  integer :: r1len, r2len, i1len
+  integer(kind=MPI_ADDRESS_KIND) :: r1stride, r2stride, istride
+
+  integer :: tsize, totalrecv, totalsend
+  integer(kind=MPI_ADDRESS_KIND) :: text, tmplb
+
+  integer :: rank, off, cnt
+  integer :: bidx, midx, vidx, ierr
+
+  allocate(c13o2_pool_ts(wnp))
+
+  ! MPI: allocate temp vectors used for marshalling
+  ntyp = nc13o2_pool
+  allocate(blocks(ntyp))
+  allocate(displs(ntyp))
+  allocate(types(ntyp))
+
+  r1stride = mp * extr1
+  r2stride = mp * extr2
+  istride  = mp * extid
+  ! counter to sum total number of bytes receives from all workers
+  totalrecv = 0
+
+  do rank=1, wnp
+     off = wland(rank)%patch0
+     cnt = wland(rank)%npatch
+
+     r1len = cnt * extr1
+     r2len = cnt * extr2
+     i1len = cnt * extid
+
+     bidx = 0
+
+     ! ------------- 2D arrays -------------
+
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2pools%cplant(off,1), displs(bidx), ierr)
+     call MPI_Type_create_hvector(mplant, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blocks(bidx) = 1
+
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2pools%clitter(off,1), displs(bidx), ierr)
+     call MPI_Type_create_hvector(mlitter, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blocks(bidx) = 1
+
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2pools%csoil(off,1), displs(bidx), ierr)
+     call MPI_Type_create_hvector(msoil, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blocks(bidx) = 1
+
+     ! ------------- 1D vectors -------------
+
+     last2d = bidx
+
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2pools%clabile(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
+
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2pools%charvest(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
+
+     types(last2d+1:bidx) = MPI_BYTE
+
+     ! MPI: sanity check
+     if (bidx /= ntyp) then
+        write(*,*) 'master: invalid number of c13o2_pool fields, fix it!'
+        write(*,*) 'ntyp: ', ntyp, 'bidx: ', bidx
+        call MPI_Abort(comm, 1, ierr)
+     end if
+
+     call MPI_Type_create_struct(bidx, blocks, displs, types, c13o2_pool_ts(rank), ierr)
+     call MPI_Type_commit(c13o2_pool_ts(rank), ierr)
+
+     call MPI_Type_size(c13o2_pool_ts(rank), tsize, ierr)
+     call MPI_Type_get_extent(c13o2_pool_ts(rank), tmplb, text, ierr)
+
+     write(*,*) 'c13o2_pool results recv from worker, size, extent, lb: ', &
+          rank, tsize, text, tmplb
+
+     totalrecv = totalrecv + tsize
+
+     ! free the partial types used for matrices
+     ! TODO: also free partial types for intypes, outtypes etc.
+     do i=1, last2d
+        call MPI_Type_free(types(i), ierr)
+     end do
+
+  end do ! rank
+
+  write(*,*) 'total size of c13o2_pool results received from all workers: ', totalrecv
+
+  ! MPI: check whether total size of received data equals total
+  ! data sent by all the workers
+  totalsend = 0
+  call MPI_Reduce(MPI_IN_PLACE, totalsend, 1, MPI_INTEGER, MPI_SUM, &
+       0, comm, ierr)
+
+  write(*,*) 'total size of c13o2_pool results sent by all workers: ', totalsend
+
+  if (totalrecv /= totalsend) then
+     write(*,*) 'error: c13o2_pool results totalsend and totalrecv differ'
+     call MPI_Abort(comm, 0, ierr)
+  end if
+
+  deallocate(types)
+  deallocate(displs)
+  deallocate(blocks)
+
+  return
+
+end subroutine master_c13o2_pool_types
+
+
+! MPI: creates handles for receiving c13o2_luc final results from the workers
+subroutine master_c13o2_luc_types(comm, c13o2luc)
+
+  use mpi,                 only: &
+       MPI_BYTE, MPI_ADDRESS_KIND, MPI_Get_address, MPI_Type_create_hvector, &
+       MPI_Abort, MPI_Type_create_struct, MPI_Type_commit, MPI_Type_size, &
+       MPI_Type_get_extent, MPI_Type_free, MPI_Reduce, MPI_IN_PLACE, &
+       MPI_INTEGER, MPI_SUM
+  use cable_def_types_mod, only: mp
+  use cable_c13o2_def,     only: c13o2_luc
+  use cable_mpicommon,     only: nc13o2_luc
+
+  implicit none
+
+  integer,          intent(in)    :: comm ! mpi communicator to talk to the workers
+  type(c13o2_luc), intent(inout) :: c13o2luc
+
+  ! MPI: temp arrays for marshalling all types into a struct
+  integer, allocatable, dimension(:) :: blocks
+  integer(kind=MPI_ADDRESS_KIND), allocatable, dimension(:) :: displs
+  integer, allocatable, dimension(:) :: types
+  integer :: ntyp ! number of worker's types
+
+  integer :: last2d, i
+
+  ! mpi: block lenghts for hindexed representing all vectors
+  integer, allocatable, dimension(:) :: blen
+
+  ! mpi: block lengths and strides for hvector representing matrices
+  integer :: r1len, r2len, i1len
+  integer(kind=MPI_ADDRESS_KIND) :: r1stride, r2stride, istride
+
+  integer :: tsize, totalrecv, totalsend
+  integer(kind=MPI_ADDRESS_KIND) :: text, tmplb
+
+  integer :: rank, off, cnt
+  integer :: bidx, midx, vidx, ierr
+
+  allocate(c13o2_luc_ts(wnp))
+
+  ! MPI: allocate temp vectors used for marshalling
+  ntyp = nc13o2_luc
+  allocate(blocks(ntyp))
+  allocate(displs(ntyp))
+  allocate(types(ntyp))
+
+  r1stride = mp * extr1
+  r2stride = mp * extr2
+  istride  = mp * extid
+  ! counter to sum total number of bytes receives from all workers
+  totalrecv = 0
+
+  do rank=1, wnp
+     off = wland(rank)%patch0
+     cnt = wland(rank)%npatch
+
+     r1len = cnt * extr1
+     r2len = cnt * extr2
+     i1len = cnt * extid
+
+     bidx = 0
+
+     ! ------------- 2D arrays -------------
+
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2luc%charvest(off,1), displs(bidx), ierr)
+     call MPI_Type_create_hvector(c13o2luc%nharvest, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blocks(bidx) = 1
+
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2luc%cclearance(off,1), displs(bidx), ierr)
+     call MPI_Type_create_hvector(c13o2luc%nclearance, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blocks(bidx) = 1
+
+     ! ------------- 1D vectors -------------
+
+     last2d = bidx
+
+     bidx = bidx + 1
+     call MPI_Get_address(c13o2luc%cagric(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
+
+     types(last2d+1:bidx) = MPI_BYTE
+
+     ! MPI: sanity check
+     if (bidx /= ntyp) then
+        write(*,*) 'master: invalid number of c13o2_luc fields, fix it!'
+        write(*,*) 'ntyp: ', ntyp, 'bidx: ', bidx
+        call MPI_Abort(comm, 1, ierr)
+     end if
+
+     call MPI_Type_create_struct(bidx, blocks, displs, types, c13o2_luc_ts(rank), ierr)
+     call MPI_Type_commit(c13o2_luc_ts(rank), ierr)
+
+     call MPI_Type_size(c13o2_luc_ts(rank), tsize, ierr)
+     call MPI_Type_get_extent(c13o2_luc_ts(rank), tmplb, text, ierr)
+
+     write(*,*) 'c13o2_luc results recv from worker, size, extent, lb: ', &
+          rank, tsize, text, tmplb
+
+     totalrecv = totalrecv + tsize
+
+     ! free the partial types used for matrices
+     ! TODO: also free partial types for intypes, outtypes etc.
+     do i=1, last2d
+        call MPI_Type_free(types(i), ierr)
+     end do
+
+  end do ! rank
+
+  write(*,*) 'total size of c13o2_luc results received from all workers: ', totalrecv
+
+  ! MPI: check whether total size of received data equals total
+  ! data sent by all the workers
+  totalsend = 0
+  call MPI_Reduce(MPI_IN_PLACE, totalsend, 1, MPI_INTEGER, MPI_SUM, &
+       0, comm, ierr)
+
+  write(*,*) 'total size of c13o2_luc results sent by all workers: ', totalsend
+
+  if (totalrecv /= totalsend) then
+     write(*,*) 'error: c13o2_luc results totalsend and totalrecv differ'
+     call MPI_Abort(comm, 0, ierr)
+  end if
+
+  deallocate(types)
+  deallocate(displs)
+  deallocate(blocks)
+
+  return
+
+end subroutine master_c13o2_luc_types
 
 
 ! MPI: scatters input data for timestep ktau to all workers
@@ -8425,7 +9528,7 @@ SUBROUTINE master_end (icycle, restart)
 END SUBROUTINE master_end
 
 SUBROUTINE master_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
-     casaflux,casamet,casabal,phen,POP,climate,LALLOC, c13o2flux, c13o2pools, icomm, ocomm )
+     casaflux,casamet,casabal,phen,POP,climate,LALLOC, c13o2flux, c13o2pools, c13o2luc, icomm, ocomm )
 
   !USE cable_mpimaster
   USE cable_def_types_mod
@@ -8438,7 +9541,9 @@ SUBROUTINE master_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
   USE POP_Types,           Only: POP_TYPE
   USE POPMODULE,           ONLY: POPStep
   USE TypeDef,             ONLY: i4b, dp
-  use cable_c13o2_def,     only: c13o2_pool, c13o2_flux
+  ! 13C
+  use cable_c13o2_def,     only: c13o2_flux, c13o2_pool, c13o2_luc
+  use cable_c13o2,         only: c13o2_write_restart_pools, c13o2_write_restart_luc
 
   IMPLICIT NONE
   !!CLN  CHARACTER(LEN=99), INTENT(IN)  :: fcnpspin
@@ -8447,18 +9552,20 @@ SUBROUTINE master_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
   INTEGER, INTENT(IN)    :: kend
   INTEGER, INTENT(IN)    :: mloop
   INTEGER, INTENT(IN)    :: LALLOC
-  TYPE (veg_parameter_type),    INTENT(INOUT) :: veg  ! vegetation parameters
-  TYPE (soil_parameter_type),   INTENT(INOUT) :: soil ! soil parameters
-  TYPE (casa_biome),            INTENT(INOUT) :: casabiome
-  TYPE (casa_pool),             INTENT(INOUT) :: casapool
-  TYPE (casa_flux),             INTENT(INOUT) :: casaflux
-  TYPE (casa_met),              INTENT(INOUT) :: casamet
-  TYPE (casa_balance),          INTENT(INOUT) :: casabal
-  TYPE (phen_variable),         INTENT(INOUT) :: phen
-  TYPE (POP_TYPE),              INTENT(INOUT) :: POP
-  TYPE (climate_TYPE),          INTENT(INOUT) :: climate
-  type(c13o2_flux),             intent(in)    :: c13o2flux
-  type(c13o2_pool),             intent(inout) :: c13o2pools
+  TYPE(veg_parameter_type),  INTENT(INOUT) :: veg  ! vegetation parameters
+  TYPE(soil_parameter_type), INTENT(INOUT) :: soil ! soil parameters
+  TYPE(casa_biome),          INTENT(INOUT) :: casabiome
+  TYPE(casa_pool),           INTENT(INOUT) :: casapool
+  TYPE(casa_flux),           INTENT(INOUT) :: casaflux
+  TYPE(casa_met),            INTENT(INOUT) :: casamet
+  TYPE(casa_balance),        INTENT(INOUT) :: casabal
+  TYPE(phen_variable),       INTENT(INOUT) :: phen
+  TYPE(POP_TYPE),            INTENT(INOUT) :: POP
+  TYPE(climate_TYPE),        INTENT(INOUT) :: climate
+  ! 13C
+  type(c13o2_flux),          intent(inout) :: c13o2flux
+  type(c13o2_pool),          intent(inout) :: c13o2pools
+  type(c13o2_luc),           intent(inout) :: c13o2luc
   ! communicator for error-messages
   INTEGER, INTENT(IN)  :: icomm, ocomm
 
@@ -8493,8 +9600,7 @@ SUBROUTINE master_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
   real,      dimension(5,mvtype,msoil)   :: bmcsoil,   bmnsoil,   bmpsoil
   real,      dimension(5,mvtype)         :: bmnsoilmin,bmpsoillab,bmpsoilsorb, bmpsoilocc
   real,      dimension(mvtype)           :: bmarea
-  integer nptx,nvt,kloop
-
+  integer :: nptx,nvt,kloop
 
   ktauday=int(24.0*3600.0/dels)
   nday=(kend-kstart+1)/ktauday
@@ -8502,16 +9608,15 @@ SUBROUTINE master_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
 
   myearspin = CABLE_USER%CASA_SPIN_ENDYEAR - CABLE_USER%CASA_SPIN_STARTYEAR + 1
   ! compute the mean fluxes and residence time of each carbon pool
+  
+  do nyear=1, myearspin
 
-
-  do nyear=1,myearspin
-     
      WRITE(CYEAR,FMT="(I4)") CABLE_USER%CASA_SPIN_STARTYEAR + nyear - 1
      ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
      call read_casa_dump(ncfile, casamet, casaflux, phen, climate, c13o2flux, ktau, kend, .TRUE.)
 
-     do idoy=1,mdyear
-        ktau=(idoy-1)*ktauday +1
+     do idoy=1, mdyear
+        ktau = (idoy-1)*ktauday + 1
         casamet%tairk(:)       = casamet%Tairkspin(:,idoy)
         casamet%tsoil(:,1)     = casamet%Tsoilspin_1(:,idoy)
         casamet%tsoil(:,2)     = casamet%Tsoilspin_2(:,idoy)
@@ -8535,25 +9640,25 @@ SUBROUTINE master_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
         phen%doyphase(:,3) =  phen%doyphasespin_3(:,idoy)
         phen%doyphase(:,4) =  phen%doyphasespin_4(:,idoy)
         climate%qtemp_max_last_year(:) =  casamet%mtempspin(:,idoy)
+        ! 13C
         if (cable_user%c13o2) then
            c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
            c13o2flux%cAn(:)   = casamet%cAn13spin(:,idoy)
         endif
 
-        CALL master_send_input (icomm, casa_dump_ts, idoy)
-        
+        CALL master_send_input(icomm, casa_dump_ts, idoy)
       enddo
-      
+
   enddo
 
   nloop1= max(1,mloop-3)
 
-  DO nloop=1,mloop
+  DO nloop=1, mloop
      write(*,*) 'nloop =', nloop
      !!CLN  OPEN(91,file=fcnpspin)
      !!CLN  read(91,*)
-     DO nyear=1,myearspin
-        
+     DO nyear=1, myearspin
+
         WRITE(CYEAR,FMT="(I4)") CABLE_USER%CASA_SPIN_STARTYEAR + nyear - 1
         ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
         call read_casa_dump(ncfile, casamet, casaflux, phen, climate, c13o2flux, ktau, kend, .TRUE.)
@@ -8583,43 +9688,52 @@ SUBROUTINE master_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
            phen%doyphase(:,3) =  phen%doyphasespin_3(:,idoy)
            phen%doyphase(:,4) =  phen%doyphasespin_4(:,idoy)
            climate%qtemp_max_last_year(:) =  casamet%mtempspin(:,idoy)
+           ! 13C
            if (cable_user%c13o2) then
               c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
               c13o2flux%cAn(:)   = casamet%cAn13spin(:,idoy)
            endif
-         
+
            CALL master_send_input(icomm, casa_dump_ts, idoy)
-         
         ENDDO ! end doy
-  
+
      ENDDO   ! end of nyear
- 
+
   ENDDO     ! end of nloop
-write(*,*) 'b4 master receive casa'
-CALL master_receive (ocomm, 0, casa_ts)
-write(*,*) 'after master receive casa'
-CALL casa_poolout( ktau, veg, soil, casabiome,                           &
-            casapool, casaflux, casamet, casabal, phen )
+  
+  write(*,*) 'b4 master receive casa'
+  CALL master_receive(ocomm, 0, casa_ts)
+  write(*,*) 'after master receive casa'
+  CALL casa_poolout(ktau, veg, soil, casabiome, &
+       casapool, casaflux, casamet, casabal, phen )
 
+  CALL write_casa_restart_nc(casamet, casapool, casaflux, phen, .TRUE.)
+  ! 13C
+  if (cable_user%c13o2) then
+     CALL master_receive(ocomm, 0, c13o2_pool_ts)
+     call c13o2_write_restart_pools(c13o2pools)
+     !MC - write LUC here? Ask Vanessa
+     if (cable_user%POPLUC) then
+        CALL master_receive(ocomm, 0, c13o2_luc_ts)
+        call c13o2_write_restart_luc(c13o2luc)
+     endif
+  endif
 
-CALL write_casa_restart_nc ( casamet, casapool,casaflux,phen,.TRUE. )
-
-
-IF ( CABLE_USER%CALL_POP .and.POP%np.gt.0 ) THEN
-write(*,*) 'b4 master receive pop'
-   CALL master_receive_pop(POP, ocomm)
-write(*,*) 'after master receive pop'
-   CALL POP_IO( pop, casamet, myearspin, 'WRITE_INI', .TRUE.)
-ENDIF
-
+  IF ( CABLE_USER%CALL_POP .and.POP%np.gt.0 ) THEN
+     write(*,*) 'b4 master receive pop'
+     CALL master_receive_pop(POP, ocomm)
+     write(*,*) 'after master receive pop'
+     CALL POP_IO( pop, casamet, myearspin, 'WRITE_INI', .TRUE.)
+  ENDIF
 
 END SUBROUTINE master_spincasacnp
+
 !*********************************************************************************************
+
 SUBROUTINE master_CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
      casaflux,casamet,casabal,phen,POP,climate,LALLOC,LUC_EXPT, POPLUC, &
-     c13o2flux, c13o2pools, &
+     c13o2flux, c13o2pools, c13o2luc, &
      icomm, ocomm )
-
 
   USE cable_def_types_mod
   USE cable_carbon_module
@@ -8639,28 +9753,31 @@ SUBROUTINE master_CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   USE POPLUC_Module, ONLY: POPLUCStep, POPLUC_weights_Transfer, WRITE_LUC_OUTPUT_NC, &
        POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, READ_LUC_RESTART_NC, &
        POPLUC_set_patchfrac,  WRITE_LUC_OUTPUT_GRID_NC
-  use cable_c13o2_def,     only: c13o2_pool, c13o2_flux
-
+  use cable_c13o2_def,     only: c13o2_flux, c13o2_pool, c13o2_luc
+  use cable_c13o2,         only: c13o2_save_luc, c13o2_update_luc, &
+       c13o2_write_restart_pools, c13o2_write_restart_luc
 
   IMPLICIT NONE
+  
   REAL,    INTENT(IN)    :: dels
   INTEGER, INTENT(IN)    :: kstart
   INTEGER, INTENT(IN)    :: kend
   INTEGER, INTENT(IN)    :: LALLOC
-  TYPE (veg_parameter_type),    INTENT(INOUT) :: veg  ! vegetation parameters
-  TYPE (soil_parameter_type),   INTENT(INOUT) :: soil ! soil parameters
-  TYPE (casa_biome),            INTENT(INOUT) :: casabiome
-  TYPE (casa_pool),             INTENT(INOUT) :: casapool
-  TYPE (casa_flux),             INTENT(INOUT) :: casaflux
-  TYPE (casa_met),              INTENT(INOUT) :: casamet
-  TYPE (casa_balance),          INTENT(INOUT) :: casabal
-  TYPE (phen_variable),         INTENT(INOUT) :: phen
-  TYPE (POP_TYPE), INTENT(INOUT)     :: POP
-  TYPE (climate_TYPE), INTENT(INOUT)     :: climate
-  type(c13o2_flux),             intent(in)    :: c13o2flux
-  type(c13o2_pool),             intent(inout) :: c13o2pools
-  TYPE (LUC_EXPT_TYPE), INTENT(INOUT) :: LUC_EXPT
-  TYPE(POPLUC_TYPE), INTENT(INOUT) :: POPLUC
+  TYPE(veg_parameter_type),  INTENT(INOUT) :: veg  ! vegetation parameters
+  TYPE(soil_parameter_type), INTENT(INOUT) :: soil ! soil parameters
+  TYPE(casa_biome),          INTENT(INOUT) :: casabiome
+  TYPE(casa_pool),           INTENT(INOUT) :: casapool
+  TYPE(casa_flux),           INTENT(INOUT) :: casaflux
+  TYPE(casa_met),            INTENT(INOUT) :: casamet
+  TYPE(casa_balance),        INTENT(INOUT) :: casabal
+  TYPE(phen_variable),       INTENT(INOUT) :: phen
+  TYPE(POP_TYPE),            INTENT(INOUT) :: POP
+  TYPE(climate_TYPE),        INTENT(INOUT) :: climate
+  TYPE(LUC_EXPT_TYPE),       INTENT(INOUT) :: LUC_EXPT
+  TYPE(POPLUC_TYPE),         INTENT(INOUT) :: POPLUC
+  type(c13o2_flux),          intent(inout) :: c13o2flux
+  type(c13o2_pool),          intent(inout) :: c13o2pools
+  type(c13o2_luc),           intent(inout) :: c13o2luc
   !TYPE (casa_pool)   , INTENT(INOUT) :: sum_casapool
   !TYPE (casa_flux)   , INTENT(INOUT) :: sum_casaflux
   ! communicator for error-messages
@@ -8705,22 +9822,25 @@ SUBROUTINE master_CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   INTEGER :: count_sum_casa ! number of time steps over which casa pools &
   !and fluxes are aggregated (for output)
   INTEGER :: rank, count, off, cnt, ierr
-!!$  if (.NOT.Allocated(LAIMax)) allocate(LAIMax(mp))
-!!$  if (.NOT.Allocated(Cleafmean))  allocate(Cleafmean(mp))
-!!$  if (.NOT.Allocated(Crootmean)) allocate(Crootmean(mp))
-!!$  if (.NOT.Allocated(NPPtoGPP)) allocate(NPPtoGPP(mp))
-!!$  if (.NOT.Allocated(Iw)) allocate(Iw(POP%np))
-!!$ 
-!!$  IF (cable_user%CALL_POP) THEN
-!!$     Iw = POP%Iwood
-!!$  ENDIF
+  ! 13C
+  real(dp), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
+  real(dp), dimension(c13o2luc%nland,c13o2luc%npools)     :: lucsave
+
+  !  if (.NOT.Allocated(LAIMax)) allocate(LAIMax(mp))
+  !  if (.NOT.Allocated(Cleafmean))  allocate(Cleafmean(mp))
+  !  if (.NOT.Allocated(Crootmean)) allocate(Crootmean(mp))
+  !  if (.NOT.Allocated(NPPtoGPP)) allocate(NPPtoGPP(mp))
+  !  if (.NOT.Allocated(Iw)) allocate(Iw(POP%np))
+  !
+  !  IF (cable_user%CALL_POP) THEN
+  !     Iw = POP%Iwood
+  !  ENDIF
 
   ktauday=int(24.0*3600.0/dels)
   nday=(kend-kstart+1)/ktauday
-!!$  ctime = 0
-!!$  CALL zero_sum_casa(sum_casapool, sum_casaflux)
-!!$       count_sum_casa = 0
-
+  !  ctime = 0
+  !  CALL zero_sum_casa(sum_casapool, sum_casaflux)
+  !       count_sum_casa = 0
 
   myearspin = CABLE_USER%YEAREND - CABLE_USER%YEARSTART + 1
   yyyy = CABLE_USER%YEARSTART - 1
@@ -8737,11 +9857,9 @@ SUBROUTINE master_CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
 
      WRITE(CYEAR,FMT="(I4)") CABLE_USER%CASA_SPIN_STARTYEAR + nyear_dump -1
 
-
-
      ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
-
      call read_casa_dump(ncfile, casamet, casaflux, phen, climate, c13o2flux, 1, 1, .TRUE.)
+     
      !!CLN901  format(A99)
      do idoy=1,mdyear
         ktau=(idoy-1)*ktauday +ktauday
@@ -8775,57 +9893,54 @@ SUBROUTINE master_CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
         endif
         CALL master_send_input(icomm, casa_dump_ts, idoy)
 
-!!$        ! zero annual sums
-!!$        if (idoy==1) CALL casa_cnpflux(casaflux,casapool,casabal,.TRUE.)
+        ! ! zero annual sums
+        ! if (idoy==1) CALL casa_cnpflux(casaflux,casapool,casabal,.TRUE.)
+        
+        ! CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
+        !      casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter, &
+        !      xksoil,xkleaf,xkleafcold,xkleafdry,&
+        !      cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
+        !      nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
+        !      pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
+        !
+        ! ! update time-aggregates of casa pools and fluxes
+        ! CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
+        !                     & .TRUE. , .FALSE., 1)
+        ! count_sum_casa = count_sum_casa + 1
+        
+        
+        
+        !    ! accumulate annual variables for use in POP
+        !    IF(idoy==1 ) THEN
+        !       casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * &        !       0.7 ! (assumes 70% of wood NPP is allocated above ground)
+        !       LAImax = casamet%glai
+        !       Cleafmean = casapool%cplant(:,1)/real(mdyear)/1000.
+        !       Crootmean = casapool%cplant(:,3)/real(mdyear)/1000.
+        !    ELSE
+        !       casaflux%stemnpp = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7
+        !       LAImax = max(casamet%glai, LAImax)
+        !       Cleafmean = Cleafmean + casapool%cplant(:,1)/real(mdyear)/1000.
+        !       Crootmean = Crootmean +casapool%cplant(:,3)/real(mdyear)/1000.
+        !    ENDIF
 
-!!$        CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
-!!$             casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter, &
-!!$             xksoil,xkleaf,xkleafcold,xkleafdry,&
-!!$             cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
-!!$             nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
-!!$             pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
-!!$
-!!$        ! update time-aggregates of casa pools and fluxes
-!!$        CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
-!!$                            & .TRUE. , .FALSE., 1)
-!!$        count_sum_casa = count_sum_casa + 1
-
-
-
-!!$           ! accumulate annual variables for use in POP
-!!$           IF(idoy==1 ) THEN
-!!$              casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7 ! (assumes 70% of wood NPP is allocated above ground)
-!!$              LAImax = casamet%glai
-!!$              Cleafmean = casapool%cplant(:,1)/real(mdyear)/1000.
-!!$              Crootmean = casapool%cplant(:,3)/real(mdyear)/1000.
-!!$           ELSE
-!!$              casaflux%stemnpp = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7
-!!$              LAImax = max(casamet%glai, LAImax)
-!!$              Cleafmean = Cleafmean + casapool%cplant(:,1)/real(mdyear)/1000.
-!!$              Crootmean = Crootmean +casapool%cplant(:,3)/real(mdyear)/1000.
-!!$           ENDIF
-
-        IF(idoy==mdyear) THEN ! end of year
+        IF (idoy==mdyear) THEN ! end of year
 
            ! get casa update from workers
-           
-           CALL master_receive (ocomm, 0, casa_LUC_ts)
-
+           CALL master_receive(ocomm, 0, casa_LUC_ts)
 
            LUC_EXPT%CTSTEP = yyyy -  LUC_EXPT%FirstYear + 1
 
            CALL READ_LUH2(LUC_EXPT)
 
            DO k=1,mland
-              POPLUC%ptos(k) = LUC_EXPT%INPUT(ptos)%VAL(k)
-              POPLUC%ptog(k) = LUC_EXPT%INPUT(ptog)%VAL(k)
-              POPLUC%stog(k) = LUC_EXPT%INPUT(stog)%VAL(k) 
-              POPLUC%gtop(k) = 0.0
-              POPLUC%gtos(k) = LUC_EXPT%INPUT(gtos)%VAL(k)
-              POPLUC%pharv(k) = LUC_EXPT%INPUT(pharv)%VAL(k)
+              POPLUC%ptos(k)   = LUC_EXPT%INPUT(ptos)%VAL(k)
+              POPLUC%ptog(k)   = LUC_EXPT%INPUT(ptog)%VAL(k)
+              POPLUC%stog(k)   = LUC_EXPT%INPUT(stog)%VAL(k)
+              POPLUC%gtop(k)   = 0.0_dp
+              POPLUC%gtos(k)   = LUC_EXPT%INPUT(gtos)%VAL(k)
+              POPLUC%pharv(k)  = LUC_EXPT%INPUT(pharv)%VAL(k)
               POPLUC%smharv(k) = LUC_EXPT%INPUT(smharv)%VAL(k)
               POPLUC%syharv(k) = LUC_EXPT%INPUT(syharv)%VAL(k)
-
 
               POPLUC%ptoc(k) = LUC_EXPT%INPUT(ptoc)%VAL(k)
               POPLUC%ptoq(k) = LUC_EXPT%INPUT(ptoq)%VAL(k)
@@ -8836,9 +9951,9 @@ SUBROUTINE master_CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
 
               POPLUC%thisyear = yyyy
            ENDDO
-  
+
            ! set landuse index for secondary forest POP landscapes
-           DO k=1,POP%np
+           DO k=1, POP%np
               IF (yyyy.eq.LUC_EXPT%YearStart) THEN
                  if (veg%iLU(POP%Iwood(k)).eq.2) then
                     !POP%LU(k) = 2
@@ -8849,43 +9964,42 @@ SUBROUTINE master_CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
 
            ! zero secondary forest tiles in POP where secondary forest area is zero
            DO k=1,mland
-              if ((POPLUC%primf(k)-POPLUC%frac_forest(k))==0.0 &
+              if ((POPLUC%primf(k)-POPLUC%frac_forest(k))==0.0_dp &
                    .and. (.not.LUC_EXPT%prim_only(k))) then
 
                  j = landpt(k)%cstart+1
                  do l=1,size(POP%Iwood)
                     if( POP%Iwood(l) == j) then
-
                        CALL POP_init_single(POP,veg%disturbance_interval,l)
-
                        exit
                     endif
                  enddo
 
-                 casapool%cplant(j,leaf) = 0.01
+                 casapool%cplant(j,leaf) = 0.01_dp
                  casapool%nplant(j,leaf)= casabiome%ratioNCplantmin(veg%iveg(j),leaf)* casapool%cplant(j,leaf)
                  casapool%pplant(j,leaf)= casabiome%ratioPCplantmin(veg%iveg(j),leaf)* casapool%cplant(j,leaf)
 
-                 casapool%cplant(j,froot) = 0.01
+                 casapool%cplant(j,froot) = 0.01_dp
                  casapool%nplant(j,froot)= casabiome%ratioNCplantmin(veg%iveg(j),froot)* casapool%cplant(j,froot)
                  casapool%pplant(j,froot)= casabiome%ratioPCplantmin(veg%iveg(j),froot)* casapool%cplant(j,froot)
 
-                 casapool%cplant(j,wood) = 0.01
+                 casapool%cplant(j,wood) = 0.01_dp
                  casapool%nplant(j,wood)= casabiome%ratioNCplantmin(veg%iveg(j),wood)* casapool%cplant(j,wood)
                  casapool%pplant(j,wood)= casabiome%ratioPCplantmin(veg%iveg(j),wood)* casapool%cplant(j,wood)
-                 casaflux%frac_sapwood(j) = 1.0
+                 casaflux%frac_sapwood(j) = 1.0_dp
 
+                 ! 13C
+                 if (cable_user%c13o2) then
+                    c13o2pools%cplant(j,leaf)  = 0.01_dp ! * vpdbc13 / vpdbc13 ! Divide by 13C
+                    c13o2pools%cplant(j,wood)  = 0.01_dp ! * vpdbc13 / vpdbc13 ! so that about same numerical precision as 12C
+                    c13o2pools%cplant(j,froot) = 0.01_dp ! * vpdbc13 / vpdbc13 !
+                 endif
               endif
            ENDDO
 
-
-    
            CALL POPLUCStep(POPLUC,yyyy)
-    
 
            CALL POPLUC_weights_transfer(POPLUC,POP,LUC_EXPT)
-
-
 
            ! transfer POP updates to workers
            off = 1
@@ -8895,37 +10009,45 @@ SUBROUTINE master_CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
               CALL MPI_Send( POP%pop_grid(off), cnt, pop_ts, rank, 0, icomm, ierr )
            END DO
 
-! workers call POP here
+           ! workers call POP here
 
-!!$           CALL POPdriver(casaflux,casabal,veg, POP)
-
+           ! CALL POPdriver(casaflux,casabal,veg, POP)
            CALL master_receive_pop(POP, ocomm)
 
+           if (cable_user%c13o2) call c13o2_save_luc(casapool, popluc, casasave, lucsave)
            CALL POP_LUC_CASA_transfer(POPLUC,POP,LUC_EXPT,casapool,casabal,casaflux,ktauday)
+           ! 13C
+           if (cable_user%c13o2) call c13o2_update_luc(casasave, lucsave, popluc, luc_expt%prim_only, c13o2pools, c13o2luc)
 
-           IF (output%grid(1:3) == 'lan') THEN 
-              CALL WRITE_LUC_OUTPUT_NC( POPLUC, YYYY, ( YYYY.EQ.cable_user%YearEnd ))
+           IF (output%grid(1:3) == 'lan') THEN
+              CALL WRITE_LUC_OUTPUT_NC(POPLUC, YYYY, (YYYY.EQ.cable_user%YearEnd))
            ELSE
-              CALL WRITE_LUC_OUTPUT_GRID_NC( POPLUC, YYYY, ( YYYY.EQ.cable_user%YearEnd ))
-              !CALL WRITE_LUC_OUTPUT_NC( POPLUC, YYYY, ( YYYY.EQ.cable_user%YearEnd ))
+              CALL WRITE_LUC_OUTPUT_GRID_NC(POPLUC, YYYY, (YYYY.EQ.cable_user%YearEnd))
            ENDIF
+           !MC ToDo - Output?
 
-           CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT)  
+           CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT)
 
         ENDIF  ! end of year
 
      enddo
      ! send updates for CASA pools, resulting from LUC
-     CALL master_send_input (icomm, casa_LUC_ts, nyear)
+     CALL master_send_input(icomm, casa_LUC_ts, nyear)
+     ! 13C
+     if (cable_user%c13o2) call master_send_input(icomm, c13o2_luc_ts, nyear)
+  enddo ! year=1,myearspin
+  CALL WRITE_LUC_RESTART_NC( POPLUC, YYYY )
+  CALL write_casa_restart_nc(casamet, casapool, casaflux, phen, .TRUE.)
+  ! 13C
+  if (cable_user%c13o2) then
+     call c13o2_write_restart_pools(c13o2pools)
+     if (cable_user%POPLUC) call c13o2_write_restart_luc(c13o2luc)
+  endif
 
-  enddo
-  CALL WRITE_LUC_RESTART_NC ( POPLUC, YYYY )
-  CALL write_casa_restart_nc ( casamet, casapool,casaflux,phen,.TRUE. )
-
-  CALL POP_IO( pop, casamet, myearspin, 'WRITE_INI', .TRUE.)
-
+  CALL POP_IO(pop, casamet, myearspin, 'WRITE_INI', .TRUE.)
 
 END SUBROUTINE master_CASAONLY_LUC
+
 
 !********************************************************************************************************
 ! subroutine for reading LU input data, zeroing biomass in empty secondary forest tiles
@@ -8933,10 +10055,10 @@ END SUBROUTINE master_CASAONLY_LUC
 
 
 SUBROUTINE LUCdriver( casabiome,casapool, &
-     casaflux,POP,LUC_EXPT, POPLUC, veg )
+     casaflux,POP,LUC_EXPT, POPLUC, veg, c13o2pools )
 
 
-  USE cable_def_types_mod , ONLY: veg_parameter_type, mland
+  USE cable_def_types_mod , ONLY: r_2, veg_parameter_type, mland
   USE cable_carbon_module
   USE cable_common_module, ONLY: CABLE_USER, is_casa_time, CurYear
   USE cable_IO_vars_module, ONLY: logn, landpt, patch
@@ -8952,39 +10074,37 @@ SUBROUTINE LUCdriver( casabiome,casapool, &
   USE POPLUC_Types
   USE POPLUC_Module, ONLY: POPLUCStep, POPLUC_weights_Transfer, WRITE_LUC_OUTPUT_NC, &
        POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, READ_LUC_RESTART_NC
-
-
+  ! 13C
+  use cable_c13o2_def, only: c13o2_pool
 
   IMPLICIT NONE
 
-  TYPE (casa_biome),            INTENT(INOUT) :: casabiome
-  TYPE (casa_pool),             INTENT(INOUT) :: casapool
-  TYPE (casa_flux),             INTENT(INOUT) :: casaflux
-  TYPE (POP_TYPE), INTENT(INOUT)     :: POP
-  TYPE (LUC_EXPT_TYPE), INTENT(INOUT) :: LUC_EXPT
-  TYPE(POPLUC_TYPE), INTENT(INOUT) :: POPLUC
-  TYPE (veg_parameter_type),    INTENT(IN) :: veg  ! vegetation parameters
+  TYPE(casa_biome),         INTENT(INOUT) :: casabiome
+  TYPE(casa_pool),          INTENT(INOUT) :: casapool
+  TYPE(casa_flux),          INTENT(INOUT) :: casaflux
+  TYPE(POP_TYPE),           INTENT(INOUT) :: POP
+  TYPE(LUC_EXPT_TYPE),      INTENT(INOUT) :: LUC_EXPT
+  TYPE(POPLUC_TYPE),        INTENT(INOUT) :: POPLUC
+  TYPE(veg_parameter_type), INTENT(IN)    :: veg  ! vegetation parameters
+  ! 13C
+  type(c13o2_pool),         intent(inout) :: c13o2pools
 
   integer ::  k, j, l, yyyy
 
- 
- 
   write(*,*) 'cablecasa_LUC', CurYear
   yyyy = CurYear
-
-
 
   LUC_EXPT%CTSTEP = yyyy -  LUC_EXPT%FirstYear + 1
 
   CALL READ_LUH2(LUC_EXPT)
 
   DO k=1,mland
-     POPLUC%ptos(k) = LUC_EXPT%INPUT(ptos)%VAL(k)
-     POPLUC%ptog(k) = LUC_EXPT%INPUT(ptog)%VAL(k)
-     POPLUC%stog(k) = LUC_EXPT%INPUT(stog)%VAL(k) 
-     POPLUC%gtop(k) = 0.0
-     POPLUC%gtos(k) = LUC_EXPT%INPUT(gtos)%VAL(k)
-     POPLUC%pharv(k) = LUC_EXPT%INPUT(pharv)%VAL(k)
+     POPLUC%ptos(k)   = LUC_EXPT%INPUT(ptos)%VAL(k)
+     POPLUC%ptog(k)   = LUC_EXPT%INPUT(ptog)%VAL(k)
+     POPLUC%stog(k)   = LUC_EXPT%INPUT(stog)%VAL(k)
+     POPLUC%gtop(k)   = 0.0_r_2
+     POPLUC%gtos(k)   = LUC_EXPT%INPUT(gtos)%VAL(k)
+     POPLUC%pharv(k)  = LUC_EXPT%INPUT(pharv)%VAL(k)
      POPLUC%smharv(k) = LUC_EXPT%INPUT(smharv)%VAL(k)
      POPLUC%syharv(k) = LUC_EXPT%INPUT(syharv)%VAL(k)
 
@@ -9010,18 +10130,25 @@ SUBROUTINE LUCdriver( casabiome,casapool, &
            endif
         enddo
 
-        casapool%cplant(j,leaf) = 0.01
+        casapool%cplant(j,leaf) = 0.01_r_2
         casapool%nplant(j,leaf)= casabiome%ratioNCplantmin(veg%iveg(j),leaf)* casapool%cplant(j,leaf)
         casapool%pplant(j,leaf)= casabiome%ratioPCplantmin(veg%iveg(j),leaf)* casapool%cplant(j,leaf)
 
-        casapool%cplant(j,froot) = 0.01
+        casapool%cplant(j,froot) = 0.01_r_2
         casapool%nplant(j,froot)= casabiome%ratioNCplantmin(veg%iveg(j),froot)* casapool%cplant(j,froot)
         casapool%pplant(j,froot)= casabiome%ratioPCplantmin(veg%iveg(j),froot)* casapool%cplant(j,froot)
 
-        casapool%cplant(j,wood) = 0.01
+        casapool%cplant(j,wood) = 0.01_r_2
         casapool%nplant(j,wood)= casabiome%ratioNCplantmin(veg%iveg(j),wood)* casapool%cplant(j,wood)
         casapool%pplant(j,wood)= casabiome%ratioPCplantmin(veg%iveg(j),wood)* casapool%cplant(j,wood)
-        casaflux%frac_sapwood(j) = 1.0
+        casaflux%frac_sapwood(j) = 1.0_r_2
+
+        ! 13C
+        if (cable_user%c13o2) then
+           c13o2pools%cplant(j,leaf)  = 0.01_r_2 ! * vpdbc13 / vpdbc13 ! Divide by 13C
+           c13o2pools%cplant(j,wood)  = 0.01_r_2 ! * vpdbc13 / vpdbc13 ! so that about same numerical precision as 12C
+           c13o2pools%cplant(j,froot) = 0.01_r_2 ! * vpdbc13 / vpdbc13 !
+        endif
 
      endif
   ENDDO
@@ -9031,7 +10158,7 @@ SUBROUTINE LUCdriver( casabiome,casapool, &
   CALL POPLUC_weights_transfer(POPLUC,POP,LUC_EXPT)
 
 END SUBROUTINE LUCdriver
+
 !*********************************************************************************************************
 
 END MODULE cable_mpimaster
-

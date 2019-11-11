@@ -30,27 +30,26 @@ PROGRAM mpi_driver
   INTEGER :: comm, np, rank, ierr
   REAL    :: etime ! Declare the type of etime()
 
-  CALL MPI_Init (ierr)
-  CALL MPI_Comm_dup (MPI_COMM_WORLD, comm, ierr)
-  CALL MPI_Comm_size (comm, np, ierr)
+  CALL MPI_Init(ierr)
+  CALL MPI_Comm_dup(MPI_COMM_WORLD, comm, ierr)
+  CALL MPI_Comm_size(comm, np, ierr)
 
   IF (np < 2) THEN
      WRITE (*,*) 'This program needs at least 2 processes to run!'
-     CALL MPI_Abort (comm, 0, ierr)
+     CALL MPI_Abort(comm, 0, ierr)
   END IF
 
-  CALL MPI_Comm_rank (comm, rank, ierr)
+  CALL MPI_Comm_rank(comm, rank, ierr)
 
   IF (rank == 0) THEN
-          CALL mpidrv_master (comm)
+     CALL mpidrv_master(comm)
   ELSE
-          CALL mpidrv_worker (comm)
+     CALL mpidrv_worker(comm)
   END IF
 
-  CALL MPI_Finalize (ierr)
+  CALL MPI_Finalize(ierr)
 
   CALL CPU_TIME(etime)
-  PRINT *, 'Finished. ', etime, ' seconds needed for '
+  PRINT*, 'Finished. ', etime, ' seconds needed for '
 
 END PROGRAM mpi_driver
-

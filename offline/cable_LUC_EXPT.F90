@@ -24,6 +24,7 @@ MODULE CABLE_LUC_EXPT
      INTEGER, ALLOCATABLE :: biome(:)
      INTEGER :: YearStart, YearEnd, nfile
      INTEGER :: CTSTEP
+     !MC - Should be dp
      REAL, ALLOCATABLE :: primaryf(:), mtemp_min20(:), grass(:), secdf(:), crop(:), past(:)
      CHARACTER(len=200),DIMENSION(17) :: TransFile
      CHARACTER(len=12) ,DIMENSION(17) :: VAR_NAME

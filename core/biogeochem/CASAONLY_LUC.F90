@@ -25,6 +25,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   use cable_c13o2_def, only: c13o2_flux, c13o2_pool, c13o2_luc, c13o2_update_sum_pools, c13o2_zero_sum_pools
   use cable_c13o2,     only: c13o2_save_casapool, c13o2_update_pools, c13o2_save_luc, c13o2_update_luc, &
        c13o2_create_output, c13o2_write_output, c13o2_close_output, &
+       c13o2_nvars_output, &
        c13o2_print_delta_pools, c13o2_print_delta_luc
 
   IMPLICIT NONE
@@ -95,10 +96,9 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   ! 13C
   real(dp), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
   real(dp), dimension(c13o2luc%nland,c13o2luc%npools)     :: lucsave
-  integer                             :: c13o2_file_id
-  integer, parameter :: nvars = 7
-  character(len=20), dimension(nvars) :: c13o2_vars
-  integer,           dimension(nvars) :: c13o2_var_ids
+  integer :: c13o2_file_id
+  character(len=20), dimension(c13o2_nvars_output) :: c13o2_vars
+  integer,           dimension(c13o2_nvars_output) :: c13o2_var_ids
 
   if (.NOT.Allocated(Iw)) allocate(Iw(POP%np))
 
@@ -245,10 +245,8 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
 
                  j = landpt(k)%cstart+1
                  do l=1,size(POP%Iwood)
-                    if( POP%Iwood(l) == j) then
-
+                    if ( POP%Iwood(l) == j) then
                        CALL POP_init_single(POP,veg%disturbance_interval,l)
-
                        exit
                     endif
                  enddo

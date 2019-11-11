@@ -1,5 +1,7 @@
 #!/bin/ksh
 
+export dosvn=1 # 1/0: do/do not check svn
+
 known_hosts()
 {
    set -A kh cher burn shin raij pear mcin
@@ -113,6 +115,7 @@ host_pear()
 #   best debugg flags
 #   export LDFLAGS='-g -L'$NCDIR  #'-L'$NCDIR' -O2'
    export LDFLAGS='-O0 -L'$NCDIR''
+   export MFLAGS='-j 8'
    export LD='-lnetcdf -lnetcdff'
    build_build
    cd ../
@@ -120,54 +123,73 @@ host_pear()
 }
 
 
-# Matthias@INRA
+# MatthiasCuntz@INRA
 host_mcin()
-{    
-   # GFORTRAN
-   export FC=/usr/local/openmpi-2.0.1-gfortran/bin/mpif90
-   # release
-   export CFLAGS="-O3 -Wno-aggressive-loop-optimizations -cpp -ffree-form -ffixed-line-length-132"
-   if [[ $1 = 'debug' ]] ; then
-       # debug
-       export CFLAGS="-pedantic-errors -Wall -W -O -g -Wno-maybe-uninitialized -cpp -ffree-form -ffixed-line-length-132"
-   fi
-   export LD=''
-   export NCROOT='/usr/local/netcdf-fortran-4.4.4-gfortran'
+{
+    idebug=0
+    iintel=0
+    np=$#
+    for ((i=0; i<${np}; i++)) ; do
+	if [[ "${1}" == "debug" ]] ; then
+	    idebug=1
+	    shift 1
+	elif [[ "${1}" == "ifort" || "${1}" == "intel" ]] ; then
+	    iintel=1
+	    shift 1
+	elif [[ "${1}" == "gfortran" || "${1}" == "gnu" ]] ; then
+	    iintel=0
+	    shift 1
+	fi
+    done
+    if [[ ${iintel} -eq 1 ]] ;  then
+	# INTEL
+	/opt/intel/compilers_and_libraries/mac/bin/compilervars.sh intel64
+	export FC=/usr/local/openmpi-3.1.4-ifort/bin/mpif90
+	# release
+	export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
+	if [[ ${idebug} -eq 1 ]] ; then
+	    # debug
+	    export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
+	fi
+	export LD=''
+	export NCROOT='/usr/local/netcdf-fortran-4.4.5-ifort'
+    else
+        # GFORTRAN
+	export FC=/usr/local/openmpi-3.1.4-gfortran/bin/mpif90
+	# release
+	export CFLAGS="-O3 -Wno-aggressive-loop-optimizations -cpp -ffree-form -ffixed-line-length-132"
+	if [[ ${idebug} -eq 1 ]] ; then
+	    # debug
+	    export CFLAGS="-pedantic-errors -Wall -W -O -g -Wno-maybe-uninitialized -cpp -ffree-form -ffixed-line-length-132"
+	fi
+	export LD=''
+	export NCROOT='/usr/local/netcdf-fortran-4.4.5-gfortran'
+    fi
+    # export CFLAGS="${CFLAGS} -DC13DEBUG"
+    export CFLAGS="${CFLAGS} -DCRU2017"
 
-   # # NAG - Does not work for pop_io.f90
-   # export FC=nagfor
-   # # release
-   # export CFLAGS="-O4 -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free"
-   # if [[ $1 = 'debug' ]] ; then
-   #     # debug
-   #     export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -DNAG"
-   # fi
-   # export LD='-ideclient -unsharedrts'
-   # export NCROOT='/usr/local/netcdf-fortran-4.4.4-nagfor'
+    # # NAG - Does not work for pop_io.f90
+    # export FC=nagfor
+    # # release
+    # export CFLAGS="-O4 -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free"
+    # if [[ ${1} = 'debug' ]] ; then
+    #     # debug
+    #     export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -DNAG"
+    # fi
+    # export LD='-ideclient -unsharedrts'
+    # export NCROOT='/usr/local/netcdf-fortran-4.4.5-nagfor'
 
-   # # INTEL
-   # /opt/intel/compilers_and_libraries/mac/bin/compilervars.sh intel64
-   # export FC=/usr/local/openmpi-2.0.1-ifort/bin/mpif90
-   # # release
-   # export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
-   # if [[ $1 = 'debug' ]] ; then
-   #     # debug
-   #     export CFLAGS="-check all -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
-   # fi
-   # export LD=''
-   # export NCROOT='/usr/local/netcdf-fortran-4.4.4-ifort'
-
-   # All compilers
-   export NCCROOT='/usr/local'
-   export NCCLIB=${NCROOT}'/lib'
-   export NCLIB=${NCROOT}'/lib'
-   export NCMOD=${NCROOT}'/include'
-   export LDFLAGS="-L${NCCLIB} -L${NCLIB} -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz"
-   export dosvn=0
-   export MFLAGS= #'-j 8'
-   build_build
-   cd ../
-   build_status
+    # All compilers
+    export NCCROOT='/usr/local'
+    export NCCLIB=${NCCROOT}'/lib'
+    export NCLIB=${NCROOT}'/lib'
+    export NCMOD=${NCROOT}'/include'
+    export LDFLAGS="-L${NCCLIB} -L${NCLIB} -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz"
+    export dosvn=0
+    # export MFLAGS='-j 8'
+    build_build
+    cd ../
+    build_status
 }
 
 
@@ -199,10 +221,8 @@ host_read()
    if [[ $NCDF_MOD == '' ]]; then
       export NCMOD=$NCDF_ROOT/'include'
    else   
-      export NCDIR=$NCDF_ROOT/$NCDF_MOD
+      export NCMOD=$NCDF_ROOT/$NCDF_MOD
    fi
-
-   export NCMOD=$NCDF_ROOT/$NCDF_MOD
 
    print "\n\tWhat is the Fortran compiler you wish to use."
    print "\te.g. ifort, gfortran"
@@ -237,8 +257,6 @@ host_read()
    else   
       export LD=$LDRESPONSE
    fi
-
-
 }
 
 
@@ -255,8 +273,8 @@ host_write()
    print '## '$HOST_COMM >> junk
    print 'host_'$HOST_MACH'()' >> junk
    print '{' >> junk
-   print '   export NCDIR='"'"$NCDF_ROOT'/'$NCDF_DIR"'" >> junk
-   print '   export NCMOD='"'"$NCDF_ROOT'/'$NCDF_MOD"'" >> junk
+   print '   export NCDIR='"'"$NCDIR"'" >> junk
+   print '   export NCMOD='"'"$NCMOD"'" >> junk
    print '   export FC='$FC >> junk
    print '   export CFLAGS='"'"$CFLAGS"'" >> junk
    print '   export LD='"'"$LD"'" >> junk
@@ -345,7 +363,7 @@ not_recognized()
 
    print "\n\tPlease supply a comment include the new build " \
          "script." 
-   print "\n\tGenerally the host URL e.g. vayu.nci.org.au "
+   print "\n\tGenerally the host URL e.g. raijin.nci.org.au "
    read HOST_COMM
    
    build_build
@@ -360,9 +378,9 @@ do_i_no_u()
    
    while [[ $k -lt $kmax ]]; do
       if [[ $HOST_MACH = ${kh[$k]} ]];then
-         print 'Host recognized'
+         print 'Host recognized as' $HOST_MACH
          subr=host_${kh[$k]}
-         $subr $1
+         $subr $*
       fi        
       (( k = k + 1 ))
    done 
@@ -376,7 +394,7 @@ build_status()
    	print '\nBUILD OK\n'
    else
       print '\nOooops. Something went wrong\n'        
-      print '\nKnow build issues:\n'        
+      print '\nKnown build issues:\n'        
       print '\nSome systems require additional library. \n'        
       print '\nEdit Makefile_offline; add -lnetcdff to LD = ...\n'        
    fi
@@ -400,19 +418,20 @@ i_do_now()
 
 build_build()
 {
-
-   # write file for consumption by Fortran code
-   # get SVN revision number 
-   CABLE_REV=`svn info | grep Revis |cut -c 11-18`
-   if [[ $CABLE_REV="" ]]; then
-      echo "this is not an svn checkout"
-      CABLE_REV=0
-      echo "setting CABLE revision number to " $CABLE_REV 
-   fi         
-   print $CABLE_REV > ~/.cable_rev
-   # get SVN status 
-   CABLE_STAT=`svn status`
-   print $CABLE_STAT >> ~/.cable_rev
+   if [[ ${dosvn} -eq 1 ]] ; then
+       # write file for consumption by Fortran code
+       # get SVN revision number 
+       CABLE_REV=`svn info | grep Revis |cut -c 11-18`
+       if [[ $CABLE_REV = "" ]]; then
+	   echo "this is not an svn checkout"
+	   CABLE_REV=0
+	   echo "setting CABLE revision number to " $CABLE_REV 
+       fi         
+       print $CABLE_REV > ~/.cable_rev
+       # get SVN status 
+       CABLE_STAT=`svn status`
+       print $CABLE_STAT >> ~/.cable_rev
+   fi
  
    if [[ ! -d .mpitmp ]]; then
       mkdir .mpitmp
@@ -423,47 +442,41 @@ build_build()
       mv cable-mpi cable-mpi.`date +%d.%m.%y`
    fi
    
-   CORE="../core/biogeophys"
+   # directories contain source code
+   PHYS="../core/biogeophys"
+   UTIL="../core/utils"
    DRV="."
    CASA="../core/biogeochem"
    BLAZE="../core/blaze"
-   UTIL="../core/utils"
    
-   /bin/cp -p $CORE/*90 ./.mpitmp
-   /bin/cp -p $DRV/*90 ./.mpitmp
-   /bin/cp -p $CASA/*90 ./.mpitmp
+   /bin/cp -p $PHYS/*90  ./.mpitmp
+   /bin/cp -p $UTIL/*90  ./.mpitmp
+   /bin/cp -p $DRV/*90   ./.mpitmp
+   /bin/cp -p $CASA/*90  ./.mpitmp
    /bin/cp -p $BLAZE/*90 ./.mpitmp
-   /bin/cp -p $UTIL/*90 ./.mpitmp
        
-   /bin/cp -p Makefile_mpi  ./.mpitmp
+   /bin/cp -p Makefile_mpi ./.mpitmp
    
-  cd .mpitmp/
-
+   cd .mpitmp/
    make -f Makefile_mpi ${MFLAGS}
 }
 
-###########################################
-## build.ksh - MAIN SCRIPT STARTS HERE   ##
-###########################################
+
+#############################################
+## build_mpi.ksh - MAIN SCRIPT STARTS HERE ##
+#############################################
 
 if [[ $1 = 'clean' ]]; then
     clean_build
     shift 1
 fi
 
-if [[ ! -d ~/CABLE-AUX ]];then
-   set_up_CABLE_AUX
-else
-   print "\n~/CABLE-AUX is at least present.\n"
-fi
-
 known_hosts
 
 HOST_MACH=`uname -n | cut -c 1-4`
 
-do_i_no_u $1
+do_i_no_u $*
 
 not_recognized
 
 i_do_now
-

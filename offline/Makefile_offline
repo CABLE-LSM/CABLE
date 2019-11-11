@@ -22,12 +22,15 @@
 # Contact: Bernard.Pak@csiro.au
 #
 # History: Additions for CASA-CNP
-
+#
+# Additions for BLAZE (Vanessa Haverd)
 # Additions for SLI (Vanessa Haverd)
 # Additions for SpinCASA (Lars Nieradzik)
-# Additions for climate and phenology (Vanessa Haverd)
-# Additions for optimisation of ration of Jmax to Vcmax
+# Additions for POP, climate and phenology (Vanessa Haverd)
+# Additions for Land use change (Vanessa Haverd)
+# Additions for optimisation of ratio of Jmax to Vcmax
 # Additions for bios climate, parameters (Peter Briggs & Vanessa Haverd)
+# Additions for 13CO2 (Matthias Cuntz)
 #
 # ==============================================================================
 ##########################################################################
@@ -138,7 +141,7 @@ casa_variable.o: casa_variable.F90 POP.o
 spincasacnp.o: spincasacnp.F90 cable_define_types.o cable_carbon.o cable_common.o casa_variable.o \
 	       cable_c13o2.o cable_c13o2_def.o casa_inout.o
 
-#cable_LUC.o: cable_LUC.F90 cable_carbon.o cable_common.o casa_variable.o POP.o POPLUC.o cable_LUC_EXPT.o
+#cable_LUC.o: cable_LUC.F90 cable_carbon.o cable_common.o casa_variable.o POP.o POPLUC.o cable_LUC_EXPT.o cable_c13o2.o cable_c13o2_def.o
 
 CASAONLY_LUC.o: CASAONLY_LUC.F90  cable_define_types.o  cable_carbon.o cable_common.o casa_variable.o POP.o \
 		POPLUC.o cable_LUC_EXPT.o cable_c13o2.o cable_c13o2_def.o

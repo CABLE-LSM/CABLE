@@ -15,7 +15,7 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
   use cable_c13o2_def,     only: c13o2_pool, c13o2_flux
   use cable_c13o2,         only: c13o2_save_casapool, c13o2_update_pools, &
        c13o2_create_output, c13o2_write_output, c13o2_close_output, &
-       c13o2_print_delta_pools
+       c13o2_print_delta_pools, c13o2_nvars_output
   use mo_isotope,          only: isoratio
 
   implicit none
@@ -81,10 +81,9 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
 
    ! 13C
    real(dp), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
-   integer                             :: c13o2_file_id
-   integer, parameter :: nvars = 7
-   character(len=20), dimension(nvars) :: c13o2_vars
-   integer,           dimension(nvars) :: c13o2_var_ids
+   integer :: c13o2_file_id
+   character(len=20), dimension(c13o2_nvars_output) :: c13o2_vars
+   integer,           dimension(c13o2_nvars_output) :: c13o2_var_ids
    real(r_2), dimension(:), allocatable :: avg_c13leaf2met, avg_c13leaf2str, avg_c13root2met, &
         avg_c13root2str, avg_c13wood2cwd
 
@@ -264,9 +263,9 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
            casaflux%stemnpp = 0.
         ENDIF ! CALL_POP
 
-!!$        WHERE(xkNlimiting .eq. 0)  !Chris Lu 4/June/2012
-!!$           xkNlimiting = 0.001
-!!$        END WHERE
+        !        WHERE(xkNlimiting .eq. 0)  !Chris Lu 4/June/2012
+        !           xkNlimiting = 0.001
+        !        END WHERE
         nptx=8173
 
         avg_cleaf2met = avg_cleaf2met + cleaf2met
