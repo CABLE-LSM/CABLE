@@ -2,9 +2,20 @@
 
 export dosvn=1 # 1/0: do/do not check svn
 
+# so that script can be called by bash buils.ksh if no ksh installed
+if [ "${SHELL}" == "/bin/bash" ] ; then
+    function print(){
+	printf "$@"
+    }
+fi
+
 known_hosts()
 {
-   set -A kh cher burn shin raij pear mcin
+    if [ "${SHELL}" == "/bin/bash" ] ; then
+	kh=(kh cher burn shin raij pear mcin vm_o)
+    else
+	set -A kh cher burn shin raij pear mcin vm_o
+    fi
 }
 
 ## raijin.nci.org.au
@@ -193,6 +204,84 @@ host_mcin()
 }
 
 
+# MatthiasCuntz@Explor
+host_vm_o()
+{
+    idebug=0
+    iintel=0
+    np=$#
+    for ((i=0; i<${np}; i++)) ; do
+        if [[ "${1}" == "debug" ]] ; then
+            idebug=1
+            shift 1
+        elif [[ "${1}" == "ifort" || "${1}" == "intel" ]] ; then
+            iintel=1
+            shift 1
+        elif [[ "${1}" == "gfortran" || "${1}" == "gnu" ]] ; then
+            iintel=0
+            shift 1
+        fi
+    done
+    if [[ ${iintel} -eq 1 ]] ;  then
+        # INTEL - load mpi module first, otherwise intel module will not pre-pend LD_LIBRARY_PATH
+        module load intelmpi/2018.5.274
+	module load intel/2018.5
+        export FC=mpiifort
+	# module load openmpi/3.0.0/intel18
+	# module load intel/2018.5
+        # export FC=mpifort
+        # release
+        export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
+        if [[ ${idebug} -eq 1 ]] ; then
+            # debug
+            export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
+        fi
+        export LD=''
+        export NCROOT='/home/oqx29/zzy20/local/netcdf-fortran-4.4.4-ifort2018.0'
+    else
+        # GFORTRAN
+        module load gcc/6.3.0
+	module load openmpi/3.0.1/gcc/6.3.0
+        export FC=mpifort
+        # release
+        export CFLAGS="-O3 -Wno-aggressive-loop-optimizations -cpp -ffree-form -ffixed-line-length-132"
+        if [[ ${idebug} -eq 1 ]] ; then
+            # debug
+            export CFLAGS="-pedantic-errors -Wall -W -O -g -Wno-maybe-uninitialized -cpp -ffree-form -ffixed-line-length-132"
+        fi
+        export LD=''
+        export NCROOT='/home/oqx29/zzy20/local/netcdf-fortran-4.4.4-gfortran63'
+    fi
+    # export CFLAGS="${CFLAGS} -DC13DEBUG"
+    export CFLAGS="${CFLAGS} -DCRU2017"
+
+    # # NAG - Does not work for pop_io.f90
+    # export FC=nagfor
+    # # release
+    # export CFLAGS="-O4 -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free"
+    # if [[ ${1} = 'debug' ]] ; then
+    #     # debug
+    #     export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -DNAG"
+    # fi
+    # export LD='-ideclient -unsharedrts'
+    # export NCROOT='/usr/local/netcdf-fortran-4.4.5-nagfor'
+
+    # All compilers
+
+    # All compilers
+    export NCCROOT='/home/oqx29/zzy20/local'
+    export NCCLIB=${NCCROOT}'/lib'
+    export NCLIB=${NCROOT}'/lib'
+    export NCMOD=${NCROOT}'/include'
+    export LDFLAGS="-L${NCCLIB} -L${NCLIB} -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz"
+    export dosvn=0
+    # export MFLAGS='-j 8'
+    build_build
+    cd ../
+    build_status
+}
+
+
 ## unknown machine, user entering options stdout 
 host_read()
 {
@@ -213,7 +302,6 @@ host_read()
       export NCDIR=$NCDF_ROOT/$NCDF_DIR
    fi
 
-   
    print "\n\tWhat is the path, relative to the above ROOT, of " \
          "your NetCDF .mod file."
    print "\n\tPress enter for default [include]."
@@ -372,8 +460,13 @@ not_recognized()
 
 do_i_no_u()
 {
-   integer kmax=${#kh[*]}
-   integer k=0
+   if [ "${SHELL}" == "/bin/bash" ] ; then
+       kmax=${#kh[*]}
+       k=0
+   else
+       integer kmax=${#kh[*]}
+       integer k=0
+   fi
    typeset -f subr
    
    while [[ $k -lt $kmax ]]; do
@@ -400,7 +493,6 @@ build_status()
    fi
    exit
 }
-
 
       
 i_do_now()
@@ -472,11 +564,9 @@ if [[ $1 = 'clean' ]]; then
 fi
 
 known_hosts
-
-HOST_MACH=`uname -n | cut -c 1-4`
-
+HOST_MACH=`uname -n | cut -c 1-4 | tr - _`
 do_i_no_u $*
 
+# only ksh because host_write writes ksh script
 not_recognized
-
 i_do_now

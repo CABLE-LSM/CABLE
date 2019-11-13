@@ -174,7 +174,7 @@ CONTAINS
 
   SUBROUTINE mpidrv_master(comm)
 
-    USE mpi
+    use mpi
 
     USE cable_def_types_mod
     USE cable_io_vars_module, ONLY: logn, gswpfile, ncciy, leaps, &
@@ -1603,7 +1603,7 @@ CONTAINS
 ! MPI: calculates and sends grid decomposition info to the workers
 SUBROUTINE master_decomp (comm, mland, mp)
 
-  USE mpi
+  use mpi
 
   USE cable_IO_vars_module, ONLY : landpt, patch
 
@@ -1700,7 +1700,7 @@ END SUBROUTINE master_decomp
 SUBROUTINE master_cable_params(comm,met,air,ssnow,veg,bgc,soil,canopy,&
      rough,rad,sum_flux,bal)
 
-  USE mpi
+  use mpi
 
   USE cable_def_types_mod
   USE cable_IO_vars_module
@@ -3392,7 +3392,7 @@ END SUBROUTINE master_cable_params
 SUBROUTINE master_casa_params(comm, casabiome, casapool, casaflux, casamet, &
      casabal, phen)
 
-  USE mpi
+  use mpi
 
   USE cable_def_types_mod
 
@@ -4672,7 +4672,7 @@ END SUBROUTINE master_casa_params
 ! only its own slice of the arrays
 SUBROUTINE master_intypes (comm,met,veg)
 
-  USE mpi
+  use mpi
 
   USE cable_def_types_mod
 
@@ -4860,7 +4860,7 @@ END SUBROUTINE master_intypes
 ! MPI: creates out_t types to receive the results from the workers
 SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
 
-  USE mpi
+  use mpi
 
   USE cable_def_types_mod
 
@@ -6300,7 +6300,7 @@ END SUBROUTINE master_outtypes
 ! MPI: creates handles for receiving casa final results from the workers
 SUBROUTINE master_casa_types(comm, casapool, casaflux, casamet, casabal, phen)
 
-  USE mpi
+  use mpi
 
   USE cable_def_types_mod
   USE casadimension
@@ -6967,7 +6967,7 @@ END SUBROUTINE master_casa_types
 
 SUBROUTINE master_climate_types (comm, climate, ktauday)
 
-  USE mpi
+  use mpi
 
   USE cable_def_types_mod, ONLY: climate_type, mp
   USE cable_climate_mod, ONLY: climate_init,  READ_CLIMATE_RESTART_NC
@@ -7375,7 +7375,7 @@ END SUBROUTINE master_climate_types
 
 !CLNSUBROUTINE master_casa_restart_types( comm, casamet, casapool )
 !CLN
-!CLN    USE mpi
+!CLN    use mpi
 !CLN
 !CLN  USE casavariable, ONLY: casa_met, casa_pool
 !CLN
@@ -7553,7 +7553,7 @@ END SUBROUTINE master_climate_types
 ! MPI: creates datatype handles to receive restart data from workers
 SUBROUTINE master_restart_types (comm, canopy, air)
 
-  USE mpi
+  use mpi
 
   USE cable_def_types_mod
   USE casadimension
@@ -7743,7 +7743,7 @@ END SUBROUTINE master_restart_types
 ! MPI: Casa - dump read and write
 SUBROUTINE master_casa_dump_types(comm, casamet, casaflux, phen, climate, c13o2flux )
 
-  USE mpi
+  use mpi
 
   USE casavariable, ONLY: casa_met, casa_flux
   USE cable_def_types_mod, ONLY: climate_type
@@ -7937,7 +7937,7 @@ END SUBROUTINE master_casa_dump_types
 ! MPI: Casa-LUC: exchanging casapools between master and worker, as required for LUC updates
 SUBROUTINE master_casa_LUC_types(comm, casapool, casabal, casaflux )
 
-  USE mpi
+  use mpi
 
   USE casavariable, ONLY: casa_pool, mplant, mlitter, msoil, casa_balance, casa_flux
   IMPLICIT NONE
@@ -8139,7 +8139,7 @@ END SUBROUTINE master_casa_LUC_types
 
 SUBROUTINE master_pop_types(comm, casamet, pop)
 
-  USE mpi
+  use mpi
   USE POP_mpi
   USE POP_types,          ONLY: pop_type
   USE cable_common_module,ONLY: cable_user
@@ -8258,7 +8258,7 @@ END SUBROUTINE master_receive_pop
 !!CLN
 !!CLN  ! Send blaze restart data to workers
 !!CLN
-!!CLN  USE mpi
+!!CLN  use mpi
 !!CLN
 !!CLN  USE blaze, ONLY: TYPE_BLAZE
 !!CLN
@@ -8444,12 +8444,13 @@ END SUBROUTINE master_receive_pop
 ! and finally frees the MPI type
 subroutine master_c13o2_flux_params(comm, c13o2flux)
 
-  use mpi,                 only: &
-       MPI_ADDRESS_KIND, MPI_STATUS_SIZE, MPI_BYTE, &
-       MPI_Get_address, MPI_Type_create_hvector, &
-       MPI_Abort, MPI_Type_create_struct, MPI_Type_commit, MPI_Type_size, &
-       MPI_Type_get_extent, MPI_Reduce, MPI_IN_PLACE, MPI_INTEGER, MPI_SUM, &
-       MPI_Barrier
+  use mpi
+  ! use mpi,                 only: &
+  !      MPI_ADDRESS_KIND, MPI_STATUS_SIZE, MPI_BYTE, &
+  !      MPI_Get_address, MPI_Type_create_hvector, &
+  !      MPI_Abort, MPI_Type_create_struct, MPI_Type_commit, MPI_Type_size, &
+  !      MPI_Type_get_extent, MPI_Reduce, MPI_IN_PLACE, MPI_INTEGER, MPI_SUM, &
+  !      MPI_Barrier
   use cable_def_types_mod, only: mp, mf
   use cable_c13o2_def,     only: c13o2_flux
   use cable_mpicommon,     only: nc13o2_flux
@@ -8621,12 +8622,13 @@ end subroutine master_c13o2_flux_params
 ! and finally frees the MPI type
 subroutine master_c13o2_pool_params(comm, c13o2pools)
 
-  use mpi,                 only: &
-       MPI_ADDRESS_KIND, MPI_STATUS_SIZE, MPI_BYTE, &
-       MPI_Get_address, MPI_Type_create_hvector, &
-       MPI_Abort, MPI_Type_create_struct, MPI_Type_commit, MPI_Type_size, &
-       MPI_Type_get_extent, MPI_Reduce, MPI_IN_PLACE, MPI_INTEGER, MPI_SUM, &
-       MPI_Barrier
+  use mpi
+  ! use mpi,                 only: &
+  !      MPI_ADDRESS_KIND, MPI_STATUS_SIZE, MPI_BYTE, &
+  !      MPI_Get_address, MPI_Type_create_hvector, &
+  !      MPI_Abort, MPI_Type_create_struct, MPI_Type_commit, MPI_Type_size, &
+  !      MPI_Type_get_extent, MPI_Reduce, MPI_IN_PLACE, MPI_INTEGER, MPI_SUM, &
+  !      MPI_Barrier
   use cable_def_types_mod, only: mp
   use casadimension,       only: mplant, mlitter, msoil
   use cable_c13o2_def,     only: c13o2_pool
@@ -8777,12 +8779,13 @@ end subroutine master_c13o2_pool_params
 ! and finally frees the MPI type
 subroutine master_c13o2_luc_params(comm, c13o2luc)
 
-  use mpi,                 only: &
-       MPI_ADDRESS_KIND, MPI_STATUS_SIZE, MPI_BYTE, &
-       MPI_Get_address, MPI_Type_create_hvector, &
-       MPI_Abort, MPI_Type_create_struct, MPI_Type_commit, MPI_Type_size, &
-       MPI_Type_get_extent, MPI_Reduce, MPI_IN_PLACE, MPI_INTEGER, MPI_SUM, &
-       MPI_Barrier
+  use mpi
+  ! use mpi,                 only: &
+  !      MPI_ADDRESS_KIND, MPI_STATUS_SIZE, MPI_BYTE, &
+  !      MPI_Get_address, MPI_Type_create_hvector, &
+  !      MPI_Abort, MPI_Type_create_struct, MPI_Type_commit, MPI_Type_size, &
+  !      MPI_Type_get_extent, MPI_Reduce, MPI_IN_PLACE, MPI_INTEGER, MPI_SUM, &
+  !      MPI_Barrier
   use cable_def_types_mod, only: mp
   use cable_c13o2_def,     only: c13o2_luc
   use cable_mpicommon,     only: nc13o2_luc
@@ -8920,11 +8923,12 @@ end subroutine master_c13o2_luc_params
 ! MPI: creates handles for receiving c13o2_flux final results from the workers
 subroutine master_c13o2_flux_types(comm, c13o2flux)
 
-  use mpi,                 only: &
-       MPI_BYTE, MPI_ADDRESS_KIND, MPI_Get_address, MPI_Type_create_hvector, &
-       MPI_Abort, MPI_Type_create_struct, MPI_Type_commit, MPI_Type_size, &
-       MPI_Type_get_extent, MPI_Type_free, MPI_Reduce, MPI_IN_PLACE, &
-       MPI_INTEGER, MPI_SUM
+  use mpi
+  ! use mpi,                 only: &
+  !      MPI_BYTE, MPI_ADDRESS_KIND, MPI_Get_address, MPI_Type_create_hvector, &
+  !      MPI_Abort, MPI_Type_create_struct, MPI_Type_commit, MPI_Type_size, &
+  !      MPI_Type_get_extent, MPI_Type_free, MPI_Reduce, MPI_IN_PLACE, &
+  !      MPI_INTEGER, MPI_SUM
   use cable_def_types_mod, only: mp, mf
   use cable_c13o2_def,     only: c13o2_flux
   use cable_mpicommon,     only: nc13o2_flux
@@ -9088,11 +9092,12 @@ end subroutine master_c13o2_flux_types
 ! MPI: creates handles for receiving c13o2_pool final results from the workers
 subroutine master_c13o2_pool_types(comm, c13o2pools)
 
-  use mpi,                 only: &
-       MPI_BYTE, MPI_ADDRESS_KIND, MPI_Get_address, MPI_Type_create_hvector, &
-       MPI_Abort, MPI_Type_create_struct, MPI_Type_commit, MPI_Type_size, &
-       MPI_Type_get_extent, MPI_Type_free, MPI_Reduce, MPI_IN_PLACE, &
-       MPI_INTEGER, MPI_SUM
+  use mpi
+  ! use mpi,                 only: &
+  !      MPI_BYTE, MPI_ADDRESS_KIND, MPI_Get_address, MPI_Type_create_hvector, &
+  !      MPI_Abort, MPI_Type_create_struct, MPI_Type_commit, MPI_Type_size, &
+  !      MPI_Type_get_extent, MPI_Type_free, MPI_Reduce, MPI_IN_PLACE, &
+  !      MPI_INTEGER, MPI_SUM
   use cable_def_types_mod, only: mp
   use casadimension,       only: mplant, mlitter, msoil
   use cable_c13o2_def,     only: c13o2_pool
@@ -9235,11 +9240,12 @@ end subroutine master_c13o2_pool_types
 ! MPI: creates handles for receiving c13o2_luc final results from the workers
 subroutine master_c13o2_luc_types(comm, c13o2luc)
 
-  use mpi,                 only: &
-       MPI_BYTE, MPI_ADDRESS_KIND, MPI_Get_address, MPI_Type_create_hvector, &
-       MPI_Abort, MPI_Type_create_struct, MPI_Type_commit, MPI_Type_size, &
-       MPI_Type_get_extent, MPI_Type_free, MPI_Reduce, MPI_IN_PLACE, &
-       MPI_INTEGER, MPI_SUM
+  use mpi
+  ! use mpi,                 only: &
+  !      MPI_BYTE, MPI_ADDRESS_KIND, MPI_Get_address, MPI_Type_create_hvector, &
+  !      MPI_Abort, MPI_Type_create_struct, MPI_Type_commit, MPI_Type_size, &
+  !      MPI_Type_get_extent, MPI_Type_free, MPI_Reduce, MPI_IN_PLACE, &
+  !      MPI_INTEGER, MPI_SUM
   use cable_def_types_mod, only: mp
   use cable_c13o2_def,     only: c13o2_luc
   use cable_mpicommon,     only: nc13o2_luc
@@ -9371,7 +9377,7 @@ end subroutine master_c13o2_luc_types
 ! MPI: scatters input data for timestep ktau to all workers
 SUBROUTINE master_send_input (comm, dtypes, ktau)
 
-  USE mpi
+  use mpi
 
   IMPLICIT NONE
 
@@ -9403,7 +9409,7 @@ END SUBROUTINE master_send_input
 ! uses the timestep value as the message tag
 SUBROUTINE master_receive(comm, ktau, types)
 
-  USE mpi
+  use mpi
 
   IMPLICIT NONE
 
@@ -9452,7 +9458,7 @@ END SUBROUTINE master_receive
 ! frees memory used for data structures specific to the master
 SUBROUTINE master_end (icycle, restart)
 
-  USE mpi
+  use mpi
 
   IMPLICIT NONE
 

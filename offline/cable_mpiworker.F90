@@ -7501,11 +7501,12 @@ END SUBROUTINE worker_pop_types
   ! and finally frees the MPI type
   subroutine worker_c13o2_flux_params(comm, c13o2flux)
 
-    use mpi,                 only: &
-         MPI_ADDRESS_KIND, MPI_STATUS_SIZE, MPI_Comm_rank, MPI_BYTE, MPI_Get_address, &
-         MPI_Abort, MPI_Type_create_struct, MPI_Type_commit, MPI_Type_size, &
-         MPI_Type_get_extent, MPI_Reduce, MPI_DATATYPE_NULL, MPI_INTEGER, MPI_Sum, &
-         MPI_Barrier, MPI_Recv, MPI_Get_count, MPI_SUCCESS, MPI_Unpack, MPI_BOTTOM, MPI_Type_Free         
+    use mpi
+    ! use mpi,                 only: &
+    !      MPI_ADDRESS_KIND, MPI_STATUS_SIZE, MPI_Comm_rank, MPI_BYTE, MPI_Get_address, &
+    !      MPI_Abort, MPI_Type_create_struct, MPI_Type_commit, MPI_Type_size, &
+    !      MPI_Type_get_extent, MPI_Reduce, MPI_DATATYPE_NULL, MPI_INTEGER, MPI_Sum, &
+    !      MPI_Barrier, MPI_Recv, MPI_Get_count, MPI_SUCCESS, MPI_Unpack, MPI_BOTTOM, MPI_Type_Free         
     use cable_def_types_mod, only: mp, mf
     use cable_c13o2_def,     only: c13o2_flux, c13o2_alloc_flux
 
@@ -7659,11 +7660,12 @@ END SUBROUTINE worker_pop_types
 
   subroutine worker_c13o2_pool_params(comm, c13o2pools)
 
-    use mpi,                 only: &
-         MPI_ADDRESS_KIND, MPI_STATUS_SIZE, MPI_Comm_rank, MPI_BYTE, MPI_Get_address, &
-         MPI_Abort, MPI_Type_create_struct, MPI_Type_commit, MPI_Type_size, &
-         MPI_Type_get_extent, MPI_Reduce, MPI_DATATYPE_NULL, MPI_INTEGER, MPI_Sum, &
-         MPI_Barrier, MPI_Recv, MPI_Get_count, MPI_SUCCESS, MPI_Unpack, MPI_BOTTOM, MPI_Type_Free         
+    use mpi
+    ! use mpi,                 only: &
+    !      MPI_ADDRESS_KIND, MPI_STATUS_SIZE, MPI_Comm_rank, MPI_BYTE, MPI_Get_address, &
+    !      MPI_Abort, MPI_Type_create_struct, MPI_Type_commit, MPI_Type_size, &
+    !      MPI_Type_get_extent, MPI_Reduce, MPI_DATATYPE_NULL, MPI_INTEGER, MPI_Sum, &
+    !      MPI_Barrier, MPI_Recv, MPI_Get_count, MPI_SUCCESS, MPI_Unpack, MPI_BOTTOM, MPI_Type_Free         
     use cable_def_types_mod, only: mp
     use casadimension,       only: mplant, mlitter, msoil
     use cable_c13o2_def,     only: c13o2_pool, c13o2_alloc_pools
@@ -7798,11 +7800,12 @@ END SUBROUTINE worker_pop_types
 
   subroutine worker_c13o2_luc_params(comm, c13o2luc)
 
-    use mpi,                 only: &
-         MPI_ADDRESS_KIND, MPI_STATUS_SIZE, MPI_Comm_rank, MPI_BYTE, MPI_Get_address, &
-         MPI_Abort, MPI_Type_create_struct, MPI_Type_commit, MPI_Type_size, &
-         MPI_Type_get_extent, MPI_Reduce, MPI_DATATYPE_NULL, MPI_INTEGER, MPI_Sum, &
-         MPI_Barrier, MPI_Recv, MPI_Get_count, MPI_SUCCESS, MPI_Unpack, MPI_BOTTOM, MPI_Type_Free         
+    use mpi
+    ! use mpi,                 only: &
+    !      MPI_ADDRESS_KIND, MPI_STATUS_SIZE, MPI_Comm_rank, MPI_BYTE, MPI_Get_address, &
+    !      MPI_Abort, MPI_Type_create_struct, MPI_Type_commit, MPI_Type_size, &
+    !      MPI_Type_get_extent, MPI_Reduce, MPI_DATATYPE_NULL, MPI_INTEGER, MPI_Sum, &
+    !      MPI_Barrier, MPI_Recv, MPI_Get_count, MPI_SUCCESS, MPI_Unpack, MPI_BOTTOM, MPI_Type_Free         
     use cable_def_types_mod, only: mp, mf
     use cable_c13o2_def,     only: c13o2_luc, c13o2_alloc_luc
 
@@ -7929,10 +7932,11 @@ END SUBROUTINE worker_pop_types
   ! creates MPI types for sending c13o2 results back to the master at the end of the simulation
   subroutine worker_c13o2_flux_type(comm, c13o2flux)
 
-    use mpi,                 only: &
-         MPI_BYTE, MPI_ADDRESS_KIND, MPI_Get_address, MPI_Abort, MPI_Type_create_struct, &
-         MPI_Type_commit, MPI_Type_size, MPI_Type_get_extent, MPI_Reduce, &
-         MPI_DATATYPE_NULL, MPI_INTEGER, MPI_Sum
+    use mpi
+    ! use mpi,                 only: &
+    !      MPI_BYTE, MPI_ADDRESS_KIND, MPI_Get_address, MPI_Abort, MPI_Type_create_struct, &
+    !      MPI_Type_commit, MPI_Type_size, MPI_Type_get_extent, MPI_Reduce, &
+    !      MPI_DATATYPE_NULL, MPI_INTEGER, MPI_Sum
     use cable_def_types_mod, only: mp, mf
     use cable_c13o2_def,     only: c13o2_flux
 
@@ -8053,10 +8057,11 @@ END SUBROUTINE worker_pop_types
 
   subroutine worker_c13o2_pool_type(comm, c13o2pools)
 
-    use mpi,                 only: &
-         MPI_BYTE, MPI_ADDRESS_KIND, MPI_Get_address, MPI_Abort, MPI_Type_create_struct, &
-         MPI_Type_commit, MPI_Type_size, MPI_Type_get_extent, MPI_Reduce, &
-         MPI_DATATYPE_NULL, MPI_INTEGER, MPI_Sum
+    use mpi
+    ! use mpi,                 only: &
+    !      MPI_BYTE, MPI_ADDRESS_KIND, MPI_Get_address, MPI_Abort, MPI_Type_create_struct, &
+    !      MPI_Type_commit, MPI_Type_size, MPI_Type_get_extent, MPI_Reduce, &
+    !      MPI_DATATYPE_NULL, MPI_INTEGER, MPI_Sum
     use cable_def_types_mod, only: mp
     use casadimension,       only: mplant, mlitter, msoil
     use cable_c13o2_def,     only: c13o2_pool
@@ -8158,10 +8163,11 @@ END SUBROUTINE worker_pop_types
 
   subroutine worker_c13o2_luc_type(comm, c13o2luc)
 
-    use mpi,                 only: &
-         MPI_BYTE, MPI_ADDRESS_KIND, MPI_Get_address, MPI_Abort, MPI_Type_create_struct, &
-         MPI_Type_commit, MPI_Type_size, MPI_Type_get_extent, MPI_Reduce, &
-         MPI_DATATYPE_NULL, MPI_INTEGER, MPI_Sum
+    use mpi
+    ! use mpi,                 only: &
+    !      MPI_BYTE, MPI_ADDRESS_KIND, MPI_Get_address, MPI_Abort, MPI_Type_create_struct, &
+    !      MPI_Type_commit, MPI_Type_size, MPI_Type_get_extent, MPI_Reduce, &
+    !      MPI_DATATYPE_NULL, MPI_INTEGER, MPI_Sum
     use cable_def_types_mod, only: mp
     use cable_c13o2_def,     only: c13o2_luc
 

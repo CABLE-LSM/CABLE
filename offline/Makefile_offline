@@ -195,7 +195,7 @@ cable_bios_met_obs_params.o: cable_bios_met_obs_params.F90 cable_iovars.o cable_
 			     cable_weathergenerator.o casa_variable.o
 
 # BLAZE related dependencies
-blaze.o: blaze.F90 cable_common.o simfire.o
+blaze.o: blaze.F90 simfire.o cable_iovars.o cable_common.o cable_define_types.o
 
 simfire.o: simfire.F90 cable_common.o
 

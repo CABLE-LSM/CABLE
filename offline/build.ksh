@@ -2,9 +2,20 @@
 
 export dosvn=1 # 1/0: do/do not check svn
 
+# so that script can be called by bash buils.ksh if no ksh installed
+if [ "${SHELL}" == "/bin/bash" ] ; then
+    function print(){
+	printf "$@"
+    }
+fi
+
 known_hosts()
 {
-   set -A kh vayu cher pear shin jigg nXXX raij ces2 ccrc mael valh mcin
+    if [ "${SHELL}" == "/bin/bash" ] ; then
+	kh=(vayu cher pear shin jigg nXXX raij ces2 ccrc mael valh mcin vm_o)
+    else
+        set -A kh vayu cher pear shin jigg nXXX raij ces2 ccrc mael valh mcin vm_o
+    fi
 }
 
 ## 
@@ -206,40 +217,40 @@ host_mcin()
     iintel=0
     np=$#
     for ((i=0; i<${np}; i++)) ; do
-	if [[ "${1}" == "debug" ]] ; then
-	    idebug=1
-	    shift 1
-	elif [[ "${1}" == "ifort" || "${1}" == "intel" ]] ; then
-	    iintel=1
-	    shift 1
-	elif [[ "${1}" == "gfortran" || "${1}" == "gnu" ]] ; then
-	    iintel=0
-	    shift 1
-	fi
+        if [[ "${1}" == "debug" ]] ; then
+            idebug=1
+            shift 1
+        elif [[ "${1}" == "ifort" || "${1}" == "intel" ]] ; then
+            iintel=1
+            shift 1
+        elif [[ "${1}" == "gfortran" || "${1}" == "gnu" ]] ; then
+            iintel=0
+            shift 1
+        fi
     done
     if [[ ${iintel} -eq 1 ]] ;  then
-	# INTEL
-	/opt/intel/compilers_and_libraries/mac/bin/compilervars.sh intel64
-	export FC=ifort
-	# release
-	export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
-	if [[ ${idebug} -eq 1 ]] ; then
-	    # debug
-	    export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
-	fi
-	export LD=''
-	export NCROOT='/usr/local/netcdf-fortran-4.4.5-ifort'
+        # INTEL
+        /opt/intel/compilers_and_libraries/mac/bin/compilervars.sh intel64
+        export FC=ifort
+        # release
+        export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
+        if [[ ${idebug} -eq 1 ]] ; then
+            # debug
+            export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
+        fi
+        export LD=''
+        export NCROOT='/usr/local/netcdf-fortran-4.4.5-ifort'
     else
-	# GFORTRAN
-	export FC=gfortran
-	# release
-	export CFLAGS="-O3 -Wno-aggressive-loop-optimizations -cpp -ffree-form -ffixed-line-length-132"
-	if [[ ${idebug} -eq 1 ]] ; then
-	    # debug
-	    export CFLAGS="-pedantic-errors -Wall -W -O -g -Wno-maybe-uninitialized -cpp -ffree-form -ffixed-line-length-132"
-	fi
-	export LD=''
-	export NCROOT='/usr/local/netcdf-fortran-4.4.5-gfortran'
+        # GFORTRAN
+        export FC=gfortran
+        # release
+        export CFLAGS="-O3 -Wno-aggressive-loop-optimizations -cpp -ffree-form -ffixed-line-length-132"
+        if [[ ${idebug} -eq 1 ]] ; then
+            # debug
+            export CFLAGS="-pedantic-errors -Wall -W -O -g -Wno-maybe-uninitialized -cpp -ffree-form -ffixed-line-length-132"
+        fi
+        export LD=''
+        export NCROOT='/usr/local/netcdf-fortran-4.4.5-gfortran'
     fi
     # export CFLAGS="${CFLAGS} -DC13DEBUG"
     export CFLAGS="${CFLAGS} -DCRU2017"
@@ -257,6 +268,79 @@ host_mcin()
 
     # All compilers
     export NCCROOT='/usr/local'
+    export NCCLIB=${NCCROOT}'/lib'
+    export NCLIB=${NCROOT}'/lib'
+    export NCMOD=${NCROOT}'/include'
+    export LDFLAGS="-L${NCCLIB} -L${NCLIB} -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz"
+    export dosvn=0
+    export MFLAGS='-j 8'
+    build_build
+    cd ../
+    build_status
+}
+
+
+# MatthiasCuntz@Explor
+host_vm_o()
+{
+    idebug=0
+    iintel=0
+    np=$#
+    for ((i=0; i<${np}; i++)) ; do
+        if [[ "${1}" == "debug" ]] ; then
+            idebug=1
+            shift 1
+        elif [[ "${1}" == "ifort" || "${1}" == "intel" ]] ; then
+            iintel=1
+            shift 1
+        elif [[ "${1}" == "gfortran" || "${1}" == "gnu" ]] ; then
+            iintel=0
+            shift 1
+        fi
+    done
+    if [[ ${iintel} -eq 1 ]] ;  then
+        # INTEL
+        module load intel/2018.5
+        export FC=ifort
+        # release
+        export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
+        if [[ ${idebug} -eq 1 ]] ; then
+            # debug
+            export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
+        fi
+        export LD=''
+        export NCROOT='/home/oqx29/zzy20/local/netcdf-fortran-4.4.4-ifort2018.0'
+    else
+        # GFORTRAN
+        module load gcc/6.3.0
+        export FC=gfortran
+        # release
+        export CFLAGS="-O3 -Wno-aggressive-loop-optimizations -cpp -ffree-form -ffixed-line-length-132"
+        if [[ ${idebug} -eq 1 ]] ; then
+            # debug
+            export CFLAGS="-pedantic-errors -Wall -W -O -g -Wno-maybe-uninitialized -cpp -ffree-form -ffixed-line-length-132"
+        fi
+        export LD=''
+        export NCROOT='/home/oqx29/zzy20/local/netcdf-fortran-4.4.4-gfortran63'
+    fi
+    # export CFLAGS="${CFLAGS} -DC13DEBUG"
+    export CFLAGS="${CFLAGS} -DCRU2017"
+
+    # # NAG - Does not work for pop_io.f90
+    # export FC=nagfor
+    # # release
+    # export CFLAGS="-O4 -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free"
+    # if [[ ${1} = 'debug' ]] ; then
+    #     # debug
+    #     export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -DNAG"
+    # fi
+    # export LD='-ideclient -unsharedrts'
+    # export NCROOT='/usr/local/netcdf-fortran-4.4.5-nagfor'
+
+    # All compilers
+
+    # All compilers
+    export NCCROOT='/home/oqx29/zzy20/local'
     export NCCLIB=${NCCROOT}'/lib'
     export NCLIB=${NCROOT}'/lib'
     export NCMOD=${NCROOT}'/include'
@@ -289,7 +373,6 @@ host_read()
       export NCDIR=$NCDF_ROOT/$NCDF_DIR
    fi
 
-   
    print "\n\tWhat is the path, relative to the above ROOT, of " \
          "your NetCDF .mod file."
    print "\n\tPress enter for default [include]."
@@ -405,8 +488,13 @@ not_recognized()
 
 do_i_no_u()
 {
-   integer kmax=${#kh[*]}
-   integer k=0
+   if [ "${SHELL}" == "/bin/bash" ] ; then
+       kmax=${#kh[*]}
+       k=0
+   else
+       integer kmax=${#kh[*]}
+       integer k=0
+   fi
    typeset -f subr
 
    # for specific nodes on burnet
@@ -414,25 +502,25 @@ do_i_no_u()
    in=`echo $HOST_MACH | cut -c 2-4`
    if [[ $ic == 'n' ]]; then
        if [ $in -gt 0 -a $in -lt 1000 ]; then
-	   HOST_MACH=nXXX
+           HOST_MACH=nXXX
        fi
    fi
    while [[ $k -lt $kmax ]]; do
       if [[ $HOST_MACH = ${kh[$k]} ]];then
-         print 'Host recognized as' $HOST_MACH
+         echo 'Host recognized as' $HOST_MACH
          subr=host_${kh[$k]}
          $subr $*
-      fi        
+      fi
       (( k = k + 1 ))
-   done 
+   done
 }
 
 
 build_status()
 {
    if [[ -f .tmp/cable ]]; then
-   	mv .tmp/cable .
-   	print '\nBUILD OK\n'
+        mv .tmp/cable .
+        print '\nBUILD OK\n'
    else
       print '\nOooops. Something went wrong\n'        
       print '\nKnown build issues:\n'        
@@ -441,7 +529,6 @@ build_status()
    fi
    exit
 }
-
 
       
 i_do_now()
@@ -464,14 +551,14 @@ build_build()
        # get SVN revision number 
        CABLE_REV=`svn info | grep Revis |cut -c 11-18`
        if [[ $CABLE_REV = "" ]]; then
-	   echo "this is not an svn checkout"
-	   CABLE_REV=0
-	   echo "setting CABLE revision number to " $CABLE_REV 
+           echo "this is not an svn checkout"
+           CABLE_REV=0
+           echo "setting CABLE revision number to " $CABLE_REV 
        fi         
-       print $CABLE_REV > ~/.cable_rev
+       echo $CABLE_REV > ~/.cable_rev
        # get SVN status 
        CABLE_STAT=`svn status`
-       print $CABLE_STAT >> ~/.cable_rev
+       echo $CABLE_STAT >> ~/.cable_rev
    fi
  
    if [[ ! -d .tmp ]]; then
@@ -513,11 +600,9 @@ if [[ $1 = 'clean' ]]; then
 fi
 
 known_hosts
-
-HOST_MACH=`uname -n | cut -c 1-4`
-
+HOST_MACH=`uname -n | cut -c 1-4 | tr - _`
 do_i_no_u $*
 
+# only ksh because host_write writes ksh script
 not_recognized
-
 i_do_now
