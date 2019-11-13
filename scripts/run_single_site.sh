@@ -108,18 +108,30 @@ fi
 # --------------------------------------------------------------------
 # Sequence switches
 #
-doextractsite=0 # 1/0: Do/Do extract meteo, land use and mask at specific site (0.)
+doglobalmeteo=0 # 0: Use global meteo, land use and mask
+                # 1: Use local meteo, land use and mask (doextractsite=1)
+                # 2: Use global meteo and land use, and local mask (doextractsite=2)
+# Step 0
+doextractsite=0 # 0: Do not extract meteo, land use and mask at specific site
+                # 1: Do extract meteo, land use and mask at specific site
+                # 2: Do extract mask at specific site and use global meteo and land use
   sitename=HarvardForest
-  lonlat=-72.172602,42.536875
-doclimate=0     # 1/0: Do/Do not create climate restart file (1.)
-dofromzero=0    # 1/0: Do/Do not first spinup phase from zero biomass stocks (2.)
-doequi1=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools (3.)
+  latlon=42.536875,-72.172602
+# Step 1
+doclimate=0     # 1/0: Do/Do not create climate restart file
+# Step 2
+dofromzero=0    # 1/0: Do/Do not first spinup phase from zero biomass stocks
+# Step 3
+doequi1=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
  nequi1=3       #      number of times to repeat steps in doequi1
-doequi2=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools (4.)
+# Step 4
+doequi2=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
  nequi2=3       #      number of times to repeat steps in doequi2
+# Step 5
 doiniluc=0      # 1/0: Do/Do not spinup with dynamic land use (5a)
 doinidyn=0      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
-dofinal=0       # 1/0: Do/Do not final run from 1900 to 2017 (6.)
+# Step 6
+dofinal=0       # 1/0: Do/Do not final run from 1900 to 2017
 
 # --------------------------------------------------------------------
 # Other switches
@@ -258,13 +270,17 @@ function isin()
     done
     echo ${out}
 }
-
-# closest
-# awk -vc=1 -vv=13.6 '
-#     BEGIN{l=$c; ld=99}
-#     {d=($c-v>=0) ? ($c-v) : v-$c; if (d <= ld) {ld=d; l=$c}}
-#     END{print l}' file
-# awk 'BEGIN {var=3; highest=0}{ j = $NF;if ( j <= var && j > highest ) { highest=j} } END {print highest}' YourInputFile
+#
+# returns argument to extract lat and lon with ncks
+function nckslatlon()
+{
+    vars=$(ncvarlist ${1})
+    if [[ -z $(isin latitude ${vars}) ]] ; then ilat='lat' ; else ilat='latitude' ; fi
+    if [[ -z $(isin longitude ${vars}) ]] ; then ilon='lon' ; else ilon='longitude' ; fi
+    iilat=$(echo ${2} | cut -f 1 -d ',')
+    iilon=$(echo ${2} | cut -f 2 -d ',')
+    echo "-d ${ilat},${iilat} -d ${ilon},${iilon}"
+}
 
 
 # --------------------------------------------------------------------------------------------------
@@ -312,13 +328,14 @@ t1=$(date +%s)
 printf "Started at %s\n" "$(date)"
 
 # 0. Extract meteo, land use and mask for one specific site from global files
-if [[ ${doextractsite} -eq 1 ]] ; then
+if [[ ${doextractsite} -ge 1 ]] ; then
     # xcdo=$(which cdo)
     # if [[ -z ${xcdo} ]] ; then module load cdo ; fi
     xnco=$(which ncks)
     if [[ -z ${xnco} ]] ; then module load nco ; fi
+fi
+if [[ ${doextractsite} -eq 1 ]] ; then
     cd ${pdir}
-
     # meteorology
     met_list="pre pres dlwrf dswrf spfh tmax tmin ugrd vgrd ndep"
     mkdir -p ${MetPath}
@@ -330,10 +347,7 @@ if [[ ${doextractsite} -eq 1 ]] ; then
 	    ff=$(basename ${nc})
             echo "    ${ff}"
             # cdo -s -f nc4 -z zip sellonlatbox,-72.5,-72.0,42.5,43.0 ${nc} ${MetPath}/${mm}/${ff}
-	    vars=$(ncvarlist ${nc})
-	    if [[ -z $(isin longitude ${vars}) ]] ; then ilon='lon' ; else ilon='longitude' ; fi
-	    if [[ -z $(isin latitude ${vars}) ]] ; then ilat='lat' ; else ilat='latitude' ; fi
-	    ncks -O -d ${ilon},$(echo ${lonlat} | cut -f 1 -d ',') -d ${ilat},$(echo ${lonlat} | cut -f 2 -d ',') ${nc} ${MetPath}/${mm}/${ff}
+	    ncks -O $(nckslatlon ${nc} ${latlon}) ${nc} ${MetPath}/${mm}/${ff}
         done
     done
     echo ${GlobalMetPath}/co2/*.csv
@@ -348,29 +362,39 @@ if [[ ${doextractsite} -eq 1 ]] ; then
 	ff=$(basename ${nc})
         echo "    ${ff}"
         # cdo -s -f nc4 -z zip sellonlatbox,-72.5,-72.0,42.5,43.0 ${nc} ${TransitionFilePath}/${ff}
-	vars=$(ncvarlist ${nc})
-	if [[ -z $(isin longitude ${vars}) ]] ; then ilon='lon' ; else ilon='longitude' ; fi
-	if [[ -z $(isin latitude ${vars}) ]] ; then ilat='lat' ; else ilat='latitude' ; fi
-	ncks -O -d ${ilon},$(echo ${lonlat} | cut -f 1 -d ',') -d ${ilat},$(echo ${lonlat} | cut -f 2 -d ',') ${nc} ${TransitionFilePath}/${ff}
+	ncks -O $(nckslatlon ${nc} ${latlon}) ${nc} ${TransitionFilePath}/${ff}
     done
-
+fi
+if [[ ${doextractsite} -ge 1 ]] ; then
+    cd ${pdir}
     # mask
     LandMaskFilePath=$(dirname ${LandMaskFile})
     mkdir -p ${LandMaskFilePath}
     LandMaskFile=$(absfile ${LandMaskFile})
     echo $(basename ${LandMaskFile})
     # cdo -s -f nc4 -z zip sellonlatbox,-72.5,-72.0,42.5,43.0 ${GlobalLandMaskFile} ${LandMaskFile}
-    vars=$(ncvarlist ${GlobalLandMaskFile})
-    if [[ -z $(isin longitude ${vars}) ]] ; then ilon='lon' ; else ilon='longitude' ; fi
-    if [[ -z $(isin latitude ${vars}) ]] ; then ilat='lat' ; else ilat='latitude' ; fi
-    ncks -O -d ${ilon},$(echo ${lonlat} | cut -f 1 -d ',') -d ${ilat},$(echo ${lonlat} | cut -f 2 -d ',') ${GlobalLandMaskFile} ${LandMaskFile}
+    ncks -O $(nckslatlon ${GlobalLandMaskFile} ${latlon}) ${GlobalLandMaskFile} ${LandMaskFile}
 fi
 
-
-TransitionFilePath=$(abspath ${TransitionFilePath})
+# Choose meteo, land use and mask directories and files
+if [[ ${doglobalmeteo} -eq 0 ]] ; then
+    MetPath=$(abspath ${GlobalMetPath})
+    TransitionFilePath=$(abspath ${GlobalTransitionFilePath})
+    LandMaskFile=$(absfile ${LandMaskFile})
+elif [[ ${doglobalmeteo} -eq 1 ]] ; then
+    MetPath=$(abspath ${MetPath})
+    TransitionFilePath=$(abspath ${TransitionFilePath})
+    LandMaskFile=$(absfile ${LandMaskFile})
+elif [[ ${doglobalmeteo} -eq 2 ]] ; then
+    MetPath=$(abspath ${GlobalMetPath})
+    TransitionFilePath=$(abspath ${GlobalTransitionFilePath})
+    LandMaskFile=$(absfile ${LandMaskFile})
+else
+    printf "Error ${pprog}: doglobalmeteo option unknown: ${doglobalmeteo}.\n\n"
+    exit 1
+fi
+# absolute pathes of other parameter files
 ClimateFile=$(absfile ${ClimateFile})
-MetPath=$(abspath ${MetPath})
-LandMaskFile=$(absfile ${LandMaskFile})
 filename_veg=$(absfile ${filename_veg})
 filename_soil=$(absfile ${filename_soil})
 casafile_cnpbiome=$(absfile ${casafile_cnpbiome})
