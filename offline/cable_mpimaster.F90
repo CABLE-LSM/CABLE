@@ -59,6 +59,7 @@
 !              master_end
 !              master_casa_dump_types
 !              master_casa_LUC_types
+!              ! 13C
 !              master_c13o2_flux_params
 !              master_c13o2_pool_params
 !              master_c13o2_luc_params
@@ -752,6 +753,7 @@ CONTAINS
                 ! MPI:
                 CALL master_casa_params(comm, casabiome, casapool, casaflux, casamet, &
                      casabal, phen)
+                ! 13C
                 if (cable_user%c13o2) then
                    CALL master_c13o2_flux_params(comm, c13o2flux)
                    CALL master_c13o2_pool_params(comm, c13o2pools)
@@ -795,10 +797,11 @@ CONTAINS
                 IF ( CABLE_USER%CASA_DUMP_READ .OR. CABLE_USER%CASA_DUMP_WRITE ) &
                      CALL master_casa_dump_types( comm, casamet, casaflux, phen, climate, c13o2flux )
                   write(*,*) 'cable_mpimaster, POPLUC: ' ,  CABLE_USER%POPLUC
-                IF ( CABLE_USER%POPLUC ) &
-                     CALL master_casa_LUC_types(comm, casapool, casabal, casaflux)
-                ! 13C
-                if (cable_user%c13o2) call master_c13o2_luc_types(comm, c13o2luc)
+                IF ( CABLE_USER%POPLUC ) then
+                   CALL master_casa_LUC_types(comm, casapool, casabal, casaflux)
+                   ! 13C
+                   if (cable_user%c13o2) call master_c13o2_luc_types(comm, c13o2luc)
+                ENDIF
              END IF
 
              ! MPI: create type to send restart data back to the master
@@ -1212,6 +1215,7 @@ CONTAINS
              IF (CABLE_USER%POPLUC) THEN
                 ! master receives casa updates required for LUC calculations here
                 CALL master_receive(ocomm, 0, casa_LUC_ts)
+                ! 13C
                 if (cable_user%c13o2) call master_receive(ocomm, 0, c13o2_luc_ts)
                 ! Dynamic LUC
                 CALL LUCdriver( casabiome,casapool,casaflux,POP,LUC_EXPT, POPLUC, veg, c13o2pools )
@@ -1251,6 +1255,7 @@ CONTAINS
              if (CABLE_USER%POPLUC) then
                 ! send updates for CASA pools, resulting from LUC
                 CALL master_send_input(icomm, casa_LUC_ts, nyear)
+                ! 13C
                 if (cable_user%c13o2) call master_send_input(icomm, c13o2_luc_ts, nyear)
              endif
           ENDIF ! icycle>0 .and. cable_user%CALL_POP
