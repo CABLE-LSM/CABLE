@@ -1,29 +1,23 @@
 #!/usr/bin/env python
 from __future__ import print_function
 """
-usage: extract_latlon.py [-h] [-o output_netcdf] [-z] lat,lon input_netcdf
+usage: set_latlon_land.py [-h] [-o output_netcdf] [-z] latlon input_netcdf
 
-Extracts latitude/longitude point from input file.
+Sets land points to 1 at given latitude/longitude points.
 
 positional arguments:
-  lat,lon input_netcdf  lat,lon string & input netcdf file.
+  latlon input_netcdf   lat,lon string or latlon input file & input netcdf file.
 
 optional arguments:
   -h, --help            show this help message and exit
   -o output_netcdf, --outfile output_netcdf
-                        output netcdf file name (default: input-extract_latlon.nc).
+                        output netcdf file name (default: input-masked.nc).
   -z, --zip             Use netCDF4 variable compression (default: same format as input file).
 
 
 Example
 -------
-  python extract_latlon.py -o ofile.nc lat,lon ifile.nc
-
-same as
-  ncks -O -d latitude,lat -d longitude,lat ifile.nc ofile.nc
-or
-  cdo -sellonlatbox,lon-eps,lon+eps,lat-eps,lat+eps ifile.nc ofile.nc
-Works with lat or latitude, and lon and longitude.
+  python set_latlon_land.py -o ofile.nc 48.234,9.567 ifile.nc
 
 
 History
@@ -41,15 +35,14 @@ def getVariableDefinition(ncvar):
     dims = list(ncvar.dimensions)
     if 'x' in dims: dims[dims.index('x')] = 'lon'
     if 'y' in dims: dims[dims.index('y')] = 'lat'
-    # Do not set chunksize because it should be only nlatlon
-    # chunks = ncvar.chunking() if not isinstance(ncvar.chunking(), str) else None
+    chunks = ncvar.chunking() if not isinstance(ncvar.chunking(), str) else None
     out.update({
         "name"       : ncvar.name,
         "dtype"      : ncvar.dtype,
         "dimensions" : dims,
-        # "chunksizes" : chunks,
+        "chunksizes" : chunks,
         "fill_value" : ncvar._FillValue if "_FillValue" in dir(ncvar) else None,
-    })
+        })
     return out
 
 # get index in vector vec of value closest to num
@@ -66,14 +59,14 @@ import argparse
 ofile   = None
 izip    = False
 parser  = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
-                                  description=('''Extracts latitude/longitude point from input file.'''))
+                                  description=('''Sets land points to 1 at given latitude/longitude points.'''))
 parser.add_argument('-o', '--outfile', action='store',
                     default=ofile, dest='ofile', metavar='output_netcdf',
-                        help='output netcdf file name (default: input-extract_latlon.nc).')
+                        help='output netcdf file name (default: input-masked.nc).')
 parser.add_argument('-z', '--zip', action='store_true', default=izip, dest='izip',
                     help='Use netCDF4 variable compression (default: same format as input file).')
-parser.add_argument('ifiles', nargs='*', default=None, metavar='lat,lon input_netcdf',
-                   help='lat,lon string & input netcdf file.')
+parser.add_argument('ifiles', nargs='*', default=None, metavar='latlon input_netcdf',
+                   help='lat,lon string or latlon input file & input netcdf file.')
 args   = parser.parse_args()
 ofile  = args.ofile
 izip   = args.izip
@@ -81,7 +74,7 @@ ifiles = args.ifiles
 del parser, args
 
 if len(ifiles) < 2:
-    raise IOError('lat,lon string and input file must be given.')
+    raise IOError('lat,lon string or latlon file, and input file must be given.')
 latlon = ifiles[0]
 ifile  = ifiles[1]
 
@@ -95,10 +88,19 @@ tstart = ptime.time()
 # Get lat/lon indices
 #
 
-lats, lons = latlon.split(',')
-lats    = float(lats)
-lons    = float(lons)
-nlatlon = 1
+if os.path.exists(latlon):
+    dat = np.genfromtxt(latlon, delimiter=',')
+    if len(dat) > 1:
+        lats = dat[:,0]
+        lons = dat[:,1]
+    else:
+        lats = np.array([dat[0]])
+        lons = np.array([dat[1]])
+else:
+    lats, lons = latlon.split(',')
+    lats = np.array([float(lats)])
+    lons = np.array([float(lons)])
+nlatlon = lats.size
 
 # -------------------------------------------------------------------------
 # Copy data
@@ -106,7 +108,7 @@ nlatlon = 1
 
 if ofile is None: # Default output filename
     sifile = ifile.split('.')
-    sifile[-2] = sifile[-2]+'-extract_latlon'
+    sifile[-2] = sifile[-2]+'-masked'
     ofile = '.'.join(sifile)
 fi = nc.Dataset(ifile, 'r')
 if izip:
@@ -128,14 +130,15 @@ else:
     lonname = 'lon'
 ilats = fi.variables[latname][:]
 ilons = fi.variables[lonname][:]
-iilats = closest(ilats, lats)
-iilons = closest(ilons, lons)
+iilats = []
+iilons = []
+for ii in range(nlatlon):
+    iilats.append(closest(ilats, lats[ii]))
+    iilons.append(closest(ilons, lons[ii]))
     
 # Copy dimensions
 for d in fi.dimensions.values():
-    l = None if d.isunlimited() else len(d)
-    if d.name=='lat' or d.name=='latitude' or d.name=='lon' or d.name=='longitude': l = nlatlon
-    fo.createDimension(d.name, l)
+    fo.createDimension(d.name, None if d.isunlimited() else len(d))
     
 # Create output variables
 # patchfrac = fi.variables['patchfrac']
@@ -146,8 +149,9 @@ for ivar in fi.variables.values():
         if izip: invardef.update({'zlib':True})
         ovar = fo.createVariable(invardef.pop("name"), invardef.pop("dtype"), **invardef)
         for k in ivar.ncattrs():
-            iattr = ivar.getncattr(k)
-            ovar.setncattr(k, iattr)
+            if k != '_FillValue':
+                iattr = ivar.getncattr(k)
+                ovar.setncattr(k, iattr)
 # create dynamic variables (time dependent)
 for ivar in fi.variables.values():
     if 'time' in ivar.dimensions:
@@ -162,12 +166,9 @@ for ivar in fi.variables.values():
 for ivar in fi.variables.values():
     if 'time' not in ivar.dimensions:
         ovar = fo.variables[ivar.name]
-        if (latname in ivar.dimensions) and (lonname in ivar.dimensions):
-            ovar[:] = ivar[iilats,iilons,...]
-        elif (latname in ivar.dimensions):
-            ovar[:] = ivar[iilats,...]
-        elif (lonname in ivar.dimensions):
-            ovar[:] = ivar[iilons,...]
+        if ivar.name == 'land':
+            ovar[:] = 0
+            ovar[iilats,iilons] = 1
         else:
             ovar[:] = ivar[:]
 # copy dynamic variables
@@ -179,14 +180,7 @@ if 'time' in fi.dimensions:
         for ivar in fi.variables.values():
             if 'time' in ivar.dimensions:
                 ovar = fo.variables[ivar.name]
-                if (latname in ivar.dimensions) and (lonname in ivar.dimensions):
-                    ovar[tt,...] = ivar[tt,iilats,iilons,...]
-                elif (latname in ivar.dimensions):
-                    ovar[t,...] = ivar[tt,iilats,...]
-                elif (lonname in ivar.dimensions):
-                    ovar[tt,...] = ivar[tt,iilons,...]
-                else:
-                    ovar[tt,...] = ivar[tt,...]
+                ovar[tt,...] = ivar[tt,...]
 
 fi.close()
 fo.close()
