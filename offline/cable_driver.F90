@@ -777,7 +777,7 @@ PROGRAM cable_offline_driver
                       casapool, casamet )
 
                  IF (l_laiFeedbk.AND.icycle>0) veg%vlai(:) = casamet%glai(:)
-                  
+
                  ! Call land surface scheme for this timestep, all grid points:
                  CALL cbm(ktau, dels, air, bgc, canopy, met,		      &
                       bal, rad, rough, soil, ssnow,			      &
@@ -853,19 +853,49 @@ PROGRAM cable_offline_driver
               IF(icycle >0) THEN
 
 
-                 IF ( IS_CASA_TIME("write", yyyy, ktau, kstart, &
-                      koffset, kend, ktauday, logn) ) THEN
-                    ctime = ctime +1
-                    !mpidiff
-                    CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
-                         .FALSE. , .TRUE. , count_sum_casa)
-                    CALL WRITE_CASA_OUTPUT_NC (veg, casamet, sum_casapool, casabal, sum_casaflux, &
-                         CASAONLY, ctime, ( ktau.EQ.kend .AND. YYYY .EQ.	       &
-                         cable_user%YearEnd.AND. RRRR .EQ.NRRRR ) )
-                    !mpidiff
-                    count_sum_casa = 0
-                    CALL zero_sum_casa(sum_casapool, sum_casaflux)
-                 ENDIF
+                 ! mgk576, hack for now for CASA outputs
+                 IF (.NOT.spinup) THEN
+
+                    IF(MOD((ktau-kstart+1),ktauday)==0) THEN  ! end of day
+                       ctime = ctime +1
+                       CALL update_sum_casa(sum_casapool, sum_casaflux, &
+                                            casapool, casaflux, &
+                                            .FALSE. , .TRUE. , count_sum_casa)
+
+                       IF (ktau == kend) THEN
+                          CALL WRITE_CASA_OUTPUT_NC (veg, casamet, &
+                                                     sum_casapool, casabal, &
+                                                     sum_casaflux, &
+                                                     CASAONLY, ctime, .TRUE. )
+                       ELSE
+                          CALL WRITE_CASA_OUTPUT_NC (veg, casamet, &
+                                                     sum_casapool, casabal, &
+                                                     sum_casaflux, &
+                                                     CASAONLY, ctime, .FALSE. )
+                       END IF
+
+                       count_sum_casa = 0
+
+                       CALL zero_sum_casa(sum_casapool, sum_casaflux)
+
+                    END IF
+                 END IF
+
+                 !mgk576, old code that didn't work, commented out
+                 !IF ( IS_CASA_TIME("write", yyyy, ktau, kstart, &
+                 !     koffset, kend, ktauday, logn) ) THEN
+                 !     ctime = ctime +1
+                 !   !mpidiff
+                 !  CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
+                 !       .FALSE. , .TRUE. , count_sum_casa)
+                 !  CALL WRITE_CASA_OUTPUT_NC (veg, casamet, sum_casapool, casabal, sum_casaflux, &
+                 !        CASAONLY, ctime, ( ktau.EQ.kend .AND. YYYY .EQ.	       &
+                 !       cable_user%YearEnd.AND. RRRR .EQ.NRRRR ) )
+                 !   !mpidiff
+                 !     count_sum_casa = 0
+                 !     CALL zero_sum_casa(sum_casapool, sum_casaflux)
+                 ! ENDIF
+
 
 
                  IF (((.NOT.spinup).OR.(spinup.AND.spinConv)).AND. &
