@@ -681,6 +681,25 @@ CONTAINS
           ENDWHERE
        ENDWHERE
 
+       WHERE(casaflux%Cnpp < 0.0)
+      	! change made here by ypw on 11-7-2016 to include leaf maintenance respiration
+	      delcrmleaf(:)  = casaflux%Cnpp(:) * casaflux%crmplant(:,leaf) &
+	                     / max(0.01,(casaflux%crmplant(:,leaf)+casaflux%crmplant(:,wood) &
+	                               + casaflux%crmplant(:,froot)))
+	      delcrmwood(:)  = casaflux%Cnpp(:) * casaflux%crmplant(:,wood) &
+	                     / max(0.01,(casaflux%crmplant(:,leaf)+casaflux%crmplant(:,wood) &
+	                               + casaflux%crmplant(:,froot)))
+	      delcrmfroot(:) = casaflux%Cnpp(:) * casaflux%crmplant(:,froot) &
+	                     / max(0.01,(casaflux%crmplant(:,leaf)+casaflux%crmplant(:,wood) &
+	                               + casaflux%crmplant(:,froot)))
+
+	      casaflux%crmplant(:,leaf)  = casaflux%crmplant(:,leaf)  + delcrmleaf(:)
+	      casaflux%crmplant(:,wood)  = casaflux%crmplant(:,wood)  + delcrmwood(:)
+	      casaflux%crmplant(:,froot) = casaflux%crmplant(:,froot) + delcrmfroot(:)
+	  !    casaflux%Cnpp(:) = casaflux%Cnpp(:) -delcrmwood(:)-delcrmfroot(:)
+	      casaflux%crgplant(:) = 0.0
+       ENDWHERE
+       
        Casaflux%cnpp(:) = casaflux%Cgpp(:)-SUM(casaflux%crmplant(:,:),2) - casaflux%crgplant(:)
 
     ELSE
