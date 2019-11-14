@@ -853,7 +853,9 @@ PROGRAM cable_offline_driver
               IF(icycle >0) THEN
 
 
-                 ! mgk576, hack for now for CASA outputs
+                 ! mgk576, hack for now for CASA outputs from non-spin scenarios
+                 ! without this we don't seem to get the output file written,
+                 ! i'm sure there is a better long-term solution
                  IF (.NOT.spinup) THEN
 
                     IF(MOD((ktau-kstart+1),ktauday)==0) THEN  ! end of day
@@ -881,20 +883,21 @@ PROGRAM cable_offline_driver
                     END IF
                  END IF
 
-                 !mgk576, old code that didn't work, commented out
-                 !IF ( IS_CASA_TIME("write", yyyy, ktau, kstart, &
-                 !     koffset, kend, ktauday, logn) ) THEN
-                 !     ctime = ctime +1
-                 !   !mpidiff
-                 !  CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
-                 !       .FALSE. , .TRUE. , count_sum_casa)
-                 !  CALL WRITE_CASA_OUTPUT_NC (veg, casamet, sum_casapool, casabal, sum_casaflux, &
-                 !        CASAONLY, ctime, ( ktau.EQ.kend .AND. YYYY .EQ.	       &
-                 !       cable_user%YearEnd.AND. RRRR .EQ.NRRRR ) )
-                 !   !mpidiff
-                 !     count_sum_casa = 0
-                 !     CALL zero_sum_casa(sum_casapool, sum_casaflux)
-                 ! ENDIF
+                 !mgk576, this is the old code, we need to keep this as it will
+                 ! write the spin files
+                 IF ( IS_CASA_TIME("write", yyyy, ktau, kstart, &
+                      koffset, kend, ktauday, logn) ) THEN
+                      ctime = ctime +1
+                    !mpidiff
+                    CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
+                        .FALSE. , .TRUE. , count_sum_casa)
+                    CALL WRITE_CASA_OUTPUT_NC (veg, casamet, sum_casapool, casabal, sum_casaflux, &
+                         CASAONLY, ctime, ( ktau.EQ.kend .AND. YYYY .EQ.	       &
+                        cable_user%YearEnd.AND. RRRR .EQ.NRRRR ) )
+                    !mpidiff
+                    count_sum_casa = 0
+                    CALL zero_sum_casa(sum_casapool, sum_casaflux)
+                 ENDIF
 
 
 
