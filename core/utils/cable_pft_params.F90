@@ -1118,7 +1118,6 @@ if( .NOT. allocated(vegin%clitt ) )  allocate( vegin%clitt    (mvtype) )!! vh_ve
        vegin%g1(17) =        5.248500
        vegin%zr(17) =        1.000000
     vegin%clitt(17) =        0.000000
-  endif
 
   first_call = .false.
       
