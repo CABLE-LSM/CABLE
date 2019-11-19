@@ -2,9 +2,11 @@
 !==============================================================================
 !use cable_Pyfprint_module
 !==============================================================================
-  character(len=25) :: vname
+  character(len=30) :: vname
   character(len=70) :: dir
- 
+  
+  integer :: dimx, dimy
+   
   INTEGER, SAVE ::  cDiag00=0, cDiag1=0, cDiag2=0, cDiag3=0, cDiag4=0,         &
    cDiag5=0, cDiag6=0, cDiag7=0, cDiag8=0, cDiag9=0, cDiag10=0,    cDiag11=0,  &
    cDiag12=0, cDiag13=0, cDiag14=0, cDiag15=0, cDiag16=0, cDiag17=0, cDiag18=0,&

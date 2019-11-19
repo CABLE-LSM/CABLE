@@ -28,11 +28,6 @@ SUBROUTINE cable_Pyfprintf1( iDiag, basename, var1, dimx, L_fprint )
 
   ! Returns unique unit=iDiag and modified basename
   call open_file_per_node( iDiag, pDiag, fprintf_dir, basename, knode_gl )
-  write(6,*) "jh:Pytest:iDiag ",  iDiag
-  write(6,*) "jh:Pytest:pDiag ", pdiag 
-  write(6,*) "jh:Pytest:fprintf_dir ",  fprintf_dir
-  write(6,*) "jh:Pytest:basename ",  basename
-  write(6,*) "jh:Pytest:knode_gl  ",  knode_gl 
    
   call cable_Pyprint1( idiag, dimx, var1, ktau_gl )
                              
@@ -48,9 +43,6 @@ SUBROUTINE cable_Pyprint1(idiag,dimx,field, ktau)
   
   integer :: j
 
-  write(6,*) "jh:2Pytest:iDiag ",  iDiag
-  write(6,*) "jh:2Pytest:dimx ", dimx 
-  write(6,*) "jh:2Pytest:ktau  ",  ktau     
   do j=1, dimx  
       write (iDiag,*) field(j) 
   enddo
@@ -78,11 +70,6 @@ SUBROUTINE cable_Pyfprintf2( iDiag, basename, var1, dimx, dimy, L_fprint )
 
   ! Returns unique unit=iDiag and modified basename
   call open_file_per_node( iDiag, pDiag, fprintf_dir, basename, knode_gl )
-  write(6,*) "jh:Pytest:iDiag ",  iDiag
-  write(6,*) "jh:Pytest:pDiag ", pdiag 
-  write(6,*) "jh:Pytest:fprintf_dir ",  fprintf_dir
-  write(6,*) "jh:Pytest:basename ",  basename
-  write(6,*) "jh:Pytest:knode_gl  ",  knode_gl 
    
   call cable_Pyprint2( iDiag, dimx, dimy, var1, ktau_gl )
                              
@@ -98,10 +85,6 @@ SUBROUTINE cable_Pyprint2(idiag,dimx,dimy, field, ktau)
   
   integer :: i,j
 
-  write(6,*) "jh:2Pytest:iDiag ",  iDiag
-  write(6,*) "jh:2Pytest:dimx ", dimx 
-  write(6,*) "jh:2Pytest:dimy ", dimy 
-  write(6,*) "jh:2Pytest:ktau  ",  ktau     
   do i=1, dimx  
   do j=1, dimy  
       write (iDiag,*) field(i,j) 
