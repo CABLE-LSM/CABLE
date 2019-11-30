@@ -3329,7 +3329,7 @@ CONTAINS
      REAL                :: stem_capac, ap, bp, psi_stem_min
      INTEGER, INTENT(IN) :: i ! patch
 
-     psi_stem_min = 2.0 * p50
+     psi_stem_min = 3.0 * p50
 
      ! mmol MPa-1
      stem_capac = Cs * scale_up_stem_capac(canopy%vlaiw(i))
@@ -3426,7 +3426,7 @@ CONTAINS
      REAL, INTENT(IN)    :: transpiration ! mmol m-2 ground s-1
      INTEGER, INTENT(IN) :: i ! patch
 
-     psi_stem_min = 2.0 * p50
+     psi_stem_min = 3.0 * p50
 
      ! scale up leaf-specific capacitance (mmol m-2 ground area MPa-1 s-1)
      leaf_capac = Cl * canopy%vlaiw(i)
