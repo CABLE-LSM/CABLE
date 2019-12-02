@@ -719,19 +719,11 @@ CONTAINS
     IF(ok /= NF90_NOERR) CALL nc_abort &
          (ok,'Error reading time variable in met data file ' &
          //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
-
-
-    !mgk576, 3/12/12 commented out for 30 min inputs...
-    !IF (cable_user%gswp3) THEN         !Hack the GSWP3 time units to make from start of year
-   !    timevar(:) = (timevar(:)-timevar(1))*3600.0 + 1.5*3600.0  !convert hours to seconds
-    !END IF
+    IF (cable_user%gswp3) THEN         !Hack the GSWP3 time units to make from start of year
+       timevar(:) = (timevar(:)-timevar(1))*3600.0 + 1.5*3600.0  !convert hours to seconds
+    END IF
     ! Set time step size:
-
     dels = REAL(timevar(2) - timevar(1))
-
-    print*, dels, timevar(2), timevar(1)
-    stop
-
     WRITE(logn,'(1X,A29,I8,A3,F10.3,A5)') 'Number of time steps in run: ',&
          kend,' = ', REAL(kend)/(3600/dels*24),' days'
 
