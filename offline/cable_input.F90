@@ -729,8 +729,8 @@ CONTAINS
 
     dels = REAL(timevar(2) - timevar(1))
 
-    print*, dels, timevar(2), timevar(1)
-    stop
+    !print*, dels, timevar(2), timevar(1)
+    !stop
 
     WRITE(logn,'(1X,A29,I8,A3,F10.3,A5)') 'Number of time steps in run: ',&
          kend,' = ', REAL(kend)/(3600/dels*24),' days'
