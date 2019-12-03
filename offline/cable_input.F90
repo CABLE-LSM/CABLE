@@ -724,7 +724,7 @@ CONTAINS
 
        ! mgk576, 4/12/19: fix for the above line for 30 min AWAP/GSWP3 inputs.
        ! We need a better solution than this, obv.
-       timevar(:) = (timevar(:)-timevar(1))*1800.0 + 1800.0  !convert hours to seconds
+       timevar(:) = (timevar(:)-timevar(1))1800.0 + 0.5 * 1800.0  !convert hours to seconds
 
     END IF
     ! Set time step size:
