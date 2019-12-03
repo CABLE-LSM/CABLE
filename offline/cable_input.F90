@@ -720,7 +720,7 @@ CONTAINS
          (ok,'Error reading time variable in met data file ' &
          //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
     IF (cable_user%gswp3) THEN         !Hack the GSWP3 time units to make from start of year
-       timevar(:) = (timevar(:)-timevar(1))*3600.0 + 1.5*3600.0  !convert hours to seconds
+       !timevar(:) = (timevar(:)-timevar(1))*3600.0 + 1.5*3600.0  !convert hours to seconds
 
        ! mgk576, 4/12/19: fix for the above line for 30 min AWAP/GSWP3 inputs.
        ! We need a better solution than this, obv.

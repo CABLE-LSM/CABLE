@@ -2154,7 +2154,7 @@ CONTAINS
                    IF (cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
 
                       gmin = (veg%gmin(i) * MMOL_2_MOL) * rad%scalex(i,kk)
-
+                     
                       ! We're going to recalc this below after we've finished
                       ! iterating, but we need to check if we've reached the
                       ! point of hydraulic failure and if so, we don't want
