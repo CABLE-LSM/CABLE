@@ -2152,7 +2152,8 @@ CONTAINS
 
                    ! Don't add gmin, instead use it as the lower boundary
                    IF (cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
-                      gmin = veg%gmin(i) * MMOL_2_MOL
+
+                      gmin = (veg%gmin(i) * MMOL_2_MOL) * rad%scalex(i,kk)
 
                       ! We're going to recalc this below after we've finished
                       ! iterating, but we need to check if we've reached the
