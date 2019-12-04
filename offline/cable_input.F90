@@ -721,7 +721,7 @@ CONTAINS
          //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
     IF (cable_user%gswp3) THEN         !Hack the GSWP3 time units to make from start of year
        !timevar(:) = (timevar(:)-timevar(1))*3600.0 + 1.5*3600.0  !convert hours to seconds
-
+       print*, timevar(1), timevar(2)
        ! mgk576, 4/12/19: fix for the above line for 30 min AWAP/GSWP3 inputs.
        ! We need a better solution than this, obv.
        timevar(:) = (timevar(:)-timevar(1))*1800.0 + 0.5 * 1800.0  !convert hours to seconds
