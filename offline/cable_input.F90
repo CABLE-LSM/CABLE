@@ -721,19 +721,17 @@ CONTAINS
          //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
     IF (cable_user%gswp3) THEN         !Hack the GSWP3 time units to make from start of year
        !timevar(:) = (timevar(:)-timevar(1))*3600.0 + 1.5*3600.0  !convert hours to seconds
-       print*, timevar(1), timevar(2)
+
        ! mgk576, 4/12/19: fix for the above line for 30 min AWAP/GSWP3 inputs.
        ! We need a better solution than this, obv.
        timevar(:) = timevar(:) * (60.0 * 60.0) !convert hours to seconds
-       print*, timevar(1), timevar(2)
+
     END IF
     ! Set time step size:
     dels = REAL(timevar(2) - timevar(1))
     WRITE(logn,'(1X,A29,I8,A3,F10.3,A5)') 'Number of time steps in run: ',&
          kend,' = ', REAL(kend)/(3600/dels*24),' days'
 
-    print*, dels
-    stop
     ! CLN READJUST kend referring to Set START & END
     ! if kend > # days in selected episode
 
