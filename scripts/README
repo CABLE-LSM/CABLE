@@ -1,0 +1,30 @@
+Existing scripts
+----------------
+
+# Prepare input data
+--------------------
+# Written by Lars Nieradzik.
+lnutils.py
+	Python utilities used in create_landmask.py.
+create_latlon_land.py
+	Generate a number of random lat,lon points. Same as generate_latlonlist.py but using variable land (0/1) instead of variable iveg (1-17). Files are hardcoded in script.
+generate_latlonlist.py
+	Generate a number of random lat,lon points. Same as create_latlon_land.py but using variable iveg (1-17) instead of variable land (0/1). Files are hardcoded in script.
+create_landmask.py
+	Generate global landmask file from a list of lat,lon tupels in a file. Files are hardcoded in script.
+
+# Written by Matthias Cuntz.
+extract_latlon.py
+	Extract a single latitude/longitude point from a netcdf file.
+set_latlon_land.py
+	Sets the land variable of netcdf file to 1 at given latitude/longitude points, otherwise 0.
+
+
+# Run Cable
+-----------
+reset_restart.bash
+	Utility that batch renames restart files. Written by Vanessa Haverd.
+run_cable_site_CNP.py
+	Full cable run with spinup at single sites. Written by Martin De Kauwe and Vanessa Haverd.
+run_single_site.sh
+        Full Cable run on a single grid cell with biomass spinup, POP, land-use change, etc. Written by Matthias Cuntz.

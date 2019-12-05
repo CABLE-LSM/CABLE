@@ -17,13 +17,12 @@ optional arguments:
 
 Example
 -------
-  python extract_latlon.py -o ofile.nc lat,lon ifile.nc
+  python extract_latlon.py -o ofile.nc 48.5,8.1 ifile.nc
 
 same as
-  ncks -O -d latitude,lat -d longitude,lat ifile.nc ofile.nc
+  ncks -O -d latitude,48.5 -d longitude,8.1 ifile.nc ofile.nc
 or
-  cdo -sellonlatbox,lon-eps,lon+eps,lat-eps,lat+eps ifile.nc ofile.nc
-Works with lat or latitude, and lon and longitude.
+  cdo -sellonlatbox,7.75,8.45,48.1,48.9 ifile.nc ofile.nc
 
 
 History

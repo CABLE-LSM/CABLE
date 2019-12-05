@@ -3,7 +3,7 @@ from __future__ import print_function
 """
 usage: set_latlon_land.py [-h] [-o output_netcdf] [-z] latlon input_netcdf
 
-Sets land points to 1 at given latitude/longitude points.
+Sets the land variable to 1 at given latitude/longitude points, otherwise 0.
 
 positional arguments:
   latlon input_netcdf   lat,lon string or latlon input file & input netcdf file.
@@ -18,6 +18,7 @@ optional arguments:
 Example
 -------
   python set_latlon_land.py -o ofile.nc 48.234,9.567 ifile.nc
+  python set_latlon_land.py -o ofile.nc latlonFile ifile.nc
 
 
 History
@@ -59,7 +60,7 @@ import argparse
 ofile   = None
 izip    = False
 parser  = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
-                                  description=('''Sets land points to 1 at given latitude/longitude points.'''))
+                                  description=('''Sets the land variable to 1 at given latitude/longitude points, otherwise 0.'''))
 parser.add_argument('-o', '--outfile', action='store',
                     default=ofile, dest='ofile', metavar='output_netcdf',
                         help='output netcdf file name (default: input-masked.nc).')
