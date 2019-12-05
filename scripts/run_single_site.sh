@@ -1,6 +1,39 @@
 #!/bin/bash
+#
+# Explor / Pearcey
+# https://slurm.schedmd.com/sbatch.html
+# Name
+#SBATCH -J harvard
+#SBATCH -o %x-%j.out
+#SBATCH -e %x-%j.out
+# Explor partitions (sinfo): std (2x16, parallel), sky (2x16, parallel, AVX512), hf (2x4, serial),
+#                            P100 (2x16, GPU), GTX (2x16, GPU), ivy (2x8, parallel), k20 (2x8, GPU)
+#SBATCH -p std
+# Nodes / tasks
+#SBATCH -N 1
+#SBATCH -n 1
+#SBATCH --ntasks-per-node=1
+# Check memory on *nix with /usr/bin/time -v ./prog
+# time (day-hh:mm:ss) / memory (optional, units K,M,G,T)
+#SBATCH -t 00:19:59
+#SBATCH --mem=4G
+# notify: Valid type values are NONE,BEGIN,END,FAIL,REQUEUE,ALL,STAGE_OUT,TIME_LIMIT,TIME_LIMIT_90/80/50,ARRAY_TASKS
+#SBATCH --mail-type=FAIL,STAGE_OUT,TIME_LIMIT
+#SBATCH --mail-user=matthias.cuntz@inra.fr
+#
+# # Raijin
+# # https://opus.nci.org.au/display/Help/How+to+submit+a+job
+# #PBS -P Harvard
+# #PBS -q normal
+# #PBS -l walltime=00:19:59
+# #PBS -l mem=4GB
+# #PBS -l ncpus=1
+# #PBS -l jobfs=1GB
+# #PBS -l software=netCDF:MPI:Intel:GNU
+# #PBS -r y
+# #PBS -l wd
 
-system=mcinra   # explor, mcinra, pearcey, raijin
+system=cuntz@explor # cuntz@explor, cuntz@mcinra, knauer@pearcey, jk8585 or vxh599@raijin
 
 # --------------------------------------------------------------------
 #
@@ -30,50 +63,9 @@ system=mcinra   # explor, mcinra, pearcey, raijin
 #         but still with 30 years of repeated meteorology.
 #   6. Final run, everything dynamic from 1900 to 2017.
 #
-# Written, Matthias Cuntz, August-November 2019, following the run scripts and namelists provided by Vanessa Haverd
+# Written, Matthias Cuntz, August-December 2019, following the run scripts and namelists provided by Vanessa Haverd
 #
 # --------------------------------------------------------------------
-
-# # Explor
-# # https://slurm.schedmd.com/sbatch.html
-# # Name
-# #SBATCH -J harvard
-# #SBATCH -o %x-%j.out
-# #SBATCH -e %x-%j.out
-# # partition (sinfo): std (2x16), hf (2x4), ivy (2x8), k20 (2x8)
-# #SBATCH -p std
-# # Nodes / tasks
-# #SBATCH -N 1
-# #SBATCH -n 1
-# #SBATCH --ntasks-per-node=1
-# # time (day-hh:mm:ss) / memory (optional)
-# #SBATCH -t 00:19:59
-# #SBATCH --mem=4G
-# # notify: Valid type values are NONE,BEGIN,END,FAIL,REQUEUE,ALL,STAGE_OUT,TIME_LIMIT,TIME_LIMIT_90/80/50,ARRAY_TASKS
-# #SBATCH --mail-type=FAIL,STAGE_OUT,TIME_LIMIT
-# #SBATCH --mail-user=matthias.cuntz@inra.fr
-
-# Pearcey - Could probably use Explor
-# https://slurm.schedmd.com/sbatch.html
-#SBATCH --time=0:10:00
-# Check memory with /usr/bin/time -v ./cable
-#SBATCH --mem=4gb
-#SBATCH --job-name="Harvard"
-#SBATCH --ntasks-per-node=1
-#SBATCH --output=Harvard.out
-#SBATCH --error=Harvard.out
-
-# # Raijin
-# # https://opus.nci.org.au/display/Help/How+to+submit+a+job
-# #PBS -P Harvard
-# #PBS -q normal
-# #PBS -l walltime=00:19:59
-# #PBS -l mem=4GB
-# #PBS -l ncpus=1
-# #PBS -l jobfs=1GB
-# #PBS -l software=netCDF:MPI:Intel:GNU
-# #PBS -r y
-# #PBS -l wd
 
 set -e
 
@@ -86,20 +78,26 @@ pprog=$(basename ${prog})
 pdir=$(dirname ${prog})
 tmp=${TMPDIR:-"/tmp"}
 #
+system=$(echo ${system} | tr A-Z a-z)
+sys=${system#*@}
+user=${system%@*}
 # Special things on specific computer system such as loading modules
-if [[ "$(echo ${system} | tr A-Z a-z)" == "explor" ]] ; then
-    # ToDo
-    module load openmpi/2.1.1/gcc-4.9.4
-elif [[ "$(echo ${system} | tr A-Z a-z)" == "mcinra" ]] ; then
+if [[ "${sys}" == "explor" ]] ; then
+    # prog is slurm_script
+    pdir=${isdir}
+    module load intel/2018.5
+    # module load openmpi/2.1.1/gcc-4.9.4
+    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/netcdf-fortran-4.4.4-ifort2018.0/lib
+elif [[ "${sys}" == "mcinra" ]] ; then
     true
-elif [[ "$(echo ${system} | tr A-Z a-z)" == "pearcey" ]] ; then
-    # prog is slurm_script at Pearcey
+elif [[ "${sys}" == "pearcey" ]] ; then
+    # prog is slurm_script
     pdir=${isdir}
     module del intel-cc intel-fc
     module add intel-cc/16.0.1.150 intel-fc/16.0.1.150
     module unload intel-mpi/5.0.1.035
     module add netcdf/4.3.3.1 openmpi/1.10.2
-elif [[ "$(echo ${system} | tr A-Z a-z)" == "raijin" ]] ; then
+elif [[ "${sys}" == "raijin" ]] ; then
     module del intel-cc intel-fc
     module add intel-cc/16.0.1.150 intel-fc/16.0.1.150
     module add netcdf/4.3.3.1
@@ -108,30 +106,30 @@ fi
 # --------------------------------------------------------------------
 # Sequence switches
 #
-doglobalmeteo=0 # 0: Use global meteo, land use and mask
+dometeo=1       # 0: Use global meteo, land use and mask
                 # 1: Use local meteo, land use and mask (doextractsite=1)
                 # 2: Use global meteo and land use, and local mask (doextractsite=2)
 # Step 0
 doextractsite=0 # 0: Do not extract meteo, land use and mask at specific site
-                # 1: Do extract meteo, land use and mask at specific site
-                # 2: Do extract mask at specific site and use global meteo and land use
+                # 1: Do extract meteo, land use and mask at specific site (dometeo=1)
+                # 2: Do extract mask at specific site, using then global meteo and land use (dometeo=2)
   sitename=HarvardForest
   latlon=42.536875,-72.172602
 # Step 1
-doclimate=0     # 1/0: Do/Do not create climate restart file
+doclimate=1     # 1/0: Do/Do not create climate restart file
 # Step 2
-dofromzero=0    # 1/0: Do/Do not first spinup phase from zero biomass stocks
+dofromzero=1    # 1/0: Do/Do not first spinup phase from zero biomass stocks
 # Step 3
-doequi1=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
+doequi1=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
  nequi1=3       #      number of times to repeat steps in doequi1
 # Step 4
-doequi2=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
+doequi2=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
  nequi2=3       #      number of times to repeat steps in doequi2
 # Step 5
-doiniluc=0      # 1/0: Do/Do not spinup with dynamic land use (5a)
-doinidyn=0      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
+doiniluc=1      # 1/0: Do/Do not spinup with dynamic land use (5a)
+doinidyn=1      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
 # Step 6
-dofinal=0       # 1/0: Do/Do not final run from 1900 to 2017
+dofinal=1       # 1/0: Do/Do not final run from 1900 to 2017
 
 # --------------------------------------------------------------------
 # Other switches
@@ -146,40 +144,53 @@ c13o2_simple_disc=0 # 1/0: simple or full 13C leaf discrimination
 #   not relative to the directory from which this script is launched (if different)
 #   nor relative to the run path.
 #
+if [[ "${system}" == "knauer@pearcey" ]] ; then
+    # Run directory: runpath="${sitepath}/run_xxx"
+    sitepath="/OSM/CBR/OA_GLOBALCABLE/work/Juergen/CABLE_run/${sitename}"
+    cablehome="/OSM/CBR/OA_GLOBALCABLE/work/Juergen/CABLE_code"
+    # Cable executable
+    exe="${cablehome}/NESP2pt9_BLAZE/offline/cable"
+    # CABLE-AUX directory (uses offline/gridinfo_CSIRO_1x1.nc and offline/modis_phenology_csiro.txt)
+    aux="/OSM/CBR/OA_GLOBALCABLE/work/Vanessa/CABLE-AUX"
+    # Global Mask
+    GlobalLandMaskFile="/OSM/CBR/OA_GLOBALCABLE/work/Vanessa/MASKS/glob_ipsl_1x1.nc"
+    # Global CRU
+    GlobalMetPath="/OSM/CBR/OA_GLOBALCABLE/work/CRU-JRA55/crujra/daily_1deg"
+    # Global LUC
+    GlobalTransitionFilePath="/OSM/CBR/OA_GLOBALCABLE/work/LUH2/v3/1deg"
+elif [[ "${system}" == "cuntz@mcinra" ]] ; then
+    sitepath="/Users/cuntz/prog/vanessa/cable/single_sites/${sitename}"
+    cablehome="/Users/cuntz/prog/vanessa/cable"
+    exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable"
+    aux="${cablehome}/CABLE-AUX"
+    GlobalLandMaskFile=
+    GlobalMetPath=
+    GlobalTransitionFilePath=
+elif [[ "${system}" == "cuntz@explor" ]] ; then
+    sitepath="/home/oqx29/zzy20/prog/cable/single_sites/${sitename}"
+    cablehome="/home/oqx29/zzy20/prog/cable"
+    exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable"
+    aux="${cablehome}/CABLE-AUX"
+    GlobalLandMaskFile="/home/oqx29/zzy20/data/crujra/daily_1deg/glob_ipsl_1x1.nc"
+    GlobalMetPath="/home/oqx29/zzy20/data/crujra/daily_1deg"
+    GlobalTransitionFilePath="/OSM/CBR/OA_GLOBALCABLE/work/LUH2/v3/1deg"
+else
+    echo "System not known."
+    exit 1
+fi
 # Run directory
-# Juergen @ pearcey
-# cablehome="/OSM/CBR/OA_GLOBALCABLE/work/Juergen/CABLE_run"
-# mcinra
-sitepath="/Users/cuntz/prog/vanessa/cable/single_sites/${sitename}"
-runpath="${sitepath}/run_20190819"
-# Cable executable
-# Juergen @ pearcey
-# cablehome="/OSM/CBR/OA_GLOBALCABLE/work/Juergen/CABLE_code"
-# exe="${cablehome}/NESP2pt9_BLAZE/offline/cable"
-# mcinra
-cablehome="/Users/cuntz/prog/vanessa/cable"
-exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable"
-# CABLE-AUX directory (uses offline/gridinfo_CSIRO_1x1.nc and offline/modis_phenology_csiro.txt)
-# Juergen @ pearcey
-# aux="/OSM/CBR/OA_GLOBALCABLE/work/Vanessa/CABLE-AUX"
-# mcinra
-aux="${cablehome}/CABLE-AUX"
+runpath="${sitepath}/run_20191205"
+
 # Cable parameters
 namelistpath="../namelists"
 filename_veg="../params/def_veg_params.txt"
 filename_soil="../params/def_soil_params.txt"
 casafile_cnpbiome="../params/pftlookup.csv"
 # Mask
-# pearcey
-GlobalLandMaskFile="/OSM/CBR/OA_GLOBALCABLE/work/Vanessa/MASKS/glob_ipsl_1x1.nc"
 LandMaskFile="${sitepath}/mask/glob_ipsl_1x1_${sitename}.nc"
 # CRU
-# pearcey
-GlobalMetPath="/OSM/CBR/OA_GLOBALCABLE/work/CRU-JRA55/crujra/daily_1deg"
 MetPath="${sitepath}/met/cru_jra_1deg"
 # LUC
-# pearcey
-GlobalTransitionFilePath="/OSM/CBR/OA_GLOBALCABLE/work/LUH2/v3/1deg"
 TransitionFilePath="${sitepath}/LUH2/v3/1deg"
 ClimateFile="${sitepath}/LUH2/cru_climate_rst.nc"
 # 13C
@@ -377,20 +388,20 @@ if [[ ${doextractsite} -ge 1 ]] ; then
 fi
 
 # Choose meteo, land use and mask directories and files
-if [[ ${doglobalmeteo} -eq 0 ]] ; then
+if [[ ${dometeo} -eq 0 ]] ; then
     MetPath=$(abspath ${GlobalMetPath})
     TransitionFilePath=$(abspath ${GlobalTransitionFilePath})
     LandMaskFile=$(absfile ${LandMaskFile})
-elif [[ ${doglobalmeteo} -eq 1 ]] ; then
+elif [[ ${dometeo} -eq 1 ]] ; then
     MetPath=$(abspath ${MetPath})
     TransitionFilePath=$(abspath ${TransitionFilePath})
     LandMaskFile=$(absfile ${LandMaskFile})
-elif [[ ${doglobalmeteo} -eq 2 ]] ; then
+elif [[ ${dometeo} -eq 2 ]] ; then
     MetPath=$(abspath ${GlobalMetPath})
     TransitionFilePath=$(abspath ${GlobalTransitionFilePath})
     LandMaskFile=$(absfile ${LandMaskFile})
 else
-    printf "Error ${pprog}: doglobalmeteo option unknown: ${doglobalmeteo}.\n\n"
+    printf "Error ${pprog}: dometeo option unknown: ${dometeo}.\n\n"
     exit 1
 fi
 # absolute pathes of other parameter files
