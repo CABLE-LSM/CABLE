@@ -37,12 +37,19 @@ def getVariableDefinition(ncvar):
     if 'x' in dims: dims[dims.index('x')] = 'lon'
     if 'y' in dims: dims[dims.index('y')] = 'lat'
     chunks = ncvar.chunking() if not isinstance(ncvar.chunking(), str) else None
+    if "missing_value" in dir(ncvar):
+        ifill = ncvar.missing_value
+    elif "_FillValue" in dir(ncvar):
+        ifill = ncvar._FillValue
+    else:
+        ifill = None
     out.update({
         "name"       : ncvar.name,
         "dtype"      : ncvar.dtype,
         "dimensions" : dims,
         "chunksizes" : chunks,
-        "fill_value" : ncvar._FillValue if "_FillValue" in dir(ncvar) else None,
+        # "fill_value" : ncvar._FillValue if "_FillValue" in dir(ncvar) else None,
+        "fill_value" : ifill,
         })
     return out
 
@@ -150,8 +157,8 @@ for ivar in fi.variables.values():
         if izip: invardef.update({'zlib':True})
         ovar = fo.createVariable(invardef.pop("name"), invardef.pop("dtype"), **invardef)
         for k in ivar.ncattrs():
-            if k != '_FillValue':
-                iattr = ivar.getncattr(k)
+            iattr = ivar.getncattr(k)
+            if (k != 'missing_value') and (k != '_FillValue'):
                 ovar.setncattr(k, iattr)
 # create dynamic variables (time dependent)
 for ivar in fi.variables.values():
@@ -161,7 +168,8 @@ for ivar in fi.variables.values():
         ovar = fo.createVariable(invardef.pop("name"), invardef.pop("dtype"), **invardef)
         for k in ivar.ncattrs():
             iattr = ivar.getncattr(k)
-            ovar.setncattr(k, iattr)
+            if (k != 'missing_value') and (k != '_FillValue'):
+                ovar.setncattr(k, iattr)
 # Copy variables from in to out
 # copy static variables
 for ivar in fi.variables.values():
