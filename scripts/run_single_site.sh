@@ -85,9 +85,12 @@ user=${system%@*}
 if [[ "${sys}" == "explor" ]] ; then
     # prog is slurm_script
     pdir=${isdir}
+    # module load openmpi/3.0.0/intel18
+    module load intelmpi/2018.5.274
     module load intel/2018.5
-    # module load openmpi/2.1.1/gcc-4.9.4
-    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/netcdf-fortran-4.4.4-ifort2018.0/lib
+    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-ifort2018.0/lib
+    # module load gcc/6.3.0
+    # module load openmpi/3.0.1/gcc/6.3.0
 elif [[ "${sys}" == "mcinra" ]] ; then
     true
 elif [[ "${sys}" == "pearcey" ]] ; then
@@ -113,29 +116,36 @@ dometeo=1       # 0: Use global meteo, land use and mask
 doextractsite=0 # 0: Do not extract meteo, land use and mask at specific site
                 # 1: Do extract meteo, land use and mask at specific site (dometeo=1)
                 # 2: Do extract mask at specific site, using then global meteo and land use (dometeo=2)
-  sitename=HarvardForest
-  latlon=42.536875,-72.172602
+  sitename=HarvardForest1
+  # latlon=42.536875,-72.172602 # lat,lon  or  latmin,latmax,lonmin,lonmax  # must have . in numbers otherwise indexes taken
+  latlon=42.536875,42.536875,-74.,-72.
 # Step 1
 doclimate=1     # 1/0: Do/Do not create climate restart file
 # Step 2
-dofromzero=1    # 1/0: Do/Do not first spinup phase from zero biomass stocks
+dofromzero=0    # 1/0: Do/Do not first spinup phase from zero biomass stocks
 # Step 3
-doequi1=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
+doequi1=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
  nequi1=3       #      number of times to repeat steps in doequi1
 # Step 4
-doequi2=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
+doequi2=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
  nequi2=3       #      number of times to repeat steps in doequi2
 # Step 5
-doiniluc=1      # 1/0: Do/Do not spinup with dynamic land use (5a)
-doinidyn=1      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
+doiniluc=0      # 1/0: Do/Do not spinup with dynamic land use (5a)
+doinidyn=0      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
 # Step 6
-dofinal=1       # 1/0: Do/Do not final run from 1900 to 2017
+dofinal=0       # 1/0: Do/Do not final run from 1900 to 2017
 
 # --------------------------------------------------------------------
 # Other switches
 #
+# Cable
 doc13o2=1           # 1/0: Do/Do not calculate 13C
 c13o2_simple_disc=0 # 1/0: simple or full 13C leaf discrimination
+
+# misc
+dompi=1         # 0: normal run: ./cable
+                # 1: MPI run: mpirun -np 4 ./cable_mpi
+  nproc=2       # Number of cores for MPI runs
 
 # --------------------------------------------------------------------
 # Setup
@@ -144,12 +154,50 @@ c13o2_simple_disc=0 # 1/0: simple or full 13C leaf discrimination
 #   not relative to the directory from which this script is launched (if different)
 #   nor relative to the run path.
 #
-if [[ "${system}" == "knauer@pearcey" ]] ; then
+if [[ "${system}" == "cuntz@explor" ]] ; then
+    # Run directory: runpath="${sitepath}/run_xxx"
+    sitepath="/home/oqx29/zzy20/prog/cable/single_sites/${sitename}"
+    cablehome="/home/oqx29/zzy20/prog/cable"
+    # Cable executable
+    if [[ ${dompi} -eq 1 ]] ; then
+	exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi"
+    else
+	exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable"
+    fi
+    # CABLE-AUX directory (uses offline/gridinfo_CSIRO_1x1.nc and offline/modis_phenology_csiro.txt)
+    aux="${cablehome}/CABLE-AUX"
+    # Global Mask
+    GlobalLandMaskFile="/home/oqx29/zzy20/data/crujra/daily_1deg/glob_ipsl_1x1.nc"
+    # Global CRU
+    GlobalMetPath="/home/oqx29/zzy20/data/crujra/daily_1deg"
+    # Global LUC
+    GlobalTransitionFilePath="/OSM/CBR/OA_GLOBALCABLE/work/LUH2/v3/1deg"
+elif [[ "${system}" == "cuntz@mcinra" ]] ; then
+    # Run directory: runpath="${sitepath}/run_xxx"
+    sitepath="/Users/cuntz/prog/vanessa/cable/single_sites/${sitename}"
+    cablehome="/Users/cuntz/prog/vanessa/cable"
+    # Cable executable
+    if [[ ${dompi} -eq 1 ]] ; then
+	exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi"
+    else
+	exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable"
+    fi
+    # CABLE-AUX directory (uses offline/gridinfo_CSIRO_1x1.nc and offline/modis_phenology_csiro.txt)
+    aux="${cablehome}/CABLE-AUX"
+    # Global Mask, CRU, LUC
+    GlobalLandMaskFile=
+    GlobalMetPath=
+    GlobalTransitionFilePath=
+elif [[ "${system}" == "knauer@pearcey" ]] ; then
     # Run directory: runpath="${sitepath}/run_xxx"
     sitepath="/OSM/CBR/OA_GLOBALCABLE/work/Juergen/CABLE_run/${sitename}"
     cablehome="/OSM/CBR/OA_GLOBALCABLE/work/Juergen/CABLE_code"
     # Cable executable
-    exe="${cablehome}/NESP2pt9_BLAZE/offline/cable"
+    if [[ ${dompi} -eq 1 ]] ; then
+	exe="${cablehome}/NESP2pt9_BLAZE/offline/cable-mpi"
+    else
+	exe="${cablehome}/NESP2pt9_BLAZE/offline/cable"
+    fi
     # CABLE-AUX directory (uses offline/gridinfo_CSIRO_1x1.nc and offline/modis_phenology_csiro.txt)
     aux="/OSM/CBR/OA_GLOBALCABLE/work/Vanessa/CABLE-AUX"
     # Global Mask
@@ -157,22 +205,6 @@ if [[ "${system}" == "knauer@pearcey" ]] ; then
     # Global CRU
     GlobalMetPath="/OSM/CBR/OA_GLOBALCABLE/work/CRU-JRA55/crujra/daily_1deg"
     # Global LUC
-    GlobalTransitionFilePath="/OSM/CBR/OA_GLOBALCABLE/work/LUH2/v3/1deg"
-elif [[ "${system}" == "cuntz@mcinra" ]] ; then
-    sitepath="/Users/cuntz/prog/vanessa/cable/single_sites/${sitename}"
-    cablehome="/Users/cuntz/prog/vanessa/cable"
-    exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable"
-    aux="${cablehome}/CABLE-AUX"
-    GlobalLandMaskFile=
-    GlobalMetPath=
-    GlobalTransitionFilePath=
-elif [[ "${system}" == "cuntz@explor" ]] ; then
-    sitepath="/home/oqx29/zzy20/prog/cable/single_sites/${sitename}"
-    cablehome="/home/oqx29/zzy20/prog/cable"
-    exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable"
-    aux="${cablehome}/CABLE-AUX"
-    GlobalLandMaskFile="/home/oqx29/zzy20/data/crujra/daily_1deg/glob_ipsl_1x1.nc"
-    GlobalMetPath="/home/oqx29/zzy20/data/crujra/daily_1deg"
     GlobalTransitionFilePath="/OSM/CBR/OA_GLOBALCABLE/work/LUH2/v3/1deg"
 else
     echo "System not known."
@@ -288,9 +320,17 @@ function nckslatlon()
     vars=$(ncvarlist ${1})
     if [[ -z $(isin latitude ${vars}) ]] ; then ilat='lat' ; else ilat='latitude' ; fi
     if [[ -z $(isin longitude ${vars}) ]] ; then ilon='lon' ; else ilon='longitude' ; fi
-    iilat=$(echo ${2} | cut -f 1 -d ',')
-    iilon=$(echo ${2} | cut -f 2 -d ',')
-    echo "-d ${ilat},${iilat} -d ${ilon},${iilon}"
+    if [[ -z $(echo ${2} | cut -f 3 -d ',') || -z $(echo ${2} | cut -f 4 -d ',') ]] ; then
+	iilat=$(echo ${2} | cut -f 1 -d ',')
+	iilon=$(echo ${2} | cut -f 2 -d ',')
+	echo "-d ${ilat},${iilat} -d ${ilon},${iilon}"
+    else
+	iilat1=$(echo ${2} | cut -f 1 -d ',')
+	iilat2=$(echo ${2} | cut -f 2 -d ',')
+	iilon1=$(echo ${2} | cut -f 3 -d ',')
+	iilon2=$(echo ${2} | cut -f 4 -d ',')
+	echo "-d ${ilat},${iilat1},${iilat2} -d ${ilon},${iilon1},${iilon2}"
+    fi
 }
 
 
@@ -324,6 +364,7 @@ mkdir -p outputs
 mkdir -p restart
 ln -sf ${adir}
 ln -sf ${exe}
+iexe=$(basename ${exe})
 cd ${pdir}
 
 #
@@ -375,8 +416,17 @@ if [[ ${doextractsite} -eq 1 ]] ; then
         # cdo -s -f nc4 -z zip sellonlatbox,-72.5,-72.0,42.5,43.0 ${nc} ${TransitionFilePath}/${ff}
 	ncks -O $(nckslatlon ${nc} ${latlon}) ${nc} ${TransitionFilePath}/${ff}
     done
+
+    # mask
+    LandMaskFilePath=$(dirname ${LandMaskFile})
+    mkdir -p ${LandMaskFilePath}
+    LandMaskFile=$(absfile ${LandMaskFile})
+    echo $(basename ${LandMaskFile})
+    # cdo -s -f nc4 -z zip sellonlatbox,-72.5,-72.0,42.5,43.0 ${GlobalLandMaskFile} ${LandMaskFile}
+    ncks -O $(nckslatlon ${GlobalLandMaskFile} ${latlon}) ${GlobalLandMaskFile} ${LandMaskFile}
 fi
-if [[ ${doextractsite} -ge 1 ]] ; then
+# ToDo: set land points in mask using Python script
+if [[ ${doextractsite} -eq 2 ]] ; then
     cd ${pdir}
     # mask
     LandMaskFilePath=$(dirname ${LandMaskFile})
@@ -434,7 +484,8 @@ if [[ ${doclimate} -eq 1 ]] ; then
     com=${com}$(csed "filename%restart_in=\"\"")
     com=${com}$(csed "cable_user%CLIMATE_fromZero=.true.")
     com=${com}$(csed "cable_user%YearStart=1860")
-    com=${com}$(csed "cable_user%YearEnd=1889")
+    #TEST com=${com}$(csed "cable_user%YearEnd=1889")
+    com=${com}$(csed "cable_user%YearEnd=1860")
     com=${com}$(csed "icycle=2")
     com=${com}$(csed "spincasa=.false.")
     com=${com}$(csed "cable_user%CASA_fromZero=.true.")
@@ -472,7 +523,11 @@ if [[ ${doclimate} -eq 1 ]] ; then
     # run model
     cd ${rdir}
     irm logs/log_cable.txt logs/log_out_cable.txt
-    ./cable > logs/log_out_cable.txt
+    if [[ ${dompi} -eq 1 ]] ; then
+	mpirun -np ${nproc} ./${iexe} > logs/log_out_cable.txt
+    else
+	./${iexe} > logs/log_out_cable.txt
+    fi
     # save output
     cd logs
     mv log_cable.txt     log_${rid}
@@ -556,7 +611,11 @@ if [[ ${dofromzero} -eq 1 ]] ; then
     # run model
     cd ${rdir}
     irm logs/log_cable.txt logs/log_out_cable.txt
-    ./cable > logs/log_out_cable.txt
+    if [[ ${dompi} -eq 1 ]] ; then
+	mpirun -np ${nproc} ./${iexe} > logs/log_out_cable.txt
+    else
+	./${iexe} > logs/log_out_cable.txt
+    fi
     # save output
     cd logs
     mv log_cable.txt     log_${rid}
@@ -644,7 +703,11 @@ if [[ ${doequi1} -eq 1 ]] ; then
             # run model
             cd ${rdir}
 	    irm logs/log_cable.txt logs/log_out_cable.txt
-	    ./cable > logs/log_out_cable.txt
+	    if [[ ${dompi} -eq 1 ]] ; then
+		mpirun -np ${nproc} ./${iexe} > logs/log_out_cable.txt
+	    else
+		./${iexe} > logs/log_out_cable.txt
+	    fi
             # save output
 	    cd logs
 	    mv log_cable.txt     log_${rid}
@@ -727,7 +790,11 @@ if [[ ${doequi1} -eq 1 ]] ; then
             # run model
             cd ${rdir}
 	    irm logs/log_cable.txt logs/log_out_cable.txt
-	    ./cable > logs/log_out_cable.txt
+	    if [[ ${dompi} -eq 1 ]] ; then
+		mpirun -np ${nproc} ./${iexe} > logs/log_out_cable.txt
+	    else
+		./${iexe} > logs/log_out_cable.txt
+	    fi
             # save output
 	    cd logs
 	    mv log_cable.txt     log_${rid}
@@ -814,7 +881,11 @@ if [[ ${doequi2} -eq 1 ]] ; then
             # run model
             cd ${rdir}
 	    irm logs/log_cable.txt logs/log_out_cable.txt
-	    ./cable > logs/log_out_cable.txt
+	    if [[ ${dompi} -eq 1 ]] ; then
+		mpirun -np ${nproc} ./${iexe} > logs/log_out_cable.txt
+	    else
+		./${iexe} > logs/log_out_cable.txt
+	    fi
             # save output
 	    cd logs
 	    mv log_cable.txt     log_${rid}
@@ -897,7 +968,11 @@ if [[ ${doequi2} -eq 1 ]] ; then
             # run model
             cd ${rdir}
 	    irm logs/log_cable.txt logs/log_out_cable.txt
-	    ./cable > logs/log_out_cable.txt
+	    if [[ ${dompi} -eq 1 ]] ; then
+		mpirun -np ${nproc} ./${iexe} > logs/log_out_cable.txt
+	    else
+		./${iexe} > logs/log_out_cable.txt
+	    fi
             # save output
 	    cd logs
 	    mv log_cable.txt     log_${rid}
@@ -978,7 +1053,11 @@ if [[ ${doiniluc} -eq 1 ]] ; then
     # run model
     cd ${rdir}
     irm logs/log_cable.txt logs/log_out_cable.txt
-    ./cable > logs/log_out_cable.txt
+    if [[ ${dompi} -eq 1 ]] ; then
+	mpirun -np ${nproc} ./${iexe} > logs/log_out_cable.txt
+    else
+	./${iexe} > logs/log_out_cable.txt
+    fi
     # save output
     cd logs
     mv log_cable.txt     log_${rid}
@@ -1067,7 +1146,11 @@ if [[ ${doinidyn} -eq 1 ]] ; then
     # run model
     cd ${rdir}
     irm logs/log_cable.txt logs/log_out_cable.txt
-    ./cable > logs/log_out_cable.txt
+    if [[ ${dompi} -eq 1 ]] ; then
+	mpirun -np ${nproc} ./${iexe} > logs/log_out_cable.txt
+    else
+	./${iexe} > logs/log_out_cable.txt
+    fi
     # save output
     cd logs
     mv log_cable.txt     log_${rid}
@@ -1155,7 +1238,11 @@ if [[ ${dofinal} -eq 1 ]] ; then
     # run model
     cd ${rdir}
     irm logs/log_cable.txt logs/log_out_cable.txt
-    ./cable > logs/log_out_cable.txt
+    if [[ ${dompi} -eq 1 ]] ; then
+	mpirun -np ${nproc} ./${iexe} > logs/log_out_cable.txt
+    else
+	./${iexe} > logs/log_out_cable.txt
+    fi
     # save output
     cd logs
     mv log_cable.txt     log_${rid}
