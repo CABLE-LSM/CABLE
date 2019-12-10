@@ -13,7 +13,7 @@ CSIRO veg type parameters (2nd guess calibration)
 9.0   1500.0  0.28   0.85   0.015         ! a1, d0, alpha, convex, cfrd
 0.01  404.9e-6 278.4e-3 59430.0 36000.0   ! gswmin,conkc0,conko0,ekc,eko
 0.000000 2.346064                         ! g0c3 OR g0c4, g1c3 OR g1c4 depending on frac4
-0.03 0.1                                 ! gamma gmmax25
+0.03 0.079                                ! gamma gmmax25
 2   forest     evergreen_broadleaf
 35.0   0.10   0.050  0.100  0.0           ! canopy hgt(m),leaf angle,lf width(m),lf length(m),C4 fraction
 0.09  0.29  0.010  0.160  0.390  0.010  ! rholeaf-vis,nir,therm, rhowood-vis,nir,therm
@@ -27,7 +27,7 @@ CSIRO veg type parameters (2nd guess calibration)
  9.0   2500.0    0.28   0.85   0.015         ! a1, d0, alpha, convex, cfrd
 0.01  404.9e-6 278.4e-3 59430.0 36000.0   ! gswmin,conkc0,conko0,ekc,eko
 0.000000         6.0                         ! g0c3 OR g0c4, g1c3 OR g1c4 depending on frac4
-0.03 0.12                                ! gamma gmmax25
+0.03 0.093                                ! gamma gmmax25
 3   deciduous  deciduous_needleleaf
 15.5   0.01   0.001  0.040  0.0           ! canopy hgt(m),leaf angle,lf width(m),lf length(m),C4 fraction
 0.075  0.30  0.010  0.160  0.390  0.010  ! rholeaf-vis,nir,therm, rhowood-vis,nir,therm
@@ -41,7 +41,7 @@ CSIRO veg type parameters (2nd guess calibration)
 9.0   1500.0  0.28   0.85   0.015         ! a1, d0, alpha, convex, cfrd
 0.01  404.9e-6 278.4e-3 59430.0 36000.0   ! gswmin,conkc0,conko0,ekc,eko
 0.000000 2.346064                         ! g0c3 OR g0c4, g1c3 OR g1c4 depending on frac4
-0.03 0.1                                ! gamma gmmax25
+0.03 0.079                                ! gamma gmmax25
 4   deciduous  deciduous_broadleaf
 20.0   0.25   0.080  0.150  0.0           ! canopy hgt(m),leaf angle,lf width(m),lf length(m),C4 fraction
 0.09  0.29  0.010  0.160  0.390  0.010  ! rholeaf-vis,nir,therm, rhowood-vis,nir,therm
@@ -55,7 +55,7 @@ CSIRO veg type parameters (2nd guess calibration)
 9.0   1500.0  0.28   0.85   0.015         ! a1, d0, alpha, convex, cfrd
 0.01  404.9e-6 278.4e-3 59430.0 36000.0   ! gswmin,conkc0,conko0,ekc,eko
 0.000000 4.447321                         ! g0c3 OR g0c4, g1c3 OR g1c4 depending on frac4
-0.03 0.2                                ! gamma gmmax25
+0.03 0.168                                ! gamma gmmax25
 5   shrub      shrub
  0.6   0.01   0.005  0.100  0.0           ! canopy hgt(m),leaf angle,lf width(m),lf length(m),C4 fraction
 0.09  0.30  0.010  0.200  0.430  0.010  ! rholeaf-vis,nir,therm, rhowood-vis,nir,therm
@@ -69,7 +69,7 @@ CSIRO veg type parameters (2nd guess calibration)
 9.0   1500.0  0.28   0.85   0.015         ! a1, d0, alpha, convex, cfrd
 0.01  404.9e-6 278.4e-3 59430.0 36000.0   ! gswmin,conkc0,conko0,ekc,eko
 0.000000 4.22                         ! g0c3 OR g0c4, g1c3 OR g1c4 depending on frac4
-0.03 0.15                                ! gamma gmmax25
+0.03 0.11                                ! gamma gmmax25
 6   grass      C3 grassland
  0.567 -0.30   0.010  0.300 0.0           ! canopy hgt(m),leaf angle,lf width(m),lf length(m),C4 fraction
 0.11  0.340  0.010  0.360  0.580  0.010  ! rholeaf-vis,nir,therm, rhowood-vis,nir,therm
@@ -83,7 +83,7 @@ CSIRO veg type parameters (2nd guess calibration)
 9.0   1500.0  0.28   0.85   0.015         ! a1, d0, alpha, convex, cfrd
 0.01  404.9e-6 278.4e-3 59430.0 36000.0   ! gswmin,conkc0,conko0,ekc,eko
 0.000000 4.5                        ! g0c3 OR g0c4, g1c3 OR g1c4 depending on frac4
-0.03 0.25                                ! gamma gmmax25
+0.03 0.195                                ! gamma gmmax25
 7   grass      C4 grassland
  0.567 -0.30   0.01  0.3 1.0           ! canopy hgt(m),leaf angle,lf width(m),lf length(m),C4 fraction
 0.11  0.34  0.010  0.360  0.580  0.010  ! rholeaf-vis,nir,therm, rhowood-vis,nir,therm
@@ -97,7 +97,7 @@ CSIRO veg type parameters (2nd guess calibration)
 4.0   2500.0  0.04   0.8    0.025         ! a1, d0, alpha, convex, cfrd
 0.04  404.9e-6 278.4e-3 59430.0 36000.0   ! gswmin,conkc0,conko0,ekc,eko
 0.000000 1.616178                         ! g0c3 OR g0c4, g1c3 OR g1c4 depending on frac4
-0.03 0.8                                ! gamma gmmax25
+0.03 1.0                                  ! gamma gmmax25
 8   grass      Tundra
  0.567 -0.30   0.010  0.300 0.0           ! canopy hgt(m),leaf angle,lf width(m),lf length(m),C4 fraction
 0.075  0.32  0.010  0.360  0.580  0.010  ! rholeaf-vis,nir,therm, rhowood-vis,nir,therm
@@ -111,7 +111,7 @@ CSIRO veg type parameters (2nd guess calibration)
 9.0   1500.0  0.28   0.85   0.015         ! a1, d0, alpha, convex, cfrd
 0.01  404.9e-6 278.4e-3 59430.0 36000.0   ! gswmin,conkc0,conko0,ekc,eko
 0.000000 2.222156                         ! g0c3 OR g0c4, g1c3 OR g1c4 depending on frac4
-0.03 0.15                                ! gamma gmmax25
+0.03 0.134                                ! gamma gmmax25
 9   crop       C3 cropland
  0.55 -0.30   0.010  0.300  0.0           ! canopy hgt(m),leaf angle,lf width(m),lf length(m),C4 fraction
 0.11  0.34  0.010  0.327  0.548  0.010  ! rholeaf-vis,nir,therm, rhowood-vis,nir,therm
@@ -125,7 +125,7 @@ CSIRO veg type parameters (2nd guess calibration)
 9.0   1500.0  0.07   0.8   0.015         ! a1, d0, alpha, convex, cfrd
 0.01  404.9e-6 278.4e-3 59430.0 36000.0   ! gswmin,conkc0,conko0,ekc,eko
 0.000000 5.789377                         ! g0c3 OR g0c4, g1c3 OR g1c4 depending on frac4
-0.01 0.3                                ! gamma gmmax25
+0.01 0.295                                ! gamma gmmax25
 10  crop       C4 cropland
  0.55 -0.30   0.010  0.300  1.0           ! canopy hgt(m),leaf angle,lf width(m),lf length(m),C4 fraction
 0.11  0.34  0.010  0.327  0.548  0.010  ! rholeaf-vis,nir,therm, rhowood-vis,nir,therm
@@ -139,7 +139,7 @@ CSIRO veg type parameters (2nd guess calibration)
 4.0   1500.0  0.05   0.80   0.025         ! a1, d0, alpha, convex, cfrd
 0.04  404.9e-6 278.4e-3 59430.0 36000.0   ! gswmin,conkc0,conko0,ekc,eko
 0.000000 1.616178                         ! g0c3 OR g0c4, g1c3 OR g1c4 depending on frac4
-0.01 1.0                                 ! gamma gmmax25
+0.01 0.6                                  ! gamma gmmax25
 11  wetgrass    wetland
  0.567 -0.30   0.010  0.300  0.0          ! canopy hgt(m),leaf angle,lf width(m),lf length(m),C4 fraction
 0.108  0.343  0.010  0.360  0.580  0.010  ! rholeaf-vis,nir,therm, rhowood-vis,nir,therm
@@ -153,7 +153,7 @@ CSIRO veg type parameters (2nd guess calibration)
 9.0   1500.0  0.15   0.01   0.015         ! a1, d0, alpha, convex, cfrd
 0.01  404.9e-6 278.4e-3 59430.0 36000.0   ! gswmin,conkc0,conko0,ekc,eko
 0.000000 5.248500                         ! g0c3 OR g0c4, g1c3 OR g1c4 depending on frac4
-0.01 0.3                                ! gamma gmmax25
+0.01 0.2                                  ! gamma gmmax25
 12  grass      empty
  0.2   0.100  0.003  0.030  0.0           ! canopy hgt(m),leaf angle,lf width(m),lf length(m),C4 fraction
 0.055  0.190  0.010  0.081  0.196  0.010  ! rholeaf-vis,nir,therm, rhowood-vis,nir,therm
@@ -167,7 +167,7 @@ CSIRO veg type parameters (2nd guess calibration)
 9.0   1500.0  0.15   0.01   0.015         ! a1, d0, alpha, convex, cfrd
 0.01  404.9e-6 278.4e-3 59430.0 36000.0   ! gswmin,conkc0,conko0,ekc,eko
 0.000000 5.248500                         ! g0c3 OR g0c4, g1c3 OR g1c4 depending on frac4
-0.01 0.2                                ! gamma gmmax25
+0.01 0.195                                ! gamma gmmax25
 13  notused    empty
  6.017  0.00   0.015  0.242 0.0           ! canopy hgt(m),leaf angle,lf width(m),lf length(m),C4 fraction
 0.091  0.310  0.010  0.283  0.504  0.010  ! rholeaf-vis,nir,therm, rhowood-vis,nir,therm
@@ -181,7 +181,7 @@ CSIRO veg type parameters (2nd guess calibration)
 9.0   1500.0  0.15   0.01   0.015         ! a1, d0, alpha, convex, cfrd
 0.01  404.9e-6 278.4e-3 59430.0 36000.0   ! gswmin,conkc0,conko0,ekc,eko
 0.000000 0.000000                         ! g0c3 OR g0c4, g1c3 OR g1c4 depending on frac4
-0.01 0.2                                ! gamma gmmax25
+0.01 0.2                                  ! gamma gmmax25
 14  noveg      barren
  0.2   0.00   0.001  0.030  0.0           ! canopy hgt(m),leaf angle,lf width(m),lf length(m),C4 fraction
 0.238  0.457  0.010  0.081  0.196  0.010  ! rholeaf-vis,nir,therm, rhowood-vis,nir,therm
@@ -195,7 +195,7 @@ CSIRO veg type parameters (2nd guess calibration)
 9.0   1500.0  0.15   0.01   0.015         ! a1, d0, alpha, convex, cfrd
 0.01  404.9e-6 278.4e-3 59430.0 36000.0   ! gswmin,conkc0,conko0,ekc,eko
 0.000000 5.248500                         ! g0c3 OR g0c4, g1c3 OR g1c4 depending on frac4
-0.01 0.2                                ! gamma gmmax25
+0.01 0.2                                  ! gamma gmmax25
 15  noveg      urban
  0.2   0.00   0.001  0.030  0.0           ! canopy hgt(m),leaf angle,lf width(m),lf length(m),C4 fraction
 0.143  0.275  0.010  0.081  0.196  0.010  ! rholeaf-vis,nir,therm, rhowood-vis,nir,therm
@@ -209,7 +209,7 @@ CSIRO veg type parameters (2nd guess calibration)
 9.0   1500.0  0.20   0.01   0.015         ! a1, d0, alpha, convex, cfrd
 0.01  404.9e-6 278.4e-3 59430.0 36000.0   ! gswmin,conkc0,conko0,ekc,eko
 0.000000 5.248500                         ! g0c3 OR g0c4, g1c3 OR g1c4 depending on frac4
-0.01 0.2                                ! gamma gmmax25
+0.01 0.2                                  ! gamma gmmax25
 16  noveg      lakes
  0.2   0.00   0.001  0.030  0.0           ! canopy hgt(m),leaf angle,lf width(m),lf length(m),C4 fraction
 0.143  0.275  0.010  0.081  0.196  0.010  ! rholeaf-vis,nir,therm, rhowood-vis,nir,therm
@@ -223,7 +223,7 @@ CSIRO veg type parameters (2nd guess calibration)
 9.0   1500.0  0.20   0.01   0.015         ! a1, d0, alpha, convex, cfrd
 0.01  404.9e-6 278.4e-3 59430.0 36000.0   ! gswmin,conkc0,conko0,ekc,eko
 0.000000 5.248500                         ! g0c3 OR g0c4, g1c3 OR g1c4 depending on frac4
-0.01 0.2                                ! gamma gmmax25
+0.01 0.2                                  ! gamma gmmax25
 17  noveg      ice
  0.2   0.00   0.001  0.030  0.0           ! canopy hgt(m),leaf angle,lf width(m),lf length(m),C4 fraction
 0.159  0.305  0.010  0.081  0.196  0.010  ! rholeaf-vis,nir,therm, rhowood-vis,nir,therm
@@ -237,4 +237,4 @@ CSIRO veg type parameters (2nd guess calibration)
 9.0   1500.0  0.20   0.01   0.015         ! a1, d0, alpha, convex, cfrd
 0.01  404.9e-6 278.4e-3 59430.0 36000.0   ! gswmin,conkc0,conko0,ekc,eko
 0.000000 5.248500                         ! g0c3 OR g0c4, g1c3 OR g1c4 depending on frac4
-0.01 0.2                                ! gamma gmmax25
+0.01 0.2                                  ! gamma gmmax25
