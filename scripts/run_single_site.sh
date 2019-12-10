@@ -35,6 +35,12 @@
 
 system=cuntz@explor # cuntz@explor, cuntz@mcinra, knauer@pearcey, jk8585 or vxh599@raijin
 
+# MPI run or single processor run
+# nproc should fit with job tasks 
+dompi=1   # 0: normal run: ./cable
+          # 1: MPI run: mpirun -np 4 ./cable_mpi
+nproc=3   # Number of cores for MPI runs
+
 # --------------------------------------------------------------------
 #
 # Full Cable run on a single grid cell with biomass spinup, POP, land-use change, etc.
@@ -85,12 +91,13 @@ user=${system%@*}
 if [[ "${sys}" == "explor" ]] ; then
     # prog is slurm_script
     pdir=${isdir}
+    # # module load intelmpi/2018.5.274
     # module load openmpi/3.0.0/intel18
-    module load intelmpi/2018.5.274
-    module load intel/2018.5
-    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-ifort2018.0/lib
-    # module load gcc/6.3.0
-    # module load openmpi/3.0.1/gcc/6.3.0
+    # module load intel/2018.5
+    # export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-ifort2018.0/lib
+    module load gcc/6.3.0
+    module load openmpi/3.0.1/gcc/6.3.0
+    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-gfortran63/lib
 elif [[ "${sys}" == "mcinra" ]] ; then
     true
 elif [[ "${sys}" == "pearcey" ]] ; then
@@ -142,12 +149,6 @@ dofinal=0       # 1/0: Do/Do not final run from 1900 to 2017
 doc13o2=1           # 1/0: Do/Do not calculate 13C
 c13o2_simple_disc=0 # 1/0: simple or full 13C leaf discrimination
 explicit_gm=0       # 1/0: explicit (finite) or implicit mesophyll conductance
-
-
-# misc
-dompi=1         # 0: normal run: ./cable
-                # 1: MPI run: mpirun -np 4 ./cable_mpi
-  nproc=2       # Number of cores for MPI runs
 
 # --------------------------------------------------------------------
 # Setup
@@ -486,8 +487,10 @@ if [[ ${doclimate} -eq 1 ]] ; then
     com=${com}$(csed "filename%restart_in=\"\"")
     com=${com}$(csed "cable_user%CLIMATE_fromZero=.true.")
     com=${com}$(csed "cable_user%YearStart=1860")
-    #TEST com=${com}$(csed "cable_user%YearEnd=1889")
+    #TEST
+    # com=${com}$(csed "cable_user%YearEnd=1889")
     com=${com}$(csed "cable_user%YearEnd=1860")
+    #TEST
     com=${com}$(csed "icycle=2")
     com=${com}$(csed "spincasa=.false.")
     com=${com}$(csed "cable_user%CASA_fromZero=.true.")
