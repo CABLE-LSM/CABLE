@@ -1097,7 +1097,7 @@ SUBROUTINE alloc_canopy_type(var, mp)
    ALLOCATE( var% tlf(mp) )
    ALLOCATE( var% dlf(mp) )
 
-   ALLOCATE ( var % evapfbl(mp,ms) )
+   ALLOCATE( var% evapfbl(mp,ms) )
    ALLOCATE( var% epot(mp) )
    ALLOCATE( var% fnpp(mp) )
    ALLOCATE( var% fevw_pot(mp) )
@@ -1112,20 +1112,20 @@ SUBROUTINE alloc_canopy_type(var, mp)
    ALLOCATE( var% oldcansto(mp) )
    ALLOCATE( var% zetar(mp,NITER) )
    ALLOCATE( var% zetash(mp,NITER) )
-   ALLOCATE ( var % fwsoil(mp) )
-   ALLOCATE ( var % ofes(mp) )
+   ALLOCATE( var % fwsoil(mp) )
+   ALLOCATE( var % ofes(mp) )
 
-   ALLOCATE ( var % gw(mp,mf) )     ! dry canopy conductance (ms-1) edit vh 6/7/09
-   ALLOCATE ( var % ancj(mp,mf,3) ) ! limiting photosynthetic rates (Rubisco,RuBP,sink) vh 6/7/09
-   ALLOCATE ( var % tlfy(mp,mf) )   ! sunlit and shaded leaf temperatures
-   ALLOCATE ( var % ecy(mp,mf) )    ! sunlit and shaded leaf transpiration (dry canopy)
-   ALLOCATE ( var % ecx(mp,mf) )    ! sunlit and shaded leaf latent heat flux
-   ! ALLOCATE ( var % ci(mp,mf,3) )   ! intra-cellular CO2 vh 6/7/09
-   ALLOCATE ( var % fwsoil (mp) )
+   ALLOCATE( var % gw(mp,mf) )     ! dry canopy conductance (ms-1) edit vh 6/7/09
+   ALLOCATE( var % ancj(mp,mf,3) ) ! limiting photosynthetic rates (Rubisco,RuBP,sink) vh 6/7/09
+   ALLOCATE( var % tlfy(mp,mf) )   ! sunlit and shaded leaf temperatures
+   ALLOCATE( var % ecy(mp,mf) )    ! sunlit and shaded leaf transpiration (dry canopy)
+   ALLOCATE( var % ecx(mp,mf) )    ! sunlit and shaded leaf latent heat flux
+   ! ALLOCATE( var % ci(mp,mf,3) )   ! intra-cellular CO2 vh 6/7/09
+   ALLOCATE( var % fwsoil (mp) )
 
    ! vh_js - litter resistances to heat and vapour transfer
-   ALLOCATE (var % kthLitt(mp))
-   ALLOCATE (var % DvLitt(mp))
+   ALLOCATE(var % kthLitt(mp))
+   ALLOCATE(var % DvLitt(mp))
 
    ! 13C
    allocate(var%An(mp,mf))

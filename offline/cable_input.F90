@@ -2389,7 +2389,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
    !   (determined here or from sub get_default_params <- countPatch)
    !   landpt%type    - via cable_IO_vars_module (nap,cstart,cend,ilon,ilat)
    !   max_vegpatches - via cable_IO_vars_module
-!! vh_js !!
+   !! vh_js !!
    USE POPmodule,       ONLY: POP_INIT
    USE POPLUC_module,   ONLY: POPLUC_INIT 
    USE CABLE_LUC_EXPT,  ONLY: LUC_EXPT_TYPE

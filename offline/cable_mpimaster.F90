@@ -687,9 +687,9 @@ CONTAINS
                   CABLE_USER%POPLUC= .FALSE.
 
              if (cable_user%call_climate) then
-                CALL alloc_cbm_var(climate,mp,ktauday)
-                CALL climate_init( climate, mp, ktauday )
-                if (.NOT.cable_user%climate_fromzero) &
+                CALL alloc_cbm_var(climate, mp, ktauday)
+                CALL climate_init(climate, mp, ktauday)
+                if (.NOT. cable_user%climate_fromzero) &
                      CALL READ_CLIMATE_RESTART_NC(climate, ktauday)
              endif
 
@@ -3333,18 +3333,18 @@ SUBROUTINE master_cable_params(comm,met,air,ssnow,veg,bgc,soil,canopy,&
 
 
      ! MPI: sanity check
-     IF (bidx /= ntyp) THEN
-        WRITE (*,*) 'master: invalid number of param_t fields ',bidx,', fix it!'
-        CALL MPI_Abort (comm, 1, ierr)
-     END IF
+     if (bidx /= ntyp) then
+        write(*,*) 'master: invalid number of param_t fields ', bidx, ', fix it (01)!'
+        call MPI_Abort(comm, 1, ierr)
+     end if
 
-     CALL MPI_Type_create_struct (bidx, blen, displs, types, param_ts(rank), ierr)
-     CALL MPI_Type_commit (param_ts(rank), ierr)
+     call MPI_Type_create_struct(bidx, blen, displs, types, param_ts(rank), ierr)
+     call MPI_Type_commit(param_ts(rank), ierr)
 
-     CALL MPI_Type_size (param_ts(rank), tsize, ierr)
-     CALL MPI_Type_get_extent (param_ts(rank), tmplb, text, ierr)
+     call MPI_Type_size(param_ts(rank), tsize, ierr)
+     call MPI_Type_get_extent(param_ts(rank), tmplb, text, ierr)
 
-     WRITE (*,*) 'master to rank param_t blocks, size, extent and lb: ',rank, bidx,tsize,text,tmplb
+     WRITE(*,*) 'master to rank param_t blocks, size, extent and lb: ', rank, bidx, tsize, text, tmplb
 
      localtotal = localtotal + tsize
 
@@ -4615,7 +4615,7 @@ SUBROUTINE master_casa_params(comm, casabiome, casapool, casaflux, casamet, &
 
   ! MPI: sanity check
   IF (bidx /= ntyp) THEN
-     WRITE(*,*) 'master: invalid number of casa_t param fields ',bidx,', fix it!'
+     WRITE(*,*) 'master: invalid number of casa_t param fields ',bidx,', fix it (02)!'
      CALL MPI_Abort(comm, 1, ierr)
   END IF
 
@@ -4816,10 +4816,9 @@ SUBROUTINE master_intypes (comm,met,veg)
 
      ! MPI: sanity check
      IF (bidx /= ntyp) THEN
-        WRITE (*,*) 'master: invalid intype nmat, nvec or n3d constant, fix it!'
+        WRITE (*,*) 'master: invalid intype nmat, nvec or n3d constant, fix it (03)!'
         CALL MPI_Abort (comm, 1, ierr)
      END IF
-
 
      ! marshall all fields into a single MPI derived datatype for worker rank
 
@@ -4828,8 +4827,8 @@ SUBROUTINE master_intypes (comm,met,veg)
      CALL MPI_Type_size (inp_ts(rank), tsize, ierr)
      CALL MPI_Type_get_extent (inp_ts(rank), tmplb, text, ierr)
 
-     WRITE (*,*) 'master to ',rank,': intype struct blocks, size, extent and lb: ', &
-                 bidx,tsize,text,tmplb
+     write(*,*) 'master to ', rank, ': intype (01) struct blocks, size, extent and lb: ', &
+                 bidx, tsize, text, tmplb
 
      localtotal = localtotal + tsize
 
@@ -4844,13 +4843,13 @@ SUBROUTINE master_intypes (comm,met,veg)
   ! MPI: check whether total size of send input data equals total
   ! data received by all the workers
   remotetotal = 0
-  CALL MPI_Reduce (MPI_IN_PLACE, remotetotal, 1, MPI_INTEGER, MPI_SUM, 0, comm, ierr)
+  CALL MPI_Reduce(MPI_IN_PLACE, remotetotal, 1, MPI_INTEGER, MPI_SUM, 0, comm, ierr)
 
-  WRITE (*,*) 'total input data size received by all workers: ', remotetotal
+  WRITE(*,*) 'total input data size received by all workers: ', remotetotal
 
   IF (localtotal /= remotetotal) THEN
-          WRITE (*,*) 'error: total length of input data sent and received differ'
-          CALL MPI_Abort (comm, 0, ierr)
+     WRITE (*,*) 'error: total length of input data sent and received differ (01)'
+     CALL MPI_Abort(comm, 0, ierr)
   END IF
 
   RETURN
@@ -5311,7 +5310,7 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
 
      ! MPI: sanity check
      IF (midx /= nmat) THEN
-        WRITE (*,*) 'master: outtype invalid nmat ',midx,' constant, fix it!'
+        WRITE (*,*) 'master: outtype invalid nmat ',midx,' constant, fix it (04)!'
         CALL MPI_Abort (comm, 1, ierr)
      END IF
 
@@ -5359,50 +5358,62 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      ! REAL(r_1)
      CALL MPI_Get_address (met%fld(off), vaddr(vidx), ierr)
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (met%precip(off), vaddr(vidx), ierr)
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (met%precip_sn(off), vaddr(vidx), ierr)
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (met%tk(off), vaddr(vidx), ierr)
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (met%tvair(off), vaddr(vidx), ierr)
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (met%tvrad(off), vaddr(vidx), ierr)
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (met%pmb(off), vaddr(vidx), ierr)
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (met%ua(off), vaddr(vidx), ierr)
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (met%qv(off), vaddr(vidx), ierr)
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (met%qvair(off), vaddr(vidx), ierr)
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (met%da(off), vaddr(vidx), ierr)
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (met%dva(off), vaddr(vidx), ierr)
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (met%coszen(off), vaddr(vidx), ierr) ! 19
@@ -5413,135 +5424,162 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%fess(off), vaddr(vidx), ierr) ! 20
      blen(vidx) = cnt * extr2
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%fesp(off), vaddr(vidx), ierr) ! 20
      blen(vidx) = cnt * extr2
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%cansto(off), vaddr(vidx), ierr) ! 20
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%cduv(off), vaddr(vidx), ierr) ! 21
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%delwc(off), vaddr(vidx), ierr) ! 22
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%dewmm(off), vaddr(vidx), ierr) ! 23
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_2)
      CALL MPI_Get_address (canopy%dgdtg(off), vaddr(vidx), ierr) ! 24
      blen(vidx) = cnt * extr2
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%fe(off), vaddr(vidx), ierr) ! 25
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%fh(off), vaddr(vidx), ierr) ! 26
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%fpn(off), vaddr(vidx), ierr) ! 27
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
-
      CALL MPI_Get_address (canopy%A_sh(off), vaddr(vidx), ierr) ! 27
      blen(vidx) = cnt * extr2
+     
      vidx = vidx + 1
      CALL MPI_Get_address (canopy%A_sl(off), vaddr(vidx), ierr) ! 27
      blen(vidx) = cnt * extr2
+     
      vidx = vidx + 1
      CALL MPI_Get_address (canopy%A_slC(off), vaddr(vidx), ierr) ! 27
      blen(vidx) = cnt * extr2
+     
      vidx = vidx + 1
      CALL MPI_Get_address (canopy%A_shC(off), vaddr(vidx), ierr) ! 27
      blen(vidx) = cnt * extr2
+     
      vidx = vidx + 1
      CALL MPI_Get_address (canopy%A_slJ(off), vaddr(vidx), ierr) ! 27
      blen(vidx) = cnt * extr2
+     
      vidx = vidx + 1
      CALL MPI_Get_address (canopy%A_shJ(off), vaddr(vidx), ierr) ! 27
      blen(vidx) = cnt * extr2
+     
      vidx = vidx + 1
      CALL MPI_Get_address (canopy%eta_A_cs(off), vaddr(vidx), ierr) ! 27
      blen(vidx) = cnt * extr2
+     
      vidx = vidx + 1
      CALL MPI_Get_address (canopy%dAdcs(off), vaddr(vidx), ierr) ! 27
      blen(vidx) = cnt * extr2
+     
      vidx = vidx + 1
      CALL MPI_Get_address (canopy%cs(off), vaddr(vidx), ierr) ! 27
      blen(vidx) = cnt * extr2
+     
      vidx = vidx + 1
-
      CALL MPI_Get_address (canopy%eta_GPP_cs(off), vaddr(vidx), ierr) ! 27
      blen(vidx) = cnt * extr2
-     vidx = vidx + 1
 
+     vidx = vidx + 1
      CALL MPI_Get_address (canopy%eta_fevc_cs(off), vaddr(vidx), ierr) ! 27
      blen(vidx) = cnt * extr2
-     vidx = vidx + 1
 
+     vidx = vidx + 1
      CALL MPI_Get_address (veg%vcmax_shade(off), vaddr(vidx), ierr) ! 27
      blen(vidx) = cnt * extr2
-     vidx = vidx + 1
 
+     vidx = vidx + 1
      CALL MPI_Get_address (veg%vcmax_sun(off), vaddr(vidx), ierr) ! 27
      blen(vidx) = cnt * extr2
-     vidx = vidx + 1
 
+     vidx = vidx + 1
      CALL MPI_Get_address (veg%ejmax_shade(off), vaddr(vidx), ierr) ! 27
      blen(vidx) = cnt * extr2
-     vidx = vidx + 1
 
+     vidx = vidx + 1
      CALL MPI_Get_address (veg%ejmax_sun(off), vaddr(vidx), ierr) ! 27
      blen(vidx) = cnt * extr2
-     vidx = vidx + 1
 
+     vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%frp(off), vaddr(vidx), ierr) ! 28
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%frpw(off), vaddr(vidx), ierr) ! 29
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%frpr(off), vaddr(vidx), ierr) ! 30
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%frs(off), vaddr(vidx), ierr) ! 31
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%fnee(off), vaddr(vidx), ierr) ! 32
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%frday(off), vaddr(vidx), ierr) ! 33
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%fnv(off), vaddr(vidx), ierr) ! 34
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%fev(off), vaddr(vidx), ierr) ! 35
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_2)
      CALL MPI_Get_address (canopy%fevc(off), vaddr(vidx), ierr) ! 36
      blen(vidx) = cnt * extr2
+     
      vidx = vidx + 1
      ! REAL(r_2)
      CALL MPI_Get_address (canopy%fevw(off), vaddr(vidx), ierr) ! 37
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! ! REAL(r_2)
      ! CALL MPI_Get_address (canopy%potev_c(off), vaddr(vidx), ierr) ! 38
@@ -5550,129 +5588,161 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%fhv(off), vaddr(vidx), ierr) ! 39
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_2)
      CALL MPI_Get_address (canopy%fhvw(off), vaddr(vidx), ierr) ! 40
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%fns(off), vaddr(vidx), ierr) ! 41
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%fes(off), vaddr(vidx), ierr) ! 42
      blen(vidx) = cnt * extr2
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%fes_cor(off), vaddr(vidx), ierr) ! 42
      blen(vidx) = cnt * extr2
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%fhs(off), vaddr(vidx), ierr) ! 43
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%fhs_cor(off), vaddr(vidx), ierr) ! 43
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%fwet(off), vaddr(vidx), ierr) ! 44
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%epot(off), vaddr(vidx), ierr) ! 44
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%fnpp(off), vaddr(vidx), ierr) ! 44
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%fevw_pot(off), vaddr(vidx), ierr) ! 44
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%gswx_T(off), vaddr(vidx), ierr) ! 44
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%cdtq(off), vaddr(vidx), ierr) ! 44
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%wetfac_cs(off), vaddr(vidx), ierr) ! 44
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%ga(off), vaddr(vidx), ierr) ! 45
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%ghflux(off), vaddr(vidx), ierr) ! 46
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%precis(off), vaddr(vidx), ierr) ! 47
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%qscrn(off), vaddr(vidx), ierr) ! 48
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%rnet(off), vaddr(vidx), ierr) ! 49
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%segg(off), vaddr(vidx), ierr) ! 50
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%sghflux(off), vaddr(vidx), ierr) ! 51
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%spill(off), vaddr(vidx), ierr) ! 52
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%through(off), vaddr(vidx), ierr) ! 53
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%tscrn(off), vaddr(vidx), ierr) ! 54
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%tv(off), vaddr(vidx), ierr) ! 55
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%us(off), vaddr(vidx), ierr) ! 56
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%uscrn(off), vaddr(vidx), ierr) ! 57
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%vlaiw(off), vaddr(vidx), ierr) ! 58
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%rghlai(off), vaddr(vidx), ierr) ! 58
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (canopy%wcint(off), vaddr(vidx), ierr) ! 59
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_2)
      CALL MPI_Get_address (canopy%fwsoil(off), vaddr(vidx), ierr) ! 59
      blen(vidx) = cnt * extr2
+     
      ! 13C
      ! LOGICAL
      ! done as veg%deciduous
+     vidx = vidx + 1
      CALL MPI_Get_address(canopy%isc3(off), vaddr(vidx), ierr)
      blen(vidx) = cnt * extl
 
@@ -5696,10 +5766,12 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      ! REAL(r_1)
      CALL MPI_Get_address (ssnow%cls(off), vaddr(vidx), ierr) ! 60
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (ssnow%dfn_dtg(off), vaddr(vidx), ierr) ! 61
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (ssnow%dfh_dtg(off), vaddr(vidx), ierr) ! 62
@@ -5714,10 +5786,12 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      ! REAL(r_1)
      CALL MPI_Get_address (ssnow%ddq_dtg(off), vaddr(vidx), ierr) ! 63
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (ssnow%evapsn(off), vaddr(vidx), ierr) ! 64
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (ssnow%fwtop(off), vaddr(vidx), ierr) ! 65
@@ -5741,94 +5815,117 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      ! INTEGER(i_d)
      CALL MPI_Get_address (ssnow%isflag(off), vaddr(vidx), ierr) ! 66
      blen(vidx) = cnt * extid
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (ssnow%osnowd(off), vaddr(vidx), ierr) ! 67
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (ssnow%potev(off), vaddr(vidx), ierr) ! 68
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_2)
      CALL MPI_Get_address (soil%pwb_min(off), vaddr(vidx), ierr) ! 69
      blen(vidx) = cnt * extr2
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (ssnow%runoff(off), vaddr(vidx), ierr) ! 70
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (ssnow%rnof1(off), vaddr(vidx), ierr) ! 71
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (ssnow%rnof2(off), vaddr(vidx), ierr) ! 72
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (ssnow%rtsoil(off), vaddr(vidx), ierr) ! 73
      blen(vidx) = cnt * extr1
+     
      ! MPI: 2D vars moved above
      ! sconds
      ! sdepth
      ! smass
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (ssnow%snage(off), vaddr(vidx), ierr) ! 74
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (ssnow%snowd(off), vaddr(vidx), ierr) ! 75
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (ssnow%smelt(off), vaddr(vidx), ierr) ! 76
      blen(vidx) = cnt * extr1
+     
      ! MPI: 2D vars moved above
      ! dtmlt
      ! ssdn
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (ssnow%ssdnn(off), vaddr(vidx), ierr) ! 77
      blen(vidx) = cnt * extr1
+     
      ! MPI: 2D vars moved above
      ! tgg
      ! tggsn
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (ssnow%tss(off), vaddr(vidx), ierr) ! 78
      blen(vidx) = cnt * extr1
+     
      ! MPI: r1134 does not know about this field, comment out
      !vidx = vidx + 1
      ! REAL(r_1)
      !CALL MPI_Get_address (ssnow%otss(off), vaddr(vidx), ierr) ! 79
      !blen(vidx) = cnt * extr1
+     
      ! MPI: 2D vars moved above
      ! wb
      ! wbfice
      ! wbice
      ! wblf
+     
      vidx = vidx + 1
      ! REAL(r_2)
      CALL MPI_Get_address (ssnow%wbtot(off), vaddr(vidx), ierr) ! 90
      blen(vidx) = cnt * extr2
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (ssnow%wb_lake(off), vaddr(vidx), ierr) ! 91
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (ssnow%sinfil(off), vaddr(vidx), ierr) ! 91
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (ssnow%qstss(off), vaddr(vidx), ierr) ! 91
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (ssnow%wetfac(off), vaddr(vidx), ierr) ! 91
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      ! MPI: TODO: maybe not needed for transfer to master?
@@ -5862,43 +5959,54 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      ! REAL(r_1)
      CALL MPI_Get_address (rad%extkb(off), vaddr(vidx), ierr) ! 93
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (rad%extkd2(off), vaddr(vidx), ierr) ! 94
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (rad%extkd(off), vaddr(vidx), ierr) ! 95
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (rad%flws(off), vaddr(vidx), ierr) ! 96
      blen(vidx) = cnt * extr1
+     
      ! MPI: 2D vars moved above
      ! fvlai
      ! gradis
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (rad%latitude(off), vaddr(vidx), ierr) ! 97
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (rad%lwabv(off), vaddr(vidx), ierr) !98
      blen(vidx) = cnt * extr1
+     
      ! MPI: 3D vars moved above
      ! qcan
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (rad%qssabs(off), vaddr(vidx), ierr) !99
      blen(vidx) = cnt * extr1
+     
      ! MPI: 2D vars moved above
      ! rhocdf
      ! rniso
      ! scalex
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (rad%transd(off), vaddr(vidx), ierr) ! 100
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (rad%trad(off), vaddr(vidx), ierr) ! 101
@@ -5914,6 +6022,7 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      ! reffbm
      ! extkbm
      ! extkdm
+     
      ! MPI: gol124: changed to 2D and moved up when Bernard
      ! ported to CABLE_r491
      !vidx = vidx + 1
@@ -5929,6 +6038,7 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      ! REAL(r_1)
      CALL MPI_Get_address (bal%drybal(off), vaddr(vidx), ierr) ! 103
      blen(vidx) = cnt * extr1
+     
      ! MPI: remove ebal from exchanged data, calculate temp val on the master
      !vidx = vidx + 1
      ! REAL(r_1)
@@ -5954,10 +6064,12 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      ! MPI: remove evap_tot from exchanged data
      !CALL MPI_Get_address (bal%evap_tot(off), vaddr(vidx), ierr) ! 108
      !blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (bal%osnowd0(off), vaddr(vidx), ierr) ! 109
      blen(vidx) = cnt * extr1
+     
      !vidx = vidx + 1
      ! REAL(r_1)
      ! MPI: remove precip_tot from exchanged data
@@ -5978,10 +6090,12 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      ! REAL(r_1)
      !CALL MPI_Get_address (bal%wbal_tot(off), vaddr(vidx), ierr) ! 113
      !blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (bal%wbtot0(off), vaddr(vidx), ierr) ! 114
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (bal%wetbal(off), vaddr(vidx), ierr) ! 115
@@ -5992,34 +6106,42 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      ! REAL(r_1)
      CALL MPI_Get_address (air%rho(off), vaddr(vidx), ierr) ! 116
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (air%volm(off), vaddr(vidx), ierr) ! 117
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (air%rlam(off), vaddr(vidx), ierr) ! 118
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (air%qsat(off), vaddr(vidx), ierr) ! 119
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (air%epsi(off), vaddr(vidx), ierr) ! 120
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (air%visc(off), vaddr(vidx), ierr) ! 121
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (air%psyc(off), vaddr(vidx), ierr) ! 122
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (air%dsatdk(off), vaddr(vidx), ierr) ! 123
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (air%cmolar(off), vaddr(vidx), ierr) ! 124
@@ -6028,78 +6150,96 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      ! soil
      ! MPI: 2D vars moved above
      ! albsoil
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (soil%bch(off), vaddr(vidx), ierr) ! 125
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (soil%c3(off), vaddr(vidx), ierr) ! 126
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (soil%clay(off), vaddr(vidx), ierr) ! 127
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (soil%cnsd(off), vaddr(vidx), ierr) ! 128
      blen(vidx) = cnt * extr2
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (soil%css(off), vaddr(vidx), ierr) ! 129
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (soil%hsbh(off), vaddr(vidx), ierr) ! 130
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (soil%hyds(off), vaddr(vidx), ierr) ! 131
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! INTEGER(i_d)
      CALL MPI_Get_address (soil%i2bp3(off), vaddr(vidx), ierr) ! 132
-! Maciej: i2bp3 is REAL
-!     blen(vidx) = cnt * extid
+     ! Maciej: i2bp3 is REAL
+     !     blen(vidx) = cnt * extid
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! INTEGER(i_d)
      CALL MPI_Get_address (soil%ibp2(off), vaddr(vidx), ierr) ! 133
-! Maciej: ibp2 is REAL
-!     blen(vidx) = cnt * extid
+     ! Maciej: ibp2 is REAL
+     !     blen(vidx) = cnt * extid
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! INTEGER(i_d)
      CALL MPI_Get_address (soil%isoilm(off), vaddr(vidx), ierr) ! 134
      blen(vidx) = cnt * extid
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (soil%rhosoil(off), vaddr(vidx), ierr) ! 135
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (veg%rs20(off), vaddr(vidx), ierr) ! 136
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (soil%sand(off), vaddr(vidx), ierr) ! 137
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (soil%sfc(off), vaddr(vidx), ierr) ! 138
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (soil%silt(off), vaddr(vidx), ierr) ! 139
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (soil%ssat(off), vaddr(vidx), ierr) ! 140
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (soil%sucs(off), vaddr(vidx), ierr) ! 141
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (soil%swilt(off), vaddr(vidx), ierr) ! 142
@@ -6110,86 +6250,107 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      ! INTEGER(i_d)
      CALL MPI_Get_address (veg%iveg(off), vaddr(vidx), ierr) ! 143
      blen(vidx) = cnt * extid
+     
      vidx = vidx + 1
      ! INTEGER(i_d)
      CALL MPI_Get_address (veg%meth(off), vaddr(vidx), ierr) ! 144
-! Maciej: veg%meth is REAL
-!     blen(vidx) = cnt * extid
+     ! Maciej: veg%meth is REAL
+     !     blen(vidx) = cnt * extid
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (veg%vlai(off), vaddr(vidx), ierr) ! 145
      blen(vidx) = cnt * extr1
+     
      ! MPI: 2D vars moved above
      ! froot
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (veg%canst1(off), vaddr(vidx), ierr) ! 146
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (veg%ejmax(off), vaddr(vidx), ierr) ! 147
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (veg%frac4(off), vaddr(vidx), ierr) ! 148
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (veg%wai(off), vaddr(vidx), ierr) ! 149
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (veg%vegcf(off), vaddr(vidx), ierr) ! 150
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (veg%tminvj(off), vaddr(vidx), ierr) ! 151
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (veg%tmaxvj(off), vaddr(vidx), ierr) ! 152
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (veg%vbeta(off), vaddr(vidx), ierr) ! 153
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (veg%xalbnir(off), vaddr(vidx), ierr) ! 154
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (veg%hc(off), vaddr(vidx), ierr) ! 155
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (veg%shelrb(off), vaddr(vidx), ierr) ! 156
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (veg%vcmax(off), vaddr(vidx), ierr) ! 157
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (veg%xfang(off), vaddr(vidx), ierr) ! 158
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (veg%dleaf(off), vaddr(vidx), ierr) ! 159
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (veg%rp20(off), vaddr(vidx), ierr) ! 160
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (veg%rpcoef(off), vaddr(vidx), ierr) ! 161
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! REAL(r_1)
      CALL MPI_Get_address (veg%extkn(off), vaddr(vidx), ierr) ! 162
      blen(vidx) = cnt * extr1
+     
      vidx = vidx + 1
      ! LOGICAL
      CALL MPI_Get_address (veg%deciduous(off), vaddr(vidx), ierr) ! 163
@@ -6223,15 +6384,14 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      ! end additional for SLI
 
      ! MPI: sanity check
-     IF (vidx /= nvec) THEN
-        WRITE (*,*) 'master: outtype invalid nvec ',vidx,' constant, fix it!'
-        CALL MPI_Abort (comm, 1, ierr)
-     END IF
+     if (vidx /= nvec) then
+        write(*,*) 'master: outtype invalid nvec ', vidx, ' constant, fix it (05)!'
+        call MPI_Abort(comm, 1, ierr)
+     end if
 
      ! MPI: all vectors into a single hindexed type for each worker
-     CALL MPI_Type_create_hindexed (vidx, blen, vaddr, MPI_BYTE, vec_t(rank), &
-          &                         ierr)
-     CALL MPI_Type_commit (vec_t(rank), ierr)
+     call MPI_Type_create_hindexed(vidx, blen, vaddr, MPI_BYTE, vec_t(rank), ierr)
+     call MPI_Type_commit(vec_t(rank), ierr)
 
      ! MPI: TODO: each worker's all types into a single struct
      ! 1 slice of 3D array (hvector), displacement offset
@@ -6918,7 +7078,7 @@ SUBROUTINE master_casa_types(comm, casapool, casaflux, casamet, casabal, phen)
 
      ! MPI: sanity check
      IF (bidx /= ntyp) THEN
-        WRITE (*,*) 'master: invalid number of casa fields, fix it!'
+        WRITE (*,*) 'master: invalid number of casa fields, fix it (06)!'
         WRITE (*,*) 'ntyp: ', ntyp, 'bidx: ', bidx
         CALL MPI_Abort (comm, 1, ierr)
      END IF
@@ -7320,7 +7480,7 @@ print*, 'master, nd ny mp nsd', nd, ny,mp, nsd
 
 ! MPI: sanity check
      IF (bidx /= ntyp) THEN
-        WRITE (*,*) 'master: invalid number of climate fields, fix it!'
+        WRITE (*,*) 'master: invalid number of climate fields, fix it (07)!'
         CALL MPI_Abort (comm, 1, ierr)
      END IF
 
@@ -7511,7 +7671,7 @@ END SUBROUTINE master_climate_types
 !CLN
 !CLN     ! MPI: sanity check
 !CLN     IF (bidx /= ntyp) THEN
-!CLN        WRITE (*,*) 'master: invalid intype in master_casa_dump, fix it!'
+!CLN        WRITE (*,*) 'master: invalid intype in master_casa_dump, fix it (08)!'
 !CLN        CALL MPI_Abort (comm, 1, ierr)
 !CLN     END IF
 !CLN
@@ -7544,7 +7704,7 @@ END SUBROUTINE master_climate_types
 !CLN  WRITE (*,*) 'total input data size received by all workers: ', remotetotal
 !CLN
 !CLN  IF (localtotal /= remotetotal) THEN
-!CLN          WRITE (*,*) 'error: total length of input data sent and received differ'
+!CLN          WRITE (*,*) 'error: total length of input data sent and received differ (02)'
 !CLN          CALL MPI_Abort (comm, 0, ierr)
 !CLN  END IF
 !CLN
@@ -7694,9 +7854,9 @@ SUBROUTINE master_restart_types (comm, canopy, air)
 
      ! MPI: sanity check
      IF (bidx /= ntyp) THEN
-        WRITE (*,*) 'master: invalid number of restart fields, fix it!'
-WRITE(*,*) 'bidx', bidx
- WRITE(*,*) 'ntyp', ntyp
+        WRITE(*,*) 'master: invalid number of restart fields, fix it (09)!'
+        WRITE(*,*) 'bidx: ', bidx
+        WRITE(*,*) 'ntyp: ', ntyp
         CALL MPI_Abort (comm, 1, ierr)
      END IF
 
@@ -7706,8 +7866,7 @@ WRITE(*,*) 'bidx', bidx
      CALL MPI_Type_size (restart_ts(rank), tsize, ierr)
      CALL MPI_Type_get_extent (restart_ts(rank), tmplb, text, ierr)
 
-     WRITE (*,*) 'restart results recv from worker, size, extent, lb: ', &
-   &       rank,tsize,text,tmplb
+     WRITE(*,*) 'restart results recv from worker, size, extent, lb: ', rank, tsize, text, tmplb
 
      totalrecv = totalrecv + tsize
 
@@ -7723,14 +7882,15 @@ WRITE(*,*) 'bidx', bidx
   ! MPI: check whether total size of received data equals total
   ! data sent by all the workers
   totalsend = 0
-  CALL MPI_Reduce (MPI_IN_PLACE, totalsend, 1, MPI_INTEGER, MPI_SUM, &
-    &     0, comm, ierr)
+  write(*,*) 'b5 reduce wk', MPI_IN_PLACE, totalsend, 1, MPI_INTEGER, MPI_SUM, 0, comm, ierr
+  call flush(6)
+  CALL MPI_Reduce(MPI_IN_PLACE, totalsend, 1, MPI_INTEGER, MPI_SUM, 0, comm, ierr)
 
   WRITE (*,*) 'total size of restart fields sent by all workers: ', totalsend
 
   IF (totalrecv /= totalsend) THEN
-          WRITE (*,*) 'error: restart fields totalsend and totalrecv differ'
-          CALL MPI_Abort (comm, 0, ierr)
+     WRITE(*,*) 'error: restart fields totalsend and totalrecv differ'
+     CALL MPI_Abort(comm, 0, ierr)
   END IF
 
   DEALLOCATE(types)
@@ -7875,17 +8035,20 @@ SUBROUTINE master_casa_dump_types(comm, casamet, casaflux, phen, climate, c13o2f
 
      if (cable_user%c13o2) then
         bidx = bidx + 1
+        print*, 'Ha03 ', ntyp, bidx, c13o2flux%cAn12(off), casaflux%cgpp(off)
         CALL MPI_Get_address(c13o2flux%cAn12(off), displs(bidx), ierr)
         blocks(bidx) = r2len
 
         bidx = bidx + 1
+        print*, 'Ha04 ', c13o2flux%cAn(off), shape(c13o2flux%cAn), shape(casaflux%cgpp)
         CALL MPI_Get_address(c13o2flux%cAn(off), displs(bidx), ierr)
         blocks(bidx) = r2len
      endif
+     print*, 'Ha05 ', ntyp, bidx, blocks
      
      ! MPI: sanity check
      IF (bidx /= ntyp) THEN
-        WRITE(*,*) 'master: invalid intype in master_casa_dump, fix it!'
+        WRITE(*,*) 'master: invalid intype in master_casa_dump, fix it (10)!'
         CALL MPI_Abort(comm, 1, ierr)
      END IF
 
@@ -7896,7 +8059,7 @@ SUBROUTINE master_casa_dump_types(comm, casamet, casaflux, phen, climate, c13o2f
      CALL MPI_Type_size(casa_dump_ts(rank), tsize, ierr)
      CALL MPI_Type_get_extent(casa_dump_ts(rank), tmplb, text, ierr)
 
-     WRITE (*,*) 'master to ', rank, ': intype struct blocks, size, extent and lb: ', &
+     WRITE (*,*) 'master to ', rank, ': intype (03) struct blocks, size, extent and lb: ', &
           bidx, tsize, text, tmplb
 
      localtotal = localtotal + tsize
@@ -7917,7 +8080,7 @@ SUBROUTINE master_casa_dump_types(comm, casamet, casaflux, phen, climate, c13o2f
   WRITE(*,*) 'total input data size received by all workers: ', remotetotal
 
   IF (localtotal /= remotetotal) THEN
-     WRITE (*,*) 'error: total length of input data sent and received differ'
+     WRITE (*,*) 'error: total length of input data sent and received differ (03)'
      CALL MPI_Abort(comm, 0, ierr)
   END IF
 
@@ -8004,56 +8167,47 @@ SUBROUTINE master_casa_LUC_types(comm, casapool, casabal, casaflux )
      ! casapool fields
      bidx = bidx + 1
      CALL MPI_Get_address (casapool%cplant(off,1), displs(bidx), ierr)
-     CALL MPI_Type_create_hvector (mplant, r2len, r2stride, MPI_BYTE, &
-          &                                types(bidx), ierr)
+     CALL MPI_Type_create_hvector (mplant, r2len, r2stride, MPI_BYTE, types(bidx), ierr)
      blocks(bidx) = 1
 
      bidx = bidx + 1
      CALL MPI_Get_address (casapool%clitter(off,1), displs(bidx), ierr)
-     CALL MPI_Type_create_hvector (mlitter, r2len, r2stride, MPI_BYTE, &
-          &                             types(bidx), ierr)
+     CALL MPI_Type_create_hvector (mlitter, r2len, r2stride, MPI_BYTE, types(bidx), ierr)
      blocks(bidx) = 1
 
      bidx = bidx + 1
      CALL MPI_Get_address (casapool%csoil(off,1), displs(bidx), ierr)
-     CALL MPI_Type_create_hvector (msoil, r2len, r2stride, MPI_BYTE, &
-          &                             types(bidx), ierr)
+     CALL MPI_Type_create_hvector (msoil, r2len, r2stride, MPI_BYTE, types(bidx), ierr)
      blocks(bidx) = 1
 
      bidx = bidx + 1
      CALL MPI_Get_address (casapool%nplant(off,1), displs(bidx), ierr)
-     CALL MPI_Type_create_hvector (mplant, r2len, r2stride, MPI_BYTE, &
-          &                             types(bidx), ierr)
+     CALL MPI_Type_create_hvector (mplant, r2len, r2stride, MPI_BYTE, types(bidx), ierr)
      blocks(bidx) = 1
 
      bidx = bidx + 1
      CALL MPI_Get_address (casapool%nlitter(off,1), displs(bidx), ierr)
-     CALL MPI_Type_create_hvector (mlitter, r2len, r2stride, MPI_BYTE, &
-          &                             types(bidx), ierr)
+     CALL MPI_Type_create_hvector (mlitter, r2len, r2stride, MPI_BYTE, types(bidx), ierr)
      blocks(bidx) = 1
 
      bidx = bidx + 1
      CALL MPI_Get_address (casapool%nsoil(off,1), displs(bidx), ierr)
-     CALL MPI_Type_create_hvector (msoil, r2len, r2stride, MPI_BYTE, &
-          &                             types(bidx), ierr)
+     CALL MPI_Type_create_hvector (msoil, r2len, r2stride, MPI_BYTE, types(bidx), ierr)
      blocks(bidx) = 1
 
      bidx = bidx + 1
      CALL MPI_Get_address (casapool%pplant(off,1), displs(bidx), ierr)
-     CALL MPI_Type_create_hvector (mplant, r2len, r2stride, MPI_BYTE, &
-          &                             types(bidx), ierr)
+     CALL MPI_Type_create_hvector (mplant, r2len, r2stride, MPI_BYTE, types(bidx), ierr)
      blocks(bidx) = 1
 
      bidx = bidx + 1
      CALL MPI_Get_address (casapool%plitter(off,1), displs(bidx), ierr)
-     CALL MPI_Type_create_hvector (mlitter, r2len, r2stride, MPI_BYTE, &
-          &                             types(bidx), ierr)
+     CALL MPI_Type_create_hvector (mlitter, r2len, r2stride, MPI_BYTE, types(bidx), ierr)
      blocks(bidx) = 1
 
      bidx = bidx + 1
      CALL MPI_Get_address (casapool%psoil(off,1), displs(bidx), ierr)
-     CALL MPI_Type_create_hvector (msoil, r2len, r2stride, MPI_BYTE, &
-          &                             types(bidx), ierr)
+     CALL MPI_Type_create_hvector (msoil, r2len, r2stride, MPI_BYTE, types(bidx), ierr)
      blocks(bidx) = 1
 
      bidx = bidx + 1
@@ -8090,7 +8244,7 @@ SUBROUTINE master_casa_LUC_types(comm, casapool, casabal, casaflux )
 
      ! MPI: sanity check
      IF (bidx /= ntyp) THEN
-        WRITE (*,*) 'master: invalid intype in master_casa_LUC, fix it!'
+        WRITE (*,*) 'master: invalid intype in master_casa_LUC, fix it (11)!'
         CALL MPI_Abort (comm, 1, ierr)
      END IF
 
@@ -8102,7 +8256,7 @@ SUBROUTINE master_casa_LUC_types(comm, casapool, casabal, casaflux )
      CALL MPI_Type_size (casa_LUC_ts(rank), tsize, ierr)
      CALL MPI_Type_get_extent (casa_LUC_ts(rank), tmplb, text, ierr)
 
-     WRITE (*,*) 'master to ',rank,': intype struct blocks, size, extent and lb: ', &
+     WRITE (*,*) 'master to ',rank,': intype (04) struct blocks, size, extent and lb: ', &
                  bidx,tsize,text,tmplb
 
      localtotal = localtotal + tsize
@@ -8123,7 +8277,7 @@ SUBROUTINE master_casa_LUC_types(comm, casapool, casabal, casaflux )
   WRITE (*,*) 'total input data size received by all workers: ', remotetotal
 
   IF (localtotal /= remotetotal) THEN
-          WRITE (*,*) 'error: total length of input data sent and received differ'
+          WRITE (*,*) 'error: total length of input data sent and received differ (04)'
           CALL MPI_Abort (comm, 0, ierr)
   END IF
 
@@ -8385,7 +8539,7 @@ END SUBROUTINE master_receive_pop
 !!CLN
 !!CLN     ! MPI: sanity check
 !!CLN     IF (bidx /= ntyp) THEN
-!!CLN        WRITE (*,*) 'invalid blaze ntyp constant, fix it!'
+!!CLN        WRITE (*,*) 'invalid blaze ntyp constant, fix it (12)!'
 !!CLN        CALL MPI_Abort (comm, 1, ierr)
 !!CLN     END IF
 !!CLN
@@ -8566,7 +8720,7 @@ subroutine master_c13o2_flux_params(comm, c13o2flux)
 
      ! MPI: sanity check
      if (bidx /= ntyp) then
-        write(*,*) 'master: invalid number of c13o2_flux_ts param fields ', bidx, ', fix it!'
+        write(*,*) 'master: invalid number of c13o2_flux_ts param fields ', bidx, ', fix it (13)!'
         call MPI_Abort(comm, 1, ierr)
      end if
 
@@ -8723,7 +8877,7 @@ subroutine master_c13o2_pool_params(comm, c13o2pools)
 
      ! MPI: sanity check
      if (bidx /= ntyp) then
-        write(*,*) 'master: invalid number of c13o2_pool_ts param fields ', bidx, ', fix it!'
+        write(*,*) 'master: invalid number of c13o2_pool_ts param fields ', bidx, ', fix it (14)!'
         call MPI_Abort(comm, 1, ierr)
      end if
 
@@ -8869,7 +9023,7 @@ subroutine master_c13o2_luc_params(comm, c13o2luc)
 
      ! MPI: sanity check
      if (bidx /= ntyp) then
-        write(*,*) 'master: invalid number of c13o2_luc_ts param fields ', bidx, ', fix it!'
+        write(*,*) 'master: invalid number of c13o2_luc_ts param fields ', bidx, ', fix it (15)!'
         call MPI_Abort(comm, 1, ierr)
      end if
 
@@ -9041,7 +9195,7 @@ subroutine master_c13o2_flux_types(comm, c13o2flux)
 
      ! MPI: sanity check
      if (bidx /= ntyp) then
-        write(*,*) 'master: invalid number of c13o2_flux fields, fix it!'
+        write(*,*) 'master: invalid number of c13o2_flux fields, fix it (16)!'
         write(*,*) 'ntyp: ', ntyp, 'bidx: ', bidx
         call MPI_Abort(comm, 1, ierr)
      end if
@@ -9189,7 +9343,7 @@ subroutine master_c13o2_pool_types(comm, c13o2pools)
 
      ! MPI: sanity check
      if (bidx /= ntyp) then
-        write(*,*) 'master: invalid number of c13o2_pool fields, fix it!'
+        write(*,*) 'master: invalid number of c13o2_pool fields, fix it (17)!'
         write(*,*) 'ntyp: ', ntyp, 'bidx: ', bidx
         call MPI_Abort(comm, 1, ierr)
      end if
@@ -9326,7 +9480,7 @@ subroutine master_c13o2_luc_types(comm, c13o2luc)
 
      ! MPI: sanity check
      if (bidx /= ntyp) then
-        write(*,*) 'master: invalid number of c13o2_luc fields, fix it!'
+        write(*,*) 'master: invalid number of c13o2_luc fields, fix it (18)!'
         write(*,*) 'ntyp: ', ntyp, 'bidx: ', bidx
         call MPI_Abort(comm, 1, ierr)
      end if
@@ -9392,8 +9546,7 @@ SUBROUTINE master_send_input (comm, dtypes, ktau)
 !  END IF
 
   DO rank = 1, wnp
-     CALL MPI_ISend (MPI_BOTTOM, 1, dtypes(rank), rank, ktau, comm, &
-     &               inp_req(rank), ierr)
+     CALL MPI_ISend (MPI_BOTTOM, 1, dtypes(rank), rank, ktau, comm, inp_req(rank), ierr)
   END DO
 
   !IF (.NOT. ALLOCATED(inp_stats)) THEN
@@ -9430,8 +9583,7 @@ SUBROUTINE master_receive(comm, ktau, types)
 
   DO rank = 1, wnp
 
-      CALL MPI_Irecv (MPI_BOTTOM, 1, types(rank), rank, ktau, comm, &
-     &               recv_req(rank), ierr)
+      CALL MPI_Irecv (MPI_BOTTOM, 1, types(rank), rank, ktau, comm, recv_req(rank), ierr)
   END DO
 
   ! MPI: we need all timesteps data before processing/saving

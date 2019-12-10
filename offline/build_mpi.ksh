@@ -224,12 +224,12 @@ host_vm_o()
     done
     if [[ ${iintel} -eq 1 ]] ;  then
         # INTEL - load mpi module first, otherwise intel module will not pre-pend LD_LIBRARY_PATH
-        module load intelmpi/2018.5.274
-	module load intel/2018.5
-        export FC=mpiifort
-	# module load openmpi/3.0.0/intel18
+        # module load intelmpi/2018.5.274
 	# module load intel/2018.5
-        # export FC=mpifort
+        # export FC=mpiifort
+	module load openmpi/3.0.0/intel18
+	module load intel/2018.5
+        export FC=mpifort
         # release
         export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
         if [[ ${idebug} -eq 1 ]] ; then
@@ -239,7 +239,7 @@ host_vm_o()
         export LD=''
         export NCROOT='/home/oqx29/zzy20/local/netcdf-fortran-4.4.4-ifort2018.0'
     else
-        # GFORTRAN
+        # GFORTRAN # 6.3.0 because of netcdf-fortran
         module load gcc/6.3.0
 	module load openmpi/3.0.1/gcc/6.3.0
         export FC=mpifort
