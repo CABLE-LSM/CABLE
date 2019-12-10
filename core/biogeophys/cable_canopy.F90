@@ -366,7 +366,7 @@ CONTAINS
                   (1.0-EXP(-min(0.5*rough%coexp(j)*canopy%vlaiw(j),20.0))) &
                   - gbhu(j,1)
 
-             if (cable_user%finite_gm) then
+             if (cable_user%explicit_gm) then
                 ! JK: gmmax now comes from param file
                 !gmax0 = 2.47/10.1 ! molm-2s-1 
                 !if (veg%iveg(j).eq.1) then
@@ -1700,8 +1700,8 @@ CONTAINS
 
 
              
-             ! Choose Ci-based (infinite gm) or Cc-based (finite gm) parameters
-             if (cable_user%finite_gm) then
+             ! Choose Ci-based (implicit gm) or Cc-based (explicit gm) parameters
+             if (cable_user%explicit_gm) then
                 gam0    = C%gam0cc
                 conkc0  = C%conkc0cc
                 conko0  = C%conko0cc
@@ -1716,9 +1716,9 @@ CONTAINS
                 ekc    = C%ekc
                 eko    = C%eko
              endif
-             ! JK: veg%vcmax_sun and veg%vcmax_shade are Cc-based if cable_user%gm_finite = TRUE
+             ! JK: veg%vcmax_sun and veg%vcmax_shade are Cc-based if cable_user%explicit_gm = TRUE
              !     and Ci-based otherwise. If cable_user%coordinate_photosyn = FALSE,
-             !     veg%vcmax_sun = veg%vcmax_shade = veg%vcmaxcc if cable_user%gm_finite = TRUE
+             !     veg%vcmax_sun = veg%vcmax_shade = veg%vcmaxcc if cable_user%explicit_gm = TRUE
              !     and veg%vcmax_sun = veg%vcmax_shade = veg%vcmax otherwise.
              !     See also Subroutine 'casa_feedback' in casa_cable.F90. Same applies to ejmax.
              
@@ -1962,7 +1962,7 @@ CONTAINS
        ENDDO !i=1,mp
 
 
-       if (cable_user%finite_gm) then
+       if (cable_user%explicit_gm) then
           CALL photosynthesis_gm( csx(:,:),                        &
                spread(cx1(:),2,mf),                                &
                spread(cx2(:),2,mf),                                &
@@ -2614,7 +2614,7 @@ CONTAINS
   ! ------------------------------------------------------------------------------
 
   ! vh adpatation of photosynthesis calculation to
-  !account for finite mesophyll conductance (gm)
+  !account for finite mesophyll conductance (gm) (cable_user%explicit_gm = TRUE)
   SUBROUTINE photosynthesis_gm( csxz, cx1z, cx2z, gswminz,                          &
        rdxz, vcmxt3z, vcmxt4z, vx3z,                       &
        vx4z, gs_coeffz, vlaiz, deltlfz, anxz, fwsoilz, &

@@ -118,7 +118,7 @@ MODULE cable_common_module
           Climate_fromZero       = .FALSE., &
           CASA_fromZero          = .FALSE., &
           POPLUC                 = .FALSE., &
-          finite_gm              = .FALSE., &     ! finite mesophyll conductance
+          explicit_gm            = .FALSE., &     ! explicit (finite) mesophyll conductance
           acclim_autoresp            = .TRUE., &
           coordinate_photosyn    = .TRUE., &
           acclimate_photosyn      = .FALSE., &

@@ -141,6 +141,8 @@ dofinal=0       # 1/0: Do/Do not final run from 1900 to 2017
 # Cable
 doc13o2=1           # 1/0: Do/Do not calculate 13C
 c13o2_simple_disc=0 # 1/0: simple or full 13C leaf discrimination
+explicit_gm=0       # 1/0: explicit (finite) or implicit mesophyll conductance
+
 
 # misc
 dompi=1         # 0: normal run: ./cable
@@ -505,6 +507,11 @@ if [[ ${doclimate} -eq 1 ]] ; then
     com=${com}$(csed "cable_user%LUC_outfile=\"outputs/cru_out_LUC.nc\"")
     com=${com}$(csed "cable_user%LUC_restart_in=\"restart/cru_LUC_rst.nc\"")
     com=${com}$(csed "cable_user%LUC_restart_out=\"restart/cru_LUC_rst.nc\"")
+    if [[ ${explicit_gm} -eq 1 ]] ; then
+        com=${com}$(csed "cable_user%explicit_gm=.true.")
+    else
+        com=${com}$(csed "cable_user%explicit_gm=.false.")
+    fi
     if [[ ${doc13o2} -eq 1 ]] ; then
         com=${com}$(csed "cable_user%c13o2=.true.")
         com=${com}$(csed "cable_user%c13o2_delta_atm_file=\"${filename_d13c_atm}\"")
@@ -593,6 +600,11 @@ if [[ ${dofromzero} -eq 1 ]] ; then
     com=${com}$(csed "cable_user%LUC_outfile=\"outputs/cru_out_LUC.nc\"")
     com=${com}$(csed "cable_user%LUC_restart_in=\"restart/cru_LUC_rst.nc\"")
     com=${com}$(csed "cable_user%LUC_restart_out=\"restart/cru_LUC_rst.nc\"")
+    if [[ ${explicit_gm} -eq 1 ]] ; then
+        com=${com}$(csed "cable_user%explicit_gm=.true.")
+    else
+        com=${com}$(csed "cable_user%explicit_gm=.false.")
+    fi
     if [[ ${doc13o2} -eq 1 ]] ; then
         com=${com}$(csed "cable_user%c13o2=.true.")
         com=${com}$(csed "cable_user%c13o2_delta_atm_file=\"${filename_d13c_atm}\"")
@@ -685,6 +697,11 @@ if [[ ${doequi1} -eq 1 ]] ; then
             com=${com}$(csed "cable_user%LUC_outfile=\"outputs/cru_out_LUC.nc\"")
             com=${com}$(csed "cable_user%LUC_restart_in=\"restart/cru_LUC_rst.nc\"")
             com=${com}$(csed "cable_user%LUC_restart_out=\"restart/cru_LUC_rst.nc\"")
+	    if [[ ${explicit_gm} -eq 1 ]] ; then
+                com=${com}$(csed "cable_user%explicit_gm=.true.")
+            else
+                com=${com}$(csed "cable_user%explicit_gm=.false.")
+            fi
             if [[ ${doc13o2} -eq 1 ]] ; then
                 com=${com}$(csed "cable_user%c13o2=.true.")
 		com=${com}$(csed "cable_user%c13o2_delta_atm_file=\"${filename_d13c_atm}\"")
@@ -772,6 +789,11 @@ if [[ ${doequi1} -eq 1 ]] ; then
             com=${com}$(csed "cable_user%LUC_outfile=\"outputs/cru_out_LUC.nc\"")
             com=${com}$(csed "cable_user%LUC_restart_in=\"restart/cru_LUC_rst.nc\"")
             com=${com}$(csed "cable_user%LUC_restart_out=\"restart/cru_LUC_rst.nc\"")
+	    if [[ ${explicit_gm} -eq 1 ]] ; then
+                com=${com}$(csed "cable_user%explicit_gm=.true.")
+            else
+                com=${com}$(csed "cable_user%explicit_gm=.false.")
+            fi
             if [[ ${doc13o2} -eq 1 ]] ; then
                 com=${com}$(csed "cable_user%c13o2=.true.")
 		com=${com}$(csed "cable_user%c13o2_delta_atm_file=\"${filename_d13c_atm}\"")
@@ -863,6 +885,11 @@ if [[ ${doequi2} -eq 1 ]] ; then
             com=${com}$(csed "cable_user%LUC_outfile=\"outputs/cru_out_LUC.nc\"")
             com=${com}$(csed "cable_user%LUC_restart_in=\"restart/cru_LUC_rst.nc\"")
             com=${com}$(csed "cable_user%LUC_restart_out=\"restart/cru_LUC_rst.nc\"")
+	    if [[ ${explicit_gm} -eq 1 ]] ; then
+                com=${com}$(csed "cable_user%explicit_gm=.true.")
+            else
+                com=${com}$(csed "cable_user%explicit_gm=.false.")
+            fi
             if [[ ${doc13o2} -eq 1 ]] ; then
                 com=${com}$(csed "cable_user%c13o2=.true.")
 		com=${com}$(csed "cable_user%c13o2_delta_atm_file=\"${filename_d13c_atm}\"")
@@ -950,6 +977,11 @@ if [[ ${doequi2} -eq 1 ]] ; then
             com=${com}$(csed "cable_user%LUC_outfile=\"outputs/cru_out_LUC.nc\"")
             com=${com}$(csed "cable_user%LUC_restart_in=\"restart/cru_LUC_rst.nc\"")
             com=${com}$(csed "cable_user%LUC_restart_out=\"restart/cru_LUC_rst.nc\"")
+	    if [[ ${explicit_gm} -eq 1 ]] ; then
+                com=${com}$(csed "cable_user%explicit_gm=.true.")
+            else
+                com=${com}$(csed "cable_user%explicit_gm=.false.")
+            fi
             if [[ ${doc13o2} -eq 1 ]] ; then
                 com=${com}$(csed "cable_user%c13o2=.true.")
 		com=${com}$(csed "cable_user%c13o2_delta_atm_file=\"${filename_d13c_atm}\"")
@@ -1035,6 +1067,11 @@ if [[ ${doiniluc} -eq 1 ]] ; then
     com=${com}$(csed "cable_user%LUC_outfile=\"outputs/cru_out_LUC.nc\"")
     com=${com}$(csed "cable_user%LUC_restart_in=\"\"")
     com=${com}$(csed "cable_user%LUC_restart_out=\"restart/cru_LUC_rst.nc\"")
+    if [[ ${explicit_gm} -eq 1 ]] ; then
+        com=${com}$(csed "cable_user%explicit_gm=.true.")
+    else
+        com=${com}$(csed "cable_user%explicit_gm=.false.")
+    fi
     if [[ ${doc13o2} -eq 1 ]] ; then
         com=${com}$(csed "cable_user%c13o2=.true.")
         com=${com}$(csed "cable_user%c13o2_delta_atm_file=\"${filename_d13c_atm}\"")
@@ -1126,6 +1163,11 @@ if [[ ${doinidyn} -eq 1 ]] ; then
     com=${com}$(csed "cable_user%LUC_outfile=\"outputs/cru_out_LUC.nc\"")
     com=${com}$(csed "cable_user%LUC_restart_in=\"restart/cru_LUC_rst.nc\"")
     com=${com}$(csed "cable_user%LUC_restart_out=\"restart/cru_LUC_rst.nc\"")
+    if [[ ${explicit_gm} -eq 1 ]] ; then
+        com=${com}$(csed "cable_user%explicit_gm=.true.")
+    else
+        com=${com}$(csed "cable_user%explicit_gm=.false.")
+    fi
     if [[ ${doc13o2} -eq 1 ]] ; then
         com=${com}$(csed "cable_user%c13o2=.true.")
         com=${com}$(csed "cable_user%c13o2_delta_atm_file=\"${filename_d13c_atm}\"")
@@ -1218,6 +1260,11 @@ if [[ ${dofinal} -eq 1 ]] ; then
     com=${com}$(csed "cable_user%LUC_outfile=\"outputs/cru_out_LUC.nc\"")
     com=${com}$(csed "cable_user%LUC_restart_in=\"restart/cru_LUC_rst.nc\"")
     com=${com}$(csed "cable_user%LUC_restart_out=\"restart/cru_LUC_rst.nc\"")
+    if [[ ${explicit_gm} -eq 1 ]] ; then
+        com=${com}$(csed "cable_user%explicit_gm=.true.")
+    else
+        com=${com}$(csed "cable_user%explicit_gm=.false.")
+    fi
     if [[ ${doc13o2} -eq 1 ]] ; then
         com=${com}$(csed "cable_user%c13o2=.true.")
         com=${com}$(csed "cable_user%c13o2_delta_atm_file=\"${filename_d13c_atm}\"")

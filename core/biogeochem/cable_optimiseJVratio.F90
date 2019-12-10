@@ -75,7 +75,7 @@ CONTAINS
     DO k=1,mp
        if (veg%frac4(k).lt.0.001) then ! not C4
 
-          if (cable_user%finite_gm) then
+          if (cable_user%explicit_gm) then
             gm0  = veg%gmmax(k)
             vcmax00 = veg%vcmaxcc(k) ! vcmax at standard temperature (25degC) 
             Kc0  = C%conkc0cc
@@ -261,7 +261,7 @@ REAL FUNCTION total_photosynthesis_cost(bjv)
    REAL(r_2) :: kct, kot, tdiff
    REAL      :: x, gamma,  beta, gammastar, Rd, gm, jmaxt, trf 
    REAL(r_2) :: a, b, c1
-   REAL(r_2) :: d, p, q  ! if finite_gm 
+   REAL(r_2) :: d, p, q  ! if cable_user%explicit_gm 
    REAL(r_2) :: Anc, Ane, vcmax0
    REAL      :: An(nt), Ac(nt), Aj(nt)
 
@@ -297,7 +297,7 @@ REAL FUNCTION total_photosynthesis_cost(bjv)
 
          beta = kct * (1.0+0.21/kot)
          ! Rubisco-limited
-         if (cable_user%finite_gm) then
+         if (cable_user%explicit_gm) then
             if (TRIM(cable_user%g0_switch) == 'default') then
                CALL fabcd(cs(k), g0*fwsoil(k), x, gamma, beta, gammastar, Rd, gm, a, b, c1, d)
                CALL fpq(a,b,c1,d,p,q)
@@ -312,7 +312,7 @@ REAL FUNCTION total_photosynthesis_cost(bjv)
                   CALL fAm(a,b,c1,d,p,q,Anc)
                endif
             endif   
-         else  ! infinite gm
+         else  ! infinite (implicit) gm
             if (TRIM(cable_user%g0_switch) == 'default') then
                CALL fabc(cs(k), g0*fwsoil(k), x, gamma, beta, gammastar, Rd, a, b, c1)
                CALL fAn(a,b,c1,Anc) ! rubisco-limited
@@ -335,7 +335,7 @@ REAL FUNCTION total_photosynthesis_cost(bjv)
          gamma = ej3x(APAR(k), alpha, convex, jmaxt) 
          beta  = 2.0 * gammastar
          ! RuBP regeneration-limited
-         if (cable_user%finite_gm) then
+         if (cable_user%explicit_gm) then
             if (TRIM(cable_user%g0_switch) == 'default') then
                CALL fabcd(cs(k), g0*fwsoil(k), x, gamma, beta, gammastar, Rd, gm, a, b, c1, d)
                CALL fpq(a,b,c1,d,p,q)
@@ -350,7 +350,7 @@ REAL FUNCTION total_photosynthesis_cost(bjv)
                   CALL fAm(a,b,c1,d,p,q,Ane)
                endif
             endif   
-         else ! infinite gm
+         else ! infinite (implicit) gm
             if (TRIM(cable_user%g0_switch) == 'default') then
                CALL fabc(cs(k), g0*fwsoil(k), x, gamma, beta, gammastar, Rd, a, b, c1)
                CALL fAn(a,b,c1,Ane) ! e-transport limited
@@ -423,7 +423,7 @@ REAL FUNCTION total_photosynthesis(bjv)
   
         beta = kct * (1.0+0.21/kot)
         ! Rubisco-limited
-        if (cable_user%finite_gm) then
+        if (cable_user%explicit_gm) then
            if (TRIM(cable_user%g0_switch) == 'default') then
               CALL fabcd(cs(k), g0*fwsoil(k), x, gamma, beta, gammastar, Rd, gm, a, b, c1, d)
               CALL fpq(a,b,c1,d,p,q)
@@ -438,7 +438,7 @@ REAL FUNCTION total_photosynthesis(bjv)
                  CALL fAm(a,b,c1,d,p,q,Anc)
               endif
            endif   
-        else ! infinite gm
+        else ! infinite (implicit) gm
            if (TRIM(cable_user%g0_switch) == 'default') then
               CALL fabc(cs(k), g0*fwsoil(k), x, gamma, beta, gammastar, Rd, a, b, c1)
               CALL fAn(a,b,c1,Anc) ! rubisco-limited
@@ -461,7 +461,7 @@ REAL FUNCTION total_photosynthesis(bjv)
         gamma = ej3x(APAR(k), alpha,convex, jmaxt) 
         beta = 2.0 * gammastar
         ! RuBP regeneration-limited
-        if (cable_user%finite_gm) then
+        if (cable_user%explicit_gm) then
            if (TRIM(cable_user%g0_switch) == 'default') then
               CALL fabcd(cs(k), g0*fwsoil(k), x, gamma, beta, gammastar, Rd, gm, a, b, c1, d)
               CALL fpq(a,b,c1,d,p,q)
@@ -476,7 +476,7 @@ REAL FUNCTION total_photosynthesis(bjv)
                  CALL fAm(a,b,c1,d,p,q,Ane)
               endif
            endif  
-        else ! infinite gm
+        else ! infinite (implicit) gm
           if (TRIM(cable_user%g0_switch) == 'default') then
              CALL fabc(cs(k), g0*fwsoil(k), x, gamma, beta, gammastar, Rd, a, b, c1)
              CALL fAn(a,b,c1,Anc) ! rubisco-limited
@@ -512,7 +512,7 @@ REAL FUNCTION diff_Ac_Aj(bjv)
    INTEGER   :: k, j  ! k is timestep!
    REAL      :: kct, kot, tdiff
    REAL      :: x, gamma,  beta, gammastar, Rd, jmaxt, gm ! c1 because C already taken
-   REAL(r_2) :: a, b, c1, d, p, q  ! if finite_gm 
+   REAL(r_2) :: a, b, c1, d, p, q  ! if cable_user%explicit_gm 
    REAL(r_2) :: Anc, Ane, vcmax0
    REAL      :: An(nt), Ac(nt), Aj(nt)
    REAL      :: total_An, total_Ac, total_Aj
@@ -549,7 +549,7 @@ REAL FUNCTION diff_Ac_Aj(bjv)
          beta = kct * (1.0+0.21/kot)
 
          ! Rubisco-limited
-         if (cable_user%finite_gm) then
+         if (cable_user%explicit_gm) then
             if (TRIM(cable_user%g0_switch) == 'default') then
                CALL fabcd(cs(k), g0*fwsoil(k), x, gamma, beta, gammastar, Rd, gm, a, b, c1, d)
                CALL fpq(a,b,c1,d,p,q)
@@ -564,7 +564,7 @@ REAL FUNCTION diff_Ac_Aj(bjv)
                   CALL fAm(a,b,c1,d,p,q,Anc)
                endif
             endif   
-         else ! infinite gm
+         else ! infinite (implicit) gm
             if (TRIM(cable_user%g0_switch) == 'default') then
                CALL fabc(cs(k), g0*fwsoil(k), x, gamma, beta, gammastar, Rd, a, b, c1)
                CALL fAn(a,b,c1,Anc) ! rubisco-limited
@@ -588,7 +588,7 @@ REAL FUNCTION diff_Ac_Aj(bjv)
          beta  = 2.0 * gammastar
 
          ! RuBP regeneration-limited
-         if (cable_user%finite_gm) then
+         if (cable_user%explicit_gm) then
             if (TRIM(cable_user%g0_switch) == 'default') then
                CALL fabcd(cs(k), g0*fwsoil(k), x, gamma, beta, gammastar, Rd, gm, a, b, c1, d)
                CALL fpq(a,b,c1,d,p,q)
@@ -603,7 +603,7 @@ REAL FUNCTION diff_Ac_Aj(bjv)
                   CALL fAm(a,b,c1,d,p,q,Ane)
                endif
             endif  
-         else ! infinite gm
+         else ! infinite (implicit) gm
             if (TRIM(cable_user%g0_switch) == 'default') then
                CALL fabc(cs(k), g0*fwsoil(k), x, gamma, beta, gammastar, Rd, a, b, c1)
                CALL fAn(a,b,c1,Ane) ! e-transport limited
@@ -717,7 +717,7 @@ SUBROUTINE total_An_Ac_Aj(bjv, total_An, total_Ac, total_Aj)
    INTEGER :: k, j
    REAL :: kct, kot, tdiff
    REAL :: x, gamma,  beta, gammastar, Rd, jmaxt, gm
-   REAL(r_2) :: a, b, c1, d, p, q  ! if finite_gm
+   REAL(r_2) :: a, b, c1, d, p, q  ! if cable_user%explicit_gm
    REAL(r_2) :: Anc, Ane, vcmax0
    REAL :: An(nt), Ac(nt), Aj(nt)
    REAL, INTENT(OUT) :: total_An, total_Ac, total_Aj
@@ -756,7 +756,7 @@ SUBROUTINE total_An_Ac_Aj(bjv, total_An, total_Ac, total_Aj)
          beta = kct * (1.0+0.21/kot)
 
          ! Rubisco-limited
-         if (cable_user%finite_gm) then
+         if (cable_user%explicit_gm) then
             CALL fabcd(cs(k), real(0.0), x, gamma, beta, gammastar, Rd, gm, a, b, c1, d)
             CALL fpq(a,b,c1,d,p,q)
             CALL fAm(a,b,c1,d,p,q,Anc)
@@ -765,7 +765,7 @@ SUBROUTINE total_An_Ac_Aj(bjv, total_An, total_Ac, total_Aj)
                CALL fpq(a,b,c1,d,p,q)
                CALL fAm(a,b,c1,d,p,q,Anc)
             endif
-         else ! infinite gm
+         else ! infinite (implicit) gm
             CALL fabc(cs(k), real(0.0), x, gamma, beta, gammastar, Rd, a, b, c1)
             CALL fAn(a,b,c1,Anc)
             if (g0*fwsoil(k) .gt. Anc*x/cs(k)) then
@@ -784,7 +784,7 @@ SUBROUTINE total_An_Ac_Aj(bjv, total_An, total_Ac, total_Aj)
          gamma = ej3x(APAR(k), alpha,convex, jmaxt) 
          beta = 2.0 * gammastar
          ! RuBP regeneration-limited
-         if (cable_user%finite_gm) then
+         if (cable_user%explicit_gm) then
             CALL fabcd(cs(k), real(0.0), x, gamma, beta, gammastar, Rd, gm, a, b, c1, d)
             CALL fpq(a,b,c1,d,p,q)
             CALL fAm(a,b,c1,d,p,q,Ane)
@@ -793,7 +793,7 @@ SUBROUTINE total_An_Ac_Aj(bjv, total_An, total_Ac, total_Aj)
                CALL fpq(a,b,c1,d,p,q)
                CALL fAm(a,b,c1,d,p,q,Ane)
             endif
-         else ! infinite gm
+         else ! infinite (implicit) gm
             CALL fabc(cs(k), g0, x, gamma, beta, gammastar, Rd, a, b, c1)
             CALL fAn(a,b,c1,Ane)
             if (g0*fwsoil(k) .gt. Ane*x/cs(k)) then

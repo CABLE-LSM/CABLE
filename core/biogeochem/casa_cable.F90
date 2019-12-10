@@ -710,7 +710,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
  
        ! adjust Vcmax and Jmax accounting for gm, but only if the implicit values
        ! have changed.
-       if (cable_user%finite_gm) then
+       if (cable_user%explicit_gm) then
           if ( ABS(vcmaxx(np) - veg%vcmax(np)) .GT. 1.0E-08 .OR. &
                ABS(cfrdx(np) - veg%cfrd(np)) .GT. 1.0E-05 .OR. &
                ktau .LT. ktauday ) then
@@ -723,7 +723,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
           bjvref(np) = veg%ejmaxcc(np) / veg%vcmaxcc(np)
           
           ! recalculate relcost_J in a way that Neff is the same with
-          ! finite and infinite gm
+          ! finite (explicit) and infinite (implicit) gm
           if (coord) then
              relcostJCi = PHOTO%relcostJ_coord
           else
@@ -757,7 +757,7 @@ endif
 
 
 if (.NOT. cable_user%coordinate_photosyn) then
-   if (cable_user%finite_gm) then
+   if (cable_user%explicit_gm) then
       veg%vcmax_shade = veg%vcmaxcc
       veg%ejmax_shade = veg%ejmaxcc
 

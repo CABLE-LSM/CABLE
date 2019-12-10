@@ -182,6 +182,8 @@ host_pear()
    export LDFLAGS='-g -L'$NCDIR' -O2'
    export MFLAGS='-j 8'
    export LD='-lnetcdf -lnetcdff'
+   export dosvn=0
+   export MFLAGS='-j 8'
    build_build
    cd ../
    build_status
