@@ -112,16 +112,17 @@ MODULE cable_common_module
      CHARACTER(LEN=200) :: BLAZE_outfile       = '' !
      LOGICAL ::                                                               &
           CALL_POP               = .FALSE., & !
+          CALL_CROP              = .FALSE., & ! crop management module
           POP_fromZero           = .FALSE., &
           CALL_Climate           = .FALSE., &
           CALL_BLAZE             = .FALSE., &
           Climate_fromZero       = .FALSE., &
           CASA_fromZero          = .FALSE., &
           POPLUC                 = .FALSE., &
-          explicit_gm            = .FALSE., &     ! explicit (finite) mesophyll conductance
-          acclim_autoresp            = .TRUE., &
+          explicit_gm            = .FALSE., & ! explicit (finite) mesophyll conductance
+          acclim_autoresp        = .TRUE., &
           coordinate_photosyn    = .TRUE., &
-          acclimate_photosyn      = .FALSE., &
+          acclimate_photosyn     = .FALSE., &
           acclimate_autoresp_seasonal = .FALSE., &  ! acclimates to last 30 d, otherwise annual.
           limit_labile           = .FALSE., &
           Cumberland_soil        = .FALSE.   ! sets special CP soil params in calbe_sli_utils.F90
