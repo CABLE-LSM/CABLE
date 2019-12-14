@@ -2,19 +2,18 @@
 
 export dosvn=1 # 1/0: do/do not check svn
 
-# so that script can be called by bash buils.ksh if no ksh installed
-if [ "${SHELL}" == "/bin/bash" ] ; then
-    function print(){
-	printf "$@"
-    }
+# so that script can be called by 'bash build.ksh' if no ksh installed
+#    https://stackoverflow.com/questions/3327013/how-to-determine-the-current-shell-im-working-on
+if [ -z ${PS3} ] ; then
+    eval 'function print(){ printf "$@\n"; }'
 fi
 
 known_hosts()
 {
-    if [ "${SHELL}" == "/bin/bash" ] ; then
-	kh=(vayu cher pear shin jigg nXXX raij ces2 ccrc mael valh mcin vm_o)
+    if [ -z ${PS3} ] ; then
+	kh=(vayu cher pear shin jigg nXXX raij ces2 ccrc mael valh mcin vm_o gadi)
     else
-        set -A kh vayu cher pear shin jigg nXXX raij ces2 ccrc mael valh mcin vm_o
+        set -A kh vayu cher pear shin jigg nXXX raij ces2 ccrc mael valh mcin vm_o gadi
     fi
 }
 
@@ -273,7 +272,7 @@ host_mcin()
     export NCCLIB=${NCCROOT}'/lib'
     export NCLIB=${NCROOT}'/lib'
     export NCMOD=${NCROOT}'/include'
-    export LDFLAGS="-L${NCCLIB} -L${NCLIB} -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz"
+    export LDFLAGS="-L${NCLIB} -L${NCCLIB} -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz"
     export dosvn=0
     export MFLAGS='-j 8'
     build_build
@@ -352,6 +351,30 @@ host_vm_o()
     build_build
     cd ../
     build_status
+}
+
+
+## gadi.nci.org.au
+host_gadi()
+{
+   . /etc/bashrc
+   module purge
+   module add intel-compiler/2019.5.281
+   module add netcdf/4.6.3
+
+   export FC='ifort'
+   export NCDIR=${NETCDF_ROOT}'/lib/Intel'
+   export NCMOD=${NETCDF_ROOT}'/include/Intel'
+   if [[ ${1} == 'debug' ]]; then
+       export CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0'
+   else
+       export CFLAGS='-O2 -fp-model precise'
+   fi
+   export LDFLAGS='-L'${NCDIR}' -O0'
+   export LD='-lnetcdf -lnetcdff'
+   build_build
+   cd ../
+   build_status
 }
 
 
@@ -490,7 +513,7 @@ not_recognized()
 
 do_i_no_u()
 {
-   if [ "${SHELL}" == "/bin/bash" ] ; then
+    if [ -z ${PS3} ] ; then
        kmax=${#kh[*]}
        k=0
    else
