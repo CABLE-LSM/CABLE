@@ -4,6 +4,7 @@
     filename%type                  = 'CABLE-AUX/offline/gridinfo_CSIRO_1x1.nc'
     filename%veg                   = 'driver_files/def_veg_params.txt'
     filename%soil                  = 'driver_files/def_soil_params.txt'
+    filename%crop                  = 'driver_files/def_crop_params.txt'
     filename%log                   = 'logs/log_cable.txt'
     filename%out                   = 'outputs/cru_out_cable.nc'
     filename%restart_in            = 'restart/cru_cable_rst.nc'

@@ -2472,7 +2472,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
     ! They will be overwritten by values from the restart file, if present.
     ! Those variables found in the met file will again overwrite existing ones.
 
-    CALL get_default_params(logn,vegparmnew,LUC_EXPT)
+    CALL get_default_params(logn,vegparmnew,cable_user%call_crop,LUC_EXPT)
     CALL allocate_cable_vars(air,bgc,canopy,met,bal,rad,rough,soil,ssnow, &
             sum_flux,veg,mp)
     ! 13C
