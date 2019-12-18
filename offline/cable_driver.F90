@@ -98,6 +98,9 @@ PROGRAM cable_offline_driver
   USE BLAZE_MOD,     ONLY: TYPE_BLAZE, INI_BLAZE, BLAZE_ACCOUNTING,  WRITE_BLAZE_OUTPUT_NC
   USE SIMFIRE_MOD,   ONLY: TYPE_SIMFIRE, INI_SIMFIRE
 
+  ! Crop module
+  use crop_def,  only: crop_type
+  
   ! 13C
   use cable_c13o2_def,         only: c13o2_delta_atm, c13o2_flux, c13o2_pool, c13o2_luc, &
        c13o2_update_sum_pools, c13o2_zero_sum_pools
@@ -208,6 +211,9 @@ PROGRAM cable_offline_driver
   ! BLAZE variables
   TYPE(TYPE_BLAZE)    :: BLAZE
   TYPE(TYPE_SIMFIRE)  :: SIMFIRE
+
+  ! CROP
+  type(crop_type) :: crop
 
   ! 13C
   type(c13o2_flux)  :: c13o2flux
@@ -666,7 +672,8 @@ PROGRAM cable_offline_driver
                    casaflux, sum_casapool, sum_casaflux, &
                    casamet, casabal, phen, POP, spinup,               &
                    C%EMSOIL, C%TFRZ, LUC_EXPT, POPLUC, BLAZE, SIMFIRE, &
-                   c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc)
+                   c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc, &
+                   crop)
               ! 13C
               if (cable_user%c13o2) then
                  allocate(gpp(size(canopy%An,1),size(canopy%An,2)))
@@ -982,6 +989,12 @@ PROGRAM cable_offline_driver
                       phen, pop, spinConv, spinup, ktauday, idoy, loy,              &
                       CABLE_USER%CASA_DUMP_READ, CABLE_USER%CASA_DUMP_WRITE,   &
                       LALLOC, c13o2flux, c13o2pools )
+
+                 !! JK: test only
+                 IF (cable_user%CALL_CROP) THEN  
+                    CALL crop_driver(ktau,ktauday,idoy,crop,casaflux,climate)
+                 ENDIF
+                 
 
                  IF(MOD((ktau-kstart+1),ktauday)==0) THEN ! end of day
 

@@ -2380,7 +2380,8 @@ END SUBROUTINE close_met_file
 SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad,        &
        sum_flux,bal,logn,vegparmnew,casabiome,casapool,    &
        casaflux,sum_casapool, sum_casaflux,casamet,casabal,phen,POP,spinup,EMSOIL, &
-       TFRZ, LUC_EXPT, POPLUC, BLAZE, SIMFIRE, c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc)
+       TFRZ, LUC_EXPT, POPLUC, BLAZE, SIMFIRE, c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc, &
+       crop)
    ! Input variables not listed:
    !   filename%type  - via cable_IO_vars_module
    !   exists%type    - via cable_IO_vars_module
@@ -2401,6 +2402,8 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
    use cable_c13o2_def, only: c13o2_flux, c13o2_pool, c13o2_luc, c13o2_alloc_flux, c13o2_alloc_pools, c13o2_zero_flux
    use cable_c13o2,     only: c13o2_init_flux, c13o2_init_pools, c13o2_init_luc
    use cable_c13o2,     only: c13o2_read_restart_flux, c13o2_read_restart_pools
+   ! crop
+   use crop_def,        only: crop_type, allocate_cropvars, init_cropvars
 
    IMPLICIT NONE
 
@@ -2434,6 +2437,8 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
    type(c13o2_flux),          intent(out)   :: c13o2flux
    type(c13o2_pool),          intent(out)   :: c13o2pools, sum_c13o2pools
    type(c13o2_luc),           intent(out)   :: c13o2luc
+   ! crop
+   type(crop_type),           intent(out)   :: crop
    INTEGER,                   INTENT(IN)    :: logn     ! log file unit number
    LOGICAL,                   INTENT(IN)    :: vegparmnew, spinup ! are we using the new format? ! for POP (initialize pop)
    REAL,                      INTENT(IN)    :: TFRZ, EMSOIL
@@ -2477,6 +2482,9 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
     IF (icycle > 0 .OR. CABLE_USER%CASA_DUMP_WRITE ) then
        CALL alloc_casavariable(casabiome,casapool,casaflux, &
             casamet,casabal,mp)
+       ! crop
+       if (cable_user%call_crop) call allocate_cropvars(crop)
+
        ! 13C
        if (cable_user%c13o2) call c13o2_alloc_pools(c13o2pools, mp)
     endif
@@ -2507,6 +2515,10 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
       IF (cable_user%PHENOLOGY_SWITCH.eq.'MODIS') CALL casa_readphen(veg,casamet,phen)
 
       CALL casa_init(casabiome,casamet,casaflux,casapool,casabal,veg,phen)
+
+      ! crop
+      if (cable_user%call_crop) call init_cropvars(crop)
+      
       ! 13C
       if (cable_user%c13o2) then
          call c13o2_init_pools(casapool, casaflux, c13o2pools)

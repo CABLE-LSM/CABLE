@@ -3,11 +3,11 @@
 export dosvn=1 # 1/0: do/do not check svn
 
 # so that script can be called by bash buils.ksh if no ksh installed
-if [ "${SHELL}" == "/bin/bash" ] ; then
-    function print(){
-	printf "$@"
-    }
-fi
+#if [ "${SHELL}" == "/bin/bash" ] ; then
+#    function print(){
+#	printf "$@"
+#    }
+#fi
 
 known_hosts()
 {
@@ -175,7 +175,7 @@ host_pear()
    export NCDIR=$NETCDF_ROOT'/lib/'
    export NCMOD=$NETCDF_ROOT'/include/'
    export FC='ifort'
-   export  CFLAGS='-O0 -fp-model precise -fpe0 -fpp -g -debug -traceback -fp-stack-check -no-ftz -ftrapuv -check all,noarg_temp_created -C '
+   #export  CFLAGS='-O0 -fp-model precise -fpe0 -fpp -g -debug -traceback -fp-stack-check -no-ftz -ftrapuv -check all,noarg_temp_created -C '
    #export CFLAGS='-O0 -fpe=0 -fpe-all=0 -fpp -g -debug -traceback -fp-stack-check -no-ftz -ftrapuv -check bounds 
    export CFLAGS='-O2 -fp-model precise -fpp'
    export CFLAGS="${CFLAGS} -DCRU2017"
@@ -578,12 +578,14 @@ build_build()
    DRV="."
    CASA="../core/biogeochem"
    BLAZE="../core/blaze"
+   CROP="../core/crop"
    
    /bin/cp -p $PHYS/*90  ./.tmp
    /bin/cp -p $UTIL/*90  ./.tmp
    /bin/cp -p $DRV/*90   ./.tmp
    /bin/cp -p $CASA/*90  ./.tmp
    /bin/cp -p $BLAZE/*90 ./.tmp
+   /bin/cp -p $CROP/*90  ./.tmp
     
    /bin/cp -p Makefile_offline ./.tmp
    

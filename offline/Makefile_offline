@@ -31,6 +31,7 @@
 # Additions for optimisation of ratio of Jmax to Vcmax
 # Additions for bios climate, parameters (Peter Briggs & Vanessa Haverd)
 # Additions for 13CO2 (Matthias Cuntz)
+# Additions for gm and CROP (Juergen Knauer)
 #
 # ==============================================================================
 ##########################################################################
@@ -47,10 +48,11 @@ LSRC = cable_data.F90 cable_common.F90 cable_define_types.F90 cable_iovars.F90 \
 	cable_diag.F90 POP.F90 pop_io.F90 cable_plume_mip.F90 \
 	cable_weathergenerator.F90 cable_climate.F90 cable_phenology.F90 \
 	cable_cru_TRENDY.F90 POPLUC.F90 CASAONLY_LUC.F90 cable_LUC_EXPT.F90 \
-	cable_site.F90 cable_optimiseJVratio.F90 cable_bios_met_obs_params.F90\
+	cable_site.F90 cable_optimiseJVratio.F90 cable_bios_met_obs_params.F90 \
 	blaze.F90 blaze_driver.F90 simfire.F90 \
 	cable_c13o2.F90 cable_c13o2_def.F90 \
-	cable_adjustJVgm.F90
+	cable_adjustJVgm.F90 \
+	crop_driver.F90 crop_def.F90 crop.F90
 LSRCf90 = mo_isotope_luc_model.f90 mo_isotope_pool_model.f90 mo_c13o2_photosynthesis.f90 \
           mo_isotope.f90 mo_constants.f90 mo_utils.f90 mo_kind.f90 minpack.f90
 
@@ -107,7 +109,8 @@ cable_driver.o: cable_driver.F90 pop_io.o cable_diag.o cable_output.o \
 		casa_inout.o cable_input.o cable_common.o cable_data.o cable_sli_main.o \
 		cable_plume_mip.o cable_climate.o cable_cru_TRENDY.o POPLUC.o cable_LUC_EXPT.o \
 		CASAONLY_LUC.o cable_site.o cable_bios_met_obs_params.o \
-		blaze_driver.o simfire.o cable_c13o2_def.o spincasacnp.o mo_c13o2_photosynthesis.o
+		blaze_driver.o simfire.o cable_c13o2_def.o spincasacnp.o mo_c13o2_photosynthesis.o \
+		crop_driver.o crop_def.o
 
 cable_define_types.o: cable_define_types.F90
 
@@ -122,7 +125,7 @@ cable_write.o: cable_write.F90 cable_iovars.o cable_abort.o cable_define_types.o
 
 cable_input.o: cable_input.F90 POP.o cable_checks.o cable_abort.o cable_read.o cable_initialise.o cable_radiation.o \
 	       cable_parameters.o cable_common.o cable_LUC_EXPT.o POPLUC.o \
-	       simfire.o blaze.o cable_c13o2_def.o cable_c13o2.o
+	       simfire.o blaze.o cable_c13o2_def.o cable_c13o2.o crop_def.o
 
 cable_output.o: cable_output.F90 cable_abort.o cable_checks.o cable_write.o cable_common.o \
 		casa_variable.o cable_c13o2_def.o
@@ -215,6 +218,11 @@ mo_isotope_luc_model.o: mo_isotope_luc_model.f90 mo_utils.o mo_kind.o
 
 minpack.o: minpack.f90 cable_define_types.o
 cable_adjustJVgm.o: cable_adjustJVgm.F90 cable_define_types.o minpack.o
+
+# CROP
+crop_driver.o: crop_driver.F90 crop_def.o crop.o cable_define_types.o casa_variable.o 
+crop_def.o: crop_def.F90 cable_define_types.o
+crop.o: crop.F90 cable_define_types.o casa_variable.o
 
 
 # make clean option
