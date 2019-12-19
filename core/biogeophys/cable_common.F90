@@ -329,7 +329,7 @@ CONTAINS
     ! Gets parameter values for each vegetation type and soil type.
 
     USE cable_def_types_mod, ONLY : mvtype, ms, ncs, ncp, mstype, nrb
-    USE crop_def,            ONLY : ncmax
+    !USE crop_def,            ONLY : ncmax
 
     INTEGER,INTENT(IN) :: logn     ! log file unit number
 
@@ -344,7 +344,7 @@ CONTAINS
     REAL    :: notused
     INTEGER :: ioerror        ! input error integer
     INTEGER :: a, jveg, jcrop ! do loop counter
-
+    integer :: ncmax
 
     !================= Read in crop parameters: ========================
     IF (callcrop) THEN
@@ -358,9 +358,9 @@ CONTAINS
       READ(40,*) ncmax   ! number of crop functional types (CFTs)
 
 
-      ALLOCATE (cropin%Tbase(ncmax),        &
-                cropin%PHU_maturity(ncmax)  &
-               )
+      ALLOCATE(cropin%Tbase(ncmax),        &
+               cropin%PHU_maturity(ncmax)  &
+              )
 
 
       ! Read in parameter values for each crop type:

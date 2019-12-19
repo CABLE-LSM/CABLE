@@ -221,7 +221,7 @@ cable_adjustJVgm.o: cable_adjustJVgm.F90 cable_define_types.o minpack.o
 
 # CROP
 crop_driver.o: crop_driver.F90 crop_def.o crop.o cable_define_types.o casa_variable.o 
-crop_def.o: crop_def.F90 cable_define_types.o
+crop_def.o: crop_def.F90 cable_define_types.o cable_common.o
 crop.o: crop.F90 cable_define_types.o casa_variable.o
 
 
