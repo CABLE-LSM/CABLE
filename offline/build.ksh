@@ -357,7 +357,11 @@ host_vm_o()
 ## gadi.nci.org.au
 host_gadi()
 {
-   . /etc/bashrc
+   if [ -z ${PS3} ] ; then
+      . /etc/bashrc
+   else
+      . /etc/kshrc
+   fi
    module purge
    module add intel-compiler/2019.5.281
    module add netcdf/4.6.3
