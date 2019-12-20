@@ -366,12 +366,15 @@ host_gadi()
    export NCDIR=${NETCDF_ROOT}'/lib/Intel'
    export NCMOD=${NETCDF_ROOT}'/include/Intel'
    if [[ ${1} == 'debug' ]]; then
-       export CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0'
+       # export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
+       export CFLAGS='-O0 -fpp -traceback -g -fp-model precise -ftz -fpe0'
    else
-       export CFLAGS='-O2 -fp-model precise'
+       # export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
+       export CFLAGS='-O2 -fpp -fp-model precise'
    fi
    export LDFLAGS='-L'${NCDIR}' -O0'
    export LD='-lnetcdf -lnetcdff'
+   export MFLAGS='-j 8'
    build_build
    cd ../
    build_status
