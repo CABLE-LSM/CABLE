@@ -884,7 +884,6 @@ PROGRAM cable_offline_driver
 
                  IF (l_laiFeedbk .and. icycle>0) veg%vlai(:) = casamet%glai(:)
                  ! Call land surface scheme for this timestep, all grid points:
-
                  CALL cbm(ktau, dels, air, bgc, canopy, met, &
                           bal, rad, rough, soil, ssnow, &
                           sum_flux, veg, climate)
@@ -991,7 +990,7 @@ PROGRAM cable_offline_driver
                       LALLOC, c13o2flux, c13o2pools )
 
                  !! JK: test only
-                 IF (cable_user%CALL_CROP) THEN  
+                 IF (cable_user%CALL_CROP) THEN
                     CALL crop_driver(ktau,ktauday,idoy,crop,casaflux,climate)
                  ENDIF
                  

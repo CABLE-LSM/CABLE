@@ -108,7 +108,7 @@ MODULE cable_param_module
 
 CONTAINS
 
-  SUBROUTINE get_default_params(logn, vegparmnew, callcrop, LUC_EXPT)
+  SUBROUTINE get_default_params(logn, vegparmnew, LUC_EXPT)
     use cable_common_module, only : get_type_parameters, filename,             &
                                     calcsoilalbedo
   ! Load parameters for each veg type and each soil type. (get_type_parameters)
@@ -121,7 +121,6 @@ CONTAINS
     IMPLICIT NONE
     INTEGER, INTENT(IN) :: logn     ! log file unit number
     LOGICAL, INTENT(IN) :: vegparmnew ! new format input file (BP dec2007)
-    LOGICAL, INTENT(IN) :: callcrop
     TYPE (LUC_EXPT_TYPE), INTENT(INOUT) :: LUC_EXPT
 
     ! local variables
@@ -130,7 +129,7 @@ CONTAINS
     INTEGER :: nlat
 
     ! Get parameter values for all default veg and soil types:
-    CALL get_type_parameters(logn, vegparmnew, callcrop, classification)
+    CALL get_type_parameters(logn, vegparmnew, classification)
 
     WRITE(logn,*) ' Reading grid info from ', TRIM(filename%type)
     WRITE(logn,*) ' And assigning C4 fraction according to veg classification.'

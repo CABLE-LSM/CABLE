@@ -183,7 +183,6 @@ host_pear()
    export MFLAGS='-j 8'
    export LD='-lnetcdf -lnetcdff'
    export dosvn=0
-   export MFLAGS='-j 8'
    build_build
    cd ../
    build_status
@@ -452,7 +451,7 @@ host_write()
 clean_build()
 {
       print '\ncleaning up\n'
-      print '\n\tPress Enter too continue buiding, Control-C to abort now.\n'
+      print '\n\tPress Enter to continue building, Control-C to abort now.\n'
       read dummy
       rm -fr .tmp
 }

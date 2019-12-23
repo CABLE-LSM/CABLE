@@ -297,15 +297,6 @@ MODULE cable_common_module
 
   END TYPE vegin_type
 
-
-  TYPE cropin_type
-
-     real, dimension(:), allocatable ::   &
-          Tbase,         &  !
-          PHU_maturity      !
-
-  END TYPE cropin_type 
-
   
   CHARACTER(LEN=70), DIMENSION(:), POINTER ::                                 &
        veg_desc,   & ! decriptions of veg type
@@ -313,7 +304,6 @@ MODULE cable_common_module
 
   TYPE(soilin_type), SAVE  :: soilin
   TYPE(vegin_type),  SAVE  :: vegin
-  TYPE(cropin_type), SAVE  :: cropin
 
   !   !---parameters, tolerances, etc. could be set in _directives.h
   !jhan:cable.nml   real, parameter :: RAD_TOLS = 1.0e-2
@@ -324,61 +314,24 @@ MODULE cable_common_module
 CONTAINS
 
 
-  SUBROUTINE get_type_parameters(logn,vegparmnew,callcrop,classification)
+  SUBROUTINE get_type_parameters(logn,vegparmnew,classification)
 
     ! Gets parameter values for each vegetation type and soil type.
 
     USE cable_def_types_mod, ONLY : mvtype, ms, ncs, ncp, mstype, nrb
-    !USE crop_def,            ONLY : ncmax
 
     INTEGER,INTENT(IN) :: logn     ! log file unit number
 
     CHARACTER(LEN=4), INTENT(INOUT), OPTIONAL :: classification 
-    LOGICAL,INTENT(IN) :: vegparmnew ! new format input file
-    LOGICAL,INTENT(IN) :: callcrop   ! crop management module turned on?     
+    LOGICAL,INTENT(IN) :: vegparmnew ! new format input file  
 
     CHARACTER(LEN=80) :: comments
     CHARACTER(LEN=10) :: vegtypetmp
-    CHARACTER(LEN=25) :: vegnametmp, cropnametmp
+    CHARACTER(LEN=25) :: vegnametmp
 
     REAL    :: notused
-    INTEGER :: ioerror        ! input error integer
-    INTEGER :: a, jveg, jcrop ! do loop counter
-    integer :: ncmax
-
-    !================= Read in crop parameters: ========================
-    IF (callcrop) THEN
-      OPEN(40,FILE=filename%crop,STATUS='old',ACTION='READ',IOSTAT=ioerror)
-
-      IF (ioerror/=0) THEN
-        STOP 'CABLE_log: Cannot open crop parameter file!'
-      END IF 
-
-      READ(40,*)
-      READ(40,*) ncmax   ! number of crop functional types (CFTs)
-
-
-      ALLOCATE(cropin%Tbase(ncmax),        &
-               cropin%PHU_maturity(ncmax)  &
-              )
-
-
-      ! Read in parameter values for each crop type:
-      DO a=1,ncmax
-
-        READ(40,*) jcrop, cropnametmp
-
-        IF (jcrop > ncmax) STOP 'jcrop out of range in parameter file'
-
-        ! Read actual parameter values
-        READ(40,*) cropin%Tbase(jcrop)
-        READ(40,*) cropin%PHU_maturity(jcrop)
-
-      END DO ! loop over CFTs
-
-      CLOSE(40)
-      
-    END IF  ! CALL_CROP ?
+    INTEGER :: ioerror    ! input error integer
+    INTEGER :: a, jveg    ! do loop counter
 
      
     !================= Read in vegetation type specifications: ============

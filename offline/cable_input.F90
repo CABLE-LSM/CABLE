@@ -1740,7 +1740,7 @@ SUBROUTINE get_met_data(spinup,spinConv,met,soil,rad,                          &
       DO i=1,mland ! over all land points/grid cells
         met%tk(landpt(i)%cstart:landpt(i)%cend) = &
              REAL(tmpDat4(land_x(i),land_y(i),1,1)) + convert%Tair
-      ENDDO
+     ENDDO
 
       ! Get PSurf data for mask grid:- - - - - - - - - - - - - - - - - -
       IF(exists%PSurf) THEN ! IF PSurf is in met file:
@@ -2403,7 +2403,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
    use cable_c13o2,     only: c13o2_init_flux, c13o2_init_pools, c13o2_init_luc
    use cable_c13o2,     only: c13o2_read_restart_flux, c13o2_read_restart_pools
    ! crop
-   use crop_def,        only: crop_type, allocate_cropvars, init_cropvars
+   use crop_def,        only: crop_type, allocate_init_cropvars
 
    IMPLICIT NONE
 
@@ -2472,7 +2472,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
     ! They will be overwritten by values from the restart file, if present.
     ! Those variables found in the met file will again overwrite existing ones.
 
-    CALL get_default_params(logn,vegparmnew,cable_user%call_crop,LUC_EXPT)
+    CALL get_default_params(logn,vegparmnew,LUC_EXPT)
     CALL allocate_cable_vars(air,bgc,canopy,met,bal,rad,rough,soil,ssnow, &
             sum_flux,veg,mp)
     ! 13C
@@ -2483,7 +2483,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
        CALL alloc_casavariable(casabiome,casapool,casaflux, &
             casamet,casabal,mp)
        ! crop
-       if (cable_user%call_crop) call allocate_cropvars(crop)
+       if (cable_user%call_crop) call allocate_init_cropvars(crop,filename)
 
        ! 13C
        if (cable_user%c13o2) call c13o2_alloc_pools(c13o2pools, mp)
@@ -2515,9 +2515,6 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
       IF (cable_user%PHENOLOGY_SWITCH.eq.'MODIS') CALL casa_readphen(veg,casamet,phen)
 
       CALL casa_init(casabiome,casamet,casaflux,casapool,casabal,veg,phen)
-
-      ! crop
-      if (cable_user%call_crop) call init_cropvars(crop)
       
       ! 13C
       if (cable_user%c13o2) then
