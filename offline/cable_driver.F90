@@ -991,7 +991,7 @@ PROGRAM cable_offline_driver
 
                  !! JK: test only
                  IF (cable_user%CALL_CROP) THEN
-                    CALL crop_driver(ktau,ktauday,idoy,crop,casaflux,climate)
+                    CALL crop_driver(ktau,ktauday,idoy,climate,ssnow,soil,casaflux,crop)
                  ENDIF
                  
 

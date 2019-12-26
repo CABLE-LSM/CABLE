@@ -282,7 +282,9 @@ REAL FUNCTION total_photosynthesis_cost(bjv)
          else
             gamma = Vcmax0*scalex(k)*xvcmxt3(Tleaf(k))
          endif
-         gm = gm0 * scalex(k) * xgmesT(Tleaf(k))
+         if (cable_user%explicit_gm) then
+            gm = gm0 * scalex(k) * xgmesT(Tleaf(k))
+         endif
          tdiff = Tleaf(k) - C%Trefk
          !gammastar = C%gam0 * ( 1.0 + C%gam1 * tdiff               &
          !                           + C%gam2 * tdiff * tdiff )
@@ -409,7 +411,9 @@ REAL FUNCTION total_photosynthesis(bjv)
         else
            gamma = Vcmax0*scalex(k)*xvcmxt3(Tleaf(k))
         endif
-        gm = gm0 * scalex(k) * xgmesT(Tleaf(k))
+        if (cable_user%explicit_gm) then
+           gm = gm0 * scalex(k) * xgmesT(Tleaf(k))
+        endif
         tdiff = Tleaf(k) - C%Trefk
         !gammastar = C%gam0 * ( 1.0 + C%gam1 * tdiff                  &
         !     + C%gam2 * tdiff * tdiff )
@@ -535,7 +539,9 @@ REAL FUNCTION diff_Ac_Aj(bjv)
          else
             gamma = Vcmax0*scalex(k)*xvcmxt3(Tleaf(k))
          endif
-         gm = gm0 * scalex(k) * xgmesT(Tleaf(k))
+         if (cable_user%explicit_gm) then
+            gm = gm0 * scalex(k) * xgmesT(Tleaf(k))
+         endif   
          tdiff = Tleaf(k) - C%Trefk
          !gammastar = C%gam0 * ( 1.0 + C%gam1 * tdiff                  &
          !     + C%gam2 * tdiff * tdiff )
@@ -741,7 +747,9 @@ SUBROUTINE total_An_Ac_Aj(bjv, total_An, total_Ac, total_Aj)
          else
             gamma = Vcmax0*scalex(k)*xvcmxt3(Tleaf(k))
          endif
-         gm = gm0 * scalex(k) * xgmesT(Tleaf(k))
+         if (cable_user%explicit_gm) then
+            gm = gm0 * scalex(k) * xgmesT(Tleaf(k))
+         endif
          tdiff = Tleaf(k) - C%Trefk
          !gammastar = C%gam0 * ( 1.0 + C%gam1 * tdiff                  &
          !                                 + C%gam2 * tdiff * tdiff )
