@@ -82,9 +82,9 @@ contains
       ! calculate days since sowing 
       days_since_sowing(i) = doy - crop%sowing_doy(i) ! implement case year switch!!
 
-      ! calculate heat requirements for germination
-      fPHUger(i) = heat_units(crop%Tbase(i),climate%dtemp(i)) / crop%PHU_germination(i)
-      !dtemp needs to be soil temp!!!!!
+      ! calculate heat requirements for germination (based on temp in soil layer crop%sl)
+      fPHUger(i) = heat_units(crop%Tbase(i),climate%dtempsoil(i,crop%sl(i))) / &
+                   crop%PHU_germination(i)
       
       ! calculate soil water requirements for germination
       fwsger(i) = water_stress_ger(ssnow%wb(i,crop%sl(i)),real(soil%ssat(i),dp), &
@@ -98,12 +98,14 @@ contains
       ! if germination occurred, if it is still ongoing,
       ! or if it has failed.
       if (days_since_sowing(i) > maxdays_ger) then ! germination assumed to have failed
-        crop%state(i) = 0  ! fallow again, no plant growth
-        crop%fgermination(i) = 0.0
+         crop%state(i) = 0            ! fallow again, no plant growth
+         crop%fgermination(i) = 0.0
       else if (crop%fgermination(i) >= 1.0_dp .AND. days_since_sowing(i) <= maxdays_ger) then
-        crop%state(i) = 2  ! emerging
-     end if
-write(60,*) 'doy:', doy     
+         crop%state(i) = 2           ! emerging
+         crop%fgermination(i) = 0.0
+      end if
+write(60,*) 'doy:', doy
+write(60,*) '  climate%dtempsoil(:,crop%sl(1)):', climate%dtempsoil(:,crop%sl(1))     
 write(60,*) '  fPHUger:', fPHUger
 write(60,*) '  fwsger:', fwsger
 write(60,*) '  fgerday:', fgerday 

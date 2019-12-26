@@ -687,7 +687,7 @@ CONTAINS
                   CABLE_USER%POPLUC= .FALSE.
 
              if (cable_user%call_climate) then
-                CALL alloc_cbm_var(climate, mp, ktauday)
+                CALL alloc_cbm_var(climate, mp, ms, ktauday)
                 CALL climate_init(climate, mp, ktauday)
                 if (.NOT. cable_user%climate_fromzero) &
                      CALL READ_CLIMATE_RESTART_NC(climate, ktauday)

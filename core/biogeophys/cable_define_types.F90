@@ -657,7 +657,8 @@ MODULE cable_def_types_mod
       Nesterov_ann_max_last_year  , &            ! annual maximum nesterov index (last year)
       Nesterov_ann_running_max 
 
-      REAL, DIMENSION(:,:), POINTER ::                                   &
+      REAL, DIMENSION(:,:), POINTER ::        &
+      dtempsoil,    & ! daily mean soil temperature (all layers)
       mtemp_min_20, & ! mimimum monthly temperatures for the last 20 y
       mtemp_max_20, & ! maximum monthly temperatures for the last 20 y
       dmoist_min_20, & ! min daily moisture for the last 20 y
@@ -1268,12 +1269,12 @@ END SUBROUTINE alloc_met_type
 
 ! ------------------------------------------------------------------------------
 
-SUBROUTINE alloc_climate_type(var, mp, ktauday)
+SUBROUTINE alloc_climate_type(var, mp, ms, ktauday)
 
    IMPLICIT NONE
 
    TYPE(climate_type), INTENT(inout) :: var
-   INTEGER, INTENT(in) :: mp, ktauday
+   INTEGER, INTENT(in) :: mp, ms, ktauday
    INTEGER :: ny, nd
    ny = var%nyear_average
    nd = var%nday_average
@@ -1333,6 +1334,7 @@ SUBROUTINE alloc_climate_type(var, mp, ktauday)
    ALLOCATE ( var % Nesterov_ann_max_last_year(mp) )
    ALLOCATE ( var % Nesterov_ann_running_max(mp) )
 
+   ALLOCATE ( var % dtempsoil(mp,ms) )
    ALLOCATE ( var % mtemp_min_20(mp,ny) )
    ALLOCATE ( var %     mtemp_max_20(mp,ny) )
    ALLOCATE ( var % dmoist_min_20(mp,ny) )

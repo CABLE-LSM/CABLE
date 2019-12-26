@@ -724,7 +724,7 @@ PROGRAM cable_offline_driver
               IF (.NOT.spinup) spinConv=.TRUE.
 
               if (cable_user%call_climate) then
-                 call alloc_cbm_var(climate,mp,ktauday)
+                 call alloc_cbm_var(climate,mp,ms,ktauday)
                  call climate_init(climate, mp, ktauday)
                  if (.not.cable_user%climate_fromzero) call read_climate_restart_nc(climate, ktauday)
               endif

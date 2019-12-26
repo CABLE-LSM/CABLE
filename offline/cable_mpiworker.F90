@@ -6626,7 +6626,7 @@ CONTAINS
 
     USE mpi
 
-    USE cable_def_types_mod, ONLY: climate_type, alloc_cbm_var, mp
+    USE cable_def_types_mod, ONLY: climate_type, alloc_cbm_var, mp, ms
     USE cable_climate_mod, ONLY: climate_init
 
     IMPLICIT NONE
@@ -6659,7 +6659,7 @@ CONTAINS
 
     CHARACTER, DIMENSION(:), ALLOCATABLE :: rbuf
 
-    CALL alloc_cbm_var(climate,mp,ktauday)
+    CALL alloc_cbm_var(climate,mp,ms,ktauday)
 
     !CALL climate_init (climate, mp, ktauday)
     ! MPI: allocate temp vectors used for marshalling

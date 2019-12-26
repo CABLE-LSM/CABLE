@@ -50,6 +50,7 @@ write(70,*) 'crop%Tbase: ', crop%Tbase
           crop%fPHU(ic) = crop%fPHU(ic) + fPHU_day(ic)
 
 write(70,*) 'climate%dtemp: ', climate%dtemp
+write(70,*) 'fPHU_day: ', fPHU_day          
 write(70,*) 'crop%fPHU: ', crop%fPHU
 
           ! calculate GPP (do this first, calculated every timestep, not every day)

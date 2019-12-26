@@ -95,6 +95,7 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
 
   ! accumulate daily temperature, evap and potential evap
   IF(MOD(ktau,ktauday)==1) THEN
+     climate%dtempsoil = ssnow%tgg - 273.15
      climate%dtemp = met%tk - 273.15
      climate%dmoist = sum(ssnow%wb(:,:)*veg%froot(:,:),2)
      climate%dtemp_min =  climate%dtemp
@@ -103,6 +104,7 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
      climate%du10_max = met%u10
      climate%dprecip = met%precip
   ELSE
+     climate%dtempsoil = climate%dtempsoil + ssnow%tgg - 273.15
      climate%dtemp = climate%dtemp + met%tk - 273.15
      climate%dmoist =  climate%dmoist + sum(ssnow%wb(:,:)*veg%froot(:,:),2)
      climate%dtemp_min = min(met%tk - 273.15, climate%dtemp_min)
@@ -111,9 +113,10 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
      climate%du10_max = max(met%u10, climate%du10_max)
      climate%dprecip = climate%dprecip + met%precip
   ENDIF
-
+  
   IF(MOD((ktau-kstart+1),ktauday)==0) THEN  ! end of day
      ! compute daily averages
+     climate%dtempsoil = climate%dtempsoil/FLOAT(ktauday)
      climate%dtemp = climate%dtemp/FLOAT(ktauday)
      climate%dmoist = climate%dmoist/FLOAT(ktauday)
      climate%drhum = climate%drhum/FLOAT(ktauday)
