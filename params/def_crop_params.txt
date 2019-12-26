@@ -1,0 +1,8 @@
+CSIRO crop parameters
+1                     ! number of crop functional types
+1   wheat             ! crop number, crop name
+0.0                   ! Tbase
+35                    ! PHU_germination
+2000                  ! PHU_maturity
+5.0 0.05              ! seed density (gC m-2), seed depth (m)
+
