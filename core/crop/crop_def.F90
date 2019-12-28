@@ -17,8 +17,11 @@ MODULE crop_def
                       ! read from crop parameter file (filename%crop)
 
   integer, parameter :: maxdays_ger=40 ! maximum days since sowing above which germination
-                                        ! is assumed to have failed
-
+                                       ! is assumed to have failed
+  real(dp), parameter :: Cinit_root=0.34_dp ! initial C allocation to roots at emergence
+  real(dp), parameter :: Cinit_stem=0.33_dp ! initial C allocation to stems at emergence
+  real(dp), parameter :: Cinit_leaf=0.33_dp ! initial C allocation to leaves at emergence
+  
   
   ! types 
   type crop_type
@@ -47,10 +50,18 @@ MODULE crop_def
     
     ! Management options
     real(dp), dimension(:), pointer :: Cseed         ! carbon content in seeds (gC m-2)
+                                                     ! --> corresponds to planting density
     real(dp), dimension(:), pointer :: sowing_depth  ! sowing depth (m)
-
+    real(dp), dimension(:), pointer :: Cplant_remove ! fraction of aboveground biomass (stem and leaves)
+                                                     ! removed at harvest. Remainder goes to litter pool
+    
     !
     integer, dimension(:), pointer :: sl  ! soil layer corresponding to sowing depth
+
+    ! Harvest variables
+    real(dp), dimension(:), pointer :: yield          ! yield at harvest (gC m-2)
+    real(dp), dimension(:), pointer :: harvest_index  ! harvest index (Cproduct/total Cplant)
+    
      
   end type crop_type
 
@@ -94,7 +105,10 @@ Contains
              crop%fgermination(ncmax),    &
              crop%Cseed(ncmax),           &
              crop%sowing_depth(ncmax),    &
-             crop%sl(ncmax)               &
+             crop%Cplant_remove(ncmax),   &
+             crop%sl(ncmax),              &
+             crop%yield(ncmax),           &
+             crop%harvest_index(ncmax)    &
             )
 
       
@@ -109,7 +123,7 @@ Contains
       read(40,*) crop%Tbase(jcrop)
       read(40,*) crop%PHU_germination(jcrop)
       read(40,*) crop%PHU_maturity(jcrop)
-      read(40,*) crop%Cseed(jcrop), crop%sowing_depth(jcrop)
+      read(40,*) crop%Cseed(jcrop), crop%sowing_depth(jcrop), crop%Cplant_remove(jcrop)
 
     end do ! loop over CFTs
 
@@ -124,6 +138,8 @@ Contains
     crop%sowing_doy    = 0
     crop%fgermination  = 0.0_dp
     crop%sl            = 0
+    crop%yield         = 0.0_dp
+    crop%harvest_index = 0.0_dp
     
 
   end subroutine allocate_init_cropvars

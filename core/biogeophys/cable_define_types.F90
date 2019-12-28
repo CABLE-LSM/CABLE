@@ -295,7 +295,7 @@ MODULE cable_def_types_mod
          vcmax_sun,   & ! max RuBP carboxylation rate top leaf (mol/m2/s)
          xfang,   & ! leaf angle PARAMETER
          extkn,   & ! extinction coef for vertical
-         vlaimax, & ! extinction coef for vertical
+         vlaimax, & ! 
          wai,     & ! wood area index (stem+branches+twigs)
          a1gs,    & ! a1 parameter in stomatal conductance model
          d0gs,    & ! d0 in stomatal conductance model

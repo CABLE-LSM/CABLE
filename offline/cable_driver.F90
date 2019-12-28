@@ -988,10 +988,12 @@ PROGRAM cable_offline_driver
                       phen, pop, spinConv, spinup, ktauday, idoy, loy,              &
                       CABLE_USER%CASA_DUMP_READ, CABLE_USER%CASA_DUMP_WRITE,   &
                       LALLOC, c13o2flux, c13o2pools )
-
+write(72,*) 'casapool%Cplant(:,:) : ', casapool%Cplant(:,:)
+ write(72,*) 'size(casapool%Cplant(:,:)) : ', size(casapool%Cplant(:,:)) 
                  !! JK: test only
                  IF (cable_user%CALL_CROP) THEN
-                    CALL crop_driver(ktau,ktauday,idoy,climate,ssnow,soil,casaflux,crop)
+                    CALL crop_driver(ktau,ktauday,idoy,climate,ssnow,soil,casaflux, &
+                                     casamet,casapool,crop)
                  ENDIF
                  
 

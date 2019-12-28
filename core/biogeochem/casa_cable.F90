@@ -140,7 +140,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
                ! get climate_dependent phenology
                call cable_phenology_clim(veg, climate, phen)
             ENDIF
-
+ 
             ! 13C
             if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
             CALL biogeochem(ktau, dels, idoy, LALLOC, veg, soil, casabiome, casapool, casaflux, &
@@ -157,8 +157,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 #endif
             !write(wlogn,*),'after biogeochem npp:', casaflux%cnpp
             !write(wlogn,*),'after biogeochem npp:', casapool%cplant
-
-
+            
             IF (cable_user%CALL_POP) THEN ! accumulate input variables for POP
                ! accumulate annual variables for use in POP
                IF(MOD(ktau/ktauday,LOY)==1 ) THEN

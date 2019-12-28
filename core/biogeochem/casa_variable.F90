@@ -38,7 +38,7 @@ MODULE casadimension
   INTEGER, PARAMETER :: mmyear=12          ! month per year
   INTEGER, PARAMETER :: mt=36500           ! integration time step
   INTEGER, PARAMETER :: mpftmax=2          ! max. PFT/cell
-  INTEGER, PARAMETER :: mplant = 3         ! plant pools
+  INTEGER, PARAMETER :: mplant = 4         ! plant pools
   INTEGER, PARAMETER :: mlitter= 3         ! litter pools
   INTEGER, PARAMETER :: msoil  = 3         ! soil pools
   INTEGER, PARAMETER :: mso    = 12        ! soil order number
@@ -71,6 +71,7 @@ MODULE casaparm
   INTEGER, PARAMETER :: LEAF    = 1
   INTEGER, PARAMETER :: WOOD    = 2
   INTEGER, PARAMETER :: FROOT   = 3
+  INTEGER, PARAMETER :: PRODUCT = 4   ! crops only
   !  INTEGER, PARAMETER :: LABILE  = 4
   INTEGER, PARAMETER :: METB    = 1
   INTEGER, PARAMETER :: STR     = 2

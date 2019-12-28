@@ -1,8 +1,9 @@
-SUBROUTINE crop_driver(ktau,ktauday,doy,climate,ssnow,soil,casaflux,crop)
+SUBROUTINE crop_driver(ktau,ktauday,doy,climate,ssnow,soil,casaflux,casamet,&
+                       casapool,crop)
 
   use crop_def,            only: crop_type, nc
   use crop_module
-  use casavariable,        only: casa_flux
+  use casavariable,        only: casa_flux, casa_met, casa_pool
   use cable_def_types_mod, only: climate_type, soil_snow_type, soil_parameter_type, &
                                  dp => r_2
 
@@ -15,6 +16,8 @@ SUBROUTINE crop_driver(ktau,ktauday,doy,climate,ssnow,soil,casaflux,crop)
   type(soil_snow_type),      intent(in)    :: ssnow
   type(soil_parameter_type), intent(in)    :: soil
   type(casa_flux),           intent(inout) :: casaflux
+  type(casa_met),            intent(inout) :: casamet
+  type(casa_pool),           intent(inout) :: casapool
   type(crop_type),           intent(inout) :: crop
   
   ! local
@@ -40,8 +43,8 @@ write(70,*) 'crop%Tbase: ', crop%Tbase
           call germination(doy,climate,ssnow,soil,crop)
         end if
 
-      case (2)  ! emerging
-        call emergence(doy,crop)
+     case (2)  ! emerging
+        call emergence(doy,casaflux,casapool,casamet,crop)
 
       case (3)  ! growing
         if (mod(ktau,ktauday) == 0) then ! end of day
@@ -53,21 +56,31 @@ write(70,*) 'climate%dtemp: ', climate%dtemp
 write(70,*) 'fPHU_day: ', fPHU_day          
 write(70,*) 'crop%fPHU: ', crop%fPHU
 
-          ! calculate GPP (do this first, calculated every timestep, not every day)
-
+          ! get daily GPP from casaflux%Cgpp
+          
 
           ! calculate maintenance and growth respiration
           !call casa_rplant(...,...)
+          casaflux%Crmplant(ic,:) = 0.05_dp * casaflux%Cgpp(ic)  
+          casaflux%Crgplant(ic)   = 0.2_dp * casaflux%Cgpp(ic)
+          casaflux%Cnpp(ic) = casaflux%Cgpp(ic) - sum(casaflux%Crmplant(ic,:)) - casaflux%Crgplant(ic)
 
+          
           ! calculate carbon allocation
-          call C_allocation_crops(casaflux,crop)
+write(60,*) 'doy:', doy
+          call C_allocation_crops(casaflux,casapool,casamet,crop)
 
+          
+write(70,*) 'casaflux%Cgpp: ', casaflux%Cgpp
+write(70,*) 'casaflux%Cnpp: ', casaflux%Cnpp
+write(70,*) 'casamet%glai: ', casamet%glai
           ! update root length and vegetation height
           
           
           ! harvest if enough PHU accumulated
           if (crop%fPHU(ic) >= 1.0_dp) then
-            call harvest(doy,crop)
+             call harvest(doy,casapool,crop)
+             crop%fPHU(ic) = 0.0_dp
           end if
         end if
           

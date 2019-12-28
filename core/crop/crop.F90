@@ -2,8 +2,11 @@ MODULE crop_module
 
   use cable_def_types_mod,  only: climate_type, soil_snow_type, soil_parameter_type, &
                                   dp => r_2
-  use crop_def,             only: crop_type, nc, maxdays_ger
-  use casavariable,         only: casa_flux
+  use crop_def,             only: crop_type, nc, maxdays_ger, Cinit_root, Cinit_stem, &
+                                  Cinit_leaf
+  use casavariable,         only: casa_flux, casa_met, casa_pool
+  use casaparm,             only: froot,wood,leaf,product, &   ! cpool
+                                  metb,str,cwd                 ! litter
   
   implicit none
 
@@ -110,6 +113,7 @@ write(60,*) '  fPHUger:', fPHUger
 write(60,*) '  fwsger:', fwsger
 write(60,*) '  fgerday:', fgerday 
 write(60,*) '  crop%fgermination:', crop%fgermination
+write(60,*) '  crop%state:', crop%state
     end do
       
   end subroutine germination
@@ -117,23 +121,35 @@ write(60,*) '  crop%fgermination:', crop%fgermination
 
   
 
-  subroutine emergence(doy,crop)
+  subroutine emergence(doy,casaflux,casapool,casamet,crop)
 
-    integer, intent(in)             :: doy ! day of year
-    type (crop_type), intent(inout) :: crop
+    integer, intent(in)            :: doy ! day of year
+    type(casa_flux), intent(inout) :: casaflux
+    type(casa_pool), intent(inout) :: casapool
+    type(casa_met),  intent(inout) :: casamet
+    type(crop_type), intent(inout) :: crop
 
     ! local
-    integer :: i ! crop type
+    integer  :: i ! crop type
+    real(dp) :: SLA=0.02_dp
 
     do i=1,nc
-      ! seed/plant density
+       ! initial C allocation
+       casaflux%fracCalloc(i,froot)   = Cinit_root
+       casaflux%fracCalloc(i,wood)    = Cinit_stem
+       casaflux%fracCalloc(i,leaf)    = Cinit_leaf
+       casaflux%fracCalloc(i,product) = 0.0_dp
 
-      ! initial C allocation
-
-      ! initial LAI
-
-      ! update state
-      crop%state(i) = 3  ! growing
+       ! initial carbon pools
+       casapool%Cplant(i,:) = casaflux%fracCalloc(i,:) * crop%Cseed(i)
+              
+       ! initial LAI
+       casamet%glai(i) = casapool%Cplant(i,leaf) * SLA
+       
+       ! update state
+       crop%state(i) = 3  ! growing
+write(60,*) 'crop%state:', crop%state
+write(60,*) 'casamet%glai:', casamet%glai
     end do
       
   end subroutine emergence
@@ -142,16 +158,36 @@ write(60,*) '  crop%fgermination:', crop%fgermination
 
 
 
-  subroutine C_allocation_crops(casaflux,crop)
+  subroutine C_allocation_crops(casaflux,casapool,casamet,crop) !! TBD: this could also be part of CASA!
 
-    type (casa_flux), intent(inout) :: casaflux
-    type (crop_type), intent(inout) :: crop
+    type(casa_flux), intent(inout) :: casaflux
+    type(casa_pool), intent(inout) :: casapool
+    type(casa_met),  intent(inout) :: casamet
+    type(crop_type), intent(inout) :: crop
 
     ! local
-    integer :: i ! crop type
+    integer  :: i ! crop type
+    real(dp) :: SLA=0.02_dp
 
     do i=1,nc
-      write(*,*) 'nothing here yet'
+       casaflux%fracCalloc(i,froot)   = 0.33_dp
+       casaflux%fracCalloc(i,wood)    = 0.33_dp
+       casaflux%fracCalloc(i,leaf)    = 0.33_dp
+       casaflux%fracCalloc(i,product) = 0.01_dp
+
+       ! update Cpools
+       casapool%dcplantdt(i,:) = casaflux%Cnpp(i) * casaflux%fracCalloc(i,:)
+       casapool%Cplant(i,:) = casapool%Cplant(i,:) + casapool%dcplantdt(i,:)
+
+       ! update LAI
+       casamet%glai(i) = casapool%Cplant(i,leaf) * SLA
+
+write(60,*) '  casaflux%Cnpp:', casaflux%Cnpp
+write(60,*) '  casaflux%Cnpp/casaflux%Cgpp:', casaflux%Cnpp/casaflux%Cgpp
+write(60,*) '  casapool%dcplantdt(i,:):', casapool%dcplantdt(i,:)
+write(60,*) '  casamet%glai:', casamet%glai
+write(60,*) '  casapool%Cplant:', casapool%Cplant
+       
     end do
     
   end subroutine C_allocation_crops
@@ -160,17 +196,40 @@ write(60,*) '  crop%fgermination:', crop%fgermination
 
   
   
-  subroutine harvest(doy,crop)
+  subroutine harvest(doy,casapool,crop)
 
     integer, intent(in)             :: doy  ! day of year
+    type(casa_pool),  intent(inout) :: casapool
     type (crop_type), intent(inout) :: crop 
 
     ! local
-    integer :: i ! crop type
+    integer                 :: i ! crop type
+    real(dp), dimension(nc) :: Cstemleaf_removed 
 
+    Cstemleaf_removed = 0.0_dp
+write(60,*) 'doy:', doy    
     do i=1,nc
-      ! re-allocate biomass to soil or remove
-      crop%state(i) = 0  ! fallow
+       ! remove product pool (aka yield)
+       crop%yield(i) = casapool%Cplant(i,product)
+       crop%harvest_index(i) = casapool%Cplant(i,product) / sum(casapool%Cplant(i,:)) ! diagnostic
+
+write(60,*) '  casapool%Clitter(i,str)_BEFORE:', casapool%Clitter(i,str)
+       ! add leaves and stems partly and roots completely to litter pool
+       Cstemleaf_removed(i) = sum((1.0_dp - crop%Cplant_remove) * casapool%Cplant(i,leaf:wood)) 
+       casapool%Clitter(i,str) = casapool%Clitter(i,str) + Cstemleaf_removed(i)  ! add to dt variable first?     
+       casapool%Clitter(i,str) = casapool%Clitter(i,str) + casapool%Cplant(i,froot)
+
+       ! set all plant pools to 0
+       casapool%Cplant(i,:) = 0.0_dp
+       
+       ! change crop state to 0 (bare soil/inactive)
+       crop%state(i) = 0  ! fallow
+
+write(60,*) '  crop%yield(i):', crop%yield(i)
+write(60,*) '  crop%harvest_index(i):', crop%harvest_index(i)
+write(60,*) '  Cstemleaf_removed(i):', Cstemleaf_removed(i)
+write(60,*) '  casapool%Clitter(i,str)_AFTER:', casapool%Clitter(i,str)
+       
     end do   
     
   end subroutine harvest
@@ -179,6 +238,7 @@ write(60,*) '  crop%fgermination:', crop%fgermination
 
   
 
+  
   
   ! standard calculation of daily heat units
   function heat_units(basetemp,dtemp) result(HU)
