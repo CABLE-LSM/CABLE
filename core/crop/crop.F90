@@ -3,7 +3,7 @@ MODULE crop_module
   use cable_def_types_mod,  only: climate_type, soil_snow_type, soil_parameter_type, &
                                   dp => r_2
   use crop_def,             only: crop_type, nc, maxdays_ger, Cinit_root, Cinit_stem, &
-                                  Cinit_leaf
+                                  Cinit_leaf, DMtoC
   use casavariable,         only: casa_flux, casa_met, casa_pool
   use casaparm,             only: froot,wood,leaf,product, &   ! cpool
                                   metb,str,cwd                 ! litter
@@ -121,35 +121,52 @@ write(60,*) '  crop%state:', crop%state
 
   
 
-  subroutine emergence(doy,casaflux,casapool,casamet,crop)
+  subroutine emergence(doy,fPHU_day,casaflux,casapool,casamet,crop)
 
-    integer, intent(in)            :: doy ! day of year
+    integer,  intent(in)           :: doy ! day of year
+    real(dp), dimension(nc), intent(in) :: fPHU_day ! fPHU of actual day
     type(casa_flux), intent(inout) :: casaflux
     type(casa_pool), intent(inout) :: casapool
     type(casa_met),  intent(inout) :: casamet
     type(crop_type), intent(inout) :: crop
 
     ! local
-    integer  :: i ! crop type
-    real(dp) :: SLA=0.02_dp
+    integer                 :: i ! crop type
+    real(dp), dimension(nc) :: SLA_C
+    real(dp), dimension(nc) :: LAIday
 
     do i=1,nc
+       ! calculate SLA in m2 g-1 C
+       SLA_C(i) = SLA_development(crop%fPHU(i),crop%sla_maturity(i),crop%sla_beta(i)) / DMtoC
+write(60,*) 'doy:', doy
+write(60,*) '  crop%sla_maturity(i):', crop%sla_maturity(i) 
+write(60,*) '  crop%fPHU(i):', crop%fPHU(i)
+write(60,*) '  SLA_C(i):', SLA_C(i)      
        ! initial C allocation
        casaflux%fracCalloc(i,froot)   = Cinit_root
        casaflux%fracCalloc(i,wood)    = Cinit_stem
        casaflux%fracCalloc(i,leaf)    = Cinit_leaf
        casaflux%fracCalloc(i,product) = 0.0_dp
 
-       ! initial carbon pools
-       casapool%Cplant(i,:) = casaflux%fracCalloc(i,:) * crop%Cseed(i)
-              
-       ! initial LAI
-       casamet%glai(i) = casapool%Cplant(i,leaf) * SLA
+
+       ! at emergence, utilize carbon reserves in the seeds (given by crop%Cseed),
+       ! as well as carbon assimilated by first leaves
+write(60,*) '  casaflux%Cnpp(i):', casaflux%Cnpp(i)
+       casapool%dcplantdt(i,:) = casaflux%fracCalloc(i,:) * crop%Cseed(i) * fPHU_day(i)/crop%fPHU_emergence(i)
+write(60,*) '  casapool%dcplantdt(i,:):', casapool%dcplantdt(i,:)
+       casapool%dcplantdt(i,:) = casapool%dcplantdt(i,:) + (max(casaflux%Cnpp(i),0.0_dp) &
+                                                          * casaflux%fracCalloc(i,:))
+write(60,*) '  casapool%dcplantdt(i,:):', casapool%dcplantdt(i,:)
+       casapool%Cplant(i,:) = casapool%Cplant(i,:) + casapool%dcplantdt(i,:)
+write(60,*) '  casapool%Cplant(i,:):', casapool%Cplant(i,:)      
        
-       ! update state
-       crop%state(i) = 3  ! growing
-write(60,*) 'crop%state:', crop%state
-write(60,*) 'casamet%glai:', casamet%glai
+       ! initial LAI
+write(60,*) '  casamet%glai:', casamet%glai
+       LAIday(i) = casapool%dcplantdt(i,leaf) * SLA_C(i)
+       casamet%glai(i) = casamet%glai(i) + LAIday(i)
+       
+
+write(60,*) '  casamet%glai:', casamet%glai
     end do
       
   end subroutine emergence
@@ -167,26 +184,33 @@ write(60,*) 'casamet%glai:', casamet%glai
 
     ! local
     integer  :: i ! crop type
-    real(dp) :: SLA=0.02_dp
-
+    real(dp), dimension(nc) :: SLA_C
+    real(dp), dimension(nc) :: LAIday
+       
     do i=1,nc
+       SLA_C(i) = SLA_development(crop%fPHU(i),crop%sla_maturity(i),crop%sla_beta(i)) / DMtoC
+       write(60,*) '  SLA_C(i):', SLA_C(i) 
+
        casaflux%fracCalloc(i,froot)   = 0.33_dp
        casaflux%fracCalloc(i,wood)    = 0.33_dp
        casaflux%fracCalloc(i,leaf)    = 0.33_dp
        casaflux%fracCalloc(i,product) = 0.01_dp
 
+write(60,*) '  casaflux%Cnpp:', casaflux%Cnpp
+write(60,*) '  casaflux%Cnpp/casaflux%Cgpp:', casaflux%Cnpp/casaflux%Cgpp
        ! update Cpools
        casapool%dcplantdt(i,:) = casaflux%Cnpp(i) * casaflux%fracCalloc(i,:)
        casapool%Cplant(i,:) = casapool%Cplant(i,:) + casapool%dcplantdt(i,:)
 
-       ! update LAI
-       casamet%glai(i) = casapool%Cplant(i,leaf) * SLA
-
-write(60,*) '  casaflux%Cnpp:', casaflux%Cnpp
-write(60,*) '  casaflux%Cnpp/casaflux%Cgpp:', casaflux%Cnpp/casaflux%Cgpp
 write(60,*) '  casapool%dcplantdt(i,:):', casapool%dcplantdt(i,:)
-write(60,*) '  casamet%glai:', casamet%glai
 write(60,*) '  casapool%Cplant:', casapool%Cplant
+
+       ! update LAI
+       LAIday(i) = casapool%dcplantdt(i,leaf) * SLA_C(i)
+       casamet%glai(i) = casamet%glai(i) + LAIday(i)
+write(60,*) '  LAIday(i):', LAIday(i)
+write(60,*) '  casamet%glai:', casamet%glai
+
        
     end do
     
@@ -265,6 +289,20 @@ write(60,*) '  casapool%Clitter(i,str)_AFTER:', casapool%Clitter(i,str)
     fwsger = max(min((theta - thetaw) / (thetas - thetaw),1.0),0.0)
     
   end function water_stress_ger
+
+
+
+  function SLA_development(fPHU,alpha,beta) result(SLA)
+
+    real(dp), intent(in) :: fPHU   ! fraction of phenological heat units
+    real(dp), intent(in) :: alpha  ! baseline value of SLA (at fPHU=1)
+    real(dp), intent(in) :: beta   ! exponent (rate of decrease over developmental stage)
+    real(dp)             :: SLA    ! specific leaf area (m2 gDM-1)
+
+    SLA = alpha * fPHU**beta
+
+  end function SLA_development
+  
   
 END MODULE crop_module
 

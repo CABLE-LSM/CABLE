@@ -18,27 +18,31 @@ MODULE crop_def
 
   integer, parameter :: maxdays_ger=40 ! maximum days since sowing above which germination
                                        ! is assumed to have failed
-  real(dp), parameter :: Cinit_root=0.34_dp ! initial C allocation to roots at emergence
-  real(dp), parameter :: Cinit_stem=0.33_dp ! initial C allocation to stems at emergence
-  real(dp), parameter :: Cinit_leaf=0.33_dp ! initial C allocation to leaves at emergence
-  
+  real(dp), parameter :: Cinit_root=0.4_dp  ! initial C allocation to roots at emergence
+  real(dp), parameter :: Cinit_stem=0.0_dp  ! initial C allocation to stems at emergence
+  real(dp), parameter :: Cinit_leaf=0.6_dp  ! initial C allocation to leaves at emergence
+  real(dp), parameter :: DMtoC=0.475_dp     ! conversion dry matter to carbon
+
   
   ! types 
   type crop_type
 
     ! crop stages:
-    ! 0: fallow
+    ! 0: bare soil, not sown
     ! 1: sown (but not yet germinated)
     ! 2: emergent
     ! 3: growing
     integer, dimension(:),  pointer :: state
     ! Crop temperature requirements
     real, dimension(:), pointer :: Tbase     ! crop-specific base temperature
+
     ! Phenological heat units (PHU)
-    real(dp), dimension(:), pointer :: PHU_germination ! PHU (soil) until germination
-                                                       ! in the absence of water stress
-    real(dp), dimension(:), pointer :: PHU_maturity    ! PHU (air) until maturity
-    real(dp), dimension(:), pointer :: fPHU            ! actual PHU relative to maturity (growth)
+    real(dp), dimension(:), pointer :: PHU_germination  ! PHU (soil) until germination
+                                                        ! in the absence of water stress
+    real(dp), dimension(:), pointer :: fPHU_emergence   ! fPHU (air) until emergence (use of seed storage)
+                                                        ! is completed
+    real(dp), dimension(:), pointer :: PHU_maturity     ! PHU (air) until maturity
+    real(dp), dimension(:), pointer :: fPHU             ! actual PHU relative to maturity (growth)
 
     ! Sowing dates (DOY)
     integer, dimension(:), pointer  :: sowing_doymin ! earliest sowing date
@@ -61,8 +65,14 @@ MODULE crop_def
     ! Harvest variables
     real(dp), dimension(:), pointer :: yield          ! yield at harvest (gC m-2)
     real(dp), dimension(:), pointer :: harvest_index  ! harvest index (Cproduct/total Cplant)
+
     
-     
+    ! Leaf structural variables
+    real(dp), dimension(:), pointer :: sla_maturity     ! specific leaf area (m2/gDM) at plant maturity
+    real(dp), dimension(:), pointer :: sla_beta         ! extinction cofficient in SLA formula
+
+
+    
   end type crop_type
 
 
@@ -97,6 +107,7 @@ Contains
     allocate(crop%state(ncmax),           &
              crop%Tbase(ncmax),           &
              crop%PHU_germination(ncmax), &
+             crop%fPHU_emergence(ncmax),  &
              crop%PHU_maturity(ncmax),    &
              crop%fPHU(ncmax),            &
              crop%sowing_doymin(ncmax),   &
@@ -108,7 +119,9 @@ Contains
              crop%Cplant_remove(ncmax),   &
              crop%sl(ncmax),              &
              crop%yield(ncmax),           &
-             crop%harvest_index(ncmax)    &
+             crop%harvest_index(ncmax),   &
+             crop%sla_maturity(ncmax),    &
+             crop%sla_beta(ncmax)         &
             )
 
       
@@ -121,9 +134,10 @@ Contains
 
       ! Read actual parameter values
       read(40,*) crop%Tbase(jcrop)
-      read(40,*) crop%PHU_germination(jcrop)
+      read(40,*) crop%PHU_germination(jcrop), crop%fPHU_emergence(jcrop)
       read(40,*) crop%PHU_maturity(jcrop)
       read(40,*) crop%Cseed(jcrop), crop%sowing_depth(jcrop), crop%Cplant_remove(jcrop)
+      read(40,*) crop%sla_maturity(jcrop), crop%sla_beta(jcrop)
 
     end do ! loop over CFTs
 

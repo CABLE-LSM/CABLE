@@ -366,6 +366,11 @@ CONTAINS
                   (1.0-EXP(-min(0.5*rough%coexp(j)*canopy%vlaiw(j),20.0))) &
                   - gbhu(j,1)
 
+!if (mod(ktau,ktauday) == 24) then
+   write(45,*) 'rad%scalex(j,:):', rad%scalex(j,:)
+   write(45,*) 'veg%vcmax_sun(j):', veg%vcmax_sun(j)
+   write(45,*) 'veg%vcmax_shade(j):', veg%vcmax_shade(j)
+!endif
              if (cable_user%explicit_gm) then
                 ! JK: gmmax now comes from param file
                 !gmax0 = 2.47/10.1 ! molm-2s-1 

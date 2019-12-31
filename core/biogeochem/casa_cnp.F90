@@ -133,7 +133,7 @@ SUBROUTINE casa_xnp(xnplimit,xNPuptake,veg,casabiome,casapool,casaflux,casamet)
 
     xnCnpp = max(0.0_r_2,casaflux%Cnpp)
     call casa_Nrequire(xnCnpp,Nreqmin,Nreqmax,NtransPtoP,veg, &
-                     casabiome,casapool,casaflux,casamet)
+                       casabiome,casapool,casaflux,casamet)
     DO np=1,mp
       IF(casamet%iveg2(np)/=icewater) THEN
         totNreqmax(np) = Nreqmax(np,leaf)+Nreqmax(np,wood)+Nreqmax(np,froot)
@@ -738,7 +738,8 @@ SUBROUTINE casa_xrateplant(xkleafcold,xkleafdry,xkleaf,veg,casabiome, &
 
   ! BP changed the WHERE construct to DO-IF for Mk3L (jun2010)
   DO npt=1,mp
-  IF(casamet%iveg2(npt)/=icewater) THEN
+     IF(casamet%iveg2(npt)/=icewater &
+          .and. (veg%iveg(npt) /= 9 .and. veg%iveg(npt) /= 10)) THEN ! treated separately for crops
   !    following the formulation of Arora (2005) on the
   !    effect of cold or drought stress on leaf litter fall
   !    calculate cold stress (eqn (18), Arora 2005, GCB 11:39-59)
@@ -1286,10 +1287,12 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
            ENDIF
         endif
         ! recalc in any case so that all consistent
-        casaflux%Cnpp(npt) = casaflux%Cgpp(npt) - sum(casaflux%Crmplant(npt,:)) - casaflux%Crgplant(npt) - &
-             casaflux%fracClabile(npt) * casaflux%Cgpp(npt)
-        casapool%dcplantdt(npt,:) = casaflux%Cnpp(npt) * casaflux%fracCalloc(npt,:) - &
-             casaflux%kplant_tot(npt,:) * casapool%cplant(npt,:)
+        if (veg%iveg(npt) /= 9 .and. veg%iveg(npt) /= 10) then
+          casaflux%Cnpp(npt) = casaflux%Cgpp(npt) - sum(casaflux%Crmplant(npt,:)) - casaflux%Crgplant(npt) - &
+               casaflux%fracClabile(npt) * casaflux%Cgpp(npt)
+          casapool%dcplantdt(npt,:) = casaflux%Cnpp(npt) * casaflux%fracCalloc(npt,:) - &
+               casaflux%kplant_tot(npt,:) * casapool%cplant(npt,:)
+        endif
         !! vh_js !! end of adjustments to avoid negative stocks Ticket#108
 
         ! change here made by ypw on 26 august 2011
@@ -2367,9 +2370,11 @@ SUBROUTINE casa_cnpcycle(veg, casabiome, casapool, casaflux, casamet, LALLOC)
      if (casamet%iveg2(np) == icewater) then
         casamet%glai(np) = 0.0_r_2
      else
-        casapool%cplant(np,:) = casapool%cplant(np,:) + casapool%dcplantdt(np,:) * deltpool
-        casapool%clabile(np)  = casapool%clabile(np)  + casapool%dclabiledt(np)  * deltpool
-
+        if (veg%iveg(np) /= 9 .and. veg%iveg(np) /= 10) then
+          casapool%cplant(np,:) = casapool%cplant(np,:) + casapool%dcplantdt(np,:) * deltpool
+          casapool%clabile(np)  = casapool%clabile(np)  + casapool%dclabiledt(np)  * deltpool
+        endif
+     
         if (casapool%cplant(np,leaf) > 0.0_r_2) then
            if (icycle >1) casapool%Nplant(np,:) = casapool%Nplant(np,:) + casapool%dNplantdt(np,:)*deltpool
            if (icycle >2) casapool%Pplant(np,:) = casapool%Pplant(np,:) + casapool%dPplantdt(np,:)*deltpool
@@ -2378,8 +2383,11 @@ SUBROUTINE casa_cnpcycle(veg, casabiome, casapool, casaflux, casamet, LALLOC)
         ! avoid high ratios of N to P in plant material
         casapool%Nplant(np,3) = min( casapool%Nplant(np,3), &
              casabiome%ratioNCplantmax(veg%iveg(np),froot) * casapool%cplant(np,3) )
+
+        if (veg%iveg(np) /= 9 .and. veg%iveg(np) /= 10) then
         casamet%glai(np)      = max( casabiome%glaimin(veg%iveg(np)), &
              casabiome%sla(veg%iveg(np)) * casapool%cplant(np,leaf) )
+        endif
         ! vh !
         !IF (LALLOC.ne.3) THEN
         casamet%glai(np) = min(casabiome%glaimax(veg%iveg(np)), casamet%glai(np))

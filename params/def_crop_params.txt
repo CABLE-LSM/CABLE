@@ -2,7 +2,7 @@ CSIRO crop parameters
 1                     ! number of crop functional types
 1   wheat             ! crop number, crop name
 0.0                   ! Tbase (degC)
-35                    ! PHU_germination
+35, 0.05              ! PHU_germination, fPHU_emergence
 2000                  ! PHU_maturity
-5.0 0.05 0.5          ! seed density (gC m-2), seed depth (m), Cplant_remove (-)
-
+7.0 0.035 0.5         ! seed density (gC m-2), seed depth (m), Cplant_remove (-)
+0.022 -0.125           ! sla_maturity (m2/gDM), sla_beta 

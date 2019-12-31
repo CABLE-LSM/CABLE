@@ -117,15 +117,15 @@ CSIRO veg type parameters (2nd guess calibration)
 0.11  0.34  0.010  0.327  0.548  0.010  ! rholeaf-vis,nir,therm, rhowood-vis,nir,therm
 0.11  0.34  0.010  0.184  0.317  0.010  ! tauleaf-vis,nir,therm, tauwood-vis,nir,therm
 0.100  0.225  0.020  1.00                 ! rhosoil-vis,nir,therm; xalbnir
- 6.0   0.0    0.10   2.0    7.00   0.001  ! LAImax(m2/m2),WoodAI(m2/m2),canst1,shelrb,vegcf,extkn
+ 6.0   0.0    0.10   2.0    7.00   0.02  ! LAImax(m2/m2),WoodAI(m2/m2),canst1,shelrb,vegcf,extkn
  80.0e-6      1.5000 0.0832 1.0           ! vcmax(mol/m2/s), rp20, rpcoeff(/oC), rs20
  -15   -10    2.0    0.961  0.5 0.0              ! tvjmin(oC), tvjmax(oC), vbeta, betaroot, rootdepth, clitt(tC/ha)
   150      0    607    149    300         ! pool: leaf, wood, root, soilfast, soilslow (gC/m2)
 1.0    0.03   0.14   2.0    0.5           ! rate: leaf, wood, root, soilfast, soilslow (/year)
-9.0   1500.0  0.07   0.8   0.015         ! a1, d0, alpha, convex, cfrd
+9.0   1500.0  0.28   0.8   0.015         ! a1, d0, alpha, convex, cfrd
 0.01  404.9e-6 278.4e-3 59430.0 36000.0   ! gswmin,conkc0,conko0,ekc,eko
 0.000000 5.789377                         ! g0c3 OR g0c4, g1c3 OR g1c4 depending on frac4
-0.01 0.295                                ! gamma gmmax25
+0.03 0.295                                ! gamma gmmax25
 10  crop       C4 cropland
  0.55 -0.30   0.010  0.300  1.0           ! canopy hgt(m),leaf angle,lf width(m),lf length(m),C4 fraction
 0.11  0.34  0.010  0.327  0.548  0.010  ! rholeaf-vis,nir,therm, rhowood-vis,nir,therm

@@ -88,8 +88,10 @@ DO np= 1,mp
    endif
 
    ! summergreen grass or crops
-   if (veg%iveg(np).ge.6.and.veg%iveg(np).le.10)  then     ! grass or crops
-
+   !if (veg%iveg(np).ge.6.and.veg%iveg(np).le.10)  then     ! grass or crops
+   if ((veg%iveg(np).ge.6.and.veg%iveg(np).le.8) .or. &
+       ((veg%iveg(np).eq.9 .or. veg%iveg(np).eq.10) .and. .not. cable_user%call_crop))  then
+  
       if (climate%gdd5(np).gt.0.1) THEN
          phengdd5ramp = 200
          phen_tmp = min(1.0_r_2, climate%gdd5(np)/phengdd5ramp)
@@ -101,8 +103,10 @@ DO np= 1,mp
 
 if (1.eq.1) then
    ! raingreen pfts
-   if (veg%iveg(np).ge.6.and.veg%iveg(np).le.10) then ! (grass or crops) need to include raingreen savanna trees here too
-     ! if (climate%dmoist(np).lt. mmoisture_min) phen_tmp = 0.0
+   !if (veg%iveg(np).ge.6.and.veg%iveg(np).le.10) then ! (grass or crops) need to include raingreen savanna trees here too
+   if ((veg%iveg(np).ge.6.and.veg%iveg(np).le.8) .or. &
+       ((veg%iveg(np).eq.9 .or. veg%iveg(np).eq.10) .and. .not. cable_user%call_crop))  then
+   ! if (climate%dmoist(np).lt. mmoisture_min) phen_tmp = 0.0
       if (climate%GMD(np) .GE. 1 .and. climate%GMD(np) .LT. ndays_raingreenup) THEN
          phen_tmp = min(phen_tmp, 0.99)
       elseif (climate%GMD(np) .EQ. 0) THEN
@@ -116,7 +120,9 @@ endif
 
 
  if ((veg%iveg(np) == 3 .or. veg%iveg(np) == 4) .or. &
-      (veg%iveg(np).ge.6.and.veg%iveg(np).le.10)) then
+      !  (veg%iveg(np).ge.6.and.veg%iveg(np).le.10)) then
+     (veg%iveg(np).ge.6.and.veg%iveg(np).le.8) .or. &
+     ((veg%iveg(np).eq.9 .or. veg%iveg(np).eq.10) .and. .not. cable_user%call_crop))  then
 
 
 !!$    if (phen_tmp.gt.0.0 .and.( phen%phase(np).eq.3 .or. phen%phase(np).eq.0 )) then

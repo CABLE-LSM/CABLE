@@ -23,7 +23,8 @@ SUBROUTINE crop_driver(ktau,ktauday,doy,climate,ssnow,soil,casaflux,casamet,&
   ! local
   integer :: ic,sl  ! loop counters: crop type, soil layer
   real(dp), dimension(nc) :: fPHU_day
-
+real(dp),dimension(nc) :: NPP_test
+  
   
   do ic=1, nc   
 write(70,*) 'DOY: ', doy    
@@ -42,11 +43,22 @@ write(70,*) 'crop%Tbase: ', crop%Tbase
         if (mod(ktau,ktauday) == 0) then  ! end of day 
           call germination(doy,climate,ssnow,soil,crop)
         end if
-
+casapool%Cplant(ic,:) = 0.0_dp ! shouldn't be needed here!! Check initialisation
+casamet%glai(ic) = 0.0_dp        
      case (2)  ! emerging
-        call emergence(doy,casaflux,casapool,casamet,crop)
+        ! update phenological heat units (start at 0 at germination!)
+        if (mod(ktau,ktauday) == 0) then ! end of day
+        fPHU_day(ic)  = heat_units(crop%Tbase(ic),climate%dtemp(ic)) / crop%PHU_maturity(ic)
+        crop%fPHU(ic) = crop%fPHU(ic) + fPHU_day(ic)
 
-      case (3)  ! growing
+        if (crop%fPHU(ic) < crop%fPHU_emergence(ic)) then
+           call emergence(doy,fPHU_day,casaflux,casapool,casamet,crop)
+        else
+           ! update state
+           crop%state(ic) = 3  ! growing
+        endif
+        endif
+     case (3)  ! growing
         if (mod(ktau,ktauday) == 0) then ! end of day
           ! update phenological heat units
           fPHU_day(ic)  = heat_units(crop%Tbase(ic),climate%dtemp(ic)) / crop%PHU_maturity(ic)
@@ -60,12 +72,15 @@ write(70,*) 'crop%fPHU: ', crop%fPHU
           
 
           ! calculate maintenance and growth respiration
-          !call casa_rplant(...,...)
-          casaflux%Crmplant(ic,:) = 0.05_dp * casaflux%Cgpp(ic)  
-          casaflux%Crgplant(ic)   = 0.2_dp * casaflux%Cgpp(ic)
-          casaflux%Cnpp(ic) = casaflux%Cgpp(ic) - sum(casaflux%Crmplant(ic,:)) - casaflux%Crgplant(ic)
-
-          
+          !call casa_rplant(...,...) ! no need to call it here again, already done within biogeochem
+          ! only need to calculate Rm and Rg here if we want to do it differently than in casa_rplant
+          ! in that case, we might also change it in casa_rplant directly!!
+          NPP_test(ic) = 0.6_dp * casaflux%Cgpp(ic)
+          !casaflux%Crmplant(ic,:) = 0.05_dp * casaflux%Cgpp(ic)  
+          !casaflux%Crgplant(ic)   = 0.2_dp * casaflux%Cgpp(ic)
+          !casaflux%Cnpp(ic) = casaflux%Cgpp(ic) - sum(casaflux%Crmplant(ic,:)) - casaflux%Crgplant(ic)
+          casaflux%Cnpp(ic) = casaflux%Cgpp(ic)
+write(70,*) 'casaflux%Cgpp: ', casaflux%Cgpp
           ! calculate carbon allocation
 write(60,*) 'doy:', doy
           call C_allocation_crops(casaflux,casapool,casamet,crop)
@@ -73,7 +88,8 @@ write(60,*) 'doy:', doy
           
 write(70,*) 'casaflux%Cgpp: ', casaflux%Cgpp
 write(70,*) 'casaflux%Cnpp: ', casaflux%Cnpp
-write(70,*) 'casamet%glai: ', casamet%glai
+write(70,*) 'NPP_test: ',      NPP_test
+write(70,*) 'casamet%glai: ',  casamet%glai
           ! update root length and vegetation height
           
           
