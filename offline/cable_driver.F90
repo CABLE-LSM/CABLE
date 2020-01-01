@@ -989,11 +989,12 @@ PROGRAM cable_offline_driver
                       CABLE_USER%CASA_DUMP_READ, CABLE_USER%CASA_DUMP_WRITE,   &
                       LALLOC, c13o2flux, c13o2pools )
                  
-                 !! JK: test only
                  IF (cable_user%CALL_CROP) THEN
                     casabiome%glaimin=0.01_r_2  ! temporary fix!
-                    CALL crop_driver(ktau,ktauday,idoy,climate,ssnow,soil,casaflux, &
-                                     casamet,casapool,crop)
+                    IF (mod(ktau,ktauday) == 0) THEN ! end of day
+                       CALL crop_driver(ktau,ktauday,idoy,climate,ssnow,soil,casaflux, &
+                            casamet,casapool,crop)
+                    ENDIF
                  ENDIF
                  
 

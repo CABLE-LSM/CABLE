@@ -16,6 +16,13 @@ MODULE crop_def
   integer :: ncmax    ! total number of crop functional types (CFTs)
                       ! read from crop parameter file (filename%crop)
 
+  ! crop stages
+  integer, parameter :: baresoil=0
+  integer, parameter :: sown=1
+  integer, parameter :: emergent=2
+  integer, parameter :: growing=3
+
+  
   integer, parameter :: maxdays_ger=40 ! maximum days since sowing above which germination
                                        ! is assumed to have failed
   real(dp), parameter :: Cinit_root=0.4_dp  ! initial C allocation to roots at emergence

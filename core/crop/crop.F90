@@ -3,7 +3,7 @@ MODULE crop_module
   use cable_def_types_mod,  only: climate_type, soil_snow_type, soil_parameter_type, &
                                   dp => r_2
   use crop_def,             only: crop_type, nc, maxdays_ger, Cinit_root, Cinit_stem, &
-                                  Cinit_leaf, DMtoC
+                                  Cinit_leaf, DMtoC, baresoil, sown, emergent, growing
   use casavariable,         only: casa_flux, casa_met, casa_pool
   use casaparm,             only: froot,wood,leaf,product, &   ! cpool
                                   metb,str,cwd                 ! litter
@@ -19,6 +19,7 @@ MODULE crop_module
   public :: harvest            ! removal of products and redistribution of remaining biomass
                                ! to litter and soil pools
   public :: heat_units         ! calculates heat units per day
+  public :: SLA_development    ! calculates SLA in dependence of crop age/ developmental stage
 
   
 contains
@@ -36,7 +37,7 @@ contains
     
     do i=1,nc
       if (doy == 280) then
-         crop%state(i) = 1  ! sown
+         crop%state(i) = sown
          crop%sowing_doy(i) = doy ! keep track of sowing doy
 
          ! if sowing occurred (i.e. crop%state switches to 1),
@@ -101,10 +102,10 @@ contains
       ! if germination occurred, if it is still ongoing,
       ! or if it has failed.
       if (days_since_sowing(i) > maxdays_ger) then ! germination assumed to have failed
-         crop%state(i) = 0            ! fallow again, no plant growth
+         crop%state(i) = baresoil           ! bare soil again, no plant growth
          crop%fgermination(i) = 0.0
       else if (crop%fgermination(i) >= 1.0_dp .AND. days_since_sowing(i) <= maxdays_ger) then
-         crop%state(i) = 2           ! emerging
+         crop%state(i) = emergent           ! successful germination
          crop%fgermination(i) = 0.0
       end if
 write(60,*) 'doy:', doy
@@ -121,23 +122,21 @@ write(60,*) '  crop%state:', crop%state
 
   
 
-  subroutine emergence(doy,fPHU_day,casaflux,casapool,casamet,crop)
+  subroutine emergence(doy,fPHU_day,SLA_C,casaflux,casapool,casamet,crop)
 
-    integer,  intent(in)           :: doy ! day of year
+    integer,  intent(in)                :: doy ! day of year
     real(dp), dimension(nc), intent(in) :: fPHU_day ! fPHU of actual day
-    type(casa_flux), intent(inout) :: casaflux
-    type(casa_pool), intent(inout) :: casapool
-    type(casa_met),  intent(inout) :: casamet
-    type(crop_type), intent(inout) :: crop
+    real(dp), dimension(nc), intent(in) :: SLA_C
+    type(casa_flux), intent(inout)      :: casaflux
+    type(casa_pool), intent(inout)      :: casapool
+    type(casa_met),  intent(inout)      :: casamet
+    type(crop_type), intent(inout)      :: crop
 
     ! local
     integer                 :: i ! crop type
-    real(dp), dimension(nc) :: SLA_C
     real(dp), dimension(nc) :: LAIday
 
     do i=1,nc
-       ! calculate SLA in m2 g-1 C
-       SLA_C(i) = SLA_development(crop%fPHU(i),crop%sla_maturity(i),crop%sla_beta(i)) / DMtoC
 write(60,*) 'doy:', doy
 write(60,*) '  crop%sla_maturity(i):', crop%sla_maturity(i) 
 write(60,*) '  crop%fPHU(i):', crop%fPHU(i)
@@ -165,8 +164,12 @@ write(60,*) '  casamet%glai:', casamet%glai
        LAIday(i) = casapool%dcplantdt(i,leaf) * SLA_C(i)
        casamet%glai(i) = casamet%glai(i) + LAIday(i)
        
-
 write(60,*) '  casamet%glai:', casamet%glai
+
+       ! update state if fPHU is high enough
+       if (crop%fPHU(i) >= crop%fPHU_emergence(i)) then
+          crop%state(i) = growing
+       endif 
     end do
       
   end subroutine emergence
@@ -175,21 +178,19 @@ write(60,*) '  casamet%glai:', casamet%glai
 
 
 
-  subroutine C_allocation_crops(casaflux,casapool,casamet,crop) !! TBD: this could also be part of CASA!
+  subroutine C_allocation_crops(SLA_C,casaflux,casapool,casamet,crop) !! TBD: this could also be part of CASA!
 
-    type(casa_flux), intent(inout) :: casaflux
-    type(casa_pool), intent(inout) :: casapool
-    type(casa_met),  intent(inout) :: casamet
-    type(crop_type), intent(inout) :: crop
+    real(dp), dimension(nc), intent(in) :: SLA_C
+    type(casa_flux), intent(inout)      :: casaflux
+    type(casa_pool), intent(inout)      :: casapool
+    type(casa_met),  intent(inout)      :: casamet
+    type(crop_type), intent(inout)      :: crop
 
     ! local
-    integer  :: i ! crop type
-    real(dp), dimension(nc) :: SLA_C
+    integer                 :: i ! crop type
     real(dp), dimension(nc) :: LAIday
        
     do i=1,nc
-       SLA_C(i) = SLA_development(crop%fPHU(i),crop%sla_maturity(i),crop%sla_beta(i)) / DMtoC
-       write(60,*) '  SLA_C(i):', SLA_C(i) 
 
        casaflux%fracCalloc(i,froot)   = 0.33_dp
        casaflux%fracCalloc(i,wood)    = 0.33_dp
@@ -211,7 +212,7 @@ write(60,*) '  casapool%Cplant:', casapool%Cplant
 write(60,*) '  LAIday(i):', LAIday(i)
 write(60,*) '  casamet%glai:', casamet%glai
 
-       
+
     end do
     
   end subroutine C_allocation_crops
@@ -290,8 +291,9 @@ write(60,*) '  casapool%Clitter(i,str)_AFTER:', casapool%Clitter(i,str)
     
   end function water_stress_ger
 
+  
 
-
+  ! decrease of SLA with crop age
   function SLA_development(fPHU,alpha,beta) result(SLA)
 
     real(dp), intent(in) :: fPHU   ! fraction of phenological heat units

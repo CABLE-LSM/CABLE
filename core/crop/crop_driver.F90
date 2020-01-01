@@ -1,7 +1,8 @@
 SUBROUTINE crop_driver(ktau,ktauday,doy,climate,ssnow,soil,casaflux,casamet,&
                        casapool,crop)
 
-  use crop_def,            only: crop_type, nc
+  use crop_def,            only: crop_type, nc, baresoil, sown, emergent, growing, &
+                                 DMtoC
   use crop_module
   use casavariable,        only: casa_flux, casa_met, casa_pool
   use cable_def_types_mod, only: climate_type, soil_snow_type, soil_parameter_type, &
@@ -23,84 +24,75 @@ SUBROUTINE crop_driver(ktau,ktauday,doy,climate,ssnow,soil,casaflux,casamet,&
   ! local
   integer :: ic,sl  ! loop counters: crop type, soil layer
   real(dp), dimension(nc) :: fPHU_day
+  real(dp), dimension(nc) :: SLA_C
 real(dp),dimension(nc) :: NPP_test
   
   
   do ic=1, nc   
 write(70,*) 'DOY: ', doy    
-    select case (crop%state(ic))  ! maybe if-else construct makes more sense
-      case (0)  ! fallow
-write(70,*) 'crop%sowing_doymin: ', crop%sowing_doymin(1)
-        if (doy > crop%sowing_doymin(ic) .AND. doy < crop%sowing_doymax(ic)) then 
-          if (mod(ktau,ktauday) == ktauday/2) then  ! midday   
-             call sowing(doy,soil,crop)
+    if (crop%state(ic) == baresoil) then
+      if (doy > crop%sowing_doymin(ic) .AND. doy < crop%sowing_doymax(ic)) then 
+         call sowing(doy,soil,crop)
 write(70,*) 'crop%state: ', crop%state
 write(70,*) 'crop%Tbase: ', crop%Tbase
-          end if
-        end if
+      end if
 
-      case (1)  ! sown
-        if (mod(ktau,ktauday) == 0) then  ! end of day 
-          call germination(doy,climate,ssnow,soil,crop)
-        end if
+    else if (crop%state(ic) == sown) then
+      call germination(doy,climate,ssnow,soil,crop)
 casapool%Cplant(ic,:) = 0.0_dp ! shouldn't be needed here!! Check initialisation
-casamet%glai(ic) = 0.0_dp        
-     case (2)  ! emerging
-        ! update phenological heat units (start at 0 at germination!)
-        if (mod(ktau,ktauday) == 0) then ! end of day
-        fPHU_day(ic)  = heat_units(crop%Tbase(ic),climate%dtemp(ic)) / crop%PHU_maturity(ic)
-        crop%fPHU(ic) = crop%fPHU(ic) + fPHU_day(ic)
+casamet%glai(ic) = 0.0_dp
 
-        if (crop%fPHU(ic) < crop%fPHU_emergence(ic)) then
-           call emergence(doy,fPHU_day,casaflux,casapool,casamet,crop)
-        else
-           ! update state
-           crop%state(ic) = 3  ! growing
-        endif
-        endif
-     case (3)  ! growing
-        if (mod(ktau,ktauday) == 0) then ! end of day
-          ! update phenological heat units
-          fPHU_day(ic)  = heat_units(crop%Tbase(ic),climate%dtemp(ic)) / crop%PHU_maturity(ic)
-          crop%fPHU(ic) = crop%fPHU(ic) + fPHU_day(ic)
+    else if (crop%state(ic) == emergent .or. crop%state(ic) == growing) then
+       ! update phenological heat units (start at 0 at germination!)
+       fPHU_day(ic)  = heat_units(crop%Tbase(ic),climate%dtemp(ic)) / crop%PHU_maturity(ic)
+       crop%fPHU(ic) = crop%fPHU(ic) + fPHU_day(ic)
+
+       ! calculate SLA in m2 g-1 C
+       SLA_C(ic) = SLA_development(crop%fPHU(ic),crop%sla_maturity(ic),crop%sla_beta(ic)) / DMtoC
+
+       
+
+       if (crop%state(ic) == emergent) then
+
+          call emergence(doy,fPHU_day,SLA_C,casaflux,casapool,casamet,crop)
+
+       else if (crop%state(ic) == growing) then
+
 
 write(70,*) 'climate%dtemp: ', climate%dtemp
 write(70,*) 'fPHU_day: ', fPHU_day          
 write(70,*) 'crop%fPHU: ', crop%fPHU
 
-          ! get daily GPP from casaflux%Cgpp
-          
 
-          ! calculate maintenance and growth respiration
-          !call casa_rplant(...,...) ! no need to call it here again, already done within biogeochem
-          ! only need to calculate Rm and Rg here if we want to do it differently than in casa_rplant
-          ! in that case, we might also change it in casa_rplant directly!!
-          NPP_test(ic) = 0.6_dp * casaflux%Cgpp(ic)
-          !casaflux%Crmplant(ic,:) = 0.05_dp * casaflux%Cgpp(ic)  
-          !casaflux%Crgplant(ic)   = 0.2_dp * casaflux%Cgpp(ic)
-          !casaflux%Cnpp(ic) = casaflux%Cgpp(ic) - sum(casaflux%Crmplant(ic,:)) - casaflux%Crgplant(ic)
-          casaflux%Cnpp(ic) = casaflux%Cgpp(ic)
+         ! calculate maintenance and growth respiration
+         !call casa_rplant(...,...) ! no need to call it here again, already done within biogeochem
+         ! only need to calculate Rm and Rg here if we want to do it differently than in casa_rplant
+         ! in that case, we might also change it in casa_rplant directly!!
+         NPP_test(ic) = 0.6_dp * casaflux%Cgpp(ic)
+         !casaflux%Crmplant(ic,:) = 0.05_dp * casaflux%Cgpp(ic)  
+         !casaflux%Crgplant(ic)   = 0.2_dp * casaflux%Cgpp(ic)
+         !casaflux%Cnpp(ic) = casaflux%Cgpp(ic) - sum(casaflux%Crmplant(ic,:)) - casaflux%Crgplant(ic)
+         casaflux%Cnpp(ic) = casaflux%Cgpp(ic)
 write(70,*) 'casaflux%Cgpp: ', casaflux%Cgpp
-          ! calculate carbon allocation
+         ! calculate carbon allocation
 write(60,*) 'doy:', doy
-          call C_allocation_crops(casaflux,casapool,casamet,crop)
+         call C_allocation_crops(SLA_C,casaflux,casapool,casamet,crop)
 
           
 write(70,*) 'casaflux%Cgpp: ', casaflux%Cgpp
 write(70,*) 'casaflux%Cnpp: ', casaflux%Cnpp
 write(70,*) 'NPP_test: ',      NPP_test
 write(70,*) 'casamet%glai: ',  casamet%glai
-          ! update root length and vegetation height
+         ! update root length and vegetation height
           
           
-          ! harvest if enough PHU accumulated
-          if (crop%fPHU(ic) >= 1.0_dp) then
-             call harvest(doy,casapool,crop)
-             crop%fPHU(ic) = 0.0_dp
-          end if
-        end if
-          
-     end select
+         ! harvest if enough PHU accumulated
+         if (crop%fPHU(ic) >= 1.0_dp) then
+            call harvest(doy,casapool,crop)
+            crop%fPHU(ic) = 0.0_dp
+         end if
+       end if
+     end if 
    end do
  
 END SUBROUTINE crop_driver
