@@ -54,7 +54,7 @@ casamet%glai(ic) = 0.0_dp
 
        if (crop%state(ic) == emergent) then
 
-          call emergence(doy,fPHU_day,SLA_C,casaflux,casapool,casamet,crop)
+          call emergence(doy,SLA_C,fPHU_day,casaflux,casapool,casamet,crop)
 
        else if (crop%state(ic) == growing) then
 

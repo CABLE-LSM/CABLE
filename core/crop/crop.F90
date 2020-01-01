@@ -122,15 +122,15 @@ write(60,*) '  crop%state:', crop%state
 
   
 
-  subroutine emergence(doy,fPHU_day,SLA_C,casaflux,casapool,casamet,crop)
+  subroutine emergence(doy,SLA_C,fPHU_day,casaflux,casapool,casamet,crop)
 
-    integer,  intent(in)                :: doy ! day of year
-    real(dp), dimension(nc), intent(in) :: fPHU_day ! fPHU of actual day
-    real(dp), dimension(nc), intent(in) :: SLA_C
-    type(casa_flux), intent(inout)      :: casaflux
-    type(casa_pool), intent(inout)      :: casapool
-    type(casa_met),  intent(inout)      :: casamet
-    type(crop_type), intent(inout)      :: crop
+    integer,  intent(in)                   :: doy      ! day of year
+    real(dp), dimension(nc), intent(in)    :: SLA_C
+    real(dp), dimension(nc), intent(inout) :: fPHU_day ! fPHU of actual day
+    type(casa_flux), intent(inout) :: casaflux
+    type(casa_pool), intent(inout) :: casapool
+    type(casa_met),  intent(inout) :: casamet
+    type(crop_type), intent(inout) :: crop
 
     ! local
     integer                 :: i ! crop type
@@ -138,7 +138,6 @@ write(60,*) '  crop%state:', crop%state
 
     do i=1,nc
 write(60,*) 'doy:', doy
-write(60,*) '  crop%sla_maturity(i):', crop%sla_maturity(i) 
 write(60,*) '  crop%fPHU(i):', crop%fPHU(i)
 write(60,*) '  SLA_C(i):', SLA_C(i)      
        ! initial C allocation
@@ -150,6 +149,14 @@ write(60,*) '  SLA_C(i):', SLA_C(i)
 
        ! at emergence, utilize carbon reserves in the seeds (given by crop%Cseed),
        ! as well as carbon assimilated by first leaves
+       
+       ! first, make sure C allocation from seeds does not exceed crop%Cseed
+       ! also update crop%state if fPHU is high enough
+       if (crop%fPHU(i) >= crop%fPHU_emergence(i)) then  
+          fPHU_day(i) = fPHU_day(i) - (crop%fPHU(i) - crop%fPHU_emergence(i))
+          crop%state(i) = growing
+       endif
+      
 write(60,*) '  casaflux%Cnpp(i):', casaflux%Cnpp(i)
        casapool%dcplantdt(i,:) = casaflux%fracCalloc(i,:) * crop%Cseed(i) * fPHU_day(i)/crop%fPHU_emergence(i)
 write(60,*) '  casapool%dcplantdt(i,:):', casapool%dcplantdt(i,:)
@@ -159,17 +166,13 @@ write(60,*) '  casapool%dcplantdt(i,:):', casapool%dcplantdt(i,:)
        casapool%Cplant(i,:) = casapool%Cplant(i,:) + casapool%dcplantdt(i,:)
 write(60,*) '  casapool%Cplant(i,:):', casapool%Cplant(i,:)      
        
-       ! initial LAI
+       ! update initial LAI
 write(60,*) '  casamet%glai:', casamet%glai
        LAIday(i) = casapool%dcplantdt(i,leaf) * SLA_C(i)
        casamet%glai(i) = casamet%glai(i) + LAIday(i)
        
 write(60,*) '  casamet%glai:', casamet%glai
 
-       ! update state if fPHU is high enough
-       if (crop%fPHU(i) >= crop%fPHU_emergence(i)) then
-          crop%state(i) = growing
-       endif 
     end do
       
   end subroutine emergence
