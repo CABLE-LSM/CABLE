@@ -2,8 +2,8 @@ MODULE crop_module
 
   use cable_def_types_mod,  only: climate_type, soil_snow_type, soil_parameter_type, &
                                   dp => r_2
-  use crop_def,             only: crop_type, nc, maxdays_ger, Cinit_root, Cinit_stem, &
-                                  Cinit_leaf, DMtoC, baresoil, sown, emergent, growing
+  use crop_def,             only: crop_type, nc, maxdays_ger, fPHU_flowering, &
+                                  DMtoC, baresoil, sown, emergent, growing
   use casavariable,         only: casa_flux, casa_met, casa_pool
   use casaparm,             only: froot,wood,leaf,product, &   ! cpool
                                   metb,str,cwd                 ! litter
@@ -15,9 +15,10 @@ MODULE crop_module
   public :: sowing             ! determines sowing date
   public :: germination        ! determines germination date
   public :: emergence          ! plant growth at emergence
-  public :: C_allocation_crops ! carbon allocation to roots, stems, leaves, products
+  public :: growth             ! plant growth in vegetative and reproductive phase
   public :: harvest            ! removal of products and redistribution of remaining biomass
                                ! to litter and soil pools
+  public :: vernalisation      ! calcualtes vernalisation factor and consequences for crop development
   public :: heat_units         ! calculates heat units per day
   public :: SLA_development    ! calculates SLA in dependence of crop age/ developmental stage
 
@@ -140,11 +141,9 @@ write(60,*) '  crop%state:', crop%state
 write(60,*) 'doy:', doy
 write(60,*) '  crop%fPHU(i):', crop%fPHU(i)
 write(60,*) '  SLA_C(i):', SLA_C(i)      
-       ! initial C allocation
-       casaflux%fracCalloc(i,froot)   = Cinit_root
-       casaflux%fracCalloc(i,wood)    = Cinit_stem
-       casaflux%fracCalloc(i,leaf)    = Cinit_leaf
-       casaflux%fracCalloc(i,product) = 0.0_dp
+
+       ! determine C allocation fractions
+       call C_allocation_crops(casaflux,crop)
 
 
        ! at emergence, utilize carbon reserves in the seeds (given by crop%Cseed),
@@ -178,10 +177,7 @@ write(60,*) '  casamet%glai:', casamet%glai
   end subroutine emergence
 
 
-
-
-
-  subroutine C_allocation_crops(SLA_C,casaflux,casapool,casamet,crop) !! TBD: this could also be part of CASA!
+  subroutine growth(SLA_C,casaflux,casapool,casamet,crop)
 
     real(dp), dimension(nc), intent(in) :: SLA_C
     type(casa_flux), intent(inout)      :: casaflux
@@ -192,16 +188,20 @@ write(60,*) '  casamet%glai:', casamet%glai
     ! local
     integer                 :: i ! crop type
     real(dp), dimension(nc) :: LAIday
-       
+
     do i=1,nc
 
-       casaflux%fracCalloc(i,froot)   = 0.33_dp
-       casaflux%fracCalloc(i,wood)    = 0.33_dp
-       casaflux%fracCalloc(i,leaf)    = 0.33_dp
-       casaflux%fracCalloc(i,product) = 0.01_dp
+       ! determine C allocation fractions
+       call C_allocation_crops(casaflux,crop)
 
-write(60,*) '  casaflux%Cnpp:', casaflux%Cnpp
+write(60,*) '  crop%fPHU(i):', crop%fPHU(i)
+write(60,*) '  casaflux%fracCalloc(i,froot):', casaflux%fracCalloc(i,froot)
+write(60,*) '  casaflux%fracCalloc(i,leaf):', casaflux%fracCalloc(i,leaf)
+write(60,*) '  casaflux%fracCalloc(i,wood):', casaflux%fracCalloc(i,wood)
+write(60,*) '  casaflux%fracCalloc(i,product):', casaflux%fracCalloc(i,product)
 write(60,*) '  casaflux%Cnpp/casaflux%Cgpp:', casaflux%Cnpp/casaflux%Cgpp
+
+
        ! update Cpools
        casapool%dcplantdt(i,:) = casaflux%Cnpp(i) * casaflux%fracCalloc(i,:)
        casapool%Cplant(i,:) = casapool%Cplant(i,:) + casapool%dcplantdt(i,:)
@@ -215,6 +215,29 @@ write(60,*) '  casapool%Cplant:', casapool%Cplant
 write(60,*) '  LAIday(i):', LAIday(i)
 write(60,*) '  casamet%glai:', casamet%glai
 
+   end do
+
+  end subroutine growth
+
+
+  
+  subroutine C_allocation_crops(casaflux,crop) !! TBD: this could also be part of CASA!
+
+    type(casa_flux), intent(inout)      :: casaflux
+    type(crop_type), intent(inout)      :: crop
+
+    ! local
+    integer                 :: i ! crop type
+       
+    do i=1,nc
+
+      ! determine C allocation fractions
+      casaflux%fracCalloc(i,froot)   = Calloc_roots(crop%fPHU(i),crop%fCalloc_root_init(i),crop%Calloc_root_end(i))            
+      casaflux%fracCalloc(i,leaf)    = Calloc_leaves(crop%fPHU(i),fPHU_flowering,crop%Calloc_leaf_end(i), &
+                                                     crop%fCalloc_leaf_init(i),crop%fCalloc_leaf_flow(i))
+      casaflux%fracCalloc(i,product) = Calloc_products(crop%fPHU(i),fPHU_flowering,crop%Calloc_prod_max(i))
+      casaflux%fracCalloc(i,wood)    = 1.0_dp - (casaflux%fracCalloc(i,froot) + casaflux%fracCalloc(i,leaf) + &
+                                                 casaflux%fracCalloc(i,product))
 
     end do
     
@@ -251,7 +274,7 @@ write(60,*) '  casapool%Clitter(i,str)_BEFORE:', casapool%Clitter(i,str)
        casapool%Cplant(i,:) = 0.0_dp
        
        ! change crop state to 0 (bare soil/inactive)
-       crop%state(i) = 0  ! fallow
+       crop%state(i) = baresoil
 
 write(60,*) '  crop%yield(i):', crop%yield(i)
 write(60,*) '  crop%harvest_index(i):', crop%harvest_index(i)
@@ -265,7 +288,63 @@ write(60,*) '  casapool%Clitter(i,str)_AFTER:', casapool%Clitter(i,str)
 
 
   
+  subroutine vernalisation(climate,crop)
 
+    type (climate_type), intent(in)        :: climate
+    type (crop_type),    intent(inout)     :: crop 
+
+    ! local
+    integer             :: i      ! crop type
+    real, dimension(nc) :: VU_day ! daily accumulated vernalisation unit
+
+    do i=1,nc
+      VU_day(i) = vernalisation_rate(climate%dtemp(i))
+      crop%VU(i) = crop%VU(i) + real(VU_day(i),dp) 
+      crop%fVU(i) = min((crop%VU(i)**5.0_dp) / (22.5_dp**5.0_dp + crop%VU(i)**5.0_dp),1.0_dp)
+write(60,*) ' crop%fVU(i):', crop%fVU(i)
+      
+      if (crop%fPHU(i) >= 0.45_dp) then
+         crop%fPHU(i) = crop%fPHU(i) * crop%fVU(i) ! alternative: increase fPHU_maturity.
+         ! also affects C allocation to grains!!
+         crop%vacc(i) = .TRUE.        
+      endif
+    end do
+      
+  end subroutine vernalisation
+
+
+  
+
+  !-----------------------------
+  ! FUNCTIONS
+  !-----------------------------
+
+  ! calculation of a daily vernalisation rate (required for some crops)
+  ! following Streck et al. 2003
+  ! note typo in fvn function in Streck et al. 2003. Right formulation
+  ! can be found in e.g. Lu et al. 2017.
+  function vernalisation_rate(dtemp) result(fvn)
+
+    real, intent(in) :: dtemp   ! mean daily temperature (degC)
+    
+    real, parameter :: Tmin=-1.3  ! minimum temperature for vernalisation
+    real, parameter :: Topt=4.9   ! optimum temperature for vernalisation
+    real, parameter :: Tmax=15.7  ! maximum temperature for vernalisation
+
+    real :: alpha  ! used in for fvn calculation
+    real :: fvn    ! daily vernalisation rate
+
+    alpha = log(2.0) / log((Tmax - Tmin)/(Topt - Tmin))
+
+    if (dtemp >= Tmin .and. dtemp <= Tmax) then
+       fvn = (2.0*(dtemp - Tmin)**alpha * (Topt-Tmin)**alpha - &
+             (dtemp - Tmin)**(2.0*alpha)) / &
+             ((Topt - Tmin)**(2.0*alpha))
+    else
+       fvn = 0.0
+    endif
+
+  end function vernalisation_rate
   
   
   ! standard calculation of daily heat units
@@ -307,7 +386,71 @@ write(60,*) '  casapool%Clitter(i,str)_AFTER:', casapool%Clitter(i,str)
     SLA = alpha * fPHU**beta
 
   end function SLA_development
+
+
+
   
+  ! Functions describing the C allocation to roots, leaves, and products
+  ! as a function of the phenological development
+  ! Roots
+  function Calloc_roots(fPHU,fCalloc_init,Calloc_end) result(fCalloc)
+
+    real(dp), intent(in) :: fPHU         ! fraction of phenological heat units
+    real(dp), intent(in) :: fCalloc_init ! initial fraction of C allocation (at fPHU=0)
+    real(dp), intent(in) :: Calloc_end   ! developmental stage (fPHU) at which fCalloc reaches 0
+    real(dp)             :: fCalloc
+
+    if (fPHU <= Calloc_end) then
+       fCalloc = fCalloc_init - 1.0_dp/Calloc_end*fCalloc_init * fPHU
+    else
+       fCalloc = 0.0_dp
+    endif
+
+  end function Calloc_roots
+
+
+  ! Leaves
+  function Calloc_leaves(fPHU,fPHU_flowering,Calloc_end,fCalloc_init,fCalloc_flowering) result(fCalloc)
+
+    real(dp), intent(in) :: fPHU              ! fraction of phenological heat units
+    real(dp), intent(in) :: fPHU_flowering    ! fPHU at flowering (usually 0.5)
+    real(dp), intent(in) :: Calloc_end        ! developmental stage (fPHU) at which fCalloc reaches 0
+    real(dp), intent(in) :: fCalloc_init      ! initial fraction of C allocation (at fPHU=0)
+    real(dp), intent(in) :: fCalloc_flowering ! fCalloc to leaves at flowering
+    real(dp)             :: fCalloc
+    
+
+    if (fPHU <= fPHU_flowering) then
+       fCalloc = fCalloc_init - 1.0_dp/fPHU_flowering*(fCalloc_init - fCalloc_flowering) * fPHU
+    else if (fPHU > fPHU_flowering .and. fPHU < Calloc_end) then
+       fCalloc = fCalloc_flowering - fCalloc_flowering/(Calloc_end - fPHU_flowering) * (fPHU - fPHU_flowering)
+    else
+       fCalloc = 0.0_dp
+    endif
+
+  end function Calloc_leaves
+
+  
+  ! Products
+  function Calloc_products(fPHU,fPHU_flowering,Calloc_max) result(fCalloc)
+
+    real(dp), intent(in) :: fPHU              ! fraction of phenological heat units
+    real(dp), intent(in) :: fPHU_flowering    ! fPHU at flowering (usually 0.5)
+    real(dp), intent(in) :: Calloc_max        ! developmental stage (fPHU) at which fCalloc reaches 1
+    real(dp)             :: fCalloc
+
+    if (fPHU <= fPHU_flowering) then
+       fCalloc = 0.0_dp
+    else if (fPHU > fPHU_flowering .and. fPHU < Calloc_max) then
+       fCalloc = 1.0_dp / (Calloc_max - fPHU_flowering) * (fPHU - fPHU_flowering)
+    else
+       fCalloc = 1.0_dp
+    endif
+
+  end function Calloc_products
+  
+
+
   
 END MODULE crop_module
 

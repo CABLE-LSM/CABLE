@@ -25,11 +25,8 @@ MODULE crop_def
   
   integer, parameter :: maxdays_ger=40 ! maximum days since sowing above which germination
                                        ! is assumed to have failed
-  real(dp), parameter :: Cinit_root=0.4_dp  ! initial C allocation to roots at emergence
-  real(dp), parameter :: Cinit_stem=0.0_dp  ! initial C allocation to stems at emergence
-  real(dp), parameter :: Cinit_leaf=0.6_dp  ! initial C allocation to leaves at emergence
-  real(dp), parameter :: DMtoC=0.475_dp     ! conversion dry matter to carbon
-
+  real(dp), parameter :: DMtoC=0.475_dp         ! conversion dry matter to carbon
+  real(dp), parameter :: fPHU_flowering=0.5_dp  ! fPHU at flowering
   
   ! types 
   type crop_type
@@ -40,6 +37,11 @@ MODULE crop_def
     ! 2: emergent
     ! 3: growing
     integer, dimension(:),  pointer :: state
+
+    ! Switches related to physiology/development
+    logical, dimension(:), pointer :: vernalisation   ! does vernalisation occur?
+    logical, dimension(:), pointer :: photoperiodism  ! crop responds to photoperiod?
+    
     ! Crop temperature requirements
     real, dimension(:), pointer :: Tbase     ! crop-specific base temperature
 
@@ -51,6 +53,19 @@ MODULE crop_def
     real(dp), dimension(:), pointer :: PHU_maturity     ! PHU (air) until maturity
     real(dp), dimension(:), pointer :: fPHU             ! actual PHU relative to maturity (growth)
 
+    ! vernalisation requirements
+    real(dp), dimension(:), pointer :: VU     ! accrued vernalisation units
+    real(dp), dimension(:), pointer :: fVU    ! fraction of required vernalisation units
+    logical,  dimension(:), pointer :: vacc   ! true if vernalisation effects have been taken into account
+
+    ! Carbon allocation
+    real(dp), dimension(:), pointer :: fCalloc_root_init  ! initial C allocation coefficient to roots at emergence
+    real(dp), dimension(:), pointer :: fCalloc_leaf_init  ! initial C allocation coefficient to leaves at emergence
+    real(dp), dimension(:), pointer :: fCalloc_leaf_flow  ! C allocation coefficient to leaves at flowering
+    real(dp), dimension(:), pointer :: Calloc_root_end    ! fPHU at which C allocation to roots stops
+    real(dp), dimension(:), pointer :: Calloc_leaf_end    ! fPHU at which C allocation to leaves stops
+    real(dp), dimension(:), pointer :: Calloc_prod_max    ! fPHU at which C allocation coefficient to products is 1
+    
     ! Sowing dates (DOY)
     integer, dimension(:), pointer  :: sowing_doymin ! earliest sowing date
     integer, dimension(:), pointer  :: sowing_doymax ! latest sowing date
@@ -97,6 +112,7 @@ Contains
     !local
     integer :: j, jcrop   ! loop counter
     integer :: ioerror    ! input error integer
+    integer :: vernalisation, photoperiodism ! to be converted to logical
     character(len=25) :: cropnametmp  ! not sure if needed/useful
 
 
@@ -111,25 +127,37 @@ Contains
 
     
     ! allocate crop structure  
-    allocate(crop%state(ncmax),           &
-             crop%Tbase(ncmax),           &
-             crop%PHU_germination(ncmax), &
-             crop%fPHU_emergence(ncmax),  &
-             crop%PHU_maturity(ncmax),    &
-             crop%fPHU(ncmax),            &
-             crop%sowing_doymin(ncmax),   &
-             crop%sowing_doymax(ncmax),   &
-             crop%sowing_doy(ncmax),      &
-             crop%fgermination(ncmax),    &
-             crop%Cseed(ncmax),           &
-             crop%sowing_depth(ncmax),    &
-             crop%Cplant_remove(ncmax),   &
-             crop%sl(ncmax),              &
-             crop%yield(ncmax),           &
-             crop%harvest_index(ncmax),   &
-             crop%sla_maturity(ncmax),    &
-             crop%sla_beta(ncmax)         &
+    allocate(crop%state(ncmax),             &
+             crop%vernalisation(ncmax),     &
+             crop%photoperiodism(ncmax),    &
+             crop%Tbase(ncmax),             &
+             crop%PHU_germination(ncmax),   &
+             crop%fPHU_emergence(ncmax),    &
+             crop%PHU_maturity(ncmax),      &
+             crop%fPHU(ncmax),              &
+             crop%VU(ncmax),                &
+             crop%fVU(ncmax),               &
+             crop%vacc(ncmax),              &
+             crop%fCalloc_root_init(ncmax), &
+             crop%fCalloc_leaf_init(ncmax), &
+             crop%fCalloc_leaf_flow(ncmax), &
+             crop%Calloc_root_end(ncmax),   &
+             crop%Calloc_leaf_end(ncmax),   &
+             crop%Calloc_prod_max(ncmax),   &
+             crop%sowing_doymin(ncmax),     &
+             crop%sowing_doymax(ncmax),     &
+             crop%sowing_doy(ncmax),        &
+             crop%fgermination(ncmax),      &
+             crop%Cseed(ncmax),             &
+             crop%sowing_depth(ncmax),      &
+             crop%Cplant_remove(ncmax),     &
+             crop%sl(ncmax),                &
+             crop%yield(ncmax),             &
+             crop%harvest_index(ncmax),     &
+             crop%sla_maturity(ncmax),      &
+             crop%sla_beta(ncmax)           &
             )
+
 
       
     ! initialise parameter values given in crop parameter file
@@ -139,21 +167,37 @@ Contains
 
       if (jcrop > ncmax) STOP 'jcrop out of range in parameter file'
 
+
+      crop%vernalisation(jcrop) = .FALSE.
+      crop%vernalisation(jcrop) = .FALSE.
+
       ! Read actual parameter values
+      read(40,*) vernalisation, photoperiodism
       read(40,*) crop%Tbase(jcrop)
       read(40,*) crop%PHU_germination(jcrop), crop%fPHU_emergence(jcrop)
       read(40,*) crop%PHU_maturity(jcrop)
+      read(40,*) crop%fCalloc_root_init(jcrop), crop%fCalloc_leaf_init(jcrop), crop%fCalloc_leaf_flow(jcrop)
+      read(40,*) crop%Calloc_root_end(jcrop), crop%Calloc_leaf_end(jcrop), crop%Calloc_prod_max(jcrop)
       read(40,*) crop%Cseed(jcrop), crop%sowing_depth(jcrop), crop%Cplant_remove(jcrop)
       read(40,*) crop%sla_maturity(jcrop), crop%sla_beta(jcrop)
 
+      if (vernalisation > 0) then
+         crop%vernalisation(jcrop) = .TRUE.
+      endif
+      if (photoperiodism > 0) then
+         crop%photoperiodism(jcrop) = .TRUE.
+      endif
+      
     end do ! loop over CFTs
 
     close(40)
 
-      
     ! initialise all other variables
     crop%state         = 0
     crop%fPHU          = 0.0_dp
+    crop%VU            = 0.0_dp
+    crop%fVU           = 0.0_dp
+    crop%vacc          = .FALSE.
     crop%sowing_doymin = 270
     crop%sowing_doymax = 290
     crop%sowing_doy    = 0

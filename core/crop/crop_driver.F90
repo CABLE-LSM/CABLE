@@ -25,11 +25,15 @@ SUBROUTINE crop_driver(ktau,ktauday,doy,climate,ssnow,soil,casaflux,casamet,&
   integer :: ic,sl  ! loop counters: crop type, soil layer
   real(dp), dimension(nc) :: fPHU_day
   real(dp), dimension(nc) :: SLA_C
+  real(dp), dimension(nc) :: VU  ! vernalisation units
+  real(dp), dimension(nc) :: fVU ! vernalisation requirements
+  logical,  dimension(nc) :: vt  ! vernalisation been accounted for?
 real(dp),dimension(nc) :: NPP_test
   
   
   do ic=1, nc   
-write(70,*) 'DOY: ', doy    
+write(70,*) 'DOY: ', doy
+write(70,*) 'VU(i):', VU(ic)
     if (crop%state(ic) == baresoil) then
       if (doy > crop%sowing_doymin(ic) .AND. doy < crop%sowing_doymax(ic)) then 
          call sowing(doy,soil,crop)
@@ -50,13 +54,17 @@ casamet%glai(ic) = 0.0_dp
        ! calculate SLA in m2 g-1 C
        SLA_C(ic) = SLA_development(crop%fPHU(ic),crop%sla_maturity(ic),crop%sla_beta(ic)) / DMtoC
 
-       
+       if (crop%vernalisation(ic) .and. .not. crop%vacc(ic)) then
+         call vernalisation(climate,crop)
+       endif
 
        if (crop%state(ic) == emergent) then
 
-          call emergence(doy,SLA_C,fPHU_day,casaflux,casapool,casamet,crop)
+         call emergence(doy,SLA_C,fPHU_day,casaflux,casapool,casamet,crop)
 
+         
        else if (crop%state(ic) == growing) then
+
 
 
 write(70,*) 'climate%dtemp: ', climate%dtemp
@@ -76,9 +84,8 @@ write(70,*) 'crop%fPHU: ', crop%fPHU
 write(70,*) 'casaflux%Cgpp: ', casaflux%Cgpp
          ! calculate carbon allocation
 write(60,*) 'doy:', doy
-         call C_allocation_crops(SLA_C,casaflux,casapool,casamet,crop)
+         call growth(SLA_C,casaflux,casapool,casamet,crop)
 
-          
 write(70,*) 'casaflux%Cgpp: ', casaflux%Cgpp
 write(70,*) 'casaflux%Cnpp: ', casaflux%Cnpp
 write(70,*) 'NPP_test: ',      NPP_test
@@ -89,7 +96,12 @@ write(70,*) 'casamet%glai: ',  casamet%glai
          ! harvest if enough PHU accumulated
          if (crop%fPHU(ic) >= 1.0_dp) then
             call harvest(doy,casapool,crop)
+
+            ! reset heat units etc. (maybe better in harvest routine)
             crop%fPHU(ic) = 0.0_dp
+            crop%VU(ic) = 0.0_dp
+            crop%fVU(ic) = 0.0_dp
+            crop%vacc(ic) = .FALSE.
          end if
        end if
      end if 
