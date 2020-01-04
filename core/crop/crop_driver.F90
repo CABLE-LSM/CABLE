@@ -1,4 +1,4 @@
-SUBROUTINE crop_driver(ktau,ktauday,doy,climate,ssnow,soil,casaflux,casamet,&
+SUBROUTINE crop_driver(ktau,ktauday,doy,climate,ssnow,soil,veg,casaflux,casamet,&
                        casapool,crop)
 
   use crop_def,            only: crop_type, nc, baresoil, sown, emergent, growing, &
@@ -6,7 +6,7 @@ SUBROUTINE crop_driver(ktau,ktauday,doy,climate,ssnow,soil,casaflux,casamet,&
   use crop_module
   use casavariable,        only: casa_flux, casa_met, casa_pool
   use cable_def_types_mod, only: climate_type, soil_snow_type, soil_parameter_type, &
-                                 dp => r_2
+                                 veg_parameter_type, dp => r_2
 
   implicit none
   
@@ -16,6 +16,7 @@ SUBROUTINE crop_driver(ktau,ktauday,doy,climate,ssnow,soil,casaflux,casamet,&
   type(climate_type),        intent(in)    :: climate
   type(soil_snow_type),      intent(in)    :: ssnow
   type(soil_parameter_type), intent(in)    :: soil
+  type(veg_parameter_type),  intent(inout) :: veg
   type(casa_flux),           intent(inout) :: casaflux
   type(casa_met),            intent(inout) :: casamet
   type(casa_pool),           intent(inout) :: casapool
@@ -60,7 +61,7 @@ casamet%glai(ic) = 0.0_dp
 
        if (crop%state(ic) == emergent) then
 
-         call emergence(doy,SLA_C,fPHU_day,casaflux,casapool,casamet,crop)
+         call emergence(doy,SLA_C,fPHU_day,veg,casaflux,casapool,casamet,crop)
 
          
        else if (crop%state(ic) == growing) then
@@ -84,7 +85,7 @@ write(70,*) 'crop%fPHU: ', crop%fPHU
 write(70,*) 'casaflux%Cgpp: ', casaflux%Cgpp
          ! calculate carbon allocation
 write(60,*) 'doy:', doy
-         call growth(SLA_C,casaflux,casapool,casamet,crop)
+         call growth(SLA_C,veg,casaflux,casapool,casamet,crop)
 
 write(70,*) 'casaflux%Cgpp: ', casaflux%Cgpp
 write(70,*) 'casaflux%Cnpp: ', casaflux%Cnpp

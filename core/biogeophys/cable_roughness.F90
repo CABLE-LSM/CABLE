@@ -54,10 +54,6 @@ SUBROUTINE ruff_resist(veg, rough, ssnow, canopy)
       dh         ! d/h where d is zero-plane displacement
 
    CALL point2constants( C )
-
-! JK: temporary bug fix: don't let veg%hc fall to 0
-veg%hc = MAX(veg%hc,1.0)
-
    
    ! Set canopy height above snow level:
    rough%hruff = MAX( 1.e-6, veg%hc - 1.2 * ssnow%snowd /                       &

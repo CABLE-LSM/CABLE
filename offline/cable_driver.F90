@@ -992,7 +992,7 @@ PROGRAM cable_offline_driver
                  IF (cable_user%CALL_CROP) THEN
                     casabiome%glaimin=0.01_r_2  ! temporary fix!
                     IF (mod(ktau,ktauday) == 0) THEN ! end of day
-                       CALL crop_driver(ktau,ktauday,idoy,climate,ssnow,soil,casaflux, &
+                       CALL crop_driver(ktau,ktauday,idoy,climate,ssnow,soil,veg,casaflux, &
                             casamet,casapool,crop)
                     ENDIF
                  ENDIF

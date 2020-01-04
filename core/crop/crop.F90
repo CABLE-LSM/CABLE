@@ -1,7 +1,7 @@
 MODULE crop_module
 
   use cable_def_types_mod,  only: climate_type, soil_snow_type, soil_parameter_type, &
-                                  dp => r_2
+                                  veg_parameter_type, dp => r_2
   use crop_def,             only: crop_type, nc, maxdays_ger, fPHU_flowering, &
                                   DMtoC, baresoil, sown, emergent, growing
   use casavariable,         only: casa_flux, casa_met, casa_pool
@@ -123,11 +123,12 @@ write(60,*) '  crop%state:', crop%state
 
   
 
-  subroutine emergence(doy,SLA_C,fPHU_day,casaflux,casapool,casamet,crop)
+  subroutine emergence(doy,SLA_C,fPHU_day,veg,casaflux,casapool,casamet,crop)
 
     integer,  intent(in)                   :: doy      ! day of year
     real(dp), dimension(nc), intent(in)    :: SLA_C
     real(dp), dimension(nc), intent(inout) :: fPHU_day ! fPHU of actual day
+    type(veg_parameter_type),intent(inout) :: veg
     type(casa_flux), intent(inout) :: casaflux
     type(casa_pool), intent(inout) :: casapool
     type(casa_met),  intent(inout) :: casamet
@@ -144,7 +145,6 @@ write(60,*) '  SLA_C(i):', SLA_C(i)
 
        ! determine C allocation fractions
        call C_allocation_crops(casaflux,crop)
-
 
        ! at emergence, utilize carbon reserves in the seeds (given by crop%Cseed),
        ! as well as carbon assimilated by first leaves
@@ -171,19 +171,24 @@ write(60,*) '  casamet%glai:', casamet%glai
        casamet%glai(i) = casamet%glai(i) + LAIday(i)
        
 write(60,*) '  casamet%glai:', casamet%glai
+       ! update vegetation height
+       veg%hc(i) = vegheight_Cstem_Cleaf(casapool%Cplant(i,wood), &
+                                         casapool%Cplant(i,leaf)) 
+write(60,*) '  veg%hc(i):', veg%hc(i)
 
     end do
       
   end subroutine emergence
 
 
-  subroutine growth(SLA_C,casaflux,casapool,casamet,crop)
+  subroutine growth(SLA_C,veg,casaflux,casapool,casamet,crop)
 
-    real(dp), dimension(nc), intent(in) :: SLA_C
-    type(casa_flux), intent(inout)      :: casaflux
-    type(casa_pool), intent(inout)      :: casapool
-    type(casa_met),  intent(inout)      :: casamet
-    type(crop_type), intent(inout)      :: crop
+    real(dp), dimension(nc),   intent(in)    :: SLA_C
+    type(veg_parameter_type),  intent(inout) :: veg
+    type(casa_flux),           intent(inout) :: casaflux
+    type(casa_pool),           intent(inout) :: casapool
+    type(casa_met),            intent(inout) :: casamet
+    type(crop_type),           intent(inout) :: crop
 
     ! local
     integer                 :: i ! crop type
@@ -215,6 +220,10 @@ write(60,*) '  casapool%Cplant:', casapool%Cplant
 write(60,*) '  LAIday(i):', LAIday(i)
 write(60,*) '  casamet%glai:', casamet%glai
 
+       ! update vegetation height
+       veg%hc(i) = vegheight_Cstem_Cleaf(casapool%Cplant(i,wood), &
+                                         casapool%Cplant(i,leaf)) 
+write(60,*) '  veg%hc(i):', veg%hc(i)
    end do
 
   end subroutine growth
@@ -223,11 +232,11 @@ write(60,*) '  casamet%glai:', casamet%glai
   
   subroutine C_allocation_crops(casaflux,crop) !! TBD: this could also be part of CASA!
 
-    type(casa_flux), intent(inout)      :: casaflux
-    type(crop_type), intent(inout)      :: crop
+    type(casa_flux), intent(inout) :: casaflux
+    type(crop_type), intent(inout) :: crop
 
     ! local
-    integer                 :: i ! crop type
+    integer :: i ! crop type
        
     do i=1,nc
 
@@ -450,7 +459,19 @@ write(60,*) ' crop%fVU(i):', crop%fVU(i)
   end function Calloc_products
   
 
+  
+  ! Crop height from allometric relationships
+  ! Arora and Boer 2005 (Eq. A2): dependence on Cstem and Cleaf
+  function vegheight_Cstem_Cleaf(Cstem,Cleaf) result(height)
 
+    real(dp), intent(in) :: Cstem  ! C content in stem (gC m-2)
+    real(dp), intent(in) :: Cleaf  ! C content in leaves (gC m-2)
+    real(dp)             :: height ! crop height (m)
+
+    height = ((Cstem + Cleaf)/1000.0_dp)**0.385_dp 
+
+  end function vegheight_Cstem_Cleaf
+  
   
 END MODULE crop_module
 
