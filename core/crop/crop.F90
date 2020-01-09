@@ -2,9 +2,10 @@ MODULE crop_module
 
   use cable_def_types_mod,  only: climate_type, soil_snow_type, soil_parameter_type, &
                                   veg_parameter_type, dp => r_2
-  use crop_def,             only: crop_type, nc, maxdays_ger, fPHU_flowering, &
-                                  DMtoC, baresoil, sown, emergent, growing
+  use crop_def,             only: crop_type, nc, maxdays_ger, fPHU_flowering, rCsen_Cgr, &
+                                  fCleaf_mobile, DMtoC, baresoil, sown, emergent, growing
   use casavariable,         only: casa_flux, casa_met, casa_pool
+  use casadimension,        only: mplant
   use casaparm,             only: froot,wood,leaf,product, &   ! cpool
                                   metb,str,cwd                 ! litter
   
@@ -16,9 +17,11 @@ MODULE crop_module
   public :: germination        ! determines germination date
   public :: emergence          ! plant growth at emergence
   public :: growth             ! plant growth in vegetative and reproductive phase
+  public :: senescence         ! plant senescence and effects on C pools and LAI + C remobilisation
   public :: harvest            ! removal of products and redistribution of remaining biomass
                                ! to litter and soil pools
   public :: vernalisation      ! calcualtes vernalisation factor and consequences for crop development
+  public :: C_allocation_crops ! C allocation to plant pools (crops only)
   public :: heat_units         ! calculates heat units per day
   public :: SLA_development    ! calculates SLA in dependence of crop age/ developmental stage
 
@@ -88,7 +91,7 @@ contains
       days_since_sowing(i) = doy - crop%sowing_doy(i) ! implement case year switch!!
 
       ! calculate heat requirements for germination (based on temp in soil layer crop%sl)
-      fPHUger(i) = heat_units(crop%Tbase(i),climate%dtempsoil(i,crop%sl(i))) / &
+      fPHUger(i) = heat_units(climate%dtempsoil(i,crop%sl(i)),crop%Tbase(i),crop%Tmax(i)) / &
                    crop%PHU_germination(i)
       
       ! calculate soil water requirements for germination
@@ -143,9 +146,6 @@ write(60,*) 'doy:', doy
 write(60,*) '  crop%fPHU(i):', crop%fPHU(i)
 write(60,*) '  SLA_C(i):', SLA_C(i)      
 
-       ! determine C allocation fractions
-       call C_allocation_crops(casaflux,crop)
-
        ! at emergence, utilize carbon reserves in the seeds (given by crop%Cseed),
        ! as well as carbon assimilated by first leaves
        
@@ -163,7 +163,10 @@ write(60,*) '  casapool%dcplantdt(i,:):', casapool%dcplantdt(i,:)
                                                           * casaflux%fracCalloc(i,:))
 write(60,*) '  casapool%dcplantdt(i,:):', casapool%dcplantdt(i,:)
        casapool%Cplant(i,:) = casapool%Cplant(i,:) + casapool%dcplantdt(i,:)
-write(60,*) '  casapool%Cplant(i,:):', casapool%Cplant(i,:)      
+write(60,*) '  casapool%Cplant(i,:):', casapool%Cplant(i,:)
+
+       ! update Creserve pool in stems
+       crop%Cstem_mobile(i) = crop%Cstem_mobile(i) + crop%fCstem_mobile(i) * casapool%dcplantdt(i,wood) 
        
        ! update initial LAI
 write(60,*) '  casamet%glai:', casamet%glai
@@ -180,6 +183,7 @@ write(60,*) '  veg%hc(i):', veg%hc(i)
       
   end subroutine emergence
 
+  
 
   subroutine growth(SLA_C,veg,casaflux,casapool,casamet,crop)
 
@@ -196,34 +200,40 @@ write(60,*) '  veg%hc(i):', veg%hc(i)
 
     do i=1,nc
 
-       ! determine C allocation fractions
-       call C_allocation_crops(casaflux,crop)
-
 write(60,*) '  crop%fPHU(i):', crop%fPHU(i)
 write(60,*) '  casaflux%fracCalloc(i,froot):', casaflux%fracCalloc(i,froot)
 write(60,*) '  casaflux%fracCalloc(i,leaf):', casaflux%fracCalloc(i,leaf)
 write(60,*) '  casaflux%fracCalloc(i,wood):', casaflux%fracCalloc(i,wood)
 write(60,*) '  casaflux%fracCalloc(i,product):', casaflux%fracCalloc(i,product)
+write(60,*) '  casaflux%Cgpp:', casaflux%Cgpp
+write(60,*) '  casaflux%Cnpp:', casaflux%Cnpp
 write(60,*) '  casaflux%Cnpp/casaflux%Cgpp:', casaflux%Cnpp/casaflux%Cgpp
-
 
        ! update Cpools
        casapool%dcplantdt(i,:) = casaflux%Cnpp(i) * casaflux%fracCalloc(i,:)
        casapool%Cplant(i,:) = casapool%Cplant(i,:) + casapool%dcplantdt(i,:)
 
+       ! update C reserve pool in stems
+       crop%Cstem_mobile(i) = crop%Cstem_mobile(i) + crop%fCstem_mobile(i) * casapool%dcplantdt(i,wood)
+       
 write(60,*) '  casapool%dcplantdt(i,:):', casapool%dcplantdt(i,:)
 write(60,*) '  casapool%Cplant:', casapool%Cplant
+write(60,*) '  crop%Cstem_mobile(i):', crop%Cstem_mobile(i)
 
-       ! update LAI
-       LAIday(i) = casapool%dcplantdt(i,leaf) * SLA_C(i)
-       casamet%glai(i) = casamet%glai(i) + LAIday(i)
+       if (casapool%dcplantdt(i,leaf) > 0.0_dp) then
+         ! update LAI
+         LAIday(i) = casapool%dcplantdt(i,leaf) * SLA_C(i)
+         casamet%glai(i) = casamet%glai(i) + LAIday(i)
 write(60,*) '  LAIday(i):', LAIday(i)
 write(60,*) '  casamet%glai:', casamet%glai
-
-       ! update vegetation height
-       veg%hc(i) = vegheight_Cstem_Cleaf(casapool%Cplant(i,wood), &
-                                         casapool%Cplant(i,leaf)) 
+       endif
+       if (casapool%dcplantdt(i,leaf) > 0.0_dp .or. casapool%dcplantdt(i,wood) > 0.0_dp) then
+         ! update vegetation height
+         veg%hc(i) = vegheight_Cstem_Cleaf(casapool%Cplant(i,wood), &
+                                           casapool%Cplant(i,leaf)) 
 write(60,*) '  veg%hc(i):', veg%hc(i)
+       endif
+         
    end do
 
   end subroutine growth
@@ -242,8 +252,8 @@ write(60,*) '  veg%hc(i):', veg%hc(i)
 
       ! determine C allocation fractions
       casaflux%fracCalloc(i,froot)   = Calloc_roots(crop%fPHU(i),crop%fCalloc_root_init(i),crop%Calloc_root_end(i))            
-      casaflux%fracCalloc(i,leaf)    = Calloc_leaves(crop%fPHU(i),fPHU_flowering,crop%Calloc_leaf_end(i), &
-                                                     crop%fCalloc_leaf_init(i),crop%fCalloc_leaf_flow(i))
+      casaflux%fracCalloc(i,leaf)    = Calloc_leaves(crop%fPHU(i),crop%Calloc_leaf_bpt(i),crop%Calloc_leaf_end(i), &
+                                                     crop%fCalloc_leaf_init(i),crop%fCalloc_leaf_bpt(i))
       casaflux%fracCalloc(i,product) = Calloc_products(crop%fPHU(i),fPHU_flowering,crop%Calloc_prod_max(i))
       casaflux%fracCalloc(i,wood)    = 1.0_dp - (casaflux%fracCalloc(i,froot) + casaflux%fracCalloc(i,leaf) + &
                                                  casaflux%fracCalloc(i,product))
@@ -254,13 +264,169 @@ write(60,*) '  veg%hc(i):', veg%hc(i)
 
 
 
-  
-  
-  subroutine harvest(doy,casapool,crop)
+  subroutine senescence(fPHU_day,casamet,casapool,casaflux,crop)
+    ! models sequential senescence (constant leaf senescence due to e.g. ageing) and
+    ! reproductive senescence (occurs after flowering)
 
-    integer, intent(in)             :: doy  ! day of year
-    type(casa_pool),  intent(inout) :: casapool
-    type (crop_type), intent(inout) :: crop 
+    real(dp), dimension(nc)        :: fPHU_day
+    type(casa_met),  intent(inout) :: casamet
+    type(casa_pool), intent(inout) :: casapool
+    type(casa_flux), intent(inout) :: casaflux
+    type(crop_type), intent(inout) :: crop
+
+    ! local
+    integer                 :: i,p          ! crop type, plant pool
+    real(dp), dimension(nc) :: sen_period   ! period (in fPHU) over which senescence occurs
+    real(dp), dimension(nc) :: rsenesc      ! senescence rate leaves (0-1)
+    real(dp), dimension(nc) :: C_loss_leaf  ! carbon loss caused by senescence
+    real(dp), dimension(nc) :: C_loss_mobil ! 'lost' carbon remobilised to product pool
+    real(dp), dimension(nc) :: C_loss_resp  ! 'lost' respired directly from C pools
+    
+    do i=1,nc
+
+       ! model reproductive senescence as soon as C allocation to leaves ceases
+       ! senescence refers to leaf pool only. Senescence in stems is only modelled
+       ! as remobilisation of C to products, senescence in roots is not modelled.
+       ! --> at the moment stems and roots do not experience mass loss due to respiration
+       ! at senescence, i.e. any respiration C is coming from GPP!
+       ! currently assumes that senescence stops at harvest, not before
+       sen_period(i) = 1.0_dp - crop%Calloc_leaf_end(i)
+       if (crop%fPHU(i) > crop%Calloc_leaf_end(i)) then
+         rsenesc(i) = ((crop%fPHU(i) - crop%Calloc_leaf_end(i)) / &
+                       sen_period(i))**crop%drsen(i) - &
+                      ((max(crop%fPHU(i) - fPHU_day(i),crop%Calloc_leaf_end(i)) - crop%Calloc_leaf_end(i)) / &
+                       sen_period(i))**crop%drsen(i)
+       else
+         rsenesc(i) = 0.0_dp    
+       endif
+       ! update complete canopy senescence fraction
+       ! avoid fsenesc exceeding 1.0
+       if (rsenesc(i) + crop%fsenesc(i) > 1.0_dp) then
+          rsenesc(i) = rsenesc(i) - ((rsenesc(i) + crop%fsenesc(i)) - 1.0_dp)
+       endif
+       crop%fsenesc(i) = min(crop%fsenesc(i) + rsenesc(i),1.0_dp)
+write(60,*) '  crop%fsenesc(i):', crop%fsenesc(i)
+       ! update dead and green LAI
+       crop%LAItot(i)  = max(0.0_dp,casamet%glai(i) + crop%LAIsen(i))
+       crop%LAIsen(i)  = max(0.0_dp,crop%fsenesc(i) * crop%LAItot(i))
+       casamet%glai(i) = max(0.0_dp,crop%LAItot(i) - crop%LAIsen(i))
+
+       do p=1,mplant
+         if (casaflux%fracCalloc(i,p) > 1.0e-9) then
+            crop%Cmax(i,p) = casapool%Cplant(i,p)
+            if (p==wood) then
+               crop%Cmaxstemmob(i) = crop%Cstem_mobile(i)
+            endif
+         endif
+       end do
+
+       ! update Rm and NPP given fsenesc (NPP is updated later in this subroutine)
+       ! fsenesc calculated for leaves, but represents overall senescence state of
+       ! the crop in this case, to be improved
+write(60,*) '  casaflux%Crmplant1(i,:):', casaflux%Crmplant(i,:)
+       casaflux%Crmplant(i,:) = casaflux%Crmplant(i,:) * (1.0_dp - crop%fsenesc(i))
+       casaflux%Cnpp(i) = casaflux%Cgpp(i) - sum(casaflux%Crmplant(i,:)) - casaflux%Crgplant(i)
+write(60,*) '  casaflux%Crmplant2(i,:):', casaflux%Crmplant(i,:)
+
+       ! Calculate C loss in leaves due to senescence 
+       ! Part of this C loss is respired, the other part is mobilised to the product 
+       C_loss_leaf(i) = rsenesc(i) * (1.0_dp - rCsen_Cgr) * crop%Cmax(i,leaf)
+       C_loss_resp(i) = fCleaf_mobile * C_loss_leaf(i)
+       if (C_loss_resp(i) > casaflux%Crmplant(i,leaf)) then
+          C_loss_resp(i) = casaflux%Crmplant(i,leaf)
+       endif
+       C_loss_mobil(i) = C_loss_leaf(i) - C_loss_resp(i)
+write(60,*) '  C_loss(i,:):', C_loss_leaf(i)
+       
+       call remobilisation(casapool,crop,fPHU_day,C_loss_mobil)
+
+       ! update NPP: usually, C for Rm is taken from GPP, but in senescence it is taken directly from the C
+       ! pools in the leaves/stems. Thus updating NPP to conserve C mass balance.
+       casaflux%Cnpp(i) = casaflux%Cnpp(i) + (sum(casaflux%Crmplant(i,(/leaf,wood/))) - C_loss_resp(i))
+write(60,*) '  sum(casaflux%Crmplant(i,(/leaf,wood/))):', sum(casaflux%Crmplant(i,(/leaf,wood/)))
+write(60,*) '  casaflux%Cnpp2:', casaflux%Cnpp    
+    end do
+    
+  end subroutine senescence 
+
+
+
+  
+  subroutine remobilisation(casapool,crop,fPHU_day,Closs_leaf_mobile)
+
+    type(casa_pool), intent(inout)      :: casapool
+    type(crop_type), intent(inout)      :: crop
+    real(dp), dimension(nc), intent(in) :: fPHU_day
+    real(dp), dimension(nc), intent(in) :: Closs_leaf_mobile ! C loss of leaves due to remobilisation
+
+    ! local
+    integer                 :: i                  ! crop type
+    real(dp), dimension(nc) :: remob_period       ! period over which remobilisation occurs
+    real(dp), dimension(nc) :: rCloss_stem        ! rate of Carbon loss of mobile reserves in stems
+    real(dp), dimension(nc) :: Closs_stem         ! C loss of stem due to remobilisation
+
+    do i=1,nc
+    ! --------------------
+    !  C remobilisation  !
+    ! --------------------   
+      ! 1) from stem to products
+      !    for stems, it is assumed that all of their mobile reserves are
+      !    relocated to the products during the first half of senescence
+      remob_period(i) = (1.0_dp - crop%Calloc_prod_max(i)) * 0.5_dp
+      if (crop%fPHU(i) > crop%Calloc_prod_max(i) .and. crop%fPHU(i) < &
+           (crop%Calloc_prod_max(i) + remob_period(i))) then          
+         rCloss_stem(i) = ((crop%fPHU(i) - crop%Calloc_prod_max(i)) / &
+                            remob_period(i))**0.5_dp - &
+                            ((max(crop%fPHU(i) - fPHU_day(i),crop%Calloc_prod_max(i)) &
+                             - crop%Calloc_prod_max(i)) / &
+                             remob_period(i))**0.5_dp
+      else
+         rCloss_stem(i) = 0.0_dp
+      endif
+      ! avoid fsenesc exceeding 1.0 
+      if (rCloss_stem(i) + crop%fmobilise(i) > 1.0_dp) then
+          rCloss_stem(i) = rCloss_stem(i) - ((rCloss_stem(i) + crop%fmobilise(i)) - 1.0_dp)
+      endif
+      crop%fmobilise(i) = min(crop%fmobilise(i) + rCloss_stem(i),1.0_dp)
+
+      ! subtract C_loss from mobile reserves (not ideal right now, because
+      ! C has to be subtracted from both Cstem_mobile and Cpools(i,wood)...
+      Closs_stem(i) = rCloss_stem(i) * crop%Cmaxstemmob(i)
+      crop%Cstem_mobile(i)    = crop%Cstem_mobile(i) - Closs_stem(i) 
+      casapool%Cplant(i,wood) = casapool%Cplant(i,wood) - Closs_stem(i)
+
+      ! add carbon lost from stem to product pool
+      casapool%Cplant(i,product) = casapool%Cplant(i,product) + Closs_stem(i)
+
+      
+      
+      ! 2) from leaves to products
+      !    a fraction corresponding to fCleaf_mobile is moved from leaves
+      !    to stems during leaf senescence (calculated in senescence subroutine)
+      casapool%Cplant(i,leaf) = casapool%Cplant(i,leaf) - Closs_leaf_mobile(i)
+      ! add carbon lost from stem to product pool
+      casapool%Cplant(i,product) = casapool%Cplant(i,product) + Closs_leaf_mobile(i)
+
+      
+    ! --------------------
+    !  N remobilisation  !
+    ! --------------------
+
+      
+    end do  
+    
+  end subroutine remobilisation
+  
+
+
+  
+  subroutine harvest(doy,casapool,casamet,veg,crop)
+
+    integer,                  intent(in)    :: doy  ! day of year
+    type(casa_pool),          intent(inout) :: casapool
+    type(casa_met),           intent(inout) :: casamet
+    type(veg_parameter_type), intent(inout) :: veg
+    type(crop_type),          intent(inout) :: crop
 
     ! local
     integer                 :: i ! crop type
@@ -271,7 +437,7 @@ write(60,*) 'doy:', doy
     do i=1,nc
        ! remove product pool (aka yield)
        crop%yield(i) = casapool%Cplant(i,product)
-       crop%harvest_index(i) = casapool%Cplant(i,product) / sum(casapool%Cplant(i,:)) ! diagnostic
+       crop%harvest_index(i) = casapool%Cplant(i,product) / sum(casapool%Cplant(i,(/leaf,wood,product/))) ! diagnostic
 
 write(60,*) '  casapool%Clitter(i,str)_BEFORE:', casapool%Clitter(i,str)
        ! add leaves and stems partly and roots completely to litter pool
@@ -281,6 +447,14 @@ write(60,*) '  casapool%Clitter(i,str)_BEFORE:', casapool%Clitter(i,str)
 
        ! set all plant pools to 0
        casapool%Cplant(i,:) = 0.0_dp
+
+       ! set LAI to 0
+       casamet%glai(i) = 0.0_dp
+       crop%LAItot(i)  = 0.0_dp
+       crop%LAIsen(i)  = 0.0_dp
+
+       ! set plant height to 0
+       veg%hc(i) = 0.0_dp
        
        ! change crop state to 0 (bare soil/inactive)
        crop%state(i) = baresoil
@@ -357,13 +531,15 @@ write(60,*) ' crop%fVU(i):', crop%fVU(i)
   
   
   ! standard calculation of daily heat units
-  function heat_units(basetemp,dtemp) result(HU)
+  function heat_units(dtemp,basetemp,maxtemp) result(HU)
 
-    real, intent(in)  :: basetemp    ! base temperature (degC)
     real, intent(in)  :: dtemp       ! mean daily temperature (degC)
+    real, intent(in)  :: basetemp    ! base temperature (degC)
+    real, intent(in)  :: maxtemp     ! maximum mean daily temp. (degC)
+                                     ! no further increases in HU above maxtemp
     real(dp)          :: HU          ! daily heat units
     
-    HU = max(0.0, dtemp - max(0.0,basetemp)) 
+    HU = min(max(0.0, dtemp - max(0.0,basetemp)),maxtemp)
 
   end function heat_units
 
@@ -419,20 +595,20 @@ write(60,*) ' crop%fVU(i):', crop%fVU(i)
 
 
   ! Leaves
-  function Calloc_leaves(fPHU,fPHU_flowering,Calloc_end,fCalloc_init,fCalloc_flowering) result(fCalloc)
+  function Calloc_leaves(fPHU,fPHU_bpt,Calloc_end,fCalloc_init,fCalloc_bpt) result(fCalloc)
 
-    real(dp), intent(in) :: fPHU              ! fraction of phenological heat units
-    real(dp), intent(in) :: fPHU_flowering    ! fPHU at flowering (usually 0.5)
-    real(dp), intent(in) :: Calloc_end        ! developmental stage (fPHU) at which fCalloc reaches 0
-    real(dp), intent(in) :: fCalloc_init      ! initial fraction of C allocation (at fPHU=0)
-    real(dp), intent(in) :: fCalloc_flowering ! fCalloc to leaves at flowering
+    real(dp), intent(in) :: fPHU           ! fraction of phenological heat units
+    real(dp), intent(in) :: fPHU_bpt       ! fPHU at breakpoint
+    real(dp), intent(in) :: Calloc_end     ! developmental stage (fPHU) at which fCalloc reaches 0
+    real(dp), intent(in) :: fCalloc_init   ! initial fraction of C allocation (at fPHU=0)
+    real(dp), intent(in) :: fCalloc_bpt    ! fCalloc to leaves at breakpoint
     real(dp)             :: fCalloc
     
 
-    if (fPHU <= fPHU_flowering) then
-       fCalloc = fCalloc_init - 1.0_dp/fPHU_flowering*(fCalloc_init - fCalloc_flowering) * fPHU
-    else if (fPHU > fPHU_flowering .and. fPHU < Calloc_end) then
-       fCalloc = fCalloc_flowering - fCalloc_flowering/(Calloc_end - fPHU_flowering) * (fPHU - fPHU_flowering)
+    if (fPHU <= fPHU_bpt) then
+       fCalloc = fCalloc_init - 1.0_dp/fPHU_bpt*(fCalloc_init - fCalloc_bpt) * fPHU
+    else if (fPHU > fPHU_bpt .and. fPHU < Calloc_end) then
+       fCalloc = fCalloc_bpt - fCalloc_bpt/(Calloc_end - fPHU_bpt) * (fPHU - fPHU_bpt)
     else
        fCalloc = 0.0_dp
     endif

@@ -2,7 +2,7 @@ MODULE crop_def
 
   use cable_def_types_mod, only: dp => r_2
   use cable_common_module, only: filenames_type
-  
+  use casadimension,       only: mplant
   
   implicit none
 
@@ -27,6 +27,9 @@ MODULE crop_def
                                        ! is assumed to have failed
   real(dp), parameter :: DMtoC=0.475_dp         ! conversion dry matter to carbon
   real(dp), parameter :: fPHU_flowering=0.5_dp  ! fPHU at flowering
+  real(dp), parameter :: rCsen_Cgr=0.666_dp     ! ratio of carbon content in senescent and green leaves 
+  real(dp), parameter :: Rgcoeff=0.22_dp        ! growth respiration coefficient (see Lokupitiya et al. 2009)
+  real(dp), parameter :: fCleaf_mobile=0.5_dp   ! fraction of leaf C that is mobilised to products at senesc.
   
   ! types 
   type crop_type
@@ -44,6 +47,8 @@ MODULE crop_def
     
     ! Crop temperature requirements
     real, dimension(:), pointer :: Tbase     ! crop-specific base temperature
+    real, dimension(:), pointer :: Tmax      ! crop-specific max. temperature
+                                             ! (no further PHU accumulation above Tmax)
 
     ! Phenological heat units (PHU)
     real(dp), dimension(:), pointer :: PHU_germination  ! PHU (soil) until germination
@@ -61,10 +66,23 @@ MODULE crop_def
     ! Carbon allocation
     real(dp), dimension(:), pointer :: fCalloc_root_init  ! initial C allocation coefficient to roots at emergence
     real(dp), dimension(:), pointer :: fCalloc_leaf_init  ! initial C allocation coefficient to leaves at emergence
-    real(dp), dimension(:), pointer :: fCalloc_leaf_flow  ! C allocation coefficient to leaves at flowering
+    real(dp), dimension(:), pointer :: fCalloc_leaf_bpt   ! C allocation coefficient to leaves at first breakpoint
     real(dp), dimension(:), pointer :: Calloc_root_end    ! fPHU at which C allocation to roots stops
+    real(dp), dimension(:), pointer :: Calloc_leaf_bpt    ! fPHU at first breakpoint (leaves)
     real(dp), dimension(:), pointer :: Calloc_leaf_end    ! fPHU at which C allocation to leaves stops
     real(dp), dimension(:), pointer :: Calloc_prod_max    ! fPHU at which C allocation coefficient to products is 1
+    real(dp), dimension(:), pointer :: Cstem_mobile       ! Carbon pool in the stem that is used as mobile reserves
+    
+
+    ! Senescence and remobilisation
+    real(dp), dimension(:),   pointer :: fCstem_mobile   ! fraction of C in the stem that goes to mobile reserves 
+    real(dp), dimension(:,:), pointer :: Cmax        ! max. C stored in plant pools
+    real(dp), dimension(:),   pointer :: Cmaxstemmob ! max. C stored in mobile reserves of stem
+    real(dp), dimension(:),   pointer :: fmobilise ! fraction of C mobilised from stem to products
+    real(dp), dimension(:),   pointer :: fsenesc  ! fraction of the crop canopy that is senescent (0-1)
+    real(dp), dimension(:),   pointer :: LAItot   ! total (green + brown) LAI
+    real(dp), dimension(:),   pointer :: LAIsen   ! senescent (brown) LAI
+    real(dp), dimension(:),   pointer :: drsen    ! exponent in leaf senescence function
     
     ! Sowing dates (DOY)
     integer, dimension(:), pointer  :: sowing_doymin ! earliest sowing date
@@ -131,6 +149,7 @@ Contains
              crop%vernalisation(ncmax),     &
              crop%photoperiodism(ncmax),    &
              crop%Tbase(ncmax),             &
+             crop%Tmax(ncmax),              &
              crop%PHU_germination(ncmax),   &
              crop%fPHU_emergence(ncmax),    &
              crop%PHU_maturity(ncmax),      &
@@ -140,10 +159,20 @@ Contains
              crop%vacc(ncmax),              &
              crop%fCalloc_root_init(ncmax), &
              crop%fCalloc_leaf_init(ncmax), &
-             crop%fCalloc_leaf_flow(ncmax), &
+             crop%fCalloc_leaf_bpt(ncmax),  &
              crop%Calloc_root_end(ncmax),   &
+             crop%Calloc_leaf_bpt(ncmax),   &
              crop%Calloc_leaf_end(ncmax),   &
              crop%Calloc_prod_max(ncmax),   &
+             crop%Cstem_mobile(ncmax),      &
+             crop%fCstem_mobile(ncmax),     &
+             crop%Cmax(ncmax,mplant),       &
+             crop%Cmaxstemmob(ncmax),       &
+             crop%fmobilise(ncmax),         &
+             crop%fsenesc(ncmax),           &
+             crop%LAItot(ncmax),            &
+             crop%LAIsen(ncmax),            &
+             crop%drsen(ncmax),             &
              crop%sowing_doymin(ncmax),     &
              crop%sowing_doymax(ncmax),     &
              crop%sowing_doy(ncmax),        &
@@ -173,13 +202,14 @@ Contains
 
       ! Read actual parameter values
       read(40,*) vernalisation, photoperiodism
-      read(40,*) crop%Tbase(jcrop)
+      read(40,*) crop%Tbase(jcrop), crop%Tmax(jcrop)
       read(40,*) crop%PHU_germination(jcrop), crop%fPHU_emergence(jcrop)
       read(40,*) crop%PHU_maturity(jcrop)
-      read(40,*) crop%fCalloc_root_init(jcrop), crop%fCalloc_leaf_init(jcrop), crop%fCalloc_leaf_flow(jcrop)
-      read(40,*) crop%Calloc_root_end(jcrop), crop%Calloc_leaf_end(jcrop), crop%Calloc_prod_max(jcrop)
+      read(40,*) crop%fCalloc_root_init(jcrop), crop%fCalloc_leaf_init(jcrop), crop%fCalloc_leaf_bpt(jcrop)
+      read(40,*) crop%Calloc_root_end(jcrop), crop%Calloc_leaf_bpt(jcrop), crop%Calloc_leaf_end(jcrop), crop%Calloc_prod_max(jcrop)
+      read(40,*) crop%fCstem_mobile(jcrop)
       read(40,*) crop%Cseed(jcrop), crop%sowing_depth(jcrop), crop%Cplant_remove(jcrop)
-      read(40,*) crop%sla_maturity(jcrop), crop%sla_beta(jcrop)
+      read(40,*) crop%sla_maturity(jcrop), crop%sla_beta(jcrop), crop%drsen(jcrop)
 
       if (vernalisation > 0) then
          crop%vernalisation(jcrop) = .TRUE.
@@ -198,6 +228,13 @@ Contains
     crop%VU            = 0.0_dp
     crop%fVU           = 0.0_dp
     crop%vacc          = .FALSE.
+    crop%Cstem_mobile  = 0.0_dp
+    crop%Cmax          = 0.0_dp
+    crop%Cmaxstemmob   = 0.0_dp
+    crop%fmobilise     = 0.0_dp
+    crop%fsenesc       = 0.0_dp
+    crop%LAItot        = 0.0_dp
+    crop%LAIsen        = 0.0_dp
     crop%sowing_doymin = 270
     crop%sowing_doymax = 290
     crop%sowing_doy    = 0
