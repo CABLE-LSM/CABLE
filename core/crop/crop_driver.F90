@@ -23,40 +23,40 @@ SUBROUTINE crop_driver(ktau,ktauday,doy,climate,ssnow,soil,veg,casaflux,casamet,
   type(crop_type),           intent(inout) :: crop
   
   ! local
-  integer :: ic,sl  ! loop counters: crop type, soil layer
-  real(dp), dimension(nc)        :: fPHU_day
-  real(dp), dimension(nc)        :: SLA_C
+  integer  :: ic,sl  ! loop counters: crop type, soil layer
+  real(dp) :: fPHU_day
+  real(dp) :: SLA_C
   
   
-  do ic=1, nc   
+  do ic=1, nc
 write(70,*) 'DOY: ', doy
     if (crop%state(ic) == baresoil) then
       if (doy > crop%sowing_doymin(ic) .AND. doy < crop%sowing_doymax(ic)) then 
-         call sowing(doy,soil,crop)
+         call sowing(ic,doy,soil,crop)
 write(70,*) 'crop%state: ', crop%state
 write(70,*) 'crop%Tbase: ', crop%Tbase
       end if
 
     else if (crop%state(ic) == sown) then
-      call germination(doy,climate,ssnow,soil,crop)
+      call germination(ic,doy,climate,ssnow,soil,crop)
 casapool%Cplant(ic,:) = 0.0_dp ! shouldn't be needed here!! Check initialisation
 casamet%glai(ic) = 0.0_dp
 
     else if (crop%state(ic) == emergent .or. crop%state(ic) == growing) then
 
        ! update phenological heat units (start at 0 at germination!)
-       fPHU_day(ic)  = heat_units(climate%dtemp(ic),crop%Tbase(ic),crop%Tmax(ic)) / crop%PHU_maturity(ic)
-       crop%fPHU(ic) = crop%fPHU(ic) + fPHU_day(ic)
+       fPHU_day = heat_units(climate%dtemp(ic),crop%Tbase(ic),crop%Tmax(ic)) / crop%PHU_maturity(ic)
+       crop%fPHU(ic) = crop%fPHU(ic) + fPHU_day
 
        ! calculate SLA in m2 g-1 C
-       SLA_C(ic) = SLA_development(crop%fPHU(ic),crop%sla_maturity(ic),crop%sla_beta(ic)) / DMtoC
+       SLA_C = SLA_development(crop%fPHU(ic),crop%sla_maturity(ic),crop%sla_beta(ic)) / DMtoC
 
        if (crop%vernalisation(ic) .and. .not. crop%vacc(ic)) then
-         call vernalisation(climate,crop)
+         call vernalisation(ic,climate,crop)
        endif
 
        ! calculate C allocation factors
-       call C_allocation_crops(casaflux,crop)
+       call C_allocation_crops(ic,casaflux,crop)
 
        ! calculate growth respiration
        casaflux%Crgplant(ic) = sum(Rgcoeff * casaflux%fracCalloc(ic,:)) * casaflux%Cgpp(ic)
@@ -74,7 +74,7 @@ write(65,*) 'casaflux%fracCalloc(ic,:)', casaflux%fracCalloc(ic,:)
 
        if (crop%state(ic) == emergent) then
 
-         call emergence(doy,SLA_C,fPHU_day,veg,casaflux,casapool,casamet,crop)
+         call emergence(ic,doy,SLA_C,fPHU_day,veg,casaflux,casapool,casamet,crop)
 
        else if (crop%state(ic) == growing) then
 
@@ -88,9 +88,11 @@ write(70,*) 'fPHU_day: ', fPHU_day
 write(70,*) 'crop%fPHU: ', crop%fPHU
 
 
-         call senescence(fPHU_day,casamet,casapool,casaflux,crop)
+         call senescence(ic,fPHU_day,casamet,casapool,casaflux,crop)
 
-         call growth(SLA_C,veg,casaflux,casapool,casamet,crop)
+         call growth(ic,SLA_C,veg,casaflux,casapool,casamet,crop)
+
+         call irrigation(ic,veg,ssnow,soil,crop)
 
 write(70,*) 'casaflux%Cgpp: ', casaflux%Cgpp
 write(70,*) 'casaflux%Cnpp: ', casaflux%Cnpp
@@ -98,7 +100,7 @@ write(70,*) 'casamet%glai: ',  casamet%glai
           
          ! harvest if enough PHU accumulated
          if (crop%fPHU(ic) >= 1.0_dp) then
-            call harvest(doy,casapool,casamet,veg,crop)
+            call harvest(ic,doy,casapool,casamet,veg,crop)
 
             ! reset heat units and vernalisation requirements etc.
             crop%fPHU(ic)    = 0.0_dp

@@ -64,6 +64,8 @@ MODULE crop_def
     logical,  dimension(:), pointer :: vacc   ! true if vernalisation effects have been taken into account
 
     ! Carbon allocation
+    logical,  dimension(:), pointer :: dynamic_allocation ! dynamic C allocation? (i.e. allocation depends on soil
+                                                          ! moisture and nutrients)
     real(dp), dimension(:), pointer :: fCalloc_root_init  ! initial C allocation coefficient to roots at emergence
     real(dp), dimension(:), pointer :: fCalloc_leaf_init  ! initial C allocation coefficient to leaves at emergence
     real(dp), dimension(:), pointer :: fCalloc_leaf_bpt   ! C allocation coefficient to leaves at first breakpoint
@@ -73,7 +75,6 @@ MODULE crop_def
     real(dp), dimension(:), pointer :: Calloc_prod_max    ! fPHU at which C allocation coefficient to products is 1
     real(dp), dimension(:), pointer :: Cstem_mobile       ! Carbon pool in the stem that is used as mobile reserves
     
-
     ! Senescence and remobilisation
     real(dp), dimension(:),   pointer :: fCstem_mobile   ! fraction of C in the stem that goes to mobile reserves 
     real(dp), dimension(:,:), pointer :: Cmax        ! max. C stored in plant pools
@@ -157,6 +158,7 @@ Contains
              crop%VU(ncmax),                &
              crop%fVU(ncmax),               &
              crop%vacc(ncmax),              &
+             crop%dynamic_allocation(ncmax),&
              crop%fCalloc_root_init(ncmax), &
              crop%fCalloc_leaf_init(ncmax), &
              crop%fCalloc_leaf_bpt(ncmax),  &
@@ -228,6 +230,7 @@ Contains
     crop%VU            = 0.0_dp
     crop%fVU           = 0.0_dp
     crop%vacc          = .FALSE.
+    crop%dynamic_allocation = .FALSE.   ! to be moved to cable.nml, if possible!!
     crop%Cstem_mobile  = 0.0_dp
     crop%Cmax          = 0.0_dp
     crop%Cmaxstemmob   = 0.0_dp
