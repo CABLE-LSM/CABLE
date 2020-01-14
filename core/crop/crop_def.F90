@@ -22,7 +22,7 @@ MODULE crop_def
   integer, parameter :: emergent=2
   integer, parameter :: growing=3
 
-  
+  ! parameters related to carbon allocation etc.
   integer, parameter :: maxdays_ger=40 ! maximum days since sowing above which germination
                                        ! is assumed to have failed
   real(dp), parameter :: DMtoC=0.475_dp         ! conversion dry matter to carbon
@@ -30,6 +30,13 @@ MODULE crop_def
   real(dp), parameter :: rCsen_Cgr=0.666_dp     ! ratio of carbon content in senescent and green leaves 
   real(dp), parameter :: Rgcoeff=0.22_dp        ! growth respiration coefficient (see Lokupitiya et al. 2009)
   real(dp), parameter :: fCleaf_mobile=0.5_dp   ! fraction of leaf C that is mobilised to products at senesc.
+
+  ! parameters related to management
+  ! irrigation
+  real, parameter :: irrig_depth=0.5   ! soil depth used for calculation of irrigation demand (m)
+  real, parameter :: irrig_trigger=0.9 ! fraction of available soil moisture below which irrigation is triggered
+  real, parameter :: Firrig_loss=0.5   ! irrigation loss factor (0-1), integrative parameter
+                                       ! maybe rename to refill/irrigation efficiency or similar
   
   ! types 
   type crop_type
@@ -113,6 +120,14 @@ MODULE crop_def
     real(dp), dimension(:), pointer :: sla_beta         ! extinction cofficient in SLA formula
 
 
+    ! Management variables
+
+    !! Crop-related variables in other types:
+    ! canopy%irrig_surface   ! water added as irrigation directly to soil surface (mm)   
+    ! canopy%irrig_sprinkler ! water added as irrigation above canopy (mm) 
+    
+
+    
     
   end type crop_type
 

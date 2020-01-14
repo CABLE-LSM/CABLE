@@ -1123,6 +1123,9 @@ CONTAINS
     canopy%us = 0.1 ! friction velocity (needed in roughness before first call to canopy: should in be retart?
     canopy%fh    = 0.0  ! sensible heat flux
     canopy%fe    = 0.0  ! sensible heat flux
+    !! irrigation
+    canopy%irrig_surface   = 0.0  ! surface irrigation (mm)
+    canopy%irrig_sprinkler = 0.0  ! sprinkler irrigation (mm)
 
    !IF(hide%Ticket49Bug2) THEN
       canopy%ofes    = 0.0  ! latent heat flux from soil (W/m2)

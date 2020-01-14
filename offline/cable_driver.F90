@@ -845,6 +845,20 @@ PROGRAM cable_offline_driver
               ENDIF
               met%ofsd = met%fsd(:,1) + met%fsd(:,2)
               canopy%oldcansto = canopy%cansto
+
+              ! Sprinkler irrigation added to precip
+              ! surface/drip irrigation is added to canopy%through in cable_canopy.f90
+              ! only irrigate between 6am and 10am (maybe do not hardwire these numbers)
+              if (real(mod(ktau,ktauday)) >= 6.0/(24.0/real(ktauday)) .and. &
+                  real(mod(ktau,ktauday)) < 10.0/(24.0/real(ktauday))) then
+                 met%precip = met%precip + canopy%irrig_sprinkler/((10.0-6.0)/(24.0/real(ktauday)))
+              endif
+write(40,*) 'idoy:',  idoy 
+write(50,*) 'idoy:',  idoy       
+write(50,*) '  canopy%irrig_sprinkler:', canopy%irrig_sprinkler
+write(50,*) '  canopy%irrig_surface:', canopy%irrig_surface
+write(50,*) '  met%precip:', met%precip
+
               ! Zero out lai where there is no vegetation acc. to veg. index
               WHERE (veg%iveg(:) .GE. 14) veg%vlai = 0.
 
@@ -884,7 +898,7 @@ PROGRAM cable_offline_driver
 
                  IF (l_laiFeedbk .and. icycle>0) veg%vlai(:) = casamet%glai(:)
                  ! Call land surface scheme for this timestep, all grid points:
-                 CALL cbm(ktau, dels, air, bgc, canopy, met, &
+                 CALL cbm(ktau, ktauday, dels, air, bgc, canopy, met, &
                           bal, rad, rough, soil, ssnow, &
                           sum_flux, veg, climate)
                  ! 13C
@@ -992,8 +1006,10 @@ PROGRAM cable_offline_driver
                  IF (cable_user%CALL_CROP) THEN
                     casabiome%glaimin=0.01_r_2  ! temporary fix!
                     IF (mod(ktau,ktauday) == 0) THEN ! end of day
-write(70,*) 'canopy%fwsoil: ',  canopy%fwsoil
-                       CALL crop_driver(ktau,ktauday,idoy,climate,ssnow,soil,veg,casaflux, &
+write(50,*) '  canopy%fwsoil: ',  canopy%fwsoil
+write(50,*) '  ssnow%wb:', ssnow%wb
+write(50,*) '  soil%ssat,soil%sfc,soil%swilt:', soil%ssat,soil%sfc,soil%swilt
+                       CALL crop_driver(idoy,climate,ssnow,soil,veg,canopy,casaflux, &
                             casamet,casapool,crop)
                     ENDIF
                  ENDIF

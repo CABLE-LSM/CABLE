@@ -39,8 +39,8 @@ MODULE cable_cbm_module
 
 CONTAINS
 
-   SUBROUTINE cbm( ktau,dels, air, bgc, canopy, met,                                &
-                   bal, rad, rough, soil,                                      &
+   SUBROUTINE cbm( ktau, ktauday, dels, air, bgc, canopy, met,   &
+                   bal, rad, rough, soil,                        &
                    ssnow, sum_flux, veg, climate )
 
    USE cable_common_module
@@ -74,6 +74,7 @@ CONTAINS
 
    REAL, INTENT(IN)               :: dels ! time setp size (s)
    INTEGER, INTENT(IN) :: ktau
+   INTEGER, INTENT(IN) :: ktauday
    INTEGER :: k,kk,j
 
 #ifdef NO_CASA_YET
@@ -117,7 +118,7 @@ CONTAINS
    ssnow%otss = ssnow%tss
 
    ! Calculate canopy variables:
-   CALL define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy,climate)
+   CALL define_canopy(bal,rad,rough,air,met,dels,ktau,ktauday,ssnow,soil,veg,canopy,climate)
 
    ! write(*,*) 'hod, TVeg: ', met%hod(1), canopy%fevc(1), canopy%fwsoil(1)
    ! if (met%hod(1).gt.12.0) stop

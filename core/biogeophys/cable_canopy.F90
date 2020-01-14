@@ -57,7 +57,8 @@ MODULE cable_canopy_module
 CONTAINS
 
 
-  SUBROUTINE define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy,climate)
+  SUBROUTINE define_canopy(bal,rad,rough,air,met,dels,ktau,ktauday,ssnow,soil,veg, &
+                           canopy,climate)
     USE cable_def_types_mod
     USE cable_radiation_module
     USE cable_air_module
@@ -79,7 +80,11 @@ CONTAINS
     TYPE (veg_parameter_type), INTENT(INOUT)    :: veg
     !INTEGER, INTENT(IN) :: wlogn
 
-    REAL, INTENT(IN)               :: dels ! integration time setp (s)
+    REAL,    INTENT(IN)  :: dels    ! integration time setp (s)
+    INTEGER, INTENT(IN)  :: ktau    ! time step
+    INTEGER, INTENT(IN)  :: ktauday ! number of time steps per day
+
+    ! local
     INTEGER  ::                                                                 &
          iter,  & ! iteration #
          iterplus !
@@ -366,11 +371,11 @@ CONTAINS
                   (1.0-EXP(-min(0.5*rough%coexp(j)*canopy%vlaiw(j),20.0))) &
                   - gbhu(j,1)
 
-!if (mod(ktau,ktauday) == 24) then
+if (mod(ktau,ktauday) == 24) then
    write(45,*) 'rad%scalex(j,:):', rad%scalex(j,:)
    write(45,*) 'veg%vcmax_sun(j):', veg%vcmax_sun(j)
    write(45,*) 'veg%vcmax_shade(j):', veg%vcmax_shade(j)
-!endif
+endif
              if (cable_user%explicit_gm) then
                 ! JK: gmmax now comes from param file
                 !gmax0 = 2.47/10.1 ! molm-2s-1 
@@ -751,8 +756,21 @@ CONTAINS
 
     ! Move excess canopy water to throughfall:
     ! %through is /dels in UM app. (unpacked in hyd driver) for STASH output
-    canopy%through = canopy%through + canopy%spill
 
+    ! determine irrigation per time step
+    ! sprinkler irrigation is added to met%precip in cable_driver.f90
+    ! only irrigate between 6am and 10am (maybe do not hardwire these numbers)
+    if (real(mod(ktau,ktauday)) >= 6.0/(24.0/real(ktauday)) .and. &
+        real(mod(ktau,ktauday)) < 10.0/(24.0/real(ktauday))) then
+       canopy%through = canopy%through + canopy%spill + canopy%irrig_surface/((10.0-6.0)/(24.0/real(ktauday)))
+    else 
+       canopy%through = canopy%through + canopy%spill
+    endif
+    
+write(40,*) 'met%precip:', met%precip
+write(40,*) 'canopy%through:', canopy%through
+write(40,*) 'canopy%spill:', canopy%spill
+write(40,*) 'canopy%irrig_surface:', canopy%irrig_surface
     ! Initialise 'throughfall to soil' as 'throughfall from canopy';
     ! snow may absorb
     canopy%precis = max(0.,canopy%through)

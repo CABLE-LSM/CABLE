@@ -386,7 +386,9 @@ MODULE cable_def_types_mod
          uscrn,   & ! wind speed at screen height (m/s)
          vlaiw,   & ! lai adj for snow depth for calc of resistances
          rghlai,  & ! lai adj for snow depth for calc of resistances
-         fwet       ! fraction of canopy wet
+         fwet,    & ! fraction of canopy wet
+         irrig_surface,  &  ! irrigation applied directly to soil surface (mm)
+         irrig_sprinkler    ! irrigation applied above canopy (mm)
                
       REAL, DIMENSION(:,:), POINTER ::                                         &
          evapfbl, &
@@ -1072,6 +1074,8 @@ SUBROUTINE alloc_canopy_type(var, mp)
    ALLOCATE( var% rghlai(mp) )
    ALLOCATE( var% vlaiw(mp) )
    ALLOCATE( var% fwet(mp) )
+   ALLOCATE( var% irrig_surface(mp) )
+   ALLOCATE( var% irrig_sprinkler(mp) )
    ALLOCATE( var% A_sh(mp) )
    ALLOCATE( var% A_sl(mp) )
    ALLOCATE( var% A_slC(mp) )
@@ -1703,6 +1707,8 @@ SUBROUTINE dealloc_canopy_type(var)
    DEALLOCATE( var% rghlai )
    DEALLOCATE( var% vlaiw )
    DEALLOCATE( var% fwet )
+   DEALLOCATE( var% irrig_surface )
+   DEALLOCATE( var% irrig_sprinkler )
    DEALLOCATE( var% A_sh )
    DEALLOCATE( var% A_sl )
    DEALLOCATE( var% A_slC )

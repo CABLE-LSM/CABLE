@@ -1,4 +1,4 @@
-SUBROUTINE crop_driver(ktau,ktauday,doy,climate,ssnow,soil,veg,casaflux,casamet,&
+SUBROUTINE crop_driver(doy,climate,ssnow,soil,veg,canopy,casaflux,casamet, &
                        casapool,crop)
 
   use crop_def,            only: crop_type, nc, baresoil, sown, emergent, growing, &
@@ -6,17 +6,16 @@ SUBROUTINE crop_driver(ktau,ktauday,doy,climate,ssnow,soil,veg,casaflux,casamet,
   use crop_module
   use casavariable,        only: casa_flux, casa_met, casa_pool
   use cable_def_types_mod, only: climate_type, soil_snow_type, soil_parameter_type, &
-                                 veg_parameter_type, dp => r_2
+                                 veg_parameter_type, canopy_type, dp => r_2
 
   implicit none
-  
-  integer,                   intent(in)    :: ktau
-  integer,                   intent(in)    :: ktauday
+
   integer,                   intent(in)    :: doy
   type(climate_type),        intent(in)    :: climate
   type(soil_snow_type),      intent(in)    :: ssnow
   type(soil_parameter_type), intent(in)    :: soil
   type(veg_parameter_type),  intent(inout) :: veg
+  type(canopy_type),         intent(inout) :: canopy
   type(casa_flux),           intent(inout) :: casaflux
   type(casa_met),            intent(inout) :: casamet
   type(casa_pool),           intent(inout) :: casapool
@@ -31,14 +30,15 @@ SUBROUTINE crop_driver(ktau,ktauday,doy,climate,ssnow,soil,veg,casaflux,casamet,
   do ic=1, nc
 write(70,*) 'DOY: ', doy
     if (crop%state(ic) == baresoil) then
-      if (doy > crop%sowing_doymin(ic) .AND. doy < crop%sowing_doymax(ic)) then 
+      if (doy > crop%sowing_doymin(ic) .and. doy < crop%sowing_doymax(ic)) then 
          call sowing(ic,doy,soil,crop)
 write(70,*) 'crop%state: ', crop%state
 write(70,*) 'crop%Tbase: ', crop%Tbase
       end if
 
     else if (crop%state(ic) == sown) then
-      call germination(ic,doy,climate,ssnow,soil,crop)
+       call germination(ic,doy,climate,ssnow,soil,crop)
+       call irrigation(ic,ssnow,soil,canopy)
 casapool%Cplant(ic,:) = 0.0_dp ! shouldn't be needed here!! Check initialisation
 casamet%glai(ic) = 0.0_dp
 
@@ -78,7 +78,7 @@ write(65,*) 'casaflux%fracCalloc(ic,:)', casaflux%fracCalloc(ic,:)
 
        else if (crop%state(ic) == growing) then
 
-          write(60,*) 'doy:', doy
+write(60,*) 'doy:', doy
 write(60,*) '  casaflux%Cgpp(ic):', casaflux%Cgpp(ic)
 write(60,*) '  sum(casaflux%Crmplant(ic,:)): ', sum(casaflux%Crmplant(ic,:))
 write(60,*) '  casaflux%Crgplant(ic): ', casaflux%Crgplant(ic)
@@ -91,8 +91,6 @@ write(70,*) 'crop%fPHU: ', crop%fPHU
          call senescence(ic,fPHU_day,casamet,casapool,casaflux,crop)
 
          call growth(ic,SLA_C,veg,casaflux,casapool,casamet,crop)
-
-         call irrigation(ic,veg,ssnow,soil,crop)
 
 write(70,*) 'casaflux%Cgpp: ', casaflux%Cgpp
 write(70,*) 'casaflux%Cnpp: ', casaflux%Cnpp
@@ -108,8 +106,16 @@ write(70,*) 'casamet%glai: ',  casamet%glai
             crop%VU(ic)      = 0.0_dp
             crop%fVU(ic)     = 0.0_dp
             crop%vacc(ic)    = .FALSE.
+
+            ! reset management settings
+            canopy%irrig_surface(ic)   = 0.0
+            canopy%irrig_sprinkler(ic) = 0.0
+            
          end if
-       end if
+       end if ! crop%state == growing
+
+         call irrigation(ic,ssnow,soil,canopy)
+      
      end if 
    end do
  

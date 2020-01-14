@@ -1,9 +1,11 @@
 MODULE crop_module
 
   use cable_def_types_mod,  only: climate_type, soil_snow_type, soil_parameter_type, &
-                                  veg_parameter_type, dp => r_2
+                                  veg_parameter_type, canopy_type, dp => r_2
   use crop_def,             only: crop_type, nc, maxdays_ger, fPHU_flowering, rCsen_Cgr, &
-                                  fCleaf_mobile, DMtoC, baresoil, sown, emergent, growing
+                                  fCleaf_mobile, DMtoC, &
+                                  irrig_depth, irrig_trigger, Firrig_loss, &
+                                  baresoil, sown, emergent, growing
   use casavariable,         only: casa_flux, casa_met, casa_pool
   use casadimension,        only: mplant
   use casaparm,             only: froot,wood,leaf,product, &   ! cpool
@@ -180,6 +182,32 @@ write(60,*) '  veg%hc(i):', veg%hc(i)
       
   end subroutine emergence
 
+
+
+  
+  subroutine vernalisation(i,climate,crop)
+
+    integer,             intent(in)        :: i       ! crop type
+    type (climate_type), intent(in)        :: climate
+    type (crop_type),    intent(inout)     :: crop 
+
+    ! local
+    real :: VU_day ! daily accumulated vernalisation unit
+
+    VU_day = vernalisation_rate(climate%dtemp(i))
+    crop%VU(i) = crop%VU(i) + real(VU_day,dp) 
+    crop%fVU(i) = min((crop%VU(i)**5.0_dp) / (22.5_dp**5.0_dp + crop%VU(i)**5.0_dp),1.0_dp)
+write(60,*) ' crop%fVU(i):', crop%fVU(i)
+      
+    if (crop%fPHU(i) >= 0.45_dp) then
+       crop%fPHU(i) = crop%fPHU(i) * crop%fVU(i) ! alternative: increase fPHU_maturity.
+       ! also affects C allocation to grains!!
+       crop%vacc(i) = .TRUE.        
+    endif
+      
+  end subroutine vernalisation
+
+  
   
 
   subroutine growth(i,SLA_C,veg,casaflux,casapool,casamet,crop)
@@ -413,28 +441,63 @@ write(60,*) '  casaflux%Cnpp2:', casaflux%Cnpp
   !----------------------------
   ! Management subroutines ----
   !----------------------------  
-  subroutine irrigation(i,veg,ssnow,soil,crop)
+  subroutine irrigation(i,ssnow,soil,canopy)
     ! irrigate whenever soil moisture falls below field capacity
 
-    integer,                   intent(in)    :: i       ! crop type
-    type(veg_parameter_type),  intent(in)    :: veg
+    integer,                   intent(in)    :: i     ! crop type
     type(soil_snow_type),      intent(in)    :: ssnow
     type(soil_parameter_type), intent(in)    :: soil
-    type(crop_type),           intent(inout) :: crop
+    type(canopy_type),         intent(inout) :: canopy
 
     ! local
-    real(dp) :: missing
-write(50,*) 'ssnow%wb:', ssnow%wb
-write(50,*) 'soil%ssat,soil%sfc,soil%swilt:', soil%ssat,soil%sfc,soil%swilt   
-
-    ! check where roots are growing
-    !veg%zr()
-
-! 2) determine missing water for this region
-! 3) check results: fwsoil should be close to 1, runoff should not be significantly increased
-    missing = (soil%sfc(1) * sum(soil%zse(1:3))*1000._dp) - sum(ssnow%wb(1,1:3))    ! missing water in mm
+    integer  :: s,sl   ! soil layers
+    real, dimension(size(soil%zse)) :: cumzse ! cumulative soil layer depths (bottom) (m)
+    real :: irrig_demand ! total irrigation demand for the next day (mm/d)
+    real :: wb_mean      ! mean soil moisture (m3/m3) in soil columns used for calc. irrg. demand
+    real :: wb_avail     ! plant available soil moisture (0-1)  
     
-write(50,*) 'missing:', missing      
+    ! determine soil layers within irrig_depth (1:sl) 
+    ! all soil layers until sl are used for calculation of irrigation demand
+    cumzse(:) = soil%zse(1)
+    sl = 1
+    do while (cumzse(sl) < irrig_depth)
+       cumzse(sl+1) = cumzse(sl) + soil%zse(sl+1)
+       sl = sl + 1
+    end do
+
+    ! determine soil moisture in layers 1:sl
+    wb_mean = 0.0
+    do s=1,sl
+       wb_mean = wb_mean + (ssnow%wb(i,s) * soil%zse(s))
+    end do
+    wb_mean = wb_mean / cumzse(sl)
+
+
+    ! available soil moisture in layers 1:sl
+    wb_avail = max(0.0, min(1.0, (wb_mean - soil%swilt(i)) / (soil%sfc(i)-soil%swilt(i))))
+    
+    
+    ! determine total irrigation demand based on available soil moisture in layers 1:sl
+    ! and a irrigation loss factor (0-1)
+    irrig_demand = 0.0
+    if (wb_avail < irrig_trigger) then  ! trigger for irrigation
+       do s=1,sl
+          irrig_demand = irrig_demand + max(0.0, ((Firrig_loss * (soil%ssat(i) * soil%zse(s)) + &
+                                                  (1.0 - Firrig_loss) * (soil%sfc(i) * soil%zse(s))) - &
+                                                  ssnow%wb(i,s) * soil%zse(s)) * 1000.0)
+       !irrig_demand = max(0.0, ((soil%sfc(i) - wb_mean) * cumzse(sl) * 1000.0) / irrig_eff)
+       !irrig_demand = irrig_demand + max(0.0, ((soil%sfc(i) * soil%zse(s)) - (ssnow%wb(i,s) * soil%zse(s))) * 1000.0)
+       end do
+    endif
+
+    
+    ! split up irrigation in surface and sprinkler
+    ! 'all or nothing' application would probably make more sense than a fraction
+    ! for now, apply everything as surface irrigation
+    canopy%irrig_surface(i) = 0.0   ! mm/d; IMPORTANT: ensure agreement among tile indices!!!
+    canopy%irrig_sprinkler(i) = irrig_demand
+    
+write(50,*) 'irrig_demand:', irrig_demand   
     
   end subroutine irrigation
 
@@ -489,32 +552,7 @@ write(60,*) '  Cstemleaf_removed:', Cstemleaf_removed
 write(60,*) '  casapool%Clitter(i,str)_AFTER:', casapool%Clitter(i,str)   
     
   end subroutine harvest
-    
-
-
-  
-  subroutine vernalisation(i,climate,crop)
-
-    integer,             intent(in)        :: i       ! crop type
-    type (climate_type), intent(in)        :: climate
-    type (crop_type),    intent(inout)     :: crop 
-
-    ! local
-    real :: VU_day ! daily accumulated vernalisation unit
-
-    VU_day = vernalisation_rate(climate%dtemp(i))
-    crop%VU(i) = crop%VU(i) + real(VU_day,dp) 
-    crop%fVU(i) = min((crop%VU(i)**5.0_dp) / (22.5_dp**5.0_dp + crop%VU(i)**5.0_dp),1.0_dp)
-write(60,*) ' crop%fVU(i):', crop%fVU(i)
-      
-    if (crop%fPHU(i) >= 0.45_dp) then
-       crop%fPHU(i) = crop%fPHU(i) * crop%fVU(i) ! alternative: increase fPHU_maturity.
-       ! also affects C allocation to grains!!
-       crop%vacc(i) = .TRUE.        
-    endif
-      
-  end subroutine vernalisation
-
+ 
 
   
 
