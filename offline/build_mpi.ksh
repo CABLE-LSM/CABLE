@@ -1,17 +1,15 @@
 #!/bin/ksh
 
-export dosvn=1 # 1/0: do/do not check svn
+export dosvn=0 # 1/0: do/do not check svn
 
-# so that script can be called by bash buils.ksh if no ksh installed
-if [ "${SHELL}" == "/bin/bash" ] ; then
-    function print(){
-	printf "$@"
-    }
+# so that script can be called by 'bash build.ksh' if no ksh installed
+if [ -z ${PS3} ] ; then # https://stackoverflow.com/questions/3327013/how-to-determine-the-current-shell-im-working-on
+    eval 'function print(){ printf "$@\n"; }'
 fi
 
 known_hosts()
 {
-    if [ "${SHELL}" == "/bin/bash" ] ; then
+    if [ -z ${PS3} ] ; then
 	kh=(kh cher burn shin raij pear mcin vm_o)
     else
 	set -A kh cher burn shin raij pear mcin vm_o
@@ -31,13 +29,13 @@ host_raij()
    export NCDIR=$NETCDF_ROOT'/lib/Intel'
    export NCMOD=$NETCDF_ROOT'/include/Intel'
    export FC='mpif90'
-  export CFLAGS='-O2 -fp-model precise -fpp -xCORE-AVX2'
-  # export CFLAGS='-O3 -fp-model precise -g -debug all -traceback'
-  #  export CFLAGS='  -g -debug -traceback -fpp  -check all,noarg_temp_created -fp-stack-check -O2 -debug -fpe0 -no-ftz -ftrapuv -fpstkchk  -xCORE-AVX2'
+   export CFLAGS='-O2 -fp-model precise -fpp -xCORE-AVX2'
+   # export CFLAGS='-O3 -fp-model precise -g -debug all -traceback'
+   #  export CFLAGS='  -g -debug -traceback -fpp  -check all,noarg_temp_created -fp-stack-check -O2 -debug -fpe0 -no-ftz -ftrapuv -fpstkchk  -xCORE-AVX2'
 
-   #export CFLAGS='-O0 -traceback -g -debug -fp-model precise -ftz -fpe0 -check all,noarg_temp_created -fp-stack-check -no-ftz -ftrapuv'
+   # export CFLAGS='-O0 -traceback -g -debug -fp-model precise -ftz -fpe0 -check all,noarg_temp_created -fp-stack-check -no-ftz -ftrapuv'
    if [[ $1 = 'debug' ]]; then
-      #export CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0'
+      # export CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0'
       export CFLAGS='  -g -debug -traceback -fpp -check all,noarg_temp_created -fp-stack-check -O0 -debug -fpe=0 -fpe-all=0 -no-ftz -ftrapuv'
    fi
    export LDFLAGS='-L'$NCDIR' -O2 -xCORE-AVX2'
@@ -98,12 +96,12 @@ host_cher()
 ## pearcey.hpsc.csiro.au 
 host_pear()
 {
-#    export LD_PRELOAD=/apps/netcdf/4.3.3/lib/libnetcdf.so
-#    export LD_PRELOAD=/apps/openmpi/1.8.4/lib/libopen-rte.so.7:/apps/openmpi/1.8.4/lib/libopen-pal.so.6
+    #    export LD_PRELOAD=/apps/netcdf/4.3.3/lib/libnetcdf.so
+    #    export LD_PRELOAD=/apps/openmpi/1.8.4/lib/libopen-rte.so.7:/apps/openmpi/1.8.4/lib/libopen-pal.so.6
    . /apps/modules/Modules/default/init/ksh
 
-#   module add netcdf/4.3.3.1 openmpi/1.7.5
-#   module add netcdf/4.3.3.1 openmpi/1.8.8 
+   #   module add netcdf/4.3.3.1 openmpi/1.7.5
+   #   module add netcdf/4.3.3.1 openmpi/1.8.8 
 
    module del intel-cc intel-fc
    module add intel-cc/16.0.1.150 intel-fc/16.0.1.150
@@ -112,19 +110,19 @@ host_pear()
    export NCDIR=$NETCDF_ROOT'/lib/'
    export NCMOD=$NETCDF_ROOT'/include/'
    export FC='mpifort' #'mpif90'
-   #export CFLAGS='-O2 -fp-model precise -fpp'
-#   export CFLAGS='-O0 -C'
-#   best settings for debugging
-#   export CFLAGS='-O0 -C -g -debug all -traceback -check all,noarg_temp_created, -C  '
-#   export CFLAGS='-O0 '
+   # export CFLAGS='-O2 -fp-model precise -fpp'
+   #   export CFLAGS='-O0 -C'
+   # best settings for debugging
+   #   export CFLAGS='-O0 -C -g -debug all -traceback -check all,noarg_temp_created, -C  '
+   #   export CFLAGS='-O0 '
 
-   export CFLAGS='-O0 -fp-model precise -g -debug -traceback -fpp '
+    export CFLAGS='-O0 -fp-model precise -g -debug -traceback -fpp '
     export CFLAGS="${CFLAGS} -DCRU2018"
-#   export CFLAGS='-O0 -fp-model precise -g -debug all -traceback -fpe0 '
-#   export CFLAGS='  -g -debug -traceback -fp-stack-check -O0 -debug -fpe0 -no-ftz -ftrapuv'
+    #   export CFLAGS='-O0 -fp-model precise -g -debug all -traceback -fpe0 '
+    #   export CFLAGS='  -g -debug -traceback -fp-stack-check -O0 -debug -fpe0 -no-ftz -ftrapuv'
 
-#   best debugg flags
-#   export LDFLAGS='-g -L'$NCDIR  #'-L'$NCDIR' -O2'
+    # best debugg flags
+    #   export LDFLAGS='-g -L'$NCDIR  #'-L'$NCDIR' -O2'
    export LDFLAGS='-O0 -L'$NCDIR''
    export MFLAGS='-j 8'
    export LD='-lnetcdf -lnetcdff'
@@ -155,7 +153,7 @@ host_mcin()
     if [[ ${iintel} -eq 1 ]] ;  then
 	# INTEL
 	/opt/intel/compilers_and_libraries/mac/bin/compilervars.sh intel64
-	export FC=/usr/local/openmpi-3.1.4-ifort/bin/mpif90
+	export FC=/usr/local/openmpi-3.1.5-ifort/bin/mpifort
 	# release
 	export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
 	if [[ ${idebug} -eq 1 ]] ; then
@@ -164,9 +162,12 @@ host_mcin()
 	fi
 	export LD=''
 	export NCROOT='/usr/local/netcdf-fortran-4.4.5-ifort'
+	export cdir='.mpitmp-ifort'
+	export PROG=cable-mpi-ifort
+	export CFLAGS="${CFLAGS} -DINTEL -DINTEL_COMPILER"
     else
         # GFORTRAN
-	export FC=/usr/local/openmpi-3.1.4-gfortran/bin/mpif90
+	export FC=/usr/local/openmpi-3.1.4-gfortran/bin/mpifort
 	# release
 	export CFLAGS="-O3 -Wno-aggressive-loop-optimizations -cpp -ffree-form -ffixed-line-length-132"
 	if [[ ${idebug} -eq 1 ]] ; then
@@ -175,6 +176,9 @@ host_mcin()
 	fi
 	export LD=''
 	export NCROOT='/usr/local/netcdf-fortran-4.4.5-gfortran'
+	export cdir='.mpitmp-gfortran'
+	export PROG=cable-mpi-gfortran
+	export CFLAGS="${CFLAGS} -DGFORTRAN -DgFortran"
     fi
     # export CFLAGS="${CFLAGS} -DC13DEBUG"
     export CFLAGS="${CFLAGS} -DCRU2017"
@@ -195,12 +199,12 @@ host_mcin()
     export NCCLIB=${NCCROOT}'/lib'
     export NCLIB=${NCROOT}'/lib'
     export NCMOD=${NCROOT}'/include'
-    export LDFLAGS="-L${NCCLIB} -L${NCLIB} -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz"
+    export LDFLAGS="-L${NCLIB} -lnetcdff -L${NCCLIB} -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz"
     export dosvn=0
-    # export MFLAGS='-j 8'
-    build_build
+    export MFLAGS='-j 8'
+    build_build ${cdir} ${PROG}
     cd ../
-    build_status
+    build_status ${cdir} ${PROG}
 }
 
 
@@ -381,7 +385,7 @@ clean_build()
       print '\ncleaning up\n'
       print '\n\tPress Enter too continue buiding, Control-C to abort now.\n'
       read dummy 
-      rm -fr .mpitmp
+      rm -fr .mpitmp*
 }
 
 
@@ -460,7 +464,7 @@ not_recognized()
 
 do_i_no_u()
 {
-   if [ "${SHELL}" == "/bin/bash" ] ; then
+   if [ -z ${PS3} ] ; then
        kmax=${#kh[*]}
        k=0
    else
@@ -482,8 +486,11 @@ do_i_no_u()
 
 build_status()
 {
-   if [[ -f .mpitmp/cable-mpi ]]; then
-   	mv .mpitmp/cable-mpi .
+   if [[ $# -gt 0 ]] ; then export cdir="${1}" ; else export cdir='.mpitmp' ; fi
+   if [[ $# -gt 1 ]] ; then export PROG="${2}" ; else export PROG='cable-mpi' ; fi
+
+   if [[ -f ${cdir}/${PROG} ]]; then
+   	mv ${cdir}/${PROG} .
    	print '\nBUILD OK\n'
    else
       print '\nOooops. Something went wrong\n'        
@@ -491,6 +498,7 @@ build_status()
       print '\nSome systems require additional library. \n'        
       print '\nEdit Makefile_offline; add -lnetcdff to LD = ...\n'        
    fi
+   
    exit
 }
 
@@ -524,14 +532,17 @@ build_build()
        CABLE_STAT=`svn status`
        print $CABLE_STAT >> ~/.cable_rev
    fi
- 
-   if [[ ! -d .mpitmp ]]; then
-      mkdir .mpitmp
+
+   if [[ $# -gt 0 ]] ; then export cdir="${1}" ; else export cdir='.mpitmp' ; fi
+   if [[ $# -gt 1 ]] ; then export PROG="${2}" ; else export PROG='cable-mpi' ; fi
+       
+   if [[ ! -d ${cdir} ]]; then
+      mkdir ${cdir}
    fi
    
-   if [[ -f cable-mpi ]]; then
+   if [[ -f ${PROG} ]]; then
       print '\ncable-mpi executable exists. copying to a dated backup file\n' 
-      mv cable-mpi cable-mpi.`date +%d.%m.%y`
+      mv ${PROG} ${PROG}.`date +%d.%m.%y`
    fi
    
    # directories contain source code
@@ -541,16 +552,16 @@ build_build()
    CASA="../core/biogeochem"
    BLAZE="../core/blaze"
    
-   /bin/cp -p $PHYS/*90  ./.mpitmp
-   /bin/cp -p $UTIL/*90  ./.mpitmp
-   /bin/cp -p $DRV/*90   ./.mpitmp
-   /bin/cp -p $CASA/*90  ./.mpitmp
-   /bin/cp -p $BLAZE/*90 ./.mpitmp
+   /bin/cp -p $PHYS/*90  ./${cdir}
+   /bin/cp -p $UTIL/*90  ./${cdir}
+   /bin/cp -p $DRV/*90   ./${cdir}
+   /bin/cp -p $CASA/*90  ./${cdir}
+   /bin/cp -p $BLAZE/*90 ./${cdir}
        
-   /bin/cp -p Makefile_mpi ./.mpitmp
+   /bin/cp -p Makefile_mpi ./${cdir}
    
-   cd .mpitmp/
-   make -f Makefile_mpi ${MFLAGS}
+   cd ${cdir}/
+   make -f Makefile_mpi ${MFLAGS} PROG=${PROG}
 }
 
 

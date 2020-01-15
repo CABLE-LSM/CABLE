@@ -256,8 +256,6 @@ CONTAINS
     type(c13o2_flux)  :: c13o2flux
     type(c13o2_pool)  :: c13o2pools, sum_c13o2pools
     type(c13o2_luc)   :: c13o2luc
-    real(r_2), dimension(:,:), allocatable :: casasave
-    real(r_2), dimension(:,:), allocatable :: lucsave
     ! I/O
     integer :: c13o2_outfile_id
     character(len=20), dimension(c13o2_nvars_output) :: c13o2_vars
@@ -342,11 +340,11 @@ CONTAINS
     mp = 0
 
     ! Open, read and close the namelist file.
-    OPEN( 10, FILE = CABLE_NAMELIST )
-    READ( 10, NML=CABLE )   !where NML=CABLE defined above
+    OPEN(10, FILE=CABLE_NAMELIST)
+    READ(10, NML=CABLE)   !where NML=CABLE defined above
     CLOSE(10)
 
-    IF( IARGC() > 0 ) THEN
+    IF (IARGC() > 0) THEN
        CALL GETARG(1, filename%met)
        CALL GETARG(2, casafile%cnpipool)
     ENDIF
@@ -361,9 +359,9 @@ CONTAINS
     ! or perhaps use MPI-IO - but probably not gonna work with random length
     ! text strings)
     ! LN: Done!
-    IF ( CABLE_USER%LogWorker ) THEN
-       CALL MPI_Comm_rank (comm, rank, ierr)
-       WRITE(cRank,FMT='(I4.4)')rank
+    IF (CABLE_USER%LogWorker) THEN
+       CALL MPI_Comm_rank(comm, rank, ierr)
+       WRITE(cRank,FMT='(I4.4)') rank
        wlogn = 1000+rank
        OPEN(wlogn,FILE="cable_log_"//cRank,STATUS="REPLACE")
     ELSE
@@ -375,12 +373,12 @@ CONTAINS
 
     CurYear = CABLE_USER%YearStart
 
-    IF ( icycle .GE. 11 ) THEN
+    IF (icycle .GE. 11) THEN
        icycle                     = icycle - 10
        CASAONLY                   = .TRUE.
        CABLE_USER%CASA_DUMP_READ  = .TRUE.
        CABLE_USER%CASA_DUMP_WRITE = .FALSE.
-    ELSEIF ( icycle .EQ. 0 ) THEN
+    ELSEIF (icycle .EQ. 0) THEN
        CABLE_USER%CASA_DUMP_READ  = .FALSE.
        spincasa                   = .FALSE.
        CABLE_USER%CALL_POP        = .FALSE.
@@ -462,11 +460,13 @@ CONTAINS
     !                       C%TFRZ )
 
     ! Check for leap-year settings
+    print*, 'WORKER Receive 01'
     CALL MPI_Bcast(leaps, 1, MPI_LOGICAL, 0, comm, ierr)
+    print*, '                 ', leaps
 
     ktau_tot = 0
     SPINLOOP:DO
-       YEARLOOP: DO YYYY= CABLE_USER%YearStart,  CABLE_USER%YearEnd
+       YEARLOOP: DO YYYY=CABLE_USER%YearStart, CABLE_USER%YearEnd
           CurYear = YYYY
           IF ( leaps .AND. IS_LEAPYEAR( YYYY ) ) THEN
              LOY = 366
@@ -476,27 +476,34 @@ CONTAINS
 
           IF ( CALL1 ) THEN
              IF (.NOT.spinup)   spinConv=.TRUE.
-             ! MPI: bcast to workers so that they don't need to open the met
-             ! file themselves
+             ! MPI: bcast to workers so that they don't need to open the met file themselves
+             print*, 'WORKER Receive 02'
              CALL MPI_Bcast(dels, 1, MPI_REAL, 0, comm, ierr)
+             print*, '                 ', dels
           ENDIF
 
           ! MPI: receive from master ending time fields
+          print*, 'WORKER Receive 03'
           CALL MPI_Bcast(kend, 1, MPI_INTEGER, 0, comm, ierr)
+          print*, '                 ', kend
 
           IF ( CALL1 ) THEN
              ! MPI: need to know extents before creating datatypes
              CALL find_extents()
 
              ! MPI: receive decomposition info from the master
+             print*, 'WORKER Receive 04 comm'
              call worker_decomp(comm)
 
              ! MPI: in overlap version sends and receives occur on separate comms
+             print*, 'WORKER Receive 05 icomm'
              CALL MPI_Comm_dup(comm, icomm, ierr)
+             print*, 'WORKER Receive 06 ocomm'
              CALL MPI_Comm_dup(comm, ocomm, ierr)
 
              ! MPI: data set in load_parameter is now received from
              ! the master
+             print*, 'WORKER Receive 07 params'
              CALL worker_cable_params(comm, met,air,ssnow,veg,bgc,soil,canopy,&
                   rough,rad,sum_flux,bal)
              ! 13C
@@ -507,81 +514,110 @@ CONTAINS
              endif
 
              ktauday=int(24.0*3600.0/dels)
+             print*, 'WORKER Receive 08 climate'
              CALL worker_climate_types(comm, climate, ktauday)
 
              ! MPI: mvtype and mstype send out here instead of inside worker_casa_params
              !      so that old CABLE carbon module can use them. (BP May 2013)
+             print*, 'WORKER Receive 09 mvtype'
              CALL MPI_Bcast(mvtype, 1, MPI_INTEGER, 0, comm, ierr)
+             print*, 'WORKER Receive 10 mstype'
              CALL MPI_Bcast(mstype, 1, MPI_INTEGER, 0, comm, ierr)
 
              ! MPI: casa parameters received only if cnp module is active
              IF (icycle>0) THEN
+                print*, 'WORKER Receive 11 casa'
                 CALL worker_casa_params(comm, casabiome, casapool, casaflux, casamet, casabal, phen)
                 ! 13C
                 if (cable_user%c13o2) then
+                   print*, 'WORKER Receive 12 c13o2_flux'
                    call worker_c13o2_flux_params(comm, c13o2flux)
+                   print*, 'WORKER Receive 13 c13o2_pool'
                    call worker_c13o2_pool_params(comm, c13o2pools)
-                   allocate(casasave(c13o2pools%ntile,c13o2pools%npools))
+                   print*, '13C Worker 01'
+                   call c13o2_print_delta_flux(c13o2flux)
+                   call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
                 endif
                 ! MPI: POP restart received only if pop module AND casa are active
-                IF ( CABLE_USER%CALL_POP ) CALL worker_pop_types(comm,veg,casamet,pop)
-                ! CLN:
-                IF ( CABLE_USER%CALL_BLAZE ) THEN
-                   ! Allocate biomass turnover pools when both POP and BLAZE are active
-                   IF ( CABLE_USER%CALL_POP ) &
-                        ALLOCATE( POP_TO(mp), POP_CWD(mp), POP_STR(mp) )
+                if (cable_user%call_pop) then
+                   print*, 'WORKER Receive 14 pop'
+                   call worker_pop_types(comm, veg, casamet, pop)
+                endif
 
-                   CALL worker_blaze_types(comm,mp, BLAZE, blaze_restart_t,blaze_out_t)
-                   IF ( .NOT. spinup ) &
-                        CALL MPI_recv(MPI_BOTTOM, 1, blaze_restart_t, 0, ktau_gl, icomm, stat, ierr)
-                   ! CLN:  BURNT_AREA
-                   IF ( CABLE_USER%BURNT_AREA == "SIMFIRE" ) THEN
-                      CALL worker_simfire_types(comm, mp, SIMFIRE, simfire_restart_t, simfire_inp_t, simfire_out_t)
-                      IF ( .NOT. spinup ) &
-                           CALL MPI_Recv(MPI_BOTTOM, 1, simfire_restart_t, 0, ktau_gl, icomm, stat, ierr)
-                   ENDIF
-                ENDIF
+                ! CLN:
+                if (cable_user%call_blaze) then
+                   ! allocate biomass turnover pools when both pop and blaze are active
+                   if (cable_user%call_pop) allocate(pop_to(mp), pop_cwd(mp), pop_str(mp))
+
+                   print*, 'WORKER Receive 15 blaze'
+                   call worker_blaze_types(comm, mp, blaze, blaze_restart_t, blaze_out_t)
+                   if ( .not. spinup ) then
+                      print*, 'WORKER Receive 16 blaze restart'
+                      call MPI_recv(MPI_BOTTOM, 1, blaze_restart_t, 0, ktau_gl, icomm, stat, ierr)
+                   endif
+                   ! cln:  burnt_area
+                   if ( cable_user%burnt_area == "SIMFIRE" ) then
+                      print*, 'WORKER Receive 17 simfire'
+                      call worker_simfire_types(comm, mp, simfire, simfire_restart_t, simfire_inp_t, simfire_out_t)
+                      if (.not. spinup) then
+                         print*, 'WORKER Receive 18 simfire restart'
+                         call MPI_Recv(MPI_BOTTOM, 1, simfire_restart_t, 0, ktau_gl, icomm, stat, ierr)
+                      endif
+                   endif
+                endif
              END IF ! icycle>0
 
              ! MPI: create inp_t type to receive input data from the master
              ! at the start of every timestep
-             CALL worker_intype(comm,met,veg)
+             print*, 'WORKER Receive 19 intypes'
+             CALL worker_intype(comm, met, veg)
 
              ! MPI: casa parameters received only if cnp module is active
              ! MPI: create send_t type to send the results to the master
              ! at the end of every timestep
-             CALL worker_outtype(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
+             print*, 'WORKER Receive 20 outtypes'
+             CALL worker_outtype(comm, met, canopy, ssnow, rad, bal, air, soil, veg)
 
              ! MPI: casa parameters received only if cnp module is active
              ! MPI: create type to send casa results back to the master
              ! only if cnp module is active
-             IF (icycle>0) THEN
-                CALL worker_casa_type(comm, casapool, casaflux, casamet, casabal, phen)
+             if (icycle>0) then
+                print*, 'WORKER Receive 21 casa'
+                call worker_casa_type(comm, casapool, casaflux, casamet, casabal, phen)
                 ! 13C
                 if (cable_user%c13o2) then
+                   print*, 'WORKER Receive 22 c13o2flux'
                    call worker_c13o2_flux_type(comm, c13o2flux)
+                   print*, 'WORKER Receive 23 c13o2pool'
                    call worker_c13o2_pool_type(comm, c13o2pools)
+                   print*, '13C Worker 02'
+                   call c13o2_print_delta_flux(c13o2flux)
+                   call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
                 endif
 
-                IF ( CABLE_USER%CASA_DUMP_READ .OR. CABLE_USER%CASA_DUMP_WRITE ) &
-                     CALL worker_casa_dump_types(comm, casamet, casaflux, phen, climate, c13o2flux)
+                if (cable_user%casa_dump_read .or. cable_user%casa_dump_write) then
+                   print*, 'WORKER Receive 24 casa_dump'
+                   call worker_casa_dump_types(comm, casamet, casaflux, phen, climate, c13o2flux)
+                endif
 
-                if (CABLE_USER%POPLUC) then
-                   CALL worker_casa_LUC_types( comm, casapool, casabal, casaflux)
+                if (cable_user%popluc) then
+                   print*, 'WORKER Receive 25 casa_LUC'
+                   call worker_casa_LUC_types( comm, casapool, casabal, casaflux)
                    ! MPI: casa parameters received only if cnp module is active
                    ! 13C
                    if (cable_user%c13o2) then
-                      call worker_c13o2_luc_params(comm, c13o2luc)
-                      allocate(lucsave(c13o2luc%nland,c13o2luc%npools))
+                      print*, 'WORKER Receive 26 c13o2luc'
+                      call worker_c13o2_luc_type(comm, c13o2luc)
                    endif
                 endif
-             END IF
+             end if
 
              ! MPI: create type to send restart data back to the master
              ! only if restart file is to be created
-             IF (output%restart) THEN
-                CALL worker_restart_type(comm, canopy, air)
-             END IF
+             if (output%restart) then
+                print*, 'WORKER Receive 27 restart'
+                call worker_restart_type(comm, canopy, air)
+             end if
 
              ! Open output file:
              ! MPI: only the master writes to the files
@@ -601,7 +637,7 @@ CONTAINS
              ! if (cable_user%c13o2) call c13o2_zero_sum_pools(sum_c13o2pools)
              ! count_sum_casa = 0
 
-             IF( icycle>0 .AND. spincasa) THEN
+             IF (icycle>0 .AND. spincasa) THEN
                 WRITE(wlogn,*) 'EXT spincasacnp enabled with mloop= ', mloop
                 CALL worker_spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
                      casaflux,casamet,casabal,phen,POP,climate,LALLOC, &
@@ -610,6 +646,9 @@ CONTAINS
                 CASAONLY = .TRUE.
                 ktau_gl  = 0
                 ktau     = 0
+                print*, '13C Worker 03'
+                call c13o2_print_delta_flux(c13o2flux)
+                call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
              ELSEIF ( casaonly .AND. (.NOT. spincasa) .AND. cable_user%popluc) THEN
                 CALL worker_CASAONLY_LUC(dels,kstart,kend,veg,soil,casabiome,casapool, &
                      casaflux,casamet,casabal,phen,POP,climate,LALLOC, &
@@ -617,11 +656,14 @@ CONTAINS
                 SPINconv = .FALSE.
                 ktau_gl  = 0
                 ktau     = 0
+                print*, '13C Worker 04'
+                call c13o2_print_delta_flux(c13o2flux)
+                call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
              ENDIF
 
-          ELSE
+          ELSE ! CALL1
 
-             IF (icycle.gt.0) THEN
+             IF (icycle > 0) THEN
                 ! re-initalise annual flux sums
                 casabal%FCgppyear =0.0
                 casabal%FCrpyear  =0.0
@@ -631,6 +673,7 @@ CONTAINS
              ENDIF
 
           ENDIF ! CALL1
+          write(*,*) 'Worker after CALL1'
 
           ! globally (WRT code) accessible kend through USE cable_common_module
           ktau_gl   = 0
@@ -669,12 +712,6 @@ CONTAINS
 
              canopy%oldcansto=canopy%cansto
 
-             ! 13C
-             if (cable_user%c13o2) &
-                  call MPI_Bcast(c13o2flux%ca, 1, MPI_DOUBLE_PRECISION, 0, comm, ierr)
-             !    or
-             !    call MPI_Recv(c13o2flux%ca, 1, MPI_DOUBLE_PRECISION, 0, 0, icomm, stat, ierr)
-
              ! Get met data and LAI, set time variables.
              ! Rainfall input may be augmented for spinup purposes:
              met%ofsd = met%fsd(:,1) + met%fsd(:,2)
@@ -684,10 +721,12 @@ CONTAINS
 
              ! MPI: receive input data for this step from the master
              IF ( .NOT. CASAONLY ) THEN
+                print*, 'WORKER Receive 28 input'
                 CALL MPI_Recv(MPI_BOTTOM, 1, inp_t, 0, ktau_gl, icomm, stat, ierr)
                 ! MPI: receive casa_dump_data for this step from the master
              ELSEIF ( IS_CASA_TIME("dread", yyyy, ktau, kstart, koffset, &
                   kend, ktauday, wlogn) ) THEN
+                print*, 'WORKER Receive 28 dump'
                 CALL MPI_Recv(MPI_BOTTOM, 1, casa_dump_t, 0, ktau_gl, icomm, stat, ierr)
              END IF
 
@@ -697,6 +736,16 @@ CONTAINS
              ! after input has been read from the file
              met%tvair = met%tk
              met%tvrad = met%tk
+
+             ! 13C
+             if (cable_user%c13o2) then
+                print*, 'WORKER Receive 29 Ca'
+                !!!MC Change: works only with "mpiexec -n 2"
+                call MPI_Bcast(c13o2flux%ca, mp, MPI_DOUBLE_PRECISION, 0, comm, ierr)
+                print*, '                    ', c13o2flux%ca
+                !    or
+                !    call MPI_Recv(c13o2flux%ca, 1, MPI_DOUBLE_PRECISION, 0, 0, icomm, stat, ierr)
+             endif
 
              ! Feedback prognostic vcmax and daily LAI from casaCNP to CABLE
              IF (l_vcmaxFeedbk) THEN
@@ -722,6 +771,24 @@ CONTAINS
              if (cable_user%c13o2) then
                 gpp  = canopy%An + canopy%Rd
                 Ra   = isoratio(c13o2flux%ca, real(met%ca,r_2), 1.0_r_2)
+                ! print*, 'ktau ', ktau
+                ! print*, 'Ca ', real(met%ca,r_2)
+                ! print*, 'Ca13 ', c13o2flux%ca
+                ! print*, 'dt isc3 ', real(dels,r_2), canopy%isc3
+                ! print*, 'vcmax ', canopy%vcmax
+                ! print*, 'gpp ', gpp
+                ! print*, 'Rd ', canopy%Rd
+                ! print*, 'G* ', canopy%gammastar
+                ! print*, 'ca ci ', real(met%ca,r_2), canopy%ci
+                ! print*, 'Ga ', canopy%gac
+                ! print*, 'Gb ', canopy%gbc
+                ! print*, 'Gs ', canopy%gsc
+                ! print*, 'Tl ', real(canopy%tlf,r_2)
+                ! print*, 'Ra ', Ra
+                ! print*, 'Vstarch ', c13o2flux%Vstarch
+                ! print*, 'Rstarch ', c13o2flux%Rstarch
+                ! print*, 'Rsucrose ', c13o2flux%Rsucrose
+                ! print*, 'Rphoto ', c13o2flux%Rphoto
                 do ileaf=1, mf
                    if (cable_user%c13o2_simple_disc) then
                       call c13o2_discrimination_simple( &
@@ -772,7 +839,9 @@ CONTAINS
                 end do ! ileaf=1:mf
                 ! c13o2flux%An = 1.005_r_2 * canopy%An !  * vpdbc13 / vpdbc13 ! Test 5 permil
              endif ! cable_user%c13o2
-
+             ! print*, 'Disc ', c13o2flux%Disc
+             ! print*, 'An ', c13o2flux%An
+             
              if (cable_user%CALL_climate) &
                   CALL cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met, &
                   climate, canopy, veg, ssnow, air,rad, dels,mp)
@@ -789,19 +858,28 @@ CONTAINS
              !spinup=.false. & we want CASA_dump.nc (spinConv=.true.)
 
              IF (icycle>0) THEN
-
                 call bgcdriver( ktau, kstart, kend, dels, met,          &
                      ssnow, canopy, veg, soil,climate, casabiome,       &
                      casapool, casaflux, casamet, casabal,              &
                      phen, pop, spinConv, spinup, ktauday, idoy, loy,   &
                      .FALSE., .FALSE., LALLOC, c13o2flux, c13o2pools )
-                write(wlogn,*) 'after bgcdriver', MPI_BOTTOM,1, casa_t,0,ktau_gl,ocomm,ierr
+                print*, '13C Worker 05.0'
+                call c13o2_print_delta_flux(c13o2flux)
+                call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
+                write(wlogn,*) 'after bgcdriver', MPI_BOTTOM, 1, casa_t, 0, ktau_gl, ocomm, ierr
+                print*, 'after bgcdriver', MPI_BOTTOM, 1, casa_t, 0, ktau_gl, ocomm, ierr
                 IF (MOD((ktau-kstart+1),ktauday).EQ.0) THEN
+                   print*, 'WORKER Send 30 casa'
                    CALL MPI_Send(MPI_BOTTOM, 1, casa_t, 0, ktau_gl, ocomm, ierr)
                    ! 13C
                    if (cable_user%c13o2) then
+                      print*, 'WORKER Send 31 c13o2_flux'
                       CALL MPI_Send(MPI_BOTTOM, 1, c13o2_flux_t, 0, ktau_gl, ocomm, ierr)
+                      print*, 'WORKER Send 32 c13o2_pool'
                       CALL MPI_Send(MPI_BOTTOM, 1, c13o2_pool_t, 0, ktau_gl, ocomm, ierr)
+                      print*, '13C Worker 05'
+                      call c13o2_print_delta_flux(c13o2flux)
+                      call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
                    endif
                    write(wlogn,*) 'after casa mpi_send', ktau
                 ENDIF
@@ -816,15 +894,17 @@ CONTAINS
 
                 IF ( IS_CASA_TIME("write", yyyy, ktau, kstart, &
                      koffset, kend, ktauday, wlogn) ) THEN
-                   write(wlogn,*), 'IN IS_CASA', casapool%cplant(:,1)
+                   write(wlogn,*) 'IN IS_CASA', casapool%cplant(:,1)
                    ! CALL MPI_Send (MPI_BOTTOM,1, casa_t,0,ktau_gl,ocomm,ierr)
                 ENDIF
 
                 ! MPI: send the results back to the master
-                IF( ((.NOT.spinup).OR.(spinup.AND.spinConv)) .AND. &
+                IF ( ((.NOT.spinup) .OR. (spinup.AND.spinConv)) .AND. &
                      IS_CASA_TIME("dwrit", yyyy, ktau, kstart, &
-                     koffset, kend, ktauday, logn))  &
-                     CALL MPI_Send(MPI_BOTTOM, 1, casa_dump_t, 0, ktau_gl, ocomm, ierr)
+                     koffset, kend, ktauday, logn) ) then
+                   print*, 'WORKER Send 33 dump'
+                   CALL MPI_Send(MPI_BOTTOM, 1, casa_dump_t, 0, ktau_gl, ocomm, ierr)
+                endif
 
              ENDIF ! icycle>0
 
@@ -835,6 +915,7 @@ CONTAINS
                   met, casaflux, l_vcmaxFeedbk )
              write(wlogn,*) 'after sumcflux', ktau
              ! MPI: send the results back to the master
+             print*, 'WORKER Send 34 send'
              CALL MPI_Send(MPI_BOTTOM, 1, send_t, 0, ktau_gl, ocomm, ierr)
 
              ! Write time step's output to file if either: we're not spinning up
@@ -853,20 +934,26 @@ CONTAINS
 
           !    CALL1 = .FALSE.
           ! ENDIF
+          write(*,*) 'Worker after ktau loop'
 
           call flush(wlogn)
 
           IF (icycle >0 .and. cable_user%CALL_POP) THEN
 
              IF (CABLE_USER%POPLUC) THEN
-                write(wlogn,*), 'before MPI_Send casa_LUC'
+                write(wlogn,*) 'before MPI_Send casa_LUC'
                 ! worker sends casa updates required for LUC calculations here
+                print*, 'WORKER Send 42 luc'
                 CALL MPI_Send(MPI_BOTTOM, 1, casa_LUC_t, 0, 0, ocomm, ierr)
                 ! 13C
-                if (cable_user%c13o2) CALL MPI_Send(MPI_BOTTOM, 1, c13o2_luc_t, 0, 0, ocomm, ierr)
-                write(wlogn,*), 'after MPI_Send casa_LUC'
+                if (cable_user%c13o2) then
+                   print*, 'WORKER Send 43 c13o2_luc'
+                   call MPI_Send(MPI_BOTTOM, 1, c13o2_luc_t, 0, 0, ocomm, ierr)
+                endif
+                write(wlogn,*) 'after MPI_Send casa_LUC'
                 ! master calls LUCDriver here
                 ! worker receives casa and POP updates
+                print*, 'WORKER Receive 44 pop'
                 CALL MPI_Recv( POP%pop_grid(1), POP%np, pop_t, 0, 0, icomm, stat, ierr )
              ENDIF
              ! one annual time-step of POP
@@ -901,12 +988,17 @@ CONTAINS
                      casamet, climate, real(shootfrac), idoy, YYYY, -1)
              ENDIF
 
+             print*, 'WORKER Receive 45 pop'
              CALL worker_send_pop(POP, ocomm)
 
              IF (CABLE_USER%POPLUC) then
+                print*, 'WORKER Receive 46 luc'
                 CALL MPI_Recv(MPI_BOTTOM, 1, casa_LUC_t, 0, nyear, icomm, stat, ierr)
                 ! 13C
-                if (cable_user%c13o2) CALL MPI_Recv(MPI_BOTTOM, 1, c13o2_luc_t, 0, nyear, icomm, stat, ierr)
+                if (cable_user%c13o2) then
+                   print*, 'WORKER Receive 47 c13o2_luc'
+                   call MPI_Recv(MPI_BOTTOM, 1, c13o2_luc_t, 0, nyear, icomm, stat, ierr)
+                endif
              ENDIF
 
           ENDIF ! icycle >0 .and. cable_user%CALL_POP
@@ -979,6 +1071,7 @@ CONTAINS
        !END IF
 
        ! MPI: learn from the master whether it's time to quit
+       print*, 'WORKER Receive 48 loop_exit'
        CALL MPI_Bcast(loop_exit, 1, MPI_LOGICAL, 0, comm, ierr)
 
        IF (loop_exit) THEN
@@ -989,10 +1082,13 @@ CONTAINS
 
     IF (icycle > 0 .and. (.not.spincasa).and. (.not.casaonly)) THEN
        ! MPI: send casa results back to the master
+       print*, 'WORKER Send 49 casa'
        CALL MPI_Send(MPI_BOTTOM, 1, casa_t, 0, ktau_gl, ocomm, ierr)
        ! 13C
        if (cable_user%c13o2) then
+          print*, 'WORKER Send 50 c13o2_flux'
           call MPI_Send(MPI_BOTTOM, 1, c13o2_flux_t, 0, ktau_gl, ocomm, ierr)
+          print*, 'WORKER Send 51 c13o2_pool'
           call MPI_Send(MPI_BOTTOM, 1, c13o2_pool_t, 0, ktau_gl, ocomm, ierr)
        endif
 
@@ -1005,11 +1101,14 @@ CONTAINS
 
     ! Write restart file if requested:
     IF (output%restart .AND. (.NOT. CASAONLY)) THEN
+       print*, 'WORKER Send 51 restart'
        ! MPI: send variables that are required by create_restart
        CALL MPI_Send(MPI_BOTTOM, 1, restart_t, 0, ktau_gl, comm, ierr)
        ! MPI: output file written by master only
-       if (cable_user%CALL_climate) &
-            CALL MPI_Send(MPI_BOTTOM, 1, climate_t, 0, ktau_gl, comm, ierr)
+       if (cable_user%CALL_climate) then
+          print*, 'WORKER Send 52 climate'
+          CALL MPI_Send(MPI_BOTTOM, 1, climate_t, 0, ktau_gl, comm, ierr)
+       endif
     END IF
 
     ! MPI: cleanup
@@ -1039,15 +1138,14 @@ CONTAINS
 
 
   ! MPI: receives grid decomposition info from the master
-  SUBROUTINE worker_decomp (comm)
+  SUBROUTINE worker_decomp(comm)
 
     USE mpi
-
     USE cable_def_types_mod, ONLY: mland, mp
 
     IMPLICIT NONE
 
-    INTEGER, INTENT(IN)   :: comm ! MPI communicator to talk to the workers
+    INTEGER, INTENT(IN) :: comm ! MPI communicator to talk to the workers
 
     INTEGER :: stat(MPI_STATUS_SIZE), ierr
 
@@ -1107,7 +1205,7 @@ CONTAINS
     INTEGER :: tsize
 
     INTEGER :: stat(MPI_STATUS_SIZE), ierr
-    INTEGER :: landp_t, patch_t, param_t
+    INTEGER :: landp_t, patch_t, param_ts
 
     INTEGER :: r1len, r2len, i1len, llen ! block lengths
     INTEGER :: bidx ! block index
@@ -2553,17 +2651,17 @@ CONTAINS
 
     ! MPI: sanity check
     IF (bidx /= ntyp) THEN
-       WRITE (*,*) 'worker ',rank,' invalid number of param_t fields',bidx,', fix it (20)!'
+       WRITE (*,*) 'worker ',rank,' invalid number of param_ts fields',bidx,', fix it (20)!'
        CALL MPI_Abort (comm, 1, ierr)
     END IF
 
-    CALL MPI_Type_create_struct (bidx, blen, displs, types, param_t, ierr)
-    CALL MPI_Type_commit (param_t, ierr)
+    CALL MPI_Type_create_struct (bidx, blen, displs, types, param_ts, ierr)
+    CALL MPI_Type_commit (param_ts, ierr)
 
-    CALL MPI_Type_size (param_t, tsize, ierr)
-    CALL MPI_Type_get_extent (param_t, tmplb, text, ierr)
+    CALL MPI_Type_size (param_ts, tsize, ierr)
+    CALL MPI_Type_get_extent (param_ts, tmplb, text, ierr)
 
-    WRITE (*,*) 'worker param_t blocks, size, extent and lb: ',rank,bidx,tsize,text,tmplb
+    WRITE (*,*) 'worker param_ts blocks, size, extent and lb: ',rank,bidx,tsize,text,tmplb
 
     ! MPI: check whether total size of received data equals total
     ! data sent by all the workers
@@ -2577,27 +2675,25 @@ CONTAINS
     ! which mpi_recv below is going to catch...
 
     ! so, now receive all the parameters
-    !    CALL MPI_Recv (MPI_BOTTOM, 1, param_t, 0, 0, comm, stat, ierr)
+    !    CALL MPI_Recv (MPI_BOTTOM, 1, param_ts, 0, 0, comm, stat, ierr)
     !   Maciej: buffered recv + unpac version
     ALLOCATE (rbuf(tsize))
     CALL MPI_Recv (rbuf, tsize, MPI_BYTE, 0, 0, comm, stat, ierr)
-    CALL MPI_Get_count (stat, param_t, rcount, ierr2)
+    CALL MPI_Get_count (stat, param_ts, rcount, ierr2)
 
     IF (ierr == MPI_SUCCESS .AND. ierr2 == MPI_SUCCESS .AND. rcount == 1) THEN
        pos = 0
-       CALL MPI_Unpack (rbuf, tsize, pos, MPI_BOTTOM, rcount, param_t, &
+       CALL MPI_Unpack (rbuf, tsize, pos, MPI_BOTTOM, rcount, param_ts, &
             comm, ierr)
-       IF (ierr /= MPI_SUCCESS) write(*,*),'cable param unpack error, rank: ',rank,ierr
+       IF (ierr /= MPI_SUCCESS) write(*,*) 'cable param unpack error, rank: ', rank, ierr
     ELSE
-       write(*,*),'cable param recv rank err err2 rcount: ',rank, ierr, ierr2, rcount
+       write(*,*) 'cable param recv rank err err2 rcount: ', rank, ierr, ierr2, rcount
     END IF
 
     DEALLOCATE(rbuf)
 
-
     ! finally free the MPI type
-    CALL MPI_Type_Free (param_t, ierr)
-
+    CALL MPI_Type_Free(param_ts, ierr)
 
     ! all CABLE parameters have been received from the master by now
     RETURN
@@ -2611,72 +2707,74 @@ CONTAINS
   ! and finally frees the MPI type
   SUBROUTINE worker_casa_params(comm, casabiome, casapool, casaflux, casamet, casabal, phen)
 
-    USE mpi
+    use mpi
+    use cable_def_types_mod
+    use casavariable
+    use phenvariable
 
-    USE cable_def_types_mod
-
-    USE casavariable
-    USE phenvariable
-
-    IMPLICIT NONE
+    implicit none
 
     ! sub arguments
-    INTEGER, INTENT(IN) :: comm  ! MPI communicator
+    integer,             intent(in)  :: comm  ! MPI communicator
     ! TODO: have these variables been already allocated?
-    TYPE(casa_biome),    INTENT(OUT) :: casabiome
-    TYPE(casa_pool),     INTENT(OUT) :: casapool
-    TYPE(casa_flux),     INTENT(OUT) :: casaflux
-    TYPE(casa_met),      INTENT(OUT) :: casamet
-    TYPE(casa_balance),  INTENT(OUT) :: casabal
-    TYPE(phen_variable), INTENT(OUT) :: phen
+    type(casa_biome),    intent(out) :: casabiome
+    type(casa_pool),     intent(out) :: casapool
+    type(casa_flux),     intent(out) :: casaflux
+    type(casa_met),      intent(out) :: casamet
+    type(casa_balance),  intent(out) :: casabal
+    type(phen_variable), intent(out) :: phen
 
     ! local vars
 
     ! temp arrays for marshalling all fields into a single struct
-    INTEGER, ALLOCATABLE, DIMENSION(:) :: blen
-    INTEGER(KIND=MPI_ADDRESS_KIND), ALLOCATABLE, DIMENSION(:) :: displs
-    INTEGER, ALLOCATABLE, DIMENSION(:) :: types
+    integer, allocatable, dimension(:) :: blen
+    integer(kind=MPI_ADDRESS_KIND), allocatable, dimension(:) :: displs
+    integer, allocatable, dimension(:) :: types
 
     ! temp vars for verifying block number and total length of inp_t
-    INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
-    INTEGER :: tsize
+    integer(kind=MPI_ADDRESS_KIND) :: text, tmplb
+    integer :: tsize
 
-    INTEGER :: stat(MPI_STATUS_SIZE), ierr
+    integer :: stat(MPI_STATUS_SIZE), ierr
     ! INTEGER :: landp_t, patch_t, param_t
-    INTEGER :: casa_t
+    integer :: casa_ts
 
-    INTEGER :: r1len, r2len, I1LEN, llen ! block lengths
-    INTEGER :: bidx ! block index
-    INTEGER :: ntyp ! total number of blocks
+    integer :: r1len, r2len, i1len, llen ! block lengths
+    integer :: bidx ! block index
+    integer :: ntyp ! total number of blocks
 
-    INTEGER :: rank, off, ierr2, rcount, pos
+    integer :: rank, off, ierr2, rcount, pos
 
-    CHARACTER, DIMENSION(:), ALLOCATABLE :: rbuf
+    character, dimension(:), allocatable :: rbuf
 
     off = 1
 
-    CALL MPI_Comm_rank (comm, rank, ierr)
+    call MPI_Comm_rank(comm, rank, ierr)
 
-    IF (.NOT. ASSOCIATED (casabiome%ivt2)) THEN
-       WRITE (*,*) 'worker alloc casa and phen var with m patches: ',rank,mp
-       CALL alloc_casavariable (casabiome, casapool, &
-            &      casaflux, casamet, casabal, mp)
-       CALL alloc_phenvariable (phen, mp)
-    END IF
+#ifndef GFORTRAN
+    ! gfortran 9.2.0 returns .true. for associated
+    if (.not. associated(casabiome%ivt2)) then
+#endif
+       write (*,*) 'worker alloc casa and phen var with m patches: ',rank,mp
+       call alloc_casavariable(casabiome, casapool, casaflux, casamet, casabal, mp)
+       call alloc_phenvariable(phen, mp)
+#ifndef GFORTRAN
+    end if
+#endif
 
     ntyp = ncasaparam
 
-    ALLOCATE(blen(ntyp))
-    ALLOCATE(displs(ntyp))
-    ALLOCATE(types(ntyp))
+    allocate(blen(ntyp))
+    allocate(displs(ntyp))
+    allocate(types(ntyp))
 
     ! default type is byte, to be overriden for multi-D types
     types = MPI_BYTE
 
     r1len = mp * extr1
     r2len = mp * extr2
-    I1LEN = mp * extid
-    llen = mp * extl
+    i1len = mp * extid
+    llen  = mp * extl
 
     bidx = 0
 
@@ -3625,17 +3723,17 @@ CONTAINS
 
     ! MPI: sanity check
     IF (bidx /= ntyp) THEN
-       WRITE(*,*) 'worker ', rank, ' invalid number of casa_t param fields ', bidx, ', fix it (21)!'
+       WRITE(*,*) 'worker ', rank, ' invalid number of casa_ts param fields ', bidx, ', fix it (21)!'
        CALL MPI_Abort(comm, 1, ierr)
     END IF
 
-    CALL MPI_Type_create_struct(bidx, blen, displs, types, casa_t, ierr)
-    CALL MPI_Type_commit(casa_t, ierr)
+    CALL MPI_Type_create_struct(bidx, blen, displs, types, casa_ts, ierr)
+    CALL MPI_Type_commit(casa_ts, ierr)
 
-    CALL MPI_Type_size(casa_t, tsize, ierr)
-    CALL MPI_Type_get_extent(casa_t, tmplb, text, ierr)
+    CALL MPI_Type_size(casa_ts, tsize, ierr)
+    CALL MPI_Type_get_extent(casa_ts, tmplb, text, ierr)
 
-    WRITE(*,*) 'worker casa_t param blocks, size, extent and lb: ', rank, bidx, tsize, text, tmplb
+    WRITE(*,*) 'worker casa_ts param blocks, size, extent and lb: ', rank, bidx, tsize, text, tmplb
 
     ! MPI: check whether total size of received data equals total
     ! data sent by all the workers
@@ -3651,16 +3749,16 @@ CONTAINS
     CALL MPI_Barrier(comm, ierr)
 
     ! so, now receive all the parameters
-    !    CALL MPI_Recv (MPI_BOTTOM, 1, casa_t, 0, 0, comm, stat, ierr)
+    !    CALL MPI_Recv (MPI_BOTTOM, 1, casa_ts, 0, 0, comm, stat, ierr)
 
     !   Maciej: buffered recv + unpac version
     ALLOCATE(rbuf(tsize))
     CALL MPI_Recv(rbuf, tsize, MPI_BYTE, 0, 0, comm, stat, ierr)
-    CALL MPI_Get_count(stat, casa_t, rcount, ierr2)
+    CALL MPI_Get_count(stat, casa_ts, rcount, ierr2)
 
     IF (ierr == MPI_SUCCESS .AND. ierr2 == MPI_SUCCESS .AND. rcount == 1) THEN
        pos = 0
-       CALL MPI_Unpack(rbuf, tsize, pos, MPI_BOTTOM, rcount, casa_t, &
+       CALL MPI_Unpack(rbuf, tsize, pos, MPI_BOTTOM, rcount, casa_ts, &
             comm, ierr)
        IF (ierr /= MPI_SUCCESS) write(*,*) 'casa params unpack error, rank: ',rank,ierr
     ELSE
@@ -3670,7 +3768,7 @@ CONTAINS
     DEALLOCATE(rbuf)
 
     ! finally free the MPI type
-    CALL MPI_Type_Free (casa_t, ierr)
+    CALL MPI_Type_Free(casa_ts, ierr)
 
     ! all casa parameters have been received from the master by now
     RETURN
@@ -6985,9 +7083,9 @@ CONTAINS
        pos = 0
        CALL MPI_Unpack (rbuf, tsize, pos, MPI_BOTTOM, rcount, climate_t, &
             comm, ierr)
-       IF (ierr /= MPI_SUCCESS) write(*,*),'climate unpack error, rank: ',rank,ierr
+       IF (ierr /= MPI_SUCCESS) write(*,*) 'climate unpack error, rank: ', rank, ierr
     ELSE
-       write(*,*),'climate recv rank err err2 rcount: ',rank, ierr, ierr2, rcount
+       write(*,*) 'climate recv rank err err2 rcount: ', rank, ierr, ierr2, rcount
     END IF
 
     DEALLOCATE(rbuf)
@@ -7132,8 +7230,8 @@ CONTAINS
     ! MPI: check whether total size of received data equals total
     ! data sent by all the workers
     !mcd287  CALL MPI_Reduce (tsize, tsize, 1, MPI_INTEGER, MPI_SUM, 0, comm, ierr)
-    write(*,*) 'b4 reduce wk', tsize, MPI_DATATYPE_NULL, 1, MPI_INTEGER, MPI_SUM, 0, comm, ierr
-    call flush(6)
+    ! write(*,*) 'b4 reduce wk', tsize, MPI_DATATYPE_NULL, 1, MPI_INTEGER, MPI_SUM, 0, comm, ierr
+    ! call flush(6)
     !call flush(wlogn)
     CALL MPI_Reduce (tsize, MPI_DATATYPE_NULL, 1, MPI_INTEGER, MPI_SUM, 0, comm, ierr)
 
@@ -7179,7 +7277,6 @@ CONTAINS
     INTEGER :: tsize
 
     INTEGER :: stat(MPI_STATUS_SIZE), ierr
-    INTEGER :: landp_t, patch_t, param_t
 
     INTEGER :: r1len, r2len, I1LEN, llen ! block lengths
     INTEGER :: bidx ! block index
@@ -7242,7 +7339,7 @@ CONTAINS
 
     bidx = bidx + 1
     CALL MPI_Get_address(phen%phase, displs(bidx), ierr)
-    blen(bidx) = I1LEN
+    blen(bidx) = i1len
 
     bidx = bidx + 1
     CALL MPI_Get_address(phen%doyphase, displs(bidx), ierr)
@@ -7258,16 +7355,13 @@ CONTAINS
 
     if (cable_user%c13o2) then
        bidx = bidx + 1
-       print*, 'Ha01 ', ntyp, bidx, c13o2flux%cAn12, casaflux%cgpp
        CALL MPI_Get_address(c13o2flux%cAn12, displs(bidx), ierr)
        blen(bidx) = r2len
 
        bidx = bidx + 1
-       print*, 'Ha01 ', c13o2flux%cAn, shape(c13o2flux%cAn12), shape(casaflux%cgpp)
        CALL MPI_Get_address(c13o2flux%cAn, displs(bidx), ierr)
        blen(bidx) = r2len
     endif
-    print*, 'Ha00 ', ntyp, bidx, blen
 
     ! MPI: sanity check
     IF (bidx /= ntyp) THEN
@@ -7286,6 +7380,8 @@ CONTAINS
 
     ! MPI: check whether total size of received data equals total
     ! data sent by all the workers
+    ! write(*,*) 'b27 reduce wk', tsize, MPI_DATATYPE_NULL, 1, MPI_INTEGER, MPI_SUM, 0, comm, ierr
+    ! flush(6)
     CALL MPI_Reduce(tsize, MPI_DATATYPE_NULL, 1, MPI_INTEGER, MPI_SUM, 0, comm, ierr)
 
     DEALLOCATE(types)
@@ -7331,7 +7427,6 @@ CONTAINS
     INTEGER :: tsize
 
     INTEGER :: stat(MPI_STATUS_SIZE), ierr
-    INTEGER :: landp_t, patch_t, param_t
 
     INTEGER :: r1len, r2len, I1LEN, llen ! block lengths
     INTEGER :: bidx ! block index
@@ -7484,31 +7579,31 @@ CONTAINS
 
     ! Get POP relevant info from Master
     CALL MPI_Recv ( mp_pop, 1, MPI_INTEGER, 0, 0, comm, stat, ierr )
-    write(*,*),'worker iwood to allocate', rank, mp_pop, mp
-    !write(*,*),'worker mppop', rank, mp_pop
+    write(*,*) 'worker iwood to allocate', rank, mp_pop, mp
+    !write(*,*) 'worker mppop', rank, mp_pop
     !ALLOCATE( POP%Iwood( mp_pop ) )
     ALLOCATE( Iwood( mp_pop ) )
-    write(*,*),'worker iwood allocated', rank, mp_pop
+    write(*,*) 'worker iwood allocated', rank, mp_pop
     !CALL MPI_Recv ( POP%Iwood, mp_pop, MPI_INTEGER, 0, 0, comm, stat, ierr )
-    CALL MPI_Recv ( Iwood, mp_pop, MPI_INTEGER, 0, 0, comm, stat, ierr )
+    CALL MPI_Recv( Iwood, mp_pop, MPI_INTEGER, 0, 0, comm, stat, ierr )
     !write(*,*),'worker Iwood', rank, POP%Iwood
     ! Maciej
     IF (ANY (Iwood < 1) .OR. ANY (Iwood > mp)) THEN
-       write(*,*),'worker iwood values outside valid ranges', rank
+       write(*,*) 'worker iwood values outside valid ranges', rank
        inv = COUNT(Iwood < 1)
        IF (inv .gt. 0) THEN
-          write(*,*),'no of values below 1: ', inv
+          write(*,*) 'no of values below 1: ', inv
           ALLOCATE (ainv(inv))
           ainv = PACK (Iwood, Iwood .lt. 1)
-          write (*,*),'values below 1: ', ainv
-          DEALLOCATE (ainv)
+          write (*,*) 'values below 1: ', ainv
+          DEALLOCATE(ainv)
        END IF
        inv = COUNT(Iwood > mp)
        IF (inv .gt. 0) THEN
-          write(*,*),'no of values above mp ', mp, inv
-          ALLOCATE (ainv(inv))
-          ainv = PACK (Iwood, Iwood .gt. mp)
-          write (*,*),'values above mp: ', ainv
+          write(*,*) 'no of values above mp ', mp, inv
+          ALLOCATE(ainv(inv))
+          ainv = PACK(Iwood, Iwood .gt. mp)
+          write (*,*) 'values above mp: ', ainv
           DEALLOCATE (ainv)
        END IF
 
@@ -7525,7 +7620,7 @@ CONTAINS
     CALL create_pop_gridcell_type (pop_t, comm)
 
     IF (.NOT. CABLE_USER%POP_fromZero ) THEN
-       write(*,*),'rank receiving pop_grid from master', rank
+       write(*,*) 'rank receiving pop_grid from master', rank
        CALL MPI_Recv( POP%pop_grid(1), mp_pop, pop_t, 0, 0, comm, stat, ierr )
     END IF
 
@@ -7565,7 +7660,7 @@ CONTAINS
     integer :: tsize
 
     integer :: stat(MPI_STATUS_SIZE), ierr
-    integer :: c13o2_flux_t
+    integer :: c13o2_flux_ts
 
     integer :: r1len, r2len, i1len, llen ! block lengths
     integer :: bidx ! block index
@@ -7579,10 +7674,15 @@ CONTAINS
 
     call MPI_Comm_rank(comm, rank, ierr)
 
+#ifndef GFORTRAN
+    ! gfortran 9.2.0 returns .true. for associated
     if (.not. associated(c13o2flux%ca)) then
+#endif
        write(*,*) 'worker alloc c13o2_flux with m patches: ', rank, mp
        call c13o2_alloc_flux(c13o2flux, mp)
+#ifndef GFORTRAN
     end if
+#endif
 
     ntyp = nc13o2_flux
 
@@ -7646,17 +7746,17 @@ CONTAINS
 
     ! MPI: sanity check
     if (bidx /= ntyp) then
-       write(*,*) 'worker ', rank, ' invalid number of c13o2_flux_t param fields ', bidx, ', fix it (29)!'
+       write(*,*) 'worker ', rank, ' invalid number of c13o2_flux_ts param fields ', bidx, ', fix it (29)!'
        call MPI_Abort(comm, 1, ierr)
     end if
 
-    call MPI_Type_create_struct(bidx, blen, displs, types, c13o2_flux_t, ierr)
-    call MPI_Type_commit(c13o2_flux_t, ierr)
+    call MPI_Type_create_struct(bidx, blen, displs, types, c13o2_flux_ts, ierr)
+    call MPI_Type_commit(c13o2_flux_ts, ierr)
 
-    call MPI_Type_size(c13o2_flux_t, tsize, ierr)
-    call MPI_Type_get_extent(c13o2_flux_t, tmplb, text, ierr)
+    call MPI_Type_size(c13o2_flux_ts, tsize, ierr)
+    call MPI_Type_get_extent(c13o2_flux_ts, tmplb, text, ierr)
 
-    write(*,*) 'worker c13o2_flux_t param blocks, size, extent and lb: ', rank, bidx, tsize, text, tmplb
+    write(*,*) 'worker c13o2_flux_ts param blocks, size, extent and lb: ', rank, bidx, tsize, text, tmplb
 
     ! MPI: check whether total size of received data equals total data sent by all the workers
     call MPI_Reduce(tsize, MPI_DATATYPE_NULL, 1, MPI_INTEGER, MPI_Sum, 0, comm, ierr)
@@ -7670,16 +7770,16 @@ CONTAINS
     call MPI_Barrier(comm, ierr)
 
     ! so, now receive all the parameters
-    ! CALL MPI_Recv (MPI_BOTTOM, 1, c13o2_flux_t, 0, 0, comm, stat, ierr)
+    ! CALL MPI_Recv (MPI_BOTTOM, 1, c13o2_flux_ts, 0, 0, comm, stat, ierr)
 
     ! Maciej: buffered recv + unpac version
     allocate(rbuf(tsize))
     call MPI_Recv(rbuf, tsize, MPI_BYTE, 0, 0, comm, stat, ierr)
-    call MPI_Get_count(stat, c13o2_flux_t, rcount, ierr2)
+    call MPI_Get_count(stat, c13o2_flux_ts, rcount, ierr2)
 
     if (ierr == MPI_SUCCESS .AND. ierr2 == MPI_SUCCESS .AND. rcount == 1) THEN
        pos = 0
-       call MPI_Unpack(rbuf, tsize, pos, MPI_BOTTOM, rcount, c13o2_flux_t, comm, ierr)
+       call MPI_Unpack(rbuf, tsize, pos, MPI_BOTTOM, rcount, c13o2_flux_ts, comm, ierr)
        if (ierr /= MPI_SUCCESS) write(*,*) 'c13o2_flux params unpack error, rank: ',rank,ierr
     ELSE
        write(*,*) 'c13o2_flux params recv rank err err2 rcount: ', rank, ierr, ierr2, rcount
@@ -7688,7 +7788,7 @@ CONTAINS
     DEALLOCATE(rbuf)
 
     ! finally free the MPI type
-    call MPI_Type_Free(c13o2_flux_t, ierr)
+    call MPI_Type_Free(c13o2_flux_ts, ierr)
 
     ! all c13o2_flux parameters have been received from the master by now
     return
@@ -7725,7 +7825,7 @@ CONTAINS
     integer :: tsize
 
     integer :: stat(MPI_STATUS_SIZE), ierr
-    integer :: c13o2_pool_t
+    integer :: c13o2_pool_ts
 
     integer :: r1len, r2len, i1len, llen ! block lengths
     integer :: bidx ! block index
@@ -7739,10 +7839,15 @@ CONTAINS
 
     call MPI_Comm_rank(comm, rank, ierr)
 
+#ifndef GFORTRAN
+    ! gfortran 9.2.0 returns .true. for associated
     if (.not. associated(c13o2pools%cplant)) then
+#endif
        write(*,*) 'worker alloc c13o2_pool with m patches: ', rank, mp
        call c13o2_alloc_pools(c13o2pools, mp)
+#ifndef GFORTRAN
     end if
+#endif
 
     ntyp = nc13o2_pool
 
@@ -7786,17 +7891,17 @@ CONTAINS
 
     ! MPI: sanity check
     if (bidx /= ntyp) then
-       write(*,*) 'worker ', rank, ' invalid number of c13o2_pool_t param fields ', bidx, ', fix it (30)!'
+       write(*,*) 'worker ', rank, ' invalid number of c13o2_pool_ts param fields ', bidx, ', fix it (30)!'
        call MPI_Abort(comm, 1, ierr)
     end if
 
-    call MPI_Type_create_struct(bidx, blen, displs, types, c13o2_pool_t, ierr)
-    call MPI_Type_commit(c13o2_pool_t, ierr)
+    call MPI_Type_create_struct(bidx, blen, displs, types, c13o2_pool_ts, ierr)
+    call MPI_Type_commit(c13o2_pool_ts, ierr)
 
-    call MPI_Type_size(c13o2_pool_t, tsize, ierr)
-    call MPI_Type_get_extent(c13o2_pool_t, tmplb, text, ierr)
+    call MPI_Type_size(c13o2_pool_ts, tsize, ierr)
+    call MPI_Type_get_extent(c13o2_pool_ts, tmplb, text, ierr)
 
-    write(*,*) 'worker c13o2_pool_t param blocks, size, extent and lb: ', rank, bidx, tsize, text, tmplb
+    write(*,*) 'worker c13o2_pool_ts param blocks, size, extent and lb: ', rank, bidx, tsize, text, tmplb
 
     ! MPI: check whether total size of received data equals total data sent by all the workers
     call MPI_Reduce(tsize, MPI_DATATYPE_NULL, 1, MPI_INTEGER, MPI_Sum, 0, comm, ierr)
@@ -7810,25 +7915,25 @@ CONTAINS
     call MPI_Barrier(comm, ierr)
 
     ! so, now receive all the parameters
-    ! CALL MPI_Recv (MPI_BOTTOM, 1, c13o2_pool_t, 0, 0, comm, stat, ierr)
+    ! call MPI_Recv(MPI_BOTTOM, 1, c13o2_pool_ts, 0, 0, comm, stat, ierr)
 
     ! Maciej: buffered recv + unpac version
     allocate(rbuf(tsize))
     call MPI_Recv(rbuf, tsize, MPI_BYTE, 0, 0, comm, stat, ierr)
-    call MPI_Get_count(stat, c13o2_pool_t, rcount, ierr2)
+    call MPI_Get_count(stat, c13o2_pool_ts, rcount, ierr2)
 
     if (ierr == MPI_SUCCESS .AND. ierr2 == MPI_SUCCESS .AND. rcount == 1) THEN
        pos = 0
-       call MPI_Unpack(rbuf, tsize, pos, MPI_BOTTOM, rcount, c13o2_pool_t, comm, ierr)
+       call MPI_Unpack(rbuf, tsize, pos, MPI_BOTTOM, rcount, c13o2_pool_ts, comm, ierr)
        if (ierr /= MPI_SUCCESS) write(*,*) 'c13o2_pool params unpack error, rank: ',rank,ierr
-    ELSE
+    else
        write(*,*) 'c13o2_pool params recv rank err err2 rcount: ', rank, ierr, ierr2, rcount
-    END IF
+    end if
 
-    DEALLOCATE(rbuf)
+    deallocate(rbuf)
 
     ! finally free the MPI type
-    call MPI_Type_Free(c13o2_pool_t, ierr)
+    call MPI_Type_Free(c13o2_pool_ts, ierr)
 
     ! all c13o2_pool parameters have been received from the master by now
     return
@@ -7864,7 +7969,7 @@ CONTAINS
     integer :: tsize
 
     integer :: stat(MPI_STATUS_SIZE), ierr
-    integer :: c13o2_luc_t
+    integer :: c13o2_luc_ts
 
     integer :: r1len, r2len, i1len, llen ! block lengths
     integer :: bidx ! block index
@@ -7878,10 +7983,15 @@ CONTAINS
 
     call MPI_Comm_rank(comm, rank, ierr)
 
+#ifndef GFORTRAN
+    ! gfortran 9.2.0 returns .true. for associated
     if (.not. associated(c13o2luc%charvest)) then
+#endif
        write(*,*) 'worker alloc c13o2_luc with m patches: ', rank, mp
        call c13o2_alloc_luc(c13o2luc, mp) !MC ToDo: mland == mp?
+#ifndef GFORTRAN
     end if
+#endif
 
     ntyp = nc13o2_luc
 
@@ -7917,17 +8027,17 @@ CONTAINS
 
     ! MPI: sanity check
     if (bidx /= ntyp) then
-       write(*,*) 'worker ', rank, ' invalid number of c13o2_luc_t param fields ', bidx, ', fix it (31)!'
+       write(*,*) 'worker ', rank, ' invalid number of c13o2_luc_ts param fields ', bidx, ', fix it (31)!'
        call MPI_Abort(comm, 1, ierr)
     end if
 
-    call MPI_Type_create_struct(bidx, blen, displs, types, c13o2_luc_t, ierr)
-    call MPI_Type_commit(c13o2_luc_t, ierr)
+    call MPI_Type_create_struct(bidx, blen, displs, types, c13o2_luc_ts, ierr)
+    call MPI_Type_commit(c13o2_luc_ts, ierr)
 
-    call MPI_Type_size(c13o2_luc_t, tsize, ierr)
-    call MPI_Type_get_extent(c13o2_luc_t, tmplb, text, ierr)
+    call MPI_Type_size(c13o2_luc_ts, tsize, ierr)
+    call MPI_Type_get_extent(c13o2_luc_ts, tmplb, text, ierr)
 
-    write(*,*) 'worker c13o2_luc_t param blocks, size, extent and lb: ', rank, bidx, tsize, text, tmplb
+    write(*,*) 'worker c13o2_luc_ts param blocks, size, extent and lb: ', rank, bidx, tsize, text, tmplb
 
     ! MPI: check whether total size of received data equals total data sent by all the workers
     call MPI_Reduce(tsize, MPI_DATATYPE_NULL, 1, MPI_INTEGER, MPI_Sum, 0, comm, ierr)
@@ -7941,16 +8051,16 @@ CONTAINS
     call MPI_Barrier(comm, ierr)
 
     ! so, now receive all the parameters
-    ! CALL MPI_Recv (MPI_BOTTOM, 1, c13o2_luc_t, 0, 0, comm, stat, ierr)
+    ! CALL MPI_Recv (MPI_BOTTOM, 1, c13o2_luc_ts, 0, 0, comm, stat, ierr)
 
     ! Maciej: buffered recv + unpac version
     allocate(rbuf(tsize))
     call MPI_Recv(rbuf, tsize, MPI_BYTE, 0, 0, comm, stat, ierr)
-    call MPI_Get_count(stat, c13o2_luc_t, rcount, ierr2)
+    call MPI_Get_count(stat, c13o2_luc_ts, rcount, ierr2)
 
     if (ierr == MPI_SUCCESS .AND. ierr2 == MPI_SUCCESS .AND. rcount == 1) THEN
        pos = 0
-       call MPI_Unpack(rbuf, tsize, pos, MPI_BOTTOM, rcount, c13o2_luc_t, comm, ierr)
+       call MPI_Unpack(rbuf, tsize, pos, MPI_BOTTOM, rcount, c13o2_luc_ts, comm, ierr)
        if (ierr /= MPI_SUCCESS) write(*,*) 'c13o2_luc params unpack error, rank: ',rank,ierr
     ELSE
        write(*,*) 'c13o2_luc params recv rank err err2 rcount: ', rank, ierr, ierr2, rcount
@@ -7959,7 +8069,7 @@ CONTAINS
     DEALLOCATE(rbuf)
 
     ! finally free the MPI type
-    call MPI_Type_Free(c13o2_luc_t, ierr)
+    call MPI_Type_Free(c13o2_luc_ts, ierr)
 
     ! all c13o2_luc parameters have been received from the master by now
     return
@@ -8297,23 +8407,22 @@ CONTAINS
 
 
 
-SUBROUTINE worker_send_pop (POP, comm)
+SUBROUTINE worker_send_pop(POP, comm)
 
  USE mpi
  USE POP_mpi
- USE POP_Types,           ONLY: pop_type
+ USE POP_Types, ONLY: pop_type
 
  IMPLICIT NONE
 
- INTEGER         ,INTENT(IN) :: comm
- TYPE (pop_type) ,INTENT(IN) :: pop
+ INTEGER,        INTENT(IN) :: comm
+ TYPE(pop_type), INTENT(IN) :: pop
 
  INTEGER :: ierr
 
- IF ( POP%np .EQ. 0 ) RETURN
+ IF (POP%np .EQ. 0) RETURN
 
  CALL MPI_Send(POP%pop_grid(1), POP%np, pop_t, 0, 0, comm, ierr )
-
 
 END SUBROUTINE worker_send_pop
 
@@ -8321,7 +8430,8 @@ END SUBROUTINE worker_send_pop
 ! frees memory used for worker's data structures
 SUBROUTINE worker_end(icycle, restart)
 
- USE mpi
+ use mpi
+ use cable_common_module, only: cable_user
 
  IMPLICIT NONE
 
@@ -8330,16 +8440,21 @@ SUBROUTINE worker_end(icycle, restart)
 
  INTEGER :: ierr
 
- CALL MPI_Type_free (inp_t, ierr)
+ CALL MPI_Type_free(inp_t, ierr)
 
- CALL MPI_Type_free (send_t, ierr)
+ CALL MPI_Type_free(send_t, ierr)
 
  IF (icycle>0) THEN
-    CALL MPI_Type_free (casa_t, ierr)
+    CALL MPI_Type_free(casa_t, ierr)
+    ! 13C
+    if (cable_user%c13o2) then
+       call MPI_Type_free(c13o2_flux_t, ierr)
+       call MPI_Type_free(c13o2_pool_t, ierr)
+    endif
  END IF
 
  IF (restart) THEN
-    CALL MPI_Type_free (restart_t, ierr)
+    CALL MPI_Type_free(restart_t, ierr)
  END IF
 
  RETURN
@@ -8741,7 +8856,7 @@ SUBROUTINE worker_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
            ELSE
               casaflux%stemnpp = 0.
            ENDIF ! CALL_POP
-           write(wlogn,*), 'idoy', idoy
+           write(wlogn,*) 'idoy', idoy
 
         ENDDO   ! end of idoy
 
