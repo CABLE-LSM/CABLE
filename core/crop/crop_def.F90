@@ -1,9 +1,9 @@
 MODULE crop_def
 
   use cable_def_types_mod, only: dp => r_2
-  use cable_common_module, only: filenames_type
+  use cable_common_module, only: get_unit, filenames_type
   use casadimension,       only: mplant
-  
+
   implicit none
 
   save
@@ -18,10 +18,16 @@ MODULE crop_def
 
   ! crop stages
   integer, parameter :: baresoil=0
-  integer, parameter :: sown=1
+  integer, parameter :: planted=1
   integer, parameter :: emergent=2
   integer, parameter :: growing=3
 
+
+  ! parameters related to planting and germination
+  real,    parameter :: fcrit_germination=0.8  ! critical soil moisture relative to field capacity for germination
+  integer, parameter :: nrdays_before=7        ! number of days checked before possible planting date
+  integer, parameter :: nrdays_after=3         ! number of days checked after planting date
+  
   ! parameters related to carbon allocation etc.
   integer, parameter :: maxdays_ger=40 ! maximum days since sowing above which germination
                                        ! is assumed to have failed
@@ -42,11 +48,12 @@ MODULE crop_def
   type crop_type
 
     ! crop stages:
-    ! 0: bare soil, not sown
-    ! 1: sown (but not yet germinated)
+    ! 0: bare soil, nothing planted/sown
+    ! 1: planted/sown (but not yet germinated)
     ! 2: emergent
     ! 3: growing
-    integer, dimension(:),  pointer :: state
+    integer, dimension(:),   pointer :: state          ! crop state
+    integer, dimension(:,:), pointer :: state_nrdays   ! number of days elapsed in each state
 
     ! Switches related to physiology/development
     logical, dimension(:), pointer :: vernalisation   ! does vernalisation occur?
@@ -56,6 +63,7 @@ MODULE crop_def
     real, dimension(:), pointer :: Tbase     ! crop-specific base temperature
     real, dimension(:), pointer :: Tmax      ! crop-specific max. temperature
                                              ! (no further PHU accumulation above Tmax)
+    real, dimension(:), pointer :: Tplant    ! planting temperature
 
     ! Phenological heat units (PHU)
     real(dp), dimension(:), pointer :: PHU_germination  ! PHU (soil) until germination
@@ -92,10 +100,10 @@ MODULE crop_def
     real(dp), dimension(:),   pointer :: LAIsen   ! senescent (brown) LAI
     real(dp), dimension(:),   pointer :: drsen    ! exponent in leaf senescence function
     
-    ! Sowing dates (DOY)
-    integer, dimension(:), pointer  :: sowing_doymin ! earliest sowing date
-    integer, dimension(:), pointer  :: sowing_doymax ! latest sowing date
-    integer, dimension(:), pointer  :: sowing_doy    ! actual sowing date
+    ! Planting/Sowing dates (DOY)
+    integer, dimension(:), pointer  :: sowing_doymin       ! earliest sowing date
+    integer, dimension(:), pointer  :: sowing_doymax       ! latest sowing date
+    integer, dimension(:), pointer  :: sowing_doy          ! actual sowing date
 
     ! Germination requirements
     real(dp), dimension(:), pointer :: fgermination  ! total germination requirements (0-1)
@@ -121,7 +129,11 @@ MODULE crop_def
 
 
     ! Management variables
-
+    ! file names of spatial data sets
+    character(len=200) :: AEI_file            ! File containing 'area equipped for irrigation' 
+    character(len=200) :: Fertilisation_file  ! File containing fertilisation data; Not yet implemented
+    
+    
     !! Crop-related variables in other types:
     ! canopy%irrig_surface   ! water added as irrigation directly to soil surface (mm)   
     ! canopy%irrig_sprinkler ! water added as irrigation above canopy (mm) 
@@ -136,10 +148,9 @@ MODULE crop_def
 Contains
 
 
-  
-  subroutine allocate_init_cropvars(crop,filename)
   ! allocates and initialises crop variables in one routine
-    
+  subroutine allocate_init_cropvars(crop,filename)
+ 
     type(crop_type),      intent(inout)   :: crop
     type(filenames_type), intent(in)      :: filename
 
@@ -166,6 +177,7 @@ Contains
              crop%photoperiodism(ncmax),    &
              crop%Tbase(ncmax),             &
              crop%Tmax(ncmax),              &
+             crop%Tplant(ncmax),            &
              crop%PHU_germination(ncmax),   &
              crop%fPHU_emergence(ncmax),    &
              crop%PHU_maturity(ncmax),      &
@@ -204,7 +216,8 @@ Contains
              crop%sla_beta(ncmax)           &
             )
 
-
+    allocate(crop%state_nrdays(ncmax,size(crop%state)))
+    
       
     ! initialise parameter values given in crop parameter file
     do j=1,ncmax
@@ -219,7 +232,7 @@ Contains
 
       ! Read actual parameter values
       read(40,*) vernalisation, photoperiodism
-      read(40,*) crop%Tbase(jcrop), crop%Tmax(jcrop)
+      read(40,*) crop%Tbase(jcrop), crop%Tmax(jcrop), crop%Tplant(jcrop)
       read(40,*) crop%PHU_germination(jcrop), crop%fPHU_emergence(jcrop)
       read(40,*) crop%PHU_maturity(jcrop)
       read(40,*) crop%fCalloc_root_init(jcrop), crop%fCalloc_leaf_init(jcrop), crop%fCalloc_leaf_bpt(jcrop)
@@ -241,6 +254,7 @@ Contains
 
     ! initialise all other variables
     crop%state         = 0
+    crop%state_nrdays  = 0
     crop%fPHU          = 0.0_dp
     crop%VU            = 0.0_dp
     crop%fVU           = 0.0_dp
@@ -253,8 +267,8 @@ Contains
     crop%fsenesc       = 0.0_dp
     crop%LAItot        = 0.0_dp
     crop%LAIsen        = 0.0_dp
-    crop%sowing_doymin = 270
-    crop%sowing_doymax = 290
+    crop%sowing_doymin = 272
+    crop%sowing_doymax = 335
     crop%sowing_doy    = 0
     crop%fgermination  = 0.0_dp
     crop%sl            = 0
@@ -264,5 +278,39 @@ Contains
 
   end subroutine allocate_init_cropvars
 
+
+
+  ! read spatial datasets needed for crop modeling: irrigation, fertilisation,
+  ! crop distribution etc.
+  subroutine init_crop_data(crop)
+
+    type(crop_type), intent(inout) :: crop
+
+    ! local
+    integer            :: ErrStatus  ! Error status returned by nc routines (zero=ok, non-zero=error)
+    integer            :: nmlunit    ! Unit number for reading namelist file
+    character(len=200) :: AEI_file
+    character(len=200) :: Fertilisation_file
+
+
+    ! define CROP namelist
+    NAMELIST /CROP_NML/ AEI_file, Fertilisation_file
+
+    ! Read CROP namelist settings
+    CALL get_unit(nmlunit)  ! CABLE routine finds spare unit number
+    OPEN (nmlunit,FILE="crop.nml",STATUS='OLD',ACTION='READ')
+    READ (nmlunit,NML=CROP_NML)
+    CLOSE(nmlunit)
+
+    ! Assign namelist settings to corresponding elements in the crop structure
+    crop%AEI_file           = AEI_file
+    crop%Fertilisation_file = Fertilisation_file
+
+    ! Open AEI file
+    !ErrStatus = NF90_OPEN(TRIM(crop%AEI_file), NF90_NOWRITE, FID)
+    
+
+  end subroutine init_crop_data
+  
   
 END MODULE crop_def

@@ -4,8 +4,9 @@ MODULE crop_module
                                   veg_parameter_type, canopy_type, dp => r_2
   use crop_def,             only: crop_type, nc, maxdays_ger, fPHU_flowering, rCsen_Cgr, &
                                   fCleaf_mobile, DMtoC, &
+                                  nrdays_before, nrdays_after, fcrit_germination, &
                                   irrig_depth, irrig_trigger, Firrig_loss, &
-                                  baresoil, sown, emergent, growing
+                                  baresoil, planted, emergent, growing
   use casavariable,         only: casa_flux, casa_met, casa_pool
   use casadimension,        only: mplant
   use casaparm,             only: froot,wood,leaf,product, &   ! cpool
@@ -15,7 +16,7 @@ MODULE crop_module
 
   private
   
-  public :: sowing             ! determines sowing date
+  public :: planting           ! determines planting/sowing date
   public :: germination        ! determines germination date
   public :: emergence          ! plant growth at emergence
   public :: growth             ! plant growth in vegetative and reproductive phase
@@ -31,37 +32,72 @@ MODULE crop_module
 contains
 
 
-  subroutine sowing(i,doy,soil,crop)
+  subroutine planting(i,doy,climate,ssnow,soil,crop)
 
     integer,                   intent(in)    :: i    ! crop type
     integer,                   intent(in)    :: doy  ! day of year
+    type(climate_type),        intent(in)    :: climate
+    type(soil_snow_type),      intent(in)    :: ssnow
     type(soil_parameter_type), intent(in)    :: soil
     type(crop_type),           intent(inout) :: crop
 
     ! local
-    integer :: sl  ! loop counters: crop type, soil layer
+    integer :: sl           ! loop counters: crop type, soil layer
+    logical :: planting_ok  ! suitable conditions for planting?
     real, dimension(size(soil%zse)) :: cumzse ! cumulative soil layer depths (bottom) (m)
-    
-    if (doy == 280) then
-       crop%state(i) = sown
-       crop%sowing_doy(i) = doy ! keep track of sowing doy
+    real    :: rSM_avail    ! relative available soil moisture (0-1)
 
-       ! if sowing occurred (i.e. crop%state switches to 1),
-       ! determine soil layer in which seeds are located
+    ! calculate soil layer in which seeds are located (crop%sl) if not yet done
+    if (crop%sl(i) == 0) then
        cumzse(:) = soil%zse(1)
        sl = 1
        do while (cumzse(sl) < crop%sowing_depth(i))
-         cumzse(sl+1) = cumzse(sl) + soil%zse(sl+1)
-         sl = sl + 1
-         if (sl >= size(soil%zse)) then
-           STOP "Implausible sowing depth value!"
-         end if
+          cumzse(sl+1) = cumzse(sl) + soil%zse(sl+1)
+          sl = sl + 1
+          if (sl >= size(soil%zse)) then
+            STOP "Implausible sowing depth value!"
+          end if
        end do
-       crop%sl = sl
-    end if
+       crop%sl(i) = sl
+    endif   
+
+    rSM_avail = available_soil_moist(real(ssnow%wb(i,crop%sl(i))),soil%sfc(i),soil%swilt(i))
+    
+    ! determine planting date based on air temperature and soil moisture
+    ! of the ndays_before previous days and ndays_after following days
+    !(applied retrospectively in germination subroutine)
+    planting_ok = .FALSE.
+    if (i == 1) then ! winter wheat
+       if (maxval(climate%dtemp_31(i,(31-nrdays_before+1):31)) <= crop%Tplant(i) .and. &   ! temperature
+           minval(climate%dtemp_31(i,(31-nrdays_before+1):31)) >  crop%Tbase(i) .and.  &   ! temperature
+            rSM_avail >= fcrit_germination) then                                           ! soil moisture
+          
+          planting_ok = .TRUE.
+
+       endif   
+    else
+       if (minval(climate%dtemp_31(i,(31-nrdays_before+1):31)) >= crop%Tplant(i) .and. &   ! temperature
+            rSM_avail >= fcrit_germination) then                                           ! soil moisture
+
+          planting_ok = .TRUE.
+
+       endif
+    endif
+
+    if (planting_ok) then
+
+       crop%state(i) = planted
+       crop%sowing_doy(i) = doy ! keep track of sowing doy
+
+    endif
+     
+write(60,*) 'doy:', doy
+write(60,*) '  climate%dtemp_31(i,(31-nrdays_before+1):31):', climate%dtemp_31(i,(31-nrdays_before+1):31)
+write(60,*) '  rSM_avail:', rSM_avail
+write(60,*) '  crop%sowing_doy(i):', crop%sowing_doy(i)
 
    
-  end subroutine sowing
+  end subroutine planting
 
 
   
@@ -76,43 +112,68 @@ contains
     type(crop_type),           intent(inout) :: crop
 
     ! local
-    integer  :: days_since_sowing
-    real(dp) :: fwsger  ! water stress factor for germination (0-1)
-    real(dp) :: fPHUger ! daily heat units for germination
-    real(dp) :: fgerday ! germination requirement for actual day
+    logical  :: planting_ok ! suitable conditions for germination in the
+                            ! first three days after planting?
+    real(dp) :: fwsger      ! water stress factor for germination (0-1)
+    real(dp) :: fPHUger     ! daily heat units for germination
+    real(dp) :: fgerday     ! germination requirement for actual day
+    
 
     ! initialise locals
-    days_since_sowing = 0
     fwsger  = 0._dp
     fPHUger = 0._dp
     fgerday = 0._dp
     
 
-    ! calculate days since sowing 
-    days_since_sowing = doy - crop%sowing_doy(i) ! implement case year switch!!
+    ! update days since planting
+    crop%state_nrdays(i,planted) = crop%state_nrdays(i,planted) + 1 
+
+    ! ndays after planting, check again conditions for germination
+    ! do not plant if temperature is very unsuitable
+    ! this mimicks weather forecast, e.g. one would not sow if frost
+    ! is forecasted for the next days. Use Tbase instead of Tplant here!! 
+    planting_ok = .TRUE.
+    if (crop%state_nrdays(i,planted) == nrdays_after) then
+       if (i == 1) then ! winter wheat
+          if (maxval(climate%dtemp_31(i,(31-nrdays_after+1):31)) > 18.0 .or. &
+              minval(climate%dtemp_31(i,(31-nrdays_after+1):31)) < crop%Tbase(i)) then
+          
+             planting_ok = .FALSE.
+
+          endif       
+       else
+          if (minval(climate%dtemp_31(i,(31-nrdays_after+1):31)) < crop%Tbase(i)) then
+
+             planting_ok = .FALSE.
+
+          endif
+       endif   
+    endif
 
     ! calculate heat requirements for germination (based on temp in soil layer crop%sl)
     fPHUger = heat_units(climate%dtempsoil(i,crop%sl(i)),crop%Tbase(i),crop%Tmax(i)) / &
               crop%PHU_germination(i)
       
     ! calculate soil water requirements for germination
-    fwsger = water_stress_ger(ssnow%wb(i,crop%sl(i)),real(soil%ssat(i),dp), &
-             real(soil%swilt(i),dp))
+    fwsger = available_soil_moist(real(ssnow%wb(i,crop%sl(i))),fcrit_germination*soil%sfc(i),soil%swilt(i))
 
     ! calculate total germination requirements (0-1)
-    fgerday = fPHUger * fwsger
+    fgerday = fPHUger * real(fwsger,dp)
     crop%fgermination(i) = crop%fgermination(i) + fgerday
 
     ! based on the information calculated above, determine
     ! if germination occurred, if it is still ongoing,
-    ! or if it has failed.
-    if (days_since_sowing > maxdays_ger) then ! germination assumed to have failed
+    ! if it has failed, or if it has been aborted (planting_ok=.false.).
+    if (crop%state_nrdays(i,planted) > maxdays_ger .or. .not. planting_ok) then ! germination assumed to have failed
        crop%state(i) = baresoil           ! bare soil again, no plant growth
+       crop%sowing_doy = 0
        crop%fgermination(i) = 0.0
-    else if (crop%fgermination(i) >= 1.0_dp .AND. days_since_sowing <= maxdays_ger) then
+    else if (crop%fgermination(i) >= 1.0_dp .and. crop%state_nrdays(i,planted) <= maxdays_ger &
+             .and. planting_ok) then
        crop%state(i) = emergent           ! successful germination
        crop%fgermination(i) = 0.0
     end if
+    
 write(60,*) 'doy:', doy
 write(60,*) '  climate%dtempsoil(:,crop%sl(1)):', climate%dtempsoil(:,crop%sl(1))     
 write(60,*) '  fPHUger:', fPHUger
@@ -141,11 +202,14 @@ write(60,*) '  crop%state:', crop%state
     ! local
     real(dp) :: LAIday
 
-
 write(60,*) 'doy:', doy
 write(60,*) '  crop%fPHU(i):', crop%fPHU(i)
 write(60,*) '  SLA_C:', SLA_C     
 
+    ! update days since emergence
+    crop%state_nrdays(i,emergent) = crop%state_nrdays(i,emergent) + 1 
+
+    
     ! at emergence, utilize carbon reserves in the seeds (given by crop%Cseed),
     ! as well as carbon assimilated by first leaves
        
@@ -223,6 +287,9 @@ write(60,*) ' crop%fVU(i):', crop%fVU(i)
     ! local
     real(dp) :: LAIday
 
+    ! update days since growing
+    crop%state_nrdays(i,growing) = crop%state_nrdays(i,growing) + 1
+    
 write(60,*) '  crop%fPHU(i):', crop%fPHU(i)
 write(60,*) '  casaflux%fracCalloc(i,froot):', casaflux%fracCalloc(i,froot)
 write(60,*) '  casaflux%fracCalloc(i,leaf):', casaflux%fracCalloc(i,leaf)
@@ -472,28 +539,29 @@ write(60,*) '  casaflux%Cnpp2:', casaflux%Cnpp
     end do
     wb_mean = wb_mean / cumzse(sl)
 
-
     ! available soil moisture in layers 1:sl
     wb_avail = max(0.0, min(1.0, (wb_mean - soil%swilt(i)) / (soil%sfc(i)-soil%swilt(i))))
-    
-    
+        
     ! determine total irrigation demand based on available soil moisture in layers 1:sl
     ! and a irrigation loss factor (0-1)
     irrig_demand = 0.0
-    if (wb_avail < irrig_trigger) then  ! trigger for irrigation
+    if (wb_avail < irrig_trigger) then  ! trigger irrigation
        do s=1,sl
-          irrig_demand = irrig_demand + max(0.0, ((Firrig_loss * (soil%ssat(i) * soil%zse(s)) + &
-                                                  (1.0 - Firrig_loss) * (soil%sfc(i) * soil%zse(s))) - &
-                                                  ssnow%wb(i,s) * soil%zse(s)) * 1000.0)
+          irrig_demand = irrig_demand + max(0.0, (soil%sfc(i) - ssnow%wb(i,s)) * soil%zse(s) * 1000.0 + &
+                                                  Firrig_loss * (soil%ssat(i) - soil%sfc(i)) &
+                                                  * soil%zse(s) * 1000.0)
+          ! equivalent to that:
+          !irrig_demand = irrig_demand + max(0.0, ((Firrig_loss * (soil%ssat(i) * soil%zse(s)) + &
+          !                                        max(0.0,(1.0 - Firrig_loss)) * (soil%sfc(i) * soil%zse(s))) - &
+          !                                        ssnow%wb(i,s) * soil%zse(s)) * 1000.0)
        !irrig_demand = max(0.0, ((soil%sfc(i) - wb_mean) * cumzse(sl) * 1000.0) / irrig_eff)
        !irrig_demand = irrig_demand + max(0.0, ((soil%sfc(i) * soil%zse(s)) - (ssnow%wb(i,s) * soil%zse(s))) * 1000.0)
        end do
     endif
 
-    
     ! split up irrigation in surface and sprinkler
-    ! 'all or nothing' application would probably make more sense than a fraction
-    ! for now, apply everything as surface irrigation
+    ! 'either ... or ...' application would make more sense than a fraction
+    ! for now, apply everything as sprinkler irrigation
     canopy%irrig_surface(i) = 0.0   ! mm/d; IMPORTANT: ensure agreement among tile indices!!!
     canopy%irrig_sprinkler(i) = irrig_demand
     
@@ -603,18 +671,21 @@ write(60,*) '  casapool%Clitter(i,str)_AFTER:', casapool%Clitter(i,str)
 
 
   
-  ! soil water stress factor for germination
-  ! soil moisture (theta) is taken from soil layer at sowing depth
-  function water_stress_ger(theta,thetas,thetaw) result(fwsger)
+  ! available soil moisture (in the soil layers of interest)
+  ! all inputs in m3/m3, result between 0 and 1
+  ! instead of theta_fc, a 'critical soil moisture' can be used to calculate
+  ! a water stress factor.
+  function available_soil_moist(theta,theta_fc,theta_wilt) result(favail)
 
-    real(dp), intent(in) :: theta  ! soil moisture at sowing depth
-    real(dp), intent(in) :: thetas ! saturation soil moisture
-    real(dp), intent(in) :: thetaw ! soil moisture at wilting point
-    real(dp)             :: fwsger ! soil water stress factor for germination (0-1)
+    real, intent(in) :: theta      ! soil moisture
+    real, intent(in) :: theta_fc   ! soil moisture at field capacity
+    real, intent(in) :: theta_wilt ! soil moisture at wilting point
+    real             :: favail     ! available soil moisture factor (0-1)
+     
+    favail = max(0.0, min(1.0, (theta - theta_wilt) / (theta_fc - theta_wilt)))
 
-    fwsger = max(min((theta - thetaw) / (thetas - thetaw),1.0),0.0)
-    
-  end function water_stress_ger
+  end function available_soil_moist
+
 
   
 

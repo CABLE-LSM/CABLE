@@ -654,6 +654,12 @@ PROGRAM cable_offline_driver
               ! endif
            ENDIF ! cable_user%MetType
 
+!if (cable_user%MetType /= 'site' .and. cable_user%call_crop) then
+!   if (CALL1) then
+!     call init_crop_data(crop)
+!   endif
+!endif
+              
            ! somethings (e.g. CASA-CNP) only need to be done once per day
            ktauday=INT(24.0*3600.0/dels)
 

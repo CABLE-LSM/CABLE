@@ -2,7 +2,7 @@ CSIRO crop parameters
 1                     ! number of crop functional types
 1   wheat             ! crop number, crop name
 1 0                   ! vernalisation? photoperiodism?
-0.0 26.0              ! Tbase (degC), Tmax (degC)
+0.0 26.0 12.0         ! Tbase (degC), Tmax (degC), Tplant (degC)
 35, 0.05              ! PHU_germination, fPHU_emergence
 2000                  ! PHU_maturity
 0.5 0.45 0.45         ! fCalloc_root_init, fCalloc_leaf_init, fCalloc_leaf_bpt

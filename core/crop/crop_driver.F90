@@ -1,7 +1,7 @@
 SUBROUTINE crop_driver(doy,climate,ssnow,soil,veg,canopy,casaflux,casamet, &
                        casapool,crop)
 
-  use crop_def,            only: crop_type, nc, baresoil, sown, emergent, growing, &
+  use crop_def,            only: crop_type, nc, baresoil, planted, emergent, growing, &
                                  Rgcoeff, DMtoC
   use crop_module
   use casavariable,        only: casa_flux, casa_met, casa_pool
@@ -30,13 +30,12 @@ SUBROUTINE crop_driver(doy,climate,ssnow,soil,veg,canopy,casaflux,casamet, &
   do ic=1, nc
 write(70,*) 'DOY: ', doy
     if (crop%state(ic) == baresoil) then
-      if (doy > crop%sowing_doymin(ic) .and. doy < crop%sowing_doymax(ic)) then 
-         call sowing(ic,doy,soil,crop)
-write(70,*) 'crop%state: ', crop%state
-write(70,*) 'crop%Tbase: ', crop%Tbase
+      if (doy >= crop%sowing_doymin(ic) .and. doy <= crop%sowing_doymax(ic)) then 
+         call planting(ic,doy,climate,ssnow,soil,crop)
+
       end if
 
-    else if (crop%state(ic) == sown) then
+    else if (crop%state(ic) == planted) then
        call germination(ic,doy,climate,ssnow,soil,crop)
        call irrigation(ic,ssnow,soil,canopy)
 casapool%Cplant(ic,:) = 0.0_dp ! shouldn't be needed here!! Check initialisation
@@ -110,6 +109,10 @@ write(70,*) 'casamet%glai: ',  casamet%glai
             ! reset management settings
             canopy%irrig_surface(ic)   = 0.0
             canopy%irrig_sprinkler(ic) = 0.0
+
+            ! reset other variables
+            crop%state_nrdays(ic,:) = 0
+            crop%sl(ic) = 0
             
          end if
        end if ! crop%state == growing
