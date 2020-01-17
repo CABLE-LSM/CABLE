@@ -554,11 +554,13 @@ SUBROUTINE snowdensity (dels, ssnow, soil)
 
    INTEGER, DIMENSION(mp,3) :: ssnow_isflag_ssdn
    REAL, DIMENSION(mp) :: ssnow_tgg_min1
-   REAL, DIMENSION(mp,3) :: dels_ssdn, ssnow_tgg_min
+   REAL, DIMENSION(mp,3) :: dels_ssdn !, ssnow_tgg_min
 
-   ssnow_isflag_ssdn = SPREAD( ssnow%isflag,2,mp)
+   !MC? ssnow_isflag_ssdn = SPREAD( ssnow%isflag,2,mp)
+   ssnow_isflag_ssdn = SPREAD(ssnow%isflag,2,3)
 
-   dels_ssdn = SPREAD( SPREAD( dels, 1, mp ), 2,  mp )
+   !MC? dels_ssdn = SPREAD( SPREAD( dels, 1, mp ), 2,  mp )
+   dels_ssdn = SPREAD(SPREAD(dels, 1, mp), 2,  3)
    ssnow_tgg_min1 = MIN( C%TFRZ, ssnow%tgg(:,1) )
 
    WHERE( ssnow%snowd > 0.1 .AND. ssnow%isflag == 0 )
@@ -1810,7 +1812,7 @@ SUBROUTINE soil_snow(dels, soil, ssnow, canopy, met, bal, veg)
    END DO
 
    CALL snowcheck (dels, ssnow, soil, met )
-
+   
    CALL snowdensity (dels, ssnow, soil)
 
    CALL snow_accum (dels, canopy, met, ssnow, soil )
