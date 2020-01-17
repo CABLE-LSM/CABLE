@@ -19,7 +19,7 @@ extract_latlon.py
 set_latlon_land.py
 	Sets the land variable of netcdf file to 1 at given latitude/longitude points, otherwise 0.
 duplicate_lon.py
-	Copies all variables of a single grid cell file into a secnd grid cell with the same lat/lon; for testing MPI.
+	Copies all variables of a single grid cell file into a second (or more) grid cell(s) with the same lat/lon.
 
 
 # Run Cable

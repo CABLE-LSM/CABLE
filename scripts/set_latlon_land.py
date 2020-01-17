@@ -23,7 +23,8 @@ Example
 
 History
 -------
-Written  Matthias Cuntz Nov 2019
+Written  Matthias Cuntz, Nov 2019
+Modified Matthias Cuntz, Jan 2020 - copy global attributes and append history
 """
 
 # -------------------------------------------------------------------------
@@ -89,6 +90,7 @@ ifile  = ifiles[1]
 import numpy as np
 import netCDF4 as nc
 import os
+import sys
 import time as ptime
 tstart = ptime.time()
 
@@ -143,6 +145,13 @@ iilons = []
 for ii in range(nlatlon):
     iilats.append(closest(ilats, lats[ii]))
     iilons.append(closest(ilons, lons[ii]))
+
+# Copy global attributes
+for k in fi.ncattrs():
+    iattr = fi.getncattr(k)
+    if (k == 'history'):
+        iattr = iattr + '\n' + ptime.asctime() + ': ' + ' '.join(sys.argv)
+    fo.setncattr(k, iattr)
     
 # Copy dimensions
 for d in fi.dimensions.values():

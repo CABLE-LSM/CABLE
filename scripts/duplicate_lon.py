@@ -1,15 +1,19 @@
 #!/usr/bin/env python
 from __future__ import print_function
 """
-usage: duplicate_lon.py [-h] [-o output_netcdf] [-z] [input_netcdf]
+usage: duplicate_lon.py [-h] [-n ncopies] [-o output_netcdf] [-z]
+                        [input_netcdf]
 
-Copies all variables of a single grid cell file into a secnd grid cell with the same lat/lon.
+Copies all variables of a single grid cell file into a second (or more) grid cell(s) with the same lat/lon.
 
 positional arguments:
   input_netcdf          input netcdf file.
 
 optional arguments:
   -h, --help            show this help message and exit
+  -n ncopies, --ncopy ncopies
+                        number of copies of single grid cell, i.e. final
+                        number of identical grid cells (default: 2).
   -o output_netcdf, --outfile output_netcdf
                         output netcdf file name (default: input-2.nc).
   -z, --zip             Use netCDF4 variable compression (default: same format
@@ -23,7 +27,9 @@ Example
 
 History
 -------
-Written  Matthias Cuntz Dec 2019
+Written  Matthias Cuntz, Dec 2019
+Modified Matthias Cuntz, Jan 2020 - added ncopy
+                                  - copy global attributes and append history
 """
 
 # -------------------------------------------------------------------------
@@ -58,18 +64,23 @@ def getVariableDefinition(ncvar):
 
 import argparse
 
-ofile   = None
-izip    = False
-parser  = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
-                                  description=('''Copies all variables of a single grid cell file into a secnd grid cell with the same lat/lon.''')) # 1 degree to the west.'''))
+ncopy  = 2
+ofile  = None
+izip   = False
+parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
+                                     description=('''Copies all variables of a single grid cell file into a second (or more) grid cell(s) with the same lat/lon.'''))
+parser.add_argument('-n', '--ncopy', type=int, action='store',
+                        default=ncopy, dest='ncopy', metavar='ncopies',
+                        help='number of copies of single grid cell, i.e. final number of identical grid cells (default: 2).')
 parser.add_argument('-o', '--outfile', action='store',
-                    default=ofile, dest='ofile', metavar='output_netcdf',
+                        default=ofile, dest='ofile', metavar='output_netcdf',
                         help='output netcdf file name (default: input-2.nc).')
 parser.add_argument('-z', '--zip', action='store_true', default=izip, dest='izip',
-                    help='Use netCDF4 variable compression (default: same format as input file).')
+                        help='Use netCDF4 variable compression (default: same format as input file).')
 parser.add_argument('ifile', nargs='?', default=None, metavar='input_netcdf',
-                   help='input netcdf file.')
+                        help='input netcdf file.')
 args  = parser.parse_args()
+ncopy = args.ncopy
 ofile = args.ofile
 izip  = args.izip
 ifile = args.ifile
@@ -78,6 +89,7 @@ del parser, args
 import numpy as np
 import netCDF4 as nc
 import os
+import sys
 import time as ptime
 tstart = ptime.time()
 
@@ -117,11 +129,18 @@ elif 'lon' in fi.dimensions:
     lonname = 'lon'
 else:
     lonname = 'x'
-    
+
+# Copy global attributes
+for k in fi.ncattrs():
+    iattr = fi.getncattr(k)
+    if (k == 'history'):
+        iattr = iattr + '\n' + ptime.asctime() + ': ' + ' '.join(sys.argv)
+    fo.setncattr(k, iattr)
+
 # Copy dimensions
 for d in fi.dimensions.values():
     l = None if d.isunlimited() else len(d)
-    if (d.name=='longitude' or d.name=='lon' or d.name=='x'): l = 2
+    if (d.name=='longitude' or d.name=='lon' or d.name=='x'): l = ncopy
     fo.createDimension(d.name, l)
     
 # Create output variables
@@ -152,15 +171,15 @@ for ivar in fi.variables.values():
     if 'time' not in ivar.dimensions:
         ovar = fo.variables[ivar.name]
         if (latname in ivar.dimensions) and (lonname in ivar.dimensions):
-            ovar[:,0,...] = ivar[:,0,...]
-            ovar[:,1,...] = ivar[:,0,...]
+            for nn in range(ncopy):
+                ovar[:,nn,...] = ivar[:,0,...]
         elif (lonname in ivar.dimensions):
             # if (ivar.name == lonname):
             #     ovar[0,...] = ivar[0,...] - 1. # one degree to the west
             # else:
             #     ovar[0,...] = ivar[0,...]
-            ovar[0,...] = ivar[0,...]
-            ovar[1,...] = ivar[0,...]
+            for nn in range(ncopy):
+                ovar[nn,...] = ivar[0,...]
         else:
             ovar[:] = ivar[:]
 # copy dynamic variables
@@ -173,11 +192,11 @@ if 'time' in fi.dimensions:
             if 'time' in ivar.dimensions:
                 ovar = fo.variables[ivar.name]
                 if (latname in ivar.dimensions) and (lonname in ivar.dimensions):
-                    ovar[tt,:,0,...] = ivar[tt,:,0,...]
-                    ovar[tt,:,1,...] = ivar[tt,:,0,...]
+                    for nn in range(ncopy):
+                        ovar[tt,:,nn,...] = ivar[tt,:,0,...]
                 elif (lonname in ivar.dimensions):
-                    ovar[tt,0,...] = ivar[tt,0,...]
-                    ovar[tt,1,...] = ivar[tt,0,...]
+                    for nn in range(ncopy):
+                        ovar[tt,nn,...] = ivar[tt,0,...]
                 else:
                     ovar[tt,...] = ivar[tt,...]
 
