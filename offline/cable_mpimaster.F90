@@ -317,7 +317,7 @@ CONTAINS
     real(r_2), dimension(:,:), allocatable :: lucsave
     ! I/O
     integer :: c13o2_outfile_id
-    character(len=20), dimension(c13o2_nvars_output) :: c13o2_vars
+    character(len=40), dimension(c13o2_nvars_output) :: c13o2_vars
     integer,           dimension(c13o2_nvars_output) :: c13o2_var_ids
     ! delta-13C of atmospheric CO2
     integer            :: iunit, ios, CurYear1
@@ -446,9 +446,9 @@ CONTAINS
           cable_user%YearStart = ncciy
           cable_user%YearEnd   = ncciy
        elseif (cable_user%YearStart.eq.0 .and. ncciy.eq.0) then
-          print*, 'undefined start year for gswp met: '
-          print*, 'enter value for ncciy or'
-          print*, '(cable_user%YearStart and  cable_user%YearEnd) in cable.nml'
+          write(*,*) 'undefined start year for gswp met: '
+          write(*,*) 'enter value for ncciy or'
+          write(*,*) '(cable_user%YearStart and  cable_user%YearEnd) in cable.nml'
           write(logn,*) 'undefined start year for gswp met: '
           write(logn,*) 'enter value for ncciy or'
           write(logn,*) '(cable_user%YearStart and  cable_user%YearEnd) in cable.nml'
@@ -549,7 +549,7 @@ CONTAINS
     endif
 
     ! Tell the workers if we're leaping
-    print*, 'MASTER Send 01 ', leaps
+    ! print*, 'MASTER Send 01 ', leaps
     call MPI_Bcast(leaps, 1, MPI_LOGICAL, 0, comm, ierr)
 
     ! outer loop - spinup loop no. ktau_tot :
@@ -688,11 +688,11 @@ CONTAINS
              ! now it's time to initialize the workers
 
              ! MPI: bcast to workers so that they don't need to open the met file themselves
-             print*, 'MASTER Send 02 ', dels
+             ! print*, 'MASTER Send 02 ', dels
              CALL MPI_Bcast(dels, 1, MPI_REAL, 0, comm, ierr)
           ENDIF ! Call1
 
-          print*, 'MASTER Send 03 ', kend
+          ! print*, 'MASTER Send 03 ', kend
           CALL MPI_Bcast(kend, 1, MPI_INTEGER, 0, comm, ierr)
 
           IF ( CALL1 ) THEN
@@ -700,7 +700,7 @@ CONTAINS
              CALL find_extents()
 
              ! MPI: calculate and broadcast landpoint decomposition to the workers
-             print*, 'MASTER Send 04 comm'
+             ! print*, 'MASTER Send 04 comm'
              CALL master_decomp(comm, mland, mp)
 
              ! MPI: set up stuff for new irecv isend code that separates completion
@@ -710,63 +710,60 @@ CONTAINS
              ALLOCATE(inp_stats(MPI_STATUS_SIZE, wnp))
              ALLOCATE(recv_req(wnp))
              ALLOCATE(recv_stats(MPI_STATUS_SIZE, wnp))
-             print*, 'MASTER Send 05 icomm'
+             ! print*, 'MASTER Send 05 icomm'
              CALL MPI_Comm_dup(comm, icomm, ierr)
-             print*, 'MASTER Send 06 ocomm'
+             ! print*, 'MASTER Send 06 ocomm'
              CALL MPI_Comm_dup(comm, ocomm, ierr)
 
              ! MPI: data set in load_parameter is now scattered out to the workers
-             print*, 'MASTER Send 07 params'
+             ! print*, 'MASTER Send 07 params'
              CALL master_cable_params(comm, met, air, ssnow, veg, bgc, soil, canopy, &
                   rough, rad, sum_flux, bal)
 
-             print*, 'MASTER Send 08 climate'
+             ! print*, 'MASTER Send 08 climate'
              CALL master_climate_types(comm, climate, ktauday)
 
              ! MPI: mvtype and mstype send out here instead of inside master_casa_params
              !      so that old CABLE carbon module can use them. (BP May 2013)
-             print*, 'MASTER Send 09 ', mvtype
+             ! print*, 'MASTER Send 09 ', mvtype
              CALL MPI_Bcast(mvtype, 1, MPI_INTEGER, 0, comm, ierr)
-             print*, 'MASTER Send 10 ', mstype
+             ! print*, 'MASTER Send 10 ', mstype
              CALL MPI_Bcast(mstype, 1, MPI_INTEGER, 0, comm, ierr)
 
              ! MPI: casa parameters scattered only if cnp module is active
              IF (icycle>0) THEN
                 ! MPI:
-                print*, 'MASTER Send 11 casa'
+                ! print*, 'MASTER Send 11 casa'
                 CALL master_casa_params(comm, casabiome, casapool, casaflux, casamet, casabal, phen)
                 ! 13C
                 if (cable_user%c13o2) then
-                   print*, 'MASTER Send 12 c13o2_flux'
+                   ! print*, 'MASTER Send 12 c13o2_flux'
                    CALL master_c13o2_flux_params(comm, c13o2flux)
-                   print*, 'MASTER Send 13 c13o2_pool'
+                   ! print*, 'MASTER Send 13 c13o2_pool'
                    CALL master_c13o2_pool_params(comm, c13o2pools)
-                   print*, '13C Master 01'
-                   call c13o2_print_delta_flux(c13o2flux)
-                   call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
                 endif
 
                 ! Create and Send POP ini/restart data
                 if (cable_user%call_pop) then
-                   print*, 'MASTER Send 14 pop'
+                   ! print*, 'MASTER Send 14 pop'
                    call master_pop_types(comm, casamet, pop)
                 endif
 
                 ! Fire init and
                 if (cable_user%call_blaze) then
                    !create handles for restart-data
-                   print*, 'MASTER Send 15 blaze'
+                   ! print*, 'MASTER Send 15 blaze'
                    call master_blaze_types(comm, wland, wnp, mp, blaze, blaze_restart_ts, blaze_out_ts)
                    if (.not. spinup) then
-                      print*, 'MASTER Send 16 blaze restart'
+                      ! print*, 'MASTER Send 16 blaze restart'
                       call master_send_input(icomm, blaze_restart_ts, ktau)
                    endif
                    if (trim(cable_user%burnt_area) == "SIMFIRE" ) then
-                      print*, 'MASTER Send 17 simfire'
+                      ! print*, 'MASTER Send 17 simfire'
                       call master_simfire_types(comm, wland, wnp, mp, simfire, &
                            simfire_restart_ts, simfire_inp_ts, simfire_out_ts)
                       if (.not. spinup) then
-                         print*, 'MASTER Send 18 simfire restart'
+                         ! print*, 'MASTER Send 18 simfire restart'
                          call master_send_input(icomm, simfire_restart_ts, ktau)
                       endif
                    end if
@@ -781,40 +778,37 @@ CONTAINS
              ! at the start of every timestep
              !   CALL master_intypes (comm,met,veg)
              ! for read ahead use the new variables
-             print*, 'MASTER Send 19 intypes'
+             ! print*, 'MASTER Send 19 intypes'
              CALL master_intypes(comm, imet, iveg)
 
              ! MPI: create recv_t types to receive results from the workers
              ! at the end of every timestep
-             print*, 'MASTER Send 20 outtypes'
+             ! print*, 'MASTER Send 20 outtypes'
              CALL master_outtypes(comm, met, canopy, ssnow, rad, bal, air, soil, veg)
 
              ! MPI: create type for receiving casa results
              ! only if cnp module is active
              if (icycle>0) then
-                print*, 'MASTER Send 21 casa'
+                ! print*, 'MASTER Send 21 casa'
                 call master_casa_types(comm, casapool, casaflux, casamet, casabal, phen)
                 ! 13C
                 if (cable_user%c13o2) then
-                   print*, 'MASTER Send 22 c13o2_flux'
+                   ! print*, 'MASTER Send 22 c13o2_flux'
                    call master_c13o2_flux_types(comm, c13o2flux)
-                   print*, 'MASTER Send 23 c13o2_pool'
+                   ! print*, 'MASTER Send 23 c13o2_pool'
                    call master_c13o2_pool_types(comm, c13o2pools)
-                   print*, '13C Master 02'
-                   call c13o2_print_delta_flux(c13o2flux)
-                   call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
                 endif
 
                 if (cable_user%casa_dump_read .or. cable_user%casa_dump_write) then
-                   print*, 'MASTER Send 24 casa_dump'
+                   ! print*, 'MASTER Send 24 casa_dump'
                    call master_casa_dump_types(comm, casamet, casaflux, phen, climate, c13o2flux)
                 endif
                 if (cable_user%popluc) then
-                   print*, 'MASTER Send 25 casa_LUC'
+                   ! print*, 'MASTER Send 25 casa_LUC'
                    CALL master_casa_LUC_types(comm, casapool, casabal, casaflux)
                    ! 13C
                    if (cable_user%c13o2) then
-                      print*, 'MASTER Send 26 c13o2luc'
+                      ! print*, 'MASTER Send 26 c13o2luc'
                       call master_c13o2_luc_types(comm, c13o2luc)
                    endif
                 endif
@@ -823,7 +817,7 @@ CONTAINS
              ! MPI: create type to send restart data back to the master
              ! only if restart file is to be created
              if (output%restart) then
-                print*, 'MASTER Send 27 restart'
+                ! print*, 'MASTER Send 27 restart'
                 call master_restart_types(comm, canopy, air)
              end if
 
@@ -842,9 +836,6 @@ CONTAINS
                 CASAONLY = .TRUE.
                 ktau_gl  = 0
                 ktau     = 0
-                print*, '13C Master 03'
-                call c13o2_print_delta_flux(c13o2flux)
-                call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
              ELSEIF ( casaonly .AND. (.NOT. spincasa) .AND. cable_user%popluc) THEN
                 CALL master_CASAONLY_LUC(dels,kstart,kend,veg,soil,casabiome,casapool, &
                      casaflux,casamet,casabal,phen,POP,climate,LALLOC, LUC_EXPT, POPLUC, &
@@ -852,14 +843,10 @@ CONTAINS
                 SPINconv = .FALSE.
                 ktau_gl  = 0
                 ktau     = 0
-                print*, '13C Master 04'
-                call c13o2_print_delta_flux(c13o2flux)
-                call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
              ENDIF
 
              ! MPI: mostly original serial code follows...
           ENDIF ! CALL1
-          write(*,*) 'Master after CALL1'
 
           ! Open output file:
           IF (.NOT.CASAONLY) THEN
@@ -938,7 +925,7 @@ CONTAINS
           ! Read ahead: send input before workes start ktau loop
           IF ( .NOT. CASAONLY ) THEN
              ! MPI: scatter input data to the workers
-             print*, 'MASTER Send 28 input'
+             ! print*, 'MASTER Send 28 input'
              CALL master_send_input(icomm, inp_ts, iktau)
              ! CALL MPI_Waitall(wnp, inp_req, in_pstats, ierr)
           ! ELSE
@@ -951,11 +938,11 @@ CONTAINS
              if ((CurYear < c13o2_atm_syear) .or. (CurYear > c13o2_atm_eyear)) then
                 write(*,*) 'Current year ', CurYear, 'not in atmospheric delta-13C (min/max): ', &
                      c13o2_atm_syear, c13o2_atm_eyear
-                stop
+                call MPI_Abort(comm, 0, ierr)
              endif
              c13o2flux%ca = (c13o2_delta_atm(CurYear) + 1.0_r_2) * real(imet%ca,r_2) ! * vpdbc13 / vpdbc13
              ! broadcast
-             print*, 'MASTER Send 29 Ca ', c13o2flux%ca
+             ! print*, 'MASTER Send 29 Ca ', c13o2flux%ca
              !!!MC Change: works only with "mpiexec -n 2"
              ! call MPI_Bcast(c13o2flux%ca, mp, MPI_DOUBLE_PRECISION, 0, comm, ierr)
              do rank=1, wnp
@@ -1032,20 +1019,17 @@ CONTAINS
                 IF ( icycle > 0 ) THEN
                    ! receive casa update from worker
                    IF ( MOD((oktau-kstart+1+koffset),ktauday).EQ.0 ) THEN
-                      print*, 'MASTER Receive 30 casa'
+                      ! print*, 'MASTER Receive 30 casa'
                       CALL master_receive(ocomm, oktau, casa_ts)
                       ! 13C
                       if (cable_user%c13o2) then
-                         print*, 'MASTER Receive 31 c13o2_flux'
+                         ! print*, 'MASTER Receive 31 c13o2_flux'
                          call master_receive(ocomm, oktau, c13o2_flux_ts)
-                         print*, 'MASTER Receive 32 c13o2_flux'
+                         ! print*, 'MASTER Receive 32 c13o2_flux'
                          call master_receive(ocomm, oktau, c13o2_pool_ts)
-                         print*, '13C Master 05'
-                         call c13o2_print_delta_flux(c13o2flux)
-                         call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
                       endif
                       ! write(*,*) 'after master_receive casa_ts'
-                      print*, 'MASTER Receive waitall'
+                      ! print*, 'MASTER Receive waitall'
                       CALL MPI_Waitall(wnp, recv_req, recv_stats, ierr)
                    ENDIF
                    ! write(*,*) 'after master_receive casa_ts waitall'
@@ -1054,7 +1038,7 @@ CONTAINS
                    IF ( ((.NOT.spinup) .OR. (spinup.AND.spinConv)) .AND.   &
                         IS_CASA_TIME("dwrit", yyyy, oktau, kstart, &
                         koffset, kend, ktauday, logn) ) THEN
-                      print*, 'MASTER Receive 33 dump'
+                      ! print*, 'MASTER Receive 33 dump'
                       CALL master_receive( ocomm, oktau, casa_dump_ts )
                       ! CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
                    ENDIF
@@ -1062,12 +1046,12 @@ CONTAINS
                 ENDIF ! icycle>0
 
                 ! MPI: receive this time step's results from the workers
-                print*, 'MASTER Receive 34 recv'
+                ! print*, 'MASTER Receive 34 recv'
                 CALL master_receive(ocomm, oktau, recv_ts)
                 ! CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
 
                 ! MPI: scatter input data to the workers
-                print*, 'MASTER Send 35 input'
+                ! print*, 'MASTER Send 35 input'
                 CALL master_send_input(icomm, inp_ts, iktau)
                 ! CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
 
@@ -1075,7 +1059,7 @@ CONTAINS
                 if (cable_user%c13o2) then
                    ! already checked that CurYear in input file
                    c13o2flux%ca = (c13o2_delta_atm(CurYear) + 1.0_r_2) * real(imet%ca,r_2)
-                   print*, 'MASTER Send 36 Ca'
+                   ! print*, 'MASTER Send 36 Ca'
                    !!!MC Change: works only with "mpiexec -n 2"
                    ! call MPI_Bcast(c13o2flux%ca, mp, MPI_DOUBLE_PRECISION, 0, comm, ierr)
                    do rank=1, wnp
@@ -1108,7 +1092,7 @@ CONTAINS
              ELSE IF ( MOD((ktau-kstart+1+koffset),ktauday)==0 ) THEN
 
                 !MC - make same as worker
-                print*, 'MASTER Send 35 dump'
+                ! print*, 'MASTER Send 35 dump'
                 CALL master_send_input(icomm, casa_dump_ts, iktau)
                 ! CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
 
@@ -1134,19 +1118,16 @@ CONTAINS
                 IF (icycle > 0) THEN
                    IF ( IS_CASA_TIME("write", yyyy, oktau, kstart, &
                         koffset, kend, ktauday, logn) ) THEN
-                      ctime = ctime +1
+                      ctime = ctime + 1
                       CALL WRITE_CASA_OUTPUT_NC(veg, casamet, casapool, casabal, casaflux, &
                            CASAONLY, ctime, ( ktau.EQ.kend .AND. YYYY .EQ.cable_user%YearEnd ) )
                       ! 13C
                       if (cable_user%c13o2) then
-                         print*, 'CTIME ', ctime
                          if (ctime == 1) then
-                            call c13o2_create_output(casamet, sum_c13o2pools, c13o2_outfile_id, c13o2_vars, c13o2_var_ids)
+                            ! call c13o2_create_output(casamet, sum_c13o2pools, c13o2_outfile_id, c13o2_vars, c13o2_var_ids)
+                            call c13o2_create_output(casamet, c13o2pools, c13o2_outfile_id, c13o2_vars, c13o2_var_ids)
                          endif
-                         call c13o2_write_output(c13o2_outfile_id, c13o2_vars, c13o2_var_ids, ctime, sum_c13o2pools)
-                         if ( (ktau == kend-1) .and. (YYYY == cable_user%YearEnd) ) then
-                            call c13o2_close_output(c13o2_outfile_id)
-                         endif
+                         call c13o2_write_output(c13o2_outfile_id, c13o2_vars, c13o2_var_ids, ctime, c13o2pools)
                       end if
                    ENDIF
                 ENDIF
@@ -1156,10 +1137,10 @@ CONTAINS
                         .OR. TRIM(cable_user%MetType) .EQ. 'cru'   &
                         .OR. TRIM(cable_user%MetType) .EQ. 'bios'  &
                         .OR. TRIM(cable_user%MetType) .EQ. 'gswp') then
-                      CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, &
-                           casamet,ssnow,         &
+                      CALL write_output(dels, ktau_tot, met, canopy, casaflux, casapool, &
+                           casamet, ssnow,         &
                            rad, bal, air, soil, veg, C%SBOLTZ,     &
-                           C%EMLEAF, C%EMSOIL, c13o2pools, c13o2flux )
+                           C%EMLEAF, C%EMSOIL, c13o2pools, c13o2flux)
                    ELSE
                       CALL write_output( dels, ktau, met, canopy, casaflux, casapool, &
                            casamet, ssnow,   &
@@ -1203,20 +1184,15 @@ CONTAINS
                 IF (ktau==(kend-1)) THEN
                    nkend = nkend+1
                    IF( ABS(new_sumbal-trunk_sumbal) < 1.e-7) THEN
-                      PRINT*, ""
-                      PRINT*, &
-                           "NB. Offline-parallel runs spinup cycles:", nkend
-                      PRINT*, &
-                           "Internal check shows this version reproduces the trunk sumbal"
+                      write(*,*) ""
+                      write(*,*) "NB. Offline-parallel runs spinup cycles:", nkend
+                      write(*,*) "Internal check shows this version reproduces the trunk sumbal"
                    ELSE
-                      PRINT*, ""
-                      PRINT*, &
-                           "NB. Offline-parallel runs spinup cycles:", nkend
-                      PRINT*, &
-                           "Internal check shows in this version new_sumbal != trunk sumbal"
-                      PRINT*, "The difference is: ", new_sumbal - trunk_sumbal
-                      PRINT*, &
-                           "Writing new_sumbal to the file:", TRIM(Fnew_sumbal)
+                      write(*,*) ""
+                      write(*,*) "NB. Offline-parallel runs spinup cycles:", nkend
+                      write(*,*) "Internal check shows in this version new_sumbal != trunk sumbal"
+                      write(*,*) "The difference is: ", new_sumbal - trunk_sumbal
+                      write(*,*) "Writing new_sumbal to the file:", TRIM(Fnew_sumbal)
                       !CLN OPEN( 12, FILE = Fnew_sumbal )
                       !CLN WRITE( 12, '(F20.7)' ) new_sumbal  ! written by previous trunk version
                       !CLN CLOSE(12)
@@ -1234,7 +1210,6 @@ CONTAINS
              ! endif
 
           END DO KTAULOOP ! END Do loop over timestep ktau
-          write(*,*) 'Master after ktau loop'
 
           CALL1 = .FALSE.
 
@@ -1245,31 +1220,29 @@ CONTAINS
           ktau_tot = ktau_tot + 1
           ktau_gl  = oktau
 
+          print*, 'CASAONLY  ', CASAONLY
           IF ( .NOT. CASAONLY ) THEN
              IF ( icycle >0 ) THEN
-                print*, 'MASTER Receive 37 casa'
+                ! print*, 'MASTER Receive 37 casa'
                 CALL master_receive(ocomm, oktau, casa_ts)
                 ! 13C
                 if (cable_user%c13o2) then
-                   print*, 'MASTER Receive 38 c13o2_flux'
+                   ! print*, 'MASTER Receive 38 c13o2_flux'
                    call master_receive(ocomm, oktau, c13o2_flux_ts)
-                   print*, 'MASTER Receive 39 c13o2_pool'
+                   ! print*, 'MASTER Receive 39 c13o2_pool'
                    call master_receive(ocomm, oktau, c13o2_pool_ts)
-                   print*, '13C Master 06'
-                   call c13o2_print_delta_flux(c13o2flux)
-                   call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
                 endif
                 ! CALL MPI_Waitall(wnp, recv_req, recv_stats, ierr)
                 IF ( ((.NOT.spinup) .OR. (spinup.AND.spinConv)) .AND. &
                      IS_CASA_TIME("dwrit", yyyy, oktau, kstart, &
                      koffset, kend, ktauday, logn) ) THEN
-                   print*, 'MASTER Receive 40 dump'
+                   ! print*, 'MASTER Receive 40 dump'
                    CALL master_receive( ocomm, oktau, casa_dump_ts )
                    ! CALL MPI_Waitall(wnp, recv_req, recv_stats, ierr)
                 ENDIF
              ENDIF
              ! write(*,*) 'master_receive 6'
-             print*, 'MASTER Receive 41 recv'
+             ! print*, 'MASTER Receive 41 recv'
              CALL master_receive(ocomm, oktau, recv_ts)
              ! CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
           ENDIF
@@ -1280,21 +1253,22 @@ CONTAINS
           IF ( TRIM(cable_user%MetType) .EQ. "gswp" ) &
                CALL close_met_file()
           
+          print*, 'Call POP  ', icycle, cable_user%CALL_POP
           IF (icycle>0 .and. cable_user%CALL_POP)  THEN
-             write(*,*) 'b4 annual calcs'
+             ! write(*,*) 'b4 annual calcs'
              IF (cable_user%POPLUC) THEN
                 ! master receives casa updates required for LUC calculations here
-                print*, 'MASTER Receive 42 luc'
+                ! print*, 'MASTER Receive 42 luc'
                 CALL master_receive(ocomm, 0, casa_LUC_ts)
                 ! 13C
                 if (cable_user%c13o2) then
-                   print*, 'MASTER Receive 43 c13o2_luc'
+                   ! print*, 'MASTER Receive 43 c13o2_luc'
                    call master_receive(ocomm, 0, c13o2_luc_ts)
                 endif
                 ! Dynamic LUC
                 CALL LUCdriver( casabiome,casapool,casaflux,POP,LUC_EXPT, POPLUC, veg, c13o2pools )
                 ! transfer POP updates to workers
-                print*, 'MASTER Send 44 pop'
+                ! print*, 'MASTER Send 44 pop'
                 off = 1
                 DO rank = 1, wnp
                    IF ( rank .GT. 1 ) off = off + wland(rank-1)%npop_iwood
@@ -1305,7 +1279,7 @@ CONTAINS
 
              ! one annual time-step of POP (worker calls POP here)
              !CALL POPdriver(casaflux,casabal,veg, POP)
-             print*, 'MASTER Receive 45 pop'
+             ! print*, 'MASTER Receive 45 pop'
              CALL master_receive_pop(POP, ocomm)
 
              IF (cable_user%POPLUC) THEN
@@ -1330,24 +1304,34 @@ CONTAINS
 
              if (cable_user%POPLUC) then
                 ! send updates for CASA pools, resulting from LUC
-                print*, 'MASTER Send 46 luc'
+                ! print*, 'MASTER Send 46 luc'
                 CALL master_send_input(icomm, casa_LUC_ts, nyear)
                 ! 13C
                 if (cable_user%c13o2) then
-                   print*, 'MASTER Send 47 c13o2_luc'
+                   ! print*, 'MASTER Send 47 c13o2_luc'
                    call master_send_input(icomm, c13o2_luc_ts, nyear)
                 endif
              endif
           ENDIF ! icycle>0 .and. cable_user%CALL_POP
-          write(*,*) 'after annual calcs'
 
           ! WRITE OUTPUT
+          print*, 'Spinup  ', spinup, spinConv, icycle
           IF ((.NOT.spinup).OR.(spinup.AND.spinConv)) THEN
-             IF (icycle >0) THEN
+             IF (icycle>0) THEN
                 ctime = ctime + 1
+                print*, 'Close casa output ', ( ktau.EQ.kend .AND. YYYY .EQ. cable_user%YearEnd )
                 CALL WRITE_CASA_OUTPUT_NC(veg, casamet, casapool, casabal, casaflux, &
                      CASAONLY, ctime, ( ktau.EQ.kend .AND. YYYY .EQ.               &
                      cable_user%YearEnd ) )
+                ! 13C
+                if (cable_user%c13o2) then
+                   call c13o2_write_output(c13o2_outfile_id, c13o2_vars, c13o2_var_ids, ctime, c13o2pools)
+                   if (YYYY == cable_user%YearEnd) then
+                      print*, 'MASTER close c13o2 output file'
+                      call c13o2_close_output(c13o2_outfile_id)
+                      print*, 'MASTER closed c13o2 output file'
+                   endif
+                end if
                 IF ( cable_user%CALL_POP ) THEN
                    ! CALL master_receive_pop(POP, ocomm)
                    ! CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
@@ -1399,12 +1383,12 @@ CONTAINS
                 new_sumbal = new_sumbal + SUM(bal%wbal)/mp +  SUM(bal%ebal)/mp
                 new_sumfpn = new_sumfpn + SUM(canopy%fpn)/mp
                 new_sumfe = new_sumfe + SUM(canopy%fe)/mp
-                if (ktau == kend) PRINT*
-                if (ktau == kend) PRINT*, "time-space-averaged energy & water balances"
-                if (ktau == kend) PRINT*,"Ebal_tot[Wm-2], Wbal_tot[mm per timestep]", &
+                if (ktau == kend) write(*,*) ""
+                if (ktau == kend) write(*,*) "time-space-averaged energy & water balances"
+                if (ktau == kend) write(*,*) "Ebal_tot[Wm-2], Wbal_tot[mm per timestep]", &
                      sum(bal%ebal_tot)/mp/count_bal, sum(bal%wbal_tot)/mp/count_bal
-                if (ktau == kend) PRINT*, "time-space-averaged latent heat and net photosynthesis"
-                if (ktau == kend) PRINT*, "sum_fe[Wm-2], sum_fpn[umol/m2/s]",  &
+                if (ktau == kend) write(*,*) "time-space-averaged latent heat and net photosynthesis"
+                if (ktau == kend) write(*,*) "sum_fe[Wm-2], sum_fpn[umol/m2/s]",  &
                      new_sumfe/count_bal, new_sumfpn/count_bal
                 if (ktau == kend) write(logn,*) ""
                 if (ktau == kend) write(logn,*) "time-space-averaged energy & water balances"
@@ -1433,9 +1417,9 @@ CONTAINS
        ! see if spinup (if conducting one) has converged:
        IF (spinup.AND..NOT.spinConv.AND. .NOT. CASAONLY) THEN
           ! Write to screen and log file:
-          WRITE(*,'(A18,I3,A24)') ' Spinning up: run ',INT(ktau_tot/kend),      &
+          WRITE(*,'(A18,I3,A24)') ' Spinning up: run ', INT(ktau_tot/kend), &
                ' of data set complete...'
-          WRITE(logn,'(A18,I3,A24)') ' Spinning up: run ',INT(ktau_tot/kend),   &
+          WRITE(logn,'(A18,I3,A24)') ' Spinning up: run ', INT(ktau_tot/kend), &
                ' of data set complete...'
 
           ! IF not 1st run through whole dataset:
@@ -1450,13 +1434,13 @@ CONTAINS
                 !               PRINT *, 'ssnow%tgg: ', ssnow%tgg
                 !               PRINT *, 'soilTtemp: ', soilTtemp
                 maxdiff = MAXLOC(ABS(ssnow%wb-soilMtemp))
-                PRINT*, 'Example location of moisture non-convergence: ',maxdiff
-                PRINT*, 'ssnow%wb : ', ssnow%wb(maxdiff(1),maxdiff(2))
-                PRINT*, 'soilMtemp: ', soilMtemp(maxdiff(1),maxdiff(2))
+                write(*,*) 'Example location of moisture non-convergence: ',maxdiff
+                write(*,*) 'ssnow%wb : ', ssnow%wb(maxdiff(1),maxdiff(2))
+                write(*,*) 'soilMtemp: ', soilMtemp(maxdiff(1),maxdiff(2))
                 maxdiff = MAXLOC(ABS(ssnow%tgg-soilTtemp))
-                PRINT*, 'Example location of temperature non-convergence: ',maxdiff
-                PRINT*, 'ssnow%tgg: ', ssnow%tgg(maxdiff(1),maxdiff(2))
-                PRINT*, 'soilTtemp: ', soilTtemp(maxdiff(1),maxdiff(2))
+                write(*,*) 'Example location of temperature non-convergence: ',maxdiff
+                write(*,*) 'ssnow%tgg: ', ssnow%tgg(maxdiff(1),maxdiff(2))
+                write(*,*) 'soilTtemp: ', soilTtemp(maxdiff(1),maxdiff(2))
              ELSE ! spinup has converged
                 spinConv = .TRUE.
                 ! Write to screen and log file:
@@ -1496,7 +1480,7 @@ CONTAINS
        END IF ! spinup.AND..NOT.spinConv.AND. .NOT. CASAONLY
 
        ! MPI: let the workers know whether it's time to quit
-       print*, 'MASTER Send 48 loop_exit'
+       ! print*, 'MASTER Send 48 loop_exit'
        CALL MPI_Bcast(loop_exit, 1, MPI_LOGICAL, 0, comm, ierr)
 
        IF (loop_exit) THEN
@@ -1507,17 +1491,14 @@ CONTAINS
 
     IF (icycle > 0 .and. (.not.spincasa).and. (.not.casaonly)) THEN
        ! MPI: gather casa results from all the workers
-       print*, 'MASTER Receive 49 casa'
+       ! print*, 'MASTER Receive 49 casa'
        CALL master_receive(ocomm, ktau_gl, casa_ts)
        ! 13C
        if (cable_user%c13o2) then
-          print*, 'MASTER Receive 50 c13o2_flux'
+          ! print*, 'MASTER Receive 50 c13o2_flux'
           call master_receive(ocomm, ktau_gl, c13o2_flux_ts)
-          print*, 'MASTER Receive 51 c13o2_pool'
+          ! print*, 'MASTER Receive 51 c13o2_pool'
           call master_receive(ocomm, ktau_gl, c13o2_pool_ts)
-          print*, '13C Master 07'
-          call c13o2_print_delta_flux(c13o2flux)
-          call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
       endif
 
        ! CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
@@ -1558,7 +1539,7 @@ CONTAINS
        !                      canopy,rough,rad,bgc,bal)
        ! gol124: how about call master_receive (comm, ktau, restart_ts)
        ! instead of a separate receive_restart sub?
-       print*, 'MASTER Receive 51 restart'
+       ! print*, 'MASTER Receive 51 restart'
        CALL master_receive(comm, ktau_gl, restart_ts)
        ! CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
 
@@ -1566,7 +1547,7 @@ CONTAINS
             canopy, rough, rad, bgc, bal, met)
 
        if (cable_user%CALL_climate) then
-          print*, 'MASTER Receive 52 climate'
+          ! print*, 'MASTER Receive 52 climate'
           CALL master_receive(comm, ktau_gl, climate_ts)
           ! CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
           CALL WRITE_CLIMATE_RESTART_NC( climate, ktauday )
@@ -1590,7 +1571,7 @@ CONTAINS
     CLOSE(logn)
 
     CALL CPU_TIME(etime)
-    PRINT*, 'Master End. ', etime, ' seconds'
+    write(*,*) 'Master End in ', etime, ' seconds.'
     ! MPI: cleanup
     CALL master_end(icycle, output%restart)
 
@@ -1608,7 +1589,7 @@ CONTAINS
     INTEGER, INTENT(IN) :: ncciy
 
     WRITE(logn,*) 'CABLE offline global run using gswp forcing for ', ncciy
-    PRINT*,       'CABLE offline global run using gswp forcing for ', ncciy
+    write(*,*)    'CABLE offline global run using gswp forcing for ', ncciy
 
     CALL renameFiles(logn,gswpfile%rainf,ncciy,'rainf')
     CALL renameFiles(logn,gswpfile%snowf,ncciy,'snowf')
@@ -1709,7 +1690,7 @@ SUBROUTINE master_decomp(comm, mland, mp)
   ALLOCATE(wland(wnp), STAT=ierr)
   IF (ierr /= 0) THEN
      ! TODO: print an error message
-     PRINT*, 'master-decomp MPI_ABORT'
+     write(*,*) 'master-decomp MPI_ABORT'
      CALL MPI_Abort(comm, 0, ierr)
   END IF
 
@@ -7169,7 +7150,7 @@ SUBROUTINE master_casa_types(comm, casapool, casaflux, casamet, casabal, phen)
      ! free the partial types used for matrices
      ! TODO: also free partial types for intypes, outtypes etc.
      DO i = 1, last2d
-        CALL MPI_Type_free (types(i), ierr)
+        CALL MPI_Type_free(types(i), ierr)
      END DO
 
   END DO
@@ -7261,7 +7242,7 @@ SUBROUTINE master_climate_types (comm, climate, ktauday)
      ndq = 91
      nsd = 5 * ktauday
 
-     print*, 'master, nd ny mp nsd', nd, ny,mp, nsd
+     ! write(*,*) 'master, nd ny mp nsd', nd, ny,mp, nsd
 
      bidx = bidx + 1
      CALL MPI_Get_address (climate%mtemp_min_20(off,1), displs(bidx), ierr)
@@ -7269,7 +7250,7 @@ SUBROUTINE master_climate_types (comm, climate, ktauday)
      &                                types(bidx), ierr)
      blocks(bidx) = 1
 
-     ! print*, 'master', blocks, bidx, ny, r1len, displs, ierr, climate%mtemp_min_20(off,:)
+     ! write(*,*) 'master', blocks, bidx, ny, r1len, displs, ierr, climate%mtemp_min_20(off,:)
 
      bidx = bidx + 1
      CALL MPI_Get_address (climate%mtemp_max_20(off,1), displs(bidx), ierr)
@@ -7942,7 +7923,7 @@ SUBROUTINE master_restart_types (comm, canopy, air)
 
      ! free the partial types used for matrices
      DO i = 1, last2d
-        CALL MPI_Type_free (types(i), ierr)
+        CALL MPI_Type_free(types(i), ierr)
      END DO
 
   END DO
@@ -8114,7 +8095,6 @@ SUBROUTINE master_casa_dump_types(comm, casamet, casaflux, phen, climate, c13o2f
         CALL MPI_Get_address(c13o2flux%cAn(off), displs(bidx), ierr)
         blocks(bidx) = r2len
      endif
-     print*, 'Ha05 ', ntyp, bidx, blocks
      
      ! MPI: sanity check
      IF (bidx /= ntyp) THEN
@@ -9947,9 +9927,9 @@ SUBROUTINE master_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
 
   ENDDO     ! end of nloop
   
-  write(*,*) 'b4 master receive casa'
+  ! write(*,*) 'b4 master receive casa'
   CALL master_receive(ocomm, 0, casa_ts)
-  write(*,*) 'after master receive casa'
+  ! write(*,*) 'after master receive casa'
   CALL casa_poolout(ktau, veg, soil, casabiome, &
        casapool, casaflux, casamet, casabal, phen )
 
@@ -9966,9 +9946,9 @@ SUBROUTINE master_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
   endif
 
   IF ( cable_user%CALL_POP .and.POP%np.gt.0 ) THEN
-     write(*,*) 'b4 master receive pop'
+     ! write(*,*) 'b4 master receive pop'
      CALL master_receive_pop(POP, ocomm)
-     write(*,*) 'after master receive pop'
+     ! write(*,*) 'after master receive pop'
      CALL POP_IO( pop, casamet, myearspin, 'WRITE_INI', .TRUE.)
   ENDIF
 

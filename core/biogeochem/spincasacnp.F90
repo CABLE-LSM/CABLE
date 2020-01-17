@@ -82,7 +82,7 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
    ! 13C
    real(dp), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
    integer :: c13o2_file_id
-   character(len=20), dimension(c13o2_nvars_output) :: c13o2_vars
+   character(len=40), dimension(c13o2_nvars_output) :: c13o2_vars
    integer,           dimension(c13o2_nvars_output) :: c13o2_var_ids
    real(r_2), dimension(:), allocatable :: avg_c13leaf2met, avg_c13leaf2str, avg_c13root2met, &
         avg_c13root2str, avg_c13wood2cwd

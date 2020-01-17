@@ -50,6 +50,6 @@ PROGRAM mpi_driver
   CALL MPI_Finalize(ierr)
 
   CALL CPU_TIME(etime)
-  PRINT*, 'Finished. ', etime, ' seconds needed for '
+  write(*,*) 'Finished in ', etime, ' seconds.'
 
 END PROGRAM mpi_driver

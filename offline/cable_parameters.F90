@@ -249,11 +249,10 @@ CONTAINS
          IF (ntime /=12) THEN
             CALL abort('Variable dimensions do not match (read_gridinfo)')
          ELSE
-            PRINT*, 'warning: soil layers below nslayer will be initialsed with moisture'
-            PRINT*,    'and temperature of lowest layer in grid_info'
+            write(*,*) 'warning: soil layers below nslayer will be initialsed with moisture'
+            write(*,*) '         and temperature of lowest layer in grid_info'
          ENDIF
       END IF
-
 
       if (npatch_LUC .gt. npatch) then
 
@@ -288,7 +287,6 @@ CONTAINS
          ALLOCATE( r3dum2(nlon, nlat, ntime) )
 
       else
-         
       
          ALLOCATE( inLon(nlon), inLat(nlat) )
          ALLOCATE( inVeg(nlon, nlat, npatch) )
@@ -343,7 +341,6 @@ CONTAINS
     ENDIF
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error reading variable iveg.')
 
-
     ok = NF90_INQ_VARID(ncid, 'patchfrac', varID)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
                                         'Error finding variable patchfrac.')
@@ -394,13 +391,10 @@ CONTAINS
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error finding variable Albedo.')
     ok = NF90_GET_VAR(ncid, varID, r3dum)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error reading variable Albedo.')
- !   DO kk = 1, nband
- !     inALB(:,:,1,kk) = r3dum(:,:,kk)
- !   ENDDO
+    !   DO kk = 1, nband
+    !     inALB(:,:,1,kk) = r3dum(:,:,kk)
+    !   ENDDO
     ! vh!
-
-
-    
     DO kk = 1, nband
        if (npatch_LUC .gt. npatch) then
           DO pp = 1,npatch_LUC
@@ -419,9 +413,9 @@ CONTAINS
     ok = NF90_GET_VAR(ncid,varID,r3dum2)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
                                         'Error reading variable SnowDepth.')
-   ! DO kk = 1, ntime
-   !   inSND(:, :, 1, kk) = r3dum2(:, :, kk)
-   ! ENDDO
+    ! DO kk = 1, ntime
+    !   inSND(:, :, 1, kk) = r3dum2(:, :, kk)
+    ! ENDDO
 
     DO kk = 1, ntime
        if (npatch_LUC .gt. npatch) then

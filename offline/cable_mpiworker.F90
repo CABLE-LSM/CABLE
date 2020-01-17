@@ -175,7 +175,6 @@ CONTAINS
          c13o2_update_sum_pools, c13o2_zero_sum_pools
     use cable_c13o2,             only: c13o2_save_luc, c13o2_update_luc, &
          c13o2_nvars_output
-    use cable_c13o2,             only: c13o2_print_delta_flux, c13o2_print_delta_pools, c13o2_print_delta_luc
     use mo_isotope,              only: isoratio ! vpdbc13
     use mo_c13o2_photosynthesis, only: c13o2_discrimination_simple, c13o2_discrimination
     use cable_data_module,       only: icanopy_type
@@ -258,7 +257,7 @@ CONTAINS
     type(c13o2_luc)   :: c13o2luc
     ! I/O
     integer :: c13o2_outfile_id
-    character(len=20), dimension(c13o2_nvars_output) :: c13o2_vars
+    character(len=40), dimension(c13o2_nvars_output) :: c13o2_vars
     integer,           dimension(c13o2_nvars_output) :: c13o2_var_ids
     ! discrimination
     integer :: ileaf
@@ -460,9 +459,9 @@ CONTAINS
     !                       C%TFRZ )
 
     ! Check for leap-year settings
-    print*, 'WORKER Receive 01'
+    ! print*, 'WORKER Receive 01'
     CALL MPI_Bcast(leaps, 1, MPI_LOGICAL, 0, comm, ierr)
-    print*, '                 ', leaps
+    ! print*, '                 ', leaps
 
     ktau_tot = 0
     SPINLOOP:DO
@@ -477,35 +476,35 @@ CONTAINS
           IF ( CALL1 ) THEN
              IF (.NOT.spinup)   spinConv=.TRUE.
              ! MPI: bcast to workers so that they don't need to open the met file themselves
-             print*, 'WORKER Receive 02'
+             ! print*, 'WORKER Receive 02'
              CALL MPI_Bcast(dels, 1, MPI_REAL, 0, comm, ierr)
-             print*, '                 ', dels
+             ! print*, '                 ', dels
           ENDIF
 
           ! MPI: receive from master ending time fields
-          print*, 'WORKER Receive 03'
+          ! print*, 'WORKER Receive 03'
           CALL MPI_Bcast(kend, 1, MPI_INTEGER, 0, comm, ierr)
-          print*, '                 ', kend
+          ! print*, '                 ', kend
 
           IF ( CALL1 ) THEN
              ! MPI: need to know extents before creating datatypes
              CALL find_extents()
 
              ! MPI: receive decomposition info from the master
-             print*, 'WORKER Receive 04 comm'
+             ! print*, 'WORKER Receive 04 comm'
              call worker_decomp(comm)
 
              ! MPI: in overlap version sends and receives occur on separate comms
-             print*, 'WORKER Receive 05 icomm'
+             ! print*, 'WORKER Receive 05 icomm'
              CALL MPI_Comm_dup(comm, icomm, ierr)
-             print*, 'WORKER Receive 06 ocomm'
+             ! print*, 'WORKER Receive 06 ocomm'
              CALL MPI_Comm_dup(comm, ocomm, ierr)
 
              ! MPI: data set in load_parameter is now received from
              ! the master
-             print*, 'WORKER Receive 07 params'
-             CALL worker_cable_params(comm, met,air,ssnow,veg,bgc,soil,canopy,&
-                  rough,rad,sum_flux,bal)
+             ! print*, 'WORKER Receive 07 params'
+             CALL worker_cable_params(comm, met, air, ssnow, veg, bgc, soil, canopy, &
+                  rough, rad, sum_flux, bal)
              ! 13C
              if (cable_user%c13o2) then
                 allocate(gpp(size(canopy%An,1),size(canopy%An,2)))
@@ -513,34 +512,31 @@ CONTAINS
                 allocate(diff(size(canopy%An,1),size(canopy%An,2)))
              endif
 
-             ktauday=int(24.0*3600.0/dels)
-             print*, 'WORKER Receive 08 climate'
+             ktauday = int(24.0*3600.0/dels)
+             ! print*, 'WORKER Receive 08 climate'
              CALL worker_climate_types(comm, climate, ktauday)
 
              ! MPI: mvtype and mstype send out here instead of inside worker_casa_params
              !      so that old CABLE carbon module can use them. (BP May 2013)
-             print*, 'WORKER Receive 09 mvtype'
+             ! print*, 'WORKER Receive 09 mvtype'
              CALL MPI_Bcast(mvtype, 1, MPI_INTEGER, 0, comm, ierr)
-             print*, 'WORKER Receive 10 mstype'
+             ! print*, 'WORKER Receive 10 mstype'
              CALL MPI_Bcast(mstype, 1, MPI_INTEGER, 0, comm, ierr)
 
              ! MPI: casa parameters received only if cnp module is active
              IF (icycle>0) THEN
-                print*, 'WORKER Receive 11 casa'
+                ! print*, 'WORKER Receive 11 casa'
                 CALL worker_casa_params(comm, casabiome, casapool, casaflux, casamet, casabal, phen)
                 ! 13C
                 if (cable_user%c13o2) then
-                   print*, 'WORKER Receive 12 c13o2_flux'
+                   ! print*, 'WORKER Receive 12 c13o2_flux'
                    call worker_c13o2_flux_params(comm, c13o2flux)
-                   print*, 'WORKER Receive 13 c13o2_pool'
+                   ! print*, 'WORKER Receive 13 c13o2_pool'
                    call worker_c13o2_pool_params(comm, c13o2pools)
-                   print*, '13C Worker 01'
-                   call c13o2_print_delta_flux(c13o2flux)
-                   call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
                 endif
                 ! MPI: POP restart received only if pop module AND casa are active
                 if (cable_user%call_pop) then
-                   print*, 'WORKER Receive 14 pop'
+                   ! print*, 'WORKER Receive 14 pop'
                    call worker_pop_types(comm, veg, casamet, pop)
                 endif
 
@@ -549,18 +545,18 @@ CONTAINS
                    ! allocate biomass turnover pools when both pop and blaze are active
                    if (cable_user%call_pop) allocate(pop_to(mp), pop_cwd(mp), pop_str(mp))
 
-                   print*, 'WORKER Receive 15 blaze'
+                   ! print*, 'WORKER Receive 15 blaze'
                    call worker_blaze_types(comm, mp, blaze, blaze_restart_t, blaze_out_t)
                    if ( .not. spinup ) then
-                      print*, 'WORKER Receive 16 blaze restart'
+                      ! print*, 'WORKER Receive 16 blaze restart'
                       call MPI_recv(MPI_BOTTOM, 1, blaze_restart_t, 0, ktau_gl, icomm, stat, ierr)
                    endif
                    ! cln:  burnt_area
                    if ( cable_user%burnt_area == "SIMFIRE" ) then
-                      print*, 'WORKER Receive 17 simfire'
+                      ! print*, 'WORKER Receive 17 simfire'
                       call worker_simfire_types(comm, mp, simfire, simfire_restart_t, simfire_inp_t, simfire_out_t)
                       if (.not. spinup) then
-                         print*, 'WORKER Receive 18 simfire restart'
+                         ! print*, 'WORKER Receive 18 simfire restart'
                          call MPI_Recv(MPI_BOTTOM, 1, simfire_restart_t, 0, ktau_gl, icomm, stat, ierr)
                       endif
                    endif
@@ -569,44 +565,41 @@ CONTAINS
 
              ! MPI: create inp_t type to receive input data from the master
              ! at the start of every timestep
-             print*, 'WORKER Receive 19 intypes'
+             ! print*, 'WORKER Receive 19 intypes'
              CALL worker_intype(comm, met, veg)
 
              ! MPI: casa parameters received only if cnp module is active
              ! MPI: create send_t type to send the results to the master
              ! at the end of every timestep
-             print*, 'WORKER Receive 20 outtypes'
+             ! print*, 'WORKER Receive 20 outtypes'
              CALL worker_outtype(comm, met, canopy, ssnow, rad, bal, air, soil, veg)
 
              ! MPI: casa parameters received only if cnp module is active
              ! MPI: create type to send casa results back to the master
              ! only if cnp module is active
              if (icycle>0) then
-                print*, 'WORKER Receive 21 casa'
+                ! print*, 'WORKER Receive 21 casa'
                 call worker_casa_type(comm, casapool, casaflux, casamet, casabal, phen)
                 ! 13C
                 if (cable_user%c13o2) then
-                   print*, 'WORKER Receive 22 c13o2flux'
+                   ! print*, 'WORKER Receive 22 c13o2flux'
                    call worker_c13o2_flux_type(comm, c13o2flux)
-                   print*, 'WORKER Receive 23 c13o2pool'
+                   ! print*, 'WORKER Receive 23 c13o2pool'
                    call worker_c13o2_pool_type(comm, c13o2pools)
-                   print*, '13C Worker 02'
-                   call c13o2_print_delta_flux(c13o2flux)
-                   call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
                 endif
 
                 if (cable_user%casa_dump_read .or. cable_user%casa_dump_write) then
-                   print*, 'WORKER Receive 24 casa_dump'
+                   ! print*, 'WORKER Receive 24 casa_dump'
                    call worker_casa_dump_types(comm, casamet, casaflux, phen, climate, c13o2flux)
                 endif
 
                 if (cable_user%popluc) then
-                   print*, 'WORKER Receive 25 casa_LUC'
+                   ! print*, 'WORKER Receive 25 casa_LUC'
                    call worker_casa_LUC_types( comm, casapool, casabal, casaflux)
                    ! MPI: casa parameters received only if cnp module is active
                    ! 13C
                    if (cable_user%c13o2) then
-                      print*, 'WORKER Receive 26 c13o2luc'
+                      ! print*, 'WORKER Receive 26 c13o2luc'
                       call worker_c13o2_luc_type(comm, c13o2luc)
                    endif
                 endif
@@ -615,7 +608,7 @@ CONTAINS
              ! MPI: create type to send restart data back to the master
              ! only if restart file is to be created
              if (output%restart) then
-                print*, 'WORKER Receive 27 restart'
+                ! print*, 'WORKER Receive 27 restart'
                 call worker_restart_type(comm, canopy, air)
              end if
 
@@ -646,9 +639,6 @@ CONTAINS
                 CASAONLY = .TRUE.
                 ktau_gl  = 0
                 ktau     = 0
-                print*, '13C Worker 03'
-                call c13o2_print_delta_flux(c13o2flux)
-                call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
              ELSEIF ( casaonly .AND. (.NOT. spincasa) .AND. cable_user%popluc) THEN
                 CALL worker_CASAONLY_LUC(dels,kstart,kend,veg,soil,casabiome,casapool, &
                      casaflux,casamet,casabal,phen,POP,climate,LALLOC, &
@@ -656,9 +646,6 @@ CONTAINS
                 SPINconv = .FALSE.
                 ktau_gl  = 0
                 ktau     = 0
-                print*, '13C Worker 04'
-                call c13o2_print_delta_flux(c13o2flux)
-                call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
              ENDIF
 
           ELSE ! CALL1
@@ -673,7 +660,6 @@ CONTAINS
              ENDIF
 
           ENDIF ! CALL1
-          write(*,*) 'Worker after CALL1'
 
           ! globally (WRT code) accessible kend through USE cable_common_module
           ktau_gl   = 0
@@ -721,12 +707,12 @@ CONTAINS
 
              ! MPI: receive input data for this step from the master
              IF ( .NOT. CASAONLY ) THEN
-                print*, 'WORKER Receive 28 input'
+                ! print*, 'WORKER Receive 28 input'
                 CALL MPI_Recv(MPI_BOTTOM, 1, inp_t, 0, ktau_gl, icomm, stat, ierr)
                 ! MPI: receive casa_dump_data for this step from the master
              ELSEIF ( IS_CASA_TIME("dread", yyyy, ktau, kstart, koffset, &
                   kend, ktauday, wlogn) ) THEN
-                print*, 'WORKER Receive 28 dump'
+                ! print*, 'WORKER Receive 28 dump'
                 CALL MPI_Recv(MPI_BOTTOM, 1, casa_dump_t, 0, ktau_gl, icomm, stat, ierr)
              END IF
 
@@ -739,11 +725,11 @@ CONTAINS
 
              ! 13C
              if (cable_user%c13o2) then
-                print*, 'WORKER Receive 29 Ca ', mp, size(canopy%An,1)
+                ! print*, 'WORKER Receive 29 Ca ', mp, size(canopy%An,1)
                 !!!MC Change: works only with "mpiexec -n 2"
                 ! call MPI_Bcast(c13o2flux%ca, mp, MPI_DOUBLE_PRECISION, 0, comm, ierr)
                 call MPI_Recv(c13o2flux%ca(1), mp, MPI_DOUBLE_PRECISION, 0, 0, icomm, stat, ierr)
-                print*, '                    ', c13o2flux%ca
+                ! print*, '                    ', c13o2flux%ca
              endif
 
              ! Feedback prognostic vcmax and daily LAI from casaCNP to CABLE
@@ -770,24 +756,6 @@ CONTAINS
              if (cable_user%c13o2) then
                 gpp  = canopy%An + canopy%Rd
                 Ra   = isoratio(c13o2flux%ca, real(met%ca,r_2), 1.0_r_2)
-                ! print*, 'ktau ', ktau
-                ! print*, 'Ca ', real(met%ca,r_2)
-                ! print*, 'Ca13 ', c13o2flux%ca
-                ! print*, 'dt isc3 ', real(dels,r_2), canopy%isc3
-                ! print*, 'vcmax ', canopy%vcmax
-                ! print*, 'gpp ', gpp
-                ! print*, 'Rd ', canopy%Rd
-                ! print*, 'G* ', canopy%gammastar
-                ! print*, 'ca ci ', real(met%ca,r_2), canopy%ci
-                ! print*, 'Ga ', canopy%gac
-                ! print*, 'Gb ', canopy%gbc
-                ! print*, 'Gs ', canopy%gsc
-                ! print*, 'Tl ', real(canopy%tlf,r_2)
-                ! print*, 'Ra ', Ra
-                ! print*, 'Vstarch ', c13o2flux%Vstarch
-                ! print*, 'Rstarch ', c13o2flux%Rstarch
-                ! print*, 'Rsucrose ', c13o2flux%Rsucrose
-                ! print*, 'Rphoto ', c13o2flux%Rphoto
                 do ileaf=1, mf
                    if (cable_user%c13o2_simple_disc) then
                       call c13o2_discrimination_simple( &
@@ -838,8 +806,6 @@ CONTAINS
                 end do ! ileaf=1:mf
                 ! c13o2flux%An = 1.005_r_2 * canopy%An !  * vpdbc13 / vpdbc13 ! Test 5 permil
              endif ! cable_user%c13o2
-             ! print*, 'Disc ', c13o2flux%Disc
-             ! print*, 'An ', c13o2flux%An
              
              if (cable_user%CALL_climate) &
                   CALL cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met, &
@@ -862,23 +828,16 @@ CONTAINS
                      casapool, casaflux, casamet, casabal,              &
                      phen, pop, spinConv, spinup, ktauday, idoy, loy,   &
                      .FALSE., .FALSE., LALLOC, c13o2flux, c13o2pools )
-                print*, '13C Worker 05.0'
-                call c13o2_print_delta_flux(c13o2flux)
-                call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
                 write(wlogn,*) 'after bgcdriver', MPI_BOTTOM, 1, casa_t, 0, ktau_gl, ocomm, ierr
-                print*, 'after bgcdriver', MPI_BOTTOM, 1, casa_t, 0, ktau_gl, ocomm, ierr
                 IF (MOD((ktau-kstart+1),ktauday).EQ.0) THEN
-                   print*, 'WORKER Send 30 casa'
+                   ! print*, 'WORKER Send 30 casa'
                    CALL MPI_Send(MPI_BOTTOM, 1, casa_t, 0, ktau_gl, ocomm, ierr)
                    ! 13C
                    if (cable_user%c13o2) then
-                      print*, 'WORKER Send 31 c13o2_flux'
+                      ! print*, 'WORKER Send 31 c13o2_flux'
                       CALL MPI_Send(MPI_BOTTOM, 1, c13o2_flux_t, 0, ktau_gl, ocomm, ierr)
-                      print*, 'WORKER Send 32 c13o2_pool'
+                      ! print*, 'WORKER Send 32 c13o2_pool'
                       CALL MPI_Send(MPI_BOTTOM, 1, c13o2_pool_t, 0, ktau_gl, ocomm, ierr)
-                      print*, '13C Worker 05'
-                      call c13o2_print_delta_flux(c13o2flux)
-                      call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
                    endif
                    write(wlogn,*) 'after casa mpi_send', ktau
                 ENDIF
@@ -901,7 +860,7 @@ CONTAINS
                 IF ( ((.NOT.spinup) .OR. (spinup.AND.spinConv)) .AND. &
                      IS_CASA_TIME("dwrit", yyyy, ktau, kstart, &
                      koffset, kend, ktauday, logn) ) then
-                   print*, 'WORKER Send 33 dump'
+                   ! print*, 'WORKER Send 33 dump'
                    CALL MPI_Send(MPI_BOTTOM, 1, casa_dump_t, 0, ktau_gl, ocomm, ierr)
                 endif
 
@@ -914,7 +873,7 @@ CONTAINS
                   met, casaflux, l_vcmaxFeedbk )
              write(wlogn,*) 'after sumcflux', ktau
              ! MPI: send the results back to the master
-             print*, 'WORKER Send 34 send'
+             ! print*, 'WORKER Send 34 send'
              CALL MPI_Send(MPI_BOTTOM, 1, send_t, 0, ktau_gl, ocomm, ierr)
 
              ! Write time step's output to file if either: we're not spinning up
@@ -933,7 +892,6 @@ CONTAINS
 
           !    CALL1 = .FALSE.
           ! ENDIF
-          write(*,*) 'Worker after ktau loop'
 
           call flush(wlogn)
 
@@ -942,17 +900,17 @@ CONTAINS
              IF (CABLE_USER%POPLUC) THEN
                 write(wlogn,*) 'before MPI_Send casa_LUC'
                 ! worker sends casa updates required for LUC calculations here
-                print*, 'WORKER Send 42 luc'
+                ! print*, 'WORKER Send 42 luc'
                 CALL MPI_Send(MPI_BOTTOM, 1, casa_LUC_t, 0, 0, ocomm, ierr)
                 ! 13C
                 if (cable_user%c13o2) then
-                   print*, 'WORKER Send 43 c13o2_luc'
+                   ! print*, 'WORKER Send 43 c13o2_luc'
                    call MPI_Send(MPI_BOTTOM, 1, c13o2_luc_t, 0, 0, ocomm, ierr)
                 endif
                 write(wlogn,*) 'after MPI_Send casa_LUC'
                 ! master calls LUCDriver here
                 ! worker receives casa and POP updates
-                print*, 'WORKER Receive 44 pop'
+                ! print*, 'WORKER Receive 44 pop'
                 CALL MPI_Recv( POP%pop_grid(1), POP%np, pop_t, 0, 0, icomm, stat, ierr )
              ENDIF
              ! one annual time-step of POP
@@ -987,15 +945,15 @@ CONTAINS
                      casamet, climate, real(shootfrac), idoy, YYYY, -1)
              ENDIF
 
-             print*, 'WORKER Receive 45 pop'
+             ! print*, 'WORKER Receive 45 pop'
              CALL worker_send_pop(POP, ocomm)
 
              IF (CABLE_USER%POPLUC) then
-                print*, 'WORKER Receive 46 luc'
+                ! print*, 'WORKER Receive 46 luc'
                 CALL MPI_Recv(MPI_BOTTOM, 1, casa_LUC_t, 0, nyear, icomm, stat, ierr)
                 ! 13C
                 if (cable_user%c13o2) then
-                   print*, 'WORKER Receive 47 c13o2_luc'
+                   ! print*, 'WORKER Receive 47 c13o2_luc'
                    call MPI_Recv(MPI_BOTTOM, 1, c13o2_luc_t, 0, nyear, icomm, stat, ierr)
                 endif
              ENDIF
@@ -1070,7 +1028,7 @@ CONTAINS
        !END IF
 
        ! MPI: learn from the master whether it's time to quit
-       print*, 'WORKER Receive 48 loop_exit'
+       ! print*, 'WORKER Receive 48 loop_exit'
        CALL MPI_Bcast(loop_exit, 1, MPI_LOGICAL, 0, comm, ierr)
 
        IF (loop_exit) THEN
@@ -1081,13 +1039,13 @@ CONTAINS
 
     IF (icycle > 0 .and. (.not.spincasa).and. (.not.casaonly)) THEN
        ! MPI: send casa results back to the master
-       print*, 'WORKER Send 49 casa'
+       ! print*, 'WORKER Send 49 casa'
        CALL MPI_Send(MPI_BOTTOM, 1, casa_t, 0, ktau_gl, ocomm, ierr)
        ! 13C
        if (cable_user%c13o2) then
-          print*, 'WORKER Send 50 c13o2_flux'
+          ! print*, 'WORKER Send 50 c13o2_flux'
           call MPI_Send(MPI_BOTTOM, 1, c13o2_flux_t, 0, ktau_gl, ocomm, ierr)
-          print*, 'WORKER Send 51 c13o2_pool'
+          ! print*, 'WORKER Send 51 c13o2_pool'
           call MPI_Send(MPI_BOTTOM, 1, c13o2_pool_t, 0, ktau_gl, ocomm, ierr)
        endif
 
@@ -1100,12 +1058,12 @@ CONTAINS
 
     ! Write restart file if requested:
     IF (output%restart .AND. (.NOT. CASAONLY)) THEN
-       print*, 'WORKER Send 51 restart'
+       ! print*, 'WORKER Send 51 restart'
        ! MPI: send variables that are required by create_restart
        CALL MPI_Send(MPI_BOTTOM, 1, restart_t, 0, ktau_gl, comm, ierr)
        ! MPI: output file written by master only
        if (cable_user%CALL_climate) then
-          print*, 'WORKER Send 52 climate'
+          ! print*, 'WORKER Send 52 climate'
           CALL MPI_Send(MPI_BOTTOM, 1, climate_t, 0, ktau_gl, comm, ierr)
        endif
     END IF
@@ -2754,7 +2712,7 @@ CONTAINS
     ! gfortran 9.2.0 returns .true. for associated
     if (.not. associated(casabiome%ivt2)) then
 #endif
-       write (*,*) 'worker alloc casa and phen var with m patches: ',rank,mp
+       write (*,*) 'worker alloc casa and phen var with m patches: ', rank, mp
        call alloc_casavariable(casabiome, casapool, casaflux, casamet, casabal, mp)
        call alloc_phenvariable(phen, mp)
 #ifndef GFORTRAN
@@ -6782,7 +6740,7 @@ CONTAINS
     ndq = 91
     nsd = ktauday * 5  ! sub-diurnal time-steps for leaf-level variables
 
-    print*, 'worker, nd ny mp nsd', nd, ny,mp, nsd
+    ! print*, 'worker, nd ny mp nsd', nd, ny,mp, nsd
     bidx = bidx + 1
     CALL MPI_Get_address (climate%mtemp_min_20(off,1), displs(bidx), ierr)
     blocks(bidx) = ny*r1len
@@ -8559,7 +8517,7 @@ SUBROUTINE worker_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
    ! 13C
    real(dp), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
    integer :: c13o2_file_id
-   character(len=20), dimension(c13o2_nvars_output) :: c13o2_vars
+   character(len=40), dimension(c13o2_nvars_output) :: c13o2_vars
    integer,           dimension(c13o2_nvars_output) :: c13o2_var_ids
    real(r_2), dimension(:), allocatable :: avg_c13leaf2met, avg_c13leaf2str, avg_c13root2met, &
         avg_c13root2str, avg_c13wood2cwd

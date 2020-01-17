@@ -97,7 +97,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   real(dp), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
   real(dp), dimension(c13o2luc%nland,c13o2luc%npools)     :: lucsave
   integer :: c13o2_file_id
-  character(len=20), dimension(c13o2_nvars_output) :: c13o2_vars
+  character(len=40), dimension(c13o2_nvars_output) :: c13o2_vars
   integer,           dimension(c13o2_nvars_output) :: c13o2_var_ids
 
   if (.NOT.Allocated(Iw)) allocate(Iw(POP%np))
@@ -182,7 +182,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
            call c13o2_print_delta_luc(popluc, c13o2luc)
         endif
  
-       ! update time-aggregates of casa pools and fluxes
+        ! update time-aggregates of casa pools and fluxes
         CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
              & .TRUE. , .FALSE., 1)
         ! 13C

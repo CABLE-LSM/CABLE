@@ -1538,7 +1538,9 @@ CONTAINS
                                 patchout%zse, 'soil')! no spatial dim at present
 
   END SUBROUTINE open_output_file
+  
   !=============================================================================
+  
   SUBROUTINE write_output(dels, ktau, met, canopy, casaflux, casapool, casamet, ssnow, &
                           rad, bal, air, soil, veg, SBOLTZ, EMLEAF, EMSOIL, c13o2pools, c13o2flux)
     ! Writes model output variables and, if requested, calls
@@ -1592,7 +1594,7 @@ CONTAINS
     IF(ktau == 1) THEN
        out_timestep = 0
        out_month = 0
-       !MC - use met%year(1) instead of CABLE_USER%YearStart for non-GSWP forcing and leap years
+       ! use met%year(1) instead of CABLE_USER%YearStart for non-GSWP forcing and leap years
        IF ( TRIM(cable_user%MetType) .EQ. '' ) then
           YearStart = met%year(1)
        ELSE
@@ -1690,7 +1692,6 @@ CONTAINS
        END IF ! using leap year timing or not
        backtrack = output%interval / 2
 
-
     ELSE ! type of output aggregation
        CALL abort('Unknown output averaging request in namelist file.'//       &
                   '(SUBROUTINE write_output)')
@@ -1700,15 +1701,15 @@ CONTAINS
     ! output file unless output is monthly (in which case it's set above)
 
     ! If this time step is an output time step:
-    IF(writenow) THEN
+    IF (writenow) THEN
        ! Write to temporary time variable:
        timetemp(1) = DBLE(REAL(ktau-backtrack)*dels)
        ! Write time variable for this output time step:
-       ok = NF90_PUT_VAR(ncid_out, ovid%tvar, timetemp,                        &
-                                        start = (/out_timestep/), count = (/1/))
-       IF(ok /= NF90_NOERR) CALL nc_abort(ok,                                  &
-                                             'Error writing time variable to ' &
-                             //TRIM(filename%out)// '(SUBROUTINE write_output)')
+       ok = NF90_PUT_VAR(ncid_out, ovid%tvar, timetemp, &
+            start = (/out_timestep/), count = (/1/))
+       IF(ok /= NF90_NOERR) CALL nc_abort(ok, &
+            'Error writing time variable to ' &
+            //TRIM(filename%out)// '(SUBROUTINE write_output)')
     END IF
 
     ! Arguments to write_ovar: current time step; output file netcdf file ID;

@@ -657,7 +657,7 @@ contains
     type(casa_met),                  intent(in)  :: casamet
     type(c13o2_pool),                intent(in)  :: c13o2pools
     integer,                         intent(out) :: file_id
-    character(len=20), dimension(c13o2_nvars_output), intent(out) :: vars
+    character(len=40), dimension(c13o2_nvars_output), intent(out) :: vars
     integer,           dimension(c13o2_nvars_output), intent(out) :: var_ids
 
     ! local variables
@@ -673,10 +673,10 @@ contains
 
     ! variables
     character(len=40), dimension(c13o2_nvars_output) :: lvars ! long names
-    character(len=20), dimension(c13o2_nvars_output) :: uvars ! units
+    character(len=40), dimension(c13o2_nvars_output) :: uvars ! units
     integer, dimension(c13o2_nvars_output) :: dvars           ! number of dimensions
     integer, dimension(c13o2_nvars_output) :: tvars           ! type
-    integer, dimension(3)     :: idids           ! tmp for dim ids
+    integer, dimension(3) :: idids ! tmp for dim ids
 
     ! dimension names
     dims(1) = 'ntile'
@@ -862,13 +862,14 @@ contains
   ! Write into 13C Casa output file
   subroutine c13o2_write_output(file_id, vars, var_ids, timestep, c13o2pools)
 
-    use cable_c13o2_def, only: c13o2_pool
-    use netcdf,          only: nf90_put_var, nf90_noerr
+    use cable_common_module, only: cable_user
+    use cable_c13o2_def,     only: c13o2_pool
+    use netcdf,              only: nf90_put_var, nf90_noerr
 
     implicit none
 
     integer,                         intent(in) :: file_id
-    character(len=20), dimension(:), intent(in) :: vars
+    character(len=40), dimension(:), intent(in) :: vars
     integer,           dimension(:), intent(in) :: var_ids
     integer,                         intent(in) :: timestep
     type(c13o2_pool),                intent(in) :: c13o2pools
@@ -876,17 +877,30 @@ contains
     ! local variables
     integer :: i, status
     integer :: nland, nplant, nlitter, nsoil
+    integer :: secs, dt
     integer, parameter :: sp = kind(1.0)
 
     nland   = c13o2pools%ntile
     nplant  = c13o2pools%nplant
     nlitter = c13o2pools%nlitter
     nsoil   = c13o2pools%nsoil
-    ! define variables
+    ! all variables
     do i=1, c13o2_nvars_output
        if (trim(vars(i)) == 'time') then
-          status = nf90_put_var(file_id, var_ids(i), timestep, &
-               start=(/timestep/))
+          select case(trim(cable_user%casa_out_freq))
+          case("daily")
+             dt = 86400
+          case("monthly")
+             dt = 86400*30
+          case("annually")
+             dt = 86400*365
+          end select
+          secs = timestep*dt - dt/2
+          status = nf90_put_var(file_id, var_ids(i), secs, start=(/timestep/))
+       else if (trim(vars(i)) == 'latitude') then
+          continue
+       else if (trim(vars(i)) == 'longitude') then
+          continue
        else if (trim(vars(i)) == 'cplant') then
           status = nf90_put_var(file_id, var_ids(i), real(c13o2pools%cplant,sp), &
                start=(/1,1,timestep/), count=(/nland,nplant,1/))
@@ -902,9 +916,13 @@ contains
        ! else if (trim(vars(i)) == 'charvest') then
        !    status = nf90_put_var(file_id, var_ids(i), real(c13o2pools%charvest,sp), &
        !         start=(/1,timestep/), count=(/nland,1/))
+       else
+          write(*,*) 'Var: ', i, trim(vars(i)), ', var_id: ', var_ids(i), ', file_id: ', file_id
+          call c13o2_err_handler('Variable not known in c13o2 output file')
        endif
        if (status /= nf90_noerr) then
           write(*,*) 'Var: ', i, trim(vars(i)), ', var_id: ', var_ids(i), ', file_id: ', file_id
+          write(*,*) 'netCDF error code: ', status
           call c13o2_err_handler('Could not put variable in c13o2 output file')
        endif
     end do ! c13o2_nvars_output
@@ -1020,10 +1038,10 @@ contains
 
     ! 1 dim arrays (npt,)
     integer, parameter :: nlandvars = 2
-    character(len=20), dimension(nlandvars)  :: landvars
+    character(len=40), dimension(nlandvars)  :: landvars
     ! 2 dim arrays (npt,nleaf)
     integer, parameter :: nleafvars = 2
-    character(len=20), dimension(nleafvars)  :: leafvars
+    character(len=40), dimension(nleafvars)  :: leafvars
     ! variable ids
     integer, dimension(nlandvars)   :: landvars_id
     integer, dimension(nleafvars)  :: leafvars_id
@@ -1198,16 +1216,16 @@ contains
 
     ! 1 dim arrays (npt,)
     integer, parameter :: nlandvars = 2
-    character(len=20), dimension(nlandvars)  :: landvars
+    character(len=40), dimension(nlandvars)  :: landvars
     ! 2 dim arrays (npt,nplant)
     integer, parameter :: nplantvars = 1
-    character(len=20), dimension(nplantvars)  :: plantvars
+    character(len=40), dimension(nplantvars)  :: plantvars
     ! 2 dim arrays (npt,nlitter)
     integer, parameter :: nlittervars = 1
-    character(len=20), dimension(nlittervars) :: littervars
+    character(len=40), dimension(nlittervars) :: littervars
     ! 2 dim arrays (npt,nsoil)
     integer, parameter :: nsoilvars = 1
-    character(len=20), dimension(nsoilvars)   :: soilvars
+    character(len=40), dimension(nsoilvars)   :: soilvars
     ! variable ids
     integer, dimension(nlandvars)   :: landvars_id
     integer, dimension(nplantvars)  :: plantvars_id
@@ -1394,13 +1412,13 @@ contains
 
     ! 1 dim arrays (npt,)
     integer, parameter :: nlandvars = 1
-    character(len=20), dimension(nlandvars)      :: landvars
+    character(len=40), dimension(nlandvars)      :: landvars
     ! 2 dim arrays (npt,nharvest)
     integer, parameter :: nharvestvars = 1
-    character(len=20), dimension(nharvestvars)   :: harvestvars
+    character(len=40), dimension(nharvestvars)   :: harvestvars
     ! 2 dim arrays (npt,nclearance)
     integer, parameter :: nclearancevars = 1
-    character(len=20), dimension(nclearancevars) :: clearancevars
+    character(len=40), dimension(nclearancevars) :: clearancevars
     ! variable ids
     integer, dimension(nlandvars)      :: landvars_id
     integer, dimension(nharvestvars)   :: harvestvars_id

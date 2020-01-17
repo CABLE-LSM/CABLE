@@ -217,7 +217,7 @@ PROGRAM cable_offline_driver
   real(r_2), dimension(:,:), allocatable :: lucsave
   ! I/O
   integer :: c13o2_outfile_id
-  character(len=20), dimension(c13o2_nvars_output) :: c13o2_vars
+  character(len=40), dimension(c13o2_nvars_output) :: c13o2_vars
   integer,           dimension(c13o2_nvars_output) :: c13o2_var_ids
   ! discrimination
   integer :: ileaf
