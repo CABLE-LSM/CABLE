@@ -54,7 +54,8 @@ MODULE sli_numbers
   !REAL(r_2), PARAMETER :: dSfac        = 1.25_r_2
   REAL(r_2), PARAMETER :: dpmaxr       = 0.5_r_2
   REAL(r_2), PARAMETER :: h0min        = -5.e-3_r_2
-  REAL(r_2), PARAMETER :: snmin        = 0.005_r_2 ! depth of snowpack (m) without dedicated snow layer(s)
+  ! Changed from 0.005 to 0.0005 because of results at Sodankyla in 2000-2003 for ESMSnowMIP
+  REAL(r_2), PARAMETER :: snmin        = 0.0005_r_2 ! depth of snowpack (m) without dedicated snow layer(s)
   REAL(r_2), PARAMETER :: fsnowliq_max = 0.03_r_2  ! max fraction of snow water in liquid phase
   INTEGER(i_d), PARAMETER :: nsnow_max = 1     ! maximum number of dedicated snow layers (1 or 2)
 

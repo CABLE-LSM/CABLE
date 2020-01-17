@@ -2886,7 +2886,7 @@ CONTAINS
        deltahice(kk) =  hice(kk) - h0_0(kk)*thetai_0(1)/par(1)%thre
 
        ! change in snow pack (lumped with top layer)
-       if (vsnow(kk)%nsnow==0.) then
+       if (vsnow(kk)%nsnow==0) then
           if (var(1)%iice==1) then
              vsnow(kk)%wcol = vsnow(kk)%wcol + &
                   min(qprec_snow(kk)*dt(kk), max(zero,(deltahice(kk)+dx(1)*delthetai(1)))) + & ! accumulation
