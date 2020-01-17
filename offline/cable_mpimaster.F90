@@ -957,11 +957,12 @@ CONTAINS
              ! broadcast
              print*, 'MASTER Send 29 Ca ', c13o2flux%ca
              !!!MC Change: works only with "mpiexec -n 2"
-             call MPI_Bcast(c13o2flux%ca, mp, MPI_DOUBLE_PRECISION, 0, comm, ierr)
-             ! or
-             ! do rank=1, wnp
-             !    call MPI_Send(c13o2flux%ca, 1, MPI_DOUBLE_PRECISION, rank, 0, icomm, ierr)
-             ! end do
+             ! call MPI_Bcast(c13o2flux%ca, mp, MPI_DOUBLE_PRECISION, 0, comm, ierr)
+             do rank=1, wnp
+                off = wland(rank)%patch0
+                cnt = wland(rank)%npatch
+                call MPI_Send(c13o2flux%ca(off), cnt, MPI_DOUBLE_PRECISION, rank, 0, icomm, ierr)
+             end do
           endif
 
           ! IF (.NOT.spincasa) THEN
@@ -1076,7 +1077,12 @@ CONTAINS
                    c13o2flux%ca = (c13o2_delta_atm(CurYear) + 1.0_r_2) * real(imet%ca,r_2)
                    print*, 'MASTER Send 36 Ca'
                    !!!MC Change: works only with "mpiexec -n 2"
-                   call MPI_Bcast(c13o2flux%ca, mp, MPI_DOUBLE_PRECISION, 0, comm, ierr)
+                   ! call MPI_Bcast(c13o2flux%ca, mp, MPI_DOUBLE_PRECISION, 0, comm, ierr)
+                   do rank=1, wnp
+                      off = wland(rank)%patch0
+                      cnt = wland(rank)%npatch
+                      call MPI_Send(c13o2flux%ca(off), cnt, MPI_DOUBLE_PRECISION, rank, 0, icomm, ierr)
+                   end do
                 endif
 
                 ! IF ( ((.NOT.spinup).OR.(spinup.AND.spinConv)) .AND.   &
@@ -1680,7 +1686,7 @@ CONTAINS
 
 
 ! MPI: calculates and sends grid decomposition info to the workers
-SUBROUTINE master_decomp (comm, mland, mp)
+SUBROUTINE master_decomp(comm, mland, mp)
 
   use mpi
 
@@ -1688,23 +1694,23 @@ SUBROUTINE master_decomp (comm, mland, mp)
 
   IMPLICIT NONE
 
-  INTEGER, INTENT(IN)   :: comm ! MPI communicator to talk to the workers
-  INTEGER, INTENT(IN)   :: mland ! total number of landpoints in the global grid
-  INTEGER, INTENT(IN)   :: mp ! total number of land patches in the global grid
+  INTEGER, INTENT(IN) :: comm  ! MPI communicator to talk to the workers
+  INTEGER, INTENT(IN) :: mland ! total number of landpoints in the global grid
+  INTEGER, INTENT(IN) :: mp    ! total number of land patches in the global grid
 
   INTEGER :: lpw  ! average number of landpoints per worker
   INTEGER :: rank, rest, nxt, pcnt, ierr, i, tmp
   INTEGER :: patchcnt  ! sum of patches for a range landpoints
 
   ! how many workers do we have?
-  CALL MPI_Comm_size (comm, wnp, ierr)
+  CALL MPI_Comm_size(comm, wnp, ierr)
   wnp = wnp - 1
 
-  ALLOCATE (wland(wnp), STAT=ierr)
+  ALLOCATE(wland(wnp), STAT=ierr)
   IF (ierr /= 0) THEN
-          ! TODO: print an error message
-          PRINT*, 'master-decomp MPI_ABORT'
-          CALL MPI_Abort(comm, 0, ierr)
+     ! TODO: print an error message
+     PRINT*, 'master-decomp MPI_ABORT'
+     CALL MPI_Abort(comm, 0, ierr)
   END IF
 
   ! MPI: calculate landpoint distribution among the workers
@@ -1724,15 +1730,14 @@ SUBROUTINE master_decomp (comm, mland, mp)
      ! whose number differ between landpoints
      ! TODO: - the above to be addressed in the next version
      IF (rest > 0) THEN
-             pcnt = pcnt + 1
-             rest = rest - 1
+        pcnt = pcnt + 1
+        rest = rest - 1
      END IF
      wland(rank)%nland = pcnt
 
      ! MPI: let each worker know their assignement
      ! in this version of cable workers care only about the number of points
-     ! CALL MPI_Send (nxt, 1, MPI_INTEGER, rank, 0, comm, ierr)
-
+     ! CALL MPI_Send(nxt, 1, MPI_INTEGER, rank, 0, comm, ierr)
      CALL MPI_Send(pcnt, 1, MPI_INTEGER, rank, 0, comm, ierr)
 
      ! MPI: should be the same as landpt(nxt)%cstart

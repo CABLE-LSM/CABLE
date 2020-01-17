@@ -739,12 +739,11 @@ CONTAINS
 
              ! 13C
              if (cable_user%c13o2) then
-                print*, 'WORKER Receive 29 Ca'
+                print*, 'WORKER Receive 29 Ca ', mp, size(canopy%An,1)
                 !!!MC Change: works only with "mpiexec -n 2"
-                call MPI_Bcast(c13o2flux%ca, mp, MPI_DOUBLE_PRECISION, 0, comm, ierr)
+                ! call MPI_Bcast(c13o2flux%ca, mp, MPI_DOUBLE_PRECISION, 0, comm, ierr)
+                call MPI_Recv(c13o2flux%ca(1), mp, MPI_DOUBLE_PRECISION, 0, 0, icomm, stat, ierr)
                 print*, '                    ', c13o2flux%ca
-                !    or
-                !    call MPI_Recv(c13o2flux%ca, 1, MPI_DOUBLE_PRECISION, 0, 0, icomm, stat, ierr)
              endif
 
              ! Feedback prognostic vcmax and daily LAI from casaCNP to CABLE

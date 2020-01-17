@@ -904,7 +904,7 @@ contains
        !         start=(/1,timestep/), count=(/nland,1/))
        endif
        if (status /= nf90_noerr) then
-          write(*,*) 'Var: ', trim(vars(i)), ', var_id: ', var_ids(i)
+          write(*,*) 'Var: ', i, trim(vars(i)), ', var_id: ', var_ids(i), ', file_id: ', file_id
           call c13o2_err_handler('Could not put variable in c13o2 output file')
        endif
     end do ! c13o2_nvars_output
