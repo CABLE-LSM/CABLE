@@ -242,6 +242,7 @@ host_vm_o()
         fi
         export LD=''
         export NCROOT='/home/oqx29/zzy20/local/netcdf-fortran-4.4.4-ifort2018.0'
+	export CFLAGS="${CFLAGS} -DINTEL -DINTEL_COMPILER"
     else
         # GFORTRAN # 6.3.0 because of netcdf-fortran
         module load gcc/6.3.0
@@ -255,6 +256,7 @@ host_vm_o()
         fi
         export LD=''
         export NCROOT='/home/oqx29/zzy20/local/netcdf-fortran-4.4.4-gfortran63'
+	export CFLAGS="${CFLAGS} -DGFORTRAN -DgFortran"
     fi
     # export CFLAGS="${CFLAGS} -DC13DEBUG"
     export CFLAGS="${CFLAGS} -DCRU2017"
@@ -279,7 +281,7 @@ host_vm_o()
     export NCMOD=${NCROOT}'/include'
     export LDFLAGS="-L${NCCLIB} -L${NCLIB} -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz"
     export dosvn=0
-    # export MFLAGS='-j 8'
+    export MFLAGS='-j 8'
     build_build
     cd ../
     build_status

@@ -186,7 +186,7 @@ pop_mpi.o: pop_mpi.F90 POP.o casa_variable.o cable_common.o cable_mpicommon.o
 cable_sli_main.o: cable_sli_main.F90 cable_define_types.o cable_sli_numbers.o \
 		  cable_sli_roots.o cable_sli_solve.o cable_soilsnow.o
 
-cable_sli_numbers.o: cable_sli_numbers.F90  cable_define_types.o
+cable_sli_numbers.o: cable_sli_numbers.F90 cable_define_types.o
 
 cable_sli_roots.o: cable_sli_roots.F90 cable_sli_numbers.o cable_define_types.o
 
