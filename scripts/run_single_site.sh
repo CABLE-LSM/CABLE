@@ -3,23 +3,23 @@
 # Explor / Pearcey
 # https://slurm.schedmd.com/sbatch.html
 # Name
-#SBATCH -J harvard
+#SBATCH -J harvard10
 #SBATCH -o %x-%j.out
 #SBATCH -e %x-%j.out
 # Explor partitions (sinfo): std (2x16, parallel), sky (2x16, parallel, AVX512), hf (2x4, serial),
 #                            P100 (2x16, GPU), GTX (2x16, GPU), ivy (2x8, parallel), k20 (2x8, GPU)
-#SBATCH -p std
+#SBATCH -p hf
 # Nodes / tasks
 #SBATCH -N 1
-#SBATCH -n 1
-#SBATCH --ntasks-per-node=1
+#SBATCH -n 5
+#SBATCH --ntasks-per-node=5
 # Check memory on *nix with /usr/bin/time -v ./prog
 # time (day-hh:mm:ss) / memory (optional, units K,M,G,T)
-#SBATCH -t 00:19:59
+#SBATCH -t 00:59:59
 #SBATCH --mem=4G
 # notify: Valid type values are NONE,BEGIN,END,FAIL,REQUEUE,ALL,STAGE_OUT,TIME_LIMIT,TIME_LIMIT_90/80/50,ARRAY_TASKS
 #SBATCH --mail-type=FAIL,STAGE_OUT,TIME_LIMIT
-#SBATCH --mail-user=matthias.cuntz@inra.fr
+#SBATCH --mail-user=matthias.cuntz@inrae.fr
 #
 # # Raijin
 # # https://opus.nci.org.au/display/Help/How+to+submit+a+job
@@ -33,13 +33,14 @@
 # #PBS -r y
 # #PBS -l wd
 
-system=cuntz@mcinra # cuntz@explor, cuntz@mcinra, knauer@pearcey, jk8585 or vxh599@raijin
+system=cuntz@explor # cuntz@explor, cuntz@mcinra, knauer@pearcey, jk8585 or vxh599@raijin
 
 # MPI run or single processor run
 # nproc should fit with job tasks 
 dompi=1   # 0: normal run: ./cable
           # 1: MPI run: mpiexec -n ${nproc} ./cable_mpi
-nproc=2   # Number of cores for MPI runs
+nproc=5   # Number of cores for MPI runs
+ignore_mpi_err=1 # 0/1: continue even if mpi run failed
 
 # --------------------------------------------------------------------
 #
@@ -92,15 +93,20 @@ export mpiexecdir=
 if [[ "${sys}" == "explor" ]] ; then
     # prog is slurm_script
     pdir=${isdir}
-    # # module load intelmpi/2018.5.274
-    # # export mpiexecdir=/soft/env/soft/all/intel/2018.3/compilers_and_libraries_2018.5.274/linux/mpi/intel64/bin
-    # module load openmpi/3.0.0/intel18
-    # export mpiexecdir=/opt/soft/hf/openmpi-3.0.0-intel18/bin
+    # # INTELMPI - load mpi module first, otherwise intel module will not pre-pend LD_LIBRARY_PATH
+    # module load intelmpi/2018.5.274
     # module load intel/2018.5
     # export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-ifort2018.0/lib
+    # export mpiexecdir=/soft/env/soft/all/intel/2018.3/compilers_and_libraries_2018.5.274/linux/mpi/intel64/bin
+    # # INTEL / OpenMPI - load mpi module first, otherwise intel module will not pre-pend LD_LIBRARY_PATH
+    # module load openmpi/3.0.0/intel18
+    # module load intel/2018.5
+    # export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-ifort2018.0/lib
+    # export mpiexecdir=/opt/soft/hf/openmpi-3.0.0-intel18/bin
+    # GNU / OpenMPI
     module load gcc/6.3.0
-    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-gfortran63/lib
     module load openmpi/3.0.1/gcc/6.3.0
+    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-gfortran63/lib
     export mpiexecdir=/opt/soft/hf/openmpi/3.0.1/gcc/6.3.0/bin
 elif [[ "${sys}" == "mcinra" ]] ; then
     # exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi-gfortran"
@@ -131,24 +137,24 @@ dometeo=1       # 0: Use global meteo, land use and mask
 doextractsite=0 # 0: Do not extract meteo, land use and mask at specific site
                 # 1: Do extract meteo, land use and mask at specific site (dometeo=1)
                 # 2: Do extract mask at specific site, using then global meteo and land use (dometeo=2)
-  sitename=HarvardForest1
+  sitename=HarvardForest10
   # latlon=42.536875,-72.172602 # lat,lon  or  latmin,latmax,lonmin,lonmax  # must have . in numbers otherwise indexes taken
   latlon=42.536875,42.536875,-74.,-72.
 # Step 1
 doclimate=1     # 1/0: Do/Do not create climate restart file
 # Step 2
-dofromzero=0    # 1/0: Do/Do not first spinup phase from zero biomass stocks
+dofromzero=1    # 1/0: Do/Do not first spinup phase from zero biomass stocks
 # Step 3
-doequi1=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
+doequi1=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
  nequi1=3       #      number of times to repeat steps in doequi1
 # Step 4
-doequi2=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
+doequi2=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
  nequi2=3       #      number of times to repeat steps in doequi2
 # Step 5
-doiniluc=0      # 1/0: Do/Do not spinup with dynamic land use (5a)
-doinidyn=0      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
+doiniluc=1      # 1/0: Do/Do not spinup with dynamic land use (5a)
+doinidyn=1      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
 # Step 6
-dofinal=0       # 1/0: Do/Do not final run from 1900 to 2017
+dofinal=1       # 1/0: Do/Do not final run from 1900 to 2017
 
 # --------------------------------------------------------------------
 # Other switches
@@ -223,7 +229,7 @@ else
     exit 1
 fi
 # Run directory
-runpath="${sitepath}/run_20191205"
+runpath="${sitepath}/run_20200117"
 
 # Cable parameters
 namelistpath="../namelists"
@@ -497,10 +503,7 @@ if [[ ${doclimate} -eq 1 ]] ; then
     com=${com}$(csed "filename%restart_in=\"\"")
     com=${com}$(csed "cable_user%CLIMATE_fromZero=.true.")
     com=${com}$(csed "cable_user%YearStart=1860")
-    #TEST
-    # com=${com}$(csed "cable_user%YearEnd=1889")
-    com=${com}$(csed "cable_user%YearEnd=1860")
-    #TEST
+    com=${com}$(csed "cable_user%YearEnd=1889")
     com=${com}$(csed "icycle=2")
     com=${com}$(csed "spincasa=.false.")
     com=${com}$(csed "cable_user%CASA_fromZero=.true.")
@@ -544,7 +547,9 @@ if [[ ${doclimate} -eq 1 ]] ; then
     cd ${rdir}
     irm logs/log_cable.txt logs/log_out_cable.txt
     if [[ ${dompi} -eq 1 ]] ; then
+	if [[ ${ignore_mpi_err} -eq 1 ]] ; then set +e ; fi
 	${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
+	if [[ ${ignore_mpi_err} -eq 1 ]] ; then set -e ; fi
     else
 	./${iexe} > logs/log_out_cable.txt
     fi
@@ -637,7 +642,9 @@ if [[ ${dofromzero} -eq 1 ]] ; then
     cd ${rdir}
     irm logs/log_cable.txt logs/log_out_cable.txt
     if [[ ${dompi} -eq 1 ]] ; then
+	if [[ ${ignore_mpi_err} -eq 1 ]] ; then set +e ; fi
 	${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
+	if [[ ${ignore_mpi_err} -eq 1 ]] ; then set -e ; fi
     else
 	./${iexe} > logs/log_out_cable.txt
     fi
@@ -734,7 +741,9 @@ if [[ ${doequi1} -eq 1 ]] ; then
             cd ${rdir}
 	    irm logs/log_cable.txt logs/log_out_cable.txt
 	    if [[ ${dompi} -eq 1 ]] ; then
+		if [[ ${ignore_mpi_err} -eq 1 ]] ; then set +e ; fi
 		${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
+		if [[ ${ignore_mpi_err} -eq 1 ]] ; then set -e ; fi
 	    else
 		./${iexe} > logs/log_out_cable.txt
 	    fi
@@ -826,7 +835,9 @@ if [[ ${doequi1} -eq 1 ]] ; then
             cd ${rdir}
 	    irm logs/log_cable.txt logs/log_out_cable.txt
 	    if [[ ${dompi} -eq 1 ]] ; then
+		if [[ ${ignore_mpi_err} -eq 1 ]] ; then set +e ; fi
 		${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
+		if [[ ${ignore_mpi_err} -eq 1 ]] ; then set -e ; fi
 	    else
 		./${iexe} > logs/log_out_cable.txt
 	    fi
@@ -922,7 +933,9 @@ if [[ ${doequi2} -eq 1 ]] ; then
             cd ${rdir}
 	    irm logs/log_cable.txt logs/log_out_cable.txt
 	    if [[ ${dompi} -eq 1 ]] ; then
+		if [[ ${ignore_mpi_err} -eq 1 ]] ; then set +e ; fi
 		${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
+		if [[ ${ignore_mpi_err} -eq 1 ]] ; then set -e ; fi
 	    else
 		./${iexe} > logs/log_out_cable.txt
 	    fi
@@ -1014,7 +1027,9 @@ if [[ ${doequi2} -eq 1 ]] ; then
             cd ${rdir}
 	    irm logs/log_cable.txt logs/log_out_cable.txt
 	    if [[ ${dompi} -eq 1 ]] ; then
+		if [[ ${ignore_mpi_err} -eq 1 ]] ; then set +e ; fi
 		${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
+		if [[ ${ignore_mpi_err} -eq 1 ]] ; then set -e ; fi
 	    else
 		./${iexe} > logs/log_out_cable.txt
 	    fi
@@ -1104,7 +1119,9 @@ if [[ ${doiniluc} -eq 1 ]] ; then
     cd ${rdir}
     irm logs/log_cable.txt logs/log_out_cable.txt
     if [[ ${dompi} -eq 1 ]] ; then
+	if [[ ${ignore_mpi_err} -eq 1 ]] ; then set +e ; fi
 	${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
+	if [[ ${ignore_mpi_err} -eq 1 ]] ; then set -e ; fi
     else
 	./${iexe} > logs/log_out_cable.txt
     fi
@@ -1202,7 +1219,9 @@ if [[ ${doinidyn} -eq 1 ]] ; then
     cd ${rdir}
     irm logs/log_cable.txt logs/log_out_cable.txt
     if [[ ${dompi} -eq 1 ]] ; then
+	if [[ ${ignore_mpi_err} -eq 1 ]] ; then set +e ; fi
 	${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
+	if [[ ${ignore_mpi_err} -eq 1 ]] ; then set -e ; fi
     else
 	./${iexe} > logs/log_out_cable.txt
     fi
@@ -1299,7 +1318,9 @@ if [[ ${dofinal} -eq 1 ]] ; then
     cd ${rdir}
     irm logs/log_cable.txt logs/log_out_cable.txt
     if [[ ${dompi} -eq 1 ]] ; then
+	if [[ ${ignore_mpi_err} -eq 1 ]] ; then set +e ; fi
 	${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
+	if [[ ${ignore_mpi_err} -eq 1 ]] ; then set -e ; fi
     else
 	./${iexe} > logs/log_out_cable.txt
     fi
