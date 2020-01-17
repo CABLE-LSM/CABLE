@@ -33,13 +33,13 @@
 # #PBS -r y
 # #PBS -l wd
 
-system=cuntz@explor # cuntz@explor, cuntz@mcinra, knauer@pearcey, jk8585 or vxh599@raijin
+system=cuntz@mcinra # cuntz@explor, cuntz@mcinra, knauer@pearcey, jk8585 or vxh599@raijin
 
 # MPI run or single processor run
 # nproc should fit with job tasks 
 dompi=1   # 0: normal run: ./cable
-          # 1: MPI run: mpirun -np 4 ./cable_mpi
-nproc=3   # Number of cores for MPI runs
+          # 1: MPI run: mpiexec -n ${nproc} ./cable_mpi
+nproc=2   # Number of cores for MPI runs
 
 # --------------------------------------------------------------------
 #
@@ -88,18 +88,25 @@ system=$(echo ${system} | tr A-Z a-z)
 sys=${system#*@}
 user=${system%@*}
 # Special things on specific computer system such as loading modules
+export mpiexecdir=
 if [[ "${sys}" == "explor" ]] ; then
     # prog is slurm_script
     pdir=${isdir}
     # # module load intelmpi/2018.5.274
+    # # export mpiexecdir=/soft/env/soft/all/intel/2018.3/compilers_and_libraries_2018.5.274/linux/mpi/intel64/bin
     # module load openmpi/3.0.0/intel18
+    # export mpiexecdir=/opt/soft/hf/openmpi-3.0.0-intel18/bin
     # module load intel/2018.5
     # export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-ifort2018.0/lib
     module load gcc/6.3.0
-    module load openmpi/3.0.1/gcc/6.3.0
     export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-gfortran63/lib
+    module load openmpi/3.0.1/gcc/6.3.0
+    export mpiexecdir=/opt/soft/hf/openmpi/3.0.1/gcc/6.3.0/bin
 elif [[ "${sys}" == "mcinra" ]] ; then
-    true
+    # exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi-gfortran"
+    export mpiexecdir=/usr/local/openmpi-3.1.4-gfortran/bin
+    # # exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi-ifort"
+    # export mpiexecdir=/usr/local/openmpi-3.1.5-ifort/bin
 elif [[ "${sys}" == "pearcey" ]] ; then
     # prog is slurm_script
     pdir=${isdir}
@@ -112,6 +119,7 @@ elif [[ "${sys}" == "raijin" ]] ; then
     module add intel-cc/16.0.1.150 intel-fc/16.0.1.150
     module add netcdf/4.3.3.1
 fi
+if [[ ! -z ${mpiexecdir} ]] ; then export mpiexecdir="${mpiexecdir}/" ; fi
 
 # --------------------------------------------------------------------
 # Sequence switches
@@ -181,7 +189,8 @@ elif [[ "${system}" == "cuntz@mcinra" ]] ; then
     cablehome="/Users/cuntz/prog/vanessa/cable"
     # Cable executable
     if [[ ${dompi} -eq 1 ]] ; then
-	exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi"
+	# exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi-ifort"
+	exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi-gfortran"
     else
 	exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable"
     fi
@@ -239,7 +248,8 @@ filename_d13c_atm="../params/graven_et_al_gmd_2017-table_s1-delta_13c-1700-2025.
 # Helper functions
 #
 # usage of script
-function usage() {
+function usage()
+{
     printf "${pprog} [-h]\n"
     printf "Runs Cable on a single grid cell with spinup, POP, land-use change, etc.\n"
     printf "Behaviour of the script is controlled by switches at the top of the script (ca. line 101ff).\n"
@@ -534,7 +544,7 @@ if [[ ${doclimate} -eq 1 ]] ; then
     cd ${rdir}
     irm logs/log_cable.txt logs/log_out_cable.txt
     if [[ ${dompi} -eq 1 ]] ; then
-	mpirun -np ${nproc} ./${iexe} > logs/log_out_cable.txt
+	${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
     else
 	./${iexe} > logs/log_out_cable.txt
     fi
@@ -627,7 +637,7 @@ if [[ ${dofromzero} -eq 1 ]] ; then
     cd ${rdir}
     irm logs/log_cable.txt logs/log_out_cable.txt
     if [[ ${dompi} -eq 1 ]] ; then
-	mpirun -np ${nproc} ./${iexe} > logs/log_out_cable.txt
+	${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
     else
 	./${iexe} > logs/log_out_cable.txt
     fi
@@ -724,7 +734,7 @@ if [[ ${doequi1} -eq 1 ]] ; then
             cd ${rdir}
 	    irm logs/log_cable.txt logs/log_out_cable.txt
 	    if [[ ${dompi} -eq 1 ]] ; then
-		mpirun -np ${nproc} ./${iexe} > logs/log_out_cable.txt
+		${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
 	    else
 		./${iexe} > logs/log_out_cable.txt
 	    fi
@@ -816,7 +826,7 @@ if [[ ${doequi1} -eq 1 ]] ; then
             cd ${rdir}
 	    irm logs/log_cable.txt logs/log_out_cable.txt
 	    if [[ ${dompi} -eq 1 ]] ; then
-		mpirun -np ${nproc} ./${iexe} > logs/log_out_cable.txt
+		${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
 	    else
 		./${iexe} > logs/log_out_cable.txt
 	    fi
@@ -912,7 +922,7 @@ if [[ ${doequi2} -eq 1 ]] ; then
             cd ${rdir}
 	    irm logs/log_cable.txt logs/log_out_cable.txt
 	    if [[ ${dompi} -eq 1 ]] ; then
-		mpirun -np ${nproc} ./${iexe} > logs/log_out_cable.txt
+		${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
 	    else
 		./${iexe} > logs/log_out_cable.txt
 	    fi
@@ -1004,7 +1014,7 @@ if [[ ${doequi2} -eq 1 ]] ; then
             cd ${rdir}
 	    irm logs/log_cable.txt logs/log_out_cable.txt
 	    if [[ ${dompi} -eq 1 ]] ; then
-		mpirun -np ${nproc} ./${iexe} > logs/log_out_cable.txt
+		${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
 	    else
 		./${iexe} > logs/log_out_cable.txt
 	    fi
@@ -1094,7 +1104,7 @@ if [[ ${doiniluc} -eq 1 ]] ; then
     cd ${rdir}
     irm logs/log_cable.txt logs/log_out_cable.txt
     if [[ ${dompi} -eq 1 ]] ; then
-	mpirun -np ${nproc} ./${iexe} > logs/log_out_cable.txt
+	${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
     else
 	./${iexe} > logs/log_out_cable.txt
     fi
@@ -1192,7 +1202,7 @@ if [[ ${doinidyn} -eq 1 ]] ; then
     cd ${rdir}
     irm logs/log_cable.txt logs/log_out_cable.txt
     if [[ ${dompi} -eq 1 ]] ; then
-	mpirun -np ${nproc} ./${iexe} > logs/log_out_cable.txt
+	${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
     else
 	./${iexe} > logs/log_out_cable.txt
     fi
@@ -1289,7 +1299,7 @@ if [[ ${dofinal} -eq 1 ]] ; then
     cd ${rdir}
     irm logs/log_cable.txt logs/log_out_cable.txt
     if [[ ${dompi} -eq 1 ]] ; then
-	mpirun -np ${nproc} ./${iexe} > logs/log_out_cable.txt
+	${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
     else
 	./${iexe} > logs/log_out_cable.txt
     fi
