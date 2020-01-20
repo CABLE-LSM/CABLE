@@ -1502,7 +1502,7 @@ CONTAINS
       endif
 
        ! CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
-       ! CALL casa_poolout( ktau, veg, soil, casabiome,                           &
+       ! CALL casa_poolout( ktau, veg, soil, casabiome, &
        !     casapool, casaflux, casamet, casabal, phen )
        CALL casa_fluxout( nyear, veg, soil, casabal, casamet)
        CALL write_casa_restart_nc( casamet, casapool,casaflux,phen,CASAONLY )
@@ -1529,6 +1529,13 @@ CONTAINS
        IF (cable_user%POPLUC .and. .NOT. CASAONLY ) THEN
           CALL WRITE_LUC_RESTART_NC ( POPLUC, YYYY )
        ENDIF
+    else
+       ! While testing
+       if (cable_user%c13o2) then
+          call c13o2_print_delta_flux(c13o2flux)
+          call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
+          if (cable_user%POPLUC) call c13o2_print_delta_luc(popluc, c13o2luc)
+       endif
     END IF
 
     ! Write restart file if requested:
@@ -9753,49 +9760,47 @@ SUBROUTINE master_end(icycle, restart)
 
 END SUBROUTINE master_end
 
-SUBROUTINE master_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
-     casaflux,casamet,casabal,phen,POP,climate,LALLOC, c13o2flux, c13o2pools, c13o2luc, icomm, ocomm )
+SUBROUTINE master_spincasacnp(dels, kstart, kend, mloop, veg, soil, casabiome, casapool, &
+     casaflux, casamet, casabal, phen, POP, climate, LALLOC, c13o2flux, c13o2pools, c13o2luc, icomm, ocomm)
 
-  !USE cable_mpimaster
-  USE cable_def_types_mod
-  USE cable_carbon_module
-  USE cable_common_module, ONLY: cable_user
-  USE casadimension
-  USE casaparm
-  USE casavariable
-  USE phenvariable
-  USE POP_Types,           Only: POP_TYPE
-  USE POPMODULE,           ONLY: POPStep
-  USE TypeDef,             ONLY: i4b, dp
+  use cable_def_types_mod
+  use cable_carbon_module
+  use cable_common_module, only: cable_user
+  use casadimension
+  use casaparm
+  use casavariable
+  use phenvariable
+  use POP_types,           only: POP_type
+  use POPmodule,           only: POPstep
+  use TypeDef,             only: i4b, dp
   ! 13C
   use cable_c13o2_def,     only: c13o2_flux, c13o2_pool, c13o2_luc
   use cable_c13o2,         only: c13o2_write_restart_pools, c13o2_write_restart_luc
 
-  IMPLICIT NONE
-  !!CLN  CHARACTER(LEN=99), INTENT(IN)  :: fcnpspin
-  REAL,    INTENT(IN)    :: dels
-  INTEGER, INTENT(IN)    :: kstart
-  INTEGER, INTENT(IN)    :: kend
-  INTEGER, INTENT(IN)    :: mloop
-  INTEGER, INTENT(IN)    :: LALLOC
-  TYPE(veg_parameter_type),  INTENT(INOUT) :: veg  ! vegetation parameters
-  TYPE(soil_parameter_type), INTENT(INOUT) :: soil ! soil parameters
-  TYPE(casa_biome),          INTENT(INOUT) :: casabiome
-  TYPE(casa_pool),           INTENT(INOUT) :: casapool
-  TYPE(casa_flux),           INTENT(INOUT) :: casaflux
-  TYPE(casa_met),            INTENT(INOUT) :: casamet
-  TYPE(casa_balance),        INTENT(INOUT) :: casabal
-  TYPE(phen_variable),       INTENT(INOUT) :: phen
-  TYPE(POP_TYPE),            INTENT(INOUT) :: POP
-  TYPE(climate_TYPE),        INTENT(INOUT) :: climate
+  implicit none
+  
+  !!cln  character(len=99), intent(in)  :: fcnpspin
+  real,    intent(in)    :: dels
+  integer, intent(in)    :: kstart
+  integer, intent(in)    :: kend
+  integer, intent(in)    :: mloop
+  integer, intent(in)    :: lalloc
+  type(veg_parameter_type),  intent(inout) :: veg  ! vegetation parameters
+  type(soil_parameter_type), intent(inout) :: soil ! soil parameters
+  type(casa_biome),          intent(inout) :: casabiome
+  type(casa_pool),           intent(inout) :: casapool
+  type(casa_flux),           intent(inout) :: casaflux
+  type(casa_met),            intent(inout) :: casamet
+  type(casa_balance),        intent(inout) :: casabal
+  type(phen_variable),       intent(inout) :: phen
+  type(POP_type),            intent(inout) :: POP
+  type(climate_type),        intent(inout) :: climate
   ! 13C
   type(c13o2_flux),          intent(inout) :: c13o2flux
   type(c13o2_pool),          intent(inout) :: c13o2pools
   type(c13o2_luc),           intent(inout) :: c13o2luc
   ! communicator for error-messages
-  INTEGER, INTENT(IN)  :: icomm, ocomm
-
-  TYPE (casa_met)  :: casaspin
+  integer, intent(in)  :: icomm, ocomm
 
   ! local variables
   real(r_2), dimension(:), allocatable, save  :: avg_cleaf2met, avg_cleaf2str, avg_croot2met, avg_croot2str, avg_cwood2cwd
@@ -9803,22 +9808,22 @@ SUBROUTINE master_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
   real(r_2), dimension(:), allocatable, save  :: avg_pleaf2met, avg_pleaf2str, avg_proot2met, avg_proot2str, avg_pwood2cwd
   real,      dimension(:), allocatable, save  :: avg_cgpp,      avg_cnpp,      avg_nuptake,   avg_puptake
   real,      dimension(:), allocatable, save  :: avg_nsoilmin,  avg_psoillab,  avg_psoilsorb, avg_psoilocc
-  !chris 12/oct/2012 for spin up casa
+  ! chris 12/oct/2012 for spin up casa
   real,      dimension(:), allocatable, save  :: avg_ratioNCsoilmic,  avg_ratioNCsoilslow,  avg_ratioNCsoilpass
   real(r_2), dimension(:), allocatable, save  :: avg_xnplimit,  avg_xkNlimiting,avg_xklitter, avg_xksoil
 
   ! local variables
-  INTEGER                  :: myearspin,nyear, nloop1
-  CHARACTER(LEN=99)        :: ncfile
-  CHARACTER(LEN=4)         :: cyear
-  INTEGER                  :: ktau,ktauday,nday,idoy,ktaux,ktauy,nloop
-  INTEGER, save            :: ndays
-  real(r_2), dimension(mp)      :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
-  real(r_2), dimension(mp)      :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
-  real(r_2), dimension(mp)      :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
-  real,      dimension(mp)      :: xcgpp,     xcnpp,     xnuptake,  xpuptake
-  real,      dimension(mp)      :: xnsoilmin, xpsoillab, xpsoilsorb,xpsoilocc
-  real(r_2), dimension(mp)      :: xnplimit,  xkNlimiting, xklitter, xksoil,xkleaf, xkleafcold, xkleafdry
+  integer                  :: myearspin,nyear, nloop1
+  character(len=99)        :: ncfile
+  character(len=4)         :: cyear
+  integer                  :: ktau,ktauday,nday,idoy,ktaux,ktauy,nloop
+  integer, save            :: ndays
+  real(r_2), dimension(mp) :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
+  real(r_2), dimension(mp) :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
+  real(r_2), dimension(mp) :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
+  real,      dimension(mp) :: xcgpp,     xcnpp,     xnuptake,  xpuptake
+  real,      dimension(mp) :: xnsoilmin, xpsoillab, xpsoilsorb,xpsoilocc
+  real(r_2), dimension(mp) :: xnplimit,  xknlimiting, xklitter, xksoil,xkleaf, xkleafcold, xkleafdry
 
   ! more variables to store the spinup pool size over the last 10 loops. Added by Yp Wang 30 Nov 2012
   real,      dimension(5,mvtype,mplant)  :: bmcplant,  bmnplant,  bmpplant
@@ -9828,129 +9833,124 @@ SUBROUTINE master_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapoo
   real,      dimension(mvtype)           :: bmarea
   integer :: nptx,nvt,kloop
 
-  ktauday=int(24.0*3600.0/dels)
-  nday=(kend-kstart+1)/ktauday
-  ktau = 0
+  ktauday = int(24.0*3600.0/dels)
+  nday    = (kend-kstart+1)/ktauday
+  ktau    = 0
 
-  myearspin = cable_user%CASA_SPIN_ENDYEAR - cable_user%CASA_SPIN_STARTYEAR + 1
+  myearspin = cable_user%casa_spin_endyear - cable_user%casa_spin_startyear + 1
   ! compute the mean fluxes and residence time of each carbon pool
   
   do nyear=1, myearspin
 
-     WRITE(CYEAR,FMT="(I4)") cable_user%CASA_SPIN_STARTYEAR + nyear - 1
-     ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
-     call read_casa_dump(ncfile, casamet, casaflux, phen, climate, c13o2flux, ktau, kend, .TRUE.)
+     write(cyear,fmt="(I4)") cable_user%casa_spin_startyear + nyear - 1
+     ncfile = trim(casafile%c2cdumppath)//'c2c_'//cyear//'_dump.nc'
+     call read_casa_dump(ncfile, casamet, casaflux, phen, climate, c13o2flux, ktau, kend, .true.)
 
      do idoy=1, mdyear
         ktau = (idoy-1)*ktauday + 1
-        casamet%tairk(:)       = casamet%Tairkspin(:,idoy)
-        casamet%tsoil(:,1)     = casamet%Tsoilspin_1(:,idoy)
-        casamet%tsoil(:,2)     = casamet%Tsoilspin_2(:,idoy)
-        casamet%tsoil(:,3)     = casamet%Tsoilspin_3(:,idoy)
-        casamet%tsoil(:,4)     = casamet%Tsoilspin_4(:,idoy)
-        casamet%tsoil(:,5)     = casamet%Tsoilspin_5(:,idoy)
-        casamet%tsoil(:,6)     = casamet%Tsoilspin_6(:,idoy)
-        casamet%moist(:,1)     = casamet%moistspin_1(:,idoy)
-        casamet%moist(:,2)     = casamet%moistspin_2(:,idoy)
-        casamet%moist(:,3)     = casamet%moistspin_3(:,idoy)
-        casamet%moist(:,4)     = casamet%moistspin_4(:,idoy)
-        casamet%moist(:,5)     = casamet%moistspin_5(:,idoy)
-        casamet%moist(:,6)     = casamet%moistspin_6(:,idoy)
+        casamet%tairk(:)   = casamet%Tairkspin(:,idoy)
+        casamet%tsoil(:,1) = casamet%Tsoilspin_1(:,idoy)
+        casamet%tsoil(:,2) = casamet%Tsoilspin_2(:,idoy)
+        casamet%tsoil(:,3) = casamet%Tsoilspin_3(:,idoy)
+        casamet%tsoil(:,4) = casamet%Tsoilspin_4(:,idoy)
+        casamet%tsoil(:,5) = casamet%Tsoilspin_5(:,idoy)
+        casamet%tsoil(:,6) = casamet%Tsoilspin_6(:,idoy)
+        casamet%moist(:,1) = casamet%moistspin_1(:,idoy)
+        casamet%moist(:,2) = casamet%moistspin_2(:,idoy)
+        casamet%moist(:,3) = casamet%moistspin_3(:,idoy)
+        casamet%moist(:,4) = casamet%moistspin_4(:,idoy)
+        casamet%moist(:,5) = casamet%moistspin_5(:,idoy)
+        casamet%moist(:,6) = casamet%moistspin_6(:,idoy)
         casaflux%cgpp(:)       = casamet%cgppspin(:,idoy)
         casaflux%crmplant(:,1) = casamet%crmplantspin_1(:,idoy)
         casaflux%crmplant(:,2) = casamet%crmplantspin_2(:,idoy)
         casaflux%crmplant(:,3) = casamet%crmplantspin_3(:,idoy)
-        phen%phase(:) = phen%phasespin(:,idoy)
+        phen%phase(:)      = phen%phasespin(:,idoy)
         phen%doyphase(:,1) = phen%doyphasespin_1(:,idoy)
-        phen%doyphase(:,2) =  phen%doyphasespin_2(:,idoy)
-        phen%doyphase(:,3) =  phen%doyphasespin_3(:,idoy)
-        phen%doyphase(:,4) =  phen%doyphasespin_4(:,idoy)
-        climate%qtemp_max_last_year(:) =  casamet%mtempspin(:,idoy)
+        phen%doyphase(:,2) = phen%doyphasespin_2(:,idoy)
+        phen%doyphase(:,3) = phen%doyphasespin_3(:,idoy)
+        phen%doyphase(:,4) = phen%doyphasespin_4(:,idoy)
+        climate%qtemp_max_last_year(:) = casamet%mtempspin(:,idoy)
         ! 13C
         if (cable_user%c13o2) then
            c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
            c13o2flux%cAn(:)   = casamet%cAn13spin(:,idoy)
         endif
 
-        CALL master_send_input(icomm, casa_dump_ts, idoy)
+        call master_send_input(icomm, casa_dump_ts, idoy)
       enddo
 
   enddo
 
   nloop1= max(1,mloop-3)
 
-  DO nloop=1, mloop
+  do nloop=1, mloop
      write(*,*) 'nloop =', nloop
      !!CLN  OPEN(91,file=fcnpspin)
      !!CLN  read(91,*)
-     DO nyear=1, myearspin
+     do nyear=1, myearspin
 
-        WRITE(CYEAR,FMT="(I4)") cable_user%CASA_SPIN_STARTYEAR + nyear - 1
-        ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
-        call read_casa_dump(ncfile, casamet, casaflux, phen, climate, c13o2flux, ktau, kend, .TRUE.)
+        write(cyear,FMT="(I4)") cable_user%casa_spin_startyear + nyear - 1
+        ncfile = trim(casafile%c2cdumppath)//'c2c_'//cyear//'_dump.nc'
+        call read_casa_dump(ncfile, casamet, casaflux, phen, climate, c13o2flux, ktau, kend, .true.)
 
-        DO idoy=1,mdyear
-           ktauy=idoy*ktauday
-           casamet%tairk(:)       = casamet%Tairkspin(:,idoy)
-           casamet%tsoil(:,1)     = casamet%Tsoilspin_1(:,idoy)
-           casamet%tsoil(:,2)     = casamet%Tsoilspin_2(:,idoy)
-           casamet%tsoil(:,3)     = casamet%Tsoilspin_3(:,idoy)
-           casamet%tsoil(:,4)     = casamet%Tsoilspin_4(:,idoy)
-           casamet%tsoil(:,5)     = casamet%Tsoilspin_5(:,idoy)
-           casamet%tsoil(:,6)     = casamet%Tsoilspin_6(:,idoy)
-           casamet%moist(:,1)     = casamet%moistspin_1(:,idoy)
-           casamet%moist(:,2)     = casamet%moistspin_2(:,idoy)
-           casamet%moist(:,3)     = casamet%moistspin_3(:,idoy)
-           casamet%moist(:,4)     = casamet%moistspin_4(:,idoy)
-           casamet%moist(:,5)     = casamet%moistspin_5(:,idoy)
-           casamet%moist(:,6)     = casamet%moistspin_6(:,idoy)
+        do idoy=1, mdyear
+           ktauy = idoy*ktauday
+           casamet%tairk(:)   = casamet%Tairkspin(:,idoy)
+           casamet%tsoil(:,1) = casamet%Tsoilspin_1(:,idoy)
+           casamet%tsoil(:,2) = casamet%Tsoilspin_2(:,idoy)
+           casamet%tsoil(:,3) = casamet%Tsoilspin_3(:,idoy)
+           casamet%tsoil(:,4) = casamet%Tsoilspin_4(:,idoy)
+           casamet%tsoil(:,5) = casamet%Tsoilspin_5(:,idoy)
+           casamet%tsoil(:,6) = casamet%Tsoilspin_6(:,idoy)
+           casamet%moist(:,1) = casamet%moistspin_1(:,idoy)
+           casamet%moist(:,2) = casamet%moistspin_2(:,idoy)
+           casamet%moist(:,3) = casamet%moistspin_3(:,idoy)
+           casamet%moist(:,4) = casamet%moistspin_4(:,idoy)
+           casamet%moist(:,5) = casamet%moistspin_5(:,idoy)
+           casamet%moist(:,6) = casamet%moistspin_6(:,idoy)
            casaflux%cgpp(:)       = casamet%cgppspin(:,idoy)
            casaflux%crmplant(:,1) = casamet%crmplantspin_1(:,idoy)
            casaflux%crmplant(:,2) = casamet%crmplantspin_2(:,idoy)
            casaflux%crmplant(:,3) = casamet%crmplantspin_3(:,idoy)
-           phen%phase(:) = phen%phasespin(:,idoy)
+           phen%phase(:)      = phen%phasespin(:,idoy)
            phen%doyphase(:,1) = phen%doyphasespin_1(:,idoy)
-           phen%doyphase(:,2) =  phen%doyphasespin_2(:,idoy)
-           phen%doyphase(:,3) =  phen%doyphasespin_3(:,idoy)
-           phen%doyphase(:,4) =  phen%doyphasespin_4(:,idoy)
-           climate%qtemp_max_last_year(:) =  casamet%mtempspin(:,idoy)
+           phen%doyphase(:,2) = phen%doyphasespin_2(:,idoy)
+           phen%doyphase(:,3) = phen%doyphasespin_3(:,idoy)
+           phen%doyphase(:,4) = phen%doyphasespin_4(:,idoy)
+           climate%qtemp_max_last_year(:) = casamet%mtempspin(:,idoy)
            ! 13C
            if (cable_user%c13o2) then
               c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
               c13o2flux%cAn(:)   = casamet%cAn13spin(:,idoy)
            endif
 
-           CALL master_send_input(icomm, casa_dump_ts, idoy)
-        ENDDO ! end doy
+           call master_send_input(icomm, casa_dump_ts, idoy)
+        enddo ! end doy
 
-     ENDDO   ! end of nyear
+     enddo   ! end of nyear
 
-  ENDDO     ! end of nloop
+  enddo     ! end of nloop
   
   ! write(*,*) 'b4 master receive casa'
-  CALL master_receive(ocomm, 0, casa_ts)
+  call master_receive(ocomm, 0, casa_ts)
   ! write(*,*) 'after master receive casa'
-  CALL casa_poolout(ktau, veg, soil, casabiome, &
-       casapool, casaflux, casamet, casabal, phen )
+  call casa_poolout(ktau, veg, soil, casabiome, &
+       casapool, casaflux, casamet, casabal, phen)
 
-  CALL write_casa_restart_nc(casamet, casapool, casaflux, phen, .TRUE.)
+  call write_casa_restart_nc(casamet, casapool, casaflux, phen, .true.)
   ! 13C
   if (cable_user%c13o2) then
-     CALL master_receive(ocomm, 0, c13o2_pool_ts)
+     call master_receive(ocomm, 0, c13o2_pool_ts)
      call c13o2_write_restart_pools(c13o2pools)
-     !MC - write LUC here? Ask Vanessa
-     if (cable_user%POPLUC) then
-        CALL master_receive(ocomm, 0, c13o2_luc_ts)
-        call c13o2_write_restart_luc(c13o2luc)
-     endif
   endif
 
-  IF ( cable_user%CALL_POP .and.POP%np.gt.0 ) THEN
+  if ( cable_user%call_POP .and. (POP%np.gt.0) ) then
      ! write(*,*) 'b4 master receive pop'
-     CALL master_receive_pop(POP, ocomm)
+     call master_receive_pop(POP, ocomm)
      ! write(*,*) 'after master receive pop'
-     CALL POP_IO( pop, casamet, myearspin, 'WRITE_INI', .TRUE.)
-  ENDIF
+     call POP_io(pop, casamet, myearspin, 'WRITE_INI', .true.)
+  endif
 
 END SUBROUTINE master_spincasacnp
 
@@ -10008,7 +10008,6 @@ SUBROUTINE master_CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   !TYPE (casa_flux)   , INTENT(INOUT) :: sum_casaflux
   ! communicator for error-messages
   INTEGER, INTENT(IN)  :: icomm, ocomm
-  TYPE (casa_met)  :: casaspin
 
   ! local variables
   real(r_2), dimension(:), allocatable, save  :: avg_cleaf2met, avg_cleaf2str, avg_croot2met, avg_croot2str, avg_cwood2cwd
@@ -10041,14 +10040,14 @@ SUBROUTINE master_CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   real,      dimension(mvtype)           :: bmarea
   integer :: nptx,nvt,kloop, ctime, k, j, l
 
-  REAL(dp)                               :: StemNPP(mp,2)
-  REAL(dp), allocatable, save ::  LAImax(:)    , Cleafmean(:),  Crootmean(:)
-  REAL(dp), allocatable :: NPPtoGPP(:)
-  INTEGER, allocatable :: Iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
-  INTEGER :: count_sum_casa ! number of time steps over which casa pools &
+  real(dp)                               :: stemnpp(mp,2)
+  real(dp), allocatable, save ::  laimax(:)    , cleafmean(:),  crootmean(:)
+  real(dp), allocatable :: npptogpp(:)
+  integer, allocatable :: iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
+  integer :: count_sum_casa ! number of time steps over which casa pools &
   !and fluxes are aggregated (for output)
-  INTEGER :: rank, count, off, cnt, ierr
-  ! 13C
+  integer :: rank, count, off, cnt, ierr
+  ! 13c
   real(dp), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
   real(dp), dimension(c13o2luc%nland,c13o2luc%npools)     :: lucsave
 

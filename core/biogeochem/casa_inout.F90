@@ -1022,30 +1022,33 @@ endif
 END SUBROUTINE casa_init
 
 
-SUBROUTINE casa_poolout(ktau,veg,soil,casabiome,casapool,casaflux,casamet, &
-                        casabal,phen)
+SUBROUTINE casa_poolout(ktau, veg, soil, casabiome, casapool, casaflux, casamet, &
+                        casabal, phen)
+
   USE cable_def_types_mod
   USE casadimension
   USE casaparm
   USE casavariable
   USE phenvariable
   USE cable_common_module, only: cable_user
+  
   IMPLICIT NONE
-  INTEGER,               INTENT(IN)    :: ktau
-  TYPE (veg_parameter_type),  INTENT(INOUT) :: veg  ! vegetation parameters
-  TYPE (soil_parameter_type), INTENT(INOUT) :: soil ! soil parameters
-  TYPE (casa_biome),          INTENT(INOUT) :: casabiome
-  TYPE (casa_pool),           INTENT(INOUT) :: casapool
-  TYPE (casa_flux),           INTENT(INOUT) :: casaflux
-  TYPE (casa_met),            INTENT(INOUT) :: casamet
-  TYPE (casa_balance),        INTENT(INOUT) :: casabal
-  TYPE (phen_variable),       INTENT(INOUT) :: phen
+
+  INTEGER,                   INTENT(IN)    :: ktau
+  TYPE(veg_parameter_type),  INTENT(INOUT) :: veg  ! vegetation parameters
+  TYPE(soil_parameter_type), INTENT(INOUT) :: soil ! soil parameters
+  TYPE(casa_biome),          INTENT(INOUT) :: casabiome
+  TYPE(casa_pool),           INTENT(INOUT) :: casapool
+  TYPE(casa_flux),           INTENT(INOUT) :: casaflux
+  TYPE(casa_met),            INTENT(INOUT) :: casamet
+  TYPE(casa_balance),        INTENT(INOUT) :: casabal
+  TYPE(phen_variable),       INTENT(INOUT) :: phen
 
   ! local variables
   REAL(r_2), DIMENSION(mso) :: Psorder,pweasoil,xpsoil50
   REAL(r_2), DIMENSION(mso) :: fracPlab,fracPsorb,fracPocc,fracPorg
   REAL(r_2), DIMENSION(mp)  :: totpsoil
-  INTEGER  npt,nout,nso
+  INTEGER :: npt,nout,nso
 
   ! Soiltype     soilnumber soil P(g P/m2)
   ! Alfisol     1       61.3

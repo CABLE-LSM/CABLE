@@ -227,7 +227,7 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
 
            if (cable_user%CALL_POP) then ! accumulate input variables for POP
                ! accumulate annual variables for use in POP
-               if (mod(ktau/ktauday,LOY)==1 ) then
+               if (mod(ktau/ktauday,LOY)==1) then
                   casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7 ! (assumes 70% of wood NPP is allocated above ground)
                   casabal%LAImax = casamet%glai
                   casabal%Cleafmean = casapool%cplant(:,1)/real(LOY)/1000.
@@ -245,23 +245,23 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
             !CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
             !            .true., ctime, .FALSE.  )
             !            ctime = ctime+1
-            IF(idoy==mdyear) THEN ! end of year
-               CALL POPdriver(casaflux, casabal, veg, POP)
+            if (idoy==mdyear) then ! end of year
+               call POPdriver(casaflux, casabal, veg, POP)
                !MC - ToDo - update 13CO2 harvest
                ! CALL POP_IO( pop, casamet, nyear, 'WRITE_EPI', &
                !     (.FALSE.))
                ! CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
                !     .true., ctime, .FALSE.  )
                ! ctime = ctime+1
-            ENDIF  ! end of year
-        ELSE
-           IF(idoy==mdyear) THEN ! end of year
-             !CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
-             ! .true., ctime, .FALSE.  )
+            endif  ! end of year
+        else
+           if (idoy==mdyear) then ! end of year
+             !call write_casa_output_nc (veg, casamet, casapool, casabal, casaflux, &
+             ! .true., ctime, .false.  )
              ctime = ctime+1
-           ENDIF  ! end of year
+           endif  ! end of year
            casaflux%stemnpp = 0.
-        ENDIF ! CALL_POP
+        endif ! CALL_POP
 
         !        WHERE(xkNlimiting .eq. 0)  !Chris Lu 4/June/2012
         !           xkNlimiting = 0.001
@@ -332,10 +332,10 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
   avg_nuptake   = avg_nuptake / real(nday*myearspin)
   avg_puptake   = avg_puptake / real(nday*myearspin)
 
-  avg_xnplimit    = avg_xnplimit / real(nday*myearspin, dp)
+  avg_xnplimit    = avg_xnplimit    / real(nday*myearspin, dp)
   avg_xkNlimiting = avg_xkNlimiting / real(nday*myearspin, dp)
-  avg_xklitter    = avg_xklitter / real(nday*myearspin, dp)
-  avg_xksoil      = avg_xksoil / real(nday*myearspin, dp)
+  avg_xklitter    = avg_xklitter    / real(nday*myearspin, dp)
+  avg_xksoil      = avg_xksoil      / real(nday*myearspin, dp)
 
   avg_nsoilmin    = avg_nsoilmin / real(nday*myearspin)
   avg_psoillab    = avg_psoillab / real(nday*myearspin)
@@ -441,7 +441,7 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
            ! 13C
            if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
 
-           !MC - Question2VH: Should this be nyear==myearspin instead of ntyear==1?
+           !MC - Question2VH: Should this be nyear==myearspin instead of nyear==1?
            if (nloop==mloop .and. nyear==1) then
               !MC - Question2VH: Should ctime be replaced by idoy?
               CALL WRITE_CASA_OUTPUT_NC( veg, casamet, casapool, casabal, casaflux, &
