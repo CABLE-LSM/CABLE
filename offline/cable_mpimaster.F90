@@ -902,6 +902,9 @@ CONTAINS
              ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
                 CALL CRU_GET_SUBDIURNAL_MET(CRU, imet, YYYY, 1, kend, &
                      (YYYY.EQ.cable_user%YearEnd))
+                !MC ask Vanessa
+                iveg%iveg = veg%iveg ! LAI and veg class not in CRU
+                iveg%vlai = veg%vlai
              ELSE
                 CALL get_met_data( spinup, spinConv, imet, soil,   &
                      rad, iveg, kend, dels, C%TFRZ, iktau+koffset, &
@@ -988,6 +991,9 @@ CONTAINS
              ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
                 CALL CRU_GET_SUBDIURNAL_MET(CRU, imet, YYYY, iktau, kend, &
                      (YYYY.EQ.cable_user%YearEnd) )
+                !MC ask Vanessa
+                iveg%iveg = veg%iveg ! LAI and veg class not in CRU
+                iveg%vlai = veg%vlai
                 IF (CALL1)  casamet%glai = 1.0  ! initialise glai for use in cable_roughness
              ELSE
                 CALL get_met_data( spinup, spinConv, imet, soil,                 &
@@ -1047,6 +1053,7 @@ CONTAINS
 
                 ! MPI: receive this time step's results from the workers
                 ! print*, 'MASTER Receive 34 recv'
+                !MC veg%iveg is change during receive for GNU compiler on Explor
                 CALL master_receive(ocomm, oktau, recv_ts)
                 ! CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
 
@@ -3485,7 +3492,7 @@ SUBROUTINE master_casa_params(comm, casabiome, casapool, casaflux, casamet, casa
   INTEGER(KIND=MPI_ADDRESS_KIND), ALLOCATABLE, DIMENSION(:) :: displs
   INTEGER, ALLOCATABLE, DIMENSION(:) :: types
 
-  ! temp vars for verifying block number and tot1al length of inp_t
+  ! temp vars for verifying block number and total length of inp_t
   INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
   INTEGER :: tsize, localtotal, remotetotal
 
@@ -4977,18 +4984,18 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
   ! CALL find_extents
 
   ! MPI: allocate matrices to hold datatype handles
-  ALLOCATE (m3d_t(n3d, wnp))
-  ALLOCATE (mat_t(nmat, wnp))
-  ALLOCATE (vec_t(wnp))
+  ALLOCATE(m3d_t(n3d, wnp))
+  ALLOCATE(mat_t(nmat, wnp))
+  ALLOCATE(vec_t(wnp))
 
   ! MPI: allocate temp vectors used for marshalling
   ntyp = n3d + nmat + nvec
-  ALLOCATE (blocks(ntyp))
-  ALLOCATE (displs(ntyp))
-  ALLOCATE (types(ntyp))
+  ALLOCATE(blocks(ntyp))
+  ALLOCATE(displs(ntyp))
+  ALLOCATE(types(ntyp))
 
   ! MPI: allocate vector to hold handles for the combined type
-  ALLOCATE (recv_ts(wnp))
+  ALLOCATE(recv_ts(wnp))
 
   ! MPI: type_struct that combines all data for a single worker
 
@@ -4998,11 +5005,11 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
   ALLOCATE(m3daddr(n3d))
 
   ! MPI: allocate address vectors for matrices
-  ALLOCATE (maddr(nmat))
+  ALLOCATE(maddr(nmat))
   ! MPI: allocate address vectors for vectors
-  ALLOCATE (vaddr(nvec))
+  ALLOCATE(vaddr(nvec))
   ! MPI: allocate vector block lengths
-  ALLOCATE (blen(nvec))
+  ALLOCATE(blen(nvec))
 
   ! MPI: TODO: global var that holds the total number of patches/landunits?
   r1stride = mp * extr1
@@ -5125,10 +5132,10 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
 
      ! ssnow 2D
      midx = midx + 1
-     CALL MPI_Get_address (ssnow%dtmlt(off,1), maddr(midx), ierr)
-     CALL MPI_Type_create_hvector (3, r1len, r1stride, MPI_BYTE, &
-     &                             mat_t(midx, rank), ierr)
-     CALL MPI_Type_commit (mat_t(midx, rank), ierr)
+     CALL MPI_Get_address(ssnow%dtmlt(off,1), maddr(midx), ierr)
+     CALL MPI_Type_create_hvector(3, r1len, r1stride, MPI_BYTE, &
+          mat_t(midx, rank), ierr)
+     CALL MPI_Type_commit(mat_t(midx, rank), ierr)
 
      midx = midx + 1
      ! REAL(r_1)
@@ -6516,7 +6523,9 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
   DEALLOCATE(blocks)
 
   RETURN
+
 END SUBROUTINE master_outtypes
+
 
 ! MPI: creates handles for receiving casa final results from the workers
 SUBROUTINE master_casa_types(comm, casapool, casaflux, casamet, casabal, phen)
@@ -7769,7 +7778,7 @@ END SUBROUTINE master_climate_types
 !CLNEND SUBROUTINE master_casa_restart_types
 
 ! MPI: creates datatype handles to receive restart data from workers
-SUBROUTINE master_restart_types (comm, canopy, air)
+SUBROUTINE master_restart_types(comm, canopy, air)
 
   use mpi
 
@@ -7809,13 +7818,13 @@ SUBROUTINE master_restart_types (comm, canopy, air)
   INTEGER :: rank, off, cnt
   INTEGER :: bidx, midx, vidx, ierr
 
-  ALLOCATE (restart_ts(wnp))
+  ALLOCATE(restart_ts(wnp))
 
   ! MPI: allocate temp vectors used for marshalling
   ntyp = nrestart
-  ALLOCATE (blocks(ntyp))
-  ALLOCATE (displs(ntyp))
-  ALLOCATE (types(ntyp))
+  ALLOCATE(blocks(ntyp))
+  ALLOCATE(displs(ntyp))
+  ALLOCATE(types(ntyp))
 
   r1stride = mp * extr1
   r2stride = mp * extr2
@@ -7834,17 +7843,17 @@ SUBROUTINE master_restart_types (comm, canopy, air)
 
      ! ------------- 2D arrays -------------
 
-!     bidx = bidx + 1
-!     CALL MPI_Get_address (canopy%rwater(off,1), displs(bidx), ierr) ! 1
-!     CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
-!     &                             types(bidx), ierr)
-!     blocks(bidx) = 1
+     ! bidx = bidx + 1
+     ! CALL MPI_Get_address (canopy%rwater(off,1), displs(bidx), ierr) ! 1
+     ! CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
+     ! &                             types(bidx), ierr)
+     ! blocks(bidx) = 1
 
      bidx = bidx + 1
-     CALL MPI_Get_address (canopy%evapfbl(off,1), displs(bidx), ierr) ! 2
+     CALL MPI_Get_address(canopy%evapfbl(off,1), displs(bidx), ierr) ! 2
      ! MPI: gol124: changed to r1 when Bernard ported to CABLE_r491
-     CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
-     &                             types(bidx), ierr)
+     CALL MPI_Type_create_hvector(ms, r1len, r1stride, MPI_BYTE, &
+          types(bidx), ierr)
      blocks(bidx) = 1
 
      last2d = bidx
@@ -7915,14 +7924,14 @@ SUBROUTINE master_restart_types (comm, canopy, air)
         WRITE(*,*) 'master: invalid number of restart fields, fix it (09)!'
         WRITE(*,*) 'bidx: ', bidx
         WRITE(*,*) 'ntyp: ', ntyp
-        CALL MPI_Abort (comm, 1, ierr)
+        CALL MPI_Abort(comm, 1, ierr)
      END IF
 
-     CALL MPI_Type_create_struct (bidx, blocks, displs, types, restart_ts(rank), ierr)
-     CALL MPI_Type_commit (restart_ts(rank), ierr)
+     CALL MPI_Type_create_struct(bidx, blocks, displs, types, restart_ts(rank), ierr)
+     CALL MPI_Type_commit(restart_ts(rank), ierr)
 
-     CALL MPI_Type_size (restart_ts(rank), tsize, ierr)
-     CALL MPI_Type_get_extent (restart_ts(rank), tmplb, text, ierr)
+     CALL MPI_Type_size(restart_ts(rank), tsize, ierr)
+     CALL MPI_Type_get_extent(restart_ts(rank), tmplb, text, ierr)
 
      WRITE(*,*) 'restart results recv from worker, size, extent, lb: ', rank, tsize, text, tmplb
 
@@ -7958,7 +7967,9 @@ SUBROUTINE master_restart_types (comm, canopy, air)
   DEALLOCATE(blocks)
 
   RETURN
+  
 END SUBROUTINE master_restart_types
+
 
 ! MPI: Casa - dump read and write
 SUBROUTINE master_casa_dump_types(comm, casamet, casaflux, phen, climate, c13o2flux )
