@@ -605,12 +605,14 @@ build_build()
    # directories contain source code
    PHYS="../core/biogeophys"
    UTIL="../core/utils"
+   DIAG="../core/utils/diag"
    DRV="."
    CASA="../core/biogeochem"
    BLAZE="../core/blaze"
    
    /bin/cp -p $PHYS/*90  ./.tmp
    /bin/cp -p $UTIL/*90  ./.tmp
+   /bin/cp -p $DIAG/*90  ./.tmp
    /bin/cp -p $DRV/*90   ./.tmp
    /bin/cp -p $CASA/*90  ./.tmp
    /bin/cp -p $BLAZE/*90 ./.tmp

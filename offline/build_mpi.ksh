@@ -10,10 +10,41 @@ fi
 known_hosts()
 {
     if [ -z ${PS3} ] ; then
-	kh=(kh cher burn shin raij pear mcin vm_o)
+	kh=(kh cher burn shin raij pear mcin vm_o gadi)
     else
-	set -A kh cher burn shin raij pear mcin vm_o
+	set -A kh cher burn shin raij pear mcin vm_o gadi
     fi
+}
+
+## gadi.nci.org.au
+host_gadi()
+{
+   if [ -z ${PS3} ] ; then
+      . /etc/bashrc
+   else
+      . /etc/kshrc
+   fi
+   module purge
+   module add intel-compiler/2019.5.281
+   module add intel-mpi/2019.5.281
+   module add netcdf/4.6.3
+
+   export FC='mpif90'
+   export NCDIR=$NETCDF_ROOT'/lib/Intel'
+   export NCMOD=$NETCDF_ROOT'/include/Intel'
+   if [[ ${1} == 'debug' ]]; then
+       #trunk export CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0'
+       #build.ksh export CFLAGS='-O0 -fpp -traceback -g -fp-model precise -ftz -fpe0'
+       export CFLAGS='-g -debug -traceback -fpp -check all,noarg_temp_created -fp-stack-check -O0 -debug -fpe=0 -fpe-all=0 -no-ftz -ftrapuv'
+   else
+       export CFLAGS='-O2 -fpp -fp-model precise'
+   fi
+   export LDFLAGS='-L'${NCDIR}' -O0'
+   export LD='-lnetcdf -lnetcdff'
+   export MFLAGS='-j 8'
+   build_build
+   cd ../
+   build_status
 }
 
 ## raijin.nci.org.au
@@ -550,12 +581,14 @@ build_build()
    # directories contain source code
    PHYS="../core/biogeophys"
    UTIL="../core/utils"
+   DIAG="../core/utils/diag"
    DRV="."
    CASA="../core/biogeochem"
    BLAZE="../core/blaze"
    
    /bin/cp -p $PHYS/*90  ./${cdir}
    /bin/cp -p $UTIL/*90  ./${cdir}
+   /bin/cp -p $DIAG/*90  ./${cdir}
    /bin/cp -p $DRV/*90   ./${cdir}
    /bin/cp -p $CASA/*90  ./${cdir}
    /bin/cp -p $BLAZE/*90 ./${cdir}
