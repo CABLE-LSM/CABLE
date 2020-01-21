@@ -39,7 +39,8 @@ system=cuntz@explor # cuntz@explor, cuntz@mcinra, knauer@pearcey, jk8585 or vxh5
 # nproc should fit with job tasks 
 dompi=1   # 0: normal run: ./cable
           # 1: MPI run: mpiexec -n ${nproc} ./cable_mpi
-nproc=5   # Number of cores for MPI runs
+nproc=3   # Number of cores for MPI runs
+          # must be same as above: SBATCH -n nproc or PBS -l ncpus=nproc
 ignore_mpi_err=1 # 0/1: continue even if mpi run failed
 
 # --------------------------------------------------------------------
@@ -98,16 +99,16 @@ if [[ "${sys}" == "explor" ]] ; then
     # module load intel/2018.5
     # export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-ifort2018.0/lib
     # export mpiexecdir=/soft/env/soft/all/intel/2018.3/compilers_and_libraries_2018.5.274/linux/mpi/intel64/bin
-    # # INTEL / OpenMPI - load mpi module first, otherwise intel module will not pre-pend LD_LIBRARY_PATH
-    # module load openmpi/3.0.0/intel18
-    # module load intel/2018.5
-    # export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-ifort2018.0/lib
-    # export mpiexecdir=/opt/soft/hf/openmpi-3.0.0-intel18/bin
-    # GNU / OpenMPI
-    module load gcc/6.3.0
-    module load openmpi/3.0.1/gcc/6.3.0
-    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-gfortran63/lib
-    export mpiexecdir=/opt/soft/hf/openmpi/3.0.1/gcc/6.3.0/bin
+    # INTEL / OpenMPI - load mpi module first, otherwise intel module will not pre-pend LD_LIBRARY_PATH
+    module load openmpi/3.0.0/intel18
+    module load intel/2018.5
+    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-ifort2018.0/lib
+    export mpiexecdir=/opt/soft/hf/openmpi-3.0.0-intel18/bin
+    # # GNU / OpenMPI
+    # module load gcc/6.3.0
+    # module load openmpi/3.0.1/gcc/6.3.0
+    # export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-gfortran63/lib
+    # export mpiexecdir=/opt/soft/hf/openmpi/3.0.1/gcc/6.3.0/bin
 elif [[ "${sys}" == "mcinra" ]] ; then
     # exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi-gfortran"
     export mpiexecdir=/usr/local/openmpi-3.1.4-gfortran/bin
@@ -130,25 +131,25 @@ if [[ ! -z ${mpiexecdir} ]] ; then export mpiexecdir="${mpiexecdir}/" ; fi
 # --------------------------------------------------------------------
 # Sequence switches
 #
-dometeo=1       # 0: Use global meteo, land use and mask
+imeteo=1       # 0: Use global meteo, land use and mask
                 # 1: Use local meteo, land use and mask (doextractsite=1)
                 # 2: Use global meteo and land use, and local mask (doextractsite=2)
 # Step 0
 doextractsite=0 # 0: Do not extract meteo, land use and mask at specific site
-                # 1: Do extract meteo, land use and mask at specific site (dometeo=1)
-                # 2: Do extract mask at specific site, using then global meteo and land use (dometeo=2)
+                # 1: Do extract meteo, land use and mask at specific site (imeteo=1)
+                # 2: Do extract mask at specific site, using then global meteo and land use (imeteo=2)
   sitename=HarvardForest10
   # latlon=42.536875,-72.172602 # lat,lon  or  latmin,latmax,lonmin,lonmax  # must have . in numbers otherwise indexes taken
   latlon=42.536875,42.536875,-74.,-72.
 # Step 1
-doclimate=1     # 1/0: Do/Do not create climate restart file
+doclimate=0     # 1/0: Do/Do not create climate restart file
 # Step 2
-dofromzero=1    # 1/0: Do/Do not first spinup phase from zero biomass stocks
+dofromzero=0    # 1/0: Do/Do not first spinup phase from zero biomass stocks
 # Step 3
-doequi1=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
+doequi1=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
  nequi1=3       #      number of times to repeat steps in doequi1
 # Step 4
-doequi2=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
+doequi2=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
  nequi2=3       #      number of times to repeat steps in doequi2
 # Step 5
 doiniluc=1      # 1/0: Do/Do not spinup with dynamic land use (5a)
@@ -240,9 +241,9 @@ casafile_cnpbiome="../params/pftlookup.csv"
 LandMaskFile="${sitepath}/mask/glob_ipsl_1x1_${sitename}.nc"
 # CRU
 MetPath="${sitepath}/met/cru_jra_1deg"
+ClimateFile="${sitepath}/met/cru_climate_rst.nc"
 # LUC
 TransitionFilePath="${sitepath}/LUH2/v3/1deg"
-ClimateFile="${sitepath}/LUH2/cru_climate_rst.nc"
 # 13C
 filename_d13c_atm="../params/graven_et_al_gmd_2017-table_s1-delta_13c-1700-2025.txt"
 
@@ -351,7 +352,26 @@ function nckslatlon()
 	echo "-d ${ilat},${iilat1},${iilat2} -d ${ilon},${iilon1},${iilon2}"
     fi
 }
-
+#
+# copy files adding first argument to filenames
+function copyid()
+{
+    rid=${1}
+    shift 1
+    for i in $@ ; do
+	cp ${i} ${i%.*}_${rid}.${i##*.}
+    done
+}
+#
+# rename files adding first argument to filenames
+function renameid()
+{
+    rid=${1}
+    shift 1
+    for i in $@ ; do
+	mv ${i} ${i%.*}_${rid}.${i##*.}
+    done
+}
 
 # --------------------------------------------------------------------------------------------------
 # Preparation
@@ -457,20 +477,20 @@ if [[ ${doextractsite} -eq 2 ]] ; then
 fi
 
 # Choose meteo, land use and mask directories and files
-if [[ ${dometeo} -eq 0 ]] ; then
+if [[ ${imeteo} -eq 0 ]] ; then
     MetPath=$(abspath ${GlobalMetPath})
     TransitionFilePath=$(abspath ${GlobalTransitionFilePath})
     LandMaskFile=$(absfile ${LandMaskFile})
-elif [[ ${dometeo} -eq 1 ]] ; then
+elif [[ ${imeteo} -eq 1 ]] ; then
     MetPath=$(abspath ${MetPath})
     TransitionFilePath=$(abspath ${TransitionFilePath})
     LandMaskFile=$(absfile ${LandMaskFile})
-elif [[ ${dometeo} -eq 2 ]] ; then
+elif [[ ${imeteo} -eq 2 ]] ; then
     MetPath=$(abspath ${GlobalMetPath})
     TransitionFilePath=$(abspath ${GlobalTransitionFilePath})
     LandMaskFile=$(absfile ${LandMaskFile})
 else
-    printf "Error ${pprog}: dometeo option unknown: ${dometeo}.\n\n"
+    printf "Error ${pprog}: imeteo option unknown: ${imeteo}.\n\n"
     exit 1
 fi
 # absolute pathes of other parameter files
@@ -484,7 +504,7 @@ filename_d13c_atm=$(absfile ${filename_d13c_atm})
 # 1. Create climate restart file
 if [[ ${doclimate} -eq 1 ]] ; then
     echo "1. Create climate restart file"
-    rid="climate_init"
+    rid="climate_restart"
     # CRU
     irm ${rdir}/cru.nml
     com=$(csed "BasePath=\"${MetPath}\",MetPath=\"${MetPath}\",LandMaskFile=\"${LandMaskFile}\"")
@@ -554,23 +574,17 @@ if [[ ${doclimate} -eq 1 ]] ; then
 	./${iexe} > logs/log_out_cable.txt
     fi
     # save output
+    copyid ${rid} cable.nml cru.nml LUC.nml
+    mv *_${rid}.nml restart/
     cd logs
-    mv log_cable.txt     log_${rid}
-    mv log_out_cable.txt log_out_${rid}
+    renameid ${rid} log_cable.txt log_out_cable.txt
     cd ../restart
-    cp pop_cru_ini.nc     pop_cru_ini_${rid}.nc
-    cp cru_climate_rst.nc cru_climate_rst_${rid}.nc
-    cp cru_casa_rst.nc    cru_casa_rst_${rid}.nc
-    cp cru_cable_rst.nc   cru_cable_rst_${rid}.nc
+    copyid ${rid} pop_cru_ini.nc cru_climate_rst.nc cru_casa_rst.nc cru_cable_rst.nc
     cp cru_climate_rst.nc ${ClimateFile}
-    if [[ ${doc13o2} -eq 1 ]] ; then
-        cp cru_c13o2_flux_rst.nc  cru_c13o2_flux_rst_${rid}.nc
-        cp cru_c13o2_pools_rst.nc cru_c13o2_pools_rst_${rid}.nc
-    fi
+    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_c13o2_flux_rst.nc cru_c13o2_pools_rst.nc ; fi
     cd ../outputs
-    mv cru_out_cable.nc   cru_out_cable_${rid}.nc
-    mv cru_out_casa.nc    cru_out_casa_${rid}.nc
-    if [[ ${doc13o2} -eq 1 ]] ; then mv cru_out_casa_c13o2.nc cru_out_casa_c13o2_${rid}.nc ; fi
+    renameid ${rid} cru_out_cable.nc cru_out_casa.nc
+    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_out_casa_c13o2.nc ; fi
     cd ..
     cd ${pdir}
 fi
@@ -649,22 +663,16 @@ if [[ ${dofromzero} -eq 1 ]] ; then
 	./${iexe} > logs/log_out_cable.txt
     fi
     # save output
+    copyid ${rid} cable.nml cru.nml LUC.nml
+    mv *_${rid}.nml restart/
     cd logs
-    mv log_cable.txt     log_${rid}
-    mv log_out_cable.txt log_out_${rid}
+    renameid ${rid} log_cable.txt log_out_cable.txt
     cd ../restart
-    cp pop_cru_ini.nc     pop_cru_ini_${rid}.nc
-    cp cru_climate_rst.nc cru_climate_rst_${rid}.nc
-    cp cru_casa_rst.nc    cru_casa_rst_${rid}.nc
-    cp cru_cable_rst.nc   cru_cable_rst_${rid}.nc
-    if [[ ${doc13o2} -eq 1 ]] ; then
-        cp cru_c13o2_flux_rst.nc  cru_c13o2_flux_rst_${rid}.nc
-        cp cru_c13o2_pools_rst.nc cru_c13o2_pools_rst_${rid}.nc
-    fi
+    copyid ${rid} pop_cru_ini.nc cru_climate_rst.nc cru_casa_rst.nc cru_cable_rst.nc
+    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_c13o2_flux_rst.nc cru_c13o2_pools_rst.nc ; fi
     cd ../outputs
-    mv cru_out_cable.nc   cru_out_cable_${rid}.nc
-    mv cru_out_casa.nc    cru_out_casa_${rid}.nc
-    if [[ ${doc13o2} -eq 1 ]] ; then mv cru_out_casa_c13o2.nc cru_out_casa_c13o2_${rid}.nc ; fi
+    renameid ${rid} cru_out_cable.nc cru_out_casa.nc
+    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_out_casa_c13o2.nc ; fi
     cd ..
     cd ${pdir}
 fi
@@ -748,30 +756,24 @@ if [[ ${doequi1} -eq 1 ]] ; then
 		./${iexe} > logs/log_out_cable.txt
 	    fi
             # save output
-	    cd logs
-	    mv log_cable.txt     log_${rid}
-	    mv log_out_cable.txt log_out_${rid}
-            cd ../restart
-            cp pop_cru_ini.nc     pop_cru_ini_${rid}.nc
-            cp cru_climate_rst.nc cru_climate_rst_${rid}.nc
-            cp cru_casa_rst.nc    cru_casa_rst_${rid}.nc
-            cp cru_cable_rst.nc   cru_cable_rst_${rid}.nc
-            if [[ ${doc13o2} -eq 1 ]] ; then
-                cp cru_c13o2_flux_rst.nc  cru_c13o2_flux_rst_${rid}.nc
-                cp cru_c13o2_pools_rst.nc cru_c13o2_pools_rst_${rid}.nc
-            fi
-            cd ../outputs
-            mv cru_out_cable.nc   cru_out_cable_${rid}.nc
-            mv cru_out_casa.nc    cru_out_casa_${rid}.nc
-            if [[ ${doc13o2} -eq 1 ]] ; then mv cru_out_casa_c13o2.nc cru_out_casa_c13o2_${rid}.nc ; fi
-            cd ..
-            cd ${pdir}
+	    copyid ${rid} cable.nml cru.nml LUC.nml
+	    mv *_${rid}.nml restart/
+    	    cd logs
+    	    renameid ${rid} log_cable.txt log_out_cable.txt
+    	    cd ../restart
+    	    copyid ${rid} pop_cru_ini.nc cru_climate_rst.nc cru_casa_rst.nc cru_cable_rst.nc
+    	    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_c13o2_flux_rst.nc cru_c13o2_pools_rst.nc ; fi
+    	    cd ../outputs
+    	    renameid ${rid} cru_out_cable.nc cru_out_casa.nc
+    	    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_out_casa_c13o2.nc ; fi
+    	    cd ..
+    	    cd ${pdir}
         fi
         #
         if [[ 1 -eq 1 ]] ; then
             # 3b. analytic quasi-equilibrium of biomass pools
             echo "   3b. Analytic solution of biomass pools"
-	    rid="spin_casa_limit_labile"
+	    rid="spinup_analytic_limit_labile"
 	    # rid="spin_casa_limit_labile${iequi}"
             # CRU
             irm ${rdir}/cru.nml
@@ -842,21 +844,20 @@ if [[ ${doequi1} -eq 1 ]] ; then
 		./${iexe} > logs/log_out_cable.txt
 	    fi
             # save output
-	    cd logs
-	    mv log_cable.txt     log_${rid}
-	    mv log_out_cable.txt log_out_${rid}
-            cd ../restart
-            cp pop_cru_ini.nc     pop_cru_ini_${rid}.nc
-            cp cru_casa_rst.nc    cru_casa_rst_${rid}.nc
-            if [[ ${doc13o2} -eq 1 ]] ; then
-                cp cru_c13o2_flux_rst.nc  cru_c13o2_flux_rst_${rid}.nc
-                cp cru_c13o2_pools_rst.nc cru_c13o2_pools_rst_${rid}.nc
-            fi
-            cd ../outputs
-            mv cru_out_casa.nc    cru_out_casa_${rid}.nc
-            if [[ ${doc13o2} -eq 1 ]] ; then mv cru_out_casa_c13o2.nc cru_out_casa_c13o2_${rid}.nc ; fi
-            cd ..
-            cd ${pdir}
+	    copyid ${rid} cable.nml cru.nml LUC.nml
+	    mv *_${rid}.nml restart/
+    	    cd logs
+    	    renameid ${rid} log_cable.txt log_out_cable.txt
+    	    cd ../restart
+    	    copyid ${rid} pop_cru_ini.nc cru_casa_rst.nc
+    	    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_c13o2_flux_rst.nc cru_c13o2_pools_rst.nc ; fi
+	    if [[ ${dompi} -eq 0 ]] ; then # no output only restart if MPI
+    		cd ../outputs
+    		renameid ${rid} cru_out_casa.nc
+    		if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_out_casa_c13o2.nc ; fi
+    		cd ..
+	    fi
+    	    cd ${pdir}
         fi
     done
 fi
@@ -940,30 +941,24 @@ if [[ ${doequi2} -eq 1 ]] ; then
 		./${iexe} > logs/log_out_cable.txt
 	    fi
             # save output
-	    cd logs
-	    mv log_cable.txt     log_${rid}
-	    mv log_out_cable.txt log_out_${rid}
-            cd ../restart
-            cp pop_cru_ini.nc     pop_cru_ini_${rid}.nc
-            cp cru_climate_rst.nc cru_climate_rst_${rid}.nc
-            cp cru_casa_rst.nc    cru_casa_rst_${rid}.nc
-            cp cru_cable_rst.nc   cru_cable_rst_${rid}.nc
-            if [[ ${doc13o2} -eq 1 ]] ; then
-                cp cru_c13o2_flux_rst.nc  cru_c13o2_flux_rst_${rid}.nc
-                cp cru_c13o2_pools_rst.nc cru_c13o2_pools_rst_${rid}.nc
-            fi
-            cd ../outputs
-            mv cru_out_cable.nc   cru_out_cable_${rid}.nc
-            mv cru_out_casa.nc    cru_out_casa_${rid}.nc
-            if [[ ${doc13o2} -eq 1 ]] ; then mv cru_out_casa_c13o2.nc cru_out_casa_c13o2_${rid}.nc ; fi
-            cd ..
-            cd ${pdir}
+	    copyid ${rid} cable.nml cru.nml LUC.nml
+	    mv *_${rid}.nml restart/
+    	    cd logs
+    	    renameid ${rid} log_cable.txt log_out_cable.txt
+    	    cd ../restart
+    	    copyid ${rid} pop_cru_ini.nc cru_climate_rst.nc cru_casa_rst.nc cru_cable_rst.nc
+    	    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_c13o2_flux_rst.nc cru_c13o2_pools_rst.nc ; fi
+    	    cd ../outputs
+    	    renameid ${rid} cru_out_cable.nc cru_out_casa.nc
+    	    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_out_casa_c13o2.nc ; fi
+    	    cd ..
+    	    cd ${pdir}
         fi
         #
         if [[ 1 -eq 1 ]] ; then
             # 4b. analytic quasi-equilibrium of biomass pools
             echo "   4b. Analytic solution of biomass pools"
-	    rid="spin_casa"
+	    rid="spinup_analytic"
 	    # rid="spin_casa${iequi}"
             # CRU
             irm ${rdir}/cru.nml
@@ -1034,21 +1029,20 @@ if [[ ${doequi2} -eq 1 ]] ; then
 		./${iexe} > logs/log_out_cable.txt
 	    fi
             # save output
-	    cd logs
-	    mv log_cable.txt     log_${rid}
-	    mv log_out_cable.txt log_out_${rid}
-            cd ../restart
-            cp pop_cru_ini.nc     pop_cru_ini_${rid}.nc
-            cp cru_casa_rst.nc    cru_casa_rst_${rid}.nc
-            if [[ ${doc13o2} -eq 1 ]] ; then
-                cp cru_c13o2_flux_rst.nc  cru_c13o2_flux_rst_${rid}.nc
-                cp cru_c13o2_pools_rst.nc cru_c13o2_pools_rst_${rid}.nc
-            fi
-            cd ../outputs
-            mv cru_out_casa.nc    cru_out_casa_${rid}.nc
-            if [[ ${doc13o2} -eq 1 ]] ; then mv cru_out_casa_c13o2.nc cru_out_casa_c13o2_${rid}.nc ; fi
-            cd ..
-            cd ${pdir}
+	    copyid ${rid} cable.nml cru.nml LUC.nml
+	    mv *_${rid}.nml restart/
+    	    cd logs
+    	    renameid ${rid} log_cable.txt log_out_cable.txt
+    	    cd ../restart
+    	    copyid ${rid} pop_cru_ini.nc cru_casa_rst.nc
+    	    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_c13o2_flux_rst.nc cru_c13o2_pools_rst.nc ; fi
+	    if [[ ${dompi} -eq 0 ]] ; then # no output only restart if MPI
+    		cd ../outputs
+    		renameid ${rid} cru_out_casa.nc
+    		if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_out_casa_c13o2.nc ; fi
+    		cd ..
+	    fi
+    	    cd ${pdir}
         fi
     done
 fi
@@ -1126,26 +1120,17 @@ if [[ ${doiniluc} -eq 1 ]] ; then
 	./${iexe} > logs/log_out_cable.txt
     fi
     # save output
+    copyid ${rid} cable.nml cru.nml LUC.nml
+    mv *_${rid}.nml restart/
     cd logs
-    mv log_cable.txt     log_${rid}
-    mv log_out_cable.txt log_out_${rid}
+    renameid ${rid} log_cable.txt log_out_cable.txt
     cd ../restart
-    cp pop_cru_ini.nc     pop_cru_ini_${rid}.nc
-    cp cru_climate_rst.nc cru_climate_rst_${rid}.nc
-    cp cru_casa_rst.nc    cru_casa_rst_${rid}.nc
-    cp cru_cable_rst.nc   cru_cable_rst_${rid}.nc
-    cp cru_LUC_rst.nc     cru_LUC_rst_${rid}.nc
-    if [[ ${doc13o2} -eq 1 ]] ; then
-        cp cru_c13o2_flux_rst.nc  cru_c13o2_flux_rst_${rid}.nc
-        cp cru_c13o2_pools_rst.nc cru_c13o2_pools_rst_${rid}.nc
-        cp cru_c13o2_luc_rst.nc   cru_c13o2_luc_rst_${rid}.nc
-    fi
+    copyid ${rid} pop_cru_ini.nc cru_climate_rst.nc cru_casa_rst.nc cru_cable_rst.nc cru_LUC_rst.nc
+    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_c13o2_flux_rst.nc cru_c13o2_pools_rst.nc cru_c13o2_luc_rst.nc ; fi
     cd ../outputs
     # MC - Question2VH: cru_out_cable.nc is not produced
-    # mv cru_out_cable.nc   cru_out_cable_${rid}.nc
-    mv cru_out_casa.nc    cru_out_casa_${rid}.nc
-    mv cru_out_LUC.nc     cru_out_LUC_${rid}.nc
-    if [[ ${doc13o2} -eq 1 ]] ; then mv cru_out_casa_c13o2.nc cru_out_casa_c13o2_${rid}.nc ; fi
+    renameid ${rid} cru_out_casa.nc cru_out_LUC.nc
+    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_out_casa_c13o2.nc ; fi
     cd ..
     cd ${pdir}
 fi
@@ -1226,25 +1211,16 @@ if [[ ${doinidyn} -eq 1 ]] ; then
 	./${iexe} > logs/log_out_cable.txt
     fi
     # save output
+    copyid ${rid} cable.nml cru.nml LUC.nml
+    mv *_${rid}.nml restart/
     cd logs
-    mv log_cable.txt     log_${rid}
-    mv log_out_cable.txt log_out_${rid}
+    renameid ${rid} log_cable.txt log_out_cable.txt
     cd ../restart
-    cp pop_cru_ini.nc     pop_cru_ini_${rid}.nc
-    cp cru_climate_rst.nc cru_climate_rst_${rid}.nc
-    cp cru_casa_rst.nc    cru_casa_rst_${rid}.nc
-    cp cru_cable_rst.nc   cru_cable_rst_${rid}.nc
-    cp cru_LUC_rst.nc     cru_LUC_rst_${rid}.nc
-    if [[ ${doc13o2} -eq 1 ]] ; then
-        cp cru_c13o2_flux_rst.nc  cru_c13o2_flux_rst_${rid}.nc
-        cp cru_c13o2_pools_rst.nc cru_c13o2_pools_rst_${rid}.nc
-        cp cru_c13o2_luc_rst.nc   cru_c13o2_luc_rst_${rid}.nc
-    fi
+    copyid ${rid} pop_cru_ini.nc cru_climate_rst.nc cru_casa_rst.nc cru_cable_rst.nc cru_LUC_rst.nc
+    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_c13o2_flux_rst.nc cru_c13o2_pools_rst.nc cru_c13o2_luc_rst.nc ; fi
     cd ../outputs
-    mv cru_out_cable.nc   cru_out_cable_${rid}.nc
-    mv cru_out_casa.nc    cru_out_casa_${rid}.nc
-    mv cru_out_LUC.nc     cru_out_LUC_${rid}.nc
-    if [[ ${doc13o2} -eq 1 ]] ; then mv cru_out_casa_c13o2.nc cru_out_casa_c13o2_${rid}.nc ; fi
+    renameid ${rid} cru_out_cable.nc cru_out_casa.nc cru_out_LUC.nc
+    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_out_casa_c13o2.nc ; fi
     cd ..
     cd ${pdir}
 fi
@@ -1325,25 +1301,16 @@ if [[ ${dofinal} -eq 1 ]] ; then
 	./${iexe} > logs/log_out_cable.txt
     fi
     # save output
+    copyid ${rid} cable.nml cru.nml LUC.nml
+    mv *_${rid}.nml restart/
     cd logs
-    mv log_cable.txt     log_${rid}
-    mv log_out_cable.txt log_out_${rid}
+    renameid ${rid} log_cable.txt log_out_cable.txt
     cd ../restart
-    cp pop_cru_ini.nc     pop_cru_ini_${rid}.nc
-    cp cru_climate_rst.nc cru_climate_rst_${rid}.nc
-    cp cru_casa_rst.nc    cru_casa_rst_${rid}.nc
-    cp cru_cable_rst.nc   cru_cable_rst_${rid}.nc
-    cp cru_LUC_rst.nc     cru_LUC_rst_${rid}.nc
-    if [[ ${doc13o2} -eq 1 ]] ; then
-        cp cru_c13o2_flux_rst.nc  cru_c13o2_flux_rst_${rid}.nc
-        cp cru_c13o2_pools_rst.nc cru_c13o2_pools_rst_${rid}.nc
-        cp cru_c13o2_luc_rst.nc   cru_c13o2_luc_rst_${rid}.nc
-    fi
+    copyid ${rid} pop_cru_ini.nc cru_climate_rst.nc cru_casa_rst.nc cru_cable_rst.nc cru_LUC_rst.nc
+    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_c13o2_flux_rst.nc cru_c13o2_pools_rst.nc cru_c13o2_luc_rst.nc ; fi
     cd ../outputs
-    mv cru_out_cable.nc   cru_out_cable_${rid}.nc
-    mv cru_out_casa.nc    cru_out_casa_${rid}.nc
-    mv cru_out_LUC.nc     cru_out_LUC_${rid}.nc
-    if [[ ${doc13o2} -eq 1 ]] ; then mv cru_out_casa_c13o2.nc cru_out_casa_c13o2_${rid}.nc ; fi
+    renameid ${rid} cru_out_cable.nc cru_out_casa.nc cru_out_LUC.nc
+    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_out_casa_c13o2.nc ; fi
     cd ..
     cd ${pdir}
 fi
