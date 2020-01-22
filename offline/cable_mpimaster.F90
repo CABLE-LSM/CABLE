@@ -188,7 +188,7 @@ CONTAINS
     USE cable_data_module,    ONLY: driver_type, icanopy_type, point2constants
     USE cable_input_module,   ONLY: open_met_file,load_parameters,              &
          get_met_data,close_met_file
-    USE cable_output_module,  ONLY: create_restart,open_output_file,            &
+    USE cable_output_module,  ONLY: create_restart, open_output_file,            &
          write_output,close_output_file
     USE cable_write_module,   ONLY: nullify_write
     USE cable_cbm_module
@@ -409,7 +409,7 @@ CONTAINS
     
     integer :: i,x,kk
     integer :: lalloc
-    integer, parameter :: mloop  = 30   ! CASA-CNP PreSpinup loops
+    integer, parameter :: mloop = 4 !MCTEST 30   ! CASA-CNP PreSpinup loops
     real :: etime, etimelast
     ! end header
     
@@ -449,7 +449,7 @@ CONTAINS
           write(*,*) 'undefined start year for gswp met: '
           write(*,*) 'enter value for ncciy or'
           write(*,*) '(cable_user%YearStart and  cable_user%YearEnd) in cable.nml'
-          write(logn,*) 'undefined start year for gswp met: '
+          write(logn,*) 'undefined start year for gswp met:'
           write(logn,*) 'enter value for ncciy or'
           write(logn,*) '(cable_user%YearStart and  cable_user%YearEnd) in cable.nml'
           stop
@@ -739,13 +739,17 @@ CONTAINS
                 if (cable_user%c13o2) then
                    ! print*, 'MASTER Send 12 c13o2_flux'
                    CALL master_c13o2_flux_params(comm, c13o2flux)
-                   ! print*, 'MASTER Send 13 c13o2_pool'
+                   print*, 'MASTER Send 13 c13o2_pool'
                    CALL master_c13o2_pool_params(comm, c13o2pools)
+                   if (cable_user%popluc) then
+                      print*, 'MASTER Send 13.1 c13o2_luc'
+                      call master_c13o2_luc_params(comm, c13o2luc)
+                   endif
                 endif
 
                 ! Create and Send POP ini/restart data
                 if (cable_user%call_pop) then
-                   ! print*, 'MASTER Send 14 pop'
+                   print*, 'MASTER Send 14 pop'
                    call master_pop_types(comm, casamet, pop)
                 endif
 
@@ -808,7 +812,7 @@ CONTAINS
                    CALL master_casa_LUC_types(comm, casapool, casabal, casaflux)
                    ! 13C
                    if (cable_user%c13o2) then
-                      ! print*, 'MASTER Send 26 c13o2luc'
+                      ! print*, 'MASTER Send 26 c13o2_luc_type'
                       call master_c13o2_luc_types(comm, c13o2luc)
                    endif
                 endif
@@ -945,9 +949,7 @@ CONTAINS
              endif
              c13o2flux%ca = (c13o2_delta_atm(CurYear) + 1.0_r_2) * real(imet%ca,r_2) ! * vpdbc13 / vpdbc13
              ! broadcast
-             ! print*, 'MASTER Send 29 Ca ', c13o2flux%ca
-             !!!MC Change: works only with "mpiexec -n 2"
-             ! call MPI_Bcast(c13o2flux%ca, mp, MPI_DOUBLE_PRECISION, 0, comm, ierr)
+             ! print*, 'MASTER Send 29 Ca '
              do rank=1, wnp
                 off = wland(rank)%patch0
                 cnt = wland(rank)%npatch
@@ -957,53 +959,47 @@ CONTAINS
 
           ! IF (.NOT.spincasa) THEN
           ! time step loop over ktau
-          KTAULOOP: DO ktau=kstart, kend - 1
-             ! ! increment total timstep counter
-             ! !  ktau_tot = ktau_tot + 1
+          KTAULOOP: do ktau=kstart, kend-1
+             ! globally (WRT code) accessible kend through USE cable_common_module
              iktau = iktau + 1
              oktau = oktau + 1
+             ktau_tot = ktau_tot + 1
+             ktau_gl  = iktau
 
              met%year = imet%year
-             met%doy = imet%doy
-
-             ! globally (WRT code) accessible kend through USE cable_common_module
-             ktau_tot= ktau_tot + 1
-             ktau_gl = iktau
+             met%doy  = imet%doy
 
              ! some things (e.g. CASA-CNP) only need to be done once per day
-             idoy =INT( MOD((REAL(ktau+koffset)/REAL(ktauday)),REAL(LOY)))
-             IF ( idoy .EQ. 0 ) idoy = LOY
+             idoy = int(mod(real(ktau+koffset)/real(ktauday),real(loy)))
+             if (idoy .eq. 0) idoy = loy
 
              ! needed for CASA-CNP
-             nyear =INT((kend-kstart+1)/(LOY*ktauday))
+             nyear = int((kend-kstart+1)/(loy*ktauday))
 
              ! Get met data and LAI, set time variables.
              ! Rainfall input may be augmented for spinup purposes:
              !          met%ofsd = met%fsd(:,1) + met%fsd(:,2)
-             IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN
-                CALL PLUME_MIP_GET_MET(PLUME, iMET, YYYY, iktau, kend, &
-                     (YYYY.EQ.cable_user%YearEnd .AND. iktau.EQ.kend))
-             ELSE IF ( TRIM(cable_user%MetType) .EQ. 'bios' ) THEN
-                IF (( .NOT. CASAONLY ).OR. (CASAONLY.and.CALL1))  THEN
-                  CALL  cable_bios_read_met(iMET, CurYear, iktau, kend, &
-                       (YYYY.EQ.cable_user%YearEnd .AND. iktau.EQ.kend), dels )
-                END IF
-             ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
-                CALL CRU_GET_SUBDIURNAL_MET(CRU, imet, YYYY, iktau, kend, &
-                     (YYYY.EQ.cable_user%YearEnd) )
+             if (trim(cable_user%MetType) .eq. 'plum') then
+                call plume_mip_get_met(plume, imet, yyyy, iktau, kend, &
+                     yyyy.eq.cable_user%YearEnd .AND. iktau.EQ.kend)
+             else if (trim(cable_user%MetType) .eq. 'bios') then
+                if ((.not. CASAONLY) .or. (CASAONLY.and.CALL1)) then
+                   call cable_bios_read_met(imet, CurYear, iktau, kend, &
+                        yyyy.eq.cable_user%yearend .and. iktau.eq.kend, dels)
+                end if
+             else if (trim(cable_user%MetType) .eq. 'cru') then
+                call cru_get_subdiurnal_met(cru, imet, YYYY, iktau, kend, &
+                     yyyy.eq.cable_user%YearEnd)
                 !MC ask Vanessa
                 iveg%iveg = veg%iveg ! LAI and veg class not in CRU
                 iveg%vlai = veg%vlai
-                IF (CALL1)  casamet%glai = 1.0  ! initialise glai for use in cable_roughness
-             ELSE
-                CALL get_met_data( spinup, spinConv, imet, soil,                 &
-                     rad, iveg, kend, dels, C%TFRZ, iktau+koffset,                &
-                     kstart+koffset )
-             ENDIF
-             IF ( TRIM(cable_user%MetType) .NE. 'gswp' ) CurYear = met%year(1)
-
-             !MC - Rather send data here
-
+                if (CALL1)  casamet%glai = 1.0  ! initialise glai for use in cable_roughness
+             else
+                call get_met_data(spinup, spinconv, imet, soil, &
+                     rad, iveg, kend, dels, c%tfrz, iktau+koffset, &
+                     kstart+koffset)
+             endif
+             if (trim(cable_user%mettype) .ne. 'gswp') CurYear = met%year(1)
 
              !  IF ( CASAONLY .AND. IS_CASA_TIME("dread", yyyy, iktau, kstart, koffset, &
              !       kend, ktauday, logn) )  THEN
@@ -1014,19 +1010,18 @@ CONTAINS
              !     CALL read_casa_dump( ncfile, casamet, casaflux, casa_it, kend, .FALSE. )
              !  ENDIF
 
-
              !  ! At first time step of year, set tile area according to updated LU areas
              !  IF (ktau == 1 .and. cable_user%POPLUC) THEN
              !    CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT)
              ! ENDIF
 
-             IF ( .NOT. CASAONLY ) THEN
+             if (.not. CASAONLY) then
 
-                IF ( icycle > 0 ) THEN
+                if (icycle > 0) then
                    ! receive casa update from worker
-                   IF ( MOD((oktau-kstart+1+koffset),ktauday).EQ.0 ) THEN
+                   if ( mod((oktau-kstart+1+koffset),ktauday).eq.0 ) then
                       ! print*, 'MASTER Receive 30 casa'
-                      CALL master_receive(ocomm, oktau, casa_ts)
+                      call master_receive(ocomm, oktau, casa_ts)
                       ! 13C
                       if (cable_user%c13o2) then
                          ! print*, 'MASTER Receive 31 c13o2_flux'
@@ -1036,39 +1031,35 @@ CONTAINS
                       endif
                       ! write(*,*) 'after master_receive casa_ts'
                       ! print*, 'MASTER Receive waitall'
-                      CALL MPI_Waitall(wnp, recv_req, recv_stats, ierr)
-                   ENDIF
+                      call MPI_Waitall(wnp, recv_req, recv_stats, ierr)
+                   endif
                    ! write(*,*) 'after master_receive casa_ts waitall'
                    ! receive casa dump requirements from worker
-                   !MC - Check
-                   IF ( ((.NOT.spinup) .OR. (spinup.AND.spinConv)) .AND.   &
-                        IS_CASA_TIME("dwrit", yyyy, oktau, kstart, &
-                        koffset, kend, ktauday, logn) ) THEN
+                   if ( ((.not.spinup) .or. (spinup.and.spinConv)) .and. &
+                        is_casa_time("dwrit", yyyy, oktau, kstart, &
+                        koffset, kend, ktauday, logn) ) then
                       ! print*, 'MASTER Receive 33 dump'
-                      CALL master_receive( ocomm, oktau, casa_dump_ts )
-                      ! CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
-                   ENDIF
-                   
-                ENDIF ! icycle>0
+                      call master_receive( ocomm, oktau, casa_dump_ts )
+                      ! call MPI_Waitall(wnp, recv_req, recv_stats, ierr)
+                   endif
+                endif ! icycle>0
 
                 ! MPI: receive this time step's results from the workers
                 ! print*, 'MASTER Receive 34 recv'
-                !MC veg%iveg is change during receive for GNU compiler on Explor
-                CALL master_receive(ocomm, oktau, recv_ts)
-                ! CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
+                !MC veg%iveg is changing during receive for GNU compiler on Explor
+                call master_receive(ocomm, oktau, recv_ts)
+                ! call MPI_Waitall(wnp, recv_req, recv_stats, ierr)
 
                 ! MPI: scatter input data to the workers
                 ! print*, 'MASTER Send 35 input'
-                CALL master_send_input(icomm, inp_ts, iktau)
-                ! CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
+                call master_send_input(icomm, inp_ts, iktau)
+                ! call MPI_Waitall (wnp, inp_req, inp_stats, ierr)
 
                 ! 13C
                 if (cable_user%c13o2) then
                    ! already checked that CurYear in input file
                    c13o2flux%ca = (c13o2_delta_atm(CurYear) + 1.0_r_2) * real(imet%ca,r_2)
                    ! print*, 'MASTER Send 36 Ca'
-                   !!!MC Change: works only with "mpiexec -n 2"
-                   ! call MPI_Bcast(c13o2flux%ca, mp, MPI_DOUBLE_PRECISION, 0, comm, ierr)
                    do rank=1, wnp
                       off = wland(rank)%patch0
                       cnt = wland(rank)%npatch
@@ -1085,34 +1076,35 @@ CONTAINS
                 !         kend/ktauday )
                 ! ENDIF
 
-                IF (((.NOT.spinup).OR.(spinup.AND.spinConv)).and. &
-                      MOD((ktau-kstart+1),ktauday)==0) THEN
-                   IF ( cable_user%CASA_DUMP_WRITE )  THEN
-                      !CLN CHECK FOR LEAP YEAR
-                      WRITE(CYEAR,FMT="(I4)") CurYear + INT((ktau-kstart)/(LOY*ktauday))
-                      ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
-                      CALL write_casa_dump(ncfile, casamet, casaflux, phen, climate, &
+                if ( ((.not.spinup) .or. (spinup.and.spinConv)) .and. &
+                      mod((oktau-kstart+1+koffset),ktauday)==0 ) then
+                   if ( cable_user%casa_dump_write )  then
+                      !cln check for leap year
+                      write(cyear,fmt="(I4)") curyear + int((oktau-kstart+koffset)/(loy*ktauday))
+                      ncfile = trim(casafile%c2cdumppath)//'c2c_'//cyear//'_dump.nc'
+                      call write_casa_dump(ncfile, casamet, casaflux, phen, climate, &
                            c13o2flux, idoy, kend/ktauday)
-                   ENDIF
-                ENDIF
+                   endif
+                endif
 
-             ELSE IF ( MOD((ktau-kstart+1+koffset),ktauday)==0 ) THEN
+             ! else if ( mod((iktau-kstart+1+koffset),ktauday)==0 ) then
+             else if (is_casa_time("dread", yyyy, iktau, kstart, koffset, &
+                  kend, ktauday, logn)) then
 
-                !MC - make same as worker
                 ! print*, 'MASTER Send 35 dump'
-                CALL master_send_input(icomm, casa_dump_ts, iktau)
-                ! CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
+                call master_send_input(icomm, casa_dump_ts, iktau)
+                ! call MPI_Waitall (wnp, inp_req, inp_stats, ierr)
 
-             ENDIF ! .NOT. CASAONLY
+             endif ! .not. CASAONLY
 
-             ! CALL MPI_Waitall(wnp, recv_req, recv_stats, ierr)
-             ! CALL MPI_Waitall(wnp, inp_req, inp_stats, ierr)
+             ! call MPI_Waitall(wnp, recv_req, recv_stats, ierr)
+             ! call MPI_Waitall(wnp, inp_req, inp_stats, ierr)
 
              met%ofsd = met%fsd(:,1) + met%fsd(:,2)
-             canopy%oldcansto=canopy%cansto
+             canopy%oldcansto = canopy%cansto
 
              ! Zero out lai where there is no vegetation acc. to veg. index
-             WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.
+             where (iveg%iveg(:) .ge. 14) iveg%vlai = 0.
 
              ! Write time step's output to file if either: we're not spinning up
              ! or we're spinning up and the spinup has converged:
@@ -1121,13 +1113,13 @@ CONTAINS
 
              ktau_gl = oktau
 
-             IF ((.NOT.spinup).OR.(spinup.AND.spinConv)) THEN
-                IF (icycle > 0) THEN
-                   IF ( IS_CASA_TIME("write", yyyy, oktau, kstart, &
-                        koffset, kend, ktauday, logn) ) THEN
+             if ((.not.spinup) .or. (spinup.and.spinConv)) then
+                if (icycle > 0) then
+                   if ( is_casa_time("write", yyyy, oktau, kstart, &
+                        koffset, kend, ktauday, logn) ) then
                       ctime = ctime + 1
-                      CALL WRITE_CASA_OUTPUT_NC(veg, casamet, casapool, casabal, casaflux, &
-                           CASAONLY, ctime, ( ktau.EQ.kend .AND. YYYY .EQ.cable_user%YearEnd ) )
+                      call write_casa_output_nc(veg, casamet, casapool, casabal, casaflux, &
+                           CASAONLY, ctime, ktau.eq.kend .and. yyyy.eq.cable_user%YearEnd)
                       ! 13C
                       if (cable_user%c13o2) then
                          if (ctime == 1) then
@@ -1136,25 +1128,25 @@ CONTAINS
                          endif
                          call c13o2_write_output(c13o2_outfile_id, c13o2_vars, c13o2_var_ids, ctime, c13o2pools)
                       end if
-                   ENDIF
-                ENDIF
+                   endif
+                endif
 
-                IF ( (.NOT. CASAONLY).AND. spinConv  ) THEN
-                   IF ( TRIM(cable_user%MetType) .EQ. 'plum' &
-                        .OR. TRIM(cable_user%MetType) .EQ. 'cru'   &
-                        .OR. TRIM(cable_user%MetType) .EQ. 'bios'  &
-                        .OR. TRIM(cable_user%MetType) .EQ. 'gswp') then
-                      CALL write_output(dels, ktau_tot, met, canopy, casaflux, casapool, &
-                           casamet, ssnow,         &
-                           rad, bal, air, soil, veg, C%SBOLTZ,     &
-                           C%EMLEAF, C%EMSOIL, c13o2pools, c13o2flux)
-                   ELSE
-                      CALL write_output( dels, ktau, met, canopy, casaflux, casapool, &
-                           casamet, ssnow,   &
-                           rad, bal, air, soil, veg, C%SBOLTZ, C%EMLEAF, C%EMSOIL, c13o2pools, c13o2flux )
-                   ENDIF
-                END IF
-             ENDIF
+                if ((.not. CASAONLY) .and. spinConv) then
+                   if (trim(cable_user%mettype) .eq. 'plum' &
+                       .or. trim(cable_user%mettype) .eq. 'cru' &
+                       .or. trim(cable_user%mettype) .eq. 'bios' &
+                       .or. trim(cable_user%mettype) .eq. 'gswp') then
+                      call write_output(dels, ktau_tot, met, canopy, casaflux, casapool, &
+                           casamet, ssnow, &
+                           rad, bal, air, soil, veg, c%sboltz, &
+                           c%emleaf, c%emsoil, c13o2pools, c13o2flux)
+                   else
+                      call write_output(dels, ktau, met, canopy, casaflux, casapool, &
+                           casamet, ssnow, &
+                           rad, bal, air, soil, veg, c%sboltz, c%emleaf, c%emsoil, c13o2pools, c13o2flux)
+                   endif
+                end if
+             endif
 
              !---------------------------------------------------------------------!
              ! Check this run against standard for quasi-bitwise reproducability   !
@@ -1207,7 +1199,7 @@ CONTAINS
                 ENDIF
              ENDIF ! cable_user%consistency_check
 
-             CALL1 = .FALSE.
+             CALL1 = .false.
 
              !WRITE(*,*) " ktauloop end ", ktau, CurYear
              !if (met%doy(1).eq.10) then
@@ -1216,9 +1208,9 @@ CONTAINS
              !etimelast = etime
              ! endif
 
-          END DO KTAULOOP ! END Do loop over timestep ktau
+          end do KTAULOOP ! END Do loop over timestep ktau
 
-          CALL1 = .FALSE.
+          CALL1 = .false.
 
           ! MPI: read ahead tail to receive (last step and write)
           met%year = imet%year
@@ -1227,7 +1219,6 @@ CONTAINS
           ktau_tot = ktau_tot + 1
           ktau_gl  = oktau
 
-          print*, 'CASAONLY  ', CASAONLY
           IF ( .NOT. CASAONLY ) THEN
              IF ( icycle >0 ) THEN
                 ! print*, 'MASTER Receive 37 casa'
@@ -1260,7 +1251,6 @@ CONTAINS
           IF ( TRIM(cable_user%MetType) .EQ. "gswp" ) &
                CALL close_met_file()
           
-          print*, 'Call POP  ', icycle, cable_user%CALL_POP
           IF (icycle>0 .and. cable_user%CALL_POP)  THEN
              ! write(*,*) 'b4 annual calcs'
              IF (cable_user%POPLUC) THEN
@@ -1322,21 +1312,19 @@ CONTAINS
           ENDIF ! icycle>0 .and. cable_user%CALL_POP
 
           ! WRITE OUTPUT
-          print*, 'Spinup  ', spinup, spinConv, icycle
           IF ((.NOT.spinup).OR.(spinup.AND.spinConv)) THEN
              IF (icycle>0) THEN
                 ctime = ctime + 1
-                print*, 'Close casa output ', ( ktau.EQ.kend .AND. YYYY .EQ. cable_user%YearEnd )
+                if (ktau.EQ.kend .AND. YYYY .EQ. cable_user%YearEnd) &
+                     print*, 'Close casa output ', ctime, ktau.EQ.kend .AND. YYYY .EQ. cable_user%YearEnd
                 CALL WRITE_CASA_OUTPUT_NC(veg, casamet, casapool, casabal, casaflux, &
-                     CASAONLY, ctime, ( ktau.EQ.kend .AND. YYYY .EQ.               &
-                     cable_user%YearEnd ) )
+                     CASAONLY, ctime, (ktau.EQ.kend .AND. YYYY .EQ. cable_user%YearEnd))
                 ! 13C
                 if (cable_user%c13o2) then
                    call c13o2_write_output(c13o2_outfile_id, c13o2_vars, c13o2_var_ids, ctime, c13o2pools)
                    if (YYYY == cable_user%YearEnd) then
-                      print*, 'MASTER close c13o2 output file'
+                      print*, 'Close c13o2 output ', ctime, YYYY == cable_user%YearEnd
                       call c13o2_close_output(c13o2_outfile_id)
-                      print*, 'MASTER closed c13o2 output file'
                    endif
                 end if
                 IF ( cable_user%CALL_POP ) THEN
@@ -1399,10 +1387,10 @@ CONTAINS
                      new_sumfe/count_bal, new_sumfpn/count_bal
                 if (ktau == kend) write(logn,*) ""
                 if (ktau == kend) write(logn,*) "time-space-averaged energy & water balances"
-                if (ktau == kend) write(logn,*) "Ebal_tot[Wm-2], Wbal_tot[mm per timestep]", &
+                if (ktau == kend) write(logn,*) "Ebal_tot[Wm-2], Wbal_tot[mm per timestep] ", &
                      sum(bal%ebal_tot)/mp/count_bal, sum(bal%wbal_tot)/mp/count_bal
                 if (ktau == kend) write(logn,*) "time-space-averaged latent heat and net photosynthesis"
-                if (ktau == kend) write(logn,*) "sum_fe[Wm-2], sum_fpn[umol/m2/s]",  &
+                if (ktau == kend) write(logn,*) "sum_fe[Wm-2], sum_fpn[umol/m2/s] ",  &
                      new_sumfe/count_bal, new_sumfpn/count_bal
              ENDIF
 
@@ -9013,13 +9001,13 @@ subroutine master_c13o2_luc_params(comm, c13o2luc)
   !      MPI_Abort, MPI_Type_create_struct, MPI_Type_commit, MPI_Type_size, &
   !      MPI_Type_get_extent, MPI_Reduce, MPI_IN_PLACE, MPI_INTEGER, MPI_SUM, &
   !      MPI_Barrier
-  use cable_def_types_mod, only: mp
+  use cable_def_types_mod, only: mland
   use cable_c13o2_def,     only: c13o2_luc
   use cable_mpicommon,     only: nc13o2_luc
   
   implicit none
 
-  integer,          intent(in)    :: comm  ! mpi communicator
+  integer,         intent(in)    :: comm  ! mpi communicator
   type(c13o2_luc), intent(inout) :: c13o2luc
 
   ! local vars
@@ -9052,9 +9040,9 @@ subroutine master_c13o2_luc_params(comm, c13o2luc)
   allocate(types(ntyp))
 
   ! MPI: array strides for multi-dimensional types
-  r1stride = mp * extr1
-  r2stride = mp * extr2
-  istride  = mp * extid
+  r1stride = mland * extr1
+  r2stride = mland * extr2
+  istride  = mland * extid
 
   ! default type is byte, to be overriden for multi-D types
   types = MPI_BYTE
@@ -9066,8 +9054,8 @@ subroutine master_c13o2_luc_params(comm, c13o2luc)
   do rank = 1, wnp
 
      ! starting patch and number for each worker rank
-     off = wland(rank)%patch0 ! global module variable
-     cnt = wland(rank)%npatch
+     off = wland(rank)%landp0 ! global module variable
+     cnt = wland(rank)%nland
 
      r1len = cnt * extr1
      r2len = cnt * extr2
@@ -9473,7 +9461,7 @@ subroutine master_c13o2_luc_types(comm, c13o2luc)
   !      MPI_Abort, MPI_Type_create_struct, MPI_Type_commit, MPI_Type_size, &
   !      MPI_Type_get_extent, MPI_Type_free, MPI_Reduce, MPI_IN_PLACE, &
   !      MPI_INTEGER, MPI_SUM
-  use cable_def_types_mod, only: mp
+  use cable_def_types_mod, only: mland
   use cable_c13o2_def,     only: c13o2_luc
   use cable_mpicommon,     only: nc13o2_luc
 
@@ -9511,15 +9499,15 @@ subroutine master_c13o2_luc_types(comm, c13o2luc)
   allocate(displs(ntyp))
   allocate(types(ntyp))
 
-  r1stride = mp * extr1
-  r2stride = mp * extr2
-  istride  = mp * extid
+  r1stride = mland * extr1
+  r2stride = mland * extr2
+  istride  = mland * extid
   ! counter to sum total number of bytes receives from all workers
   totalrecv = 0
 
   do rank=1, wnp
-     off = wland(rank)%patch0
-     cnt = wland(rank)%npatch
+     off = wland(rank)%landp0
+     cnt = wland(rank)%nland
 
      r1len = cnt * extr1
      r2len = cnt * extr2
@@ -9967,92 +9955,92 @@ END SUBROUTINE master_spincasacnp
 
 !*********************************************************************************************
 
-SUBROUTINE master_CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
-     casaflux,casamet,casabal,phen,POP,climate,LALLOC,LUC_EXPT, POPLUC, &
+SUBROUTINE master_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapool, &
+     casaflux, casamet, casabal, phen, POP, climate, LALLOC, LUC_EXPT, POPLUC, &
      c13o2flux, c13o2pools, c13o2luc, &
-     icomm, ocomm )
+     icomm, ocomm)
 
   USE cable_def_types_mod
   USE cable_carbon_module
-  USE cable_common_module, ONLY: cable_user, is_casa_time
+  USE cable_common_module,  ONLY: cable_user, is_casa_time
   USE cable_IO_vars_module, ONLY: logn, landpt, patch, output
   USE casadimension
   USE casaparm
   USE casavariable
   USE phenvariable
-  USE POP_Types,  Only: POP_TYPE
+  USE POP_Types,            only: POP_TYPE
   USE POPMODULE,            ONLY: POPStep, POP_init_single
   USE TypeDef,              ONLY: i4b, dp
-  USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE, read_LUH2,&
+  USE CABLE_LUC_EXPT,       ONLY: LUC_EXPT_TYPE, read_LUH2,&
        ptos,ptog,stog,gtos,grassfrac, pharv, smharv, syharv, &
        ptoc,ptoq, stoc, stoq, ctos, qtos, cropfrac, pastfrac
   USE POPLUC_Types
-  USE POPLUC_Module, ONLY: POPLUCStep, POPLUC_weights_Transfer, WRITE_LUC_OUTPUT_NC, &
+  USE POPLUC_Module,        ONLY: POPLUCStep, POPLUC_weights_Transfer, WRITE_LUC_OUTPUT_NC, &
        POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, READ_LUC_RESTART_NC, &
        POPLUC_set_patchfrac,  WRITE_LUC_OUTPUT_GRID_NC
-  use cable_c13o2_def,     only: c13o2_flux, c13o2_pool, c13o2_luc
-  use cable_c13o2,         only: c13o2_save_luc, c13o2_update_luc, &
+  use cable_c13o2_def,      only: c13o2_flux, c13o2_pool, c13o2_luc
+  use cable_c13o2,          only: c13o2_save_luc, c13o2_update_luc, &
        c13o2_write_restart_pools, c13o2_write_restart_luc
 
   IMPLICIT NONE
   
-  REAL,    INTENT(IN)    :: dels
-  INTEGER, INTENT(IN)    :: kstart
-  INTEGER, INTENT(IN)    :: kend
-  INTEGER, INTENT(IN)    :: LALLOC
-  TYPE(veg_parameter_type),  INTENT(INOUT) :: veg  ! vegetation parameters
-  TYPE(soil_parameter_type), INTENT(INOUT) :: soil ! soil parameters
-  TYPE(casa_biome),          INTENT(INOUT) :: casabiome
-  TYPE(casa_pool),           INTENT(INOUT) :: casapool
-  TYPE(casa_flux),           INTENT(INOUT) :: casaflux
-  TYPE(casa_met),            INTENT(INOUT) :: casamet
-  TYPE(casa_balance),        INTENT(INOUT) :: casabal
-  TYPE(phen_variable),       INTENT(INOUT) :: phen
-  TYPE(POP_TYPE),            INTENT(INOUT) :: POP
-  TYPE(climate_TYPE),        INTENT(INOUT) :: climate
-  TYPE(LUC_EXPT_TYPE),       INTENT(INOUT) :: LUC_EXPT
-  TYPE(POPLUC_TYPE),         INTENT(INOUT) :: POPLUC
+  real,                      intent(in)    :: dels
+  integer,                   intent(in)    :: kstart
+  integer,                   intent(in)    :: kend
+  integer,                   intent(in)    :: lalloc
+  type(veg_parameter_type),  intent(inout) :: veg  ! vegetation parameters
+  type(soil_parameter_type), intent(inout) :: soil ! soil parameters
+  type(casa_biome),          intent(inout) :: casabiome
+  type(casa_pool),           intent(inout) :: casapool
+  type(casa_flux),           intent(inout) :: casaflux
+  type(casa_met),            intent(inout) :: casamet
+  type(casa_balance),        intent(inout) :: casabal
+  type(phen_variable),       intent(inout) :: phen
+  type(pop_type),            intent(inout) :: pop
+  type(climate_type),        intent(inout) :: climate
+  type(luc_expt_type),       intent(inout) :: luc_expt
+  type(popluc_type),         intent(inout) :: popluc
   type(c13o2_flux),          intent(inout) :: c13o2flux
   type(c13o2_pool),          intent(inout) :: c13o2pools
   type(c13o2_luc),           intent(inout) :: c13o2luc
-  !TYPE (casa_pool)   , INTENT(INOUT) :: sum_casapool
-  !TYPE (casa_flux)   , INTENT(INOUT) :: sum_casaflux
+  !type (casa_pool)   , intent(inout) :: sum_casapool
+  !type (casa_flux)   , intent(inout) :: sum_casaflux
   ! communicator for error-messages
-  INTEGER, INTENT(IN)  :: icomm, ocomm
+  integer,                   intent(in)    :: icomm, ocomm
 
   ! local variables
-  real(r_2), dimension(:), allocatable, save  :: avg_cleaf2met, avg_cleaf2str, avg_croot2met, avg_croot2str, avg_cwood2cwd
-  real(r_2), dimension(:), allocatable, save  :: avg_nleaf2met, avg_nleaf2str, avg_nroot2met, avg_nroot2str, avg_nwood2cwd
-  real(r_2), dimension(:), allocatable, save  :: avg_pleaf2met, avg_pleaf2str, avg_proot2met, avg_proot2str, avg_pwood2cwd
-  real,      dimension(:), allocatable, save  :: avg_cgpp,      avg_cnpp,      avg_nuptake,   avg_puptake
-  real,      dimension(:), allocatable, save  :: avg_nsoilmin,  avg_psoillab,  avg_psoilsorb, avg_psoilocc
+  real(r_2), dimension(:), allocatable, save :: avg_cleaf2met, avg_cleaf2str, avg_croot2met, avg_croot2str, avg_cwood2cwd
+  real(r_2), dimension(:), allocatable, save :: avg_nleaf2met, avg_nleaf2str, avg_nroot2met, avg_nroot2str, avg_nwood2cwd
+  real(r_2), dimension(:), allocatable, save :: avg_pleaf2met, avg_pleaf2str, avg_proot2met, avg_proot2str, avg_pwood2cwd
+  real,      dimension(:), allocatable, save :: avg_cgpp,      avg_cnpp,      avg_nuptake,   avg_puptake
+  real,      dimension(:), allocatable, save :: avg_nsoilmin,  avg_psoillab,  avg_psoilsorb, avg_psoilocc
   !chris 12/oct/2012 for spin up casa
-  real,      dimension(:), allocatable, save  :: avg_ratioNCsoilmic,  avg_ratioNCsoilslow,  avg_ratioNCsoilpass
-  real(r_2), dimension(:), allocatable, save  :: avg_xnplimit,  avg_xkNlimiting,avg_xklitter, avg_xksoil
+  real,      dimension(:), allocatable, save :: avg_ratioNCsoilmic,  avg_ratioNCsoilslow,  avg_ratioNCsoilpass
+  real(r_2), dimension(:), allocatable, save :: avg_xnplimit,  avg_xkNlimiting,avg_xklitter, avg_xksoil
 
   ! local variables
-  INTEGER                  :: myearspin,nyear, yyyy, nyear_dump
-  CHARACTER(LEN=99)        :: ncfile
-  CHARACTER(LEN=4)         :: cyear
-  INTEGER                  :: ktau,ktauday,nday,idoy,ktaux,ktauy,nloop
-  INTEGER, save            :: ndays
-  real(r_2), dimension(mp)      :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
-  real(r_2), dimension(mp)      :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
-  real(r_2), dimension(mp)      :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
-  real,      dimension(mp)      :: xcgpp,     xcnpp,     xnuptake,  xpuptake
-  real,      dimension(mp)      :: xnsoilmin, xpsoillab, xpsoilsorb,xpsoilocc
-  real(r_2), dimension(mp)      :: xnplimit,  xkNlimiting, xklitter, xksoil,xkleaf, xkleafcold, xkleafdry
+  integer           :: myearspin,nyear, yyyy, nyear_dump
+  character(len=99) :: ncfile
+  character(len=4)  :: cyear
+  integer           :: ktau,ktauday,nday,idoy,ktaux,ktauy,nloop
+  integer, save     :: ndays
+  real(r_2), dimension(mp) :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
+  real(r_2), dimension(mp) :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
+  real(r_2), dimension(mp) :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
+  real,      dimension(mp) :: xcgpp,     xcnpp,     xnuptake,  xpuptake
+  real,      dimension(mp) :: xnsoilmin, xpsoillab, xpsoilsorb,xpsoilocc
+  real(r_2), dimension(mp) :: xnplimit,  xkNlimiting, xklitter, xksoil,xkleaf, xkleafcold, xkleafdry
 
   ! more variables to store the spinup pool size over the last 10 loops. Added by Yp Wang 30 Nov 2012
-  real,      dimension(5,mvtype,mplant)  :: bmcplant,  bmnplant,  bmpplant
-  real,      dimension(5,mvtype,mlitter) :: bmclitter, bmnlitter, bmplitter
-  real,      dimension(5,mvtype,msoil)   :: bmcsoil,   bmnsoil,   bmpsoil
-  real,      dimension(5,mvtype)         :: bmnsoilmin,bmpsoillab,bmpsoilsorb, bmpsoilocc
-  real,      dimension(mvtype)           :: bmarea
+  real, dimension(5,mvtype,mplant)  :: bmcplant,  bmnplant,  bmpplant
+  real, dimension(5,mvtype,mlitter) :: bmclitter, bmnlitter, bmplitter
+  real, dimension(5,mvtype,msoil)   :: bmcsoil,   bmnsoil,   bmpsoil
+  real, dimension(5,mvtype)         :: bmnsoilmin,bmpsoillab,bmpsoilsorb, bmpsoilocc
+  real, dimension(mvtype)           :: bmarea
   integer :: nptx,nvt,kloop, ctime, k, j, l
 
-  real(dp)                               :: stemnpp(mp,2)
-  real(dp), allocatable, save ::  laimax(:)    , cleafmean(:),  crootmean(:)
+  real(dp) :: stemnpp(mp,2)
+  real(dp), allocatable, save :: laimax(:), cleafmean(:), crootmean(:)
   real(dp), allocatable :: npptogpp(:)
   integer, allocatable :: iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
   integer :: count_sum_casa ! number of time steps over which casa pools &
@@ -10062,6 +10050,7 @@ SUBROUTINE master_CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   real(dp), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
   real(dp), dimension(c13o2luc%nland,c13o2luc%npools)     :: lucsave
 
+  
   !  if (.NOT.Allocated(LAIMax)) allocate(LAIMax(mp))
   !  if (.NOT.Allocated(Cleafmean))  allocate(Cleafmean(mp))
   !  if (.NOT.Allocated(Crootmean)) allocate(Crootmean(mp))
@@ -10072,62 +10061,62 @@ SUBROUTINE master_CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   !     Iw = POP%Iwood
   !  ENDIF
 
-  ktauday=int(24.0*3600.0/dels)
-  nday=(kend-kstart+1)/ktauday
+  ktauday = int(24.0*3600.0/dels)
+  nday    = (kend-kstart+1)/ktauday
   !  ctime = 0
   !  CALL zero_sum_casa(sum_casapool, sum_casaflux)
   !       count_sum_casa = 0
 
-  myearspin = cable_user%YEAREND - cable_user%YEARSTART + 1
-  yyyy = cable_user%YEARSTART - 1
+  myearspin = cable_user%yearend - cable_user%yearstart + 1
+  yyyy      = cable_user%yearstart - 1
 
-  do nyear=1,myearspin
-     yyyy  = yyyy+1
+  do nyear=1, myearspin
+     yyyy = yyyy+1
 
-     write(*,*) 'casaonly_LUC', YYYY
 
-     nyear_dump = MOD(nyear, &
-          cable_user%CASA_SPIN_ENDYEAR - cable_user%CASA_SPIN_STARTYEAR + 1)
+     nyear_dump = mod(nyear, cable_user%casa_spin_endyear - cable_user%casa_spin_startyear + 1)
      if (nyear_dump == 0) &
-           nyear_dump = cable_user%CASA_SPIN_ENDYEAR - cable_user%CASA_SPIN_STARTYEAR + 1
+           nyear_dump = cable_user%casa_spin_endyear - cable_user%casa_spin_startyear + 1
 
-     WRITE(CYEAR,FMT="(I4)") cable_user%CASA_SPIN_STARTYEAR + nyear_dump -1
+     write(cyear,fmt="(I4)") cable_user%casa_spin_startyear + nyear_dump - 1
 
-     ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
-     call read_casa_dump(ncfile, casamet, casaflux, phen, climate, c13o2flux, 1, 1, .TRUE.)
+     ncfile = trim(casafile%c2cdumppath)//'c2c_'//cyear//'_dump.nc'
+     write(*,'(a,i04,a)') 'casaonly_LUC ', YYYY, ' '//trim(ncfile)
+     call read_casa_dump(trim(ncfile), casamet, casaflux, phen, climate, c13o2flux, 1, 1, .true.)
      
      !!CLN901  format(A99)
-     do idoy=1,mdyear
-        ktau=(idoy-1)*ktauday +ktauday
+     do idoy=1, mdyear
+        ktau = (idoy-1)*ktauday +ktauday
 
-        casamet%tairk(:)       = casamet%Tairkspin(:,idoy)
-        casamet%tsoil(:,1)     = casamet%Tsoilspin_1(:,idoy)
-        casamet%tsoil(:,2)     = casamet%Tsoilspin_2(:,idoy)
-        casamet%tsoil(:,3)     = casamet%Tsoilspin_3(:,idoy)
-        casamet%tsoil(:,4)     = casamet%Tsoilspin_4(:,idoy)
-        casamet%tsoil(:,5)     = casamet%Tsoilspin_5(:,idoy)
-        casamet%tsoil(:,6)     = casamet%Tsoilspin_6(:,idoy)
-        casamet%moist(:,1)     = casamet%moistspin_1(:,idoy)
-        casamet%moist(:,2)     = casamet%moistspin_2(:,idoy)
-        casamet%moist(:,3)     = casamet%moistspin_3(:,idoy)
-        casamet%moist(:,4)     = casamet%moistspin_4(:,idoy)
-        casamet%moist(:,5)     = casamet%moistspin_5(:,idoy)
-        casamet%moist(:,6)     = casamet%moistspin_6(:,idoy)
+        casamet%tairk(:)   = casamet%Tairkspin(:,idoy)
+        casamet%tsoil(:,1) = casamet%Tsoilspin_1(:,idoy)
+        casamet%tsoil(:,2) = casamet%Tsoilspin_2(:,idoy)
+        casamet%tsoil(:,3) = casamet%Tsoilspin_3(:,idoy)
+        casamet%tsoil(:,4) = casamet%Tsoilspin_4(:,idoy)
+        casamet%tsoil(:,5) = casamet%Tsoilspin_5(:,idoy)
+        casamet%tsoil(:,6) = casamet%Tsoilspin_6(:,idoy)
+        casamet%moist(:,1) = casamet%moistspin_1(:,idoy)
+        casamet%moist(:,2) = casamet%moistspin_2(:,idoy)
+        casamet%moist(:,3) = casamet%moistspin_3(:,idoy)
+        casamet%moist(:,4) = casamet%moistspin_4(:,idoy)
+        casamet%moist(:,5) = casamet%moistspin_5(:,idoy)
+        casamet%moist(:,6) = casamet%moistspin_6(:,idoy)
         casaflux%cgpp(:)       = casamet%cgppspin(:,idoy)
         casaflux%crmplant(:,1) = casamet%crmplantspin_1(:,idoy)
         casaflux%crmplant(:,2) = casamet%crmplantspin_2(:,idoy)
         casaflux%crmplant(:,3) = casamet%crmplantspin_3(:,idoy)
-        phen%phase(:) = phen%phasespin(:,idoy)
+        phen%phase(:)      = phen%phasespin(:,idoy)
         phen%doyphase(:,1) = phen%doyphasespin_1(:,idoy)
-        phen%doyphase(:,2) =  phen%doyphasespin_2(:,idoy)
-        phen%doyphase(:,3) =  phen%doyphasespin_3(:,idoy)
-        phen%doyphase(:,4) =  phen%doyphasespin_4(:,idoy)
-        climate%qtemp_max_last_year(:) =  casamet%mtempspin(:,idoy)
+        phen%doyphase(:,2) = phen%doyphasespin_2(:,idoy)
+        phen%doyphase(:,3) = phen%doyphasespin_3(:,idoy)
+        phen%doyphase(:,4) = phen%doyphasespin_4(:,idoy)
+        climate%qtemp_max_last_year(:) = casamet%mtempspin(:,idoy)
         if (cable_user%c13o2) then
            c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
            c13o2flux%cAn(:)   = casamet%cAn13spin(:,idoy)
         endif
-        CALL master_send_input(icomm, casa_dump_ts, idoy)
+        ! print*, 'MASTER Send CO01'
+        call master_send_input(icomm, casa_dump_ts, idoy)
 
         ! ! zero annual sums
         ! if (idoy==1) CALL casa_cnpflux(casaflux,casapool,casabal,.TRUE.)
@@ -10162,7 +10151,14 @@ SUBROUTINE master_CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
         IF (idoy==mdyear) THEN ! end of year
 
            ! get casa update from workers
+           ! print*, 'MASTER Receive CO02'
            CALL master_receive(ocomm, 0, casa_LUC_ts)
+
+           ! 13C
+           if (cable_user%c13o2) then
+              ! print*, 'MASTER Receive CO02.1'
+              call master_receive(ocomm, 0, c13o2_luc_ts)
+           endif
 
            LUC_EXPT%CTSTEP = yyyy -  LUC_EXPT%FirstYear + 1
 
@@ -10238,16 +10234,18 @@ SUBROUTINE master_CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
            CALL POPLUC_weights_transfer(POPLUC,POP,LUC_EXPT)
 
            ! transfer POP updates to workers
+           ! print*, 'MASTER Send CO03'
            off = 1
-           DO rank = 1, wnp
-              IF ( rank .GT. 1 ) off = off + wland(rank-1)%npop_iwood
+           DO rank=1, wnp
+              IF (rank .GT. 1) off = off + wland(rank-1)%npop_iwood
               cnt = wland(rank)%npop_iwood
-              CALL MPI_Send( POP%pop_grid(off), cnt, pop_ts, rank, 0, icomm, ierr )
+              CALL MPI_Send(POP%pop_grid(off), cnt, pop_ts, rank, 0, icomm, ierr)
            END DO
 
            ! workers call POP here
 
            ! CALL POPdriver(casaflux,casabal,veg, POP)
+           ! print*, 'MASTER Receive CO04'
            CALL master_receive_pop(POP, ocomm)
 
            if (cable_user%c13o2) call c13o2_save_luc(casapool, popluc, casasave, lucsave)
@@ -10268,10 +10266,15 @@ SUBROUTINE master_CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
 
      enddo
      ! send updates for CASA pools, resulting from LUC
+     ! print*, 'MASTER Send CO05'
      CALL master_send_input(icomm, casa_LUC_ts, nyear)
      ! 13C
-     if (cable_user%c13o2) call master_send_input(icomm, c13o2_luc_ts, nyear)
+     if (cable_user%c13o2) then
+        ! print*, 'MASTER Send CO06'
+        call master_send_input(icomm, c13o2_luc_ts, nyear)
+     endif
   enddo ! year=1,myearspin
+  
   CALL WRITE_LUC_RESTART_NC( POPLUC, YYYY )
   CALL write_casa_restart_nc(casamet, casapool, casaflux, phen, .TRUE.)
   ! 13C

@@ -150,7 +150,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
                  nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd, &
                  pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd)
             ! 13C
-#ifdef C13DEBUG
+#ifdef __C13DEBUG__
             if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools, casapool)
 #else
             if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
@@ -199,7 +199,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
               nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
               pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
          ! 13C
-#ifdef C13DEBUG
+#ifdef __C13DEBUG__
          if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools, casapool)
 #else
          if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
@@ -602,7 +602,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
       CALL put_var_nc(ncid, var_name(17), c13o2flux%cAn, n_call)
    endif
 
-   IF (n_call == kend ) ncok = nf90_close(ncid) ! close: save new netCDF dataset
+   IF (n_call == kend) ncok = nf90_close(ncid) ! close: save new netCDF dataset
 
 #endif
  END SUBROUTINE write_casa_dump

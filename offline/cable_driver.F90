@@ -124,7 +124,7 @@ PROGRAM cable_offline_driver
   ! LUC_EXPT only
   USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE, LUC_EXPT_INIT
 
-#ifdef NAG
+#ifdef __NAG__
   USE F90_UNIX
 #endif
 
@@ -135,7 +135,7 @@ PROGRAM cable_offline_driver
 
   ! timing variables
   INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
-  INTEGER, PARAMETER ::  mloop  = 30  ! CASA-CNP PreSpinup loops
+  INTEGER, PARAMETER ::  mloop  = 4 !MCTEST 30  ! CASA-CNP PreSpinup loops
   INTEGER :: LALLOC ! allocation coefficient for passing to spincasa
 
   INTEGER        ::                                                           &
@@ -1025,7 +1025,7 @@ PROGRAM cable_offline_driver
                        CALL POP_LUC_CASA_transfer(POPLUC,POP,LUC_EXPT,casapool,casabal,casaflux,ktauday)
                        ! 13C
                        if (cable_user%c13o2) then
-#ifdef C13DEBUG
+#ifdef __C13DEBUG__
                           call c13o2_update_luc(casasave, lucsave, popluc, luc_expt%prim_only, c13o2pools, c13o2luc, casapool)
 #else
                           call c13o2_update_luc(casasave, lucsave, popluc, luc_expt%prim_only, c13o2pools, c13o2luc)

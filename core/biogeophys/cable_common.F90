@@ -1,11 +1,11 @@
 !==============================================================================
-! This source code is part of the 
+! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
 ! This work is licensed under the CSIRO Open Source Software License
 ! Agreement (variation of the BSD / MIT License).
-! 
+!
 ! You may not use this file except in compliance with this License.
-! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located 
+! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located
 ! in each directory containing CABLE code.
 !
 ! ==============================================================================
@@ -125,7 +125,7 @@ MODULE cable_common_module
           acclimate_autoresp_seasonal = .FALSE., &  ! acclimates to last 30 d, otherwise annual.
           limit_labile           = .FALSE., &
           Cumberland_soil        = .FALSE.   ! sets special CP soil params in calbe_sli_utils.F90
-    
+
      INTEGER  ::  &
           CASA_SPIN_STARTYEAR = 1950, &
           CASA_SPIN_ENDYEAR   = 1960, &
@@ -138,7 +138,7 @@ MODULE cable_common_module
           BLAZE_TSTEP         = "DAILY"   ! either DAILY, MONTHLY, ANNUALLY
      CHARACTER(len=6) :: &
           SIMFIRE_REGION      = "GLOBAL"  ! either GLOBAL, EUROPE, ANZ
-     
+
     !--- LN ------------------------------------------]
 
      CHARACTER(LEN=5) ::                                                      &
@@ -173,7 +173,7 @@ MODULE cable_common_module
 
           !! vh_js !!
           litter = .FALSE.
-     
+
      logical ::            c13o2 = .false.              ! switch 13CO2 calculations on
      logical ::            c13o2_simple_disc = .false.  ! simple or full leaf discrimination
      character(len=200) :: c13o2_delta_atm_file = ''    ! atmospheric delta 13CO2 values
@@ -279,7 +279,7 @@ MODULE cable_common_module
           ekc,        &
           eko,        &
           g0,         & !  Ticket #56
-          g1,         & !  Ticket #56 
+          g1,         & !  Ticket #56
           zr,         &
           clitt,      &
           gamma
@@ -392,7 +392,7 @@ CONTAINS
          vegin%g0( mvtype ), vegin%g1( mvtype ),                               &
          !! vh_veg_params !!
          vegin%zr(mvtype), vegin%clitt(mvtype), vegin%gamma(mvtype))
-  
+
 
     IF( vegparmnew ) THEN    ! added to read new format (BP dec 2007)
 
@@ -503,7 +503,7 @@ CONTAINS
     ! new calculation dleaf since April 2012 (cable v1.8 did not use width)
     vegin%dleaf = SQRT(vegin%width * vegin%length)
 
-    
+
     !================= Read in soil type specifications: ============
     OPEN(40,FILE=filename%soil,STATUS='old',ACTION='READ',IOSTAT=ioerror)
 
@@ -543,167 +543,195 @@ CONTAINS
   END SUBROUTINE get_type_parameters
 
     !--- LN ------------------------------------------[
-  SUBROUTINE HANDLE_ERR( status, msg )
-    ! LN 06/2013
+  subroutine handle_err(status, msg) ! LN 06/2013
+
     use netcdf
-    INTEGER :: status
-    CHARACTER(LEN=*), INTENT(IN),OPTIONAL :: msg
-    IF(status /= NF90_noerr) THEN
-       WRITE(*,*)"netCDF error:"
-       IF ( PRESENT( msg ) ) WRITE(*,*)msg
+
+    integer,          intent(in)           :: status
+    character(len=*), intent(in), optional :: msg
+
+    if (status /= NF90_noerr) then
+       write(*,*) "netCDF error:"
+       if (present(msg)) write(*,*) msg
 !#define Vanessas_common
 !#ifdef Vanessas_common
-       WRITE(*,*) TRIM(NF90_strerror(status))
-!#else       
-!       WRITE(*,*) "UM builds with -i8. Therefore call to nf90_strerror is ", & 
-!       " invalid. Quick fix to eliminate for now. Build NF90 with -i8, force -i4?" 
-!#endif     
-       STOP -1
-    END IF
-  END SUBROUTINE HANDLE_ERR
+       write(*,*) trim(NF90_strerror(status))
+!#else
+!       WRITE(*,*) "UM builds with -i8. Therefore call to nf90_strerror is ", &
+!       " invalid. Quick fix to eliminate for now. Build NF90 with -i8, force -i4?"
+!#endif
+       stop -1
+    end if
 
-  SUBROUTINE GET_UNIT (IUNIT)
+  end subroutine handle_err
+
+
+  subroutine get_unit(iunit)
 
     ! Find an unused unit for intermediate use
     ! PLEASE, use it ONLY when you OPEN AND CLOSE WITHIN THE SAME CALL
     ! or there could be interferences with other files!!!
     ! LN 05/2014
 
-    IMPLICIT NONE
+    implicit none
 
-    INTEGER,INTENT(OUT) :: IUNIT
-    INTEGER :: i
-    LOGICAL :: is_open = .FALSE.
+    integer, intent(out) :: iunit
 
-    DO i = 200, 10000
-       INQUIRE ( UNIT=i, OPENED=is_open )
-       IF ( .NOT. is_open ) EXIT
-    END DO
-    IUNIT = i
+    integer :: i
+    logical :: is_open = .false.
 
-  END SUBROUTINE GET_UNIT
+    do i=200, 10000
+       inquire(unit=i, opened=is_open)
+       if (.not. is_open) exit
+    end do
+    iunit = i
 
-  ELEMENTAL FUNCTION IS_LEAPYEAR( YYYY )
-    IMPLICIT NONE
-    INTEGER,INTENT(IN) :: YYYY
-    LOGICAL :: IS_LEAPYEAR
+  end subroutine get_unit
 
-    IS_LEAPYEAR = .FALSE.
-    IF ( ( ( MOD( YYYY,  4 ) .EQ. 0 .AND. MOD( YYYY, 100 ) .NE. 0 ) .OR. &
-         MOD( YYYY,400 ) .EQ. 0 ) ) IS_LEAPYEAR = .TRUE.
 
-  END FUNCTION IS_LEAPYEAR
+  elemental pure function is_leapyear(yyyy)
 
-  FUNCTION LEAP_DAY( YYYY )
-    IMPLICIT NONE
-    INTEGER :: YYYY, LEAP_DAY
+    implicit none
 
-    IF ( IS_LEAPYEAR ( YYYY ) ) THEN
-       LEAP_DAY = 1
-    ELSE
-       LEAP_DAY = 0
-    END IF
-  END FUNCTION LEAP_DAY
+    integer, intent(in) :: yyyy
+    logical             :: is_leapyear
 
-  SUBROUTINE YMDHMS2DOYSOD( YYYY,MM,DD,HOUR,MINUTE,SECOND,DOY,SOD )
+    is_leapyear = .false.
+    if ( (mod(yyyy,4).eq.0 .and. mod(yyyy,100).ne.0) .or. &
+         mod(yyyy,400).eq.0 ) is_leapyear = .true.
 
-    ! Compute Day-of-year and second-of-day from given date and time or
+  end function is_leapyear
 
-    IMPLICIT NONE
 
-    INTEGER,INTENT(IN)  :: YYYY,MM,DD,HOUR,MINUTE,SECOND
-    INTEGER,INTENT(OUT) :: DOY,SOD
+  elemental pure function leap_day(yyyy)
 
-    !  LOGICAL :: IS_LEAPYEAR
-    INTEGER, DIMENSION(12) :: MONTH = (/ 31,28,31,30,31,30,31,31,30,31,30,31 /)
+    implicit none
 
-    IF ( IS_LEAPYEAR( YYYY ) ) MONTH(2) = 29
+    integer, intent(in) :: yyyy
+    integer             :: leap_day
 
-    IF ( DD .GT. MONTH(MM) .OR. DD .LT. 1 .OR. &
-         MM .GT. 12 .OR. MM .LT. 1 ) THEN
-       WRITE(*,*)"Wrong date entered in YMDHMS2DOYSOD "
-       WRITE(*,*)"DATE : ",YYYY,MM,DD
-       STOP
-    ENDIF
-    DOY = DD
-    IF ( MM .GT. 1 ) DOY = DOY + SUM( MONTH( 1:MM-1 ) )
-    SOD = HOUR * 3600 + MINUTE * 60 + SECOND
+    if (is_leapyear(yyyy)) then
+       leap_day = 1
+    else
+       leap_day = 0
+    end if
 
-  END SUBROUTINE YMDHMS2DOYSOD
+  end function leap_day
 
-  SUBROUTINE DOYSOD2YMDHMS( YYYY,DOY,SOD,MM,DD,HOUR,MINUTE,SECOND )
+
+  subroutine ymdhms2doysod(yyyy, mm, dd, hour, minute, second, doy, sod)
 
     ! Compute Day-of-year and second-of-day from given date and time or
 
-    IMPLICIT NONE
+    implicit none
 
-    INTEGER,INTENT(IN)           :: YYYY,DOY,SOD
-    INTEGER,INTENT(OUT)          :: MM,DD
-    INTEGER,INTENT(OUT),OPTIONAL :: HOUR,MINUTE,SECOND
+    integer, intent(in)  :: yyyy, mm, dd, hour, minute, second
+    integer, intent(out) :: doy, sod
 
-    !  LOGICAL :: IS_LEAPYEAR
-    INTEGER :: MON, i
-    INTEGER, DIMENSION(12) :: MONTH = (/ 31,28,31,30,31,30,31,31,30,31,30,31 /)
+    !  logical :: is_leapyear
+    integer, dimension(12) :: month = (/ 31,28,31,30,31,30,31,31,30,31,30,31 /)
 
-    IF ( IS_LEAPYEAR( YYYY ) ) MONTH(2) = 29
+    if (is_leapyear(yyyy)) month(2) = 29
 
-    IF ( SOD .GE. 86400 .OR. SOD .LT. 0 .OR. &
-         DOY .GT. SUM(MONTH) .OR. DOY .LT. 1 ) THEN
-       WRITE(*,*)"Wrong date entered in DOYSOD2YMDHMS "
-       WRITE(*,*)"YYYY DOY SOD : ",YYYY,DOY,SOD
-       STOP
-    ENDIF
+    if (dd.gt.month(mm) .or. dd.lt.1 .or. &
+         mm.gt.12 .or. mm.lt.1) then
+       write(*,*) "Wrong date entered in subroutine ymdhms2doysod"
+       write(*,*) "Date (ymdhms): ", yyyy, mm, dd, hour, minute, second
+       stop 3
+    endif
 
-    MON = 0
-    DO i = 1, 12
-       IF ( MON + MONTH(i) .LT. DOY ) THEN
-          MON = MON + MONTH(i)
-       ELSE
-          MM  = i
-          DD  = DOY - MON
-          EXIT
-       ENDIF
-    END DO
-    IF ( PRESENT ( HOUR ) ) HOUR   = INT( REAL(SOD)/3600. )
-    IF ( PRESENT (MINUTE) ) MINUTE = INT( ( REAL(SOD) - REAL(HOUR)*3600.) / 60. )
-    IF ( PRESENT (SECOND) ) SECOND = SOD - HOUR*3600 - MINUTE*60
+    doy = dd
+    if (mm .gt. 1) doy = doy + sum(month(1:mm-1))
 
-  END SUBROUTINE DOYSOD2YMDHMS
+    sod = hour * 3600 + minute * 60 + second
 
-  SUBROUTINE LAND2XY( xdimsize, landgrid, x, y )
+  end subroutine ymdhms2doysod
+
+
+  subroutine doysod2ymdhms(yyyy, doy, sod, mm, dd, hour, minute, second)
+
+    ! Compute Day-of-year and second-of-day from given date and time or
+
+    implicit none
+
+    integer, intent(in)            :: yyyy, doy, sod
+    integer, intent(out)           :: mm, dd
+    integer, intent(out), optional :: hour, minute, second
+
+    !  logical :: is_leapyear
+    integer :: mon, i
+    integer :: ihour, iminute, isecond
+    integer, dimension(12) :: month = (/ 31,28,31,30,31,30,31,31,30,31,30,31 /)
+
+    if (is_leapyear(yyyy)) month(2) = 29
+
+    if (sod.ge.86400 .or. sod.lt.0 .or. &
+         doy.gt.sum(month) .or. doy.lt.1) then
+       write(*,*) "Wrong date entered in subroutine doysod2ymdhms"
+       write(*,*) "yyyy doy sod: ",yyyy, doy, sod
+       stop 3
+    endif
+
+    mon = 0
+    do i=1, 12
+       if (mon+month(i) .lt. doy) then
+          mon = mon + month(i)
+       else
+          mm = i
+          dd = doy - mon
+          exit
+       endif
+    end do
+
+    ihour   = int(real(sod)/3600.)
+    iminute = int((real(sod) - real(ihour)*3600.) / 60.)
+    isecond = sod - ihour*3600 - iminute*60
+
+    if (present(hour))   hour   = ihour
+    if (present(minute)) minute = iminute
+    if (present(second)) second = isecond
+
+  end subroutine doysod2ymdhms
+
+
+  subroutine land2xy(xdimsize, landgrid, x, y)
 
     ! Convert landgrid to x and y (indices for lat and lon) as
     ! used in CABLE
     ! LN 08/2015
 
-    IMPLICIT NONE
-    INTEGER, INTENT(IN)  :: xdimsize, landgrid
-    INTEGER, INTENT(OUT) :: x, y
+    implicit none
 
-    y = INT(REAL((landGrid-1))/REAL(xdimsize)) + 1
-    x = landGrid - (y-1) * xdimsize
+    integer, intent(in)  :: xdimsize, landgrid
+    integer, intent(out) :: x, y
 
-  END SUBROUTINE LAND2XY
+    y = int(real(landgrid-1)/real(xdimsize)) + 1
+    x = landgrid - (y-1) * xdimsize
 
-  SUBROUTINE XY2LAND( xdimsize, x, y, landgrid )
+  end subroutine land2xy
+
+
+  subroutine xy2land(xdimsize, x, y, landgrid)
 
     ! Convert x and y (indices for lat and lon) to landgrid
     ! as used in CABLE
     ! LN 08/2015
 
-    IMPLICIT NONE
-    INTEGER, INTENT(IN)  :: xdimsize, x, y
-    INTEGER, INTENT(OUT) :: landgrid
+    implicit none
 
-    landgrid = x + ( y - 1 ) * xdimsize
+    integer, intent(in)  :: xdimsize, x, y
+    integer, intent(out) :: landgrid
 
-  END SUBROUTINE XY2LAND
+    landgrid = x + (y-1) * xdimsize
+
+  end subroutine xy2land
     !--- LN ------------------------------------------]
+
 
   ! get svn revision number and status
   SUBROUTINE report_version_no( logn )
 
-#ifdef NAG
+#ifdef __NAG__
     USE F90_UNIX_ENV, only: getenv
 #endif
     INTEGER, INTENT(IN) :: logn
@@ -719,37 +747,35 @@ CONTAINS
     CALL getenv("HOME", myhome)
     fcablerev = TRIM(myhome)//TRIM("/.cable_rev")
 
-    OPEN(440,FILE=TRIM(fcablerev),STATUS='old',ACTION='READ',IOSTAT=ioerror)
+    OPEN(440, FILE=TRIM(fcablerev), STATUS='old', ACTION='READ', IOSTAT=ioerror)
 
     IF(ioerror==0) then
        ! get svn revision number (see WRITE comments)
        READ(440,*) icable_rev
     ELSE
-       icable_rev=0 !default initialization
-       PRINT *, "We'll keep running but the generated revision number "
-       PRINT *, " in the log & file will be meaningless."
+       icable_rev = 0 !default initialization
+       write(*,'(a)') "We'll keep running but the generated revision number in the log & file will be meaningless."
     ENDIF
 
 
     WRITE(logn,*) ''
     WRITE(logn,*) 'Revision nuber: ', icable_rev
     WRITE(logn,*) ''
-    WRITE(logn,*)'This is the latest revision of you workin copy as sourced '
-    WRITE(logn,*)'by the SVN INFO command at build time. Please note that the'
-    WRITE(logn,*)'accuracy of this number is dependent on how recently you '
-    WRITE(logn,*)'used SVN UPDATE.'
+    WRITE(logn,*) 'This is the latest revision of you workin copy as sourced '
+    WRITE(logn,*) 'by the SVN INFO command at build time. Please note that the'
+    WRITE(logn,*) 'accuracy of this number is dependent on how recently you '
+    WRITE(logn,*) 'used SVN UPDATE.'
 
     ! get svn status (see WRITE comments)
     ! (jhan: make this output prettier & not limitted to 200 chars)
-    WRITE(logn,*)'SVN STATUS indicates that you have (at least) the following'
-    WRITE(logn,*)'local changes: '
+    WRITE(logn,*) 'SVN STATUS indicates that you have (at least) the following'
+    WRITE(logn,*) 'local changes: '
     IF(ioerror==0) then
        READ(440,'(A)',IOSTAT=ioerror) icable_status
        WRITE(logn,*) TRIM(icable_status)
        WRITE(logn,*) ''
     else
-       WRITE(logn,*) '.cable_rev file does not exist,'
-       WRITE(logn,*) 'suggesting you did not build libcable here'
+       WRITE(logn,*) '.cable_rev file does not exist, suggesting you did not build libcable here.'
        WRITE(logn,*) ''
     endif
 
@@ -757,15 +783,16 @@ CONTAINS
 
   END SUBROUTINE report_version_no
 
-  SUBROUTINE init_veg_from_vegin(ifmp,fmp, veg) 
+
+  SUBROUTINE init_veg_from_vegin(ifmp,fmp, veg)
      use cable_def_types_mod, ONLY : veg_parameter_type
-     integer ::  ifmp,  & ! start local mp, # landpoints (jhan:when is this not 1 )      
-                 fmp     ! local mp, # landpoints       
-  
+     integer ::  ifmp,  & ! start local mp, # landpoints (jhan:when is this not 1 )
+                 fmp     ! local mp, # landpoints
+
      type(veg_parameter_type) :: veg
-     
+
      integer :: h
-     
+
          ! Prescribe parameters for current gridcell based on veg/soil type (which
          ! may have loaded from default value file or met file):
          DO h = ifmp, fmp          ! over each patch in current grid
@@ -812,8 +839,8 @@ CONTAINS
             veg%zr(h)       = vegin%zr(veg%iveg(h))
             veg%clitt(h)    = vegin%clitt(veg%iveg(h))
          END DO ! over each veg patch in land point
-  
-  END SUBROUTINE init_veg_from_vegin 
+
+  END SUBROUTINE init_veg_from_vegin
 
 
   FUNCTION IS_CASA_TIME(iotype, yyyy, ktau, kstart, koffset, kend, ktauday, logn)
@@ -825,7 +852,7 @@ CONTAINS
 !cable_common module was intended to be unequivocally common to all
 !applications. iovars is an offline module and so not appropriate to include
 !here. Suggested FIX is to move decs of vars needed (e.g. leaps) to here, and
-!then use common in iovars  
+!then use common in iovars
 #ifdef Vanessas_common
     USE cable_IO_vars_module, ONLY: leaps
 #endif
@@ -884,10 +911,11 @@ CONTAINS
     ENDIF
 
   END FUNCTION IS_CASA_TIME
-  
+
+
   FUNCTION Esatf(TC)
     !-------------------------------------------------------------------------------
-    ! At temperature TC [deg C], return saturation water vapour pressure Esatf [mb] 
+    ! At temperature TC [deg C], return saturation water vapour pressure Esatf [mb]
     ! from Teten formula.
     ! MRR, xx/1987
     ! PRB, 09/1999:   Convert to F95 elemental function; works on scalars and arrays
@@ -907,7 +935,7 @@ CONTAINS
     IF (TCtmp.GT.100.0) TCtmp = 100.0   ! constrain TC to (-40.0,100.0)
     IF (TCtmp.LT.-40.0) TCtmp = -40.0
     Esatf = A*EXP(B*TCtmp/(C+TCtmp))    ! sat vapour pressure (mb)
-    
+
   END FUNCTION Esatf
 
 

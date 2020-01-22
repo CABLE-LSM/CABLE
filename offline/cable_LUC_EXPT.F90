@@ -125,10 +125,10 @@ CONTAINS
     LUC_EXPT%YearEnd            = YearEnd
     LUC_EXPT%NotPrimOnlyFile      = NotPrimOnlyFile
 
-    WRITE(*   ,*)"================== LUC_EXPT  ============"
-    WRITE(*   ,*)"LUC_EXPT settings chosen:"
-    WRITE(*   ,*)" TransitionFilePath: ",TRIM(LUC_EXPT%TransitionFilePath)
-    WRITE(*   ,*)" ClimateFile       : ",TRIM(LUC_EXPT%ClimateFile)
+    write(*,'(a)') "================== LUC_EXPT  ============"
+    write(*,'(a)') "LUC_EXPT settings chosen:"
+    write(*,'(a)') " TransitionFilePath: "//trim(LUC_EXPT%TransitionFilePath)
+    write(*,'(a)') " ClimateFile       : "//trim(LUC_EXPT%ClimateFile)
 
 
     ! Transition Filenames and variables
@@ -158,7 +158,7 @@ CONTAINS
     LUC_EXPT%VAR_NAME(4) = 'gtos'
     LUC_EXPT%VAR_NAME(5) = 'grass'
     LUC_EXPT%VAR_NAME(6) = 'primaryf'
-! #ifdef CRU2017
+! #ifdef __CRU2017__
 !     LUC_EXPT%VAR_NAME(7) = 'pharv'
 ! #else
 !     LUC_EXPT%VAR_NAME(7) = 'ptos'
@@ -186,8 +186,8 @@ CONTAINS
     ! OPEN LUC INPUT FILES
     DO i = 1, LUC_EXPT%nfile
 
-       WRITE(*   ,*) 'LUC input data file: ', LUC_EXPT%TransFile(i)
-       WRITE(logn,*) 'LUC input data file: ', LUC_EXPT%TransFile(i)
+       write(*,'(a)') 'LUC input data file: '//trim(LUC_EXPT%TransFile(i))
+       WRITE(logn,*)  'LUC input data file: ', LUC_EXPT%TransFile(i)
 
        STATUS = NF90_OPEN(TRIM(LUC_EXPT%TransFile(i)), NF90_NOWRITE, LUC_EXPT%F_ID(i))
        CALL HANDLE_ERR(STATUS, "Opening LUH2 file "//LUC_EXPT%TransFile(i) )
@@ -215,25 +215,25 @@ CONTAINS
 
 
 
-!!$          STATUS = NF90_GET_VAR( Luc_expt%f_id(i), timID, tmp, &
-!!$               start=(/1,1,1/) )
-!!$          CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )
+          ! STATUS = NF90_GET_VAR( Luc_expt%f_id(i), timID, tmp, &
+          !      start=(/1,1,1/) )
+          ! CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )
           STATUS = NF90_INQ_VARID(FID,"time",TimeVarID)
           STATUS = nf90_get_att(FID, TimeVarID, "units", time_units)
           Idash = SCAN(time_units, '-')
           yearstr = time_units(Idash-4:Idash-1)
           read(yearstr,*)  LUC_EXPT%FirstYEAR
-!!$          write(*,*) 'LUH2 time units: ', TRIM(time_units), Idash, time_units(Idash-4:Idash-1)
+          ! write(*,*) 'LUH2 time units: ', TRIM(time_units), Idash, time_units(Idash-4:Idash-1)
 
           write(*,*) 'LUH2 first year', LUC_EXPT%FirstYEAR 
           xds = LUC_EXPT%xdimsize
           yds = LUC_EXPT%ydimsize
        ENDIF
-       !write(*,*) 'length LUH2 data: ', tdimsize
+       ! write(*,*) 'length LUH2 data: ', tdimsize
     ENDDO
 
     write(*,*) 'LUH2 first year', LUC_EXPT%FirstYEAR
-    !  LUC_EXPT%FirstYEAR = 850
+    ! LUC_EXPT%FirstYEAR = 850
     ! Set internal counter
     LUC_EXPT%CTSTEP = 1 +  LUC_EXPT%YearStart- LUC_EXPT%FirstYEAR
 
@@ -403,13 +403,13 @@ CONTAINS
 
        CPC = min(CPC/projection_factor, 1.0)
 
-       !write(*,*)  LUC_EXPT%grass(93), LUC_EXPT%primaryf(93), LUC_EXPT%secdf(93), CPC
+       ! write(*,*)  LUC_EXPT%grass(93), LUC_EXPT%primaryf(93), LUC_EXPT%secdf(93), CPC
 
        LUC_EXPT%grass = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf)*(1-CPC)
        LUC_EXPT%primaryf =  LUC_EXPT%primaryf * CPC
        LUC_EXPT%secdf =  LUC_EXPT%secdf * CPC
 
-       !write(*,*)  LUC_EXPT%grass(93), LUC_EXPT%primaryf(93), LUC_EXPT%secdf(93)
+       ! write(*,*)  LUC_EXPT%grass(93), LUC_EXPT%primaryf(93), LUC_EXPT%secdf(93)
 
 
     ELSE
@@ -440,7 +440,7 @@ CONTAINS
        END WHERE
     ENDIF
 
-   ! write(59,*) TRIM(LUC_EXPT%NotPrimOnlyFile), (TRIM(LUC_EXPT%NotPrimOnlyFile).EQ.'none')
+    ! write(59,*) TRIM(LUC_EXPT%NotPrimOnlyFile), (TRIM(LUC_EXPT%NotPrimOnlyFile).EQ.'none')
     ! READ transitions from primary to see if primary remains primary
     if (TRIM(LUC_EXPT%NotPrimOnlyFile).EQ.'none')   THEN     
        LUC_EXPT%prim_only = .TRUE.
@@ -716,9 +716,9 @@ USE netcdf
   INQUIRE( FILE=TRIM( fname ), EXIST=EXISTFILE )
 
   IF ( .NOT.EXISTFILE) THEN
-     write(*,*) fname, ' does not exist!!'
+     write(*,'(a)') trim(fname)//' does not exist!!'
   ELSE
-     write(*,*) 'reading biome from : ', fname
+     write(*,'(a)') 'reading biome from : '//trim(fname)
   ENDIF
   ! Open NetCDF file:
   STATUS = NF90_OPEN(TRIM(fname), NF90_NOWRITE, FILE_ID)
@@ -788,7 +788,7 @@ USE netcdf
   STATUS = NF90_close(FILE_ID)
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
-write(*,*) "end read_climatefile"  
+  write(*,'(a)') "end read_climatefile"  
 
 END SUBROUTINE READ_CLIMATEFILE
 
@@ -840,7 +840,7 @@ IMPLICIT NONE
 
  else
 
-    write(*,*) 'warning: past end of LUH2 record'
+    write(*,'(a)') 'warning: past end of LUH2 record'
 
  endif
 

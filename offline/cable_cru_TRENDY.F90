@@ -151,116 +151,116 @@ CONTAINS
     CRU%DirectRead   = DirectRead
 
     ! Assign Forcing and CO2 labels based only on the value of CRU%Run
-    SELECT CASE (TRIM(CRU%Run))
+    SELECT CASE(TRIM(CRU%Run))
     CASE( "S0_TRENDY" ) 
        CRU%Forcing = "spinup"
        CRU%CO2     = "static1860"
-       CRU%Ndep     = "static1860"
-       WRITE(*   ,*)"Run = 'spinup': Therefore Forcing = 'spinup', CO2 = 'static1860'"
-       WRITE(logn,*)"Run = 'spinup': Therefore Forcing = 'spinup', CO2 = 'static1860'"
+       CRU%Ndep    = "static1860"
+       write(*,'(a)') "Run = 'spinup': Therefore Forcing = 'spinup', CO2 = 'static1860'"
+       WRITE(logn,*)  "Run = 'spinup': Therefore Forcing = 'spinup', CO2 = 'static1860'"
     CASE( "S0_TRENDY_CO2" ) 
        CRU%Forcing = "spinup"
        CRU%CO2     = "1901_2015"
-       CRU%Ndep     = "static1860"
-       WRITE(*   ,*)"Run = 'S0_CO2': Therefore Forcing = 'S0_CO2', CO2 = '1860_2015'"
-       WRITE(logn,*)"Run = 'S0_CO2': Therefore Forcing = 'S0_CO2', CO2 = '1860_2015'"
+       CRU%Ndep    = "static1860"
+       write(*,'(a)') "Run = 'S0_CO2': Therefore Forcing = 'S0_CO2', CO2 = '1860_2015'"
+       WRITE(logn,*)  "Run = 'S0_CO2': Therefore Forcing = 'S0_CO2', CO2 = '1860_2015'"
     CASE( "S0_TRENDY_Ndep" ) 
        CRU%Forcing = "spinup"
        CRU%CO2     = "static1860"
-       CRU%Ndep     = "1901_2015"
-       WRITE(*   ,*)"Run = 'S0_Ndep': Therefore Forcing = 'S0_Ndep', Ndep = '1860_2015'"
-       WRITE(logn,*)"Run = 'S0_Ndep': Therefore Forcing = 'S0_Ndep', Ndep = '1860_2015'"
+       CRU%Ndep    = "1901_2015"
+       write(*,'(a)') "Run = 'S0_Ndep': Therefore Forcing = 'S0_Ndep', Ndep = '1860_2015'"
+       WRITE(logn,*)  "Run = 'S0_Ndep': Therefore Forcing = 'S0_Ndep', Ndep = '1860_2015'"
     CASE( "S0_TRENDY_Precip" ) 
        CRU%Forcing = "spinup"
        CRU%CO2     = "static1860"
-       CRU%Ndep     = "static1860"
-       WRITE(*   ,*)"Run = 'spinup': Therefore Forcing = 'spinup', CO2 = 'static1860'"
-       WRITE(logn,*)"Run = 'spinup': Therefore Forcing = 'spinup', CO2 = 'static1860'"
+       CRU%Ndep    = "static1860"
+       write(*,'(a)') "Run = 'spinup': Therefore Forcing = 'spinup', CO2 = 'static1860'"
+       WRITE(logn,*)  "Run = 'spinup': Therefore Forcing = 'spinup', CO2 = 'static1860'"
     CASE( "S0_TRENDY_Temp" ) 
        CRU%Forcing = "spinup"
        CRU%CO2     = "static1860"
-       CRU%Ndep     = "static1860"
-       WRITE(*   ,*)"Run = 'spinup': Therefore Forcing = 'spinup', CO2 = 'static1860'"
-       WRITE(logn,*)"Run = 'spinup': Therefore Forcing = 'spinup', CO2 = 'static1860'"
+       CRU%Ndep    = "static1860"
+       write(*,'(a)') "Run = 'spinup': Therefore Forcing = 'spinup', CO2 = 'static1860'"
+       WRITE(logn,*)  "Run = 'spinup': Therefore Forcing = 'spinup', CO2 = 'static1860'"
     CASE( "S0_TRENDY_Temp_Precip" ) 
        CRU%Forcing = "spinup"
        CRU%CO2     = "static1860"
-       CRU%Ndep     = "static1860"
-       WRITE(*   ,*)"Run = 'spinup': Therefore Forcing = 'spinup', CO2 = 'static1860'"
-       WRITE(logn,*)"Run = 'spinup': Therefore Forcing = 'spinup', CO2 = 'static1860'"
+       CRU%Ndep    = "static1860"
+       write(*,'(a)') "Run = 'spinup': Therefore Forcing = 'spinup', CO2 = 'static1860'"
+       WRITE(logn,*)  "Run = 'spinup': Therefore Forcing = 'spinup', CO2 = 'static1860'"
     CASE( "S0_TRENDY_CO2_Temp" ) 
        CRU%Forcing = "spinup"
        CRU%CO2     = "1901_2015"
-       CRU%Ndep     = "static1860"
-       WRITE(*   ,*)"Run = 'spinup': Therefore Forcing = 'spinup', CO2 = '1860_2015'"
-       WRITE(logn,*)"Run = 'spinup': Therefore Forcing = 'spinup', CO2 = '1860_2015'"
+       CRU%Ndep    = "static1860"
+       write(*,'(a)') "Run = 'spinup': Therefore Forcing = 'spinup', CO2 = '1860_2015'"
+       WRITE(logn,*)  "Run = 'spinup': Therefore Forcing = 'spinup', CO2 = '1860_2015'"
     CASE( "S0_TRENDY_CO2_Precip" ) 
        CRU%Forcing = "spinup"
        CRU%CO2     = "1901_2015"
-       CRU%Ndep     = "static1860"
-       WRITE(*   ,*)"Run = 'spinup': Therefore Forcing = 'spinup', CO2 = '1860_2015'"
-       WRITE(logn,*)"Run = 'spinup': Therefore Forcing = 'spinup', CO2 = '1860_2015'"
+       CRU%Ndep    = "static1860"
+       write(*,'(a)') "Run = 'spinup': Therefore Forcing = 'spinup', CO2 = '1860_2015'"
+       WRITE(logn,*)  "Run = 'spinup': Therefore Forcing = 'spinup', CO2 = '1860_2015'"
     CASE( "S0_TRENDY_CO2_Temp_Precip" ) 
        CRU%Forcing = "spinup"
        CRU%CO2     = "1901_2015"
-       CRU%Ndep     = "static1860"
-       WRITE(*   ,*)"Run = 'spinup': Therefore Forcing = 'spinup', CO2 = '1860_2015'"
-       WRITE(logn,*)"Run = 'spinup': Therefore Forcing = 'spinup', CO2 = '1860_2015'"
+       CRU%Ndep    = "static1860"
+       write(*,'(a)') "Run = 'spinup': Therefore Forcing = 'spinup', CO2 = '1860_2015'"
+       WRITE(logn,*)  "Run = 'spinup': Therefore Forcing = 'spinup', CO2 = '1860_2015'"
     CASE( "S1_TRENDY" ) 
        CRU%Forcing = "spinup"
        CRU%CO2     = "1860_1900"
-       CRU%Ndep     = "1860_1900"
-       WRITE(*   ,*)"Run = 'S1_TRENDY': Therefore Forcing = 'spinup', CO2 = '1860_1900'"
-       WRITE(logn,*)"Run = 'S1_TRENDY': Therefore Forcing = 'spinup', CO2 = '1860_1900'"
+       CRU%Ndep    = "1860_1900"
+       write(*,'(a)') "Run = 'S1_TRENDY': Therefore Forcing = 'spinup', CO2 = '1860_1900'"
+       WRITE(logn,*)  "Run = 'S1_TRENDY': Therefore Forcing = 'spinup', CO2 = '1860_1900'"
     CASE( "S2_TRENDY" )
        CRU%Forcing = "1901_2015"
        CRU%CO2     = "1901_2015"
-       CRU%Ndep     = "1901_2015"
-       WRITE(*   ,*)"Run = 'S2_TRENDY': Therefore Forcing = 'spinup', CO2 = '1901_2015'"
-       WRITE(logn,*)"Run = 'S2_TRENDY': Therefore Forcing = 'spinup', CO2 = '1901_2015'"
+       CRU%Ndep    = "1901_2015"
+       write(*,'(a)') "Run = 'S2_TRENDY': Therefore Forcing = 'spinup', CO2 = '1901_2015'"
+       WRITE(logn,*)  "Run = 'S2_TRENDY': Therefore Forcing = 'spinup', CO2 = '1901_2015'"
     CASE( "S2_TRENDY_precip" )
        CRU%Forcing = "1901_2015"
        CRU%CO2     = "1901_2015"
-       CRU%Ndep     = "1901_2015"
-       WRITE(*   ,*)"Run = 'S2_TRENDY': Therefore Forcing = 'spinup', CO2 = '1901_2015'"
-       WRITE(logn,*)"Run = 'S2_TRENDY': Therefore Forcing = 'spinup', CO2 = '1901_2015'"
+       CRU%Ndep    = "1901_2015"
+       write(*,'(a)') "Run = 'S2_TRENDY': Therefore Forcing = 'spinup', CO2 = '1901_2015'"
+       WRITE(logn,*)  "Run = 'S2_TRENDY': Therefore Forcing = 'spinup', CO2 = '1901_2015'"
     CASE( "S2_TRENDY_precip0" )
        CRU%Forcing = "1901_2015"
        CRU%CO2     = "1901_2015"
-       CRU%Ndep     = "1901_2015"
-       WRITE(*   ,*)"Run = 'S2_TRENDY': Therefore Forcing = 'spinup', CO2 = '1901_2015'"
-       WRITE(logn,*)"Run = 'S2_TRENDY': Therefore Forcing = 'spinup', CO2 = '1901_2015'"
-    CASE  default 
-       WRITE(*   ,*)"Wrong CRU%Run: ",CRU%Run
-       WRITE(*   ,*)"Use: S0_TRENDY, S1_TRENDY, or S2_TRENDY!"
-       WRITE(logn,*)"Wrong CRU%Run: ",CRU%Run
-       WRITE(logn,*)"Use: S0_TRENDY, S1_TRENDY, or S2_TRENDY!"
+       CRU%Ndep    = "1901_2015"
+       write(*,'(a)') "Run = 'S2_TRENDY': Therefore Forcing = 'spinup', CO2 = '1901_2015'"
+       WRITE(logn,*)  "Run = 'S2_TRENDY': Therefore Forcing = 'spinup', CO2 = '1901_2015'"
+    CASE default 
+       write(*,'(a)') "Wrong CRU%Run: "//trim(CRU%Run)
+       write(*,'(a)') "Use: S0_TRENDY, S1_TRENDY, or S2_TRENDY!"
+       WRITE(logn,*)  "Wrong CRU%Run: ",trim(CRU%Run)
+       WRITE(logn,*)  "Use: S0_TRENDY, S1_TRENDY, or S2_TRENDY!"
        ERR = .TRUE.
     END SELECT
    
     ! Print settings
-    WRITE(*   ,*)"========================================= CRU ============"
-    WRITE(*   ,*)"CRU settings chosen:"
-    WRITE(*   ,*)" BasePath: ",TRIM(CRU%BasePath)
-    WRITE(*   ,*)" LandMask: ",TRIM(CRU%LandMaskFile)
-    WRITE(*   ,*)" Run                : ",TRIM(CRU%Run)
-    WRITE(*   ,*)" Forcing (assigned) : ",TRIM(CRU%Forcing)
-    WRITE(*   ,*)" CO2     (assigned) : ",TRIM(CRU%CO2)
-    WRITE(*   ,*)" Ndep     (assigned) : ",TRIM(CRU%Ndep)
-    WRITE(*   ,*)" DT(secs): ",CRU%DTsecs
-    WRITE(logn,*)"========================================= CRU ============"
-    WRITE(logn,*)"CRU settings chosen:"
-    WRITE(logn,*)" BasePath: ",TRIM(CRU%BasePath)
-    WRITE(logn,*)" LandMask: ",TRIM(CRU%LandMaskFile)
-    WRITE(logn,*)" Run                : ",TRIM(CRU%Run)
-    WRITE(logn,*)" Forcing (assigned) : ",TRIM(CRU%Forcing)
-    WRITE(logn,*)" CO2     (assigned) : ",TRIM(CRU%CO2)
-    WRITE(logn,*)" Ndep     (assigned) : ",TRIM(CRU%Ndep)
-    WRITE(logn,*)" DT(secs): ",CRU%DTsecs
+    write(*,'(a)') "========================================= CRU ============"
+    write(*,'(a)') "CRU settings chosen:"
+    WRITE(*,'(a)') "  BasePath: "//trim(CRU%BasePath)
+    write(*,'(a)') "  LandMask: "//trim(CRU%LandMaskFile)
+    write(*,'(a)') "  Run               : "//trim(CRU%Run)
+    write(*,'(a)') "  Forcing (assigned): "//trim(CRU%Forcing)
+    write(*,'(a)') "  CO2     (assigned): "//trim(CRU%CO2)
+    write(*,'(a)') "  Ndep    (assigned): "//trim(CRU%Ndep)
+    write(*,'(a,i)') "  DT(secs): ", CRU%DTsecs
+    WRITE(logn,*) "========================================= CRU ============"
+    WRITE(logn,*) "CRU settings chosen:"
+    WRITE(logn,*) " BasePath: ",TRIM(CRU%BasePath)
+    WRITE(logn,*) " LandMask: ",TRIM(CRU%LandMaskFile)
+    WRITE(logn,*) " Run               : ",TRIM(CRU%Run)
+    WRITE(logn,*) " Forcing (assigned): ",TRIM(CRU%Forcing)
+    WRITE(logn,*) " CO2     (assigned): ",TRIM(CRU%CO2)
+    WRITE(logn,*) " Ndep    (assigned): ",TRIM(CRU%Ndep)
+    WRITE(logn,*) " DT(secs): ",CRU%DTsecs
 
     ! Error trap for bad namelist. 
     IF ( ERR ) THEN
-       WRITE(logn,*)"Invalid settings in CRU_INIT"
+       WRITE(logn,*) "Invalid settings in CRU_INIT"
        STOP "Invalid settings in CRU_INIT"
     ENDIF
 
@@ -295,14 +295,14 @@ CONTAINS
     CRU%VAR_NAME(uwind) = "ugrd"
     CRU%VAR_NAME(vwind) = "vgrd"
 
-    WRITE(*   ,*)"========================================= CRU ============"
-    WRITE(logn,*)"========================================= CRU ============"
+    write(*,'(a)') "========================================= CRU ============"
+    WRITE(logn,*)  "========================================= CRU ============"
 
     ! Now read landmask file
     ! Landmask file into init! Get LAt, LON etc. from there
     ! LMFILE = TRIM(CRU%LandMaskFile)
-    WRITE(*   ,*) 'Opening CRU landmask file: ',TRIM(LandMaskFile)
-    WRITE(logn,*) 'Opening CRU landmask file: ',TRIM(LandMaskFile)
+    write(*,'(a)') 'Opening CRU landmask file: '//TRIM(LandMaskFile)
+    WRITE(logn,*)  'Opening CRU landmask file: ',TRIM(LandMaskFile)
 
     ! Open the land mask file
     ErrStatus = NF90_OPEN(TRIM(LandMaskFile), NF90_NOWRITE, FID)
@@ -441,7 +441,7 @@ CONTAINS
     integer :: i, idx
     character(len=4)   :: cy  ! Character representation of cyear
     character(len=200) :: mp  ! Local repr of met path
-#ifdef CRU2017
+#ifdef __CRU2017__
     character(len=*), parameter :: cruver="crujra.V1.1" ! CRU version
 #else
     character(len=*), parameter :: cruver="crujra.v2.0" ! CRU version
@@ -560,7 +560,7 @@ CONTAINS
 ! On the first call, allocate the CRU%CO2VALS array to store the entire history of annual CO2 
 ! values, open the (ascii) CO2 file and read the values into the array. 
     IF (CALL1) THEN
-#ifdef CRU2017
+#ifdef __CRU2017__
       ALLOCATE( CRU%CO2VALS( 1700:2017 ) )
       CO2FILE = TRIM(CRU%BasePath)//"/co2/global_co2_ann_1700_2017.csv"
 #else
@@ -614,15 +614,15 @@ CONTAINS
   ! values, open the (ascii) CO2 file and read the values into the array. 
   IF (CALL1) THEN
 
-#ifdef CRU2017
+#ifdef __CRU2017__
      NdepFILE = trim(CRU%BasePath)//"/ndep/NOy_plus_NHx_dry_plus_wet_deposition_hist_1850_2015_annual_1deg.nc"
 #else
      NdepFILE = TRIM(CRU%BasePath)//"/ndep/NOy_plus_NHx_dry_plus_wet_deposition_1850_2099_annual.1deg.nc"
 #endif
          
      ! Open the NDep and access the variables by their name and variable id.
-     WRITE(*   ,*) 'Opening ndep data file: ', NdepFILE
-     WRITE(logn,*) 'Opening ndep data file: ', NdepFILE
+     write(*,'(a)') 'Opening ndep data file: '//trim(NdepFILE)
+     WRITE(logn,*)  'Opening ndep data file: ', NdepFILE
 
      ErrStatus = NF90_OPEN(TRIM(NdepFILE), NF90_NOWRITE, CRU%NdepF_ID)  
      CALL HANDLE_ERR(ErrStatus, "Opening CRU file "//NdepFILE )
@@ -756,8 +756,8 @@ END SUBROUTINE GET_CRU_Ndep
     CALL CRU_GET_FILENAME( CRU, MetYear, iVar, CRU%MetFile(iVar) ) ! Call routine to build the filenames.
 
     ! Open the new met files and access the variables by their name and variable id.
-    !WRITE(*   ,*) 'Opening met data file: ', CRU%MetFile(iVar)
-    !WRITE(logn,*) 'Opening met data file: ', CRU%MetFile(iVar)
+    !write(*,'(a)') 'Opening met data file: '//trim(CRU%MetFile(iVar))
+    !WRITE(logn,*)  'Opening met data file: ', CRU%MetFile(iVar)
 
     ErrStatus = NF90_OPEN(TRIM(CRU%MetFile(iVar)), NF90_NOWRITE, CRU%F_ID(iVar))  
     CALL HANDLE_ERR(ErrStatus, "Opening CRU file "//CRU%MetFile(iVar) )

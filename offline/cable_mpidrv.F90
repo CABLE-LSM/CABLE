@@ -35,7 +35,7 @@ PROGRAM mpi_driver
   CALL MPI_Comm_size(comm, np, ierr)
 
   IF (np < 2) THEN
-     WRITE (*,*) 'This program needs at least 2 processes to run!'
+     WRITE(*,*) 'This program needs at least 2 processes to run!'
      CALL MPI_Abort(comm, 0, ierr)
   END IF
 
@@ -49,7 +49,7 @@ PROGRAM mpi_driver
 
   CALL MPI_Finalize(ierr)
 
-  CALL CPU_TIME(etime)
+  CALL cpu_time(etime)
   write(*,*) 'Finished in ', etime, ' seconds.'
 
 END PROGRAM mpi_driver

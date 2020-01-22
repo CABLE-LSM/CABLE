@@ -2481,7 +2481,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
        if (cable_user%c13o2) call c13o2_alloc_pools(c13o2pools, mp)
     endif
     !mpdiff
-    CALL alloc_sum_casavariable(sum_casapool,sum_casaflux,mp)
+    CALL alloc_sum_casavariable(sum_casapool, sum_casaflux, mp)
     ! 13C
     if (cable_user%c13o2) call c13o2_alloc_pools(sum_c13o2pools, mp)
     IF (icycle > 0) THEN

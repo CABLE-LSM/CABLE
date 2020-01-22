@@ -1,11 +1,11 @@
 !==============================================================================
-! This source code is part of the 
+! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
 ! This work is licensed under the CSIRO Open Source Software License
 ! Agreement (variation of the BSD / MIT License).
-! 
+!
 ! You may not use this file except in compliance with this License.
-! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located 
+! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located
 ! in each directory containing CABLE code.
 !
 ! ==============================================================================
@@ -19,7 +19,7 @@
 !
 ! Contact: Bernard.Pak@csiro.au
 !
-! History: Changes since v1.4b for global offline (GSWP) cases, read in new 
+! History: Changes since v1.4b for global offline (GSWP) cases, read in new
 !          input files
 !          Two subroutines moved to cable_common (reading veg and soil parameter
 !          files)
@@ -135,8 +135,8 @@ CONTAINS
     WRITE(logn,*) ' And assigning C4 fraction according to veg classification.'
     WRITE(logn,*)
     CALL read_gridinfo(nlon,nlat,npatch)
-   
-! Overwrite veg type and inital patch frac with land-use info 
+
+! Overwrite veg type and inital patch frac with land-use info
     IF (CABLE_USER%POPLUC) then
        CALL get_land_index(nlon, nlat)
        IF (TRIM(cable_user%MetType) .EQ. "bios") THEN
@@ -145,7 +145,7 @@ CONTAINS
           CALL LUC_EXPT_SET_TILES(inVeg, inPfrac, LUC_EXPT)
        ENDIF
     ENDIF
- 
+
 
     IF (soilparmnew) THEN
       PRINT *,      'Use spatially-specific soil properties; ', nlon, nlat
@@ -269,7 +269,7 @@ CONTAINS
          ALLOCATE( inLAI(nlon, nlat, ntime) )
          ALLOCATE( r3dum(nlon, nlat, nband) )
          ALLOCATE( r3dum2(nlon, nlat, ntime) )
-         
+
       elseif (nmetpatches .gt. npatch) then
 
          ALLOCATE( inLon(nlon), inLat(nlat) )
@@ -287,12 +287,12 @@ CONTAINS
          ALLOCATE( r3dum2(nlon, nlat, ntime) )
 
       else
-      
+
          ALLOCATE( inLon(nlon), inLat(nlat) )
          ALLOCATE( inVeg(nlon, nlat, npatch) )
          ALLOCATE( inPFrac(nlon, nlat, npatch) )
          ALLOCATE( inSoil(nlon, nlat) )
-        
+
          ALLOCATE(  inWB(nlon, nlat, nslayer,ntime) )
          ALLOCATE( inTGG(nlon, nlat, nslayer,ntime) )
          ALLOCATE( inALB(nlon, nlat, npatch,nband) )
@@ -363,13 +363,13 @@ CONTAINS
              inPFrac(:, :, pp) = 0.0
           end if
        ENDDO
-       
+
     else
        ok = NF90_GET_VAR(ncid, varID, inPFrac)
     endif
     IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
          'Error reading variable patchfrac.')
-       
+
     ok = NF90_INQ_VARID(ncid, 'isoil', varID)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error finding variable isoil.')
     ok = NF90_GET_VAR(ncid, varID, inSoil)
@@ -406,7 +406,7 @@ CONTAINS
           ENDDO
        endif
     ENDDO
-    
+
     ok = NF90_INQ_VARID(ncid, 'SnowDepth', varID)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
                                         'Error finding variable SnowDepth.')
@@ -864,7 +864,7 @@ CONTAINS
     landpt(:)%ilon = -999
     landpt(:)%ilat = -999
     ncount = 0
-   
+
     DO kk = 1, mland
        distance = 3.0 ! initialise, units are degrees
        DO jj = 1, nlat
@@ -876,12 +876,12 @@ CONTAINS
                    distance = newLength
                    landpt(kk)%ilon = ii
                    landpt(kk)%ilat = jj
-                   
+
                 END IF
              END IF
-            
+
           END DO
-          
+
        END DO
        IF (landpt(kk)%ilon < -900 .OR. landpt(kk)%ilat < -900) THEN
           PRINT *, 'Land point ', kk, ' cannot find the nearest grid!'
@@ -930,25 +930,26 @@ CONTAINS
     landpt(:)%ilon = -999
     landpt(:)%ilat = -999
     ncount = 0
-    DO kk = 1, mland
+    DO kk=1, mland
 
        distance = 3.0 ! initialise, units are degrees
-       DO jj = 1, nlat
-          DO ii = 1, nlon
-           
+       DO jj=1, nlat
+          DO ii=1, nlon
+
              IF (inVeg(ii,jj, 1) > 0 .and. inTgg(ii,jj,1,1).gt.0.0 ) THEN
-                newLength = SQRT((inLon(ii) - longitude(kk))**2                      &
+                newLength = SQRT((inLon(ii) - longitude(kk))**2 &
                      + (inLat(jj) -  latitude(kk))**2)
                 IF (newLength < distance) THEN
                    distance = newLength
                    landpt(kk)%ilon = ii
                    landpt(kk)%ilat = jj
                 END IF
-               
              END IF
+
           END DO
-        
+
        END DO
+
        IF (landpt(kk)%ilon < -900 .OR. landpt(kk)%ilat < -900) THEN
           PRINT *, 'Land point ', kk, ' cannot find the nearest grid!'
           PRINT *, 'lon, lat = ', longitude(kk), latitude(kk)
@@ -975,7 +976,6 @@ CONTAINS
        ELSE IF ( npatch .GT. 1 ) THEN
           landpt(kk)%nap = 0
           DO tt = 1, npatch
-
              IF (inVeg(landpt(kk)%ilon,landpt(kk)%ilat,tt) > 0) THEN
                 landpt(kk)%nap = landpt(kk)%nap + 1
              ENDIF
@@ -987,36 +987,38 @@ CONTAINS
              PRINT *, 'landpt%cstart, cend = ', landpt(kk)%cstart, landpt(kk)%cend
              PRINT *, 'vegtype_metfile = ', vegtype_metfile(kk,:)
              STOP
-        END IF
-     ELSE
-        ! assume nmetpatches to be 1
-        IF (nmetpatches == 1) THEN
-           ncount = ncount + 1
-           landpt(kk)%nap = 1
-           landpt(kk)%cend = ncount
-        ELSE
-          PRINT *, 'nmetpatches = ', nmetpatches, '. Should be 1.'
-          PRINT *, 'If soil patches exist, add new code.'
-          STOP
-        END IF
-     END IF
-  END DO
-  ! CLN IF (ncount > mland * nmetpatches) THEN
-  IF (ncount > mland * nmetpatches .AND. npatch == 1) THEN
-     PRINT *, ncount, ' should not be greater than mland*nmetpatches.'
-     PRINT *, 'mland, nmetpatches = ', mland, nmetpatches
-     STOP
-  END IF
-  DEALLOCATE(inLon, inLat)
-  
+          END IF
+       ELSE
+          ! assume nmetpatches to be 1
+          IF (nmetpatches == 1) THEN
+             ncount = ncount + 1
+             landpt(kk)%nap = 1
+             landpt(kk)%cend = ncount
+          ELSE
+            PRINT *, 'nmetpatches = ', nmetpatches, '. Should be 1.'
+            PRINT *, 'If soil patches exist, add new code.'
+            STOP
+          END IF
+       END IF
+    END DO
+
+    ! CLN IF (ncount > mland * nmetpatches) THEN
+    IF (ncount > mland * nmetpatches .AND. npatch == 1) THEN
+       PRINT *, ncount, ' should not be greater than mland*nmetpatches.'
+       PRINT *, 'mland, nmetpatches = ', mland, nmetpatches
+       STOP
+    END IF
+    DEALLOCATE(inLon, inLat)
+
     ! Set the maximum number of active patches to that read from met file:
-  max_vegpatches = MAXVAL(landpt(:)%nap)
-  !CLN    IF (max_vegpatches /= nmetpatches) THEN
+    max_vegpatches = MAXVAL(landpt(:)%nap)
+    !CLN    IF (max_vegpatches /= nmetpatches) THEN
     IF (max_vegpatches /= nmetpatches .and. npatch == 1) THEN
       PRINT *, 'Error! Met file claiming to have more active patches than'
       PRINT *, 'it really has. Check met file.'
       STOP
     END IF
+
     IF (npatch < nmetpatches) THEN
       PRINT *, 'Warning! Met file data have more patches than the global file.'
       PRINT *, 'Remember to check final veg type and patch fractions.'
@@ -1027,9 +1029,9 @@ CONTAINS
     PRINT *, 'Total number of patches (countPatch): ', ncount
 
   END SUBROUTINE countPatch
-  
+
   !=============================================================================
-  
+
   SUBROUTINE write_default_params(met,  air,    ssnow, veg, bgc,               &
                                   soil, canopy, rough, rad, logn,              &
                                   vegparmnew, month, TFRZ, LUC_EXPT)
@@ -1234,7 +1236,7 @@ CONTAINS
          ssnow%wb(landpt(e)%cstart:landpt(e)%cend, is) =                        &
                 inWB(landpt(e)%ilon, landpt(e)%ilat, min(is,size(inTGG,3)), month)
       END DO
-     
+
       !write(61,*) e, ssnow%tgg(landpt(e)%cstart:landpt(e)%cend,:) , landpt(e)%ilon,landpt(e)%ilat
 
    !ELSE
@@ -1251,7 +1253,7 @@ CONTAINS
 
 
       DO is = 1, landpt(e)%cend - landpt(e)%cstart + 1  ! each patch
-        DO ir = 1, nrb 
+        DO ir = 1, nrb
            IF (CABLE_USER%POPLUC) then !vh! use same soilalbedo for all land-use tiles
               ssnow%albsoilsn(landpt(e)%cstart + is - 1, ir)                       &
                    = inALB(landpt(e)%ilon, landpt(e)%ilat, 1, ir) ! various rad band
@@ -1304,7 +1306,7 @@ CONTAINS
       soil%clay(landpt(e)%cstart:landpt(e)%cend) =                             &
            inclay(landpt(e)%ilon, landpt(e)%ilat)
 
-    
+
       ENDIF
 
       ! vars intro for Ticket #27
@@ -1339,7 +1341,7 @@ CONTAINS
                                                           soiltype_metfile(e, :)
        END IF
 ! offline only above
-       !call veg% init that is common   
+       !call veg% init that is common
        CALL init_veg_from_vegin(landpt(e)%cstart, landpt(e)%cend, veg)
 
        ! Prescribe parameters for current gridcell based on veg/soil type (which
@@ -1425,18 +1427,18 @@ CONTAINS
           rad%longitude(h) = longitude(e)
           !jhan:is this done online? YES
           veg%ejmax(h) = 2.0 * veg%vcmax(h)
- 
+
        END DO ! over each veg patch in land point
     END DO ! over all land points
     soil%albsoil = ssnow%albsoilsn
 
     ! check tgg and alb
     IF(ANY(ssnow%tgg > 350.0) .OR. ANY(ssnow%tgg < 180.0))                     &
-         !write(*,*) 'Soil temps nuts' 
+         !write(*,*) 'Soil temps nuts'
           CALL abort('Soil temps nuts')
     IF(ANY(ssnow%albsoilsn > 1.0) .OR. ANY(ssnow%albsoilsn < 0.0))             &
          !write(*,*) 'Albedo nuts'
-           
+
            CALL abort('Albedo nuts')
 
     WRITE(logn, *)
@@ -1462,7 +1464,7 @@ CONTAINS
                vegin%cplant, vegin%csoil, vegin%ratecp, vegin%ratecs,          &
                vegin%xalbnir, vegin%length, vegin%width,                       &
                ! gamma added by Alexis below
-               vegin%g0, vegin%g1, vegin%gamma,                               & 
+               vegin%g0, vegin%g1, vegin%gamma,                               &
                vegin%a1gs, vegin%d0gs, vegin%alpha, vegin%convex, vegin%cfrd,  &
                vegin%gswmin, vegin%conkc0,vegin%conko0,vegin%ekc,vegin%eko   )
     !         vegf_temp,urbanf_temp,lakef_temp,icef_temp, &
@@ -1554,9 +1556,9 @@ CONTAINS
     canopy%ci        = real(spread(met%ca,2,mf),r_2)
 
   END SUBROUTINE write_default_params
-  
+
   !=============================================================================
-  
+
   SUBROUTINE write_cnp_params(veg, casaflux, casamet)
   ! Input variables:
   !   landpt(mp)%type- via cable_IO_vars_module (%cstart,cend,ilon,ilat)
@@ -1597,14 +1599,14 @@ CONTAINS
         !! vh !! fluxes shouldn't be weighted by patch frac.
      !   IF (CABLE_USER%POPLUC) then
            casaflux%Nmindep(hh) =  inNdep(landpt(ee)%ilon, landpt(ee)%ilat)
-           casaflux%Nminfix(hh) = max(inNfix(landpt(ee)%ilon, landpt(ee)%ilat), 8.0e-4_r_2)  
+           casaflux%Nminfix(hh) = max(inNfix(landpt(ee)%ilon, landpt(ee)%ilat), 8.0e-4_r_2)
 !vh ! minimum fixation rate of 3 kg N ha-1y-1 (8e-4 g N m-2 d-1)
 ! Cleveland, Cory C., et al. "Global patterns of terrestrial biological nitrogen (N2) &
 !fixation in natural ecosystems." Global biogeochemical cycles 13.2 (1999): 623-645.
            casaflux%Pdep(hh)    = inPdust(landpt(ee)%ilon, landpt(ee)%ilat)
            casaflux%Pwea(hh)    = inPwea(landpt(ee)%ilon, landpt(ee)%ilat)
       !  ENDIF
-           
+
         ! fertilizer addition is included here
         IF (veg%iveg(hh) == cropland .OR. veg%iveg(hh) == croplnd2) then
           ! P fertilizer =13 Mt P globally in 1994
@@ -1771,7 +1773,7 @@ CONTAINS
  ! vh changed limits from 1.0000001, 0.999999 to 1.01 and 0.99 for compatibility with gridinfo
           IF((soil%sand(landpt(i)%cstart + j - 1)                              &
               + soil%silt(landpt(i)%cstart + j - 1)                            &
-              + soil%clay(landpt(i)%cstart + j - 1)) > 1.01 .OR.          & 
+              + soil%clay(landpt(i)%cstart + j - 1)) > 1.01 .OR.          &
              (soil%sand(landpt(i)%cstart + j - 1)                              &
               + soil%silt(landpt(i)%cstart + j - 1)                            &
               + soil%clay(landpt(i)%cstart + j - 1)) < 0.99) THEN

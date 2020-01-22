@@ -676,7 +676,7 @@ CONTAINS
     ! 13C REAL(dp) :: kHarvProd(3), kClearProd(3), kAgProd
     REAL(dp) :: NatDist_loss, Expand_Loss, Clear_Loss, SecHarv_Loss , Dist_Loss, &
          Expand1_Loss, Expand2_Loss, scalefac, tmp
-#ifdef C13DEBUG
+#ifdef __C13DEBUG__
     real(dp) :: tmp_dplant(nLU,3), tmp_tplant(nLU,3), tmp_dlit(nLU,3), tmp_slit(nLU,3)
     real(dp) :: tmp_dsoil(nLU,3)
     integer  :: iwtile, iwpool
@@ -947,7 +947,7 @@ CONTAINS
        dpplant_d  = 0.0_dp
        dplitter_d = 0.0_dp
 
-#ifdef C13DEBUG
+#ifdef __C13DEBUG__
        tmp_dplant = 0.0_dp
        tmp_tplant = 0.0_dp
        tmp_dlit   = 0.0_dp
@@ -1000,7 +1000,7 @@ CONTAINS
 
                 ! change in carbon associated with gross transition
                 dcsoil(irlu,idlu,:) = deltaA*casapool%csoil(idp,:)
-#ifdef C13DEBUG
+#ifdef __C13DEBUG__
                 tmp_dsoil(irlu,:) = tmp_dsoil(irlu,:) + deltaA*casapool%csoil(idp,:)
 #endif
                 ! change in receiver carbon pool (accumulated over all gross transitions)
@@ -1022,7 +1022,7 @@ CONTAINS
 
                 ! microbial litter
                 dclitter(irlu,idlu,1) = deltaA*casapool%clitter(idp,1)
-#ifdef C13DEBUG
+#ifdef __C13DEBUG__
                 tmp_dlit(irlu,1) = tmp_dlit(irlu,1) + deltaA*casapool%clitter(idp,1)
 #endif
                 dclitter_r(irlu,1) =  dclitter_r(irlu,1) + dclitter(irlu,idlu,1)
@@ -1077,7 +1077,7 @@ CONTAINS
                    dnlitter(irlu,idlu,3) = deltaA*casapool%nlitter(idp,3)
                    dplitter(irlu,idlu,3) = deltaA*casapool%plitter(idp,3)
                 endif
-#ifdef C13DEBUG
+#ifdef __C13DEBUG__
                 tmp_dlit(irlu,3) = tmp_dlit(irlu,3) + deltaA*casapool%clitter(idp,3)
                 tmp_slit(irlu,3) = tmp_slit(irlu,3) + tmp
 #endif
@@ -1093,7 +1093,7 @@ CONTAINS
                 ! fine structural litter: donor pool inherits leaves and fine roots
                 dclitter(irlu,idlu,2) = deltaA*(casapool%clitter(idp,2) + casapool%cplant(idp,1) + &
                      casapool%cplant(idp,3))
-#ifdef C13DEBUG
+#ifdef __C13DEBUG__
                 tmp_dlit(irlu,2) = tmp_dlit(irlu,2) + deltaA*casapool%clitter(idp,2)
                 tmp_slit(irlu,2) = tmp_slit(irlu,2) + deltaA*(casapool%cplant(idp,1) + casapool%cplant(idp,3))
 #endif
@@ -1117,7 +1117,7 @@ CONTAINS
 
                 ! biomass: no biomass inherited
                 dcplant(irlu,idlu,:) = 0.0_dp
-#ifdef C13DEBUG
+#ifdef __C13DEBUG__
                 tmp_dplant(irlu,:) = tmp_dplant(irlu,:) + 0.0_dp
 #endif
                 dcplant_r(irlu,:) =  dcplant_r(irlu,:) + dcplant(irlu,idlu,:)
@@ -1160,7 +1160,7 @@ CONTAINS
           do ilu=1, nlu
              ! update pools
              irp = ilu + j -1
-#ifdef C13DEBUG
+#ifdef __C13DEBUG__
              iwtile = l-2
              iwpool = 1
 #endif
@@ -1179,7 +1179,7 @@ CONTAINS
                 tmp = POPLUC%fracHarvSecResid(g) * POPLUC%FHarvest(g,2) / (1.0_dp -POPLUC%fracHarvSecResid(g))
                 popluc%FluxSHarvResidtoLitter(g) = tmp
                 dclitter_r(ilu,3) = dclitter_r(irlu,3) + tmp
-#ifdef C13DEBUG
+#ifdef __C13DEBUG__
                 tmp_slit(irlu,3) = tmp_slit(irlu,3) + tmp
 #endif
                 if (casapool%cplant(irp,2) .gt. 1.e-5_dp) then
@@ -1209,7 +1209,7 @@ CONTAINS
                      sum(dcsoil_r(ilu,:) - casapool%csoil(irp,:)*(dA(ilu) - dA_d(ilu))) &
                      /(patch(irp)%frac+dA(ilu))
 
-#ifdef C13DEBUG
+#ifdef __C13DEBUG__
                 if (irp==iwtile) then
                    print*, 'PA01 ', patch(irp)%frac, patch(irp)%frac+dA(ilu), ilu
                    print*, 'PA02 ', dA(ilu) - dA_d(ilu)
@@ -1225,7 +1225,7 @@ CONTAINS
                 casapool%csoil(irp,:) = casapool%csoil(irp,:) + &
                      (dcsoil_r(ilu,:) - casapool%csoil(irp,:)*(dA(ilu) - dA_d(ilu))) &
                      /(patch(irp)%frac+dA(ilu))
-#ifdef C13DEBUG
+#ifdef __C13DEBUG__
                 if (irp==iwtile) then
                    print*, 'PS05 ', casapool%csoil(irp,iwpool)
                 endif
@@ -1243,7 +1243,7 @@ CONTAINS
                      sum(dclitter_r(ilu,:) - casapool%clitter(irp,:)*(dA(ilu) - dA_d(ilu))) &
                      /(patch(irp)%frac+dA(ilu))
 
-#ifdef C13DEBUG
+#ifdef __C13DEBUG__
                 if (irp==iwtile) then
                    print*, 'PL01 ', casapool%clitter(irp,iwpool)
                    print*, 'PL02 ', tmp_dlit(ilu,iwpool)
@@ -1255,7 +1255,7 @@ CONTAINS
                 casapool%clitter(irp,:) = casapool%clitter(irp,:) + &
                      (dclitter_r(ilu,:) - casapool%clitter(irp,:)*(dA(ilu) - dA_d(ilu))) &
                      /(patch(irp)%frac+dA(ilu))
-#ifdef C13DEBUG
+#ifdef __C13DEBUG__
                 if (irp==iwtile) then
                    print*, 'PL06 ', casapool%clitter(irp,iwpool)
                 endif
@@ -1273,7 +1273,7 @@ CONTAINS
                      sum(dcplant_r(ilu,:) - casapool%cplant(irp,:)*(dA(ilu) - dA_d(ilu))) &
                      /(patch(irp)%frac+dA(ilu))
 
-#ifdef C13DEBUG
+#ifdef __C13DEBUG__
                 if (irp==iwtile) then
                    print*, 'PP01 ', casapool%cplant(irp,iwpool)
                    print*, 'PP02 ', tmp_dplant(ilu,iwpool)
@@ -1285,7 +1285,7 @@ CONTAINS
                 casapool%cplant(irp,:) = casapool%cplant(irp,:) + &
                      (dcplant_r(ilu,:) - casapool%cplant(irp,:)*(dA(ilu) - dA_d(ilu))) &
                      /(patch(irp)%frac+dA(ilu))
-#ifdef C13DEBUG
+#ifdef __C13DEBUG__
                 if (irp==iwtile) then
                    print*, 'PP06 ', casapool%cplant(irp,iwpool)
                 endif
@@ -1311,7 +1311,7 @@ CONTAINS
                    casapool%pplant(irp,2) = casapool%pplant(irp,2) + (dcHarvClear(g)) &
                         * casapool%pplant(irp,2)/casapool%cplant(irp,2)
                    casapool%cplant(irp,2) = casapool%cplant(irp,2) + dcHarvClear(g)
-#ifdef C13DEBUG
+#ifdef __C13DEBUG__
                    if (irp==iwtile) then
                       print*, 'PP07 ', casapool%cplant(irp,iwpool), dcHarvClear(g)
                    endif
