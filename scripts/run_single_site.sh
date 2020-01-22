@@ -8,11 +8,11 @@
 #SBATCH -e %x-%j.out
 # Explor partitions (sinfo): std (2x16, parallel), sky (2x16, parallel, AVX512), hf (2x4, serial),
 #                            P100 (2x16, GPU), GTX (2x16, GPU), ivy (2x8, parallel), k20 (2x8, GPU)
-#SBATCH -p hf
+#SBATCH -p sky
 # Nodes / tasks
 #SBATCH -N 1
-#SBATCH -n 5
-#SBATCH --ntasks-per-node=5
+#SBATCH -n 4
+#SBATCH --ntasks-per-node=4
 # Check memory on *nix with /usr/bin/time -v ./prog
 # time (day-hh:mm:ss) / memory (optional, units K,M,G,T)
 #SBATCH -t 00:59:59
@@ -39,7 +39,7 @@ system=cuntz@explor # cuntz@explor, cuntz@mcinra, knauer@pearcey, jk8585 or vxh5
 # nproc should fit with job tasks 
 dompi=1   # 0: normal run: ./cable
           # 1: MPI run: mpiexec -n ${nproc} ./cable_mpi
-nproc=3   # Number of cores for MPI runs
+nproc=4   # Number of cores for MPI runs
           # must be same as above: SBATCH -n nproc or PBS -l ncpus=nproc
 ignore_mpi_err=1 # 0/1: continue even if mpi run failed
 
@@ -75,6 +75,47 @@ ignore_mpi_err=1 # 0/1: continue even if mpi run failed
 #
 # --------------------------------------------------------------------
 
+# --------------------------------------------------------------------
+# Sequence switches
+#
+imeteo=1       # 0: Use global meteo, land use and mask
+                # 1: Use local meteo, land use and mask (doextractsite=1)
+                # 2: Use global meteo and land use, and local mask (doextractsite=2)
+# Step 0
+doextractsite=0 # 0: Do not extract meteo, land use and mask at specific site
+                # 1: Do extract meteo, land use and mask at specific site (imeteo=1)
+                # 2: Do extract mask at specific site, using then global meteo and land use (imeteo=2)
+  sitename=HarvardForest10
+  # latlon=42.536875,-72.172602 # lat,lon  or  latmin,latmax,lonmin,lonmax  # must have . in numbers otherwise indexes taken
+  latlon=42.536875,42.536875,-74.,-72.
+# Step 1
+doclimate=0     # 1/0: Do/Do not create climate restart file
+# Step 2
+dofromzero=1    # 1/0: Do/Do not first spinup phase from zero biomass stocks
+# Step 3
+doequi1=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
+nequi1=1        #      number of times to repeat steps in doequi1
+# Step 4
+doequi2=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
+nequi2=1        #      number of times to repeat steps in doequi2
+# Step 5
+doiniluc=1      # 1/0: Do/Do not spinup with dynamic land use (5a)
+doinidyn=1      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
+# Step 6
+dofinal=1       # 1/0: Do/Do not final run from 1900 to 2017
+
+# --------------------------------------------------------------------
+# Other switches
+#
+# Cable
+doc13o2=1           # 1/0: Do/Do not calculate 13C
+c13o2_simple_disc=0 # 1/0: simple or full 13C leaf discrimination
+explicit_gm=0       # 1/0: explicit (finite) or implicit mesophyll conductance
+
+# --------------------------------------------------------------------
+# Setup
+#
+
 set -e
 
 trap cleanup 1 2 3 6
@@ -85,11 +126,14 @@ prog=$0
 pprog=$(basename ${prog})
 pdir=$(dirname ${prog})
 tmp=${TMPDIR:-"/tmp"}
-#
+
 system=$(echo ${system} | tr A-Z a-z)
 sys=${system#*@}
 user=${system%@*}
+
+#
 # Special things on specific computer system such as loading modules
+#
 export mpiexecdir=
 if [[ "${sys}" == "explor" ]] ; then
     # prog is slurm_script
@@ -98,17 +142,17 @@ if [[ "${sys}" == "explor" ]] ; then
     # module load intelmpi/2018.5.274
     # module load intel/2018.5
     # export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-ifort2018.0/lib
-    # export mpiexecdir=/soft/env/soft/all/intel/2018.3/compilers_and_libraries_2018.5.274/linux/mpi/intel64/bin
+    # export mpiexecdir=/soft/env/soft/all/intel/2018.3/compilers_and_libraries_2018.5.274/linux/mpi/intel64/bin/
     # INTEL / OpenMPI - load mpi module first, otherwise intel module will not pre-pend LD_LIBRARY_PATH
     module load openmpi/3.0.0/intel18
     module load intel/2018.5
     export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-ifort2018.0/lib
-    export mpiexecdir=/opt/soft/hf/openmpi-3.0.0-intel18/bin
+    export mpiexecdir=/opt/soft/hf/openmpi-3.0.0-intel18/bin/
     # # GNU / OpenMPI
     # module load gcc/6.3.0
     # module load openmpi/3.0.1/gcc/6.3.0
     # export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-gfortran63/lib
-    # export mpiexecdir=/opt/soft/hf/openmpi/3.0.1/gcc/6.3.0/bin
+    # export mpiexecdir=/opt/soft/hf/openmpi/3.0.1/gcc/6.3.0/bin/
 elif [[ "${sys}" == "mcinra" ]] ; then
     # exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi-gfortran"
     export mpiexecdir=/usr/local/openmpi-3.1.4-gfortran/bin
@@ -128,45 +172,10 @@ elif [[ "${sys}" == "raijin" ]] ; then
 fi
 if [[ ! -z ${mpiexecdir} ]] ; then export mpiexecdir="${mpiexecdir}/" ; fi
 
-# --------------------------------------------------------------------
-# Sequence switches
 #
-imeteo=1       # 0: Use global meteo, land use and mask
-                # 1: Use local meteo, land use and mask (doextractsite=1)
-                # 2: Use global meteo and land use, and local mask (doextractsite=2)
-# Step 0
-doextractsite=0 # 0: Do not extract meteo, land use and mask at specific site
-                # 1: Do extract meteo, land use and mask at specific site (imeteo=1)
-                # 2: Do extract mask at specific site, using then global meteo and land use (imeteo=2)
-  sitename=HarvardForest10
-  # latlon=42.536875,-72.172602 # lat,lon  or  latmin,latmax,lonmin,lonmax  # must have . in numbers otherwise indexes taken
-  latlon=42.536875,42.536875,-74.,-72.
-# Step 1
-doclimate=0     # 1/0: Do/Do not create climate restart file
-# Step 2
-dofromzero=0    # 1/0: Do/Do not first spinup phase from zero biomass stocks
-# Step 3
-doequi1=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
- nequi1=3       #      number of times to repeat steps in doequi1
-# Step 4
-doequi2=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
- nequi2=3       #      number of times to repeat steps in doequi2
-# Step 5
-doiniluc=1      # 1/0: Do/Do not spinup with dynamic land use (5a)
-doinidyn=1      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
-# Step 6
-dofinal=1       # 1/0: Do/Do not final run from 1900 to 2017
-
-# --------------------------------------------------------------------
-# Other switches
+# Directories of things
 #
-# Cable
-doc13o2=1           # 1/0: Do/Do not calculate 13C
-c13o2_simple_disc=0 # 1/0: simple or full 13C leaf discrimination
-explicit_gm=0       # 1/0: explicit (finite) or implicit mesophyll conductance
 
-# --------------------------------------------------------------------
-# Setup
 #
 # Relative directories must be relative to the directory of this script,
 #   not relative to the directory from which this script is launched (if different)
@@ -523,7 +532,8 @@ if [[ ${doclimate} -eq 1 ]] ; then
     com=${com}$(csed "filename%restart_in=\"\"")
     com=${com}$(csed "cable_user%CLIMATE_fromZero=.true.")
     com=${com}$(csed "cable_user%YearStart=1860")
-    com=${com}$(csed "cable_user%YearEnd=1889")
+    #MCTEST com=${com}$(csed "cable_user%YearEnd=1889")
+    com=${com}$(csed "cable_user%YearEnd=1869")
     com=${com}$(csed "icycle=2")
     com=${com}$(csed "spincasa=.false.")
     com=${com}$(csed "cable_user%CASA_fromZero=.true.")
@@ -531,7 +541,8 @@ if [[ ${doclimate} -eq 1 ]] ; then
     com=${com}$(csed "cable_user%CASA_DUMP_WRITE=.true.")
     com=${com}$(csed "cable_user%CASA_OUT_FREQ=\"monthly\"")
     com=${com}$(csed "cable_user%CASA_SPIN_STARTYEAR=1860")
-    com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1869")
+    #MCTEST com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1869")
+    com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1863")
     com=${com}$(csed "cable_user%limit_labile=.true.")
     com=${com}$(csed "casafile%out=\"outputs/cru_out_casa.nc\"")
     com=${com}$(csed "casafile%cnpipool=\"\"")
@@ -574,7 +585,7 @@ if [[ ${doclimate} -eq 1 ]] ; then
 	./${iexe} > logs/log_out_cable.txt
     fi
     # save output
-    copyid ${rid} cable.nml cru.nml LUC.nml
+    renameid ${rid} cable.nml cru.nml LUC.nml
     mv *_${rid}.nml restart/
     cd logs
     renameid ${rid} log_cable.txt log_out_cable.txt
@@ -584,7 +595,7 @@ if [[ ${doclimate} -eq 1 ]] ; then
     if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_c13o2_flux_rst.nc cru_c13o2_pools_rst.nc ; fi
     cd ../outputs
     renameid ${rid} cru_out_cable.nc cru_out_casa.nc
-    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_out_casa_c13o2.nc ; fi
+    if [[ ${doc13o2} -eq 1 ]] ; then renameid ${rid} cru_out_casa_c13o2.nc ; fi
     cd ..
     cd ${pdir}
 fi
@@ -612,7 +623,8 @@ if [[ ${dofromzero} -eq 1 ]] ; then
     com=${com}$(csed "filename%restart_in=\"\"")
     com=${com}$(csed "cable_user%CLIMATE_fromZero=.true.")
     com=${com}$(csed "cable_user%YearStart=1860")
-    com=${com}$(csed "cable_user%YearEnd=1889")
+    #MCTEST com=${com}$(csed "cable_user%YearEnd=1889")
+    com=${com}$(csed "cable_user%YearEnd=1863")
     com=${com}$(csed "icycle=2")
     com=${com}$(csed "spincasa=.false.")
     com=${com}$(csed "cable_user%CASA_fromZero=.true.")
@@ -620,7 +632,8 @@ if [[ ${dofromzero} -eq 1 ]] ; then
     com=${com}$(csed "cable_user%CASA_DUMP_WRITE=.true.")
     com=${com}$(csed "cable_user%CASA_OUT_FREQ=\"monthly\"")
     com=${com}$(csed "cable_user%CASA_SPIN_STARTYEAR=1860")
-    com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1869")
+    #MCTEST com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1869")
+    com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1863")
     com=${com}$(csed "cable_user%limit_labile=.true.")
     com=${com}$(csed "casafile%out=\"outputs/cru_out_casa.nc\"")
     com=${com}$(csed "casafile%cnpipool=\"\"")
@@ -663,7 +676,7 @@ if [[ ${dofromzero} -eq 1 ]] ; then
 	./${iexe} > logs/log_out_cable.txt
     fi
     # save output
-    copyid ${rid} cable.nml cru.nml LUC.nml
+    renameid ${rid} cable.nml cru.nml LUC.nml
     mv *_${rid}.nml restart/
     cd logs
     renameid ${rid} log_cable.txt log_out_cable.txt
@@ -672,7 +685,7 @@ if [[ ${dofromzero} -eq 1 ]] ; then
     if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_c13o2_flux_rst.nc cru_c13o2_pools_rst.nc ; fi
     cd ../outputs
     renameid ${rid} cru_out_cable.nc cru_out_casa.nc
-    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_out_casa_c13o2.nc ; fi
+    if [[ ${doc13o2} -eq 1 ]] ; then renameid ${rid} cru_out_casa_c13o2.nc ; fi
     cd ..
     cd ${pdir}
 fi
@@ -705,7 +718,8 @@ if [[ ${doequi1} -eq 1 ]] ; then
             com=${com}$(csed "filename%restart_in=\"restart/cru_cable_rst.nc\"")
             com=${com}$(csed "cable_user%CLIMATE_fromZero=.false.")
             com=${com}$(csed "cable_user%YearStart=1840")
-            com=${com}$(csed "cable_user%YearEnd=1859")
+            #MCTEST com=${com}$(csed "cable_user%YearEnd=1859")
+            com=${com}$(csed "cable_user%YearEnd=1843")
             com=${com}$(csed "icycle=2")
             com=${com}$(csed "spincasa=.false.")
             com=${com}$(csed "cable_user%CASA_fromZero=.false.")
@@ -713,7 +727,8 @@ if [[ ${doequi1} -eq 1 ]] ; then
             com=${com}$(csed "cable_user%CASA_DUMP_WRITE=.true.")
             com=${com}$(csed "cable_user%CASA_OUT_FREQ=\"monthly\"")
             com=${com}$(csed "cable_user%CASA_SPIN_STARTYEAR=1860")
-            com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1869")
+            #MCTEST com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1869")
+            com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1863")
             com=${com}$(csed "cable_user%limit_labile=.true.")
             com=${com}$(csed "casafile%out=\"outputs/cru_out_casa.nc\"")
             com=${com}$(csed "casafile%cnpipool=\"restart/cru_casa_rst.nc\"")
@@ -756,7 +771,7 @@ if [[ ${doequi1} -eq 1 ]] ; then
 		./${iexe} > logs/log_out_cable.txt
 	    fi
             # save output
-	    copyid ${rid} cable.nml cru.nml LUC.nml
+	    renameid ${rid} cable.nml cru.nml LUC.nml
 	    mv *_${rid}.nml restart/
     	    cd logs
     	    renameid ${rid} log_cable.txt log_out_cable.txt
@@ -765,7 +780,7 @@ if [[ ${doequi1} -eq 1 ]] ; then
     	    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_c13o2_flux_rst.nc cru_c13o2_pools_rst.nc ; fi
     	    cd ../outputs
     	    renameid ${rid} cru_out_cable.nc cru_out_casa.nc
-    	    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_out_casa_c13o2.nc ; fi
+    	    if [[ ${doc13o2} -eq 1 ]] ; then renameid ${rid} cru_out_casa_c13o2.nc ; fi
     	    cd ..
     	    cd ${pdir}
         fi
@@ -793,7 +808,8 @@ if [[ ${doequi1} -eq 1 ]] ; then
             com=${com}$(csed "filename%restart_in=\"restart/cru_cable_rst.nc\"")
             com=${com}$(csed "cable_user%CLIMATE_fromZero=.false.")
             com=${com}$(csed "cable_user%YearStart=1840")
-            com=${com}$(csed "cable_user%YearEnd=1859")
+            #MCTEST com=${com}$(csed "cable_user%YearEnd=1859")
+            com=${com}$(csed "cable_user%YearEnd=1843")
             com=${com}$(csed "icycle=12")
             com=${com}$(csed "spincasa=.true.")
             com=${com}$(csed "cable_user%CASA_fromZero=.false.")
@@ -801,7 +817,8 @@ if [[ ${doequi1} -eq 1 ]] ; then
             com=${com}$(csed "cable_user%CASA_DUMP_WRITE=.false.")
             com=${com}$(csed "cable_user%CASA_OUT_FREQ=\"monthly\"")
             com=${com}$(csed "cable_user%CASA_SPIN_STARTYEAR=1840")
-            com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1859")
+            #MCTEST com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1859")
+            com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1843")
             com=${com}$(csed "cable_user%limit_labile=.true.")
             com=${com}$(csed "casafile%out=\"outputs/cru_out_casa.nc\"")
             com=${com}$(csed "casafile%cnpipool=\"restart/cru_casa_rst.nc\"")
@@ -844,7 +861,7 @@ if [[ ${doequi1} -eq 1 ]] ; then
 		./${iexe} > logs/log_out_cable.txt
 	    fi
             # save output
-	    copyid ${rid} cable.nml cru.nml LUC.nml
+	    renameid ${rid} cable.nml cru.nml LUC.nml
 	    mv *_${rid}.nml restart/
     	    cd logs
     	    renameid ${rid} log_cable.txt log_out_cable.txt
@@ -854,7 +871,7 @@ if [[ ${doequi1} -eq 1 ]] ; then
 	    if [[ ${dompi} -eq 0 ]] ; then # no output only restart if MPI
     		cd ../outputs
     		renameid ${rid} cru_out_casa.nc
-    		if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_out_casa_c13o2.nc ; fi
+    		if [[ ${doc13o2} -eq 1 ]] ; then renameid ${rid} cru_out_casa_c13o2.nc ; fi
     		cd ..
 	    fi
     	    cd ${pdir}
@@ -890,7 +907,8 @@ if [[ ${doequi2} -eq 1 ]] ; then
             com=${com}$(csed "filename%restart_in=\"restart/cru_cable_rst.nc\"")
             com=${com}$(csed "cable_user%CLIMATE_fromZero=.false.")
             com=${com}$(csed "cable_user%YearStart=1840")
-            com=${com}$(csed "cable_user%YearEnd=1859")
+            #MCTEST com=${com}$(csed "cable_user%YearEnd=1859")
+            com=${com}$(csed "cable_user%YearEnd=1843")
             com=${com}$(csed "icycle=2")
             com=${com}$(csed "spincasa=.false.")
             com=${com}$(csed "cable_user%CASA_fromZero=.false.")
@@ -898,7 +916,8 @@ if [[ ${doequi2} -eq 1 ]] ; then
             com=${com}$(csed "cable_user%CASA_DUMP_WRITE=.true.")
             com=${com}$(csed "cable_user%CASA_OUT_FREQ=\"monthly\"")
             com=${com}$(csed "cable_user%CASA_SPIN_STARTYEAR=1860")
-            com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1869")
+            #MCTEST com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1869")
+            com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1863")
             com=${com}$(csed "cable_user%limit_labile=.false.")
             com=${com}$(csed "casafile%out=\"outputs/cru_out_casa.nc\"")
             com=${com}$(csed "casafile%cnpipool=\"restart/cru_casa_rst.nc\"")
@@ -941,7 +960,7 @@ if [[ ${doequi2} -eq 1 ]] ; then
 		./${iexe} > logs/log_out_cable.txt
 	    fi
             # save output
-	    copyid ${rid} cable.nml cru.nml LUC.nml
+	    renameid ${rid} cable.nml cru.nml LUC.nml
 	    mv *_${rid}.nml restart/
     	    cd logs
     	    renameid ${rid} log_cable.txt log_out_cable.txt
@@ -950,7 +969,7 @@ if [[ ${doequi2} -eq 1 ]] ; then
     	    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_c13o2_flux_rst.nc cru_c13o2_pools_rst.nc ; fi
     	    cd ../outputs
     	    renameid ${rid} cru_out_cable.nc cru_out_casa.nc
-    	    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_out_casa_c13o2.nc ; fi
+    	    if [[ ${doc13o2} -eq 1 ]] ; then renameid ${rid} cru_out_casa_c13o2.nc ; fi
     	    cd ..
     	    cd ${pdir}
         fi
@@ -978,7 +997,8 @@ if [[ ${doequi2} -eq 1 ]] ; then
             com=${com}$(csed "filename%restart_in=\"restart/cru_cable_rst.nc\"")
             com=${com}$(csed "cable_user%CLIMATE_fromZero=.false.")
             com=${com}$(csed "cable_user%YearStart=1840")
-            com=${com}$(csed "cable_user%YearEnd=1859")
+            #MCTEST com=${com}$(csed "cable_user%YearEnd=1859")
+            com=${com}$(csed "cable_user%YearEnd=1843")
             com=${com}$(csed "icycle=12")
             com=${com}$(csed "spincasa=.true.")
             com=${com}$(csed "cable_user%CASA_fromZero=.false.")
@@ -986,7 +1006,8 @@ if [[ ${doequi2} -eq 1 ]] ; then
             com=${com}$(csed "cable_user%CASA_DUMP_WRITE=.false.")
             com=${com}$(csed "cable_user%CASA_OUT_FREQ=\"monthly\"")
             com=${com}$(csed "cable_user%CASA_SPIN_STARTYEAR=1840")
-            com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1859")
+            #MCTEST com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1859")
+            com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1843")
             com=${com}$(csed "cable_user%limit_labile=.false.")
             com=${com}$(csed "casafile%out=\"outputs/cru_out_casa.nc\"")
             com=${com}$(csed "casafile%cnpipool=\"restart/cru_casa_rst.nc\"")
@@ -1029,7 +1050,7 @@ if [[ ${doequi2} -eq 1 ]] ; then
 		./${iexe} > logs/log_out_cable.txt
 	    fi
             # save output
-	    copyid ${rid} cable.nml cru.nml LUC.nml
+	    renameid ${rid} cable.nml cru.nml LUC.nml
 	    mv *_${rid}.nml restart/
     	    cd logs
     	    renameid ${rid} log_cable.txt log_out_cable.txt
@@ -1039,7 +1060,7 @@ if [[ ${doequi2} -eq 1 ]] ; then
 	    if [[ ${dompi} -eq 0 ]] ; then # no output only restart if MPI
     		cd ../outputs
     		renameid ${rid} cru_out_casa.nc
-    		if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_out_casa_c13o2.nc ; fi
+    		if [[ ${doc13o2} -eq 1 ]] ; then renameid ${rid} cru_out_casa_c13o2.nc ; fi
     		cd ..
 	    fi
     	    cd ${pdir}
@@ -1077,7 +1098,8 @@ if [[ ${doiniluc} -eq 1 ]] ; then
     com=${com}$(csed "cable_user%CASA_DUMP_WRITE=.false.")
     com=${com}$(csed "cable_user%CASA_OUT_FREQ=\"annually\"")
     com=${com}$(csed "cable_user%CASA_SPIN_STARTYEAR=1840")
-    com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1859")
+    #MCTEST com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1859")
+    com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1843")
     com=${com}$(csed "cable_user%limit_labile=.false.")
     com=${com}$(csed "casafile%out=\"outputs/cru_out_casa.nc\"")
     com=${com}$(csed "casafile%cnpipool=\"restart/cru_casa_rst.nc\"")
@@ -1120,17 +1142,15 @@ if [[ ${doiniluc} -eq 1 ]] ; then
 	./${iexe} > logs/log_out_cable.txt
     fi
     # save output
-    copyid ${rid} cable.nml cru.nml LUC.nml
+    renameid ${rid} cable.nml cru.nml LUC.nml
     mv *_${rid}.nml restart/
     cd logs
     renameid ${rid} log_cable.txt log_out_cable.txt
     cd ../restart
-    copyid ${rid} pop_cru_ini.nc cru_climate_rst.nc cru_casa_rst.nc cru_cable_rst.nc cru_LUC_rst.nc
-    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_c13o2_flux_rst.nc cru_c13o2_pools_rst.nc cru_c13o2_luc_rst.nc ; fi
+    copyid ${rid} pop_cru_ini.nc cru_casa_rst.nc cru_LUC_rst.nc
+    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_c13o2_pools_rst.nc cru_c13o2_luc_rst.nc ; fi
     cd ../outputs
-    # MC - Question2VH: cru_out_cable.nc is not produced
-    renameid ${rid} cru_out_casa.nc cru_out_LUC.nc
-    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_out_casa_c13o2.nc ; fi
+    renameid ${rid} cru_out_LUC.nc
     cd ..
     cd ${pdir}
 fi
@@ -1166,7 +1186,8 @@ if [[ ${doinidyn} -eq 1 ]] ; then
     com=${com}$(csed "cable_user%CASA_DUMP_WRITE=.true.")
     com=${com}$(csed "cable_user%CASA_OUT_FREQ=\"monthly\"")
     com=${com}$(csed "cable_user%CASA_SPIN_STARTYEAR=1850")
-    com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1859")
+    #MCTEST com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1859")
+    com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1853")
     com=${com}$(csed "cable_user%limit_labile=.false.")
     com=${com}$(csed "casafile%out=\"outputs/cru_out_casa.nc\"")
     com=${com}$(csed "casafile%cnpipool=\"restart/cru_casa_rst.nc\"")
@@ -1211,7 +1232,7 @@ if [[ ${doinidyn} -eq 1 ]] ; then
 	./${iexe} > logs/log_out_cable.txt
     fi
     # save output
-    copyid ${rid} cable.nml cru.nml LUC.nml
+    renameid ${rid} cable.nml cru.nml LUC.nml
     mv *_${rid}.nml restart/
     cd logs
     renameid ${rid} log_cable.txt log_out_cable.txt
@@ -1220,7 +1241,7 @@ if [[ ${doinidyn} -eq 1 ]] ; then
     if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_c13o2_flux_rst.nc cru_c13o2_pools_rst.nc cru_c13o2_luc_rst.nc ; fi
     cd ../outputs
     renameid ${rid} cru_out_cable.nc cru_out_casa.nc cru_out_LUC.nc
-    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_out_casa_c13o2.nc ; fi
+    if [[ ${doc13o2} -eq 1 ]] ; then renameid ${rid} cru_out_casa_c13o2.nc ; fi
     cd ..
     cd ${pdir}
 fi
@@ -1256,7 +1277,8 @@ if [[ ${dofinal} -eq 1 ]] ; then
     com=${com}$(csed "cable_user%CASA_DUMP_WRITE=.false.")
     com=${com}$(csed "cable_user%CASA_OUT_FREQ=\"monthly\"")
     com=${com}$(csed "cable_user%CASA_SPIN_STARTYEAR=1850")
-    com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1859")
+    #MCTEST com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1859")
+    com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1853")
     com=${com}$(csed "cable_user%limit_labile=.false.")
     com=${com}$(csed "casafile%out=\"outputs/cru_out_casa.nc\"")
     com=${com}$(csed "casafile%cnpipool=\"restart/cru_casa_rst.nc\"")
@@ -1301,7 +1323,7 @@ if [[ ${dofinal} -eq 1 ]] ; then
 	./${iexe} > logs/log_out_cable.txt
     fi
     # save output
-    copyid ${rid} cable.nml cru.nml LUC.nml
+    renameid ${rid} cable.nml cru.nml LUC.nml
     mv *_${rid}.nml restart/
     cd logs
     renameid ${rid} log_cable.txt log_out_cable.txt
@@ -1310,7 +1332,7 @@ if [[ ${dofinal} -eq 1 ]] ; then
     if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_c13o2_flux_rst.nc cru_c13o2_pools_rst.nc cru_c13o2_luc_rst.nc ; fi
     cd ../outputs
     renameid ${rid} cru_out_cable.nc cru_out_casa.nc cru_out_LUC.nc
-    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_out_casa_c13o2.nc ; fi
+    if [[ ${doc13o2} -eq 1 ]] ; then renameid ${rid} cru_out_casa_c13o2.nc ; fi
     cd ..
     cd ${pdir}
 fi
