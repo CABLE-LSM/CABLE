@@ -33,7 +33,7 @@ host_valh()
    # # NAG
    # export FC=nagfor
    # # debug
-   # export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -DNAG"
+   # export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -D__NAG__"
    # # # release
    # # export CFLAGS="-O4 -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free"
    # export LD='-ideclient -unsharedrts'
@@ -108,7 +108,7 @@ host_ces2()
    # # NAG
    # export FC=nagfor
    # # debug
-   # export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -DNAG"
+   # export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -D__NAG__"
    # # # release
    # # export CFLAGS="-O4 -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free"
    # export LD='-ideclient -unsharedrts'
@@ -177,7 +177,7 @@ host_pear()
    export  CFLAGS='-O0 -fp-model precise -fpe0 -fpp -g -debug -traceback -fp-stack-check -no-ftz -ftrapuv -check all,noarg_temp_created -C '
    #export CFLAGS='-O0 -fpe=0 -fpe-all=0 -fpp -g -debug -traceback -fp-stack-check -no-ftz -ftrapuv -check bounds 
    export CFLAGS='-O2 -fp-model precise -fpp'
-   export CFLAGS="${CFLAGS} -DCRU2017"
+   export CFLAGS="${CFLAGS} -D__CRU2017__"
    export LDFLAGS='-g -L'$NCDIR' -O2'
    export MFLAGS='-j 8'
    export LD='-lnetcdf -lnetcdff'
@@ -253,8 +253,8 @@ host_mcin()
         export LD=''
         export NCROOT='/usr/local/netcdf-fortran-4.4.5-gfortran'
     fi
-    # export CFLAGS="${CFLAGS} -DC13DEBUG"
-    export CFLAGS="${CFLAGS} -DCRU2017"
+    # export CFLAGS="${CFLAGS} -D__C13DEBUG__"
+    export CFLAGS="${CFLAGS} -D__CRU2017__"
 
     # # NAG - Does not work for pop_io.f90
     # export FC=nagfor
@@ -262,7 +262,7 @@ host_mcin()
     # export CFLAGS="-O4 -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free"
     # if [[ ${1} = 'debug' ]] ; then
     #     # debug
-    #     export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -DNAG"
+    #     export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -D__NAG__"
     # fi
     # export LD='-ideclient -unsharedrts'
     # export NCROOT='/usr/local/netcdf-fortran-4.4.5-nagfor'
@@ -324,8 +324,8 @@ host_vm_o()
         export LD=''
         export NCROOT='/home/oqx29/zzy20/local/netcdf-fortran-4.4.4-gfortran63'
     fi
-    # export CFLAGS="${CFLAGS} -DC13DEBUG"
-    export CFLAGS="${CFLAGS} -DCRU2017"
+    # export CFLAGS="${CFLAGS} -D__C13DEBUG__"
+    export CFLAGS="${CFLAGS} -D__CRU2017__"
 
     # # NAG - Does not work for pop_io.f90
     # export FC=nagfor
@@ -333,7 +333,7 @@ host_vm_o()
     # export CFLAGS="-O4 -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free"
     # if [[ ${1} = 'debug' ]] ; then
     #     # debug
-    #     export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -DNAG"
+    #     export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -D__NAG__"
     # fi
     # export LD='-ideclient -unsharedrts'
     # export NCROOT='/usr/local/netcdf-fortran-4.4.5-nagfor'
@@ -605,14 +605,12 @@ build_build()
    # directories contain source code
    PHYS="../core/biogeophys"
    UTIL="../core/utils"
-   DIAG="../core/utils/diag"
    DRV="."
    CASA="../core/biogeochem"
    BLAZE="../core/blaze"
    
    /bin/cp -p $PHYS/*90  ./.tmp
    /bin/cp -p $UTIL/*90  ./.tmp
-   /bin/cp -p $DIAG/*90  ./.tmp
    /bin/cp -p $DRV/*90   ./.tmp
    /bin/cp -p $CASA/*90  ./.tmp
    /bin/cp -p $BLAZE/*90 ./.tmp

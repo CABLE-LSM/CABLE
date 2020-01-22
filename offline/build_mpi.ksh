@@ -39,6 +39,7 @@ host_gadi()
    else
        export CFLAGS='-O2 -fpp -fp-model precise'
    fi
+   export CFLAGS="${CFLAGS} -D__MPI__"
    export LDFLAGS='-L'${NCDIR}' -O0'
    export LD='-lnetcdf -lnetcdff'
    export MFLAGS='-j 8'
@@ -69,6 +70,7 @@ host_raij()
       # export CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0'
       export CFLAGS='  -g -debug -traceback -fpp -check all,noarg_temp_created -fp-stack-check -O0 -debug -fpe=0 -fpe-all=0 -no-ftz -ftrapuv'
    fi
+   export CFLAGS="${CFLAGS} -D__MPI__"
    export LDFLAGS='-L'$NCDIR' -O2 -xCORE-AVX2'
    export LD='-lnetcdf -lnetcdff'
    build_build
@@ -83,6 +85,7 @@ host_shin()
    export NCMOD='/usr/local/intel/'
    export FC=ifort    ## need to check ??
    export CFLAGS='-O2 -fp-model precise -fpp -ftz -fpe0'
+   export CFLAGS="${CFLAGS} -D__MPI__"
    export LD='-lnetcdf'
    export LDFLAGS='-L/usr/local/intel/lib -O2'
    build_build
@@ -102,6 +105,7 @@ host_burn()
    export NCMOD=$NETCDF_ROOT'/include/'
    export FC='mpif90'
    export CFLAGS='-O2 -fp-model precise -fpp'
+   export CFLAGS="${CFLAGS} -D__MPI__"
    export LDFLAGS='-L'$NCDIR' -O2'
    export LD='-lnetcdf -lnetcdff'
    build_build
@@ -117,6 +121,7 @@ host_cher()
    export NCMOD=$NETCDF_ROOT'/include/'
    export FC='mpif90'
    export CFLAGS='-O2 -fp-model precise -fpp'
+   export CFLAGS="${CFLAGS} -D__MPI__"
    export LDFLAGS='-L'$NCDIR' -O2'
    export LD='-lnetcdf -lnetcdff'
    build_build
@@ -148,12 +153,13 @@ host_pear()
    #   export CFLAGS='-O0 '
 
     export CFLAGS='-O0 -fp-model precise -g -debug -traceback -fpp '
-    export CFLAGS="${CFLAGS} -DCRU2018"
+    export CFLAGS="${CFLAGS} -D__CRU2018__"
     #   export CFLAGS='-O0 -fp-model precise -g -debug all -traceback -fpe0 '
     #   export CFLAGS='  -g -debug -traceback -fp-stack-check -O0 -debug -fpe0 -no-ftz -ftrapuv'
 
     # best debugg flags
     #   export LDFLAGS='-g -L'$NCDIR  #'-L'$NCDIR' -O2'
+   export CFLAGS="${CFLAGS} -D__MPI__"
    export LDFLAGS='-O0 -L'$NCDIR''
    export MFLAGS='-j 8'
    export LD='-lnetcdf -lnetcdff'
@@ -195,7 +201,7 @@ host_mcin()
 	export NCROOT='/usr/local/netcdf-fortran-4.4.5-ifort'
 	export cdir='.mpitmp-ifort'
 	export PROG=cable-mpi-ifort
-	export CFLAGS="${CFLAGS} -DINTEL -DINTEL_COMPILER"
+	export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
     else
         # GFORTRAN
 	export FC=/usr/local/openmpi-3.1.4-gfortran/bin/mpifort
@@ -209,10 +215,11 @@ host_mcin()
 	export NCROOT='/usr/local/netcdf-fortran-4.4.5-gfortran'
 	export cdir='.mpitmp-gfortran'
 	export PROG=cable-mpi-gfortran
-	export CFLAGS="${CFLAGS} -DGFORTRAN -DgFortran"
+	export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__"
     fi
-    # export CFLAGS="${CFLAGS} -DC13DEBUG"
-    export CFLAGS="${CFLAGS} -DCRU2017"
+    export CFLAGS="${CFLAGS} -D__MPI__"
+    # export CFLAGS="${CFLAGS} -D__C13DEBUG__"
+    export CFLAGS="${CFLAGS} -D__CRU2017__"
 
     # # NAG - Does not work for pop_io.f90
     # export FC=nagfor
@@ -220,7 +227,7 @@ host_mcin()
     # export CFLAGS="-O4 -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free"
     # if [[ ${1} = 'debug' ]] ; then
     #     # debug
-    #     export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -DNAG"
+    #     export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -D__NAG__"
     # fi
     # export LD='-ideclient -unsharedrts'
     # export NCROOT='/usr/local/netcdf-fortran-4.4.5-nagfor'
@@ -273,7 +280,7 @@ host_vm_o()
         fi
         export LD=''
         export NCROOT='/home/oqx29/zzy20/local/netcdf-fortran-4.4.4-ifort2018.0'
-	export CFLAGS="${CFLAGS} -DINTEL -DINTEL_COMPILER"
+	export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
     else
         # GFORTRAN # 6.3.0 because of netcdf-fortran
         module load gcc/6.3.0
@@ -287,10 +294,11 @@ host_vm_o()
         fi
         export LD=''
         export NCROOT='/home/oqx29/zzy20/local/netcdf-fortran-4.4.4-gfortran63'
-	export CFLAGS="${CFLAGS} -DGFORTRAN -DgFortran"
+	export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__"
     fi
-    # export CFLAGS="${CFLAGS} -DC13DEBUG"
-    export CFLAGS="${CFLAGS} -DCRU2017"
+    export CFLAGS="${CFLAGS} -D__MPI__"
+    # export CFLAGS="${CFLAGS} -D__C13DEBUG__"
+    export CFLAGS="${CFLAGS} -D__CRU2017__"
 
     # # NAG - Does not work for pop_io.f90
     # export FC=nagfor
@@ -298,7 +306,7 @@ host_vm_o()
     # export CFLAGS="-O4 -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free"
     # if [[ ${1} = 'debug' ]] ; then
     #     # debug
-    #     export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -DNAG"
+    #     export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -D__NAG__"
     # fi
     # export LD='-ideclient -unsharedrts'
     # export NCROOT='/usr/local/netcdf-fortran-4.4.5-nagfor'
@@ -508,7 +516,7 @@ do_i_no_u()
    
    while [[ $k -lt $kmax ]]; do
       if [[ $HOST_MACH = ${kh[$k]} ]];then
-         print 'Host recognized as' $HOST_MACH
+         echo 'Host recognized as' $HOST_MACH
          subr=host_${kh[$k]}
          $subr $*
       fi        
@@ -581,14 +589,12 @@ build_build()
    # directories contain source code
    PHYS="../core/biogeophys"
    UTIL="../core/utils"
-   DIAG="../core/utils/diag"
    DRV="."
    CASA="../core/biogeochem"
    BLAZE="../core/blaze"
    
    /bin/cp -p $PHYS/*90  ./${cdir}
    /bin/cp -p $UTIL/*90  ./${cdir}
-   /bin/cp -p $DIAG/*90  ./${cdir}
    /bin/cp -p $DRV/*90   ./${cdir}
    /bin/cp -p $CASA/*90  ./${cdir}
    /bin/cp -p $BLAZE/*90 ./${cdir}
