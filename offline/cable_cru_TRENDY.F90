@@ -247,7 +247,7 @@ CONTAINS
     write(*,'(a)') "  Forcing (assigned): "//trim(CRU%Forcing)
     write(*,'(a)') "  CO2     (assigned): "//trim(CRU%CO2)
     write(*,'(a)') "  Ndep    (assigned): "//trim(CRU%Ndep)
-    write(*,'(a,i)') "  DT(secs): ", CRU%DTsecs
+    write(*,'(a,i5)') "  DT(secs): ", CRU%DTsecs
     WRITE(logn,*) "========================================= CRU ============"
     WRITE(logn,*) "CRU settings chosen:"
     WRITE(logn,*) " BasePath: ",TRIM(CRU%BasePath)
