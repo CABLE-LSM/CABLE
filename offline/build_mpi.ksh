@@ -132,25 +132,26 @@ host_cher()
 ## pearcey.hpsc.csiro.au 
 host_pear()
 {
+    
     #    export LD_PRELOAD=/apps/netcdf/4.3.3/lib/libnetcdf.so
     #    export LD_PRELOAD=/apps/openmpi/1.8.4/lib/libopen-rte.so.7:/apps/openmpi/1.8.4/lib/libopen-pal.so.6
-   . /apps/modules/Modules/default/init/ksh
+    . /apps/modules/Modules/default/init/ksh
 
-   #   module add netcdf/4.3.3.1 openmpi/1.7.5
-   #   module add netcdf/4.3.3.1 openmpi/1.8.8 
+    #   module add netcdf/4.3.3.1 openmpi/1.7.5
+    #   module add netcdf/4.3.3.1 openmpi/1.8.8 
 
-   module del intel-cc intel-fc
-   module add intel-cc/16.0.1.150 intel-fc/16.0.1.150
-   module add netcdf/4.3.3.1 openmpi/1.8.8
+    module del intel-cc intel-fc
+    module add intel-cc/16.0.1.150 intel-fc/16.0.1.150
+    module add netcdf/4.3.3.1 openmpi/1.8.8
 
-   export NCDIR=$NETCDF_ROOT'/lib/'
-   export NCMOD=$NETCDF_ROOT'/include/'
-   export FC='mpifort' #'mpif90'
-   # export CFLAGS='-O2 -fp-model precise -fpp'
-   #   export CFLAGS='-O0 -C'
-   # best settings for debugging
-   #   export CFLAGS='-O0 -C -g -debug all -traceback -check all,noarg_temp_created, -C  '
-   #   export CFLAGS='-O0 '
+    export NCDIR=$NETCDF_ROOT'/lib/'
+    export NCMOD=$NETCDF_ROOT'/include/'
+    export FC='mpifort' #'mpif90'
+    # export CFLAGS='-O2 -fp-model precise -fpp'
+    #   export CFLAGS='-O0 -C'
+    # best settings for debugging
+    #   export CFLAGS='-O0 -C -g -debug all -traceback -check all,noarg_temp_created, -C  '
+    #   export CFLAGS='-O0 '
 
     export CFLAGS='-O0 -fp-model precise -g -debug -traceback -fpp '
     export CFLAGS="${CFLAGS} -D__CRU2018__"
@@ -159,13 +160,13 @@ host_pear()
 
     # best debugg flags
     #   export LDFLAGS='-g -L'$NCDIR  #'-L'$NCDIR' -O2'
-   export CFLAGS="${CFLAGS} -D__MPI__"
-   export LDFLAGS='-O0 -L'$NCDIR''
-   export MFLAGS='-j 8'
-   export LD='-lnetcdf -lnetcdff'
-   build_build
-   cd ../
-   build_status
+    export CFLAGS="${CFLAGS} -D__MPI__"
+    export LDFLAGS='-O0 -L'$NCDIR''
+    export MFLAGS='-j 8'
+    export LD='-lnetcdf -lnetcdff'
+    build_build
+    cd ../
+    build_status
 }
 
 
@@ -197,11 +198,13 @@ host_mcin()
 	    # debug
 	    export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
 	fi
+	# export CFLAGS="${CFLAGS} -mtune=corei7"
+	# export CFLAGS="${CFLAGS} -march=native"
+	export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
 	export LD=''
 	export NCROOT='/usr/local/netcdf-fortran-4.4.5-ifort'
 	export cdir='.mpitmp-ifort'
 	export PROG=cable-mpi-ifort
-	export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
     else
         # GFORTRAN
 	export FC=/usr/local/openmpi-3.1.4-gfortran/bin/mpifort
@@ -211,11 +214,12 @@ host_mcin()
 	    # debug
 	    export CFLAGS="-pedantic-errors -Wall -W -O -g -Wno-maybe-uninitialized -cpp -ffree-form -ffixed-line-length-132"
 	fi
+	# export CFLAGS="${CFLAGS} -march=native"
+	export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__"
 	export LD=''
 	export NCROOT='/usr/local/netcdf-fortran-4.4.5-gfortran'
 	export cdir='.mpitmp-gfortran'
 	export PROG=cable-mpi-gfortran
-	export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__"
     fi
     export CFLAGS="${CFLAGS} -D__MPI__"
     # export CFLAGS="${CFLAGS} -D__C13DEBUG__"
@@ -278,9 +282,16 @@ host_vm_o()
             # debug
             export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
         fi
+	# export CFLAGS="${CFLAGS} -march=broadwell"     # std / hf
+	# export CFLAGS="${CFLAGS} -march=core-avx2"     # std / hf
+	# export CFLAGS="${CFLAGS} -mtune=broadwell"     # std / hf
+	# export CFLAGS="${CFLAGS} -march=skylake-avx512 # sky
+	# export CFLAGS="${CFLAGS} -march=ivybridge"     # ivy / k20
+	# export CFLAGS="${CFLAGS} -march=avx"           # ivy / k20
+	# export CFLAGS="${CFLAGS} -mtune=ivybridge"     # ivy / k20
+	export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
         export LD=''
         export NCROOT='/home/oqx29/zzy20/local/netcdf-fortran-4.4.4-ifort2018.0'
-	export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
     else
         # GFORTRAN # 6.3.0 because of netcdf-fortran
         module load gcc/6.3.0
@@ -292,9 +303,14 @@ host_vm_o()
             # debug
             export CFLAGS="-pedantic-errors -Wall -W -O -g -Wno-maybe-uninitialized -cpp -ffree-form -ffixed-line-length-132"
         fi
+	# export CFLAGS="${CFLAGS} -march=broadwell"     # std / hf
+	# export CFLAGS="${CFLAGS} -mavx2"               # std / hf
+	# export CFLAGS="${CFLAGS} -march=skylake-avx512 # sky
+	# export CFLAGS="${CFLAGS} -march=ivybridge"     # ivy / k20
+	# export CFLAGS="${CFLAGS} -mavx"                # ivy / k20
+	export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__"
         export LD=''
         export NCROOT='/home/oqx29/zzy20/local/netcdf-fortran-4.4.4-gfortran63'
-	export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__"
     fi
     export CFLAGS="${CFLAGS} -D__MPI__"
     # export CFLAGS="${CFLAGS} -D__C13DEBUG__"

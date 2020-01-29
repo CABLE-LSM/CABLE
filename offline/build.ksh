@@ -239,6 +239,9 @@ host_mcin()
             # debug
             export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
         fi
+	# export CFLAGS="${CFLAGS} -mtune=corei7"
+	# export CFLAGS="${CFLAGS} -march=native"
+	export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
         export LD=''
         export NCROOT='/usr/local/netcdf-fortran-4.4.5-ifort'
     else
@@ -250,6 +253,8 @@ host_mcin()
             # debug
             export CFLAGS="-pedantic-errors -Wall -W -O -g -Wno-maybe-uninitialized -cpp -ffree-form -ffixed-line-length-132"
         fi
+	# export CFLAGS="${CFLAGS} -march=native"
+	export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__"
         export LD=''
         export NCROOT='/usr/local/netcdf-fortran-4.4.5-gfortran'
     fi
@@ -309,6 +314,14 @@ host_vm_o()
             # debug
             export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
         fi
+	# export CFLAGS="${CFLAGS} -march=broadwell"     # std / hf
+	# export CFLAGS="${CFLAGS} -march=core-avx2"     # std / hf
+	# export CFLAGS="${CFLAGS} -mtune=broadwell"     # std / hf
+	# export CFLAGS="${CFLAGS} -march=skylake-avx512 # sky
+	# export CFLAGS="${CFLAGS} -march=ivybridge"     # ivy / k20
+	# export CFLAGS="${CFLAGS} -march=avx"           # ivy / k20
+	# export CFLAGS="${CFLAGS} -mtune=ivybridge"     # ivy / k20
+	export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
         export LD=''
         export NCROOT='/home/oqx29/zzy20/local/netcdf-fortran-4.4.4-ifort2018.0'
     else
@@ -321,6 +334,12 @@ host_vm_o()
             # debug
             export CFLAGS="-pedantic-errors -Wall -W -O -g -Wno-maybe-uninitialized -cpp -ffree-form -ffixed-line-length-132"
         fi
+	# export CFLAGS="${CFLAGS} -march=broadwell"     # std / hf
+	# export CFLAGS="${CFLAGS} -mavx2"               # std / hf
+	# export CFLAGS="${CFLAGS} -march=skylake-avx512 # sky
+	# export CFLAGS="${CFLAGS} -march=ivybridge"     # ivy / k20
+	# export CFLAGS="${CFLAGS} -mavx"                # ivy / k20
+	export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__"
         export LD=''
         export NCROOT='/home/oqx29/zzy20/local/netcdf-fortran-4.4.4-gfortran63'
     fi
