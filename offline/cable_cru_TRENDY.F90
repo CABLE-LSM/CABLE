@@ -12,7 +12,9 @@ MODULE CABLE_CRU
                                      ! in CRU-NCEP. Setting this ensures snow will be determined in CABLE from temperature.
 
   IMPLICIT NONE
-  integer,parameter :: sp  = kind(1.0)    
+  
+  integer,parameter :: sp = kind(1.0)
+  
   ! Define a type for CRU-NCEP information, and the subtype METVALS
 
   TYPE CRU_MET_TYPE 
@@ -20,35 +22,40 @@ MODULE CABLE_CRU
   END TYPE CRU_MET_TYPE
 
   TYPE CRU_TYPE
-    INTEGER  :: mland                    ! Number of land cells
-    INTEGER  :: NMET                     ! Number of met variable types (rain, lwdn etc) NOT INCLUDING prevTmax and nextTmin
-    INTEGER  :: xdimsize, ydimsize       ! Landmask grid size dimensions (x=cols, y=rows)
-    INTEGER  :: tdimsize                 ! Time dimension of metfiles (met data timesteps per annual file)
-    INTEGER  :: CYEAR                    ! Current run year, same as CurYear, not necessarily the same as MetYear
-    INTEGER  :: MetStart                 ! First year of met
-    INTEGER  :: MetEnd                   ! Last year of met
-    INTEGER  :: CTSTEP                   ! Current met data timestep (1 to tdimsize, i.e. 365 for CRU-NCEP annual daily files)
-    INTEGER  :: DTsecs                   ! Model timestep in seconds, converted from namelist value in hours
-    INTEGER  :: ktau                     ! Current model timestep, reset at the start of a new year of met
-    INTEGER, DIMENSION(9) :: F_ID, V_ID  ! NetCDF object id's for files and variables (NetCDF bookkeeping stuff) 
-    REAL, DIMENSION(:) ,ALLOCATABLE :: AVG_LWDN ! Avg of one day's diurnal cycle of lwdn calculated by Swinbank. AVG_LWDN
-                                                 ! is used to rescale the diurnal cycle to match the day's CRUNCEP lwdn. (dim=mland)
-    REAL, DIMENSION(:) ,ALLOCATABLE :: CO2VALS  ! Global annual CO2 values (dim is the number of years of data, or 1 if time-invariant)
-    LOGICAL  :: DirectRead     ! Flag to do with reading small numbers of points efficiently. Set true for small numbers of points
-    LOGICAL  :: LeapYears      ! Flag for whether leaps years occur, required by CABLE. Always false for CRUNCEP (no Feb 29th) 
+    INTEGER  :: mland              ! Number of land cells
+    INTEGER  :: NMET               ! Number of met variable types (rain, lwdn etc) NOT INCLUDING prevTmax and nextTmin
+    INTEGER  :: xdimsize, ydimsize ! Landmask grid size dimensions (x=cols, y=rows)
+    INTEGER  :: tdimsize           ! Time dimension of metfiles (met data timesteps per annual file)
+    INTEGER  :: CYEAR              ! Current run year, same as CurYear, not necessarily the same as MetYear
+    INTEGER  :: MetStart           ! First year of met
+    INTEGER  :: MetEnd             ! Last year of met
+    INTEGER  :: CTSTEP             ! Current met data timestep (1 to tdimsize, i.e. 365 for CRU-NCEP annual daily files)
+    INTEGER  :: DTsecs             ! Model timestep in seconds, converted from namelist value in hours
+    INTEGER  :: ktau               ! Current model timestep, reset at the start of a new year of met
+    INTEGER, DIMENSION(9) :: F_ID, V_ID  ! NetCDF object id's for files and variables (NetCDF bookkeeping stuff)
+    ! Avg of one day's diurnal cycle of lwdn calculated by Swinbank. AVG_LWDN
+    ! is used to rescale the diurnal cycle to match the day's CRUNCEP lwdn. (dim=mland)
+    REAL, DIMENSION(:) ,ALLOCATABLE :: AVG_LWDN
+    ! Global annual CO2 values (dim is the number of years of data, or 1 if time-invariant)
+    REAL, DIMENSION(:) ,ALLOCATABLE :: CO2VALS
+    LOGICAL  :: DirectRead ! Flag to do with reading small numbers of points efficiently. Set true for small numbers of points
+    LOGICAL  :: LeapYears  ! Flag for whether leaps years occur, required by CABLE. Always false for CRUNCEP (no Feb 29th) 
     LOGICAL,DIMENSION(:,:),ALLOCATABLE :: LandMask ! Logical landmask, true for land, false for non-land
-  !
+    !
     CHARACTER(len=30)  :: Run            ! Where run type is      : "S0_TRENDY", "S1_TRENDY", "S2_TRENDY"
     CHARACTER(len=15)  :: CO2            ! CO2 takes value        : "static1860", "1860_1900", "1901_2015" 
     CHARACTER(len=15)  :: Ndep           ! Ndep takes value        : "static1860", "1860_1900", "1901_2015"
     CHARACTER(len=15)  :: Forcing        ! Met Forcing takes value: "spinup",        "spinup", "1901_2015" 
-  !         
+    !         
     CHARACTER(len=200) :: BasePath       ! Full path for the location of data used for CRU runs "/x/y"
     CHARACTER(len=200) :: MetPath        ! Full path for the location of the met files "/x/y"
     CHARACTER(len=200) :: LandMaskFile   ! Land mask filename, without path
-    CHARACTER(len=30) ,DIMENSION(9) :: VAR_NAME  ! Netcdf variable 'Name' for each type of met (dim=# of met vars). Note: Name, not 'Title'
-    CHARACTER(len=200),DIMENSION(9) :: MetFile   ! Met file names incl metpath, constructed in CRU_GET_FILENAME (dim=# of met vars)
-    TYPE(CRU_MET_TYPE), DIMENSION(11) :: MET  ! Met data vectors (METVALS) for one timestep, dim=# of met vars + 2 for prev Tmax and next Tmin  
+    ! Netcdf variable 'Name' for each type of met (dim=# of met vars). Note: Name, not 'Title'
+    CHARACTER(len=30) ,DIMENSION(9) :: VAR_NAME
+    ! Met file names incl metpath, constructed in CRU_GET_FILENAME (dim=# of met vars)
+    CHARACTER(len=200),DIMENSION(9) :: MetFile
+    ! Met data vectors (METVALS) for one timestep, dim=# of met vars + 2 for prev Tmax and next Tmin  
+    TYPE(CRU_MET_TYPE), DIMENSION(11) :: MET
     REAL,  DIMENSION(:), ALLOCATABLE :: NdepVALS
     INTEGER :: NdepF_ID, NdepV_ID
     INTEGER  :: Ndep_CTSTEP   ! counter for Ndep in input file   
@@ -56,8 +63,8 @@ MODULE CABLE_CRU
 
   TYPE (CRU_TYPE):: CRU  ! Define the variable CRU, of type CRU_TYPE
 
-! Define local parameter names representing the position of each met var within variable MET. 
-! prevTmax and nextTmin are special cases of Tmax and Tmin that do not count as extra met variables per se.  
+  ! Define local parameter names representing the position of each met var within variable MET. 
+  ! prevTmax and nextTmin are special cases of Tmax and Tmin that do not count as extra met variables per se.  
   INTEGER, PRIVATE, PARAMETER :: &
        rain     =  1, &
        lwdn     =  2, &
@@ -68,20 +75,19 @@ MODULE CABLE_CRU
        tmin     =  7, &
        uwind    =  8, &
        vwind    =  9, &
-!
+       !
        prevTmax = 10, &
        nextTmin = 11
 
-! Error status of various operations (mostly netcdf-related). Typically 0 means ok, > 0 means unexpected condition.
+  ! Error status of various operations (mostly netcdf-related). Typically 0 means ok, > 0 means unexpected condition.
   INTEGER, PRIVATE :: ErrStatus
 
   REAL, PRIVATE, PARAMETER :: SecDay = 86400. ! Number of seconds in a day
 
-! Filename prefix expected in the names of met files. Used by CRU_GET_FILENAME to construct met file names.
+  ! Filename prefix expected in the names of met files. Used by CRU_GET_FILENAME to construct met file names.
   CHARACTER(len=6), DIMENSION(9), PARAMETER, PRIVATE :: &
-     !  PREF = (/ "rain  ", "lwdown", "swdown", "press ", "qair  ", "tmax  ", "tmin  ", "uwind ", "vwind " /)
-
-         PREF = (/ "pre   ", "dlwrf ", "dswrf ", "pres  ", "spfh  ", "tmax  ", "tmin  ", "ugrd  ", "vgrd  " /)
+       !  PREF = (/ "rain  ", "lwdown", "swdown", "press ", "qair  ", "tmax  ", "tmin  ", "uwind ", "vwind " /)
+       PREF = (/ "pre   ", "dlwrf ", "dswrf ", "pres  ", "spfh  ", "tmax  ", "tmin  ", "ugrd  ", "vgrd  " /)
 
 CONTAINS
 

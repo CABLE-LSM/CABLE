@@ -216,6 +216,8 @@ host_mcin()
 {
     idebug=0
     iintel=0
+    ignu=0
+    inag=0
     np=$#
     for ((i=0; i<${np}; i++)) ; do
         if [[ "${1}" == "debug" ]] ; then
@@ -223,9 +225,18 @@ host_mcin()
             shift 1
         elif [[ "${1}" == "ifort" || "${1}" == "intel" ]] ; then
             iintel=1
+	    ignu=0
+	    inag=0
             shift 1
         elif [[ "${1}" == "gfortran" || "${1}" == "gnu" ]] ; then
             iintel=0
+	    ignu=1
+	    inag=0
+            shift 1
+        elif [[ "${1}" == "nagfor" || "${1}" == "nag" ]] ; then
+            iintel=0
+	    ignu=0
+	    inag=1
             shift 1
         fi
     done
@@ -244,7 +255,7 @@ host_mcin()
 	export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
         export LD=''
         export NCROOT='/usr/local/netcdf-fortran-4.4.5-ifort'
-    else
+    elif [[ ${ignu} -eq 1 ]] ;  then
         # GFORTRAN
         export FC=gfortran
         # release
@@ -257,20 +268,23 @@ host_mcin()
 	export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__"
         export LD=''
         export NCROOT='/usr/local/netcdf-fortran-4.4.5-gfortran'
+    elif [[ ${inag} -eq 1 ]] ;  then
+        # NAG
+        export FC=nagfor
+        # release
+        export CFLAGS="-O4"
+        if [[ ${idebug} -eq 1 ]] ; then
+            # debug
+            export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline"
+        fi
+	export CFLAGS="${CFLAGS} -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -not_openmp"
+	# export CFLAGS="${CFLAGS} -march=native"
+	export CFLAGS="${CFLAGS} -D__NAG__"
+        export LD='-ideclient -unsharedrts'
+        export NCROOT='/usr/local/netcdf-fortran-4.4.5-nagfor'
     fi
     # export CFLAGS="${CFLAGS} -D__C13DEBUG__"
     export CFLAGS="${CFLAGS} -D__CRU2017__"
-
-    # # NAG - Does not work for pop_io.f90
-    # export FC=nagfor
-    # # release
-    # export CFLAGS="-O4 -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free"
-    # if [[ ${1} = 'debug' ]] ; then
-    #     # debug
-    #     export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -D__NAG__"
-    # fi
-    # export LD='-ideclient -unsharedrts'
-    # export NCROOT='/usr/local/netcdf-fortran-4.4.5-nagfor'
 
     # All compilers
     export NCCROOT='/usr/local'
@@ -279,7 +293,7 @@ host_mcin()
     export NCMOD=${NCROOT}'/include'
     export LDFLAGS="-L${NCLIB} -L${NCCLIB} -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz"
     export dosvn=0
-    export MFLAGS='-j 8'
+    # export MFLAGS='-j 8'
     build_build
     cd ../
     build_status

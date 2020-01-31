@@ -333,7 +333,13 @@ CONTAINS
 
     INTEGER :: i,x,kk
     INTEGER :: LALLOC, iu
+    
+    ! command line arguments
+    integer :: narg, len1
+    character(len=128) :: arg1
+
     ! END header
+    
 
     ! Maciej: make sure the variable does not go out of scope
     mp = 0
@@ -343,10 +349,17 @@ CONTAINS
     READ(10, NML=CABLE)   !where NML=CABLE defined above
     CLOSE(10)
 
-    IF (IARGC() > 0) THEN
-       CALL GETARG(1, filename%met)
-       CALL GETARG(2, casafile%cnpipool)
-    ENDIF
+    ! IF (IARGC() > 0) THEN
+    !    CALL GETARG(1, filename%met)
+    !    CALL GETARG(2, casafile%cnpipool)
+    ! ENDIF
+    narg = command_argument_count()
+    if (narg > 0) then
+       call get_command_argument(1, arg1, len1)
+       filename%met = arg1(1:len1)
+       call get_command_argument(2, arg1, len1)
+       casafile%cnpipool = arg1(1:len1)
+    endif
 
     IF (CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static') &
          CABLE_USER%POPLUC= .FALSE.
@@ -896,7 +909,7 @@ CONTAINS
           !    CALL1 = .FALSE.
           ! ENDIF
 
-          call flush(wlogn)
+          flush(wlogn)
 
           IF (icycle >0 .and. cable_user%CALL_POP) THEN
 
@@ -2612,7 +2625,7 @@ CONTAINS
     ! MPI: sanity check
     IF (bidx /= ntyp) THEN
        WRITE (*,*) 'worker ',rank,' invalid number of param_ts fields',bidx,', fix it (20)!'
-       CALL MPI_Abort (comm, 1, ierr)
+       CALL MPI_Abort(comm, 1, ierr)
     END IF
 
     CALL MPI_Type_create_struct (bidx, blen, displs, types, param_ts, ierr)
@@ -3864,7 +3877,7 @@ CONTAINS
     ! MPI: sanity check
     IF (bidx /= ntyp) THEN
        WRITE (*,*) 'worker ',rank,': invalid intype nmat, nvec or n3d constant, fix it (22)!'
-       CALL MPI_Abort (comm, 1, ierr)
+       CALL MPI_Abort(comm, 1, ierr)
     END IF
 
 
@@ -5917,7 +5930,7 @@ CONTAINS
     ! MPI: sanity check
     IF (bidx /= ntyp) THEN
        WRITE (*,*) 'worker ',rank,': invalid outtype nmat, nvec or n3d constant, fix it (23)!'
-       CALL MPI_Abort (comm, 1, ierr)
+       CALL MPI_Abort(comm, 1, ierr)
     END IF
 
     types = MPI_BYTE
@@ -5979,7 +5992,7 @@ CONTAINS
              met%year(landpt(i)%cstart) = syear
           CASE DEFAULT
              write(*,*) 'Unknown time coordinate! (SUBROUTINE get_met_data)'
-             CALL abort()
+             stop 9
           END SELECT
        ELSE
           ! increment hour-of-day by time step size:
@@ -7191,8 +7204,8 @@ CONTAINS
     ! data sent by all the workers
     !mcd287  CALL MPI_Reduce (tsize, tsize, 1, MPI_INTEGER, MPI_SUM, 0, comm, ierr)
     ! write(*,*) 'b4 reduce wk', tsize, MPI_DATATYPE_NULL, 1, MPI_INTEGER, MPI_SUM, 0, comm, ierr
-    ! call flush(6)
-    !call flush(wlogn)
+    ! flush(6)
+    ! flush(wlogn)
     CALL MPI_Reduce (tsize, MPI_DATATYPE_NULL, 1, MPI_INTEGER, MPI_SUM, 0, comm, ierr)
 
     DEALLOCATE(types)
@@ -8627,12 +8640,13 @@ SUBROUTINE worker_spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool
         if (cable_user%call_POP .and. POP%np.gt.0) then ! CALL_POP
            !           ! accumulate annual variables for use in POP
            if (mod(ktau/ktauday,loy)==1) then
-              casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7 ! (assumes 70% of wood NPP is allocated above ground)
+              ! (assumes 70% of wood NPP is allocated above ground)
+              casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp
               casabal%LAImax = casamet%glai
               casabal%Cleafmean = casapool%cplant(:,1)/real(LOY)/1000.
               casabal%Crootmean = casapool%cplant(:,3)/real(LOY)/1000.
            else
-              casaflux%stemnpp = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7
+              casaflux%stemnpp = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp
               casabal%LAImax = max(casamet%glai, casabal%LAImax)
               casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1)/real(LOY)/1000.
               casabal%Crootmean = casabal%Crootmean + casapool%cplant(:,3)/real(LOY)/1000.
@@ -8642,7 +8656,7 @@ SUBROUTINE worker_spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool
               call POPdriver(casaflux, casabal, veg, POP)
            endif  ! end of year
         else
-           casaflux%stemnpp = 0.
+           casaflux%stemnpp = 0._dp
         endif ! CALL_POP
 
         !CLN CALL BLAZE_DRIVER(...)
@@ -8958,7 +8972,7 @@ SUBROUTINE worker_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
 
         IF (idoy==mdyear) THEN ! end of year
            write(wlogn,*) 'b4 MPI_SEND, casa_LUC_t ', casapool%cplant(:,2)
-           CALL flush(wlogn)
+           flush(wlogn)
            ! print*, 'WORKER Send CO02'
            CALL MPI_Send(MPI_BOTTOM, 1, casa_LUC_t, 0, 0, ocomm, ierr)
            ! 13C
@@ -8967,7 +8981,7 @@ SUBROUTINE worker_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
               call MPI_Send(MPI_BOTTOM, 1, c13o2_luc_t, 0, 0, ocomm, ierr)
            endif
            write(wlogn,*) 'after MPI_SEND, casa_LUC_t ', casapool%cplant(:,2)
-           CALL flush(wlogn)
+           flush(wlogn)
            StemNPP(:,1) = casaflux%stemnpp
            StemNPP(:,2) = 0.0
 
@@ -8981,7 +8995,7 @@ SUBROUTINE worker_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
            ! write(wlogn,*)
            ! write(wlogn,*) 'after MPI_Recv, pop_t cmass: ', POP%pop_grid%cmass_sum
            write(wlogn,*) 'after MPI_Recv, pop_t'
-           CALL flush(wlogn)
+           flush(wlogn)
            IF (cable_user%CALL_POP .and. POP%np.gt.0) THEN ! CALL_POP
               write(wlogn,*) 'b4  POPdriver ', POP%pop_grid%cmass_sum
               CALL POPdriver(casaflux, casabal, veg, POP)
@@ -8990,11 +9004,11 @@ SUBROUTINE worker_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
            ! write(wlogn,*)
            ! write(wlogn,*) 'after POPstep cmass: ', POP%pop_grid%cmass_sum
            write(wlogn,*) 'after POPstep ',  POP%pop_grid%cmass_sum
-           CALL flush(wlogn)
+           flush(wlogn)
            ! print*, 'WORKER Send CO04'
            CALL worker_send_pop(POP, ocomm)
            write(wlogn,*) 'after worker_send_pop'
-           CALL flush(wlogn)
+           flush(wlogn)
         ENDIF
 
      enddo ! idoy=1,mdyear

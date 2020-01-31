@@ -84,10 +84,10 @@ MODULE cable_input_module
         ncid_wd,         &
         ok                 ! netcdf error status
    ! - see ALMA compress by gathering
-   INTEGER,POINTER,DIMENSION(:) :: landGrid ! for ALMA compressed variables
+   INTEGER,POINTER,DIMENSION(:) :: landGrid => null() ! for ALMA compressed variables
    REAL,POINTER,DIMENSION(:)    ::                                        &
-        elevation,       & ! site/grid cell elevation
-        avPrecip           ! site/grid cell average precip
+        elevation => null(),       & ! site/grid cell elevation
+        avPrecip => null()           ! site/grid cell average precip
    TYPE met_varID_type
       INTEGER                   ::                                        &
            SWdown,       &
@@ -348,8 +348,8 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
    INTEGER,DIMENSION(4)        :: vcmaxdimids ! for checking vcmax variable
    ! Alexis
    INTEGER,DIMENSION(1,1)      :: data2i ! temp variable for netcdf reading
-   INTEGER,POINTER,DIMENSION(:)     ::land_xtmp,land_ytmp ! temp indicies
-   REAL,POINTER, DIMENSION(:)  :: lat_temp, lon_temp ! lat and lon
+   INTEGER,POINTER,DIMENSION(:)     ::land_xtmp => null(), land_ytmp => null() ! temp indicies
+   REAL,POINTER, DIMENSION(:)  :: lat_temp => null(), lon_temp => null() ! lat and lon
    REAL                        ::                                         &
         tshod,                  & ! temporary variable
         ehod,                   & ! end time hour-of-day
@@ -2439,7 +2439,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
    REAL,                      INTENT(IN)    :: TFRZ, EMSOIL
 
    ! Local variables
-   REAL, POINTER, DIMENSION(:) :: pfractmp ! temp store of patch fraction
+   REAL, POINTER, DIMENSION(:) :: pfractmp => null() ! temp store of patch fraction
    LOGICAL                     :: completeSet ! was a complete parameter set found?
    LOGICAL                     :: EXRST = .FALSE. ! does a RunIden restart file exist?
    INTEGER                     :: &

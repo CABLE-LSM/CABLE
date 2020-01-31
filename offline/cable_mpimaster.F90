@@ -411,7 +411,13 @@ CONTAINS
     integer :: lalloc
     integer, parameter :: mloop = 4 !MCTEST 30   ! CASA-CNP PreSpinup loops
     real :: etime, etimelast
+
+    ! command line arguments
+    integer :: narg, len1
+    character(len=128) :: arg1
+
     ! end header
+    
     
     etimelast = 0.0
     
@@ -435,9 +441,16 @@ CONTAINS
 
     call report_version_no(logn)
 
-    if (iargc() > 0) then
-       call getarg(1, filename%met)
-       call getarg(2, casafile%cnpipool)
+    ! if (iargc() > 0) then
+    !    call getarg(1, filename%met)
+    !    call getarg(2, casafile%cnpipool)
+    ! endif
+    narg = command_argument_count()
+    if (narg > 0) then
+       call get_command_argument(1, arg1, len1)
+       filename%met = arg1(1:len1)
+       call get_command_argument(2, arg1, len1)
+       casafile%cnpipool = arg1(1:len1)
     endif
 
     ! INITIALISATION depending on nml settings
@@ -632,10 +645,10 @@ CONTAINS
                 IF (trim(cable_user%POPLUC_RunType) .EQ. 'restart') THEN
                    CALL READ_LUC_RESTART_NC(POPLUC)
                    LUC_EXPT%grass    = POPLUC%grass
-                   LUC_EXPT%primaryf = min(POPLUC%primf, 1.0-POPLUC%grass)
+                   LUC_EXPT%primaryf = real(min(POPLUC%primf, 1.0_r_2-POPLUC%grass))
                    LUC_EXPT%secdf    = max((1.0 -  LUC_EXPT%grass - LUC_EXPT%primaryf), 0.0)
-                   LUC_EXPT%crop     = max(min( POPLUC%crop, POPLUC%grass),0.0)
-                   LUC_EXPT%past     = max( min(LUC_EXPT%grass - LUC_EXPT%crop, POPLUC%past), 0.0 )
+                   LUC_EXPT%crop     = real(max(min( POPLUC%crop, POPLUC%grass),0.0_r_2))
+                   LUC_EXPT%past     = max( min(LUC_EXPT%grass - LUC_EXPT%crop, real(POPLUC%past)), 0.0)
                 ENDIF
              ENDIF
 
@@ -10137,7 +10150,8 @@ SUBROUTINE master_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
         
         !    ! accumulate annual variables for use in POP
         !    IF(idoy==1 ) THEN
-        !       casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * &        !       0.7 ! (assumes 70% of wood NPP is allocated above ground)
+        !       casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * &
+        !          0.7 ! (assumes 70% of wood NPP is allocated above ground)
         !       LAImax = casamet%glai
         !       Cleafmean = casapool%cplant(:,1)/real(mdyear)/1000.
         !       Crootmean = casapool%cplant(:,3)/real(mdyear)/1000.

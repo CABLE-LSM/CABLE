@@ -914,11 +914,11 @@ SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
 
   TYPE (climate_type), INTENT(IN)       :: climate  ! climate variables
   INTEGER, INTENT(IN) :: ktauday
-  INTEGER*4 :: mp4, nsd
-  INTEGER*4, parameter   :: pmp4 =0
+  INTEGER(KIND=4) :: mp4, nsd
+  INTEGER(KIND=4), parameter   :: pmp4 =0
   INTEGER, parameter   :: fmp4 = kind(pmp4)
-  INTEGER*4   :: STATUS
-  INTEGER*4   :: FILE_ID, land_ID, nyear_ID, nday_ID, ndayq_ID, nsd_ID, i
+  INTEGER(KIND=4) :: STATUS
+  INTEGER(KIND=4) :: FILE_ID, land_ID, nyear_ID, nday_ID, ndayq_ID, nsd_ID, i
     CHARACTER :: CYEAR*4, FNAME*99,dum*50
 
   ! 0 dim arrays
@@ -937,7 +937,7 @@ SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
   CHARACTER(len=20),DIMENSION(11) :: A5
 
 
-  INTEGER*4 ::  VID0(SIZE(A0)),VID1(SIZE(A1)),VIDI1(SIZE(AI1)), &
+  INTEGER(KIND=4) ::  VID0(SIZE(A0)),VID1(SIZE(A1)),VIDI1(SIZE(AI1)), &
        VID2(SIZE(A2)), VID3(SIZE(A3)), VID4(SIZE(A4)), VID5(SIZE(A5))
 
   nsd = int(ktauday*5,fmp4) ! number of sub-diurnal time-steps (for photosynthesis drivers)
@@ -1302,11 +1302,11 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate, ktauday )
 
   TYPE (climate_type), INTENT(INOUT)       :: climate  ! climate variables
   INTEGER, INTENT(IN) :: ktauday
-  INTEGER*4 :: mp4, nsd
-  INTEGER*4, parameter   :: pmp4 =0
+  INTEGER(KIND=4) :: mp4, nsd
+  INTEGER(KIND=4), parameter   :: pmp4 =0
   INTEGER, parameter   :: fmp4 = kind(pmp4)
-  INTEGER*4   :: STATUS
-  INTEGER*4   :: FILE_ID, land_ID, nyear_ID, nday_ID,nsd_ID, dID, i, land_dim
+  INTEGER(KIND=4) :: STATUS
+  INTEGER(KIND=4) :: FILE_ID, land_ID, nyear_ID, nday_ID,nsd_ID, dID, i, land_dim
   CHARACTER :: CYEAR*4, FNAME*99,dum*50
 
   ! 0 dim arrays
@@ -1331,7 +1331,7 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate, ktauday )
   real, dimension(mp) :: LAT, LON, TMP
   real                :: TMP2(mp,20), TMP3(mp,31), TMP4(mp,91)
   real, allocatable   :: TMP5(:,:)
-  INTEGER*4 :: TMPI(mp), TMPI0
+  INTEGER(KIND=4) :: TMPI(mp), TMPI0
   LOGICAL            ::  EXISTFILE
 
   nsd = int(ktauday*5,fmp4) ! number of sub-diurnal time-steps (for photosynthesis drivers)

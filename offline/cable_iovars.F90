@@ -24,7 +24,8 @@ MODULE cable_IO_vars_module
    IMPLICIT NONE
 
    PUBLIC
-   PRIVATE r_2, mvtype, mstype
+   
+   PRIVATE :: r_2, mvtype, mstype
 
 
    ! ============ Timing variables =====================
@@ -38,7 +39,7 @@ MODULE cable_IO_vars_module
 
    CHARACTER(LEN=3) :: time_coord ! GMT or LOCal time variables
 
-   REAL(r_2),POINTER,DIMENSION(:) :: timevar ! time variable from file
+   REAL(r_2),POINTER,DIMENSION(:) :: timevar => null() ! time variable from file
 
    INTEGER,DIMENSION(12) ::                                                    &
       daysm = (/31,28,31,30,31,30,31,31,30,31,30,31/),                         &
@@ -49,15 +50,15 @@ MODULE cable_IO_vars_module
    LOGICAL :: leaps   ! use leap year timing?
 
    ! ============ Structure variables ===================
-   REAL, POINTER,DIMENSION(:) :: latitude, longitude
+   REAL, POINTER,DIMENSION(:) :: latitude => null(), longitude => null()
 
-   REAL,POINTER, DIMENSION(:,:) :: lat_all, lon_all ! lat and lon
+   REAL,POINTER, DIMENSION(:,:) :: lat_all => null(), lon_all => null() ! lat and lon
 
    CHARACTER(LEN=4) :: metGrid ! Either 'land' or 'mask'
 
-   INTEGER,POINTER,DIMENSION(:,:) :: mask ! land/sea mask from met file
+   INTEGER,POINTER,DIMENSION(:,:) :: mask => null() ! land/sea mask from met file
 
-   INTEGER,POINTER,DIMENSION(:) :: land_x,land_y ! indicies of land in mask
+   INTEGER,POINTER,DIMENSION(:) :: land_x => null(), land_y => null() ! indicies of land in mask
 
    INTEGER ::                                                                  &
       xdimsize,ydimsize,   & ! sizes of x and y dimensions
@@ -84,8 +85,8 @@ MODULE cable_IO_vars_module
    END TYPE land_type
 
 
-   TYPE(land_type),DIMENSION(:),POINTER :: landpt
-   TYPE(patch_type), DIMENSION(:), POINTER :: patch
+   TYPE(land_type),DIMENSION(:),POINTER :: landpt => null()
+   TYPE(patch_type), DIMENSION(:), POINTER :: patch => null()
 
    INTEGER ::                                                                  &
       max_vegpatches,   & ! The maximum # of patches in any grid cell
@@ -121,8 +122,8 @@ MODULE cable_IO_vars_module
 
    ! ================ Veg and soil type variables ============================
    INTEGER, POINTER ::                                                         &
-      soiltype_metfile(:,:),  & ! user defined soil type (from met file)
-      vegtype_metfile(:,:)      ! user-def veg type (from met file)
+      soiltype_metfile(:,:) => null(),  & ! user defined soil type (from met file)
+      vegtype_metfile(:,:) => null()      ! user-def veg type (from met file)
 
    TYPE parID_type ! model parameter IDs in netcdf file
 
@@ -359,14 +360,14 @@ MODULE cable_IO_vars_module
    TYPE(checks_type) :: check ! what types of checks to perform
 
    ! ============== Proxy input variables ================================
-   REAL,POINTER,DIMENSION(:)  :: PrecipScale! precip scaling per site for spinup
-   REAL,POINTER,DIMENSION(:,:)  :: defaultLAI ! in case met file/host model
+   REAL,POINTER,DIMENSION(:)  :: PrecipScale => null()! precip scaling per site for spinup
+   REAL,POINTER,DIMENSION(:,:)  :: defaultLAI => null() ! in case met file/host model
                                               ! has no LAI
    REAL :: fixedCO2 ! CO2 level if CO2air not in met file
     
-  ! For threading:
-  !$OMP THREADPRIVATE(landpt,patch)
-! for mpi debugging
+   ! For threading:
+   !$OMP THREADPRIVATE(landpt,patch)
+   ! for mpi debugging
    INTEGER :: wlogn
 
 END MODULE cable_IO_vars_module

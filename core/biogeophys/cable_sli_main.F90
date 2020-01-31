@@ -217,7 +217,8 @@ SUBROUTINE sli_main(ktau, dt, veg, soil, ssnow, met, canopy, air, rad, SEB_only)
   end where
   h0         = ssnow%h0
 
-  ! zero runoff here, in case error is returned to avoid excessive runoff from previous time-step. (Runoff is multipled by dt in cable_driver.F90)
+  ! zero runoff here, in case error is returned to avoid excessive runoff from previous time-step.
+  ! (Runoff is multipled by dt in cable_driver.F90)
   ssnow%rnof1 = 0.0
   ssnow%rnof2 = 0.0
   ssnow%runoff = 0.0
@@ -408,7 +409,7 @@ SUBROUTINE sli_main(ktau, dt, veg, soil, ssnow, met, canopy, air, rad, SEB_only)
      qprec      = max((canopy%through-met%precip_sn)/thousand/dt , zero)             ! liq precip rate (m s-1)
      qprec_snow = (met%precip_sn)/thousand/dt
   elsewhere
-     qprec = max(canopy%through, zero)
+     qprec = max(real(canopy%through,r_2), zero)
      qprec_snow = zero
   endwhere
 !if ( wlogn == 1011) then

@@ -2,8 +2,8 @@
 #
 # Explor / Pearcey
 # https://slurm.schedmd.com/sbatch.html
-# Name
-#SBATCH -J harvard10
+# Name - 8 letters and digits
+#SBATCH -J harvar10
 #SBATCH -o %x-%j.out
 #SBATCH -e %x-%j.out
 # Explor partitions (sinfo): std (2x16, parallel), sky (2x16, parallel, AVX512), hf (2x4, serial),
@@ -15,7 +15,7 @@
 #SBATCH --ntasks-per-node=4
 # Check memory on *nix with /usr/bin/time -v ./prog
 # time (day-hh:mm:ss) / memory (optional, units K,M,G,T)
-#SBATCH -t 00:59:59
+#SBATCH -t 00:09:59
 #SBATCH --mem=4G
 # notify: Valid type values are NONE,BEGIN,END,FAIL,REQUEUE,ALL,STAGE_OUT,TIME_LIMIT,TIME_LIMIT_90/80/50,ARRAY_TASKS
 #SBATCH --mail-type=FAIL,STAGE_OUT,TIME_LIMIT
@@ -33,13 +33,13 @@
 # #PBS -r y
 # #PBS -l wd
 
-system=cuntz@explor # cuntz@explor, cuntz@mcinra, knauer@pearcey, jk8585 or vxh599@raijin
+system=cuntz@mcinra # cuntz@explor, cuntz@mcinra, knauer@pearcey, jk8585 or vxh599@raijin
 
 # MPI run or single processor run
 # nproc should fit with job tasks 
 dompi=1   # 0: normal run: ./cable
           # 1: MPI run: mpiexec -n ${nproc} ./cable_mpi
-nproc=4   # Number of cores for MPI runs
+nproc=2   # Number of cores for MPI runs
           # must be same as above: SBATCH -n nproc or PBS -l ncpus=nproc
 ignore_mpi_err=1 # 0/1: continue even if mpi run failed
 
@@ -155,9 +155,9 @@ if [[ "${sys}" == "explor" ]] ; then
     # export mpiexecdir=/opt/soft/hf/openmpi/3.0.1/gcc/6.3.0/bin/
 elif [[ "${sys}" == "mcinra" ]] ; then
     # exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi-gfortran"
-    export mpiexecdir=/usr/local/openmpi-3.1.4-gfortran/bin
+    export mpiexecdir=/usr/local/openmpi-3.1.4-gfortran/bin/
     # # exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi-ifort"
-    # export mpiexecdir=/usr/local/openmpi-3.1.5-ifort/bin
+    # export mpiexecdir=/usr/local/openmpi-3.1.5-ifort/bin/
 elif [[ "${sys}" == "pearcey" ]] ; then
     # prog is slurm_script
     pdir=${isdir}
@@ -533,7 +533,7 @@ if [[ ${doclimate} -eq 1 ]] ; then
     com=${com}$(csed "cable_user%CLIMATE_fromZero=.true.")
     com=${com}$(csed "cable_user%YearStart=1860")
     #MCTEST com=${com}$(csed "cable_user%YearEnd=1889")
-    com=${com}$(csed "cable_user%YearEnd=1869")
+    com=${com}$(csed "cable_user%YearEnd=1861")
     com=${com}$(csed "icycle=2")
     com=${com}$(csed "spincasa=.false.")
     com=${com}$(csed "cable_user%CASA_fromZero=.true.")
@@ -542,7 +542,7 @@ if [[ ${doclimate} -eq 1 ]] ; then
     com=${com}$(csed "cable_user%CASA_OUT_FREQ=\"monthly\"")
     com=${com}$(csed "cable_user%CASA_SPIN_STARTYEAR=1860")
     #MCTEST com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1869")
-    com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1863")
+    com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1861")
     com=${com}$(csed "cable_user%limit_labile=.true.")
     com=${com}$(csed "casafile%out=\"outputs/cru_out_casa.nc\"")
     com=${com}$(csed "casafile%cnpipool=\"\"")
@@ -624,7 +624,7 @@ if [[ ${dofromzero} -eq 1 ]] ; then
     com=${com}$(csed "cable_user%CLIMATE_fromZero=.true.")
     com=${com}$(csed "cable_user%YearStart=1860")
     #MCTEST com=${com}$(csed "cable_user%YearEnd=1889")
-    com=${com}$(csed "cable_user%YearEnd=1863")
+    com=${com}$(csed "cable_user%YearEnd=1861")
     com=${com}$(csed "icycle=2")
     com=${com}$(csed "spincasa=.false.")
     com=${com}$(csed "cable_user%CASA_fromZero=.true.")
@@ -633,7 +633,7 @@ if [[ ${dofromzero} -eq 1 ]] ; then
     com=${com}$(csed "cable_user%CASA_OUT_FREQ=\"monthly\"")
     com=${com}$(csed "cable_user%CASA_SPIN_STARTYEAR=1860")
     #MCTEST com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1869")
-    com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1863")
+    com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1861")
     com=${com}$(csed "cable_user%limit_labile=.true.")
     com=${com}$(csed "casafile%out=\"outputs/cru_out_casa.nc\"")
     com=${com}$(csed "casafile%cnpipool=\"\"")
@@ -719,7 +719,7 @@ if [[ ${doequi1} -eq 1 ]] ; then
             com=${com}$(csed "cable_user%CLIMATE_fromZero=.false.")
             com=${com}$(csed "cable_user%YearStart=1840")
             #MCTEST com=${com}$(csed "cable_user%YearEnd=1859")
-            com=${com}$(csed "cable_user%YearEnd=1843")
+            com=${com}$(csed "cable_user%YearEnd=1841")
             com=${com}$(csed "icycle=2")
             com=${com}$(csed "spincasa=.false.")
             com=${com}$(csed "cable_user%CASA_fromZero=.false.")
@@ -728,7 +728,7 @@ if [[ ${doequi1} -eq 1 ]] ; then
             com=${com}$(csed "cable_user%CASA_OUT_FREQ=\"monthly\"")
             com=${com}$(csed "cable_user%CASA_SPIN_STARTYEAR=1860")
             #MCTEST com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1869")
-            com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1863")
+            com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1861")
             com=${com}$(csed "cable_user%limit_labile=.true.")
             com=${com}$(csed "casafile%out=\"outputs/cru_out_casa.nc\"")
             com=${com}$(csed "casafile%cnpipool=\"restart/cru_casa_rst.nc\"")
@@ -809,7 +809,7 @@ if [[ ${doequi1} -eq 1 ]] ; then
             com=${com}$(csed "cable_user%CLIMATE_fromZero=.false.")
             com=${com}$(csed "cable_user%YearStart=1840")
             #MCTEST com=${com}$(csed "cable_user%YearEnd=1859")
-            com=${com}$(csed "cable_user%YearEnd=1843")
+            com=${com}$(csed "cable_user%YearEnd=1841")
             com=${com}$(csed "icycle=12")
             com=${com}$(csed "spincasa=.true.")
             com=${com}$(csed "cable_user%CASA_fromZero=.false.")
@@ -818,7 +818,7 @@ if [[ ${doequi1} -eq 1 ]] ; then
             com=${com}$(csed "cable_user%CASA_OUT_FREQ=\"monthly\"")
             com=${com}$(csed "cable_user%CASA_SPIN_STARTYEAR=1840")
             #MCTEST com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1859")
-            com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1843")
+            com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1841")
             com=${com}$(csed "cable_user%limit_labile=.true.")
             com=${com}$(csed "casafile%out=\"outputs/cru_out_casa.nc\"")
             com=${com}$(csed "casafile%cnpipool=\"restart/cru_casa_rst.nc\"")
@@ -908,7 +908,7 @@ if [[ ${doequi2} -eq 1 ]] ; then
             com=${com}$(csed "cable_user%CLIMATE_fromZero=.false.")
             com=${com}$(csed "cable_user%YearStart=1840")
             #MCTEST com=${com}$(csed "cable_user%YearEnd=1859")
-            com=${com}$(csed "cable_user%YearEnd=1843")
+            com=${com}$(csed "cable_user%YearEnd=1841")
             com=${com}$(csed "icycle=2")
             com=${com}$(csed "spincasa=.false.")
             com=${com}$(csed "cable_user%CASA_fromZero=.false.")
@@ -917,7 +917,7 @@ if [[ ${doequi2} -eq 1 ]] ; then
             com=${com}$(csed "cable_user%CASA_OUT_FREQ=\"monthly\"")
             com=${com}$(csed "cable_user%CASA_SPIN_STARTYEAR=1860")
             #MCTEST com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1869")
-            com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1863")
+            com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1861")
             com=${com}$(csed "cable_user%limit_labile=.false.")
             com=${com}$(csed "casafile%out=\"outputs/cru_out_casa.nc\"")
             com=${com}$(csed "casafile%cnpipool=\"restart/cru_casa_rst.nc\"")
@@ -998,7 +998,7 @@ if [[ ${doequi2} -eq 1 ]] ; then
             com=${com}$(csed "cable_user%CLIMATE_fromZero=.false.")
             com=${com}$(csed "cable_user%YearStart=1840")
             #MCTEST com=${com}$(csed "cable_user%YearEnd=1859")
-            com=${com}$(csed "cable_user%YearEnd=1843")
+            com=${com}$(csed "cable_user%YearEnd=1841")
             com=${com}$(csed "icycle=12")
             com=${com}$(csed "spincasa=.true.")
             com=${com}$(csed "cable_user%CASA_fromZero=.false.")
@@ -1007,7 +1007,7 @@ if [[ ${doequi2} -eq 1 ]] ; then
             com=${com}$(csed "cable_user%CASA_OUT_FREQ=\"monthly\"")
             com=${com}$(csed "cable_user%CASA_SPIN_STARTYEAR=1840")
             #MCTEST com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1859")
-            com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1843")
+            com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1841")
             com=${com}$(csed "cable_user%limit_labile=.false.")
             com=${com}$(csed "casafile%out=\"outputs/cru_out_casa.nc\"")
             com=${com}$(csed "casafile%cnpipool=\"restart/cru_casa_rst.nc\"")
@@ -1099,7 +1099,7 @@ if [[ ${doiniluc} -eq 1 ]] ; then
     com=${com}$(csed "cable_user%CASA_OUT_FREQ=\"annually\"")
     com=${com}$(csed "cable_user%CASA_SPIN_STARTYEAR=1840")
     #MCTEST com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1859")
-    com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1843")
+    com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1841")
     com=${com}$(csed "cable_user%limit_labile=.false.")
     com=${com}$(csed "casafile%out=\"outputs/cru_out_casa.nc\"")
     com=${com}$(csed "casafile%cnpipool=\"restart/cru_casa_rst.nc\"")
@@ -1187,7 +1187,7 @@ if [[ ${doinidyn} -eq 1 ]] ; then
     com=${com}$(csed "cable_user%CASA_OUT_FREQ=\"monthly\"")
     com=${com}$(csed "cable_user%CASA_SPIN_STARTYEAR=1850")
     #MCTEST com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1859")
-    com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1853")
+    com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1851")
     com=${com}$(csed "cable_user%limit_labile=.false.")
     com=${com}$(csed "casafile%out=\"outputs/cru_out_casa.nc\"")
     com=${com}$(csed "casafile%cnpipool=\"restart/cru_casa_rst.nc\"")
@@ -1278,7 +1278,7 @@ if [[ ${dofinal} -eq 1 ]] ; then
     com=${com}$(csed "cable_user%CASA_OUT_FREQ=\"monthly\"")
     com=${com}$(csed "cable_user%CASA_SPIN_STARTYEAR=1850")
     #MCTEST com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1859")
-    com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1853")
+    com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1851")
     com=${com}$(csed "cable_user%limit_labile=.false.")
     com=${com}$(csed "casafile%out=\"outputs/cru_out_casa.nc\"")
     com=${com}$(csed "casafile%cnpipool=\"restart/cru_casa_rst.nc\"")

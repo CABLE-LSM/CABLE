@@ -23,6 +23,7 @@
 ! ==============================================================================
 
 MODULE cable_common_module
+  
   IMPLICIT NONE
 
   !---allows reference to "gl"obal timestep in run (from atm_step)
@@ -296,8 +297,8 @@ MODULE cable_common_module
   END TYPE vegin_type
 
   CHARACTER(LEN=70), DIMENSION(:), POINTER ::                                 &
-       veg_desc,   & ! decriptions of veg type
-       soil_desc     ! decriptns of soil type
+       veg_desc => null(),   & ! decriptions of veg type
+       soil_desc => null()     ! decriptns of soil type
 
   TYPE(soilin_type), SAVE  :: soilin
   TYPE(vegin_type),  SAVE  :: vegin

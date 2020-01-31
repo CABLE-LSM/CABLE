@@ -38,20 +38,23 @@ MODULE CABLE_site
   IMPLICIT NONE
 
   TYPE site_TYPE
-    CHARACTER(len=15)  :: RunType ! 'spinup', 'transient', 'AMB', 'ELE'
-    REAL, DIMENSION(:) ,ALLOCATABLE :: CO2VALS  ! Global annual CO2 values (dim is the number of years of data, or 1 if time-invariant)
-    REAL, DIMENSION(:) ,ALLOCATABLE :: NdepVALS  ! Global annual Ndep values (dim is the number of years of data, or 1 if time-invariant)
-    REAL, DIMENSION(:) ,ALLOCATABLE :: PdepVALS  ! Global annual Pdep values (dim is the number of years of data, or 1 if time-invariant)
-    INTEGER  :: mland                   ! Number of land cells
-    CHARACTER(len=200) :: CO2NdepFile   ! CO2Ndepfile with path
-    INTEGER :: spinstartyear
-    INTEGER :: spinendyear
-    REAL :: spinCO2 ! ppm in 1850
-    REAL :: spinNdep  ! kgNha-1y-1 in 1850
-    REAL :: spinPdep  ! kgPha-1y-1 in 1850
-    REAL :: CO2   ! CO2 for current time step
-    REAL :: Ndep  ! Ndep for current time step
-    REAL :: Pdep  ! Pdep for current time step
+     CHARACTER(len=15)  :: RunType ! 'spinup', 'transient', 'AMB', 'ELE'
+     ! Global annual CO2 values (dim is the number of years of data, or 1 if time-invariant)
+     REAL, DIMENSION(:) ,ALLOCATABLE :: CO2VALS
+     ! Global annual Ndep values (dim is the number of years of data, or 1 if time-invariant)
+     REAL, DIMENSION(:) ,ALLOCATABLE :: NdepVALS
+     ! Global annual Pdep values (dim is the number of years of data, or 1 if time-invariant)
+     REAL, DIMENSION(:) ,ALLOCATABLE :: PdepVALS
+     INTEGER  :: mland                   ! Number of land cells
+     CHARACTER(len=200) :: CO2NdepFile   ! CO2Ndepfile with path
+     INTEGER :: spinstartyear
+     INTEGER :: spinendyear
+     REAL :: spinCO2 ! ppm in 1850
+     REAL :: spinNdep  ! kgNha-1y-1 in 1850
+     REAL :: spinPdep  ! kgPha-1y-1 in 1850
+     REAL :: CO2   ! CO2 for current time step
+     REAL :: Ndep  ! Ndep for current time step
+     REAL :: Pdep  ! Pdep for current time step
   END TYPE site_TYPE
 
   TYPE (site_TYPE):: site  ! Define the variable CRU, of type CRU_TYPE

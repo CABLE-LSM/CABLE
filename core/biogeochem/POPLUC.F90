@@ -66,37 +66,44 @@ MODULE POPLUC_Types
      INTEGER(i4b), POINTER :: np
      INTEGER(i4b), POINTER :: firstyear
      INTEGER(i4b), POINTER :: thisyear
-     INTEGER(i4b), DIMENSION(:),POINTER :: n_event ! number of secondary forest transitions
-     REAL(dp), DIMENSION(:),POINTER :: latitude, longitude
-     REAL(dp), DIMENSION(:),POINTER :: primf, secdf, grass,       &  ! land cover types
-          ptos, ptog, stog, gtop, gtos,    & ! transitions
-          frac_primf, frac_forest
-     REAL(dp), DIMENSION(:),POINTER :: crop, past ! components of managed grass (crop,pasture)
+     INTEGER(i4b), DIMENSION(:),POINTER :: n_event => null() ! number of secondary forest transitions
+     REAL(dp), DIMENSION(:),POINTER :: latitude => null(), longitude => null()
+     REAL(dp), DIMENSION(:),POINTER :: primf => null(), secdf => null(), grass => null(), &  ! land cover types
+          ptos => null(), ptog => null(), stog => null(), gtop => null(), gtos => null(),    & ! transitions
+          frac_primf => null(), frac_forest => null()
+     REAL(dp), DIMENSION(:),POINTER :: crop => null(), past => null() ! components of managed grass (crop,pasture)
      ! transitions associated with crop (c) and pasture (q)
-     REAL(dp), DIMENSION(:),POINTER :: ptoc, ptoq, stoc, stoq, qtos, ctos
-     REAL(dp), DIMENSION(:,:),POINTER ::  freq_age_primary, freq_age_secondary, &
-          biomass_age_primary, biomass_age_secondary
-     REAL(dp), DIMENSION(:,:),POINTER :: age_history_secdf, area_history_secdf
-     REAL(dp), DIMENSION(:,:),POINTER :: FNEP, Clitt, Csoil, Cbiomass
-     REAL(dp), DIMENSION(:,:),POINTER :: FHarvest, FClearance, FTransferNet
-     REAL(dp), DIMENSION(:,:),POINTER :: FTransferGross
-     REAL(dp), DIMENSION(:),POINTER :: pharv, smharv, syharv
+     REAL(dp), DIMENSION(:),POINTER :: ptoc => null(), ptoq => null(), stoc => null(), stoq => null(), &
+          qtos => null(), ctos => null()
+     REAL(dp), DIMENSION(:,:),POINTER ::  freq_age_primary => null(), freq_age_secondary => null(), &
+          biomass_age_primary => null(), biomass_age_secondary => null()
+     REAL(dp), DIMENSION(:,:),POINTER :: age_history_secdf => null(), area_history_secdf => null()
+     REAL(dp), DIMENSION(:,:),POINTER :: FNEP => null(), Clitt => null(), Csoil => null(), Cbiomass => null()
+     REAL(dp), DIMENSION(:,:),POINTER :: FHarvest => null(), FClearance => null(), FTransferNet => null()
+     REAL(dp), DIMENSION(:,:),POINTER :: FTransferGross => null()
+     REAL(dp), DIMENSION(:),POINTER :: pharv => null(), smharv => null(), syharv => null()
      ! ag prod pool (grazing + crop harvest) and loss to atm, loss of C from biosphere due to crop/pasture harvest
-     REAL(dp), DIMENSION(:),POINTER :: AgProd, AgProdLoss, FAg
-     REAL(dp), DIMENSION(:,:),POINTER :: HarvProd, ClearProd ! wood harvest and clearance pools
-     REAL(dp), DIMENSION(:,:),POINTER :: fracHarvProd, fracClearProd
-     REAL(dp), DIMENSION(:,:),POINTER :: HarvProdLoss, ClearProdLoss
-     REAL(dp), DIMENSION(:),POINTER :: fracHarvResid, fracHarvSecResid, fracClearResid
-     REAL(dp), DIMENSION(:),POINTER :: kSecHarv, kNatDist, kExpand1, kExpand2, kClear
-     REAL(dp), DIMENSION(:),POINTER :: cRelClear ! carbon denisty in sec forest harvest area, relative to tile average
+     REAL(dp), DIMENSION(:),POINTER :: AgProd => null(), AgProdLoss => null(), FAg => null()
+     REAL(dp), DIMENSION(:,:),POINTER :: HarvProd => null(), ClearProd => null() ! wood harvest and clearance pools
+     REAL(dp), DIMENSION(:,:),POINTER :: fracHarvProd => null(), fracClearProd => null()
+     REAL(dp), DIMENSION(:,:),POINTER :: HarvProdLoss => null(), ClearProdLoss => null()
+     REAL(dp), DIMENSION(:),POINTER :: fracHarvResid => null(), fracHarvSecResid => null(), fracClearResid => null()
+     REAL(dp), DIMENSION(:),POINTER :: kSecHarv => null(), kNatDist => null(), &
+          kExpand1 => null(), kExpand2 => null(), kClear => null()
+     ! carbon denisty in sec forest harvest area, relative to tile average
+     REAL(dp), DIMENSION(:),POINTER :: cRelClear => null()
      ! biomass density loss rates
      ! For 13C
-     real(dp), dimension(:), pointer :: FluxPHarvResidtoLitter  ! Residual flux to litter from harvesting primary forest
-     real(dp), dimension(:), pointer :: FluxSHarvResidtoLitter  ! Residual flux to litter from harvesting secondary forest
-     real(dp), dimension(:), pointer :: FluxPClearResidtoLitter ! Residual flux to litter from clearing primary forest
-     real(dp), dimension(:), pointer :: FluxSClearResidtoLitter ! Residual flux to litter from clearing secondary forest
+     ! Residual flux to litter from harvesting primary forest
+     real(dp), dimension(:), pointer :: FluxPHarvResidtoLitter => null()
+     ! Residual flux to litter from harvesting secondary forest
+     real(dp), dimension(:), pointer :: FluxSHarvResidtoLitter => null()
+     ! Residual flux to litter from clearing primary forest
+     real(dp), dimension(:), pointer :: FluxPClearResidtoLitter => null()
+     ! Residual flux to litter from clearing secondary forest
+     real(dp), dimension(:), pointer :: FluxSClearResidtoLitter => null()
      ! Harvest and Clearance induced change of plant pool of secondary forest
-     real(dp), dimension(:), pointer :: dcSHarvClear
+     real(dp), dimension(:), pointer :: dcSHarvClear => null()
   END TYPE POPLUC_TYPE
 
 END MODULE POPLUC_Types
@@ -1361,9 +1368,13 @@ CONTAINS
                   max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp)
              POPLUC%cbiomass(g,ilu) = sum(casapool%cplant(irp,:))* &
                   max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp)
- !            if (g==4  .and. ilu==2) write(*,*) 'c02',  casapool%cplant(irp,2), casapool%cplant(irp,2)* max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp), patch(irp)%frac,  dA_r(ilu) + dA_d(ilu)
+             ! if (g==4  .and. ilu==2) write(*,*) 'c02', casapool%cplant(irp,2), &
+             !    casapool%cplant(irp,2)* max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp), &
+             !    patch(irp)%frac,  dA_r(ilu) + dA_d(ilu)
 
-!  if (g==4  .and. ilu==3) write(*,*) 'c03',  casapool%csoil(irp,2), casapool%csoil(irp,2)* max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp), patch(irp)%frac,  dA_r(ilu) + dA_d(ilu)
+             !  if (g==4  .and. ilu==3) write(*,*) 'c03', casapool%csoil(irp,2), &
+             !     casapool%csoil(irp,2)* max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp), &
+             !     patch(irp)%frac,  dA_r(ilu) + dA_d(ilu)
 
           ENDDO
        ELSE

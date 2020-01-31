@@ -117,26 +117,26 @@ CONTAINS
     REAL, DIMENSION(mp) :: qsat
 
     REAL, DIMENSION(:), POINTER ::                                              &
-         cansat,        & ! max canopy intercept. (mm)
-         dsx,           & ! leaf surface vpd
-         fwsoil,        & ! soil water modifier of stom. cond
-         tlfx,          & ! leaf temp prev. iter (K)
-         tlfy             ! leaf temp (K)
+         cansat => null(),        & ! max canopy intercept. (mm)
+         dsx => null(),           & ! leaf surface vpd
+         fwsoil => null(),        & ! soil water modifier of stom. cond
+         tlfx => null(),          & ! leaf temp prev. iter (K)
+         tlfy => null()             ! leaf temp (K)
 
     REAL(r_2), DIMENSION(mp) ::                                                 &
          gbvtop                   ! bnd layer cond. top leaf
 
     REAL(r_2), DIMENSION(:), POINTER ::                                         &
-         ecy,           & ! lat heat fl dry big leaf
-         hcy,           & ! veg. sens heat
-         rny,           & ! net rad
-         ghwet             ! cond for heat for a wet canopy
+         ecy => null(),           & ! lat heat fl dry big leaf
+         hcy => null(),           & ! veg. sens heat
+         rny => null(),           & ! net rad
+         ghwet => null()             ! cond for heat for a wet canopy
 
     REAL(r_2), DIMENSION(:,:), POINTER ::                                       &
-         gbhu,          & ! forcedConvectionBndryLayerCond
-         gbhf,          & ! freeConvectionBndryLayerCond
-         csx              ! leaf surface CO2 concentration
-    REAL(r_2), DIMENSION(:,:), POINTER ::  gmes  ! mesophyll conductance      
+         gbhu => null(),          & ! forcedConvectionBndryLayerCond
+         gbhf => null(),          & ! freeConvectionBndryLayerCond
+         csx => null()              ! leaf surface CO2 concentration
+    REAL(r_2), DIMENSION(:,:), POINTER ::  gmes => null()  ! mesophyll conductance      
     REAL, PARAMETER :: kg = 0.08997   !
     !mesophyll conductance extinction coeff't (Sun et al. 2014 SI Eq S7)      
     !REAL :: gmax0 ! max mesophyll conductacne at canopy top  
@@ -1569,7 +1569,7 @@ CONTAINS
              eko
 
     
-    REAL, DIMENSION(:,:), POINTER :: gswmin ! min stomatal conductance
+    REAL, DIMENSION(:,:), POINTER :: gswmin => null() ! min stomatal conductance
 
     REAL, DIMENSION(mp,2) ::  gsw_term, lower_limit2  ! local temp var
 

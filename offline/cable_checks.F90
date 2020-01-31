@@ -205,9 +205,9 @@ SUBROUTINE mass_balance(dels,ktau, ssnow,soil,canopy,met,                       
    TYPE (air_type),INTENT(IN)                :: air
 
    ! Local variables
-   REAL(r_2), DIMENSION(:,:,:),POINTER, SAVE :: bwb         ! volumetric soil moisture
-   REAL(r_2), DIMENSION(mp)                  :: delwb       ! change in soilmoisture
-                                                            ! b/w tsteps
+   REAL(r_2), DIMENSION(:,:,:),POINTER, SAVE :: bwb => null() ! volumetric soil moisture
+   REAL(r_2), DIMENSION(mp)                  :: delwb         ! change in soilmoisture
+                                                              ! b/w tsteps
    REAL, DIMENSION(mp)                  :: canopy_wbal !canopy water balance
    TYPE (balances_type),INTENT(INOUT)        :: bal
    INTEGER                              :: j, k        ! do loop counter
@@ -255,7 +255,7 @@ SUBROUTINE mass_balance(dels,ktau, ssnow,soil,canopy,met,                       
    IF (cable_user%soil_struc=='sli') then  !! vh March 2014 !!
       ! delwcol includes change in soil water, pond and snowpack
       bal%wbal = canopy_wbal + REAL(canopy%through - ssnow%delwcol-ssnow%runoff &
-                  - ssnow%evap - max(canopy%fevc,0.0)*dels/air%rlam, r_2)
+                  - ssnow%evap - max(canopy%fevc,0.0_r_2)*dels/air%rlam, r_2)
    
    ENDIF
 !!$write(*,"(100e16.6)")  REAL(canopy%through(1) - ssnow%delwcol(1)-ssnow%runoff(1) &

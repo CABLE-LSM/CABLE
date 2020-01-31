@@ -108,7 +108,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
          casamet%tairk = met%tk
          casamet%tsoil = ssnow%tgg
          !casamet%moist = max(ssnow%wb - ssnow%wbice, 0.0)
-         casamet%moist = max(ssnow%wb, 0.0)
+         casamet%moist = max(ssnow%wb, 0.0_r_2)
          casaflux%cgpp = (-canopy%fpn+canopy%frday)*dels
          casaflux%crmplant(:,leaf) = canopy%frday*dels
          ! 13C
@@ -120,7 +120,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
          Casamet%tairk  =casamet%tairk + met%tk
          casamet%tsoil = casamet%tsoil + ssnow%tgg
          !casamet%moist = casamet%moist + max(ssnow%wb -  ssnow%wbice, 0.0)
-         casamet%moist = casamet%moist + max(ssnow%wb, 0.0)
+         casamet%moist = casamet%moist + max(ssnow%wb, 0.0_r_2)
          casaflux%cgpp = casaflux%cgpp + (-canopy%fpn+canopy%frday)*dels
          casaflux%crmplant(:,leaf) = casaflux%crmplant(:,leaf) + canopy%frday*dels
          ! 13C
@@ -131,9 +131,9 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
       ENDIF
 
       IF(MOD((ktau-kstart+1),ktauday)==0) THEN  ! end of day
-         casamet%tairk  =casamet%tairk/FLOAT(ktauday)
-         casamet%tsoil=casamet%tsoil/FLOAT(ktauday)
-         casamet%moist=casamet%moist/FLOAT(ktauday)
+         casamet%tairk=casamet%tairk/real(ktauday,r_2)
+         casamet%tsoil=casamet%tsoil/real(ktauday,r_2)
+         casamet%moist=casamet%moist/real(ktauday,r_2)
 
          IF ( icycle .GT. 0 ) THEN
             IF (trim(cable_user%PHENOLOGY_SWITCH)=='climate') THEN
@@ -279,25 +279,25 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
       Iw = POP%Iwood
 
       StemNPP(:,1) = casaflux%stemnpp
-      StemNPP(:,2) = 0.0
-      WHERE (casabal%FCgppyear > 1.e-5 .and. casabal%FCnppyear > 1.e-5  )
+      StemNPP(:,2) = 0.0_dp
+      WHERE (casabal%FCgppyear > 1.e-5_dp .and. casabal%FCnppyear > 1.e-5_dp)
          NPPtoGPP = casabal%FCnppyear/casabal%FCgppyear
       ELSEWHERE
-         NPPtoGPP = 0.5
+         NPPtoGPP = 0.5_dp
       ENDWHERE
       LAImax = casabal%LAImax
       Cleafmean = casabal%cleafmean
       Crootmean = casabal%Crootmean
 
-      CALL POPStep(pop, max(StemNPP(Iw,:)/1000.,0.0001), int(veg%disturbance_interval(Iw,:), i4b),&
+      CALL POPStep(pop, max(StemNPP(Iw,:)/1000._dp,0.0001_dp), int(veg%disturbance_interval(Iw,:), i4b),&
            real(veg%disturbance_intensity(Iw,:),dp)      ,&
-           max(LAImax(Iw),0.001), Cleafmean(Iw), Crootmean(Iw), NPPtoGPP(Iw))
-
-
+           max(LAImax(Iw),0.001_dp), Cleafmean(Iw), Crootmean(Iw), NPPtoGPP(Iw))
    ENDIF ! CALL_POP
 
  END SUBROUTINE POPdriver
+ 
  ! ==============================================================================
+
  SUBROUTINE read_casa_dump( ncfile, casamet, casaflux,phen, climate, c13o2flux, ncall, kend, allATonce )
 
    use netcdf

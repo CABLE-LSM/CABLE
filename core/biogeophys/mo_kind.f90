@@ -106,16 +106,16 @@ MODULE mo_kind
   !> Single Precision Numerical Recipes types for sparse arrays
   TYPE sprs2_sp
      INTEGER(I4) :: n, len
-     REAL(SP),    DIMENSION(:), POINTER :: val
-     INTEGER(I4), DIMENSION(:), POINTER :: irow
-     INTEGER(I4), DIMENSION(:), POINTER :: jcol
+     REAL(SP),    DIMENSION(:), POINTER :: val => null()
+     INTEGER(I4), DIMENSION(:), POINTER :: irow => null()
+     INTEGER(I4), DIMENSION(:), POINTER :: jcol => null()
   END TYPE sprs2_sp
   !> Double Precision Numerical Recipes types for sparse arrays
   TYPE sprs2_dp
      INTEGER(I4) :: n, len
-     REAL(DP),    DIMENSION(:), POINTER :: val
-     INTEGER(I4), DIMENSION(:), POINTER :: irow
-     INTEGER(I4), DIMENSION(:), POINTER :: jcol
+     REAL(DP),    DIMENSION(:), POINTER :: val => null()
+     INTEGER(I4), DIMENSION(:), POINTER :: irow => null()
+     INTEGER(I4), DIMENSION(:), POINTER :: jcol => null()
   END TYPE sprs2_dp
 
 END MODULE mo_kind

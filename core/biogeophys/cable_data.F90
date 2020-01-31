@@ -20,7 +20,8 @@
 ! ==============================================================================
 
 module cable_data_module
-   implicit none
+
+  implicit none
 
    public
 
@@ -209,7 +210,7 @@ module cable_data_module
          ! math constants
          PI180, PI_C
       REAL, POINTER, DIMENSION(:) ::                                           &
-         GAUSS_W
+         GAUSS_W => null()
    END TYPE irad_type
 
    TYPE irough_type
@@ -235,10 +236,10 @@ module cable_data_module
 
    TYPE cable_type
       REAL, dimension(:), POINTER ::                                            &
-         lat, &
-         lon, &
-         tile, &
-         tile_frac
+         lat => null(), &
+         lon => null(), &
+         tile => null(), &
+         tile_frac => null()
 
       TYPE (const_type) :: const
 

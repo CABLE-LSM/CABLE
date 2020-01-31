@@ -963,9 +963,9 @@ endif
   ! check pool sizes
   casapool%Ctot_0 = 0.0_r_2
   casapool%Ctot = 0.0_r_2
-  casapool%cplant     = MAX(0.0,casapool%cplant)
-  casapool%clitter    = MAX(0.0,casapool%clitter)
-  casapool%csoil      = MAX(0.0,casapool%csoil)
+  casapool%cplant     = MAX(0.0_r_2,casapool%cplant)
+  casapool%clitter    = MAX(0.0_r_2,casapool%clitter)
+  casapool%csoil      = MAX(0.0_r_2,casapool%csoil)
   casabal%cplantlast  = casapool%cplant
   casabal%clitterlast = casapool%clitter
   casabal%csoillast   = casapool%csoil
@@ -1098,9 +1098,9 @@ SUBROUTINE casa_poolout(ktau, veg, soil, casabiome, casapool, casaflux, casamet,
   OPEN(nout,file=casafile%cnpepool)
   write(*,*) 'Opened file ', casafile%cnpepool
 
-  casabal%sumcbal=MIN(9999.0,MAX(-9999.0,casabal%sumcbal))
-  casabal%sumnbal=MIN(9999.0,MAX(-9999.0,casabal%sumnbal))
-  casabal%sumpbal=MIN(9999.0,MAX(-9999.0,casabal%sumpbal))
+  casabal%sumcbal=MIN(9999.0_r_2,MAX(-9999.0_r_2,casabal%sumcbal))
+  casabal%sumnbal=MIN(9999.0_r_2,MAX(-9999.0_r_2,casabal%sumnbal))
+  casabal%sumpbal=MIN(9999.0_r_2,MAX(-9999.0_r_2,casabal%sumpbal))
 
   DO npt =1, mp
     nso = casamet%isorder(npt)
@@ -1486,23 +1486,24 @@ SUBROUTINE biogeochem(ktau,dels,idoY,LALLOC,veg,soil,casabiome,casapool,casaflux
       casaflux%kplant_tot(POP%Iwood,2) = casaflux%kplant(POP%Iwood,2) + &
            (1.0_r_2 -casaflux%kplant(POP%Iwood,2))* casaflux%kplant_fire(POP%Iwood,2)
    ENDIF
-!!$if (idoy.eq.365) then
-!!$ write(667,*) pop%LU
-!!$ write(667,*) veg%ilu
-!!$ write(667,991) casaflux%FluxCtohwp(POP%Iwood,1)
-!!$ write(667,991) POP%pop_grid(:)%cat_mortality/POP%pop_grid(:)%cmass_sum_old
-!!$   write(667,991)max(min((POP%pop_grid(:)%cat_mortality                &
-!!$        /POP%pop_grid(:)%cmass_sum_old),0.99),0.0)**(1.0/365.0)
-!!$   write(667,991) (1.0 - (1.0 -max( min((POP%pop_grid(:)%cat_mortality  &
-!!$        /POP%pop_grid(:)%cmass_sum_old),0.99), 0.0))**(1.0/365.0))
-!!$write(667,*)
-!!$   endif
-!!$  
-!write(667,991) casaflux%cgpp(147),casaflux%cnpp(147),casaflux%kplant(147,2),casapool%cplant(147,:)
-!  write(*,991)casaflux%cgpp(2058),casaflux%cnpp(2058),casaflux%fracClabile(2058), &
-!            casaflux%fracCalloc(2058,:),casaflux%crmplant(2058,:),casaflux%crgplant(2058), casapool%Nsoilmin(2058), &
-!            casaflux%cgpp(2058)-casaflux%cnpp(2058)-casaflux%fracClabile(2058)*casaflux%cgpp(2058)-sum(casaflux%crmplant(2058,:))-casaflux%crgplant(2058)
-   !991  format('point 147',20(f10.4,2x))
+   ! if (idoy.eq.365) then
+   !  write(667,*) pop%LU
+   !  write(667,*) veg%ilu
+   !  write(667,991) casaflux%FluxCtohwp(POP%Iwood,1)
+   !  write(667,991) POP%pop_grid(:)%cat_mortality/POP%pop_grid(:)%cmass_sum_old
+   !    write(667,991)max(min((POP%pop_grid(:)%cat_mortality                &
+   !         /POP%pop_grid(:)%cmass_sum_old),0.99),0.0)**(1.0/365.0)
+   !    write(667,991) (1.0 - (1.0 -max( min((POP%pop_grid(:)%cat_mortality  &
+   !         /POP%pop_grid(:)%cmass_sum_old),0.99), 0.0))**(1.0/365.0))
+   ! write(667,*)
+   !    endif
+  
+   ! write(667,991) casaflux%cgpp(147),casaflux%cnpp(147),casaflux%kplant(147,2),casapool%cplant(147,:)
+   ! write(*,991)casaflux%cgpp(2058),casaflux%cnpp(2058),casaflux%fracClabile(2058), &
+   !    casaflux%fracCalloc(2058,:),casaflux%crmplant(2058,:),casaflux%crgplant(2058), casapool%Nsoilmin(2058), &
+   !    casaflux%cgpp(2058)-casaflux%cnpp(2058)-casaflux%fracClabile(2058)*casaflux%cgpp(2058)-&
+   !    sum(casaflux%crmplant(2058,:))-casaflux%crgplant(2058)
+   ! 991  format('point 147',20(f10.4,2x))
    991  format(20(e12.4,2x))
 
   call casa_xratesoil(xklitter,xksoil,veg,soil,casamet,casabiome)
@@ -1594,16 +1595,16 @@ SUBROUTINE WRITE_CASA_RESTART_NC ( casamet, casapool, casaflux, phen, CASAONLY )
   IMPLICIT NONE
 
  
-  TYPE (casa_met),  INTENT(IN) :: casamet
-  TYPE (casa_pool),  INTENT(IN) :: casapool
-  TYPE (casa_flux),           INTENT(IN) :: casaflux
-  TYPE (phen_variable),       INTENT(IN) :: phen
+  TYPE(casa_met),      INTENT(IN) :: casamet
+  TYPE(casa_pool),     INTENT(IN) :: casapool
+  TYPE(casa_flux),     INTENT(IN) :: casaflux
+  TYPE(phen_variable), INTENT(IN) :: phen
 
-  INTEGER*4 :: mp4
-  INTEGER*4, parameter   :: pmp4 =0
+  INTEGER(KIND=4) :: mp4
+  INTEGER(KIND=4), parameter   :: pmp4 =0
   INTEGER, parameter   :: fmp4 = kind(pmp4)
-  INTEGER*4   :: STATUS
-  INTEGER*4   :: FILE_ID, land_ID, plnt_ID, litt_ID, soil_ID, i
+  INTEGER(KIND=4)   :: STATUS
+  INTEGER(KIND=4)   :: FILE_ID, land_ID, plnt_ID, litt_ID, soil_ID, i
   LOGICAL   :: CASAONLY
   CHARACTER :: CYEAR*4, FNAME*99, dum*50
 
@@ -1626,7 +1627,7 @@ SUBROUTINE WRITE_CASA_RESTART_NC ( casamet, casapool, casaflux, phen, CASAONLY )
   CHARACTER(len=20),DIMENSION(3) :: A3
   ! 2 dim arrays (npt,msoil)
   CHARACTER(len=20),DIMENSION(3) :: A4
-  INTEGER*4 :: VID1(SIZE(A1)), VIDI1(SIZE(AI1)), VID2(SIZE(A2)), VID3(SIZE(A3)), VID4(SIZE(A4))
+  INTEGER(KIND=4) :: VID1(SIZE(A1)), VIDI1(SIZE(AI1)), VID2(SIZE(A2)), VID3(SIZE(A3)), VID4(SIZE(A4))
 
   mp4=int(mp,fmp4)
   A1(1) = 'latitude'
@@ -1829,11 +1830,11 @@ SUBROUTINE READ_CASA_RESTART_NC (  casamet, casapool, casaflux,phen )
   TYPE (casa_flux), INTENT(inout) :: casaflux
   TYPE (phen_variable),       INTENT(INOUT) :: phen
 
-  INTEGER*4 :: mp4
-  INTEGER*4, parameter   :: pmp4 =0
-  INTEGER, parameter   :: fmp4 = kind(pmp4)
-  INTEGER*4   :: STATUS, i
-  INTEGER*4   :: FILE_ID, dID, land_dim, mp_dim, ml_dim, ms_dim
+  INTEGER(KIND=4) :: mp4
+  INTEGER(KIND=4), parameter :: pmp4 =0
+  INTEGER, parameter :: fmp4 = kind(pmp4)
+  INTEGER(KIND=4) :: STATUS, i
+  INTEGER(KIND=4) :: FILE_ID, dID, land_dim, mp_dim, ml_dim, ms_dim
   CHARACTER :: FRST_IN*99, CYEAR*4, CDATE*12, RSTDATE*12, FNAME*99
 
   ! ! 1 dim arrays (npt )

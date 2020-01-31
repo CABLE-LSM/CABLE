@@ -269,7 +269,7 @@ SUBROUTINE radiation( ssnow, veg, air, met, rad, canopy )
 
    ! Convert radiative conductance from m/s to mol/m2/s:
    rad%gradis=SPREAD(air%cmolar, 2, mf)*rad%gradis
-   rad%gradis = MAX(1.0e-3_r_2,rad%gradis)
+   rad%gradis = MAX(1.0e-3,rad%gradis)
 
    ! Update extinction coefficients and fractional transmittance for
    ! leaf transmittance and REFLection (ie. NOT black leaves):

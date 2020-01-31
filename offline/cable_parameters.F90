@@ -918,7 +918,10 @@ CONTAINS
   !   max_vegpatches - via cable_IO_vars_module
   !   landpt%type    - via cable_IO_vars_module (%nap,cstart,cend,ilon,ilat)
 
+    use cable_io_vars_module, only: vegtype_metfile
+
     IMPLICIT NONE
+    
     INTEGER, INTENT(IN) :: nlon, nlat, npatch
 
     ! local variables
@@ -1599,10 +1602,10 @@ CONTAINS
         !! vh !! fluxes shouldn't be weighted by patch frac.
      !   IF (CABLE_USER%POPLUC) then
            casaflux%Nmindep(hh) =  inNdep(landpt(ee)%ilon, landpt(ee)%ilat)
-           casaflux%Nminfix(hh) = max(inNfix(landpt(ee)%ilon, landpt(ee)%ilat), 8.0e-4_r_2)
-!vh ! minimum fixation rate of 3 kg N ha-1y-1 (8e-4 g N m-2 d-1)
-! Cleveland, Cory C., et al. "Global patterns of terrestrial biological nitrogen (N2) &
-!fixation in natural ecosystems." Global biogeochemical cycles 13.2 (1999): 623-645.
+           casaflux%Nminfix(hh) = max(real(inNfix(landpt(ee)%ilon, landpt(ee)%ilat),r_2), 8.0e-4_r_2)
+           !vh ! minimum fixation rate of 3 kg N ha-1y-1 (8e-4 g N m-2 d-1)
+           ! Cleveland, Cory C., et al. "Global patterns of terrestrial biological nitrogen (N2) &
+           !fixation in natural ecosystems." Global biogeochemical cycles 13.2 (1999): 623-645.
            casaflux%Pdep(hh)    = inPdust(landpt(ee)%ilon, landpt(ee)%ilat)
            casaflux%Pwea(hh)    = inPwea(landpt(ee)%ilon, landpt(ee)%ilat)
       !  ENDIF

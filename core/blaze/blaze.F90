@@ -395,7 +395,7 @@ FUNCTION BURNTIME( YEAR, DOY, FSTEP )
   ELSE IF ( TRIM(FSTEP) .EQ. "daily" ) THEN
      BURNTIME = .TRUE.
   ELSE IF ( TRIM(FSTEP) .EQ. "none" ) THEN
-     WRITE(6,FMT='(A36,I2.2,x,I2.2,x,I4)') &
+     WRITE(6,FMT='(A36,I2.2,1x,I2.2,1x,I4)') &
           "No fire info available from GFED on ",DD, MM, YEAR
   ELSE 
      STOP "Wrong fire time-step!"

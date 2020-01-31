@@ -175,6 +175,8 @@ host_mcin()
 {
     idebug=0
     iintel=0
+    ignu=0
+    inag=0
     np=$#
     for ((i=0; i<${np}; i++)) ; do
 	if [[ "${1}" == "debug" ]] ; then
@@ -182,10 +184,19 @@ host_mcin()
 	    shift 1
 	elif [[ "${1}" == "ifort" || "${1}" == "intel" ]] ; then
 	    iintel=1
+	    ignu=0
+	    inag=0
 	    shift 1
 	elif [[ "${1}" == "gfortran" || "${1}" == "gnu" ]] ; then
-	    iintel=0
+            iintel=0
+	    ignu=1
+	    inag=0
 	    shift 1
+        elif [[ "${1}" == "nagfor" || "${1}" == "nag" ]] ; then
+            iintel=0
+	    ignu=0
+	    inag=1
+            shift 1
 	fi
     done
     if [[ ${iintel} -eq 1 ]] ;  then
@@ -205,14 +216,14 @@ host_mcin()
 	export NCROOT='/usr/local/netcdf-fortran-4.4.5-ifort'
 	export cdir='.mpitmp-ifort'
 	export PROG=cable-mpi-ifort
-    else
+    elif [[ ${ignu} -eq 1 ]] ;  then
         # GFORTRAN
 	export FC=/usr/local/openmpi-3.1.4-gfortran/bin/mpifort
 	# release
 	export CFLAGS="-O3 -Wno-aggressive-loop-optimizations -cpp -ffree-form -ffixed-line-length-132"
 	if [[ ${idebug} -eq 1 ]] ; then
 	    # debug
-	    export CFLAGS="-pedantic-errors -Wall -W -O -g -Wno-maybe-uninitialized -cpp -ffree-form -ffixed-line-length-132"
+	    export CFLAGS="-pedantic-errors -Wall -W -O0 -g -Wno-maybe-uninitialized -cpp -ffree-form -ffixed-line-length-132"
 	fi
 	# export CFLAGS="${CFLAGS} -march=native"
 	export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__"
@@ -220,6 +231,22 @@ host_mcin()
 	export NCROOT='/usr/local/netcdf-fortran-4.4.5-gfortran'
 	export cdir='.mpitmp-gfortran'
 	export PROG=cable-mpi-gfortran
+    elif [[ ${inag} -eq 1 ]] ;  then
+        # NAG
+	export FC=/usr/local/openmpi-3.1.5-nagfor/bin/mpifort
+	# release
+        export CFLAGS="-O4"
+	if [[ ${idebug} -eq 1 ]] ; then
+	    # debug
+            export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline"
+	fi
+	export CFLAGS="${CFLAGS} -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -not_openmp -mismatch"
+	# export CFLAGS="${CFLAGS} -march=native"
+	export CFLAGS="${CFLAGS} -D__NAG__"
+        export LD='-ideclient -unsharedrts'
+        export NCROOT='/usr/local/netcdf-fortran-4.4.5-nagfor'
+	export cdir='.mpitmp-nagfor'
+	export PROG=cable-mpi-nagfor
     fi
     export CFLAGS="${CFLAGS} -D__MPI__"
     # export CFLAGS="${CFLAGS} -D__C13DEBUG__"
@@ -374,7 +401,7 @@ host_read()
    fi
 
    print "\n\tWhat is the Fortran compiler you wish to use."
-   print "\te.g. ifort, gfortran"
+   print "\te.g. ifort, gfortran, nagfor"
    
    print "\n\tPress enter for default [ifort]."
    read FCRESPONSE 

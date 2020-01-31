@@ -1926,16 +1926,16 @@ SUBROUTINE avgsoil(veg, soil, casamet)
                 veg%froot(nland,ns) * casamet%moist(nland,ns)
         else
            casamet%moistavg(nland)  = casamet%moistavg(nland) + &
-                veg%froot(nland,ns) * min(soil%sfc(nland), casamet%moist(nland,ns))
+                real(veg%froot(nland,ns),r_2) * min(real(soil%sfc(nland),r_2), casamet%moist(nland,ns))
         endif
 
         ! Ticket#121
         ! casamet%btran(nland)     = casamet%btran(nland)+ veg%froot(nland,ns)  &
         !         * (min(soil%sfc(nland),casamet%moist(nland,ns))-soil%swilt(nland)) &
         !         /(soil%sfc(nland)-soil%swilt(nland))
-        casamet%btran(nland) = casamet%btran(nland) + veg%froot(nland,ns)  &
-             * ( max( min(soil%sfc(nland), casamet%moist(nland,ns)) - soil%swilt(nland), 0.0_r_2 ) ) &
-             / ( soil%sfc(nland)-soil%swilt(nland) )
+        casamet%btran(nland) = casamet%btran(nland) + real(veg%froot(nland,ns),r_2)  &
+             * ( max( min(real(soil%sfc(nland),r_2), casamet%moist(nland,ns)) - real(soil%swilt(nland),r_2), 0.0_r_2 ) ) &
+             / real(soil%sfc(nland)-soil%swilt(nland),r_2)
      enddo ! nland=1,mp
   enddo ! ns=1,ms
 
@@ -2542,7 +2542,8 @@ SUBROUTINE casa_cnpbal(casapool,casaflux,casabal)
    ! do npt=1,mp
    !    IF(abs(casabal%cbalance(npt))>1e-10) THEN
    !       write(*,*) 'cbalance',  npt, Cbalplant(npt), Cbalsoil(npt)
-   !       write(*,*) 'soil input', SUM((casaflux%kplant_tot(npt,:)*casabal%cplantlast(npt,:))), casaflux%kplant_tot(npt,1), casaflux%kplant_tot(npt,3),casaflux%kplant(npt,1), casaflux%kplant(npt,3)
+   !       write(*,*) 'soil input', SUM((casaflux%kplant_tot(npt,:)*casabal%cplantlast(npt,:))), &
+   !          casaflux%kplant_tot(npt,1), casaflux%kplant_tot(npt,3),casaflux%kplant(npt,1), casaflux%kplant(npt,3)
    !       write(*,*)  'soil efflux', casaflux%Crsoil(npt)
    !       write(*,*) 'dclitter', casapool%clitter(npt,:) -  casabal%clitterlast(npt,:)
    !       write(*,*) 'dcsoil', casapool%csoil(npt,:) -  casabal%csoillast(npt,:)

@@ -112,269 +112,271 @@ MODULE casavariable
   SAVE
 
   TYPE casa_biome
-    INTEGER,   DIMENSION(:),POINTER :: ivt2
-    REAL(r_2), DIMENSION(:),POINTER :: xkleafcoldmax,  &
-                                       xkleafcoldexp,  &
-                                       xkleafdrymax,   &
-                                       xkleafdryexp,   &
-                                       glaimax,        &
-                                       glaimin,        &
-                                       sla,            &
-                                       ratiofrootleaf, &
-                                       kroot,          &
-                                       krootlen,       &
-                                       rootdepth,      &
-                                       kuptake,        &
-                                       kminN,          &
-                                       kuplabP,        &
-                                       kclabrate,      &
-                                       xnpmax,         &
-                                       q10soil,        &
-                                       xkoptlitter,    &
-                                       xkoptsoil,      &
-                                       xkplab,         &
-                                       xkpsorb,        &
-                                       xkpocc,         &
-                                       prodptase,      &
-                                       costnpup,       &
-                                       maxfinelitter,  &
-                                       maxcwd,         &
-                                       nintercept,     &
-                                       nslope,         &
-                                       la_to_sa,       &
-                                       vcmax_scalar,   &
-                                       disturbance_interval, &
-                                       DAMM_EnzPool, &
-                                       DAMM_KMO2, &
-                                       DAMM_KMcp, &
-                                       DAMM_Ea, &
-                                       DAMM_alpha
+    INTEGER,   DIMENSION(:),POINTER :: ivt2 => null()
+    REAL(r_2), DIMENSION(:),POINTER :: xkleafcoldmax => null(),  &
+                                       xkleafcoldexp => null(),  &
+                                       xkleafdrymax => null(),   &
+                                       xkleafdryexp => null(),   &
+                                       glaimax => null(),        &
+                                       glaimin => null(),        &
+                                       sla => null(),            &
+                                       ratiofrootleaf => null(), &
+                                       kroot => null(),          &
+                                       krootlen => null(),       &
+                                       rootdepth => null(),      &
+                                       kuptake => null(),        &
+                                       kminN => null(),          &
+                                       kuplabP => null(),        &
+                                       kclabrate => null(),      &
+                                       xnpmax => null(),         &
+                                       q10soil => null(),        &
+                                       xkoptlitter => null(),    &
+                                       xkoptsoil => null(),      &
+                                       xkplab => null(),         &
+                                       xkpsorb => null(),        &
+                                       xkpocc => null(),         &
+                                       prodptase => null(),      &
+                                       costnpup => null(),       &
+                                       maxfinelitter => null(),  &
+                                       maxcwd => null(),         &
+                                       nintercept => null(),     &
+                                       nslope => null(),         &
+                                       la_to_sa => null(),       &
+                                       vcmax_scalar => null(),   &
+                                       disturbance_interval => null(), &
+                                       DAMM_EnzPool => null(), &
+                                       DAMM_KMO2 => null(), &
+                                       DAMM_KMcp => null(), &
+                                       DAMM_Ea => null(), &
+                                       DAMM_alpha => null()
 
-    REAL(r_2), DIMENSION(:,:),POINTER :: plantrate,     &
-                                       rmplant,         &
-                                       fracnpptoP,      &
-                                       fraclignin,      &
-                                       fraclabile,      &
-                                       ratioNCplantmin, &
-                                       ratioNCplantmax, &
-                                       ratioNPplantmin, &
-                                       ratioNPplantmax, &
-                                       fracLigninplant, &
-                                       ftransNPtoL,     &
-                                       ftransPPtoL,     &
-                                       litterrate,      &
-                                       ratioPcplantmin, &
-                                       ratioPcplantmax
-    REAL(r_2), DIMENSION(:,:),POINTER :: soilrate
+    REAL(r_2), DIMENSION(:,:),POINTER :: plantrate => null(),     &
+                                       rmplant => null(),         &
+                                       fracnpptoP => null(),      &
+                                       fraclignin => null(),      &
+                                       fraclabile => null(),      &
+                                       ratioNCplantmin => null(), &
+                                       ratioNCplantmax => null(), &
+                                       ratioNPplantmin => null(), &
+                                       ratioNPplantmax => null(), &
+                                       fracLigninplant => null(), &
+                                       ftransNPtoL => null(),     &
+                                       ftransPPtoL => null(),     &
+                                       litterrate => null(),      &
+                                       ratioPcplantmin => null(), &
+                                       ratioPcplantmax => null()
+    REAL(r_2), DIMENSION(:,:),POINTER :: soilrate => null()
   END TYPE casa_biome
 
   TYPE casa_pool
-    REAL(r_2), DIMENSION(:),POINTER :: Clabile,       &
-                                       dClabiledt,    &
-                                       Ctot ,         &          !! vh_js !!
-                                       Ctot_0
-    REAL(r_2), DIMENSION(:,:),POINTER :: Cplant,      &
-                                       Nplant,        &
-                                       Pplant,        &
-                                       dCplantdt,     &
-                                       dNplantdt,     &
-                                       dPplantdt,     &
-                                       ratioNCplant,  &
-                                       ratioNPplant
-    REAL(r_2), DIMENSION(:),POINTER :: Nsoilmin,      &
-                                       Psoillab,      &
-                                       Psoilsorb,     &
-                                       Psoilocc,      &
-                                       dNsoilmindt,   &
-                                       dPsoillabdt,   &
-                                       dPsoilsorbdt,  &
-                                       dPsoiloccdt
-    REAL(r_2), DIMENSION(:,:), POINTER :: Clitter,    &
-                                       Nlitter,       &
-                                       Plitter,       &
-                                       dClitterdt,    &
-                                       dNlitterdt,    &
-                                       dPlitterdt,    &
-                                       ratioNClitter, &
-                                       ratioNPlitter
-    REAL(r_2), DIMENSION(:,:),POINTER :: Csoil,       &
-                                       Nsoil,         &
-                                       Psoil,         &
-                                       dCsoildt,      &
-                                       dNsoildt,      &
-                                       dPsoildt,      &
-                                       ratioNCsoil,   &
-                                       ratioNCsoilnew,&
-                                       ratioNPsoil,   &
-                                       ratioNCsoilmin,&
-                                       ratioNCsoilmax,&
-                                       ratioPcsoil,   &
-                                       ratioPcplant,  &
-                                       ratioPclitter
+    REAL(r_2), DIMENSION(:),POINTER :: Clabile => null(),       &
+                                       dClabiledt => null(),    &
+                                       Ctot => null(),         &          !! vh_js !!
+                                       Ctot_0 => null()
+    REAL(r_2), DIMENSION(:,:),POINTER :: Cplant => null(),      &
+                                       Nplant => null(),        &
+                                       Pplant => null(),        &
+                                       dCplantdt => null(),     &
+                                       dNplantdt => null(),     &
+                                       dPplantdt => null(),     &
+                                       ratioNCplant => null(),  &
+                                       ratioNPplant => null()
+    REAL(r_2), DIMENSION(:),POINTER :: Nsoilmin => null(),      &
+                                       Psoillab => null(),      &
+                                       Psoilsorb => null(),     &
+                                       Psoilocc => null(),      &
+                                       dNsoilmindt => null(),   &
+                                       dPsoillabdt => null(),   &
+                                       dPsoilsorbdt => null(),  &
+                                       dPsoiloccdt => null()
+    REAL(r_2), DIMENSION(:,:), POINTER :: Clitter => null(),    &
+                                       Nlitter => null(),       &
+                                       Plitter => null(),       &
+                                       dClitterdt => null(),    &
+                                       dNlitterdt => null(),    &
+                                       dPlitterdt => null(),    &
+                                       ratioNClitter => null(), &
+                                       ratioNPlitter => null()
+    REAL(r_2), DIMENSION(:,:),POINTER :: Csoil => null(),       &
+                                       Nsoil => null(),         &
+                                       Psoil => null(),         &
+                                       dCsoildt => null(),      &
+                                       dNsoildt => null(),      &
+                                       dPsoildt => null(),      &
+                                       ratioNCsoil => null(),   &
+                                       ratioNCsoilnew => null(),&
+                                       ratioNPsoil => null(),   &
+                                       ratioNCsoilmin => null(),&
+                                       ratioNCsoilmax => null(),&
+                                       ratioPcsoil => null(),   &
+                                       ratioPcplant => null(),  &
+                                       ratioPclitter => null()
  END TYPE casa_pool
 
   TYPE casa_flux
-    REAL(r_2), DIMENSION(:),POINTER :: Cgpp,          &
-                                       Cnpp,          &
-                                       Crp,           &
-                                       Crgplant,      &
-                                       Nminfix,       &
-                                       Nminuptake,    &
-                                       Plabuptake,    &
-                                       Clabloss,      &
-                                       fracClabile, &
+    REAL(r_2), DIMENSION(:),POINTER :: Cgpp => null(),          &
+                                       Cnpp => null(),          &
+                                       Crp => null(),           &
+                                       Crgplant => null(),      &
+                                       Nminfix => null(),       &
+                                       Nminuptake => null(),    &
+                                       Plabuptake => null(),    &
+                                       Clabloss => null(),      &
+                                       fracClabile => null(), &
 !! vh_js !! the 3 variables below are needed for POP coupling to CASA
-                                       stemnpp, &
-                                       frac_sapwood, &
-                                       sapwood_area, &
-                                       Charvest, &  ! leaf biomass removed due to crop or pasture management
-                                       Nharvest, & ! leaf N removed due to crop or pasture management
-                                       Pharvest, & ! leaf P removed due to crop or pasture management
-                                       fHarvest, &  ! fraction leaf biomass removed due to crop or pasture management
-                                       fcrop        ! fraction of 'grass' that is crop
-    REAL(r_2), DIMENSION(:,:),POINTER :: fracCalloc,  &
-                                       fracNalloc,    &
-                                       fracPalloc,    &
-                                       Crmplant,      &
-                                       kplant,        &
+                                       stemnpp => null(), &
+                                       frac_sapwood => null(), &
+                                       sapwood_area => null(), &
+                                       Charvest => null(), &  ! leaf biomass removed due to crop or pasture management
+                                       Nharvest => null(), & ! leaf N removed due to crop or pasture management
+                                       Pharvest => null(), & ! leaf P removed due to crop or pasture management
+                                       fHarvest => null(), &  ! fraction leaf biomass removed due to crop or pasture management
+                                       fcrop => null()        ! fraction of 'grass' that is crop
+    REAL(r_2), DIMENSION(:,:),POINTER :: fracCalloc => null(),  &
+                                       fracNalloc => null(),    &
+                                       fracPalloc => null(),    &
+                                       Crmplant => null(),      &
+                                       kplant => null(),        &
                                        !! vh_js !! additional diagnostic
-                                       Cplant_turnover
-    REAL(r_2), DIMENSION(:,:,:),POINTER :: fromPtoL
-    REAL(r_2), DIMENSION(:),POINTER :: Cnep,        &
-                                       Crsoil,      &
-                                       Nmindep,     &
-                                       Nminloss,    &
-                                       Nminleach,   &
-                                       Nupland,     &
-                                       Nlittermin,  &
-                                       Nsmin,       &
-                                       Nsimm,       &
-                                       Nsnet,       &
-                                       fNminloss,   &
-                                       fNminleach,  &
-                                       Pdep,        &
-                                       Pwea,        &
-                                       Pleach,      &
-                                       Ploss,       &
-                                       Pupland,     &
-                                       Plittermin,  &
-                                       Psmin,       &
-                                       Psimm,       &
-                                       Psnet,       &
-                                       fPleach,     &
-                                       kplab,       &
-                                       kpsorb,      &
-                                       kpocc,       &
-                                       kmlabp,      &
-                                       Psorbmax,    &
+                                       Cplant_turnover => null()
+    REAL(r_2), DIMENSION(:,:,:),POINTER :: fromPtoL => null()
+    REAL(r_2), DIMENSION(:),POINTER :: Cnep => null(),        &
+                                       Crsoil => null(),      &
+                                       Nmindep => null(),     &
+                                       Nminloss => null(),    &
+                                       Nminleach => null(),   &
+                                       Nupland => null(),     &
+                                       Nlittermin => null(),  &
+                                       Nsmin => null(),       &
+                                       Nsimm => null(),       &
+                                       Nsnet => null(),       &
+                                       fNminloss => null(),   &
+                                       fNminleach => null(),  &
+                                       Pdep => null(),        &
+                                       Pwea => null(),        &
+                                       Pleach => null(),      &
+                                       Ploss => null(),       &
+                                       Pupland => null(),     &
+                                       Plittermin => null(),  &
+                                       Psmin => null(),       &
+                                       Psimm => null(),       &
+                                       Psnet => null(),       &
+                                       fPleach => null(),     &
+                                       kplab => null(),       &
+                                       kpsorb => null(),      &
+                                       kpocc => null(),       &
+                                       kmlabp => null(),      &
+                                       Psorbmax => null(),    &
 !! additional diagnostics for partitioning biomass turnover
-                                       Cplant_turnover_disturbance, &
-                                       Cplant_turnover_crowding , &
-                                       Cplant_turnover_resource_limitation
+                                       Cplant_turnover_disturbance => null(), &
+                                       Cplant_turnover_crowding  => null(), &
+                                       Cplant_turnover_resource_limitation => null()
 
-    REAL(r_2), DIMENSION(:,:),POINTER    :: klitter
-    REAL(r_2), DIMENSION(:,:),POINTER    :: ksoil
-    REAL(r_2), DIMENSION(:,:,:),POINTER  :: fromLtoS
-    REAL(r_2), DIMENSION(:,:,:),POINTER  :: fromStoS
-    REAL(r_2), DIMENSION(:,:),POINTER    :: fromLtoCO2
-    REAL(r_2), DIMENSION(:,:),POINTER    :: fromStoCO2
-    REAL(r_2), DIMENSION(:,:),POINTER    :: FluxCtolitter
-    REAL(r_2), DIMENSION(:,:),POINTER    :: FluxNtolitter
-    REAL(r_2), DIMENSION(:,:),POINTER    :: FluxPtolitter
-    REAL(r_2), DIMENSION(:,:),POINTER    :: FluxCtosoil
-    REAL(r_2), DIMENSION(:,:),POINTER    :: FluxNtosoil
-    REAL(r_2), DIMENSION(:,:),POINTER    :: FluxPtosoil
-    REAL(r_2), DIMENSION(:),POINTER      :: FluxCtoCO2
-    REAL(r_2), DIMENSION(:),POINTER    :: FluxCtohwp
-    REAL(r_2), DIMENSION(:),POINTER    :: FluxNtohwp
-    REAL(r_2), DIMENSION(:),POINTER    :: FluxPtohwp
-    REAL(r_2), DIMENSION(:),POINTER    :: FluxCtoclear
-    REAL(r_2), DIMENSION(:),POINTER    :: FluxNtoclear
-    REAL(r_2), DIMENSION(:),POINTER    :: FluxPtoclear
-    REAL(r_2), DIMENSION(:),POINTER    :: CtransferLUC
+    REAL(r_2), DIMENSION(:,:),POINTER    :: klitter => null()
+    REAL(r_2), DIMENSION(:,:),POINTER    :: ksoil => null()
+    REAL(r_2), DIMENSION(:,:,:),POINTER  :: fromLtoS => null()
+    REAL(r_2), DIMENSION(:,:,:),POINTER  :: fromStoS => null()
+    REAL(r_2), DIMENSION(:,:),POINTER    :: fromLtoCO2 => null()
+    REAL(r_2), DIMENSION(:,:),POINTER    :: fromStoCO2 => null()
+    REAL(r_2), DIMENSION(:,:),POINTER    :: FluxCtolitter => null()
+    REAL(r_2), DIMENSION(:,:),POINTER    :: FluxNtolitter => null()
+    REAL(r_2), DIMENSION(:,:),POINTER    :: FluxPtolitter => null()
+    REAL(r_2), DIMENSION(:,:),POINTER    :: FluxCtosoil => null()
+    REAL(r_2), DIMENSION(:,:),POINTER    :: FluxNtosoil => null()
+    REAL(r_2), DIMENSION(:,:),POINTER    :: FluxPtosoil => null()
+    REAL(r_2), DIMENSION(:),POINTER      :: FluxCtoCO2 => null()
+    REAL(r_2), DIMENSION(:),POINTER    :: FluxCtohwp => null()
+    REAL(r_2), DIMENSION(:),POINTER    :: FluxNtohwp => null()
+    REAL(r_2), DIMENSION(:),POINTER    :: FluxPtohwp => null()
+    REAL(r_2), DIMENSION(:),POINTER    :: FluxCtoclear => null()
+    REAL(r_2), DIMENSION(:),POINTER    :: FluxNtoclear => null()
+    REAL(r_2), DIMENSION(:),POINTER    :: FluxPtoclear => null()
+    REAL(r_2), DIMENSION(:),POINTER    :: CtransferLUC => null()
 
     !CVH variables inherited from BLAZE
-    REAL(r_2), DIMENSION(:,:,:),POINTER  :: fromPtoL_fire
-    REAL(r_2), DIMENSION(:,:),POINTER    :: klitter_fire
-    REAL(r_2), DIMENSION(:,:),POINTER    :: klitter_tot  ! sum of fire turnover and non-fire turnover (litter)
-    REAL(r_2), DIMENSION(:,:),POINTER    :: kplant_fire
-    REAL(r_2), DIMENSION(:,:),POINTER    :: kplant_tot  ! sum of fire turnover and non-fire turnover (plants)
+    REAL(r_2), DIMENSION(:,:,:),POINTER  :: fromPtoL_fire => null()
+    REAL(r_2), DIMENSION(:,:),POINTER    :: klitter_fire => null()
+    REAL(r_2), DIMENSION(:,:),POINTER    :: klitter_tot => null()  ! sum of fire turnover and non-fire turnover (litter)
+    REAL(r_2), DIMENSION(:,:),POINTER    :: kplant_fire => null()
+    REAL(r_2), DIMENSION(:,:),POINTER    :: kplant_tot => null()  ! sum of fire turnover and non-fire turnover (plants)
 
     !CVH diagnostic: CO2 emissions from fire
-    REAL(r_2), DIMENSION(:),POINTER      :: fluxCtoCO2_plant_fire
-    REAL(r_2), DIMENSION(:),POINTER      :: fluxCtoCO2_litter_fire
-    REAL(r_2), DIMENSION(:),POINTER      :: fluxNtoAtm_fire
-    REAL(r_2), DIMENSION(:,:,:),POINTER  :: fire_mortality_vs_height
+    REAL(r_2), DIMENSION(:),POINTER      :: fluxCtoCO2_plant_fire => null()
+    REAL(r_2), DIMENSION(:),POINTER      :: fluxCtoCO2_litter_fire => null()
+    REAL(r_2), DIMENSION(:),POINTER      :: fluxNtoAtm_fire => null()
+    REAL(r_2), DIMENSION(:,:,:),POINTER  :: fire_mortality_vs_height => null()
 
     ! Diagnostic fluxes for use in 13C
-    REAL(r_2), DIMENSION(:,:,:), POINTER :: FluxFromPtoL
-    REAL(r_2), DIMENSION(:,:,:), POINTER :: FluxFromLtoS
-    REAL(r_2), DIMENSION(:,:,:), POINTER :: FluxFromStoS
-    REAL(r_2), DIMENSION(:,:),   POINTER :: FluxFromPtoCO2
-    REAL(r_2), DIMENSION(:,:),   POINTER :: FluxFromLtoCO2
-    REAL(r_2), DIMENSION(:,:),   POINTER :: FluxFromStoCO2
-    REAL(r_2), DIMENSION(:),     POINTER :: FluxFromPtoHarvest
+    REAL(r_2), DIMENSION(:,:,:), POINTER :: FluxFromPtoL => null()
+    REAL(r_2), DIMENSION(:,:,:), POINTER :: FluxFromLtoS => null()
+    REAL(r_2), DIMENSION(:,:,:), POINTER :: FluxFromStoS => null()
+    REAL(r_2), DIMENSION(:,:),   POINTER :: FluxFromPtoCO2 => null()
+    REAL(r_2), DIMENSION(:,:),   POINTER :: FluxFromLtoCO2 => null()
+    REAL(r_2), DIMENSION(:,:),   POINTER :: FluxFromStoCO2 => null()
+    REAL(r_2), DIMENSION(:),     POINTER :: FluxFromPtoHarvest => null()
       
   END TYPE casa_flux
 
   TYPE casa_met
-    REAL(r_2), DIMENSION(:),POINTER    :: glai,     &
-                                          Tairk,    &
-                                          precip,   &
-                                          tsoilavg, &
-                                          moistavg, &
-                                          btran
-    INTEGER, DIMENSION(:), POINTER     :: lnonwood
-    REAL(r_2), DIMENSION(:,:), POINTER :: Tsoil,    &
-                                          moist
-    INTEGER, DIMENSION(:), POINTER     :: iveg2,    &
-                                          ijgcm,    &
-                                          isorder
-    REAL(r_2), DIMENSION(:), POINTER   :: lat,      &
-                                          lon,      &
-                                          areacell
+    REAL(r_2), DIMENSION(:),POINTER    :: glai => null(),     &
+                                          Tairk => null(),    &
+                                          precip => null(),   &
+                                          tsoilavg => null(), &
+                                          moistavg => null(), &
+                                          btran => null()
+    INTEGER, DIMENSION(:), POINTER     :: lnonwood => null()
+    REAL(r_2), DIMENSION(:,:), POINTER :: Tsoil => null(),    &
+                                          moist => null()
+    INTEGER, DIMENSION(:), POINTER     :: iveg2 => null(),    &
+                                          ijgcm => null(),    &
+                                          isorder => null()
+    REAL(r_2), DIMENSION(:), POINTER   :: lat => null(),      &
+                                          lon => null(),      &
+                                          areacell => null()
     ! added yp wang 5/nov/2012
-    REAL(r_2), DIMENSION(:,:), POINTER :: Tairkspin,&
-                                          cgppspin,&
-                                          crmplantspin_1,&
-                                          crmplantspin_2,&
-                                          crmplantspin_3,&
-                                          Tsoilspin_1,&
-                                          Tsoilspin_2,&
-                                          Tsoilspin_3,&
-                                          Tsoilspin_4,&
-                                          Tsoilspin_5,&
-                                          Tsoilspin_6,&
-                                          moistspin_1,&
-                                          moistspin_2,&
-                                          moistspin_3,&
-                                          moistspin_4,&
-                                          moistspin_5,&
-                                          moistspin_6, &
-                                          mtempspin
+    REAL(r_2), DIMENSION(:,:), POINTER :: Tairkspin => null(),&
+                                          cgppspin => null(),&
+                                          crmplantspin_1 => null(),&
+                                          crmplantspin_2 => null(),&
+                                          crmplantspin_3 => null(),&
+                                          Tsoilspin_1 => null(),&
+                                          Tsoilspin_2 => null(),&
+                                          Tsoilspin_3 => null(),&
+                                          Tsoilspin_4 => null(),&
+                                          Tsoilspin_5 => null(),&
+                                          Tsoilspin_6 => null(),&
+                                          moistspin_1 => null(),&
+                                          moistspin_2 => null(),&
+                                          moistspin_3 => null(),&
+                                          moistspin_4 => null(),&
+                                          moistspin_5 => null(),&
+                                          moistspin_6 => null(), &
+                                          mtempspin => null()
     ! 13C
-    real(r_2), dimension(:,:), pointer :: cAn12spin ! daily cumulated total 12CO2 net assimilation in [g(C)/m2]
-    real(r_2), dimension(:,:), pointer :: cAn13spin ! daily cumulated total 13CO2 net assimilation in [g(13C)/m2]
+    real(r_2), dimension(:,:), pointer :: cAn12spin => null() ! daily cumulated total 12CO2 net assimilation in [g(C)/m2]
+    real(r_2), dimension(:,:), pointer :: cAn13spin => null() ! daily cumulated total 13CO2 net assimilation in [g(13C)/m2]
 
   END TYPE casa_met
 
   TYPE casa_balance
-    REAL(r_2), DIMENSION(:),POINTER   :: FCgppyear,FCnppyear,                 &
-            FCrmleafyear,FCrmwoodyear,FCrmrootyear,FCrgrowyear,               &
-            FCrpyear, FCrsyear,FCneeyear,  dCdtyear ,                         &
-            LAImax, Cleafmean, Crootmean,                          &
-            FNdepyear,FNfixyear, FNsnetyear,FNupyear, FNleachyear,FNlossyear, &
-            FPweayear,FPdustyear,FPsnetyear,FPupyear, FPleachyear,FPlossyear
+    REAL(r_2), DIMENSION(:),POINTER   :: FCgppyear => null(), FCnppyear => null(), &
+            FCrmleafyear => null(), FCrmwoodyear => null(), FCrmrootyear => null(), FCrgrowyear => null(), &
+            FCrpyear => null(), FCrsyear => null(),FCneeyear => null(),  dCdtyear => null(), &
+            LAImax => null(), Cleafmean => null(), Crootmean => null(), &
+            FNdepyear => null(), FNfixyear => null(), FNsnetyear => null(), FNupyear => null(), &
+            FNleachyear => null(), FNlossyear => null(), &
+            FPweayear => null(), FPdustyear => null(), FPsnetyear => null(), &
+            FPupyear => null(), FPleachyear => null(), FPlossyear => null()
  
-    REAL(r_2), DIMENSION(:,:),POINTER :: glaimon,glaimonx
-    REAL(r_2), DIMENSION(:,:),POINTER :: cplantlast,nplantlast,pplantlast
-    REAL(r_2), DIMENSION(:,:),POINTER :: clitterlast,nlitterlast,plitterlast
-    REAL(r_2), DIMENSION(:,:),POINTER :: csoillast,nsoillast,psoillast
-    REAL(r_2), DIMENSION(:),  POINTER :: nsoilminlast,psoillablast,  &
-                                         psoilsorblast,psoilocclast, &
-                                         cbalance,nbalance,pbalance, &
-                                         sumcbal,sumnbal,sumpbal
-    REAL(r_2), DIMENSION(:),POINTER   :: clabilelast
+    REAL(r_2), DIMENSION(:,:),POINTER :: glaimon => null(), glaimonx => null()
+    REAL(r_2), DIMENSION(:,:),POINTER :: cplantlast => null(), nplantlast => null(), pplantlast => null()
+    REAL(r_2), DIMENSION(:,:),POINTER :: clitterlast => null(), nlitterlast => null(), plitterlast => null()
+    REAL(r_2), DIMENSION(:,:),POINTER :: csoillast => null(), nsoillast => null(), psoillast => null()
+    REAL(r_2), DIMENSION(:),  POINTER :: nsoilminlast => null(), psoillablast => null(),  &
+                                         psoilsorblast => null(), psoilocclast => null(), &
+                                         cbalance => null(), nbalance => null(), pbalance => null(), &
+                                         sumcbal => null(), sumnbal => null(), sumpbal => null()
+    REAL(r_2), DIMENSION(:),POINTER   :: clabilelast => null()
  END TYPE casa_balance
 
 ! The following declarations are removed and have to be passed using
@@ -1287,16 +1289,16 @@ MODULE phenvariable
   USE casadimension
   IMPLICIT NONE
   TYPE phen_variable
-    INTEGER,   DIMENSION(:),  POINTER :: phase
-    REAL(r_2), DIMENSION(:),  POINTER :: TKshed
-    INTEGER,   DIMENSION(:,:),POINTER :: doyphase
-    REAL, DIMENSION(:),  POINTER :: phen   ! fraction of max LAI
-    REAL, DIMENSION(:),  POINTER :: aphen  ! annual leaf on sum
-    INTEGER,   DIMENSION(:,:),POINTER :: phasespin
-    INTEGER,   DIMENSION(:,:),POINTER :: doyphasespin_1
-    INTEGER,   DIMENSION(:,:),POINTER :: doyphasespin_2
-    INTEGER,   DIMENSION(:,:),POINTER :: doyphasespin_3
-    INTEGER,   DIMENSION(:,:),POINTER :: doyphasespin_4
+    INTEGER,   DIMENSION(:),  POINTER :: phase => null()
+    REAL(r_2), DIMENSION(:),  POINTER :: TKshed => null()
+    INTEGER,   DIMENSION(:,:),POINTER :: doyphase => null()
+    REAL, DIMENSION(:),  POINTER :: phen => null()   ! fraction of max LAI
+    REAL, DIMENSION(:),  POINTER :: aphen => null()  ! annual leaf on sum
+    INTEGER,   DIMENSION(:,:),POINTER :: phasespin => null()
+    INTEGER,   DIMENSION(:,:),POINTER :: doyphasespin_1 => null()
+    INTEGER,   DIMENSION(:,:),POINTER :: doyphasespin_2 => null()
+    INTEGER,   DIMENSION(:,:),POINTER :: doyphasespin_3 => null()
+    INTEGER,   DIMENSION(:,:),POINTER :: doyphasespin_4 => null()
 
   END type phen_variable
 

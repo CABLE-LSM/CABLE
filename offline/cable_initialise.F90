@@ -191,10 +191,10 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
    REAL, INTENT(IN) :: EMSOIL
    ! Local variables
    REAL, POINTER,DIMENSION(:)           ::                                &
-        lat_restart,                                                           &
-        lon_restart
-   INTEGER,POINTER,DIMENSION(:)         :: INvar
-   !    REAL, POINTER,DIMENSION(:,:) :: surffrac ! fraction of each surf type
+        lat_restart => null(),                                                           &
+        lon_restart => null()
+   INTEGER,POINTER,DIMENSION(:)         :: INvar => null()
+   !    REAL, POINTER,DIMENSION(:,:) :: surffrac => null() ! fraction of each surf type
    INTEGER ::                                                             &
         mland_restart,         & ! number of land points in restart file
         INvegt,                &

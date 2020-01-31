@@ -37,41 +37,41 @@ MODULE cable_c13o2_def
   type c13o2_flux ! all fluxes in units mol(13CO2)/m2s
      integer                           :: ntile, nleaf
      ! atmospheric 13CO2 concentration [mol(13CO2)/mol(air)]
-     real(dp), dimension(:),   pointer :: ca
+     real(dp), dimension(:),   pointer :: ca => null()
      ! net assimilation 13CO2 flux divided by VPDB [mol(CO2)/m2s]
-     real(dp), dimension(:,:), pointer :: An
+     real(dp), dimension(:,:), pointer :: An => null()
      ! leaf discrimination: 1-A13/A12/Ca
-     real(dp), dimension(:,:), pointer :: Disc
+     real(dp), dimension(:,:), pointer :: Disc => null()
      ! daily cumulated total 12CO2 net assimilation in [mol(CO2)/m2]
-     real(dp), dimension(:),   pointer :: cAn12
+     real(dp), dimension(:),   pointer :: cAn12 => null()
      ! daily cumulated total 13CO2 net assimilation divided by VPDB in [mol(CO2)/m2]
-     real(dp), dimension(:),   pointer :: cAn
+     real(dp), dimension(:),   pointer :: cAn => null()
      ! isotope ratio of daily cumulated total 13CO2 net assimilation over 12CO2 net assimilation divided by VPDB
-     real(dp), dimension(:),   pointer :: RAn
+     real(dp), dimension(:),   pointer :: RAn => null()
      ! Transitory starch concentration in leaf [mol(CO2)/m2] - One pool for sun and shade leaves
-     real(dp), dimension(:),   pointer :: Vstarch
+     real(dp), dimension(:),   pointer :: Vstarch => null()
      ! Isotopic composition of transitory starch
-     real(dp), dimension(:),   pointer :: Rstarch
+     real(dp), dimension(:),   pointer :: Rstarch => null()
      ! Isotopic composition of leaf sucrose
-     real(dp), dimension(:,:), pointer :: Rsucrose
+     real(dp), dimension(:,:), pointer :: Rsucrose => null()
      ! Isotopic composition of pool used for photorespiration
-     real(dp), dimension(:,:), pointer :: Rphoto
+     real(dp), dimension(:,:), pointer :: Rphoto => null()
   end type c13o2_flux
 
   type c13o2_pool ! all pools in units g(C)/m2
      integer                           :: ntile, nplant, nlitter, nsoil, npools
-     real(dp), dimension(:,:), pointer :: cplant   ! 13C content in plants: leaves, wood, fine roots
-     real(dp), dimension(:,:), pointer :: clitter  ! 13C content in litter: metabolic, fine structural, coarse woody debris
-     real(dp), dimension(:,:), pointer :: csoil    ! 13C content in soils: fast, medium, slow
-     real(dp), dimension(:),   pointer :: clabile  ! 13C content in excess pool
-     real(dp), dimension(:),   pointer :: charvest ! 13C content in agricultural harvest products
+     real(dp), dimension(:,:), pointer :: cplant => null()   ! 13C content in plants: leaves, wood, fine roots
+     real(dp), dimension(:,:), pointer :: clitter => null()  ! 13C content in litter: metabolic, fine structural, coarse woody debris
+     real(dp), dimension(:,:), pointer :: csoil => null()    ! 13C content in soils: fast, medium, slow
+     real(dp), dimension(:),   pointer :: clabile => null()  ! 13C content in excess pool
+     real(dp), dimension(:),   pointer :: charvest => null() ! 13C content in agricultural harvest products
   end type c13o2_pool
   
   type c13o2_luc  ! all pools in units g(C)/m2
      integer                           :: nland, nharvest, nclearance, npools
-     real(dp), dimension(:,:), pointer :: charvest   ! 13C content in harvest products
-     real(dp), dimension(:,:), pointer :: cclearance ! 13C content in clearance products
-     real(dp), dimension(:),   pointer :: cagric     ! 13C content in agricultural products
+     real(dp), dimension(:,:), pointer :: charvest => null()   ! 13C content in harvest products
+     real(dp), dimension(:,:), pointer :: cclearance => null() ! 13C content in clearance products
+     real(dp), dimension(:),   pointer :: cagric => null()     ! 13C content in agricultural products
   end type c13o2_luc
 
   ! ------------------------------------------------------------------

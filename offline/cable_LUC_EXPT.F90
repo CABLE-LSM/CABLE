@@ -681,11 +681,11 @@ USE netcdf
 
   TYPE (LUC_EXPT_type), INTENT(INOUT)       :: LUC_EXPT ! climate variables
 
-  INTEGER*4 :: mp4
-  INTEGER*4, parameter   :: pmp4 =0
+  INTEGER(KIND=4) :: mp4
+  INTEGER(KIND=4), parameter   :: pmp4 =0
   INTEGER, parameter   :: fmp4 = kind(pmp4)
-  INTEGER*4   :: STATUS
-  INTEGER*4   :: FILE_ID, land_ID, nyear_ID, nday_ID, dID, i, land_dim
+  INTEGER(KIND=4)   :: STATUS
+  INTEGER(KIND=4)   :: FILE_ID, land_ID, nyear_ID, nday_ID, dID, i, land_dim
   CHARACTER :: CYEAR*4, FNAME*99,dum*50
 
   ! 0 dim arrays
@@ -696,7 +696,7 @@ USE netcdf
   CHARACTER(len=20),DIMENSION(2) :: AI1
  
   REAL(r_2), DIMENSION(mland)          :: LAT, LON, TMP
-  INTEGER*4 :: TMPI(mland), TMPI0
+  INTEGER(KIND=4) :: TMPI(mland), TMPI0
   LOGICAL            ::  EXISTFILE
 
   mp4=int(mland,fmp4)

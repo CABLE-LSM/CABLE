@@ -91,25 +91,25 @@ MODULE cable_write_module
   ! e.g. 'o'utput 'tmp'orary with '2' dimensions: 'l'and and 't'ime -> otmp2lt
   ! Other dimension abbrevs: 'x','y','z','p'atch,'s'oil,'sn'ow,
   ! 'r'adiation,'p'lant 'c'arbon,'s'oil 'c'arbon,'s'urface 'f'raction
-  REAL, POINTER, DIMENSION(:)         :: otmp1, otmp1l
-  REAL, POINTER, DIMENSION(:,:)       :: otmp2lt, otmp2xy, otmp2lp, otmp2ls, &
-       otmp2lpc, otmp2lsc, otmp2lsf, otmp2lr, otmp2lsn
-  REAL, POINTER, DIMENSION(:,:,:)     :: otmp3xyt, otmp3lpt, otmp3lst, &
-       otmp3lsnt, otmp3lrt, otmp3lpct,  &
-       otmp3lsct, otmp3xyp, otmp3xys,   &
-       otmp3xypc, otmp3xysc, otmp3lps,  &
-       otmp3lppc, otmp3lpsc, otmp3xysf, &
-       otmp3lpr, otmp3lpsn, otmp3xyr
-  REAL, POINTER, DIMENSION(:,:,:,:)   :: otmp4xypt, otmp4xyzt, &
-       otmp4xyst, otmp4xysnt,  &
-       otmp4xyrt, otmp4xypct,  &
-       otmp4xysct, otmp4lpst,  &
-       otmp4lpsnt, otmp4lprt,  &
-       otmp4lpsct, otmp4lppct, &
-       otmp4xyps, otmp4xyppc,  &
-       otmp4xypsc, otmp4xypr
-  REAL, POINTER, DIMENSION(:,:,:,:,:) :: otmp5xypst, otmp5xypsnt, &
-       otmp5xyprt, otmp5xyppct, otmp5xypsct
+  REAL, POINTER, DIMENSION(:)         :: otmp1 => null(), otmp1l => null()
+  REAL, POINTER, DIMENSION(:,:)       :: otmp2lt => null(), otmp2xy => null(), otmp2lp => null(), otmp2ls => null(), &
+       otmp2lpc => null(), otmp2lsc => null(), otmp2lsf => null(), otmp2lr => null(), otmp2lsn => null()
+  REAL, POINTER, DIMENSION(:,:,:)     :: otmp3xyt => null(), otmp3lpt => null(), otmp3lst => null(), &
+       otmp3lsnt => null(), otmp3lrt => null(), otmp3lpct => null(),  &
+       otmp3lsct => null(), otmp3xyp => null(), otmp3xys => null(),   &
+       otmp3xypc => null(), otmp3xysc => null(), otmp3lps => null(),  &
+       otmp3lppc => null(), otmp3lpsc => null(), otmp3xysf => null(), &
+       otmp3lpr => null(), otmp3lpsn => null(), otmp3xyr => null()
+  REAL, POINTER, DIMENSION(:,:,:,:)   :: otmp4xypt => null(), otmp4xyzt => null(), &
+       otmp4xyst => null(), otmp4xysnt => null(),  &
+       otmp4xyrt => null(), otmp4xypct => null(),  &
+       otmp4xysct => null(), otmp4lpst => null(),  &
+       otmp4lpsnt => null(), otmp4lprt => null(),  &
+       otmp4lpsct => null(), otmp4lppct => null(), &
+       otmp4xyps => null(), otmp4xyppc => null(),  &
+       otmp4xypsc => null(), otmp4xypr => null()
+  REAL, POINTER, DIMENSION(:,:,:,:,:) :: otmp5xypst => null(), otmp5xypsnt => null(), &
+       otmp5xyprt => null(), otmp5xyppct => null(), otmp5xypsct => null()
   REAL :: ncmissingr = -1.0e+33
 
 CONTAINS
@@ -1914,7 +1914,7 @@ CONTAINS
     CHARACTER(LEN=*), INTENT(IN) :: dimswitch ! indicates dimesnion of parameter
 
     INTEGER :: i, j ! do loop counter
-    REAL(r_2), POINTER, DIMENSION(:, :) :: tmpout
+    REAL(r_2), POINTER, DIMENSION(:, :) :: tmpout => null()
 
     IF(PRESENT(restart)) THEN ! If writing to a a restart file
        ! Write parameter data:
@@ -2533,7 +2533,7 @@ CONTAINS
     CHARACTER(LEN=*), INTENT(IN) :: dimswitch ! indicates dimesnion of parameter
 
     INTEGER :: i,j ! do loop counter
-    REAL(r_2),POINTER,DIMENSION(:,:,:) :: tmpout
+    REAL(r_2),POINTER,DIMENSION(:,:,:) :: tmpout => null()
 
     ! Check the nature of the parameter's second dimension:
     IF(dimswitch == 'soil') THEN ! i.e. spatial and soil

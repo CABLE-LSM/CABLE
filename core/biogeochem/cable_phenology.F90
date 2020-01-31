@@ -77,7 +77,7 @@ DO np= 1,mp
 
       if (climate%gdd5(np).gt.gdd0 .and. phen%aphen(np).lt. APHEN_MAX) then
 
-         phen_tmp = min(1.0_r_2, (climate%gdd5(np)-gdd0)/phengdd5ramp)
+         phen_tmp = min(1.0_r_2, real((climate%gdd5(np)-gdd0)/phengdd5ramp,dp))
 
       else
 
@@ -92,7 +92,7 @@ DO np= 1,mp
 
       if (climate%gdd5(np).gt.0.1) THEN
          phengdd5ramp = 200
-         phen_tmp = min(1.0_r_2, climate%gdd5(np)/phengdd5ramp)
+         phen_tmp = min(1.0_r_2, real(climate%gdd5(np)/phengdd5ramp,r_2))
       ELSE
          phen_tmp = 0.0_r_2
       ENDIF
@@ -104,7 +104,7 @@ if (1.eq.1) then
    if (veg%iveg(np).ge.6.and.veg%iveg(np).le.10) then ! (grass or crops) need to include raingreen savanna trees here too
      ! if (climate%dmoist(np).lt. mmoisture_min) phen_tmp = 0.0
       if (climate%GMD(np) .GE. 1 .and. climate%GMD(np) .LT. ndays_raingreenup) THEN
-         phen_tmp = min(phen_tmp, 0.99)
+         phen_tmp = min(phen_tmp, 0.99_r_2)
       elseif (climate%GMD(np) .EQ. 0) THEN
          phen_tmp = 0.0_r_2
       elseif (climate%GMD(np) .GE. ndays_raingreenup) THEN

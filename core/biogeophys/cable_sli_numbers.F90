@@ -166,7 +166,7 @@ MODULE sli_numbers
   END TYPE params
 
   TYPE rapointer
-     REAL(r_2), DIMENSION(:), POINTER :: p
+     REAL(r_2), DIMENSION(:), POINTER :: p => null()
   END TYPE rapointer
 
   TYPE solve_type ! for energy and moisture balance in rh0_sol, etc.
