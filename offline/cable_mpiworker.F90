@@ -716,9 +716,6 @@ CONTAINS
 
              canopy%oldcansto=canopy%cansto
 
-             ! Get met data and LAI, set time variables.
-             ! Rainfall input may be augmented for spinup purposes:
-             met%ofsd = met%fsd(:,1) + met%fsd(:,2)
              ! MPI: input file read on the master only
              ! CALL get_met_data( spinup, spinConv, met, soil,                    &
              !                   rad, veg, kend, dels, C%TFRZ, ktau )
@@ -733,6 +730,14 @@ CONTAINS
                 ! print*, 'WORKER Receive 28 / 35 dump'
                 CALL MPI_Recv(MPI_BOTTOM, 1, casa_dump_t, 0, ktau_gl, icomm, stat, ierr)
              END IF
+
+             ! Get met data and LAI, set time variables.
+             ! Rainfall input may be augmented for spinup purposes:
+             print*, 'TT01 '
+             print*, 'TT02 ', met%fsd(:,1)
+             print*, 'TT03 ', met%fsd(:,2)
+             print*, 'TT04 ', met%ofsd
+             met%ofsd = met%fsd(:,1) + met%fsd(:,2)
 
              ! MPI: some fields need explicit init, because we don't transfer
              ! them for better performance

@@ -21,25 +21,32 @@
 #SBATCH --mail-type=FAIL,STAGE_OUT,TIME_LIMIT
 #SBATCH --mail-user=matthias.cuntz@inrae.fr
 #
-# # Raijin
-# # https://opus.nci.org.au/display/Help/How+to+submit+a+job
-# #PBS -P Harvard
-# #PBS -q normal
-# #PBS -l walltime=00:19:59
-# #PBS -l mem=4GB
-# #PBS -l ncpus=1
-# #PBS -l jobfs=1GB
-# #PBS -l software=netCDF:MPI:Intel:GNU
-# #PBS -r y
-# #PBS -l wd
+# Gadi
+# https://opus.nci.org.au/display/Help/How+to+submit+a+job
+#PBS -N Havar10
+#PBS -P x45
+# express / normal / copyq (2x24, cascadelake)
+# expressbw / normalbw (2x14, broadwell) / normalsl (2x16, skylake)- ex-Raijin nodes
+#PBS -q express
+#PBS -l walltime=00:01:59
+#PBS -l mem=4GB
+#PBS -l ncpus=4
+#PBS -l jobfs=1GB
+#PBS -l storage=gdata/x45
+#PBS -l software=netCDF:MPI:Intel:GNU
+#PBS -r y
+#PBS -l wd
+#PBS -j oe
+#PBS -S /bin/bash
+#PBS -M matthias.cuntz@inrae.fr
 
-system=cuntz@mcinra # cuntz@explor, cuntz@mcinra, knauer@pearcey, jk8585 or vxh599@raijin
+system=moc801@gadi # cuntz@explor, cuntz@mcinra, moc801@gadi/cuntz@gadi, knauer@pearcey, jk8585 or vxh599@raijin
 
 # MPI run or single processor run
 # nproc should fit with job tasks 
 dompi=1   # 0: normal run: ./cable
           # 1: MPI run: mpiexec -n ${nproc} ./cable_mpi
-nproc=2   # Number of cores for MPI runs
+nproc=4   # Number of cores for MPI runs
           # must be same as above: SBATCH -n nproc or PBS -l ncpus=nproc
 ignore_mpi_err=1 # 0/1: continue even if mpi run failed
 
@@ -93,16 +100,16 @@ doclimate=0     # 1/0: Do/Do not create climate restart file
 # Step 2
 dofromzero=1    # 1/0: Do/Do not first spinup phase from zero biomass stocks
 # Step 3
-doequi1=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
-nequi1=1        #      number of times to repeat steps in doequi1
+doequi1=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
+nequi1=3        #      number of times to repeat steps in doequi1
 # Step 4
-doequi2=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
-nequi2=1        #      number of times to repeat steps in doequi2
+doequi2=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
+nequi2=3        #      number of times to repeat steps in doequi2
 # Step 5
-doiniluc=1      # 1/0: Do/Do not spinup with dynamic land use (5a)
-doinidyn=1      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
+doiniluc=0      # 1/0: Do/Do not spinup with dynamic land use (5a)
+doinidyn=0      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
 # Step 6
-dofinal=1       # 1/0: Do/Do not final run from 1900 to 2017
+dofinal=0       # 1/0: Do/Do not final run from 1900 to 2017
 
 # --------------------------------------------------------------------
 # Other switches
@@ -116,7 +123,7 @@ explicit_gm=0       # 1/0: explicit (finite) or implicit mesophyll conductance
 # Setup
 #
 
-set -e
+set -ex
 
 trap cleanup 1 2 3 6
 
@@ -169,6 +176,15 @@ elif [[ "${sys}" == "raijin" ]] ; then
     module del intel-cc intel-fc
     module add intel-cc/16.0.1.150 intel-fc/16.0.1.150
     module add netcdf/4.3.3.1
+elif [[ "${sys}" == "gadi" ]] ; then
+    pdir=${isdir}
+    . /etc/bashrc
+    module purge
+    module load intel-compiler/2019.5.281
+    module load intel-mpi/2019.5.281
+    module load netcdf/4.6.3
+    module load hdf5/1.10.5
+    export mpiexecdir=/apps/intel-mpi/2019.5.281/intel64/bin/
 fi
 if [[ ! -z ${mpiexecdir} ]] ; then export mpiexecdir="${mpiexecdir}/" ; fi
 
@@ -216,6 +232,24 @@ elif [[ "${system}" == "cuntz@mcinra" ]] ; then
     GlobalLandMaskFile=
     GlobalMetPath=
     GlobalTransitionFilePath=
+elif [[ "${system}" == "moc801@gadi" || "${system}" == "cuntz@gadi" ]] ; then
+    # Run directory: runpath="${sitepath}/run_xxx"
+    sitepath="/home/801/moc801/prog/cable/single_sites/${sitename}"
+    cablehome="/home/801/moc801/prog/cable"
+    # Cable executable
+    if [[ ${dompi} -eq 1 ]] ; then
+	exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi"
+    else
+	exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable"
+    fi
+    # CABLE-AUX directory (uses offline/gridinfo_CSIRO_1x1.nc and offline/modis_phenology_csiro.txt)
+    aux="/g/data/x45/CABLE-AUX"
+    # Global Mask
+    GlobalLandMaskFile="/home/801/moc801/data/cable/mask/glob_ipsl_1x1.nc"
+    # Global CRU
+    GlobalMetPath="/g/data/x45/crujra/daily_1deg"
+    # Global LUC
+    GlobalTransitionFilePath="/g/data/x45/LUH2/GCB_2018/1deg/EXTRACT"
 elif [[ "${system}" == "knauer@pearcey" ]] ; then
     # Run directory: runpath="${sitepath}/run_xxx"
     sitepath="/OSM/CBR/OA_GLOBALCABLE/work/Juergen/CABLE_run/${sitename}"
@@ -239,7 +273,7 @@ else
     exit 1
 fi
 # Run directory
-runpath="${sitepath}/run_20200117"
+runpath="${sitepath}/run_20200202"
 
 # Cable parameters
 namelistpath="../namelists"
