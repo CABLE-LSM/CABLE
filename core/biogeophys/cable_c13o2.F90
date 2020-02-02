@@ -856,6 +856,7 @@ contains
                call c13o2_err_handler('Could not put longitudes to c13o2 output file: '//trim(fname))
        endif
     end do
+    ! write(*,*) 'Defined 13CO2 output file.'
 
   end subroutine c13o2_create_output
 
@@ -864,6 +865,7 @@ contains
   ! Write into 13C Casa output file
   subroutine c13o2_write_output(file_id, vars, var_ids, timestep, c13o2pools)
 
+    use cable_def_types_mod, only: dp => r_2
     use cable_common_module, only: cable_user
     use cable_c13o2_def,     only: c13o2_pool
     use netcdf,              only: nf90_put_var, nf90_noerr
@@ -882,6 +884,7 @@ contains
     integer :: secs, dt
     integer, parameter :: sp = kind(1.0)
 
+    ! write(*,*) 'Writing 13CO2 output.'
     nland   = c13o2pools%ntile
     nplant  = c13o2pools%nplant
     nlitter = c13o2pools%nlitter
@@ -893,9 +896,9 @@ contains
           case("daily")
              dt = 86400
           case("monthly")
-             dt = 86400*30
+             dt = 2629800  ! 86400*365.25/12
           case("annually")
-             dt = 86400*365
+             dt = 31557600 ! 86400*365.25
           end select
           secs = timestep*dt - dt/2
           status = nf90_put_var(file_id, var_ids(i), secs, start=(/timestep/))
@@ -928,6 +931,7 @@ contains
           call c13o2_err_handler('Could not put variable in c13o2 output file')
        endif
     end do ! c13o2_nvars_output
+    ! write(*,*) 'Wrote 13CO2 output.'
 
   end subroutine c13o2_write_output
 
@@ -944,6 +948,7 @@ contains
 
     integer :: status
 
+    write(*,*) 'Closing 13CO2 output file.'
     status = nf90_close(file_id)
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could not close 13CO2 output file.')
@@ -2016,8 +2021,8 @@ contains
     real(dp), intent(in) :: v1, v2
     real(dp)             :: mydiff
 
-    ! integer  :: n
     real(dp) :: nn
+    ! integer  :: n
 
     if (v1 > 0.0_dp) then
        nn = log10(v1)

@@ -26,12 +26,11 @@ MODULE cable_climate_mod
  USE CABLE_COMMON_MODULE, ONLY: CurYear, filename, cable_user, HANDLE_ERR
 
 CONTAINS
-! ==============================================================================
 
+  ! ==============================================================================
 
 SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, &
      veg,ssnow,air, rad, dels, np)
-
 
   IMPLICIT NONE
 
@@ -62,7 +61,8 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
   real, PARAMETER:: Gaero = 0.015  ! (m s-1) aerodynmaic conductance (for use in PT evap)
   real, PARAMETER:: Capp   = 29.09    ! isobaric spec heat air    [J/molA/K]
   real, PARAMETER:: SBoltz  = 5.67e-8  ! Stefan-Boltzmann constant [W/m2/K4]
-  real, PARAMETER:: moisture_min = 0.15 ! threshold for setting "growing moisture days", as required for drought-deciduous phenology
+  ! threshold for setting "growing moisture days", as required for drought-deciduous phenology
+  real, PARAMETER:: moisture_min = 0.15
   real, PARAMETER:: T1 = 0.0, T2 = -3.0, T3 = -4.0, T6 = -5.0 ! for computing fractional spring recovery
   real, PARAMETER:: ffrost = 0.1, fdorm0 = 0.15  ! for computing fractional spring recovery
   real, PARAMETER:: gdd0_rec0 = 250.0
@@ -87,9 +87,9 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
         climate%fapar_ann_max = 0.0 
   ELSE
      climate%evap_PT = climate%evap_PT + phiEq*CoeffPT/2.5014e6*dels  ! mm
-    ! climate%evap_PT = climate%evap_PT + max(phiEq,1.0)*CoeffPT/air%rlam*dels  ! mm
-    ! climate%evap_PT =climate%evap_PT + canopy%epot  ! mm
-    ! climate%aevap =  climate%aevap + canopy%fe/air%rlam*dels ! mm
+     ! climate%evap_PT = climate%evap_PT + max(phiEq,1.0)*CoeffPT/air%rlam*dels  ! mm
+     ! climate%evap_PT =climate%evap_PT + canopy%epot  ! mm
+     ! climate%aevap =  climate%aevap + canopy%fe/air%rlam*dels ! mm
      climate%aevap = climate%aevap + met%precip ! mm
   ENDIF
 
@@ -155,7 +155,7 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
      climate%D_MacArthur =  MAX(0.,MIN(10.,climate%D_MacArthur))
  
 
-        ! MacArthur FFDI
+     ! MacArthur FFDI
      climate%FFDI = 2. * EXP( -.45 + .987 * LOG(climate%D_MacArthur + .001) &
            - .03456 *  climate%drhum + .0338 * climate%dtemp_max  + &
            .0234 *  climate%du10_max )
@@ -187,11 +187,11 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
   ENDIF
     
 
-!!$     write(3333,"(200f16.6)") real(idoy), real(climate%NDAY_Nesterov(1)), &
-!!$          climate%Nesterov_Current(1), &
-!!$          climate%Nesterov_ann_max(1), climate%Nesterov_ann_max_last_year(1), &
-!!$          climate%Nesterov_ann_running_max(1),  climate%FFDI(1), climate%D_MacArthur(1), &
-!!$          climate%KBDI(1), climate%dprecip(1)
+  ! write(3333,"(200f16.6)") real(idoy), real(climate%NDAY_Nesterov(1)), &
+  !      climate%Nesterov_Current(1), &
+  !      climate%Nesterov_ann_max(1), climate%Nesterov_ann_max_last_year(1), &
+  !      climate%Nesterov_ann_running_max(1),  climate%FFDI(1), climate%D_MacArthur(1), &
+  !      climate%KBDI(1), climate%dprecip(1)
   ENDIF
 
   !  midday fraction of incoming visible radiation absorbed by the canopy
@@ -1021,8 +1021,6 @@ SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
   IF (LEN_TRIM(cable_user%climate_restart_out).gt.0) THEN
      fname = TRIM(cable_user%climate_restart_out)
   ELSE
-
-
      WRITE(CYEAR, FMT='(I4)') CurYear + 1
      fname = TRIM(filename%path)//'/'//TRIM( cable_user%RunIden )//&
           '_climate_rst.nc'
@@ -1114,7 +1112,7 @@ SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
   STATUS = NF90_PUT_VAR(FILE_ID, VID1(4), climate%mtemp )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-STATUS = NF90_PUT_VAR(FILE_ID, VID1(5), climate%qtemp )
+  STATUS = NF90_PUT_VAR(FILE_ID, VID1(5), climate%qtemp )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
   STATUS = NF90_PUT_VAR(FILE_ID, VID1(6), climate%mtemp_min )
@@ -1313,13 +1311,13 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate, ktauday )
   CHARACTER(len=20),DIMENSION(2) :: A0
   ! 1 dim arrays (npt )
   CHARACTER(len=30),DIMENSION(33) :: A1
- ! 1 dim arrays (integer) (npt )
+  ! 1 dim arrays (integer) (npt )
   CHARACTER(len=20),DIMENSION(6) :: AI1
   ! 2 dim arrays (npt,20)
   CHARACTER(len=20),DIMENSION(6) :: A2
   ! 2 dim arrays (npt,31)
   CHARACTER(len=20),DIMENSION(2) :: A3
- ! 2 dim arrays (npt,91)
+  ! 2 dim arrays (npt,91)
   CHARACTER(len=20),DIMENSION(1) :: A4
   ! 2 dim arrays (npt,ktauday*5)
   CHARACTER(len=20),DIMENSION(11) :: A5
@@ -1418,7 +1416,7 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate, ktauday )
   ENDIF
   INQUIRE( FILE=TRIM( fname ), EXIST=EXISTFILE )
 
-        IF ( .NOT.EXISTFILE) write(*,*) fname, ' does not exist!!'
+  IF ( .NOT.EXISTFILE) write(*,*) fname, ' does not exist!!'
 
 # ifndef UM_BUILD
   ! Open NetCDF file:
@@ -1442,12 +1440,11 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate, ktauday )
   STATUS = NF90_INQ_DIMID(FILE_ID, 'nsd'   , dID)
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
-
-write(*,*) 'patch%latitude',  SIZE(patch%latitude)
+  ! write(*,*) 'patch%latitude',  SIZE(patch%latitude)
   IF ( land_dim .NE. SIZE(patch%latitude)) THEN
      WRITE(*,*) "Dimension misfit, ", fname
      WRITE(*,*) "land_dim", land_dim, SIZE(patch%latitude)
-!     STOP
+     ! STOP
   ENDIF
 
   ! LAT & LON
@@ -1477,7 +1474,6 @@ write(*,*) 'patch%latitude',  SIZE(patch%latitude)
 
 ! READ 1-dimensional real fields
   DO i = 3, SIZE(A1)
-     print*,  TRIM(A1(i))
      STATUS = NF90_INQ_VARID( FILE_ID, A1(i), dID )
      IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
      STATUS = NF90_GET_VAR( FILE_ID, dID, TMP )
@@ -1519,8 +1515,6 @@ write(*,*) 'patch%latitude',  SIZE(patch%latitude)
 
 ! READ 1-dimensional integer fields
   DO i = 1, SIZE(AI1)
-
-     print*,  TRIM(AI1(i))
      STATUS = NF90_INQ_VARID( FILE_ID, AI1(i), dID )
      IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
      STATUS = NF90_GET_VAR( FILE_ID, dID, TMPI )
@@ -1540,7 +1534,6 @@ write(*,*) 'patch%latitude',  SIZE(patch%latitude)
 
  ! READ 2-dimensional fields (nyear)
   DO i = 1, SIZE(A2)
-     write(*,*)  TRIM(A2(i))
      STATUS = NF90_INQ_VARID( FILE_ID, A2(i), dID )
      IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
      STATUS = NF90_GET_VAR( FILE_ID, dID, TMP2 )

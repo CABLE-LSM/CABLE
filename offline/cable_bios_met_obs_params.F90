@@ -260,9 +260,9 @@ CONTAINS
   TYPE (dmydate), INTENT(IN) :: GregDate
   REAL(dp)                   :: D,M,Y
 !-------------------------------------------------------------------------------
-  D = DBLE(GregDate%Day)
-  M = DBLE(GregDate%Month)
-  Y = DBLE(GregDate%Year)
+  D = real(GregDate%Day,dp)
+  M = real(GregDate%Month,dp)
+  Y = real(GregDate%Year,dp)
   IF (M<3.0_8) THEN 
     M = M + 12.0_8 
     Y = Y - 1.0_8 

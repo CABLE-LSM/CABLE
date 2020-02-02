@@ -460,6 +460,8 @@ SUBROUTINE casa_readphen(veg,casamet,phen)
     ENDDO
   ENDDO
 
+  CLOSE(101)
+
   DO np=1,mp
     ilat=(casamet%lat(np)+55.25)/0.5+1
     ilat= MIN(271,MAX(1,ilat))
@@ -2259,6 +2261,7 @@ SUBROUTINE WRITE_CASA_OUTPUT_NC( veg, casamet, casapool, casabal, casaflux, CASA
   CNT = CNT + 1
 
   ! Get File-Name
+  ! print*, 'CC01'
   if (len_trim(casafile%out) > 0) then
      fname = trim(casafile%out)
   else
@@ -2280,11 +2283,14 @@ SUBROUTINE WRITE_CASA_OUTPUT_NC( veg, casamet, casapool, casabal, casaflux, CASA
      endif
   endif
 
+  ! print*, 'CC02'
   IF ( CALL1 ) THEN
 
+     ! print*, 'CC03'
      INQUIRE( FILE=TRIM(fname), EXIST=EXRST )
      EXRST = .FALSE.
      IF ( EXRST ) THEN
+        ! print*, 'CC04'
         STATUS = NF90_open(trim(fname), mode=nf90_write, ncid=FILE_ID)
         IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
         CALL1 = .FALSE.
@@ -2299,6 +2305,7 @@ SUBROUTINE WRITE_CASA_OUTPUT_NC( veg, casamet, casapool, casabal, casaflux, CASA
         STATUS = nf90_inq_varid(FILE_ID, 'time', VIDTime)
         IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
+        ! print*, 'CC05'
         DO i = 1, SIZE(A0)
            STATUS = nf90_inq_varid(FILE_ID,TRIM(A0(i)),VID0(i))
            IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
@@ -2340,24 +2347,34 @@ SUBROUTINE WRITE_CASA_OUTPUT_NC( veg, casamet, casapool, casabal, casaflux, CASA
         END DO
 
      ELSE
+        ! print*, 'CC06'
         ! Create NetCDF file:
         STATUS = NF90_create(trim(fname), NF90_CLOBBER, FILE_ID)
+        ! print*, 'CC06.01'
         IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
         ! Put the file in define mode:
+        ! print*, 'CC06.02'
         STATUS = NF90_redef(FILE_ID)
 
+        ! print*, 'CC06.03'
         STATUS = NF90_PUT_ATT( FILE_ID, NF90_GLOBAL, "Icycle"   , icycle  )
+        ! print*, 'CC06.04'
         STATUS = NF90_PUT_ATT( FILE_ID, NF90_GLOBAL, "StartYear", CABLE_USER%YEARSTART )
+        ! print*, 'CC06.05'
         STATUS = NF90_PUT_ATT( FILE_ID, NF90_GLOBAL, "EndYear"  , CABLE_USER%YEAREND   )
+        ! print*, 'CC06.06'
         STATUS = NF90_PUT_ATT( FILE_ID, NF90_GLOBAL, "RunIden"  , CABLE_USER%RunIden   )
+        ! print*, 'CC06.07'
         IF ( CASAONLY ) THEN
            dum = 'CASA-ONLY run'
         ELSE
            dum = 'CABLE-CASA coupled run'
         ENDIF
+        ! print*, 'CC06.08'
         STATUS = NF90_PUT_ATT( FILE_ID, NF90_GLOBAL, "Run-Type", TRIM(dum) )
 
+        ! print*, 'CC07'
         ! Define dimensions:
         ! Land (number of points)
         STATUS = NF90_def_dim(FILE_ID, 'land'   , mp     , land_ID)
@@ -2371,47 +2388,56 @@ SUBROUTINE WRITE_CASA_OUTPUT_NC( veg, casamet, casapool, casabal, casaflux, CASA
         STATUS = NF90_def_dim(FILE_ID, 'time'   , NF90_UNLIMITED, t_ID)
         IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
+        ! print*, 'CC08'
         ! Define variables
         STATUS = NF90_def_var(FILE_ID,'time' ,NF90_INT,(/t_ID/),VIDtime )
         IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
+        ! print*, 'CC09'
         DO i = 1, SIZE(A0)
            STATUS = NF90_def_var(FILE_ID,TRIM(A0(i)) ,NF90_FLOAT,(/land_ID/),VID0(i))
            IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
         END DO
 
+        ! print*, 'CC09.01'
         DO i = 1, SIZE(A1)
            STATUS = NF90_def_var(FILE_ID,TRIM(A1(i)) ,NF90_FLOAT,(/land_ID,t_ID/),VID1(i))
            IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
         END DO
 
+        ! print*, 'CC09.02'
         DO i = 1, SIZE(A2)
            STATUS = NF90_def_var(FILE_ID,TRIM(A2(i)) ,NF90_FLOAT,(/land_ID,plnt_ID,t_ID/),VID2(i))
            IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
         END DO
 
+        ! print*, 'CC09.03'
         DO i = 1, SIZE(A3)
            STATUS = NF90_def_var(FILE_ID,TRIM(A3(i)) ,NF90_FLOAT,(/land_ID,litt_ID,t_ID/),VID3(i))
            IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
         END DO
 
+        ! print*, 'CC09.04'
         DO i = 1, SIZE(A4)
            STATUS = NF90_def_var(FILE_ID,TRIM(A4(i)) ,NF90_FLOAT,(/land_ID,soil_ID,t_ID/),VID4(i))
            IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
         END DO
 
+        ! print*, 'CC09.05'
         DO i = 1, SIZE(A5)
            STATUS = NF90_def_var(FILE_ID,TRIM(A5(i)) ,NF90_FLOAT, &
                 (/land_ID,litt_ID,plnt_ID,t_ID/),VID5(i))
            IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
         END DO
 
+        ! print*, 'CC09.06'
         DO i = 1, SIZE(A6)
            STATUS = NF90_def_var(FILE_ID,TRIM(A6(i)) ,NF90_FLOAT, &
                 (/land_ID,soil_ID,litt_ID,t_ID/),VID6(i))
            IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
         END DO
 
+        ! print*, 'CC09.07'
         DO i = 1, SIZE(A7)
            STATUS = NF90_def_var(FILE_ID,TRIM(A7(i)) ,NF90_FLOAT, &
                 (/land_ID,soil_ID,soil_ID,t_ID/),VID7(i))
@@ -2419,14 +2445,17 @@ SUBROUTINE WRITE_CASA_OUTPUT_NC( veg, casamet, casapool, casabal, casaflux, CASA
         END DO
 
         ! End define mode:
+        ! print*, 'CC09.08'
         STATUS = NF90_enddef(FILE_ID)
         IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
 
         ! PUT LAT / LON ( mp )
+        ! print*, 'CC09.09'
         STATUS = NF90_PUT_VAR(FILE_ID, VID0(1), casamet%lat )
         IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
+        ! print*, 'CC09.10'
         STATUS = NF90_PUT_VAR(FILE_ID, VID0(2), casamet%lon )
         IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
@@ -2434,12 +2463,15 @@ SUBROUTINE WRITE_CASA_OUTPUT_NC( veg, casamet, casapool, casabal, casaflux, CASA
      ENDIF !( EXRST )
   ENDIF
 
+  ! print*, 'CC10'
   ! TIME  ( t )
   STATUS = NF90_PUT_VAR(FILE_ID, VIDtime, ctime, start=(/ CNT /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
+  ! print*, 'CC11'
 SELECT CASE(icycle)
 CASE(1) ! icycle
+  ! print*, 'CC12'
   ! PUT 2D VARS ( mp, t )
   STATUS = NF90_PUT_VAR(FILE_ID, VID1( 1), real(casamet%glai,sp),        start=(/ 1, CNT /), count=(/ mp, 1 /) )
   IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
@@ -2546,6 +2578,7 @@ CASE(1) ! icycle
 
   
 CASE(2) ! icycle
+  ! print*, 'CC13'
    
   ! PUT 2D VARS ( mp, t )
   STATUS = NF90_PUT_VAR(FILE_ID, VID1( 1), real(casamet%glai,sp),        start=(/ 1, CNT /), count=(/ mp, 1 /) )
@@ -2977,6 +3010,7 @@ CASE(3)
 
 END SELECT
 
+  ! print*, 'CC14'
   IF ( FINAL ) THEN
      ! Close NetCDF file:
      STATUS = NF90_close(FILE_ID)

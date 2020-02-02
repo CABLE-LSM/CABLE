@@ -335,8 +335,9 @@ CONTAINS
     INTEGER :: LALLOC, iu
     
     ! command line arguments
-    integer :: narg, len1
-    character(len=128) :: arg1
+    integer :: narg, len1, len2
+    character(len=500) :: arg1
+    character(len=200) :: arg2
 
     ! END header
     
@@ -357,8 +358,8 @@ CONTAINS
     if (narg > 0) then
        call get_command_argument(1, arg1, len1)
        filename%met = arg1(1:len1)
-       call get_command_argument(2, arg1, len1)
-       casafile%cnpipool = arg1(1:len1)
+       call get_command_argument(2, arg2, len2)
+       casafile%cnpipool = arg2(1:len2)
     endif
 
     IF (CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static') &
@@ -544,16 +545,16 @@ CONTAINS
                 if (cable_user%c13o2) then
                    ! print*, 'WORKER Receive 12 c13o2_flux'
                    call worker_c13o2_flux_params(comm, c13o2flux)
-                   print*, 'WORKER Receive 13 c13o2_pool'
+                   ! print*, 'WORKER Receive 13 c13o2_pool'
                    call worker_c13o2_pool_params(comm, c13o2pools)
                    if (cable_user%popluc) then
-                      print*, 'WORKER Receive 13.1 c13o2_luc'
+                      ! print*, 'WORKER Receive 13.1 c13o2_luc'
                       call worker_c13o2_luc_params(comm, c13o2luc)
                    endif
                 endif
                 ! MPI: POP restart received only if pop module AND casa are active
                 if (cable_user%call_pop) then
-                   print*, 'WORKER Receive 14 pop'
+                   ! print*, 'WORKER Receive 14 pop'
                    call worker_pop_types(comm, veg, casamet, pop)
                 endif
 
@@ -2724,16 +2725,11 @@ CONTAINS
 
     call MPI_Comm_rank(comm, rank, ierr)
 
-#ifndef __GFORTRAN__
-    ! gfortran 9.2.0 returns .true. for associated
     if (.not. associated(casabiome%ivt2)) then
-#endif
        write (*,*) 'worker alloc casa and phen var with m patches: ', rank, mp
        call alloc_casavariable(casabiome, casapool, casaflux, casamet, casabal, mp)
        call alloc_phenvariable(phen, mp)
-#ifndef __GFORTRAN__
     end if
-#endif
 
     ntyp = ncasaparam
 
@@ -7647,15 +7643,10 @@ CONTAINS
 
     call MPI_Comm_rank(comm, rank, ierr)
 
-#ifndef __GFORTRAN__
-    ! gfortran 9.2.0 returns .true. for associated
     if (.not. associated(c13o2flux%ca)) then
-#endif
        write(*,*) 'worker alloc c13o2_flux with m patches: ', rank, mp
        call c13o2_alloc_flux(c13o2flux, mp)
-#ifndef __GFORTRAN__
     end if
-#endif
 
     ntyp = nc13o2_flux
 
@@ -7812,15 +7803,10 @@ CONTAINS
 
     call MPI_Comm_rank(comm, rank, ierr)
 
-#ifndef __GFORTRAN__
-    ! gfortran 9.2.0 returns .true. for associated
     if (.not. associated(c13o2pools%cplant)) then
-#endif
        write(*,*) 'worker alloc c13o2_pool with m patches: ', rank, mp
        call c13o2_alloc_pools(c13o2pools, mp)
-#ifndef __GFORTRAN__
     end if
-#endif
 
     ntyp = nc13o2_pool
 
@@ -7956,15 +7942,10 @@ CONTAINS
 
     call MPI_Comm_rank(comm, rank, ierr)
 
-#ifndef __GFORTRAN__
-    ! gfortran 9.2.0 returns .true. for associated
     if (.not. associated(c13o2luc%charvest)) then
-#endif
        write(*,*) 'worker alloc c13o2_luc with m land points: ', rank, mland
        call c13o2_alloc_luc(c13o2luc, mland)
-#ifndef __GFORTRAN__
     end if
-#endif
 
     ntyp = nc13o2_luc
 
@@ -8425,6 +8406,7 @@ SUBROUTINE worker_end(icycle, restart)
           call MPI_Type_free(c13o2_pool_t, ierr)
        endif
     end if
+    !MC LUC???
 
     if (restart) then
        call MPI_Type_free(restart_t, ierr)
@@ -8638,7 +8620,7 @@ SUBROUTINE worker_spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool
         endif
 
         if (cable_user%call_POP .and. POP%np.gt.0) then ! CALL_POP
-           !           ! accumulate annual variables for use in POP
+           ! accumulate annual variables for use in POP
            if (mod(ktau/ktauday,loy)==1) then
               ! (assumes 70% of wood NPP is allocated above ground)
               casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp

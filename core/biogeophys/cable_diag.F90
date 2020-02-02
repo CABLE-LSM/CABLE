@@ -188,87 +188,103 @@ END SUBROUTINE cable_diag_data1
     integer :: j, ncok
 
     ! lat
+    ! print*, 'DV01'
     ncok = NF90_DEF_VAR( ncid, trim(var_name(1)), xtype, &
          (/ dimID(1) /), varID(1))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(1))
 
     ! lon
+    ! print*, 'DV02'
     ncok = NF90_DEF_VAR(ncid, trim(var_name(2)), xtype, &
          (/ dimID(1) /), varID(2))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(2))
 
     ! tairk
+    ! print*, 'DV03'
     ncok = NF90_DEF_VAR(ncid, trim(var_name(3)), xtype, &
          (/ dimID(1), dimID(3) /), varID(3))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(3))
 
     !tsoil
+    ! print*, 'DV04'
     ncok = NF90_DEF_VAR(ncid, trim(var_name(4)), xtype, &
          (/ dimID(1), dimID(2),dimID(3)/), varID(4))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(4))
 
     ! moist
+    ! print*, 'DV05'
     ncok = NF90_DEF_VAR(ncid, trim(var_name(5)), xtype, &
          (/ dimID(1), dimID(2),dimID(3)/), varID(5))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(5))
 
     !cgpp
+    ! print*, 'DV06'
     ncok = NF90_DEF_VAR(ncid, trim(var_name(6)), xtype, &
          (/ dimID(1), dimID(3)/), varID(6))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(6))
 
     !crmplant
+    ! print*, 'DV07'
     ncok = NF90_DEF_VAR(ncid, trim(var_name(7)), xtype, &
          (/ dimID(1), dimID(2),dimID(3)/), varID(7))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(7))
 
     !phenphase
+    ! print*, 'DV08'
     ncok = NF90_DEF_VAR(ncid, trim(var_name(8)), xtype, &
          (/ dimID(1), dimID(3)/), varID(8))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(8))
 
     !doyphase1
+    ! print*, 'DV09'
     ncok = NF90_DEF_VAR(ncid, trim(var_name(9)), xtype, &
          (/ dimID(1), dimID(3)/), varID(9))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(9))
 
     !doyphase2
+    ! print*, 'DV10'
     ncok = NF90_DEF_VAR(ncid, trim(var_name(10)), xtype, &
          (/ dimID(1), dimID(3)/), varID(10))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(10))
 
     !doyphase3
+    ! print*, 'DV11'
     ncok = NF90_DEF_VAR(ncid, trim(var_name(11)), xtype, &
          (/ dimID(1), dimID(3)/), varID(11))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(11))
 
     !doyphase4
+    ! print*, 'DV12'
     ncok = NF90_DEF_VAR(ncid, trim(var_name(12)), xtype, &
          (/ dimID(1), dimID(3)/), varID(12))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(12))
 
-
     !mtemp
+    ! print*, 'DV13'
     ncok = NF90_DEF_VAR(ncid, trim(var_name(13)), xtype, &
          (/ dimID(1),dimID(3)/), varID(13))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(13))
 
     !Ndep
+    ! print*, 'DV14'
     ncok = NF90_DEF_VAR(ncid, trim(var_name(14)), xtype, &
          (/ dimID(1),dimID(3)/), varID(14))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(14))
 
     !Pdep
+    ! print*, 'DV15'
     ncok = NF90_DEF_VAR(ncid, trim(var_name(15)), xtype, &
          (/ dimID(1),dimID(3)/), varID(15))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(15))
 
     !cAn12spin
+    ! print*, 'DV16'
     ncok = NF90_DEF_VAR(ncid, trim(var_name(16)), xtype, &
          (/ dimID(1),dimID(3)/), varID(16))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(16))
 
     !cAn13spin
+    ! print*, 'DV17'
     ncok = NF90_DEF_VAR(ncid, trim(var_name(17)), xtype, &
          (/ dimID(1),dimID(3)/), varID(17))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(17))
@@ -301,7 +317,7 @@ END SUBROUTINE cable_diag_data1
   end subroutine def_var_atts
 
 
-  subroutine put_var_ncr1(ncid, var_name, var )
+  subroutine put_var_ncr1(ncid, var_name, var)
     use netcdf
     use cable_def_types_mod, only : mp
     implicit none
@@ -310,17 +326,16 @@ END SUBROUTINE cable_diag_data1
     integer, intent(in) :: ncid
     integer :: ncok, varID,j
 
-    ncok = NF90_INQ_VARID(ncid, var_name, varId )
-    if (ncok /= nf90_noerr ) call stderr_nc(ncok,'inquire var ', var_name)
+    ncok = NF90_INQ_VARID(ncid, var_name, varId)
+    if (ncok /= nf90_noerr) call stderr_nc(ncok, 'inquire var ', var_name)
 
-    ncok = NF90_PUT_VAR(ncid, varId, var, start=(/1/), &
-         count=(/mp/) )
-    if (ncok /= nf90_noerr ) call stderr_nc(ncok,'putting var ', var_name)
+    ncok = NF90_PUT_VAR(ncid, varId, var, start=(/1/), count=(/mp/))
+    if (ncok /= nf90_noerr) call stderr_nc(ncok, 'putting var ', var_name)
 
   end subroutine put_var_ncr1
 
 
-  subroutine put_var_ncr2(ncid, var_name, var, n_call )
+  subroutine put_var_ncr2(ncid, var_name, var, n_call)
     use netcdf
     use cable_def_types_mod, only : r_2, mp
     implicit none
@@ -329,17 +344,15 @@ END SUBROUTINE cable_diag_data1
     integer, intent(in) :: ncid, n_call
     integer :: ncok, varID
 
-    ncok = NF90_INQ_VARID(ncid, var_name, varId )
-    if (ncok /= nf90_noerr ) call stderr_nc(ncok,'inquire var ', var_name)
-
+    ncok = NF90_INQ_VARID(ncid, var_name, varId)
+    if (ncok /= nf90_noerr) call stderr_nc(ncok, 'inquire var ', var_name)
    
-    ncok = NF90_PUT_VAR(ncid, varId, var, start=(/1,n_call /), &
-         count=(/mp,1/) )
-
-    if (ncok /= nf90_noerr ) call stderr_nc(ncok,'putting var ', var_name)
+    ncok = NF90_PUT_VAR(ncid, varId, var, start=(/1,n_call/), count=(/mp,1/))
+    if (ncok /= nf90_noerr ) call stderr_nc(ncok, 'putting var ', var_name)
 
   end subroutine put_var_ncr2
 
+  
   !soil vars
   subroutine put_var_ncr3(ncid, var_name, var, n_call, nl)
     use netcdf
@@ -350,16 +363,13 @@ END SUBROUTINE cable_diag_data1
     integer, intent(in) :: ncid, n_call, nl
     integer :: ncok, varID
 
-    ncok = NF90_INQ_VARID( ncid, var_name, varId )
-    IF( ncok /= nf90_noerr ) call stderr_nc(ncok,'inquire var ', var_name )
+    ncok = NF90_INQ_VARID( ncid, var_name, varId)
+    IF (ncok /= nf90_noerr) call stderr_nc(ncok, 'inquire var ', var_name)
 
-    ncok = NF90_PUT_VAR(ncid, varId, var, start=(/1,1,n_call /), &
-         count=(/mp,nl,1/))
-    if (ncok /= nf90_noerr ) call stderr_nc(ncok,'putting var ', var_name)
+    ncok = NF90_PUT_VAR(ncid, varId, var, start=(/1,1,n_call/), count=(/mp,nl,1/))
+    if (ncok /= nf90_noerr) call stderr_nc(ncok, 'putting var ', var_name)
 
-    return
   end subroutine put_var_ncr3
-
 
 
   subroutine get_var_ncr2(ncid, var_name, var, n_call )

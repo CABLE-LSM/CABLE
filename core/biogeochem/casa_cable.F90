@@ -362,7 +362,6 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 #ifndef UM_BUILD
 
    IF ( allATonce .OR. ncall .EQ. 1 ) THEN
-      ! print*, 'opening file ', TRIM(ncfile)
       ncok = NF90_OPEN(TRIM(ncfile), nf90_nowrite, ncrid)
       IF (ncok /= nf90_noerr ) CALL stderr_nc(ncok,'re-opening ', ncfile)
    ENDIF
@@ -460,7 +459,6 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    ENDIF
 
    IF ( allATonce .OR. ncall .EQ. kend ) THEN
-      ! print*, 'closing file'
       ncok = NF90_CLOSE(ncrid)
       IF (ncok /= nf90_noerr ) CALL stderr_nc(ncok,'closing ', ncfile)
    ENDIF
@@ -470,8 +468,9 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 
 
  SUBROUTINE write_casa_dump( ncfile, casamet, casaflux, phen, climate, c13o2flux, n_call, kend )
+
    USE netcdf
-   USE cable_def_types_mod,   ONLY : r_2,ms,mp, climate_type
+   USE cable_def_types_mod,   ONLY : r_2, ms, mp, climate_type
    USE cable_common_module,   ONLY : kend_gl, cable_user
 #ifndef UM_BUILD
    USE cable_diag_module,     ONLY : def_dims, def_vars, def_var_atts, &
@@ -550,14 +549,17 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 
    !local only
    INTEGER :: ncok      !ncdf return status
+   INTEGER :: i
 
    ! END header
 #ifndef UM_BUILD
    dim_len(1)        = mp
    dim_len(num_dims) = NF90_unlimited
 
+   ! print*, 'CD01'
    IF (n_call == 1) THEN
 
+      ! print*, 'CD02'
       ! create netCDF dataset: enter define mode
       ncok = nf90_create(path = TRIM(ncfile), cmode = nf90_clobber, ncid = ncid)
       IF (ncok /= nf90_noerr) CALL stderr_nc(ncok,'ncdf creating ', ncfile)
@@ -566,10 +568,12 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
       !if (ncok /= nf90_noerr) call stderr_nc(ncok,'enter def mode', ncfile)
 
       ! define dimensions: from name and length
-      CALL def_dims(num_dims, ncid, dimID, dim_len, dim_name )
+      ! print*, 'CD03'
+      CALL def_dims(num_dims, ncid, dimID, dim_len, dim_name)
 
       ! define variables: from name, type, dims
-      CALL def_vars(num_vars, ncid,  nf90_float, dimID, var_name, varID)
+      ! print*, 'CD04'
+      CALL def_vars(num_vars, ncid, nf90_float, dimID, var_name, varID)
 
       ! define variable attributes
       !CLN LATER!             CALL def_var_atts( ncfile, ncid, varID )
@@ -578,30 +582,52 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
       if (ncok /= nf90_noerr) call stderr_nc(ncok,'end def mode', ncfile)
 
 
+      ! print*, 'CD05'
       CALL put_var_nc(ncid, var_name(1), REAL(casamet%lat))
       CALL put_var_nc(ncid, var_name(2), REAL(casamet%lon))
 
    ENDIF
 
+   ! print*, 'CD06'
    CALL put_var_nc(ncid, var_name(3), casamet%tairk, n_call)
+   ! print*, 'CD07'
    CALL put_var_nc(ncid, var_name(4), casamet%tsoil, n_call, ms)
+   ! print*, 'CD08'
    CALL put_var_nc(ncid, var_name(5), casamet%moist, n_call, ms)
+   ! print*, 'CD09'
    CALL put_var_nc(ncid, var_name(6), casaflux%cgpp, n_call)
+   ! print*, 'CD10'
    CALL put_var_nc(ncid, var_name(7), casaflux%crmplant, n_call, mplant)
+   ! print*, 'CD11'
    CALL put_var_nc(ncid, var_name(8), real(phen%phase,r_2), n_call)
+   ! print*, 'CD12'
    CALL put_var_nc(ncid, var_name(9), real(phen%doyphase(:,1),r_2), n_call)
+   ! print*, 'CD13'
    CALL put_var_nc(ncid, var_name(10), real(phen%doyphase(:,2),r_2), n_call)
+   ! print*, 'CD14'
    CALL put_var_nc(ncid, var_name(11), real(phen%doyphase(:,3),r_2), n_call)
+   ! print*, 'CD15'
    CALL put_var_nc(ncid, var_name(12), real(phen%doyphase(:,4),r_2), n_call)
+   ! print*, 'CD16'
    CALL put_var_nc(ncid, var_name(13), real(climate%qtemp_max_last_year,r_2), n_call)
+   ! print*, 'CD17'
    CALL put_var_nc(ncid, var_name(14), real(casaflux%Nmindep,r_2), n_call)
+   ! print*, 'CD18'
    CALL put_var_nc(ncid, var_name(15), real(casaflux%Pdep,r_2), n_call)
    ! 13C
    if (cable_user%c13o2) then
+      ! print*, 'CD19'
       CALL put_var_nc(ncid, var_name(16), c13o2flux%cAn12, n_call)
+      ! print*, 'CD20'
       CALL put_var_nc(ncid, var_name(17), c13o2flux%cAn, n_call)
+   else
+      ! print*, 'CD19.1'
+      CALL put_var_nc(ncid, var_name(16), (/(0.0_r_2,i=1,mp)/), n_call)
+      ! print*, 'CD20.1'
+      CALL put_var_nc(ncid, var_name(17), (/(0.0_r_2,i=1,mp)/), n_call)
    endif
 
+   ! print*, 'CD21'
    IF (n_call == kend) ncok = nf90_close(ncid) ! close: save new netCDF dataset
 
 #endif
@@ -610,172 +636,172 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 
  SUBROUTINE casa_feedback(ktau,veg,casabiome,casapool,casamet,climate,ktauday)
 
-  USE cable_def_types_mod
-  USE casadimension
-  USE casaparm
-  USE casavariable
-  USE casa_cnp_module,      ONLY: vcmax_np
-  USE cable_common_module,  ONLY: CABLE_USER
-  USE cable_data_module,    ONLY: icanopy_type
-  USE cable_optimise_JV_module
-  USE cable_adjust_JV_gm_module
+   USE cable_def_types_mod
+   USE casadimension
+   USE casaparm
+   USE casavariable
+   USE casa_cnp_module,      ONLY: vcmax_np
+   USE cable_common_module,  ONLY: CABLE_USER
+   USE cable_data_module,    ONLY: icanopy_type
+   USE cable_optimise_JV_module
+   USE cable_adjust_JV_gm_module
 
-  IMPLICIT NONE
+   IMPLICIT NONE
 
-  INTEGER,      INTENT(IN) :: ktau ! integration step number
-  TYPE (veg_parameter_type), INTENT(INOUT) :: veg  ! vegetation parameters
-  TYPE (casa_biome),         INTENT(INOUT) :: casabiome
-  TYPE (casa_pool),          INTENT(IN)    :: casapool
-  TYPE (casa_met),           INTENT(IN)    :: casamet
-  TYPE (climate_type),       INTENT(IN)    :: climate  ! climate variables
-  INTEGER,      INTENT(IN) :: ktauday ! number of time steps per day
-  TYPE (icanopy_type)      :: PHOTO
+   INTEGER,                  INTENT(IN)    :: ktau ! integration step number
+   TYPE(veg_parameter_type), INTENT(INOUT) :: veg  ! vegetation parameters
+   TYPE(casa_biome),         INTENT(INOUT) :: casabiome
+   TYPE(casa_pool),          INTENT(IN)    :: casapool
+   TYPE(casa_met),           INTENT(IN)    :: casamet
+   TYPE(climate_type),       INTENT(IN)    :: climate  ! climate variables
+   INTEGER,                  INTENT(IN)    :: ktauday ! number of time steps per day
 
-  ! local variables
-  integer np,ivt
-  real, dimension(mp) :: ncleafx,npleafx, pleafx, nleafx ! local variables
-  real, dimension(17) ::  xnslope
-  data xnslope/0.80,1.00,2.00,1.00,1.00,1.00,0.50,1.00,0.34,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00/
-  real                :: relcostJCi
-  real, dimension(mp) :: ajv, bjvref, relcostJ, Nefftmp
-  real, dimension(mp) :: vcmaxx, cfrdx  ! vcmax and cfrd of previous day
-  
+   TYPE(icanopy_type) :: PHOTO
 
-  vcmaxx = veg%vcmax
-  cfrdx  = veg%cfrd
-  
-  ! first initialize
-  CALL point2constants(PHOTO)
-  ncleafx(:) = casabiome%ratioNCplantmax(veg%iveg(:),leaf)
-  npleafx(:) = casabiome%ratioNPplantmin(veg%iveg(:),leaf)
-  bjvref(:)  = PHOTO%bjvref     ! 1.7, Walker et al. 2014
-  DO np=1,mp
-    ivt=veg%iveg(np)
-    IF (casamet%iveg2(np)/=icewater &
-        .AND. casamet%glai(np)>casabiome%glaimin(ivt)  &
-        .AND. casapool%cplant(np,leaf)>0.0) THEN
-
-       IF (icycle>1 .AND. casapool%cplant(np,leaf)>0.0) THEN
-          ncleafx(np) = MIN(casabiome%ratioNCplantmax(ivt,leaf), &
-               MAX(casabiome%ratioNCplantmin(ivt,leaf), &
-               casapool%nplant(np,leaf)/casapool%cplant(np,leaf)))
-       ENDIF
-       IF (icycle>2 .AND. casapool%pplant(np,leaf)>0.0) THEN
-          npleafx(np) = MIN(30.0,MAX(8.0,real(casapool%nplant(np,leaf) &
-               /casapool%pplant(np,leaf))))
-       ENDIF
-    ENDIF
-
-    IF (TRIM(cable_user%vcmax).eq.'standard') then
-       IF (casamet%glai(np) > casabiome%glaimin(ivt)) THEN
-          IF (ivt/=2) THEN
-             veg%vcmax(np) = ( casabiome%nintercept(ivt) &
-                  + casabiome%nslope(ivt)*ncleafx(np)/casabiome%sla(ivt) ) * 1.0e-6
-          ELSE
-             IF (casapool%nplant(np,leaf)>0.0.AND.casapool%pplant(np,leaf)>0.0) THEN
-                veg%vcmax(np) = ( casabiome%nintercept(ivt)  &
-                     + casabiome%nslope(ivt)*(0.4+9.0/npleafx(np)) &
-                     * ncleafx(np)/casabiome%sla(ivt) ) * 1.0e-6
-             ELSE
-                veg%vcmax(np) = ( casabiome%nintercept(ivt) &
-                     + casabiome%nslope(ivt)*ncleafx(np)/casabiome%sla(ivt) )*1.0e-6
-             ENDIF
-          ENDIF
-          veg%vcmax(np) = veg%vcmax(np)* xnslope(ivt)
-       ENDIF
-       veg%ejmax = 2.0 * veg%vcmax
-    elseif (TRIM(cable_user%vcmax).eq.'Walker2014') then
-       ! Walker, A. P. et al.: The relationship of leaf photosynthetic traits - Vcmax and Jmax -
-       !   to leaf nitrogen, leaf phosphorus, and specific leaf area: a meta-analysis and modeling study,
-       !   Ecology and Evolution, 4, 3218-3235, 2014.
-       ! veg%vcmax(np) = exp(3.946 + 0.921*log(nleafx(np)) + 0.121*log(pleafx(np)) + &
-       !      0.282*log(pleafx(np))*log(nleafx(np))) * 1.0e-6
-       nleafx(np) = ncleafx(np)/casabiome%sla(ivt) ! leaf N in g N m-2 leaf
-       pleafx(np) = nleafx(np)/npleafx(np) ! leaf P in g P m-2 leaf
-
-       if (ivt .EQ. 7 .OR.ivt .EQ. 9  ) then
-          ! special for C4 grass: scale value from  parameter file
-          veg%vcmax(np) = casabiome%vcmax_scalar(ivt) * 1.0e-5
-          veg%ejmax(np) = 2.0 * veg%vcmax(np)
-       elseif (ivt.eq.1) then
-           ! account here for spring recovery
-          veg%vcmax(np) = vcmax_np(nleafx(np), pleafx(np))*casabiome%vcmax_scalar(ivt) &
-               *climate%frec(np)
-          veg%ejmax(np) = bjvref(np) * veg%vcmax(np)
-       else
-          veg%vcmax(np) = vcmax_np(nleafx(np), pleafx(np))*casabiome%vcmax_scalar(ivt)
-          veg%ejmax(np) = bjvref(np) * veg%vcmax(np)
-       endif
-       
- 
-       ! adjust Vcmax and Jmax accounting for gm, but only if the implicit values
-       ! have changed.
-       if (cable_user%explicit_gm) then
-          if ( ABS(vcmaxx(np) - veg%vcmax(np)) .GT. 1.0E-08 .OR. &
-               ABS(cfrdx(np) - veg%cfrd(np)) .GT. 1.0E-05 .OR. &
-               ktau .LT. ktauday ) then
-             ! The approach by Sun et al. 2014 is replaced with a subroutine
-             ! based on Knauer et al. 2019, GCB
-             CALL adjust_JV_gm(veg)
-          endif
-             
-          ! recalculate bjvref
-          bjvref(np) = veg%ejmaxcc(np) / veg%vcmaxcc(np)
-          
-          ! recalculate relcost_J in a way that Neff is the same with
-          ! finite (explicit) and infinite (implicit) gm
-          if (coord) then
-             relcostJCi = PHOTO%relcostJ_coord
-          else
-             relcostJCi = PHOTO%relcostJ_optim
-          endif
-          
-          Nefftmp(np) = veg%vcmax(np) + relcostJCi * PHOTO%bjvref *  &
-                        veg%vcmax(np) / 4.0
-          relcostJ(np) = 1.0 / (bjvref(np) * veg%vcmaxcc(np) / 4.0) * &
-               (Nefftmp(np) - veg%vcmaxcc(np))
-          
-       else  ! infinite gm
-          if (coord) then
-             relcostJ(:) = PHOTO%relcostJ_coord
-          else
-             relcostJ(:) = PHOTO%relcostJ_optim
-          endif
-       endif
-       
-  else
-    stop 'invalid vcmax flag'
-  endif
-
-ENDDO
-
-!if (mod(ktau,ktauday) ==1) then   ! JK: whole routine is now called once per day
-if (cable_user%coordinate_photosyn) then
-    CALL optimise_JV(veg,climate,ktauday,bjvref,relcostJ)
-endif
-!endif
+   ! local variables
+   integer np,ivt
+   real, dimension(mp) :: ncleafx,npleafx, pleafx, nleafx ! local variables
+   real, dimension(17) ::  xnslope
+   data xnslope/0.80,1.00,2.00,1.00,1.00,1.00,0.50,1.00,0.34,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00/
+   real                :: relcostJCi
+   real, dimension(mp) :: ajv, bjvref, relcostJ, Nefftmp
+   real, dimension(mp) :: vcmaxx, cfrdx  ! vcmax and cfrd of previous day
 
 
-if (.NOT. cable_user%coordinate_photosyn) then
-   if (cable_user%explicit_gm) then
-      veg%vcmax_shade = veg%vcmaxcc
-      veg%ejmax_shade = veg%ejmaxcc
+   vcmaxx = veg%vcmax
+   cfrdx  = veg%cfrd
 
-      veg%vcmax_sun = veg%vcmaxcc
-      veg%ejmax_sun = veg%ejmaxcc
-   else    
-      veg%vcmax_shade = veg%vcmax
-      veg%ejmax_shade = veg%ejmax
-   
-      veg%vcmax_sun = veg%vcmax
-      veg%ejmax_sun = veg%ejmax
-   endif   
-endif
+   ! first initialize
+   CALL point2constants(PHOTO)
+   ncleafx(:) = casabiome%ratioNCplantmax(veg%iveg(:),leaf)
+   npleafx(:) = casabiome%ratioNPplantmin(veg%iveg(:),leaf)
+   bjvref(:)  = PHOTO%bjvref     ! 1.7, Walker et al. 2014
+   DO np=1,mp
+      ivt=veg%iveg(np)
+      IF (casamet%iveg2(np)/=icewater &
+           .AND. casamet%glai(np)>casabiome%glaimin(ivt)  &
+           .AND. casapool%cplant(np,leaf)>0.0) THEN
 
-! for 2 day test
-!if (ktau == ) stop
+         IF (icycle>1 .AND. casapool%cplant(np,leaf)>0.0) THEN
+            ncleafx(np) = MIN(casabiome%ratioNCplantmax(ivt,leaf), &
+                 MAX(casabiome%ratioNCplantmin(ivt,leaf), &
+                 casapool%nplant(np,leaf)/casapool%cplant(np,leaf)))
+         ENDIF
+         IF (icycle>2 .AND. casapool%pplant(np,leaf)>0.0) THEN
+            npleafx(np) = MIN(30.0,MAX(8.0,real(casapool%nplant(np,leaf) &
+                 /casapool%pplant(np,leaf))))
+         ENDIF
+      ENDIF
 
-!991 format(i6,2x,i4,2x,2(f9.3,2x))
+      IF (TRIM(cable_user%vcmax).eq.'standard') then
+         IF (casamet%glai(np) > casabiome%glaimin(ivt)) THEN
+            IF (ivt/=2) THEN
+               veg%vcmax(np) = ( casabiome%nintercept(ivt) &
+                    + casabiome%nslope(ivt)*ncleafx(np)/casabiome%sla(ivt) ) * 1.0e-6
+            ELSE
+               IF (casapool%nplant(np,leaf)>0.0.AND.casapool%pplant(np,leaf)>0.0) THEN
+                  veg%vcmax(np) = ( casabiome%nintercept(ivt)  &
+                       + casabiome%nslope(ivt)*(0.4+9.0/npleafx(np)) &
+                       * ncleafx(np)/casabiome%sla(ivt) ) * 1.0e-6
+               ELSE
+                  veg%vcmax(np) = ( casabiome%nintercept(ivt) &
+                       + casabiome%nslope(ivt)*ncleafx(np)/casabiome%sla(ivt) )*1.0e-6
+               ENDIF
+            ENDIF
+            veg%vcmax(np) = veg%vcmax(np)* xnslope(ivt)
+         ENDIF
+         veg%ejmax = 2.0 * veg%vcmax
+      elseif (TRIM(cable_user%vcmax).eq.'Walker2014') then
+         ! Walker, A. P. et al.: The relationship of leaf photosynthetic traits - Vcmax and Jmax -
+         !   to leaf nitrogen, leaf phosphorus, and specific leaf area: a meta-analysis and modeling study,
+         !   Ecology and Evolution, 4, 3218-3235, 2014.
+         ! veg%vcmax(np) = exp(3.946 + 0.921*log(nleafx(np)) + 0.121*log(pleafx(np)) + &
+         !      0.282*log(pleafx(np))*log(nleafx(np))) * 1.0e-6
+         nleafx(np) = ncleafx(np)/casabiome%sla(ivt) ! leaf N in g N m-2 leaf
+         pleafx(np) = nleafx(np)/npleafx(np) ! leaf P in g P m-2 leaf
+
+         if (ivt .EQ. 7 .OR.ivt .EQ. 9  ) then
+            ! special for C4 grass: scale value from  parameter file
+            veg%vcmax(np) = casabiome%vcmax_scalar(ivt) * 1.0e-5
+            veg%ejmax(np) = 2.0 * veg%vcmax(np)
+         elseif (ivt.eq.1) then
+            ! account here for spring recovery
+            veg%vcmax(np) = vcmax_np(nleafx(np), pleafx(np))*casabiome%vcmax_scalar(ivt) &
+                 *climate%frec(np)
+            veg%ejmax(np) = bjvref(np) * veg%vcmax(np)
+         else
+            veg%vcmax(np) = vcmax_np(nleafx(np), pleafx(np))*casabiome%vcmax_scalar(ivt)
+            veg%ejmax(np) = bjvref(np) * veg%vcmax(np)
+         endif
+
+
+         ! adjust Vcmax and Jmax accounting for gm, but only if the implicit values
+         ! have changed.
+         if (cable_user%explicit_gm) then
+            if ( ABS(vcmaxx(np) - veg%vcmax(np)) .GT. 1.0E-08 .OR. &
+                 ABS(cfrdx(np) - veg%cfrd(np)) .GT. 1.0E-05 .OR. &
+                 ktau .LT. ktauday ) then
+               ! The approach by Sun et al. 2014 is replaced with a subroutine
+               ! based on Knauer et al. 2019, GCB
+               CALL adjust_JV_gm(veg)
+            endif
+
+            ! recalculate bjvref
+            bjvref(np) = veg%ejmaxcc(np) / veg%vcmaxcc(np)
+
+            ! recalculate relcost_J in a way that Neff is the same with
+            ! finite (explicit) and infinite (implicit) gm
+            if (coord) then
+               relcostJCi = PHOTO%relcostJ_coord
+            else
+               relcostJCi = PHOTO%relcostJ_optim
+            endif
+
+            Nefftmp(np) = veg%vcmax(np) + relcostJCi * PHOTO%bjvref *  &
+                 veg%vcmax(np) / 4.0
+            relcostJ(np) = 1.0 / (bjvref(np) * veg%vcmaxcc(np) / 4.0) * &
+                 (Nefftmp(np) - veg%vcmaxcc(np))
+
+         else  ! infinite gm
+            if (coord) then
+               relcostJ(:) = PHOTO%relcostJ_coord
+            else
+               relcostJ(:) = PHOTO%relcostJ_optim
+            endif
+         endif
+
+      else ! cable_user%vcmax .eq. 'standard' or 'Walker2014'
+         stop 'invalid vcmax flag'
+      endif ! cable_user%vcmax
+
+   ENDDO ! np=1,mp
+
+   !if (mod(ktau,ktauday) ==1) then   ! JK: whole routine is now called once per day
+   if (cable_user%coordinate_photosyn) then
+      CALL optimise_JV(veg,climate,ktauday,bjvref,relcostJ)
+   endif
+   !endif
+
+   if (.NOT. cable_user%coordinate_photosyn) then
+      if (cable_user%explicit_gm) then
+         veg%vcmax_shade = veg%vcmaxcc
+         veg%ejmax_shade = veg%ejmaxcc
+
+         veg%vcmax_sun = veg%vcmaxcc
+         veg%ejmax_sun = veg%ejmaxcc
+      else    
+         veg%vcmax_shade = veg%vcmax
+         veg%ejmax_shade = veg%ejmax
+
+         veg%vcmax_sun = veg%vcmax
+         veg%ejmax_sun = veg%ejmax
+      endif
+   endif
+
+   ! for 2 day test
+   !if (ktau == ) stop
+
+   !991 format(i6,2x,i4,2x,2(f9.3,2x))
  END SUBROUTINE casa_feedback
 
 

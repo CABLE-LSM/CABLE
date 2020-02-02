@@ -2407,7 +2407,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
    ! Input arguments
    TYPE(met_type),            INTENT(INOUT) :: met
    TYPE(air_type),            INTENT(INOUT) :: air
-   TYPE(soil_snow_type),      INTENT(OUT)   :: ssnow
+   TYPE(soil_snow_type),      INTENT(INOUT) :: ssnow
    TYPE(veg_parameter_type),  INTENT(OUT)   :: veg
    TYPE(climate_type),        INTENT(INOUT) :: climate
    TYPE(bgc_pool_type),       INTENT(OUT)   :: bgc

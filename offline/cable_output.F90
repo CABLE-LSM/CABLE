@@ -1580,17 +1580,23 @@ CONTAINS
     INTEGER, SAVE :: YearStart
     INTEGER :: ok ! for netcdf sync
     real(r_2) :: rinterval
+
+    ! logical :: opened
+    ! integer :: varid
     
     ! IF asked to check mass/water balance:
+    ! print*, 'WO01'
     IF(check%mass_bal) CALL mass_balance(dels, ktau, ssnow, soil, canopy,            &
                                          met,air,bal)
 
     ! IF asked to check energy balance:
+    ! print*, 'WO02'
     IF(check%energy_bal) CALL energy_balance(dels,ktau,met,rad,                     &
                                              canopy,bal,ssnow,                 &
                                              SBOLTZ, EMLEAF, EMSOIL )
 
     ! Initialise output time step counter and month counter:
+    ! print*, 'WO03'
     IF(ktau == 1) THEN
        out_timestep = 0
        out_month = 0
@@ -1602,6 +1608,7 @@ CONTAINS
        ENDIF
     END IF
     ! Decide on output averaging regime:
+    ! print*, 'WO04'
     IF(output%averaging(1:3) == 'all') THEN ! write every time step to file
        ! Set flag to write data for current time step:
        writenow = .TRUE.
@@ -1701,12 +1708,28 @@ CONTAINS
     ! output file unless output is monthly (in which case it's set above)
 
     ! If this time step is an output time step:
+    ! print*, 'WO05'
     IF (writenow) THEN
        ! Write to temporary time variable:
-       timetemp(1) = DBLE(REAL(ktau-backtrack)*dels)
+       ! print*, 'WO05.00 '
+       ! print*, 'WO05.01 ', ktau
+       ! print*, 'WO05.02 ', backtrack
+       ! print*, 'WO05.03 ', dels
+       ! print*, 'WO05.04 ', REAL(REAL(ktau-backtrack)*dels,r_2)
+       timetemp(1) = REAL(REAL(ktau-backtrack)*dels,r_2)
+       ! print*, 'WO05.05 ', timetemp
+       ! print*, 'WO05.06 ', out_timestep
+       ! print*, 'WO05.07 ', ncid_out
+       ! print*, 'WO05.08 ', ovid%tvar
+       ! inquire(unit=ncid_out, opened=opened)
+       ! print*, 'WO05.09 ', opened
+       ! if (.not. opened) ok = NF90_OPEN(filename%out, NF90_WRITE, ncid_out)
+       ! ok = NF90_INQ_VARID(ncid_out, 'time', varid)
+       ! print*, 'WO05.10 ', varid, ok
        ! Write time variable for this output time step:
        ok = NF90_PUT_VAR(ncid_out, ovid%tvar, timetemp, &
             start = (/out_timestep/), count = (/1/))
+       ! print*, 'WO05.11 ', ok, NF90_NOERR
        IF(ok /= NF90_NOERR) CALL nc_abort(ok, &
             'Error writing time variable to ' &
             //TRIM(filename%out)// '(SUBROUTINE write_output)')
@@ -1718,6 +1741,7 @@ CONTAINS
     ! formatting info; met variables for reporting in case of abort.
 
     ! SWdown:  downward short-wave radiation [W/m^2]
+    ! print*, 'WO06'
     IF(output%met .OR. output%SWdown) THEN
        ! Add current timestep's value to total of temporary output variable:
        out%SWdown = out%SWdown + REAL(met%fsd(:, 1) + met%fsd(:, 2), 4)
@@ -1732,6 +1756,7 @@ CONTAINS
        END IF
     END IF
     ! LWdown: downward long-wave radiation [W/m^2]
+    ! print*, 'WO07'
     IF(output%met .OR. output%LWdown) THEN
        ! Add current timestep's value to total of temporary output variable:
         out%LWdown = out%LWdown + REAL(met%fld, 4)
@@ -1746,6 +1771,7 @@ CONTAINS
        END IF
     END IF
     ! Tair: surface air temperature [K]
+    ! print*, 'WO08'
     IF(output%met .OR. output%Tair) THEN
        ! Add current timestep's value to total of temporary output variable:
        out%Tair = out%Tair + REAL(met%tk, 4)
@@ -1760,6 +1786,7 @@ CONTAINS
        END IF
     END IF
     ! Rainf: rainfall [kg/m^2/s]
+    ! print*, 'WO09'
     IF(output%met .OR. output%Rainf) THEN
        ! Add current timestep's value to total of temporary output variable:
        out%Rainf = out%Rainf + REAL(met%precip / dels, 4)
@@ -1774,6 +1801,7 @@ CONTAINS
        END IF
     END IF
     ! Snowf: snowfall [kg/m^2/s]
+    ! print*, 'WO10'
     IF(output%met .OR. output%Snowf) THEN
        ! Add current timestep's value to total of temporary output variable:
        out%Snowf = out%Snowf + REAL(met%precip_sn / dels, 4)
@@ -1788,6 +1816,7 @@ CONTAINS
        END IF
     END IF
     ! PSurf: surface pressure [Pa]
+    ! print*, 'WO11'
     IF(output%met .OR. output%PSurf) THEN
        ! Add current timestep's value to total of temporary output variable:
        out%PSurf = out%PSurf + REAL(met%pmb, 4)
@@ -1802,6 +1831,7 @@ CONTAINS
        END IF
     END IF
     ! Qair: specific humidity [kg/kg]
+    ! print*, 'WO12'
     IF(output%met .OR. output%Qair) THEN
        ! Add current timestep's value to total of temporary output variable:
        out%Qair = out%Qair + REAL(met%qv, 4)
@@ -1816,6 +1846,7 @@ CONTAINS
        END IF
     END IF
     ! Wind: windspeed [m/s]
+    ! print*, 'WO13'
     IF(output%met .OR. output%Wind) THEN
        ! Add current timestep's value to total of temporary output variable:
        out%Wind = out%Wind + REAL(met%ua, 4)
@@ -1830,6 +1861,7 @@ CONTAINS
        END IF
     END IF
     ! CO2air: CO2 concentration [ppmv]
+    ! print*, 'WO14'
     IF(output%met .OR. output%CO2air) THEN
        ! Add current timestep's value to total of temporary output variable:
        out%CO2air = out%CO2air + REAL(met%ca * 1000000.0, 4)
@@ -1845,6 +1877,7 @@ CONTAINS
     END IF
     !-----------------------WRITE FLUX DATA-------------------------------------
     ! Qle: latent heat flux [W/m^2]
+    ! print*, 'WO15'
     IF(output%flux .OR. output%Qle) THEN
        ! Add current timestep's value to total of temporary output variable:
        out%Qle = out%Qle + REAL(canopy%fe, 4)
@@ -1859,6 +1892,7 @@ CONTAINS
        END IF
     END IF
     ! Qh: sensible heat flux [W/m^2]
+    ! print*, 'WO16'
     IF(output%flux .OR. output%Qh) THEN
        ! Add current timestep's value to total of temporary output variable:
        out%Qh = out%Qh + REAL(canopy%fh, 4)
@@ -1872,8 +1906,8 @@ CONTAINS
           out%Qh = 0.0
        END IF
     END IF
-
     ! Qg: ground heat flux [W/m^2]
+    ! print*, 'WO17'
     IF(output%flux .OR. output%Qg) THEN
        ! Add current timestep's value to total of temporary output variable:
        out%Qg = out%Qg + REAL(canopy%ga, 4)
@@ -1888,6 +1922,7 @@ CONTAINS
        END IF
     END IF
     ! Qs: surface runoff [kg/m^2/s]
+    ! print*, 'WO18'
     IF(output%flux .OR. output%Qs) THEN
        ! Add current timestep's value to total of temporary output variable:
        out%Qs = out%Qs + ssnow%rnof1 / dels
@@ -1902,6 +1937,7 @@ CONTAINS
        END IF
     END IF
     ! Qsb: subsurface runoff [kg/m^2/s]
+    ! print*, 'WO19'
     IF(output%flux .OR. output%Qsb) THEN
        ! Add current timestep's value to total of temporary output variable:
        out%Qsb = out%Qsb + REAL(ssnow%rnof2 / dels, 4)
@@ -1916,6 +1952,7 @@ CONTAINS
        END IF
     END IF
     ! Evap: total evapotranspiration [kg/m^2/s]
+    ! print*, 'WO20'
     IF(output%flux .OR. output%Evap) THEN
        ! Add current timestep's value to total of temporary output variable:
        out%Evap = out%Evap + REAL(canopy%fe / air%rlam, 4)
@@ -1930,6 +1967,7 @@ CONTAINS
        END IF
     END IF
     ! ECanop: interception evaporation [kg/m^2/s]
+    ! print*, 'WO21'
     IF(output%flux .OR. output%ECanop) THEN
        ! Add current timestep's value to total of temporary output variable:
        out%ECanop = out%ECanop + REAL(canopy%fevw / air%rlam, 4)
@@ -1943,8 +1981,10 @@ CONTAINS
           out%ECanop = 0.0
        END IF
     END IF
-    IF(output%flux ) THEN
+    ! print*, 'WO22'
+    IF(output%flux) THEN
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO23'
        out%gsw_sl = out%gsw_sl + REAL(canopy%gswx(:,1), 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -1956,6 +1996,7 @@ CONTAINS
           out%gsw_sl = 0.0
        END IF
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO24'
        out%gsw_sh = out%gsw_sh + REAL(canopy%gswx(:,2), 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -1971,6 +2012,7 @@ CONTAINS
 
     
     ! TVeg: vegetation transpiration [kg/m^2/s]
+    ! print*, 'WO25'
     IF(output%flux .OR. output%TVeg) THEN
        ! Add current timestep's value to total of temporary output variable:
        out%TVeg = out%TVeg + REAL(canopy%fevc / air%rlam, 4)
@@ -1986,6 +2028,7 @@ CONTAINS
     END IF
     
     ! ESoil: bare soil evaporation [kg/m^2/s]
+    ! print*, 'WO26'
     IF(output%flux .OR. output%ESoil) THEN
        ! Add current timestep's value to total of temporary output variable:
        IF(cable_user%SOIL_STRUC=='sli') THEN
@@ -2004,6 +2047,7 @@ CONTAINS
        END IF
     END IF
     ! HVeg: sensible heat from vegetation [W/m^2]
+    ! print*, 'WO27'
     IF(output%flux .OR. output%HVeg) THEN
        ! Add current timestep's value to total of temporary output variable:
        out%HVeg = out%HVeg + REAL(canopy%fhv, 4)
@@ -2018,8 +2062,10 @@ CONTAINS
        END IF
     END IF
     ! HSoil: sensible heat from soil [W/m^2]
+    ! print*, 'WO28'
     IF(output%flux .OR. output%HSoil) THEN
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO29'
        out%HSoil = out%HSoil + REAL(canopy%fhs, 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -2031,6 +2077,7 @@ CONTAINS
           out%HSoil = 0.0
        END IF
 
+       ! print*, 'WO30'
         out%RnetSoil = out%RnetSoil + REAL(canopy%fns, 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -2043,8 +2090,10 @@ CONTAINS
        END IF
     END IF
     ! NEE: net ecosystem exchange [umol/m^2/s]
+    ! print*, 'WO31'
     IF(output%flux .OR. output%carbon .OR. output%NEE) THEN
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO32'
        out%NEE = out%NEE + REAL(canopy%fnee / 1.201E-5, 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -2059,8 +2108,10 @@ CONTAINS
 
     !-----------------------WRITE SOIL STATE DATA-------------------------------
     ! SoilMoist: av.layer soil moisture [kg/m^2]
+    ! print*, 'WO33'
     IF(output%soil .OR. output%SoilMoist) THEN
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO34'
        out%SoilMoist = out%SoilMoist + REAL(ssnow%wb, 4)
        out%SoilMoistIce = out%SoilMoistIce + REAL(ssnow%wbice, 4)
        IF(writenow) THEN
@@ -2078,8 +2129,10 @@ CONTAINS
        END IF
     END IF
     ! SoilTemp: av.layer soil temperature [K]
+    ! print*, 'WO35'
     IF(output%soil .OR. output%SoilTemp) THEN
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO36'
        out%SoilTemp = out%SoilTemp + REAL(ssnow%tgg, 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -2092,8 +2145,10 @@ CONTAINS
        END IF
     END IF
     ! BaresoilT: surface bare soil temp [K]
+    ! print*, 'WO37'
     IF(output%soil .OR. output%BaresoilT) THEN
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO38'
        out%BaresoilT = out%BaresoilT + REAL(ssnow%tgg(:, 1), 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -2107,8 +2162,10 @@ CONTAINS
     END IF
     !----------------------WRITE SNOW STATE DATA--------------------------------
     ! SWE: snow water equivalent [kg/m^2]
+    ! print*, 'WO39'
     IF(output%snow .OR. output%SWE) THEN
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO40'
        out%SWE = out%SWE + REAL(ssnow%snowd, 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -2120,9 +2177,10 @@ CONTAINS
           out%SWE = 0.0
        END IF
 
-      ! Add current timestep's value to total of temporary output variable:
+       ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO41'
       out%SnowMelt = out%SnowMelt + REAL(ssnow%smelt, 4)/dels
-! temp test vh !
+      ! temp test vh !
       !out%SnowMelt = out%SnowMelt + REAL(ssnow%nsteps, 4)/dels
       IF(writenow) THEN
          ! Divide accumulated variable by number of accumulated time steps:
@@ -2136,8 +2194,10 @@ CONTAINS
 
     END IF
     ! SnowT: snow surface temp [K]
+    ! print*, 'WO42'
     IF(output%snow .OR. output%SnowT) THEN
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO43'
        out%SnowT = out%SnowT + REAL(ssnow%tggsn(:, 1), 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -2150,8 +2210,10 @@ CONTAINS
        END IF
     END IF
     ! SnowDepth: actual depth of snow in [m]
+    ! print*, 'WO44'
     IF(output%snow .OR. output%SnowDepth) THEN
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO45'
        out%SnowDepth = out%SnowDepth + REAL(SUM(ssnow%sdepth, 2), 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -2165,8 +2227,10 @@ CONTAINS
     END IF
     !-------------------------WRITE RADIATION DATA------------------------------
     ! SWnet: net shortwave [W/m^2]
+    ! print*, 'WO46'
     IF(output%radiation .OR. output%SWnet) THEN
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO47'
        out%SWnet = out%SWnet + REAL(SUM(rad%qcan(:, :, 1), 2) +                &
                                       SUM(rad%qcan(:, :, 2), 2) + rad%qssabs, 4)
        IF(writenow) THEN
@@ -2180,8 +2244,10 @@ CONTAINS
        END IF
     END IF
     ! LWnet: net longwave [W/m^2]
+    ! print*, 'WO48'
     IF(output%radiation .OR. output%LWnet) THEN
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO49'
        out%LWnet = out%LWnet +                                                 &
           REAL(met%fld - sboltz * emleaf * canopy%tv ** 4 * (1 - rad%transd) - &
                rad%flws * rad%transd, 4)
@@ -2195,9 +2261,11 @@ CONTAINS
           out%LWnet = 0.0
        END IF
     END IF
+    ! print*, 'WO50'
     ! Rnet: net absorbed radiation [W/m^2]
     IF(output%radiation .OR. output%Rnet) THEN
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO51'
        out%Rnet = out%Rnet + REAL(met%fld - sboltz * emleaf * canopy%tv ** 4 * &
                                   (1 - rad%transd) -rad%flws * rad%transd +    &
                                   SUM(rad%qcan(:, :, 1), 2) +                  &
@@ -2213,8 +2281,10 @@ CONTAINS
        END IF
     END IF
     ! Albedo:
+    ! print*, 'WO52'
     IF(output%radiation .OR. output%Albedo) THEN
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO53'
        out%Albedo = out%Albedo + REAL((rad%albedo(:, 1) + rad%albedo(:, 2))    &
                                        * 0.5, 4)
        !! output calc of soil albedo based on colour? - Ticket #27
@@ -2236,6 +2306,7 @@ CONTAINS
 
        IF(writenow) THEN
          ! Divide accumulated variable by number of accumulated time steps:
+          ! print*, 'WO54'
          out%Albedo = out%Albedo / REAL(output%interval, 4)
          ! Write value to file:
          CALL write_ovar(out_timestep, ncid_out, ovid%Albedo, 'Albedo',        &
@@ -2245,6 +2316,7 @@ CONTAINS
 
          ! output calc of soil albedo based on colour? - Ticket #27
          !IF (calcsoilalbedo) THEN
+         ! print*, 'WO55'
          IF (output%averaging(1:3) == 'all') THEN
             out%visAlbedo = out%visAlbedo / REAL(output%interval, 4)
          ELSE
@@ -2267,11 +2339,12 @@ CONTAINS
        END IF
     END IF
     ! RadT: Radiative surface temperature [K]
+    ! print*, 'WO56'
     IF(output%radiation .OR. output%RadT) THEN
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO57'
        out%RadT = out%RadT + REAL((((1.0 - rad%transd) * emleaf * sboltz *     &
-       canopy%tv ** 4 + rad%transd * emsoil * sboltz * (ssnow%tss) ** 4) / sboltz)     &
-       ** 0.25, 4)
+       canopy%tv ** 4 + rad%transd * emsoil * sboltz * (ssnow%tss) ** 4) / sboltz)**0.25, 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
           out%RadT = out%RadT/REAL(output%interval, 4)
@@ -2284,8 +2357,10 @@ CONTAINS
     END IF
     !------------------------WRITE VEGETATION DATA------------------------------
     ! VegT: vegetation temperature [K]
+    ! print*, 'WO58'
     IF(output%veg .OR. output%VegT) THEN
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO59'
        out%VegT = out%VegT + REAL(canopy%tv, 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -2298,8 +2373,10 @@ CONTAINS
        END IF
     END IF
     ! CanT: within-canopy temperature [K]
+    ! print*, 'WO60'
     IF(output%veg .OR. output%CanT) THEN
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO61'
        out%CanT = out%CanT + REAL(met%tvair, 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -2311,8 +2388,10 @@ CONTAINS
           out%CanT = 0.0
        END IF
     END IF
+    ! print*, 'WO62'
      IF(output%veg .OR. output%Fwsoil) THEN
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO63'
        out%Fwsoil = out%Fwsoil + REAL(canopy%fwsoil, 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -2325,8 +2404,10 @@ CONTAINS
        END IF
     END IF
     ! CanopInt: total canopy water storage [kg/m^2]
+    ! print*, 'WO64'
     IF(output%veg .OR. output%CanopInt) THEN
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO65'
        out%CanopInt = out%CanopInt + REAL(canopy%cansto, 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -2339,8 +2420,10 @@ CONTAINS
        END IF
     END IF
     ! LAI:
+    ! print*, 'WO66'
     IF(output%veg .OR. output%LAI) THEN
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO67'
        out%LAI = out%LAI + REAL(veg%vlai, 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -2354,8 +2437,10 @@ CONTAINS
     END IF
   
    !Alexis
+    ! print*, 'WO68'
    IF(output%veg) THEN
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO69'
        out%vcmax = out%vcmax + REAL(veg%vcmax, 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -2367,6 +2452,7 @@ CONTAINS
           out%vcmax = 0.0
        END IF
 
+       ! print*, 'WO70'
        out%ejmax = out%ejmax + REAL(veg%ejmax, 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -2382,8 +2468,10 @@ CONTAINS
 
     !------------------------WRITE BALANCES DATA--------------------------------
     ! Ebal: cumulative energy balance [W/m^2]
+    ! print*, 'WO71'
     IF(output%balances .OR. output%Ebal) THEN
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO72'
        out%Ebal = out%Ebal + REAL(bal%ebal_tot, 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -2396,8 +2484,10 @@ CONTAINS
        END IF
     END IF
     ! Wbal: cumulative water balance  [kg/m^2/s]
+    ! print*, 'WO73'
     IF(output%balances .OR. output%Wbal) THEN
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO74'
        out%Wbal = out%Wbal + REAL(bal%wbal_tot, 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -2412,8 +2502,10 @@ CONTAINS
     !------------------------WRITE CARBON DATA----------------------------------
     ! GPP: gross primary production C by veg [umol/m^2/s]
     !      added frday in the calculation of GPP (BP may08)
+    ! print*, 'WO75'
     IF(output%carbon .OR. output%GPP) THEN
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO76'
        out%GPP = out%GPP + REAL((-1.0 * canopy%fpn + canopy%frday)             &
                                 / 1.201E-5, 4)
        IF(writenow) THEN
@@ -2428,8 +2520,9 @@ CONTAINS
     END IF
 
     ! components of GPP
+    ! print*, 'WO77'
     IF (output%GPP_components) THEN
-
+       ! print*, 'WO78'
        out%GPP_sh = out%GPP_sh +  REAL(canopy%A_sh/ 1e-6 , 4)
        out%GPP_sl = out%GPP_sl +  REAL(canopy%A_sl/ 1e-6 , 4)
        out%GPP_shC = out%GPP_shC +  REAL(canopy%A_shC/ 1e-6 , 4)
@@ -2440,6 +2533,7 @@ CONTAINS
        out%dGPPdcs =  out%dGPPdcs + REAL(canopy%dAdcs/ 1e-6 , 4)
        out%eta_TVeg_cs =  out%eta_TVeg_cs + REAL(canopy%eta_fevc_cs/ air%rlam , 4)
        out%CO2s =  out%CO2s + REAL(canopy%cs/ 1e-6 , 4)
+       ! print*, 'WO79'
        where ((rad%fvlai(:,1)+rad%fvlai(:,2)).gt.0.01)
           out%gsw_TVeg =  out%gsw_TVeg + &
                REAL((canopy%gswx(:,1) * rad%fvlai(:,1)/(rad%fvlai(:,1)+rad%fvlai(:,2)) + &
@@ -2461,12 +2555,11 @@ CONTAINS
           out%jmax_ts = out%jmax_ts + REAL(veg%ejmax_shade, 4)
           
        endwhere
-
-
-
        
+       ! print*, 'WO80'
        IF (writenow) THEN
             ! Divide accumulated variable by number of accumulated time steps:
+          ! print*, 'WO81'
           out%eta_GPP_cs = out%eta_GPP_cs/REAL(output%interval, 4)
           out%dGPPdcs = out%dGPPdcs/REAL(output%interval, 4)
           out%CO2s = out%CO2s/REAL(output%interval, 4)
@@ -2482,6 +2575,7 @@ CONTAINS
           out%vcmax_ts = out%vcmax_ts/REAL(output%interval, 4)
           out%jmax_ts = out%jmax_ts/REAL(output%interval, 4)
 
+          ! print*, 'WO82'
           ! Write value to file:
           CALL write_ovar(out_timestep, ncid_out, ovid%GPP_sh, 'GPP_sh', out%GPP_sh,    &
                ranges%GPP, patchout%GPP, 'default', met)
@@ -2549,8 +2643,8 @@ CONTAINS
 
     ENDIF
 
-    
     ! NPP: net primary production of C by veg [umol/m^2/s]
+    ! print*, 'WO83'
     IF(output%carbon .OR. output%NPP) THEN
        ! Add current timestep's value to total of temporary output variable:
        !out%NPP = out%NPP + REAL((-1.0 * canopy%fpn - canopy%frp &
@@ -2559,6 +2653,7 @@ CONTAINS
        ! leaf maintenance respiration is reduced in CASA
        ! (relative to its original value calculated in cable_canopy)
        ! in order to avoid negative carbon stores.
+       ! print*, 'WO84'
        IF(output%casa) THEN
           out%NPP = out%NPP + REAL(casaflux%cnpp/86400.0 / 1.201E-5, 4)
        ELSE
@@ -2576,6 +2671,7 @@ CONTAINS
        END IF
     END IF
     ! AutoResp: autotrophic respiration [umol/m^2/s]
+    ! print*, 'WO85'
     IF(output%carbon .OR. output%AutoResp) THEN
        ! Add current timestep's value to total of temporary output variable:
        !out%AutoResp = out%AutoResp + REAL((canopy%frp + canopy%frday + casaflux%clabloss/86400.0)          &
@@ -2584,7 +2680,7 @@ CONTAINS
        ! leaf maintenance respiration is reduced in CASA
        ! (relative to its original value calculated in cable_canopy)
        ! in order to avoid negative carbon stores.
-
+       ! print*, 'WO86'
        IF(output%casa) THEN
           out%AutoResp = out%AutoResp + REAL(canopy%frday / 1.201E-5, 4) + &
                REAL((casaflux%crmplant(:,2)/86400.0 + casaflux%crmplant(:,3)/86400.0 + &
@@ -2594,6 +2690,7 @@ CONTAINS
                                           / 1.201E-5, 4)
        ENDIF
 
+       ! print*, 'WO87'
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
           out%AutoResp = out%AutoResp/REAL(output%interval, 4)
@@ -2604,7 +2701,7 @@ CONTAINS
           out%AutoResp = 0.0
        END IF
 
-
+       ! print*, 'WO88'
        IF(output%casa) THEN
           out%RootResp = out%RootResp + REAL(casaflux%crmplant(:,3)/86400.0/ 1.201E-5, 4) !+ &
                ! REAL(0.3*casaflux%crmplant(:,2)/86400.0/ 1.201E-5, 4)
@@ -2618,9 +2715,8 @@ CONTAINS
              out%RootResp = 0.0
           END IF
        END IF
-
-
        
+       ! print*, 'WO89'
        IF(output%casa) THEN
           out%StemResp = out%StemResp + REAL(casaflux%crmplant(:,2)/86400.0/ 1.201E-5, 4)
           IF(writenow) THEN
@@ -2634,12 +2730,13 @@ CONTAINS
           END IF
        END IF
 
-
-       
     END IF
+    
     ! LeafResp: Leaf respiration [umol/m^2/s]
+    ! print*, 'WO90'
     IF(output%carbon .OR. output%LeafResp) THEN
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO91'
        out%LeafResp = out%LeafResp + REAL(canopy%frday / 1.201E-5, 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -2652,8 +2749,10 @@ CONTAINS
        END IF
     END IF
     ! HeteroResp: heterotrophic respiration [umol/m^2/s]
+    ! print*, 'WO92'
     IF(output%carbon .OR. output%HeteroResp) THEN
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO93'
        out%HeteroResp = out%HeteroResp + REAL(canopy%frs / 1.201E-5, 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -2668,7 +2767,9 @@ CONTAINS
     END IF
 
     ! output patch area 
+    ! print*, 'WO94'
     IF(output%casa) THEN
+       ! print*, 'WO95'
      out%Area = casamet%areacell/1e6 ! km2
      IF(writenow) THEN
           ! Write value to file:
@@ -2684,6 +2785,7 @@ CONTAINS
          END IF
       ENDIF
    ENDIF
+   ! print*, 'WO96'
    IF (cable_user%CALL_POP) THEN
       IF(writenow) THEN
          IF(output%params .OR. output%hc) CALL write_ovar(out_timestep,ncid_out, opid%hc,        &
@@ -2692,8 +2794,10 @@ CONTAINS
    ENDIF
 
     ! NBP and turnover fluxes [umol/m^2/s]
+    ! print*, 'WO97'
     IF(output%carbon .OR. output%NBP) THEN
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO98'
        IF (cable_user%POPLUC) THEN
            out%NBP = out%NBP + (-REAL((casaflux%Crsoil-casaflux%cnpp &
             - casapool%dClabiledt)/86400.0 &
@@ -2706,6 +2810,7 @@ CONTAINS
                / 1.201E-5, 4))
        ENDIF
 
+       ! print*, 'WO99'
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
           out%NBP = out%NBP / REAL(output%interval, 4)
@@ -2716,6 +2821,7 @@ CONTAINS
           out%NBP = 0.0
        END IF
       ENDIF
+      ! print*, 'WO100'
       IF(output%casa) THEN
        ! Add current timestep's value to total of temporary output variable:
        out%dCdt = out%dCdt + REAL((casapool%ctot-casapool%ctot_0)/86400.0 &
@@ -2731,6 +2837,7 @@ CONTAINS
        END IF
 
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO101'
        out%PlantTurnover = out%PlantTurnover + REAL((sum(casaflux%Cplant_turnover,2))/86400.0 &
             / 1.201E-5, 4)
        IF(writenow) THEN
@@ -2744,6 +2851,7 @@ CONTAINS
        END IF
 
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO102'
        out%PlantTurnoverLeaf = out%PlantTurnoverLeaf + REAL((casaflux%Cplant_turnover(:,1))/86400.0 &
             / 1.201E-5, 4)
        IF(writenow) THEN
@@ -2757,6 +2865,7 @@ CONTAINS
        END IF
 
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO103'
        out%PlantTurnoverFineRoot = out%PlantTurnoverFineRoot + REAL((casaflux%Cplant_turnover(:,3))/86400.0 &
             / 1.201E-5, 4)
        IF(writenow) THEN
@@ -2771,6 +2880,7 @@ CONTAINS
        END IF
 
       ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO104'
        out%PlantTurnoverWood = out%PlantTurnoverWood + REAL((casaflux%Cplant_turnover(:,2))/86400.0 &
             / 1.201E-5, 4)
        IF(writenow) THEN
@@ -2784,6 +2894,7 @@ CONTAINS
        END IF
 
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO105'
        out%PlantTurnoverWoodDist = out%PlantTurnoverWoodDist + &
             REAL((casaflux%Cplant_turnover_disturbance)/86400.0 &
             / 1.201E-5, 4)
@@ -2799,6 +2910,7 @@ CONTAINS
        END IF
 
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO106'
        out%PlantTurnoverWoodCrowding = out%PlantTurnoverWoodCrowding + &
             REAL((casaflux%Cplant_turnover_crowding)/86400.0 &
             / 1.201E-5, 4)
@@ -2813,8 +2925,8 @@ CONTAINS
           out%PlantTurnoverWoodCrowding = 0.0
        END IF
 
-
        ! Add current timestep's value to total of temporary output variable:
+       ! print*, 'WO107'
        out%PlantTurnoverWoodResourceLim = out%PlantTurnoverWoodResourceLim + &
             REAL((casaflux%Cplant_turnover_resource_limitation)/86400.0 &
             / 1.201E-5, 4)
@@ -2830,6 +2942,7 @@ CONTAINS
           ! Reset temporary output variable:
           out%PlantTurnoverWoodResourceLim = 0.0
        END IF
+       ! print*, 'WO108'
        IF (cable_user%POPLUC) THEN
        ! Add current timestep's value to total of temporary output variable:
        out%LandUseFlux = out%LandUseFlux + &
@@ -2851,7 +2964,9 @@ CONTAINS
  END IF
     
     ! plant carbon [kg C m-2]
+ ! print*, 'WO109'
     IF(output%casa) THEN
+       ! print*, 'WO110'
        out%TotSoilCarb = out%TotSoilCarb + REAL((SUM(casapool%csoil,2)+SUM(casapool%clitter,2)) &
              / 1000.0, 4)
        IF(writenow) THEN
@@ -2864,6 +2979,7 @@ CONTAINS
           out%TotSoilCarb = 0.0
        END IF
 
+       ! print*, 'WO111'
        out%TotLittCarb = out%TotLittCarb + REAL(SUM(casapool%clitter,2) / 1000.0, 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -2875,6 +2991,7 @@ CONTAINS
           out%TotLittCarb = 0.0
        END IF
 
+       ! print*, 'WO112'
        out%SoilCarbFast = out%SoilCarbFast + REAL(casapool%csoil(:,1) / 1000.0, 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -2887,6 +3004,7 @@ CONTAINS
           out%SoilCarbFast = 0.0
        END IF
 
+       ! print*, 'WO113'
        out%SoilCarbSlow = out%SoilCarbSlow + REAL(casapool%csoil(:,2)/ 1000.0, 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -2899,6 +3017,7 @@ CONTAINS
           out%SoilCarbSlow = 0.0
        END IF
 
+       ! print*, 'WO114'
        out%SoilCarbPassive = out%SoilCarbPassive + REAL(casapool%csoil(:,3) / 1000.0, 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -2911,6 +3030,7 @@ CONTAINS
           out%SoilCarbPassive = 0.0
        END IF
 
+       ! print*, 'WO115'
        out%LittCarbMetabolic = out%LittCarbMetabolic + REAL(casapool%clitter(:,1) / 1000.0, 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -2922,6 +3042,7 @@ CONTAINS
           out%LittCarbMetabolic = 0.0
        END IF
 
+       ! print*, 'WO116'
        out%LittCarbStructural = out%LittCarbStructural + REAL(casapool%clitter(:,2) / 1000.0, 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -2933,6 +3054,7 @@ CONTAINS
           out%LittCarbStructural = 0.0
        END IF
 
+       ! print*, 'WO117'
        out%LittCarbCWD = out%LittCarbCWD + REAL(casapool%clitter(:,3) / 1000.0, 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -2944,7 +3066,7 @@ CONTAINS
           out%LittCarbCWD = 0.0
        END IF
 
-
+       ! print*, 'WO118'
        out%PlantCarbLeaf = out%PlantCarbLeaf + REAL(casapool%cplant(:,1) / 1000.0, 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -2956,6 +3078,7 @@ CONTAINS
           out%PlantCarbLeaf = 0.0
        END IF
 
+       ! print*, 'WO119'
        out%PlantCarbFineRoot = out%PlantCarbFineRoot + REAL(casapool%cplant(:,3) / 1000.0, 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -2968,6 +3091,7 @@ CONTAINS
           out%PlantCarbFineRoot = 0.0
        END IF
 
+       ! print*, 'WO120'
        out%PlantCarbWood = out%PlantCarbWood + REAL(casapool%cplant(:,2) / 1000.0, 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -2979,6 +3103,7 @@ CONTAINS
           out%PlantCarbWood = 0.0
        END IF
 
+       ! print*, 'WO121'
       out%TotLivBiomass = out%TotLivBiomass + REAL((SUM(casapool%cplant,2)) &
         / 1000.0, 4)
        IF(writenow) THEN
@@ -2994,9 +3119,11 @@ CONTAINS
     END IF
 
     ! 13C
+    ! print*, 'WO122'
     if (cable_user%c13o2 .and. output%c13o2) then
        ! Add current timestep's value to total of temporary output variable
        ! 12C
+       ! print*, 'WO123'
        out%An      = out%An      + sum(canopy%An,2)
        out%Rd      = out%Rd      + sum(canopy%Rd,2)
        out%cplant  = out%cplant  + casapool%cplant
@@ -3010,6 +3137,7 @@ CONTAINS
        out%c13litter = out%c13litter + c13o2pools%clitter
        out%c13soil   = out%c13soil   + c13o2pools%csoil
        out%c13labile = out%c13labile + c13o2pools%clabile
+       ! print*, 'WO124'
        if (writenow) then
           ! Divide accumulated variable by number of accumulated time steps
           rinterval = real(output%interval,r_2)
@@ -3072,6 +3200,7 @@ CONTAINS
        endif
     endif
 
+    ! print*, 'WO125'
    ok = nf90_sync(ncid_out)
 
   END SUBROUTINE write_output

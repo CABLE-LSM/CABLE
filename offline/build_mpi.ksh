@@ -206,7 +206,7 @@ host_mcin()
 	# release
 	export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
 	if [[ ${idebug} -eq 1 ]] ; then
-	    # debug
+	    # debug -fpe0
 	    export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
 	fi
 	# export CFLAGS="${CFLAGS} -mtune=corei7"
@@ -238,9 +238,12 @@ host_mcin()
         export CFLAGS="-O4"
 	if [[ ${idebug} -eq 1 ]] ; then
 	    # debug
-            export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline"
+            #export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline"
+	    # set runtime environment variables: export NAGFORTRAN_RUNTIME_OPTIONS=show_dangling
+            export CFLAGS="-C=alias -C=array -C=bits -C=dangling -C=do -C=intovf -C=present -C=pointer -C=recursion -g -nan -O0 -strict95 -gline"
 	fi
-	export CFLAGS="${CFLAGS} -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -not_openmp -mismatch"
+	export CFLAGS="${CFLAGS} -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -not_openmp"
+	export CFLAGS="${CFLAGS} -mismatch"
 	# export CFLAGS="${CFLAGS} -march=native"
 	export CFLAGS="${CFLAGS} -D__NAG__"
         export LD='-ideclient -unsharedrts'
