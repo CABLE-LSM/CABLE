@@ -2111,7 +2111,8 @@ CONTAINS
     ! print*, 'WO33'
     IF(output%soil .OR. output%SoilMoist) THEN
        ! Add current timestep's value to total of temporary output variable:
-       ! print*, 'WO34'
+       print*, 'WO34 ', ssnow%wb
+       print*, 'WO34.1 ', ssnow%wbice
        out%SoilMoist = out%SoilMoist + REAL(ssnow%wb, 4)
        out%SoilMoistIce = out%SoilMoistIce + REAL(ssnow%wbice, 4)
        IF(writenow) THEN
@@ -2894,7 +2895,7 @@ CONTAINS
        END IF
 
        ! Add current timestep's value to total of temporary output variable:
-       ! print*, 'WO105'
+       ! print*, 'WO105 ', casaflux%Cplant_turnover_disturbance
        out%PlantTurnoverWoodDist = out%PlantTurnoverWoodDist + &
             REAL((casaflux%Cplant_turnover_disturbance)/86400.0 &
             / 1.201E-5, 4)

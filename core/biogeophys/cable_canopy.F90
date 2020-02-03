@@ -2357,8 +2357,9 @@ CONTAINS
     canopy%gsc       = real(canopy%gswx / C%rgswc, r_2)
     canopy%gbc       = real((gbhu + gbhf) / C%rgbwc, r_2)
     canopy%gac       = huge(1.0_r_2)
+    ! replace 1.0_r_2/canopy%gac by tiny(1.0_r_2) to avoid underflow
     canopy%ci        = real(spread(met%ca,2,mf),r_2) - &
-         canopy%An / (1._r_2/(1.0_r_2/canopy%gac+1.0_r_2/canopy%gbc+1.0_r_2/canopy%gsc))
+         canopy%An / (1._r_2/(tiny(1.0_r_2)+1.0_r_2/canopy%gbc+1.0_r_2/canopy%gsc))
 
     deallocate( gswmin )
 

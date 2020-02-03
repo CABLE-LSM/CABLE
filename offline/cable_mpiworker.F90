@@ -733,10 +733,6 @@ CONTAINS
 
              ! Get met data and LAI, set time variables.
              ! Rainfall input may be augmented for spinup purposes:
-             print*, 'TT01 '
-             print*, 'TT02 ', met%fsd(:,1)
-             print*, 'TT03 ', met%fsd(:,2)
-             print*, 'TT04 ', met%ofsd
              met%ofsd = met%fsd(:,1) + met%fsd(:,2)
 
              ! MPI: some fields need explicit init, because we don't transfer

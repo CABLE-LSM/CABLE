@@ -887,20 +887,20 @@ PROGRAM cable_offline_driver
                     Ra   = isoratio(c13o2flux%ca, real(met%ca,r_2), 1.0_r_2)
                     diff = canopy%An - (spread(real(met%ca,r_2),2,mf)-canopy%ci) * &
                          (1.0_r_2/(1.0_r_2/canopy%gac+1.0_r_2/canopy%gbc+1.0_r_2/canopy%gsc))
-                    if (any(abs(canopy%An*diff) > epsilon(1._r_2))) then
-                       print*, 'VV01 ', veg%frac4
-                       print*, 'VV02 ', canopy%vcmax
-                       print*, 'VV03 ', canopy%gammastar
-                       print*, 'VV04 ', canopy%gsc
-                       print*, 'VV05 ', canopy%gbc
-                       print*, 'VV06 ', canopy%gac
-                       print*, 'VV07 ', met%ca
-                       print*, 'VV08 ', canopy%ci
-                       print*, 'VV09 ', canopy%An
-                       print*, 'VV10 ', (spread(real(met%ca,r_2),2,mf)-canopy%ci) * &
-                            (1.0_r_2/(1.0_r_2/canopy%gac+1.0_r_2/canopy%gbc+1.0_r_2/canopy%gsc))
-                       print*, 'VV11 ', diff
-                    endif
+                    ! if (any(abs(canopy%An*diff) > epsilon(1._r_2))) then
+                    !    print*, 'VV01 ', veg%frac4
+                    !    print*, 'VV02 ', canopy%vcmax
+                    !    print*, 'VV03 ', canopy%gammastar
+                    !    print*, 'VV04 ', canopy%gsc
+                    !    print*, 'VV05 ', canopy%gbc
+                    !    print*, 'VV06 ', canopy%gac
+                    !    print*, 'VV07 ', met%ca
+                    !    print*, 'VV08 ', canopy%ci
+                    !    print*, 'VV09 ', canopy%An
+                    !    print*, 'VV10 ', (spread(real(met%ca,r_2),2,mf)-canopy%ci) * &
+                    !         (1.0_r_2/(1.0_r_2/canopy%gac+1.0_r_2/canopy%gbc+1.0_r_2/canopy%gsc))
+                    !    print*, 'VV11 ', diff
+                    ! endif
                     do ileaf=1, mf
                        if (cable_user%c13o2_simple_disc) then
                           call c13o2_discrimination_simple( &

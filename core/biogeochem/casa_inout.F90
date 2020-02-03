@@ -791,7 +791,10 @@ SUBROUTINE casa_init(casabiome,casamet,casaflux,casapool,casabal,veg,phen)
   casaflux%FluxFromStoCO2 = 0.0_r_2
   casaflux%FluxFromPtoHarvest = 0.0_r_2
 
-  casaflux%Cplant_turnover = 0.0_r_2
+  casaflux%Cplant_turnover                     = 0.0_r_2
+  casaflux%Cplant_turnover_disturbance         = 0.0_r_2
+  casaflux%Cplant_turnover_crowding            = 0.0_r_2
+  casaflux%Cplant_turnover_resource_limitation = 0.0_r_2
   casaflux%fHarvest = 0.0_r_2
   casaflux%Charvest = 0.0_r_2
   casaflux%Nharvest = 0.0_r_2

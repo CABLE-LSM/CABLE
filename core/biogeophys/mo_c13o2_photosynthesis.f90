@@ -308,11 +308,23 @@ contains
     !
 
     ! Aerodynamic resistance
-    rac = 1.0_dp / gac ! [mol(CO2) m-2 s-1]^-1
+    where (gac < huge(1.0_dp)*0.1_dp)
+       rac = 1.0_dp / gac ! [mol(CO2) m-2 s-1]^-1
+    elsewhere
+       rac = tiny(1.0_dp)
+    endwhere
     ! Leaf boundary layer resistance
-    rbc = 1.0_dp / gbc ! [mol(CO2) m-2 s-1]^-1
+    where (gbc < huge(1.0_dp)*0.1_dp)
+       rbc = 1.0_dp / gbc ! [mol(CO2) m-2 s-1]^-1
+    elsewhere
+       rbc = tiny(1.0_dp)
+    endwhere
     ! Stomatal resistance
-    rsc = 1.0_dp / gsc ! [mol(CO2) m-2 s-1]^-1
+    where (gsc < huge(1.0_dp)*0.1_dp)
+       rsc = 1.0_dp / gsc ! [mol(CO2) m-2 s-1]^-1
+    elsewhere
+       rsc = tiny(1.0_dp)
+    endwhere
     ! Mesophyll conductance [mol(CO2) m-2 s-1]
     ! ISOLSM takes 8000 for C4. John Evans suggests that it should be ca. 3000 for C3.
     ! gm for C4 is about twice that of C3 (Evans & v.Caemmerer 1996).
