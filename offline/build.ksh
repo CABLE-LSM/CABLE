@@ -2,11 +2,12 @@
 
 export dosvn=1 # 1/0: do/do not check svn
 
-# so that script can be called by 'bash build.ksh' if no ksh installed
-#    https://stackoverflow.com/questions/3327013/how-to-determine-the-current-shell-im-working-on
-if [ -z ${PS3} ] ; then
-    eval 'function print(){ printf "$@\n"; }'
-fi
+# so that script can be called by bash buils.ksh if no ksh installed
+#if [ "${SHELL}" == "/bin/bash" ] ; then
+#    function print(){
+#	printf "$@"
+#    }
+#fi
 
 known_hosts()
 {

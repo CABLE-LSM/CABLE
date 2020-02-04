@@ -318,7 +318,7 @@ CONTAINS
        ! Aerodynamic resistance (sum 3 height integrals)/us
        ! See CSIRO SCAM, Raupach et al 1997, eq. 3.50:
        rough%rt1 = MAX(5.,(rough%rt1usa + rough%rt1usb + rt1usc) / canopy%us)
-
+       
        DO j=1,mp
 
           IF(canopy%vlaiw(j) > C%LAI_THRESH) THEN

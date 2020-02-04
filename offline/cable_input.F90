@@ -2815,16 +2815,16 @@ SUBROUTINE get_parameters_met(soil,veg,bgc,rough,completeSet)
                 nmetpatches,'def') ! Ticket #56
    CALL readpar(ncid_met,'g1',completeSet,veg%g1,filename%met,             &
                 nmetpatches,'def') ! Ticket #56
-   ok = NF90_INQ_VARID(ncid_met,'za',parID)
+   ok = NF90_INQ_VARID(ncid_met,'reference_height',parID)
    IF(ok == NF90_NOERR) THEN ! if it does exist
-      CALL readpar(ncid_met,'za',completeSet,rough%za_uv,filename%met,         &
+      CALL readpar(ncid_met,'reference_height',completeSet,rough%za_uv,filename%met,         &
                    nmetpatches,'def')
-      CALL readpar(ncid_met,'za',completeSet,rough%za_tq,filename%met,         &
+      CALL readpar(ncid_met,'reference_height',completeSet,rough%za_tq,filename%met,         &
                    nmetpatches,'def')
    ELSE
-      CALL readpar(ncid_met,'za_uv',completeSet,rough%za_uv,filename%met,      &
+      CALL readpar(ncid_met,'reference_height_uv',completeSet,rough%za_uv,filename%met,      &
                    nmetpatches,'def')
-      CALL readpar(ncid_met,'za_tq',completeSet,rough%za_tq,filename%met,      &
+      CALL readpar(ncid_met,'reference_height_tq',completeSet,rough%za_tq,filename%met,      &
                    nmetpatches,'def')
    ENDIF
    CALL readpar(ncid_met,'zse',completeSet,soil%zse,filename%met,              &
