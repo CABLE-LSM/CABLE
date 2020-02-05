@@ -245,6 +245,13 @@ CONTAINS
        IF (cable_user%l_new_roughness_soil) &
             CALL ruff_resist(veg, rough, ssnow, canopy)
 
+       IF (trim(cable_user%MetType) .EQ. 'site') then
+         rough%zref_uv = MAX( 2.5, rough%zref_uv - rough%disp )
+         rough%zref_tq = MAX( 2.5, rough%zref_tq - rough%disp )
+       ENDIF
+         rough%zref_uv = MAX(rough%zref_uv, rough%hruff - rough%disp) 
+         rough%zref_tq = MAX(rough%zref_tq, rough%hruff - rough%disp) 
+       
        ! Turbulent aerodynamic resistance from roughness sublayer depth
        ! to reference height, x=1 if zref+disp>zruffs,
        ! 0 otherwise: thus rt1usc = 0 if zref+disp<zruffs
