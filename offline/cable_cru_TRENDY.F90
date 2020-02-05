@@ -60,7 +60,7 @@ MODULE CABLE_CRU
     INTEGER :: Ndep_CTSTEP   ! counter for Ndep in input file   
   END TYPE CRU_TYPE
 
-  TYPE (CRU_TYPE):: CRU  ! Define the variable CRU, of type CRU_TYPE
+  TYPE(CRU_TYPE) :: CRU  ! Define the variable CRU, of type CRU_TYPE
 
   ! Define local parameter names representing the position of each met var within variable MET. 
   ! prevTmax and nextTmin are special cases of Tmax and Tmin that do not count as extra met variables per se.  
@@ -112,7 +112,7 @@ CONTAINS
 
     IMPLICIT NONE
 
-    TYPE(CRU_TYPE) :: CRU
+    TYPE(CRU_TYPE), intent(inout) :: CRU
 
     INTEGER :: ErrStatus  ! Error status returned by nc routines (zero=ok, non-zero=error) 
     INTEGER :: nmlunit    ! Unit number for reading namelist file
@@ -149,7 +149,7 @@ CONTAINS
     ! Assign namelist settings to corresponding CRU defined-type elements
     CRU%BasePath     = BasePath
     CRU%MetPath      = MetPath
-    CRU%LandMaskFile = LandMaskFile
+    CRU%LandMaskFile = trim(LandMaskFile)
     CRU%Run          = Run
     CRU%DTsecs       = int(DThrs * 3600.)  ! in seconds
     CRU%DirectRead   = DirectRead
@@ -309,6 +309,7 @@ CONTAINS
 
     ! Open the land mask file
     ErrStatus = NF90_OPEN(TRIM(LandMaskFile), NF90_NOWRITE, FID)
+    print*, 'OOpen01 ', fid
     CALL HANDLE_ERR(ErrStatus, "Opening CRU Land-mask file"//TRIM(LandMaskFile))
 
     ! Latitude: Get the dimension ID, find the size of the dimension, assign it to CRU.
@@ -422,9 +423,15 @@ CONTAINS
 
     DEALLOCATE ( landmask, CRU_lats, CRU_lons )
 
+    print*, 'OClose01 ', fid
     ErrStatus = NF90_CLOSE(FID)
+    FID = -1
     CALL HANDLE_ERR(ErrStatus, "Closing mask-file"//TRIM(LandMaskFile))
 
+    ! set units to -1
+    CRU%f_id = -1
+    CRU%Ndepf_id = -1
+    
   END SUBROUTINE CRU_INIT
 
   ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -441,8 +448,8 @@ CONTAINS
     character(len=200), intent(out) :: fn     ! Met filename (outgoing)
     
     integer :: i, idx
-    character(len=4)   :: cy  ! Character representation of cyear
-    character(len=200) :: mp  ! Local repr of met path
+    character(len=4)   :: cy   ! Character representation of cyear
+    character(len=200) :: metp ! Local repr of met path
 #ifdef __CRU2017__
     character(len=*), parameter :: cruver="crujra.V1.1" ! CRU version
 #else
@@ -453,8 +460,8 @@ CONTAINS
     write(cy, fmt='(i4)') cyear
 
     ! Initialise the filename with the met path
-    mp = trim(CRU%MetPath)
-    fn = trim(mp)
+    metp = trim(CRU%MetPath)
+    fn   = trim(metp)
 
     ! Build the rest of the filename according to the value of par, which references 11 possible
     ! types of met through the parameter names rain, lwdn, etc. 
@@ -507,15 +514,24 @@ CONTAINS
     ! END SELECT
 
     select case ( par )
-    case(rain) ; fn = trim(fn)//"/pre/"//cruver//".5d.pre."//cy//".365d.noc.daytot.1deg.nc"
-    case(lwdn) ; fn = trim(fn)//"/dlwrf/"//cruver//".5d.dlwrf."//cy//".365d.noc.daymean.1deg.nc"
-    case(swdn) ; fn = trim(fn)//"/dswrf/"//cruver//".5d.dswrf."//cy//".365d.noc.daymean.1deg.nc"
-    case(pres) ; fn = trim(fn)//"/pres/"//cruver//".5d.pres."//cy//".365d.noc.daymean.1deg.nc"
-    case(qair) ; fn = trim(fn)//"/spfh/"//cruver//".5d.spfh."//cy//".365d.noc.daymean.1deg.nc"
-    case(tmax,PrevTmax) ; fn = trim(fn)//"/tmax/"//cruver//".5d.tmax."//cy//".365d.noc.daymax.1deg.nc"
-    case(tmin,NextTmin) ; fn = trim(fn)//"/tmin/"//cruver//".5d.tmin."//cy//".365d.noc.daymin.1deg.nc"
-    case(uwind) ; fn = trim(fn)//"/ugrd/"//cruver//".5d.ugrd."//cy//".365d.noc.daymean.1deg.nc"
-    case(vwind) ; fn = trim(fn)//"/vgrd/"//cruver//".5d.vgrd."//cy//".365d.noc.daymean.1deg.nc"
+    case(rain)
+       fn = trim(fn)//"/pre/"//cruver//".5d.pre."//cy//".365d.noc.daytot.1deg.nc"
+    case(lwdn)
+       fn = trim(fn)//"/dlwrf/"//cruver//".5d.dlwrf."//cy//".365d.noc.daymean.1deg.nc"
+    case(swdn)
+       fn = trim(fn)//"/dswrf/"//cruver//".5d.dswrf."//cy//".365d.noc.daymean.1deg.nc"
+    case(pres)
+       fn = trim(fn)//"/pres/"//cruver//".5d.pres."//cy//".365d.noc.daymean.1deg.nc"
+    case(qair)
+       fn = trim(fn)//"/spfh/"//cruver//".5d.spfh."//cy//".365d.noc.daymean.1deg.nc"
+    case(tmax,PrevTmax)
+       fn = trim(fn)//"/tmax/"//cruver//".5d.tmax."//cy//".365d.noc.daymax.1deg.nc"
+    case(tmin,NextTmin)
+       fn = trim(fn)//"/tmin/"//cruver//".5d.tmin."//cy//".365d.noc.daymin.1deg.nc"
+    case(uwind)
+       fn = trim(fn)//"/ugrd/"//cruver//".5d.ugrd."//cy//".365d.noc.daymean.1deg.nc"
+    case(vwind)
+       fn = trim(fn)//"/vgrd/"//cruver//".5d.vgrd."//cy//".365d.noc.daymean.1deg.nc"
     end select
    
     ! SELECT CASE ( par )
@@ -542,11 +558,11 @@ CONTAINS
 
     IMPLICIT NONE
 
-    TYPE(CRU_TYPE) :: CRU           ! All the info needed for CRU met runs
-    REAL, INTENT(OUT)    :: CO2air  ! A single annual value of CO2air in ppm for the current year.
+    TYPE(CRU_TYPE), intent(inout) :: CRU    ! All the info needed for CRU met runs
+    REAL,           INTENT(OUT)   :: CO2air ! A single annual value of CO2air in ppm for the current year.
 
     INTEGER              :: i, iunit, iyear, IOS = 0
-    CHARACTER            :: CO2FILE*200
+    CHARACTER(len=200)   :: CO2FILE
     LOGICAL,        SAVE :: CALL1 = .TRUE.  ! A *local* variable recording the first call of this routine 
 
     ! For S0_TRENDY, use only static 1860 CO2 value and return immediately
@@ -598,6 +614,7 @@ CONTAINS
     IMPLICIT NONE
 
     TYPE(CRU_TYPE), INTENT(INOUT) :: CRU ! All the info needed for CRU met runs
+    
     REAL, ALLOCATABLE :: tmparr(:,:) 
     INTEGER :: i, iunit, iyear, IOS=0, k, t
     INTEGER :: xds, yds ! Ndep file dimensions of long (x), lat (y)
@@ -622,12 +639,13 @@ CONTAINS
 
        ! Open the NDep and access the variables by their name and variable id.
        write(*,'(a)') 'Opening ndep data file: '//trim(NdepFILE)
-       WRITE(logn,*)  'Opening ndep data file: ', NdepFILE
+       WRITE(logn,*)  'Opening ndep data file: ', trim(NdepFILE)
 
        ErrStatus = NF90_OPEN(TRIM(NdepFILE), NF90_NOWRITE, CRU%NdepF_ID)  
-       CALL HANDLE_ERR(ErrStatus, "Opening CRU file "//NdepFILE)
+       print*, 'OOpen02 ', CRU%NdepF_ID
+       CALL HANDLE_ERR(ErrStatus, "Opening CRU file "//trim(NdepFILE))
        ErrStatus = NF90_INQ_VARID(CRU%NdepF_ID,'N_deposition', CRU%NdepV_ID)
-       CALL HANDLE_ERR(ErrStatus, "Inquiring CRU var "//"N_deposition"//" in "//NdepFILE)
+       CALL HANDLE_ERR(ErrStatus, "Inquiring CRU var "//"N_deposition"//" in "//trim(NdepFILE))
 
        ! Set internal counter
        CRU%Ndep_CTSTEP = 1
@@ -638,7 +656,7 @@ CONTAINS
           t =  CRU%Ndep_CTSTEP
           ErrStatus = NF90_GET_VAR(CRU%NdepF_ID, CRU%NdepV_ID, tmparr, &
                start=(/1,1,t/),count=(/xds,yds,1/) )
-          CALL HANDLE_ERR(ErrStatus, "Reading from "//NdepFILE )
+          CALL HANDLE_ERR(ErrStatus, "Reading from "//trim(NdepFILE))
           DO k = 1, CRU%mland
              CRU%NdepVALS(k) = tmparr( land_x(k), land_y(k) )
           END DO
@@ -653,7 +671,7 @@ CONTAINS
        t =  CRU%Ndep_CTSTEP
        ErrStatus = NF90_GET_VAR(CRU%NdepF_ID, CRU%NdepV_ID, tmparr, &
             start=(/1,1,t/),count=(/xds,yds,1/) )
-       CALL HANDLE_ERR(ErrStatus, "Reading from "//NdepFILE )
+       CALL HANDLE_ERR(ErrStatus, "Reading from "//trim(NdepFILE))
        DO k = 1, CRU%mland
           CRU%NdepVALS(k) = tmparr( land_x(k), land_y(k) )
        END DO
@@ -753,11 +771,12 @@ CONTAINS
     !write(*,'(a)') 'Opening met data file: '//trim(CRU%MetFile(iVar))
     !WRITE(logn,*)  'Opening met data file: ', CRU%MetFile(iVar)
 
-    ErrStatus = NF90_OPEN(TRIM(CRU%MetFile(iVar)), NF90_NOWRITE, CRU%F_ID(iVar))  
-    CALL HANDLE_ERR(ErrStatus, "Opening CRU file "//CRU%MetFile(iVar) )
+    ErrStatus = NF90_OPEN(TRIM(CRU%MetFile(iVar)), NF90_NOWRITE, CRU%F_ID(iVar))
+    print*, 'OOpen03 ', CRU%F_ID(iVar)
+    CALL HANDLE_ERR(ErrStatus, "Opening CRU file "//trim(CRU%MetFile(iVar)) )
     ErrStatus = NF90_INQ_VARID(CRU%F_ID(iVar),TRIM(CRU%VAR_NAME(iVar)), CRU%V_ID(iVar))
     CALL HANDLE_ERR(ErrStatus, "Inquiring CRU var "//TRIM(CRU%VAR_NAME(iVar))// &
-         " in "//CRU%MetFile(iVar) )
+         " in "//trim(CRU%MetFile(iVar)) )
   END DO
 
   ! Set internal counter
@@ -773,8 +792,8 @@ CONTAINS
 
     IMPLICIT NONE
 
-    TYPE(CRU_TYPE) :: CRU
-    LOGICAL, INTENT(IN)  :: LastDayOfYear, LastYearOfMet
+    TYPE(CRU_TYPE), intent(inout) :: CRU
+    LOGICAL,        INTENT(IN)    :: LastDayOfYear, LastYearOfMet
 
     REAL    :: tmp, stmp(365)
     INTEGER :: iVar, ii, k, x, y, realk
@@ -904,13 +923,13 @@ CONTAINS
                    ! t (first value) into iVar (tmin)
                    ErrStatus = NF90_GET_VAR( CRU%F_ID(iVar), CRU%V_ID(iVar), tmp, &
                         start=(/land_x(k),land_y(k),t/) )
-                   CALL HANDLE_ERR(ErrStatus, "Reading direct from "//CRU%MetFile(iVar) )
+                   CALL HANDLE_ERR(ErrStatus, "Reading direct from "//trim(CRU%MetFile(iVar)) )
                    CRU%MET(iVar)%METVALS(k) = tmp
 
                    ! tplus1 (second value) into ii (nextTmin)
                    ErrStatus = NF90_GET_VAR( CRU%F_ID(iVar), CRU%V_ID(iVar), tmp, &
                         start=(/land_x(k),land_y(k),tplus1/) )
-                   CALL HANDLE_ERR(ErrStatus, "Reading direct from "//CRU%MetFile(iVar) )
+                   CALL HANDLE_ERR(ErrStatus, "Reading direct from "//trim(CRU%MetFile(iVar)) )
                    CRU%MET(ii)%METVALS(k) = tmp
                 END DO
 
@@ -920,7 +939,7 @@ CONTAINS
                 ! t (first value) into iVar (tmin)
                 ErrStatus = NF90_GET_VAR(CRU%F_ID(iVar), CRU%V_ID(iVar), tmparr, &
                      start=(/1,1,t/),count=(/xds,yds,1/) )
-                CALL HANDLE_ERR(ErrStatus, "Reading from "//CRU%MetFile(iVar) )
+                CALL HANDLE_ERR(ErrStatus, "Reading from "//trim(CRU%MetFile(iVar)) )
 
                 DO k = 1, CRU%mland
                    CRU%MET(iVar)%METVALS(k) = tmparr( land_x(k), land_y(k) )
@@ -929,7 +948,7 @@ CONTAINS
                 ! tplus1 (second value) into ii (nextTmin)
                 ErrStatus = NF90_GET_VAR(CRU%F_ID(iVar), CRU%V_ID(iVar), tmparr, &
                      start=(/1,1,tplus1/),count=(/xds,yds,1/) )
-                CALL HANDLE_ERR(ErrStatus, "Reading from "//CRU%MetFile(iVar) )
+                CALL HANDLE_ERR(ErrStatus, "Reading from "//trim(CRU%MetFile(iVar)) )
 
                 DO k = 1, CRU%mland
                    CRU%MET(ii)%METVALS(k) = tmparr( land_x(k), land_y(k) )
@@ -1008,9 +1027,10 @@ CONTAINS
                 ! Open the Tmin file for next year in preparation for reading Jan 1st...
                 CALL CRU_GET_FILENAME( CRU, NextMetYear, Tmin, filename )
                 ErrStatus = NF90_OPEN(TRIM(filename), NF90_NOWRITE, fid)
-                CALL HANDLE_ERR(ErrStatus, "Opening CRU file "//filename )
+                print*, 'OOpen04 ', fid
+                CALL HANDLE_ERR(ErrStatus, "Opening CRU file "//trim(filename))
                 ErrStatus = NF90_INQ_VARID(fid,TRIM(CRU%VAR_NAME(iVar)), vid)
-                CALL HANDLE_ERR(ErrStatus, "Inquiring CRU var "//filename )
+                CALL HANDLE_ERR(ErrStatus, "Inquiring CRU var "//trim(filename))
 
 
                 ! If DirectRead is specified (small domain) pull the points directly from the file.
@@ -1019,7 +1039,7 @@ CONTAINS
                    DO k = 1, CRU%mland
                       ErrStatus = NF90_GET_VAR(fid, vid, CRU%MET(ii)%METVALS(k), &  ! Values to ii (nextTmin)
                            start=(/land_x(k), land_y(k),t/) )
-                      CALL HANDLE_ERR(ErrStatus, "Reading directly from "//filename )
+                      CALL HANDLE_ERR(ErrStatus, "Reading directly from "//trim(filename))
                    END DO
 
                    ! Else not DirectRead: Read full grid into temp array and extract domain from that.
@@ -1027,7 +1047,7 @@ CONTAINS
 
                    ErrStatus = NF90_GET_VAR(fid, vid, tmparr, &
                         start=(/1,1,t/),count=(/xds,yds,1/) )
-                   CALL HANDLE_ERR(ErrStatus, "Reading from "//filename )
+                   CALL HANDLE_ERR(ErrStatus, "Reading from "//trim(filename))
                    DO k = 1, CRU%mland
                       CRU%MET(ii)%METVALS(k) = tmparr( land_x(k), land_y(k) )   ! Values to ii (nextTmin)
                    END DO
@@ -1035,8 +1055,10 @@ CONTAINS
                 ENDIF  ! End of If DirectRead
 
                 ! Close the next year's Tmin met file
+                print*, 'OClose02 ', fid
                 ErrStatus = NF90_CLOSE(fid)
-                CALL HANDLE_ERR(ErrStatus, "Closing CRU file "//filename)
+                fid = -1
+                CALL HANDLE_ERR(ErrStatus, "Closing CRU file "//trim(filename))
 
              ENDIF ! End of If LastYearOfMet
 
@@ -1051,14 +1073,14 @@ CONTAINS
                 DO k = 1, CRU%mland
                    ErrStatus = NF90_GET_VAR(CRU%F_ID(iVar), CRU%V_ID(iVar), CRU%MET(ii)%METVALS(k), &
                         start=(/land_x(k),land_y(k),tplus1/) )
-                   CALL HANDLE_ERR(ErrStatus, "Reading directly from "//CRU%MetFile(iVar) )
+                   CALL HANDLE_ERR(ErrStatus, "Reading directly from "//trim(CRU%MetFile(iVar)) )
                 END DO
 
              ELSE
 
                 ErrStatus = NF90_GET_VAR(CRU%F_ID(iVar), CRU%V_ID(iVar), tmparr, &
                      start=(/1,1,tplus1/),count=(/xds,yds,1/) )
-                CALL HANDLE_ERR(ErrStatus, "Reading from "//CRU%MetFile(iVar) )
+                CALL HANDLE_ERR(ErrStatus, "Reading from "//trim(CRU%MetFile(iVar)) )
                 DO k = 1, CRU%mland
                    CRU%MET(ii)%METVALS(k) = tmparr( land_x(k), land_y(k) )
                 END DO
@@ -1083,7 +1105,8 @@ CONTAINS
                 ! Open the previous year's Tmax file (MetYear-1)
                 CALL CRU_GET_FILENAME( CRU, MetYear-1, iVar, filename )
                 ErrStatus = NF90_OPEN(TRIM(filename), NF90_NOWRITE, fid)
-                CALL HANDLE_ERR(ErrStatus, "Opening CRU file "//filename )
+                print*, 'OOpen05 ', fid
+                CALL HANDLE_ERR(ErrStatus, "Opening CRU file "//trim(filename))
 
                 ! Obtain the size of the time dimension (tds), which locates the data for Dec 31st in the file.
                 ErrStatus = NF90_INQ_DIMID(fid,'time',tid)
@@ -1092,7 +1115,7 @@ CONTAINS
 
                 ! Obtain the variable ID of the Tmax variable.
                 ErrStatus = NF90_INQ_VARID(fid,TRIM(CRU%VAR_NAME(iVar)), vid)
-                CALL HANDLE_ERR(ErrStatus, "Inquiring CRU var "//filename )
+                CALL HANDLE_ERR(ErrStatus, "Inquiring CRU var "//trim(filename))
 
                 ! If DirectRead is specified (small domain) pull the data for Dec 31st (tds) directly from the file. 
                 ! Otherwise, read the whole Dec 31st grid into tmparr and pack the land points from there. 
@@ -1101,14 +1124,14 @@ CONTAINS
                    DO k = 1, CRU%mland
                       ErrStatus = NF90_GET_VAR(fid, vid, CRU%MET(ii)%METVALS(k), &
                            start=(/land_x(k), land_y(k),tds/) )
-                      CALL HANDLE_ERR(ErrStatus, "Reading from "//filename )
+                      CALL HANDLE_ERR(ErrStatus, "Reading from "//trim(filename))
                    END DO
 
                 ELSE
 
                    ErrStatus = NF90_GET_VAR(fid, vid, tmparr, &
                         start=(/1,1,tds/),count=(/xds,yds,1/) )
-                   CALL HANDLE_ERR(ErrStatus, "Reading from "//filename )
+                   CALL HANDLE_ERR(ErrStatus, "Reading from "//trim(filename))
 
                    DO k = 1, CRU%mland
                       CRU%MET(ii)%METVALS(k) = tmparr( land_x(k), land_y(k) )
@@ -1116,8 +1139,10 @@ CONTAINS
 
                 ENDIF  ! End of If DirectRead
 
+                print*, 'OClose03 ', fid
                 ErrStatus = NF90_CLOSE(fid)
-                CALL HANDLE_ERR(ErrStatus, "Closing CRU file "//filename)
+                fid = -1
+                CALL HANDLE_ERR(ErrStatus, "Closing CRU file "//trim(filename))
 
                 ! Having read the last day of the previous year's Tmax into prevTmax, and closed the file,
                 ! now read the first day of Tmax from the current year's file (which is already open).
@@ -1130,14 +1155,14 @@ CONTAINS
                    DO k = 1, CRU%mland
                       ErrStatus = NF90_GET_VAR(CRU%F_ID(iVar), CRU%V_ID(iVar), CRU%MET(iVar)%METVALS(k), &
                            start=(/land_x(k),land_y(k),t/) )
-                      CALL HANDLE_ERR(ErrStatus, "Reading directly from "//CRU%MetFile(iVar) )
+                      CALL HANDLE_ERR(ErrStatus, "Reading directly from "//trim(CRU%MetFile(iVar)) )
                    END DO
 
                 ELSE
 
                    ErrStatus = NF90_GET_VAR(CRU%F_ID(iVar), CRU%V_ID(iVar), tmparr, &
                         start=(/1,1,t/),count=(/xds,yds,1/) )
-                   CALL HANDLE_ERR(ErrStatus, "Reading from "//CRU%MetFile(iVar) )
+                   CALL HANDLE_ERR(ErrStatus, "Reading from "//trim(CRU%MetFile(iVar)) )
                    DO k = 1, CRU%mland
                       CRU%MET(iVar)%METVALS(k) = tmparr( land_x(k), land_y(k) )
                    END DO
@@ -1148,10 +1173,10 @@ CONTAINS
                 ! Where MetYear is 1901, there is no previous Tmax value available, so we read the 
                 ! Jan 1 value into Tmax, then assign it to prevTmax as well
 
-                ! Open the 1901 Tmax file (MetYear)
-                CALL CRU_GET_FILENAME( CRU, 1901, iVar, filename )
-                ErrStatus = NF90_OPEN(TRIM(filename), NF90_NOWRITE, fid)
-                CALL HANDLE_ERR(ErrStatus, "Opening CRU file "//filename )
+                ! ! Open the 1901 Tmax file (MetYear)
+                ! CALL CRU_GET_FILENAME( CRU, 1901, iVar, filename )
+                ! ErrStatus = NF90_OPEN(TRIM(filename), NF90_NOWRITE, fid)
+                ! CALL HANDLE_ERR(ErrStatus, "Opening CRU file "//filename )
 
                 t  = CRU%CTSTEP  ! CRU%CTSTEP here should be 1 (?)
 
@@ -1162,14 +1187,14 @@ CONTAINS
                    DO k = 1, CRU%mland
                       ErrStatus = NF90_GET_VAR(CRU%F_ID(iVar), CRU%V_ID(iVar), CRU%MET(iVar)%METVALS(k), &
                            start=(/land_x(k),land_y(k),t/) )
-                      CALL HANDLE_ERR(ErrStatus, "Reading directly from "//CRU%MetFile(iVar) )
+                      CALL HANDLE_ERR(ErrStatus, "Reading directly from "//trim(CRU%MetFile(iVar)) )
                    END DO
 
                 ELSE
 
                    ErrStatus = NF90_GET_VAR(CRU%F_ID(iVar), CRU%V_ID(iVar), tmparr, &
                         start=(/1,1,t/),count=(/xds,yds,1/) )
-                   CALL HANDLE_ERR(ErrStatus, "Reading from "//CRU%MetFile(iVar) )
+                   CALL HANDLE_ERR(ErrStatus, "Reading from "//trim(CRU%MetFile(iVar)) )
                    DO k = 1, CRU%mland
                       CRU%MET(iVar)%METVALS(k) = tmparr( land_x(k), land_y(k) )
                    END DO
@@ -1195,14 +1220,14 @@ CONTAINS
                 DO k = 1, CRU%mland
                    ErrStatus = NF90_GET_VAR(CRU%F_ID(iVar), CRU%V_ID(iVar), CRU%MET(iVar)%METVALS(k), &
                         start=(/land_x(k),land_y(k),t/) )
-                   CALL HANDLE_ERR(ErrStatus, "Reading directly from "//CRU%MetFile(iVar) )
+                   CALL HANDLE_ERR(ErrStatus, "Reading directly from "//trim(CRU%MetFile(iVar)))
                 END DO
 
              ELSE
 
                 ErrStatus = NF90_GET_VAR(CRU%F_ID(iVar), CRU%V_ID(iVar), tmparr, &
                      start=(/1,1,t/),count=(/xds,yds,1/) )
-                CALL HANDLE_ERR(ErrStatus, "Reading from "//CRU%MetFile(iVar) )
+                CALL HANDLE_ERR(ErrStatus, "Reading from "//trim(CRU%MetFile(iVar)))
                 DO k = 1, CRU%mland
                    CRU%MET(iVar)%METVALS(k) = tmparr( land_x(k), land_y(k) )
                 END DO
@@ -1226,14 +1251,14 @@ CONTAINS
              DO k = 1, CRU%mland
                 ErrStatus = NF90_GET_VAR(CRU%F_ID(iVar), CRU%V_ID(iVar), CRU%MET(ii)%METVALS(k), &
                      start=(/land_x(k),land_y(k),t/) )
-                CALL HANDLE_ERR(ErrStatus, "Reading directly from "//CRU%MetFile(iVar) )
+                CALL HANDLE_ERR(ErrStatus, "Reading directly from "//trim(CRU%MetFile(iVar)))
              END DO
 
           ELSE
 
              ErrStatus = NF90_GET_VAR(CRU%F_ID(iVar), CRU%V_ID(iVar), tmparr, &
                   start=(/1,1,t/),count=(/xds,yds,1/) )
-             CALL HANDLE_ERR(ErrStatus, "Reading from "//CRU%MetFile(iVar) )
+             CALL HANDLE_ERR(ErrStatus, "Reading from "//trim(CRU%MetFile(iVar)))
              DO k = 1, CRU%mland
                 CRU%MET(ii)%METVALS(k) = tmparr( land_x(k), land_y(k) )
              END DO
@@ -1286,10 +1311,9 @@ CONTAINS
 
     IMPLICIT NONE
 
-    INTEGER, INTENT(IN)  :: CurYear, ktau, kend
-    LOGICAL, INTENT(IN)  :: LastYearOfMet
-
-    TYPE(CRU_TYPE) :: CRU
+    TYPE(CRU_TYPE), intent(inout) :: CRU
+    INTEGER,        INTENT(IN)    :: CurYear, ktau, kend
+    LOGICAL,        INTENT(IN)    :: LastYearOfMet
 
     ! Define MET the CABLE version, different from the MET defined and used within the CRU variable. 
     ! The structure of MET_TYPE is defined in cable_define_types.F90 
@@ -1309,6 +1333,7 @@ CONTAINS
 
     TYPE(WEATHER_GENERATOR_TYPE), SAVE :: WG
     LOGICAL,                      SAVE :: CALL1 = .TRUE.  ! A *local* variable recording the first call of this routine
+
 
     ! Purely for readability...
     dt = CRU%DTsecs
@@ -1481,8 +1506,10 @@ CONTAINS
     IF (ktau .EQ. kend) THEN
        DO imetvar=1, CRU%NMET
           !print *, 'Close CRU%MetFile(imetvar)', CRU%MetFile(imetvar)
+          print*, 'OClose04 ', CRU%F_ID(imetvar), imetvar, CRU%NMET
           ErrStatus = NF90_CLOSE(CRU%F_ID(imetvar))
-          CALL HANDLE_ERR(ErrStatus, "Closing CRU file"//CRU%MetFile(imetvar))
+          CRU%F_ID(imetvar) = -1
+          CALL HANDLE_ERR(ErrStatus, "Closing CRU file"//trim(CRU%MetFile(imetvar)))
        END DO
     END IF
 
@@ -1523,5 +1550,30 @@ CONTAINS
     ! *******************************************************************************
 
   END SUBROUTINE CRU_GET_SUBDIURNAL_MET
+
+  subroutine cru_close(CRU)
+
+    implicit none
+
+    type(cru_type), intent(inout) :: CRU
+
+    integer :: i
+
+    write(*,*) 'Closing CRU files.'
+    do i=1, CRU%nmet
+       if (CRU%f_id(i) > -1) then
+          print*, 'OClose33 ', CRU%f_id(i)
+          errstatus = nf90_close(CRU%f_id(i))
+          call handle_err(errstatus, "Closing CRU met file "//trim(CRU%MetFile(i)))
+       end if
+    end do
+    
+    if (CRU%Ndepf_id > -1) then
+       print*, 'OClose34 ', CRU%Ndepf_id
+       errstatus = nf90_close(CRU%Ndepf_id)
+       call handle_err(errstatus, "Closing CRU Ndep file.")
+    end if
+    
+  end subroutine cru_close
 
 END MODULE CABLE_CRU

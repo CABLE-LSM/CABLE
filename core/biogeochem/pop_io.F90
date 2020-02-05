@@ -318,6 +318,7 @@ SUBROUTINE POP_IO( POP, casamet, YEAR, ACTION, CF )
         IF ( EXISTFILE .and. (typ.ne.'ini') .and. (typ.ne.'rst') ) THEN  ! file exists
 
            STATUS = NF90_open(fname, mode=nf90_write, ncid=FILE_ID)
+           print*, 'OOpen70 ', file_id
            IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
            STATUS = nf90_inq_dimid(FILE_ID, 'time', t_id)
@@ -396,6 +397,7 @@ SUBROUTINE POP_IO( POP, casamet, YEAR, ACTION, CF )
            ! Create NetCDF file:
            !STATUS = NF90_create(fname, NF90_CLOBBER, FILE_ID)
            STATUS = NF90_create(fname, cmode=ior(nf90_clobber,nf90_64bit_offset), ncid=FILE_ID)
+           print*, 'OCreate40 ', file_id
            IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
            ! Put the file in define mode:
            STATUS = NF90_redef(FILE_ID)
@@ -1022,6 +1024,7 @@ SUBROUTINE POP_IO( POP, casamet, YEAR, ACTION, CF )
      WRITE(*,*)"Reading POP-rst file: ", TRIM(fname)
 
      STATUS = NF90_OPEN( TRIM(fname), NF90_NOWRITE, FILE_ID )
+     print*, 'OOpen71 ', file_id
      IF (STATUS /= NF90_noerr)THEN
         WRITE(*,*)"Error opening file (pop_bios_io.f90) ",TRIM(fname)
         CALL handle_err(STATUS)
@@ -1537,7 +1540,9 @@ SUBROUTINE POP_IO( POP, casamet, YEAR, ACTION, CF )
 
   IF ( CLOSE_FILE .OR. typ .EQ. 'rst' .OR. typ .EQ. 'ini' ) THEN
      ! Close NetCDF file:
+     print*, 'OClose77 ', file_id
      STATUS = NF90_close(FILE_ID)
+     file_id = -1
      IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
      WRITE(*,*)"Closed POP-file ", TRIM(fname)
   ENDIF

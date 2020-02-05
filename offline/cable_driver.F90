@@ -113,7 +113,7 @@ PROGRAM cable_offline_driver
   USE CABLE_PLUME_MIP,      ONLY: PLUME_MIP_TYPE, PLUME_MIP_GET_MET,&
        PLUME_MIP_INIT
 
-  USE CABLE_CRU,            ONLY: CRU_TYPE, CRU_GET_SUBDIURNAL_MET, CRU_INIT
+  USE CABLE_CRU,            ONLY: CRU_TYPE, CRU_GET_SUBDIURNAL_MET, CRU_INIT, cru_close
   USE CABLE_site,           ONLY: site_TYPE, site_INIT, site_GET_CO2_Ndep
 
   ! BIOS only
@@ -122,7 +122,7 @@ PROGRAM cable_offline_driver
                                           cable_bios_load_climate_params
 
   ! LUC_EXPT only
-  USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE, LUC_EXPT_INIT
+  USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE, LUC_EXPT_INIT, close_luh2
 
 #ifdef __NAG__
   USE F90_UNIX
@@ -1411,6 +1411,10 @@ PROGRAM cable_offline_driver
        TRIM(cable_user%MetType) .NE. "plum" .AND. &
        TRIM(cable_user%MetType) .NE. "cru" ) CALL close_met_file
 
+  if (trim(cable_user%MetType) == 'cru') call cru_close(CRU)
+  
+  if (cable_user%POPLUC) call close_luh2(LUC_EXPT)
+  
   call cpu_time(etime)
   write(logn,*) 'Finished. ', etime, ' seconds needed for ', kend,' hours'
   close(logn) ! Close log file
@@ -1480,7 +1484,7 @@ SUBROUTINE LUCdriver( casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg,
   USE POP_Types,  Only: POP_TYPE
   USE POPMODULE,            ONLY: POPStep, POP_init_single
   USE TypeDef,              ONLY: i4b, dp
-  USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE, read_LUH2,&
+  USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE, read_LUH2, &
        ptos,ptog,stog,gtos,grassfrac, pharv, smharv, syharv
   USE POPLUC_Types
   USE POPLUC_Module, ONLY: POPLUCStep, POPLUC_weights_Transfer, WRITE_LUC_OUTPUT_NC, &

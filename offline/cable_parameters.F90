@@ -214,6 +214,7 @@ CONTAINS
     endif
 
     ok = NF90_OPEN(filename%type, 0, ncid)
+    print*, 'OOpen40 ', ncid
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error opening grid info file.')
 
     ok = NF90_INQ_DIMID(ncid, 'longitude', xID)
@@ -485,7 +486,9 @@ CONTAINS
 
     ENDIF
 
+    print*, 'OClose50 ', ncid
     ok = NF90_CLOSE(ncid)
+    ncid = -1
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error closing grid info file.')
 
   END SUBROUTINE read_gridinfo
@@ -529,6 +532,7 @@ CONTAINS
     REAL, DIMENSION(:,:),     ALLOCATABLE :: in2alb
 
     ok = NF90_OPEN(filename%type, 0, ncid)
+    print*, 'OOpen41 ', ncid
 
     ALLOCATE(    in2alb(nlon, nlat) ) ! local
     ALLOCATE(    dummy2(nlon, nlat) ) ! local
@@ -685,7 +689,9 @@ CONTAINS
 !    in2alb(:,:) = indummy(:,:,1,1)
 !    CALL NSflip(nlon,nlat,in2alb)
 
+    print*, 'OClose51 ', ncid
     ok = NF90_CLOSE(ncid)
+    ncid = -1
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error closing IGBP soil map.')
 
 ! Code if using UM soil file
@@ -764,6 +770,7 @@ CONTAINS
     REAL,    DIMENSION(:),          ALLOCATABLE :: inLatSoilCol
 
     ok = NF90_OPEN(filename%soilcolor, 0, ncid)
+    print*, 'OOpen42 ', ncid
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error opening soil color file.')
 
     ok = NF90_INQ_DIMID(ncid, 'longitude', xID)
@@ -809,7 +816,9 @@ CONTAINS
     ok = NF90_GET_VAR(ncid, varID, inSoilColor)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error reading variable soil color.')
 
+    print*, 'OClose52 ', ncid
     ok = NF90_CLOSE(ncid)
+    ncid = -1
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error closing soil color file.')
 
   END SUBROUTINE read_soilcolor

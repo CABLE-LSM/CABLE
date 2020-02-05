@@ -34,27 +34,26 @@ MODULE CABLE_LUC_EXPT
 
   END TYPE LUC_EXPT_TYPE
 
-  TYPE (LUC_EXPT_TYPE), SAVE :: LUC_EXPT
+  TYPE(LUC_EXPT_TYPE), SAVE :: LUC_EXPT
 
-    INTEGER,  PARAMETER :: &
-       ptos         =  1, &
-       ptog         =  2, &
-       stog         =  3, &
-       gtos         =  4, &
-       grassfrac    =  5, &
-       primffrac    =  6, &
-       pharv        =  7, &
-       smharv       =  8, &
-       syharv       =  9, &
-       ptoc         =  10, &
-       ptoq         =  11, &
-       stoc         =  12, &
-       stoq         =  13, &
-       ctos         =  14, &
-       qtos         =  15, &
-       cropfrac = 16, &
-       pastfrac = 17
-
+  INTEGER, PARAMETER :: &
+       ptos      = 1, &
+       ptog      = 2, &
+       stog      = 3, &
+       gtos      = 4, &
+       grassfrac = 5, &
+       primffrac = 6, &
+       pharv     = 7, &
+       smharv    = 8, &
+       syharv    = 9, &
+       ptoc      = 10, &
+       ptoq      = 11, &
+       stoc      = 12, &
+       stoq      = 13, &
+       ctos      = 14, &
+       qtos      = 15, &
+       cropfrac  = 16, &
+       pastfrac  = 17
 
 CONTAINS
 
@@ -184,12 +183,14 @@ CONTAINS
     END DO
 
     ! OPEN LUC INPUT FILES
+    LUC_EXPT%f_id = -1
     DO i = 1, LUC_EXPT%nfile
 
        write(*,'(a)') 'LUC input data file: '//trim(LUC_EXPT%TransFile(i))
        WRITE(logn,*)  'LUC input data file: ', LUC_EXPT%TransFile(i)
 
        STATUS = NF90_OPEN(TRIM(LUC_EXPT%TransFile(i)), NF90_NOWRITE, LUC_EXPT%F_ID(i))
+       print*, 'OOpen30 ', LUC_EXPT%F_ID(i)
        CALL HANDLE_ERR(STATUS, "Opening LUH2 file "//LUC_EXPT%TransFile(i) )
        STATUS = NF90_INQ_VARID(LUC_EXPT%F_ID(i),TRIM(LUC_EXPT%VAR_NAME(i)), LUC_EXPT%V_ID(i))
        CALL HANDLE_ERR(STATUS, "Inquiring LUC_EXPT var "//TRIM(LUC_EXPT%VAR_NAME(i))// &
@@ -212,8 +213,6 @@ CONTAINS
           STATUS = NF90_INQUIRE_Dimension(FID,timID,len=tdimsize)
           CALL HANDLE_ERR(STATUS, "Inquiring 'time'"//TRIM(LUC_EXPT%TransFile(i)))
           LUC_EXPT%nrec = tdimsize
-
-
 
           ! STATUS = NF90_GET_VAR( Luc_expt%f_id(i), timID, tmp, &
           !      start=(/1,1,1/) )
@@ -242,7 +241,6 @@ CONTAINS
     ! READ initial states
     i = grassfrac
     IF ( LUC_EXPT%DirectRead ) THEN
-
        DO k = 1, mland
           STATUS = NF90_GET_VAR( LUC_EXPT%F_ID(i), LUC_EXPT%V_ID(i), tmp, &
                start=(/land_x(k),land_y(k),LUC_EXPT%CTSTEP/) )
@@ -294,7 +292,6 @@ CONTAINS
        DO k = 1, mland
           LUC_EXPT%crop(k) = tmparr( land_x(k), land_y(k) )
        END DO
-
     ENDIF
 
 
@@ -322,8 +319,6 @@ CONTAINS
     LUC_EXPT%secdf = max((1.0 -  LUC_EXPT%grass - LUC_EXPT%primaryf), 0.0)
     LUC_EXPT%crop = max(min( LUC_EXPT%crop, LUC_EXPT%grass),0.0)
     LUC_EXPT%past =max( min(LUC_EXPT%grass - LUC_EXPT%crop, LUC_EXPT%past), 0.0)
-
-
 
     IF (TRIM(cable_user%MetType) .EQ. "bios") THEN
 
@@ -411,7 +406,6 @@ CONTAINS
 
        ! write(*,*)  LUC_EXPT%grass(93), LUC_EXPT%primaryf(93), LUC_EXPT%secdf(93)
 
-
     ELSE
        CALL READ_ClimateFile(LUC_EXPT)
        ! hot desert
@@ -476,6 +470,7 @@ CONTAINS
        tmparr = 0.0
        LUC_EXPT%prim_only = .TRUE.
        Status = NF90_OPEN(TRIM(NotPrimOnlyFile), NF90_NOWRITE, NotPrimOnly_fID)
+       print*, 'OOpen31 ', NotPrimOnly_fID
        CALL HANDLE_ERR(STATUS, "Opening NotPrimOnlyFile"//TRIM(NotPrimOnlyFile ))
        Status = NF90_INQ_VARID( NotPrimOnly_fID,'cum_frac_prim_loss',  NotPrimOnly_vID)
        CALL HANDLE_ERR(STATUS, "Inquiring cum_frac_prim_loss in "//TRIM(NotPrimOnlyFile ) )
@@ -491,7 +486,9 @@ CONTAINS
        ENDDO
        PRINT *,  "number of not prim_only grid-cells: ", i
        PRINT *,  "number grid-cells: ", mland
+       print*, 'OClose31 ', NotPrimOnly_fID
        STATUS = NF90_CLOSE(NotPrimOnly_fID)
+       NotPrimOnly_fID = -1
     ENDIF
 
 
@@ -531,10 +528,6 @@ CONTAINS
        END WHERE
     ENDIF
 
-
-
- 
-    
   END SUBROUTINE LUC_EXPT_INIT
   
 ! ==============================================================================
@@ -548,8 +541,6 @@ CONTAINS
  REAL,   INTENT(INOUT) :: inPFrac(:,:,:)
  TYPE (LUC_EXPT_TYPE), INTENT(INOUT) :: LUC_EXPT
  INTEGER :: k, m, n
-
- 
 
   
    DO k=1,mland
@@ -722,6 +713,7 @@ USE netcdf
   ENDIF
   ! Open NetCDF file:
   STATUS = NF90_OPEN(TRIM(fname), NF90_NOWRITE, FILE_ID)
+  print*, 'OOpen32 ', file_id
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
   ! dimensions:
@@ -785,7 +777,9 @@ USE netcdf
   ENDWHERE
 
   ! Close NetCDF file:
+  print*, 'OClose32 ', file_id
   STATUS = NF90_close(FILE_ID)
+  file_id = -1
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
   write(*,'(a)') "end read_climatefile"  
@@ -879,7 +873,27 @@ IMPLICIT NONE
  ENDWHERE
 
 END SUBROUTINE READ_LUH2
+
 ! ==============================================================================
 
+SUBROUTINE close_luh2(LUC_EXPT)
+  
+  implicit none
+
+  type(luc_expt_type), intent(inout) :: LUC_EXPT
+
+  integer :: i, status
+
+  write(*,*) 'Closing LUH2 files.'
+  do i=1, LUC_EXPT%nfile
+     if (LUC_EXPT%F_ID(i) > -1) then
+        print*, 'OClose00 ', LUC_EXPT%F_ID(i)
+        status = nf90_close(LUC_EXPT%F_ID(i))
+        LUC_EXPT%F_ID(i) = -1
+        call handle_err(status, "Closing LUH2 transition file "//trim(LUC_EXPT%TransFile(i)))
+     end if
+  end do
+
+END SUBROUTINE close_luh2
 
 END MODULE CABLE_LUC_EXPT

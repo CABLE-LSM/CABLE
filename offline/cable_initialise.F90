@@ -666,7 +666,9 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
 !!$                max_vegpatches,'ncs',from_restart,mp)
 
    ! Close restart file:
+   print*, 'OClose10 ', ncid_rin
    ok = NF90_CLOSE(ncid_rin)
+   ncid_rin = -1
    IF(ok/=NF90_NOERR) CALL nc_abort(ok,'Error closing restart file '           &
         //TRIM(filename%restart_in)// '(SUBROUTINE get_restart)')
 

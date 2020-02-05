@@ -209,7 +209,7 @@ CONTAINS
          READ_LUC_RESTART_NC, alloc_popluc
     USE POP_Constants,        ONLY: HEIGHT_BINS, NCOHORT_MAX
     ! LUC_EXPT only
-    USE CABLE_LUC_EXPT,       ONLY: LUC_EXPT_TYPE, LUC_EXPT_INIT
+    USE CABLE_LUC_EXPT,       ONLY: LUC_EXPT_TYPE, LUC_EXPT_INIT, close_luh2
 
     ! modules related to fire
     USE BLAZE_MOD,            ONLY: TYPE_BLAZE
@@ -231,7 +231,7 @@ CONTAINS
     USE CABLE_PLUME_MIP,      ONLY: PLUME_MIP_TYPE, PLUME_MIP_GET_MET,&
          PLUME_MIP_INIT
     
-    USE CABLE_CRU,            ONLY: CRU_TYPE, CRU_GET_SUBDIURNAL_MET, CRU_INIT
+    USE CABLE_CRU,            ONLY: CRU_TYPE, CRU_GET_SUBDIURNAL_MET, CRU_INIT, cru_close
 
     ! BIOS only
     USE cable_bios_met_obs_params,   ONLY:  cable_bios_read_met, cable_bios_init, &
@@ -673,6 +673,7 @@ CONTAINS
              IF (cable_user%POPLUC .AND. TRIM(cable_user%POPLUC_RunType) .EQ. 'static') &
                   cable_user%POPLUC= .FALSE.
 
+             !TRUNK not in trunk
              if (cable_user%call_climate) then
                 CALL alloc_cbm_var(climate, mp, ktauday)
                 CALL climate_init(climate, mp, ktauday)
@@ -735,6 +736,7 @@ CONTAINS
                   rough, rad, sum_flux, bal)
 
              ! print*, 'MASTER Send 08 climate'
+             !TRUNK IF (cable_user%call_climate) &
              CALL master_climate_types(comm, climate, ktauday)
 
              ! MPI: mvtype and mstype send out here instead of inside master_casa_params
@@ -949,6 +951,7 @@ CONTAINS
              ! print*, 'MASTER Send 28 input'
              CALL master_send_input(icomm, inp_ts, iktau)
              ! CALL MPI_Waitall(wnp, inp_req, in_pstats, ierr)
+             !TRUNK else not commented out
           ! ELSE
              ! CALL master_send_input(icomm, casa_dump_ts, iktau)
              ! CALL MPI_Waitall(wnp, inp_req, inp_stats, ierr)
@@ -1356,6 +1359,7 @@ CONTAINS
           IF ((.NOT.spinup).OR.(spinup.AND.spinConv)) THEN
              IF (icycle>0) THEN
                 ctime = ctime + 1
+                !TRUNK no if but call write_casa in any case
                 if (ktau.EQ.kend .AND. YYYY .EQ. cable_user%YearEnd) &
                 CALL WRITE_CASA_OUTPUT_NC(veg, casamet, casapool, casabal, casaflux, &
                      CASAONLY, ctime, (ktau.EQ.kend .AND. YYYY .EQ. cable_user%YearEnd))
@@ -1608,6 +1612,10 @@ CONTAINS
             sum_flux, veg )
       ! WRITE(logn,*) bal%wbal_tot, bal%ebal_tot, bal%ebal_tot_cncheck
     ENDIF
+
+    !MC if (trim(cable_user%MetType) == 'cru') call cru_close(CRU)
+  
+    if (cable_user%POPLUC) call close_luh2(LUC_EXPT)
 
     ! Close log file
     CLOSE(logn)

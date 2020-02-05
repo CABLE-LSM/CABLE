@@ -363,6 +363,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 
    IF ( allATonce .OR. ncall .EQ. 1 ) THEN
       ncok = NF90_OPEN(TRIM(ncfile), nf90_nowrite, ncrid)
+      print*, 'OOpen60 ', ncrid
       IF (ncok /= nf90_noerr ) CALL stderr_nc(ncok,'re-opening ', ncfile)
    ENDIF
    IF ( allATonce ) THEN
@@ -459,7 +460,9 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    ENDIF
 
    IF ( allATonce .OR. ncall .EQ. kend ) THEN
+      print*, 'OClose60 ', ncrid
       ncok = NF90_CLOSE(ncrid)
+      ncrid = -1
       IF (ncok /= nf90_noerr ) CALL stderr_nc(ncok,'closing ', ncfile)
    ENDIF
 #endif
@@ -556,23 +559,20 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    dim_len(1)        = mp
    dim_len(num_dims) = NF90_unlimited
 
-   ! print*, 'CD01'
    IF (n_call == 1) THEN
 
-      ! print*, 'CD02'
       ! create netCDF dataset: enter define mode
       ncok = nf90_create(path = TRIM(ncfile), cmode = nf90_clobber, ncid = ncid)
+      print*, 'OCreate10 ', ncid
       IF (ncok /= nf90_noerr) CALL stderr_nc(ncok,'ncdf creating ', ncfile)
 
       !ncok = nf90_redef(ncid)
       !if (ncok /= nf90_noerr) call stderr_nc(ncok,'enter def mode', ncfile)
 
       ! define dimensions: from name and length
-      ! print*, 'CD03'
       CALL def_dims(num_dims, ncid, dimID, dim_len, dim_name)
 
       ! define variables: from name, type, dims
-      ! print*, 'CD04'
       CALL def_vars(num_vars, ncid, nf90_float, dimID, var_name, varID)
 
       ! define variable attributes
@@ -581,55 +581,38 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
       ncok = nf90_enddef(ncid)
       if (ncok /= nf90_noerr) call stderr_nc(ncok,'end def mode', ncfile)
 
-
-      ! print*, 'CD05'
       CALL put_var_nc(ncid, var_name(1), REAL(casamet%lat))
       CALL put_var_nc(ncid, var_name(2), REAL(casamet%lon))
 
    ENDIF
 
-   ! print*, 'CD06'
    CALL put_var_nc(ncid, var_name(3), casamet%tairk, n_call)
-   ! print*, 'CD07'
    CALL put_var_nc(ncid, var_name(4), casamet%tsoil, n_call, ms)
-   ! print*, 'CD08'
    CALL put_var_nc(ncid, var_name(5), casamet%moist, n_call, ms)
-   ! print*, 'CD09'
    CALL put_var_nc(ncid, var_name(6), casaflux%cgpp, n_call)
-   ! print*, 'CD10'
    CALL put_var_nc(ncid, var_name(7), casaflux%crmplant, n_call, mplant)
-   ! print*, 'CD11'
    CALL put_var_nc(ncid, var_name(8), real(phen%phase,r_2), n_call)
-   ! print*, 'CD12'
    CALL put_var_nc(ncid, var_name(9), real(phen%doyphase(:,1),r_2), n_call)
-   ! print*, 'CD13'
    CALL put_var_nc(ncid, var_name(10), real(phen%doyphase(:,2),r_2), n_call)
-   ! print*, 'CD14'
    CALL put_var_nc(ncid, var_name(11), real(phen%doyphase(:,3),r_2), n_call)
-   ! print*, 'CD15'
    CALL put_var_nc(ncid, var_name(12), real(phen%doyphase(:,4),r_2), n_call)
-   ! print*, 'CD16'
    CALL put_var_nc(ncid, var_name(13), real(climate%qtemp_max_last_year,r_2), n_call)
-   ! print*, 'CD17'
    CALL put_var_nc(ncid, var_name(14), real(casaflux%Nmindep,r_2), n_call)
-   ! print*, 'CD18'
    CALL put_var_nc(ncid, var_name(15), real(casaflux%Pdep,r_2), n_call)
    ! 13C
    if (cable_user%c13o2) then
-      ! print*, 'CD19'
       CALL put_var_nc(ncid, var_name(16), c13o2flux%cAn12, n_call)
-      ! print*, 'CD20'
       CALL put_var_nc(ncid, var_name(17), c13o2flux%cAn, n_call)
    else
-      ! print*, 'CD19.1'
       CALL put_var_nc(ncid, var_name(16), (/(0.0_r_2,i=1,mp)/), n_call)
-      ! print*, 'CD20.1'
       CALL put_var_nc(ncid, var_name(17), (/(0.0_r_2,i=1,mp)/), n_call)
    endif
 
-   ! print*, 'CD21'
-   IF (n_call == kend) ncok = nf90_close(ncid) ! close: save new netCDF dataset
-
+   IF (n_call == kend) then
+      print*, 'OClose61 ', ncid
+      ncok = nf90_close(ncid) ! close: save new netCDF dataset
+      ncid = -1
+  endif
 #endif
  END SUBROUTINE write_casa_dump
 

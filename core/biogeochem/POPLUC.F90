@@ -1885,6 +1885,7 @@ CONTAINS
 
        ! Create NetCDF file:
        STATUS = NF90_create(trim(fname), NF90_CLOBBER, FILE_ID)
+       print*, 'OCreate50 ', file_id
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
        ! Put the file in define mode:
@@ -2099,7 +2100,9 @@ CONTAINS
 
     IF ( FINAL ) THEN
        ! Close NetCDF file:
+       print*, 'OClose80 ', file_id
        STATUS = NF90_close(FILE_ID)
+       file_id = -1
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
        WRITE(*,*) " POPLUC Output written to ", trim(fname)
     ENDIF
@@ -2175,6 +2178,7 @@ CONTAINS
 
     ! Create NetCDF file:
     STATUS = NF90_create(trim(fname), NF90_CLOBBER, FILE_ID)
+    print*, 'OCreate51 ', file_id
     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
     ! Put the file in define mode:
@@ -2250,7 +2254,9 @@ CONTAINS
 
 
     ! Close NetCDF file:
+    print*, 'OClose81 ', file_id
     STATUS = NF90_close(FILE_ID)
+    file_id = -1
     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
     WRITE(*,*) " POPLUC Restart written to ", trim(fname)
 
@@ -2310,6 +2316,7 @@ CONTAINS
        fname = TRIM(filename%path)//'/'//TRIM(cable_user%RunIden)//'_'//'LUC_rst.nc'
     ENDIF
     STATUS = NF90_OPEN( TRIM(fname), NF90_NOWRITE, FILE_ID )
+    print*, 'OOpen80 ', file_id
     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
     ! DIMS
@@ -2373,7 +2380,9 @@ CONTAINS
        END SELECT
     END DO
 
+    print*, 'OClose82 ', file_id
     STATUS = NF90_CLOSE( FILE_ID )
+    file_id = -1
 
   END SUBROUTINE READ_LUC_RESTART_NC
 
@@ -2539,6 +2548,7 @@ CONTAINS
 
        ! Create NetCDF file:
        STATUS = NF90_create(fname, NF90_CLOBBER, FILE_ID)
+       print*, 'OCreate52 ', file_id
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
        ! Put the file in define mode:
@@ -2947,7 +2957,9 @@ CONTAINS
 
     IF ( FINAL ) THEN
        ! Close NetCDF file:
+       print*, 'OClose84 ', file_id
        STATUS = NF90_close(FILE_ID)
+       file_id = -1
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
        WRITE(*,*) " POPLUC Output written to ",fname
     ENDIF

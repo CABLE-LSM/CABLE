@@ -81,8 +81,6 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
   EpSA = Epsif(met%tk - 273.16, met%pmb)
   phiEq = canopy%rniso * (PPc*EpsA) / (PPc*EpsA + 1.0)      ! equil ltnt heat flux  [W/m2]
 
-  print*, 'CC01 ', idoy, ktau, ktauday, mod(ktau,ktauday)
-  print*, 'CC02 ', dels, mod(ktau,INT(24.0*3600.0/dels)), INT(24.0*3600.0/dels)/2
   IF (idoy==1 .and. MOD(ktau,ktauday)==1 ) THEN   ! first time step of year
         climate%evap_PT =  phiEq*CoeffPT/2.5014e6*dels  ! mm
         climate%aevap = met%precip ! mm
@@ -201,12 +199,6 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
                ) THEN
     ! climate%fapar_ann_max =   max( (1.-rad%rhocdf(:,1))*(1.-rad%fbeam(:,1)) + &
      !      (1.-rad%rhocbm(:,1))*rad%fbeam(:,1) , climate%fapar_ann_max)
-     print*, 'VV01 ', rad%extkbm(:,1)
-     print*, 'VV02 ', canopy%vlaiw
-     print*, 'VV03 ', climate%fapar_ann_max
-     print*, 'VV04 ', rad%fbeam(:,1)
-     print*, 'VV05 ', rad%extkbm(:,2)
-     print*, 'VV06 ', rad%fbeam(:,2)
      WHERE (rad%fbeam(:,1).GE.0.01)
         climate%fapar_ann_max = max(1.- rad%extkbm(:,1)*canopy%vlaiw,  &
              climate%fapar_ann_max)
@@ -1036,6 +1028,7 @@ SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
   ENDIF
   ! Create NetCDF file:
   STATUS = NF90_create(fname, NF90_CLOBBER, FILE_ID)
+  print*, 'OCreate60 ', file_id
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
   ! Put the file in define mode:
@@ -1293,7 +1286,9 @@ SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
 
 
   ! Close NetCDF file:
+  print*, 'OClose98 ', file_id
   STATUS = NF90_close(FILE_ID)
+  file_id = -1
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
 # endif 
@@ -1609,7 +1604,9 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate, ktauday )
 
 
   ! Close NetCDF file:
+  print*, 'OClose99 ', file_id
   STATUS = NF90_close(FILE_ID)
+  file_id = -1
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 # endif 
 

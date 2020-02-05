@@ -171,6 +171,8 @@ CONTAINS
     ALLOCATE( ghwet(mp))
     ALLOCATE( gmes(mp,mf))
 
+    gmes = 0.0_r_2
+    
     ! BATS-type canopy saturation proportional to LAI:
     cansat = veg%canst1 * canopy%vlaiw
 
@@ -406,14 +408,14 @@ CONTAINS
        ecy = rny - hcy        ! init current estimate lat heat
 
        sum_rad_rniso = SUM(rad%rniso,2)
-       CALL dryLeaf( dels, rad, rough, air, met,                                &
-            veg, canopy, soil, ssnow, dsx,                             &
-            fwsoil, tlfx, tlfy, ecy, hcy,                              &
-            rny, gbhu, gbhf, csx, cansat,                              &
-            ghwet,  iter,climate, gmes )
+       CALL dryLeaf( dels, rad, rough, air, met, &
+            veg, canopy, soil, ssnow, dsx,       &
+            fwsoil, tlfx, tlfy, ecy, hcy,        &
+            rny, gbhu, gbhf, csx, cansat,        &
+            ghwet, iter, climate, gmes )
 
-       CALL wetLeaf( dels, rad, rough, air, met,                                &
-            veg, canopy, cansat, tlfy,                                 &
+       CALL wetLeaf( dels, rad, rough, air, met, &
+            veg, canopy, cansat, tlfy,           &
             gbhu, gbhf, ghwet )
 
 
@@ -1419,7 +1421,7 @@ CONTAINS
 
     DO j=1,mp
 
-       IF( ssnow%wbice(j,1) > 0. )                                              &
+       IF ( ssnow%wbice(j,1) > real(tiny(1.0),r_2) ) &
             ssnow%wetfac(j) = ssnow%wetfac(j) * real(MAX( 0.5_r_2, 1._r_2 - MIN( 0.2_r_2, &
             ( ssnow%wbice(j,1) / ssnow%wb(j,1) )**2 ) ) )
 
@@ -1923,8 +1925,11 @@ CONTAINS
              endif !cable_user%call_climate
 
              ! apply fwsoil to gmes
-             gmes(i,1) = MAX(gmes(i,1) * fwsoil(i),0.15 * veg%gmmax(i))
-             gmes(i,2) = MAX(gmes(i,2) * fwsoil(i),0.15 * veg%gmmax(i))
+             if (any(gmes(i,:) < real(tiny(1.0),r_2) .and. gmes(i,:) > 0._r_2)) print*, 'CA03 ', gmes(i,:)
+             if (fwsoil(i) < tiny(1.0)) print*, 'CA04 ', i, fwsoil(i)
+             if (veg%gmmax(i) < tiny(1.0)) print*, 'CA05 ', veg%gmmax(i)
+             gmes(i,1) = MAX(gmes(i,1) * real(fwsoil(i),r_2), real(0.15 * veg%gmmax(i),r_2))
+             gmes(i,2) = MAX(gmes(i,2) * real(fwsoil(i),r_2), real(0.15 * veg%gmmax(i),r_2))
 
             ! Ticket #56 added switch for Belinda Medlyn's model
             IF (cable_user%GS_SWITCH == 'leuning') THEN
@@ -2072,7 +2077,8 @@ CONTAINS
 
                 fwsoil(i) = canopy%fwsoil(i)
 
-                ssnow%evapfbl(i,:) = ssnow%rex(i,:)*dels*1000._r_2 ! mm water &
+                where (ssnow%rex(i,:) > real(tiny(1.0),r_2)) &
+                     ssnow%evapfbl(i,:) = real(ssnow%rex(i,:))*dels*1000. ! mm water &
                 !(root water extraction) per time step
 
                 if (cable_user%Cumberland_soil) then

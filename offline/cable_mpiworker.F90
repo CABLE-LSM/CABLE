@@ -528,6 +528,7 @@ CONTAINS
 
              ktauday = int(24.0*3600.0/dels)
              ! print*, 'WORKER Receive 08 climate'
+             !TRUNK IF (cable_user%call_climate) &
              CALL worker_climate_types(comm, climate, ktauday)
 
              ! MPI: mvtype and mstype send out here instead of inside worker_casa_params
@@ -766,6 +767,10 @@ CONTAINS
 
              IF (l_laiFeedbk) veg%vlai(:) = REAL(casamet%glai(:))
 
+             !TRUNK IF (cable_user%CALL_climate) &
+             !TRUNK      CALL cable_climate(ktau_tot,kstart,kend,ktauday,idoy,LOY,met, &
+             !TRUNK      climate, canopy, air, rad, dels, mp)
+
              ! CALL land surface scheme for this timestep, all grid points:
              CALL cbm( ktau, dels, air, bgc, canopy, met,                  &
                   bal, rad, rough, soil, ssnow,                            &
@@ -847,6 +852,7 @@ CONTAINS
                      phen, pop, spinConv, spinup, ktauday, idoy, loy,   &
                      .FALSE., .FALSE., LALLOC, c13o2flux, c13o2pools )
                 write(wlogn,*) 'after bgcdriver ', MPI_BOTTOM, 1, casa_t, 0, ktau_gl, ocomm, ierr
+                !TRUNK no if (mod(...)) then
                 IF (MOD((ktau-kstart+1),ktauday).EQ.0) THEN
                    ! print*, 'WORKER Send 30 casa'
                    CALL MPI_Send(MPI_BOTTOM, 1, casa_t, 0, ktau_gl, ocomm, ierr)
@@ -866,7 +872,7 @@ CONTAINS
                         call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
                         casamet, climate, real(shootfrac), idoy, YYYY, 1)
                 ENDIF
-!!! CLN HERE BLAZE daily
+                ! !! CLN HERE BLAZE daily
 
                 IF ( IS_CASA_TIME("write", yyyy, ktau, kstart, &
                      koffset, kend, ktauday, wlogn) ) THEN
@@ -6302,6 +6308,7 @@ CONTAINS
     CALL MPI_Get_address (casaflux%Cplant_turnover(off,1), displs(bidx), ierr)
     blocks(bidx) = mplant*r2LEN
 
+    !TRUNK from here no (off,1)
     bidx = bidx + 1
     CALL MPI_Get_address (casaflux%fracCalloc(off,1), displs(bidx), ierr)
     blocks(bidx) = mplant * r2len
@@ -6336,6 +6343,7 @@ CONTAINS
     blocks(bidx) = msoil * r2len
 
     ! 3D
+    !TRUNK and also no (off,1,1)
     bidx = bidx + 1
     CALL MPI_Get_address (casaflux%fromPtoL(off,1,1), displs(bidx), ierr)
     blocks(bidx) = mplant * mlitter * r2len
@@ -6727,8 +6735,10 @@ CONTAINS
 
     CHARACTER, DIMENSION(:), ALLOCATABLE :: rbuf
 
+    !TRUNK no call to alloc_cbm_var
     CALL alloc_cbm_var(climate,mp,ktauday)
 
+    !TRUNK but call to climate_init
     !CALL climate_init (climate, mp, ktauday)
     ! MPI: allocate temp vectors used for marshalling
     ntyp = nclimate

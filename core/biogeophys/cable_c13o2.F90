@@ -650,7 +650,7 @@ contains
     use cable_io_vars_module, only: timeunits, calendar
     use casavariable,         only: casa_met, casafile
     use cable_c13o2_def,      only: c13o2_pool
-    use netcdf,               only: nf90_create, nf90_clobber, nf90_noerr, &
+    use netcdf,               only: nf90_create, nf90_clobber, nf90_64bit_offset, nf90_noerr, &
          nf90_put_att, nf90_global, nf90_def_dim, nf90_unlimited, &
          nf90_def_var, nf90_double, nf90_int, nf90_enddef, nf90_put_var
 
@@ -763,7 +763,8 @@ contains
 
     ! create output file
     write(*,*) 'Defining 13CO2 output file: ', trim(fname)
-    status = nf90_create(trim(fname), nf90_clobber, file_id)
+    status = nf90_create(trim(fname), cmode=ior(nf90_clobber,nf90_64bit_offset), ncid=file_id)
+    print*, 'OCreate70 ', file_id
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could not open c13o2 output file: '//trim(fname))
     ! status = nf90_redef(file_id)
@@ -944,12 +945,14 @@ contains
 
     implicit none
 
-    integer, intent(in) :: file_id
+    integer, intent(inout) :: file_id
 
     integer :: status
 
     write(*,*) 'Closing 13CO2 output file.'
+    print*, 'OClose90 ', file_id
     status = nf90_close(file_id)
+    file_id = -1
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could not close 13CO2 output file.')
 
@@ -984,6 +987,7 @@ contains
     write(*,*) 'Read 13CO2 restart_in_flux file: ', trim(c13o2_restart_in_flux)
 
     status = nf90_open(trim(c13o2_restart_in_flux), nf90_nowrite, file_id)
+    print*, 'OOpen90 ', file_id
     if (status /= nf90_noerr) call c13o2_err_handler('Error 13CO2 restart_in_flux file: '//trim(c13o2_restart_in_flux))
 
     ! Vstarch
@@ -1017,7 +1021,9 @@ contains
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Error reading variable Rphoto from restart_in_flux file: '//trim(c13o2_restart_in_flux))
 
+    print*, 'OClose91 ', file_id
     status = nf90_close(file_id)
+    file_id = -1
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could not close the c13o2 restart_in_flux file: '//trim(c13o2_restart_in_flux))
 
@@ -1030,7 +1036,7 @@ contains
 
     use cable_common_module, only: cable_user, filename, CurYear
     use cable_c13o2_def,     only: c13o2_flux
-    use netcdf,              only: nf90_create, nf90_clobber, nf90_noerr, &
+    use netcdf,              only: nf90_create, nf90_clobber, nf90_64bit_offset, nf90_noerr, &
          nf90_put_att, nf90_global, nf90_def_dim, &
          nf90_def_var, nf90_double, nf90_enddef, nf90_put_var, nf90_close
 
@@ -1068,7 +1074,8 @@ contains
 
     ! create restart file
     write(*,*) 'Writing 13CO2 Canopy pools restart file: ', trim(fname)
-    status = nf90_create(trim(fname), nf90_clobber, file_id)
+    status = nf90_create(trim(fname), cmode=ior(nf90_clobber,nf90_64bit_offset), ncid=file_id)
+    print*, 'OCreate71 ', file_id
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could not open c13o2 restart_out_flux file: '//trim(fname))
     ! status = nf90_redef(file_id)
@@ -1124,7 +1131,9 @@ contains
          call c13o2_err_handler('Could put variable '//trim(leafvars(2))//' to c13o2 restart_out_flux file: '//trim(fname))
 
     ! close restart file
+    print*, 'OClose92 ', file_id
     status = nf90_close(file_id)
+    file_id = -1
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could not close c13o2 restart_out_flux file: '//trim(fname))
 
@@ -1154,6 +1163,7 @@ contains
     write(*,*) 'Read 13CO2 restart_in_pools file: ', trim(c13o2_restart_in_pools)
 
     status = nf90_open(trim(c13o2_restart_in_pools), nf90_nowrite, file_id)
+    print*, 'OOpen91 ', file_id
     if (status /= nf90_noerr) call c13o2_err_handler('Error 13CO2 restart_in_pools file: '//trim(c13o2_restart_in_pools))
 
     ! cplant
@@ -1195,7 +1205,9 @@ contains
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Error reading variable charvest from restart_in_pools file: '//trim(c13o2_restart_in_pools))
 
+    print*, 'OClose94 ', file_id
     status = nf90_close(file_id)
+    file_id = -1
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could not close the c13o2 restart_in_pools file: '//trim(c13o2_restart_in_pools))
 
@@ -1208,7 +1220,7 @@ contains
 
     use cable_common_module, only: cable_user, filename, CurYear
     use cable_c13o2_def,     only: c13o2_pool
-    use netcdf,              only: nf90_create, nf90_clobber, nf90_noerr, &
+    use netcdf,              only: nf90_create, nf90_clobber, nf90_64bit_offset, nf90_noerr, &
          nf90_put_att, nf90_global, nf90_def_dim, &
          nf90_def_var, nf90_double, nf90_enddef, nf90_put_var, nf90_close
 
@@ -1255,7 +1267,8 @@ contains
 
     ! create restart file
     write(*,*) 'Writing 13CO2 Casa restart file: ', trim(fname)
-    status = nf90_create(trim(fname), nf90_clobber, file_id)
+    status = nf90_create(trim(fname), cmode=ior(nf90_clobber,nf90_64bit_offset), ncid=file_id)
+    print*, 'OCreate72 ', file_id
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could not open c13o2 restart_out_pools file: '//trim(fname))
     ! status = nf90_redef(file_id)
@@ -1334,7 +1347,9 @@ contains
          call c13o2_err_handler('Could put variable '//trim(soilvars(1))//' to c13o2 restart_out_pools file: '//trim(fname))
 
     ! close restart file
+    print*, 'OClose95 ', file_id
     status = nf90_close(file_id)
+    file_id = -1
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could not close c13o2 restart_out_pools file: '//trim(fname))
 
@@ -1364,6 +1379,7 @@ contains
     write(*,*) 'Read 13CO2 restart_in_luc file: ', trim(c13o2_restart_in_luc)
 
     status = nf90_open(trim(c13o2_restart_in_luc), nf90_nowrite, file_id)
+    print*, 'OOpen92 ', file_id
     if (status /= nf90_noerr) call c13o2_err_handler('Error 13CO2 restart_in_luc file: '//trim(c13o2_restart_in_luc))
 
     ! charvest
@@ -1391,7 +1407,9 @@ contains
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Error reading variable cagric from restart_in_luc file: '//trim(c13o2_restart_in_luc))
 
+    print*, 'OClose96 ', file_id
     status = nf90_close(file_id)
+    file_id = -1
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could not close the c13o2 restart_in_luc file: '//trim(c13o2_restart_in_luc))
 
@@ -1404,7 +1422,7 @@ contains
 
     use cable_common_module, only: cable_user, filename, CurYear
     use cable_c13o2_def,     only: c13o2_luc
-    use netcdf,              only: nf90_create, nf90_clobber, nf90_noerr, &
+    use netcdf,              only: nf90_create, nf90_clobber, nf90_64bit_offset, nf90_noerr, &
          nf90_put_att, nf90_global, nf90_def_dim, &
          nf90_def_var, nf90_double, nf90_enddef, nf90_put_var, nf90_close
 
@@ -1445,7 +1463,8 @@ contains
 
     ! create restart file
     write(*,*) 'Writing 13CO2 LUC restart file: ', trim(fname)
-    status = nf90_create(trim(fname), nf90_clobber, file_id)
+    status = nf90_create(trim(fname), cmode=ior(nf90_clobber,nf90_64bit_offset), ncid=file_id)
+    print*, 'OCreate73 ', file_id
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could not open c13o2 restart_out_luc file: '//trim(fname))
     ! status = nf90_redef(file_id)
@@ -1508,7 +1527,9 @@ contains
          call c13o2_err_handler('Could put variable '//trim(clearancevars(1))//' to c13o2 restart_out_luc file: '//trim(fname))
 
     ! close restart file
+    print*, 'OClose97 ', file_id
     status = nf90_close(file_id)
+    file_id = -1
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could not close c13o2 restart_out_luc file: '//trim(fname))
 

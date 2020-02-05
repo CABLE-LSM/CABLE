@@ -410,6 +410,7 @@ host_gadi()
        # export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
        export CFLAGS='-O2 -fpp -fp-model precise'
    fi
+   export CFLAGS="${CFLAGS} -D__CRU2017__"
    export LDFLAGS='-L'${NCDIR}' -O0'
    export LD='-lnetcdf -lnetcdff'
    export MFLAGS='-j 8'

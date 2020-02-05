@@ -271,6 +271,7 @@ CONTAINS
 
     ! Create output file:
     ok = NF90_CREATE(filename%out, NF90_CLOBBER, ncid_out)
+    print*, 'OCreate01 ', ncid_out
     IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error creating output file '       &
                         //TRIM(filename%out)// ' (SUBROUTINE open_output_file)')
     ! Put the file in define mode:
@@ -2111,10 +2112,10 @@ CONTAINS
     ! print*, 'WO33'
     IF(output%soil .OR. output%SoilMoist) THEN
        ! Add current timestep's value to total of temporary output variable:
-       print*, 'WO34 ', ssnow%wb
-       print*, 'WO34.1 ', ssnow%wbice
+       ! print*, 'WO34 ', ssnow%wb
+       ! print*, 'WO34.1 ', ssnow%wbice
        out%SoilMoist = out%SoilMoist + REAL(ssnow%wb, 4)
-       out%SoilMoistIce = out%SoilMoistIce + REAL(ssnow%wbice, 4)
+       where (ssnow%wbice > real(tiny(1.0),r_2)) out%SoilMoistIce = out%SoilMoistIce + REAL(ssnow%wbice, 4)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
           out%SoilMoist = out%SoilMoist / REAL(output%interval, 4)
@@ -3227,7 +3228,9 @@ CONTAINS
     INTEGER :: i ! do loop counter
 
     ! Close file
+    print*, 'OClose40 ', ncid_out
     ok = NF90_CLOSE(ncid_out)
+    ncid_out = -1
     IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error closing output file '        &
                         //TRIM(filename%out)// '(SUBROUTINE close_output_file)')
 
@@ -3317,6 +3320,7 @@ CONTAINS
 
     ! Create output file:
     ok = NF90_CREATE(frst_out, NF90_CLOBBER, ncid_restart)
+    print*, 'OCreate011 ', ncid_restart
     IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error creating restart file '      &
          //TRIM(frst_out)// '(SUBROUTINE create_restart)')
     ! Put the file in define mode:
@@ -3979,7 +3983,9 @@ CONTAINS
     END IF
 
     ! Close restart file
+    print*, 'OClose41 ', ncid_restart
     ok = NF90_CLOSE(ncid_restart)
+    ncid_restart = -1
 
     WRITE(logn, '(A36)') '   Restart file complete and closed.'
 
