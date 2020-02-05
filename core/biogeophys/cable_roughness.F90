@@ -101,8 +101,8 @@ veg%hc = MAX(veg%hc,1.0)
       rough%disp = 0.0
 
       ! Reference height zref is height above the displacement height
-      rough%zref_uv = MAX( 3.5, rough%za_uv )
-      rough%zref_tq = MAX( 3.5, rough%za_tq )
+      rough%zref_uv = MAX( 2.5, rough%za_uv )
+      rough%zref_tq = MAX( 2.5, rough%za_tq )
 
       rough%zruffs = 0.0
       rough%rt1usa = 0.0
@@ -140,8 +140,8 @@ veg%hc = MAX(veg%hc,1.0)
       rough%disp = dh * rough%hruff
 
       ! Reference height zref is height above the displacement height
-      rough%zref_uv = MAX( 3.5, rough%za_uv )
-      rough%zref_tq = MAX( 3.5, rough%za_tq )
+      rough%zref_uv = MAX( 2.5, rough%za_uv )
+      rough%zref_tq = MAX( 2.5, rough%za_tq )
 
       ! Calculate roughness length:
       rough%z0m = ( (1.0 - dh) * EXP( LOG( C%CCW_C ) - 1. + 1. / C%CCW_C       &
