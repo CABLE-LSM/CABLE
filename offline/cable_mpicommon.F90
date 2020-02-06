@@ -27,19 +27,10 @@ MODULE cable_mpicommon
 
   PUBLIC
 
-  ! MPI: base number of input fields sent to workers as start up
-  ! parameters !INTEGER, PARAMETER :: nparam = 68
-  ! MPI: Bernard commented out two canopy params (potev_c and rwater)
-  ! when porting to CABLE_r491 ! nparam = 219 -> nparam = 217
-  ! MPI: CABLE_r491, after following up with Bernard on the new variables
-  !INTEGER, PARAMETER :: nparam = 260
-  ! added 23 params when trying to fix the bug in MPI ! nparam -> 283
-  ! add 10 vairable to veg% param -> 293
-  ! Ticket #56, add 2 new params for the Medlyns Stom Cond model 293 -> 295
-  !Vanessa Haverd: add 4 new params 295 -> 299
-  ! VH add 9 params for sli 299 -> 308
-  ! INH add 7 params for REV_CORR package
-  INTEGER, PARAMETER :: nparam = 331 !326!308
+  ! base number of input fields: must correspond to CALLS to 
+  ! MPI_address (field ) in *_mpimaster/ *_mpiworker
+  INTEGER, PARAMETER :: nparam = 330
+   
   ! MPI: extra params sent only if nsoilparmnew is true
   INTEGER, PARAMETER :: nsoilnew = 1
 
