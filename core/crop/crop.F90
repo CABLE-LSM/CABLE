@@ -84,17 +84,18 @@ contains
        endif
     endif
 
-    if (planting_ok) then
+    ! do planting when conditions are suitable or when it's the last day
+    if (planting_ok .or. doy == crop%sowing_doymax(i)) then
 
        crop%state(i) = planted
        crop%sowing_doy(i) = doy ! keep track of sowing doy
 
     endif
      
-write(60,*) 'doy:', doy
-write(60,*) '  climate%dtemp_31(i,(31-nrdays_before+1):31):', climate%dtemp_31(i,(31-nrdays_before+1):31)
-write(60,*) '  rSM_avail:', rSM_avail
-write(60,*) '  crop%sowing_doy(i):', crop%sowing_doy(i)
+write(65,*) 'doy:', doy
+write(65,*) '  climate%dtemp_31(i,(31-nrdays_before+1):31):', climate%dtemp_31(i,(31-nrdays_before+1):31)
+write(65,*) '  rSM_avail:', rSM_avail
+write(65,*) '  crop%sowing_doy(i):', crop%sowing_doy(i)
 
    
   end subroutine planting
@@ -131,9 +132,11 @@ write(60,*) '  crop%sowing_doy(i):', crop%sowing_doy(i)
     ! ndays after planting, check again conditions for germination
     ! do not plant if temperature is very unsuitable
     ! this mimicks weather forecast, e.g. one would not sow if frost
-    ! is forecasted for the next days. Use Tbase instead of Tplant here!! 
+    ! is forecasted for the next days. Use Tbase instead of Tplant here!!
+    ! don't do this check if it's too late (i.e. approaching sowing_doymax)
     planting_ok = .TRUE.
-    if (crop%state_nrdays(i,planted) == nrdays_after) then
+    if (crop%state_nrdays(i,planted) == nrdays_after .and. &
+         doy < crop%sowing_doymax(i)) then  ! TODO: ensure no problems when switching years!
        if (i == 1) then ! winter wheat
           if (maxval(climate%dtemp_31(i,(31-nrdays_after+1):31)) > 18.0 .or. &
               minval(climate%dtemp_31(i,(31-nrdays_after+1):31)) < crop%Tbase(i)) then
@@ -174,13 +177,13 @@ write(60,*) '  crop%sowing_doy(i):', crop%sowing_doy(i)
        crop%fgermination(i) = 0.0
     end if
     
-write(60,*) 'doy:', doy
-write(60,*) '  climate%dtempsoil(:,crop%sl(1)):', climate%dtempsoil(:,crop%sl(1))     
-write(60,*) '  fPHUger:', fPHUger
-write(60,*) '  fwsger:', fwsger
-write(60,*) '  fgerday:', fgerday 
-write(60,*) '  crop%fgermination:', crop%fgermination
-write(60,*) '  crop%state:', crop%state
+write(65,*) 'doy:', doy
+write(65,*) '  climate%dtempsoil(:,crop%sl(1)):', climate%dtempsoil(:,crop%sl(1))     
+write(65,*) '  fPHUger:', fPHUger
+write(65,*) '  fwsger:', fwsger
+write(65,*) '  fgerday:', fgerday 
+write(65,*) '  crop%fgermination:', crop%fgermination
+write(65,*) '  crop%state:', crop%state
       
   end subroutine germination
 

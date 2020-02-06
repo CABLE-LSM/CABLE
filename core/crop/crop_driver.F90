@@ -32,7 +32,6 @@ write(70,*) 'DOY: ', doy
     if (crop%state(ic) == baresoil) then
       if (doy >= crop%sowing_doymin(ic) .and. doy <= crop%sowing_doymax(ic)) then 
          call planting(ic,doy,climate,ssnow,soil,crop)
-
       end if
 
     else if (crop%state(ic) == planted) then
@@ -59,8 +58,8 @@ casamet%glai(ic) = 0.0_dp
 
        ! calculate growth respiration
        casaflux%Crgplant(ic) = sum(Rgcoeff * casaflux%fracCalloc(ic,:)) * casaflux%Cgpp(ic)
-write(65,*) 'sum(Rgcoeff * casaflux%fracCalloc(ic,:))', sum(Rgcoeff * casaflux%fracCalloc(ic,:))
-write(65,*) 'casaflux%fracCalloc(ic,:)', casaflux%fracCalloc(ic,:)      
+write(66,*) 'sum(Rgcoeff * casaflux%fracCalloc(ic,:))', sum(Rgcoeff * casaflux%fracCalloc(ic,:))
+write(66,*) 'casaflux%fracCalloc(ic,:)', casaflux%fracCalloc(ic,:)      
        ! calculate maintenance respiration
        ! as in casa at the moment. Evtl calculate Rm first, then Rg. Discuss
        ! if it makes sense to replace Rgcoeff with Ygrowth as calculated in casa_cnp

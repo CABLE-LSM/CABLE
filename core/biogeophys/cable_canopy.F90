@@ -249,7 +249,7 @@ CONTAINS
        ! E.Kowalczyk 2014
        IF (cable_user%l_new_roughness_soil) &
             CALL ruff_resist(veg, rough, ssnow, canopy)
-
+         
        ! Turbulent aerodynamic resistance from roughness sublayer depth
        ! to reference height, x=1 if zref+disp>zruffs,
        ! 0 otherwise: thus rt1usc = 0 if zref+disp<zruffs
@@ -355,7 +355,7 @@ CONTAINS
              gbvtop(j) = air%cmolar(j)*C%APOL * air%visc(j) / C%prandt /        &
                   veg%dleaf(j) * (canopy%us(j) / MAX(rough%usuh(j),1.e-6)&
                   * veg%dleaf(j) / air%visc(j) )**0.5                    &
-                  * C%prandt**(1.0/3.0) / veg%shelrb(j)
+                  * C%prandt**(1.0/3.0) !/ veg%shelrb(j) 
              gbvtop(j) = MAX (0.05_r_2,gbvtop(j) )      ! for testing (BP aug2010)
 
              ! Forced convection boundary layer conductance
@@ -370,6 +370,7 @@ CONTAINS
              gbhu(j,2) = (2.0/rough%coexp(j))*gbvtop(j)*  &
                   (1.0-EXP(-min(0.5*rough%coexp(j)*canopy%vlaiw(j),20.0))) &
                   - gbhu(j,1)
+
 
 if (mod(ktau,ktauday) == 24) then
    write(45,*) 'rad%scalex(j,:):', rad%scalex(j,:)
@@ -819,7 +820,7 @@ write(40,*) 'canopy%irrig_surface:', canopy%irrig_surface
     DEALLOCATE(ecy, hcy, rny)
     DEALLOCATE(gbhf, csx)
     DEALLOCATE(ghwet)
-
+    
     RETURN
 
   CONTAINS
@@ -1720,9 +1721,36 @@ write(40,*) 'canopy%irrig_surface:', canopy%irrig_surface
 
              ! Conductance for heat and longwave radiation:
              ghr(i,:) = rad%gradis(i,:)+gh(i,:)
-
-
-             
+if (hcx(i) > 50.) then
+write(52,*) 'air%cmolar:', air%cmolar
+write(52,*) 'hcx(i)/((met%tvair(i) - met%tk(i)) * C%capp * C%rmair):', hcx(i)/((met%tvair(i) - met%tk(i)) * C%capp * C%rmair)
+write(52,*) 'rough%rt1(i):', rough%rt1(i)
+write(52,*) 'rough%rt0us(i):', rough%rt0us(i)
+write(52,*) 'rough%rt1usa(i):', rough%rt1usa(i)
+write(52,*) 'rough%rt1usb(i):', rough%rt1usb(i)
+write(52,*) 'met%tk(i):', met%tk(i)
+write(52,*) 'met%tvair(i):', met%tvair(i)
+write(52,*) 'tlfx(i):', tlfx(i)
+write(52,*) 'tlfy(i):', tlfy(i)
+write(52,*) 'hcx(i):', hcx(i)
+write(52,*) 'met%ua(i):', met%ua(i)
+write(52,*) 'canopy%us(i):',canopy%us(i)
+write(52,*) 'canopy%us(i)/rough%usuh(i):', canopy%us(i)/rough%usuh(i)
+write(52,*) 'SUM(gh(i,:)):', SUM(gh(i,:))
+write(52,*) 'gh(i,:):', gh(i,:)
+write(52,*) 'gbhu(i,:):', gbhu(i,:)
+write(52,*) 'gbhf(i,:):', gbhf(i,:)
+!write(52,*) 'gbvtop(i):', gbvtop(j)
+write(52,*) 'gbvtop2(i):', air%cmolar(j)* 0.003 * ((canopy%us(j) / MAX(rough%usuh(j),1.e-6))/ veg%dleaf(j))**0.5
+write(52,*) 'gras(i):', gras(i)
+write(52,*) 'rough%coexp:', rough%coexp
+write(52,*) 'canopy%zetar(i,:):', canopy%zetar(i,:) 
+write(52,*) 'rough%z0m(i):', rough%z0m(i)
+write(52,*) 'rough%zref_tq(i):', rough%zref_tq(i)
+write(52,*) 'rough%zruffs(i):', rough%zruffs(i)
+write(52,*) 'veg%hc(i):', veg%hc(i)
+write(52,*) 'canopy%vlaiw(i):', canopy%vlaiw(i)
+endif             
              ! Choose Ci-based (implicit gm) or Cc-based (explicit gm) parameters
              if (cable_user%explicit_gm) then
                 gam0    = C%gam0cc
@@ -2128,7 +2156,7 @@ write(40,*) 'canopy%irrig_surface:', canopy%irrig_surface
 
              ! Update leaf temperature:
              tlfx(i)=met%tvair(i)+REAL(hcx(i))/(C%capp*C%rmair*SUM(gh(i,:)))
-
+  
              ! Update net radiation for canopy:
              rnx(i) = SUM( rad%rniso(i,:)) -                                    &
                   C%CAPP * C%rmair *( tlfx(i)-met%tk(i) ) *                 &
@@ -2212,8 +2240,7 @@ write(40,*) 'canopy%irrig_surface:', canopy%irrig_surface
 
        END DO !over mp
 
-    END DO  ! DO WHILE (ANY(abs_deltlf > 0.1) .AND.  k < C%MAXITER)
-
+    END DO  ! DO WHILE (ANY(abs_deltlf > 0.1) .AND.  k < C%MAXITER)  
 !!$  write(3333,"(200e16.6)") tlfx
 !!$  write(3334,"(200e16.6)") met%tvair
 !!$  write(3335,"(200e16.6)") met%tk
