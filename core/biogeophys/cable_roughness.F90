@@ -52,13 +52,20 @@ SUBROUTINE ruff_resist(veg, rough, ssnow, canopy)
    REAL, DIMENSION(mp) ::                                                      &
       xx,      & ! =C%CCD*LAI; working variable
       dh         ! d/h where d is zero-plane displacement
+   REAL :: take_off_disp
 
    CALL point2constants( C )
 
 ! JK: temporary bug fix: don't let veg%hc fall to 0
 veg%hc = MAX(veg%hc,1.0)
 
-   
+   ! for site-level runs, subtract displacement height from reference height
+   take_off_disp = 0.0
+   if (trim(cable_user%MetType) .EQ. 'site') then
+     take_off_disp = 1.0
+   endif
+
+
    ! Set canopy height above snow level:
    rough%hruff = MAX( 1.e-6, veg%hc - 1.2 * ssnow%snowd /                       &
         MAX( ssnow%ssdnn, 100. ) )
@@ -101,8 +108,8 @@ veg%hc = MAX(veg%hc,1.0)
       rough%disp = 0.0
 
       ! Reference height zref is height above the displacement height
-      rough%zref_uv = MAX( 2.5, rough%za_uv )
-      rough%zref_tq = MAX( 2.5, rough%za_tq )
+      rough%zref_uv = MAX( 2.0, rough%za_uv )
+      rough%zref_tq = MAX( 2.0, rough%za_tq )
 
       rough%zruffs = 0.0
       rough%rt1usa = 0.0
@@ -140,8 +147,11 @@ veg%hc = MAX(veg%hc,1.0)
       rough%disp = dh * rough%hruff
 
       ! Reference height zref is height above the displacement height
-      rough%zref_uv = MAX( 2.5, rough%za_uv )
-      rough%zref_tq = MAX( 2.5, rough%za_tq )
+      rough%zref_uv = MAX(2.0, rough%za_uv - take_off_disp * rough%disp)
+      rough%zref_tq = MAX(2.0, rough%za_tq - take_off_disp * rough%disp)
+      rough%zref_uv = MAX(rough%zref_uv, rough%hruff - rough%disp)
+      rough%zref_tq = MAX(rough%zref_tq, rough%hruff - rough%disp)
+      
 
       ! Calculate roughness length:
       rough%z0m = ( (1.0 - dh) * EXP( LOG( C%CCW_C ) - 1. + 1. / C%CCW_C       &
