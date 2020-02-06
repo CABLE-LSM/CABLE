@@ -167,6 +167,8 @@ MODULE cable_common_module
      LOGICAL :: soil_thermal_fix=.FALSE.
      !ACCESS roots
      LOGICAL :: access13roots = .FALSE.     !switch to use ACCESS1.3 %froot
+     
+     LOGICAL :: l_limit_labile = .FALSE.! #237: limit Labile in spinup
 
   END TYPE kbl_user_switches
 
