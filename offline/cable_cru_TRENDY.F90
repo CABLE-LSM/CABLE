@@ -336,10 +336,10 @@ CONTAINS
     ErrStatus = NF90_INQ_VARID(FID,'longitude',lonID)
     CALL HANDLE_ERR(ErrStatus, "Inquiring 'longitudes'"//TRIM(LandMaskFile))
     ErrStatus = NF90_GET_VAR(FID,lonID,CRU_lons)
+    CALL HANDLE_ERR(ErrStatus, "Reading 'longitudes'"//TRIM(LandMaskFile))
     where (CRU_lons.gt.180.0)
        CRU_lons = CRU_lons - 360.0
     end where
-    CALL HANDLE_ERR(ErrStatus, "Reading 'longitudes'"//TRIM(LandMaskFile))
 
     ! Allocate the landmask arrays for... 
     ALLOCATE( CRU%landmask ( xdimsize, ydimsize) )  ! Passing out to other CRU routines (logical)

@@ -306,7 +306,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    use casavariable,        only: casa_met, casa_flux
    use phenvariable
 #ifndef UM_BUILD
-   USE cable_diag_module,   ONLY: get_var_ncr2, get_var_ncr3, stderr_nc
+   USE cable_diag_module,   ONLY: get_var_nc, stderr_nc
 #endif
    use cable_common_module, only: cable_user
    ! 13C
@@ -368,23 +368,23 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    ENDIF
    IF ( allATonce ) THEN
       DO idoy=1,mdyear
-         CALL get_var_ncr2(ncrid, var_name(3),  tairk, idoy)
-         CALL get_var_ncr3(ncrid, var_name(4),  tsoil, idoy, ms)
-         CALL get_var_ncr3(ncrid, var_name(5),  moist, idoy, ms)
-         CALL get_var_ncr2(ncrid, var_name(6),  cgpp,  idoy)
-         CALL get_var_ncr3(ncrid, var_name(7),  crmplant,  idoy, mplant)
-         CALL get_var_ncr2(ncrid, var_name(8),  phenphase, idoy)
-         CALL get_var_ncr2(ncrid, var_name(9),  phendoyphase1, idoy)
-         CALL get_var_ncr2(ncrid, var_name(10), phendoyphase2, idoy)
-         CALL get_var_ncr2(ncrid, var_name(11), phendoyphase3, idoy)
-         CALL get_var_ncr2(ncrid, var_name(12), phendoyphase4, idoy)
-         CALL get_var_ncr2(ncrid, var_name(13), mtemp, idoy)
-         CALL get_var_ncr2(ncrid, var_name(14), Ndep,  idoy)
-         CALL get_var_ncr2(ncrid, var_name(15), Pdep,  idoy)
+         CALL get_var_nc(ncrid, var_name(3),  tairk, idoy)
+         CALL get_var_nc(ncrid, var_name(4),  tsoil, idoy, ms)
+         CALL get_var_nc(ncrid, var_name(5),  moist, idoy, ms)
+         CALL get_var_nc(ncrid, var_name(6),  cgpp,  idoy)
+         CALL get_var_nc(ncrid, var_name(7),  crmplant,  idoy, mplant)
+         CALL get_var_nc(ncrid, var_name(8),  phenphase, idoy)
+         CALL get_var_nc(ncrid, var_name(9),  phendoyphase1, idoy)
+         CALL get_var_nc(ncrid, var_name(10), phendoyphase2, idoy)
+         CALL get_var_nc(ncrid, var_name(11), phendoyphase3, idoy)
+         CALL get_var_nc(ncrid, var_name(12), phendoyphase4, idoy)
+         CALL get_var_nc(ncrid, var_name(13), mtemp, idoy)
+         CALL get_var_nc(ncrid, var_name(14), Ndep,  idoy)
+         CALL get_var_nc(ncrid, var_name(15), Pdep,  idoy)
          ! 13C
          if (cable_user%c13o2) then
-            CALL get_var_ncr2(ncrid, var_name(16), cAn12, idoy)
-            CALL get_var_ncr2(ncrid, var_name(17), cAn13, idoy)
+            CALL get_var_nc(ncrid, var_name(16), cAn12, idoy)
+            CALL get_var_nc(ncrid, var_name(17), cAn13, idoy)
          endif
 
          casamet%Tairkspin(:,idoy) = tairk
@@ -420,23 +420,23 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
       END DO
    ELSE
 
-      CALL get_var_ncr2(ncrid, var_name(3), tairk   ,ncall )
-      CALL get_var_ncr3(ncrid, var_name(4), tsoil   ,ncall , ms)
-      CALL get_var_ncr3(ncrid, var_name(5), moist   ,ncall , ms)
-      CALL get_var_ncr2(ncrid, var_name(6), cgpp    ,ncall )
-      CALL get_var_ncr3(ncrid, var_name(7), crmplant,ncall , mplant)
-      CALL get_var_ncr2(ncrid, var_name(8), phenphase    ,ncall )
-      CALL get_var_ncr2(ncrid, var_name(9), phendoyphase1    ,ncall )
-      CALL get_var_ncr2(ncrid, var_name(10), phendoyphase2    ,ncall )
-      CALL get_var_ncr2(ncrid, var_name(11), phendoyphase3    ,ncall )
-      CALL get_var_ncr2(ncrid, var_name(12), phendoyphase4    ,ncall )
-      CALL get_var_ncr2(ncrid, var_name(13), mtemp   , ncall )
-      CALL get_var_ncr2(ncrid, var_name(14), Ndep   , ncall )
-      CALL get_var_ncr2(ncrid, var_name(15), Pdep   , ncall )
+      CALL get_var_nc(ncrid, var_name(3), tairk   ,ncall )
+      CALL get_var_nc(ncrid, var_name(4), tsoil   ,ncall , ms)
+      CALL get_var_nc(ncrid, var_name(5), moist   ,ncall , ms)
+      CALL get_var_nc(ncrid, var_name(6), cgpp    ,ncall )
+      CALL get_var_nc(ncrid, var_name(7), crmplant,ncall , mplant)
+      CALL get_var_nc(ncrid, var_name(8), phenphase    ,ncall )
+      CALL get_var_nc(ncrid, var_name(9), phendoyphase1    ,ncall )
+      CALL get_var_nc(ncrid, var_name(10), phendoyphase2    ,ncall )
+      CALL get_var_nc(ncrid, var_name(11), phendoyphase3    ,ncall )
+      CALL get_var_nc(ncrid, var_name(12), phendoyphase4    ,ncall )
+      CALL get_var_nc(ncrid, var_name(13), mtemp   , ncall )
+      CALL get_var_nc(ncrid, var_name(14), Ndep   , ncall )
+      CALL get_var_nc(ncrid, var_name(15), Pdep   , ncall )
       ! 13C
       if (cable_user%c13o2) then
-         CALL get_var_ncr2(ncrid, var_name(16), cAn12, ncall)
-         CALL get_var_ncr2(ncrid, var_name(17), cAn13, ncall)
+         CALL get_var_nc(ncrid, var_name(16), cAn12, ncall)
+         CALL get_var_nc(ncrid, var_name(17), cAn13, ncall)
       endif
 
       casamet%tairk     = tairk
