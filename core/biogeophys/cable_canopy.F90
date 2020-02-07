@@ -204,6 +204,10 @@ CONTAINS
     CALL define_air(met, air)
 
     CALL qsatfjh(qstvair,met%tvair-C%tfrz,met%pmb)
+
+    if (cable_user%perturb_dva_by_T) then
+         CALL qsatfjh(qstvair,met%tvair-C%tfrz + cable_user%dva_T_perturbation, met%pmb)        
+    endif
     met%dva = (qstvair - met%qvair) *  C%rmair/C%rmh2o * met%pmb * 100.0
     dsx = met%dva     ! init. leaf surface vpd
     dsx= max(dsx,0.0)
@@ -367,6 +371,11 @@ CONTAINS
              gbhu(j,2) = (2.0/rough%coexp(j))*gbvtop(j)*  &
                   (1.0-EXP(-min(0.5*rough%coexp(j)*canopy%vlaiw(j),20.0))) &
                   - gbhu(j,1)
+
+             if (cable_user%amphistomatous) then
+                gbhu(j,1) =  gbhu(j,1) *2.0
+                gbhu(j,2) =  gbhu(j,2) *2.0
+             endif
 
              if (cable_user%explicit_gm) then
                 ! JK: gmmax now comes from param file
@@ -1032,6 +1041,13 @@ CONTAINS
                  ( dmah(j)*dmbe(j)-dmae(j)*dmbh(j)+1.0e-12)
             met%qvair(j) = MAX(0.0,met%qvair(j))
 
+
+            ! isothermal test vh
+            if (cable_user%within_canopy_isothermal) then
+               met%qvair(j) =   met%qv(j)
+               met%tvair(j) = met%tk(j)
+            endif
+
             !---set limits for comparisson
 
             lower_limit =  MIN( ssnow%qstss(j), met%qv(j))
@@ -1488,7 +1504,6 @@ CONTAINS
 
     !local variables
     REAL, PARAMETER  ::                                                         &
-         co2cp3 = 0.0,  & ! CO2 compensation pt C3
          jtomol = 4.6e-6  ! Convert from J to Mol for light
 
     REAL, DIMENSION(mp) ::                                                      &
@@ -1539,6 +1554,7 @@ CONTAINS
          vcmxt4,     & ! vcmax big leaf C4
          vx3,        & ! carboxylation C3 plants
          vx4,        & ! carboxylation C4 plants
+         co2cp,      & ! CO2 compensation point (needed for Leuing stomatal conductance)
          ! Ticket #56, xleuning is no longer used, we replace it with gs_coeff,
          ! which is computed differently based on the new GS_SWITCH. If GS_SWITCH
          ! is "leuning", it's the same, if "medlyn", then the new Medlyn model
@@ -1552,7 +1568,7 @@ CONTAINS
          anrubiscoy, & ! net photosynthesis (rubisco limited)
          anrubpy   ! net photosynthesis (rubp limited)
 
-    REAL(R_2), DIMENSION(mp,mf)  ::  dAnrubiscox, & ! CO2 elasticity of net photosynthesis (rubisco limited)
+   REAL(R_2), DIMENSION(mp,mf)  ::  dAnrubiscox, & ! CO2 elasticity of net photosynthesis (rubisco limited)
          dAnrubpx, &   !  (rubp limited)
          dAnsinkx, &  ! (sink limited)
          dAnx, & !(actual rate)
@@ -1697,6 +1713,11 @@ CONTAINS
              ! Conductance for heat:
              gh(i,:) = 2.0 * (gbhu(i,:) + gbhf(i,:))
 
+             if (cable_user%amphistomatous) then
+                gbhf(i,:) = 2.0*gbhf(i,:)
+                gh(i,:) =  (gbhu(i,:) + gbhf(i,:))
+             endif
+
              ! Conductance for heat and longwave radiation:
              ghr(i,:) = rad%gradis(i,:)+gh(i,:)
 
@@ -1728,10 +1749,22 @@ CONTAINS
              ! Leuning 2002 (P C & E) equation for temperature response
              ! used for Vcmax for C3 plants:
              if (.not.cable_user%acclimate_photosyn) then
-                temp_sun(i)   = xvcmxt3(tlfx(i)) * veg%vcmax_sun(i) * (1.0-veg%frac4(i))
-                temp_shade(i) = xvcmxt3(tlfx(i)) * veg%vcmax_shade(i) * (1.0-veg%frac4(i))
+                if (cable_user%perturb_biochem_by_T) then
+                   temp_sun(i)   = xvcmxt3(tlfx(i)+cable_user%Ta_perturbation) * &
+                        veg%vcmax_sun(i) * (1.0-veg%frac4(i))
+                   temp_shade(i) = xvcmxt3(tlfx(i)+cable_user%Ta_perturbation) * &
+                        veg%vcmax_shade(i) * (1.0-veg%frac4(i))
+                else
+                   temp_sun(i)   = xvcmxt3(tlfx(i)) * veg%vcmax_sun(i) * (1.0-veg%frac4(i))
+                   temp_shade(i) = xvcmxt3(tlfx(i)) * veg%vcmax_shade(i) * (1.0-veg%frac4(i))
+                endif
              else
-                call xvcmxt3_acclim(tlfx(i), climate%mtemp(i) , temp(i))
+
+                if (cable_user%perturb_biochem_by_T) then
+                   call xvcmxt3_acclim(tlfx(i)+cable_user%Ta_perturbation, climate%mtemp(i) , temp(i))
+                else
+                   call xvcmxt3_acclim(tlfx(i), climate%mtemp(i) , temp(i))
+                endif
                 temp_sun(i)   = temp(i) * veg%vcmax_sun(i) * (1.0-veg%frac4(i))
                 temp_shade(i) = temp(i) * veg%vcmax_shade(i) * (1.0-veg%frac4(i))
              endif
@@ -1748,10 +1781,25 @@ CONTAINS
              ! Leuning 2002 (P C & E) equation for temperature response
              ! used for Jmax for C3 plants:
              if (.not.cable_user%acclimate_photosyn) then
-                temp_sun(i)   = xejmxt3(tlfx(i)) * veg%ejmax_sun(i) * (1.0-veg%frac4(i))
-                temp_shade(i) = xejmxt3(tlfx(i)) * veg%ejmax_shade(i) * (1.0-veg%frac4(i))
+                if (cable_user%perturb_biochem_by_T) then
+                   temp_sun(i)   = xejmxt3(tlfx(i)+cable_user%Ta_perturbation) * &
+                        veg%ejmax_sun(i) * (1.0-veg%frac4(i))
+                   temp_shade(i) = xejmxt3(tlfx(i)+cable_user%Ta_perturbation) * &
+                        veg%ejmax_shade(i) * (1.0-veg%frac4(i))
+                else
+                  temp_sun(i)   = xejmxt3(tlfx(i)) * &
+                        veg%ejmax_sun(i) * (1.0-veg%frac4(i))
+                  temp_shade(i) = xejmxt3(tlfx(i)) * &
+                       veg%ejmax_shade(i) * (1.0-veg%frac4(i))
+                endif
              else
-                call xejmxt3_acclim(tlfx(i), climate%mtemp(i), climate%mtemp_max20(i), temp(i))
+
+                if (cable_user%perturb_biochem_by_T) then
+                   call xejmxt3_acclim(tlfx(i)+cable_user%Ta_perturbation, &
+                        climate%mtemp(i), climate%mtemp_max20(i), temp(i))
+                else
+                   call xejmxt3_acclim(tlfx(i), climate%mtemp(i), climate%mtemp_max20(i), temp(i))
+                endif
                 temp_sun(i)   = temp(i) * veg%ejmax_sun(i) * (1.0-veg%frac4(i))
                 temp_shade(i) = temp(i) * veg%ejmax_shade(i) * (1.0-veg%frac4(i))
              endif
@@ -1778,8 +1826,21 @@ CONTAINS
              !cx2(i) = 2.0 * C%gam0 * ( 1.0 + C%gam1 * tdiff(i)                  &
              !                             + C%gam2 * tdiff(i) * tdiff(i) )
              cx2(i) = 2.0 * gam0 * EXP( ( egam / (C%rgas*C%trefk) ) &
-                                          * ( 1.0 - C%trefk/tlfx(i) ) )
+                  * ( 1.0 - C%trefk/tlfx(i) ) )
 
+             if (cable_user%perturb_biochem_by_T) then
+                cx2(i) = 2.0 * gam0 * EXP( ( egam / (C%rgas*C%trefk) ) &
+                     * ( 1.0 - C%trefk/(tlfx(i)+cable_user%Ta_perturbation) ) )
+
+                
+                conkot(i) = conko0 * EXP( ( eko / (C%rgas*C%trefk) ) &
+                     * ( 1.0 - C%trefk/(tlfx(i)+cable_user%Ta_perturbation) ) )
+
+                conkct(i) = conkc0 * EXP( ( ekc / (C%rgas*C%trefk) ) &
+                     * ( 1.0 - C%trefk/(tlfx(i)+cable_user%Ta_perturbation) ) )
+
+                cx1(i) = conkct(i) * (1.0+0.21/conkot(i))
+             endif
 
              ! All equations below in appendix E in Wang and Leuning 1998 are
              ! for calculating anx, csx and gswx for Rubisco limited,
@@ -1925,12 +1986,49 @@ CONTAINS
              gmes(i,2) = MAX(gmes(i,2) * real(fwsoil(i),r_2), real(0.15 * veg%gmmax(i),r_2))
 
             ! Ticket #56 added switch for Belinda Medlyn's model
-            IF (cable_user%GS_SWITCH == 'leuning') THEN
-                gs_coeff(i,1) = ( fwsoil(i) / ( csx(i,1) - co2cp3 ) )              &
-                          * ( veg%a1gs(i) / ( 1.0 + dsx(i)/veg%d0gs(i)))
+             IF (cable_user%GS_SWITCH == 'leuning') THEN
 
-                gs_coeff(i,2) = ( fwsoil(i) / ( csx(i,2) - co2cp3 ) )              &
-                          * ( veg%a1gs(i) / ( 1.0 + dsx(i)/veg%d0gs(i)))
+                ! vh: added calculation of CO2 compensation point
+                if ((vcmxt3(i,1)+vcmxt4(i,1)).gt.1.0e-8) then
+                   co2cp(i,1) = (cx2(i)/2.0 +  conkct(i) * (1.0 + 0.21/conkot(i))* &
+                        rdx(i,1)/(vcmxt3(i,1)+vcmxt4(i,1)))/ &
+                        (1.0 - rdx(i,1)/(vcmxt3(i,1)+vcmxt4(i,1)))
+                else
+                   co2cp(i,1) = 0.0
+                endif
+                
+                if ((vcmxt3(i,2)+vcmxt4(i,2)).gt.1.0e-8) then
+                   co2cp(i,2) = (cx2(i)/2.0 +  conkct(i) * (1.0 + 0.21/conkot(i))* &
+                        rdx(i,2)/(vcmxt3(i,2)+vcmxt4(i,2)))/ &
+                        (1.0 - rdx(i,2)/(vcmxt3(i,2)+vcmxt4(i,2)))
+                else
+                   co2cp(i,2) = 0.0
+                endif
+
+
+                ! vh set to zero for now as analytic solutions for Anet, gsc
+                ! have not been developd with cs-co2cp in the denominator
+                co2cp(i,1) = 0.0
+                co2cp(i,2) = 0.0
+                
+               
+                ! vh re-use g0 param here (not gswmin:just to reduce number of adjustable params)
+                gswmin(i,1) = veg%g0(i)*rad%scalex(i,1)
+                gswmin(i,2) = veg%g0(i)*rad%scalex(i,2)
+                vpd =  dsx(i)
+
+                ! vh re-write so that a1 and d0 are not correlated
+                gs_coeff(i,1) = ( fwsoil(i) / ( csx(i,1) - co2cp(i,1) ) )              &
+                     * ( 1.0 / ( 1.0/veg%a1gs(i) + (vpd/veg%d0gs(i))))
+
+                gs_coeff(i,2) = ( fwsoil(i) / ( csx(i,2) - co2cp(i,2) ) )              &
+                     * ( 1.0 / ( 1.0/veg%a1gs(i) + (vpd/veg%d0gs(i))))
+                
+!!$                gs_coeff(i,1) = ( fwsoil(i) / ( csx(i,1) - co2cp3 ) )              &
+!!$                          * ( veg%a1gs(i) / ( 1.0 + dsx(i)/veg%d0gs(i)))
+!!$
+!!$                gs_coeff(i,2) = ( fwsoil(i) / ( csx(i,2) - co2cp3 ) )              &
+!!$                          * ( veg%a1gs(i) / ( 1.0 + dsx(i)/veg%d0gs(i)))
 
             ! Medlyn BE et al (2011) Global Change Biology 17: 2134-2144.
             ELSEIF(cable_user%GS_SWITCH == 'medlyn') THEN
@@ -2119,6 +2217,9 @@ CONTAINS
 
              ! Update leaf surface vapour pressure deficit:
              dsx(i) = met%dva(i) + air%dsatdk(i) * (tlfx(i)-met%tvair(i))
+             if (cable_user%perturb_dva_by_T) then
+                dsx(i) = met%dva(i) + air%dsatdk(i) * (tlfx(i) -met%tvair(i) + cable_user%dva_T_perturbation )
+             endif
 
              dsx(i)=  max(dsx(i),0.0)
 
@@ -3269,7 +3370,7 @@ SUBROUTINE photosynthesis( csxz, cx1z, cx2z, gswminz,                          &
     !  leuning 2002 (p c & e) equation for temperature response
     !  used for jmax for c3 plants
 
-    REAL, INTENT(INOUT) :: x
+    REAL, INTENT(IN) :: x
     REAL :: xjxnum,xjxden,z
 
     REAL, PARAMETER  :: EHaJx  = 50300.0  ! J/mol (Leuning 2002)

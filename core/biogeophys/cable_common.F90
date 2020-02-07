@@ -125,7 +125,14 @@ MODULE cable_common_module
           acclimate_photosyn      = .FALSE., &
           acclimate_autoresp_seasonal = .FALSE., &  ! acclimates to last 30 d, otherwise annual.
           limit_labile           = .FALSE., &
-          Cumberland_soil        = .FALSE.   ! sets special CP soil params in calbe_sli_utils.F90
+          Cumberland_soil        = .FALSE., &   ! sets special CP soil params in calbe_sli_utils.F90
+          within_canopy_isothermal = .FALSE., &
+          amphistomatous           = .FALSE., &
+          perturb_dva_by_T         = .FALSE., &  ! switch to perturb esat by dva_T_perturbation
+          perturb_biochem_by_T         = .FALSE., &  ! switch to perturb esat by dva_T_perturbation
+          perturb_Ta               = .FALSE.     ! switch to perturb air temp by Ta_perturbation (site met only)
+     
+     
 
      INTEGER  ::  &
           CASA_SPIN_STARTYEAR = 1950, &
@@ -133,6 +140,9 @@ MODULE cable_common_module
           YEARSTART           = 0, &
           YEAREND             = 0, &
           CASA_NREP           = 1
+     REAL     :: &
+          dva_T_perturbation = 1.0, &
+          Ta_perturbation    = 1.0
      CHARACTER(len=7) :: &
           BURNT_AREA          = "SIMFIRE" ! either SIMFIRE or GFED31
      CHARACTER(len=8) :: &

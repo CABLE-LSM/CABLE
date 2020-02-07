@@ -813,6 +813,7 @@ PROGRAM cable_offline_driver
                       CALL get_met_data( spinup, spinConv, met, soil, &
                       rad, veg, kend, dels, C%TFRZ, ktau+koffset_met, &
                       kstart+koffset_met )
+                 if (cable_user%perturb_Ta) met%tk = met%tk + cable_user%Ta_perturbation
                  IF (TRIM(cable_user%MetType) .EQ. '') &
                       CALL get_met_data( spinup, spinConv, met, soil, &
                       rad, veg, kend, dels, C%TFRZ, ktau+koffset, &

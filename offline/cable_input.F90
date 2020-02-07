@@ -2758,6 +2758,8 @@ SUBROUTINE get_parameters_met(soil,veg,bgc,rough,completeSet)
    allocate(tmp(size(patch(:)%frac,1)))
    ! CALL readpar(ncid_met,'patchfrac',completeSet,patch(:)%frac,filename%met, nmetpatches,'def')
    CALL readpar(ncid_met, 'patchfrac', completeSet, tmp, filename%met, nmetpatches, 'def')
+   
+   
    if (completeSet) patch(:)%frac = real(tmp,r_2)
    deallocate(tmp)
    ! CALL readpar(ncid_met,'isoil',completeSet,soil%isoilm,filename%met, &

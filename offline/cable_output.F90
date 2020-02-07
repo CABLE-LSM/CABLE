@@ -74,7 +74,8 @@ MODULE cable_output_module
                     PlantTurnoverWoodResourceLim, dCdt, Area, LandUseFlux, patchfrac, &
                     vcmax,ejmax, hc, GPP_sh, GPP_sl, GPP_shC, GPP_slC, GPP_shJ, GPP_slJ, &
                     eta_GPP_cs,  eta_TVeg_cs, dGPPdcs, CO2s, gsw_sl, gsw_sh, gsw_TVeg, &
-                    vcmax_ts, jmax_ts, &
+                    An_sl, An_sh, scalex_sl, scalex_sh, dlf,vcmax_ts, jmax_ts, &
+                    ci_sl, ci_sh, &
                     An, Rd, cplant, clitter, csoil, clabile, &
                     A13n, aDisc13, c13plant, c13litter, c13soil, c13labile
   END TYPE out_varID_type
@@ -218,6 +219,13 @@ MODULE cable_output_module
     REAL(KIND=4), POINTER, DIMENSION(:) :: GPP_slC => null()
     REAL(KIND=4), POINTER, DIMENSION(:) :: GPP_shJ => null()
     REAL(KIND=4), POINTER, DIMENSION(:) :: GPP_slJ => null()
+    REAL(KIND=4), POINTER, DIMENSION(:) :: An_sl => null()
+    REAL(KIND=4), POINTER, DIMENSION(:) :: An_sh=> null() 
+    REAL(KIND=4), POINTER, DIMENSION(:) :: scalex_sl => null()
+    REAL(KIND=4), POINTER, DIMENSION(:) :: scalex_sh => null()
+    REAL(KIND=4), POINTER, DIMENSION(:) :: ci_sl => null() 
+    REAL(KIND=4), POINTER, DIMENSION(:) :: ci_sh => null()
+    REAL(KIND=4), POINTER, DIMENSION(:) :: dlf => null()
     REAL(KIND=4), POINTER, DIMENSION(:) :: eta_GPP_cs => null()
     REAL(KIND=4), POINTER, DIMENSION(:) :: eta_TVeg_cs => null()
     REAL(KIND=4), POINTER, DIMENSION(:) :: dGPPdcs => null()
@@ -2524,9 +2532,17 @@ CONTAINS
     ! components of GPP
     ! print*, 'WO77'
     IF (output%GPP_components) THEN
+       out%scalex_sh = out%scalex_sh + REAL(rad%scalex(:,2) , 4)
+       out%scalex_sl = out%scalex_sl + REAL(rad%scalex(:,1) , 4)
+       out%dlf = out%dlf + REAL(canopy%dlf , 4)
+       out%GPP_sh = out%GPP_sh +  REAL(canopy%GPP_sh/ 1e-6 , 4)
+       out%GPP_sl = out%GPP_sl +  REAL(canopy%GPP_sl/ 1e-6 , 4)
+       out%An_sh = out%An_sh +  REAL(canopy%A_sh/ 1e-6 , 4)
+       out%An_sl = out%An_sl +  REAL(canopy%A_sl/ 1e-6 , 4)
+       out%ci_sh = out%ci_sh +  REAL(canopy%ci(:,2)/ 1e-6 , 4)
+       out%ci_sl = out%ci_sl +  REAL(canopy%ci(:,1)/ 1e-6 , 4)    
+       
        ! print*, 'WO78'
-       out%GPP_sh = out%GPP_sh +  REAL(canopy%A_sh/ 1e-6 , 4)
-       out%GPP_sl = out%GPP_sl +  REAL(canopy%A_sl/ 1e-6 , 4)
        out%GPP_shC = out%GPP_shC +  REAL(canopy%A_shC/ 1e-6 , 4)
        out%GPP_slC = out%GPP_slC +  REAL(canopy%A_slC/ 1e-6 , 4)
        out%GPP_shJ = out%GPP_shJ +  REAL(canopy%A_shJ/ 1e-6 , 4)
@@ -2535,7 +2551,6 @@ CONTAINS
        out%dGPPdcs =  out%dGPPdcs + REAL(canopy%dAdcs/ 1e-6 , 4)
        out%eta_TVeg_cs =  out%eta_TVeg_cs + REAL(canopy%eta_fevc_cs/ air%rlam , 4)
        out%CO2s =  out%CO2s + REAL(canopy%cs/ 1e-6 , 4)
-       ! print*, 'WO79'
        where ((rad%fvlai(:,1)+rad%fvlai(:,2)).gt.0.01)
           out%gsw_TVeg =  out%gsw_TVeg + &
                REAL((canopy%gswx(:,1) * rad%fvlai(:,1)/(rad%fvlai(:,1)+rad%fvlai(:,2)) + &
@@ -2557,11 +2572,16 @@ CONTAINS
           out%jmax_ts = out%jmax_ts + REAL(veg%ejmax_shade, 4)
           
        endwhere
+
+
+
        
        ! print*, 'WO80'
        IF (writenow) THEN
-            ! Divide accumulated variable by number of accumulated time steps:
-          ! print*, 'WO81'
+          ! Divide accumulated variable by number of accumulated time steps:
+          out%scalex_sh = out%scalex_sh/REAL(output%interval, 4)
+          out%scalex_sl = out%scalex_sl/REAL(output%interval, 4)
+          out%dlf = out%dlf/REAL(output%interval, 4)
           out%eta_GPP_cs = out%eta_GPP_cs/REAL(output%interval, 4)
           out%dGPPdcs = out%dGPPdcs/REAL(output%interval, 4)
           out%CO2s = out%CO2s/REAL(output%interval, 4)
@@ -2579,6 +2599,29 @@ CONTAINS
 
           ! print*, 'WO82'
           ! Write value to file:
+          CALL write_ovar(out_timestep, ncid_out, ovid%scalex_sh, 'scalex_sh', out%scalex_sh,    &
+               ranges%GPP, patchout%GPP, 'default', met)
+
+          CALL write_ovar(out_timestep, ncid_out, ovid%scalex_sl, 'scalex_sl', out%scalex_sl,    &
+               ranges%GPP, patchout%GPP, 'default', met)
+
+          CALL write_ovar(out_timestep, ncid_out, ovid%dlf, 'dlf', out%dlf,    &
+               ranges%GPP, patchout%GPP, 'default', met)
+
+          CALL write_ovar(out_timestep, ncid_out, ovid%An_sh, 'Anet_sh', out%An_sh,    &
+               ranges%GPP, patchout%GPP, 'default', met)
+
+
+          CALL write_ovar(out_timestep, ncid_out, ovid%An_sl, 'GPP_sl', out%An_sl,    &
+               ranges%GPP, patchout%GPP, 'default', met)
+
+          CALL write_ovar(out_timestep, ncid_out, ovid%ci_sh, 'ci_sh', out%ci_sh,    &
+               ranges%CO2air, patchout%GPP, 'default', met)
+
+          CALL write_ovar(out_timestep, ncid_out, ovid%ci_sl, 'ci_sl', out%ci_sl,    &
+               ranges%CO2air, patchout%GPP, 'default', met)
+
+          
           CALL write_ovar(out_timestep, ncid_out, ovid%GPP_sh, 'GPP_sh', out%GPP_sh,    &
                ranges%GPP, patchout%GPP, 'default', met)
 
@@ -2629,6 +2672,11 @@ CONTAINS
           ! Reset temporary output variable:
           out%GPP_sh = 0.0
           out%GPP_sl = 0.0
+          out%An_sh = 0.0
+          out%An_sl = 0.0
+          out%scalex_sh = 0.0
+          out%scalex_sl = 0.0
+          out%dlf = 0.0
           out%GPP_shC = 0.0
           out%GPP_slC = 0.0
           out%GPP_shJ= 0.0
