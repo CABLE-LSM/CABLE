@@ -206,8 +206,6 @@ PROGRAM cable_offline_driver
        vegparmnew = .FALSE.,	   & ! using new format input file (BP dec 2007)
        spinup = .FALSE.,	   & ! model spinup to soil state equilibrium?
        spinConv = .FALSE.,	   & ! has spinup converged?
-       spincasainput = .FALSE.,	   & ! TRUE: SAVE input req'd to spin CASA-CNP;
-                                ! FALSE: READ input to spin CASA-CNP
        spincasa = .FALSE.,	   & ! TRUE: CASA-CNP Will spin mloop times,
                                 ! FALSE: no spin up
        l_casacnp = .FALSE.,	   & ! using CASA-CNP with CABLE
@@ -254,7 +252,6 @@ PROGRAM cable_offline_driver
        leaps,		 &
        logn,		 &
        fixedCO2,	 &
-       spincasainput,	 &
        spincasa,	 &
        l_casacnp,	 &
        l_laiFeedbk,	 &

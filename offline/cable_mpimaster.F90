@@ -274,10 +274,7 @@ CONTAINS
          vegparmnew    = .FALSE., & ! using new format input file (BP dec 2007)
          spinup        = .FALSE., & ! model spinup to soil state equilibrium?
          spinConv      = .FALSE., & ! has spinup converged?
-         spincasainput = .FALSE., & ! TRUE: SAVE input req'd to spin CASA-CNP;
-                                ! FALSE: READ input to spin CASA-CNP
          spincasa      = .FALSE., & ! TRUE: CASA-CNP Will spin mloop times,
-                                ! FALSE: no spin up
          l_casacnp     = .FALSE., & ! using CASA-CNP with CABLE
          l_laiFeedbk   = .FALSE., & ! using prognostic LAI
          l_vcmaxFeedbk = .FALSE., & ! using prognostic Vcmax
@@ -342,7 +339,6 @@ CONTAINS
          leaps,            &
          logn,             &
          fixedCO2,         &
-         spincasainput,    &
          spincasa,         &
          l_casacnp,        &
          l_laiFeedbk,      &

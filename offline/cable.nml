@@ -29,8 +29,7 @@
    leaps = .TRUE. ! calculate timing with leap years?
    logn = 88      ! log file number - declared in input module
    fixedCO2 = 350.0   ! if not found in met file, in ppmv
-   spincasainput = .FALSE.    ! input required to spin casacnp offline
-   spincasa      = .FALSE.     ! spin casa before running the model if TRUE, and should be set to FALSE if spincasainput = .TRUE.
+   spincasa      = .FALSE.     ! spin casa before running the model if TRUE
    l_casacnp     = .FALSE.  ! using casaCNP with CABLE 
    l_laiFeedbk   = .FALSE.  ! using prognostic LAI
    l_vcmaxFeedbk = .FALSE.  ! using prognostic Vcmax
