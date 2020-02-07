@@ -575,6 +575,41 @@ CONTAINS
                         xID, yID, zID, landID, patchID, tID)
        ALLOCATE(out%gsw_sh(mp))
        out%gsw_sh = 0.0 ! initialise
+
+       CALL define_ovar(ncid_out, ovid%scalex_sl, 'scalex_sl', '[ ]',               &
+                        'canopy scaling factor sl leaves', patchout%TVeg, 'dummy',    &
+                        xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%scalex_sl(mp))
+       out%scalex_sl = 0.0 ! initialise
+
+
+       CALL define_ovar(ncid_out, ovid%scalex_sh, 'scalex_sh', '[ ]',               &
+                        'canopy scaling factor sh leaves', patchout%TVeg, 'dummy',    &
+                        xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%scalex_sh(mp))
+       out%scalex_sh = 0.0 ! initialise
+
+       CALL define_ovar(ncid_out, ovid%dlf, 'dlf', 'kPa',               &
+                        'leaf to air vapour pressure difference', patchout%TVeg, 'dummy',    &
+                        xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%dlf(mp))
+       out%dlf = 0.0 ! initialise
+
+       CALL define_ovar(ncid_out, ovid%ci_sl, 'ci_sl', 'ppm',               &
+                        'ci, sunlit leaves', patchout%TVeg, 'dummy',    &
+                        xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%ci_sl(mp))
+       out%ci_sl = 0.0 ! initialise
+
+       CALL define_ovar(ncid_out, ovid%ci_sh, 'ci_sh', 'ppm',               &
+                        'ci, sunlit leaves', patchout%TVeg, 'dummy',    &
+                        xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%ci_sh(mp))
+       out%ci_sh = 0.0 ! initialise
+
+
+
+       
     END IF
     
     IF(output%flux .OR. output%ESoil) THEN
@@ -853,6 +888,18 @@ CONTAINS
                         'dummy', xID, yID, zID, landID, patchID, tID)
        ALLOCATE(out%GPP_sl(mp))
        out%GPP_sl = 0.0 ! initialise
+
+       CALL define_ovar(ncid_out, ovid%An_sh, 'Anet shaded', 'umol/m^2/s',               &
+                        'Anet from shaded leaves', patchout%GPP,              &
+                        'dummy', xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%An_sh(mp))
+       out%An_sh = 0.0 ! initialise
+
+       CALL define_ovar(ncid_out, ovid%An_sl, 'Anet_sunlit', 'umol/m^2/s',               &
+                        'Anet from sunlit leaves', patchout%GPP,              &
+                        'dummy', xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%An_sl(mp))
+       out%An_sl = 0.0 ! initialise
 
        CALL define_ovar(ncid_out, ovid%GPP_shC, 'GPP_shaded_C', 'umol/m^2/s',               &
             'Gross primary production from carboxylation-rate-limited shaded leaves', &
