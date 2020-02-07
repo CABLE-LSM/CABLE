@@ -59,7 +59,8 @@ MODULE cable_param_module
   USE phenvariable
   USE cable_abort_module
   USE cable_IO_vars_module
-  USE cable_common_module, ONLY: cable_user, hide, gw_params,init_veg_from_vegin
+  USE cable_common_module, ONLY: cable_user, hide, gw_params, &
+                                 init_veg_from_vegin
   USE cable_pft_params_mod
   USE cable_soil_params_mod
   USE CABLE_LUC_EXPT, ONLY: LUC_EXPT, LUC_EXPT_TYPE, LUC_EXPT_SET_TILES
@@ -155,8 +156,12 @@ CONTAINS
     WRITE(logn,*) ' Reading grid info from ', TRIM(filename%type)
     WRITE(logn,*) ' And assigning C4 fraction according to veg classification.'
     WRITE(logn,*)
-    CALL read_gridinfo(nlon,nlat,npatch)
-
+    IF(cable_user%NtilesThruMetFile) THEN
+      CALL read_gridinfo(nlon,nlat,nmetpatches)!, &
+    ELSE 
+      CALL read_gridinfo(nlon,nlat,npatch)
+    END IF
+    
     ! Overwrite veg type and inital patch frac with land-use info
     IF (CABLE_USER%POPLUC) THEN
        CALL get_land_index(nlon, nlat)
@@ -211,17 +216,17 @@ CONTAINS
     IMPLICIT NONE
     INTEGER, INTENT(OUT) :: nlon
     INTEGER, INTENT(OUT) :: nlat
-    INTEGER, INTENT(OUT) :: npatch
+    INTEGER, INTENT(INOUT) :: npatch
 
     ! local variables
     INTEGER :: ncid, ok
     INTEGER :: xID, yID, pID, sID, tID, bID
     INTEGER :: varID
-    INTEGER :: nslayer, ntime, nband
+    INTEGER :: nslayer, ntime, nband, lon, lat
     INTEGER :: ii, jj, kk,pp
     INTEGER, DIMENSION(:, :),     ALLOCATABLE :: idummy
     REAL,    DIMENSION(:, :),     ALLOCATABLE :: rdummy
-    REAL,    DIMENSION(:, :, :),  ALLOCATABLE :: r3dum, r3dum2
+    REAL,    DIMENSION(:, :, :),  ALLOCATABLE :: r3dum, r3dum2, r3dum3, r3dum4
 
     ok = NF90_OPEN(filename%type, 0, ncid)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error opening grid info file.')
@@ -236,10 +241,12 @@ CONTAINS
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error inquiring y dimension.')
     ok = NF90_INQUIRE_DIMENSION(ncid, yID, LEN=nlat)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error getting y dimension.')
-    ok = NF90_INQ_DIMID(ncid, 'patch', pID)
-    IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error inquiring patch dimension.')
-    ok = NF90_INQUIRE_DIMENSION(ncid, pID, LEN=npatch)
-    IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error getting patch dimension.')
+    IF(.NOT. cable_user%NtilesThruMetFile) THEN
+      ok = NF90_INQ_DIMID(ncid, 'patch', pID)
+      IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error inquiring patch dimension.')
+      ok = NF90_INQUIRE_DIMENSION(ncid, pID, LEN=npatch)
+      IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error getting patch dimension.')
+    ENDIF
     ok = NF90_INQ_DIMID(ncid, 'soil', sID)
     ok = NF90_INQUIRE_DIMENSION(ncid, sID, LEN=nslayer)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error getting soil dimension.')
@@ -297,20 +304,34 @@ CONTAINS
     ok = NF90_GET_VAR(ncid, varID, inLat)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error reading variable latitude.')
 
-    ok = NF90_INQ_VARID(ncid, 'iveg', varID)
-    IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error finding variable iveg.')
-    !CLN    ok = NF90_GET_VAR(ncid, varID, idummy)
-    ok = NF90_GET_VAR(ncid, varID, inVeg)
-    IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error reading variable iveg.')
-    !CLN    inVeg(:, :, 1) = idummy(:,:) ! npatch=1 in 1x1 degree input
+    IF(.NOT. cable_user%NtilesThruMetFile) THEN
+      ok = NF90_INQ_VARID(ncid, 'iveg', varID)
+      IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error finding variable iveg.')
+      !CLN    ok = NF90_GET_VAR(ncid, varID, idummy)
+      ok = NF90_GET_VAR(ncid, varID, inVeg)
+      IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error reading variable iveg.')
+      !CLN    inVeg(:, :, 1) = idummy(:,:) ! npatch=1 in 1x1 degree input
+      ok = NF90_INQ_VARID(ncid, 'patchfrac', varID)
+      IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
+           'Error finding variable patchfrac.')
+      ok = NF90_GET_VAR(ncid, varID, inPFrac)
+      IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
+           'Error reading variable patchfrac.')
+      !CLN    inPFrac(:, :, 1) = rdummy(:, :)
+    ELSE
+      !loop through lat and lon to fill patch and veg vars
+      DO lon = 1,nlon
+        DO lat = 1, nlat
+          inPFrac(lon,lat,1) = vegpatch_metfile(1,1) !Anna: passing met patchfrac here
+          inPFrac(lon,lat,2) = vegpatch_metfile(1,2) !Anna: passing met patchfrac here
+          inPFrac(lon,lat,3) = vegpatch_metfile(1,3) !Anna: passing met patchfrac here
+          inPFrac(lon,lat,4) = vegpatch_metfile(1,4) !Anna: passing met patchfrac here
+          inVeg(lon,lat,:) = vegtype_metfile(1,:)
+        ENDDO
+      ENDDO
+    END IF
 
-    ok = NF90_INQ_VARID(ncid, 'patchfrac', varID)
-    IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
-         'Error finding variable patchfrac.')
-    ok = NF90_GET_VAR(ncid, varID, inPFrac)
-    IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
-         'Error reading variable patchfrac.')
-    !CLN    inPFrac(:, :, 1) = rdummy(:, :)
+
 
     ok = NF90_INQ_VARID(ncid, 'isoil', varID)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error finding variable isoil.')
@@ -1229,6 +1250,18 @@ CONTAINS
 
     veg%meth = 1 ! canopy turbulence parameterisation method: 0 or 1
 
+    !! I brought this in with manual merge of #199 BUT Am i bringing this back in ?
+    !!! calculate vegin%froot from using rootbeta and soil depth
+    !!! (Jackson et al. 1996, Oceologica, 108:389-411)
+    !!totdepth = 0.0
+    !!DO is = 1, ms
+    !!   totdepth = totdepth + soil%zse(is) * 100.0  ! unit in centimetres
+    !!   vegin%froot(is, :) = MIN(1.0, 1.0-vegin%rootbeta(:)**totdepth)
+    !!END DO
+    !!DO is = ms, 2, -1
+    !!   vegin%froot(is, :) = vegin%froot(is, :)-vegin%froot(is-1, :)
+    !!END DO
+
     ALLOCATE(defaultLAI(mp, 12))
 
     DO e = 1, mland ! over all land grid points
@@ -1427,6 +1460,11 @@ CONTAINS
           ! which are currently set to def values above:
           veg%iveg(landpt(e)%cstart:landpt(e)%cstart + nmetpatches - 1) =      &
                vegtype_metfile(e, :)
+
+        IF(cable_user%NtilesThruMetFile) &
+          patch(landpt(e)%cstart:landpt(e)%cstart)%frac =      &
+                                                           vegpatch_metfile(e, :)
+
           ! In case gridinfo file provides more patches than met file(BP may08)
           DO f = nmetpatches+1, landpt(e)%nap
              IF (patch(landpt(e)%cstart + f - 1)%frac > 0.0) THEN

@@ -128,6 +128,9 @@ MODULE cable_IO_vars_module
        soiltype_metfile(:,:),  & ! user defined soil type (from met file)
        vegtype_metfile(:,:)      ! user-def veg type (from met file)
 
+   REAL, POINTER :: vegpatch_metfile(:,:) ! Anna: patchfrac for user-def vegtype
+
+
   TYPE parID_type ! model parameter IDs in netcdf file
 
      INTEGER :: bch,latitude,clay,css,rhosoil,hyds,rs20,sand,sfc,silt,        &

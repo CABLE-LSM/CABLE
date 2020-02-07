@@ -168,7 +168,8 @@ MODULE cable_common_module
      !ACCESS roots
      LOGICAL :: access13roots = .FALSE.     !switch to use ACCESS1.3 %froot
      
-     LOGICAL :: l_limit_labile = .FALSE.! #237: limit Labile in spinup
+     LOGICAL :: l_limit_labile = .FALSE.    ! #237: limit Labile in spinup
+     LOGICAL :: NtilesThruMetFile = .FALSE. ! #199: Specify Ntiles thru met file 
 
   END TYPE kbl_user_switches
 
@@ -199,8 +200,7 @@ MODULE cable_common_module
   TYPE(filenames_type) :: filename
 
   ! hydraulic_redistribution switch _soilsnow module
-  LOGICAL ::                                                                  &
-       redistrb = .FALSE.  ! Turn on/off the hydraulic redistribution
+  LOGICAL :: redistrb = .FALSE.  
 
   ! hydraulic_redistribution parameters _soilsnow module
   REAL :: wiltParam=0.5, satuParam=0.8
