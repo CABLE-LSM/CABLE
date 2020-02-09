@@ -950,8 +950,9 @@ CONTAINS
              ! MPI: scatter input data to the workers
              ! print*, 'MASTER Send 28 input'
              CALL master_send_input(icomm, inp_ts, iktau)
-             ! CALL MPI_Waitall(wnp, inp_req, in_pstats, ierr)
+             ! CALL MPI_Waitall(wnp, inp_req, inp_stats, ierr)
              !TRUNK else not commented out
+             !MC in worker:WORKER ELSEIF ( IS_CASA_TIME("dread", yyyy, ktau, kstart, koffset, kend, ktauday, wlogn) ) then
           ! ELSE
              ! CALL master_send_input(icomm, casa_dump_ts, iktau)
              ! CALL MPI_Waitall(wnp, inp_req, inp_stats, ierr)

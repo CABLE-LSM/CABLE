@@ -179,7 +179,7 @@ CONTAINS
        endif
        rex(:) = Etrans*rex(:)
     else
-       fws    = maxval(alpha_root(2:)*delta_root(2:))
+       fws = maxval(alpha_root(2:)*delta_root(2:))
     endif
 
   END SUBROUTINE getrex_1d

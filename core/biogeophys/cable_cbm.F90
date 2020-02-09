@@ -194,7 +194,6 @@ CONTAINS
 
    ENDIF
 
-
 END SUBROUTINE cbm
 
 END MODULE cable_cbm_module

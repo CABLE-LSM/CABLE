@@ -732,6 +732,7 @@ CONTAINS
                 CALL MPI_Recv(MPI_BOTTOM, 1, casa_dump_t, 0, ktau_gl, icomm, stat, ierr)
              END IF
 
+             !MC moved from above recv(inp_t) - ask Vanessa
              ! Get met data and LAI, set time variables.
              ! Rainfall input may be augmented for spinup purposes:
              met%ofsd = met%fsd(:,1) + met%fsd(:,2)
@@ -917,7 +918,7 @@ CONTAINS
           !    CALL1 = .FALSE.
           ! ENDIF
 
-          flush(wlogn)
+           flush(wlogn)
 
           IF (icycle >0 .and. cable_user%CALL_POP) THEN
 

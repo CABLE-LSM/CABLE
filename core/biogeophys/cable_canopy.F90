@@ -44,6 +44,7 @@ MODULE cable_canopy_module
   USE cable_data_module, ONLY : icanopy_type, point2constants
   USE cable_IO_vars_module, ONLY: wlogn
   USE cable_common_module, ONLY: cable_user
+
   IMPLICIT NONE
 
   PUBLIC :: define_canopy, xvcmxt3, xejmxt3, ej3x, xrdt, xgmesT, &
@@ -468,7 +469,7 @@ CONTAINS
 
 
        ! Saturation specific humidity at soil/snow surface temperature:
-      call qsatfjh(ssnow%qstss,ssnow%tss-C%tfrz,met%pmb)
+       call qsatfjh(ssnow%qstss,ssnow%tss-C%tfrz,met%pmb)
 
 
        If (cable_user%soil_struc=='default') THEN
@@ -1564,9 +1565,10 @@ CONTAINS
          frac42,     & ! 2D frac4
          temp2,      &
          anrubiscox, & ! net photosynthesis (rubisco limited)
-         anrubpx, &   ! net photosynthesis (rubp limited)
+         anrubpx,    & ! net photosynthesis (rubp limited)
+         ansinkx,    & ! net photosynthesis (sink limited)
          anrubiscoy, & ! net photosynthesis (rubisco limited)
-         anrubpy   ! net photosynthesis (rubp limited)
+         anrubpy       ! net photosynthesis (rubp limited)
 
    REAL(R_2), DIMENSION(mp,mf)  ::  dAnrubiscox, & ! CO2 elasticity of net photosynthesis (rubisco limited)
          dAnrubpx, &   !  (rubp limited)
@@ -1629,19 +1631,20 @@ CONTAINS
     lower_limit2 = rad%scalex * gsw_term
     gswmin = max(1.e-6,lower_limit2)
 
-    gw = 1.0e-3 ! default values of conductance
-    gh = 1.0e-3
-    ghr= 1.0e-3
-    rdx = 0.0
-    anx = 0.0
-    anrubiscox = 0.0
-    anrubpx = 0.0
+    gw          = 1.0e-3 ! default values of conductance
+    gh          = 1.0e-3
+    ghr         = 1.0e-3
+    rdx         = 0.0
+    anx         = 0.0
+    anrubiscox  = 0.0
+    anrubpx     = 0.0
+    ansinkx     = 0.0
     dAnrubiscox = 0.0
-    dAnrubpx = 0.0
-    dAnx = 0.0
-    eta_x = 0.0
-    rnx = SUM(rad%rniso,2)
-    abs_deltlf = 999.0
+    dAnrubpx    = 0.0
+    dAnx        = 0.0
+    eta_x       = 0.0
+    rnx         = SUM(rad%rniso,2)
+    abs_deltlf  = 999.0
 
     gras = 1.0e-6
     an_y= 0.0
@@ -1759,7 +1762,6 @@ CONTAINS
                    temp_shade(i) = xvcmxt3(tlfx(i)) * veg%vcmax_shade(i) * (1.0-veg%frac4(i))
                 endif
              else
-
                 if (cable_user%perturb_biochem_by_T) then
                    call xvcmxt3_acclim(tlfx(i)+cable_user%Ta_perturbation, climate%mtemp(i) , temp(i))
                 else
@@ -1787,13 +1789,12 @@ CONTAINS
                    temp_shade(i) = xejmxt3(tlfx(i)+cable_user%Ta_perturbation) * &
                         veg%ejmax_shade(i) * (1.0-veg%frac4(i))
                 else
-                  temp_sun(i)   = xejmxt3(tlfx(i)) * &
+                   temp_sun(i)   = xejmxt3(tlfx(i)) * &
                         veg%ejmax_sun(i) * (1.0-veg%frac4(i))
-                  temp_shade(i) = xejmxt3(tlfx(i)) * &
-                       veg%ejmax_shade(i) * (1.0-veg%frac4(i))
+                   temp_shade(i) = xejmxt3(tlfx(i)) * &
+                        veg%ejmax_shade(i) * (1.0-veg%frac4(i))
                 endif
              else
-
                 if (cable_user%perturb_biochem_by_T) then
                    call xejmxt3_acclim(tlfx(i)+cable_user%Ta_perturbation, &
                         climate%mtemp(i), climate%mtemp_max20(i), temp(i))
@@ -1979,9 +1980,9 @@ CONTAINS
              endif !cable_user%call_climate
 
              ! apply fwsoil to gmes
-             if (any(gmes(i,:) < real(tiny(1.0),r_2) .and. gmes(i,:) > 0._r_2)) print*, 'CA03 ', gmes(i,:)
-             if (fwsoil(i) < tiny(1.0)) print*, 'CA04 ', i, fwsoil(i)
-             if (veg%gmmax(i) < tiny(1.0)) print*, 'CA05 ', veg%gmmax(i)
+             ! if (any(gmes(i,:) < real(tiny(1.0),r_2) .and. gmes(i,:) > 0._r_2)) print*, 'CA03 ', gmes(i,:)
+             ! if (fwsoil(i) < tiny(1.0)) print*, 'CA04 ', i, fwsoil(i)
+             ! if (veg%gmmax(i) < tiny(1.0)) print*, 'CA05 ', veg%gmmax(i)
              gmes(i,1) = MAX(gmes(i,1) * real(fwsoil(i),r_2), real(0.15 * veg%gmmax(i),r_2))
              gmes(i,2) = MAX(gmes(i,2) * real(fwsoil(i),r_2), real(0.15 * veg%gmmax(i),r_2))
 
@@ -2075,7 +2076,7 @@ CONTAINS
                gs_coeff(:,:), rad%fvlai(:,:),                      &
                spread(abs_deltlf,2,mf),                            &
                anx(:,:), fwsoil(:), gmes(:,:), met,                &
-               anrubiscox(:,:), anrubpx(:,:), eta_x(:,:), dAnx(:,:) )
+               anrubiscox(:,:), anrubpx(:,:), ansinkx(:,:), eta_x(:,:), dAnx(:,:) )
        ELSE
           CALL photosynthesis( csx(:,:),                           &
                spread(cx1(:),2,mf),                                &
@@ -2086,7 +2087,7 @@ CONTAINS
                gs_coeff(:,:), rad%fvlai(:,:),                      &
                spread(abs_deltlf,2,mf),                            &
                anx(:,:), fwsoil(:), met,                           &
-               anrubiscox(:,:), anrubpx(:,:), eta_x(:,:), dAnx(:,:) )
+               anrubiscox(:,:), anrubpx(:,:), ansinkx(:,:), eta_x(:,:), dAnx(:,:) )
           ! CALL photosynthesis_orig( csx(:,:),                                           &
           !      SPREAD( cx1(:), 2, mf ),                            &
           !      SPREAD( cx2(:), 2, mf ),                            &
@@ -2104,7 +2105,7 @@ CONTAINS
 
           IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. abs_deltlf(i) > 0.1 ) Then
 
-             DO kk=1,mf
+             DO kk=1, mf
 
                 IF(rad%fvlai(i,kk)>C%LAI_THRESH) THEN
 
@@ -2265,16 +2266,14 @@ CONTAINS
 
           ENDIF
 
-          IF( abs_deltlf(i) > 0.1 )                                             &
-
-                                ! after 4 iterations, take mean of current & previous estimates
-                                ! as the next estimate of leaf temperature, to avoid oscillation
+          IF ( abs_deltlf(i) > 0.1 ) &
+               ! after 4 iterations, take mean of current & previous estimates
+               ! as the next estimate of leaf temperature, to avoid oscillation
                tlfx(i) = ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) *tlfxx(i) + &
                ( 1.0 - ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) )   &
                * tlfx(i)
 
-          IF(k==1) THEN
-
+          IF (k==1) THEN
              ! take the first iterated estimates as the defaults
              tlfy(i) = tlfx(i)
              rny(i) = rnx(i)
@@ -2291,7 +2290,6 @@ CONTAINS
              dAnsinky(i,:) = dAnsinkx(i,:)
              ! save last values calculated for ssnow%evapfbl
              oldevapfbl(i,:) = ssnow%evapfbl(i,:)
-
           END IF
 
        END DO !over mp
@@ -2475,9 +2473,10 @@ CONTAINS
 
 
    ! Ticket #56, xleuningz repalced with gs_coeffz
-   SUBROUTINE photosynthesis_orig( csxz, cx1z, cx2z, gswminz,                          &
-                           rdxz, vcmxt3z, vcmxt4z, vx3z,                       &
-                           vx4z, gs_coeffz, vlaiz, deltlfz, anxz, fwsoilz,met,anrubiscoz, anrubpz , dAmc, dAme )
+   SUBROUTINE photosynthesis_orig( csxz, cx1z, cx2z, gswminz, &
+        rdxz, vcmxt3z, vcmxt4z, vx3z, &
+        vx4z, gs_coeffz, vlaiz, deltlfz, anxz, fwsoilz,met,anrubiscoz, anrubpz , dAmc, dAme )
+     
     USE cable_def_types_mod, only : mp, mf, r_2, met_type
 
     REAL(r_2), DIMENSION(mp,mf), INTENT(IN) :: csxz
@@ -2520,7 +2519,7 @@ CONTAINS
 
           DO j=1,mf
 
-             IF( vlaiz(i,j) .GT. C%LAI_THRESH .AND. deltlfz(i,j) .GT. 0.1) THEN
+             IF (vlaiz(i,j) .GT. C%LAI_THRESH .AND. deltlfz(i,j) .GT. 0.1) THEN
 
                 ! Rubisco limited:
                 coef2z(i,j) = gswminz(i,j)*fwsoilz(i) / C%RGSWC + gs_coeffz(i,j) * &
@@ -2583,8 +2582,6 @@ CONTAINS
                         vcmxt4z(i,j) - rdxz(i,j)
 
                 ENDIF
-
-
 
 
                 ! RuBP limited:
@@ -2726,7 +2723,7 @@ CONTAINS
   SUBROUTINE photosynthesis_gm( csxz, cx1z, cx2z, gswminz,                          &
        rdxz, vcmxt3z, vcmxt4z, vx3z,                       &
        vx4z, gs_coeffz, vlaiz, deltlfz, anxz, fwsoilz, &
-       gmes,met, anrubiscoz, anrubpz, eta, dA )
+       gmes,met, anrubiscoz, anrubpz, ansinkz, eta, dA )
     USE cable_def_types_mod, only : mp, mf, r_2, met_type
     USE cable_common_module, only: cable_user
     REAL(r_2), DIMENSION(mp,mf), INTENT(IN) :: csxz, gmes
@@ -2743,13 +2740,13 @@ CONTAINS
          vlaiz,      & !
          deltlfz
     REAL, DIMENSION(mp,mf), INTENT(INOUT) :: gswminz
-    REAL, DIMENSION(mp,mf), INTENT(INOUT) :: anxz, anrubiscoz, anrubpz
+    REAL, DIMENSION(mp,mf), INTENT(INOUT) :: anxz, anrubiscoz, anrubpz, ansinkz
     REAL(r_2), DIMENSION(mp,mf), INTENT(OUT)   :: eta, dA
 
     ! local variables
     REAL(r_2), DIMENSION(mp,mf) ::                                              &
          coef0z,coef1z,coef2z, ciz,delcxz,                                        &
-         ansinkz, dAmp, dAme, dAmc,eta_p, eta_e, eta_c
+         dAmp, dAme, dAmc,eta_p, eta_e, eta_c
 
     REAL, DIMENSION(mp) :: fwsoilz
 
@@ -2766,24 +2763,21 @@ CONTAINS
        DO j=1,mf
           IF ((vlaiz(i,j)) .GT. C%LAI_THRESH) THEN
              IF(  deltlfz(i,j) .GT. 0.1) THEN
-
-
-                anxz(i,j) = -rdxz(i,j)
+                anxz(i,j)       = -rdxz(i,j)
                 anrubiscoz(i,j) = -rdxz(i,j)
-                anrubpz(i,j) = -rdxz(i,j)
-                ansinkz(i,j) = -rdxz(i,j)
-                dAmc(i,j) = 0.0
-                dAme(i,j) = 0.0
-                dAmp(i,j) = 0.0
-                dA(i,j) = 0.0
-                eta_c(i,j) = 0.0
-                eta_e(i,j) = 0.0
-                eta_p(i,j) = 0.0
-                eta(i,j) = 0.0
+                anrubpz(i,j)    = -rdxz(i,j)
+                ansinkz(i,j)    = -rdxz(i,j)
+                dAmc(i,j)       = 0.0
+                dAme(i,j)       = 0.0
+                dAmp(i,j)       = 0.0
+                dA(i,j)         = 0.0
+                eta_c(i,j)      = 0.0
+                eta_e(i,j)      = 0.0
+                eta_p(i,j)      = 0.0
+                eta(i,j)        = 0.0
 
-
-                if ( vcmxt3z(i,j).gt.1e-8 .and. gs_coeffz(i,j) .gt. 1e2  ) then  ! C3
-
+                ! C3
+                if ( vcmxt3z(i,j).gt.1e-8 .and. gs_coeffz(i,j) .gt. 1e2  ) then
                    gamma =  vcmxt3z(i,j)
                    beta = cx1z(i,j)
                    X = gs_coeffz(i,j)
@@ -2805,7 +2799,6 @@ CONTAINS
                          CALL fAmdAm1(cs, g0, 0.0_r_2, gamma, beta, gammast, Rd, &
                               gm, Am, dAmc(i,j))
                       endif
-
                    endif
                    anrubiscoz(i,j) = Am
                    gsm = (gm* (g0+X*Am))/(gm + (g0+X*Am))
@@ -2820,9 +2813,9 @@ CONTAINS
                    eta_c(i,j) = 0.0
                 endif
 
-                ! RuBP regeneration-limited photosynthesis
+                ! C3 RuBP regeneration-limited photosynthesis
                 if ( vcmxt3z(i,j).gt.0.0 .and. gs_coeffz(i,j) .gt. 1e2 .and. &
-                     vx3z(i,j) .gt. 1e-8 ) then  ! C3
+                     vx3z(i,j) .gt. 1e-8 ) then
 
                    gamma = vx3z(i,j)
                    beta = cx2z(i,j)
@@ -2858,7 +2851,8 @@ CONTAINS
                    dAme(i,j) = 0.0
                    eta_e(i,j) = 0.0
                 ENDIF
-                ! Sink limited:
+                
+                ! Sink limited
                 if (vcmxt3z(i,j).gt.1e-10) then
                    ansinkz(i,j)  = 0.5 * vcmxt3z(i,j) - rdxz(i,j)
                    dAmp(i,j) = 0.0
@@ -2886,15 +2880,10 @@ CONTAINS
                               Am, dAmp(i,j))
                       endif
                    endif
-
-
-                  ! CALL fAmdAm2(cs, g0, X*cs, gamma, beta, gammast, Rd, &
-                  !      gm, Am, dAmp(i,j))  ! vh ! not sure why this one is commented out: need to test
-
+                   ! CALL fAmdAm2(cs, g0, X*cs, gamma, beta, gammast, Rd, &
+                   !      gm, Am, dAmp(i,j))  ! vh ! not sure why this one is commented out: need to test
                    if (Am > 0) eta_p(i,j) = dAmp(i,j)*cs/Am
                    ansinkz(i,j) = Am
-
-
                 endif
              ENDIF
 
@@ -2933,10 +2922,11 @@ CONTAINS
 END SUBROUTINE photosynthesis_gm
 
   ! ------------------------------------------------------------------------------
+
 SUBROUTINE photosynthesis( csxz, cx1z, cx2z, gswminz,                          &
      rdxz, vcmxt3z, vcmxt4z, vx3z,                       &
      vx4z, gs_coeffz, vlaiz, deltlfz, anxz, fwsoilz, &
-     met, anrubiscoz, anrubpz, eta, dA )
+     met, anrubiscoz, anrubpz, ansinkz, eta, dA )
   USE cable_def_types_mod, only : mp, mf, r_2, met_type
   USE cable_common_module, only: cable_user
   REAL(r_2), DIMENSION(mp,mf), INTENT(IN) :: csxz
@@ -2949,17 +2939,17 @@ SUBROUTINE photosynthesis( csxz, cx1z, cx2z, gswminz,                          &
        vcmxt4z,    & !
        vx4z,       & !
        vx3z,       & !
-       gswminz,  & ! Ticket #56, xleuningz repalced with gs_coeffz
+       gswminz,    &
        vlaiz,      & !
        deltlfz
-  REAL, DIMENSION(mp,mf), INTENT(INOUT) ::  gs_coeffz
-  REAL, DIMENSION(mp,mf), INTENT(INOUT) :: anxz, anrubiscoz, anrubpz
+  REAL,      DIMENSION(mp,mf), INTENT(INOUT) :: gs_coeffz ! Ticket #56, xleuningz replaced with gs_coeffz
+  REAL,      DIMENSION(mp,mf), INTENT(INOUT) :: anxz, anrubiscoz, anrubpz, ansinkz
   REAL(r_2), DIMENSION(mp,mf), INTENT(OUT):: eta, dA
 
   ! local variables
-  REAL(r_2), DIMENSION(mp,mf) ::                                              &
-       coef0z,coef1z,coef2z, ciz,delcxz,                                        &
-       ansinkz, dAmc, dAme, dAmp, eta_c, eta_e, eta_p
+  REAL(r_2), DIMENSION(mp,mf) :: &
+       coef0z, coef1z, coef2z, ciz, delcxz, &
+       dAmc, dAme, dAmp, eta_c, eta_e, eta_p
 
   REAL, DIMENSION(mp) :: fwsoilz
 
@@ -2973,24 +2963,22 @@ SUBROUTINE photosynthesis( csxz, cx1z, cx2z, gswminz,                          &
 
 
 
-  DO i=1,mp
-     DO j=1,mf
+  DO i=1, mp
+     DO j=1, mf
         IF ((vlaiz(i,j)) .GT. C%LAI_THRESH) THEN
-           IF(  deltlfz(i,j) .GT. 0.1) THEN
-
-
-              anxz(i,j) = -rdxz(i,j)
+           IF (deltlfz(i,j) .GT. 0.1) THEN
+              anxz(i,j)       = -rdxz(i,j)
               anrubiscoz(i,j) = -rdxz(i,j)
-              anrubpz(i,j) = -rdxz(i,j)
-              ansinkz(i,j) = -rdxz(i,j)
-              dAmc(i,j) = 0.0
-              dAme(i,j) = 0.0
-              dAmp(i,j) = 0.0
-              dA(i,j) = 0.0
-              eta_c(i,j) = 0.0
-              eta_e(i,j) = 0.0
-              eta_p(i,j) = 0.0
-              eta(i,j) = 0.0
+              anrubpz(i,j)    = -rdxz(i,j)
+              ansinkz(i,j)    = -rdxz(i,j)
+              dAmc(i,j)       = 0.0
+              dAme(i,j)       = 0.0
+              dAmp(i,j)       = 0.0
+              dA(i,j)         = 0.0
+              eta_c(i,j)      = 0.0
+              eta_e(i,j)      = 0.0
+              eta_p(i,j)      = 0.0
+              eta(i,j)        = 0.0
 
               ! Rubisco limited:
 
@@ -3185,7 +3173,7 @@ SUBROUTINE photosynthesis( csxz, cx1z, cx2z, gswminz,                          &
 
 
                  endif
-              ENDIF
+              ENDIF ! deltlfz > 0.1
 
               ! minimal of three limited rates
               anxz(i,j) = MIN(anrubiscoz(i,j),anrubpz(i,j),ansinkz(i,j))
@@ -3201,9 +3189,8 @@ SUBROUTINE photosynthesis( csxz, cx1z, cx2z, gswminz,                          &
                  eta(i,j) = eta_p(i,j)
               endif
 
-
-
-          ELSE
+           ELSE ! vlaiz > C%LAI_THRESH
+              
               anxz(i,:) = 0.0
               anrubiscoz(i,:) = 0.0
               anrubpz(i,:) = 0.0
@@ -3216,13 +3203,12 @@ SUBROUTINE photosynthesis( csxz, cx1z, cx2z, gswminz,                          &
               eta_e(i,:) = 0.0
               eta_p(i,:) = 0.0
               eta(i,:) = 0.0
-           ENDIF
-
+              
+           ENDIF ! vlaiz > C%LAI_THRESH
            
-           
-        ENDDO
-     ENDDO
-
+        ENDDO ! j=1, mf
+        
+     ENDDO ! i=1,mp
 
    END SUBROUTINE photosynthesis
 
@@ -3552,8 +3538,8 @@ SUBROUTINE photosynthesis( csxz, cx1z, cx2z, gswminz,                          &
 
     IMPLICIT NONE
 
-    REAL(r_2), DIMENSION(:), INTENT(IN)    :: theta      ! volumetric soil moisture
-    REAL(r_2), DIMENSION(:), INTENT(INOUT)   :: rex    ! water extraction per layer
+    REAL(r_2), DIMENSION(:), INTENT(IN)    :: theta  ! volumetric soil moisture
+    REAL(r_2), DIMENSION(:), INTENT(INOUT) :: rex    ! water extraction per layer
     REAL(r_2),               INTENT(INOUT) :: fws    ! stomatal limitation factor
     REAL(r_2), DIMENSION(:), INTENT(IN)    :: Fs     ! root length density
     REAL(r_2), DIMENSION(:), INTENT(IN)    :: thetaS ! saturation soil moisture
@@ -3567,16 +3553,16 @@ SUBROUTINE photosynthesis( csxz, cx1z, cx2z, gswminz,                          &
     ! Gets rate of water extraction compatible with CABLE stomatal conductance model
     ! theta(:) - soil moisture(m3 m-3)
     ! rex(:)   - rate of water extraction by roots from layers (cm/h).
-    REAL(r_2), DIMENSION(1:size(theta)) ::  lthetar, alpha_root, delta_root, layer_depth
-    REAL(r_2)                       :: trex, e3, one, zero
+    REAL(r_2), DIMENSION(1:size(theta)) :: lthetar, alpha_root, delta_root, layer_depth
+    REAL(r_2)                           :: trex, e3, one, zero
     INTEGER :: k
 
-    e3 = 0.001
-    one = 1.0;
-    zero = 0.0;
+    e3   = 0.001_r_2
+    one  = 1.0_r_2
+    zero = 0.0_r_2
 
-    layer_depth(1) = 0.0
-    do k=2,size(theta)
+    layer_depth(1) = 0.0_r_2
+    do k=2, size(theta)
        layer_depth(k) = sum(dx(1:k-1))
     enddo
 
@@ -3605,7 +3591,6 @@ SUBROUTINE photosynthesis( csxz, cx1z, cx2z, gswminz,                          &
     endif
     rex(:) = Etrans*rex(:)
 
-
     ! reduce extraction efficiency where total extraction depletes soil moisture below wilting point
     where (((rex*dt) > (theta(:)-thetaw(:))*dx(:)) .and. ((rex*dt) > zero))
       alpha_root = alpha_root*(theta(:)-thetaw(:))*dx(:)/(1.1_r_2*rex*dt)
@@ -3623,9 +3608,13 @@ SUBROUTINE photosynthesis( csxz, cx1z, cx2z, gswminz,                          &
     ! check that the water available in each layer exceeds the extraction
     !if (any((rex*dt) > (theta(:)-0.01_r_2)*dx(:))) then
     if (any(((rex*dt) > max((theta(:)-thetaw(:)),zero)*dx(:)) .and. (Etrans > zero))) then
+       !MC - ask Vanessa why fwsoil=0. if any demand exceeds water in layer.
+       !     Should it be in else clause of trex>zero?
+       !MC - also how is fwsoil coming back after it has been zero?
+       !     Should it be fws=one here and fws=zero in else clause of trex>zero?
        fws = zero
        ! distribute extraction according to available water
-       !rex(:) = (theta(:)-0.01_r_2)*dx(:)
+       ! rex(:) = (theta(:)-0.01_r_2)*dx(:)
        rex(:) = max((theta(:)-thetaw(:))*dx(:),zero)
        trex = sum(rex(:))
        if (trex > zero) then

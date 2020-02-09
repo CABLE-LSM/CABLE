@@ -183,7 +183,7 @@ host_pear()
 host_mcin()
 {
     idebug=0
-    iintel=0
+    iintel=1
     ignu=0
     inag=0
     np=$#
@@ -216,7 +216,8 @@ host_mcin()
 	export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
 	if [[ ${idebug} -eq 1 ]] ; then
 	    # debug -fpe0
-	    export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
+	    # export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
+            export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -fpp -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0 -fpe-all=0 -no-ftz -ftrapuv -init=arrays,snan"
 	fi
 	# export CFLAGS="${CFLAGS} -mtune=corei7"
 	# export CFLAGS="${CFLAGS} -march=native"

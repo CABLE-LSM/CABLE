@@ -2,13 +2,12 @@
 
 export dosvn=1 # 1/0: do/do not check svn
 
-# so that script can be called by bash buils.ksh if no ksh installed
-#if [ "${SHELL}" == "/bin/bash" ] ; then
-#    function print(){
-#	printf "$@"
-#    }
-#fi
+# so that script can be called by 'bash build.ksh' if no ksh installed
+if [ -z ${PS3} ] ; then # https://stackoverflow.com/questions/3327013/how-to-determine-the-current-shell-im-working-on
+    eval 'function print(){ printf "$@\n"; }'
+fi
 
+# in trunk: pear jigg nXXX raij ces2 ccrc mael gadi
 known_hosts()
 {
     if [ -z ${PS3} ] ; then
@@ -216,7 +215,7 @@ host_raij()
 host_mcin()
 {
     idebug=0
-    iintel=0
+    iintel=1
     ignu=0
     inag=0
     np=$#
@@ -247,10 +246,13 @@ host_mcin()
         export FC=ifort
         # release
         export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
-        if [[ ${idebug} -eq 1 ]] ; then
+	if [[ ${idebug} -eq 1 ]] ; then
             # debug
-            export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
-        fi
+            export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -fpp -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0 -fpe-all=0 -no-ftz -ftrapuv -init=arrays,snan"
+	    
+            # export CFLAGS='-O0 -fpp -traceback -g -fp-model precise'
+	    # export CFLAGS='-g -debug -traceback -fpp -check all,noarg_temp_created -fp-stack-check -O0 -debug -fpe=0 -fpe-all=0 -no-ftz -ftrapuv'
+	fi
 	# export CFLAGS="${CFLAGS} -mtune=corei7"
 	# export CFLAGS="${CFLAGS} -march=native"
 	export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
@@ -293,8 +295,9 @@ host_mcin()
     export NCLIB=${NCROOT}'/lib'
     export NCMOD=${NCROOT}'/include'
     export LDFLAGS="-L${NCLIB} -L${NCCLIB} -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz"
+    export LDFLAGS="-O0 ${LDFLAGS}"
     export dosvn=0
-    # export MFLAGS='-j 8'
+    export MFLAGS='-j 8'
     build_build
     cd ../
     build_status
@@ -328,7 +331,7 @@ host_vm_o()
         if [[ ${idebug} -eq 1 ]] ; then
             # debug
             export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
-        fi
+       fi
 	# export CFLAGS="${CFLAGS} -march=broadwell"     # std / hf
 	# export CFLAGS="${CFLAGS} -march=core-avx2"     # std / hf
 	# export CFLAGS="${CFLAGS} -mtune=broadwell"     # std / hf
