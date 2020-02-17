@@ -2295,7 +2295,7 @@ CONTAINS
                 !
                 !    !print*, canopy%psi_stem(i)
                     refill = abs(canopy%psi_stem(i) - &
-                                 ssnow%weighted_psi_soil(i)) * 0.7
+                                 ssnow%weighted_psi_soil(i)) * 0.5
                     canopy%psi_stem(i) = canopy%psi_stem(i) + refill
 
                     ! Ensure we can't refill above psi_soil
@@ -2307,7 +2307,7 @@ CONTAINS
                 !    !print*, " "
                 !
                 ENDIF
-                
+
                 IF (ecx(i) > 0.0 .AND. canopy%fwet(i) < 1.0) THEN
                     evapfb(i) = ( 1.0 - canopy%fwet(i)) * REAL( ecx(i) ) *dels  &
                          / air%rlam(i)
