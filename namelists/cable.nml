@@ -29,6 +29,7 @@
     output%flux                    = .TRUE.       ! convective, runoff, NEE
     output%soil                    = .TRUE.       ! soil states
     output%snow                    = .TRUE.       ! snow states
+    output%snowmip                 = .false.      ! ESM-SnowMIP variables
     output%radiation               = .TRUE.       ! net rad, albedo
     output%casa                    = .TRUE.
     output%carbon                  = .TRUE.       ! NEE, GPP, NPP, stores

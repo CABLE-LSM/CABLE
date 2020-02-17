@@ -222,6 +222,10 @@ SUBROUTINE sli_main(ktau, dt, veg, soil, ssnow, met, canopy, air, rad, SEB_only)
   ssnow%rnof1 = 0.0
   ssnow%rnof2 = 0.0
   ssnow%runoff = 0.0
+  ssnow%E_fusion_sn = 0.0
+  ssnow%E_sublimation_sn = 0.0 
+  ssnow%evap_liq_sn = 0.0
+  ssnow%surface_melt = 0.0
   ! Set isotopes to zero
   vmet%civa = zero
 
@@ -266,6 +270,7 @@ SUBROUTINE sli_main(ktau, dt, veg, soil, ssnow, met, canopy, air, rad, SEB_only)
         vsnow(kk)%deltawcol              = zero
         vsnow(kk)%Jsensible              = zero
         vsnow(kk)%Jlatent                = zero
+        ssnow%latent_heat_sn(kk)         = zero
      enddo
      first = .false.
   endif
@@ -608,7 +613,7 @@ SUBROUTINE sli_main(ktau, dt, veg, soil, ssnow, met, canopy, air, rad, SEB_only)
         canopy%fhs     = canopy%fns - canopy%ga - canopy%fes
         ssnow%rnof1    = real(runoff*thousand/dt )
         ssnow%rnof2    = real(drn*thousand/dt )
-        ssnow%runoff = ssnow%rnof1 + ssnow%rnof2 
+        ssnow%runoff   = ssnow%rnof1 + ssnow%rnof2 
         ssnow%zdelta   = zdelta
         ssnow%SL       = SL
         ssnow%TL       = TL
@@ -645,20 +650,41 @@ SUBROUTINE sli_main(ktau, dt, veg, soil, ssnow, met, canopy, air, rad, SEB_only)
      ! update CABLE snow variables
      do kk=1, mp
         if (err(kk) == 0) then
-           ssnow%snowd(kk)               = reaL(vsnow(kk)%wcol*thousand)     ! amount of snow  (mm liq water eq)
+           ssnow%snowd(kk)               = real(vsnow(kk)%wcol*thousand)     ! amount of snow  (mm liq water eq)
            ! amount of snow in dedicated snow pack (mm liq water eq)
-           ssnow%smass(kk,1:nsnow_max)   = reaL(vsnow(kk)%hsnow(:)*thousand)
-           ssnow%sdepth(kk,1:nsnow_max)  = reaL(vsnow(kk)%depth(:))          ! depth of snow pack (m)
-           ssnow%ssdn(kk,1:nsnow_max)    = reaL(vsnow(kk)%dens(:))           ! density of snow (kg m-3)
-           ssnow%tggsn(kk,1:nsnow_max)   = reaL(vsnow(kk)%tsn(:) + Tzero)    ! abs T of snowpack
-           ssnow%sconds(kk,1:nsnow_max)  = reaL(vsnow(kk)%kH(:))             ! thermal conductivty of snowpack
-           ssnow%snowliq(kk,1:nsnow_max) = reaL(vsnow(kk)%hliq(:)*thousand)  ! amount of liq snow water
+           ssnow%smass(kk,1:nsnow_max)   = real(vsnow(kk)%hsnow(:)*thousand)
+           ssnow%sdepth(kk,1:nsnow_max)  = real(vsnow(kk)%depth(:))          ! depth of snow pack (m)
+           ssnow%ssdn(kk,1:nsnow_max)    = real(vsnow(kk)%dens(:))           ! density of snow (kg m-3)
+           ssnow%tggsn(kk,1:nsnow_max)   = real(vsnow(kk)%tsn(:) + Tzero)    ! abs T of snowpack
+           ssnow%sconds(kk,1:nsnow_max)  = real(vsnow(kk)%kH(:))             ! thermal conductivty of snowpack
            ! amount of melted snow leaving bottom of snow pack (mm/dt)
-           ssnow%smelt(kk)               = reaL(vsnow(kk)%Qmelt*thousand/dt)
+           ssnow%smelt(kk)               = real(vsnow(kk)%Qmelt*thousand/dt)
            ssnow%nsnow(kk)               = vsnow(kk)%nsnow
            if (sum(ssnow%sdepth(kk,1:nsnow_max)) > zero) then
               ssnow%ssdnn(kk) = ssnow%snowd(kk)/sum(ssnow%sdepth(kk,1:nsnow_max))
            endif
+           ! change in latent heat of snow-pack (excl snow-fall contribution)
+           ssnow%E_fusion_sn(kk) = (sum(vsnow(kk)%Jlatent) - ssnow%latent_heat_sn(kk) - vsnow(kk)%Qadv_snow) / dt
+           ssnow%E_sublimation_sn(kk) = zero
+           if ((vsnow(kk)%tsn(1) < zero) .and. ((ssnow%tggsn(kk,1)-Tzero) < zero)) then
+              ssnow%E_fusion_sn(kk) = zero
+              ! assume change in latent heat occurs as sublimation
+              ! when Tsnow at beginning and end of timestep is < 0
+              ssnow%E_sublimation_sn(kk) = (sum(vsnow(kk)%Jlatent) - ssnow%latent_heat_sn(kk) - vsnow(kk)%Qadv_snow)/dt ! W m-2
+              ssnow%E_sublimation_sn(kk) = ssnow%E_sublimation_sn(kk)/lambdas ! Wm-2 -> kgm-2s-1
+           endif
+
+           if (sum(vsnow(kk)%hliq(1:vsnow(kk)%nsnow)) > zero) then
+              ssnow%evap_liq_sn(kk)  = evap(kk)*thousand
+              ! net melt rate mm s-1
+              ssnow%surface_melt(kk) = (sum(vsnow(kk)%hliq(1:vsnow(kk)%nsnow)*thousand) &
+                   - sum(ssnow%snowliq(kk,1:nsnow_max)))/dt &
+                   + ssnow%smelt(kk) - qprec(kk)*thousand
+           endif
+           ! amount of liq snow water
+           ssnow%snowliq(kk,1:nsnow_max) = real(vsnow(kk)%hliq(:)*thousand)
+           ssnow%latent_heat_sn(kk) = sum(vsnow(kk)%Jlatent)
+           ssnow%Qadv_rain_sn(kk)   = vsnow(kk)%Qadv_rain/dt
         endif
      enddo
 

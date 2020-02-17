@@ -257,6 +257,12 @@ MODULE cable_def_types_mod
      REAL(r_2), DIMENSION(:),   POINTER :: Qevap_daily => null() ! evaporative flux at surface, daily average (m s-1)
      REAL(r_2), DIMENSION(:),   POINTER :: Qprec_daily => null() ! liquid precip, daily average (m s-1)
      REAL(r_2), DIMENSION(:),   POINTER :: Qprec_snow_daily => null() ! solid precip, daily average (m s-1)
+     real(r_2), dimension(:),   pointer :: E_fusion_sn => null()
+     real(r_2), dimension(:),   pointer :: E_sublimation_sn => null()
+     real(r_2), dimension(:),   pointer :: latent_heat_sn => null()
+     real(r_2), dimension(:),   pointer :: evap_liq_sn => null()
+     real(r_2), dimension(:),   pointer :: surface_melt => null()
+     real(r_2), dimension(:),   pointer :: Qadv_rain_sn => null()
 
    END TYPE soil_snow_type
 
@@ -948,6 +954,12 @@ SUBROUTINE alloc_soil_snow_type(var, mp)
     ALLOCATE( var%Qevap_daily(mp) )
     ALLOCATE( var%Qprec_daily(mp) )
     ALLOCATE( var%Qprec_snow_daily(mp) )
+    ALLOCATE( var%E_fusion_sn(mp) )
+    ALLOCATE( var%E_sublimation_sn(mp) )
+    ALLOCATE( var%latent_heat_sn(mp) )
+    ALLOCATE( var%evap_liq_sn(mp) )
+    ALLOCATE( var%surface_melt(mp) )
+    ALLOCATE( var%Qadv_rain_sn(mp))
 
     !END IF
 
@@ -1585,6 +1597,13 @@ SUBROUTINE dealloc_soil_snow_type(var)
     DEALLOCATE ( var % Qevap_daily )
     DEALLOCATE ( var % Qprec_daily )
     DEALLOCATE ( var % Qprec_snow_daily )
+
+    DEALLOCATE ( var % E_fusion_sn)
+    DEALLOCATE ( var % E_sublimation_sn)
+    DEALLOCATE ( var % latent_heat_sn)
+    DEALLOCATE ( var % evap_liq_sn)
+    DEALLOCATE ( var % surface_melt)
+    DEALLOCATE ( var % Qadv_rain_sn)
 
     ! END IF
 
