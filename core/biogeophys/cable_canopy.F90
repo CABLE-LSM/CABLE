@@ -2303,6 +2303,7 @@ CONTAINS
                                             ssnow%weighted_psi_soil(i))
                 !    print*, "****", canopy%psi_stem_prev(i), canopy%psi_stem(i)
                     canopy%psi_stem_prev(i) = canopy%psi_stem(i)
+                    canopy%psi_leaf_prev(i) = canopy%psi_stem(i)
                 !    !print*, canopy%psi_stem(i)
                 !    !print*, " "
                 !
