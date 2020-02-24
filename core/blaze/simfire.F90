@@ -52,7 +52,7 @@ CONTAINS
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-SUBROUTINE INI_SIMFIRE( NCELLS, SIMFIRE_REGION, SF, modis_igbp )
+SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
 
   USE CABLE_COMMON_MODULE,  ONLY: GET_UNIT
   USE CABLE_IO_VARS_MODULE, ONLY: LATITUDE, LONGITUDE
@@ -62,9 +62,12 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SIMFIRE_REGION, SF, modis_igbp )
   
   TYPE (TYPE_SIMFIRE), INTENT(INOUT) :: SF
   INTEGER,             INTENT(IN)    :: NCELLS, modis_igbp(NCELLS)
-  CHARACTER(len=*),    INTENT(IN)    :: SIMFIRE_REGION
-  
+  CHARACTER(len=400)   :: HydePath,  BurnedAreaSource, BurnedAreaFile, &
+       BurnedAreaClimatologyFile, SIMFIRE_REGION
+  INTEGER :: STATUS,  iu
   INTEGER :: i
+  NAMELIST /BLAZENML/ HydePath,  BurnedAreaSource, BurnedAreaFile, BurnedAreaClimatologyFile, &
+       SIMFIRE_REGION
   
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -99,6 +102,17 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SIMFIRE_REGION, SF, modis_igbp )
   !vh!
   ! inherit modis_igbp from climate variable
 
+
+
+  ! READ BLAZE settings
+   CALL GET_UNIT(iu)
+   OPEN (iu,FILE="BLAZE.nml",STATUS='OLD',ACTION='READ')
+   READ (iu,NML=BLAZENML)
+   CLOSE(iu)
+
+   SF%HYDEPATH = TRIM(HydePath)
+   SF%BA_CLIM_FILE = TRIM(BurnedAreaClimatologyFile)
+
   SF%IGBP = modis_igbp
 
   DO i = 1, NCELLS
@@ -126,7 +140,7 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SIMFIRE_REGION, SF, modis_igbp )
      ENDIF
   END DO
 
-  WRITE(*,*)"SIMFIRE Optimisation chosen:",SIMFIRE_REGION
+  WRITE(*,*)"SIMFIRE Optimisation chosen:", TRIM(SIMFIRE_REGION)
      
 END SUBROUTINE INI_SIMFIRE
 
@@ -157,7 +171,7 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
   LOGICAL, SAVE :: CALL1 = .TRUE.
   
   ! CLN Put into cable_in
-  SF%HYDEPATH = "/OSM/CBR/OA_GLOBALCABLE/work/Data_BLAZE/HYDE3.1"
+  !SF%HYDEPATH = "/OSM/CBR/OA_GLOBALCABLE/work/Data_BLAZE/HYDE3.1"
   
   !=============================================================================
   ! POPDENS Population Density from HYDE 3.1 popd comes at 5' res
@@ -461,7 +475,7 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate )
   
   SF%FAPAR = climate%AvgAnnMaxFAPAR(landpt(:)%cstart)
   SF%MAX_NESTEROV =  climate%Nesterov_ann_running_max(landpt(:)%cstart)
-  SF%BA_CLIM_FILE = "/OSM/CBR/OA_GLOBALCABLE/work/Data_BLAZE/simfire_monthly_ba.nc"
+  !SF%BA_CLIM_FILE = "/OSM/CBR/OA_GLOBALCABLE/work/Data_BLAZE/simfire_monthly_ba.nc"
   
   ! Housekeeping first
   IF ( DOY.EQ. 1 ) THEN

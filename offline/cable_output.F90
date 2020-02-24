@@ -597,20 +597,20 @@ CONTAINS
        ALLOCATE(out%gsw_sh(mp))
        out%gsw_sh = zero4 ! initialise
 
-       CALL define_ovar(ncid_out, ovid%scalex_sl, 'scalex_sl', '[ ]',               &
+       CALL define_ovar(ncid_out, ovid%scalex_sl, 'scale factor sunlit', '[ ]',               &
             'canopy scaling factor sl leaves', patchout%TVeg, 'dummy',    &
             xID, yID, zID, landID, patchID, tID)
        ALLOCATE(out%scalex_sl(mp))
        out%scalex_sl = zero4 ! initialise
 
 
-       CALL define_ovar(ncid_out, ovid%scalex_sh, 'scalex_sh', '[ ]',               &
+       CALL define_ovar(ncid_out, ovid%scalex_sh, 'scale factor shaded', '[ ]',               &
             'canopy scaling factor sh leaves', patchout%TVeg, 'dummy',    &
             xID, yID, zID, landID, patchID, tID)
        ALLOCATE(out%scalex_sh(mp))
        out%scalex_sh = zero4 ! initialise
 
-       CALL define_ovar(ncid_out, ovid%dlf, 'dlf', 'kPa',               &
+       CALL define_ovar(ncid_out, ovid%dlf, 'leaf to air vpd', 'kPa',               &
             'leaf to air vapour pressure difference', patchout%TVeg, 'dummy',    &
             xID, yID, zID, landID, patchID, tID)
        ALLOCATE(out%dlf(mp))
@@ -2810,7 +2810,7 @@ CONTAINS
           CALL write_ovar(out_timestep, ncid_out, ovid%scalex_sl, 'scalex_sl', out%scalex_sl,    &
                ranges%GPP, patchout%GPP, 'default', met)
 
-          CALL write_ovar(out_timestep, ncid_out, ovid%dlf, 'dlf', out%dlf,    &
+          CALL write_ovar(out_timestep, ncid_out, ovid%dlf, 'leaf to air vpd', out%dlf,    &
                ranges%GPP, patchout%GPP, 'default', met)
 
           CALL write_ovar(out_timestep, ncid_out, ovid%An_sh, 'Anet_sh', out%An_sh,    &

@@ -33,6 +33,7 @@
 !           inherited from POP demography module. (Ticket#61)
 ! Feb 2019 : DAMM Enzyme kinetics implemented as a switchable option for soil and litter
 ! carbon tunover responses to temperature and moisture
+! Feb 2020 : additional turnover of plant and litter pools due to fire (inherited from BLAZE)
 ! ==============================================================================
 !
 ! This module contains the following subroutines:
@@ -1322,7 +1323,8 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
                 (1.-casaflux%kplant(npt,nP)) * casaflux%kplant_fire(npt,nP) * casapool%cplant(npt,nP) * &
                 ( 1. - casaflux%fromPtoL_fire(npt,metb,nP) - casaflux%fromPtoL_fire(npt,str,nP) - &
                 casaflux%fromPtoL_fire(npt,cwd,nP) )
-           casaflux%fluxCtoCO2_plant_fire(npt) = casaflux%fluxCtoCO2_plant_fire(npt) + casaflux%FluxFromPtoCO2(npt,nP)
+           casaflux%fluxCtoCO2_plant_fire(npt) = casaflux%fluxCtoCO2_plant_fire(npt) + &
+                casaflux%FluxFromPtoCO2(npt,nP)
         enddo
 
         ! Crop Harvest Flux
@@ -1622,12 +1624,14 @@ SUBROUTINE casa_delsoil(veg, casapool, casaflux, casamet, casabiome)
 
         ! fire flux to atmosphere from burnt litter material
         do nL=1, mlitter
-           iflux = (1.-casaflux%klitter(nland,nL)) * casaflux%klitter_fire(nland,nL) * casapool%clitter(nland,nL)
-           if (iflux > 0.) print*, 'We have fire 01 ', nL, iflux,  casaflux%klitter_fire(nland,nL)
+           iflux = (1.-casaflux%klitter(nland,nL)) * casaflux%klitter_fire(nland,nL) * &
+                casapool%clitter(nland,nL)
+           !if (iflux > 0.) print*, 'We have fire 01 ', nL, iflux,  casaflux%klitter_fire(nland,nL)
            casaflux%fluxCtoCO2_litter_fire(nland) = casaflux%fluxCtoCO2_litter_fire(nland) + iflux
            casaflux%FluxFromLtoCO2(nland,nL)      = casaflux%FluxFromLtoCO2(nland,nL)      + iflux
            
-           iflux = casaflux%fromLtoCO2(nland,nL) * casaflux%klitter(nland,nL) * casapool%clitter(nland,nL)
+           iflux = casaflux%fromLtoCO2(nland,nL) * casaflux%klitter(nland,nL) * &
+                casapool%clitter(nland,nL)
            casaflux%fluxCtoCO2(nland)        = casaflux%fluxCtoCO2(nland)        + iflux
            casaflux%FluxFromLtoCO2(nland,nL) = casaflux%FluxFromLtoCO2(nland,nL) + iflux
         enddo
@@ -1795,9 +1799,13 @@ SUBROUTINE casa_delsoil(veg, casapool, casaflux, casamet, casabiome)
 
   do nland=1, mp
      if (casamet%iveg2(nland) /= icewater) then
-        !MC - what happend to fire?
-        casapool%dClitterdt(nland,:) = casaflux%fluxCtolitter(nland,:) - casaflux%klitter(nland,:) * casapool%clitter(nland,:)
-        casapool%dCsoildt(nland,:)   = casaflux%fluxCtosoil(nland,:)   - casaflux%ksoil(nland,:)   * casapool%csoil(nland,:)
+        casapool%dClitterdt(nland,:) = casaflux%fluxCtolitter(nland,:) - &
+             casaflux%klitter(nland,:) * casapool%clitter(nland,:) - &
+             (1.-casaflux%klitter(nland,:)) * casaflux%klitter_fire(nland,:) * &
+             casapool%clitter(nland,:)
+
+        casapool%dCsoildt(nland,:)   = casaflux%fluxCtosoil(nland,:)   - &
+             casaflux%ksoil(nland,:)   * casapool%csoil(nland,:)
         casaflux%Crsoil(nland)       = casaflux%fluxCtoCO2(nland)
         casaflux%cnep(nland)         = casaflux%cnpp(nland) - casaflux%Crsoil(nland)
 

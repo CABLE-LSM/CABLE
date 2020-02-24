@@ -18,7 +18,6 @@
 ! of Jmax to Vcmax
 ! ==============================================================================
 MODULE cable_climate_mod
-
  Use cable_def_types_mod, ONLY: met_type, climate_type, canopy_type,soil_snow_type, mp, &
       r_2, alloc_cbm_var, air_type, radiation_type, veg_parameter_type
  USE TypeDef,              ONLY: i4b, dp
@@ -130,7 +129,6 @@ SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, 
      ELSEWHERE
         climate%DSLR =climate%DSLR + 1 
      END WHERE
-
      ! calculate Keetch-Byram Drought Index
      WHERE ( climate%DSLR == 0 ) 
         WHERE ( climate%last_precip > 5. ) 
@@ -1537,7 +1535,9 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate, ktauday )
      END SELECT
   END DO
 
-
+  print*, 'DSLR init', climate%DSLR
+  
+  
  ! READ 2-dimensional fields (nyear)
   DO i = 1, SIZE(A2)
      STATUS = NF90_INQ_VARID( FILE_ID, A2(i), dID )

@@ -2,7 +2,7 @@ MODULE BLAZE_MOD
 
 TYPE TYPE_BLAZE
    INTEGER,  DIMENSION(:),  ALLOCATABLE :: DSLR,ilon, jlat, Flix
-   REAL,     DIMENSION(:),  ALLOCATABLE :: RAINF, KBDI, LR, U10,RH,TMAX,TMIN,AREA
+   REAL,     DIMENSION(:),  ALLOCATABLE :: RAINF, KBDI, LR, U10,RH,TMAX,TMIN,AREA, w_prior, FDI
    REAL,     DIMENSION(:),  ALLOCATABLE :: FFDI,FLI,ROS,Z,D,w, LAT, LON,DFLI,AB,CAvgAnnRainf
    REAL,     DIMENSION(:),  ALLOCATABLE :: DEADWOOD,POP_TO, POP_CWD, POP_STR,shootfrac
    REAL,     DIMENSION(:,:),ALLOCATABLE :: AnnRAINF, ABM, TO, AGC_g, AGC_w
@@ -49,7 +49,7 @@ INTEGER, PARAMETER :: DO_BLAZE_TO = 1
 INTEGER, PARAMETER :: DO_POP_TO   = -1
 INTEGER, PARAMETER :: NFLUX       = 12
 
-! Turn Over Factors Suravski et al. 2012
+! Turn Over Factors Surawski et al. 2012
 REAL, DIMENSION(5,12),PARAMETER   ::   &
      TOF = reshape( &
            (/ .0 , .0 , .05, .2 , .2 , &   !  1 Stems       -> ATM
@@ -72,20 +72,33 @@ REAL, DIMENSION(5,12),PARAMETER   ::   &
 
 REAL, PARAMETER :: MIN_FUEL = 120. ! Min fuel to spark a fire [g(C)/m2]
 
+
 CONTAINS
 
-SUBROUTINE INI_BLAZE (POPFLAG, BURNT_AREA_SOURCE, TSTEP, np, LAT, LON, BLAZE)
+SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
 
-  !! Called from cable_input now
-
+  !! Called from cable_driver now
+  USE cable_common_module, ONLY: get_unit
   IMPLICIT NONE
   
-  LOGICAL            , INTENT(IN)    :: POPFLAG
-  CHARACTER(LEN=*)   , INTENT(IN)    :: BURNT_AREA_SOURCE, TSTEP
+  
   INTEGER            , INTENT(IN)    :: np
   REAL, DIMENSION(np), INTENT(IN)    :: LAT, LON
   TYPE(TYPE_BLAZE)   , INTENT(INOUT) :: BLAZE
   INTEGER, PARAMETER        :: NPOOLS = 3
+  CHARACTER(len=400)   :: HydePath,  BurnedAreaSource, BurnedAreaFile, &
+  BurnedAreaClimatologyFile, SIMFIRE_REGION
+  INTEGER :: STATUS,  iu
+
+  NAMELIST /BLAZENML/ HydePath,  BurnedAreaSource, BurnedAreaFile, BurnedAreaClimatologyFile, &
+       SIMFIRE_REGION
+  ! READ BLAZE settings
+   CALL GET_UNIT(iu)
+   OPEN (iu,FILE="BLAZE.nml",STATUS='OLD',ACTION='READ')
+   READ (iu,NML=BLAZENML)
+   CLOSE(iu)
+
+  
   ! READ ini-nml
   BLAZE%NCELLS = np
   BLAZE%time = 0
@@ -114,6 +127,7 @@ SUBROUTINE INI_BLAZE (POPFLAG, BURNT_AREA_SOURCE, TSTEP, np, LAT, LON, BLAZE)
   ALLOCATE ( BLAZE%Z       ( np ) )
   ALLOCATE ( BLAZE%D       ( np ) )
   ALLOCATE ( BLAZE%w       ( np ) )
+  ALLOCATE ( BLAZE%w_prior       ( np ) )
   ALLOCATE ( BLAZE%TO      ( np, NTO ) )
   ALLOCATE ( BLAZE%AnnRainf( np, 366 ) )
   ALLOCATE ( BLAZE%AvgAnnRAINF(np, 5))
@@ -142,7 +156,7 @@ SUBROUTINE INI_BLAZE (POPFLAG, BURNT_AREA_SOURCE, TSTEP, np, LAT, LON, BLAZE)
   
   BLAZE%BURNMODE = 1    ! Full. All Fluxes computed by BLAZE
   WRITE(*,*) " BLAZE: Full Mode"
-  WRITE(*,*) " Burnt-area source: ", TRIM(BURNT_AREA_SOURCE)
+  WRITE(*,*) " Burnt-area source: ", TRIM(BurnedAreaSource)
 
   BLAZE%DSLR      = 0
   BLAZE%RAINF     = 0.
@@ -150,18 +164,17 @@ SUBROUTINE INI_BLAZE (POPFLAG, BURNT_AREA_SOURCE, TSTEP, np, LAT, LON, BLAZE)
   BLAZE%KBDI      = 0.
   BLAZE%AB        = 0.
   BLAZE%DEADWOOD  = 0. 
-  BLAZE%FSTEP     = TRIM(TSTEP)
-  BLAZE%KBDI = 0.0
+  BLAZE%FSTEP     = 'DAILY'
 
   BLAZE%LAT       = LAT
   BLAZE%LON       = LON
 
-  ! time for averaging annual rainfall [a]
-  BLAZE%T_AVG = 5            
-  ! deadwood decay scale time [a]  
-  BLAZE%FT    = 30
+!!$  ! time for averaging annual rainfall [a]
+!!$  BLAZE%T_AVG = 5            
+!!$  ! deadwood decay scale time [a]  
+!!$  BLAZE%FT    = 30
 
-  BLAZE%BURNT_AREA_SRC = "SIMFIRE"
+  BLAZE%BURNT_AREA_SRC = BurnedAreaSource
 
   BLAZE%CPLANT_g = 0.0
   BLAZE%CPLANT_w = 0.0
@@ -206,6 +219,7 @@ SUBROUTINE BLAZE_ACCOUNTING(BLAZE, met, climate,  ktau, dels, year, doy)
   t_fac = 86400. / dels
 
   ! assign values of BLAZE variables to those held in the climate structure
+  BLAZE%Rainf(:) = climate%dprecip(landpt(:)%cstart)
   BLAZE%CAvgAnnRainf(:) = climate%aprecip_av20(landpt(:)%cstart)
   BLAZE%U10(:) = climate%du10_max(landpt(:)%cstart)
   BLAZE%U10 = BLAZE%u10 * 3.6 ! m/s -> km/h
@@ -364,7 +378,7 @@ FUNCTION  p_surv_OzSavanna(hgt, fli)
 
     p_surv_OzSavanna = max(0.001, min(1.,p_surv_OzSavanna))
         
-END FUNCTION  p_surv_OzSavanna
+  END FUNCTION  p_surv_OzSavanna
 
 
 
@@ -441,49 +455,52 @@ SUBROUTINE COMBUST (BLAZE, np, CPLANT_g, CPLANT_w, TO, BURN )
   !  RH from Qair [%]
   !  DSLR days since rainfall [d]
   !  P      precipitation (24 hours) [mm]
-  !  from SIMFIRE or Rainf 
+  !  from SIMFIRE or Rainf
+
+  ! vh KBDI now calculated in cable_climate.F90
 
   ! Keetch-Byram Drought Index [ ] 
-  ! Keetch, j.j. and G.M. Byram, 1968, A drought index for forest fire control, 
-  ! US Dept, Agr. Forest Service Res. Paper SE-38
-  IF ( BLAZE%RAINF(np) .GT. 0. ) THEN
-     IF ( BLAZE%DSLR(np) .GT. 0 ) THEN
-        BLAZE%LR(np) = BLAZE%RAINF(np) 
-     ELSE
-        BLAZE%LR(np) = BLAZE%LR(np) + BLAZE%RAINF(np)
-     ENDIF
-     BLAZE%DSLR(np) = 0
-  ELSE
-     BLAZE%DSLR(np) = BLAZE%DSLR(np) + 1
-  ENDIF
-  
-  DSLR      = BLAZE%DSLR(np)
-  AvAnnRain = SUM(BLAZE%AnnRAINF(np,:)) 
-  V         = BLAZE%U10(np)
-  RH        = BLAZE%RH(np)
-  T         = BLAZE%TMAX(np)
-
-  IF ( DSLR .EQ. 0 ) THEN
-     IF ( BLAZE%LR(np) .GE. 5 ) THEN
-        dKBDI = 5. - BLAZE%LR(np)
-     ELSE
-        dKBDI = 0.
-     ENDIF
-  ELSE
-     dKBDI = ((800. - BLAZE%KBDI(np)) * (.968 * EXP(.0486 * (T * 9./5. &
-          + 32.)) - 8.3) / 1000. / (1. + 10.88 * EXP(-.0441 * AvAnnRain/25.4)) * .254)
-  ENDIF
-
-  BLAZE%KBDI(np) = MAX(0.,BLAZE%KBDI(np) + dKBDI)
+!!$  ! Keetch, j.j. and G.M. Byram, 1968, A drought index for forest fire control, 
+!!$  ! US Dept, Agr. Forest Service Res. Paper SE-38
+!!$  IF ( BLAZE%RAINF(np) .GT. 0. ) THEN
+!!$     IF ( BLAZE%DSLR(np) .GT. 0 ) THEN
+!!$        BLAZE%LR(np) = BLAZE%RAINF(np) 
+!!$     ELSE
+!!$        BLAZE%LR(np) = BLAZE%LR(np) + BLAZE%RAINF(np)
+!!$     ENDIF
+!!$     BLAZE%DSLR(np) = 0
+!!$  ELSE
+!!$     BLAZE%DSLR(np) = BLAZE%DSLR(np) + 1
+!!$  ENDIF
+!!$  
+!!$  DSLR      = BLAZE%DSLR(np)
+!!$  AvAnnRain = BLAZE%CAvgAnnRainf(np) 
+!!$  V         = BLAZE%U10(np)
+!!$  RH        = BLAZE%RH(np)
+!!$  T         = BLAZE%TMAX(np)
+!!$
+!!$  IF ( DSLR .EQ. 0 ) THEN
+!!$     IF ( BLAZE%LR(np) .GE. 5 ) THEN
+!!$        dKBDI = 5. - BLAZE%LR(np)
+!!$     ELSE
+!!$        dKBDI = 0.
+!!$     ENDIF
+!!$  ELSE
+!!$     dKBDI = ((800. - BLAZE%KBDI(np)) * (.968 * EXP(.0486 * (T * 9./5. &
+!!$          + 32.)) - 8.3) / 1000. / (1. + 10.88 * EXP(-.0441 * AvAnnRain/25.4)) * .254)
+!!$  ENDIF
+!!$
+!!$  print*, 'KBDI', BLAZE%KBDI(np) , dKBDI, BLAZE%LR(np), T, AvAnnRain
+!!$  BLAZE%KBDI(np) = MAX(0.,BLAZE%KBDI(np) + dKBDI)
 
 !  IF ( .NOT. BURN ) RETURN
 
-  ! McArthur drought factor [ ]
-  D   = .191 * ( BLAZE%KBDI(np) + 104. ) * ( REAL(DSLR) + 1. )**1.5 / &
-       ( 3.52 * ( REAL(DSLR) + 1. )**1.5 + BLAZE%LR(np) - 1. )
-  D   = MAX(0.,MIN(10.,D))
+!!$  ! McArthur drought factor [ ]
+!!$  D   = .191 * ( BLAZE%KBDI(np) + 104. ) * ( REAL(DSLR) + 1. )**1.5 / &
+!!$       ( 3.52 * ( REAL(DSLR) + 1. )**1.5 + BLAZE%LR(np) - 1. )
+!!$  D   = MAX(0.,MIN(10.,D))
 
-  ! McArthur Fire-Danger index [ ]
+  ! McArthur Fire-Danger index [ ] (FFDI)
   !                             Forest  Grass
   ! Catastrophic (Code Red)	100 +   150 +
   ! Extreme	                75 – 99 100 – 149
@@ -492,8 +509,11 @@ SUBROUTINE COMBUST (BLAZE, np, CPLANT_g, CPLANT_w, TO, BURN )
   ! High	                12 – 24 12 – 24
   ! Low–Moderate            	 0 – 11  0 – 11
 
-  F   = 2. * EXP( -.45 + .987 * LOG(D+.001) - .03456 * RH + .0338 * T + .0234 * V )
-  F   = MAX(0.,F) 
+  F = BLAZE%FFDI(np)
+
+!!$  F   = 2. * EXP( -.45 + .987 * LOG(D+.001) - .03456 * RH + .0338 * T + .0234 * V ) ! V in km/h
+!!$  F   = MAX(0.,F)
+
 
   ! available Fuels (Litter, deadwood and under/midstorey[when is it distinguished?])) [kg/m^2]
   ! Assume totel Grass is burnt
@@ -501,16 +521,27 @@ SUBROUTINE COMBUST (BLAZE, np, CPLANT_g, CPLANT_w, TO, BURN )
   FLIx = 1
 
   w = AVAIL_FUEL(FLIx, CPLANT_w, CPLANT_g, BLAZE%AGLit_w(np,:), BLAZE%AGLit_g(np,:) )
+
+  BLAZE%w_prior = w
+
+  !write(59,*) w, CPLANT_w, CPLANT_g, BLAZE%AGLit_w, BLAZE%AGLit_g
   
   DO i = 1, 4 ! THE LADDER
 
      ! Rate of Spread [m/s]
-     ! original ROS = 0.0012 * F * w 
-     ROS = 3.3333E-05 * F * w 
+     ! original ROS = 0.0012 * F * w  (Noble 1980: w in tonnes ha-1, ROS in km/h)
+     ROS = 2.4e-5 * F* W / 3.6 ! (vh: conversions factor of 1/50 applied to go from gCm-2 to T dm ha-1 )
+     !    and 1/3.6 to go from km/h to ms-1)
+
+     
+     !ROS = 3.3333E-05 * F * w  (LN)
   
      ! Flame Height  [m]
-     ! original Z   = 13. * ROS + 0.24 * w - 2.
-     Z   = 46.8 * ROS + 0.024 * w - 2.
+     ! original Z   = 13. * ROS + 0.24 * w - 2.  (Z in m; ROS in km/h; w in t ha-1)
+     Z = 13.0 * ROS * 3.6 + 0.24 * w / 50.0 -2. ! vh (conversion factors of 3.6 for ROS &
+                                                !   50.0 for w)
+     
+     !Z   = 46.8 * ROS + 0.024 * w - 2. (LN)
      Z   = MAX(0.,Z)
 
      FLI = H * w * ROS
@@ -534,11 +565,11 @@ SUBROUTINE COMBUST (BLAZE, np, CPLANT_g, CPLANT_w, TO, BURN )
   END DO
 
   BLAZE%FLIX(np) = flix
-  BLAZE%FFDI(np) = F
+  !BLAZE%FFDI(np) = F
   BLAZE%FLI(np)  = FLI
   BLAZE%ROS(np)  = ROS
   BLAZE%Z(np)    = Z
-  BLAZE%D(np)    = D
+  !BLAZE%D(np)    = D
   BLAZE%w(np)    = w
 
   ! END McArthur
@@ -554,13 +585,13 @@ SUBROUTINE COMBUST (BLAZE, np, CPLANT_g, CPLANT_w, TO, BURN )
 !CLN  ROS = 
   
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  ! Get combustion factors from FLI (Suravski 2012) AS IS
+  ! Get combustion factors from FLI (Surawski 2012) AS IS
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !
   ! TURN-OVER RATES
   !
-  ! print*, FLIx, CPLANT_w, CPLANT_g, BLAZE%AGLit_w(1,:), BLAZE%AGLit_g(1,:)
-  ! print*, 'FLI, FLIX, w, MIN_FUEL:', FLI, FLIX, w, MIN_FUEL
+  !print*, FLIx, CPLANT_w, CPLANT_g, BLAZE%AGLit_w(1,:), BLAZE%AGLit_g(1,:)
+  !print*, 'FLI, FLIX, w, MIN_FUEL:', FLI, FLIX, w, MIN_FUEL
 
   IF (FLIx .gt.0) then
   ! Live to Atmosphere
@@ -742,7 +773,7 @@ END SUBROUTINE RUN_BLAZE
      ! 1 dim arrays (mp )
     CHARACTER(len=20),DIMENSION(2) :: A0
     ! 2 dim real arrays (mp,t)
-    CHARACTER(len=20),DIMENSION(1):: A1
+    CHARACTER(len=20),DIMENSION(25):: A1
     ! 2 dim integer arrays (mp,t)
     CHARACTER(len=20),DIMENSION(1):: AI1
     ! 3 dim real arrays (mp,age_max,t)
@@ -769,6 +800,33 @@ END SUBROUTINE RUN_BLAZE
     A0(2) = 'longitude'
 
     A1(1) = 'BurnedArea'
+    A1(2) = 'Rainf'
+    A1(3) = 'KBDI'
+    A1(4) = 'LastRain'
+    A1(5) = 'U10'
+    A1(6) = 'RelHum'
+    A1(7) = 'TMAX'
+    A1(8) = 'TMIN'
+    A1(9) = 'FFDI'
+    A1(10) = 'FLI'
+    A1(11) = 'ROS'
+    A1(12) = 'FlameHeight'
+    A1(13) = 'DMacArthur' 
+    A1(14) = 'AvailFuel'
+    A1(15) = 'AvailFuelPrior'
+
+    A1(16) = 'CPLANT_w_froot'
+    A1(17) = 'CPLANT_w_leaf'
+    A1(18) = 'CPLANT_w_wood'
+    A1(19) = 'CPLANT_g_froot'
+    A1(20) = 'CPLANT_g_leaf'
+    A1(21) = 'AGL_w_metb'
+    A1(22) = 'AGL_w_STR'
+    A1(23) = 'AGL_w_CWD'
+    A1(24) = 'AGL_g_metb'
+    A1(25) = 'AGL_g_str'
+
+    AI1(1) = 'DaysSinceLastRain'
 
     CNT = CNT + 1
 
@@ -816,12 +874,10 @@ END SUBROUTINE RUN_BLAZE
        STATUS = NF90_def_var(FILE_ID,'time' ,NF90_INT,(/t_ID/),VIDtime )
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
-       write(*,*) 'timeunits', TRIM(timeunits), t_ID, FILE_ID
+       !write(*,*) 'timeunits', TRIM(timeunits), t_ID, FILE_ID
 
        STATUS = NF90_PUT_ATT(FILE_ID, VIDtime, 'units', TRIM(timeunits))
        IF (STATUS /= NF90_NOERR)  CALL handle_err(STATUS)
-
-       
 
        STATUS = NF90_PUT_ATT(FILE_ID,VIDtime, 'calendar', calendar)
        IF (STATUS /= NF90_NOERR)  CALL handle_err(STATUS)
@@ -837,11 +893,13 @@ END SUBROUTINE RUN_BLAZE
        DO i = 1, SIZE(A1)
           STATUS = NF90_def_var(FILE_ID,TRIM(A1(i)) ,NF90_FLOAT,(/land_ID,t_ID/),VID1(i))
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-
-            write(*,*) 'def A1'
        END DO
 
-       
+        DO i = 1, SIZE(AI1)
+           STATUS = NF90_def_var(FILE_ID,TRIM(AI1(i)) ,NF90_INT,(/land_ID,t_ID/),VIDI1(i))
+           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+           write(*,*) 'def AI1'
+        END DO
 
        ! End define mode:
        STATUS = NF90_enddef(FILE_ID)
@@ -868,6 +926,91 @@ END SUBROUTINE RUN_BLAZE
 
      ! PUT 2D VARS ( mp, t )
     STATUS = NF90_PUT_VAR(FILE_ID, VID1( 1), BLAZE%AB, start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 2), BLAZE%Rainf, start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 3), BLAZE%KBDI, start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 4), BLAZE%LR, start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 5), BLAZE%U10, start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 6), BLAZE%RH, start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 7), BLAZE%TMAX, start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 8), BLAZE%TMIN, start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 9), BLAZE%FFDI, start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 10), BLAZE%FLI, start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 11), BLAZE%ROS, start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 12), BLAZE%Z, start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 13), BLAZE%D, start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 14), BLAZE%w, start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 15), BLAZE%w_prior, start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+!!$    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 15), BLAZE%CAvgAnnRainf, start=(/ 1, CNT /), &
+!!$         count=(/ mp, 1 /) )
+
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 16), BLAZE%CPLANT_w(:,FROOT), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+    
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 17), BLAZE%CPLANT_w(:,leaf), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 18), BLAZE%CPLANT_w(:,WOOD), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 19), BLAZE%CPLANT_g(:,froot), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 20), BLAZE%CPLANT_g(:,leaf), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 21), BLAZE%AGLit_w(:,metb), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 22), BLAZE%AGlit_w(:,str), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 23), BLAZE%AGlit_w(:,CWD), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 24), BLAZE%AGlit_g(:,metb), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 25), BLAZE%AGlit_g(:,str), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+
+
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VIDI1(1), BLAZE%DSLR, start=(/ 1, CNT /), count=(/ mp, 1 /)  )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+    
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
     IF ( FINAL ) THEN

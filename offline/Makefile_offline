@@ -199,7 +199,7 @@ blaze.o: blaze.F90 simfire.o cable_iovars.o cable_common.o cable_define_types.o
 
 simfire.o: simfire.F90 cable_common.o
 
-blaze_driver.o: blaze_driver.F90 blaze.o simfire.o casa_variable.o
+blaze_driver.o: blaze_driver.F90 blaze.o simfire.o casa_variable.o POP.o cable_define_types.o
 
 mo_kind.o: mo_kind.f90
 mo_utils.o: mo_utils.f90 mo_kind.o

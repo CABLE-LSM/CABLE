@@ -172,6 +172,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
                   casabal%LAImax = max(casamet%glai, casabal%LAImax)
                   casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1)/real(LOY)/1000.
                   casabal%Crootmean = casabal%Crootmean + casapool%cplant(:,3)/real(LOY)/1000.
+                  
                ENDIF
             ELSE
                casaflux%stemnpp = 0.

@@ -143,12 +143,8 @@ MODULE cable_common_module
      REAL     :: &
           dva_T_perturbation = 1.0, &
           Ta_perturbation    = 1.0
-     CHARACTER(len=7) :: &
-          BURNT_AREA          = "SIMFIRE" ! either SIMFIRE or GFED31
-     CHARACTER(len=8) :: &
-          BLAZE_TSTEP         = "DAILY"   ! either DAILY, MONTHLY, ANNUALLY
      CHARACTER(len=6) :: &
-          SIMFIRE_REGION      = "GLOBAL"  ! either GLOBAL, EUROPE, ANZ
+          SIMFIRE_REGION      = "ANZ"  ! either GLOBAL, EUROPE, ANZ
 
     !--- LN ------------------------------------------]
 
@@ -864,9 +860,9 @@ CONTAINS
 !applications. iovars is an offline module and so not appropriate to include
 !here. Suggested FIX is to move decs of vars needed (e.g. leaps) to here, and
 !then use common in iovars
-#ifdef Vanessas_common
+!#ifdef Vanessas_common
     USE cable_IO_vars_module, ONLY: leaps
-#endif
+!#endif
     IMPLICIT NONE
 
     LOGICAL   :: IS_CASA_TIME
@@ -884,13 +880,13 @@ CONTAINS
     is_eod = ( MOD((ktau-kstart+1+koffset),ktauday).EQ.0 )
     IF ( .NOT. is_eod ) RETURN    ! NO if it is not end of day
 
-#ifdef Vanessas_common
+!#ifdef Vanessas_common
     IF ( IS_LEAPYEAR( YYYY ) .AND. leaps ) THEN
        MONTH(2) = 29
     ELSE
        MONTH(2) = 28
     ENDIF
-#endif
+!#endif
 
     ! Check for reading from dump-file (hard-wired to daily casa-timestep)
     IF ( iotype .eq. "dread" ) THEN

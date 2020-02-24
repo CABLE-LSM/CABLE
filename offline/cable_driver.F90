@@ -745,15 +745,12 @@ PROGRAM cable_offline_driver
               ENDIF
 
               IF (cable_user%CALL_BLAZE) THEN
-                 !CLN ?VH is rad%lat/lon below correct?
-                 CALL INI_BLAZE( cable_user%CALL_POP, cable_user%BURNT_AREA, &
-                      cable_user%BLAZE_TSTEP, mland, rad%latitude(landpt(:)%cstart), &
+                 CALL INI_BLAZE( mland, rad%latitude(landpt(:)%cstart), &
                       rad%longitude(landpt(:)%cstart), BLAZE )
 
-                 !CLN IF ( .NOT. spinup) CALL READ_BLAZE_RESTART(...)
 
-                 IF ( TRIM(cable_user%BURNT_AREA) == "SIMFIRE" ) THEN
-                    CALL INI_SIMFIRE(mland,cable_user%SIMFIRE_REGION,SIMFIRE, &
+                 IF ( TRIM(BLAZE%BURNT_AREA_SRC) == "SIMFIRE" ) THEN
+                    CALL INI_SIMFIRE(mland ,SIMFIRE, &
                          climate%modis_igbp(landpt(:)%cstart) ) !CLN here we need to check for the SIMFIRE biome setting
                  ENDIF
               ENDIF
@@ -990,7 +987,7 @@ PROGRAM cable_offline_driver
                        CALL BLAZE_ACCOUNTING(BLAZE, met, climate, ktau, dels, YYYY, idoy)
 
                        call blaze_driver(blaze%ncells,blaze, simfire, casapool, casaflux, &
-                            casamet, climate, real(shootfrac), idoy, YYYY, 1)
+                            casamet, climate, real(shootfrac), idoy, YYYY, 1, POP, veg)
 
                        call write_blaze_output_nc( BLAZE, ktau.EQ.kend .AND. YYYY.EQ.cable_user%YearEnd)
                     ENDIF
@@ -1053,7 +1050,8 @@ PROGRAM cable_offline_driver
                     ! 13C
                     if (cable_user%c13o2) &
                          call c13o2_update_sum_pools(sum_c13o2pools, c13o2pools, .false., .true., count_sum_casa)
-                    CALL WRITE_CASA_OUTPUT_NC(veg, casamet, sum_casapool, casabal, sum_casaflux, &
+
+                  CALL WRITE_CASA_OUTPUT_NC (veg, casamet, sum_casapool, casabal, sum_casaflux, &
                          CASAONLY, ctime, ( ktau.EQ.kend .AND. YYYY .EQ. cable_user%YearEnd.AND. RRRR .EQ.NRRRR ) )
                     ! 13C
                     if (cable_user%c13o2) then
