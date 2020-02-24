@@ -159,32 +159,39 @@ END SUBROUTINE cable_diag_data1
 
 #ifndef UM_BUILD
   subroutine def_dims(nd, ncid, dimID, dim_len, dim_name )
+    
     use netcdf
+
     implicit none
-    integer, intent(in) :: nd, ncid
-    character(len=*), dimension(:), intent(in) :: dim_name
-    integer, dimension(:), intent(out) :: dimID
-    integer, dimension(:), intent(in) :: dim_len
+
+    integer,                        intent(in)  :: nd, ncid
+    integer,          dimension(:), intent(out) :: dimID
+    integer,          dimension(:), intent(in)  :: dim_len
+    character(len=*), dimension(:), intent(in)  :: dim_name
+
     integer :: j, ncok
 
     do j=1, nd
-       ncok = NF90_DEF_DIM(ncid, trim(dim_name(j)), dim_len(j), dimID(j) )
+       ncok = NF90_DEF_DIM(ncid, trim(dim_name(j)), dim_len(j), dimID(j))
        if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def dim ', dim_name(j))
     enddo
 
     return
+
   end subroutine def_dims
 
 
-
-
   subroutine def_vars(nv, ncid, xtype, dimID, var_name, varID)
+
     use netcdf
+    
     implicit none
-    integer, intent(in) :: nv, ncid, xtype
-    integer, dimension(:), intent(in) :: dimID
-    integer, dimension(:), intent(inout) :: varID
-    character(len=*), dimension(:), intent(in) :: var_name
+    
+    integer,                        intent(in)    :: nv, ncid, xtype
+    integer,          dimension(:), intent(in)    :: dimID
+    character(len=*), dimension(:), intent(in)    :: var_name
+    integer,          dimension(:), intent(inout) :: varID
+    
     integer :: j, ncok
 
     ! lat
@@ -208,13 +215,13 @@ END SUBROUTINE cable_diag_data1
     !tsoil
     ! print*, 'DV04'
     ncok = NF90_DEF_VAR(ncid, trim(var_name(4)), xtype, &
-         (/ dimID(1), dimID(2),dimID(3)/), varID(4))
+         (/ dimID(1), dimID(2), dimID(3)/), varID(4))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(4))
 
     ! moist
     ! print*, 'DV05'
     ncok = NF90_DEF_VAR(ncid, trim(var_name(5)), xtype, &
-         (/ dimID(1), dimID(2),dimID(3)/), varID(5))
+         (/ dimID(1), dimID(2), dimID(3)/), varID(5))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(5))
 
     !cgpp
@@ -226,7 +233,7 @@ END SUBROUTINE cable_diag_data1
     !crmplant
     ! print*, 'DV07'
     ncok = NF90_DEF_VAR(ncid, trim(var_name(7)), xtype, &
-         (/ dimID(1), dimID(2),dimID(3)/), varID(7))
+         (/ dimID(1), dimID(2), dimID(3)/), varID(7))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(7))
 
     !phenphase
@@ -262,44 +269,50 @@ END SUBROUTINE cable_diag_data1
     !mtemp
     ! print*, 'DV13'
     ncok = NF90_DEF_VAR(ncid, trim(var_name(13)), xtype, &
-         (/ dimID(1),dimID(3)/), varID(13))
+         (/ dimID(1), dimID(3)/), varID(13))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(13))
 
     !Ndep
     ! print*, 'DV14'
     ncok = NF90_DEF_VAR(ncid, trim(var_name(14)), xtype, &
-         (/ dimID(1),dimID(3)/), varID(14))
+         (/ dimID(1), dimID(3)/), varID(14))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(14))
 
     !Pdep
     ! print*, 'DV15'
     ncok = NF90_DEF_VAR(ncid, trim(var_name(15)), xtype, &
-         (/ dimID(1),dimID(3)/), varID(15))
+         (/ dimID(1), dimID(3)/), varID(15))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(15))
 
     !cAn12spin
     ! print*, 'DV16'
     ncok = NF90_DEF_VAR(ncid, trim(var_name(16)), xtype, &
-         (/ dimID(1),dimID(3)/), varID(16))
+         (/ dimID(1), dimID(3)/), varID(16))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(16))
 
     !cAn13spin
     ! print*, 'DV17'
     ncok = NF90_DEF_VAR(ncid, trim(var_name(17)), xtype, &
-         (/ dimID(1),dimID(3)/), varID(17))
+         (/ dimID(1), dimID(3)/), varID(17))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(17))
 
     return
+
   end subroutine def_vars
 
+  
   subroutine def_var_atts( ncfile_in, ncid, varID )
+    
     use netcdf
+    
     implicit none
-    character(len=*), intent(in) :: ncfile_in
-    integer, intent(in):: ncid       ! netcdf file ID
-    integer, dimension(:), intent(in) :: varID ! (1) ~ tvair, (2) ~ pmb
+    
+    character(len=*),      intent(in) :: ncfile_in
+    integer,               intent(in) :: ncid       ! netcdf file ID
+    integer, dimension(:), intent(in) :: varID      ! (1) ~ tvair, (2) ~ pmb
+
     integer :: j, ncok
-    character(len=10) dummy
+    character(len=10) :: dummy
 
     write(dummy,11) varID(1)
 11  format(i2)
@@ -312,8 +325,8 @@ END SUBROUTINE cable_diag_data1
 
     write(dummy,11) varID(2)
 
-
     return
+    
   end subroutine def_var_atts
 
 

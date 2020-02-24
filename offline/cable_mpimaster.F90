@@ -186,10 +186,10 @@ CONTAINS
          IS_LEAPYEAR, IS_CASA_TIME, calcsoilalbedo, get_unit, &
          report_version_no, kwidth_gl
     USE cable_data_module,    ONLY: driver_type, icanopy_type, point2constants
-    USE cable_input_module,   ONLY: open_met_file,load_parameters,              &
+    USE cable_input_module,   ONLY: open_met_file, load_parameters, &
          get_met_data,close_met_file
-    USE cable_output_module,  ONLY: create_restart, open_output_file,            &
-         write_output,close_output_file
+    USE cable_output_module,  ONLY: create_restart, open_output_file, &
+         write_output, close_output_file
     USE cable_write_module,   ONLY: nullify_write
     USE cable_cbm_module
     USE cable_climate_mod
@@ -709,6 +709,7 @@ CONTAINS
 
           ! print*, 'MASTER Send 03 ', kend
           CALL MPI_Bcast(kend, 1, MPI_INTEGER, 0, comm, ierr)
+          ! print*, 'MASTER Sent 03 '
 
           IF ( CALL1 ) THEN
              ! MPI: need to know extents before creating datatypes
@@ -1073,6 +1074,7 @@ CONTAINS
                 ! print*, 'MASTER Receive 34 recv'
                 !MC veg%iveg is changing during receive for GNU compiler on Explor
                 call master_receive(ocomm, oktau, recv_ts)
+                ! print*, 'MASTER Received 34'
                 ! call MPI_Waitall(wnp, recv_req, recv_stats, ierr)
 
                 ! MPI: scatter input data to the workers
@@ -1608,23 +1610,28 @@ CONTAINS
          TRIM(cable_user%MetType) .NE. "cru") CALL close_met_file
     IF (.NOT. CASAONLY) THEN
        ! Close output file and deallocate main variables:
-       CALL close_output_file( bal, air, bgc, canopy, met, &
-            rad, rough, soil, ssnow,                       &
-            sum_flux, veg )
+       ! print*, 'MC01'
+       CALL close_output_file(bal)
+       ! print*, 'MC02'
       ! WRITE(logn,*) bal%wbal_tot, bal%ebal_tot, bal%ebal_tot_cncheck
     ENDIF
 
-    !MC if (trim(cable_user%MetType) == 'cru') call cru_close(CRU)
+    ! if (trim(cable_user%MetType) == 'cru') call cru_close(CRU)
   
+    ! print*, 'MC03'
     if (cable_user%POPLUC) call close_luh2(LUC_EXPT)
 
     ! Close log file
+    ! print*, 'MC04'
     CLOSE(logn)
 
+    ! print*, 'MC05'
     CALL CPU_TIME(etime)
     write(*,*) 'Master End in ', etime, ' seconds.'
     ! MPI: cleanup
+    ! print*, 'MC06'
     CALL master_end(icycle, output%restart)
+    ! print*, 'MC07'
 
     RETURN
 
@@ -8013,9 +8020,10 @@ SUBROUTINE master_casa_dump_types(comm, casamet, casaflux, phen, climate, c13o2f
 
   use mpi
 
-  USE casavariable, ONLY: casa_met, casa_flux
-  USE cable_def_types_mod, ONLY: climate_type
-  USE phenvariable
+  use casadimension,       only: icycle
+  use casavariable,        only: casa_met, casa_flux
+  use cable_def_types_mod, only: climate_type
+  use phenvariable
   ! 13C
   use cable_common_module, only: cable_user
   use cable_c13o2_def,     only: c13o2_flux
@@ -8052,11 +8060,9 @@ SUBROUTINE master_casa_dump_types(comm, casamet, casaflux, phen, climate, c13o2f
 
   ALLOCATE(casa_dump_ts(wnp))
 
-  if (cable_user%c13o2) then
-     ntyp = ncdumprw
-  else
-     ntyp = ncdumprw - 2
-  endif
+  ntyp = ncdumprw + icycle - 1
+  ! 13C
+  if (cable_user%c13o2) ntyp = ntyp + 2 
 
   ALLOCATE(blocks(ntyp))
   ALLOCATE(displs(ntyp))
@@ -8116,11 +8122,6 @@ SUBROUTINE master_casa_dump_types(comm, casamet, casaflux, phen, climate, c13o2f
           types(bidx), ierr)
      blocks(bidx) = 1
 
-     ! Ndep
-     bidx = bidx + 1
-     CALL MPI_Get_address(casaflux%Nmindep(off), displs(bidx), ierr)
-     blocks(bidx) = r2len
-
      ! phen fields
 
      bidx = bidx + 1
@@ -8138,6 +8139,19 @@ SUBROUTINE master_casa_dump_types(comm, casamet, casaflux, phen, climate, c13o2f
      bidx = bidx + 1
      CALL MPI_Get_address(climate%qtemp_max_last_year(off), displs(bidx), ierr)
      blocks(bidx) = r1len
+
+     ! N and P deposition
+     if (icycle>1) then
+        bidx = bidx + 1
+        CALL MPI_Get_address(casaflux%Nmindep(off), displs(bidx), ierr)
+        blocks(bidx) = r2len
+     endif
+     
+     if (icycle>2) then
+        bidx = bidx + 1
+        CALL MPI_Get_address(casaflux%Pdep(off), displs(bidx), ierr)
+        blocks(bidx) = r2len
+     endif
 
      ! c13o2 fields
 
@@ -9920,6 +9934,7 @@ SUBROUTINE master_spincasacnp(dels, kstart, kend, mloop, veg, soil, casabiome, c
         phen%doyphase(:,3) = phen%doyphasespin_3(:,idoy)
         phen%doyphase(:,4) = phen%doyphasespin_4(:,idoy)
         climate%qtemp_max_last_year(:) = casamet%mtempspin(:,idoy)
+        ! casaflux%Nmindep and casaflux%Pdep set in read_casa_dump
         ! 13C
         if (cable_user%c13o2) then
            c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
@@ -9968,6 +9983,7 @@ SUBROUTINE master_spincasacnp(dels, kstart, kend, mloop, veg, soil, casabiome, c
            phen%doyphase(:,3) = phen%doyphasespin_3(:,idoy)
            phen%doyphase(:,4) = phen%doyphasespin_4(:,idoy)
            climate%qtemp_max_last_year(:) = casamet%mtempspin(:,idoy)
+           ! casaflux%Nmindep and casaflux%Pdep set in read_casa_dump
            ! 13C
            if (cable_user%c13o2) then
               c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)

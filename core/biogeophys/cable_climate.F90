@@ -1027,12 +1027,13 @@ SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
           '_climate_rst.nc'
   ENDIF
   ! Create NetCDF file:
-  STATUS = NF90_create(fname, NF90_CLOBBER, FILE_ID)
-  print*, 'OCreate60 ', file_id
+  STATUS = NF90_create(trim(fname), ior(nf90_clobber,nf90_64bit_offset), FILE_ID)
+  ! print*, 'OCreate91 ', file_id, trim(fname)
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
   ! Put the file in define mode:
-  STATUS = NF90_redef(FILE_ID)
+  !MC - new files are already in define mode
+  ! STATUS = NF90_redef(FILE_ID)
 
   STATUS = NF90_PUT_ATT( FILE_ID, NF90_GLOBAL, "Valid restart date", "01/01/"//CYEAR  )
 
@@ -1286,7 +1287,7 @@ SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
 
 
   ! Close NetCDF file:
-  print*, 'OClose98 ', file_id
+  ! print*, 'OClose91 ', file_id
   STATUS = NF90_close(FILE_ID)
   file_id = -1
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
@@ -1424,7 +1425,8 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate, ktauday )
 
 # ifndef UM_BUILD
   ! Open NetCDF file:
-  STATUS = NF90_OPEN(fname, NF90_NOWRITE, FILE_ID)
+  STATUS = NF90_OPEN(trim(fname), NF90_NOWRITE, FILE_ID)
+  ! print*, 'OOpen90 ', file_id, trim(fname)
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
 
@@ -1604,7 +1606,7 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate, ktauday )
 
 
   ! Close NetCDF file:
-  print*, 'OClose99 ', file_id
+  ! print*, 'OClose90 ', file_id
   STATUS = NF90_close(FILE_ID)
   file_id = -1
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)

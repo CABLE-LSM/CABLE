@@ -764,12 +764,9 @@ contains
     ! create output file
     write(*,*) 'Defining 13CO2 output file: ', trim(fname)
     status = nf90_create(trim(fname), cmode=ior(nf90_clobber,nf90_64bit_offset), ncid=file_id)
-    print*, 'OCreate70 ', file_id
+    ! print*, 'OCreate70 ', file_id
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could not open c13o2 output file: '//trim(fname))
-    ! status = nf90_redef(file_id)
-    ! if (status /= nf90_noerr) &
-    !      call c13o2_err_handler('Could not redef c13o2 output file: '//trim(fname))
 
     ! global attributes
     status = nf90_put_att(file_id, nf90_global, "StartYear", cable_user%yearstart)
@@ -826,14 +823,17 @@ contains
           write(*,*) 'Var: ', trim(vars(i)), ', dim_ids: ', idids(1:dvars(i))
           call c13o2_err_handler('Could not define variable in c13o2 output file: '//trim(fname))
        endif
+       ! set long_name
        status = nf90_put_att(file_id, var_ids(i), 'long_name', lvars(i))
        if (status /= nf90_noerr) &
             call c13o2_err_handler('Could not define long_name for '//trim(vars(i))// &
             ' in c13o2 output file: '//trim(fname))
+       ! set units
        status = nf90_put_att(file_id, var_ids(i), 'units', uvars(i))
        if (status /= nf90_noerr) &
             call c13o2_err_handler('Could not define units for '//trim(vars(i))//' in c13o2 output file: '//trim(fname))
        if (trim(vars(i)) == 'time') then
+          ! set calendar
           status = nf90_put_att(file_id, var_ids(i), 'calendar', calendar)
           if (status /= nf90_noerr) &
                call c13o2_err_handler('Could not define calendar for variable time in c13o2 output file: '//trim(fname))
@@ -950,7 +950,7 @@ contains
     integer :: status
 
     write(*,*) 'Closing 13CO2 output file.'
-    print*, 'OClose90 ', file_id
+    ! print*, 'OClose90 ', file_id
     status = nf90_close(file_id)
     file_id = -1
     if (status /= nf90_noerr) &
@@ -987,7 +987,7 @@ contains
     write(*,*) 'Read 13CO2 restart_in_flux file: ', trim(c13o2_restart_in_flux)
 
     status = nf90_open(trim(c13o2_restart_in_flux), nf90_nowrite, file_id)
-    print*, 'OOpen90 ', file_id
+    ! print*, 'OOpen90 ', file_id
     if (status /= nf90_noerr) call c13o2_err_handler('Error 13CO2 restart_in_flux file: '//trim(c13o2_restart_in_flux))
 
     ! Vstarch
@@ -1021,7 +1021,7 @@ contains
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Error reading variable Rphoto from restart_in_flux file: '//trim(c13o2_restart_in_flux))
 
-    print*, 'OClose91 ', file_id
+    ! print*, 'OClose91 ', file_id
     status = nf90_close(file_id)
     file_id = -1
     if (status /= nf90_noerr) &
@@ -1075,12 +1075,9 @@ contains
     ! create restart file
     write(*,*) 'Writing 13CO2 Canopy pools restart file: ', trim(fname)
     status = nf90_create(trim(fname), cmode=ior(nf90_clobber,nf90_64bit_offset), ncid=file_id)
-    print*, 'OCreate71 ', file_id
+    ! print*, 'OCreate71 ', file_id
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could not open c13o2 restart_out_flux file: '//trim(fname))
-    ! status = nf90_redef(file_id)
-    ! if (status /= nf90_noerr) &
-    !      call c13o2_err_handler('Could not redef c13o2 restart_out_flux file: '//trim(fname))
 
     ! global attributes
     write(cyear, fmt='(I4)') CurYear + 1
@@ -1131,7 +1128,7 @@ contains
          call c13o2_err_handler('Could put variable '//trim(leafvars(2))//' to c13o2 restart_out_flux file: '//trim(fname))
 
     ! close restart file
-    print*, 'OClose92 ', file_id
+    ! print*, 'OClose92 ', file_id
     status = nf90_close(file_id)
     file_id = -1
     if (status /= nf90_noerr) &
@@ -1163,7 +1160,7 @@ contains
     write(*,*) 'Read 13CO2 restart_in_pools file: ', trim(c13o2_restart_in_pools)
 
     status = nf90_open(trim(c13o2_restart_in_pools), nf90_nowrite, file_id)
-    print*, 'OOpen91 ', file_id
+    ! print*, 'OOpen91 ', file_id
     if (status /= nf90_noerr) call c13o2_err_handler('Error 13CO2 restart_in_pools file: '//trim(c13o2_restart_in_pools))
 
     ! cplant
@@ -1205,7 +1202,7 @@ contains
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Error reading variable charvest from restart_in_pools file: '//trim(c13o2_restart_in_pools))
 
-    print*, 'OClose94 ', file_id
+    ! print*, 'OClose94 ', file_id
     status = nf90_close(file_id)
     file_id = -1
     if (status /= nf90_noerr) &
@@ -1268,12 +1265,9 @@ contains
     ! create restart file
     write(*,*) 'Writing 13CO2 Casa restart file: ', trim(fname)
     status = nf90_create(trim(fname), cmode=ior(nf90_clobber,nf90_64bit_offset), ncid=file_id)
-    print*, 'OCreate72 ', file_id
+    ! print*, 'OCreate72 ', file_id
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could not open c13o2 restart_out_pools file: '//trim(fname))
-    ! status = nf90_redef(file_id)
-    ! if (status /= nf90_noerr) &
-    !      call c13o2_err_handler('Could not redef c13o2 restart_out_pools file: '//trim(fname))
 
     ! global attributes
     write(cyear, fmt='(I4)') CurYear + 1
@@ -1347,7 +1341,7 @@ contains
          call c13o2_err_handler('Could put variable '//trim(soilvars(1))//' to c13o2 restart_out_pools file: '//trim(fname))
 
     ! close restart file
-    print*, 'OClose95 ', file_id
+    ! print*, 'OClose95 ', file_id
     status = nf90_close(file_id)
     file_id = -1
     if (status /= nf90_noerr) &
@@ -1379,7 +1373,7 @@ contains
     write(*,*) 'Read 13CO2 restart_in_luc file: ', trim(c13o2_restart_in_luc)
 
     status = nf90_open(trim(c13o2_restart_in_luc), nf90_nowrite, file_id)
-    print*, 'OOpen92 ', file_id
+    ! print*, 'OOpen92 ', file_id
     if (status /= nf90_noerr) call c13o2_err_handler('Error 13CO2 restart_in_luc file: '//trim(c13o2_restart_in_luc))
 
     ! charvest
@@ -1407,7 +1401,7 @@ contains
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Error reading variable cagric from restart_in_luc file: '//trim(c13o2_restart_in_luc))
 
-    print*, 'OClose96 ', file_id
+    ! print*, 'OClose96 ', file_id
     status = nf90_close(file_id)
     file_id = -1
     if (status /= nf90_noerr) &
@@ -1464,12 +1458,9 @@ contains
     ! create restart file
     write(*,*) 'Writing 13CO2 LUC restart file: ', trim(fname)
     status = nf90_create(trim(fname), cmode=ior(nf90_clobber,nf90_64bit_offset), ncid=file_id)
-    print*, 'OCreate73 ', file_id
+    ! print*, 'OCreate73 ', file_id
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could not open c13o2 restart_out_luc file: '//trim(fname))
-    ! status = nf90_redef(file_id)
-    ! if (status /= nf90_noerr) &
-    !      call c13o2_err_handler('Could not redef c13o2 restart_out_luc file: '//trim(fname))
 
     ! global attributes
     write(cyear, fmt='(I4)') CurYear + 1
@@ -1527,7 +1518,7 @@ contains
          call c13o2_err_handler('Could put variable '//trim(clearancevars(1))//' to c13o2 restart_out_luc file: '//trim(fname))
 
     ! close restart file
-    print*, 'OClose97 ', file_id
+    ! print*, 'OClose97 ', file_id
     status = nf90_close(file_id)
     file_id = -1
     if (status /= nf90_noerr) &

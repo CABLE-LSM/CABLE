@@ -60,7 +60,7 @@ MODULE CABLE_CRU
     INTEGER :: Ndep_CTSTEP   ! counter for Ndep in input file   
   END TYPE CRU_TYPE
 
-  TYPE(CRU_TYPE) :: CRU  ! Define the variable CRU, of type CRU_TYPE
+  ! TYPE(CRU_TYPE) :: CRU  ! Define the variable CRU, of type CRU_TYPE
 
   ! Define local parameter names representing the position of each met var within variable MET. 
   ! prevTmax and nextTmin are special cases of Tmax and Tmin that do not count as extra met variables per se.  
@@ -142,8 +142,8 @@ CONTAINS
 
     ! Read CRU namelist settings
     CALL GET_UNIT(nmlunit)  ! CABLE routine finds spare unit number
-    OPEN (nmlunit, FILE="cru.nml", STATUS='OLD', ACTION='READ')
-    READ (nmlunit, NML=CRUNML)
+    OPEN(nmlunit, FILE="cru.nml", STATUS='OLD', ACTION='READ')
+    READ(nmlunit, NML=CRUNML)
     CLOSE(nmlunit)
 
     ! Assign namelist settings to corresponding CRU defined-type elements
@@ -309,7 +309,7 @@ CONTAINS
 
     ! Open the land mask file
     ErrStatus = NF90_OPEN(TRIM(LandMaskFile), NF90_NOWRITE, FID)
-    print*, 'OOpen01 ', fid
+    ! print*, 'OOpen01 ', fid, TRIM(LandMaskFile)
     CALL HANDLE_ERR(ErrStatus, "Opening CRU Land-mask file"//TRIM(LandMaskFile))
 
     ! Latitude: Get the dimension ID, find the size of the dimension, assign it to CRU.
@@ -423,7 +423,7 @@ CONTAINS
 
     DEALLOCATE ( landmask, CRU_lats, CRU_lons )
 
-    print*, 'OClose01 ', fid
+    ! print*, 'OClose01 ', fid
     ErrStatus = NF90_CLOSE(FID)
     FID = -1
     CALL HANDLE_ERR(ErrStatus, "Closing mask-file"//TRIM(LandMaskFile))
@@ -513,7 +513,7 @@ CONTAINS
     ! CASE(vwind) ; FN = TRIM(FN)//"/vgrd/crujra.V2.0.5d.vgrd."//cy//".365d.noc.daymean.1deg.nc"
     ! END SELECT
 
-    select case ( par )
+    select case(par)
     case(rain)
        fn = trim(fn)//"/pre/"//cruver//".5d.pre."//cy//".365d.noc.daytot.1deg.nc"
     case(lwdn)
@@ -584,7 +584,7 @@ CONTAINS
           CO2FILE = TRIM(CRU%BasePath)//"/co2/global_co2_ann_1700_2018.csv"
 #endif
           CALL GET_UNIT(iunit)
-          OPEN (iunit, FILE=TRIM(CO2FILE), STATUS="OLD", ACTION="READ")
+          OPEN(iunit, FILE=TRIM(CO2FILE), STATUS="OLD", ACTION="READ")
           DO WHILE( IOS .EQ. 0 )
              READ(iunit, FMT=*, IOSTAT=IOS) iyear, CRU%CO2VALS(iyear)
           END DO
@@ -642,7 +642,7 @@ CONTAINS
        WRITE(logn,*)  'Opening ndep data file: ', trim(NdepFILE)
 
        ErrStatus = NF90_OPEN(TRIM(NdepFILE), NF90_NOWRITE, CRU%NdepF_ID)  
-       print*, 'OOpen02 ', CRU%NdepF_ID
+       ! print*, 'OOpen02 ', CRU%NdepF_ID, TRIM(NdepFILE)
        CALL HANDLE_ERR(ErrStatus, "Opening CRU file "//trim(NdepFILE))
        ErrStatus = NF90_INQ_VARID(CRU%NdepF_ID,'N_deposition', CRU%NdepV_ID)
        CALL HANDLE_ERR(ErrStatus, "Inquiring CRU var "//"N_deposition"//" in "//trim(NdepFILE))
@@ -652,6 +652,7 @@ CONTAINS
 
        IF ( TRIM(CRU%Ndep) .EQ. "static1860" .OR. CRU%CYEAR<=1860) THEN
           ! read Ndep at year 1860 (noting that file starts at 1850)
+          ! print*, 'ORead02.1 ', CRU%NdepF_ID
           CRU%Ndep_CTSTEP = 11
           t =  CRU%Ndep_CTSTEP
           ErrStatus = NF90_GET_VAR(CRU%NdepF_ID, CRU%NdepV_ID, tmparr, &
@@ -667,6 +668,7 @@ CONTAINS
 
     IF ( TRIM(CRU%Ndep) .NE. "static1860" .and.  CRU%CYEAR>1860) THEN
        ! read Ndep at current year (noting that file starts at 1850 and ends in 2015)
+       ! print*, 'ORead02.2 ', CRU%NdepF_ID
        CRU%Ndep_CTSTEP = min(CRU%CYEAR, 2015) - 1850 + 1
        t =  CRU%Ndep_CTSTEP
        ErrStatus = NF90_GET_VAR(CRU%NdepF_ID, CRU%NdepV_ID, tmparr, &
@@ -772,7 +774,7 @@ CONTAINS
     !WRITE(logn,*)  'Opening met data file: ', CRU%MetFile(iVar)
 
     ErrStatus = NF90_OPEN(TRIM(CRU%MetFile(iVar)), NF90_NOWRITE, CRU%F_ID(iVar))
-    print*, 'OOpen03 ', CRU%F_ID(iVar)
+    ! print*, 'OOpen03 ', iVar, CRU%NMET, CRU%F_ID(iVar), TRIM(CRU%MetFile(iVar))
     CALL HANDLE_ERR(ErrStatus, "Opening CRU file "//trim(CRU%MetFile(iVar)) )
     ErrStatus = NF90_INQ_VARID(CRU%F_ID(iVar),TRIM(CRU%VAR_NAME(iVar)), CRU%V_ID(iVar))
     CALL HANDLE_ERR(ErrStatus, "Inquiring CRU var "//TRIM(CRU%VAR_NAME(iVar))// &
@@ -851,12 +853,12 @@ CONTAINS
 
     ! print *,  "CRU%CTSTEP, LastDayOfYear, LastYearOfMet", CRU%CTSTEP, LastDayOfYear, LastYearOfMet
     DO iVar = 1, CRU%NMET
-
+       ! print*, 'ORead03 ', iVar, CRU%NMET, CRU%F_ID(iVar)
        IF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY' .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' ) &
             .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2') &
             .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Ndep' )) THEN
           MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
-       ELSEIF  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Precip' &
+       ELSE IF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Precip' &
             .OR.  TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Precip'.OR. &
             TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Temp_Precip'.OR. &
             TRIM(CRU%Run) .EQ. 'S0_TRENDY_Temp_Precip' ) THEN
@@ -873,8 +875,7 @@ CONTAINS
                 MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
              ENDIF
           ENDIF
-
-       ELSEIF  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Temp' &
+       ELSE IF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Temp' &
             .OR.  TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Temp') THEN
           IF (iVar.EQ.6 .OR. iVar.EQ.7) THEN
              MetYear = CRU%CYEAR
@@ -1027,7 +1028,7 @@ CONTAINS
                 ! Open the Tmin file for next year in preparation for reading Jan 1st...
                 CALL CRU_GET_FILENAME( CRU, NextMetYear, Tmin, filename )
                 ErrStatus = NF90_OPEN(TRIM(filename), NF90_NOWRITE, fid)
-                print*, 'OOpen04 ', fid
+                ! print*, 'OOpen04 ', fid, TRIM(filename)
                 CALL HANDLE_ERR(ErrStatus, "Opening CRU file "//trim(filename))
                 ErrStatus = NF90_INQ_VARID(fid,TRIM(CRU%VAR_NAME(iVar)), vid)
                 CALL HANDLE_ERR(ErrStatus, "Inquiring CRU var "//trim(filename))
@@ -1055,7 +1056,7 @@ CONTAINS
                 ENDIF  ! End of If DirectRead
 
                 ! Close the next year's Tmin met file
-                print*, 'OClose02 ', fid
+                ! print*, 'OClose04 ', fid
                 ErrStatus = NF90_CLOSE(fid)
                 fid = -1
                 CALL HANDLE_ERR(ErrStatus, "Closing CRU file "//trim(filename))
@@ -1105,7 +1106,7 @@ CONTAINS
                 ! Open the previous year's Tmax file (MetYear-1)
                 CALL CRU_GET_FILENAME( CRU, MetYear-1, iVar, filename )
                 ErrStatus = NF90_OPEN(TRIM(filename), NF90_NOWRITE, fid)
-                print*, 'OOpen05 ', fid
+                ! print*, 'OOpen05 ', fid
                 CALL HANDLE_ERR(ErrStatus, "Opening CRU file "//trim(filename))
 
                 ! Obtain the size of the time dimension (tds), which locates the data for Dec 31st in the file.
@@ -1139,7 +1140,7 @@ CONTAINS
 
                 ENDIF  ! End of If DirectRead
 
-                print*, 'OClose03 ', fid
+                ! print*, 'OClose05 ', fid
                 ErrStatus = NF90_CLOSE(fid)
                 fid = -1
                 CALL HANDLE_ERR(ErrStatus, "Closing CRU file "//trim(filename))
@@ -1506,7 +1507,7 @@ CONTAINS
     IF (ktau .EQ. kend) THEN
        DO imetvar=1, CRU%NMET
           !print *, 'Close CRU%MetFile(imetvar)', CRU%MetFile(imetvar)
-          print*, 'OClose04 ', CRU%F_ID(imetvar), imetvar, CRU%NMET
+          ! print*, 'OClose03.1 ', imetvar, CRU%NMET, CRU%F_ID(imetvar)
           ErrStatus = NF90_CLOSE(CRU%F_ID(imetvar))
           CRU%F_ID(imetvar) = -1
           CALL HANDLE_ERR(ErrStatus, "Closing CRU file"//trim(CRU%MetFile(imetvar)))
@@ -1562,18 +1563,19 @@ CONTAINS
     write(*,*) 'Closing CRU files.'
     do i=1, CRU%nmet
        if (CRU%f_id(i) > -1) then
-          print*, 'OClose33 ', CRU%f_id(i)
+          ! print*, 'OClose03.2 ', i, CRU%nmet, CRU%f_id(i)
           errstatus = nf90_close(CRU%f_id(i))
           call handle_err(errstatus, "Closing CRU met file "//trim(CRU%MetFile(i)))
        end if
     end do
     
     if (CRU%Ndepf_id > -1) then
-       print*, 'OClose34 ', CRU%Ndepf_id
+       ! print*, 'OClose02 ', CRU%Ndepf_id
        errstatus = nf90_close(CRU%Ndepf_id)
        call handle_err(errstatus, "Closing CRU Ndep file.")
     end if
-    
+    ! print*, 'OClosed02/03'
+
   end subroutine cru_close
 
 END MODULE CABLE_CRU

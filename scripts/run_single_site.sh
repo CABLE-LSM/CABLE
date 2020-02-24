@@ -40,15 +40,15 @@
 #PBS -S /bin/bash
 #PBS -M matthias.cuntz@inrae.fr
 
-system=moc801@gadi # cuntz@explor, cuntz@mcinra, moc801@gadi/cuntz@gadi, knauer@pearcey, jk8585 or vxh599@raijin
+system=cuntz@mcinra # cuntz@explor, cuntz@mcinra, moc801@gadi/cuntz@gadi, knauer@pearcey, jk8585 or vxh599@raijin
 
 # MPI run or single processor run
 # nproc should fit with job tasks 
 dompi=1   # 0: normal run: ./cable
           # 1: MPI run: mpiexec -n ${nproc} ./cable_mpi
-nproc=4   # Number of cores for MPI runs
+nproc=2   # Number of cores for MPI runs
           # must be same as above: SBATCH -n nproc or PBS -l ncpus=nproc
-ignore_mpi_err=1 # 0/1: continue even if mpi run failed
+ignore_mpi_err=1 # 0/1: 1: continue even if mpi run failed
 
 # --------------------------------------------------------------------
 #
@@ -100,16 +100,16 @@ doclimate=0     # 1/0: Do/Do not create climate restart file
 # Step 2
 dofromzero=1    # 1/0: Do/Do not first spinup phase from zero biomass stocks
 # Step 3
-doequi1=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
-nequi1=3        #      number of times to repeat steps in doequi1
+doequi1=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
+nequi1=2        #      number of times to repeat steps in doequi1
 # Step 4
-doequi2=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
-nequi2=3        #      number of times to repeat steps in doequi2
+doequi2=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
+nequi2=2        #      number of times to repeat steps in doequi2
 # Step 5
-doiniluc=0      # 1/0: Do/Do not spinup with dynamic land use (5a)
-doinidyn=0      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
+doiniluc=1      # 1/0: Do/Do not spinup with dynamic land use (5a)
+doinidyn=1      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
 # Step 6
-dofinal=0       # 1/0: Do/Do not final run from 1900 to 2017
+dofinal=1       # 1/0: Do/Do not final run from 1900 to 2017
 
 # --------------------------------------------------------------------
 # Other switches
@@ -123,7 +123,7 @@ explicit_gm=0       # 1/0: explicit (finite) or implicit mesophyll conductance
 # Setup
 #
 
-set -ex
+set -e
 
 trap cleanup 1 2 3 6
 
@@ -161,10 +161,8 @@ if [[ "${sys}" == "explor" ]] ; then
     # export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-gfortran63/lib
     # export mpiexecdir=/opt/soft/hf/openmpi/3.0.1/gcc/6.3.0/bin/
 elif [[ "${sys}" == "mcinra" ]] ; then
-    # exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi-gfortran"
-    export mpiexecdir=/usr/local/openmpi-3.1.4-gfortran/bin/
-    # # exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi-ifort"
-    # export mpiexecdir=/usr/local/openmpi-3.1.5-ifort/bin/
+    export mpiexecdir=/usr/local/openmpi-3.1.5-ifort/bin/
+    # export mpiexecdir=/usr/local/openmpi-3.1.4-gfortran/bin/
 elif [[ "${sys}" == "pearcey" ]] ; then
     # prog is slurm_script
     pdir=${isdir}
@@ -221,8 +219,8 @@ elif [[ "${system}" == "cuntz@mcinra" ]] ; then
     cablehome="/Users/cuntz/prog/vanessa/cable"
     # Cable executable
     if [[ ${dompi} -eq 1 ]] ; then
-	# exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi-ifort"
-	exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi-gfortran"
+	exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi-ifort"
+	# exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi-gfortran"
     else
 	exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable"
     fi
@@ -273,7 +271,7 @@ else
     exit 1
 fi
 # Run directory
-runpath="${sitepath}/run_20200202"
+runpath="${sitepath}/run_20200216"
 
 # Cable parameters
 namelistpath="../namelists"
@@ -456,10 +454,60 @@ ulimit -s unlimited 2> /dev/null || ulimit -s 32768
 set -e
 
 # --------------------------------------------------------------------
-# Sequence
+# Info
 #
 t1=$(date +%s)
 printf "Started at %s\n" "$(date)"
+
+printf "\nSetup\n"
+printf "    Serial / Parallel\n"
+printf "    	dompi=${dompi}\n"
+printf "    	    nproc=${nproc}\n"
+printf "    	    ignore_mpi_err=${ignore_mpi_err}\n"
+printf "\n"
+printf "    Sequence\n"
+printf "    	imeteo=${imeteo}\n"
+printf "    	doextractsite=${doextractsite}\n"
+printf "    	    sitename=${sitename}\n"
+printf "    	    latlon=${latlon}\n"
+printf "    	doclimate=${doclimate}\n"
+printf "    	dofromzero=${dofromzero}\n"
+printf "    	doequi1=${doequi1}\n"
+printf "    	    nequi1=${nequi1}\n"
+printf "    	doequi2=${doequi2}\n"
+printf "    	    nequi2=${nequi2}\n"
+printf "    	doiniluc=${doiniluc}\n"
+printf "    	doinidyn=${doinidyn}\n"
+printf "    	dofinal=${dofinal}\n"
+printf "\n"
+printf "    Options\n"
+printf "    	doc13o2=${doc13o2}\n"
+printf "    	c13o2_simple_disc=${c13o2_simple_disc}\n"
+printf "    	explicit_gm=${explicit_gm}\n"
+printf "\n"
+printf "    Directories\n"
+printf "    	sitepath=${sitepath}\n"
+printf "    	cablehome=${cablehome}\n"
+printf "    	exe=${exe}\n"
+printf "    	aux=${aux}\n"
+printf "    	GlobalLandMaskFile=${GlobalLandMaskFile}\n"
+printf "    	GlobalMetPath=${GlobalMetPath}\n"
+printf "    	GlobalTransitionFilePath=${GlobalTransitionFilePath}\n"
+printf "    	runpath=${runpath}\n"
+printf "    	namelistpath=${namelistpath}\n"
+printf "    	filename_veg=${filename_veg}\n"
+printf "    	filename_soil=${filename_soil}\n"
+printf "    	casafile_cnpbiome=${casafile_cnpbiome}\n"
+printf "    	LandMaskFile=${LandMaskFile}\n"
+printf "    	MetPath=${MetPath}\n"
+printf "    	ClimateFile=${ClimateFile}\n"
+printf "    	TransitionFilePath=${TransitionFilePath}\n"
+printf "    	filename_d13c_atm=${filename_d13c_atm}\n"
+printf "\n"
+
+# --------------------------------------------------------------------
+# Sequence
+#
 
 # 0. Extract meteo, land use and mask for one specific site from global files
 if [[ ${doextractsite} -ge 1 ]] ; then
@@ -1212,7 +1260,8 @@ if [[ ${doinidyn} -eq 1 ]] ; then
     com=${com}$(csed "filename%restart_in=\"restart/cru_cable_rst.nc\"")
     com=${com}$(csed "cable_user%CLIMATE_fromZero=.false.")
     com=${com}$(csed "cable_user%YearStart=1700")
-    com=${com}$(csed "cable_user%YearEnd=1899")
+    #MCTEST com=${com}$(csed "cable_user%YearEnd=1899")
+    com=${com}$(csed "cable_user%YearEnd=1701")
     com=${com}$(csed "icycle=2")
     com=${com}$(csed "spincasa=.false.")
     com=${com}$(csed "cable_user%CASA_fromZero=.false.")
@@ -1303,7 +1352,8 @@ if [[ ${dofinal} -eq 1 ]] ; then
     com=${com}$(csed "filename%restart_in=\"restart/cru_cable_rst.nc\"")
     com=${com}$(csed "cable_user%CLIMATE_fromZero=.false.")
     com=${com}$(csed "cable_user%YearStart=1901")
-    com=${com}$(csed "cable_user%YearEnd=2017")
+    #MCTEST com=${com}$(csed "cable_user%YearEnd=2017")
+    com=${com}$(csed "cable_user%YearEnd=1902")
     com=${com}$(csed "icycle=2")
     com=${com}$(csed "spincasa=.false.")
     com=${com}$(csed "cable_user%CASA_fromZero=.false.")
@@ -1379,6 +1429,7 @@ cd ${isdir}
 
 t2=$(date +%s)
 dt=$((t2-t1))
+printf "\n"
 if [[ ${dt} -lt 60 ]] ; then
     printf "Finished at %s   in %i seconds.\n" "$(date)" ${dt}
 else

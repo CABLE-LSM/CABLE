@@ -900,6 +900,7 @@ CONTAINS
              ! MPI: send the results back to the master
              ! print*, 'WORKER Send 34 send'
              CALL MPI_Send(MPI_BOTTOM, 1, send_t, 0, ktau_gl, ocomm, ierr)
+             ! print*, 'WORKER Sent 34'
 
              ! Write time step's output to file if either: we're not spinning up
              ! or we're spinning up and the spinup has converged:
@@ -7228,9 +7229,10 @@ CONTAINS
 
     use mpi
 
-    USE casavariable,        ONLY: casa_met, casa_flux, mplant
-    USE cable_def_types_mod, ONLY: climate_type
-    USE phenvariable
+    use casadimension,       only: icycle
+    use casavariable,        only: casa_met, casa_flux, mplant
+    use cable_def_types_mod, only: climate_type
+    use phenvariable
     ! 13C
     use cable_common_module, only: cable_user
     use cable_c13o2_def,     only: c13o2_flux
@@ -7267,12 +7269,9 @@ CONTAINS
 
     CALL MPI_Comm_rank(comm, rank, ierr)
 
+    ntyp = ncdumprw + icycle - 1
     ! 13C
-    if (cable_user%c13o2) then
-       ntyp = ncdumprw
-    else
-       ntyp = ncdumprw - 2
-    endif
+    if (cable_user%c13o2) ntyp = ntyp + 2
 
     ALLOCATE(blen(ntyp))
     ALLOCATE(displs(ntyp))
@@ -7301,8 +7300,6 @@ CONTAINS
     CALL MPI_Get_address(casamet%moist, displs(bidx), ierr)
     blen(bidx) = ms * r2len
 
-    ! ------- casaflux ----
-
     bidx = bidx + 1
     CALL MPI_Get_address(casaflux%Cgpp, displs(bidx), ierr)
     blen(bidx) = r2len
@@ -7310,11 +7307,6 @@ CONTAINS
     bidx = bidx + 1
     CALL MPI_Get_address(casaflux%Crmplant, displs(bidx), ierr)
     blen(bidx) = mplant * r2len
-
-    ! Ndep
-    bidx = bidx + 1
-    CALL MPI_Get_address(casaflux%Nmindep, displs(bidx), ierr)
-    blen(bidx) = r2len
 
     ! ------- phen ----
 
@@ -7331,6 +7323,20 @@ CONTAINS
     bidx = bidx + 1
     CALL MPI_Get_address(climate%qtemp_max_last_year, displs(bidx), ierr)
     blen(bidx) = r1len
+
+    ! ------- casaflux - N and P deposition ---
+
+    if (icycle>1) then
+       bidx = bidx + 1
+       CALL MPI_Get_address(casaflux%Nmindep, displs(bidx), ierr)
+       blen(bidx) = r2len
+    endif
+
+    if (icycle>2) then
+       bidx = bidx + 1
+       CALL MPI_Get_address(casaflux%Pdep, displs(bidx), ierr)
+       blen(bidx) = r2len
+    endif
 
     ! ------- c13o2 ----
 

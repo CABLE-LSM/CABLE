@@ -1717,15 +1717,14 @@ CONTAINS
   SUBROUTINE write_output_parameter_r1(ncid, parID, pname, par_r1,             &
                                        prange, writepatch, dimswitch, restart)
     ! Subroutine for writing a real valued 1D parameter (time invariant)
-    INTEGER, INTENT(IN) :: ncid ! netcdf file ID
-    INTEGER, INTENT(IN) :: parID ! variable's netcdf ID
-    REAL(KIND=4), DIMENSION(:), INTENT(IN) :: par_r1 ! variable values
-    REAL, DIMENSION(2), INTENT(IN) :: prange ! max and min for variable
-                                                  ! error checking
-    LOGICAL, INTENT(IN) :: writepatch ! write patch-specific info for this var?
-    LOGICAL, INTENT(IN), OPTIONAL :: restart ! are we writing to a restart file?
-    CHARACTER(LEN=*), INTENT(IN) :: pname ! name of variable
-    CHARACTER(LEN=*), INTENT(IN) :: dimswitch ! indicates dimesnion of parameter
+    INTEGER,                    INTENT(IN) :: ncid       ! netcdf file ID
+    INTEGER,                    INTENT(IN) :: parID      ! variable's netcdf ID
+    CHARACTER(LEN=*),           INTENT(IN) :: pname      ! name of variable
+    REAL(KIND=4), DIMENSION(:), INTENT(IN) :: par_r1     ! variable values
+    REAL,         DIMENSION(2), INTENT(IN) :: prange     ! max and min for variable error checking
+    LOGICAL,                    INTENT(IN) :: writepatch ! write patch-specific info for this var?
+    CHARACTER(LEN=*),           INTENT(IN) :: dimswitch  ! indicates dimesnion of parameter
+    LOGICAL,      OPTIONAL,     INTENT(IN) :: restart    ! are we writing to a restart file?
 
     INTEGER :: i, j ! do loop counter
 

@@ -317,8 +317,8 @@ SUBROUTINE POP_IO( POP, casamet, YEAR, ACTION, CF )
 
         IF ( EXISTFILE .and. (typ.ne.'ini') .and. (typ.ne.'rst') ) THEN  ! file exists
 
-           STATUS = NF90_open(fname, mode=nf90_write, ncid=FILE_ID)
-           print*, 'OOpen70 ', file_id
+           STATUS = NF90_open(trim(fname), mode=nf90_write, ncid=FILE_ID)
+           ! print*, 'OOpen70.1 ', file_id, trim(fname)
            IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
            STATUS = nf90_inq_dimid(FILE_ID, 'time', t_id)
@@ -395,12 +395,12 @@ SUBROUTINE POP_IO( POP, casamet, YEAR, ACTION, CF )
         ELSE  ! file doesn't already exist, or is RST or INI
 
            ! Create NetCDF file:
-           !STATUS = NF90_create(fname, NF90_CLOBBER, FILE_ID)
-           STATUS = NF90_create(fname, cmode=ior(nf90_clobber,nf90_64bit_offset), ncid=FILE_ID)
-           print*, 'OCreate40 ', file_id
+           STATUS = NF90_create(trim(fname), cmode=ior(nf90_clobber,nf90_64bit_offset), ncid=FILE_ID)
+           ! print*, 'OCreate70 ', file_id, trim(fname)
            IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
            ! Put the file in define mode:
-           STATUS = NF90_redef(FILE_ID)
+           !MC - new files are already in define mode
+           ! STATUS = NF90_redef(FILE_ID)
 
            ! GLOBAL ATTRIBUTES
            STATUS = NF90_PUT_ATT( FILE_ID, NF90_GLOBAL, "Icycle" , icycle             )
@@ -531,6 +531,7 @@ SUBROUTINE POP_IO( POP, casamet, YEAR, ACTION, CF )
 
      ! WRITE CURRENT STATE
      ! TIME  ( t )
+     ! print*, 'OWrite70 ', file_id
      STATUS = NF90_PUT_VAR(FILE_ID, VIDtime, YEAR, start=(/ CNT /) )
      IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
@@ -1019,12 +1020,10 @@ SUBROUTINE POP_IO( POP, casamet, YEAR, ACTION, CF )
         typ = "ini"
      ENDIF
 
-
-
      WRITE(*,*)"Reading POP-rst file: ", TRIM(fname)
 
      STATUS = NF90_OPEN( TRIM(fname), NF90_NOWRITE, FILE_ID )
-     print*, 'OOpen71 ', file_id
+     ! print*, 'OOpen70.2 ', file_id, TRIM(fname)
      IF (STATUS /= NF90_noerr)THEN
         WRITE(*,*)"Error opening file (pop_bios_io.f90) ",TRIM(fname)
         CALL handle_err(STATUS)
@@ -1540,12 +1539,11 @@ SUBROUTINE POP_IO( POP, casamet, YEAR, ACTION, CF )
 
   IF ( CLOSE_FILE .OR. typ .EQ. 'rst' .OR. typ .EQ. 'ini' ) THEN
      ! Close NetCDF file:
-     print*, 'OClose77 ', file_id
+     ! print*, 'OClose70 ', file_id
      STATUS = NF90_close(FILE_ID)
      file_id = -1
      IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-     WRITE(*,*)"Closed POP-file ", TRIM(fname)
+     WRITE(*,*) "Closed POP-file ", TRIM(fname)
   ENDIF
 
 END SUBROUTINE POP_IO
-

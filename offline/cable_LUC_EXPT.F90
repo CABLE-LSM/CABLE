@@ -114,8 +114,8 @@ CONTAINS
     LUC_EXPT%NotPrimOnlyFile = 'none'
     ! READ LUC_EXPT settings
     CALL GET_UNIT(iu)
-    OPEN (iu,FILE="LUC.nml",STATUS='OLD',ACTION='READ')
-    READ (iu,NML=LUCNML)
+    OPEN(iu,FILE="LUC.nml",STATUS='OLD',ACTION='READ')
+    READ(iu,NML=LUCNML)
     CLOSE(iu)
     LUC_EXPT%TransitionFilePath = TransitionFilePath
     LUC_EXPT%ClimateFile        = ClimateFile
@@ -190,7 +190,7 @@ CONTAINS
        WRITE(logn,*)  'LUC input data file: ', LUC_EXPT%TransFile(i)
 
        STATUS = NF90_OPEN(TRIM(LUC_EXPT%TransFile(i)), NF90_NOWRITE, LUC_EXPT%F_ID(i))
-       print*, 'OOpen30 ', LUC_EXPT%F_ID(i)
+       ! print*, 'OOpen30 ', i, LUC_EXPT%nfile, LUC_EXPT%F_ID(i), TRIM(LUC_EXPT%TransFile(i))
        CALL HANDLE_ERR(STATUS, "Opening LUH2 file "//LUC_EXPT%TransFile(i) )
        STATUS = NF90_INQ_VARID(LUC_EXPT%F_ID(i),TRIM(LUC_EXPT%VAR_NAME(i)), LUC_EXPT%V_ID(i))
        CALL HANDLE_ERR(STATUS, "Inquiring LUC_EXPT var "//TRIM(LUC_EXPT%VAR_NAME(i))// &
@@ -228,6 +228,7 @@ CONTAINS
           xds = LUC_EXPT%xdimsize
           yds = LUC_EXPT%ydimsize
        ENDIF
+       ! print*, 'OOpened30'
        ! write(*,*) 'length LUH2 data: ', tdimsize
     ENDDO
 
@@ -314,11 +315,11 @@ CONTAINS
 
     ENDIF
 
-    LUC_EXPT%grass = min(LUC_EXPT%grass, 1.0)
-    LUC_EXPT%primaryf = min(LUC_EXPT%primaryf, 1.0- LUC_EXPT%grass)
-    LUC_EXPT%secdf = max((1.0 -  LUC_EXPT%grass - LUC_EXPT%primaryf), 0.0)
-    LUC_EXPT%crop = max(min( LUC_EXPT%crop, LUC_EXPT%grass),0.0)
-    LUC_EXPT%past =max( min(LUC_EXPT%grass - LUC_EXPT%crop, LUC_EXPT%past), 0.0)
+    LUC_EXPT%grass    = min(LUC_EXPT%grass, 1.0)
+    LUC_EXPT%primaryf = min(LUC_EXPT%primaryf, 1.0-LUC_EXPT%grass)
+    LUC_EXPT%secdf    = max(1.0-LUC_EXPT%grass-LUC_EXPT%primaryf, 0.0)
+    LUC_EXPT%crop     = max(min(LUC_EXPT%crop, LUC_EXPT%grass), 0.0)
+    LUC_EXPT%past     = max(min(LUC_EXPT%grass-LUC_EXPT%crop, LUC_EXPT%past), 0.0)
 
     IF (TRIM(cable_user%MetType) .EQ. "bios") THEN
 
@@ -400,9 +401,9 @@ CONTAINS
 
        ! write(*,*)  LUC_EXPT%grass(93), LUC_EXPT%primaryf(93), LUC_EXPT%secdf(93), CPC
 
-       LUC_EXPT%grass = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf)*(1-CPC)
-       LUC_EXPT%primaryf =  LUC_EXPT%primaryf * CPC
-       LUC_EXPT%secdf =  LUC_EXPT%secdf * CPC
+       LUC_EXPT%grass    = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf) * (1.0-CPC)
+       LUC_EXPT%primaryf = LUC_EXPT%primaryf * CPC
+       LUC_EXPT%secdf    = LUC_EXPT%secdf * CPC
 
        ! write(*,*)  LUC_EXPT%grass(93), LUC_EXPT%primaryf(93), LUC_EXPT%secdf(93)
 
@@ -470,7 +471,7 @@ CONTAINS
        tmparr = 0.0
        LUC_EXPT%prim_only = .TRUE.
        Status = NF90_OPEN(TRIM(NotPrimOnlyFile), NF90_NOWRITE, NotPrimOnly_fID)
-       print*, 'OOpen31 ', NotPrimOnly_fID
+       ! print*, 'OOpen31 ', NotPrimOnly_fID, TRIM(NotPrimOnlyFile)
        CALL HANDLE_ERR(STATUS, "Opening NotPrimOnlyFile"//TRIM(NotPrimOnlyFile ))
        Status = NF90_INQ_VARID( NotPrimOnly_fID,'cum_frac_prim_loss',  NotPrimOnly_vID)
        CALL HANDLE_ERR(STATUS, "Inquiring cum_frac_prim_loss in "//TRIM(NotPrimOnlyFile ) )
@@ -486,8 +487,9 @@ CONTAINS
        ENDDO
        PRINT *,  "number of not prim_only grid-cells: ", i
        PRINT *,  "number grid-cells: ", mland
-       print*, 'OClose31 ', NotPrimOnly_fID
+       ! print*, 'OClose31 ', NotPrimOnly_fID
        STATUS = NF90_CLOSE(NotPrimOnly_fID)
+       CALL HANDLE_ERR(STATUS, "Closing NotPrimOnly "//TRIM(NotPrimOnlyFile))
        NotPrimOnly_fID = -1
     ENDIF
 
@@ -497,7 +499,7 @@ CONTAINS
           LUC_EXPT%secdf = 0.0
           LUC_EXPT%primaryf = 1.0
           LUC_EXPT%grass = 0.0         
-          LUC_EXPT%grass = LUC_EXPT%primaryf*(1-CPC)
+          LUC_EXPT%grass = LUC_EXPT%primaryf*(1.0-CPC)
           LUC_EXPT%primaryf =  LUC_EXPT%primaryf *CPC 
 
         ENDWHERE
@@ -527,6 +529,7 @@ CONTAINS
           END WHERE
        END WHERE
     ENDIF
+    ! print*, 'ORead30 '
 
   END SUBROUTINE LUC_EXPT_INIT
   
@@ -713,7 +716,7 @@ USE netcdf
   ENDIF
   ! Open NetCDF file:
   STATUS = NF90_OPEN(TRIM(fname), NF90_NOWRITE, FILE_ID)
-  print*, 'OOpen32 ', file_id
+  ! print*, 'OOpen32 ', file_id, TRIM(fname)
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
   ! dimensions:
@@ -777,7 +780,7 @@ USE netcdf
   ENDWHERE
 
   ! Close NetCDF file:
-  print*, 'OClose32 ', file_id
+  ! print*, 'OClose32 ', file_id
   STATUS = NF90_close(FILE_ID)
   file_id = -1
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
@@ -787,91 +790,84 @@ USE netcdf
 END SUBROUTINE READ_CLIMATEFILE
 
 ! ==============================================================================
+
 SUBROUTINE READ_LUH2(LUC_EXPT)
 
-IMPLICIT NONE
+  IMPLICIT NONE
     
-    TYPE (LUC_EXPT_TYPE), INTENT(INOUT) :: LUC_EXPT
+  TYPE(LUC_EXPT_TYPE), INTENT(INOUT) :: LUC_EXPT
     
-    REAL    ::  tmp
-    REAL, ALLOCATABLE :: tmparr(:,:)
-    INTEGER :: t, i, ii, k, x, y, realk
-    INTEGER :: fid, vid, tid
-    INTEGER :: xds, yds, tds
-    INTEGER :: STATUS,  iu
+  REAL    ::  tmp
+  REAL, ALLOCATABLE :: tmparr(:,:)
+  INTEGER :: t, i, ii, k, x, y, realk
+  INTEGER :: fid, vid, tid
+  INTEGER :: xds, yds, tds
+  INTEGER :: STATUS,  iu
    
- yds = LUC_EXPT%ydimsize 
- xds = LUC_EXPT%xdimsize  
- t = LUC_EXPT%CTSTEP
- IF(.NOT.ALLOCATED(tmparr)) ALLOCATE(tmparr(xds,yds))   
+  yds = LUC_EXPT%ydimsize 
+  xds = LUC_EXPT%xdimsize  
+  t = LUC_EXPT%CTSTEP
+  IF(.NOT.ALLOCATED(tmparr)) ALLOCATE(tmparr(xds,yds))   
 
- if (t.LE. LUC_EXPT%nrec) then
-    DO i=1, LUC_EXPT%nfile
-       IF ( LUC_EXPT%DirectRead ) THEN
+  if (t .LE. LUC_EXPT%nrec) then
+     DO i=1, LUC_EXPT%nfile
+        ! print*, 'ORead30 ', i, LUC_EXPT%nfile, LUC_EXPT%F_ID(i)
+        IF ( LUC_EXPT%DirectRead ) THEN
+           DO k = 1, mland
+              STATUS = NF90_GET_VAR( LUC_EXPT%F_ID(i), LUC_EXPT%V_ID(i), tmp, &
+                   start=(/land_x(k),land_y(k),t/) )
+              CALL HANDLE_ERR(STATUS, "Reading direct from "//LUC_EXPT%TransFile(i) )
+              LUC_EXPT%INPUT(i)%VAL(k) = tmp
+           END DO
+        ELSE
+           STATUS = NF90_GET_VAR(LUC_EXPT%F_ID(i), LUC_EXPT%V_ID(i), tmparr, &
+                start=(/1,1,t/),count=(/xds,yds,1/) )
+           CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )
+           DO k = 1, mland
+              LUC_EXPT%INPUT(i)%VAL(k) =tmparr( land_x(k), land_y(k) )
+              if  (LUC_EXPT%INPUT(i)%VAL(k).gt.1.0) then
+                 LUC_EXPT%INPUT(i)%VAL(k) = 0.0
+              endif
+           END DO
+        ENDIF
+     ENDDO
+  else
+     write(*,'(a)') 'warning: past end of LUH2 record'
+  endif
 
-          DO k = 1, mland
-
-             STATUS = NF90_GET_VAR( LUC_EXPT%F_ID(i), LUC_EXPT%V_ID(i), tmp, &
-                  start=(/land_x(k),land_y(k),t/) )
-             CALL HANDLE_ERR(STATUS, "Reading direct from "//LUC_EXPT%TransFile(i) )
-             LUC_EXPT%INPUT(i)%VAL(k) = tmp
-          END DO
-       ELSE
-
-          STATUS = NF90_GET_VAR(LUC_EXPT%F_ID(i), LUC_EXPT%V_ID(i), tmparr, &
-               start=(/1,1,t/),count=(/xds,yds,1/) )
-          CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )
-
-          DO k = 1, mland
-             LUC_EXPT%INPUT(i)%VAL(k) =tmparr( land_x(k), land_y(k) )
-             if  (LUC_EXPT%INPUT(i)%VAL(k).gt.1.0) then
-                LUC_EXPT%INPUT(i)%VAL(k) = 0.0
-             endif
-          END DO
-
-       ENDIF
-    ENDDO
-
- else
-
-    write(*,'(a)') 'warning: past end of LUH2 record'
-
- endif
-
-
- ! Adjust transition areas based on primary wooded fraction 
- WHERE (LUC_EXPT%biome .eq. 3 .or. LUC_EXPT%biome .eq. 11)  ! savanna/ xerophytic woods
-    LUC_EXPT%INPUT(ptos)%VAL =  LUC_EXPT%INPUT(ptos)%VAL * 2.0/5.0
-    LUC_EXPT%INPUT(ptog)%VAL =  LUC_EXPT%INPUT(ptog)%VAL * 2.0/5.0
-    LUC_EXPT%INPUT(gtos)%VAL =  LUC_EXPT%INPUT(gtos)%VAL * 2.0/5.0
-    LUC_EXPT%INPUT(stog)%VAL =  LUC_EXPT%INPUT(stog)%VAL * 2.0/5.0
-    LUC_EXPT%INPUT(smharv)%VAL =  LUC_EXPT%INPUT(smharv)%VAL * 2.0/5.0
-    LUC_EXPT%INPUT(syharv)%VAL =  LUC_EXPT%INPUT(syharv)%VAL * 2.0/5.0
- ELSEWHERE (LUC_EXPT%biome .eq. 12 .or. LUC_EXPT%biome .eq. 13 &
-     .or. LUC_EXPT%biome .eq. 15 .or. LUC_EXPT%biome .eq. 16  ) ! shrub
-    LUC_EXPT%INPUT(ptos)%VAL =  LUC_EXPT%INPUT(ptos)%VAL * 1.0/5.0
-    LUC_EXPT%INPUT(ptog)%VAL =  LUC_EXPT%INPUT(ptog)%VAL * 1.0/5.0
-    LUC_EXPT%INPUT(gtos)%VAL =  LUC_EXPT%INPUT(gtos)%VAL * 1.0/5.0
-    LUC_EXPT%INPUT(stog)%VAL =  LUC_EXPT%INPUT(stog)%VAL * 1.0/5.0
-    LUC_EXPT%INPUT(smharv)%VAL =  LUC_EXPT%INPUT(smharv)%VAL * 1.0/5.0
-    LUC_EXPT%INPUT(syharv)%VAL =  LUC_EXPT%INPUT(syharv)%VAL * 1.0/5.0
- ELSEWHERE (LUC_EXPT%biome .eq. 7 .or. LUC_EXPT%biome .eq. 8 &
-            .or. LUC_EXPT%biome .eq. 9 .or. LUC_EXPT%biome .eq. 10) ! boreal
-    LUC_EXPT%INPUT(ptos)%VAL =  LUC_EXPT%INPUT(ptos)%VAL * 0.8
-    LUC_EXPT%INPUT(ptog)%VAL =  LUC_EXPT%INPUT(ptog)%VAL * 0.8
-    LUC_EXPT%INPUT(gtos)%VAL =  LUC_EXPT%INPUT(gtos)%VAL * 0.8
-    LUC_EXPT%INPUT(stog)%VAL =  LUC_EXPT%INPUT(stog)%VAL * 0.8
-    LUC_EXPT%INPUT(smharv)%VAL =  LUC_EXPT%INPUT(smharv)%VAL * 0.8
-    LUC_EXPT%INPUT(syharv)%VAL =  LUC_EXPT%INPUT(syharv)%VAL * 0.8
- ELSEWHERE (LUC_EXPT%biome .eq. 5 .or. LUC_EXPT%biome .eq. 6 ) ! DBL
-    LUC_EXPT%INPUT(ptos)%VAL =  LUC_EXPT%INPUT(ptos)%VAL * 0.7
-    LUC_EXPT%INPUT(ptog)%VAL =  LUC_EXPT%INPUT(ptog)%VAL * 0.7
-    LUC_EXPT%INPUT(gtos)%VAL =  LUC_EXPT%INPUT(gtos)%VAL * 0.7
-    LUC_EXPT%INPUT(stog)%VAL =  LUC_EXPT%INPUT(stog)%VAL * 0.7
-    LUC_EXPT%INPUT(smharv)%VAL =  LUC_EXPT%INPUT(smharv)%VAL * 0.7
-    LUC_EXPT%INPUT(syharv)%VAL =  LUC_EXPT%INPUT(syharv)%VAL * 0.7
- ENDWHERE
-
+  ! Adjust transition areas based on primary wooded fraction 
+  WHERE (LUC_EXPT%biome .eq. 3 .or. LUC_EXPT%biome .eq. 11)  ! savanna/ xerophytic woods
+     LUC_EXPT%INPUT(ptos)%VAL   =  LUC_EXPT%INPUT(ptos)%VAL * 2.0/5.0
+     LUC_EXPT%INPUT(ptog)%VAL   =  LUC_EXPT%INPUT(ptog)%VAL * 2.0/5.0
+     LUC_EXPT%INPUT(gtos)%VAL   =  LUC_EXPT%INPUT(gtos)%VAL * 2.0/5.0
+     LUC_EXPT%INPUT(stog)%VAL   =  LUC_EXPT%INPUT(stog)%VAL * 2.0/5.0
+     LUC_EXPT%INPUT(smharv)%VAL =  LUC_EXPT%INPUT(smharv)%VAL * 2.0/5.0
+     LUC_EXPT%INPUT(syharv)%VAL =  LUC_EXPT%INPUT(syharv)%VAL * 2.0/5.0
+  ELSEWHERE (LUC_EXPT%biome .eq. 12 .or. LUC_EXPT%biome .eq. 13 &
+       .or. LUC_EXPT%biome .eq. 15 .or. LUC_EXPT%biome .eq. 16  ) ! shrub
+     LUC_EXPT%INPUT(ptos)%VAL   =  LUC_EXPT%INPUT(ptos)%VAL * 1.0/5.0
+     LUC_EXPT%INPUT(ptog)%VAL   =  LUC_EXPT%INPUT(ptog)%VAL * 1.0/5.0
+     LUC_EXPT%INPUT(gtos)%VAL   =  LUC_EXPT%INPUT(gtos)%VAL * 1.0/5.0
+     LUC_EXPT%INPUT(stog)%VAL   =  LUC_EXPT%INPUT(stog)%VAL * 1.0/5.0
+     LUC_EXPT%INPUT(smharv)%VAL =  LUC_EXPT%INPUT(smharv)%VAL * 1.0/5.0
+     LUC_EXPT%INPUT(syharv)%VAL =  LUC_EXPT%INPUT(syharv)%VAL * 1.0/5.0
+  ELSEWHERE (LUC_EXPT%biome .eq. 7 .or. LUC_EXPT%biome .eq. 8 &
+       .or. LUC_EXPT%biome .eq. 9 .or. LUC_EXPT%biome .eq. 10) ! boreal
+     LUC_EXPT%INPUT(ptos)%VAL   =  LUC_EXPT%INPUT(ptos)%VAL * 0.8
+     LUC_EXPT%INPUT(ptog)%VAL   =  LUC_EXPT%INPUT(ptog)%VAL * 0.8
+     LUC_EXPT%INPUT(gtos)%VAL   =  LUC_EXPT%INPUT(gtos)%VAL * 0.8
+     LUC_EXPT%INPUT(stog)%VAL   =  LUC_EXPT%INPUT(stog)%VAL * 0.8
+     LUC_EXPT%INPUT(smharv)%VAL =  LUC_EXPT%INPUT(smharv)%VAL * 0.8
+     LUC_EXPT%INPUT(syharv)%VAL =  LUC_EXPT%INPUT(syharv)%VAL * 0.8
+  ELSEWHERE (LUC_EXPT%biome .eq. 5 .or. LUC_EXPT%biome .eq. 6 ) ! DBL
+     LUC_EXPT%INPUT(ptos)%VAL   =  LUC_EXPT%INPUT(ptos)%VAL * 0.7
+     LUC_EXPT%INPUT(ptog)%VAL   =  LUC_EXPT%INPUT(ptog)%VAL * 0.7
+     LUC_EXPT%INPUT(gtos)%VAL   =  LUC_EXPT%INPUT(gtos)%VAL * 0.7
+     LUC_EXPT%INPUT(stog)%VAL   =  LUC_EXPT%INPUT(stog)%VAL * 0.7
+     LUC_EXPT%INPUT(smharv)%VAL =  LUC_EXPT%INPUT(smharv)%VAL * 0.7
+     LUC_EXPT%INPUT(syharv)%VAL =  LUC_EXPT%INPUT(syharv)%VAL * 0.7
+  ENDWHERE
+  
 END SUBROUTINE READ_LUH2
 
 ! ==============================================================================
@@ -887,7 +883,7 @@ SUBROUTINE close_luh2(LUC_EXPT)
   write(*,*) 'Closing LUH2 files.'
   do i=1, LUC_EXPT%nfile
      if (LUC_EXPT%F_ID(i) > -1) then
-        print*, 'OClose00 ', LUC_EXPT%F_ID(i)
+        ! print*, 'OClose30 ', i, LUC_EXPT%nfile, LUC_EXPT%F_ID(i)
         status = nf90_close(LUC_EXPT%F_ID(i))
         LUC_EXPT%F_ID(i) = -1
         call handle_err(status, "Closing LUH2 transition file "//trim(LUC_EXPT%TransFile(i)))

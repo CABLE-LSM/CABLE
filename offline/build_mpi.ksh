@@ -213,7 +213,9 @@ host_mcin()
 	/opt/intel/compilers_and_libraries/mac/bin/compilervars.sh intel64
 	export FC=/usr/local/openmpi-3.1.5-ifort/bin/mpifort
 	# release
-	export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
+	# export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
+	# Gadi flags
+	export CFLAGS='-O2 -fpp -fp-model precise'
 	if [[ ${idebug} -eq 1 ]] ; then
 	    # debug -fpe0
 	    # export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
@@ -282,6 +284,8 @@ host_mcin()
     export NCLIB=${NCROOT}'/lib'
     export NCMOD=${NCROOT}'/include'
     export LDFLAGS="-L${NCLIB} -lnetcdff -L${NCCLIB} -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz"
+    # Gadi flags
+    export LDFLAGS="-O0 ${LDFLAGS}"
     export dosvn=0
     export MFLAGS='-j 8'
     build_build ${cdir} ${PROG}

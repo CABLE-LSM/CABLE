@@ -193,14 +193,39 @@ CONTAINS
     canopy%tv = met%tvair
 
     ! Initialise sunlit and shaded Ac and Aj diagnostics
-    canopy%A_shC = 0.0
-    canopy%A_shJ = 0.0
-    canopy%A_slC = 0.0
-    canopy%A_slJ = 0.0
+    canopy%A_shC          = 0.0_r_2
+    canopy%A_shJ          = 0.0_r_2
+    canopy%A_slC          = 0.0_r_2
+    canopy%A_slJ          = 0.0_r_2
+    canopy%GPP_sh         = 0.0_r_2
+    canopy%GPP_sl         = 0.0_r_2
+    canopy%eta_A_cs       = 0.0_r_2
+    canopy%eta_GPP_cs     = 0.0_r_2
+    canopy%eta_fevc_cs    = 0.0_r_2
+    canopy%eta_A_cs_sl    = 0.0_r_2
+    canopy%eta_fevc_cs_sl = 0.0_r_2
+    canopy%GPP_sh         = 0.0_r_2
+    canopy%eta_A_cs_sh    = 0.0_r_2
+    canopy%eta_fevc_cs_sh = 0.0_r_2
 
+    canopy%dAdcs   = 0.0_r_2
+    canopy%cs      = 0.0_r_2
+    canopy%cs_sl   = 0.0_r_2
+    canopy%cs_sh   = 0.0_r_2
+    canopy%tlf     = 0.0_r_2
+    canopy%dlf     = 0.0_r_2
+    canopy%evapfbl = 0.0_r_2
+    
     ! 13C
-    canopy%An = 0.0_r_2
-    canopy%Rd = 0.0_r_2
+    canopy%An        = 0.0_r_2
+    canopy%Rd        = 0.0_r_2
+    canopy%isc3      = 0.0_r_2
+    canopy%vcmax     = 0.0_r_2
+    canopy%gammastar = 0.0_r_2
+    canopy%gsc       = 0.0_r_2
+    canopy%gbc       = 0.0_r_2
+    canopy%gac       = 0.0_r_2
+    canopy%ci        = 0.0_r_2
 
     CALL define_air(met, air)
 
@@ -2469,6 +2494,7 @@ CONTAINS
     deallocate( gswmin )
 
   END SUBROUTINE dryLeaf
+  
   ! -----------------------------------------------------------------------------
 
 

@@ -31,20 +31,21 @@
 
 MODULE cable_init_module
 
-   USE cable_abort_module,       ONLY: abort, nc_abort
+   USE cable_abort_module,   ONLY: abort, nc_abort
    USE cable_def_types_mod
-   USE cable_IO_vars_module,       ONLY: latitude,longitude, patch,            &
-                                 landpt,smoy,ncid_rin,max_vegpatches,          &
-                                 soilparmnew,ncciy, vegtype_metfile,           &
-                                 soiltype_metfile
+   USE cable_IO_vars_module, ONLY: latitude,longitude, patch, &
+        landpt,smoy,ncid_rin,max_vegpatches, &
+        soilparmnew,ncciy, vegtype_metfile, &
+        soiltype_metfile
    USE cable_read_module
    USE netcdf
-   USE cable_common_module, ONLY : filename, cable_user
+   USE cable_common_module, ONLY: filename, cable_user
 
    IMPLICIT NONE
 
    PRIVATE
-   PUBLIC get_default_inits, get_restart_data
+
+   PUBLIC :: get_default_inits, get_restart_data
 
    INTEGER :: ok ! netcdf status
 
@@ -141,16 +142,40 @@ SUBROUTINE get_default_inits(met,soil,ssnow,canopy,logn, EMSOIL)
    canopy%fhs     = 0.0   ! sensible heat flux from soil (W/m2)
    canopy%us      = 0.1 ! friction velocity (needed in roughness before first call to canopy: should in be in restart?)
 
-   ! 13C
+   ! GPP_components
+   canopy%A_shC          = 0.0_r_2
+   canopy%A_shJ          = 0.0_r_2
+   canopy%A_slC          = 0.0_r_2
+   canopy%A_slJ          = 0.0_r_2
+   canopy%GPP_sh         = 0.0_r_2
+   canopy%GPP_sl         = 0.0_r_2
+   canopy%eta_A_cs       = 0.0_r_2
+   canopy%eta_GPP_cs     = 0.0_r_2
+   canopy%eta_fevc_cs    = 0.0_r_2
+   canopy%eta_A_cs_sl    = 0.0_r_2
+   canopy%eta_fevc_cs_sl = 0.0_r_2
+   canopy%GPP_sh         = 0.0_r_2
+   canopy%eta_A_cs_sh    = 0.0_r_2
+   canopy%eta_fevc_cs_sh = 0.0_r_2
+
+   canopy%dAdcs   = 0.0_r_2
+   canopy%cs      = real(met%ca,r_2)
+   canopy%cs_sl   = real(met%ca,r_2)
+   canopy%cs_sh   = real(met%ca,r_2)
+   canopy%tlf     = 0.0_r_2
+   canopy%dlf     = 0.0_r_2
+   canopy%evapfbl = 0.0_r_2
+
+    ! 13C
    canopy%An        = 0.0_r_2
    canopy%Rd        = 0.0_r_2
    canopy%isc3      = .true.
    canopy%vcmax     = 0.0_r_2
-   canopy%gammastar = 50.0_r_2
+   canopy%gammastar = 40.0_r_2
    canopy%gsc       = 0.0_r_2
    canopy%gbc       = 0.0_r_2
    canopy%gac       = 0.0_r_2
-   canopy%ci        = spread(met%ca,2,mf)
+   canopy%ci        = spread(real(met%ca,r_2),2,mf)
 
 END SUBROUTINE get_default_inits
 
@@ -216,7 +241,7 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
    REAL,    ALLOCATABLE :: var_r2(:,:)
 
    ! Write to screen the restart file is found:
-   WRITE(*,*) 'Reading restart data from: ' ,TRIM(filename%restart_in)
+   WRITE(*,*) 'Reading restart data from: ' , TRIM(filename%restart_in)
 
    ! Check number of gridpoints in restart file is correct:
    ok = NF90_INQ_DIMID(ncid_rin,'mland',mlandID)
@@ -666,7 +691,7 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
 !!$                max_vegpatches,'ncs',from_restart,mp)
 
    ! Close restart file:
-   print*, 'OClose10 ', ncid_rin
+   ! print*, 'OClose21 ', ncid_rin
    ok = NF90_CLOSE(ncid_rin)
    ncid_rin = -1
    IF(ok/=NF90_NOERR) CALL nc_abort(ok,'Error closing restart file '           &

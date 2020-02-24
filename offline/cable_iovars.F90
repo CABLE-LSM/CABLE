@@ -179,15 +179,16 @@ MODULE cable_IO_vars_module
          carbon = .FALSE.,    & ! NEE, GPP, NPP, stores
          soil = .FALSE.,      &  ! soil states
          snow = .FALSE.,      &  ! snow states
+         ! vh_mc !
+         snowmip = .false.,   & ! additional variables for ESM-SnowMIP
          veg = .FALSE.,       & ! vegetation states
          params = .FALSE.,    & ! input parameters used to produce run
          balances = .FALSE.,  & ! energy and water balances
          restart = .FALSE.,   & ! create restart file?
          ensemble = .FALSE.,  & ! are we creating an ensemble run?
-         patch = .FALSE. , &   ! should patch-specific info be written
-                                ! to output file?
-!! vh_js !!
-         casa = .FALSE.       ! additional casa outputs (C stores and plant turnover)
+         patch = .FALSE. , &    ! should patch-specific info be written to output file?
+         ! vh_js !
+         casa = .FALSE.         ! additional casa outputs (C stores and plant turnover)
 
       ! Should output grid follow met file 'default'; force with 'land' or 'mask':
       CHARACTER(LEN=7) ::                                                      &
@@ -230,7 +231,7 @@ MODULE cable_IO_vars_module
          VegT = .FALSE.,      & ! 31 vegetation temperature [K]
          SoilTemp = .FALSE.,  & ! 32 av.layer soil temperature [K]
          SoilMoist = .FALSE., & ! 33 av.layer soil moisture [kg/m2]
-          SoilMoistIce = .FALSE., & ! 33 av.layer soil frozen moisture [kg/m2]
+         SoilMoistIce = .FALSE., & ! 33 av.layer soil frozen moisture [kg/m2]
          Qs = .FALSE.,        & ! 34 surface runoff [kg/m2/s]
          Qsb = .FALSE.,       &! 35 subsurface runoff [kg/m2/s]
          DelSoilMoist = .FALSE., & ! 36 change in soilmoisture
@@ -242,7 +243,7 @@ MODULE cable_IO_vars_module
          AvgSurfT = .FALSE.,  & ! 41 Average surface temperature [K]
          RadT = .FALSE.,      & ! 42 Radiative surface temperature [K]
          SWE = .FALSE.,       & ! 43 snow water equivalent [kg/m2]
-          SnowMelt = .FALSE.,       & ! 43 snow melt [kg/m2/s] !vh!
+         SnowMelt = .FALSE.,  & ! 43 snow melt [kg/m2/s] !vh!
          RootMoist = .FALSE., & ! 44 root zone soil moisture [kg/m2]
          CanopInt = .FALSE.,  & ! 45 total canopy water storage [kg/m2]
          NEE  = .FALSE.,      & ! 46 net ecosystem exchange [umol/m2/s]
@@ -258,7 +259,7 @@ MODULE cable_IO_vars_module
          Rnet = .FALSE.,      & ! net absorbed radiation [W/m2]
          HVeg = .FALSE.,      & ! sensible heat from vegetation [W/m2]
          HSoil = .FALSE.,     & ! sensible heat from soil [W/m2]
-         RnetSoil = .FALSE.,     & ! sensible heat from soil [W/m2] !vh!
+         RnetSoil = .FALSE.,  & ! sensible heat from soil [W/m2] !vh!
          Ebal = .FALSE.,      & ! cumulative energy balance [W/m2]
          Wbal = .FALSE.,      & ! cumulative water balance [W/m2]
          !! vh_js ! added CanT and fwsoil to the list
@@ -266,6 +267,46 @@ MODULE cable_IO_vars_module
          Fwsoil = .FALSE.,      & ! soil moisture modifier to stomatal conductance
          Area = .FALSE., & ! patch area in km2
          GPP_components = .TRUE.,    & ! sunlit and shaded GPP, plus J and C limited components
+         
+         ! vh_mc ! additional variables for ESM-SnowMIP
+         hfds       = .false., & ! downward heat flux at ground surface [W/m2]
+         hfdsn      = .false., & ! downward heat flux into snowpack [W/m2]
+         hfls       = .false., & ! surface upward latent heat flux [W/m2]
+         hfmlt      = .false., & ! energy of fusion [W/m2]
+         hfrs       = .false., & ! heat transferred to snowpack by rain [W/m2]
+         hfsbl      = .false., & ! energy of sublimation [W/m2]
+         hfss       = .false., & ! surface upward sensible heat flux [W/m2]
+         rlus       = .false., & ! surface upwelling longwave radiation [W/m2]
+         rsus       = .false., & ! surface upwelling shortwave radiation [W/m2]
+         esn        = .false., & ! liquid water evaporation from snowpack [kg/m2/s]
+         evspsbl    = .false., & ! total water vapour flux from the surface to the atmosphere [kg/m2/s]
+         evspsblsoi = .false., & ! evaporation and sublimation from soil [kg/m2/s]
+         evspsblveg = .false., & ! evaporation and sublimation from canopy [kg/m2/s]
+         mrrob      = .false., & ! subsurface runoff [kg/m2/s]
+         mrros      = .false., & ! surface runoff [kg/m2/s]
+         sbl        = .false., & ! sublimation of snow [kg/m2/s]
+         snm        = .false., & ! surface snow melt [kg/m2/s]
+         snmsl      = .false., & ! water flowing out of snowpack [kg/m2/s]
+         tran       = .false., & ! transpiration [kg/m2/s]
+         albs       = .false., & ! surface albedo [-]
+         albsn      = .false., & ! snow albedo [-]
+         cw         = .false., & ! total canopy water storage [kg/m2]
+         lqsn       = .false., & ! mass fraction of liquid water in snowpack [-]
+         lwsnl      = .false., & ! liquid water content of snowpack [kg/m2]
+         mrfsofr    = .false., & ! mass fractions of frozen water in soil layers [-]
+         mrlqso     = .false., & ! mass fractions of unfrozen water in soil layers [-]
+         mrlsl      = .false., & ! masses of frozen and unfrozen moisture in soil layers [kg/m2]
+         snc        = .false., & ! snow area fraction [-]
+         snd        = .false., & ! snowdepth [m]
+         snw        = .false., & ! mass of snowpack [kg/m2]
+         snwc       = .false., & ! mass of snow intercepted by vegetation [kg/m2]
+         tcs        = .false., & ! vegetation canopy temperature [K]
+         tgs        = .false., & ! temperature of bare soil [K]
+         ts         = .false., & ! surface temperature [K]
+         tsl        = .false., & ! temperatures of soil layers [K]
+         tsn        = .false., & ! snow internal temperature [K]
+         tsns       = .false., & ! snow surface temperature [K]
+
          !! vh_js !! additional casa variables
  
          NBP = .FALSE., &

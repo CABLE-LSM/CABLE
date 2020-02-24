@@ -490,7 +490,7 @@ PROGRAM cable_offline_driver
            calendar = 'standard'
         ENDIF
 
-        print*, "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CABLE_USER%YearEnd
+        write(*,*) "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CABLE_USER%YearEnd
 
         YEAR: DO YYYY= CABLE_USER%YearStart,  CABLE_USER%YearEnd
            CurYear = YYYY
@@ -667,12 +667,6 @@ PROGRAM cable_offline_driver
                    casamet, casabal, phen, POP, spinup,               &
                    C%EMSOIL, C%TFRZ, LUC_EXPT, POPLUC, BLAZE, SIMFIRE, &
                    c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc)
-              if (cable_user%c13o2) then
-                 print*, 'MC01'
-                 call c13o2_print_delta_flux(c13o2flux)
-                 call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-                 if (cable_user%POPLUC) call c13o2_print_delta_luc(popluc, c13o2luc)
-              endif
               ! 13C
               if (cable_user%c13o2) then
                  allocate(gpp(size(canopy%An,1),size(canopy%An,2)))
@@ -739,24 +733,12 @@ PROGRAM cable_offline_driver
                  write(*,*) 'EXT spincasacnp enabled with mloop=', mloop
                  CALL spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
                       casaflux,casamet,casabal,phen,POP,climate,LALLOC, c13o2flux, c13o2pools)
-                 if (cable_user%c13o2) then
-                    print*, 'MC02'
-                    call c13o2_print_delta_flux(c13o2flux)
-                    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-                    if (cable_user%POPLUC) call c13o2_print_delta_luc(popluc, c13o2luc)
-                 endif
                  SPINon   = .FALSE.
                  SPINconv = .FALSE.
               ELSEIF ( casaonly .AND. (.NOT. spincasa)) THEN
                  CALL CASAONLY_LUC(dels,kstart,kend,veg,soil,casabiome,casapool, &
                       casaflux,casamet,casabal,phen,POP,climate,LALLOC, LUC_EXPT, POPLUC, &
                       sum_casapool, sum_casaflux, c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc)
-                 if (cable_user%c13o2) then
-                    print*, 'MC03'
-                    call c13o2_print_delta_flux(c13o2flux)
-                    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-                    if (cable_user%POPLUC) call c13o2_print_delta_luc(popluc, c13o2luc)
-                 endif
                  SPINon   = .FALSE.
                  SPINconv = .FALSE.
                  ktau     = kend
@@ -1001,12 +983,6 @@ PROGRAM cable_offline_driver
                       phen, pop, spinConv, spinup, ktauday, idoy, loy, &
                       CABLE_USER%CASA_DUMP_READ, CABLE_USER%CASA_DUMP_WRITE, &
                       LALLOC, c13o2flux, c13o2pools )
-                 if (cable_user%c13o2) then
-                    print*, 'MC04'
-                    call c13o2_print_delta_flux(c13o2flux)
-                    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-                    if (cable_user%POPLUC) call c13o2_print_delta_luc(popluc, c13o2luc)
-                 endif
 
                  IF(MOD((ktau-kstart+1),ktauday)==0) THEN ! end of day
 
@@ -1037,12 +1013,6 @@ PROGRAM cable_offline_driver
                     IF (CABLE_USER%POPLUC) THEN
                        ! Dynamic LUC
                        CALL LUCdriver(casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg, c13o2pools)
-                       if (cable_user%c13o2) then
-                          print*, 'MC05'
-                          call c13o2_print_delta_flux(c13o2flux)
-                          call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-                          if (cable_user%POPLUC) call c13o2_print_delta_luc(popluc, c13o2luc)
-                       endif
                     ENDIF
 
                     ! one annual time-step of POP
@@ -1060,12 +1030,6 @@ PROGRAM cable_offline_driver
 #else
                           call c13o2_update_luc(casasave, lucsave, popluc, luc_expt%prim_only, c13o2pools, c13o2luc)
 #endif
-                          if (cable_user%c13o2) then
-                             print*, 'MC06'
-                             call c13o2_print_delta_flux(c13o2flux)
-                             call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-                             if (cable_user%POPLUC) call c13o2_print_delta_luc(popluc, c13o2luc)
-                          endif
                        endif
                        ! Dynamic LUC: write output
                        CALL WRITE_LUC_OUTPUT_NC( POPLUC, YYYY, ( YYYY.EQ.cable_user%YearEnd ))
@@ -1089,16 +1053,10 @@ PROGRAM cable_offline_driver
                     ! 13C
                     if (cable_user%c13o2) &
                          call c13o2_update_sum_pools(sum_c13o2pools, c13o2pools, .false., .true., count_sum_casa)
-                    CALL WRITE_CASA_OUTPUT_NC (veg, casamet, sum_casapool, casabal, sum_casaflux, &
+                    CALL WRITE_CASA_OUTPUT_NC(veg, casamet, sum_casapool, casabal, sum_casaflux, &
                          CASAONLY, ctime, ( ktau.EQ.kend .AND. YYYY .EQ. cable_user%YearEnd.AND. RRRR .EQ.NRRRR ) )
                     ! 13C
                     if (cable_user%c13o2) then
-                       if (cable_user%c13o2) then
-                          print*, 'MC07'
-                          call c13o2_print_delta_flux(c13o2flux)
-                          call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-                          if (cable_user%POPLUC) call c13o2_print_delta_luc(popluc, c13o2luc)
-                       endif
                        if (ctime == 1) then
                           call c13o2_create_output(casamet, sum_c13o2pools, c13o2_outfile_id, c13o2_vars, c13o2_var_ids)
                        endif
@@ -1160,21 +1118,9 @@ PROGRAM cable_offline_driver
                       TRIM(cable_user%MetType) .EQ. 'bios'  .OR.  &
                       TRIM(cable_user%MetType) .EQ. 'gswp'  .OR.  &
                       TRIM(cable_user%MetType) .EQ. 'site' ) then
-                    if (cable_user%c13o2) then
-                       print*, 'MC08'
-                       call c13o2_print_delta_flux(c13o2flux)
-                       call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-                       if (cable_user%POPLUC) call c13o2_print_delta_luc(popluc, c13o2luc)
-                    endif
                     CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, casamet, &
                          ssnow, rad, bal, air, soil, veg, C%SBOLTZ, C%EMLEAF, C%EMSOIL, c13o2pools, c13o2flux )
                  ELSE
-                    if (cable_user%c13o2) then
-                       print*, 'MC09'
-                       call c13o2_print_delta_flux(c13o2flux)
-                       call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-                       if (cable_user%POPLUC) call c13o2_print_delta_luc(popluc, c13o2luc)
-                    endif
                     CALL write_output( dels, ktau, met, canopy, casaflux, casapool, casamet, &
                          ssnow, rad, bal, air, soil, veg, C%SBOLTZ, C%EMLEAF, C%EMSOIL, c13o2pools, c13o2flux )
                  ENDIF
@@ -1411,9 +1357,7 @@ PROGRAM cable_offline_driver
 
   IF ( SpinConv .AND. .NOT. CASAONLY ) THEN
      ! Close output file and deallocate main variables:
-     CALL close_output_file( bal, air, bgc, canopy, met,                      &
-          rad, rough, soil, ssnow,                                            &
-          sum_flux, veg )
+     CALL close_output_file(bal)
   ENDIF
 
   IF ( cable_user%CALL_POP.and.POP%np.gt.0 ) THEN
@@ -1433,12 +1377,6 @@ PROGRAM cable_offline_driver
      !     casapool, casaflux, casamet, casabal, phen )
      CALL write_casa_restart_nc( casamet, casapool,casaflux,phen, CASAONLY )
      ! 13C
-     if (cable_user%c13o2) then
-        print*, 'MC10'
-        call c13o2_print_delta_flux(c13o2flux)
-        call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-        if (cable_user%POPLUC) call c13o2_print_delta_luc(popluc, c13o2luc)
-     endif
      if (cable_user%c13o2) then
         call c13o2_write_restart_pools(c13o2pools)
         if (cable_user%POPLUC) call c13o2_write_restart_luc(c13o2luc)

@@ -559,8 +559,8 @@ SUBROUTINE COMBUST (BLAZE, np, CPLANT_g, CPLANT_w, TO, BURN )
   !
   ! TURN-OVER RATES
   !
-  print*, FLIx, CPLANT_w, CPLANT_g, BLAZE%AGLit_w(1,:), BLAZE%AGLit_g(1,:)
-  print*, 'FLI, FLIX, w, MIN_FUEL:', FLI, FLIX, w, MIN_FUEL
+  ! print*, FLIx, CPLANT_w, CPLANT_g, BLAZE%AGLit_w(1,:), BLAZE%AGLit_g(1,:)
+  ! print*, 'FLI, FLIX, w, MIN_FUEL:', FLI, FLIX, w, MIN_FUEL
 
   IF (FLIx .gt.0) then
   ! Live to Atmosphere
@@ -792,19 +792,17 @@ END SUBROUTINE RUN_BLAZE
                TRIM(dum)//'_BLAZE_out.nc'
        ENDIF
 
-
        ! Create NetCDF file:
-       STATUS = NF90_create(fname, NF90_CLOBBER, FILE_ID)
+       STATUS = NF90_create(fname, ior(nf90_clobber,nf90_64bit_offset), FILE_ID)
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
        ! Put the file in define mode:
-       STATUS = NF90_redef(FILE_ID)
+       !MC - new files are already in define mode
+       ! STATUS = NF90_redef(FILE_ID)
 
        STATUS = NF90_PUT_ATT( FILE_ID, NF90_GLOBAL, "StartYear", CABLE_USER%YEARSTART )
        STATUS = NF90_PUT_ATT( FILE_ID, NF90_GLOBAL, "EndYear"  , CABLE_USER%YEAREND   )
        STATUS = NF90_PUT_ATT( FILE_ID, NF90_GLOBAL, "RunIden"  , CABLE_USER%RunIden   )
-
-     
 
        ! Define dimensions:
        ! Land (number of points)

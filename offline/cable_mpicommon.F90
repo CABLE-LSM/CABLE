@@ -68,7 +68,8 @@ MODULE cable_mpicommon
 
   ! MPI: number of casa_dump parameters sent/rec'd to/from the workers every timestep
   ! Matthias Cuntz: add 2 casamet params for 13C -> 11
-  INTEGER, PARAMETER :: ncdumprw = 11
+  ! Matthias Cuntz: calc as ncdumprw+icycle-1 and add 2 in case of 13C -> 8
+  INTEGER, PARAMETER :: ncdumprw = 8
   ! MPI: number of casa_LUC parameters sent/rec'd to/from the workers every year
   INTEGER, PARAMETER :: nLUCrw = 16
 
