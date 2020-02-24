@@ -2291,9 +2291,9 @@ CONTAINS
                 ! as this won't work with 30 min and hourly
                 !IF ( (met%hod(i) >= 6 .AND. met%hod(i) < 7) .AND. &
                 IF ( (met%hod(i) >= 12 .AND. met%hod(i) < 13) .AND. &
-                       canopy%psi_stem(i) > -4.0) THEN
+                     (canopy%psi_stem(i) < ssnow%weighted_psi_soil(i)) .AND. &
+                       canopy%psi_stem(i) > -4.0)  THEN
 
-                   IF (canopy%psi_stem(i) < ssnow%weighted_psi_soil(i)) THEN
                       refill = abs(canopy%psi_stem(i) - &
                                   ssnow%weighted_psi_soil(i)) * 0.8
                       canopy%psi_stem(i) = canopy%psi_stem(i) + refill
@@ -2303,8 +2303,7 @@ CONTAINS
                                                ssnow%weighted_psi_soil(i))
 
                       canopy%psi_stem_prev(i) = canopy%psi_stem(i)
-                   ENDIF
-
+                  
                 ENDIF
 
                 IF (ecx(i) > 0.0 .AND. canopy%fwet(i) < 1.0) THEN
