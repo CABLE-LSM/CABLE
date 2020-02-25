@@ -1651,6 +1651,7 @@ CONTAINS
             'in namelist file. (SUBROUTINE open_output_file)')
     END IF
 
+    print*,TRIM(output%averaging), output%interval
     ! End netcdf define mode:
     ok = NF90_ENDDEF(ncid_out)
     IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error creating output file '       &
@@ -1987,15 +1988,17 @@ CONTAINS
             'Error writing time variable to ' &
             //TRIM(filename%out)// '(SUBROUTINE write_output)')
        ! print*, 'OWrote60.6'
+       rinterval  = toreal4(1) / toreal4(output%interval)
+       r2interval = 1.0_r_2 / real(output%interval,r_2)
+  
     END IF
 
     ! Arguments to write_ovar: current time step; output file netcdf file ID;
     ! netcdf variable ID; variable name; variable data; variable ranges;
     ! non-land fill value; include patch info for this var; any specific
     ! formatting info; met variables for reporting in case of abort.
-
-    rinterval  = toreal4(1) / toreal4(output%interval)
-    r2interval = 1.0_r_2 / real(output%interval,r_2)
+   
+    
 
     ! SWdown:  downward short-wave radiation [W/m^2]
     IF(output%met .OR. output%SWdown) THEN
