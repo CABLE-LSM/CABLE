@@ -17,7 +17,16 @@
 ! History: Developed for offline code.  Expect to re-write for MPI and ACCESS
 !          versions
 !
-!
+  !Matthias Cuntz, 24/2/2020: Make all new netCDF files 64bit_offset. Do also not reopen
+  !the define mode because they are already in define mode once they are created. Read
+  !and write N/P variables from and to dump files only if icycle>1 or icycle>2. Also pass
+  !the vrariables in MPI code only if icycle>1,2. Rewrote write_casa_output_nc so that N/P
+  !variables are only written in case of icycle>1,2. Initialised more variables in Cable and Casa,
+  !which might otherwise be undefined during write_output. Also some more consistencies of variable
+  !kinds during calculations, mostly casa. Reinstated ESM-SnowMIP output variables that were present
+  !in an earlier branch trunk4252_wales. Only pass bal to close_output_file, not all
+  !other unnecessary variables. Use a generic conversion routine toreal4() for output to catch
+  !floating point underflow in conversions (real(variable,4)).
 ! ==============================================================================
 ! casa_inout.f90
 !
@@ -1526,8 +1535,7 @@ SUBROUTINE biogeochem(ktau,dels,idoY,LALLOC,veg,soil,casabiome,casapool,casaflux
          casaflux%kplant(POP%Iwood,2) = 0.0_r_2
          veg%hc(POP%Iwood) = POP%pop_grid(:)%height_max
       ENDWHERE
-      casaflux%kplant_tot(POP%Iwood,2) = casaflux%kplant(POP%Iwood,2) + &
-           (1.0_r_2 -casaflux%kplant(POP%Iwood,2))* casaflux%kplant_fire(POP%Iwood,2)
+     
    ENDIF
    ! if (idoy.eq.365) then
    !  write(667,*) pop%LU
@@ -2191,9 +2199,9 @@ subroutine write_casa_output_nc(veg, casamet, casapool, casabal, casaflux, casao
   ! 2 dim arrays (mp,t)
   character(len=20), dimension(51) :: a1
   ! 3 dim arrays (mp,mplant,t)
-  CHARACTER(len=20),DIMENSION(9) :: A2
+  character(len=20), dimension(9)  :: a2
   ! 3 dim arrays (mp,mlitter,t)
-  CHARACTER(len=20),DIMENSION(9) :: A3
+  character(len=20), dimension(9)  :: a3
   ! 3 dim arrays (mp,msoil,t)
   character(len=20), dimension(8)  :: a4
   ! 4 dim arrays (mp,mlitter,mplant,t)
@@ -2285,15 +2293,16 @@ subroutine write_casa_output_nc(veg, casamet, casapool, casabal, casaflux, casao
   a2(2) = 'fracCalloc'
   a2(3) = 'kplant'
   a2(4) = 'Crmplant'
-  na2 = 4
+  a2(5) = 'kplant_fire'
+  na2 = 5
   ! N
-  a2(5) = 'nplant'
-  a2(6) = 'fracNalloc'
+  a2(6) = 'nplant'
+  a2(7) = 'fracNalloc'
   if (icycle==2) na2 = 6
   ! P
-  a2(7) = 'pplant'
-  a2(8) = 'fracPalloc'
-  if (icycle==3) na2 = 8
+  a2(8) = 'pplant'
+  a2(9) = 'fracPalloc'
+  if (icycle==3) na2 = 9
   A3(9) = 'klitter_fire'
 
   ! C
@@ -2301,15 +2310,16 @@ subroutine write_casa_output_nc(veg, casamet, casapool, casabal, casaflux, casao
   a3(2) = 'klitter'
   a3(3) = 'fromLtoCO2'
   a3(4) = 'FluxCtolitter'
-  na3 = 4
+  a3(5) = 'klitter_fire'
+  na3 = 5
   ! N
-  a3(5) = 'nlitter'
-  a3(6) = 'FluxNtolitter'
+  a3(6) = 'nlitter'
+  a3(7) = 'FluxNtolitter'
   if (icycle==2) na3 = 6
   ! P
-  a3(7) = 'plitter'
-  a3(8) = 'FluxPtolitter'
-  if (icycle==3) na3 = 8
+  a3(8) = 'plitter'
+  a3(9) = 'FluxPtolitter'
+  if (icycle==3) na3 = 9
 
   ! C
   a4(1) = 'csoil'
