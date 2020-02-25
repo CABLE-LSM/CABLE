@@ -44,7 +44,7 @@ system=cuntz@mcinra # cuntz@explor, cuntz@mcinra, moc801@gadi/cuntz@gadi, knauer
 
 # MPI run or single processor run
 # nproc should fit with job tasks 
-dompi=1   # 0: normal run: ./cable
+dompi=0   # 0: normal run: ./cable
           # 1: MPI run: mpiexec -n ${nproc} ./cable_mpi
 nproc=2   # Number of cores for MPI runs
           # must be same as above: SBATCH -n nproc or PBS -l ncpus=nproc
@@ -181,7 +181,6 @@ elif [[ "${sys}" == "gadi" ]] ; then
     module load intel-compiler/2019.5.281
     module load intel-mpi/2019.5.281
     module load netcdf/4.6.3
-    module load hdf5/1.10.5
     export mpiexecdir=/apps/intel-mpi/2019.5.281/intel64/bin/
 fi
 if [[ ! -z ${mpiexecdir} ]] ; then export mpiexecdir="${mpiexecdir}/" ; fi
@@ -271,7 +270,7 @@ else
     exit 1
 fi
 # Run directory
-runpath="${sitepath}/run_20200216"
+runpath="${sitepath}/run_20200225"
 
 # Cable parameters
 namelistpath="../namelists"
@@ -1172,7 +1171,8 @@ if [[ ${doiniluc} -eq 1 ]] ; then
     com=${com}$(csed "filename%restart_in=\"restart/cru_cable_rst.nc\"")
     com=${com}$(csed "cable_user%CLIMATE_fromZero=.false.")
     com=${com}$(csed "cable_user%YearStart=1580")
-    com=${com}$(csed "cable_user%YearEnd=1699")
+    #MCTEST com=${com}$(csed "cable_user%YearEnd=1699")
+    com=${com}$(csed "cable_user%YearEnd=1582")
     com=${com}$(csed "icycle=12")
     com=${com}$(csed "spincasa=.false.")
     com=${com}$(csed "cable_user%CASA_fromZero=.false.")

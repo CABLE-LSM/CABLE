@@ -41,7 +41,7 @@ host_gadi()
        export CFLAGS='-g -debug -traceback -fpp -check all,noarg_temp_created -fp-stack-check -O0 -debug -fpe=0 -fpe-all=0 -no-ftz -ftrapuv'
    else
        export CFLAGS='-O2 -fpp -fp-model precise'
-       # export CFLAGS="${CFLAGS} -xCORE-AVX2 –axSKYLAKE-AVX512,CASCADELAKE" # given in user training: does not work
+       # export CFLAGS="${CFLAGS} -xCORE-AVX2 -axSKYLAKE-AVX512,CASCADELAKE" # given in user training: does not work
        export CFLAGS="${CFLAGS} -xCASCADELAKE" # or -xCORE-AVX512 # queues: express / normal
        # export CFLAGS="${CFLAGS} -xBROADWELL"  # or -xCORE-AVX512; queues: expressbw / normalbw
        # export CFLAGS="${CFLAGS} -xSKYLAKE"    # or -xSKYLAKE-AVX512 depends on performance; queues: normalsl
@@ -106,7 +106,9 @@ host_shin()
 ## burnet.hpsc.csiro.au 
 host_burn()
 {
-   . /apps/modules/Modules/default/init/ksh
+   if [ -z ${PS3} ] ; then
+       . /apps/modules/Modules/default/init/ksh
+   fi
    module add netcdf/3.6.3 openmpi
 
 
@@ -144,7 +146,9 @@ host_pear()
     
     #    export LD_PRELOAD=/apps/netcdf/4.3.3/lib/libnetcdf.so
     #    export LD_PRELOAD=/apps/openmpi/1.8.4/lib/libopen-rte.so.7:/apps/openmpi/1.8.4/lib/libopen-pal.so.6
-    . /apps/modules/Modules/default/init/ksh
+   if [ -z ${PS3} ] ; then
+       . /apps/modules/Modules/default/init/ksh
+   fi
 
     #   module add netcdf/4.3.3.1 openmpi/1.7.5
     #   module add netcdf/4.3.3.1 openmpi/1.8.8 

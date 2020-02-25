@@ -257,7 +257,9 @@ SUBROUTINE POP_IO( POP, casamet, YEAR, ACTION, CF )
      typ = 'rst'
   ELSE IF ( INDEX(ACTION,"WRITE_INI") .GT. 0 ) THEN
      typ = 'ini'
-  ELSE IF ( .NOT. INDEX(ACTION,"READ_rst") .GT. 0 ) THEN
+  ELSE IF ( INDEX(ACTION,"READ_rst") .GT. 0 ) THEN
+     typ = 'rst'
+  ELSE
      WRITE(*,*)  "WRONG ACTION:'", TRIM(ACTION), "' in call to pop_io!"
      STOP -1
   ENDIF

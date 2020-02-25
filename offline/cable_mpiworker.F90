@@ -931,6 +931,8 @@ CONTAINS
                 ! 13C
                 if (cable_user%c13o2) then
                    ! print*, 'WORKER Send 43 c13o2_luc'
+                   call MPI_Send(MPI_BOTTOM, 1, c13o2_flux_t, 0, 0, ocomm, ierr)
+                   call MPI_Send(MPI_BOTTOM, 1, c13o2_pool_t, 0, 0, ocomm, ierr)
                    call MPI_Send(MPI_BOTTOM, 1, c13o2_luc_t, 0, 0, ocomm, ierr)
                 endif
                 write(wlogn,*) 'after MPI_Send casa_LUC'
@@ -980,6 +982,8 @@ CONTAINS
                 ! 13C
                 if (cable_user%c13o2) then
                    ! print*, 'WORKER Receive 47 c13o2_luc'
+                   call MPI_Recv(MPI_BOTTOM, 1, c13o2_flux_t, 0, nyear, icomm, stat, ierr)
+                   call MPI_Recv(MPI_BOTTOM, 1, c13o2_pool_t, 0, nyear, icomm, stat, ierr)
                    call MPI_Recv(MPI_BOTTOM, 1, c13o2_luc_t, 0, nyear, icomm, stat, ierr)
                 endif
              ENDIF
@@ -7391,16 +7395,15 @@ CONTAINS
   SUBROUTINE worker_casa_LUC_types(comm, casapool, casabal, casaflux)
 
     use mpi
-
-    USE casavariable, ONLY: casa_pool, mplant, mlitter, msoil, casa_balance, casa_flux
+    USE casavariable, ONLY: casa_pool, casa_balance, casa_flux, mplant, mlitter, msoil
 
     IMPLICIT NONE
 
     ! sub arguments
-    INTEGER, INTENT(IN) :: comm  ! MPI communicator
-    TYPE (casa_pool)   , INTENT(IN) :: casapool
-    TYPE (casa_balance),        INTENT(IN) :: casabal
-    TYPE (casa_flux),        INTENT(IN) :: casaflux
+    INTEGER,            INTENT(IN) :: comm  ! MPI communicator
+    TYPE(casa_pool),    INTENT(IN) :: casapool
+    TYPE(casa_balance), INTENT(IN) :: casabal
+    TYPE(casa_flux),    INTENT(IN) :: casaflux
 
     ! local vars
 
@@ -7421,13 +7424,13 @@ CONTAINS
 
     INTEGER :: rank, off
 
-    CALL MPI_Comm_rank (comm, rank, ierr)
+    CALL MPI_Comm_rank(comm, rank, ierr)
 
     ntyp = nLUCrw
 
-    ALLOCATE (blen(ntyp))
-    ALLOCATE (displs(ntyp))
-    ALLOCATE (types(ntyp))
+    ALLOCATE(blen(ntyp))
+    ALLOCATE(displs(ntyp))
+    ALLOCATE(types(ntyp))
 
     ! default type is byte, to be overriden for multi-D types
     types = MPI_BYTE
@@ -7435,7 +7438,9 @@ CONTAINS
     r1len = mp * extr1
     r2len = mp * extr2
     i1len = mp * extid
-    off = 1
+    
+    off  = 1
+    
     bidx = 0
 
     bidx = bidx + 1
@@ -7501,7 +7506,6 @@ CONTAINS
     bidx = bidx + 1
     CALL MPI_Get_address (casaflux%fcrop(off), displs(bidx), ierr)
     blen(bidx) = r2len
-
 
 
     ! MPI: sanity check
@@ -8290,6 +8294,7 @@ CONTAINS
     !      MPI_DATATYPE_NULL, MPI_INTEGER, MPI_Sum
     use cable_def_types_mod, only: mland
     use cable_c13o2_def,     only: c13o2_luc
+    use cable_mpicommon,     only: nc13o2_luc
 
     implicit none
 
@@ -8864,10 +8869,10 @@ SUBROUTINE worker_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
   USE POP_Types,           only: POP_TYPE
   USE POPMODULE,           ONLY: POPStep
   USE TypeDef,             ONLY: i4b, dp
+  use mpi
   ! 13C
   use cable_c13o2_def,     only: c13o2_flux, c13o2_pool
   use cable_c13o2,         only: c13o2_save_casapool, c13o2_update_pools
-  use mpi
 
   IMPLICIT NONE
   
@@ -8978,6 +8983,8 @@ SUBROUTINE worker_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
            ! 13C
            if (cable_user%c13o2) then
               ! print*, 'WORKER Send CO02.1'
+              call MPI_Send(MPI_BOTTOM, 1, c13o2_flux_t, 0, 0, ocomm, ierr)
+              call MPI_Send(MPI_BOTTOM, 1, c13o2_pool_t, 0, 0, ocomm, ierr)
               call MPI_Send(MPI_BOTTOM, 1, c13o2_luc_t, 0, 0, ocomm, ierr)
            endif
            write(wlogn,*) 'after MPI_SEND, casa_LUC_t ', casapool%cplant(:,2)
@@ -9021,6 +9028,8 @@ SUBROUTINE worker_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
      ! 13C
      if (cable_user%c13o2) then
         ! print*, 'WORKER Receive CO06'
+        call MPI_Recv(MPI_BOTTOM, 1, c13o2_flux_t, 0, nyear, icomm, stat, ierr)
+        call MPI_Recv(MPI_BOTTOM, 1, c13o2_pool_t, 0, nyear, icomm, stat, ierr)
         call MPI_Recv(MPI_BOTTOM, 1, c13o2_luc_t, 0, nyear, icomm, stat, ierr)
      endif
      write(wlogn,*) 'after mpi_recv casa_LUC_t'

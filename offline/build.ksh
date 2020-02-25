@@ -165,7 +165,9 @@ host_jigg()
 ## pearcey.hpsc.csiro.au 
 host_pear()
 {
-   . /apps/modules/Modules/default/init/ksh
+   if [ -z ${PS3} ] ; then
+       . /apps/modules/Modules/default/init/ksh
+   fi
  
    module del intel-cc intel-fc
    module add intel-cc/16.0.1.150 intel-fc/16.0.1.150

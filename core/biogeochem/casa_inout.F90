@@ -117,9 +117,9 @@ SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
                 xfherbivore(nv),leafage(nv),woodage(nv),frootage(nv), &
                 metage(nv),strage(nv),cwdage(nv),  &
                 micage(nv),slowage(nv),passage(nv),clabileage(nv),slax(nv)
-    write(59,*) nv, leafage(nv),woodage(nv),frootage(nv), &
-                metage(nv),strage(nv),cwdage(nv),  &
-                micage(nv),slowage(nv),passage(nv)
+    ! write(59,*) nv, leafage(nv),woodage(nv),frootage(nv), &
+    !             metage(nv),strage(nv),cwdage(nv),  &
+    !             micage(nv),slowage(nv),passage(nv)
   ENDDO
 
   READ(101,*)
@@ -1193,7 +1193,7 @@ SUBROUTINE casa_poolout(ktau, veg, soil, casabiome, casapool, casaflux, casamet,
   IF (cable_user%CALL_POP) THEN
      WRITE(nout,92) ktau,npt,veg%iveg(npt),soil%isoilm(npt) ,     &
           casamet%isorder(npt),casamet%lat(npt),casamet%lon(npt), &
-         casamet%areacell(npt)*(1.0e-9),casamet%glai(npt),       &
+          casamet%areacell(npt)*(1.0e-9),casamet%glai(npt),       &
           casabiome%sla(veg%iveg(npt)), phen%phase(npt), &
           phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &
           casapool%clabile(npt), &
@@ -1279,56 +1279,53 @@ SUBROUTINE casa_fluxout(myear,veg,soil,casabal,casamet)
 
   write(*,*) 'writing CNP fluxes out to file ', casafile%cnpflux
   OPEN(nout,file=casafile%cnpflux)
-    DO npt =1,mp
-      SELECT CASE(icycle)
-      CASE(1)
-
+  DO npt =1,mp
+     SELECT CASE(icycle)
+     CASE(1)
         WRITE(nout,*) myear,npt,veg%iveg(npt),soil%isoilm(npt),    &
-            casamet%isorder(npt),casamet%lat(npt),casamet%lon(npt), &
-            casamet%areacell(npt)*(1.0e-9),casabal%Fcgppyear(npt),  &
-            casabal%Fcnppyear(npt),  &
-            casabal%Fcrmleafyear(npt),casabal%Fcrmwoodyear(npt),     &
-            casabal%Fcrmrootyear(npt),casabal%Fcrgrowyear(npt),     &
-            casabal%Fcrsyear(npt),casabal%Fcneeyear(npt)  ! ,           &
-!            clitterinput(npt,:),csoilinput(npt,:)
-
-      CASE(2)
+             casamet%isorder(npt),casamet%lat(npt),casamet%lon(npt), &
+             casamet%areacell(npt)*(1.0e-9),casabal%Fcgppyear(npt),  &
+             casabal%Fcnppyear(npt),  &
+             casabal%Fcrmleafyear(npt),casabal%Fcrmwoodyear(npt),     &
+             casabal%Fcrmrootyear(npt),casabal%Fcrgrowyear(npt),     &
+             casabal%Fcrsyear(npt),casabal%Fcneeyear(npt)  ! ,           &
+        !            clitterinput(npt,:),csoilinput(npt,:)
+     CASE(2)
         WRITE(nout,*) myear,npt,veg%iveg(npt),soil%isoilm(npt),    &
-            casamet%isorder(npt),casamet%lat(npt),casamet%lon(npt), &
-            casamet%areacell(npt)*(1.0e-9),casabal%Fcgppyear(npt),  &
-            casabal%FCnppyear(npt),                                 &
-            casabal%Fcrmleafyear(npt),casabal%Fcrmwoodyear(npt),     &
-            casabal%Fcrmrootyear(npt),casabal%Fcrgrowyear(npt),     &
-            casabal%FCrsyear(npt), casabal%FCneeyear(npt),          &
-!        clitterinput(npt,:),csoilinput(npt,:), &
-        casabal%FNdepyear(npt),casabal%FNfixyear(npt),casabal%FNsnetyear(npt), &
-        casabal%FNupyear(npt), casabal%FNleachyear(npt),casabal%FNlossyear(npt)
-
-      CASE(3)
+             casamet%isorder(npt),casamet%lat(npt),casamet%lon(npt), &
+             !MC casamet%areacell is different between MPI and serial
+             casamet%areacell(npt)*(1.0e-9),casabal%Fcgppyear(npt),  &
+             casabal%FCnppyear(npt),                                 &
+             casabal%Fcrmleafyear(npt),casabal%Fcrmwoodyear(npt),     &
+             casabal%Fcrmrootyear(npt),casabal%Fcrgrowyear(npt),     &
+             casabal%FCrsyear(npt), casabal%FCneeyear(npt),          &
+             !        clitterinput(npt,:),csoilinput(npt,:), &
+             casabal%FNdepyear(npt),casabal%FNfixyear(npt),casabal%FNsnetyear(npt), &
+             casabal%FNupyear(npt), casabal%FNleachyear(npt),casabal%FNlossyear(npt)
+     CASE(3)
         WRITE(nout,*) myear,npt,veg%iveg(npt),soil%isoilm(npt), &
-        casamet%isorder(npt),casamet%lat(npt),casamet%lon(npt),  &
-        casamet%areacell(npt)*(1.0e-9),casabal%Fcgppyear(npt), &
-        casabal%FCnppyear(npt),                                  &
-        casabal%Fcrmleafyear(npt),casabal%Fcrmwoodyear(npt),     &
-        casabal%Fcrmrootyear(npt),casabal%Fcrgrowyear(npt),     &
-        casabal%FCrsyear(npt),   casabal%FCneeyear(npt),         &
-!        clitterinput(npt,:),csoilinput(npt,:), &
-       casabal%FNdepyear(npt),casabal%FNfixyear(npt),  casabal%FNsnetyear(npt),&
-       casabal%FNupyear(npt), casabal%FNleachyear(npt),casabal%FNlossyear(npt),&
-       casabal%FPweayear(npt),casabal%FPdustyear(npt), casabal%FPsnetyear(npt),&
-       casabal%FPupyear(npt), casabal%FPleachyear(npt),casabal%FPlossyear(npt)
+             casamet%isorder(npt),casamet%lat(npt),casamet%lon(npt),  &
+             casamet%areacell(npt)*(1.0e-9),casabal%Fcgppyear(npt), &
+             casabal%FCnppyear(npt),                                  &
+             casabal%Fcrmleafyear(npt),casabal%Fcrmwoodyear(npt),     &
+             casabal%Fcrmrootyear(npt),casabal%Fcrgrowyear(npt),     &
+             casabal%FCrsyear(npt),   casabal%FCneeyear(npt),         &
+             !        clitterinput(npt,:),csoilinput(npt,:), &
+             casabal%FNdepyear(npt),casabal%FNfixyear(npt),  casabal%FNsnetyear(npt),&
+             casabal%FNupyear(npt), casabal%FNleachyear(npt),casabal%FNlossyear(npt),&
+             casabal%FPweayear(npt),casabal%FPdustyear(npt), casabal%FPsnetyear(npt),&
+             casabal%FPupyear(npt), casabal%FPleachyear(npt),casabal%FPlossyear(npt)
+     END SELECT
+     totGPP = totGPP+casabal%Fcgppyear(npt)* casamet%areacell(npt)
+     totNPP = totNPP+casabal%Fcnppyear(npt)* casamet%areacell(npt)
+  ENDDO
 
-      END SELECT
-      totGPP = totGPP+casabal%Fcgppyear(npt)* casamet%areacell(npt)
-      totNPP = totNPP+casabal%Fcnppyear(npt)* casamet%areacell(npt)
-    ENDDO
+  write(*,*) 'totGPP global = ', totGPP*(1.0e-15)
+  write(*,*) 'totNPP global = ', totNPP*(1.0e-15)
+  CLOSE(nout)
 
-    write(*,*) 'totGPP global = ', totGPP*(1.0e-15)
-    write(*,*) 'totNPP global = ', totNPP*(1.0e-15)
-    CLOSE(nout)
-
-92  format(5(i6,',',2x),100(f15.6,',',2x))
-
+92 format(5(i6,',',2x),100(f15.6,',',2x))
+  
 END SUBROUTINE casa_fluxout
 
 

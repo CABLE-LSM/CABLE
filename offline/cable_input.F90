@@ -2410,7 +2410,6 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
    use cable_c13o2_def, only: c13o2_flux, c13o2_pool, c13o2_luc, c13o2_alloc_flux, c13o2_alloc_pools, c13o2_zero_flux
    use cable_c13o2,     only: c13o2_init_flux, c13o2_init_pools, c13o2_init_luc
    use cable_c13o2,     only: c13o2_read_restart_flux, c13o2_read_restart_pools
-   use cable_c13o2,     only: c13o2_print_delta_flux, c13o2_print_delta_pools, c13o2_print_delta_luc
 
    IMPLICIT NONE
 
@@ -2520,13 +2519,8 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
       ! 13C
       if (cable_user%c13o2) then
          call c13o2_init_pools(casapool, casaflux, c13o2pools)
-         ! print*, 'MC12.01'
-         ! call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-         ! if (.not. spinup) &
          if ((initcasa==1) .and. (.not. cable_user%casa_fromzero)) &
               call c13o2_read_restart_pools(cable_user%c13o2_restart_in_pools, c13o2pools)
-         ! print*, 'MC12.02'
-         ! call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
       endif
       !! vh_js !!
       IF ( CABLE_USER%CALL_POP ) THEN
@@ -2561,10 +2555,6 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
          CALL POPLUC_init(POPLUC, LUC_EXPT, casapool, casaflux, casabiome, veg, POP, mland)
          ! 13C
          if (cable_user%c13o2) call c13o2_init_luc(c13o2luc, c13o2pools, veg, mland)
-         ! if (cable_user%c13o2) then
-         !    print*, 'MC12.03'
-         !    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-         ! endif
       ENDIF
 
       !CVH moved initialisations to cable_driver.F90 because climate%modis_igpb is needed,
@@ -2595,12 +2585,6 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
       !    ! Read restart values
       ! ENDIF
    ENDIF
-   ! if (cable_user%c13o2) then
-   !    print*, 'MC12'
-   !    call c13o2_print_delta_flux(c13o2flux)
-   !    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-   !    if (cable_user%POPLUC) call c13o2_print_delta_luc(popluc, c13o2luc)
-   ! endif
 
    ! removed get_default_inits and get_default_lai as they are already done
    ! in write_default_params
@@ -2674,12 +2658,6 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
        WRITE(*,*)    ' nor ', TRIM(frst_in)
        WRITE(*,*)    ' Pre-loaded default initialisations are used.'
     END IF ! if restart file exists
-    ! if (cable_user%c13o2) then
-    !    print*, 'MC14'
-    !    call c13o2_print_delta_flux(c13o2flux)
-    !    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-    !    if (cable_user%POPLUC) call c13o2_print_delta_luc(popluc, c13o2luc)
-    ! endif
 
     ! Overwrite default values by those available in met file:
     !MC - uses ncid_met. What happens in case of CRU?
@@ -2714,12 +2692,6 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
     ! Write per-site parameter values to log file if requested:
     CALL report_parameters(logn,soil,veg,bgc,rough,ssnow,canopy, &
          casamet,casapool,casaflux,phen,vegparmnew,verbose)
-    ! if (cable_user%c13o2) then
-    !    print*, 'MC15'
-    !    call c13o2_print_delta_flux(c13o2flux)
-    !    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-    !    if (cable_user%POPLUC) call c13o2_print_delta_luc(popluc, c13o2luc)
-    ! endif
 
 END SUBROUTINE load_parameters
 

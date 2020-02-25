@@ -1439,7 +1439,7 @@ CONTAINS
 
   !*******************************************************************************
 
-  SUBROUTINE POPLUC_Init(POPLUC,LUC_EXPT, casapool, casaflux, casabiome, veg, POP, np)
+  SUBROUTINE POPLUC_Init(POPLUC, LUC_EXPT, casapool, casaflux, casabiome, veg, POP, np)
 
     USE cable_def_types_mod, ONLY : veg_parameter_type
     USE casaparm, ONLY: LEAF, WOOD, FROOT
@@ -1510,7 +1510,7 @@ CONTAINS
 
     ELSEIF (cable_user%POPLUC_RunType .eq. 'restart') THEN
 
-       CALL  READ_LUC_RESTART_NC(POPLUC)
+       CALL READ_LUC_RESTART_NC(POPLUC)
 
        POPLUC%frac_primf  = POPLUC%primf
        POPLUC%frac_forest = 1.0_dp - POPLUC%grass
