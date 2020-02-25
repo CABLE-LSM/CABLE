@@ -2582,7 +2582,7 @@ SUBROUTINE casa_cnpbal(casapool,casaflux,casabal)
      ! print*, SUM((casaflux%kplant(1,:)*casabal%cplantlast(1,:)))-casaflux%Crsoil(1)*deltpool
       !print*, SUM((casaflux%kplant_fire(1,:)*(1_r_2 - casaflux%kplant(1,:)) * casabal%cplantlast(1,:)))
      ! print*, casaflux%fluxCtoCO2_plant_fire(1),  casaflux%fluxCtoCO2_litter_fire(1)
-      stop
+      !stop
       endif
    
    write(5588,*) Cbalplant(1), Cbalsoil(1)
