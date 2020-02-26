@@ -1318,14 +1318,19 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
              * (1.- casaflux%kplant(npt,wood))  * casaflux%kplant_fire(npt,wood)  * casapool%cplant(npt,wood)
 
         ! fire flux to atmosphere from burnt plant material
+        casaflux%fluxCtoCO2_plant_fire(npt) = 0.0_r_2
+        casaflux%FluxFromPtoCO2(npt,:) = 0.0_r_2
         do nP=1,mplant
            casaflux%FluxFromPtoCO2(npt,nP) = &
-                (1.-casaflux%kplant(npt,nP)) * casaflux%kplant_fire(npt,nP) * casapool%cplant(npt,nP) * &
-                ( 1. - casaflux%fromPtoL_fire(npt,metb,nP) - casaflux%fromPtoL_fire(npt,str,nP) - &
-                casaflux%fromPtoL_fire(npt,cwd,nP) )
+                (1.0_r_2-casaflux%kplant(npt,nP)) * casaflux%kplant_fire(npt,nP) * &
+                casapool%cplant(npt,nP) * &
+                ( 1.0_r_2 - SUM(casaflux%fromPtoL_fire(npt,:,nP))) 
+           
            casaflux%fluxCtoCO2_plant_fire(npt) = casaflux%fluxCtoCO2_plant_fire(npt) + &
                 casaflux%FluxFromPtoCO2(npt,nP)
+
         enddo
+           
 
         ! Crop Harvest Flux
         casaflux%Charvest(npt) = casaflux%Charvest(npt) + &
@@ -1476,16 +1481,21 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
         
         !!vh!! check this code!
         !MC - I thought that this is wrong because it does not include the flux from fire
+         
         do nL=1, mlitter
            do nP=1, mplant
               casaflux%FluxCtolitter(npt,nL) = casaflux%FluxCtolitter(npt,nL) &
                    + casaflux%fromPtoL(npt,nL,nP) * casaflux%kplant(npt,nP) * &
                    casapool%cplant(npt,nP) &
                    ! inputs from fire
-                   + casaflux%kplant_fire(npt,nL)*(1_r_2 - casaflux%kplant(npt,nL)) * &
+                   + casaflux%kplant_fire(npt,nP)*(1_r_2 - casaflux%kplant(npt,nP)) * &
                    casapool%cplant(npt,nP)* casaflux%fromPtoL_fire(npt,nL,nP)
+              
            enddo
         enddo
+
+        
+             
         !MC - the c-quantities should include fire        
         ! casaflux%FluxCtolitter(npt,metb) = cleaf2met(npt) + croot2met(npt)
         ! casaflux%FluxCtolitter(npt,str)  = cleaf2str(npt) + croot2str(npt)
@@ -1500,6 +1510,7 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
            !                         * casapool%cplant(npt,froot)      * ratioNCstrfix
 
            !vh! to avoid -ve Nitrogen pools Ticket#108
+           ! vh ! need to include fire fluxes here?
            casaflux%FluxNtolitter(npt,str) = min(casaflux%fromPtoL(npt,str,leaf) * &
                 casaflux%kplant(npt,leaf)  &
                 * casapool%cplant(npt,leaf)       * ratioNCstrfix &
@@ -2526,7 +2537,7 @@ SUBROUTINE casa_cnpbal(casapool,casaflux,casabal)
   REAL(r_2), DIMENSION(mp) :: cbalsoil,   nbalsoil,   pbalsoil
   REAL(r_2), DIMENSION(mp) :: cbalplantx, nbalplantx, pbalplantx
 
-  REAL(r_2) :: tmp1, tmp2, tmp3, tmp4, tmp5, tmp6
+  REAL(r_2) :: tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7, tmp8
   cbalplant(:) = 0.0_r_2
   cbalsoil(:)  = 0.0_r_2
   nbalplant(:) = 0.0_r_2
@@ -2556,7 +2567,7 @@ SUBROUTINE casa_cnpbal(casapool,casaflux,casabal)
    casaflux%fluxCtoCO2_plant_fire)*deltpool - casaflux%fluxCtoCO2_litter_fire*deltpool
    
 
-   if (Cbalsoil(1).gt.0.1) then
+   if (abs(Cbalsoil(1)).gt.0.1) then
       print*, Cbalsoil(1)
       !print*, sum(casabal%clitterlast(1,:)) - sum(casapool%clitter(1,:))
       ! mass bal on litter
@@ -2566,18 +2577,26 @@ SUBROUTINE casa_cnpbal(casapool,casaflux,casabal)
       tmp4 = SUM((casaflux%klitter_fire(1,:)*(1_r_2 - casaflux%klitter(1,:)) * casabal%clitterlast(1,:)))
       tmp5 = SUM((casaflux%kplant_tot(1,:)*casabal%cplantlast(1,:)))
       tmp6 = casaflux%fluxCtoCO2_plant_fire(1)
+      tmp7 = SUM((casaflux%klitter_tot(1,:)*casabal%clitterlast(1,:)))
+      tmp8 = SUM((casaflux%kplant_fire(1,:)*(1_r_2 - casaflux%kplant(1,:)) * casabal%cplantlast(1,:)))
 
       print*, 'delta clitt1: ', sum(casabal%clitterlast(1,:)) - sum(casapool%clitter(1,:))
       print*, 'plant input to litter (base turnover): ', tmp1
       print*, 'plant input to litter (fire): ', tmp2
+      print*, 'plant input to litter (base turnover + fire): ', tmp1 + tmp2
+      print*, 'fluxctolitter: ', sum(casaflux%FluxCtolitter(1,:))
       print*, 'plant loss to atm (fire): ', tmp6
       print*, 'total plant turnover: ', tmp5
       print*, 'litter loss (base turnover): ', tmp3
       print*, 'litter loss (fire): ', tmp4
+      print*, 'litter loss (klitter_tot): ',  tmp7
       print*, 'delta clitt2: ', tmp1 + tmp2 - tmp3 - tmp4
       print*, 'fluxCtolitter: ',  SUM(casaflux%fluxCtolitter(1,:))
+      print*, 'frac plant fire flux to CO2: ',  casaflux%FluxFromPtoCO2(1,:)
+      print*, 'frac plant fire flux to litter: ',  sum(casaflux%fromPtoL_fire(1,:,:),1)
+      print*, 'plant loss (fire)', tmp8
   
-      
+      stop
      ! print*, sum(casabal%csoillast(1,:))   - sum(casapool%csoil(1,:))
      ! print*, SUM((casaflux%kplant(1,:)*casabal%cplantlast(1,:)))-casaflux%Crsoil(1)*deltpool
       !print*, SUM((casaflux%kplant_fire(1,:)*(1_r_2 - casaflux%kplant(1,:)) * casabal%cplantlast(1,:)))
