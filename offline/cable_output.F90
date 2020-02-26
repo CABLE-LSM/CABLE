@@ -302,9 +302,6 @@ CONTAINS
     ! print*, 'OCreate60 ', ncid_out, trim(filename%out)
     IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error creating output file '       &
          //TRIM(filename%out)// ' (SUBROUTINE open_output_file)')
-    ! Put the file in define mode:
-    !MC - new files are already in define mode
-    ! ok = NF90_REDEF(ncid_out)
     ! Define dimensions:
     ok = NF90_DEF_DIM(ncid_out, 'x', xdimsize, xID)
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
@@ -1840,7 +1837,6 @@ CONTAINS
 
     INTEGER :: dday ! number of past-years days for monthly output LN
     INTEGER :: iy   ! Counter
-    !MC - use met%year(1) instead of CABLE_USER%YearStart for non-GSWP forcing and leap years
     INTEGER, SAVE :: YearStart
     INTEGER :: ok ! for netcdf sync
     real(kind=4) :: rinterval
@@ -1851,16 +1847,13 @@ CONTAINS
     ! integer :: varid
 
     ! IF asked to check mass/water balance:
-    IF(check%mass_bal) CALL mass_balance(dels, ktau, ssnow, soil, canopy,            &
-         met,air,bal)
+    IF (check%mass_bal) CALL mass_balance(dels, ktau, ssnow, soil, canopy, met, air, bal)
 
     ! IF asked to check energy balance:
-    IF(check%energy_bal) CALL energy_balance(dels,ktau,met,rad,                     &
-         canopy,bal,ssnow,                 &
-         SBOLTZ, EMLEAF, EMSOIL )
+    IF (check%energy_bal) CALL energy_balance(dels, ktau, met, rad, canopy, bal, ssnow, SBOLTZ, EMLEAF, EMSOIL)
 
     ! Initialise output time step counter and month counter:
-    IF(ktau == 1) THEN
+    IF (ktau == 1) THEN
        out_timestep = 0
        out_month = 0
        ! use met%year(1) instead of CABLE_USER%YearStart for non-GSWP forcing and leap years
@@ -1900,7 +1893,6 @@ CONTAINS
 
        ! LN Inserted for multiyear output
        dday = 0
-       !MC - use met%year(1) instead of CABLE_USER%YearStart for non-GSWP forcing and leap years
        DO iy=YearStart, CurYear-1
           IF (IS_LEAPYEAR(iy) .AND. leaps) THEN
              dday = dday + 366
@@ -3623,7 +3615,13 @@ CONTAINS
 
     ! if (writenow) print*, 'OWrote60.1'
 
-    !MC - do we need this?
+    !MC - Do we need this?
+    !     From the netcdf documentation:
+    !         The function NF90 SYNC offers a way to synchronize the disk copy of a netCDF dataset
+    !         with in-memory buffers. There are two reasons you might want to synchronize after writes:
+    !         - To minimize data loss in case of abnormal termination, or
+    !         - To make data available to other processes for reading immediately after it is written.
+    !     Both is not the case.
     ok = nf90_sync(ncid_out)
     ! print*, 'OWrote60.2'
 
@@ -3735,9 +3733,6 @@ CONTAINS
     ! print*, 'OCreate61 ', ncid_restart, trim(frst_out)
     IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error creating restart file '      &
          //TRIM(frst_out)// '(SUBROUTINE create_restart)')
-    ! Put the file in define mode:
-    !MC - new files are already in define mode
-    ! ok = NF90_REDEF(ncid_restart)
     ! Define dimensions:
     ok = NF90_DEF_DIM(ncid_restart, 'mland', mland, mlandID)
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
@@ -4116,7 +4111,8 @@ CONTAINS
        CALL define_ovar(ncid_restart, TsoilID, 'Tsoil', 'degC', &
             'Tsoil', &
             .TRUE., soilID, 'r2soil', 0, 0, 0, mpID, dummy, .TRUE.)
-       CALL define_ovar(ncid_restart, snowliqID, 'snowliq', 'mm', & !MC - Should be r_2 but not coded yet in cable_write
+       !MC - Should be r_2 but specific subroutine not coded yet in cable_write
+       CALL define_ovar(ncid_restart, snowliqID, 'snowliq', 'mm', &
             'liquid water content of snowpack', &
             .TRUE., snowID, 'snow', 0, 0, 0, mpID, dummy, .TRUE.)
        CALL define_ovar(ncid_restart,scondsID,'sconds','Wm-1K-1', &

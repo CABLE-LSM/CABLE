@@ -1149,7 +1149,8 @@ CONTAINS
       ! parameters that are not spatially dependent
       select case(ms)
       case(6)
-         !MC - before - soil%zse = (/.022, .058, .154, .409, 1.085, 2.872/) ! layer thickness nov03
+         !MC - before and trunk:
+         !     soil%zse = (/.022, .058, .154, .409, 1.085, 2.872/) ! layer thickness nov03
          soil%zse = (/.022, .058, .154, .409, 1.085, 6.872/) ! layer thickness nov03
       case(10)
         soil%zse = (/ 0.022, 0.058, 0.07, 0.15, 0.30, 0.30, 0.30, 1.20, 3.0, 4.5 /)

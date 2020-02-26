@@ -927,8 +927,9 @@ CONTAINS
              ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
                 CALL CRU_GET_SUBDIURNAL_MET(CRU, imet, YYYY, 1, kend, &
                      (YYYY.EQ.cable_user%YearEnd))
-                !MC ask Vanessa
-                iveg%iveg = veg%iveg ! LAI and veg class not in CRU
+                !MC - Added two lines defining iveg and lai in input veg: iveg
+                !     because this is done in get_met_data but not in cru_get_subdiurnal_met
+                iveg%iveg = veg%iveg
                 iveg%vlai = veg%vlai
              ELSE
                 CALL get_met_data( spinup, spinConv, imet, soil,   &
@@ -956,8 +957,9 @@ CONTAINS
              ! print*, 'MASTER Send 28 input'
              CALL master_send_input(icomm, inp_ts, iktau)
              ! CALL MPI_Waitall(wnp, inp_req, inp_stats, ierr)
-             !TRUNK else not commented out
-             !MC in worker:WORKER ELSEIF ( IS_CASA_TIME("dread", yyyy, ktau, kstart, koffset, kend, ktauday, wlogn) ) then
+             !MC - The else statement that sends casa_dump data is not commented out in the trunk.
+             !     And in mpiworker there is:
+             !         ELSEIF ( IS_CASA_TIME("dread", yyyy, ktau, kstart, koffset, kend, ktauday, wlogn) ) then
           ! ELSE
              ! CALL master_send_input(icomm, casa_dump_ts, iktau)
              ! CALL MPI_Waitall(wnp, inp_req, inp_stats, ierr)
@@ -1018,7 +1020,8 @@ CONTAINS
                 call cru_get_subdiurnal_met(cru, imet, YYYY, iktau, kend, &
                      yyyy.eq.cable_user%YearEnd)
                 ! print*, 'II01.04 '
-                !MC ask Vanessa
+                !MC - Added two lines defining iveg and lai in input veg: iveg
+                !     because this is done in get_met_data but not in cru_get_subdiurnal_met
                 iveg%iveg = veg%iveg ! LAI and veg class not in CRU
                 iveg%vlai = veg%vlai
                 if (CALL1)  casamet%glai = 1.0  ! initialise glai for use in cable_roughness
@@ -8209,12 +8212,10 @@ SUBROUTINE master_casa_dump_types(comm, casamet, casaflux, phen, climate, c13o2f
 
   WRITE(*,*) 'total input data size received by all workers: ', remotetotal
 
-  !MC! - TEST - comment!
   IF (localtotal /= remotetotal) THEN
      WRITE(*,*) 'error: total length of input data sent and received differ (03)'
      CALL MPI_Abort(comm, 0, ierr)
   END IF
-  !MC! - TEST - comment!
 
   !  DO rank = 1, wnp
   !
@@ -9780,7 +9781,7 @@ SUBROUTINE master_end(icycle, restart)
            call MPI_Type_free(c13o2_pool_ts(rank), ierr)
         endif
      END IF
-     !MC LUC???
+     !MC - LUC is not freed. Does freeing objects close files as well?
 
      ! gol124: TODO: m3d_t, mat_t and vec_t can
      ! be freed at the end of master_outtypes
@@ -10354,7 +10355,6 @@ SUBROUTINE master_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
            ELSE
               CALL WRITE_LUC_OUTPUT_GRID_NC(POPLUC, YYYY, (YYYY.EQ.cable_user%YearEnd))
            ENDIF
-           !MC ToDo - Output?
 
            CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT)
 

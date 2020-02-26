@@ -732,7 +732,7 @@ CONTAINS
                 CALL MPI_Recv(MPI_BOTTOM, 1, casa_dump_t, 0, ktau_gl, icomm, stat, ierr)
              END IF
 
-             !MC moved from above recv(inp_t) - ask Vanessa
+             !MC - moved from before receiving inp_t to after having received inp_t
              ! Get met data and LAI, set time variables.
              ! Rainfall input may be augmented for spinup purposes:
              met%ofsd = met%fsd(:,1) + met%fsd(:,2)
@@ -8429,7 +8429,7 @@ SUBROUTINE worker_end(icycle, restart)
           call MPI_Type_free(c13o2_pool_t, ierr)
        endif
     end if
-    !MC LUC???
+    !MC - LUC is not freed. Does freeing objects close files as well?
 
     if (restart) then
        call MPI_Type_free(restart_t, ierr)

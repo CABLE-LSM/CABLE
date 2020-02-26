@@ -24,7 +24,7 @@ MODULE CABLE_LUC_EXPT
      INTEGER, ALLOCATABLE :: biome(:)
      INTEGER :: YearStart, YearEnd, nfile
      INTEGER :: CTSTEP
-     !MC - Should be dp
+     !MC - Should be dp because they are used mostly with POPLUC, which is all dp.
      REAL, ALLOCATABLE :: primaryf(:), mtemp_min20(:), grass(:), secdf(:), crop(:), past(:)
      CHARACTER(len=200),DIMENSION(17) :: TransFile
      CHARACTER(len=12) ,DIMENSION(17) :: VAR_NAME

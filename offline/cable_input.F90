@@ -2660,7 +2660,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
     END IF ! if restart file exists
 
     ! Overwrite default values by those available in met file:
-    !MC - uses ncid_met. What happens in case of CRU?
+    !MC - uses ncid_met. What happens in case of CRU, where ncid_met is used successively for each meteo input file?
     CALL get_parameters_met(soil,veg,bgc,rough,completeSet)
     ! Results of looking for parameters in the met file:
     WRITE(logn,*)

@@ -131,8 +131,6 @@ MODULE cable_common_module
           perturb_dva_by_T         = .FALSE., &  ! switch to perturb esat by dva_T_perturbation
           perturb_biochem_by_T         = .FALSE., &  ! switch to perturb esat by dva_T_perturbation
           perturb_Ta               = .FALSE.     ! switch to perturb air temp by Ta_perturbation (site met only)
-     
-     
 
      INTEGER  ::  &
           CASA_SPIN_STARTYEAR = 1950, &
@@ -144,7 +142,9 @@ MODULE cable_common_module
           dva_T_perturbation = 1.0, &
           Ta_perturbation    = 1.0
      CHARACTER(len=6) :: &
-          SIMFIRE_REGION      = "ANZ"  ! either GLOBAL, EUROPE, ANZ
+          SIMFIRE_REGION      = "ANZ"   ! either GLOBAL, EUROPE, ANZ
+     CHARACTER(len=6) :: &
+          burnt_area          = "SIMFIRE" ! either SIMFIRE
 
     !--- LN ------------------------------------------]
 

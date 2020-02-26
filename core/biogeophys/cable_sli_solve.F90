@@ -4772,7 +4772,7 @@ CONTAINS
        coefB_liqice = -49.192_r_2
        coefC_liqice = 0.0831_r_2
     endif
-    !MC
+    !MC - Test
     ! alphaplus_a                    = one/exp(coefA/((Ta+Tzero)**2)+coefB/(Ta+Tzero)+coefC) ! at soil or litter surface
     ! alphaplus_s                    = one/exp(coefA/((Ts+Tzero)**2)+coefB/(Ts+Tzero)+coefC) ! at soil or litter surface
     ! alphaplus(ns_ciso:n)           = one/exp(coefA/((Tsoil(ns_ciso:n)+Tzero)**2)+coefB/(Tsoil(ns_ciso:n)+Tzero)+coefC)
@@ -4807,7 +4807,7 @@ CONTAINS
        dalphaplusdT     = zero
        alphaplus_liqice = one
     endif
-    !MC
+    !MC - Test
     ! alphaplus_s      = one
     ! alphaplus        = one
     ! dalphaplusdT     = zero
@@ -4916,7 +4916,7 @@ CONTAINS
 
     ! vapour diffusivity in the soil
     Dv(ns_ciso:n) = var_Dv(ns_ciso:n) * alphak_vdiff  ! isotope diffusivity in soil air spaces Dvi
-    !MC
+    !MC - Cannot remember if this was a test or not
     Dv(ns_ciso:n) = Dv(ns_ciso:n) * max(one-S(ns_ciso:n),zero)*(thetasat(ns_ciso:n)-thetar(ns_ciso:n))
     ! Dvi*cv always together on RHS
     Dv(ns_ciso:n) = Dv(ns_ciso:n) * cvsig(ns_ciso:n)
@@ -4941,19 +4941,17 @@ CONTAINS
        w2 = one
     endif
 
-    !MC - alphak=1
+    !MC - Test - alphak=1
     ! alphak = one
     if (nsnow .ge. 1) then
-       !MC
+       !MC - Test
        ! cisos          = ciso(ns_ciso)
        ! dcevapoutdciso = one
-       !MC ???
        ! retain in incoming cisos
        num            = zero
        den            = zero
        dcevapoutdciso = alphak*alphaplus_s
     else
-       !MC
        num   = alphak_vdiff*var_Dv(1)/(half*dx(ns_ciso))*cv1*alphaplus(ns_ciso)*ciso(ns_ciso) &
             - ql0*ciso(ns_ciso)*w1 +civa*alphak/rbw + Dl(ns_ciso)*ciso(ns_ciso)/(half*dx(ns_ciso))
        den   = alphak*cvs*alphaplus_s/(rbw) + ql0*(one-w1) + &
@@ -4966,7 +4964,7 @@ CONTAINS
 
     qevapin  = cva/rbw
     qevapout = cvs/rbw
-    !MC
+    !MC - Test
     ! cevapin  = alphak * civa/cva
     cevapin  = alphak * civa/cva / alphaplus_a
     cevapout = alphak * alphaplus_s * cisos
@@ -5049,7 +5047,7 @@ CONTAINS
        dbetaqv(ns_ciso-1)     = zero !! vh ???? !!
        dbetaqv(n)             = zero
 
-       !MC
+       !MC - Test
        ! if (experiment == 16) then
        !    print*, 'Ha01 ', betaqv
        !    ! print*, 'Ha02 ', dbetaqv
@@ -5092,7 +5090,7 @@ CONTAINS
          + dbetaqv(ns_ciso:n-1)*dcqvdca(ns_ciso:n-1)*Dvmean(ns_ciso:n-1) &
          + Dlmean(ns_ciso:n-1)/deltaz(ns_ciso:n-1) &
          + Dvbetamean(ns_ciso:n-1)/deltaz(ns_ciso:n-1)
-    !MC ??? thetasat-thetar
+    !MC - thetasat-thetar?
     bb(ns_ciso)       = -(Seff(ns_ciso)+kfreeze(ns_ciso)*Sicesig(ns_ciso)) * &
          thetasat(ns_ciso)*dx(ns_ciso)/sig/dt & !!!vh!!! NB thetasat should be (thetasat-thetar)??
          - qevapout*dcevapoutdciso &
@@ -5183,7 +5181,7 @@ CONTAINS
     call tri(ns_ciso,n,aa,bb,cc,dd,dc)
     ! print*, 'After ', bb(ns_ciso) * dc(ns_ciso) + cc(ns_ciso) * dc(ns_ciso+1), dd(ns_ciso), &
     !      bb(ns_ciso) * dc(ns_ciso) + cc(ns_ciso) * dc(ns_ciso+1) - dd(ns_ciso)
-    !MC ???
+    !MC - Why not sig*dc ... ?
     ! dcice(1:n) = sig*dc(1:n)*kfreeze(1:n) + kfreeze2(1:n)
     dcice(1:n) = dc(1:n)*kfreeze(1:n) + kfreeze2(1:n)
     if (nsnow.gt.0) then

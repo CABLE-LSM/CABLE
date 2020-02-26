@@ -3634,7 +3634,7 @@ SUBROUTINE photosynthesis( csxz, cx1z, cx2z, gswminz,                          &
     ! check that the water available in each layer exceeds the extraction
     !if (any((rex*dt) > (theta(:)-0.01_r_2)*dx(:))) then
     if (any(((rex*dt) > max((theta(:)-thetaw(:)),zero)*dx(:)) .and. (Etrans > zero))) then
-       !MC - ask Vanessa why fwsoil=0. if any demand exceeds water in layer.
+       !MC - ask Vanessa why fwsoil=0. if any (not all) demand exceeds water in layer.
        !     Should it be in else clause of trex>zero?
        !MC - also how is fwsoil coming back after it has been zero?
        !     Should it be fws=one here and fws=zero in else clause of trex>zero?

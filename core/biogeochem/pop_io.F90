@@ -1,3 +1,6 @@
+!MC - Most read/write should be in double precision, at least everything in restart file.
+!     Writing double precision into single precision netcdf variables
+!     is very dangerous here given how C handles arrays.
 SUBROUTINE POP_IO( POP, casamet, YEAR, ACTION, CF )
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! POP        : POP structure containing all specific parameter
@@ -400,9 +403,6 @@ SUBROUTINE POP_IO( POP, casamet, YEAR, ACTION, CF )
            STATUS = NF90_create(trim(fname), cmode=ior(nf90_clobber,nf90_64bit_offset), ncid=FILE_ID)
            ! print*, 'OCreate70 ', file_id, trim(fname)
            IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-           ! Put the file in define mode:
-           !MC - new files are already in define mode
-           ! STATUS = NF90_redef(FILE_ID)
 
            ! GLOBAL ATTRIBUTES
            STATUS = NF90_PUT_ATT( FILE_ID, NF90_GLOBAL, "Icycle" , icycle             )

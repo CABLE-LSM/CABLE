@@ -33,7 +33,7 @@ MODULE sli_utils
   TYPE(solve_type), DIMENSION(:),     ALLOCATABLE :: sol
   REAL(r_2),        DIMENSION(:,:),   ALLOCATABLE :: x
 
-  !MC solute not done yet
+  ! MC solute not done yet
   !REAL(r_2),        DIMENSION(:,:),   ALLOCATABLE         :: bd
   !REAL(r_2),        DIMENSION(:,:),   ALLOCATABLE         :: dis
   !TYPE(rapointer),  DIMENSION(:,:,:), ALLOCATABLE         :: isopar
@@ -1219,7 +1219,7 @@ CONTAINS
        !   Try again original
        !VH Do both formulations come to the same? I found that I could not reproduce
        !   Barnes and Allison semi-analytic solution with original
-       !MC This should be re-checked
+       !MC Should be re-checked
        ! qvh(i) = ((((Tsoil(i)+Tzero)/Tzero)**1.88+((Tsoil(i+1)+Tzero)/Tzero)**1.88)/two) &
        !      * ((var(i)%cvsat+var(i+1)%cvsat)/two)*(var(i)%phiv-var(i+1)%phiv)/dz(i)
        qvh(i) = (half*(exp(1.88_r_2*log((Tsoil(i)+Tzero)/Tzero))+exp(1.88_r_2*log((Tsoil(i+1)+Tzero)/Tzero)))) &
@@ -1591,7 +1591,7 @@ CONTAINS
        !   Try again original
        !VH Do both formulations come to the same? I found that I could not reproduce
        !   Barnes and Allison semi-analytic solution with original
-       !MC This should be re-checked
+       !MC Should be re-checked
        ! qvh(:,i) = ((((Tsoil(:,i)+Tzero)/Tzero)**1.88+((Tsoil(:,i+1)+Tzero)/Tzero)**1.88)/two) &
        !      * ((var(:,i)%cvsat+var(:,i+1)%cvsat)/two)*(var(:,i)%phiv-var(:,i+1)%phiv)/dz(:,i)
        qvh(:,i) = (half*(exp(1.88_r_2*log((Tsoil(:,i)+Tzero)/Tzero))+exp(1.88_r_2*log((Tsoil(:,i+1)+Tzero)/Tzero)))) &
@@ -2183,7 +2183,6 @@ CONTAINS
           ! calculate v%kH as in Campbell (1985) p.32 eq. 4.20
           A  = 0.65_r_2 - 0.78_r_2*parin%rho/thousand + 0.60_r_2*(parin%rho/thousand)**2 ! (4.27)
           B  = 2.8_r_2 * (one-parin%thre) !*theta   ! (4.24)
-          !MC if (parin%clay > 0.05) then
           if (parin%clay > 0.001_r_2) then ! clay=0.001 -> C1=9.2
              C1 = one + 2.6_r_2/sqrt(parin%clay*100._r_2) ! (4.28)
           else
@@ -3283,7 +3282,7 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
   !**********************************************************************************************************************
 
-  !MC this routines has to be adjusted for csol in freezing, probably.
+  ! MC this routines has to be adjusted for csol in freezing, probably.
   REAL(r_2) ELEMENTAL PURE FUNCTION phi(hr0, lambda, eta, phie, he, T, Ksat)
 
     USE sli_numbers, ONLY: zero, one, gravity, lambdaf, Rgas, Tzero, csol
@@ -3295,7 +3294,7 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
     REAL(r_2) :: h, csol1
 
-    !MC freezing point? csol?
+    ! MC freezing point? csol?
     csol1 = zero ! use zero instead of csol for the moment
     if (present(Ksat)) then
        if (T < zero) then     ! frozen soil  !! need to adjust freezing point for csol and use global csol

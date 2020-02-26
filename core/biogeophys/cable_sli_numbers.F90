@@ -80,7 +80,7 @@ MODULE sli_numbers
   REAL(r_2), PARAMETER :: tol_dthetaldT = 1.e-12_r_2
   INTEGER(i_d), PARAMETER :: nsteps_ice_max = 20
   INTEGER(i_d), PARAMETER :: nsteps_max = 200
-  !MC-ToDo! Identify why smaller time-steps are needed for isotopes
+  !MC - ToDo: Identify why smaller time-steps are needed for isotopes.
   ! With isotopes  REAL(r_2), PARAMETER :: dSmax=0.1_r_2, dSmaxr=0.1_r_2, dtmax=0.05_r_2*3600.,
   !                                        dtmin=0.0_r_2, dsmmax=1.0_r_2
   ! With isotopes   REAL(r_2), PARAMETER ::  dTsoilmax=1.0_r_2, dTLmax=1.0_r_2

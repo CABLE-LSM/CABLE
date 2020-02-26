@@ -1293,7 +1293,7 @@ SUBROUTINE casa_fluxout(myear,veg,soil,casabal,casamet)
      CASE(2)
         WRITE(nout,*) myear,npt,veg%iveg(npt),soil%isoilm(npt),    &
              casamet%isorder(npt),casamet%lat(npt),casamet%lon(npt), &
-             !MC casamet%areacell is different between MPI and serial
+             !MC - casamet%areacell is different between MPI and serial
              casamet%areacell(npt)*(1.0e-9),casabal%Fcgppyear(npt),  &
              casabal%FCnppyear(npt),                                 &
              casabal%Fcrmleafyear(npt),casabal%Fcrmwoodyear(npt),     &
@@ -1723,9 +1723,6 @@ SUBROUTINE WRITE_CASA_RESTART_NC( casamet, casapool, casaflux, phen, CASAONLY )
   ! print*, 'OCreate51 ', file_id, trim(fname)
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
   write(*,*) 'Writing casa restart: ', trim(fname)
-  ! Put the file in define mode:
-  !MC - new files are already in define mode
-  ! STATUS = NF90_redef(FILE_ID)
 
   STATUS = NF90_PUT_ATT( FILE_ID, NF90_GLOBAL, "Valid restart date", "01/01/"//CYEAR  )
   STATUS = NF90_PUT_ATT( FILE_ID, NF90_GLOBAL, "Icycle", icycle  )
@@ -2374,10 +2371,6 @@ subroutine write_casa_output_nc(veg, casamet, casapool, casabal, casaflux, casao
      status = nf90_create(trim(fname), ior(nf90_clobber,nf90_64bit_offset), file_id)
      ! print*, 'OCreate52 ', file_id, trim(fname)
      if (status /= nf90_noerr) call handle_err(status)
-
-     ! put the file in define mode:
-     !MC - new files are already in define mode
-     ! status = nf90_redef(file_id)
 
      status = nf90_put_att(file_id, nf90_global, "icycle"   , icycle)
      status = nf90_put_att(file_id, nf90_global, "startyear", cable_user%yearstart)

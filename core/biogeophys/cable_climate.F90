@@ -1029,10 +1029,6 @@ SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
   ! print*, 'OCreate91 ', file_id, trim(fname)
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
-  ! Put the file in define mode:
-  !MC - new files are already in define mode
-  ! STATUS = NF90_redef(FILE_ID)
-
   STATUS = NF90_PUT_ATT( FILE_ID, NF90_GLOBAL, "Valid restart date", "01/01/"//CYEAR  )
 
   ! Define dimensions:

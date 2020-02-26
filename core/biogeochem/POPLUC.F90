@@ -1888,10 +1888,6 @@ CONTAINS
        ! print*, 'OCreate65 ', file_id, trim(fname)
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
-       ! Put the file in define mode:
-       !MC - new files are already in define mode
-       ! STATUS = NF90_redef(FILE_ID)
-
        STATUS = NF90_PUT_ATT( FILE_ID, NF90_GLOBAL, "StartYear", CABLE_USER%YEARSTART )
        STATUS = NF90_PUT_ATT( FILE_ID, NF90_GLOBAL, "EndYear"  , CABLE_USER%YEAREND   )
        STATUS = NF90_PUT_ATT( FILE_ID, NF90_GLOBAL, "RunIden"  , CABLE_USER%RunIden   )

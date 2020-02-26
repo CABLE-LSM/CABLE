@@ -442,9 +442,9 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
            ! 13C
            if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
 
-           !MC - Question2VH: Should this be nyear==myearspin instead of nyear==1?
+           !MC - Should this be nyear==myearspin instead of nyear==1?
            if (nloop==mloop .and. nyear==1) then
-              !MC - Question2VH: Should ctime be replaced by idoy?
+              !MC - Should ctime be replaced by idoy?
               CALL WRITE_CASA_OUTPUT_NC( veg, casamet, casapool, casabal, casaflux, &
                    .true., ctime, (nloop.eq.mloop .and. nyear.eq.myearspin .and. idoy.eq.mdyear) )
               ! 13C
@@ -482,7 +482,7 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
               ENDIF ! CALL_POP
 
               IF (idoy==mdyear) THEN ! end of year
-                 !MC - ToDo - Update c13o2 harvest
+                 !MC - ToDo - update 13CO2 harvest
                  CALL POPdriver(casaflux, casabal, veg, POP)
                  ! CALL POP_IO( pop, casamet, NYEAR, 'WRITE_EPI', &
                  !     (nloop.eq.mloop .and. nyear.eq.myearspin) )

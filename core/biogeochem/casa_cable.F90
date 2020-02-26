@@ -569,10 +569,6 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
       ! print*, 'OCreate69 ', ncid, TRIM(ncfile)
       IF (ncok /= nf90_noerr) CALL stderr_nc(ncok, 'ncdf creating ', trim(ncfile))
 
-      !MC - new files are already in define mode
-      ! ncok = nf90_redef(ncid)
-      ! if (ncok /= nf90_noerr) call stderr_nc(ncok,'enter def mode', ncfile)
-
       ! define dimensions: from name and length
       ! print*, 'def_dims'
       CALL def_dims(num_dims, ncid, dimID, dim_len, dim_name)
@@ -993,7 +989,6 @@ END SUBROUTINE sumcflux
     real(r_2), dimension(mp),  intent(in)    :: avgxnplimit, avgxkNlimiting, avgxklitter, avgxksoil
     real,      dimension(mp),  intent(in)    :: avgratioNCsoilmic, avgratioNCsoilslow, avgratioNCsoilpass
     real,      dimension(mp),  intent(in)    :: avgnsoilmin, avgpsoillab, avgpsoilsorb, avgpsoilocc
-    !MC - ToDo - remove optional once coded in mpiworker
     real(r_2), dimension(mp),  intent(in)    :: avg_c13leaf2met, avg_c13leaf2str
     real(r_2), dimension(mp),  intent(in)    :: avg_c13root2met, avg_c13root2str, avg_c13wood2cwd
     ! 13C
@@ -1083,28 +1078,20 @@ END SUBROUTINE sumcflux
           casapool%clitter(npt,metb) = (avgcleaf2met(npt)+avgcroot2met(npt))/casaflux%klitter(npt,metb)
           casapool%clitter(npt,str)  = (avgcleaf2str(npt)+avgcroot2str(npt))/casaflux%klitter(npt,str)
           casapool%clitter(npt,cwd)  = (avgcwood2cwd(npt))/casaflux%klitter(npt,cwd)
-          !MC - Question2VH - change order so that SS is calculated with old pools instead of updated mic amd slow pools?
-          ! casapool%csoil(npt,mic)    = (casaflux%fromLtoS(npt,mic,metb)*casaflux%klitter(npt,metb)*casapool%clitter(npt,metb)   &
-          !      +casaflux%fromLtoS(npt,mic,str) *casaflux%klitter(npt,str)*casapool%clitter(npt,str)  &
-          !      +casaflux%fromLtoS(npt,mic,cwd) *casaflux%klitter(npt,cwd)*casapool%clitter(npt,cwd) ) &
-          !      /casaflux%ksoil(npt,mic)
-          ! casapool%csoil(npt,slow)   = (casaflux%fromLtoS(npt,slow,metb)*casaflux%klitter(npt,metb)*casapool%clitter(npt,metb) &
-          !      + casaflux%fromLtoS(npt,slow,str)*casaflux%klitter(npt,str)*casapool%clitter(npt,str) &
-          !      + casaflux%fromLtoS(npt,slow,cwd)*casaflux%klitter(npt,cwd)*casapool%clitter(npt,cwd) &
-          !      + casaflux%fromStoS(npt,slow,mic) *casaflux%ksoil(npt,mic) *casapool%csoil(npt,mic)  ) &
-          !      /casaflux%ksoil(npt,slow)
-          ! casapool%csoil(npt,pass)   = (casaflux%fromStoS(npt,pass,mic) *casaflux%ksoil(npt,mic) *casapool%csoil(npt,mic)    &
-          !      +casaflux%fromStoS(npt,pass,slow)*casaflux%ksoil(npt,slow)*casapool%csoil(npt,slow) ) &
-          !      /casaflux%ksoil(npt,pass)
-          casapool%csoil(npt,pass)   = (casaflux%fromStoS(npt,pass,mic) *casaflux%ksoil(npt,mic) *casapool%csoil(npt,mic)    &
+          !MC - Remark: I changed the order so that SS is calculated with old pools instead of already
+          !             updated mic and slow pools.
+          !             Before, first mic then slow then pass were updated, where slow uses mic pool and
+          !             pass uses mic and slow pools.
+          !             Now we do: pass, slow, mic so that they are using the not-yet updated pools.
+          casapool%csoil(npt,pass) = (casaflux%fromStoS(npt,pass,mic) *casaflux%ksoil(npt,mic) *casapool%csoil(npt,mic)    &
                +casaflux%fromStoS(npt,pass,slow)*casaflux%ksoil(npt,slow)*casapool%csoil(npt,slow) ) &
                /casaflux%ksoil(npt,pass)
-          casapool%csoil(npt,slow)   = (casaflux%fromLtoS(npt,slow,metb)*casaflux%klitter(npt,metb)*casapool%clitter(npt,metb) &
+          casapool%csoil(npt,slow) = (casaflux%fromLtoS(npt,slow,metb)*casaflux%klitter(npt,metb)*casapool%clitter(npt,metb) &
                + casaflux%fromLtoS(npt,slow,str)*casaflux%klitter(npt,str)*casapool%clitter(npt,str) &
                + casaflux%fromLtoS(npt,slow,cwd)*casaflux%klitter(npt,cwd)*casapool%clitter(npt,cwd) &
                + casaflux%fromStoS(npt,slow,mic) *casaflux%ksoil(npt,mic) *casapool%csoil(npt,mic)  ) &
                /casaflux%ksoil(npt,slow)
-          casapool%csoil(npt,mic)    = (casaflux%fromLtoS(npt,mic,metb)*casaflux%klitter(npt,metb)*casapool%clitter(npt,metb)   &
+          casapool%csoil(npt,mic) = (casaflux%fromLtoS(npt,mic,metb)*casaflux%klitter(npt,metb)*casapool%clitter(npt,metb) &
                +casaflux%fromLtoS(npt,mic,str) *casaflux%klitter(npt,str)*casapool%clitter(npt,str)  &
                +casaflux%fromLtoS(npt,mic,cwd) *casaflux%klitter(npt,cwd)*casapool%clitter(npt,cwd) ) &
                /casaflux%ksoil(npt,mic)

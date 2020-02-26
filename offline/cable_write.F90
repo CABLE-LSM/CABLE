@@ -628,7 +628,7 @@ CONTAINS
             'Error defining '//pname//' variable attributes in '// &
             'output file. (INTERFACE define_ovar)')
     else if (dimswitch(1:2) == 'r2') then
-       ok = nf90_put_att(ncid, parID, '_FillValue', real(ncmissingr, 8)) !MC replace all 4 and 8 probably by c_float and c_double
+       ok = nf90_put_att(ncid, parID, '_FillValue', real(ncmissingr, 8))
        if (ok /= nf90_noerr) call nc_abort(ok, &
             'Error defining '//pname//' variable attributes in '// &
             'output file. (INTERFACE define_ovar)')

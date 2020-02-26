@@ -44,7 +44,7 @@ system=cuntz@mcinra # cuntz@explor, cuntz@mcinra, moc801@gadi/cuntz@gadi, knauer
 
 # MPI run or single processor run
 # nproc should fit with job tasks 
-dompi=0   # 0: normal run: ./cable
+dompi=1   # 0: normal run: ./cable
           # 1: MPI run: mpiexec -n ${nproc} ./cable_mpi
 nproc=2   # Number of cores for MPI runs
           # must be same as above: SBATCH -n nproc or PBS -l ncpus=nproc
@@ -115,7 +115,7 @@ dofinal=1       # 1/0: Do/Do not final run from 1900 to 2017
 # Other switches
 #
 # Cable
-doc13o2=1           # 1/0: Do/Do not calculate 13C
+doc13o2=0           # 1/0: Do/Do not calculate 13C
 c13o2_simple_disc=0 # 1/0: simple or full 13C leaf discrimination
 explicit_gm=0       # 1/0: explicit (finite) or implicit mesophyll conductance
 
@@ -270,7 +270,7 @@ else
     exit 1
 fi
 # Run directory
-runpath="${sitepath}/run_20200225"
+runpath="${sitepath}/run_20200216"
 
 # Cable parameters
 namelistpath="../namelists"
