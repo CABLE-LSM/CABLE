@@ -9,6 +9,8 @@
 # VH 08/2018: slight modification so that script works for grid that doesn't cover whole globe.
 ################################################################################
 
+import sys
+import math
 from lnutils import latlon2ixjy
 import numpy as np
 from netCDF4 import Dataset
@@ -40,6 +42,19 @@ lonmax =  180.
 # if set "standard" standard landmask is generated (case-sensitive!)
 
 cable_switch = 'cable'
+
+try:
+    sys.argv[1]
+except IndexError:
+    randomPixels = True
+else:
+    coords = sys.argv[1]
+    randomPixels = False
+    mlatmin = math.floor(float(coords.split(',')[0])) + res * 0.5
+    mlatmax = math.floor(float(coords.split(',')[1])) + res * 0.5
+    mlonmin = math.floor(float(coords.split(',')[2])) + res * 0.5
+    mlonmax = math.floor(float(coords.split(',')[3])) + res * 0.5
+
 
 #===============================================================================
 # End user modification (don't touch anything below this line!!!)
@@ -85,16 +100,24 @@ latitude[:] = lats
 mask = rootgrp.createVariable('land','i2',('latitude','longitude',))
 mask.units = '0:no land, 1:land'
 
-# read pixels from csv file
-data = np.genfromtxt(latlonfile,delimiter=',')
 
-# split lats and lons
-if len(data) >= 2:
-    latlist=data[:,0]
-    lonlist=data[:,1]
+# read pixels from csv file
+if randomPixels==True:
+    data = np.genfromtxt(latlonfile,delimiter=',')
+
+    # split lats and lons
+    if len(data.shape) >= 2:
+        latlist=data[:,0]
+        lonlist=data[:,1]
+    else:
+        latlist=data[0]
+        lonlist=data[1]
 else:
-    latlist=data[0]
-    lonlist=data[1]
+    mlats=np.arange(mlatmin,mlatmax+res,res)   # + res because np.arange does not include endpoint
+    mlons=np.arange(mlonmin,mlonmax+res,res)
+    latlist=np.array([(x,y) for x in mlats for y in mlons ])[:,0]
+    lonlist=np.array([(x,y) for x in mlats for y in mlons ])[:,1]
+    
 # get mask 
 tmask = latlon2ixjy(latlist,lonlist,latmin,latmax,lonmin,lonmax,
                     nx,ny,mtype='mask').astype(int)

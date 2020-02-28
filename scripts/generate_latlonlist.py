@@ -12,6 +12,7 @@ gridinfo_file=basepath + 'surface_data/gridinfo_CSIRO_1x1.nc'   # path/name of g
 outname=basepath + 'landmasks/latlonlist_' + str(nrpoints) + 'points.csv'
 
 
+
 # read gridinfo file
 gridinfo = netCDF4.Dataset(gridinfo_file,mode='r')
 iveg     = gridinfo.variables['iveg']

@@ -40,13 +40,13 @@
 #PBS -S /bin/bash
 #PBS -M matthias.cuntz@inrae.fr
 
-system=cuntz@mcinra # cuntz@explor, cuntz@mcinra, moc801@gadi/cuntz@gadi, knauer@pearcey, jk8585 or vxh599@raijin
+system=kna016@pearcey # cuntz@explor, cuntz@mcinra, moc801@gadi/cuntz@gadi, kna016@pearcey, jk8585 or vxh599@raijin
 
 # MPI run or single processor run
 # nproc should fit with job tasks 
-dompi=1   # 0: normal run: ./cable
+dompi=0   # 0: normal run: ./cable
           # 1: MPI run: mpiexec -n ${nproc} ./cable_mpi
-nproc=2   # Number of cores for MPI runs
+nproc=4   # Number of cores for MPI runs
           # must be same as above: SBATCH -n nproc or PBS -l ncpus=nproc
 ignore_mpi_err=1 # 0/1: 1: continue even if mpi run failed
 
@@ -85,18 +85,21 @@ ignore_mpi_err=1 # 0/1: 1: continue even if mpi run failed
 # --------------------------------------------------------------------
 # Sequence switches
 #
-imeteo=1       # 0: Use global meteo, land use and mask
+imeteo=0       # 0: Use global meteo, land use and mask
                 # 1: Use local meteo, land use and mask (doextractsite=1)
                 # 2: Use global meteo and land use, and local mask (doextractsite=2)
 # Step 0
-doextractsite=0 # 0: Do not extract meteo, land use and mask at specific site
+doextractsite=2 # 0: Do not extract meteo, land use and mask at specific site
                 # 1: Do extract meteo, land use and mask at specific site (imeteo=1)
                 # 2: Do extract mask at specific site, using then global meteo and land use (imeteo=2)
-  sitename=HarvardForest10
+  sitename=HarvardForest
+  randompoints=0   # if greater than 0, select given number of random points from gridinfo file
+                   # if 0, mask given by latlon is used
   # latlon=42.536875,-72.172602 # lat,lon  or  latmin,latmax,lonmin,lonmax  # must have . in numbers otherwise indexes taken
-  latlon=42.536875,42.536875,-74.,-72.
-# Step 1
-doclimate=0     # 1/0: Do/Do not create climate restart file
+  latlon=42.536875,42.536875,-72.172602,-72.172602 
+  #latlon=37.5,39.5,112.5,114.5
+  # Step 1
+doclimate=1     # 1/0: Do/Do not create climate restart file
 # Step 2
 dofromzero=1    # 1/0: Do/Do not first spinup phase from zero biomass stocks
 # Step 3
@@ -169,7 +172,7 @@ elif [[ "${sys}" == "pearcey" ]] ; then
     module del intel-cc intel-fc
     module add intel-cc/16.0.1.150 intel-fc/16.0.1.150
     module unload intel-mpi/5.0.1.035
-    module add netcdf/4.3.3.1 openmpi/1.10.2
+    module add netcdf/4.3.3.1 openmpi/1.8.8
 elif [[ "${sys}" == "raijin" ]] ; then
     module del intel-cc intel-fc
     module add intel-cc/16.0.1.150 intel-fc/16.0.1.150
@@ -181,6 +184,7 @@ elif [[ "${sys}" == "gadi" ]] ; then
     module load intel-compiler/2019.5.281
     module load intel-mpi/2019.5.281
     module load netcdf/4.6.3
+    module load hdf5/1.10.5
     export mpiexecdir=/apps/intel-mpi/2019.5.281/intel64/bin/
 fi
 if [[ ! -z ${mpiexecdir} ]] ; then export mpiexecdir="${mpiexecdir}/" ; fi
@@ -247,9 +251,9 @@ elif [[ "${system}" == "moc801@gadi" || "${system}" == "cuntz@gadi" ]] ; then
     GlobalMetPath="/g/data/x45/crujra/daily_1deg"
     # Global LUC
     GlobalTransitionFilePath="/g/data/x45/LUH2/GCB_2018/1deg/EXTRACT"
-elif [[ "${system}" == "knauer@pearcey" ]] ; then
+elif [[ "${system}" == "kna016@pearcey" ]] ; then
     # Run directory: runpath="${sitepath}/run_xxx"
-    sitepath="/OSM/CBR/OA_GLOBALCABLE/work/Juergen/CABLE_run/${sitename}"
+    sitepath="/OSM/CBR/OA_GLOBALCABLE/work/Juergen/CABLE_run/parallel_runs/${sitename}"
     cablehome="/OSM/CBR/OA_GLOBALCABLE/work/Juergen/CABLE_code"
     # Cable executable
     if [[ ${dompi} -eq 1 ]] ; then
@@ -260,7 +264,7 @@ elif [[ "${system}" == "knauer@pearcey" ]] ; then
     # CABLE-AUX directory (uses offline/gridinfo_CSIRO_1x1.nc and offline/modis_phenology_csiro.txt)
     aux="/OSM/CBR/OA_GLOBALCABLE/work/Vanessa/CABLE-AUX"
     # Global Mask
-    GlobalLandMaskFile="/OSM/CBR/OA_GLOBALCABLE/work/Vanessa/MASKS/glob_ipsl_1x1.nc"
+    #GlobalLandMaskFile="/OSM/CBR/OA_GLOBALCABLE/work/Vanessa/MASKS/glob_ipsl_1x1.nc"
     # Global CRU
     GlobalMetPath="/OSM/CBR/OA_GLOBALCABLE/work/CRU-JRA55/crujra/daily_1deg"
     # Global LUC
@@ -277,8 +281,13 @@ namelistpath="../namelists"
 filename_veg="../params/def_veg_params.txt"
 filename_soil="../params/def_soil_params.txt"
 casafile_cnpbiome="../params/pftlookup.csv"
+# Other scripts
+ScriptsPath="../scripts"
+# Gridinfo file
+gridinfo="${aux}/offline/gridinfo_CSIRO_1x1.nc"
+GlobalLandMaskFile=${gridinfo}
 # Mask
-LandMaskFile="${sitepath}/mask/glob_ipsl_1x1_${sitename}.nc"
+LandMaskFile="${sitepath}/mask/${sitename}_landmask.nc"
 # CRU
 MetPath="${sitepath}/met/cru_jra_1deg"
 ClimateFile="${sitepath}/met/cru_climate_rst.nc"
@@ -548,22 +557,62 @@ if [[ ${doextractsite} -eq 1 ]] ; then
 
     # mask
     LandMaskFilePath=$(dirname ${LandMaskFile})
-    mkdir -p ${LandMaskFilePath}
-    LandMaskFile=$(absfile ${LandMaskFile})
-    echo $(basename ${LandMaskFile})
-    # cdo -s -f nc4 -z zip sellonlatbox,-72.5,-72.0,42.5,43.0 ${GlobalLandMaskFile} ${LandMaskFile}
-    ncks -O $(nckslatlon ${GlobalLandMaskFile} ${latlon}) ${GlobalLandMaskFile} ${LandMaskFile}
+    # generate random points if ${randompoints} > 0
+    if [[ ${randompoints} -gt 0 ]] ; then
+	com=$(csed "basepath=\"${sitepath}\"")
+        com=${com}$(csed "gridinfo_file=\"${gridinfo}\"")
+	com=${com}$(csed "outname=\"${LandMaskFilePath}/${sitename}_points.csv\"")
+        sed ${com} ${ScriptsPath}/generate_latlonlist.py > ${LandMaskFilePath}/generate_latlonlist.py
+	python ${LandMaskFilePath}/generate_latlonlist.py ${randompoints}
+
+        com=$(csed "path=\"${LandMaskFilePath}\"")
+        com=${com}$(csed "maskfname=\"${LandMaskFile}\"")
+        com=${com}$(csed "latlonfile=\"${LandMaskFilePath}/${sitename}_points.csv\"")
+        sed ${com} ${ScriptsPath}/create_landmask.py > ${LandMaskFilePath}/create_landmask.py
+        sed -i "s!from lnutils.*!sys.path.insert(1,'${ScriptsPath}'); from lnutils import latlon2ixjy!" ${LandMaskFilePath}/create_landmask.py
+        python ${LandMaskFilePath}/create_landmask.py
+    else
+        com=$(csed "path=\"${LandMaskFilePath}\"")
+        com=${com}$(csed "maskfname=\"${LandMaskFile}\"")
+        sed ${com} ${ScriptsPath}/create_landmask.py > ${LandMaskFilePath}/create_landmask.py
+        sed -i "s!from lnutils.*!sys.path.insert(1,'${ScriptsPath}'); from lnutils import latlon2ixjy!" ${LandMaskFilePath}/create_landmask.py
+        python ${LandMaskFilePath}/create_landmask.py ${latlon}
+    fi
 fi
 # ToDo: set land points in mask using Python script
 if [[ ${doextractsite} -eq 2 ]] ; then
     cd ${pdir}
     # mask
     LandMaskFilePath=$(dirname ${LandMaskFile})
-    mkdir -p ${LandMaskFilePath}
-    LandMaskFile=$(absfile ${LandMaskFile})
-    echo $(basename ${LandMaskFile})
-    # cdo -s -f nc4 -z zip sellonlatbox,-72.5,-72.0,42.5,43.0 ${GlobalLandMaskFile} ${LandMaskFile}
-    ncks -O $(nckslatlon ${GlobalLandMaskFile} ${latlon}) ${GlobalLandMaskFile} ${LandMaskFile}
+    # generate random points if ${randompoints} > 0
+    if [[ ${randompoints} -gt 0 ]] ; then
+	com=$(csed "basepath=\"${sitepath}\"")
+        com=${com}$(csed "gridinfo_file=\"${gridinfo}\"")
+	com=${com}$(csed "outname=\"${LandMaskFilePath}/${sitename}_points.csv\"")
+        sed ${com} ${ScriptsPath}/generate_latlonlist.py > ${LandMaskFilePath}/generate_latlonlist.py
+	python ${LandMaskFilePath}/generate_latlonlist.py ${randompoints}
+
+        com=$(csed "path=\"${LandMaskFilePath}\"")
+        com=${com}$(csed "maskfname=\"${LandMaskFile}\"")
+        com=${com}$(csed "latlonfile=\"${LandMaskFilePath}/${sitename}_points.csv\"")
+        sed ${com} ${ScriptsPath}/create_landmask.py > ${LandMaskFilePath}/create_landmask.py
+        sed -i "s!from lnutils.*!sys.path.insert(1,'${ScriptsPath}'); from lnutils import latlon2ixjy!" ${LandMaskFilePath}/create_landmask.py
+        python ${LandMaskFilePath}/create_landmask.py
+    else
+        com=$(csed "path=\"${LandMaskFilePath}\"")
+        com=${com}$(csed "maskfname=\"${LandMaskFile}\"")
+        sed ${com} ${ScriptsPath}/create_landmask.py > ${LandMaskFilePath}/create_landmask.py
+        sed -i "s!from lnutils.*!sys.path.insert(1,'${ScriptsPath}'); from lnutils import latlon2ixjy!" ${LandMaskFilePath}/create_landmask.py
+        python ${LandMaskFilePath}/create_landmask.py ${latlon}
+    fi
+
+    
+    #LandMaskFilePath=$(dirname ${LandMaskFile})
+    #mkdir -p ${LandMaskFilePath}
+    #LandMaskFile=$(absfile ${LandMaskFile})
+    #echo $(basename ${LandMaskFile})
+    ## cdo -s -f nc4 -z zip sellonlatbox,-72.5,-72.0,42.5,43.0 ${GlobalLandMaskFile} ${LandMaskFile}
+    #ncks -O $(nckslatlon ${GlobalLandMaskFile} ${latlon}) ${GlobalLandMaskFile} ${LandMaskFile}
 fi
 
 # Choose meteo, land use and mask directories and files
@@ -593,7 +642,7 @@ filename_d13c_atm=$(absfile ${filename_d13c_atm})
 
 # 1. Create climate restart file
 if [[ ${doclimate} -eq 1 ]] ; then
-    echo "1. Create climate restart file"
+    echo "1. Create climate restart file"   
     rid="climate_restart"
     # CRU
     irm ${rdir}/cru.nml
@@ -671,7 +720,7 @@ if [[ ${doclimate} -eq 1 ]] ; then
     cd logs
     renameid ${rid} log_cable.txt log_out_cable.txt
     cd ../restart
-    copyid ${rid} pop_cru_ini.nc cru_climate_rst.nc cru_casa_rst.nc cru_cable_rst.nc
+    copyid ${rid} cru_climate_rst.nc
     cp cru_climate_rst.nc ${ClimateFile}
     if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_c13o2_flux_rst.nc cru_c13o2_pools_rst.nc ; fi
     cd ../outputs
@@ -1171,8 +1220,7 @@ if [[ ${doiniluc} -eq 1 ]] ; then
     com=${com}$(csed "filename%restart_in=\"restart/cru_cable_rst.nc\"")
     com=${com}$(csed "cable_user%CLIMATE_fromZero=.false.")
     com=${com}$(csed "cable_user%YearStart=1580")
-    #MCTEST com=${com}$(csed "cable_user%YearEnd=1699")
-    com=${com}$(csed "cable_user%YearEnd=1582")
+    com=${com}$(csed "cable_user%YearEnd=1699")
     com=${com}$(csed "icycle=12")
     com=${com}$(csed "spincasa=.false.")
     com=${com}$(csed "cable_user%CASA_fromZero=.false.")
