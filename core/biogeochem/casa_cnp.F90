@@ -1479,9 +1479,6 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
            pwood2cwd(npt) = -casapool%dPplantdt(npt,wood)
         ENDIF
         
-        !!vh!! check this code!
-        !MC - I thought that this is wrong because it does not include the flux from fire
-         
         do nL=1, mlitter
            do nP=1, mplant
               casaflux%FluxCtolitter(npt,nL) = casaflux%FluxCtolitter(npt,nL) &
@@ -1495,13 +1492,6 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
         enddo
 
         
-             
-        !MC - the c-quantities should include fire        
-        ! casaflux%FluxCtolitter(npt,metb) = cleaf2met(npt) + croot2met(npt)
-        ! casaflux%FluxCtolitter(npt,str)  = cleaf2str(npt) + croot2str(npt)
-        ! casaflux%FluxCtolitter(npt,wood) = cwood2cwd(npt)
-        !MC - but only the first code worked <- magic ;-)
-
         ! Nitrogen
         IF (icycle > 1) THEN
            ! casaflux%FluxNtolitter(npt,str) = casaflux%fromPtoL(npt,str,leaf) * casaflux%kplant(npt,leaf)  &

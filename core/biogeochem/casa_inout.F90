@@ -1532,6 +1532,8 @@ SUBROUTINE biogeochem(ktau,dels,idoY,LALLOC,veg,soil,casabiome,casapool,casaflux
          casaflux%kplant(POP%Iwood,2) = 0.0_r_2
          veg%hc(POP%Iwood) = POP%pop_grid(:)%height_max
       ENDWHERE
+      casaflux%kplant_tot(POP%Iwood,2) = casaflux%kplant(POP%Iwood,2) + &
+           (1.0_r_2 -casaflux%kplant(POP%Iwood,2))* casaflux%kplant_fire(POP%Iwood,2)
      
    ENDIF
    ! if (idoy.eq.365) then

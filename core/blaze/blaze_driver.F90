@@ -270,7 +270,7 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
                 MAX((TO(i, WOOD )%TO_CWD + TO(i, WOOD )%TO_ATM*0.7 +  TO(i, WOOD )%TO_STR ),1.e-5), r_2)
 
            casaflux%fromPtoL_fire(patch_index,STR,WOOD) = real(TO(i, WOOD )%TO_STR/ &
-                MAX((TO(i, WOOD )%TO_CWD + TO(i, WOOD )%TO_ATM*0.7 + &
+                MAX((TO(i, WOOD )%TO_CWD + TO(i, WOOD )%TO_ATM + &
                 TO(i, WOOD )%TO_STR ),1e-5), r_2)
 
 

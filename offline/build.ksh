@@ -2,12 +2,13 @@
 
 export dosvn=1 # 1/0: do/do not check svn
 
-# so that script can be called by 'bash build.ksh' if no ksh installed
-if [ -z ${PS3} ] ; then # https://stackoverflow.com/questions/3327013/how-to-determine-the-current-shell-im-working-on
-    eval 'function print(){ printf "$@\n"; }'
-fi
+# so that script can be called by bash buils.ksh if no ksh installed
+#if [ "${SHELL}" == "/bin/bash" ] ; then
+#    function print(){
+#	printf "$@"
+#    }
+#fi
 
-# in trunk: pear jigg nXXX raij ces2 ccrc mael gadi
 known_hosts()
 {
     if [ -z ${PS3} ] ; then
@@ -165,9 +166,7 @@ host_jigg()
 ## pearcey.hpsc.csiro.au 
 host_pear()
 {
-   if [ -z ${PS3} ] ; then
-       . /apps/modules/Modules/default/init/ksh
-   fi
+   . /apps/modules/Modules/default/init/ksh
  
    module del intel-cc intel-fc
    module add intel-cc/16.0.1.150 intel-fc/16.0.1.150
@@ -178,9 +177,9 @@ host_pear()
    export FC='ifort'
    export  CFLAGS='-O0 -fp-model precise -fpe0 -fpp -g -debug -traceback -fp-stack-check -no-ftz -ftrapuv -check all,noarg_temp_created -C '
    #export CFLAGS='-O0 -fpe=0 -fpe-all=0 -fpp -g -debug -traceback -fp-stack-check -no-ftz -ftrapuv -check bounds 
-   #export CFLAGS='-O0 -fp-model precise -fpp'
+   export CFLAGS='-O2 -fp-model precise -fpp'
    export CFLAGS="${CFLAGS} -D__CRU2017__"
-   export LDFLAGS='-g -L'$NCDIR' -O0'
+   export LDFLAGS='-g -L'$NCDIR' -O2'
    export MFLAGS='-j 8'
    export LD='-lnetcdf -lnetcdff'
    export dosvn=0
@@ -217,7 +216,7 @@ host_raij()
 host_mcin()
 {
     idebug=0
-    iintel=1
+    iintel=0
     ignu=0
     inag=0
     np=$#
@@ -247,16 +246,11 @@ host_mcin()
         /opt/intel/compilers_and_libraries/mac/bin/compilervars.sh intel64
         export FC=ifort
         # release
-        # export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
-	# Gadi flags
-	export CFLAGS='-O2 -fpp -fp-model precise'
-	if [[ ${idebug} -eq 1 ]] ; then
+        export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
+        if [[ ${idebug} -eq 1 ]] ; then
             # debug
-            export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -fpp -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0 -fpe-all=0 -no-ftz -ftrapuv -init=arrays,snan"
-	    
-            # export CFLAGS='-O0 -fpp -traceback -g -fp-model precise'
-	    # export CFLAGS='-g -debug -traceback -fpp -check all,noarg_temp_created -fp-stack-check -O0 -debug -fpe=0 -fpe-all=0 -no-ftz -ftrapuv'
-	fi
+            export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
+        fi
 	# export CFLAGS="${CFLAGS} -mtune=corei7"
 	# export CFLAGS="${CFLAGS} -march=native"
 	export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
@@ -299,10 +293,8 @@ host_mcin()
     export NCLIB=${NCROOT}'/lib'
     export NCMOD=${NCROOT}'/include'
     export LDFLAGS="-L${NCLIB} -L${NCCLIB} -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz"
-    # Gadi flags
-    export LDFLAGS="-O0 ${LDFLAGS}"
     export dosvn=0
-    export MFLAGS='-j 8'
+    # export MFLAGS='-j 8'
     build_build
     cd ../
     build_status

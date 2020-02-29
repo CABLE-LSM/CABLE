@@ -116,7 +116,7 @@ cable_iovars.o: cable_iovars.F90 cable_define_types.o
 cable_read.o: cable_read.F90 cable_iovars.o cable_abort.o 
 
 cable_initialise.o: cable_initialise.F90 cable_read.o cable_iovars.o cable_abort.o \
-		    cable_define_types.o
+		    cable_define_types.o cable_common.o
 
 cable_write.o: cable_write.F90 cable_iovars.o cable_abort.o cable_define_types.o 
 
