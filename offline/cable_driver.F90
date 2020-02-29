@@ -245,6 +245,8 @@ PROGRAM cable_offline_driver
        CALL1 = .TRUE.,             &
        SPINon= .TRUE.
 
+  LOGICAL :: CASA_TIME
+
   REAL              :: &
        delsoilM,         & ! allowed variation in soil moisture for spin up
        delsoilT            ! allowed variation in soil temperature for spin up
@@ -1042,7 +1044,15 @@ PROGRAM cable_offline_driver
               ! WRITE CASA OUTPUT
               IF (icycle >0) THEN
 
-                 IF ( IS_CASA_TIME("write", yyyy, ktau, kstart, koffset, kend, ktauday, logn) ) THEN
+                 IF (TRIM(cable_user%MetType).EQ.'' .OR. &
+                      TRIM(cable_user%MetType).EQ.'site' ) THEN
+                    CASA_TIME = IS_CASA_TIME("write", metyear, ktau, kstart, koffset, kend, ktauday, logn)
+                 ELSE
+                    CASA_TIME = IS_CASA_TIME("write", yyyy, ktau, kstart, koffset, kend, ktauday, logn)
+                 ENDIF
+                 
+                    
+                 IF (CASA_TIME ) THEN
                     ctime = ctime + 1
                     !mpidiff
                     CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
