@@ -2558,7 +2558,7 @@ SUBROUTINE casa_cnpbal(casapool,casaflux,casabal)
    
 
    if (abs(Cbalsoil(1)).gt.0.1) then
-      print*, Cbalsoil(1)
+      print*, 'Cbalsoil(1)', Cbalsoil(1)
       !print*, sum(casabal%clitterlast(1,:)) - sum(casapool%clitter(1,:))
       ! mass bal on litter
       tmp1 = SUM((casaflux%kplant(1,:)*casabal%cplantlast(1,:))) ! plant input
@@ -2586,7 +2586,7 @@ SUBROUTINE casa_cnpbal(casapool,casaflux,casabal)
       print*, 'frac plant fire flux to litter: ',  sum(casaflux%fromPtoL_fire(1,:,:),1)
       print*, 'plant loss (fire)', tmp8
   
-      stop
+     ! stop
      ! print*, sum(casabal%csoillast(1,:))   - sum(casapool%csoil(1,:))
      ! print*, SUM((casaflux%kplant(1,:)*casabal%cplantlast(1,:)))-casaflux%Crsoil(1)*deltpool
       !print*, SUM((casaflux%kplant_fire(1,:)*(1_r_2 - casaflux%kplant(1,:)) * casabal%cplantlast(1,:)))
@@ -2594,7 +2594,7 @@ SUBROUTINE casa_cnpbal(casapool,casaflux,casabal)
       !stop
       endif
    
-   write(5588,*) Cbalplant(1), Cbalsoil(1)
+   
    casabal%cbalance(:) = Cbalplant(:) + Cbalsoil(:)
 
    ! do npt=1,mp

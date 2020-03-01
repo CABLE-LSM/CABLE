@@ -153,7 +153,7 @@ PROGRAM cable_offline_driver
        RYEAR,      &  !
        RRRR,       &  !
        NRRRR,      &  !
-       ctime,      &  ! day count for casacnp
+       ctime,      &  ! time counter for casacnp
        LOY, &         ! days in year
        count_sum_casa, & ! number of time steps over which casa pools &
   !and fluxes are aggregated (for output)
@@ -998,6 +998,8 @@ PROGRAM cable_offline_driver
 
                  IF(MOD((ktau-kstart+1),ktauday)==0) THEN ! end of day
 
+                    ctime = ctime + 86400  ! update casa time
+
                     !mpidiff
                     ! update time-aggregates of casa pools and fluxes
                     CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
@@ -1053,7 +1055,7 @@ PROGRAM cable_offline_driver
                  
                     
                  IF (CASA_TIME ) THEN
-                    ctime = ctime + 1
+                    
                     !mpidiff
                     CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
                          .FALSE., .TRUE., count_sum_casa)

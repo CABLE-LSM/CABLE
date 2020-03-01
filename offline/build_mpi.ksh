@@ -57,88 +57,11 @@ host_gadi()
    build_status
 }
 
-## raijin.nci.org.au
-host_raij()
-{
-   #module load netcdf
-   #module load intel-mpi
-   module del intel-cc intel-fc
-   module add intel-cc/16.0.1.150 intel-fc/16.0.1.150
-   #module load intel-cc/17.0.1.132 intel-cc/17.0.1.132   
-   module add netcdf/4.3.3.1  openmpi/1.10.2
-   #openmpi/1.8.8
-   export NCDIR=$NETCDF_ROOT'/lib/Intel'
-   export NCMOD=$NETCDF_ROOT'/include/Intel'
-   export FC='mpif90'
-   export CFLAGS='-O2 -fp-model precise -fpp -xCORE-AVX2'
-   # export CFLAGS='-O3 -fp-model precise -g -debug all -traceback'
-   #  export CFLAGS='  -g -debug -traceback -fpp  -check all,noarg_temp_created -fp-stack-check -O2 -debug -fpe0 -no-ftz -ftrapuv -fpstkchk  -xCORE-AVX2'
-
-   # export CFLAGS='-O0 -traceback -g -debug -fp-model precise -ftz -fpe0 -check all,noarg_temp_created -fp-stack-check -no-ftz -ftrapuv'
-   if [[ $1 = 'debug' ]]; then
-      # export CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0'
-      export CFLAGS='  -g -debug -traceback -fpp -check all,noarg_temp_created -fp-stack-check -O0 -debug -fpe=0 -fpe-all=0 -no-ftz -ftrapuv'
-   fi
-   export CFLAGS="${CFLAGS} -D__MPI__"
-   export LDFLAGS='-L'$NCDIR' -O2 -xCORE-AVX2'
-   export LD='-lnetcdf -lnetcdff'
-   build_build
-   cd ../
-   build_status
-}
-
-## shine-cl.nexus.csiro.au 
-host_shin()
-{
-   export NCDIR='/usr/local/intel/'
-   export NCMOD='/usr/local/intel/'
-   export FC=ifort    ## need to check ??
-   export CFLAGS='-O2 -fp-model precise -fpp -ftz -fpe0'
-   export CFLAGS="${CFLAGS} -D__MPI__"
-   export LD='-lnetcdf'
-   export LDFLAGS='-L/usr/local/intel/lib -O2'
-   build_build
-   cd ../
-   build_status
-}
 
 
-## burnet.hpsc.csiro.au 
-host_burn()
-{
-   if [ -z ${PS3} ] ; then
-       . /apps/modules/Modules/default/init/ksh
-   fi
-   module add netcdf/3.6.3 openmpi
 
 
-   export NCDIR=$NETCDF_ROOT'/lib/'
-   export NCMOD=$NETCDF_ROOT'/include/'
-   export FC='mpif90'
-   export CFLAGS='-O2 -fp-model precise -fpp'
-   export CFLAGS="${CFLAGS} -D__MPI__"
-   export LDFLAGS='-L'$NCDIR' -O2'
-   export LD='-lnetcdf -lnetcdff'
-   build_build
-   cd ../
-   build_status
-}
 
-
-## cherax.hpsc.csiro.au 
-host_cher()
-{
-   export NCDIR=$NETCDF_ROOT'/lib/'
-   export NCMOD=$NETCDF_ROOT'/include/'
-   export FC='mpif90'
-   export CFLAGS='-O2 -fp-model precise -fpp'
-   export CFLAGS="${CFLAGS} -D__MPI__"
-   export LDFLAGS='-L'$NCDIR' -O2'
-   export LD='-lnetcdf -lnetcdff'
-   build_build
-   cd ../
-   build_status
-}
 
 ## pearcey.hpsc.csiro.au 
 host_pear()
@@ -160,21 +83,21 @@ host_pear()
     export NCDIR=$NETCDF_ROOT'/lib/'
     export NCMOD=$NETCDF_ROOT'/include/'
     export FC='mpifort' #'mpif90'
-    # export CFLAGS='-O2 -fp-model precise -fpp'
+     export CFLAGS='-O2 -fp-model precise -fpp'
     #   export CFLAGS='-O0 -C'
     # best settings for debugging
     #   export CFLAGS='-O0 -C -g -debug all -traceback -check all,noarg_temp_created, -C  '
     #   export CFLAGS='-O0 '
 
-    export CFLAGS='-O0 -fp-model precise -g -debug -traceback -fpp '
+    #export CFLAGS='-O0 -fp-model precise -g -debug -traceback -fpp '
     export CFLAGS="${CFLAGS} -D__CRU2018__"
     #   export CFLAGS='-O0 -fp-model precise -g -debug all -traceback -fpe0 '
     #   export CFLAGS='  -g -debug -traceback -fp-stack-check -O0 -debug -fpe0 -no-ftz -ftrapuv'
 
-    # best debugg flags
+    # best debug flags
     #   export LDFLAGS='-g -L'$NCDIR  #'-L'$NCDIR' -O2'
     export CFLAGS="${CFLAGS} -D__MPI__"
-    export LDFLAGS='-O0 -L'$NCDIR''
+    export LDFLAGS='-O2 -L'$NCDIR''
     export MFLAGS='-j 8'
     export LD='-lnetcdf -lnetcdff'
     build_build
@@ -183,7 +106,7 @@ host_pear()
 }
 
 
-# MatthiasCuntz@INRA
+# MatthiasCuntz@INRAE
 host_mcin()
 {
     idebug=0

@@ -1179,7 +1179,7 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
            IF (TRIM(vp1500_file) .NE. 'none') THEN       
               REWIND (vp1500_unit)
            ENDIF
-           REWIND (co2_unit)
+           !REWIND (co2_unit)
            DO iday = 1,skipdays
              READ (rain_unit) dummydate, rain_day
              READ (swdown_unit) dummydate, swdown_day
@@ -1266,9 +1266,10 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
          ELSE
            READ (co2_unit) dummydate, co2air_year          ! Single global value of co2 (ppm)
            met%ca(:) = CO2air_year / 1.e+6   
-         END IF
+        END IF
+         ! write(596,*), previous_date%year, bios_rundate%year, dummydate,  CO2air_year,  met%ca(1)*1.0e6
       END IF
-    
+
       ! Finished operations for this day, so the current date becomes the previous date.  
        previous_date = bios_rundate
 
@@ -1290,7 +1291,7 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
    met%fsd(is:ie,1)     = WG%PhiSD(iland) * 0.5
    met%fsd(is:ie,2)     = WG%PhiSD(iland) * 0.5
    met%tk(is:ie)        = WG%Temp(iland) + 273.15
-   met%ua(is:ie)        = WG%Wind(iland)
+   met%ua(is:ie)        = WG%Wind(iland) *2.0  ! factor of 2 to convert from 2m screen height to 40 m zref, assuming logarithmic profile
    met%coszen(is:ie)    = WG%coszen(iland)
    met%qv(is:ie)        = WG%VapPmb(iland)/WG%Pmb(iland)*RMWbyRMA ! specific humidity (kg/kg)
    met%pmb(is:ie)       = WG%Pmb(iland)

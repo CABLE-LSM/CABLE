@@ -258,7 +258,7 @@ CONTAINS
          idoy,        &  ! day of year (1:365) counter for CASA-CNP
          nyear,       &  ! year counter for CASA-CNP
          casa_it,     &  ! number of calls to CASA-CNP
-         ctime,       &  ! day count for casacnp
+         ctime,       &  ! time for casacnp
          YYYY,        &  !
          LOY,         &  ! Length of Year
          count_sum_casa, & ! number of time steps over which casa pools and fluxes are aggregated (for output)
@@ -1111,6 +1111,10 @@ CONTAINS
                 !         kend/ktauday )
                 ! ENDIF
 
+                IF ( mod((oktau-kstart+1+koffset),ktauday)==0 ) then  ! end of day
+                   ctime = ctime + 86400
+                ENDIF
+
                 if ( ((.not.spinup) .or. (spinup.and.spinConv)) .and. &
                       mod((oktau-kstart+1+koffset),ktauday)==0 ) then
                    if ( cable_user%casa_dump_write )  then
@@ -1157,13 +1161,13 @@ CONTAINS
                 if (icycle > 0) then
                    if ( is_casa_time("write", yyyy, oktau, kstart, &
                         koffset, kend, ktauday, logn) ) then
-                      ctime = ctime + 1
+                      !ctime = ctime + 1
                       ! print*, 'II18.1'
                       call write_casa_output_nc(veg, casamet, casapool, casabal, casaflux, &
                            CASAONLY, ctime, ktau.eq.kend .and. yyyy.eq.cable_user%YearEnd)
                       ! 13C
                       if (cable_user%c13o2) then
-                         if (ctime == 1) then
+                         if (ctime == 86400) then
                             ! call c13o2_create_output(casamet, sum_c13o2pools, c13o2_outfile_id, c13o2_vars, c13o2_var_ids)
                             ! print*, 'II18.2'
                             call c13o2_create_output(casamet, c13o2pools, c13o2_outfile_id, c13o2_vars, c13o2_var_ids)
@@ -1376,7 +1380,7 @@ CONTAINS
           ! WRITE OUTPUT
           IF ((.NOT.spinup).OR.(spinup.AND.spinConv)) THEN
              IF (icycle>0) THEN
-                ctime = ctime + 1
+                ctime = ctime + 86400
                 !TRUNK no if but call write_casa in any case
                 if (ktau.EQ.kend .AND. YYYY .EQ. cable_user%YearEnd) &
                 CALL WRITE_CASA_OUTPUT_NC(veg, casamet, casapool, casabal, casaflux, &
@@ -1408,6 +1412,7 @@ CONTAINS
 
              IF (((.NOT.spinup).OR.(spinup.AND.spinConv)).and. &
                   MOD((ktau-kstart+1),ktauday)==0) THEN
+                !ctime = ctime + 86400  ! update casa time
                 IF ( cable_user%CASA_DUMP_WRITE )  THEN
                    !CLN CHECK FOR LEAP YEAR
                    WRITE(CYEAR,FMT="(I4)") CurYear + INT((ktau-kstart)/(LOY*ktauday))

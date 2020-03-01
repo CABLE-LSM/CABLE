@@ -2169,6 +2169,7 @@ subroutine write_casa_output_nc(veg, casamet, casapool, casabal, casaflux, casao
        mplant, mlitter, msoil, icycle, casafile
   use cable_common_module, only: cable_user, filename, handle_err
   use cable_def_types_mod, only: veg_parameter_type, mp
+  USE cable_IO_vars_module, ONLY: timeunits, calendar
   use netcdf,              only: nf90_open, nf90_write, nf90_noerr, nf90_inq_dimid, nf90_inq_varid, &
        nf90_put_var, nf90_clobber, nf90_64bit_offset, nf90_create, nf90_global, nf90_put_att, & ! , nf90_redef
        nf90_def_dim, nf90_unlimited, nf90_int, nf90_def_var, nf90_float, nf90_enddef, nf90_put_var, nf90_close
@@ -2401,6 +2402,12 @@ subroutine write_casa_output_nc(veg, casamet, casapool, casabal, casaflux, casao
      ! define variables
      status = nf90_def_var(file_id, 'time', nf90_int, (/t_id/), vidtime)
      if (status /= nf90_noerr) call handle_err(status)
+
+     STATUS = NF90_PUT_ATT(FILE_ID, VIDtime, 'units', TRIM(timeunits))
+     IF (STATUS /= NF90_NOERR)  CALL handle_err(STATUS)
+
+     STATUS = NF90_PUT_ATT(FILE_ID,VIDtime, 'calendar', calendar)
+     IF (STATUS /= NF90_NOERR)  CALL handle_err(STATUS)
 
      do i=1, na0
         status = nf90_def_var(file_id, trim(a0(i)), nf90_float, (/land_id/), vid0(i))
