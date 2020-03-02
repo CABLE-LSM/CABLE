@@ -48,47 +48,6 @@ debug -fpe=0 -fpe-all=0 -no-ftz -ftrapuv'
    build_status
 }
 
-## gadi.nci.org.au
-host_gadi_tmp()
-{
-   if [ -z ${PS3} ] ; then
-      . /etc/bashrc
-   else
-      . /etc/kshrc
-   fi
-   module purge
-   module load intel-compiler/2019.5.281
-   module load intel-mpi/2019.5.281
-   module load netcdf/4.6.3
-   # module load hdf5/1.10.5
-   
-   export FC=mpif90
-   # export NCCLIB="${NETCDF_ROOT}/lib"
-   # export NCLIB="${NETCDF_ROOT}/lib/Intel"
-   export NCMOD="${NETCDF_ROOT}/include/Intel"
-   # export HDF5LIB="${HDF5_ROOT}/lib"
-   if [[ ${1} == 'debug' ]]; then
-       #trunk export CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0'
-       #build.ksh export CFLAGS='-O0 -fpp -traceback -g -fp-model precise -ftz -fpe0'
-       export CFLAGS='-g -debug -traceback -fpp -check all,noarg_temp_created -fp-stack-check -O0 -debug -fpe=0 -fpe-all=0 -no-ftz -ftrapuv'
-   else
-       export CFLAGS='-O2 -fpp -fp-model precise'
-       # export CFLAGS="${CFLAGS} -xCORE-AVX2 -axSKYLAKE-AVX512,CASCADELAKE" # given in user training: does not work
-       export CFLAGS="${CFLAGS} -xCASCADELAKE" # or -xCORE-AVX512 # queues: express / normal
-       # export CFLAGS="${CFLAGS} -xBROADWELL"  # or -xCORE-AVX512; queues: expressbw / normalbw
-       # export CFLAGS="${CFLAGS} -xSKYLAKE"    # or -xSKYLAKE-AVX512 depends on performance; queues: normalsl
-   fi
-   export CFLAGS="${CFLAGS} -D__MPI__"
-   export CFLAGS="${CFLAGS} -D__CRU2017__"
-   export LDFLAGS="-O0"
-   # export LD='-L${NCLIB} -lnetcdff -L${NCCLIB} -lnetcdf -L${HDF5LIB} -lhdf5_hl -lhdf5 -ldl -lz -lcurl -lm'
-   export LD='-lnetcdf -lnetcdff'
-   export MFLAGS='-j 8'
-   build_build
-   cd ../
-   build_status
-}
-
 
 
 
