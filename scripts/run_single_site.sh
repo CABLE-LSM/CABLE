@@ -40,7 +40,7 @@
 #PBS -S /bin/bash
 #PBS -M matthias.cuntz@inrae.fr
 
-system=kna016@pearcey # cuntz@explor, cuntz@mcinra, moc801@gadi/cuntz@gadi, kna016@pearcey, jk8585 or vxh599@raijin
+system=kna016@pearcey # cuntz@explor, cuntz@mcinra, moc801@gadi/cuntz@gadi, kna016@pearcey, jk8585@gadi or vxh599@raijin
 
 # MPI run or single processor run
 # nproc should fit with job tasks 
@@ -251,7 +251,7 @@ elif [[ "${system}" == "moc801@gadi" || "${system}" == "cuntz@gadi" ]] ; then
     GlobalMetPath="/g/data/x45/crujra/daily_1deg"
     # Global LUC
     GlobalTransitionFilePath="/g/data/x45/LUH2/GCB_2018/1deg/EXTRACT"
-elif [[ "${system}" == "kna016@pearcey" ]] ; then
+elif [[ "${system}" == "kna016@pearcey" || "${system}" == "knauer@pearcey" ]] ; then
     # Run directory: runpath="${sitepath}/run_xxx"
     sitepath="/OSM/CBR/OA_GLOBALCABLE/work/Juergen/CABLE_run/parallel_runs/${sitename}"
     cablehome="/OSM/CBR/OA_GLOBALCABLE/work/Juergen/CABLE_code"
@@ -269,6 +269,24 @@ elif [[ "${system}" == "kna016@pearcey" ]] ; then
     GlobalMetPath="/OSM/CBR/OA_GLOBALCABLE/work/CRU-JRA55/crujra/daily_1deg"
     # Global LUC
     GlobalTransitionFilePath="/OSM/CBR/OA_GLOBALCABLE/work/LUH2/v3/1deg"
+elif [[ "${system}" == "jk8585@gadi" || "${system}" == "knauer@gadi" ]] ; then
+    # Run directory: runpath="${sitepath}/run_xxx"
+    sitepath="/home/599/jk8585/CABLE_run/parallel_runs/${sitename}"
+    cablehome="/home/599/jk8585/CABLE_code"
+    # Cable executable
+    if [[ ${dompi} -eq 1 ]] ; then
+	exe="${cablehome}/NESP2pt9_BLAZE/offline/cable-mpi"
+    else
+	exe="${cablehome}/NESP2pt9_BLAZE/offline/cable"
+    fi
+    # CABLE-AUX directory (uses offline/gridinfo_CSIRO_1x1.nc and offline/modis_phenology_csiro.txt)
+    aux="/g/data/x45/CABLE-AUX"
+    # Global Mask
+    #GlobalLandMaskFile="/home/801/moc801/data/cable/mask/glob_ipsl_1x1.nc"
+    # Global CRU
+    GlobalMetPath="/g/data/x45/crujra/daily_1deg"
+    # Global LUC
+    GlobalTransitionFilePath="/g/data/x45/LUH2/GCB_2018/1deg/EXTRACT"
 else
     echo "System not known."
     exit 1
@@ -557,53 +575,54 @@ if [[ ${doextractsite} -eq 1 ]] ; then
 
     # mask
     LandMaskFilePath=$(dirname ${LandMaskFile})
+    mkdir -p ${LandMaskFilePath}
     # generate random points if ${randompoints} > 0
     if [[ ${randompoints} -gt 0 ]] ; then
 	com=$(csed "basepath=\"${sitepath}\"")
         com=${com}$(csed "gridinfo_file=\"${gridinfo}\"")
 	com=${com}$(csed "outname=\"${LandMaskFilePath}/${sitename}_points.csv\"")
         sed ${com} ${ScriptsPath}/generate_latlonlist.py > ${LandMaskFilePath}/generate_latlonlist.py
-	python ${LandMaskFilePath}/generate_latlonlist.py ${randompoints}
+	python3 ${LandMaskFilePath}/generate_latlonlist.py ${randompoints}
 
         com=$(csed "path=\"${LandMaskFilePath}\"")
         com=${com}$(csed "maskfname=\"${LandMaskFile}\"")
         com=${com}$(csed "latlonfile=\"${LandMaskFilePath}/${sitename}_points.csv\"")
         sed ${com} ${ScriptsPath}/create_landmask.py > ${LandMaskFilePath}/create_landmask.py
         sed -i "s!from lnutils.*!sys.path.insert(1,'${ScriptsPath}'); from lnutils import latlon2ixjy!" ${LandMaskFilePath}/create_landmask.py
-        python ${LandMaskFilePath}/create_landmask.py
+        python3 ${LandMaskFilePath}/create_landmask.py
     else
         com=$(csed "path=\"${LandMaskFilePath}\"")
         com=${com}$(csed "maskfname=\"${LandMaskFile}\"")
         sed ${com} ${ScriptsPath}/create_landmask.py > ${LandMaskFilePath}/create_landmask.py
         sed -i "s!from lnutils.*!sys.path.insert(1,'${ScriptsPath}'); from lnutils import latlon2ixjy!" ${LandMaskFilePath}/create_landmask.py
-        python ${LandMaskFilePath}/create_landmask.py ${latlon}
+        python3 ${LandMaskFilePath}/create_landmask.py ${latlon}
     fi
 fi
-# ToDo: set land points in mask using Python script
 if [[ ${doextractsite} -eq 2 ]] ; then
     cd ${pdir}
     # mask
     LandMaskFilePath=$(dirname ${LandMaskFile})
+    mkdir -p ${LandMaskFilePath}
     # generate random points if ${randompoints} > 0
     if [[ ${randompoints} -gt 0 ]] ; then
 	com=$(csed "basepath=\"${sitepath}\"")
         com=${com}$(csed "gridinfo_file=\"${gridinfo}\"")
 	com=${com}$(csed "outname=\"${LandMaskFilePath}/${sitename}_points.csv\"")
         sed ${com} ${ScriptsPath}/generate_latlonlist.py > ${LandMaskFilePath}/generate_latlonlist.py
-	python ${LandMaskFilePath}/generate_latlonlist.py ${randompoints}
+	python3 ${LandMaskFilePath}/generate_latlonlist.py ${randompoints}
 
         com=$(csed "path=\"${LandMaskFilePath}\"")
         com=${com}$(csed "maskfname=\"${LandMaskFile}\"")
         com=${com}$(csed "latlonfile=\"${LandMaskFilePath}/${sitename}_points.csv\"")
         sed ${com} ${ScriptsPath}/create_landmask.py > ${LandMaskFilePath}/create_landmask.py
         sed -i "s!from lnutils.*!sys.path.insert(1,'${ScriptsPath}'); from lnutils import latlon2ixjy!" ${LandMaskFilePath}/create_landmask.py
-        python ${LandMaskFilePath}/create_landmask.py
+        python3 ${LandMaskFilePath}/create_landmask.py
     else
         com=$(csed "path=\"${LandMaskFilePath}\"")
         com=${com}$(csed "maskfname=\"${LandMaskFile}\"")
         sed ${com} ${ScriptsPath}/create_landmask.py > ${LandMaskFilePath}/create_landmask.py
         sed -i "s!from lnutils.*!sys.path.insert(1,'${ScriptsPath}'); from lnutils import latlon2ixjy!" ${LandMaskFilePath}/create_landmask.py
-        python ${LandMaskFilePath}/create_landmask.py ${latlon}
+        python3 ${LandMaskFilePath}/create_landmask.py ${latlon}
     fi
 
     
