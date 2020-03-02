@@ -409,7 +409,7 @@ CONTAINS
     
     integer :: i,x,kk
     integer :: lalloc
-    integer, parameter :: mloop = 4 !MCTEST 30   ! CASA-CNP PreSpinup loops
+    integer, parameter :: mloop = 30 !MCTEST 30   ! CASA-CNP PreSpinup loops
     real :: etime, etimelast
 
     ! command line arguments

@@ -192,7 +192,7 @@ CONTAINS
 
     ! timing variables
     INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
-    INTEGER, PARAMETER ::  mloop  = 4 !MCTEST 30  ! CASA-CNP PreSpinup loops
+    INTEGER, PARAMETER ::  mloop  = 30 !MCTEST 30  ! CASA-CNP PreSpinup loops
 
     INTEGER        ::                                                           &
          ktau,       &  ! increment equates to timestep, resets if spinning up

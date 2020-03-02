@@ -135,7 +135,7 @@ PROGRAM cable_offline_driver
 
   ! timing variables
   INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
-  INTEGER, PARAMETER ::  mloop  = 4 !MCTEST 30  ! CASA-CNP PreSpinup loops
+  INTEGER, PARAMETER ::  mloop  = 30 !MCTEST 30  ! CASA-CNP PreSpinup loops
   INTEGER :: LALLOC ! allocation coefficient for passing to spincasa
 
   INTEGER        ::                                                           &
@@ -1067,7 +1067,7 @@ PROGRAM cable_offline_driver
                          CASAONLY, ctime, ( ktau.EQ.kend .AND. YYYY .EQ. cable_user%YearEnd.AND. RRRR .EQ.NRRRR ) )
                     ! 13C
                     if (cable_user%c13o2) then
-                       if (ctime == 1) then
+                       if (ctime == 86400) then
                           call c13o2_create_output(casamet, sum_c13o2pools, c13o2_outfile_id, c13o2_vars, c13o2_var_ids)
                        endif
                        call c13o2_write_output(c13o2_outfile_id, c13o2_vars, c13o2_var_ids, ctime, sum_c13o2pools)
