@@ -19,27 +19,10 @@ known_hosts()
 ## gadi.nci.org.au
 host_gadi()
 {
-   #module load netcdf
-   #module load intel-mpi
-   module del intel-compiler
-   module add intel-compiler/2019.3.199
-   #module load intel-cc/17.0.1.132 intel-cc/17.0.1.132   
-   module add netcdf/4.7.1 openmpi/2.1.6
-   #openmpi/1.8.8
-   export NCDIR=$NETCDF_ROOT'/lib/Intel'
-   export NCMOD=$NETCDF_ROOT'/include/Intel'
-   export FC='mpif90'
-  export CFLAGS='-O2 -fp-model precise -fpp -xCASCADELAKE'
-  # export CFLAGS='-O3 -fp-model precise -g -debug all -traceback'
-  #  export CFLAGS='  -g -debug -traceback -fpp  -check all,noarg_temp_created -fp-stack-check -O2 -
-debug -fpe0 -no-ftz -ftrapuv -fpstkchk  -xCORE-AVX2'
-
-   #export CFLAGS='-O0 -traceback -g -debug -fp-model precise -ftz -fpe0 -check all,noarg_temp_creat
-ed -fp-stack-check -no-ftz -ftrapuv'
-   if [[ $1 = 'debug' ]]; then
-      #export CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0'
-      export CFLAGS='  -g -debug -traceback -fpp -check all,noarg_temp_created -fp-stack-check -O0 -
-debug -fpe=0 -fpe-all=0 -no-ftz -ftrapuv'
+   if [ -z ${PS3} ] ; then
+      . /etc/bashrc
+   else
+      . /etc/kshrc
    fi
    module purge
    module load intel-compiler/2019.5.281
@@ -68,6 +51,7 @@ debug -fpe=0 -fpe-all=0 -no-ftz -ftrapuv'
    export LDFLAGS="-O2"
    # export LD='-L${NCLIB} -lnetcdff -L${NCCLIB} -lnetcdf -L${HDF5LIB} -lhdf5_hl -lhdf5 -ldl -lz -lcurl -lm'
    export LD='-lnetcdf -lnetcdff'
+   export MFLAGS='-j 8'
    build_build
    cd ../
    build_status
