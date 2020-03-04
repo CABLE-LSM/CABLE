@@ -40,7 +40,7 @@
 #PBS -S /bin/bash
 #PBS -M matthias.cuntz@inrae.fr
 
-system=kna016@pearcey # cuntz@explor, cuntz@mcinra, moc801@gadi/cuntz@gadi, kna016@pearcey, jk8585@gadi or vxh599@raijin
+system=knauer@gadi # cuntz@explor, cuntz@mcinra, moc801@gadi/cuntz@gadi, kna016@pearcey, jk8585@gadi or vxh599@raijin
 
 # MPI run or single processor run
 # nproc should fit with job tasks 
@@ -49,6 +49,7 @@ dompi=0   # 0: normal run: ./cable
 nproc=4   # Number of cores for MPI runs
           # must be same as above: SBATCH -n nproc or PBS -l ncpus=nproc
 ignore_mpi_err=1 # 0/1: 1: continue even if mpi run failed
+
 
 # --------------------------------------------------------------------
 #
@@ -185,6 +186,10 @@ elif [[ "${sys}" == "gadi" ]] ; then
     module load intel-mpi/2019.5.281
     module load netcdf/4.6.3
     module load hdf5/1.10.5
+    if [[ ${doextractsite} -ge 1 ]] ; then
+        module load python3/3.7.4
+        export PYTHONPATH=/g/data/x45/python/lib/python3.7/site-packages
+    fi 
     export mpiexecdir=/apps/intel-mpi/2019.5.281/intel64/bin/
 fi
 if [[ ! -z ${mpiexecdir} ]] ; then export mpiexecdir="${mpiexecdir}/" ; fi
@@ -308,7 +313,7 @@ GlobalLandMaskFile=${gridinfo}
 LandMaskFile="${sitepath}/mask/${sitename}_landmask.nc"
 # CRU
 MetPath="${sitepath}/met/cru_jra_1deg"
-ClimateFile="${sitepath}/met/cru_climate_rst.nc"
+ClimateFile="${sitepath}/mask/cru_climate_rst.nc"
 # LUC
 TransitionFilePath="${sitepath}/LUH2/v3/1deg"
 # 13C
@@ -539,8 +544,9 @@ printf "\n"
 if [[ ${doextractsite} -ge 1 ]] ; then
     # xcdo=$(which cdo)
     # if [[ -z ${xcdo} ]] ; then module load cdo ; fi
-    xnco=$(which ncks)
-    if [[ -z ${xnco} ]] ; then module load nco ; fi
+    #xnco=$(which ncks)
+    #if [[ -z ${xnco} ]] ; then module load nco ; fi
+    module load nco  # command above throws error if module is not already loaded
 fi
 if [[ ${doextractsite} -eq 1 ]] ; then
     cd ${pdir}
@@ -616,15 +622,14 @@ if [[ ${doextractsite} -eq 2 ]] ; then
         com=${com}$(csed "latlonfile=\"${LandMaskFilePath}/${sitename}_points.csv\"")
         sed ${com} ${ScriptsPath}/create_landmask.py > ${LandMaskFilePath}/create_landmask.py
         sed -i "s!from lnutils.*!sys.path.insert(1,'${ScriptsPath}'); from lnutils import latlon2ixjy!" ${LandMaskFilePath}/create_landmask.py
-        python3 ${LandMaskFilePath}/create_landmask.py
+	python3 ${LandMaskFilePath}/create_landmask.py
     else
         com=$(csed "path=\"${LandMaskFilePath}\"")
         com=${com}$(csed "maskfname=\"${LandMaskFile}\"")
-        sed ${com} ${ScriptsPath}/create_landmask.py > ${LandMaskFilePath}/create_landmask.py
-        sed -i "s!from lnutils.*!sys.path.insert(1,'${ScriptsPath}'); from lnutils import latlon2ixjy!" ${LandMaskFilePath}/create_landmask.py
+        sed ${com} ${ScriptsPath}/create_landmask.py > ${LandMaskFilePath}/create_landmask.py                                                                                                                                                                           
+	sed -i "s!from lnutils.*!sys.path.insert(1,'${ScriptsPath}'); from lnutils import latlon2ixjy!" ${LandMaskFilePath}/create_landmask.py
         python3 ${LandMaskFilePath}/create_landmask.py ${latlon}
     fi
-
     
     #LandMaskFilePath=$(dirname ${LandMaskFile})
     #mkdir -p ${LandMaskFilePath}
