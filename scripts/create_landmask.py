@@ -43,17 +43,24 @@ lonmax =  180.
 
 cable_switch = 'cable'
 
-try:
-    sys.argv[1]
-except IndexError:
-    randomPixels = True
-else:
-    coords = sys.argv[1]
+# latlon string given on command line
+if len(sys.argv) > 1:
     randomPixels = False
-    mlatmin = math.floor(float(coords.split(',')[0])) + res * 0.5
-    mlatmax = math.floor(float(coords.split(',')[1])) + res * 0.5
-    mlonmin = math.floor(float(coords.split(',')[2])) + res * 0.5
-    mlonmax = math.floor(float(coords.split(',')[3])) + res * 0.5
+    coords = sys.argv[1]
+    cc = coords.split(',')
+    if len(cc) == 2:
+        mlatmin = math.floor(float(cc[0])) + res * 0.5
+        mlatmax = mlatmin
+        mlonmin = math.floor(float(cc[1])) + res * 0.5
+        mlonmax = mlonmin
+    elif len(cc) == 4:
+        mlatmin = math.floor(float(cc[0])) + res * 0.5
+        mlatmax = math.floor(float(cc[1])) + res * 0.5
+        mlonmin = math.floor(float(cc[2])) + res * 0.5
+        mlonmax = math.floor(float(cc[3])) + res * 0.5
+    else:
+else:
+    randomPixels = True
 
 
 #===============================================================================
