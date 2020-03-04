@@ -604,89 +604,88 @@ MODULE cable_def_types_mod
       INTEGER :: nday_average  = 31
       !      INTEGER, POINTER ::                                                  &
       INTEGER ::                                                  &
-       nyears, & ! number of years in climate record
-       doy ! day of year
+           nyears, & ! number of years in climate record
+           doy ! day of year
 
-       INTEGER, DIMENSION(:), POINTER ::                                   &
-       chilldays => null(), &   ! length of chilling period (period with T<5deg)
-       iveg => null(), &        ! potential vegetation type based on climatic constraints
-       biome => null(), &
-       GMD => null(), &           ! growing moisture days (== number days since min moisture threshold)
-       modis_igbp => null(), &    ! IGBP biome classification
-       DSLR => null(), &           ! days since last rain
-       NDAY_Nesterov => null()
+      INTEGER, DIMENSION(:), POINTER ::                                   &
+           chilldays => null(), &  ! length of chilling period (period with T<5deg)
+           iveg => null(), &       ! potential vegetation type based on climatic constraints
+           biome => null(), &
+           GMD => null(), &        ! growing moisture days (== number days since min moisture threshold)
+           modis_igbp => null(), & ! IGBP biome classification
+           DSLR => null(), &       ! days since last rain
+           NDAY_Nesterov => null()
  
-
       REAL, DIMENSION(:), POINTER ::                                           &
-      dtemp => null(),        & ! daily mean temperature
-      dmoist => null(),        & ! daily moisture availability
-      dmoist_min => null(),        & ! minimum daily moisture availability over the year
-      dmoist_min20 => null(),        & ! min daily moisture avail over the year, averaged over 20 y
-      dmoist_max => null(),        & ! maximum daily moisture availability over the year
-      dmoist_max20 => null(),        & ! max daily moisture avail over the year, averaged over 20 y
-      mtemp => null(),       & ! mean temperature over the last 31 days
-      qtemp => null(),       & ! mean temperature over the last 91 days
-      mmoist => null(),        & ! monthly moisture availability
-      mtemp_min => null(),   & ! minimum monthly temperature
-      mtemp_max => null(),   & ! maximum monhtly temperature
-      qtemp_max => null(),   & ! mean temperature of the warmest quarter (so far this year)
-      qtemp_max_last_year => null(),   & ! mean temperature of the warmest quarter (last calendar year)
-      mtemp_min20 => null(),   & ! minimum monthly temperature, averaged over 20 y
-      mtemp_max20 => null(),   & ! maximum monhtly temperature, averaged over 20 y
-      atemp_mean => null(),  & ! annual average temperature
-      AGDD5 => null(),       &
-      GDD5 => null(),        & ! growing degree day sum relative to 5deg base temperature
-      AGDD0 => null(),        & ! 
-      GDD0 => null(),        & ! growing degree day sum relative to 0deg base temperature
-      alpha_PT => null(),    & ! ratio of annual evap to annual PT evap
-      evap_PT => null(),    & ! annual PT evap [mm]
-      aevap => null(), &       ! annual evap [mm]
-      alpha_PT20 => null(), &   
-      GDD0_rec => null(), &    ! growing degree day sum related to spring photosynthetic recovery
-      frec => null(), &           ! fractional photosynthetic recovery
-      dtemp_min => null(), &      ! daily minimum temperature
-      fdorm => null(), & ! dormancy fraction (1 prior to first autumn frost; 0 after 10 severe frosts)
-      fapar_ann_max => null(), & ! maximum midday fpar so far this year
-      fapar_ann_max_last_year => null(), & ! maximum midday fpar last year
-      AvgAnnMaxFAPAR => null(), &  ! average annual maximum FAPAR
-      dtemp_max => null(), &       ! daily maximum temperature
-      drhum => null(),      &       ! daily average relative humidity
-      du10_max => null(),   &       ! daily max wind speed at 10 m
-      dprecip => null(),   &            ! daily total precip (mm)
-      aprecip => null(),   &            ! total precip accumulated over the current year (mm)
-      aprecip_av20 => null(), &       ! annual precip averaged over the last 20 y
-      last_precip => null(), &        ! rainfall accumulated since last day without rain
-      KBDI => null(),  &         ! Keetch-Byram-Drought-Index (Keetch, 1968)
-      FFDI => null(), &          ! Forest Fire Danger Index
-      D_MacArthur => null(), &           ! MacArthur Drought Factor
-      Nesterov_current => null(), &         ! current nesterov index
-      Nesterov_ann_max => null(), &            ! annual maximum nesterov index (current year)
-      Nesterov_ann_max_last_year  => null(), &            ! annual maximum nesterov index (last year)
-      Nesterov_ann_running_max => null()
+           dtemp => null(),        &                ! daily mean temperature
+           dmoist => null(),        &               ! daily moisture availability
+           dmoist_min => null(),        &           ! minimum daily moisture availability over the year
+           dmoist_min20 => null(),        &         ! min daily moisture avail over the year, averaged over 20 y
+           dmoist_max => null(),        &           ! maximum daily moisture availability over the year
+           dmoist_max20 => null(),        &         ! max daily moisture avail over the year, averaged over 20 y
+           mtemp => null(),       &                 ! mean temperature over the last 31 days
+           qtemp => null(),       &                 ! mean temperature over the last 91 days
+           mmoist => null(),        &               ! monthly moisture availability
+           mtemp_min => null(),   &                 ! minimum monthly temperature
+           mtemp_max => null(),   &                 ! maximum monhtly temperature
+           qtemp_max => null(),   &                 ! mean temperature of the warmest quarter (so far this year)
+           qtemp_max_last_year => null(),   &       ! mean temperature of the warmest quarter (last calendar year)
+           mtemp_min20 => null(),   &               ! minimum monthly temperature, averaged over 20 y
+           mtemp_max20 => null(),   &               ! maximum monhtly temperature, averaged over 20 y
+           atemp_mean => null(),  &                 ! annual average temperature
+           AGDD5 => null(),       &
+           GDD5 => null(),        &                 ! growing degree day sum relative to 5deg base temperature
+           AGDD0 => null(),        &                ! 
+           GDD0 => null(),        &                 ! growing degree day sum relative to 0deg base temperature
+           alpha_PT => null(),    &                 ! ratio of annual evap to annual PT evap
+           evap_PT => null(),    &                  ! annual PT evap [mm]
+           aevap => null(), &                       ! annual evap [mm]
+           alpha_PT20 => null(), &   
+           GDD0_rec => null(), &                    ! growing degree day sum related to spring photosynthetic recovery
+           frec => null(), &                        ! fractional photosynthetic recovery
+           dtemp_min => null(), &                   ! daily minimum temperature
+           fdorm => null(), &                       ! dormancy fraction (1 prior to first autumn frost; 0 after 10 severe frosts)
+           fapar_ann_max => null(), &               ! maximum midday fpar so far this year
+           fapar_ann_max_last_year => null(), &     ! maximum midday fpar last year
+           AvgAnnMaxFAPAR => null(), &              ! average annual maximum FAPAR
+           dtemp_max => null(), &                   ! daily maximum temperature
+           drhum => null(),      &                  ! daily average relative humidity
+           du10_max => null(),   &                  ! daily max wind speed at 10 m
+           dprecip => null(),   &                   ! daily total precip (mm)
+           aprecip => null(),   &                   ! total precip accumulated over the current year (mm)
+           aprecip_av20 => null(), &                ! annual precip averaged over the last 20 y
+           last_precip => null(), &                 ! rainfall accumulated since last day without rain
+           KBDI => null(),  &                       ! Keetch-Byram-Drought-Index (Keetch, 1968)
+           FFDI => null(), &                        ! Forest Fire Danger Index
+           D_MacArthur => null(), &                 ! MacArthur Drought Factor
+           Nesterov_current => null(), &            ! current nesterov index
+           Nesterov_ann_max => null(), &            ! annual maximum nesterov index (current year)
+           Nesterov_ann_max_last_year  => null(), & ! annual maximum nesterov index (last year)
+           Nesterov_ann_running_max => null()
 
       REAL, DIMENSION(:,:), POINTER ::                                   &
-      mtemp_min_20 => null(), & ! mimimum monthly temperatures for the last 20 y
-      mtemp_max_20 => null(), & ! maximum monthly temperatures for the last 20 y
-      dmoist_min_20 => null(), & ! min daily moisture for the last 20 y
-      dmoist_max_20 => null(), & ! max daily moisture for the last 20 y
-      dtemp_31  => null(), &    ! daily temperature for the last 31 days
-      dmoist_31  => null(), &    ! daily moisture availability for the last 31 days
-      alpha_PT_20 => null(), &      ! priestley Taylor Coefft for last 20 y
-      dtemp_91 => null(), &     ! daily temperature for the last 91 days
-      APAR_leaf_sun => null(), &  ! flux of PAR absrobed by sunlit leaves (subdiurnal time-step)
-      APAR_leaf_shade => null(), & ! flux of PAR absrobed by shaded leaves (subdiurnal time-step)
-      Dleaf_sun => null(), & ! leaf-air vapour pressure difference (sun leaves, subdiurnal time-step)
-      Dleaf_shade => null(),  & ! leaf-air vapour pressure difference (shade leaves, subdiurnal time-step)
-      Tleaf_sun => null(), & ! leaf T (sun leaves, subdiurnal time-step)
-      Tleaf_shade => null(), &  ! leaf T  (shade leaves, subdiurnal time-step)
-      cs_sun => null(), &     ! sun leaf cs (ppm CO2)
-      cs_shade => null(), &          ! shade leaf cs (ppm CO2)
-      scalex_sun => null(), & ! canopy depth scaling factor on vcmax and jmax (sun leaves)
-      scalex_shade => null(), & ! canopy depth scaling factor on vcmax and jmax (shade leaves)
-      fwsoil => null(), &         ! soil-moisture modifier to stomatal conductance
-      aprecip_20 => null(), &    ! annual average rainfall for the last 20 years
-      Rd_sun => null(), &
-      Rd_shade => null()
+           mtemp_min_20 => null(), &    ! mimimum monthly temperatures for the last 20 y
+           mtemp_max_20 => null(), &    ! maximum monthly temperatures for the last 20 y
+           dmoist_min_20 => null(), &   ! min daily moisture for the last 20 y
+           dmoist_max_20 => null(), &   ! max daily moisture for the last 20 y
+           dtemp_31  => null(), &       ! daily temperature for the last 31 days
+           dmoist_31  => null(), &      ! daily moisture availability for the last 31 days
+           alpha_PT_20 => null(), &     ! priestley Taylor Coefft for last 20 y
+           dtemp_91 => null(), &        ! daily temperature for the last 91 days
+           APAR_leaf_sun => null(), &   ! flux of PAR absrobed by sunlit leaves (subdiurnal time-step)
+           APAR_leaf_shade => null(), & ! flux of PAR absrobed by shaded leaves (subdiurnal time-step)
+           Dleaf_sun => null(), &       ! leaf-air vapour pressure difference (sun leaves, subdiurnal time-step)
+           Dleaf_shade => null(),  &    ! leaf-air vapour pressure difference (shade leaves, subdiurnal time-step)
+           Tleaf_sun => null(), &       ! leaf T (sun leaves, subdiurnal time-step)
+           Tleaf_shade => null(), &     ! leaf T  (shade leaves, subdiurnal time-step)
+           cs_sun => null(), &          ! sun leaf cs (ppm CO2)
+           cs_shade => null(), &        ! shade leaf cs (ppm CO2)
+           scalex_sun => null(), &      ! canopy depth scaling factor on vcmax and jmax (sun leaves)
+           scalex_shade => null(), &    ! canopy depth scaling factor on vcmax and jmax (shade leaves)
+           fwsoil => null(), &          ! soil-moisture modifier to stomatal conductance
+           aprecip_20 => null(), &      ! annual average rainfall for the last 20 years
+           Rd_sun => null(), &
+           Rd_shade => null()
    END TYPE climate_type
 
    ! .............................................................................
@@ -1043,102 +1042,102 @@ SUBROUTINE alloc_canopy_type(var, mp)
    TYPE(canopy_type), INTENT(inout) :: var
    INTEGER, INTENT(in) :: mp
 
-   ALLOCATE ( var % fess(mp) )
-   ALLOCATE ( var % fesp(mp) )
-   ALLOCATE( var% cansto(mp) )
-   ALLOCATE( var% cduv(mp) )
-   ALLOCATE( var% delwc(mp) )
-   ALLOCATE( var% dewmm(mp) )
-   ALLOCATE( var% dgdtg(mp) )
-   ALLOCATE( var% fe(mp) )
-   ALLOCATE( var% fh(mp) )
-   ALLOCATE( var% fpn(mp) )
-   ALLOCATE( var% frp(mp) )
-   ALLOCATE( var% frpw(mp) )
-   ALLOCATE( var% frpr(mp) )
-   ALLOCATE( var% frs(mp) )
-   ALLOCATE( var% fnee(mp) )
-   ALLOCATE( var% frday(mp) )
-   ALLOCATE( var% fnv(mp) )
-   ALLOCATE( var% fev(mp) )
-   ALLOCATE( var% fevc(mp) )
-   ALLOCATE( var% fhv(mp) )
-   ALLOCATE( var% fns(mp) )
-   ALLOCATE( var% fhs(mp) )
-   ALLOCATE( var% fhs_cor(mp) )
-   ALLOCATE( var% ga(mp) )
-   ALLOCATE( var% ghflux(mp) )
-   ALLOCATE( var% precis(mp) )
-   ALLOCATE( var% qscrn(mp) )
-   ALLOCATE( var% rnet(mp) )
-   ALLOCATE( var% rniso(mp) )
-   ALLOCATE( var% segg(mp) )
-   ALLOCATE( var% sghflux(mp) )
-   ALLOCATE( var% through(mp) )
-   ALLOCATE( var% spill(mp) )
-   ALLOCATE( var% tscrn(mp) )
-   ALLOCATE( var% wcint(mp) )
-   ALLOCATE( var% tv(mp) )
-   ALLOCATE( var% us(mp) )
-   ALLOCATE( var% uscrn(mp) )
-   ALLOCATE( var% rghlai(mp) )
-   ALLOCATE( var% vlaiw(mp) )
-   ALLOCATE( var% fwet(mp) )
-   ALLOCATE( var% A_sh(mp) )
-   ALLOCATE( var% A_sl(mp) )
-   ALLOCATE( var% A_slC(mp) )
-   ALLOCATE( var% A_shC(mp) )
-   ALLOCATE( var% A_slJ(mp) )
-   ALLOCATE( var% A_shJ(mp) )
-   ALLOCATE( var% GPP_sh(mp))
-   ALLOCATE( var% GPP_sl(mp))
-   ALLOCATE( var% fevc_sh(mp))
-   ALLOCATE( var% fevc_sl(mp))
-   ALLOCATE( var% eta_GPP_cs(mp) )
-   ALLOCATE( var% eta_fevc_cs(mp) )
-   ALLOCATE( var% eta_A_cs(mp) )
-   ALLOCATE( var% eta_A_cs_sh(mp) )
-   ALLOCATE( var% eta_A_cs_sl(mp) )
-   ALLOCATE( var% eta_fevc_cs_sh(mp) )
-   ALLOCATE( var% eta_fevc_cs_sl(mp) )
-   ALLOCATE( var% cs(mp) )
-   ALLOCATE( var% dAdcs(mp) )
-   ALLOCATE( var% cs_sl(mp) )
-   ALLOCATE( var% cs_sh(mp) )
-   ! ALLOCATE( var% ci_sl(mp) )
-   ! ALLOCATE( var% ci_sh(mp) )
-   ALLOCATE( var% tlf(mp) )
-   ALLOCATE( var% dlf(mp) )
+   ALLOCATE ( var%fess(mp) )
+   ALLOCATE ( var%fesp(mp) )
+   ALLOCATE( var%cansto(mp) )
+   ALLOCATE( var%cduv(mp) )
+   ALLOCATE( var%delwc(mp) )
+   ALLOCATE( var%dewmm(mp) )
+   ALLOCATE( var%dgdtg(mp) )
+   ALLOCATE( var%fe(mp) )
+   ALLOCATE( var%fh(mp) )
+   ALLOCATE( var%fpn(mp) )
+   ALLOCATE( var%frp(mp) )
+   ALLOCATE( var%frpw(mp) )
+   ALLOCATE( var%frpr(mp) )
+   ALLOCATE( var%frs(mp) )
+   ALLOCATE( var%fnee(mp) )
+   ALLOCATE( var%frday(mp) )
+   ALLOCATE( var%fnv(mp) )
+   ALLOCATE( var%fev(mp) )
+   ALLOCATE( var%fevc(mp) )
+   ALLOCATE( var%fhv(mp) )
+   ALLOCATE( var%fns(mp) )
+   ALLOCATE( var%fhs(mp) )
+   ALLOCATE( var%fhs_cor(mp) )
+   ALLOCATE( var%ga(mp) )
+   ALLOCATE( var%ghflux(mp) )
+   ALLOCATE( var%precis(mp) )
+   ALLOCATE( var%qscrn(mp) )
+   ALLOCATE( var%rnet(mp) )
+   ALLOCATE( var%rniso(mp) )
+   ALLOCATE( var%segg(mp) )
+   ALLOCATE( var%sghflux(mp) )
+   ALLOCATE( var%through(mp) )
+   ALLOCATE( var%spill(mp) )
+   ALLOCATE( var%tscrn(mp) )
+   ALLOCATE( var%wcint(mp) )
+   ALLOCATE( var%tv(mp) )
+   ALLOCATE( var%us(mp) )
+   ALLOCATE( var%uscrn(mp) )
+   ALLOCATE( var%rghlai(mp) )
+   ALLOCATE( var%vlaiw(mp) )
+   ALLOCATE( var%fwet(mp) )
+   ALLOCATE( var%A_sh(mp) )
+   ALLOCATE( var%A_sl(mp) )
+   ALLOCATE( var%A_slC(mp) )
+   ALLOCATE( var%A_shC(mp) )
+   ALLOCATE( var%A_slJ(mp) )
+   ALLOCATE( var%A_shJ(mp) )
+   ALLOCATE( var%GPP_sh(mp) )
+   ALLOCATE( var%GPP_sl(mp) )
+   ALLOCATE( var%fevc_sh(mp) )
+   ALLOCATE( var%fevc_sl(mp) )
+   ALLOCATE( var%eta_GPP_cs(mp) )
+   ALLOCATE( var%eta_fevc_cs(mp) )
+   ALLOCATE( var%eta_A_cs(mp) )
+   ALLOCATE( var%eta_A_cs_sh(mp) )
+   ALLOCATE( var%eta_A_cs_sl(mp) )
+   ALLOCATE( var%eta_fevc_cs_sh(mp) )
+   ALLOCATE( var%eta_fevc_cs_sl(mp) )
+   ALLOCATE( var%cs(mp) )
+   ALLOCATE( var%dAdcs(mp) )
+   ALLOCATE( var%cs_sl(mp) )
+   ALLOCATE( var%cs_sh(mp) )
+   ! ALLOCATE( var%ci_sl(mp) )
+   ! ALLOCATE( var%ci_sh(mp) )
+   ALLOCATE( var%tlf(mp) )
+   ALLOCATE( var%dlf(mp) )
 
-   ALLOCATE( var% evapfbl(mp,ms) )
-   ALLOCATE( var% epot(mp) )
-   ALLOCATE( var% fnpp(mp) )
-   ALLOCATE( var% fevw_pot(mp) )
-   ALLOCATE( var% gswx_T(mp) )
-   ALLOCATE( var% cdtq(mp) )
-   ALLOCATE( var% wetfac_cs(mp) )
-   ALLOCATE( var% fevw(mp) )
-   ALLOCATE( var% fhvw(mp) )
-   ALLOCATE( var% fes(mp) )
-   ALLOCATE( var% fes_cor(mp) )
-   ALLOCATE( var% gswx(mp,mf) )
-   ALLOCATE( var% oldcansto(mp) )
-   ALLOCATE( var% zetar(mp,NITER) )
-   ALLOCATE( var% zetash(mp,NITER) )
-   ALLOCATE( var % fwsoil(mp) )
-   ALLOCATE( var % ofes(mp) )
+   ALLOCATE( var%evapfbl(mp,ms) )
+   ALLOCATE( var%epot(mp) )
+   ALLOCATE( var%fnpp(mp) )
+   ALLOCATE( var%fevw_pot(mp) )
+   ALLOCATE( var%gswx_T(mp) )
+   ALLOCATE( var%cdtq(mp) )
+   ALLOCATE( var%wetfac_cs(mp) )
+   ALLOCATE( var%fevw(mp) )
+   ALLOCATE( var%fhvw(mp) )
+   ALLOCATE( var%fes(mp) )
+   ALLOCATE( var%fes_cor(mp) )
+   ALLOCATE( var%gswx(mp,mf) )
+   ALLOCATE( var%oldcansto(mp) )
+   ALLOCATE( var%zetar(mp,NITER) )
+   ALLOCATE( var%zetash(mp,NITER) )
+   ALLOCATE( var%fwsoil(mp) )
+   ALLOCATE( var%ofes(mp) )
 
-   ALLOCATE( var % gw(mp,mf) )     ! dry canopy conductance (ms-1) edit vh 6/7/09
-   ALLOCATE( var % ancj(mp,mf,3) ) ! limiting photosynthetic rates (Rubisco,RuBP,sink) vh 6/7/09
-   ALLOCATE( var % tlfy(mp,mf) )   ! sunlit and shaded leaf temperatures
-   ALLOCATE( var % ecy(mp,mf) )    ! sunlit and shaded leaf transpiration (dry canopy)
-   ALLOCATE( var % ecx(mp,mf) )    ! sunlit and shaded leaf latent heat flux
-   ! ALLOCATE( var % ci(mp,mf,3) )   ! intra-cellular CO2 vh 6/7/09
-   ALLOCATE( var % fwsoil (mp) )
+   ALLOCATE( var%gw(mp,mf) )     ! dry canopy conductance (ms-1) edit vh 6/7/09
+   ALLOCATE( var%ancj(mp,mf,3) ) ! limiting photosynthetic rates (Rubisco,RuBP,sink) vh 6/7/09
+   ALLOCATE( var%tlfy(mp,mf) )   ! sunlit and shaded leaf temperatures
+   ALLOCATE( var%ecy(mp,mf) )    ! sunlit and shaded leaf transpiration (dry canopy)
+   ALLOCATE( var%ecx(mp,mf) )    ! sunlit and shaded leaf latent heat flux
+   ! ALLOCATE( var%ci(mp,mf,3) )   ! intra-cellular CO2 vh 6/7/09
+   ALLOCATE( var%fwsoil(mp) )
 
    ! vh_js - litter resistances to heat and vapour transfer
-   ALLOCATE(var % kthLitt(mp))
-   ALLOCATE(var % DvLitt(mp))
+   ALLOCATE(var%kthLitt(mp))
+   ALLOCATE(var%DvLitt(mp))
 
    ! 13C
    allocate(var%An(mp,mf))
@@ -1291,84 +1290,82 @@ SUBROUTINE alloc_climate_type(var, mp, ktauday)
    ny = var%nyear_average
    nd = var%nday_average
 
-!   ALLOCATE ( var %  nyears )
-!   ALLOCATE ( var %  doy )
-   ALLOCATE ( var %  dtemp(mp) )
-   ALLOCATE ( var %  dmoist(mp) )
-   ALLOCATE ( var %  dmoist_min(mp) )
-   ALLOCATE ( var %  dmoist_min20(mp) )
-   ALLOCATE ( var %  dmoist_max(mp) )
-   ALLOCATE ( var %  dmoist_max20(mp) )
-   ALLOCATE ( var % mtemp(mp) )
-   ALLOCATE ( var % qtemp(mp) )
-   ALLOCATE ( var % mmoist(mp) )
-   ALLOCATE ( var % mtemp_min(mp) )
-   ALLOCATE ( var %  mtemp_max20(mp) )
-   ALLOCATE ( var % mtemp_min20(mp) )
-   ALLOCATE ( var %  mtemp_max(mp) )
-   ALLOCATE ( var %  qtemp_max(mp) )
-   ALLOCATE ( var %  qtemp_max_last_year(mp) )
-   ALLOCATE ( var % atemp_mean(mp) )
-   ALLOCATE ( var % AGDD5(mp) )
-   ALLOCATE ( var % GDD5(mp) )
-   ALLOCATE ( var % AGDD0(mp) )
-   ALLOCATE ( var % GDD0(mp) )
-   ALLOCATE ( var % chilldays(mp) )
-   ALLOCATE ( var % iveg(mp) )
-   ALLOCATE ( var % biome(mp) )
-   ALLOCATE ( var % GMD(mp) )
-   ALLOCATE ( var % alpha_PT(mp) )
-   ALLOCATE ( var % alpha_PT20(mp) )
-   ALLOCATE ( var % evap_PT(mp) )
-   ALLOCATE ( var % aevap(mp) )
-   ALLOCATE ( var % GDD0_rec(mp) )
-   ALLOCATE ( var % frec(mp) )
-   ALLOCATE ( var % dtemp_min(mp) )
-   ALLOCATE ( var % fdorm(mp) )
-   ALLOCATE ( var % fapar_ann_max(mp) )
-   ALLOCATE ( var % fapar_ann_max_last_year(mp) )
-   ALLOCATE ( var % modis_igbp(mp) )
-   ALLOCATE ( var % DSLR(mp) )
-   ALLOCATE ( var % NDAY_Nesterov(mp) )
-   ALLOCATE ( var % AvgAnnMaxFAPAR(mp) )
-   ALLOCATE ( var % dtemp_max(mp) )
-   ALLOCATE ( var % drhum(mp) )
-   ALLOCATE ( var % du10_max(mp) )
-   ALLOCATE ( var % dprecip(mp) )
-   ALLOCATE ( var % aprecip(mp) )
-   ALLOCATE ( var % aprecip_av20(mp) )
-   ALLOCATE ( var % last_precip(mp) )
-   ALLOCATE ( var % KBDI(mp) )
-   ALLOCATE ( var % FFDI(mp) )
-   ALLOCATE ( var % D_MacArthur(mp) )
-   ALLOCATE ( var % Nesterov_Current(mp) )
-   ALLOCATE ( var % Nesterov_ann_max(mp) )
-   ALLOCATE ( var % Nesterov_ann_max_last_year(mp) )
-   ALLOCATE ( var % Nesterov_ann_running_max(mp) )
+   ALLOCATE ( var%chilldays(mp) )
+   ALLOCATE ( var%iveg(mp) )
+   ALLOCATE ( var%biome(mp) )
+   ALLOCATE ( var%GMD(mp) )
+   ALLOCATE ( var%modis_igbp(mp) )
+   ALLOCATE ( var%DSLR(mp) )
+   ALLOCATE ( var%NDAY_Nesterov(mp) )
 
-   ALLOCATE ( var % mtemp_min_20(mp,ny) )
-   ALLOCATE ( var %     mtemp_max_20(mp,ny) )
-   ALLOCATE ( var % dmoist_min_20(mp,ny) )
-   ALLOCATE ( var % dmoist_max_20(mp,ny) )
-   ALLOCATE ( var %     dtemp_31(mp,nd) )
-   ALLOCATE ( var %     dmoist_31(mp,nd) )
-   ALLOCATE ( var %     dtemp_91(mp,91) )
-   ALLOCATE ( var %     alpha_PT_20(mp,ny) )
-   ALLOCATE ( var %   APAR_leaf_sun(mp,ktauday*5) )
-   ALLOCATE ( var %   APAR_leaf_shade(mp,ktauday*5) )
-   ALLOCATE ( var %   Dleaf_sun(mp,ktauday*5) )
-   ALLOCATE ( var %   Dleaf_shade(mp,ktauday*5) )
-   ALLOCATE ( var %   Tleaf_sun(mp,ktauday*5) )
-   ALLOCATE ( var %   Tleaf_shade(mp,ktauday*5) )
-   ALLOCATE ( var %   cs_sun(mp,ktauday*5) )
-   ALLOCATE ( var %   cs_shade(mp,ktauday*5) )
-   ALLOCATE ( var %   scalex_sun(mp,ktauday*5) )
-   ALLOCATE ( var %   scalex_shade(mp,ktauday*5) )
-   ALLOCATE ( var %   fwsoil(mp,ktauday*5) )
-   ALLOCATE ( var % aprecip_20(mp,ny) )
-   ALLOCATE ( var %   Rd_sun(mp,ktauday*5) )
-   ALLOCATE ( var %   Rd_shade(mp,ktauday*5) )
+   ALLOCATE ( var%dtemp(mp) )
+   ALLOCATE ( var%dmoist(mp) )
+   ALLOCATE ( var%dmoist_min(mp) )
+   ALLOCATE ( var%dmoist_min20(mp) )
+   ALLOCATE ( var%dmoist_max(mp) )
+   ALLOCATE ( var%dmoist_max20(mp) )
+   ALLOCATE ( var%mtemp(mp) )
+   ALLOCATE ( var%qtemp(mp) )
+   ALLOCATE ( var%mmoist(mp) )
+   ALLOCATE ( var%mtemp_min(mp) )
+   ALLOCATE ( var%mtemp_max(mp) )
+   ALLOCATE ( var%qtemp_max(mp) )
+   ALLOCATE ( var%qtemp_max_last_year(mp) )
+   ALLOCATE ( var%mtemp_min20(mp) )
+   ALLOCATE ( var%mtemp_max20(mp) )
+   ALLOCATE ( var%atemp_mean(mp) )
+   ALLOCATE ( var%AGDD5(mp) )
+   ALLOCATE ( var%GDD5(mp) )
+   ALLOCATE ( var%AGDD0(mp) )
+   ALLOCATE ( var%GDD0(mp) )
+   ALLOCATE ( var%alpha_PT(mp) )
+   ALLOCATE ( var%evap_PT(mp) )
+   ALLOCATE ( var%aevap(mp) )
+   ALLOCATE ( var%alpha_PT20(mp) )
+   ALLOCATE ( var%GDD0_rec(mp) )
+   ALLOCATE ( var%frec(mp) )
+   ALLOCATE ( var%dtemp_min(mp) )
+   ALLOCATE ( var%fdorm(mp) )
+   ALLOCATE ( var%fapar_ann_max(mp) )
+   ALLOCATE ( var%fapar_ann_max_last_year(mp) )
+   ALLOCATE ( var%AvgAnnMaxFAPAR(mp) )
+   ALLOCATE ( var%dtemp_max(mp) )
+   ALLOCATE ( var%drhum(mp) )
+   ALLOCATE ( var%du10_max(mp) )
+   ALLOCATE ( var%dprecip(mp) )
+   ALLOCATE ( var%aprecip(mp) )
+   ALLOCATE ( var%aprecip_av20(mp) )
+   ALLOCATE ( var%last_precip(mp) )
+   ALLOCATE ( var%KBDI(mp) )
+   ALLOCATE ( var%FFDI(mp) )
+   ALLOCATE ( var%D_MacArthur(mp) )
+   ALLOCATE ( var%Nesterov_Current(mp) )
+   ALLOCATE ( var%Nesterov_ann_max(mp) )
+   ALLOCATE ( var%Nesterov_ann_max_last_year(mp) )
+   ALLOCATE ( var%Nesterov_ann_running_max(mp) )
 
+   ALLOCATE ( var%mtemp_min_20(mp,ny) )
+   ALLOCATE ( var%mtemp_max_20(mp,ny) )
+   ALLOCATE ( var%dmoist_min_20(mp,ny) )
+   ALLOCATE ( var%dmoist_max_20(mp,ny) )
+   ALLOCATE ( var%dtemp_31(mp,nd) )
+   ALLOCATE ( var%dmoist_31(mp,nd) )
+   ALLOCATE ( var%alpha_PT_20(mp,ny) )
+   ALLOCATE ( var%dtemp_91(mp,91) )
+   ALLOCATE ( var%APAR_leaf_sun(mp,ktauday*5) )
+   ALLOCATE ( var%APAR_leaf_shade(mp,ktauday*5) )
+   ALLOCATE ( var%Dleaf_sun(mp,ktauday*5) )
+   ALLOCATE ( var%Dleaf_shade(mp,ktauday*5) )
+   ALLOCATE ( var%Tleaf_sun(mp,ktauday*5) )
+   ALLOCATE ( var%Tleaf_shade(mp,ktauday*5) )
+   ALLOCATE ( var%cs_sun(mp,ktauday*5) )
+   ALLOCATE ( var%cs_shade(mp,ktauday*5) )
+   ALLOCATE ( var%scalex_sun(mp,ktauday*5) )
+   ALLOCATE ( var%scalex_shade(mp,ktauday*5) )
+   ALLOCATE ( var%fwsoil(mp,ktauday*5) )
+   ALLOCATE ( var%aprecip_20(mp,ny) )
+   ALLOCATE ( var%Rd_sun(mp,ktauday*5) )
+   ALLOCATE ( var%Rd_shade(mp,ktauday*5) )
    
 END SUBROUTINE alloc_climate_type
 

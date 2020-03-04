@@ -2,54 +2,18 @@
 
 export dosvn=1 # 1/0: do/do not check svn
 
-# so that script can be called by bash buils.ksh if no ksh installed
-#if [ "${SHELL}" == "/bin/bash" ] ; then
-#    function print(){
-#	printf "$@"
-#    }
-#fi
+# so that script can be called by 'bash build.ksh' if no ksh installed
+if [ -z ${PS3} ] ; then # https://stackoverflow.com/questions/3327013/how-to-determine-the-current-shell-im-working-on
+    eval 'function print(){ printf "$@\n"; }'
+fi
 
 known_hosts()
 {
     if [ -z ${PS3} ] ; then
-	kh=(vayu cher pear shin jigg nXXX raij ces2 ccrc mael valh mcin vm_o gadi)
+	kh=(pear jigg ccrc mael mcin vm_o gadi)
     else
-        set -A kh vayu cher pear shin jigg nXXX raij ces2 ccrc mael valh mcin vm_o gadi
+        set -A kh pear jigg ccrc mael mcin vm_o gadi
     fi
-}
-
-## 
-host_valh()
-{
-   # GFORTRAN
-   export FC=gfortran
-   # debug
-  
-   export CFLAGS=" -Wall -W -O -g -Wno-maybe-uninitialized -cpp -ffree-form -ffixed-line-length-132 -Wno-tabs -Wconversion" # -DVanessas_common"
-   # # release
-   # export CFLAGS="-O3 -Wno-aggressive-loop-optimizations -cpp -ffree-form -ffixed-line-length-132"
-   export LD=''
-   export NCROOT='/usr/local/netcdf-fortran-4.4.2-gfortran/'
-
-   # # NAG
-   # export FC=nagfor
-   # # debug
-   # export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -D__NAG__"
-   # # # release
-   # # export CFLAGS="-O4 -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free"
-   # export LD='-ideclient -unsharedrts'
-   # export NCROOT='/usr/local/netcdf-fortran-4.4.2-nagfor'
-
-   # All compilers
-   export NCCROOT='/usr/local'
-   export NCCLIB=${NCCROOT}'/lib'
-   export NCLIB=${NCROOT}'/lib'
-   export NCMOD=${NCROOT}'/include'
-   export LDFLAGS="-L${NCLIB} -lnetcdff -L${NCCLIB} -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz"
-   export dosvn=0
-   build_build
-   cd ../
-   build_status
 }
 
 
@@ -94,60 +58,6 @@ host_ccrc()
 }
 
 
-## 
-host_ces2()
-{
-   # GFORTRAN
-   export FC=gfortran
-   # debug
-   export CFLAGS="-pedantic-errors -Wall -W -O -g -Wno-maybe-uninitialized -cpp -ffree-form -ffixed-line-length-132"
-   # # release
-   # export CFLAGS="-O3 -Wno-aggressive-loop-optimizations -cpp -ffree-form -ffixed-line-length-132"
-   export LD=''
-   export NCROOT='/usr/local/netcdf-fortran-4.4.1-gfortran'
-
-   # # NAG
-   # export FC=nagfor
-   # # debug
-   # export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -D__NAG__"
-   # # # release
-   # # export CFLAGS="-O4 -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free"
-   # export LD='-ideclient -unsharedrts'
-   # export NCROOT='/usr/local/netcdf-fortran-4.4.1-nagfor'
-
-   # All compilers
-   export NCCROOT='/usr/local'
-   export NCCLIB=${NCCROOT}'/lib'
-   export NCLIB=${NCROOT}'/lib'
-   export NCMOD=${NCROOT}'/include'
-   export LDFLAGS="-L${NCCLIB} -L${NCLIB} -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz"
-   export dosvn=0
-   build_build
-   cd ../
-   build_status
-}
-
-
-## Interactive Job nXXX@burnet.hpsc.csiro.au  
-host_nXXX()
-{
-   export NCDIR=$NETCDF_ROOT'/lib/'
-   export NCMOD=$NETCDF_ROOT'/include/'
-   #export FC=$F90
-   export FC=ifort
-   # vanessa's test options
-   # export CFLAGS='-fpp -g -debug -traceback -fp-stack-check -O0 -debug -fpe=0 -fpe-all=0 -no-ftz -ftrapuv'
-   # export CFLAGS='-warn all,nounused -fpp -check all,noarg_temp_created -g -debug -traceback -fp-stack-check -O0 -debug -fpe1 -no-ftz -ftrapuv'
-   # export CFLAGS='-O0 -fp-model precise -fpp -debug all -g'
-   export CFLAGS='-O2 -fp-model precise -fpp'
-   export LDFLAGS='-L'$NCDIR' -O2'
-   export LD='-lnetcdf -lnetcdff'
-   build_build
-   cd ../
-   build_status
-}
-
-
 ## jiggle
 host_jigg()
 {
@@ -166,8 +76,10 @@ host_jigg()
 ## pearcey.hpsc.csiro.au 
 host_pear()
 {
+   # if [ ! -z ${PS3} ] ; then
    . /apps/modules/Modules/default/init/ksh
- 
+   # fi
+
    module del intel-cc intel-fc
    module add intel-cc/16.0.1.150 intel-fc/16.0.1.150
    module add netcdf/4.3.3.1
@@ -184,28 +96,6 @@ host_pear()
    export LD='-lnetcdf -lnetcdff'
    export dosvn=0
    export MFLAGS='-j 8'
-   build_build
-   cd ../
-   build_status
-}
-
-
-## raijin.nci.org.au
-host_raij()
-{
-   module del intel-cc intel-fc
-   module add intel-cc/16.0.1.150 intel-fc/16.0.1.150
-   module add netcdf/4.3.3.1
-
-   export NCDIR=$NETCDF_ROOT'/lib/Intel'
-   export NCMOD=$NETCDF_ROOT'/include/Intel'
-   export FC=$F90
-   export CFLAGS='-O0 -fp-model precise -fpp'
-   if [[ $1 = 'debug' ]]; then
-      export CFLAGS='-O0 -traceback -g -fp-model precise -fpp -ftz -fpe0'
-   fi
-   export LDFLAGS='-L'$NCDIR' -O0'
-   export LD='-lnetcdf -lnetcdff'
    build_build
    cd ../
    build_status
@@ -294,7 +184,7 @@ host_mcin()
     export NCMOD=${NCROOT}'/include'
     export LDFLAGS="-L${NCLIB} -L${NCCLIB} -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz"
     export dosvn=0
-    # export MFLAGS='-j 8'
+    export MFLAGS='-j 8'
     build_build
     cd ../
     build_status
@@ -546,7 +436,7 @@ not_recognized()
 
    print "\n\tPlease supply a comment include the new build " \
          "script." 
-   print "\n\tGenerally the host URL e.g. raijin.nci.org.au "
+   print "\n\tGenerally the host URL e.g. gadi.nci.org.au "
    read HOST_COMM
    
    build_build
@@ -564,14 +454,6 @@ do_i_no_u()
    fi
    typeset -f subr
 
-   # for specific nodes on burnet
-   ic=`echo $HOST_MACH | cut -c 1`
-   in=`echo $HOST_MACH | cut -c 2-4`
-   if [[ $ic == 'n' ]]; then
-       if [ $in -gt 0 -a $in -lt 1000 ]; then
-           HOST_MACH=nXXX
-       fi
-   fi
    while [[ $k -lt $kmax ]]; do
       if [[ $HOST_MACH = ${kh[$k]} ]];then
          echo 'Host recognized as' $HOST_MACH

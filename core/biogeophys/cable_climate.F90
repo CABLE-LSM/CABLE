@@ -803,102 +803,107 @@ END SUBROUTINE BIOME1_PFT
 ! ==============================================================================
 
 SUBROUTINE climate_init ( climate,np ,ktauday )
-IMPLICIT NONE
 
-TYPE (climate_type), INTENT(INOUT)       :: climate  ! climate variables
-INTEGER, INTENT(IN) :: np, ktauday
-INTEGER :: d
+  IMPLICIT NONE
 
-!CALL alloc_cbm_var(climate,np,ktauday)
+  TYPE (climate_type), INTENT(INOUT)       :: climate  ! climate variables
+  INTEGER, INTENT(IN) :: np, ktauday
+  INTEGER :: d
 
+  ! CALL alloc_cbm_var(climate,np,ktauday)
+  
+  ! Maciej
+  !   DO d=1,31
+  !climate%dtemp_31(:,d)= climate%dtemp
+  ! climate%dmoist_31(:,d)= climate%dmoist
+  !      climate%dtemp_31(:,d)= 0
+  !      climate%dmoist_31(:,d)= 0
+  !
+  !   ENDDO
 
+  climate%nyears = 0
+  climate%doy    = 1
 
-! Maciej
-!   DO d=1,31
-      !climate%dtemp_31(:,d)= climate%dtemp
-     ! climate%dmoist_31(:,d)= climate%dmoist
-!      climate%dtemp_31(:,d)= 0
-!      climate%dmoist_31(:,d)= 0
-!
-!   ENDDO
-   climate%dtemp_31(:,:)= 0
-   climate%dtemp_91(:,:)= 0
-   climate%dmoist_31(:,:)= 0
-   climate%atemp_mean=0
+  climate%chilldays     = 0
+  climate%iveg          = 999
+  climate%biome         = 999
+  climate%GMD           = 0
+  climate%modis_igbp    = 0
+  climate%DSLR          = 0
+  climate%NDAY_Nesterov = 0
 
+  climate%dtemp                      = 0.0
+  climate%dmoist                     = 0.0
+  climate%dmoist_min                 = 0.0
+  climate%dmoist_min20               = 0.0
+  climate%dmoist_max                 = 0.0
+  climate%dmoist_max20               = 0.0
+  climate%mtemp                      = 0.0
+  climate%qtemp                      = 0.0
+  climate%mmoist                     = 0.0
+  climate%mtemp_min                  = 0.0
+  climate%mtemp_max                  = 0.0
+  climate%qtemp_max                  = 0.0
+  climate%qtemp_max_last_year        = 0.0
+  climate%mtemp_min20                = 0.0
+  climate%mtemp_max20                = 0.0
+  climate%atemp_mean                 = 0.0
+  climate%AGDD5                      = 0.0
+  climate%GDD5                       = 0.0
+  climate%AGDD0                      = 0.0
+  climate%GDD0                       = 0.0
+  climate%alpha_PT                   = 0.0
+  climate%evap_PT                    = 0.0
+  climate%aevap                      = 0.0
+  climate%alpha_PT20                 = 0.0
+  climate%GDD0_rec                   = 0.0
+  climate%frec                       = 1.0
+  climate%dtemp_min                  = 0.0
+  climate%fdorm                      = 1.0
+  climate%fapar_ann_max              = 0.0
+  climate%fapar_ann_max_last_year    = 0.0
+  climate%AvgAnnMaxFAPAR             = 0.0
+  climate%dtemp_max                  = 0.0
+  climate%drhum                      = 0.0
+  climate%du10_max                   = 0.0
+  climate%dprecip                    = 0.0
+  climate%aprecip                    = 0.0
+  climate%aprecip_av20               = 0.0
+  climate%last_precip                = 0.0
+  climate%KBDI                       = 0.0
+  climate%FFDI                       = 0.0
+  climate%D_MacArthur                = 0.0
+  climate%Nesterov_Current           = 0.0
+  climate%Nesterov_ann_max           = 0.0
+  climate%Nesterov_ann_max_last_year = 0.0
+  climate%Nesterov_ann_running_max   = 0.0
 
-
-   climate%nyears = 0
-   climate%chilldays = 0
-   climate%mtemp = 0
-   climate%mmoist = 0
-   climate%mtemp_min = 0
-   climate%mtemp_max=0
-   climate%qtemp_max=0
-   climate%qtemp_max_last_year = 0
-   climate%mtemp_min20 =0
-   climate%mtemp_max20=0
-   climate%AGDD5=0
-   climate%GDD5=0
-   climate%AGDD0=0
-   climate%GDD0=0
-   climate%alpha_PT=0
-   climate%evap_PT=0
-   climate%aevap=0
-   climate%mtemp_min_20=0
-   climate%mtemp_max_20=0
-   climate%alpha_PT_20=0
-   climate%iveg = 999
-   climate%biome = 999
-   climate%gmd = 0
-   climate%frec = 1.0
-   climate%GDD0_rec = 0.0
-   climate%fdorm = 1.0
-   climate%APAR_leaf_sun =0.0
-   climate%APAR_leaf_shade = 0.0
-   climate%Dleaf_sun = 0.0
-   climate%Dleaf_shade = 0.0
-   climate%Tleaf_sun = 0.0
-   climate%Tleaf_shade = 0.0
-   climate%cs_sun = 0.0
-   climate%cs_shade = 0.0
-   climate%scalex_sun = 0.0
-   climate%scalex_shade = 0.0
-   climate%fwsoil = 0.0
-   climate%dmoist = 0.0
-   climate%dmoist_min = 0.0
-   climate%dmoist_max = 0.0
-   climate%dmoist_min20 = 0.0
-   climate%dmoist_max20 = 0.0
-   climate%dmoist_min_20 = 0.0
-   climate%dmoist_max_20 = 0.0
-   climate%fapar_ann_max = 0.0
-   climate%fapar_ann_max_last_year = 0.0
-
-   climate%modis_igbp = 0
-   climate%AvgAnnMaxFAPAR = 0.0
-   climate%dtemp_max = 0.0
-   climate%drhum = 0.0
-   climate%du10_max = 0.0
-   climate%dprecip = 0.0
-   climate%aprecip = 0.0
-   climate%last_precip = 0.0
-   climate%KBDI = 0.0
-   climate%FFDI = 0.0
-   climate%D_MacArthur = 0.0
-   climate%Nesterov_Current = 0.0
-
-   climate%aprecip_20 = 0.0
-
-   climate%Nesterov_ann_max_last_year = 0.0
-   climate%Nesterov_ann_max = 0.0
-   climate%Nesterov_ann_running_max = 0.0
-   climate%NDAY_Nesterov= 0
+  climate%mtemp_min_20    = 0.0
+  climate%mtemp_max_20    = 0.0
+  climate%dmoist_min_20   = 0.0
+  climate%dmoist_max_20   = 0.0
+  climate%dtemp_31        = 0.0
+  climate%dmoist_31       = 0.0
+  climate%alpha_PT_20     = 0.0
+  climate%dtemp_91        = 0.0
+  climate%APAR_leaf_sun   = 0.0
+  climate%APAR_leaf_shade = 0.0
+  climate%Dleaf_sun       = 0.0
+  climate%Dleaf_shade     = 0.0
+  climate%Tleaf_sun       = 0.0
+  climate%Tleaf_shade     = 0.0
+  climate%cs_sun          = 0.0
+  climate%cs_shade        = 0.0
+  climate%scalex_sun      = 0.0
+  climate%scalex_shade    = 0.0
+  climate%fwsoil          = 0.0
+  climate%aprecip_20      = 0.0
+  climate%Rd_sun          = 0.0
+  climate%Rd_shade        = 0.0
    
-!if (.not.cable_user%climate_fromzero) then
-!   CALL READ_CLIMATE_RESTART_NC (climate, ktauday )
-!endif
-
+  !if (.not.cable_user%climate_fromzero) then
+  !   CALL READ_CLIMATE_RESTART_NC (climate, ktauday )
+  !endif
 
 END SUBROUTINE climate_init
 

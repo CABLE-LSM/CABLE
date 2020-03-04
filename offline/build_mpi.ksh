@@ -10,11 +10,12 @@ fi
 known_hosts()
 {
     if [ -z ${PS3} ] ; then
-	kh=(kh cher burn shin raij pear mcin vm_o gadi)
+	kh=(kh pear mcin vm_o gadi)
     else
-	set -A kh cher burn shin raij pear mcin vm_o gadi
+	set -A kh pear mcin vm_o gadi
     fi
 }
+
 
 ## gadi.nci.org.au
 host_gadi()
@@ -34,11 +35,10 @@ host_gadi()
    # export NCCLIB="${NETCDF_ROOT}/lib"
    # export NCLIB="${NETCDF_ROOT}/lib/Intel"
    export NCMOD="${NETCDF_ROOT}/include/Intel"
-   # export HDF5LIB="${HDF5_ROOT}/lib"
    if [[ ${1} == 'debug' ]]; then
-       #trunk export CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0'
-       #build.ksh export CFLAGS='-O0 -fpp -traceback -g -fp-model precise -ftz -fpe0'
-       export CFLAGS='-g -debug -traceback -fpp -check all,noarg_temp_created -fp-stack-check -O0 -debug -fpe=0 -fpe-all=0 -no-ftz -ftrapuv'
+       #trunk:     CFLAGS='-O0      -traceback -g -fp-model precise -ftz -fpe0'
+       #build.ksh: CFLAGS='-O0 -fpp -traceback -g -fp-model precise -ftz -fpe0'
+       export CFLAGS='-O0 -fpp -traceback -g -fp-model precise -no-ftz -fpe=0 -fpe-all=0 -ftrapuv -debug -check all,noarg_temp_created -fp-stack-check'
    else
        export CFLAGS='-O2 -fpp -fp-model precise'
        # export CFLAGS="${CFLAGS} -xCORE-AVX2 -axSKYLAKE-AVX512,CASCADELAKE" # given in user training: does not work
@@ -58,20 +58,14 @@ host_gadi()
 }
 
 
-
-
-
-
-
 ## pearcey.hpsc.csiro.au 
 host_pear()
 {
-    
     #    export LD_PRELOAD=/apps/netcdf/4.3.3/lib/libnetcdf.so
     #    export LD_PRELOAD=/apps/openmpi/1.8.4/lib/libopen-rte.so.7:/apps/openmpi/1.8.4/lib/libopen-pal.so.6
-   if [ -z ${PS3} ] ; then
-       . /apps/modules/Modules/default/init/ksh
-   fi
+    if [ -z ${PS3} ] ; then
+	. /apps/modules/Modules/default/init/ksh
+    fi
 
     #   module add netcdf/4.3.3.1 openmpi/1.7.5
     #   module add netcdf/4.3.3.1 openmpi/1.8.8 
@@ -83,7 +77,7 @@ host_pear()
     export NCDIR=$NETCDF_ROOT'/lib/'
     export NCMOD=$NETCDF_ROOT'/include/'
     export FC='mpifort' #'mpif90'
-     export CFLAGS='-O2 -fp-model precise -fpp'
+    export CFLAGS='-O2 -fp-model precise -fpp'
     #   export CFLAGS='-O0 -C'
     # best settings for debugging
     #   export CFLAGS='-O0 -C -g -debug all -traceback -check all,noarg_temp_created, -C  '
@@ -106,7 +100,7 @@ host_pear()
 }
 
 
-# MatthiasCuntz@INRAE
+## MatthiasCuntz@INRAE
 host_mcin()
 {
     idebug=0
@@ -190,29 +184,19 @@ host_mcin()
 	export cdir='.mpitmp-nagfor'
 	export PROG=cable-mpi-nagfor
     fi
+
+    # All compilers
     export CFLAGS="${CFLAGS} -D__MPI__"
     # export CFLAGS="${CFLAGS} -D__C13DEBUG__"
     export CFLAGS="${CFLAGS} -D__CRU2017__"
 
-    # # NAG - Does not work for pop_io.f90
-    # export FC=nagfor
-    # # release
-    # export CFLAGS="-O4 -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free"
-    # if [[ ${1} = 'debug' ]] ; then
-    #     # debug
-    #     export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -D__NAG__"
-    # fi
-    # export LD='-ideclient -unsharedrts'
-    # export NCROOT='/usr/local/netcdf-fortran-4.4.5-nagfor'
-
-    # All compilers
     export NCCROOT='/usr/local'
     export NCCLIB=${NCCROOT}'/lib'
     export NCLIB=${NCROOT}'/lib'
     export NCMOD=${NCROOT}'/include'
     export LDFLAGS="-L${NCLIB} -lnetcdff -L${NCCLIB} -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz"
     # Gadi flags
-    export LDFLAGS="-O0 ${LDFLAGS}"
+    export LDFLAGS="-O2 ${LDFLAGS}"
     export dosvn=0
     export MFLAGS='-j 8'
     build_build ${cdir} ${PROG}
@@ -221,7 +205,7 @@ host_mcin()
 }
 
 
-# MatthiasCuntz@Explor
+## MatthiasCuntz@Explor
 host_vm_o()
 {
     idebug=0
@@ -283,24 +267,12 @@ host_vm_o()
         export LD=''
         export NCROOT='/home/oqx29/zzy20/local/netcdf-fortran-4.4.4-gfortran63'
     fi
+
+    # All compilers
     export CFLAGS="${CFLAGS} -D__MPI__"
     # export CFLAGS="${CFLAGS} -D__C13DEBUG__"
     export CFLAGS="${CFLAGS} -D__CRU2017__"
 
-    # # NAG - Does not work for pop_io.f90
-    # export FC=nagfor
-    # # release
-    # export CFLAGS="-O4 -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free"
-    # if [[ ${1} = 'debug' ]] ; then
-    #     # debug
-    #     export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -D__NAG__"
-    # fi
-    # export LD='-ideclient -unsharedrts'
-    # export NCROOT='/usr/local/netcdf-fortran-4.4.5-nagfor'
-
-    # All compilers
-
-    # All compilers
     export NCCROOT='/home/oqx29/zzy20/local'
     export NCCLIB=${NCCROOT}'/lib'
     export NCLIB=${NCROOT}'/lib'
@@ -459,7 +431,6 @@ set_up_CABLE_AUX()
 }
 
 
-
 not_recognized()
 {  
    print "\n\n\tThis is not a recognized host for which we " \
@@ -483,7 +454,7 @@ not_recognized()
 
    print "\n\tPlease supply a comment include the new build " \
          "script." 
-   print "\n\tGenerally the host URL e.g. raijin.nci.org.au "
+   print "\n\tGenerally the host URL e.g. gadi.nci.org.au "
    read HOST_COMM
    
    build_build

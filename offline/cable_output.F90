@@ -594,20 +594,20 @@ CONTAINS
        ALLOCATE(out%gsw_sh(mp))
        out%gsw_sh = zero4 ! initialise
 
-       CALL define_ovar(ncid_out, ovid%scalex_sl, 'scale factor sunlit', '[ ]',               &
+       CALL define_ovar(ncid_out, ovid%scalex_sl, 'scale_factor_sunlit', '[ ]',               &
             'canopy scaling factor sl leaves', patchout%TVeg, 'dummy',    &
             xID, yID, zID, landID, patchID, tID)
        ALLOCATE(out%scalex_sl(mp))
        out%scalex_sl = zero4 ! initialise
 
 
-       CALL define_ovar(ncid_out, ovid%scalex_sh, 'scale factor shaded', '[ ]',               &
+       CALL define_ovar(ncid_out, ovid%scalex_sh, 'scale_factor_shaded', '[ ]',               &
             'canopy scaling factor sh leaves', patchout%TVeg, 'dummy',    &
             xID, yID, zID, landID, patchID, tID)
        ALLOCATE(out%scalex_sh(mp))
        out%scalex_sh = zero4 ! initialise
 
-       CALL define_ovar(ncid_out, ovid%dlf, 'leaf to air vpd', 'kPa',               &
+       CALL define_ovar(ncid_out, ovid%dlf, 'leaf_to_air_vpd', 'kPa',               &
             'leaf to air vapour pressure difference', patchout%TVeg, 'dummy',    &
             xID, yID, zID, landID, patchID, tID)
        ALLOCATE(out%dlf(mp))
@@ -624,10 +624,6 @@ CONTAINS
             xID, yID, zID, landID, patchID, tID)
        ALLOCATE(out%ci_sh(mp))
        out%ci_sh = zero4 ! initialise
-
-
-
-
     END IF
 
     IF(output%flux .OR. output%ESoil) THEN
@@ -2828,16 +2824,16 @@ CONTAINS
           CALL write_ovar(out_timestep, ncid_out, ovid%GPP_sl, 'GPP_sl', out%GPP_sl,    &
                ranges%GPP, patchout%GPP, 'default', met)
 
-          CALL write_ovar(out_timestep, ncid_out, ovid%GPP_shC, 'GPP_sh', out%GPP_shC,    &
+          CALL write_ovar(out_timestep, ncid_out, ovid%GPP_shC, 'GPP_shC', out%GPP_shC,    &
                ranges%GPP, patchout%GPP, 'default', met)
 
-          CALL write_ovar(out_timestep, ncid_out, ovid%GPP_slC, 'GPP_sh', out%GPP_slC,    &
+          CALL write_ovar(out_timestep, ncid_out, ovid%GPP_slC, 'GPP_slC', out%GPP_slC,    &
                ranges%GPP, patchout%GPP, 'default', met)
 
-          CALL write_ovar(out_timestep, ncid_out, ovid%GPP_shJ, 'GPP_sh', out%GPP_shJ,    &
+          CALL write_ovar(out_timestep, ncid_out, ovid%GPP_shJ, 'GPP_shJ', out%GPP_shJ,    &
                ranges%GPP, patchout%GPP, 'default', met)
 
-          CALL write_ovar(out_timestep, ncid_out, ovid%GPP_slJ, 'GPP_sh', out%GPP_slJ,    &
+          CALL write_ovar(out_timestep, ncid_out, ovid%GPP_slJ, 'GPP_slJ', out%GPP_slJ,    &
                ranges%GPP, patchout%GPP, 'default', met)
 
           CALL write_ovar(out_timestep, ncid_out, ovid%eta_GPP_cs, 'eta_GPP_cs', &

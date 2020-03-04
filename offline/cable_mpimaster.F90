@@ -1382,16 +1382,17 @@ CONTAINS
              IF (icycle>0) THEN
                 ctime = ctime + 86400
                 !TRUNK no if but call write_casa in any case
-                if (ktau.EQ.kend .AND. YYYY .EQ. cable_user%YearEnd) &
-                CALL WRITE_CASA_OUTPUT_NC(veg, casamet, casapool, casabal, casaflux, &
-                     CASAONLY, ctime, (ktau.EQ.kend .AND. YYYY .EQ. cable_user%YearEnd))
-                ! 13C
-                if (cable_user%c13o2) then
-                   call c13o2_write_output(c13o2_outfile_id, c13o2_vars, c13o2_var_ids, ctime, c13o2pools)
-                   if (YYYY == cable_user%YearEnd) then
-                      call c13o2_close_output(c13o2_outfile_id)
-                   endif
-                end if
+                if ( is_casa_time("write", yyyy, ktau, kstart, koffset, kend, ktauday, logn) ) then
+                   call write_casa_output_nc(veg, casamet, casapool, casabal, casaflux, &
+                        CASAONLY, ctime, (ktau==kend) .and. (YYYY==cable_user%YearEnd))
+                   ! 13C
+                   if (cable_user%c13o2) then
+                      call c13o2_write_output(c13o2_outfile_id, c13o2_vars, c13o2_var_ids, ctime, c13o2pools)
+                      if (YYYY == cable_user%YearEnd) then
+                         call c13o2_close_output(c13o2_outfile_id)
+                      endif
+                   end if
+                endif
                 IF ( cable_user%CALL_POP ) THEN
                    ! CALL master_receive_pop(POP, ocomm)
                    ! CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
@@ -5625,6 +5626,14 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      blen(vidx) = cnt * extr2
      
      vidx = vidx + 1
+     CALL MPI_Get_address (canopy%GPP_sh(off), vaddr(vidx), ierr) ! 27
+     blen(vidx) = cnt * extr2
+     
+     vidx = vidx + 1
+     CALL MPI_Get_address (canopy%GPP_sl(off), vaddr(vidx), ierr) ! 27
+     blen(vidx) = cnt * extr2
+     
+     vidx = vidx + 1
      CALL MPI_Get_address (canopy%eta_A_cs(off), vaddr(vidx), ierr) ! 27
      blen(vidx) = cnt * extr2
      
@@ -5642,6 +5651,10 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
 
      vidx = vidx + 1
      CALL MPI_Get_address (canopy%eta_fevc_cs(off), vaddr(vidx), ierr) ! 27
+     blen(vidx) = cnt * extr2
+     
+     vidx = vidx + 1
+     CALL MPI_Get_address (canopy%dlf(off), vaddr(vidx), ierr) ! 27
      blen(vidx) = cnt * extr2
 
      vidx = vidx + 1
@@ -6817,6 +6830,12 @@ SUBROUTINE master_casa_types(comm, casapool, casaflux, casamet, casabal, phen)
      blocks(bidx) = 1
 
      bidx = bidx + 1
+     CALL MPI_Get_address (casaflux%kplant_fire(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector (mplant, r2len, r2stride, MPI_BYTE, &
+          &                             types(bidx), ierr)
+     blocks(bidx) = 1
+
+     bidx = bidx + 1
      CALL MPI_Get_address(casaflux%FluxFromPtoCO2(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector(mplant, r2len, r2stride, MPI_BYTE, &
           types(bidx), ierr)
@@ -6841,9 +6860,15 @@ SUBROUTINE master_casa_types(comm, casapool, casaflux, casamet, casabal, phen)
           &                             types(bidx), ierr)
      blocks(bidx) = 1
 
-
      bidx = bidx + 1
      CALL MPI_Get_address (casaflux%klitter(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector (mlitter, r2len, r2stride, MPI_BYTE, &
+          &                             types(bidx), ierr)
+     blocks(bidx) = 1
+     !blocks(bidx) = mlitter * r2len
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (casaflux%klitter_fire(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (mlitter, r2len, r2stride, MPI_BYTE, &
           &                             types(bidx), ierr)
      blocks(bidx) = 1
@@ -7204,6 +7229,18 @@ SUBROUTINE master_casa_types(comm, casapool, casaflux, casamet, casabal, phen)
      CALL MPI_Get_address(casaflux%FluxFromPtoHarvest(off), displs(bidx), ierr)
      blocks(bidx) = r2len
 
+     bidx = bidx + 1
+     CALL MPI_Get_address(casaflux%stemnpp(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
+
+     bidx = bidx + 1
+     CALL MPI_Get_address(casaflux%fNminloss(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
+
+     bidx = bidx + 1
+     CALL MPI_Get_address(casaflux%FluxCtoCO2(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
+
      types(last2d+1:bidx) = MPI_BYTE
 
      ! MPI: sanity check
@@ -7313,6 +7350,7 @@ SUBROUTINE master_climate_types (comm, climate, ktauday)
      bidx = 0
 
      ! ------------- 2D arrays -------------
+     
      ny = climate%nyear_average
      nd = climate%nday_average
      ndq = 91
@@ -7438,7 +7476,12 @@ SUBROUTINE master_climate_types (comm, climate, ktauday)
      CALL MPI_Type_create_hvector (ny, r1len, r1stride, MPI_BYTE, &
      &                                types(bidx), ierr)
      blocks(bidx) = 1
-
+     
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%aprecip_20(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector (ny, r1len, r1stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blocks(bidx) = 1
 
      ! ------------- 1D vectors -------------
 
@@ -7451,7 +7494,6 @@ SUBROUTINE master_climate_types (comm, climate, ktauday)
      CALL MPI_Get_address (climate%iveg(off), displs(bidx), ierr)
      blocks(bidx) = i1len
      types(bidx)  = MPI_BYTE
-
 
      bidx = bidx + 1
      CALL MPI_Get_address (climate%biome(off), displs(bidx), ierr)
@@ -7507,7 +7549,6 @@ SUBROUTINE master_climate_types (comm, climate, ktauday)
      CALL MPI_Get_address (climate%qtemp_max_last_year(off), displs(bidx), ierr)
      blocks(bidx) = r1len
      types(bidx)  = MPI_BYTE
-
 
      bidx = bidx + 1
      CALL MPI_Get_address (climate%mtemp_min20(off), displs(bidx), ierr)
@@ -7594,7 +7635,107 @@ SUBROUTINE master_climate_types (comm, climate, ktauday)
      blocks(bidx) = r1len
      types(bidx)  = MPI_BYTE
 
- ! ------------- scalars  -------------
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%DSLR(off), displs(bidx), ierr)
+     blocks(bidx) = i1len
+     types(bidx)  = MPI_BYTE
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%aprecip_av20(off), displs(bidx), ierr)
+     blocks(bidx) = r1len
+     types(bidx)  = MPI_BYTE
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%NDAY_Nesterov(off), displs(bidx), ierr)
+     blocks(bidx) = i1len
+     types(bidx)  = MPI_BYTE
+     
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%dmoist_min(off), displs(bidx), ierr)
+     blocks(bidx) = r1len
+     types(bidx)  = MPI_BYTE
+     
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%dmoist_max(off), displs(bidx), ierr)
+     blocks(bidx) = r1len
+     types(bidx)  = MPI_BYTE
+     
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%alpha_PT20(off), displs(bidx), ierr)
+     blocks(bidx) = r1len
+     types(bidx)  = MPI_BYTE
+     
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%dtemp_min(off), displs(bidx), ierr)
+     blocks(bidx) = r1len
+     types(bidx)  = MPI_BYTE
+     
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%dtemp_max(off), displs(bidx), ierr)
+     blocks(bidx) = r1len
+     types(bidx)  = MPI_BYTE
+     
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%drhum(off), displs(bidx), ierr)
+     blocks(bidx) = r1len
+     types(bidx)  = MPI_BYTE
+     
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%du10_max(off), displs(bidx), ierr)
+     blocks(bidx) = r1len
+     types(bidx)  = MPI_BYTE
+     
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%dprecip(off), displs(bidx), ierr)
+     blocks(bidx) = r1len
+     types(bidx)  = MPI_BYTE
+     
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%aprecip(off), displs(bidx), ierr)
+     blocks(bidx) = r1len
+     types(bidx)  = MPI_BYTE
+     
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%last_precip(off), displs(bidx), ierr)
+     blocks(bidx) = r1len
+     types(bidx)  = MPI_BYTE
+     
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%KBDI(off), displs(bidx), ierr)
+     blocks(bidx) = r1len
+     types(bidx)  = MPI_BYTE
+     
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%FFDI(off), displs(bidx), ierr)
+     blocks(bidx) = r1len
+     types(bidx)  = MPI_BYTE
+     
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%D_MacArthur(off), displs(bidx), ierr)
+     blocks(bidx) = r1len
+     types(bidx)  = MPI_BYTE
+     
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%Nesterov_Current(off), displs(bidx), ierr)
+     blocks(bidx) = r1len
+     types(bidx)  = MPI_BYTE
+     
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%Nesterov_ann_max(off), displs(bidx), ierr)
+     blocks(bidx) = r1len
+     types(bidx)  = MPI_BYTE
+     
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%Nesterov_ann_max_last_year(off), displs(bidx), ierr)
+     blocks(bidx) = r1len
+     types(bidx)  = MPI_BYTE
+     
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%Nesterov_ann_running_max(off), displs(bidx), ierr)
+     blocks(bidx) = r1len
+     types(bidx)  = MPI_BYTE
+
+     ! ------------- scalars  -------------
 
      bidx = bidx + 1
      CALL MPI_Get_address (climate%nyears, displs(bidx), ierr)
@@ -7606,7 +7747,7 @@ SUBROUTINE master_climate_types (comm, climate, ktauday)
      blocks(bidx) = extid
      types(bidx)  = MPI_BYTE
 
-! MPI: sanity check
+     ! MPI: sanity check
      IF (bidx /= ntyp) THEN
         WRITE(*,*) 'master: invalid number of climate fields, fix it (07)!'
         CALL MPI_Abort (comm, 1, ierr)
@@ -7639,16 +7780,11 @@ SUBROUTINE master_climate_types (comm, climate, ktauday)
      CALL MPI_Abort(comm, 0, ierr)
   END IF
 
-
   DO rank = 1, wnp
-
-     CALL MPI_ISend (MPI_BOTTOM, 1, climate_ts(rank), rank, 0, comm, &
-          &               inp_req(rank), ierr)
-
+     CALL MPI_ISend (MPI_BOTTOM, 1, climate_ts(rank), rank, 0, comm, inp_req(rank), ierr)
   END DO
 
-   CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
-
+  CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
 
   DEALLOCATE(types)
   DEALLOCATE(displs)
@@ -8515,6 +8651,7 @@ SUBROUTINE master_pop_types(comm, casamet, pop)
 ! Maciej: worker_pop_types always call MPI_Recv, even if cnt is zero
 !        IF ( cnt .EQ. 0 ) CYCLE
         CALL MPI_Send( POP%pop_grid(off), cnt, pop_ts, rank, 0, comm, ierr )
+        CALL MPI_Send( POP%it_pop(off), cnt, MPI_INTEGER, rank, 0, comm, ierr )
 
      END DO
 
@@ -8547,6 +8684,7 @@ SUBROUTINE master_receive_pop(POP, comm)
      IF (cnt .EQ. 0) CYCLE
 
      CALL MPI_Recv(POP%pop_grid(off), cnt, pop_ts, rank, 0, comm, stat, ierr)
+     CALL MPI_Recv(POP%it_pop(off), cnt, MPI_INTEGER, rank, 0, comm, stat, ierr)
 
   END DO
   ! NO Waitall here as some workers might not be involved!!!

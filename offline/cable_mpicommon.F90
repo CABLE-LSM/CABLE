@@ -110,18 +110,21 @@ MODULE cable_mpicommon
   ! vh sli nvec + 6 162 -> 168
   ! ? 15 extra params -> 183
   ! Matthias Cuntz: add 1 1D canopy param for 13C -> 184
-  INTEGER, PARAMETER :: nvec = 184
+  ! Matthias Cuntz: add 3 1D canopy params for elasticities -> 187
+  INTEGER, PARAMETER :: nvec = 187
 
   ! MPI: number of final casa result matrices and vectors to receive
   ! by the master for casa_poolout and casa_fluxout
   ! Matthias Cuntz: add 6 params for 13C -> 40
-  INTEGER, PARAMETER :: ncasa_mat = 40
+  ! Matthias Cuntz: add 2 params for fire -> 42
+  INTEGER, PARAMETER :: ncasa_mat = 42
   ! INTEGER, PARAMETER :: ncasa_vec = 27
   ! INTEGER, PARAMETER :: ncasa_vec = 32
   ! changed on 30-jan-2013 for adding four new respiration variable to the output
   ! vh changed on 5-feb-2016 for adding sapwood area and frac_sapwood
   ! Matthias Cuntz: add 1 1D param for 13C -> 61
-  INTEGER, PARAMETER :: ncasa_vec = 61
+  ! Matthias Cuntz: add 3 missing 1D param -> 64
+  INTEGER, PARAMETER :: ncasa_vec = 64
   ! MPI: number of fields included in restart_t type for data
   ! that is returned only for creating a restart file at the end of the run
   !   INTEGER, PARAMETER :: nrestart = 16
@@ -129,7 +132,8 @@ MODULE cable_mpicommon
   INTEGER, PARAMETER :: nrestart = 15
   INTEGER, PARAMETER :: nsumcasaflux = 62
   INTEGER, PARAMETER :: nsumcasapool = 40
-  INTEGER, PARAMETER :: nclimate = 51
+  ! Matthias Cuntz: add 1 2D and 20 1D vars for restart file -> 72
+  INTEGER, PARAMETER :: nclimate = 72
   INTEGER, PARAMETER :: nphen = 9
   ! MPI: type to hold landpoint decomposition info
   TYPE lpdecomp_t

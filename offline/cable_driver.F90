@@ -996,7 +996,7 @@ PROGRAM cable_offline_driver
 
                  ENDIF
 
-                 IF(MOD((ktau-kstart+1),ktauday)==0) THEN ! end of day
+                 IF (MOD((ktau-kstart+1),ktauday)==0) THEN ! end of day
 
                     ctime = ctime + 86400  ! update casa time
 
@@ -1009,8 +1009,8 @@ PROGRAM cable_offline_driver
                     count_sum_casa = count_sum_casa + 1
                  ENDIF
 
-                 IF( ((MOD((ktau-kstart+1),ktauday)==0) .AND.  &
-                      MOD((ktau-kstart+1)/ktauday,LOY)==0) )THEN ! end of year
+                 IF ( ((MOD((ktau-kstart+1),ktauday)==0) .AND.  &
+                      MOD((ktau-kstart+1)/ktauday,LOY)==0) ) THEN ! end of year
                     IF (CABLE_USER%POPLUC) THEN
                        ! Dynamic LUC
                        CALL LUCdriver(casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg, c13o2pools)
@@ -1053,17 +1053,14 @@ PROGRAM cable_offline_driver
                     CASA_TIME = IS_CASA_TIME("write", yyyy, ktau, kstart, koffset, kend, ktauday, logn)
                  ENDIF
                  
-                    
                  IF (CASA_TIME ) THEN
-                    
                     !mpidiff
                     CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
                          .FALSE., .TRUE., count_sum_casa)
                     ! 13C
                     if (cable_user%c13o2) &
                          call c13o2_update_sum_pools(sum_c13o2pools, c13o2pools, .false., .true., count_sum_casa)
-
-                  CALL WRITE_CASA_OUTPUT_NC (veg, casamet, sum_casapool, casabal, sum_casaflux, &
+                    CALL WRITE_CASA_OUTPUT_NC (veg, casamet, sum_casapool, casabal, sum_casaflux, &
                          CASAONLY, ctime, ( ktau.EQ.kend .AND. YYYY .EQ. cable_user%YearEnd.AND. RRRR .EQ.NRRRR ) )
                     ! 13C
                     if (cable_user%c13o2) then
@@ -1080,7 +1077,6 @@ PROGRAM cable_offline_driver
                     ! 13C
                     if (cable_user%c13o2) call c13o2_zero_sum_pools(sum_c13o2pools)
                  ENDIF
-
 
                  IF (((.NOT.spinup).OR.(spinup.AND.spinConv)).and. &
                       MOD((ktau-kstart+1),ktauday)==0) THEN

@@ -1257,7 +1257,7 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
         ! Ticket#108
         where ( ( (casapool%dcplantdt(npt,2:3)*deltpool + casapool%cplant(npt,2:3)) .lt. 0.0_r_2) &
              .or. ( (casapool%dcplantdt(npt,2:3)*deltpool + casapool%cplant(npt,2:3)) &
-             .lt. 0.5 * casapool%cplant(npt,2:3) ) )
+             .lt. 0.5_r_2 * casapool%cplant(npt,2:3) ) )
            casaflux%kplant_tot(npt,2:3) = 0.0_r_2
            casaflux%kplant(npt,2:3)     = 0.0_r_2
            casaflux%crmplant(npt,2:3)   = 0.0_r_2
@@ -1307,15 +1307,15 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
 
         ! add fire component to above fluxes
         cleaf2met(npt) = cleaf2met(npt) + casaflux%fromPtoL_fire(npt,metb,leaf) &
-             * (1.- casaflux%kplant(npt,leaf))  * casaflux%kplant_fire(npt,leaf)  * casapool%cplant(npt,leaf)
+             * (1.0_r_2 - casaflux%kplant(npt,leaf))  * casaflux%kplant_fire(npt,leaf)  * casapool%cplant(npt,leaf)
         cleaf2str(npt) = cleaf2str(npt) + casaflux%fromPtoL_fire(npt,str,leaf) &
-             * (1.- casaflux%kplant(npt,leaf))  * casaflux%kplant_fire(npt,leaf)  * casapool%cplant(npt,leaf)
+             * (1.0_r_2 - casaflux%kplant(npt,leaf))  * casaflux%kplant_fire(npt,leaf)  * casapool%cplant(npt,leaf)
         croot2met(npt) = croot2met(npt) + casaflux%fromPtoL_fire(npt,metb,froot) &
-             * (1.- casaflux%kplant(npt,froot)) * casaflux%kplant_fire(npt,froot) * casapool%cplant(npt,froot)
+             * (1.0_r_2 - casaflux%kplant(npt,froot)) * casaflux%kplant_fire(npt,froot) * casapool%cplant(npt,froot)
         croot2str(npt) = croot2str(npt) + casaflux%fromPtoL_fire(npt,str,froot) &
-             * (1.- casaflux%kplant(npt,froot)) * casaflux%kplant_fire(npt,froot) * casapool%cplant(npt,froot)
+             * (1.0_r_2 - casaflux%kplant(npt,froot)) * casaflux%kplant_fire(npt,froot) * casapool%cplant(npt,froot)
         cwood2cwd(npt) = cwood2cwd(npt) + casaflux%fromPtoL_fire(npt,cwd,wood) &
-             * (1.- casaflux%kplant(npt,wood))  * casaflux%kplant_fire(npt,wood)  * casapool%cplant(npt,wood)
+             * (1.0_r_2 - casaflux%kplant(npt,wood))  * casaflux%kplant_fire(npt,wood)  * casapool%cplant(npt,wood)
 
         ! fire flux to atmosphere from burnt plant material
         casaflux%fluxCtoCO2_plant_fire(npt) = 0.0_r_2
@@ -1364,7 +1364,7 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
                    * casabiome%ftransNPtoL(veg%iveg(npt),leaf)
               ! add turnover due to fire
               casapool%dNplantdt(npt,leaf)  =  casapool%dNplantdt(npt,leaf) - &
-                   (1. -casaflux%kplant(npt,leaf))*casaflux%kplant_fire(npt,leaf) * casapool%Nplant(npt,leaf)
+                   (1.0_r_2 - casaflux%kplant(npt,leaf))*casaflux%kplant_fire(npt,leaf) * casapool%Nplant(npt,leaf)
 
            ENDIF
 
@@ -1374,7 +1374,7 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
 
                ! add turnover due to fire
               casapool%dNplantdt(npt,wood)  =  casapool%dNplantdt(npt,wood) - &
-                   (1. -casaflux%kplant(npt,wood))*casaflux%kplant_fire(npt,wood) * casapool%Nplant(npt,wood)
+                   (1.0_r_2 - casaflux%kplant(npt,wood))*casaflux%kplant_fire(npt,wood) * casapool%Nplant(npt,wood)
            ELSE
               casapool%dNplantdt(npt,wood) = 0.0_r_2
            ENDIF
@@ -1384,7 +1384,7 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
 
            ! add turnover due to fire
            casapool%dNplantdt(npt,froot)  =  casapool%dNplantdt(npt,froot) - &
-                (1. -casaflux%kplant(npt,froot))*casaflux%kplant_fire(npt,froot) * casapool%Nplant(npt,froot)
+                (1.0_r_2 - casaflux%kplant(npt,froot))*casaflux%kplant_fire(npt,froot) * casapool%Nplant(npt,froot)
 
            nleaf2str(npt) = casaflux%fromPtoL(npt,str,leaf) * casaflux%kplant(npt,leaf)  &
                 * casapool%cplant(npt,leaf)       * ratioNCstrfix
@@ -1410,15 +1410,15 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
                 casaflux%kplant(npt,leaf)  * casapool%nplant(npt,leaf) *  casaflux%fharvest(npt)
 
            ! Nitrogen lost to fire
-           casaflux%fluxNtoAtm_fire(npt) =  (1. -casaflux%kplant(npt,leaf))* &
+           casaflux%fluxNtoAtm_fire(npt) =  (1.0_r_2 - casaflux%kplant(npt,leaf))* &
                 casaflux%kplant_fire(npt,leaf) * casapool%Nplant(npt,leaf) &
-                * (1. -  casaflux%fromPtoL_fire(npt,str,leaf)) + &
-                (1. -casaflux%kplant(npt,froot))*casaflux%kplant_fire(npt,froot) * &
+                * (1.0_r_2 - casaflux%fromPtoL_fire(npt,str,leaf)) + &
+                (1.0_r_2 - casaflux%kplant(npt,froot))*casaflux%kplant_fire(npt,froot) * &
                 casapool%Nplant(npt,froot) &
-                * (1. -  casaflux%fromPtoL_fire(npt,str,froot)) + &
-                (1. -casaflux%kplant(npt,wood))*casaflux%kplant_fire(npt,wood) * &
+                * (1.0_r_2 - casaflux%fromPtoL_fire(npt,str,froot)) + &
+                (1.0_r_2 - casaflux%kplant(npt,wood))*casaflux%kplant_fire(npt,wood) * &
                 casapool%Nplant(npt,wood) &
-                * (1. -  casaflux%fromPtoL_fire(npt,str,wood))
+                * (1.0_r_2 - casaflux%fromPtoL_fire(npt,str,wood))
         ENDIF
 
         ! Phosphorus
@@ -1445,13 +1445,13 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
 
            ! add P loss by fire
            casapool%dPplantdt(npt,leaf) = casapool%dPplantdt(npt,leaf) - &
-                (1. - casaflux%kplant(npt,leaf) ) * casaflux%kplant_fire(npt,leaf) * casapool%Pplant(npt,leaf)
+                (1.0_r_2 - casaflux%kplant(npt,leaf) ) * casaflux%kplant_fire(npt,leaf) * casapool%Pplant(npt,leaf)
 
            casapool%dPplantdt(npt,froot)  = casapool%dPplantdt(npt,froot) - &
-                (1. - casaflux%kplant(npt,froot) ) * casaflux%kplant_fire(npt,froot) * casapool%Pplant(npt,froot)
+                (1.0_r_2 - casaflux%kplant(npt,froot) ) * casaflux%kplant_fire(npt,froot) * casapool%Pplant(npt,froot)
 
            casapool%dPplantdt(npt,wood)  = casapool%dPplantdt(npt,wood) - &
-                (1. - casaflux%kplant(npt,wood) ) * casaflux%kplant_fire(npt,wood) * casapool%Pplant(npt,wood)
+                (1.0_r_2 - casaflux%kplant(npt,wood) ) * casaflux%kplant_fire(npt,wood) * casapool%Pplant(npt,wood)
 
            ! pleaf2str(npt) = pleaf2str(npt) + casaflux%fromPtoL_fire(npt,str,leaf) * casaflux%kplant_fire(npt,leaf)*  &
            !      (1. - casaflux%kplant(npt,leaf)) * ratioNCstrfix/ratioNPstrfix * casapool%cplant(npt,leaf)
@@ -1461,11 +1461,11 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
 
            ! assume all plant phosphorous release by fire goes to litter
            pleaf2str(npt) = pleaf2str(npt) +  casaflux%kplant_fire(npt,leaf)*  &
-                (1. - casaflux%kplant(npt,leaf)) * ratioNCstrfix/ratioNPstrfix * casapool%cplant(npt,leaf)
+                (1.0_r_2 - casaflux%kplant(npt,leaf)) * ratioNCstrfix/ratioNPstrfix * casapool%cplant(npt,leaf)
 
 
            proot2str(npt) = proot2str(npt) + casaflux%kplant_fire(npt,froot)*  &
-                (1. - casaflux%kplant(npt,froot)) * ratioNCstrfix/ratioNPstrfix * casapool%cplant(npt,froot)
+                (1.0_r_2 - casaflux%kplant(npt,froot)) * ratioNCstrfix/ratioNPstrfix * casapool%cplant(npt,froot)
 
            ! end Ploss by fire
 
@@ -1485,7 +1485,7 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
                    + casaflux%fromPtoL(npt,nL,nP) * casaflux%kplant(npt,nP) * &
                    casapool%cplant(npt,nP) &
                    ! inputs from fire
-                   + casaflux%kplant_fire(npt,nP)*(1_r_2 - casaflux%kplant(npt,nP)) * &
+                   + casaflux%kplant_fire(npt,nP)*(1.0_r_2 - casaflux%kplant(npt,nP)) * &
                    casapool%cplant(npt,nP)* casaflux%fromPtoL_fire(npt,nL,nP)
               
            enddo
@@ -2553,7 +2553,7 @@ SUBROUTINE casa_cnpbal(casapool,casaflux,casabal)
    Cbalsoil(:)   = sum(casabal%clitterlast,2) - sum(casapool%clitter,2)         &
                  + sum(casabal%csoillast,2)   - sum(casapool%csoil,2)           &
                  +(SUM((casaflux%kplant*casabal%cplantlast),2)-casaflux%Crsoil(:))*deltpool &
-   +(SUM((casaflux%kplant_fire*(1_r_2 - casaflux%kplant) * casabal%cplantlast),2) - &
+   +(SUM((casaflux%kplant_fire*(1.0_r_2 - casaflux%kplant) * casabal%cplantlast),2) - &
    casaflux%fluxCtoCO2_plant_fire)*deltpool - casaflux%fluxCtoCO2_litter_fire*deltpool
    
 
@@ -2562,13 +2562,14 @@ SUBROUTINE casa_cnpbal(casapool,casaflux,casabal)
       !print*, sum(casabal%clitterlast(1,:)) - sum(casapool%clitter(1,:))
       ! mass bal on litter
       tmp1 = SUM((casaflux%kplant(1,:)*casabal%cplantlast(1,:))) ! plant input
-      tmp2 = SUM((casaflux%kplant_fire(1,:)*(1_r_2 - casaflux%kplant(1,:)) * casabal%cplantlast(1,:))) - casaflux%fluxCtoCO2_plant_fire(1)
+      tmp2 = SUM(casaflux%kplant_fire(1,:) * (1.0_r_2 - casaflux%kplant(1,:)) * casabal%cplantlast(1,:)) - &
+           casaflux%fluxCtoCO2_plant_fire(1)
       tmp3 = SUM((casaflux%klitter(1,:)*casabal%clitterlast(1,:)))
-      tmp4 = SUM((casaflux%klitter_fire(1,:)*(1_r_2 - casaflux%klitter(1,:)) * casabal%clitterlast(1,:)))
+      tmp4 = SUM((casaflux%klitter_fire(1,:)*(1.0_r_2 - casaflux%klitter(1,:)) * casabal%clitterlast(1,:)))
       tmp5 = SUM((casaflux%kplant_tot(1,:)*casabal%cplantlast(1,:)))
       tmp6 = casaflux%fluxCtoCO2_plant_fire(1)
       tmp7 = SUM((casaflux%klitter_tot(1,:)*casabal%clitterlast(1,:)))
-      tmp8 = SUM((casaflux%kplant_fire(1,:)*(1_r_2 - casaflux%kplant(1,:)) * casabal%cplantlast(1,:)))
+      tmp8 = SUM((casaflux%kplant_fire(1,:)*(1.0_r_2 - casaflux%kplant(1,:)) * casabal%cplantlast(1,:)))
 
       print*, 'delta clitt1: ', sum(casabal%clitterlast(1,:)) - sum(casapool%clitter(1,:))
       print*, 'plant input to litter (base turnover): ', tmp1
@@ -2589,7 +2590,7 @@ SUBROUTINE casa_cnpbal(casapool,casaflux,casabal)
      ! stop
      ! print*, sum(casabal%csoillast(1,:))   - sum(casapool%csoil(1,:))
      ! print*, SUM((casaflux%kplant(1,:)*casabal%cplantlast(1,:)))-casaflux%Crsoil(1)*deltpool
-      !print*, SUM((casaflux%kplant_fire(1,:)*(1_r_2 - casaflux%kplant(1,:)) * casabal%cplantlast(1,:)))
+      !print*, SUM((casaflux%kplant_fire(1,:)*(1.0_r_2 - casaflux%kplant(1,:)) * casabal%cplantlast(1,:)))
      ! print*, casaflux%fluxCtoCO2_plant_fire(1),  casaflux%fluxCtoCO2_litter_fire(1)
       !stop
       endif
