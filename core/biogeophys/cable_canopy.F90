@@ -2289,7 +2289,7 @@ CONTAINS
 
                 ! Force overnight refilling - we need the real time
                 ! as this won't work with 30 min and hourly
-                
+
                 IF ( (met%hod(i) >= 6 .AND. met%hod(i) < 7) .AND. &
                      (canopy%psi_stem(i) < ssnow%weighted_psi_soil(i)) .AND. &
                        canopy%psi_stem(i) > -4.0)  THEN
@@ -3490,7 +3490,7 @@ CONTAINS
      ! We need a height and in the longterm we will use POP, but for now from
      ! Simard et al. and sampling where Butt et al. say there are Eucs...we can
      ! make an extremely horrible assumption that height is 20 m
-     height = 20.0 ! m
+     height = 10.0 ! m
 
      ! From Bowman we are taking a rough sapwood density (fig 5), which seems
      ! to agree with Xu et al.
