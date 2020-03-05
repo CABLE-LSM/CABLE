@@ -2241,21 +2241,23 @@ CONTAINS
                 CALL calc_flux_to_leaf(canopy, trans_mmol, dels, veg%Cl(i), i)
 
                 ! Update stem water potential
-                CALL calc_psi_stem(canopy, dels, veg%Cs(i), veg%p50(i), i)
+                CALL calc_psi_stem(canopy, dels, veg%Cs(i), veg%p50(i), &
+                                   veg%iveg(i), i)
 
                 ! Flux from the soil to the stem = change in storage +
                 ! flux_to_leaf
-                CALL calc_flux_to_stem(canopy, dels, veg%Cs(i), i)
+                CALL calc_flux_to_stem(canopy, dels, veg%Cs(i), veg%iveg(i), i)
 
                 ! Update psi_stem
                 canopy%psi_stem_prev(i) = canopy%psi_stem(i)
                 CALL calc_psi_stem_again(canopy, dels, veg%Cs(i), &
-                                          veg%Cl(i), trans_mmol, veg%p50(i), i)
+                                          veg%Cl(i), trans_mmol, veg%p50(i), &
+                                          veg%iveg(i), i)
 
                 ! Flux from the soil to the stem = change in storage +
                 ! flux_to_leaf
                 CALL calc_flux_to_stem_again(canopy, dels, veg%Cs(i), &
-                                             trans_mmol, i)
+                                             trans_mmol, veg%iveg(i), i)
 
 
                 ! If we've reached the point of hydraulic failure, don't allow
@@ -3267,7 +3269,7 @@ CONTAINS
   ! ----------------------------------------------------------------------------
 
   ! ----------------------------------------------------------------------------
-  SUBROUTINE calc_flux_to_stem(canopy, dels, Cs, i)
+  SUBROUTINE calc_flux_to_stem(canopy, dels, Cs, iveg, i)
      ! Calculate the flux from the root to the stem, i.e. the root water
      ! uptake (mmol s-1) = change in stem storage plus flux_to_leaf
      !
@@ -3281,12 +3283,13 @@ CONTAINS
      TYPE (canopy_type), INTENT(INOUT)    :: canopy
 
      INTEGER, INTENT(IN) :: i ! patch
+     INTEGER, INTENT(IN) :: iveg
      REAL, INTENT(IN)    :: dels ! integration time step (s)
      REAL, INTENT(IN)    :: Cs ! Stem capacitance (mmol kg-1 MPa-1)
      REAL                :: stem_capac ! mmol MPa-1
 
      ! mmol MPa-1
-     stem_capac = Cs * scale_up_stem_capac(canopy%vlaiw(i))
+     stem_capac = Cs * scale_up_stem_capac(canopy%vlaiw(i), iveg)
 
      ! J_sr: plant cannot take up water, change of psi_stem is solely due to
      ! flux_to_leaf (J_rl)
@@ -3303,7 +3306,7 @@ CONTAINS
   ! ----------------------------------------------------------------------------
 
   ! ----------------------------------------------------------------------------
-  SUBROUTINE calc_psi_stem(canopy, dels, Cs, p50, i)
+  SUBROUTINE calc_psi_stem(canopy, dels, Cs, p50, iveg, i)
      ! Calculate the stem water potential (MPa)
      !
      ! Reference:
@@ -3327,11 +3330,12 @@ CONTAINS
      REAL, INTENT(IN)    :: p50
      REAL                :: stem_capac, ap, bp, psi_stem_min
      INTEGER, INTENT(IN) :: i ! patch
+     INTEGER, INTENT(IN) :: iveg
 
      psi_stem_min = 2.0 * p50
 
      ! mmol MPa-1
-     stem_capac = Cs * scale_up_stem_capac(canopy%vlaiw(i))
+     stem_capac = Cs * scale_up_stem_capac(canopy%vlaiw(i), iveg)
 
      ! J_sr: plant cannot take up water, change of psi_stem is solely due to
      ! flux_to_leaf (J_rl)
@@ -3357,7 +3361,7 @@ CONTAINS
   ! ----------------------------------------------------------------------------
 
   ! ----------------------------------------------------------------------------
-  SUBROUTINE calc_flux_to_stem_again(canopy, dels, Cs, transpiration, i)
+  SUBROUTINE calc_flux_to_stem_again(canopy, dels, Cs, transpiration, iveg, i)
      ! Calculate the flux from the root to the stem, i.e. the root water
      ! uptake (mmol s-1) = change in stem storage plus flux_to_leaf
      !
@@ -3371,13 +3375,14 @@ CONTAINS
      TYPE (canopy_type), INTENT(INOUT)    :: canopy
 
      INTEGER, INTENT(IN) :: i ! patch
+     INTEGER, INTENT(IN) :: iveg
      REAL, INTENT(IN)    :: dels ! integration time step (s)
      REAL, INTENT(IN)    :: Cs ! Stem capacitance (mmol kg-1 MPa-1)
      REAL, INTENT(IN)    :: transpiration ! mmol m-2 ground s-1
      REAL                :: stem_capac
 
      ! mmol MPA-1
-     stem_capac = Cs * scale_up_stem_capac(canopy%vlaiw(i))
+     stem_capac = Cs * scale_up_stem_capac(canopy%vlaiw(i), iveg)
 
      ! J_sr: plant cannot take up water, change of psi_stem is solely due to
      ! flux_to_leaf (J_rl)
@@ -3394,7 +3399,8 @@ CONTAINS
   ! ----------------------------------------------------------------------------
 
   ! ----------------------------------------------------------------------------
-  SUBROUTINE calc_psi_stem_again(canopy, dels, Cs, Cl, transpiration, p50, i)
+  SUBROUTINE calc_psi_stem_again(canopy, dels, Cs, Cl, transpiration, p50, &
+                                 iveg, i)
      ! Calculate the stem water potential (MPa)
      !
      ! Reference:
@@ -3424,6 +3430,7 @@ CONTAINS
      REAL, INTENT(IN)    :: p50
      REAL, INTENT(IN)    :: transpiration ! mmol m-2 ground s-1
      INTEGER, INTENT(IN) :: i ! patch
+     INTEGER, INTENT(IN) :: iveg
 
      psi_stem_min = 2.0 * p50
 
@@ -3431,7 +3438,7 @@ CONTAINS
      leaf_capac = Cl * canopy%vlaiw(i)
 
      ! mmol MPa-1
-     stem_capac = Cs * scale_up_stem_capac(canopy%vlaiw(i))
+     stem_capac = Cs * scale_up_stem_capac(canopy%vlaiw(i), iveg)
 
      total_capac = stem_capac + leaf_capac
 
@@ -3459,7 +3466,7 @@ CONTAINS
   END SUBROUTINE calc_psi_stem_again
   ! ----------------------------------------------------------------------------
 
-  FUNCTION scale_up_stem_capac(lai) RESULT(capac_conv)
+  FUNCTION scale_up_stem_capac(lai, iveg) RESULT(capac_conv)
      ! Calculate relative plant conductance as a function of xylem pressure
      !
      ! References:
@@ -3477,8 +3484,10 @@ CONTAINS
 
      IMPLICIT NONE
 
-     REAL, INTENT(IN) :: lai ! m2 m-2
-     REAL             :: stem_capac, la_sa, height, sapwood_density, capac_conv
+     REAL, INTENT(IN)    :: lai ! m2 m-2
+     INTEGER, INTENT(IN) :: iveg
+     REAL                :: stem_capac, la_sa, height, sapwood_density
+     REAL                :: capac_conv
 
      ! We need to scale up the measurements to infer a total stem capacitance
      ! These assumption will *clearly* need to be improved!
@@ -3487,10 +3496,13 @@ CONTAINS
      ! and moisture so taking a rough average LA:SA
      la_sa = 5000.0 ! m2 m-2
 
-     ! We need a height and in the longterm we will use POP, but for now from
-     ! Simard et al. and sampling where Butt et al. say there are Eucs...we can
-     ! make an extremely horrible assumption that height is 20 m
-     height = 10.0 ! m
+     ! We need a height and in the long-term we will use POP, but for now from
+     ! Simard et al. and sampling where Butt et al. say there are Eucs...
+     IF (iveg .LE. 20) THEN ! RF, WSF, DSF
+        height = 20.0 ! m
+     ELSE
+        height = 10.0 ! m
+     ENDIF
 
      ! From Bowman we are taking a rough sapwood density (fig 5), which seems
      ! to agree with Xu et al.
