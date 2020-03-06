@@ -3504,6 +3504,8 @@ CONTAINS
       !  height = 10.0 ! m
      !ENDIF
 
+     ! Simard et al. and sampling where our 5 veg classes are
+     ! get_veg_class_heights.py
      IF (iveg .EQ. 18) THEN ! RF
         height = 32.0 ! m
      ELSE IF (iveg .EQ. 19) THEN ! WSF
