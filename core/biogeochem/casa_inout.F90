@@ -2585,7 +2585,7 @@ subroutine write_casa_output_nc(veg, casamet, casapool, casabal, casaflux, casao
   ! C
   status = nf90_put_var(file_id, vid2(1), real(casapool%cplant,sp),      start=(/1,1,cnt/), count=(/mp,mplant,1/))
   if(status /= nf90_noerr) call handle_err(status)
-  status = nf90_put_var(file_id, vid2(2), real(casaflux%fraccalloc,sp),  start=(/1,1,cnt/), count=(/mp,mplant,1/))
+  status = nf90_put_var(file_id, vid2(2), real(casaflux%fracCalloc,sp),  start=(/1,1,cnt/), count=(/mp,mplant,1/))
   if(status /= nf90_noerr) call handle_err(status)
   status = nf90_put_var(file_id, vid2(3), real(casaflux%kplant,sp),      start=(/1,1,cnt/), count=(/mp,mplant,1/))
   if(status /= nf90_noerr) call handle_err(status)

@@ -14,6 +14,7 @@ SUBROUTINE POP_IO( POP, casamet, YEAR, ACTION, CF )
   ! CLOSE_FILE : Flag to close file at the end of Episode (Episode only)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   USE netcdf
+  USE TypeDef, only: dp
   USE POP_constants
   USE POP_types
   USE CASAVARIABLE, only: casa_met, icycle
@@ -128,8 +129,8 @@ SUBROUTINE POP_IO( POP, casamet, YEAR, ACTION, CF )
   INTEGER, SAVE :: FILE_ID, EPI_CNT = 0
 
   ! TEMPORARY ARRAYS
-  INTEGER, ALLOCATABLE :: I1(:), I2(:,:), I3(:,:,:), I4(:,:,:,:)
-  REAL,    ALLOCATABLE :: R1(:), R2(:,:), R3(:,:,:), R4(:,:,:,:)
+  INTEGER,  ALLOCATABLE :: I1(:), I2(:,:), I3(:,:,:), I4(:,:,:,:)
+  REAL(dp), ALLOCATABLE :: R1(:), R2(:,:), R3(:,:,:), R4(:,:,:,:)
 
   mp = POP%np
 
@@ -437,7 +438,7 @@ SUBROUTINE POP_IO( POP, casamet, YEAR, ACTION, CF )
            IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
            DO i = 1, SIZE(AR0)
-              STATUS = NF90_def_var(FILE_ID,TRIM(AR0(i)), NF90_FLOAT, (/land_ID/), VIDR0(i))
+              STATUS = NF90_def_var(FILE_ID,TRIM(AR0(i)), NF90_DOUBLE, (/land_ID/), VIDR0(i))
               IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
            END DO
            DO i = 1, SIZE(AI0)
@@ -449,16 +450,16 @@ SUBROUTINE POP_IO( POP, casamet, YEAR, ACTION, CF )
               IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
            END DO
            DO i = 1, SIZE(AR1)
-              STATUS = NF90_def_var(FILE_ID,TRIM(AR1(i)), NF90_FLOAT, (/land_ID,t_ID/), VIDR1(i))
+              STATUS = NF90_def_var(FILE_ID,TRIM(AR1(i)), NF90_DOUBLE, (/land_ID,t_ID/), VIDR1(i))
               IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
            END DO
            DO i = 1, SIZE(AR2)
-              STATUS = NF90_def_var(FILE_ID,TRIM(AR2(i)), NF90_FLOAT, (/land_ID,nlay_ID,t_ID/), VIDR2(i))
+              STATUS = NF90_def_var(FILE_ID,TRIM(AR2(i)), NF90_DOUBLE, (/land_ID,nlay_ID,t_ID/), VIDR2(i))
               IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
            END DO
 
            DO i = 1, SIZE(AR3)
-              STATUS = NF90_def_var(FILE_ID,TRIM(AR3(i)), NF90_FLOAT, (/land_ID,hgtb_ID,t_ID/), VIDR3(i))
+              STATUS = NF90_def_var(FILE_ID,TRIM(AR3(i)), NF90_DOUBLE, (/land_ID,hgtb_ID,t_ID/), VIDR3(i))
               IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
            END DO
            DO i = 1, SIZE(AI4)
@@ -470,7 +471,7 @@ SUBROUTINE POP_IO( POP, casamet, YEAR, ACTION, CF )
               IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
            END DO
            DO i = 1, SIZE(AR5)
-              STATUS = NF90_def_var(FILE_ID,TRIM(AR5(i)), NF90_FLOAT, (/land_ID,patch_ID,t_ID/), VIDR5(i))
+              STATUS = NF90_def_var(FILE_ID,TRIM(AR5(i)), NF90_DOUBLE, (/land_ID,patch_ID,t_ID/), VIDR5(i))
               IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
            END DO
            DO i = 1, SIZE(AI7)
@@ -480,7 +481,7 @@ SUBROUTINE POP_IO( POP, casamet, YEAR, ACTION, CF )
            END DO
 
            DO i = 1, SIZE(AR7)
-              STATUS = NF90_def_var(FILE_ID,TRIM(AR7(i)), NF90_FLOAT, &
+              STATUS = NF90_def_var(FILE_ID,TRIM(AR7(i)), NF90_DOUBLE, &
                    (/land_ID,patch_ID,ndis_ID,t_ID/), VIDR7(i))
               IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
            END DO
@@ -490,7 +491,7 @@ SUBROUTINE POP_IO( POP, casamet, YEAR, ACTION, CF )
               IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
            END DO
            DO i = 1, SIZE(AR8)
-              STATUS = NF90_def_var(FILE_ID,TRIM(AR8(i)), NF90_FLOAT, &
+              STATUS = NF90_def_var(FILE_ID,TRIM(AR8(i)), NF90_DOUBLE, &
                    (/land_ID,patch_ID,nlay_ID,t_ID/), VIDR8(i))
               IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
            END DO
@@ -500,7 +501,7 @@ SUBROUTINE POP_IO( POP, casamet, YEAR, ACTION, CF )
               IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
            END DO
            DO i = 1, SIZE(AR9)
-              STATUS = NF90_def_var(FILE_ID,TRIM(AR9(i)), NF90_FLOAT, &
+              STATUS = NF90_def_var(FILE_ID,TRIM(AR9(i)), NF90_DOUBLE, &
                    (/land_ID,patch_ID,nlay_ID,ncoh_ID,t_ID/), VIDR9(i))
               IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
            END DO
@@ -510,11 +511,11 @@ SUBROUTINE POP_IO( POP, casamet, YEAR, ACTION, CF )
            IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
            ! PUT LAT / LON ( np )
-           STATUS = NF90_PUT_VAR(FILE_ID, VIDR0(1), REAL(casamet%lat(POP%Iwood)), &
+           STATUS = NF90_PUT_VAR(FILE_ID, VIDR0(1), casamet%lat(POP%Iwood), &
                 start=(/ 1 /), count=(/ mp /) )
            IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-           STATUS = NF90_PUT_VAR(FILE_ID, VIDR0(2), REAL(casamet%lon(POP%Iwood)), &
+           STATUS = NF90_PUT_VAR(FILE_ID, VIDR0(2), casamet%lon(POP%Iwood), &
                 start=(/ 1 /), count=(/ mp /) )
            IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
@@ -1522,9 +1523,6 @@ SUBROUTINE POP_IO( POP, casamet, YEAR, ACTION, CF )
                     POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%Cleaf= R4(m,p,l,:)
                  CASE( 19)
                     POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%Croot= R4(m,p,l,:)
-
-
-
                  CASE default
                     STOP "Parameter not assigned in pop_bios_io.f90!"
                  END SELECT

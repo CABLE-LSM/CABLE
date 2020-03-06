@@ -738,6 +738,7 @@ PROGRAM cable_offline_driver
                  SPINon   = .FALSE.
                  SPINconv = .FALSE.
               ELSEIF ( casaonly .AND. (.NOT. spincasa)) THEN
+                 write(*,*) 'EXT CASAONLY_LUC'
                  CALL CASAONLY_LUC(dels,kstart,kend,veg,soil,casabiome,casapool, &
                       casaflux,casamet,casabal,phen,POP,climate,LALLOC, LUC_EXPT, POPLUC, &
                       sum_casapool, sum_casaflux, c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc)
@@ -1002,11 +1003,11 @@ PROGRAM cable_offline_driver
 
                     !mpidiff
                     ! update time-aggregates of casa pools and fluxes
+                    count_sum_casa = count_sum_casa + 1
                     CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
-                         & .TRUE. , .FALSE., 1)
+                         .TRUE., .FALSE., count_sum_casa)
                     ! 13C
                     if (cable_user%c13o2) call c13o2_update_sum_pools(sum_c13o2pools, c13o2pools, .true., .false., 1)
-                    count_sum_casa = count_sum_casa + 1
                  ENDIF
 
                  IF ( ((MOD((ktau-kstart+1),ktauday)==0) .AND.  &
@@ -1055,11 +1056,12 @@ PROGRAM cable_offline_driver
                  
                  IF (CASA_TIME ) THEN
                     !mpidiff
-                    CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
-                         .FALSE., .TRUE., count_sum_casa)
+                    count_sum_casa = count_sum_casa + 1
+                    call update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
+                         .true., .true., count_sum_casa)
                     ! 13C
                     if (cable_user%c13o2) &
-                         call c13o2_update_sum_pools(sum_c13o2pools, c13o2pools, .false., .true., count_sum_casa)
+                         call c13o2_update_sum_pools(sum_c13o2pools, c13o2pools, .true., .true., count_sum_casa)
                     CALL WRITE_CASA_OUTPUT_NC (veg, casamet, sum_casapool, casabal, sum_casaflux, &
                          CASAONLY, ctime, ( ktau.EQ.kend .AND. YYYY .EQ. cable_user%YearEnd.AND. RRRR .EQ.NRRRR ) )
                     ! 13C
