@@ -3498,10 +3498,22 @@ CONTAINS
 
      ! We need a height and in the long-term we will use POP, but for now from
      ! Simard et al. and sampling where Butt et al. say there are Eucs...
-     IF (iveg .LE. 20) THEN ! RF, WSF, DSF
-        height = 20.0 ! m
-     ELSE
-        height = 10.0 ! m
+     !IF (iveg .LE. 20) THEN ! RF, WSF, DSF
+      !  height = 20.0 ! m
+     !ELSE
+      !  height = 10.0 ! m
+     !ENDIF
+
+     IF (iveg .EQ. 18) THEN ! RF
+        height = 32.0 ! m
+     ELSE IF (iveg .EQ. 19) THEN ! WSF
+        height = 29.0 ! m
+     ELSE IF (iveg .EQ. 20) THEN ! DSF
+        height = 25.0 ! m
+     ELSE IF (iveg .EQ. 21) THEN ! GRW
+        height = 11.0 ! m
+     ELSE IF (iveg .EQ. 22) THEN ! SAW
+        height = 7.0 ! m
      ENDIF
 
      ! From Bowman we are taking a rough sapwood density (fig 5), which seems
