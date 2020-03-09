@@ -580,6 +580,7 @@ CONTAINS
           write(str1,'(i4)') curyear
           str1 = adjustl(str1)
           timeunits="seconds since "//trim(str1)//"-01-01 00:00:00"
+          calendar = 'standard'
        endif
 
        ! Loop through simulation years
@@ -10071,6 +10072,7 @@ SUBROUTINE master_spincasacnp(dels, kstart, kend, mloop, veg, soil, casabiome, c
 
      write(cyear,fmt="(I4)") cable_user%casa_spin_startyear + nyear - 1
      ncfile = trim(casafile%c2cdumppath)//'c2c_'//cyear//'_dump.nc'
+     print*, 'dumpfile', ncfile
      ! 13C
      call read_casa_dump(ncfile, casamet, casaflux, phen, climate, c13o2flux, ktau, kend, .true.)
 

@@ -369,6 +369,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    ENDIF
    IF ( allATonce ) THEN
       DO idoy=1,mdyear
+         print*, 'in read_casa_dump - idoy: ', idoy
          CALL get_var_nc(ncrid, var_name(3),  tairk, idoy)
          CALL get_var_nc(ncrid, var_name(4),  tsoil, idoy, ms)
          CALL get_var_nc(ncrid, var_name(5),  moist, idoy, ms)

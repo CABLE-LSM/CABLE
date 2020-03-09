@@ -1121,7 +1121,7 @@ CONTAINS
 
     ENDDO
 
-
+ 
   END SUBROUTINE PatchAnnualDynamics
   !*******************************************************************************
   SUBROUTINE GetUniqueAgeFrequencies(pop, disturbance_interval, idisturb, it)
@@ -2647,17 +2647,22 @@ CONTAINS
             freq_age(iage)*crowd_mort_age(iage)
 
 
-       POP%pop_grid(g)%cat_mortality = POP%pop_grid(g)%growth - &
-            POP%pop_grid(g)%stress_mortality - &
-            POP%pop_grid(g)%crowding_mortality - &
-            ( POP%pop_grid(g)%cmass_sum- POP%pop_grid(g)%cmass_sum_old)
-
-       POP%pop_grid(g)%fire_mortality = 0.0_dp
-       POP%pop_grid(g)%res_mortality = 0.0_dp
+       
 
        pop%pop_grid(g)%biomass_age(iage) = cmass_age(iage)
 
     enddo
+
+    
+          POP%pop_grid(g)%cat_mortality = POP%pop_grid(g)%growth - &
+            POP%pop_grid(g)%stress_mortality - &
+            POP%pop_grid(g)%crowding_mortality - &
+            ( POP%pop_grid(g)%cmass_sum- POP%pop_grid(g)%cmass_sum_old)
+
+
+       POP%pop_grid(g)%fire_mortality = 0.0_dp
+       POP%pop_grid(g)%res_mortality = 0.0_dp
+    
 !!$if (g==4) then
 !!$   write(*,*) 'it, nage, growth', it, nage
 !!$write(*,*) 'patch biomass', pop%pop_grid(g)%patch(1:5)%layer(1)%biomass
@@ -2828,9 +2833,10 @@ CONTAINS
        POP%pop_grid(g)%fire_mortality =  POP%pop_grid(g)%fire_mortality + &
             freq_age(iage)*fire_mort_age(iage)
 
+     
 
     enddo
-
+    
     DEALLOCATE(age)
     DEALLOCATE(freq_age)
     DEALLOCATE(fire_mort_age)
@@ -2848,20 +2854,26 @@ CONTAINS
     TYPE( POP_TYPE ), INTENT(INOUT)  :: pop
     INTEGER(i4b), INTENT(IN)        ::  disturbance_interval(:,:)
     REAL(dp),  INTENT(IN)            :: burned_area(:), FLI(:)
-    INTEGER(i4b) :: g, np, c, k, i_table, it
+    INTEGER(i4b) :: g, np, c, k, i_table, it, nc
     REAL(dp):: height_table, mort, ht, cmass_stem, dbh
 
 
     np = SIZE(POP%POP_grid)
+    mort = 0.0
 
     DO g=1,np
        POP%pop_grid(g)%fire_mortality = 0.0_dp
+
+       
+       
        if (burned_area(g) > 0.0_dp) then
 
           it = maxval(pop%pop_grid(g)%patch(:)%age(1)) + 1
           DO k=1,NPATCH
+             nc = pop%pop_grid(g)%patch(k)%Layer(1)%ncohort
+             
              pop%pop_grid(g)%patch(k)%fire_mortality = 0.0_dp
-             DO c=1,pop%pop_grid(g)%patch(k)%Layer(1)%ncohort
+             DO c=1,nc
 !!$         ht = pop%pop_grid(g)%patch(k)%layer(1)%cohort(c)%height
 !!$         cmass_stem = pop%pop_grid(g)%patch(k)%layer(1)%cohort(c)%biomass
 !!$         height_table = MINVAL(ABS(fire_mortality_vs_height(g,:,1)-ht))
@@ -2874,8 +2886,6 @@ CONTAINS
 
                 mort = TopKill_Collins(dbh, FLI(g)) * burned_area(g)
 
-               ! write(55999,*) mort, dbh, FLI(g), burned_area(g)
-
                 pop%pop_grid(g)%patch(k)%fire_mortality = mort* &
                      pop%pop_grid(g)%patch(k)%Layer(1)%cohort(c)%biomass+ &
                      pop%pop_grid(g)%patch(k)%fire_mortality
@@ -2886,7 +2896,6 @@ CONTAINS
                 pop%pop_grid(g)%patch(k)%Layer(1)%cohort(c)%sapwood =  &
                      pop%pop_grid(g)%patch(k)%Layer(1)%cohort(c)%sapwood *(1._dp-mort)
                
-!write(55999,*) mort,  pop%pop_grid(g)%patch(k)%Layer(1)%cohort(c)%density, pop%pop_grid(g)%patch(k)%fire_top_kill_density 
                 pop%pop_grid(g)%patch(k)%fire_top_kill_density = &
                      pop%pop_grid(g)%patch(k)%fire_top_kill_density + &
                      pop%pop_grid(g)%patch(k)%Layer(1)%cohort(c)%density *mort
@@ -2894,24 +2903,32 @@ CONTAINS
                 pop%pop_grid(g)%patch(k)%Layer(1)%cohort(c)%density = &
                      pop%pop_grid(g)%patch(k)%Layer(1)%cohort(c)%density*(1._dp-mort)
 
-                pop%pop_grid(g)%patch(k)%fire_mortality = mort+ &
-                     pop%pop_grid(g)%patch(k)%fire_mortality
-
+               
              ENDDO
 
+             
+             nc = pop%pop_grid(g)%patch(k)%Layer(1)%ncohort
+             pop%pop_grid(g)%patch(k)%biomass_old =  pop%pop_grid(g)%patch(k)%Layer(1)%biomass
+             pop%pop_grid(g)%patch(k)%Layer(1)%biomass = &
+                  SUM(pop%pop_grid(g)%patch(k)%Layer(1)%cohort(1:nc)%biomass)
+             
              ! need to remove cohorts with very low density?
              ! This will get done at the end of the year anyway
-
+              
           ENDDO
+        
 
        ENDIF
        ! INTREPOLATE amongst patches to get total biomass lost to fire
        ! creates new value for  POP%pop_grid(g)%fire_mortality 
        CALL INTERPOLATE_FIREMORTALITY(pop, disturbance_interval,it,g)
+       
+       POP%pop_grid(g)%cmass_sum = POP%pop_grid(g)%cmass_sum - POP%pop_grid(g)%fire_mortality
+      
+              
 
-
-    ENDDO
-
+     ENDDO
+     
   END SUBROUTINE ADJUST_POP_FOR_FIRE
 !*******************************************************************************
 SUBROUTINE INTERPOLATE_BIOMASS_2D(pop, disturbance_interval,it,g)
