@@ -299,7 +299,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
  
  ! ==============================================================================
 
- SUBROUTINE read_casa_dump( ncfile, casamet, casaflux,phen, climate, c13o2flux, ncall, kend, allATonce )
+ subroutine read_casa_dump( ncfile, casamet, casaflux,phen, climate, c13o2flux, ncall, kend, allatonce )
 
    use netcdf
    use cable_def_types_mod, only: r_2, ms, mp, climate_type
@@ -307,7 +307,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    use casavariable,        only: casa_met, casa_flux
    use phenvariable
 #ifndef UM_BUILD
-   USE cable_diag_module,   ONLY: get_var_nc, stderr_nc
+   use cable_diag_module,   only: get_var_nc, stderr_nc
 #endif
    use cable_common_module, only: cable_user
    ! 13C
@@ -323,16 +323,16 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    type(c13o2_flux),    intent(inout) :: c13o2flux
    integer,             intent(in)    :: kend, ncall
    character(len=*),    intent(in)    :: ncfile
-   logical,             intent(in)    :: allATonce
+   logical,             intent(in)    :: allatonce
 
-   !netcdf IDs/ names
-   INTEGER, PARAMETER :: num_vars=17
-   INTEGER, PARAMETER :: num_dims=3
-   INTEGER, SAVE                        :: ncrid  ! netcdf file ID
-   INTEGER , DIMENSION(num_vars)        :: varrID ! (1) tvair, (2) pmb
+   !netcdf ids/ names
+   integer, parameter :: num_vars=17
+   integer, parameter :: num_dims=3
+   integer, save                        :: ncrid  ! netcdf file id
+   integer , dimension(num_vars)        :: varrid ! (1) tvair, (2) pmb
 
    !vars
-   CHARACTER(len=*), DIMENSION(num_vars), PARAMETER :: &
+   character(len=*), dimension(num_vars), parameter :: &
         var_name =  (/  "lat          ", &
         "lon          ", &
         "casamet_tairk", &
@@ -362,31 +362,31 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 
 #ifndef UM_BUILD
 
-   IF ( allATonce .OR. ncall .EQ. 1 ) THEN
-      ncok = NF90_OPEN(TRIM(ncfile), nf90_nowrite, ncrid)
+   if ( allatonce .or. ncall .eq. 1 ) then
+      ncok = nf90_open(trim(ncfile), nf90_nowrite, ncrid)
       ! print*, 'OOpen60 ', ncrid, TRIM(ncfile)
-      IF (ncok /= nf90_noerr ) CALL stderr_nc(ncok,'re-opening ', ncfile)
-   ENDIF
-   IF ( allATonce ) THEN
-      DO idoy=1,mdyear
+      if (ncok /= nf90_noerr ) call stderr_nc(ncok,'re-opening ', ncfile)
+   endif
+   if ( allatonce ) then
+      do idoy=1, mdyear
          print*, 'in read_casa_dump - idoy: ', idoy
-         CALL get_var_nc(ncrid, var_name(3),  tairk, idoy)
-         CALL get_var_nc(ncrid, var_name(4),  tsoil, idoy, ms)
-         CALL get_var_nc(ncrid, var_name(5),  moist, idoy, ms)
-         CALL get_var_nc(ncrid, var_name(6),  cgpp,  idoy)
-         CALL get_var_nc(ncrid, var_name(7),  crmplant,  idoy, mplant)
-         CALL get_var_nc(ncrid, var_name(8),  phenphase, idoy)
-         CALL get_var_nc(ncrid, var_name(9),  phendoyphase1, idoy)
-         CALL get_var_nc(ncrid, var_name(10), phendoyphase2, idoy)
-         CALL get_var_nc(ncrid, var_name(11), phendoyphase3, idoy)
-         CALL get_var_nc(ncrid, var_name(12), phendoyphase4, idoy)
-         CALL get_var_nc(ncrid, var_name(13), mtemp, idoy)
-         if (icycle>1) CALL get_var_nc(ncrid, var_name(14), Ndep, idoy)
-         if (icycle>2) CALL get_var_nc(ncrid, var_name(15), Pdep, idoy)
+         call get_var_nc(ncrid, var_name(3),  tairk, idoy)
+         call get_var_nc(ncrid, var_name(4),  tsoil, idoy, ms)
+         call get_var_nc(ncrid, var_name(5),  moist, idoy, ms)
+         call get_var_nc(ncrid, var_name(6),  cgpp,  idoy)
+         call get_var_nc(ncrid, var_name(7),  crmplant,  idoy, mplant)
+         call get_var_nc(ncrid, var_name(8),  phenphase, idoy)
+         call get_var_nc(ncrid, var_name(9),  phendoyphase1, idoy)
+         call get_var_nc(ncrid, var_name(10), phendoyphase2, idoy)
+         call get_var_nc(ncrid, var_name(11), phendoyphase3, idoy)
+         call get_var_nc(ncrid, var_name(12), phendoyphase4, idoy)
+         call get_var_nc(ncrid, var_name(13), mtemp, idoy)
+         if (icycle>1) call get_var_nc(ncrid, var_name(14), Ndep, idoy)
+         if (icycle>2) call get_var_nc(ncrid, var_name(15), Pdep, idoy)
          ! 13C
          if (cable_user%c13o2) then
-            CALL get_var_nc(ncrid, var_name(16), cAn12, idoy)
-            CALL get_var_nc(ncrid, var_name(17), cAn13, idoy)
+            call get_var_nc(ncrid, var_name(16), cAn12, idoy)
+            call get_var_nc(ncrid, var_name(17), cAn13, idoy)
          endif
 
          casamet%Tairkspin(:,idoy) = tairk
@@ -419,26 +419,26 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
             casamet%cAn12spin(:,idoy) = cAn12
             casamet%cAn13spin(:,idoy) = cAn13
          endif
-      END DO
-   ELSE
+      end do
+   else
 
-      CALL get_var_nc(ncrid, var_name(3), tairk   ,ncall )
-      CALL get_var_nc(ncrid, var_name(4), tsoil   ,ncall , ms)
-      CALL get_var_nc(ncrid, var_name(5), moist   ,ncall , ms)
-      CALL get_var_nc(ncrid, var_name(6), cgpp    ,ncall )
-      CALL get_var_nc(ncrid, var_name(7), crmplant,ncall , mplant)
-      CALL get_var_nc(ncrid, var_name(8), phenphase    ,ncall )
-      CALL get_var_nc(ncrid, var_name(9), phendoyphase1    ,ncall )
-      CALL get_var_nc(ncrid, var_name(10), phendoyphase2    ,ncall )
-      CALL get_var_nc(ncrid, var_name(11), phendoyphase3    ,ncall )
-      CALL get_var_nc(ncrid, var_name(12), phendoyphase4    ,ncall )
-      CALL get_var_nc(ncrid, var_name(13), mtemp   , ncall )
+      call get_var_nc(ncrid, var_name(3), tairk   ,ncall )
+      call get_var_nc(ncrid, var_name(4), tsoil   ,ncall , ms)
+      call get_var_nc(ncrid, var_name(5), moist   ,ncall , ms)
+      call get_var_nc(ncrid, var_name(6), cgpp    ,ncall )
+      call get_var_nc(ncrid, var_name(7), crmplant,ncall , mplant)
+      call get_var_nc(ncrid, var_name(8), phenphase    ,ncall )
+      call get_var_nc(ncrid, var_name(9), phendoyphase1    ,ncall )
+      call get_var_nc(ncrid, var_name(10), phendoyphase2    ,ncall )
+      call get_var_nc(ncrid, var_name(11), phendoyphase3    ,ncall )
+      call get_var_nc(ncrid, var_name(12), phendoyphase4    ,ncall )
+      call get_var_nc(ncrid, var_name(13), mtemp   , ncall )
       if (icycle>1) CALL get_var_nc(ncrid, var_name(14), Ndep, ncall)
       if (icycle>2) CALL get_var_nc(ncrid, var_name(15), Pdep, ncall)
       ! 13C
       if (cable_user%c13o2) then
-         CALL get_var_nc(ncrid, var_name(16), cAn12, ncall)
-         CALL get_var_nc(ncrid, var_name(17), cAn13, ncall)
+         call get_var_nc(ncrid, var_name(16), cAn12, ncall)
+         call get_var_nc(ncrid, var_name(17), cAn13, ncall)
       endif
 
       casamet%tairk     = tairk
@@ -459,17 +459,17 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
          c13o2flux%cAn12 = cAn12
          c13o2flux%cAn   = cAn13
       endif
-   ENDIF
+   endif
 
-   IF ( allATonce .OR. ncall .EQ. kend ) THEN
+   if ( allatonce .or. ncall .eq. kend ) then
       ! print*, 'OClose60 ', ncrid
-      ncok = NF90_CLOSE(ncrid)
+      ncok = nf90_close(ncrid)
       ncrid = -1
-      IF (ncok /= nf90_noerr ) CALL stderr_nc(ncok,'closing ', ncfile)
-   ENDIF
+      if (ncok /= nf90_noerr ) call stderr_nc(ncok,'closing ', ncfile)
+   endif
 #endif
 
- END SUBROUTINE read_casa_dump
+ end subroutine read_casa_dump
 
 
  SUBROUTINE write_casa_dump( ncfile, casamet, casaflux, phen, climate, c13o2flux, n_call, kend )

@@ -314,16 +314,16 @@ PROGRAM cable_offline_driver
   ! END header
 
   ! Open, read and close the namelist file.
-  OPEN( 10, FILE = CABLE_NAMELIST )
-  READ( 10, NML=CABLE )   !where NML=CABLE defined above
+  OPEN(10, FILE = CABLE_NAMELIST)
+  READ(10, NML=CABLE)   !where NML=CABLE defined above
   CLOSE(10)
 
   ! Open, read and close the consistency check file.
   ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
   IF (cable_user%consistency_check) THEN
-     OPEN( 11, FILE = Ftrunk_sumbal,STATUS='old',ACTION='READ',IOSTAT=ioerror )
+     OPEN(11, FILE = Ftrunk_sumbal,STATUS='old',ACTION='READ',IOSTAT=ioerror)
      IF (ioerror==0) THEN
-        READ( 11, * ) trunk_sumbal  ! written by previous trunk version
+        READ(11,*) trunk_sumbal  ! written by previous trunk version
      ENDIF
      CLOSE(11)
   ENDIF
@@ -331,19 +331,19 @@ PROGRAM cable_offline_driver
   ! Open log file:
   OPEN(logn,FILE=filename%log)
 
-  CALL report_version_no( logn )
+  CALL report_version_no(logn)
 
-  IF( IARGC() > 0 ) THEN
+  IF (IARGC() > 0) THEN
      CALL GETARG(1, filename%met)
      CALL GETARG(2, casafile%cnpipool)
   ENDIF
 
   ! INITIALISATION depending on nml settings
   IF (TRIM(cable_user%MetType) .EQ. 'gswp') THEN
-     IF ( CABLE_USER%YearStart.eq.0 .and. ncciy.gt.0) THEN
+     IF ((CABLE_USER%YearStart.eq.0) .and. (ncciy.gt.0)) THEN
         CABLE_USER%YearStart = ncciy
         CABLE_USER%YearEnd = ncciy
-     ELSEIF  ( CABLE_USER%YearStart.eq.0 .and. ncciy.eq.0) THEN
+     ELSEIF ((CABLE_USER%YearStart.eq.0) .and. (ncciy.eq.0)) THEN
         write(*,*) 'undefined start year for gswp met: '
         write(*,*) 'enter value for ncciy or'
         write(*,*) '(CABLE_USER%YearStart and  CABLE_USER%YearEnd) in cable.nml'
@@ -358,12 +358,12 @@ PROGRAM cable_offline_driver
 
   CurYear = CABLE_USER%YearStart
 
-  IF ( icycle .GE. 11 ) THEN
+  IF (icycle .GE. 11) THEN
      icycle                     = icycle - 10
      CASAONLY                   = .TRUE.
      CABLE_USER%CASA_DUMP_READ  = .TRUE.
      CABLE_USER%CASA_DUMP_WRITE = .FALSE.
-  ELSEIF ( icycle .EQ. 0 ) THEN
+  ELSEIF (icycle .EQ. 0) THEN
      CABLE_USER%CASA_DUMP_READ  = .FALSE.
      spincasa                   = .FALSE.
      !! vh_js !!
@@ -393,7 +393,7 @@ PROGRAM cable_offline_driver
   !    ENDIF
   ! ENDIF
 
-  IF ( TRIM(cable_user%MetType) .EQ. 'gpgs' ) THEN
+  IF (TRIM(cable_user%MetType) .EQ. 'gpgs') THEN
      leaps = .TRUE.
      calendar = "standard"
      cable_user%MetType = 'gswp'
@@ -404,16 +404,16 @@ PROGRAM cable_offline_driver
   ! associate pointers used locally with global definitions
   CALL point2constants(C)
 
-  IF( l_casacnp  .AND. ( icycle == 0 .OR. icycle > 3 ) )                   &
+  IF (l_casacnp  .AND. ((icycle == 0) .OR. (icycle > 3))) &
        STOP 'icycle must be 1 to 3 when using casaCNP'
-  !IF( ( l_laiFeedbk .OR. l_vcmaxFeedbk ) )       &
-  !   STOP 'casaCNP required to get prognostic LAI or Vcmax'
-  IF( l_vcmaxFeedbk .AND. icycle < 1 )                                     &
+  ! IF( ( l_laiFeedbk .OR. l_vcmaxFeedbk ) )       &
+  !    STOP 'casaCNP required to get prognostic LAI or Vcmax'
+  IF (l_vcmaxFeedbk .AND. (icycle < 1)) &
        STOP 'icycle must be 2 to 3 to get prognostic Vcmax'
-  IF( icycle > 0 .AND. ( .NOT. soilparmnew ) )                             &
+  IF ((icycle > 0) .AND. (.NOT. soilparmnew)) &
        STOP 'casaCNP must use new soil parameters'
 
-  NRRRR = MERGE(MAX(CABLE_USER%CASA_NREP,1), 1, CASAONLY)
+  NRRRR = MERGE(MAX(CABLE_USER%CASA_NREP, 1), 1, CASAONLY)
   ! casa time count
   ctime = 0
 
@@ -427,15 +427,15 @@ PROGRAM cable_offline_driver
   !      TRIM(cable_user%MetType) .NE. "gpgs" .AND. &
   !      TRIM(cable_user%MetType) .NE. "plum" .AND. &
   !      TRIM(cable_user%MetType) .NE. "cru") THEN
-  IF (TRIM(cable_user%MetType) .EQ. 'site' .OR. &
-       TRIM(cable_user%MetType) .EQ. '') THEN
+  IF ((TRIM(cable_user%MetType) .EQ. 'site') .OR. &
+       (TRIM(cable_user%MetType) .EQ. '')) THEN
      CALL open_met_file( dels, koffset, kend, spinup, C%TFRZ )
-     IF ( koffset .NE. 0 .AND. CABLE_USER%CALL_POP ) THEN
+     IF ((koffset .NE. 0) .AND. CABLE_USER%CALL_POP) THEN
         WRITE(*,*) "When using POP, episode must start at Jan 1st!"
         STOP 991
      ENDIF
-  ELSE IF ( NRRRR .GT. 1 ) THEN
-     IF(.NOT.ALLOCATED(GSWP_MID)) ALLOCATE( GSWP_MID( 8, CABLE_USER%YearStart:CABLE_USER%YearEnd ) )
+  ELSE IF (NRRRR .GT. 1) THEN
+     IF (.NOT. ALLOCATED(GSWP_MID)) ALLOCATE(GSWP_MID(8, CABLE_USER%YearStart:CABLE_USER%YearEnd))
   ENDIF
 
   ! 13C
@@ -464,14 +464,14 @@ PROGRAM cable_offline_driver
   endif
 
   ! outer loop - spinup loop no. ktau_tot :
-  RYEAR = 0
+  RYEAR    = 0
   ktau_tot = 0
   SPINon   = .TRUE.
   ! YearStart = CABLE_USER%YearStart
-  ! YearEnd = CABLE_USER%YearEnd
+  ! YearEnd   = CABLE_USER%YearEnd
   ! cable_user%CASA_SPIN_ENDYEAR
 
-  SPINLOOP:DO WHILE ( SPINon )
+  SPINLOOP: DO WHILE (SPINon)
 
      NREP: DO RRRR = 1, NRRRR
         IF (TRIM(cable_user%MetType) .EQ. "bios") THEN
@@ -729,7 +729,6 @@ PROGRAM cable_offline_driver
 
               ! additional params needed for BLAZE
               if ( trim(cable_user%MetType) .eq. 'bios' ) call cable_bios_load_climate_params(climate)
-
 
               IF ((icycle>0) .AND. spincasa) THEN
                  write(*,*) 'EXT spincasacnp enabled with mloop=', mloop

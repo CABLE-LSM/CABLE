@@ -329,6 +329,9 @@ END SUBROUTINE cable_diag_data1
     
   end subroutine def_var_atts
 
+  
+  ! ------------------------------------------------------------------
+  ! put_var_nc
 
   subroutine put_var_ncr1(ncid, var_name, var)
     use netcdf
@@ -384,50 +387,60 @@ END SUBROUTINE cable_diag_data1
 
   end subroutine put_var_ncr3
 
+  
+  ! ------------------------------------------------------------------
+  ! get_var_nc
 
-  subroutine get_var_ncr2(ncid, var_name, var, n_call )
-    use netcdf
-    use cable_def_types_mod, only : r_2,mp
+  subroutine get_var_ncr2(ncid, var_name, var, n_call)
+    
+    use netcdf,              only: nf90_inq_varid, nf90_noerr, nf90_get_var
+    use cable_def_types_mod, only: r_2,mp
+    
     implicit none
-    character(len=*), intent(in) :: var_name
-    real(r_2), dimension(:),intent(out) :: var
-    integer, intent(in) :: ncid
-    integer :: ncok, varID, n_call
-    real, dimension(mp) :: temp
+    
+    integer,                 intent(in)  :: ncid
+    character(len=*),        intent(in)  :: var_name
+    real(r_2), dimension(:), intent(out) :: var
+    integer,                 intent(in)  :: n_call
+    
+    integer :: ncok, varID
 
-    temp = 0.
+    ncok = NF90_INQ_VARID(ncid, var_name, varId)
+    if (ncok /= nf90_noerr ) call stderr_nc(ncok, 'inquire var ', var_name)
 
-    ncok = NF90_INQ_VARID(ncid, var_name, varId )
-    if (ncok /= nf90_noerr ) call stderr_nc(ncok,'inquire var ', var_name)
+    ncok = NF90_GET_VAR(ncid, varId, var, start=(/1,n_call/), count=(/mp,1/) )
 
-    ncok = NF90_GET_VAR(ncid, varId, temp, start=(/1,n_call/), &
-         count=(/mp,1/) )
-
-    if (ncok /= nf90_noerr ) call stderr_nc(ncok,'getting var ', var_name)
-
-    var = real( temp, r_2 )
+    if (ncok /= nf90_noerr ) call stderr_nc(ncok, 'getting var ', var_name)
+    
   end subroutine get_var_ncr2
 
-  subroutine get_var_ncr3(ncid, var_name, var, n_call, nl )
-    use netcdf
+  
+  subroutine get_var_ncr3(ncid, var_name, var, n_call, nl)
+
+    use netcdf,              only: nf90_inq_varid, nf90_noerr, nf90_get_var
     use cable_def_types_mod, only : r_2, mp, ms
+    
     implicit none
-    character(len=*), intent(in) :: var_name
-    real(r_2), dimension(:,:),intent(out) :: var
-    integer, intent(in) :: ncid, n_call, nl
+    
+    integer,                   intent(in)  :: ncid
+    character(len=*),          intent(in)  :: var_name
+    real(r_2), dimension(:,:), intent(out) :: var
+    integer,                   intent(in)  :: n_call
+    integer,                   intent(in)  :: nl
+    
     integer :: ncok, varID
-    real, dimension(mp,1:nl) :: temp
 
-    ncok = NF90_INQ_VARID(ncid, var_name, varId )
-    if (ncok /= nf90_noerr ) call stderr_nc(ncok,'inquire var ', var_name)
+    ncok = nf90_inq_varid(ncid, var_name, varid)
+    if (ncok /= nf90_noerr ) call stderr_nc(ncok, 'inquire var ', var_name)
 
-    ncok = NF90_GET_VAR(ncid, varId, temp, start=(/1,1,n_call /), &
-         count=(/mp, nl, 1/))
+    ncok = nf90_get_var(ncid, varid, var, start=(/1,1,n_call /), count=(/mp, nl, 1/))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'putting var ', var_name)
-    var = real( temp, r_2 )
+
   end subroutine get_var_ncr3
 
-
+  
+  ! ------------------------------------------------------------------
+  ! netCDF error handling
 
   subroutine stderr_nc(status,message, var)
     use netcdf
@@ -440,18 +453,20 @@ END SUBROUTINE cable_diag_data1
     stop
   end subroutine stderr_nc
 #endif
-!==========================================================================!
-!--- cable generic print status
-!==========================================================================!
 
-SUBROUTINE cable_stat( routname)
-   use cable_common_module, only : ktau_gl, knode_gl
+  
+  ! ------------------------------------------------------------------
+  ! cable generic print status
 
-   character(len=*), intent(in) :: routname
-      if(knode_gl==1) &
-         write(6,*) 'CABLE@  ', routname, ktau_gl
+  subroutine cable_stat(routname)
+    
+    use cable_common_module, only : ktau_gl, knode_gl
 
-END SUBROUTINE cable_stat
+    character(len=*), intent(in) :: routname
+    
+    if (knode_gl==1) write(6,*) 'CABLE@  ', routname, ktau_gl
+
+  end subroutine cable_stat
 
 
 END MODULE cable_diag_module
