@@ -823,12 +823,9 @@ CONTAINS
 ! convert latitude and longitude to array
   ALLOCATE (lat_all(MaskCols,MaskRows))
   ALLOCATE (lon_all(MaskCols,MaskRows))
-  lat_all = UNPACK(latitude,mask=LandMaskLogical,field=-9999.)
-  lon_all = UNPACK(longitude,mask=LandMaskLogical,field=-9999.)
   
-! Finished reading grids. Only mland vectors from now on.
-  DEALLOCATE (ColRowGrid)
-  DEALLOCATE (LandMaskLogical)
+  
+!
   
 ! Using the landmask grid boundaries and dimensions, translate the land  
 ! cell cols and rows of land_x and land_y into corresponding lats and longs.
@@ -837,7 +834,14 @@ CONTAINS
   DO iLand = 1,mland
     longitude(iLand) = MaskRes * real((land_x(iLand) - 1)) + MaskCtrW
     latitude(iLand) = MaskCtrS + (real(MaskRows - land_y(iLand)) * MaskRes)
-  END DO
+ END DO
+
+  lat_all = UNPACK(latitude,mask=LandMaskLogical,field=-9999.)
+  lon_all = UNPACK(longitude,mask=LandMaskLogical,field=-9999.)
+
+  !Finished reading grids. Only mland vectors from now on.
+  DEALLOCATE (ColRowGrid)
+  DEALLOCATE (LandMaskLogical)
 
 ! If this is the first ever initialisation, open the met files, sort
 ! out the run's date range with respect to the available met data,

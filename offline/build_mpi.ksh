@@ -86,7 +86,7 @@ host_pear()
     #export CFLAGS='-O0 -fp-model precise -g -debug -traceback -fpp '
     export CFLAGS="${CFLAGS} -D__CRU2018__"
     #   export CFLAGS='-O0 -fp-model precise -g -debug all -traceback -fpe0 '
-    #   export CFLAGS='  -g -debug -traceback -fp-stack-check -O0 -debug -fpe0 -no-ftz -ftrapuv'
+       export CFLAGS='  -g -debug -traceback -fp-stack-check -O0 -debug -fpe0 -no-ftz -ftrapuv'
 
     # best debug flags
     #   export LDFLAGS='-g -L'$NCDIR  #'-L'$NCDIR' -O2'
