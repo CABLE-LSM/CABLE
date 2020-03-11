@@ -1094,11 +1094,13 @@ CONTAINS
                       !call MPI_Waitall(wnp, recv_req, recv_stats, ierr)
                    endif
 
-                   if ( mod((oktau-kstart+1+koffset),ktauday).eq.0 ) then
-                     !par recv blaze_out_ts
-                     call master_receive(ocomm, oktau, blaze_out_ts)
-                     BLAZE%time =  BLAZE%time + 86400
-                     call write_blaze_output_nc( BLAZE, ktau.EQ.kend .AND. YYYY.EQ.cable_user%YearEnd)
+                   if (cable_user%call_blaze) then
+                     if ( mod((oktau-kstart+1+koffset),ktauday).eq.0 ) then
+                       !par recv blaze_out_ts
+                       call master_receive(ocomm, oktau, blaze_out_ts)
+                       BLAZE%time =  BLAZE%time + 86400
+                       call write_blaze_output_nc( BLAZE, ktau.EQ.kend .AND. YYYY.EQ.cable_user%YearEnd)
+                     endif
                    endif
 
                    ! write(*,*) 'after master_receive casa_ts waitall'
@@ -1326,10 +1328,12 @@ CONTAINS
                    ! print*, 'MASTER Receive 39 c13o2_pool'
                    call master_receive(ocomm, oktau, c13o2_pool_ts)
                 endif
-                !par recv blaze_out_ts
-                call master_receive(ocomm, oktau, blaze_out_ts)
-                BLAZE%time =  BLAZE%time + 86400
-                call write_blaze_output_nc( BLAZE, ktau.EQ.kend .AND. YYYY.EQ.cable_user%YearEnd)
+                if (cable_user%call_blaze) then
+                  !par recv blaze_out_ts
+                  call master_receive(ocomm, oktau, blaze_out_ts)
+                  BLAZE%time =  BLAZE%time + 86400
+                  call write_blaze_output_nc( BLAZE, ktau.EQ.kend .AND. YYYY.EQ.cable_user%YearEnd)
+                end if
                 ! CALL MPI_Waitall(wnp, recv_req, recv_stats, ierr)
                 IF ( ((.NOT.spinup) .OR. (spinup.AND.spinConv)) .AND. &
                      IS_CASA_TIME("dwrit", yyyy, oktau, kstart, &
@@ -1602,9 +1606,11 @@ CONTAINS
           call master_receive(ocomm, ktau_gl, c13o2_flux_ts)
           ! print*, 'MASTER Receive 51 c13o2_pool'
           call master_receive(ocomm, ktau_gl, c13o2_pool_ts)
-      endif
-       !par recv blaze_out_ts
-       call master_receive(ocomm, ktau_gl, blaze_out_ts)
+       endif
+       if (cable_user%call_blaze) then
+         !par recv blaze_out_ts
+         call master_receive(ocomm, ktau_gl, blaze_out_ts)
+       end if
 
        ! CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
        ! CALL casa_poolout( ktau, veg, soil, casabiome, &

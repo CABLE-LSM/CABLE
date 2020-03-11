@@ -1097,8 +1097,10 @@ CONTAINS
           ! print*, 'WORKER Send 51 c13o2_pool'
           call MPI_Send(MPI_BOTTOM, 1, c13o2_pool_t, 0, ktau_gl, ocomm, ierr)
        endif
-       !par send blaze_out back
-       CALL MPI_Send(MPI_BOTTOM, 1, blaze_out_t, 0, ktau_gl, ocomm, ierr)
+       if (cable_user%call_blaze) then
+         !par send blaze_out back
+         CALL MPI_Send(MPI_BOTTOM, 1, blaze_out_t, 0, ktau_gl, ocomm, ierr)
+       end if
 
        ! MPI: output file written by master only
        !CALL casa_poolout( ktau, veg, soil, casabiome,                           &
