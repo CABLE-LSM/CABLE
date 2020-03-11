@@ -1,5 +1,5 @@
 SUBROUTINE POP_IO( POP, casamet, YEAR, ACTION, CF )
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! POP        : POP structure containing all specific parameter
   ! casamet    : structure containing met and grid specific parameters from CASA
   ! YEAR       : Current year <YYYY>
@@ -9,7 +9,7 @@ SUBROUTINE POP_IO( POP, casamet, YEAR, ACTION, CF )
   !              "WRITE_RST" : Write a restart file for YEAR+1
   !              "WRITE_EPI" : Write data at the end of each year
   ! CLOSE_FILE : Flag to close file at the end of Episode (Episode only)
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   USE netcdf
   USE TypeDef, only: dp
   USE POP_constants

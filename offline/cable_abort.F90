@@ -142,11 +142,10 @@ END SUBROUTINE nc_abort
 
 
 
-SUBROUTINE range_abort(message,ktau,met,value,var_range,                       &
-                       i,xx,yy)
+SUBROUTINE range_abort(message, ktau, met, value, var_range, i, xx, yy)
 
-   USE cable_def_types_mod, ONLY: met_type
-   USE cable_IO_vars_module, ONLY: latitude,longitude,landpt,lat_all,lon_all
+   USE cable_def_types_mod,  ONLY: met_type
+   USE cable_IO_vars_module, ONLY: latitude, longitude, landpt, lat_all, lon_all
 
    ! Input arguments
    CHARACTER(LEN=*), INTENT(IN) :: message

@@ -669,6 +669,7 @@ PROGRAM cable_offline_driver
                    casamet, casabal, phen, POP, spinup,               &
                    C%EMSOIL, C%TFRZ, LUC_EXPT, POPLUC, BLAZE, SIMFIRE, &
                    c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc)
+              ! print*, 'CD01   ', casamet%glai
               ! 13C
               if (cable_user%c13o2) then
                  allocate(gpp(size(canopy%An,1),size(canopy%An,2)))
@@ -734,6 +735,7 @@ PROGRAM cable_offline_driver
                  write(*,*) 'EXT spincasacnp enabled with mloop=', mloop
                  CALL spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
                       casaflux,casamet,casabal,phen,POP,climate,LALLOC, c13o2flux, c13o2pools)
+                 ! print*, 'CD02   ', casamet%glai
                  SPINon   = .FALSE.
                  SPINconv = .FALSE.
               ELSEIF ( casaonly .AND. (.NOT. spincasa)) THEN
@@ -741,6 +743,7 @@ PROGRAM cable_offline_driver
                  CALL CASAONLY_LUC(dels,kstart,kend,veg,soil,casabiome,casapool, &
                       casaflux,casamet,casabal,phen,POP,climate,LALLOC, LUC_EXPT, POPLUC, &
                       sum_casapool, sum_casaflux, c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc)
+                 ! print*, 'CD03   ', casamet%glai
                  SPINon   = .FALSE.
                  SPINconv = .FALSE.
                  ktau     = kend
@@ -982,6 +985,7 @@ PROGRAM cable_offline_driver
                       phen, pop, spinConv, spinup, ktauday, idoy, loy, &
                       CABLE_USER%CASA_DUMP_READ, CABLE_USER%CASA_DUMP_WRITE, &
                       LALLOC, c13o2flux, c13o2pools )
+                 ! print*, 'CD06 ', ktau, YYYY, casamet%glai
 
                  IF(MOD((ktau-kstart+1),ktauday)==0) THEN ! end of day
 
@@ -990,6 +994,7 @@ PROGRAM cable_offline_driver
 
                        call blaze_driver(blaze%ncells,blaze, simfire, casapool, casaflux, &
                             casamet, climate, real(shootfrac), idoy, YYYY, 1, POP, veg)
+                       ! print*, 'CD07   ', casamet%glai
 
                        call write_blaze_output_nc( BLAZE, ktau.EQ.kend .AND. YYYY.EQ.cable_user%YearEnd)
                     ENDIF
@@ -1517,14 +1522,14 @@ SUBROUTINE LUCdriver( casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg,
   CALL READ_LUH2(LUC_EXPT)
 
   DO k=1,mland
-     POPLUC%ptos(k)   = LUC_EXPT%INPUT(ptos)%VAL(k)
-     POPLUC%ptog(k)   = LUC_EXPT%INPUT(ptog)%VAL(k)
-     POPLUC%stog(k)   = LUC_EXPT%INPUT(stog)%VAL(k)
+     POPLUC%ptos(k)   = real(LUC_EXPT%INPUT(ptos)%VAL(k),r_2)
+     POPLUC%ptog(k)   = real(LUC_EXPT%INPUT(ptog)%VAL(k),r_2)
+     POPLUC%stog(k)   = real(LUC_EXPT%INPUT(stog)%VAL(k),r_2)
      POPLUC%gtop(k)   = 0.0_r_2
-     POPLUC%gtos(k)   = LUC_EXPT%INPUT(gtos)%VAL(k)
-     POPLUC%pharv(k)  = LUC_EXPT%INPUT(pharv)%VAL(k)
-     POPLUC%smharv(k) = LUC_EXPT%INPUT(smharv)%VAL(k)
-     POPLUC%syharv(k) = LUC_EXPT%INPUT(syharv)%VAL(k)
+     POPLUC%gtos(k)   = real(LUC_EXPT%INPUT(gtos)%VAL(k),r_2)
+     POPLUC%pharv(k)  = real(LUC_EXPT%INPUT(pharv)%VAL(k),r_2)
+     POPLUC%smharv(k) = real(LUC_EXPT%INPUT(smharv)%VAL(k),r_2)
+     POPLUC%syharv(k) = real(LUC_EXPT%INPUT(syharv)%VAL(k),r_2)
      POPLUC%thisyear  = yyyy
   ENDDO
 

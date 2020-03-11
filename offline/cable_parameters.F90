@@ -1620,8 +1620,8 @@ CONTAINS
       casamet%isorder(landpt(ee)%cstart:landpt(ee)%cend) =                     &
                                        inSorder(landpt(ee)%ilon,landpt(ee)%ilat)
       DO hh = landpt(ee)%cstart, landpt(ee)%cend  ! each patch in current grid
-        casamet%lon(hh) = patch(hh)%longitude
-        casamet%lat(hh) = patch(hh)%latitude
+        casamet%lon(hh) = real(patch(hh)%longitude, r_2)
+        casamet%lat(hh) = real(patch(hh)%latitude, r_2)
         ! MC - casamet%areacell should also be r_2 but it is not really used except for output in single precision
         casamet%areacell(hh) = real(patch(hh)%frac)                            &
                                * inArea(landpt(ee)%ilon, landpt(ee)%ilat)

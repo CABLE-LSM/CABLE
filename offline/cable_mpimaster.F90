@@ -650,11 +650,11 @@ CONTAINS
                 !     READ_LUC_RESTART_NC is called in POPLUC_init, which is called in load_parameters
                 IF (trim(cable_user%POPLUC_RunType) .EQ. 'restart') THEN
                    CALL READ_LUC_RESTART_NC(POPLUC)
-                   LUC_EXPT%grass    = POPLUC%grass
+                   LUC_EXPT%grass    = real(POPLUC%grass)
                    LUC_EXPT%primaryf = real(min(POPLUC%primf, 1.0_r_2-POPLUC%grass))
                    LUC_EXPT%secdf    = max((1.0 -  LUC_EXPT%grass - LUC_EXPT%primaryf), 0.0)
-                   LUC_EXPT%crop     = real(max(min( POPLUC%crop, POPLUC%grass),0.0_r_2))
-                   LUC_EXPT%past     = max( min(LUC_EXPT%grass - LUC_EXPT%crop, real(POPLUC%past)), 0.0)
+                   LUC_EXPT%crop     = real(max(min(POPLUC%crop, POPLUC%grass), 0.0_r_2))
+                   LUC_EXPT%past     = max(min(LUC_EXPT%grass - LUC_EXPT%crop, real(POPLUC%past)), 0.0)
                 ENDIF
              ENDIF
 
@@ -666,6 +666,7 @@ CONTAINS
                   casamet, casabal, phen, POP, spinup, &
                   C%EMSOIL, C%TFRZ, LUC_EXPT, POPLUC, BLAZE, SIMFIRE, &
                   c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc)
+             ! print*, 'CD01   ', casamet%glai
              ! 13C
              if (cable_user%c13o2) then
                 allocate(casasave(c13o2pools%ntile,c13o2pools%npools))
@@ -882,6 +883,7 @@ CONTAINS
                 CALL master_spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
                      casaflux,casamet,casabal,phen,POP,climate,LALLOC, &
                      c13o2flux, c13o2pools, c13o2luc, icomm, ocomm)
+                ! print*, 'CD02   ', casamet%glai
                 SPINconv = .FALSE.
                 CASAONLY = .TRUE.
                 ktau_gl  = 0
@@ -892,6 +894,7 @@ CONTAINS
                 CALL master_CASAONLY_LUC(dels,kstart,kend,veg,soil,casabiome,casapool, &
                      casaflux,casamet,casabal,phen,POP,climate,LALLOC, LUC_EXPT, POPLUC, &
                      c13o2flux, c13o2pools, c13o2luc, icomm, ocomm)
+                ! print*, 'CD03   ', casamet%glai
                 SPINconv = .FALSE.
                 ktau_gl  = 0
                 ktau     = 0
@@ -10139,10 +10142,10 @@ SUBROUTINE master_spincasacnp(dels, kstart, kend, mloop, veg, soil, casabiome, c
   real(r_2), dimension(:), allocatable, save  :: avg_cleaf2met, avg_cleaf2str, avg_croot2met, avg_croot2str, avg_cwood2cwd
   real(r_2), dimension(:), allocatable, save  :: avg_nleaf2met, avg_nleaf2str, avg_nroot2met, avg_nroot2str, avg_nwood2cwd
   real(r_2), dimension(:), allocatable, save  :: avg_pleaf2met, avg_pleaf2str, avg_proot2met, avg_proot2str, avg_pwood2cwd
-  real,      dimension(:), allocatable, save  :: avg_cgpp,      avg_cnpp,      avg_nuptake,   avg_puptake
-  real,      dimension(:), allocatable, save  :: avg_nsoilmin,  avg_psoillab,  avg_psoilsorb, avg_psoilocc
+  real(r_2), dimension(:), allocatable, save  :: avg_cgpp,      avg_cnpp,      avg_nuptake,   avg_puptake
+  real(r_2), dimension(:), allocatable, save  :: avg_nsoilmin,  avg_psoillab,  avg_psoilsorb, avg_psoilocc
   ! chris 12/oct/2012 for spin up casa
-  real,      dimension(:), allocatable, save  :: avg_ratioNCsoilmic,  avg_ratioNCsoilslow,  avg_ratioNCsoilpass
+  real(r_2), dimension(:), allocatable, save  :: avg_ratioNCsoilmic,  avg_ratioNCsoilslow,  avg_ratioNCsoilpass
   real(r_2), dimension(:), allocatable, save  :: avg_xnplimit,  avg_xkNlimiting,avg_xklitter, avg_xksoil
 
   ! local variables
@@ -10154,16 +10157,16 @@ SUBROUTINE master_spincasacnp(dels, kstart, kend, mloop, veg, soil, casabiome, c
   real(r_2), dimension(mp) :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
   real(r_2), dimension(mp) :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
   real(r_2), dimension(mp) :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
-  real,      dimension(mp) :: xcgpp,     xcnpp,     xnuptake,  xpuptake
-  real,      dimension(mp) :: xnsoilmin, xpsoillab, xpsoilsorb,xpsoilocc
+  real(r_2), dimension(mp) :: xcgpp,     xcnpp,     xnuptake,  xpuptake
+  real(r_2), dimension(mp) :: xnsoilmin, xpsoillab, xpsoilsorb,xpsoilocc
   real(r_2), dimension(mp) :: xnplimit,  xknlimiting, xklitter, xksoil,xkleaf, xkleafcold, xkleafdry
 
   ! more variables to store the spinup pool size over the last 10 loops. Added by Yp Wang 30 Nov 2012
-  real,      dimension(5,mvtype,mplant)  :: bmcplant,  bmnplant,  bmpplant
-  real,      dimension(5,mvtype,mlitter) :: bmclitter, bmnlitter, bmplitter
-  real,      dimension(5,mvtype,msoil)   :: bmcsoil,   bmnsoil,   bmpsoil
-  real,      dimension(5,mvtype)         :: bmnsoilmin,bmpsoillab,bmpsoilsorb, bmpsoilocc
-  real,      dimension(mvtype)           :: bmarea
+  real(r_2), dimension(5,mvtype,mplant)  :: bmcplant,  bmnplant,  bmpplant
+  real(r_2), dimension(5,mvtype,mlitter) :: bmclitter, bmnlitter, bmplitter
+  real(r_2), dimension(5,mvtype,msoil)   :: bmcsoil,   bmnsoil,   bmpsoil
+  real(r_2), dimension(5,mvtype)         :: bmnsoilmin,bmpsoillab,bmpsoilsorb, bmpsoilocc
+  real(r_2), dimension(mvtype)           :: bmarea
   integer :: nptx,nvt,kloop
 
   ktauday = int(24.0*3600.0/dels)
@@ -10174,7 +10177,6 @@ SUBROUTINE master_spincasacnp(dels, kstart, kend, mloop, veg, soil, casabiome, c
   ! compute the mean fluxes and residence time of each carbon pool
   
   do nyear=1, myearspin
-
      write(cyear,fmt="(I4)") cable_user%casa_spin_startyear + nyear - 1
      ncfile = trim(casafile%c2cdumppath)//'c2c_'//cyear//'_dump.nc'
      print*, 'dumpfile', ncfile
@@ -10497,6 +10499,7 @@ SUBROUTINE master_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
 
            ! get casa update from workers
            ! print*, 'MASTER Receive CO02'
+           call master_receive(ocomm, 0, casa_ts)
            CALL master_receive(ocomm, 0, casa_LUC_ts)
 
            ! 13C
@@ -10512,21 +10515,21 @@ SUBROUTINE master_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
            CALL READ_LUH2(LUC_EXPT)
 
            DO k=1,mland
-              POPLUC%ptos(k)   = LUC_EXPT%INPUT(ptos)%VAL(k)
-              POPLUC%ptog(k)   = LUC_EXPT%INPUT(ptog)%VAL(k)
-              POPLUC%stog(k)   = LUC_EXPT%INPUT(stog)%VAL(k)
+              POPLUC%ptos(k)   = real(LUC_EXPT%INPUT(ptos)%VAL(k), dp)
+              POPLUC%ptog(k)   = real(LUC_EXPT%INPUT(ptog)%VAL(k), dp)
+              POPLUC%stog(k)   = real(LUC_EXPT%INPUT(stog)%VAL(k), dp)
               POPLUC%gtop(k)   = 0.0_dp
-              POPLUC%gtos(k)   = LUC_EXPT%INPUT(gtos)%VAL(k)
-              POPLUC%pharv(k)  = LUC_EXPT%INPUT(pharv)%VAL(k)
-              POPLUC%smharv(k) = LUC_EXPT%INPUT(smharv)%VAL(k)
-              POPLUC%syharv(k) = LUC_EXPT%INPUT(syharv)%VAL(k)
+              POPLUC%gtos(k)   = real(LUC_EXPT%INPUT(gtos)%VAL(k), dp)
+              POPLUC%pharv(k)  = real(LUC_EXPT%INPUT(pharv)%VAL(k), dp)
+              POPLUC%smharv(k) = real(LUC_EXPT%INPUT(smharv)%VAL(k), dp)
+              POPLUC%syharv(k) = real(LUC_EXPT%INPUT(syharv)%VAL(k), dp)
 
-              POPLUC%ptoc(k) = LUC_EXPT%INPUT(ptoc)%VAL(k)
-              POPLUC%ptoq(k) = LUC_EXPT%INPUT(ptoq)%VAL(k)
-              POPLUC%stoc(k) = LUC_EXPT%INPUT(stoc)%VAL(k)
-              POPLUC%stoq(k) = LUC_EXPT%INPUT(stoq)%VAL(k)
-              POPLUC%ctos(k) = LUC_EXPT%INPUT(ctos)%VAL(k)
-              POPLUC%qtos(k) = LUC_EXPT%INPUT(qtos)%VAL(k)
+              POPLUC%ptoc(k) = real(LUC_EXPT%INPUT(ptoc)%VAL(k), dp)
+              POPLUC%ptoq(k) = real(LUC_EXPT%INPUT(ptoq)%VAL(k), dp)
+              POPLUC%stoc(k) = real(LUC_EXPT%INPUT(stoc)%VAL(k), dp)
+              POPLUC%stoq(k) = real(LUC_EXPT%INPUT(stoq)%VAL(k), dp)
+              POPLUC%ctos(k) = real(LUC_EXPT%INPUT(ctos)%VAL(k), dp)
+              POPLUC%qtos(k) = real(LUC_EXPT%INPUT(qtos)%VAL(k), dp)
 
               POPLUC%thisyear = yyyy
            ENDDO
@@ -10555,16 +10558,16 @@ SUBROUTINE master_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
                  enddo
 
                  casapool%cplant(j,leaf) = 0.01_dp
-                 casapool%nplant(j,leaf)= casabiome%ratioNCplantmin(veg%iveg(j),leaf)* casapool%cplant(j,leaf)
-                 casapool%pplant(j,leaf)= casabiome%ratioPCplantmin(veg%iveg(j),leaf)* casapool%cplant(j,leaf)
+                 casapool%nplant(j,leaf)= casabiome%ratioNCplantmin(veg%iveg(j),leaf) * casapool%cplant(j,leaf)
+                 casapool%pplant(j,leaf)= casabiome%ratioPCplantmin(veg%iveg(j),leaf) * casapool%cplant(j,leaf)
 
                  casapool%cplant(j,froot) = 0.01_dp
-                 casapool%nplant(j,froot)= casabiome%ratioNCplantmin(veg%iveg(j),froot)* casapool%cplant(j,froot)
-                 casapool%pplant(j,froot)= casabiome%ratioPCplantmin(veg%iveg(j),froot)* casapool%cplant(j,froot)
+                 casapool%nplant(j,froot)= casabiome%ratioNCplantmin(veg%iveg(j),froot) * casapool%cplant(j,froot)
+                 casapool%pplant(j,froot)= casabiome%ratioPCplantmin(veg%iveg(j),froot) * casapool%cplant(j,froot)
 
                  casapool%cplant(j,wood) = 0.01_dp
-                 casapool%nplant(j,wood)= casabiome%ratioNCplantmin(veg%iveg(j),wood)* casapool%cplant(j,wood)
-                 casapool%pplant(j,wood)= casabiome%ratioPCplantmin(veg%iveg(j),wood)* casapool%cplant(j,wood)
+                 casapool%nplant(j,wood)= casabiome%ratioNCplantmin(veg%iveg(j),wood) * casapool%cplant(j,wood)
+                 casapool%pplant(j,wood)= casabiome%ratioPCplantmin(veg%iveg(j),wood) * casapool%cplant(j,wood)
                  casaflux%frac_sapwood(j) = 1.0_dp
 
                  ! 13C
@@ -10687,21 +10690,21 @@ SUBROUTINE LUCdriver(casabiome,casapool, casaflux, POP, LUC_EXPT, POPLUC, veg, &
   CALL READ_LUH2(LUC_EXPT)
 
   DO k=1,mland
-     POPLUC%ptos(k)   = LUC_EXPT%INPUT(ptos)%VAL(k)
-     POPLUC%ptog(k)   = LUC_EXPT%INPUT(ptog)%VAL(k)
-     POPLUC%stog(k)   = LUC_EXPT%INPUT(stog)%VAL(k)
+     POPLUC%ptos(k)   = real(LUC_EXPT%INPUT(ptos)%VAL(k), r_2)
+     POPLUC%ptog(k)   = real(LUC_EXPT%INPUT(ptog)%VAL(k), r_2)
+     POPLUC%stog(k)   = real(LUC_EXPT%INPUT(stog)%VAL(k), r_2)
      POPLUC%gtop(k)   = 0.0_r_2
-     POPLUC%gtos(k)   = LUC_EXPT%INPUT(gtos)%VAL(k)
-     POPLUC%pharv(k)  = LUC_EXPT%INPUT(pharv)%VAL(k)
-     POPLUC%smharv(k) = LUC_EXPT%INPUT(smharv)%VAL(k)
-     POPLUC%syharv(k) = LUC_EXPT%INPUT(syharv)%VAL(k)
+     POPLUC%gtos(k)   = real(LUC_EXPT%INPUT(gtos)%VAL(k), r_2)
+     POPLUC%pharv(k)  = real(LUC_EXPT%INPUT(pharv)%VAL(k), r_2)
+     POPLUC%smharv(k) = real(LUC_EXPT%INPUT(smharv)%VAL(k), r_2)
+     POPLUC%syharv(k) = real(LUC_EXPT%INPUT(syharv)%VAL(k), r_2)
 
-     POPLUC%ptoc(k) = LUC_EXPT%INPUT(ptoc)%VAL(k)
-     POPLUC%ptoq(k) = LUC_EXPT%INPUT(ptoq)%VAL(k)
-     POPLUC%stoc(k) = LUC_EXPT%INPUT(stoc)%VAL(k)
-     POPLUC%stoq(k) = LUC_EXPT%INPUT(stoq)%VAL(k)
-     POPLUC%ctos(k) = LUC_EXPT%INPUT(ctos)%VAL(k)
-     POPLUC%qtos(k) = LUC_EXPT%INPUT(qtos)%VAL(k)
+     POPLUC%ptoc(k) = real(LUC_EXPT%INPUT(ptoc)%VAL(k), r_2)
+     POPLUC%ptoq(k) = real(LUC_EXPT%INPUT(ptoq)%VAL(k), r_2)
+     POPLUC%stoc(k) = real(LUC_EXPT%INPUT(stoc)%VAL(k), r_2)
+     POPLUC%stoq(k) = real(LUC_EXPT%INPUT(stoq)%VAL(k), r_2)
+     POPLUC%ctos(k) = real(LUC_EXPT%INPUT(ctos)%VAL(k), r_2)
+     POPLUC%qtos(k) = real(LUC_EXPT%INPUT(qtos)%VAL(k), r_2)
 
      POPLUC%thisyear = yyyy
   ENDDO

@@ -46,46 +46,47 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
   real(r_2), dimension(:), allocatable, save  :: avg_cleaf2met, avg_cleaf2str, avg_croot2met, avg_croot2str, avg_cwood2cwd
   real(r_2), dimension(:), allocatable, save  :: avg_nleaf2met, avg_nleaf2str, avg_nroot2met, avg_nroot2str, avg_nwood2cwd
   real(r_2), dimension(:), allocatable, save  :: avg_pleaf2met, avg_pleaf2str, avg_proot2met, avg_proot2str, avg_pwood2cwd
-  real,      dimension(:), allocatable, save  :: avg_cgpp,      avg_cnpp,      avg_nuptake,   avg_puptake
-  real,      dimension(:), allocatable, save  :: avg_nsoilmin,  avg_psoillab,  avg_psoilsorb, avg_psoilocc
+  real(r_2), dimension(:), allocatable, save  :: avg_cgpp,      avg_cnpp,      avg_nuptake,   avg_puptake
+  real(r_2), dimension(:), allocatable, save  :: avg_nsoilmin,  avg_psoillab,  avg_psoilsorb, avg_psoilocc
   !chris 12/oct/2012 for spin up casa
-  real,      dimension(:), allocatable, save  :: avg_ratioNCsoilmic,  avg_ratioNCsoilslow,  avg_ratioNCsoilpass
+  real(r_2), dimension(:), allocatable, save  :: avg_ratioNCsoilmic,  avg_ratioNCsoilslow,  avg_ratioNCsoilpass
   real(r_2), dimension(:), allocatable, save  :: avg_xnplimit,  avg_xkNlimiting,avg_xklitter, avg_xksoil
 
   ! local variables
-  integer                  :: myearspin,nyear, nloop1
+  integer                  :: myearspin, nyear, nloop1
   character(len=99)        :: ncfile
   character(len=4)         :: cyear
-  integer                  :: ktau,ktauday,nday,idoy,ktaux,ktauy,nloop, LOY
+  integer                  :: ktau, ktauday, nday, idoy, ktaux, ktauy, nloop, LOY
   integer, save            :: ndays
   real(r_2), dimension(mp) :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
   real(r_2), dimension(mp) :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
   real(r_2), dimension(mp) :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
-  real,      dimension(mp) :: xcgpp,     xcnpp,     xnuptake,  xpuptake
-  real,      dimension(mp) :: xnsoilmin, xpsoillab, xpsoilsorb,xpsoilocc
+  real(r_2), dimension(mp) :: xcgpp,     xcnpp,     xnuptake,  xpuptake
+  real(r_2), dimension(mp) :: xnsoilmin, xpsoillab, xpsoilsorb,xpsoilocc
   real(r_2), dimension(mp) :: xnplimit,  xkNlimiting, xklitter, xksoil, xkleaf, xkleafcold, xkleafdry
 
   ! more variables to store the spinup pool size over the last 10 loops. Added by Yp Wang 30 Nov 2012
-  real,      dimension(5,mvtype,mplant)  :: bmcplant,  bmnplant,  bmpplant
-  real,      dimension(5,mvtype,mlitter) :: bmclitter, bmnlitter, bmplitter
-  real,      dimension(5,mvtype,msoil)   :: bmcsoil,   bmnsoil,   bmpsoil
-  real,      dimension(5,mvtype)         :: bmnsoilmin,bmpsoillab,bmpsoilsorb, bmpsoilocc
-  real,      dimension(mvtype)           :: bmarea
-  integer :: nptx, nvt, kloop
+  real(r_2), dimension(5,mvtype,mplant)  :: bmcplant,  bmnplant,  bmpplant
+  real(r_2), dimension(5,mvtype,mlitter) :: bmclitter, bmnlitter, bmplitter
+  real(r_2), dimension(5,mvtype,msoil)   :: bmcsoil,   bmnsoil,   bmpsoil
+  real(r_2), dimension(5,mvtype)         :: bmnsoilmin,bmpsoillab,bmpsoilsorb, bmpsoilocc
+  real(r_2), dimension(mvtype)           :: bmarea
+  integer :: nvt, kloop ! , nptx
 
-   real(dp)                    :: StemNPP(mp,2)
-   real(dp), allocatable, save :: LAImax(:), Cleafmean(:), Crootmean(:)
-   real(dp), allocatable :: NPPtoGPP(:)
-   integer,  allocatable :: Iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
-   integer :: ctime
+  real(dp)                    :: StemNPP(mp,2)
+  real(dp), allocatable, save :: LAImax(:), Cleafmean(:), Crootmean(:)
+  real(dp), allocatable :: NPPtoGPP(:)
+  integer,  allocatable :: Iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
+  integer :: ctime
+  real(dp) :: rday
 
-   ! 13C
-   real(dp), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
-   integer :: c13o2_file_id
-   character(len=40), dimension(c13o2_nvars_output) :: c13o2_vars
-   integer,           dimension(c13o2_nvars_output) :: c13o2_var_ids
-   real(r_2), dimension(:), allocatable :: avg_c13leaf2met, avg_c13leaf2str, avg_c13root2met, &
-        avg_c13root2str, avg_c13wood2cwd
+  ! 13C
+  real(dp), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
+  integer :: c13o2_file_id
+  character(len=40), dimension(c13o2_nvars_output) :: c13o2_vars
+  integer,           dimension(c13o2_nvars_output) :: c13o2_var_ids
+  real(r_2), dimension(:), allocatable :: avg_c13leaf2met, avg_c13leaf2str, avg_c13root2met, &
+       avg_c13root2str, avg_c13wood2cwd
 
    if (.not. allocated(LAIMax))    allocate(LAIMax(mp))
    if (.not. allocated(Cleafmean)) allocate(Cleafmean(mp))
@@ -98,8 +99,8 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
    !! vh_js !!
    if (cable_user%CALL_POP) Iw = POP%Iwood
 
-   ktauday=int(24.0*3600.0/dels)
-   nday=(kend-kstart+1)/ktauday
+   ktauday = int(24.0*3600.0/dels)
+   nday    = (kend-kstart+1)/ktauday
 
    !chris 12/oct/2012 for spin up casa
    if (.not.(allocated(avg_cleaf2met))) &
@@ -120,6 +121,7 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
    !!CLN  OPEN(91, file=fcnpspin)
    !!CLN  read(91,*) myearspin
    myearspin = CABLE_USER%CASA_SPIN_ENDYEAR - CABLE_USER%CASA_SPIN_STARTYEAR + 1
+   
    ! compute the mean fluxes and residence time of each carbon pool
    avg_cleaf2met       = 0.0_dp
    avg_cleaf2str       = 0.0_dp
@@ -136,21 +138,21 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
    avg_proot2met       = 0.0_dp
    avg_proot2str       = 0.0_dp
    avg_pwood2cwd       = 0.0_dp
-   avg_cgpp            = 0.0
-   avg_cnpp            = 0.0
-   avg_nuptake         = 0.0
-   avg_puptake         = 0.0
+   avg_cgpp            = 0.0_dp
+   avg_cnpp            = 0.0_dp
+   avg_nuptake         = 0.0_dp
+   avg_puptake         = 0.0_dp
    avg_xnplimit        = 0.0_dp
    avg_xkNlimiting     = 0.0_dp
    avg_xklitter        = 0.0_dp
    avg_xksoil          = 0.0_dp
-   avg_nsoilmin        = 0.0
-   avg_psoillab        = 0.0
-   avg_psoilsorb       = 0.0
-   avg_psoilocc        = 0.0
-   avg_rationcsoilmic  = 0.0
-   avg_rationcsoilslow = 0.0
-   avg_rationcsoilpass = 0.0
+   avg_nsoilmin        = 0.0_dp
+   avg_psoillab        = 0.0_dp
+   avg_psoilsorb       = 0.0_dp
+   avg_psoilocc        = 0.0_dp
+   avg_rationcsoilmic  = 0.0_dp
+   avg_rationcsoilslow = 0.0_dp
+   avg_rationcsoilpass = 0.0_dp
    ! 13C
    if (cable_user%c13o2) then
       avg_c13leaf2met = 0.0_dp
@@ -166,11 +168,10 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
    do nyear=1, myearspin
      write(cyear,FMT="(I4)") CABLE_USER%CASA_SPIN_STARTYEAR + nyear - 1
      ncfile = trim(casafile%c2cdumppath)//'c2c_'//cyear//'_dump.nc'
-     call read_casa_dump( ncfile, casamet, casaflux, phen, climate, c13o2flux, ktau, kend, .true. )
+     call read_casa_dump(ncfile, casamet, casaflux, phen, climate, c13o2flux, ktau, kend, .true.)
 
      do idoy=1,mdyear
         ktau = (idoy-1)*ktauday + 1
-
         casamet%tairk(:)       = casamet%Tairkspin(:,idoy)
         casamet%tsoil(:,1)     = casamet%Tsoilspin_1(:,idoy)
         casamet%tsoil(:,2)     = casamet%Tsoilspin_2(:,idoy)
@@ -223,84 +224,86 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
            call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
         endif
 
-        if (cable_user%CALL_POP .and. (POP%np.gt.0)) then ! CALL_POP
+        if (cable_user%CALL_POP .and. (POP%np .gt. 0)) then ! CALL_POP
 
            if (cable_user%CALL_POP) then ! accumulate input variables for POP
-               ! accumulate annual variables for use in POP
-               if (mod(ktau/ktauday,LOY)==1) then
-                  ! (assumes 70% of wood NPP is allocated above ground)
-                  casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp
-                  casabal%LAImax = casamet%glai
-                  casabal%Cleafmean = casapool%cplant(:,1)/real(LOY)/1000.
-                  casabal%Crootmean = casapool%cplant(:,3)/real(LOY)/1000.
-               else
-                  casaflux%stemnpp = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp
-                  casabal%LAImax = max(casamet%glai, casabal%LAImax)
-                  casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1)/real(LOY)/1000.
-                  casabal%Crootmean = casabal%Crootmean + casapool%cplant(:,3)/real(LOY)/1000.
-               endif
-            else
-               casaflux%stemnpp = 0._dp
-            endif ! CALL_POP
+              ! accumulate annual variables for use in POP
+              if (mod(ktau/ktauday,LOY) == 1) then
+                 ! (assumes 70% of wood NPP is allocated above ground)
+                 casaflux%stemnpp  = casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp
+                 casabal%LAImax    = casamet%glai
+                 casabal%Cleafmean = casapool%cplant(:,1) / real(LOY,dp) / 1000._dp
+                 casabal%Crootmean = casapool%cplant(:,3) / real(LOY,dp) / 1000._dp
+              else
+                 casaflux%stemnpp  = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp
+                 casabal%LAImax    = max(casamet%glai, casabal%LAImax)
+                 casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1) / real(LOY,dp) / 1000.0_dp
+                 casabal%Crootmean = casabal%Crootmean + casapool%cplant(:,3) / real(LOY,dp) / 1000.0_dp
+              endif
+           else
+              casaflux%stemnpp = 0.0_dp
+           endif ! CALL_POP
 
-            !CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
-            !            .true., ctime, .FALSE.  )
-            !            ctime = ctime+1
-            if (idoy==mdyear) then ! end of year
-               call POPdriver(casaflux, casabal, veg, POP)
-               !MC - ToDo - update 13CO2 harvest
-               ! CALL POP_IO( pop, casamet, nyear, 'WRITE_EPI', &
-               !     (.FALSE.))
-               ! CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
-               !     .true., ctime, .FALSE.  )
-               ! ctime = ctime+1
-            endif  ! end of year
-        else
+           !CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
+           !            .true., ctime, .FALSE.  )
+           !            ctime = ctime+1
            if (idoy==mdyear) then ! end of year
-             !call write_casa_output_nc (veg, casamet, casapool, casabal, casaflux, &
-             ! .true., ctime, .false.  )
-             ctime = ctime+1
+              call POPdriver(casaflux, casabal, veg, POP)
+              !MC - ToDo - update 13CO2 harvest
+              ! CALL POP_IO( pop, casamet, nyear, 'WRITE_EPI', &
+              !     (.FALSE.))
+              ! CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
+              !     .true., ctime, .FALSE.  )
+              ! ctime = ctime+1
            endif  ! end of year
-           casaflux%stemnpp = 0.
-        endif ! CALL_POP
+            
+        else ! (cable_user%CALL_POP .and. (POP%np.gt.0))
 
-        !        WHERE(xkNlimiting .eq. 0)  !Chris Lu 4/June/2012
-        !           xkNlimiting = 0.001
-        !        END WHERE
-        nptx=8173
+           if (idoy==mdyear) then ! end of year
+              ! call write_casa_output_nc(veg, casamet, casapool, casabal, casaflux, .true., ctime, .false.)
+              ctime = ctime+1
+           endif  ! end of year
+           casaflux%stemnpp = 0.0_dp
+           
+        endif ! (cable_user%CALL_POP .and. (POP%np.gt.0))
 
-        avg_cleaf2met = avg_cleaf2met + cleaf2met
-        avg_cleaf2str = avg_cleaf2str + cleaf2str
-        avg_croot2met = avg_croot2met + croot2met
-        avg_croot2str = avg_croot2str + croot2str
-        avg_cwood2cwd = avg_cwood2cwd + cwood2cwd
+        ! WHERE(xkNlimiting .eq. 0)  !Chris Lu 4/June/2012
+        !    xkNlimiting = 0.001
+        ! END WHERE
+        ! nptx = 8173
 
-        avg_nleaf2met = avg_nleaf2met + nleaf2met
-        avg_nleaf2str = avg_nleaf2str + nleaf2str
-        avg_nroot2met = avg_nroot2met + nroot2met
-        avg_nroot2str = avg_nroot2str + nroot2str
-        avg_nwood2cwd = avg_nwood2cwd + nwood2cwd
+        avg_cleaf2met       = avg_cleaf2met       + cleaf2met
+        avg_cleaf2str       = avg_cleaf2str       + cleaf2str
+        avg_croot2met       = avg_croot2met       + croot2met
+        avg_croot2str       = avg_croot2str       + croot2str
+        avg_cwood2cwd       = avg_cwood2cwd       + cwood2cwd
 
-        avg_pleaf2met = avg_pleaf2met + pleaf2met
-        avg_pleaf2str = avg_pleaf2str + pleaf2str
-        avg_proot2met = avg_proot2met + proot2met
-        avg_proot2str = avg_proot2str + proot2str
-        avg_pwood2cwd = avg_pwood2cwd + pwood2cwd
+        avg_nleaf2met       = avg_nleaf2met       + nleaf2met
+        avg_nleaf2str       = avg_nleaf2str       + nleaf2str
+        avg_nroot2met       = avg_nroot2met       + nroot2met
+        avg_nroot2str       = avg_nroot2str       + nroot2str
+        avg_nwood2cwd       = avg_nwood2cwd       + nwood2cwd
 
-        avg_cgpp      = avg_cgpp      + casaflux%cgpp
-        avg_cnpp      = avg_cnpp      + casaflux%cnpp
-        avg_nuptake   = avg_nuptake   + casaflux%Nminuptake
-        avg_puptake   = avg_puptake   + casaflux%Plabuptake
+        avg_pleaf2met       = avg_pleaf2met       + pleaf2met
+        avg_pleaf2str       = avg_pleaf2str       + pleaf2str
+        avg_proot2met       = avg_proot2met       + proot2met
+        avg_proot2str       = avg_proot2str       + proot2str
+        avg_pwood2cwd       = avg_pwood2cwd       + pwood2cwd
 
-        avg_xnplimit    = avg_xnplimit    + xnplimit
-        avg_xkNlimiting = avg_xkNlimiting + xkNlimiting
-        avg_xklitter    = avg_xklitter    + xklitter
-        avg_xksoil      = avg_xksoil      + xksoil
+        avg_cgpp            = avg_cgpp            + casaflux%cgpp
+        avg_cnpp            = avg_cnpp            + casaflux%cnpp
+        avg_nuptake         = avg_nuptake         + casaflux%Nminuptake
+        avg_puptake         = avg_puptake         + casaflux%Plabuptake
 
-        avg_nsoilmin    = avg_nsoilmin    + casapool%nsoilmin
-        avg_psoillab    = avg_psoillab    + casapool%psoillab
-        avg_psoilsorb   = avg_psoilsorb   + casapool%psoilsorb
-        avg_psoilocc    = avg_psoilocc    + casapool%psoilocc
+        avg_xnplimit        = avg_xnplimit        + xnplimit
+        avg_xkNlimiting     = avg_xkNlimiting     + xkNlimiting
+        avg_xklitter        = avg_xklitter        + xklitter
+        avg_xksoil          = avg_xksoil          + xksoil
+
+        avg_nsoilmin        = avg_nsoilmin        + casapool%nsoilmin
+        avg_psoillab        = avg_psoillab        + casapool%psoillab
+        avg_psoilsorb       = avg_psoilsorb       + casapool%psoilsorb
+        avg_psoilocc        = avg_psoilocc        + casapool%psoilocc
 
         avg_rationcsoilmic  = avg_rationcsoilmic  + casapool%ratioNCsoilnew(:,mic)
         avg_rationcsoilslow = avg_rationcsoilslow + casapool%ratioNCsoilnew(:,slow)
@@ -309,57 +312,59 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
   enddo
 
   !!CLN    CLOSE(91)
+  ! average
+  rday = 1.0_dp / real(nday*myearspin, dp)
+  
+  avg_cleaf2met       = avg_cleaf2met       * rday
+  avg_cleaf2str       = avg_cleaf2str       * rday
+  avg_croot2met       = avg_croot2met       * rday
+  avg_croot2str       = avg_croot2str       * rday
+  avg_cwood2cwd       = avg_cwood2cwd       * rday
 
-  avg_cleaf2met = avg_cleaf2met / real(nday*myearspin, dp)
-  avg_cleaf2str = avg_cleaf2str / real(nday*myearspin, dp)
-  avg_croot2met = avg_croot2met / real(nday*myearspin, dp)
-  avg_croot2str = avg_croot2str / real(nday*myearspin, dp)
-  avg_cwood2cwd = avg_cwood2cwd / real(nday*myearspin, dp)
+  avg_nleaf2met       = avg_nleaf2met       * rday
+  avg_nleaf2str       = avg_nleaf2str       * rday
+  avg_nroot2met       = avg_nroot2met       * rday
+  avg_nroot2str       = avg_nroot2str       * rday
+  avg_nwood2cwd       = avg_nwood2cwd       * rday
 
-  avg_nleaf2met = avg_nleaf2met / real(nday*myearspin, dp)
-  avg_nleaf2str = avg_nleaf2str / real(nday*myearspin, dp)
-  avg_nroot2met = avg_nroot2met / real(nday*myearspin, dp)
-  avg_nroot2str = avg_nroot2str / real(nday*myearspin, dp)
-  avg_nwood2cwd = avg_nwood2cwd / real(nday*myearspin, dp)
+  avg_pleaf2met       = avg_pleaf2met       * rday
+  avg_pleaf2str       = avg_pleaf2str       * rday
+  avg_proot2met       = avg_proot2met       * rday
+  avg_proot2str       = avg_proot2str       * rday
+  avg_pwood2cwd       = avg_pwood2cwd       * rday
 
-  avg_pleaf2met = avg_pleaf2met / real(nday*myearspin, dp)
-  avg_pleaf2str = avg_pleaf2str / real(nday*myearspin, dp)
-  avg_proot2met = avg_proot2met / real(nday*myearspin, dp)
-  avg_proot2str = avg_proot2str / real(nday*myearspin, dp)
-  avg_pwood2cwd = avg_pwood2cwd / real(nday*myearspin, dp)
+  avg_cgpp            = avg_cgpp            * rday
+  avg_cnpp            = avg_cnpp            * rday
+  avg_nuptake         = avg_nuptake         * rday
+  avg_puptake         = avg_puptake         * rday
 
-  avg_cgpp      = avg_cgpp / real(nday*myearspin)
-  avg_cnpp      = avg_cnpp / real(nday*myearspin)
-  avg_nuptake   = avg_nuptake / real(nday*myearspin)
-  avg_puptake   = avg_puptake / real(nday*myearspin)
+  avg_xnplimit        = avg_xnplimit        * rday
+  avg_xkNlimiting     = avg_xkNlimiting     * rday
+  avg_xklitter        = avg_xklitter        * rday
+  avg_xksoil          = avg_xksoil          * rday
 
-  avg_xnplimit    = avg_xnplimit    / real(nday*myearspin, dp)
-  avg_xkNlimiting = avg_xkNlimiting / real(nday*myearspin, dp)
-  avg_xklitter    = avg_xklitter    / real(nday*myearspin, dp)
-  avg_xksoil      = avg_xksoil      / real(nday*myearspin, dp)
+  avg_nsoilmin        = avg_nsoilmin        * rday
+  avg_psoillab        = avg_psoillab        * rday
+  avg_psoilsorb       = avg_psoilsorb       * rday
+  avg_psoilocc        = avg_psoilocc        * rday
 
-  avg_nsoilmin    = avg_nsoilmin / real(nday*myearspin)
-  avg_psoillab    = avg_psoillab / real(nday*myearspin)
-  avg_psoilsorb   = avg_psoilsorb / real(nday*myearspin)
-  avg_psoilocc    = avg_psoilocc / real(nday*myearspin)
-
-  avg_rationcsoilmic  = avg_rationcsoilmic  / real(nday*myearspin)
-  avg_rationcsoilslow = avg_rationcsoilslow / real(nday*myearspin)
-  avg_rationcsoilpass = avg_rationcsoilpass / real(nday*myearspin)
+  avg_rationcsoilmic  = avg_rationcsoilmic  * rday
+  avg_rationcsoilslow = avg_rationcsoilslow * rday
+  avg_rationcsoilpass = avg_rationcsoilpass * rday
 
   ! 13C
   if (cable_user%c13o2) then
-     avg_c13leaf2met = avg_c13leaf2met / real(nday*myearspin, dp)
-     avg_c13leaf2str = avg_c13leaf2str / real(nday*myearspin, dp)
-     avg_c13root2met = avg_c13root2met / real(nday*myearspin, dp)
-     avg_c13root2str = avg_c13root2str / real(nday*myearspin, dp)
-     avg_c13wood2cwd = avg_c13wood2cwd / real(nday*myearspin, dp)
+     avg_c13leaf2met = avg_c13leaf2met * rday
+     avg_c13leaf2str = avg_c13leaf2str * rday
+     avg_c13root2met = avg_c13root2met * rday
+     avg_c13root2str = avg_c13root2str * rday
+     avg_c13wood2cwd = avg_c13wood2cwd * rday
   endif
 
   !write(600,*) 'pmet pre-analytic: ' ,  casapool%plitter(1,metb)
   !write(600,*) 'nmet pre-analytic: ' ,  casapool%nlitter(1,metb)
- !write(600,*) 'csoil3 pre-analytic: ', casapool%csoil(3,:)
- !write(600,*) 'csoil1 pre-analytic: ', casapool%csoil(1,:)
+  !write(600,*) 'csoil3 pre-analytic: ', casapool%csoil(3,:)
+  !write(600,*) 'csoil1 pre-analytic: ', casapool%csoil(1,:)
   call analyticpool(kend,veg,soil,casabiome,casapool,                                          &
        casaflux,casamet,casabal,phen,                                         &
        avg_cleaf2met,avg_cleaf2str,avg_croot2met,avg_croot2str,avg_cwood2cwd, &
@@ -382,7 +387,6 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
 
   nloop1 = max(1,mloop-3)
   DO nloop=1, mloop
-
      !!CLN  OPEN(91,file=fcnpspin)
      !!CLN  read(91,*)
      DO nyear=1, myearspin
@@ -390,12 +394,11 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
         !write(*,*) 'spincasa CYEAR', CYEAR, ncfile
         WRITE(CYEAR,FMT="(I4)") CABLE_USER%CASA_SPIN_STARTYEAR + nyear - 1
         ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
-        call read_casa_dump( ncfile, casamet, casaflux, phen, climate, c13o2flux, ktau, kend, .TRUE. )
+        call read_casa_dump(ncfile, casamet, casaflux, phen, climate, c13o2flux, ktau, kend, .TRUE.)
 
         DO idoy=1,mdyear
-           ktauy=idoy*ktauday
-           ktau=(idoy-1)*ktauday +1
-
+           ktauy = idoy*ktauday
+           ktau  = (idoy-1)*ktauday +1
            casamet%tairk(:)       = casamet%Tairkspin(:,idoy)
            casamet%tsoil(:,1)     = casamet%Tsoilspin_1(:,idoy)
            casamet%tsoil(:,2)     = casamet%Tsoilspin_2(:,idoy)
@@ -413,23 +416,23 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
            casaflux%crmplant(:,1) = casamet%crmplantspin_1(:,idoy)
            casaflux%crmplant(:,2) = casamet%crmplantspin_2(:,idoy)
            casaflux%crmplant(:,3) = casamet%crmplantspin_3(:,idoy)
-           phen%phase(:) = phen%phasespin(:,idoy)
-           phen%doyphase(:,1) = phen%doyphasespin_1(:,idoy)
-           phen%doyphase(:,2) =  phen%doyphasespin_2(:,idoy)
-           phen%doyphase(:,3) =  phen%doyphasespin_3(:,idoy)
-           phen%doyphase(:,4) =  phen%doyphasespin_4(:,idoy)
-           climate%qtemp_max_last_year(:) =  casamet%mtempspin(:,idoy)
+           phen%phase(:)          = phen%phasespin(:,idoy)
+           phen%doyphase(:,1)     = phen%doyphasespin_1(:,idoy)
+           phen%doyphase(:,2)     = phen%doyphasespin_2(:,idoy)
+           phen%doyphase(:,3)     = phen%doyphasespin_3(:,idoy)
+           phen%doyphase(:,4)     = phen%doyphasespin_4(:,idoy)
+           climate%qtemp_max_last_year(:) = casamet%mtempspin(:,idoy)
            ! 13C
            if (cable_user%c13o2) then
               c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
               c13o2flux%cAn(:)   = casamet%cAn13spin(:,idoy)
            endif
 
-           if (nloop==1 .and. nyear==1) then
-              !write(6002, "(200e16.6)") casamet%tairk(3), casamet%tsoil(3,:),  casamet%moist(3,:), &
-              !     casaflux%cgpp(3) ,casaflux%crmplant(3,1), real(phen%phase(3)) ,  &
-              !      real(phen%doyphase(3,:)), climate%qtemp_max_last_year(3)
-           endif
+           ! if (nloop==1 .and. nyear==1) then
+           !    write(6002, "(200e16.6)") casamet%tairk(3), casamet%tsoil(3,:),  casamet%moist(3,:), &
+           !         casaflux%cgpp(3) ,casaflux%crmplant(3,1), real(phen%phase(3)) ,  &
+           !         real(phen%doyphase(3,:)), climate%qtemp_max_last_year(3)
+           ! endif
 
            ! 13C
            if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
@@ -465,20 +468,20 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
            IF (cable_user%CALL_POP .and. POP%np.gt.0) THEN ! CALL_POP
               IF (cable_user%CALL_POP) THEN ! accumulate input variables for POP
                  ! accumulate annual variables for use in POP
-                 IF(MOD(ktau/ktauday,LOY)==1 ) THEN
+                 IF (MOD(ktau/ktauday,LOY) == 1) THEN
                     ! (assumes 70% of wood NPP is allocated above ground)
-                    casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp
-                    casabal%LAImax = casamet%glai
-                    casabal%Cleafmean = casapool%cplant(:,1)/real(LOY)/1000.
-                    casabal%Crootmean = casapool%cplant(:,3)/real(LOY)/1000.
+                    casaflux%stemnpp  = casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp
+                    casabal%LAImax    = casamet%glai
+                    casabal%Cleafmean = casapool%cplant(:,1) / real(LOY,dp) / 1000.0_dp
+                    casabal%Crootmean = casapool%cplant(:,3) / real(LOY,dp) / 1000.0_dp
                  ELSE
-                    casaflux%stemnpp = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp
-                    casabal%LAImax = max(casamet%glai, casabal%LAImax)
-                    casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1)/real(LOY)/1000.
-                    casabal%Crootmean = casabal%Crootmean + casapool%cplant(:,3)/real(LOY)/1000.
+                    casaflux%stemnpp  = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp
+                    casabal%LAImax    = max(casamet%glai, casabal%LAImax)
+                    casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1) / real(LOY,dp) / 1000.0_dp
+                    casabal%Crootmean = casabal%Crootmean + casapool%cplant(:,3) / real(LOY,dp) / 1000.0_dp
                  ENDIF
               ELSE
-                 casaflux%stemnpp = 0._dp
+                 casaflux%stemnpp = 0.0_dp
               ENDIF ! CALL_POP
 
               IF (idoy==mdyear) THEN ! end of year
@@ -498,7 +501,7 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
               !         (nloop.eq.mloop .and. nyear.eq.myearspin.and.idoy.eq.mdyear)  )
               !     ctime = ctime+1
               ! ENDIF ! end of year
-              casaflux%stemnpp = 0.
+              casaflux%stemnpp = 0.0_dp
            ENDIF ! CALL_POP
 
         ENDDO ! end of idoy
@@ -507,7 +510,7 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
 
   ENDDO     ! end of nloop
 
-  CALL casa_fluxout(CABLE_USER%CASA_SPIN_STARTYEAR + myearspin - 1 , veg, soil, casabal, casamet)
+  CALL casa_fluxout(CABLE_USER%CASA_SPIN_STARTYEAR+myearspin-1, veg, soil, casabal, casamet)
 
   !STOP
   !write(600,*) 'csoil3 end: ', casapool%csoil(3,:)

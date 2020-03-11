@@ -369,7 +369,6 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    endif
    if ( allatonce ) then
       do idoy=1, mdyear
-         print*, 'in read_casa_dump - idoy: ', idoy
          call get_var_nc(ncrid, var_name(3),  tairk, idoy)
          call get_var_nc(ncrid, var_name(4),  tsoil, idoy, ms)
          call get_var_nc(ncrid, var_name(5),  moist, idoy, ms)
@@ -986,22 +985,20 @@ END SUBROUTINE sumcflux
     real(r_2), dimension(mp),  intent(in)    :: avgcleaf2met,avgcleaf2str,avgcroot2met,avgcroot2str,avgcwood2cwd
     real(r_2), dimension(mp),  intent(in)    :: avgnleaf2met,avgnleaf2str,avgnroot2met,avgnroot2str,avgnwood2cwd
     real(r_2), dimension(mp),  intent(in)    :: avgpleaf2met,avgpleaf2str,avgproot2met,avgproot2str,avgpwood2cwd
-    real,      dimension(mp),  intent(in)    :: avgcgpp, avgcnpp, avgnuptake, avgpuptake
+    real(r_2), dimension(mp),  intent(in)    :: avgcgpp, avgcnpp, avgnuptake, avgpuptake
     real(r_2), dimension(mp),  intent(in)    :: avgxnplimit, avgxkNlimiting, avgxklitter, avgxksoil
-    real,      dimension(mp),  intent(in)    :: avgratioNCsoilmic, avgratioNCsoilslow, avgratioNCsoilpass
-    real,      dimension(mp),  intent(in)    :: avgnsoilmin, avgpsoillab, avgpsoilsorb, avgpsoilocc
+    real(r_2), dimension(mp),  intent(in)    :: avgratioNCsoilmic, avgratioNCsoilslow, avgratioNCsoilpass
+    real(r_2), dimension(mp),  intent(in)    :: avgnsoilmin, avgpsoillab, avgpsoilsorb, avgpsoilocc
     real(r_2), dimension(mp),  intent(in)    :: avg_c13leaf2met, avg_c13leaf2str
     real(r_2), dimension(mp),  intent(in)    :: avg_c13root2met, avg_c13root2str, avg_c13wood2cwd
     ! 13C
     type(c13o2_pool),          intent(inout) :: c13o2pools
 
     ! local variables
-    real(r_2), dimension(mso) :: Psorder, pweasoil, xpsoil50
+    real(r_2), dimension(mso) :: Psorder, Pweasoil, xPsoil50
     real(r_2), dimension(mso) :: fracPlab, fracPsorb, fracPocc, fracPorg
-    real(r_2), dimension(mp)  :: totpsoil
+    real(r_2), dimension(mp)  :: totPsoil
     integer :: npt, nout, nso
-    integer :: nyear, iyear
-    real    :: year
 
     ! Soiltype     soilnumber soil P(g P/m2)
     ! Alfisol     1       61.3
@@ -1016,13 +1013,20 @@ END SUBROUTINE sumcflux
     ! Spodosol    10      41.0
     ! Ultisol     11      51.5
     ! Vertisol    12      190.6
-    data psorder/61.3,103.9,92.8,136.9,98.2,107.6,84.1,110.1,35.4,41.0,51.5,190.6/
-    data pweasoil/0.05,0.04,0.03,0.02,0.01,0.009,0.008,0.007,0.006,0.005,0.004,0.003/
-    data fracpLab/0.08,0.08,0.10,0.02,0.08,0.08,0.08,0.06,0.02,0.05,0.09,0.05/
-    data fracPsorb/0.32,0.37,0.57,0.67,0.37,0.37,0.37,0.32,0.24,0.22,0.21,0.38/
-    data fracPocc/0.36,0.38,0.25,0.26,0.38,0.38,0.38,0.44,0.38,0.38,0.37,0.45/
-    data fracPorg/0.25,0.17,0.08,0.05,0.17,0.17,0.17,0.18,0.36,0.35,0.34,0.12/
-    data xpsoil50/7.6,4.1,4.2,3.4,4.1,4.1,4.8,4.1,6.9,6.9,6.9,1.7/
+    data Psorder/61.3_r_2, 103.9_r_2, 92.8_r_2, 136.9_r_2, 98.2_r_2, 107.6_r_2, 84.1_r_2, &
+         110.1_r_2, 35.4_r_2, 41.0_r_2, 51.5_r_2, 190.6/
+    data Pweasoil/0.05_r_2, 0.04_r_2, 0.03_r_2, 0.02_r_2, 0.01_r_2, 0.009_r_2, 0.008_r_2, &
+         0.007_r_2, 0.006_r_2, 0.005_r_2, 0.004_r_2, 0.003/
+    data fracPlab/0.08_r_2, 0.08_r_2, 0.10_r_2, 0.02_r_2, 0.08_r_2, 0.08_r_2, 0.08_r_2, &
+         0.06_r_2, 0.02_r_2, 0.05_r_2, 0.09_r_2, 0.05/
+    data fracPsorb/0.32_r_2, 0.37_r_2, 0.57_r_2, 0.67_r_2, 0.37_r_2, 0.37_r_2, 0.37_r_2, &
+         0.32_r_2, 0.24_r_2, 0.22_r_2, 0.21_r_2, 0.38/
+    data fracPocc/0.36_r_2, 0.38_r_2, 0.25_r_2, 0.26_r_2, 0.38_r_2, 0.38_r_2, 0.38_r_2, &
+         0.44_r_2, 0.38_r_2, 0.38_r_2, 0.37_r_2, 0.45/
+    data fracPorg/0.25_r_2, 0.17_r_2, 0.08_r_2, 0.05_r_2, 0.17_r_2, 0.17_r_2, 0.17_r_2, &
+         0.18_r_2, 0.36_r_2, 0.35_r_2, 0.34_r_2, 0.12/
+    data xPsoil50/7.6_r_2, 4.1_r_2, 4.2_r_2, 3.4_r_2, 4.1_r_2, 4.1_r_2, 4.8_r_2, 4.1_r_2, &
+         6.9_r_2, 6.9_r_2, 6.9_r_2, 1.7/
 
     ! compute the mean litter input in g(C, N and P)/day from plant pools
     casaflux%fromLtoS = 0.0_r_2
@@ -1055,12 +1059,12 @@ END SUBROUTINE sumcflux
           casaflux%fromStoS(npt,pass,slow) = 0.45_r_2 * (0.003_r_2 + 0.009_r_2 * soil%clay(npt) )
           
           casaflux%klitter(npt,metb) = avgxkNlimiting(npt) * avgxklitter(npt)*casabiome%litterrate(veg%iveg(npt),metb)
-          casaflux%klitter(npt,str)  = avgxkNlimiting(npt) * avgxklitter(npt)*casabiome%litterrate(veg%iveg(npt),str)&
-               * exp(-3.0*casabiome%fracLigninplant(veg%iveg(npt),leaf))
+          casaflux%klitter(npt,str)  = avgxkNlimiting(npt) * avgxklitter(npt)*casabiome%litterrate(veg%iveg(npt),str) * &
+               exp(-3.0*casabiome%fracLigninplant(veg%iveg(npt),leaf))
           casaflux%klitter(npt,cwd)  = avgxkNlimiting(npt) * avgxklitter(npt)*casabiome%litterrate(veg%iveg(npt),cwd)
           
-          casaflux%ksoil(npt,mic)    = avgxksoil(npt)*casabiome%soilrate(veg%iveg(npt),mic)  &
-               * (1.0_r_2 - 0.75_r_2 *(soil%silt(npt)+soil%clay(npt)))
+          casaflux%ksoil(npt,mic)    = avgxksoil(npt)*casabiome%soilrate(veg%iveg(npt),mic) * &
+               (1.0_r_2 - 0.75_r_2 *(soil%silt(npt)+soil%clay(npt)))
           casaflux%ksoil(npt,slow)   = avgxksoil(npt) * casabiome%soilrate(veg%iveg(npt),slow)
           casaflux%ksoil(npt,pass)   = avgxksoil(npt) * casabiome%soilrate(veg%iveg(npt),pass)
           
@@ -1073,29 +1077,32 @@ END SUBROUTINE sumcflux
     enddo
 
     do npt=1, mp
-       if ((casamet%iveg2(npt)/=icewater) .and. (avgcnpp(npt) > 0.0_r_2)) then
+       if ((casamet%iveg2(npt) /= icewater) .and. (avgcnpp(npt) > 0.0_r_2)) then
 
           ! compute steady-state litter and soil C pool sizes
-          casapool%clitter(npt,metb) = (avgcleaf2met(npt)+avgcroot2met(npt))/casaflux%klitter(npt,metb)
-          casapool%clitter(npt,str)  = (avgcleaf2str(npt)+avgcroot2str(npt))/casaflux%klitter(npt,str)
-          casapool%clitter(npt,cwd)  = (avgcwood2cwd(npt))/casaflux%klitter(npt,cwd)
+          casapool%clitter(npt,metb) = (avgcleaf2met(npt)+avgcroot2met(npt)) / casaflux%klitter(npt,metb)
+          casapool%clitter(npt,str)  = (avgcleaf2str(npt)+avgcroot2str(npt)) / casaflux%klitter(npt,str)
+          casapool%clitter(npt,cwd)  = avgcwood2cwd(npt) / casaflux%klitter(npt,cwd)
           !MC - Remark: I changed the order so that SS is calculated with old pools instead of already
           !             updated mic and slow pools.
           !             Before, first mic then slow then pass were updated, where slow uses mic pool and
           !             pass uses mic and slow pools.
           !             Now we do: pass, slow, mic so that they are using the not-yet updated pools.
-          casapool%csoil(npt,pass) = (casaflux%fromStoS(npt,pass,mic) *casaflux%ksoil(npt,mic) *casapool%csoil(npt,mic)    &
-               +casaflux%fromStoS(npt,pass,slow)*casaflux%ksoil(npt,slow)*casapool%csoil(npt,slow) ) &
-               /casaflux%ksoil(npt,pass)
-          casapool%csoil(npt,slow) = (casaflux%fromLtoS(npt,slow,metb)*casaflux%klitter(npt,metb)*casapool%clitter(npt,metb) &
-               + casaflux%fromLtoS(npt,slow,str)*casaflux%klitter(npt,str)*casapool%clitter(npt,str) &
-               + casaflux%fromLtoS(npt,slow,cwd)*casaflux%klitter(npt,cwd)*casapool%clitter(npt,cwd) &
-               + casaflux%fromStoS(npt,slow,mic) *casaflux%ksoil(npt,mic) *casapool%csoil(npt,mic)  ) &
-               /casaflux%ksoil(npt,slow)
-          casapool%csoil(npt,mic) = (casaflux%fromLtoS(npt,mic,metb)*casaflux%klitter(npt,metb)*casapool%clitter(npt,metb) &
-               +casaflux%fromLtoS(npt,mic,str) *casaflux%klitter(npt,str)*casapool%clitter(npt,str)  &
-               +casaflux%fromLtoS(npt,mic,cwd) *casaflux%klitter(npt,cwd)*casapool%clitter(npt,cwd) ) &
-               /casaflux%ksoil(npt,mic)
+          casapool%csoil(npt,pass) = (casaflux%fromStoS(npt,pass,mic) * casaflux%ksoil(npt,mic) * &
+               casapool%csoil(npt,mic) + &
+               casaflux%fromStoS(npt,pass,slow) * casaflux%ksoil(npt,slow) * casapool%csoil(npt,slow)) / &
+               casaflux%ksoil(npt,pass)
+          casapool%csoil(npt,slow) = (casaflux%fromLtoS(npt,slow,metb) * casaflux%klitter(npt,metb) * &
+               casapool%clitter(npt,metb) + &
+               casaflux%fromLtoS(npt,slow,str) * casaflux%klitter(npt,str) * casapool%clitter(npt,str) + &
+               casaflux%fromLtoS(npt,slow,cwd) * casaflux%klitter(npt,cwd) * casapool%clitter(npt,cwd) + &
+               casaflux%fromStoS(npt,slow,mic) * casaflux%ksoil(npt,mic) * casapool%csoil(npt,mic)) / &
+               casaflux%ksoil(npt,slow)
+          casapool%csoil(npt,mic) = (casaflux%fromLtoS(npt,mic,metb) * casaflux%klitter(npt,metb) * &
+               casapool%clitter(npt,metb) + &
+               casaflux%fromLtoS(npt,mic,str) * casaflux%klitter(npt,str) * casapool%clitter(npt,str) + &
+               casaflux%fromLtoS(npt,mic,cwd) * casaflux%klitter(npt,cwd) * casapool%clitter(npt,cwd)) / &
+               casaflux%ksoil(npt,mic)
           
           casabal%clitterlast(npt,:) = casapool%clitter(npt,:)
           casabal%csoillast(npt,:)   = casapool%csoil(npt,:)
@@ -1129,36 +1136,39 @@ END SUBROUTINE sumcflux
              casabal%sumnbal(npt)    = 0.0_r_2
           else
              ! compute steady-state litter and soil N pool sizes
-             casapool%nlitter(npt,metb) = (avgnleaf2met(npt)+avgnroot2met(npt))/casaflux%klitter(npt,metb)
-             casapool%nlitter(npt,str) = (avgnleaf2str(npt)+avgnroot2str(npt))/casaflux%klitter(npt,str)
-             casapool%nlitter(npt,cwd) = (avgnwood2cwd(npt))/casaflux%klitter(npt,cwd)
+             casapool%nlitter(npt,metb) = (avgnleaf2met(npt)+avgnroot2met(npt)) / casaflux%klitter(npt,metb)
+             casapool%nlitter(npt,str)  = (avgnleaf2str(npt)+avgnroot2str(npt)) / casaflux%klitter(npt,str)
+             casapool%nlitter(npt,cwd)  = avgnwood2cwd(npt) / casaflux%klitter(npt,cwd)
              
-             casapool%nsoil(npt,mic)   = (casaflux%fromLtoS(npt,mic,metb)*casaflux%klitter(npt,metb)*casapool%clitter(npt,metb)   &
-                  +casaflux%fromLtoS(npt,mic,str) *casaflux%klitter(npt,str)*casapool%clitter(npt,str)  &
-                  +casaflux%fromLtoS(npt,mic,cwd) *casaflux%klitter(npt,cwd)*casapool%clitter(npt,cwd) ) &
-                  * avgratioNCsoilmic(npt)/casaflux%ksoil(npt,mic)
-             casapool%nsoil(npt,slow)  = (casaflux%fromLtoS(npt,slow,metb)*casaflux%klitter(npt,metb)*casapool%clitter(npt,metb) &
-                  + casaflux%fromLtoS(npt,slow,str)*casaflux%klitter(npt,str)*casapool%clitter(npt,str) &
-                  + casaflux%fromLtoS(npt,slow,cwd)*casaflux%klitter(npt,cwd)*casapool%clitter(npt,cwd) &
-                  + casaflux%fromStoS(npt,slow,mic) *casaflux%ksoil(npt,mic) *casapool%csoil(npt,mic)  ) &
-                  * avgratioNCsoilslow(npt)/casaflux%ksoil(npt,slow)
-             casapool%nsoil(npt,pass)  = (casaflux%fromStoS(npt,pass,mic) *casaflux%ksoil(npt,mic) *casapool%csoil(npt,mic)    &
-                  +casaflux%fromStoS(npt,pass,slow)*casaflux%ksoil(npt,slow)*casapool%csoil(npt,slow) ) &
-                  * avgratioNCsoilpass(npt)/casaflux%ksoil(npt,pass)
+             casapool%nsoil(npt,mic) = (casaflux%fromLtoS(npt,mic,metb) * casaflux%klitter(npt,metb) * &
+                  casapool%clitter(npt,metb) + &
+                  casaflux%fromLtoS(npt,mic,str) * casaflux%klitter(npt,str) * casapool%clitter(npt,str) + &
+                  casaflux%fromLtoS(npt,mic,cwd) * casaflux%klitter(npt,cwd) * casapool%clitter(npt,cwd)) * &
+                  avgratioNCsoilmic(npt) / casaflux%ksoil(npt,mic)
+             casapool%nsoil(npt,slow) = (casaflux%fromLtoS(npt,slow,metb) * casaflux%klitter(npt,metb) * &
+                  casapool%clitter(npt,metb) + &
+                  casaflux%fromLtoS(npt,slow,str) * casaflux%klitter(npt,str) * casapool%clitter(npt,str) + &
+                  casaflux%fromLtoS(npt,slow,cwd) * casaflux%klitter(npt,cwd) * casapool%clitter(npt,cwd) + &
+                  casaflux%fromStoS(npt,slow,mic) * casaflux%ksoil(npt,mic) * casapool%csoil(npt,mic)) * &
+                  avgratioNCsoilslow(npt) / casaflux%ksoil(npt,slow)
+             casapool%nsoil(npt,pass) = (casaflux%fromStoS(npt,pass,mic) * casaflux%ksoil(npt,mic) * &
+                  casapool%csoil(npt,mic) + &
+                  casaflux%fromStoS(npt,pass,slow) * casaflux%ksoil(npt,slow) * casapool%csoil(npt,slow)) * &
+                  avgratioNCsoilpass(npt) / casaflux%ksoil(npt,pass)
              casapool%Nsoilmin(npt)    = avgnsoilmin(npt)
         endif
 
         if (icycle<=2) then
-           totpsoil(npt)          = psorder(casamet%isorder(npt)) *xpsoil50(casamet%isorder(npt))
-           !casapool%plitter(npt,:)= casapool%Nlitter(npt,:)/casapool%ratioNPlitter(npt,:)
+           totpsoil(npt)          = psorder(casamet%isorder(npt)) * xpsoil50(casamet%isorder(npt))
+           ! casapool%plitter(npt,:)= casapool%Nlitter(npt,:)/casapool%ratioNPlitter(npt,:)
            ! casapool%psoil(npt,:)  = casapool%Nsoil(npt,:)/casapool%ratioNPsoil(npt,:)
            ! why is this commented here but used in UM
-           casapool%plitter(npt,:)= casapool%ratiopclitter(npt,:)  * casapool%clitter(npt,:)
-           casapool%psoil(npt,:)  = casapool%ratioPCsoil(npt,:)    * casapool%Csoil(npt,:)
-           casapool%psoillab(npt) = totpsoil(npt) *fracpLab(casamet%isorder(npt))
-           casapool%psoilsorb(npt)= casaflux%psorbmax(npt) * casapool%psoillab(npt) &
-                /(casaflux%kmlabp(npt)+casapool%psoillab(npt))
-           casapool%psoilocc(npt) = totpsoil(npt) *fracPocc(casamet%isorder(npt))
+           casapool%plitter(npt,:) = casapool%ratiopclitter(npt,:) * casapool%clitter(npt,:)
+           casapool%psoil(npt,:)   = casapool%ratioPCsoil(npt,:) * casapool%Csoil(npt,:)
+           casapool%psoillab(npt)  = totpsoil(npt) * fracpLab(casamet%isorder(npt))
+           casapool%psoilsorb(npt) = casaflux%psorbmax(npt) * casapool%psoillab(npt) / &
+                (casaflux%kmlabp(npt)+casapool%psoillab(npt))
+           casapool%psoilocc(npt)  = totpsoil(npt) * fracPocc(casamet%isorder(npt))
         else
            ! compute the steady-state litter and soil P pools
            ! casapool%plitter(npt,metb) = (avgpleaf2met(npt)+avgproot2met(npt))/casaflux%klitter(npt,metb)
@@ -1179,27 +1189,29 @@ END SUBROUTINE sumcflux
            !                            +casaflux%fromStoS(npt,pass,slow)*casaflux%ksoil(npt,slow)*casapool%csoil(npt,slow) ) &
            !                            *  (casapool%ratioNCsoil(npt,pass)/casapool%ratioNPsoil(npt,pass))/casaflux%ksoil(npt,pass)
 
-           casapool%plitter(npt,metb) = (avgpleaf2met(npt)+avgproot2met(npt))/casaflux%klitter(npt,metb)
-           casapool%plitter(npt,str) = (avgpleaf2str(npt)+avgproot2str(npt))/casaflux%klitter(npt,str)
-           casapool%plitter(npt,cwd) = (avgpwood2cwd(npt))/casaflux%klitter(npt,cwd)
-
-           casapool%psoil(npt,mic)   = (casaflux%fromLtoS(npt,mic,metb)*casaflux%klitter(npt,metb)*casapool%Nlitter(npt,metb) &
-                +casaflux%fromLtoS(npt,mic,str) *casaflux%klitter(npt,str)*casapool%Nlitter(npt,str)  &
-                +casaflux%fromLtoS(npt,mic,cwd) *casaflux%klitter(npt,cwd)*casapool%Nlitter(npt,cwd) ) &
-                / casapool%ratioNPsoil(npt,mic)/casaflux%ksoil(npt,mic)
-
-           casapool%psoil(npt,slow)  = (casaflux%fromLtoS(npt,slow,metb)*casaflux%klitter(npt,metb)*casapool%Nlitter(npt,metb) &
-                + casaflux%fromLtoS(npt,slow,str)*casaflux%klitter(npt,str)*casapool%Nlitter(npt,str) &
-                + casaflux%fromLtoS(npt,slow,cwd)*casaflux%klitter(npt,cwd)*casapool%Nlitter(npt,cwd) &
-                + casaflux%fromStoS(npt,slow,mic) *casaflux%ksoil(npt,mic) *casapool%Nsoil(npt,mic)  ) &
-                /casapool%ratioNPsoil(npt,slow)/casaflux%ksoil(npt,slow)
-           casapool%psoil(npt,pass)  = (casaflux%fromStoS(npt,pass,mic) *casaflux%ksoil(npt,mic) *casapool%Nsoil(npt,mic)    &
-                +casaflux%fromStoS(npt,pass,slow)*casaflux%ksoil(npt,slow)*casapool%Nsoil(npt,slow) ) &
-                /casapool%ratioNPsoil(npt,pass)/casaflux%ksoil(npt,pass)
+           casapool%plitter(npt,metb) = (avgpleaf2met(npt)+avgproot2met(npt)) / casaflux%klitter(npt,metb)
+           casapool%plitter(npt,str)  = (avgpleaf2str(npt)+avgproot2str(npt)) / casaflux%klitter(npt,str)
+           casapool%plitter(npt,cwd)  = avgpwood2cwd(npt) / casaflux%klitter(npt,cwd)
+           !MC - Why "/ ratioNP/ksoil" and not "* ratioNP/ksoil" as for nitrogen?
+           casapool%psoil(npt,mic) = (casaflux%fromLtoS(npt,mic,metb) * casaflux%klitter(npt,metb) * &
+                casapool%Nlitter(npt,metb) + &
+                casaflux%fromLtoS(npt,mic,str) * casaflux%klitter(npt,str) * casapool%Nlitter(npt,str) + &
+                casaflux%fromLtoS(npt,mic,cwd) * casaflux%klitter(npt,cwd) * casapool%Nlitter(npt,cwd)) / &
+                casapool%ratioNPsoil(npt,mic)/casaflux%ksoil(npt,mic)
+           casapool%psoil(npt,slow) = (casaflux%fromLtoS(npt,slow,metb) * casaflux%klitter(npt,metb) * &
+                casapool%Nlitter(npt,metb) + &
+                casaflux%fromLtoS(npt,slow,str) * casaflux%klitter(npt,str) * casapool%Nlitter(npt,str) + &
+                casaflux%fromLtoS(npt,slow,cwd) * casaflux%klitter(npt,cwd) * casapool%Nlitter(npt,cwd) + &
+                casaflux%fromStoS(npt,slow,mic) * casaflux%ksoil(npt,mic) * casapool%Nsoil(npt,mic)) / &
+                casapool%ratioNPsoil(npt,slow) / casaflux%ksoil(npt,slow)
+           casapool%psoil(npt,pass) = (casaflux%fromStoS(npt,pass,mic) * casaflux%ksoil(npt,mic) * &
+                casapool%Nsoil(npt,mic) + &
+                casaflux%fromStoS(npt,pass,slow) * casaflux%ksoil(npt,slow) * casapool%Nsoil(npt,slow)) / &
+                casapool%ratioNPsoil(npt,pass) / casaflux%ksoil(npt,pass)
            ! assign the mineral pools
-           casapool%psoillab(npt)      = avgpsoillab(npt)
-           casapool%psoilsorb(npt)     = avgPsoilsorb(npt)
-           casapool%psoilocc(npt)      = avgPsoilocc(npt)
+           casapool%psoillab(npt)  = avgpsoillab(npt)
+           casapool%psoilsorb(npt) = avgPsoilsorb(npt)
+           casapool%psoilocc(npt)  = avgPsoilocc(npt)
         endif
      endif
   enddo
