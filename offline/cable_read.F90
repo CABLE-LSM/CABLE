@@ -195,7 +195,7 @@ CONTAINS
     REAL(KIND=4), DIMENSION(:, :), POINTER :: tmp2r => null() ! temporary for ncdf read in
     REAL(KIND=4), DIMENSION(:, :, :), POINTER :: tmp3r => null() ! temporary for ncdf read
                                                        ! in
-
+    
     ! Check if parameter exists:
     ok = NF90_INQ_VARID(ncid, parname, parID)
     IF(ok /= NF90_NOERR) THEN ! if it doesn't exist
@@ -335,7 +335,7 @@ CONTAINS
     REAL(4), DIMENSION(:), POINTER :: tmp1r => null() ! temporary for ncdf read in
     REAL(4), DIMENSION(:, :), POINTER :: tmp2r => null() ! temporary for ncdf read in
     REAL(4), DIMENSION(:, :, :), POINTER :: tmp3r => null() ! temporary for ncdf read in
-
+    
     ! Check if parameter exists:
     ok = NF90_INQ_VARID(ncid, parname, parID)
     IF(ok /= NF90_NOERR) THEN ! if it doesn't exist
@@ -510,8 +510,7 @@ CONTAINS
     REAL(KIND=4), DIMENSION(:, :, :, :), POINTER :: tmp4r => null() ! temporary for ncdf
                                                           ! read in
     REAL :: tmpjh
-
-    ! Check if parameter exists:
+     ! Check if parameter exists:
     ok = NF90_INQ_VARID(ncid, parname, parID)
     IF(ok /= NF90_NOERR) THEN ! if it doesn't exist
        completeSet = .FALSE.
@@ -536,6 +535,8 @@ CONTAINS
                      ' called with unknown dimension switch - '//dimswitch//   &
                      ' - in INTERFACE readpar SUBROUTINE readpar_r2')
        END IF
+
+      
        ! Check for grid type - restart file uses land type grid
        IF(metGrid == 'land' .OR. PRESENT(from_restart)) THEN
           ! Collect data from land only grid in netcdf file.
@@ -705,11 +706,14 @@ CONTAINS
                      ' called with unknown dimension switch - '//dimswitch//   &
                      ' - in INTERFACE readpar')
        END IF
+
+       
        ! Check for grid type - restart file uses land type grid
        IF(metGrid == 'land' .OR. PRESENT(from_restart)) THEN
           ! Collect data from land only grid in netcdf file.
           ! First, check whether parameter has patch dimension:
           ok = NF90_INQUIRE_VARIABLE(ncid, parID, ndims=pardims)
+         
           IF(pardims == 2) THEN ! no patch dimension, just a land+soil
                                 ! dimensions
              ! If we really are reading a double precision variable
@@ -717,7 +721,7 @@ CONTAINS
              ! equivalent to using "IF(PRESENT(from_restart)) THEN"
              IF(dimswitch == 'msd' .OR. dimswitch == 'snowd' .OR.              &
                 dimswitch == 'nrbd' .OR. dimswitch == 'ncpd'                   &
-                .OR. dimswitch == 'ncsd') THEN
+                .OR. dimswitch == 'ncsd'.OR. dimswitch == 'ms') THEN
                ALLOCATE(tmp2rd(INpatch, dimctr))
                ok = NF90_GET_VAR(ncid, parID, tmp2rd,                          &
                                  start=(/1, 1/), count=(/INpatch, dimctr/))
@@ -725,6 +729,7 @@ CONTAINS
                           (ok, 'Error reading '//parname//' in met data file ' &
                                   //TRIM(filename)//' (SUBROUTINE readpar_r2d)')
                var_r2d(:, :) = REAL(tmp2rd(:, :), r_2)
+              
                DEALLOCATE(tmp2rd)
 !              ALLOCATE(tmp2rd(1,dimctr))
 !              DO i=1, mland ! over all land points/grid cells
@@ -742,7 +747,7 @@ CONTAINS
    ! WRITE(45,*) 'After read-in restart values'
    ! WRITE(45,*) '1039_var_r2d = ', var_r2d(1039,:)
    ! WRITE(45,*) '1672_var_r2d = ', var_r2d(1672,:)
-             ELSE
+            ELSE
                 ALLOCATE(tmp2r(1, dimctr))
                 DO i = 1, mland ! over all land points/grid cells
                    ok = NF90_GET_VAR(ncid, parID, tmp2r,                       &
@@ -752,18 +757,23 @@ CONTAINS
                         //TRIM(filename)//' (SUBROUTINE readpar_r2d)')
                    DO j = 1, dimctr
                       var_r2d(landpt(i)%cstart:landpt(i)%cend, j) =            &
-                                                           REAL(tmp2r(1,j))
+                           REAL(tmp2r(1,j))
+                      
                    END DO
                 END DO
+                
                 DEALLOCATE(tmp2r)
              END IF ! reading a d.p. var from netcdf
           ELSE IF(pardims == 3) THEN ! i.e. parameter has a patch dimension
              ! Note that restart file doesn't have a patch dimension,
              ! so that reads below are of single precision vares from met file
+           
              ALLOCATE(tmp3r(1,npatch,dimctr))
              DO i = 1, mland ! over all land points/grid cells
                 ok = NF90_GET_VAR(ncid, parID, tmp3r,                          &
-                                 start=(/i, 1, 1/), count=(/1, npatch, dimctr/))
+                     start=(/i, 1, 1/), count=(/1, npatch, dimctr/))
+              
+                
                 IF(ok /= NF90_NOERR) CALL nc_abort                             &
                           (ok, 'Error reading '//parname//' in met data file ' &
                                   //TRIM(filename)//' (SUBROUTINE readpar_r2d)')

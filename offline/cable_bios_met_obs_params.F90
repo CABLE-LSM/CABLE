@@ -626,6 +626,8 @@ CONTAINS
   READ (iunit, NML=biosnml)
   CLOSE(iunit)
 
+  metgrid = 'land'
+
 !%%%%%%%%%%%%%%%
 
 !print *,Run, met_path, param_path, landmaskflt_file, landmaskhdr_file, &

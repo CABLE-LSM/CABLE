@@ -36,7 +36,7 @@ MODULE cable_init_module
    USE cable_IO_vars_module, ONLY: latitude,longitude, patch, &
         landpt,smoy,ncid_rin,max_vegpatches, &
         soilparmnew,ncciy, vegtype_metfile, &
-        soiltype_metfile
+        soiltype_metfile, metgrid
    USE cable_read_module
    USE netcdf
    USE cable_common_module, ONLY: filename, cable_user
@@ -242,6 +242,7 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
 
    ! Write to screen the restart file is found:
    WRITE(*,*) 'Reading restart data from: ' , TRIM(filename%restart_in)
+   write(*,*) 'metgrid', metgrid
 
    ! Check number of gridpoints in restart file is correct:
    ok = NF90_INQ_DIMID(ncid_rin,'mland',mlandID)
@@ -452,8 +453,10 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
     IF(cable_user%SOIL_STRUC=='sli') THEN
        CALL readpar(ncid_rin,'S',dummy,ssnow%S,filename%restart_in, &
             max_vegpatches,'ms',from_restart,mp)
+       
       CALL readpar(ncid_rin,'Tsoil',dummy,ssnow%Tsoil,filename%restart_in, &
-            max_vegpatches,'ms',from_restart,mp)
+           max_vegpatches,'ms',from_restart,mp)
+     
        CALL readpar(ncid_rin,'h0',dummy,ssnow%h0,filename%restart_in, &
             max_vegpatches,'def',from_restart,mp)
        CALL readpar(ncid_rin,'nsnow',dummy,ssnow%nsnow,filename%restart_in, &
