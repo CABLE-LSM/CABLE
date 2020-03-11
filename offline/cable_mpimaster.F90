@@ -179,7 +179,7 @@ CONTAINS
     USE cable_def_types_mod
     USE cable_io_vars_module, ONLY: logn, gswpfile, ncciy, leaps, &
          verbose, fixedCO2, output, check, patchout, soilparmnew, &
-         timeunits, exists, calendar, landpt
+         timeunits, exists, calendar, landpt, latitude, longitude
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user, &
          cable_runtime, filename, &
          redistrb, wiltParam, satuParam, CurYear, &
@@ -212,9 +212,9 @@ CONTAINS
     USE CABLE_LUC_EXPT,       ONLY: LUC_EXPT_TYPE, LUC_EXPT_INIT, close_luh2
 
     ! modules related to fire
-    USE BLAZE_MOD,            ONLY: TYPE_BLAZE
+    USE BLAZE_MOD,            ONLY: TYPE_BLAZE, INI_BLAZE, WRITE_BLAZE_OUTPUT_NC
     USE BLAZE_MPI,            ONLY: MASTER_BLAZE_TYPES, MASTER_SIMFIRE_TYPES
-    USE SIMFIRE_MOD,          ONLY: TYPE_SIMFIRE
+    USE SIMFIRE_MOD,          ONLY: TYPE_SIMFIRE, INI_SIMFIRE
 
     ! 13C
     use cable_c13o2_def,         only: c13o2_delta_atm, c13o2_flux, c13o2_pool, c13o2_luc, &
@@ -235,7 +235,7 @@ CONTAINS
 
     ! BIOS only
     USE cable_bios_met_obs_params,   ONLY:  cable_bios_read_met, cable_bios_init, &
-         cable_bios_load_params
+         cable_bios_load_params, cable_bios_load_climate_params
 
     IMPLICIT NONE
 
@@ -575,6 +575,9 @@ CONTAINS
        if (trim(cable_user%MetType) .eq. "bios") then
           call cpu_time(etime)
           call cable_bios_init(dels, curyear, met, kend, ktauday)
+          call MPI_Bcast(mland, 1, MPI_INTEGER, 0, comm, ierr)
+          call MPI_Bcast(latitude, mland, MPI_REAL, 0, comm, ierr)
+          call MPI_Bcast(longitude, mland, MPI_REAL, 0, comm, ierr)
           koffset = 0
           leaps   = .true.
           write(str1,'(i4)') curyear
@@ -669,8 +672,9 @@ CONTAINS
                 if (cable_user%popluc) allocate(lucsave(c13o2luc%nland,c13o2luc%npools))
              endif
 
+             !par disabled as blaze init moved below
              ! Abort, if an error occurred during BLAZE/SIMFIRE init
-             IF (BLAZE%ERR) CALL MPI_Abort(comm,0,ierr)
+             !IF (BLAZE%ERR) CALL MPI_Abort(comm,0,ierr)
 
              IF (cable_user%POPLUC .AND. TRIM(cable_user%POPLUC_RunType) .EQ. 'static') &
                   cable_user%POPLUC= .FALSE.
@@ -698,6 +702,9 @@ CONTAINS
 
              !! CLN BLAZE
              !! IF ( cable_user%CALL_BLAZE ) &
+              ! additional params needed for BLAZE
+             if ( trim(cable_user%MetType) .eq. 'bios' ) call cable_bios_load_climate_params(climate)
+
 
              IF (.NOT. spinup) spinConv = .TRUE.
 
@@ -774,21 +781,39 @@ CONTAINS
 
                 ! Fire init and
                 if (cable_user%call_blaze) then
+                   call ini_blaze( mland, rad%latitude(landpt(:)%cstart), &
+                                   rad%longitude(landpt(:)%cstart), blaze )
+
+                   !par blaze restart not required uses climate data
                    !create handles for restart-data
                    ! print*, 'MASTER Send 15 blaze'
-                   call master_blaze_types(comm, wland, wnp, mp, blaze, blaze_restart_ts, blaze_out_ts)
-                   if (.not. spinup) then
-                      ! print*, 'MASTER Send 16 blaze restart'
-                      call master_send_input(icomm, blaze_restart_ts, ktau)
-                   endif
-                   if (trim(cable_user%burnt_area) == "SIMFIRE" ) then
+                   allocate(blaze_restart_ts(wnp))
+                   allocate(blaze_out_ts(wnp))
+                   call master_blaze_types(comm, wland, wnp, mland, blaze, blaze_restart_ts, blaze_out_ts)
+                   !if (.not. spinup) then
+                   !   ! print*, 'MASTER Send 16 blaze restart'
+                   !   call master_send_input(comm, blaze_restart_ts, ktau)
+                   !endif
+                   !deallocate(blaze_restart_ts)
+                   !deallocate(blaze_out_ts)
+                   if (trim(blaze%burnt_area_src) == "SIMFIRE" ) then
+                      call INI_SIMFIRE(mland ,SIMFIRE, &
+                         climate%modis_igbp(landpt(:)%cstart) ) !CLN here we need to check for the SIMFIRE biome setting
+
+                      !par blaze restart not required uses climate data
                       ! print*, 'MASTER Send 17 simfire'
-                      call master_simfire_types(comm, wland, wnp, mp, simfire, &
-                           simfire_restart_ts, simfire_inp_ts, simfire_out_ts)
-                      if (.not. spinup) then
-                         ! print*, 'MASTER Send 18 simfire restart'
-                         call master_send_input(icomm, simfire_restart_ts, ktau)
-                      endif
+                      !allocate(simfire_restart_ts(wnp))
+                      !allocate(simfire_inp_ts(wnp))
+                      !allocate(simfire_out_ts(wnp))
+                      !call master_simfire_types(comm, wland, wnp, mland, simfire, &
+                      !     simfire_restart_ts, simfire_inp_ts, simfire_out_ts)
+                      !if (.not. spinup) then
+                      !   ! print*, 'MASTER Send 18 simfire restart'
+                      !   call master_send_input(comm, simfire_restart_ts, ktau)
+                      !endif
+                      !deallocate(simfire_restart_ts)
+                      !deallocate(simfire_inp_ts)
+                      !deallocate(simfire_out_ts)
                    end if
                 end if
              END IF ! icycle
@@ -1066,8 +1091,16 @@ CONTAINS
                       endif
                       ! write(*,*) 'after master_receive casa_ts'
                       ! print*, 'MASTER Receive waitall'
-                      call MPI_Waitall(wnp, recv_req, recv_stats, ierr)
+                      !call MPI_Waitall(wnp, recv_req, recv_stats, ierr)
                    endif
+
+                   if ( mod((oktau-kstart+1+koffset),ktauday).eq.0 ) then
+                     !par recv blaze_out_ts
+                     call master_receive(ocomm, oktau, blaze_out_ts)
+                     BLAZE%time =  BLAZE%time + 86400
+                     call write_blaze_output_nc( BLAZE, ktau.EQ.kend .AND. YYYY.EQ.cable_user%YearEnd)
+                   endif
+
                    ! write(*,*) 'after master_receive casa_ts waitall'
                    ! receive casa dump requirements from worker
                    if ( ((.not.spinup) .or. (spinup.and.spinConv)) .and. &
@@ -1293,6 +1326,10 @@ CONTAINS
                    ! print*, 'MASTER Receive 39 c13o2_pool'
                    call master_receive(ocomm, oktau, c13o2_pool_ts)
                 endif
+                !par recv blaze_out_ts
+                call master_receive(ocomm, oktau, blaze_out_ts)
+                BLAZE%time =  BLAZE%time + 86400
+                call write_blaze_output_nc( BLAZE, ktau.EQ.kend .AND. YYYY.EQ.cable_user%YearEnd)
                 ! CALL MPI_Waitall(wnp, recv_req, recv_stats, ierr)
                 IF ( ((.NOT.spinup) .OR. (spinup.AND.spinConv)) .AND. &
                      IS_CASA_TIME("dwrit", yyyy, oktau, kstart, &
@@ -1566,6 +1603,8 @@ CONTAINS
           ! print*, 'MASTER Receive 51 c13o2_pool'
           call master_receive(ocomm, ktau_gl, c13o2_pool_ts)
       endif
+       !par recv blaze_out_ts
+       call master_receive(ocomm, ktau_gl, blaze_out_ts)
 
        ! CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
        ! CALL casa_poolout( ktau, veg, soil, casabiome, &
@@ -4948,6 +4987,14 @@ SUBROUTINE master_intypes(comm, met, veg)
      call MPI_Get_address(met%hod(off), displs(bidx), ierr)
      blocks(bidx) = r1len
 
+     bidx = bidx + 1
+     call MPI_Get_address(met%u10(off), displs(bidx), ierr)
+     blocks(bidx) = r1len
+
+     bidx = bidx + 1
+     call MPI_Get_address(met%rhum(off), displs(bidx), ierr)
+     blocks(bidx) = r1len
+
      ! MPI: sanity check
      if (bidx /= ntyp) then
         write(*,*) 'master: invalid intype nmat, nvec or n3d constant, fix it (03)!'
@@ -6855,7 +6902,31 @@ SUBROUTINE master_casa_types(comm, casapool, casaflux, casamet, casabal, phen)
           types(bidx), ierr)
      blocks(bidx) = 1
 
-     ! 3D
+     bidx = bidx + 1
+     CALL MPI_Get_address(casaflux%kplant_tot(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(mplant, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blocks(bidx) = 1
+
+     bidx = bidx + 1
+     CALL MPI_Get_address(casaflux%klitter_tot(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(mlitter, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blocks(bidx) = 1
+
+     bidx = bidx + 1
+     CALL MPI_Get_address(casaflux%fluxfromPtoCO2_fire(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(mplant, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blocks(bidx) = 1
+
+     bidx = bidx + 1
+     CALL MPI_Get_address(casaflux%fluxfromLtoCO2_fire(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(mlitter, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blocks(bidx) = 1
+
+     ! ------------- 3D vectors -------------
      bidx = bidx + 1
      CALL MPI_Get_address (casaflux%fromPtoL(off,1,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (mplant * mlitter, r2len, r2stride, MPI_BYTE, &
@@ -6972,6 +7043,12 @@ SUBROUTINE master_casa_types(comm, casapool, casaflux, casamet, casabal, phen)
      bidx = bidx + 1
      CALL MPI_Get_address(casaflux%FluxFromStoS(off,1,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector(msoil*msoil, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blocks(bidx) = 1
+
+     bidx = bidx + 1
+     CALL MPI_Get_address(casaflux%fromPtoL_fire(off,1,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(mlitter*mplant, r2len, r2stride, MPI_BYTE, &
           types(bidx), ierr)
      blocks(bidx) = 1
 
@@ -7229,6 +7306,18 @@ SUBROUTINE master_casa_types(comm, casapool, casaflux, casamet, casabal, phen)
 
      bidx = bidx + 1
      CALL MPI_Get_address(casaflux%FluxFromPtoHarvest(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
+
+     bidx = bidx + 1
+     CALL MPI_Get_address(casaflux%fluxCtoCO2_plant_fire(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
+
+     bidx = bidx + 1
+     CALL MPI_Get_address(casaflux%fluxCtoCO2_litter_fire(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
+
+     bidx = bidx + 1
+     CALL MPI_Get_address(casaflux%fluxNtoAtm_fire(off), displs(bidx), ierr)
      blocks(bidx) = r2len
 
      bidx = bidx + 1
@@ -7634,6 +7723,16 @@ SUBROUTINE master_climate_types (comm, climate, ktauday)
 
      bidx = bidx + 1
      CALL MPI_Get_address (climate%fapar_ann_max_last_year(off), displs(bidx), ierr)
+     blocks(bidx) = r1len
+     types(bidx)  = MPI_BYTE
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%modis_igbp(off), displs(bidx), ierr)
+     blocks(bidx) = i1len
+     types(bidx)  = MPI_BYTE
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (climate%AvgAnnMaxFAPAR(off), displs(bidx), ierr)
      blocks(bidx) = r1len
      types(bidx)  = MPI_BYTE
 

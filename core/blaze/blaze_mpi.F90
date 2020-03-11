@@ -13,7 +13,7 @@ MODULE BLAZE_MPI
   ! for BLAZE%OUTMODE == "std"
   INTEGER, PARAMETER :: n_blaze_output_std   = 10
   ! add for BLAZE%OUTMODE == "full"
-  INTEGER, PARAMETER :: n_blaze_output_extra = 13
+  INTEGER, PARAMETER :: n_blaze_output_extra = 14
 
   ! Total number of restart parameters for SIMFIRE
   INTEGER, PARAMETER :: n_simfire_restart = 4
@@ -63,7 +63,7 @@ SUBROUTINE master_blaze_types (comm, wland, wnp, mp, BLAZE, blaze_restart_ts, bl
   INTEGER :: rank, off, cnt
   INTEGER :: bidx, midx, vidx, ierr
 
-  ! Restart value handles (restart_blaze_ts()) 
+  ! Restart value handles (blaze_restart_ts()) 
   
   ntyp = n_blaze_restart
 
@@ -75,9 +75,11 @@ SUBROUTINE master_blaze_types (comm, wland, wnp, mp, BLAZE, blaze_restart_ts, bl
   r1stride = mp * extr1 ! single precision
   r2stride = mp * extr2 ! double precision
 
+  totalrecv = 0
+
   DO rank = 1, wnp
-     off = wland(rank)%patch0
-     cnt = wland(rank)%npatch
+     off = wland(rank)%landp0
+     cnt = wland(rank)%nland
 
      i1len = cnt * extid  
      r1len = cnt * extr1
@@ -198,7 +200,7 @@ write(*,*)" CLN ierr4 " , ierr
   DEALLOCATE(blocks)
 
   !=============================================================================
-  ! Standard desired Output (blaze_ts()) 
+  ! Standard desired Output (blaze_out_ts()) 
   !=============================================================================
 
   ntyp = n_blaze_output_std
@@ -213,9 +215,11 @@ write(*,*)" CLN ierr4 " , ierr
   r1stride = mp * extr1 ! single precision
   r2stride = mp * extr2 ! double precision
 
+  totalrecv = 0
+
   DO rank = 1, wnp
-     off = wland(rank)%patch0
-     cnt = wland(rank)%npatch
+     off = wland(rank)%landp0
+     cnt = wland(rank)%nland
 
      i1len = cnt * extid  
      r1len = cnt * extr1
@@ -259,6 +263,20 @@ write(*,*)" CLN ierr4 " , ierr
         ! Above ground grassy litter 
         bidx = bidx + 1
         CALL MPI_Get_address (BLAZE%AGLit_g(off,1), displs(bidx), ierr) ! 5
+        CALL MPI_Type_create_hvector (ncp, r1len, r1stride, MPI_BYTE, &
+             &                             types(bidx), ierr)
+        blocks(bidx) = 1
+
+        ! CPLANT_w
+        bidx = bidx + 1
+        CALL MPI_Get_address (BLAZE%CPLANT_w(off,1), displs(bidx), ierr) ! 5
+        CALL MPI_Type_create_hvector (ncp, r1len, r1stride, MPI_BYTE, &
+             &                             types(bidx), ierr)
+        blocks(bidx) = 1
+
+        ! CPLANT_g
+        bidx = bidx + 1
+        CALL MPI_Get_address (BLAZE%CPLANT_g(off,1), displs(bidx), ierr) ! 5
         CALL MPI_Type_create_hvector (ncp, r1len, r1stride, MPI_BYTE, &
              &                             types(bidx), ierr)
         blocks(bidx) = 1
@@ -311,6 +329,10 @@ write(*,*)" CLN ierr4 " , ierr
         CALL MPI_Get_address (BLAZE%DEADWOOD(off), displs(bidx), ierr)
         blocks(bidx) = r1len
 
+        ! avail fuel prior 
+        bidx = bidx + 1
+        CALL MPI_Get_address (BLAZE%w_prior(off), displs(bidx), ierr)
+        blocks(bidx) = r1len
      END IF
      
      ! current KBDI
@@ -429,7 +451,7 @@ SUBROUTINE worker_blaze_types(comm, mp, BLAZE, blaze_restart_t, blaze_out_t)
   ! MPI: block lengths and strides for hvector representing matrices
   INTEGER :: r1len, r2len, i1len, llen
   
-  INTEGER :: rank, off, cnt
+  INTEGER :: rank, off
   INTEGER :: bidx, midx, vidx, ierr, nd, ny
 
   INTEGER :: tsize
@@ -448,12 +470,10 @@ SUBROUTINE worker_blaze_types(comm, mp, BLAZE, blaze_restart_t, blaze_out_t)
   ALLOCATE (displs(ntyp))
   ALLOCATE (types(ntyp))
   
-  cnt  = mp
-  
-  r1len = cnt * extr1
-  r2len = cnt * extr2
-  i1len = cnt * extid
-!  llen  = cnt * extl
+  r1len = mp * extr1
+  r2len = mp * extr2
+  i1len = mp * extid
+!  llen  = mp * extl
 
   off  = 1
   bidx = 0
@@ -545,10 +565,6 @@ SUBROUTINE worker_blaze_types(comm, mp, BLAZE, blaze_restart_t, blaze_out_t)
   ALLOCATE (displs(ntyp))
   ALLOCATE (types(ntyp))
   
-  istride  = cnt * extid ! short integer 
-  r1stride = cnt * extr1 ! single precision
-  r2stride = cnt * extr2 ! double precision
-
   bidx = 0
 
   ! ------------- 2D arrays -------------
@@ -573,6 +589,14 @@ SUBROUTINE worker_blaze_types(comm, mp, BLAZE, blaze_restart_t, blaze_out_t)
 
      bidx = bidx + 1
      CALL MPI_Get_address (BLAZE%AGLit_g(off,1), displs(bidx), ierr)
+     blocks(bidx) = r1len * ncp
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (BLAZE%CPLANT_w(off,1), displs(bidx), ierr)
+     blocks(bidx) = r1len * ncp
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (BLAZE%CPLANT_g(off,1), displs(bidx), ierr)
      blocks(bidx) = r1len * ncp
 
   ENDIF
@@ -619,6 +643,11 @@ SUBROUTINE worker_blaze_types(comm, mp, BLAZE, blaze_restart_t, blaze_out_t)
      ! DEADWOOD
      bidx = bidx + 1
      CALL MPI_Get_address (BLAZE%DEADWOOD(off), displs(bidx), ierr)
+     blocks(bidx) = r1len
+     
+     ! avail fueld prior
+     bidx = bidx + 1
+     CALL MPI_Get_address (BLAZE%w_prior(off), displs(bidx), ierr)
      blocks(bidx) = r1len
      
   END IF
@@ -747,9 +776,11 @@ SUBROUTINE master_simfire_types(comm, wland, wnp, mp, SF, simfire_restart_ts, si
   r1stride = mp * extr1 ! single precision
   r2stride = mp * extr2 ! double precision
 
+  totalrecv = 0
+
   DO rank = 1, wnp
-     off = wland(rank)%patch0
-     cnt = wland(rank)%npatch
+     off = wland(rank)%landp0
+     cnt = wland(rank)%nland
 
      i1len = cnt * extid  
      r1len = cnt * extr1
@@ -826,7 +857,7 @@ SUBROUTINE master_simfire_types(comm, wland, wnp, mp, SF, simfire_restart_ts, si
   WRITE (*,*) 'total size of simfire restart fields sent by all workers: ', totalsend
 
   IF (totalrecv /= totalsend) THEN
-          WRITE (*,*) 'error: simfire restart fields totalsend and totalrecv differ'
+          WRITE (*,*) 'error: simfire restart fields totalsend and totalrecv differ',totalsend,totalrecv
           CALL MPI_Abort (comm, 0, ierr)
   END IF
 
@@ -848,9 +879,11 @@ SUBROUTINE master_simfire_types(comm, wland, wnp, mp, SF, simfire_restart_ts, si
   r1stride = mp * extr1 ! single precision
   r2stride = mp * extr2 ! double precision
 
+  totalrecv = 0
+
   DO rank = 1, wnp
-     off = wland(rank)%patch0
-     cnt = wland(rank)%npatch
+     off = wland(rank)%landp0
+     cnt = wland(rank)%nland
 
      i1len = cnt * extid  
      r1len = cnt * extr1
@@ -903,7 +936,7 @@ SUBROUTINE master_simfire_types(comm, wland, wnp, mp, SF, simfire_restart_ts, si
   WRITE (*,*) 'total size of restart fields sent by all workers: ', totalsend
 
   IF (totalrecv /= totalsend) THEN
-          WRITE (*,*) 'error: restart fields totalsend and totalrecv differ'
+          WRITE (*,*) 'error: restart fields totalsend and totalrecv differ',totalsend,totalrecv
           CALL MPI_Abort (comm, 0, ierr)
   END IF
 
@@ -931,9 +964,11 @@ SUBROUTINE master_simfire_types(comm, wland, wnp, mp, SF, simfire_restart_ts, si
      r1stride = mp * extr1 ! single precision
      r2stride = mp * extr2 ! double precision
      
+     totalrecv = 0
+
      DO rank = 1, wnp
-        off = wland(rank)%patch0
-        cnt = wland(rank)%npatch
+        off = wland(rank)%landp0
+        cnt = wland(rank)%nland
         
         i1len = cnt * extid  
         r1len = cnt * extr1
@@ -1001,7 +1036,7 @@ SUBROUTINE master_simfire_types(comm, wland, wnp, mp, SF, simfire_restart_ts, si
      WRITE (*,*) 'total size of restart fields sent by all workers: ', totalsend
      
      IF (totalrecv /= totalsend) THEN
-        WRITE (*,*) 'error: restart fields totalsend and totalrecv differ'
+        WRITE (*,*) 'error4: restart fields totalsend and totalrecv differ',totalsend,totalrecv
         CALL MPI_Abort (comm, 0, ierr)
      END IF
      
@@ -1036,12 +1071,11 @@ SUBROUTINE worker_simfire_types(comm, mp, SF, simfire_restart_t, simfire_inp_t, 
 
   ! MPI: block lengths and strides for hvector representing matrices
   INTEGER :: r1len, r2len, i1len, llen
-  INTEGER(KIND=MPI_ADDRESS_KIND) :: r1stride, r2stride, istride
 
   INTEGER :: tsize, totalrecv, totalsend
   INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
 
-  INTEGER :: rank, off, cnt
+  INTEGER :: rank, off
   INTEGER :: bidx, midx, vidx, ierr
 
   CALL MPI_Comm_rank (comm, rank, ierr)
@@ -1056,12 +1090,10 @@ SUBROUTINE worker_simfire_types(comm, mp, SF, simfire_restart_t, simfire_inp_t, 
   ALLOCATE (displs(ntyp))
   ALLOCATE (types(ntyp))
   
-  cnt  = mp
-  
-  r1len = cnt * extr1
-  r2len = cnt * extr2
-  i1len = cnt * extid
-  llen  = cnt * extl
+  r1len = mp * extr1
+  r2len = mp * extr2
+  i1len = mp * extid
+  llen  = mp * extl
 
   off  = 1
   bidx = 0
@@ -1118,14 +1150,6 @@ SUBROUTINE worker_simfire_types(comm, mp, SF, simfire_restart_t, simfire_inp_t, 
   ALLOCATE (displs(ntyp))
   ALLOCATE (types(ntyp))
 
-  cnt  = mp
-  
-  r1len = cnt * extr1
-  r2len = cnt * extr2
-  i1len = cnt * extid
-  llen  = cnt * extl
-
-  off  = 1
   bidx = 0
  
   ! Population density
@@ -1165,11 +1189,6 @@ SUBROUTINE worker_simfire_types(comm, mp, SF, simfire_restart_t, simfire_inp_t, 
      ALLOCATE (displs(ntyp))
      ALLOCATE (types(ntyp))
      
-     istride  = mp * extid ! short integer 
-     r1stride = mp * extr1 ! single precision
-     r2stride = mp * extr2 ! double precision
-
-     off  = 1
      bidx = 0
 
      ! BIOME

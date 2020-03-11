@@ -89,6 +89,9 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
   SF%LAT  = LATITUDE
   ALLOCATE( SF%LON         (NCELLS) )
   SF%LON  = LONGITUDE
+  ALLOCATE( SF%SAV_NESTEROV(NCELLS,12) )
+  ALLOCATE( SF%SAV_FAPAR(NCELLS,FAPAR_AVG_INT) )
+  ALLOCATE( SF%POPDENS     (NCELLS) )
   
 
   !=============================================================================

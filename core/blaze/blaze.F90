@@ -16,7 +16,7 @@ TYPE TYPE_BLAZE
    REAL                                 :: FT,tstp
    LOGICAL                              :: USE_POP = .FALSE., ERR=.FALSE.
    CHARACTER                            :: GFEDP*80, FSTEP*7, BURNT_AREA_SRC*10
-   CHARACTER                            :: OUTMODE = "std" ! "full" for diagnostical purposes
+   CHARACTER(LEN=4)                     :: OUTMODE = "full" !"std" ! "full" for diagnostical purposes
 END TYPE TYPE_BLAZE
 
 TYPE TYPE_TURNOVER

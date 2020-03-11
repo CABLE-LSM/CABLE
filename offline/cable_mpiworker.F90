@@ -139,7 +139,7 @@ CONTAINS
     USE cable_def_types_mod
     USE cable_io_vars_module, ONLY: logn, gswpfile, ncciy, leaps, &
          verbose, fixedCO2, output, check, patchout, soilparmnew, &
-         timeunits, exists, calendar, landpt
+         timeunits, exists, calendar, landpt, latitude, longitude
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user, &
          cable_runtime, filename, &
          redistrb, wiltParam, satuParam, CurYear, &
@@ -166,9 +166,9 @@ CONTAINS
     USE POP_Constants,        ONLY: HEIGHT_BINS, NCOHORT_MAX, shootfrac
 
     ! modules related to fire
-    USE BLAZE_MOD,            ONLY: TYPE_BLAZE, BLAZE_ACCOUNTING
+    USE BLAZE_MOD,            ONLY: TYPE_BLAZE, BLAZE_ACCOUNTING, INI_BLAZE
     USE BLAZE_MPI,            ONLY: WORKER_BLAZE_TYPES, WORKER_SIMFIRE_TYPES
-    USE SIMFIRE_MOD,          ONLY: TYPE_SIMFIRE
+    USE SIMFIRE_MOD,          ONLY: TYPE_SIMFIRE, INI_SIMFIRE
 
     ! 13C
     use cable_c13o2_def,         only: c13o2_delta_atm, c13o2_flux, c13o2_pool, c13o2_luc, &
@@ -479,6 +479,13 @@ CONTAINS
 
     ktau_tot = 0
     SPINLOOP:DO
+       if (trim(cable_user%MetType) .eq. "bios") then
+         call MPI_Bcast(mland, 1, MPI_INTEGER, 0, comm, ierr)
+         allocate(latitude(mland))
+         allocate(longitude(mland))
+         call MPI_Bcast(latitude, mland, MPI_REAL, 0, comm, ierr)
+         call MPI_Bcast(longitude, mland, MPI_REAL, 0, comm, ierr)
+       end if
        YEARLOOP: DO YYYY=CABLE_USER%YearStart, CABLE_USER%YearEnd
           CurYear = YYYY
           IF ( leaps .AND. IS_LEAPYEAR( YYYY ) ) THEN
@@ -564,20 +571,28 @@ CONTAINS
                    ! allocate biomass turnover pools when both pop and blaze are active
                    if (cable_user%call_pop) allocate(pop_to(mp), pop_cwd(mp), pop_str(mp))
 
+                   call ini_blaze( mland, rad%latitude(landpt(:)%cstart), &
+                                   rad%longitude(landpt(:)%cstart), blaze )
+
+                   !par blaze restart not required uses climate data
                    ! print*, 'WORKER Receive 15 blaze'
-                   call worker_blaze_types(comm, mp, blaze, blaze_restart_t, blaze_out_t)
-                   if ( .not. spinup ) then
-                      ! print*, 'WORKER Receive 16 blaze restart'
-                      call MPI_recv(MPI_BOTTOM, 1, blaze_restart_t, 0, ktau_gl, icomm, stat, ierr)
-                   endif
+                   call worker_blaze_types(comm, mland, blaze, blaze_restart_t, blaze_out_t)
+                   !if ( .not. spinup ) then
+                   !   ! print*, 'WORKER Receive 16 blaze restart'
+                   !   call MPI_recv(MPI_BOTTOM, 1, blaze_restart_t, 0, ktau_gl, comm, stat, ierr)
+                   !endif
                    ! cln:  burnt_area
-                   if ( cable_user%burnt_area == "SIMFIRE" ) then
+                   if ( blaze%burnt_area_src == "SIMFIRE" ) then
+                      call INI_SIMFIRE(mland ,SIMFIRE, &
+
+                         climate%modis_igbp(landpt(:)%cstart) ) !CLN here we need to check for the SIMFIRE biome setting
+                      !par blaze restart not required uses climate data
                       ! print*, 'WORKER Receive 17 simfire'
-                      call worker_simfire_types(comm, mp, simfire, simfire_restart_t, simfire_inp_t, simfire_out_t)
-                      if (.not. spinup) then
-                         ! print*, 'WORKER Receive 18 simfire restart'
-                         call MPI_Recv(MPI_BOTTOM, 1, simfire_restart_t, 0, ktau_gl, icomm, stat, ierr)
-                      endif
+                      !call worker_simfire_types(comm, mland, simfire, simfire_restart_t, simfire_inp_t, simfire_out_t)
+                      !if (.not. spinup) then
+                      !   ! print*, 'WORKER Receive 18 simfire restart'
+                      !   call MPI_Recv(MPI_BOTTOM, 1, simfire_restart_t, 0, ktau_gl, comm, stat, ierr)
+                      !endif
                    endif
                 endif
              END IF ! icycle>0
@@ -867,11 +882,15 @@ CONTAINS
                    write(wlogn,*) 'after casa mpi_send ', ktau
                 ENDIF
 
-                IF ( cable_user%CALL_BLAZE ) THEN
-                   CALL BLAZE_ACCOUNTING(BLAZE, met, climate, ktau, dels, YYYY, idoy)
-                   IF ( MOD(ktau,ktauday).EQ.0 ) &
-                        call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
-                        casamet, climate, real(shootfrac), idoy, YYYY, 1, POP, veg)
+                IF (MOD((ktau-kstart+1),ktauday).EQ.0) THEN
+                  IF ( cable_user%CALL_BLAZE ) THEN
+                    CALL BLAZE_ACCOUNTING(BLAZE, met, climate, ktau, dels, YYYY, idoy)
+                    call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
+                         casamet, climate, real(shootfrac), idoy, YYYY, 1, POP, veg)
+
+                   !par send blaze_out back
+                   CALL MPI_Send(MPI_BOTTOM, 1, blaze_out_t, 0, ktau_gl, ocomm, ierr)
+                  ENDIF
                 ENDIF
                 ! !! CLN HERE BLAZE daily
 
@@ -970,7 +989,7 @@ CONTAINS
                 END WHERE
 
                 call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
-                     casamet, climate, real(shootfrac), idoy, YYYY, -1, POP, veg)
+                     casamet, climate, real(shootfrac), idoy, YYYY, 1, POP, veg)
              ENDIF
 
              ! print*, 'WORKER Receive 45 pop'
@@ -1078,6 +1097,8 @@ CONTAINS
           ! print*, 'WORKER Send 51 c13o2_pool'
           call MPI_Send(MPI_BOTTOM, 1, c13o2_pool_t, 0, ktau_gl, ocomm, ierr)
        endif
+       !par send blaze_out back
+       CALL MPI_Send(MPI_BOTTOM, 1, blaze_out_t, 0, ktau_gl, ocomm, ierr)
 
        ! MPI: output file written by master only
        !CALL casa_poolout( ktau, veg, soil, casabiome,                           &
@@ -3882,6 +3903,14 @@ CONTAINS
     CALL MPI_Get_address (met%hod, displs(bidx), ierr)
     blocks(bidx) = r1len
 
+    bidx = bidx + 1
+    CALL MPI_Get_address (met%u10, displs(bidx), ierr)
+    blocks(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (met%rhum, displs(bidx), ierr)
+    blocks(bidx) = r1len
+
 
     ! MPI: sanity check
     IF (bidx /= ntyp) THEN
@@ -6364,7 +6393,23 @@ CONTAINS
     CALL MPI_Get_address(casaflux%FluxFromStoCO2(off,1), displs(bidx), ierr)
     blocks(bidx) = msoil * r2len
 
-    ! 3D
+    bidx = bidx + 1
+    CALL MPI_Get_address(casaflux%kplant_tot(off,1), displs(bidx), ierr)
+    blocks(bidx) = mplant * r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address(casaflux%klitter_tot(off,1), displs(bidx), ierr)
+    blocks(bidx) = mlitter * r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address(casaflux%fluxfromPtoCO2_fire(off,1), displs(bidx), ierr)
+    blocks(bidx) = mplant * r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address(casaflux%fluxfromLtoCO2_fire(off,1), displs(bidx), ierr)
+    blocks(bidx) = mlitter * r2len
+
+    ! ------------- 3D arrays -------------
     !TRUNK and also no (off,1,1)
     bidx = bidx + 1
     CALL MPI_Get_address (casaflux%fromPtoL(off,1,1), displs(bidx), ierr)
@@ -6436,6 +6481,10 @@ CONTAINS
     bidx = bidx + 1
     CALL MPI_Get_address(casaflux%FluxFromStoS(off,1,1), displs(bidx), ierr)
     blocks(bidx) = msoil * msoil * r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address(casaflux%fromPtoL_fire(off,1,1), displs(bidx), ierr)
+    blocks(bidx) = mlitter * mplant * r2len
 
     ! ------------- 1D vectors -------------
 
@@ -6691,6 +6740,18 @@ CONTAINS
 
     bidx = bidx + 1
     CALL MPI_Get_address(casaflux%FluxFromPtoHarvest(off), displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address(casaflux%fluxCtoCO2_plant_fire(off), displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address(casaflux%fluxCtoCO2_litter_fire(off), displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address(casaflux%fluxNtoAtm_fire(off), displs(bidx), ierr)
     blocks(bidx) = r2len
 
     bidx = bidx + 1
@@ -7051,6 +7112,16 @@ CONTAINS
 
     bidx = bidx + 1
     CALL MPI_Get_address (climate%fapar_ann_max_last_year(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+    types(bidx)  = MPI_BYTE
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (climate%modis_igbp(off), displs(bidx), ierr)
+    blocks(bidx) = i1len
+    types(bidx)  = MPI_BYTE
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (climate%AvgAnnMaxFAPAR(off), displs(bidx), ierr)
     blocks(bidx) = r1len
     types(bidx)  = MPI_BYTE
 

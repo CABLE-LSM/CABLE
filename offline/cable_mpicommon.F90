@@ -80,7 +80,7 @@ MODULE cable_mpicommon
   ! MPI: number of input fields sent to workers at the start of each timestep
   !   INTEGER, PARAMETER :: ninput = 11
   ! added 4 time fields in met: year, moy, doy, hod
-  INTEGER, PARAMETER :: ninput = 16
+  INTEGER, PARAMETER :: ninput = 18
 
   ! MPI: number of 3D array slices / worker (results)
   INTEGER, PARAMETER :: n3d = 1
@@ -117,14 +117,16 @@ MODULE cable_mpicommon
   ! by the master for casa_poolout and casa_fluxout
   ! Matthias Cuntz: add 6 params for 13C -> 40
   ! Matthias Cuntz: add 2 params for fire -> 42
-  INTEGER, PARAMETER :: ncasa_mat = 42
+  ! Paul Ryan: add 5 params for fire -> 47
+  INTEGER, PARAMETER :: ncasa_mat = 47
   ! INTEGER, PARAMETER :: ncasa_vec = 27
   ! INTEGER, PARAMETER :: ncasa_vec = 32
   ! changed on 30-jan-2013 for adding four new respiration variable to the output
   ! vh changed on 5-feb-2016 for adding sapwood area and frac_sapwood
   ! Matthias Cuntz: add 1 1D param for 13C -> 61
   ! Matthias Cuntz: add 3 missing 1D param -> 64
-  INTEGER, PARAMETER :: ncasa_vec = 64
+  ! Paul Ryan: add 3 missing 1D param -> 67
+  INTEGER, PARAMETER :: ncasa_vec = 67
   ! MPI: number of fields included in restart_t type for data
   ! that is returned only for creating a restart file at the end of the run
   !   INTEGER, PARAMETER :: nrestart = 16
@@ -133,7 +135,8 @@ MODULE cable_mpicommon
   INTEGER, PARAMETER :: nsumcasaflux = 62
   INTEGER, PARAMETER :: nsumcasapool = 40
   ! Matthias Cuntz: add 1 2D and 20 1D vars for restart file -> 72
-  INTEGER, PARAMETER :: nclimate = 72
+  ! Paul Ryan: add 2 2D vars -> 74
+  INTEGER, PARAMETER :: nclimate = 74
   INTEGER, PARAMETER :: nphen = 9
   ! MPI: type to hold landpoint decomposition info
   TYPE lpdecomp_t
@@ -250,6 +253,7 @@ SUBROUTINE decomp_types(landpt_t, patch_t)
 
   ! create MPI type to exchange patch records
   types = MPI_REAL
+  types(1) = MPI_DOUBLE_PRECISION
 
   CALL MPI_Get_address(dpatch(1), base_d, ierr)
 
