@@ -21,7 +21,7 @@
 ! Jan 2016: Now includes climate% for use in climate variables required for
 ! prognostic phenology and potential veg type
 ! ==============================================================================
-
+!#define UM_BUILD yes
 MODULE cable_def_types_mod
 
   ! Contains all variables which are not subroutine-internal
@@ -37,12 +37,20 @@ MODULE cable_def_types_mod
 
   INTEGER :: mp,    & ! # total no of patches/tiles
        mvtype,& ! total # vegetation types,   from input
+#ifdef UM_BUILD 
+       mstype=9,& ! total # soil types, needs to de defined atCompile TimeForNow
+#else       
        mstype,& ! total # soil types,         from input
+#endif
        mland                           ! # land grid cells
 
   INTEGER, PARAMETER ::                                                        &
        i_d  = KIND(9), &
+#ifdef UM_BUILD 
+       r_2  = KIND(1.0),&!SELECTED_REAL_KIND(12, 50), &
+#else       
        r_2  = KIND(1.d0),&!SELECTED_REAL_KIND(12, 50), &
+#endif
        n_tiles = 17,  & ! # possible no of different
        ncp = 3,       & ! # vegetation carbon stores
        ncs = 2,       & ! # soil carbon stores
@@ -1061,8 +1069,13 @@ CONTAINS
     ALLOCATE( var%deciduous(mp) )
     ALLOCATE( var%froot(mp,ms) )
     !was nrb(=3), but never uses (:,3) in model
+#ifdef UM_BUILD 
+    ALLOCATE( var%refl(mp,nrb) ) !jhan:swb?
+    ALLOCATE( var%taul(mp,nrb) )
+#else
     ALLOCATE( var%refl(mp,2) ) !jhan:swb?
     ALLOCATE( var%taul(mp,2) )
+#endif
     ALLOCATE( var%vlaimax(mp) )
     ALLOCATE( var%a1gs(mp) )
     ALLOCATE( var%d0gs(mp) )
