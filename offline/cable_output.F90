@@ -35,7 +35,7 @@
 !
 MODULE cable_output_module
 
-  USE cable_abort_module,  ONLY: abort, nc_abort
+  USE cable_abort_module,  ONLY: cable_abort, nc_abort
   USE cable_def_types_mod
   USE casavariable,        ONLY: casa_pool, casa_flux, casa_met
   USE cable_IO_vars_module
@@ -1640,7 +1640,7 @@ CONTAINS
        ! Set output interval to be # time steps in 24 hours:
        output%interval = 3600*24/INT(dels)
     ELSE
-       CALL abort ('Unknown output averaging interval specified '//            &
+       CALL cable_abort ('Unknown output averaging interval specified '//            &
             'in namelist file. (SUBROUTINE open_output_file)')
     END IF
 
@@ -1954,7 +1954,7 @@ CONTAINS
        backtrack = output%interval / 2
 
     ELSE ! type of output aggregation
-       CALL abort('Unknown output averaging request in namelist file.'//       &
+       CALL cable_abort('Unknown output averaging request in namelist file.'//       &
             '(SUBROUTINE write_output)')
     END IF
 

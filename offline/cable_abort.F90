@@ -61,12 +61,12 @@ CONTAINS
 !==============================================================================
 
 
-SUBROUTINE abort( message )
+SUBROUTINE cable_abort(message)
 
    ! Input arguments
    CHARACTER(LEN=*), INTENT(IN) :: message
 
-   WRITE(*, *) message
+   WRITE(*,*) message
    STOP 1
 
 END SUBROUTINE abort
@@ -110,18 +110,18 @@ END SUBROUTINE abort
 !==============================================================================
 
 
-SUBROUTINE nc_abort( ok, message )
+SUBROUTINE nc_abort(ok, message)
 
    USE netcdf
 
    ! Input arguments
+   INTEGER,          INTENT(IN) :: ok
    CHARACTER(LEN=*), INTENT(IN) :: message
-   INTEGER, INTENT(IN) :: ok
 
-   WRITE(*,*) message ! error from subroutine
+   WRITE(*,*) message           ! error from subroutine
    WRITE(*,*) NF90_STRERROR(ok) ! netcdf error details
 
-   STOP
+   STOP 1
 
 END SUBROUTINE nc_abort
 
@@ -191,7 +191,7 @@ SUBROUTINE range_abort(message, ktau, met, value, var_range, i, xx, yy)
 
    WRITE(*,*) 'Value:',value
 
-   STOP
+   STOP 1
 
 END SUBROUTINE range_abort
 

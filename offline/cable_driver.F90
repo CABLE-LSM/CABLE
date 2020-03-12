@@ -669,7 +669,7 @@ PROGRAM cable_offline_driver
                    casamet, casabal, phen, POP, spinup,               &
                    C%EMSOIL, C%TFRZ, LUC_EXPT, POPLUC, BLAZE, SIMFIRE, &
                    c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc)
-              ! print*, 'CD01   ', casamet%glai
+              print*, 'CD01   ', casamet%glai
               ! 13C
               if (cable_user%c13o2) then
                  allocate(gpp(size(canopy%An,1),size(canopy%An,2)))
@@ -735,7 +735,7 @@ PROGRAM cable_offline_driver
                  write(*,*) 'EXT spincasacnp enabled with mloop=', mloop
                  CALL spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
                       casaflux,casamet,casabal,phen,POP,climate,LALLOC, c13o2flux, c13o2pools)
-                 ! print*, 'CD02   ', casamet%glai
+                 print*, 'CD02   ', casamet%glai
                  SPINon   = .FALSE.
                  SPINconv = .FALSE.
               ELSEIF ( casaonly .AND. (.NOT. spincasa)) THEN
@@ -743,7 +743,7 @@ PROGRAM cable_offline_driver
                  CALL CASAONLY_LUC(dels,kstart,kend,veg,soil,casabiome,casapool, &
                       casaflux,casamet,casabal,phen,POP,climate,LALLOC, LUC_EXPT, POPLUC, &
                       sum_casapool, sum_casaflux, c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc)
-                 ! print*, 'CD03   ', casamet%glai
+                 print*, 'CD03   ', casamet%glai
                  SPINon   = .FALSE.
                  SPINconv = .FALSE.
                  ktau     = kend
@@ -977,15 +977,40 @@ PROGRAM cable_offline_driver
 
               !jhan this is insufficient testing. condition for
               !spinup=.false. & we want CASA_dump.nc (spinConv=.true.)
-              IF(icycle >0 .OR. CABLE_USER%CASA_DUMP_WRITE ) THEN
+              IF ((icycle > 0) .OR. CABLE_USER%CASA_DUMP_WRITE) THEN
                  !! vh_js !!
+                print*, 'CC01.01 ', ktau, kstart, kend, dels
+                print*, 'CC01.02 ', met%year
+                print*, 'CC01.03 ', met%moy
+                print*, 'CC01.04 ', met%ca
+                print*, 'CC01.05 ', met%doy
+                print*, 'CC01.06 ', met%hod
+                print*, 'CC01.07 ', met%ofsd
+                print*, 'CC01.08 ', met%fld
+                print*, 'CC01.09 ', met%precip
+                print*, 'CC01.10 ', met%precip_sn
+                print*, 'CC01.11 ', met%tk
+                print*, 'CC01.12 ', met%tvair
+                print*, 'CC01.13 ', met%tvrad
+                print*, 'CC01.14 ', met%pmb
+                print*, 'CC01.15 ', met%ua
+                print*, 'CC01.16 ', met%qv
+                print*, 'CC01.17 ', met%qvair
+                print*, 'CC01.18 ', met%da
+                print*, 'CC01.19 ', met%dva
+                print*, 'CC01.20 ', met%coszen
+                print*, 'CC01.21 ', met%Ndep
+                print*, 'CC01.22 ', met%Pdep
+                print*, 'CC01.23 ', met%u10
+                print*, 'CC01.24 ', met%rhum
+                print*, 'CC01.25 ', met%fsd
                  CALL bgcdriver( ktau, kstart, kend, dels, met, &
                       ssnow, canopy, veg, soil, climate, casabiome, &
                       casapool, casaflux, casamet, casabal, &
                       phen, pop, spinConv, spinup, ktauday, idoy, loy, &
                       CABLE_USER%CASA_DUMP_READ, CABLE_USER%CASA_DUMP_WRITE, &
                       LALLOC, c13o2flux, c13o2pools )
-                 ! print*, 'CD06 ', ktau, YYYY, casamet%glai
+                 print*, 'CD06 ', ktau, YYYY, casamet%glai
 
                  IF(MOD((ktau-kstart+1),ktauday)==0) THEN ! end of day
 
@@ -994,7 +1019,7 @@ PROGRAM cable_offline_driver
 
                        call blaze_driver(blaze%ncells,blaze, simfire, casapool, casaflux, &
                             casamet, climate, real(shootfrac), idoy, YYYY, 1, POP, veg)
-                       ! print*, 'CD07   ', casamet%glai
+                       print*, 'CD07   ', casamet%glai
 
                        call write_blaze_output_nc( BLAZE, ktau.EQ.kend .AND. YYYY.EQ.cable_user%YearEnd)
                     ENDIF

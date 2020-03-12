@@ -290,7 +290,7 @@ SUBROUTINE WGEN_SUBDIURNAL_MET(WG, np, itime)
   INTEGER, INTENT(IN) :: np, itime
 
   ! Local variables
-  REAL(sp) :: TimeNoon , test1, test2, adjust_fac(np)
+  REAL(sp) :: TimeNoon, adjust_fac(np)
   REAL(sp) :: TimeRad
   REAL(sp) :: rntime    ! Real version of ntime
   REAL(sp) :: ritime    ! Real version of current time

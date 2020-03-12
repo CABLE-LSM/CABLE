@@ -28,8 +28,9 @@ CONTAINS
 
   ! ==============================================================================
 
-SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, &
-     veg,ssnow,air, rad, dels, np)
+SUBROUTINE cable_climate(ktau, kstart, kend, ktauday, idoy, LOY, &
+     met, climate, canopy, veg, ssnow, air, rad, &
+     dels, np)
 
   IMPLICIT NONE
 

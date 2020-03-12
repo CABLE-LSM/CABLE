@@ -131,8 +131,15 @@ MODULE POP_Constants
   INTEGER(i4b), PARAMETER :: RECRUIT_SWITCH = 1 ! 0 = default, 1 = Pgap-dependence
   INTEGER(i4b), PARAMETER :: INTERP_SWITCH = 1 ! 0 = sum over weighted patches, 1 = sum over interpolated patches
   INTEGER(i4b), PARAMETER :: SMOOTH_SWITCH = 0 ! smooth disturbance flux
+  !MC - Vanessa, do you 5 or 6 as result?
+  !     gfortran produces 5 for NYEAR_SMOOTH-NYEAR_SMOOTH/2, which is probably not what you want.
+  !     I would rather use
+  !        nyear_window  = 5
+  !        nyear_smooth  = 2*nyear_window+1
+  !        nyear_history = nyear_smooth-nyear_window
+  !     and then replace all nyear_smooth/2 by nyear_window.
   INTEGER(i4b), PARAMETER :: NYEAR_SMOOTH = 11 ! smoothing window (y)
-  INTEGER(i4b), PARAMETER :: NYEAR_HISTORY =  NYEAR_SMOOTH-NYEAR_SMOOTH/2
+  INTEGER(i4b), PARAMETER :: NYEAR_HISTORY = NYEAR_SMOOTH-NYEAR_SMOOTH/2
   INTEGER(i4b), PARAMETER :: AGEMAX = 1000 
 
 END MODULE POP_Constants
@@ -466,19 +473,14 @@ CONTAINS
     INTEGER(i4b),   INTENT(IN)    :: mean_disturbance_interval(:,:)
     INTEGER(i4b),   INTENT(IN), optional :: m
     
-    INTEGER(i4b) :: j, k, g, ipatch, idist, p, c, n, i
+    INTEGER(i4b) :: j, k, g, ipatch, idist, p, c, i
     INTEGER(i4b) :: disturbance_interval
-    INTEGER(i4b):: patch_disturbance_interval_idist(NDISTURB,NPATCH2D)
-    INTEGER(i4b):: patch_first_disturbance_year_idist(NDISTURB,NPATCH2D), &
-         patch_first_disturbance_year_unique(NDISTURB,NPATCH2D)
-
-    INTEGER(i4b):: Poisson_age(1000),Poisson_freq(1000)
+    INTEGER(i4b):: Poisson_age(1000)
     REAL(dp):: Poisson_weight(1000), CumPoisson_weight(1000)
-    INTEGER(i4b):: disturbances_per_timebase, timebase
-    INTEGER:: i_min, i_max, age_sample(2,NAGE_MAX**2), tmp(NAGE_MAX**2)
-    INTEGER:: age_tmp, tmp_unique(NAGE_MAX**2), n_age, np
-    REAL(dp):: disturbance_freq, tmp1
-    INTEGER:: tmp2(PATCH_REPS1) ,  n_first_disturbance_year(NDISTURB), tmp3(PATCH_REPS2)
+    INTEGER:: i_max
+    INTEGER:: np
+    REAL(dp):: disturbance_freq
+    INTEGER:: tmp2(PATCH_REPS1), tmp3(PATCH_REPS2)
     INTEGER:: a,b
     
     np = SIZE(POP%pop_grid)
@@ -616,9 +618,9 @@ CONTAINS
     REAL(dp), INTENT(IN) ::  NPPtoGPP(:)
     REAL(dp), INTENT(IN), OPTIONAL :: frac_intensity1(:), precip(:)
     REAL(dp), INTENT(IN), OPTIONAL :: StemNPP_av(:)
+
     INTEGER(i4b) :: idisturb,np,g
     INTEGER(i4b), allocatable :: it(:)
-    REAL(dp):: dallocW
 
     !INTEGER, INTENT(IN) :: wlogn
     pop%it_pop = pop%it_pop + 1
@@ -713,17 +715,17 @@ CONTAINS
     REAL(dp), OPTIONAL, INTENT(IN)            :: StemNPP_av(:)
     INTEGER(i4b), INTENT(IN)        :: it(:)
 
-    REAL(dp) :: f, mu, densindiv, cmass
-    REAL(dp) :: tmp,tmp_light,tmp_respiration,tmp_fracnpp, cmass_stem_sum,cmass_stem_inc
-    INTEGER(i4b) :: j, k,c, ncohort, idist
-    INTEGER(i4b) :: ivec(NCOHORT_MAX), nc, tmp1(NPATCH2D), np, idisturb
+    REAL(dp) :: densindiv
+    REAL(dp) :: tmp,tmp_light,tmp_respiration,tmp_fracnpp, cmass_stem_inc
+    INTEGER(i4b) :: j, k,c, idist
+    INTEGER(i4b) :: ivec(NCOHORT_MAX), nc, np, idisturb
     REAL(dp) :: growth_efficiency,cmass_stem
-    REAL(dp) :: mort, mort_bg, fire_mort
+    REAL(dp) :: mort
     REAL(dp) :: s2, cpc, crown_area
     REAL(dp) :: mort_cpc
-    REAL(dp) :: basal, ht, diam, area_growth_grid , basal_grid, basal_new, basal_old
-    REAL(dp) :: tmp2(NCOHORT_MAX), freq,tmp3(NPATCH2D),tmp4(NPATCH2D),tmp5(NPATCH2D)
-    INTEGER(i4b):: i_table
+    REAL(dp) :: ht, diam, area_growth_grid , basal_grid, basal_new, basal_old
+    REAL(dp) :: tmp2(NCOHORT_MAX), freq,
+
     idisturb = 1
     np = SIZE(POP%POP_grid)
 
@@ -1159,18 +1161,19 @@ CONTAINS
 
     TYPE(POP_TYPE), INTENT(INOUT) :: POP
     INTEGER(i4b), INTENT(IN) ::  disturbance_interval(:,:), idisturb, it(:)
-    INTEGER(i4b) :: g, i,j,k,ct,lastct,agecopy,idcopy
+    
+    INTEGER(i4b) :: g, i,j,k,agecopy,idcopy
     REAL(dp), ALLOCATABLE :: midpoint(:)
     INTEGER(i4b), ALLOCATABLE :: ranked_age(:), ranked_age_init(:)
-    INTEGER(i4b) ::  tmp_count, tmp_i, age_tmp
+    INTEGER(i4b) :: age_tmp
     INTEGER(i4b), ALLOCATABLE :: ranked_age_unique_id(:), ranked_age_id(:), counter(:)
     REAL(dp), ALLOCATABLE :: tmp(:), freq_tmp(:), freq_tmp1(:)
-    REAL(dp) :: p,cump,lastcump, freq, tmp1
+    REAL(dp) :: freq
     INTEGER(i4b) :: n_age ! number of unique ages
     INTEGER(i4b) :: npatch_active ! number of active patches
     REAL(dp):: disturbance_freq
-    INTEGER(i4b) :: i_max, age_max, Poisson_age(1000), np
-    REAL(dp):: Poisson_weight(1000), CumPoisson_weight(1000)
+    INTEGER(i4b) :: i_max, Poisson_age(1000), np
+    REAL(dp):: CumPoisson_weight(1000)
     INTEGER(i4b), ALLOCATABLE :: bound(:,:), unique_age(:)
 
     !Fills array freq with weights (frequencies across landscape) for each unique age
@@ -1303,8 +1306,9 @@ CONTAINS
 
     TYPE(POP_TYPE), INTENT(INOUT) :: POP
     INTEGER(i4b), INTENT(IN) :: it(:)
-    INTEGER(i4b) :: n1, n2, g, REPCOUNT, tmp1(NPATCH1D), np, idist
-    REAL(dp) ::  tmp2(NPATCH1D), tmp3(NPATCH1D), sum_freq
+    
+    INTEGER(i4b) :: n1, n2, g, REPCOUNT, np, idist
+    REAL(dp) ::  sum_freq
 
     np = SIZE(Pop%pop_grid)
     DO g=1,np
@@ -1372,18 +1376,18 @@ CONTAINS
     INTEGER(i4b), INTENT(IN) :: it(:)
     INTEGER(i4b) :: P, g,i,j,ct, ct_highres
     REAL(dp) :: limits(HEIGHT_BINS+1)
-    REAL(dp) :: ht, htmax, cmass_stem,densindiv, freq, freq_old
+    REAL(dp) :: ht, cmass_stem,densindiv, freq, freq_old
     CHARACTER(len=12) :: string1, string2
     CHARACTER(len=9) :: fmt
     INTEGER(i4b) :: npatch_active  ! number of active patches
-    INTEGER(i4b) :: np, nc, i_height, id
+    INTEGER(i4b) :: np, nc, i_height
     REAL(dp) :: diam,basal, cump
     REAL(dp) :: patch_crown_area(NPATCH2D), patch_crown_cover(NPATCH2D)
     REAL(dp), ALLOCATABLE :: height_list(:), height_list_weight(:)
     REAL(dp) :: height_copy, weight_copy, Pwc, FAVD
     INTEGER(i4b), PARAMETER :: HEIGHT_BINS_highres=100 ! bins for assessing height_max
     REAL(dp), ALLOCATABLE :: limits_highres(:), DENSINDIV_HIGHRES(:)
-    REAL(dp) :: a, b, C, res_flux, fire_flux, cat_flux, vol, vol1, tmp, tmp2
+    REAL(dp) :: tmp2
     integer :: arg1
 
     fmt = '(f5.1)'
@@ -1591,27 +1595,24 @@ CONTAINS
 
        ENDDO ! patches
 
-
-
        IF (INTERP_SWITCH==1.and.NDISTURB.eq.2) then
           !CALL INTERPOLATE_BIOMASS_2D(pop, disturbance_interval,it)
           CALL INTERPOLATE_BIOMASS_2D(pop, disturbance_interval,it(g),g)
-
        ELSEIF (INTERP_SWITCH==1.and.NDISTURB.eq.1) then
-
           CALL INTERPOLATE_BIOMASS_1D(pop, disturbance_interval,it(g),g)
-
        ENDIF
 
+       !MC - Vanessa, do you 5 or 6 as result? gfortran produces 5
+       !              is this the same as NYEAR_HISTORY?
        arg1 = NYEAR_SMOOTH-(NYEAR_SMOOTH/2)
        IF (SMOOTH_SWITCH==1) THEN
+          !MC - is this arg1? NYEAR_HISTORY?
           IF (it(g).LE.NYEAR_SMOOTH-NYEAR_SMOOTH/2) THEN
              CALL SMOOTH_FLUX(POP,g,it(g))
           ELSE
              CALL SMOOTH_FLUX(POP,g,int(arg1,i4b))
           ENDIF
        ENDIF
-
 
        ! leaf area index in each cohort
        DO P = 1, npatch_active
@@ -1789,16 +1790,18 @@ CONTAINS
 
   
   SUBROUTINE Patch_partial_disturb(pop,idisturb,intensity,precip,frac_intensity1)
+
     IMPLICIT NONE
 
     TYPE(POP_TYPE), INTENT(INOUT) :: POP
     INTEGER(i4b), INTENT(IN) ::  idisturb
     REAL(dp), INTENT(IN) :: intensity(:,:)
     REAL(dp), INTENT(IN), OPTIONAL :: precip(:), frac_intensity1(:)
-    INTEGER(i4b) :: j, k, i, g, c, nc, np
+    
+    INTEGER(i4b) :: j, k, c, nc, np
     INTEGER(i4b) ::  ivec(NCOHORT_MAX)
     REAL(dp) :: ht, diam
-    REAL(dp) :: Psurvival_l, Psurvival_s, Psurvival, char_height
+    REAL(dp) :: Psurvival_s, Psurvival, char_height
 
     np = SIZE(Pop%pop_grid)
     !Print*,"CLN Hier PROBLEM PSurv1 unten l1345 wegen PRESENT() "
@@ -1919,15 +1922,16 @@ CONTAINS
   
 
   SUBROUTINE Patch_partial_disturb2(pop,idisturb,precip)
+
     IMPLICIT NONE
 
     TYPE(POP_TYPE), INTENT(INOUT) :: POP
     INTEGER(i4b), INTENT(IN) ::  idisturb
     REAL(dp), INTENT(IN), OPTIONAL :: precip(:)
-    INTEGER(i4b) :: j, k, i, g, c, nc, np
+    
+    INTEGER(i4b) :: j, k, c, nc, np
     INTEGER(i4b) ::  ivec(NCOHORT_MAX)
-    REAL(dp) :: ht, diam
-    REAL(dp) :: Psurvival_l, Psurvival_s, Psurvival, char_height, frac_mort, Pmort
+    REAL(dp) :: Psurvival, frac_mort, Pmort
 
     np = SIZE(Pop%pop_grid)
 
@@ -2143,13 +2147,15 @@ CONTAINS
 
   
   SUBROUTINE  layer_recruitment(pop,precip)
+
     IMPLICIT NONE
+
     TYPE(POP_TYPE), INTENT(INOUT)  :: POP
     REAL(dp), INTENT(IN), OPTIONAL :: precip(:)
+
     REAL(dp) :: f, mu, densindiv, cmass, ht
-    REAL(dp) :: tmp, cmass_stem_sum,cmass_stem_inc
-    INTEGER(i4b) :: j, k,c, ncohort, np
-    REAL(dp) :: diam,basal
+    INTEGER(i4b) :: j, k, ncohort, np
+    REAL(dp) :: diam, basal
 
     np = SIZE(Pop%pop_grid)
 
@@ -2200,13 +2206,15 @@ CONTAINS
 
   
   SUBROUTINE  layer_recruitment_single_patch(pop, index, grid_index,precip)
+
     IMPLICIT NONE
+
     TYPE(POP_TYPE), INTENT(INOUT)  :: POP
     REAL(dp), INTENT(IN), OPTIONAL :: precip(:)
     INTEGER(i4b), INTENT(IN) :: index, grid_index
+    
     REAL(dp) :: f, mu, densindiv, cmass, ht
-    REAL(dp) :: tmp, cmass_stem_sum,cmass_stem_inc
-    INTEGER(i4b) :: j, k,c, ncohort, np
+    INTEGER(i4b) :: j, k, ncohort, np
     REAL(dp) :: diam,basal
 
     np = SIZE(Pop%pop_grid)
@@ -2745,19 +2753,13 @@ CONTAINS
 
     INTEGER(i4b) :: nage,iage, i_min, i_max
     INTEGER(i4b) :: i_min_growth, i_max_growth
-    REAL(dp) :: disturbance_freq,tmp_min,tmp_max, tmp1_min, tmp1_max, tmp_array(NPATCH2D)
-    REAL(dp) :: tmp2_min, tmp2_max
-    REAL(dp) :: tmp3_min, tmp3_max
-    REAL(dp) :: tmp4_min, tmp4_max
-    REAL(dp) :: tmp5_min, tmp5_max
+    REAL(dp) :: disturbance_freq,tmp_min, tmp_max, tmp_array(NPATCH2D)
     LOGICAL :: MASK(NPATCH2D)
     INTEGER(i4b) :: age_min, age_max
     INTEGER(i4b) :: age_min_growth, age_max_growth
     INTEGER(i4b), ALLOCATABLE :: age(:)
-    REAL(dp), ALLOCATABLE ::cmass_age(:), stress_mort_age(:), crowd_mort_age(:)
     REAL(dp), ALLOCATABLE :: fire_mort_age(:)
-    REAL(dp), ALLOCATABLE ::csapwood_age(:), sapwood_area_age(:), growth_age(:)
-    REAL(dp), ALLOCATABLE ::freq_age(:)
+    REAL(dp), ALLOCATABLE :: freq_age(:)
 
     ! get interpolated fire mortality
     POP%pop_grid(g)%fire_mortality = 0.0_dp
@@ -2901,8 +2903,8 @@ CONTAINS
     TYPE( POP_TYPE ), INTENT(INOUT)  :: pop
     INTEGER(i4b), INTENT(IN)        ::  disturbance_interval(:,:)
     REAL(dp),  INTENT(IN)            :: burned_area(:), FLI(:)
-    INTEGER(i4b) :: g, np, c, k, i_table, it, nc
-    REAL(dp):: height_table, mort, ht, cmass_stem, dbh
+    INTEGER(i4b) :: g, np, c, k, it, nc
+    REAL(dp) :: mort, cmass_stem, dbh
 
 
     np = SIZE(POP%POP_grid)
@@ -2997,7 +2999,7 @@ REAL(dp), allocatable :: zp(:)  ! euclidean distance from interpolated age pair 
 INTEGER(i4b) :: age_max(2), nrep(NPATCH2D+1)
 INTEGER(i4b) :: tmp1, tmp2, I1, I2,I3,I4
 INTEGER(i4b) :: x1, x2, x3, x4, y1, y2, y3, y4
-INTEGER(i4b) :: p, j, k, n, np, nobs, count_extrap,l, ct
+INTEGER(i4b) :: p, j, k, n, np, nobs, count_extrap, ct
 LOGICAL :: flag
 REAL(dp) :: biomass(NPATCH2D+1), stress_mort(NPATCH2D+1), crowd_mort(NPATCH2D+1)
 INTEGER(i4b) :: age1(NPATCH2D+1),  age2(NPATCH2D+1)
@@ -3405,6 +3407,7 @@ SUBROUTINE SMOOTH_FLUX(POP,g,t)
   TYPE(POP_TYPE), INTENT(INOUT) :: POP
   INTEGER(i4b),   INTENT(IN)    :: g, t
   
+  !MC - Vanessa, do you what that to be 5?
   INTEGER(i4b), PARAMETER :: SPAN = NYEAR_SMOOTH/2
   REAL(dp) :: x(SPAN+1), y(SPAN+1), a, b, r
   REAL(dp) :: sumflux, sumsmooth, flux(NYEAR_HISTORY), smoothed_flux
@@ -3441,6 +3444,7 @@ SUBROUTINE SMOOTH_FLUX(POP,g,t)
      ENDIF
   ENDDO
 
+  !MC - Vanessa, here it is 5.5
   dbuf =POP%pop_grid(g)%smoothing_buffer/(real(NYEAR_SMOOTH,dp)/2.0_dp)
   smoothed_flux=max(sumflux/real(n)+dbuf, 0.0_dp)
   POP%pop_grid(g)%smoothing_buffer = POP%pop_grid(g)%smoothing_buffer + flux(t) - smoothed_flux
@@ -3459,6 +3463,7 @@ SUBROUTINE SMOOTH_FLUX_cat(POP,g,t)
 
   TYPE(POP_TYPE), INTENT(INOUT) :: POP
   INTEGER(i4b), INTENT(IN) :: g, t
+  !MC - Vanessa, do you what that to be 5?
   INTEGER(i4b), PARAMETER :: SPAN = NYEAR_SMOOTH/2
   REAL(dp) :: x(SPAN+1), y(SPAN+1), a, b, r
   REAL(dp) :: sumflux, sumsmooth, flux(NYEAR_HISTORY), smoothed_flux
@@ -3495,6 +3500,7 @@ SUBROUTINE SMOOTH_FLUX_cat(POP,g,t)
      ENDIF
   ENDDO
 
+  !MC - Vanessa, here it is 5.5
   dbuf = POP%pop_grid(g)%smoothing_buffer_cat/(real(NYEAR_SMOOTH,dp)/2.0_dp)
   smoothed_flux=max(sumflux/real(n)+dbuf, 0.0_dp)
   POP%pop_grid(g)%smoothing_buffer_cat = POP%pop_grid(g)%smoothing_buffer_cat + flux(t) - smoothed_flux
@@ -3739,7 +3745,6 @@ END SUBROUTINE Allometry
   
   SUBROUTINE alloc_POP(POP, arraysize)
 
-    USE TypeDef,   Only: i4b, dp
     USE POP_Types, Only: POP_TYPE
 
     IMPLICIT NONE

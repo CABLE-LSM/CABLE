@@ -133,7 +133,7 @@ CONTAINS
              END DO
              DEALLOCATE(tmp2i)
           ELSE
-             CALL abort('Dimension of '//parname//' parameter in '//           &
+             CALL cable_abort('Dimension of '//parname//' parameter in '//           &
                         TRIM(filename)//' unknown.')
           END IF
        ELSE IF(metGrid == 'mask') THEN ! Get data from land/sea mask type grid:
@@ -165,7 +165,7 @@ CONTAINS
              END DO
              DEALLOCATE(tmp3i)
           ELSE
-             CALL abort('Dimension of '//parname//' parameter in met file '//  &
+             CALL cable_abort('Dimension of '//parname//' parameter in met file '//  &
                         'unknown.')
           END IF
        END IF ! gridtype land or mask
@@ -246,7 +246,7 @@ CONTAINS
                 END DO
                 DEALLOCATE(tmp2r)
              ELSE
-                CALL abort('Dimension of '//parname//                          &
+                CALL cable_abort('Dimension of '//parname//                          &
                            ' parameter in met file unknown.')
              END IF
           ELSE IF(metGrid == 'mask') THEN ! Get data from land/sea mask type
@@ -279,7 +279,7 @@ CONTAINS
                 END DO
                 DEALLOCATE(tmp3r)
              ELSE
-                CALL abort('Dimension of '//parname//                          &
+                CALL cable_abort('Dimension of '//parname//                          &
                      ' parameter in met file unknown.')
              END IF
           END IF ! gridtype land or mask
@@ -305,7 +305,7 @@ CONTAINS
                                     (ok,'Error reading '//parname//' in file ' &
                                     //TRIM(filename)//' (SUBROUTINE readpar_r)')
        ELSE
-          CALL abort('Parameter or initial state '//parname//                  &
+          CALL cable_abort('Parameter or initial state '//parname//                  &
                      ' called with unknown dimension switch - '//dimswitch//   &
                      ' - in INTERFACE readpar')
        END IF ! dimension of parameter i.e. is this zse or ratecp or ratecs
@@ -401,7 +401,7 @@ CONTAINS
                 END DO
                 DEALLOCATE(tmp2r)
              ELSE
-                CALL abort('Dimension of '//parname//                          &
+                CALL cable_abort('Dimension of '//parname//                          &
                      ' parameter in met file unknown.')
              END IF
           ELSE IF(metGrid == 'mask') THEN ! Get data from land/sea mask type
@@ -438,11 +438,11 @@ CONTAINS
                 END DO
                 DEALLOCATE(tmp3r)
              ELSE
-                CALL abort('Dimension of '//parname//                          &
+                CALL cable_abort('Dimension of '//parname//                          &
                            ' parameter in met file unknown.')
              END IF
           ELSE
-             CALL abort('Prescribed input grid '//metGrid//' unknown.')
+             CALL cable_abort('Prescribed input grid '//metGrid//' unknown.')
           END IF ! gridtype land or mask
 
        ELSE IF(dimswitch(1:2) == 'ms') THEN ! ie par has only soil dimension,
@@ -476,7 +476,7 @@ CONTAINS
              var_rd(i) = REAL(data1r(1), r_2)
           END DO
        ELSE
-          CALL abort('Parameter or initial state '//parname//                  &
+          CALL cable_abort('Parameter or initial state '//parname//                  &
                      ' called with unknown dimension switch - '//dimswitch//   &
                      ' - in INTERFACE readpar')
        END IF ! dimension of parameter i.e. is this zse or ratecp or ratecs
@@ -531,7 +531,7 @@ CONTAINS
        ELSE IF(dimswitch == 'ncs') THEN
           dimctr = ncs ! i.e. horizontal spatial and soil carbon pools
        ELSE
-          CALL abort('Parameter or initial state '//parname//                  &
+          CALL cable_abort('Parameter or initial state '//parname//                  &
                      ' called with unknown dimension switch - '//dimswitch//   &
                      ' - in INTERFACE readpar SUBROUTINE readpar_r2')
        END IF
@@ -582,7 +582,7 @@ CONTAINS
              END DO
              DEALLOCATE(tmp3r)
           ELSE
-             CALL abort('Dimension of '//parname//' parameter in met file '//  &
+             CALL cable_abort('Dimension of '//parname//' parameter in met file '//  &
                         'unknown.')
           END IF
        ELSEIF(metGrid == 'mask') THEN ! Get data from land/sea mask type grid:
@@ -645,7 +645,7 @@ CONTAINS
                 END IF
              END IF
           ELSE
-             CALL abort('Dimension of '//parname//' parameter in met file '//  &
+             CALL cable_abort('Dimension of '//parname//' parameter in met file '//  &
                         'unknown.')
           END IF
        END IF ! gridtype land or mask
@@ -702,7 +702,7 @@ CONTAINS
        ELSE IF(dimswitch(1:3) == 'ncs') THEN
           dimctr = ncs ! i.e. horizontal spatial and soil carbon pools
        ELSE
-          CALL abort('Parameter or initial state '//parname//                  &
+          CALL cable_abort('Parameter or initial state '//parname//                  &
                      ' called with unknown dimension switch - '//dimswitch//   &
                      ' - in INTERFACE readpar')
        END IF
@@ -785,7 +785,7 @@ CONTAINS
              END DO
              DEALLOCATE(tmp3r)
           ELSE
-             CALL abort('Dimension of '//parname//' parameter in met file'//   &
+             CALL cable_abort('Dimension of '//parname//' parameter in met file'//   &
                         'unknown.')
           END IF
        ELSEIF(metGrid == 'mask') THEN ! Get data from land/sea mask type grid:
@@ -827,7 +827,7 @@ CONTAINS
              END DO
              DEALLOCATE(tmp4r)
           ELSE
-             CALL abort('Dimension of '//parname//' parameter in met file'//   &
+             CALL cable_abort('Dimension of '//parname//' parameter in met file'//   &
                         'unknown.')
           END IF
        END IF ! gridtype land or mask

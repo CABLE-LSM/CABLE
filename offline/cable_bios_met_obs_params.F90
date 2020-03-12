@@ -565,8 +565,6 @@ CONTAINS
 
   SUBROUTINE cable_bios_init(dels,curyear,met,kend,ktauday)
 
-  
-
   USE cable_IO_vars_module, ONLY: & 
     latitude, longitude, &  ! Vectors for lat and long of each land cell
     land_y, land_x,       &  ! Vectors for row and col of each land cell
@@ -576,8 +574,6 @@ CONTAINS
     sdoy, smoy, syear, shod, &
     xdimsize, ydimsize, &
     lat_all, lon_all
-  
- 
 
   IMPLICIT NONE
 
@@ -591,7 +587,7 @@ CONTAINS
   INTEGER(i4b)   :: iunit  
   INTEGER(i4b)   :: MaskCols, MaskRows  ! Landmask col and row dimensions
   REAL(sp)       :: MaskBndW, MaskBndS  ! Landmask outer bound dimensions in decimal degrees (West & South)
-  REAL(sp)       :: MaskCtrW, MaskCtrS , tmp
+  REAL(sp)       :: MaskCtrW, MaskCtrS
   REAL(sp)       :: MaskRes, NoDataVal  ! Landmask resolution (dec deg) and no-data value
   
   INTEGER(i4b)   :: icol, irow, iland   ! Loop counters for cols, rows, land cells
@@ -1136,7 +1132,7 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
     met%doy (landpt(:)%cstart) = INT(REAL(ktau-1) * dels / SecDay ) + 1
     met%year(landpt(:)%cstart) = Curyear  
 
-    newday = ( met%hod(landpt(1)%cstart).EQ. 0 )
+    newday = ( met%hod(landpt(1)%cstart) .EQ. 0.0 )
     IF ( newday ) THEN
        ! get current day's met
        READ (rain_unit) bios_rundate, rain_day          ! Packed vector of daily AWAP/BIOS rain (mm) 
@@ -1289,20 +1285,21 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
    is = landpt(iland)%cstart  ! Index position for the first tile of this land cell.
    ie = landpt(iland)%cend    ! Index position for the last tile of this land cell.
 
-   met%precip(is:ie)    = WG%Precip(iland) 
-   met%precip_sn(is:ie) = WG%Snow(iland)
+   met%precip(is:ie)    = real(WG%Precip(iland),sp)
+   met%precip_sn(is:ie) = real(WG%Snow(iland),sp)
    ! combine Rainf and Snowf inputs
    met%precip(is:ie)    = met%precip(is:ie) + met%precip_sn(is:ie)
-   met%fld(is:ie)       = WG%PhiLD(iland)
-   met%fsd(is:ie,1)     = WG%PhiSD(iland) * 0.5
-   met%fsd(is:ie,2)     = WG%PhiSD(iland) * 0.5
-   met%tk(is:ie)        = WG%Temp(iland) + 273.15
-   met%ua(is:ie)        = WG%Wind(iland) *2.0  ! factor of 2 to convert from 2m screen height to 40 m zref, assuming logarithmic profile
-   met%coszen(is:ie)    = WG%coszen(iland)
-   met%qv(is:ie)        = WG%VapPmb(iland)/WG%Pmb(iland)*RMWbyRMA ! specific humidity (kg/kg)
-   met%pmb(is:ie)       = WG%Pmb(iland)
-   met%rhum(is:ie)  =  WG%VapPmb(iland)/esatf(real(WG%Temp(iland),sp)) *100.0 ! rel humidity (%)
-   met%u10(is:ie) = met%ua(is:ie) 
+   met%fld(is:ie)       = real(WG%PhiLD(iland),sp)
+   met%fsd(is:ie,1)     = real(WG%PhiSD(iland) * 0.5_dp,sp)
+   met%fsd(is:ie,2)     = real(WG%PhiSD(iland) * 0.5_dp,sp)
+   met%tk(is:ie)        = real(WG%Temp(iland) + 273.15_dp,sp)
+   ! factor of 2 to convert from 2m screen height to 40 m zref, assuming logarithmic profile
+   met%ua(is:ie)        = real(WG%Wind(iland) * 2.0_dp,sp)
+   met%coszen(is:ie)    = real(WG%coszen(iland),sp)
+   met%qv(is:ie)        = real(WG%VapPmb(iland)/WG%Pmb(iland),sp)*RMWbyRMA ! specific humidity (kg/kg)
+   met%pmb(is:ie)       = real(WG%Pmb(iland),sp)
+   met%rhum(is:ie)      = real(WG%VapPmb(iland),sp)/esatf(real(WG%Temp(iland),sp)) * 100.0 ! rel humidity (%)
+   met%u10(is:ie)       = met%ua(is:ie) 
    ! initialise within canopy air temp
    met%tvair(is:ie)     = met%tk(is:ie) 
    met%tvrad(is:ie)     = met%tk(is:ie)
@@ -1688,39 +1685,33 @@ SUBROUTINE cable_bios_load_biome(MVG)
 
   IMPLICIT NONE
 
+  INTEGER, INTENT(INOUT) :: MVG(:) ! climate variables
 
-INTEGER(i4b) :: is, ie ! Index start/end points within cable spatial vectors
-                                ! for the current land-cell's tiles. These are just 
-                                ! aliases to improve code readability
-INTEGER(i4b) :: iland         ! loop counter through mland land cells
-INTEGER(i4b) :: param_unit    ! Unit number for reading (all) parameter files.
-INTEGER(i4b) :: error_status  ! Error status returned by OPENs
-REAL(sp), ALLOCATABLE :: tmp(:)
-INTEGER, INTENT(INOUT)       :: MVG(:) ! climate variables
+  INTEGER(i4b) :: param_unit    ! Unit number for reading (all) parameter files.
+  INTEGER(i4b) :: error_status  ! Error status returned by OPENs
+  REAL(sp), ALLOCATABLE :: tmp(:)
 
+  ! Temporary soil parameter variables. Varnames match corresponding bios parameter filenames (roughly).
+  ! Dimensions are mland, which will be mapped to the more complicated mland+tiles dimensions of the 
+  ! equivalent cable soil variables. Filenames for these variables are defined at module level
+  ! because they are read in from bios.nml as part of the initialisation but only accessed here,
+  ! after the default cable params are read in by cable_driver. 
 
-! Temporary soil parameter variables. Varnames match corresponding bios parameter filenames (roughly).
-! Dimensions are mland, which will be mapped to the more complicated mland+tiles dimensions of the 
-! equivalent cable soil variables. Filenames for these variables are defined at module level
-! because they are read in from bios.nml as part of the initialisation but only accessed here,
-! after the default cable params are read in by cable_driver. 
+  ALLOCATE (tmp(mland))
 
+  CALL GET_UNIT(param_unit)  ! Obtain an unused unit number for file reading, reused for all soil vars.
 
-ALLOCATE (tmp(mland))
+  ! Open, read, and close Major Veg Group file
+  OPEN (param_unit, FILE=TRIM(param_path)//TRIM(MVG_file), ACCESS='STREAM', &
+       FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+  IF (error_status > 0) THEN
+     WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(MVG_file) ; STOP ''
+  ELSE
+     READ (param_unit) tmp
+     CLOSE (param_unit)
+  END IF
 
-CALL GET_UNIT(param_unit)  ! Obtain an unused unit number for file reading, reused for all soil vars.
-
-! Open, read, and close Major Veg Group file
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(MVG_file), ACCESS='STREAM', &
-     FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
-IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(MVG_file) ; STOP ''
-ELSE
-  READ (param_unit) tmp
-  CLOSE (param_unit)
-END IF
-
-MVG = int(tmp)
+  MVG = int(tmp)
 
 END SUBROUTINE cable_bios_load_biome
 
@@ -1734,39 +1725,33 @@ SUBROUTINE cable_bios_load_fracC4(fracC4)
 
   IMPLICIT NONE
 
+  REAL, INTENT(INOUT) :: fracC4(:) ! climate variables
 
-INTEGER(i4b) :: is, ie ! Index start/end points within cable spatial vectors
-                                ! for the current land-cell's tiles. These are just 
-                                ! aliases to improve code readability
-INTEGER(i4b) :: iland         ! loop counter through mland land cells
-INTEGER(i4b) :: param_unit    ! Unit number for reading (all) parameter files.
-INTEGER(i4b) :: error_status  ! Error status returned by OPENs
-REAL(sp), ALLOCATABLE :: tmp(:)
-REAL, INTENT(INOUT)       :: fracC4(:) ! climate variables
+  INTEGER(i4b) :: param_unit    ! Unit number for reading (all) parameter files.
+  INTEGER(i4b) :: error_status  ! Error status returned by OPENs
+  REAL(sp), ALLOCATABLE :: tmp(:)
 
+  ! Temporary soil parameter variables. Varnames match corresponding bios parameter filenames (roughly).
+  ! Dimensions are mland, which will be mapped to the more complicated mland+tiles dimensions of the 
+  ! equivalent cable soil variables. Filenames for these variables are defined at module level
+  ! because they are read in from bios.nml as part of the initialisation but only accessed here,
+  ! after the default cable params are read in by cable_driver. 
 
-! Temporary soil parameter variables. Varnames match corresponding bios parameter filenames (roughly).
-! Dimensions are mland, which will be mapped to the more complicated mland+tiles dimensions of the 
-! equivalent cable soil variables. Filenames for these variables are defined at module level
-! because they are read in from bios.nml as part of the initialisation but only accessed here,
-! after the default cable params are read in by cable_driver. 
+  ALLOCATE (tmp(mland))
 
+  CALL GET_UNIT(param_unit)  ! Obtain an unused unit number for file reading
 
-ALLOCATE (tmp(mland))
-
-CALL GET_UNIT(param_unit)  ! Obtain an unused unit number for file reading
-
-! Open, read, and close Major Veg Group file
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(c4frac_file), ACCESS='STREAM', &
-     FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
-IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(c4frac_file) ; STOP ''
-ELSE
-  READ (param_unit) tmp
-  CLOSE (param_unit)
-END IF
-
-fracC4 = tmp
+  ! Open, read, and close Major Veg Group file
+  OPEN (param_unit, FILE=TRIM(param_path)//TRIM(c4frac_file), ACCESS='STREAM', &
+       FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+  IF (error_status > 0) THEN
+     WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(c4frac_file) ; STOP ''
+  ELSE
+     READ (param_unit) tmp
+     CLOSE (param_unit)
+  END IF
+  
+  fracC4 = tmp
 
 END SUBROUTINE cable_bios_load_fracC4
 

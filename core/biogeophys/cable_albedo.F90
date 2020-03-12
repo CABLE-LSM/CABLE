@@ -24,42 +24,43 @@ MODULE cable_albedo_module
 
    USE cable_data_module, ONLY : ialbedo_type, point2constants
    USE cable_IO_vars_module, ONLY: wlogn
+
    IMPLICIT NONE
 
-   PUBLIC surface_albedo
+   PUBLIC :: surface_albedo
+   
    PRIVATE
 
    TYPE(ialbedo_type) :: C
 
+   ! ------------------------------------------------------------------------------
 
 CONTAINS
 
+! ------------------------------------------------------------------------------
 
 SUBROUTINE surface_albedo(ssnow, veg, met, rad, soil, canopy)
 
    USE cable_common_module
-   USE cable_def_types_mod, ONLY : veg_parameter_type, soil_parameter_type,    &
-                                   canopy_type, met_type, radiation_type,      &
+   USE cable_def_types_mod, ONLY : veg_parameter_type, soil_parameter_type, &
+                                   canopy_type, met_type, radiation_type,   &
                                    soil_snow_type, mp, r_2, nrb
 
-   TYPE (canopy_type),INTENT(IN)       :: canopy
-   TYPE (met_type),INTENT(INOUT)       :: met
-   TYPE (radiation_type),INTENT(INOUT) :: rad
-   TYPE (soil_snow_type),INTENT(INOUT) :: ssnow
+   implicit none
 
-   TYPE (veg_parameter_type),INTENT(INOUT)  :: veg
+   TYPE(soil_snow_type),      INTENT(INOUT) :: ssnow
+   TYPE(veg_parameter_type),  INTENT(IN)    :: veg
+   TYPE(met_type),            INTENT(IN)    :: met
+   TYPE(radiation_type),      INTENT(INOUT) :: rad
    TYPE(soil_parameter_type), INTENT(INOUT) :: soil
+   TYPE(canopy_type),         INTENT(IN)    :: canopy
 
-   REAL(r_2), DIMENSION(mp)  ::                                                &
+   REAL(r_2), DIMENSION(mp) :: &
       dummy2, & !
       dummy
-
    REAL, DIMENSION(:,:), ALLOCATABLE, SAVE :: c1, rhoch
-
    LOGICAL, DIMENSION(mp)  :: mask ! select points for calculation
-
    INTEGER :: b    !rad. band 1=visible, 2=near-infrared, 3=long-wave
-
    ! END header
 
    CALL point2constants(C)
@@ -133,7 +134,9 @@ SUBROUTINE surface_albedo(ssnow, veg, met, rad, soil, canopy)
 
 END SUBROUTINE surface_albedo
 
+
 ! ------------------------------------------------------------------------------
+
 
 SUBROUTINE surface_albedosn(ssnow, veg, met, soil)
 
@@ -141,10 +144,11 @@ SUBROUTINE surface_albedosn(ssnow, veg, met, soil)
                                    met_type, soil_snow_type, mp
    USE cable_common_module
 
-   TYPE (soil_snow_type),INTENT(INOUT) :: ssnow
-   TYPE (met_type),INTENT(INOUT)       :: met
+   implicit none
 
-   TYPE (veg_parameter_type),INTENT(INout)  :: veg
+   TYPE(soil_snow_type),      INTENT(INOUT) :: ssnow
+   TYPE(veg_parameter_type),  INTENT(IN)    :: veg
+   TYPE(met_type),            INTENT(IN)    :: met
    TYPE(soil_parameter_type), INTENT(INOUT) :: soil
 
    REAL, DIMENSION(mp) ::                                                      &
@@ -162,11 +166,9 @@ SUBROUTINE surface_albedosn(ssnow, veg, met, soil)
       snrat,   &  !
       talb,    &  ! snow albedo
       tmp         ! temporary value
-
    REAL, PARAMETER ::                                                          &
       alvo  = 0.95,  &  ! albedo for vis. on a new snow
       aliro = 0.70      ! albedo for near-infr. on a new snow
-
    INTEGER:: k
 
    soil%albsoilf = soil%albsoil(:,1)
@@ -196,9 +198,6 @@ SUBROUTINE surface_albedosn(ssnow, veg, met, soil)
    snrat=0.
    alir =0.
    alv  =0.
-
-  
-
   
    WHERE ( ssnow%snowd > 1. .AND. .NOT. cable_runtime%um_radiation )
 
@@ -319,15 +318,19 @@ SUBROUTINE surface_albedosn(ssnow, veg, met, soil)
 
 END SUBROUTINE surface_albedosn
 
+
 ! ------------------------------------------------------------------------------
 
 !jhan:subr was reintroduced here to temporarily resolve issue when
 !creating libcable.a  (repeated in cable_radiation.F90)
 SUBROUTINE calc_rhoch(veg,c1,rhoch)
 
-   USE cable_def_types_mod, ONLY : veg_parameter_type
-   TYPE (veg_parameter_type), INTENT(INOUT) :: veg
-   REAL, INTENT(INOUT), DIMENSION(:,:) :: c1, rhoch
+   USE cable_def_types_mod, ONLY: veg_parameter_type
+
+   implicit none
+
+   TYPE(veg_parameter_type), INTENT(IN)    :: veg
+   REAL, DIMENSION(:,:),     INTENT(INOUT) :: c1, rhoch
 
    c1(:,1) = SQRT(1. - veg%taul(:,1) - veg%refl(:,1))
    c1(:,2) = SQRT(1. - veg%taul(:,2) - veg%refl(:,2))
@@ -339,53 +342,66 @@ SUBROUTINE calc_rhoch(veg,c1,rhoch)
 
 END SUBROUTINE calc_rhoch
 
+
 ! -----------------------------------------------------------------------------
+
 ! subr to calc soil albedo based on colour - Ticket #27
 SUBROUTINE soilcol_albedo(ssnow, soil)
 
-   USE cable_def_types_mod, ONLY : soil_snow_type, soil_parameter_type,        &
-                                   r_2, mp, nrb
+   USE cable_def_types_mod, ONLY: soil_snow_type, soil_parameter_type, r_2, mp, nrb
+
+   implicit none
+
    ! Arguments
-   TYPE(soil_snow_type), INTENT(INOUT)      :: ssnow      ! soil+snow variables
-   TYPE(soil_parameter_type), INTENT(INOUT) :: soil       ! soil parameters
+   TYPE(soil_snow_type),      INTENT(INOUT) :: ssnow      ! soil+snow variables
+   TYPE(soil_parameter_type), INTENT(IN)    :: soil       ! soil parameters
 
    ! Local Variables
    INTEGER   :: ib
    REAL(r_2), DIMENSION(mp)      :: inc
-   REAL(r_2), DIMENSION(mp, nrb) :: albsod,          & ! soil albedo (direct)
-                                    albsoi             ! soil albedo (indirect)
-
+   REAL(r_2), DIMENSION(mp, nrb) :: albsod, & ! soil albedo (direct)
+                                    albsoi    ! soil albedo (indirect)
    ! Look-up tables for soil albedo
    ! saturated soil albedos for 20 color classes and 2 wavebands (1=vis, 2=nir)
-   REAL(r_2), DIMENSION(20,nrb) ::                                  &
-      albsat,                                                                  &
+   REAL(r_2), DIMENSION(20,nrb) :: &
+      albsat, &
       albdry
-
-   REAL(r_2), PARAMETER, DIMENSION(20*nrb) ::                                  &
-      albsat1D = (/ 0.25,0.23,0.21,0.20,0.19,0.18,0.17,0.16,0.15,0.14,0.13,    &
-                    0.12,0.11,0.10,0.09,0.08,0.07,0.06,0.05,0.04 ,             &
-                    0.50,0.46,0.42,0.40,0.38,0.36,0.34,0.32,0.30,0.28,0.26,    &
-                    0.24,0.22,0.20,0.18,0.16,0.14,0.12,0.10,0.08,              &
-                    0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,                    &
-                    0., 0., 0., 0., 0., 0., 0., 0., 0., 0. /),                    &
+   REAL(r_2), PARAMETER, DIMENSION(20*nrb) :: albsat1D = (/ &
+        0.25_r_2,0.23_r_2,0.21_r_2,0.20_r_2,0.19_r_2,0.18_r_2, &
+        0.17_r_2,0.16_r_2,0.15_r_2,0.14_r_2,0.13_r_2,0.12_r_2, &
+        0.11_r_2,0.10_r_2,0.09_r_2,0.08_r_2,0.07_r_2,0.06_r_2, &
+        0.05_r_2,0.04_r_2,0.50_r_2,0.46_r_2,0.42_r_2,0.40_r_2, &
+        0.38_r_2,0.36_r_2,0.34_r_2,0.32_r_2,0.30_r_2,0.28_r_2, &
+        0.26_r_2,0.24_r_2,0.22_r_2,0.20_r_2,0.18_r_2,0.16_r_2, &
+        0.14_r_2,0.12_r_2,0.10_r_2,0.08_r_2, 0.0_r_2, 0.0_r_2, &
+        0.0_r_2, 0.0_r_2, 0.0_r_2, 0.0_r_2, 0.0_r_2, 0.0_r_2, &
+        0.0_r_2, 0.0_r_2, 0.0_r_2, 0.0_r_2, 0.0_r_2, 0.0_r_2, &
+        0.0_r_2, 0.0_r_2, 0.0_r_2, 0.0_r_2, 0.0_r_2, 0.0_r_2 /)
    ! dry soil albedos for 20 color classes and 2 wavebands (1=vis, 2=nir)
-      albdry1D = (/  0.36,0.34,0.32,0.31,0.30,0.29,0.28,0.27,0.26,0.25,0.24,   &
-                     0.23,0.22,0.20,0.18,0.16,0.14,0.12,0.10,0.08,             &
-                     0.61,0.57,0.53,0.51,0.49,0.48,0.45,0.43,0.41,0.39,0.37,   &
-                     0.35,0.33,0.31,0.29,0.27,0.25,0.23,0.21,0.16,             &
-                     0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,                   &
-                     0., 0., 0., 0., 0., 0., 0., 0., 0., 0. /)
+   REAL(r_2), PARAMETER, DIMENSION(20*nrb) :: albdry1D = (/ &
+        0.36_r_2,0.34_r_2,0.32_r_2,0.31_r_2,0.30_r_2,0.29_r_2, &
+        0.28_r_2,0.27_r_2,0.26_r_2,0.25_r_2,0.24_r_2,0.23_r_2, &
+        0.22_r_2,0.20_r_2,0.18_r_2,0.16_r_2,0.14_r_2,0.12_r_2, &
+        0.10_r_2,0.08_r_2,0.61_r_2,0.57_r_2,0.53_r_2,0.51_r_2, &
+        0.49_r_2,0.48_r_2,0.45_r_2,0.43_r_2,0.41_r_2,0.39_r_2, &
+        0.37_r_2,0.35_r_2,0.33_r_2,0.31_r_2,0.29_r_2,0.27_r_2, &
+        0.25_r_2,0.23_r_2,0.21_r_2,0.16_r_2, 0.0_r_2, 0.0_r_2, &
+        0.0_r_2, 0.0_r_2, 0.0_r_2, 0.0_r_2, 0.0_r_2, 0.0_r_2, &
+        0.0_r_2, 0.0_r_2, 0.0_r_2, 0.0_r_2, 0.0_r_2, 0.0_r_2, &
+        0.0_r_2, 0.0_r_2, 0.0_r_2, 0.0_r_2, 0.0_r_2, 0.0_r_2 /)
 
    albsat = RESHAPE( albsat1D, (/20, nrb/) )
    albdry = RESHAPE( albdry1D, (/20, nrb/) )
 
    DO ib = 1,2 ! Number of wavebands (vis, nir)
-      inc = MAX(0.11-0.40*ssnow%wb(:,1), 0._r_2)
+      inc = MAX(0.11_r_2-0.40_r_2*ssnow%wb(:,1), 0._r_2)
       albsod(:,ib) = MIN(albsat(INT(soil%soilcol),ib)+inc, albdry(INT(soil%soilcol),ib))
       albsoi(:,ib) = albsod(:,ib)
    END DO
-   ssnow%albsoilsn = real(0.5*(albsod + albsoi))
+   ssnow%albsoilsn = real(0.5_r_2*(albsod + albsoi))
 
 END SUBROUTINE soilcol_albedo
+
+! ------------------------------------------------------------------------------
 
 END MODULE cable_albedo_module

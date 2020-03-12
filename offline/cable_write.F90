@@ -259,7 +259,7 @@ CONTAINS
         IF( .NOT. ASSOCIATED(otmp2lt)) ALLOCATE(otmp2lt(mland, 1))
       END IF
     ELSE
-      CALL abort('Unknown grid specification (INTERFACE define_ovar)')
+      CALL cable_abort('Unknown grid specification (INTERFACE define_ovar)')
     END IF
     ! Define variable units:
     ok = NF90_PUT_ATT(ncid, varID, 'units', vunits)
@@ -346,7 +346,7 @@ CONTAINS
         else if (dimswitch == 'generic') then ! dimensions are determined from input var
            continue
         ELSE
-          CALL abort('Variable '//vname//                                      &
+          CALL cable_abort('Variable '//vname//                                      &
                       ' defined with unknown dimension switch - '//dimswitch// &
                                    ' - in SUBROUTINE define_output_variable_r2 - 01')
         END IF
@@ -386,7 +386,7 @@ CONTAINS
         else if (dimswitch == 'generic') then ! dimensions are determined from input var
            continue
         ELSE
-          CALL abort('Variable '//vname//                                      &
+          CALL cable_abort('Variable '//vname//                                      &
                       ' defined with unknown dimension switch - '//dimswitch// &
                                    ' - in SUBROUTINE define_output_variable_r2 - 02')
         END IF
@@ -437,7 +437,7 @@ CONTAINS
         else if (dimswitch == 'generic') then ! dimensions are determined from input var
            continue
         ELSE
-          CALL abort('Variable '//vname//                                      &
+          CALL cable_abort('Variable '//vname//                                      &
                       ' defined with unknown dimension switch - '//dimswitch// &
                                    ' - in SUBROUTINE define_output_variable_r2 - 03')
         END IF
@@ -472,13 +472,13 @@ CONTAINS
         else if (dimswitch == 'generic') then ! dimensions are determined from input var
            continue
         ELSE
-          CALL abort('Variable '//vname//                                      &
+          CALL cable_abort('Variable '//vname//                                      &
                       ' defined with unknown dimension switch - '//dimswitch// &
                                    ' - in SUBROUTINE define_output_variable_r2 - 04')
         END IF
       END IF
     ELSE
-      CALL abort('Unknown grid specification (SUBROUTINE '//                   &
+      CALL cable_abort('Unknown grid specification (SUBROUTINE '//                   &
                                                    'define_output_variable_r2)')
     END IF
     ! Define variable units:
@@ -602,7 +602,7 @@ CONTAINS
           if(.not. associated(otmp1l)) allocate(otmp1l(mland))
        end if
     else
-       call abort('Unknown grid specification '// &
+       call cable_abort('Unknown grid specification '// &
             '(SUBROUTINE define_output_parameter_r1)')
     end if
     ! Define variable units:
@@ -802,7 +802,7 @@ CONTAINS
           END IF
        END IF
     ELSE
-       CALL abort('Unknown grid specification '//                              &
+       CALL cable_abort('Unknown grid specification '//                              &
                                       '(SUBROUTINE define_output_parameter_r2)')
     END IF
     ! Define variable units:
@@ -982,7 +982,7 @@ CONTAINS
                  start = (/1, ktau/), count = (/mland, 1/)) ! write data to file
       END IF
     ELSE
-      CALL abort('Unknown grid specification '//                               &
+      CALL cable_abort('Unknown grid specification '//                               &
                                         '(SUBROUTINE write_output_variable_r1)')
     END IF
     ! Check writing was successful:
@@ -1218,7 +1218,7 @@ CONTAINS
           deallocate(otmp5)
 
         else
-          CALL abort('Variable '//vname//                                      &
+          CALL cable_abort('Variable '//vname//                                      &
                      ' defined with unknown dimension switch - '//dimswitch//  &
                      ' - in INTERFACE write_ovar - 01')
         END IF
@@ -1389,7 +1389,7 @@ CONTAINS
           deallocate(otmp4)
 
         else
-          CALL abort('Variable '//vname//                                      &
+          CALL cable_abort('Variable '//vname//                                      &
                      ' defined with unknown dimension switch - '//dimswitch//  &
                      ' - in INTERFACE write_ovar - 02')
         END IF
@@ -1553,7 +1553,7 @@ CONTAINS
           deallocate(otmp4)
 
         else
-          CALL abort('Variable '//vname//                                      &
+          CALL cable_abort('Variable '//vname//                                      &
                      ' defined with unknown dimension switch - '//dimswitch//  &
                      ' - in INTERFACE write_ovar - 03')
         END IF
@@ -1698,13 +1698,13 @@ CONTAINS
           deallocate(otmp3)
 
         else
-          CALL abort('Variable '//vname//                                      &
+          CALL cable_abort('Variable '//vname//                                      &
                      ' defined with unknown dimension switch - '//dimswitch//  &
                      ' - in SUBROUTINE write_output_variable_r2 - 01')
         END IF
       END IF ! patch info or no patch info
     ELSE
-      CALL abort('Unknown grid specification '//                               &
+      CALL cable_abort('Unknown grid specification '//                               &
                                         '(SUBROUTINE write_output_variable_r2)')
     END IF ! grid type
 
@@ -1757,7 +1757,7 @@ CONTAINS
                                    ' is set at a value out of specified ranges!'
                       WRITE(*, *) 'Land point # ',i, 'patch #', j
                       WRITE(*, *) 'Value: ', otmp3xyp(land_x(i), land_y(i), j)
-                      CALL abort('Aborting.')
+                      CALL cable_abort('Aborting.')
                    END IF
                 END DO
              END IF
@@ -1792,7 +1792,7 @@ CONTAINS
                         ' is set at a value out of specified ranges!'
                    WRITE(*, *) 'Land point # ',i
                    WRITE(*, *) 'Value: ', otmp2xy(land_x(i),land_y(i))
-                   CALL abort('Aborting.')
+                   CALL cable_abort('Aborting.')
                 END IF
              END IF
           END DO
@@ -1838,7 +1838,7 @@ CONTAINS
                                   ' is set at a value out of specified ranges!'
                       WRITE(*, *) 'Land point # ',i, 'patch #', j
                       WRITE(*, *) 'Value: ', otmp2lp(i, j)
-                      CALL abort('Aborting.')
+                      CALL cable_abort('Aborting.')
                    END IF
                 END DO
              END IF
@@ -1874,7 +1874,7 @@ CONTAINS
                                   ' is set at a value out of specified ranges!'
                       WRITE(*, *) 'Land point # ',i
                       WRITE(*, *) 'Value: ', otmp1l(i)
-                      CALL abort('Aborting.')
+                      CALL cable_abort('Aborting.')
                    END IF
                 END IF
              END DO
@@ -1889,7 +1889,7 @@ CONTAINS
           END IF ! If writing restart
        END IF ! If writing with a patch dimension in output file
     ELSE
-       CALL abort('Unknown grid specification '//                              &
+       CALL cable_abort('Unknown grid specification '//                              &
                                        '(SUBROUTINE write_output_parameter_r1)')
     END IF  ! mask x-y or land-only grid
     ! Check writing was successful:
@@ -1939,7 +1939,7 @@ CONTAINS
                         ' is set at a value out of specified ranges!'
                    WRITE(*, *) 'Land point # ',i, 'patch #', j
                    WRITE(*, *) 'Value: ', tmpout(i, j)
-                   CALL abort('Aborting.')
+                   CALL cable_abort('Aborting.')
                 END IF
              END DO
           END IF
@@ -1996,7 +1996,7 @@ CONTAINS
                               ' is set at a value out of specified ranges!'
                   WRITE(*, *) 'Land point # ', i, 'patch #', j
                   WRITE(*, *) 'Values: ', otmp4xyps(land_x(i), land_y(i), j, :)
-                  CALL abort('Aborting.')
+                  CALL cable_abort('Aborting.')
                 END IF
               END DO
             END IF
@@ -2029,7 +2029,7 @@ CONTAINS
                               ' is set at a value out of specified ranges!'
                   WRITE(*, *) 'Land point # ', i, 'patch #', j
                   WRITE(*, *) 'Values: ', otmp4xyppc(land_x(i), land_y(i), j, :)
-                  CALL abort('Aborting.')
+                  CALL cable_abort('Aborting.')
                 END IF
               END DO
             END IF
@@ -2062,7 +2062,7 @@ CONTAINS
                               ' is set at a value out of specified ranges!'
                   WRITE(*, *) 'Land point # ', i, 'patch #', j
                   WRITE(*, *) 'Values: ', otmp4xypsc(land_x(i), land_y(i), j, :)
-                  CALL abort('Aborting.')
+                  CALL cable_abort('Aborting.')
                 END IF
               END DO
             END IF
@@ -2095,7 +2095,7 @@ CONTAINS
                               ' is set at a value out of specified ranges!'
                   WRITE(*, *) 'Land point # ', i, 'patch #', j
                   WRITE(*, *) 'Values: ', otmp4xypr(land_x(i), land_y(i), j, :)
-                  CALL abort('Aborting.')
+                  CALL cable_abort('Aborting.')
                 END IF
               END DO
             END IF
@@ -2111,7 +2111,7 @@ CONTAINS
                             start = (/1, 1, 1, 1/),                            &
                             count = (/xdimsize, ydimsize, max_vegpatches, nrb/))
         ELSE
-          CALL abort('Parameter '//pname//                                     &
+          CALL cable_abort('Parameter '//pname//                                     &
                      ' defined with unknown dimension switch - '//dimswitch//  &
                      ' - in INTERFACE write_ovar')
         END IF
@@ -2128,7 +2128,7 @@ CONTAINS
                            ' is set at a value out of specified ranges!'
                 WRITE(*, *) 'Land point # ', i
                 WRITE(*, *) 'Values: ', otmp3xys(land_x(i), land_y(i), :)
-                CALL abort('Aborting.')
+                CALL cable_abort('Aborting.')
               END IF
             END IF
           END DO
@@ -2150,7 +2150,7 @@ CONTAINS
                             ' is set at a value out of specified ranges!'
                 WRITE(*, *) 'Land point # ', i
                 WRITE(*, *) 'Values: ', otmp3xypc(land_x(i), land_y(i), :)
-                CALL abort('Aborting.')
+                CALL cable_abort('Aborting.')
               END IF
             END IF
           END DO
@@ -2172,7 +2172,7 @@ CONTAINS
                             ' is set at a value out of specified ranges!'
                 WRITE(*, *) 'Land point # ', i
                 WRITE(*, *) 'Values: ', otmp3xysc(land_x(i), land_y(i), :)
-                CALL abort('Aborting.')
+                CALL cable_abort('Aborting.')
               END IF
             END IF
           END DO
@@ -2194,7 +2194,7 @@ CONTAINS
                             ' is set at a value out of specified ranges!'
                 WRITE(*, *) 'Land point # ', i
                 WRITE(*, *) 'Values: ', otmp3xyr(land_x(i), land_y(i), :)
-                CALL abort('Aborting.')
+                CALL cable_abort('Aborting.')
               END IF
             END IF
           END DO
@@ -2216,7 +2216,7 @@ CONTAINS
                             ' is set at a value out of specified ranges!'
                 WRITE(*, *) 'Land point # ', i
                 WRITE(*, *) 'Values: ', otmp3xysf(land_x(i), land_y(i), :)
-                CALL abort('Aborting.')
+                CALL cable_abort('Aborting.')
               END IF
             END IF
           END DO
@@ -2228,7 +2228,7 @@ CONTAINS
                             start = (/1, 1, 1/),                               &
                          count = (/xdimsize, ydimsize, 4/)) ! write data to file
         ELSE
-          CALL abort('Parameter '//pname//                                     &
+          CALL cable_abort('Parameter '//pname//                                     &
                      ' defined with unknown dimension switch - '//dimswitch//  &
                      ' - in SUBROUTINE write_output_parameter_r2')
         END IF
@@ -2256,7 +2256,7 @@ CONTAINS
                               ' is set at a value out of specified ranges!'
                   WRITE(*, *) 'Land point # ', i, 'patch #', j
                   WRITE(*, *) 'Values: ', otmp3lps(i, j, :)
-                  CALL abort('Aborting.')
+                  CALL cable_abort('Aborting.')
                 END IF
               END DO
             END IF
@@ -2280,7 +2280,7 @@ CONTAINS
                              ' is set at a value out of specified ranges!'
                   WRITE(*, *) 'Land point # ', i, 'patch #', j
                   WRITE(*, *) 'Values: ', otmp3lppc(i, j, :)
-                  CALL abort('Aborting.')
+                  CALL cable_abort('Aborting.')
                 END IF
               END DO
             END IF
@@ -2304,7 +2304,7 @@ CONTAINS
                               ' is set at a value out of specified ranges!'
                   WRITE(*, *) 'Land point # ', i, 'patch #', j
                   WRITE(*, *) 'Values: ', otmp3lpsc(i, j, :)
-                  CALL abort('Aborting.')
+                  CALL cable_abort('Aborting.')
                 END IF
               END DO
             END IF
@@ -2329,7 +2329,7 @@ CONTAINS
                               ' is set at a value out of specified ranges!'
                   WRITE(*, *) 'Land point # ', i, 'patch #', j
                   WRITE(*, *) 'Values: ', otmp3lpr(i, j, :)
-                  CALL abort('Aborting.')
+                  CALL cable_abort('Aborting.')
                 END IF
               END DO
             END IF
@@ -2353,7 +2353,7 @@ CONTAINS
                               ' is set at a value out of specified ranges!'
                   WRITE(*, *) 'Land point # ', i, 'patch #', j
                   WRITE(*, *) 'Values: ', otmp3lpsn(i, j, :)
-                  CALL abort('Aborting.')
+                  CALL cable_abort('Aborting.')
                 END IF
               END DO
             END IF
@@ -2362,7 +2362,7 @@ CONTAINS
           ok = NF90_PUT_VAR(ncid, parID, REAL(otmp3lpsn(:, :, :), 4),          &
                     start = (/1, 1, 1/), count = (/mland, max_vegpatches, msn/))
         ELSE
-          CALL abort('Parameter '//pname//                                     &
+          CALL cable_abort('Parameter '//pname//                                     &
                      ' defined with unknown dimension switch - '//dimswitch//  &
                      ' - in SUBROUTINE write_output_parameter_r2')
         END IF
@@ -2384,7 +2384,7 @@ CONTAINS
                              ' is set at a value out of specified ranges!'
                         WRITE(*,*) 'Land point # ',i
                         WRITE(*,*) 'Values: ', otmp2ls(i,:)
-                        CALL abort('Aborting.')
+                        CALL cable_abort('Aborting.')
                      END IF
                   END IF
                END DO
@@ -2407,7 +2407,7 @@ CONTAINS
                                    ' is set at a value out of specified ranges!'
                        WRITE(*, *) 'Land point # ', i
                        WRITE(*, *) 'Values: ', otmp2lpc(i, :)
-                       CALL abort('Aborting.')
+                       CALL cable_abort('Aborting.')
                     END IF
                  END IF
               END DO
@@ -2430,7 +2430,7 @@ CONTAINS
                                    ' is set at a value out of specified ranges!'
                        WRITE(*, *) 'Land point # ', i
                        WRITE(*, *) 'Values: ', otmp2lsc(i, :)
-                       CALL abort('Aborting.')
+                       CALL cable_abort('Aborting.')
                     END IF
                  END IF
               END DO
@@ -2454,7 +2454,7 @@ CONTAINS
                                    ' is set at a value out of specified ranges!'
                        WRITE(*, *) 'Land point # ', i
                        WRITE(*, *) 'Values: ', otmp2lr(i, :)
-                       CALL abort('Aborting.')
+                       CALL cable_abort('Aborting.')
                     END IF
                  END IF
               END DO
@@ -2477,7 +2477,7 @@ CONTAINS
                                    ' is set at a value out of specified ranges!'
                        WRITE(*, *) 'Land point # ', i
                        WRITE(*, *) 'Values: ', otmp2lsn(i, :)
-                       CALL abort('Aborting.')
+                       CALL cable_abort('Aborting.')
                     END IF
                  END IF
               END DO
@@ -2495,20 +2495,20 @@ CONTAINS
                             ' is set at a value out of specified ranges!'
                 WRITE(*, *) 'Land point # ', i
                 WRITE(*, *) 'Values: ', otmp2lsf(i, :)
-                CALL abort('Aborting.')
+                CALL cable_abort('Aborting.')
               END IF
             END IF
           END DO
           ok = NF90_PUT_VAR(ncid, parID, REAL(otmp2lsf, 4),                    &
                     start = (/1, 1/), count = (/mland, 4/)) ! write data to file
         ELSE
-          CALL abort('Parameter '//pname//                                     &
+          CALL cable_abort('Parameter '//pname//                                     &
                      ' defined with unknown dimension switch - '//dimswitch//  &
                      ' - in SUBROUTINE write_output_parameter_r2')
         END IF
       END IF
     ELSE
-      CALL abort('Unknown grid specification '//                               &
+      CALL cable_abort('Unknown grid specification '//                               &
                  '(SUBROUTINE write_output_parameter_r2)')
     END IF
     ! Check writing was successful:
@@ -2558,7 +2558,7 @@ CONTAINS
                                   ' is set at a value out of specified ranges!'
                       WRITE(*, *) 'Land point # ',i, 'patch #', j
                       WRITE(*, *) 'Values: ', tmpout(i, j, :)
-                      CALL abort('Aborting.')
+                      CALL cable_abort('Aborting.')
                    END IF
                 END DO
              END IF
@@ -2569,7 +2569,7 @@ CONTAINS
           DEALLOCATE(tmpout)
        END IF
     ELSE
-       CALL abort('Parameter '//pname//                                        &
+       CALL cable_abort('Parameter '//pname//                                        &
                   ' defined with unknown dimension switch - '//dimswitch//     &
                   ' - in SUBROUTINE write_output_parameter_r2d')
     END IF

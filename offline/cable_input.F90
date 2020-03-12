@@ -37,7 +37,7 @@
 MODULE cable_input_module
 ! Note that any precision changes from r_1 to REAL(4) enable running with -r8
 !
-   USE cable_abort_module,      ONLY: abort, nc_abort
+   USE cable_abort_module,      ONLY: cable_abort, nc_abort
    USE cable_def_types_mod
    USE casadimension,           ONLY: icycle
    USE casavariable
@@ -151,7 +151,7 @@ CONTAINS
 ! CALLed from: load_parameters
 !
 ! CALLs: nc_abort
-!        abort
+!        cable_abort
 !
 ! Input file: [LAI].nc
 !
@@ -228,7 +228,7 @@ SUBROUTINE get_default_lai
    END IF
    ok = NF90_INQUIRE_DIMENSION(ncid,tID,LEN=ntime)
    IF (ok /= NF90_NOERR) CALL nc_abort(ok,'Error getting time dimension.')
-   IF (ntime /= 12) CALL abort('Time dimension not 12 months.')
+   IF (ntime /= 12) CALL cable_abort('Time dimension not 12 months.')
 
    ok = NF90_INQ_VARID(ncid,'LAI',laiID)
    IF (ok /= NF90_NOERR) CALL nc_abort(ok,'Error finding LAI variable.')
@@ -278,7 +278,7 @@ END SUBROUTINE get_default_lai
 !
 ! CALLed from: cable_offline_driver
 !
-! CALLs: abort
+! CALLs: cable_abort
 !        nc_abort
 !        date_and_time
 !
@@ -536,7 +536,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
              land_x = 1
              land_y = 1
           ELSE
-             ! Call abort if more than one gridcell and no
+             ! Call cable_abort if more than one gridcell and no
              ! recognised grid system:
              CALL nc_abort &
                   (ok,'Error finding grid system ("mask" or "land") variable in ' &
@@ -653,7 +653,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
     ok = NF90_INQ_DIMID(ncid_met,'monthly', monthlydimID)
     IF(ok==NF90_NOERR) THEN ! if found
        ok = NF90_INQUIRE_DIMENSION(ncid_met,monthlydimID,len=tempmonth)
-       IF(tempmonth/=12) CALL abort ('Number of months in met file /= 12.')
+       IF(tempmonth/=12) CALL cable_abort ('Number of months in met file /= 12.')
     END IF
 
     ! Set longitudes to be [-180,180]:
@@ -662,10 +662,10 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
     END WHERE
     ! Check ranges for latitude and longitude:
     IF(ANY(longitude>180.0).OR.ANY(longitude<-180.0)) &
-         CALL abort('Longitudes read from '//TRIM(filename%met)// &
+         CALL cable_abort('Longitudes read from '//TRIM(filename%met)// &
          ' are not [-180,180] or [0,360]! Please set.')
     IF(ANY(latitude>90.0).OR.ANY(latitude<-90.0)) &
-         CALL abort('Latitudes read from '//TRIM(filename%met)// &
+         CALL cable_abort('Latitudes read from '//TRIM(filename%met)// &
          ' are not [-90,90]! Please set.')
 
     !!=================^^ End spatial details ^^========================
@@ -756,11 +756,11 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
        END IF
     ELSE IF((ok==NF90_NOERR.AND.time_coord=='LOC'.AND.mland_fromfile>1)) THEN
        ! Else if local time is selected for regional simulation, abort:
-       CALL abort('"time" variable must be GMT for multiple site simulation!' &
+       CALL cable_abort('"time" variable must be GMT for multiple site simulation!' &
             //' Check "coordinate" field in time variable.' &
             //' (SUBROUTINE open_met_file)')
     ELSE IF(time_coord/='LOC'.AND.time_coord/='GMT') THEN
-       CALL abort('Meaningless time coordinate in met data file!' &
+       CALL cable_abort('Meaningless time coordinate in met data file!' &
             // ' (SUBROUTINE open_met_file)')
     END IF
 
@@ -897,7 +897,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
          /='W/m^2'.OR.metunits%SWdown(1:5)/='Wm^-2' &
          .OR.metunits%SWdown(1:4)/='Wm-2')) THEN
        WRITE(*,*) metunits%SWdown
-       CALL abort('Unknown units for SWdown'// &
+       CALL cable_abort('Unknown units for SWdown'// &
             ' in '//TRIM(filename%met)//' (SUBROUTINE open_met_data)')
     END IF
     ! Look for Tair (essential):- - - - - - - - - - - - - - - - - - -
@@ -920,7 +920,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
        convert%Tair = 0.0
     ELSE
        WRITE(*,*) metunits%Tair
-       CALL abort('Unknown units for Tair'// &
+       CALL cable_abort('Unknown units for Tair'// &
             ' in '//TRIM(filename%met)//' (SUBROUTINE open_met_data)')
     END IF
     ! Look for Qair (essential):- - - - - - - - - - - - - - - - - - -
@@ -944,7 +944,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
        convert%Qair=1.0
     ELSE
        WRITE(*,*) metunits%Qair
-       CALL abort('Unknown units for Qair'// &
+       CALL cable_abort('Unknown units for Qair'// &
             ' in '//TRIM(filename%met)//' (SUBROUTINE open_met_data)')
     END IF
     ! Look for Rainf (essential):- - - - - - - - - - - - - - - - - -
@@ -970,7 +970,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
        convert%Rainf = dels/3600.0
     ELSE
        WRITE(*,*) metunits%Rainf
-       CALL abort('Unknown units for Rainf'// &
+       CALL cable_abort('Unknown units for Rainf'// &
             ' in '//TRIM(filename%met)//' (SUBROUTINE open_met_data)')
     END IF
     ! Multiply acceptable Rainf ranges by time step size:
@@ -1000,7 +1000,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
          //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
     IF (metunits%Wind(1:3)/='m/s'.AND.metunits%Wind(1:2)/='ms'.AND.metunits%Wind(1:5)/='m s-1') THEN
        WRITE(*,*) metunits%Wind
-       CALL abort('Unknown units for Wind'// &
+       CALL cable_abort('Unknown units for Wind'// &
             ' in '//TRIM(filename%met)//' (SUBROUTINE open_met_data)')
     END IF
     ! Now "optional" variables:
@@ -1022,7 +1022,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
             /='W/m^2'.OR.metunits%LWdown(1:5)/='Wm^-2' &
             .OR.metunits%LWdown(1:4)/='Wm-2')) THEN
           WRITE(*,*) metunits%LWdown
-          CALL abort('Unknown units for LWdown'// &
+          CALL cable_abort('Unknown units for LWdown'// &
                ' in '//TRIM(filename%met)//' (SUBROUTINE open_met_data)')
        END IF
     ELSE
@@ -1060,7 +1060,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
           convert%PSurf = 1.0
        ELSE
           WRITE(*,*) metunits%PSurf
-          CALL abort('Unknown units for PSurf'// &
+          CALL cable_abort('Unknown units for PSurf'// &
                ' in '//TRIM(filename%met)//' (SUBROUTINE open_met_data)')
        END IF
     ELSE ! If PSurf not present
@@ -1083,7 +1083,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
              ! Convert from feet to metres:
              convert%Elev = 0.3048
           ELSE
-             CALL abort('Unknown units for Elevation'// &
+             CALL cable_abort('Unknown units for Elevation'// &
                   ' in '//TRIM(filename%met)//' (SUBROUTINE open_met_data)')
           END IF
           ! Allocate space for elevation variable:
@@ -1107,7 +1107,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
              elevation = REAL(data1) * convert%Elev
           END IF
        ELSE ! If both PSurf and elevation aren't present, abort:
-          CALL abort &
+          CALL cable_abort &
                ('Error finding PSurf or Elevation in met data file ' &
                //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
        END IF
@@ -1147,7 +1147,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
             (ok,'Error finding Snowf units in met data file ' &
             //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
        ! Make sure Snowf units are the same as Rainf units:
-       IF(metunits%Rainf/=metunits%Snowf) CALL abort &
+       IF(metunits%Rainf/=metunits%Snowf) CALL cable_abort &
             ('Please ensure Rainf and Snowf units are the same'// &
             ' in '//TRIM(filename%met)//' (SUBROUTINE open_met_data)')
     ELSE
@@ -1237,7 +1237,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
           IF(ok /= NF90_NOERR) CALL nc_abort &
                (ok,'Error finding avPrecip units in met data file ' &
                //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
-          IF(metunits%avPrecip(1:2)/='mm') CALL abort( &
+          IF(metunits%avPrecip(1:2)/='mm') CALL cable_abort( &
                'Unknown avPrecip units in met data file ' &
                //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
           ! Allocate space for avPrecip variable:
@@ -1500,7 +1500,7 @@ END SUBROUTINE open_met_file
 !
 ! MODULEs used: cable_common_module
 !
-! CALLs: abort
+! CALLs: cable_abort
 !        nc_abort
 !        rh_sh
 !        sinbet
@@ -1560,7 +1560,7 @@ SUBROUTINE get_met_data(spinup,spinConv,met,soil,rad,                          &
              met%moy(landpt(i)%cstart) = smoy
              met%year(landpt(i)%cstart) = syear
           CASE DEFAULT
-             CALL abort('Unknown time coordinate! ' &
+             CALL cable_abort('Unknown time coordinate! ' &
                   //' (SUBROUTINE get_met_data)')
           END SELECT
        ELSE
@@ -2286,7 +2286,7 @@ SUBROUTINE get_met_data(spinup,spinConv,met,soil,rad,                          &
       DEALLOCATE(tmpDat1, tmpDat2, tmpDat3, tmpDat2x)
 
     ELSE
-      CALL abort('Unrecognised grid type')
+      CALL cable_abort('Unrecognised grid type')
     END IF ! grid type
 
     if ((.not. exists%Snowf) .or. all(met%precip_sn == 0.0)) then ! honour snowf input
@@ -2308,23 +2308,23 @@ SUBROUTINE get_met_data(spinup,spinConv,met,soil,rad,                          &
        ! Check ranges are okay:
           !jhan:quick fix, use dimension 1 here arbitrarily
        IF(ANY(met%fsd(:,1)<ranges%SWdown(1)).OR.ANY(met%fsd(:,1)>ranges%SWdown(2))) &
-            CALL abort('SWdown out of specified ranges!')
+            CALL cable_abort('SWdown out of specified ranges!')
        IF(ANY(met%fsd(:,2)<ranges%SWdown(1)).OR.ANY(met%fsd(:,2)>ranges%SWdown(2))) &
-            CALL abort('SWdown out of specified ranges!')
+            CALL cable_abort('SWdown out of specified ranges!')
        IF(ANY(met%fld<ranges%LWdown(1)).OR.ANY(met%fld>ranges%LWdown(2))) &
-            CALL abort('LWdown out of specified ranges!')
+            CALL cable_abort('LWdown out of specified ranges!')
        IF(ANY(met%qv<ranges%Qair(1)).OR.ANY(met%qv>ranges%Qair(2))) &
-            CALL abort('Qair out of specified ranges!')
+            CALL cable_abort('Qair out of specified ranges!')
        IF(ANY(met%precip<ranges%Rainf(1)).OR.ANY(met%precip>ranges%Rainf(2))) then
-          CALL abort('Rainf out of specified ranges!')
+          CALL cable_abort('Rainf out of specified ranges!')
        ENDIF
        IF(ANY(met%ua<ranges%Wind(1)).OR.ANY(met%ua>ranges%Wind(2))) &
-            CALL abort('Wind out of specified ranges!')
+            CALL cable_abort('Wind out of specified ranges!')
        IF(ANY(met%tk<ranges%Tair(1)).OR.ANY(met%tk>ranges%Tair(2))) &
-            CALL abort('Tair out of specified ranges!')
+            CALL cable_abort('Tair out of specified ranges!')
        IF(ANY(met%pmb<ranges%PSurf(1)).OR.ANY(met%pmb>ranges%PSurf(2))) then
           write(*,*) "min, max Psurf", minval(met%pmb), maxval(met%pmb),ranges%Psurf(1), ranges%Psurf(2)
-            CALL abort('PSurf out of specified ranges!')
+            CALL cable_abort('PSurf out of specified ranges!')
        endif
     END IF
 
@@ -2375,7 +2375,7 @@ END SUBROUTINE close_met_file
 !        casa_readbiome
 !        casa_readphen
 !        casa_init
-!        abort
+!        cable_abort
 !        get_restart_data
 !        get_parameters_met
 !        derived_parameters
@@ -2635,7 +2635,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
             //TRIM(frst_in)//' (SUBROUTINE load_parameters) ' &
            //'Recommend running without restart file.')
       ! Check that mp_restart = mp from default/met values
-      IF(mp_restart /= mp) CALL abort('Number of patches in '// &
+      IF(mp_restart /= mp) CALL cable_abort('Number of patches in '// &
             'restart file '//TRIM(frst_in)//' does not equal '// &
            'to number in default/met file settings. (SUB load_parameters) ' &
            //'Recommend running without restart file.')

@@ -37,17 +37,18 @@ MODULE cable_checks_module
    IMPLICIT NONE
 
    PRIVATE
-   PUBLIC ranges_type, ranges, mass_balance, energy_balance, rh_sh
+   
+   PUBLIC :: ranges_type, ranges, mass_balance, energy_balance, rh_sh
 
-   TYPE units_type
-      CHARACTER(LEN=1) :: Rainf ! 's' (mm/s) or 'h' (mm/h)
-      CHARACTER(LEN=1) :: PSurf  ! 'h'(hPa or mbar) or 'P'(Pa)
-      CHARACTER(LEN=1) :: Tair  ! 'C' or 'K'
-      CHARACTER(LEN=1) :: Qair  ! '%' or 'g' (spec hum)
-      CHARACTER(LEN=1) :: CO2air ! 'p' (ppmv)
-      CHARACTER(LEN=1) :: Wind ! 'm'(m/s)
-   END TYPE units_type
-   TYPE(units_type) :: units
+   ! TYPE units_type
+   !    CHARACTER(LEN=1) :: Rainf ! 's' (mm/s) or 'h' (mm/h)
+   !    CHARACTER(LEN=1) :: PSurf  ! 'h'(hPa or mbar) or 'P'(Pa)
+   !    CHARACTER(LEN=1) :: Tair  ! 'C' or 'K'
+   !    CHARACTER(LEN=1) :: Qair  ! '%' or 'g' (spec hum)
+   !    CHARACTER(LEN=1) :: CO2air ! 'p' (ppmv)
+   !    CHARACTER(LEN=1) :: Wind ! 'm'(m/s)
+   ! END TYPE units_type
+   ! TYPE(units_type) :: units
 
    TYPE ranges_type
       REAL, DIMENSION(2) ::                                               &
@@ -192,35 +193,35 @@ CONTAINS
 !
 !==============================================================================
 
-SUBROUTINE mass_balance(dels,ktau, ssnow,soil,canopy,met,                            &
-                        air,bal)
+SUBROUTINE mass_balance(dels, ktau, ssnow, soil, canopy, met, air, bal)
 
+   implicit none
+  
    ! Input arguments
-   REAL,INTENT(IN)                           :: dels        ! time step size
-   INTEGER, INTENT(IN)                       :: ktau        ! timestep number
-   TYPE (soil_snow_type),INTENT(IN)          :: ssnow       ! soil data
-   TYPE (soil_parameter_type),INTENT(IN)     :: soil        ! soil data
-   TYPE (canopy_type),INTENT(IN)             :: canopy      ! canopy variable data
-   TYPE(met_type),INTENT(IN)                 :: met         ! met data
-   TYPE (air_type),INTENT(IN)                :: air
+   REAL,INTENT(IN)                          :: dels        ! time step size
+   INTEGER, INTENT(IN)                      :: ktau        ! timestep number
+   TYPE(soil_snow_type),INTENT(IN)          :: ssnow       ! soil data
+   TYPE(soil_parameter_type),INTENT(IN)     :: soil        ! soil data
+   TYPE(canopy_type),INTENT(IN)             :: canopy      ! canopy variable data
+   TYPE(met_type),INTENT(IN)                :: met         ! met data
+   TYPE(air_type),INTENT(IN)                :: air
+   TYPE(balances_type),INTENT(INOUT)        :: bal
 
    ! Local variables
    REAL(r_2), DIMENSION(:,:,:),POINTER, SAVE :: bwb => null() ! volumetric soil moisture
-   REAL(r_2), DIMENSION(mp)                  :: delwb         ! change in soilmoisture
-                                                              ! b/w tsteps
+   REAL(r_2), DIMENSION(mp)                  :: delwb         ! change in soilmoisture b/w tsteps
    REAL, DIMENSION(mp)                  :: canopy_wbal !canopy water balance
-   TYPE (balances_type),INTENT(INOUT)        :: bal
-   INTEGER                              :: j, k        ! do loop counter
+   INTEGER                              :: k           ! do loop counter
 
    IF(ktau==1) THEN
       ALLOCATE( bwb(mp,ms,2) )
       ! initial vlaue of soil moisture
-      bwb(:,:,1)=ssnow%wb
-       bwb(:,:,2)=ssnow%wb
-       delwb(:) = 0.
+      bwb(:,:,1) = ssnow%wb
+      bwb(:,:,2) = ssnow%wb
+      delwb(:) = 0.
    ELSE
       ! Calculate change in soil moisture b/w timesteps:
-      IF(MOD(REAL(ktau),2.0)==1.0) THEN         ! if odd timestep
+      IF (MOD(REAL(ktau),2.0)==1.0) THEN         ! if odd timestep
          bwb(:,:,1)=ssnow%wb
          DO k=1,mp           ! current smoist - prev tstep smoist
             delwb(k) = SUM((bwb(k,:,1)                                         &
@@ -250,12 +251,12 @@ SUBROUTINE mass_balance(dels,ktau, ssnow,soil,canopy,met,                       
    ! Canopy water balance: precip-change.can.storage-throughfall-evap+dew
 
    canopy_wbal = REAL(met%precip-canopy%delwc-canopy%through                   &
-        - (canopy%fevw+MIN(canopy%fevc,0.0_r_2))*dels/air%rlam)
+        - (canopy%fevw+MIN(real(canopy%fevc),0.0))*dels/air%rlam)
 
    IF (cable_user%soil_struc=='sli') then  !! vh March 2014 !!
       ! delwcol includes change in soil water, pond and snowpack
-      bal%wbal = canopy_wbal + REAL(canopy%through - ssnow%delwcol-ssnow%runoff &
-                  - ssnow%evap - max(canopy%fevc,0.0_r_2)*dels/air%rlam, r_2)
+      bal%wbal = canopy_wbal + canopy%through - ssnow%runoff - &
+           real(ssnow%delwcol) - real(ssnow%evap) - max(real(canopy%fevc), 0.0)*dels/air%rlam
    
    ENDIF
 !!$write(*,"(100e16.6)")  REAL(canopy%through(1) - ssnow%delwcol(1)-ssnow%runoff(1) &
@@ -272,8 +273,8 @@ SUBROUTINE mass_balance(dels,ktau, ssnow,soil,canopy,met,                       
       bal%wbal_tot = bal%wbal_tot + bal%wbal
       bal%precip_tot = bal%precip_tot + met%precip
       bal%rnoff_tot = bal%rnoff_tot + ssnow%rnof1 + ssnow%rnof2
-      bal%evap_tot = bal%evap_tot                                              &
-           + (canopy%fev+canopy%fes/ssnow%cls) * dels/air%rlam
+      bal%evap_tot = bal%evap_tot &
+           + (real(canopy%fev)+real(canopy%fes)/ssnow%cls) * dels/air%rlam
    END IF
 
 END SUBROUTINE mass_balance
@@ -318,21 +319,20 @@ SUBROUTINE energy_balance( dels,ktau,met,rad,canopy,bal,ssnow,                  
          - canopy%fnv - canopy%fns
 
     !  soil energy balance
-    bal%EbalSoil =canopy%fns -canopy%fes*ssnow%cls &
-         & -canopy%fhs -canopy%ga
+    bal%EbalSoil = canopy%fns - real(canopy%fes)*ssnow%cls - canopy%fhs - canopy%ga
 
     ! canopy energy balance
     bal%Ebalveg = canopy%fnv - canopy%fev -canopy%fhv
 
     ! soil + canopy energy balance
     ! SW absorbed + LW absorbed - (LH+SH+ghflux) should = 0
-    bal%Ebal = SUM(rad%qcan(:,:,1),2)+SUM(rad%qcan(:,:,2),2)+rad%qssabs &  !! vh !! March 2014
-         & +met%fld-sboltz*emleaf*canopy%tv**4*(1-rad%transd) &
-          -rad%flws*rad%transd &
-         & -canopy%fev-canopy%fes & !*ssnow%cls &
-         & -canopy%fh -canopy%ga
+    bal%Ebal = SUM(rad%qcan(:,:,1),2) + SUM(rad%qcan(:,:,2),2) + rad%qssabs &  !! vh !! March 2014
+         +met%fld-sboltz*emleaf*canopy%tv**4 * (1.0-rad%transd) &
+         -rad%flws*rad%transd &
+         -canopy%fev-real(canopy%fes) & !*ssnow%cls &
+         -canopy%fh -canopy%ga
     ! Add to cumulative balance:
-    bal%ebal_tot = bal%ebal_tot + bal%ebal
+    bal%ebal_tot  = bal%ebal_tot  + bal%ebal
     bal%RadbalSum = bal%RadbalSum + bal%Radbal
 !!$write(3355,"(200e16.6)")  bal%EbalSoil
 !!$write(3356,"(200e16.6)")  bal%Ebalveg

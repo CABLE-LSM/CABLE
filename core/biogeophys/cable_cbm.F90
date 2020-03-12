@@ -84,29 +84,25 @@ CONTAINS
    ! assign local ptrs to constants defined in cable_data_module
    CALL point2constants(C)
 
-   IF( cable_runtime%um ) THEN
-
+   IF (cable_runtime%um) THEN
       cable_runtime%um_radiation = .FALSE.
 
-      IF( cable_runtime%um_explicit ) THEN
+      IF (cable_runtime%um_explicit) THEN
          CALL ruff_resist(veg, rough, ssnow, canopy)
          met%tk = met%tk + C%grav/C%capp*(rough%zref_tq + 0.9*rough%z0m)
       ENDIF
 
       CALL define_air (met, air)
-
    ELSE
       call ruff_resist(veg, rough, ssnow, canopy)
    ENDIF
 
-   CALL init_radiation(met,rad,veg, canopy) ! need to be called at every dt
+   CALL init_radiation(met, rad, veg, canopy) ! need to be called at every dt
 
-   IF( cable_runtime%um ) THEN
-
-      IF( cable_runtime%um_explicit ) THEN
+   IF (cable_runtime%um) THEN
+      IF (cable_runtime%um_explicit) THEN
          CALL surface_albedo(ssnow, veg, met, rad, soil, canopy)
       ENDIF
-
    ELSE
       CALL surface_albedo(ssnow, veg, met, rad, soil, canopy)
    ENDIf
@@ -114,10 +110,10 @@ CONTAINS
    !! vh_js !!
 
    ssnow%otss_0 = ssnow%otss  ! vh should be before call to canopy?
-   ssnow%otss = ssnow%tss
+   ssnow%otss   = ssnow%tss
 
    ! Calculate canopy variables:
-   CALL define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy,climate)
+   CALL define_canopy(bal, rad, rough, air, met, dels, ssnow, soil, veg, canopy, climate)
 
    ! write(*,*) 'hod, TVeg: ', met%hod(1), canopy%fevc(1), canopy%fwsoil(1)
    ! if (met%hod(1).gt.12.0) stop

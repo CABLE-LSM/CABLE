@@ -28,11 +28,11 @@ SUBROUTINE POP_IO( POP, casamet, YEAR, ACTION, CF )
   INTEGER          :: STATUS, i, m, p, l, land_ID, patch_ID, ndis_ID
   !CRM  INTEGER    :: ndis1_ID,nlay_ID,hgtb_ID,ncoh_ID,t_ID
   INTEGER          :: nlay_ID, hgtb_ID, ncoh_ID, t_ID
-  INTEGER          :: nlayer_dim, ndisturb_dim, ndisturb1_dim, land_dim
+  INTEGER          :: nlayer_dim, ndisturb_dim, land_dim
   INTEGER          :: HEIGHT_BINS_dim, npatch2d_dim, NCOHORT_MAX_dim
   INTEGER          :: dID, t_dim, tx=-1, ntile, mp, CNT
   CHARACTER(len=3) :: typ='rst'
-  CHARACTER        :: dum*9, fname*120, RUNPATH*100
+  CHARACTER        :: dum*9, fname*120
   LOGICAL          :: CLOSE_FILE, EXISTFILE
 
   !   ! 1 dim arrays (np)

@@ -69,8 +69,6 @@ SUBROUTINE cable_diag1( iDiag, basename, dimx, dimy, timestep, node, &
    integer, intent(in) :: dimx, dimy, timestep,node
    real, intent(in), dimension(:) :: var1
    integer, optional :: once
-   integer :: Nvars=1 !this WAS input
-   integer :: i=0
    character(len=*), intent(in) :: basename, vname1
    character(len=30) :: filename, chnode
 
@@ -134,7 +132,6 @@ END SUBROUTINE cable_diag_desc1
 SUBROUTINE cable_diag_data1( iDiag, filename, dimx, timestep, kend, var1  )
 
    integer, intent(in) :: iDiag, dimx, timestep, kend
-   integer, PARAMETER :: Nvars=1
    real, intent(in), dimension(:) :: var1
    character(len=*), intent(in) :: filename
    integer, save :: gopenstatus = 1
@@ -311,7 +308,7 @@ END SUBROUTINE cable_diag_data1
     integer,               intent(in) :: ncid       ! netcdf file ID
     integer, dimension(:), intent(in) :: varID      ! (1) ~ tvair, (2) ~ pmb
 
-    integer :: j, ncok
+    integer :: ncok
     character(len=10) :: dummy
 
     write(dummy,11) varID(1)
@@ -340,7 +337,7 @@ END SUBROUTINE cable_diag_data1
     character(len=*), intent(in) ::  var_name
     real, dimension(:),intent(in) :: var
     integer, intent(in) :: ncid
-    integer :: ncok, varID,j
+    integer :: ncok, varID
 
     ncok = NF90_INQ_VARID(ncid, var_name, varId)
     if (ncok /= nf90_noerr) call stderr_nc(ncok, 'inquire var ', var_name)
@@ -371,9 +368,12 @@ END SUBROUTINE cable_diag_data1
   
   !soil vars
   subroutine put_var_ncr3(ncid, var_name, var, n_call, nl)
+    
     use netcdf
-    use cable_def_types_mod, only : r_2, mp, ms
+    use cable_def_types_mod, only : r_2, mp
+    
     implicit none
+    
     character(len=*), intent(in) :: var_name
     real(r_2), dimension(:,:),intent(in) :: var
     integer, intent(in) :: ncid, n_call, nl
@@ -418,7 +418,7 @@ END SUBROUTINE cable_diag_data1
   subroutine get_var_ncr3(ncid, var_name, var, n_call, nl)
 
     use netcdf,              only: nf90_inq_varid, nf90_noerr, nf90_get_var
-    use cable_def_types_mod, only : r_2, mp, ms
+    use cable_def_types_mod, only : r_2, mp
     
     implicit none
     

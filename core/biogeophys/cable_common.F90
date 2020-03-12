@@ -143,7 +143,7 @@ MODULE cable_common_module
           Ta_perturbation    = 1.0
      CHARACTER(len=6) :: &
           SIMFIRE_REGION      = "ANZ"   ! either GLOBAL, EUROPE, ANZ
-     CHARACTER(len=6) :: &
+     CHARACTER(len=7) :: &
           burnt_area          = "SIMFIRE" ! either SIMFIRE
 
     !--- LN ------------------------------------------]

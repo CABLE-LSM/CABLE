@@ -232,10 +232,10 @@ CONTAINS
 
     CALL define_air(met, air)
 
-    CALL qsatfjh(qstvair,met%tvair-C%tfrz,met%pmb)
+    CALL qsatfjh(qstvair, met%tvair-C%tfrz, met%pmb)
 
     if (cable_user%perturb_dva_by_T) then
-         CALL qsatfjh(qstvair,met%tvair-C%tfrz + cable_user%dva_T_perturbation, met%pmb)        
+       CALL qsatfjh(qstvair, met%tvair-C%tfrz + cable_user%dva_T_perturbation, met%pmb)        
     endif
     met%dva = (qstvair - met%qvair) *  C%rmair/C%rmh2o * met%pmb * 100.0
     dsx = met%dva     ! init. leaf surface vpd
@@ -1161,8 +1161,10 @@ CONTAINS
 
     END SUBROUTINE update_zetar
 
+    
     ! -----------------------------------------------------------------------------
 
+    
     FUNCTION qsatf(j,tair,pmb) RESULT(r)
       ! MRR, 1987
       ! AT TEMP tair (DEG C) AND PRESSURE pmb (MB), GET SATURATION SPECIFIC
@@ -1179,44 +1181,51 @@ CONTAINS
       r = (C%RMH2o/C%rmair) * (C%TETENA*EXP(C%TETENB*tair/(C%TETENC+tair))) / pmb
     END FUNCTION qsatf
 
+    
     ! -----------------------------------------------------------------------------
 
-    SUBROUTINE qsatfjh(var,tair,pmb)
-      USE cable_def_types_mod, only : mp
-      REAL, INTENT(IN), DIMENSION(mp) ::                                          &
-           tair,                        & ! air temperature (C)
-           pmb                            ! pressure PMB (mb)
+    
+    SUBROUTINE qsatfjh(var, tair, pmb)
+      
+      USE cable_def_types_mod, only: mp
 
-      REAL, INTENT(OUT), DIMENSION(mp) ::                                         &
-           var                            ! result; sat sp humidity
+      implicit none
+      
+      REAL, INTENT(OUT), DIMENSION(mp) :: var ! result; sat sp humidity
+      REAL, INTENT(IN),  DIMENSION(mp) :: &
+           tair, & ! air temperature (C)
+           pmb     ! pressure PMB (mb)
 
       INTEGER :: j
 
       DO j=1,mp
-
-         var(j) = (C%RMH2o/C%rmair) * (C%TETENA*EXP(C%TETENB*tair(j)/(C%TETENC+tair(j))))    &
+         var(j) = (C%RMH2O/C%rmair) * (C%TETENA*EXP(C%TETENB*tair(j)/(C%TETENC+tair(j)))) &
               / pmb(j)
       ENDDO
 
     END SUBROUTINE qsatfjh
 
+    
     ! -----------------------------------------------------------------------------
 
-    SUBROUTINE qsatfjh2(var,tair,pmb)
+    
+    SUBROUTINE qsatfjh2(var, tair, pmb)
 
-      REAL, INTENT(IN) ::                                                         &
-           tair,         & ! air temperature (C)
-           pmb             ! pressure PMB (mb)
+      implicit none
 
-      REAL, INTENT(OUT) ::                                                        &
-           var             ! result; sat sp humidity
+      REAL, INTENT(OUT) :: var ! result; sat sp humidity
+      REAL, INTENT(IN)  :: &
+           tair, & ! air temperature (C)
+           pmb     ! pressure PMB (mb)
 
-      var = (C%RMH2o/C%rmair) * (C%TETENA*EXP(C%TETENB*tair/(C%TETENC+tair))) / pmb
+      var = (C%RMH2O/C%rmair) * (C%TETENA*EXP(C%TETENB*tair/(C%TETENC+tair))) / pmb
 
     END SUBROUTINE qsatfjh2
 
+    
     ! -----------------------------------------------------------------------------
 
+    
     FUNCTION psim(zeta) RESULT(r)
       USE cable_def_types_mod, only : mp
       USE mo_constants, only: pi => pi_dp

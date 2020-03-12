@@ -24,47 +24,45 @@ MODULE cable_radiation_module
 
    IMPLICIT NONE
 
-   PUBLIC init_radiation, radiation, sinbet
+   PUBLIC :: init_radiation, radiation, sinbet
+   
    PRIVATE
 
-  TYPE ( irad_type ) :: C
+   TYPE(irad_type) :: C
 
+  ! ------------------------------------------------------------------------------
 
 CONTAINS
 
-SUBROUTINE init_radiation( met, rad, veg, canopy )
+  ! ------------------------------------------------------------------------------
 
-   USE cable_def_types_mod, ONLY : radiation_type, met_type, canopy_type,      &
-                                   veg_parameter_type, nrb, mp
+SUBROUTINE init_radiation(met, rad, veg, canopy)
+
+   USE cable_def_types_mod, ONLY: radiation_type, met_type, canopy_type, &
+                                  veg_parameter_type, nrb, mp
    USE cable_common_module
 
-   TYPE (radiation_type), INTENT(INOUT) :: rad
-   TYPE (met_type),       INTENT(INOUT) :: met
+   implicit none
 
-   TYPE (canopy_type),    INTENT(IN)    :: canopy
-
-   TYPE (veg_parameter_type), INTENT(INOUT) :: veg
+   TYPE (met_type),           INTENT(IN)    :: met
+   TYPE (radiation_type),     INTENT(INOUT) :: rad
+   TYPE (canopy_type),        INTENT(IN)    :: canopy
+   TYPE (veg_parameter_type), INTENT(IN)    :: veg
 
    REAL, DIMENSION(nrb) ::                                                     &
       cos3       ! cos(15 45 75 degrees)
    REAL, DIMENSION(mp,nrb) ::                                                  &
       xvlai2,  & ! 2D vlai
       xk         ! extinct. coef.for beam rad. and black leaves
-
    REAL, DIMENSION(mp) ::                                                      &
       xphi1,   & ! leaf angle parmameter 1
       xphi2      ! leaf angle parmameter 2
-
    REAL, DIMENSION(:,:), ALLOCATABLE, SAVE ::                                  &
       ! subr to calc these curr. appears twice. fix this
       c1,      & !
       rhoch
-
-
    LOGICAL, DIMENSION(mp)    :: mask   ! select points for calculation
-
    INTEGER :: ictr
-
 
    CALL point2constants( C )
 
@@ -146,9 +144,9 @@ SUBROUTINE init_radiation( met, rad, veg, canopy )
 
    ! In gridcells where vegetation exists....
 
-!!vh !! include RAD_THRESH in condition
+   !!vh !! include RAD_THRESH in condition
    WHERE (canopy%vlaiw > C%LAI_THRESH .and. rad%fbeam(:,1).GE.C%RAD_THRESH   )
-  ! WHERE (canopy%vlaiw > C%LAI_THRESH) 
+   ! WHERE (canopy%vlaiw > C%LAI_THRESH)
       ! SW beam extinction coefficient ("black" leaves, extinction neglects
       ! leaf SW transmittance and REFLectance):
       rad%extkb = xphi1 / met%coszen + xphi2
@@ -163,27 +161,30 @@ SUBROUTINE init_radiation( met, rad, veg, canopy )
 
    WHERE(rad%fbeam(:,1) < C%RAD_THRESH )
       ! higher value precludes sunlit leaves at night. affects
-      ! nighttime evaporation - Ticket #90 
-      rad%extkb=1.0e5 
+      ! nighttime evaporation - Ticket #90
+      rad%extkb=1.0e5
     END WHERE
 
 END SUBROUTINE init_radiation
 
+
 ! ------------------------------------------------------------------------------
 
-SUBROUTINE radiation( ssnow, veg, air, met, rad, canopy )
 
-   USE cable_def_types_mod, ONLY : radiation_type, met_type, canopy_type,      &
-                                   veg_parameter_type, soil_snow_type,         &
-                                   air_type, mp, mf, r_2
+SUBROUTINE radiation(ssnow, veg, air, met, rad, canopy)
 
-   TYPE (canopy_type),   INTENT(IN) :: canopy
-   TYPE (air_type),      INTENT(IN) :: air
-   TYPE (soil_snow_type),INTENT(INOUT) :: ssnow
-   TYPE (met_type),      INTENT(INOUT) :: met
-   TYPE (radiation_type),INTENT(INOUT) :: rad
+   USE cable_def_types_mod, ONLY : radiation_type, met_type, canopy_type, &
+                                   veg_parameter_type, soil_snow_type,    &
+                                   air_type, mp, mf
 
-   TYPE (veg_parameter_type), INTENT(IN) :: veg
+   implicit none
+
+   TYPE(soil_snow_type),     INTENT(IN)    :: ssnow
+   TYPE(veg_parameter_type), INTENT(IN)    :: veg
+   TYPE(air_type),           INTENT(IN)    :: air
+   TYPE(met_type),           INTENT(IN)    :: met
+   TYPE(radiation_type),     INTENT(INOUT) :: rad
+   TYPE(canopy_type),        INTENT(IN)    :: canopy
 
    REAL, DIMENSION(mp) ::                                                      &
       cf1, &      ! (1.0 - rad%transb * cexpkdm) / (extkb + extkdm(:,b))
@@ -193,11 +194,8 @@ SUBROUTINE radiation( ssnow, veg, air, met, rad, canopy )
       flpwb, &    ! black-body long-wave radiation
       flwv, &     ! vegetation long-wave radiation (isothermal)
       dummy, dummy2
-
    LOGICAL, DIMENSION(mp)    :: mask   ! select points for calculation
-
    INTEGER :: b ! rad. band 1=visible, 2=near-infrared, 3=long-wave
-
    INTEGER, SAVE :: call_number =0
 
    call_number = call_number + 1
@@ -352,16 +350,20 @@ SUBROUTINE radiation( ssnow, veg, air, met, rad, canopy )
 
 END SUBROUTINE radiation
 
+
 ! ------------------------------------------------------------------------------
+
 
 ! this subroutine currently also in cable_albedo.F90
 ! future release should reduce to one version
-SUBROUTINE calc_rhoch(veg,c1,rhoch)
+SUBROUTINE calc_rhoch(veg, c1, rhoch)
 
    USE cable_def_types_mod, ONLY : veg_parameter_type
 
-   TYPE (veg_parameter_type), INTENT(INOUT) :: veg
-   REAL, INTENT(INOUT), DIMENSION(:,:) :: c1, rhoch
+   implicit none
+
+   TYPE(veg_parameter_type), INTENT(IN)    :: veg
+   REAL, DIMENSION(:,:),     INTENT(INOUT) :: c1, rhoch
 
    c1(:,1) = SQRT(1. - veg%taul(:,1) - veg%refl(:,1))
    c1(:,2) = SQRT(1. - veg%taul(:,2) - veg%refl(:,2))
@@ -373,21 +375,25 @@ SUBROUTINE calc_rhoch(veg,c1,rhoch)
 
 END SUBROUTINE calc_rhoch
 
+
 ! -----------------------------------------------------------------------------
 
-ELEMENTAL FUNCTION sinbet(doy,xslat,hod) RESULT(z)
 
-   USE cable_data_module, ONLY : MATH
+ELEMENTAL FUNCTION sinbet(doy, xslat, hod) RESULT(z)
    ! calculate sin(bet), bet = elevation angle of sun
    ! calculations according to goudriaan & van laar 1994 p30
+
+   USE cable_data_module, ONLY : MATH
+
+   implicit none
+
    REAL, INTENT(IN) ::                                                         &
       doy,     & ! day of year
       xslat,   & ! latitude (degrees north)
       hod        ! hour of day
+   REAL :: z     ! result
 
-   REAL ::                                                                     &
-      sindec,  & ! sine of maximum declination
-      z          ! result
+   REAL :: sindec ! sine of maximum declination
 
    sindec = -SIN( 23.45 * MATH%PI180 ) * COS( 2. * MATH%PI_C * ( doy + 10.0 ) / 365.0 )
 
@@ -397,25 +403,28 @@ ELEMENTAL FUNCTION sinbet(doy,xslat,hod) RESULT(z)
 
 END FUNCTION sinbet
 
+
 ! -----------------------------------------------------------------------------
 
+
 FUNCTION spitter(doy, coszen, fsd) RESULT(fbeam)
+   ! Calculate beam fraction
+   ! See Spitters et al. 1986, agric. for meteorol., 38:217-229
 
    USE cable_def_types_mod, ONLY : mp
 
-   ! Calculate beam fraction
-   ! See spitters et al. 1986, agric. for meteorol., 38:217-229
-   REAL, DIMENSION(mp), INTENT(IN) ::                                          &
+   implicit none
+
+   REAL, DIMENSION(mp), INTENT(IN) :: &
       doy,        & ! day of year
       coszen,     & ! cos(zenith angle of sun)
       fsd           ! short wave down (positive) w/m^2
+   REAL, DIMENSION(mp) :: fbeam ! beam fraction (result)
 
-   REAL, DIMENSION(mp) ::                                                      &
-      fbeam,      & ! beam fraction (result)
+   REAL, DIMENSION(mp) :: &
       tmpr,       & !
       tmpk,       & !
       tmprat        !
-
    REAL, PARAMETER :: solcon = 1370.0
    INTEGER :: k
 
@@ -439,9 +448,9 @@ FUNCTION spitter(doy, coszen, fsd) RESULT(fbeam)
    DO k=1,mp
       IF (fbeam(k) .le. 0.01) fbeam(k) = 0.0
    ENDDO
-              
 
 END FUNCTION spitter
 
+! ------------------------------------------------------------------------------
 
 END MODULE cable_radiation_module
