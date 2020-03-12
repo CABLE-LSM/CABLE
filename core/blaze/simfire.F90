@@ -3,7 +3,7 @@ MODULE SIMFIRE_MOD
 TYPE TYPE_SIMFIRE
    INTEGER, DIMENSION(:), ALLOCATABLE    :: IGBP, BIOME, REGION, NDAY
    REAL,    DIMENSION(:), ALLOCATABLE    :: POPD, MAX_NESTEROV, CNEST, LAT, LON, FLI, FAPAR, POPDENS
-   REAL,    DIMENSION(:,:), ALLOCATABLE  :: SAV_NESTEROV, SAV_FAPAR
+   REAL,    DIMENSION(:,:), ALLOCATABLE  :: SAV_NESTEROV, SAV_FAPAR, BA_MONTHLY_CLIM
    INTEGER   :: SYEAR, EYEAR, NCELLS
    REAL      :: RES, RESF
    CHARACTER :: IGBPFILE*120, HYDEPATH*100, OUTMODE*6, BA_CLIM_FILE*100
@@ -54,9 +54,10 @@ CONTAINS
 
 SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
 
-  USE CABLE_COMMON_MODULE,  ONLY: GET_UNIT
+  USE CABLE_COMMON_MODULE,  ONLY: GET_UNIT, HANDLE_ERR
   USE CABLE_IO_VARS_MODULE, ONLY: LATITUDE, LONGITUDE
   USE cable_IO_vars_module, ONLY:  landpt
+  use netcdf
 
   IMPLICIT NONE
   
@@ -64,8 +65,12 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
   INTEGER,             INTENT(IN)    :: NCELLS, modis_igbp(NCELLS)
   CHARACTER(len=400)   :: HydePath,  BurnedAreaSource, BurnedAreaFile, &
        BurnedAreaClimatologyFile, SIMFIRE_REGION
+  INTEGER :: F_ID, V_ID, V_ID_lat, V_ID_lon, ilat,ilon
   INTEGER :: STATUS,  iu
   INTEGER :: i
+  REAL, DIMENSION(720):: lon_BA
+  REAL, DIMENSION(360):: lat_BA
+ 
   NAMELIST /BLAZENML/ HydePath,  BurnedAreaSource, BurnedAreaFile, BurnedAreaClimatologyFile, &
        SIMFIRE_REGION
   
@@ -92,6 +97,7 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
   ALLOCATE( SF%SAV_NESTEROV(NCELLS,12) )
   ALLOCATE( SF%SAV_FAPAR(NCELLS,FAPAR_AVG_INT) )
   ALLOCATE( SF%POPDENS     (NCELLS) )
+  ALLOCATE( SF%BA_MONTHLY_CLIM(NCELLS,12)) ! fraction of annual burned area in each month
   
 
   !=============================================================================
@@ -144,7 +150,37 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
   END DO
 
   WRITE(*,*)"SIMFIRE Optimisation chosen:", TRIM(SIMFIRE_REGION)
-     
+
+  WRITE(*,*) "reading monthly burned area fraction from: ", TRIM(SF%BA_CLIM_FILE)
+  
+  STATUS = NF90_OPEN(TRIM(SF%BA_CLIM_FILE), NF90_NOWRITE, F_ID)
+  CALL HANDLE_ERR(STATUS, "Opening BA Clim File "//SF%BA_CLIM_FILE )
+  STATUS = NF90_INQ_VARID(F_ID,'monthly_ba', V_ID)
+  CALL HANDLE_ERR(STATUS, "Inquiring  var monthly_ba in "//SF%BA_CLIM_FILE )
+  STATUS = NF90_INQ_VARID(F_ID,'latitude', V_ID_lat)
+  CALL HANDLE_ERR(STATUS, "Inquiring  var latitude in "//SF%BA_CLIM_FILE )
+  STATUS = NF90_INQ_VARID(F_ID,'longitude', V_ID_lon)
+  CALL HANDLE_ERR(STATUS, "Inquiring  var longitude in "//SF%BA_CLIM_FILE )
+  STATUS = NF90_GET_VAR( F_ID, V_ID_lat, lat_BA, &
+        start=(/1/)  )
+  STATUS = NF90_GET_VAR( F_ID, V_ID_lon, lon_BA, &
+           start=(/1/)  )
+
+  DO i = 1, SF%NCELLS
+      
+      ilat = MINLOC(ABS(lat_BA - SF%LAT(i)),DIM=1)
+      ilon = MINLOC(ABS(lon_BA - SF%LON(i)),DIM=1)
+      
+      STATUS = NF90_GET_VAR( F_ID, V_ID, SF%BA_MONTHLY_CLIM(i,:), &
+           start=(/1,ilon,ilat/) )
+      CALL HANDLE_ERR(STATUS, "Reading direct from "//SF%BA_CLIM_FILE )
+
+  ENDDO
+
+  STATUS = NF90_CLOSE(F_ID)
+  
+
+  
 END SUBROUTINE INI_SIMFIRE
 
 SUBROUTINE GET_POPDENS ( SF, YEAR ) 
@@ -491,37 +527,37 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate )
      !write(*,*) 'SF%FAPAR, SF%MAX_NESTEROV, SF%POPD, SF%BIOME, SF%REGION, AB'
      !write(*,"(200e16.6)") ,SF%FAPAR(i), SF%MAX_NESTEROV(i), SF%POPD(i), real(SF%BIOME(i)), real(SF%REGION(i)), AB(i)
 
-     ! convert to daily burned area using GFED climatology
-
-      STATUS = NF90_OPEN(TRIM(SF%BA_CLIM_FILE), NF90_NOWRITE, F_ID)
-      CALL HANDLE_ERR(STATUS, "Opening BA Clim File "//SF%BA_CLIM_FILE )
-      STATUS = NF90_INQ_VARID(F_ID,'monthly_ba', V_ID)
-      CALL HANDLE_ERR(STATUS, "Inquiring  var monthly_ba in "//SF%BA_CLIM_FILE )
-
-      STATUS = NF90_INQ_VARID(F_ID,'latitude', V_ID_lat)
-      CALL HANDLE_ERR(STATUS, "Inquiring  var latitude in "//SF%BA_CLIM_FILE )
-
-      STATUS = NF90_INQ_VARID(F_ID,'longitude', V_ID_lon)
-      CALL HANDLE_ERR(STATUS, "Inquiring  var longitude in "//SF%BA_CLIM_FILE )
-
-      STATUS = NF90_GET_VAR( F_ID, V_ID_lat, lat_BA, &
-               start=(/1/) )
-      STATUS = NF90_GET_VAR( F_ID, V_ID_lon, lon_BA, &
-           start=(/1/)  )
-
-      ilat = MINLOC(ABS(lat_BA - SF%LAT(i)),DIM=1)
-      ilon = MINLOC(ABS(lon_BA - SF%LON(i)),DIM=1)
-      
-      STATUS = NF90_GET_VAR( F_ID, V_ID, monthly_ba, &
-           start=(/MM,ilon,ilat/) )
-      CALL HANDLE_ERR(STATUS, "Reading direct from "//SF%BA_CLIM_FILE )
+!!$     ! convert to daily burned area using GFED climatology
+!!$
+!!$      STATUS = NF90_OPEN(TRIM(SF%BA_CLIM_FILE), NF90_NOWRITE, F_ID)
+!!$      CALL HANDLE_ERR(STATUS, "Opening BA Clim File "//SF%BA_CLIM_FILE )
+!!$      STATUS = NF90_INQ_VARID(F_ID,'monthly_ba', V_ID)
+!!$      CALL HANDLE_ERR(STATUS, "Inquiring  var monthly_ba in "//SF%BA_CLIM_FILE )
+!!$
+!!$      STATUS = NF90_INQ_VARID(F_ID,'latitude', V_ID_lat)
+!!$      CALL HANDLE_ERR(STATUS, "Inquiring  var latitude in "//SF%BA_CLIM_FILE )
+!!$
+!!$      STATUS = NF90_INQ_VARID(F_ID,'longitude', V_ID_lon)
+!!$      CALL HANDLE_ERR(STATUS, "Inquiring  var longitude in "//SF%BA_CLIM_FILE )
+!!$
+!!$      STATUS = NF90_GET_VAR( F_ID, V_ID_lat, lat_BA, &
+!!$               start=(/1/) )
+!!$      STATUS = NF90_GET_VAR( F_ID, V_ID_lon, lon_BA, &
+!!$           start=(/1/)  )
+!!$
+!!$      ilat = MINLOC(ABS(lat_BA - SF%LAT(i)),DIM=1)
+!!$      ilon = MINLOC(ABS(lon_BA - SF%LON(i)),DIM=1)
+!!$      
+!!$      STATUS = NF90_GET_VAR( F_ID, V_ID, monthly_ba, &
+!!$           start=(/MM,ilon,ilat/) )
+!!$      CALL HANDLE_ERR(STATUS, "Reading direct from "//SF%BA_CLIM_FILE )
 
       if (year==2003) then
          AB(i) = 0.8        ! test vh
       endif
       
       ! Daily Burned Area
-      AB(i) = AB(i) * monthly_ba / DOM(MM)
+      AB(i) = AB(i) *  SF%BA_MONTHLY_CLIM(i,MM) / DOM(MM)
 
    END DO
 
