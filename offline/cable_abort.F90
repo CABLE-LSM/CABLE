@@ -69,7 +69,7 @@ SUBROUTINE cable_abort(message)
    WRITE(*,*) message
    STOP 1
 
-END SUBROUTINE abort
+END SUBROUTINE cable_abort
 
 !==============================================================================
 !

@@ -724,7 +724,7 @@ CONTAINS
     REAL(dp) :: s2, cpc, crown_area
     REAL(dp) :: mort_cpc
     REAL(dp) :: ht, diam, area_growth_grid , basal_grid, basal_new, basal_old
-    REAL(dp) :: tmp2(NCOHORT_MAX), freq,
+    REAL(dp) :: tmp2(NCOHORT_MAX), freq
 
     idisturb = 1
     np = SIZE(POP%POP_grid)
@@ -2754,6 +2754,7 @@ CONTAINS
     INTEGER(i4b) :: nage,iage, i_min, i_max
     INTEGER(i4b) :: i_min_growth, i_max_growth
     REAL(dp) :: disturbance_freq,tmp_min, tmp_max, tmp_array(NPATCH2D)
+    REAL(dp) :: tmp5_min, tmp5_max
     LOGICAL :: MASK(NPATCH2D)
     INTEGER(i4b) :: age_min, age_max
     INTEGER(i4b) :: age_min_growth, age_max_growth
