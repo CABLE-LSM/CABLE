@@ -657,7 +657,8 @@ CONTAINS
              met%ofsd = 0.1
              ! vh !
              met%pdep = 0.0
-             casamet%glai = 1.0
+             if (trim(cable_user%MetType) .eq. 'cru') &
+                  casamet%glai = 1.0
 
              ! CALL worker_sumcasa_types(comm, sum_casapool, sum_casaflux)
              ! ! 13C
@@ -1945,6 +1946,11 @@ CONTAINS
     bidx = bidx + 1
     CALL MPI_Get_address (soil%fsatmax, displs(bidx), ierr)
     blen(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (soil%ishorizon, displs(bidx), ierr)
+    blen(bidx) = ms * i1len
+
     ! end extra for sil
     bidx = bidx + 1
     CALL MPI_Get_address (soil%zse, displs(bidx), ierr)

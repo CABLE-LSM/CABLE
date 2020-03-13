@@ -2722,6 +2722,11 @@ SUBROUTINE master_cable_params(comm, met, air, ssnow, veg, bgc, soil, canopy, ro
      CALL MPI_Get_address (soil%fsatmax(off), displs(bidx), ierr)
      blen(bidx) = r2len
 
+     bidx = bidx + 1
+     CALL MPI_Get_address (soil%ishorizon(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector (ms, i1len, istride, MPI_BYTE, &
+          &                             types(bidx), ierr)
+     blen(bidx) = 1
      ! end extra sli
 
      ! constant * ms, each worker gets the same copy of whole array
