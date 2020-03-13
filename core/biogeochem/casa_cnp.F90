@@ -178,10 +178,6 @@ SUBROUTINE casa_xnp(xnplimit,xNPuptake,veg,casabiome,casapool,casaflux,casamet)
 
    enddo
 
-! write(59,91)  xNuptake(1),casapool%Nsoilmin(1), totNreqmin(1)*deltpool
-! 91  format(20(e12.4,2x))
-! casaflux%cnpp(:) = xNPuptake(:) * xnplimit(:) * casaflux%cnpp(:)
-
 END SUBROUTINE casa_xnp
 
 
@@ -209,14 +205,12 @@ SUBROUTINE casa_allocation(veg,soil,casabiome,casaflux,casapool,casamet,phen,LAL
   TYPE (phen_variable),       INTENT(INOUT) :: phen
   INTEGER , INTENT(IN) :: LALLOC
   ! local variables
-  INTEGER :: npt,ns,is,iv
   REAL(r_2), DIMENSION(mp,mplant) :: fracCallocx
-  REAL(r_2), DIMENSION(mp,mplant) :: delc
-  REAL(r_2), DIMENSION(mp)        :: ctotal
   REAL(r_2), DIMENSION(mp)        :: xLalloc,xwsalloc,xTalloc
   REAL(r_2), DIMENSION(mp)        :: xWorNalloc,xNalloc,xWalloc
   REAL(r_2), DIMENSION(mp)        :: totfracCalloc
   REAL(r_2), DIMENSION(mp)        :: newLAI
+  
   ! initlization
   casaflux%fracCalloc  = 0.0_r_2
   !casaflux%fracClabile = 0.0_r_2
@@ -299,8 +293,6 @@ SUBROUTINE casa_allocation(veg,soil,casabiome,casaflux,casapool,casamet,phen,LAL
      ENDWHERE
 
   END SELECT
-
-991 format(1166(e14.7,2x))
 
   ! during leaf growth phase 0 or 3, no carbon is allocated to leaf,
   ! during maximal leaf growth phase, all C is allocated to leaf
@@ -489,9 +481,6 @@ SUBROUTINE casa_wolf(veg,casabiome,casaflux,casapool,casamet)
    real(r_2), parameter :: wolf_beta=-1.33_r_2
    real(r_2), parameter :: wolf_c1=-wolf_alpha1/(1._r_2+wolf_beta)
    real(r_2), parameter :: wolf_c2=1.0_r_2/(1.0_r_2+wolf_beta)
-
-   real(r_2) :: totleaf,totwood,totcroot,totfroot,totnpp
-   real(r_2) :: fracleaf,fracwood,fraccroot,fracfroot
    !
    ! local variables
    integer   npt
@@ -808,50 +797,49 @@ SUBROUTINE casa_xratesoil(xklitter,xksoil,veg,soil,casamet,casabiome)
 !  outputs
 !     xk(mp):          modifier of soil litter decomposition rate (dimensionless)
   IMPLICIT NONE
-  REAL(r_2), DIMENSION(mp), INTENT(OUT) :: xklitter,xksoil
-  TYPE (veg_parameter_type),    INTENT(INOUT) :: veg  ! vegetation parameters
-  TYPE (soil_parameter_type),   INTENT(INOUT) :: soil ! soil parameters
-  TYPE (casa_met),              INTENT(INOUT) :: casamet
-  TYPE (casa_biome),            INTENT(INOUT) :: casabiome
+  
+  REAL(r_2), DIMENSION(mp),  INTENT(OUT)   :: xklitter, xksoil
+  TYPE(veg_parameter_type),  INTENT(INOUT) :: veg  ! vegetation parameters
+  TYPE(soil_parameter_type), INTENT(INOUT) :: soil ! soil parameters
+  TYPE(casa_met),            INTENT(INOUT) :: casamet
+  TYPE(casa_biome),          INTENT(INOUT) :: casabiome
 
   ! local variables
-  INTEGER nland,np
   REAL(r_2), parameter :: wfpscoefa=0.55_r_2   ! Kelly et al. (2000) JGR, Figure 2b), optimal wfps
   REAL(r_2), parameter :: wfpscoefb=1.70_r_2   ! Kelly et al. (2000) JGR, Figure 2b)
   REAL(r_2), parameter :: wfpscoefc=-0.007_r_2 ! Kelly et al. (2000) JGR, Figure 2b)
   REAL(r_2), parameter :: wfpscoefd=3.22_r_2   ! Kelly et al. (2000) JGR, Figure 2b)
   REAL(r_2), parameter :: wfpscoefe=6.6481_r_2 ! =wfpscoefd*(wfpscoefb-wfpscoefa)/(wfpscoefa-wfpscoefc)
-! Kirschbaum function parameters
-  REAL(r_2), parameter :: xkalpha=-3.764   ! Kirschbaum (1995, SBB)
-  REAL(r_2), parameter :: xkbeta=0.204
-  REAL(r_2), parameter :: xktoptc=36.9
-! Trudinger2016 function parameters (from Trudinger 2016)
- REAL(r_2), parameter ::  wfpswidth1=1.2160310E+00
- REAL(r_2), parameter ::  wfpswidth2=6.4620150E-01
- REAL(r_2), parameter ::  wfpswidth3=4.9625073E-01
- REAL(r_2), parameter :: wfpsscale1=1.6193957E+00
- REAL(r_2), parameter :: wfpswidth0=1.3703876E-02
- REAL(r_2), parameter :: wfpsquad=8.0000000E-01
+  ! ! Kirschbaum function parameters
+  ! REAL(r_2), parameter :: xkalpha=-3.764   ! Kirschbaum (1995, SBB)
+  ! REAL(r_2), parameter :: xkbeta=0.204
+  ! REAL(r_2), parameter :: xktoptc=36.9
+  ! Trudinger2016 function parameters (from Trudinger 2016)
+  REAL(r_2), parameter ::  wfpswidth1=1.2160310E+00
+  REAL(r_2), parameter ::  wfpswidth2=6.4620150E-01
+  REAL(r_2), parameter ::  wfpswidth3=4.9625073E-01
+  REAL(r_2), parameter :: wfpsscale1=1.6193957E+00
+  REAL(r_2), parameter :: wfpswidth0=1.3703876E-02
+  REAL(r_2), parameter :: wfpsquad=8.0000000E-01
 
-! Trudinger2016 function parameters (corresponds to Haverd 2013)
-!!$REAL(r_2), parameter :: wfpswidth1=0.78_r_2
-!!$REAL(r_2), parameter :: wfpswidth2=0_r_2
-!!$REAL(r_2), parameter :: wfpswidth3=1.5_r_2
-!!$REAL(r_2), parameter :: wfpsscale1=10.0_r_2
-!!$REAL(r_2), parameter :: wfpswidth0 = 0.0_r_2
-!!$REAL(r_2), parameter :: wfpsquad=0._r_2
+  ! Trudinger2016 function parameters (corresponds to Haverd 2013)
+  ! REAL(r_2), parameter :: wfpswidth1=0.78_r_2
+  ! REAL(r_2), parameter :: wfpswidth2=0_r_2
+  ! REAL(r_2), parameter :: wfpswidth3=1.5_r_2
+  ! REAL(r_2), parameter :: wfpsscale1=10.0_r_2
+  ! REAL(r_2), parameter :: wfpswidth0 = 0.0_r_2
+  ! REAL(r_2), parameter :: wfpsquad=0._r_2
 
+  ! DAMM temporary variables
+  REAL(r_2) :: O2, vol_air_content, Enz, Dliq, Dva
 
- ! DAMM temporary variables
- REAL(r_2) :: O2, vol_air_content, Enz, Dliq, Dva
-
- REAL(r_2), DIMENSION(mp)       :: xkwater,xktemp
- REAL(r_2), DIMENSION(mp)       :: fwps,tsavg
+  REAL(r_2), DIMENSION(mp)       :: xkwater,xktemp
+  REAL(r_2), DIMENSION(mp)       :: fwps,tsavg
   ! Custom soil respiration - see Ticket #42
- REAL(r_2), DIMENSION(mp)       :: smrf,strf,slopt,wlt,tsoil,fcap,sopt
- REAL(r_2) :: f0
- !,tsurfavg  !!, msurfavg
- INTEGER :: npt
+  REAL(r_2), DIMENSION(mp)       :: smrf,strf,slopt,wlt,tsoil,sopt
+  REAL(r_2) :: f0
+  !,tsurfavg  !!, msurfavg
+  INTEGER :: npt
 
  xklitter(:) = 1.0_r_2
  xksoil(:)   = 1.0_r_2
@@ -1030,7 +1018,6 @@ SUBROUTINE casa_coeffplant(xkleafcold, xkleafdry, xkleaf, veg, casabiome, casapo
   type(phen_variable),      intent(in)    :: phen
 
   ! local variables
-  real(r_2), dimension(mp)        :: xk
   real(r_2), dimension(mp,mplant) :: ratioligninton
   integer :: npt
 
@@ -1210,9 +1197,8 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
        nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd, &
        pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
 
-  integer   :: npt, nL, nP, nland
+  integer   :: npt, nL, nP
   real(r_2) :: Ygrow, ratioPNplant
-  real(r_2) :: iflux
 
   ! casa
   casaflux%FluxCtolitter         = 0.0_r_2
@@ -1566,7 +1552,7 @@ SUBROUTINE casa_delsoil(veg, casapool, casaflux, casamet, casabiome)
 
   ! local variables
   real(r_2), dimension(mp) :: xdplabsorb, fluxptase
-  integer   :: i, j, jj, k, kk, kkk, n, iv, npt, nL, nS, nSS, nland
+  integer   :: j, jj, k, kk, kkk, nL, nS, nSS, nland
   real(r_2) :: iflux
 
   ! casa
@@ -1873,20 +1859,6 @@ SUBROUTINE casa_delsoil(veg, casapool, casaflux, casamet, casabiome)
            ! here the dPsoillabdt =(dPsoillabdt+dPsoilsorbdt)
            ! dPsoilsorbdt  = xdplabsorb
 
-           ! np=1
-           ! write(66,912) casaflux%Psnet(nland) , fluxptase(nland),         &
-           !                                 + casaflux%Pdep(nland) , casaflux%Pwea(nland)   ,   &
-           !                                 - casaflux%Pleach(nland),-casaflux%pupland(nland) ,   &
-           !                                 - casaflux%kpsorb(nland)*casapool%Psoilsorb(nland) , &
-           !                                 + casaflux%kpocc(nland) * casapool%Psoilocc(nland), &
-           !                                 casapool%dPsoillabdt(nland), xdplabsorb(nland), &
-           !                                 casapool%dPsoillabdt(nland)/xdplabsorb(nland)
-           !
-           !
-           !
-           !
-! 912 format(100(e12.3,2x))
-
            !     write(*,*) 'dPsoillabdt: ' ,  casapool%dPsoillabdt,  xdplabsorb(nland)
            casapool%dPsoillabdt(nland)  = casapool%dPsoillabdt(nland)/xdplabsorb(nland)
            !    write(*,*) 'dPsoillabdt: ' ,  casapool%dPsoillabdt
@@ -1966,7 +1938,7 @@ SUBROUTINE casa_xkN(xkNlimiting,casapool,casaflux,casamet,casabiome,veg)
   TYPE (veg_parameter_type),   INTENT(IN) :: veg  ! vegetation parameters
 
   ! local variables
-  INTEGER i,j,k,kk,iv,thepoint,nland
+  INTEGER :: j,k,kk,nland
   REAL(r_2), DIMENSION(mp)         :: xFluxNlittermin
   REAL(r_2), DIMENSION(mp)         :: xFluxNsoilmin
   REAL(r_2), DIMENSION(mp)         :: xFluxNsoilimm
@@ -2070,18 +2042,19 @@ SUBROUTINE casa_nuptake(veg,xkNlimiting,casabiome,casapool,casaflux,casamet)
 ! (2) allocation of uptaken N to plants
 !
   IMPLICIT NONE
-  TYPE (veg_parameter_type),    INTENT(INOUT) :: veg  ! vegetation parameters
-  TYPE (casa_biome),            INTENT(INOUT) :: casabiome
-  TYPE (casa_pool),             INTENT(INOUT) :: casapool
-  TYPE (casa_flux),             INTENT(INOUT) :: casaflux
-  TYPE (casa_met),              INTENT(INOUT) :: casamet
-  REAL(r_2), DIMENSION(mp),     INTENT(IN)    :: xkNlimiting
+
+  TYPE(veg_parameter_type), INTENT(INOUT) :: veg  ! vegetation parameters
+  TYPE(casa_biome),         INTENT(INOUT) :: casabiome
+  TYPE(casa_pool),          INTENT(INOUT) :: casapool
+  TYPE(casa_flux),          INTENT(INOUT) :: casaflux
+  TYPE(casa_met),           INTENT(INOUT) :: casamet
+  REAL(r_2), DIMENSION(mp), INTENT(IN)    :: xkNlimiting
 
   ! local variables
-  INTEGER                   nland,np,ip
-  REAL(r_2), DIMENSION(mp,mplant)      :: Nreqmax, Nreqmin, NtransPtoP, xnuptake
-  REAL(r_2), DIMENSION(mp)             :: totNreqmax,totNreqmin
-  REAL(r_2), DIMENSION(mp)             :: xnCnpp
+  INTEGER :: np
+  REAL(r_2), DIMENSION(mp,mplant) :: Nreqmax, Nreqmin, NtransPtoP, xnuptake
+  REAL(r_2), DIMENSION(mp)        :: totNreqmax, totNreqmin
+  REAL(r_2), DIMENSION(mp)        :: xnCnpp
 
   Nreqmin(:,:)       = 0.0_r_2
   Nreqmax(:,:)       = 0.0_r_2
@@ -2114,13 +2087,9 @@ SUBROUTINE casa_nuptake(veg,xkNlimiting,casabiome,casapool,casaflux,casamet)
   ENDIF
   ENDDO
 
-!  np=1
-!  write(*,911) casapool%nsoilmin(np),casaflux%Nminuptake(np),xnuptake(np,leaf), xnuptake(np,wood), xnuptake(np,froot), &
-!               casaflux%fracNalloc(np,leaf),casaflux%fracNalloc(np,wood),casaflux%fracNalloc(np,froot)
 
   casaflux%Nupland = casaflux%Nminuptake
 
-911 format('N uptake:',100(f8.3,2x))
 END SUBROUTINE casa_nuptake
 
 
@@ -2212,18 +2181,17 @@ SUBROUTINE casa_puptake(veg,xkNlimiting,casabiome,casapool,casaflux,casamet)
 ! (2) allocation of uptaken P to plants
 !
   IMPLICIT NONE
-  TYPE (veg_parameter_type),    INTENT(INOUT) :: veg  ! vegetation parameters
-  TYPE (casa_biome),            INTENT(INOUT) :: casabiome
-  TYPE (casa_pool),             INTENT(INOUT) :: casapool
-  TYPE (casa_flux),             INTENT(INOUT) :: casaflux
-  TYPE (casa_met),              INTENT(INOUT) :: casamet
-  REAL(r_2), DIMENSION(mp),     INTENT(IN)    :: xkNlimiting
-
+  
+  TYPE(veg_parameter_type), INTENT(INOUT) :: veg  ! vegetation parameters
+  TYPE(casa_biome),         INTENT(INOUT) :: casabiome
+  TYPE(casa_pool),          INTENT(INOUT) :: casapool
+  TYPE(casa_flux),          INTENT(INOUT) :: casaflux
+  TYPE(casa_met),           INTENT(INOUT) :: casamet
+  REAL(r_2), DIMENSION(mp), INTENT(IN)    :: xkNlimiting
 
   ! local variables
-  INTEGER                   nland,np,ip
-  REAL(r_2), DIMENSION(mp,mplant) :: Preqmax,Preqmin,PtransPtoP,xPuptake
-  REAL(r_2), DIMENSION(mp)        :: totPreqmax,totPreqmin
+  REAL(r_2), DIMENSION(mp,mplant) :: Preqmax, Preqmin, PtransPtoP, xPuptake
+  REAL(r_2), DIMENSION(mp)        :: totPreqmax, totPreqmin
   REAL(r_2), DIMENSION(mp)        :: xpCnpp
 
   Preqmin(:,:)             = 0.0_r_2
@@ -2257,13 +2225,6 @@ SUBROUTINE casa_puptake(veg,xkNlimiting,casabiome,casapool,casaflux,casamet)
 
   casaflux%Pupland = casaflux%Plabuptake
 
-!  np=1
-!  write(*,911) casapool%Psoillab(np),casaflux%Plabuptake(np), &
-!               xpuptake(np,leaf), xpuptake(np,wood), xpuptake(np,froot), &
-!               casaflux%fracPalloc(np,leaf),casaflux%fracPalloc(np,wood), &
-!               casaflux%fracPalloc(np,froot)
-!911 format('P uptake:',100(f8.3,2x))
-
 !  ! only used in spinning up the model
 !  DO  np=1,mp
 !    casaflux%Plabuptake(np) = TotPreqmax(np)
@@ -2289,7 +2250,7 @@ SUBROUTINE casa_Prequire(xpCnpp, Preqmin, Preqmax, PtransPtoP, veg, &
   TYPE(casa_met),                  INTENT(INOUT) :: casamet
 
   ! local variables
-  INTEGER :: nland, np, ip
+  INTEGER :: np
 
   Preqmin(:,:)    = 0.0_r_2
   Preqmax(:,:)    = 0.0_r_2
@@ -2369,8 +2330,7 @@ SUBROUTINE casa_cnpcycle(veg, casabiome, casapool, casaflux, casamet, LALLOC)
   integer,                  intent(in)    :: lalloc
 
   ! local variables
-  real(r_2), dimension(mp) :: plabsorb, deltap
-  integer :: i, j, k, np, nland
+  integer :: i, j, k, np
 
  
   do np=1, mp
@@ -2517,17 +2477,17 @@ END SUBROUTINE casa_poolzero
 SUBROUTINE casa_cnpbal(casapool,casaflux,casabal)
 
   IMPLICIT NONE
-  TYPE (casa_pool),             INTENT(INOUT) :: casapool
-  TYPE (casa_flux),             INTENT(INOUT) :: casaflux
-  TYPE (casa_balance),          INTENT(INOUT) :: casabal
+
+  TYPE(casa_pool),    INTENT(INOUT) :: casapool
+  TYPE(casa_flux),    INTENT(INOUT) :: casaflux
+  TYPE(casa_balance), INTENT(INOUT) :: casabal
 
   ! local variables
-  INTEGER :: npt
-  REAL(r_2), DIMENSION(mp) :: cbalplant,  nbalplant,  pbalplant
-  REAL(r_2), DIMENSION(mp) :: cbalsoil,   nbalsoil,   pbalsoil
-  REAL(r_2), DIMENSION(mp) :: cbalplantx, nbalplantx, pbalplantx
+  REAL(r_2), DIMENSION(mp) :: cbalplant, nbalplant, pbalplant
+  REAL(r_2), DIMENSION(mp) :: cbalsoil,  nbalsoil,  pbalsoil
 
   REAL(r_2) :: tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7, tmp8
+
   cbalplant(:) = 0.0_r_2
   cbalsoil(:)  = 0.0_r_2
   nbalplant(:) = 0.0_r_2
@@ -2673,8 +2633,6 @@ SUBROUTINE casa_cnpbal(casapool,casaflux,casabal)
    !write(7999,"(100(f12.5,2x))"),  casapool%ctot - casapool%ctot_0
    !write(9999,"(100(f12.5,2x))"), casapool%ctot - casapool%ctot_0 + &
    ! ( casaflux%Crsoil-casaflux%cnpp+casaflux%clabloss)
-
-91 format('balance= ',100(f12.5,2x))
 
 END SUBROUTINE casa_cnpbal
 

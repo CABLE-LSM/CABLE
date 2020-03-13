@@ -74,7 +74,6 @@ CONTAINS
 
    REAL, INTENT(IN)               :: dels ! time setp size (s)
    INTEGER, INTENT(IN) :: ktau
-   INTEGER :: k,kk,j
 
 #ifdef NO_CASA_YET
    INTEGER :: ICYCLE
@@ -159,10 +158,10 @@ CONTAINS
    ENDIF
 
    ! need to adjust fe after soilsnow
-   canopy%fev  = canopy%fevc + canopy%fevw
+   canopy%fev  = real(canopy%fevc) + canopy%fevw
 
    ! Calculate total latent heat flux:
-   canopy%fe = canopy%fev + canopy%fes
+   canopy%fe = canopy%fev + real(canopy%fes)
 
    ! Calculate net radiation absorbed by soil + veg
    canopy%rnet = canopy%fns + canopy%fnv

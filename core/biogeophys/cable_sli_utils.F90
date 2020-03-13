@@ -1715,7 +1715,7 @@ CONTAINS
     ! Gets heat fluxes qh and partial derivs qhya, qhyb wrt T and S (if unsat) or phi (if sat).
 
     INTEGER(i_d)          :: i
-    REAL(r_2)             :: rdz, keff , w
+    REAL(r_2)             :: rdz, keff ! , w
     REAL(r_2), DIMENSION(1:n-1) :: dz
     REAL(r_2) :: dTqwdTa, dTqwdTb, Tqw
 

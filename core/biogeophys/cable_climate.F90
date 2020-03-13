@@ -49,14 +49,14 @@ SUBROUTINE cable_climate(ktau, kstart, kend, ktauday, idoy, LOY, &
   TYPE (veg_parameter_type), INTENT(IN)  :: veg  ! vegetation parameters
   REAL, INTENT(IN)               :: dels ! integration time setp (s)
   INTEGER,      INTENT(IN)                  :: np
-  INTEGER :: d, y, k
+  INTEGER :: d, y
   INTEGER, PARAMETER:: COLDEST_DAY_NHEMISPHERE = 355
   INTEGER, PARAMETER:: COLDEST_DAY_SHEMISPHERE = 172
   real, PARAMETER:: CoeffPT = 1.26
-  real,      dimension(mp)  :: mtemp_last, mmoist_last, phiEq, ppc, EpsA, RhoA
+  real, dimension(mp) :: mtemp_last, phiEq, ppc, EpsA, RhoA
   integer :: startyear
   integer :: MonthDays(12)
-  integer::  DaysInMonth, nmonth, tmp, nsd
+  integer :: nmonth, tmp, nsd
   logical :: IsLastDay ! last day of month?
   real, PARAMETER:: Gaero = 0.015  ! (m s-1) aerodynmaic conductance (for use in PT evap)
   real, PARAMETER:: Capp   = 29.09    ! isobaric spec heat air    [J/molA/K]
@@ -96,7 +96,7 @@ SUBROUTINE cable_climate(ktau, kstart, kend, ktauday, idoy, LOY, &
   ! accumulate daily temperature, evap and potential evap
   IF(MOD(ktau,ktauday)==1) THEN
      climate%dtemp = met%tk - 273.15
-     climate%dmoist = sum(ssnow%wb(:,:)*veg%froot(:,:),2)
+     climate%dmoist = sum(real(ssnow%wb(:,:))*veg%froot(:,:),2)
      climate%dtemp_min =  climate%dtemp
      climate%dtemp_max =  climate%dtemp
      climate%drhum = met%rhum
@@ -104,7 +104,7 @@ SUBROUTINE cable_climate(ktau, kstart, kend, ktauday, idoy, LOY, &
      climate%dprecip = met%precip
   ELSE
      climate%dtemp = climate%dtemp + met%tk - 273.15
-     climate%dmoist =  climate%dmoist + sum(ssnow%wb(:,:)*veg%froot(:,:),2)
+     climate%dmoist =  climate%dmoist + sum(real(ssnow%wb(:,:))*veg%froot(:,:),2)
      climate%dtemp_min = min(met%tk - 273.15, climate%dtemp_min)
      climate%dtemp_max = max(met%tk - 273.15, climate%dtemp_max)
      climate%drhum = climate%drhum + met%rhum
@@ -211,24 +211,24 @@ SUBROUTINE cable_climate(ktau, kstart, kend, ktauday, idoy, LOY, &
   climate%APAR_leaf_shade(:,1:nsd-1) = climate%APAR_leaf_shade(:,2:nsd)
   climate%APAR_leaf_shade(:,nsd) = rad%qcan(:,2,1)*4.6 !umol m-2 s-1
   climate%Dleaf_sun(:,1:nsd-1) =  climate%Dleaf_sun(:,2:nsd)
-  climate%Dleaf_sun(:,nsd) = canopy%dlf
-  climate%fwsoil(:,1:nsd-1) =  climate%fwsoil(:,2:nsd)
-  climate%fwsoil(:,nsd) = canopy%fwsoil
+  climate%Dleaf_sun(:,nsd) = real(canopy%dlf)
+  climate%fwsoil(:,1:nsd-1) = real(climate%fwsoil(:,2:nsd))
+  climate%fwsoil(:,nsd) = real(canopy%fwsoil)
 
   climate%Dleaf_shade(:,1:nsd-1) = climate%Dleaf_shade(:,2:nsd)
-  climate%Dleaf_shade(:,nsd) = canopy%dlf
+  climate%Dleaf_shade(:,nsd) = real(canopy%dlf)
 
   climate%Tleaf_sun(:,1:nsd-1) = climate%Tleaf_sun(:,2:nsd)
-  climate%Tleaf_sun(:,nsd) = canopy%tlf
+  climate%Tleaf_sun(:,nsd) = real(canopy%tlf)
 
   climate%Tleaf_shade(:,1:nsd-1) = climate%Tleaf_shade(:,2:nsd)
-  climate%Tleaf_shade(:,nsd) = canopy%tlf
+  climate%Tleaf_shade(:,nsd) = real(canopy%tlf)
 
   climate%cs_sun(:,1:nsd-1) = climate%cs_sun(:,2:nsd)
-  climate%cs_sun(:,nsd) = canopy%cs_sl ! ppm
+  climate%cs_sun(:,nsd) = real(canopy%cs_sl) ! ppm
 
   climate%cs_shade(:,1:nsd-1) = climate%cs_shade(:,2:nsd)
-  climate%cs_shade(:,nsd) = canopy%cs_sh ! ppm
+  climate%cs_shade(:,nsd) = real(canopy%cs_sh) ! ppm
 
   climate%scalex_sun(:,1:nsd-1) = climate%scalex_sun(:,2:nsd)
   climate%scalex_sun(:,nsd) = rad%scalex(:,1)
@@ -809,7 +809,6 @@ SUBROUTINE climate_init ( climate,np ,ktauday )
 
   TYPE (climate_type), INTENT(INOUT)       :: climate  ! climate variables
   INTEGER, INTENT(IN) :: np, ktauday
-  INTEGER :: d
 
   ! CALL alloc_cbm_var(climate,np,ktauday)
   
@@ -924,7 +923,7 @@ SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
   INTEGER, parameter   :: fmp4 = kind(pmp4)
   INTEGER(KIND=4) :: STATUS
   INTEGER(KIND=4) :: FILE_ID, land_ID, nyear_ID, nday_ID, ndayq_ID, nsd_ID, i
-    CHARACTER :: CYEAR*4, FNAME*99,dum*50
+  CHARACTER :: CYEAR*4, FNAME*99
 
   ! 0 dim arrays
   CHARACTER(len=20),DIMENSION(2) :: A0
@@ -1309,8 +1308,8 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate, ktauday )
   INTEGER(KIND=4), parameter   :: pmp4 =0
   INTEGER, parameter   :: fmp4 = kind(pmp4)
   INTEGER(KIND=4) :: STATUS
-  INTEGER(KIND=4) :: FILE_ID, land_ID, nyear_ID, nday_ID,nsd_ID, dID, i, land_dim
-  CHARACTER :: CYEAR*4, FNAME*99,dum*50
+  INTEGER(KIND=4) :: FILE_ID, dID, i, land_dim
+  CHARACTER :: CYEAR*4, FNAME*99
 
   ! 0 dim arrays
   CHARACTER(len=20),DIMENSION(2) :: A0

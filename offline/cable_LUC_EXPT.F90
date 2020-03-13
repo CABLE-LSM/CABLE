@@ -69,10 +69,10 @@ CONTAINS
     type(luc_expt_type), intent(inout) :: luc_expt
 
     REAL :: tmp
-    REAL, ALLOCATABLE :: tmparr(:,:)  , lattmp(:), lontmp(:)
-    INTEGER :: t, i, ii, k, x, y, realk
-    INTEGER :: fID, vID, timID,latID, lonID, tdimsize, xdimsize, ydimsize
-    INTEGER :: xds, yds, tds
+    REAL, ALLOCATABLE :: tmparr(:,:)
+    INTEGER :: i, k, x
+    INTEGER :: fID, timID,latID, lonID, tdimsize, xdimsize, ydimsize
+    INTEGER :: xds, yds
     INTEGER :: STATUS,  iu
     CHARACTER(len=15)    :: Run
     CHARACTER(len=400)   :: TransitionFilePath, ClimateFile, NotPrimOnlyFile
@@ -657,8 +657,8 @@ CONTAINS
     INTEGER(KIND=4), parameter :: pmp4 = 0
     INTEGER, parameter :: fmp4 = kind(pmp4)
     INTEGER(KIND=4)    :: STATUS
-    INTEGER(KIND=4)    :: FILE_ID, land_ID, nyear_ID, nday_ID, dID, i, land_dim
-    CHARACTER :: CYEAR*4, FNAME*99,dum*50
+    INTEGER(KIND=4)    :: FILE_ID, dID, i, land_dim
+    CHARACTER :: FNAME*99
 
     ! 0 dim arrays
     CHARACTER(len=20),DIMENSION(2) :: A0
@@ -668,7 +668,7 @@ CONTAINS
     CHARACTER(len=20),DIMENSION(2) :: AI1
 
     REAL(r_2), DIMENSION(mland) :: LAT, LON, TMP
-    INTEGER(KIND=4) :: TMPI(mland), TMPI0
+    INTEGER(KIND=4) :: TMPI(mland)
     LOGICAL         :: EXISTFILE
 
     mp4 = int(mland,fmp4)
@@ -782,10 +782,9 @@ CONTAINS
 
     REAL    ::  tmp
     REAL, ALLOCATABLE :: tmparr(:,:)
-    INTEGER :: t, i, ii, k, x, y, realk
-    INTEGER :: fid, vid, tid
-    INTEGER :: xds, yds, tds
-    INTEGER :: STATUS,  iu
+    INTEGER :: t, i, k
+    INTEGER :: xds, yds
+    INTEGER :: STATUS
 
     xds = LUC_EXPT%xdimsize
     yds = LUC_EXPT%ydimsize

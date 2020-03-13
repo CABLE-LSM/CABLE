@@ -53,7 +53,6 @@ MODULE cable_output_module
   PUBLIC :: open_output_file, write_output, close_output_file, create_restart
 
   INTEGER :: ncid_out ! output data netcdf file ID
-  REAL    :: missing_value = -999999.0 ! for netcdf output
   TYPE out_varID_type ! output variable IDs in netcdf file
      INTEGER :: SWdown, LWdown, Wind, Wind_E, PSurf,                 &
           Tair, Qair, Rainf, Snowf, CO2air,                          &
@@ -1828,7 +1827,7 @@ CONTAINS
     LOGICAL :: writenow ! write to output file during this time step?
     INTEGER, SAVE :: out_timestep ! counter for output time steps
     INTEGER, SAVE :: out_month ! counter for output month
-    INTEGER, DIMENSION(mp) :: realyear ! fix problem for yr b4 leap yr
+    ! INTEGER, DIMENSION(mp) :: realyear ! fix problem for yr b4 leap yr
     INTEGER :: backtrack  ! modify timetemp for averaged output
 
     INTEGER :: dday ! number of past-years days for monthly output LN
@@ -1881,11 +1880,11 @@ CONTAINS
           writenow = .FALSE.
        END IF
     ELSE IF(output%averaging(1:2) == 'mo') THEN ! write monthly averages to file
-       !realyear = met%year
-       realyear = real(CurYear)
-       IF(ktau >= 365*24*3600/INT(dels)) THEN
-          WHERE(met%doy == 1) realyear = realyear - 1   ! last timestep of year
-       END IF
+       ! ! realyear = met%year
+       ! realyear = CurYear
+       ! IF(ktau >= 365*24*3600/INT(dels)) THEN
+       !    WHERE(met%doy == 1) realyear = realyear - 1   ! last timestep of year
+       ! END IF
 
        ! LN Inserted for multiyear output
        dday = 0
@@ -3007,7 +3006,7 @@ CONTAINS
     ! output patch area
     IF(output%casa) THEN
        ! print*, 'MC48'
-       out%Area = casamet%areacell/1e6 ! km2
+       out%Area = toreal4(casamet%areacell / 1.0e6_r_2) ! km2
        IF(writenow) THEN
           ! Write value to file:
           CALL write_ovar(out_timestep, ncid_out, ovid%Area, 'Area', out%Area,    &
@@ -4436,8 +4435,6 @@ CONTAINS
   
   
   elemental pure function sp2sp(var)
-
-    use cable_def_types_mod, only: r_2
     
     implicit none
 

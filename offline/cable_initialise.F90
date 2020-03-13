@@ -82,7 +82,7 @@ SUBROUTINE get_default_inits(met,soil,ssnow,canopy,logn, EMSOIL)
    INTEGER,INTENT(IN)                :: logn     ! log file unit number
    REAL, INTENT(IN) :: EMSOIL
    ! Local variables
-   INTEGER :: e,i,j  ! do loop counter
+   INTEGER :: e ! do loop counter
 
    WRITE(logn,*) ' Initializing variables.'
 
@@ -226,19 +226,15 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
         INsoilt,               &
         INpatch,               &
         mpatchID,              &
-   !     surftype_restart,      & ! number of surface types in restart file
+        ! surftype_restart,      & ! number of surface types in restart file
         latID, lonID,          & ! lat,lon variable ID
         mvtypeID,              & ! veg type variable ID
         mstypeID,              & ! soil type variable ID
-        mlandID,               & ! netcdf ID for land points
-        i,                     & ! do loop counter
-   !     jj,                    & ! do loop counter
-        parID                    ! parameter's netcdf ID
+        mlandID                  ! netcdf ID for land points
    LOGICAL ::                                                                  &
         from_restart = .TRUE., & ! insist variables/params load
         dummy                    ! To replace completeSet in parameter read; unused
    REAL,    ALLOCATABLE :: var_r(:)
-   REAL,    ALLOCATABLE :: var_r2(:,:)
 
    ! Write to screen the restart file is found:
    WRITE(*,*) 'Reading restart data from: ' , TRIM(filename%restart_in)

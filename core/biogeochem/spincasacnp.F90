@@ -10,7 +10,7 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
   USE phenvariable
   USE POP_Types,           Only: POP_TYPE
   USE POPMODULE,           ONLY: POPStep
-  use TypeDef,             only: i4b, dp
+  use TypeDef,             only: dp
   ! 13C
   use cable_c13o2_def,     only: c13o2_pool, c13o2_flux
   use cable_c13o2,         only: c13o2_save_casapool, c13o2_update_pools, &
@@ -56,24 +56,13 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
   integer                  :: myearspin, nyear, nloop1
   character(len=99)        :: ncfile
   character(len=4)         :: cyear
-  integer                  :: ktau, ktauday, nday, idoy, ktaux, ktauy, nloop, LOY
-  integer, save            :: ndays
+  integer                  :: ktau, ktauday, nday, idoy, ktauy, nloop, LOY
   real(r_2), dimension(mp) :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
   real(r_2), dimension(mp) :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
   real(r_2), dimension(mp) :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
-  real(r_2), dimension(mp) :: xcgpp,     xcnpp,     xnuptake,  xpuptake
-  real(r_2), dimension(mp) :: xnsoilmin, xpsoillab, xpsoilsorb,xpsoilocc
   real(r_2), dimension(mp) :: xnplimit,  xkNlimiting, xklitter, xksoil, xkleaf, xkleafcold, xkleafdry
 
   ! more variables to store the spinup pool size over the last 10 loops. Added by Yp Wang 30 Nov 2012
-  real(r_2), dimension(5,mvtype,mplant)  :: bmcplant,  bmnplant,  bmpplant
-  real(r_2), dimension(5,mvtype,mlitter) :: bmclitter, bmnlitter, bmplitter
-  real(r_2), dimension(5,mvtype,msoil)   :: bmcsoil,   bmnsoil,   bmpsoil
-  real(r_2), dimension(5,mvtype)         :: bmnsoilmin,bmpsoillab,bmpsoilsorb, bmpsoilocc
-  real(r_2), dimension(mvtype)           :: bmarea
-  integer :: nvt, kloop ! , nptx
-
-  real(dp)                    :: StemNPP(mp,2)
   real(dp), allocatable, save :: LAImax(:), Cleafmean(:), Crootmean(:)
   real(dp), allocatable :: NPPtoGPP(:)
   integer,  allocatable :: Iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
@@ -194,7 +183,7 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
         phen%doyphase(:,2)     = phen%doyphasespin_2(:,idoy)
         phen%doyphase(:,3)     = phen%doyphasespin_3(:,idoy)
         phen%doyphase(:,4)     = phen%doyphasespin_4(:,idoy)
-        climate%qtemp_max_last_year(:) = casamet%mtempspin(:,idoy)
+        climate%qtemp_max_last_year(:) = real(casamet%mtempspin(:,idoy))
         ! 13C
         if (cable_user%c13o2) then
            c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
@@ -421,7 +410,7 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
            phen%doyphase(:,2)     = phen%doyphasespin_2(:,idoy)
            phen%doyphase(:,3)     = phen%doyphasespin_3(:,idoy)
            phen%doyphase(:,4)     = phen%doyphasespin_4(:,idoy)
-           climate%qtemp_max_last_year(:) = casamet%mtempspin(:,idoy)
+           climate%qtemp_max_last_year(:) = real(casamet%mtempspin(:,idoy))
            ! 13C
            if (cable_user%c13o2) then
               c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
@@ -511,41 +500,5 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
   ENDDO     ! end of nloop
 
   CALL casa_fluxout(CABLE_USER%CASA_SPIN_STARTYEAR+myearspin-1, veg, soil, casabal, casamet)
-
-  !STOP
-  !write(600,*) 'csoil3 end: ', casapool%csoil(3,:)
-  !write(600,*) 'csoil1 end: ', casapool%csoil(1,:)
-
-  ! ! write the last five loop pool size by PFT type
-  ! open(92,file='cnpspinlast5.txt')
-  ! write(92,921)
-  ! 921 format('PFT total area in 10**12 m2', f12.4)
-  !   do nvt=1,mvtype
-  !      write(92,*) bmarea(nvt)
-  !   enddo
-
-  !   do nvt=1,mvtype
-  !      if(bmarea(nvt) >0.0) then
-  !         do kloop=1,5
-  !            write(92,922) nvt, bmcplant(kloop,nvt,:),bmclitter(kloop,nvt,:),bmcsoil(kloop,nvt,:)
-  !         enddo
-  !         if (icycle >1) then
-  !            do kloop=1,5
-  !               write(92,922) nvt, bmnplant(kloop,nvt,:),bmnlitter(kloop,nvt,:),bmnsoil(kloop,nvt,:), bmnsoilmin(kloop,nvt)
-  !            enddo
-  !         endif
-
-  !         if(icycle >2) then
-  !            do kloop=1,5
-  !               write(92,922) nvt, bmpplant(kloop,nvt,:),bmplitter(kloop,nvt,:),bmpsoil(kloop,nvt,:),  &
-  !                    bmpsoillab(kloop,nvt), bmpsoilsorb(kloop,nvt), bmpsoilocc(kloop,nvt)
-  !            enddo
-  !         endif
-  !      endif
-  !   enddo
-  ! 922 format(i4,20(f10.4,2x))
-  ! CLOSE(92)
-
-151 FORMAT(i6,100(f12.5,2x))
 
 END SUBROUTINE spincasacnp

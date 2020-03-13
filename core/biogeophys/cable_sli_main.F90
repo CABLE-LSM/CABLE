@@ -11,8 +11,8 @@ SUBROUTINE sli_main(ktau, dt, veg, soil, ssnow, met, canopy, air, rad, SEB_only)
   USE sli_numbers,        ONLY:  zero, half, one, two, four, thousand, & ! numbers
        Tzero, experiment, &                                       ! variables
        vars_met, vars, params, vars_snow, &                                  ! types
-       MW, snmin, Rgas, Lambdas, lambdaf, csice, cswat, rhow, nsnow_max, e5, &
-       freezefac, topmodel, alpha, fsat_max, botbc
+       MW, Rgas, Lambdas, lambdaf, csice, cswat, rhow, nsnow_max, e5, &
+       freezefac, topmodel, alpha, botbc
   USE sli_utils,          ONLY: x, dx, par, setpar, setpar_Loetsch, setx, plit, dxL, setlitterpar, esat, &
        esat_ice, slope_esat_ice, thetalmax, Tfrz,  hyofS, SEB
   USE sli_roots,          ONLY: setroots, getrex
@@ -44,7 +44,7 @@ SUBROUTINE sli_main(ktau, dt, veg, soil, ssnow, met, canopy, air, rad, SEB_only)
   INTEGER(i_d),    DIMENSION(1:mp)      :: nsteps
   REAL(r_2),       DIMENSION(1:mp,1:ms) :: Tsoil, S, thetai, Jsensible
   REAL(r_2),       DIMENSION(1:mp)      :: SL, TL, T0
-  REAL(r_2),       DIMENSION(1:mp)      :: drn, evap, infil, qprec, qprec_snow,qprec_snow_tmp, qprec_tot, runoff, runoff_sat
+  REAL(r_2),       DIMENSION(1:mp)      :: drn, evap, infil, qprec, qprec_snow,qprec_snow_tmp, runoff, runoff_sat
   REAL(r_2),       DIMENSION(1:mp)      :: win, wp, wpi, h0, deltah0, h0old,hsnowold, discharge
   REAL(r_2),       DIMENSION(1:mp)      :: ip, ipi ! volumetric ice content of profile (final and initial)
   REAL(r_2),       DIMENSION(1:mp,1:ms) :: wex, csoil, qex, kth, phi, thetal_max, Sliq, Ksat
@@ -160,7 +160,7 @@ SUBROUTINE sli_main(ktau, dt, veg, soil, ssnow, met, canopy, air, rad, SEB_only)
   setroot = 0  ! reset rooting depths
   if (setroot == 1) then
      call setroots(x*100.0_r_2, real(veg%F10,r_2), real(veg%ZR,r_2)*100.0_r_2, FS)
-     veg%froot = FS
+     veg%froot = real(FS)
   else
      FS = real(veg%froot,r_2)
   endif
@@ -212,7 +212,7 @@ SUBROUTINE sli_main(ktau, dt, veg, soil, ssnow, met, canopy, air, rad, SEB_only)
   ! vmet%Rnsw = vmet%Rn ! all radiation absorbed beneath snow surface
   Etrans     = max(canopy%fevc/air%rlam/thousand, zero) ! m s-1
   where (canopy%fevc .lt. zero)
-     canopy%fevw = canopy%fevw+canopy%fevc
+     canopy%fevw = canopy%fevw + real(canopy%fevc)
      canopy%fevc = zero
   end where
   h0         = ssnow%h0
@@ -610,7 +610,7 @@ SUBROUTINE sli_main(ktau, dt, veg, soil, ssnow, met, canopy, air, rad, SEB_only)
         ssnow%wbtot    = real(wp*thousand)
         canopy%ga      = real(G0)
         canopy%fes     = lE
-        canopy%fhs     = canopy%fns - canopy%ga - canopy%fes
+        canopy%fhs     = canopy%fns - canopy%ga - real(canopy%fes)
         ssnow%rnof1    = real(runoff*thousand/dt )
         ssnow%rnof2    = real(drn*thousand/dt )
         ssnow%runoff   = ssnow%rnof1 + ssnow%rnof2 

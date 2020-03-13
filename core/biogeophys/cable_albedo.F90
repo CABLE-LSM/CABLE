@@ -169,7 +169,6 @@ SUBROUTINE surface_albedosn(ssnow, veg, met, soil)
    REAL, PARAMETER ::                                                          &
       alvo  = 0.95,  &  ! albedo for vis. on a new snow
       aliro = 0.70      ! albedo for near-infr. on a new snow
-   INTEGER:: k
 
    soil%albsoilf = soil%albsoil(:,1)
 

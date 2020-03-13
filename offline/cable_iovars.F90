@@ -31,7 +31,7 @@ MODULE cable_IO_vars_module
    ! ============ Timing variables =====================
    REAL :: shod ! start time hour-of-day
 
-   INTEGER :: sdoy,smoy,syear ! start time day-of-year month and year
+   INTEGER :: sdoy, smoy, syear ! start time day-of-year month and year
 
    CHARACTER(LEN=200) :: timeunits ! timing info read from nc file
 

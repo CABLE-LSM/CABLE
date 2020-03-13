@@ -83,10 +83,10 @@ MODULE CABLE_CRU
 
   REAL, PRIVATE, PARAMETER :: SecDay = 86400. ! Number of seconds in a day
 
-  ! Filename prefix expected in the names of met files. Used by CRU_GET_FILENAME to construct met file names.
-  CHARACTER(len=6), DIMENSION(9), PARAMETER, PRIVATE :: &
-       !  PREF = (/ "rain  ", "lwdown", "swdown", "press ", "qair  ", "tmax  ", "tmin  ", "uwind ", "vwind " /)
-       PREF = (/ "pre   ", "dlwrf ", "dswrf ", "pres  ", "spfh  ", "tmax  ", "tmin  ", "ugrd  ", "vgrd  " /)
+  ! ! Filename prefix expected in the names of met files. Used by CRU_GET_FILENAME to construct met file names.
+  ! CHARACTER(len=6), DIMENSION(9), PARAMETER, PRIVATE :: &
+  !      !  PREF = (/ "rain  ", "lwdown", "swdown", "press ", "qair  ", "tmax  ", "tmin  ", "uwind ", "vwind " /)
+  !      PREF = (/ "pre   ", "dlwrf ", "dswrf ", "pres  ", "spfh  ", "tmax  ", "tmin  ", "ugrd  ", "vgrd  " /)
 
 CONTAINS
 
@@ -117,9 +117,8 @@ CONTAINS
     INTEGER :: ErrStatus  ! Error status returned by nc routines (zero=ok, non-zero=error) 
     INTEGER :: nmlunit    ! Unit number for reading namelist file
     INTEGER :: FID        ! NetCDF id for the landmask file
-    INTEGER :: latID, lonID, timID  ! NetCDF ids for dimensions in the landmask file
+    INTEGER :: latID, lonID  ! NetCDF ids for dimensions in the landmask file
     INTEGER :: landID     ! NetCDF id for the landmask variable in the landmask file
-    INTEGER :: tdimsize   ! Time dimension in the met file, not used here apparently (??)
     INTEGER :: landcnt    ! Manually incremented counter for the number of land cells
     INTEGER :: xcol, yrow ! Column and row position in the data file grids
     INTEGER :: imetvar    ! loop counter through met variables
@@ -447,7 +446,6 @@ CONTAINS
     integer,            intent(in)  :: par    ! Index (1-9) of which met quantity will be sought
     character(len=200), intent(out) :: fn     ! Met filename (outgoing)
     
-    integer :: i, idx
     character(len=4)   :: cy   ! Character representation of cyear
     character(len=200) :: metp ! Local repr of met path
 #ifdef __CRU2017__
@@ -561,7 +559,7 @@ CONTAINS
     TYPE(CRU_TYPE), intent(inout) :: CRU    ! All the info needed for CRU met runs
     REAL,           INTENT(OUT)   :: CO2air ! A single annual value of CO2air in ppm for the current year.
 
-    INTEGER              :: i, iunit, iyear, IOS = 0
+    INTEGER              :: iunit, iyear, IOS = 0
     CHARACTER(len=200)   :: CO2FILE
     LOGICAL,        SAVE :: CALL1 = .TRUE.  ! A *local* variable recording the first call of this routine 
 
@@ -616,7 +614,7 @@ CONTAINS
     TYPE(CRU_TYPE), INTENT(INOUT) :: CRU ! All the info needed for CRU met runs
     
     REAL, ALLOCATABLE :: tmparr(:,:) 
-    INTEGER :: i, iunit, iyear, IOS=0, k, t
+    INTEGER :: k, t
     INTEGER :: xds, yds ! Ndep file dimensions of long (x), lat (y)
 
     LOGICAL, SAVE  :: CALL1 = .TRUE. ! A *local* variable recording the first call of this routine 
@@ -689,15 +687,11 @@ CONTAINS
     ! the nominal run year (CYEAR) and the year of met required (MetYear), which is different for 
     ! S0_TRENDY and S1_TRENDY than for a standard run (S2_TRENDY). 
 
-  USE cable_IO_vars_module, ONLY: timeunits ! (Char33) Name of time units read from nc file 
-
   IMPLICIT NONE
 
   TYPE(CRU_TYPE), INTENT(INOUT) :: CRU ! All CRU-NCEP related quantities and flags
 
   INTEGER       :: iVar            ! Loop counter through met variables
-  INTEGER       :: tID             ! Numerical variable identifier returned by NetCDF routines,
-                                   ! in this case for time. Needed to retrieve the time units.
   INTEGER       :: MetYear         ! Year of met to access. Equals CYEAR for normal runs, but 
                                    ! must be calculated for S0_TRENDY and initialisation runs.
   INTEGER, SAVE :: RunStartYear    ! The value of CRU%CYEAR on the first call, also equals syear.
@@ -797,8 +791,8 @@ CONTAINS
     TYPE(CRU_TYPE), intent(inout) :: CRU
     LOGICAL,        INTENT(IN)    :: LastDayOfYear, LastYearOfMet
 
-    REAL    :: tmp, stmp(365)
-    INTEGER :: iVar, ii, k, x, y, realk
+    REAL    :: tmp
+    INTEGER :: iVar, ii, k
     INTEGER :: t, tplus1              ! The current and next timestep
     INTEGER :: fid, vid, tid          ! Netcdf id's for file, variable, and time
     INTEGER :: xds, yds, tds          ! Metfile dimensions of long (x), lat (y), and time (t) 
@@ -1303,7 +1297,7 @@ CONTAINS
     ! Obtain one day of CRU-NCEP meteorology, subdiurnalise it using a weather
     ! and return the result to the CABLE driver.
 
-    USE cable_def_types_mod,   ONLY: MET_TYPE
+    USE cable_def_types_mod,   ONLY: MET_TYPE, r_2
     USE cable_IO_vars_module,  ONLY: LANDPT, latitude
     USE cable_common_module,   ONLY: DOYSOD2YMDHMS
     USE cable_weathergenerator,ONLY: WEATHER_GENERATOR_TYPE, WGEN_INIT, &
@@ -1329,9 +1323,6 @@ CONTAINS
     INTEGER   :: is, ie                 ! Starting and ending vegetation type per land cell
     REAL      :: dt                     ! Timestep in seconds
     REAL      :: CO2air                 ! CO2 concentration in ppm
-    REAL      :: etime
-    CHARACTER :: LandMaskFile*200       ! Name of the land mask file
-
     TYPE(WEATHER_GENERATOR_TYPE), SAVE :: WG
     LOGICAL,                      SAVE :: CALL1 = .TRUE.  ! A *local* variable recording the first call of this routine
 
@@ -1405,20 +1396,20 @@ CONTAINS
        END DO
 
        ! Convert wind from u and v components to wind speed by Pythagorean Theorem
-       WG%WindDay        = sqrt( (CRU%MET(uwind)%METVALS * CRU%MET(uwind)%METVALS) +  &
-            (CRU%MET(vwind)%METVALS * CRU%MET(vwind)%METVALS) )
+       WG%WindDay        = real(sqrt( (CRU%MET(uwind)%METVALS * CRU%MET(uwind)%METVALS) +  &
+            (CRU%MET(vwind)%METVALS * CRU%MET(vwind)%METVALS) ), r_2)
        ! Convert all temperatures from K to C
-       WG%TempMinDay     = CRU%MET(  Tmin  )%METVALS - 273.15
-       WG%TempMaxDay     = CRU%MET(  Tmax  )%METVALS - 273.15
-       WG%TempMinDayNext = CRU%MET(NextTmin)%METVALS - 273.15
-       WG%TempMaxDayPrev = CRU%MET(PrevTmax)%METVALS - 273.15
+       WG%TempMinDay     = real(CRU%MET(  Tmin  )%METVALS - 273.15, r_2)
+       WG%TempMaxDay     = real(CRU%MET(  Tmax  )%METVALS - 273.15, r_2)
+       WG%TempMinDayNext = real(CRU%MET(NextTmin)%METVALS - 273.15, r_2)
+       WG%TempMaxDayPrev = real(CRU%MET(PrevTmax)%METVALS - 273.15, r_2)
        ! Convert solar radiation from J /m2/s to MJ/m2/d
-       WG%SolarMJDay     = CRU%MET(  swdn  )%METVALS * 1.e-6 * SecDay ! ->[MJ/m2/d]
+       WG%SolarMJDay     = real(CRU%MET(  swdn  )%METVALS * 1.e-6 * SecDay, r_2) ! ->[MJ/m2/d]
        ! Convert precip from mm to m/day
-       WG%PrecipDay      = max(CRU%MET(  rain  )%METVALS  / 1000., 0.0) ! ->[m/d]
+       WG%PrecipDay      = real(max(CRU%MET(  rain  )%METVALS  / 1000., 0.0), r_2) ! ->[m/d]
        !WG%PrecipDay      = max(CRU%MET(  rain  )%METVALS  / 1000., 0.0)/2.0 ! ->[m/d] ! test vh !
-       WG%SnowDay        = 0.0
-       WG%VapPmbDay = esatf( real(WG%TempMinDay,sp) )
+       WG%SnowDay        = 0.0_r_2
+       WG%VapPmbDay = real(esatf( real(WG%TempMinDay,sp) ), r_2)
        CALL WGEN_DAILY_CONSTANTS( WG, CRU%mland, INT(met%doy(1))+1 )
 
        ! To get the diurnal cycle for lwdn get whole day and scale with
@@ -1427,7 +1418,7 @@ CONTAINS
        CRU%AVG_LWDN(:) = 0.
        DO itimestep = 1, NINT(SecDay/dt)
           CALL WGEN_SUBDIURNAL_MET( WG, CRU%mland, itimestep-1 )
-          CRU%AVG_LWDN = CRU%AVG_LWDN + WG%PhiLD
+          CRU%AVG_LWDN = CRU%AVG_LWDN + real(WG%PhiLD)
        END DO
        CRU%AVG_LWDN = CRU%AVG_LWDN / (SecDay/dt)
     END IF ! End of If newday
@@ -1447,29 +1438,29 @@ CONTAINS
        is = landpt(iland)%cstart
        ie = landpt(iland)%cend
 
-       met%precip(is:ie) = WG%Precip(iland) ! test vh !
+       met%precip(is:ie) = real(WG%Precip(iland)) ! test vh !
 
        ! Cable's swdown is split into two components, visible and nir, which 
        ! get half of the CRU-NCEP swdown each.
-       met%fsd(is:ie,1) = WG%PhiSD(iland) * 0.5  ! Visible 
-       met%fsd(is:ie,2) = WG%PhiSD(iland) * 0.5  ! NIR  
+       met%fsd(is:ie,1) = real(WG%PhiSD(iland) * 0.5_r_2)  ! Visible 
+       met%fsd(is:ie,2) = real(WG%PhiSD(iland) * 0.5_r_2)  ! NIR  
 
        ! Convert C to K for cable's tk
-       met%tk(is:ie)     = WG%Temp(iland) + 273.15 
+       met%tk(is:ie)     = real(WG%Temp(iland) + 273.15_r_2)
 
-       met%ua(is:ie)     = WG%Wind(iland)
-       met%coszen(is:ie) = WG%coszen(iland)
+       met%ua(is:ie)     = real(WG%Wind(iland))
+       met%coszen(is:ie) = real(WG%coszen(iland))
 
        ! For longwave down, scale the diurnal series returned by the weather generator (WG%PhiLD(iland))
        ! to the daily value from CRU-NCEP.
-       met%fld(is:ie) = CRU%MET(lwdn)%METVALS(iland) * WG%PhiLD(iland) / CRU%AVG_LWDN(iland)
+       met%fld(is:ie) = CRU%MET(lwdn)%METVALS(iland) * real(WG%PhiLD(iland)) / CRU%AVG_LWDN(iland)
 
        ! Specific humidity (qair g/g) was not sent to the weather generator. Here we assign the 
        ! daily value to the whole diurnal cycle 
        met%qv(is:ie) = CRU%MET(qair)%METVALS(iland)
 
 
-       met%rhum(is:ie)  =  WG%VapPmb(iland)/esatf(real(WG%Temp(iland),sp)) *100.0 ! rel humidity (%)
+       met%rhum(is:ie)  = real(WG%VapPmb(iland))/esatf(real(WG%Temp(iland),sp)) *100.0 ! rel humidity (%)
        met%u10(is:ie)   = met%ua(is:ie) 
        ! initialise within canopy air temp
        met%tvair(is:ie) = met%tk(is:ie) 
@@ -1489,7 +1480,7 @@ CONTAINS
 !!$       met%precip_sn(is:ie) = met%precip(is:ie)
 !!$    endif
 
-       if (WG%Temp(iland) <= 0.0) then
+       if (WG%Temp(iland) <= 0.0_r_2) then
           met%precip_sn(is:ie) = met%precip(is:ie)
        else
           met%precip_sn(is:ie) = 0.0

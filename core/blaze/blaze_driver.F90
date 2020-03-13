@@ -2,9 +2,9 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
      climate, shootfrac, idoy, curyear, CTLFLAG, POP, veg )
 
   use cable_def_types_mod, only: r_2
-  USE CABLE_COMMON_MODULE, ONLY: IS_LEAPYEAR, DOYSOD2YMDHMS, kbl_user_switches !, Esatf
-  USE CASAVARIABLE,        ONLY: casa_pool, casa_flux, casa_met, mheights
-  USE BLAZE_MOD,           ONLY: RUN_BLAZE, TYPE_TURNOVER, BLAZE_TURNOVER, NTO, &
+  USE CABLE_COMMON_MODULE, ONLY: IS_LEAPYEAR, DOYSOD2YMDHMS !, Esatf
+  USE CASAVARIABLE,        ONLY: casa_pool, casa_flux, casa_met
+  USE BLAZE_MOD,           ONLY: RUN_BLAZE, TYPE_TURNOVER, BLAZE_TURNOVER, &
        METB, STR, CWD, LEAF, WOOD, FROOT, TYPE_BLAZE, MLIT, SLIT, CLIT, p_surv_OzSavanna
   USE SIMFIRE_MOD,         ONLY: TYPE_SIMFIRE
 
@@ -18,7 +18,6 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
 
   IMPLICIT NONE
 
-  TYPE(kbl_user_switches) :: cable_user
   TYPE (casa_pool), INTENT(IN)      :: casapool
   TYPE (casa_flux), INTENT(IN)         :: casaflux
   TYPE (casa_met ), INTENT(IN)         :: casamet
@@ -27,34 +26,20 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
   INTEGER,          INTENT(IN)         :: idoy, CurYear, CTLFLAG,ncells
   REAL, INTENT(IN)    :: shootfrac
 
-  INTEGER, PARAMETER        :: NPOOLS = 3
-
   TYPE(TYPE_TURNOVER)   ,ALLOCATABLE,SAVE :: TO(:,:)
-  REAL,   DIMENSION(NCELLS) :: AGL_wo1,AGL_wo2,AGL_wo3
-  REAL,   DIMENSION(NCELLS) :: POP_TO,POP_CWD,POP_STR
+  REAL,   DIMENSION(NCELLS) :: POP_TO
 
-  INTEGER,DIMENSION(NCELLS) :: modis_igbp
-  INTEGER,DIMENSION(NCELLS) :: t1, t2
-  REAL,   DIMENSION(NCELLS) :: AB, relhum, U10, FLI, DFLI, FFDI !CRM , popd, mnest
-  INTEGER       :: MM, DD, i, np, j, patch_index, p, nbins, nh
-  REAL          :: TSTP, C_CHKSUM
-  REAL          :: ag_lit, tot_lit, bg_lit, ag_litter_frac
+  INTEGER       :: MM, DD, i, np, j, patch_index, p
+  REAL          :: TSTP
+  REAL          :: ag_litter_frac
   REAL          :: CPLANT_g (ncells,3),CPLANT_w (ncells,3)
   REAL          :: CLITTER_g(ncells,3),CLITTER_w(ncells,3)
   LOGICAL       :: EOY
-  LOGICAL, SAVE :: CALL1 = .TRUE.
-  LOGICAL, SAVE :: YEAR1 = .TRUE.
 
   TYPE(TYPE_BLAZE), INTENT(INOUT)   :: BLAZE
   TYPE(POP_TYPE),             INTENT(INOUT) :: POP
   INTEGER, allocatable :: Iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
   TYPE (TYPE_SIMFIRE) :: SF
-
-  REAL    :: C_BIOMASS, C_FIRE, hgt
-  LOGICAL,PARAMETER :: CLOSURE_TEST = .FALSE.
-  REAL,PARAMETER:: BIN_POWER=1.4 ! bins have muscles
-
-
 
   ! INITIALISATION ============================================================
 

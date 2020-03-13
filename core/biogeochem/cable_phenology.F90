@@ -51,7 +51,7 @@ SUBROUTINE cable_phenology_clim (veg, climate, phen)
   REAL:: gdd0
   REAL(r_2) :: phen_tmp
   REAL, PARAMETER :: k_chilla = 0, k_chillb = 100, k_chillk = 0.05
-  REAL, PARAMETER :: APHEN_MAX = 200.0, mmoisture_min=0.30,  ndays_raingreenup = 60
+  REAL, PARAMETER :: APHEN_MAX = 200.0, ndays_raingreenup = 60
   INTEGER, PARAMETER:: COLDEST_DAY_NHEMISPHERE = 355
   INTEGER, PARAMETER:: COLDEST_DAY_SHEMISPHERE = 172
   REAL :: phengdd5ramp
@@ -130,10 +130,10 @@ endif
 !!$       phen%doyphase(np,3) = climate%doy
 !!$    endif
 
-    if (phen_tmp.gt.0.0 .and. phen_tmp.lt.1.0_r_2 ) then
+    if ((phen_tmp.gt.0.0_r_2) .and. (phen_tmp.lt.1.0_r_2)) then
        phen%phase(np) = 1 ! greenup
        phen%doyphase(np,1) = climate%doy
-    elseif (phen_tmp.ge.1.0_r_2 ) then
+    elseif (phen_tmp .ge. 1.0_r_2 ) then
        phen%phase(np) = 2 ! steady LAI
        phen%doyphase(np,2) = climate%doy
     elseif (phen_tmp .eq. 0.0_r_2) then
@@ -150,8 +150,8 @@ endif
     ! Update annual leaf-on sum
     IF ((patch(np)%latitude>=0.0 .and. climate%doy==COLDEST_DAY_NHEMISPHERE).OR. &
          (patch(np)%latitude <0.0 .and. climate%doy==COLDEST_DAY_SHEMISPHERE) ) &
-         phen%aphen(np) = 0
-    phen%phen(np) = phen_tmp
+         phen%aphen(np) = 0.0
+    phen%phen(np) = real(phen_tmp)
     phen%aphen(np) = phen%aphen(np) + phen%phen(np)
 
  endif

@@ -320,7 +320,6 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
         longitudeID,            & ! lon variable IDs
         edoy,                   & ! end time day-of-year
         eyear,                  & ! end time year
-        jump_days,              & ! days made by first "time" entry
         sdoytmp,                & ! used to determine start time hour-of-day
         mland_ctr,              & ! counter for number of land points read from file
         mland_fromfile,         & ! number of land points in file
@@ -330,9 +329,9 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
         ! Alexis
         iveg_dims,              & ! number of dims of iveg var if in met file
         isoil_dims,             & ! number of dims of isoil var if in met file
-        tsmin,tsdoy,tsyear,     & ! temporary variables
+        tsmin,                  & ! temporary variables
         x,y,i,j,                & ! do loop counters
-        tempmonth,                              &
+        tempmonth,              &
         ssod, &
         nsod, &
         LOY, &
@@ -340,8 +339,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
         imin,&
         isec,&
         ishod, &
-        dnsec  = 0,&
-        ntstp
+        dnsec = 0
    INTEGER,DIMENSION(1)        ::                                         &
         timedimID,              & ! time dimension ID number
         data1i                    ! temp variable for netcdf reading
@@ -353,7 +351,6 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
    INTEGER,POINTER,DIMENSION(:)     ::land_xtmp => null(), land_ytmp => null() ! temp indicies
    REAL,POINTER, DIMENSION(:)  :: lat_temp => null(), lon_temp => null() ! lat and lon
    REAL                        ::                                         &
-        tshod,                  & ! temporary variable
         ehod,                   & ! end time hour-of-day
         precipTot,              & ! used for spinup adj
         avPrecipInMet             ! used for spinup adj
@@ -562,7 +559,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
                (ok,'Error reading "land" variable in ' &
                //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
           ! Needed since r_1 will be double precision with -r8:
-          landGrid = REAL(temparray1)
+          landGrid = nint(temparray1)
           DEALLOCATE(temparray1)
           ! Allocate latitude and longitude variables:
           ALLOCATE(latitude(mland_fromfile),longitude(mland_fromfile))
@@ -707,7 +704,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
     IF (ncciy > 0) THEN
       write(*,*) 'original timevar(kend) = ', timevar(kend)
       DO i = 1, kend - 1
-        timevar(i+1) = timevar(i) + dels
+        timevar(i+1) = timevar(i) + real(dels,r_2)
       ENDDO
       write(*,*) 'New      timevar(kend) = ', timevar(kend)
       ! hacking (BP feb2011)
@@ -730,11 +727,11 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
     !****** PALS met file has timevar(1)=0 while timeunits from 00:30:00 ******
     !!CLN CRITICAL! From my point of view, the information in the file is correct...
     !!CLN WHY DO the input files all have bugs???
-    IF (timevar(1) == 0.0) THEN
+    IF (timevar(1) == 0.0_r_2) THEN
       READ(timeunits(29:30),*) tsmin
       IF (tsmin*60.0 >= dels) THEN
         tsmin = tsmin - INT(dels / 60)
-        timevar = timevar + dels
+        timevar = timevar + real(dels,r_2)
         WRITE(timeunits(29:30),'(i2.2)') tsmin
       ENDIF
     ENDIF
@@ -787,8 +784,8 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
     ! Decide day-of-year for non-leap year:
     CALL YMDHMS2DOYSOD( syear, smoy, sdoytmp, INT(shod), 0, 0, sdoy, ssod )
        ! Number of days between start position and 1st timestep:
-    sdoy = sdoy + INT((timevar(1)/3600.0 + shod)/24.0)
-    nsod = MOD(INT((timevar(1) + shod*3600)),86400)
+    sdoy = sdoy + INT((real(timevar(1))/3600.0 + shod)/24.0)
+    nsod = MOD(INT((real(timevar(1)) + shod*3600.)),86400)
 
     DO
        LOY = 365
@@ -811,8 +808,8 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
     ! Determine ending time of run...
     IF(leaps) THEN ! If we're using leap year timing...
        eyear = syear
-       edoy  = sdoy + INT(((timevar(kend)-timevar(1))/3600.0 + shod)/24.0)
-       ehod  = MOD(((timevar(kend)-timevar(1)/3600.) + shod),24._r_2)
+       edoy  = sdoy + INT((real(timevar(kend)-timevar(1))/3600.0 + shod)/24.0)
+       ehod  = MOD(real(timevar(kend)-timevar(1))/3600. + shod,24.0)
 
        DO
           LOY = 365
@@ -828,11 +825,10 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
 
     ELSE ! if not using leap year timing
        ! Update shod, sdoy, syear for first "time" value:
-       ehod = MOD(REAL((timevar(kend)-timevar(1))/3600.0 + shod),24.0)
-       edoy = MOD(INT(((timevar(kend)-timevar(1))/3600.0 + shod)/24.0) &
+       ehod = MOD(REAL(timevar(kend)-timevar(1))/3600.0 + shod,24.0)
+       edoy = MOD(INT((real(timevar(kend)-timevar(1))/3600.0 + shod)/24.0) &
             + sdoy, 365)
-       eyear = INT(REAL(INT(((timevar(kend)-timevar(1)) &
-            /3600.0+shod)/24.0)+sdoy)/365.0)+syear
+       eyear = INT(REAL(INT((real(timevar(kend)-timevar(1))/3600.0 + shod)/24.0) + sdoy)/365.0) + syear
        !       ehod = MOD(REAL((timevar(kend)-timevar(1)+dels)/3600.0 + shod),24.0)
        !       edoy = MOD(INT(((timevar(kend)-timevar(1)+dels)/3600.0 + shod)/24.0) &
        !            + sdoy, 365)
@@ -858,7 +854,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
           LOY = 365
           IF ( IS_LEAPYEAR( y ) ) LOY = 366
           IF ( y .EQ. syear ) THEN
-             dnsec = ( LOY - sdoy ) * 86400 + (24 - shod) * 3600
+             dnsec = ( LOY - sdoy ) * 86400 + (24 - nint(shod)) * 3600
           ELSE
              dnsec = dnsec + LOY * 86400
           ENDIF
@@ -1126,7 +1122,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
             //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
        IF(metunits%CO2air(1:3)/='ppm') THEN
           WRITE(*,*) metunits%CO2air
-          CALL abort('Unknown units for CO2air'// &
+          CALL cable_abort('Unknown units for CO2air'// &
                ' in '//TRIM(filename%met)//' (SUBROUTINE open_met_data)')
        END IF
     ELSE ! CO2 not present
@@ -1529,10 +1525,6 @@ SUBROUTINE get_met_data(spinup,spinConv,met,soil,rad,                          &
    REAL, INTENT(IN) :: TFRZ
 
    ! Local variables
-   REAL(KIND=4),DIMENSION(1,1,1)          :: data3 ! temp variable for netcdf reading
-   REAL(KIND=4),DIMENSION(1,1,1,1)        :: data4 !  " " "
-   REAL(KIND=4),DIMENSION(1,1)            :: data2 ! " "
-   REAL(KIND=4),DIMENSION(1)              :: data1 ! " "
    INTEGER                           :: i,j ! do loop counter
    REAL(KIND=4),ALLOCATABLE,DIMENSION(:)       :: tmpDat1
    REAL(KIND=4),ALLOCATABLE,DIMENSION(:,:)     :: tmpDat2, tmpDat2x
@@ -2448,22 +2440,17 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
    REAL,                      INTENT(IN)    :: TFRZ, EMSOIL
 
    ! Local variables
-   REAL, POINTER, DIMENSION(:) :: pfractmp => null() ! temp store of patch fraction
    LOGICAL                     :: completeSet ! was a complete parameter set found?
    LOGICAL                     :: EXRST = .FALSE. ! does a RunIden restart file exist?
    INTEGER                     :: &
         mp_restart, & ! total number of patches in restart file
         mpID,       &
-        napID,      &
         i , j         ! do loop variables
-    CHARACTER :: frst_in*200, CYEAR*4
-
-    INTEGER   :: IOS
-    CHARACTER :: TACC*20
-    INTEGER, dimension(:), ALLOCATABLE :: ALLVEG
-    ! vh_js
-    INTEGER :: mp_POP
-    INTEGER, dimension(:), ALLOCATABLE :: Iwood
+   CHARACTER :: frst_in*500, CYEAR*4
+   
+   ! vh_js
+   INTEGER :: mp_POP
+   INTEGER, dimension(:), ALLOCATABLE :: Iwood
 
     ! Allocate spatial heterogeneity variables:
     ALLOCATE(landpt(mland))
@@ -2596,7 +2583,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
 
     ! Look for explicit restart file (which will have parameters):
     IF ( TRIM(filename%restart_in) .EQ. '' ) filename%restart_in = './'
-    frst_in = filename%restart_in
+    frst_in = trim(filename%restart_in)
     ok = NF90_OPEN(TRIM(frst_in),NF90_NOWRITE,ncid_rin)
     ! print*, 'OOpen20 ', ncid_rin, TRIM(frst_in)
     IF ( ok == NF90_NOERR ) EXRST = .TRUE.

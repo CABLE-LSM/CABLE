@@ -3308,22 +3308,29 @@ SUBROUTINE photosynthesis( csxz, cx1z, cx2z, gswminz,                          &
   ! ------------------------------------------------------------------------------
 
   FUNCTION xgmesT(x) RESULT(z)
+
     USE cable_def_types_mod, only: r_2
+    
     ! Temperature response of mesophyll conductance
     ! parameters as in Knauer et al. 2019 (from Bernacchi et al. 2002)
     REAL, INTENT(IN) :: x
-    REAL(r_2) :: xgmes,z
+    REAL(r_2)        :: z
+    
+    REAL(r_2) :: xgmes, TrefK, Rgas
 
-    REAL(r_2), PARAMETER  :: EHa    = 49.6e3  ! J/mol 
-    REAL(r_2), PARAMETER  :: EHd    = 437.4e3 ! J/mol 
-    REAL(r_2), PARAMETER  :: Entrop = 1.4e3   ! J/mol/K
+    REAL(r_2), PARAMETER  :: EHa    = 49.6e3_r_2  ! J/mol 
+    REAL(r_2), PARAMETER  :: EHd    = 437.4e3_r_2 ! J/mol 
+    REAL(r_2), PARAMETER  :: Entrop = 1.4e3_r_2   ! J/mol/K
     CALL point2constants(C)
 
-    xgmes = exp(EHa * (x - C%Trefk) / (C%Trefk * C%rgas * x )) *  &
-            (1.0 + exp((C%Trefk * Entrop - EHd) / (C%Trefk * C%rgas))) / &
-            (1.0 + exp((x * Entrop - EHd) / (x * C%rgas)))
+    TrefK = real(C%TrefK, r_2)
+    Rgas  = real(C%Rgas, r_2)
+    
+    xgmes = exp(EHa * (x - TrefK) / (TrefK * Rgas * x )) *  &
+            (1.0_r_2 + exp((TrefK * Entrop - EHd) / (TrefK * Rgas))) / &
+            (1.0_r_2 + exp((x * Entrop - EHd) / (x * Rgas)))
 
-    z = max( 0.0, xgmes )
+    z = max(0.0_r_2, xgmes)
 
   END FUNCTION xgmesT
 

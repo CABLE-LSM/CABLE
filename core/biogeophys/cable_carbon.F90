@@ -43,11 +43,7 @@ SUBROUTINE carbon_pl(dels, soil, ssnow, veg, canopy, bgc)
                                    soil_snow_type, canopy_type, bgc_pool_type, &
                                    mp, mvtype
 
-   USE cable_common_module, ONLY : cable_user
-
-    REAL, INTENT(IN) ::                                                       &
-      dels     ! integration time step (s)
-
+    REAL, INTENT(IN) :: dels     ! integration time step (s)
     TYPE(soil_snow_type), INTENT(IN)     :: ssnow  ! soil/snow variables
     TYPE(veg_parameter_type), INTENT(IN) :: veg    ! vegetation parameters
     TYPE(canopy_type), INTENT(IN)        :: canopy ! canopy/veg variables
@@ -206,11 +202,11 @@ END SUBROUTINE carbon_pl
 
 ! -----------------------------------------------------------------------------
 
-SUBROUTINE soilcarb( soil, ssnow, veg, bgc, met, canopy)
+SUBROUTINE soilcarb(soil, ssnow, veg, bgc, met, canopy)
 
    USE cable_def_types_mod, ONLY : soil_parameter_type, veg_parameter_type,    &
                                    soil_snow_type, canopy_type, bgc_pool_type, &
-                                   met_type, mp, mvtype, ms, mstype
+                                   met_type, mp, ms, mstype
 
    USE cable_common_module
 
@@ -308,7 +304,7 @@ SUBROUTINE soilcarb( soil, ssnow, veg, bgc, met, canopy)
 SUBROUTINE plantcarb(veg, bgc, met, canopy)
 
    USE cable_def_types_mod, ONLY : veg_parameter_type, met_type,               &
-                                   canopy_type, bgc_pool_type, mp , mvtype
+                                   canopy_type, bgc_pool_type, mp
 
 
    TYPE (veg_parameter_type), INTENT(IN)    :: veg

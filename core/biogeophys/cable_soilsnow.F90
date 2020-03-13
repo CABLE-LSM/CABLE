@@ -148,14 +148,7 @@ SUBROUTINE smoisturev (dels,ssnow,soil,veg)
       nmeth = -1
 
    REAL, DIMENSION(mp) ::                                                      &
-      totwba,     & ! diagnostic
-      totwbb,     & !
-      totwbc,     & !
-      totwblb,    & !
-      totwblc,    & !
-      wbficemx,   & !
-      wblfmn,     & !
-      wblfmx        !
+      wbficemx
 
    REAL(r_2), DIMENSION(mp) ::                                                 &
       fact,       & !
@@ -196,12 +189,7 @@ SUBROUTINE smoisturev (dels,ssnow,soil,veg)
       delt,       & !
       dtt           !
 
-   LOGICAL :: is_open     ! Is file open?
-   INTEGER ::                                                                  &
-      u,    & ! I/O unit
-      k
-
-
+   INTEGER :: k
 
    at = 0.0
    bt = 1.0
@@ -672,7 +660,7 @@ SUBROUTINE snow_melting (dels, snowmlt, ssnow, soil )
 
    DO j=1,mp
 
-      IF( ssnow%snowd(j) > 0.0 .AND. ssnow%isflag(j) == 0                      &
+      IF( ssnow%snowd(j) > 0.0 .AND. ssnow%isflag(j) == 0 &
           .AND. ssnow%tgg(j,1) >= C%TFRZ ) THEN
 
          ! snow covered land
@@ -683,12 +671,12 @@ SUBROUTINE snow_melting (dels, snowmlt, ssnow, soil )
          ! prevent snow depth going negative
          snowmlt(j) = MIN(snowflx(j) / C%HLF, ssnow%snowd(j) )
 
-         ssnow%dtmlt(j,1) = ssnow%dtmlt(j,1) + snowmlt(j) * C%HLF              &
-                            / ssnow%gammzz(j,1)
+         ssnow%dtmlt(j,1) = ssnow%dtmlt(j,1) + snowmlt(j) * C%HLF &
+                            / real(ssnow%gammzz(j,1))
 
          ssnow%snowd(j) = ssnow%snowd(j) - snowmlt(j)
-         ssnow%tgg(j,1) = REAL( ssnow%tgg(j,1) - snowmlt(j) *                  &
-                          C%HLF / ssnow%gammzz(j,1) )
+         ssnow%tgg(j,1) = ssnow%tgg(j,1) - snowmlt(j) * &
+                          C%HLF / real(ssnow%gammzz(j,1))
       ENDIF
 
    END DO
@@ -775,10 +763,7 @@ USE cable_common_module
    REAL, DIMENSION(mp) ::                                                      &
       osm,     & !
       sgamm,   & !
-      snowmlt, & !
       xxx        !
-
-   INTEGER             :: k
 
    WHERE (canopy%precis > 0.0 .and. ssnow%isflag == 0)
       ! accumulate solid part
@@ -893,22 +878,22 @@ USE cable_common_module
 
 
    ! 'fess' is for soil evap and 'fes' is for soil evap plus soil puddle evap
-   canopy%segg = canopy%fess / C%HL
-   canopy%segg = ( canopy%fess + canopy%fes_cor ) / C%HL
+   ! canopy%segg = real(canopy%fess) / C%HL
+   canopy%segg = real(canopy%fess + canopy%fes_cor) / C%HL
 
    ! Initialise snow evaporation:
    ssnow%evapsn = 0
 
    ! Snow evaporation and dew on snow
-   WHERE( ssnow%snowd > 0.1 )
+   WHERE (ssnow%snowd > 0.1)
 
-      ssnow%evapsn = dels * ( canopy%fess + canopy%fes_cor ) / ( C%HL + C%HLF )
+      ssnow%evapsn = dels * real(canopy%fess + canopy%fes_cor) / ( C%HL + C%HLF )
       xxx = ssnow%evapsn
 
-      WHERE( ssnow%isflag == 0 .AND. canopy%fess + canopy%fes_cor.GT. 0.0 )    &
+      WHERE ((ssnow%isflag == 0) .AND. ((canopy%fess+canopy%fes_cor).GT. 0.0_r_2) ) &
          ssnow%evapsn = MIN( ssnow%snowd, xxx )
 
-      WHERE( ssnow%isflag  > 0 .AND. canopy%fess + canopy%fes_cor .GT. 0.0 )   &
+      WHERE ((ssnow%isflag  > 0) .AND. ((canopy%fess+canopy%fes_cor) .GT. 0.0_r_2) ) &
          ssnow%evapsn = MIN( 0.9 * ssnow%smass(:,1), xxx )
 
       ssnow%snowd = ssnow%snowd - ssnow%evapsn
@@ -945,17 +930,13 @@ SUBROUTINE surfbv (dels, met, ssnow, soil, veg, canopy )
 
    REAL, DIMENSION(mp) ::                                                      &
       rnof5,      & !
-      sfact,      & !
       sgamm,      & !
-      smasstot,   & !
-      talb,       & ! snow albedo
-      tmp           ! temporary value
+      smasstot
    REAL(r_2), DIMENSION(mp) :: xxx
 
    REAL, DIMENSION(mp,0:3) :: smelt1
 
-   REAL :: wb_lake_T, rnof2_T, ratio
-   INTEGER :: k,j
+   INTEGER :: k
 
    CALL smoisturev( dels, ssnow, soil, veg )
 
@@ -1089,43 +1070,44 @@ SUBROUTINE stempv(dels, canopy, ssnow, soil)
 
    REAL(r_2), DIMENSION(mp,ms+3)    :: tmp_mat ! temp. matrix for tggsn & tgg
 
-   INTEGER :: j,k
-   REAL :: snow_ccnsw, exp_arg
-   LOGICAL :: direct2min = .FALSE.
+   INTEGER   :: j,k
+   REAL      :: snow_ccnsw
+   REAL(r_2) :: exp_arg
+   LOGICAL   :: direct2min = .FALSE.
 
 
-   at = 0.0
-   bt = 1.0
-   ct = 0.0
-   coeff = 0.0
+   at         = 0.0_r_2
+   bt         = 1.0_r_2
+   ct         = 0.0_r_2
+   coeff      = 0.0_r_2
    snow_ccnsw = 2.0
 
    DO k = 1, ms
 
       DO j = 1, mp
 
-         IF( soil%isoilm(j) == 9 ) THEN
+         IF ( soil%isoilm(j) == 9 ) THEN
             ! permanent ice: fix hard-wired number in next version
             ccnsw(j,k) = snow_ccnsw
          ELSE
-            ew(j) = ssnow%wblf(j,k) * soil%ssat(j)
-            exp_arg = ( ew(j) * LOG( 60.0 ) ) + ( ssnow%wbfice(j,k)            &
-                      * soil%ssat(j) * LOG( 250.0 ) )
+            ew(j) = ssnow%wblf(j,k) * real(soil%ssat(j),r_2)
+            exp_arg = (ew(j) * LOG(60.0_r_2)) + (ssnow%wbfice(j,k) &
+                      * real(soil%ssat(j),r_2) * LOG(250.0_r_2))
 
-            IF( exp_arg > 30 ) direct2min = .TRUE.
+            IF ( exp_arg > 30.0_r_2 ) direct2min = .TRUE.
 
-            IF( direct2min) THEN
+            IF ( direct2min) THEN
 
-               ccnsw(j,k) = 1.5 * MAX( 1.0_r_2, SQRT( MIN( 2.0_r_2, 0.5 *      &
-                            soil%ssat(j) /                                     &
-                            MIN( ew(j), 0.5_r_2 * soil%ssat(j) ) ) ) )
+               ccnsw(j,k) = 1.5_r_2 * MAX( 1.0_r_2, SQRT( MIN( 2.0_r_2, 0.5_r_2 * &
+                            real(soil%ssat(j),r_2) / &
+                            MIN( ew(j), 0.5_r_2 * real(soil%ssat(j),r_2) ) ) ) )
 
             ELSE
 
-               ccnsw(j,k) = MIN( soil%cnsd(j) * EXP( exp_arg ), 1.5_r_2 )      &
-                            * MAX( 1.0_r_2, SQRT( MIN( 2.0_r_2, 0.5 *          &
-                            soil%ssat(j) /                                     &
-                            MIN( ew(j), 0.5_r_2 * soil%ssat(j) ) ) ) )
+               ccnsw(j,k) = MIN( soil%cnsd(j) * EXP(exp_arg), 1.5_r_2 ) &
+                            * MAX( 1.0_r_2, SQRT( MIN( 2.0_r_2, 0.5_r_2 * &
+                            real(soil%ssat(j),r_2) / &
+                            MIN( ew(j), 0.5_r_2 * real(soil%ssat(j),r_2) ) ) ) )
 
             ENDIF
 
@@ -1283,7 +1265,7 @@ SUBROUTINE stempv(dels, canopy, ssnow, soil)
 
 
    !     note in the following that tgg and tggsn are processed together
-   tmp_mat(:,1:3) = REAL(ssnow%tggsn,r_2)
+   tmp_mat(:,1:3)      = REAL(ssnow%tggsn,r_2)
    tmp_mat(:,4:(ms+3)) = REAL(ssnow%tgg,r_2)
 
    CALL trimb( at, bt, ct, tmp_mat, ms + 3 )
@@ -1291,7 +1273,7 @@ SUBROUTINE stempv(dels, canopy, ssnow, soil)
    ssnow%tggsn = REAL( tmp_mat(:,1:3) )
    ssnow%tgg   = REAL( tmp_mat(:,4:(ms+3)) )
    canopy%sghflux = coefa * ( ssnow%tggsn(:,1) - ssnow%tggsn(:,2) )
-   canopy%ghflux = coefb * ( ssnow%tgg(:,1) - ssnow%tgg(:,2) ) ! +ve downwards
+   canopy%ghflux  = coefb * ( ssnow%tgg(:,1) - ssnow%tgg(:,2) ) ! +ve downwards
 
 END SUBROUTINE stempv
 
@@ -1308,7 +1290,7 @@ SUBROUTINE snowcheck(dels, ssnow, soil, met )
 
    TYPE(soil_parameter_type), INTENT(INOUT) :: soil  ! soil parameters
 
-   INTEGER :: k,j
+   INTEGER :: j
 
    DO j=1,mp
 
@@ -1410,8 +1392,6 @@ SUBROUTINE snowl_adjust(dels, ssnow, canopy )
 
    TYPE(soil_snow_type), INTENT(INOUT) :: ssnow
    TYPE(canopy_type), INTENT(INOUT)    :: canopy
-
-   INTEGER :: k
 
    REAL(r_2), DIMENSION(mp) ::                                                 &
       excd,    & !
@@ -1673,7 +1653,7 @@ END SUBROUTINE soilfreeze_serial
 
 SUBROUTINE remove_trans(dels, soil, ssnow, canopy, veg)
 
-   USE cable_common_module, ONLY : redistrb, cable_user
+   USE cable_common_module, ONLY : cable_user
 
    ! Removes transpiration water from soil.
    REAL, INTENT(IN)                    :: dels ! integration time step (s)
@@ -1682,7 +1662,7 @@ SUBROUTINE remove_trans(dels, soil, ssnow, canopy, veg)
    TYPE(soil_parameter_type), INTENT(INOUT) :: soil
    TYPE(veg_parameter_type), INTENT(INOUT)  :: veg
    REAL(r_2), DIMENSION(mp,0:ms) :: diff
-   REAL(r_2), DIMENSION(mp)      :: xx,xxd,evap_cur
+   REAL(r_2), DIMENSION(mp)      :: xx, xxd
    INTEGER :: k
 
   IF (cable_user%FWSOIL_switch.ne.'Haverd2013') THEN
@@ -1713,16 +1693,14 @@ SUBROUTINE remove_trans(dels, soil, ssnow, canopy, veg)
 
   ELSE
      WHERE (canopy%fevc .lt. 0.0_r_2)
-        canopy%fevw = canopy%fevw+canopy%fevc
+        canopy%fevw = canopy%fevw + real(canopy%fevc)
         canopy%fevc = 0.0_r_2
      END WHERE
      DO k = 1,ms
-        ssnow%wb(:,k) = ssnow%wb(:,k) - ssnow%evapfbl(:,k)/real(soil%zse(k)*1000.0,r_2)
-
+        ssnow%wb(:,k) = ssnow%wb(:,k) - real(ssnow%evapfbl(:,k)/(soil%zse(k)*1000.0),r_2)
       !  write(59,*) k,  ssnow%wb(:,k),  ssnow%evapfbl(:,k)/(soil%zse(k)*1000.0)
       !  write(59,*)
      ENDDO
-
 
   ENDIF
 
@@ -1756,8 +1734,9 @@ SUBROUTINE soil_snow(dels, soil, ssnow, canopy, met, bal, veg)
    REAL, DIMENSION(mp) :: snowmlt
    REAL, DIMENSION(mp) :: totwet
    REAL, DIMENSION(mp) :: weting
-   REAL, DIMENSION(mp) :: xxx, tgg_old, tggsn_old
-   REAL(r_2), DIMENSION(mp) :: xx,deltat,sinfil1,sinfil2,sinfil3
+   REAL, DIMENSION(mp) :: xxx
+   REAL(r_2), DIMENSION(mp) :: xx
+   REAL, DIMENSION(mp) :: sinfil1, sinfil2, sinfil3
    REAL                :: zsetot
    INTEGER, SAVE :: ktau =0
 
@@ -1840,7 +1819,7 @@ SUBROUTINE soil_snow(dels, soil, ssnow, canopy, met, bal, veg)
             ssnow%wbice(:,6) = 0.90 * ssnow%wb(:,6)
          ENDWHERE
 
-         xx=soil%css * soil%rhosoil
+         xx = soil%css * soil%rhosoil
 
          ssnow%gammzz(:,1) = MAX( (1.0 - soil%ssat) * soil%css * soil%rhosoil &
               & + (ssnow%wb(:,1) - ssnow%wbice(:,1) ) * cswat * rhowat &
@@ -1896,14 +1875,13 @@ SUBROUTINE soil_snow(dels, soil, ssnow, canopy, met, bal, veg)
    totwet = canopy%precis + ssnow%smelt
 
    ! total available liquid including puddle
-   weting = totwet + max(0._r_2,ssnow%pudsto - canopy%fesp/C%HL*dels)
-   xxx=soil%ssat - ssnow%wb(:,1)
-
-   sinfil1 = MIN( 0.95*xxx*soil%zse(1)*rhowat, weting) !soil capacity
-   xxx=soil%ssat - ssnow%wb(:,2)
-   sinfil2 = MIN( 0.95*xxx*soil%zse(2)*rhowat, weting - real(sinfil1)) !soil capacity
-   xxx=soil%ssat - ssnow%wb(:,3)
-   sinfil3 = MIN( 0.95*xxx*soil%zse(3)*rhowat,weting-real(sinfil1)-real(sinfil2))
+   weting = totwet + max(0.0, ssnow%pudsto - real(canopy%fesp)/C%HL*dels)
+   xxx    = soil%ssat - real(ssnow%wb(:,1))
+   sinfil1 = MIN(0.95*xxx*soil%zse(1)*rhowat, weting) !soil capacity
+   xxx     = soil%ssat - real(ssnow%wb(:,2))
+   sinfil2 = MIN(0.95*xxx*soil%zse(2)*rhowat, weting - sinfil1) !soil capacity
+   xxx     = soil%ssat - real(ssnow%wb(:,3))
+   sinfil3 = MIN(0.95*xxx*soil%zse(3)*rhowat, weting - sinfil1 - sinfil2)
 
    ! net water flux to the soil
    ssnow%fwtop1 = sinfil1 / dels - canopy%segg
@@ -1911,12 +1889,11 @@ SUBROUTINE soil_snow(dels, soil, ssnow, canopy, met, bal, veg)
    ssnow%fwtop3 = sinfil3 / dels
 
    ! Puddle for the next time step
-   ssnow%pudsto = max( 0._r_2, weting - sinfil1 - sinfil2 - sinfil3 )
-   ssnow%rnof1 = max(0.,ssnow%pudsto - ssnow%pudsmx)
+   ssnow%pudsto = max(0., weting - sinfil1 - sinfil2 - sinfil3)
+   ssnow%rnof1  = max(0., ssnow%pudsto - ssnow%pudsmx)
    ssnow%pudsto = ssnow%pudsto - ssnow%rnof1
 
    CALL surfbv(dels, met, ssnow, soil, veg, canopy )
-
 
    ! correction required for energy balance in online simulations
    IF( cable_runtime%um ) THEN
@@ -1963,8 +1940,6 @@ SUBROUTINE hydraulic_redistribution(dels, soil, ssnow, canopy, veg, met)
    TYPE(met_type),         INTENT(INOUT) :: met
 
    REAL, PARAMETER ::                                                         &
-      thetas=0.45,         & ! from Belk et al., 2007, WRR
-      thetar=0.20 ,        & ! from Belk et al., 2007, WRR
       n_hr = 3.22,         & ! --
       wpsy50 = -1.0,       & ! MPa
       n_VG = 2.06,         & ! -- 2.06
@@ -1979,7 +1954,6 @@ SUBROUTINE hydraulic_redistribution(dels, soil, ssnow, canopy, veg, met)
       accommodate, &
       totalmoist,  &
       totalice,    &
-      total2,      &
       zsetot,      &
       temp
 
@@ -1996,10 +1970,10 @@ SUBROUTINE hydraulic_redistribution(dels, soil, ssnow, canopy, veg, met)
 
    zsetot = sum(soil%zse)
    totalmoist(:) = 0.0
-   totalice(:) = 0.0
+   totalice(:)   = 0.0
    DO k=1, ms
-     totalmoist(:) = totalmoist(:) + ssnow%wb(:,k)*soil%zse(k)/zsetot
-     totalice(:) = totalice(:) + ssnow%wbice(:,k)*soil%zse(k)/zsetot
+     totalmoist(:) = totalmoist(:) + real(ssnow%wb(:,k))    * soil%zse(k) / zsetot
+     totalice(:)   = totalice(:)   + real(ssnow%wbice(:,k)) * soil%zse(k) / zsetot
    ENDDO
 
    Dtran=0.0
@@ -2045,10 +2019,10 @@ SUBROUTINE hydraulic_redistribution(dels, soil, ssnow, canopy, veg, met)
 
          WHERE( hr_perTime(:,k,j) < 0.0 )
 
-            available(:)   = MAX( 0.0_r_2, ssnow%wb(:,k) -                         &
+            available(:)   = MAX( 0.0, real(ssnow%wb(:,k)) -                   &
                             ( soil%swilt(:) + ( soil%sfc(:) - soil%swilt(:) )  &
                              / 3. ) )
-            accommodate(:) = MAX( 0.0_r_2, soil%ssat(:) - ssnow%wb(:,j) )
+            accommodate(:) = MAX( 0.0, soil%ssat(:) - real(ssnow%wb(:,j)) )
 
             temp(:) = MAX( hr_perTime(:,k,j),                                  &
                           -1.0 * wiltParam * available(:),                     &
@@ -2060,11 +2034,11 @@ SUBROUTINE hydraulic_redistribution(dels, soil, ssnow, canopy, veg, met)
 
          ELSEWHERE (hr_perTime(:,j,k) < 0.0)
 
-           available(:)   = MAX( 0.0_r_2, ssnow%wb(:,j) -                          &
+           available(:)   = MAX( 0.0, real(ssnow%wb(:,j)) -                    &
                             ( soil%swilt(:) + ( soil%sfc(:) - soil%swilt(:) )  &
                             / 3. ) )
 
-           accommodate(:) = MAX( 0.0_r_2, soil%ssat(:) - ssnow%wb(:,k) )
+           accommodate(:) = MAX( 0.0, soil%ssat(:) - real(ssnow%wb(:,k)) )
 
            temp(:) = MAX( hr_perTime(:,j,k),                                   &
                          - 1.0 * wiltParam * available(:),                     &
@@ -2076,8 +2050,8 @@ SUBROUTINE hydraulic_redistribution(dels, soil, ssnow, canopy, veg, met)
 
          ENDWHERE
 
-         ssnow%wb(:,k) = ssnow%wb(:,k) + hr_perTime(:,k,j)
-         ssnow%wb(:,j) = ssnow%wb(:,j) + hr_perTime(:,j,k)
+         ssnow%wb(:,k) = ssnow%wb(:,k) + real(hr_perTime(:,k,j),r_2)
+         ssnow%wb(:,j) = ssnow%wb(:,j) + real(hr_perTime(:,j,k),r_2)
 
       ENDDO
 
@@ -2123,8 +2097,8 @@ SUBROUTINE hydraulic_redistribution(dels, soil, ssnow, canopy, veg, met)
 
          WHERE( hr_perTime(:,k,j) < 0.0 )
 
-            available(:)   = MAX( 0.0_r_2, ssnow%wb(:,k) - soil%sfc(:) )
-            accommodate(:) = MAX( 0.0_r_2, soil%ssat(:) - ssnow%wb(:,j) )
+            available(:)   = MAX( 0.0, real(ssnow%wb(:,k)) - soil%sfc(:) )
+            accommodate(:) = MAX( 0.0, soil%ssat(:) - real(ssnow%wb(:,j)) )
 
             temp(:) = MAX(hr_perTime(:,k,j),                                   &
                           -1.0 * wiltParam*available(:),                       &
@@ -2136,8 +2110,8 @@ SUBROUTINE hydraulic_redistribution(dels, soil, ssnow, canopy, veg, met)
 
          ELSEWHERE (hr_perTime(:,j,k) < 0.0)
 
-            available(:)   = MAX( 0.0_r_2, ssnow%wb(:,j)- soil%sfc(:) )
-            accommodate(:) = MAX( 0.0_r_2, soil%ssat(:)-ssnow%wb(:,k) )
+            available(:)   = MAX( 0.0, real(ssnow%wb(:,j)) - soil%sfc(:) )
+            accommodate(:) = MAX( 0.0, soil%ssat(:) - real(ssnow%wb(:,k)) )
 
             temp(:) = MAX(hr_perTime(:,j,k),                                   &
                      -1.0 * wiltParam*available(:),                            &

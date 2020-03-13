@@ -75,7 +75,7 @@ CONTAINS
     TYPE (PLUME_MIP_TYPE):: PLUME
 
     INTEGER              :: STATUS, iu
-    INTEGER              :: FID, latID, lonID, landID, timID, tdimsize
+    INTEGER              :: FID, latID, lonID, landID
     INTEGER              :: cnt, x, y
     LOGICAL              :: DirectRead = .FALSE.
     LOGICAL              :: ERR = .FALSE.
@@ -413,7 +413,7 @@ CONTAINS
     INTEGER,              INTENT(IN)    :: cyear, par
     CHARACTER(LEN=200),   INTENT(OUT)   :: FN
     INTEGER   :: i, idx
-    CHARACTER :: cy*4, sfy*12, mp*200, fc*15, rcp*15, ccy*4
+    CHARACTER :: cy*4, sfy*12, mp*400, fc*15, rcp*15, ccy*4
 
     INTEGER, DIMENSION(21), PARAMETER :: &
          syear = (/ 1901, 1911, 1921, 1931, 1941, 1951, 1961, 1971, 1981, 1991, 2001, &
@@ -424,9 +424,9 @@ CONTAINS
     FN = "                                                                    "
 
     WRITE(cy,FMT='(I4)')cyear
-    mp = PLUME%MetPath
-    fc = PLUME%Forcing
-    rcp= PLUME%RCP
+    mp = trim(PLUME%MetPath)
+    fc = trim(PLUME%Forcing)
+    rcp= trim(PLUME%RCP)
 
     IF ( TRIM(fc) .EQ. "watch" ) THEN
        ! WATCH data comes in annual files
@@ -649,7 +649,7 @@ CONTAINS
     TYPE(PLUME_MIP_TYPE) :: PLUME
     REAL, INTENT(OUT)    :: CO2air
 
-    INTEGER              :: i, iu, f, IOS = 0
+    INTEGER              :: iu, f, IOS = 0
     CHARACTER            :: CO2FILE*400
 
     IF ( TRIM(PLUME%Run) .EQ. "spinup" .OR. TRIM(PLUME%CO2) .EQ. "static1850") THEN
@@ -720,7 +720,7 @@ CONTAINS
   !REAL    :: tmparr(360,150) !tmparr(720,360)        ! Temporary array for reading one day of met before 
                                     ! packing into PLUME%NdepVALS(k)
  
-  INTEGER              :: i, iunit, iyear, IOS = 0, k, t  
+  INTEGER :: k, t  
   INTEGER :: xds, yds        ! Ndep file dimensions of long (x), lat (y)
  
   LOGICAL,        SAVE :: CALL1 = .TRUE.  ! A *local* variable recording the first call of this routine 
@@ -795,7 +795,7 @@ END SUBROUTINE GET_PLUME_Ndep
     IMPLICIT NONE
 
     TYPE( PLUME_MIP_TYPE )   :: PLUME
-    INTEGER             :: i, iy, yy, tID
+    INTEGER             :: i, yy, tID
     INTEGER             :: CYEAR
     LOGICAL, SAVE       :: CALL1 = .TRUE.
 
@@ -862,8 +862,8 @@ END SUBROUTINE GET_PLUME_Ndep
     TYPE(PLUME_MIP_TYPE) :: PLUME
     LOGICAL, INTENT(IN)  :: TminFlag, islast
     !REAL    :: tmparr(720,360), tmp, stmp(365)
-    REAL    :: tmp, stmp(365)
-    INTEGER :: t, i, ii, k, x, y, realk
+    REAL    :: tmp
+    INTEGER :: t, i, ii, k
     INTEGER :: fid, vid, tid
     INTEGER :: xds, yds, tds, CYEAR, NYEAR
     LOGICAL, SAVE :: CALL1 = .TRUE.
@@ -1090,7 +1090,7 @@ END SUBROUTINE GET_PLUME_Ndep
     !
     !==============================================================================
 
-    USE cable_def_types_mod,   ONLY: MET_TYPE
+    USE cable_def_types_mod,   ONLY: MET_TYPE, r_2
     USE cable_IO_vars_module,  ONLY: LANDPT, latitude
     USE cable_common_module,   ONLY: DOYSOD2YMDHMS
     USE cable_weathergenerator,ONLY: WEATHER_GENERATOR_TYPE, WGEN_INIT, &
@@ -1107,8 +1107,7 @@ END SUBROUTINE GET_PLUME_Ndep
 
     LOGICAL   :: newday
     INTEGER   :: i, dY, dM, dD, is, ie, iland
-    REAL      :: dt, CO2air, etime
-    CHARACTER :: LMFILE*200
+    REAL      :: dt, CO2air
 
     TYPE(WEATHER_GENERATOR_TYPE), SAVE :: WG
     LOGICAL,                      SAVE :: CALL1 = .TRUE.
@@ -1190,7 +1189,7 @@ END SUBROUTINE GET_PLUME_Ndep
        PLUME%AVG_LWDN(:) = 0.
        DO i = 1, NINT(SecDay/dt)
           CALL WGEN_SUBDIURNAL_MET( WG, PLUME%mland, i-1 )
-          PLUME%AVG_LWDN = PLUME%AVG_LWDN + WG%PhiLD
+          PLUME%AVG_LWDN = PLUME%AVG_LWDN + real(WG%PhiLD)
        END DO
        PLUME%AVG_LWDN = PLUME%AVG_LWDN / (SecDay/dt)
     END IF
@@ -1207,29 +1206,26 @@ END SUBROUTINE GET_PLUME_Ndep
     DO i = 1, PLUME%mland
        is = landpt(i)%cstart
        ie = landpt(i)%cend
-       met%precip    (is:ie)   = WG%Precip (i)  ! +  WG%Snow  (i)
-       met%precip_sn (is:ie)   = min( WG%Snow   (i), WG%Precip (i))
-       met%fld       (is:ie)   = PLUME%MET( lwdn )%VAL(i) * WG%PhiLD(i) / PLUME%AVG_LWDN(i)
-       met%fsd       (is:ie,1) = WG%PhiSD(i) * 0.5
-       met%fsd       (is:ie,2) = WG%PhiSD(i) * 0.5
-       met%tk        (is:ie)   = WG%Temp(i) + 273.15
-       met%ua        (is:ie)   = WG%Wind(i)
-       met%coszen    (is:ie)   = WG%coszen(i)
+       met%precip(is:ie)    = real(WG%Precip(i))  ! +  WG%Snow(i)
+       met%precip_sn(is:ie) = real(min(WG%Snow(i), WG%Precip(i)))
+       met%fld(is:ie)       = PLUME%MET(lwdn)%VAL(i) * real(WG%PhiLD(i)) / PLUME%AVG_LWDN(i)
+       met%fsd(is:ie,1)     = real(WG%PhiSD(i) * 0.5_r_2)
+       met%fsd(is:ie,2)     = real(WG%PhiSD(i) * 0.5_r_2)
+       met%tk(is:ie)        = real(WG%Temp(i) + 273.15_r_2)
+       met%ua(is:ie)        = real(WG%Wind(i))
+       met%coszen(is:ie)    = real(WG%coszen(i))
        ! compute qv
        IF ( TRIM(PLUME%Forcing) .NE. "watch" ) THEN
-          CALL rh_sh ( PLUME%MET(rhum)%VAL(i), met%tk(is), met%pmb(is), met%qv(is) )
-          met%qv        (is:ie)   = met%qv(is)
+          CALL rh_sh( PLUME%MET(rhum)%VAL(i), met%tk(is), met%pmb(is), met%qv(is) )
+          met%qv(is:ie) = met%qv(is)
        ELSE
-          met%qv        (is:ie) = PLUME%MET(rhum)%VAL(i)
+          met%qv(is:ie) = PLUME%MET(rhum)%VAL(i)
        ENDIF
     END DO
-
 
     ! initialise within canopy air temp
     met%tvair     = met%tk
     met%tvrad     = met%tk
-
-
 
 !!$write(*,*) "met", met%precip(1), &
 !!$met%precip_sn (is:ie)  , &

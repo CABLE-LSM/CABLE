@@ -88,7 +88,6 @@ CONTAINS
     REAL :: spinPdep  ! kgPha-1y-1 in 1850
  
     ! Flag for errors
-    LOGICAL              :: ERR = .FALSE.
 
     NAMELIST /siteNML/ RunType, CO2NdepFile, spinstartyear, spinendyear, spinCO2, &
          spinNdep, spinPdep
@@ -147,7 +146,7 @@ CONTAINS
   IMPLICIT NONE
   
   TYPE(site_TYPE) :: site           ! site structure
-  INTEGER              :: i, iunit, iyear, IOS = 0
+  INTEGER              :: iunit, iyear, IOS = 0
   LOGICAL,        SAVE :: CALL1 = .TRUE.  ! A *local* variable recording the first call of this routine 
 
 ! For S0_TRENDY, use only static 1860 CO2 value and return immediately
@@ -177,14 +176,10 @@ CONTAINS
       CLOSE(iunit)
       CALL1 = .FALSE.
     END IF
-91 format (i4,',',f5.1,',',f4.2,',',f5.3)
-! In all varying CO2 cases, return the element of the array for the current year
-! as a single CO2 value.
-! 
-
-
-
-    site%CO2 = site%CO2VALS( CurYear ) 
+    ! In all varying CO2 cases, return the element of the array for the current year
+    ! as a single CO2 value.
+    
+    site%CO2  = site%CO2VALS( CurYear ) 
     site%Ndep = site%NdepVALS( CurYear ) 
     site%Pdep = site%PdepVALS( CurYear ) 
 

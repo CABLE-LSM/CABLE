@@ -721,7 +721,7 @@ CONTAINS
     INTEGER(i4b) :: ivec(NCOHORT_MAX), nc, np, idisturb
     REAL(dp) :: growth_efficiency,cmass_stem
     REAL(dp) :: mort
-    REAL(dp) :: s2, cpc, crown_area
+    REAL(dp) :: cpc, crown_area
     REAL(dp) :: mort_cpc
     REAL(dp) :: ht, diam, area_growth_grid , basal_grid, basal_new, basal_old
     REAL(dp) :: tmp2(NCOHORT_MAX), freq
@@ -2461,7 +2461,6 @@ CONTAINS
     REAL(dp) :: tmp2_min, tmp2_max
     REAL(dp) :: tmp3_min, tmp3_max
     REAL(dp) :: tmp4_min, tmp4_max
-    REAL(dp) :: tmp5_min, tmp5_max
     LOGICAL :: MASK(NPATCH2D)
     INTEGER(i4b) :: age_min, age_max
     INTEGER(i4b) :: age_min_growth, age_max_growth

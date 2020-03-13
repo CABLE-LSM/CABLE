@@ -189,7 +189,7 @@ END SUBROUTINE cable_diag_data1
     character(len=*), dimension(:), intent(in)    :: var_name
     integer,          dimension(:), intent(inout) :: varID
     
-    integer :: j, ncok
+    integer :: ncok
 
     ! lat
     ! print*, 'DV01'

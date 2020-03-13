@@ -56,7 +56,6 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
 
   USE CABLE_COMMON_MODULE,  ONLY: GET_UNIT, HANDLE_ERR
   USE CABLE_IO_VARS_MODULE, ONLY: LATITUDE, LONGITUDE
-  USE cable_IO_vars_module, ONLY:  landpt
   use netcdf
 
   IMPLICIT NONE
@@ -66,10 +65,11 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
   CHARACTER(len=400)   :: HydePath,  BurnedAreaSource, BurnedAreaFile, &
        BurnedAreaClimatologyFile, SIMFIRE_REGION
   INTEGER :: F_ID, V_ID, V_ID_lat, V_ID_lon, ilat,ilon
-  INTEGER :: STATUS,  iu
+  INTEGER :: iu
   INTEGER :: i
   REAL, DIMENSION(720):: lon_BA
   REAL, DIMENSION(360):: lat_BA
+  integer :: status
  
   NAMELIST /BLAZENML/ HydePath,  BurnedAreaSource, BurnedAreaFile, BurnedAreaClimatologyFile, &
        SIMFIRE_REGION
@@ -201,7 +201,7 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
   INTEGER       :: RYEAR
   REAL          :: wPOPD, wTOT, tf
   CHARACTER     :: FNAME*100, cYEAR*5, suf*2
-  LOGICAL       :: IS_OPEN, EXISTFILE
+  LOGICAL       :: EXISTFILE
 
   INTEGER, SAVE :: RF
   INTEGER, DIMENSION(:), ALLOCATABLE, SAVE :: X,Y
@@ -428,8 +428,8 @@ REAL, DIMENSION(3), PARAMETER :: e = (/-0.0168, & ! GLOBAL
                                        -0.017 /)  ! EUR   
 
 ! CORRECTION FACTORS (only for fpar_leafon!)
-REAL, PARAMETER :: fpar_corr1 = 0.428
-REAL, PARAMETER :: fpar_corr2 = 0.148
+! REAL, PARAMETER :: fpar_corr1 = 0.428
+! REAL, PARAMETER :: fpar_corr2 = 0.148
 REAL, PARAMETER :: scalar     = 1e-5
 
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -500,14 +500,7 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate )
   INTEGER, INTENT(IN) :: YEAR, MM
   TYPE (CLIMATE_TYPE), INTENT(IN)     :: climate
   
-
   INTEGER :: i, DOM(12), DOY
-  INTEGER :: F_ID, V_ID, V_ID_lat, V_ID_lon, ilat,ilon, STATUS
-  REAL:: monthly_ba
-
-  REAL, DIMENSION(720):: lon_BA
-  REAL, DIMENSION(360):: lat_BA
-  
 
   DOM = (/ 31,28,31,30,31,30,31,31,30,31,30,31 /)
   IF ( IS_LEAPYEAR(YEAR) ) DOM(2) = 29

@@ -6,7 +6,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   USE cable_def_types_mod
   USE cable_carbon_module
   USE cable_common_module, ONLY: CABLE_USER, is_casa_time
-  USE cable_IO_vars_module, ONLY: logn, landpt, patch
+  USE cable_IO_vars_module, ONLY: logn, landpt
   USE casadimension
   USE casaparm
   USE casavariable
@@ -15,8 +15,8 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   USE POPMODULE,            ONLY: POPStep, POP_init_single
   USE TypeDef,              ONLY: i4b, dp
   USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE, read_LUH2, &
-       ptos, ptog, stog, gtos, grassfrac, pharv, smharv, syharv, &
-       ptoc, ptoq, stoc, stoq, ctos, qtos, cropfrac, pastfrac
+       ptos, ptog, stog, gtos, pharv, smharv, syharv, &
+       ptoc, ptoq, stoc, stoq, ctos, qtos
   USE POPLUC_Types
   USE POPLUC_Module, ONLY: POPLUCStep, POPLUC_weights_Transfer, WRITE_LUC_OUTPUT_NC, &
        POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, READ_LUC_RESTART_NC, &
@@ -55,40 +55,20 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   type(c13o2_pool),           intent(inout) :: sum_c13o2pools
   type(c13o2_luc),            intent(inout) :: c13o2luc
 
-  ! TYPE(casa_met) :: casaspin
-
-  ! local variables
-  real(r_2), dimension(:), allocatable, save  :: avg_cleaf2met, avg_cleaf2str, avg_croot2met, avg_croot2str, avg_cwood2cwd
-  real(r_2), dimension(:), allocatable, save  :: avg_nleaf2met, avg_nleaf2str, avg_nroot2met, avg_nroot2str, avg_nwood2cwd
-  real(r_2), dimension(:), allocatable, save  :: avg_pleaf2met, avg_pleaf2str, avg_proot2met, avg_proot2str, avg_pwood2cwd
-  real,      dimension(:), allocatable, save  :: avg_cgpp,      avg_cnpp,      avg_nuptake,   avg_puptake
-  real,      dimension(:), allocatable, save  :: avg_nsoilmin,  avg_psoillab,  avg_psoilsorb, avg_psoilocc
-  !chris 12/oct/2012 for spin up casa
-  real,      dimension(:), allocatable, save  :: avg_ratioNCsoilmic,  avg_ratioNCsoilslow,  avg_ratioNCsoilpass
-  real(r_2), dimension(:), allocatable, save  :: avg_xnplimit,  avg_xkNlimiting,avg_xklitter, avg_xksoil
-
   ! local variables
   INTEGER                  :: myearspin,nyear, yyyy, nyear_dump
   CHARACTER(LEN=99)        :: ncfile
   CHARACTER(LEN=4)         :: cyear
-  INTEGER                  :: ktau,ktauday,nday,idoy,ktaux,ktauy,nloop
-  INTEGER, save            :: ndays
+  INTEGER                  :: ktau,ktauday,nday,idoy
   real(r_2), dimension(mp)      :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
   real(r_2), dimension(mp)      :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
   real(r_2), dimension(mp)      :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
-  real,      dimension(mp)      :: xcgpp,     xcnpp,     xnuptake,  xpuptake
-  real,      dimension(mp)      :: xnsoilmin, xpsoillab, xpsoilsorb,xpsoilocc
+  real,      dimension(mp)      :: xnuptake
+  real,      dimension(mp)      :: xnsoilmin
   real(r_2), dimension(mp)      :: xnplimit,  xkNlimiting, xklitter, xksoil,xkleaf, xkleafcold, xkleafdry
 
   ! more variables to store the spinup pool size over the last 10 loops. Added by Yp Wang 30 Nov 2012
-  real,      dimension(5,mvtype,mplant)  :: bmcplant,  bmnplant,  bmpplant
-  real,      dimension(5,mvtype,mlitter) :: bmclitter, bmnlitter, bmplitter
-  real,      dimension(5,mvtype,msoil)   :: bmcsoil,   bmnsoil,   bmpsoil
-  real,      dimension(5,mvtype)         :: bmnsoilmin,bmpsoillab,bmpsoilsorb, bmpsoilocc
-  real,      dimension(mvtype)           :: bmarea
-  integer :: nptx,nvt,kloop, ctime, k, j, l
-
-  REAL(dp)                               :: StemNPP(mp,2)
+  integer :: nptx, ctime, k, j, l
   INTEGER, allocatable :: Iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
   INTEGER :: count_sum_casa ! number of time steps over which casa pools &
   !and fluxes are aggregated (for output)
@@ -154,7 +134,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
         phen%doyphase(:,2) = phen%doyphasespin_2(:,idoy)
         phen%doyphase(:,3) = phen%doyphasespin_3(:,idoy)
         phen%doyphase(:,4) = phen%doyphasespin_4(:,idoy)
-        climate%qtemp_max_last_year(:) = casamet%mtempspin(:,idoy)
+        climate%qtemp_max_last_year(:) = real(casamet%mtempspin(:,idoy))
         ! 13C
         if (cable_user%c13o2) then
            c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
@@ -240,7 +220,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
 
            ! zero secondary forest tiles in POP where secondary forest area is zero
            DO k=1,mland
-              if ((POPLUC%primf(k)-POPLUC%frac_forest(k))==0.0 &
+              if ((POPLUC%primf(k)-POPLUC%frac_forest(k))==0.0_dp &
                    .and. (.not.LUC_EXPT%prim_only(k))) then
 
                  j = landpt(k)%cstart+1

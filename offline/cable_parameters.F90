@@ -66,8 +66,6 @@ MODULE cable_param_module
   PUBLIC get_default_params, write_default_params, derived_parameters,         &
          check_parameter_values, report_parameters, parID_type,                &
          write_cnp_params
-  INTEGER :: patches_in_parfile=4 ! # patches in default global parameter
-                                       ! file
 
   CHARACTER(LEN=4)  :: classification
 
@@ -201,7 +199,7 @@ CONTAINS
     INTEGER :: xID, yID, pID, sID, tID, bID
     INTEGER :: varID
     INTEGER :: nslayer, ntime, nband
-    INTEGER :: ii, jj, kk,pp, npatch_LUC
+    INTEGER :: kk, pp, npatch_LUC
     INTEGER, DIMENSION(:, :,:),     ALLOCATABLE :: idummy
     REAL,    DIMENSION(:, :,:),     ALLOCATABLE :: rdummy
     REAL,    DIMENSION(:, :, :),  ALLOCATABLE :: r3dum, r3dum2
@@ -524,10 +522,8 @@ CONTAINS
     INTEGER, INTENT(IN) :: logn ! log file unit number
 
     ! local variables
-    INTEGER :: ncid, ok, ii, jj
-    INTEGER :: xID, yID, fieldID
-    INTEGER :: xlon, xlat
-    REAL, DIMENSION(:,:,:,:), ALLOCATABLE :: indummy
+    INTEGER :: ncid, ok
+    INTEGER :: fieldID
     REAL, DIMENSION(:,:),     ALLOCATABLE :: sfact, dummy2
     REAL, DIMENSION(:,:),     ALLOCATABLE :: in2alb
 
@@ -749,7 +745,7 @@ CONTAINS
   ! New input structure using netcdf
 
     USE netcdf
-    USE cable_common_module, ONLY : filename, calcsoilalbedo
+    USE cable_common_module, ONLY: filename
     ! USE cable_IO_vars_module, ONLY : soilcol
 
     IMPLICIT NONE
@@ -764,7 +760,7 @@ CONTAINS
     INTEGER :: nlat
     INTEGER :: xID, yID
     INTEGER :: varID
-    INTEGER :: r, e
+    INTEGER :: r
 
     REAL,    DIMENSION(:),          ALLOCATABLE :: inLonSoilCol
     REAL,    DIMENSION(:),          ALLOCATABLE :: inLatSoilCol
@@ -865,8 +861,8 @@ CONTAINS
     INTEGER, INTENT(IN) :: nlon, nlat
 
     ! local variables
-    REAL :: lon2, distance, newLength
-    INTEGER :: ii, jj, kk, tt, ncount
+    REAL :: distance, newLength
+    INTEGER :: ii, jj, kk, ncount
 
     ! range of longitudes from input file (inLon) should be -180 to 180,
     ! and longitude(:) has already been converted to -180 to 180 for CABLE.
@@ -934,7 +930,7 @@ CONTAINS
     INTEGER, INTENT(IN) :: nlon, nlat, npatch
 
     ! local variables
-    REAL :: lon2, distance, newLength
+    REAL :: distance, newLength
     INTEGER :: ii, jj, kk, tt, ncount
 
     ! range of longitudes from input file (inLon) should be -180 to 180,
@@ -1086,8 +1082,7 @@ CONTAINS
     TYPE (radiation_type),      INTENT(INOUT)   :: rad
     TYPE (LUC_EXPT_TYPE), INTENT(IN) :: LUC_EXPT
 
-    INTEGER,dimension(:), ALLOCATABLE :: ALLVEG
-    INTEGER :: e,f,h,i  ! do loop counter
+    INTEGER :: e,f,h  ! do loop counter
     INTEGER :: is     ! YP oct07
     INTEGER :: ir     ! BP sep2010
     REAL :: totdepth  ! YP oct07
@@ -1143,8 +1138,8 @@ CONTAINS
                           ! be in restart file
 
       ssnow%kth = 0.3  ! vh ! should be calculated from soil moisture or be in restart file
-      ssnow%sconds(:,:) = 0.06_r_2    ! vh snow thermal cond (W m-2 K-1),
-                                      ! should be in restart file
+      ssnow%sconds(:,:) = 0.06    ! vh snow thermal cond (W m-2 K-1),
+                                  ! should be in restart file
 
       ! parameters that are not spatially dependent
       select case(ms)

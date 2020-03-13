@@ -92,7 +92,7 @@ PROGRAM cable_offline_driver
   USE POPLUC_Types,  ONLY: POPLUC_Type
   USE POPLUC_Module, ONLY: WRITE_LUC_OUTPUT_NC, WRITE_LUC_OUTPUT_GRID_NC, &
        POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, POPLUC_set_patchfrac
-  USE POP_Constants, ONLY: HEIGHT_BINS, NCOHORT_MAX, shootfrac
+  USE POP_Constants, ONLY: shootfrac
 
   ! Fire Model BLAZE
   USE BLAZE_MOD,     ONLY: TYPE_BLAZE, INI_BLAZE, BLAZE_ACCOUNTING,  WRITE_BLAZE_OUTPUT_NC
@@ -155,9 +155,8 @@ PROGRAM cable_offline_driver
        NRRRR,      &  !
        ctime,      &  ! time counter for casacnp
        LOY, &         ! days in year
-       count_sum_casa, & ! number of time steps over which casa pools &
+       count_sum_casa ! number of time steps over which casa pools &
   !and fluxes are aggregated (for output)
-       wlogn = 10001
 
   REAL :: dels                        ! time step size in seconds
 
@@ -181,7 +180,6 @@ PROGRAM cable_offline_driver
   TYPE(soil_parameter_type) :: soil ! soil parameters
   TYPE(veg_parameter_type)  :: veg  ! vegetation parameters
   TYPE(driver_type)    :: C         ! constants used locally
-  TYPE(icanopy_type)   :: PHOTO     ! photosynthesis constants
 
   TYPE(sum_flux_type)  :: sum_flux ! cumulative flux variables
   TYPE(bgc_pool_type)  :: bgc  ! carbon pool variables
@@ -262,7 +260,7 @@ PROGRAM cable_offline_driver
   REAL:: etime ! Declare the type of etime(), For receiving user and system time, total time
 
   !___ unique unit/file identifiers for cable_diag: arbitrarily 5 here
-  INTEGER, SAVE :: iDiagZero=0, iDiag1=0, iDiag2=0, iDiag3=0, iDiag4=0
+  INTEGER, SAVE :: iDiagZero=0
 
   ! switches etc defined thru namelist (by default cable.nml)
   NAMELIST/CABLE/ &
@@ -294,7 +292,7 @@ PROGRAM cable_offline_driver
        cable_user           ! additional USER switches
   
   !mpidiff
-  INTEGER :: i,x,kk
+  INTEGER :: kk
 
   ! Vars for standard for quasi-bitwise reproducability b/n runs
   ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
@@ -303,10 +301,10 @@ PROGRAM cable_offline_driver
        Fnew_sumbal    = "new_sumbal"
 
   REAL(r_2) :: &
-       trunk_sumbal = 0.0, & !
-       new_sumbal = 0.0,   &
-       new_sumfpn = 0.0,   &
-       new_sumfe = 0.0
+       trunk_sumbal = 0.0_r_2, & !
+       new_sumbal = 0.0_r_2,   &
+       new_sumfpn = 0.0_r_2,   &
+       new_sumfe = 0.0_r_2
 
   INTEGER :: nkend=0
   INTEGER :: ioerror
@@ -878,7 +876,7 @@ PROGRAM cable_offline_driver
                     veg%ejmax_sun = veg%ejmax
                  ENDIF
 
-                 IF (l_laiFeedbk .and. icycle>0) veg%vlai(:) = casamet%glai(:)
+                 IF (l_laiFeedbk .and. icycle>0) veg%vlai(:) = real(casamet%glai(:))
                  ! Call land surface scheme for this timestep, all grid points:
                  
                  CALL cbm(ktau, dels, air, bgc, canopy, met, &
@@ -1017,7 +1015,7 @@ PROGRAM cable_offline_driver
                     IF ( cable_user%CALL_BLAZE ) THEN
                        CALL BLAZE_ACCOUNTING(BLAZE, met, climate, ktau, dels, YYYY, idoy)
 
-                       call blaze_driver(blaze%ncells,blaze, simfire, casapool, casaflux, &
+                       call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
                             casamet, climate, real(shootfrac), idoy, YYYY, 1, POP, veg)
                        print*, 'CD07   ', casamet%glai
 
@@ -1199,7 +1197,7 @@ PROGRAM cable_offline_driver
 
                  ! vh ! commented code below detects Nans in evaporation flux and stops if there are any.
                  do kk=1,mp
-                    if( canopy%fe(kk).NE.( canopy%fe(kk))) THEN
+                    if (canopy%fe(kk) .NE. canopy%fe(kk)) THEN
                        write(*,*) 'fe nan', kk, ktau,met%qv(kk), met%precip(kk),met%precip_sn(kk), &
                             met%fld(kk), met%fsd(kk,:), met%tk(kk), met%ua(kk), ssnow%potev(kk), met%pmb(kk), &
                             canopy%ga(kk), ssnow%tgg(kk,:), canopy%fwsoil(kk)
@@ -1207,18 +1205,13 @@ PROGRAM cable_offline_driver
 
                        stop
                     endif
-                    if ( casaflux%cnpp(kk).NE. casaflux%cnpp(kk)) then
+                    if ( casaflux%cnpp(kk) .NE. casaflux%cnpp(kk)) then
                        write(*,*) 'npp nan', kk, ktau,  casaflux%cnpp(kk)
                        !stop
-
                     endif
-
-
                     !if (canopy%fwsoil(kk).eq.0.0) then
                     !   write(*,*) 'zero fwsoil', ktau, canopy%fpn(kk)
                     !endif
-
-
                  enddo
 
                  IF( ktau == kend ) THEN
@@ -1511,15 +1504,14 @@ SUBROUTINE LUCdriver( casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg,
   USE cable_def_types_mod, ONLY: r_2, veg_parameter_type, mland
   USE cable_carbon_module
   USE cable_common_module, ONLY: CABLE_USER, is_casa_time, CurYear
-  USE cable_IO_vars_module, ONLY: logn, landpt, patch
+  USE cable_IO_vars_module, ONLY: landpt
   USE casadimension
   USE casaparm
   USE casavariable
   USE POP_Types,  Only: POP_TYPE
   USE POPMODULE,            ONLY: POPStep, POP_init_single
-  USE TypeDef,              ONLY: i4b, dp
   USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE, read_LUH2, &
-       ptos,ptog,stog,gtos,grassfrac, pharv, smharv, syharv
+       ptos, ptog, stog, gtos, pharv, smharv, syharv
   USE POPLUC_Types
   USE POPLUC_Module, ONLY: POPLUCStep, POPLUC_weights_Transfer, WRITE_LUC_OUTPUT_NC, &
        POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, READ_LUC_RESTART_NC

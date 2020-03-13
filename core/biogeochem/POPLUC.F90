@@ -137,7 +137,7 @@ CONTAINS
   SUBROUTINE ZeroPOPLUC(POPLUC)
 
     TYPE(POPLUC_TYPE), INTENT(INOUT) :: POPLUC
-    INTEGER:: g,np
+    INTEGER:: np
 
     np = popluc%np
 
@@ -395,7 +395,6 @@ CONTAINS
     type(popluc_type), intent(inout) :: POPLUC
     integer(i4b),      intent(in)    :: g
     
-    real(dp), parameter :: eps= 1.e-9_dp
     integer(i4b) :: age, i, iage
     real(dp)     :: fac, disturbance_freq
 
@@ -413,7 +412,7 @@ CONTAINS
     !  Loop through secondary forest stands to transfer weights
     fac = 1.0_dp
     do i=1, POPLUC%n_event(g)
-       age = POPLUC%age_history_secdf(g,i)
+       age = nint(POPLUC%age_history_secdf(g,i))
        POPLUC%freq_age_secondary(g,age+1) = POPLUC%area_history_secdf(g,i)/fac
     enddo
 
@@ -426,10 +425,10 @@ CONTAINS
     IMPLICIT NONE
 
     TYPE(POPLUC_TYPE), INTENT(INOUT) :: POPLUC
-    INTEGER(i4b) :: n_event, i, j
+    INTEGER(i4b) :: n_event, i
     INTEGER(i4b), INTENT(IN) :: g
-    REAL(dp):: area, remaining
-    REAL(dp):: tmp, tmp1, tmp2, tmp3
+    REAL(dp):: remaining
+    REAL(dp):: tmp, tmp1, tmp2
     n_event =  POPLUC%n_event(g)
     POPLUC%kSecHarv(g) = 0.0_dp
     POPLUC%kNatDist(g) = 0.0_dp
@@ -540,7 +539,7 @@ CONTAINS
     IMPLICIT NONE
     TYPE(POPLUC_TYPE), INTENT(INOUT) :: POPLUC
     INTEGER(i4b), INTENT(IN) :: year
-    INTEGER(i4b) :: g,j
+    INTEGER(i4b) :: g
 
     POPLUC%it = POPLUC%it + 1
 
@@ -609,7 +608,7 @@ CONTAINS
     TYPE(POPLUC_TYPE),   INTENT(IN)    :: POPLUC
     TYPE(POP_TYPE),      INTENT(INOUT) :: POP
     TYPE(LUC_EXPT_TYPE), INTENT(IN)    :: LUC_EXPT
-    integer:: g, k, j, l
+    integer:: g, j, l
     REAL(dp), DIMENSION(:), ALLOCATABLE:: freq_age
 
     DO l = 1, POP%np
@@ -656,11 +655,6 @@ CONTAINS
     ! number of cable time-steps in a day (for needed for LUC flux output)
     integer:: g, k, j, l, idp, irp, idlu, irlu, ilu
     INTEGER,  PARAMETER :: &
-         ptos         =  1, &
-         ptog         =  2, &
-         stog         =  3, &
-         gtos         =  4
-    INTEGER,  PARAMETER :: &
          p         =  1, &
          s         =  2, &
          gr         =  3
@@ -675,14 +669,14 @@ CONTAINS
     REAL(dp) :: dpplant_d(nLU,3), dplitter_d(nLU,3), dpsoil_d(nLU,3)
     REAL(dp) :: dnsoilmin_r(nLU), dclabile_r(nLU)
     REAL(dp) :: dnsoilmin_d(nLU), dclabile_d(nLU)
-    REAL(dp) :: dclabile(nLU, nLU), dnsoilmin(nLU,nLU)
+    REAL(dp) :: dclabile(nLU, nLU)
     REAL(dp) :: dA_r(nLU), dA_d(nLU), dA(nLU), deltaA, dwood_transfer
     REAL(dp), ALLOCATABLE :: dcHarvCLear(:), dcHarv(:), dcClear(:), dcExpand(:), &
          dcNat(:),  FHarvClear(:), FDist(:), dcExpand1(:), dcExpand2(:), &
          FNatDist(:), FHarv(:), FClear(:)
     ! 13C REAL(dp) :: kHarvProd(3), kClearProd(3), kAgProd
-    REAL(dp) :: NatDist_loss, Expand_Loss, Clear_Loss, SecHarv_Loss , Dist_Loss, &
-         Expand1_Loss, Expand2_Loss, scalefac, tmp
+    REAL(dp) :: NatDist_loss, Clear_Loss, SecHarv_Loss , Dist_Loss, &
+         scalefac, tmp
 #ifdef __C13DEBUG__
     real(dp) :: tmp_dplant(nLU,3), tmp_tplant(nLU,3), tmp_dlit(nLU,3), tmp_slit(nLU,3)
     real(dp) :: tmp_dsoil(nLU,3)
@@ -1453,7 +1447,7 @@ CONTAINS
     TYPE(POP_TYPE),           INTENT(INOUT) :: POP
 
     INTEGER(i4b), INTENT(IN) :: np
-    INTEGER(i4b) :: g, j, k, l
+    INTEGER(i4b) :: j, k, l
 
     CALL alloc_POPLUC(POPLUC,np)
 
@@ -1762,8 +1756,7 @@ CONTAINS
     INTEGER   :: STATUS
     INTEGER   :: land_ID, age_ID, hist_ID, t_ID, nLU_ID, nTrans_ID
     INTEGER   :: i, mp, nprod, nprod_ID
-    LOGICAL   :: CASAONLY
-    CHARACTER :: CYEAR*4, FNAME*99, dum*50
+    CHARACTER :: FNAME*99, dum*50
     LOGICAL, SAVE :: CALL1 = .TRUE.
 
     ! 1 dim arrays (mp )
@@ -1786,10 +1779,9 @@ CONTAINS
     CHARACTER(len=20),DIMENSION(4) :: A6
 
     INTEGER, SAVE :: VIDtime, VID0(SIZE(A0)),VID1(SIZE(A1)),VIDI1(SIZE(AI1))
-    INTEGER, SAVE :: VID2(SIZE(A2)),VID3(SIZE(A3)),VIDI3(SIZE(AI3))
-    INTEGER, SAVE :: VID4(SIZE(A4)),VID5(SIZE(A5)), VID6(size(A6))
+    INTEGER, SAVE :: VID2(SIZE(A2))
+    INTEGER, SAVE :: VID4(SIZE(A4)), VID5(SIZE(A5)), VID6(size(A6))
     INTEGER, SAVE :: FILE_ID, CNT = 0
-    CHARACTER(len=50) :: RecordDimName
     REAL(dp), ALLOCATABLE :: freq_age_secondary(:,:)
     INTEGER :: g
     LOGICAL :: put_age_vars
@@ -2120,10 +2112,8 @@ CONTAINS
     integer,           intent(in) :: ctime
 
     INTEGER   :: STATUS
-    INTEGER   :: land_ID, age_ID, nLU_ID, nTrans_ID, i, mp, nprod_ID
-    LOGICAL   :: CASAONLY
-    CHARACTER :: CYEAR*4, FNAME*99, dum*50
-    LOGICAL, SAVE :: CALL1 = .TRUE.
+    INTEGER   :: land_ID, age_ID, i, mp, nprod_ID
+    CHARACTER :: FNAME*99, dum*50
 
     ! 1 dim arrays (mp )
     CHARACTER(len=20), DIMENSION(2) :: A0
@@ -2134,11 +2124,10 @@ CONTAINS
     ! 2 dim real arrays (mp,nprod)
     CHARACTER(len=25), DIMENSION(2) :: A3
 
-    INTEGER, SAVE :: VIDtime, VID0(SIZE(A0)), VID1(SIZE(A1))
+    INTEGER, SAVE :: VID0(SIZE(A0)), VID1(SIZE(A1))
     INTEGER, SAVE :: VID2(SIZE(A2)), VID3(SIZE(A3))
-    INTEGER, SAVE :: FILE_ID, CNT=0
-    CHARACTER(len=50) :: RecordDimName
-    INTEGER :: g, nprod
+    INTEGER, SAVE :: FILE_ID
+    INTEGER :: nprod
 
     mp = POPLUC%np
     nprod = 3 ! number of product pools
@@ -2272,10 +2261,8 @@ CONTAINS
     TYPE(POPLUC_TYPE), INTENT(INOUT) :: POPLUC
 
     INTEGER   :: STATUS, land_dim, mage_dim, nprod_dim
-    INTEGER   :: land_ID, age_ID, nLU_ID, nTrans_ID, i, mp, FILE_ID, dID, nprod, nprod_ID
-    LOGICAL   :: CASAONLY
-    CHARACTER :: CYEAR*4, FNAME*99,dum*50
-    LOGICAL, SAVE :: CALL1 = .TRUE.
+    INTEGER   :: i, mp, FILE_ID, dID, nprod
+    CHARACTER :: FNAME*99
     REAL(dp), ALLOCATABLE :: TMP(:), TMP2(:,:), TMP3(:,:)
 
     ! 1 dim arrays (mp )
@@ -2405,11 +2392,10 @@ CONTAINS
     INTEGER, INTENT(IN)    :: ctime
 
     INTEGER   :: STATUS
-    INTEGER   :: land_ID, age_ID, hist_ID, t_ID, nLU_ID, nTrans_ID, xID, yID
+    INTEGER   :: age_ID, hist_ID, t_ID, nLU_ID, nTrans_ID, xID, yID
     INTEGER   :: xvID, yvID
     INTEGER   :: i, mp, nprod, nprod_ID
-    LOGICAL   :: CASAONLY
-    CHARACTER :: CYEAR*4, FNAME*99,dum*50
+    CHARACTER :: FNAME*99, dum*50
     LOGICAL, SAVE :: CALL1 = .TRUE.
 
     ! 1 dim arrays (mp )
@@ -2432,10 +2418,9 @@ CONTAINS
     CHARACTER(len=20),DIMENSION(4) :: A6
 
     INTEGER, SAVE :: VIDtime, VID0(SIZE(A0)),VID1(SIZE(A1)),VIDI1(SIZE(AI1))
-    INTEGER, SAVE :: VID2(SIZE(A2)),VID3(SIZE(A3)),VIDI3(SIZE(AI3))
-    INTEGER, SAVE :: VID4(SIZE(A4)),VID5(SIZE(A5)), VID6(size(A6))
+    INTEGER, SAVE :: VID2(SIZE(A2))
+    INTEGER, SAVE :: VID4(SIZE(A4)), VID5(SIZE(A5)), VID6(size(A6))
     INTEGER, SAVE :: FILE_ID, CNT = 0, latID, lonID
-    CHARACTER(len=50) :: RecordDimName
     REAL(dp), ALLOCATABLE :: freq_age_secondary(:,:)
     INTEGER :: g, k
     LOGICAL :: put_age_vars

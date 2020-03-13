@@ -16,15 +16,13 @@ MODULE cable_adjust_JV_gm_module
   USE cable_data_module,   ONLY: icanopy_type, point2constants
   USE minpack
 
-  TYPE( icanopy_type ) :: C
+  TYPE(icanopy_type) :: C
 
-  INTEGER, PARAMETER  :: nrci=3000
+  INTEGER, PARAMETER :: nrci=3000
   REAL(dp) :: gmmax25, Vcmax25Ci, Jmax25Ci, Vcmax25Cc, Jmax25Cc
   REAL(dp) :: Rd
   REAL(dp) :: Kc_ci, Ko_ci, gammastar_ci, Km_ci
   REAL(dp) :: Kc_cc, Ko_cc, gammastar_cc, Km_cc
-
-
   
 CONTAINS 
 
@@ -51,7 +49,6 @@ CONTAINS
     INTEGER, PARAMETER      :: N=2     ! Number of variables
     REAL(dp), DIMENSION(N)  :: X
     REAL(dp), ALLOCATABLE   :: FVEC(:)
-    INTEGER                 :: IFLAG
     INTEGER                 :: info
     REAL(dp)                :: tol=0.00001_dp
 
@@ -61,17 +58,17 @@ CONTAINS
     
     DO p=1,mp
 
-      Ci1          = (/(i,i=1,nrci,1)/) / 2.0_dp * 1.0e-6_dp  ! 1-1500 umol mol-1
-      Rd           = veg%cfrd(p) * veg%vcmax(p)
-      gmmax25      = veg%gmmax(p)
-      Vcmax25Ci    = veg%vcmax(p)
-      Jmax25Ci     = veg%ejmax(p)
-      Kc_ci        = C%conkc0
-      Ko_ci        = C%conko0
-      gammastar_ci = C%gam0
-      Kc_cc        = C%conkc0cc
-      Ko_cc        = C%conko0cc
-      gammastar_cc = C%gam0cc
+      Ci1          = (/(real(i,dp),i=1,nrci,1)/) / 2.0_dp * 1.0e-6_dp  ! 1-1500 umol mol-1
+      Rd           = real(veg%cfrd(p) * veg%vcmax(p),dp)
+      gmmax25      = real(veg%gmmax(p),dp)
+      Vcmax25Ci    = real(veg%vcmax(p),dp)
+      Jmax25Ci     = real(veg%ejmax(p),dp)
+      Kc_ci        = real(C%conkc0,dp)
+      Ko_ci        = real(C%conko0,dp)
+      gammastar_ci = real(C%gam0,dp)
+      Kc_cc        = real(C%conkc0cc,dp)
+      Ko_cc        = real(C%conko0cc,dp)
+      gammastar_cc = real(C%gam0cc,dp)
 
       Km_ci        = Kc_ci * (1.0_dp + 0.21_dp / Ko_ci)
       Km_cc        = Kc_cc * (1.0_dp + 0.21_dp / Ko_cc)
@@ -99,7 +96,6 @@ CONTAINS
           END IF
         END DO
 
-        
         Cc_based_OK = .FALSE.
         z = 0
         !! 3) calculate Cc based on gm and An
@@ -142,13 +138,11 @@ CONTAINS
            !! Avoid unrealistic Vcmax and Jmax values
            IF (Vcmax25Cc < 0.9_dp*Vcmax25Ci .OR. Vcmax25Cc > 2.5_dp*Vcmax25Ci &
                .OR. Jmax25Cc < 0.9_dp*Jmax25Ci .OR. Jmax25Cc > 1.5_dp*Jmax25Ci) THEN
-
-              gmmax25 = 1.2_dp * gmmax25  ! If no solution, try again with higher gmmax25
-              
+              gmmax25 = 1.2_dp * gmmax25  ! If no solution, try again with higher gmmax25          
            ELSE       
               Cc_based_OK = .TRUE.
-              veg%vcmaxcc(p) = Vcmax25Cc
-              veg%ejmaxcc(p) = Jmax25Cc
+              veg%vcmaxcc(p) = real(Vcmax25Cc)
+              veg%ejmaxcc(p) = real(Jmax25Cc)
            ENDIF
 
         END DO
@@ -162,17 +156,13 @@ CONTAINS
        
       ELSE  ! For C4 plants same as for Ci for now...
 
-        veg%vcmaxcc(p) = Vcmax25Ci
-        veg%ejmaxcc(p) = Jmax25Ci 
+        veg%vcmaxcc(p) = real(Vcmax25Ci)
+        veg%ejmaxcc(p) = real(Jmax25Ci)
          
       ENDIF ! C4 flag
     END DO ! tile loop
           
   END SUBROUTINE adjust_JV_gm
-
-
-
-  
 
 
   ! Function to use within LMDIF1

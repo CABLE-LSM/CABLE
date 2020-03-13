@@ -29,17 +29,15 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
                      dump_write, LALLOC, c13o2flux, c13o2pools)
 
    USE cable_def_types_mod
-   USE cable_common_module, only: cable_runtime
    USE casadimension
    USE casaparm
    USE casavariable
    USE phenvariable
-   USE cable_common_module,  ONLY: CurYear, CABLE_USER
-   USE TypeDef,              ONLY: i4b, dp
+   USE cable_common_module,  ONLY: CABLE_USER
+   USE TypeDef,              ONLY: dp
    USE POPMODULE,            ONLY: POPStep
    USE POP_TYPES,            ONLY: POP_TYPE
    USE cable_phenology_module, ONLY: cable_phenology_clim
-   USE cable_IO_vars_module, ONLY: wlogn
    ! 13C
    use cable_c13o2_def, only: c13o2_pool, c13o2_flux
    use cable_c13o2,     only: c13o2_save_casapool, c13o2_update_pools, &
@@ -80,11 +78,6 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    real(r_2), dimension(mp)  :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
    real(r_2), dimension(mp)  :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
    real(r_2), dimension(mp)  :: xnplimit,  xkNlimiting, xklitter, xksoil ,xkleaf,xkleafcold,xkleafdry
-
-   INTEGER                                   :: it, nit
-   REAL(dp)                               :: StemNPP(mp,2)
-   CHARACTER                                 :: cyear*4
-   CHARACTER                                 :: ncfile*99
 
    ! 13C
    real(dp), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
@@ -239,36 +232,27 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
  SUBROUTINE POPdriver(casaflux, casabal, veg, POP)
 
    USE cable_def_types_mod
-   USE cable_common_module, only: cable_runtime
    USE casadimension
    USE casaparm
    USE casavariable
    USE phenvariable
-   USE cable_common_module,  ONLY: CurYear, CABLE_USER
+   USE cable_common_module,  ONLY: CABLE_USER
    USE TypeDef,              ONLY: i4b, dp
    USE POPMODULE,            ONLY: POPStep
    USE POP_TYPES,            ONLY: POP_TYPE
 
-
    IMPLICIT NONE
-
 
    TYPE (veg_parameter_type),  INTENT(IN) :: veg  ! vegetation parameters
    TYPE (casa_flux),           INTENT(IN) :: casaflux
    TYPE (casa_balance),        INTENT(IN) :: casabal
    TYPE(POP_TYPE),             INTENT(INOUT) :: POP
 
-   INTEGER                                   :: it, nit
    REAL(dp)                               :: StemNPP(mp,2)
    REAL(dp), allocatable :: NPPtoGPP(:)
    REAL(dp), allocatable ::  LAImax(:)  , Cleafmean(:),  Crootmean(:)
-   CHARACTER                                 :: cyear*4
-   CHARACTER                                 :: ncfile*99
    !! vh_js !!
    INTEGER, allocatable :: Iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
-
-   ! INTEGER, INTENT(IN) :: wlogn
-   INTEGER , parameter :: wlogn=6
 
    if (.NOT.Allocated(LAIMax)) allocate(LAIMax(mp))
    if (.NOT.Allocated(Cleafmean))  allocate(Cleafmean(mp))
@@ -327,9 +311,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 
    !netcdf ids/ names
    integer, parameter :: num_vars=17
-   integer, parameter :: num_dims=3
    integer, save                        :: ncrid  ! netcdf file id
-   integer , dimension(num_vars)        :: varrid ! (1) tvair, (2) pmb
 
    !vars
    character(len=*), dimension(num_vars), parameter :: &
@@ -352,7 +334,6 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
         "cAn13        "  &
         /)
 
-   real     , dimension(mp)        :: lat, lon
    real(r_2), dimension(mp)        :: tairk,  cgpp, mtemp, Ndep, Pdep, cAn12, cAn13
    real(r_2), dimension(mp,ms)     :: tsoil, moist
    real(r_2), dimension(mp,mplant) :: crmplant
@@ -450,7 +431,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
       phen%doyphase(:,2) = int(phendoyphase2)
       phen%doyphase(:,3) = int(phendoyphase3)
       phen%doyphase(:,4) = int(phendoyphase4)
-      climate%qtemp_max_last_year = mtemp
+      climate%qtemp_max_last_year = real(mtemp)
       if (icycle>1) casaflux%Nmindep = Ndep
       if (icycle>2) casaflux%Pdep    = Pdep
       ! 13C
@@ -475,7 +456,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 
    USE netcdf
    USE cable_def_types_mod,   ONLY : r_2, ms, mp, climate_type
-   USE cable_common_module,   ONLY : kend_gl, cable_user
+   USE cable_common_module,   ONLY : cable_user
 #ifndef UM_BUILD
    USE cable_diag_module,     ONLY : def_dims, def_vars, def_var_atts, &
         put_var_nc, stderr_nc
@@ -542,8 +523,6 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 
    INTEGER, PARAMETER :: soil_dim = 6
 
-   INTEGER, DIMENSION(soil_dim), PARAMETER  :: soil = (/ 1,2,3,4,5,6 /)
-
    INTEGER, DIMENSION(num_dims)  :: &
         dimID   ! (1) x, (2) y, (3) time
 
@@ -553,7 +532,6 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 
    !local only
    INTEGER :: ncok      !ncdf return status
-   INTEGER :: i
    real(r_2), dimension(mp) :: zeros
 
    ! END header
@@ -658,13 +636,12 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 
    ! local variables
    integer np,ivt
-   real, dimension(mp) :: ncleafx,npleafx, pleafx, nleafx ! local variables
+   real(r_2), dimension(mp) :: ncleafx, npleafx, pleafx, nleafx ! local variables
    real, dimension(17) ::  xnslope
    data xnslope/0.80,1.00,2.00,1.00,1.00,1.00,0.50,1.00,0.34,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00/
    real                :: relcostJCi
-   real, dimension(mp) :: ajv, bjvref, relcostJ, Nefftmp
+   real, dimension(mp) :: bjvref, relcostJ, Nefftmp
    real, dimension(mp) :: vcmaxx, cfrdx  ! vcmax and cfrd of previous day
-
 
    vcmaxx = veg%vcmax
    cfrdx  = veg%cfrd
@@ -678,35 +655,35 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
       ivt=veg%iveg(np)
       IF (casamet%iveg2(np)/=icewater &
            .AND. casamet%glai(np)>casabiome%glaimin(ivt)  &
-           .AND. casapool%cplant(np,leaf)>0.0) THEN
+           .AND. casapool%cplant(np,leaf)>0.0_r_2) THEN
 
-         IF (icycle>1 .AND. casapool%cplant(np,leaf)>0.0) THEN
+         IF (icycle>1 .AND. casapool%cplant(np,leaf)>0.0_r_2) THEN
             ncleafx(np) = MIN(casabiome%ratioNCplantmax(ivt,leaf), &
                  MAX(casabiome%ratioNCplantmin(ivt,leaf), &
                  casapool%nplant(np,leaf)/casapool%cplant(np,leaf)))
          ENDIF
          IF (icycle>2 .AND. casapool%pplant(np,leaf)>0.0) THEN
-            npleafx(np) = MIN(30.0,MAX(8.0,real(casapool%nplant(np,leaf) &
-                 /casapool%pplant(np,leaf))))
+            npleafx(np) = MIN( 30.0_r_2, MAX( 8.0_r_2, &
+                 casapool%nplant(np,leaf)/casapool%pplant(np,leaf) ) )
          ENDIF
       ENDIF
 
       IF (TRIM(cable_user%vcmax).eq.'standard') then
          IF (casamet%glai(np) > casabiome%glaimin(ivt)) THEN
             IF (ivt/=2) THEN
-               veg%vcmax(np) = ( casabiome%nintercept(ivt) &
-                    + casabiome%nslope(ivt)*ncleafx(np)/casabiome%sla(ivt) ) * 1.0e-6
+               veg%vcmax(np) = real(casabiome%nintercept(ivt) &
+                    + casabiome%nslope(ivt)*ncleafx(np)/casabiome%sla(ivt)) * 1.0e-6
             ELSE
                IF (casapool%nplant(np,leaf)>0.0.AND.casapool%pplant(np,leaf)>0.0) THEN
-                  veg%vcmax(np) = ( casabiome%nintercept(ivt)  &
-                       + casabiome%nslope(ivt)*(0.4+9.0/npleafx(np)) &
-                       * ncleafx(np)/casabiome%sla(ivt) ) * 1.0e-6
+                  veg%vcmax(np) = real(casabiome%nintercept(ivt)  &
+                       + casabiome%nslope(ivt)*(0.4_r_2+9.0_r_2/npleafx(np)) &
+                       * ncleafx(np)/casabiome%sla(ivt)) * 1.0e-6
                ELSE
-                  veg%vcmax(np) = ( casabiome%nintercept(ivt) &
-                       + casabiome%nslope(ivt)*ncleafx(np)/casabiome%sla(ivt) )*1.0e-6
+                  veg%vcmax(np) = real(casabiome%nintercept(ivt) &
+                       + casabiome%nslope(ivt)*ncleafx(np)/casabiome%sla(ivt)) * 1.0e-6
                ENDIF
             ENDIF
-            veg%vcmax(np) = veg%vcmax(np)* xnslope(ivt)
+            veg%vcmax(np) = veg%vcmax(np) * xnslope(ivt)
          ENDIF
          veg%ejmax = 2.0 * veg%vcmax
       elseif (TRIM(cable_user%vcmax).eq.'Walker2014') then
@@ -720,18 +697,18 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 
          if (ivt .EQ. 7 .OR.ivt .EQ. 9  ) then
             ! special for C4 grass: scale value from  parameter file
-            veg%vcmax(np) = casabiome%vcmax_scalar(ivt) * 1.0e-5
+            veg%vcmax(np) = real(casabiome%vcmax_scalar(ivt)) * 1.0e-5
             veg%ejmax(np) = 2.0 * veg%vcmax(np)
          elseif (ivt.eq.1) then
             ! account here for spring recovery
-            veg%vcmax(np) = vcmax_np(nleafx(np), pleafx(np))*casabiome%vcmax_scalar(ivt) &
-                 *climate%frec(np)
+            veg%vcmax(np) = vcmax_np(real(nleafx(np)), real(pleafx(np))) * &
+                 real(casabiome%vcmax_scalar(ivt)) * climate%frec(np)
             veg%ejmax(np) = bjvref(np) * veg%vcmax(np)
          else
-            veg%vcmax(np) = vcmax_np(nleafx(np), pleafx(np))*casabiome%vcmax_scalar(ivt)
+            veg%vcmax(np) = vcmax_np(real(nleafx(np)), real(pleafx(np))) * &
+                 real(casabiome%vcmax_scalar(ivt))
             veg%ejmax(np) = bjvref(np) * veg%vcmax(np)
          endif
-
 
          ! adjust Vcmax and Jmax accounting for gm, but only if the implicit values
          ! have changed.
@@ -776,7 +753,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 
    !if (mod(ktau,ktauday) ==1) then   ! JK: whole routine is now called once per day
    if (cable_user%coordinate_photosyn) then
-      CALL optimise_JV(veg,climate,ktauday,bjvref,relcostJ)
+      CALL optimise_JV(veg, climate, ktauday, bjvref, relcostJ)
    endif
    !endif
 
@@ -811,7 +788,9 @@ SUBROUTINE sumcflux(ktau, kstart, kend, dels, bgc, canopy,  &
   USE casadimension
   USE casaparm
   USE casavariable
+  
   IMPLICIT NONE
+  
   INTEGER, INTENT(IN)    :: ktau ! integration step number
   INTEGER, INTENT(IN)    :: kstart ! starting value of ktau
   INTEGER, INTENT(IN)    :: kend ! total # timesteps in run
@@ -834,11 +813,11 @@ SUBROUTINE sumcflux(ktau, kstart, kend, dels, bgc, canopy,  &
 !      CALL carbon_pl(dels, soil, ssoil, veg, canopy, bgc)
 !   else
     if(icycle>0) then
-       canopy%frp(:) = (casaflux%crmplant(:,wood)+casaflux%crmplant(:,froot) &
-                        +casaflux%crgplant(:))/86400.0
-       canopy%frs(:) = casaflux%Crsoil(:)/86400.0
-       canopy%frpw(:)= casaflux%crmplant(:,wood)/86400.0
-       canopy%frpr(:)= casaflux%crmplant(:,froot)/86400.0
+       canopy%frp(:)  = real((casaflux%crmplant(:,wood) + casaflux%crmplant(:,froot) + &
+            casaflux%crgplant(:))/86400.0_r_2)
+       canopy%frs(:)  = real(casaflux%Crsoil(:)/86400.0_r_2)
+       canopy%frpw(:) = real(casaflux%crmplant(:,wood)/86400.0_r_2)
+       canopy%frpr(:) = real(casaflux%crmplant(:,froot)/86400.0_r_2)
     endif
     if(ktau == kstart) then
        sum_flux%sumpn  = canopy%fpn*dels
@@ -870,9 +849,10 @@ SUBROUTINE sumcflux(ktau, kstart, kend, dels, bgc, canopy,  &
     ELSE
       IF (l_vcmaxFeedbk) THEN
         canopy%fnee = canopy%fpn + canopy%frs + canopy%frp &
-                    + casaflux%clabloss(:)/86400.0
+                    + real(casaflux%clabloss(:)/86400.0_r_2)
       ELSE
-        canopy%fnee = (casaflux%Crsoil-casaflux%cnpp+casaflux%clabloss)/86400.0
+         canopy%fnee = real((casaflux%Crsoil - casaflux%cnpp + &
+              casaflux%clabloss)/86400.0_r_2)
       ENDIF
     ENDIF
 
@@ -908,23 +888,23 @@ END SUBROUTINE sumcflux
 
       do npt=1,mp
          nvt=veg%iveg(npt)
-         bmcplant(kloop,nvt,:) = bmcplant(kloop,nvt,:)   + casapool%cplant(npt,:) * casamet%areacell(npt)
-         bmnplant(kloop,nvt,:) = bmnplant(kloop,nvt,:)   + casapool%nplant(npt,:) * casamet%areacell(npt)
-         bmpplant(kloop,nvt,:) = bmpplant(kloop,nvt,:)   + casapool%pplant(npt,:) * casamet%areacell(npt)
+         bmcplant(kloop,nvt,:) = bmcplant(kloop,nvt,:)   + real(casapool%cplant(npt,:) * casamet%areacell(npt))
+         bmnplant(kloop,nvt,:) = bmnplant(kloop,nvt,:)   + real(casapool%nplant(npt,:) * casamet%areacell(npt))
+         bmpplant(kloop,nvt,:) = bmpplant(kloop,nvt,:)   + real(casapool%pplant(npt,:) * casamet%areacell(npt))
 
-         bmclitter(kloop,nvt,:) = bmclitter(kloop,nvt,:) + casapool%clitter(npt,:) * casamet%areacell(npt)
-         bmnlitter(kloop,nvt,:) = bmnlitter(kloop,nvt,:) + casapool%nlitter(npt,:) * casamet%areacell(npt)
-         bmplitter(kloop,nvt,:) = bmplitter(kloop,nvt,:) + casapool%plitter(npt,:) * casamet%areacell(npt)
+         bmclitter(kloop,nvt,:) = bmclitter(kloop,nvt,:) + real(casapool%clitter(npt,:) * casamet%areacell(npt))
+         bmnlitter(kloop,nvt,:) = bmnlitter(kloop,nvt,:) + real(casapool%nlitter(npt,:) * casamet%areacell(npt))
+         bmplitter(kloop,nvt,:) = bmplitter(kloop,nvt,:) + real(casapool%plitter(npt,:) * casamet%areacell(npt))
 
-         bmcsoil(kloop,nvt,:) = bmcsoil(kloop,nvt,:)     + casapool%csoil(npt,:) * casamet%areacell(npt)
-         bmnsoil(kloop,nvt,:) = bmnsoil(kloop,nvt,:)     + casapool%nsoil(npt,:) * casamet%areacell(npt)
-         bmpsoil(kloop,nvt,:) = bmpsoil(kloop,nvt,:)     + casapool%psoil(npt,:) * casamet%areacell(npt)
+         bmcsoil(kloop,nvt,:) = bmcsoil(kloop,nvt,:)     + real(casapool%csoil(npt,:) * casamet%areacell(npt))
+         bmnsoil(kloop,nvt,:) = bmnsoil(kloop,nvt,:)     + real(casapool%nsoil(npt,:) * casamet%areacell(npt))
+         bmpsoil(kloop,nvt,:) = bmpsoil(kloop,nvt,:)     + real(casapool%psoil(npt,:) * casamet%areacell(npt))
 
-         bmnsoilmin(kloop,nvt)  = bmnsoilmin(kloop,nvt)   + casapool%nsoilmin(npt) * casamet%areacell(npt)
-         bmpsoillab(kloop,nvt)  = bmpsoillab(kloop,nvt)   + casapool%psoillab(npt) * casamet%areacell(npt)
-         bmpsoilsorb(kloop,nvt) = bmpsoilsorb(kloop,nvt)  + casapool%psoilsorb(npt) * casamet%areacell(npt)
-         bmpsoilocc(kloop,nvt)  = bmpsoilocc(kloop,nvt)   + casapool%psoilocc(npt) * casamet%areacell(npt)
-         bmarea(nvt)  = bmarea(nvt) + casamet%areacell(npt)
+         bmnsoilmin(kloop,nvt)  = bmnsoilmin(kloop,nvt)   + real(casapool%nsoilmin(npt) * casamet%areacell(npt))
+         bmpsoillab(kloop,nvt)  = bmpsoillab(kloop,nvt)   + real(casapool%psoillab(npt) * casamet%areacell(npt))
+         bmpsoilsorb(kloop,nvt) = bmpsoilsorb(kloop,nvt)  + real(casapool%psoilsorb(npt) * casamet%areacell(npt))
+         bmpsoilocc(kloop,nvt)  = bmpsoilocc(kloop,nvt)   + real(casapool%psoilocc(npt) * casamet%areacell(npt))
+         bmarea(nvt)  = bmarea(nvt) + real(casamet%areacell(npt))
       enddo
 
       do nvt=1,mvtype
@@ -998,7 +978,7 @@ END SUBROUTINE sumcflux
     real(r_2), dimension(mso) :: Psorder, Pweasoil, xPsoil50
     real(r_2), dimension(mso) :: fracPlab, fracPsorb, fracPocc, fracPorg
     real(r_2), dimension(mp)  :: totPsoil
-    integer :: npt, nout, nso
+    integer :: npt
 
     ! Soiltype     soilnumber soil P(g P/m2)
     ! Alfisol     1       61.3

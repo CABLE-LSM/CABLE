@@ -79,26 +79,27 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
 
   !! Called from cable_driver now
   USE cable_common_module, ONLY: get_unit
+
   IMPLICIT NONE
-  
-  
+
   INTEGER            , INTENT(IN)    :: np
   REAL, DIMENSION(np), INTENT(IN)    :: LAT, LON
   TYPE(TYPE_BLAZE)   , INTENT(INOUT) :: BLAZE
   INTEGER, PARAMETER        :: NPOOLS = 3
-  CHARACTER(len=400)   :: HydePath,  BurnedAreaSource, BurnedAreaFile, &
-  BurnedAreaClimatologyFile, SIMFIRE_REGION
-  INTEGER :: STATUS,  iu
+  CHARACTER(len=400)   :: HydePath, BurnedAreaFile, &
+       BurnedAreaClimatologyFile, SIMFIRE_REGION
+  CHARACTER(len=10)   :: BurnedAreaSource
+  INTEGER :: iu
 
   NAMELIST /BLAZENML/ HydePath,  BurnedAreaSource, BurnedAreaFile, BurnedAreaClimatologyFile, &
        SIMFIRE_REGION
-  ! READ BLAZE settings
-   CALL GET_UNIT(iu)
-   OPEN (iu,FILE="BLAZE.nml",STATUS='OLD',ACTION='READ')
-   READ (iu,NML=BLAZENML)
-   CLOSE(iu)
 
-  
+  ! READ BLAZE settings
+  CALL GET_UNIT(iu)
+  OPEN (iu,FILE="BLAZE.nml",STATUS='OLD',ACTION='READ')
+  READ (iu,NML=BLAZENML)
+  CLOSE(iu)
+
   ! READ ini-nml
   BLAZE%NCELLS = np
   BLAZE%time = 0
@@ -133,7 +134,7 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   ALLOCATE ( BLAZE%AvgAnnRAINF(np, 5))
   ALLOCATE ( BLAZE%CAvgAnnRainf(np))
   ALLOCATE ( BLAZE%DEADWOOD( np ) )
-  ALLOCATE ( BLAZE%SHOOTFRAC( np ) ) 
+  ALLOCATE ( BLAZE%SHOOTFRAC( np ) )
   ! POP related vars
   ALLOCATE ( BLAZE%POP_TO  ( np ) )
   ALLOCATE ( BLAZE%POP_CWD ( np ) )
@@ -147,13 +148,13 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   ! bit value:               0            | 1
   ! 0th bit(1), general    : off          | on
   ! 1st bit(2): BLAZE-mode : FLI-only     | Full-BLAZE
-  ! 2nd bit(4): Ignition   : other (GFED) | SIMFIRE 
+  ! 2nd bit(4): Ignition   : other (GFED) | SIMFIRE
   ! more possible...for other ignition sources
-  ! examples: 
+  ! examples:
   ! BLAZE(+1) with FLI-only(+0) and SIMFIRE(+4) -> BLAZEFLAG=5
   ! BLAZE(+1) full (+2) with GFED (+0)          -> BLAZEFLAG=3
-   
-  
+
+
   BLAZE%BURNMODE = 1    ! Full. All Fluxes computed by BLAZE
   WRITE(*,*) " BLAZE: Full Mode"
   WRITE(*,*) " Burnt-area source: ", TRIM(BurnedAreaSource)
@@ -163,22 +164,22 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   BLAZE%LR        = 0.
   BLAZE%KBDI      = 0.
   BLAZE%AB        = 0.
-  BLAZE%DEADWOOD  = 0. 
+  BLAZE%DEADWOOD  = 0.
   BLAZE%FSTEP     = 'DAILY'
 
   BLAZE%LAT       = LAT
   BLAZE%LON       = LON
 
 !!$  ! time for averaging annual rainfall [a]
-!!$  BLAZE%T_AVG = 5            
-!!$  ! deadwood decay scale time [a]  
+!!$  BLAZE%T_AVG = 5
+!!$  ! deadwood decay scale time [a]
 !!$  BLAZE%FT    = 30
 
-  BLAZE%BURNT_AREA_SRC = BurnedAreaSource
+  BLAZE%BURNT_AREA_SRC = trim(BurnedAreaSource)
 
   BLAZE%CPLANT_g = 0.0
   BLAZE%CPLANT_w = 0.0
- 
+
 END SUBROUTINE INI_BLAZE
 
 SUBROUTINE BLAZE_ACCOUNTING(BLAZE, met, climate,  ktau, dels, year, doy)
@@ -187,34 +188,32 @@ SUBROUTINE BLAZE_ACCOUNTING(BLAZE, met, climate,  ktau, dels, year, doy)
   USE CABLE_COMMON_MODULE, ONLY: IS_LEAPYEAR
   USE cable_IO_vars_module, ONLY:  landpt
 
-  IMPLICIT NONE 
+  IMPLICIT NONE
 
   TYPE (TYPE_BLAZE)   :: BLAZE
   TYPE (MET_TYPE)     :: met
   TYPE (CLIMATE_TYPE), INTENT(IN)     :: climate
   INTEGER, INTENT(IN) :: ktau, year, doy
   REAL,    INTENT(IN) :: dels
-  LOGICAL, SAVE       :: CALL1 = .TRUE.
-  INTEGER             :: mp, x, i
+  INTEGER             :: mp
   REAL                :: t_fac
   INTEGER,PARAMETER   :: sod = 86400
   LOGICAL             :: is_new_day, is_end_of_day
-  REAL                :: v, rh, t, prec, avgAnnRf, dkbdi, FFDI
 
   mp = BLAZE%NCELLS
-  
+
   is_new_day    = (MOD((ktau-1) * NINT(dels), sod) == 0 )
   is_end_of_day = (MOD( ktau    * NINT(dels), sod) == 0 )
-  
+
   ! reset values for each BLAZE time step
   IF ( is_new_day ) THEN
      IF ( ( TRIM(BLAZE%FSTEP) .EQ. "annual" .AND. doy == 1 ) .OR. &
           ( TRIM(BLAZE%FSTEP) .EQ. "daily" ) ) THEN
         BLAZE%FFDI = 0.
-        ! ??? Maybe more ... 
+        ! ??? Maybe more ...
      ENDIF
   ENDIF
-  
+
   ! factor to get to daily data
   t_fac = 86400. / dels
 
@@ -227,7 +226,7 @@ SUBROUTINE BLAZE_ACCOUNTING(BLAZE, met, climate,  ktau, dels, year, doy)
    ! Conversion to Windmax following S. Matthews, 2014 (pers. comm. so far)
    ! in km/h
   BLAZE%U10 = ( 214.7 * ( BLAZE%U10 + 10. ) ** (-1.6968 ) + 1. ) * BLAZE%U10
-  
+
   BLAZE%RH(:) = climate%drhum(landpt(:)%cstart)
   BLAZE%TMAX(:) = climate%dtemp_max(landpt(:)%cstart)
   BLAZE%TMIN(:) = climate%dtemp_min(landpt(:)%cstart)
@@ -252,19 +251,19 @@ FUNCTION AVAIL_FUEL(FLIx, CPLANT_w, CPLANT_g, AGL_w, AGL_g)
                TOF(FLIx,10)          * AGL_w(CWD)                 + &
                TOF(FLIx,12)          * (AGL_w(METB) + AGL_w(STR)) + &
                TOF(FLIx, 9)          * CPLANT_w(FROOT)            + &
-               CPLANT_g(LEAF) + AGL_g(METB) + AGL_g(STR)         
-               
+               CPLANT_g(LEAF) + AGL_g(METB) + AGL_g(STR)
+
   ! CLN maybe take fbark out again
 
 END FUNCTION AVAIL_FUEL
 
 SUBROUTINE BLAZE_TURNOVER(AB, CPLANT_g, CPLANT_w, AGL_g, AGL_w, &
      BGL_g, BGL_w, shootfrac, TO, BT, BURNMODE, POP_TO)
- 
+
   IMPLICIT NONE
 
-  !get index of relative live-biomass loss in TOF table plus fract between 2bins 
-  !-> apply idx and factor on other TOs 
+  !get index of relative live-biomass loss in TOF table plus fract between 2bins
+  !-> apply idx and factor on other TOs
 
   TYPE(TYPE_TURNOVER),INTENT(INOUT) :: TO(7)
   INTEGER,            INTENT(IN)    :: BURNMODE
@@ -274,7 +273,7 @@ SUBROUTINE BLAZE_TURNOVER(AB, CPLANT_g, CPLANT_w, AGL_g, AGL_w, &
   REAL,               INTENT(OUT)   :: BT(13)
   REAL,     OPTIONAL, INTENT(IN)    :: POP_TO
   TYPE(TYPE_TURNOVER)               :: MTO(7)
-  REAL    :: rd, BLAZE_EQUIV, fAB, totw
+  REAL    :: fAB
 
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -289,37 +288,37 @@ SUBROUTINE BLAZE_TURNOVER(AB, CPLANT_g, CPLANT_w, AGL_g, AGL_w, &
   MTO(WOOD )%TO_CWD = fAB * TO(WOOD )%TO_CWD * CPLANT_w (WOOD )
   MTO(FROOT)%TO_ATM = fAB * TO(FROOT)%TO_ATM * CPLANT_w (FROOT)
   MTO(FROOT)%TO_STR = fAB * TO(FROOT)%TO_STR * CPLANT_w (FROOT)
-  MTO(MLIT )%TO_ATM = fAB * TO(MLIT )%TO_ATM * AGL_w(METB ) 
-  MTO(SLIT )%TO_ATM = fAB * TO(SLIT )%TO_ATM * AGL_w(STR  ) 
-  MTO(CLIT )%TO_ATM = fAB * TO(CLIT )%TO_ATM * AGL_w(CWD  ) 
+  MTO(MLIT )%TO_ATM = fAB * TO(MLIT )%TO_ATM * AGL_w(METB )
+  MTO(SLIT )%TO_ATM = fAB * TO(SLIT )%TO_ATM * AGL_w(STR  )
+  MTO(CLIT )%TO_ATM = fAB * TO(CLIT )%TO_ATM * AGL_w(CWD  )
 
   ! Diagnostics
-  BT( 1) = MTO(LEAF )%TO_ATM 
+  BT( 1) = MTO(LEAF )%TO_ATM
   BT( 2) = MTO(WOOD )%TO_ATM
   BT( 3) = MTO(LEAF )%TO_STR
   BT( 4) = MTO(WOOD )%TO_STR
   BT( 5) = MTO(WOOD )%TO_CWD
-  BT( 6) = MTO(MLIT )%TO_ATM 
-  BT( 7) = MTO(SLIT )%TO_ATM 
-  BT( 8) = MTO(CLIT )%TO_ATM  
-  BT( 9) = MTO(FROOT)%TO_ATM  
-  BT(10) = MTO(FROOT)%TO_STR  
+  BT( 6) = MTO(MLIT )%TO_ATM
+  BT( 7) = MTO(SLIT )%TO_ATM
+  BT( 8) = MTO(CLIT )%TO_ATM
+  BT( 9) = MTO(FROOT)%TO_ATM
+  BT(10) = MTO(FROOT)%TO_STR
   BT(11) = AB * CPLANT_g (LEAF)
   BT(12) = AB * AGL_g(METB)
   BT(13) = AB * AGL_g(STR )
 
-  
 
-!CLN  PRINT*,'BT( 1) =  MTO(LEAF )%TO_ATM    ',MTO(LEAF)%TO_ATM    
-!CLN  PRINT*,'BT( 2) =  MTO(WOOD )%TO_ATM    ',MTO(WOOD)%TO_ATM    
-!CLN  PRINT*,'BT( 3) =  MTO(LEAF )%TO_STR    ',MTO(LEAF)%TO_STR    
-!CLN  PRINT*,'BT( 4) =  MTO(WOOD )%TO_STR    ',MTO(WOOD)%TO_STR    
-!CLN  PRINT*,'BT( 5) =  MTO(WOOD )%TO_CWD    ',MTO(WOOD)%TO_CWD    
-!CLN  PRINT*,'BT( 6) =  MTO(MLIT )%TO_ATM    ',MTO(MLIT)%TO_ATM    
-!CLN  PRINT*,'BT( 7) =  MTO(SLIT )%TO_ATM    ',MTO(SLIT)%TO_ATM    
-!CLN  PRINT*,'BT( 8) =  MTO(CLIT )%TO_ATM    ',MTO(CLIT)%TO_ATM    
+
+!CLN  PRINT*,'BT( 1) =  MTO(LEAF )%TO_ATM    ',MTO(LEAF)%TO_ATM
+!CLN  PRINT*,'BT( 2) =  MTO(WOOD )%TO_ATM    ',MTO(WOOD)%TO_ATM
+!CLN  PRINT*,'BT( 3) =  MTO(LEAF )%TO_STR    ',MTO(LEAF)%TO_STR
+!CLN  PRINT*,'BT( 4) =  MTO(WOOD )%TO_STR    ',MTO(WOOD)%TO_STR
+!CLN  PRINT*,'BT( 5) =  MTO(WOOD )%TO_CWD    ',MTO(WOOD)%TO_CWD
+!CLN  PRINT*,'BT( 6) =  MTO(MLIT )%TO_ATM    ',MTO(MLIT)%TO_ATM
+!CLN  PRINT*,'BT( 7) =  MTO(SLIT )%TO_ATM    ',MTO(SLIT)%TO_ATM
+!CLN  PRINT*,'BT( 8) =  MTO(CLIT )%TO_ATM    ',MTO(CLIT)%TO_ATM
 !CLN  PRINT*,'BT( 9) =  MTO(FROOT)%TO_ATM    ',MTO(FROOT)%TO_ATM
-!CLN  PRINT*,'BT(10) =  MTO(FROOT)%TO_STR    ',MTO(FROOT)%TO_STR 
+!CLN  PRINT*,'BT(10) =  MTO(FROOT)%TO_STR    ',MTO(FROOT)%TO_STR
 !CLN  PRINT*,'BT(11) =  AB * CPLANT_g (LEAF )',AB * CPLANT_g (LEAF)
 !CLN  PRINT*,'BT(12) =  AB * CLITTER_g(METB )',AB * AGL_g(METB)
 !CLN  PRINT*,'BT(13) =  AB * CLITTER_g(STR  )',AB * AGL_g(STR )
@@ -330,25 +329,25 @@ SUBROUTINE BLAZE_TURNOVER(AB, CPLANT_g, CPLANT_w, AGL_g, AGL_w, &
 !!$  CPLANT_g (LEAF)  = CPLANT_g (LEAF) * (1. - AB)
 !!$  AGL_g(METB)      = AGL_g(METB)     * (1. - AB)
 !!$  AGL_g(STR )      = AGL_g(STR )     * (1. - AB)
-!!$  
+!!$
 !!$  ! Leaves
 !!$  CPLANT_w (LEAF)  = &
 !!$       CPLANT_w (LEAF) - (MTO(LEAF)%TO_ATM + MTO(LEAF)%TO_STR)
 !!$  ! Wood
 !!$  CPLANT_w (WOOD)  = &
-!!$       CPLANT_w (WOOD) - (MTO(WOOD)%TO_ATM + MTO(WOOD)%TO_STR + MTO(WOOD)%TO_CWD) 
+!!$       CPLANT_w (WOOD) - (MTO(WOOD)%TO_ATM + MTO(WOOD)%TO_STR + MTO(WOOD)%TO_CWD)
 !!$  ! Fine roots
 !!$  CPLANT_w (FROOT) = &
 !!$       CPLANT_w (FROOT)- (MTO(FROOT)%TO_ATM+ MTO(FROOT)%TO_STR)
 !!$
 !!$  ! Litter above ground
-!!$  AGL_w(METB)      = AGL_w(METB) - MTO(MLIT)%TO_ATM 
+!!$  AGL_w(METB)      = AGL_w(METB) - MTO(MLIT)%TO_ATM
 !!$  AGL_w(STR )      = AGL_w(STR ) - MTO(SLIT)%TO_ATM + MTO(WOOD)%TO_STR + &
-!!$                     MTO(LEAF)%TO_STR 
+!!$                     MTO(LEAF)%TO_STR
 !!$  AGL_w(CWD )      = AGL_w(CWD ) - MTO(CLIT)%TO_ATM + MTO(WOOD)%TO_CWD * shootfrac
 !!$
 !!$  ! Litter below ground
-!!$  BGL_w(STR ) = BGL_w(STR ) + MTO(FROOT)%TO_STR 
+!!$  BGL_w(STR ) = BGL_w(STR ) + MTO(FROOT)%TO_STR
 !!$  BGL_w(CWD ) = BGL_w(CWD ) + MTO(WOOD)%TO_CWD * (1. - shootfrac)
 !!$
 !!$  IF ( ANY ( AGL_w .LT. 0. )) THEN
@@ -359,26 +358,33 @@ SUBROUTINE BLAZE_TURNOVER(AB, CPLANT_g, CPLANT_w, AGL_g, AGL_w, &
 
 END SUBROUTINE BLAZE_TURNOVER
 
-FUNCTION  p_surv_OzSavanna(hgt, fli)
 
-    REAL, INTENT(IN):: hgt, fli
-    !  Cook fire-mortality
-    max_prob_hgt = 8.5
-    intensity    = fli / 1000.    
-    min_hgt      = 3.7 * (1.-exp(-0.19 * intensity))
-    
-    if ( hgt > max_prob_hgt .and. hgt > min_hgt ) then
-        p_surv_OzSavanna = ( -.0011 * intensity - .00002) * hgt + .0075 * intensity + 1.
-    elseif (hgt > min_hgt) then
-       p_surv_OzSavanna = (  .0178 * intensity + .0144 ) * &
-         hgt + (-.1174 * intensity + 0.9158)
-    else
-       p_surv_OzSavanna = 0.001
-    endif
+FUNCTION p_surv_OzSavanna(hgt, fli)
 
-    p_surv_OzSavanna = max(0.001, min(1.,p_surv_OzSavanna))
-        
-  END FUNCTION  p_surv_OzSavanna
+  implicit none
+
+  real, intent(in) :: hgt, fli
+  real             :: p_surv_OzSavanna
+
+  real :: max_prob_hgt, intensity, min_hgt
+
+  !  Cook fire-mortality
+  max_prob_hgt = 8.5
+  intensity    = fli / 1000.
+  min_hgt      = 3.7 * (1.-exp(-0.19 * intensity))
+
+  if ( hgt > max_prob_hgt .and. hgt > min_hgt ) then
+     p_surv_OzSavanna = ( -.0011 * intensity - .00002) * hgt + .0075 * intensity + 1.
+  elseif (hgt > min_hgt) then
+     p_surv_OzSavanna = (  .0178 * intensity + .0144 ) * &
+          hgt + (-.1174 * intensity + 0.9158)
+  else
+     p_surv_OzSavanna = 0.001
+  endif
+
+  p_surv_OzSavanna = max(0.001, min(1.,p_surv_OzSavanna))
+
+END FUNCTION p_surv_OzSavanna
 
 
 
@@ -386,17 +392,20 @@ FUNCTION BURNTIME( YEAR, DOY, FSTEP )
 
   USE CABLE_COMMON_MODULE, ONLY : DOYSOD2YMDHMS, IS_LEAPYEAR
 
-  INTEGER,  INTENT(IN):: YEAR, DOY
-  CHARACTER(LEN=*),INTENT(IN):: FSTEP
-  LOGICAL             :: BURNTIME 
-  INTEGER             :: MM, DD, EOM
-  INTEGER,DIMENSION(12),PARAMETER :: LOM = (/31,28,31,30,31,30,31,31,30,31,30,31/)
+  implicit none
+
+  INTEGER,          INTENT(IN) :: YEAR, DOY
+  CHARACTER(LEN=*), INTENT(IN) :: FSTEP
+  LOGICAL                      :: BURNTIME
+
+  INTEGER :: MM, DD, EOM
+  INTEGER, DIMENSION(12), PARAMETER :: LOM = (/31,28,31,30,31,30,31,31,30,31,30,31/)
 
   BURNTIME = .FALSE.
-  
+
   CALL DOYSOD2YMDHMS( YEAR, DOY, 1, MM, DD )
   IF ( TRIM(FSTEP) .EQ. "annual" ) THEN
-     IF ( (.NOT. (IS_LEAPYEAR(YEAR)) .AND. DOY .EQ. 365 ) .OR. DOY .EQ. 366 ) & 
+     IF ( (.NOT. (IS_LEAPYEAR(YEAR)) .AND. DOY .EQ. 365 ) .OR. DOY .EQ. 366 ) &
           BURNTIME = .TRUE.
   ELSE IF ( TRIM(FSTEP) .EQ. "monthly" ) THEN
      IF ( IS_LEAPYEAR(YEAR) .AND. MM.EQ.2 ) THEN
@@ -411,7 +420,7 @@ FUNCTION BURNTIME( YEAR, DOY, FSTEP )
   ELSE IF ( TRIM(FSTEP) .EQ. "none" ) THEN
      WRITE(6,FMT='(A36,I2.2,1x,I2.2,1x,I4)') &
           "No fire info available from GFED on ",DD, MM, YEAR
-  ELSE 
+  ELSE
      STOP "Wrong fire time-step!"
   END IF
 
@@ -428,28 +437,28 @@ SUBROUTINE COMBUST (BLAZE, np, CPLANT_g, CPLANT_w, TO, BURN )
   LOGICAL,            INTENT(IN)    :: BURN
   TYPE(TYPE_TURNOVER),INTENT(INOUT) :: TO(NTO)
 
-  REAL, PARAMETER       :: H = 20. ! Heat Yield, [MJ/kg]
-  REAL      :: FT, LR, dKBDI
-  REAL      :: F,w, D, ROS, RH, T, V, Z
-  REAL      :: AvAnnRain, FLI, TOT_g
-  INTEGER   :: DSLR, FLIx, i
+  REAL, PARAMETER :: H = 20. ! Heat Yield, [MJ/kg]
+  REAL      :: FT
+  REAL      :: F, w, ROS, Z
+  REAL      :: FLI
+  INTEGER   :: FLIx, i
 
 ! Fuel Moisture driving Heat yield or Available Fuel...?
-! CLN Dry matter? 
+! CLN Dry matter?
 
 !  IF ( .NOT. ANY (TRIM(BLAZE%FSTEP) .EQ. "none" ) ) &
 !     STOP "Fire time-step not specified. Abort combust"
-    
+
 
   ft  = BLAZE%FT
-  
+
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! Get FLI (Byram's Law)  = H * w * r
-  
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  ! Get Rate-Of-Spread following McArthur fire-danger meter Mark 5 Version (Noble et al. 1980) 
 
-  !  V  from Wind [m/s] 
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ! Get Rate-Of-Spread following McArthur fire-danger meter Mark 5 Version (Noble et al. 1980)
+
+  !  V  from Wind [m/s]
   !  Rule of thumb: U2 in Forest ~ 1/4*U10 to 1/11*U10 [height of canopy small->large]
   !  T  from Tair [deg C]
   !  RH from Qair [%]
@@ -459,12 +468,12 @@ SUBROUTINE COMBUST (BLAZE, np, CPLANT_g, CPLANT_w, TO, BURN )
 
   ! vh KBDI now calculated in cable_climate.F90
 
-  ! Keetch-Byram Drought Index [ ] 
-!!$  ! Keetch, j.j. and G.M. Byram, 1968, A drought index for forest fire control, 
+  ! Keetch-Byram Drought Index [ ]
+!!$  ! Keetch, j.j. and G.M. Byram, 1968, A drought index for forest fire control,
 !!$  ! US Dept, Agr. Forest Service Res. Paper SE-38
 !!$  IF ( BLAZE%RAINF(np) .GT. 0. ) THEN
 !!$     IF ( BLAZE%DSLR(np) .GT. 0 ) THEN
-!!$        BLAZE%LR(np) = BLAZE%RAINF(np) 
+!!$        BLAZE%LR(np) = BLAZE%RAINF(np)
 !!$     ELSE
 !!$        BLAZE%LR(np) = BLAZE%LR(np) + BLAZE%RAINF(np)
 !!$     ENDIF
@@ -472,9 +481,9 @@ SUBROUTINE COMBUST (BLAZE, np, CPLANT_g, CPLANT_w, TO, BURN )
 !!$  ELSE
 !!$     BLAZE%DSLR(np) = BLAZE%DSLR(np) + 1
 !!$  ENDIF
-!!$  
+!!$
 !!$  DSLR      = BLAZE%DSLR(np)
-!!$  AvAnnRain = BLAZE%CAvgAnnRainf(np) 
+!!$  AvAnnRain = BLAZE%CAvgAnnRainf(np)
 !!$  V         = BLAZE%U10(np)
 !!$  RH        = BLAZE%RH(np)
 !!$  T         = BLAZE%TMAX(np)
@@ -503,11 +512,11 @@ SUBROUTINE COMBUST (BLAZE, np, CPLANT_g, CPLANT_w, TO, BURN )
   ! McArthur Fire-Danger index [ ] (FFDI)
   !                             Forest  Grass
   ! Catastrophic (Code Red)	100 +   150 +
-  ! Extreme	                75 – 99 100 – 149
-  ! Severe	                50 – 74 50 – 99
-  ! Very High	                25 – 49 25 – 49
-  ! High	                12 – 24 12 – 24
-  ! Low–Moderate            	 0 – 11  0 – 11
+  ! Extreme	                75 - 99 100 - 149
+  ! Severe	                50 - 74 50 - 99
+  ! Very High	                25 - 49 25 - 49
+  ! High	                12 - 24 12 - 24
+  ! Low-Moderate            	 0 - 11  0 - 11
 
   F = BLAZE%FFDI(np)
 
@@ -525,7 +534,7 @@ SUBROUTINE COMBUST (BLAZE, np, CPLANT_g, CPLANT_w, TO, BURN )
   BLAZE%w_prior = w
 
   !write(59,*) w, CPLANT_w, CPLANT_g, BLAZE%AGLit_w, BLAZE%AGLit_g
-  
+
   DO i = 1, 4 ! THE LADDER
 
      ! Rate of Spread [m/s]
@@ -533,14 +542,14 @@ SUBROUTINE COMBUST (BLAZE, np, CPLANT_g, CPLANT_w, TO, BURN )
      ROS = 2.4e-5 * F* W / 3.6 ! (vh: conversions factor of 1/50 applied to go from gCm-2 to T dm ha-1 )
      !    and 1/3.6 to go from km/h to ms-1)
 
-     
+
      !ROS = 3.3333E-05 * F * w  (LN)
-  
+
      ! Flame Height  [m]
      ! original Z   = 13. * ROS + 0.24 * w - 2.  (Z in m; ROS in km/h; w in t ha-1)
      Z = 13.0 * ROS * 3.6 + 0.24 * w / 50.0 -2. ! vh (conversion factors of 3.6 for ROS &
                                                 !   50.0 for w)
-     
+
      !Z   = 46.8 * ROS + 0.024 * w - 2. (LN)
      Z   = MAX(0.,Z)
 
@@ -580,10 +589,10 @@ SUBROUTINE COMBUST (BLAZE, np, CPLANT_g, CPLANT_w, TO, BURN )
   ! Aust. Met. Mag. 50, 2001 [grass and shrubs only]
 !CLN  ROS = 0.049 * U2^1.21 * VegHeight^0.54
 
-  ! Cheney 2012 
+  ! Cheney 2012
 ! USE Cheney for Grassla...
-!CLN  ROS = 
-  
+!CLN  ROS =
+
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! Get combustion factors from FLI (Surawski 2012) AS IS
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -595,23 +604,23 @@ SUBROUTINE COMBUST (BLAZE, np, CPLANT_g, CPLANT_w, TO, BURN )
 
   IF (FLIx .gt.0) then
   ! Live to Atmosphere
-  TO(LEAF)%TO_ATM    =                          TOF(FLIx,  4) 
+  TO(LEAF)%TO_ATM    =                          TOF(FLIx,  4)
   TO(WOOD)%TO_ATM    = (1. - fbranch - fbark) * TOF(FLIx,  1) + &
                        fbranch                * TOF(FLIx,  2) + &
-                       fbark                  * TOF(FLIx,  3) 
-  TO(FROOT)%TO_ATM   =                          TOF(FLIx,  9) 
-  
-  ! Live to Litter                         
-  TO(LEAF)%TO_STR    =                          TOF(FLIx,  8) 
-  TO(WOOD)%TO_STR    = fbark                  * TOF(FLIx,  7) 
+                       fbark                  * TOF(FLIx,  3)
+  TO(FROOT)%TO_ATM   =                          TOF(FLIx,  9)
+
+  ! Live to Litter
+  TO(LEAF)%TO_STR    =                          TOF(FLIx,  8)
+  TO(WOOD)%TO_STR    = fbark                  * TOF(FLIx,  7)
   TO(WOOD)%TO_CWD    = (1. - fbranch - fbark) * TOF(FLIx,  5) + &
-                       fbranch                * TOF(FLIx,  6) 
+                       fbranch                * TOF(FLIx,  6)
   TO(FROOT)%TO_STR   = MAX( TO(WOOD)%TO_ATM + TO(WOOD)%TO_STR + TO(WOOD)%TO_CWD - &
        TO(FROOT)%TO_ATM , 0. )
 
-  ! Litter to Atmosphere                
-  TO(MLIT)%TO_ATM    = TOF(FLIx, 11) 
-  TO(SLIT)%TO_ATM    = TOF(FLIx, 11) 
+  ! Litter to Atmosphere
+  TO(MLIT)%TO_ATM    = TOF(FLIx, 11)
+  TO(SLIT)%TO_ATM    = TOF(FLIx, 11)
   TO(CLIT)%TO_ATM    = TOF(FLIx, 10)
 
 ELSE
@@ -628,7 +637,7 @@ ENDIF
 END SUBROUTINE COMBUST
 
 
-SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climate) 
+SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climate)
 
   USE CABLE_COMMON_MODULE, ONLY: IS_LEAPYEAR, DOYSOD2YMDHMS
   USE SIMFIRE_MOD
@@ -642,31 +651,19 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
   TYPE(TYPE_TURNOVER) :: TO(BLAZE%NCELLS,7)
   TYPE (climate_type ), INTENT(IN)         :: climate
 
-  TYPE(TYPE_TURNOVER),ALLOCATABLE,SAVE :: TOsav(:,:)
-  REAL               ,ALLOCATABLE,SAVE :: FLIsav(:)
-
-  INTEGER          :: np, doy, YYYY, CTRL, MM, DD, DOM(12)
-  INTEGER          :: i
+  INTEGER          :: np, doy, YYYY, MM, DD, DOM(12)
   REAL             :: CPLANT_g(BLAZE%NCELLS,3), CPLANT_w(BLAZE%NCELLS,3), tstp
   REAL, DIMENSION(BLAZE%NCELLS,3) :: AGL_g, AGL_w, BGL_g, BGL_w
   REAL, DIMENSION(BLAZE%NCELLS)   :: &
        RAINF,             & ! [mm/d]
        TMIN,              & ! [deg C]
        TMAX,              & ! [deg C]
-       RH,                & ! [%]
-       U10,               & ! [km/h]
        AB,                & ! [frac.]
-       FLI,               & ! [kW/m]
-       DFLI,              & ! [kW/m]
-       FFDI,              &  
        popd,              & ! [kW/m]
-       mnest,             &
-       shootfrac
-               
-! CLN to simfire!!! 
-!CRM  INTEGER,DIMENSION(BLAZE%NCELLS)  :: modis_igbp  ! [0,17] landcover index
+       mnest
 
-  LOGICAL, SAVE :: BCALL1 = .TRUE.
+  ! CLN to simfire!!!
+  !CRM  INTEGER,DIMENSION(BLAZE%NCELLS)  :: modis_igbp  ! [0,17] landcover index
 
   DOM = (/ 31,28,31,30,31,30,31,31,30,31,30,31 /)
   IF ( IS_LEAPYEAR(YYYY) ) DOM(2) = 29
@@ -679,13 +676,13 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
   BLAZE%MONTH = MM
   BLAZE%tstp = tstp
 
-  
+
 
 !! CRM  IF ( DD .EQ. 1 ) BLAZE%FLI(:) = 0. now in accounting
 
   ! READ GFED BA DATA
   AB(:) = 0.
-  IF ( TRIM(BLAZE%BURNT_AREA_SRC) .EQ. "GFED3.1" ) THEN 
+  IF ( TRIM(BLAZE%BURNT_AREA_SRC) .EQ. "GFED3.1" ) THEN
 !     CALL GET_GFED( BLAZE )
 !     CALL GET_GFED4_BA( BLAZE )
 !     CALL GET_GFED41s_BA( BLAZE )
@@ -700,7 +697,7 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
   ELSEIF ( TRIM(BLAZE%BURNT_AREA_SRC) .EQ. "SIMFIRE" ) THEN
      ! CALL SIMFIRE DAILY FOR ACOUNTING OF PARAMETERS
      CALL SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YYYY, BLAZE%AB , climate)
-   
+
 
      DO np = 1, BLAZE%NCELLS
         IF ( AVAIL_FUEL(1, CPLANT_w(np,:), CPLANT_g(np,:),BLAZE%AGLit_w(np,:),BLAZE%AGLit_g(np,:) ) .LE. MIN_FUEL ) &
@@ -709,20 +706,20 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
      popd = SF%POPD
      mnest= SF%MAX_NESTEROV
   ELSE
-     WRITE(*,*) "Wrong ignition type chosen: ",BLAZE%BURNT_AREA_SRC
+     WRITE(*,*) "Wrong ignition type chosen: ", BLAZE%BURNT_AREA_SRC
      STOP -1
   ENDIF
-  
+
   ! Apply half of former deadwood to atm now How to distribut (str
   ! set following Fraver 2013 pinus rosinosa (hardwood/decid. wood to be added
-   
+
   DO np = 1, BLAZE%NCELLS
 
-    
+
 
      CALL COMBUST( BLAZE, np, CPLANT_g(np,:), CPLANT_w(np,:),TO(np,:),BLAZE%AB(np).GT.0 )
 
-   
+
 
      BLAZE%DFLI(np) = BLAZE%FLI(np)
      BLAZE%TO(np,:) = 0.
@@ -733,20 +730,20 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
              BLAZE%shootfrac(np), TO(np,:), BLAZE%FLUXES(np,:), BLAZE%BURNMODE )
      ENDIF
 
- 
+
 
      AB(np) = BLAZE%AB(np)
 
      ! Apply other half of former deadwood to litter now How to distribut (str
 !CLN     AGL(np,CWD) = AGL(np,CWD) + &
-!CLN          !       (1.-exp(-0.5*tstp/SF(ft))) * SUM(DEADWOOD(np,:)) 
-!CLN          (1.-exp(-0.5*tstp/15.)) * SUM(DEADWOOD(np,:)) 
+!CLN          !       (1.-exp(-0.5*tstp/SF(ft))) * SUM(DEADWOOD(np,:))
+!CLN          (1.-exp(-0.5*tstp/15.)) * SUM(DEADWOOD(np,:))
 
 !CLN      BLAZE%DEADWOOD(np,:) = DEADWOOD(np,:) * exp(-0.5*tstp/15.)
 
   END DO
 
-  
+
 !  IF ( BLAZE%DAY .EQ. 1 ) &
 !       CALL BLAZE_DIAG( NCELLS, BLAZE, CPLANT_g, CPLANT_w, AGL_g, AGL_w, TO, "dref")
 
@@ -759,15 +756,15 @@ END SUBROUTINE RUN_BLAZE
     USE netcdf
 
     IMPLICIT NONE
+
     TYPE(TYPE_BLAZE), INTENT(IN) :: BLAZE
     LOGICAL, INTENT(IN)    :: FINAL
     !INTEGER, INTENT(IN)    :: ctime
 
     INTEGER   :: STATUS
-    INTEGER   :: land_ID, age_ID, hist_ID, t_ID, nLU_ID, nTrans_ID
-    INTEGER   :: i, mp, nprod, nprod_ID
-    LOGICAL   :: CASAONLY
-    CHARACTER :: CYEAR*4, FNAME*99,dum*50
+    INTEGER   :: land_ID, t_ID
+    INTEGER   :: i, mp
+    CHARACTER :: FNAME*99,dum*50
     LOGICAL, SAVE :: CALL1 = .TRUE.
 
      ! 1 dim arrays (mp )
@@ -776,25 +773,9 @@ END SUBROUTINE RUN_BLAZE
     CHARACTER(len=20),DIMENSION(25):: A1
     ! 2 dim integer arrays (mp,t)
     CHARACTER(len=20),DIMENSION(1):: AI1
-    ! 3 dim real arrays (mp,age_max,t)
-    CHARACTER(len=25),DIMENSION(4) :: A2
-    ! 3 dim real arrays (mp,LENGTH_SECDF_HISTORY,t)
-    CHARACTER(len=20),DIMENSION(1) :: A3
-    ! 3 dim integer arrays (mp,LENGTH_SECDF_HISTORY,t)
-    CHARACTER(len=20),DIMENSION(1) :: AI3
-    ! 3 dim real arrays (mp,nLU,t)
-    CHARACTER(len=20),DIMENSION(7) :: A4
-    ! 3 dim real arrays (mp,nTrans,t)
-    CHARACTER(len=20),DIMENSION(1) :: A5
-    ! 3 dim real arrays (mp,nprod,t)
-    CHARACTER(len=20),DIMENSION(4) :: A6
 
     INTEGER, SAVE :: VIDtime, VID0(SIZE(A0)),VID1(SIZE(A1)),VIDI1(SIZE(AI1))
-    INTEGER, SAVE :: VID2(SIZE(A2)),VID3(SIZE(A3)),VIDI3(SIZE(AI3))
-    INTEGER, SAVE :: VID4(SIZE(A4)),VID5(SIZE(A5)), VID6(size(A6))
     INTEGER, SAVE :: FILE_ID, CNT = 0
-    CHARACTER(len=50) :: RecordDimName
-
 
     A0(1) = 'latitude'
     A0(2) = 'longitude'
@@ -811,7 +792,7 @@ END SUBROUTINE RUN_BLAZE
     A1(10) = 'FLI'
     A1(11) = 'ROS'
     A1(12) = 'FlameHeight'
-    A1(13) = 'DMacArthur' 
+    A1(13) = 'DMacArthur'
     A1(14) = 'AvailFuel'
     A1(15) = 'AvailFuelPrior'
 
@@ -862,7 +843,7 @@ END SUBROUTINE RUN_BLAZE
        ! Land (number of points)
        STATUS = NF90_def_dim(FILE_ID, 'land'   , mp     , land_ID)
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-    
+
        STATUS = NF90_def_dim(FILE_ID, 'time'   , NF90_UNLIMITED, t_ID)
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
@@ -878,8 +859,8 @@ END SUBROUTINE RUN_BLAZE
        STATUS = NF90_PUT_ATT(FILE_ID,VIDtime, 'calendar', calendar)
        IF (STATUS /= NF90_NOERR)  CALL handle_err(STATUS)
 
-      
-            
+
+
        DO i = 1, SIZE(A0)
           STATUS = NF90_def_var(FILE_ID,TRIM(A0(i)) ,NF90_FLOAT,(/land_ID/),VID0(i))
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
@@ -913,7 +894,7 @@ END SUBROUTINE RUN_BLAZE
 
     ENDIF ! CALL1
 
-   
+
 
     ! TIME  ( t )
     STATUS = NF90_PUT_VAR(FILE_ID, VIDtime, BLAZE%time, start=(/ CNT /) )
@@ -973,7 +954,7 @@ END SUBROUTINE RUN_BLAZE
 
     STATUS = NF90_PUT_VAR(FILE_ID, VID1( 16), BLAZE%CPLANT_w(:,FROOT), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    
+
     STATUS = NF90_PUT_VAR(FILE_ID, VID1( 17), BLAZE%CPLANT_w(:,leaf), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
@@ -1006,7 +987,7 @@ END SUBROUTINE RUN_BLAZE
 
     STATUS = NF90_PUT_VAR(FILE_ID, VIDI1(1), BLAZE%DSLR, start=(/ 1, CNT /), count=(/ mp, 1 /)  )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    
+
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
     IF ( FINAL ) THEN
@@ -1020,4 +1001,3 @@ END SUBROUTINE RUN_BLAZE
 
 
 END MODULE BLAZE_MOD
-
