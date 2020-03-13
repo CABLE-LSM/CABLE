@@ -134,19 +134,10 @@ MODULE cable_mpimaster
   INTEGER, ALLOCATABLE, DIMENSION(:) :: blaze_out_ts
   INTEGER, ALLOCATABLE, DIMENSION(:) :: blaze_restart_ts
 
-  ! MPI derived datatype handles for Sending/receiving vals results for SIMFIRE
-  INTEGER, ALLOCATABLE, DIMENSION(:) :: simfire_inp_ts
-  INTEGER, ALLOCATABLE, DIMENSION(:) :: simfire_out_ts
-  INTEGER, ALLOCATABLE, DIMENSION(:) :: simfire_recv_ts
-  INTEGER, ALLOCATABLE, DIMENSION(:) :: simfire_restart_ts
-
   ! POP related derived types
 
   ! MPI derived datatype handles for receiving POP results from the workers
   INTEGER :: pop_ts
-
-  ! MPI derived datatype handles for receiving POP results from the workers
-  INTEGER :: blaze_ts
 
   ! 13C
   ! MPI derived datatype handles for receiving c13o2 results from the workers
@@ -207,7 +198,6 @@ CONTAINS
     USE POPLUC_Module,        ONLY: WRITE_LUC_OUTPUT_NC, WRITE_LUC_OUTPUT_GRID_NC, &
          POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, POPLUC_set_patchfrac, &
          READ_LUC_RESTART_NC, alloc_popluc
-    USE POP_Constants,        ONLY: HEIGHT_BINS, NCOHORT_MAX
     ! LUC_EXPT only
     USE CABLE_LUC_EXPT,       ONLY: LUC_EXPT_TYPE, LUC_EXPT_INIT, close_luh2
 
@@ -257,12 +247,9 @@ CONTAINS
          ktauday,     &  ! day counter for CASA-CNP
          idoy,        &  ! day of year (1:365) counter for CASA-CNP
          nyear,       &  ! year counter for CASA-CNP
-         casa_it,     &  ! number of calls to CASA-CNP
          ctime,       &  ! time for casacnp
          YYYY,        &  !
          LOY,         &  ! Length of Year
-         count_sum_casa, & ! number of time steps over which casa pools and fluxes are aggregated (for output)
-
          maxdiff(2)      ! location of maximum in convergence test
 
     REAL :: dels                    ! time step size in seconds
@@ -280,13 +267,11 @@ CONTAINS
     TYPE(climate_type)   :: climate ! climate variables
 
     ! CABLE parameters
-    TYPE(soil_parameter_type) :: soil ! soil parameters
-    TYPE(veg_parameter_type)  :: veg  ! vegetation parameters: see below for iveg in MPI variables
-    TYPE(driver_type)    :: C         ! constants used locally
-    TYPE(icanopy_type)   :: PHOTO     ! photosynthesis constants
-
-    TYPE(sum_flux_type)  :: sum_flux ! cumulative flux variables
-    TYPE(bgc_pool_type)  :: bgc      ! carbon pool variables
+    TYPE(soil_parameter_type) :: soil     ! soil parameters
+    TYPE(veg_parameter_type)  :: veg      ! vegetation parameters: see below for iveg in MPI variables
+    TYPE(driver_type)         :: C        ! constants used locally
+    TYPE(sum_flux_type)       :: sum_flux ! cumulative flux variables
+    TYPE(bgc_pool_type)       :: bgc      ! carbon pool variables
 
     ! CASA-CNP variables
     TYPE(casa_biome)     :: casabiome
@@ -320,7 +305,7 @@ CONTAINS
     character(len=40), dimension(c13o2_nvars_output) :: c13o2_vars
     integer,           dimension(c13o2_nvars_output) :: c13o2_var_ids
     ! delta-13C of atmospheric CO2
-    integer            :: iunit, ios, CurYear1
+    integer            :: iunit, ios
     real               :: iyear
     integer            :: c13o2_atm_syear, c13o2_atm_eyear
     character(len=100) :: header
@@ -355,11 +340,10 @@ CONTAINS
     LOGICAL :: loop_exit     ! MPI: exit flag for bcast to workers
     INTEGER :: iktau    ! read ahead index of time step = 1 ..  kend
     INTEGER :: oktau    ! ktau = 1 ..  kend for output
-    INTEGER :: tmp_kgl    ! temp for ktau_gl
     INTEGER :: icomm ! separate dupes of MPI communicator for send and recv
     INTEGER :: ocomm ! separate dupes of MPI communicator for send and recv
     INTEGER :: ierr
-    INTEGER :: rank, count, off, cnt
+    INTEGER :: rank, off, cnt
 
     ! Vars for standard for quasi-bitwise reproducability b/n runs
     ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
@@ -407,7 +391,7 @@ CONTAINS
          satuParam,        &
          cable_user           ! additional USER switches
     
-    integer :: i,x,kk
+    integer :: kk
     integer :: lalloc
     integer, parameter :: mloop = 30 !MCTEST 30   ! CASA-CNP PreSpinup loops
     real :: etime, etimelast
@@ -1263,9 +1247,9 @@ CONTAINS
                 
                 ! check for Nans in biophysical outputs and abort if there are any
                 ! print*, 'II19.05'
-                IF (any( canopy%fe.NE. canopy%fe)) THEN
+                IF (any(canopy%fe .NE. canopy%fe)) THEN
                    DO kk=1,mp
-                      IF (canopy%fe(kk).NE. canopy%fe(kk)) THEN
+                      IF (canopy%fe(kk) .NE. canopy%fe(kk)) THEN
                          WRITE(*,*) 'Nan in evap flux,', kk, patch(kk)%latitude, patch(kk)%longitude
                          write(*,*) 'fe nan', kk, ktau,met%qv(kk), met%precip(kk),met%precip_sn(kk), &
                               met%fld(kk), met%fsd(kk,:), met%tk(kk), met%ua(kk), &
@@ -1796,7 +1780,7 @@ SUBROUTINE master_decomp(comm, mland, mp)
 
   use mpi
 
-  USE cable_IO_vars_module, ONLY : landpt, patch
+  USE cable_IO_vars_module, ONLY : landpt
 
   IMPLICIT NONE
 
@@ -1923,7 +1907,7 @@ SUBROUTINE master_cable_params(comm, met, air, ssnow, veg, bgc, soil, canopy, ro
   INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
   INTEGER :: tsize, localtotal, remotetotal
 
-  INTEGER :: stat(MPI_STATUS_SIZE), ierr
+  INTEGER :: ierr
   INTEGER, ALLOCATABLE, DIMENSION(:) :: param_t
 
   INTEGER(KIND=MPI_ADDRESS_KIND) :: r1stride, r2stride, istride
@@ -3612,7 +3596,7 @@ SUBROUTINE master_casa_params(comm, casabiome, casapool, casaflux, casamet, casa
   INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
   INTEGER :: tsize, localtotal, remotetotal
 
-  INTEGER :: stat(MPI_STATUS_SIZE), ierr
+  INTEGER :: ierr
   ! INTEGER :: landp_t, patch_t, param_t
   INTEGER, ALLOCATABLE, DIMENSION(:) :: casa_t
 
@@ -6691,9 +6675,6 @@ SUBROUTINE master_casa_types(comm, casapool, casaflux, casamet, casabal, phen)
 
   INTEGER :: last2d, i
 
-  ! MPI: block lenghts for hindexed representing all vectors
-  INTEGER, ALLOCATABLE, DIMENSION(:) :: blen
-
   ! MPI: block lengths and strides for hvector representing matrices
   INTEGER :: r1len, r2len, I1LEN
   INTEGER(KIND=MPI_ADDRESS_KIND) :: r1stride, r2stride, istride
@@ -6702,7 +6683,7 @@ SUBROUTINE master_casa_types(comm, casapool, casaflux, casamet, casabal, phen)
   INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
 
   INTEGER :: rank, off, cnt
-  INTEGER :: bidx, midx, vidx, ierr
+  INTEGER :: bidx, ierr
 
   ALLOCATE (casa_ts(wnp))
 
@@ -7400,8 +7381,7 @@ SUBROUTINE master_climate_types (comm, climate, ktauday)
   use mpi
 
   USE cable_def_types_mod, ONLY: climate_type, mp
-  USE cable_climate_mod, ONLY: climate_init,  READ_CLIMATE_RESTART_NC
-  USE cable_common_module, ONLY: cable_user
+  USE cable_climate_mod,   ONLY: climate_init, READ_CLIMATE_RESTART_NC
 
   TYPE(climate_type):: climate
   INTEGER :: comm, ktauday
@@ -7411,11 +7391,6 @@ SUBROUTINE master_climate_types (comm, climate, ktauday)
   INTEGER, ALLOCATABLE, DIMENSION(:) :: types
   INTEGER :: ntyp ! number of worker's types
 
-  INTEGER :: last2d, i
-
-  ! MPI: block lenghts for hindexed representing all vectors
-  INTEGER, ALLOCATABLE, DIMENSION(:) :: blen
-
   ! MPI: block lengths and strides for hvector representing matrices
   INTEGER :: r1len, r2len, I1LEN
   INTEGER(KIND=MPI_ADDRESS_KIND) :: r1stride, r2stride
@@ -7424,7 +7399,7 @@ SUBROUTINE master_climate_types (comm, climate, ktauday)
   INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
 
   INTEGER :: rank, off, cnt
-  INTEGER :: bidx, midx, vidx, ierr, ny, nd, ndq, nsd
+  INTEGER :: bidx, ierr, ny, nd, ndq, nsd
 
 !!$  CALL climate_init (climate, mp, ktauday)
 !!$  if (cable_user%call_climate .AND.(.NOT.cable_user%climate_fromzero)) &
@@ -8116,9 +8091,6 @@ SUBROUTINE master_restart_types(comm, canopy, air)
 
   INTEGER :: last2d, i
 
-  ! MPI: block lenghts for hindexed representing all vectors
-  INTEGER, ALLOCATABLE, DIMENSION(:) :: blen
-
   ! MPI: block lengths and strides for hvector representing matrices
   INTEGER :: r1len, r2len
   INTEGER(KIND=MPI_ADDRESS_KIND) :: r1stride, r2stride
@@ -8127,7 +8099,7 @@ SUBROUTINE master_restart_types(comm, canopy, air)
   INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
 
   INTEGER :: rank, off, cnt
-  INTEGER :: bidx, midx, vidx, ierr
+  INTEGER :: bidx, ierr
 
   ALLOCATE(restart_ts(wnp))
 
@@ -8315,7 +8287,7 @@ SUBROUTINE master_casa_dump_types(comm, casamet, casaflux, phen, climate, c13o2f
   INTEGER :: tsize, localtotal, remotetotal
 
   INTEGER(KIND=MPI_ADDRESS_KIND) :: r1stride, r2stride, Istride
-  INTEGER :: r1len, r2len, I1LEN, llen ! block lengths
+  INTEGER :: r1len, r2len, I1LEN ! block lengths
   INTEGER :: bidx ! block index
   INTEGER :: ntyp ! total number of blocks
   INTEGER :: rank ! worker rank
@@ -8512,7 +8484,7 @@ SUBROUTINE master_casa_LUC_types(comm, casapool, casabal, casaflux)
   INTEGER :: tsize, localtotal, remotetotal
 
   INTEGER(KIND=MPI_ADDRESS_KIND) :: r1stride, r2stride, Istride
-  INTEGER :: r1len, r2len, i1len, llen ! block lengths
+  INTEGER :: r1len, r2len, i1len ! block lengths
   INTEGER :: bidx ! block index
   INTEGER :: ntyp ! total number of blocks
   INTEGER :: rank ! worker rank
@@ -8697,29 +8669,16 @@ SUBROUTINE master_pop_types(comm, casamet, pop)
 
   IMPLICIT NONE
 
-  INTEGER,INTENT(IN) :: comm
-  TYPE (casa_met)          , INTENT(IN)    :: casamet
-  TYPE (pop_type)          , INTENT(INOUT) :: pop
+  INTEGER,        INTENT(IN)    :: comm
+  TYPE(casa_met), INTENT(IN)    :: casamet
+  TYPE(pop_type), INTENT(INOUT) :: pop
 
-  ! temp arrays for marshalling all fields into a single struct
-  INTEGER, ALLOCATABLE, DIMENSION(:) :: blocks
-  INTEGER(KIND=MPI_ADDRESS_KIND), ALLOCATABLE, DIMENSION(:) :: displs
-  INTEGER, ALLOCATABLE, DIMENSION(:) :: types
-
-  ! temp vars for verifying block number and total length of inp_t
-  INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
-  INTEGER :: tsize, localtotal, remotetotal
-
-  INTEGER(KIND=MPI_ADDRESS_KIND) :: r2stride, ilstride, idstride
-  INTEGER :: r2len, illen,idlen ! block lengths
-  INTEGER :: bidx ! block index
-  INTEGER :: ntyp ! total number of blocks
   INTEGER :: rank ! worker rank
   INTEGER :: off  ! first patch index for a worker
   INTEGER :: cnt  ! mp for a worker
   INTEGER :: ierr
-  INTEGER :: x, l, prev_mp
-  INTEGER, ALLOCATABLE :: w_iwood(:), nwoodcells(:)
+  INTEGER :: prev_mp
+  INTEGER, ALLOCATABLE :: w_iwood(:)
 
   ! Also send Pop relevant info to workers.
 
@@ -8780,8 +8739,7 @@ SUBROUTINE master_receive_pop(POP, comm)
 
   USE MPI
   USE POP_mpi
-  USE POP_Types,           ONLY: pop_type
-  USE cable_common_module, ONLY: cable_user
+  USE POP_Types, ONLY: pop_type
 
   IMPLICIT NONE
 
@@ -9023,7 +8981,7 @@ subroutine master_c13o2_flux_params(comm, c13o2flux)
   integer(kind=MPI_ADDRESS_KIND) :: text, tmplb
   integer :: tsize, localtotal, remotetotal
 
-  integer :: stat(MPI_STATUS_SIZE), ierr
+  integer :: ierr
   integer, allocatable, dimension(:) :: c13o2_flux_t
 
   integer(kind=MPI_ADDRESS_KIND) :: r1stride, r2stride, istride
@@ -9202,7 +9160,7 @@ subroutine master_c13o2_pool_params(comm, c13o2pools)
   integer(kind=MPI_ADDRESS_KIND) :: text, tmplb
   integer :: tsize, localtotal, remotetotal
 
-  integer :: stat(MPI_STATUS_SIZE), ierr
+  integer :: ierr
   integer, allocatable, dimension(:) :: c13o2_pool_t
 
   integer(kind=MPI_ADDRESS_KIND) :: r1stride, r2stride, istride
@@ -9359,7 +9317,7 @@ subroutine master_c13o2_luc_params(comm, c13o2luc)
   integer(kind=MPI_ADDRESS_KIND) :: text, tmplb
   integer :: tsize, localtotal, remotetotal
 
-  integer :: stat(MPI_STATUS_SIZE), ierr
+  integer :: ierr
   integer, allocatable, dimension(:) :: c13o2_luc_t
 
   integer(kind=MPI_ADDRESS_KIND) :: r1stride, r2stride, istride
@@ -9498,9 +9456,6 @@ subroutine master_c13o2_flux_types(comm, c13o2flux)
 
   integer :: last2d, i
 
-  ! mpi: block lenghts for hindexed representing all vectors
-  integer, allocatable, dimension(:) :: blen
-
   ! mpi: block lengths and strides for hvector representing matrices
   integer :: r1len, r2len, i1len
   integer(kind=MPI_ADDRESS_KIND) :: r1stride, r2stride, istride
@@ -9509,7 +9464,7 @@ subroutine master_c13o2_flux_types(comm, c13o2flux)
   integer(kind=MPI_ADDRESS_KIND) :: text, tmplb
 
   integer :: rank, off, cnt
-  integer :: bidx, midx, vidx, ierr
+  integer :: bidx, ierr
 
   allocate(c13o2_flux_ts(wnp))
 
@@ -9668,9 +9623,6 @@ subroutine master_c13o2_pool_types(comm, c13o2pools)
 
   integer :: last2d, i
 
-  ! mpi: block lenghts for hindexed representing all vectors
-  integer, allocatable, dimension(:) :: blen
-
   ! mpi: block lengths and strides for hvector representing matrices
   integer :: r1len, r2len, i1len
   integer(kind=MPI_ADDRESS_KIND) :: r1stride, r2stride, istride
@@ -9679,7 +9631,7 @@ subroutine master_c13o2_pool_types(comm, c13o2pools)
   integer(kind=MPI_ADDRESS_KIND) :: text, tmplb
 
   integer :: rank, off, cnt
-  integer :: bidx, midx, vidx, ierr
+  integer :: bidx, ierr
 
   allocate(c13o2_pool_ts(wnp))
 
@@ -9815,9 +9767,6 @@ subroutine master_c13o2_luc_types(comm, c13o2luc)
 
   integer :: last2d, i
 
-  ! mpi: block lenghts for hindexed representing all vectors
-  integer, allocatable, dimension(:) :: blen
-
   ! mpi: block lengths and strides for hvector representing matrices
   integer :: r1len, r2len, i1len
   integer(kind=MPI_ADDRESS_KIND) :: r1stride, r2stride, istride
@@ -9826,7 +9775,7 @@ subroutine master_c13o2_luc_types(comm, c13o2luc)
   integer(kind=MPI_ADDRESS_KIND) :: text, tmplb
 
   integer :: rank, off, cnt
-  integer :: bidx, midx, vidx, ierr
+  integer :: bidx, ierr
 
   allocate(c13o2_luc_ts(wnp))
 
@@ -10113,7 +10062,6 @@ SUBROUTINE master_spincasacnp(dels, kstart, kend, mloop, veg, soil, casabiome, c
   use phenvariable
   use POP_types,           only: POP_type
   use POPmodule,           only: POPstep
-  use TypeDef,             only: i4b, dp
   ! 13C
   use cable_c13o2_def,     only: c13o2_flux, c13o2_pool, c13o2_luc
   use cable_c13o2,         only: c13o2_write_restart_pools, c13o2_write_restart_luc
@@ -10144,37 +10092,12 @@ SUBROUTINE master_spincasacnp(dels, kstart, kend, mloop, veg, soil, casabiome, c
   integer, intent(in)  :: icomm, ocomm
 
   ! local variables
-  real(r_2), dimension(:), allocatable, save  :: avg_cleaf2met, avg_cleaf2str, avg_croot2met, avg_croot2str, avg_cwood2cwd
-  real(r_2), dimension(:), allocatable, save  :: avg_nleaf2met, avg_nleaf2str, avg_nroot2met, avg_nroot2str, avg_nwood2cwd
-  real(r_2), dimension(:), allocatable, save  :: avg_pleaf2met, avg_pleaf2str, avg_proot2met, avg_proot2str, avg_pwood2cwd
-  real(r_2), dimension(:), allocatable, save  :: avg_cgpp,      avg_cnpp,      avg_nuptake,   avg_puptake
-  real(r_2), dimension(:), allocatable, save  :: avg_nsoilmin,  avg_psoillab,  avg_psoilsorb, avg_psoilocc
-  ! chris 12/oct/2012 for spin up casa
-  real(r_2), dimension(:), allocatable, save  :: avg_ratioNCsoilmic,  avg_ratioNCsoilslow,  avg_ratioNCsoilpass
-  real(r_2), dimension(:), allocatable, save  :: avg_xnplimit,  avg_xkNlimiting,avg_xklitter, avg_xksoil
-
-  ! local variables
   integer                  :: myearspin,nyear, nloop1
   character(len=99)        :: ncfile
   character(len=4)         :: cyear
-  integer                  :: ktau,ktauday,nday,idoy,ktaux,ktauy,nloop
-  integer, save            :: ndays
-  real(r_2), dimension(mp) :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
-  real(r_2), dimension(mp) :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
-  real(r_2), dimension(mp) :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
-  real(r_2), dimension(mp) :: xcgpp,     xcnpp,     xnuptake,  xpuptake
-  real(r_2), dimension(mp) :: xnsoilmin, xpsoillab, xpsoilsorb,xpsoilocc
-  real(r_2), dimension(mp) :: xnplimit,  xknlimiting, xklitter, xksoil,xkleaf, xkleafcold, xkleafdry
+  integer                  :: ktau,ktauday,nday,idoy,ktauy,nloop
 
-  ! more variables to store the spinup pool size over the last 10 loops. Added by Yp Wang 30 Nov 2012
-  real(r_2), dimension(5,mvtype,mplant)  :: bmcplant,  bmnplant,  bmpplant
-  real(r_2), dimension(5,mvtype,mlitter) :: bmclitter, bmnlitter, bmplitter
-  real(r_2), dimension(5,mvtype,msoil)   :: bmcsoil,   bmnsoil,   bmpsoil
-  real(r_2), dimension(5,mvtype)         :: bmnsoilmin,bmpsoillab,bmpsoilsorb, bmpsoilocc
-  real(r_2), dimension(mvtype)           :: bmarea
-  integer :: nptx,nvt,kloop
-
-  ktauday = int(24.0*3600.0/dels)
+  ktauday = nint(24.0*3600.0/dels)
   nday    = (kend-kstart+1)/ktauday
   ktau    = 0
 
@@ -10212,7 +10135,7 @@ SUBROUTINE master_spincasacnp(dels, kstart, kend, mloop, veg, soil, casabiome, c
         phen%doyphase(:,2) = phen%doyphasespin_2(:,idoy)
         phen%doyphase(:,3) = phen%doyphasespin_3(:,idoy)
         phen%doyphase(:,4) = phen%doyphasespin_4(:,idoy)
-        climate%qtemp_max_last_year(:) = casamet%mtempspin(:,idoy)
+        climate%qtemp_max_last_year(:) = real(casamet%mtempspin(:,idoy))
         ! casaflux%Nmindep and casaflux%Pdep set in read_casa_dump
         ! 13C
         if (cable_user%c13o2) then
@@ -10262,7 +10185,7 @@ SUBROUTINE master_spincasacnp(dels, kstart, kend, mloop, veg, soil, casabiome, c
            phen%doyphase(:,2) = phen%doyphasespin_2(:,idoy)
            phen%doyphase(:,3) = phen%doyphasespin_3(:,idoy)
            phen%doyphase(:,4) = phen%doyphasespin_4(:,idoy)
-           climate%qtemp_max_last_year(:) = casamet%mtempspin(:,idoy)
+           climate%qtemp_max_last_year(:) = real(casamet%mtempspin(:,idoy))
            ! casaflux%Nmindep and casaflux%Pdep set in read_casa_dump
            ! 13C
            if (cable_user%c13o2) then
@@ -10310,17 +10233,17 @@ SUBROUTINE master_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
   USE cable_def_types_mod
   USE cable_carbon_module
   USE cable_common_module,  ONLY: cable_user, is_casa_time
-  USE cable_IO_vars_module, ONLY: logn, landpt, patch, output
+  USE cable_IO_vars_module, ONLY: landpt, output
   USE casadimension
   USE casaparm
   USE casavariable
   USE phenvariable
   USE POP_Types,            only: POP_TYPE
   USE POPMODULE,            ONLY: POPStep, POP_init_single
-  USE TypeDef,              ONLY: i4b, dp
-  USE CABLE_LUC_EXPT,       ONLY: LUC_EXPT_TYPE, read_LUH2,&
-       ptos,ptog,stog,gtos,grassfrac, pharv, smharv, syharv, &
-       ptoc,ptoq, stoc, stoq, ctos, qtos, cropfrac, pastfrac
+  USE TypeDef,              ONLY: dp
+  USE CABLE_LUC_EXPT,       ONLY: LUC_EXPT_TYPE, read_LUH2, &
+       ptos, ptog, stog, gtos, pharv, smharv, syharv, &
+       ptoc, ptoq, stoc, stoq, ctos, qtos
   USE POPLUC_Types
   USE POPLUC_Module,        ONLY: POPLUCStep, POPLUC_weights_Transfer, WRITE_LUC_OUTPUT_NC, &
        POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, READ_LUC_RESTART_NC, &
@@ -10358,43 +10281,14 @@ SUBROUTINE master_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
   integer,                   intent(in)    :: icomm, ocomm
 
   ! local variables
-  real(r_2), dimension(:), allocatable, save :: avg_cleaf2met, avg_cleaf2str, avg_croot2met, avg_croot2str, avg_cwood2cwd
-  real(r_2), dimension(:), allocatable, save :: avg_nleaf2met, avg_nleaf2str, avg_nroot2met, avg_nroot2str, avg_nwood2cwd
-  real(r_2), dimension(:), allocatable, save :: avg_pleaf2met, avg_pleaf2str, avg_proot2met, avg_proot2str, avg_pwood2cwd
-  real,      dimension(:), allocatable, save :: avg_cgpp,      avg_cnpp,      avg_nuptake,   avg_puptake
-  real,      dimension(:), allocatable, save :: avg_nsoilmin,  avg_psoillab,  avg_psoilsorb, avg_psoilocc
-  !chris 12/oct/2012 for spin up casa
-  real,      dimension(:), allocatable, save :: avg_ratioNCsoilmic,  avg_ratioNCsoilslow,  avg_ratioNCsoilpass
-  real(r_2), dimension(:), allocatable, save :: avg_xnplimit,  avg_xkNlimiting,avg_xklitter, avg_xksoil
-
-  ! local variables
   integer           :: myearspin,nyear, yyyy, nyear_dump
   character(len=99) :: ncfile
   character(len=4)  :: cyear
-  integer           :: ktau,ktauday,nday,idoy,ktaux,ktauy,nloop
-  integer, save     :: ndays
-  real(r_2), dimension(mp) :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
-  real(r_2), dimension(mp) :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
-  real(r_2), dimension(mp) :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
-  real,      dimension(mp) :: xcgpp,     xcnpp,     xnuptake,  xpuptake
-  real,      dimension(mp) :: xnsoilmin, xpsoillab, xpsoilsorb,xpsoilocc
-  real(r_2), dimension(mp) :: xnplimit,  xkNlimiting, xklitter, xksoil,xkleaf, xkleafcold, xkleafdry
+  integer           :: ktau,ktauday,nday,idoy
 
   ! more variables to store the spinup pool size over the last 10 loops. Added by Yp Wang 30 Nov 2012
-  real, dimension(5,mvtype,mplant)  :: bmcplant,  bmnplant,  bmpplant
-  real, dimension(5,mvtype,mlitter) :: bmclitter, bmnlitter, bmplitter
-  real, dimension(5,mvtype,msoil)   :: bmcsoil,   bmnsoil,   bmpsoil
-  real, dimension(5,mvtype)         :: bmnsoilmin,bmpsoillab,bmpsoilsorb, bmpsoilocc
-  real, dimension(mvtype)           :: bmarea
-  integer :: nptx,nvt,kloop, ctime, k, j, l
-
-  real(dp) :: stemnpp(mp,2)
-  real(dp), allocatable, save :: laimax(:), cleafmean(:), crootmean(:)
-  real(dp), allocatable :: npptogpp(:)
-  integer, allocatable :: iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
-  integer :: count_sum_casa ! number of time steps over which casa pools &
-  !and fluxes are aggregated (for output)
-  integer :: rank, count, off, cnt, ierr
+  integer :: k, j, l
+  integer :: rank, off, cnt, ierr
   ! 13C
   real(dp), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
   real(dp), dimension(c13o2luc%nland,c13o2luc%npools)     :: lucsave
@@ -10460,7 +10354,7 @@ SUBROUTINE master_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
         phen%doyphase(:,2) = phen%doyphasespin_2(:,idoy)
         phen%doyphase(:,3) = phen%doyphasespin_3(:,idoy)
         phen%doyphase(:,4) = phen%doyphasespin_4(:,idoy)
-        climate%qtemp_max_last_year(:) = casamet%mtempspin(:,idoy)
+        climate%qtemp_max_last_year(:) = real(casamet%mtempspin(:,idoy))
         ! 13C
         if (cable_user%c13o2) then
            c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
@@ -10657,16 +10551,15 @@ SUBROUTINE LUCdriver(casabiome,casapool, casaflux, POP, LUC_EXPT, POPLUC, veg, &
   USE cable_def_types_mod , ONLY: r_2, veg_parameter_type, mland
   USE cable_carbon_module
   USE cable_common_module,  ONLY: cable_user, is_casa_time, CurYear
-  USE cable_IO_vars_module, ONLY: logn, landpt, patch
+  USE cable_IO_vars_module, ONLY: landpt
   USE casadimension
   USE casaparm
   USE casavariable
   USE POP_Types,            ONLY: POP_TYPE
   USE POPMODULE,            ONLY: POPStep, POP_init_single
-  USE TypeDef,              ONLY: i4b, dp
-  USE CABLE_LUC_EXPT,       ONLY: LUC_EXPT_TYPE, read_LUH2,&
-       ptos,ptog,stog,gtos,grassfrac, pharv, smharv, syharv, &
-       ptoc,ptoq, stoc, stoq, ctos, qtos, cropfrac, pastfrac
+  USE CABLE_LUC_EXPT,       ONLY: LUC_EXPT_TYPE, read_LUH2, &
+       ptos, ptog, stog, gtos, pharv, smharv, syharv, &
+       ptoc, ptoq, stoc, stoq, ctos, qtos
   USE POPLUC_Types
   USE POPLUC_Module,        ONLY: POPLUCStep, POPLUC_weights_Transfer, WRITE_LUC_OUTPUT_NC, &
        POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, READ_LUC_RESTART_NC
@@ -10716,7 +10609,7 @@ SUBROUTINE LUCdriver(casabiome,casapool, casaflux, POP, LUC_EXPT, POPLUC, veg, &
 
   ! zero secondary forest tiles in POP where secondary forest area is zero
   DO k=1,mland
-     if ((POPLUC%frac_primf(k)-POPLUC%frac_forest(k))==0.0 &
+     if ((POPLUC%frac_primf(k)-POPLUC%frac_forest(k))==0.0_r_2 &
           .and. (.not.LUC_EXPT%prim_only(k))) then
         j = landpt(k)%cstart+1
         do l=1,size(POP%Iwood)

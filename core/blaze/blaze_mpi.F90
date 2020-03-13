@@ -50,9 +50,6 @@ SUBROUTINE master_blaze_types (comm, wland, wnp, mp, BLAZE, blaze_restart_ts, bl
 
   INTEGER :: last2d, i
 
-  ! MPI: block lenghts for hindexed representing all vectors
-  INTEGER, ALLOCATABLE, DIMENSION(:) :: blen
-
   ! MPI: block lengths and strides for hvector representing matrices
   INTEGER :: r1len, r2len, i1len
   INTEGER(KIND=MPI_ADDRESS_KIND) :: r1stride, r2stride, istride
@@ -61,7 +58,7 @@ SUBROUTINE master_blaze_types (comm, wland, wnp, mp, BLAZE, blaze_restart_ts, bl
   INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
 
   INTEGER :: rank, off, cnt
-  INTEGER :: bidx, midx, vidx, ierr
+  INTEGER :: bidx, ierr
 
   ! Restart value handles (blaze_restart_ts()) 
   
@@ -449,10 +446,10 @@ SUBROUTINE worker_blaze_types(comm, mp, BLAZE, blaze_restart_t, blaze_out_t)
   INTEGER :: ntyp ! number of worker's types
   
   ! MPI: block lengths and strides for hvector representing matrices
-  INTEGER :: r1len, r2len, i1len, llen
+  INTEGER :: r1len, r2len, i1len
   
   INTEGER :: rank, off
-  INTEGER :: bidx, midx, vidx, ierr, nd, ny
+  INTEGER :: bidx, ierr
 
   INTEGER :: tsize
   INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
@@ -745,9 +742,6 @@ SUBROUTINE master_simfire_types(comm, wland, wnp, mp, SF, simfire_restart_ts, si
 
   INTEGER :: last2d, i
 
-  ! MPI: block lenghts for hindexed representing all vectors
-  INTEGER, ALLOCATABLE, DIMENSION(:) :: blen
-
   ! MPI: block lengths and strides for hvector representing matrices
   INTEGER :: r1len, r2len, i1len
   INTEGER(KIND=MPI_ADDRESS_KIND) :: r1stride, r2stride, istride
@@ -756,7 +750,7 @@ SUBROUTINE master_simfire_types(comm, wland, wnp, mp, SF, simfire_restart_ts, si
   INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
 
   INTEGER :: rank, off, cnt
-  INTEGER :: bidx, midx, vidx, ierr
+  INTEGER :: bidx, ierr
 
   ! Restart value handles (simfire_restart_ts) 
   
@@ -1064,19 +1058,14 @@ SUBROUTINE worker_simfire_types(comm, mp, SF, simfire_restart_t, simfire_inp_t, 
   INTEGER, ALLOCATABLE, DIMENSION(:) :: types
   INTEGER :: ntyp ! number of worker's types
 
-  INTEGER :: last2d, i
-
-  ! MPI: block lenghts for hindexed representing all vectors
-  INTEGER, ALLOCATABLE, DIMENSION(:) :: blen
-
   ! MPI: block lengths and strides for hvector representing matrices
   INTEGER :: r1len, r2len, i1len, llen
 
-  INTEGER :: tsize, totalrecv, totalsend
+  INTEGER :: tsize
   INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
 
   INTEGER :: rank, off
-  INTEGER :: bidx, midx, vidx, ierr
+  INTEGER :: bidx, ierr
 
   CALL MPI_Comm_rank (comm, rank, ierr)
 

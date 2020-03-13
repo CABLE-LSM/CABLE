@@ -13,7 +13,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   USE phenvariable
   USE POP_Types,  Only: POP_TYPE
   USE POPMODULE,            ONLY: POPStep, POP_init_single
-  USE TypeDef,              ONLY: i4b, dp
+  USE TypeDef,              ONLY: dp
   USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE, read_LUH2, &
        ptos, ptog, stog, gtos, pharv, smharv, syharv, &
        ptoc, ptoq, stoc, stoq, ctos, qtos
@@ -63,12 +63,10 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   real(r_2), dimension(mp)      :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
   real(r_2), dimension(mp)      :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
   real(r_2), dimension(mp)      :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
-  real,      dimension(mp)      :: xnuptake
-  real,      dimension(mp)      :: xnsoilmin
   real(r_2), dimension(mp)      :: xnplimit,  xkNlimiting, xklitter, xksoil,xkleaf, xkleafcold, xkleafdry
 
   ! more variables to store the spinup pool size over the last 10 loops. Added by Yp Wang 30 Nov 2012
-  integer :: nptx, ctime, k, j, l
+  integer :: ctime, k, j, l
   INTEGER, allocatable :: Iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
   INTEGER :: count_sum_casa ! number of time steps over which casa pools &
   !and fluxes are aggregated (for output)

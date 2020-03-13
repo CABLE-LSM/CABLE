@@ -79,12 +79,6 @@ MODULE cable_mpiworker
 
   PRIVATE
 
-  ! MPI: MPI derived datatype for receiving parameters from the master
-  INTEGER :: param_t
-
-  ! MPI: MPI derived datatype for receiving casa parameters from the master
-  INTEGER :: casaparam_t
-
   ! MPI: MPI derived datatype for receiving input from the master
   INTEGER :: inp_t
 
@@ -110,12 +104,6 @@ MODULE cable_mpiworker
   INTEGER :: blaze_out_t
   INTEGER :: blaze_restart_t
 
-  ! worker's struct for rec'ing/sending pop io to/from the master
-  INTEGER :: simfire_inp_t
-  INTEGER :: simfire_out_t
-  INTEGER :: simfire_send_t
-  INTEGER :: simfire_restart_t
-
   ! 13C
   ! MPI derived datatype handles for receiving c13o2 results from the workers and restart values
   integer :: c13o2_flux_t
@@ -139,7 +127,7 @@ CONTAINS
     USE cable_def_types_mod
     USE cable_io_vars_module, ONLY: logn, gswpfile, ncciy, leaps, &
          verbose, fixedCO2, output, check, patchout, soilparmnew, &
-         timeunits, exists, calendar, landpt, latitude, longitude
+         landpt, latitude, longitude
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user, &
          cable_runtime, filename, &
          redistrb, wiltParam, satuParam, CurYear, &
@@ -163,7 +151,7 @@ CONTAINS
     ! modules related to POP
     USE POPmodule,            ONLY: POP_INIT
     USE POP_Types,            ONLY: POP_TYPE
-    USE POP_Constants,        ONLY: HEIGHT_BINS, NCOHORT_MAX, shootfrac
+    USE POP_Constants,        ONLY: shootfrac
 
     ! modules related to fire
     USE BLAZE_MOD,            ONLY: TYPE_BLAZE, BLAZE_ACCOUNTING, INI_BLAZE
@@ -171,10 +159,9 @@ CONTAINS
     USE SIMFIRE_MOD,          ONLY: TYPE_SIMFIRE, INI_SIMFIRE
 
     ! 13C
-    use cable_c13o2_def,         only: c13o2_delta_atm, c13o2_flux, c13o2_pool, c13o2_luc, &
+    use cable_c13o2_def,         only: c13o2_flux, c13o2_pool, c13o2_luc, &
          c13o2_update_sum_pools, c13o2_zero_sum_pools
-    use cable_c13o2,             only: c13o2_save_luc, c13o2_update_luc, &
-         c13o2_nvars_output
+    use cable_c13o2,             only: c13o2_save_luc, c13o2_update_luc
     use mo_isotope,              only: isoratio ! vpdbc13
     use mo_c13o2_photosynthesis, only: c13o2_discrimination_simple, c13o2_discrimination
     use cable_data_module,       only: icanopy_type
@@ -203,14 +190,9 @@ CONTAINS
          ktauday,    &  ! day counter for CASA-CNP
          idoy,       &  ! day of year (1:365) counter for CASA-CNP
          nyear,      &  ! year counter for CASA-CNP
-         casa_it,    &  ! number of calls to CASA-CNP
-         ctime,      &  ! day count for casacnp
          YYYY,       &  !
          LOY,        &  ! Length of Year
-         count_sum_casa, & ! number of time steps over which casa pools &
-         !and fluxes are aggregated (for output)
-         rank,       &  ! Rank of this worker
-         maxdiff(2)     ! location of maximum in convergence test
+         rank           ! Rank of this worker
 
     REAL      :: dels    ! time step size in seconds
     CHARACTER :: cRank*4 ! for worker-logfiles
@@ -226,13 +208,11 @@ CONTAINS
     TYPE(climate_type)   :: climate     ! climate variables
 
     ! CABLE parameters
-    TYPE(soil_parameter_type) :: soil ! soil parameters
-    TYPE(veg_parameter_type)  :: veg  ! vegetation parameters
-    TYPE(driver_type)    :: C         ! constants used locally
-    TYPE(icanopy_type)   :: PHOTO     ! photosynthesis constants
-
-    TYPE(sum_flux_type)  :: sum_flux ! cumulative flux variables
-    TYPE(bgc_pool_type)  :: bgc  ! carbon pool variables
+    TYPE(soil_parameter_type) :: soil     ! soil parameters
+    TYPE(veg_parameter_type)  :: veg      ! vegetation parameters
+    TYPE(driver_type)         :: C        ! constants used locally
+    TYPE(sum_flux_type)       :: sum_flux ! cumulative flux variables
+    TYPE(bgc_pool_type)       :: bgc      ! carbon pool variables
 
     ! CASA-CNP variables
     TYPE(casa_biome)     :: casabiome
@@ -242,32 +222,21 @@ CONTAINS
     TYPE(casa_balance)   :: casabal
     TYPE(phen_variable)  :: phen
     TYPE(POP_TYPE)       :: POP
-    TYPE(PLUME_MIP_TYPE) :: PLUME
-    CHARACTER            :: cyear*4
-    CHARACTER            :: ncfile*99
 
     ! BLAZE variables
     TYPE(TYPE_BLAZE)     :: BLAZE
     TYPE(TYPE_SIMFIRE)   :: SIMFIRE
-    REAL, DIMENSION(:), ALLOCATABLE :: POP_TO, POP_CWD, POP_STR
+    ! REAL(r_2), DIMENSION(:), ALLOCATABLE :: POP_TO, POP_CWD, POP_STR
 
     ! 13C
     type(c13o2_flux) :: c13o2flux
     type(c13o2_pool) :: c13o2pools, sum_c13o2pools
     type(c13o2_luc)  :: c13o2luc
     ! I/O
-    integer :: c13o2_outfile_id
-    character(len=40), dimension(c13o2_nvars_output) :: c13o2_vars
-    integer,           dimension(c13o2_nvars_output) :: c13o2_var_ids
     ! discrimination
     integer :: ileaf
     real(r_2), dimension(:,:), allocatable :: gpp, diff
     real(r_2), dimension(:),   allocatable :: Ra
-    ! delta-13C of atmospheric CO2
-    integer            :: iunit, ios
-    real               :: iyear
-    integer            :: c13o2_atm_syear, c13o2_atm_eyear
-    character(len=100) :: header
 
     ! declare vars for switches (default .FALSE.) etc declared thru namelist
     LOGICAL, SAVE           :: &
@@ -288,18 +257,12 @@ CONTAINS
          delsoilM,         & ! allowed variation in soil moisture for spin up
          delsoilT            ! allowed variation in soil temperature for spin up
 
-    ! temporary storage for soil moisture/temp. in spin up mode
-    REAL, ALLOCATABLE, DIMENSION(:,:)  :: &
-         soilMtemp,                         &
-         soilTtemp
-
     ! MPI:
     LOGICAL :: loop_exit     ! MPI: exit flag for bcast to workers
     INTEGER :: stat(MPI_STATUS_SIZE)
     INTEGER :: icomm ! separate dupes of MPI communicator for send and recv
     INTEGER :: ocomm ! separate dupes of MPI communicator for send and recv
     INTEGER :: ierr
-    CHARACTER(len=200):: Run
     REAL    :: etime, etimelast
 
     ! switches etc defined thru namelist (by default cable.nml)
@@ -331,8 +294,7 @@ CONTAINS
          satuParam,        &
          cable_user           ! additional USER switches
 
-    INTEGER :: i,x,kk
-    INTEGER :: LALLOC, iu
+    INTEGER :: LALLOC
     
     ! command line arguments
     integer :: narg, len1, len2
@@ -568,8 +530,8 @@ CONTAINS
 
                 ! CLN:
                 if (cable_user%call_blaze) then
-                   ! allocate biomass turnover pools when both pop and blaze are active
-                   if (cable_user%call_pop) allocate(pop_to(mp), pop_cwd(mp), pop_str(mp))
+                   ! ! allocate biomass turnover pools when both pop and blaze are active
+                   ! if (cable_user%call_pop) allocate(pop_to(mp), pop_cwd(mp), pop_str(mp))
 
                    call ini_blaze( mland, rad%latitude(landpt(:)%cstart), &
                                    rad%longitude(landpt(:)%cstart), blaze )
@@ -996,27 +958,27 @@ CONTAINS
 
              ! Call BLAZE again to compute turnovers depending on POP mortalities
              IF ( cable_user%CALL_BLAZE ) THEN
-                !CLN compute here:  POP_TO, POP_CWD,POP_STR
-                ! ?VH see below the tiling of the Cplants is that correct?
-                WHERE (POP%pop_grid(:)%cmass_sum_old .GT. 1.e-12)
-                   POP_TO  = POP%pop_grid(:)%fire_mortality_smoothed * &
-                        casapool%Cplant(:,2)/POP%pop_grid(:)%cmass_sum_old
-                   ! wood loss from stress mortalit
-                   POP_CWD = (POP%pop_grid(:)%stress_mortality +  &
-                        POP%pop_grid(:)%crowding_mortality ) * &
-                        casapool%Cplant(:,2)/POP%pop_grid(:)%cmass_sum_old
-                   ! wood loss from stress mortality
-                   POP_CWD = POP_CWD + POP%pop_grid(:)%cat_mortality * &
-                        casapool%Cplant(:,2)/POP%pop_grid(:)%cmass_sum_old
-                   ! woody root loss from stress mortality
-                   POP_STR = casapool%Cplant(:,1) * &
-                        (POP%pop_grid(:)%stress_mortality + POP%pop_grid(:)%crowding_mortality + &
-                        POP%pop_grid(:)%cat_mortality) / POP%pop_grid(:)%cmass_sum_old
-                ELSEWHERE
-                   POP_TO  = 0.
-                   POP_CWD = 0.
-                   POP_STR = 0.
-                END WHERE
+                ! !CLN compute here:  POP_TO, POP_CWD,POP_STR
+                ! ! ?VH see below the tiling of the Cplants is that correct?
+                ! WHERE (POP%pop_grid(:)%cmass_sum_old .GT. 1.e-12_r_2)
+                !    POP_TO  = POP%pop_grid(:)%fire_mortality_smoothed * &
+                !         casapool%Cplant(:,2)/POP%pop_grid(:)%cmass_sum_old
+                !    ! wood loss from stress mortalit
+                !    POP_CWD = (POP%pop_grid(:)%stress_mortality +  &
+                !         POP%pop_grid(:)%crowding_mortality ) * &
+                !         casapool%Cplant(:,2)/POP%pop_grid(:)%cmass_sum_old
+                !    ! wood loss from stress mortality
+                !    POP_CWD = POP_CWD + POP%pop_grid(:)%cat_mortality * &
+                !         casapool%Cplant(:,2)/POP%pop_grid(:)%cmass_sum_old
+                !    ! woody root loss from stress mortality
+                !    POP_STR = casapool%Cplant(:,1) * &
+                !         (POP%pop_grid(:)%stress_mortality + POP%pop_grid(:)%crowding_mortality + &
+                !         POP%pop_grid(:)%cat_mortality) / POP%pop_grid(:)%cmass_sum_old
+                ! ELSEWHERE
+                !    POP_TO  = 0.0_r_2
+                !    POP_CWD = 0.0_r_2
+                !    POP_STR = 0.0_r_2
+                ! END WHERE
 
                 call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
                      casamet, climate, real(shootfrac), idoy, YYYY, 1, POP, veg)
@@ -1252,7 +1214,7 @@ CONTAINS
     INTEGER :: bidx ! block index
     INTEGER :: ntyp ! total number of blocks
 
-    INTEGER :: rank,  off, ierr2, rcount, pos
+    INTEGER :: rank, ierr2, rcount, pos
 
     CHARACTER, DIMENSION(:), ALLOCATABLE :: rbuf
 
@@ -4033,15 +3995,10 @@ CONTAINS
     INTEGER :: r1len, r2len, I1LEN, llen
 
     INTEGER :: rank, off, cnt
-    INTEGER :: bidx, midx, vidx, ierr
+    INTEGER :: bidx, ierr
 
     INTEGER :: tsize
     INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
-
-    ! base index to make types indexing easier
-    INTEGER :: istart
-
-    INTEGER :: i
 
     CALL MPI_Comm_rank (comm, rank, ierr)
 
@@ -6279,8 +6236,8 @@ CONTAINS
     ! MPI: block lengths and strides for hvector representing matrices
     INTEGER :: r1len, r2len, I1LEN, llen
 
-    INTEGER :: rank, off, cnt
-    INTEGER :: bidx, midx, vidx, ierr
+    INTEGER :: off, cnt
+    INTEGER :: bidx, ierr
 
     INTEGER :: tsize
     INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
@@ -6853,20 +6810,14 @@ CONTAINS
     INTEGER, ALLOCATABLE, DIMENSION(:) :: types
     INTEGER :: ntyp ! number of worker's types
 
-    INTEGER :: last2d, i
-
-    ! MPI: block lenghts for hindexed representing all vectors
-    INTEGER, ALLOCATABLE, DIMENSION(:) :: blen
-
     ! MPI: block lengths and strides for hvector representing matrices
     INTEGER :: r1len, r2len, I1LEN
-    INTEGER(KIND=MPI_ADDRESS_KIND) :: r1stride, r2stride
 
-    INTEGER :: tsize, totalrecv, totalsend
+    INTEGER :: tsize, totalrecv
     INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
 
-    INTEGER :: rank, off, cnt
-    INTEGER :: bidx, midx, vidx, ierr, ny, nd, ndq, nsd
+    INTEGER :: rank, off
+    INTEGER :: bidx, ierr, ny, nd, ndq, nsd
     INTEGER :: stat(MPI_STATUS_SIZE), ierr2, rcount, pos
 
 
@@ -7345,7 +7296,7 @@ CONTAINS
     INTEGER :: r1len, r2len, I1LEN, llen
 
     INTEGER :: rank, off, cnt
-    INTEGER :: bidx, midx, vidx, ierr, nd, ny
+    INTEGER :: bidx, ierr
 
     INTEGER :: tsize
     INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
@@ -7498,9 +7449,9 @@ CONTAINS
     INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
     INTEGER :: tsize
 
-    INTEGER :: stat(MPI_STATUS_SIZE), ierr
+    INTEGER :: ierr
 
-    INTEGER :: r1len, r2len, I1LEN, llen ! block lengths
+    INTEGER :: r1len, r2len, I1LEN ! block lengths
     INTEGER :: bidx ! block index
     INTEGER :: ntyp ! total number of blocks
 
@@ -7651,9 +7602,9 @@ CONTAINS
     INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
     INTEGER :: tsize
 
-    INTEGER :: stat(MPI_STATUS_SIZE), ierr
+    INTEGER :: ierr
 
-    INTEGER :: r1len, r2len, I1LEN, llen ! block lengths
+    INTEGER :: r1len, r2len, I1LEN ! block lengths
     INTEGER :: bidx ! block index
     INTEGER :: ntyp ! total number of blocks
 
@@ -8316,8 +8267,8 @@ CONTAINS
     ! MPI: block lengths and strides for hvector representing matrices
     integer :: r1len, r2len, i1len, llen
 
-    integer :: rank, off, cnt
-    integer :: bidx, midx, vidx, ierr
+    integer :: off, cnt
+    integer :: bidx, ierr
 
     integer :: tsize
     integer(kind=MPI_ADDRESS_KIND) :: text, tmplb
@@ -8442,8 +8393,8 @@ CONTAINS
     ! MPI: block lengths and strides for hvector representing matrices
     integer :: r1len, r2len, i1len, llen
 
-    integer :: rank, off, cnt
-    integer :: bidx, midx, vidx, ierr
+    integer :: off, cnt
+    integer :: bidx, ierr
 
     integer :: tsize
     integer(kind=MPI_ADDRESS_KIND) :: text, tmplb
@@ -8548,8 +8499,8 @@ CONTAINS
     ! MPI: block lengths and strides for hvector representing matrices
     integer :: r1len, r2len, i1len, llen
 
-    integer :: rank, off, cnt
-    integer :: bidx, midx, vidx, ierr
+    integer :: off, cnt
+    integer :: bidx, ierr
 
     integer :: tsize
     integer(kind=MPI_ADDRESS_KIND) :: text, tmplb
@@ -8691,11 +8642,10 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
   use phenvariable
   use POP_types,            only: POP_type
   use POPmodule,            only: POPstep
-  use TypeDef,              only: i4b, dp
+  use TypeDef,              only: dp
   ! 13C
   use cable_c13o2_def,      only: c13o2_pool, c13o2_flux
-  use cable_c13o2,          only: c13o2_save_casapool, c13o2_update_pools, &
-       c13o2_nvars_output
+  use cable_c13o2,          only: c13o2_save_casapool, c13o2_update_pools
   use mo_isotope,           only: isoratio
 
   use mpi
@@ -8740,26 +8690,13 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
 
   ! local variables
   integer                  :: myearspin,nyear, nloop1, loy
-  character(len=99)        :: ncfile
-  character(len=4)         :: cyear
-  integer                  :: ktau,ktauday,nday,idoy,ktaux,ktauy,nloop
-  integer, save            :: ndays
+  integer                  :: ktau,ktauday,nday,idoy,ktauy,nloop
   real(r_2), dimension(mp) :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
   real(r_2), dimension(mp) :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
   real(r_2), dimension(mp) :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
-  real(r_2), dimension(mp) :: xcgpp,     xcnpp,     xnuptake,  xpuptake
-  real(r_2), dimension(mp) :: xnsoilmin, xpsoillab, xpsoilsorb,xpsoilocc
   real(r_2), dimension(mp) :: xnplimit,  xknlimiting, xklitter, xksoil,xkleaf, xkleafcold, xkleafdry
 
   ! more variables to store the spinup pool size over the last 10 loops. Added by Yp Wang 30 Nov 2012
-  real(r_2), dimension(5,mvtype,mplant)  :: bmcplant,  bmnplant,  bmpplant
-  real(r_2), dimension(5,mvtype,mlitter) :: bmclitter, bmnlitter, bmplitter
-  real(r_2), dimension(5,mvtype,msoil)   :: bmcsoil,   bmnsoil,   bmpsoil
-  real(r_2), dimension(5,mvtype)         :: bmnsoilmin,bmpsoillab,bmpsoilsorb, bmpsoilocc
-  real(r_2), dimension(mvtype)           :: bmarea
-  integer :: nptx,nvt,kloop
-
-  real(dp)             :: stemnpp(mp,2)
   integer, allocatable :: iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
   real(dp) :: rday
 
@@ -8772,9 +8709,6 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
 
   ! 13C
   real(dp), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
-  integer :: c13o2_file_id
-  character(len=40), dimension(c13o2_nvars_output) :: c13o2_vars
-  integer,           dimension(c13o2_nvars_output) :: c13o2_var_ids
   real(r_2), dimension(:), allocatable :: avg_c13leaf2met, avg_c13leaf2str, avg_c13root2met, &
        avg_c13root2str, avg_c13wood2cwd
 
@@ -9094,7 +9028,7 @@ SUBROUTINE worker_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
   USE phenvariable
   USE POP_Types,           only: POP_TYPE
   USE POPMODULE,           ONLY: POPStep
-  USE TypeDef,             ONLY: i4b, dp
+  USE TypeDef,             ONLY: dp
   use mpi
   ! 13C
   use cable_c13o2_def,     only: c13o2_flux, c13o2_pool
@@ -9124,36 +9058,14 @@ SUBROUTINE worker_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
   integer,                   intent(in)    :: icomm, ocomm
 
   ! local variables
-  real(r_2), dimension(:), allocatable, save :: avg_cleaf2met, avg_cleaf2str, avg_croot2met, avg_croot2str, avg_cwood2cwd
-  real(r_2), dimension(:), allocatable, save :: avg_nleaf2met, avg_nleaf2str, avg_nroot2met, avg_nroot2str, avg_nwood2cwd
-  real(r_2), dimension(:), allocatable, save :: avg_pleaf2met, avg_pleaf2str, avg_proot2met, avg_proot2str, avg_pwood2cwd
-  real,      dimension(:), allocatable, save :: avg_cgpp,      avg_cnpp,      avg_nuptake,   avg_puptake
-  real,      dimension(:), allocatable, save :: avg_nsoilmin,  avg_psoillab,  avg_psoilsorb, avg_psoilocc
-  !chris 12/oct/2012 for spin up casa
-  real,      dimension(:), allocatable, save :: avg_ratioNCsoilmic,  avg_ratioNCsoilslow,  avg_ratioNCsoilpass
-  real(r_2), dimension(:), allocatable, save :: avg_xnplimit,  avg_xkNlimiting,avg_xklitter, avg_xksoil
-
-  ! local variables
-  integer           :: myearspin,nyear, nloop1
-  character(len=99) :: ncfile
-  character(len=4)  :: cyear
-  integer           :: ktau,ktauday,nday,idoy,ktaux,ktauy,nloop
-  integer, save     :: ndays
+  integer           :: myearspin, nyear
+  integer           :: ktau,ktauday,nday,idoy
   real(r_2), dimension(mp) :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
   real(r_2), dimension(mp) :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
   real(r_2), dimension(mp) :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
-  real,      dimension(mp) :: xcgpp,     xcnpp,     xnuptake,  xpuptake
-  real,      dimension(mp) :: xnsoilmin, xpsoillab, xpsoilsorb,xpsoilocc
   real(r_2), dimension(mp) :: xnplimit,  xkNlimiting, xklitter, xksoil,xkleaf, xkleafcold, xkleafdry
 
   ! more variables to store the spinup pool size over the last 10 loops. Added by Yp Wang 30 Nov 2012
-  real, dimension(5,mvtype,mplant)  :: bmcplant,  bmnplant,  bmpplant
-  real, dimension(5,mvtype,mlitter) :: bmclitter, bmnlitter, bmplitter
-  real, dimension(5,mvtype,msoil)   :: bmcsoil,   bmnsoil,   bmpsoil
-  real, dimension(5,mvtype)         :: bmnsoilmin,bmpsoillab,bmpsoilsorb, bmpsoilocc
-  real, dimension(mvtype)           :: bmarea
-  integer :: nptx,nvt,kloop
-
   real(dp) :: StemNPP(mp,2)
 
   integer :: stat(MPI_STATUS_SIZE)
