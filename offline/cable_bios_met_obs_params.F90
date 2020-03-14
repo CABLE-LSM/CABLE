@@ -822,7 +822,14 @@ CONTAINS
   ALLOCATE (lat_all(MaskCols,MaskRows))
   ALLOCATE (lon_all(MaskCols,MaskRows))
   
-  
+  ! Populate the entirety of lon_all and lat_all grids with lons and lats
+! calculated from the dimensions of the mask from the mask header file.
+! This replaces the UNPACK of the latitude and longitude vectors to
+! eliminate occurrence of mask values anywhere on the grid, i.e.:
+!  lat_all = UNPACK(latitude,mask=LandMaskLogical,field=-9999.)
+!  lon_all = UNPACK(longitude,mask=LandMaskLogical,field=-9999.)
+  FORALL (icol=1:MaskCols) lon_all(icol,:) = MaskCtrW + (real(icol-1) * MaskRes)
+  FORALL (irow=1:MaskRows) lat_all(irow,:) = (real(MaskRows - irow) * MaskRes) + MaskCtrS
 !
   
 ! Using the landmask grid boundaries and dimensions, translate the land  
@@ -834,8 +841,8 @@ CONTAINS
     latitude(iLand) = MaskCtrS + (real(MaskRows - land_y(iLand)) * MaskRes)
  END DO
 
-  lat_all = UNPACK(latitude,mask=LandMaskLogical,field=-9999.)
-  lon_all = UNPACK(longitude,mask=LandMaskLogical,field=-9999.)
+  !lat_all = UNPACK(latitude,mask=LandMaskLogical,field=-9999.)
+  !lon_all = UNPACK(longitude,mask=LandMaskLogical,field=-9999.)
 
   !Finished reading grids. Only mland vectors from now on.
   DEALLOCATE (ColRowGrid)

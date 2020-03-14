@@ -514,33 +514,36 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
 
    ! Get model parameters =============================================
    ! rad%latitude set above in lat/lon checking section
-   ALLOCATE(INvar(mp))
-   CALL readpar(ncid_rin,'iveg',dummy,INvar,filename%restart_in,               &
-                max_vegpatches,'def',from_restart,mp)
-   IF (ASSOCIATED(vegtype_metfile)) THEN
-      ! met file iveg info is now in veg%iveg
-      IF (ANY(INvar /= veg%iveg)) THEN
-         PRINT *, 'Error: veg type in restart file different from met input'
-         PRINT *, 'Recommend not using this restart file as parameters have changed.'
-         CALL cable_abort('Check iveg in '//filename%restart_in)
-      ENDIF
-   ELSE
-      ! no problem with overwriting default values
-      veg%iveg = INvar
-   ENDIF
+   ! vh  ! : no need to read in iveg from restart  
+!!$   ALLOCATE(INvar(mp))
+!!$   CALL readpar(ncid_rin,'iveg',dummy,INvar,filename%restart_in,               &
+!!$                max_vegpatches,'def',from_restart,mp)
+!!$   IF (ASSOCIATED(vegtype_metfile)) THEN
+!!$      ! met file iveg info is now in veg%iveg
+!!$      IF (ANY(INvar /= veg%iveg)) THEN
+!!$         PRINT *, 'Error: veg type in restart file different from met input'
+!!$         PRINT *, 'Recommend not using this restart file as parameters have changed.'
+!!$         CALL cable_abort('Check iveg in '//filename%restart_in)
+!!$      ENDIF
+!!$   ELSE
+!!$      ! no problem with overwriting default values
+!!$      veg%iveg = INvar
+!!$   ENDIF
    ! CALL readpar(ncid_rin,'iveg',dummy,veg%iveg,filename%restart_in,           &
    !      max_vegpatches,'def',from_restart,mp)
-   IF (.NOT.CABLE_USER%POPLUC) then
-      ! CALL readpar(ncid_rin,'patchfrac',dummy,patch(:)%frac,filename%restart_in,  &
-      !      max_vegpatches,'def',from_restart,mp)
-      if (allocated(var_r)) deallocate(var_r)
-      allocate(var_r(size(patch(:)%frac,1)))
-      dummy = .true.
-      CALL readpar(ncid_rin,'patchfrac',dummy,var_r,filename%restart_in,  &
-           max_vegpatches,'def',from_restart,mp)
-      if (dummy) patch(:)%frac = real(var_r,r_2)
-      deallocate(var_r)
-   ENDIF
+
+! vh comment out this section: don't need patchfrac from restart   
+!!$   IF (.NOT.CABLE_USER%POPLUC) then
+!!$      ! CALL readpar(ncid_rin,'patchfrac',dummy,patch(:)%frac,filename%restart_in,  &
+!!$      !      max_vegpatches,'def',from_restart,mp)
+!!$      if (allocated(var_r)) deallocate(var_r)
+!!$      allocate(var_r(size(patch(:)%frac,1)))
+!!$      dummy = .true.
+!!$      CALL readpar(ncid_rin,'patchfrac',dummy,var_r,filename%restart_in,  &
+!!$           max_vegpatches,'def',from_restart,mp)
+!!$      if (dummy) patch(:)%frac = real(var_r,r_2)
+!!$      deallocate(var_r)
+!!$   ENDIF
 !    DO i=1, mland
 !    DO jj = landpt(i)%cstart, landpt(i)%cend
 !      IF (INvar(jj) /= veg%iveg(jj)) THEN
@@ -565,19 +568,20 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
 !    END DO
 !! end of fix to spurious veg types
 
-   CALL readpar(ncid_rin,'isoil',dummy,INvar,filename%restart_in,              &
-                max_vegpatches,'def',from_restart,mp)
-   IF (ASSOCIATED(soiltype_metfile)) THEN
-      ! met file isoil info is now in soil%isoilm
-      IF (ANY(INvar /= soil%isoilm)) THEN
-         PRINT *, 'Error: soil type in restart file different from met input'
-         PRINT *, 'Recommend not using this restart file as parameters have changed.'
-         CALL cable_abort('Check isoil in '//filename%restart_in)
-      ENDIF
-   ELSE
-      ! no problem with overwriting default values
-      soil%isoilm = INvar
-   ENDIF
+ ! vh  ! : no need to read in isoil from restart  
+!!$   CALL readpar(ncid_rin,'isoil',dummy,INvar,filename%restart_in,              &
+!!$                max_vegpatches,'def',from_restart,mp)
+!!$   IF (ASSOCIATED(soiltype_metfile)) THEN
+!!$      ! met file isoil info is now in soil%isoilm
+!!$      IF (ANY(INvar /= soil%isoilm)) THEN
+!!$         PRINT *, 'Error: soil type in restart file different from met input'
+!!$         PRINT *, 'Recommend not using this restart file as parameters have changed.'
+!!$         CALL cable_abort('Check isoil in '//filename%restart_in)
+!!$      ENDIF
+!!$   ELSE
+!!$      ! no problem with overwriting default values
+!!$      soil%isoilm = INvar
+!!$   ENDIF
 !    CALL readpar(ncid_rin,'isoil',dummy,soil%isoilm,filename%restart_in,       &
 !         max_vegpatches,'def',from_restart,mp)
 !!$   CALL readpar(ncid_rin,'clay',dummy,soil%clay,filename%restart_in,           &
