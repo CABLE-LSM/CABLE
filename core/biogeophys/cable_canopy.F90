@@ -3531,7 +3531,7 @@ CONTAINS
      ! the spirit of Xu et al. but dropping the root capacitance they include.
      ! We could of course include this but given this is pretty rough, this
      ! seems OK
-     capac_conv = lai * height / la_sa * sapwood_density
+     capac_conv = lai * height / la_sa * sapwood_density ! kg m-2
 
   END FUNCTION scale_up_stem_capac
   ! ----------------------------------------------------------------------------
