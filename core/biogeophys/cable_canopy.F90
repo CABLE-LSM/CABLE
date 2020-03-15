@@ -2108,7 +2108,7 @@ CONTAINS
                 ! Sensitivity of stomata to leaf water potential [0-1]
                 fw = f_tuzet(canopy%psi_leaf_prev(i), veg%sf(i), veg%psi_f(i))
 
-                ! convert to conductance to CO2
+                ! convert to conductance to CO2, NB g1 here is unitless
                 gs_coeff(i,1) = (veg%g1(i) / csx(i,1) * fw) / C%RGSWC
                 gs_coeff(i,2) = (veg%g1(i) / csx(i,2) * fw) / C%RGSWC
 
@@ -3085,7 +3085,7 @@ CONTAINS
      !print*, "tuzet", sf, psi_f, psi_leaf
      num = 1.0 + EXP(sf * psi_f)
      den = 1.0 + EXP(sf * (psi_f - psi_leaf))
-     fw = num / den
+     fw = num / den ! unitless
      !fw = MAX(1.0e-9, MIN(1.0, num / den))
 
   END FUNCTION f_tuzet
@@ -3123,7 +3123,8 @@ CONTAINS
                                   veg%p50(i), veg%s50(i))
 
      ! Conductance from root surface to the stem water pool, assumed to be
-     ! halfway to the leaves (mmol m-2 ground area s-1 MPa-1)
+     ! halfway to the leaves
+     ! (mmol m-2 ground area s-1 MPa-1)
      kroot2stem = 2.0 * canopy%kplant(i)
 
      ! Conductance from soil to stem water store
@@ -3132,7 +3133,7 @@ CONTAINS
                              canopy%vlaiw(i)
 
      ! Conductance from stem water store to leaf
-     ! mmol m-2 ground area s-1 MPa-1
+     ! (mmol m-2 ground area s-1 MPa-1)
      canopy%kstem2leaf(i) = 2.0 * canopy%kplant(i) * canopy%vlaiw(i)
 
   END SUBROUTINE calc_hydr_conduc
@@ -3166,6 +3167,7 @@ CONTAINS
      p = (PX / PX50)**((PX50 * s50) / V)
 
      ! relative conductance (K/Kmax) as a funcion of xylem pressure (%)
+     ! (unitless)
      relk = (1. - X_hyd / 100.)**p
      !relk = max(1.0e-9, min(1.0, relk))
 
@@ -3217,7 +3219,7 @@ CONTAINS
      ENDIF
 
      IF (canopy%psi_leaf(i) < psi_leaf_min) THEN
-        canopy%psi_leaf(i) = psi_leaf_min
+        canopy%psi_leaf(i) = psi_leaf_min ! MPa
      ENDIF
 
   END SUBROUTINE calc_psi_leaf
@@ -3255,12 +3257,13 @@ CONTAINS
      ! is there conductance in the trunk?
      IF (canopy%kstem2leaf(i) > 1E-09) THEN
 
-        ! J_rl: sapflow rate from stem to leaf within the time step
+        ! J_sl: sapflow rate from stem to leaf within the time step
+        ! (mmol m−2 s−1)
         canopy%flx_to_leaf(i) = (canopy%psi_leaf(i) - &
                                  canopy%psi_leaf_prev(i)) * &
                                  leaf_capac / dels + transpiration
 
-     ! J_rl: no conductance in the trunk
+     ! J_sl: no conductance in the trunk (mmol m−2 s−1)
      ELSE
         canopy%flx_to_leaf(i) = 0.0
      ENDIF
@@ -3288,15 +3291,16 @@ CONTAINS
      REAL, INTENT(IN)    :: Cs ! Stem capacitance (mmol kg-1 MPa-1)
      REAL                :: stem_capac ! mmol MPa-1
 
-     ! mmol MPa-1
+     ! mmol m-2 MPa-1 s-1
      stem_capac = Cs * scale_up_stem_capac(canopy%vlaiw(i), iveg)
 
-     ! J_sr: plant cannot take up water, change of psi_stem is solely due to
-     ! flux_to_leaf (J_rl)
      IF (canopy%ksoil2stem(i) == 0.0) THEN
+         ! J_sr: plant cannot take up water, change of psi_stem is solely due to
+         ! flux_to_leaf, mmol m−2 s−1
         canopy%flx_to_stem(i) = 0.0
-     ! J_sr: plant can take up water
      ELSE
+        ! J_sr: plant can take up water
+        ! (mmol m−2 s−1)
         canopy%flx_to_stem(i) = (canopy%psi_stem(i) - &
                                  canopy%psi_stem_prev(i)) * &
                                  stem_capac / dels + canopy%flx_to_leaf(i)
@@ -3332,29 +3336,29 @@ CONTAINS
      INTEGER, INTENT(IN) :: i ! patch
      INTEGER, INTENT(IN) :: iveg
 
-     psi_stem_min = 2.0 * p50
+     psi_stem_min = 2.0 * p50 ! MPa
 
-     ! mmol MPa-1
+     ! mmol m-2 MPa-1 s-1
      stem_capac = Cs * scale_up_stem_capac(canopy%vlaiw(i), iveg)
 
-     ! J_sr: plant cannot take up water, change of psi_stem is solely due to
-     ! flux_to_leaf (J_rl)
+     ! Plant cannot take up water, change of psi_stem is solely due to
+     ! flux_to_leaf (J_rl), MPa
      IF (canopy%ksoil2stem(i) == 0.0) THEN
         canopy%psi_stem(i) = canopy%psi_stem_prev(i) - canopy%flx_to_leaf(i) * &
                               dels / stem_capac
 
      ! plant can take up water
      ELSE
-        ap = - canopy%ksoil2stem(i) / stem_capac
+        ap = - canopy%ksoil2stem(i) / stem_capac ! unitless
         bp = (canopy%ksoil2stem(i) * &
-              canopy%psi_soil_prev(i) - canopy%flx_to_leaf(i)) / stem_capac
+              canopy%psi_soil_prev(i) - canopy%flx_to_leaf(i)) / stem_capac !MPa
         canopy%psi_stem(i) = ((ap * canopy%psi_stem_prev(i) + bp) * &
-                             EXP(ap * dels) - bp) / ap
+                             EXP(ap * dels) - bp) / ap  ! MPa
 
      ENDIF
 
      IF (canopy%psi_stem(i) < psi_stem_min) THEN
-        canopy%psi_stem(i) = psi_stem_min
+        canopy%psi_stem(i) = psi_stem_min ! MPa
      ENDIF
 
   END SUBROUTINE calc_psi_stem
@@ -3381,15 +3385,15 @@ CONTAINS
      REAL, INTENT(IN)    :: transpiration ! mmol m-2 ground s-1
      REAL                :: stem_capac
 
-     ! mmol MPA-1
+     ! mmol m-2 MPa-1 s-1
      stem_capac = Cs * scale_up_stem_capac(canopy%vlaiw(i), iveg)
 
      ! J_sr: plant cannot take up water, change of psi_stem is solely due to
-     ! flux_to_leaf (J_rl)
+     ! flux_to_leaf (J_rl), mmol m−2 s−1
      IF (canopy%ksoil2stem(i) == 0.0) THEN
         canopy%flx_to_stem(i) = 0.0
-     ! J_sr: plant can take up water
      ELSE
+        ! J_sr: plant can take up water,  mmol m−2 s−1
         canopy%flx_to_stem(i) = (canopy%psi_stem(i) - &
                                  canopy%psi_stem_prev(i)) * &
                                  stem_capac / dels + transpiration
@@ -3437,30 +3441,31 @@ CONTAINS
      ! scale up leaf-specific capacitance (mmol m-2 ground area MPa-1 s-1)
      leaf_capac = Cl * canopy%vlaiw(i)
 
-     ! mmol MPa-1
+     ! mmol m-2 MPa-1 s-1
      stem_capac = Cs * scale_up_stem_capac(canopy%vlaiw(i), iveg)
 
+     ! mmol m-2 MPa-1 s-1
      total_capac = stem_capac + leaf_capac
 
      ! J_sr: plant cannot take up water, change of psi_stem is solely due to
      ! flux_to_leaf (J_rl)
      IF (canopy%ksoil2stem(i) == 0.0) THEN
         canopy%psi_stem(i) = canopy%psi_stem_prev(i) - &
-                             transpiration * dels / total_capac
+                             transpiration * dels / total_capac ! MPa
 
      ! plant can take up water
      ELSE
-        ap = - canopy%ksoil2stem(i) / total_capac
+        ap = - canopy%ksoil2stem(i) / total_capac ! unitless
         bp = (canopy%ksoil2stem(i) * &
-              canopy%psi_soil_prev(i) - transpiration) / total_capac
+              canopy%psi_soil_prev(i) - transpiration) / total_capac ! MPa
         canopy%psi_stem(i) = ((ap * canopy%psi_stem_prev(i) + bp) * &
-                             EXP(ap * dels) - bp) / ap
+                             EXP(ap * dels) - bp) / ap  ! MPa
 
      ENDIF
 
 
      IF (canopy%psi_stem(i) < psi_stem_min) THEN
-        canopy%psi_stem(i) = psi_stem_min
+        canopy%psi_stem(i) = psi_stem_min ! MPa
      ENDIF
 
   END SUBROUTINE calc_psi_stem_again
