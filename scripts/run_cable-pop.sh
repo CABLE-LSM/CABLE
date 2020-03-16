@@ -23,31 +23,29 @@
 #
 # Gadi
 # https://opus.nci.org.au/display/Help/How+to+submit+a+job
-#PBS -N Havar10
+#PBS -N TestRandom
 #PBS -P x45
 # express / normal / copyq (2x24, cascadelake)
 # expressbw / normalbw (2x14, broadwell) / normalsl (2x16, skylake)- ex-Raijin nodes
 #PBS -q express
-#PBS -l walltime=00:01:59
-#PBS -l mem=4GB
+#PBS -l walltime=00:30:00
+#PBS -l mem=100GB
 #PBS -l ncpus=4
-#PBS -l jobfs=1GB
+###PBS -l jobfs=1GB
 #PBS -l storage=gdata/x45
 #PBS -l software=netCDF:MPI:Intel:GNU
 #PBS -r y
 #PBS -l wd
 #PBS -j oe
 #PBS -S /bin/bash
-#PBS -M matthias.cuntz@inrae.fr
+#PBS -M juergen.knauer@csiro.au
+#PBS -m a
 
-# cuntz@explor, cuntz@mcinra, moc801@gadi/cuntz@gadi
-# kna016@pearcey/knauer@pearcey, jk8585@gadi/knauer@gadi
-# not yet: vxh599@gadi
-system=knauer@gadi
+system=knauer@gadi # cuntz@explor, cuntz@mcinra, moc801@gadi/cuntz@gadi, kna016@pearcey, jk8585@gadi or vxh599@raijin
 
 # MPI run or single processor run
-# nproc should fit with job tasks
-dompi=0   # 0: normal run: ./cable
+# nproc should fit with job tasks 
+dompi=1   # 0: normal run: ./cable
           # 1: MPI run: mpiexec -n ${nproc} ./cable_mpi
 nproc=4   # Number of cores for MPI runs
           # must be same as above: SBATCH -n nproc or PBS -l ncpus=nproc
@@ -89,22 +87,21 @@ ignore_mpi_err=1 # 0/1: 1: continue even if mpi run failed
 # --------------------------------------------------------------------
 # Sequence switches
 #
-imeteo=0        # 0: Use global meteo, land use and mask
-                # 1: Use global meteo and land use, and local mask (doextractsite=1)
-                # 2: Use local meteo, land use and mask (doextractsite=2)
+imeteo=0       # 0: Use global meteo, land use and mask
+                # 1: Use local meteo, land use and mask (doextractsite=1)
+                # 2: Use global meteo and land use, and local mask (doextractsite=2)
 # Step 0
-doextractsite=1 # 0: Do not extract meteo, land use and mask at specific site
-                # 1: Do extract mask at specific site, using then global meteo and land use (imeteo=1)
-                # 2: Do extract meteo, land use and mask at specific site (imeteo=2)
-                #    Does not work with randompoints /= 0 but with latlon
-  sitename=HarvardForest
-  randompoints=0   # <0: use -1*randompoints random grid points from ${LandMaskFilePath}/${sitename}_points.csv if existing
-                   # 0:  use latlon
-                   # >0: generate and use randompoints random grid points from GlobalLandMaskFile
-  # lat,lon  or  latmin,latmax,lonmin,lonmax   # must have . in numbers otherwise indexes taken
-  latlon=42.536875,-72.172602
-  #latlon=37.5,39.5,112.5,114.5
-# Step 1
+doextractsite=2 # 0: Do not extract meteo, land use and mask at specific site
+                # 1: Do extract meteo, land use and mask at specific site (imeteo=1)
+                # 2: Do extract mask at specific site, using then global meteo and land use (imeteo=2)
+  sitename=TestPoint
+  randompoints=0   # if greater than 0, select given number of random points from gridinfo file
+                   # if 0, mask given by latlon is used
+  # latlon=42.536875,-72.172602 # lat,lon  or  latmin,latmax,lonmin,lonmax  # must have . in numbers otherwise indexes taken
+  #latlon=42.536875,42.536875,-72.172602,-72.172602 
+  latlon=-34.5,-33.5,149.5,156.5
+  #latlon=42.5,43.5,109.5,110.5
+  # Step 1
 doclimate=1     # 1/0: Do/Do not create climate restart file
 # Step 2
 dofromzero=1    # 1/0: Do/Do not first spinup phase from zero biomass stocks
@@ -193,8 +190,8 @@ elif [[ "${sys}" == "gadi" ]] ; then
     module load hdf5/1.10.5
     if [[ ${doextractsite} -ge 1 ]] ; then
         module load python3/3.7.4
-        export PYTHONPATH=${PYTHONPATH}:/g/data/x45/python/lib/python3.7/site-packages
-    fi
+        export PYTHONPATH=/g/data/x45/python/lib/python3.7/site-packages
+    fi 
     export mpiexecdir=/apps/intel-mpi/2019.5.281/intel64/bin/
 fi
 if [[ ! -z ${mpiexecdir} ]] ; then export mpiexecdir="${mpiexecdir}/" ; fi
@@ -214,14 +211,13 @@ if [[ "${system}" == "cuntz@explor" ]] ; then
     cablehome="/home/oqx29/zzy20/prog/cable"
     # Cable executable
     if [[ ${dompi} -eq 1 ]] ; then
-        exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi"
+	exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi"
     else
-        exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable"
+	exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable"
     fi
     # CABLE-AUX directory (uses offline/gridinfo_CSIRO_1x1.nc and offline/modis_phenology_csiro.txt)
     aux="${cablehome}/CABLE-AUX"
     # Global Mask
-    # GlobalLandMaskFile="${aux}/offline/gridinfo_CSIRO_1x1.nc"
     GlobalLandMaskFile="/home/oqx29/zzy20/data/crujra/daily_1deg/glob_ipsl_1x1.nc"
     # Global CRU
     GlobalMetPath="/home/oqx29/zzy20/data/crujra/daily_1deg"
@@ -233,15 +229,15 @@ elif [[ "${system}" == "cuntz@mcinra" ]] ; then
     cablehome="/Users/cuntz/prog/vanessa/cable"
     # Cable executable
     if [[ ${dompi} -eq 1 ]] ; then
-        exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi-ifort"
-        # exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi-gfortran"
+	exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi-ifort"
+	# exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi-gfortran"
     else
-        exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable"
+	exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable"
     fi
     # CABLE-AUX directory (uses offline/gridinfo_CSIRO_1x1.nc and offline/modis_phenology_csiro.txt)
     aux="${cablehome}/CABLE-AUX"
     # Global Mask, CRU, LUC
-    GlobalLandMaskFile="${aux}/offline/gridinfo_CSIRO_1x1.nc"
+    GlobalLandMaskFile=
     GlobalMetPath=
     GlobalTransitionFilePath=
 elif [[ "${system}" == "moc801@gadi" || "${system}" == "cuntz@gadi" ]] ; then
@@ -250,14 +246,13 @@ elif [[ "${system}" == "moc801@gadi" || "${system}" == "cuntz@gadi" ]] ; then
     cablehome="/home/801/moc801/prog/cable"
     # Cable executable
     if [[ ${dompi} -eq 1 ]] ; then
-        exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi"
+	exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi"
     else
-        exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable"
+	exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable"
     fi
     # CABLE-AUX directory (uses offline/gridinfo_CSIRO_1x1.nc and offline/modis_phenology_csiro.txt)
     aux="/g/data/x45/CABLE-AUX"
     # Global Mask
-    # GlobalLandMaskFile="${aux}/offline/gridinfo_CSIRO_1x1.nc"
     GlobalLandMaskFile="/home/801/moc801/data/cable/mask/glob_ipsl_1x1.nc"
     # Global CRU
     GlobalMetPath="/g/data/x45/crujra/daily_1deg"
@@ -269,14 +264,14 @@ elif [[ "${system}" == "kna016@pearcey" || "${system}" == "knauer@pearcey" ]] ; 
     cablehome="/OSM/CBR/OA_GLOBALCABLE/work/Juergen/CABLE_code"
     # Cable executable
     if [[ ${dompi} -eq 1 ]] ; then
-        exe="${cablehome}/NESP2pt9_BLAZE/offline/cable-mpi"
+	exe="${cablehome}/NESP2pt9_BLAZE/offline/cable-mpi"
     else
-        exe="${cablehome}/NESP2pt9_BLAZE/offline/cable"
+	exe="${cablehome}/NESP2pt9_BLAZE/offline/cable"
     fi
     # CABLE-AUX directory (uses offline/gridinfo_CSIRO_1x1.nc and offline/modis_phenology_csiro.txt)
     aux="/OSM/CBR/OA_GLOBALCABLE/work/Vanessa/CABLE-AUX"
     # Global Mask
-    GlobalLandMaskFile="${aux}/offline/gridinfo_CSIRO_1x1.nc"
+    #GlobalLandMaskFile="/OSM/CBR/OA_GLOBALCABLE/work/Vanessa/MASKS/glob_ipsl_1x1.nc"
     # Global CRU
     GlobalMetPath="/OSM/CBR/OA_GLOBALCABLE/work/CRU-JRA55/crujra/daily_1deg"
     # Global LUC
@@ -287,14 +282,14 @@ elif [[ "${system}" == "jk8585@gadi" || "${system}" == "knauer@gadi" ]] ; then
     cablehome="/home/599/jk8585/CABLE_code"
     # Cable executable
     if [[ ${dompi} -eq 1 ]] ; then
-        exe="${cablehome}/NESP2pt9_BLAZE/offline/cable-mpi"
+	exe="${cablehome}/NESP2pt9_BLAZE/offline/cable-mpi"
     else
-        exe="${cablehome}/NESP2pt9_BLAZE/offline/cable"
+	exe="${cablehome}/NESP2pt9_BLAZE/offline/cable"
     fi
     # CABLE-AUX directory (uses offline/gridinfo_CSIRO_1x1.nc and offline/modis_phenology_csiro.txt)
     aux="/g/data/x45/CABLE-AUX"
     # Global Mask
-    GlobalLandMaskFile="${aux}/offline/gridinfo_CSIRO_1x1.nc"
+    #GlobalLandMaskFile="/home/801/moc801/data/cable/mask/glob_ipsl_1x1.nc"
     # Global CRU
     GlobalMetPath="/g/data/x45/crujra/daily_1deg"
     # Global LUC
@@ -313,6 +308,9 @@ filename_soil="../params/def_soil_params.txt"
 casafile_cnpbiome="../params/pftlookup.csv"
 # Other scripts
 ScriptsPath="../scripts"
+# Gridinfo file
+gridinfo="${aux}/offline/gridinfo_CSIRO_1x1.nc"
+GlobalLandMaskFile=${gridinfo}
 # Mask
 LandMaskFile="${sitepath}/mask/${sitename}_landmask.nc"
 # CRU
@@ -371,7 +369,7 @@ function absfile()
 function irm()
 {
     for i in "$@" ; do
-        if [[ -f ${i} ]] ; then rm ${i} ; fi
+	if [[ -f ${i} ]] ; then rm ${i} ; fi
     done
 }
 #
@@ -405,7 +403,7 @@ function isin()
     shift
     out=""
     for i in $@ ; do
-        if [[ ${i} == ${tofind} ]] ; then out=${i} ; fi
+	if [[ ${i} == ${tofind} ]] ; then out=${i} ; fi
     done
     echo ${out}
 }
@@ -417,15 +415,15 @@ function nckslatlon()
     if [[ -z $(isin latitude ${vars}) ]] ; then ilat='lat' ; else ilat='latitude' ; fi
     if [[ -z $(isin longitude ${vars}) ]] ; then ilon='lon' ; else ilon='longitude' ; fi
     if [[ -z $(echo ${2} | cut -f 3 -d ',') || -z $(echo ${2} | cut -f 4 -d ',') ]] ; then
-        iilat=$(echo ${2} | cut -f 1 -d ',')
-        iilon=$(echo ${2} | cut -f 2 -d ',')
-        echo "-d ${ilat},${iilat} -d ${ilon},${iilon}"
+	iilat=$(echo ${2} | cut -f 1 -d ',')
+	iilon=$(echo ${2} | cut -f 2 -d ',')
+	echo "-d ${ilat},${iilat} -d ${ilon},${iilon}"
     else
-        iilat1=$(echo ${2} | cut -f 1 -d ',')
-        iilat2=$(echo ${2} | cut -f 2 -d ',')
-        iilon1=$(echo ${2} | cut -f 3 -d ',')
-        iilon2=$(echo ${2} | cut -f 4 -d ',')
-        echo "-d ${ilat},${iilat1},${iilat2} -d ${ilon},${iilon1},${iilon2}"
+	iilat1=$(echo ${2} | cut -f 1 -d ',')
+	iilat2=$(echo ${2} | cut -f 2 -d ',')
+	iilon1=$(echo ${2} | cut -f 3 -d ',')
+	iilon2=$(echo ${2} | cut -f 4 -d ',')
+	echo "-d ${ilat},${iilat1},${iilat2} -d ${ilon},${iilon1},${iilon2}"
     fi
 }
 #
@@ -435,7 +433,7 @@ function copyid()
     rid=${1}
     shift 1
     for i in $@ ; do
-        cp ${i} ${i%.*}_${rid}.${i##*.}
+	cp ${i} ${i%.*}_${rid}.${i##*.}
     done
 }
 #
@@ -445,7 +443,7 @@ function renameid()
     rid=${1}
     shift 1
     for i in $@ ; do
-        mv ${i} ${i%.*}_${rid}.${i##*.}
+	mv ${i} ${i%.*}_${rid}.${i##*.}
     done
 }
 
@@ -470,7 +468,6 @@ exe=$(absfile ${exe})
 mkdir -p ${runpath}
 rdir=$(abspath ${runpath})
 ndir=$(abspath ${namelistpath})
-sdir=$(abspath ${ScriptsPath})
 
 #
 # prepare run directory
@@ -497,49 +494,48 @@ printf "Started at %s\n" "$(date)"
 
 printf "\nSetup\n"
 printf "    Serial / Parallel\n"
-printf "        dompi=${dompi}\n"
-printf "            nproc=${nproc}\n"
-printf "            ignore_mpi_err=${ignore_mpi_err}\n"
+printf "    	dompi=${dompi}\n"
+printf "    	    nproc=${nproc}\n"
+printf "    	    ignore_mpi_err=${ignore_mpi_err}\n"
 printf "\n"
 printf "    Sequence\n"
-printf "        imeteo=${imeteo}\n"
-printf "        doextractsite=${doextractsite}\n"
-printf "            sitename=${sitename}\n"
-printf "            randompoints=${randompoints}\n"
-printf "            latlon=${latlon}\n"
-printf "        doclimate=${doclimate}\n"
-printf "        dofromzero=${dofromzero}\n"
-printf "        doequi1=${doequi1}\n"
-printf "            nequi1=${nequi1}\n"
-printf "        doequi2=${doequi2}\n"
-printf "            nequi2=${nequi2}\n"
-printf "        doiniluc=${doiniluc}\n"
-printf "        doinidyn=${doinidyn}\n"
-printf "        dofinal=${dofinal}\n"
+printf "    	imeteo=${imeteo}\n"
+printf "    	doextractsite=${doextractsite}\n"
+printf "    	    sitename=${sitename}\n"
+printf "    	    latlon=${latlon}\n"
+printf "    	doclimate=${doclimate}\n"
+printf "    	dofromzero=${dofromzero}\n"
+printf "    	doequi1=${doequi1}\n"
+printf "    	    nequi1=${nequi1}\n"
+printf "    	doequi2=${doequi2}\n"
+printf "    	    nequi2=${nequi2}\n"
+printf "    	doiniluc=${doiniluc}\n"
+printf "    	doinidyn=${doinidyn}\n"
+printf "    	dofinal=${dofinal}\n"
 printf "\n"
 printf "    Options\n"
-printf "        doc13o2=${doc13o2}\n"
-printf "        c13o2_simple_disc=${c13o2_simple_disc}\n"
-printf "        explicit_gm=${explicit_gm}\n"
+printf "    	doc13o2=${doc13o2}\n"
+printf "    	c13o2_simple_disc=${c13o2_simple_disc}\n"
+printf "    	explicit_gm=${explicit_gm}\n"
 printf "\n"
 printf "    Directories\n"
-printf "        sitepath=${sitepath}\n"
-printf "        cablehome=${cablehome}\n"
-printf "        exe=${exe}\n"
-printf "        aux=${aux}\n"
-printf "        GlobalLandMaskFile=${GlobalLandMaskFile}\n"
-printf "        GlobalMetPath=${GlobalMetPath}\n"
-printf "        GlobalTransitionFilePath=${GlobalTransitionFilePath}\n"
-printf "        runpath=${runpath}\n"
-printf "        namelistpath=${namelistpath}\n"
-printf "        filename_veg=${filename_veg}\n"
-printf "        filename_soil=${filename_soil}\n"
-printf "        casafile_cnpbiome=${casafile_cnpbiome}\n"
-printf "        LandMaskFile=${LandMaskFile}\n"
-printf "        MetPath=${MetPath}\n"
-printf "        ClimateFile=${ClimateFile}\n"
-printf "        TransitionFilePath=${TransitionFilePath}\n"
-printf "        filename_d13c_atm=${filename_d13c_atm}\n"
+printf "    	sitepath=${sitepath}\n"
+printf "    	cablehome=${cablehome}\n"
+printf "    	exe=${exe}\n"
+printf "    	aux=${aux}\n"
+printf "    	GlobalLandMaskFile=${GlobalLandMaskFile}\n"
+printf "    	GlobalMetPath=${GlobalMetPath}\n"
+printf "    	GlobalTransitionFilePath=${GlobalTransitionFilePath}\n"
+printf "    	runpath=${runpath}\n"
+printf "    	namelistpath=${namelistpath}\n"
+printf "    	filename_veg=${filename_veg}\n"
+printf "    	filename_soil=${filename_soil}\n"
+printf "    	casafile_cnpbiome=${casafile_cnpbiome}\n"
+printf "    	LandMaskFile=${LandMaskFile}\n"
+printf "    	MetPath=${MetPath}\n"
+printf "    	ClimateFile=${ClimateFile}\n"
+printf "    	TransitionFilePath=${TransitionFilePath}\n"
+printf "    	filename_d13c_atm=${filename_d13c_atm}\n"
 printf "\n"
 
 # --------------------------------------------------------------------
@@ -547,55 +543,14 @@ printf "\n"
 #
 
 # 0. Extract meteo, land use and mask for one specific site from global files
-if [[ ${doextractsite} -ge 2 ]] ; then
-    # set +e
-    # xcdo=$(which cdo 2> /dev/null)
-    # set -e
+if [[ ${doextractsite} -ge 1 ]] ; then
+    # xcdo=$(which cdo)
     # if [[ -z ${xcdo} ]] ; then module load cdo ; fi
-    set +e
-    xnco=$(which ncks 2> /dev/null)
-    set -e
-    if [[ -z ${xnco} ]] ; then module load nco ; fi
+    #xnco=$(which ncks)
+    #if [[ -z ${xnco} ]] ; then module load nco ; fi
+    module load nco  # command above throws error if module is not already loaded
 fi
 if [[ ${doextractsite} -eq 1 ]] ; then
-    cd ${pdir}
-    # mask
-    LandMaskFilePath=$(dirname ${LandMaskFile})
-    mkdir -p ${LandMaskFilePath}
-    LandMaskFile=$(absfile ${LandMaskFile})
-    # echo $(basename ${LandMaskFile})
-    # generate random points if ${randompoints} > 0
-    if [[ ${randompoints} -ne 0 ]] ; then
-	dogeneraterandom=1
-	rpoints=${randompoints}
-	if [[ ${randompoints} -lt 0 ]] ; then
-	    if [[ -f ${LandMaskFilePath}/${sitename}_points.csv ]] ; then dogeneraterandom = 0 ; fi
-	    rpoints=$(( ${randompoints} * -1 ))
-	fi
-	# generate random points
-        com=$(csed "basepath=\"${sitepath}\"")
-        com=${com}$(csed "gridinfo_file=\"${GlobalLandMaskFile}\"")
-        com=${com}$(csed "outname=\"${LandMaskFilePath}/${sitename}_points.csv\"")
-        sed ${com} ${sdir}/generate_latlonlist.py > ${LandMaskFilePath}/generate_latlonlist.py
-        python3 ${LandMaskFilePath}/generate_latlonlist.py ${rpoints}
-	# set mask to generated random points
-        com=$(csed "path=\"${LandMaskFilePath}\"")
-        com=${com}$(csed "maskfname=\"${LandMaskFile}\"")
-        com=${com}$(csed "latlonfile=\"${LandMaskFilePath}/${sitename}_points.csv\"")
-        sed ${com} ${sdir}/create_landmask.py > ${LandMaskFilePath}/create_landmask.py
-        sed -i "s!from lnutils.*!sys.path.insert(1,'${sdir}'); from lnutils import latlon2ixjy!" ${LandMaskFilePath}/create_landmask.py
-        python3 ${LandMaskFilePath}/create_landmask.py
-    else
-	# # cdo -s -f nc4 -z zip sellonlatbox,-72.5,-72.0,42.5,43.0 ${GlobalLandMaskFile} ${LandMaskFile}
-	# ncks -O $(nckslatlon ${GlobalLandMaskFile} ${latlon}) ${GlobalLandMaskFile} ${LandMaskFile}
-        com=$(csed "path=\"${LandMaskFilePath}\"")
-        com=${com}$(csed "maskfname=\"${LandMaskFile}\"")
-        sed ${com} ${sdir}/create_landmask.py > ${LandMaskFilePath}/create_landmask.py
-        sed -i "s!from lnutils.*!sys.path.insert(1,'${sdir}'); from lnutils import latlon2ixjy!" ${LandMaskFilePath}/create_landmask.py
-        python3 ${LandMaskFilePath}/create_landmask.py ${latlon}
-    fi
-fi
-if [[ ${doextractsite} -eq 2 ]] ; then
     cd ${pdir}
     # meteorology
     met_list="pre pres dlwrf dswrf spfh tmax tmin ugrd vgrd ndep"
@@ -605,10 +560,10 @@ if [[ ${doextractsite} -eq 2 ]] ; then
         echo ${GlobalMetPath}/${mm}
         mkdir -p ${MetPath}/${mm}
         for nc in ${GlobalMetPath}/${mm}/*.nc ; do
-            ff=$(basename ${nc})
+	    ff=$(basename ${nc})
             echo "    ${ff}"
             # cdo -s -f nc4 -z zip sellonlatbox,-72.5,-72.0,42.5,43.0 ${nc} ${MetPath}/${mm}/${ff}
-            ncks -O $(nckslatlon ${nc} ${latlon}) ${nc} ${MetPath}/${mm}/${ff}
+	    ncks -O $(nckslatlon ${nc} ${latlon}) ${nc} ${MetPath}/${mm}/${ff}
         done
     done
     echo ${GlobalMetPath}/co2/*.csv
@@ -620,19 +575,74 @@ if [[ ${doextractsite} -eq 2 ]] ; then
     TransitionFilePath=$(abspath ${TransitionFilePath})
     echo ${GlobalTransitionFilePath}
     for nc in ${GlobalTransitionFilePath}/*.nc ; do
-        ff=$(basename ${nc})
+	ff=$(basename ${nc})
         echo "    ${ff}"
         # cdo -s -f nc4 -z zip sellonlatbox,-72.5,-72.0,42.5,43.0 ${nc} ${TransitionFilePath}/${ff}
-        ncks -O $(nckslatlon ${nc} ${latlon}) ${nc} ${TransitionFilePath}/${ff}
+	ncks -O $(nckslatlon ${nc} ${latlon}) ${nc} ${TransitionFilePath}/${ff}
     done
 
     # mask
     LandMaskFilePath=$(dirname ${LandMaskFile})
     mkdir -p ${LandMaskFilePath}
-    LandMaskFile=$(absfile ${LandMaskFile})
-    echo $(basename ${LandMaskFile})
-    # cdo -s -f nc4 -z zip sellonlatbox,-72.5,-72.0,42.5,43.0 ${GlobalLandMaskFile} ${LandMaskFile}
-    ncks -O $(nckslatlon ${GlobalLandMaskFile} ${latlon}) ${GlobalLandMaskFile} ${LandMaskFile}
+    # generate random points if ${randompoints} > 0
+    if [[ ${randompoints} -gt 0 ]] ; then
+	com=$(csed "basepath=\"${sitepath}\"")
+        com=${com}$(csed "gridinfo_file=\"${gridinfo}\"")
+	com=${com}$(csed "outname=\"${LandMaskFilePath}/${sitename}_points.csv\"")
+        sed ${com} ${ScriptsPath}/generate_latlonlist.py > ${LandMaskFilePath}/generate_latlonlist.py
+	python3 ${LandMaskFilePath}/generate_latlonlist.py ${randompoints}
+
+        com=$(csed "path=\"${LandMaskFilePath}\"")
+        com=${com}$(csed "maskfname=\"${LandMaskFile}\"")
+        com=${com}$(csed "latlonfile=\"${LandMaskFilePath}/${sitename}_points.csv\"")
+	com=${com}$(csed "gridinfo_file=\"${gridinfo}\"")
+        sed ${com} ${ScriptsPath}/create_landmask.py > ${LandMaskFilePath}/create_landmask.py
+        sed -i "s!from lnutils.*!sys.path.insert(1,'${ScriptsPath}'); from lnutils import latlon2ixjy!" ${LandMaskFilePath}/create_landmask.py
+        python3 ${LandMaskFilePath}/create_landmask.py
+    else
+        com=$(csed "path=\"${LandMaskFilePath}\"")
+        com=${com}$(csed "maskfname=\"${LandMaskFile}\"")
+	com=${com}$(csed "gridinfo_file=\"${gridinfo}\"")
+        sed ${com} ${ScriptsPath}/create_landmask.py > ${LandMaskFilePath}/create_landmask.py
+        sed -i "s!from lnutils.*!sys.path.insert(1,'${ScriptsPath}'); from lnutils import latlon2ixjy!" ${LandMaskFilePath}/create_landmask.py
+        python3 ${LandMaskFilePath}/create_landmask.py ${latlon}
+    fi
+fi
+if [[ ${doextractsite} -eq 2 ]] ; then
+    cd ${pdir}
+    # mask
+    LandMaskFilePath=$(dirname ${LandMaskFile})
+    mkdir -p ${LandMaskFilePath}
+    # generate random points if ${randompoints} > 0
+    if [[ ${randompoints} -gt 0 ]] ; then
+	com=$(csed "basepath=\"${sitepath}\"")
+        com=${com}$(csed "gridinfo_file=\"${gridinfo}\"")
+	com=${com}$(csed "outname=\"${LandMaskFilePath}/${sitename}_points.csv\"")
+        sed ${com} ${ScriptsPath}/generate_latlonlist.py > ${LandMaskFilePath}/generate_latlonlist.py
+	python3 ${LandMaskFilePath}/generate_latlonlist.py ${randompoints}
+
+        com=$(csed "path=\"${LandMaskFilePath}\"")
+        com=${com}$(csed "maskfname=\"${LandMaskFile}\"")
+        com=${com}$(csed "latlonfile=\"${LandMaskFilePath}/${sitename}_points.csv\"")
+	com=${com}$(csed "gridinfo_file=\"${gridinfo}\"")
+        sed ${com} ${ScriptsPath}/create_landmask.py > ${LandMaskFilePath}/create_landmask.py
+        sed -i "s!from lnutils.*!sys.path.insert(1,'${ScriptsPath}'); from lnutils import latlon2ixjy!" ${LandMaskFilePath}/create_landmask.py
+	python3 ${LandMaskFilePath}/create_landmask.py
+    else
+        com=$(csed "path=\"${LandMaskFilePath}\"")
+        com=${com}$(csed "maskfname=\"${LandMaskFile}\"")
+	com=${com}$(csed "gridinfo_file=\"${gridinfo}\"")
+        sed ${com} ${ScriptsPath}/create_landmask.py > ${LandMaskFilePath}/create_landmask.py                                                                                                                                                                           
+	sed -i "s!from lnutils.*!sys.path.insert(1,'${ScriptsPath}'); from lnutils import latlon2ixjy!" ${LandMaskFilePath}/create_landmask.py
+        python3 ${LandMaskFilePath}/create_landmask.py ${latlon}
+    fi
+    
+    #LandMaskFilePath=$(dirname ${LandMaskFile})
+    #mkdir -p ${LandMaskFilePath}
+    #LandMaskFile=$(absfile ${LandMaskFile})
+    #echo $(basename ${LandMaskFile})
+    ## cdo -s -f nc4 -z zip sellonlatbox,-72.5,-72.0,42.5,43.0 ${GlobalLandMaskFile} ${LandMaskFile}
+    #ncks -O $(nckslatlon ${GlobalLandMaskFile} ${latlon}) ${GlobalLandMaskFile} ${LandMaskFile}
 fi
 
 # Choose meteo, land use and mask directories and files
@@ -641,12 +651,12 @@ if [[ ${imeteo} -eq 0 ]] ; then
     TransitionFilePath=$(abspath ${GlobalTransitionFilePath})
     LandMaskFile=$(absfile ${LandMaskFile})
 elif [[ ${imeteo} -eq 1 ]] ; then
-    MetPath=$(abspath ${GlobalMetPath})
-    TransitionFilePath=$(abspath ${GlobalTransitionFilePath})
-    LandMaskFile=$(absfile ${LandMaskFile})
-elif [[ ${imeteo} -eq 2 ]] ; then
     MetPath=$(abspath ${MetPath})
     TransitionFilePath=$(abspath ${TransitionFilePath})
+    LandMaskFile=$(absfile ${LandMaskFile})
+elif [[ ${imeteo} -eq 2 ]] ; then
+    MetPath=$(abspath ${GlobalMetPath})
+    TransitionFilePath=$(abspath ${GlobalTransitionFilePath})
     LandMaskFile=$(absfile ${LandMaskFile})
 else
     printf "Error ${pprog}: imeteo option unknown: ${imeteo}.\n\n"
@@ -662,7 +672,7 @@ filename_d13c_atm=$(absfile ${filename_d13c_atm})
 
 # 1. Create climate restart file
 if [[ ${doclimate} -eq 1 ]] ; then
-    echo "1. Create climate restart file"
+    echo "1. Create climate restart file"   
     rid="climate_restart"
     # CRU
     irm ${rdir}/cru.nml
@@ -728,11 +738,11 @@ if [[ ${doclimate} -eq 1 ]] ; then
     cd ${rdir}
     irm logs/log_cable.txt logs/log_out_cable.txt
     if [[ ${dompi} -eq 1 ]] ; then
-        if [[ ${ignore_mpi_err} -eq 1 ]] ; then set +e ; fi
-        ${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
-        if [[ ${ignore_mpi_err} -eq 1 ]] ; then set -e ; fi
+	if [[ ${ignore_mpi_err} -eq 1 ]] ; then set +e ; fi
+	${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
+	if [[ ${ignore_mpi_err} -eq 1 ]] ; then set -e ; fi
     else
-        ./${iexe} > logs/log_out_cable.txt
+	./${iexe} > logs/log_out_cable.txt
     fi
     # save output
     renameid ${rid} cable.nml cru.nml LUC.nml
@@ -819,11 +829,11 @@ if [[ ${dofromzero} -eq 1 ]] ; then
     cd ${rdir}
     irm logs/log_cable.txt logs/log_out_cable.txt
     if [[ ${dompi} -eq 1 ]] ; then
-        if [[ ${ignore_mpi_err} -eq 1 ]] ; then set +e ; fi
-        ${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
-        if [[ ${ignore_mpi_err} -eq 1 ]] ; then set -e ; fi
+	if [[ ${ignore_mpi_err} -eq 1 ]] ; then set +e ; fi
+	${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
+	if [[ ${ignore_mpi_err} -eq 1 ]] ; then set -e ; fi
     else
-        ./${iexe} > logs/log_out_cable.txt
+	./${iexe} > logs/log_out_cable.txt
     fi
     # save output
     renameid ${rid} cable.nml cru.nml LUC.nml
@@ -845,8 +855,8 @@ fi
 if [[ ${doequi1} -eq 1 ]] ; then
     echo "3. Bring biomass into quasi-equilibrium with restricted N and P pools"
     for ((iequi1=1; iequi1<=${nequi1}; iequi1++)) ; do
-        rid="spinup_limit_labile"
-        # rid="spinup_limit_labile${iequi}"
+	rid="spinup_limit_labile"
+	# rid="spinup_limit_labile${iequi}"
         if [[ 1 -eq 1 ]] ; then
             # 3a. 30 year run starting from restart files
             echo "   3a. 30 year spinup from accumulated biomass; iequi1=${iequi1}/${nequi1}"
@@ -890,14 +900,14 @@ if [[ ${doequi1} -eq 1 ]] ; then
             com=${com}$(csed "cable_user%LUC_outfile=\"outputs/cru_out_LUC.nc\"")
             com=${com}$(csed "cable_user%LUC_restart_in=\"restart/cru_LUC_rst.nc\"")
             com=${com}$(csed "cable_user%LUC_restart_out=\"restart/cru_LUC_rst.nc\"")
-            if [[ ${explicit_gm} -eq 1 ]] ; then
+	    if [[ ${explicit_gm} -eq 1 ]] ; then
                 com=${com}$(csed "cable_user%explicit_gm=.true.")
             else
                 com=${com}$(csed "cable_user%explicit_gm=.false.")
             fi
             if [[ ${doc13o2} -eq 1 ]] ; then
                 com=${com}$(csed "cable_user%c13o2=.true.")
-                com=${com}$(csed "cable_user%c13o2_delta_atm_file=\"${filename_d13c_atm}\"")
+		com=${com}$(csed "cable_user%c13o2_delta_atm_file=\"${filename_d13c_atm}\"")
                 com=${com}$(csed "cable_user%c13o2_outfile=\"outputs/cru_out_casa_c13o2.nc\"")
                 com=${com}$(csed "cable_user%c13o2_restart_in_flux=\"restart/cru_c13o2_flux_rst.nc\"")
                 com=${com}$(csed "cable_user%c13o2_restart_out_flux=\"restart/cru_c13o2_flux_rst.nc\"")
@@ -912,34 +922,34 @@ if [[ ${doequi1} -eq 1 ]] ; then
             sed ${com} ${ndir}/cable.nml > ${rdir}/cable.nml
             # run model
             cd ${rdir}
-            irm logs/log_cable.txt logs/log_out_cable.txt
-            if [[ ${dompi} -eq 1 ]] ; then
-                if [[ ${ignore_mpi_err} -eq 1 ]] ; then set +e ; fi
-                ${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
-                if [[ ${ignore_mpi_err} -eq 1 ]] ; then set -e ; fi
-            else
-                ./${iexe} > logs/log_out_cable.txt
-            fi
+	    irm logs/log_cable.txt logs/log_out_cable.txt
+	    if [[ ${dompi} -eq 1 ]] ; then
+		if [[ ${ignore_mpi_err} -eq 1 ]] ; then set +e ; fi
+		${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
+		if [[ ${ignore_mpi_err} -eq 1 ]] ; then set -e ; fi
+	    else
+		./${iexe} > logs/log_out_cable.txt
+	    fi
             # save output
-            renameid ${rid} cable.nml cru.nml LUC.nml
-            mv *_${rid}.nml restart/
-            cd logs
-            renameid ${rid} log_cable.txt log_out_cable.txt
-            cd ../restart
-            copyid ${rid} pop_cru_ini.nc cru_climate_rst.nc cru_casa_rst.nc cru_cable_rst.nc
-            if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_c13o2_flux_rst.nc cru_c13o2_pools_rst.nc ; fi
-            cd ../outputs
-            renameid ${rid} cru_out_cable.nc cru_out_casa.nc
-            if [[ ${doc13o2} -eq 1 ]] ; then renameid ${rid} cru_out_casa_c13o2.nc ; fi
-            cd ..
-            cd ${pdir}
+	    renameid ${rid} cable.nml cru.nml LUC.nml
+	    mv *_${rid}.nml restart/
+    	    cd logs
+    	    renameid ${rid} log_cable.txt log_out_cable.txt
+    	    cd ../restart
+    	    copyid ${rid} pop_cru_ini.nc cru_climate_rst.nc cru_casa_rst.nc cru_cable_rst.nc
+    	    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_c13o2_flux_rst.nc cru_c13o2_pools_rst.nc ; fi
+    	    cd ../outputs
+    	    renameid ${rid} cru_out_cable.nc cru_out_casa.nc
+    	    if [[ ${doc13o2} -eq 1 ]] ; then renameid ${rid} cru_out_casa_c13o2.nc ; fi
+    	    cd ..
+    	    cd ${pdir}
         fi
         #
         if [[ 1 -eq 1 ]] ; then
             # 3b. analytic quasi-equilibrium of biomass pools
             echo "   3b. Analytic solution of biomass pools"
-            rid="spinup_analytic_limit_labile"
-            # rid="spin_casa_limit_labile${iequi}"
+	    rid="spinup_analytic_limit_labile"
+	    # rid="spin_casa_limit_labile${iequi}"
             # CRU
             irm ${rdir}/cru.nml
             com=$(csed "BasePath=\"${MetPath}\",MetPath=\"${MetPath}\",LandMaskFile=\"${LandMaskFile}\"")
@@ -980,14 +990,14 @@ if [[ ${doequi1} -eq 1 ]] ; then
             com=${com}$(csed "cable_user%LUC_outfile=\"outputs/cru_out_LUC.nc\"")
             com=${com}$(csed "cable_user%LUC_restart_in=\"restart/cru_LUC_rst.nc\"")
             com=${com}$(csed "cable_user%LUC_restart_out=\"restart/cru_LUC_rst.nc\"")
-            if [[ ${explicit_gm} -eq 1 ]] ; then
+	    if [[ ${explicit_gm} -eq 1 ]] ; then
                 com=${com}$(csed "cable_user%explicit_gm=.true.")
             else
                 com=${com}$(csed "cable_user%explicit_gm=.false.")
             fi
             if [[ ${doc13o2} -eq 1 ]] ; then
                 com=${com}$(csed "cable_user%c13o2=.true.")
-                com=${com}$(csed "cable_user%c13o2_delta_atm_file=\"${filename_d13c_atm}\"")
+		com=${com}$(csed "cable_user%c13o2_delta_atm_file=\"${filename_d13c_atm}\"")
                 com=${com}$(csed "cable_user%c13o2_outfile=\"outputs/cru_out_casa_c13o2.nc\"")
                 com=${com}$(csed "cable_user%c13o2_restart_in_flux=\"restart/cru_c13o2_flux_rst.nc\"")
                 com=${com}$(csed "cable_user%c13o2_restart_out_flux=\"restart/cru_c13o2_flux_rst.nc\"")
@@ -1002,29 +1012,29 @@ if [[ ${doequi1} -eq 1 ]] ; then
             sed ${com} ${ndir}/cable.nml > ${rdir}/cable.nml
             # run model
             cd ${rdir}
-            irm logs/log_cable.txt logs/log_out_cable.txt
-            if [[ ${dompi} -eq 1 ]] ; then
-                if [[ ${ignore_mpi_err} -eq 1 ]] ; then set +e ; fi
-                ${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
-                if [[ ${ignore_mpi_err} -eq 1 ]] ; then set -e ; fi
-            else
-                ./${iexe} > logs/log_out_cable.txt
-            fi
+	    irm logs/log_cable.txt logs/log_out_cable.txt
+	    if [[ ${dompi} -eq 1 ]] ; then
+		if [[ ${ignore_mpi_err} -eq 1 ]] ; then set +e ; fi
+		${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
+		if [[ ${ignore_mpi_err} -eq 1 ]] ; then set -e ; fi
+	    else
+		./${iexe} > logs/log_out_cable.txt
+	    fi
             # save output
-            renameid ${rid} cable.nml cru.nml LUC.nml
-            mv *_${rid}.nml restart/
-            cd logs
-            renameid ${rid} log_cable.txt log_out_cable.txt
-            cd ../restart
-            copyid ${rid} pop_cru_ini.nc cru_casa_rst.nc
-            if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_c13o2_flux_rst.nc cru_c13o2_pools_rst.nc ; fi
-            if [[ ${dompi} -eq 0 ]] ; then # no output only restart if MPI
-                cd ../outputs
-                renameid ${rid} cru_out_casa.nc
-                if [[ ${doc13o2} -eq 1 ]] ; then renameid ${rid} cru_out_casa_c13o2.nc ; fi
-                cd ..
-            fi
-            cd ${pdir}
+	    renameid ${rid} cable.nml cru.nml LUC.nml
+	    mv *_${rid}.nml restart/
+    	    cd logs
+    	    renameid ${rid} log_cable.txt log_out_cable.txt
+    	    cd ../restart
+    	    copyid ${rid} pop_cru_ini.nc cru_casa_rst.nc
+    	    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_c13o2_flux_rst.nc cru_c13o2_pools_rst.nc ; fi
+	    if [[ ${dompi} -eq 0 ]] ; then # no output only restart if MPI
+    		cd ../outputs
+    		renameid ${rid} cru_out_casa.nc
+    		if [[ ${doc13o2} -eq 1 ]] ; then renameid ${rid} cru_out_casa_c13o2.nc ; fi
+    		cd ..
+	    fi
+    	    cd ${pdir}
         fi
     done
 fi
@@ -1034,8 +1044,8 @@ fi
 if [[ ${doequi2} -eq 1 ]] ; then
     echo "4. Bring biomass into quasi-equilibrium without restricted N and P pools"
     for ((iequi2=1; iequi2<=${nequi2}; iequi2++)) ; do
-        rid="spinup"
-        # rid="spinup${iequi}"
+	rid="spinup"
+	# rid="spinup${iequi}"
         if [[ 1 -eq 1 ]] ; then
             # 4a. 30 year run starting from restart files
             echo "   4a. 30 year spinup from accumulated biomass; iequi2=${iequi2}/${nequi2}"
@@ -1079,14 +1089,14 @@ if [[ ${doequi2} -eq 1 ]] ; then
             com=${com}$(csed "cable_user%LUC_outfile=\"outputs/cru_out_LUC.nc\"")
             com=${com}$(csed "cable_user%LUC_restart_in=\"restart/cru_LUC_rst.nc\"")
             com=${com}$(csed "cable_user%LUC_restart_out=\"restart/cru_LUC_rst.nc\"")
-            if [[ ${explicit_gm} -eq 1 ]] ; then
+	    if [[ ${explicit_gm} -eq 1 ]] ; then
                 com=${com}$(csed "cable_user%explicit_gm=.true.")
             else
                 com=${com}$(csed "cable_user%explicit_gm=.false.")
             fi
             if [[ ${doc13o2} -eq 1 ]] ; then
                 com=${com}$(csed "cable_user%c13o2=.true.")
-                com=${com}$(csed "cable_user%c13o2_delta_atm_file=\"${filename_d13c_atm}\"")
+		com=${com}$(csed "cable_user%c13o2_delta_atm_file=\"${filename_d13c_atm}\"")
                 com=${com}$(csed "cable_user%c13o2_outfile=\"outputs/cru_out_casa_c13o2.nc\"")
                 com=${com}$(csed "cable_user%c13o2_restart_in_flux=\"restart/cru_c13o2_flux_rst.nc\"")
                 com=${com}$(csed "cable_user%c13o2_restart_out_flux=\"restart/cru_c13o2_flux_rst.nc\"")
@@ -1101,34 +1111,34 @@ if [[ ${doequi2} -eq 1 ]] ; then
             sed ${com} ${ndir}/cable.nml > ${rdir}/cable.nml
             # run model
             cd ${rdir}
-            irm logs/log_cable.txt logs/log_out_cable.txt
-            if [[ ${dompi} -eq 1 ]] ; then
-                if [[ ${ignore_mpi_err} -eq 1 ]] ; then set +e ; fi
-                ${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
-                if [[ ${ignore_mpi_err} -eq 1 ]] ; then set -e ; fi
-            else
-                ./${iexe} > logs/log_out_cable.txt
-            fi
+	    irm logs/log_cable.txt logs/log_out_cable.txt
+	    if [[ ${dompi} -eq 1 ]] ; then
+		if [[ ${ignore_mpi_err} -eq 1 ]] ; then set +e ; fi
+		${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
+		if [[ ${ignore_mpi_err} -eq 1 ]] ; then set -e ; fi
+	    else
+		./${iexe} > logs/log_out_cable.txt
+	    fi
             # save output
-            renameid ${rid} cable.nml cru.nml LUC.nml
-            mv *_${rid}.nml restart/
-            cd logs
-            renameid ${rid} log_cable.txt log_out_cable.txt
-            cd ../restart
-            copyid ${rid} pop_cru_ini.nc cru_climate_rst.nc cru_casa_rst.nc cru_cable_rst.nc
-            if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_c13o2_flux_rst.nc cru_c13o2_pools_rst.nc ; fi
-            cd ../outputs
-            renameid ${rid} cru_out_cable.nc cru_out_casa.nc
-            if [[ ${doc13o2} -eq 1 ]] ; then renameid ${rid} cru_out_casa_c13o2.nc ; fi
-            cd ..
-            cd ${pdir}
+	    renameid ${rid} cable.nml cru.nml LUC.nml
+	    mv *_${rid}.nml restart/
+    	    cd logs
+    	    renameid ${rid} log_cable.txt log_out_cable.txt
+    	    cd ../restart
+    	    copyid ${rid} pop_cru_ini.nc cru_climate_rst.nc cru_casa_rst.nc cru_cable_rst.nc
+    	    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_c13o2_flux_rst.nc cru_c13o2_pools_rst.nc ; fi
+    	    cd ../outputs
+    	    renameid ${rid} cru_out_cable.nc cru_out_casa.nc
+    	    if [[ ${doc13o2} -eq 1 ]] ; then renameid ${rid} cru_out_casa_c13o2.nc ; fi
+    	    cd ..
+    	    cd ${pdir}
         fi
         #
         if [[ 1 -eq 1 ]] ; then
             # 4b. analytic quasi-equilibrium of biomass pools
             echo "   4b. Analytic solution of biomass pools"
-            rid="spinup_analytic"
-            # rid="spin_casa${iequi}"
+	    rid="spinup_analytic"
+	    # rid="spin_casa${iequi}"
             # CRU
             irm ${rdir}/cru.nml
             com=$(csed "BasePath=\"${MetPath}\",MetPath=\"${MetPath}\",LandMaskFile=\"${LandMaskFile}\"")
@@ -1169,14 +1179,14 @@ if [[ ${doequi2} -eq 1 ]] ; then
             com=${com}$(csed "cable_user%LUC_outfile=\"outputs/cru_out_LUC.nc\"")
             com=${com}$(csed "cable_user%LUC_restart_in=\"restart/cru_LUC_rst.nc\"")
             com=${com}$(csed "cable_user%LUC_restart_out=\"restart/cru_LUC_rst.nc\"")
-            if [[ ${explicit_gm} -eq 1 ]] ; then
+	    if [[ ${explicit_gm} -eq 1 ]] ; then
                 com=${com}$(csed "cable_user%explicit_gm=.true.")
             else
                 com=${com}$(csed "cable_user%explicit_gm=.false.")
             fi
             if [[ ${doc13o2} -eq 1 ]] ; then
                 com=${com}$(csed "cable_user%c13o2=.true.")
-                com=${com}$(csed "cable_user%c13o2_delta_atm_file=\"${filename_d13c_atm}\"")
+		com=${com}$(csed "cable_user%c13o2_delta_atm_file=\"${filename_d13c_atm}\"")
                 com=${com}$(csed "cable_user%c13o2_outfile=\"outputs/cru_out_casa_c13o2.nc\"")
                 com=${com}$(csed "cable_user%c13o2_restart_in_flux=\"restart/cru_c13o2_flux_rst.nc\"")
                 com=${com}$(csed "cable_user%c13o2_restart_out_flux=\"restart/cru_c13o2_flux_rst.nc\"")
@@ -1191,29 +1201,29 @@ if [[ ${doequi2} -eq 1 ]] ; then
             sed ${com} ${ndir}/cable.nml > ${rdir}/cable.nml
             # run model
             cd ${rdir}
-            irm logs/log_cable.txt logs/log_out_cable.txt
-            if [[ ${dompi} -eq 1 ]] ; then
-                if [[ ${ignore_mpi_err} -eq 1 ]] ; then set +e ; fi
-                ${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
-                if [[ ${ignore_mpi_err} -eq 1 ]] ; then set -e ; fi
-            else
-                ./${iexe} > logs/log_out_cable.txt
-            fi
+	    irm logs/log_cable.txt logs/log_out_cable.txt
+	    if [[ ${dompi} -eq 1 ]] ; then
+		if [[ ${ignore_mpi_err} -eq 1 ]] ; then set +e ; fi
+		${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
+		if [[ ${ignore_mpi_err} -eq 1 ]] ; then set -e ; fi
+	    else
+		./${iexe} > logs/log_out_cable.txt
+	    fi
             # save output
-            renameid ${rid} cable.nml cru.nml LUC.nml
-            mv *_${rid}.nml restart/
-            cd logs
-            renameid ${rid} log_cable.txt log_out_cable.txt
-            cd ../restart
-            copyid ${rid} pop_cru_ini.nc cru_casa_rst.nc
-            if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_c13o2_flux_rst.nc cru_c13o2_pools_rst.nc ; fi
-            if [[ ${dompi} -eq 0 ]] ; then # no output only restart if MPI
-                cd ../outputs
-                renameid ${rid} cru_out_casa.nc
-                if [[ ${doc13o2} -eq 1 ]] ; then renameid ${rid} cru_out_casa_c13o2.nc ; fi
-                cd ..
-            fi
-            cd ${pdir}
+	    renameid ${rid} cable.nml cru.nml LUC.nml
+	    mv *_${rid}.nml restart/
+    	    cd logs
+    	    renameid ${rid} log_cable.txt log_out_cable.txt
+    	    cd ../restart
+    	    copyid ${rid} pop_cru_ini.nc cru_casa_rst.nc
+    	    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_c13o2_flux_rst.nc cru_c13o2_pools_rst.nc ; fi
+	    if [[ ${dompi} -eq 0 ]] ; then # no output only restart if MPI
+    		cd ../outputs
+    		renameid ${rid} cru_out_casa.nc
+    		if [[ ${doc13o2} -eq 1 ]] ; then renameid ${rid} cru_out_casa_c13o2.nc ; fi
+    		cd ..
+	    fi
+    	    cd ${pdir}
         fi
     done
 fi
@@ -1285,11 +1295,11 @@ if [[ ${doiniluc} -eq 1 ]] ; then
     cd ${rdir}
     irm logs/log_cable.txt logs/log_out_cable.txt
     if [[ ${dompi} -eq 1 ]] ; then
-        if [[ ${ignore_mpi_err} -eq 1 ]] ; then set +e ; fi
-        ${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
-        if [[ ${ignore_mpi_err} -eq 1 ]] ; then set -e ; fi
+	if [[ ${ignore_mpi_err} -eq 1 ]] ; then set +e ; fi
+	${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
+	if [[ ${ignore_mpi_err} -eq 1 ]] ; then set -e ; fi
     else
-        ./${iexe} > logs/log_out_cable.txt
+	./${iexe} > logs/log_out_cable.txt
     fi
     # save output
     renameid ${rid} cable.nml cru.nml LUC.nml
@@ -1376,11 +1386,11 @@ if [[ ${doinidyn} -eq 1 ]] ; then
     cd ${rdir}
     irm logs/log_cable.txt logs/log_out_cable.txt
     if [[ ${dompi} -eq 1 ]] ; then
-        if [[ ${ignore_mpi_err} -eq 1 ]] ; then set +e ; fi
-        ${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
-        if [[ ${ignore_mpi_err} -eq 1 ]] ; then set -e ; fi
+	if [[ ${ignore_mpi_err} -eq 1 ]] ; then set +e ; fi
+	${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
+	if [[ ${ignore_mpi_err} -eq 1 ]] ; then set -e ; fi
     else
-        ./${iexe} > logs/log_out_cable.txt
+	./${iexe} > logs/log_out_cable.txt
     fi
     # save output
     renameid ${rid} cable.nml cru.nml LUC.nml
@@ -1468,11 +1478,11 @@ if [[ ${dofinal} -eq 1 ]] ; then
     cd ${rdir}
     irm logs/log_cable.txt logs/log_out_cable.txt
     if [[ ${dompi} -eq 1 ]] ; then
-        if [[ ${ignore_mpi_err} -eq 1 ]] ; then set +e ; fi
-        ${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
-        if [[ ${ignore_mpi_err} -eq 1 ]] ; then set -e ; fi
+	if [[ ${ignore_mpi_err} -eq 1 ]] ; then set +e ; fi
+	${mpiexecdir}mpiexec -n ${nproc} ./${iexe} > logs/log_out_cable.txt
+	if [[ ${ignore_mpi_err} -eq 1 ]] ; then set -e ; fi
     else
-        ./${iexe} > logs/log_out_cable.txt
+	./${iexe} > logs/log_out_cable.txt
     fi
     # save output
     renameid ${rid} cable.nml cru.nml LUC.nml
