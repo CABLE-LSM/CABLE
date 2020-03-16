@@ -47,12 +47,8 @@ lonmax =  180.
 
 cable_switch = 'cable'
 
-try:
-    sys.argv[1]
-except IndexError:
-    randomPixels = True
-else:
-    coords = sys.argv[1]
+# latlon string given on command line
+if len(sys.argv) > 1:
     randomPixels = False
     coords = sys.argv[1]
     cc = coords.split(',')

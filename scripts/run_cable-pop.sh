@@ -95,9 +95,10 @@ doextractsite=2 # 0: Do not extract meteo, land use and mask at specific site
                 # 1: Do extract meteo, land use and mask at specific site (imeteo=1)
                 # 2: Do extract mask at specific site, using then global meteo and land use (imeteo=2)
   sitename=TestPoint
-  randompoints=0   # if greater than 0, select given number of random points from gridinfo file
-                   # if 0, mask given by latlon is used
-  # latlon=42.536875,-72.172602 # lat,lon  or  latmin,latmax,lonmin,lonmax  # must have . in numbers otherwise indexes taken
+  randompoints=0   # <0: use -1*randompoints random grid points from ${LandMaskFilePath}/${sitename}_points.csv if existing
+                   # 0:  use latlon
+                   # >0: generate and use randompoints random grid points from GlobalLandMaskFile
+  # lat,lon  or  latmin,latmax,lonmin,lonmax  # must have . in numbers otherwise indexes taken
   #latlon=42.536875,42.536875,-72.172602,-72.172602 
   latlon=-34.5,-33.5,149.5,156.5
   #latlon=42.5,43.5,109.5,110.5
@@ -190,7 +191,7 @@ elif [[ "${sys}" == "gadi" ]] ; then
     module load hdf5/1.10.5
     if [[ ${doextractsite} -ge 1 ]] ; then
         module load python3/3.7.4
-        export PYTHONPATH=/g/data/x45/python/lib/python3.7/site-packages
+        export PYTHONPATH=${PYTHONPATH}:/g/data/x45/python/lib/python3.7/site-packages
     fi 
     export mpiexecdir=/apps/intel-mpi/2019.5.281/intel64/bin/
 fi
@@ -237,7 +238,7 @@ elif [[ "${system}" == "cuntz@mcinra" ]] ; then
     # CABLE-AUX directory (uses offline/gridinfo_CSIRO_1x1.nc and offline/modis_phenology_csiro.txt)
     aux="${cablehome}/CABLE-AUX"
     # Global Mask, CRU, LUC
-    GlobalLandMaskFile=
+    GlobalLandMaskFile="${aux}/offline/gridinfo_CSIRO_1x1.nc"
     GlobalMetPath=
     GlobalTransitionFilePath=
 elif [[ "${system}" == "moc801@gadi" || "${system}" == "cuntz@gadi" ]] ; then
@@ -253,7 +254,7 @@ elif [[ "${system}" == "moc801@gadi" || "${system}" == "cuntz@gadi" ]] ; then
     # CABLE-AUX directory (uses offline/gridinfo_CSIRO_1x1.nc and offline/modis_phenology_csiro.txt)
     aux="/g/data/x45/CABLE-AUX"
     # Global Mask
-    GlobalLandMaskFile="/home/801/moc801/data/cable/mask/glob_ipsl_1x1.nc"
+    GlobalLandMaskFile="${aux}/offline/gridinfo_CSIRO_1x1.nc"
     # Global CRU
     GlobalMetPath="/g/data/x45/crujra/daily_1deg"
     # Global LUC
@@ -271,7 +272,7 @@ elif [[ "${system}" == "kna016@pearcey" || "${system}" == "knauer@pearcey" ]] ; 
     # CABLE-AUX directory (uses offline/gridinfo_CSIRO_1x1.nc and offline/modis_phenology_csiro.txt)
     aux="/OSM/CBR/OA_GLOBALCABLE/work/Vanessa/CABLE-AUX"
     # Global Mask
-    #GlobalLandMaskFile="/OSM/CBR/OA_GLOBALCABLE/work/Vanessa/MASKS/glob_ipsl_1x1.nc"
+    GlobalLandMaskFile="${aux}/offline/gridinfo_CSIRO_1x1.nc"
     # Global CRU
     GlobalMetPath="/OSM/CBR/OA_GLOBALCABLE/work/CRU-JRA55/crujra/daily_1deg"
     # Global LUC
@@ -289,7 +290,7 @@ elif [[ "${system}" == "jk8585@gadi" || "${system}" == "knauer@gadi" ]] ; then
     # CABLE-AUX directory (uses offline/gridinfo_CSIRO_1x1.nc and offline/modis_phenology_csiro.txt)
     aux="/g/data/x45/CABLE-AUX"
     # Global Mask
-    #GlobalLandMaskFile="/home/801/moc801/data/cable/mask/glob_ipsl_1x1.nc"
+    GlobalLandMaskFile="${aux}/offline/gridinfo_CSIRO_1x1.nc"
     # Global CRU
     GlobalMetPath="/g/data/x45/crujra/daily_1deg"
     # Global LUC
@@ -308,9 +309,6 @@ filename_soil="../params/def_soil_params.txt"
 casafile_cnpbiome="../params/pftlookup.csv"
 # Other scripts
 ScriptsPath="../scripts"
-# Gridinfo file
-gridinfo="${aux}/offline/gridinfo_CSIRO_1x1.nc"
-GlobalLandMaskFile=${gridinfo}
 # Mask
 LandMaskFile="${sitepath}/mask/${sitename}_landmask.nc"
 # CRU
@@ -468,6 +466,7 @@ exe=$(absfile ${exe})
 mkdir -p ${runpath}
 rdir=$(abspath ${runpath})
 ndir=$(abspath ${namelistpath})
+sdir=$(abspath ${ScriptsPath})
 
 #
 # prepare run directory
@@ -502,6 +501,7 @@ printf "    Sequence\n"
 printf "    	imeteo=${imeteo}\n"
 printf "    	doextractsite=${doextractsite}\n"
 printf "    	    sitename=${sitename}\n"
+printf "            randompoints=${randompoints}\n"
 printf "    	    latlon=${latlon}\n"
 printf "    	doclimate=${doclimate}\n"
 printf "    	dofromzero=${dofromzero}\n"
@@ -625,65 +625,10 @@ if [[ ${doextractsite} -eq 2 ]] ; then
     # mask
     LandMaskFilePath=$(dirname ${LandMaskFile})
     mkdir -p ${LandMaskFilePath}
-    # generate random points if ${randompoints} > 0
-    if [[ ${randompoints} -gt 0 ]] ; then
-	com=$(csed "basepath=\"${sitepath}\"")
-        com=${com}$(csed "gridinfo_file=\"${gridinfo}\"")
-	com=${com}$(csed "outname=\"${LandMaskFilePath}/${sitename}_points.csv\"")
-        sed ${com} ${ScriptsPath}/generate_latlonlist.py > ${LandMaskFilePath}/generate_latlonlist.py
-	python3 ${LandMaskFilePath}/generate_latlonlist.py ${randompoints}
-
-        com=$(csed "path=\"${LandMaskFilePath}\"")
-        com=${com}$(csed "maskfname=\"${LandMaskFile}\"")
-        com=${com}$(csed "latlonfile=\"${LandMaskFilePath}/${sitename}_points.csv\"")
-	com=${com}$(csed "gridinfo_file=\"${gridinfo}\"")
-        sed ${com} ${ScriptsPath}/create_landmask.py > ${LandMaskFilePath}/create_landmask.py
-        sed -i "s!from lnutils.*!sys.path.insert(1,'${ScriptsPath}'); from lnutils import latlon2ixjy!" ${LandMaskFilePath}/create_landmask.py
-        python3 ${LandMaskFilePath}/create_landmask.py
-    else
-        com=$(csed "path=\"${LandMaskFilePath}\"")
-        com=${com}$(csed "maskfname=\"${LandMaskFile}\"")
-	com=${com}$(csed "gridinfo_file=\"${gridinfo}\"")
-        sed ${com} ${ScriptsPath}/create_landmask.py > ${LandMaskFilePath}/create_landmask.py
-        sed -i "s!from lnutils.*!sys.path.insert(1,'${ScriptsPath}'); from lnutils import latlon2ixjy!" ${LandMaskFilePath}/create_landmask.py
-        python3 ${LandMaskFilePath}/create_landmask.py ${latlon}
-    fi
-fi
-if [[ ${doextractsite} -eq 2 ]] ; then
-    cd ${pdir}
-    # mask
-    LandMaskFilePath=$(dirname ${LandMaskFile})
-    mkdir -p ${LandMaskFilePath}
-    # generate random points if ${randompoints} > 0
-    if [[ ${randompoints} -gt 0 ]] ; then
-	com=$(csed "basepath=\"${sitepath}\"")
-        com=${com}$(csed "gridinfo_file=\"${gridinfo}\"")
-	com=${com}$(csed "outname=\"${LandMaskFilePath}/${sitename}_points.csv\"")
-        sed ${com} ${ScriptsPath}/generate_latlonlist.py > ${LandMaskFilePath}/generate_latlonlist.py
-	python3 ${LandMaskFilePath}/generate_latlonlist.py ${randompoints}
-
-        com=$(csed "path=\"${LandMaskFilePath}\"")
-        com=${com}$(csed "maskfname=\"${LandMaskFile}\"")
-        com=${com}$(csed "latlonfile=\"${LandMaskFilePath}/${sitename}_points.csv\"")
-	com=${com}$(csed "gridinfo_file=\"${gridinfo}\"")
-        sed ${com} ${ScriptsPath}/create_landmask.py > ${LandMaskFilePath}/create_landmask.py
-        sed -i "s!from lnutils.*!sys.path.insert(1,'${ScriptsPath}'); from lnutils import latlon2ixjy!" ${LandMaskFilePath}/create_landmask.py
-	python3 ${LandMaskFilePath}/create_landmask.py
-    else
-        com=$(csed "path=\"${LandMaskFilePath}\"")
-        com=${com}$(csed "maskfname=\"${LandMaskFile}\"")
-	com=${com}$(csed "gridinfo_file=\"${gridinfo}\"")
-        sed ${com} ${ScriptsPath}/create_landmask.py > ${LandMaskFilePath}/create_landmask.py                                                                                                                                                                           
-	sed -i "s!from lnutils.*!sys.path.insert(1,'${ScriptsPath}'); from lnutils import latlon2ixjy!" ${LandMaskFilePath}/create_landmask.py
-        python3 ${LandMaskFilePath}/create_landmask.py ${latlon}
-    fi
-    
-    #LandMaskFilePath=$(dirname ${LandMaskFile})
-    #mkdir -p ${LandMaskFilePath}
-    #LandMaskFile=$(absfile ${LandMaskFile})
-    #echo $(basename ${LandMaskFile})
-    ## cdo -s -f nc4 -z zip sellonlatbox,-72.5,-72.0,42.5,43.0 ${GlobalLandMaskFile} ${LandMaskFile}
-    #ncks -O $(nckslatlon ${GlobalLandMaskFile} ${latlon}) ${GlobalLandMaskFile} ${LandMaskFile}
+    LandMaskFile=$(absfile ${LandMaskFile})
+    echo $(basename ${LandMaskFile})
+    # cdo -s -f nc4 -z zip sellonlatbox,-72.5,-72.0,42.5,43.0 ${GlobalLandMaskFile} ${LandMaskFile}
+    ncks -O $(nckslatlon ${GlobalLandMaskFile} ${latlon}) ${GlobalLandMaskFile} ${LandMaskFile}
 fi
 
 # Choose meteo, land use and mask directories and files
@@ -692,12 +637,12 @@ if [[ ${imeteo} -eq 0 ]] ; then
     TransitionFilePath=$(abspath ${GlobalTransitionFilePath})
     LandMaskFile=$(absfile ${LandMaskFile})
 elif [[ ${imeteo} -eq 1 ]] ; then
-    MetPath=$(abspath ${MetPath})
-    TransitionFilePath=$(abspath ${TransitionFilePath})
-    LandMaskFile=$(absfile ${LandMaskFile})
-elif [[ ${imeteo} -eq 2 ]] ; then
     MetPath=$(abspath ${GlobalMetPath})
     TransitionFilePath=$(abspath ${GlobalTransitionFilePath})
+    LandMaskFile=$(absfile ${LandMaskFile})
+elif [[ ${imeteo} -eq 2 ]] ; then
+    MetPath=$(abspath ${MetPath})
+    TransitionFilePath=$(abspath ${TransitionFilePath})
     LandMaskFile=$(absfile ${LandMaskFile})
 else
     printf "Error ${pprog}: imeteo option unknown: ${imeteo}.\n\n"
