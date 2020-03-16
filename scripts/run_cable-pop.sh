@@ -552,6 +552,47 @@ if [[ ${doextractsite} -ge 1 ]] ; then
 fi
 if [[ ${doextractsite} -eq 1 ]] ; then
     cd ${pdir}
+    # mask
+    LandMaskFilePath=$(dirname ${LandMaskFile})
+    mkdir -p ${LandMaskFilePath}
+    LandMaskFile=$(absfile ${LandMaskFile})
+    # echo $(basename ${LandMaskFile})
+    # generate random points if ${randompoints} > 0
+    if [[ ${randompoints} -ne 0 ]] ; then
+	dogeneraterandom=1
+	rpoints=${randompoints}
+	if [[ ${randompoints} -lt 0 ]] ; then
+	    if [[ -f ${LandMaskFilePath}/${sitename}_points.csv ]] ; then dogeneraterandom = 0 ; fi
+	    rpoints=$(( ${randompoints} * -1 ))
+	fi
+	# generate random points
+        com=$(csed "basepath=\"${sitepath}\"")
+        com=${com}$(csed "gridinfo_file=\"${GlobalLandMaskFile}\"")
+        com=${com}$(csed "outname=\"${LandMaskFilePath}/${sitename}_points.csv\"")
+        sed ${com} ${sdir}/generate_latlonlist.py > ${LandMaskFilePath}/generate_latlonlist.py
+        python3 ${LandMaskFilePath}/generate_latlonlist.py ${rpoints}
+	
+	# set mask to generated random points
+        com=$(csed "path=\"${LandMaskFilePath}\"")
+        com=${com}$(csed "maskfname=\"${LandMaskFile}\"")
+	com=${com}$(csed "latlonfile=\"${LandMaskFilePath}/${sitename}_points.csv\"")
+	com=${com}$(csed "gridinfo_file=\"${GlobalLandMaskFile}\"")
+        sed ${com} ${sdir}/create_landmask.py > ${LandMaskFilePath}/create_landmask.py
+        sed -i "s!from lnutils.*!sys.path.insert(1,'${sdir}'); from lnutils import latlon2ixjy!" ${LandMaskFilePath}/create_landmask.py
+        python3 ${LandMaskFilePath}/create_landmask.py
+    else
+	# # cdo -s -f nc4 -z zip sellonlatbox,-72.5,-72.0,42.5,43.0 ${GlobalLandMaskFile} ${LandMaskFile}
+	# ncks -O $(nckslatlon ${GlobalLandMaskFile} ${latlon}) ${GlobalLandMaskFile} ${LandMaskFile}
+        com=$(csed "path=\"${LandMaskFilePath}\"")
+        com=${com}$(csed "maskfname=\"${LandMaskFile}\"")
+	com=${com}$(csed "gridinfo_file=\"${GlobalLandMaskFile}\"")
+        sed ${com} ${sdir}/create_landmask.py > ${LandMaskFilePath}/create_landmask.py
+        sed -i "s!from lnutils.*!sys.path.insert(1,'${sdir}'); from lnutils import latlon2ixjy!" ${LandMaskFilePath}/create_landmask.py
+        python3 ${LandMaskFilePath}/create_landmask.py ${latlon}
+    fi
+fi
+if [[ ${doextractsite} -eq 2 ]] ; then
+    cd ${pdir}
     # meteorology
     met_list="pre pres dlwrf dswrf spfh tmax tmin ugrd vgrd ndep"
     mkdir -p ${MetPath}

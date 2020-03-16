@@ -29,7 +29,7 @@ host_gadi()
    module load intel-compiler/2019.5.281
    module load intel-mpi/2019.5.281
    module load netcdf/4.6.3
-   # module load hdf5/1.10.5
+   module load hdf5/1.10.5
    
    export FC=mpif90
    # export NCCLIB="${NETCDF_ROOT}/lib"
@@ -64,7 +64,7 @@ host_pear()
     #    export LD_PRELOAD=/apps/netcdf/4.3.3/lib/libnetcdf.so
     #    export LD_PRELOAD=/apps/openmpi/1.8.4/lib/libopen-rte.so.7:/apps/openmpi/1.8.4/lib/libopen-pal.so.6
     if [ -z ${PS3} ] ; then
-	. /apps/modules/Modules/default/init/ksh
+    	. /apps/modules/Modules/default/init/ksh
     fi
 
     #   module add netcdf/4.3.3.1 openmpi/1.7.5
@@ -84,9 +84,11 @@ host_pear()
     #   export CFLAGS='-O0 '
 
     #export CFLAGS='-O0 -fp-model precise -g -debug -traceback -fpp '
-    export CFLAGS="${CFLAGS} -D__CRU2018__"
+    #export CFLAGS="${CFLAGS} -D__CRU2018__"
+    export CFLAGS="${CFLAGS} -D__CRU2017__"
+    
     #   export CFLAGS='-O0 -fp-model precise -g -debug all -traceback -fpe0 '
-       export CFLAGS='  -g -debug -traceback -fp-stack-check -O0 -debug -fpe0 -no-ftz -ftrapuv'
+       #export CFLAGS='  -g -debug -traceback -fp-stack-check -O0 -debug -fpe0 -no-ftz -ftrapuv'
 
     # best debug flags
     #   export LDFLAGS='-g -L'$NCDIR  #'-L'$NCDIR' -O2'

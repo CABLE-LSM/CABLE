@@ -715,7 +715,7 @@ CONTAINS
           .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2') &
           .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Ndep' )) THEN
         MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
-        ! print*, 'metyear', MetYear
+         !print*, 'metyear', MetYear
      ELSEIF  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Precip' .OR. &
           TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Precip'.OR. &
           TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Temp_Precip'.OR. &
@@ -764,8 +764,8 @@ CONTAINS
     CALL CRU_GET_FILENAME( CRU, MetYear, iVar, CRU%MetFile(iVar) ) ! Call routine to build the filenames.
 
     ! Open the new met files and access the variables by their name and variable id.
-    !write(*,'(a)') 'Opening met data file: '//trim(CRU%MetFile(iVar))
-    !WRITE(logn,*)  'Opening met data file: ', CRU%MetFile(iVar)
+    write(*,'(a)') 'Opening met data file: '//trim(CRU%MetFile(iVar))
+    WRITE(logn,*)  'Opening met data file: ', CRU%MetFile(iVar)
 
     ErrStatus = NF90_OPEN(TRIM(CRU%MetFile(iVar)), NF90_NOWRITE, CRU%F_ID(iVar))
     ! print*, 'OOpen03 ', iVar, CRU%NMET, CRU%F_ID(iVar), TRIM(CRU%MetFile(iVar))

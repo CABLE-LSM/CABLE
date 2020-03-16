@@ -28,7 +28,7 @@ aux_path="/home/599/jk8585/CABLE_run/parallel_runs/TestPoint/mask"
 maskfname="/home/599/jk8585/CABLE_run/parallel_runs/TestPoint/mask/TestPoint_landmask.nc"
 # input file with lat, lon tupels (i.e. comma separated, 1 tupel per row)
 latlonfile=path+'latlonlist_3points.csv'
-gridinfo_file="/g/data/x45/CABLE-AUX/offline/gridinfo_CSIRO_1x1.nc"
+gridinfo_file="g/data/x45/CABLE-AUX/offline/gridinfo_CSIRO_1x1.nc"
 
 
 # spatial resolution (in case ny,nx aren't integer multiples 
@@ -54,10 +54,23 @@ except IndexError:
 else:
     coords = sys.argv[1]
     randomPixels = False
-    mlatmin = math.floor(float(coords.split(',')[0])) + res * 0.5
-    mlatmax = math.floor(float(coords.split(',')[1])) + res * 0.5
-    mlonmin = math.floor(float(coords.split(',')[2])) + res * 0.5
-    mlonmax = math.floor(float(coords.split(',')[3])) + res * 0.5
+    coords = sys.argv[1]
+    cc = coords.split(',')
+    if len(cc) == 2:
+        mlatmin = math.floor(float(cc[0])) + res * 0.5
+        mlatmax = mlatmin
+        mlonmin = math.floor(float(cc[1])) + res * 0.5
+        mlonmax = mlonmin
+    elif len(cc) == 4:
+        mlatmin = math.floor(float(cc[0])) + res * 0.5
+        mlatmax = math.floor(float(cc[1])) + res * 0.5
+        mlonmin = math.floor(float(cc[2])) + res * 0.5
+        mlonmax = math.floor(float(cc[3])) + res * 0.5
+    else:
+        print("'coords' must be of length 2 or 4!")
+        exit(1)
+else:
+    randomPixels = True
 
 
 #===============================================================================
@@ -144,14 +157,7 @@ else:
     latlist=np.array(landlonlat['latitude'])
     lonlist=np.array(landlonlat['longitude'])
 
-
-## TODO (low priority):
-# reclassify map:
-#  1 = land
-#  0 = ocean within box
-# -1 = all areas outside box
-
-
+    
 # get mask 
 tmask = latlon2ixjy(latlist,lonlist,latmin,latmax,lonmin,lonmax,
                     nx,ny,mtype='mask').astype(int)
