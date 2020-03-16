@@ -445,7 +445,8 @@ MODULE cable_def_types_mod
      REAL(r_2), DIMENSION(:),     POINTER :: fwsoil => null() !
 
      ! vh_js - litter thermal conductivity (Wm-2K-1) and vapour diffusivity (m2s-1)
-     REAL(r_2), DIMENSION(:), POINTER :: kthLitt => null(), DvLitt => null()
+     REAL(r_2), DIMENSION(:), POINTER :: kthLitt => null()
+     REAL(r_2), DIMENSION(:), POINTER :: DvLitt => null()
 
      ! 13C
      real(r_2), dimension(:,:), pointer :: An => null()        ! sunlit and shaded net assimilation [mol(CO2)/m2/s]
