@@ -87,18 +87,19 @@ ignore_mpi_err=1 # 0/1: 1: continue even if mpi run failed
 # --------------------------------------------------------------------
 # Sequence switches
 #
-imeteo=0       # 0: Use global meteo, land use and mask
-                # 1: Use local meteo, land use and mask (doextractsite=1)
-                # 2: Use global meteo and land use, and local mask (doextractsite=2)
+imeteo=0        # 0: Use global meteo, land use and mask
+                # 1: Use global meteo, and land use, and local mask (doextractsite=1)
+                # 2: Use local meteo, land use and mask (doextractsite=2)
 # Step 0
 doextractsite=2 # 0: Do not extract meteo, land use and mask at specific site
-                # 1: Do extract meteo, land use and mask at specific site (imeteo=1)
-                # 2: Do extract mask at specific site, using then global meteo and land use (imeteo=2)
+                # 1: Do extract mask at specific site, using then global meteo and land use (imeteo=1)
+                # 2: Do extract meteo, land use and mask at specific site (imeteo=2)
+                #    Does not work with randompoints /= 0 but with latlon
   sitename=TestPoint
   randompoints=0   # <0: use -1*randompoints random grid points from ${LandMaskFilePath}/${sitename}_points.csv if existing
                    # 0:  use latlon
                    # >0: generate and use randompoints random grid points from GlobalLandMaskFile
-  # lat,lon  or  latmin,latmax,lonmin,lonmax  # must have . in numbers otherwise indexes taken
+  # lat,lon  or  latmin,latmax,lonmin,lonmax   # must have . in numbers otherwise indexes taken
   #latlon=42.536875,42.536875,-72.172602,-72.172602 
   latlon=-34.5,-33.5,149.5,156.5
   #latlon=42.5,43.5,109.5,110.5
@@ -219,6 +220,7 @@ if [[ "${system}" == "cuntz@explor" ]] ; then
     # CABLE-AUX directory (uses offline/gridinfo_CSIRO_1x1.nc and offline/modis_phenology_csiro.txt)
     aux="${cablehome}/CABLE-AUX"
     # Global Mask
+    # GlobalLandMaskFile="${aux}/offline/gridinfo_CSIRO_1x1.nc"
     GlobalLandMaskFile="/home/oqx29/zzy20/data/crujra/daily_1deg/glob_ipsl_1x1.nc"
     # Global CRU
     GlobalMetPath="/home/oqx29/zzy20/data/crujra/daily_1deg"
@@ -543,12 +545,14 @@ printf "\n"
 #
 
 # 0. Extract meteo, land use and mask for one specific site from global files
-if [[ ${doextractsite} -ge 1 ]] ; then
-    # xcdo=$(which cdo)
-    # if [[ -z ${xcdo} ]] ; then module load cdo ; fi
-    #xnco=$(which ncks)
-    #if [[ -z ${xnco} ]] ; then module load nco ; fi
-    module load nco  # command above throws error if module is not already loaded
+if [[ ${doextractsite} -ge 2 ]] ; then
+    # set +e
+    # xcdo=$(which cdo 2> /dev/null)
+    # set -e
+    set +e
+    xnco=$(which ncks 2> /dev/null)
+    set -e
+    if [[ -z ${xnco} ]] ; then module load nco ; fi
 fi
 if [[ ${doextractsite} -eq 1 ]] ; then
     cd ${pdir}
@@ -658,7 +662,7 @@ filename_d13c_atm=$(absfile ${filename_d13c_atm})
 
 # 1. Create climate restart file
 if [[ ${doclimate} -eq 1 ]] ; then
-    echo "1. Create climate restart file"   
+    echo "1. Create climate restart file"
     rid="climate_restart"
     # CRU
     irm ${rdir}/cru.nml

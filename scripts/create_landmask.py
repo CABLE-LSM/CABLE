@@ -22,7 +22,6 @@ import pandas as pd
 
 # path to output/input if desired
 path="/home/599/jk8585/CABLE_run/parallel_runs/TestPoint/mask"
-aux_path="/home/599/jk8585/CABLE_run/parallel_runs/TestPoint/mask"
 
 # name of maskfile to be created
 maskfname="/home/599/jk8585/CABLE_run/parallel_runs/TestPoint/mask/TestPoint_landmask.nc"
