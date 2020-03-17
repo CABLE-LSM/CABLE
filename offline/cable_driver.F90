@@ -875,6 +875,11 @@ PROGRAM cable_offline_driver
                     veg%vcmax_sun = veg%vcmax
                     veg%ejmax_sun = veg%ejmax
                  ENDIF
+                 ! ! catch underflow
+                 ! where (veg%ejmax_sun   < tiny(1.0)) veg%ejmax_sun   = 0.0
+                 ! where (veg%ejmax_shade < tiny(1.0)) veg%ejmax_shade = 0.0
+                 ! where (veg%vcmax_sun   < tiny(1.0)) veg%vcmax_sun   = 0.0
+                 ! where (veg%vcmax_shade < tiny(1.0)) veg%vcmax_shade = 0.0
 
                  IF (l_laiFeedbk .and. icycle>0) veg%vlai(:) = real(casamet%glai(:))
                  ! Call land surface scheme for this timestep, all grid points:

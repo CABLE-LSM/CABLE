@@ -754,10 +754,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    !if (mod(ktau,ktauday) ==1) then   ! JK: whole routine is now called once per day
    if (cable_user%coordinate_photosyn) then
       CALL optimise_JV(veg, climate, ktauday, bjvref, relcostJ)
-   endif
-   !endif
-
-   if (.NOT. cable_user%coordinate_photosyn) then
+   else
       if (cable_user%explicit_gm) then
          veg%vcmax_shade = veg%vcmaxcc
          veg%ejmax_shade = veg%ejmaxcc

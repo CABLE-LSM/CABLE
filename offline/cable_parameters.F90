@@ -61,11 +61,14 @@ MODULE cable_param_module
   USE cable_IO_vars_module
   USE cable_common_module, ONLY: cable_user, hide
   USE CABLE_LUC_EXPT, ONLY: LUC_EXPT, LUC_EXPT_TYPE, LUC_EXPT_SET_TILES, LUC_EXPT_SET_TILES_BIOS
+  
   IMPLICIT NONE
+  
   PRIVATE
-  PUBLIC get_default_params, write_default_params, derived_parameters,         &
-         check_parameter_values, report_parameters, parID_type,                &
-         write_cnp_params
+
+  PUBLIC :: get_default_params, write_default_params, derived_parameters, &
+       check_parameter_values, report_parameters, parID_type, &
+       write_cnp_params
 
   CHARACTER(LEN=4)  :: classification
 
@@ -1136,7 +1139,8 @@ CONTAINS
       canopy%fhv     = 0.0
       canopy%fwsoil = 1.0 ! vh -should be calculated from soil moisture or
                           ! be in restart file
-
+      rad%fvlai = 0.0
+      
       ssnow%kth = 0.3  ! vh ! should be calculated from soil moisture or be in restart file
       ssnow%sconds(:,:) = 0.06    ! vh snow thermal cond (W m-2 K-1),
                                   ! should be in restart file

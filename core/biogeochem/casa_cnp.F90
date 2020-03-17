@@ -1292,8 +1292,22 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
         cwood2cwd(npt) = casaflux%fromPtoL(npt,cwd,wood)   * casaflux%kplant(npt,wood)  * casapool%cplant(npt,wood)
 
         ! add fire component to above fluxes
+        ! print*, 'CN01 ', npt, cleaf2met(npt), cleaf2str(npt), croot2met(npt)
+        ! print*, 'CN02 ', npt, metb, casaflux%fromPtoL_fire(npt,metb,:)
+        ! print*, 'CN03 ', casaflux%kplant(npt,:)
+        ! print*, 'CN04 ', casaflux%kplant_fire(npt,:)
+        ! print*, 'CN05 ', casapool%cplant(npt,:)
+        ! print*, 'CN06 ', npt, croot2str(npt), cwood2cwd(npt)
         cleaf2met(npt) = cleaf2met(npt) + casaflux%fromPtoL_fire(npt,metb,leaf) &
              * (1.0_r_2 - casaflux%kplant(npt,leaf))  * casaflux%kplant_fire(npt,leaf)  * casapool%cplant(npt,leaf)
+        ! print*, 'CN07 ', casaflux%fromPtoL_fire(npt,str,leaf)
+        ! print*, 'CN08 ', (1.0_r_2 - casaflux%kplant(npt,leaf))
+        ! print*, 'CN09 ', casaflux%fromPtoL_fire(npt,str,leaf) &
+        !      * (1.0_r_2 - casaflux%kplant(npt,leaf))
+        ! print*, 'CN10 ', casaflux%fromPtoL_fire(npt,str,leaf) &
+        !      * (1.0_r_2 - casaflux%kplant(npt,leaf))  * casaflux%kplant_fire(npt,leaf)
+        ! print*, 'CN11 ', casaflux%fromPtoL_fire(npt,str,leaf) &
+        !      * (1.0_r_2 - casaflux%kplant(npt,leaf))  * casaflux%kplant_fire(npt,leaf)  * casapool%cplant(npt,leaf)
         cleaf2str(npt) = cleaf2str(npt) + casaflux%fromPtoL_fire(npt,str,leaf) &
              * (1.0_r_2 - casaflux%kplant(npt,leaf))  * casaflux%kplant_fire(npt,leaf)  * casapool%cplant(npt,leaf)
         croot2met(npt) = croot2met(npt) + casaflux%fromPtoL_fire(npt,metb,froot) &

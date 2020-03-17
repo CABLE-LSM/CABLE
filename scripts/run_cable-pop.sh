@@ -44,13 +44,13 @@
 # cuntz@explor, cuntz@mcinra, moc801@gadi cuntz@gadi
 # kna016@pearcey knauer@pearcey, jk8585@gadi knauer@gadi
 # not yet vxh599@gadi nor hav014@pearcey
-system=cuntz@explor
+system=cuntz@gadi
 
 # MPI run or single processor run
 # nproc should fit with job tasks
 dompi=1   # 0: normal run: ./cable
 # 1: MPI run: mpiexec -n ${nproc} ./cable_mpi
-nproc=4   # Number of cores for MPI runs
+nproc=2   # Number of cores for MPI runs
 # must be same as above: SBATCH -n nproc or PBS -l ncpus=nproc
 ignore_mpi_err=0 # 0/1: 1: continue even if mpi run failed
 
@@ -91,13 +91,14 @@ ignore_mpi_err=0 # 0/1: 1: continue even if mpi run failed
 # Sequence switches
 #
 imeteo=1        # 0: Use global meteo, land use and mask
-		# 1: Use global meteo and land use, and local mask (doextractsite=1)
+		# 1: Use local mask, but global meteo and land use (doextractsite=1)
 		# 2: Use local meteo, land use and mask (doextractsite=2)
 # Step 0
-doextractsite=0 # 0: Do not extract meteo, land use and mask at specific site
-		# 1: Do extract meteo, land use and mask at specific site (imeteo=1)
-		# 2: Do extract mask at specific site, using then global meteo and land use (imeteo=2)
-    sitename=TestPoint
+doextractsite=0 # 0: Do not extract local meteo, land use nor mask
+		# 1: Do extract only mask at specific site/region (imeteo=1)
+		# 2: Do extract meteo, land use and mask at specific site/region (imeteo=2)
+                #    Does not work with randompoints /= 0 but with latlon
+    sitename=TestPoint1
     randompoints=0   # <0: use -1*randompoints random grid points from ${LandMaskFilePath}/${sitename}_points.csv if existing
 		     # 0:  use latlon
 		     # >0: generate and use randompoints random grid points from GlobalLandMaskFile

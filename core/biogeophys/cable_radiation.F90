@@ -343,6 +343,9 @@ SUBROUTINE radiation(ssnow, veg, air, met, rad, canopy)
 
    END WHERE
 
+   ! catch underflow
+   where (rad%fvlai < tiny(1.0)) rad%fvlai = 0.0
+
    rad%scalex(:,2) = (1.0 - cf2n) / veg%extkn - rad%scalex(:,1)
 
    ! Total energy absorbed by canopy:

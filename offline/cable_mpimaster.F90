@@ -650,7 +650,7 @@ CONTAINS
                   casamet, casabal, phen, POP, spinup, &
                   C%EMSOIL, C%TFRZ, LUC_EXPT, POPLUC, BLAZE, SIMFIRE, &
                   c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc)
-             print*, 'CD01   ', casamet%glai
+             ! print*, 'CD01   ', casamet%glai
              ! 13C
              if (cable_user%c13o2) then
                 allocate(casasave(c13o2pools%ntile,c13o2pools%npools))
@@ -867,7 +867,7 @@ CONTAINS
                 CALL master_spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
                      casaflux,casamet,casabal,phen,POP,climate,LALLOC, &
                      c13o2flux, c13o2pools, c13o2luc, icomm, ocomm)
-                print*, 'CD02   ', casamet%glai
+                ! print*, 'CD02   ', casamet%glai
                 SPINconv = .FALSE.
                 CASAONLY = .TRUE.
                 ktau_gl  = 0
@@ -878,7 +878,7 @@ CONTAINS
                 CALL master_CASAONLY_LUC(dels,kstart,kend,veg,soil,casabiome,casapool, &
                      casaflux,casamet,casabal,phen,POP,climate,LALLOC, LUC_EXPT, POPLUC, &
                      c13o2flux, c13o2pools, c13o2luc, icomm, ocomm)
-                print*, 'CD03   ', casamet%glai
+                ! print*, 'CD03   ', casamet%glai
                 SPINconv = .FALSE.
                 ktau_gl  = 0
                 ktau     = 0
@@ -5706,19 +5706,19 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
 
      vidx = vidx + 1
      CALL MPI_Get_address (veg%vcmax_shade(off), vaddr(vidx), ierr) ! 27
-     blen(vidx) = cnt * extr2
+     blen(vidx) = cnt * extr1
 
      vidx = vidx + 1
      CALL MPI_Get_address (veg%vcmax_sun(off), vaddr(vidx), ierr) ! 27
-     blen(vidx) = cnt * extr2
+     blen(vidx) = cnt * extr1
 
      vidx = vidx + 1
      CALL MPI_Get_address (veg%ejmax_shade(off), vaddr(vidx), ierr) ! 27
-     blen(vidx) = cnt * extr2
+     blen(vidx) = cnt * extr1
 
      vidx = vidx + 1
      CALL MPI_Get_address (veg%ejmax_sun(off), vaddr(vidx), ierr) ! 27
-     blen(vidx) = cnt * extr2
+     blen(vidx) = cnt * extr1
 
      vidx = vidx + 1
      ! REAL(r_1)

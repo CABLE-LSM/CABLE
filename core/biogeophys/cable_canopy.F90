@@ -1125,11 +1125,13 @@ CONTAINS
 
          ! zetar too +
          canopy%zetar(:,iterplus) = MIN(C%ZETPOS,canopy%zetar(:,iterplus))
-         canopy%zetash(:,iterplus) = MIN(C%ZETPOS,canopy%zetash(:,iterplus))
+         if (cable_user%soil_struc=='sli') &
+              canopy%zetash(:,iterplus) = MIN(C%ZETPOS,canopy%zetash(:,iterplus))
 
          ! zetar too -
          canopy%zetar(:,iterplus) = MAX(C%ZETNEG,canopy%zetar(:,iterplus))
-         canopy%zetash(:,iterplus) = MAX(C%ZETNEG,canopy%zetash(:,iterplus))
+         if (cable_user%soil_struc=='sli') &
+              canopy%zetash(:,iterplus) = MAX(C%ZETNEG,canopy%zetash(:,iterplus))
 
       END IF ! (iter < NITER)
 

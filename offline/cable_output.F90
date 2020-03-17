@@ -1837,6 +1837,7 @@ CONTAINS
     real(kind=4) :: rinterval
     real(r_2)    :: r2interval
     real(kind=4), parameter :: zero4 = real(0.0,4)
+    real, dimension(mp) :: totlai
     
     ! logical :: opened
     ! integer :: varid
@@ -2754,19 +2755,20 @@ CONTAINS
        out%dGPPdcs     = out%dGPPdcs     + toreal4(canopy%dAdcs*1.0e6_r_2)
        out%eta_TVeg_cs = out%eta_TVeg_cs + toreal4(canopy%eta_fevc_cs/air%rlam)
        out%CO2s        = out%CO2s        + toreal4(canopy%cs*1.0e6_r_2)
-       where ((rad%fvlai(:,1)+rad%fvlai(:,2)).gt.0.01)
+       totlai(:) = rad%fvlai(:,1)+rad%fvlai(:,2)
+       where (totlai(:) .gt. 0.01)
           out%gsw_TVeg =  out%gsw_TVeg + &
-               toreal4((canopy%gswx(:,1) * rad%fvlai(:,1)/(rad%fvlai(:,1)+rad%fvlai(:,2)) + &
-               canopy%gswx(:,2) * rad%fvlai(:,2)/(rad%fvlai(:,1)+rad%fvlai(:,2))) * &
-               canopy%fevc / air%rlam)
+               toreal4((canopy%gswx(:,1) * rad%fvlai(:,1)/totlai(:) + &
+               canopy%gswx(:,2) * rad%fvlai(:,2)/totlai(:)) * &
+               real(canopy%fevc) / air%rlam)
 
           out%jmax_ts =  out%jmax_ts + &
-               toreal4((veg%ejmax_sun * rad%fvlai(:,1)/(rad%fvlai(:,1)+rad%fvlai(:,2)) + &
-               veg%ejmax_shade * rad%fvlai(:,2)/(rad%fvlai(:,1)+rad%fvlai(:,2))))
+               toreal4(veg%ejmax_sun * rad%fvlai(:,1)/totlai(:) + &
+               veg%ejmax_shade * rad%fvlai(:,2)/totlai(:))
 
           out%vcmax_ts =  out%vcmax_ts + &
-               toreal4((veg%vcmax_sun * rad%fvlai(:,1)/(rad%fvlai(:,1)+rad%fvlai(:,2)) + &
-               veg%vcmax_shade * rad%fvlai(:,2)/(rad%fvlai(:,1)+rad%fvlai(:,2))))
+               toreal4(veg%vcmax_sun * rad%fvlai(:,1)/totlai(:) + &
+               veg%vcmax_shade * rad%fvlai(:,2)/totlai(:))
        elsewhere
           out%gsw_TVeg = out%gsw_TVeg
           out%vcmax_ts = out%vcmax_ts + toreal4(veg%vcmax_shade)
