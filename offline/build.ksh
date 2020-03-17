@@ -106,30 +106,33 @@ host_pear()
 host_mcin()
 {
     idebug=0
-    iintel=0
+    iintel=1
     ignu=0
     inag=0
     np=$#
     for ((i=0; i<${np}; i++)) ; do
-        if [[ "${1}" == "debug" ]] ; then
-            idebug=1
-            shift 1
-        elif [[ "${1}" == "ifort" || "${1}" == "intel" ]] ; then
-            iintel=1
+	if [[ "${1}" == "debug" ]] ; then
+	    idebug=1
+	    shift 1
+	elif [[ "${1}" == "ifort" || "${1}" == "intel" ]] ; then
+	    iintel=1
 	    ignu=0
 	    inag=0
-            shift 1
-        elif [[ "${1}" == "gfortran" || "${1}" == "gnu" ]] ; then
+	    shift 1
+	elif [[ "${1}" == "gfortran" || "${1}" == "gnu" ]] ; then
             iintel=0
 	    ignu=1
 	    inag=0
-            shift 1
+	    shift 1
         elif [[ "${1}" == "nagfor" || "${1}" == "nag" ]] ; then
             iintel=0
 	    ignu=0
 	    inag=1
             shift 1
-        fi
+	else
+	    echo "Error: command line option not known: " ${1}
+	    exit 1
+	fi
     done
     if [[ ${iintel} -eq 1 ]] ;  then
         # INTEL
@@ -184,7 +187,7 @@ host_mcin()
     export NCMOD=${NCROOT}'/include'
     export LDFLAGS="-L${NCLIB} -L${NCCLIB} -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz"
     export dosvn=0
-    export MFLAGS='-j 8'
+    # export MFLAGS='-j 8'
     build_build
     cd ../
     build_status

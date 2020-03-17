@@ -129,6 +129,9 @@ host_mcin()
 	    ignu=0
 	    inag=1
             shift 1
+	else
+	    echo "Error: command line option not known: " ${1}
+	    exit 1
 	fi
     done
     if [[ ${iintel} -eq 1 ]] ;  then
@@ -200,7 +203,7 @@ host_mcin()
     # Gadi flags
     export LDFLAGS="-O2 ${LDFLAGS}"
     export dosvn=0
-    export MFLAGS='-j 8'
+    # export MFLAGS='-j 8'
     build_build ${cdir} ${PROG}
     cd ../
     build_status ${cdir} ${PROG}
