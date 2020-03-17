@@ -822,6 +822,11 @@ CONTAINS
   ALLOCATE (lat_all(MaskCols,MaskRows))
   ALLOCATE (lon_all(MaskCols,MaskRows))
   
+! Using the landmask grid boundaries and dimensions, translate the land  
+! cell cols and rows of land_x and land_y into corresponding lats and longs.
+  MaskCtrW = MaskBndW + (MaskRes / 2.0) ! Convert western and southern 
+  MaskCtrS = MaskBndS + (MaskRes / 2.0) ! boundaries to cell centres.
+
   ! Populate the entirety of lon_all and lat_all grids with lons and lats
 ! calculated from the dimensions of the mask from the mask header file.
 ! This replaces the UNPACK of the latitude and longitude vectors to
@@ -832,10 +837,6 @@ CONTAINS
   FORALL (irow=1:MaskRows) lat_all(irow,:) = (real(MaskRows - irow) * MaskRes) + MaskCtrS
 !
   
-! Using the landmask grid boundaries and dimensions, translate the land  
-! cell cols and rows of land_x and land_y into corresponding lats and longs.
-  MaskCtrW = MaskBndW + (MaskRes / 2.0) ! Convert western and southern 
-  MaskCtrS = MaskBndS + (MaskRes / 2.0) ! boundaries to cell centres.
   DO iLand = 1,mland
     longitude(iLand) = MaskRes * real((land_x(iLand) - 1)) + MaskCtrW
     latitude(iLand) = MaskCtrS + (real(MaskRows - land_y(iLand)) * MaskRes)
