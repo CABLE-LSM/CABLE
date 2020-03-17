@@ -1,4 +1,4 @@
-################################################################################
+###############################################################################
 #
 # Generate global landmask file for CABLE from a list of lat, lon tupels in 
 # a file. This tool takes care of CABLE specifications, i.e. the flipped
@@ -10,10 +10,9 @@
 ################################################################################
 
 import sys
-import math
 sys.path.insert(1,'../scripts'); from lnutils import latlon2ixjy
 import numpy as np
-import netCDF4
+import netCDF4 as nc
 import pandas as pd
 
 #===============================================================================
@@ -27,7 +26,7 @@ path="/home/599/jk8585/CABLE_run/parallel_runs/TestPoint/mask"
 maskfname="/home/599/jk8585/CABLE_run/parallel_runs/TestPoint/mask/TestPoint_landmask.nc"
 # input file with lat, lon tupels (i.e. comma separated, 1 tupel per row)
 latlonfile=path+'latlonlist_3points.csv'
-gridinfo_file="g/data/x45/CABLE-AUX/offline/gridinfo_CSIRO_1x1.nc"
+gridinfo_file="/g/data/x45/CABLE-AUX/offline/gridinfo_CSIRO_1x1.nc"
 
 
 # spatial resolution (in case ny,nx aren't integer multiples 
@@ -52,15 +51,15 @@ if len(sys.argv) > 1:
     coords = sys.argv[1]
     cc = coords.split(',')
     if len(cc) == 2:
-        mlatmin = math.floor(float(cc[0])) + res * 0.5
+        mlatmin = np.floor(np.float(cc[0])) + res * 0.5
         mlatmax = mlatmin
-        mlonmin = math.floor(float(cc[1])) + res * 0.5
+        mlonmin = np.floor(np.float(cc[1])) + res * 0.5
         mlonmax = mlonmin
     elif len(cc) == 4:
-        mlatmin = math.floor(float(cc[0])) + res * 0.5
-        mlatmax = math.floor(float(cc[1])) + res * 0.5
-        mlonmin = math.floor(float(cc[2])) + res * 0.5
-        mlonmax = math.floor(float(cc[3])) + res * 0.5
+        mlatmin = np.floor(np.float(cc[0])) + res * 0.5
+        mlatmax = np.floor(np.float(cc[1])) + res * 0.5
+        mlonmin = np.floor(np.float(cc[2])) + res * 0.5
+        mlonmax = np.floor(np.float(cc[3])) + res * 0.5
     else:
         print("'coords' must be of length 2 or 4!")
         exit(1)
@@ -83,78 +82,75 @@ c_offset = res * 0.5
 
 # geometrical settings (we're doing centerpoints and lats are flipped for CABLE!) 
 if cable_switch == 'cable':
-    latset   = np.array([latmax-c_offset, latmin-c_offset, -1.*res])
+    latset = np.array([latmax-c_offset, latmin-c_offset, -res])
 else:
-    latset   = np.array([latmin+c_offset, latmax+c_offset,     res])
-lonset   = np.array([lonmin+c_offset, lonmax+c_offset ,    res])
+    latset = np.array([latmin+c_offset, latmax+c_offset,  res])
+lonset = np.array([lonmin+c_offset, lonmax+c_offset, res])
 
 #create netCDF Dataset   
-rootgrp   = netCDF4.Dataset(maskfname, 'w', format='NETCDF4')
-latitude  = rootgrp.createDimension('latitude',ny)
-longitude = rootgrp.createDimension('longitude',nx)
+rootgrp   = nc.Dataset(maskfname, 'w', format='NETCDF4')
+latitude  = rootgrp.createDimension('latitude', ny)
+longitude = rootgrp.createDimension('longitude', nx)
 
 # define netCDF dimensions
-latitude = rootgrp.createVariable('latitude','f4',('latitude',))
+latitude = rootgrp.createVariable('latitude', 'f4', ('latitude',))
 latitude.units = 'degrees North'
 
-longitude = rootgrp.createVariable('longitude','f4',('longitude',))
+longitude = rootgrp.createVariable('longitude', 'f4', ('longitude',))
 longitude.units = 'degrees East'
 
 # generate dimension values
-lats = np.arange(latset[0],latset[1],latset[2])
-lons = np.arange(lonset[0],lonset[1],lonset[2])
+lats = np.arange(latset[0], latset[1], latset[2])
+lons = np.arange(lonset[0], lonset[1], lonset[2])
 
 # populate dimensions
 longitude[:] = lons
-latitude[:] = lats
+latitude[:]  = lats
 
 # create variable mask
 mask = rootgrp.createVariable('land','i2',('latitude','longitude',))
 mask.units = '0:no land, 1:land'
 
-
 # read pixels from csv file
 if randomPixels==True:
-    data = np.genfromtxt(latlonfile,delimiter=',')
+    data = np.genfromtxt(latlonfile, delimiter=',')
 
     # split lats and lons
     if len(data.shape) >= 2:
-        latlist=data[:,0]
-        lonlist=data[:,1]
+        ilatlist = data[:,0]
+        ilonlist = data[:,1]
     else:
-        latlist=data[0]
-        lonlist=data[1]
-
+        ilatlist = data[0]
+        ilonlist = data[1]
 else:
-    mlats=np.arange(mlatmin,mlatmax+res,res)   # + res because np.arange does not include endpoint
-    mlons=np.arange(mlonmin,mlonmax+res,res)
-    latlist=np.array([(x,y) for x in mlats for y in mlons ])[:,0]
-    lonlist=np.array([(x,y) for x in mlats for y in mlons ])[:,1]
+    mlats = np.arange(mlatmin, mlatmax+res, res)   # + res because np.arange does not include endpoint
+    mlons = np.arange(mlonmin, mlonmax+res, res)
+    latlist = np.array([(x,y) for x in mlats for y in mlons ])[:,0]
+    lonlist = np.array([(x,y) for x in mlats for y in mlons ])[:,1]
 
-    latlist=latlist.tolist()
-    lonlist=lonlist.tolist()
+    latlist = latlist.tolist()
+    lonlist = lonlist.tolist()
 
     # note: the following steps have been taken care of in generate_latlonlist.py if randomPixels==True
     # read gridinfo file
-    gridinfo    = netCDF4.Dataset(gridinfo_file,mode='r')
+    gridinfo    = nc.Dataset(gridinfo_file, mode='r')
     iveg        = gridinfo.variables['iveg']
     latgridinfo = gridinfo.variables['latitude'][:]
     longridinfo = gridinfo.variables['longitude'][:]
 
     # convert gridinfo to dataframe (long format)
-    gridinfo_landmask=pd.DataFrame(iveg[:,:],index=latgridinfo,columns=longridinfo)
-    alllonlat=pd.melt(gridinfo_landmask.reset_index(),id_vars='index',value_name='iveg')
-    alllonlat.columns = ["latitude","longitude","iveg"]
+    gridinfo_landmask = pd.DataFrame(iveg[:,:], index=latgridinfo, columns=longridinfo)
+    alllonlat = pd.melt(gridinfo_landmask.reset_index(), id_vars='index', value_name='iveg')
+    alllonlat.columns = ["latitude", "longitude", "iveg"]
 
-    #select points (lats and lons) where land exists according to gridinfo file
-    landlonlat=alllonlat.loc[alllonlat['latitude'].isin(latlist) & alllonlat['longitude'].isin(lonlist) & \
-                             alllonlat['iveg'].notna()]
-    latlist=np.array(landlonlat['latitude'])
-    lonlist=np.array(landlonlat['longitude'])
-
+    # select points (lats and lons) where land exists according to gridinfo file
+    landlonlat = alllonlat.loc[alllonlat['latitude'].isin(latlist) & alllonlat['longitude'].isin(lonlist) & \
+                               alllonlat['iveg'].notna()]
+    ilatlist = landlonlat['latitude'].to_numpy(dtype=np.float, copy=True)
+    ilonlist = landlonlat['longitude'].to_numpy(dtype=np.float, copy=True)
     
-# get mask 
-tmask = latlon2ixjy(latlist,lonlist,latmin,latmax,lonmin,lonmax,
+# get mask
+tmask = latlon2ixjy(ilatlist,ilonlist,latmin,latmax,lonmin,lonmax,
                     nx,ny,mtype='mask').astype(int)
 
 # flip mask and copy to netCDF variable

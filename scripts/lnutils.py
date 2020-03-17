@@ -13,9 +13,9 @@ def is_leapyear( year ):
         return True
     else:
         return False
-        
+
 def leap_day( year, month=0 ):
-    """ 
+    """
     1 if it is a leap_year and month is set 0 (to determine e.g. length-of-year
     ) or 2 (feb), 0 else
     """
@@ -23,7 +23,7 @@ def leap_day( year, month=0 ):
         return 1
     else:
         return 0
-    
+
 def length_of_month( year, month ):
     lom = [31,28,31,30,31,30,31,31,30,31,30,31]
     if is_leapyear( year ) and month == 2:
@@ -36,9 +36,9 @@ def handle_err( ex, msg='An unspecified error occured!', kill=-1 ):
         print(msg + " "+ str(ex))
         if kill != 0:
             sys.exit(kill)
-        
+
 #def latlon2ixjy (LAT,LON,nx,ny,mtype='array'):
-def latlon2ixjy (LAT,LON,latmin,latmax,lonmin,lonmax,nx,ny,mtype='array'):
+def latlon2ixjy(LAT,LON,latmin,latmax,lonmin,lonmax,nx,ny,mtype='array'):
     ex = 0
     chk = np.array(LAT,ndmin=1)
     if len(chk[chk<-90.])>0 or len(chk[chk>90.])>0:
@@ -52,23 +52,23 @@ def latlon2ixjy (LAT,LON,latmin,latmax,lonmin,lonmax,nx,ny,mtype='array'):
         sys.exit(-1)
 
     valx = np.array((LON + 180.) / 360. * nx)
-    #valy = np.array((LAT +  90.) / 180. * ny)
+    # valy = np.array((LAT +  90.) / 180. * ny)
     valy = np.array((LAT -  latmin) / (latmax-latmin) * ny)
-    XY = np.copy(valx)    
-    XY = np.append([XY], [valy],axis=0).reshape(2,-1)
-    if mtype == 'array':    
+    XY = np.copy(valx)
+    XY = np.append([XY], [valy], axis=0).reshape(2,-1)
+    if mtype == 'array':
         XY = np.fix(XY).astype(int)
         return XY
     elif mtype == 'mask':
         MASK = np.zeros((nx,ny))
-        MASK[np.fix(XY[0]).astype(int),np.fix(XY[1]).astype(int)] = 1        
+        MASK[np.fix(XY[0]).astype(np.int),np.fix(XY[1]).astype(np.int)] = 1
         return MASK.T
     else:
         print("Wrong mtype in latlon2ixjy. Either 'array' or 'mask'!")
         sys.exit(-1)
 
 def cell_area ( LAT, LATRES, LONRES, unit='m2' ):
-    """ 
+    """
     Compute Area of a grid cell for a lat-lon grid
     Following http://eos-earthdata.sr.unh.edu/data/dataGuides/global_model_dg.pdf
     LN 02/2014
@@ -86,10 +86,10 @@ def cell_area ( LAT, LATRES, LONRES, unit='m2' ):
     if len(chk[chk<-90.])>0 or len(chk[chk>90.])>0:
         print("Wrong LAT in cell_area")
         sys.exit(-1)
-        
+
     rads = np.array( 90. - LAT + .5 * LATRES ) * pi / 180.
     coss = np.cos(rads) - np.cos(rads + ( LONRES * pi / 180. ))
-    CELL_AREA = ( pi * R * R * coss / 360.)  
+    CELL_AREA = ( pi * R * R * coss / 360.)
 
     if unit == 'km2':
         CELL_AREA *= 1./1000000.
@@ -98,7 +98,7 @@ def cell_area ( LAT, LATRES, LONRES, unit='m2' ):
     elif unit != 'm2':
         print("invalid unit '"+unit+"' in call to cell_area")
         sys.exit(-1)
-            
+
     return CELL_AREA
 
 def find_closest_match(arr,val,chk_bound=1, is_sorted=1):
@@ -113,21 +113,21 @@ def find_closest_match(arr,val,chk_bound=1, is_sorted=1):
             print("Value is out of bounds")
             print("min "+str(np.min(arr))+" val "+str(val)+" max "+str(np.max(arr)))
             exit(-1)
-    
+
     sdif = 9.e+12
     idx = 0
     for i in range(len(arr)):
-        if np.abs(arr[i] - val) < sdif:  
+        if np.abs(arr[i] - val) < sdif:
             sdif = np.abs(arr[i] - val)
             idx = i
         elif is_sorted:
             return idx,arr[idx]
-    
+
     return idx,arr[idx]
 
 def running_mean(arr, n, typ="central", edge='valid'):
     """
-    arr: 1-dim input array 
+    arr: 1-dim input array
     n  : averaging period
     typ: 'central' or 'past'
     edge: how to act on edges
@@ -138,7 +138,7 @@ def running_mean(arr, n, typ="central", edge='valid'):
     """
     if n > len(arr):
         exit("Arr to short for period of "+str(n)+" in 'running_mean'")
-        
+
 
     if edge == "valid":
         darr = np.zeros((len(arr)))
@@ -188,7 +188,7 @@ def running_mean(arr, n, typ="central", edge='valid'):
             else:
                 exit(" NA")
 
-    
+
     return darr
 
 def get_rel_col( AR1, AR2, facs, cols ):
@@ -201,7 +201,7 @@ def get_rel_col( AR1, AR2, facs, cols ):
         f = 1./facs[i]
         Xout[np.where(AR1<f*AR2)] = cols[zidx - i]
     return Xout
-    
+
 def shiftColorMap(cmap, start=0, midpoint=0.5, stop=1.0, name='shiftedcmap'):
     import matplotlib
     import matplotlib.pyplot as plt
@@ -217,7 +217,7 @@ def shiftColorMap(cmap, start=0, midpoint=0.5, stop=1.0, name='shiftedcmap'):
       start : Offset from lowest point in the colormap's range.
           Defaults to 0.0 (no lower ofset). Should be between
           0.0 and `midpoint`.
-      midpoint : The new center of the colormap. Defaults to 
+      midpoint : The new center of the colormap. Defaults to
           0.5 (no shift). Should be between 0.0 and 1.0. In
           general, this should be  1 - vmax/(vmax + abs(vmin))
           For example if your data range from -15.0 to +5.0 and
@@ -239,7 +239,7 @@ def shiftColorMap(cmap, start=0, midpoint=0.5, stop=1.0, name='shiftedcmap'):
 
     # shifted index to match the data
     shift_index = np.hstack([
-        np.linspace(0.0, midpoint, 128, endpoint=False), 
+        np.linspace(0.0, midpoint, 128, endpoint=False),
         np.linspace(midpoint, 1.0, 129, endpoint=True)
     ])
 
@@ -257,14 +257,14 @@ def shiftColorMap(cmap, start=0, midpoint=0.5, stop=1.0, name='shiftedcmap'):
     return newcmap
 
 def rank_array( arr, eliminate0='no' ):
-    """ 
+    """
     Rank the values of an array equidistantly between 0 and 1
     Input
     arr:   1-dimensional integer or real array
     eliminate0: if 'yes' zeros will be taken outof ranking
            NaNs are taken outanyways
-    Output 
-    ranks: 1-dimensional array with ranks 
+    Output
+    ranks: 1-dimensional array with ranks
     """
     from math import isnan
 
@@ -279,4 +279,4 @@ def rank_array( arr, eliminate0='no' ):
 
     return ranks
 
-    
+
