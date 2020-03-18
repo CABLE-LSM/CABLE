@@ -61,9 +61,9 @@ MODULE cable_param_module
   USE cable_IO_vars_module
   USE cable_common_module, ONLY: cable_user, hide
   USE CABLE_LUC_EXPT, ONLY: LUC_EXPT, LUC_EXPT_TYPE, LUC_EXPT_SET_TILES, LUC_EXPT_SET_TILES_BIOS
-  
+
   IMPLICIT NONE
-  
+
   PRIVATE
 
   PUBLIC :: get_default_params, write_default_params, derived_parameters, &
@@ -929,7 +929,7 @@ CONTAINS
     use cable_io_vars_module, only: vegtype_metfile
 
     IMPLICIT NONE
-    
+
     INTEGER, INTENT(IN) :: nlon, nlat, npatch
 
     ! local variables
@@ -1043,133 +1043,129 @@ CONTAINS
 
   !=============================================================================
 
-  SUBROUTINE write_default_params(met,  air,    ssnow, veg, bgc,               &
-                                  soil, canopy, rough, rad, logn,              &
-                                  vegparmnew, month, TFRZ, LUC_EXPT)
-  ! Initialize many canopy_type, soil_snow_type, soil_parameter_type and
-  ! roughness_type variables;
-  ! Calculate 'froot' from 'rootbeta' parameter;
-  ! Assign values from input file to their proper variables in soil_snow_type,
-  ! soil_parameter_type, veg_parameter_type and patch_type;
-  ! Prescribe parameters for each point based on its veg/soil type.
-  !
-  ! New input structure using netcdf and introduced 'month' to initialize
-  ! soil profiles with the correct monthly average values (BP apr2010)
-  !
-  ! Input variables:
-  !   longitude      - via cable_IO_vars_module, dim(mland), not patches
-  !   latitude       - via cable_IO_vars_module, dim(mland), not patches
-  !   nmetpatches    - via cable_IO_vars_module
-  !   vegtype_metfile - via cable_IO_vars_module, dim(mland,nmetpatches)
-  !   soiltype_metfile- via cable_IO_vars_module, dim(mland,nmetpatches)
-  ! Output variables:
-  !   max_vegpatches - via cable_IO_vars_module
-  !   landpt(mp)%type- via cable_IO_vars_module (%nap,cstart,cend,ilon,ilat)
-  !   patch(mp)%type - via cable_IO_vars_module (%frac,longitude,latitude)
+  SUBROUTINE write_default_params(met, air, ssnow, veg, bgc, &
+       soil, canopy, rough, rad, logn, &
+       vegparmnew, month, TFRZ, LUC_EXPT)
+    ! Initialize many canopy_type, soil_snow_type, soil_parameter_type and
+    ! roughness_type variables;
+    ! Calculate 'froot' from 'rootbeta' parameter;
+    ! Assign values from input file to their proper variables in soil_snow_type,
+    ! soil_parameter_type, veg_parameter_type and patch_type;
+    ! Prescribe parameters for each point based on its veg/soil type.
+    !
+    ! New input structure using netcdf and introduced 'month' to initialize
+    ! soil profiles with the correct monthly average values (BP apr2010)
+    !
+    ! Input variables:
+    !   longitude      - via cable_IO_vars_module, dim(mland), not patches
+    !   latitude       - via cable_IO_vars_module, dim(mland), not patches
+    !   nmetpatches    - via cable_IO_vars_module
+    !   vegtype_metfile - via cable_IO_vars_module, dim(mland,nmetpatches)
+    !   soiltype_metfile- via cable_IO_vars_module, dim(mland,nmetpatches)
+    ! Output variables:
+    !   max_vegpatches - via cable_IO_vars_module
+    !   landpt(mp)%type- via cable_IO_vars_module (%nap,cstart,cend,ilon,ilat)
+    !   patch(mp)%type - via cable_IO_vars_module (%frac,longitude,latitude)
 
-    USE cable_common_module, only : vegin, soilin, calcsoilalbedo, cable_user, &
-                                    init_veg_from_vegin
+    USE cable_common_module, only: vegin, soilin, calcsoilalbedo, cable_user, &
+         init_veg_from_vegin
+    
     IMPLICIT NONE
-    INTEGER,               INTENT(IN)    :: logn  ! log file unit number
-    INTEGER,               INTENT(IN)    :: month ! month of year
-    LOGICAL,                    INTENT(IN)    :: vegparmnew ! new format input
-    REAL,                       INTENT(IN)    :: TFRZ
-    TYPE (met_type),            INTENT(INOUT) :: met
-    TYPE (air_type),            INTENT(INOUT) :: air
-    TYPE (soil_snow_type),      INTENT(INOUT) :: ssnow
-    TYPE (veg_parameter_type),  INTENT(INOUT) :: veg
-    TYPE (bgc_pool_type),       INTENT(INOUT) :: bgc
-    TYPE (soil_parameter_type), INTENT(INOUT) :: soil
-    TYPE (canopy_type),         INTENT(INOUT)   :: canopy
-    TYPE (roughness_type),      INTENT(INOUT)   :: rough
-    TYPE (radiation_type),      INTENT(INOUT)   :: rad
-    TYPE (LUC_EXPT_TYPE), INTENT(IN) :: LUC_EXPT
+    
+    INTEGER,                   INTENT(IN)    :: logn  ! log file unit number
+    INTEGER,                   INTENT(IN)    :: month ! month of year
+    LOGICAL,                   INTENT(IN)    :: vegparmnew ! new format input
+    REAL,                      INTENT(IN)    :: TFRZ
+    TYPE(met_type),            INTENT(INOUT) :: met
+    TYPE(air_type),            INTENT(INOUT) :: air
+    TYPE(soil_snow_type),      INTENT(INOUT) :: ssnow
+    TYPE(veg_parameter_type),  INTENT(INOUT) :: veg
+    TYPE(bgc_pool_type),       INTENT(INOUT) :: bgc
+    TYPE(soil_parameter_type), INTENT(INOUT) :: soil
+    TYPE(canopy_type),         INTENT(INOUT) :: canopy
+    TYPE(roughness_type),      INTENT(INOUT) :: rough
+    TYPE(radiation_type),      INTENT(INOUT) :: rad
+    TYPE(LUC_EXPT_TYPE),       INTENT(IN)    :: LUC_EXPT
 
-    INTEGER :: e,f,h  ! do loop counter
-    INTEGER :: is     ! YP oct07
-    INTEGER :: ir     ! BP sep2010
-    REAL :: totdepth  ! YP oct07
-    REAL(r_2) :: tmp       ! BP sep2010
+    INTEGER :: e, f, h  ! do loop counter
+    INTEGER :: is       ! YP oct07
+    INTEGER :: ir       ! BP sep2010
+    REAL :: totdepth    ! YP oct07
+    REAL(r_2) :: tmp    ! BP sep2010
 
-!    The following is for the alternate method to calculate froot by Zeng 2001
-!    REAL :: term1(17), term2(17)                ! (BP may2010)
-!    REAL :: aa(17), bb(17)   ! new parameter values for IGBP types
-!    DATA aa /6.706,7.344,7.066,5.990,4.453,6.326,7.718,7.604,8.235,10.740,
-!    10.740,5.558,5.558,5.558,4.372,4.372,4.372/
-!    DATA bb /2.175,1.303,1.953,1.955,1.631,1.567,1.262,2.300,1.627,2.608,
-!    2.608,2.614,2.614,2.614,0.978,0.978,0.978/
-!    (BP may2010)
+    ! ! The following is for the alternate method to calculate froot by Zeng 2001
+    ! REAL :: term1(17), term2(17)                ! (BP may2010)
+    ! REAL :: aa(17), bb(17)   ! new parameter values for IGBP types
+    ! DATA aa /6.706,7.344,7.066,5.990,4.453,6.326,7.718,7.604,8.235,10.740,
+    ! 10.740,5.558,5.558,5.558,4.372,4.372,4.372/
+    ! DATA bb /2.175,1.303,1.953,1.955,1.631,1.567,1.262,2.300,1.627,2.608,
+    ! 2.608,2.614,2.614,2.614,0.978,0.978,0.978/
+    ! ! (BP may2010)
 
     ! *******************************************************************
     ! Site independent initialisations (all gridcells):
-    ! print*, 'CS01 '
-    canopy%cansto  = 0.0 ! canopy water storage (mm or kg/m2)
+    ssnow%ssdn     = 120.0 ! snow density per layer (kg/m3)
+    ssnow%ssdnn    = 120.0 ! overall snow density (kg/m3)
+    ssnow%tggsn    = tfrz  ! snow temperature per layer (K)
+    ssnow%isflag   = 0     ! snow layer scheme flag (0 = no/little snow, 1=snow)
+    ssnow%snowd    = 0.0   ! snow liquid water equivalent depth (mm or kg/m2)
+    ssnow%osnowd   = 0.0   ! snow depth prev timestep (mm or kg/m2)
+    ssnow%sdepth   = 0.0   ! snow depth for each snow layer (BP jul2010)
+    ssnow%snage    = 0.0   ! snow age
+    ssnow%wbice    = 0.0_r_2 ! soil ice
+    ssnow%thetai   = 0.0   ! soil ice
+    ssnow%smass    = 0.0   ! snow mass per layer (kg/m^2)
+    ssnow%runoff   = 0.0   ! runoff total = subsurface + surface runoff
+    ssnow%rnof1    = 0.0   ! surface runoff (mm/timestepsize)
+    ssnow%rnof2    = 0.0   ! deep drainage (mm/timestepsize)
+    ssnow%rtsoil   = 100.0 ! turbulent resistance for soil
+    ssnow%kth      = 0.3   ! vh ! should be calculated from soil moisture or be in restart file
+    ssnow%sconds   = 0.06  ! vh snow thermal cond (W m-2 K-1), should be in restart file
+    canopy%cansto  = 0.0   ! canopy water storage (mm or kg/m2)
     canopy%sghflux = 0.0
     canopy%ghflux  = 0.0
-    ssnow%ssdn   = 120.0 ! snow density per layer (kg/m3)
-    ssnow%ssdnn  = 120.0 ! overall snow density (kg/m3)
-    ssnow%tggsn  = tfrz  ! snow temperature per layer (K)
-    ssnow%isflag = 0     ! snow layer scheme flag (0 = no/little snow, 1=snow)
-    ssnow%snowd  = 0.0   ! snow liquid water equivalent depth (mm or kg/m2)
-    ssnow%osnowd = 0.0   ! snow depth prev timestep (mm or kg/m2)
-    ssnow%sdepth = 0.0   ! snow depth for each snow layer (BP jul2010)
-    ssnow%snage  = 0.0   ! snow age
-    ssnow%wbice  = 0.0   ! soil ice
-    ssnow%thetai = 0.0   ! soil ice
-    ssnow%smass  = 0.0   ! snow mass per layer (kg/m^2)
-    ssnow%runoff = 0.0   ! runoff total = subsurface + surface runoff
-    ssnow%rnof1  = 0.0   ! surface runoff (mm/timestepsize)
-    ssnow%rnof2  = 0.0   ! deep drainage (mm/timestepsize)
-    ssnow%rtsoil = 100.0 ! turbulent resistance for soil
-    canopy%ga     = 0.0  ! ground heat flux (W/m2)
-    canopy%dgdtg  = 0.0  ! derivative of ground heat flux wrt soil temp
-    canopy%fev    = 0.0  ! latent heat flux from vegetation (W/m2)
-    canopy%fes    = 0.0  ! latent heat flux from soil (W/m2)
-    canopy%fhs    = 0.0  ! sensible heat flux from soil (W/m2)
+    canopy%ga      = 0.0   ! ground heat flux (W/m2)
+    canopy%dgdtg   = 0.0   ! derivative of ground heat flux wrt soil temp
+    canopy%fev     = 0.0   ! latent heat flux from vegetation (W/m2)
+    canopy%fes     = 0.0   ! latent heat flux from soil (W/m2)
+    canopy%fhs     = 0.0   ! sensible heat flux from soil (W/m2)
     !! vh_js !!
-    canopy%us = 0.1 ! friction velocity (needed in roughness before first call to canopy: should in be retart?
-    canopy%fh    = 0.0  ! sensible heat flux
-    canopy%fe    = 0.0  ! sensible heat flux
+    canopy%us      = 0.1   ! friction velocity (needed in roughness before first call to canopy: should in be retart?
+    canopy%fh      = 0.0  ! sensible heat flux
+    canopy%fe      = 0.0  ! sensible heat flux
+    ! IF (hide%Ticket49Bug2) THEN
+    canopy%ofes   = 0.0_r_2 ! latent heat flux from soil (W/m2)
+    canopy%fevc   = 0.0_r_2 !vh!
+    canopy%fevw   = 0.0     !vh!
+    canopy%fns    = 0.0
+    canopy%fnv    = 0.0
+    canopy%fhv    = 0.0
+    canopy%fwsoil = 1.0_r_2 ! vh -should be calculated from soil moisture or be in restart file
+    rad%fvlai     = 0.0
 
-   !IF(hide%Ticket49Bug2) THEN
-      canopy%ofes    = 0.0  ! latent heat flux from soil (W/m2)
-      canopy%fevc     = 0.0 !vh!
-      canopy%fevw     = 0.0 !vh!
-      canopy%fns      = 0.0
-      canopy%fnv     = 0.0
-      canopy%fhv     = 0.0
-      canopy%fwsoil = 1.0 ! vh -should be calculated from soil moisture or
-                          ! be in restart file
-      rad%fvlai = 0.0
-      
-      ssnow%kth = 0.3  ! vh ! should be calculated from soil moisture or be in restart file
-      ssnow%sconds(:,:) = 0.06    ! vh snow thermal cond (W m-2 K-1),
-                                  ! should be in restart file
+    ! parameters that are not spatially dependent
+    select case(ms)
+    case(6)
+       !MC - before and trunk:
+       !     soil%zse = (/.022, .058, .154, .409, 1.085, 2.872/) ! layer thickness nov03
+       soil%zse = (/.022, .058, .154, .409, 1.085, 6.872/) ! layer thickness nov03
+    case(10)
+       soil%zse = (/ 0.022, 0.058, 0.07, 0.15, 0.30, 0.30, 0.30, 1.20, 3.0, 4.5 /)
+    case(12)
+       soil%zse = (/0.022, 0.05, 0.13, 0.325, 0.325, 0.3, &
+            0.3, 0.3, 0.3, 0.3, 0.75, 1.5 /)
+    case(13)
+       soil%zse = (/0.02, 0.05, 0.06, 0.13, 0.3, 0.3, 0.3, &
+            0.3, 0.3, 0.3, 0.3, 0.75, 1.5 /)
 
-      ! parameters that are not spatially dependent
-      ! print*, 'CS02 '
-      select case(ms)
-      case(6)
-         !MC - before and trunk:
-         !     soil%zse = (/.022, .058, .154, .409, 1.085, 2.872/) ! layer thickness nov03
-         soil%zse = (/.022, .058, .154, .409, 1.085, 6.872/) ! layer thickness nov03
-      case(10)
-        soil%zse = (/ 0.022, 0.058, 0.07, 0.15, 0.30, 0.30, 0.30, 1.20, 3.0, 4.5 /)
-      case(12)
-         soil%zse = (/0.022, 0.05, 0.13, 0.325, 0.325, 0.3, &
-              0.3, 0.3, 0.3, 0.3, 0.75, 1.5 /)
-      case(13)
-         soil%zse = (/0.02, 0.05, 0.06, 0.13, 0.3, 0.3, 0.3, &
-              0.3, 0.3, 0.3, 0.3, 0.75, 1.5 /)
+    end select
 
-      end select
+    !ELSE
 
-   !ELSE
+    !   ! parameters that are not spatially dependent
+    !   soil%zse = (/.022, .058, .154, .409, 1.085, 2.872/) ! layer thickness nov03
 
-   !   ! parameters that are not spatially dependent
-   !   soil%zse = (/.022, .058, .154, .409, 1.085, 2.872/) ! layer thickness nov03
-
-   !ENDIF
+    !ENDIF
 
     rough%za_uv = 40.0 ! lowest atm. model layer/reference height
     rough%za_tq = 40.0
@@ -1178,7 +1174,6 @@ CONTAINS
 
     ! calculate vegin%froot from using rootbeta and soil depth
     ! (Jackson et al. 1996, Oceologica, 108:389-411)
-    ! print*, 'CS04 '
     totdepth = 0.0
     DO is = 1, ms
        totdepth = totdepth + soil%zse(is) * 100.0  ! unit in centimetres
@@ -1190,148 +1185,147 @@ CONTAINS
 
     ALLOCATE(defaultLAI(mp, 12))
 
-    ! print*, 'CS05 '
     DO e = 1, mland ! over all land grid points
 
-      ! Write to CABLE variables from temp variables saved in
-      ! get_default_params
-      veg%iveg(landpt(e)%cstart:landpt(e)%cend) =                              &
-                          inVeg(landpt(e)%ilon, landpt(e)%ilat, 1:landpt(e)%nap)
-      patch(landpt(e)%cstart:landpt(e)%cend)%frac =                            &
-                        real(inPFrac(landpt(e)%ilon, landpt(e)%ilat, 1:landpt(e)%nap), r_2)
+       ! Write to CABLE variables from temp variables saved in
+       ! get_default_params
+       veg%iveg(landpt(e)%cstart:landpt(e)%cend) =                              &
+            inVeg(landpt(e)%ilon, landpt(e)%ilat, 1:landpt(e)%nap)
+       patch(landpt(e)%cstart:landpt(e)%cend)%frac =                            &
+            real(inPFrac(landpt(e)%ilon, landpt(e)%ilat, 1:landpt(e)%nap), r_2)
 
-      ! set land use (1 = primary; 2 = secondary, 3 = open)
-      veg%iLU(landpt(e)%cstart:landpt(e)%cend)= 1
-      veg%ivegp(landpt(e)%cstart:landpt(e)%cend) = veg%iveg(landpt(e)%cstart:landpt(e)%cend)
-      if (cable_user%popluc) then
-         veg%iLU(landpt(e)%cstart:landpt(e)%cend)= 1
-         if (landpt(e)%nap.eq.3 .and.veg%iveg(landpt(e)%cstart)<=5 ) then
-            veg%iLU(landpt(e)%cstart+1) = 2
-            veg%iLU(landpt(e)%cend) = 3
-            veg%ivegp(landpt(e)%cstart+1:landpt(e)%cend) =  veg%iveg(landpt(e)%cstart)
-         endif
-         if (landpt(e)%nap.eq.2 .and.veg%iveg(landpt(e)%cstart)<=5 ) then
-            veg%iLU(landpt(e)%cend) = 3
-            veg%ivegp(landpt(e)%cend) =  veg%iveg(landpt(e)%cstart)
-         endif
+       ! set land use (1 = primary; 2 = secondary, 3 = open)
+       veg%iLU(landpt(e)%cstart:landpt(e)%cend)= 1
+       veg%ivegp(landpt(e)%cstart:landpt(e)%cend) = veg%iveg(landpt(e)%cstart:landpt(e)%cend)
+       if (cable_user%popluc) then
+          veg%iLU(landpt(e)%cstart:landpt(e)%cend)= 1
+          if (landpt(e)%nap.eq.3 .and.veg%iveg(landpt(e)%cstart)<=5 ) then
+             veg%iLU(landpt(e)%cstart+1) = 2
+             veg%iLU(landpt(e)%cend) = 3
+             veg%ivegp(landpt(e)%cstart+1:landpt(e)%cend) =  veg%iveg(landpt(e)%cstart)
+          endif
+          if (landpt(e)%nap.eq.2 .and.veg%iveg(landpt(e)%cstart)<=5 ) then
+             veg%iLU(landpt(e)%cend) = 3
+             veg%ivegp(landpt(e)%cend) =  veg%iveg(landpt(e)%cstart)
+          endif
 
-      endif
-      ! Check that patch fractions total to 1
-      tmp = 0.0_r_2
-      IF (landpt(e)%cstart == landpt(e)%cend) THEN
-        patch(landpt(e)%cstart)%frac = 1.0_r_2
-      ELSE
-        DO is = landpt(e)%cstart, landpt(e)%cend
-          tmp = tmp + patch(is)%frac
-        END DO
-        IF (ABS(1.0_r_2 - tmp) > 0.001_r_2) THEN
-          IF ((1.0_r_2 - tmp) < -0.001_r_2 .OR. (1.0_r_2 - tmp) > 0.5_r_2) THEN
-            write(*,*) 'Investigate the discrepancy in patch fractions:'
-            write(*,*) 'patch%frac = ', patch(landpt(e)%cstart:landpt(e)%cend)%frac
-            write(*,*) 'landpoint # ', e
-            write(*,*) 'veg types = ', veg%iveg(landpt(e)%cstart:landpt(e)%cend)
-            STOP
+       endif
+       ! Check that patch fractions total to 1
+       tmp = 0.0_r_2
+       IF (landpt(e)%cstart == landpt(e)%cend) THEN
+          patch(landpt(e)%cstart)%frac = 1.0_r_2
+       ELSE
+          DO is = landpt(e)%cstart, landpt(e)%cend
+             tmp = tmp + patch(is)%frac
+          END DO
+          IF (ABS(1.0_r_2 - tmp) > 0.001_r_2) THEN
+             IF ((1.0_r_2 - tmp) < -0.001_r_2 .OR. (1.0_r_2 - tmp) > 0.5_r_2) THEN
+                write(*,*) 'Investigate the discrepancy in patch fractions:'
+                write(*,*) 'patch%frac = ', patch(landpt(e)%cstart:landpt(e)%cend)%frac
+                write(*,*) 'landpoint # ', e
+                write(*,*) 'veg types = ', veg%iveg(landpt(e)%cstart:landpt(e)%cend)
+                STOP
+             END IF
+             patch(landpt(e)%cstart)%frac = patch(landpt(e)%cstart)%frac + 1.0_r_2 - tmp
           END IF
-          patch(landpt(e)%cstart)%frac = patch(landpt(e)%cstart)%frac + 1.0_r_2 - tmp
-        END IF
-      END IF
+       END IF
 
-      patch(landpt(e)%cstart:landpt(e)%cend)%longitude = longitude(e)
-      patch(landpt(e)%cstart:landpt(e)%cend)%latitude  = latitude(e)
-      soil%isoilm(landpt(e)%cstart:landpt(e)%cend) =                           &
-                                          inSoil(landpt(e)%ilon, landpt(e)%ilat)
-      ! Set initial soil temperature and moisture according to starting month
-!! vh_js !!
+       patch(landpt(e)%cstart:landpt(e)%cend)%longitude = longitude(e)
+       patch(landpt(e)%cstart:landpt(e)%cend)%latitude  = latitude(e)
+       soil%isoilm(landpt(e)%cstart:landpt(e)%cend) = &
+            inSoil(landpt(e)%ilon, landpt(e)%ilat)
+       ! Set initial soil temperature and moisture according to starting month
+       !! vh_js !!
 
-   !IF(hide%Ticket49Bug3) THEN
-      ! Set initial soil temperature and moisture according to starting month
-      DO is = 1, ms
-         ! Work around set everything above last input layer to the last input layer
-         ssnow%tgg(landpt(e)%cstart:landpt(e)%cend, is) =                       &
-                inTGG(landpt(e)%ilon,landpt(e)%ilat, min(is,size(inTGG,3)), month)
-         ssnow%wb(landpt(e)%cstart:landpt(e)%cend, is) =                        &
-                inWB(landpt(e)%ilon, landpt(e)%ilat, min(is,size(inTGG,3)), month)
-      END DO
+       !IF(hide%Ticket49Bug3) THEN
+       ! Set initial soil temperature and moisture according to starting month
+       DO is = 1, ms
+          ! Work around set everything above last input layer to the last input layer
+          ssnow%tgg(landpt(e)%cstart:landpt(e)%cend, is) = &
+               inTGG(landpt(e)%ilon,landpt(e)%ilat, min(is,size(inTGG,3)), month)
+          ssnow%wb(landpt(e)%cstart:landpt(e)%cend, is) = &
+               real(inWB(landpt(e)%ilon, landpt(e)%ilat, min(is,size(inTGG,3)), month), r_2)
+       END DO
 
-      !write(61,*) e, ssnow%tgg(landpt(e)%cstart:landpt(e)%cend,:) , landpt(e)%ilon,landpt(e)%ilat
+       !write(61,*) e, ssnow%tgg(landpt(e)%cstart:landpt(e)%cend,:) , landpt(e)%ilon,landpt(e)%ilat
 
-   !ELSE
+       !ELSE
 
-   !   DO is = 1, ms
-   !     ssnow%tgg(landpt(e)%cstart:landpt(e)%cend, is) =                       &
-   !                              inTGG(landpt(e)%ilon,landpt(e)%ilat, is, month)
-   !     ssnow%wb(landpt(e)%cstart:landpt(e)%cend, is) =                        &
-   !                              inWB(landpt(e)%ilon, landpt(e)%ilat, is, month)
-   !   END DO
-   !ENDIF
+       !   DO is = 1, ms
+       !     ssnow%tgg(landpt(e)%cstart:landpt(e)%cend, is) = &
+       !                              inTGG(landpt(e)%ilon,landpt(e)%ilat, is, month)
+       !     ssnow%wb(landpt(e)%cstart:landpt(e)%cend, is) = &
+       !                              inWB(landpt(e)%ilon, landpt(e)%ilat, is, month)
+       !   END DO
+       !ENDIF
 
-      ! Set initial snow depth and snow-free soil albedo
+       ! Set initial snow depth and snow-free soil albedo
 
 
-      DO is = 1, landpt(e)%cend - landpt(e)%cstart + 1  ! each patch
-        DO ir = 1, nrb
-           IF (CABLE_USER%POPLUC) then !vh! use same soilalbedo for all land-use tiles
-              ssnow%albsoilsn(landpt(e)%cstart + is - 1, ir)                       &
-                   = inALB(landpt(e)%ilon, landpt(e)%ilat, 1, ir) ! various rad band
-           ELSE
-                                 ! each band
-              ssnow%albsoilsn(landpt(e)%cstart + is - 1, ir)                       &
-                   = inALB(landpt(e)%ilon, landpt(e)%ilat, is, ir) ! various rad band
-           ENDIF
-        END DO
-        ! total depth, change from m to mm
-        ssnow%snowd(landpt(e)%cstart + is - 1)                                 &
-                     = inSND(landpt(e)%ilon, landpt(e)%ilat, is, month) * 1000.0
-      END DO
+       DO is = 1, landpt(e)%cend - landpt(e)%cstart + 1  ! each patch
+          DO ir = 1, nrb
+             IF (CABLE_USER%POPLUC) then !vh! use same soilalbedo for all land-use tiles
+                ssnow%albsoilsn(landpt(e)%cstart + is - 1, ir) &
+                     = inALB(landpt(e)%ilon, landpt(e)%ilat, 1, ir) ! various rad band
+             ELSE
+                ! each band
+                ssnow%albsoilsn(landpt(e)%cstart + is - 1, ir) &
+                     = inALB(landpt(e)%ilon, landpt(e)%ilat, is, ir) ! various rad band
+             ENDIF
+          END DO
+          ! total depth, change from m to mm
+          ssnow%snowd(landpt(e)%cstart + is - 1) &
+               = inSND(landpt(e)%ilon, landpt(e)%ilat, is, month) * 1000.0
+       END DO
 
-      ! Set default LAI values
-      DO is = 1, 12
-        defaultLAI(landpt(e)%cstart:landpt(e)%cend,is) =                       &
-                                        inLAI(landpt(e)%ilon,landpt(e)%ilat,is)
-      END DO
+       ! Set default LAI values
+       DO is = 1, 12
+          defaultLAI(landpt(e)%cstart:landpt(e)%cend,is) = &
+               inLAI(landpt(e)%ilon,landpt(e)%ilat,is)
+       END DO
 
-      ! Set IGBP soil texture values, Q.Zhang @ 12/20/2010.
-      IF (soilparmnew) THEN
+       ! Set IGBP soil texture values, Q.Zhang @ 12/20/2010.
+       IF (soilparmnew) THEN
 
-      soil%swilt(landpt(e)%cstart:landpt(e)%cend) =                            &
-                                         inswilt(landpt(e)%ilon, landpt(e)%ilat)
-      soil%sfc(landpt(e)%cstart:landpt(e)%cend) =                              &
-                                           insfc(landpt(e)%ilon, landpt(e)%ilat)
-      soil%ssat(landpt(e)%cstart:landpt(e)%cend) =                             &
-                                          inssat(landpt(e)%ilon, landpt(e)%ilat)
-      soil%bch(landpt(e)%cstart:landpt(e)%cend) =                              &
-                                           inbch(landpt(e)%ilon, landpt(e)%ilat)
-      soil%hyds(landpt(e)%cstart:landpt(e)%cend) =                             &
-                                          inhyds(landpt(e)%ilon, landpt(e)%ilat)
-      soil%sucs(landpt(e)%cstart:landpt(e)%cend) =                             &
-                                     -1.* insucs(landpt(e)%ilon, landpt(e)%ilat)
-      soil%rhosoil(landpt(e)%cstart:landpt(e)%cend) =                          &
-                                       inrhosoil(landpt(e)%ilon, landpt(e)%ilat)
-      soil%css(landpt(e)%cstart:landpt(e)%cend) =                              &
-                                           incss(landpt(e)%ilon, landpt(e)%ilat)
-      soil%cnsd(landpt(e)%cstart:landpt(e)%cend) =                             &
-                                          incnsd(landpt(e)%ilon, landpt(e)%ilat)
+          soil%swilt(landpt(e)%cstart:landpt(e)%cend) = &
+               inswilt(landpt(e)%ilon, landpt(e)%ilat)
+          soil%sfc(landpt(e)%cstart:landpt(e)%cend) = &
+               insfc(landpt(e)%ilon, landpt(e)%ilat)
+          soil%ssat(landpt(e)%cstart:landpt(e)%cend) = &
+               inssat(landpt(e)%ilon, landpt(e)%ilat)
+          soil%bch(landpt(e)%cstart:landpt(e)%cend) = &
+               inbch(landpt(e)%ilon, landpt(e)%ilat)
+          soil%hyds(landpt(e)%cstart:landpt(e)%cend) = &
+               inhyds(landpt(e)%ilon, landpt(e)%ilat)
+          soil%sucs(landpt(e)%cstart:landpt(e)%cend) = &
+               -1.* insucs(landpt(e)%ilon, landpt(e)%ilat)
+          soil%rhosoil(landpt(e)%cstart:landpt(e)%cend) = &
+               inrhosoil(landpt(e)%ilon, landpt(e)%ilat)
+          soil%css(landpt(e)%cstart:landpt(e)%cend) = &
+               incss(landpt(e)%ilon, landpt(e)%ilat)
+          soil%cnsd(landpt(e)%cstart:landpt(e)%cend) = &
+               incnsd(landpt(e)%ilon, landpt(e)%ilat)
 
-! vh !
-      soil%silt(landpt(e)%cstart:landpt(e)%cend) =                             &
-                                          insilt(landpt(e)%ilon, landpt(e)%ilat)
+          ! vh !
+          soil%silt(landpt(e)%cstart:landpt(e)%cend) = &
+               insilt(landpt(e)%ilon, landpt(e)%ilat)
 
-      soil%sand(landpt(e)%cstart:landpt(e)%cend) =                             &
-                                          insand(landpt(e)%ilon, landpt(e)%ilat)
+          soil%sand(landpt(e)%cstart:landpt(e)%cend) = &
+               insand(landpt(e)%ilon, landpt(e)%ilat)
 
-      soil%clay(landpt(e)%cstart:landpt(e)%cend) =                             &
-           inclay(landpt(e)%ilon, landpt(e)%ilat)
+          soil%clay(landpt(e)%cstart:landpt(e)%cend) = &
+               inclay(landpt(e)%ilon, landpt(e)%ilat)
 
 
-      ENDIF
+       ENDIF
 
-      ! vars intro for Ticket #27
-      IF (calcsoilalbedo) THEN
-        soil%soilcol(landpt(e)%cstart:landpt(e)%cend) =                        &
-                                     inSoilColor(landpt(e)%ilon, landpt(e)%ilat)
-      END IF
+       ! vars intro for Ticket #27
+       IF (calcsoilalbedo) THEN
+          soil%soilcol(landpt(e)%cstart:landpt(e)%cend) = &
+               inSoilColor(landpt(e)%ilon, landpt(e)%ilat)
+       END IF
 
-! offline only below
+       ! offline only below
        ! If user defined veg types are present in the met file then use them.
        ! This means that if met file just has veg type and no other parameters,
        ! the other veg parameters will be chosen as a function of this type:
@@ -1339,199 +1333,193 @@ CONTAINS
        IF(ASSOCIATED(vegtype_metfile)) THEN ! i.e. iveg found in the met file
           ! Overwrite iveg for those patches available in met file,
           ! which are currently set to def values above:
-          veg%iveg(landpt(e)%cstart:landpt(e)%cstart + nmetpatches - 1) =      &
+          veg%iveg(landpt(e)%cstart:landpt(e)%cstart + nmetpatches - 1) = &
                vegtype_metfile(e, :)
 
           ! In case gridinfo file provides more patches than met file(BP may08)
           DO f = nmetpatches+1, landpt(e)%nap
              IF (patch(landpt(e)%cstart + f - 1)%frac > 0.0_r_2) THEN
-                patch(landpt(e)%cstart)%frac = patch(landpt(e)%cstart)%frac    &
-                                          + patch(landpt(e)%cstart + f - 1)%frac
+                patch(landpt(e)%cstart)%frac = patch(landpt(e)%cstart)%frac &
+                     + patch(landpt(e)%cstart + f - 1)%frac
                 patch(landpt(e)%cstart + f - 1)%frac = 0.0_r_2
              END IF
           END DO
        END IF
        ! Similarly, if user defined soil types are present then use them:
        IF(ASSOCIATED(soiltype_metfile)) THEN ! i.e. isoil found in the met file
-          soil%isoilm(landpt(e)%cstart:landpt(e)%cstart + nmetpatches - 1) =   &
-                                                          soiltype_metfile(e, :)
+          soil%isoilm(landpt(e)%cstart:landpt(e)%cstart + nmetpatches - 1) = &
+               soiltype_metfile(e, :)
        END IF
-! offline only above
+       ! offline only above
        !call veg% init that is common
        CALL init_veg_from_vegin(landpt(e)%cstart, landpt(e)%cend, veg)
 
        ! Prescribe parameters for current gridcell based on veg/soil type (which
        ! may have loaded from default value file or met file):
        DO h = landpt(e)%cstart, landpt(e)%cend ! over each patch in current grid
-          veg%frac4(h)    = vegin%frac4(veg%iveg(h))
-          veg%taul(h,1)    = vegin%taul(1,veg%iveg(h))
-          veg%taul(h,2)    = vegin%taul(2,veg%iveg(h))
-          veg%refl(h,1)    = vegin%refl(1,veg%iveg(h))
-          veg%refl(h,2)    = vegin%refl(2,veg%iveg(h))
-          veg%canst1(h)   = vegin%canst1(veg%iveg(h))
-          veg%dleaf(h)    = vegin%dleaf(veg%iveg(h))
-          veg%vcmax(h)    = vegin%vcmax(veg%iveg(h))
-          veg%ejmax(h)    = vegin%ejmax(veg%iveg(h))
-          veg%vcmaxcc(h)  = vegin%vcmaxcc(veg%iveg(h))
-          veg%ejmaxcc(h)  = vegin%ejmaxcc(veg%iveg(h))
-          veg%gmmax(h)    = vegin%gmmax(veg%iveg(h))
-          veg%hc(h)       = vegin%hc(veg%iveg(h))
-          veg%xfang(h)    = vegin%xfang(veg%iveg(h))
-          veg%vbeta(h)    = vegin%vbeta(veg%iveg(h))
-          veg%zr(h)    = vegin%zr(veg%iveg(h))
-          veg%clitt(h)    = vegin%clitt(veg%iveg(h))
-          veg%g0(h)    = vegin%g0(veg%iveg(h))
-          veg%g1(h)    = vegin%g1(veg%iveg(h))
-          veg%xalbnir(h)  = vegin%xalbnir(veg%iveg(h))
-          veg%rp20(h)     = vegin%rp20(veg%iveg(h))
-          veg%rpcoef(h)   = vegin%rpcoef(veg%iveg(h))
-          veg%rs20(h)     = vegin%rs20(veg%iveg(h))
-          veg%shelrb(h)   = vegin%shelrb(veg%iveg(h))
-          veg%wai(h)      = vegin%wai(veg%iveg(h))
-          veg%a1gs(h)     = vegin%a1gs(veg%iveg(h))
-          veg%d0gs(h)     = vegin%d0gs(veg%iveg(h))
-          veg%vegcf(h)    = vegin%vegcf(veg%iveg(h))
-          veg%extkn(h)    = vegin%extkn(veg%iveg(h))
-          veg%tminvj(h)   = vegin%tminvj(veg%iveg(h))
-          veg%tmaxvj(h)   = vegin%tmaxvj(veg%iveg(h))
-          veg%a1gs(h)   = vegin%a1gs(veg%iveg(h))
-          veg%d0gs(h)   = vegin%d0gs(veg%iveg(h))
-          veg%alpha(h)  = vegin%alpha(veg%iveg(h))
+          veg%frac4(h)   = vegin%frac4(veg%iveg(h))
+          veg%taul(h,1)  = vegin%taul(1,veg%iveg(h))
+          veg%taul(h,2)  = vegin%taul(2,veg%iveg(h))
+          veg%refl(h,1)  = vegin%refl(1,veg%iveg(h))
+          veg%refl(h,2)  = vegin%refl(2,veg%iveg(h))
+          veg%canst1(h)  = vegin%canst1(veg%iveg(h))
+          veg%dleaf(h)   = vegin%dleaf(veg%iveg(h))
+          veg%vcmax(h)   = vegin%vcmax(veg%iveg(h))
+          veg%ejmax(h)   = vegin%ejmax(veg%iveg(h))
+          veg%vcmaxcc(h) = vegin%vcmaxcc(veg%iveg(h))
+          veg%ejmaxcc(h) = vegin%ejmaxcc(veg%iveg(h))
+          veg%gmmax(h)   = vegin%gmmax(veg%iveg(h))
+          veg%hc(h)      = vegin%hc(veg%iveg(h))
+          veg%xfang(h)   = vegin%xfang(veg%iveg(h))
+          veg%vbeta(h)   = vegin%vbeta(veg%iveg(h))
+          veg%zr(h)      = real(vegin%zr(veg%iveg(h)), r_2)
+          veg%clitt(h)   = real(vegin%clitt(veg%iveg(h)), r_2)
+          veg%g0(h)      = vegin%g0(veg%iveg(h))
+          veg%g1(h)      = vegin%g1(veg%iveg(h))
+          veg%xalbnir(h) = vegin%xalbnir(veg%iveg(h))
+          veg%rp20(h)    = vegin%rp20(veg%iveg(h))
+          veg%rpcoef(h)  = vegin%rpcoef(veg%iveg(h))
+          veg%rs20(h)    = vegin%rs20(veg%iveg(h))
+          veg%shelrb(h)  = vegin%shelrb(veg%iveg(h))
+          veg%wai(h)     = vegin%wai(veg%iveg(h))
+          veg%a1gs(h)    = vegin%a1gs(veg%iveg(h))
+          veg%d0gs(h)    = vegin%d0gs(veg%iveg(h))
+          veg%vegcf(h)   = vegin%vegcf(veg%iveg(h))
+          veg%extkn(h)   = vegin%extkn(veg%iveg(h))
+          veg%tminvj(h)  = vegin%tminvj(veg%iveg(h))
+          veg%tmaxvj(h)  = vegin%tmaxvj(veg%iveg(h))
+          veg%a1gs(h)    = vegin%a1gs(veg%iveg(h))
+          veg%d0gs(h)    = vegin%d0gs(veg%iveg(h))
+          veg%alpha(h)   = vegin%alpha(veg%iveg(h))
           if (cable_user%POPLUC) THEN
-              if (LUC_EXPT%biome(e).eq.4 .and.veg%iveg(h).eq.2 .and. &
-                   TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
-
-                   veg%alpha(h) = 0.22  ! temperate EBL
-                   veg%g1(h) = 3.37   ! temperate EBL
-                   veg%g0(h) = 0.03
-                endif
+             if (LUC_EXPT%biome(e).eq.4 .and.veg%iveg(h).eq.2 .and. &
+                  TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
+                veg%alpha(h) = 0.22  ! temperate EBL
+                veg%g1(h) = 3.37   ! temperate EBL
+                veg%g0(h) = 0.03
              endif
+          endif
 
-          veg%convex(h) = vegin%convex(veg%iveg(h))
+          veg%convex(h)   = vegin%convex(veg%iveg(h))
           ! Alexis, adding gamma
-          veg%gamma(h) = vegin%gamma(veg%iveg(h))
-          veg%cfrd(h)   = vegin%cfrd(veg%iveg(h))
-          veg%gswmin(h) = vegin%gswmin(veg%iveg(h))
-          veg%conkc0(h) = vegin%conkc0(veg%iveg(h))
-          veg%conko0(h) = vegin%conko0(veg%iveg(h))
-          veg%ekc(h)    = vegin%ekc(veg%iveg(h))
-          veg%eko(h)    = vegin%eko(veg%iveg(h))
+          veg%gamma(h)    = real(vegin%gamma(veg%iveg(h)),r_2)
+          veg%cfrd(h)     = vegin%cfrd(veg%iveg(h))
+          veg%gswmin(h)   = vegin%gswmin(veg%iveg(h))
+          veg%conkc0(h)   = vegin%conkc0(veg%iveg(h))
+          veg%conko0(h)   = vegin%conko0(veg%iveg(h))
+          veg%ekc(h)      = vegin%ekc(veg%iveg(h))
+          veg%eko(h)      = vegin%eko(veg%iveg(h))
           bgc%cplant(h,:) = vegin%cplant(:, veg%iveg(h))
           bgc%csoil(h,:)  = vegin%csoil(:, veg%iveg(h))
           bgc%ratecp(:)   = vegin%ratecp(:, veg%iveg(h))
           bgc%ratecs(:)   = vegin%ratecs(:, veg%iveg(h))
           veg%froot(h,:)  = vegin%froot(:, veg%iveg(h))
-         ! soil%silt(h)    =  soilin%silt(soil%isoilm(h))
-         ! soil%clay(h)    =  soilin%clay(soil%isoilm(h))
-         ! soil%sand(h)    =  soilin%sand(soil%isoilm(h))
+          ! soil%silt(h)    =  soilin%silt(soil%isoilm(h))
+          ! soil%clay(h)    =  soilin%clay(soil%isoilm(h))
+          ! soil%sand(h)    =  soilin%sand(soil%isoilm(h))
           IF (.NOT. soilparmnew) THEN   ! Q,Zhang @ 12/20/2010
-            soil%swilt(h)   =  soilin%swilt(soil%isoilm(h))
-            soil%sfc(h)     =  soilin%sfc(soil%isoilm(h))
-            soil%ssat(h)    =  soilin%ssat(soil%isoilm(h))
-            soil%bch(h)     =  soilin%bch(soil%isoilm(h))
-            soil%hyds(h)    =  soilin%hyds(soil%isoilm(h))
-            soil%sucs(h)    =  soilin%sucs(soil%isoilm(h))
-            soil%rhosoil(h) =  soilin%rhosoil(soil%isoilm(h))
-            soil%css(h)     =  soilin%css(soil%isoilm(h))
-
-            soil%silt(h)    =  soilin%silt(soil%isoilm(h))
-            soil%clay(h)    =  soilin%clay(soil%isoilm(h))
-            soil%sand(h)    =  soilin%sand(soil%isoilm(h))
+             soil%swilt(h)   = soilin%swilt(soil%isoilm(h))
+             soil%sfc(h)     = soilin%sfc(soil%isoilm(h))
+             soil%ssat(h)    = soilin%ssat(soil%isoilm(h))
+             soil%bch(h)     = soilin%bch(soil%isoilm(h))
+             soil%hyds(h)    = soilin%hyds(soil%isoilm(h))
+             soil%sucs(h)    = soilin%sucs(soil%isoilm(h))
+             soil%rhosoil(h) = soilin%rhosoil(soil%isoilm(h))
+             soil%css(h)     = soilin%css(soil%isoilm(h))
+             soil%silt(h)    = soilin%silt(soil%isoilm(h))
+             soil%clay(h)    = soilin%clay(soil%isoilm(h))
+             soil%sand(h)    = soilin%sand(soil%isoilm(h))
           END IF
           rad%latitude(h) = latitude(e)
-            !IF(hide%Ticket49Bug4) &
+          !IF(hide%Ticket49Bug4) &
           rad%longitude(h) = longitude(e)
           !jhan:is this done online? YES
           veg%ejmax(h) = 2.0 * veg%vcmax(h)
 
        END DO ! over each veg patch in land point
+       
     END DO ! over all land points
     soil%albsoil = ssnow%albsoilsn
-    ! print*, 'CS06 '
 
     ! check tgg and alb
-    IF(ANY(ssnow%tgg > 350.0) .OR. ANY(ssnow%tgg < 180.0))                     &
-         !write(*,*) 'Soil temps nuts'
-          CALL cable_abort('Soil temps nuts')
-    IF(ANY(ssnow%albsoilsn > 1.0) .OR. ANY(ssnow%albsoilsn < 0.0))             &
-         !write(*,*) 'Albedo nuts'
-
-           CALL cable_abort('Albedo nuts')
+    IF(ANY(ssnow%tgg > 350.0) .OR. ANY(ssnow%tgg < 180.0)) &
+                                ! write(*,*) 'Soil temps nuts'
+         CALL cable_abort('Soil temps nuts')
+    IF(ANY(ssnow%albsoilsn > 1.0) .OR. ANY(ssnow%albsoilsn < 0.0)) &
+                                ! write(*,*) 'Albedo nuts'
+         CALL cable_abort('Albedo nuts')
 
     WRITE(logn, *)
 
     ! Deallocate temporary variables:
-    ! print*, 'CS07 '
-    IF (soilparmnew) DEALLOCATE(inswilt, insfc, inssat, inbch, inhyds,         &
-                       insucs, inrhosoil, incss, incnsd) ! Q,Zhang @ 12/20/2010
+    IF (soilparmnew) DEALLOCATE(inswilt, insfc, inssat, inbch, inhyds, &
+         insucs, inrhosoil, incss, incnsd) ! Q,Zhang @ 12/20/2010
     IF (calcsoilalbedo) DEALLOCATE(inSoilColor) ! vars intro for Ticket #27
     DEALLOCATE(inVeg, inPFrac, inSoil, inWB, inTGG)
     DEALLOCATE(inLAI, inSND, inALB)
-!    DEALLOCATE(soiltemp_temp,soilmoist_temp,patchfrac_temp,isoilm_temp,&
-!         frac4_temp,iveg_temp)
-!    IF(ASSOCIATED(vegtype_metfile)) DEALLOCATE(vegtype_metfile)
-!    IF(ASSOCIATED(soiltype_metfile)) DEALLOCATE(soiltype_metfile)
-    DEALLOCATE(soilin%silt, soilin%clay, soilin%sand, soilin%swilt,            &
-               soilin%sfc, soilin%ssat, soilin%bch, soilin%hyds, soilin%sucs,  &
-               soilin%rhosoil, soilin%css, vegin%canst1, vegin%dleaf,          &
-               vegin%vcmax, vegin%ejmax, vegin%vcmaxcc, vegin%ejmaxcc, vegin%gmmax, &
-               vegin%hc, vegin%xfang, vegin%rp20,                              &
-               vegin%rpcoef, vegin%rs20, vegin%shelrb, vegin%frac4,            &
-               vegin%wai, vegin%vegcf, vegin%extkn, vegin%tminvj,              &
-               vegin%tmaxvj, vegin%vbeta,vegin%clitt, vegin%zr, vegin%rootbeta, vegin%froot,         &
-               vegin%cplant, vegin%csoil, vegin%ratecp, vegin%ratecs,          &
-               vegin%xalbnir, vegin%length, vegin%width,                       &
-               ! gamma added by Alexis below
-               vegin%g0, vegin%g1, vegin%gamma,                               &
-               vegin%a1gs, vegin%d0gs, vegin%alpha, vegin%convex, vegin%cfrd,  &
-               vegin%gswmin, vegin%conkc0,vegin%conko0,vegin%ekc,vegin%eko   )
+    !    DEALLOCATE(soiltemp_temp,soilmoist_temp,patchfrac_temp,isoilm_temp, &
+    !         frac4_temp,iveg_temp)
+    !    IF(ASSOCIATED(vegtype_metfile)) DEALLOCATE(vegtype_metfile)
+    !    IF(ASSOCIATED(soiltype_metfile)) DEALLOCATE(soiltype_metfile)
+    DEALLOCATE(soilin%silt, soilin%clay, soilin%sand, soilin%swilt, &
+         soilin%sfc, soilin%ssat, soilin%bch, soilin%hyds, soilin%sucs, &
+         soilin%rhosoil, soilin%css, vegin%canst1, vegin%dleaf, &
+         vegin%vcmax, vegin%ejmax, vegin%vcmaxcc, vegin%ejmaxcc, vegin%gmmax, &
+         vegin%hc, vegin%xfang, vegin%rp20, &
+         vegin%rpcoef, vegin%rs20, vegin%shelrb, vegin%frac4, &
+         vegin%wai, vegin%vegcf, vegin%extkn, vegin%tminvj, &
+         vegin%tmaxvj, vegin%vbeta,vegin%clitt, vegin%zr, vegin%rootbeta, vegin%froot, &
+         vegin%cplant, vegin%csoil, vegin%ratecp, vegin%ratecs, &
+         vegin%xalbnir, vegin%length, vegin%width, &
+                                ! gamma added by Alexis below
+         vegin%g0, vegin%g1, vegin%gamma, &
+         vegin%a1gs, vegin%d0gs, vegin%alpha, vegin%convex, vegin%cfrd, &
+         vegin%gswmin, vegin%conkc0,vegin%conko0,vegin%ekc,vegin%eko   )
     !         vegf_temp,urbanf_temp,lakef_temp,icef_temp, &
 
     ! if using old format veg_parm input file, need to define veg%deciduous
     ! BP dec 2007
     !    IF (.NOT. vegparmnew) THEN
-    ! print*, 'CS08 '
     veg%deciduous = .FALSE.
     IF (mvtype == 13) THEN
-      WHERE (veg%iveg == 2 .OR. veg%iveg == 5) veg%deciduous = .TRUE.
+       WHERE (veg%iveg == 2 .OR. veg%iveg == 5) veg%deciduous = .TRUE.
     ELSE IF (mvtype == 15 .or. mvtype == 16 .or. mvtype == 17) THEN
-      WHERE (veg%iveg == 3 .OR. veg%iveg == 4) veg%deciduous = .TRUE.
+       WHERE (veg%iveg == 3 .OR. veg%iveg == 4) veg%deciduous = .TRUE.
     ELSE
-      STOP 'Warning. Check number of vegetation types.'
+       STOP 'Warning. Check number of vegetation types.'
     END IF
     !    END IF
 
     ! Only the following snow inits are necessary,
     ! soilsnow will update other variables.
-    ! print*, 'CS09 '
     WHERE(ssnow%snowd(:) > 0.0) ! in cm
-      ssnow%ssdnn(:)    = 120.0 ! overall snow density (kg/m3)
-      ssnow%ssdn(:, 1)  = 120.0 ! snow density per layer (kg/m3)
-      ssnow%ssdn(:, 2)  = 120.0 ! snow density per layer (kg/m3)
-      ssnow%ssdn(:, 3)  = 120.0 ! snow density per layer (kg/m3)
-      ssnow%snage(:)    = 0.0   ! snow age (fresh)
-      ssnow%isflag(:)   = 0
+       ssnow%ssdnn(:)    = 120.0 ! overall snow density (kg/m3)
+       ssnow%ssdn(:, 1)  = 120.0 ! snow density per layer (kg/m3)
+       ssnow%ssdn(:, 2)  = 120.0 ! snow density per layer (kg/m3)
+       ssnow%ssdn(:, 3)  = 120.0 ! snow density per layer (kg/m3)
+       ssnow%snage(:)    = 0.0   ! snow age (fresh)
+       ssnow%isflag(:)   = 0
     ELSEWHERE
-      ssnow%ssdnn(:)    = 140.0 ! overall snow density (kg/m3)
-      ssnow%osnowd(:)   = 0.0   ! snow depth prev timestep (mm or kg/m2)
-      ssnow%snage(:)    = 0.0   ! snow age
-      ssnow%isflag(:)   = 0     ! snow layer scheme flag
-                               ! (0 = no/little snow, 1=snow)
-      ssnow%tggsn(:, 1) = 273.1 ! snow temperature per layer (K)
-      ssnow%tggsn(:, 2) = 273.1 ! snow temperature per layer (K)
-      ssnow%tggsn(:, 3) = 273.1 ! snow temperature per layer (K)
-      ssnow%ssdn(:, 1)  = 140.0 ! snow density per layer (kg/m3)
-      ssnow%ssdn(:, 2)  = 140.0 ! snow density per layer (kg/m3)
-      ssnow%ssdn(:, 3)  = 140.0 ! snow density per layer (kg/m3)
-      ssnow%smass(:, 1) = 0.0   ! snow mass per layer (kg/m^2)
-      ssnow%smass(:, 2) = 0.0   ! snow mass per layer (kg/m^2)
-      ssnow%smass(:, 3) = 0.0   ! snow mass per layer (kg/m^2)
+       ssnow%ssdnn(:)    = 140.0 ! overall snow density (kg/m3)
+       ssnow%osnowd(:)   = 0.0   ! snow depth prev timestep (mm or kg/m2)
+       ssnow%snage(:)    = 0.0   ! snow age
+       ssnow%isflag(:)   = 0     ! snow layer scheme flag
+       ! (0 = no/little snow, 1=snow)
+       ssnow%tggsn(:, 1) = 273.1 ! snow temperature per layer (K)
+       ssnow%tggsn(:, 2) = 273.1 ! snow temperature per layer (K)
+       ssnow%tggsn(:, 3) = 273.1 ! snow temperature per layer (K)
+       ssnow%ssdn(:, 1)  = 140.0 ! snow density per layer (kg/m3)
+       ssnow%ssdn(:, 2)  = 140.0 ! snow density per layer (kg/m3)
+       ssnow%ssdn(:, 3)  = 140.0 ! snow density per layer (kg/m3)
+       ssnow%smass(:, 1) = 0.0   ! snow mass per layer (kg/m^2)
+       ssnow%smass(:, 2) = 0.0   ! snow mass per layer (kg/m^2)
+       ssnow%smass(:, 3) = 0.0   ! snow mass per layer (kg/m^2)
     ENDWHERE
     ! Soil ice:
     WHERE(ssnow%tgg(:, :) < 273.15)
-      ssnow%wbice(:,:) = ssnow%wb(:, :) * 0.8
+       ssnow%wbice(:,:)  = ssnow%wb(:, :) * 0.8_r_2
     ELSEWHERE
-      ssnow%wbice(:, :) = 0.0
+       ssnow%wbice(:, :) = 0.0_r_2
     END WHERE
 
     ! IF(hide%Ticket49Bug5) THEN
@@ -1540,29 +1528,28 @@ CONTAINS
 
     ! SLI specific initialisations:
     !  IF(cable_user%SOIL_STRUC=='sli') THEN
-    ! print*, 'CS10 '
-    ssnow%h0(:) = 0.0
-    ssnow%S(:,:) = ssnow%wb(:,:)/SPREAD(soil%ssat,2,ms)
-    ssnow%snowliq(:,:) = 0.0
-    ssnow%Tsurface = 25.0
-    ssnow%nsnow = 0
-    ssnow%Tsoil = ssnow%tgg - 273.15
-    ssnow%thetai = 0.0
-    soil%zeta = 0.0
-    soil%fsatmax = 0.0
+    ssnow%h0(:)        = 0.0_r_2
+    ssnow%S(:,:)       = ssnow%wb(:,:)/SPREAD(real(soil%ssat,r_2),2,ms)
+    ssnow%snowliq(:,:) = 0.0_r_2
+    ssnow%Tsurface     = 25.0_r_2
+    ssnow%nsnow        = 0
+    ssnow%Tsoil        = real(ssnow%tgg,r_2) - 273.15_r_2
+    ssnow%thetai       = 0.0_r_2
+    soil%zeta          = 0.0_r_2
+    soil%fsatmax       = 0.0_r_2
     !   END IF
 
     IF(cable_user%SOIL_STRUC=='sli') THEN
        soil%nhorizons = 1 ! use 1 soil horizon globally
-       ! veg%clitt = 5.0 ! (tC / ha)
-       ! veg%F10 = 0.85
-       ! veg%ZR = 5.0
+       ! veg%clitt = 5.0_r_2 ! (tC / ha)
+       ! veg%F10 = 0.85_r_2
+       ! veg%ZR = 5.0_r_2
     END IF
 
     !! vh_js !!
     IF(cable_user%CALL_POP) THEN
-       veg%disturbance_interval = 100
-       veg%disturbance_intensity = 0.
+       veg%disturbance_interval  = 100
+       veg%disturbance_intensity = 0.0_r_2
     ENDIF
 
     ! GPP_components
@@ -1589,7 +1576,7 @@ CONTAINS
     canopy%dlf     = 0.0_r_2
     canopy%evapfbl = 0.0_r_2
 
-   ! 13C
+    ! 13C
     canopy%An        = 0.0_r_2
     canopy%Rd        = 0.0_r_2
     canopy%isc3      = (1.0-veg%frac4) > epsilon(1.0)
@@ -1678,8 +1665,8 @@ CONTAINS
     TYPE (roughness_type),      INTENT(INOUT) :: rough
 
     INTEGER :: j ! do loop counter
-    REAL(r_2)    :: temp(mp)
-    REAL    :: tmp2(mp)
+    REAL(r_2) :: temp(mp)
+    REAL      :: tmp2(mp)
 
     ! Construct derived parameters and zero initialisations,
     ! regardless of where parameters and other initialisations
@@ -1706,15 +1693,15 @@ CONTAINS
     ssnow%owetfac = MAX(0.0, MIN(1.0,                                          &
                    (REAL(ssnow%wb(:, 1)) - soil%swilt) /                  &
                    (soil%sfc - soil%swilt)))
-    temp(:) = 0.0
+    temp(:) = 0.0_r_2
     tmp2(:) = 0.0
-    WHERE ( ssnow%wbice(:, 1) > 0. ) ! Prevents divide by zero at glaciated
-                                     ! points where wb and wbice=0.
+    WHERE ( ssnow%wbice(:, 1) > 0.0_r_2 ) ! Prevents divide by zero at glaciated
+                                          ! points where wb and wbice=0.
       temp(:) = ssnow%wbice(:, 1) / ssnow%wb(:, 1)
       tmp2(:) = REAL(temp(:))
-      ssnow%owetfac = ssnow%owetfac * (1.0 - tmp2(:)) ** 2
-!      ssnow%owetfac = ssnow%owetfac &
-!                    * (1.0 - REAL(ssnow%wbice(:,1)/ssnow%wb(:,1)))**2
+      ssnow%owetfac = ssnow%owetfac * (1.0 - tmp2(:))**2
+      ! ssnow%owetfac = ssnow%owetfac &
+      !     * (1.0 - REAL(ssnow%wbice(:,1)/ssnow%wb(:,1)))**2
     END WHERE
     ssnow%pudsto = 0.0
     ssnow%pudsmx = 0.0
@@ -1736,27 +1723,26 @@ CONTAINS
     bal%wbal_tot   = 0.0
     bal%ebal_tot   = 0.0
     bal%ebal_tot_cncheck = 0.0
-    bal%drybal = 0.0
-    bal%wetbal = 0.0
-    bal%wbtot0 = 0.0
-    bal%RadbalSum = 0.0
+    bal%drybal     = 0.0
+    bal%wetbal     = 0.0
+    bal%wbtot0     = 0.0
+    bal%RadbalSum  = 0.0
     DO j=1, ms
-       bal%wbtot0 = bal%wbtot0 + REAL(ssnow%wb(:, j)) * soil%zse(j)       &
-                    * 1000.0
+       bal%wbtot0 = bal%wbtot0 + REAL(ssnow%wb(:, j)) * soil%zse(j) * 1000.0
     END DO
     bal%osnowd0 = ssnow%osnowd
 
-  !! vh_js !! comment out hide% condition
-   ! IF (hide%Ticket49Bug6) THEN
-       soil%swilt_vec = SPREAD(soil%swilt,2,ms)
-       soil%ssat_vec = SPREAD(soil%ssat,2,ms)
-       IF(cable_user%SOIL_STRUC=='sli') THEN
-          soil%sfc_vec = SPREAD(soil%sfc,2,ms)
-          ! Only 1 horizon by default !
-          soil%nhorizons = 1
-          soil%ishorizon = 1
-       END IF
-   ! END IF
+    !! vh_js !! comment out hide% condition
+    ! IF (hide%Ticket49Bug6) THEN
+    soil%swilt_vec = SPREAD(real(soil%swilt,r_2),2,ms)
+    soil%ssat_vec = SPREAD(real(soil%ssat,r_2),2,ms)
+    IF(cable_user%SOIL_STRUC=='sli') THEN
+       soil%sfc_vec = SPREAD(real(soil%sfc,r_2),2,ms)
+       ! Only 1 horizon by default !
+       soil%nhorizons = 1
+       soil%ishorizon = 1
+    END IF
+    ! END IF
 
   END SUBROUTINE derived_parameters
   !============================================================================
@@ -1867,8 +1853,8 @@ CONTAINS
     ! Ensure soil moisture values are reasonable (possible restart precision
     ! issue):
     DO i = 1, ms
-       WHERE(ssnow%wb(:, i) > soil%ssat) ! Can only happen due to i/o issues
-          ssnow%wb(:, i) = 0.9999 * soil%ssat
+       WHERE (ssnow%wb(:, i) > real(soil%ssat,r_2)) ! Can only happen due to i/o issues
+          ssnow%wb(:, i) = 0.9999_r_2 * real(soil%ssat,r_2)
        END WHERE
     END DO
 
@@ -2496,5 +2482,3 @@ END SUBROUTINE report_parameters
 
 
 END MODULE cable_param_module
-
-

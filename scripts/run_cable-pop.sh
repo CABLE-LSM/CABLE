@@ -44,7 +44,7 @@
 # cuntz@explor, cuntz@mcinra, moc801@gadi cuntz@gadi
 # kna016@pearcey knauer@pearcey, jk8585@gadi knauer@gadi
 # not yet vxh599@gadi nor hav014@pearcey
-system=cuntz@mcinra
+system=cuntz@explor
 
 # MPI run or single processor run
 # nproc should fit with job tasks
@@ -94,7 +94,7 @@ imeteo=1        # 0: Use global meteo, land use and mask
                 # 1: Use local mask, but global meteo and land use (doextractsite=1)
                 # 2: Use local meteo, land use and mask (doextractsite=2)
 # Step 0
-doextractsite=1 # 0: Do not extract local meteo, land use nor mask
+doextractsite=0 # 0: Do not extract local meteo, land use nor mask
                 # 1: Do extract only mask at specific site/region (imeteo=1)
                 # 2: Do extract meteo, land use and mask at specific site/region (imeteo=2)
                 #    Does not work with randompoints /= 0 but with latlon
@@ -111,17 +111,17 @@ doclimate=1     # 1/0: Do/Do not create climate restart file
 # Step 2
 dofromzero=1    # 1/0: Do/Do not first spinup phase from zero biomass stocks
 # Step 3
-doequi1=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
+doequi1=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
 nequi1=1        #      number of times to repeat steps in doequi1
 # Step 4
-doequi2=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
+doequi2=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
 nequi2=1        #      number of times to repeat steps in doequi2
 # Step 5a
-doiniluc=0      # 1/0: Do/Do not spinup with dynamic land use (5a)
+doiniluc=1      # 1/0: Do/Do not spinup with dynamic land use (5a)
 # Step 5b
-doinidyn=0      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
+doinidyn=1      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
 # Step 6
-dofinal=0       # 1/0: Do/Do not final run from 1900 to 2017
+dofinal=1       # 1/0: Do/Do not final run from 1900 to 2017
 
 # --------------------------------------------------------------------
 # Other switches
@@ -162,16 +162,16 @@ if [[ "${sys}" == "explor" ]] ; then
     # module load intel/2018.5
     # export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-ifort2018.0/lib
     # export mpiexecdir=/soft/env/soft/all/intel/2018.3/compilers_and_libraries_2018.5.274/linux/mpi/intel64/bin/
-    # # INTEL / OpenMPI - load mpi module first, otherwise intel module will not pre-pend LD_LIBRARY_PATH
-    # module load openmpi/3.0.0/intel18
-    # module load intel/2018.5
-    # export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-ifort2018.0/lib
-    # export mpiexecdir=/opt/soft/hf/openmpi-3.0.0-intel18/bin/
-    # GNU / OpenMPI
-    module load gcc/6.3.0
-    module load openmpi/3.0.1/gcc/6.3.0
-    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-gfortran63/lib
-    export mpiexecdir=/opt/soft/hf/openmpi/3.0.1/gcc/6.3.0/bin/
+    # INTEL / OpenMPI - load mpi module first, otherwise intel module will not pre-pend LD_LIBRARY_PATH
+    module load openmpi/3.0.0/intel18
+    module load intel/2018.5
+    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-ifort2018.0/lib
+    export mpiexecdir=/opt/soft/hf/openmpi-3.0.0-intel18/bin/
+    # # GNU / OpenMPI
+    # module load gcc/6.3.0
+    # module load openmpi/3.0.1/gcc/6.3.0
+    # export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-gfortran63/lib
+    # export mpiexecdir=/opt/soft/hf/openmpi/3.0.1/gcc/6.3.0/bin/
     if [[ ${doextractsite} -ge 1 ]] ; then module load python/intel/2019/3 ; fi
 elif [[ "${sys}" == "mcinra" ]] ; then
     # # exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi-gfortran"
