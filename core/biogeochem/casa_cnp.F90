@@ -1293,7 +1293,7 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
 
         ! add fire component to above fluxes
         ! print*, 'CN01 ', npt, cleaf2met(npt), cleaf2str(npt), croot2met(npt)
-        ! print*, 'CN02 ', npt, metb, casaflux%fromPtoL_fire(npt,metb,:)
+        print*, 'CN02 ', npt, metb, casaflux%fromPtoL_fire(npt,:,:)
         ! print*, 'CN03 ', casaflux%kplant(npt,:)
         ! print*, 'CN04 ', casaflux%kplant_fire(npt,:)
         ! print*, 'CN05 ', casapool%cplant(npt,:)
@@ -1330,7 +1330,6 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
                 casaflux%FluxFromPtoCO2(npt,nP)
 
         enddo
-           
 
         ! Crop Harvest Flux
         casaflux%Charvest(npt) = casaflux%Charvest(npt) + &

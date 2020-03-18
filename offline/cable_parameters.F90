@@ -1102,6 +1102,7 @@ CONTAINS
 
     ! *******************************************************************
     ! Site independent initialisations (all gridcells):
+    ! print*, 'CS01 '
     canopy%cansto  = 0.0 ! canopy water storage (mm or kg/m2)
     canopy%sghflux = 0.0
     canopy%ghflux  = 0.0
@@ -1146,6 +1147,7 @@ CONTAINS
                                   ! should be in restart file
 
       ! parameters that are not spatially dependent
+      ! print*, 'CS02 '
       select case(ms)
       case(6)
          !MC - before and trunk:
@@ -1176,6 +1178,7 @@ CONTAINS
 
     ! calculate vegin%froot from using rootbeta and soil depth
     ! (Jackson et al. 1996, Oceologica, 108:389-411)
+    ! print*, 'CS04 '
     totdepth = 0.0
     DO is = 1, ms
        totdepth = totdepth + soil%zse(is) * 100.0  ! unit in centimetres
@@ -1187,6 +1190,7 @@ CONTAINS
 
     ALLOCATE(defaultLAI(mp, 12))
 
+    ! print*, 'CS05 '
     DO e = 1, mland ! over all land grid points
 
       ! Write to CABLE variables from temp variables saved in
@@ -1443,6 +1447,7 @@ CONTAINS
        END DO ! over each veg patch in land point
     END DO ! over all land points
     soil%albsoil = ssnow%albsoilsn
+    ! print*, 'CS06 '
 
     ! check tgg and alb
     IF(ANY(ssnow%tgg > 350.0) .OR. ANY(ssnow%tgg < 180.0))                     &
@@ -1456,6 +1461,7 @@ CONTAINS
     WRITE(logn, *)
 
     ! Deallocate temporary variables:
+    ! print*, 'CS07 '
     IF (soilparmnew) DEALLOCATE(inswilt, insfc, inssat, inbch, inhyds,         &
                        insucs, inrhosoil, incss, incnsd) ! Q,Zhang @ 12/20/2010
     IF (calcsoilalbedo) DEALLOCATE(inSoilColor) ! vars intro for Ticket #27
@@ -1484,6 +1490,7 @@ CONTAINS
     ! if using old format veg_parm input file, need to define veg%deciduous
     ! BP dec 2007
     !    IF (.NOT. vegparmnew) THEN
+    ! print*, 'CS08 '
     veg%deciduous = .FALSE.
     IF (mvtype == 13) THEN
       WHERE (veg%iveg == 2 .OR. veg%iveg == 5) veg%deciduous = .TRUE.
@@ -1496,6 +1503,7 @@ CONTAINS
 
     ! Only the following snow inits are necessary,
     ! soilsnow will update other variables.
+    ! print*, 'CS09 '
     WHERE(ssnow%snowd(:) > 0.0) ! in cm
       ssnow%ssdnn(:)    = 120.0 ! overall snow density (kg/m3)
       ssnow%ssdn(:, 1)  = 120.0 ! snow density per layer (kg/m3)
@@ -1532,6 +1540,7 @@ CONTAINS
 
     ! SLI specific initialisations:
     !  IF(cable_user%SOIL_STRUC=='sli') THEN
+    ! print*, 'CS10 '
     ssnow%h0(:) = 0.0
     ssnow%S(:,:) = ssnow%wb(:,:)/SPREAD(soil%ssat,2,ms)
     ssnow%snowliq(:,:) = 0.0

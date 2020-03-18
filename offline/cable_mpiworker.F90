@@ -3233,8 +3233,12 @@ CONTAINS
 
     ! 3D
     bidx = bidx + 1
-    CALL MPI_Get_address (casaflux%fromPtoL, displs(bidx), ierr)
+    CALL MPI_Get_address(casaflux%fromPtoL, displs(bidx), ierr)
     blen(bidx) = mplant * mlitter * r2len
+
+    ! bidx = bidx + 1
+    ! CALL MPI_Get_address(casaflux%fromPtoL_fire, displs(bidx), ierr)
+    ! blen(bidx) = mplant * mlitter * r2len
 
     bidx = bidx + 1
     CALL MPI_Get_address (casaflux%Cnep, displs(bidx), ierr)
