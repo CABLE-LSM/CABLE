@@ -738,7 +738,8 @@ SUBROUTINE casa_init(casabiome,casamet,casaflux,casapool,casabal,veg,phen)
   casaflux%kplant_fire  = 0.0_r_2
   casaflux%kplant_tot   = 0.0_r_2
 
-  casaflux%fromPtoL     = 0.0_r_2
+  casaflux%fromPtoL      = 0.0_r_2
+  casaflux%fromPtoL_fire = 0.0_r_2
 
   casaflux%Cnep         = 0.0_r_2
   casaflux%Crsoil       = 0.0_r_2
@@ -788,7 +789,6 @@ SUBROUTINE casa_init(casabiome,casamet,casaflux,casapool,casabal,veg,phen)
   casaflux%FluxCtoCO2_litter_fire = 0.0_r_2
 
   casaflux%FluxFromPtoL       = 0.0_r_2
-  casaflux%fromPtoL_fire      = 0.0_r_2
   casaflux%FluxFromLtoS       = 0.0_r_2
   casaflux%FluxFromStoS       = 0.0_r_2
   casaflux%FluxFromPtoCO2     = 0.0_r_2

@@ -44,7 +44,7 @@
 # cuntz@explor, cuntz@mcinra, moc801@gadi cuntz@gadi
 # kna016@pearcey knauer@pearcey, jk8585@gadi knauer@gadi
 # not yet vxh599@gadi nor hav014@pearcey
-system=cuntz@gadi
+system=cuntz@mcinra
 
 # MPI run or single processor run
 # nproc should fit with job tasks
@@ -91,17 +91,17 @@ ignore_mpi_err=0 # 0/1: 1: continue even if mpi run failed
 # Sequence switches
 #
 imeteo=1        # 0: Use global meteo, land use and mask
-		# 1: Use local mask, but global meteo and land use (doextractsite=1)
-		# 2: Use local meteo, land use and mask (doextractsite=2)
+                # 1: Use local mask, but global meteo and land use (doextractsite=1)
+                # 2: Use local meteo, land use and mask (doextractsite=2)
 # Step 0
-doextractsite=0 # 0: Do not extract local meteo, land use nor mask
-		# 1: Do extract only mask at specific site/region (imeteo=1)
-		# 2: Do extract meteo, land use and mask at specific site/region (imeteo=2)
+doextractsite=1 # 0: Do not extract local meteo, land use nor mask
+                # 1: Do extract only mask at specific site/region (imeteo=1)
+                # 2: Do extract meteo, land use and mask at specific site/region (imeteo=2)
                 #    Does not work with randompoints /= 0 but with latlon
     sitename=TestPoint1
     randompoints=0   # <0: use -1*randompoints random grid points from ${LandMaskFilePath}/${sitename}_points.csv if existing
-		     # 0:  use latlon
-		     # >0: generate and use randompoints random grid points from GlobalLandMaskFile
+                     # 0:  use latlon
+                     # >0: generate and use randompoints random grid points from GlobalLandMaskFile
     # lat,lon  or  latmin,latmax,lonmin,lonmax   # must have . in numbers otherwise indexes taken
     # latlon=42.536875,-72.172602
     latlon=-34.5,-33.5,149.5,156.5
@@ -111,17 +111,17 @@ doclimate=1     # 1/0: Do/Do not create climate restart file
 # Step 2
 dofromzero=1    # 1/0: Do/Do not first spinup phase from zero biomass stocks
 # Step 3
-doequi1=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
+doequi1=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
 nequi1=1        #      number of times to repeat steps in doequi1
 # Step 4
-doequi2=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
+doequi2=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
 nequi2=1        #      number of times to repeat steps in doequi2
 # Step 5a
-doiniluc=1      # 1/0: Do/Do not spinup with dynamic land use (5a)
+doiniluc=0      # 1/0: Do/Do not spinup with dynamic land use (5a)
 # Step 5b
-doinidyn=1      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
+doinidyn=0      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
 # Step 6
-dofinal=1       # 1/0: Do/Do not final run from 1900 to 2017
+dofinal=0       # 1/0: Do/Do not final run from 1900 to 2017
 
 # --------------------------------------------------------------------
 # Other switches
@@ -175,9 +175,9 @@ if [[ "${sys}" == "explor" ]] ; then
     if [[ ${doextractsite} -ge 1 ]] ; then module load python/intel/2019/3 ; fi
 elif [[ "${sys}" == "mcinra" ]] ; then
     # # exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi-gfortran"
-    export mpiexecdir=/usr/local/openmpi-3.1.4-gfortran/bin/
+    # export mpiexecdir=/usr/local/openmpi-3.1.4-gfortran/bin/
     # # exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi-ifort"
-    # export mpiexecdir=/usr/local/openmpi-3.1.5-ifort/bin/
+    export mpiexecdir=/usr/local/openmpi-3.1.5-ifort/bin/
 elif [[ "${sys}" == "pearcey" ]] ; then
     # prog is slurm_script
     pdir=${isdir}
@@ -239,8 +239,8 @@ elif [[ "${system}" == "cuntz@mcinra" ]] ; then
     cablehome="/Users/cuntz/prog/vanessa/cable"
     # Cable executable
     if [[ ${dompi} -eq 1 ]] ; then
-        # exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi-ifort"
-        exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi-gfortran"
+        exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi-ifort"
+        # exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi-gfortran"
     else
         exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable"
     fi
@@ -591,7 +591,7 @@ if [[ ${doextractsite} -eq 1 ]] ; then
         com=${com}$(csed "latlonfile=\"${LandMaskFilePath}/${sitename}_points.csv\"")
         com=${com}$(csed "gridinfo_file=\"${GlobalLandMaskFile}\"")
         sed ${com} ${sdir}/create_landmask.py > ${LandMaskFilePath}/create_landmask.py
-        sed -i "s!from lnutils.*!sys.path.insert(1,'${sdir}'); from lnutils import latlon2ixjy!" ${LandMaskFilePath}/create_landmask.py
+        sed -i -e "s|from lnutils.*|sys.path.insert(1,'${sdir}'); from lnutils import latlon2ixjy|" ${LandMaskFilePath}/create_landmask.py
         python3 ${LandMaskFilePath}/create_landmask.py
     else
         # # cdo -s -f nc4 -z zip sellonlatbox,-72.5,-72.0,42.5,43.0 ${GlobalLandMaskFile} ${LandMaskFile}
@@ -600,7 +600,7 @@ if [[ ${doextractsite} -eq 1 ]] ; then
         com=${com}$(csed "maskfname=\"${LandMaskFile}\"")
         com=${com}$(csed "gridinfo_file=\"${GlobalLandMaskFile}\"")
         sed ${com} ${sdir}/create_landmask.py > ${LandMaskFilePath}/create_landmask.py
-        sed -i "s!from lnutils.*!sys.path.insert(1,'${sdir}'); from lnutils import latlon2ixjy!" ${LandMaskFilePath}/create_landmask.py
+        sed -i -e "s|from lnutils.*|sys.path.insert(1,'${sdir}'); from lnutils import latlon2ixjy|" ${LandMaskFilePath}/create_landmask.py
         python3 ${LandMaskFilePath}/create_landmask.py ${latlon}
     fi
 fi
