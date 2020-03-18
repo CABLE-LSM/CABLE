@@ -822,6 +822,9 @@ CONTAINS
   ALLOCATE (lat_all(MaskCols,MaskRows))
   ALLOCATE (lon_all(MaskCols,MaskRows))
   
+
+!
+  
 ! Using the landmask grid boundaries and dimensions, translate the land  
 ! cell cols and rows of land_x and land_y into corresponding lats and longs.
   MaskCtrW = MaskBndW + (MaskRes / 2.0) ! Convert western and southern 
@@ -832,10 +835,13 @@ CONTAINS
 ! This replaces the UNPACK of the latitude and longitude vectors to
 ! eliminate occurrence of mask values anywhere on the grid, i.e.:
 !  lat_all = UNPACK(latitude,mask=LandMaskLogical,field=-9999.)
-!  lon_all = UNPACK(longitude,mask=LandMaskLogical,field=-9999.)
+  !  lon_all = UNPACK(longitude,mask=LandMaskLogical,field=-9999.)
+ 
   FORALL (icol=1:MaskCols) lon_all(icol,:) = MaskCtrW + (real(icol-1) * MaskRes)
   FORALL (irow=1:MaskRows) lat_all(irow,:) = (real(MaskRows - irow) * MaskRes) + MaskCtrS
-!
+
+  FORALL (icol=1:MaskCols) lon_all(icol,:) = MaskCtrW + (real(icol-1) * MaskRes)
+  FORALL (irow=1:MaskRows) lat_all(irow,:) = (real(MaskRows - irow) * MaskRes) + MaskCtrS
   
   DO iLand = 1,mland
     longitude(iLand) = MaskRes * real((land_x(iLand) - 1)) + MaskCtrW
