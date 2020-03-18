@@ -227,6 +227,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    ENDIF ! dump_read
 
  END SUBROUTINE bgcdriver
+ 
  ! ==============================================================================
 
  SUBROUTINE POPdriver(casaflux, casabal, veg, POP)
@@ -804,11 +805,11 @@ SUBROUTINE sumcflux(ktau, kstart, kend, dels, bgc, canopy,  &
   TYPE (casa_flux),           INTENT(INOUT) :: casaflux
   LOGICAL, INTENT(IN)   :: l_vcmaxFeedbk ! using prognostic Vcmax
 
-!   if(icycle<=0) then
-!     these are executed in cbm
-!      CALL soilcarb(soil, ssoil, veg, bgc, met, canopy)
-!      CALL carbon_pl(dels, soil, ssoil, veg, canopy, bgc)
-!   else
+  !   if(icycle<=0) then
+  !     these are executed in cbm
+  !      CALL soilcarb(soil, ssoil, veg, bgc, met, canopy)
+  !      CALL carbon_pl(dels, soil, ssoil, veg, canopy, bgc)
+  !   else
     if(icycle>0) then
        canopy%frp(:)  = real((casaflux%crmplant(:,wood) + casaflux%crmplant(:,froot) + &
             casaflux%crgplant(:))/86400.0_r_2)
@@ -825,7 +826,7 @@ SUBROUTINE sumcflux(ktau, kstart, kend, dels, bgc, canopy,  &
        sum_flux%sumrpr = canopy%frpr*dels
        sum_flux%sumrp  = canopy%frp*dels
        sum_flux%dsumrp = canopy%frp*dels
-    ! canopy%frs set in soilcarb
+       ! canopy%frs set in soilcarb
        sum_flux%sumrs = canopy%frs*dels
     else
        sum_flux%sumpn  = sum_flux%sumpn  + canopy%fpn*dels
@@ -836,7 +837,7 @@ SUBROUTINE sumcflux(ktau, kstart, kend, dels, bgc, canopy,  &
        sum_flux%sumrpr = sum_flux%sumrpr + canopy%frpr*dels
        sum_flux%sumrp  = sum_flux%sumrp  + canopy%frp*dels
        sum_flux%dsumrp = sum_flux%dsumrp + canopy%frp*dels
-    ! canopy%frs set in soilcarb
+       ! canopy%frs set in soilcarb
        sum_flux%sumrs = sum_flux%sumrs+canopy%frs*dels
     endif
     ! Set net ecosystem exchange after adjustments to frs:
@@ -856,7 +857,7 @@ SUBROUTINE sumcflux(ktau, kstart, kend, dels, bgc, canopy,  &
 END SUBROUTINE sumcflux
 
   SUBROUTINE totcnppools(kloop,veg,casamet,casapool,bmcplant,bmnplant,bmpplant,bmclitter,bmnlitter,bmplitter, &
-                               bmcsoil,bmnsoil,bmpsoil,bmnsoilmin,bmpsoillab,bmpsoilsorb,bmpsoilocc,bmarea)
+                         bmcsoil,bmnsoil,bmpsoil,bmnsoilmin,bmpsoillab,bmpsoilsorb,bmpsoilocc,bmarea)
   ! this subroutine is temporary, and its needs to be modified for multiple tiles within a cell
   USE cable_def_types_mod
   USE casadimension
@@ -1107,7 +1108,7 @@ END SUBROUTINE sumcflux
           endif
                 
           if (icycle<=1) then
-             casapool%nlitter(npt,:) = casapool%rationclitter(npt,:) * casapool%clitter(npt,:)
+             casapool%nlitter(npt,:) = casapool%ratioNClitter(npt,:) * casapool%Clitter(npt,:)
              casapool%nsoil(npt,:)   = casapool%ratioNCsoil(npt,:)   * casapool%Csoil(npt,:)
              casapool%nsoilmin(npt)  = 2.0_r_2
              casabal%sumnbal(npt)    = 0.0_r_2
@@ -1140,8 +1141,8 @@ END SUBROUTINE sumcflux
            ! casapool%plitter(npt,:)= casapool%Nlitter(npt,:)/casapool%ratioNPlitter(npt,:)
            ! casapool%psoil(npt,:)  = casapool%Nsoil(npt,:)/casapool%ratioNPsoil(npt,:)
            ! why is this commented here but used in UM
-           casapool%plitter(npt,:) = casapool%ratiopclitter(npt,:) * casapool%clitter(npt,:)
-           casapool%psoil(npt,:)   = casapool%ratioPCsoil(npt,:) * casapool%Csoil(npt,:)
+           casapool%plitter(npt,:) = casapool%ratioPClitter(npt,:) * casapool%Clitter(npt,:)
+           casapool%psoil(npt,:)   = casapool%ratioPCsoil(npt,:)   * casapool%Csoil(npt,:)
            casapool%psoillab(npt)  = totpsoil(npt) * fracpLab(casamet%isorder(npt))
            casapool%psoilsorb(npt) = casaflux%psorbmax(npt) * casapool%psoillab(npt) / &
                 (casaflux%kmlabp(npt)+casapool%psoillab(npt))

@@ -212,9 +212,9 @@ MODULE casavariable
           ratioNPsoil => null(),   &
           ratioNCsoilmin => null(),&
           ratioNCsoilmax => null(),&
-          ratioPcsoil => null(),   &
-          ratioPcplant => null(),  &
-          ratioPclitter => null()
+          ratioPCsoil => null(),   &
+          ratioPCplant => null(),  &
+          ratioPClitter => null()
   END TYPE casa_pool
 
   
@@ -528,9 +528,9 @@ Contains
          casapool%ratioNCsoilnew(arraysize,msoil),  &
          casapool%ratioNCsoilmin(arraysize,msoil),  &
          casapool%ratioNCsoilmax(arraysize,msoil),  &
-         casapool%ratioPcsoil(arraysize,msoil),     &
-         casapool%ratioPcplant(arraysize,mplant),   &
-         casapool%ratioPclitter(arraysize,mlitter), &
+         casapool%ratioPCsoil(arraysize,msoil),     &
+         casapool%ratioPCplant(arraysize,mplant),   &
+         casapool%ratioPClitter(arraysize,mlitter), &
          casapool%Ctot_0(arraysize),                &
          casapool%Ctot(arraysize)   )               
 
@@ -775,9 +775,9 @@ Contains
          sum_casapool%ratioNCsoilnew(arraysize,msoil),  &
          sum_casapool%ratioNCsoilmin(arraysize,msoil),  &
          sum_casapool%ratioNCsoilmax(arraysize,msoil),  &
-         sum_casapool%ratioPcsoil(arraysize,msoil),     &
-         sum_casapool%ratioPcplant(arraysize,mplant),   &
-         sum_casapool%ratioPclitter(arraysize,mlitter)  &
+         sum_casapool%ratioPCsoil(arraysize,msoil),     &
+         sum_casapool%ratioPCplant(arraysize,mplant),   &
+         sum_casapool%ratioPClitter(arraysize,mlitter)  &
          )
 
     ALLOCATE(sum_casaflux%Cgpp(arraysize),                 &
@@ -912,9 +912,9 @@ Contains
     sum_casapool%ratioNCsoilnew = 0.0_r_2
     sum_casapool%ratioNCsoilmin = 0.0_r_2
     sum_casapool%ratioNCsoilmax = 0.0_r_2
-    sum_casapool%ratioPcsoil    = 0.0_r_2
-    sum_casapool%ratioPcplant   = 0.0_r_2
-    sum_casapool%ratioPclitter  = 0.0_r_2
+    sum_casapool%ratioPCsoil    = 0.0_r_2
+    sum_casapool%ratioPCplant   = 0.0_r_2
+    sum_casapool%ratioPClitter  = 0.0_r_2
 
     sum_casaflux%Cgpp         = 0.0_r_2
     sum_casaflux%Cnpp         = 0.0_r_2
@@ -1057,10 +1057,9 @@ Contains
        sum_casapool%ratioNCsoilnew = sum_casapool%ratioNCsoilnew + casapool%ratioNCsoilnew
        sum_casapool%ratioNCsoilmin = sum_casapool%ratioNCsoilmin + casapool%ratioNCsoilmin
        sum_casapool%ratioNCsoilmax = sum_casapool%ratioNCsoilmax + casapool%ratioNCsoilmax
-
-       ! sum_casapool%ratioPcsoil   = sum_casapool%ratioPcsoil   + casapool%ratioPcsoil
-       ! sum_casapool%ratioPcplant  = sum_casapool%ratioPcplant  + casapool%ratioPcplant
-       ! sum_casapool%ratioPclitter = sum_casapool%ratioPclitter + casapool%ratioPclitter
+       sum_casapool%ratioPcsoil    = sum_casapool%ratioPcsoil    + casapool%ratioPcsoil
+       sum_casapool%ratioPcplant   = sum_casapool%ratioPcplant   + casapool%ratioPcplant
+       sum_casapool%ratioPclitter  = sum_casapool%ratioPclitter  + casapool%ratioPclitter
 
        sum_casaflux%Cgpp            = sum_casaflux%Cgpp            + casaflux%Cgpp
        sum_casaflux%Cnpp            = sum_casaflux%Cnpp            + casaflux%Cnpp
@@ -1219,9 +1218,9 @@ Contains
        sum_casapool%ratioNCsoilnew = sum_casapool%ratioNCsoilnew * rnsteps
        sum_casapool%ratioNCsoilmin = sum_casapool%ratioNCsoilmin * rnsteps
        sum_casapool%ratioNCsoilmax = sum_casapool%ratioNCsoilmax * rnsteps
-       sum_casapool%ratioPcsoil    = sum_casapool%ratioPcsoil    * rnsteps
-       sum_casapool%ratioPcplant   = sum_casapool%ratioPcplant   * rnsteps
-       sum_casapool%ratioPclitter  = sum_casapool%ratioPclitter  * rnsteps
+       sum_casapool%ratioPCsoil    = sum_casapool%ratioPCsoil    * rnsteps
+       sum_casapool%ratioPCplant   = sum_casapool%ratioPCplant   * rnsteps
+       sum_casapool%ratioPClitter  = sum_casapool%ratioPClitter  * rnsteps
 
        sum_casaflux%Cgpp        = sum_casaflux%Cgpp        * rnsteps
        sum_casaflux%Cnpp        = sum_casaflux%Cnpp        * rnsteps

@@ -1292,22 +1292,8 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
         cwood2cwd(npt) = casaflux%fromPtoL(npt,cwd,wood)   * casaflux%kplant(npt,wood)  * casapool%cplant(npt,wood)
 
         ! add fire component to above fluxes
-        ! print*, 'CN01 ', npt, cleaf2met(npt), cleaf2str(npt), croot2met(npt)
-        print*, 'CN02 ', npt, metb, casaflux%fromPtoL_fire(npt,:,:)
-        ! print*, 'CN03 ', casaflux%kplant(npt,:)
-        ! print*, 'CN04 ', casaflux%kplant_fire(npt,:)
-        ! print*, 'CN05 ', casapool%cplant(npt,:)
-        ! print*, 'CN06 ', npt, croot2str(npt), cwood2cwd(npt)
         cleaf2met(npt) = cleaf2met(npt) + casaflux%fromPtoL_fire(npt,metb,leaf) &
              * (1.0_r_2 - casaflux%kplant(npt,leaf))  * casaflux%kplant_fire(npt,leaf)  * casapool%cplant(npt,leaf)
-        ! print*, 'CN07 ', casaflux%fromPtoL_fire(npt,str,leaf)
-        ! print*, 'CN08 ', (1.0_r_2 - casaflux%kplant(npt,leaf))
-        ! print*, 'CN09 ', casaflux%fromPtoL_fire(npt,str,leaf) &
-        !      * (1.0_r_2 - casaflux%kplant(npt,leaf))
-        ! print*, 'CN10 ', casaflux%fromPtoL_fire(npt,str,leaf) &
-        !      * (1.0_r_2 - casaflux%kplant(npt,leaf))  * casaflux%kplant_fire(npt,leaf)
-        ! print*, 'CN11 ', casaflux%fromPtoL_fire(npt,str,leaf) &
-        !      * (1.0_r_2 - casaflux%kplant(npt,leaf))  * casaflux%kplant_fire(npt,leaf)  * casapool%cplant(npt,leaf)
         cleaf2str(npt) = cleaf2str(npt) + casaflux%fromPtoL_fire(npt,str,leaf) &
              * (1.0_r_2 - casaflux%kplant(npt,leaf))  * casaflux%kplant_fire(npt,leaf)  * casapool%cplant(npt,leaf)
         croot2met(npt) = croot2met(npt) + casaflux%fromPtoL_fire(npt,metb,froot) &
@@ -1744,7 +1730,7 @@ SUBROUTINE casa_delsoil(veg, casapool, casaflux, casamet, casabiome)
                       * casaflux%klitter(nland,jj)     &
                       * casapool%Nlitter(nland,jj)     &
                       /casapool%ratioNPsoil(nland,kk)
-                 !                                     * casapool%ratioPCsoil(nland,kk)/casapool%ratioNCsoil(nland,kk)
+                 ! * casapool%ratioPCsoil(nland,kk)/casapool%ratioNCsoil(nland,kk)
               ENDDO
               DO kkk=1,msoil      ! immobilisation from soil to soil
                  IF(kkk.ne.kk) THEN
@@ -1753,7 +1739,7 @@ SUBROUTINE casa_delsoil(veg, casapool, casaflux, casamet, casabiome)
                          * casaflux%ksoil(nland,kkk) &
                          * casapool%Nsoil(nland,kkk) &
                          /casapool%ratioNPsoil(nland,kk)
-                    !                                        * casapool%ratioPCsoil(nland,kk)/casapool%ratioNCsoil(nland,kk)
+                    ! * casapool%ratioPCsoil(nland,kk)/casapool%ratioNCsoil(nland,kk)
                  ENDIF
               ENDDO
            ENDDO  ! immobilization
@@ -1774,23 +1760,21 @@ SUBROUTINE casa_delsoil(veg, casapool, casaflux, casamet, casabiome)
                       * casaflux%klitter(nland,j)    &
                       * casapool%Nlitter(nland,j)    &
                       /casapool%ratioNPsoil(nland,k)
-                 !                                 * casapool%ratioPCsoil(nland,k)/casapool%ratioNCsoil(nland,k)
+                 ! * casapool%ratioPCsoil(nland,k)/casapool%ratioNCsoil(nland,k)
               ENDDO  ! end of "j"
               DO kk=1,msoil
                  IF(kk.ne.k) THEN
-                    !               casaflux%FluxPtosoil(nland,k) = casaflux%FluxPtosoil(nland,k)  &
-                    !                                    + casaflux%fromStoS(nland,k,kk) &
-                    !                                    * casaflux%ksoil(nland,kk)      &
-                    !                                    * casapool%Csoil(nland,kk)      &
-                    !                                    * casapool%ratioPCsoil(nland,k)
+                    ! casaflux%FluxPtosoil(nland,k) = casaflux%FluxPtosoil(nland,k)  &
+                    !                      + casaflux%fromStoS(nland,k,kk) &
+                    !                      * casaflux%ksoil(nland,kk)      &
+                    !                      * casapool%Csoil(nland,kk)      &
+                    !                      * casapool%ratioPCsoil(nland,k)
                     casaflux%FluxPtosoil(nland,k) = casaflux%FluxPtosoil(nland,k)  &
                          + casaflux%fromStoS(nland,k,kk) &
                          * casaflux%ksoil(nland,kk)      &
                          * casapool%Nsoil(nland,kk)      &
                          /casapool%ratioNPsoil(nland,k)
-                    !                                    * casapool%ratioPCsoil(nland,k)/casapool%ratioNCsoil(nland,k)
-                    
-                    
+                    ! * casapool%ratioPCsoil(nland,k)/casapool%ratioNCsoil(nland,k)
                  ENDIF
               ENDDO ! end of "kk"
            ENDDO    ! end of "k"

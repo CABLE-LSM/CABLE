@@ -720,7 +720,7 @@ SUBROUTINE casa_init(casabiome,casamet,casaflux,casapool,casabal,veg,phen)
   casaflux%Cnpp         = 0.0_r_2
   casaflux%Crp          = 0.0_r_2
   casaflux%Crgplant     = 0.0_r_2
- ! casaflux%Nminfix      = 0.0_r_2
+  ! casaflux%Nminfix      = 0.0_r_2
   casaflux%Nminuptake   = 0.0_r_2
   casaflux%Plabuptake   = 0.0_r_2
   casaflux%Clabloss     = 0.0_r_2
@@ -744,8 +744,8 @@ SUBROUTINE casa_init(casabiome,casamet,casaflux,casapool,casabal,veg,phen)
   casaflux%Cnep         = 0.0_r_2
   casaflux%Crsoil       = 0.0_r_2
   casapool%dClabiledt   = 0.0_r_2
-  !casaflux%Nmindep      =  casaflux%Nmindep /2.0_r_2
- !casaflux%Nmindep      = 0.0_r_2
+  ! casaflux%Nmindep      =  casaflux%Nmindep /2.0_r_2
+  ! casaflux%Nmindep      = 0.0_r_2
   casaflux%Nminloss     = 0.0_r_2
   casaflux%Nminleach    = 0.0_r_2
   casaflux%Nupland      = 0.0_r_2
@@ -753,10 +753,10 @@ SUBROUTINE casa_init(casabiome,casamet,casaflux,casapool,casabal,veg,phen)
   casaflux%Nsmin        = 0.0_r_2
   casaflux%Nsimm        = 0.0_r_2
   casaflux%Nsnet        = 0.0_r_2
-  !casaflux%fNminloss    = 0.0_r_2
-  !casaflux%fNminleach   = 0.0_r_2
-  !casaflux%Pdep         = 0.0_r_2
-  !casaflux%Pwea         = 0.0_r_2
+  ! casaflux%fNminloss    = 0.0_r_2
+  ! casaflux%fNminleach   = 0.0_r_2
+  ! casaflux%Pdep         = 0.0_r_2
+  ! casaflux%Pwea         = 0.0_r_2
   casaflux%Pleach       = 0.0_r_2
   casaflux%Ploss        = 0.0_r_2
   casaflux%Pupland      = 0.0_r_2
@@ -764,12 +764,12 @@ SUBROUTINE casa_init(casabiome,casamet,casaflux,casapool,casabal,veg,phen)
   casaflux%Psmin        = 0.0_r_2
   casaflux%Psimm        = 0.0_r_2
   casaflux%Psnet        = 0.0_r_2
-!  casaflux%fPleach      = 0.0_r_2 !vh ! this should be a parameter, not a flux variable
+  ! casaflux%fPleach      = 0.0_r_2 !vh ! this should be a parameter, not a flux variable
   casaflux%kplab        = 0.0_r_2
   casaflux%kpsorb       = 0.0_r_2
   casaflux%kpocc        = 0.0_r_2
-!  casaflux%kmlabp       = 0.0_r_2  !vh ! this should be a paramter, not a flux variable
-!  casaflux%Psorbmax     = 0.0_r_2 !vh ! this should be a paramter, not a flux variable
+  ! casaflux%kmlabp       = 0.0_r_2  !vh ! this should be a paramter, not a flux variable
+  ! casaflux%Psorbmax     = 0.0_r_2 !vh ! this should be a paramter, not a flux variable
 
   casaflux%klitter       = 0.0_r_2
   casaflux%klitter_fire  = 0.0_r_2
@@ -826,6 +826,10 @@ SUBROUTINE casa_init(casabiome,casamet,casaflux,casapool,casabal,veg,phen)
   casapool%dCsoildt     = 0.0_r_2
   casapool%dNsoildt     = 0.0_r_2
   casapool%dPsoildt     = 0.0_r_2
+  casapool%ratioNClitter = 0.0_r_2
+  casapool%ratioNCsoil   = 0.0_r_2
+  casapool%ratioPClitter = 0.0_r_2
+  casapool%ratioPCsoil   = 0.0_r_2
   !CLN add more if necessary
 
   IF (initcasa==1) THEN
