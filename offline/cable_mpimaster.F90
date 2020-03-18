@@ -176,7 +176,7 @@ CONTAINS
          redistrb, wiltParam, satuParam, CurYear, &
          IS_LEAPYEAR, IS_CASA_TIME, calcsoilalbedo, get_unit, &
          report_version_no, kwidth_gl
-    USE cable_data_module,    ONLY: driver_type, icanopy_type, point2constants
+    USE cable_data_module,    ONLY: driver_type, point2constants
     USE cable_input_module,   ONLY: open_met_file, load_parameters, &
          get_met_data,close_met_file
     USE cable_output_module,  ONLY: create_restart, open_output_file, &
@@ -188,7 +188,7 @@ CONTAINS
     ! modules related to CASA-CNP
     USE casadimension,        ONLY: icycle
     USE casavariable,         ONLY: casafile, casa_biome, casa_pool, casa_flux,  &
-         casa_met, casa_balance, zero_sum_casa, update_sum_casa
+         casa_met, casa_balance ! , zero_sum_casa, update_sum_casa
     USE phenvariable,         ONLY: phen_variable
 
     !CLN added
@@ -203,25 +203,22 @@ CONTAINS
 
     ! modules related to fire
     USE BLAZE_MOD,            ONLY: TYPE_BLAZE, INI_BLAZE, WRITE_BLAZE_OUTPUT_NC
-    USE BLAZE_MPI,            ONLY: MASTER_BLAZE_TYPES, MASTER_SIMFIRE_TYPES
+    USE BLAZE_MPI,            ONLY: MASTER_BLAZE_TYPES ! , MASTER_SIMFIRE_TYPES
     USE SIMFIRE_MOD,          ONLY: TYPE_SIMFIRE, INI_SIMFIRE
 
     ! 13C
-    use cable_c13o2_def,         only: c13o2_delta_atm, c13o2_flux, c13o2_pool, c13o2_luc, &
-         c13o2_update_sum_pools, c13o2_zero_sum_pools
+    use cable_c13o2_def,         only: c13o2_delta_atm, c13o2_flux, c13o2_pool, c13o2_luc ! , &
+         ! c13o2_update_sum_pools, c13o2_zero_sum_pools
     use cable_c13o2,             only: c13o2_save_luc, c13o2_update_luc, &
          c13o2_write_restart_flux, c13o2_write_restart_pools, c13o2_write_restart_luc, &
          c13o2_create_output, c13o2_write_output, c13o2_close_output, c13o2_nvars_output
     use cable_c13o2,             only: c13o2_print_delta_flux, c13o2_print_delta_pools, c13o2_print_delta_luc
-    use mo_isotope,              only: isoratio ! vpdbc13
-    use mo_c13o2_photosynthesis, only: c13o2_discrimination_simple, c13o2_discrimination
-    use cable_data_module,       only: icanopy_type
 
     ! PLUME-MIP only
     USE CABLE_PLUME_MIP,      ONLY: PLUME_MIP_TYPE, PLUME_MIP_GET_MET,&
          PLUME_MIP_INIT
     
-    USE CABLE_CRU,            ONLY: CRU_TYPE, CRU_GET_SUBDIURNAL_MET, CRU_INIT, cru_close
+    USE CABLE_CRU,            ONLY: CRU_TYPE, CRU_GET_SUBDIURNAL_MET, CRU_INIT ! , cru_close
 
     ! BIOS only
     USE cable_bios_met_obs_params,   ONLY:  cable_bios_read_met, cable_bios_init, &
@@ -7387,7 +7384,6 @@ SUBROUTINE master_climate_types (comm, climate, ktauday)
   use mpi
 
   USE cable_def_types_mod, ONLY: climate_type, mp
-  USE cable_climate_mod,   ONLY: climate_init, READ_CLIMATE_RESTART_NC
 
   TYPE(climate_type):: climate
   INTEGER :: comm, ktauday
@@ -7407,9 +7403,6 @@ SUBROUTINE master_climate_types (comm, climate, ktauday)
   INTEGER :: rank, off, cnt
   INTEGER :: bidx, ierr, ny, nd, ndq, nsd
 
-!!$  CALL climate_init (climate, mp, ktauday)
-!!$  if (cable_user%call_climate .AND.(.NOT.cable_user%climate_fromzero)) &
-!!$       CALL READ_CLIMATE_RESTART_NC (climate, ktauday)
   ALLOCATE (climate_ts(wnp))
 
   ! MPI: allocate temp vectors used for marshalling
@@ -10067,10 +10060,9 @@ SUBROUTINE master_spincasacnp(dels, kstart, kend, mloop, veg, soil, casabiome, c
   use casavariable
   use phenvariable
   use POP_types,           only: POP_type
-  use POPmodule,           only: POPstep
   ! 13C
   use cable_c13o2_def,     only: c13o2_flux, c13o2_pool, c13o2_luc
-  use cable_c13o2,         only: c13o2_write_restart_pools, c13o2_write_restart_luc
+  use cable_c13o2,         only: c13o2_write_restart_pools
 
   implicit none
   
@@ -10238,21 +10230,21 @@ SUBROUTINE master_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
 
   USE cable_def_types_mod
   USE cable_carbon_module
-  USE cable_common_module,  ONLY: cable_user, is_casa_time
+  USE cable_common_module,  ONLY: cable_user
   USE cable_IO_vars_module, ONLY: landpt, output
   USE casadimension
   USE casaparm
   USE casavariable
   USE phenvariable
   USE POP_Types,            only: POP_TYPE
-  USE POPMODULE,            ONLY: POPStep, POP_init_single
+  USE POPMODULE,            ONLY: POP_init_single
   USE TypeDef,              ONLY: dp
   USE CABLE_LUC_EXPT,       ONLY: LUC_EXPT_TYPE, read_LUH2, &
        ptos, ptog, stog, gtos, pharv, smharv, syharv, &
        ptoc, ptoq, stoc, stoq, ctos, qtos
   USE POPLUC_Types
   USE POPLUC_Module,        ONLY: POPLUCStep, POPLUC_weights_Transfer, WRITE_LUC_OUTPUT_NC, &
-       POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, READ_LUC_RESTART_NC, &
+       POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, &
        POPLUC_set_patchfrac,  WRITE_LUC_OUTPUT_GRID_NC
   ! 13C
   use cable_c13o2_def,      only: c13o2_flux, c13o2_pool, c13o2_luc
@@ -10556,19 +10548,19 @@ SUBROUTINE LUCdriver(casabiome,casapool, casaflux, POP, LUC_EXPT, POPLUC, veg, &
 
   USE cable_def_types_mod , ONLY: r_2, veg_parameter_type, mland
   USE cable_carbon_module
-  USE cable_common_module,  ONLY: cable_user, is_casa_time, CurYear
+  USE cable_common_module,  ONLY: cable_user, CurYear
   USE cable_IO_vars_module, ONLY: landpt
   USE casadimension
   USE casaparm
   USE casavariable
   USE POP_Types,            ONLY: POP_TYPE
-  USE POPMODULE,            ONLY: POPStep, POP_init_single
+  USE POPMODULE,            ONLY: POP_init_single
   USE CABLE_LUC_EXPT,       ONLY: LUC_EXPT_TYPE, read_LUH2, &
        ptos, ptog, stog, gtos, pharv, smharv, syharv, &
        ptoc, ptoq, stoc, stoq, ctos, qtos
   USE POPLUC_Types
-  USE POPLUC_Module,        ONLY: POPLUCStep, POPLUC_weights_Transfer, WRITE_LUC_OUTPUT_NC, &
-       POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, READ_LUC_RESTART_NC
+  USE POPLUC_Module,        ONLY: POPLUCStep, POPLUC_weights_Transfer
+       
   ! 13C
   use cable_c13o2_def,      only: c13o2_pool
 

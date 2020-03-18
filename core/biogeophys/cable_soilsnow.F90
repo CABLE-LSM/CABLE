@@ -60,10 +60,10 @@ MODULE cable_soil_snow_module
    REAL :: max_glacier_snowd
 
    ! This module contains the following subroutines:
-   PUBLIC soil_snow ! must be available outside this module
-   PRIVATE snowdensity, snow_melting, snowcheck, snowl_adjust
-   PRIVATE trimb, smoisturev, snow_accum, stempv
-   PRIVATE soilfreeze, remove_trans, soilfreeze_serial
+   PUBLIC :: soil_snow ! must be available outside this module
+   PRIVATE :: snowdensity, snow_melting, snowcheck, snowl_adjust
+   PRIVATE :: trimb, smoisturev, snow_accum, stempv
+   PRIVATE :: remove_trans, soilfreeze_serial ! , soilfreeze
 
 CONTAINS
 
@@ -1534,64 +1534,65 @@ END SUBROUTINE snowl_adjust
 
 ! -----------------------------------------------------------------------------
 
-SUBROUTINE soilfreeze(dels, soil, ssnow)
-   USE cable_common_module
-   REAL, INTENT(IN)                    :: dels ! integration time step (s)
-   TYPE(soil_snow_type), INTENT(INOUT)      :: ssnow
-   TYPE(soil_parameter_type), INTENT(INOUT) :: soil
-   REAL(r_2), DIMENSION(mp)           :: sicefreeze
-   REAL(r_2), DIMENSION(mp)           :: sicemelt
-   REAL, DIMENSION(mp)           :: xx
-   INTEGER k
+! not used
+! SUBROUTINE soilfreeze(dels, soil, ssnow)
+!    USE cable_common_module
+!    REAL, INTENT(IN)                    :: dels ! integration time step (s)
+!    TYPE(soil_snow_type), INTENT(INOUT)      :: ssnow
+!    TYPE(soil_parameter_type), INTENT(INOUT) :: soil
+!    REAL(r_2), DIMENSION(mp)           :: sicefreeze
+!    REAL(r_2), DIMENSION(mp)           :: sicemelt
+!    REAL, DIMENSION(mp)           :: xx
+!    INTEGER k
 
-   xx = 0.
-   DO k = 1, ms
+!    xx = 0.
+!    DO k = 1, ms
 
-      WHERE (ssnow%tgg(:,k) < C%TFRZ &
-          & .AND. frozen_limit * ssnow%wb(:,k) - ssnow%wbice(:,k) > .001)
+!       WHERE (ssnow%tgg(:,k) < C%TFRZ &
+!           & .AND. frozen_limit * ssnow%wb(:,k) - ssnow%wbice(:,k) > .001)
 
-         sicefreeze = MIN( MAX( 0.0_r_2, ( frozen_limit * ssnow%wb(:,k) -      &
-                      ssnow%wbice(:,k) ) ) * soil%zse(k) * 1000.0,             &
-                      ( C%TFRZ - ssnow%tgg(:,k) ) * ssnow%gammzz(:,k) / C%HLF )
-         ssnow%wbice(:,k) = MIN( ssnow%wbice(:,k) + sicefreeze / (soil%zse(k)  &
-                            * 1000.0), frozen_limit * ssnow%wb(:,k) )
-         xx = soil%css * soil%rhosoil
-         ssnow%gammzz(:,k) = MAX(                                              &
-             REAL((1.0 - soil%ssat) * soil%css * soil%rhosoil ,r_2)            &
-             + (ssnow%wb(:,k) - ssnow%wbice(:,k)) * REAL(cswat * rhowat,r_2)   &
-             + ssnow%wbice(:,k) * REAL(csice * rhowat * 0.9,r_2),              &
-             REAL(xx,r_2)) * REAL( soil%zse(k),r_2 )
+!          sicefreeze = MIN( MAX( 0.0_r_2, ( frozen_limit * ssnow%wb(:,k) -      &
+!                       ssnow%wbice(:,k) ) ) * soil%zse(k) * 1000.0,             &
+!                       ( C%TFRZ - ssnow%tgg(:,k) ) * ssnow%gammzz(:,k) / C%HLF )
+!          ssnow%wbice(:,k) = MIN( ssnow%wbice(:,k) + sicefreeze / (soil%zse(k)  &
+!                             * 1000.0), frozen_limit * ssnow%wb(:,k) )
+!          xx = soil%css * soil%rhosoil
+!          ssnow%gammzz(:,k) = MAX(                                              &
+!              REAL((1.0 - soil%ssat) * soil%css * soil%rhosoil ,r_2)            &
+!              + (ssnow%wb(:,k) - ssnow%wbice(:,k)) * REAL(cswat * rhowat,r_2)   &
+!              + ssnow%wbice(:,k) * REAL(csice * rhowat * 0.9,r_2),              &
+!              REAL(xx,r_2)) * REAL( soil%zse(k),r_2 )
 
-         WHERE (k == 1 .AND. ssnow%isflag == 0)
-            ssnow%gammzz(:,k) = ssnow%gammzz(:,k) + cgsnow * ssnow%snowd
-         END WHERE
-         ssnow%tgg(:,k) = ssnow%tgg(:,k) + REAL(sicefreeze)                    &
-                          * C%HLF / REAL(ssnow%gammzz(:,k) )
+!          WHERE (k == 1 .AND. ssnow%isflag == 0)
+!             ssnow%gammzz(:,k) = ssnow%gammzz(:,k) + cgsnow * ssnow%snowd
+!          END WHERE
+!          ssnow%tgg(:,k) = ssnow%tgg(:,k) + REAL(sicefreeze)                    &
+!                           * C%HLF / REAL(ssnow%gammzz(:,k) )
 
-      ELSEWHERE( ssnow%tgg(:,k) > C%TFRZ .AND. ssnow%wbice(:,k) > 0. )
+!       ELSEWHERE( ssnow%tgg(:,k) > C%TFRZ .AND. ssnow%wbice(:,k) > 0. )
 
-         sicemelt = MIN( ssnow%wbice(:,k) * soil%zse(k) * 1000.0,              &
-                    ( ssnow%tgg(:,k) - C%TFRZ ) * ssnow%gammzz(:,k) / C%HLF )
+!          sicemelt = MIN( ssnow%wbice(:,k) * soil%zse(k) * 1000.0,              &
+!                     ( ssnow%tgg(:,k) - C%TFRZ ) * ssnow%gammzz(:,k) / C%HLF )
 
-         ssnow%wbice(:,k) = MAX( 0.0_r_2, ssnow%wbice(:,k) - sicemelt          &
-                            / (soil%zse(k) * 1000.0) )
-         xx = soil%css * soil%rhosoil
-         ssnow%gammzz(:,k) = MAX(                                              &
-              REAL((1.0-soil%ssat) * soil%css * soil%rhosoil,r_2)             &
-              + (ssnow%wb(:,k) - ssnow%wbice(:,k)) * REAL(cswat*rhowat,r_2)   &
-              + ssnow%wbice(:,k) * REAL(csice * rhowat * 0.9,r_2),            &
-              REAL(xx,r_2) ) * REAL(soil%zse(k),r_2)
-         WHERE (k == 1 .AND. ssnow%isflag == 0)
-            ssnow%gammzz(:,k) = ssnow%gammzz(:,k) + cgsnow * ssnow%snowd
-         END WHERE
-         ssnow%tgg(:,k) = ssnow%tgg(:,k) - REAL(sicemelt)                     &
-                          * C%HLF / REAL(ssnow%gammzz(:,k))
+!          ssnow%wbice(:,k) = MAX( 0.0_r_2, ssnow%wbice(:,k) - sicemelt          &
+!                             / (soil%zse(k) * 1000.0) )
+!          xx = soil%css * soil%rhosoil
+!          ssnow%gammzz(:,k) = MAX(                                              &
+!               REAL((1.0-soil%ssat) * soil%css * soil%rhosoil,r_2)             &
+!               + (ssnow%wb(:,k) - ssnow%wbice(:,k)) * REAL(cswat*rhowat,r_2)   &
+!               + ssnow%wbice(:,k) * REAL(csice * rhowat * 0.9,r_2),            &
+!               REAL(xx,r_2) ) * REAL(soil%zse(k),r_2)
+!          WHERE (k == 1 .AND. ssnow%isflag == 0)
+!             ssnow%gammzz(:,k) = ssnow%gammzz(:,k) + cgsnow * ssnow%snowd
+!          END WHERE
+!          ssnow%tgg(:,k) = ssnow%tgg(:,k) - REAL(sicemelt)                     &
+!                           * C%HLF / REAL(ssnow%gammzz(:,k))
 
-      END WHERE
+!       END WHERE
 
-   END DO
+!    END DO
 
-END SUBROUTINE soilfreeze
+! END SUBROUTINE soilfreeze
 
 ! same as soilfreeze but with do loop to catch underflows
 SUBROUTINE soilfreeze_serial(dels, soil, ssnow)

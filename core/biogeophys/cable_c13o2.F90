@@ -329,7 +329,6 @@ contains
 
     use cable_def_types_mod, only: veg_parameter_type, i4 => i_d, dp => r_2
     use cable_common_module, only: cable_user
-    use casavariable,        only: casa_pool
     use casaparm,            only: leaf, wood, froot
     use cable_c13o2_def,     only: c13o2_luc, c13o2_pool, c13o2_alloc_luc, c13o2_zero_luc
     ! use mo_isotope,          only: vpdbc13
@@ -408,7 +407,6 @@ contains
 
     use cable_def_types_mod,   only: dp => r_2
     use cable_io_vars_module,  only: landpt, patch
-    use casavariable,          only: casa_flux
     use popluc_types,          only: popluc_type
     use popluc_constants,      only: nLU
     use popluc_module,         only: kHarvProd, kClearProd, kAgProd
@@ -1858,7 +1856,7 @@ contains
     type(casa_flux),          intent(in)    :: casaflux
     real(dp), dimension(:,:), intent(out)   :: casasources
 
-    integer :: nplant, nlitter, nsoil, nstart, nend
+    integer :: nplant, nlitter, nsoil, nstart ! , nend
 
     nplant  = size(casaflux%fracCalloc,2)
     nlitter = size(casaflux%FluxFromLtoCO2,2)
@@ -1876,7 +1874,7 @@ contains
     ! soil = 0.
     ! labile
     nstart = nplant + nlitter + nsoil + 1
-    nend   = nstart
+    ! nend   = nstart
     casasources(:,nstart) = casaflux%fracClabile * casaflux%Cgpp * c13o2flux%RAn
 
   end subroutine c13o2_sources_pools
@@ -1895,7 +1893,7 @@ contains
     type(casa_flux),          intent(in)  :: casaflux
     real(dp), dimension(:,:), intent(out) :: casasources
 
-    integer :: nplant, nlitter, nsoil, nstart, nend
+    integer :: nplant, nlitter, nsoil, nstart ! , nend
 
     nplant  = size(casaflux%fracCalloc,2)
     nlitter = size(casaflux%FluxFromLtoCO2,2)
@@ -1910,7 +1908,7 @@ contains
     ! soil = 0.
     ! labile
     nstart = nplant + nlitter + nsoil + 1
-    nend   = nstart
+    ! nend   = nstart
     casasources(:,nstart) = casaflux%fracClabile * casaflux%Cgpp * 1.0_dp
 
   end subroutine c13o2_sources_pools_nofrac

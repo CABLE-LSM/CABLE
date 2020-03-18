@@ -9,13 +9,12 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
   USE casavariable
   USE phenvariable
   USE POP_Types,           Only: POP_TYPE
-  USE POPMODULE,           ONLY: POPStep
   use TypeDef,             only: dp
   ! 13C
   use cable_c13o2_def,     only: c13o2_pool, c13o2_flux
   use cable_c13o2,         only: c13o2_save_casapool, c13o2_update_pools, &
        c13o2_create_output, c13o2_write_output, c13o2_close_output, &
-       c13o2_print_delta_pools, c13o2_nvars_output
+       c13o2_nvars_output
   use mo_isotope,          only: isoratio
 
   implicit none

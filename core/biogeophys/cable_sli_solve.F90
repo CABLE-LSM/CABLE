@@ -67,23 +67,23 @@ MODULE sli_solve
   USE cable_def_types_mod, ONLY: r_2, i_d
   USE sli_numbers,         ONLY: &
        experiment, &
-       zero, one, two, half, thousand, e3, e5, &  ! numbers
+       zero, one, two, half, thousand, e5, &  ! numbers
        Tzero, rlambda, lambdaf, lambdas, Dva, rhocp, rhow, gf, hmin, & ! parameters
        csice , cswat, &
-       snmin, nsnow_max, fsnowliq_max, &
-       params, vars_aquifer, vars_met, vars, vars_snow, solve_type, & ! types
+       snmin, nsnow_max, &
+       params, vars_aquifer, vars_met, vars, vars_snow, & ! types
        dSfac, h0min, Smax, h0max, dSmax, dSmaxr, dtmax, dSmax, dSmaxr, & ! numerical limits
        dtmax, dtmin, dTsoilmax, dTLmax, nsteps_ice_max, nsteps_max,tol_dthetaldT, &
        hbot, botbc, &
        Mw, Rgas, & ! boundary condition
        freezefac
   USE sli_utils,           ONLY: &
-       x, Sofh, hyofh, hyofS, litter_props, massman_sparse, tri, &
-       aquifer_props, Tfrz, thetalmax, Tthetalmax, dthetalmaxdTh, &
+       Sofh, hyofh, hyofS, litter_props, massman_sparse, tri, &
+       Tfrz, thetalmax, dthetalmaxdTh, &
        getfluxes_vp, getheatfluxes, flux, sol, &
-       csat, slope_csat, potential_evap, tri, setsol, zerovars, &
-       esat_ice, slope_esat_ice, Tfrozen, rtbis_Tfrozen, GTFrozen, &
-       JSoilLayer, esat, forcerestore, SEB
+       tri, setsol, zerovars, &
+       esat_ice, slope_esat_ice, rtbis_Tfrozen, GTFrozen, &
+       JSoilLayer, SEB
   USE cable_IO_vars_module, ONLY: wlogn
   
   IMPLICIT NONE

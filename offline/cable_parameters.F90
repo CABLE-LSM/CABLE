@@ -59,8 +59,8 @@ MODULE cable_param_module
   USE phenvariable
   USE cable_abort_module
   USE cable_IO_vars_module
-  USE cable_common_module, ONLY: cable_user, hide
-  USE CABLE_LUC_EXPT, ONLY: LUC_EXPT, LUC_EXPT_TYPE, LUC_EXPT_SET_TILES, LUC_EXPT_SET_TILES_BIOS
+  USE cable_common_module, ONLY: cable_user
+  USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE, LUC_EXPT_SET_TILES, LUC_EXPT_SET_TILES_BIOS
 
   IMPLICIT NONE
 

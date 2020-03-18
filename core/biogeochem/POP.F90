@@ -131,15 +131,9 @@ MODULE POP_Constants
   INTEGER(i4b), PARAMETER :: RECRUIT_SWITCH = 1 ! 0 = default, 1 = Pgap-dependence
   INTEGER(i4b), PARAMETER :: INTERP_SWITCH = 1 ! 0 = sum over weighted patches, 1 = sum over interpolated patches
   INTEGER(i4b), PARAMETER :: SMOOTH_SWITCH = 0 ! smooth disturbance flux
-  !MC - Vanessa, do you 5 or 6 as result?
-  !     gfortran produces 5 for NYEAR_SMOOTH-NYEAR_SMOOTH/2, which is probably not what you want.
-  !     I would rather use
-  !        nyear_window  = 5
-  !        nyear_smooth  = 2*nyear_window+1
-  !        nyear_history = nyear_smooth-nyear_window
-  !     and then replace all nyear_smooth/2 by nyear_window.
-  INTEGER(i4b), PARAMETER :: NYEAR_SMOOTH = 11 ! smoothing window (y)
-  INTEGER(i4b), PARAMETER :: NYEAR_HISTORY = NYEAR_SMOOTH-NYEAR_SMOOTH/2
+  INTEGER(i4b), PARAMETER :: NYEAR_WINDOW  = 5                  ! one-side of smoothing window (y)
+  INTEGER(i4b), PARAMETER :: NYEAR_SMOOTH  = 2*NYEAR_WINDOW + 1 ! smoothing window (y)
+  INTEGER(i4b), PARAMETER :: NYEAR_HISTORY = NYEAR_SMOOTH-NYEAR_WINDOW
   INTEGER(i4b), PARAMETER :: AGEMAX = 1000 
 
 END MODULE POP_Constants
@@ -1602,12 +1596,9 @@ CONTAINS
           CALL INTERPOLATE_BIOMASS_1D(pop, disturbance_interval,it(g),g)
        ENDIF
 
-       !MC - Vanessa, do you 5 or 6 as result? gfortran produces 5
-       !              is this the same as NYEAR_HISTORY?
-       arg1 = NYEAR_SMOOTH-(NYEAR_SMOOTH/2)
+       arg1 = NYEAR_HISTORY
        IF (SMOOTH_SWITCH==1) THEN
-          !MC - is this arg1? NYEAR_HISTORY?
-          IF (it(g).LE.NYEAR_SMOOTH-NYEAR_SMOOTH/2) THEN
+          IF (it(g).LE.NYEAR_HISTORY) THEN
              CALL SMOOTH_FLUX(POP,g,it(g))
           ELSE
              CALL SMOOTH_FLUX(POP,g,int(arg1,i4b))
@@ -3407,8 +3398,7 @@ SUBROUTINE SMOOTH_FLUX(POP,g,t)
   TYPE(POP_TYPE), INTENT(INOUT) :: POP
   INTEGER(i4b),   INTENT(IN)    :: g, t
   
-  !MC - Vanessa, do you what that to be 5?
-  INTEGER(i4b), PARAMETER :: SPAN = NYEAR_SMOOTH/2
+  INTEGER(i4b), PARAMETER :: SPAN = NYEAR_WINDOW
   REAL(dp) :: x(SPAN+1), y(SPAN+1), a, b, r
   REAL(dp) :: sumflux, sumsmooth, flux(NYEAR_HISTORY), smoothed_flux
   REAL(dp) :: dbuf
@@ -3444,7 +3434,6 @@ SUBROUTINE SMOOTH_FLUX(POP,g,t)
      ENDIF
   ENDDO
 
-  !MC - Vanessa, here it is 5.5
   dbuf =POP%pop_grid(g)%smoothing_buffer/(real(NYEAR_SMOOTH,dp)/2.0_dp)
   smoothed_flux=max(sumflux/real(n)+dbuf, 0.0_dp)
   POP%pop_grid(g)%smoothing_buffer = POP%pop_grid(g)%smoothing_buffer + flux(t) - smoothed_flux
@@ -3463,8 +3452,7 @@ SUBROUTINE SMOOTH_FLUX_cat(POP,g,t)
 
   TYPE(POP_TYPE), INTENT(INOUT) :: POP
   INTEGER(i4b), INTENT(IN) :: g, t
-  !MC - Vanessa, do you what that to be 5?
-  INTEGER(i4b), PARAMETER :: SPAN = NYEAR_SMOOTH/2
+  INTEGER(i4b), PARAMETER :: SPAN = NYEAR_WINDOW
   REAL(dp) :: x(SPAN+1), y(SPAN+1), a, b, r
   REAL(dp) :: sumflux, sumsmooth, flux(NYEAR_HISTORY), smoothed_flux
   REAL(dp) :: dbuf
@@ -3500,7 +3488,6 @@ SUBROUTINE SMOOTH_FLUX_cat(POP,g,t)
      ENDIF
   ENDDO
 
-  !MC - Vanessa, here it is 5.5
   dbuf = POP%pop_grid(g)%smoothing_buffer_cat/(real(NYEAR_SMOOTH,dp)/2.0_dp)
   smoothed_flux=max(sumflux/real(n)+dbuf, 0.0_dp)
   POP%pop_grid(g)%smoothing_buffer_cat = POP%pop_grid(g)%smoothing_buffer_cat + flux(t) - smoothed_flux

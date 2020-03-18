@@ -1302,7 +1302,6 @@ CONTAINS
     USE cable_common_module,   ONLY: DOYSOD2YMDHMS
     USE cable_weathergenerator,ONLY: WEATHER_GENERATOR_TYPE, WGEN_INIT, &
          WGEN_DAILY_CONSTANTS, WGEN_SUBDIURNAL_MET
-    USE cable_checks_module,   ONLY: rh_sh
 
     IMPLICIT NONE
 

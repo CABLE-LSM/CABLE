@@ -647,7 +647,7 @@ CONTAINS
   SUBROUTINE READ_ClimateFile(LUC_EXPT)
 
     use netcdf, only: nf90_open, nf90_nowrite, nf90_inq_varid, nf90_inq_dimid, &
-         nf90_inquire_dimension, nf90_inq_varid, nf90_get_att, nf90_get_var, nf90_close, nf90_noerr
+         nf90_inquire_dimension, nf90_inq_varid, nf90_get_var, nf90_close, nf90_noerr
 
     IMPLICIT NONE
 

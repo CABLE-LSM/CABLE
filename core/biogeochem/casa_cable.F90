@@ -35,13 +35,11 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    USE phenvariable
    USE cable_common_module,  ONLY: CABLE_USER
    USE TypeDef,              ONLY: dp
-   USE POPMODULE,            ONLY: POPStep
    USE POP_TYPES,            ONLY: POP_TYPE
    USE cable_phenology_module, ONLY: cable_phenology_clim
    ! 13C
    use cable_c13o2_def, only: c13o2_pool, c13o2_flux
-   use cable_c13o2,     only: c13o2_save_casapool, c13o2_update_pools, &
-       c13o2_print_delta_pools
+   use cable_c13o2,     only: c13o2_save_casapool, c13o2_update_pools
 
    IMPLICIT NONE
 
@@ -459,7 +457,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    USE cable_def_types_mod,   ONLY : r_2, ms, mp, climate_type
    USE cable_common_module,   ONLY : cable_user
 #ifndef UM_BUILD
-   USE cable_diag_module,     ONLY : def_dims, def_vars, def_var_atts, &
+   USE cable_diag_module,     ONLY : def_dims, def_vars, &
         put_var_nc, stderr_nc
 #endif
    USE casavariable,          ONLY : CASA_MET, CASA_FLUX
@@ -992,19 +990,19 @@ END SUBROUTINE sumcflux
     ! Ultisol     11      51.5
     ! Vertisol    12      190.6
     data Psorder/61.3_r_2, 103.9_r_2, 92.8_r_2, 136.9_r_2, 98.2_r_2, 107.6_r_2, 84.1_r_2, &
-         110.1_r_2, 35.4_r_2, 41.0_r_2, 51.5_r_2, 190.6/
+         110.1_r_2, 35.4_r_2, 41.0_r_2, 51.5_r_2, 190.6_r_2/
     data Pweasoil/0.05_r_2, 0.04_r_2, 0.03_r_2, 0.02_r_2, 0.01_r_2, 0.009_r_2, 0.008_r_2, &
-         0.007_r_2, 0.006_r_2, 0.005_r_2, 0.004_r_2, 0.003/
+         0.007_r_2, 0.006_r_2, 0.005_r_2, 0.004_r_2, 0.003_r_2/
     data fracPlab/0.08_r_2, 0.08_r_2, 0.10_r_2, 0.02_r_2, 0.08_r_2, 0.08_r_2, 0.08_r_2, &
-         0.06_r_2, 0.02_r_2, 0.05_r_2, 0.09_r_2, 0.05/
+         0.06_r_2, 0.02_r_2, 0.05_r_2, 0.09_r_2, 0.05_r_2/
     data fracPsorb/0.32_r_2, 0.37_r_2, 0.57_r_2, 0.67_r_2, 0.37_r_2, 0.37_r_2, 0.37_r_2, &
-         0.32_r_2, 0.24_r_2, 0.22_r_2, 0.21_r_2, 0.38/
+         0.32_r_2, 0.24_r_2, 0.22_r_2, 0.21_r_2, 0.38_r_2/
     data fracPocc/0.36_r_2, 0.38_r_2, 0.25_r_2, 0.26_r_2, 0.38_r_2, 0.38_r_2, 0.38_r_2, &
-         0.44_r_2, 0.38_r_2, 0.38_r_2, 0.37_r_2, 0.45/
+         0.44_r_2, 0.38_r_2, 0.38_r_2, 0.37_r_2, 0.45_r_2/
     data fracPorg/0.25_r_2, 0.17_r_2, 0.08_r_2, 0.05_r_2, 0.17_r_2, 0.17_r_2, 0.17_r_2, &
-         0.18_r_2, 0.36_r_2, 0.35_r_2, 0.34_r_2, 0.12/
+         0.18_r_2, 0.36_r_2, 0.35_r_2, 0.34_r_2, 0.12_r_2/
     data xPsoil50/7.6_r_2, 4.1_r_2, 4.2_r_2, 3.4_r_2, 4.1_r_2, 4.1_r_2, 4.8_r_2, 4.1_r_2, &
-         6.9_r_2, 6.9_r_2, 6.9_r_2, 1.7/
+         6.9_r_2, 6.9_r_2, 6.9_r_2, 1.7_r_2/
 
     ! compute the mean litter input in g(C, N and P)/day from plant pools
     casaflux%fromLtoS = 0.0_r_2

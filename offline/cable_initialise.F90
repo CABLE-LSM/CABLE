@@ -33,10 +33,8 @@ MODULE cable_init_module
 
    USE cable_abort_module,   ONLY: cable_abort, nc_abort
    USE cable_def_types_mod
-   USE cable_IO_vars_module, ONLY: latitude,longitude, patch, &
-        landpt,smoy,ncid_rin,max_vegpatches, &
-        soilparmnew,ncciy, vegtype_metfile, &
-        soiltype_metfile, metgrid
+   USE cable_IO_vars_module, ONLY: latitude, longitude, &
+        ncid_rin, max_vegpatches, metgrid
    USE cable_read_module
    USE netcdf
    USE cable_common_module, ONLY: filename, cable_user

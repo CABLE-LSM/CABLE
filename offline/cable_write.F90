@@ -46,7 +46,7 @@ MODULE cable_write_module
 
   USE cable_abort_module
   USE cable_def_types_mod
-  USE cable_IO_vars_module, ONLY: landpt, patch, max_vegpatches, parID_type, &
+  USE cable_IO_vars_module, ONLY: landpt, patch, max_vegpatches, &
        metGrid, land_x, land_y, logn, output, &
        xdimsize, ydimsize, check, mask
   USE netcdf

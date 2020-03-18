@@ -90,7 +90,7 @@ PROGRAM cable_offline_driver
   ! modules related to POP
   USE POP_Types,     ONLY: POP_TYPE
   USE POPLUC_Types,  ONLY: POPLUC_Type
-  USE POPLUC_Module, ONLY: WRITE_LUC_OUTPUT_NC, WRITE_LUC_OUTPUT_GRID_NC, &
+  USE POPLUC_Module, ONLY: WRITE_LUC_OUTPUT_NC, &
        POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, POPLUC_set_patchfrac
   USE POP_Constants, ONLY: shootfrac
 
@@ -107,7 +107,6 @@ PROGRAM cable_offline_driver
   use cable_c13o2,             only: c13o2_print_delta_flux, c13o2_print_delta_pools, c13o2_print_delta_luc
   use mo_isotope,              only: isoratio ! vpdbc13
   use mo_c13o2_photosynthesis, only: c13o2_discrimination_simple, c13o2_discrimination
-  use cable_data_module,       only: icanopy_type
 
   ! PLUME-MIP only
   USE CABLE_PLUME_MIP,      ONLY: PLUME_MIP_TYPE, PLUME_MIP_GET_MET,&
@@ -1508,18 +1507,17 @@ SUBROUTINE LUCdriver( casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg,
 
   USE cable_def_types_mod, ONLY: r_2, veg_parameter_type, mland
   USE cable_carbon_module
-  USE cable_common_module, ONLY: CABLE_USER, is_casa_time, CurYear
+  USE cable_common_module, ONLY: CABLE_USER, CurYear
   USE cable_IO_vars_module, ONLY: landpt
   USE casadimension
   USE casaparm
   USE casavariable
   USE POP_Types,  Only: POP_TYPE
-  USE POPMODULE,            ONLY: POPStep, POP_init_single
+  USE POPMODULE,            ONLY: POP_init_single
   USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE, read_LUH2, &
        ptos, ptog, stog, gtos, pharv, smharv, syharv
   USE POPLUC_Types
-  USE POPLUC_Module, ONLY: POPLUCStep, POPLUC_weights_Transfer, WRITE_LUC_OUTPUT_NC, &
-       POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, READ_LUC_RESTART_NC
+  USE POPLUC_Module, ONLY: POPLUCStep, POPLUC_weights_Transfer
   ! 13C
   use cable_c13o2_def, only: c13o2_pool
 

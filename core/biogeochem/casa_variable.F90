@@ -308,8 +308,10 @@ MODULE casavariable
      !CVH diagnostic: CO2 emissions from fire
      REAL(r_2), DIMENSION(:),POINTER      :: fluxCtoCO2_plant_fire => null()
      REAL(r_2), DIMENSION(:),POINTER      :: fluxCtoCO2_litter_fire => null()
-     REAL(r_2), DIMENSION(:,:),POINTER      :: fluxfromPtoCO2_fire => null() ! contribution to fire emissions from individual plant pools
-     REAL(r_2), DIMENSION(:,:),POINTER      :: fluxfromLtoCO2_fire => null() ! contribution to fire emissions from individual litter pools
+     ! contribution to fire emissions from individual plant pools
+     REAL(r_2), DIMENSION(:,:),POINTER      :: fluxfromPtoCO2_fire => null()
+     ! contribution to fire emissions from individual litter pools
+     REAL(r_2), DIMENSION(:,:),POINTER      :: fluxfromLtoCO2_fire => null()
      REAL(r_2), DIMENSION(:),POINTER      :: fluxNtoAtm_fire => null()
      !REAL(r_2), DIMENSION(:,:,:),POINTER  :: fire_mortality_vs_height => null()
 

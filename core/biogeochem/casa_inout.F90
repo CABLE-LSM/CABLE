@@ -1088,19 +1088,19 @@ SUBROUTINE casa_poolout(ktau, veg, soil, casabiome, casapool, casaflux, casamet,
   ! Ultisol     11      51.5
   ! Vertisol    12      190.6
   DATA Psorder/61.3_r_2, 103.9_r_2, 92.8_r_2, 136.9_r_2, 98.2_r_2, 107.6_r_2, 84.1_r_2, &
-       110.1_r_2, 35.4_r_2, 41.0_r_2, 51.5_r_2, 190.6/
+       110.1_r_2, 35.4_r_2, 41.0_r_2, 51.5_r_2, 190.6_r_2/
   DATA Pweasoil/0.05_r_2, 0.04_r_2, 0.03_r_2, 0.02_r_2, 0.01_r_2, 0.009_r_2, 0.008_r_2, &
-       0.007_r_2, 0.006_r_2, 0.005_r_2, 0.004_r_2, 0.003/
+       0.007_r_2, 0.006_r_2, 0.005_r_2, 0.004_r_2, 0.003_r_2/
   DATA fracPlab/0.08_r_2, 0.08_r_2, 0.10_r_2, 0.02_r_2, 0.08_r_2, 0.08_r_2, 0.08_r_2, &
-       0.06_r_2, 0.02_r_2, 0.05_r_2, 0.09_r_2, 0.05/
+       0.06_r_2, 0.02_r_2, 0.05_r_2, 0.09_r_2, 0.05_r_2/
   DATA fracPsorb/0.32_r_2, 0.37_r_2, 0.57_r_2, 0.67_r_2, 0.37_r_2, 0.37_r_2, 0.37_r_2, &
-       0.32_r_2, 0.24_r_2, 0.22_r_2, 0.21_r_2, 0.38/
+       0.32_r_2, 0.24_r_2, 0.22_r_2, 0.21_r_2, 0.38_r_2/
   DATA fracPocc/0.36_r_2, 0.38_r_2, 0.25_r_2, 0.26_r_2, 0.38_r_2, 0.38_r_2, 0.38_r_2, &
-       0.44_r_2, 0.38_r_2, 0.38_r_2, 0.37_r_2, 0.45/
+       0.44_r_2, 0.38_r_2, 0.38_r_2, 0.37_r_2, 0.45_r_2/
   DATA fracPorg/0.25_r_2, 0.17_r_2, 0.08_r_2, 0.05_r_2, 0.17_r_2, 0.17_r_2, 0.17_r_2, &
-       0.18_r_2, 0.36_r_2, 0.35_r_2, 0.34_r_2, 0.12/
+       0.18_r_2, 0.36_r_2, 0.35_r_2, 0.34_r_2, 0.12_r_2/
   DATA xPsoil50/7.6_r_2, 4.1_r_2, 4.2_r_2, 3.4_r_2, 4.1_r_2, 4.1_r_2, 4.8_r_2, 4.1_r_2, &
-       6.9_r_2, 6.9_r_2, 6.9_r_2, 1.7/
+       6.9_r_2, 6.9_r_2, 6.9_r_2, 1.7_r_2/
   !
   ! estimated based on Yang, Post and Jain (2013)
   !   Soiltype     soilnumber soil P(g P/m2  top 50 cm)
@@ -1437,7 +1437,6 @@ SUBROUTINE biogeochem(ktau,dels,idoY,LALLOC,veg,soil,casabiome,casapool,casaflux
   USE casadimension
   USE casa_cnp_module
   USE POP_TYPES,            ONLY: POP_TYPE
-  USE cable_IO_vars_module, ONLY: wlogn
 
   IMPLICIT NONE
 
@@ -1601,7 +1600,7 @@ END SUBROUTINE biogeochem
 SUBROUTINE WRITE_CASA_RESTART_NC( casamet, casapool, casaflux, phen, CASAONLY )
 
   USE CABLE_COMMON_MODULE
-  USE CABLE_DEF_TYPES_MOD, ONLY: MET_TYPE, mp
+  USE CABLE_DEF_TYPES_MOD, ONLY: mp
   USE CASAVARIABLE,        ONLY: casa_met, casa_pool, casa_flux, icycle, mplant, mlitter, msoil, casafile
   USE phenvariable
   USE netcdf
@@ -1834,7 +1833,7 @@ SUBROUTINE READ_CASA_RESTART_NC(casamet, casapool, casaflux, phen)
   USE CASAVARIABLE
   USE phenvariable
   USE CABLE_COMMON_MODULE
-  USE CABLE_DEF_TYPES_MOD, ONLY: MET_TYPE, r_2, mp
+  USE CABLE_DEF_TYPES_MOD, ONLY: r_2, mp
   USE netcdf
 
   IMPLICIT NONE
@@ -2150,13 +2149,13 @@ END SUBROUTINE READ_CASA_RESTART_NC
 #ifndef UM_BUILD
 subroutine write_casa_output_nc(veg, casamet, casapool, casabal, casaflux, casaonly, ctime, lfinal)
 
-  use casavariable,        only: casa_met, casa_pool, casa_balance, casa_flux, &
+  use casavariable,         only: casa_met, casa_pool, casa_balance, casa_flux, &
        mplant, mlitter, msoil, icycle, casafile
-  use cable_common_module, only: cable_user, filename, handle_err
-  use cable_def_types_mod, only: veg_parameter_type, mp
-  USE cable_IO_vars_module, ONLY: timeunits, calendar
-  use netcdf,              only: nf90_open, nf90_noerr, nf90_inq_dimid, nf90_inq_varid, &
-       nf90_put_var, nf90_clobber, nf90_64bit_offset, nf90_create, nf90_global, nf90_put_att, & ! , nf90_redef
+  use cable_common_module,  only: cable_user, filename, handle_err
+  use cable_def_types_mod,  only: veg_parameter_type, mp
+  use cable_io_vars_module, only: timeunits, calendar
+  use netcdf,               only: nf90_noerr, &
+       nf90_put_var, nf90_clobber, nf90_64bit_offset, nf90_create, nf90_global, nf90_put_att, &
        nf90_def_dim, nf90_unlimited, nf90_int, nf90_def_var, nf90_float, nf90_enddef, nf90_put_var, nf90_close
 
   implicit none

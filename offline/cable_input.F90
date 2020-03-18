@@ -54,8 +54,6 @@ MODULE cable_input_module
    USE cable_init_module
    USE netcdf                   ! link must be made in cd to netcdf-x.x.x/src/f90/netcdf.mod
    USE cable_common_module,     ONLY: filename, cable_user, CurYear, HANDLE_ERR, is_leapyear
-   USE BLAZE_MOD,               ONLY: TYPE_BLAZE
-   USE SIMFIRE_MOD,             ONLY: TYPE_SIMFIRE
    
    IMPLICIT NONE
 
@@ -2395,8 +2393,8 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
    USE POPLUC_module,   ONLY: POPLUC_INIT 
    USE CABLE_LUC_EXPT,  ONLY: LUC_EXPT_TYPE
 
-   USE BLAZE_MOD,       ONLY: TYPE_BLAZE, INI_BLAZE
-   USE SIMFIRE_MOD,     ONLY: TYPE_SIMFIRE, INI_SIMFIRE
+   USE BLAZE_MOD,       ONLY: TYPE_BLAZE
+   USE SIMFIRE_MOD,     ONLY: TYPE_SIMFIRE
    use casaparm,        only: initcasa
    ! 13C
    use cable_c13o2_def, only: c13o2_flux, c13o2_pool, c13o2_luc, c13o2_alloc_flux, c13o2_alloc_pools, c13o2_zero_flux

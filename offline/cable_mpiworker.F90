@@ -131,13 +131,9 @@ CONTAINS
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user, &
          cable_runtime, filename, &
          redistrb, wiltParam, satuParam, CurYear, &
-         IS_LEAPYEAR, IS_CASA_TIME, calcsoilalbedo, get_unit, &
-         report_version_no, kwidth_gl
-    USE cable_data_module,    ONLY: driver_type, icanopy_type, point2constants
-    USE cable_input_module,   ONLY: open_met_file,load_parameters,              &
-         get_met_data,close_met_file
-    USE cable_output_module,  ONLY: create_restart,open_output_file,            &
-         write_output,close_output_file
+         IS_LEAPYEAR, IS_CASA_TIME, calcsoilalbedo, &
+         kwidth_gl
+    USE cable_data_module,    ONLY: driver_type, point2constants
     USE cable_cbm_module
     USE cable_climate_mod
 
@@ -149,25 +145,19 @@ CONTAINS
 
     !CLN added
     ! modules related to POP
-    USE POPmodule,            ONLY: POP_INIT
     USE POP_Types,            ONLY: POP_TYPE
     USE POP_Constants,        ONLY: shootfrac
 
     ! modules related to fire
     USE BLAZE_MOD,            ONLY: TYPE_BLAZE, BLAZE_ACCOUNTING, INI_BLAZE
-    USE BLAZE_MPI,            ONLY: WORKER_BLAZE_TYPES, WORKER_SIMFIRE_TYPES
+    USE BLAZE_MPI,            ONLY: WORKER_BLAZE_TYPES ! , WORKER_SIMFIRE_TYPES
     USE SIMFIRE_MOD,          ONLY: TYPE_SIMFIRE, INI_SIMFIRE
 
     ! 13C
-    use cable_c13o2_def,         only: c13o2_flux, c13o2_pool, c13o2_luc, &
-         c13o2_update_sum_pools, c13o2_zero_sum_pools
-    use cable_c13o2,             only: c13o2_save_luc, c13o2_update_luc
+    use cable_c13o2_def,         only: c13o2_flux, c13o2_pool, c13o2_luc ! , &
+         ! c13o2_update_sum_pools, c13o2_zero_sum_pools
     use mo_isotope,              only: isoratio ! vpdbc13
     use mo_c13o2_photosynthesis, only: c13o2_discrimination_simple, c13o2_discrimination
-    use cable_data_module,       only: icanopy_type
-
-    ! PLUME-MIP only
-    USE CABLE_PLUME_MIP,      ONLY: PLUME_MIP_TYPE
 
     IMPLICIT NONE
 
@@ -230,7 +220,7 @@ CONTAINS
 
     ! 13C
     type(c13o2_flux) :: c13o2flux
-    type(c13o2_pool) :: c13o2pools, sum_c13o2pools
+    type(c13o2_pool) :: c13o2pools ! , sum_c13o2pools
     type(c13o2_luc)  :: c13o2luc
     ! I/O
     ! discrimination
@@ -6010,199 +6000,200 @@ CONTAINS
 
   END SUBROUTINE worker_outtype
 
-  SUBROUTINE worker_time_update (met, kend, dels)
+  ! not used
+  ! SUBROUTINE worker_time_update (met, kend, dels)
 
-    USE cable_common_module, ONLY: ktau_gl
-    USE cable_def_types_mod
-    USE cable_IO_vars_module
+  !   USE cable_common_module, ONLY: ktau_gl
+  !   USE cable_def_types_mod
+  !   USE cable_IO_vars_module
 
-    IMPLICIT NONE
+  !   IMPLICIT NONE
 
-    TYPE(met_type), INTENT(INOUT) :: met
-    INTEGER, INTENT(IN) :: kend ! number of time steps in simulation
-    REAL, INTENT(IN) :: dels ! time step size
+  !   TYPE(met_type), INTENT(INOUT) :: met
+  !   INTEGER, INTENT(IN) :: kend ! number of time steps in simulation
+  !   REAL, INTENT(IN) :: dels ! time step size
 
-    INTEGER :: i
+  !   INTEGER :: i
 
-    DO i=1,mland ! over all land points/grid cells
-       ! First set timing variables:
-       ! All timing details below are initially written to the first patch
-       ! of each gridcell, then dumped to all patches for the gridcell.
-       IF(ktau_gl==1) THEN ! initialise...
-          SELECT CASE(time_coord)
-          CASE('LOC')! i.e. use local time by default
-             ! hour-of-day = starting hod
-             met%hod(landpt(i)%cstart) = shod
-             met%doy(landpt(i)%cstart) = sdoy
-             met%moy(landpt(i)%cstart) = smoy
-             met%year(landpt(i)%cstart) = syear
-          CASE('GMT')! use GMT
-             ! hour-of-day = starting hod + offset from GMT time:
-             met%hod(landpt(i)%cstart) = shod + (longitude(i)/180.0)*12.0
-             ! Note above that all met%* vars have dim mp,
-             ! while longitude and latitude have dimension mland.
-             met%doy(landpt(i)%cstart) = sdoy
-             met%moy(landpt(i)%cstart) = smoy
-             met%year(landpt(i)%cstart) = syear
-          CASE DEFAULT
-             write(*,*) 'Unknown time coordinate! (SUBROUTINE get_met_data)'
-             stop 9
-          END SELECT
-       ELSE
-          ! increment hour-of-day by time step size:
-          met%hod(landpt(i)%cstart) = met%hod(landpt(i)%cstart) + dels/3600.0
-       END IF
-       !
-       IF(met%hod(landpt(i)%cstart)<0.0) THEN ! may be -ve since longitude
-          ! has range [-180,180]
-          ! Reduce day-of-year by one and ammend hour-of-day:
-          met%doy(landpt(i)%cstart) = met%doy(landpt(i)%cstart) - 1
-          met%hod(landpt(i)%cstart) = met%hod(landpt(i)%cstart) + 24.0
-          ! If a leap year AND we're using leap year timing:
-          IF(((MOD(syear,4)==0.AND.MOD(syear,100)/=0).OR. &
-               (MOD(syear,4)==0.AND.MOD(syear,400)==0)).AND.leaps) THEN
-             SELECT CASE(INT(met%doy(landpt(i)%cstart)))
-             CASE(0) ! ie Dec previous year
-                met%moy(landpt(i)%cstart) = 12
-                met%year(landpt(i)%cstart) = met%year(landpt(i)%cstart) - 1
-                met%doy(landpt(i)%cstart) = 365 ! prev year not leap year as this is
-             CASE(31) ! Jan
-                met%moy(landpt(i)%cstart) = 1
-             CASE(60) ! Feb
-                met%moy(landpt(i)%cstart) = 2
-             CASE(91) ! Mar
-                met%moy(landpt(i)%cstart) = 3
-             CASE(121)
-                met%moy(landpt(i)%cstart) = 4
-             CASE(152)
-                met%moy(landpt(i)%cstart) = 5
-             CASE(182)
-                met%moy(landpt(i)%cstart) = 6
-             CASE(213)
-                met%moy(landpt(i)%cstart) = 7
-             CASE(244)
-                met%moy(landpt(i)%cstart) = 8
-             CASE(274)
-                met%moy(landpt(i)%cstart) = 9
-             CASE(305)
-                met%moy(landpt(i)%cstart) = 10
-             CASE(335)
-                met%moy(landpt(i)%cstart) = 11
-             END SELECT
-          ELSE ! not a leap year or not using leap year timing
-             SELECT CASE(INT(met%doy(landpt(i)%cstart)))
-             CASE(0) ! ie Dec previous year
-                met%moy(landpt(i)%cstart) = 12
-                met%year(landpt(i)%cstart) = met%year(landpt(i)%cstart) - 1
-                ! If previous year is a leap year
-                IF((MOD(syear,4)==0.AND.MOD(syear,100)/=0).OR. &
-                     (MOD(syear,4)==0.AND.MOD(syear,400)==0)) THEN
-                   met%doy(landpt(i)%cstart) = 366
-                ELSE
-                   met%doy(landpt(i)%cstart) = 365
-                END IF
-             CASE(31) ! Jan
-                met%moy(landpt(i)%cstart) = 1
-             CASE(59) ! Feb
-                met%moy(landpt(i)%cstart) = 2
-             CASE(90)
-                met%moy(landpt(i)%cstart) = 3
-             CASE(120)
-                met%moy(landpt(i)%cstart) = 4
-             CASE(151)
-                met%moy(landpt(i)%cstart) = 5
-             CASE(181)
-                met%moy(landpt(i)%cstart) = 6
-             CASE(212)
-                met%moy(landpt(i)%cstart) = 7
-             CASE(243)
-                met%moy(landpt(i)%cstart) = 8
-             CASE(273)
-                met%moy(landpt(i)%cstart) = 9
-             CASE(304)
-                met%moy(landpt(i)%cstart) = 10
-             CASE(334)
-                met%moy(landpt(i)%cstart) = 11
-             END SELECT
-          END IF ! if leap year or not
-       ELSE IF(met%hod(landpt(i)%cstart)>=24.0) THEN
-          ! increment or GMT adj has shifted day
-          ! Adjust day-of-year and hour-of-day:
-          met%doy(landpt(i)%cstart) = met%doy(landpt(i)%cstart) + 1
-          met%hod(landpt(i)%cstart) = met%hod(landpt(i)%cstart) - 24.0
-          ! If a leap year AND we're using leap year timing:
-          IF(((MOD(syear,4)==0.AND.MOD(syear,100)/=0).OR. &
-               (MOD(syear,4)==0.AND.MOD(syear,400)==0)).AND.leaps) THEN
-             SELECT CASE(INT(met%doy(landpt(i)%cstart)))
-             CASE(32) ! Feb
-                met%moy(landpt(i)%cstart) = 2
-             CASE(61) ! Mar
-                met%moy(landpt(i)%cstart) = 3
-             CASE(92)
-                met%moy(landpt(i)%cstart) = 4
-             CASE(122)
-                met%moy(landpt(i)%cstart) = 5
-             CASE(153)
-                met%moy(landpt(i)%cstart) = 6
-             CASE(183)
-                met%moy(landpt(i)%cstart) = 7
-             CASE(214)
-                met%moy(landpt(i)%cstart) = 8
-             CASE(245)
-                met%moy(landpt(i)%cstart) = 9
-             CASE(275)
-                met%moy(landpt(i)%cstart) = 10
-             CASE(306)
-                met%moy(landpt(i)%cstart) = 11
-             CASE(336)
-                met%moy(landpt(i)%cstart) = 12
-             CASE(367)! end of year; increment
-                met%year(landpt(i)%cstart) = met%year(landpt(i)%cstart) + 1
-                met%moy(landpt(i)%cstart) = 1
-                met%doy(landpt(i)%cstart) = 1
-             END SELECT
-             ! ELSE IF not leap year and Dec 31st, increment year
-          ELSE
-             SELECT CASE(INT(met%doy(landpt(i)%cstart)))
-             CASE(32) ! Feb
-                met%moy(landpt(i)%cstart) = 2
-             CASE(60) ! Mar
-                met%moy(landpt(i)%cstart) = 3
-             CASE(91)
-                met%moy(landpt(i)%cstart) = 4
-             CASE(121)
-                met%moy(landpt(i)%cstart) = 5
-             CASE(152)
-                met%moy(landpt(i)%cstart) = 6
-             CASE(182)
-                met%moy(landpt(i)%cstart) = 7
-             CASE(213)
-                met%moy(landpt(i)%cstart) = 8
-             CASE(244)
-                met%moy(landpt(i)%cstart) = 9
-             CASE(274)
-                met%moy(landpt(i)%cstart) = 10
-             CASE(305)
-                met%moy(landpt(i)%cstart) = 11
-             CASE(335)
-                met%moy(landpt(i)%cstart) = 12
-             CASE(366)! end of year; increment
-                met%year(landpt(i)%cstart) = met%year(landpt(i)%cstart) + 1
-                met%moy(landpt(i)%cstart) = 1
-                met%doy(landpt(i)%cstart) = 1
-             END SELECT
-          END IF ! if leap year or not
-       END IF ! if increment has pushed hod to a different day
-       ! Now copy these values to all veg/soil patches in the current grid cell:
-       met%hod(landpt(i)%cstart:landpt(i)%cend) = met%hod(landpt(i)%cstart)
-       met%doy(landpt(i)%cstart:landpt(i)%cend) = met%doy(landpt(i)%cstart)
-       met%moy(landpt(i)%cstart:landpt(i)%cend) = met%moy(landpt(i)%cstart)
-       met%year(landpt(i)%cstart:landpt(i)%cend) = met%year(landpt(i)%cstart)
-    ENDDO
+  !   DO i=1,mland ! over all land points/grid cells
+  !      ! First set timing variables:
+  !      ! All timing details below are initially written to the first patch
+  !      ! of each gridcell, then dumped to all patches for the gridcell.
+  !      IF(ktau_gl==1) THEN ! initialise...
+  !         SELECT CASE(time_coord)
+  !         CASE('LOC')! i.e. use local time by default
+  !            ! hour-of-day = starting hod
+  !            met%hod(landpt(i)%cstart) = shod
+  !            met%doy(landpt(i)%cstart) = sdoy
+  !            met%moy(landpt(i)%cstart) = smoy
+  !            met%year(landpt(i)%cstart) = syear
+  !         CASE('GMT')! use GMT
+  !            ! hour-of-day = starting hod + offset from GMT time:
+  !            met%hod(landpt(i)%cstart) = shod + (longitude(i)/180.0)*12.0
+  !            ! Note above that all met%* vars have dim mp,
+  !            ! while longitude and latitude have dimension mland.
+  !            met%doy(landpt(i)%cstart) = sdoy
+  !            met%moy(landpt(i)%cstart) = smoy
+  !            met%year(landpt(i)%cstart) = syear
+  !         CASE DEFAULT
+  !            write(*,*) 'Unknown time coordinate! (SUBROUTINE get_met_data)'
+  !            stop 9
+  !         END SELECT
+  !      ELSE
+  !         ! increment hour-of-day by time step size:
+  !         met%hod(landpt(i)%cstart) = met%hod(landpt(i)%cstart) + dels/3600.0
+  !      END IF
+  !      !
+  !      IF(met%hod(landpt(i)%cstart)<0.0) THEN ! may be -ve since longitude
+  !         ! has range [-180,180]
+  !         ! Reduce day-of-year by one and ammend hour-of-day:
+  !         met%doy(landpt(i)%cstart) = met%doy(landpt(i)%cstart) - 1
+  !         met%hod(landpt(i)%cstart) = met%hod(landpt(i)%cstart) + 24.0
+  !         ! If a leap year AND we're using leap year timing:
+  !         IF(((MOD(syear,4)==0.AND.MOD(syear,100)/=0).OR. &
+  !              (MOD(syear,4)==0.AND.MOD(syear,400)==0)).AND.leaps) THEN
+  !            SELECT CASE(INT(met%doy(landpt(i)%cstart)))
+  !            CASE(0) ! ie Dec previous year
+  !               met%moy(landpt(i)%cstart) = 12
+  !               met%year(landpt(i)%cstart) = met%year(landpt(i)%cstart) - 1
+  !               met%doy(landpt(i)%cstart) = 365 ! prev year not leap year as this is
+  !            CASE(31) ! Jan
+  !               met%moy(landpt(i)%cstart) = 1
+  !            CASE(60) ! Feb
+  !               met%moy(landpt(i)%cstart) = 2
+  !            CASE(91) ! Mar
+  !               met%moy(landpt(i)%cstart) = 3
+  !            CASE(121)
+  !               met%moy(landpt(i)%cstart) = 4
+  !            CASE(152)
+  !               met%moy(landpt(i)%cstart) = 5
+  !            CASE(182)
+  !               met%moy(landpt(i)%cstart) = 6
+  !            CASE(213)
+  !               met%moy(landpt(i)%cstart) = 7
+  !            CASE(244)
+  !               met%moy(landpt(i)%cstart) = 8
+  !            CASE(274)
+  !               met%moy(landpt(i)%cstart) = 9
+  !            CASE(305)
+  !               met%moy(landpt(i)%cstart) = 10
+  !            CASE(335)
+  !               met%moy(landpt(i)%cstart) = 11
+  !            END SELECT
+  !         ELSE ! not a leap year or not using leap year timing
+  !            SELECT CASE(INT(met%doy(landpt(i)%cstart)))
+  !            CASE(0) ! ie Dec previous year
+  !               met%moy(landpt(i)%cstart) = 12
+  !               met%year(landpt(i)%cstart) = met%year(landpt(i)%cstart) - 1
+  !               ! If previous year is a leap year
+  !               IF((MOD(syear,4)==0.AND.MOD(syear,100)/=0).OR. &
+  !                    (MOD(syear,4)==0.AND.MOD(syear,400)==0)) THEN
+  !                  met%doy(landpt(i)%cstart) = 366
+  !               ELSE
+  !                  met%doy(landpt(i)%cstart) = 365
+  !               END IF
+  !            CASE(31) ! Jan
+  !               met%moy(landpt(i)%cstart) = 1
+  !            CASE(59) ! Feb
+  !               met%moy(landpt(i)%cstart) = 2
+  !            CASE(90)
+  !               met%moy(landpt(i)%cstart) = 3
+  !            CASE(120)
+  !               met%moy(landpt(i)%cstart) = 4
+  !            CASE(151)
+  !               met%moy(landpt(i)%cstart) = 5
+  !            CASE(181)
+  !               met%moy(landpt(i)%cstart) = 6
+  !            CASE(212)
+  !               met%moy(landpt(i)%cstart) = 7
+  !            CASE(243)
+  !               met%moy(landpt(i)%cstart) = 8
+  !            CASE(273)
+  !               met%moy(landpt(i)%cstart) = 9
+  !            CASE(304)
+  !               met%moy(landpt(i)%cstart) = 10
+  !            CASE(334)
+  !               met%moy(landpt(i)%cstart) = 11
+  !            END SELECT
+  !         END IF ! if leap year or not
+  !      ELSE IF(met%hod(landpt(i)%cstart)>=24.0) THEN
+  !         ! increment or GMT adj has shifted day
+  !         ! Adjust day-of-year and hour-of-day:
+  !         met%doy(landpt(i)%cstart) = met%doy(landpt(i)%cstart) + 1
+  !         met%hod(landpt(i)%cstart) = met%hod(landpt(i)%cstart) - 24.0
+  !         ! If a leap year AND we're using leap year timing:
+  !         IF(((MOD(syear,4)==0.AND.MOD(syear,100)/=0).OR. &
+  !              (MOD(syear,4)==0.AND.MOD(syear,400)==0)).AND.leaps) THEN
+  !            SELECT CASE(INT(met%doy(landpt(i)%cstart)))
+  !            CASE(32) ! Feb
+  !               met%moy(landpt(i)%cstart) = 2
+  !            CASE(61) ! Mar
+  !               met%moy(landpt(i)%cstart) = 3
+  !            CASE(92)
+  !               met%moy(landpt(i)%cstart) = 4
+  !            CASE(122)
+  !               met%moy(landpt(i)%cstart) = 5
+  !            CASE(153)
+  !               met%moy(landpt(i)%cstart) = 6
+  !            CASE(183)
+  !               met%moy(landpt(i)%cstart) = 7
+  !            CASE(214)
+  !               met%moy(landpt(i)%cstart) = 8
+  !            CASE(245)
+  !               met%moy(landpt(i)%cstart) = 9
+  !            CASE(275)
+  !               met%moy(landpt(i)%cstart) = 10
+  !            CASE(306)
+  !               met%moy(landpt(i)%cstart) = 11
+  !            CASE(336)
+  !               met%moy(landpt(i)%cstart) = 12
+  !            CASE(367)! end of year; increment
+  !               met%year(landpt(i)%cstart) = met%year(landpt(i)%cstart) + 1
+  !               met%moy(landpt(i)%cstart) = 1
+  !               met%doy(landpt(i)%cstart) = 1
+  !            END SELECT
+  !            ! ELSE IF not leap year and Dec 31st, increment year
+  !         ELSE
+  !            SELECT CASE(INT(met%doy(landpt(i)%cstart)))
+  !            CASE(32) ! Feb
+  !               met%moy(landpt(i)%cstart) = 2
+  !            CASE(60) ! Mar
+  !               met%moy(landpt(i)%cstart) = 3
+  !            CASE(91)
+  !               met%moy(landpt(i)%cstart) = 4
+  !            CASE(121)
+  !               met%moy(landpt(i)%cstart) = 5
+  !            CASE(152)
+  !               met%moy(landpt(i)%cstart) = 6
+  !            CASE(182)
+  !               met%moy(landpt(i)%cstart) = 7
+  !            CASE(213)
+  !               met%moy(landpt(i)%cstart) = 8
+  !            CASE(244)
+  !               met%moy(landpt(i)%cstart) = 9
+  !            CASE(274)
+  !               met%moy(landpt(i)%cstart) = 10
+  !            CASE(305)
+  !               met%moy(landpt(i)%cstart) = 11
+  !            CASE(335)
+  !               met%moy(landpt(i)%cstart) = 12
+  !            CASE(366)! end of year; increment
+  !               met%year(landpt(i)%cstart) = met%year(landpt(i)%cstart) + 1
+  !               met%moy(landpt(i)%cstart) = 1
+  !               met%doy(landpt(i)%cstart) = 1
+  !            END SELECT
+  !         END IF ! if leap year or not
+  !      END IF ! if increment has pushed hod to a different day
+  !      ! Now copy these values to all veg/soil patches in the current grid cell:
+  !      met%hod(landpt(i)%cstart:landpt(i)%cend) = met%hod(landpt(i)%cstart)
+  !      met%doy(landpt(i)%cstart:landpt(i)%cend) = met%doy(landpt(i)%cstart)
+  !      met%moy(landpt(i)%cstart:landpt(i)%cend) = met%moy(landpt(i)%cstart)
+  !      met%year(landpt(i)%cstart:landpt(i)%cend) = met%year(landpt(i)%cstart)
+  !   ENDDO
 
-    RETURN
+  !   RETURN
 
-  END SUBROUTINE worker_time_update
+  ! END SUBROUTINE worker_time_update
 
   ! creates MPI types for sending casa results back to the master at
   ! the end of the simulation
@@ -6806,7 +6797,7 @@ CONTAINS
     use mpi
 
     USE cable_def_types_mod, ONLY: climate_type, alloc_cbm_var, mp
-    USE cable_climate_mod, ONLY: climate_init
+    ! USE cable_climate_mod, ONLY: climate_init
 
     IMPLICIT NONE
 
@@ -7743,7 +7734,7 @@ CONTAINS
 
     use mpi
     USE POP_mpi
-    USE POPmodule,          ONLY: ALLOC_POP,POP_INIT
+    USE POPmodule,          ONLY: POP_INIT
     USE POP_types,          ONLY: pop_type
     USE casavariable,       ONLY: casa_met
     USE cable_def_types_mod,ONLY: veg_parameter_type
@@ -8650,7 +8641,6 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
   use casavariable
   use phenvariable
   use POP_types,            only: POP_type
-  use POPmodule,            only: POPstep
   use TypeDef,              only: dp
   ! 13C
   use cable_c13o2_def,      only: c13o2_pool, c13o2_flux
@@ -8659,7 +8649,7 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
 
   use mpi
   ! modules related to fire
-  use blaze_mod,            only: type_blaze, blaze_accounting
+  use blaze_mod,            only: type_blaze
   use simfire_mod,          only: type_simfire
   use POP_constants,        only: shootfrac
 
@@ -9036,7 +9026,6 @@ SUBROUTINE worker_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
   USE casavariable
   USE phenvariable
   USE POP_Types,           only: POP_TYPE
-  USE POPMODULE,           ONLY: POPStep
   USE TypeDef,             ONLY: dp
   use mpi
   ! 13C
@@ -9111,7 +9100,8 @@ SUBROUTINE worker_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
 
         ! accumulate annual variables for use in POP
         IF (idoy==1) THEN
-           casaflux%stemnpp  =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp ! (assumes 70% of wood NPP is allocated above ground)
+           ! (assumes 70% of wood NPP is allocated above ground)
+           casaflux%stemnpp  =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp
            casabal%LAImax    = casamet%glai
            casabal%Cleafmean = casapool%cplant(:,1) / real(mdyear,dp) / 1000.0_dp
            casabal%Crootmean = casapool%cplant(:,3) / real(mdyear,dp) / 1000.0_dp

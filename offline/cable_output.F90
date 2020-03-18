@@ -42,7 +42,7 @@ MODULE cable_output_module
   USE cable_checks_module, ONLY: mass_balance, energy_balance, ranges
   USE cable_write_module
   USE netcdf
-  USE cable_common_module, ONLY: filename, calcsoilalbedo, CurYear,IS_LEAPYEAR, cable_user
+  USE cable_common_module, ONLY: filename, CurYear,IS_LEAPYEAR, cable_user ! , calcsoilalbedo
   ! 13C
   USE cable_c13o2_def,     only: c13o2_pool,  c13o2_flux
 

@@ -870,8 +870,9 @@ SUBROUTINE casa_xratesoil(xklitter,xksoil,veg,soil,casamet,casabiome)
         ! Use original function, ELSE Ticket #42
        xksoil(npt)   = casabiome%xkoptsoil(veg%iveg(npt))   * xktemp(npt) * xkwater(npt)
     ELSE
-    ! Custom soil respiration - see Ticket #42
-    ! Implementing alternative parameterizations
+      ! Custom soil respiration - see Ticket #42
+      ! Implementing alternative parameterizations
+      !MC - wlt used but never set before in cable_user%SMRF_NAME=='SOILN' and 'TRIFFID'
       IF(trim(cable_user%SMRF_NAME)=='CASA-CNP') THEN
          smrf(npt)=xkwater(npt)
       ELSE IF (trim(cable_user%SMRF_NAME)=='SOILN') then
