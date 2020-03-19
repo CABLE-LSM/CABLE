@@ -1804,6 +1804,10 @@ SUBROUTINE master_decomp(comm, mland, mp)
   ! this version distributes landpoints rather than active patches,
   ! but perhaps this will be easy to change in the future?
   lpw = mland / wnp
+  IF (lpw == 0) THEN
+     write(*,*) 'number of workers > than mland',wnp,mland
+     CALL MPI_Abort(comm, 0, ierr)
+  END IF
   rest = MOD(mland, wnp)
   nxt = 1
 
