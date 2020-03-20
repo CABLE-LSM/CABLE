@@ -194,31 +194,31 @@ END SUBROUTINE get_default_inits
 !
 !==============================================================================
 
-SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
-                            bal,veg,soil,rad,vegparmnew, EMSOIL)
+SUBROUTINE get_restart_data(logn, ssnow, canopy, rough, bgc, &
+                            bal, veg, soil, rad, vegparmnew, EMSOIL)
 
    IMPLICIT NONE
 
    ! Input arguments
-   INTEGER, INTENT(IN)                       :: logn       ! log file number
-   TYPE (soil_snow_type),INTENT(INOUT)       :: ssnow      ! soil and snow variables
-   TYPE (bgc_pool_type),INTENT(INOUT)        :: bgc        ! carbon pool variables
-   TYPE (canopy_type),INTENT(INOUT)          :: canopy     ! vegetation variables
-   TYPE (roughness_type),INTENT(INOUT)       :: rough      ! roughness varibles
-   TYPE (balances_type),INTENT(INOUT)        :: bal        ! energy + water balance variables
-   TYPE (veg_parameter_type), INTENT(INOUT)  :: veg        ! vegetation parameters
-   TYPE (soil_parameter_type), INTENT(INOUT) :: soil       ! soil parameters
-   TYPE (radiation_type),INTENT(INOUT)       :: rad
-   LOGICAL,INTENT(IN)                        :: vegparmnew ! are we using the new format?
+   INTEGER,                   INTENT(IN)    :: logn       ! log file number
+   TYPE(soil_snow_type),      INTENT(INOUT) :: ssnow      ! soil and snow variables
+   TYPE(canopy_type),         INTENT(INOUT) :: canopy     ! vegetation variables
+   TYPE(roughness_type),      INTENT(INOUT) :: rough      ! roughness varibles
+   TYPE(bgc_pool_type),       INTENT(INOUT) :: bgc        ! carbon pool variables
+   TYPE(balances_type),       INTENT(INOUT) :: bal        ! energy + water balance variables
+   TYPE(veg_parameter_type),  INTENT(INOUT) :: veg        ! vegetation parameters
+   TYPE(soil_parameter_type), INTENT(INOUT) :: soil       ! soil parameters
+   TYPE(radiation_type),      INTENT(INOUT) :: rad
+   LOGICAL,                   INTENT(IN)    :: vegparmnew ! are we using the new format?
+   REAL,                      INTENT(IN)    :: EMSOIL
 
-   REAL, INTENT(IN) :: EMSOIL
    ! Local variables
-   REAL, POINTER,DIMENSION(:)           ::                                &
-        lat_restart => null(),                                                           &
+   REAL, POINTER,DIMENSION(:) :: &
+        lat_restart => null(), &
         lon_restart => null()
-   INTEGER,POINTER,DIMENSION(:)         :: INvar => null()
+   INTEGER, POINTER, DIMENSION(:) :: INvar => null()
    !    REAL, POINTER,DIMENSION(:,:) :: surffrac => null() ! fraction of each surf type
-   INTEGER ::                                                             &
+   INTEGER :: &
         mland_restart,         & ! number of land points in restart file
         INvegt,                &
         INsoilt,               &
@@ -229,46 +229,47 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
         mvtypeID,              & ! veg type variable ID
         mstypeID,              & ! soil type variable ID
         mlandID                  ! netcdf ID for land points
-   LOGICAL ::                                                                  &
+   LOGICAL :: &
         from_restart = .TRUE., & ! insist variables/params load
         dummy                    ! To replace completeSet in parameter read; unused
-   REAL,    ALLOCATABLE :: var_r(:)
+   REAL,      ALLOCATABLE :: var_r(:)
+   REAL(r_2), ALLOCATABLE :: var_r2(:)
 
    ! Write to screen the restart file is found:
-   WRITE(*,*) 'Reading restart data from: ' , TRIM(filename%restart_in)
+   WRITE(*,*) 'Reading restart data from: ', TRIM(filename%restart_in)
    write(*,*) 'metgrid', metgrid
 
    ! Check number of gridpoints in restart file is correct:
-   ok = NF90_INQ_DIMID(ncid_rin,'mland',mlandID)
-   IF(ok /= NF90_NOERR) THEN
-      ok = NF90_INQ_DIMID(ncid_rin,'mp',mlandID) ! name used before sep2010
-      IF(ok /= NF90_NOERR) CALL nc_abort                                       &
-           (ok,'Error finding mland dimension in restart file '                &
+   ok = NF90_INQ_DIMID(ncid_rin, 'mland', mlandID)
+   IF (ok /= NF90_NOERR) THEN
+      ok = NF90_INQ_DIMID(ncid_rin, 'mp', mlandID) ! name used before sep2010
+      IF (ok /= NF90_NOERR) &
+           CALL nc_abort(ok,'Error finding mland dimension in restart file ' &
            //TRIM(filename%restart_in)//' (SUBROUTINE get_restart)')
    END IF
-   ok = NF90_INQUIRE_DIMENSION(ncid_rin,mlandID,len=mland_restart)
-   PRINT *, 'number of land point in restart file: ', mland_restart
-   IF(ok /= NF90_NOERR) CALL nc_abort                                          &
-        (ok,'Error finding number of land points in restart file '             &
+   ok = NF90_INQUIRE_DIMENSION(ncid_rin, mlandID, len=mland_restart)
+   write(*,*) 'number of land point in restart file: ', mland_restart
+   IF (ok /= NF90_NOERR) &
+        CALL nc_abort(ok,'Error finding number of land points in restart file ' &
         //TRIM(filename%restart_in)//' (SUBROUTINE get_restart)')
-   IF(mland_restart /= mland) CALL cable_abort('Number of land points in '//         &
-        'restart file '//TRIM(filename%restart_in)//                           &
+   IF (mland_restart /= mland) &
+        CALL cable_abort('Number of land points in '// &
+        'restart file '//TRIM(filename%restart_in)// &
         ' differs from number in met file '//TRIM(filename%met))
 
    ! Added the checking of mp; if not equal, redirect to another
    ! subroutine to get grid-based info (BP may2010) for LULUC
-   ok = NF90_INQ_DIMID(ncid_rin,'mp_patch',mpatchID)
-   IF(ok /= NF90_NOERR) THEN
-      ok = NF90_INQ_DIMID(ncid_rin,'mp',mpatchID) ! old file before sep2010
-      IF(ok /= NF90_NOERR)  CALL nc_abort                                      &
-           (ok,'Error finding mp_patch dimension in restart file '             &
+   ok = NF90_INQ_DIMID(ncid_rin, 'mp_patch', mpatchID)
+   IF (ok /= NF90_NOERR) THEN
+      ok = NF90_INQ_DIMID(ncid_rin, 'mp', mpatchID) ! old file before sep2010
+      IF (ok /= NF90_NOERR) &
+           CALL nc_abort(ok,'Error finding mp_patch dimension in restart file ' &
            //TRIM(filename%restart_in)//' (SUBROUTINE get_restart)')
    ENDIF
-   ok = NF90_INQUIRE_DIMENSION(ncid_rin,mpatchID,len=INpatch)
-   PRINT *, 'total number of patches in restart file: ', INpatch
+   ok = NF90_INQUIRE_DIMENSION(ncid_rin, mpatchID, len=INpatch)
+   write(*,*) 'total number of patches in restart file: ', INpatch
    IF (INpatch /= mp) THEN
-      CALL extraRestart(INpatch,ssnow,canopy,rough,bgc,                        &
-                        bal,veg,soil,rad, EMSOIL)
+      CALL extraRestart(INpatch,ssnow,canopy,rough,bgc,bal,veg,soil,rad, EMSOIL)
       RETURN
    ENDIF
 
@@ -301,94 +302,94 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
    !    landpt(:)%ice%frac = surffrac(:,4)
    !    DEALLOCATE(surffrac)
 
-
    ! check that lat/lon b/w run and restart are compatible:
-   ALLOCATE(lat_restart(mland),lon_restart(mland))
-   ok = NF90_INQ_VARID(ncid_rin,'latitude',latID)
-   IF(ok /= NF90_NOERR) CALL nc_abort                                          &
-        (ok,'Error finding latitude in restart file '                          &
+   ALLOCATE(lat_restart(mland), lon_restart(mland))
+   ok = NF90_INQ_VARID(ncid_rin, 'latitude', latID)
+   IF(ok /= NF90_NOERR) &
+        CALL nc_abort(ok,'Error finding latitude in restart file ' &
         //TRIM(filename%restart_in)//' (SUBROUTINE get_restart)')
-   ok = NF90_INQ_VARID(ncid_rin,'longitude',lonID)
-   IF(ok /= NF90_NOERR) CALL nc_abort                                          &
-        (ok,'Error finding longitude in restart file '                         &
+   ok = NF90_INQ_VARID(ncid_rin, 'longitude', lonID)
+   IF (ok /= NF90_NOERR) &
+        CALL nc_abort(ok,'Error finding longitude in restart file ' &
         //TRIM(filename%restart_in)//' (SUBROUTINE get_restart)')
-   ok=NF90_GET_VAR(ncid_rin,latID,lat_restart)
-   IF(ok/=NF90_NOERR) CALL nc_abort(ok,'Error reading latitude in file '       &
-        //TRIM(filename%restart_in)// '(SUBROUTINE get_restart)')
-! Removed rad%latitude from here as it is already done in write_default_params
-! (BP may2010)
-!    ! Set rad%latitude parameter
-!    DO i=1,mland
-!       ! All patches in a single grid cell have the same latitude:
-!       rad%latitude(landpt(i)%cstart:landpt(i)%cend)=lat_restart(i)
-!    END DO
-   ok=NF90_GET_VAR(ncid_rin,lonID,lon_restart)
-   IF(ok/=NF90_NOERR) CALL nc_abort(ok,'Error reading longitude in file '      &
-        //TRIM(filename%restart_in)// '(SUBROUTINE get_restart)')
-   IF(ANY(ABS(lat_restart-latitude)>0.01))                                     &
-        CALL cable_abort('Latitude of land points in '//                             &
-        'restart file '//TRIM(filename%restart_in)//                           &
+   ok = NF90_GET_VAR(ncid_rin, latID, lat_restart)
+   IF (ok /= NF90_NOERR) CALL nc_abort(ok,'Error reading latitude in file ' &
+        //TRIM(filename%restart_in)//' (SUBROUTINE get_restart)')
+   ! Removed rad%latitude from here as it is already done in write_default_params
+   ! (BP may2010)
+   !    ! Set rad%latitude parameter
+   !    DO i=1,mland
+   !       ! All patches in a single grid cell have the same latitude:
+   !       rad%latitude(landpt(i)%cstart:landpt(i)%cend)=lat_restart(i)
+   !    END DO
+   ok = NF90_GET_VAR(ncid_rin, lonID, lon_restart)
+   IF (ok /= NF90_NOERR) CALL nc_abort(ok,'Error reading longitude in file ' &
+        //TRIM(filename%restart_in)//' (SUBROUTINE get_restart)')
+   IF (ANY(ABS(lat_restart-latitude)>0.01)) &
+        CALL cable_abort('Latitude of land points in '// &
+        'restart file '//TRIM(filename%restart_in)// &
         ' differs from met file '//TRIM(filename%met))
-   IF(ANY(ABS(lon_restart-longitude)>0.01))                                    &
-        CALL cable_abort('Longitude of land points in '//                            &
-        'restart file '//TRIM(filename%restart_in)//                           &
+   IF (ANY(ABS(lon_restart-longitude)>0.01)) &
+        CALL cable_abort('Longitude of land points in '// &
+        'restart file '//TRIM(filename%restart_in)// &
         ' differs from met file '//TRIM(filename%met))
-   DEALLOCATE(lat_restart,lon_restart)
+   DEALLOCATE(lat_restart, lon_restart)
 
    ! Check that the number of vegetation types is present in restart file:
-   ok = NF90_INQ_VARID(ncid_rin,'mvtype',mvtypeID)
-   IF(ok /= NF90_NOERR) THEN
-      ok = NF90_INQ_VARID(ncid_rin,'nvegt',mvtypeID)
-      IF(ok == NF90_NOERR) THEN
-         ok=NF90_GET_VAR(ncid_rin,mvtypeID,INvegt)
-         IF(ok/=NF90_NOERR) CALL nc_abort(ok,'Error reading nvegt in file '    &
-              //TRIM(filename%restart_in)// '(SUBROUTINE get_restart)')
-         IF(INvegt > 17) CALL nc_abort(ok,'Error: nvegt value in file '        &
-              //TRIM(filename%restart_in)// ' out of range')
-         IF (INvegt /= mvtype) PRINT *, 'Warning: INvegt, nvegt = ', INvegt, mvtype
+   ok = NF90_INQ_VARID(ncid_rin, 'mvtype', mvtypeID)
+   IF (ok /= NF90_NOERR) THEN
+      ok = NF90_INQ_VARID(ncid_rin, 'nvegt', mvtypeID)
+      IF (ok == NF90_NOERR) THEN
+         ok = NF90_GET_VAR(ncid_rin, mvtypeID, INvegt)
+         IF (ok /= NF90_NOERR) CALL nc_abort(ok,'Error reading nvegt in file ' &
+              //TRIM(filename%restart_in)//' (SUBROUTINE get_restart)')
+         IF (INvegt > 17) CALL nc_abort(ok,'Error: nvegt value in file ' &
+              //TRIM(filename%restart_in)//' out of range')
+         IF (INvegt /= mvtype) write(*,*) 'Warning: INvegt, nvegt = ', INvegt, mvtype
       ENDIF
-! Removed the following as mvtype is determined earlier from
-! reading in def_veg_params_xx.txt (BP may2010)
-!       IF(vegparmnew) THEN
-!          mvtype = 17
-!       ELSE
-!          mvtype = 13
-!       ENDIF
+      ! Removed the following as mvtype is determined earlier from
+      ! reading in def_veg_params_xx.txt (BP may2010)
+      !       IF(vegparmnew) THEN
+      !          mvtype = 17
+      !       ELSE
+      !          mvtype = 13
+      !       ENDIF
    ELSE
-! Changed the read-in variable name so that mvtype would not be overwritten
-! and added some more checking (BP may2010)
-      ok=NF90_GET_VAR(ncid_rin,mvtypeID,INvegt)
-      IF(ok/=NF90_NOERR) CALL nc_abort(ok,'Error reading mvtype in file '      &
-           //TRIM(filename%restart_in)// '(SUBROUTINE get_restart)')
-      IF(INvegt > 17) CALL nc_abort(ok,'Error: mvtype value in file '          &
-           //TRIM(filename%restart_in)// ' out of range')
-      IF (INvegt /= mvtype) PRINT *, 'Warning: INvegt, mvtype = ', INvegt, mvtype
+      ! Changed the read-in variable name so that mvtype would not be overwritten
+      ! and added some more checking (BP may2010)
+      ok = NF90_GET_VAR(ncid_rin, mvtypeID, INvegt)
+      IF (ok /= NF90_NOERR) CALL nc_abort(ok,'Error reading mvtype in file ' &
+           //TRIM(filename%restart_in)//' (SUBROUTINE get_restart)')
+      IF (INvegt > 17) CALL nc_abort(ok,'Error: mvtype value in file ' &
+           //TRIM(filename%restart_in)//' out of range')
+      IF (INvegt /= mvtype) write(*,*) 'Warning: INvegt, mvtype = ', INvegt, mvtype
    ENDIF
+   
    ! Check that the number of soil types is present in restart file:
-   ok = NF90_INQ_VARID(ncid_rin,'mstype',mstypeID)
-   IF(ok /= NF90_NOERR) THEN
-      ok = NF90_INQ_VARID(ncid_rin,'nsoilt',mstypeID)
-      IF(ok == NF90_NOERR) THEN
-         ok=NF90_GET_VAR(ncid_rin,mstypeID,INsoilt)
-         IF(ok/=NF90_NOERR) CALL nc_abort(ok,'Error reading nsoilt in file '   &
-              //TRIM(filename%restart_in)// '(SUBROUTINE get_restart)')
-         IF(INsoilt /= mstype) CALL nc_abort(ok,'Error: nsoilt value in file ' &
-              //TRIM(filename%restart_in)// ' is wrong')
+   ok = NF90_INQ_VARID(ncid_rin, 'mstype', mstypeID)
+   IF (ok /= NF90_NOERR) THEN
+      ok = NF90_INQ_VARID(ncid_rin, 'nsoilt', mstypeID)
+      IF (ok == NF90_NOERR) THEN
+         ok = NF90_GET_VAR(ncid_rin, mstypeID, INsoilt)
+         IF (ok /= NF90_NOERR) CALL nc_abort(ok,'Error reading nsoilt in file ' &
+              //TRIM(filename%restart_in)//' (SUBROUTINE get_restart)')
+         IF (INsoilt /= mstype) CALL nc_abort(ok,'Error: nsoilt value in file ' &
+              //TRIM(filename%restart_in)//' is wrong')
       ENDIF
-! Removed the following as mstype is determined earlier from
-! reading in def_soil_params.txt (BP may2010)
-!       mstype = 9
+      ! Removed the following as mstype is determined earlier from
+      ! reading in def_soil_params.txt (BP may2010)
+      !       mstype = 9
    ELSE
-! Changed the read-in variable name so that mstype would not be overwritten
-! (BP may2010)
-      ok=NF90_GET_VAR(ncid_rin,mstypeID,INsoilt)
-      IF(ok/=NF90_NOERR) CALL nc_abort(ok,'Error reading mstype in file '      &
-           //TRIM(filename%restart_in)// '(SUBROUTINE get_restart)')
-      IF(INsoilt /= mstype) CALL nc_abort(ok,'Error: mstype value in file '    &
-           //TRIM(filename%restart_in)// ' is wrong')
+      ! Changed the read-in variable name so that mstype would not be overwritten
+      ! (BP may2010)
+      ok = NF90_GET_VAR(ncid_rin, mstypeID, INsoilt)
+      IF (ok /= NF90_NOERR) CALL nc_abort(ok,'Error reading mstype in file ' &
+           //TRIM(filename%restart_in)//' (SUBROUTINE get_restart)')
+      IF(INsoilt /= mstype) CALL nc_abort(ok,'Error: mstype value in file ' &
+           //TRIM(filename%restart_in)//' is wrong')
    ENDIF
 
-   dummy=.TRUE. ! initialise for completeness only - not used
+   dummy = .TRUE. ! initialise for completeness only - not used
 
    ! Get variable initialisations =============================
    ! Arguments are: netcdf file ID; parameter name;
@@ -513,190 +514,190 @@ SUBROUTINE get_restart_data(logn,ssnow,canopy,rough,bgc,                       &
    ! Get model parameters =============================================
    ! rad%latitude set above in lat/lon checking section
    ! vh  ! : no need to read in iveg from restart  
-!!$   ALLOCATE(INvar(mp))
-!!$   CALL readpar(ncid_rin,'iveg',dummy,INvar,filename%restart_in,               &
-!!$                max_vegpatches,'def',from_restart,mp)
-!!$   IF (ASSOCIATED(vegtype_metfile)) THEN
-!!$      ! met file iveg info is now in veg%iveg
-!!$      IF (ANY(INvar /= veg%iveg)) THEN
-!!$         PRINT *, 'Error: veg type in restart file different from met input'
-!!$         PRINT *, 'Recommend not using this restart file as parameters have changed.'
-!!$         CALL cable_abort('Check iveg in '//filename%restart_in)
-!!$      ENDIF
-!!$   ELSE
-!!$      ! no problem with overwriting default values
-!!$      veg%iveg = INvar
-!!$   ENDIF
-   ! CALL readpar(ncid_rin,'iveg',dummy,veg%iveg,filename%restart_in,           &
+   ! ALLOCATE(INvar(mp))
+   ! CALL readpar(ncid_rin,'iveg',dummy,INvar,filename%restart_in, &
+   !      max_vegpatches,'def',from_restart,mp)
+   ! IF (ASSOCIATED(vegtype_metfile)) THEN
+   !    ! met file iveg info is now in veg%iveg
+   !    IF (ANY(INvar /= veg%iveg)) THEN
+   !       write(*,*) 'Error: veg type in restart file different from met input'
+   !       write(*,*) 'Recommend not using this restart file as parameters have changed.'
+   !       CALL cable_abort('Check iveg in '//filename%restart_in)
+   !    ENDIF
+   ! ELSE
+   !    ! no problem with overwriting default values
+   !    veg%iveg = INvar
+   ! ENDIF
+   ! CALL readpar(ncid_rin,'iveg',dummy,veg%iveg,filename%restart_in, &
    !      max_vegpatches,'def',from_restart,mp)
 
-! vh comment out this section: don't need patchfrac from restart   
-!!$   IF (.NOT.CABLE_USER%POPLUC) then
-!!$      ! CALL readpar(ncid_rin,'patchfrac',dummy,patch(:)%frac,filename%restart_in,  &
-!!$      !      max_vegpatches,'def',from_restart,mp)
-!!$      if (allocated(var_r)) deallocate(var_r)
-!!$      allocate(var_r(size(patch(:)%frac,1)))
-!!$      dummy = .true.
-!!$      CALL readpar(ncid_rin,'patchfrac',dummy,var_r,filename%restart_in,  &
-!!$           max_vegpatches,'def',from_restart,mp)
-!!$      if (dummy) patch(:)%frac = real(var_r,r_2)
-!!$      deallocate(var_r)
-!!$   ENDIF
-!    DO i=1, mland
-!    DO jj = landpt(i)%cstart, landpt(i)%cend
-!      IF (INvar(jj) /= veg%iveg(jj)) THEN
-!        PRINT *, 'veg type in restart file is weird.'
-!        PRINT *, 'mland and mp #: ', i, jj
-!        PRINT *, 'INvar, veg%iveg: ', INvar(jj), veg%iveg(jj)
-!        PRINT *, 'lon and lat: ', longitude(i), latitude(i)
-!      END IF
-!    END DO
-!    END DO
-!! getting rid of spurious veg types in Antarctica from the CCAM2Mk3L process
-!! Doing it once will fix the problem in the restart file in subsequent runs
-!    DO i=1, mland
-!      IF ( rad%latitude(landpt(i)%cstart) < -60.0 .AND. &
-!           patch(landpt(i)%cstart)%frac < 1.0 ) THEN
-!        IF ( veg%iveg(landpt(i)%cstart) <= 15 ) THEN
-!          patch(landpt(i)%cstart:landpt(i)%cend)%frac = 0.0
-!          patch(landpt(i)%cstart)%frac = 1.0
-!          veg%iveg(landpt(i)%cstart:landpt(i)%cend) = 15
-!        END IF
-!      END IF
-!    END DO
-!! end of fix to spurious veg types
+   ! vh comment out this section: don't need patchfrac from restart   
+   ! IF (.NOT.CABLE_USER%POPLUC) then
+   !    ! CALL readpar(ncid_rin,'patchfrac',dummy,patch(:)%frac,filename%restart_in, &
+   !    !      max_vegpatches,'def',from_restart,mp)
+   !    if (allocated(var_r)) deallocate(var_r)
+   !    allocate(var_r(size(patch(:)%frac,1)))
+   !    dummy = .true.
+   !    CALL readpar(ncid_rin,'patchfrac',dummy,var_r,filename%restart_in, &
+   !         max_vegpatches,'def',from_restart,mp)
+   !    if (dummy) patch(:)%frac = real(var_r,r_2)
+   !    deallocate(var_r)
+   ! ENDIF
+   !    DO i=1, mland
+   !    DO jj = landpt(i)%cstart, landpt(i)%cend
+   !      IF (INvar(jj) /= veg%iveg(jj)) THEN
+   !        write(*,*) 'veg type in restart file is weird.'
+   !        write(*,*) 'mland and mp #: ', i, jj
+   !        write(*,*) 'INvar, veg%iveg: ', INvar(jj), veg%iveg(jj)
+   !        write(*,*) 'lon and lat: ', longitude(i), latitude(i)
+   !      END IF
+   !    END DO
+   !    END DO
+   !! getting rid of spurious veg types in Antarctica from the CCAM2Mk3L process
+   !! Doing it once will fix the problem in the restart file in subsequent runs
+   !    DO i=1, mland
+   !      IF ( rad%latitude(landpt(i)%cstart) < -60.0 .AND. &
+   !           patch(landpt(i)%cstart)%frac < 1.0 ) THEN
+   !        IF ( veg%iveg(landpt(i)%cstart) <= 15 ) THEN
+   !          patch(landpt(i)%cstart:landpt(i)%cend)%frac = 0.0
+   !          patch(landpt(i)%cstart)%frac = 1.0
+   !          veg%iveg(landpt(i)%cstart:landpt(i)%cend) = 15
+   !        END IF
+   !      END IF
+   !    END DO
+   !! end of fix to spurious veg types
 
- ! vh  ! : no need to read in isoil from restart  
-!!$   CALL readpar(ncid_rin,'isoil',dummy,INvar,filename%restart_in,              &
-!!$                max_vegpatches,'def',from_restart,mp)
-!!$   IF (ASSOCIATED(soiltype_metfile)) THEN
-!!$      ! met file isoil info is now in soil%isoilm
-!!$      IF (ANY(INvar /= soil%isoilm)) THEN
-!!$         PRINT *, 'Error: soil type in restart file different from met input'
-!!$         PRINT *, 'Recommend not using this restart file as parameters have changed.'
-!!$         CALL cable_abort('Check isoil in '//filename%restart_in)
-!!$      ENDIF
-!!$   ELSE
-!!$      ! no problem with overwriting default values
-!!$      soil%isoilm = INvar
-!!$   ENDIF
-!    CALL readpar(ncid_rin,'isoil',dummy,soil%isoilm,filename%restart_in,       &
-!         max_vegpatches,'def',from_restart,mp)
-!!$   CALL readpar(ncid_rin,'clay',dummy,soil%clay,filename%restart_in,           &
-!!$                max_vegpatches,'def',from_restart,mp)
-!!$   CALL readpar(ncid_rin,'sand',dummy,soil%sand,filename%restart_in,           &
-!!$                max_vegpatches,'def',from_restart,mp)
-!!$   CALL readpar(ncid_rin,'silt',dummy,soil%silt,filename%restart_in,           &
-!!$                max_vegpatches,'def',from_restart,mp)
-!!$   IF ( .NOT. soilparmnew) THEN  ! Q.Zhang @12/20/2010
-!!$      CALL readpar(ncid_rin,'ssat',dummy,soil%ssat,filename%restart_in,        &
-!!$                   max_vegpatches,'def',from_restart,mp)
-!!$      CALL readpar(ncid_rin,'sfc',dummy,soil%sfc,filename%restart_in,          &
-!!$                   max_vegpatches,'def',from_restart,mp)
-!!$      CALL readpar(ncid_rin,'swilt',dummy,soil%swilt,filename%restart_in,      &
-!!$                   max_vegpatches,'def',from_restart,mp)
-!!$      CALL readpar(ncid_rin,'bch',dummy,soil%bch,filename%restart_in,          &
-!!$                   max_vegpatches,'def',from_restart,mp)
-!!$      CALL readpar(ncid_rin,'hyds',dummy,soil%hyds,filename%restart_in,        &
-!!$                   max_vegpatches,'def',from_restart,mp)
-!!$      CALL readpar(ncid_rin,'sucs',dummy,soil%sucs,filename%restart_in,        &
-!!$                   max_vegpatches,'def',from_restart,mp)
-!!$      CALL readpar(ncid_rin,'css',dummy,soil%css,filename%restart_in,          &
-!!$                   max_vegpatches,'def',from_restart,mp)
-!!$      CALL readpar(ncid_rin,'rhosoil',dummy,soil%rhosoil,filename%restart_in,  &
-!!$                   max_vegpatches,'def',from_restart,mp)
-!!$      IF (ncciy > 0 .AND. filename%restart_in(22:23) == 'HQ') THEN
-!!$         ok = NF90_INQ_VARID(ncid_rin,'albsoil',parID)
-!!$         IF(ok == NF90_NOERR) THEN
-!!$            ALLOCATE(var_r(mp))
-!!$            ok= NF90_GET_VAR(ncid_rin,parID,var_r,start=(/1/),count=(/mp/))
-!!$            IF(ok /= NF90_NOERR) CALL nc_abort                                 &
-!!$                 (ok,'Error reading '//'albsoil'//' in file '                  &
-!!$                 //TRIM(filename%restart_in)//' (SUBROUTINE get_restart_data)')
-!!$            soil%albsoil(:,1) = var_r / 3.0
-!!$            soil%albsoil(:,2) = var_r * 2.0 / 3.0
-!!$            soil%albsoil(:,3) = 0.005
-!!$            DEALLOCATE(var_r)
-!!$         END IF
-!!$      ELSE
-!!$         CALL readpar(ncid_rin,'albsoil',dummy,soil%albsoil,filename%restart_in, &
-!!$                      max_vegpatches,'nrb',from_restart,mp)
-!!$      END IF
-!!$   END IF
-!    CALL readpar(ncid_rin,'rs20',dummy,soil%rs20,filename%restart_in,          &
-!         max_vegpatches,'def',from_restart,mp)
-!!$   CALL readpar(ncid_rin,'rs20',dummy,veg%rs20,filename%restart_in,            &
-!!$                max_vegpatches,'def',from_restart,mp)
-!!$   CALL readpar(ncid_rin,'froot',dummy,veg%froot,filename%restart_in,          &
-!!$                max_vegpatches,'ms',from_restart,mp)
-!!$   CALL readpar(ncid_rin,'hc',dummy,veg%hc,filename%restart_in,                &
-!!$                max_vegpatches,'def',from_restart,mp)
-!!$   CALL readpar(ncid_rin,'canst1',dummy,veg%canst1,filename%restart_in,        &
-!!$                max_vegpatches,'def',from_restart,mp)
-!!$   CALL readpar(ncid_rin,'dleaf',dummy,veg%dleaf,filename%restart_in,          &
-!!$                max_vegpatches,'def',from_restart,mp)
-!!$   CALL readpar(ncid_rin,'frac4',dummy,veg%frac4,filename%restart_in,          &
-!!$                max_vegpatches,'def',from_restart,mp)
-!!$   CALL readpar(ncid_rin,'ejmax',dummy,veg%ejmax,filename%restart_in,          &
-!!$                max_vegpatches,'def',from_restart,mp)
-!!$   CALL readpar(ncid_rin,'vcmax',dummy,veg%vcmax,filename%restart_in,          &
-!!$                max_vegpatches,'def',from_restart,mp)
-!!$   CALL readpar(ncid_rin,'rp20',dummy,veg%rp20,filename%restart_in,            &
-!!$                max_vegpatches,'def',from_restart,mp)
-!!$   CALL readpar(ncid_rin,'rpcoef',dummy,veg%rpcoef,filename%restart_in,        &
-!!$                max_vegpatches,'def',from_restart,mp)
-!!$   CALL readpar(ncid_rin,'shelrb',dummy,veg%shelrb,filename%restart_in,        &
-!!$                max_vegpatches,'def',from_restart,mp)
-!!$   CALL readpar(ncid_rin,'xfang',dummy,veg%xfang,filename%restart_in,          &
-!!$                max_vegpatches,'def',from_restart,mp)
-!!$   CALL readpar(ncid_rin,'wai',dummy,veg%wai,filename%restart_in,              &
-!!$                max_vegpatches,'def',from_restart,mp)
-!!$   CALL readpar(ncid_rin,'vegcf',dummy,veg%vegcf,filename%restart_in,          &
-!!$                max_vegpatches,'def',from_restart,mp)
-!!$   CALL readpar(ncid_rin,'extkn',dummy,veg%extkn,filename%restart_in,          &
-!!$                max_vegpatches,'def',from_restart,mp)
-!!$   CALL readpar(ncid_rin,'tminvj',dummy,veg%tminvj,filename%restart_in,        &
-!!$                max_vegpatches,'def',from_restart,mp)
-!!$   CALL readpar(ncid_rin,'tmaxvj',dummy,veg%tmaxvj,filename%restart_in,        &
-!!$                max_vegpatches,'def',from_restart,mp)
-!!$   CALL readpar(ncid_rin,'vbeta',dummy,veg%vbeta,filename%restart_in,          &
-!!$                max_vegpatches,'def',from_restart,mp)
-!!$   CALL readpar(ncid_rin,'xalbnir',dummy,veg%xalbnir,filename%restart_in,      &
-!!$                max_vegpatches,'def',from_restart,mp)
-!!$   veg%xalbnir = 1.0   ! xalbnir will soon be removed totally
-!!$   !CALL readpar(ncid_rin,'g0',dummy,veg%g0,filename%restart_in,            &
-!!$   !             max_vegpatches,'def',from_restart,mp) ! Ticket #56
-!!$   !CALL readpar(ncid_rin,'g1',dummy,veg%g1,filename%restart_in,            &
-!!$   !             max_vegpatches,'def',from_restart,mp) ! Ticket #56 
-!!$   CALL readpar(ncid_rin,'meth',dummy,veg%meth,filename%restart_in,            &
-!!$                max_vegpatches,'def',from_restart,mp)
-!!$   ! special treatment of za with the introduction of za_uv and za_tq
-!!$   ! in case an old restart file is used
-!!$   ok = NF90_INQ_VARID(ncid_rin,'za',parID)
-!!$   IF(ok == NF90_NOERR) THEN ! if it does exist
-!!$      CALL readpar(ncid_rin,'za',dummy,rough%za_uv,filename%restart_in,        &
-!!$                   max_vegpatches,'def',from_restart,mp)
-!!$      CALL readpar(ncid_rin,'za',dummy,rough%za_tq,filename%restart_in,        &
-!!$                   max_vegpatches,'def',from_restart,mp)
-!!$   ELSE
-!!$      CALL readpar(ncid_rin,'za_uv',dummy,rough%za_uv,filename%restart_in,     &
-!!$                   max_vegpatches,'def',from_restart,mp)
-!!$      CALL readpar(ncid_rin,'za_tq',dummy,rough%za_tq,filename%restart_in,     &
-!!$                   max_vegpatches,'def',from_restart,mp)
-!!$   ENDIF
-!!$   CALL readpar(ncid_rin,'zse',dummy,soil%zse,filename%restart_in,             &
-!!$                max_vegpatches,'ms',from_restart,mp)
-!!$   CALL readpar(ncid_rin,'ratecp',dummy,bgc%ratecp,filename%restart_in,        &
-!!$                max_vegpatches,'ncp',from_restart,mp)
-!!$   CALL readpar(ncid_rin,'ratecs',dummy,bgc%ratecs,filename%restart_in,        &
-!!$                max_vegpatches,'ncs',from_restart,mp)
-
+   ! vh  ! : no need to read in isoil from restart  
+   ! CALL readpar(ncid_rin,'isoil',dummy,INvar,filename%restart_in, &
+   !      max_vegpatches,'def',from_restart,mp)
+   ! IF (ASSOCIATED(soiltype_metfile)) THEN
+   !    ! met file isoil info is now in soil%isoilm
+   !    IF (ANY(INvar /= soil%isoilm)) THEN
+   !       write(*,*) 'Error: soil type in restart file different from met input'
+   !       write(*,*) 'Recommend not using this restart file as parameters have changed.'
+   !       CALL cable_abort('Check isoil in '//filename%restart_in)
+   !    ENDIF
+   ! ELSE
+   !    ! no problem with overwriting default values
+   !    soil%isoilm = INvar
+   ! ENDIF
+   !    CALL readpar(ncid_rin,'isoil',dummy,soil%isoilm,filename%restart_in, &
+   !         max_vegpatches,'def',from_restart,mp)
+   ! CALL readpar(ncid_rin,'clay',dummy,soil%clay,filename%restart_in, &
+   !      max_vegpatches,'def',from_restart,mp)
+   ! CALL readpar(ncid_rin,'sand',dummy,soil%sand,filename%restart_in, &
+   !      max_vegpatches,'def',from_restart,mp)
+   ! CALL readpar(ncid_rin,'silt',dummy,soil%silt,filename%restart_in, &
+   !      max_vegpatches,'def',from_restart,mp)
+   ! IF ( .NOT. soilparmnew) THEN  ! Q.Zhang @12/20/2010
+   !    CALL readpar(ncid_rin,'ssat',dummy,soil%ssat,filename%restart_in, &
+   !         max_vegpatches,'def',from_restart,mp)
+   !    CALL readpar(ncid_rin,'sfc',dummy,soil%sfc,filename%restart_in, &
+   !         max_vegpatches,'def',from_restart,mp)
+   !    CALL readpar(ncid_rin,'swilt',dummy,soil%swilt,filename%restart_in, &
+   !         max_vegpatches,'def',from_restart,mp)
+   !    CALL readpar(ncid_rin,'bch',dummy,soil%bch,filename%restart_in, &
+   !         max_vegpatches,'def',from_restart,mp)
+   !    CALL readpar(ncid_rin,'hyds',dummy,soil%hyds,filename%restart_in, &
+   !         max_vegpatches,'def',from_restart,mp)
+   !    CALL readpar(ncid_rin,'sucs',dummy,soil%sucs,filename%restart_in, &
+   !         max_vegpatches,'def',from_restart,mp)
+   !    CALL readpar(ncid_rin,'css',dummy,soil%css,filename%restart_in, &
+   !         max_vegpatches,'def',from_restart,mp)
+   !    CALL readpar(ncid_rin,'rhosoil',dummy,soil%rhosoil,filename%restart_in, &
+   !         max_vegpatches,'def',from_restart,mp)
+   !    IF (ncciy > 0 .AND. filename%restart_in(22:23) == 'HQ') THEN
+   !       ok = NF90_INQ_VARID(ncid_rin,'albsoil',parID)
+   !       IF(ok == NF90_NOERR) THEN
+   !          ALLOCATE(var_r(mp))
+   !          ok= NF90_GET_VAR(ncid_rin,parID,var_r,start=(/1/),count=(/mp/))
+   !          IF(ok /= NF90_NOERR) CALL nc_abort &
+   !               (ok,'Error reading '//'albsoil'//' in file ' &
+   !               //TRIM(filename%restart_in)//' (SUBROUTINE get_restart_data)')
+   !          soil%albsoil(:,1) = var_r / 3.0
+   !          soil%albsoil(:,2) = var_r * 2.0 / 3.0
+   !          soil%albsoil(:,3) = 0.005
+   !          DEALLOCATE(var_r)
+   !       END IF
+   !    ELSE
+   !       CALL readpar(ncid_rin,'albsoil',dummy,soil%albsoil,filename%restart_in, &
+   !            max_vegpatches,'nrb',from_restart,mp)
+   !    END IF
+   ! END IF
+   !    CALL readpar(ncid_rin,'rs20',dummy,soil%rs20,filename%restart_in, &
+   !         max_vegpatches,'def',from_restart,mp)
+   ! CALL readpar(ncid_rin,'rs20',dummy,veg%rs20,filename%restart_in, &
+   !      max_vegpatches,'def',from_restart,mp)
+   ! CALL readpar(ncid_rin,'froot',dummy,veg%froot,filename%restart_in, &
+   !      max_vegpatches,'ms',from_restart,mp)
+   ! CALL readpar(ncid_rin,'hc',dummy,veg%hc,filename%restart_in, &
+   !      max_vegpatches,'def',from_restart,mp)
+   ! CALL readpar(ncid_rin,'canst1',dummy,veg%canst1,filename%restart_in, &
+   !      max_vegpatches,'def',from_restart,mp)
+   ! CALL readpar(ncid_rin,'dleaf',dummy,veg%dleaf,filename%restart_in, &
+   !      max_vegpatches,'def',from_restart,mp)
+   ! CALL readpar(ncid_rin,'frac4',dummy,veg%frac4,filename%restart_in, &
+   !      max_vegpatches,'def',from_restart,mp)
+   ! CALL readpar(ncid_rin,'ejmax',dummy,veg%ejmax,filename%restart_in, &
+   !      max_vegpatches,'def',from_restart,mp)
+   ! CALL readpar(ncid_rin,'vcmax',dummy,veg%vcmax,filename%restart_in, &
+   !      max_vegpatches,'def',from_restart,mp)
+   ! CALL readpar(ncid_rin,'rp20',dummy,veg%rp20,filename%restart_in, &
+   !      max_vegpatches,'def',from_restart,mp)
+   ! CALL readpar(ncid_rin,'rpcoef',dummy,veg%rpcoef,filename%restart_in, &
+   !      max_vegpatches,'def',from_restart,mp)
+   ! CALL readpar(ncid_rin,'shelrb',dummy,veg%shelrb,filename%restart_in, &
+   !      max_vegpatches,'def',from_restart,mp)
+   ! CALL readpar(ncid_rin,'xfang',dummy,veg%xfang,filename%restart_in, &
+   !      max_vegpatches,'def',from_restart,mp)
+   ! CALL readpar(ncid_rin,'wai',dummy,veg%wai,filename%restart_in, &
+   !      max_vegpatches,'def',from_restart,mp)
+   ! CALL readpar(ncid_rin,'vegcf',dummy,veg%vegcf,filename%restart_in, &
+   !      max_vegpatches,'def',from_restart,mp)
+   ! CALL readpar(ncid_rin,'extkn',dummy,veg%extkn,filename%restart_in, &
+   !      max_vegpatches,'def',from_restart,mp)
+   ! CALL readpar(ncid_rin,'tminvj',dummy,veg%tminvj,filename%restart_in, &
+   !      max_vegpatches,'def',from_restart,mp)
+   ! CALL readpar(ncid_rin,'tmaxvj',dummy,veg%tmaxvj,filename%restart_in, &
+   !      max_vegpatches,'def',from_restart,mp)
+   ! CALL readpar(ncid_rin,'vbeta',dummy,veg%vbeta,filename%restart_in, &
+   !      max_vegpatches,'def',from_restart,mp)
+   ! CALL readpar(ncid_rin,'xalbnir',dummy,veg%xalbnir,filename%restart_in, &
+   !      max_vegpatches,'def',from_restart,mp)
+   ! veg%xalbnir = 1.0   ! xalbnir will soon be removed totally
+   ! !CALL readpar(ncid_rin,'g0',dummy,veg%g0,filename%restart_in, &
+   ! !             max_vegpatches,'def',from_restart,mp) ! Ticket #56
+   ! !CALL readpar(ncid_rin,'g1',dummy,veg%g1,filename%restart_in, &
+   ! !             max_vegpatches,'def',from_restart,mp) ! Ticket #56 
+   ! CALL readpar(ncid_rin,'meth',dummy,veg%meth,filename%restart_in, &
+   !      max_vegpatches,'def',from_restart,mp)
+   ! ! special treatment of za with the introduction of za_uv and za_tq
+   ! ! in case an old restart file is used
+   ! ok = NF90_INQ_VARID(ncid_rin,'za',parID)
+   ! IF(ok == NF90_NOERR) THEN ! if it does exist
+   !    CALL readpar(ncid_rin,'za',dummy,rough%za_uv,filename%restart_in, &
+   !         max_vegpatches,'def',from_restart,mp)
+   !    CALL readpar(ncid_rin,'za',dummy,rough%za_tq,filename%restart_in, &
+   !         max_vegpatches,'def',from_restart,mp)
+   ! ELSE
+   !    CALL readpar(ncid_rin,'za_uv',dummy,rough%za_uv,filename%restart_in, &
+   !         max_vegpatches,'def',from_restart,mp)
+   !    CALL readpar(ncid_rin,'za_tq',dummy,rough%za_tq,filename%restart_in, &
+   !         max_vegpatches,'def',from_restart,mp)
+   ! ENDIF
+   ! CALL readpar(ncid_rin,'zse',dummy,soil%zse,filename%restart_in, &
+   !      max_vegpatches,'ms',from_restart,mp)
+   ! CALL readpar(ncid_rin,'ratecp',dummy,bgc%ratecp,filename%restart_in, &
+   !      max_vegpatches,'ncp',from_restart,mp)
+   ! CALL readpar(ncid_rin,'ratecs',dummy,bgc%ratecs,filename%restart_in, &
+   !       max_vegpatches,'ncs',from_restart,mp)
+   
    ! Close restart file:
    ! print*, 'OClose21 ', ncid_rin
    ok = NF90_CLOSE(ncid_rin)
    ncid_rin = -1
-   IF(ok/=NF90_NOERR) CALL nc_abort(ok,'Error closing restart file '           &
-        //TRIM(filename%restart_in)// '(SUBROUTINE get_restart)')
+   IF (ok/=NF90_NOERR) CALL nc_abort(ok,'Error closing restart file ' &
+        //TRIM(filename%restart_in)//' (SUBROUTINE get_restart)')
 
    ! 13C - not in restart
    canopy%An        = 0.0_r_2
@@ -760,7 +761,7 @@ SUBROUTINE extraRestart(INpatch,ssnow,canopy,rough,bgc,                        &
         dummy = .TRUE.              ! To replace completeSet in parameter read; unused
    INTEGER                              :: napID
 
-   PRINT *, '***** NOTE: now in extraRestart. *****'
+   write(*,*) '***** NOTE: now in extraRestart. *****'
    ALLOCATE(nap(mland))
    ok = NF90_INQ_VARID(ncid_rin,'nap',napID)
    IF(ok /= NF90_NOERR) CALL nc_abort                                          &
@@ -856,10 +857,10 @@ SUBROUTINE extraRestart(INpatch,ssnow,canopy,rough,bgc,                        &
    CALL readpar(ncid_rin,'fev',dummy,var_r,filename%restart_in,                &
                 max_vegpatches,'def',from_restart,INpatch)
    CALL redistr_r(INpatch,nap,var_r,canopy%fev,'fev')
-!jhan:hack - elimiinate call as r_2 now
-!    CALL readpar(ncid_rin,'fes',dummy,var_r,filename%restart_in,               &
-!         max_vegpatches,'def',from_restart,INpatch)
-!    CALL redistr_r(INpatch,nap,var_r,canopy%fes,'fes')
+   !jhan:hack - elimiinate call as r_2 now
+   !    CALL readpar(ncid_rin,'fes',dummy,var_r,filename%restart_in,               &
+   !         max_vegpatches,'def',from_restart,INpatch)
+   !    CALL redistr_r(INpatch,nap,var_r,canopy%fes,'fes')
    CALL readpar(ncid_rin,'fhs',dummy,var_r,filename%restart_in,                &
                 max_vegpatches,'def',from_restart,INpatch)
    CALL redistr_r(INpatch,nap,var_r,canopy%fhs,'fhs')
@@ -887,7 +888,7 @@ SUBROUTINE extraRestart(INpatch,ssnow,canopy,rough,bgc,                        &
 
    veg%xalbnir = 1.0   ! xalbnir will soon be removed totally
 
-   PRINT *, 'Finished extraRestart'
+   write(*,*) 'Finished extraRestart'
 
    DEALLOCATE(var_i)
    DEALLOCATE(var_r)

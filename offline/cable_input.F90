@@ -2397,7 +2397,9 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
    USE SIMFIRE_MOD,     ONLY: TYPE_SIMFIRE
    use casaparm,        only: initcasa
    ! 13C
-   use cable_c13o2_def, only: c13o2_flux, c13o2_pool, c13o2_luc, c13o2_alloc_flux, c13o2_alloc_pools, c13o2_zero_flux
+   use cable_c13o2_def, only: c13o2_flux, c13o2_pool, c13o2_luc, &
+        c13o2_alloc_flux, c13o2_alloc_pools, &
+        c13o2_zero_flux, c13o2_zero_pools
    use cable_c13o2,     only: c13o2_init_flux, c13o2_init_pools, c13o2_init_luc
    use cable_c13o2,     only: c13o2_read_restart_flux, c13o2_read_restart_pools
 
@@ -2465,21 +2467,37 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
     CALL allocate_cable_vars(air,bgc,canopy,met,bal,rad,rough,soil,ssnow, &
             sum_flux,veg,mp)
     ! 13C
-    if (cable_user%c13o2) call c13o2_alloc_flux(c13o2flux, mp)
+    if (cable_user%c13o2) then
+       call c13o2_alloc_flux(c13o2flux, mp)
+       !MCINI
+       call c13o2_zero_flux(c13o2flux)
+    endif
     WRITE(logn,*) ' CABLE variables allocated with ', mp, ' patch(es).'
 
     IF (icycle > 0 .OR. CABLE_USER%CASA_DUMP_WRITE ) then
        CALL alloc_casavariable(casabiome,casapool,casaflux, &
             casamet,casabal,mp)
+       !MCINI
+       call zero_casavariable(casabiome, casapool, casaflux, casamet, casabal)
        ! 13C
-       if (cable_user%c13o2) call c13o2_alloc_pools(c13o2pools, mp)
+       if (cable_user%c13o2) then
+          call c13o2_alloc_pools(c13o2pools, mp)
+          !MCINI
+          call c13o2_zero_pools(c13o2pools)
+       endif
     endif
     !mpdiff
     CALL alloc_sum_casavariable(sum_casapool, sum_casaflux, mp)
     ! 13C
-    if (cable_user%c13o2) call c13o2_alloc_pools(sum_c13o2pools, mp)
+    if (cable_user%c13o2) then
+       call c13o2_alloc_pools(sum_c13o2pools, mp)
+       !MCINI
+       call c13o2_zero_pools(sum_c13o2pools)       
+    endif
     IF (icycle > 0) THEN
        CALL alloc_phenvariable(phen,mp)
+       !MCINI
+       call zero_phenvariable(phen)
     ENDIF
 
     ! Write parameter values to CABLE's parameter variables:
@@ -2877,6 +2895,19 @@ SUBROUTINE allocate_cable_vars(air,bgc,canopy,met,bal,                         &
    CALL alloc_cbm_var(sum_flux, arraysize)
    CALL alloc_cbm_var(veg, arraysize)
 
+   !MCINI
+   call zero_cbm_var(air)
+   call zero_cbm_var(bgc)
+   call zero_cbm_var(canopy)
+   call zero_cbm_var(met)
+   call zero_cbm_var(bal)
+   call zero_cbm_var(rad)
+   call zero_cbm_var(rough)
+   call zero_cbm_var(soil)
+   call zero_cbm_var(ssnow)
+   call zero_cbm_var(sum_flux)
+   call zero_cbm_var(veg)
+   
    ! Allocate patch fraction variable:
    ALLOCATE(patch(arraysize))
 

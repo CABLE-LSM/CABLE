@@ -639,7 +639,7 @@ CONTAINS
 
     !-------------------------------------------------------------------------------
     ! This subroutine redestributes carbon (nitrogen and phosphorous) amongst
-    ! pools according to land-use transtions
+    ! pools according to land-use transitions
     !-------------------------------------------------------------------------------
 
     IMPLICIT NONE
@@ -654,10 +654,10 @@ CONTAINS
     
     ! number of cable time-steps in a day (for needed for LUC flux output)
     integer:: g, k, j, l, idp, irp, idlu, irlu, ilu
-    INTEGER,  PARAMETER :: &
-         p         =  1, &
-         s         =  2, &
-         gr         =  3
+    INTEGER, PARAMETER :: &
+         p  =  1, &
+         s  =  2, &
+         gr =  3
     REAL(dp) :: dcplant(nLU,nLU,3), dclitter(nLU,nLU,3), dcsoil(nLU,nLU,3)
     REAL(dp) :: dcplant_r(nLU,3), dclitter_r(nLU,3), dcsoil_r(nLU,3)
     REAL(dp) :: dcplant_d(nLU,3), dclitter_d(nLU,3), dcsoil_d(nLU,3)

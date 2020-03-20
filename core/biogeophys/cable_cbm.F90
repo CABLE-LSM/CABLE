@@ -35,12 +35,13 @@ MODULE cable_cbm_module
    IMPLICIT NONE
 
    PRIVATE
-   PUBLIC cbm
+   
+   PUBLIC :: cbm
 
 CONTAINS
 
-   SUBROUTINE cbm( ktau,dels, air, bgc, canopy, met,                                &
-                   bal, rad, rough, soil,                                      &
+   SUBROUTINE cbm( ktau, dels, air, bgc, canopy, met, &
+                   bal, rad, rough, soil, &
                    ssnow, sum_flux, veg, climate )
 
    USE cable_common_module
@@ -55,25 +56,24 @@ CONTAINS
 #endif
    USE cable_data_module, ONLY : icbm_type, point2constants
 
-   !ptrs to local constants
-   TYPE( icbm_type ) :: C
    ! CABLE model variables
-   TYPE (air_type),       INTENT(INOUT) :: air
-   TYPE (bgc_pool_type),  INTENT(INOUT) :: bgc
-   TYPE (canopy_type),    INTENT(INOUT) :: canopy
-   TYPE (met_type),       INTENT(INOUT) :: met
-   TYPE (balances_type),  INTENT(INOUT) :: bal
-   TYPE (radiation_type), INTENT(INOUT) :: rad
-   TYPE (roughness_type), INTENT(INOUT) :: rough
-   TYPE (soil_snow_type), INTENT(INOUT) :: ssnow
-   TYPE (sum_flux_type),  INTENT(INOUT) :: sum_flux
-   TYPE (climate_type), INTENT(IN)    :: climate
+   INTEGER,                   INTENT(IN)    :: ktau
+   REAL,                      INTENT(IN)    :: dels ! time setp size (s)
+   TYPE(air_type),            INTENT(INOUT) :: air
+   TYPE(bgc_pool_type),       INTENT(INOUT) :: bgc
+   TYPE(canopy_type),         INTENT(INOUT) :: canopy
+   TYPE(met_type),            INTENT(INOUT) :: met
+   TYPE(balances_type),       INTENT(INOUT) :: bal
+   TYPE(radiation_type),      INTENT(INOUT) :: rad
+   TYPE(roughness_type),      INTENT(INOUT) :: rough
+   TYPE(soil_parameter_type), INTENT(INOUT) :: soil
+   TYPE(soil_snow_type),      INTENT(INOUT) :: ssnow
+   TYPE(sum_flux_type),       INTENT(INOUT) :: sum_flux
+   TYPE(veg_parameter_type),  INTENT(INOUT) :: veg
+   TYPE(climate_type),        INTENT(IN)    :: climate
 
-   TYPE (soil_parameter_type), INTENT(INOUT)   :: soil
-   TYPE (veg_parameter_type),  INTENT(INOUT)    :: veg
-
-   REAL, INTENT(IN)               :: dels ! time setp size (s)
-   INTEGER, INTENT(IN) :: ktau
+   ! ptrs to local constants
+   TYPE(icbm_type) :: C
 
 #ifdef NO_CASA_YET
    INTEGER :: ICYCLE
@@ -123,14 +123,14 @@ CONTAINS
    ! RML moved out of following IF after discussion with Eva
    ssnow%owetfac = ssnow%wetfac
 
-   IF( cable_runtime%um ) THEN
+   IF ( cable_runtime%um ) THEN
 
      IF( cable_runtime%um_implicit ) THEN
          CALL soil_snow(dels, soil, ssnow, canopy, met, bal,veg)
       ENDIF
 
    ELSE
-      IF(cable_user%SOIL_STRUC=='default') THEN
+      IF (cable_user%SOIL_STRUC=='default') THEN
          call soil_snow(dels, soil, ssnow, canopy, met, bal,veg)
       ELSEIF (cable_user%SOIL_STRUC=='sli') THEN
          CALL sli_main(ktau,dels,veg,soil,ssnow,met,canopy,air,rad,0)
@@ -140,7 +140,7 @@ CONTAINS
 
    ssnow%deltss = ssnow%tss-ssnow%otss
    ! correction required for energy balance in online simulations
-   IF( cable_runtime%um ) THEN
+   IF ( cable_runtime%um ) THEN
 
       canopy%fhs = canopy%fhs + ( ssnow%tss-ssnow%otss ) * ssnow%dfh_dtg
 
@@ -148,12 +148,11 @@ CONTAINS
 
       canopy%fh = canopy%fhv + canopy%fhs
 
-      canopy%fes = canopy%fes + ( ssnow%tss-ssnow%otss ) *                        &
-                ( ssnow%dfe_ddq * ssnow%ddq_dtg )
+      canopy%fes = canopy%fes + real(ssnow%tss-ssnow%otss, r_2) * &
+                real(ssnow%dfe_ddq * ssnow%ddq_dtg, r_2)
                 !( ssnow%cls * ssnow%dfe_ddq * ssnow%ddq_dtg )
-
-      canopy%fes_cor = canopy%fes_cor + ( ssnow%tss-ssnow%otss ) *                &
-                    ( ssnow%cls * ssnow%dfe_ddq * ssnow%ddq_dtg )
+      canopy%fes_cor = canopy%fes_cor + real(ssnow%tss-ssnow%otss, r_2) * &
+                    real(ssnow%cls * ssnow%dfe_ddq * ssnow%ddq_dtg, r_2)
 
    ENDIF
 

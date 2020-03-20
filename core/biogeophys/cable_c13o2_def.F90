@@ -26,9 +26,10 @@ MODULE cable_c13o2_def
   public :: c13o2_alloc_pools
   public :: c13o2_alloc_luc
   public :: c13o2_zero_flux
-  public :: c13o2_update_sum_pools
-  public :: c13o2_zero_sum_pools
+  public :: c13o2_zero_pools
   public :: c13o2_zero_luc
+  public :: c13o2_zero_sum_pools
+  public :: c13o2_update_sum_pools
 
   ! variables
   real(dp), dimension(:), allocatable :: c13o2_delta_atm
@@ -154,6 +155,7 @@ contains
 
   ! ------------------------------------------------------------------
 
+  ! Zero all 13C fluxes
   subroutine c13o2_zero_flux(c13o2flux)
 
     use cable_def_types_mod, only: dp => r_2
@@ -162,16 +164,72 @@ contains
 
     type(c13o2_flux), intent(inout) :: c13o2flux
 
+    c13o2flux%ca       =  0.0_dp
     c13o2flux%An       =  0.0_dp
     c13o2flux%Disc     = -1.0_dp
     c13o2flux%cAn12    =  0.0_dp
     c13o2flux%cAn      =  0.0_dp
+    c13o2flux%RAn      =  0.0_dp
     c13o2flux%Vstarch  =  0.0_dp
     c13o2flux%Rstarch  =  1.0_dp
     c13o2flux%Rsucrose =  1.0_dp
     c13o2flux%Rphoto   =  1.0_dp
 
   end subroutine c13o2_zero_flux
+
+  ! ------------------------------------------------------------------
+
+  ! Zero all 13C Casa pools
+  subroutine c13o2_zero_pools(c13o2pools)
+
+    use cable_def_types_mod, only: dp => r_2
+
+    implicit none
+    
+    type(c13o2_pool), intent(inout) :: c13o2pools
+
+    c13o2pools%cplant   = 0.0_dp
+    c13o2pools%clitter  = 0.0_dp
+    c13o2pools%csoil    = 0.0_dp
+    c13o2pools%clabile  = 0.0_dp
+    c13o2pools%charvest = 0.0_dp
+    
+  end subroutine c13o2_zero_pools
+
+  ! ------------------------------------------------------------------
+
+  ! Zero all 13C LUC pools
+  subroutine c13o2_zero_luc(c13o2luc)
+
+    use cable_def_types_mod, only: dp => r_2
+
+    implicit none
+
+    type(c13o2_luc), intent(inout) :: c13o2luc
+
+    c13o2luc%charvest   = 0.0_dp
+    c13o2luc%cclearance = 0.0_dp
+    c13o2luc%cagric     = 0.0_dp
+
+  end subroutine c13o2_zero_luc
+
+  ! ------------------------------------------------------------------
+  
+  ! Zero the accumulated output for 13CO2
+  subroutine c13o2_zero_sum_pools(sum_c13o2pools)
+
+    use cable_def_types_mod, only: dp => r_2
+
+    implicit none
+    
+    type(c13o2_pool), intent(inout) :: sum_c13o2pools
+
+    sum_c13o2pools%cplant   = 0.0_dp
+    sum_c13o2pools%clitter  = 0.0_dp
+    sum_c13o2pools%csoil    = 0.0_dp
+    sum_c13o2pools%clabile  = 0.0_dp
+
+  end subroutine c13o2_zero_sum_pools
 
   ! ------------------------------------------------------------------
 
@@ -202,38 +260,6 @@ contains
     endif
 
   end subroutine c13o2_update_sum_pools
-
-  ! ------------------------------------------------------------------
-  
-  ! Zero the accumulated output for 13CO2
-  subroutine c13o2_zero_sum_pools(sum_c13o2pools)
-
-    implicit none
-    
-    type(c13o2_pool), intent(inout) :: sum_c13o2pools
-
-    sum_c13o2pools%cplant   = 0.0_dp
-    sum_c13o2pools%clitter  = 0.0_dp
-    sum_c13o2pools%csoil    = 0.0_dp
-    sum_c13o2pools%clabile  = 0.0_dp
-
-  end subroutine c13o2_zero_sum_pools
-
-  ! ------------------------------------------------------------------
-
-  subroutine c13o2_zero_luc(c13o2luc)
-
-    use cable_def_types_mod, only: dp => r_2
-
-    implicit none
-
-    type(c13o2_luc), intent(inout) :: c13o2luc
-
-    c13o2luc%charvest   = 0.0_dp
-    c13o2luc%cclearance = 0.0_dp
-    c13o2luc%cagric     = 0.0_dp
-
-  end subroutine c13o2_zero_luc
 
   ! ------------------------------------------------------------------
 

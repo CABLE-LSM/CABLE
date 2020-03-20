@@ -870,6 +870,305 @@ Contains
   END SUBROUTINE alloc_sum_casavariable
 
 
+  subroutine zero_casavariable(casabiome, casapool, casaflux, casamet, casabal)
+    
+    implicit none
+    
+    type(casa_biome)  , intent(inout) :: casabiome
+    type(casa_pool)   , intent(inout) :: casapool
+    type(casa_flux)   , intent(inout) :: casaflux
+    type(casa_met)    , intent(inout) :: casamet
+    type(casa_balance), intent(inout) :: casabal
+
+    casabiome%ivt2                 = 0.0_r_2
+    casabiome%xkleafcoldmax        = 0.0_r_2
+    casabiome%xkleafcoldexp        = 0.0_r_2
+    casabiome%xkleafdrymax         = 0.0_r_2
+    casabiome%xkleafdryexp         = 0.0_r_2
+    casabiome%glaimax              = 0.0_r_2
+    casabiome%glaimin              = 0.0_r_2
+    casabiome%sla                  = 0.0_r_2
+    casabiome%ratiofrootleaf       = 0.0_r_2
+    casabiome%kroot                = 0.0_r_2
+    casabiome%krootlen             = 0.0_r_2
+    casabiome%rootdepth            = 0.0_r_2
+    casabiome%kuptake              = 0.0_r_2
+    casabiome%kminN                = 0.0_r_2
+    casabiome%KuplabP              = 0.0_r_2
+    casabiome%kclabrate            = 0.0_r_2
+    casabiome%xnpmax               = 0.0_r_2
+    casabiome%q10soil              = 0.0_r_2
+    casabiome%xkoptlitter          = 0.0_r_2
+    casabiome%xkoptsoil            = 0.0_r_2
+    casabiome%xkplab               = 0.0_r_2
+    casabiome%xkpsorb              = 0.0_r_2
+    casabiome%xkpocc               = 0.0_r_2
+    casabiome%prodptase            = 0.0_r_2
+    casabiome%costnpup             = 0.0_r_2
+    casabiome%maxfinelitter        = 0.0_r_2
+    casabiome%maxcwd               = 0.0_r_2
+    casabiome%nintercept           = 0.0_r_2
+    casabiome%nslope               = 0.0_r_2
+    casabiome%plantrate            = 0.0_r_2
+    casabiome%rmplant              = 0.0_r_2
+    casabiome%fracnpptoP           = 0.0_r_2
+    casabiome%fraclignin           = 0.0_r_2
+    casabiome%fraclabile           = 0.0_r_2
+    casabiome%ratioNCplantmin      = 0.0_r_2
+    casabiome%ratioNCplantmax      = 0.0_r_2
+    casabiome%ratioNPplantmin      = 0.0_r_2
+    casabiome%ratioNPplantmax      = 0.0_r_2
+    casabiome%fracLigninplant      = 0.0_r_2
+    casabiome%ftransNPtoL          = 0.0_r_2
+    casabiome%ftransPPtoL          = 0.0_r_2
+    casabiome%litterrate           = 0.0_r_2
+    casabiome%soilrate             = 0.0_r_2
+    casabiome%ratioPcplantmax      = 0.0_r_2
+    casabiome%ratioPcplantmin      = 0.0_r_2
+    casabiome%la_to_sa             = 0.0_r_2
+    casabiome%vcmax_scalar         = 0.0_r_2
+    casabiome%disturbance_interval = 0.0_r_2
+    casabiome%DAMM_EnzPool         = 0.0_r_2
+    casabiome%DAMM_KMO2            = 0.0_r_2
+    casabiome%DAMM_KMcp            = 0.0_r_2
+    casabiome%DAMM_Ea              = 0.0_r_2
+    casabiome%DAMM_alpha           = 0.0_r_2
+
+    casapool%Clabile        = 0.0_r_2
+    casapool%dClabiledt     = 0.0_r_2
+    casapool%Cplant         = 0.0_r_2
+    casapool%Nplant         = 0.0_r_2
+    casapool%Pplant         = 0.0_r_2
+    casapool%dCplantdt      = 0.0_r_2
+    casapool%dNplantdt      = 0.0_r_2
+    casapool%dPplantdt      = 0.0_r_2
+    casapool%ratioNCplant   = 0.0_r_2
+    casapool%ratioNPplant   = 0.0_r_2
+    casapool%Nsoilmin       = 0.0_r_2
+    casapool%Psoillab       = 0.0_r_2
+    casapool%Psoilsorb      = 0.0_r_2
+    casapool%Psoilocc       = 0.0_r_2
+    casapool%dNsoilmindt    = 0.0_r_2
+    casapool%dPsoillabdt    = 0.0_r_2
+    casapool%dPsoilsorbdt   = 0.0_r_2
+    casapool%dPsoiloccdt    = 0.0_r_2
+    casapool%Clitter        = 0.0_r_2
+    casapool%Nlitter        = 0.0_r_2
+    casapool%Plitter        = 0.0_r_2
+    casapool%dClitterdt     = 0.0_r_2
+    casapool%dNlitterdt     = 0.0_r_2
+    casapool%dPlitterdt     = 0.0_r_2
+    casapool%ratioNClitter  = 0.0_r_2
+    casapool%ratioNPlitter  = 0.0_r_2
+    casapool%Csoil          = 0.0_r_2
+    casapool%Nsoil          = 0.0_r_2
+    casapool%Psoil          = 0.0_r_2
+    casapool%dCsoildt       = 0.0_r_2
+    casapool%dNsoildt       = 0.0_r_2
+    casapool%dPsoildt       = 0.0_r_2
+    casapool%ratioNCsoil    = 0.0_r_2
+    casapool%ratioNPsoil    = 0.0_r_2
+    casapool%ratioNCsoilnew = 0.0_r_2
+    casapool%ratioNCsoilmin = 0.0_r_2
+    casapool%ratioNCsoilmax = 0.0_r_2
+    casapool%ratioPCsoil    = 0.0_r_2
+    casapool%ratioPCplant   = 0.0_r_2
+    casapool%ratioPClitter  = 0.0_r_2
+    casapool%Ctot_0         = 0.0_r_2
+    casapool%Ctot           = 0.0_r_2
+
+    casaflux%Cgpp         = 0.0_r_2
+    casaflux%Cnpp         = 0.0_r_2
+    casaflux%Crp          = 0.0_r_2
+    casaflux%Crgplant     = 0.0_r_2
+    casaflux%Nminfix      = 0.0_r_2
+    casaflux%Nminuptake   = 0.0_r_2
+    casaflux%Plabuptake   = 0.0_r_2
+    casaflux%Clabloss     = 0.0_r_2
+    casaflux%fracClabile  = 0.0_r_2
+    casaflux%fracCalloc   = 0.0_r_2
+    casaflux%fracNalloc   = 0.0_r_2
+    casaflux%fracPalloc   = 0.0_r_2
+    casaflux%kplant       = 0.0_r_2
+    casaflux%Crmplant     = 0.0_r_2
+    casaflux%fromPtoL     = 0.0_r_2
+    casaflux%Cnep         = 0.0_r_2
+    casaflux%Crsoil       = 0.0_r_2
+    casaflux%Nmindep      = 0.0_r_2
+    casaflux%Nminloss     = 0.0_r_2
+    casaflux%Nminleach    = 0.0_r_2
+    casaflux%Nupland      = 0.0_r_2
+    casaflux%Nlittermin   = 0.0_r_2
+    casaflux%Nsmin        = 0.0_r_2
+    casaflux%Nsimm        = 0.0_r_2
+    casaflux%Nsnet        = 0.0_r_2
+    casaflux%fNminloss    = 0.0_r_2
+    casaflux%fNminleach   = 0.0_r_2
+    casaflux%Pdep         = 0.0_r_2
+    casaflux%Pwea         = 0.0_r_2
+    casaflux%Pleach       = 0.0_r_2
+    casaflux%Ploss        = 0.0_r_2
+    casaflux%Pupland      = 0.0_r_2
+    casaflux%Plittermin   = 0.0_r_2
+    casaflux%Psmin        = 0.0_r_2
+    casaflux%Psimm        = 0.0_r_2
+    casaflux%Psnet        = 0.0_r_2
+    casaflux%fPleach      = 0.0_r_2
+    casaflux%kplab        = 0.0_r_2
+    casaflux%kpsorb       = 0.0_r_2
+    casaflux%kpocc        = 0.0_r_2
+    casaflux%kmlabP       = 0.0_r_2
+    casaflux%Psorbmax     = 0.0_r_2
+    casaflux%klitter      = 0.0_r_2
+    casaflux%ksoil        = 0.0_r_2
+    casaflux%fromLtoS     = 0.0_r_2
+    casaflux%fromStoS     = 0.0_r_2
+    casaflux%fromLtoCO2   = 0.0_r_2
+    casaflux%fromStoCO2   = 0.0_r_2
+    casaflux%stemnpp      = 0.0_r_2
+    casaflux%frac_sapwood = 0.0_r_2
+    casaflux%sapwood_area = 0.0_r_2
+    casaflux%fharvest     = 0.0_r_2
+    casaflux%Charvest     = 0.0_r_2
+    casaflux%Nharvest     = 0.0_r_2
+    casaflux%Pharvest     = 0.0_r_2
+    casaflux%fcrop        = 0.0_r_2
+    casaflux%Cplant_turnover                     = 0.0_r_2
+    casaflux%Cplant_turnover_disturbance         = 0.0_r_2
+    casaflux%Cplant_turnover_crowding            = 0.0_r_2
+    casaflux%Cplant_turnover_resource_limitation = 0.0_r_2
+
+    casaflux%fromPtoL_fire          = 0.0_r_2
+    casaflux%kplant_fire            = 0.0_r_2
+    casaflux%klitter_fire           = 0.0_r_2
+    casaflux%kplant_tot             = 0.0_r_2
+    casaflux%klitter_tot            = 0.0_r_2
+    casaflux%FluxCtoCO2_plant_fire  = 0.0_r_2
+    casaflux%FluxCtoCO2_litter_fire = 0.0_r_2
+    casaflux%fluxfromPtoCO2_fire    = 0.0_r_2
+    casaflux%fluxfromLtoCO2_fire    = 0.0_r_2
+    casaflux%FluxNtoAtm_fire        = 0.0_r_2
+
+    casaflux%FluxCtolitter = 0.0_r_2
+    casaflux%FluxNtolitter = 0.0_r_2
+    casaflux%FluxPtolitter = 0.0_r_2
+
+    casaflux%FluxCtosoil = 0.0_r_2
+    casaflux%FluxNtosoil = 0.0_r_2
+    casaflux%FluxPtosoil = 0.0_r_2
+
+    casaflux%FluxCtohwp = 0.0_r_2
+    casaflux%FluxNtohwp = 0.0_r_2
+    casaflux%FluxPtohwp = 0.0_r_2
+
+    casaflux%FluxCtoclear = 0.0_r_2
+    casaflux%FluxNtoclear = 0.0_r_2
+    casaflux%FluxPtoclear = 0.0_r_2
+
+    casaflux%CtransferLUC = 0.0_r_2
+
+    casaflux%FluxCtoco2 = 0.0_r_2
+
+    casaflux%FluxFromPtoL = 0.0_r_2
+    casaflux%FluxFromLtoS       = 0.0_r_2
+    casaflux%FluxFromStoS       = 0.0_r_2
+    casaflux%FluxFromPtoCO2     = 0.0_r_2
+    casaflux%FluxFromLtoCO2     = 0.0_r_2
+    casaflux%FluxFromStoCO2     = 0.0_r_2
+    casaflux%FluxFromPtoHarvest = 0.0_r_2
+
+    casamet%glai           = 0.0_r_2
+    casamet%lnonwood       = 0.0_r_2
+    casamet%Tairk          = 0.0_r_2
+    casamet%precip         = 0.0_r_2
+    casamet%tsoilavg       = 0.0_r_2
+    casamet%moistavg       = 0.0_r_2
+    casamet%btran          = 0.0_r_2
+    casamet%Tsoil          = 0.0_r_2
+    casamet%moist          = 0.0_r_2
+    casamet%iveg2          = 0.0_r_2
+    casamet%ijgcm          = 0.0_r_2
+    casamet%isorder        = 0.0_r_2
+    casamet%lat            = 0.0_r_2
+    casamet%lon            = 0.0_r_2
+    casamet%areacell       = 0.0_r_2
+    casamet%Tairkspin      = 0.0_r_2
+    casamet%cgppspin       = 0.0_r_2
+    casamet%crmplantspin_1 = 0.0_r_2
+    casamet%crmplantspin_2 = 0.0_r_2
+    casamet%crmplantspin_3 = 0.0_r_2
+    casamet%Tsoilspin_1    = 0.0_r_2
+    casamet%Tsoilspin_2    = 0.0_r_2
+    casamet%Tsoilspin_3    = 0.0_r_2
+    casamet%Tsoilspin_4    = 0.0_r_2
+    casamet%Tsoilspin_5    = 0.0_r_2
+    casamet%Tsoilspin_6    = 0.0_r_2
+    casamet%moistspin_1    = 0.0_r_2
+    casamet%moistspin_2    = 0.0_r_2
+    casamet%moistspin_3    = 0.0_r_2
+    casamet%moistspin_4    = 0.0_r_2
+    casamet%moistspin_5    = 0.0_r_2
+    casamet%moistspin_6    = 0.0_r_2
+    casamet%mtempspin      = 0.0_r_2
+    casamet%cAn12spin      = 0.0_r_2
+    casamet%cAn13spin      = 0.0_r_2
+
+    casabal%FCgppyear    = 0.0_r_2
+    casabal%FCnppyear    = 0.0_r_2
+    casabal%FCrpyear     = 0.0_r_2
+    casabal%FCrmleafyear = 0.0_r_2
+    casabal%FCrmwoodyear = 0.0_r_2
+    casabal%FCrmrootyear = 0.0_r_2
+    casabal%FCrgrowyear  = 0.0_r_2
+    casabal%FCrsyear     = 0.0_r_2
+    casabal%FCneeyear    = 0.0_r_2
+    casabal%FNdepyear    = 0.0_r_2
+    casabal%FNfixyear    = 0.0_r_2
+    casabal%FNsnetyear   = 0.0_r_2
+    casabal%FNupyear     = 0.0_r_2
+    casabal%FNleachyear  = 0.0_r_2
+    casabal%FNlossyear   = 0.0_r_2
+    casabal%FPweayear    = 0.0_r_2
+    casabal%FPdustyear   = 0.0_r_2
+    casabal%FPsnetyear   = 0.0_r_2
+    casabal%FPupyear     = 0.0_r_2
+    casabal%FPleachyear  = 0.0_r_2
+    casabal%FPlossyear   = 0.0_r_2
+    casabal%dCdtyear     = 0.0_r_2
+    casabal%LAImax       = 0.0_r_2
+    casabal%Cleafmean    = 0.0_r_2
+    casabal%Crootmean    = 0.0_r_2
+
+    casabal%glaimon  = 0.0_r_2
+    casabal%glaimonx = 0.0_r_2
+
+    casabal%cplantlast = 0.0_r_2
+    casabal%nplantlast = 0.0_r_2
+    casabal%pplantlast = 0.0_r_2
+
+    casabal%clitterlast = 0.0_r_2
+    casabal%nlitterlast = 0.0_r_2
+    casabal%plitterlast = 0.0_r_2
+
+    casabal%csoillast = 0.0_r_2
+    casabal%nsoillast = 0.0_r_2
+    casabal%psoillast = 0.0_r_2
+
+    casabal%nsoilminlast  = 0.0_r_2
+    casabal%psoillablast  = 0.0_r_2
+    casabal%psoilsorblast = 0.0_r_2
+    casabal%psoilocclast  = 0.0_r_2
+    casabal%cbalance      = 0.0_r_2
+    casabal%nbalance      = 0.0_r_2
+    casabal%pbalance      = 0.0_r_2
+    casabal%sumcbal       = 0.0_r_2
+    casabal%sumnbal       = 0.0_r_2
+    casabal%sumpbal       = 0.0_r_2
+    casabal%clabilelast   = 0.0_r_2
+
+  END SUBROUTINE zero_casavariable
+
+
   SUBROUTINE zero_sum_casa(sum_casapool, sum_casaflux)
 
     IMPLICIT NONE
@@ -1356,7 +1655,27 @@ CONTAINS
          phen%doyphasespin_2(arraysize,mdyear), &
          phen%doyphasespin_3(arraysize,mdyear), &
          phen%doyphasespin_4(arraysize,mdyear))
+    
   END SUBROUTINE alloc_phenvariable
 
+  
+  subroutine zero_phenvariable(phen)
+
+    implicit none
+    
+    type(phen_variable), intent(inout) :: phen
+
+    phen%Tkshed         = 0
+    phen%phase          = 0.0_r_2
+    phen%doyphase       = 0
+    phen%phen           = 0.0
+    phen%aphen          = 0.0
+    phen%phasespin      = 0
+    phen%doyphasespin_1 = 0
+    phen%doyphasespin_2 = 0
+    phen%doyphasespin_3 = 0
+    phen%doyphasespin_4 = 0
+    
+  end subroutine zero_phenvariable
   
 End MODULE phenvariable

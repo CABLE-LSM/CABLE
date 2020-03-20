@@ -44,11 +44,11 @@
 # cuntz@explor, cuntz@mcinra, moc801@gadi cuntz@gadi
 # kna016@pearcey knauer@pearcey, jk8585@gadi knauer@gadi
 # not yet vxh599@gadi nor hav014@pearcey
-system=cuntz@explor
+system=cuntz@mcinra
 
 # MPI run or single processor run
 # nproc should fit with job tasks
-dompi=1   # 0: normal run: ./cable
+dompi=0   # 0: normal run: ./cable
 # 1: MPI run: mpiexec -n ${nproc} ./cable_mpi
 nproc=2   # Number of cores for MPI runs
 # must be same as above: SBATCH -n nproc or PBS -l ncpus=nproc
@@ -90,7 +90,7 @@ ignore_mpi_err=0 # 0/1: 1: continue even if mpi run failed
 # --------------------------------------------------------------------
 # Sequence switches
 #
-imeteo=1        # 0: Use global meteo, land use and mask
+imeteo=2        # 0: Use global meteo, land use and mask
                 # 1: Use local mask, but global meteo and land use (doextractsite=1)
                 # 2: Use local meteo, land use and mask (doextractsite=2)
 # Step 0
@@ -98,13 +98,13 @@ doextractsite=0 # 0: Do not extract local meteo, land use nor mask
                 # 1: Do extract only mask at specific site/region (imeteo=1)
                 # 2: Do extract meteo, land use and mask at specific site/region (imeteo=2)
                 #    Does not work with randompoints /= 0 but with latlon
-    sitename=TestPoint1
+    sitename=HarvardForest10
     randompoints=0   # <0: use -1*randompoints random grid points from ${LandMaskFilePath}/${sitename}_points.csv if existing
                      # 0:  use latlon
                      # >0: generate and use randompoints random grid points from GlobalLandMaskFile
     # lat,lon  or  latmin,latmax,lonmin,lonmax   # must have . in numbers otherwise indexes taken
-    # latlon=42.536875,-72.172602
-    latlon=-34.5,-33.5,149.5,156.5
+    latlon=42.536875,-72.172602
+    # latlon=-34.5,-33.5,149.5,156.5
     # latlon=42.5,43.5,109.5,110.5
 # Step 1
 doclimate=1     # 1/0: Do/Do not create climate restart file
@@ -1347,8 +1347,11 @@ if [[ ${doinidyn} -eq 1 ]] ; then
     com=${com}$(csed "spincasa=.false.")
     com=${com}$(csed "cable_user%CASA_fromZero=.false.")
     com=${com}$(csed "cable_user%CASA_DUMP_READ=.false.")
-    com=${com}$(csed "cable_user%CASA_DUMP_WRITE=.true.")
-    com=${com}$(csed "cable_user%CASA_OUT_FREQ=\"monthly\"")
+    com=${com}$(csed "cable_user%CASA_DUMP_WRITE=.false.")
+    #MCTEST com=${com}$(csed "cable_user%CASA_OUT_FREQ=\"monthly\"")
+    com=${com}$(csed "cable_user%CASA_OUT_FREQ=\"daily\"")
+    #MCTEST
+    com=${com}$(csed "output%averaging=\"all\"")
     com=${com}$(csed "cable_user%CASA_SPIN_STARTYEAR=1850")
     #MCTEST com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1859")
     com=${com}$(csed "cable_user%CASA_SPIN_ENDYEAR=1851")

@@ -126,14 +126,67 @@ SUBROUTINE WGEN_INIT( WG, np, latitude, dels )
   ALLOCATE ( WG%Pmb                (np) )  ! pressure [mb]
   ALLOCATE ( WG%coszen             (np) )  ! cos(theta)
   
-  ALLOCATE ( WG%VapPmb0900         (np) )   ! 0900 water vapour pressure [mb]
+  ALLOCATE ( WG%VapPmb0900         (np) )  ! 0900 water vapour pressure [mb]
   ALLOCATE ( WG%VapPmb1500         (np) )  ! 1500 water vapour pressure [mb]
   ALLOCATE ( WG%VapPmb1500Prev     (np) )  ! 1500 (prev day) water vapour pressure [mb]
   ALLOCATE ( WG%VapPmb0900Next     (np) )  ! 0900(next day) water vapour pressure [mb]
 
+  !MCINI
+  call wgen_zero(WG)
+
   WG%LatDeg(:) = latitude(:)
 
 END SUBROUTINE WGEN_INIT
+
+
+subroutine wgen_zero(wg)
+
+  implicit none
+
+  type(weather_generator_type), intent(inout) :: wg
+
+  wg%LatDeg            = 0.0_sp
+  wg%WindDay           = 0.0_sp
+  wg%TempMinDay        = 0.0_sp
+  wg%TempMaxDay        = 0.0_sp
+  wg%TempMinDayNext    = 0.0_sp
+  wg%TempMaxDayPrev    = 0.0_sp
+  wg%SolarMJDay        = 0.0_sp
+  wg%PrecipDay         = 0.0_sp
+  wg%SnowDay           = 0.0_sp
+  wg%PmbDay            = 0.0_sp
+  wg%VapPmbDay         = 0.0_sp
+  wg%VapPmb0900        = 0.0_sp
+  wg%VapPmb1500        = 0.0_sp
+  wg%VapPmb1500Prev    = 0.0_sp
+  wg%VapPmb0900Next    = 0.0_sp
+  wg%WindDark          = 0.0_sp
+  wg%WindLite          = 0.0_sp
+  wg%SolarNorm         = 0.0_sp
+  wg%LatRad            = 0.0_sp
+  wg%DayLength         = 0.0_sp
+  wg%TimeSunsetPrev    = 0.0_sp
+  wg%TimeSunrise       = 0.0_sp
+  wg%TimeMaxTemp       = 0.0_sp
+  wg%TimeSunset        = 0.0_sp
+  wg%TempSunsetPrev    = 0.0_sp
+  wg%TempSunset        = 0.0_sp
+  wg%TempNightRate     = 0.0_sp
+  wg%TempNightRatePrev = 0.0_sp
+  wg%TempRangeDay      = 0.0_sp
+  Wg%TempRangeAft      = 0.0_sp
+  wg%PhiSd             = 0.0_sp
+  wg%PhiLd             = 0.0_sp
+  wg%Precip            = 0.0_sp
+  wg%Snow              = 0.0_sp
+  wg%Wind              = 0.0_sp
+  wg%Temp              = 0.0_sp
+  wg%VapPmb            = 0.0_sp
+  wg%Pmb               = 0.0_sp
+  wg%coszen            = 0.0_sp
+  
+end subroutine wgen_zero
+
 
 SUBROUTINE WGEN_DAILY_CONSTANTS( WG, np, YearDay )
 

@@ -98,7 +98,9 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
   ALLOCATE( SF%SAV_FAPAR(NCELLS,FAPAR_AVG_INT) )
   ALLOCATE( SF%POPDENS     (NCELLS) )
   ALLOCATE( SF%BA_MONTHLY_CLIM(NCELLS,12)) ! fraction of annual burned area in each month
-  
+
+  !MCINI
+  call zero_simfire(SF)
 
   !=============================================================================
   ! VEGTYPE from IGBP dataset 
@@ -182,6 +184,32 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
 
   
 END SUBROUTINE INI_SIMFIRE
+
+
+SUBROUTINE zero_simfire(SF)
+
+  implicit none
+  
+  TYPE (TYPE_SIMFIRE), INTENT(INOUT) :: SF
+
+  SF%IGBP         = 0
+  SF%BIOME        = 0
+  SF%REGION       = 0
+  SF%POPD         = 0
+  SF%MAX_NESTEROV = 0
+  SF%CNEST        = 0
+  SF%NDAY         = 0
+  SF%FAPAR        = 0
+  SF%LAT          = 0
+  SF%LON          = 0
+  SF%FLI          = 0
+  SF%SAV_NESTEROV = 0
+  SF%SAV_FAPAR = 0
+  SF%POPDENS      = 0
+  SF%BA_MONTHLY_CLIM = 0
+  
+END SUBROUTINE zero_simfire
+
 
 SUBROUTINE GET_POPDENS ( SF, YEAR ) 
 

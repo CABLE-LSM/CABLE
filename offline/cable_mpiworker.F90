@@ -134,12 +134,12 @@ CONTAINS
          IS_LEAPYEAR, IS_CASA_TIME, calcsoilalbedo, &
          kwidth_gl
     USE cable_data_module,    ONLY: driver_type, point2constants
-    USE cable_cbm_module
+    USE cable_cbm_module,     only: cbm
     USE cable_climate_mod
 
     ! modules related to CASA-CNP
     USE casadimension,        ONLY: icycle
-    USE casavariable,         ONLY: casafile, casa_biome, casa_pool, casa_flux,  &
+    USE casavariable,         ONLY: casafile, casa_biome, casa_pool, casa_flux, &
          casa_met, casa_balance
     USE phenvariable,         ONLY: phen_variable
 
@@ -162,7 +162,7 @@ CONTAINS
     IMPLICIT NONE
 
     ! MPI:
-    INTEGER               :: comm ! MPI communicator for comms with the workers
+    INTEGER :: comm ! MPI communicator for comms with the workers
 
     ! CABLE namelist: model configuration, runtime/user switches
     CHARACTER(LEN=200), PARAMETER :: CABLE_NAMELIST='cable.nml'
@@ -171,18 +171,18 @@ CONTAINS
     INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
     INTEGER, PARAMETER ::  mloop  = 30 !MCTEST 30  ! CASA-CNP PreSpinup loops
 
-    INTEGER        ::                                                           &
-         ktau,       &  ! increment equates to timestep, resets if spinning up
-         ktau_tot,   &  ! NO reset when spinning up, total timesteps by model
-         kend,       &  ! no. of time steps in run
+    INTEGER :: &
+         ktau,        &  ! increment equates to timestep, resets if spinning up
+         ktau_tot,    &  ! NO reset when spinning up, total timesteps by model
+         kend,        &  ! no. of time steps in run
          !CLN      kstart = 1, &  ! timestep to start at
          koffset = 0, &  ! timestep to start at
-         ktauday,    &  ! day counter for CASA-CNP
-         idoy,       &  ! day of year (1:365) counter for CASA-CNP
-         nyear,      &  ! year counter for CASA-CNP
-         YYYY,       &  !
-         LOY,        &  ! Length of Year
-         rank           ! Rank of this worker
+         ktauday,     &  ! day counter for CASA-CNP
+         idoy,        &  ! day of year (1:365) counter for CASA-CNP
+         nyear,       &  ! year counter for CASA-CNP
+         YYYY,        &  !
+         LOY,         &  ! Length of Year
+         rank            ! Rank of this worker
 
     REAL      :: dels    ! time step size in seconds
     CHARACTER :: cRank*4 ! for worker-logfiles
@@ -217,6 +217,7 @@ CONTAINS
     TYPE(TYPE_BLAZE)     :: BLAZE
     TYPE(TYPE_SIMFIRE)   :: SIMFIRE
     ! REAL(r_2), DIMENSION(:), ALLOCATABLE :: POP_TO, POP_CWD, POP_STR
+    real :: rshootfrac
 
     ! 13C
     type(c13o2_flux) :: c13o2flux
@@ -229,7 +230,7 @@ CONTAINS
     real(r_2), dimension(:),   allocatable :: Ra
 
     ! declare vars for switches (default .FALSE.) etc declared thru namelist
-    LOGICAL, SAVE           :: &
+    LOGICAL, SAVE :: &
          vegparmnew    = .FALSE., & ! using new format input file (BP dec 2007)
          spinup        = .FALSE., & ! model spinup to soil state equilibrium?
          spinConv      = .FALSE., & ! has spinup converged?
@@ -243,9 +244,9 @@ CONTAINS
          CASAONLY      = .FALSE., & ! ONLY Run CASA-CNP
          CALL1         = .TRUE.
 
-    REAL              :: &
-         delsoilM,         & ! allowed variation in soil moisture for spin up
-         delsoilT            ! allowed variation in soil temperature for spin up
+    REAL :: &
+         delsoilM, & ! allowed variation in soil moisture for spin up
+         delsoilT    ! allowed variation in soil temperature for spin up
 
     ! MPI:
     LOGICAL :: loop_exit     ! MPI: exit flag for bcast to workers
@@ -256,7 +257,7 @@ CONTAINS
     REAL    :: etime, etimelast
 
     ! switches etc defined thru namelist (by default cable.nml)
-    NAMELIST/CABLE/                  &
+    NAMELIST/CABLE/        &
          filename,         & ! TYPE, containing input filenames
          vegparmnew,       & ! use new soil param. method
          soilparmnew,      & ! use new soil param. method
@@ -292,10 +293,11 @@ CONTAINS
     character(len=200) :: arg2
 
     ! END header
-    
 
     ! Maciej: make sure the variable does not go out of scope
     mp = 0
+
+    rshootfrac = real(shootfrac)
 
     ! Open, read and close the namelist file.
     OPEN(10, FILE=CABLE_NAMELIST)
@@ -649,6 +651,20 @@ CONTAINS
              ENDIF
 
           ENDIF ! CALL1
+          ! print*, 'CBM001.01 '!, POPLUC%secdf
+          ! print*, 'CBM001.02 '!, POPLUC%AgProd
+          ! print*, 'CBM001.03 ', casapool%cplant
+          ! print*, 'CBM001.04 ', casapool%clitter
+          ! ! print*, 'CBM001.05 ', climate%APAR_leaf_shade
+          ! print*, 'CBM001.06 ', patch%frac
+          ! print*, 'CBM003.11 ', canopy%cansto
+          ! print*, 'CBM003.21 ', canopy%dgdtg
+          ! print*, 'CBM003.36 ', canopy%fev
+          ! print*, 'CBM003.43 ', canopy%fhs
+          ! print*, 'CBM003.49 ', canopy%ga
+          ! print*, 'CBM003.58 ', canopy%oldcansto
+          ! print*, 'CBM006.05 ', rough%hruff
+          ! print*, 'CBM008.12 ', ssnow%rtsoil
 
           ! globally (WRT code) accessible kend through USE cable_common_module
           ktau_gl   = 0
@@ -663,6 +679,20 @@ CONTAINS
           ! IF (.NOT.spincasa) THEN
           ! time step loop over ktau
           KTAULOOP:DO ktau=kstart, kend
+             ! print*, 'CBM101.01 '!, POPLUC%secdf
+             ! print*, 'CBM101.02 '!, POPLUC%AgProd
+             ! print*, 'CBM101.03 ', casapool%cplant
+             ! print*, 'CBM101.04 ', casapool%clitter
+             ! ! print*, 'CBM101.05 ', climate%APAR_leaf_shade
+             ! print*, 'CBM101.06 ', patch%frac
+             ! print*, 'CBM103.11 ', canopy%cansto
+             ! print*, 'CBM103.21 ', canopy%dgdtg
+             ! print*, 'CBM103.36 ', canopy%fev
+             ! print*, 'CBM103.43 ', canopy%fhs
+             ! print*, 'CBM103.49 ', canopy%ga
+             ! print*, 'CBM103.58 ', canopy%oldcansto
+             ! print*, 'CBM106.05 ', rough%hruff
+             ! print*, 'CBM108.12 ', ssnow%rtsoil
              CALL CPU_TIME(etimelast)
              ! increment total timstep counter
              ktau_tot = ktau_tot + 1
@@ -713,6 +743,20 @@ CONTAINS
              ! after input has been read from the file
              met%tvair = met%tk
              met%tvrad = met%tk
+             ! print*, 'CBM201.01 '!, POPLUC%secdf
+             ! print*, 'CBM201.02 '!, POPLUC%AgProd
+             ! print*, 'CBM201.03 ', casapool%cplant
+             ! print*, 'CBM201.04 ', casapool%clitter
+             ! ! print*, 'CBM201.05 ', climate%APAR_leaf_shade
+             ! print*, 'CBM201.06 ', patch%frac
+             ! print*, 'CBM203.11 ', canopy%cansto
+             ! print*, 'CBM203.21 ', canopy%dgdtg
+             ! print*, 'CBM203.36 ', canopy%fev
+             ! print*, 'CBM203.43 ', canopy%fhs
+             ! print*, 'CBM203.49 ', canopy%ga
+             ! print*, 'CBM203.58 ', canopy%oldcansto
+             ! print*, 'CBM206.05 ', rough%hruff
+             ! print*, 'CBM208.12 ', ssnow%rtsoil
 
              ! 13C
              if (cable_user%c13o2) then
@@ -721,6 +765,20 @@ CONTAINS
                 ! call MPI_Comm_rank(comm, rank, ierr)
                 ! print*, '                    ', rank, c13o2flux%ca
              endif
+             ! print*, 'CBM301.01 '!, POPLUC%secdf
+             ! print*, 'CBM301.02 '!, POPLUC%AgProd
+             ! print*, 'CBM301.03 ', casapool%cplant
+             ! print*, 'CBM301.04 ', casapool%clitter
+             ! ! print*, 'CBM301.05 ', climate%APAR_leaf_shade
+             ! print*, 'CBM301.06 ', patch%frac
+             ! print*, 'CBM303.11 ', canopy%cansto
+             ! print*, 'CBM303.21 ', canopy%dgdtg
+             ! print*, 'CBM303.36 ', canopy%fev
+             ! print*, 'CBM303.43 ', canopy%fhs
+             ! print*, 'CBM303.49 ', canopy%ga
+             ! print*, 'CBM303.58 ', canopy%oldcansto
+             ! print*, 'CBM306.05 ', rough%hruff
+             ! print*, 'CBM308.12 ', ssnow%rtsoil
 
              ! Feedback prognostic vcmax and daily LAI from casaCNP to CABLE
              IF (l_vcmaxFeedbk) THEN
@@ -742,15 +800,337 @@ CONTAINS
              ! where (veg%vcmax_shade < tiny(1.0)) veg%vcmax_shade = 0.0
              
              If (l_laiFeedbk) veg%vlai(:) = REAL(casamet%glai(:))
+             ! print*, 'CBM401.01 '!, POPLUC%secdf
+             ! print*, 'CBM401.02 '!, POPLUC%AgProd
+             ! print*, 'CBM401.03 ', casapool%cplant
+             ! print*, 'CBM401.04 ', casapool%clitter
+             ! ! print*, 'CBM401.05 ', climate%APAR_leaf_shade
+             ! print*, 'CBM401.06 ', patch%frac
+             ! print*, 'CBM403.11 ', canopy%cansto
+             ! print*, 'CBM403.21 ', canopy%dgdtg
+             ! print*, 'CBM403.36 ', canopy%fev
+             ! print*, 'CBM403.43 ', canopy%fhs
+             ! print*, 'CBM403.49 ', canopy%ga
+             ! print*, 'CBM403.58 ', canopy%oldcansto
+             ! print*, 'CBM406.05 ', rough%hruff
+             ! print*, 'CBM408.12 ', ssnow%rtsoil
 
              !TRUNK IF (cable_user%CALL_climate) &
              !TRUNK      CALL cable_climate(ktau_tot,kstart,kend,ktauday,idoy,LOY,met, &
              !TRUNK      climate, canopy, air, rad, dels, mp)
 
              ! CALL land surface scheme for this timestep, all grid points:
+             ! ! print*, 'CBM03.11 ', canopy%cansto
+             ! ! print*, 'CBM03.21 ', canopy%dgdtg
+             ! ! print*, 'CBM03.36 ', canopy%fev
+             ! ! print*, 'CBM03.43 ', canopy%fhs
+             ! ! print*, 'CBM03.49 ', canopy%ga
+             ! ! print*, 'CBM03.58 ', canopy%oldcansto
+             ! ! print*, 'CBM06.05 ', rough%hruff
+             ! ! print*, 'CBM08.12 ', ssnow%rtsoil
+             ! ! print*, 'CBM08.13 ', ssnow%tgg
+             ! ! print*, 'CBM08.14 ', ssnow%tggsn
+             ! ! print*, 'CBM08.15 ', ssnow%tss
+             ! ! print*, 'CBM08.16 ', ssnow%wb
+             ! ! print*, 'CBM01.01 ', ktau, dels
+             ! ! print*, 'CBM02.01 ', air%cmolar
+             ! ! print*, 'CBM02.02 ', air%rho
+             ! ! print*, 'CBM02.03 ', air%rlam
+             ! ! print*, 'CBM02.04 ', air%visc
+             ! ! print*, 'CBM03.00 ', canopy%A_sh
+             ! ! print*, 'CBM03.01 ', canopy%A_shC
+             ! ! print*, 'CBM03.02 ', canopy%A_shJ
+             ! ! print*, 'CBM03.03 ', canopy%A_sl
+             ! ! print*, 'CBM03.04 ', canopy%A_slC
+             ! ! print*, 'CBM03.05 ', canopy%A_slJ
+             ! ! print*, 'CBM03.06 ', canopy%An
+             ! ! print*, 'CBM03.07 ', canopy%DvLitt
+             ! ! print*, 'CBM03.08 ', canopy%GPP_sh
+             ! ! print*, 'CBM03.09 ', canopy%GPP_sl
+             ! ! print*, 'CBM03.10 ', canopy%Rd
+             ! ! print*, 'CBM03.11 ', canopy%cansto
+             ! ! print*, 'CBM03.02 ', canopy%cdtq
+             ! ! print*, 'CBM03.03 ', canopy%cduv
+             ! ! print*, 'CBM03.04 ', canopy%ci
+             ! ! print*, 'CBM03.05 ', canopy%cs
+             ! ! print*, 'CBM03.06 ', canopy%cs_sh
+             ! ! print*, 'CBM03.07 ', canopy%cs_sl
+             ! ! print*, 'CBM03.08 ', canopy%dAdcs
+             ! ! print*, 'CBM03.09 ', canopy%delwc
+             ! ! print*, 'CBM03.20 ', canopy%dewmm
+             ! ! print*, 'CBM03.21 ', canopy%dgdtg
+             ! ! print*, 'CBM03.02 ', canopy%dlf
+             ! ! print*, 'CBM03.03 ', canopy%epot
+             ! ! print*, 'CBM03.04 ', canopy%eta_A_cs
+             ! ! print*, 'CBM03.05 ', canopy%eta_A_cs_sh
+             ! ! print*, 'CBM03.06 ', canopy%eta_A_cs_sl
+             ! ! print*, 'CBM03.07 ', canopy%eta_GPP_cs
+             ! ! print*, 'CBM03.08 ', canopy%eta_fevc_cs
+             ! ! print*, 'CBM03.09 ', canopy%eta_fevc_cs_sh
+             ! ! print*, 'CBM03.30 ', canopy%eta_fevc_cs_sl
+             ! ! print*, 'CBM03.01 ', canopy%evapfbl
+             ! ! print*, 'CBM03.02 ', canopy%fe
+             ! ! print*, 'CBM03.03 ', canopy%fes
+             ! ! print*, 'CBM03.04 ', canopy%fesp
+             ! ! print*, 'CBM03.05 ', canopy%fess
+             ! ! print*, 'CBM03.36 ', canopy%fev
+             ! ! print*, 'CBM03.07 ', canopy%fevc
+             ! ! print*, 'CBM03.08 ', canopy%fevc_sh
+             ! ! print*, 'CBM03.09 ', canopy%fevc_sl
+             ! ! print*, 'CBM03.40 ', canopy%fevw
+             ! ! print*, 'CBM03.01 ', canopy%fevw_pot
+             ! ! print*, 'CBM03.02 ', canopy%fh
+             ! ! print*, 'CBM03.43 ', canopy%fhs
+             ! ! print*, 'CBM03.04 ', canopy%fhv
+             ! ! print*, 'CBM03.05 ', canopy%fhvw
+             ! ! print*, 'CBM03.06 ', canopy%fns
+             ! ! print*, 'CBM03.07 ', canopy%fnv
+             ! ! print*, 'CBM03.08 ', canopy%fwet
+             ! ! print*, 'CBM03.49 ', canopy%ga
+             ! ! print*, 'CBM03.50 ', canopy%gac
+             ! ! print*, 'CBM03.01 ', canopy%gammastar
+             ! ! print*, 'CBM03.02 ', canopy%gbc
+             ! ! print*, 'CBM03.03 ', canopy%gsc
+             ! ! print*, 'CBM03.04 ', canopy%gswx
+             ! ! print*, 'CBM03.05 ', canopy%gswx_T
+             ! ! print*, 'CBM03.06 ', canopy%isc3
+             ! ! print*, 'CBM03.07 ', canopy%kthLitt
+             ! ! print*, 'CBM03.58 ', canopy%oldcansto
+             ! ! print*, 'CBM03.09 ', canopy%precis
+             ! ! print*, 'CBM03.60 ', canopy%qscrn
+             ! ! print*, 'CBM03.01 ', canopy%rghlai
+             ! ! print*, 'CBM03.02 ', canopy%rnet
+             ! ! print*, 'CBM03.03 ', canopy%rniso
+             ! ! print*, 'CBM03.04 ', canopy%spill
+             ! ! print*, 'CBM03.05 ', canopy%through
+             ! ! print*, 'CBM03.06 ', canopy%tlf
+             ! ! print*, 'CBM03.07 ', canopy%tscrn
+             ! ! print*, 'CBM03.08 ', canopy%tv
+             ! ! print*, 'CBM03.09 ', canopy%us
+             ! ! print*, 'CBM03.70 ', canopy%vcmax
+             ! ! print*, 'CBM03.01 ', canopy%vlaiw
+             ! ! print*, 'CBM03.02 ', canopy%wetfac_cs
+             ! ! print*, 'CBM03.03 ', canopy%zetar
+             ! ! print*, 'CBM03.04 ', canopy%zetash
+             ! ! print*, 'CBM04.01 ', met%ca
+             ! ! print*, 'CBM04.02 ', met%dva
+             ! ! print*, 'CBM04.03 ', met%fld
+             ! ! print*, 'CBM04.04 ', met%pmb
+             ! ! print*, 'CBM04.05 ', met%qv
+             ! ! print*, 'CBM04.06 ', met%qvair
+             ! ! print*, 'CBM04.07 ', met%tk
+             ! ! print*, 'CBM04.08 ', met%tvair
+             ! ! print*, 'CBM04.09 ', met%ua
+             ! ! print*, 'CBM05.01 ', bal%drybal
+             ! ! print*, 'CBM05.02 ', bal%wetbal
+             ! ! print*, 'CBM06.03 ', rough%coexp
+             ! ! print*, 'CBM06.04 ', rough%disp
+             ! ! print*, 'CBM06.05 ', rough%hruff
+             ! ! print*, 'CBM06.06 ', rough%rt0us
+             ! ! print*, 'CBM06.07 ', rough%rt1
+             ! ! print*, 'CBM06.08 ', rough%rt1usa
+             ! ! print*, 'CBM06.09 ', rough%rt1usb
+             ! ! print*, 'CBM06.10 ', rough%term2
+             ! ! print*, 'CBM06.01 ', rough%term3
+             ! ! print*, 'CBM06.02 ', rough%term5
+             ! ! print*, 'CBM06.03 ', rough%term6
+             ! ! print*, 'CBM06.04 ', rough%term6a
+             ! ! print*, 'CBM06.05 ', rough%usuh
+             ! ! print*, 'CBM06.06 ', rough%z0m
+             ! ! print*, 'CBM06.07 ', rough%z0soilsn
+             ! ! print*, 'CBM06.08 ', rough%zref_tq
+             ! ! print*, 'CBM06.09 ', rough%zref_uv
+             ! ! print*, 'CBM06.20 ', rough%zruffs
+             ! ! print*, 'CBM07.01 ', soil%isoilm
+             ! ! print*, 'CBM07.02 ', soil%sfc
+             ! ! print*, 'CBM08.01 ', ssnow%Tsurface
+             ! ! print*, 'CBM08.02 ', ssnow%cls
+             ! ! print*, 'CBM08.03 ', ssnow%ddq_dtg
+             ! ! print*, 'CBM08.04 ', ssnow%dfe_ddq
+             ! ! print*, 'CBM08.05 ', ssnow%dfh_dtg
+             ! ! print*, 'CBM08.06 ', ssnow%dfn_dtg
+             ! ! print*, 'CBM08.07 ', ssnow%evapfbl
+             ! ! print*, 'CBM08.08 ', ssnow%isflag
+             ! ! print*, 'CBM08.09 ', ssnow%potev
+             ! ! print*, 'CBM08.10 ', ssnow%qstss
+             ! ! print*, 'CBM08.01 ', ssnow%rex
+             ! ! print*, 'CBM08.12 ', ssnow%rtsoil
+             ! ! print*, 'CBM08.13 ', ssnow%tgg
+             ! ! print*, 'CBM08.14 ', ssnow%tggsn
+             ! ! print*, 'CBM08.15 ', ssnow%tss
+             ! ! print*, 'CBM08.16 ', ssnow%wb
+             ! ! print*, 'CBM08.07 ', ssnow%wetfac
+             ! ! print*, 'CBM09.01 ', veg%canst1
+             ! ! print*, 'CBM09.02 ', veg%clitt
+             ! ! print*, 'CBM09.03 ', veg%dleaf
+             ! ! print*, 'CBM09.04 ', veg%gmmax
+             ! ! print*, 'CBM09.05 ', veg%hc
+             ! ! print*, 'CBM09.06 ', veg%iveg
+             ! ! print*, 'CBM09.07 ', veg%shelrb
              CALL cbm( ktau, dels, air, bgc, canopy, met,                  &
                   bal, rad, rough, soil, ssnow,                            &
                   sum_flux, veg, climate)
+             ! ! print*, 'CBO03.11 ', canopy%cansto
+             ! ! print*, 'CBO03.21 ', canopy%dgdtg
+             ! ! print*, 'CBO03.36 ', canopy%fev
+             ! ! print*, 'CBO03.43 ', canopy%fhs
+             ! ! print*, 'CBO03.49 ', canopy%ga
+             ! ! print*, 'CBO03.58 ', canopy%oldcansto
+             ! ! print*, 'CBO06.05 ', rough%hruff
+             ! ! print*, 'CBO08.12 ', ssnow%rtsoil
+             ! ! print*, 'CBO08.13 ', ssnow%tgg
+             ! ! print*, 'CBO08.14 ', ssnow%tggsn
+             ! ! print*, 'CBO08.15 ', ssnow%tss
+             ! ! print*, 'CBO08.16 ', ssnow%wb
+             ! ! print*, 'CBO01.01 ', ktau, dels
+             ! ! print*, 'CBO02.01 ', air%cmolar
+             ! ! print*, 'CBO02.02 ', air%rho
+             ! ! print*, 'CBO02.03 ', air%rlam
+             ! ! print*, 'CBO02.04 ', air%visc
+             ! ! print*, 'CBO03.00 ', canopy%A_sh
+             ! ! print*, 'CBO03.01 ', canopy%A_shC
+             ! ! print*, 'CBO03.02 ', canopy%A_shJ
+             ! ! print*, 'CBO03.03 ', canopy%A_sl
+             ! ! print*, 'CBO03.04 ', canopy%A_slC
+             ! ! print*, 'CBO03.05 ', canopy%A_slJ
+             ! ! print*, 'CBO03.06 ', canopy%An
+             ! ! print*, 'CBO03.07 ', canopy%DvLitt
+             ! ! print*, 'CBO03.08 ', canopy%GPP_sh
+             ! ! print*, 'CBO03.09 ', canopy%GPP_sl
+             ! ! print*, 'CBO03.10 ', canopy%Rd
+             ! ! print*, 'CBO03.11 ', canopy%cansto
+             ! ! print*, 'CBO03.02 ', canopy%cdtq
+             ! ! print*, 'CBO03.03 ', canopy%cduv
+             ! ! print*, 'CBO03.04 ', canopy%ci
+             ! ! print*, 'CBO03.05 ', canopy%cs
+             ! ! print*, 'CBO03.06 ', canopy%cs_sh
+             ! ! print*, 'CBO03.07 ', canopy%cs_sl
+             ! ! print*, 'CBO03.08 ', canopy%dAdcs
+             ! ! print*, 'CBO03.09 ', canopy%delwc
+             ! ! print*, 'CBO03.20 ', canopy%dewmm
+             ! ! print*, 'CBO03.21 ', canopy%dgdtg
+             ! ! print*, 'CBO03.02 ', canopy%dlf
+             ! ! print*, 'CBO03.03 ', canopy%epot
+             ! ! print*, 'CBO03.04 ', canopy%eta_A_cs
+             ! ! print*, 'CBO03.05 ', canopy%eta_A_cs_sh
+             ! ! print*, 'CBO03.06 ', canopy%eta_A_cs_sl
+             ! ! print*, 'CBO03.07 ', canopy%eta_GPP_cs
+             ! ! print*, 'CBO03.08 ', canopy%eta_fevc_cs
+             ! ! print*, 'CBO03.09 ', canopy%eta_fevc_cs_sh
+             ! ! print*, 'CBO03.30 ', canopy%eta_fevc_cs_sl
+             ! ! print*, 'CBO03.01 ', canopy%evapfbl
+             ! ! print*, 'CBO03.02 ', canopy%fe
+             ! ! print*, 'CBO03.03 ', canopy%fes
+             ! ! print*, 'CBO03.04 ', canopy%fesp
+             ! ! print*, 'CBO03.05 ', canopy%fess
+             ! ! print*, 'CBO03.36 ', canopy%fev
+             ! ! print*, 'CBO03.07 ', canopy%fevc
+             ! ! print*, 'CBO03.08 ', canopy%fevc_sh
+             ! ! print*, 'CBO03.09 ', canopy%fevc_sl
+             ! ! print*, 'CBO03.40 ', canopy%fevw
+             ! ! print*, 'CBO03.01 ', canopy%fevw_pot
+             ! ! print*, 'CBO03.02 ', canopy%fh
+             ! ! print*, 'CBO03.43 ', canopy%fhs
+             ! ! print*, 'CBO03.04 ', canopy%fhv
+             ! ! print*, 'CBO03.05 ', canopy%fhvw
+             ! ! print*, 'CBO03.06 ', canopy%fns
+             ! ! print*, 'CBO03.07 ', canopy%fnv
+             ! ! print*, 'CBO03.08 ', canopy%fwet
+             ! ! print*, 'CBO03.49 ', canopy%ga
+             ! ! print*, 'CBO03.50 ', canopy%gac
+             ! ! print*, 'CBO03.01 ', canopy%gammastar
+             ! ! print*, 'CBO03.02 ', canopy%gbc
+             ! ! print*, 'CBO03.03 ', canopy%gsc
+             ! ! print*, 'CBO03.04 ', canopy%gswx
+             ! ! print*, 'CBO03.05 ', canopy%gswx_T
+             ! ! print*, 'CBO03.06 ', canopy%isc3
+             ! ! print*, 'CBO03.07 ', canopy%kthLitt
+             ! ! print*, 'CBO03.58 ', canopy%oldcansto
+             ! ! print*, 'CBO03.09 ', canopy%precis
+             ! ! print*, 'CBO03.60 ', canopy%qscrn
+             ! ! print*, 'CBO03.01 ', canopy%rghlai
+             ! ! print*, 'CBO03.02 ', canopy%rnet
+             ! ! print*, 'CBO03.03 ', canopy%rniso
+             ! ! print*, 'CBO03.04 ', canopy%spill
+             ! ! print*, 'CBO03.05 ', canopy%through
+             ! ! print*, 'CBO03.06 ', canopy%tlf
+             ! ! print*, 'CBO03.07 ', canopy%tscrn
+             ! ! print*, 'CBO03.08 ', canopy%tv
+             ! ! print*, 'CBO03.09 ', canopy%us
+             ! ! print*, 'CBO03.70 ', canopy%vcmax
+             ! ! print*, 'CBO03.01 ', canopy%vlaiw
+             ! ! print*, 'CBO03.02 ', canopy%wetfac_cs
+             ! ! print*, 'CBO03.03 ', canopy%zetar
+             ! ! print*, 'CBO03.04 ', canopy%zetash
+             ! ! print*, 'CBO04.01 ', met%ca
+             ! ! print*, 'CBO04.02 ', met%dva
+             ! ! print*, 'CBO04.03 ', met%fld
+             ! ! print*, 'CBO04.04 ', met%pmb
+             ! ! print*, 'CBO04.05 ', met%qv
+             ! ! print*, 'CBO04.06 ', met%qvair
+             ! ! print*, 'CBO04.07 ', met%tk
+             ! ! print*, 'CBO04.08 ', met%tvair
+             ! ! print*, 'CBO04.09 ', met%ua
+             ! ! print*, 'CBO05.01 ', bal%drybal
+             ! ! print*, 'CBO05.02 ', bal%wetbal
+             ! ! print*, 'CBO06.03 ', rough%coexp
+             ! ! print*, 'CBO06.04 ', rough%disp
+             ! ! print*, 'CBO06.05 ', rough%hruff
+             ! ! print*, 'CBO06.06 ', rough%rt0us
+             ! ! print*, 'CBO06.07 ', rough%rt1
+             ! ! print*, 'CBO06.08 ', rough%rt1usa
+             ! ! print*, 'CBO06.09 ', rough%rt1usb
+             ! ! print*, 'CBO06.10 ', rough%term2
+             ! ! print*, 'CBO06.01 ', rough%term3
+             ! ! print*, 'CBO06.02 ', rough%term5
+             ! ! print*, 'CBO06.03 ', rough%term6
+             ! ! print*, 'CBO06.04 ', rough%term6a
+             ! ! print*, 'CBO06.05 ', rough%usuh
+             ! ! print*, 'CBO06.06 ', rough%z0m
+             ! ! print*, 'CBO06.07 ', rough%z0soilsn
+             ! ! print*, 'CBO06.08 ', rough%zref_tq
+             ! ! print*, 'CBO06.09 ', rough%zref_uv
+             ! ! print*, 'CBO06.20 ', rough%zruffs
+             ! ! print*, 'CBO07.01 ', soil%isoilm
+             ! ! print*, 'CBO07.02 ', soil%sfc
+             ! ! print*, 'CBO08.01 ', ssnow%Tsurface
+             ! ! print*, 'CBO08.02 ', ssnow%cls
+             ! ! print*, 'CBO08.03 ', ssnow%ddq_dtg
+             ! ! print*, 'CBO08.04 ', ssnow%dfe_ddq
+             ! ! print*, 'CBO08.05 ', ssnow%dfh_dtg
+             ! ! print*, 'CBO08.06 ', ssnow%dfn_dtg
+             ! ! print*, 'CBO08.07 ', ssnow%evapfbl
+             ! ! print*, 'CBO08.08 ', ssnow%isflag
+             ! ! print*, 'CBO08.09 ', ssnow%potev
+             ! ! print*, 'CBO08.10 ', ssnow%qstss
+             ! ! print*, 'CBO08.01 ', ssnow%rex
+             ! ! print*, 'CBO08.12 ', ssnow%rtsoil
+             ! ! print*, 'CBO08.13 ', ssnow%tgg
+             ! ! print*, 'CBO08.14 ', ssnow%tggsn
+             ! ! print*, 'CBO08.15 ', ssnow%tss
+             ! ! print*, 'CBO08.16 ', ssnow%wb
+             ! ! print*, 'CBO08.07 ', ssnow%wetfac
+             ! ! print*, 'CBO09.01 ', veg%canst1
+             ! ! print*, 'CBO09.02 ', veg%clitt
+             ! ! print*, 'CBO09.03 ', veg%dleaf
+             ! ! print*, 'CBO09.04 ', veg%gmmax
+             ! ! print*, 'CBO09.05 ', veg%hc
+             ! ! print*, 'CBO09.06 ', veg%iveg
+             ! ! print*, 'CBO09.07 ', veg%shelrb
+             ! print*, 'CBM501.01 '!, POPLUC%secdf
+             ! print*, 'CBM501.02 '!, POPLUC%AgProd
+             ! print*, 'CBM501.03 ', casapool%cplant
+             ! print*, 'CBM501.04 ', casapool%clitter
+             ! ! print*, 'CBM501.05 ', climate%APAR_leaf_shade
+             ! print*, 'CBM501.06 ', patch%frac
+             ! print*, 'CBM503.11 ', canopy%cansto
+             ! print*, 'CBM503.21 ', canopy%dgdtg
+             ! print*, 'CBM503.36 ', canopy%fev
+             ! print*, 'CBM503.43 ', canopy%fhs
+             ! print*, 'CBM503.49 ', canopy%ga
+             ! print*, 'CBM503.58 ', canopy%oldcansto
+             ! print*, 'CBM506.05 ', rough%hruff
+             ! print*, 'CBM508.12 ', ssnow%rtsoil
              ! 13C
              if (cable_user%c13o2) then
                 gpp  = canopy%An + canopy%Rd
@@ -814,6 +1194,20 @@ CONTAINS
              ssnow%rnof1  = ssnow%rnof1*dels
              ssnow%rnof2  = ssnow%rnof2*dels
              ssnow%runoff = ssnow%runoff*dels
+             ! print*, 'CBM601.01 '!, POPLUC%secdf
+             ! print*, 'CBM601.02 '!, POPLUC%AgProd
+             ! print*, 'CBM601.03 ', casapool%cplant
+             ! print*, 'CBM601.04 ', casapool%clitter
+             ! ! print*, 'CBM601.05 ', climate%APAR_leaf_shade
+             ! print*, 'CBM601.06 ', patch%frac
+             ! print*, 'CBM603.11 ', canopy%cansto
+             ! print*, 'CBM603.21 ', canopy%dgdtg
+             ! print*, 'CBM603.36 ', canopy%fev
+             ! print*, 'CBM603.43 ', canopy%fhs
+             ! print*, 'CBM603.49 ', canopy%ga
+             ! print*, 'CBM603.58 ', canopy%oldcansto
+             ! print*, 'CBM606.05 ', rough%hruff
+             ! print*, 'CBM608.12 ', ssnow%rtsoil
 
              CALL CPU_TIME(etime)
              write(wlogn,*) 'ktau, etime-etimelast ', ktau,  etime-etimelast
@@ -822,37 +1216,51 @@ CONTAINS
              !spinup=.false. & we want CASA_dump.nc (spinConv=.true.)
 
              IF (icycle>0) THEN
-                ! print*, 'CC01.01 ', ktau, kstart, kend, dels
-                ! print*, 'CC01.02 ', met%year
-                ! print*, 'CC01.03 ', met%moy
-                ! print*, 'CC01.04 ', met%ca
-                ! print*, 'CC01.05 ', met%doy
-                ! print*, 'CC01.06 ', met%hod
-                ! print*, 'CC01.07 ', met%ofsd
-                ! print*, 'CC01.08 ', met%fld
-                ! print*, 'CC01.09 ', met%precip
-                ! print*, 'CC01.10 ', met%precip_sn
-                ! print*, 'CC01.11 ', met%tk
-                ! print*, 'CC01.12 ', met%tvair
-                ! print*, 'CC01.13 ', met%tvrad
-                ! print*, 'CC01.14 ', met%pmb
-                ! print*, 'CC01.15 ', met%ua
-                ! print*, 'CC01.16 ', met%qv
-                ! print*, 'CC01.17 ', met%qvair
-                ! print*, 'CC01.18 ', met%da
-                ! print*, 'CC01.19 ', met%dva
-                ! print*, 'CC01.20 ', met%coszen
-                ! print*, 'CC01.21 ', met%Ndep
-                ! print*, 'CC01.22 ', met%Pdep
-                ! print*, 'CC01.23 ', met%u10
-                ! print*, 'CC01.24 ', met%rhum
-                ! print*, 'CC01.25 ', met%fsd
+                ! ! print*, 'CC01.01 ', ktau, kstart, kend, dels
+                ! ! print*, 'CC01.02 ', met%year
+                ! ! print*, 'CC01.03 ', met%moy
+                ! ! print*, 'CC01.04 ', met%ca
+                ! ! print*, 'CC01.05 ', met%doy
+                ! ! print*, 'CC01.06 ', met%hod
+                ! ! print*, 'CC01.07 ', met%ofsd
+                ! ! print*, 'CC01.08 ', met%fld
+                ! ! print*, 'CC01.09 ', met%precip
+                ! ! print*, 'CC01.10 ', met%precip_sn
+                ! ! print*, 'CC01.11 ', met%tk
+                ! ! print*, 'CC01.12 ', met%tvair
+                ! ! print*, 'CC01.13 ', met%tvrad
+                ! ! print*, 'CC01.14 ', met%pmb
+                ! ! print*, 'CC01.15 ', met%ua
+                ! ! print*, 'CC01.16 ', met%qv
+                ! ! print*, 'CC01.17 ', met%qvair
+                ! ! print*, 'CC01.18 ', met%da
+                ! ! print*, 'CC01.19 ', met%dva
+                ! ! print*, 'CC01.20 ', met%coszen
+                ! ! print*, 'CC01.21 ', met%Ndep
+                ! ! print*, 'CC01.22 ', met%Pdep
+                ! ! print*, 'CC01.23 ', met%u10
+                ! ! print*, 'CC01.24 ', met%rhum
+                ! ! print*, 'CC01.25 ', met%fsd
                 call bgcdriver( ktau, kstart, kend, dels, met,          &
                      ssnow, canopy, veg, soil,climate, casabiome,       &
                      casapool, casaflux, casamet, casabal,              &
                      phen, pop, spinConv, spinup, ktauday, idoy, loy,   &
                      .FALSE., .FALSE., LALLOC, c13o2flux, c13o2pools )
                 ! print*, 'CW06 ', ktau, YYYY, casamet%glai
+                ! print*, 'CBM701.01 '!, POPLUC%secdf
+                ! print*, 'CBM701.02 '!, POPLUC%AgProd
+                ! print*, 'CBM701.03 ', casapool%cplant
+                ! print*, 'CBM701.04 ', casapool%clitter
+                ! ! print*, 'CBM701.05 ', climate%APAR_leaf_shade
+                ! print*, 'CBM701.06 ', patch%frac
+                ! print*, 'CBM703.11 ', canopy%cansto
+                ! print*, 'CBM703.21 ', canopy%dgdtg
+                ! print*, 'CBM703.36 ', canopy%fev
+                ! print*, 'CBM703.43 ', canopy%fhs
+                ! print*, 'CBM703.49 ', canopy%ga
+                ! print*, 'CBM703.58 ', canopy%oldcansto
+                ! print*, 'CBM706.05 ', rough%hruff
+                ! print*, 'CBM708.12 ', ssnow%rtsoil
                 write(wlogn,*) 'after bgcdriver ', MPI_BOTTOM, 1, casa_t, 0, ktau_gl, ocomm, ierr
                 !TRUNK no if (mod(...)) then
                 IF (MOD((ktau-kstart+1),ktauday).EQ.0) THEN
@@ -872,12 +1280,12 @@ CONTAINS
                   IF ( cable_user%CALL_BLAZE ) THEN
                     CALL BLAZE_ACCOUNTING(BLAZE, met, climate, ktau, dels, YYYY, idoy)
                     call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
-                         casamet, climate, real(shootfrac), idoy, YYYY, 1, POP, veg)
+                         casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg)
 
                    !par send blaze_out back
                    CALL MPI_Send(MPI_BOTTOM, 1, blaze_out_t, 0, ktau_gl, ocomm, ierr)
                   ENDIF
-                   ! print*, 'CW07.1 ', casamet%glai
+                  ! ! print*, 'CW07.1 ', casamet%glai
                 ENDIF
                 ! !! CLN HERE BLAZE daily
 
@@ -950,6 +1358,20 @@ CONTAINS
              ! one annual time-step of POP
              !write(wlogn,*) 'laimax',  casabal%LAImax
              CALL POPdriver(casaflux,casabal,veg, POP)
+             ! print*, 'CBM901.01 '!, POPLUC%secdf
+             ! print*, 'CBM901.02 '!, POPLUC%AgProd
+             ! print*, 'CBM901.03 ', casapool%cplant
+             ! print*, 'CBM901.04 ', casapool%clitter
+             ! ! print*, 'CBM901.05 ', climate%APAR_leaf_shade
+             ! print*, 'CBM901.06 ', patch%frac
+             ! print*, 'CBM903.11 ', canopy%cansto
+             ! print*, 'CBM903.21 ', canopy%dgdtg
+             ! print*, 'CBM903.36 ', canopy%fev
+             ! print*, 'CBM903.43 ', canopy%fhs
+             ! print*, 'CBM903.49 ', canopy%ga
+             ! print*, 'CBM903.58 ', canopy%oldcansto
+             ! print*, 'CBM906.05 ', rough%hruff
+             ! print*, 'CBM908.12 ', ssnow%rtsoil
 
              ! Call BLAZE again to compute turnovers depending on POP mortalities
              IF ( cable_user%CALL_BLAZE ) THEN
@@ -976,7 +1398,7 @@ CONTAINS
                 ! END WHERE
 
                 call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
-                     casamet, climate, real(shootfrac), idoy, YYYY, 1, POP, veg)
+                     casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg)
                 ! print*, 'CW07.2 ', casamet%glai
              ENDIF
 
@@ -2739,7 +3161,6 @@ CONTAINS
     integer :: tsize
 
     integer :: stat(MPI_STATUS_SIZE), ierr
-    ! INTEGER :: landp_t, patch_t, param_t
     integer :: casa_ts
 
     integer :: r1len, r2len, i1len, llen ! block lengths
@@ -2758,6 +3179,9 @@ CONTAINS
        write (*,*) 'worker alloc casa and phen var with m patches: ', rank, mp
        call alloc_casavariable(casabiome, casapool, casaflux, casamet, casabal, mp)
        call alloc_phenvariable(phen, mp)
+       !MCINI
+       call zero_casavariable(casabiome, casapool, casaflux, casamet, casabal)
+       call zero_phenvariable(phen)
     end if
 
     ntyp = ncasaparam
@@ -6796,7 +7220,7 @@ CONTAINS
 
     use mpi
 
-    USE cable_def_types_mod, ONLY: climate_type, alloc_cbm_var, mp
+    USE cable_def_types_mod, ONLY: climate_type, alloc_cbm_var, mp, zero_cbm_var
     ! USE cable_climate_mod, ONLY: climate_init
 
     IMPLICIT NONE
@@ -6811,7 +7235,7 @@ CONTAINS
     INTEGER :: ntyp ! number of worker's types
 
     ! MPI: block lengths and strides for hvector representing matrices
-    INTEGER :: r1len, r2len, I1LEN
+    INTEGER :: r1len, i1len
 
     INTEGER :: tsize, totalrecv
     INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
@@ -6825,6 +7249,9 @@ CONTAINS
 
     !TRUNK no call to alloc_cbm_var
     CALL alloc_cbm_var(climate,mp,ktauday)
+
+    !MCINI
+    call zero_cbm_var(climate)
 
     !TRUNK but call to climate_init
     !CALL climate_init (climate, mp, ktauday)
@@ -6840,8 +7267,7 @@ CONTAINS
     totalrecv = 0
 
     r1len = mp * extr1
-    r2len = mp * extr2
-    I1LEN = mp * extid
+    i1len = mp * extid
 
     bidx = 0
 
@@ -7717,13 +8143,13 @@ CONTAINS
     DEALLOCATE(displs)
     DEALLOCATE(blen)
 
-!!$ ! if anything went wrong the master will mpi_abort
-!!$ ! which mpi_recv below is going to catch...
-!!$ ! so, now receive all the parameters
-!!$ CALL MPI_Recv (MPI_BOTTOM, 1, casa_dump_t, 0, 0, comm, stat, ierr)
-!!$
-!!$ ! finally free the MPI type
-!!$ CALL MPI_Type_Free (casa_dump_t, ierr)
+    ! ! if anything went wrong the master will mpi_abort
+    ! ! which mpi_recv below is going to catch...
+    ! ! so, now receive all the parameters
+    ! CALL MPI_Recv (MPI_BOTTOM, 1, casa_dump_t, 0, 0, comm, stat, ierr)
+
+    ! ! finally free the MPI type
+    ! Call MPI_Type_Free (casa_dump_t, ierr)
 
     ! all casa parameters have been received from the master by now
 
@@ -7818,7 +8244,7 @@ CONTAINS
     !      MPI_Type_get_extent, MPI_Reduce, MPI_DATATYPE_NULL, MPI_INTEGER, MPI_Sum, &
     !      MPI_Barrier, MPI_Recv, MPI_Get_count, MPI_SUCCESS, MPI_Unpack, MPI_BOTTOM, MPI_Type_Free
     use cable_def_types_mod, only: mp, mf
-    use cable_c13o2_def,     only: c13o2_flux, c13o2_alloc_flux
+    use cable_c13o2_def,     only: c13o2_flux, c13o2_alloc_flux, c13o2_zero_flux
 
     implicit none
 
@@ -7854,6 +8280,8 @@ CONTAINS
     if (.not. associated(c13o2flux%ca)) then
        write(*,*) 'worker alloc c13o2_flux with m patches: ', rank, mp
        call c13o2_alloc_flux(c13o2flux, mp)
+       !MCINI
+       call c13o2_zero_flux(c13o2flux)
     end if
 
     ntyp = nc13o2_flux
@@ -7978,7 +8406,7 @@ CONTAINS
     !      MPI_Barrier, MPI_Recv, MPI_Get_count, MPI_SUCCESS, MPI_Unpack, MPI_BOTTOM, MPI_Type_Free
     use cable_def_types_mod, only: mp
     use casadimension,       only: mplant, mlitter, msoil
-    use cable_c13o2_def,     only: c13o2_pool, c13o2_alloc_pools
+    use cable_c13o2_def,     only: c13o2_pool, c13o2_alloc_pools, c13o2_zero_pools
 
     implicit none
 
@@ -8014,6 +8442,8 @@ CONTAINS
     if (.not. associated(c13o2pools%cplant)) then
        write(*,*) 'worker alloc c13o2_pool with m patches: ', rank, mp
        call c13o2_alloc_pools(c13o2pools, mp)
+       !MCINI
+       call c13o2_zero_pools(c13o2pools)
     end if
 
     ntyp = nc13o2_pool
@@ -8117,7 +8547,7 @@ CONTAINS
     !      MPI_Type_get_extent, MPI_Reduce, MPI_DATATYPE_NULL, MPI_INTEGER, MPI_Sum, &
     !      MPI_Barrier, MPI_Recv, MPI_Get_count, MPI_SUCCESS, MPI_Unpack, MPI_BOTTOM, MPI_Type_Free
     use cable_def_types_mod, only: mland
-    use cable_c13o2_def,     only: c13o2_luc, c13o2_alloc_luc
+    use cable_c13o2_def,     only: c13o2_luc, c13o2_alloc_luc, c13o2_zero_luc
 
     implicit none
 
@@ -8153,6 +8583,8 @@ CONTAINS
     if (.not. associated(c13o2luc%charvest)) then
        write(*,*) 'worker alloc c13o2_luc with m land points: ', rank, mland
        call c13o2_alloc_luc(c13o2luc, mland)
+       !MCINI
+       call c13o2_zero_luc(c13o2luc)
     end if
 
     ntyp = nc13o2_luc
@@ -8705,6 +9137,7 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
   ! blaze variables
   type(type_blaze)   :: blaze
   type(type_simfire) :: simfire
+  real :: rshootfrac
 
   ! 13C
   real(dp), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
@@ -8716,6 +9149,8 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
   !! vh_js !!
   if (cable_user%call_POP) Iw = POP%iwood
 
+  rshootfrac = real(shootfrac)
+  
   ktauday = int(24.0*3600.0/dels)
   nday    = (kend-kstart+1)/ktauday
   loy     = 365
@@ -8986,7 +9421,7 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
                  !CLN Check here accounting missing
                  if (cable_user%call_blaze) then
                     call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
-                         casamet, climate, real(shootfrac), idoy, 1900, 1, POP, veg)
+                         casamet, climate, rshootfrac, idoy, 1900, 1, POP, veg)
                  endif
                  !! CLN BLAZE TURNOVER
               endif  ! end of year
@@ -9162,6 +9597,7 @@ SUBROUTINE worker_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
      write(wlogn,*)
      write(wlogn,*) 'b4 mpi_recv casa_LUC_t'
      ! print*, 'WORKER Receive CO05'
+     !NEW CALL MPI_Recv(MPI_BOTTOM, 1, casa_t, 0, nyear, icomm, stat, ierr)
      CALL MPI_Recv(MPI_BOTTOM, 1, casa_LUC_t, 0, nyear, icomm, stat, ierr)
      ! 13C
      if (cable_user%c13o2) then

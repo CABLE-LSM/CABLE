@@ -2,7 +2,7 @@ MODULE CABLE_LUC_EXPT
 
   use cable_common_module,  only: is_leapyear, leap_day, handle_err, get_unit
   use cable_io_vars_module, only: logn, land_x, land_y, landpt, latitude, longitude
-  use cable_def_types_mod,  only: mland, r_2
+  use cable_def_types_mod,  only: mland
 
   implicit none
 
@@ -20,8 +20,8 @@ MODULE CABLE_LUC_EXPT
      integer, allocatable :: biome(:)
      integer :: YearStart, YearEnd, nfile
      integer :: ctstep
-     real,      allocatable :: primaryf(:), grass(:), secdf(:), crop(:), past(:)
-     real(r_2), allocatable :: mtemp_min20(:)
+     real,    allocatable :: primaryf(:), grass(:), secdf(:), crop(:), past(:)
+     real,    allocatable :: mtemp_min20(:)
      character(len=200),   dimension(17) :: TransFile
      character(len=12) ,   dimension(17) :: var_name
      integer,              dimension(17) :: f_id, v_id
@@ -108,6 +108,9 @@ CONTAINS
     ALLOCATE( LUC_EXPT%crop(mland) )
     ALLOCATE( LUC_EXPT%past(mland) )
     ALLOCATE( LUC_EXPT%mtemp_min20(mland) )
+    !MCINI
+    call luc_expt_zero(LUC_EXPT)
+
     ALLOCATE( CPC(mland))
     LUC_EXPT%NotPrimOnlyFile = 'none'
     ! READ LUC_EXPT settings
@@ -178,7 +181,7 @@ CONTAINS
 
     ! OPEN LUC INPUT FILES
     LUC_EXPT%f_id = -1
-    DO i = 1, LUC_EXPT%nfile
+    DO i=1, LUC_EXPT%nfile
 
        write(*,'(a)') 'LUC input data file: '//trim(LUC_EXPT%TransFile(i))
        WRITE(logn,*)  'LUC input data file: ', LUC_EXPT%TransFile(i)
@@ -510,6 +513,33 @@ CONTAINS
 
   END SUBROUTINE LUC_EXPT_INIT
 
+  subroutine luc_expt_zero(luc_expt)
+
+    implicit none
+
+    type(luc_expt_type), intent(inout) :: luc_expt
+
+    luc_expt%prim_only   = .false.
+    luc_expt%ivegp       = 0
+    luc_expt%biome       = 0
+    luc_expt%ptos        = .false.
+    luc_expt%ptog        = .false.
+    luc_expt%stog        = .false.
+    luc_expt%gtos        = .false.
+    luc_expt%ptoc        = .false.
+    luc_expt%ptoq        = .false.
+    luc_expt%ctos        = .false.
+    luc_expt%qtos        = .false.
+    luc_expt%stoc        = .false.
+    luc_expt%stoq        = .false.
+    luc_expt%primaryf    = 0.
+    luc_expt%secdf       = 0.
+    luc_expt%grass       = 0.
+    luc_expt%crop        = 0.
+    luc_expt%past        = 0.
+    luc_expt%mtemp_min20 = 0.
+
+  end subroutine luc_expt_zero
   
   ! ------------------------------------------------------------------
 
@@ -537,7 +567,7 @@ CONTAINS
              inPFrac(m,n,2:3) = 0.0
              inPFrac(m,n,1)   = 1.0
              if ( LUC_EXPT%grass(k) .gt. 0.01) then
-                IF (LUC_EXPT%mtemp_min20(k) .LE. 15.5_r_2) THEN
+                IF (LUC_EXPT%mtemp_min20(k) .LE. 15.5) THEN
                    inVeg(m,n,2) = 6 ! C3 grass
                 ELSE
                    inVeg(m,n,2) = 7 ! C4 grass
@@ -551,7 +581,7 @@ CONTAINS
              inVeg(m,n,1) = LUC_EXPT%ivegp(k)
              inVeg(m,n,2) = LUC_EXPT%ivegp(k)
 
-             if (LUC_EXPT%mtemp_min20(k) .LE. 15.5_r_2) THEN
+             if (LUC_EXPT%mtemp_min20(k) .LE. 15.5) THEN
                 inVeg(m,n,3) = 6 ! C3 grass
              ELSE
                 inVeg(m,n,3) = 7 ! C4 grass
@@ -667,7 +697,8 @@ CONTAINS
     ! 1 dim arrays (integer) (npt )
     CHARACTER(len=20),DIMENSION(2) :: AI1
 
-    REAL(r_2), DIMENSION(mland) :: LAT, LON, TMP
+    ! REAL(r_2), DIMENSION(mland) :: LAT, LON, TMP
+    REAL, DIMENSION(mland) :: LAT, LON, TMP
     INTEGER(KIND=4) :: TMPI(mland)
     LOGICAL         :: EXISTFILE
 
@@ -716,7 +747,6 @@ CONTAINS
     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
     STATUS = NF90_GET_VAR( FILE_ID, dID, LAT )
     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-
 
     STATUS = NF90_INQ_VARID( FILE_ID, A1(2), dID )
     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)

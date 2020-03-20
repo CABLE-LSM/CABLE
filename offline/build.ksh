@@ -139,10 +139,10 @@ host_mcin()
         /opt/intel/compilers_and_libraries/mac/bin/compilervars.sh intel64
         export FC=ifort
         # release
-        export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
+        export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -ip -xHost -diag-disable=10382"
         if [[ ${idebug} -eq 1 ]] ; then
             # debug
-            export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
+            export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -ip -xHost -diag-disable=10382"
         fi
 	# export CFLAGS="${CFLAGS} -mtune=corei7"
 	# export CFLAGS="${CFLAGS} -march=native"
@@ -187,7 +187,7 @@ host_mcin()
     export NCMOD=${NCROOT}'/include'
     export LDFLAGS="-L${NCLIB} -L${NCCLIB} -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz"
     export dosvn=0
-    # export MFLAGS='-j 8'
+    export MFLAGS='-j 8'
     build_build
     cd ../
     build_status
@@ -223,10 +223,10 @@ host_vm_o()
         module load intel/2018.5
         export FC=ifort
         # release
-        export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
+        export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -ip -xHost -diag-disable=10382"
         if [[ ${idebug} -eq 1 ]] ; then
             # debug
-            export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
+            export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -ip -xHost -diag-disable=10382"
         fi
 	# export CFLAGS="${CFLAGS} -march=broadwell"     # std / hf
 	# export CFLAGS="${CFLAGS} -march=core-avx2"     # std / hf
@@ -303,10 +303,10 @@ host_gadi()
    export NCDIR=${NETCDF_ROOT}'/lib/Intel'
    export NCMOD=${NETCDF_ROOT}'/include/Intel'
    if [[ ${1} == 'debug' ]]; then
-       # export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
+       # export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -ip -xHost -diag-disable=10382"
        export CFLAGS='-O0 -fpp -traceback -g -fp-model precise -ftz -fpe0'
    else
-       # export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
+       # export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -ip -xHost -diag-disable=10382"
        export CFLAGS='-O2 -fpp -fp-model precise'
    fi
    export CFLAGS="${CFLAGS} -D__CRU2017__"

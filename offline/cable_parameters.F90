@@ -110,19 +110,21 @@ MODULE cable_param_module
 CONTAINS
 
   SUBROUTINE get_default_params(logn, vegparmnew, LUC_EXPT)
+    
     use cable_common_module, only : get_type_parameters, filename,             &
                                     calcsoilalbedo
-  ! Load parameters for each veg type and each soil type. (get_type_parameters)
-  ! Also read in initial information for each grid point. (read_gridinfo)
-  ! Count to obtain 'landpt', 'max_vegpatches' and 'mp'. (countPatch)
-  !
-  ! New input structure using netcdf and introduced 'month' to initialize
-  ! soil profiles with the correct monthly average values (BP apr2010)
+    ! Load parameters for each veg type and each soil type. (get_type_parameters)
+    ! Also read in initial information for each grid point. (read_gridinfo)
+    ! Count to obtain 'landpt', 'max_vegpatches' and 'mp'. (countPatch)
+    !
+    ! New input structure using netcdf and introduced 'month' to initialize
+    ! soil profiles with the correct monthly average values (BP apr2010)
 
     IMPLICIT NONE
-    INTEGER, INTENT(IN) :: logn     ! log file unit number
-    LOGICAL,      INTENT(IN) :: vegparmnew ! new format input file (BP dec2007)
-    TYPE (LUC_EXPT_TYPE), INTENT(INOUT) :: LUC_EXPT
+    
+    INTEGER,             INTENT(IN)    :: logn     ! log file unit number
+    LOGICAL,             INTENT(IN)    :: vegparmnew ! new format input file (BP dec2007)
+    TYPE(LUC_EXPT_TYPE), INTENT(INOUT) :: LUC_EXPT
 
     ! local variables
     INTEGER :: npatch
@@ -203,9 +205,9 @@ CONTAINS
     INTEGER :: varID
     INTEGER :: nslayer, ntime, nband
     INTEGER :: kk, pp, npatch_LUC
-    INTEGER, DIMENSION(:, :,:),     ALLOCATABLE :: idummy
-    REAL,    DIMENSION(:, :,:),     ALLOCATABLE :: rdummy
-    REAL,    DIMENSION(:, :, :),  ALLOCATABLE :: r3dum, r3dum2
+    INTEGER, DIMENSION(:, :,:),  ALLOCATABLE :: idummy
+    REAL,    DIMENSION(:, :,:),  ALLOCATABLE :: rdummy
+    REAL,    DIMENSION(:, :, :), ALLOCATABLE :: r3dum, r3dum2
 
 
     if (cable_user%POPLUC) then
@@ -264,7 +266,7 @@ CONTAINS
          ALLOCATE( inSoil(nlon, nlat) )
          ALLOCATE( idummy(nlon, nlat, npatch) )
          ALLOCATE( rdummy(nlon, nlat, npatch) )
-         ALLOCATE(  inWB(nlon, nlat, nslayer,ntime) )
+         ALLOCATE( inWB(nlon, nlat, nslayer,ntime) )
          ALLOCATE( inTGG(nlon, nlat, nslayer,ntime) )
          ALLOCATE( inALB(nlon, nlat, npatch_LUC,nband) )
          ALLOCATE( inSND(nlon, nlat, npatch_LUC,ntime) )
@@ -280,7 +282,7 @@ CONTAINS
          ALLOCATE( inSoil(nlon, nlat) )
          ALLOCATE( idummy(nlon, nlat, npatch) )
          ALLOCATE( rdummy(nlon, nlat, npatch) )
-         ALLOCATE(  inWB(nlon, nlat, nslayer,ntime) )
+         ALLOCATE( inWB(nlon, nlat, nslayer,ntime) )
          ALLOCATE( inTGG(nlon, nlat, nslayer,ntime) )
          ALLOCATE( inALB(nlon, nlat, nmetpatches,nband) )
          ALLOCATE( inSND(nlon, nlat, nmetpatches,ntime) )
@@ -295,7 +297,7 @@ CONTAINS
          ALLOCATE( inPFrac(nlon, nlat, npatch) )
          ALLOCATE( inSoil(nlon, nlat) )
 
-         ALLOCATE(  inWB(nlon, nlat, nslayer,ntime) )
+         ALLOCATE( inWB(nlon, nlat, nslayer,ntime) )
          ALLOCATE( inTGG(nlon, nlat, nslayer,ntime) )
          ALLOCATE( inALB(nlon, nlat, npatch,nband) )
          ALLOCATE( inSND(nlon, nlat, npatch,ntime) )

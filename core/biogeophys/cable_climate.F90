@@ -18,8 +18,9 @@
 ! of Jmax to Vcmax
 ! ==============================================================================
 MODULE cable_climate_mod
- Use cable_def_types_mod, ONLY: met_type, climate_type, canopy_type,soil_snow_type, mp, &
-      r_2, alloc_cbm_var, air_type, radiation_type, veg_parameter_type
+
+  Use cable_def_types_mod, ONLY: met_type, climate_type, canopy_type,soil_snow_type, mp, &
+      r_2, air_type, radiation_type, veg_parameter_type
  USE TypeDef,              ONLY: i4b, dp
  USE cable_IO_vars_module, ONLY: patch
  USE CABLE_COMMON_MODULE, ONLY: CurYear, filename, cable_user, HANDLE_ERR
@@ -803,7 +804,7 @@ END SUBROUTINE BIOME1_PFT
 
 ! ==============================================================================
 
-SUBROUTINE climate_init ( climate,np ,ktauday )
+SUBROUTINE climate_init( climate,np ,ktauday )
 
   IMPLICIT NONE
 

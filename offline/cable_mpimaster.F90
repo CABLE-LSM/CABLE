@@ -182,7 +182,7 @@ CONTAINS
     USE cable_output_module,  ONLY: create_restart, open_output_file, &
          write_output, close_output_file
     USE cable_write_module,   ONLY: nullify_write
-    USE cable_cbm_module
+    ! USE cable_cbm_module
     USE cable_climate_mod
 
     ! modules related to CASA-CNP
@@ -207,12 +207,12 @@ CONTAINS
     USE SIMFIRE_MOD,          ONLY: TYPE_SIMFIRE, INI_SIMFIRE
 
     ! 13C
-    use cable_c13o2_def,         only: c13o2_delta_atm, c13o2_flux, c13o2_pool, c13o2_luc ! , &
+    use cable_c13o2_def,      only: c13o2_delta_atm, c13o2_flux, c13o2_pool, c13o2_luc ! , &
          ! c13o2_update_sum_pools, c13o2_zero_sum_pools
-    use cable_c13o2,             only: c13o2_save_luc, c13o2_update_luc, &
+    use cable_c13o2,          only: c13o2_save_luc, c13o2_update_luc, &
          c13o2_write_restart_flux, c13o2_write_restart_pools, c13o2_write_restart_luc, &
          c13o2_create_output, c13o2_write_output, c13o2_close_output, c13o2_nvars_output
-    use cable_c13o2,             only: c13o2_print_delta_flux, c13o2_print_delta_pools, c13o2_print_delta_luc
+    use cable_c13o2,          only: c13o2_print_delta_flux, c13o2_print_delta_pools, c13o2_print_delta_luc
 
     ! PLUME-MIP only
     USE CABLE_PLUME_MIP,      ONLY: PLUME_MIP_TYPE, PLUME_MIP_GET_MET,&
@@ -625,18 +625,20 @@ CONTAINS
           IF ( CALL1 ) THEN
              IF (cable_user%POPLUC) THEN
                 CALL LUC_EXPT_INIT(LUC_EXPT)
+                ! print*, 'CLM01 ', LUC_EXPT%past
                 call alloc_POPLUC(POPLUC, mland)
                 POPLUC%np = mland
                 !MC - Why in MPI but not in cable_driver?
                 !     READ_LUC_RESTART_NC is called in POPLUC_init, which is called in load_parameters
-                IF (trim(cable_user%POPLUC_RunType) .EQ. 'restart') THEN
-                   CALL READ_LUC_RESTART_NC(POPLUC)
-                   LUC_EXPT%grass    = real(POPLUC%grass)
-                   LUC_EXPT%primaryf = real(min(POPLUC%primf, 1.0_r_2-POPLUC%grass))
-                   LUC_EXPT%secdf    = max((1.0 -  LUC_EXPT%grass - LUC_EXPT%primaryf), 0.0)
-                   LUC_EXPT%crop     = real(max(min(POPLUC%crop, POPLUC%grass), 0.0_r_2))
-                   LUC_EXPT%past     = max(min(LUC_EXPT%grass - LUC_EXPT%crop, real(POPLUC%past)), 0.0)
-                ENDIF
+                ! IF (trim(cable_user%POPLUC_RunType) .EQ. 'restart') THEN
+                !    CALL READ_LUC_RESTART_NC(POPLUC)
+                !    LUC_EXPT%grass    = real(POPLUC%grass)
+                !    LUC_EXPT%primaryf = real(min(POPLUC%primf, 1.0_r_2-POPLUC%grass))
+                !    LUC_EXPT%secdf    = max((1.0 -  LUC_EXPT%grass - LUC_EXPT%primaryf), 0.0)
+                !    LUC_EXPT%crop     = real(max(min(POPLUC%crop, POPLUC%grass), 0.0_r_2))
+                !    LUC_EXPT%past     = max(min(LUC_EXPT%grass - LUC_EXPT%crop, real(POPLUC%past)), 0.0)
+                ! ENDIF
+                ! ! print*, 'CLM01.1 ', LUC_EXPT%past
              ENDIF
 
              !! vh_js !!
@@ -648,6 +650,8 @@ CONTAINS
                   C%EMSOIL, C%TFRZ, LUC_EXPT, POPLUC, BLAZE, SIMFIRE, &
                   c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc)
              ! print*, 'CD01   ', casamet%glai
+             ! print*, 'CLM02 ', LUC_EXPT%past
+             ! print*, 'CLM03 ', POPLUC%past
              ! 13C
              if (cable_user%c13o2) then
                 allocate(casasave(c13o2pools%ntile,c13o2pools%npools))
@@ -655,8 +659,8 @@ CONTAINS
              endif
 
              !par disabled as blaze init moved below
-             ! Abort, if an error occurred during BLAZE/SIMFIRE init
-             !IF (BLAZE%ERR) CALL MPI_Abort(comm,0,ierr)
+             ! ! Abort, if an error occurred during BLAZE/SIMFIRE init
+             ! IF (BLAZE%ERR) CALL MPI_Abort(comm,0,ierr)
 
              IF (cable_user%POPLUC .AND. TRIM(cable_user%POPLUC_RunType) .EQ. 'static') &
                   cable_user%POPLUC= .FALSE.
@@ -664,6 +668,8 @@ CONTAINS
              !TRUNK not in trunk
              if (cable_user%call_climate) then
                 CALL alloc_cbm_var(climate, mp, ktauday)
+                !MCINI
+                call zero_cbm_var(climate)
                 CALL climate_init(climate, mp, ktauday)
                 if (.NOT. cable_user%climate_fromzero) &
                      CALL READ_CLIMATE_RESTART_NC(climate, ktauday)
@@ -682,11 +688,7 @@ CONTAINS
              canopy%fhs_cor = 0.
              met%ofsd       = 0.1
 
-             !! CLN BLAZE
-             !! IF ( cable_user%CALL_BLAZE ) &
-              ! additional params needed for BLAZE
              if ( trim(cable_user%MetType) .eq. 'bios' ) call cable_bios_load_climate_params(climate)
-
 
              IF (.NOT. spinup) spinConv = .TRUE.
 
@@ -804,6 +806,10 @@ CONTAINS
              CALL alloc_cbm_var(imet, mp)
              CALL alloc_cbm_var(iveg, mp)
 
+             !MCINI
+             call zero_cbm_var(imet)
+             call zero_cbm_var(iveg)
+
              ! MPI: create inp_t types to scatter input data to the workers
              ! at the start of every timestep
              !   CALL master_intypes (comm,met,veg)
@@ -876,6 +882,8 @@ CONTAINS
                      casaflux,casamet,casabal,phen,POP,climate,LALLOC, LUC_EXPT, POPLUC, &
                      c13o2flux, c13o2pools, c13o2luc, icomm, ocomm)
                 ! print*, 'CD03   ', casamet%glai
+                ! print*, 'CLM04 ', LUC_EXPT%past
+                ! print*, 'CLM05 ', POPLUC%past
                 SPINconv = .FALSE.
                 ktau_gl  = 0
                 ktau     = 0
@@ -957,7 +965,7 @@ CONTAINS
           !    CALL read_casa_dump( ncfile, casamet, casaflux,phen, casa_it, kend, .FALSE. )
           ! ENDIF
 
-          canopy%oldcansto=canopy%cansto
+          canopy%oldcansto = canopy%cansto
 
           ! Zero out lai where there is no vegetation acc. to veg. index
           WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.
@@ -1053,10 +1061,10 @@ CONTAINS
              !     CALL read_casa_dump( ncfile, casamet, casaflux, casa_it, kend, .FALSE. )
              !  ENDIF
 
-             !  ! At first time step of year, set tile area according to updated LU areas
-             !  IF (ktau == 1 .and. cable_user%POPLUC) THEN
-             !    CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT)
-             ! ENDIF
+             ! At first time step of year, set tile area according to updated LU areas
+             IF (ktau == 1 .and. cable_user%POPLUC) THEN
+                CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT)
+             ENDIF
 
              if (.not. CASAONLY) then
 
@@ -1288,6 +1296,20 @@ CONTAINS
              !PRINT *, 'Master ktau ',ktau,  etime, etime-etimelast, ' seconds'
              !etimelast = etime
              ! endif
+             ! print*, 'CBM1101.01 ', POPLUC%secdf
+             ! print*, 'CBM1101.02 ', POPLUC%AgProd
+             ! print*, 'CBM1101.03 ', casapool%cplant
+             ! print*, 'CBM1101.04 ', casapool%clitter
+             ! ! print*, 'CBM1101.05 ', climate%APAR_leaf_shade
+             ! print*, 'CBM1101.06 ', patch%frac
+             ! print*, 'CBM1103.11 ', canopy%cansto
+             ! print*, 'CBM1103.21 ', canopy%dgdtg
+             ! print*, 'CBM1103.36 ', canopy%fev
+             ! print*, 'CBM1103.43 ', canopy%fhs
+             ! print*, 'CBM1103.49 ', canopy%ga
+             ! print*, 'CBM1103.58 ', canopy%oldcansto
+             ! print*, 'CBM1106.05 ', rough%hruff
+             ! print*, 'CBM1108.12 ', ssnow%rtsoil
 
           end do KTAULOOP ! END Do loop over timestep ktau
           ! print*, 'II20'
@@ -1352,9 +1374,27 @@ CONTAINS
                    call master_receive(ocomm, 0, c13o2_pool_ts)
                    call master_receive(ocomm, 0, c13o2_luc_ts)
                 endif
+                ! print*, 'CLM08.1 ', LUC_EXPT%past
+                ! print*, 'CLM09.1 ', POPLUC%past
                 ! Dynamic LUC
                 ! 13C
                 CALL LUCdriver( casabiome,casapool,casaflux,POP,LUC_EXPT, POPLUC, veg, c13o2pools )
+                ! print*, 'CLM08 ', LUC_EXPT%past
+                ! print*, 'CLM09 ', POPLUC%past
+                ! print*, 'CBM801.01 ', POPLUC%secdf
+                ! print*, 'CBM801.02 ', POPLUC%AgProd
+                ! print*, 'CBM801.03 ', casapool%cplant
+                ! print*, 'CBM801.04 ', casapool%clitter
+                ! ! print*, 'CBM801.05 ', climate%APAR_leaf_shade
+                ! print*, 'CBM801.06 ', patch%frac
+                ! print*, 'CBM803.11 ', canopy%cansto
+                ! print*, 'CBM803.21 ', canopy%dgdtg
+                ! print*, 'CBM803.36 ', canopy%fev
+                ! print*, 'CBM803.43 ', canopy%fhs
+                ! print*, 'CBM803.49 ', canopy%ga
+                ! print*, 'CBM803.58 ', canopy%oldcansto
+                ! print*, 'CBM806.05 ', rough%hruff
+                ! print*, 'CBM808.12 ', ssnow%rtsoil
                 ! transfer POP updates to workers
                 ! print*, 'MASTER Send 44 pop'
                 off = 1
@@ -1374,7 +1414,53 @@ CONTAINS
                 ! Dynamic LUC: update casa pools according to LUC transitions
                 ! 13C
                 if (cable_user%c13o2) call c13o2_save_luc(casapool, popluc, casasave, lucsave)
+                ! print*, 'CP01.01 ', casapool%clabile
+                ! print*, 'CP01.02 ', casapool%clitter
+                ! print*, 'CP01.03 ', casapool%cplant
+                ! print*, 'CP01.04 ', casapool%csoil
+                ! print*, 'CP01.05 ', casapool%ctot
+                ! print*, 'CP01.06 ', casapool%nlitter
+                ! print*, 'CP01.07 ', casapool%nplant
+                ! print*, 'CP01.08 ', casapool%nsoil
+                ! print*, 'CP01.09 ', casapool%nsoilmin
+                ! print*, 'CP01.10 ', casapool%plitter
+                ! print*, 'CP01.11 ', casapool%pplant
+                ! print*, 'CP01.12 ', casapool%psoil
+                ! print*, 'CP02.01 ', casabal%Fcneeyear
+                ! print*, 'CP02.02 ', casabal%clabilelast
+                ! print*, 'CP02.03 ', casabal%clitterlast
+                ! print*, 'CP02.04 ', casabal%cplantlast
+                ! print*, 'CP02.05 ', casabal%csoillast
+                ! print*, 'CP03.01 ', casaflux%Charvest
+                ! print*, 'CP03.02 ', casaflux%CtransferLUC
+                ! print*, 'CP03.03 ', casaflux%FluxCtoclear
+                ! print*, 'CP03.04 ', casaflux%FluxCtohwp
+                ! print*, 'CP03.05 ', casaflux%charvest
+                ! print*, 'CP03.06 ', casaflux%fcrop
+                ! print*, 'CP03.07 ', casaflux%fharvest
+                ! print*, 'CP03.08 ', casaflux%nharvest
+                ! print*, 'CP04.01 ', LUC_EXPT%prim_only
+                ! print*, 'CP05.01 ', POP%Iwood
+                ! print*, 'CP05.02 ', POP%np
+                ! ! print*, 'CP05.03 ', POP%pop_grid
                 CALL POP_LUC_CASA_transfer(POPLUC,POP,LUC_EXPT,casapool,casabal,casaflux,ktauday)
+                ! print*, 'CLM10 ', LUC_EXPT%past
+                ! print*, 'CLM11 ', POPLUC%past
+                ! print*, 'CBM1001.01 ', POPLUC%secdf
+                ! print*, 'CBM1001.02 ', POPLUC%AgProd
+                ! print*, 'CBM1001.03 ', casapool%cplant
+                ! print*, 'CBM1001.04 ', casapool%clitter
+                ! ! print*, 'CBM1001.05 ', climate%APAR_leaf_shade
+                ! print*, 'CBM1001.06 ', patch%frac
+                ! print*, 'CBM1003.11 ', canopy%cansto
+                ! print*, 'CBM1003.21 ', canopy%dgdtg
+                ! print*, 'CBM1003.36 ', canopy%fev
+                ! print*, 'CBM1003.43 ', canopy%fhs
+                ! print*, 'CBM1003.49 ', canopy%ga
+                ! print*, 'CBM1003.58 ', canopy%oldcansto
+                ! print*, 'CBM1006.05 ', rough%hruff
+                ! print*, 'CBM1008.12 ', ssnow%rtsoil
+
                 ! 13C
                 if (cable_user%c13o2) then
                    call c13o2_update_luc(casasave, lucsave, popluc, &
@@ -1401,6 +1487,8 @@ CONTAINS
                    call master_send_input(icomm, c13o2_pool_ts, nyear)
                    call master_send_input(icomm, c13o2_luc_ts, nyear)
                 endif
+                ! print*, 'CLM10.1 ', LUC_EXPT%past
+                ! print*, 'CLM11.1 ', POPLUC%past
              endif
           ENDIF ! icycle>0 .and. cable_user%CALL_POP
 
@@ -1495,7 +1583,23 @@ CONTAINS
           ! set tile area according to updated LU areas
           IF (cable_user%POPLUC) THEN
              CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT)
+             ! print*, 'CLM12 ', LUC_EXPT%past
+             ! print*, 'CLM13 ', POPLUC%past
           ENDIF
+          ! print*, 'CBM1201.01 ', POPLUC%secdf
+          ! print*, 'CBM1201.02 ', POPLUC%AgProd
+          ! print*, 'CBM1201.03 ', casapool%cplant
+          ! print*, 'CBM1201.04 ', casapool%clitter
+          ! ! print*, 'CBM1201.05 ', climate%APAR_leaf_shade
+          ! print*, 'CBM1201.06 ', patch%frac
+          ! print*, 'CBM1203.11 ', canopy%cansto
+          ! print*, 'CBM1203.21 ', canopy%dgdtg
+          ! print*, 'CBM1203.36 ', canopy%fev
+          ! print*, 'CBM1203.43 ', canopy%fhs
+          ! print*, 'CBM1203.49 ', canopy%ga
+          ! print*, 'CBM1203.58 ', canopy%oldcansto
+          ! print*, 'CBM1206.05 ', rough%hruff
+          ! print*, 'CBM1208.12 ', ssnow%rtsoil
 
        END DO YEARLOOP
 
@@ -1624,6 +1728,7 @@ CONTAINS
        IF (cable_user%POPLUC .and. .NOT. CASAONLY ) THEN
           ! print*, 'YYYY ', CurYear, YYYY, cable_user%YearEnd
           CALL WRITE_LUC_RESTART_NC ( POPLUC, YYYY )
+          ! print*, 'CLM14 ', POPLUC%past
        ENDIF
     else
        ! 13C
@@ -3578,7 +3683,6 @@ SUBROUTINE master_casa_params(comm, casabiome, casapool, casaflux, casamet, casa
 
   ! sub arguments
   INTEGER, INTENT(IN) :: comm  ! MPI communicator
-  ! TODO: have these variables been already allocated?
   TYPE(casa_biome),    INTENT(INOUT) :: casabiome
   TYPE(casa_pool),     INTENT(INOUT) :: casapool
   TYPE(casa_flux),     INTENT(INOUT) :: casaflux
@@ -3598,7 +3702,6 @@ SUBROUTINE master_casa_params(comm, casabiome, casapool, casaflux, casamet, casa
   INTEGER :: tsize, localtotal, remotetotal
 
   INTEGER :: ierr
-  ! INTEGER :: landp_t, patch_t, param_t
   INTEGER, ALLOCATABLE, DIMENSION(:) :: casa_t
 
   INTEGER(KIND=MPI_ADDRESS_KIND) :: r1stride, r2stride, istride
@@ -10518,6 +10621,7 @@ SUBROUTINE master_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
      enddo
      ! send updates for CASA pools, resulting from LUC
      ! print*, 'MASTER Send CO05'
+     !NEW CALL master_send_input(icomm, casa_ts, nyear)
      CALL master_send_input(icomm, casa_LUC_ts, nyear)
      ! 13C
      if (cable_user%c13o2) then
@@ -10594,17 +10698,18 @@ SUBROUTINE LUCdriver(casabiome,casapool, casaflux, POP, LUC_EXPT, POPLUC, veg, &
      POPLUC%ptog(k)   = real(LUC_EXPT%INPUT(ptog)%VAL(k), r_2)
      POPLUC%stog(k)   = real(LUC_EXPT%INPUT(stog)%VAL(k), r_2)
      POPLUC%gtop(k)   = 0.0_r_2
-     POPLUC%gtos(k)   = real(LUC_EXPT%INPUT(gtos)%VAL(k), r_2)
-     POPLUC%pharv(k)  = real(LUC_EXPT%INPUT(pharv)%VAL(k), r_2)
+     POPLUC%gtos(k)   = real(LUC_EXPT%INPUT(gtos)%VAL(k),   r_2)
+     POPLUC%pharv(k)  = real(LUC_EXPT%INPUT(pharv)%VAL(k),  r_2)
      POPLUC%smharv(k) = real(LUC_EXPT%INPUT(smharv)%VAL(k), r_2)
      POPLUC%syharv(k) = real(LUC_EXPT%INPUT(syharv)%VAL(k), r_2)
 
-     POPLUC%ptoc(k) = real(LUC_EXPT%INPUT(ptoc)%VAL(k), r_2)
-     POPLUC%ptoq(k) = real(LUC_EXPT%INPUT(ptoq)%VAL(k), r_2)
-     POPLUC%stoc(k) = real(LUC_EXPT%INPUT(stoc)%VAL(k), r_2)
-     POPLUC%stoq(k) = real(LUC_EXPT%INPUT(stoq)%VAL(k), r_2)
-     POPLUC%ctos(k) = real(LUC_EXPT%INPUT(ctos)%VAL(k), r_2)
-     POPLUC%qtos(k) = real(LUC_EXPT%INPUT(qtos)%VAL(k), r_2)
+     !MC - not in serial code
+     ! POPLUC%ptoc(k) = real(LUC_EXPT%INPUT(ptoc)%VAL(k), r_2)
+     ! POPLUC%ptoq(k) = real(LUC_EXPT%INPUT(ptoq)%VAL(k), r_2)
+     ! POPLUC%stoc(k) = real(LUC_EXPT%INPUT(stoc)%VAL(k), r_2)
+     ! POPLUC%stoq(k) = real(LUC_EXPT%INPUT(stoq)%VAL(k), r_2)
+     ! POPLUC%ctos(k) = real(LUC_EXPT%INPUT(ctos)%VAL(k), r_2)
+     ! POPLUC%qtos(k) = real(LUC_EXPT%INPUT(qtos)%VAL(k), r_2)
 
      POPLUC%thisyear = yyyy
   ENDDO

@@ -139,12 +139,12 @@ host_mcin()
 	/opt/intel/compilers_and_libraries/mac/bin/compilervars.sh intel64
 	export FC=/usr/local/openmpi-3.1.5-ifort/bin/mpifort
 	# release
-	# export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
+	export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -ip -xHost -diag-disable=10382"
 	# Gadi flags
-	export CFLAGS='-O2 -fpp -fp-model precise'
+	# export CFLAGS='-O2 -fpp -fp-model precise'
 	if [[ ${idebug} -eq 1 ]] ; then
 	    # debug -fpe0
-	    # export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
+	    # export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -ip -xHost -diag-disable=10382"
             export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -fpp -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0 -fpe-all=0 -no-ftz -ftrapuv -init=arrays,snan"
 	fi
 	# export CFLAGS="${CFLAGS} -mtune=corei7"
@@ -203,7 +203,7 @@ host_mcin()
     # Gadi flags
     export LDFLAGS="-O2 ${LDFLAGS}"
     export dosvn=0
-    # export MFLAGS='-j 8'
+    export MFLAGS='-j 8'
     build_build ${cdir} ${PROG}
     cd ../
     build_status ${cdir} ${PROG}
@@ -243,10 +243,10 @@ host_vm_o()
 	module load intel/2018.5
         export FC=mpifort
         # release
-        export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
+        export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -ip -xHost -diag-disable=10382"
         if [[ ${idebug} -eq 1 ]] ; then
             # debug
-            export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -m64 -ip -xHost -diag-disable=10382"
+            export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -ip -xHost -diag-disable=10382"
         fi
 	# export CFLAGS="${CFLAGS} -march=broadwell"     # std / hf
 	# export CFLAGS="${CFLAGS} -march=core-avx2"     # std / hf
