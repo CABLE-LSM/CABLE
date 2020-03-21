@@ -23,14 +23,14 @@
 #
 # Gadi
 # https://opus.nci.org.au/display/Help/How+to+submit+a+job
-#PBS -N TestRandom
+#PBS -N Harvard12
 #PBS -P x45
 # express / normal / copyq (2x24, cascadelake)
 # expressbw / normalbw (2x14, broadwell) / normalsl (2x16, skylake)- ex-Raijin nodes
 #PBS -q express
-#PBS -l walltime=00:30:00
-#PBS -l mem=100GB
-#PBS -l ncpus=4
+#PBS -l walltime=00:20:00
+#PBS -l mem=10GB
+#PBS -l ncpus=5
 # #PBS -l jobfs=1GB
 #PBS -l storage=gdata/x45
 #PBS -l software=netCDF:MPI:Intel:GNU
@@ -38,30 +38,32 @@
 #PBS -l wd
 #PBS -j oe
 #PBS -S /bin/bash
-#PBS -M juergen.knauer@csiro.au
-#PBS -m a
+#PBS -M matthias.cuntz@inrae.fr
 
 # cuntz@explor, cuntz@mcinra, moc801@gadi cuntz@gadi
 # kna016@pearcey knauer@pearcey, jk8585@gadi knauer@gadi
 # not yet vxh599@gadi nor hav014@pearcey
-system=cuntz@mcinra
+system=cuntz@gadi
 
 # MPI run or single processor run
 # nproc should fit with job tasks
-dompi=0   # 0: normal run: ./cable
+dompi=1   # 0: normal run: ./cable
 # 1: MPI run: mpiexec -n ${nproc} ./cable_mpi
-nproc=2   # Number of cores for MPI runs
+nproc=5   # Number of cores for MPI runs
 # must be same as above: SBATCH -n nproc or PBS -l ncpus=nproc
 ignore_mpi_err=0 # 0/1: 1: continue even if mpi run failed
 
 
 # --------------------------------------------------------------------
 #
-# Full Cable run on a single grid cell with biomass spinup, POP, land-use change, etc.
+# Full Cable run with biomass spinup, POP, land-use change, etc.
 #
 # This script uses CRU-JRA forcing.
-# The single site met, LUH2, forcing and mask can be extracted from the global data sets
-# in step 0.
+#
+# Global meteo and land-use change data can be used with a mask giving land points.
+# In step 0, the land mask can be extracted for a single point, an area
+# or a number of random points can be chosen.
+# Alternatively, single site met, LUH2, forcing and mask can be extracted from the global data sets.
 #
 # The run sequence is as follows:
 #   1. Create a climate restart file using Cable's default vegetation distribution.
@@ -75,22 +77,21 @@ ignore_mpi_err=0 # 0/1: 1: continue even if mpi run failed
 #         using an analytic steady-state solution.
 #   4. Same as 3 but without any restriction on labile P and mineral N pools.
 #      Repeat a and b several times.
-#   5. Second phase of spinup with dynamic land use, atmospheric CO2 and
-#      N deposition.
+#   5. Second phase of spinup with dynamic land use, atmospheric CO2 and N deposition.
 #      a) Dynamic land use from 1580 to 1699, using still fixed atmospheric CO2 and
 #         N deposition from 1700, and 30 years of repeated meteorology.
 #      b) Run from 1700 to 1899 with dynmic land use, varying atmospheric CO2 and N deposition,
 #         but still with 30 years of repeated meteorology.
 #   6. Final run, everything dynamic from 1900 to 2017.
 #
-# Written, Matthias Cuntz, August-December 2019, following the run scripts and namelists provided by Vanessa Haverd
+# Written, Matthias Cuntz, Aug 2019, following the run scripts and namelists provided by Vanessa Haverd
 #
 # --------------------------------------------------------------------
 
 # --------------------------------------------------------------------
 # Sequence switches
 #
-imeteo=2        # 0: Use global meteo, land use and mask
+imeteo=1        # 0: Use global meteo, land use and mask
                 # 1: Use local mask, but global meteo and land use (doextractsite=1)
                 # 2: Use local meteo, land use and mask (doextractsite=2)
 # Step 0
@@ -98,8 +99,8 @@ doextractsite=0 # 0: Do not extract local meteo, land use nor mask
                 # 1: Do extract only mask at specific site/region (imeteo=1)
                 # 2: Do extract meteo, land use and mask at specific site/region (imeteo=2)
                 #    Does not work with randompoints /= 0 but with latlon
-    sitename=HarvardForest10
-    randompoints=0   # <0: use -1*randompoints random grid points from ${LandMaskFilePath}/${sitename}_points.csv if existing
+    sitename=HarvardForest12
+    randompoints=12   # <0: use -1*randompoints random grid points from ${LandMaskFilePath}/${sitename}_points.csv if existing
                      # 0:  use latlon
                      # >0: generate and use randompoints random grid points from GlobalLandMaskFile
     # lat,lon  or  latmin,latmax,lonmin,lonmax   # must have . in numbers otherwise indexes taken
@@ -309,7 +310,7 @@ else
     exit 1
 fi
 # Run directory
-runpath="${sitepath}/run_20200202"
+runpath="${sitepath}/run_20200216"
 
 # Cable parameters
 namelistpath="../namelists"
