@@ -1,32 +1,38 @@
 Existing scripts
 ----------------
 
-# Prepare input data
---------------------
+# Prepare input
+---------------
 # Written by Lars Nieradzik.
-lnutils.py
-	Python utilities used in create_landmask.py.
+create_landmask.py
+	Generate global landmask file from a list of lat,lon tupels in a file. Files are hardcoded in script.
 create_latlon_land.py
 	Generate a number of random lat,lon points. Same as generate_latlonlist.py but using variable land (0/1) instead of variable iveg (1-17). Files are hardcoded in script.
 generate_latlonlist.py
 	Generate a number of random lat,lon points. Same as create_latlon_land.py but using variable iveg (1-17) instead of variable land (0/1). Files are hardcoded in script.
-create_landmask.py
-	Generate global landmask file from a list of lat,lon tupels in a file. Files are hardcoded in script.
+lnutils.py
+	Python utilities used in create_landmask.py.
 
 # Written by Matthias Cuntz.
+duplicate_lon.py
+	Copies all variables of a single grid cell file into a second (or more) grid cell(s) with the same lat/lon.
 extract_latlon.py
 	Extract a single latitude/longitude point from a netcdf file.
 set_latlon_land.py
 	Sets the land variable of netcdf file to 1 at given latitude/longitude points, otherwise 0.
-duplicate_lon.py
-	Copies all variables of a single grid cell file into a second (or more) grid cell(s) with the same lat/lon.
 
 
 # Run Cable
 -----------
 reset_restart.bash
 	Utility that batch renames restart files. Written by Vanessa Haverd.
+run_cable-pop.sh
+        Full Cable run with biomass spinup, POP, land-use change, etc. Written by Matthias Cuntz.
 run_cable_site_CNP.py
 	Full cable run with spinup at single sites. Written by Martin De Kauwe and Vanessa Haverd.
-run_single_site.sh
-        Full Cable run on a single grid cell with biomass spinup, POP, land-use change, etc. Written by Matthias Cuntz.
+
+
+# Output
+--------
+compare_two_cable_runs.sh
+        Compare restart files of two Cable-POP runs performed with script run_cable-pop.sh.run_cable-pop.sh.
