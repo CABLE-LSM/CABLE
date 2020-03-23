@@ -896,10 +896,8 @@ CONTAINS
        IF ( CABLE_USER%CASA_DUMP_WRITE ) IS_CASA_TIME = .TRUE.
     ! Check for writing of casa standard output
     ELSE IF ( iotype .eq. "write" ) THEN
-
        doy = NINT(REAL(ktau-kstart+1+koffset)/REAL(ktauday))
        DO m = 1, 12
-          
           IF ( doy .EQ. SUM(MONTH(1:m)) ) THEN
              is_eom = .TRUE.
              IF ( m .EQ. 12 ) is_eoy = .TRUE.

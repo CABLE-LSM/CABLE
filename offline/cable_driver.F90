@@ -133,16 +133,16 @@ PROGRAM cable_offline_driver
   CHARACTER(LEN=200), PARAMETER :: CABLE_NAMELIST='cable.nml'
 
   ! timing variables
-  INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
-  INTEGER, PARAMETER ::  mloop  = 30 !MCTEST 30  ! CASA-CNP PreSpinup loops
+  INTEGER, PARAMETER :: kstart = 1   ! start of simulation
+  INTEGER, PARAMETER :: mloop  = 30 !MCTEST 30  ! CASA-CNP PreSpinup loops
   INTEGER :: LALLOC ! allocation coefficient for passing to spincasa
 
-  INTEGER        ::                                                           &
+  INTEGER :: &
        ktau,       &  ! increment equates to timestep, resets if spinning up
        ktau_tot,   &  ! NO reset when spinning up, total timesteps by model
        kend,       &  ! no. of time steps in run
        !CLN kstart = 1, &  ! timestep to start at
-       koffset = 0, &  ! timestep to start at
+       koffset = 0, & ! timestep to start at
        koffset_met = 0, &  !offfset for site met data ('site' only)
        ktauday,    &  ! day counter for CASA-CNP
        idoy,       &  ! day of year (1:365) counter for CASA-CNP
@@ -153,11 +153,11 @@ PROGRAM cable_offline_driver
        RRRR,       &  !
        NRRRR,      &  !
        ctime,      &  ! time counter for casacnp
-       LOY, &         ! days in year
+       LOY,        &  ! days in year
        count_sum_casa ! number of time steps over which casa pools &
   !and fluxes are aggregated (for output)
 
-  REAL :: dels                        ! time step size in seconds
+  REAL :: dels ! time step size in seconds
 
   INTEGER, DIMENSION(:,:), ALLOCATABLE :: GSWP_MID
   CHARACTER :: dum*9, str1*9, str2*9, str3*9
@@ -178,7 +178,7 @@ PROGRAM cable_offline_driver
   !     should be avoided ?
   TYPE(soil_parameter_type) :: soil ! soil parameters
   TYPE(veg_parameter_type)  :: veg  ! vegetation parameters
-  TYPE(driver_type)    :: C         ! constants used locally
+  TYPE(driver_type)         :: C    ! constants used locally
 
   TYPE(sum_flux_type)  :: sum_flux ! cumulative flux variables
   TYPE(bgc_pool_type)  :: bgc  ! carbon pool variables
@@ -208,9 +208,9 @@ PROGRAM cable_offline_driver
   real :: rshootfrac
 
   ! 13C
-  type(c13o2_flux)  :: c13o2flux
-  type(c13o2_pool)  :: c13o2pools, sum_c13o2pools
-  type(c13o2_luc)   :: c13o2luc
+  type(c13o2_flux) :: c13o2flux
+  type(c13o2_pool) :: c13o2pools, sum_c13o2pools
+  type(c13o2_luc)  :: c13o2luc
   real(r_2), dimension(:,:), allocatable :: casasave
   real(r_2), dimension(:,:), allocatable :: lucsave
   ! I/O
@@ -228,26 +228,27 @@ PROGRAM cable_offline_driver
   character(len=100) :: header
 
   ! declare vars for switches (default .FALSE.) etc declared thru namelist
-  LOGICAL, SAVE           :: &
-       vegparmnew = .FALSE.,       & ! using new format input file (BP dec 2007)
-       spinup = .FALSE.,           & ! model spinup to soil state equilibrium?
-       spinConv = .FALSE.,         & ! has spinup converged?
-       spincasainput = .FALSE.,    & ! TRUE: SAVE input req'd to spin CASA-CNP;
-                                ! FALSE: READ input to spin CASA-CNP
-       spincasa = .FALSE.,         & ! TRUE: CASA-CNP Will spin mloop times,
-                                ! FALSE: no spin up
-       l_casacnp = .FALSE.,        & ! using CASA-CNP with CABLE
-       l_laiFeedbk = .FALSE.,      & ! using prognostic LAI
-       l_vcmaxFeedbk = .FALSE.,    & ! using prognostic Vcmax
-       CASAONLY      = .FALSE.,    & ! ONLY Run CASA-CNP
-       CALL1 = .TRUE.,             &
-       SPINon= .TRUE.
+  LOGICAL :: &
+       vegparmnew    = .FALSE., & ! using new format input file (BP dec 2007)
+       spinup        = .FALSE., & ! model spinup to soil state equilibrium?
+       spinConv      = .FALSE., & ! has spinup converged?
+       spincasainput = .FALSE., & ! TRUE: SAVE input req'd to spin CASA-CNP;
+                                  ! FALSE: READ input to spin CASA-CNP
+       spincasa      = .FALSE., & ! TRUE: CASA-CNP Will spin mloop times,
+                                  ! FALSE: no spin up
+       l_casacnp     = .FALSE., & ! using CASA-CNP with CABLE
+       l_laiFeedbk   = .FALSE., & ! using prognostic LAI
+       l_vcmaxFeedbk = .FALSE., & ! using prognostic Vcmax
+       CASAONLY      = .FALSE., & ! ONLY Run CASA-CNP
+       CALL1         = .TRUE.,  &
+       SPINon        = .TRUE.
 
   LOGICAL :: CASA_TIME
+  logical :: first_casa_write
 
-  REAL              :: &
-       delsoilM,         & ! allowed variation in soil moisture for spin up
-       delsoilT            ! allowed variation in soil temperature for spin up
+  REAL :: &
+       delsoilM, & ! allowed variation in soil moisture for spin up
+       delsoilT    ! allowed variation in soil temperature for spin up
 
  INTEGER :: Metyear, Y, LOYtmp
 
@@ -260,10 +261,10 @@ PROGRAM cable_offline_driver
   REAL:: etime ! Declare the type of etime(), For receiving user and system time, total time
 
   !___ unique unit/file identifiers for cable_diag: arbitrarily 5 here
-  INTEGER, SAVE :: iDiagZero=0
+  INTEGER :: iDiagZero=0
 
   ! switches etc defined thru namelist (by default cable.nml)
-  NAMELIST/CABLE/ &
+  NAMELIST /CABLE/ &
        filename,         & ! TYPE, containing input filenames
        vegparmnew,       & ! use new soil param. method
        soilparmnew,      & ! use new soil param. method
@@ -297,21 +298,22 @@ PROGRAM cable_offline_driver
   ! Vars for standard for quasi-bitwise reproducability b/n runs
   ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
   CHARACTER(len=30), PARAMETER :: &
-       Ftrunk_sumbal  = ".trunk_sumbal", &
-       Fnew_sumbal    = "new_sumbal"
+       Ftrunk_sumbal = ".trunk_sumbal", &
+       Fnew_sumbal   = "new_sumbal"
 
   REAL(r_2) :: &
        trunk_sumbal = 0.0_r_2, & !
-       new_sumbal = 0.0_r_2,   &
-       new_sumfpn = 0.0_r_2,   &
-       new_sumfe = 0.0_r_2
+       new_sumbal   = 0.0_r_2, &
+       new_sumfpn   = 0.0_r_2, &
+       new_sumfe    = 0.0_r_2
 
   INTEGER :: nkend=0
   INTEGER :: ioerror
   INTEGER :: count_bal = 0
   ! END header
 
-  rshootfrac = real(shootfrac)
+  rshootfrac       = real(shootfrac)
+  first_casa_write = .true.
 
   ! Open, read and close the namelist file.
   OPEN(10, FILE = CABLE_NAMELIST)
@@ -1580,7 +1582,7 @@ PROGRAM cable_offline_driver
                     CASA_TIME = IS_CASA_TIME("write", yyyy, ktau, kstart, koffset, kend, ktauday, logn)
                  ENDIF
                  
-                 IF (CASA_TIME ) THEN
+                 IF (CASA_TIME) THEN
                     !mpidiff
                     count_sum_casa = count_sum_casa + 1
                     call update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
@@ -1592,7 +1594,7 @@ PROGRAM cable_offline_driver
                          CASAONLY, ctime, ( ktau.EQ.kend .AND. YYYY .EQ. cable_user%YearEnd.AND. RRRR .EQ.NRRRR ) )
                     ! 13C
                     if (cable_user%c13o2) then
-                       if (ctime == 86400) then
+                       if (first_casa_write) then
                           call c13o2_create_output(casamet, sum_c13o2pools, c13o2_outfile_id, c13o2_vars, c13o2_var_ids)
                        endif
                        call c13o2_write_output(c13o2_outfile_id, c13o2_vars, c13o2_var_ids, ctime, sum_c13o2pools)
@@ -1604,6 +1606,7 @@ PROGRAM cable_offline_driver
                     CALL zero_sum_casa(sum_casapool, sum_casaflux)
                     ! 13C
                     if (cable_user%c13o2) call c13o2_zero_sum_pools(sum_c13o2pools)
+                    first_casa_write = .false.
                  ENDIF
 
                  IF (((.NOT.spinup).OR.(spinup.AND.spinConv)).and. &
