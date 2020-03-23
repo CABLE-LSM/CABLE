@@ -2150,13 +2150,12 @@ END SUBROUTINE READ_CASA_RESTART_NC
 subroutine write_casa_output_nc(veg, casamet, casapool, casabal, casaflux, casaonly, ctime, lfinal)
 
   use casavariable,         only: casa_met, casa_pool, casa_balance, casa_flux, &
-       mplant, mlitter, msoil, icycle, casafile
+       mplant, mlitter, msoil, icycle, casafile, casa_timeunits
   use cable_common_module,  only: cable_user, filename, handle_err
-  use cable_def_types_mod,  only: veg_parameter_type, mp
-  use cable_io_vars_module, only: timeunits, calendar
+  use cable_def_types_mod,  only: veg_parameter_type, mp, i_d
   use netcdf,               only: nf90_noerr, &
-       nf90_put_var, nf90_clobber, nf90_64bit_offset, nf90_create, nf90_global, nf90_put_att, &
-       nf90_def_dim, nf90_unlimited, nf90_int, nf90_def_var, nf90_float, nf90_enddef, nf90_put_var, nf90_close
+       nf90_put_var, nf90_clobber, nf90_create, nf90_global, nf90_put_att, nf90_netcdf4, & ! , nf90_64bit_offset
+       nf90_def_dim, nf90_unlimited, nf90_int64, nf90_def_var, nf90_float, nf90_enddef, nf90_put_var, nf90_close
 
   implicit none
 
@@ -2166,7 +2165,7 @@ subroutine write_casa_output_nc(veg, casamet, casapool, casabal, casaflux, casao
   type(casa_balance),       intent(in) :: casabal
   type(casa_flux),          intent(in) :: casaflux
   logical,                  intent(in) :: casaonly
-  integer,                  intent(in) :: ctime
+  integer(i_d),             intent(in) :: ctime
   logical,                  intent(in) :: lfinal
 
   integer :: status
@@ -2354,7 +2353,8 @@ subroutine write_casa_output_nc(veg, casamet, casapool, casabal, casaflux, casao
      cnt = 0
 
      ! create netcdf file:
-     status = nf90_create(trim(fname), ior(nf90_clobber,nf90_64bit_offset), file_id)
+     ! status = nf90_create(trim(fname), ior(nf90_clobber,nf90_64bit_offset), file_id)
+     status = nf90_create(trim(fname), ior(nf90_clobber,nf90_netcdf4), file_id)
      ! print*, 'OCreate52 ', file_id, trim(fname)
      if (status /= nf90_noerr) call handle_err(status)
 
@@ -2383,14 +2383,14 @@ subroutine write_casa_output_nc(veg, casamet, casapool, casabal, casaflux, casao
      if (status /= nf90_noerr) call handle_err(status)
 
      ! define variables
-     status = nf90_def_var(file_id, 'time', nf90_int, (/t_id/), vidtime)
+     status = nf90_def_var(file_id, 'time', nf90_int64, (/t_id/), vidtime)
      if (status /= nf90_noerr) call handle_err(status)
 
-     STATUS = NF90_PUT_ATT(FILE_ID, VIDtime, 'units', TRIM(timeunits))
+     STATUS = NF90_PUT_ATT(FILE_ID, VIDtime, 'units', TRIM(casa_timeunits))
      IF (STATUS /= NF90_NOERR)  CALL handle_err(STATUS)
 
-     STATUS = NF90_PUT_ATT(FILE_ID,VIDtime, 'calendar', calendar)
-     IF (STATUS /= NF90_NOERR)  CALL handle_err(STATUS)
+     ! STATUS = NF90_PUT_ATT(FILE_ID, VIDtime, 'calendar', trim(casa_calendar))
+     ! IF (STATUS /= NF90_NOERR)  CALL handle_err(STATUS)
 
      do i=1, na0
         status = nf90_def_var(file_id, trim(a0(i)), nf90_float, (/land_id/), vid0(i))

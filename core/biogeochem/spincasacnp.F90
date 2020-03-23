@@ -65,7 +65,7 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
   real(dp), allocatable, save :: LAImax(:), Cleafmean(:), Crootmean(:)
   real(dp), allocatable :: NPPtoGPP(:)
   integer,  allocatable :: Iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
-  integer :: ctime
+  integer(i_d) :: ctime
   real(dp) :: rday
 
   ! 13C
@@ -82,7 +82,7 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
    if (.not. allocated(NPPtoGPP))  allocate(NPPtoGPP(mp))
    if (.not. allocated(Iw))        allocate(Iw(POP%np))
 
-   ctime = 1
+   ctime = 0
    LOY = 365
    !! vh_js !!
    if (cable_user%CALL_POP) Iw = POP%Iwood
@@ -247,10 +247,10 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
             
         else ! (cable_user%CALL_POP .and. (POP%np.gt.0))
 
-           if (idoy==mdyear) then ! end of year
-              ! call write_casa_output_nc(veg, casamet, casapool, casabal, casaflux, .true., ctime, .false.)
-              ctime = ctime+1
-           endif  ! end of year
+           ! if (idoy==mdyear) then ! end of year
+           !    ! call write_casa_output_nc(veg, casamet, casapool, casabal, casaflux, .true., ctime, .false.)
+           !    ctime = ctime + 1
+           ! endif  ! end of year
            casaflux%stemnpp = 0.0_dp
            
         endif ! (cable_user%CALL_POP .and. (POP%np.gt.0))
@@ -296,8 +296,8 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
         avg_rationcsoilmic  = avg_rationcsoilmic  + casapool%ratioNCsoilnew(:,mic)
         avg_rationcsoilslow = avg_rationcsoilslow + casapool%ratioNCsoilnew(:,slow)
         avg_rationcsoilpass = avg_rationcsoilpass + casapool%ratioNCsoilnew(:,pass)
-     enddo
-  enddo
+     enddo ! idoy
+  enddo ! nyear
 
   !!CLN    CLOSE(91)
   ! average
@@ -377,6 +377,7 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
   DO nloop=1, mloop
      !!CLN  OPEN(91,file=fcnpspin)
      !!CLN  read(91,*)
+     ctime = 0
      DO nyear=1, myearspin
         !!CLN      read(91,901) ncfile
         !write(*,*) 'spincasa CYEAR', CYEAR, ncfile
@@ -385,6 +386,7 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
         call read_casa_dump(ncfile, casamet, casaflux, phen, climate, c13o2flux, ktau, kend, .TRUE.)
 
         DO idoy=1,mdyear
+           ctime = ctime + 1
            ktauy = idoy*ktauday
            ktau  = (idoy-1)*ktauday +1
            casamet%tairk(:)       = casamet%Tairkspin(:,idoy)
@@ -434,7 +436,8 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
            if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
 
            !MC - Should this be nyear==myearspin instead of nyear==1?
-           if (nloop==mloop .and. nyear==1) then
+           ! if (nloop==mloop .and. nyear==1) then
+           if (nloop==mloop .and. nyear==myearspin) then
               !MC - Should ctime be replaced by idoy?
               CALL WRITE_CASA_OUTPUT_NC( veg, casamet, casapool, casabal, casaflux, &
                    .true., ctime, (nloop.eq.mloop .and. nyear.eq.myearspin .and. idoy.eq.mdyear) )
@@ -445,7 +448,6 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
                  endif
                  call c13o2_write_output(c13o2_file_id, c13o2_vars, c13o2_var_ids, ctime, c13o2pools)
               end if
-              ctime = ctime+1
            endif
            ! 13C
            if (cable_user%c13o2) then
@@ -480,7 +482,7 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
                  ! CALL WRITE_CASA_OUTPUT_NC(veg, casamet, casapool, casabal, casaflux, &
                  !     .TRUE., ctime, &
                  !     (nloop.eq.mloop .and. nyear.eq.myearspin.and.idoy.eq.mdyear))
-                 ctime = ctime+1
+                 ! ctime = ctime + 1
               ENDIF ! end of year
            ELSE
               ! IF(idoy==mdyear) THEN ! end of year
@@ -496,7 +498,7 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
 
      ENDDO ! end of nyear
 
-  ENDDO     ! end of nloop
+  ENDDO ! end of nloop
 
   CALL casa_fluxout(CABLE_USER%CASA_SPIN_STARTYEAR+myearspin-1, veg, soil, casabal, casamet)
 

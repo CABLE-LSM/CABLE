@@ -114,6 +114,8 @@ MODULE casavariable
 
   SAVE
 
+  character(len=200) :: casa_timeunits
+
   TYPE casa_biome
      INTEGER,   DIMENSION(:),POINTER :: ivt2 => null()
      REAL(r_2), DIMENSION(:),POINTER :: xkleafcoldmax => null(),  &

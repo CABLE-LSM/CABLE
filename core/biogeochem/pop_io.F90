@@ -268,6 +268,38 @@ SUBROUTINE POP_IO( POP, casamet, YEAR, ACTION, CF )
   ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! WRITE POP VALUES TO OUTPUT FILE
   ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ! Get File-Name
+  IF ( typ .EQ. 'out' ) THEN
+     WRITE(dum, FMT="(I4,'_',I4)") CABLE_USER%YEARSTART, CABLE_USER%YEAREND
+     IF (CABLE_USER%YEARSTART.lt.1000.and.CABLE_USER%YEAREND.lt.1000) THEN
+        WRITE(dum, FMT="(I3,'_',I3)") CABLE_USER%YEARSTART, CABLE_USER%YEAREND
+     ELSEIF (CABLE_USER%YEARSTART.lt.1000) THEN
+        WRITE(dum, FMT="(I3,'_',I4)") CABLE_USER%YEARSTART, CABLE_USER%YEAREND
+     ENDIF
+  ELSE
+     WRITE(dum, FMT="(I4)") YEAR
+  ENDIF
+
+  ! IF (typ.eq.'ini') THEN
+  !    fname = TRIM(cable_user%POP_rst)//'/'//'pop_'//TRIM(cable_user%RunIDEN)&
+  !         //'_'//typ//'.nc'
+  ! ELSE
+  !    fname = TRIM(filename%path)//'/'//TRIM(cable_user%RunIden)//'_'//&
+  !         TRIM(dum)//'_pop_'//typ//'.nc'
+  ! ENDIF
+  IF ((typ.eq.'ini') .OR. (typ.eq.'rst')) THEN
+     IF (LEN_TRIM( TRIM(cable_user%POP_restart_out) ) .gt. 0) THEN
+        fname = TRIM(cable_user%POP_restart_out)
+     ELSE
+        fname = TRIM(filename%path)//'/'//'pop_'//TRIM(cable_user%RunIDEN)//'_'//typ//'.nc'
+     ENDIF
+  ELSE
+     IF (LEN_TRIM( TRIM(cable_user%POP_outfile) ) .gt. 0) THEN
+        fname = TRIM(cable_user%POP_outfile)
+     ELSE
+        fname = TRIM(filename%path)//'/'//TRIM(cable_user%RunIden)//'_'//TRIM(dum)//'_pop_'//typ//'.nc'
+     ENDIF
+  ENDIF
 
   IF ( INDEX(ACTION,"WRITE") .GT. 0 ) THEN
 
@@ -279,41 +311,6 @@ SUBROUTINE POP_IO( POP, casamet, YEAR, ACTION, CF )
      ENDIF
 
      IF ( CNT .EQ. 1 ) THEN
-        ! Get File-Name
-        IF ( typ .EQ. 'out' ) THEN
-           WRITE( dum, FMT="(I4,'_',I4)")CABLE_USER%YEARSTART,CABLE_USER%YEAREND
-           IF (CABLE_USER%YEARSTART.lt.1000.and.CABLE_USER%YEAREND.lt.1000) THEN
-              WRITE( dum, FMT="(I3,'_',I3)")CABLE_USER%YEARSTART,CABLE_USER%YEAREND
-           ELSEIF (CABLE_USER%YEARSTART.lt.1000) THEN
-              WRITE( dum, FMT="(I3,'_',I4)")CABLE_USER%YEARSTART,CABLE_USER%YEAREND
-           ENDIF
-        ELSE
-           WRITE( dum, FMT="(I4)")YEAR
-        ENDIF
-
-        ! IF (typ.eq.'ini') THEN
-        !    fname = TRIM(cable_user%POP_rst)//'/'//'pop_'//TRIM(cable_user%RunIDEN)&
-        !         //'_'//typ//'.nc'
-        ! ELSE
-        !    fname = TRIM(filename%path)//'/'//TRIM(cable_user%RunIden)//'_'//&
-        !         TRIM(dum)//'_pop_'//typ//'.nc'
-        ! ENDIF
-
-        IF ((typ.eq.'ini') .OR. (typ.eq.'rst')) THEN
-           IF (LEN_TRIM( TRIM(cable_user%POP_restart_out) ) .gt. 0 ) THEN
-              fname = TRIM(cable_user%POP_restart_out)
-           ELSE
-              fname = TRIM(filename%path)//'/'//'pop_'//TRIM(cable_user%RunIDEN)&
-                   //'_'//typ//'.nc'
-           ENDIF
-        ELSE
-           IF  (LEN_TRIM( TRIM(cable_user%POP_outfile) ) .gt. 0 ) THEN
-              fname = TRIM(cable_user%POP_outfile)
-           ELSE
-              fname = TRIM(filename%path)//'/'//TRIM(cable_user%RunIden)//'_'//&
-                   TRIM(dum)//'_pop_'//typ//'.nc'
-           ENDIF
-        ENDIF
 
         INQUIRE( FILE=TRIM( fname ), EXIST=EXISTFILE )
         EXISTFILE = .FALSE.

@@ -43,13 +43,13 @@
 # cuntz@explor, cuntz@mcinra, moc801@gadi cuntz@gadi
 # kna016@pearcey knauer@pearcey, jk8585@gadi knauer@gadi
 # not yet vxh599@gadi nor hav014@pearcey
-system=cuntz@gadi
+system=cuntz@explor
 
 # MPI run or single processor run
 # nproc should fit with job tasks
-dompi=1   # 0: normal run: ./cable
+dompi=0   # 0: normal run: ./cable
 # 1: MPI run: mpiexec -n ${nproc} ./cable_mpi
-nproc=5   # Number of cores for MPI runs
+nproc=4   # Number of cores for MPI runs
 # must be same as above: SBATCH -n nproc or PBS -l ncpus=nproc
 ignore_mpi_err=0 # 0/1: 1: continue even if mpi run failed
 
@@ -108,27 +108,27 @@ doextractsite=0 # 0: Do not extract local meteo, land use nor mask
     # latlon=-34.5,-33.5,149.5,156.5
     # latlon=42.5,43.5,109.5,110.5
 # Step 1
-doclimate=1     # 1/0: Do/Do not create climate restart file
+doclimate=0     # 1/0: Do/Do not create climate restart file
 # Step 2
-dofromzero=1    # 1/0: Do/Do not first spinup phase from zero biomass stocks
+dofromzero=0    # 1/0: Do/Do not first spinup phase from zero biomass stocks
 # Step 3
-doequi1=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
+doequi1=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
 nequi1=1        #      number of times to repeat steps in doequi1
 # Step 4
-doequi2=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
+doequi2=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
 nequi2=1        #      number of times to repeat steps in doequi2
 # Step 5a
 doiniluc=1      # 1/0: Do/Do not spinup with dynamic land use (5a)
 # Step 5b
-doinidyn=1      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
+doinidyn=0      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
 # Step 6
-dofinal=1       # 1/0: Do/Do not final run from 1900 to 2017
+dofinal=0       # 1/0: Do/Do not final run from 1900 to 2017
 
 # --------------------------------------------------------------------
 # Other switches
 #
 # Cable
-doc13o2=0           # 1/0: Do/Do not calculate 13C
+doc13o2=1           # 1/0: Do/Do not calculate 13C
 c13o2_simple_disc=0 # 1/0: simple or full 13C leaf discrimination
 explicit_gm=0       # 1/0: explicit (finite) or implicit mesophyll conductance
 
@@ -158,21 +158,21 @@ export mpiexecdir=
 if [[ "${sys}" == "explor" ]] ; then
     # prog is slurm_script
     pdir=${isdir}
-    # # INTELMPI - load mpi module first, otherwise intel module will not pre-pend LD_LIBRARY_PATH
+    # # INTELMPI - load mpi module first, otherwise intel module will not prepend LD_LIBRARY_PATH
     # module load intelmpi/2018.5.274
     # module load intel/2018.5
     # export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-ifort2018.0/lib
     # export mpiexecdir=/soft/env/soft/all/intel/2018.3/compilers_and_libraries_2018.5.274/linux/mpi/intel64/bin/
-    # INTEL / OpenMPI - load mpi module first, otherwise intel module will not pre-pend LD_LIBRARY_PATH
-    module load openmpi/3.0.0/intel18
-    module load intel/2018.5
-    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-ifort2018.0/lib
-    export mpiexecdir=/opt/soft/hf/openmpi-3.0.0-intel18/bin/
-    # # GNU / OpenMPI
-    # module load gcc/6.3.0
-    # module load openmpi/3.0.1/gcc/6.3.0
-    # export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-gfortran63/lib
-    # export mpiexecdir=/opt/soft/hf/openmpi/3.0.1/gcc/6.3.0/bin/
+    # # INTEL / OpenMPI - load mpi module first, otherwise intel module will not pre-pend LD_LIBRARY_PATH
+    # module load openmpi/3.0.0/intel18
+    # module load intel/2018.5
+    # export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-ifort2018.0/lib
+    # export mpiexecdir=/opt/soft/hf/openmpi-3.0.0-intel18/bin/
+    # GNU / OpenMPI
+    module load gcc/6.3.0
+    module load openmpi/3.0.1/gcc/6.3.0
+    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-gfortran63/lib
+    export mpiexecdir=/opt/soft/hf/openmpi/3.0.1/gcc/6.3.0/bin/
     if [[ ${doextractsite} -ge 1 ]] ; then module load python/intel/2019/3 ; fi
 elif [[ "${sys}" == "mcinra" ]] ; then
     # # exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi-gfortran"
@@ -310,7 +310,7 @@ else
     exit 1
 fi
 # Run directory
-runpath="${sitepath}/run_20200216"
+runpath="${sitepath}/run_20200203"
 
 # Cable parameters
 namelistpath="../namelists"
@@ -720,20 +720,8 @@ if [[ ${doclimate} -eq 1 ]] ; then
     else
         com=${com}$(csed "cable_user%explicit_gm=.false.")
     fi
-    if [[ ${doc13o2} -eq 1 ]] ; then
-        com=${com}$(csed "cable_user%c13o2=.true.")
-        com=${com}$(csed "cable_user%c13o2_delta_atm_file=\"${filename_d13c_atm}\"")
-        com=${com}$(csed "cable_user%c13o2_outfile=\"outputs/cru_out_casa_c13o2.nc\"")
-        com=${com}$(csed "cable_user%c13o2_restart_in_flux=\"\"")
-        com=${com}$(csed "cable_user%c13o2_restart_out_flux=\"restart/cru_c13o2_flux_rst.nc\"")
-        com=${com}$(csed "cable_user%c13o2_restart_in_pools=\"\"")
-        com=${com}$(csed "cable_user%c13o2_restart_out_pools=\"restart/cru_c13o2_pools_rst.nc\"")
-        if [[ ${c13o2_simple_disc} -eq 1 ]] ; then
-            com=${com}$(csed "cable_user%c13o2_simple_disc=.true.")
-        else
-            com=${com}$(csed "cable_user%c13o2_simple_disc=.false.")
-        fi
-    fi
+    # do not calculate 13C because there is no 13C in the climate restart file
+    com=${com}$(csed "cable_user%c13o2=.false.")
     sed ${com} ${ndir}/cable.nml > ${rdir}/cable.nml
     # run model
     cd ${rdir}
@@ -753,10 +741,8 @@ if [[ ${doclimate} -eq 1 ]] ; then
     cd ../restart
     copyid ${rid} cru_climate_rst.nc
     cp cru_climate_rst.nc ${ClimateFile}
-    if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_c13o2_flux_rst.nc cru_c13o2_pools_rst.nc ; fi
     cd ../outputs
     renameid ${rid} cru_out_cable.nc cru_out_casa.nc
-    if [[ ${doc13o2} -eq 1 ]] ; then renameid ${rid} cru_out_casa_c13o2.nc ; fi
     cd ..
     cd ${pdir}
 fi

@@ -645,12 +645,11 @@ contains
   subroutine c13o2_create_output(casamet, c13o2pools, file_id, vars, var_ids)
 
     use cable_common_module,  only: cable_user, filename
-    use cable_io_vars_module, only: timeunits, calendar
-    use casavariable,         only: casa_met, casafile
+    use casavariable,         only: casa_met, casafile, casa_timeunits
     use cable_c13o2_def,      only: c13o2_pool
-    use netcdf,               only: nf90_create, nf90_clobber, nf90_64bit_offset, nf90_noerr, &
+    use netcdf,               only: nf90_create, nf90_clobber, nf90_noerr, nf90_netcdf4, & ! , nf90_64bit_offset
          nf90_put_att, nf90_global, nf90_def_dim, nf90_unlimited, &
-         nf90_def_var, nf90_double, nf90_int, nf90_enddef, nf90_put_var
+         nf90_def_var, nf90_double, nf90_int64, nf90_enddef, nf90_put_var
 
     implicit none
 
@@ -710,7 +709,7 @@ contains
     lvars(7) = '13C content of excess carbon pool'
     ! lvars(8) = '13C content of accumulated harvest'
     ! variable units
-    uvars(1) = trim(timeunits)
+    uvars(1) = trim(casa_timeunits)
     uvars(2) = 'degrees_north'
     uvars(3) = 'degrees_east'
     uvars(4) = 'kg(13C)/m^2'
@@ -728,7 +727,7 @@ contains
     dvars(7) = 2 ! ntile, time
     ! dvars(8) = 2 ! ntile, time
     ! variable type
-    tvars(1) = nf90_int
+    tvars(1) = nf90_int64
     tvars(2) = nf90_double
     tvars(3) = nf90_double
     tvars(4) = nf90_double
@@ -761,7 +760,8 @@ contains
 
     ! create output file
     write(*,*) 'Defining 13CO2 output file: ', trim(fname)
-    status = nf90_create(trim(fname), cmode=ior(nf90_clobber,nf90_64bit_offset), ncid=file_id)
+    ! status = nf90_create(trim(fname), cmode=ior(nf90_clobber,nf90_64bit_offset), ncid=file_id)
+    status = nf90_create(trim(fname), cmode=ior(nf90_clobber,nf90_netcdf4), ncid=file_id)
     ! print*, 'OCreate70 ', file_id
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could not open c13o2 output file: '//trim(fname))
@@ -830,12 +830,12 @@ contains
        status = nf90_put_att(file_id, var_ids(i), 'units', uvars(i))
        if (status /= nf90_noerr) &
             call c13o2_err_handler('Could not define units for '//trim(vars(i))//' in c13o2 output file: '//trim(fname))
-       if (trim(vars(i)) == 'time') then
-          ! set calendar
-          status = nf90_put_att(file_id, var_ids(i), 'calendar', calendar)
-          if (status /= nf90_noerr) &
-               call c13o2_err_handler('Could not define calendar for variable time in c13o2 output file: '//trim(fname))
-       endif
+       ! if (trim(vars(i)) == 'time') then
+       !    ! set calendar
+       !    status = nf90_put_att(file_id, var_ids(i), 'calendar', trim(casa_calendar))
+       !    if (status /= nf90_noerr) &
+       !         call c13o2_err_handler('Could not define calendar for variable time in c13o2 output file: '//trim(fname))
+       ! endif
     end do ! c13o2_nvars_output
 
     ! end definition phase
@@ -862,8 +862,9 @@ contains
   ! ------------------------------------------------------------------
 
   ! Write into 13C Casa output file
-  subroutine c13o2_write_output(file_id, vars, var_ids, timestep, c13o2pools)
+  subroutine c13o2_write_output(file_id, vars, var_ids, days, c13o2pools)
 
+    use cable_def_types_mod, only: i_d, dp => r_2
     use cable_common_module, only: cable_user
     use cable_c13o2_def,     only: c13o2_pool
     use netcdf,              only: nf90_put_var, nf90_noerr
@@ -873,13 +874,14 @@ contains
     integer,                         intent(in) :: file_id
     character(len=40), dimension(:), intent(in) :: vars
     integer,           dimension(:), intent(in) :: var_ids
-    integer,                         intent(in) :: timestep
+    integer(i_d),                    intent(in) :: days
     type(c13o2_pool),                intent(in) :: c13o2pools
 
     ! local variables
     integer :: i, status
     integer :: nland, nplant, nlitter, nsoil
-    integer :: secs, dt
+    integer :: timestep
+    real(dp) :: dt
     integer, parameter :: sp = kind(1.0)
 
     ! write(*,*) 'Writing 13CO2 output.'
@@ -888,18 +890,18 @@ contains
     nlitter = c13o2pools%nlitter
     nsoil   = c13o2pools%nsoil
     ! all variables
+    select case(trim(cable_user%casa_out_freq))
+    case("daily")
+       dt = 1._dp
+    case("monthly")
+       dt = 30.4375_dp  ! 365.25/12
+    case("annually")
+       dt = 365.25_dp
+    end select
+    timestep = nint(real(days,dp)/dt)
     do i=1, c13o2_nvars_output
        if (trim(vars(i)) == 'time') then
-          select case(trim(cable_user%casa_out_freq))
-          case("daily")
-             dt = 86400
-          case("monthly")
-             dt = 2629800  ! 86400*365.25/12
-          case("annually")
-             dt = 31557600 ! 86400*365.25
-          end select
-          secs = timestep*dt - dt/2
-          status = nf90_put_var(file_id, var_ids(i), secs, start=(/timestep/))
+          status = nf90_put_var(file_id, var_ids(i), days, start=(/timestep/))
        else if (trim(vars(i)) == 'latitude') then
           continue
        else if (trim(vars(i)) == 'longitude') then
@@ -1533,7 +1535,7 @@ contains
   ! Print 13C delta values of Canopy pools on screen
   subroutine c13o2_print_delta_flux(c13o2flux)
 
-    use cable_def_types_mod, only: mland, dp => r_2
+    use cable_def_types_mod, only: dp => r_2
     use cable_c13o2_def,     only: c13o2_flux
     use mo_isotope,          only: delta1000!, vpdbc13
 
@@ -1545,14 +1547,15 @@ contains
     character(len=30) :: form1, form2
 
     mp     = c13o2flux%ntile
-    npatch = mp / mland
+    npatch = 3
     nleaf  = c13o2flux%nleaf
 
     write(*,*) '    delta-13C of Canopy pools'
     
-    if (mland > 1) then
+    if (mp > 3) then
 
-       write(form1,'(a,i3,a)') '(a,i1,a,', mland, 'g15.6e3)'
+       write(form1,'(a,i3,a)') '(a,i1,a,', mp/npatch, 'g15.6e3)'
+       print*, 'PP01 ', mp, mp/npatch, npatch, size(c13o2flux%Vstarch)
        do i=1, npatch
           write(*,form1) '        Vstarch (na=',i,'): ', c13o2flux%Vstarch(i:mp:npatch)
        end do
@@ -1561,7 +1564,7 @@ contains
                delta1000(c13o2flux%Rstarch(i:mp:npatch), 1.0_dp, 1.0_dp, -999._dp, tiny(1.0_dp))
        end do
 
-       write(form2,'(a,i3,a)') '(a,i1,a,i1,a,', mland, 'g15.6e3)'
+       write(form2,'(a,i3,a)') '(a,i1,a,i1,a,', mp/npatch, 'g15.6e3)'
        do j=1, nleaf
           do i=1, npatch
              write(*,form2) '        dsucrose (na=',i,',nl=',j,'): ', &
@@ -1599,7 +1602,7 @@ contains
   ! Print 13C delta values of Casa pools on screen
   subroutine c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
 
-    use cable_def_types_mod, only: mland, dp => r_2
+    use cable_def_types_mod, only: dp => r_2
     use casavariable,        only: casa_pool, casa_flux
     use cable_c13o2_def,     only: c13o2_pool
     use mo_isotope,          only: delta1000!, vpdbc13
@@ -1614,16 +1617,16 @@ contains
     character(len=30) :: form1, form2
 
     mp      = size(casapool%cplant,1)
-    npatch  = mp / mland
+    npatch  = 3
     nplant  = size(casapool%cplant,2)
     nlitter = size(casapool%clitter,2)
     nsoil   = size(casapool%csoil,2)
 
     write(*,*) '    delta-13C of Casa pools'
 
-    if (mland > 1) then
+    if (mp > 3) then
        
-       write(form1,'(a,i3,a)') '(a,i1,a,i1,a,', mland, 'g15.6e3)'
+       write(form1,'(a,i3,a)') '(a,i1,a,i1,a,', mp/npatch, 'g15.6e3)'
        do j=1, nplant
           do i=1, npatch
              write(*,form1) '        plant (na=',i,',np=',j,'): ', &
@@ -1643,7 +1646,7 @@ contains
           end do
        end do
 
-       write(form2,'(a,i3,a)') '(a,i1,a,', mland, 'g15.6e3)'
+       write(form2,'(a,i3,a)') '(a,i1,a,', mp/npatch, 'g15.6e3)'
        do i=1, npatch
           write(*,form2) '        labile (na=',i,'): ', &
                delta1000(c13o2pools%clabile(i:mp:npatch), casapool%clabile(i:mp:npatch), 1.0_dp, -999._dp, tiny(1.0_dp))
@@ -1669,7 +1672,7 @@ contains
                delta1000(c13o2pools%csoil(:,j), casapool%csoil(:,j), 1.0_dp, -999._dp, tiny(1.0_dp))
        end do
 
-       write(form2,'(a,i3,a)') '(a,', mland, 'g15.6e3)'
+       write(form2,'(a,i3,a)') '(a,', npatch, 'g15.6e3)'
        write(*,form2) '        labile: ', &
             delta1000(c13o2pools%clabile(:), casapool%clabile(:), 1.0_dp, -999._dp, tiny(1.0_dp))
        write(*,form2) '        charvest: ', &
@@ -1684,7 +1687,7 @@ contains
   ! Print 13C delta values of LUC pools on screen
   subroutine c13o2_print_delta_luc(popluc, c13o2luc)
 
-    use cable_def_types_mod, only: mland, dp => r_2
+    use cable_def_types_mod, only: dp => r_2
     use popluc_types,        only: popluc_type
     use cable_c13o2_def,     only: c13o2_luc
     use mo_isotope,          only: delta1000!, vpdbc13
@@ -1698,15 +1701,15 @@ contains
     character(len=30) :: form1, form2
 
     mp         = size(popluc%HarvProd,1)
-    npatch     = mp / mland
+    npatch     = 3
     nharvest   = size(popluc%HarvProd,2)
     nclearance = size(popluc%ClearProd,2)
 
     write(*,*) '    delta-13C of LUC pools'
 
-    if (mland > 1) then
+    if (mp > 3) then
 
-       write(form1,'(a,i3,a)') '(a,i1,a,i1,a,', mland, 'g15.6e3)'
+       write(form1,'(a,i3,a)') '(a,i1,a,i1,a,', mp/npatch, 'g15.6e3)'
        do j=1, nharvest
           do i=1, npatch
              write(*,form1) '        harvest (na=',i,',nh=',j,'): ', &
@@ -1720,7 +1723,7 @@ contains
           end do
        end do
 
-       write(form2,'(a,i3,a)') '(a,i1,a,', mland, 'g15.6e3)'
+       write(form2,'(a,i3,a)') '(a,i1,a,', mp/npatch, 'g15.6e3)'
        do i=1, npatch
           write(*,form2) '        agric (na=',i,'): ', &
                delta1000(c13o2luc%cagric(i:mp:npatch), popluc%AgProd(i:mp:npatch), 1.0_dp, -999._dp, tiny(1.0_dp))
@@ -1782,18 +1785,21 @@ contains
     nendr   = nplant
     nstartc = nplant + 1
     nendc   = nplant + nlitter
+    if (any(casaflux%FluxFromPtoL < 0.0_dp)) print*, 'FF01 ', casaflux%FluxFromPtoL
     fluxmatrix(:,nstartr:nendr,nstartc:nendc) = casaflux%FluxFromPtoL
     ! litter to soil
     nstartr = nstartr + nplant
     nendr   = nendr + nlitter
     nstartc = nstartc + nlitter
     nendc   = nendc + nsoil
+    if (any(casaflux%FluxFromLtoS < 0.0_dp)) print*, 'FF02 ', casaflux%FluxFromLtoS
     fluxmatrix(:,nstartr:nendr,nstartc:nendc) = casaflux%FluxFromLtoS
     ! soil to soil
     nstartr = nstartr + nlitter
     nendr   = nendr + nsoil
     nstartc = nstartc
     nendc   = nendc
+    if (any(casaflux%FluxFromStoS < 0.0_dp)) print*, 'FF03 ', casaflux%FluxFromStoS
     fluxmatrix(:,nstartr:nendr,nstartc:nendc) = casaflux%FluxFromStoS
     ! labile = 0.
 

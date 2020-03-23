@@ -81,7 +81,7 @@ PROGRAM cable_offline_driver
 
   ! modules related to CASA-CNP
   USE casadimension,        ONLY: icycle
-  USE casavariable,         ONLY: casafile, casa_biome, casa_pool, casa_flux,  &
+  USE casavariable,         ONLY: casafile, casa_biome, casa_pool, casa_flux, casa_timeunits, &
        !mpidiff
        casa_met, casa_balance, zero_sum_casa, update_sum_casa
   USE phenvariable,         ONLY: phen_variable
@@ -152,9 +152,9 @@ PROGRAM cable_offline_driver
        RYEAR,      &  !
        RRRR,       &  !
        NRRRR,      &  !
-       ctime,      &  ! time counter for casacnp
        LOY,        &  ! days in year
        count_sum_casa ! number of time steps over which casa pools &
+  integer(i_d) :: ctime ! time counter for casacnp
   !and fluxes are aggregated (for output)
 
   REAL :: dels ! time step size in seconds
@@ -312,8 +312,7 @@ PROGRAM cable_offline_driver
   INTEGER :: count_bal = 0
   ! END header
 
-  rshootfrac       = real(shootfrac)
-  first_casa_write = .true.
+  rshootfrac = real(shootfrac)
 
   ! Open, read and close the namelist file.
   OPEN(10, FILE = CABLE_NAMELIST)
@@ -418,6 +417,7 @@ PROGRAM cable_offline_driver
   NRRRR = MERGE(MAX(CABLE_USER%CASA_NREP, 1), 1, CASAONLY)
   ! casa time count
   ctime = 0
+  first_casa_write = .true.
 
   ! INISTUFF
 
@@ -492,6 +492,7 @@ PROGRAM cable_offline_driver
            str3 = adjustl(str3)
            timeunits="seconds since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" 00:00:00"
            calendar = 'standard'
+           casa_timeunits="days since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" 00:00:00"
         ENDIF
 
         write(*,*) "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CABLE_USER%YearEnd
@@ -556,6 +557,7 @@ PROGRAM cable_offline_driver
                  else
                     calendar = "noleap"
                  endif
+                 casa_timeunits="days since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" 00:00:00"
               ENDIF
               IF ( .NOT. PLUME%LeapYears ) LOY = 365
               kend = NINT(24.0*3600.0/dels) * LOY
@@ -583,6 +585,7 @@ PROGRAM cable_offline_driver
                  str3 = adjustl(str3)
                  timeunits="seconds since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" 00:00:00"
                  calendar = "noleap"
+                 casa_timeunits="days since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" 00:00:00"
               ENDIF
               LOY = 365
               kend = NINT(24.0*3600.0/dels) * LOY
@@ -599,6 +602,7 @@ PROGRAM cable_offline_driver
                  str3 = adjustl(str3)
                  timeunits="seconds since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" 00:00:00"
                  calendar = 'standard'
+                 casa_timeunits="days since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" 00:00:00"
               ENDIF
 
               ! get koffset to add to time-step of sitemet
@@ -1452,7 +1456,7 @@ PROGRAM cable_offline_driver
 
                  IF (MOD((ktau-kstart+1),ktauday)==0) THEN ! end of day
 
-                    ctime = ctime + 86400  ! update casa time
+                    ctime = ctime + 1  ! update casa time
 
                     !mpidiff
                     ! update time-aggregates of casa pools and fluxes
@@ -1596,6 +1600,7 @@ PROGRAM cable_offline_driver
                     if (cable_user%c13o2) then
                        if (first_casa_write) then
                           call c13o2_create_output(casamet, sum_c13o2pools, c13o2_outfile_id, c13o2_vars, c13o2_var_ids)
+                          first_casa_write = .false.
                        endif
                        call c13o2_write_output(c13o2_outfile_id, c13o2_vars, c13o2_var_ids, ctime, sum_c13o2pools)
                        if ( (ktau == kend) .and. (YYYY == cable_user%YearEnd) .and. (RRRR == NRRRR) ) &
@@ -1606,7 +1611,6 @@ PROGRAM cable_offline_driver
                     CALL zero_sum_casa(sum_casapool, sum_casaflux)
                     ! 13C
                     if (cable_user%c13o2) call c13o2_zero_sum_pools(sum_c13o2pools)
-                    first_casa_write = .false.
                  ENDIF
 
                  IF (((.NOT.spinup).OR.(spinup.AND.spinConv)).and. &

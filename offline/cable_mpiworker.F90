@@ -9516,7 +9516,8 @@ SUBROUTINE worker_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
 
   do nyear=1, myearspin
      do idoy=1, mdyear
-        ktau = (idoy-1)*ktauday +1
+        !CASAONLY_LUC ktau = (idoy-1)*ktauday + ktauday
+        ktau = (idoy-1)*ktauday + 1
         ! print*, 'WORKER Receive CO01'
         CALL MPI_Recv(MPI_BOTTOM, 1, casa_dump_t, 0, idoy, icomm, stat, ierr)
 

@@ -239,15 +239,15 @@ CONTAINS
          ktau,        &  ! increment equates to timestep, resets if spinning up
          ktau_tot,    &  ! NO reset when spinning up, total timesteps by model
          kend,        &  ! no. of time steps in run
-                                !CLN      kstart = 1, &  ! timestep to start at
+         !CLN kstart = 1, &  ! timestep to start at
          koffset = 0, &  ! timestep to start at
          ktauday,     &  ! day counter for CASA-CNP
          idoy,        &  ! day of year (1:365) counter for CASA-CNP
          nyear,       &  ! year counter for CASA-CNP
-         ctime,       &  ! time for casacnp
          YYYY,        &  !
          LOY,         &  ! Length of Year
          maxdiff(2)      ! location of maximum in convergence test
+    integer(i_d) :: ctime ! time for casacnp
 
     REAL :: dels                    ! time step size in seconds
     CHARACTER(len=9) :: dum         ! dummy char for fileName generation
@@ -298,6 +298,7 @@ CONTAINS
     real(r_2), dimension(:,:), allocatable :: casasave
     real(r_2), dimension(:,:), allocatable :: lucsave
     ! I/O
+    logical :: first_casa_write
     integer :: c13o2_outfile_id
     character(len=40), dimension(c13o2_nvars_output) :: c13o2_vars
     integer,           dimension(c13o2_nvars_output) :: c13o2_var_ids
@@ -501,6 +502,7 @@ CONTAINS
 
     ! casa time count
     ctime = 0
+    first_casa_write = .true.
 
     ! Iinitialise settings depending on met dataset
 
@@ -1141,7 +1143,7 @@ CONTAINS
                 ! ENDIF
 
                 IF ( mod((oktau-kstart+1+koffset),ktauday)==0 ) then  ! end of day
-                   ctime = ctime + 86400
+                   ctime = ctime + 1
                 ENDIF
 
                 if ( ((.not.spinup) .or. (spinup.and.spinConv)) .and. &
@@ -1196,10 +1198,11 @@ CONTAINS
                            CASAONLY, ctime, ktau.eq.kend .and. yyyy.eq.cable_user%YearEnd)
                       ! 13C
                       if (cable_user%c13o2) then
-                         if (ctime == 86400) then
+                         if (first_casa_write) then
                             ! call c13o2_create_output(casamet, sum_c13o2pools, c13o2_outfile_id, c13o2_vars, c13o2_var_ids)
                             ! print*, 'II18.2'
                             call c13o2_create_output(casamet, c13o2pools, c13o2_outfile_id, c13o2_vars, c13o2_var_ids)
+                            first_casa_write = .false.
                          endif
                          ! print*, 'II18.3'
                          call c13o2_write_output(c13o2_outfile_id, c13o2_vars, c13o2_var_ids, ctime, c13o2pools)
@@ -1495,7 +1498,7 @@ CONTAINS
           ! WRITE OUTPUT
           IF ((.NOT.spinup).OR.(spinup.AND.spinConv)) THEN
              IF (icycle>0) THEN
-                ctime = ctime + 86400
+                ctime = ctime + 1
                 !TRUNK no if but call write_casa in any case
                 if ( is_casa_time("write", yyyy, ktau, kstart, koffset, kend, ktauday, logn) ) then
                    call write_casa_output_nc(veg, casamet, casapool, casabal, casaflux, &
@@ -10427,7 +10430,6 @@ SUBROUTINE master_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
            nyear_dump = cable_user%casa_spin_endyear - cable_user%casa_spin_startyear + 1
 
      write(cyear,fmt="(I4)") cable_user%casa_spin_startyear + nyear_dump - 1
-
      ncfile = trim(casafile%c2cdumppath)//'c2c_'//cyear//'_dump.nc'
      write(*,'(a,i04,a)') 'casaonly_LUC ', YYYY, ' '//trim(ncfile)
      ! 13C
@@ -10435,7 +10437,7 @@ SUBROUTINE master_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
      
      !!CLN901  format(A99)
      do idoy=1, mdyear
-        ktau = (idoy-1)*ktauday +ktauday
+        ktau = (idoy-1)*ktauday + ktauday
 
         casamet%tairk(:)   = casamet%Tairkspin(:,idoy)
         casamet%tsoil(:,1) = casamet%Tsoilspin_1(:,idoy)

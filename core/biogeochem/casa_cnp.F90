@@ -2517,7 +2517,7 @@ SUBROUTINE casa_cnpbal(casapool,casaflux,casabal)
 
    if (abs(Cbalsoil(1)).gt.0.1) then
       print*, 'Cbalsoil(1)', Cbalsoil(1)
-      !print*, sum(casabal%clitterlast(1,:)) - sum(casapool%clitter(1,:))
+      ! print*, sum(casabal%clitterlast(1,:)) - sum(casapool%clitter(1,:))
       ! mass bal on litter
       tmp1 = SUM((casaflux%kplant(1,:)*casabal%cplantlast(1,:))) ! plant input
       tmp2 = SUM(casaflux%kplant_fire(1,:) * (1.0_r_2 - casaflux%kplant(1,:)) * casabal%cplantlast(1,:)) - &

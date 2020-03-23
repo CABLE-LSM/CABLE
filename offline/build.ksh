@@ -253,32 +253,19 @@ host_vm_o()
 	# export CFLAGS="${CFLAGS} -march=skylake-avx512 # sky
 	# export CFLAGS="${CFLAGS} -march=ivybridge"     # ivy / k20
 	# export CFLAGS="${CFLAGS} -mavx"                # ivy / k20
-	export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__"
+	export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__" # -pg # gprof --line ./cable gmon.out
         export LD=''
         export NCROOT='/home/oqx29/zzy20/local/netcdf-fortran-4.4.4-gfortran63'
     fi
     # export CFLAGS="${CFLAGS} -D__C13DEBUG__"
     export CFLAGS="${CFLAGS} -D__CRU2017__"
 
-    # # NAG - Does not work for pop_io.f90
-    # export FC=nagfor
-    # # release
-    # export CFLAGS="-O4 -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free"
-    # if [[ ${1} = 'debug' ]] ; then
-    #     # debug
-    #     export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -D__NAG__"
-    # fi
-    # export LD='-ideclient -unsharedrts'
-    # export NCROOT='/usr/local/netcdf-fortran-4.4.5-nagfor'
-
-    # All compilers
-
     # All compilers
     export NCCROOT='/home/oqx29/zzy20/local'
     export NCCLIB=${NCCROOT}'/lib'
     export NCLIB=${NCROOT}'/lib'
     export NCMOD=${NCROOT}'/include'
-    export LDFLAGS="-L${NCCLIB} -L${NCLIB} -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz"
+    export LDFLAGS="-L${NCCLIB} -L${NCLIB} -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz" # -pg
     export dosvn=0
     export MFLAGS='-j 8'
     build_build
