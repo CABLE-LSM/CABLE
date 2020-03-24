@@ -1216,51 +1216,37 @@ CONTAINS
              !spinup=.false. & we want CASA_dump.nc (spinConv=.true.)
 
              IF (icycle>0) THEN
-                ! ! print*, 'CC01.01 ', ktau, kstart, kend, dels
-                ! ! print*, 'CC01.02 ', met%year
-                ! ! print*, 'CC01.03 ', met%moy
-                ! ! print*, 'CC01.04 ', met%ca
-                ! ! print*, 'CC01.05 ', met%doy
-                ! ! print*, 'CC01.06 ', met%hod
-                ! ! print*, 'CC01.07 ', met%ofsd
-                ! ! print*, 'CC01.08 ', met%fld
-                ! ! print*, 'CC01.09 ', met%precip
-                ! ! print*, 'CC01.10 ', met%precip_sn
-                ! ! print*, 'CC01.11 ', met%tk
-                ! ! print*, 'CC01.12 ', met%tvair
-                ! ! print*, 'CC01.13 ', met%tvrad
-                ! ! print*, 'CC01.14 ', met%pmb
-                ! ! print*, 'CC01.15 ', met%ua
-                ! ! print*, 'CC01.16 ', met%qv
-                ! ! print*, 'CC01.17 ', met%qvair
-                ! ! print*, 'CC01.18 ', met%da
-                ! ! print*, 'CC01.19 ', met%dva
-                ! ! print*, 'CC01.20 ', met%coszen
-                ! ! print*, 'CC01.21 ', met%Ndep
-                ! ! print*, 'CC01.22 ', met%Pdep
-                ! ! print*, 'CC01.23 ', met%u10
-                ! ! print*, 'CC01.24 ', met%rhum
-                ! ! print*, 'CC01.25 ', met%fsd
+!!$                print*, 'CC01.01 ', ktau, kstart, kend, dels
+!!$                print*, 'CC01.02 ', met%year
+!!$                print*, 'CC01.03 ', met%moy
+!!$                print*, 'CC01.04 ', met%ca
+!!$                print*, 'CC01.05 ', met%doy
+!!$                print*, 'CC01.06 ', met%hod
+!!$                print*, 'CC01.07 ', met%ofsd
+!!$                print*, 'CC01.08 ', met%fld
+!!$                print*, 'CC01.09 ', met%precip
+!!$                print*, 'CC01.10 ', met%precip_sn
+!!$                print*, 'CC01.11 ', met%tk
+!!$                print*, 'CC01.12 ', met%tvair
+!!$                print*, 'CC01.13 ', met%tvrad
+!!$                print*, 'CC01.14 ', met%pmb
+!!$                print*, 'CC01.15 ', met%ua
+!!$                print*, 'CC01.16 ', met%qv
+!!$                print*, 'CC01.17 ', met%qvair
+!!$                print*, 'CC01.18 ', met%da
+!!$                print*, 'CC01.19 ', met%dva
+!!$                print*, 'CC01.20 ', met%coszen
+!!$                print*, 'CC01.21 ', met%Ndep
+!!$                print*, 'CC01.22 ', met%Pdep
+!!$                print*, 'CC01.23 ', met%u10
+!!$                print*, 'CC01.24 ', met%rhum
+!!$                print*, 'CC01.25 ', met%fsd
                 call bgcdriver( ktau, kstart, kend, dels, met,          &
                      ssnow, canopy, veg, soil,climate, casabiome,       &
                      casapool, casaflux, casamet, casabal,              &
                      phen, pop, spinConv, spinup, ktauday, idoy, loy,   &
                      .FALSE., .FALSE., LALLOC, c13o2flux, c13o2pools )
-                ! print*, 'CW06 ', ktau, YYYY, casamet%glai
-                ! print*, 'CBM701.01 '!, POPLUC%secdf
-                ! print*, 'CBM701.02 '!, POPLUC%AgProd
-                ! print*, 'CBM701.03 ', casapool%cplant
-                ! print*, 'CBM701.04 ', casapool%clitter
-                ! ! print*, 'CBM701.05 ', climate%APAR_leaf_shade
-                ! print*, 'CBM701.06 ', patch%frac
-                ! print*, 'CBM703.11 ', canopy%cansto
-                ! print*, 'CBM703.21 ', canopy%dgdtg
-                ! print*, 'CBM703.36 ', canopy%fev
-                ! print*, 'CBM703.43 ', canopy%fhs
-                ! print*, 'CBM703.49 ', canopy%ga
-                ! print*, 'CBM703.58 ', canopy%oldcansto
-                ! print*, 'CBM706.05 ', rough%hruff
-                ! print*, 'CBM708.12 ', ssnow%rtsoil
+               ! print*, 'CW06 ', ktau, YYYY, casamet%glai
                 write(wlogn,*) 'after bgcdriver ', MPI_BOTTOM, 1, casa_t, 0, ktau_gl, ocomm, ierr
                 !TRUNK no if (mod(...)) then
                 IF (MOD((ktau-kstart+1),ktauday).EQ.0) THEN
@@ -1278,14 +1264,14 @@ CONTAINS
 
                 IF (MOD((ktau-kstart+1),ktauday).EQ.0) THEN
                   IF ( cable_user%CALL_BLAZE ) THEN
-                    CALL BLAZE_ACCOUNTING(BLAZE, met, climate, ktau, dels, YYYY, idoy)
+                    CALL BLAZE_ACCOUNTING(BLAZE, climate, ktau, dels, YYYY, idoy)
                     call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
                          casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg)
 
                    !par send blaze_out back
                    CALL MPI_Send(MPI_BOTTOM, 1, blaze_out_t, 0, ktau_gl, ocomm, ierr)
                   ENDIF
-                  ! ! print*, 'CW07.1 ', casamet%glai
+                  ! print*, 'CW07.1 ', casamet%glai
                 ENDIF
                 ! !! CLN HERE BLAZE daily
 
@@ -1398,8 +1384,8 @@ CONTAINS
                 ! END WHERE
 
                 call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
-                     casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg)
-                ! print*, 'CW07.2 ', casamet%glai
+                     casamet, climate, real(shootfrac), idoy, YYYY, 1, POP, veg)
+               ! print*, 'CW07.2 ', casamet%glai
              ENDIF
 
              ! print*, 'WORKER Receive 45 pop'
@@ -7934,11 +7920,62 @@ CONTAINS
     CALL MPI_Get_address(phen%doyphase, displs(bidx), ierr)
     blen(bidx) = mphase * i1len
 
-    ! ------- climate ----
+    ! ------- climate (for acclimation of autotrophic resp) ----
 
     bidx = bidx + 1
     CALL MPI_Get_address(climate%qtemp_max_last_year, displs(bidx), ierr)
     blen(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address(climate%frec, displs(bidx), ierr)
+    blen(bidx) =r1len
+
+    ! ------- climate (for BLAZE) ----
+
+    bidx = bidx + 1
+    CALL MPI_Get_address(climate%dprecip, displs(bidx), ierr)
+    blen(bidx) = r1len
+    
+    bidx = bidx + 1
+    CALL MPI_Get_address(climate%aprecip_av20, displs(bidx), ierr)
+    blen(bidx) = r1len
+    
+    bidx = bidx + 1
+    CALL MPI_Get_address(climate%du10_max, displs(bidx), ierr)
+    blen(bidx) = r1len
+    
+    bidx = bidx + 1
+    CALL MPI_Get_address(climate%drhum, displs(bidx), ierr)
+    blen(bidx) = r1len
+    
+    bidx = bidx + 1
+    CALL MPI_Get_address(climate%dtemp_max, displs(bidx), ierr)
+    blen(bidx) = r1len
+    
+    bidx = bidx + 1
+    CALL MPI_Get_address(climate%dtemp_min, displs(bidx), ierr)
+    blen(bidx) = r1len
+    
+    bidx = bidx + 1
+    CALL MPI_Get_address(climate%KBDI, displs(bidx), ierr)
+    blen(bidx) = r1len
+    
+    bidx = bidx + 1
+    CALL MPI_Get_address(climate%D_MacArthur, displs(bidx), ierr)
+    blen(bidx) = r1len
+    
+    bidx = bidx + 1
+    CALL MPI_Get_address(climate%FFDI, displs(bidx), ierr)
+    blen(bidx) = r1len
+    
+    bidx = bidx + 1
+    CALL MPI_Get_address(climate%DSLR, displs(bidx), ierr)
+    blen(bidx) = i1len
+    
+    bidx = bidx + 1
+    CALL MPI_Get_address(climate%last_precip, displs(bidx), ierr)
+    blen(bidx) = r1len
+    
 
     ! ------- casaflux - N and P deposition ---
 

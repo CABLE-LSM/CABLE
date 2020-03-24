@@ -1,5 +1,6 @@
 SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
-     casaflux,casamet,casabal,phen,POP,climate,LALLOC, c13o2flux, c13o2pools)
+     casaflux,casamet,casabal,phen,POP,climate,LALLOC, c13o2flux, c13o2pools, &
+     BLAZE, SIMFIRE)
 
   USE cable_def_types_mod
   USE cable_carbon_module
@@ -9,6 +10,7 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
   USE casavariable
   USE phenvariable
   USE POP_Types,           Only: POP_TYPE
+  USE POP_Constants, ONLY: shootfrac
   use TypeDef,             only: dp
   ! 13C
   use cable_c13o2_def,     only: c13o2_pool, c13o2_flux
@@ -16,7 +18,8 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
        c13o2_create_output, c13o2_write_output, c13o2_close_output, &
        c13o2_nvars_output
   use mo_isotope,          only: isoratio
-
+  USE BLAZE_MOD,     ONLY: TYPE_BLAZE,  BLAZE_ACCOUNTING,  WRITE_BLAZE_OUTPUT_NC
+  USE SIMFIRE_MOD,   ONLY: TYPE_SIMFIRE
   implicit none
 
   !!CLN  character(len=99), intent(in)  :: fcnpspin
@@ -38,6 +41,9 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
   ! 13C
   type(c13o2_flux),          intent(inout) :: c13o2flux
   type(c13o2_pool),          intent(inout) :: c13o2pools
+  ! BLAZE
+  type(TYPE_BLAZE),          intent(inout) :: BLAZE
+  type(TYPE_SIMFIRE),        intent(inout) :: SIMFIRE
 
   ! type(casa_met) :: casaspin
 
@@ -55,7 +61,7 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
   integer                  :: myearspin, nyear, nloop1
   character(len=99)        :: ncfile
   character(len=4)         :: cyear
-  integer                  :: ktau, ktauday, nday, idoy, ktauy, nloop, LOY
+  integer                  :: ktau, ktauday, nday, idoy, ktauy, nloop, LOY, YYYY
   real(r_2), dimension(mp) :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
   real(r_2), dimension(mp) :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
   real(r_2), dimension(mp) :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
@@ -154,7 +160,8 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
 !   write(600,*) 'csoil1 init: ', casapool%csoil(1,:)
 
    do nyear=1, myearspin
-     write(cyear,FMT="(I4)") CABLE_USER%CASA_SPIN_STARTYEAR + nyear - 1
+      write(cyear,FMT="(I4)") CABLE_USER%CASA_SPIN_STARTYEAR + nyear - 1
+      YYYY = CABLE_USER%CASA_SPIN_STARTYEAR + nyear - 1
      ncfile = trim(casafile%c2cdumppath)//'c2c_'//cyear//'_dump.nc'
      call read_casa_dump(ncfile, casamet, casaflux, phen, climate, c13o2flux, ktau, kend, .true.)
 
@@ -183,6 +190,7 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
         phen%doyphase(:,3)     = phen%doyphasespin_3(:,idoy)
         phen%doyphase(:,4)     = phen%doyphasespin_4(:,idoy)
         climate%qtemp_max_last_year(:) = real(casamet%mtempspin(:,idoy))
+        climate%frec(:) = real(casamet%frecspin(:,idoy))
         ! 13C
         if (cable_user%c13o2) then
            c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
@@ -211,6 +219,15 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
                 cwood2cwd(:) * isoratio(c13o2pools%cplant(:,wood), casasave(:,wood), 0.0_dp, tiny(1.0_dp))
            call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
         endif
+
+        if (cable_user%CALL_BLAZE) then
+           CALL BLAZE_ACCOUNTING(BLAZE, climate, ktau, dels, YYYY , idoy)
+
+           call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
+                casamet, climate, real(shootfrac), idoy, YYYY, 1, POP, veg)
+
+        endif
+           
 
         if (cable_user%CALL_POP .and. (POP%np .gt. 0)) then ! CALL_POP
 
@@ -381,8 +398,11 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
      DO nyear=1, myearspin
         !!CLN      read(91,901) ncfile
         !write(*,*) 'spincasa CYEAR', CYEAR, ncfile
+        
+        
         WRITE(CYEAR,FMT="(I4)") CABLE_USER%CASA_SPIN_STARTYEAR + nyear - 1
         ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
+        YYYY = CABLE_USER%CASA_SPIN_STARTYEAR + nyear - 1
         call read_casa_dump(ncfile, casamet, casaflux, phen, climate, c13o2flux, ktau, kend, .TRUE.)
 
         DO idoy=1,mdyear
@@ -417,6 +437,20 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
               c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
               c13o2flux%cAn(:)   = casamet%cAn13spin(:,idoy)
            endif
+            ! BLAZE
+           if (cable_user%call_blaze) then
+              climate%dprecip(:) = casamet%dprecip_spin(:,idoy)
+              climate%aprecip_av20(:) = casamet%aprecip_av20_spin(:,idoy)
+              climate%du10_max(:) = casamet%du10_max_spin(:,idoy)
+              climate%drhum(:) = casamet%drhum_spin(:,idoy)
+              climate%dtemp_max(:) = casamet%dtemp_max_spin(:,idoy)
+              climate%dtemp_min(:) = casamet%dtemp_max_spin(:,idoy)
+              climate%KBDI(:) = casamet%KBDI_spin(:,idoy)
+              climate%D_MacArthur(:) =  casamet%D_MacArthur_spin(:,idoy)
+              climate%FFDI(:) = casamet%FFDI_spin(:,idoy)
+              climate%DSLR(:) = casamet%DSLR_spin(:,idoy)
+              climate%last_precip(:) = casamet%last_precip_spin(:,idoy)
+           endif
 
            ! if (nloop==1 .and. nyear==1) then
            !    write(6002, "(200e16.6)") casamet%tairk(3), casamet%tsoil(3,:),  casamet%moist(3,:), &
@@ -435,12 +469,28 @@ SUBROUTINE spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
            ! 13C
            if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
 
+           if (cable_user%CALL_BLAZE) then
+              CALL BLAZE_ACCOUNTING(BLAZE, climate, ktau, dels, YYYY, idoy)
+              
+              call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
+                   casamet, climate, real(shootfrac), idoy, YYYY, 1, POP, veg)
+
+              if (nloop==mloop) then
+                 if  (nyear ==myearspin .and. idoy == mdyear  ) then
+                     call write_blaze_output_nc( BLAZE, .true.)
+                 else
+                    call write_blaze_output_nc( BLAZE, .false.)
+                 endif
+              endif
+              
+           endif
+           
+           
            !MC - Should this be nyear==myearspin instead of nyear==1?
-           ! if (nloop==mloop .and. nyear==1) then
            if (nloop==mloop .and. nyear==myearspin) then
               !MC - Should ctime be replaced by idoy?
               CALL WRITE_CASA_OUTPUT_NC( veg, casamet, casapool, casabal, casaflux, &
-                   .true., ctime, (nloop.eq.mloop .and. nyear.eq.myearspin .and. idoy.eq.mdyear) )
+                   .true., ctime,  idoy.eq.mdyear )
               ! 13C
               if (cable_user%c13o2) then
                  if (idoy == 1) then

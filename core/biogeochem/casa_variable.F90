@@ -362,10 +362,25 @@ MODULE casavariable
           moistspin_4 => null(),&
           moistspin_5 => null(),&
           moistspin_6 => null(), &
-          mtempspin => null()
+          mtempspin => null(), &
+          frecspin => null()
      ! 13C
      real(r_2), dimension(:,:), pointer :: cAn12spin => null() ! daily cumulated total 12CO2 net assimilation in [g(C)/m2]
      real(r_2), dimension(:,:), pointer :: cAn13spin => null() ! daily cumulated total 13CO2 net assimilation in [g(13C)/m2]
+
+     ! BLAZE
+     REAL(r_2), DIMENSION(:,:), POINTER :: dprecip_spin => null(),&
+          aprecip_av20_spin => null(),&
+          du10_max_spin => null(),&
+          drhum_spin => null(),&
+          dtemp_max_spin => null(),&
+          dtemp_min_spin => null(),&
+          KBDI_spin => null(),&
+          D_MacArthur_spin => null(),&
+          FFDI_spin => null(),&
+          last_precip_spin => null()
+      INTEGER, DIMENSION(:,:), POINTER ::  DSLR_spin => null()
+     
   END TYPE casa_met
 
   
@@ -672,9 +687,21 @@ Contains
          casamet%moistspin_4(arraysize,mdyear),   &
          casamet%moistspin_5(arraysize,mdyear),   &
          casamet%moistspin_6(arraysize,mdyear),  &
-         casamet%mtempspin(arraysize,mdyear))
+         casamet%mtempspin(arraysize,mdyear), &
+         casamet%frecspin(arraysize,mdyear))
     allocate(casamet%cAn12spin(arraysize,mdyear), &
          casamet%cAn13spin(arraysize,mdyear))
+    allocate(casamet%dprecip_spin(arraysize,mdyear), &
+            casamet%aprecip_av20_spin(arraysize,mdyear), &
+            casamet%du10_max_spin(arraysize,mdyear), &
+            casamet%drhum_spin(arraysize,mdyear), &
+            casamet%dtemp_max_spin(arraysize,mdyear), &
+            casamet%dtemp_min_spin(arraysize,mdyear), &
+            casamet%KBDI_spin(arraysize,mdyear), &
+            casamet%D_MacArthur_spin(arraysize,mdyear), &
+            casamet%FFDI_spin(arraysize,mdyear), &
+            casamet%DSLR_spin(arraysize,mdyear), &
+            casamet%last_precip_spin(arraysize,mdyear))
 
     ALLOCATE(casabal%FCgppyear(arraysize),           &
          casabal%FCnppyear(arraysize),           &

@@ -573,9 +573,9 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate )
 !!$           start=(/MM,ilon,ilat/) )
 !!$      CALL HANDLE_ERR(STATUS, "Reading direct from "//SF%BA_CLIM_FILE )
 
-      if (year==2003) then
-         AB(i) = 0.8        ! test vh
-      endif
+      !if (year==2003) then
+      !   AB(i) = 0.8        ! test vh
+      !endif
       
       ! Daily Burned Area
       AB(i) = AB(i) *  SF%BA_MONTHLY_CLIM(i,MM) / DOM(MM)

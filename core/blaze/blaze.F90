@@ -186,65 +186,14 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
 
 END SUBROUTINE INI_BLAZE
 
-subroutine zero_blaze(blaze)
+SUBROUTINE BLAZE_ACCOUNTING(BLAZE, climate,  ktau, dels, year, doy)
 
-  type(type_blaze), intent(inout) :: blaze
-
-  blaze%DSLR         = 0
-  blaze%ilon         = 0
-  blaze%jlat         = 0
-  blaze%Flix         = 0
-  blaze%RAINF        = 0
-  blaze%KBDI         = 0
-  blaze%LR           = 0
-  blaze%U10          = 0
-  blaze%RH           = 0
-  blaze%TMAX         = 0
-  blaze%TMIN         = 0
-  blaze%AREA         = 0
-  blaze%w_prior      = 0
-  blaze%FDI          = 0
-  blaze%FFDI         = 0
-  blaze%FLI          = 0
-  blaze%ROS          = 0
-  blaze%Z            = 0
-  blaze%D            = 0
-  blaze%w            = 0
-  blaze%LAT          = 0
-  blaze%LON          = 0
-  blaze%DFLI         = 0
-  blaze%AB           = 0
-  Blaze%CAvgAnnRainf = 0
-  blaze%DEADWOOD     = 0
-  blaze%POP_TO       = 0
-  blaze%POP_CWD      = 0
-  blaze%POP_STR      = 0
-  blaze%shootfrac    = 0
-  Blaze%AnnRAINF     = 0
-  blaze%ABM          = 0
-  blaze%TO           = 0
-  blaze%AGC_g        = 0
-  blaze%AGC_w        = 0
-  blaze%AGLit_w      = 0
-  blaze%AGLit_g      = 0
-  blaze%BGLit_w      = 0
-  blaze%BGLit_g      = 0
-  blaze%CPLANT_g     = 0
-  blaze%CPLANT_w     = 0
-  blaze%AvgAnnRAINF  = 0
-  blaze%FLUXES       = 0
-
-end subroutine zero_blaze
-
-SUBROUTINE BLAZE_ACCOUNTING(BLAZE, met, climate,  ktau, dels, year, doy)
-
-  USE CABLE_DEF_TYPES_MOD, ONLY: MET_TYPE, climate_type
+  USE CABLE_DEF_TYPES_MOD, ONLY: climate_type
   USE cable_IO_vars_module, ONLY:  landpt
 
   IMPLICIT NONE
 
   TYPE (TYPE_BLAZE)   :: BLAZE
-  TYPE (MET_TYPE)     :: met
   TYPE (CLIMATE_TYPE), INTENT(IN)     :: climate
   INTEGER, INTENT(IN) :: ktau, year, doy
   REAL,    INTENT(IN) :: dels

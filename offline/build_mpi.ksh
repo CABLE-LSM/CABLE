@@ -77,7 +77,7 @@ host_pear()
     export NCDIR=$NETCDF_ROOT'/lib/'
     export NCMOD=$NETCDF_ROOT'/include/'
     export FC='mpifort' #'mpif90'
-    export CFLAGS='-O2 -fp-model precise -fpp'
+    export CFLAGS='-O0 -fp-model precise -fpp'
     #   export CFLAGS='-O0 -C'
     # best settings for debugging
     #   export CFLAGS='-O0 -C -g -debug all -traceback -check all,noarg_temp_created, -C  '
@@ -93,7 +93,7 @@ host_pear()
     # best debug flags
     #   export LDFLAGS='-g -L'$NCDIR  #'-L'$NCDIR' -O2'
     export CFLAGS="${CFLAGS} -D__MPI__"
-    export LDFLAGS='-O2 -L'$NCDIR''
+    export LDFLAGS='-O0 -L'$NCDIR''
     export MFLAGS='-j 8'
     export LD='-lnetcdf -lnetcdff'
     build_build

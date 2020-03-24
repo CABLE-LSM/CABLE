@@ -309,7 +309,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    logical,             intent(in)    :: allatonce
 
    !netcdf ids/ names
-   integer, parameter :: num_vars=17
+   integer, parameter :: num_vars=29
    integer, save                        :: ncrid  ! netcdf file id
 
    !vars
@@ -327,17 +327,33 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
         "phendoyphase3", &
         "phendoyphase4", &
         "mtemp        ", &
+        "frec         ", &
         "Ndep         ", &
         "Pdep         ", &
         "cAn12        ", &
-        "cAn13        "  &
-        /)
+        "cAn13        ", &
+        "dprecip      ", &
+        "aprecip_av20 ", &
+        "du10_max     ", &
+        "drhum        ", &
+        "dtemp_max    ", &
+        "dtemp_min    ", &
+        "KBDI         ", &
+        "D_MacArthur  ", &
+        "FFDI         ", &
+        "DSLR         ", &
+        "last_precip  " &
+    /)
 
-   real(r_2), dimension(mp)        :: tairk,  cgpp, mtemp, Ndep, Pdep, cAn12, cAn13
+   real(r_2), dimension(mp)        :: tairk,  cgpp, mtemp, frec, Ndep, Pdep, cAn12, cAn13
    real(r_2), dimension(mp,ms)     :: tsoil, moist
    real(r_2), dimension(mp,mplant) :: crmplant
    real(r_2), dimension(mp)        :: phenphase, phendoyphase1, &
         phendoyphase2,  phendoyphase3,  phendoyphase4
+   real(r_2), dimension(mp)        :: dprecip, aprecip_av20, du10_max, drhum,  dtemp_max, &
+                                      dtemp_min, KBDI,  D_MacArthur, FFDI, DSLR, last_precip
+
+
    integer :: ncok,  idoy
 
 #ifndef UM_BUILD
@@ -360,13 +376,29 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
          call get_var_nc(ncrid, var_name(11), phendoyphase3, idoy)
          call get_var_nc(ncrid, var_name(12), phendoyphase4, idoy)
          call get_var_nc(ncrid, var_name(13), mtemp, idoy)
-         if (icycle>1) call get_var_nc(ncrid, var_name(14), Ndep, idoy)
-         if (icycle>2) call get_var_nc(ncrid, var_name(15), Pdep, idoy)
+         call get_var_nc(ncrid, var_name(14), frec, idoy)
+         if (icycle>1) call get_var_nc(ncrid, var_name(15), Ndep, idoy)
+         if (icycle>2) call get_var_nc(ncrid, var_name(16), Pdep, idoy)
          ! 13C
          if (cable_user%c13o2) then
-            call get_var_nc(ncrid, var_name(16), cAn12, idoy)
-            call get_var_nc(ncrid, var_name(17), cAn13, idoy)
+            call get_var_nc(ncrid, var_name(17), cAn12, idoy)
+            call get_var_nc(ncrid, var_name(18), cAn13, idoy)
          endif
+         ! blaze
+         if (cable_user%call_blaze) then
+            call get_var_nc(ncrid, var_name(19), dprecip, idoy)
+            call get_var_nc(ncrid, var_name(20), aprecip_av20, idoy)
+            call get_var_nc(ncrid, var_name(21), du10_max, idoy)
+            call get_var_nc(ncrid, var_name(22), drhum, idoy)
+            call get_var_nc(ncrid, var_name(23), dtemp_max, idoy)
+            call get_var_nc(ncrid, var_name(24), dtemp_min, idoy)
+            call get_var_nc(ncrid, var_name(25), KBDI, idoy)
+            call get_var_nc(ncrid, var_name(26), D_MacArthur, idoy)
+            call get_var_nc(ncrid, var_name(27), FFDI, idoy)
+            call get_var_nc(ncrid, var_name(28), DSLR, idoy)
+            call get_var_nc(ncrid, var_name(29), last_precip, idoy)
+         endif
+         
 
          casamet%Tairkspin(:,idoy) = tairk
          casamet%cgppspin(:,idoy)  = cgpp
@@ -391,6 +423,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
          phen%doyphasespin_3(:,idoy) = int(phendoyphase3)
          phen%doyphasespin_4(:,idoy) = int(phendoyphase4)
          casamet%mtempspin(:,idoy) = mtemp
+         casamet%frecspin(:,idoy) = frec
          if (icycle>1) casaflux%Nmindep = Ndep
          if (icycle>2) casaflux%Pdep    = Pdep
          ! 13C
@@ -398,8 +431,23 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
             casamet%cAn12spin(:,idoy) = cAn12
             casamet%cAn13spin(:,idoy) = cAn13
          endif
+         !blaze
+
+         if (cable_user%call_blaze) then
+            casamet%dprecip_spin(:,idoy) = dprecip
+            casamet%aprecip_av20_spin(:,idoy) = aprecip_av20
+            casamet%du10_max_spin(:,idoy) = du10_max
+            casamet%drhum_spin(:,idoy) = drhum
+            casamet%dtemp_max_spin(:,idoy) = dtemp_max
+            casamet%dtemp_min_spin(:,idoy) = dtemp_min
+            casamet%KBDI_spin(:,idoy) = KBDI
+            casamet%D_MacArthur_spin(:,idoy) = D_MacArthur
+            casamet%FFDI_spin(:,idoy) = FFDI
+            casamet%DSLR_spin(:,idoy) = int(DSLR)
+            casamet%last_precip_spin(:,idoy) = last_precip
+         endif
       end do
-   else
+   else   !vh ! code below is redundant since thie subroutine is always called with allatonce = .T.
 
       call get_var_nc(ncrid, var_name(3), tairk   ,ncall )
       call get_var_nc(ncrid, var_name(4), tsoil   ,ncall , ms)
@@ -485,7 +533,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
 
    !netcdf IDs/ names
    CHARACTER(len=*)   :: ncfile
-   INTEGER, PARAMETER :: num_vars=17
+   INTEGER, PARAMETER :: num_vars=29
    INTEGER, PARAMETER :: num_dims=3
    INTEGER, SAVE :: ncid       ! netcdf file ID
 
@@ -505,10 +553,22 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
         "phendoyphase3", &
         "phendoyphase4", &
         "mtemp        ", &
+        "frec         ", &
         "Ndep         ", &
         "Pdep         ", &
         "cAn12        ", &
-        "cAn13        "  &
+        "cAn13        ", &
+        "dprecip      ", &
+        "aprecip_av20 ", &
+        "du10_max     ", &
+        "drhum        ", &
+        "dtemp_max    ", &
+        "dtemp_min    ", &
+        "KBDI         ", &
+        "D_MacArthur  ", &
+        "FFDI         ", &
+        "DSLR         ", &
+        "last_precip  " &
         /)
 
 
@@ -539,6 +599,8 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    dim_len(num_dims) = NF90_unlimited
    zeros = 0.0_r_2
 
+  
+
    IF (n_call == 1) THEN
 
       ! create netCDF dataset: enter define mode
@@ -551,25 +613,22 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
       CALL def_dims(num_dims, ncid, dimID, dim_len, dim_name)
 
       ! define variables: from name, type, dims
-      ! print*, 'def_vars'
       CALL def_vars(num_vars, ncid, nf90_float, dimID, var_name, varID)
-
+       
       ! define variable attributes
       !CLN LATER!             CALL def_var_atts( ncfile, ncid, varID )
 
-      ! print*, 'enddef'
+      != print*, 'enddef'
       ncok = nf90_enddef(ncid)
       if (ncok /= nf90_noerr) call stderr_nc(ncok,'end def mode', ncfile)
 
-      ! print*, 'lats'
       CALL put_var_nc(ncid, var_name(1), REAL(casamet%lat))
-      ! print*, 'lons'
       CALL put_var_nc(ncid, var_name(2), REAL(casamet%lon))
 
       ! print*, 'OCreated69'
    ENDIF
 
-   ! print*, 'OWrite69 ', ncid
+   !print*, 'OWrite69 ', ncid
    CALL put_var_nc(ncid, var_name(3), casamet%tairk, n_call)
    CALL put_var_nc(ncid, var_name(4), casamet%tsoil, n_call, ms)
    CALL put_var_nc(ncid, var_name(5), casamet%moist, n_call, ms)
@@ -581,23 +640,52 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    CALL put_var_nc(ncid, var_name(11), real(phen%doyphase(:,3),r_2), n_call)
    CALL put_var_nc(ncid, var_name(12), real(phen%doyphase(:,4),r_2), n_call)
    CALL put_var_nc(ncid, var_name(13), real(climate%qtemp_max_last_year,r_2), n_call)
+   CALL put_var_nc(ncid, var_name(14), real(climate%frec,r_2), n_call)
    if (icycle>1) then
-      CALL put_var_nc(ncid, var_name(14), real(casaflux%Nmindep,r_2), n_call)
-   else
-      CALL put_var_nc(ncid, var_name(14), zeros, n_call)
-   endif
-   if (icycle>2) then
-      CALL put_var_nc(ncid, var_name(15), real(casaflux%Pdep,r_2), n_call)
+      CALL put_var_nc(ncid, var_name(15), real(casaflux%Nmindep,r_2), n_call)
    else
       CALL put_var_nc(ncid, var_name(15), zeros, n_call)
    endif
-   ! 13C
-   if (cable_user%c13o2) then
-      CALL put_var_nc(ncid, var_name(16), c13o2flux%cAn12, n_call)
-      CALL put_var_nc(ncid, var_name(17), c13o2flux%cAn, n_call)
+   if (icycle>2) then
+      CALL put_var_nc(ncid, var_name(16), real(casaflux%Pdep,r_2), n_call)
    else
       CALL put_var_nc(ncid, var_name(16), zeros, n_call)
+   endif
+   ! 13C
+   if (cable_user%c13o2) then
+      CALL put_var_nc(ncid, var_name(17), c13o2flux%cAn12, n_call)
+      CALL put_var_nc(ncid, var_name(18), c13o2flux%cAn, n_call)
+   else
       CALL put_var_nc(ncid, var_name(17), zeros, n_call)
+      CALL put_var_nc(ncid, var_name(18), zeros, n_call)
+   endif
+   ! BLAZE
+   
+   if (cable_user%call_blaze) then
+      CALL put_var_nc(ncid, var_name(19), real(climate%dprecip, r_2), n_call)
+      CALL put_var_nc(ncid, var_name(20), real(climate%aprecip_av20, r_2), n_call)
+      CALL put_var_nc(ncid, var_name(21), real(climate%du10_max, r_2), n_call)
+      CALL put_var_nc(ncid, var_name(22), real(climate%drhum, r_2), n_call)
+      CALL put_var_nc(ncid, var_name(23), real(climate%dtemp_max, r_2), n_call)
+      CALL put_var_nc(ncid, var_name(24), real(climate%dtemp_min, r_2), n_call)
+      CALL put_var_nc(ncid, var_name(25), real(climate%KBDI, r_2), n_call)
+      CALL put_var_nc(ncid, var_name(26), real(climate%D_MacArthur, r_2), n_call)
+      CALL put_var_nc(ncid, var_name(27), real(climate%FFDI, r_2), n_call)
+      CALL put_var_nc(ncid, var_name(28), real(climate%DSLR, r_2), n_call)
+      CALL put_var_nc(ncid, var_name(29), real(climate%last_precip, r_2), n_call)
+   else
+      CALL put_var_nc(ncid, var_name(19), zeros, n_call)
+      CALL put_var_nc(ncid, var_name(20), zeros, n_call)
+      CALL put_var_nc(ncid, var_name(21), zeros, n_call)
+      CALL put_var_nc(ncid, var_name(22), zeros, n_call)
+      CALL put_var_nc(ncid, var_name(23), zeros, n_call)
+      CALL put_var_nc(ncid, var_name(24), zeros, n_call)
+      CALL put_var_nc(ncid, var_name(25), zeros, n_call)
+      CALL put_var_nc(ncid, var_name(26), zeros, n_call)
+      CALL put_var_nc(ncid, var_name(27), zeros, n_call)
+      CALL put_var_nc(ncid, var_name(28), zeros, n_call)
+      CALL put_var_nc(ncid, var_name(29), zeros, n_call)
+
    endif
 
    IF (n_call == kend) then

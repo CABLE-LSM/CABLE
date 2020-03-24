@@ -835,7 +835,9 @@ CONTAINS
   !  lon_all = UNPACK(longitude,mask=LandMaskLogical,field=-9999.)
  
   FORALL (icol=1:MaskCols) lon_all(icol,:) = MaskCtrW + (real(icol-1) * MaskRes)
-  FORALL (irow=1:MaskRows) lat_all(irow,:) = (real(MaskRows - irow) * MaskRes) + MaskCtrS
+  FORALL (irow=1:MaskRows) lat_all(:,irow) = (real(MaskRows - irow) * MaskRes) + MaskCtrS
+
+ 
   
   DO iLand = 1,mland
     longitude(iLand) = MaskRes * real((land_x(iLand) - 1)) + MaskCtrW

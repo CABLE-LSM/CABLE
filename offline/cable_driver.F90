@@ -741,11 +741,23 @@ PROGRAM cable_offline_driver
 
               ! additional params needed for BLAZE
               if ( trim(cable_user%MetType) .eq. 'bios' ) call cable_bios_load_climate_params(climate)
+              IF (cable_user%CALL_BLAZE) THEN
+                 CALL INI_BLAZE( mland, rad%latitude(landpt(:)%cstart), &
+                      rad%longitude(landpt(:)%cstart), BLAZE )
 
+
+                 IF ( TRIM(BLAZE%BURNT_AREA_SRC) == "SIMFIRE" ) THEN
+                    CALL INI_SIMFIRE(mland ,SIMFIRE, &
+                         climate%modis_igbp(landpt(:)%cstart) ) !CLN here we need to check for the SIMFIRE biome setting
+                 ENDIF
+              ENDIF
+
+              
               IF ((icycle>0) .AND. spincasa) THEN
                  write(*,*) 'EXT spincasacnp enabled with mloop=', mloop
                  CALL spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
-                      casaflux,casamet,casabal,phen,POP,climate,LALLOC, c13o2flux, c13o2pools)
+                      casaflux,casamet,casabal,phen,POP,climate,LALLOC, c13o2flux, c13o2pools, &
+                      BLAZE, SIMFIRE)
                  ! print*, 'CD02   ', casamet%glai
                  SPINon   = .FALSE.
                  SPINconv = .FALSE.
@@ -762,16 +774,7 @@ PROGRAM cable_offline_driver
                  ktau     = kend
               ENDIF
 
-              IF (cable_user%CALL_BLAZE) THEN
-                 CALL INI_BLAZE( mland, rad%latitude(landpt(:)%cstart), &
-                      rad%longitude(landpt(:)%cstart), BLAZE )
-
-
-                 IF ( TRIM(BLAZE%BURNT_AREA_SRC) == "SIMFIRE" ) THEN
-                    CALL INI_SIMFIRE(mland ,SIMFIRE, &
-                         climate%modis_igbp(landpt(:)%cstart) ) !CLN here we need to check for the SIMFIRE biome setting
-                 ENDIF
-              ENDIF
+              
 
            ENDIF ! CALL1
            ! print*, 'CBM001.01 ', POPLUC%secdf
@@ -1393,66 +1396,54 @@ PROGRAM cable_offline_driver
               !spinup=.false. & we want CASA_dump.nc (spinConv=.true.)
               IF ((icycle > 0) .OR. CABLE_USER%CASA_DUMP_WRITE) THEN
                  !! vh_js !!
-                 ! ! print*, 'CC01.01 ', ktau, kstart, kend, dels
-                 ! ! print*, 'CC01.02 ', met%year
-                 ! ! print*, 'CC01.03 ', met%moy
-                 ! ! print*, 'CC01.04 ', met%ca
-                 ! ! print*, 'CC01.05 ', met%doy
-                 ! ! print*, 'CC01.06 ', met%hod
-                 ! ! print*, 'CC01.07 ', met%ofsd
-                 ! ! print*, 'CC01.08 ', met%fld
-                 ! ! print*, 'CC01.09 ', met%precip
-                 ! ! print*, 'CC01.10 ', met%precip_sn
-                 ! ! print*, 'CC01.11 ', met%tk
-                 ! ! print*, 'CC01.12 ', met%tvair
-                 ! ! print*, 'CC01.13 ', met%tvrad
-                 ! ! print*, 'CC01.14 ', met%pmb
-                 ! ! print*, 'CC01.15 ', met%ua
-                 ! ! print*, 'CC01.16 ', met%qv
-                 ! ! print*, 'CC01.17 ', met%qvair
-                 ! ! print*, 'CC01.18 ', met%da
-                 ! ! print*, 'CC01.19 ', met%dva
-                 ! ! print*, 'CC01.20 ', met%coszen
-                 ! ! print*, 'CC01.21 ', met%Ndep
-                 ! ! print*, 'CC01.22 ', met%Pdep
-                 ! ! print*, 'CC01.23 ', met%u10
-                 ! ! print*, 'CC01.24 ', met%rhum
-                 ! ! print*, 'CC01.25 ', met%fsd
-                 Call bgcdriver( ktau, kstart, kend, dels, met, &
+!!$                print*, 'CC01.01 ', ktau, kstart, kend, dels
+!!$                print*, 'CC01.02 ', met%year
+!!$                print*, 'CC01.03 ', met%moy
+!!$                print*, 'CC01.04 ', met%ca
+!!$                print*, 'CC01.05 ', met%doy
+!!$                print*, 'CC01.06 ', met%hod
+!!$                print*, 'CC01.07 ', met%ofsd
+!!$                print*, 'CC01.08 ', met%fld
+!!$                print*, 'CC01.09 ', met%precip
+!!$                print*, 'CC01.10 ', met%precip_sn
+!!$                print*, 'CC01.11 ', met%tk
+!!$                print*, 'CC01.12 ', met%tvair
+!!$                print*, 'CC01.13 ', met%tvrad
+!!$                print*, 'CC01.14 ', met%pmb
+!!$                print*, 'CC01.15 ', met%ua
+!!$                print*, 'CC01.16 ', met%qv
+!!$                print*, 'CC01.17 ', met%qvair
+!!$                print*, 'CC01.18 ', met%da
+!!$                print*, 'CC01.19 ', met%dva
+!!$                print*, 'CC01.20 ', met%coszen
+!!$                print*, 'CC01.21 ', met%Ndep
+!!$                print*, 'CC01.22 ', met%Pdep
+!!$                print*, 'CC01.23 ', met%u10
+!!$                print*, 'CC01.24 ', met%rhum
+!!$                print*, 'CC01.25 ', met%fsd
+                 CALL bgcdriver( ktau, kstart, kend, dels, met, &
                       ssnow, canopy, veg, soil, climate, casabiome, &
                       casapool, casaflux, casamet, casabal, &
                       phen, pop, spinConv, spinup, ktauday, idoy, loy, &
                       CABLE_USER%CASA_DUMP_READ, CABLE_USER%CASA_DUMP_WRITE, &
                       LALLOC, c13o2flux, c13o2pools )
-                 ! print*, 'CD06 ', ktau, YYYY, casamet%glai
-                 ! print*, 'CBM701.01 ', POPLUC%secdf
-                 ! print*, 'CBM701.02 ', POPLUC%AgProd
-                 ! print*, 'CBM701.03 ', casapool%cplant
-                 ! print*, 'CBM701.04 ', casapool%clitter
-                 ! ! print*, 'CBM701.05 ', climate%APAR_leaf_shade
-                 ! print*, 'CBM701.06 ', patch%frac
-                 ! print*, 'CBM703.11 ', canopy%cansto
-                 ! print*, 'CBM703.21 ', canopy%dgdtg
-                 ! print*, 'CBM703.36 ', canopy%fev
-                 ! print*, 'CBM703.43 ', canopy%fhs
-                 ! print*, 'CBM703.49 ', canopy%ga
-                 ! print*, 'CBM703.58 ', canopy%oldcansto
-                 ! print*, 'CBM706.05 ', rough%hruff
-                 ! print*, 'CBM708.12 ', ssnow%rtsoil
+                ! print*, 'CD06 ', ktau, YYYY, casamet%glai
 
                  IF(MOD((ktau-kstart+1),ktauday)==0) THEN ! end of day
 
                     IF ( cable_user%CALL_BLAZE ) THEN
-                       CALL BLAZE_ACCOUNTING(BLAZE, met, climate, ktau, dels, YYYY, idoy)
+                       CALL BLAZE_ACCOUNTING(BLAZE, climate, ktau, dels, YYYY, idoy)
 
                        call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
-                            casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg)
-                       ! print*, 'CD07   ', casamet%glai
+                            casamet, climate, real(shootfrac), idoy, YYYY, 1, POP, veg)
+                      ! print*, 'CD07   ', casamet%glai
 
                        call write_blaze_output_nc( BLAZE, ktau.EQ.kend .AND. YYYY.EQ.cable_user%YearEnd)
                     ENDIF
 
                  ENDIF
+
+                
 
                  IF (MOD((ktau-kstart+1),ktauday)==0) THEN ! end of day
 
@@ -1596,6 +1587,8 @@ PROGRAM cable_offline_driver
                          call c13o2_update_sum_pools(sum_c13o2pools, c13o2pools, .true., .true., count_sum_casa)
                     CALL WRITE_CASA_OUTPUT_NC (veg, casamet, sum_casapool, casabal, sum_casaflux, &
                          CASAONLY, ctime, ( ktau.EQ.kend .AND. YYYY .EQ. cable_user%YearEnd.AND. RRRR .EQ.NRRRR ) )
+
+                   
                     ! 13C
                     if (cable_user%c13o2) then
                        if (first_casa_write) then
@@ -1631,8 +1624,10 @@ PROGRAM cable_offline_driver
                           CALL write_casa_dump(ncfile, casamet , casaflux, phen, climate, c13o2flux, &
                                int(climate%doy), LOY)
                        ELSE
+                       
                           CALL write_casa_dump(ncfile, casamet , casaflux, phen, climate, c13o2flux, &
                                idoy, kend/ktauday)
+                       
                        ENDIF
 
                     ENDIF

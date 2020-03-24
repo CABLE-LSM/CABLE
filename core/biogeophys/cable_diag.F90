@@ -293,6 +293,56 @@ END SUBROUTINE cable_diag_data1
          (/ dimID(1), dimID(3)/), varID(17))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(17))
 
+    ncok = NF90_DEF_VAR(ncid, trim(var_name(18)), xtype, &
+         (/ dimID(1), dimID(3)/), varID(18))
+    if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(18))
+
+    ncok = NF90_DEF_VAR(ncid, trim(var_name(19)), xtype, &
+         (/ dimID(1), dimID(3)/), varID(19))
+    if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(19))
+
+    ncok = NF90_DEF_VAR(ncid, trim(var_name(20)), xtype, &
+         (/ dimID(1), dimID(3)/), varID(20))
+    if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(20))
+    
+    ncok = NF90_DEF_VAR(ncid, trim(var_name(21)), xtype, &
+         (/ dimID(1), dimID(3)/), varID(21))
+    if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(21))
+
+    ncok = NF90_DEF_VAR(ncid, trim(var_name(22)), xtype, &
+         (/ dimID(1), dimID(3)/), varID(22))
+    if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(22))
+
+    ncok = NF90_DEF_VAR(ncid, trim(var_name(23)), xtype, &
+         (/ dimID(1), dimID(3)/), varID(23))
+    if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(23))
+
+    ncok = NF90_DEF_VAR(ncid, trim(var_name(24)), xtype, &
+         (/ dimID(1), dimID(3)/), varID(24))
+    if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(24))
+
+    ncok = NF90_DEF_VAR(ncid, trim(var_name(25)), xtype, &
+         (/ dimID(1), dimID(3)/), varID(25))
+    if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(25))
+
+    ncok = NF90_DEF_VAR(ncid, trim(var_name(26)), xtype, &
+         (/ dimID(1), dimID(3)/), varID(26))
+    if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(26))
+
+    ncok = NF90_DEF_VAR(ncid, trim(var_name(27)), xtype, &
+         (/ dimID(1), dimID(3)/), varID(27))
+    if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(27))
+
+    ncok = NF90_DEF_VAR(ncid, trim(var_name(28)), xtype, &
+         (/ dimID(1), dimID(3)/), varID(28))
+    if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(28))
+
+    ncok = NF90_DEF_VAR(ncid, trim(var_name(29)), xtype, &
+         (/ dimID(1), dimID(3)/), varID(29))
+    if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(29))
+
+         
+
     return
 
   end subroutine def_vars
