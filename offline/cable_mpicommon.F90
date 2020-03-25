@@ -71,8 +71,9 @@ MODULE cable_mpicommon
   ! MPI: number of casa_dump parameters sent/rec'd to/from the workers every timestep
   ! Matthias Cuntz: add 2 casamet params for 13C -> 11
   ! Matthias Cuntz: calc as ncdumprw+icycle-1 and add 2 in case of 13C -> 8
-   ! Vanessa Haverd: 12 extra climate dump variables (frec + 11 needed for BLAZE)
-  INTEGER, PARAMETER :: ncdumprw = 20
+  ! Vanessa Haverd: 12 extra climate dump variables (frec + 11 needed for BLAZE) -> 20
+  ! Matthias Cuntz: add 11 in case of call_blaze -> 9
+  INTEGER, PARAMETER :: ncdumprw = 9
   ! MPI: number of casa_LUC parameters sent/rec'd to/from the workers every year
   INTEGER, PARAMETER :: nLUCrw = 16
 

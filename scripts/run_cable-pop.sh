@@ -47,7 +47,7 @@ system=cuntz@explor
 
 # MPI run or single processor run
 # nproc should fit with job tasks
-dompi=0   # 0: normal run: ./cable
+dompi=1   # 0: normal run: ./cable
 # 1: MPI run: mpiexec -n ${nproc} ./cable_mpi
 nproc=4   # Number of cores for MPI runs
 # must be same as above: SBATCH -n nproc or PBS -l ncpus=nproc
@@ -108,21 +108,21 @@ doextractsite=0 # 0: Do not extract local meteo, land use nor mask
     # latlon=-34.5,-33.5,149.5,156.5
     # latlon=42.5,43.5,109.5,110.5
 # Step 1
-doclimate=0     # 1/0: Do/Do not create climate restart file
+doclimate=1     # 1/0: Do/Do not create climate restart file
 # Step 2
-dofromzero=0    # 1/0: Do/Do not first spinup phase from zero biomass stocks
+dofromzero=1    # 1/0: Do/Do not first spinup phase from zero biomass stocks
 # Step 3
-doequi1=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
+doequi1=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
 nequi1=1        #      number of times to repeat steps in doequi1
 # Step 4
-doequi2=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
+doequi2=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
 nequi2=1        #      number of times to repeat steps in doequi2
 # Step 5a
 doiniluc=1      # 1/0: Do/Do not spinup with dynamic land use (5a)
 # Step 5b
-doinidyn=0      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
+doinidyn=1      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
 # Step 6
-dofinal=0       # 1/0: Do/Do not final run from 1900 to 2017
+dofinal=1       # 1/0: Do/Do not final run from 1900 to 2017
 
 # --------------------------------------------------------------------
 # Other switches
@@ -310,7 +310,7 @@ else
     exit 1
 fi
 # Run directory
-runpath="${sitepath}/run_20200203"
+runpath="${sitepath}/run_20200217"
 
 # Cable parameters
 namelistpath="../namelists"
@@ -1299,9 +1299,9 @@ if [[ ${doiniluc} -eq 1 ]] ; then
     cd ../restart
     copyid ${rid} pop_cru_ini.nc cru_casa_rst.nc cru_LUC_rst.nc
     if [[ ${doc13o2} -eq 1 ]] ; then copyid ${rid} cru_c13o2_pools_rst.nc cru_c13o2_luc_rst.nc ; fi
-    cd ../outputs
-    renameid ${rid} cru_out_LUC.nc
-    cd ..
+    # cd ../outputs
+    # renameid ${rid} cru_out_LUC.nc
+    # cd ..
     cd ${pdir}
 fi
 

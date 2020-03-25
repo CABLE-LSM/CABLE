@@ -399,7 +399,6 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
             call get_var_nc(ncrid, var_name(29), last_precip, idoy)
          endif
          
-
          casamet%Tairkspin(:,idoy) = tairk
          casamet%cgppspin(:,idoy)  = cgpp
          casamet%crmplantspin_1(:,idoy) = crmplant(:,1)
@@ -423,7 +422,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
          phen%doyphasespin_3(:,idoy) = int(phendoyphase3)
          phen%doyphasespin_4(:,idoy) = int(phendoyphase4)
          casamet%mtempspin(:,idoy) = mtemp
-         casamet%frecspin(:,idoy) = frec
+         casamet%frecspin(:,idoy)  = frec
          if (icycle>1) casaflux%Nmindep = Ndep
          if (icycle>2) casaflux%Pdep    = Pdep
          ! 13C
@@ -432,53 +431,68 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
             casamet%cAn13spin(:,idoy) = cAn13
          endif
          !blaze
-
          if (cable_user%call_blaze) then
-            casamet%dprecip_spin(:,idoy) = dprecip
+            casamet%dprecip_spin(:,idoy)      = dprecip
             casamet%aprecip_av20_spin(:,idoy) = aprecip_av20
-            casamet%du10_max_spin(:,idoy) = du10_max
-            casamet%drhum_spin(:,idoy) = drhum
-            casamet%dtemp_max_spin(:,idoy) = dtemp_max
-            casamet%dtemp_min_spin(:,idoy) = dtemp_min
-            casamet%KBDI_spin(:,idoy) = KBDI
-            casamet%D_MacArthur_spin(:,idoy) = D_MacArthur
-            casamet%FFDI_spin(:,idoy) = FFDI
-            casamet%DSLR_spin(:,idoy) = int(DSLR)
-            casamet%last_precip_spin(:,idoy) = last_precip
+            casamet%du10_max_spin(:,idoy)     = du10_max
+            casamet%drhum_spin(:,idoy)        = drhum
+            casamet%dtemp_max_spin(:,idoy)    = dtemp_max
+            casamet%dtemp_min_spin(:,idoy)    = dtemp_min
+            casamet%KBDI_spin(:,idoy)         = KBDI
+            casamet%D_MacArthur_spin(:,idoy)  = D_MacArthur
+            casamet%FFDI_spin(:,idoy)         = FFDI
+            casamet%DSLR_spin(:,idoy)         = int(DSLR)
+            casamet%last_precip_spin(:,idoy)  = last_precip
          endif
       end do
-   else   !vh ! code below is redundant since thie subroutine is always called with allatonce = .T.
+   else   !vh ! code below is redundant since this subroutine is always called with allatonce = .T.
 
-      call get_var_nc(ncrid, var_name(3), tairk   ,ncall )
-      call get_var_nc(ncrid, var_name(4), tsoil   ,ncall , ms)
-      call get_var_nc(ncrid, var_name(5), moist   ,ncall , ms)
-      call get_var_nc(ncrid, var_name(6), cgpp    ,ncall )
-      call get_var_nc(ncrid, var_name(7), crmplant,ncall , mplant)
-      call get_var_nc(ncrid, var_name(8), phenphase    ,ncall )
-      call get_var_nc(ncrid, var_name(9), phendoyphase1    ,ncall )
+      call get_var_nc(ncrid, var_name(3),  tairk   ,ncall )
+      call get_var_nc(ncrid, var_name(4),  tsoil   ,ncall , ms)
+      call get_var_nc(ncrid, var_name(5),  moist   ,ncall , ms)
+      call get_var_nc(ncrid, var_name(6),  cgpp    ,ncall )
+      call get_var_nc(ncrid, var_name(7),  crmplant,ncall , mplant)
+      call get_var_nc(ncrid, var_name(8),  phenphase    ,ncall )
+      call get_var_nc(ncrid, var_name(9),  phendoyphase1    ,ncall )
       call get_var_nc(ncrid, var_name(10), phendoyphase2    ,ncall )
       call get_var_nc(ncrid, var_name(11), phendoyphase3    ,ncall )
       call get_var_nc(ncrid, var_name(12), phendoyphase4    ,ncall )
       call get_var_nc(ncrid, var_name(13), mtemp   , ncall )
-      if (icycle>1) CALL get_var_nc(ncrid, var_name(14), Ndep, ncall)
-      if (icycle>2) CALL get_var_nc(ncrid, var_name(15), Pdep, ncall)
+      call get_var_nc(ncrid, var_name(14), frec, ncall)
+      if (icycle>1) CALL get_var_nc(ncrid, var_name(15), Ndep, ncall)
+      if (icycle>2) CALL get_var_nc(ncrid, var_name(16), Pdep, ncall)
       ! 13C
       if (cable_user%c13o2) then
-         call get_var_nc(ncrid, var_name(16), cAn12, ncall)
-         call get_var_nc(ncrid, var_name(17), cAn13, ncall)
+         call get_var_nc(ncrid, var_name(17), cAn12, ncall)
+         call get_var_nc(ncrid, var_name(18), cAn13, ncall)
+      endif
+      ! blaze
+      if (cable_user%call_blaze) then
+         call get_var_nc(ncrid, var_name(19), dprecip, ncall)
+         call get_var_nc(ncrid, var_name(20), aprecip_av20, ncall)
+         call get_var_nc(ncrid, var_name(21), du10_max, ncall)
+         call get_var_nc(ncrid, var_name(22), drhum, ncall)
+         call get_var_nc(ncrid, var_name(23), dtemp_max, ncall)
+         call get_var_nc(ncrid, var_name(24), dtemp_min, ncall)
+         call get_var_nc(ncrid, var_name(25), KBDI, ncall)
+         call get_var_nc(ncrid, var_name(26), D_MacArthur, ncall)
+         call get_var_nc(ncrid, var_name(27), FFDI, ncall)
+         call get_var_nc(ncrid, var_name(28), DSLR, ncall)
+         call get_var_nc(ncrid, var_name(29), last_precip, ncall)
       endif
 
       casamet%tairk     = tairk
-      casamet%tsoil     = tsoil
-      casamet%moist     = moist
       casaflux%cgpp     = cgpp
       casaflux%crmplant = crmplant
+      casamet%tsoil     = tsoil
+      casamet%moist     = moist
       phen%phase         = int(phenphase)
       phen%doyphase(:,1) = int(phendoyphase1)
       phen%doyphase(:,2) = int(phendoyphase2)
       phen%doyphase(:,3) = int(phendoyphase3)
       phen%doyphase(:,4) = int(phendoyphase4)
       climate%qtemp_max_last_year = real(mtemp)
+      climate%frec                = real(frec)
       if (icycle>1) casaflux%Nmindep = Ndep
       if (icycle>2) casaflux%Pdep    = Pdep
       ! 13C
@@ -486,9 +500,24 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
          c13o2flux%cAn12 = cAn12
          c13o2flux%cAn   = cAn13
       endif
-   endif
+      !blaze
+      if (cable_user%call_blaze) then
+         climate%dprecip      = real(dprecip)
+         climate%aprecip_av20 = real(aprecip_av20)
+         climate%du10_max     = real(du10_max)
+         climate%drhum        = real(drhum)
+         climate%dtemp_max    = real(dtemp_max)
+         climate%dtemp_min    = real(dtemp_min)
+         climate%KBDI         = real(KBDI)
+         climate%D_MacArthur  = real(D_MacArthur)
+         climate%FFDI         = real(FFDI)
+         climate%DSLR         = int(DSLR)
+         climate%last_precip  = real(last_precip)
+      endif
+      
+   endif ! allatonce
 
-   if ( allatonce .or. ncall .eq. kend ) then
+   if (allatonce .or. (ncall .eq. kend)) then
       ! print*, 'OClose60 ', ncrid
       ncok = nf90_close(ncrid)
       ncrid = -1
@@ -660,7 +689,6 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
       CALL put_var_nc(ncid, var_name(18), zeros, n_call)
    endif
    ! BLAZE
-   
    if (cable_user%call_blaze) then
       CALL put_var_nc(ncid, var_name(19), real(climate%dprecip, r_2), n_call)
       CALL put_var_nc(ncid, var_name(20), real(climate%aprecip_av20, r_2), n_call)
@@ -685,7 +713,6 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
       CALL put_var_nc(ncid, var_name(27), zeros, n_call)
       CALL put_var_nc(ncid, var_name(28), zeros, n_call)
       CALL put_var_nc(ncid, var_name(29), zeros, n_call)
-
    endif
 
    IF (n_call == kend) then
@@ -788,12 +815,12 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
             veg%ejmax(np) = 2.0 * veg%vcmax(np)
          elseif (ivt.eq.1) then
             ! account here for spring recovery
-            veg%vcmax(np) = vcmax_np(real(nleafx(np)), real(pleafx(np))) * &
-                 real(casabiome%vcmax_scalar(ivt)) * climate%frec(np)
+            veg%vcmax(np) = real( vcmax_np(nleafx(np), pleafx(np)) * &
+                 casabiome%vcmax_scalar(ivt) * real(climate%frec(np),r_2) )
             veg%ejmax(np) = bjvref(np) * veg%vcmax(np)
          else
-            veg%vcmax(np) = vcmax_np(real(nleafx(np)), real(pleafx(np))) * &
-                 real(casabiome%vcmax_scalar(ivt))
+            veg%vcmax(np) = real( vcmax_np(nleafx(np), pleafx(np)) * &
+                 casabiome%vcmax_scalar(ivt) )
             veg%ejmax(np) = bjvref(np) * veg%vcmax(np)
          endif
 

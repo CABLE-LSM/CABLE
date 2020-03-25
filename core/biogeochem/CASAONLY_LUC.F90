@@ -137,10 +137,25 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
         phen%doyphase(:,3) = phen%doyphasespin_3(:,idoy)
         phen%doyphase(:,4) = phen%doyphasespin_4(:,idoy)
         climate%qtemp_max_last_year(:) = real(casamet%mtempspin(:,idoy))
+        climate%frec(:)                = real(casamet%frecspin(:,idoy))
         ! 13C
         if (cable_user%c13o2) then
            c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
            c13o2flux%cAn(:)   = casamet%cAn13spin(:,idoy)
+        endif
+        ! BLAZE
+        if (cable_user%call_blaze) then
+           climate%dprecip(:)      = real(casamet%dprecip_spin(:,idoy))
+           climate%aprecip_av20(:) = real(casamet%aprecip_av20_spin(:,idoy))
+           climate%du10_max(:)     = real(casamet%du10_max_spin(:,idoy))
+           climate%drhum(:)        = real(casamet%drhum_spin(:,idoy))
+           climate%dtemp_max(:)    = real(casamet%dtemp_max_spin(:,idoy))
+           climate%dtemp_min(:)    = real(casamet%dtemp_max_spin(:,idoy))
+           climate%KBDI(:)         = real(casamet%KBDI_spin(:,idoy))
+           climate%D_MacArthur(:)  = real(casamet%D_MacArthur_spin(:,idoy))
+           climate%FFDI(:)         = real(casamet%FFDI_spin(:,idoy))
+           climate%DSLR(:)         = casamet%DSLR_spin(:,idoy)
+           climate%last_precip(:)  = real(casamet%last_precip_spin(:,idoy))
         endif
 
         ! 13C

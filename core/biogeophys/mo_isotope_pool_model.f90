@@ -360,12 +360,12 @@ contains
        endif
     endif
     
-    ! Check F >= 0
-    if (any(F < 0._dp)) then
-       write(*,*) 'Error isotope_pool_model_2d: fluxes between pools must be >= 0.'
-       write(*,*) '    F: ', F
-       stop 9
-    endif
+    ! ! Check F >= 0
+    ! if (any(F < 0._dp)) then
+    !    write(*,*) 'Error isotope_pool_model_2d: fluxes between pools must be >= 0.'
+    !    write(*,*) '    F: ', F
+    !    stop 9
+    ! endif
 
     ! Check F(i,:) == 0. if C(i) == 0.
     if (any(eq(C,0._dp))) then

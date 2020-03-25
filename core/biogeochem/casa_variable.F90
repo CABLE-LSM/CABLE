@@ -367,20 +367,18 @@ MODULE casavariable
      ! 13C
      real(r_2), dimension(:,:), pointer :: cAn12spin => null() ! daily cumulated total 12CO2 net assimilation in [g(C)/m2]
      real(r_2), dimension(:,:), pointer :: cAn13spin => null() ! daily cumulated total 13CO2 net assimilation in [g(13C)/m2]
-
      ! BLAZE
      REAL(r_2), DIMENSION(:,:), POINTER :: dprecip_spin => null(),&
           aprecip_av20_spin => null(),&
-          du10_max_spin => null(),&
-          drhum_spin => null(),&
-          dtemp_max_spin => null(),&
-          dtemp_min_spin => null(),&
-          KBDI_spin => null(),&
-          D_MacArthur_spin => null(),&
-          FFDI_spin => null(),&
-          last_precip_spin => null()
-      INTEGER, DIMENSION(:,:), POINTER ::  DSLR_spin => null()
-     
+          du10_max_spin     => null(),&
+          drhum_spin        => null(),&
+          dtemp_max_spin    => null(),&
+          dtemp_min_spin    => null(),&
+          KBDI_spin         => null(),&
+          D_MacArthur_spin  => null(),&
+          FFDI_spin         => null(),&
+          last_precip_spin  => null()
+      INTEGER, DIMENSION(:,:), POINTER :: DSLR_spin => null()
   END TYPE casa_met
 
   

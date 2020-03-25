@@ -269,79 +269,89 @@ END SUBROUTINE cable_diag_data1
          (/ dimID(1), dimID(3)/), varID(13))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(13))
 
-    !Ndep
+    !frec
     ! print*, 'DV14'
     ncok = NF90_DEF_VAR(ncid, trim(var_name(14)), xtype, &
          (/ dimID(1), dimID(3)/), varID(14))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(14))
 
-    !Pdep
+    !Ndep
     ! print*, 'DV15'
     ncok = NF90_DEF_VAR(ncid, trim(var_name(15)), xtype, &
          (/ dimID(1), dimID(3)/), varID(15))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(15))
 
-    !cAn12spin
+    !Pdep
     ! print*, 'DV16'
     ncok = NF90_DEF_VAR(ncid, trim(var_name(16)), xtype, &
          (/ dimID(1), dimID(3)/), varID(16))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(16))
 
-    !cAn13spin
+    !cAn12spin
     ! print*, 'DV17'
     ncok = NF90_DEF_VAR(ncid, trim(var_name(17)), xtype, &
          (/ dimID(1), dimID(3)/), varID(17))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(17))
 
+    !cAn13spin
     ncok = NF90_DEF_VAR(ncid, trim(var_name(18)), xtype, &
          (/ dimID(1), dimID(3)/), varID(18))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(18))
 
+    !dprecip
     ncok = NF90_DEF_VAR(ncid, trim(var_name(19)), xtype, &
          (/ dimID(1), dimID(3)/), varID(19))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(19))
 
+    !aprecip_av20
     ncok = NF90_DEF_VAR(ncid, trim(var_name(20)), xtype, &
          (/ dimID(1), dimID(3)/), varID(20))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(20))
     
+    !du10_max
     ncok = NF90_DEF_VAR(ncid, trim(var_name(21)), xtype, &
          (/ dimID(1), dimID(3)/), varID(21))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(21))
 
+    !drhum
     ncok = NF90_DEF_VAR(ncid, trim(var_name(22)), xtype, &
          (/ dimID(1), dimID(3)/), varID(22))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(22))
 
+    !dtemp_max
     ncok = NF90_DEF_VAR(ncid, trim(var_name(23)), xtype, &
          (/ dimID(1), dimID(3)/), varID(23))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(23))
 
+    !dtemp_min
     ncok = NF90_DEF_VAR(ncid, trim(var_name(24)), xtype, &
          (/ dimID(1), dimID(3)/), varID(24))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(24))
 
+    !KBDI
     ncok = NF90_DEF_VAR(ncid, trim(var_name(25)), xtype, &
          (/ dimID(1), dimID(3)/), varID(25))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(25))
 
+    !D_MacArthur
     ncok = NF90_DEF_VAR(ncid, trim(var_name(26)), xtype, &
          (/ dimID(1), dimID(3)/), varID(26))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(26))
 
+    !FFDI
     ncok = NF90_DEF_VAR(ncid, trim(var_name(27)), xtype, &
          (/ dimID(1), dimID(3)/), varID(27))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(27))
 
+    !DSLR
     ncok = NF90_DEF_VAR(ncid, trim(var_name(28)), xtype, &
          (/ dimID(1), dimID(3)/), varID(28))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(28))
 
+    !last_precip
     ncok = NF90_DEF_VAR(ncid, trim(var_name(29)), xtype, &
          (/ dimID(1), dimID(3)/), varID(29))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(29))
-
-         
 
     return
 

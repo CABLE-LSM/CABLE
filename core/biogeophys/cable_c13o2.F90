@@ -628,9 +628,9 @@ contains
 #ifdef __C13DEBUG__
              print*, 'LU07 ', delta1000(c13o2luc%cagric(g:g), popluc%AgProd(g), 1.0_dp, -999._dp, tiny(1.0_dp))
 #endif
+             c13o2pools%charvest(l) = 0.0_dp
           end if
        end if
-       c13o2pools%charvest(l) = 0.0_dp
     end do
 
   end subroutine c13o2_update_luc

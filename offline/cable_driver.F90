@@ -1435,7 +1435,7 @@ PROGRAM cable_offline_driver
                        CALL BLAZE_ACCOUNTING(BLAZE, climate, ktau, dels, YYYY, idoy)
 
                        call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
-                            casamet, climate, real(shootfrac), idoy, YYYY, 1, POP, veg)
+                            casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg)
                       ! print*, 'CD07   ', casamet%glai
 
                        call write_blaze_output_nc( BLAZE, ktau.EQ.kend .AND. YYYY.EQ.cable_user%YearEnd)

@@ -544,13 +544,13 @@ SUBROUTINE casa_rplant(veg, casabiome, casapool, casaflux, casamet, climate)
   real(r_2), dimension(mp)        :: nleaf, pleaf, vcmaxmax
   real(r_2) :: c1, c2, c3, c5 ! coefficients for acclimation of maintenance respiration
 
-  resp_coeff_root = 1._r_2
+  resp_coeff_root    = 1._r_2
   resp_coeff_sapwood = 1._r_2
-  ratioPNplant = 0.0_r_2
-  Ygrow        = 0.0_r_2
+  ratioPNplant       = 0.0_r_2
+  Ygrow              = 0.0_r_2
 
-  WHERE(casapool%Nplant>0.0_r_2)
-    ratioPNplant = casapool%Pplant/(casapool%Nplant+ 1.0e-10_r_2)
+  WHERE(casapool%Nplant > 0.0_r_2)
+    ratioPNplant = casapool%Pplant / (casapool%Nplant+ 1.0e-10_r_2)
   ENDWHERE
 
   Ygrow(:) = 0.65_r_2 + 0.2_r_2*ratioPNplant(:,leaf)/(ratioPNplant(:,leaf)+1.0_r_2/15.0_r_2)
@@ -573,9 +573,9 @@ SUBROUTINE casa_rplant(veg, casabiome, casapool, casaflux, casamet, climate)
         pleaf(npt) = casabiome%ratioPcplantmax(ivt,leaf)/casabiome%sla(ivt)
         if (ivt.eq.7) then
            ! special for C4 grass: set here to value from  parameter file
-           vcmaxmax(npt) = veg%vcmax(npt)
+           vcmaxmax(npt) = real(veg%vcmax(npt), r_2)
         else
-           vcmaxmax(npt) = vcmax_np(real(nleaf(npt)), real(pleaf(npt)))*casabiome%vcmax_scalar(ivt)
+           vcmaxmax(npt) = vcmax_np(nleaf(npt), pleaf(npt)) * casabiome%vcmax_scalar(ivt)
         endif
 
         if (veg%iveg(npt).eq.2 .or. veg%iveg(npt).eq.4) then
@@ -596,8 +596,8 @@ SUBROUTINE casa_rplant(veg, casabiome, casapool, casaflux, casamet, climate)
            !c1 = 1.7265e-6_r_2 ! null model
         endif
         c2 = 0.0116_r_2
-        c3 = -0.0334_r_2*1.e-6_r_2
-        c5 = 1./vcmaxmax(npt)/0.0116_r_2*0.60_r_2
+        c3 = -0.0334_r_2 * 1.e-6_r_2
+        c5 = 1.0_r_2 / vcmaxmax(npt) / 0.0116_r_2 * 0.60_r_2
         resp_coeff_root(npt) = casapool%nplant(npt,froot) * c5 * &
              (c1 + c2 *vcmaxmax(npt)*climate%frec(npt)  + c3 * climate%qtemp_max_last_year(npt) )
         
@@ -607,7 +607,7 @@ SUBROUTINE casa_rplant(veg, casabiome, casapool, casaflux, casamet, climate)
         ! resp_coeff_root(npt) = casapool%nplant(npt,froot) *c1
         ! resp_coeff_sapwood(npt) = casapool%nplant(npt,wood) *casaflux%frac_sapwood(npt)*c1
      enddo ! npt=1,mp
-  endif  ! cable_user%CALL_climate - end coefficients for acclimation of autotrophic respiration ticket #110 - 
+  endif  ! cable_user%CALL_climate - end coefficients for acclimation of autotrophic respiration ticket #110 
 
   if (cable_user%CALL_climate) then
      !  acclimation of autotrophic respiration Ticket #110
@@ -859,8 +859,7 @@ SUBROUTINE casa_xratesoil(xklitter,xksoil,veg,soil,casamet,casabiome)
   IF(casamet%iveg2(npt)/=icewater) THEN
     xktemp(npt)  = casabiome%q10soil(veg%iveg(npt))**(0.1_r_2*(tsavg(npt)-TKzeroC-35.0_r_2))
 
-
-    xkwater(npt) = ((fwps(npt)-wfpscoefb)/(wfpscoefa-wfpscoefb))**wfpscoefe    &
+    xkwater(npt) = ((fwps(npt)-wfpscoefb)/(wfpscoefa-wfpscoefb))**wfpscoefe &
                * ((fwps(npt)-wfpscoefc)/(wfpscoefa-wfpscoefc))**wfpscoefd
     IF (veg%iveg(npt) == cropland .OR. veg%iveg(npt) == croplnd2) &
                xkwater(npt)=1.0_r_2
@@ -1249,7 +1248,7 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
            casaflux%kplant(npt,2:3)     = 0.0_r_2
            casaflux%crmplant(npt,2:3)   = 0.0_r_2
         endwhere
-        if ( any((casapool%dcplantdt(npt,:)*deltpool + casapool%cplant(npt,:)) .lt. 0.0_r_2) ) then
+        if ( any((casapool%cplant(npt,:) + casapool%dcplantdt(npt,:)*deltpool) .lt. 0.0_r_2) ) then
            casaflux%kplant_tot(npt,1) = 0.0_r_2
            casaflux%kplant(npt,1)     = 0.0_r_2
            casaflux%crmplant(npt,1)   = min(casaflux%crmplant(npt,1), 0.5_r_2*casaflux%cgpp(npt))
@@ -1257,17 +1256,17 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
 
         ! revise turnover and NPP and dcplantdt to reflect above adjustments
         casaflux%Cplant_turnover(npt,:) = casaflux%kplant_tot(npt,:)  * casapool%cplant(npt,:)
-        if (any((casapool%dcplantdt(npt,:)*deltpool + casapool%cplant(npt,:)).lt. 0.0_r_2) &
-          .or. any((casapool%dcplantdt(npt,2:3)*deltpool + casapool%cplant(npt,2:3)) &
-                  .lt. 0.5_r_2 * casapool%cplant(npt,2:3) )) then
+        if ( any((casapool%cplant(npt,:) + casapool%dcplantdt(npt,:)*deltpool) .lt. 0.0_r_2) &
+             .or. any((casapool%cplant(npt,2:3) + casapool%dcplantdt(npt,2:3)*deltpool) &
+             .lt. 0.5_r_2 * casapool%cplant(npt,2:3)) ) then
            ratioPNplant = 0.0_r_2
-           if (casapool%Nplant(npt,leaf)>0.0_r_2) &
+           if (casapool%Nplant(npt,leaf) > 0.0_r_2) &
                 ratioPNplant = casapool%Pplant(npt,leaf)/(casapool%Nplant(npt,leaf)+ 1.0e-10_r_2)
-
-           Ygrow = 0.65_r_2+0.2_r_2*ratioPNplant/(ratioPNplant+1.0_r_2/15.0_r_2)
-           IF ((casaflux%Cgpp(npt)-SUM(casaflux%crmplant(npt,:)))>0.0_r_2) THEN
+           
+           Ygrow = 0.65_r_2 + 0.2_r_2*ratioPNplant / (ratioPNplant+1.0_r_2/15.0_r_2)
+           IF ((casaflux%Cgpp(npt)-SUM(casaflux%crmplant(npt,:))) > 0.0_r_2) THEN
               ! Growth efficiency correlated to leaf N:P ratio. Q.Zhang @ 22/02/2011
-              casaflux%crgplant(npt)  = (1.0_r_2-Ygrow)* max(0.0_r_2,casaflux%Cgpp(npt)- &
+              casaflux%crgplant(npt) = (1.0_r_2-Ygrow) * max(0.0_r_2,casaflux%Cgpp(npt) - &
                    SUM(casaflux%crmplant(npt,:)))
            ELSE
               casaflux%crgplant(npt) = 0.0_r_2
@@ -1306,16 +1305,14 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
 
         ! fire flux to atmosphere from burnt plant material
         casaflux%fluxCtoCO2_plant_fire(npt) = 0.0_r_2
-        casaflux%FluxFromPtoCO2(npt,:) = 0.0_r_2
-        do nP=1,mplant
+        casaflux%FluxFromPtoCO2(npt,:)      = 0.0_r_2
+        do nP=1, mplant
            casaflux%FluxFromPtoCO2(npt,nP) = &
                 (1.0_r_2-casaflux%kplant(npt,nP)) * casaflux%kplant_fire(npt,nP) * &
                 casapool%cplant(npt,nP) * &
-                ( 1.0_r_2 - SUM(casaflux%fromPtoL_fire(npt,:,nP))) 
-           
+                (1.0_r_2 - SUM(casaflux%fromPtoL_fire(npt,:,nP)))
            casaflux%fluxCtoCO2_plant_fire(npt) = casaflux%fluxCtoCO2_plant_fire(npt) + &
                 casaflux%FluxFromPtoCO2(npt,nP)
-
         enddo
 
         ! Crop Harvest Flux
@@ -1337,27 +1334,23 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
 
         casaflux%FluxFromPtoHarvest(npt) = casaflux%FluxFromPtoHarvest(npt) + &
              casaflux%fharvest(npt) * casaflux%kplant(npt,leaf) * casapool%cplant(npt,leaf)
-        ! if (casaflux%FluxFromPtoHarvest(npt) > 0.) &
-        !      print*, 'We have Harvest 02 ', npt, casaflux%FluxFromPtoHarvest(npt)
 
         ! Nitrogen
         IF (icycle > 1) THEN
 
-           IF(casaflux%fracNalloc(npt,leaf)==0.0_r_2) THEN
-              casapool%dNplantdt(npt,leaf)  = - casaflux%kplant_tot(npt,leaf) * casapool%Nplant(npt,leaf)
-           else
+           IF (casaflux%fracNalloc(npt,leaf) > 0.0_r_2) THEN
               casapool%dNplantdt(npt,leaf)  = - casaflux%kplant(npt,leaf) * casapool%Nplant(npt,leaf) &
                    * casabiome%ftransNPtoL(veg%iveg(npt),leaf)
               ! add turnover due to fire
               casapool%dNplantdt(npt,leaf)  =  casapool%dNplantdt(npt,leaf) - &
                    (1.0_r_2 - casaflux%kplant(npt,leaf))*casaflux%kplant_fire(npt,leaf) * casapool%Nplant(npt,leaf)
-
+           else
+              casapool%dNplantdt(npt,leaf)  = - casaflux%kplant_tot(npt,leaf) * casapool%Nplant(npt,leaf)
            ENDIF
 
            IF (casamet%lnonwood(npt)==0) THEN
               casapool%dNplantdt(npt,wood)  = - casaflux%kplant(npt,wood) * casapool%Nplant(npt,wood) &
                    * casabiome%ftransNPtoL(veg%iveg(npt),wood)
-
                ! add turnover due to fire
               casapool%dNplantdt(npt,wood)  =  casapool%dNplantdt(npt,wood) - &
                    (1.0_r_2 - casaflux%kplant(npt,wood))*casaflux%kplant_fire(npt,wood) * casapool%Nplant(npt,wood)
@@ -1384,19 +1377,17 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
                 casaflux%kplant_fire(npt,froot)* casapool%cplant(npt,froot)* ratioNCstrfix
 
            ! flux of leaf N to met litter: need to deduct harvest losses
-           nleaf2met(npt) = - casapool%dNplantdt(npt,leaf)   - nleaf2str(npt) &
-                - casaflux%kplant(npt,leaf)  * casapool%nplant(npt,leaf) *  casaflux%fharvest(npt)
-
-           nroot2met(npt) = - casapool%dNplantdt(npt,froot) - nroot2str(npt)
-
+           nleaf2met(npt) = -casapool%dNplantdt(npt,leaf)  - nleaf2str(npt) &
+                - casaflux%kplant(npt,leaf) * casapool%nplant(npt,leaf) * casaflux%fharvest(npt)
+           nroot2met(npt) = -casapool%dNplantdt(npt,froot) - nroot2str(npt)
            nwood2cwd(npt) = -casapool%dNplantdt(npt,wood)
 
            ! Nitrogen lost to harvest
            casaflux%Nharvest(npt) = casaflux%Nharvest(npt) + &
-                casaflux%kplant(npt,leaf)  * casapool%nplant(npt,leaf) *  casaflux%fharvest(npt)
+                casaflux%kplant(npt,leaf) * casapool%nplant(npt,leaf) * casaflux%fharvest(npt)
 
            ! Nitrogen lost to fire
-           casaflux%fluxNtoAtm_fire(npt) =  (1.0_r_2 - casaflux%kplant(npt,leaf))* &
+           casaflux%fluxNtoAtm_fire(npt) = (1.0_r_2 - casaflux%kplant(npt,leaf))* &
                 casaflux%kplant_fire(npt,leaf) * casapool%Nplant(npt,leaf) &
                 * (1.0_r_2 - casaflux%fromPtoL_fire(npt,str,leaf)) + &
                 (1.0_r_2 - casaflux%kplant(npt,froot))*casaflux%kplant_fire(npt,froot) * &
@@ -1410,24 +1401,23 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
         ! Phosphorus
         IF (icycle >2) THEN
 
-           IF(casaflux%fracPalloc(npt,leaf)==0.0_r_2) THEN
-              casapool%dPplantdt(npt,leaf)  = - casaflux%kplant(npt,leaf) * casapool%Pplant(npt,leaf)
-           else
-              casapool%dPplantdt(npt,leaf)  = - casaflux%kplant(npt,leaf) * casapool%Pplant(npt,leaf) &
+           IF(casaflux%fracPalloc(npt,leaf) > 0.0_r_2) THEN
+              casapool%dPplantdt(npt,leaf) = - casaflux%kplant(npt,leaf) * casapool%Pplant(npt,leaf) &
                    * casabiome%ftransPPtoL(veg%iveg(npt),leaf)
+           else
+              casapool%dPplantdt(npt,leaf) = - casaflux%kplant(npt,leaf) * casapool%Pplant(npt,leaf)
            ENDIF
 
-           casapool%dPplantdt(npt,froot)  = - casaflux%kplant(npt,froot) * casapool%Pplant(npt,froot) &
+           casapool%dPplantdt(npt,froot) = - casaflux%kplant(npt,froot) * casapool%Pplant(npt,froot) &
                 * casabiome%ftransPPtoL(veg%iveg(npt),froot)
 
-           casapool%dPplantdt(npt,wood)  = - casaflux%kplant(npt,wood) * casapool%Pplant(npt,wood) &
+           casapool%dPplantdt(npt,wood) = - casaflux%kplant(npt,wood) * casapool%Pplant(npt,wood) &
                 * casabiome%ftransPPtoL(veg%iveg(npt),wood)
 
            pleaf2str(npt) = casaflux%fromPtoL(npt,str,leaf) * casaflux%kplant(npt,leaf)  &
                 * casapool%cplant(npt,leaf)       * ratioNCstrfix/ratioNPstrfix
            proot2str(npt) = casaflux%fromPtoL(npt,str,froot)* casaflux%kplant(npt,froot) &
                 * casapool%cplant(npt,froot)      * ratioNCstrfix/ratioNPstrfix
-
 
            ! add P loss by fire
            casapool%dPplantdt(npt,leaf) = casapool%dPplantdt(npt,leaf) - &
@@ -1449,7 +1439,6 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
            pleaf2str(npt) = pleaf2str(npt) +  casaflux%kplant_fire(npt,leaf)*  &
                 (1.0_r_2 - casaflux%kplant(npt,leaf)) * ratioNCstrfix/ratioNPstrfix * casapool%cplant(npt,leaf)
 
-
            proot2str(npt) = proot2str(npt) + casaflux%kplant_fire(npt,froot)*  &
                 (1.0_r_2 - casaflux%kplant(npt,froot)) * ratioNCstrfix/ratioNPstrfix * casapool%cplant(npt,froot)
 
@@ -1458,7 +1447,6 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
            ! P lost to harvest
            casaflux%Pharvest(npt) = casaflux%kplant(npt,leaf) * casaflux%fharvest(npt) * &
                 ratioNCstrfix/ratioNPstrfix * casapool%cplant(npt,froot)
-
 
            pleaf2met(npt) = -casapool%dPplantdt(npt,leaf)  - pleaf2str(npt) - casaflux%Pharvest(npt)
            proot2met(npt) = -casapool%dPplantdt(npt,froot) - proot2str(npt)
@@ -1473,10 +1461,8 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
                    ! inputs from fire
                    + casaflux%kplant_fire(npt,nP)*(1.0_r_2 - casaflux%kplant(npt,nP)) * &
                    casapool%cplant(npt,nP)* casaflux%fromPtoL_fire(npt,nL,nP)
-              
            enddo
         enddo
-
         
         ! Nitrogen
         IF (icycle > 1) THEN
@@ -1510,16 +1496,13 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
 
 
         ! Phosphorus
-        IF(icycle>2) THEN
+        IF (icycle>2) THEN
            ! casaflux%FluxPtolitter(npt,str) = casaflux%fromPtoL(npt,str,leaf) * casaflux%kplant(npt,leaf)  &
            !      * casapool%cplant(npt,leaf)       * ratioNCstrfix/ratioNPstrfix        &
            !      + casaflux%fromPtoL(npt,str,froot)* casaflux%kplant(npt,froot) &
            !      * casapool%cplant(npt,froot)      * ratioNCstrfix/ratioNPstrfix
-
            casaflux%FluxPtolitter(npt,str) = min(pleaf2str(npt),  -casapool%dPplantdt(npt,leaf)) &
                 + min(proot2str(npt), -casapool%dPplantdt(npt,froot))
-
-
            casaflux%FluxPtolitter(npt,metb) = -casapool%dPplantdt(npt,leaf)-casapool%dPplantdt(npt,froot) &
                 - casaflux%FluxPtolitter(npt,str)
            casaflux%FluxPtolitter(npt,CWD) = -casapool%dPplantdt(npt,wood)
@@ -1597,6 +1580,12 @@ SUBROUTINE casa_delsoil(veg, casapool, casaflux, casamet, casabiome)
   do nland=1, mp
      if (casamet%iveg2(nland) /= icewater) then
 
+        !MC - avoid -ve litter pools
+        where ((casapool%clitter(nland,:) + (casaflux%fluxCtolitter(nland,:) - &
+             casaflux%klitter_tot(nland,:) * casapool%clitter(nland,:))*deltpool) < 0.0_r_2)
+           casaflux%klitter_tot(nland,:) = 0.0_r_2
+        end where
+
         if (icycle > 1) then
            !vh! set klitter to zero where Nlitter will go -ve
            ! (occurs occasionally for metabolic litter pool) Ticket#108
@@ -1617,7 +1606,6 @@ SUBROUTINE casa_delsoil(veg, casapool, casaflux, casamet, casabiome)
         do nL=1, mlitter
            iflux = (1.-casaflux%klitter(nland,nL)) * casaflux%klitter_fire(nland,nL) * &
                 casapool%clitter(nland,nL)
-           !if (iflux > 0.) print*, 'We have fire 01 ', nL, iflux,  casaflux%klitter_fire(nland,nL)
            casaflux%fluxCtoCO2_litter_fire(nland) = casaflux%fluxCtoCO2_litter_fire(nland) + iflux
            casaflux%FluxFromLtoCO2(nland,nL)      = casaflux%FluxFromLtoCO2(nland,nL)      + iflux
            
@@ -1644,6 +1632,12 @@ SUBROUTINE casa_delsoil(veg, casapool, casaflux, casamet, casabiome)
            casaflux%fluxCtoCO2(nland)        = casaflux%fluxCtoCO2(nland)        + iflux
            casaflux%FluxFromStoCO2(nland,nS) = casaflux%FluxFromStoCO2(nland,nS) + iflux
         enddo
+
+        !MC - avoid -ve soil pools
+        where ((casapool%csoil(nland,:) + (casaflux%fluxCtosoil(nland,:) - &
+             casaflux%ksoil(nland,:) * casapool%csoil(nland,:))*deltpool) < 0.0_r_2)
+           casaflux%ksoil(nland,:) = 0.0_r_2
+        end where
 
         ! Nitrogen
         IF (icycle>1) THEN
@@ -2545,14 +2539,12 @@ SUBROUTINE casa_cnpbal(casapool,casaflux,casabal)
       print*, 'frac plant fire flux to litter: ',  sum(casaflux%fromPtoL_fire(1,:,:),1)
       print*, 'plant loss (fire)', tmp8
   
-     ! stop
-     ! print*, sum(casabal%csoillast(1,:))   - sum(casapool%csoil(1,:))
-     ! print*, SUM((casaflux%kplant(1,:)*casabal%cplantlast(1,:)))-casaflux%Crsoil(1)*deltpool
-      !print*, SUM((casaflux%kplant_fire(1,:)*(1.0_r_2 - casaflux%kplant(1,:)) * casabal%cplantlast(1,:)))
-     ! print*, casaflux%fluxCtoCO2_plant_fire(1),  casaflux%fluxCtoCO2_litter_fire(1)
-      !stop
-      endif
-   
+      ! print*, sum(casabal%csoillast(1,:))   - sum(casapool%csoil(1,:))
+      ! print*, SUM((casaflux%kplant(1,:)*casabal%cplantlast(1,:)))-casaflux%Crsoil(1)*deltpool
+      ! print*, SUM((casaflux%kplant_fire(1,:)*(1.0_r_2 - casaflux%kplant(1,:)) * casabal%cplantlast(1,:)))
+      ! print*, casaflux%fluxCtoCO2_plant_fire(1),  casaflux%fluxCtoCO2_litter_fire(1)
+      ! stop
+   endif
    
    casabal%cbalance(:) = Cbalplant(:) + Cbalsoil(:)
 
@@ -2584,14 +2576,13 @@ SUBROUTINE casa_cnpbal(casapool,casaflux,casabal)
    casabal%csoillast   = casapool%csoil
    casabal%sumcbal     = casabal%sumcbal + casabal%cbalance
 
-
    IF(icycle >1) THEN
       Nbalplant(:) = sum(casabal%nplantlast,2) -sum(casapool%nplant,2)                  &
                     +casaflux%Nminuptake(:) *deltpool
       Nbalsoil(:)  = -sum(casapool%nlitter,2)-sum(casapool%nsoil,2)                     &
                      -casapool%nsoilmin(:)+ casabal%nsoilminlast(:)                     &
                      + sum(casabal%nlitterlast,2)    + sum(casabal%nsoillast,2)         &
-                     +(casaflux%Nmindep(:) + casaflux%Nminfix(:)- casaflux%Nminloss(:)                        &
+                     +(casaflux%Nmindep(:) + casaflux%Nminfix(:)- casaflux%Nminloss(:)  &
                        -casaflux%Nminleach(:)-casaflux%Nupland(:)) * deltpool
 
       casabal%nbalance(:) = Nbalplant(:) + Nbalsoil(:)
@@ -2636,8 +2627,10 @@ END SUBROUTINE casa_cnpbal
 
 
 SUBROUTINE casa_ndummy(casapool)
+
   IMPLICIT NONE
-  TYPE (casa_pool),             INTENT(INOUT) :: casapool
+
+  TYPE(casa_pool), INTENT(INOUT) :: casapool
 
   casapool%Nplant(:,:) = casapool%Cplant(:,:) * casapool%ratioNCplant(:,:)
 
@@ -2645,8 +2638,10 @@ END SUBROUTINE casa_ndummy
 
 
 SUBROUTINE casa_pdummy(casapool)
+  
   IMPLICIT NONE
-  TYPE (casa_pool),             INTENT(INOUT) :: casapool
+
+  TYPE(casa_pool), INTENT(INOUT) :: casapool
 
   casapool%Pplant(:,:) = casapool%Nplant(:,:) / casapool%ratioNPplant(:,:)
 
@@ -2703,18 +2698,21 @@ SUBROUTINE phenology(iday,veg,phen)
 END SUBROUTINE phenology
 
 
-REAL FUNCTION vcmax_np(nleaf, pleaf)
+FUNCTION vcmax_np(nleaf, pleaf)
+
+  use cable_def_types_mod, only: r_2
   
   implicit none
 
-  real, intent(in) :: nleaf ! leaf N in g N m-2 leaf
-  real, intent(in) :: pleaf ! leaf P in g P m-2 leaf
+  real(r_2), intent(in) :: nleaf ! leaf N in g N m-2 leaf
+  real(r_2), intent(in) :: pleaf ! leaf P in g P m-2 leaf
+  real(r_2)             :: vcmax_np
 
   ! Walker, A. P. et al.: The relationship of leaf photosynthetic traits - Vcmax and Jmax -
   !   to leaf nitrogen, leaf phosphorus, and specific leaf area: a meta-analysis and modeling study,
   !   Ecology and Evolution, 4, 3218-3235, 2014.
-  vcmax_np = exp(3.946 + 0.921*log(nleaf) + 0.121*log(pleaf) + &
-       0.282*log(pleaf)*log(nleaf)) * 1.0e-6 ! units of mol m-2 (leaf)
+  vcmax_np = exp(3.946_r_2 + 0.921_r_2*log(nleaf) + 0.121_r_2*log(pleaf) + &
+       0.282_r_2*log(pleaf)*log(nleaf)) * 1.0e-6_r_2 ! units of mol m-2 (leaf)
 
 END FUNCTION vcmax_np
 

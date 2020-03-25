@@ -8408,7 +8408,8 @@ SUBROUTINE master_casa_dump_types(comm, casamet, casaflux, phen, climate, c13o2f
 
   ntyp = ncdumprw + icycle - 1
   ! 13C
-  if (cable_user%c13o2) ntyp = ntyp + 2 
+  if (cable_user%c13o2) ntyp = ntyp + 2
+  if (cable_user%call_blaze) ntyp = ntyp + 11
 
   ALLOCATE(blocks(ntyp))
   ALLOCATE(displs(ntyp))
@@ -8480,13 +8481,66 @@ SUBROUTINE master_casa_dump_types(comm, casamet, casaflux, phen, climate, c13o2f
           types(bidx), ierr)
      blocks(bidx) = 1
 
-     ! climate fields
+     ! climate fields (for acclimation of autotrophic resp)
 
      bidx = bidx + 1
      CALL MPI_Get_address(climate%qtemp_max_last_year(off), displs(bidx), ierr)
      blocks(bidx) = r1len
 
+     bidx = bidx + 1
+     CALL MPI_Get_address(climate%frec(off), displs(bidx), ierr)
+     blocks(bidx) = r1len
+
+     ! climate fields (for BLAZE)
+
+     if (cable_user%call_blaze) then
+        bidx = bidx + 1
+        CALL MPI_Get_address(climate%dprecip(off), displs(bidx), ierr)
+        blocks(bidx) = r1len
+
+        bidx = bidx + 1
+        CALL MPI_Get_address(climate%aprecip_av20(off), displs(bidx), ierr)
+        blocks(bidx) = r1len
+
+        bidx = bidx + 1
+        CALL MPI_Get_address(climate%du10_max(off), displs(bidx), ierr)
+        blocks(bidx) = r1len
+
+        bidx = bidx + 1
+        CALL MPI_Get_address(climate%drhum(off), displs(bidx), ierr)
+        blocks(bidx) = r1len
+
+        bidx = bidx + 1
+        CALL MPI_Get_address(climate%dtemp_max(off), displs(bidx), ierr)
+        blocks(bidx) = r1len
+
+        bidx = bidx + 1
+        CALL MPI_Get_address(climate%dtemp_min(off), displs(bidx), ierr)
+        blocks(bidx) = r1len
+
+        bidx = bidx + 1
+        CALL MPI_Get_address(climate%KBDI(off), displs(bidx), ierr)
+        blocks(bidx) = r1len
+
+        bidx = bidx + 1
+        CALL MPI_Get_address(climate%D_MacArthur(off), displs(bidx), ierr)
+        blocks(bidx) = r1len
+
+        bidx = bidx + 1
+        CALL MPI_Get_address(climate%FFDI(off), displs(bidx), ierr)
+        blocks(bidx) = r1len
+
+        bidx = bidx + 1
+        CALL MPI_Get_address(climate%DSLR(off), displs(bidx), ierr)
+        blocks(bidx) = i1len
+
+        bidx = bidx + 1
+        CALL MPI_Get_address(climate%last_precip(off), displs(bidx), ierr)
+        blocks(bidx) = r1len
+     endif
+
      ! N and P deposition
+
      if (icycle>1) then
         bidx = bidx + 1
         CALL MPI_Get_address(casaflux%Nmindep(off), displs(bidx), ierr)
@@ -8500,7 +8554,6 @@ SUBROUTINE master_casa_dump_types(comm, casamet, casaflux, phen, climate, c13o2f
      endif
 
      ! 13C
-     ! c13o2 fields
      
      if (cable_user%c13o2) then
         bidx = bidx + 1
@@ -10244,11 +10297,26 @@ SUBROUTINE master_spincasacnp(dels, kstart, kend, mloop, veg, soil, casabiome, c
         phen%doyphase(:,3) = phen%doyphasespin_3(:,idoy)
         phen%doyphase(:,4) = phen%doyphasespin_4(:,idoy)
         climate%qtemp_max_last_year(:) = real(casamet%mtempspin(:,idoy))
+        climate%frec(:)                = real(casamet%frecspin(:,idoy))
         ! casaflux%Nmindep and casaflux%Pdep set in read_casa_dump
         ! 13C
         if (cable_user%c13o2) then
            c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
            c13o2flux%cAn(:)   = casamet%cAn13spin(:,idoy)
+        endif
+        ! BLAZE
+        if (cable_user%call_blaze) then
+           climate%dprecip(:)      = real(casamet%dprecip_spin(:,idoy))
+           climate%aprecip_av20(:) = real(casamet%aprecip_av20_spin(:,idoy))
+           climate%du10_max(:)     = real(casamet%du10_max_spin(:,idoy))
+           climate%drhum(:)        = real(casamet%drhum_spin(:,idoy))
+           climate%dtemp_max(:)    = real(casamet%dtemp_max_spin(:,idoy))
+           climate%dtemp_min(:)    = real(casamet%dtemp_max_spin(:,idoy))
+           climate%KBDI(:)         = real(casamet%KBDI_spin(:,idoy))
+           climate%D_MacArthur(:)  = real(casamet%D_MacArthur_spin(:,idoy))
+           climate%FFDI(:)         = real(casamet%FFDI_spin(:,idoy))
+           climate%DSLR(:)         = casamet%DSLR_spin(:,idoy)
+           climate%last_precip(:)  = real(casamet%last_precip_spin(:,idoy))
         endif
 
         call master_send_input(icomm, casa_dump_ts, idoy)
@@ -10294,11 +10362,26 @@ SUBROUTINE master_spincasacnp(dels, kstart, kend, mloop, veg, soil, casabiome, c
            phen%doyphase(:,3) = phen%doyphasespin_3(:,idoy)
            phen%doyphase(:,4) = phen%doyphasespin_4(:,idoy)
            climate%qtemp_max_last_year(:) = real(casamet%mtempspin(:,idoy))
+           climate%frec(:)                = real(casamet%frecspin(:,idoy))
            ! casaflux%Nmindep and casaflux%Pdep set in read_casa_dump
            ! 13C
            if (cable_user%c13o2) then
               c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
               c13o2flux%cAn(:)   = casamet%cAn13spin(:,idoy)
+           endif
+           ! BLAZE
+           if (cable_user%call_blaze) then
+              climate%dprecip(:)      = real(casamet%dprecip_spin(:,idoy))
+              climate%aprecip_av20(:) = real(casamet%aprecip_av20_spin(:,idoy))
+              climate%du10_max(:)     = real(casamet%du10_max_spin(:,idoy))
+              climate%drhum(:)        = real(casamet%drhum_spin(:,idoy))
+              climate%dtemp_max(:)    = real(casamet%dtemp_max_spin(:,idoy))
+              climate%dtemp_min(:)    = real(casamet%dtemp_max_spin(:,idoy))
+              climate%KBDI(:)         = real(casamet%KBDI_spin(:,idoy))
+              climate%D_MacArthur(:)  = real(casamet%D_MacArthur_spin(:,idoy))
+              climate%FFDI(:)         = real(casamet%FFDI_spin(:,idoy))
+              climate%DSLR(:)         = casamet%DSLR_spin(:,idoy)
+              climate%last_precip(:)  = real(casamet%last_precip_spin(:,idoy))
            endif
 
            call master_send_input(icomm, casa_dump_ts, idoy)
@@ -10462,10 +10545,26 @@ SUBROUTINE master_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
         phen%doyphase(:,3) = phen%doyphasespin_3(:,idoy)
         phen%doyphase(:,4) = phen%doyphasespin_4(:,idoy)
         climate%qtemp_max_last_year(:) = real(casamet%mtempspin(:,idoy))
+        climate%frec(:)                = real(casamet%frecspin(:,idoy))
+        ! casaflux%Nmindep and casaflux%Pdep set in read_casa_dump
         ! 13C
         if (cable_user%c13o2) then
            c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
            c13o2flux%cAn(:)   = casamet%cAn13spin(:,idoy)
+        endif
+        ! BLAZE
+        if (cable_user%call_blaze) then
+           climate%dprecip(:)      = real(casamet%dprecip_spin(:,idoy))
+           climate%aprecip_av20(:) = real(casamet%aprecip_av20_spin(:,idoy))
+           climate%du10_max(:)     = real(casamet%du10_max_spin(:,idoy))
+           climate%drhum(:)        = real(casamet%drhum_spin(:,idoy))
+           climate%dtemp_max(:)    = real(casamet%dtemp_max_spin(:,idoy))
+           climate%dtemp_min(:)    = real(casamet%dtemp_max_spin(:,idoy))
+           climate%KBDI(:)         = real(casamet%KBDI_spin(:,idoy))
+           climate%D_MacArthur(:)  = real(casamet%D_MacArthur_spin(:,idoy))
+           climate%FFDI(:)         = real(casamet%FFDI_spin(:,idoy))
+           climate%DSLR(:)         = casamet%DSLR_spin(:,idoy)
+           climate%last_precip(:)  = real(casamet%last_precip_spin(:,idoy))
         endif
         ! print*, 'MASTER Send CO01'
         call master_send_input(icomm, casa_dump_ts, idoy)

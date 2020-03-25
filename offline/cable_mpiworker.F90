@@ -7874,6 +7874,7 @@ CONTAINS
     ntyp = ncdumprw + icycle - 1
     ! 13C
     if (cable_user%c13o2) ntyp = ntyp + 2
+    if (cable_user%call_blaze) ntyp = ntyp + 11
 
     ALLOCATE(blen(ntyp))
     ALLOCATE(displs(ntyp))
@@ -7932,51 +7933,52 @@ CONTAINS
 
     ! ------- climate (for BLAZE) ----
 
-    bidx = bidx + 1
-    CALL MPI_Get_address(climate%dprecip, displs(bidx), ierr)
-    blen(bidx) = r1len
-    
-    bidx = bidx + 1
-    CALL MPI_Get_address(climate%aprecip_av20, displs(bidx), ierr)
-    blen(bidx) = r1len
-    
-    bidx = bidx + 1
-    CALL MPI_Get_address(climate%du10_max, displs(bidx), ierr)
-    blen(bidx) = r1len
-    
-    bidx = bidx + 1
-    CALL MPI_Get_address(climate%drhum, displs(bidx), ierr)
-    blen(bidx) = r1len
-    
-    bidx = bidx + 1
-    CALL MPI_Get_address(climate%dtemp_max, displs(bidx), ierr)
-    blen(bidx) = r1len
-    
-    bidx = bidx + 1
-    CALL MPI_Get_address(climate%dtemp_min, displs(bidx), ierr)
-    blen(bidx) = r1len
-    
-    bidx = bidx + 1
-    CALL MPI_Get_address(climate%KBDI, displs(bidx), ierr)
-    blen(bidx) = r1len
-    
-    bidx = bidx + 1
-    CALL MPI_Get_address(climate%D_MacArthur, displs(bidx), ierr)
-    blen(bidx) = r1len
-    
-    bidx = bidx + 1
-    CALL MPI_Get_address(climate%FFDI, displs(bidx), ierr)
-    blen(bidx) = r1len
-    
-    bidx = bidx + 1
-    CALL MPI_Get_address(climate%DSLR, displs(bidx), ierr)
-    blen(bidx) = i1len
-    
-    bidx = bidx + 1
-    CALL MPI_Get_address(climate%last_precip, displs(bidx), ierr)
-    blen(bidx) = r1len
-    
+    if (cable_user%call_blaze) then
+       bidx = bidx + 1
+       CALL MPI_Get_address(climate%dprecip, displs(bidx), ierr)
+       blen(bidx) = r1len
 
+       bidx = bidx + 1
+       CALL MPI_Get_address(climate%aprecip_av20, displs(bidx), ierr)
+       blen(bidx) = r1len
+
+       bidx = bidx + 1
+       CALL MPI_Get_address(climate%du10_max, displs(bidx), ierr)
+       blen(bidx) = r1len
+
+       bidx = bidx + 1
+       CALL MPI_Get_address(climate%drhum, displs(bidx), ierr)
+       blen(bidx) = r1len
+
+       bidx = bidx + 1
+       CALL MPI_Get_address(climate%dtemp_max, displs(bidx), ierr)
+       blen(bidx) = r1len
+
+       bidx = bidx + 1
+       CALL MPI_Get_address(climate%dtemp_min, displs(bidx), ierr)
+       blen(bidx) = r1len
+
+       bidx = bidx + 1
+       CALL MPI_Get_address(climate%KBDI, displs(bidx), ierr)
+       blen(bidx) = r1len
+
+       bidx = bidx + 1
+       CALL MPI_Get_address(climate%D_MacArthur, displs(bidx), ierr)
+       blen(bidx) = r1len
+
+       bidx = bidx + 1
+       CALL MPI_Get_address(climate%FFDI, displs(bidx), ierr)
+       blen(bidx) = r1len
+
+       bidx = bidx + 1
+       CALL MPI_Get_address(climate%DSLR, displs(bidx), ierr)
+       blen(bidx) = i1len
+
+       bidx = bidx + 1
+       CALL MPI_Get_address(climate%last_precip, displs(bidx), ierr)
+       blen(bidx) = r1len
+    endif
+    
     ! ------- casaflux - N and P deposition ---
 
     if (icycle>1) then

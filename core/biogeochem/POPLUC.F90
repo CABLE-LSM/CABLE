@@ -1399,15 +1399,15 @@ CONTAINS
        POPLUC%AgProdLoss(g)      = kAgProd * POPLUC%AgProd(g)
 
        if (POPLUC%grass(g).gt.0.0_dp .and. l.eq.j+2) then
-       POPLUC%FAg(g)        = casaflux%Charvest(l)*patch(l)%frac
-       POPLUC%AgProd(g)     = POPLUC%AgProd(g) + casaflux%Charvest(l)*patch(l)%frac - POPLUC%AgProdLoss(g)
-       casaflux%charvest(l) = 0.0_dp
-       casaflux%nharvest(l) = 0.0_dp
-       casaflux%fharvest(l) = min(POPLUC%past(g)/POPLUC%grass(g),1.0_dp)*0.5_dp + &
-            min(POPLUC%crop(g)/POPLUC%grass(g),1.0_dp)*0.9_dp !  fraction grass AGB to be removed next year
-!write(*,*)'harvest', g,   patch(l)%frac,  casaflux%fharvest(l), POPLUC%crop(g),  POPLUC%past(g)
-       !casaflux%fharvest(l) = 0; ! test vh!
-        casaflux%fcrop(l) = min(POPLUC%crop(g)/POPLUC%grass(g), 1.0_dp)
+          POPLUC%FAg(g)        = casaflux%Charvest(l)*patch(l)%frac
+          POPLUC%AgProd(g)     = POPLUC%AgProd(g) + casaflux%Charvest(l)*patch(l)%frac - POPLUC%AgProdLoss(g)
+          casaflux%charvest(l) = 0.0_dp
+          casaflux%nharvest(l) = 0.0_dp
+          casaflux%fharvest(l) = min(POPLUC%past(g)/POPLUC%grass(g),1.0_dp)*0.5_dp + &
+               min(POPLUC%crop(g)/POPLUC%grass(g),1.0_dp)*0.9_dp !  fraction grass AGB to be removed next year
+          !write(*,*)'harvest', g,   patch(l)%frac,  casaflux%fharvest(l), POPLUC%crop(g),  POPLUC%past(g)
+          !casaflux%fharvest(l) = 0; ! test vh!
+          casaflux%fcrop(l) = min(POPLUC%crop(g)/POPLUC%grass(g), 1.0_dp)
        endif
        DO j=1, 3
           POPLUC%HarvProd(g,j) = POPLUC%HarvProd(g,j) + &

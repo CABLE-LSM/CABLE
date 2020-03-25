@@ -24,6 +24,7 @@
 # History
 # -------
 # Written  Matthias Cuntz, Mar 2020
+# Modified Matthias Cuntz, Mar 2020 - Changed check with ncdump to be correct on more than two land points
 #
 set -e
 
@@ -155,11 +156,13 @@ if [[ true ]] ; then
 	i=pop_cru_ini${suff}.nc
 	ncdiff ${i} ${adir2}/restart/${i} tmp.${pid}.nc
 	set +e
-	iout=$(ncdump tmp.${pid}.nc | sed '/ latitude/,/;$/d' | sed '/ longitude/,/;$/d' | grep -v '0, 0' | sed -e '/[=:;{}]/d' -e '/^$/d')
+	# iout=$(ncdump tmp.${pid}.nc | sed '/ latitude/,/;$/d' | sed '/ longitude/,/;$/d' | grep -v '0, 0' | sed -e '/[:;{}]/d' -e '/^$/d' | sed -e '/=[[:blank:]]$/d')
+	iout=$(ncdump tmp.${pid}.nc | sed -e '/^netcdf/,/^variables:/d' -e '/ latitude/,/;$/d' -e '/ longitude/,/;$/d' -e '/[:{}]/d' -e '/^$/d' -e '/) ;$/d' -e 's/ ;/,/' -e 's/ 0,//g' | sed -e '/^[[:blank:]]*$/d' -e '/=[[:blank:]]*$/d' -e '/[tT]ime =/d')
 	set -e
 	if [[ -n ${iout} ]] ; then
 	    echo " Check ${i} in ${PWD}"
-	    echo "     ncdiff -O ${i} ${adir2}/restart/${i} tmp.nc ; ncdump tmp.nc | sed '/ latitude/,/;$/d' | sed '/ longitude/,/;$/d' | grep -v '0, 0' | sed -e '/[:;{}]/d' -e '/^$/d'"
+	    # echo "     ncdiff -O ${i} ${adir2}/restart/${i} tmp.nc ; ncdump tmp.nc | sed '/ latitude/,/;$/d' | sed '/ longitude/,/;$/d' | grep -v '0, 0' | sed -e '/[:;{}]/d' -e '/^$/d'"
+	    echo "     ncdiff -O ${i} ${adir2}/restart/${i} tmp.nc ; ncdump tmp.nc | sed -e '/^netcdf/,/^variables:/d' -e '/ latitude/,/;$/d' -e '/ longitude/,/;$/d' -e '/[:{}]/d' -e '/^$/d' -e '/) ;$/d' -e 's/ ;/,/' -e 's/ 0,//g' | sed -e '/^[[:blank:]]*$/d' -e '/=[[:blank:]]*$/d' -e '/[tT]ime =/d'"
 	fi
 	rm tmp.${pid}.nc
     done
