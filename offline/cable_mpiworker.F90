@@ -101,6 +101,7 @@ MODULE cable_mpiworker
   INTEGER :: pop_t
 
   ! worker's struct for rec'ing/sending blaze restart to/from the master
+  INTEGER :: blaze_in_t
   INTEGER :: blaze_out_t
   INTEGER :: blaze_restart_t
 
@@ -433,13 +434,6 @@ CONTAINS
 
     ktau_tot = 0
     SPINLOOP:DO
-       if (trim(cable_user%MetType) .eq. "bios") then
-         call MPI_Bcast(mland, 1, MPI_INTEGER, 0, comm, ierr)
-         allocate(latitude(mland))
-         allocate(longitude(mland))
-         call MPI_Bcast(latitude, mland, MPI_REAL, 0, comm, ierr)
-         call MPI_Bcast(longitude, mland, MPI_REAL, 0, comm, ierr)
-       end if
        YEARLOOP: DO YYYY=CABLE_USER%YearStart, CABLE_USER%YearEnd
           CurYear = YYYY
           IF ( leaps .AND. IS_LEAPYEAR( YYYY ) ) THEN
@@ -530,13 +524,16 @@ CONTAINS
 
                    !par blaze restart not required uses climate data
                    ! print*, 'WORKER Receive 15 blaze'
-                   call worker_blaze_types(comm, mland, blaze, blaze_restart_t, blaze_out_t)
+                   allocate(latitude(mland))
+                   allocate(longitude(mland))
+                   call worker_blaze_types(comm, mland, blaze, blaze_restart_t, blaze_in_t, blaze_out_t)
                    !if ( .not. spinup ) then
                    !   ! print*, 'WORKER Receive 16 blaze restart'
                    !   call MPI_recv(MPI_BOTTOM, 1, blaze_restart_t, 0, ktau_gl, comm, stat, ierr)
                    !endif
                    ! cln:  burnt_area
                    if ( blaze%burnt_area_src == "SIMFIRE" ) then
+                      call MPI_recv(MPI_BOTTOM, 1, blaze_in_t, 0, ktau_gl, comm, stat, ierr)
                       call INI_SIMFIRE(mland ,SIMFIRE, &
 
                          climate%modis_igbp(landpt(:)%cstart) ) !CLN here we need to check for the SIMFIRE biome setting
@@ -1617,7 +1614,7 @@ CONTAINS
     INTEGER :: bidx ! block index
     INTEGER :: ntyp ! total number of blocks
 
-    INTEGER :: rank, ierr2, rcount, pos
+    INTEGER :: rank, ierr2, rcount, pos, offset
 
     CHARACTER, DIMENSION(:), ALLOCATABLE :: rbuf
 
@@ -1634,6 +1631,11 @@ CONTAINS
 
     ! and receive own slice from the master
     CALL MPI_Recv (landpt, mland, landp_t, 0, 0, comm, stat, ierr)
+
+    !adjust cstart & cend for worker slice
+    offset=landpt(1)%cstart
+    landpt(:)%cstart=landpt(:)%cstart-offset+1
+    landpt(:)%cend=landpt(:)%cend-offset+1
 
     CALL allocate_cable_vars(air,bgc,canopy,met,bal,rad,rough,soil,ssnow, &
          sum_flux,veg,mp)

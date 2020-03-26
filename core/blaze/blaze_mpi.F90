@@ -3,11 +3,15 @@ MODULE BLAZE_MPI
   USE MPI
   USE cable_mpicommon
   USE cable_def_types_mod, ONLY: ncp
+  USE cable_io_vars_module, ONLY: latitude, longitude
   USE BLAZE_MOD
   USE SIMFIRE_MOD
 
   ! Total number of restart parameters for BLAZE
   INTEGER, PARAMETER :: n_blaze_restart = 7
+
+  ! Total number of input parameters for BLAZE
+  INTEGER, PARAMETER :: n_blaze_in = 2
 
   ! Total number of output parameters for BLAZE
   ! for BLAZE%OUTMODE == "std"
@@ -29,7 +33,7 @@ MODULE BLAZE_MPI
   
 CONTAINS
 
-SUBROUTINE master_blaze_types (comm, wland, wnp, mp, BLAZE, blaze_restart_ts, blaze_out_ts)
+SUBROUTINE master_blaze_types (comm, wland, wnp, mp, BLAZE, blaze_restart_ts, blaze_in_ts, blaze_out_ts)
   
   ! Send blaze restart data to workers  
   
@@ -40,7 +44,7 @@ SUBROUTINE master_blaze_types (comm, wland, wnp, mp, BLAZE, blaze_restart_ts, bl
   INTEGER              , INTENT(IN)  :: wnp  ! Number workers
   TYPE(TYPE_BLAZE)     , INTENT(IN)  :: BLAZE
   TYPE(lpdecomp_t), DIMENSION(:) , INTENT(IN)  :: wland
-  INTEGER, DIMENSION(:), INTENT(OUT) :: blaze_restart_ts,blaze_out_ts 
+  INTEGER, DIMENSION(:), INTENT(OUT) :: blaze_restart_ts,blaze_out_ts,blaze_in_ts
 
   ! MPI: temp arrays for marshalling all types into a struct
   INTEGER, ALLOCATABLE, DIMENSION(:) :: blocks
@@ -59,6 +63,94 @@ SUBROUTINE master_blaze_types (comm, wland, wnp, mp, BLAZE, blaze_restart_ts, bl
 
   INTEGER :: rank, off, cnt
   INTEGER :: bidx, ierr
+
+  ! Input value handles (blaze_in_ts()) 
+  
+  ntyp = n_blaze_in
+
+  ALLOCATE (blocks(ntyp))
+  ALLOCATE (displs(ntyp))
+  ALLOCATE (types(ntyp))
+
+  istride  = mp * extid ! short integer 
+  r1stride = mp * extr1 ! single precision
+  r2stride = mp * extr2 ! double precision
+
+  totalrecv = 0
+
+  DO rank = 1, wnp
+     off = wland(rank)%landp0
+     cnt = wland(rank)%nland
+
+     i1len = cnt * extid  
+     r1len = cnt * extr1
+     r2len = cnt * extr2
+
+     bidx = 0
+     last2d = bidx
+
+     ! ------------- 1D vectors -------------
+
+     ! Latitude
+     bidx = bidx + 1
+     CALL MPI_Get_address (latitude(off), displs(bidx), ierr)
+     blocks(bidx) = i1len
+
+     ! Longitude
+     bidx = bidx + 1
+     CALL MPI_Get_address (longitude(off), displs(bidx), ierr)
+     blocks(bidx) = i1len
+
+     ! ------------- Wrap up -------------
+
+     types(last2d+1:bidx) = MPI_BYTE
+
+     ! MPI: sanity check
+     IF (bidx /= ntyp) THEN
+        WRITE (*,*) 'invalid blaze ntyp constant, fix it!'
+        CALL MPI_Abort (comm, 1, ierr)
+     END IF
+
+     CALL MPI_Type_create_struct (bidx, blocks, displs, types, blaze_in_ts(rank), ierr)
+write(*,*)" CLN ierr1 " , ierr
+     CALL MPI_Type_commit (blaze_in_ts(rank), ierr)
+write(*,*)" CLN ierr2 " , ierr
+
+     CALL MPI_Type_size (blaze_in_ts(rank), tsize, ierr)
+write(*,*)" CLN ierr3 " , ierr
+     CALL MPI_Type_get_extent (blaze_in_ts(rank), tmplb, text, ierr)
+write(*,*)" CLN ierr4 " , ierr
+
+     WRITE (*,*) 'input results recv from worker, size, extent, lb: ', &
+   &       rank,tsize,text,tmplb
+
+     totalrecv = totalrecv + tsize
+
+     ! free the partial types used for matrices
+     DO i = 1, last2d
+        CALL MPI_Type_free (types(i), ierr)
+     END DO
+
+  END DO
+
+  WRITE (*,*) 'CLN rw1 blaze total size of input fields received from all workers: ', totalrecv
+
+  ! MPI: check whether total size of received data equals total
+  ! data sent by all the workers
+  totalsend = 0
+  CALL MPI_Reduce (MPI_IN_PLACE, totalsend, 1, MPI_INTEGER, MPI_SUM, &
+    &     0, comm, ierr)
+
+  WRITE (*,*) 'CLN rw1 blaze total size of input fields sent by all workers: ', totalsend
+
+  IF (totalrecv /= totalsend) THEN
+          WRITE (*,*) 'error: blaze input fields totalsend and totalrecv differ', totalsend,totalrecv
+          CALL MPI_Abort (comm, 0, ierr)
+  END IF
+
+  DEALLOCATE(types)
+  DEALLOCATE(displs)
+  DEALLOCATE(blocks)
 
   ! Restart value handles (blaze_restart_ts()) 
   
@@ -432,12 +524,12 @@ write(*,*)" CLN ierr4 " , ierr
 
 END SUBROUTINE master_blaze_types
 
-SUBROUTINE worker_blaze_types(comm, mp, BLAZE, blaze_restart_t, blaze_out_t)
+SUBROUTINE worker_blaze_types(comm, mp, BLAZE, blaze_restart_t, blaze_in_t, blaze_out_t)
 
   INTEGER         , INTENT(IN)  :: comm ! MPI communicator to talk to the master
   INTEGER         , INTENT(IN)  :: mp   ! Number of gridcells
   TYPE(TYPE_BLAZE), INTENT(IN)  :: BLAZE
-  INTEGER         , INTENT(OUT) :: blaze_restart_t,blaze_out_t 
+  INTEGER         , INTENT(OUT) :: blaze_restart_t,blaze_out_t,blaze_in_t
   
   ! MPI: temp arrays for marshalling all types into a struct
   INTEGER, ALLOCATABLE, DIMENSION(:)                        :: blocks
@@ -456,6 +548,62 @@ SUBROUTINE worker_blaze_types(comm, mp, BLAZE, blaze_restart_t, blaze_out_t)
 
    
   CALL MPI_Comm_rank (comm, rank, ierr)
+
+  !=============================================================================
+  ! IN comm (blaze_in_t) 
+  !=============================================================================
+  
+  ntyp = n_blaze_in
+  
+  ALLOCATE (blocks(ntyp))
+  ALLOCATE (displs(ntyp))
+  ALLOCATE (types(ntyp))
+  
+  r1len = mp * extr1
+  r2len = mp * extr2
+  i1len = mp * extid
+!  llen  = mp * extl
+
+  off  = 1
+  bidx = 0
+
+  ! ------------- 1D vectors -------------
+
+  ! Latitude
+  bidx = bidx + 1
+  CALL MPI_Get_address (latitude(off), displs(bidx), ierr)
+  blocks(bidx) = i1len
+  
+  ! Longitude
+  bidx = bidx + 1
+  CALL MPI_Get_address (longitude(off), displs(bidx), ierr)
+  blocks(bidx) = i1len
+  
+  ! ------------- Wrap up -------------
+
+  types = MPI_BYTE
+ 
+  ! MPI: sanity check
+  IF (bidx /= ntyp) THEN
+     WRITE (*,*) 'invalid nin constant for blaze, fix it!'
+     CALL MPI_Abort (comm, 1, ierr)
+  END IF
+
+  CALL MPI_Type_create_struct (bidx, blocks, displs, types, blaze_in_t, ierr)
+  CALL MPI_Type_commit (blaze_in_t, ierr)
+  
+  CALL MPI_Type_size (blaze_in_t, tsize, ierr)
+  CALL MPI_Type_get_extent (blaze_in_t, tmplb, text, ierr)
+  
+  WRITE (*,*) 'in_blaze struct blocks, size, extent and lb: ',rank,bidx,tsize,text,tmplb
+  
+  ! MPI: check whether total size of received data equals total
+  ! data sent by all the workers
+  CALL MPI_Reduce (tsize, MPI_DATATYPE_NULL, 1, MPI_INTEGER, MPI_SUM, 0, comm, ierr)
+  
+  DEALLOCATE(types)
+  DEALLOCATE(displs)
+  DEALLOCATE(blocks)
 
   !=============================================================================
   ! RESTART comm (blaze_restart_t) 
@@ -642,7 +790,7 @@ SUBROUTINE worker_blaze_types(comm, mp, BLAZE, blaze_restart_t, blaze_out_t)
      CALL MPI_Get_address (BLAZE%DEADWOOD(off), displs(bidx), ierr)
      blocks(bidx) = r1len
      
-     ! avail fueld prior
+     ! avail fuel prior
      bidx = bidx + 1
      CALL MPI_Get_address (BLAZE%w_prior(off), displs(bidx), ierr)
      blocks(bidx) = r1len

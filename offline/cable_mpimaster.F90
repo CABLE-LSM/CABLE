@@ -131,6 +131,7 @@ MODULE cable_mpimaster
   INTEGER, ALLOCATABLE, DIMENSION(:) :: climate_ts
 
   ! MPI derived datatype handles for Sending/receiving vals results for BLAZE
+  INTEGER, ALLOCATABLE, DIMENSION(:) :: blaze_in_ts
   INTEGER, ALLOCATABLE, DIMENSION(:) :: blaze_out_ts
   INTEGER, ALLOCATABLE, DIMENSION(:) :: blaze_restart_ts
 
@@ -558,9 +559,6 @@ CONTAINS
        if (trim(cable_user%MetType) .eq. "bios") then
           call cpu_time(etime)
           call cable_bios_init(dels, curyear, met, kend, ktauday)
-          call MPI_Bcast(mland, 1, MPI_INTEGER, 0, comm, ierr)
-          call MPI_Bcast(latitude, mland, MPI_REAL, 0, comm, ierr)
-          call MPI_Bcast(longitude, mland, MPI_REAL, 0, comm, ierr)
           koffset = 0
           leaps   = .true.
           write(str1,'(i4)') curyear
@@ -775,7 +773,8 @@ CONTAINS
                    ! print*, 'MASTER Send 15 blaze'
                    allocate(blaze_restart_ts(wnp))
                    allocate(blaze_out_ts(wnp))
-                   call master_blaze_types(comm, wland, wnp, mland, blaze, blaze_restart_ts, blaze_out_ts)
+                   allocate(blaze_in_ts(wnp))
+                   call master_blaze_types(comm, wland, wnp, mland, blaze, blaze_restart_ts, blaze_in_ts, blaze_out_ts)
                    !if (.not. spinup) then
                    !   ! print*, 'MASTER Send 16 blaze restart'
                    !   call master_send_input(comm, blaze_restart_ts, ktau)
@@ -783,6 +782,7 @@ CONTAINS
                    !deallocate(blaze_restart_ts)
                    !deallocate(blaze_out_ts)
                    if (trim(blaze%burnt_area_src) == "SIMFIRE" ) then
+                      call master_send_input(comm, blaze_in_ts, ktau)
                       call INI_SIMFIRE(mland ,SIMFIRE, &
                          climate%modis_igbp(landpt(:)%cstart) ) !CLN here we need to check for the SIMFIRE biome setting
 
