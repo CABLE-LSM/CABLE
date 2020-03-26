@@ -585,7 +585,7 @@ SUBROUTINE COMBUST (BLAZE, np, CPLANT_g, CPLANT_w, TO, BURN )
 
   w = AVAIL_FUEL(FLIx, CPLANT_w, CPLANT_g, BLAZE%AGLit_w(np,:), BLAZE%AGLit_g(np,:) )
 
-  BLAZE%w_prior = w
+  BLAZE%w_prior(np) = w
 
   !write(59,*) w, CPLANT_w, CPLANT_g, BLAZE%AGLit_w, BLAZE%AGLit_g
 
