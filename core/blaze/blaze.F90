@@ -204,7 +204,7 @@ subroutine zero_blaze(blaze)
   blaze%TMIN         = 0
   blaze%AREA         = 0
   blaze%w_prior      = 0
-  blaze%FDI          = 0
+  !blaze%FDI          = 0
   blaze%FFDI         = 0
   blaze%FLI          = 0
   blaze%ROS          = 0
@@ -222,10 +222,10 @@ subroutine zero_blaze(blaze)
   blaze%POP_STR      = 0
   blaze%shootfrac    = 0
   Blaze%AnnRAINF     = 0
-  blaze%ABM          = 0
+  !blaze%ABM          = 0
   blaze%TO           = 0
-  blaze%AGC_g        = 0
-  blaze%AGC_w        = 0
+  !blaze%AGC_g        = 0
+  !blaze%AGC_w        = 0
   blaze%AGLit_w      = 0
   blaze%AGLit_g      = 0
   blaze%BGLit_w      = 0

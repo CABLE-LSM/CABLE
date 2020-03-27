@@ -202,7 +202,7 @@ SUBROUTINE zero_simfire(SF)
   SF%FAPAR        = 0
   SF%LAT          = 0
   SF%LON          = 0
-  SF%FLI          = 0
+  !SF%FLI          = 0
   SF%SAV_NESTEROV = 0
   SF%SAV_FAPAR = 0
   SF%POPDENS      = 0
