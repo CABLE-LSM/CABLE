@@ -738,7 +738,7 @@ CONTAINS
     canopy%cansto = canopy%cansto + canopy%dewmm
 
     ! Modify canopy water storage for evaporation:
-    canopy%cansto = MAX(canopy%cansto-MAX(0.0,REAL(canopy%fevw))*dels &
+    canopy%cansto = MAX(canopy%cansto-MAX(0.0,canopy%fevw)*dels &
          *1.0e3/(C%RHOW*air%rlam), 0.0)
 
     ! Calculate canopy water storage excess:
@@ -1563,10 +1563,10 @@ CONTAINS
          vx3,        & ! carboxylation C3 plants
          vx4,        & ! carboxylation C4 plants
          co2cp,      & ! CO2 compensation point (needed for Leuing stomatal conductance)
-                                ! Ticket #56, xleuning is no longer used, we replace it with gs_coeff,
-                                ! which is computed differently based on the new GS_SWITCH. If GS_SWITCH
-                                ! is "leuning", it's the same, if "medlyn", then the new Medlyn model
-                                ! xleuning,   & ! leuning stomatal coeff
+                       ! Ticket #56, xleuning is no longer used, we replace it with gs_coeff,
+                       ! which is computed differently based on the new GS_SWITCH. If GS_SWITCH
+                       ! is "leuning", it's the same, if "medlyn", then the new Medlyn model
+                       ! xleuning,   & ! leuning stomatal coeff
          gs_coeff,   & ! stom coeff, Ticket #56
          psycst,     & ! modified pych. constant
          frac42,     & ! 2D frac4
@@ -1646,6 +1646,8 @@ CONTAINS
     eta_x       = 0.0_r_2
     rnx         = SUM(real(rad%rniso,r_2),2)
     abs_deltlf  = 999.0
+    vcmxt3      = 0.0
+    vcmxt4      = 0.0
 
     gras  = 1.0e-6
     an_y  = 0.0

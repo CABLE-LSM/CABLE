@@ -43,13 +43,13 @@
 # cuntz@explor, cuntz@mcinra, moc801@gadi cuntz@gadi
 # kna016@pearcey knauer@pearcey, jk8585@gadi knauer@gadi
 # not yet vxh599@gadi nor hav014@pearcey
-system=cuntz@explor
+system=cuntz@gadi
 
 # MPI run or single processor run
 # nproc should fit with job tasks
-dompi=1   # 0: normal run: ./cable
+dompi=0   # 0: normal run: ./cable
 # 1: MPI run: mpiexec -n ${nproc} ./cable_mpi
-nproc=4   # Number of cores for MPI runs
+nproc=5   # Number of cores for MPI runs
 # must be same as above: SBATCH -n nproc or PBS -l ncpus=nproc
 ignore_mpi_err=0 # 0/1: 1: continue even if mpi run failed
 
@@ -310,7 +310,7 @@ else
     exit 1
 fi
 # Run directory
-runpath="${sitepath}/run_20200217"
+runpath="${sitepath}/run_20200202"
 
 # Cable parameters
 namelistpath="../namelists"

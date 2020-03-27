@@ -290,14 +290,20 @@ host_gadi()
    export NCDIR=${NETCDF_ROOT}'/lib/Intel'
    export NCMOD=${NETCDF_ROOT}'/include/Intel'
    if [[ ${1} == 'debug' ]]; then
-       # export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -ip -xHost -diag-disable=10382"
-       export CFLAGS='-O0 -fpp -traceback -g -fp-model precise -ftz -fpe0'
+       # export CFLAGS='-O0 -fpp -traceback -g -fp-model precise -ftz -fpe0'
+       export CFLAGS="-fpp -O0 -debug extended -traceback -g -check all,noarg_temp_created -warn all -fp-stack-check -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0" # -fpe-all=0 -no-ftz -ftrapuv"
+       export LDFLAGS='-O0'
    else
-       # export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -ip -xHost -diag-disable=10382"
-       export CFLAGS='-O2 -fpp -fp-model precise'
+       # export CFLAGS='-O2 -fpp -fp-model precise'
+       export CFLAGS="-fpp -O3 -nofixed -assume byterecl -fp-model precise -ip -diag-disable=10382"
+       export LDFLAGS='-O3'
+       # export CFLAGS="${CFLAGS} -xCORE-AVX2 -axSKYLAKE-AVX512,CASCADELAKE" # given in user training: does not work
+       export CFLAGS="${CFLAGS} -xCASCADELAKE" # or -xCORE-AVX512 # queues: express / normal
+       # export CFLAGS="${CFLAGS} -xBROADWELL"  # or -xCORE-AVX512; queues: expressbw / normalbw
+       # export CFLAGS="${CFLAGS} -xSKYLAKE"    # or -xSKYLAKE-AVX512 depends on performance; queues: normalsl
    fi
    export CFLAGS="${CFLAGS} -D__CRU2017__"
-   export LDFLAGS='-L'${NCDIR}' -O2'
+   export LDFLAGS='-L'${NCDIR}' '${LDFLAGS}
    export LD='-lnetcdf -lnetcdff'
    export MFLAGS='-j 8'
    build_build
