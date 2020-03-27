@@ -82,7 +82,6 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
   SF%NCELLS = NCELLS
 
   ALLOCATE( SF%IGBP        (NCELLS) )
-  SF%IGBP = modis_igbp
   ALLOCATE( SF%BIOME       (NCELLS) )
   ALLOCATE( SF%REGION      (NCELLS) )
   ALLOCATE( SF%POPD        (NCELLS) )
@@ -91,9 +90,7 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
   ALLOCATE( SF%NDAY        (NCELLS) )
   ALLOCATE( SF%FAPAR       (NCELLS) )
   ALLOCATE( SF%LAT         (NCELLS) )
-  SF%LAT  = LATITUDE
   ALLOCATE( SF%LON         (NCELLS) )
-  SF%LON  = LONGITUDE
   ALLOCATE( SF%SAV_NESTEROV(NCELLS,12) )
   ALLOCATE( SF%SAV_FAPAR(NCELLS,FAPAR_AVG_INT) )
   ALLOCATE( SF%POPDENS     (NCELLS) )
@@ -101,6 +98,10 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
 
   !MCINI
   call zero_simfire(SF)
+
+  SF%IGBP = modis_igbp
+  SF%LAT  = LATITUDE
+  SF%LON  = LONGITUDE
 
   !=============================================================================
   ! VEGTYPE from IGBP dataset 
