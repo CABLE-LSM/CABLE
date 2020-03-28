@@ -85,6 +85,10 @@ PROGRAM cable_offline_driver
        !mpidiff
        casa_met, casa_balance, zero_sum_casa, update_sum_casa
   USE phenvariable,         ONLY: phen_variable
+  use casa_cable,           only: bgcdriver, POPdriver, read_casa_dump, write_casa_dump, casa_feedback, sumcflux
+  use cable_spincasacnp,    only: spincasacnp
+  use cable_casaonly_luc,   only: casaonly_luc
+  use casa_inout,           only: casa_cnpflux, casa_fluxout, write_casa_restart_nc, write_casa_output_nc
 
   !! vh_js !!
   ! modules related to POP
@@ -93,6 +97,7 @@ PROGRAM cable_offline_driver
   USE POPLUC_Module, ONLY: WRITE_LUC_OUTPUT_NC, &
        POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, POPLUC_set_patchfrac
   USE POP_Constants, ONLY: shootfrac
+  use cable_pop_io,  only: pop_io
 
   ! Fire Model BLAZE
   USE BLAZE_MOD,     ONLY: TYPE_BLAZE, INI_BLAZE, BLAZE_ACCOUNTING,  WRITE_BLAZE_OUTPUT_NC
@@ -2033,21 +2038,21 @@ END SUBROUTINE renameFiles
 ! and tranferring LUC-based age weights for secondary forest to POP structure
 SUBROUTINE LUCdriver( casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg, c13o2pools )
 
-  USE cable_def_types_mod, ONLY: r_2, veg_parameter_type, mland
+  USE cable_def_types_mod,  ONLY: r_2, veg_parameter_type, mland
   USE cable_carbon_module
-  USE cable_common_module, ONLY: CABLE_USER, CurYear
+  USE cable_common_module,  ONLY: CABLE_USER, CurYear
   USE cable_IO_vars_module, ONLY: landpt
   USE casadimension
   USE casaparm
   USE casavariable
-  USE POP_Types,  Only: POP_TYPE
+  USE POP_Types,            Only: POP_TYPE
   USE POPMODULE,            ONLY: POP_init_single
-  USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE, read_LUH2, &
+  USE CABLE_LUC_EXPT,       ONLY: LUC_EXPT_TYPE, read_LUH2, &
        ptos, ptog, stog, gtos, pharv, smharv, syharv
   USE POPLUC_Types
-  USE POPLUC_Module, ONLY: POPLUCStep, POPLUC_weights_Transfer
+  USE POPLUC_Module,        ONLY: POPLUCStep, POPLUC_weights_Transfer
   ! 13C
-  use cable_c13o2_def, only: c13o2_pool
+  use cable_c13o2_def,      only: c13o2_pool
 
   IMPLICIT NONE
 

@@ -191,10 +191,13 @@ CONTAINS
     USE casavariable,         ONLY: casafile, casa_biome, casa_pool, casa_flux,  &
          casa_met, casa_balance ! , zero_sum_casa, update_sum_casa
     USE phenvariable,         ONLY: phen_variable
-
+    use casa_cable,           only: write_casa_dump
+    use casa_inout,           only: casa_fluxout, write_casa_restart_nc, write_casa_output_nc
+    
     !CLN added
     ! modules related to POP
     USE POP_Types,            ONLY: POP_TYPE
+    use cable_pop_io,         only: pop_io
     USE POPLUC_Types,         ONLY: POPLUC_Type
     USE POPLUC_Module,        ONLY: WRITE_LUC_OUTPUT_NC, WRITE_LUC_OUTPUT_GRID_NC, &
          POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, POPLUC_set_patchfrac, &
@@ -10222,7 +10225,10 @@ SUBROUTINE master_spincasacnp(dels, kstart, kend, mloop, veg, soil, casabiome, c
   use casaparm
   use casavariable
   use phenvariable
+  use casa_cable,          only: read_casa_dump
+  use casa_inout,          only: casa_poolout, write_casa_restart_nc
   use POP_types,           only: POP_type
+  use cable_pop_io,        only: pop_io
   ! 13C
   use cable_c13o2_def,     only: c13o2_flux, c13o2_pool, c13o2_luc
   use cable_c13o2,         only: c13o2_write_restart_pools
@@ -10429,8 +10435,11 @@ SUBROUTINE master_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
   USE casaparm
   USE casavariable
   USE phenvariable
+  use casa_inout,           only: write_casa_restart_nc
+  use casa_cable,           only: read_casa_dump
   USE POP_Types,            only: POP_TYPE
   USE POPMODULE,            ONLY: POP_init_single
+  use cable_pop_io,         only: pop_io
   USE TypeDef,              ONLY: dp
   USE CABLE_LUC_EXPT,       ONLY: LUC_EXPT_TYPE, read_LUH2, &
        ptos, ptog, stog, gtos, pharv, smharv, syharv, &

@@ -21,908 +21,914 @@
 !          ssoil changed to ssnow
 !
 ! ==============================================================================
+module casa_cable
+
+  implicit none
+
+contains
 
 !#define UM_BUILD YES
-SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
-                     climate,casabiome,casapool,casaflux,casamet,casabal,phen, &
-                     pop, spinConv, spinup, ktauday, idoy,loy, dump_read,   &
-                     dump_write, LALLOC, c13o2flux, c13o2pools)
+  SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
+       climate,casabiome,casapool,casaflux,casamet,casabal,phen, &
+       pop, spinConv, spinup, ktauday, idoy,loy, dump_read,   &
+       dump_write, LALLOC, c13o2flux, c13o2pools)
 
-   USE cable_def_types_mod
-   USE casadimension
-   USE casaparm
-   USE casavariable
-   USE phenvariable
-   USE cable_common_module,  ONLY: CABLE_USER
-   USE TypeDef,              ONLY: dp
-   USE POP_TYPES,            ONLY: POP_TYPE
-   USE cable_phenology_module, ONLY: cable_phenology_clim
-   ! 13C
-   use cable_c13o2_def, only: c13o2_pool, c13o2_flux
-   use cable_c13o2,     only: c13o2_save_casapool, c13o2_update_pools
+    USE cable_def_types_mod
+    USE casadimension
+    USE casaparm
+    USE casavariable
+    USE phenvariable
+    USE cable_common_module,    ONLY: CABLE_USER
+    USE TypeDef,                ONLY: dp
+    USE POP_TYPES,              ONLY: POP_TYPE
+    USE cable_phenology_module, ONLY: cable_phenology_clim
+    use casa_inout,             only: biogeochem
+    ! 13C
+    use cable_c13o2_def,        only: c13o2_pool, c13o2_flux
+    use cable_c13o2,            only: c13o2_save_casapool, c13o2_update_pools
 
-   IMPLICIT NONE
+    IMPLICIT NONE
 
-   INTEGER,      INTENT(IN) :: ktau ! integration step number
-   INTEGER,      INTENT(IN) :: kstart ! starting value of ktau
-   INTEGER,      INTENT(IN) :: kend ! total # timesteps in run
+    INTEGER,      INTENT(IN) :: ktau ! integration step number
+    INTEGER,      INTENT(IN) :: kstart ! starting value of ktau
+    INTEGER,      INTENT(IN) :: kend ! total # timesteps in run
 
-   INTEGER,      INTENT(IN)                  :: idoy ,LOY ! day of year (1-365) , Length oy
-   INTEGER,      INTENT(IN)                  :: ktauday
-   logical,      INTENT(IN) :: spinConv, spinup
-   logical,      INTENT(IN) :: dump_read, dump_write
-   INTEGER,      INTENT(IN)                  :: LALLOC
+    INTEGER,      INTENT(IN)                  :: idoy ,LOY ! day of year (1-365) , Length oy
+    INTEGER,      INTENT(IN)                  :: ktauday
+    logical,      INTENT(IN) :: spinConv, spinup
+    logical,      INTENT(IN) :: dump_read, dump_write
+    INTEGER,      INTENT(IN)                  :: LALLOC
 
-   REAL,         INTENT(IN) :: dels ! time setp size (s)
-   TYPE (met_type), INTENT(INOUT)       :: met  ! met input variables
-   TYPE (soil_snow_type), INTENT(INOUT) :: ssnow ! soil and snow variables
-   TYPE (canopy_type), INTENT(INOUT) :: canopy ! vegetation variables
-   TYPE (veg_parameter_type),  INTENT(INOUT) :: veg  ! vegetation parameters
-   TYPE (soil_parameter_type), INTENT(INOUT) :: soil ! soil parameters
-   TYPE (casa_biome),          INTENT(INOUT) :: casabiome
-   TYPE (casa_pool),           INTENT(INOUT) :: casapool
-   TYPE (casa_flux),           INTENT(INOUT) :: casaflux
-   TYPE (casa_met),            INTENT(INOUT) :: casamet
-   TYPE (casa_balance),        INTENT(INOUT) :: casabal
-   TYPE (phen_variable),       INTENT(INOUT) :: phen
-   TYPE(POP_TYPE),             INTENT(INOUT) :: POP
-   TYPE (climate_type),        INTENT(IN)    :: climate  ! climate variables
-   ! 13C
-   type(c13o2_flux),           intent(inout) :: c13o2flux
-   type(c13o2_pool),           intent(inout) :: c13o2pools
+    REAL,         INTENT(IN) :: dels ! time setp size (s)
+    TYPE (met_type), INTENT(INOUT)       :: met  ! met input variables
+    TYPE (soil_snow_type), INTENT(INOUT) :: ssnow ! soil and snow variables
+    TYPE (canopy_type), INTENT(INOUT) :: canopy ! vegetation variables
+    TYPE (veg_parameter_type),  INTENT(INOUT) :: veg  ! vegetation parameters
+    TYPE (soil_parameter_type), INTENT(INOUT) :: soil ! soil parameters
+    TYPE (casa_biome),          INTENT(INOUT) :: casabiome
+    TYPE (casa_pool),           INTENT(INOUT) :: casapool
+    TYPE (casa_flux),           INTENT(INOUT) :: casaflux
+    TYPE (casa_met),            INTENT(INOUT) :: casamet
+    TYPE (casa_balance),        INTENT(INOUT) :: casabal
+    TYPE (phen_variable),       INTENT(INOUT) :: phen
+    TYPE(POP_TYPE),             INTENT(INOUT) :: POP
+    TYPE (climate_type),        INTENT(IN)    :: climate  ! climate variables
+    ! 13C
+    type(c13o2_flux),           intent(inout) :: c13o2flux
+    type(c13o2_pool),           intent(inout) :: c13o2pools
 
-   ! local variables added ypwang 5/nov/2012
-   real(r_2), dimension(mp)  :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
-   real(r_2), dimension(mp)  :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
-   real(r_2), dimension(mp)  :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
-   real(r_2), dimension(mp)  :: xnplimit,  xkNlimiting, xklitter, xksoil ,xkleaf,xkleafcold,xkleafdry
+    ! local variables added ypwang 5/nov/2012
+    real(r_2), dimension(mp)  :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
+    real(r_2), dimension(mp)  :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
+    real(r_2), dimension(mp)  :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
+    real(r_2), dimension(mp)  :: xnplimit,  xkNlimiting, xklitter, xksoil ,xkleaf,xkleafcold,xkleafdry
 
-   ! 13C
-   real(dp), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
+    ! 13C
+    real(dp), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
 
 
-   IF ( .NOT. dump_read ) THEN  ! construct casa met and flux inputs from current CABLE run
-      IF ( TRIM(cable_user%MetType) .EQ. 'cru' .OR. &
-           TRIM(cable_user%MetType) .EQ. 'plum') THEN
-         casaflux%Pdep = met%Pdep
-         casaflux%Nmindep = met%Ndep
-      ENDIF
+    IF ( .NOT. dump_read ) THEN  ! construct casa met and flux inputs from current CABLE run
+       IF ( TRIM(cable_user%MetType) .EQ. 'cru' .OR. &
+            TRIM(cable_user%MetType) .EQ. 'plum') THEN
+          casaflux%Pdep = met%Pdep
+          casaflux%Nmindep = met%Ndep
+       ENDIF
 
-      IF(ktau == kstart) THEN
-         casamet%tairk  = 0.0
-         casamet%tsoil  = 0.0
-         casamet%moist  = 0.0
+       IF(ktau == kstart) THEN
+          casamet%tairk  = 0.0
+          casamet%tsoil  = 0.0
+          casamet%moist  = 0.0
 
-      ENDIF
+       ENDIF
 
-      IF(MOD(ktau,ktauday)==1) THEN
-         casamet%tairk = met%tk
-         casamet%tsoil = ssnow%tgg
-         !casamet%moist = max(ssnow%wb - ssnow%wbice, 0.0)
-         casamet%moist = max(ssnow%wb, 0.0_r_2)
-         casaflux%cgpp = (-canopy%fpn+canopy%frday)*dels
-         casaflux%crmplant(:,leaf) = canopy%frday*dels
-         ! 13C
-         if (cable_user%c13o2) then
-            c13o2flux%cAn12 = sum(canopy%An,2)    * dels
-            c13o2flux%cAn   = sum(c13o2flux%An,2) * dels
-         endif
-      ELSE
-         Casamet%tairk  =casamet%tairk + met%tk
-         casamet%tsoil = casamet%tsoil + ssnow%tgg
-         !casamet%moist = casamet%moist + max(ssnow%wb -  ssnow%wbice, 0.0)
-         casamet%moist = casamet%moist + max(ssnow%wb, 0.0_r_2)
-         casaflux%cgpp = casaflux%cgpp + (-canopy%fpn+canopy%frday)*dels
-         casaflux%crmplant(:,leaf) = casaflux%crmplant(:,leaf) + canopy%frday*dels
-         ! 13C
-         if (cable_user%c13o2) then
-            c13o2flux%cAn12 = c13o2flux%cAn12 + sum(canopy%An,2)    * dels
-            c13o2flux%cAn   = c13o2flux%cAn   + sum(c13o2flux%An,2) * dels
-         endif
-      ENDIF
+       IF(MOD(ktau,ktauday)==1) THEN
+          casamet%tairk = met%tk
+          casamet%tsoil = ssnow%tgg
+          !casamet%moist = max(ssnow%wb - ssnow%wbice, 0.0)
+          casamet%moist = max(ssnow%wb, 0.0_r_2)
+          casaflux%cgpp = (-canopy%fpn+canopy%frday)*dels
+          casaflux%crmplant(:,leaf) = canopy%frday*dels
+          ! 13C
+          if (cable_user%c13o2) then
+             c13o2flux%cAn12 = sum(canopy%An,2)    * dels
+             c13o2flux%cAn   = sum(c13o2flux%An,2) * dels
+          endif
+       ELSE
+          Casamet%tairk  =casamet%tairk + met%tk
+          casamet%tsoil = casamet%tsoil + ssnow%tgg
+          !casamet%moist = casamet%moist + max(ssnow%wb -  ssnow%wbice, 0.0)
+          casamet%moist = casamet%moist + max(ssnow%wb, 0.0_r_2)
+          casaflux%cgpp = casaflux%cgpp + (-canopy%fpn+canopy%frday)*dels
+          casaflux%crmplant(:,leaf) = casaflux%crmplant(:,leaf) + canopy%frday*dels
+          ! 13C
+          if (cable_user%c13o2) then
+             c13o2flux%cAn12 = c13o2flux%cAn12 + sum(canopy%An,2)    * dels
+             c13o2flux%cAn   = c13o2flux%cAn   + sum(c13o2flux%An,2) * dels
+          endif
+       ENDIF
 
-      IF(MOD((ktau-kstart+1),ktauday)==0) THEN  ! end of day
-         casamet%tairk=casamet%tairk/real(ktauday,r_2)
-         casamet%tsoil=casamet%tsoil/real(ktauday,r_2)
-         casamet%moist=casamet%moist/real(ktauday,r_2)
+       IF(MOD((ktau-kstart+1),ktauday)==0) THEN  ! end of day
+          casamet%tairk=casamet%tairk/real(ktauday,r_2)
+          casamet%tsoil=casamet%tsoil/real(ktauday,r_2)
+          casamet%moist=casamet%moist/real(ktauday,r_2)
 
-         IF ( icycle .GT. 0 ) THEN
-            IF (trim(cable_user%PHENOLOGY_SWITCH)=='climate') THEN
-               ! get climate_dependent phenology
-               call cable_phenology_clim(veg, climate, phen)
-            ENDIF
+          IF ( icycle .GT. 0 ) THEN
+             IF (trim(cable_user%PHENOLOGY_SWITCH)=='climate') THEN
+                ! get climate_dependent phenology
+                call cable_phenology_clim(veg, climate, phen)
+             ENDIF
 
-            ! 13C
-            if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
-            CALL biogeochem(ktau, dels, idoy, LALLOC, veg, soil, casabiome, casapool, casaflux, &
-                 casamet, casabal, phen, POP, climate,  xnplimit, xkNlimiting, xklitter, xksoil, &
-                 xkleaf, xkleafcold, xkleafdry, &
-                 cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd, &
-                 nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd, &
-                 pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd)
-            ! 13C
+             ! 13C
+             if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
+             CALL biogeochem(ktau, dels, idoy, LALLOC, veg, soil, casabiome, casapool, casaflux, &
+                  casamet, casabal, phen, POP, climate,  xnplimit, xkNlimiting, xklitter, xksoil, &
+                  xkleaf, xkleafcold, xkleafdry, &
+                  cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd, &
+                  nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd, &
+                  pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd)
+             ! 13C
 #ifdef __C13DEBUG__
-            if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools, casapool)
+             if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools, casapool)
 #else
-            if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
+             if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
 #endif
-            !write(wlogn,*),'after biogeochem npp:', casaflux%cnpp
-            !write(wlogn,*),'after biogeochem npp:', casapool%cplant
+             !write(wlogn,*),'after biogeochem npp:', casaflux%cnpp
+             !write(wlogn,*),'after biogeochem npp:', casapool%cplant
 
 
-            IF (cable_user%CALL_POP) THEN ! accumulate input variables for POP
-               ! accumulate annual variables for use in POP
-               IF(MOD(ktau/ktauday,LOY)==1 ) THEN
-                  casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7
-                  ! (assumes 70% of wood NPP is allocated above ground)
-                  casabal%LAImax = casamet%glai
-                  casabal%Cleafmean = casapool%cplant(:,1)/real(LOY)/1000.
-                  casabal%Crootmean = casapool%cplant(:,3)/real(LOY)/1000.
-               ELSE
-                  casaflux%stemnpp = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7
-                  casabal%LAImax = max(casamet%glai, casabal%LAImax)
-                  casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1)/real(LOY)/1000.
-                  casabal%Crootmean = casabal%Crootmean + casapool%cplant(:,3)/real(LOY)/1000.
-                  
-               ENDIF
-            ELSE
-               casaflux%stemnpp = 0.
-            ENDIF ! CALL_POP
+             IF (cable_user%CALL_POP) THEN ! accumulate input variables for POP
+                ! accumulate annual variables for use in POP
+                IF(MOD(ktau/ktauday,LOY)==1 ) THEN
+                   casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7
+                   ! (assumes 70% of wood NPP is allocated above ground)
+                   casabal%LAImax = casamet%glai
+                   casabal%Cleafmean = casapool%cplant(:,1)/real(LOY)/1000.
+                   casabal%Crootmean = casapool%cplant(:,3)/real(LOY)/1000.
+                ELSE
+                   casaflux%stemnpp = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7
+                   casabal%LAImax = max(casamet%glai, casabal%LAImax)
+                   casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1)/real(LOY)/1000.
+                   casabal%Crootmean = casabal%Crootmean + casapool%cplant(:,3)/real(LOY)/1000.
 
-         ENDIF  ! icycle .gt. 0
+                ENDIF
+             ELSE
+                casaflux%stemnpp = 0.
+             ENDIF ! CALL_POP
+
+          ENDIF  ! icycle .gt. 0
 
 
-!!$         write(912,92) real(idoy), casaflux%stemnpp(1), &
-!!$                 casaflux%cnpp(1) * casaflux%fracCalloc(1,2) * 0.7, casapool%cplant(1,2)*0.7*1000, &
-!!$                 casaflux%kplant_tot(1,2)*1000, casaflux%kplant(1,2)*1000
-!!$            92 format (100(f16.8,2x))
-      ENDIF  ! end of day
+          !           write(912,92) real(idoy), casaflux%stemnpp(1), &
+          !                casaflux%cnpp(1) * casaflux%fracCalloc(1,2) * 0.7, casapool%cplant(1,2)*0.7*1000, &
+          !                casaflux%kplant_tot(1,2)*1000, casaflux%kplant(1,2)*1000
+          ! 92        format (100(f16.8,2x))
+       ENDIF  ! end of day
 
-   ELSE ! dump_read: ! use casa met and flux inputs from dumpfile
+    ELSE ! dump_read: ! use casa met and flux inputs from dumpfile
 
-      IF( MOD((ktau-kstart+1),ktauday) == 0 ) THEN  ! end of day
+       IF( MOD((ktau-kstart+1),ktauday) == 0 ) THEN  ! end of day
 
-         ! 13C
-         if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
-         CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
-              casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter,xksoil,xkleaf, &
-              xkleafcold,xkleafdry,&
-              cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
-              nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
-              pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
-         ! 13C
+          ! 13C
+          if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
+          CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
+               casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter,xksoil,xkleaf, &
+               xkleafcold,xkleafdry,&
+               cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
+               nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
+               pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
+          ! 13C
 #ifdef __C13DEBUG__
-         if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools, casapool)
+          if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools, casapool)
 #else
-         if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
+          if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
 #endif
 
-         IF (cable_user%CALL_POP) THEN ! accumulate input variables for POP
+          IF (cable_user%CALL_POP) THEN ! accumulate input variables for POP
 
-            ! accumulate annual variables for use in POP
-            IF(MOD(ktau/ktauday,LOY)==1) THEN
-               casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7
-               ! (assumes 70% of wood NPP is allocated above ground)
-               casabal%LAImax = casamet%glai
-               casabal%Cleafmean = casapool%cplant(:,1)/real(LOY)/1000.
-               casabal%Crootmean = casapool%cplant(:,3)/real(LOY)/1000.
-            ELSE
-               casaflux%stemnpp = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7
-               casabal%LAImax = max(casamet%glai, casabal%LAImax)
-               casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1)/real(LOY)/1000.
-               casabal%Crootmean = casabal%Crootmean +casapool%cplant(:,3)/real(LOY)/1000.
-            ENDIF
+             ! accumulate annual variables for use in POP
+             IF(MOD(ktau/ktauday,LOY)==1) THEN
+                casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7
+                ! (assumes 70% of wood NPP is allocated above ground)
+                casabal%LAImax = casamet%glai
+                casabal%Cleafmean = casapool%cplant(:,1)/real(LOY)/1000.
+                casabal%Crootmean = casapool%cplant(:,3)/real(LOY)/1000.
+             ELSE
+                casaflux%stemnpp = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7
+                casabal%LAImax = max(casamet%glai, casabal%LAImax)
+                casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1)/real(LOY)/1000.
+                casabal%Crootmean = casabal%Crootmean +casapool%cplant(:,3)/real(LOY)/1000.
+             ENDIF
 
-!!$            write(912,91) real(idoy), casaflux%stemnpp(1), &
-!!$                 casaflux%cnpp(1) * casaflux%fracCalloc(1,2) * 0.7, casapool%cplant(1,2)*0.7, &
-!!$                 casaflux%kplant(1,2)
-!!$            91 format (100(f12.4,2x))
+             !              write(912,91) real(idoy), casaflux%stemnpp(1), &
+             !                   casaflux%cnpp(1) * casaflux%fracCalloc(1,2) * 0.7, casapool%cplant(1,2)*0.7, &
+             !                   casaflux%kplant(1,2)
+             ! 91           format (100(f12.4,2x))
 
-         ENDIF ! CALL_POP
+          ENDIF ! CALL_POP
 
-      ENDIF ! end of day
+       ENDIF ! end of day
 
-   ENDIF ! dump_read
+    ENDIF ! dump_read
 
- END SUBROUTINE bgcdriver
- 
- ! ==============================================================================
+  END SUBROUTINE bgcdriver
 
- SUBROUTINE POPdriver(casaflux, casabal, veg, POP)
+  ! ==============================================================================
 
-   USE cable_def_types_mod
-   USE casadimension
-   USE casaparm
-   USE casavariable
-   USE phenvariable
-   USE cable_common_module,  ONLY: CABLE_USER
-   USE TypeDef,              ONLY: i4b, dp
-   USE POPMODULE,            ONLY: POPStep
-   USE POP_TYPES,            ONLY: POP_TYPE
+  SUBROUTINE POPdriver(casaflux, casabal, veg, POP)
 
-   IMPLICIT NONE
+    USE cable_def_types_mod
+    USE casadimension
+    USE casaparm
+    USE casavariable
+    USE phenvariable
+    USE cable_common_module,  ONLY: CABLE_USER
+    USE TypeDef,              ONLY: i4b, dp
+    USE POPMODULE,            ONLY: POPStep
+    USE POP_TYPES,            ONLY: POP_TYPE
 
-   TYPE (veg_parameter_type),  INTENT(IN) :: veg  ! vegetation parameters
-   TYPE (casa_flux),           INTENT(IN) :: casaflux
-   TYPE (casa_balance),        INTENT(IN) :: casabal
-   TYPE(POP_TYPE),             INTENT(INOUT) :: POP
+    IMPLICIT NONE
 
-   REAL(dp)                               :: StemNPP(mp,2)
-   REAL(dp), allocatable :: NPPtoGPP(:)
-   REAL(dp), allocatable ::  LAImax(:)  , Cleafmean(:),  Crootmean(:)
-   !! vh_js !!
-   INTEGER, allocatable :: Iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
+    TYPE (veg_parameter_type),  INTENT(IN) :: veg  ! vegetation parameters
+    TYPE (casa_flux),           INTENT(IN) :: casaflux
+    TYPE (casa_balance),        INTENT(IN) :: casabal
+    TYPE(POP_TYPE),             INTENT(INOUT) :: POP
 
-   if (.NOT.Allocated(LAIMax)) allocate(LAIMax(mp))
-   if (.NOT.Allocated(Cleafmean))  allocate(Cleafmean(mp))
-   if (.NOT.Allocated(Crootmean)) allocate(Crootmean(mp))
-   if (.NOT.Allocated(NPPtoGPP)) allocate(NPPtoGPP(mp))
-   if (.NOT.Allocated(Iw)) allocate(Iw(POP%np))
+    REAL(dp)                               :: StemNPP(mp,2)
+    REAL(dp), allocatable :: NPPtoGPP(:)
+    REAL(dp), allocatable ::  LAImax(:)  , Cleafmean(:),  Crootmean(:)
+    !! vh_js !!
+    INTEGER, allocatable :: Iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
 
-   IF (cable_user%CALL_POP .and. POP%np.gt.0) THEN ! CALL_POP
-      Iw = POP%Iwood
+    if (.NOT.Allocated(LAIMax)) allocate(LAIMax(mp))
+    if (.NOT.Allocated(Cleafmean))  allocate(Cleafmean(mp))
+    if (.NOT.Allocated(Crootmean)) allocate(Crootmean(mp))
+    if (.NOT.Allocated(NPPtoGPP)) allocate(NPPtoGPP(mp))
+    if (.NOT.Allocated(Iw)) allocate(Iw(POP%np))
 
-      StemNPP(:,1) = casaflux%stemnpp
-      StemNPP(:,2) = 0.0_dp
-      WHERE (casabal%FCgppyear > 1.e-5_dp .and. casabal%FCnppyear > 1.e-5_dp)
-         NPPtoGPP = casabal%FCnppyear/casabal%FCgppyear
-      ELSEWHERE
-         NPPtoGPP = 0.5_dp
-      ENDWHERE
-      LAImax = casabal%LAImax
-      Cleafmean = casabal%cleafmean
-      Crootmean = casabal%Crootmean
+    IF (cable_user%CALL_POP .and. POP%np.gt.0) THEN ! CALL_POP
+       Iw = POP%Iwood
 
-      CALL POPStep(pop, max(StemNPP(Iw,:)/1000._dp,0.0001_dp), int(veg%disturbance_interval(Iw,:), i4b),&
-           real(veg%disturbance_intensity(Iw,:),dp)      ,&
-           max(LAImax(Iw),0.001_dp), Cleafmean(Iw), Crootmean(Iw), NPPtoGPP(Iw))
-   ENDIF ! CALL_POP
+       StemNPP(:,1) = casaflux%stemnpp
+       StemNPP(:,2) = 0.0_dp
+       WHERE (casabal%FCgppyear > 1.e-5_dp .and. casabal%FCnppyear > 1.e-5_dp)
+          NPPtoGPP = casabal%FCnppyear/casabal%FCgppyear
+       ELSEWHERE
+          NPPtoGPP = 0.5_dp
+       ENDWHERE
+       LAImax = casabal%LAImax
+       Cleafmean = casabal%cleafmean
+       Crootmean = casabal%Crootmean
 
- END SUBROUTINE POPdriver
- 
- ! ==============================================================================
+       CALL POPStep(pop, max(StemNPP(Iw,:)/1000._dp,0.0001_dp), int(veg%disturbance_interval(Iw,:), i4b),&
+            real(veg%disturbance_intensity(Iw,:),dp)      ,&
+            max(LAImax(Iw),0.001_dp), Cleafmean(Iw), Crootmean(Iw), NPPtoGPP(Iw))
+    ENDIF ! CALL_POP
 
- subroutine read_casa_dump( ncfile, casamet, casaflux,phen, climate, c13o2flux, ncall, kend, allatonce )
+  END SUBROUTINE POPdriver
 
-   use netcdf
-   use cable_def_types_mod, only: r_2, ms, mp, climate_type
-   use casadimension,       only: mplant, mdyear, icycle
-   use casavariable,        only: casa_met, casa_flux
-   use phenvariable
+  ! ==============================================================================
+
+  subroutine read_casa_dump( ncfile, casamet, casaflux,phen, climate, c13o2flux, ncall, kend, allatonce )
+
+    use netcdf
+    use cable_def_types_mod, only: r_2, ms, mp, climate_type
+    use casadimension,       only: mplant, mdyear, icycle
+    use casavariable,        only: casa_met, casa_flux
+    use phenvariable
 #ifndef UM_BUILD
-   use cable_diag_module,   only: get_var_nc, stderr_nc
+    use cable_diag_module,   only: get_var_nc, stderr_nc
 #endif
-   use cable_common_module, only: cable_user
-   ! 13C
-   use cable_c13o2_def,     only: c13o2_flux
+    use cable_common_module, only: cable_user
+    ! 13C
+    use cable_c13o2_def,     only: c13o2_flux
 
-   implicit none
+    implicit none
 
-   type(casa_flux),     intent(inout) :: casaflux
-   type(casa_met),      intent(inout) :: casamet
-   type(phen_variable), intent(inout) :: phen
-   type(climate_type),  intent(inout) :: climate  ! climate variables
-   ! 13C
-   type(c13o2_flux),    intent(inout) :: c13o2flux
-   integer,             intent(in)    :: kend, ncall
-   character(len=*),    intent(in)    :: ncfile
-   logical,             intent(in)    :: allatonce
+    type(casa_flux),     intent(inout) :: casaflux
+    type(casa_met),      intent(inout) :: casamet
+    type(phen_variable), intent(inout) :: phen
+    type(climate_type),  intent(inout) :: climate  ! climate variables
+    ! 13C
+    type(c13o2_flux),    intent(inout) :: c13o2flux
+    integer,             intent(in)    :: kend, ncall
+    character(len=*),    intent(in)    :: ncfile
+    logical,             intent(in)    :: allatonce
 
-   !netcdf ids/ names
-   integer, parameter :: num_vars=29
-   integer, save                        :: ncrid  ! netcdf file id
+    !netcdf ids/ names
+    integer, parameter :: num_vars=29
+    integer, save                        :: ncrid  ! netcdf file id
 
-   !vars
-   character(len=*), dimension(num_vars), parameter :: &
-        var_name =  (/  "lat          ", &
-        "lon          ", &
-        "casamet_tairk", &
-        "tsoil        ", &
-        "moist        ", &
-        "cgpp         ", &
-        "crmplant     ", &
-        "phenphase    ", &
-        "phendoyphase1", &
-        "phendoyphase2", &
-        "phendoyphase3", &
-        "phendoyphase4", &
-        "mtemp        ", &
-        "frec         ", &
-        "Ndep         ", &
-        "Pdep         ", &
-        "cAn12        ", &
-        "cAn13        ", &
-        "dprecip      ", &
-        "aprecip_av20 ", &
-        "du10_max     ", &
-        "drhum        ", &
-        "dtemp_max    ", &
-        "dtemp_min    ", &
-        "KBDI         ", &
-        "D_MacArthur  ", &
-        "FFDI         ", &
-        "DSLR         ", &
-        "last_precip  " &
-    /)
+    !vars
+    character(len=*), dimension(num_vars), parameter :: &
+         var_name =  (/  "lat          ", &
+         "lon          ", &
+         "casamet_tairk", &
+         "tsoil        ", &
+         "moist        ", &
+         "cgpp         ", &
+         "crmplant     ", &
+         "phenphase    ", &
+         "phendoyphase1", &
+         "phendoyphase2", &
+         "phendoyphase3", &
+         "phendoyphase4", &
+         "mtemp        ", &
+         "frec         ", &
+         "Ndep         ", &
+         "Pdep         ", &
+         "cAn12        ", &
+         "cAn13        ", &
+         "dprecip      ", &
+         "aprecip_av20 ", &
+         "du10_max     ", &
+         "drhum        ", &
+         "dtemp_max    ", &
+         "dtemp_min    ", &
+         "KBDI         ", &
+         "D_MacArthur  ", &
+         "FFDI         ", &
+         "DSLR         ", &
+         "last_precip  " &
+         /)
 
-   real(r_2), dimension(mp)        :: tairk,  cgpp, mtemp, frec, Ndep, Pdep, cAn12, cAn13
-   real(r_2), dimension(mp,ms)     :: tsoil, moist
-   real(r_2), dimension(mp,mplant) :: crmplant
-   real(r_2), dimension(mp)        :: phenphase, phendoyphase1, &
-        phendoyphase2,  phendoyphase3,  phendoyphase4
-   real(r_2), dimension(mp)        :: dprecip, aprecip_av20, du10_max, drhum,  dtemp_max, &
-                                      dtemp_min, KBDI,  D_MacArthur, FFDI, DSLR, last_precip
+    real(r_2), dimension(mp)        :: tairk,  cgpp, mtemp, frec, Ndep, Pdep, cAn12, cAn13
+    real(r_2), dimension(mp,ms)     :: tsoil, moist
+    real(r_2), dimension(mp,mplant) :: crmplant
+    real(r_2), dimension(mp)        :: phenphase, phendoyphase1, &
+         phendoyphase2,  phendoyphase3,  phendoyphase4
+    real(r_2), dimension(mp)        :: dprecip, aprecip_av20, du10_max, drhum,  dtemp_max, &
+         dtemp_min, KBDI,  D_MacArthur, FFDI, DSLR, last_precip
 
 
-   integer :: ncok,  idoy
+    integer :: ncok,  idoy
 
 #ifndef UM_BUILD
 
-   if ( allatonce .or. ncall .eq. 1 ) then
-      ncok = nf90_open(trim(ncfile), nf90_nowrite, ncrid)
-      ! print*, 'OOpen60 ', ncrid, TRIM(ncfile)
-      if (ncok /= nf90_noerr ) call stderr_nc(ncok,'re-opening ', ncfile)
-   endif
-   if ( allatonce ) then
-      do idoy=1, mdyear
-         call get_var_nc(ncrid, var_name(3),  tairk, idoy)
-         call get_var_nc(ncrid, var_name(4),  tsoil, idoy, ms)
-         call get_var_nc(ncrid, var_name(5),  moist, idoy, ms)
-         call get_var_nc(ncrid, var_name(6),  cgpp,  idoy)
-         call get_var_nc(ncrid, var_name(7),  crmplant,  idoy, mplant)
-         call get_var_nc(ncrid, var_name(8),  phenphase, idoy)
-         call get_var_nc(ncrid, var_name(9),  phendoyphase1, idoy)
-         call get_var_nc(ncrid, var_name(10), phendoyphase2, idoy)
-         call get_var_nc(ncrid, var_name(11), phendoyphase3, idoy)
-         call get_var_nc(ncrid, var_name(12), phendoyphase4, idoy)
-         call get_var_nc(ncrid, var_name(13), mtemp, idoy)
-         call get_var_nc(ncrid, var_name(14), frec, idoy)
-         if (icycle>1) call get_var_nc(ncrid, var_name(15), Ndep, idoy)
-         if (icycle>2) call get_var_nc(ncrid, var_name(16), Pdep, idoy)
-         ! 13C
-         if (cable_user%c13o2) then
-            call get_var_nc(ncrid, var_name(17), cAn12, idoy)
-            call get_var_nc(ncrid, var_name(18), cAn13, idoy)
-         endif
-         ! blaze
-         if (cable_user%call_blaze) then
-            call get_var_nc(ncrid, var_name(19), dprecip, idoy)
-            call get_var_nc(ncrid, var_name(20), aprecip_av20, idoy)
-            call get_var_nc(ncrid, var_name(21), du10_max, idoy)
-            call get_var_nc(ncrid, var_name(22), drhum, idoy)
-            call get_var_nc(ncrid, var_name(23), dtemp_max, idoy)
-            call get_var_nc(ncrid, var_name(24), dtemp_min, idoy)
-            call get_var_nc(ncrid, var_name(25), KBDI, idoy)
-            call get_var_nc(ncrid, var_name(26), D_MacArthur, idoy)
-            call get_var_nc(ncrid, var_name(27), FFDI, idoy)
-            call get_var_nc(ncrid, var_name(28), DSLR, idoy)
-            call get_var_nc(ncrid, var_name(29), last_precip, idoy)
-         endif
-         
-         casamet%Tairkspin(:,idoy) = tairk
-         casamet%cgppspin(:,idoy)  = cgpp
-         casamet%crmplantspin_1(:,idoy) = crmplant(:,1)
-         casamet%crmplantspin_2(:,idoy) = crmplant(:,2)
-         casamet%crmplantspin_3(:,idoy) = crmplant(:,3)
-         casamet%Tsoilspin_1(:,idoy)    = tsoil(:,1)
-         casamet%Tsoilspin_2(:,idoy)    = tsoil(:,2)
-         casamet%Tsoilspin_3(:,idoy)    = tsoil(:,3)
-         casamet%Tsoilspin_4(:,idoy)    = tsoil(:,4)
-         casamet%Tsoilspin_5(:,idoy)    = tsoil(:,5)
-         casamet%Tsoilspin_6(:,idoy)    = tsoil(:,6)
-         casamet%moistspin_1(:,idoy)    = moist(:,1)
-         casamet%moistspin_2(:,idoy)    = moist(:,2)
-         casamet%moistspin_3(:,idoy)    = moist(:,3)
-         casamet%moistspin_4(:,idoy)    = moist(:,4)
-         casamet%moistspin_5(:,idoy)    = moist(:,5)
-         casamet%moistspin_6(:,idoy)    = moist(:,6)
-         phen%phasespin(:,idoy) = int(phenphase)
-         phen%doyphasespin_1(:,idoy) = int(phendoyphase1)
-         phen%doyphasespin_2(:,idoy) = int(phendoyphase2)
-         phen%doyphasespin_3(:,idoy) = int(phendoyphase3)
-         phen%doyphasespin_4(:,idoy) = int(phendoyphase4)
-         casamet%mtempspin(:,idoy) = mtemp
-         casamet%frecspin(:,idoy)  = frec
-         if (icycle>1) casaflux%Nmindep = Ndep
-         if (icycle>2) casaflux%Pdep    = Pdep
-         ! 13C
-         if (cable_user%c13o2) then
-            casamet%cAn12spin(:,idoy) = cAn12
-            casamet%cAn13spin(:,idoy) = cAn13
-         endif
-         !blaze
-         if (cable_user%call_blaze) then
-            casamet%dprecip_spin(:,idoy)      = dprecip
-            casamet%aprecip_av20_spin(:,idoy) = aprecip_av20
-            casamet%du10_max_spin(:,idoy)     = du10_max
-            casamet%drhum_spin(:,idoy)        = drhum
-            casamet%dtemp_max_spin(:,idoy)    = dtemp_max
-            casamet%dtemp_min_spin(:,idoy)    = dtemp_min
-            casamet%KBDI_spin(:,idoy)         = KBDI
-            casamet%D_MacArthur_spin(:,idoy)  = D_MacArthur
-            casamet%FFDI_spin(:,idoy)         = FFDI
-            casamet%DSLR_spin(:,idoy)         = int(DSLR)
-            casamet%last_precip_spin(:,idoy)  = last_precip
-         endif
-      end do
-   else   !vh ! code below is redundant since this subroutine is always called with allatonce = .T.
+    if ( allatonce .or. ncall .eq. 1 ) then
+       ncok = nf90_open(trim(ncfile), nf90_nowrite, ncrid)
+       ! print*, 'OOpen60 ', ncrid, TRIM(ncfile)
+       if (ncok /= nf90_noerr ) call stderr_nc(ncok,'re-opening ', ncfile)
+    endif
+    if ( allatonce ) then
+       do idoy=1, mdyear
+          call get_var_nc(ncrid, var_name(3),  tairk, idoy)
+          call get_var_nc(ncrid, var_name(4),  tsoil, idoy, ms)
+          call get_var_nc(ncrid, var_name(5),  moist, idoy, ms)
+          call get_var_nc(ncrid, var_name(6),  cgpp,  idoy)
+          call get_var_nc(ncrid, var_name(7),  crmplant,  idoy, mplant)
+          call get_var_nc(ncrid, var_name(8),  phenphase, idoy)
+          call get_var_nc(ncrid, var_name(9),  phendoyphase1, idoy)
+          call get_var_nc(ncrid, var_name(10), phendoyphase2, idoy)
+          call get_var_nc(ncrid, var_name(11), phendoyphase3, idoy)
+          call get_var_nc(ncrid, var_name(12), phendoyphase4, idoy)
+          call get_var_nc(ncrid, var_name(13), mtemp, idoy)
+          call get_var_nc(ncrid, var_name(14), frec, idoy)
+          if (icycle>1) call get_var_nc(ncrid, var_name(15), Ndep, idoy)
+          if (icycle>2) call get_var_nc(ncrid, var_name(16), Pdep, idoy)
+          ! 13C
+          if (cable_user%c13o2) then
+             call get_var_nc(ncrid, var_name(17), cAn12, idoy)
+             call get_var_nc(ncrid, var_name(18), cAn13, idoy)
+          endif
+          ! blaze
+          if (cable_user%call_blaze) then
+             call get_var_nc(ncrid, var_name(19), dprecip, idoy)
+             call get_var_nc(ncrid, var_name(20), aprecip_av20, idoy)
+             call get_var_nc(ncrid, var_name(21), du10_max, idoy)
+             call get_var_nc(ncrid, var_name(22), drhum, idoy)
+             call get_var_nc(ncrid, var_name(23), dtemp_max, idoy)
+             call get_var_nc(ncrid, var_name(24), dtemp_min, idoy)
+             call get_var_nc(ncrid, var_name(25), KBDI, idoy)
+             call get_var_nc(ncrid, var_name(26), D_MacArthur, idoy)
+             call get_var_nc(ncrid, var_name(27), FFDI, idoy)
+             call get_var_nc(ncrid, var_name(28), DSLR, idoy)
+             call get_var_nc(ncrid, var_name(29), last_precip, idoy)
+          endif
 
-      call get_var_nc(ncrid, var_name(3),  tairk   ,ncall )
-      call get_var_nc(ncrid, var_name(4),  tsoil   ,ncall , ms)
-      call get_var_nc(ncrid, var_name(5),  moist   ,ncall , ms)
-      call get_var_nc(ncrid, var_name(6),  cgpp    ,ncall )
-      call get_var_nc(ncrid, var_name(7),  crmplant,ncall , mplant)
-      call get_var_nc(ncrid, var_name(8),  phenphase    ,ncall )
-      call get_var_nc(ncrid, var_name(9),  phendoyphase1    ,ncall )
-      call get_var_nc(ncrid, var_name(10), phendoyphase2    ,ncall )
-      call get_var_nc(ncrid, var_name(11), phendoyphase3    ,ncall )
-      call get_var_nc(ncrid, var_name(12), phendoyphase4    ,ncall )
-      call get_var_nc(ncrid, var_name(13), mtemp   , ncall )
-      call get_var_nc(ncrid, var_name(14), frec, ncall)
-      if (icycle>1) CALL get_var_nc(ncrid, var_name(15), Ndep, ncall)
-      if (icycle>2) CALL get_var_nc(ncrid, var_name(16), Pdep, ncall)
-      ! 13C
-      if (cable_user%c13o2) then
-         call get_var_nc(ncrid, var_name(17), cAn12, ncall)
-         call get_var_nc(ncrid, var_name(18), cAn13, ncall)
-      endif
-      ! blaze
-      if (cable_user%call_blaze) then
-         call get_var_nc(ncrid, var_name(19), dprecip, ncall)
-         call get_var_nc(ncrid, var_name(20), aprecip_av20, ncall)
-         call get_var_nc(ncrid, var_name(21), du10_max, ncall)
-         call get_var_nc(ncrid, var_name(22), drhum, ncall)
-         call get_var_nc(ncrid, var_name(23), dtemp_max, ncall)
-         call get_var_nc(ncrid, var_name(24), dtemp_min, ncall)
-         call get_var_nc(ncrid, var_name(25), KBDI, ncall)
-         call get_var_nc(ncrid, var_name(26), D_MacArthur, ncall)
-         call get_var_nc(ncrid, var_name(27), FFDI, ncall)
-         call get_var_nc(ncrid, var_name(28), DSLR, ncall)
-         call get_var_nc(ncrid, var_name(29), last_precip, ncall)
-      endif
+          casamet%Tairkspin(:,idoy) = tairk
+          casamet%cgppspin(:,idoy)  = cgpp
+          casamet%crmplantspin_1(:,idoy) = crmplant(:,1)
+          casamet%crmplantspin_2(:,idoy) = crmplant(:,2)
+          casamet%crmplantspin_3(:,idoy) = crmplant(:,3)
+          casamet%Tsoilspin_1(:,idoy)    = tsoil(:,1)
+          casamet%Tsoilspin_2(:,idoy)    = tsoil(:,2)
+          casamet%Tsoilspin_3(:,idoy)    = tsoil(:,3)
+          casamet%Tsoilspin_4(:,idoy)    = tsoil(:,4)
+          casamet%Tsoilspin_5(:,idoy)    = tsoil(:,5)
+          casamet%Tsoilspin_6(:,idoy)    = tsoil(:,6)
+          casamet%moistspin_1(:,idoy)    = moist(:,1)
+          casamet%moistspin_2(:,idoy)    = moist(:,2)
+          casamet%moistspin_3(:,idoy)    = moist(:,3)
+          casamet%moistspin_4(:,idoy)    = moist(:,4)
+          casamet%moistspin_5(:,idoy)    = moist(:,5)
+          casamet%moistspin_6(:,idoy)    = moist(:,6)
+          phen%phasespin(:,idoy) = int(phenphase)
+          phen%doyphasespin_1(:,idoy) = int(phendoyphase1)
+          phen%doyphasespin_2(:,idoy) = int(phendoyphase2)
+          phen%doyphasespin_3(:,idoy) = int(phendoyphase3)
+          phen%doyphasespin_4(:,idoy) = int(phendoyphase4)
+          casamet%mtempspin(:,idoy) = mtemp
+          casamet%frecspin(:,idoy)  = frec
+          if (icycle>1) casaflux%Nmindep = Ndep
+          if (icycle>2) casaflux%Pdep    = Pdep
+          ! 13C
+          if (cable_user%c13o2) then
+             casamet%cAn12spin(:,idoy) = cAn12
+             casamet%cAn13spin(:,idoy) = cAn13
+          endif
+          !blaze
+          if (cable_user%call_blaze) then
+             casamet%dprecip_spin(:,idoy)      = dprecip
+             casamet%aprecip_av20_spin(:,idoy) = aprecip_av20
+             casamet%du10_max_spin(:,idoy)     = du10_max
+             casamet%drhum_spin(:,idoy)        = drhum
+             casamet%dtemp_max_spin(:,idoy)    = dtemp_max
+             casamet%dtemp_min_spin(:,idoy)    = dtemp_min
+             casamet%KBDI_spin(:,idoy)         = KBDI
+             casamet%D_MacArthur_spin(:,idoy)  = D_MacArthur
+             casamet%FFDI_spin(:,idoy)         = FFDI
+             casamet%DSLR_spin(:,idoy)         = int(DSLR)
+             casamet%last_precip_spin(:,idoy)  = last_precip
+          endif
+       end do
+    else   !vh ! code below is redundant since this subroutine is always called with allatonce = .T.
 
-      casamet%tairk     = tairk
-      casaflux%cgpp     = cgpp
-      casaflux%crmplant = crmplant
-      casamet%tsoil     = tsoil
-      casamet%moist     = moist
-      phen%phase         = int(phenphase)
-      phen%doyphase(:,1) = int(phendoyphase1)
-      phen%doyphase(:,2) = int(phendoyphase2)
-      phen%doyphase(:,3) = int(phendoyphase3)
-      phen%doyphase(:,4) = int(phendoyphase4)
-      climate%qtemp_max_last_year = real(mtemp)
-      climate%frec                = real(frec)
-      if (icycle>1) casaflux%Nmindep = Ndep
-      if (icycle>2) casaflux%Pdep    = Pdep
-      ! 13C
-      if (cable_user%c13o2) then
-         c13o2flux%cAn12 = cAn12
-         c13o2flux%cAn   = cAn13
-      endif
-      !blaze
-      if (cable_user%call_blaze) then
-         climate%dprecip      = real(dprecip)
-         climate%aprecip_av20 = real(aprecip_av20)
-         climate%du10_max     = real(du10_max)
-         climate%drhum        = real(drhum)
-         climate%dtemp_max    = real(dtemp_max)
-         climate%dtemp_min    = real(dtemp_min)
-         climate%KBDI         = real(KBDI)
-         climate%D_MacArthur  = real(D_MacArthur)
-         climate%FFDI         = real(FFDI)
-         climate%DSLR         = int(DSLR)
-         climate%last_precip  = real(last_precip)
-      endif
-      
-   endif ! allatonce
+       call get_var_nc(ncrid, var_name(3),  tairk   ,ncall )
+       call get_var_nc(ncrid, var_name(4),  tsoil   ,ncall , ms)
+       call get_var_nc(ncrid, var_name(5),  moist   ,ncall , ms)
+       call get_var_nc(ncrid, var_name(6),  cgpp    ,ncall )
+       call get_var_nc(ncrid, var_name(7),  crmplant,ncall , mplant)
+       call get_var_nc(ncrid, var_name(8),  phenphase    ,ncall )
+       call get_var_nc(ncrid, var_name(9),  phendoyphase1    ,ncall )
+       call get_var_nc(ncrid, var_name(10), phendoyphase2    ,ncall )
+       call get_var_nc(ncrid, var_name(11), phendoyphase3    ,ncall )
+       call get_var_nc(ncrid, var_name(12), phendoyphase4    ,ncall )
+       call get_var_nc(ncrid, var_name(13), mtemp   , ncall )
+       call get_var_nc(ncrid, var_name(14), frec, ncall)
+       if (icycle>1) CALL get_var_nc(ncrid, var_name(15), Ndep, ncall)
+       if (icycle>2) CALL get_var_nc(ncrid, var_name(16), Pdep, ncall)
+       ! 13C
+       if (cable_user%c13o2) then
+          call get_var_nc(ncrid, var_name(17), cAn12, ncall)
+          call get_var_nc(ncrid, var_name(18), cAn13, ncall)
+       endif
+       ! blaze
+       if (cable_user%call_blaze) then
+          call get_var_nc(ncrid, var_name(19), dprecip, ncall)
+          call get_var_nc(ncrid, var_name(20), aprecip_av20, ncall)
+          call get_var_nc(ncrid, var_name(21), du10_max, ncall)
+          call get_var_nc(ncrid, var_name(22), drhum, ncall)
+          call get_var_nc(ncrid, var_name(23), dtemp_max, ncall)
+          call get_var_nc(ncrid, var_name(24), dtemp_min, ncall)
+          call get_var_nc(ncrid, var_name(25), KBDI, ncall)
+          call get_var_nc(ncrid, var_name(26), D_MacArthur, ncall)
+          call get_var_nc(ncrid, var_name(27), FFDI, ncall)
+          call get_var_nc(ncrid, var_name(28), DSLR, ncall)
+          call get_var_nc(ncrid, var_name(29), last_precip, ncall)
+       endif
 
-   if (allatonce .or. (ncall .eq. kend)) then
-      ! print*, 'OClose60 ', ncrid
-      ncok = nf90_close(ncrid)
-      ncrid = -1
-      if (ncok /= nf90_noerr ) call stderr_nc(ncok,'closing ', ncfile)
-   endif
+       casamet%tairk     = tairk
+       casaflux%cgpp     = cgpp
+       casaflux%crmplant = crmplant
+       casamet%tsoil     = tsoil
+       casamet%moist     = moist
+       phen%phase         = int(phenphase)
+       phen%doyphase(:,1) = int(phendoyphase1)
+       phen%doyphase(:,2) = int(phendoyphase2)
+       phen%doyphase(:,3) = int(phendoyphase3)
+       phen%doyphase(:,4) = int(phendoyphase4)
+       climate%qtemp_max_last_year = real(mtemp)
+       climate%frec                = real(frec)
+       if (icycle>1) casaflux%Nmindep = Ndep
+       if (icycle>2) casaflux%Pdep    = Pdep
+       ! 13C
+       if (cable_user%c13o2) then
+          c13o2flux%cAn12 = cAn12
+          c13o2flux%cAn   = cAn13
+       endif
+       !blaze
+       if (cable_user%call_blaze) then
+          climate%dprecip      = real(dprecip)
+          climate%aprecip_av20 = real(aprecip_av20)
+          climate%du10_max     = real(du10_max)
+          climate%drhum        = real(drhum)
+          climate%dtemp_max    = real(dtemp_max)
+          climate%dtemp_min    = real(dtemp_min)
+          climate%KBDI         = real(KBDI)
+          climate%D_MacArthur  = real(D_MacArthur)
+          climate%FFDI         = real(FFDI)
+          climate%DSLR         = int(DSLR)
+          climate%last_precip  = real(last_precip)
+       endif
+
+    endif ! allatonce
+
+    if (allatonce .or. (ncall .eq. kend)) then
+       ! print*, 'OClose60 ', ncrid
+       ncok = nf90_close(ncrid)
+       ncrid = -1
+       if (ncok /= nf90_noerr ) call stderr_nc(ncok,'closing ', ncfile)
+    endif
 #endif
 
- end subroutine read_casa_dump
+  end subroutine read_casa_dump
 
 
- SUBROUTINE write_casa_dump( ncfile, casamet, casaflux, phen, climate, c13o2flux, n_call, kend )
+  SUBROUTINE write_casa_dump( ncfile, casamet, casaflux, phen, climate, c13o2flux, n_call, kend )
 
-   USE netcdf
-   USE cable_def_types_mod,   ONLY : r_2, ms, mp, climate_type
-   USE cable_common_module,   ONLY : cable_user
+    USE netcdf
+    USE cable_def_types_mod,   ONLY : r_2, ms, mp, climate_type
+    USE cable_common_module,   ONLY : cable_user
 #ifndef UM_BUILD
-   USE cable_diag_module,     ONLY : def_dims, def_vars, &
-        put_var_nc, stderr_nc
+    USE cable_diag_module,     ONLY : def_dims, def_vars, &
+         put_var_nc, stderr_nc
 #endif
-   USE casavariable,          ONLY : CASA_MET, CASA_FLUX
-   USE casadimension,         ONLY : mplant, icycle
-   USE phenvariable
-   ! 13C
-   use cable_c13o2_def,       only: c13o2_flux
-   use netcdf
+    USE casavariable,          ONLY : CASA_MET, CASA_FLUX
+    USE casadimension,         ONLY : mplant, icycle
+    USE phenvariable
+    ! 13C
+    use cable_c13o2_def,       only: c13o2_flux
+    use netcdf
 
-   IMPLICIT NONE
+    IMPLICIT NONE
 
-   INTEGER, INTENT(in) :: &
-        n_call, &         ! this timestep #
-        kend              ! final timestep of run
+    INTEGER, INTENT(in) :: &
+         n_call, &         ! this timestep #
+         kend              ! final timestep of run
 
-   TYPE (casa_flux),     INTENT(IN) :: casaflux
-   TYPE (casa_met),      INTENT(IN) :: casamet
-   TYPE (phen_variable), INTENT(IN) :: phen
-   TYPE (climate_type),  INTENT(IN) :: climate  ! climate variables
-   ! 13C
-   type(c13o2_flux),     intent(in) :: c13o2flux
+    TYPE (casa_flux),     INTENT(IN) :: casaflux
+    TYPE (casa_met),      INTENT(IN) :: casamet
+    TYPE (phen_variable), INTENT(IN) :: phen
+    TYPE (climate_type),  INTENT(IN) :: climate  ! climate variables
+    ! 13C
+    type(c13o2_flux),     intent(in) :: c13o2flux
 
-   !number of instances. dummied here and so=1
-   !integer :: inst =1
+    !number of instances. dummied here and so=1
+    !integer :: inst =1
 
-   !netcdf IDs/ names
-   CHARACTER(len=*)   :: ncfile
-   INTEGER, PARAMETER :: num_vars=29
-   INTEGER, PARAMETER :: num_dims=3
-   INTEGER, SAVE :: ncid       ! netcdf file ID
+    !netcdf IDs/ names
+    CHARACTER(len=*)   :: ncfile
+    INTEGER, PARAMETER :: num_vars=29
+    INTEGER, PARAMETER :: num_dims=3
+    INTEGER, SAVE :: ncid       ! netcdf file ID
 
-   !vars
-   CHARACTER(len=*), DIMENSION(num_vars), PARAMETER :: &
-        var_name =  (/ &
-        "lat          ", &
-        "lon          ", &
-        "casamet_tairk", &
-        "tsoil        ", &
-        "moist        ", &
-        "cgpp         ", &
-        "crmplant     ", &
-        "phenphase    ", &
-        "phendoyphase1", &
-        "phendoyphase2", &
-        "phendoyphase3", &
-        "phendoyphase4", &
-        "mtemp        ", &
-        "frec         ", &
-        "Ndep         ", &
-        "Pdep         ", &
-        "cAn12        ", &
-        "cAn13        ", &
-        "dprecip      ", &
-        "aprecip_av20 ", &
-        "du10_max     ", &
-        "drhum        ", &
-        "dtemp_max    ", &
-        "dtemp_min    ", &
-        "KBDI         ", &
-        "D_MacArthur  ", &
-        "FFDI         ", &
-        "DSLR         ", &
-        "last_precip  " &
-        /)
+    !vars
+    CHARACTER(len=*), DIMENSION(num_vars), PARAMETER :: &
+         var_name =  (/ &
+         "lat          ", &
+         "lon          ", &
+         "casamet_tairk", &
+         "tsoil        ", &
+         "moist        ", &
+         "cgpp         ", &
+         "crmplant     ", &
+         "phenphase    ", &
+         "phendoyphase1", &
+         "phendoyphase2", &
+         "phendoyphase3", &
+         "phendoyphase4", &
+         "mtemp        ", &
+         "frec         ", &
+         "Ndep         ", &
+         "Pdep         ", &
+         "cAn12        ", &
+         "cAn13        ", &
+         "dprecip      ", &
+         "aprecip_av20 ", &
+         "du10_max     ", &
+         "drhum        ", &
+         "dtemp_max    ", &
+         "dtemp_min    ", &
+         "KBDI         ", &
+         "D_MacArthur  ", &
+         "FFDI         ", &
+         "DSLR         ", &
+         "last_precip  " &
+         /)
 
 
-   INTEGER, DIMENSION(num_vars) :: varID ! (1) tvair, (2) pmb
+    INTEGER, DIMENSION(num_vars) :: varID ! (1) tvair, (2) pmb
 
-   !dims
-   CHARACTER(len=*), DIMENSION(num_dims), PARAMETER :: &
-        dim_name =  (/ "pnt ", &
-        "soil", &
-        "time" /)
+    !dims
+    CHARACTER(len=*), DIMENSION(num_dims), PARAMETER :: &
+         dim_name =  (/ "pnt ", &
+         "soil", &
+         "time" /)
 
-   INTEGER, PARAMETER :: soil_dim = 6
+    INTEGER, PARAMETER :: soil_dim = 6
 
-   INTEGER, DIMENSION(num_dims)  :: &
-        dimID   ! (1) x, (2) y, (3) time
+    INTEGER, DIMENSION(num_dims)  :: &
+         dimID   ! (1) x, (2) y, (3) time
 
-   INTEGER, DIMENSION(num_dims)  :: &
-        !x,y generally lat/lon BUT for single site = 1,1
-        dim_len = (/-1,soil_dim,-1/)  ! (1) mp, (2) soil, (3) time [re-set]
+    INTEGER, DIMENSION(num_dims)  :: &
+                                !x,y generally lat/lon BUT for single site = 1,1
+         dim_len = (/-1,soil_dim,-1/)  ! (1) mp, (2) soil, (3) time [re-set]
 
-   !local only
-   INTEGER :: ncok      !ncdf return status
-   real(r_2), dimension(mp) :: zeros
+    !local only
+    INTEGER :: ncok      !ncdf return status
+    real(r_2), dimension(mp) :: zeros
 
-   ! END header
+    ! END header
 #ifndef UM_BUILD
-   dim_len(1)        = mp
-   dim_len(num_dims) = NF90_unlimited
-   zeros = 0.0_r_2
+    dim_len(1)        = mp
+    dim_len(num_dims) = NF90_unlimited
+    zeros = 0.0_r_2
 
-  
 
-   IF (n_call == 1) THEN
 
-      ! create netCDF dataset: enter define mode
-      ncok = nf90_create(TRIM(ncfile), ior(nf90_clobber,nf90_64bit_offset), ncid)
-      ! print*, 'OCreate69 ', ncid, TRIM(ncfile)
-      IF (ncok /= nf90_noerr) CALL stderr_nc(ncok, 'ncdf creating ', trim(ncfile))
+    IF (n_call == 1) THEN
 
-      ! define dimensions: from name and length
-      ! print*, 'def_dims'
-      CALL def_dims(num_dims, ncid, dimID, dim_len, dim_name)
+       ! create netCDF dataset: enter define mode
+       ncok = nf90_create(TRIM(ncfile), ior(nf90_clobber,nf90_64bit_offset), ncid)
+       ! print*, 'OCreate69 ', ncid, TRIM(ncfile)
+       IF (ncok /= nf90_noerr) CALL stderr_nc(ncok, 'ncdf creating ', trim(ncfile))
 
-      ! define variables: from name, type, dims
-      CALL def_vars(num_vars, ncid, nf90_float, dimID, var_name, varID)
-       
-      ! define variable attributes
-      !CLN LATER!             CALL def_var_atts( ncfile, ncid, varID )
+       ! define dimensions: from name and length
+       ! print*, 'def_dims'
+       CALL def_dims(num_dims, ncid, dimID, dim_len, dim_name)
 
-      != print*, 'enddef'
-      ncok = nf90_enddef(ncid)
-      if (ncok /= nf90_noerr) call stderr_nc(ncok,'end def mode', ncfile)
+       ! define variables: from name, type, dims
+       CALL def_vars(num_vars, ncid, nf90_float, dimID, var_name, varID)
 
-      CALL put_var_nc(ncid, var_name(1), REAL(casamet%lat))
-      CALL put_var_nc(ncid, var_name(2), REAL(casamet%lon))
+       ! define variable attributes
+       !CLN LATER!             CALL def_var_atts( ncfile, ncid, varID )
 
-      ! print*, 'OCreated69'
-   ENDIF
+       != print*, 'enddef'
+       ncok = nf90_enddef(ncid)
+       if (ncok /= nf90_noerr) call stderr_nc(ncok,'end def mode', ncfile)
 
-   !print*, 'OWrite69 ', ncid
-   CALL put_var_nc(ncid, var_name(3), casamet%tairk, n_call)
-   CALL put_var_nc(ncid, var_name(4), casamet%tsoil, n_call, ms)
-   CALL put_var_nc(ncid, var_name(5), casamet%moist, n_call, ms)
-   CALL put_var_nc(ncid, var_name(6), casaflux%cgpp, n_call)
-   CALL put_var_nc(ncid, var_name(7), casaflux%crmplant, n_call, mplant)
-   CALL put_var_nc(ncid, var_name(8), real(phen%phase,r_2), n_call)
-   CALL put_var_nc(ncid, var_name(9), real(phen%doyphase(:,1),r_2), n_call)
-   CALL put_var_nc(ncid, var_name(10), real(phen%doyphase(:,2),r_2), n_call)
-   CALL put_var_nc(ncid, var_name(11), real(phen%doyphase(:,3),r_2), n_call)
-   CALL put_var_nc(ncid, var_name(12), real(phen%doyphase(:,4),r_2), n_call)
-   CALL put_var_nc(ncid, var_name(13), real(climate%qtemp_max_last_year,r_2), n_call)
-   CALL put_var_nc(ncid, var_name(14), real(climate%frec,r_2), n_call)
-   if (icycle>1) then
-      CALL put_var_nc(ncid, var_name(15), real(casaflux%Nmindep,r_2), n_call)
-   else
-      CALL put_var_nc(ncid, var_name(15), zeros, n_call)
-   endif
-   if (icycle>2) then
-      CALL put_var_nc(ncid, var_name(16), real(casaflux%Pdep,r_2), n_call)
-   else
-      CALL put_var_nc(ncid, var_name(16), zeros, n_call)
-   endif
-   ! 13C
-   if (cable_user%c13o2) then
-      CALL put_var_nc(ncid, var_name(17), c13o2flux%cAn12, n_call)
-      CALL put_var_nc(ncid, var_name(18), c13o2flux%cAn, n_call)
-   else
-      CALL put_var_nc(ncid, var_name(17), zeros, n_call)
-      CALL put_var_nc(ncid, var_name(18), zeros, n_call)
-   endif
-   ! BLAZE
-   if (cable_user%call_blaze) then
-      CALL put_var_nc(ncid, var_name(19), real(climate%dprecip, r_2), n_call)
-      CALL put_var_nc(ncid, var_name(20), real(climate%aprecip_av20, r_2), n_call)
-      CALL put_var_nc(ncid, var_name(21), real(climate%du10_max, r_2), n_call)
-      CALL put_var_nc(ncid, var_name(22), real(climate%drhum, r_2), n_call)
-      CALL put_var_nc(ncid, var_name(23), real(climate%dtemp_max, r_2), n_call)
-      CALL put_var_nc(ncid, var_name(24), real(climate%dtemp_min, r_2), n_call)
-      CALL put_var_nc(ncid, var_name(25), real(climate%KBDI, r_2), n_call)
-      CALL put_var_nc(ncid, var_name(26), real(climate%D_MacArthur, r_2), n_call)
-      CALL put_var_nc(ncid, var_name(27), real(climate%FFDI, r_2), n_call)
-      CALL put_var_nc(ncid, var_name(28), real(climate%DSLR, r_2), n_call)
-      CALL put_var_nc(ncid, var_name(29), real(climate%last_precip, r_2), n_call)
-   else
-      CALL put_var_nc(ncid, var_name(19), zeros, n_call)
-      CALL put_var_nc(ncid, var_name(20), zeros, n_call)
-      CALL put_var_nc(ncid, var_name(21), zeros, n_call)
-      CALL put_var_nc(ncid, var_name(22), zeros, n_call)
-      CALL put_var_nc(ncid, var_name(23), zeros, n_call)
-      CALL put_var_nc(ncid, var_name(24), zeros, n_call)
-      CALL put_var_nc(ncid, var_name(25), zeros, n_call)
-      CALL put_var_nc(ncid, var_name(26), zeros, n_call)
-      CALL put_var_nc(ncid, var_name(27), zeros, n_call)
-      CALL put_var_nc(ncid, var_name(28), zeros, n_call)
-      CALL put_var_nc(ncid, var_name(29), zeros, n_call)
-   endif
+       CALL put_var_nc(ncid, var_name(1), REAL(casamet%lat))
+       CALL put_var_nc(ncid, var_name(2), REAL(casamet%lon))
 
-   IF (n_call == kend) then
-      ! print*, 'OClose69 ', ncid
-      ncok = nf90_close(ncid) ! close: save new netCDF dataset
-      ncid = -1
-  endif
+       ! print*, 'OCreated69'
+    ENDIF
+
+    !print*, 'OWrite69 ', ncid
+    CALL put_var_nc(ncid, var_name(3), casamet%tairk, n_call)
+    CALL put_var_nc(ncid, var_name(4), casamet%tsoil, n_call, ms)
+    CALL put_var_nc(ncid, var_name(5), casamet%moist, n_call, ms)
+    CALL put_var_nc(ncid, var_name(6), casaflux%cgpp, n_call)
+    CALL put_var_nc(ncid, var_name(7), casaflux%crmplant, n_call, mplant)
+    CALL put_var_nc(ncid, var_name(8), real(phen%phase,r_2), n_call)
+    CALL put_var_nc(ncid, var_name(9), real(phen%doyphase(:,1),r_2), n_call)
+    CALL put_var_nc(ncid, var_name(10), real(phen%doyphase(:,2),r_2), n_call)
+    CALL put_var_nc(ncid, var_name(11), real(phen%doyphase(:,3),r_2), n_call)
+    CALL put_var_nc(ncid, var_name(12), real(phen%doyphase(:,4),r_2), n_call)
+    CALL put_var_nc(ncid, var_name(13), real(climate%qtemp_max_last_year,r_2), n_call)
+    CALL put_var_nc(ncid, var_name(14), real(climate%frec,r_2), n_call)
+    if (icycle>1) then
+       CALL put_var_nc(ncid, var_name(15), real(casaflux%Nmindep,r_2), n_call)
+    else
+       CALL put_var_nc(ncid, var_name(15), zeros, n_call)
+    endif
+    if (icycle>2) then
+       CALL put_var_nc(ncid, var_name(16), real(casaflux%Pdep,r_2), n_call)
+    else
+       CALL put_var_nc(ncid, var_name(16), zeros, n_call)
+    endif
+    ! 13C
+    if (cable_user%c13o2) then
+       CALL put_var_nc(ncid, var_name(17), c13o2flux%cAn12, n_call)
+       CALL put_var_nc(ncid, var_name(18), c13o2flux%cAn, n_call)
+    else
+       CALL put_var_nc(ncid, var_name(17), zeros, n_call)
+       CALL put_var_nc(ncid, var_name(18), zeros, n_call)
+    endif
+    ! BLAZE
+    if (cable_user%call_blaze) then
+       CALL put_var_nc(ncid, var_name(19), real(climate%dprecip, r_2), n_call)
+       CALL put_var_nc(ncid, var_name(20), real(climate%aprecip_av20, r_2), n_call)
+       CALL put_var_nc(ncid, var_name(21), real(climate%du10_max, r_2), n_call)
+       CALL put_var_nc(ncid, var_name(22), real(climate%drhum, r_2), n_call)
+       CALL put_var_nc(ncid, var_name(23), real(climate%dtemp_max, r_2), n_call)
+       CALL put_var_nc(ncid, var_name(24), real(climate%dtemp_min, r_2), n_call)
+       CALL put_var_nc(ncid, var_name(25), real(climate%KBDI, r_2), n_call)
+       CALL put_var_nc(ncid, var_name(26), real(climate%D_MacArthur, r_2), n_call)
+       CALL put_var_nc(ncid, var_name(27), real(climate%FFDI, r_2), n_call)
+       CALL put_var_nc(ncid, var_name(28), real(climate%DSLR, r_2), n_call)
+       CALL put_var_nc(ncid, var_name(29), real(climate%last_precip, r_2), n_call)
+    else
+       CALL put_var_nc(ncid, var_name(19), zeros, n_call)
+       CALL put_var_nc(ncid, var_name(20), zeros, n_call)
+       CALL put_var_nc(ncid, var_name(21), zeros, n_call)
+       CALL put_var_nc(ncid, var_name(22), zeros, n_call)
+       CALL put_var_nc(ncid, var_name(23), zeros, n_call)
+       CALL put_var_nc(ncid, var_name(24), zeros, n_call)
+       CALL put_var_nc(ncid, var_name(25), zeros, n_call)
+       CALL put_var_nc(ncid, var_name(26), zeros, n_call)
+       CALL put_var_nc(ncid, var_name(27), zeros, n_call)
+       CALL put_var_nc(ncid, var_name(28), zeros, n_call)
+       CALL put_var_nc(ncid, var_name(29), zeros, n_call)
+    endif
+
+    IF (n_call == kend) then
+       ! print*, 'OClose69 ', ncid
+       ncok = nf90_close(ncid) ! close: save new netCDF dataset
+       ncid = -1
+    endif
 #endif
- END SUBROUTINE write_casa_dump
+  END SUBROUTINE write_casa_dump
 
 
- SUBROUTINE casa_feedback(ktau,veg,casabiome,casapool,casamet,climate,ktauday)
+  SUBROUTINE casa_feedback(ktau,veg,casabiome,casapool,casamet,climate,ktauday)
 
-   USE cable_def_types_mod
-   USE casadimension
-   USE casaparm
-   USE casavariable
-   USE casa_cnp_module,      ONLY: vcmax_np
-   USE cable_common_module,  ONLY: CABLE_USER
-   USE cable_data_module,    ONLY: icanopy_type
-   USE cable_optimise_JV_module
-   USE cable_adjust_JV_gm_module
+    USE cable_def_types_mod
+    USE casadimension
+    USE casaparm
+    USE casavariable
+    USE casa_cnp_module,      ONLY: vcmax_np
+    USE cable_common_module,  ONLY: CABLE_USER
+    USE cable_data_module,    ONLY: icanopy_type
+    USE cable_optimise_JV_module
+    USE cable_adjust_JV_gm_module
 
-   IMPLICIT NONE
+    IMPLICIT NONE
 
-   INTEGER,                  INTENT(IN)    :: ktau ! integration step number
-   TYPE(veg_parameter_type), INTENT(INOUT) :: veg  ! vegetation parameters
-   TYPE(casa_biome),         INTENT(INOUT) :: casabiome
-   TYPE(casa_pool),          INTENT(IN)    :: casapool
-   TYPE(casa_met),           INTENT(IN)    :: casamet
-   TYPE(climate_type),       INTENT(IN)    :: climate  ! climate variables
-   INTEGER,                  INTENT(IN)    :: ktauday ! number of time steps per day
+    INTEGER,                  INTENT(IN)    :: ktau ! integration step number
+    TYPE(veg_parameter_type), INTENT(INOUT) :: veg  ! vegetation parameters
+    TYPE(casa_biome),         INTENT(INOUT) :: casabiome
+    TYPE(casa_pool),          INTENT(IN)    :: casapool
+    TYPE(casa_met),           INTENT(IN)    :: casamet
+    TYPE(climate_type),       INTENT(IN)    :: climate  ! climate variables
+    INTEGER,                  INTENT(IN)    :: ktauday ! number of time steps per day
 
-   TYPE(icanopy_type) :: PHOTO
+    TYPE(icanopy_type) :: PHOTO
 
-   ! local variables
-   integer np,ivt
-   real(r_2), dimension(mp) :: ncleafx, npleafx, pleafx, nleafx ! local variables
-   real, dimension(17) ::  xnslope
-   data xnslope/0.80,1.00,2.00,1.00,1.00,1.00,0.50,1.00,0.34,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00/
-   real                :: relcostJCi
-   real, dimension(mp) :: bjvref, relcostJ, Nefftmp
-   real, dimension(mp) :: vcmaxx, cfrdx  ! vcmax and cfrd of previous day
+    ! local variables
+    integer np,ivt
+    real(r_2), dimension(mp) :: ncleafx, npleafx, pleafx, nleafx ! local variables
+    real, dimension(17) ::  xnslope
+    data xnslope/0.80,1.00,2.00,1.00,1.00,1.00,0.50,1.00,0.34,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00/
+    real                :: relcostJCi
+    real, dimension(mp) :: bjvref, relcostJ, Nefftmp
+    real, dimension(mp) :: vcmaxx, cfrdx  ! vcmax and cfrd of previous day
 
-   vcmaxx = veg%vcmax
-   cfrdx  = veg%cfrd
+    vcmaxx = veg%vcmax
+    cfrdx  = veg%cfrd
 
-   ! first initialize
-   CALL point2constants(PHOTO)
-   ncleafx(:) = casabiome%ratioNCplantmax(veg%iveg(:),leaf)
-   npleafx(:) = casabiome%ratioNPplantmin(veg%iveg(:),leaf)
-   bjvref(:)  = PHOTO%bjvref     ! 1.7, Walker et al. 2014
-   DO np=1,mp
-      ivt=veg%iveg(np)
-      IF (casamet%iveg2(np)/=icewater &
-           .AND. casamet%glai(np)>casabiome%glaimin(ivt)  &
-           .AND. casapool%cplant(np,leaf)>0.0_r_2) THEN
+    ! first initialize
+    CALL point2constants(PHOTO)
+    ncleafx(:) = casabiome%ratioNCplantmax(veg%iveg(:),leaf)
+    npleafx(:) = casabiome%ratioNPplantmin(veg%iveg(:),leaf)
+    bjvref(:)  = PHOTO%bjvref     ! 1.7, Walker et al. 2014
+    DO np=1,mp
+       ivt=veg%iveg(np)
+       IF (casamet%iveg2(np)/=icewater &
+            .AND. casamet%glai(np)>casabiome%glaimin(ivt)  &
+            .AND. casapool%cplant(np,leaf)>0.0_r_2) THEN
 
-         IF (icycle>1 .AND. casapool%cplant(np,leaf)>0.0_r_2) THEN
-            ncleafx(np) = MIN(casabiome%ratioNCplantmax(ivt,leaf), &
-                 MAX(casabiome%ratioNCplantmin(ivt,leaf), &
-                 casapool%nplant(np,leaf)/casapool%cplant(np,leaf)))
-         ENDIF
-         IF (icycle>2 .AND. casapool%pplant(np,leaf)>0.0) THEN
-            npleafx(np) = MIN( 30.0_r_2, MAX( 8.0_r_2, &
-                 casapool%nplant(np,leaf)/casapool%pplant(np,leaf) ) )
-         ENDIF
-      ENDIF
+          IF (icycle>1 .AND. casapool%cplant(np,leaf)>0.0_r_2) THEN
+             ncleafx(np) = MIN(casabiome%ratioNCplantmax(ivt,leaf), &
+                  MAX(casabiome%ratioNCplantmin(ivt,leaf), &
+                  casapool%nplant(np,leaf)/casapool%cplant(np,leaf)))
+          ENDIF
+          IF (icycle>2 .AND. casapool%pplant(np,leaf)>0.0) THEN
+             npleafx(np) = MIN( 30.0_r_2, MAX( 8.0_r_2, &
+                  casapool%nplant(np,leaf)/casapool%pplant(np,leaf) ) )
+          ENDIF
+       ENDIF
 
-      IF (TRIM(cable_user%vcmax).eq.'standard') then
-         IF (casamet%glai(np) > casabiome%glaimin(ivt)) THEN
-            IF (ivt/=2) THEN
-               veg%vcmax(np) = real(casabiome%nintercept(ivt) &
-                    + casabiome%nslope(ivt)*ncleafx(np)/casabiome%sla(ivt)) * 1.0e-6
-            ELSE
-               IF (casapool%nplant(np,leaf)>0.0.AND.casapool%pplant(np,leaf)>0.0) THEN
-                  veg%vcmax(np) = real(casabiome%nintercept(ivt)  &
-                       + casabiome%nslope(ivt)*(0.4_r_2+9.0_r_2/npleafx(np)) &
-                       * ncleafx(np)/casabiome%sla(ivt)) * 1.0e-6
-               ELSE
-                  veg%vcmax(np) = real(casabiome%nintercept(ivt) &
-                       + casabiome%nslope(ivt)*ncleafx(np)/casabiome%sla(ivt)) * 1.0e-6
-               ENDIF
-            ENDIF
-            veg%vcmax(np) = veg%vcmax(np) * xnslope(ivt)
-         ENDIF
-         veg%ejmax = 2.0 * veg%vcmax
-      elseif (TRIM(cable_user%vcmax).eq.'Walker2014') then
-         ! Walker, A. P. et al.: The relationship of leaf photosynthetic traits - Vcmax and Jmax -
-         !   to leaf nitrogen, leaf phosphorus, and specific leaf area: a meta-analysis and modeling study,
-         !   Ecology and Evolution, 4, 3218-3235, 2014.
-         ! veg%vcmax(np) = exp(3.946 + 0.921*log(nleafx(np)) + 0.121*log(pleafx(np)) + &
-         !      0.282*log(pleafx(np))*log(nleafx(np))) * 1.0e-6
-         nleafx(np) = ncleafx(np)/casabiome%sla(ivt) ! leaf N in g N m-2 leaf
-         pleafx(np) = nleafx(np)/npleafx(np) ! leaf P in g P m-2 leaf
+       IF (TRIM(cable_user%vcmax).eq.'standard') then
+          IF (casamet%glai(np) > casabiome%glaimin(ivt)) THEN
+             IF (ivt/=2) THEN
+                veg%vcmax(np) = real(casabiome%nintercept(ivt) &
+                     + casabiome%nslope(ivt)*ncleafx(np)/casabiome%sla(ivt)) * 1.0e-6
+             ELSE
+                IF (casapool%nplant(np,leaf)>0.0.AND.casapool%pplant(np,leaf)>0.0) THEN
+                   veg%vcmax(np) = real(casabiome%nintercept(ivt)  &
+                        + casabiome%nslope(ivt)*(0.4_r_2+9.0_r_2/npleafx(np)) &
+                        * ncleafx(np)/casabiome%sla(ivt)) * 1.0e-6
+                ELSE
+                   veg%vcmax(np) = real(casabiome%nintercept(ivt) &
+                        + casabiome%nslope(ivt)*ncleafx(np)/casabiome%sla(ivt)) * 1.0e-6
+                ENDIF
+             ENDIF
+             veg%vcmax(np) = veg%vcmax(np) * xnslope(ivt)
+          ENDIF
+          veg%ejmax = 2.0 * veg%vcmax
+       elseif (TRIM(cable_user%vcmax).eq.'Walker2014') then
+          ! Walker, A. P. et al.: The relationship of leaf photosynthetic traits - Vcmax and Jmax -
+          !   to leaf nitrogen, leaf phosphorus, and specific leaf area: a meta-analysis and modeling study,
+          !   Ecology and Evolution, 4, 3218-3235, 2014.
+          ! veg%vcmax(np) = exp(3.946 + 0.921*log(nleafx(np)) + 0.121*log(pleafx(np)) + &
+          !      0.282*log(pleafx(np))*log(nleafx(np))) * 1.0e-6
+          nleafx(np) = ncleafx(np)/casabiome%sla(ivt) ! leaf N in g N m-2 leaf
+          pleafx(np) = nleafx(np)/npleafx(np) ! leaf P in g P m-2 leaf
 
-         if (ivt .EQ. 7 .OR.ivt .EQ. 9  ) then
-            ! special for C4 grass: scale value from  parameter file
-            veg%vcmax(np) = real(casabiome%vcmax_scalar(ivt)) * 1.0e-5
-            veg%ejmax(np) = 2.0 * veg%vcmax(np)
-         elseif (ivt.eq.1) then
-            ! account here for spring recovery
-            veg%vcmax(np) = real( vcmax_np(nleafx(np), pleafx(np)) * &
-                 casabiome%vcmax_scalar(ivt) * real(climate%frec(np),r_2) )
-            veg%ejmax(np) = bjvref(np) * veg%vcmax(np)
-         else
-            veg%vcmax(np) = real( vcmax_np(nleafx(np), pleafx(np)) * &
-                 casabiome%vcmax_scalar(ivt) )
-            veg%ejmax(np) = bjvref(np) * veg%vcmax(np)
-         endif
+          if (ivt .EQ. 7 .OR.ivt .EQ. 9  ) then
+             ! special for C4 grass: scale value from  parameter file
+             veg%vcmax(np) = real(casabiome%vcmax_scalar(ivt)) * 1.0e-5
+             veg%ejmax(np) = 2.0 * veg%vcmax(np)
+          elseif (ivt.eq.1) then
+             ! account here for spring recovery
+             veg%vcmax(np) = real( vcmax_np(nleafx(np), pleafx(np)) * &
+                  casabiome%vcmax_scalar(ivt) * real(climate%frec(np),r_2) )
+             veg%ejmax(np) = bjvref(np) * veg%vcmax(np)
+          else
+             veg%vcmax(np) = real( vcmax_np(nleafx(np), pleafx(np)) * &
+                  casabiome%vcmax_scalar(ivt) )
+             veg%ejmax(np) = bjvref(np) * veg%vcmax(np)
+          endif
 
-         ! adjust Vcmax and Jmax accounting for gm, but only if the implicit values
-         ! have changed.
-         if (cable_user%explicit_gm) then
-            if ( ABS(vcmaxx(np) - veg%vcmax(np)) .GT. 1.0E-08 .OR. &
-                 ABS(cfrdx(np) - veg%cfrd(np)) .GT. 1.0E-05 .OR. &
-                 ktau .LT. ktauday ) then
-               ! The approach by Sun et al. 2014 is replaced with a subroutine
-               ! based on Knauer et al. 2019, GCB
-               CALL adjust_JV_gm(veg)
-            endif
+          ! adjust Vcmax and Jmax accounting for gm, but only if the implicit values
+          ! have changed.
+          if (cable_user%explicit_gm) then
+             if ( ABS(vcmaxx(np) - veg%vcmax(np)) .GT. 1.0E-08 .OR. &
+                  ABS(cfrdx(np) - veg%cfrd(np)) .GT. 1.0E-05 .OR. &
+                  ktau .LT. ktauday ) then
+                ! The approach by Sun et al. 2014 is replaced with a subroutine
+                ! based on Knauer et al. 2019, GCB
+                CALL adjust_JV_gm(veg)
+             endif
 
-            ! recalculate bjvref
-            bjvref(np) = veg%ejmaxcc(np) / veg%vcmaxcc(np)
+             ! recalculate bjvref
+             bjvref(np) = veg%ejmaxcc(np) / veg%vcmaxcc(np)
 
-            ! recalculate relcost_J in a way that Neff is the same with
-            ! finite (explicit) and infinite (implicit) gm
-            if (coord) then
-               relcostJCi = PHOTO%relcostJ_coord
-            else
-               relcostJCi = PHOTO%relcostJ_optim
-            endif
+             ! recalculate relcost_J in a way that Neff is the same with
+             ! finite (explicit) and infinite (implicit) gm
+             if (coord) then
+                relcostJCi = PHOTO%relcostJ_coord
+             else
+                relcostJCi = PHOTO%relcostJ_optim
+             endif
 
-            Nefftmp(np) = veg%vcmax(np) + relcostJCi * PHOTO%bjvref *  &
-                 veg%vcmax(np) / 4.0
-            relcostJ(np) = 1.0 / (bjvref(np) * veg%vcmaxcc(np) / 4.0) * &
-                 (Nefftmp(np) - veg%vcmaxcc(np))
+             Nefftmp(np) = veg%vcmax(np) + relcostJCi * PHOTO%bjvref *  &
+                  veg%vcmax(np) / 4.0
+             relcostJ(np) = 1.0 / (bjvref(np) * veg%vcmaxcc(np) / 4.0) * &
+                  (Nefftmp(np) - veg%vcmaxcc(np))
 
-         else  ! infinite gm
-            if (coord) then
-               relcostJ(:) = PHOTO%relcostJ_coord
-            else
-               relcostJ(:) = PHOTO%relcostJ_optim
-            endif
-         endif
+          else  ! infinite gm
+             if (coord) then
+                relcostJ(:) = PHOTO%relcostJ_coord
+             else
+                relcostJ(:) = PHOTO%relcostJ_optim
+             endif
+          endif
 
-      else ! cable_user%vcmax .eq. 'standard' or 'Walker2014'
-         stop 'invalid vcmax flag'
-      endif ! cable_user%vcmax
+       else ! cable_user%vcmax .eq. 'standard' or 'Walker2014'
+          stop 'invalid vcmax flag'
+       endif ! cable_user%vcmax
 
-   ENDDO ! np=1,mp
+    ENDDO ! np=1,mp
 
-   !if (mod(ktau,ktauday) ==1) then   ! JK: whole routine is now called once per day
-   if (cable_user%coordinate_photosyn) then
-      CALL optimise_JV(veg, climate, ktauday, bjvref, relcostJ)
-   else
-      if (cable_user%explicit_gm) then
-         veg%vcmax_shade = veg%vcmaxcc
-         veg%ejmax_shade = veg%ejmaxcc
+    !if (mod(ktau,ktauday) ==1) then   ! JK: whole routine is now called once per day
+    if (cable_user%coordinate_photosyn) then
+       CALL optimise_JV(veg, climate, ktauday, bjvref, relcostJ)
+    else
+       if (cable_user%explicit_gm) then
+          veg%vcmax_shade = veg%vcmaxcc
+          veg%ejmax_shade = veg%ejmaxcc
 
-         veg%vcmax_sun = veg%vcmaxcc
-         veg%ejmax_sun = veg%ejmaxcc
-      else    
-         veg%vcmax_shade = veg%vcmax
-         veg%ejmax_shade = veg%ejmax
+          veg%vcmax_sun = veg%vcmaxcc
+          veg%ejmax_sun = veg%ejmaxcc
+       else
+          veg%vcmax_shade = veg%vcmax
+          veg%ejmax_shade = veg%ejmax
 
-         veg%vcmax_sun = veg%vcmax
-         veg%ejmax_sun = veg%ejmax
-      endif
-   endif
+          veg%vcmax_sun = veg%vcmax
+          veg%ejmax_sun = veg%ejmax
+       endif
+    endif
 
-   ! for 2 day test
-   !if (ktau == ) stop
+    ! for 2 day test
+    !if (ktau == ) stop
 
-   !991 format(i6,2x,i4,2x,2(f9.3,2x))
- END SUBROUTINE casa_feedback
+    !991 format(i6,2x,i4,2x,2(f9.3,2x))
+  END SUBROUTINE casa_feedback
 
 
-SUBROUTINE sumcflux(ktau, kstart, kend, dels, bgc, canopy,  &
-     soil, ssnow, sum_flux, veg, met, casaflux, l_vcmaxFeedbk)
+  SUBROUTINE sumcflux(ktau, kstart, kend, dels, bgc, canopy,  &
+       soil, ssnow, sum_flux, veg, met, casaflux, l_vcmaxFeedbk)
 
-  USE cable_def_types_mod
-  USE cable_carbon_module
-  USE casadimension
-  USE casaparm
-  USE casavariable
-  
-  IMPLICIT NONE
-  
-  INTEGER, INTENT(IN)    :: ktau ! integration step number
-  INTEGER, INTENT(IN)    :: kstart ! starting value of ktau
-  INTEGER, INTENT(IN)    :: kend ! total # timesteps in run
-!  INTEGER, INTENT(IN)    :: mvtype  ! Number of veg types
-!  INTEGER, INTENT(IN)    :: mstype ! Number of soil types
-  REAL,    INTENT(IN)    :: dels ! time setp size (s)
-  TYPE (bgc_pool_type),       INTENT(INOUT) :: bgc
-  TYPE (canopy_type),         INTENT(INOUT) :: canopy
-  TYPE (soil_parameter_type), INTENT(INOUT) :: soil
-  TYPE (soil_snow_type),      INTENT(INOUT) :: ssnow
-  TYPE (sum_flux_type),       INTENT(INOUT) :: sum_flux
-  TYPE (met_type),            INTENT(IN)    :: met
-  TYPE (veg_parameter_type),  INTENT(INOUT) :: veg
-  TYPE (casa_flux),           INTENT(INOUT) :: casaflux
-  LOGICAL, INTENT(IN)   :: l_vcmaxFeedbk ! using prognostic Vcmax
+    USE cable_def_types_mod
+    USE cable_carbon_module
+    USE casadimension
+    USE casaparm
+    USE casavariable
 
-  !   if(icycle<=0) then
-  !     these are executed in cbm
-  !      CALL soilcarb(soil, ssoil, veg, bgc, met, canopy)
-  !      CALL carbon_pl(dels, soil, ssoil, veg, canopy, bgc)
-  !   else
+    IMPLICIT NONE
+
+    INTEGER, INTENT(IN)    :: ktau ! integration step number
+    INTEGER, INTENT(IN)    :: kstart ! starting value of ktau
+    INTEGER, INTENT(IN)    :: kend ! total # timesteps in run
+    !  INTEGER, INTENT(IN)    :: mvtype  ! Number of veg types
+    !  INTEGER, INTENT(IN)    :: mstype ! Number of soil types
+    REAL,    INTENT(IN)    :: dels ! time setp size (s)
+    TYPE (bgc_pool_type),       INTENT(INOUT) :: bgc
+    TYPE (canopy_type),         INTENT(INOUT) :: canopy
+    TYPE (soil_parameter_type), INTENT(INOUT) :: soil
+    TYPE (soil_snow_type),      INTENT(INOUT) :: ssnow
+    TYPE (sum_flux_type),       INTENT(INOUT) :: sum_flux
+    TYPE (met_type),            INTENT(IN)    :: met
+    TYPE (veg_parameter_type),  INTENT(INOUT) :: veg
+    TYPE (casa_flux),           INTENT(INOUT) :: casaflux
+    LOGICAL, INTENT(IN)   :: l_vcmaxFeedbk ! using prognostic Vcmax
+
+    !   if(icycle<=0) then
+    !     these are executed in cbm
+    !      CALL soilcarb(soil, ssoil, veg, bgc, met, canopy)
+    !      CALL carbon_pl(dels, soil, ssoil, veg, canopy, bgc)
+    !   else
     if(icycle>0) then
        canopy%frp(:)  = real((casaflux%crmplant(:,wood) + casaflux%crmplant(:,froot) + &
             casaflux%crgplant(:))/86400.0_r_2)
@@ -956,101 +962,101 @@ SUBROUTINE sumcflux(ktau, kstart, kend, dels, bgc, canopy,  &
     ! Set net ecosystem exchange after adjustments to frs:
     canopy%fnpp = -1.0* canopy%fpn - canopy%frp
     IF (icycle <= 1) THEN
-      canopy%fnee = canopy%fpn + canopy%frs + canopy%frp
+       canopy%fnee = canopy%fpn + canopy%frs + canopy%frp
     ELSE
-      IF (l_vcmaxFeedbk) THEN
-        canopy%fnee = canopy%fpn + canopy%frs + canopy%frp &
-                    + real(casaflux%clabloss(:)/86400.0_r_2)
-      ELSE
-         canopy%fnee = real((casaflux%Crsoil - casaflux%cnpp + &
-              casaflux%clabloss)/86400.0_r_2)
-      ENDIF
+       IF (l_vcmaxFeedbk) THEN
+          canopy%fnee = canopy%fpn + canopy%frs + canopy%frp &
+               + real(casaflux%clabloss(:)/86400.0_r_2)
+       ELSE
+          canopy%fnee = real((casaflux%Crsoil - casaflux%cnpp + &
+               casaflux%clabloss)/86400.0_r_2)
+       ENDIF
     ENDIF
 
-END SUBROUTINE sumcflux
+  END SUBROUTINE sumcflux
 
   SUBROUTINE totcnppools(kloop,veg,casamet,casapool,bmcplant,bmnplant,bmpplant,bmclitter,bmnlitter,bmplitter, &
-                         bmcsoil,bmnsoil,bmpsoil,bmnsoilmin,bmpsoillab,bmpsoilsorb,bmpsoilocc,bmarea)
-  ! this subroutine is temporary, and its needs to be modified for multiple tiles within a cell
-  USE cable_def_types_mod
-  USE casadimension
-  USE casaparm
-  USE casavariable
-  IMPLICIT NONE
-  INTEGER,                     INTENT(IN)  :: kloop
-  TYPE (veg_parameter_type),   INTENT(IN)  :: veg  ! vegetation parameters
-  TYPE(casa_pool),             INTENT(IN)  :: casapool
-  TYPE(casa_met),              INTENT(IN)  :: casamet
-  real,      dimension(5,mvtype,mplant)    :: bmcplant,  bmnplant,  bmpplant
-  real,      dimension(5,mvtype,mlitter)   :: bmclitter, bmnlitter, bmplitter
-  real,      dimension(5,mvtype,msoil)     :: bmcsoil,   bmnsoil,   bmpsoil
-  real,      dimension(5,mvtype)           :: bmnsoilmin,bmpsoillab,bmpsoilsorb, bmpsoilocc
-  real,      dimension(mvtype)             :: bmarea
-  ! local variables
-  INTEGER  npt,nvt
+       bmcsoil,bmnsoil,bmpsoil,bmnsoilmin,bmpsoillab,bmpsoilsorb,bmpsoilocc,bmarea)
+    ! this subroutine is temporary, and its needs to be modified for multiple tiles within a cell
+    USE cable_def_types_mod
+    USE casadimension
+    USE casaparm
+    USE casavariable
+    IMPLICIT NONE
+    INTEGER,                     INTENT(IN)  :: kloop
+    TYPE (veg_parameter_type),   INTENT(IN)  :: veg  ! vegetation parameters
+    TYPE(casa_pool),             INTENT(IN)  :: casapool
+    TYPE(casa_met),              INTENT(IN)  :: casamet
+    real,      dimension(5,mvtype,mplant)    :: bmcplant,  bmnplant,  bmpplant
+    real,      dimension(5,mvtype,mlitter)   :: bmclitter, bmnlitter, bmplitter
+    real,      dimension(5,mvtype,msoil)     :: bmcsoil,   bmnsoil,   bmpsoil
+    real,      dimension(5,mvtype)           :: bmnsoilmin,bmpsoillab,bmpsoilsorb, bmpsoilocc
+    real,      dimension(mvtype)             :: bmarea
+    ! local variables
+    INTEGER  npt,nvt
 
 
-      bmcplant(kloop,:,:)  = 0.0;  bmnplant(kloop,:,:)  = 0.0; bmpplant(kloop,:,:)  = 0.0
-      bmclitter(kloop,:,:) = 0.0;  bmnlitter(kloop,:,:) = 0.0; bmplitter(kloop,:,:) = 0.0
-      bmcsoil(kloop,:,:)   = 0.0;  bmnsoil(kloop,:,:)   = 0.0; bmpsoil(kloop,:,:)   = 0.0
-      bmnsoilmin(kloop,:)  = 0.0;  bmpsoillab(kloop,:)  = 0.0; bmpsoilsorb(kloop,:) = 0.0;  bmpsoilocc(kloop,:) = 0.0
+    bmcplant(kloop,:,:)  = 0.0;  bmnplant(kloop,:,:)  = 0.0; bmpplant(kloop,:,:)  = 0.0
+    bmclitter(kloop,:,:) = 0.0;  bmnlitter(kloop,:,:) = 0.0; bmplitter(kloop,:,:) = 0.0
+    bmcsoil(kloop,:,:)   = 0.0;  bmnsoil(kloop,:,:)   = 0.0; bmpsoil(kloop,:,:)   = 0.0
+    bmnsoilmin(kloop,:)  = 0.0;  bmpsoillab(kloop,:)  = 0.0; bmpsoilsorb(kloop,:) = 0.0;  bmpsoilocc(kloop,:) = 0.0
 
-      bmarea(:) = 0.0
+    bmarea(:) = 0.0
 
-      do npt=1,mp
-         nvt=veg%iveg(npt)
-         bmcplant(kloop,nvt,:) = bmcplant(kloop,nvt,:)   + real(casapool%cplant(npt,:) * casamet%areacell(npt))
-         bmnplant(kloop,nvt,:) = bmnplant(kloop,nvt,:)   + real(casapool%nplant(npt,:) * casamet%areacell(npt))
-         bmpplant(kloop,nvt,:) = bmpplant(kloop,nvt,:)   + real(casapool%pplant(npt,:) * casamet%areacell(npt))
+    do npt=1,mp
+       nvt=veg%iveg(npt)
+       bmcplant(kloop,nvt,:) = bmcplant(kloop,nvt,:)   + real(casapool%cplant(npt,:) * casamet%areacell(npt))
+       bmnplant(kloop,nvt,:) = bmnplant(kloop,nvt,:)   + real(casapool%nplant(npt,:) * casamet%areacell(npt))
+       bmpplant(kloop,nvt,:) = bmpplant(kloop,nvt,:)   + real(casapool%pplant(npt,:) * casamet%areacell(npt))
 
-         bmclitter(kloop,nvt,:) = bmclitter(kloop,nvt,:) + real(casapool%clitter(npt,:) * casamet%areacell(npt))
-         bmnlitter(kloop,nvt,:) = bmnlitter(kloop,nvt,:) + real(casapool%nlitter(npt,:) * casamet%areacell(npt))
-         bmplitter(kloop,nvt,:) = bmplitter(kloop,nvt,:) + real(casapool%plitter(npt,:) * casamet%areacell(npt))
+       bmclitter(kloop,nvt,:) = bmclitter(kloop,nvt,:) + real(casapool%clitter(npt,:) * casamet%areacell(npt))
+       bmnlitter(kloop,nvt,:) = bmnlitter(kloop,nvt,:) + real(casapool%nlitter(npt,:) * casamet%areacell(npt))
+       bmplitter(kloop,nvt,:) = bmplitter(kloop,nvt,:) + real(casapool%plitter(npt,:) * casamet%areacell(npt))
 
-         bmcsoil(kloop,nvt,:) = bmcsoil(kloop,nvt,:)     + real(casapool%csoil(npt,:) * casamet%areacell(npt))
-         bmnsoil(kloop,nvt,:) = bmnsoil(kloop,nvt,:)     + real(casapool%nsoil(npt,:) * casamet%areacell(npt))
-         bmpsoil(kloop,nvt,:) = bmpsoil(kloop,nvt,:)     + real(casapool%psoil(npt,:) * casamet%areacell(npt))
+       bmcsoil(kloop,nvt,:) = bmcsoil(kloop,nvt,:)     + real(casapool%csoil(npt,:) * casamet%areacell(npt))
+       bmnsoil(kloop,nvt,:) = bmnsoil(kloop,nvt,:)     + real(casapool%nsoil(npt,:) * casamet%areacell(npt))
+       bmpsoil(kloop,nvt,:) = bmpsoil(kloop,nvt,:)     + real(casapool%psoil(npt,:) * casamet%areacell(npt))
 
-         bmnsoilmin(kloop,nvt)  = bmnsoilmin(kloop,nvt)   + real(casapool%nsoilmin(npt) * casamet%areacell(npt))
-         bmpsoillab(kloop,nvt)  = bmpsoillab(kloop,nvt)   + real(casapool%psoillab(npt) * casamet%areacell(npt))
-         bmpsoilsorb(kloop,nvt) = bmpsoilsorb(kloop,nvt)  + real(casapool%psoilsorb(npt) * casamet%areacell(npt))
-         bmpsoilocc(kloop,nvt)  = bmpsoilocc(kloop,nvt)   + real(casapool%psoilocc(npt) * casamet%areacell(npt))
-         bmarea(nvt)  = bmarea(nvt) + real(casamet%areacell(npt))
-      enddo
+       bmnsoilmin(kloop,nvt)  = bmnsoilmin(kloop,nvt)   + real(casapool%nsoilmin(npt) * casamet%areacell(npt))
+       bmpsoillab(kloop,nvt)  = bmpsoillab(kloop,nvt)   + real(casapool%psoillab(npt) * casamet%areacell(npt))
+       bmpsoilsorb(kloop,nvt) = bmpsoilsorb(kloop,nvt)  + real(casapool%psoilsorb(npt) * casamet%areacell(npt))
+       bmpsoilocc(kloop,nvt)  = bmpsoilocc(kloop,nvt)   + real(casapool%psoilocc(npt) * casamet%areacell(npt))
+       bmarea(nvt)  = bmarea(nvt) + real(casamet%areacell(npt))
+    enddo
 
-      do nvt=1,mvtype
-         bmcplant(kloop,nvt,:) = bmcplant(kloop,nvt,:)/bmarea(nvt)
-         bmnplant(kloop,nvt,:) = bmnplant(kloop,nvt,:)/bmarea(nvt)
-         bmpplant(kloop,nvt,:) = bmpplant(kloop,nvt,:)/bmarea(nvt)
+    do nvt=1,mvtype
+       bmcplant(kloop,nvt,:) = bmcplant(kloop,nvt,:)/bmarea(nvt)
+       bmnplant(kloop,nvt,:) = bmnplant(kloop,nvt,:)/bmarea(nvt)
+       bmpplant(kloop,nvt,:) = bmpplant(kloop,nvt,:)/bmarea(nvt)
 
-         bmclitter(kloop,nvt,:) = bmclitter(kloop,nvt,:)/bmarea(nvt)
-         bmnlitter(kloop,nvt,:) = bmnlitter(kloop,nvt,:)/bmarea(nvt)
-         bmplitter(kloop,nvt,:) = bmplitter(kloop,nvt,:)/bmarea(nvt)
+       bmclitter(kloop,nvt,:) = bmclitter(kloop,nvt,:)/bmarea(nvt)
+       bmnlitter(kloop,nvt,:) = bmnlitter(kloop,nvt,:)/bmarea(nvt)
+       bmplitter(kloop,nvt,:) = bmplitter(kloop,nvt,:)/bmarea(nvt)
 
-         bmcsoil(kloop,nvt,:) = bmcsoil(kloop,nvt,:)/bmarea(nvt)
-         bmnsoil(kloop,nvt,:) = bmnsoil(kloop,nvt,:)/bmarea(nvt)
-         bmpsoil(kloop,nvt,:) = bmpsoil(kloop,nvt,:)/bmarea(nvt)
+       bmcsoil(kloop,nvt,:) = bmcsoil(kloop,nvt,:)/bmarea(nvt)
+       bmnsoil(kloop,nvt,:) = bmnsoil(kloop,nvt,:)/bmarea(nvt)
+       bmpsoil(kloop,nvt,:) = bmpsoil(kloop,nvt,:)/bmarea(nvt)
 
-         bmnsoilmin(kloop,nvt)  = bmnsoilmin(kloop,nvt)/bmarea(nvt)
-         bmpsoillab(kloop,nvt)  = bmpsoillab(kloop,nvt)/bmarea(nvt)
-         bmpsoilsorb(kloop,nvt) = bmpsoilsorb(kloop,nvt)/bmarea(nvt)
-         bmpsoilocc(kloop,nvt)  = bmpsoilocc(kloop,nvt)/bmarea(nvt)
-      enddo
+       bmnsoilmin(kloop,nvt)  = bmnsoilmin(kloop,nvt)/bmarea(nvt)
+       bmpsoillab(kloop,nvt)  = bmpsoillab(kloop,nvt)/bmarea(nvt)
+       bmpsoilsorb(kloop,nvt) = bmpsoilsorb(kloop,nvt)/bmarea(nvt)
+       bmpsoilocc(kloop,nvt)  = bmpsoilocc(kloop,nvt)/bmarea(nvt)
+    enddo
 
   END SUBROUTINE totcnppools
 
-  
+
   SUBROUTINE analyticpool(kend,veg,soil,casabiome,casapool,                                 &
-                          casaflux,casamet,casabal,phen,                                    &
-                          avgcleaf2met,avgcleaf2str,avgcroot2met,avgcroot2str,avgcwood2cwd, &
-                          avgnleaf2met,avgnleaf2str,avgnroot2met,avgnroot2str,avgnwood2cwd, &
-                          avgpleaf2met,avgpleaf2str,avgproot2met,avgproot2str,avgpwood2cwd, &
-                          avgcgpp, avgcnpp, avgnuptake, avgpuptake,                         &
-                          avgxnplimit,avgxkNlimiting,avgxklitter,avgxksoil,                 &
-                          avgratioNCsoilmic,avgratioNCsoilslow,avgratioNCsoilpass,         &
-                          avgnsoilmin,avgpsoillab,avgpsoilsorb,avgpsoilocc, &
-                          avg_c13leaf2met, avg_c13leaf2str, avg_c13root2met, &
-                          avg_c13root2str, avg_c13wood2cwd, c13o2pools)
+       casaflux,casamet,casabal,phen,                                    &
+       avgcleaf2met,avgcleaf2str,avgcroot2met,avgcroot2str,avgcwood2cwd, &
+       avgnleaf2met,avgnleaf2str,avgnroot2met,avgnroot2str,avgnwood2cwd, &
+       avgpleaf2met,avgpleaf2str,avgproot2met,avgproot2str,avgpwood2cwd, &
+       avgcgpp, avgcnpp, avgnuptake, avgpuptake,                         &
+       avgxnplimit,avgxkNlimiting,avgxklitter,avgxksoil,                 &
+       avgratioNCsoilmic,avgratioNCsoilslow,avgratioNCsoilpass,         &
+       avgnsoilmin,avgpsoillab,avgpsoilsorb,avgpsoilocc, &
+       avg_c13leaf2met, avg_c13leaf2str, avg_c13root2met, &
+       avg_c13root2str, avg_c13wood2cwd, c13o2pools)
 
     USE cable_def_types_mod
     USE cable_carbon_module
@@ -1061,9 +1067,9 @@ END SUBROUTINE sumcflux
     use cable_common_module, only: cable_user
     ! 13C
     use cable_c13o2_def,     only: c13o2_pool
-    
+
     implicit none
-    
+
     integer,                   intent(in)    :: kend
     type(veg_parameter_type),  intent(in)    :: veg       ! vegetation parameters
     type(soil_parameter_type), intent(in)    :: soil      ! soil parameters
@@ -1131,11 +1137,11 @@ END SUBROUTINE sumcflux
        if ((casamet%iveg2(npt)/=icewater) .and. (avgcnpp(npt) > 0.0_r_2)) then
           casaflux%fromLtoS(npt,mic,metb) = 0.45_r_2
           ! metb -> mic
-          casaflux%fromLtoS(npt,mic,str)  = 0.45_r_2*(1.0_r_2-casabiome%fracLigninplant(veg%iveg(npt),leaf))
+          casaflux%fromLtoS(npt,mic,str)  = 0.45_r_2 * (1.0_r_2 - casabiome%fracLigninplant(veg%iveg(npt),leaf))
           ! str -> mic
           casaflux%fromLtoS(npt,slow,str) = 0.7_r_2 * casabiome%fracLigninplant(veg%iveg(npt),leaf)
           ! str -> slow
-          casaflux%fromLtoS(npt,mic,cwd)  = 0.40_r_2*(1.0_r_2 - casabiome%fracLigninplant(veg%iveg(npt),wood))
+          casaflux%fromLtoS(npt,mic,cwd)  = 0.40_r_2 * (1.0_r_2 - casabiome%fracLigninplant(veg%iveg(npt),wood))
           ! CWD -> fmic
           casaflux%fromLtoS(npt,slow,cwd) = 0.7_r_2 * casabiome%fracLigninplant(veg%iveg(npt),wood)
           ! CWD -> slow
@@ -1148,17 +1154,17 @@ END SUBROUTINE sumcflux
           casaflux%fromStoS(npt,pass,mic)  = (0.85_r_2 - 0.68_r_2 * (soil%clay(npt)+soil%silt(npt))) &
                * (0.003_r_2 + 0.032_r_2*soil%clay(npt))
           casaflux%fromStoS(npt,pass,slow) = 0.45_r_2 * (0.003_r_2 + 0.009_r_2 * soil%clay(npt) )
-          
-          casaflux%klitter(npt,metb) = avgxkNlimiting(npt) * avgxklitter(npt)*casabiome%litterrate(veg%iveg(npt),metb)
-          casaflux%klitter(npt,str)  = avgxkNlimiting(npt) * avgxklitter(npt)*casabiome%litterrate(veg%iveg(npt),str) * &
-               exp(-3.0*casabiome%fracLigninplant(veg%iveg(npt),leaf))
-          casaflux%klitter(npt,cwd)  = avgxkNlimiting(npt) * avgxklitter(npt)*casabiome%litterrate(veg%iveg(npt),cwd)
-          
-          casaflux%ksoil(npt,mic)    = avgxksoil(npt)*casabiome%soilrate(veg%iveg(npt),mic) * &
-               (1.0_r_2 - 0.75_r_2 *(soil%silt(npt)+soil%clay(npt)))
+
+          casaflux%klitter(npt,metb) = avgxkNlimiting(npt) * avgxklitter(npt) * casabiome%litterrate(veg%iveg(npt),metb)
+          casaflux%klitter(npt,str)  = avgxkNlimiting(npt) * avgxklitter(npt) * casabiome%litterrate(veg%iveg(npt),str) * &
+               exp(-3.0_r_2*casabiome%fracLigninplant(veg%iveg(npt),leaf))
+          casaflux%klitter(npt,cwd)  = avgxkNlimiting(npt) * avgxklitter(npt) * casabiome%litterrate(veg%iveg(npt),cwd)
+
+          casaflux%ksoil(npt,mic)    = avgxksoil(npt) * casabiome%soilrate(veg%iveg(npt),mic) * &
+               (1.0_r_2 - 0.75_r_2 * (soil%silt(npt)+soil%clay(npt)))
           casaflux%ksoil(npt,slow)   = avgxksoil(npt) * casabiome%soilrate(veg%iveg(npt),slow)
           casaflux%ksoil(npt,pass)   = avgxksoil(npt) * casabiome%soilrate(veg%iveg(npt),pass)
-          
+
           if (veg%iveg(npt)==cropland) then     ! for cultivated land type
              casaflux%ksoil(npt,mic)  = casaflux%ksoil(npt,mic)  * 1.25_r_2
              casaflux%ksoil(npt,slow) = casaflux%ksoil(npt,slow) * 1.5_r_2
@@ -1168,17 +1174,103 @@ END SUBROUTINE sumcflux
     enddo
 
     do npt=1, mp
+
        if ((casamet%iveg2(npt) /= icewater) .and. (avgcnpp(npt) > 0.0_r_2)) then
 
+          ! MC - Do first P then N and then C so that each equilibrium solution uses the incoming pools not updated yet
+          if (icycle<=2) then
+             totpsoil(npt)          = psorder(casamet%isorder(npt)) * xpsoil50(casamet%isorder(npt))
+             ! casapool%plitter(npt,:)= casapool%Nlitter(npt,:)/casapool%ratioNPlitter(npt,:)
+             ! casapool%psoil(npt,:)  = casapool%Nsoil(npt,:)/casapool%ratioNPsoil(npt,:)
+             ! why is this commented here but used in UM
+             casapool%plitter(npt,:) = casapool%ratioPClitter(npt,:) * casapool%Clitter(npt,:)
+             casapool%psoil(npt,:)   = casapool%ratioPCsoil(npt,:)   * casapool%Csoil(npt,:)
+             casapool%psoillab(npt)  = totpsoil(npt) * fracpLab(casamet%isorder(npt))
+             casapool%psoilsorb(npt) = casaflux%psorbmax(npt) * casapool%psoillab(npt) / &
+                  (casaflux%kmlabp(npt)+casapool%psoillab(npt))
+             casapool%psoilocc(npt)  = totpsoil(npt) * fracPocc(casamet%isorder(npt))
+          else
+             ! compute the steady-state litter and soil P pools
+             ! casapool%plitter(npt,metb) = (avgpleaf2met(npt)+avgproot2met(npt))/casaflux%klitter(npt,metb)
+             ! casapool%plitter(npt,str) = (avgpleaf2str(npt)+avgproot2str(npt))/casaflux%klitter(npt,str)
+             ! casapool%plitter(npt,cwd) = (avgpwood2cwd(npt))/casaflux%klitter(npt,cwd)
+
+             ! casapool%psoil(npt,mic) = (casaflux%fromLtoS(npt,mic,metb)*casaflux%klitter(npt,metb)*casapool%clitter(npt,metb) &
+             !      +casaflux%fromLtoS(npt,mic,str) *casaflux%klitter(npt,str)*casapool%clitter(npt,str)  &
+             !      +casaflux%fromLtoS(npt,mic,cwd) *casaflux%klitter(npt,cwd)*casapool%clitter(npt,cwd) ) &
+             !      * (casapool%ratioNCsoil(npt,mic)/casapool%ratioNPsoil(npt,mic))/casaflux%ksoil(npt,mic)
+             ! casapool%psoil(npt,slow) = (casaflux%fromLtoS(npt,slow,metb)*casaflux%klitter(npt,metb)*casapool%clitter(npt,metb) &
+             !      + casaflux%fromLtoS(npt,slow,str)*casaflux%klitter(npt,str)*casapool%clitter(npt,str) &
+             !      + casaflux%fromLtoS(npt,slow,cwd)*casaflux%klitter(npt,cwd)*casapool%clitter(npt,cwd) &
+             !      + casaflux%fromStoS(npt,slow,mic) *casaflux%ksoil(npt,mic) *casapool%csoil(npt,mic)  ) &
+             !      * (casapool%ratioNCsoil(npt,slow)/casapool%ratioNPsoil(npt,slow))/casaflux%ksoil(npt,slow)
+             ! casapool%psoil(npt,pass) = (casaflux%fromStoS(npt,pass,mic) *casaflux%ksoil(npt,mic) *casapool%csoil(npt,mic) &
+             !      +casaflux%fromStoS(npt,pass,slow)*casaflux%ksoil(npt,slow)*casapool%csoil(npt,slow) ) &
+             !      *  (casapool%ratioNCsoil(npt,pass)/casapool%ratioNPsoil(npt,pass))/casaflux%ksoil(npt,pass)
+
+             casapool%plitter(npt,metb) = (avgpleaf2met(npt)+avgproot2met(npt)) / casaflux%klitter(npt,metb)
+             casapool%plitter(npt,str)  = (avgpleaf2str(npt)+avgproot2str(npt)) / casaflux%klitter(npt,str)
+             casapool%plitter(npt,cwd)  = avgpwood2cwd(npt) / casaflux%klitter(npt,cwd)
+
+             casapool%psoil(npt,pass) = (casaflux%fromStoS(npt,pass,mic) * casaflux%ksoil(npt,mic) * &
+                  casapool%Nsoil(npt,mic) + &
+                  casaflux%fromStoS(npt,pass,slow) * casaflux%ksoil(npt,slow) * casapool%Nsoil(npt,slow)) / &
+                  casapool%ratioNPsoil(npt,pass) / casaflux%ksoil(npt,pass)
+             casapool%psoil(npt,slow) = (casaflux%fromLtoS(npt,slow,metb) * casaflux%klitter(npt,metb) * &
+                  casapool%Nlitter(npt,metb) + &
+                  casaflux%fromLtoS(npt,slow,str) * casaflux%klitter(npt,str) * casapool%Nlitter(npt,str) + &
+                  casaflux%fromLtoS(npt,slow,cwd) * casaflux%klitter(npt,cwd) * casapool%Nlitter(npt,cwd) + &
+                  casaflux%fromStoS(npt,slow,mic) * casaflux%ksoil(npt,mic) * casapool%Nsoil(npt,mic)) / &
+                  casapool%ratioNPsoil(npt,slow) / casaflux%ksoil(npt,slow)
+             casapool%psoil(npt,mic) = (casaflux%fromLtoS(npt,mic,metb) * casaflux%klitter(npt,metb) * &
+                  casapool%Nlitter(npt,metb) + &
+                  casaflux%fromLtoS(npt,mic,str) * casaflux%klitter(npt,str) * casapool%Nlitter(npt,str) + &
+                  casaflux%fromLtoS(npt,mic,cwd) * casaflux%klitter(npt,cwd) * casapool%Nlitter(npt,cwd)) / &
+                  casapool%ratioNPsoil(npt,mic)/casaflux%ksoil(npt,mic)
+             ! assign the mineral pools
+             casapool%psoillab(npt)  = avgpsoillab(npt)
+             casapool%psoilsorb(npt) = avgPsoilsorb(npt)
+             casapool%psoilocc(npt)  = avgPsoilocc(npt)
+          endif ! icycle<=2
+
+          if (icycle<=1) then
+             casapool%nlitter(npt,:) = casapool%ratioNClitter(npt,:) * casapool%Clitter(npt,:)
+             casapool%nsoil(npt,:)   = casapool%ratioNCsoil(npt,:)   * casapool%Csoil(npt,:)
+             casapool%nsoilmin(npt)  = 2.0_r_2
+             casabal%sumnbal(npt)    = 0.0_r_2
+          else
+             ! compute steady-state litter and soil N pool sizes
+             casapool%nlitter(npt,metb) = (avgnleaf2met(npt)+avgnroot2met(npt)) / casaflux%klitter(npt,metb)
+             casapool%nlitter(npt,str)  = (avgnleaf2str(npt)+avgnroot2str(npt)) / casaflux%klitter(npt,str)
+             casapool%nlitter(npt,cwd)  = avgnwood2cwd(npt) / casaflux%klitter(npt,cwd)
+
+             casapool%nsoil(npt,pass) = (casaflux%fromStoS(npt,pass,mic) * casaflux%ksoil(npt,mic) * &
+                  casapool%csoil(npt,mic) + &
+                  casaflux%fromStoS(npt,pass,slow) * casaflux%ksoil(npt,slow) * casapool%csoil(npt,slow)) * &
+                  avgratioNCsoilpass(npt) / casaflux%ksoil(npt,pass)
+             casapool%nsoil(npt,slow) = (casaflux%fromLtoS(npt,slow,metb) * casaflux%klitter(npt,metb) * &
+                  casapool%clitter(npt,metb) + &
+                  casaflux%fromLtoS(npt,slow,str) * casaflux%klitter(npt,str) * casapool%clitter(npt,str) + &
+                  casaflux%fromLtoS(npt,slow,cwd) * casaflux%klitter(npt,cwd) * casapool%clitter(npt,cwd) + &
+                  casaflux%fromStoS(npt,slow,mic) * casaflux%ksoil(npt,mic) * casapool%csoil(npt,mic)) * &
+                  avgratioNCsoilslow(npt) / casaflux%ksoil(npt,slow)
+             casapool%nsoil(npt,mic) = (casaflux%fromLtoS(npt,mic,metb) * casaflux%klitter(npt,metb) * &
+                  casapool%clitter(npt,metb) + &
+                  casaflux%fromLtoS(npt,mic,str) * casaflux%klitter(npt,str) * casapool%clitter(npt,str) + &
+                  casaflux%fromLtoS(npt,mic,cwd) * casaflux%klitter(npt,cwd) * casapool%clitter(npt,cwd)) * &
+                  avgratioNCsoilmic(npt) / casaflux%ksoil(npt,mic)
+             casapool%Nsoilmin(npt)    = avgnsoilmin(npt)
+          endif ! icycle<=1
+
           ! compute steady-state litter and soil C pool sizes
-          casapool%clitter(npt,metb) = (avgcleaf2met(npt)+avgcroot2met(npt)) / casaflux%klitter(npt,metb)
-          casapool%clitter(npt,str)  = (avgcleaf2str(npt)+avgcroot2str(npt)) / casaflux%klitter(npt,str)
+          casapool%clitter(npt,metb) = (avgcleaf2met(npt) + avgcroot2met(npt)) / casaflux%klitter(npt,metb)
+          casapool%clitter(npt,str)  = (avgcleaf2str(npt) + avgcroot2str(npt)) / casaflux%klitter(npt,str)
           casapool%clitter(npt,cwd)  = avgcwood2cwd(npt) / casaflux%klitter(npt,cwd)
-          !MC - Remark: I changed the order so that SS is calculated with old pools instead of already
-          !             updated mic and slow pools.
-          !             Before, first mic then slow then pass were updated, where slow uses mic pool and
-          !             pass uses mic and slow pools.
-          !             Now we do: pass, slow, mic so that they are using the not-yet updated pools.
+          ! MC - Changed the order so that SS is calculated with old pools instead of already
+          !      updated mic and slow pools.
+          !      Before, first mic then slow then pass were updated, where slow uses the mic pool and
+          !      pass uses the mic and slow pools.
+          !      Now we do: pass, slow, mic so that they are using the not-yet updated pools.
           casapool%csoil(npt,pass) = (casaflux%fromStoS(npt,pass,mic) * casaflux%ksoil(npt,mic) * &
                casapool%csoil(npt,mic) + &
                casaflux%fromStoS(npt,pass,slow) * casaflux%ksoil(npt,slow) * casapool%csoil(npt,slow)) / &
@@ -1194,7 +1286,7 @@ END SUBROUTINE sumcflux
                casaflux%fromLtoS(npt,mic,str) * casaflux%klitter(npt,str) * casapool%clitter(npt,str) + &
                casaflux%fromLtoS(npt,mic,cwd) * casaflux%klitter(npt,cwd) * casapool%clitter(npt,cwd)) / &
                casaflux%ksoil(npt,mic)
-          
+
           casabal%clitterlast(npt,:) = casapool%clitter(npt,:)
           casabal%csoillast(npt,:)   = casapool%csoil(npt,:)
 
@@ -1205,106 +1297,25 @@ END SUBROUTINE sumcflux
              c13o2pools%clitter(npt,cwd)  = avg_c13wood2cwd(npt) / casaflux%klitter(npt,cwd)
              c13o2pools%csoil(npt,pass)   = &
                   ( casaflux%fromStoS(npt,pass,mic)  * casaflux%ksoil(npt,mic)  * c13o2pools%csoil(npt,mic) + &
-                    casaflux%fromStoS(npt,pass,slow) * casaflux%ksoil(npt,slow) * c13o2pools%csoil(npt,slow) ) / &
+                  casaflux%fromStoS(npt,pass,slow) * casaflux%ksoil(npt,slow) * c13o2pools%csoil(npt,slow) ) / &
                   casaflux%ksoil(npt,pass)
              c13o2pools%csoil(npt,slow)   = &
                   ( casaflux%fromLtoS(npt,slow,metb) * casaflux%klitter(npt,metb) * c13o2pools%clitter(npt,metb) + &
-                    casaflux%fromLtoS(npt,slow,str)  * casaflux%klitter(npt,str)  * c13o2pools%clitter(npt,str) + &
-                    casaflux%fromLtoS(npt,slow,cwd)  * casaflux%klitter(npt,cwd)  * c13o2pools%clitter(npt,cwd) + &
-                    casaflux%fromStoS(npt,slow,mic)  * casaflux%ksoil(npt,mic)    * c13o2pools%csoil(npt,mic) ) / &
+                  casaflux%fromLtoS(npt,slow,str)  * casaflux%klitter(npt,str)  * c13o2pools%clitter(npt,str) + &
+                  casaflux%fromLtoS(npt,slow,cwd)  * casaflux%klitter(npt,cwd)  * c13o2pools%clitter(npt,cwd) + &
+                  casaflux%fromStoS(npt,slow,mic)  * casaflux%ksoil(npt,mic)    * c13o2pools%csoil(npt,mic) ) / &
                   casaflux%ksoil(npt,slow)
              c13o2pools%csoil(npt,mic)    = &
                   ( casaflux%fromLtoS(npt,mic,metb) * casaflux%klitter(npt,metb) * c13o2pools%clitter(npt,metb) + &
-                    casaflux%fromLtoS(npt,mic,str)  * casaflux%klitter(npt,str)  * c13o2pools%clitter(npt,str) + &
-                    casaflux%fromLtoS(npt,mic,cwd)  * casaflux%klitter(npt,cwd)  * c13o2pools%clitter(npt,cwd) ) / &
+                  casaflux%fromLtoS(npt,mic,str)  * casaflux%klitter(npt,str)  * c13o2pools%clitter(npt,str) + &
+                  casaflux%fromLtoS(npt,mic,cwd)  * casaflux%klitter(npt,cwd)  * c13o2pools%clitter(npt,cwd) ) / &
                   casaflux%ksoil(npt,mic)
-          endif
-                
-          if (icycle<=1) then
-             casapool%nlitter(npt,:) = casapool%ratioNClitter(npt,:) * casapool%Clitter(npt,:)
-             casapool%nsoil(npt,:)   = casapool%ratioNCsoil(npt,:)   * casapool%Csoil(npt,:)
-             casapool%nsoilmin(npt)  = 2.0_r_2
-             casabal%sumnbal(npt)    = 0.0_r_2
-          else
-             ! compute steady-state litter and soil N pool sizes
-             casapool%nlitter(npt,metb) = (avgnleaf2met(npt)+avgnroot2met(npt)) / casaflux%klitter(npt,metb)
-             casapool%nlitter(npt,str)  = (avgnleaf2str(npt)+avgnroot2str(npt)) / casaflux%klitter(npt,str)
-             casapool%nlitter(npt,cwd)  = avgnwood2cwd(npt) / casaflux%klitter(npt,cwd)
-             
-             casapool%nsoil(npt,mic) = (casaflux%fromLtoS(npt,mic,metb) * casaflux%klitter(npt,metb) * &
-                  casapool%clitter(npt,metb) + &
-                  casaflux%fromLtoS(npt,mic,str) * casaflux%klitter(npt,str) * casapool%clitter(npt,str) + &
-                  casaflux%fromLtoS(npt,mic,cwd) * casaflux%klitter(npt,cwd) * casapool%clitter(npt,cwd)) * &
-                  avgratioNCsoilmic(npt) / casaflux%ksoil(npt,mic)
-             casapool%nsoil(npt,slow) = (casaflux%fromLtoS(npt,slow,metb) * casaflux%klitter(npt,metb) * &
-                  casapool%clitter(npt,metb) + &
-                  casaflux%fromLtoS(npt,slow,str) * casaflux%klitter(npt,str) * casapool%clitter(npt,str) + &
-                  casaflux%fromLtoS(npt,slow,cwd) * casaflux%klitter(npt,cwd) * casapool%clitter(npt,cwd) + &
-                  casaflux%fromStoS(npt,slow,mic) * casaflux%ksoil(npt,mic) * casapool%csoil(npt,mic)) * &
-                  avgratioNCsoilslow(npt) / casaflux%ksoil(npt,slow)
-             casapool%nsoil(npt,pass) = (casaflux%fromStoS(npt,pass,mic) * casaflux%ksoil(npt,mic) * &
-                  casapool%csoil(npt,mic) + &
-                  casaflux%fromStoS(npt,pass,slow) * casaflux%ksoil(npt,slow) * casapool%csoil(npt,slow)) * &
-                  avgratioNCsoilpass(npt) / casaflux%ksoil(npt,pass)
-             casapool%Nsoilmin(npt)    = avgnsoilmin(npt)
-        endif
+          endif ! 13C
 
-        if (icycle<=2) then
-           totpsoil(npt)          = psorder(casamet%isorder(npt)) * xpsoil50(casamet%isorder(npt))
-           ! casapool%plitter(npt,:)= casapool%Nlitter(npt,:)/casapool%ratioNPlitter(npt,:)
-           ! casapool%psoil(npt,:)  = casapool%Nsoil(npt,:)/casapool%ratioNPsoil(npt,:)
-           ! why is this commented here but used in UM
-           casapool%plitter(npt,:) = casapool%ratioPClitter(npt,:) * casapool%Clitter(npt,:)
-           casapool%psoil(npt,:)   = casapool%ratioPCsoil(npt,:)   * casapool%Csoil(npt,:)
-           casapool%psoillab(npt)  = totpsoil(npt) * fracpLab(casamet%isorder(npt))
-           casapool%psoilsorb(npt) = casaflux%psorbmax(npt) * casapool%psoillab(npt) / &
-                (casaflux%kmlabp(npt)+casapool%psoillab(npt))
-           casapool%psoilocc(npt)  = totpsoil(npt) * fracPocc(casamet%isorder(npt))
-        else
-           ! compute the steady-state litter and soil P pools
-           ! casapool%plitter(npt,metb) = (avgpleaf2met(npt)+avgproot2met(npt))/casaflux%klitter(npt,metb)
-           ! casapool%plitter(npt,str) = (avgpleaf2str(npt)+avgproot2str(npt))/casaflux%klitter(npt,str)
-           ! casapool%plitter(npt,cwd) = (avgpwood2cwd(npt))/casaflux%klitter(npt,cwd)
-           !
-           ! casapool%psoil(npt,mic)   = (casaflux%fromLtoS(npt,mic,metb)*casaflux%klitter(npt,metb)*casapool%clitter(npt,metb)   &
-           !                            +casaflux%fromLtoS(npt,mic,str) *casaflux%klitter(npt,str)*casapool%clitter(npt,str)  &
-           !                            +casaflux%fromLtoS(npt,mic,cwd) *casaflux%klitter(npt,cwd)*casapool%clitter(npt,cwd) ) &
-           !                            * (casapool%ratioNCsoil(npt,mic)/casapool%ratioNPsoil(npt,mic))/casaflux%ksoil(npt,mic)
-           !
-           ! casapool%psoil(npt,slow)  = (casaflux%fromLtoS(npt,slow,metb)*casaflux%klitter(npt,metb)*casapool%clitter(npt,metb) &
-           !                            + casaflux%fromLtoS(npt,slow,str)*casaflux%klitter(npt,str)*casapool%clitter(npt,str) &
-           !                            + casaflux%fromLtoS(npt,slow,cwd)*casaflux%klitter(npt,cwd)*casapool%clitter(npt,cwd) &
-           !                            + casaflux%fromStoS(npt,slow,mic) *casaflux%ksoil(npt,mic) *casapool%csoil(npt,mic)  ) &
-           !                          * (casapool%ratioNCsoil(npt,slow)/casapool%ratioNPsoil(npt,slow))/casaflux%ksoil(npt,slow)
-           ! casapool%psoil(npt,pass)  = (casaflux%fromStoS(npt,pass,mic) *casaflux%ksoil(npt,mic) *casapool%csoil(npt,mic)    &
-           !                            +casaflux%fromStoS(npt,pass,slow)*casaflux%ksoil(npt,slow)*casapool%csoil(npt,slow) ) &
-           !                            *  (casapool%ratioNCsoil(npt,pass)/casapool%ratioNPsoil(npt,pass))/casaflux%ksoil(npt,pass)
+       endif ! casamet%iveg2/=icewater .and. avgcnpp>0.0
 
-           casapool%plitter(npt,metb) = (avgpleaf2met(npt)+avgproot2met(npt)) / casaflux%klitter(npt,metb)
-           casapool%plitter(npt,str)  = (avgpleaf2str(npt)+avgproot2str(npt)) / casaflux%klitter(npt,str)
-           casapool%plitter(npt,cwd)  = avgpwood2cwd(npt) / casaflux%klitter(npt,cwd)
-           !MC - Why "/ ratioNP/ksoil" and not "* ratioNP/ksoil" as for nitrogen?
-           casapool%psoil(npt,mic) = (casaflux%fromLtoS(npt,mic,metb) * casaflux%klitter(npt,metb) * &
-                casapool%Nlitter(npt,metb) + &
-                casaflux%fromLtoS(npt,mic,str) * casaflux%klitter(npt,str) * casapool%Nlitter(npt,str) + &
-                casaflux%fromLtoS(npt,mic,cwd) * casaflux%klitter(npt,cwd) * casapool%Nlitter(npt,cwd)) / &
-                casapool%ratioNPsoil(npt,mic)/casaflux%ksoil(npt,mic)
-           casapool%psoil(npt,slow) = (casaflux%fromLtoS(npt,slow,metb) * casaflux%klitter(npt,metb) * &
-                casapool%Nlitter(npt,metb) + &
-                casaflux%fromLtoS(npt,slow,str) * casaflux%klitter(npt,str) * casapool%Nlitter(npt,str) + &
-                casaflux%fromLtoS(npt,slow,cwd) * casaflux%klitter(npt,cwd) * casapool%Nlitter(npt,cwd) + &
-                casaflux%fromStoS(npt,slow,mic) * casaflux%ksoil(npt,mic) * casapool%Nsoil(npt,mic)) / &
-                casapool%ratioNPsoil(npt,slow) / casaflux%ksoil(npt,slow)
-           casapool%psoil(npt,pass) = (casaflux%fromStoS(npt,pass,mic) * casaflux%ksoil(npt,mic) * &
-                casapool%Nsoil(npt,mic) + &
-                casaflux%fromStoS(npt,pass,slow) * casaflux%ksoil(npt,slow) * casapool%Nsoil(npt,slow)) / &
-                casapool%ratioNPsoil(npt,pass) / casaflux%ksoil(npt,pass)
-           ! assign the mineral pools
-           casapool%psoillab(npt)  = avgpsoillab(npt)
-           casapool%psoilsorb(npt) = avgPsoilsorb(npt)
-           casapool%psoilocc(npt)  = avgPsoilocc(npt)
-        endif
-     endif
-  enddo
+    enddo ! npt=1, mp
 
   END SUBROUTINE analyticpool
+
+end module casa_cable

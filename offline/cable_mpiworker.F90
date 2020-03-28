@@ -143,6 +143,7 @@ CONTAINS
     USE casavariable,         ONLY: casafile, casa_biome, casa_pool, casa_flux, &
          casa_met, casa_balance
     USE phenvariable,         ONLY: phen_variable
+    use casa_cable,           only: bgcdriver, POPdriver, casa_feedback, sumcflux
 
     !CLN added
     ! modules related to POP
@@ -9114,6 +9115,8 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
   use casavariable
   use phenvariable
   use POP_types,            only: POP_type
+  use casa_cable,           only: POPdriver, analyticpool
+  use casa_inout,           only: biogeochem
   use TypeDef,              only: dp
   ! 13C
   use cable_c13o2_def,      only: c13o2_pool, c13o2_flux
@@ -9502,6 +9505,8 @@ SUBROUTINE worker_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
   USE casavariable
   USE phenvariable
   USE POP_Types,           only: POP_TYPE
+  use casa_cable,          only: POPdriver
+  use casa_inout,          only: biogeochem
   USE TypeDef,             ONLY: dp
   use mpi
   ! 13C

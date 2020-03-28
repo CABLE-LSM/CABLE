@@ -62,6 +62,7 @@ CONTAINS
     USE cable_air_module
     USE cable_common_module
     USE cable_roughness_module
+    use cable_sli_main,         only: sli_main
 
     implicit none
 

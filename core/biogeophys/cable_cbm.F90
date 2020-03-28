@@ -52,9 +52,10 @@ CONTAINS
    USE cable_radiation_module
    USE cable_air_module
 #ifndef NO_CASA_YET
-   USE casadimension,     only : icycle ! used in casa_cnp
+   USE casadimension,     only: icycle ! used in casa_cnp
 #endif
-   USE cable_data_module, ONLY : icbm_type, point2constants
+   USE cable_data_module, ONLY: icbm_type, point2constants
+   use cable_sli_main,    only: sli_main
 
    ! CABLE model variables
    INTEGER,                   INTENT(IN)    :: ktau

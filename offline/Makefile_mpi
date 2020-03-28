@@ -94,12 +94,12 @@ cable_air.o: cable_air.F90 cable_define_types.o cable_common.o cable_data.o
 cable_albedo.o: cable_albedo.F90 cable_define_types.o cable_common.o cable_data.o
 
 cable_canopy.o: cable_canopy.F90 cable_define_types.o cable_radiation.o cable_roughness.o \
-		cable_air.o cable_common.o cable_data.o cable_sli_utils.o mo_constants.o
+		cable_air.o cable_common.o cable_data.o cable_sli_utils.o mo_constants.o cable_sli_main.o
 
 cable_carbon.o: cable_carbon.F90 cable_define_types.o cable_common.o cable_data.o
 
 cable_cbm.o: cable_cbm.F90 cable_carbon.o cable_soilsnow.o cable_canopy.o cable_define_types.o \
-	     cable_roughness.o cable_radiation.o cable_albedo.o casa_variable.o cable_common.o cable_data.o
+	     cable_roughness.o cable_radiation.o cable_albedo.o casa_variable.o cable_common.o cable_data.o cable_sli_main.o
 
 cable_checks.o: cable_checks.F90 cable_radiation.o cable_common.o
 
@@ -108,15 +108,16 @@ cable_mpicommon.o: cable_mpicommon.F90  cable_iovars.o cable_define_types.o
 cable_mpimaster.o: cable_mpimaster.F90 cable_mpicommon.o cable_output.o \
 	cable_iovars.o cable_cbm.o  casa_variable.o casa_cable.o casa_cnp.o \
 	casa_inout.o cable_input.o cable_define_types.o cable_common.o \
-	cable_data.o cable_sli_main.o cable_plume_mip.o pop_io.o pop_mpi.o \
+	cable_data.o cable_plume_mip.o pop_io.o pop_mpi.o \
 	cable_climate.o cable_cru_TRENDY.o POPLUC.o cable_LUC_EXPT.o \
-	CASAONLY_LUC.o cable_bios_met_obs_params.o blaze_mpi.o blaze_driver.o \
-	simfire.o cable_c13o2_def.o cable_c13o2.o
+	CASAONLY_LUC.o cable_bios_met_obs_params.o blaze.o blaze_mpi.o blaze_driver.o \
+	simfire.o cable_c13o2_def.o cable_c13o2.o casa_cable.o casa_inout.o
 
 cable_mpiworker.o: cable_mpiworker.F90 cable_mpicommon.o cable_output.o \
 	cable_iovars.o cable_cbm.o  casa_variable.o casa_cable.o casa_cnp.o \
 	casa_inout.o cable_input.o cable_define_types.o  cable_common.o pop_mpi.o \
-	cable_climate.o blaze_mpi.o cable_c13o2_def.o cable_c13o2.o mo_c13o2_photosynthesis.o
+	cable_climate.o blaze.o blaze_mpi.o cable_c13o2_def.o cable_c13o2.o mo_c13o2_photosynthesis.o \
+	casa_cable.o casa_inout.o pop_io.o
 
 cable_mpidrv.o: cable_mpidrv.F90 cable_mpicommon.o cable_mpimaster.o cable_mpiworker.o
 
@@ -133,7 +134,7 @@ cable_write.o: cable_write.F90 cable_iovars.o cable_abort.o cable_define_types.o
 
 cable_input.o: cable_input.F90 POP.o cable_checks.o cable_abort.o cable_read.o \
 	 cable_initialise.o cable_radiation.o cable_parameters.o cable_common.o \
-	 cable_LUC_EXPT.o POPLUC.o simfire.o blaze.o cable_c13o2_def.o cable_c13o2.o
+	 cable_LUC_EXPT.o POPLUC.o simfire.o blaze.o cable_c13o2_def.o cable_c13o2.o casa_inout.o pop_io.o
 
 cable_output.o: cable_output.F90 cable_checks.o cable_write.o cable_common.o \
 	cable_abort.o casa_variable.o cable_c13o2_def.o
@@ -153,10 +154,11 @@ cable_soilsnow.o: cable_soilsnow.F90 cable_iovars.o cable_define_types.o cable_c
 casa_variable.o: casa_variable.F90 POP.o
 
 #spincasacnp.o: spincasacnp.F90 cable_define_types.o cable_carbon.o cable_common.o \
-#	 casa_variable.o cable_c13o2.o cable_c13o2_def.o casa_inout.o
+#	 casa_variable.o cable_c13o2.o cable_c13o2_def.o casa_inout.o blaze.o casa_cable.o casa_inout.o pop_io.o
 
-CASAONLY_LUC.o: CASAONLY_LUC.F90  cable_define_types.o  cable_carbon.o cable_common.o \
-		casa_variable.o POP.o POPLUC.o cable_LUC_EXPT.o cable_c13o2.o cable_c13o2_def.o
+CASAONLY_LUC.o: CASAONLY_LUC.F90 cable_define_types.o cable_carbon.o cable_common.o \
+		casa_variable.o POP.o POPLUC.o cable_LUC_EXPT.o cable_c13o2.o cable_c13o2_def.o \
+		casa_cable.o casa_inout.o pop_io.o
 
 #cable_spincasacnp_mpi.o: cable_spincasacnp_mpi.F90  cable_define_types.o \
 #		 cable_carbon.o cable_common.o \
@@ -164,7 +166,7 @@ CASAONLY_LUC.o: CASAONLY_LUC.F90  cable_define_types.o  cable_carbon.o cable_com
 
 casa_cable.o: casa_cable.F90 POP.o cable_define_types.o cable_common.o cable_carbon.o casa_variable.o \
 	      cable_diag.o cable_phenology.o casa_cnp.o cable_optimiseJVratio.o \
-	      cable_adjustJVgm.o cable_c13o2.o cable_c13o2_def.o
+	      cable_adjustJVgm.o cable_c13o2.o cable_c13o2_def.o pop_io.o
 
 casa_cnp.o: casa_cnp.F90 cable_define_types.o casa_variable.o
 

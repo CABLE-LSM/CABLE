@@ -2396,6 +2396,8 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
    USE BLAZE_MOD,       ONLY: TYPE_BLAZE
    USE SIMFIRE_MOD,     ONLY: TYPE_SIMFIRE
    use casaparm,        only: initcasa
+   use casa_inout,      only: casa_readbiome, casa_readphen, casa_init
+   use cable_pop_io,    only: pop_io
    ! 13C
    use cable_c13o2_def, only: c13o2_flux, c13o2_pool, c13o2_luc, &
         c13o2_alloc_flux, c13o2_alloc_pools, &

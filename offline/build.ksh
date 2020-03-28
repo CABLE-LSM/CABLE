@@ -139,10 +139,10 @@ host_mcin()
         /opt/intel/compilers_and_libraries/mac/bin/compilervars.sh intel64
         export FC=ifort
         # release
-        export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -ip -xHost -diag-disable=10382"
+	export CFLAGS="-fpp -O3 -nofixed -assume byterecl -fp-model precise -ip -diag-disable=10382 -xHost"
         if [[ ${idebug} -eq 1 ]] ; then
             # debug
-            export CFLAGS="-fpp -O0 -debug extended -traceback -g -check all,noarg_temp_created -warn all -fp-stack-check -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0 -no-ftz -ftrapuv"
+	    export CFLAGS="-fpp -O0 -debug extended -traceback -g -check all,noarg_temp_created -warn all -fp-stack-check -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0" # -fpe-all=0 -no-ftz -ftrapuv -init=arrays,snan
         fi
 	# export CFLAGS="${CFLAGS} -mtune=corei7"
 	# export CFLAGS="${CFLAGS} -march=native"
@@ -160,7 +160,7 @@ host_mcin()
         fi
 	# export CFLAGS="${CFLAGS} -march=native"
 	export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__"
-        export LD=''
+	export LD=''
         export NCROOT='/usr/local/netcdf-fortran-4.4.5-gfortran'
     elif [[ ${inag} -eq 1 ]] ;  then
         # NAG
