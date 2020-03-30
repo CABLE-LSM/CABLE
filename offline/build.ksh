@@ -91,6 +91,7 @@ host_pear()
    #export CFLAGS='-O0 -fpe=0 -fpe-all=0 -fpp -g -debug -traceback -fp-stack-check -no-ftz -ftrapuv -check bounds 
    #export CFLAGS='-O2 -fp-model precise -fpp'
    export CFLAGS="${CFLAGS} -D__CRU2017__"
+   export CFLAGS="${CFLAGS} -D__NETCDF3__"
    export LDFLAGS='-g -L'$NCDIR' -O0'
    export MFLAGS='-j 8'
    export LD='-lnetcdf -lnetcdff'
@@ -179,6 +180,7 @@ host_mcin()
     fi
     # export CFLAGS="${CFLAGS} -D__C13DEBUG__"
     export CFLAGS="${CFLAGS} -D__CRU2017__"
+    export CFLAGS="${CFLAGS} -D__NETCDF3__"
 
     # All compilers
     export NCCROOT='/usr/local'
@@ -259,6 +261,7 @@ host_vm_o()
     fi
     # export CFLAGS="${CFLAGS} -D__C13DEBUG__"
     export CFLAGS="${CFLAGS} -D__CRU2017__"
+    export CFLAGS="${CFLAGS} -D__NETCDF3__"
 
     # All compilers
     export NCCROOT='/home/oqx29/zzy20/local'
@@ -303,6 +306,7 @@ host_gadi()
        # export CFLAGS="${CFLAGS} -xSKYLAKE"    # or -xSKYLAKE-AVX512 depends on performance; queues: normalsl
    fi
    export CFLAGS="${CFLAGS} -D__CRU2017__"
+   export CFLAGS="${CFLAGS} -D__NETCDF3__"
    export LDFLAGS='-L'${NCDIR}' '${LDFLAGS}
    export LD='-lnetcdf -lnetcdff'
    export MFLAGS='-j 8'

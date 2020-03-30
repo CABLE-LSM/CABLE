@@ -2602,9 +2602,18 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
     ! Look for explicit restart file (which will have parameters):
     IF ( TRIM(filename%restart_in) .EQ. '' ) filename%restart_in = './'
     frst_in = trim(filename%restart_in)
-    ok = NF90_OPEN(TRIM(frst_in),NF90_NOWRITE,ncid_rin)
-    ! print*, 'OOpen20 ', ncid_rin, TRIM(frst_in)
-    IF ( ok == NF90_NOERR ) EXRST = .TRUE.
+    ! MC - Fortran inquire returns .true. on directory on *nix but .false. on Windows.
+    !        inquire(file=trim(frst_in), exist=exrst)
+    !      Intel as a directory keyword (instead of file) but not gnu.
+    !        inquire(directory=trim(frst_in), exist=exrst)
+    !      So Cable uses netcdf to open the file if possible.
+    !      Close it immediately, otherwise opened the same file a second time below.
+    ok = nf90_open(trim(frst_in), nf90_nowrite, ncid_rin)
+    if (ok==nf90_noerr) then
+       EXRST = .true.
+       ok = nf90_close(ncid_rin)
+       ncid_rin = -1
+    endif
 
     ! If not an explicit rstfile, search for RunIden_YEAR...nc
     ! use (filename%restart_in) as path
@@ -2619,31 +2628,31 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
        ok = NF90_OPEN(TRIM(frst_in),NF90_NOWRITE,ncid_rin) ! open restart file
        ! print*, 'OOpen21 ', ncid_rin, TRIM(frst_in)
        IF (ok /= NF90_NOERR) CALL HANDLE_ERR(ok)
-      ! Any restart file exists, parameters and init will be loaded from it.
-      WRITE(logn,*) ' Overwriting initialisations with values in ', &
+       ! Any restart file exists, parameters and init will be loaded from it.
+       WRITE(logn,*) ' Overwriting initialisations with values in ', &
             'restart file: ', TRIM(frst_in)
-      WRITE(*,*)    ' Overwriting initialisations with values in ', &
+       WRITE(*,*)    ' Overwriting initialisations with values in ', &
             'restart file: ', TRIM(frst_in)
 
-      ! Check total number of patches in restart file:
-      ok = NF90_INQ_DIMID(ncid_rin,'mp',mpID)
-      IF(ok /= NF90_NOERR) THEN
-        ok = NF90_INQ_DIMID(ncid_rin,'mp_patch',mpID)
-        IF(ok /= NF90_NOERR)  CALL nc_abort &
-           (ok,'Error finding mp or mp_patch dimension in restart file ' &
+       ! Check total number of patches in restart file:
+       ok = NF90_INQ_DIMID(ncid_rin,'mp',mpID)
+       IF(ok /= NF90_NOERR) THEN
+          ok = NF90_INQ_DIMID(ncid_rin,'mp_patch',mpID)
+          IF(ok /= NF90_NOERR)  CALL nc_abort &
+               (ok,'Error finding mp or mp_patch dimension in restart file ' &
                //TRIM(frst_in)//' (SUBROUTINE load_parameters) ' &
-           //'Recommend running without restart file.')
-      END IF
-      ok = NF90_INQUIRE_DIMENSION(ncid_rin,mpID,len=mp_restart)
-      IF(ok /= NF90_NOERR) CALL nc_abort &
-           (ok,'Error finding total number of patches in restart file ' &
+               //'Recommend running without restart file.')
+       END IF
+       ok = NF90_INQUIRE_DIMENSION(ncid_rin,mpID,len=mp_restart)
+       IF(ok /= NF90_NOERR) CALL nc_abort &
+            (ok,'Error finding total number of patches in restart file ' &
             //TRIM(frst_in)//' (SUBROUTINE load_parameters) ' &
-           //'Recommend running without restart file.')
-      ! Check that mp_restart = mp from default/met values
-      IF(mp_restart /= mp) CALL cable_abort('Number of patches in '// &
+            //'Recommend running without restart file.')
+       ! Check that mp_restart = mp from default/met values
+       IF(mp_restart /= mp) CALL cable_abort('Number of patches in '// &
             'restart file '//TRIM(frst_in)//' does not equal '// &
-           'to number in default/met file settings. (SUB load_parameters) ' &
-           //'Recommend running without restart file.')
+            'to number in default/met file settings. (SUB load_parameters) ' &
+            //'Recommend running without restart file.')
 
       ! Load initialisations and parameters from restart file:
       CALL get_restart_data(logn,ssnow,canopy,rough,bgc,bal,veg, &

@@ -401,7 +401,11 @@ contains
           ELSE  ! file doesn't already exist, or is RST or INI
 
              ! Create NetCDF file:
+#ifdef __NETCDF3__
              STATUS = NF90_create(trim(fname), cmode=ior(nf90_clobber,nf90_64bit_offset), ncid=FILE_ID)
+#else
+             STATUS = NF90_create(trim(fname), cmode=ior(nf90_clobber,ior(nf90_netcdf4,nf90_classic_model)), ncid=FILE_ID)
+#endif       
              ! print*, 'OCreate70 ', file_id, trim(fname)
              IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
@@ -442,67 +446,123 @@ contains
                 IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
              END DO
              DO i = 1, SIZE(AI0)
-                STATUS = NF90_def_var(FILE_ID,TRIM(AI0(i)), NF90_INT, (/land_ID/), VIDI0(i))
+                STATUS = NF90_def_var(FILE_ID,TRIM(AI0(i)), NF90_INT, (/land_ID/), VIDI0(i) &
+#ifndef __NETCDF3__
+                     , deflate_level=1 &
+#endif
+                     )
                 IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
              END DO
              DO i = 1, SIZE(AI1)
-                STATUS = NF90_def_var(FILE_ID,TRIM(AI1(i)), NF90_INT, (/land_ID,t_ID/), VIDI1(i))
+                STATUS = NF90_def_var(FILE_ID,TRIM(AI1(i)), NF90_INT, (/land_ID,t_ID/), VIDI1(i) &
+#ifndef __NETCDF3__
+                     , deflate_level=1 &
+#endif
+                     )
                 IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
              END DO
              DO i = 1, SIZE(AR1)
-                STATUS = NF90_def_var(FILE_ID,TRIM(AR1(i)), NF90_DOUBLE, (/land_ID,t_ID/), VIDR1(i))
+                STATUS = NF90_def_var(FILE_ID,TRIM(AR1(i)), NF90_DOUBLE, (/land_ID,t_ID/), VIDR1(i) &
+#ifndef __NETCDF3__
+                     , deflate_level=1 &
+#endif
+                     )
                 IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
              END DO
              DO i = 1, SIZE(AR2)
-                STATUS = NF90_def_var(FILE_ID,TRIM(AR2(i)), NF90_DOUBLE, (/land_ID,nlay_ID,t_ID/), VIDR2(i))
+                STATUS = NF90_def_var(FILE_ID,TRIM(AR2(i)), NF90_DOUBLE, (/land_ID,nlay_ID,t_ID/), VIDR2(i) &
+#ifndef __NETCDF3__
+                     , deflate_level=1 &
+#endif
+                     )
                 IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
              END DO
 
              DO i = 1, SIZE(AR3)
-                STATUS = NF90_def_var(FILE_ID,TRIM(AR3(i)), NF90_DOUBLE, (/land_ID,hgtb_ID,t_ID/), VIDR3(i))
+                STATUS = NF90_def_var(FILE_ID,TRIM(AR3(i)), NF90_DOUBLE, (/land_ID,hgtb_ID,t_ID/), VIDR3(i) &
+#ifndef __NETCDF3__
+                     , deflate_level=1 &
+#endif
+                     )
                 IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
              END DO
              DO i = 1, SIZE(AI4)
-                STATUS = NF90_def_var(FILE_ID,TRIM(AI4(i)), NF90_INT, (/land_ID,ndis_ID,t_ID/), VIDI4(i))
+                STATUS = NF90_def_var(FILE_ID,TRIM(AI4(i)), NF90_INT, (/land_ID,ndis_ID,t_ID/), VIDI4(i) &
+#ifndef __NETCDF3__
+                     , deflate_level=1 &
+#endif
+                     )
                 IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
              END DO
              DO i = 1, SIZE(AI5)
-                STATUS = NF90_def_var(FILE_ID,TRIM(AI5(i)), NF90_INT, (/land_ID,patch_ID,t_ID/), VIDI5(i))
+                STATUS = NF90_def_var(FILE_ID,TRIM(AI5(i)), NF90_INT, (/land_ID,patch_ID,t_ID/), VIDI5(i) &
+#ifndef __NETCDF3__
+                     , deflate_level=1 &
+#endif
+                     )
                 IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
              END DO
              DO i = 1, SIZE(AR5)
-                STATUS = NF90_def_var(FILE_ID,TRIM(AR5(i)), NF90_DOUBLE, (/land_ID,patch_ID,t_ID/), VIDR5(i))
+                STATUS = NF90_def_var(FILE_ID,TRIM(AR5(i)), NF90_DOUBLE, (/land_ID,patch_ID,t_ID/), VIDR5(i) &
+#ifndef __NETCDF3__
+                     , deflate_level=1 &
+#endif
+                     )
                 IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
              END DO
              DO i = 1, SIZE(AI7)
                 STATUS = NF90_def_var(FILE_ID,TRIM(AI7(i)), NF90_INT, &
-                     (/land_ID,patch_ID,ndis_ID,t_ID/), VIDI7(i))
+                     (/land_ID,patch_ID,ndis_ID,t_ID/), VIDI7(i) &
+#ifndef __NETCDF3__
+                     , deflate_level=1 &
+#endif
+                     )
                 IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
              END DO
 
              DO i = 1, SIZE(AR7)
                 STATUS = NF90_def_var(FILE_ID,TRIM(AR7(i)), NF90_DOUBLE, &
-                     (/land_ID,patch_ID,ndis_ID,t_ID/), VIDR7(i))
+                     (/land_ID,patch_ID,ndis_ID,t_ID/), VIDR7(i) &
+#ifndef __NETCDF3__
+                     , deflate_level=1 &
+#endif
+                     )
                 IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
              END DO
              DO i = 1, SIZE(AI8)
                 STATUS = NF90_def_var(FILE_ID,TRIM(AI8(i)), NF90_INT, &
-                     (/land_ID,patch_ID,nlay_ID,t_ID/), VIDI8(i))
+                     (/land_ID,patch_ID,nlay_ID,t_ID/), VIDI8(i) &
+#ifndef __NETCDF3__
+                     , deflate_level=1 &
+#endif
+                     )
                 IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
              END DO
              DO i = 1, SIZE(AR8)
                 STATUS = NF90_def_var(FILE_ID,TRIM(AR8(i)), NF90_DOUBLE, &
-                     (/land_ID,patch_ID,nlay_ID,t_ID/), VIDR8(i))
+                     (/land_ID,patch_ID,nlay_ID,t_ID/), VIDR8(i) &
+#ifndef __NETCDF3__
+                     , deflate_level=1 &
+#endif
+                     )
                 IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
              END DO
              DO i = 1, SIZE(AI9)
                 STATUS = NF90_def_var(FILE_ID,TRIM(AI9(i)), NF90_INT, &
-                     (/land_ID,patch_ID,nlay_ID,ncoh_ID,t_ID/), VIDI9(i))
+                     (/land_ID,patch_ID,nlay_ID,ncoh_ID,t_ID/), VIDI9(i) &
+#ifndef __NETCDF3__
+                     , deflate_level=1 &
+#endif
+                     )
                 IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
              END DO
              DO i = 1, SIZE(AR9)
                 STATUS = NF90_def_var(FILE_ID,TRIM(AR9(i)), NF90_DOUBLE, &
-                     (/land_ID,patch_ID,nlay_ID,ncoh_ID,t_ID/), VIDR9(i))
+                     (/land_ID,patch_ID,nlay_ID,ncoh_ID,t_ID/), VIDR9(i) &
+#ifndef __NETCDF3__
+                     , deflate_level=1 &
+#endif
+                     )
                 IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
              END DO
 

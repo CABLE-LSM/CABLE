@@ -647,7 +647,12 @@ contains
     use cable_common_module,  only: cable_user, filename
     use casavariable,         only: casa_met, casafile, casa_timeunits
     use cable_c13o2_def,      only: c13o2_pool
-    use netcdf,               only: nf90_create, nf90_clobber, nf90_noerr, nf90_netcdf4, & ! , nf90_64bit_offset
+    use netcdf,               only: nf90_create, nf90_clobber, nf90_noerr, &
+#ifdef __NETCDF3__
+         nf90_64bit_offset, &
+#else
+         nf90_netcdf4, nf90_classic_model, &
+#endif
          nf90_put_att, nf90_global, nf90_def_dim, nf90_unlimited, &
          nf90_def_var, nf90_double, nf90_int, nf90_enddef, nf90_put_var
 
@@ -760,8 +765,11 @@ contains
 
     ! create output file
     write(*,*) 'Defining 13CO2 output file: ', trim(fname)
-    ! status = nf90_create(trim(fname), cmode=ior(nf90_clobber,nf90_64bit_offset), ncid=file_id)
-    status = nf90_create(trim(fname), cmode=ior(nf90_clobber,nf90_netcdf4), ncid=file_id)
+#ifdef __NETCDF3__
+    status = nf90_create(trim(fname), cmode=ior(nf90_clobber,nf90_64bit_offset), ncid=file_id)
+#else
+    status = nf90_create(trim(fname), cmode=ior(nf90_clobber,ior(nf90_netcdf4,nf90_classic_model)), ncid=file_id)
+#endif       
     ! print*, 'OCreate70 ', file_id
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could not open c13o2 output file: '//trim(fname))
@@ -816,7 +824,15 @@ contains
           call c13o2_err_handler('Dimension not known for variable '//trim(vars(i))// &
                ' in c13o2 output file: '//trim(fname))
        endif
-       status = nf90_def_var(file_id, trim(vars(i)), tvars(i), idids(1:dvars(i)), var_ids(i))
+       if ((trim(vars(i)) == 'time') .or. (trim(vars(i)) == 'latitude') .or. (trim(vars(i)) == 'longitude')) then
+          status = nf90_def_var(file_id, trim(vars(i)), tvars(i), idids(1:dvars(i)), var_ids(i))
+       else
+          status = nf90_def_var(file_id, trim(vars(i)), tvars(i), idids(1:dvars(i)), var_ids(i) &
+#ifndef __NETCDF3__
+               , deflate_level=1 &
+#endif
+               )
+       endif
        if (status /= nf90_noerr) then
           write(*,*) 'Var: ', trim(vars(i)), ', dim_ids: ', idids(1:dvars(i))
           call c13o2_err_handler('Could not define variable in c13o2 output file: '//trim(fname))

@@ -1876,7 +1876,11 @@ CONTAINS
     IF ( CALL1 ) THEN
 
        ! Create NetCDF file:
+#ifdef __NETCDF3__
        STATUS = NF90_create(trim(fname), ior(nf90_clobber,nf90_64bit_offset), FILE_ID)
+#else
+       STATUS = NF90_create(trim(fname), ior(nf90_clobber,ior(nf90_netcdf4,nf90_classic_model)), FILE_ID)
+#endif
        ! print*, 'OCreate65 ', file_id, trim(fname)
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
@@ -1911,17 +1915,29 @@ CONTAINS
        END DO
 
        DO i = 1, SIZE(A1)
-          STATUS = NF90_def_var(FILE_ID,TRIM(A1(i)) ,NF90_FLOAT,(/land_ID,t_ID/),VID1(i))
+          STATUS = NF90_def_var(FILE_ID,TRIM(A1(i)) ,NF90_FLOAT,(/land_ID,t_ID/),VID1(i) &
+#ifndef __NETCDF3__
+               , deflate_level=1 &
+#endif
+               )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
        END DO
 
        DO i = 1, SIZE(AI1)
-          STATUS = NF90_def_var(FILE_ID,TRIM(AI1(i)) ,NF90_INT,(/land_ID,t_ID/),VIDI1(i))
+          STATUS = NF90_def_var(FILE_ID,TRIM(AI1(i)) ,NF90_INT,(/land_ID,t_ID/),VIDI1(i) &
+#ifndef __NETCDF3__
+               , deflate_level=1 &
+#endif
+               )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
        END DO
        if(put_age_vars) then
           DO i = 1, SIZE(A2)
-             STATUS = NF90_def_var(FILE_ID,TRIM(A2(i)) ,NF90_FLOAT,(/land_ID,age_ID,t_ID/),VID2(i))
+             STATUS = NF90_def_var(FILE_ID,TRIM(A2(i)) ,NF90_FLOAT,(/land_ID,age_ID,t_ID/),VID2(i) &
+#ifndef __NETCDF3__
+                  , deflate_level=1 &
+#endif
+                  )
              IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
           END DO
        endif
@@ -1937,17 +1953,29 @@ CONTAINS
 !!$       END DO
 
        DO i = 1, SIZE(A4)
-          STATUS = NF90_def_var(FILE_ID,TRIM(A4(i)) ,NF90_FLOAT,(/land_ID,nLU_ID,t_ID/),VID4(i))
+          STATUS = NF90_def_var(FILE_ID,TRIM(A4(i)) ,NF90_FLOAT,(/land_ID,nLU_ID,t_ID/),VID4(i) &
+#ifndef __NETCDF3__
+               , deflate_level=1 &
+#endif
+               )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
        END DO
 
        DO i = 1, SIZE(A5)
-          STATUS = NF90_def_var(FILE_ID,TRIM(A5(i)) ,NF90_FLOAT,(/land_ID,ntrans_ID,t_ID/),VID5(i))
+          STATUS = NF90_def_var(FILE_ID,TRIM(A5(i)) ,NF90_FLOAT,(/land_ID,ntrans_ID,t_ID/),VID5(i) &
+#ifndef __NETCDF3__
+               , deflate_level=1 &
+#endif
+               )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
        END DO
 
        DO i = 1, SIZE(A6)
-          STATUS = NF90_def_var(FILE_ID,TRIM(A6(i)) ,NF90_FLOAT,(/land_ID,nprod_ID,t_ID/),VID6(i))
+          STATUS = NF90_def_var(FILE_ID,TRIM(A6(i)) ,NF90_FLOAT,(/land_ID,nprod_ID,t_ID/),VID6(i) &
+#ifndef __NETCDF3__
+               , deflate_level=1 &
+#endif
+               )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
        END DO
 
@@ -2536,7 +2564,11 @@ CONTAINS
             TRIM(dum)//'_LUC_out.nc'
 
        ! Create NetCDF file:
+#ifdef __NETCDF3__
        STATUS = NF90_create(trim(fname), ior(nf90_clobber,nf90_64bit_offset), FILE_ID)
+#else
+       STATUS = NF90_create(trim(fname), ior(nf90_clobber,ior(nf90_netcdf4,nf90_classic_model)), FILE_ID)
+#endif
        ! print*, 'OCreate68 ', file_id, trim(fname)
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
@@ -2632,7 +2664,11 @@ CONTAINS
        END DO
 
        DO i = 1, SIZE(A1)
-          STATUS = NF90_def_var(FILE_ID, TRIM(A1(i)), NF90_FLOAT, (/xID, yID,t_ID/), VID1(i))
+          STATUS = NF90_def_var(FILE_ID, TRIM(A1(i)), NF90_FLOAT, (/xID, yID,t_ID/), VID1(i) &
+#ifndef __NETCDF3__
+               , deflate_level=1 &
+#endif
+               )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
           ! Define missing/fill values:
@@ -2648,7 +2684,11 @@ CONTAINS
        END DO
 
        DO i = 1, SIZE(AI1)
-          STATUS = NF90_def_var(FILE_ID, TRIM(AI1(i)), NF90_INT, (/xID, yID,t_ID/), VIDI1(i))
+          STATUS = NF90_def_var(FILE_ID, TRIM(AI1(i)), NF90_INT, (/xID, yID,t_ID/), VIDI1(i) &
+#ifndef __NETCDF3__
+               , deflate_level=1 &
+#endif
+               )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
           ! Define missing/fill values:
@@ -2666,13 +2706,21 @@ CONTAINS
 
        if(put_age_vars) then
           DO i = 1, SIZE(A2)
-             STATUS = NF90_def_var(FILE_ID, TRIM(A2(i)), NF90_FLOAT, (/xID, yID,age_ID,t_ID/), VID2(i))
+             STATUS = NF90_def_var(FILE_ID, TRIM(A2(i)), NF90_FLOAT, (/xID, yID,age_ID,t_ID/), VID2(i) &
+#ifndef __NETCDF3__
+                  , deflate_level=1 &
+#endif
+                  )
              IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
           END DO
        endif
 
        DO i = 1, SIZE(A4)
-          STATUS = NF90_def_var(FILE_ID, TRIM(A4(i)), NF90_FLOAT, (/xID, yID,nLU_ID,t_ID/), VID4(i))
+          STATUS = NF90_def_var(FILE_ID, TRIM(A4(i)), NF90_FLOAT, (/xID, yID,nLU_ID,t_ID/), VID4(i) &
+#ifndef __NETCDF3__
+               , deflate_level=1 &
+#endif
+               )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
           ! Define missing/fill values:
           STATUS = NF90_PUT_ATT(FILE_ID, VID4(i), '_FillValue', REAL(ncmissingr, sp))
@@ -2687,7 +2735,11 @@ CONTAINS
        END DO
 
        DO i = 1, SIZE(A5)
-          STATUS = NF90_def_var(FILE_ID, TRIM(A5(i)), NF90_FLOAT, (/xID, yID,ntrans_ID,t_ID/), VID5(i))
+          STATUS = NF90_def_var(FILE_ID, TRIM(A5(i)), NF90_FLOAT, (/xID, yID,ntrans_ID,t_ID/), VID5(i) &
+#ifndef __NETCDF3__
+               , deflate_level=1 &
+#endif
+               )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
           ! Define missing/fill values:
@@ -2703,7 +2755,11 @@ CONTAINS
        END DO
 
        DO i = 1, SIZE(A6)
-          STATUS = NF90_def_var(FILE_ID, TRIM(A6(i)), NF90_FLOAT, (/xID, yID ,nprod_ID,t_ID/), VID6(i))
+          STATUS = NF90_def_var(FILE_ID, TRIM(A6(i)), NF90_FLOAT, (/xID, yID ,nprod_ID,t_ID/), VID6(i) &
+#ifndef __NETCDF3__
+               , deflate_level=1 &
+#endif
+               )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
           ! Define missing/fill values:
           STATUS = NF90_PUT_ATT(FILE_ID, VID6(i), '_FillValue', REAL(ncmissingr, sp))

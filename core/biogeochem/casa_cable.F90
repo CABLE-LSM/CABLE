@@ -639,7 +639,11 @@ contains
     IF (n_call == 1) THEN
 
        ! create netCDF dataset: enter define mode
+#ifdef __NETCDF3__
        ncok = nf90_create(TRIM(ncfile), ior(nf90_clobber,nf90_64bit_offset), ncid)
+#else
+       ncok = nf90_create(TRIM(ncfile), ior(nf90_clobber,ior(nf90_netcdf4,nf90_classic_model)), ncid)
+#endif
        ! print*, 'OCreate69 ', ncid, TRIM(ncfile)
        IF (ncok /= nf90_noerr) CALL stderr_nc(ncok, 'ncdf creating ', trim(ncfile))
 

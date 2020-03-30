@@ -191,6 +191,7 @@ host_mcin()
     export CFLAGS="${CFLAGS} -D__MPI__"
     # export CFLAGS="${CFLAGS} -D__C13DEBUG__"
     export CFLAGS="${CFLAGS} -D__CRU2017__"
+    # export CFLAGS="${CFLAGS} -D__NETCDF3__"
 
     export NCCROOT='/usr/local'
     export NCCLIB=${NCCROOT}'/lib'

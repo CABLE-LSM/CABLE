@@ -203,7 +203,11 @@ CONTAINS
         WRITE(logn, *) 'Writing '//vname//                                     &
                       ' to output file using mask grid with patch-specific info'
         ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/xID, yID, patchID, tID/), &
-                          varID)
+             varID &
+#ifndef __NETCDF3__
+             , deflate_level=1 &
+#endif
+             )
         IF (ok /= NF90_NOERR) CALL nc_abort                                    &
                  (ok, 'Error defining '//vname//' variable in output file. '// &
                                                       '(INTERFACE define_ovar)')
@@ -217,14 +221,22 @@ CONTAINS
         IF(dimswitch == 'ALMA' .AND. output%grid(1:3) == 'ALM') THEN
           WRITE(logn, *) 'Writing '//vname//' to output file using mask grid'
           ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/xID, yID, zID, tID/),   &
-                            varID)
+               varID &
+#ifndef __NETCDF3__
+               , deflate_level=1 &
+#endif
+               )
           ! If not already allocated, allocate a temporary storage variable
           ! of this dim:
           IF(.NOT.ASSOCIATED(otmp4xyzt))                                       &
              ALLOCATE(otmp4xyzt(xdimsize, ydimsize, 1, 1))
         ELSE ! normal x-y-t mask grid
           WRITE(logn, *) 'Writing '//vname//' to output file using mask grid'
-          ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/xID, yID, tID/), varID)
+          ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/xID, yID, tID/), varID &
+#ifndef __NETCDF3__
+               , deflate_level=1 &
+#endif
+               )
           ! If not already allocated, allocate a temporary storage variable
           ! of this dim:
           IF(.NOT.ASSOCIATED(otmp3xyt))ALLOCATE(otmp3xyt(xdimsize, ydimsize, 1))
@@ -240,7 +252,11 @@ CONTAINS
         WRITE(logn, *) 'Writing '//vname//                                     &
                       ' to output file using land grid with patch-specific info'
         ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/landID, patchID, tID/),   &
-                          varID)
+             varID &
+#ifndef __NETCDF3__
+             , deflate_level=1 &
+#endif
+             )
         IF (ok /= NF90_NOERR) CALL nc_abort                                    &
                   (ok,'Error defining '//vname//' variable in output file. '// &
                                                       '(INTERFACE define_ovar)')
@@ -250,7 +266,11 @@ CONTAINS
                                                  max_vegpatches, 1))
       ELSE ! only grid point values, no patch-specific info
         WRITE(logn, *) 'Writing '//vname//' to output file using land grid'
-        ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/landID,tID/), varID)
+        ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/landID,tID/), varID &
+#ifndef __NETCDF3__
+             , deflate_level=1 &
+#endif
+             )
         IF (ok /= NF90_NOERR) CALL nc_abort                                    &
                  (ok, 'Error defining '//vname//' variable in output file. '// &
                                                       '(INTERFACE define_ovar)')
@@ -313,7 +333,11 @@ CONTAINS
         WRITE(logn, *) 'Writing '//vname//                                     &
                       ' to output file using mask grid with patch-specific info'
         ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/xID, yID, patchID,        &
-                          othdimID, tID/), varID)
+             othdimID, tID/), varID &
+#ifndef __NETCDF3__
+             , deflate_level=1 &
+#endif
+             )
         IF (ok /= NF90_NOERR) CALL nc_abort                                    &
                  (ok, 'Error defining '//vname//' variable in output file. '// &
                                                       '(INTERFACE define_ovar)')
@@ -352,8 +376,11 @@ CONTAINS
         END IF
       ELSE ! only grid point values, no patch-specific info
         WRITE(logn, *) 'Writing '//vname//' to output file using mask grid'
-        ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/xID, yID, othdimID,       &
-                                                                   tID/), varID)
+        ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/xID, yID, othdimID, tID/), varID &
+#ifndef __NETCDF3__
+             , deflate_level=1 &
+#endif
+             )
         IF (ok /= NF90_NOERR) CALL nc_abort                                    &
                  (ok, 'Error defining '//vname//' variable in output file. '// &
                                        '(SUBROUTINE define_output_variable_r2)')
@@ -398,7 +425,11 @@ CONTAINS
         WRITE(logn, *) 'Writing '//vname//                                     &
                       ' to output file using land grid with patch-specific info'
         ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/landID, patchID,          &
-                          othdimID, tID/), varID)
+             othdimID, tID/), varID &
+#ifndef __NETCDF3__
+             , deflate_level=1 &
+#endif
+             )
         IF (ok /= NF90_NOERR) CALL nc_abort                                    &
                  (ok, 'Error defining '//vname//' variable in output file. '// &
                                        '(SUBROUTINE define_output_variable_r2)')
@@ -444,7 +475,11 @@ CONTAINS
       ELSE ! only grid point values, no patch-specific info
         WRITE(logn, *) 'Writing '//vname//' to output file using land grid'
         ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/landID, othdimID, tID/),  &
-                          varID)
+             varID &
+#ifndef __NETCDF3__
+             , deflate_level=1 &
+#endif
+             )
         IF (ok /= NF90_NOERR) CALL nc_abort                                    &
                  (ok, 'Error defining '//vname//' variable in output file. '// &
                                        '(SUBROUTINE define_output_variable_r2)')
@@ -533,11 +568,23 @@ CONTAINS
        if ( (writepatch .or. output%patch) .and. (.not. output%grid(1:3) == 'ALM') ) then
           write(logn, *) 'Writing '//pname//' to output file using mask grid with patch-specific info'
           if (dimswitch(1:2) == 're') then
-             ok = nf90_def_var(ncid, pname, nf90_float, (/xid, yid, patchid/), parid)
+             ok = nf90_def_var(ncid, pname, nf90_float, (/xid, yid, patchid/), parid &
+#ifndef __NETCDF3__
+                  , deflate_level=1 &
+#endif
+                  )
           else if (dimswitch(1:2) == 'r2') then
-             ok = nf90_def_var(ncid, pname, nf90_float, (/xid, yid, patchid/), parid)
+             ok = nf90_def_var(ncid, pname, nf90_float, (/xid, yid, patchid/), parid &
+#ifndef __NETCDF3__
+                  , deflate_level=1 &
+#endif
+                  )
           else if (dimswitch(1:1) == 'i') then
-             ok = nf90_def_var(ncid, pname, nf90_int, (/xid, yid, patchid/), parid)
+             ok = nf90_def_var(ncid, pname, nf90_int, (/xid, yid, patchid/), parid &
+#ifndef __NETCDF3__
+                  , deflate_level=1 &
+#endif
+                  )
           end if
           if (ok /= nf90_noerr) call nc_abort(ok, &
                'Error defining '//pname//' variable in output file. '// &
@@ -548,11 +595,23 @@ CONTAINS
        else ! only grid point values, no patch-specific info
           write(logn, *) 'Writing '//pname//' to output file using mask grid'
           if (dimswitch(1:2) == 're') then
-             ok = nf90_def_var(ncid, pname, nf90_float, (/xid, yid/), parid)
+             ok = nf90_def_var(ncid, pname, nf90_float, (/xid, yid/), parid &
+#ifndef __NETCDF3__
+                  , deflate_level=1 &
+#endif
+                  )
           else if (dimswitch(1:2) == 'r2') then
-             ok = nf90_def_var(ncid, pname, nf90_double, (/xid, yid/), parid)
+             ok = nf90_def_var(ncid, pname, nf90_double, (/xid, yid/), parid &
+#ifndef __NETCDF3__
+                  , deflate_level=1 &
+#endif
+                  )
           else if (dimswitch(1:1) == 'i') then
-             ok = nf90_def_var(ncid, pname, nf90_int, (/xid, yid/), parid)
+             ok = nf90_def_var(ncid, pname, nf90_int, (/xid, yid/), parid &
+#ifndef __NETCDF3__
+                  , deflate_level=1 &
+#endif
+                  )
           end if
           ! If not already allocated, allocate a temporary storage variable
           ! of this dim:
@@ -570,11 +629,23 @@ CONTAINS
        if ((writepatch .or. output%patch) .and. .not. present(restart)) then
           write(logn, *) 'Writing '//pname//' to output file using land grid with patch-specific info'
           if (dimswitch(1:2) == 're') then
-             ok = nf90_def_var(ncid, pname, nf90_float, (/landid, patchid/), parid)
+             ok = nf90_def_var(ncid, pname, nf90_float, (/landid, patchid/), parid &
+#ifndef __NETCDF3__
+                  , deflate_level=1 &
+#endif
+                  )
           else if (dimswitch(1:2) == 'r2') then
-             ok = nf90_def_var(ncid, pname, nf90_double, (/landid, patchid/), parid)
+             ok = nf90_def_var(ncid, pname, nf90_double, (/landid, patchid/), parid &
+#ifndef __NETCDF3__
+             , deflate_level=1 &
+#endif
+                  )
           else if(dimswitch(1:1) == 'i') then
-             ok = nf90_def_var(ncid, pname, nf90_int, (/landid, patchid/), parid)
+             ok = nf90_def_var(ncid, pname, nf90_int, (/landid, patchid/), parid &
+#ifndef __NETCDF3__
+             , deflate_level=1 &
+#endif
+                  )
           end if
           if (ok /= nf90_noerr) call nc_abort(ok, &
                'Error defining '//pname//' variable in output file. '// &
@@ -588,11 +659,23 @@ CONTAINS
           ! If not writing a restart file, report variable writing to log file:
           if (.not. present(restart)) write(logn, *) 'Writing '//pname//' to output file using land grid'
           if (dimswitch(1:2) == 're') then
-             ok = nf90_def_var(ncid, pname, nf90_float, (/landid/), parid)
+             ok = nf90_def_var(ncid, pname, nf90_float, (/landid/), parid &
+#ifndef __NETCDF3__
+             , deflate_level=1 &
+#endif
+                  )
           else if (dimswitch(1:2) == 'r2') then
-             ok = nf90_def_var(ncid, pname, nf90_double, (/landid/), parid)
+             ok = nf90_def_var(ncid, pname, nf90_double, (/landid/), parid &
+#ifndef __NETCDF3__
+             , deflate_level=1 &
+#endif
+                  )
           else if (dimswitch(1:1) == 'i') then
-             ok = nf90_def_var(ncid, pname, nf90_int, (/landid/), parid)
+             ok = nf90_def_var(ncid, pname, nf90_int, (/landid/), parid &
+#ifndef __NETCDF3__
+             , deflate_level=1 &
+#endif
+                  )
           end if
           if (ok /= nf90_noerr) call nc_abort(ok, &
                'Error defining '//pname//' variable in output or '// &
@@ -679,7 +762,11 @@ CONTAINS
           WRITE(logn, *) 'Writing '//pname//                                   &
                       ' to output file using mask grid with patch-specific info'
           ok = NF90_DEF_VAR(ncid, pname, NF90_FLOAT, (/xID, yID, patchID,      &
-                            othdimID/),parID)
+               othdimID/),parID &
+#ifndef __NETCDF3__
+             , deflate_level=1 &
+#endif
+               )
           IF (ok /= NF90_NOERR) CALL nc_abort                                  &
                  (ok, 'Error defining '//pname//' variable in output file. '// &
                                       '(SUBROUTINE define_output_parameter_r2)')
@@ -703,7 +790,11 @@ CONTAINS
        ELSE ! only grid point values, no patch-specific info
           WRITE(logn, *) 'Writing '//pname//' to output file using mask grid'
           ok = NF90_DEF_VAR(ncid, pname, NF90_FLOAT, (/xID, yID, othdimID/)    &
-                            , parID)
+               , parID &
+#ifndef __NETCDF3__
+             , deflate_level=1 &
+#endif
+               )
           ! If not already allocated, allocate a temporary storage variable
           ! of this dim:
           IF(dimswitch == 'soil' .OR. dimswitch == 'r2soil') THEN
@@ -741,10 +832,18 @@ CONTAINS
           ! Define parameter as double precision if required:
           IF(dimswitch(1:2) == 'r2') THEN
              ok = NF90_DEF_VAR(ncid, pname, NF90_DOUBLE, (/landID, patchID,    &
-                               othdimID/), parID)
+                  othdimID/), parID &
+#ifndef __NETCDF3__
+             , deflate_level=1 &
+#endif
+                  )
           ELSE
              ok = NF90_DEF_VAR(ncid, pname, NF90_FLOAT, (/landID, patchID,     &
-                               othdimID/), parID)
+                  othdimID/), parID &
+#ifndef __NETCDF3__
+             , deflate_level=1 &
+#endif
+                  )
           END IF
           IF (ok /= NF90_NOERR) CALL nc_abort                                  &
                  (ok, 'Error defining '//pname//' variable in output file. '// &
@@ -776,9 +875,17 @@ CONTAINS
                ' to output file using land grid'
           ! Define parameter as double precision if required for restart file:
           IF(dimswitch(1:2)=='r2') THEN
-             ok=NF90_DEF_VAR(ncid,pname,NF90_DOUBLE,(/landID,othdimID/),parID)
+             ok=NF90_DEF_VAR(ncid,pname,NF90_DOUBLE,(/landID,othdimID/),parID &
+#ifndef __NETCDF3__
+             , deflate_level=1 &
+#endif
+                  )
           ELSE
-             ok=NF90_DEF_VAR(ncid,pname,NF90_FLOAT,(/landID,othdimID/),parID)
+             ok=NF90_DEF_VAR(ncid,pname,NF90_FLOAT,(/landID,othdimID/),parID &
+#ifndef __NETCDF3__
+             , deflate_level=1 &
+#endif
+                  )
           END IF
           IF (ok /= NF90_NOERR) CALL nc_abort &
                (ok,'Error defining '//pname//' variable in output file. '// &

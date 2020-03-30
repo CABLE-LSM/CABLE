@@ -297,7 +297,11 @@ CONTAINS
 
 
     ! Create output file:
+#ifdef __NETCDF3__
     ok = NF90_CREATE(trim(filename%out), ior(nf90_clobber,nf90_64bit_offset), ncid_out)
+#else
+    ok = NF90_CREATE(trim(filename%out), ior(nf90_clobber,ior(nf90_netcdf4,nf90_classic_model)), ncid_out)
+#endif
     ! print*, 'OCreate60 ', ncid_out, trim(filename%out)
     IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error creating output file '       &
          //TRIM(filename%out)// ' (SUBROUTINE open_output_file)')
@@ -1643,7 +1647,6 @@ CONTAINS
             'in namelist file. (SUBROUTINE open_output_file)')
     END IF
 
-    print*,TRIM(output%averaging), output%interval
     ! End netcdf define mode:
     ok = NF90_ENDDEF(ncid_out)
     IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error creating output file '       &
@@ -3726,7 +3729,11 @@ CONTAINS
     ENDIF
 
     ! Create output file:
+#ifdef __NETCDF3__
     ok = NF90_CREATE(trim(frst_out), ior(nf90_clobber,nf90_64bit_offset), ncid_restart)
+#else
+    ok = NF90_CREATE(trim(frst_out), ior(nf90_clobber,ior(nf90_netcdf4,nf90_classic_model)), ncid_restart)
+#endif
     ! print*, 'OCreate61 ', ncid_restart, trim(frst_out)
     IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error creating restart file '      &
          //TRIM(frst_out)// '(SUBROUTINE create_restart)')

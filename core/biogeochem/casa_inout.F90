@@ -2159,7 +2159,12 @@ contains
     use cable_common_module,  only: cable_user, filename, handle_err
     use cable_def_types_mod,  only: veg_parameter_type, mp
     use netcdf,               only: nf90_noerr, &
-         nf90_put_var, nf90_clobber, nf90_create, nf90_global, nf90_put_att, nf90_netcdf4, & ! , nf90_64bit_offset
+         nf90_put_var, nf90_clobber, nf90_create, nf90_global, nf90_put_att, &
+#ifdef __NETCDF3__
+         nf90_64bit_offset, &
+#else
+         nf90_netcdf4, nf90_classic_model, &
+#endif
          nf90_def_dim, nf90_unlimited, nf90_int, nf90_def_var, nf90_float, nf90_enddef, nf90_put_var, nf90_close
 
     implicit none
@@ -2358,8 +2363,11 @@ contains
        cnt = 0
 
        ! create netcdf file:
-       ! status = nf90_create(trim(fname), ior(nf90_clobber,nf90_64bit_offset), file_id)
-       status = nf90_create(trim(fname), ior(nf90_clobber,nf90_netcdf4), file_id)
+#ifdef __NETCDF3__
+       status = nf90_create(trim(fname), ior(nf90_clobber,nf90_64bit_offset), file_id)
+#else
+       status = nf90_create(trim(fname), ior(nf90_clobber,ior(nf90_netcdf4,nf90_classic_model)), file_id)
+#endif       
        ! print*, 'OCreate52 ', file_id, trim(fname)
        if (status /= nf90_noerr) call handle_err(status)
 
@@ -2403,37 +2411,65 @@ contains
        end do
 
        do i=1, na1
-          status = nf90_def_var(file_id, trim(a1(i)), nf90_float, (/land_id,t_id/), vid1(i))
+          status = nf90_def_var(file_id, trim(a1(i)), nf90_float, (/land_id,t_id/), vid1(i) &
+#ifndef __NETCDF3__
+               , deflate_level=1 &
+#endif
+               )
           if (status /= nf90_noerr) call handle_err(status)
        end do
 
        do i=1, na2
-          status = nf90_def_var(file_id, trim(a2(i)), nf90_float, (/land_id,plant_id,t_id/), vid2(i))
+          status = nf90_def_var(file_id, trim(a2(i)), nf90_float, (/land_id,plant_id,t_id/), vid2(i) &
+#ifndef __NETCDF3__
+               , deflate_level=1 &
+#endif
+               )
           if (status /= nf90_noerr) call handle_err(status)
        end do
 
        do i=1, na3
-          status = nf90_def_var(file_id, trim(a3(i)), nf90_float, (/land_id,litter_id,t_id/), vid3(i))
+          status = nf90_def_var(file_id, trim(a3(i)), nf90_float, (/land_id,litter_id,t_id/), vid3(i) &
+#ifndef __NETCDF3__
+               , deflate_level=1 &
+#endif
+               )
           if (status /= nf90_noerr) call handle_err(status)
        end do
 
        do i=1, na4
-          status = nf90_def_var(file_id, trim(a4(i)), nf90_float, (/land_id,soil_id,t_id/), vid4(i))
+          status = nf90_def_var(file_id, trim(a4(i)), nf90_float, (/land_id,soil_id,t_id/), vid4(i) &
+#ifndef __NETCDF3__
+               , deflate_level=1 &
+#endif
+               )
           if (status /= nf90_noerr) call handle_err(status)
        end do
 
        do i=1, na5
-          status = nf90_def_var(file_id, trim(a5(i)), nf90_float, (/land_id,litter_id,plant_id,t_id/), vid5(i))
+          status = nf90_def_var(file_id, trim(a5(i)), nf90_float, (/land_id,litter_id,plant_id,t_id/), vid5(i) &
+#ifndef __NETCDF3__
+               , deflate_level=1 &
+#endif
+               )
           if (status /= nf90_noerr) call handle_err(status)
        end do
 
        do i=1, na6
-          status = nf90_def_var(file_id, trim(a6(i)), nf90_float, (/land_id,soil_id,litter_id,t_id/), vid6(i))
+          status = nf90_def_var(file_id, trim(a6(i)), nf90_float, (/land_id,soil_id,litter_id,t_id/), vid6(i) &
+#ifndef __NETCDF3__
+               , deflate_level=1 &
+#endif
+               )
           if (status /= nf90_noerr) call handle_err(status)
        end do
 
        do i=1, na7
-          status = nf90_def_var(file_id, trim(a7(i)), nf90_float, (/land_id,soil_id,soil_id,t_id/), vid7(i))
+          status = nf90_def_var(file_id, trim(a7(i)), nf90_float, (/land_id,soil_id,soil_id,t_id/), vid7(i) &
+#ifndef __NETCDF3__
+               , deflate_level=1 &
+#endif
+               )
           if (status /= nf90_noerr) call handle_err(status)
        end do
 
