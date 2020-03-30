@@ -251,7 +251,7 @@ CONTAINS
          YYYY,        &  !
          LOY,         &  ! Length of Year
          maxdiff(2)      ! location of maximum in convergence test
-    integer(i_d) :: ctime ! time for casacnp
+    integer :: ctime ! time for casacnp
 
     REAL :: dels                    ! time step size in seconds
     CHARACTER(len=9) :: dum         ! dummy char for fileName generation

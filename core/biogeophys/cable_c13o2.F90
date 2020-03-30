@@ -649,7 +649,7 @@ contains
     use cable_c13o2_def,      only: c13o2_pool
     use netcdf,               only: nf90_create, nf90_clobber, nf90_noerr, nf90_netcdf4, & ! , nf90_64bit_offset
          nf90_put_att, nf90_global, nf90_def_dim, nf90_unlimited, &
-         nf90_def_var, nf90_double, nf90_int64, nf90_enddef, nf90_put_var
+         nf90_def_var, nf90_double, nf90_int, nf90_enddef, nf90_put_var
 
     implicit none
 
@@ -727,7 +727,7 @@ contains
     dvars(7) = 2 ! ntile, time
     ! dvars(8) = 2 ! ntile, time
     ! variable type
-    tvars(1) = nf90_int64
+    tvars(1) = nf90_int
     tvars(2) = nf90_double
     tvars(3) = nf90_double
     tvars(4) = nf90_double
@@ -874,7 +874,7 @@ contains
     integer,                         intent(in) :: file_id
     character(len=40), dimension(:), intent(in) :: vars
     integer,           dimension(:), intent(in) :: var_ids
-    integer(i_d),                    intent(in) :: days
+    integer,                         intent(in) :: days
     type(c13o2_pool),                intent(in) :: c13o2pools
 
     ! local variables

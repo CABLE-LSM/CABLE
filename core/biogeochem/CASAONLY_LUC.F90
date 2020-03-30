@@ -75,7 +75,7 @@ contains
 
     ! more variables to store the spinup pool size over the last 10 loops. Added by Yp Wang 30 Nov 2012
     integer :: k, j, l
-    integer(i_d) :: ctime
+    ! integer :: ctime
     INTEGER, allocatable :: Iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
     INTEGER :: count_sum_casa ! number of time steps over which casa pools &
     !and fluxes are aggregated (for output)
@@ -101,7 +101,7 @@ contains
 
     ktauday = int(24.0*3600.0/dels)
     nday    = (kend-kstart+1)/ktauday
-    ctime   = 0
+    ! ctime   = 0
     first_casa_write = .true.
     count_sum_casa = 0
     myearspin = cable_user%yearend - cable_user%yearstart + 1
@@ -120,7 +120,7 @@ contains
        !!CLN901  format(A99)
        do idoy=1, mdyear
           ktau = (idoy-1)*ktauday + ktauday
-          ctime = ctime + 1
+          ! ctime = ctime + 1
 
           casamet%tairk(:)       = casamet%Tairkspin(:,idoy)
           casamet%tsoil(:,1)     = casamet%Tsoilspin_1(:,idoy)

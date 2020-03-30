@@ -2157,10 +2157,10 @@ contains
     use casavariable,         only: casa_met, casa_pool, casa_balance, casa_flux, &
          mplant, mlitter, msoil, icycle, casafile, casa_timeunits
     use cable_common_module,  only: cable_user, filename, handle_err
-    use cable_def_types_mod,  only: veg_parameter_type, mp, i_d
+    use cable_def_types_mod,  only: veg_parameter_type, mp
     use netcdf,               only: nf90_noerr, &
          nf90_put_var, nf90_clobber, nf90_create, nf90_global, nf90_put_att, nf90_netcdf4, & ! , nf90_64bit_offset
-         nf90_def_dim, nf90_unlimited, nf90_int64, nf90_def_var, nf90_float, nf90_enddef, nf90_put_var, nf90_close
+         nf90_def_dim, nf90_unlimited, nf90_int, nf90_def_var, nf90_float, nf90_enddef, nf90_put_var, nf90_close
 
     implicit none
 
@@ -2170,7 +2170,7 @@ contains
     type(casa_balance),       intent(in) :: casabal
     type(casa_flux),          intent(in) :: casaflux
     logical,                  intent(in) :: casaonly
-    integer(i_d),             intent(in) :: ctime
+    integer,                  intent(in) :: ctime
     logical,                  intent(in) :: lfinal
 
     integer :: status
@@ -2388,7 +2388,7 @@ contains
        if (status /= nf90_noerr) call handle_err(status)
 
        ! define variables
-       status = nf90_def_var(file_id, 'time', nf90_int64, (/t_id/), vidtime)
+       status = nf90_def_var(file_id, 'time', nf90_int, (/t_id/), vidtime)
        if (status /= nf90_noerr) call handle_err(status)
 
        STATUS = NF90_PUT_ATT(FILE_ID, VIDtime, 'units', TRIM(casa_timeunits))

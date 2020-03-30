@@ -81,7 +81,7 @@ contains
     real(dp), allocatable, save :: LAImax(:), Cleafmean(:), Crootmean(:)
     real(dp), allocatable :: NPPtoGPP(:)
     integer,  allocatable :: Iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
-    integer(i_d) :: ctime
+    integer :: ctime
     real(dp) :: rday
     real :: rshootfrac
 

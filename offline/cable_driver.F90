@@ -159,7 +159,7 @@ PROGRAM cable_offline_driver
        NRRRR,      &  !
        LOY,        &  ! days in year
        count_sum_casa ! number of time steps over which casa pools &
-  integer(i_d) :: ctime ! time counter for casacnp
+  integer :: ctime ! time counter for casacnp
   !and fluxes are aggregated (for output)
 
   REAL :: dels ! time step size in seconds
