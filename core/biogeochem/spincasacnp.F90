@@ -502,7 +502,8 @@ contains
 
              !MC - Should this be nyear==myearspin instead of nyear==1?
              if (nloop==mloop .and. nyear==myearspin) then
-                !MC - Should ctime be replaced by idoy?
+                ! CALL WRITE_CASA_OUTPUT_NC( veg, casamet, casapool, casabal, casaflux, &
+                !      .true., ctime,  idoy.eq.mdyear )
                 CALL WRITE_CASA_OUTPUT_NC( veg, casamet, casapool, casabal, casaflux, &
                      .true., ctime,  idoy.eq.mdyear )
                 ! 13C

@@ -1563,17 +1563,19 @@ contains
 
     if (cable_user%CALL_POP) THEN
        if (.not.allocated(tmp)) allocate(tmp(size(POP%pop_grid)))
-       tmp = (POP%pop_grid(:)%stress_mortality + POP%pop_grid(:)%crowding_mortality &
-            +POP%pop_grid(:)%cat_mortality &
-            + POP%pop_grid(:)%fire_mortality  )
-       where (tmp.gt. 1.e-12_r_2)
-          casaflux%Cplant_turnover_disturbance(POP%Iwood) =  &
-               casaflux%Cplant_turnover(POP%Iwood,2)*(POP%pop_grid(:)%cat_mortality &
-               + POP%pop_grid(:)%fire_mortality  )/tmp
-          casaflux%Cplant_turnover_crowding(POP%Iwood) =  &
-               casaflux%Cplant_turnover(POP%Iwood,2)*POP%pop_grid(:)%crowding_mortality/tmp
+       tmp =  POP%pop_grid(:)%stress_mortality &
+            + POP%pop_grid(:)%crowding_mortality &
+            + POP%pop_grid(:)%cat_mortality &
+            + POP%pop_grid(:)%fire_mortality
+       ! where (tmp .gt. 1.e-12_r_2)
+       where (tmp > real(epsilon(1.0),r_2))
+          casaflux%Cplant_turnover_disturbance(POP%Iwood(:)) =  &
+               casaflux%Cplant_turnover(POP%Iwood(:),2) * &
+               (POP%pop_grid(:)%cat_mortality + POP%pop_grid(:)%fire_mortality) / tmp(:)
+          casaflux%Cplant_turnover_crowding(POP%Iwood(:)) =  &
+               casaflux%Cplant_turnover(POP%Iwood(:),2) * POP%pop_grid(:)%crowding_mortality / tmp(:)
           casaflux%Cplant_turnover_resource_limitation(POP%Iwood) = &
-               casaflux%Cplant_turnover(POP%Iwood,2)*POP%pop_grid(:)%stress_mortality/tmp
+               casaflux%Cplant_turnover(POP%Iwood(:),2) * POP%pop_grid(:)%stress_mortality / tmp(:)
        endwhere
        deallocate(tmp)
     endif

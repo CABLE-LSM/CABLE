@@ -251,7 +251,8 @@ contains
        sum_c13o2pools%clitter  = sum_c13o2pools%clitter  + c13o2pools%clitter
        sum_c13o2pools%csoil    = sum_c13o2pools%csoil    + c13o2pools%csoil
        sum_c13o2pools%clabile  = sum_c13o2pools%clabile  + c13o2pools%clabile
-    else if (average_now) then
+    endif
+    if (average_now) then
        rsteps = 1.0_dp / real(nsteps,dp)
        sum_c13o2pools%cplant   = sum_c13o2pools%cplant  * rsteps
        sum_c13o2pools%clitter  = sum_c13o2pools%clitter * rsteps

@@ -559,6 +559,7 @@ CONTAINS
              ! at the end of every timestep
              ! print*, 'WORKER Receive 20 outtypes'
              CALL worker_outtype(comm, met, canopy, ssnow, rad, bal, air, soil, veg)
+             if (cable_user%c13o2) call worker_c13o2_flux_type(comm, c13o2flux)
 
              ! MPI: casa parameters received only if cnp module is active
              ! MPI: create type to send casa results back to the master
@@ -567,12 +568,7 @@ CONTAINS
                 ! print*, 'WORKER Receive 21 casa'
                 call worker_casa_type(comm, casapool, casaflux, casamet, casabal, phen)
                 ! 13C
-                if (cable_user%c13o2) then
-                   ! print*, 'WORKER Receive 22 c13o2flux'
-                   call worker_c13o2_flux_type(comm, c13o2flux)
-                   ! print*, 'WORKER Receive 23 c13o2pool'
-                   call worker_c13o2_pool_type(comm, c13o2pools)
-                endif
+                if (cable_user%c13o2) call worker_c13o2_pool_type(comm, c13o2pools)
 
                 if (cable_user%casa_dump_read .or. cable_user%casa_dump_write) then
                    ! print*, 'WORKER Receive 24 casa_dump'
@@ -1251,12 +1247,7 @@ CONTAINS
                    ! print*, 'WORKER Send 30 casa'
                    CALL MPI_Send(MPI_BOTTOM, 1, casa_t, 0, ktau_gl, ocomm, ierr)
                    ! 13C
-                   if (cable_user%c13o2) then
-                      ! print*, 'WORKER Send 31 c13o2_flux'
-                      CALL MPI_Send(MPI_BOTTOM, 1, c13o2_flux_t, 0, ktau_gl, ocomm, ierr)
-                      ! print*, 'WORKER Send 32 c13o2_pool'
-                      CALL MPI_Send(MPI_BOTTOM, 1, c13o2_pool_t, 0, ktau_gl, ocomm, ierr)
-                   endif
+                   if (cable_user%c13o2) call MPI_Send(MPI_BOTTOM, 1, c13o2_pool_t, 0, ktau_gl, ocomm, ierr)
                    write(wlogn,*) 'after casa mpi_send ', ktau
                 ENDIF
 
@@ -1299,6 +1290,7 @@ CONTAINS
              ! print*, 'WORKER Send 34 send'
              CALL MPI_Send(MPI_BOTTOM, 1, send_t, 0, ktau_gl, ocomm, ierr)
              ! print*, 'WORKER Sent 34'
+             if (cable_user%c13o2) call MPI_Send(MPI_BOTTOM, 1, c13o2_flux_t, 0, ktau_gl, ocomm, ierr)
 
              ! Write time step's output to file if either: we're not spinning up
              ! or we're spinning up and the spinup has converged:

@@ -24,15 +24,15 @@ contains
          ptos, ptog, stog, gtos, pharv, smharv, syharv, &
          ptoc, ptoq, stoc, stoq, ctos, qtos
     USE POPLUC_Types
-    USE POPLUC_Module,        ONLY: POPLUCStep, POPLUC_weights_Transfer, WRITE_LUC_OUTPUT_NC, &
+    USE POPLUC_Module,        ONLY: POPLUCStep, POPLUC_weights_Transfer, & ! WRITE_LUC_OUTPUT_NC, &
          POP_LUC_CASA_transfer, WRITE_LUC_RESTART_NC, &
          POPLUC_set_patchfrac
     use casa_cable,           only: POPdriver, read_casa_dump
     use casa_inout,           only: biogeochem ! , write_casa_output_nc
     ! 13C
     use cable_c13o2_def,      only: c13o2_flux, c13o2_pool, c13o2_luc, c13o2_update_sum_pools, c13o2_zero_sum_pools
-    use cable_c13o2,          only: c13o2_save_casapool, c13o2_update_pools, c13o2_save_luc, c13o2_update_luc, &
-         c13o2_create_output, c13o2_write_output, c13o2_close_output ! , &
+    use cable_c13o2,          only: c13o2_save_casapool, c13o2_update_pools, c13o2_save_luc, c13o2_update_luc ! , &
+         ! c13o2_create_output, c13o2_write_output, c13o2_close_output, &
          ! c13o2_nvars_output, &
          ! c13o2_print_delta_pools, c13o2_print_delta_luc
 
