@@ -10,9 +10,9 @@ fi
 known_hosts()
 {
     if [ -z ${PS3} ] ; then
-	kh=(kh pear mcin vm_o gadi)
+        kh=(kh pear mcin vm_o gadi)
     else
-	set -A kh pear mcin vm_o gadi
+        set -A kh pear mcin vm_o gadi
     fi
 }
 
@@ -30,7 +30,7 @@ host_gadi()
    module load intel-mpi/2019.5.281
    module load netcdf/4.6.3
    module load hdf5/1.10.5
-   
+
    export FC=mpif90
    # export NCCLIB="${NETCDF_ROOT}/lib"
    # export NCLIB="${NETCDF_ROOT}/lib/Intel"
@@ -50,6 +50,7 @@ host_gadi()
    fi
    export CFLAGS="${CFLAGS} -D__CRU2017__"
    export CFLAGS="${CFLAGS} -D__MPI__"
+   export CFLAGS="${CFLAGS} -D__NETCDF3__"
    export LDFLAGS='-L'${NCDIR}' '${LDFLAGS}
    export LD='-lnetcdf -lnetcdff'
    export MFLAGS='-j 8'
@@ -59,17 +60,17 @@ host_gadi()
 }
 
 
-## pearcey.hpsc.csiro.au 
+## pearcey.hpsc.csiro.au
 host_pear()
 {
     #    export LD_PRELOAD=/apps/netcdf/4.3.3/lib/libnetcdf.so
     #    export LD_PRELOAD=/apps/openmpi/1.8.4/lib/libopen-rte.so.7:/apps/openmpi/1.8.4/lib/libopen-pal.so.6
     if [ -z ${PS3} ] ; then
-    	. /apps/modules/Modules/default/init/ksh
+        . /apps/modules/Modules/default/init/ksh
     fi
 
     #   module add netcdf/4.3.3.1 openmpi/1.7.5
-    #   module add netcdf/4.3.3.1 openmpi/1.8.8 
+    #   module add netcdf/4.3.3.1 openmpi/1.8.8
 
     module del intel-cc intel-fc
     module add intel-cc/16.0.1.150 intel-fc/16.0.1.150
@@ -87,7 +88,8 @@ host_pear()
     #export CFLAGS='-O0 -fp-model precise -g -debug -traceback -fpp '
     #export CFLAGS="${CFLAGS} -D__CRU2018__"
     export CFLAGS="${CFLAGS} -D__CRU2017__"
-    
+    export CFLAGS="${CFLAGS} -D__NETCDF3__"
+
     #   export CFLAGS='-O0 -fp-model precise -g -debug all -traceback -fpe0 '
        #export CFLAGS='  -g -debug -traceback -fp-stack-check -O0 -debug -fpe0 -no-ftz -ftrapuv'
 
@@ -112,86 +114,86 @@ host_mcin()
     inag=0
     np=$#
     for ((i=0; i<${np}; i++)) ; do
-	if [[ "${1}" == "debug" ]] ; then
-	    idebug=1
-	    shift 1
-	elif [[ "${1}" == "ifort" || "${1}" == "intel" ]] ; then
-	    iintel=1
-	    ignu=0
-	    inag=0
-	    shift 1
-	elif [[ "${1}" == "gfortran" || "${1}" == "gnu" ]] ; then
+        if [[ "${1}" == "debug" ]] ; then
+            idebug=1
+            shift 1
+        elif [[ "${1}" == "ifort" || "${1}" == "intel" ]] ; then
+            iintel=1
+            ignu=0
+            inag=0
+            shift 1
+        elif [[ "${1}" == "gfortran" || "${1}" == "gnu" ]] ; then
             iintel=0
-	    ignu=1
-	    inag=0
-	    shift 1
+            ignu=1
+            inag=0
+            shift 1
         elif [[ "${1}" == "nagfor" || "${1}" == "nag" ]] ; then
             iintel=0
-	    ignu=0
-	    inag=1
+            ignu=0
+            inag=1
             shift 1
-	else
-	    echo "Error: command line option not known: " ${1}
-	    exit 1
-	fi
+        else
+            echo "Error: command line option not known: " ${1}
+            exit 1
+        fi
     done
     if [[ ${iintel} -eq 1 ]] ;  then
-	# INTEL
-	/opt/intel/compilers_and_libraries/mac/bin/compilervars.sh intel64
-	export FC=/usr/local/openmpi-3.1.5-ifort/bin/mpifort
-	# release
-	export CFLAGS="-fpp -O3 -nofixed -assume byterecl -fp-model precise -ip -diag-disable=10382 -xHost"
-	if [[ ${idebug} -eq 1 ]] ; then
-	    export CFLAGS="-fpp -O0 -debug extended -traceback -g -check all,noarg_temp_created -warn all -fp-stack-check -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0" # -fpe-all=0 -no-ftz -ftrapuv -init=arrays,snan
-	fi
-	# export CFLAGS="${CFLAGS} -mtune=corei7"
-	# export CFLAGS="${CFLAGS} -march=native"
-	export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
-	export LD=''
-	export NCROOT='/usr/local/netcdf-fortran-4.4.5-ifort'
-	export cdir='.mpitmp-ifort'
-	export PROG=cable-mpi-ifort
+        # INTEL
+        /opt/intel/compilers_and_libraries/mac/bin/compilervars.sh intel64
+        export FC=/usr/local/openmpi-3.1.5-ifort/bin/mpifort
+        # release
+        export CFLAGS="-fpp -O3 -nofixed -assume byterecl -fp-model precise -ip -diag-disable=10382 -xHost"
+        if [[ ${idebug} -eq 1 ]] ; then
+            export CFLAGS="-fpp -O0 -debug extended -traceback -g -check all,noarg_temp_created -warn all -fp-stack-check -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0" # -fpe-all=0 -no-ftz -ftrapuv -init=arrays,snan
+        fi
+        # export CFLAGS="${CFLAGS} -mtune=corei7"
+        # export CFLAGS="${CFLAGS} -march=native"
+        export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
+        export LD=''
+        export NCROOT='/usr/local/netcdf-fortran-4.4.5-ifort'
+        export cdir='.mpitmp-ifort'
+        export PROG=cable-mpi-ifort
     elif [[ ${ignu} -eq 1 ]] ;  then
         # GFORTRAN
-	export FC=/usr/local/openmpi-3.1.4-gfortran/bin/mpifort
-	# release
+        export FC=/usr/local/openmpi-3.1.4-gfortran/bin/mpifort
+        # release
         export CFLAGS="-cpp -O3 -Wno-aggressive-loop-optimizations -ffree-form -ffixed-line-length-132"
-	if [[ ${idebug} -eq 1 ]] ; then
-	    # debug
+        if [[ ${idebug} -eq 1 ]] ; then
+            # debug
             export CFLAGS="-cpp -O -g -pedantic-errors -Wall -W -Wno-maybe-uninitialized -ffree-form -ffixed-line-length-132 -fbacktrace -ffpe-trap=zero,overflow -finit-real=nan" #  -ffpe-trap=zero,overflow,underflow
-	fi
-	# export CFLAGS="${CFLAGS} -march=native"
-	export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__"
-	export LD=''
-	export NCROOT='/usr/local/netcdf-fortran-4.4.5-gfortran'
-	export cdir='.mpitmp-gfortran'
-	export PROG=cable-mpi-gfortran
+        fi
+        # export CFLAGS="${CFLAGS} -march=native"
+        export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__"
+        export LD=''
+        export NCROOT='/usr/local/netcdf-fortran-4.4.5-gfortran'
+        export cdir='.mpitmp-gfortran'
+        export PROG=cable-mpi-gfortran
     elif [[ ${inag} -eq 1 ]] ;  then
         # NAG
-	export FC=/usr/local/openmpi-3.1.5-nagfor/bin/mpifort
-	# release
+        export FC=/usr/local/openmpi-3.1.5-nagfor/bin/mpifort
+        # release
         export CFLAGS="-O4"
-	if [[ ${idebug} -eq 1 ]] ; then
-	    # debug
+        if [[ ${idebug} -eq 1 ]] ; then
+            # debug
             #export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline"
-	    # set runtime environment variables: export NAGFORTRAN_RUNTIME_OPTIONS=show_dangling
+            # set runtime environment variables: export NAGFORTRAN_RUNTIME_OPTIONS=show_dangling
             export CFLAGS="-C=alias -C=array -C=bits -C=dangling -C=do -C=intovf -C=present -C=pointer -C=recursion -g -nan -O0 -strict95 -gline"
-	fi
-	export CFLAGS="${CFLAGS} -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -not_openmp"
-	export CFLAGS="${CFLAGS} -mismatch"
-	# export CFLAGS="${CFLAGS} -march=native"
-	export CFLAGS="${CFLAGS} -D__NAG__"
+        fi
+        export CFLAGS="${CFLAGS} -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -not_openmp"
+        export CFLAGS="${CFLAGS} -mismatch"
+        # export CFLAGS="${CFLAGS} -march=native"
+        export CFLAGS="${CFLAGS} -D__NAG__"
         export LD='-ideclient -unsharedrts'
         export NCROOT='/usr/local/netcdf-fortran-4.4.5-nagfor'
-	export cdir='.mpitmp-nagfor'
-	export PROG=cable-mpi-nagfor
+        export cdir='.mpitmp-nagfor'
+        export PROG=cable-mpi-nagfor
     fi
 
     # All compilers
     export CFLAGS="${CFLAGS} -D__MPI__"
     # export CFLAGS="${CFLAGS} -D__C13DEBUG__"
     export CFLAGS="${CFLAGS} -D__CRU2017__"
-    # export CFLAGS="${CFLAGS} -D__NETCDF3__"
+    export CFLAGS="${CFLAGS} -D__NETCDF3__"
 
     export NCCROOT='/usr/local'
     export NCCLIB=${NCCROOT}'/lib'
@@ -216,29 +218,29 @@ host_vm_o()
     ignu=0
     np=$#
     for ((i=0; i<${np}; i++)) ; do
-	if [[ "${1}" == "debug" ]] ; then
-	    idebug=1
-	    shift 1
-	elif [[ "${1}" == "ifort" || "${1}" == "intel" ]] ; then
-	    iintel=1
-	    ignu=0
-	    shift 1
-	elif [[ "${1}" == "gfortran" || "${1}" == "gnu" ]] ; then
+        if [[ "${1}" == "debug" ]] ; then
+            idebug=1
+            shift 1
+        elif [[ "${1}" == "ifort" || "${1}" == "intel" ]] ; then
+            iintel=1
+            ignu=0
+            shift 1
+        elif [[ "${1}" == "gfortran" || "${1}" == "gnu" ]] ; then
             iintel=0
-	    ignu=1
-	    shift 1
-	else
-	    echo "Error: command line option not known: " ${1}
-	    exit 1
-	fi
+            ignu=1
+            shift 1
+        else
+            echo "Error: command line option not known: " ${1}
+            exit 1
+        fi
     done
     if [[ ${iintel} -eq 1 ]] ;  then
         # INTEL - load mpi module first, otherwise intel module will not pre-pend LD_LIBRARY_PATH
         # module load intelmpi/2018.5.274
-	# module load intel/2018.5
+        # module load intel/2018.5
         # export FC=mpiifort
-	module load openmpi/3.0.0/intel18
-	module load intel/2018.5
+        module load openmpi/3.0.0/intel18
+        module load intel/2018.5
         export FC=mpifort
         # release
         export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -ip -xHost -diag-disable=10382"
@@ -246,20 +248,20 @@ host_vm_o()
             # debug
             export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -ip -xHost -diag-disable=10382"
         fi
-	# export CFLAGS="${CFLAGS} -march=broadwell"     # std / hf
-	# export CFLAGS="${CFLAGS} -march=core-avx2"     # std / hf
-	# export CFLAGS="${CFLAGS} -mtune=broadwell"     # std / hf
-	# export CFLAGS="${CFLAGS} -march=skylake-avx512 # sky
-	# export CFLAGS="${CFLAGS} -march=ivybridge"     # ivy / k20
-	# export CFLAGS="${CFLAGS} -march=avx"           # ivy / k20
-	# export CFLAGS="${CFLAGS} -mtune=ivybridge"     # ivy / k20
-	export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
+        # export CFLAGS="${CFLAGS} -march=broadwell"     # std / hf
+        # export CFLAGS="${CFLAGS} -march=core-avx2"     # std / hf
+        # export CFLAGS="${CFLAGS} -mtune=broadwell"     # std / hf
+        # export CFLAGS="${CFLAGS} -march=skylake-avx512 # sky
+        # export CFLAGS="${CFLAGS} -march=ivybridge"     # ivy / k20
+        # export CFLAGS="${CFLAGS} -march=avx"           # ivy / k20
+        # export CFLAGS="${CFLAGS} -mtune=ivybridge"     # ivy / k20
+        export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
         export LD=''
         export NCROOT='/home/oqx29/zzy20/local/netcdf-fortran-4.4.4-ifort2018.0'
     else
         # GFORTRAN # 6.3.0 because of netcdf-fortran
         module load gcc/6.3.0
-	module load openmpi/3.0.1/gcc/6.3.0
+        module load openmpi/3.0.1/gcc/6.3.0
         export FC=mpifort
         # release
         export CFLAGS="-O3 -Wno-aggressive-loop-optimizations -cpp -ffree-form -ffixed-line-length-132"
@@ -267,12 +269,12 @@ host_vm_o()
             # debug
             export CFLAGS="-pedantic-errors -Wall -W -O -g -Wno-maybe-uninitialized -cpp -ffree-form -ffixed-line-length-132"
         fi
-	# export CFLAGS="${CFLAGS} -march=broadwell"     # std / hf
-	# export CFLAGS="${CFLAGS} -mavx2"               # std / hf
-	# export CFLAGS="${CFLAGS} -march=skylake-avx512 # sky
-	# export CFLAGS="${CFLAGS} -march=ivybridge"     # ivy / k20
-	# export CFLAGS="${CFLAGS} -mavx"                # ivy / k20
-	export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__"
+        # export CFLAGS="${CFLAGS} -march=broadwell"     # std / hf
+        # export CFLAGS="${CFLAGS} -mavx2"               # std / hf
+        # export CFLAGS="${CFLAGS} -march=skylake-avx512 # sky
+        # export CFLAGS="${CFLAGS} -march=ivybridge"     # ivy / k20
+        # export CFLAGS="${CFLAGS} -mavx"                # ivy / k20
+        export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__"
         export LD=''
         export NCROOT='/home/oqx29/zzy20/local/netcdf-fortran-4.4.4-gfortran63'
     fi
@@ -281,6 +283,7 @@ host_vm_o()
     export CFLAGS="${CFLAGS} -D__MPI__"
     # export CFLAGS="${CFLAGS} -D__C13DEBUG__"
     export CFLAGS="${CFLAGS} -D__CRU2017__"
+    export CFLAGS="${CFLAGS} -D__NETCDF3__"
 
     export NCCROOT='/home/oqx29/zzy20/local'
     export NCCLIB=${NCCROOT}'/lib'
@@ -295,23 +298,23 @@ host_vm_o()
 }
 
 
-## unknown machine, user entering options stdout 
+## unknown machine, user entering options stdout
 host_read()
 {
    print "\n\tWhat is the ROOT path of your NetCDF library" \
          "and .mod file. "
    print "\tRemember these have to be created by the same " \
-         "Fortran compiler you" 
+         "Fortran compiler you"
    print "\twant to use to build CABLE. e.g./usr/local/intel"
    read NCDF_ROOT
-   
+
    print "\n\tWhat is the path, relative to the above ROOT, of " \
-         "your NetCDF library." 
+         "your NetCDF library."
    print "\n\tPress enter for default [lib]."
    read NCDF_DIR
    if [[ $NCDF_DIR == '' ]]; then
       export NCDIR=$NCDF_ROOT/'lib'
-   else   
+   else
       export NCDIR=$NCDF_ROOT/$NCDF_DIR
    fi
 
@@ -321,28 +324,28 @@ host_read()
    read NCDF_MOD
    if [[ $NCDF_MOD == '' ]]; then
       export NCMOD=$NCDF_ROOT/'include'
-   else   
+   else
       export NCMOD=$NCDF_ROOT/$NCDF_MOD
    fi
 
    print "\n\tWhat is the Fortran compiler you wish to use."
    print "\te.g. ifort, gfortran, nagfor"
-   
+
    print "\n\tPress enter for default [ifort]."
-   read FCRESPONSE 
+   read FCRESPONSE
    if [[ $FCRESPONSE == '' ]]; then
       export FC='ifort'
-   else   
+   else
       export FC=$FCRESPONSE
    fi
 
    print "\n\tWhat are the approriate compiler options"
    print "\te.g.(ifort) -O2 -fp-model precise "
    print "\n\tPress enter for default [-O2 -fp-model precise]."
-   read CFLAGRESPONSE 
+   read CFLAGRESPONSE
    if [[ $CFLAGRESPONSE == '' ]]; then
       export CFLAGS='-O2 -fp-model precise'
-   else   
+   else
       export CFLAGS=$CFLAGRESPONSE
    fi
 
@@ -352,10 +355,10 @@ host_read()
    print "\n\tWhat are the approriate libraries to link"
    print "\te.g.(most systems) -lnetcdf "
    print "\n\tPress enter for default [-lnetcdf]."
-   read LDRESPONSE 
+   read LDRESPONSE
    if [[ $LDRESPONSE == '' ]]; then
       export LD='-lnetcdf'
-   else   
+   else
       export LD=$LDRESPONSE
    fi
 }
@@ -393,7 +396,7 @@ clean_build()
 {
       print '\ncleaning up\n'
       print '\n\tPress Enter too continue buiding, Control-C to abort now.\n'
-      read dummy 
+      read dummy
       rm -fr .mpitmp*
 }
 
@@ -410,9 +413,9 @@ set_up_CABLE_AUX()
       setup_CABLE_AUX='n'
       if [[ $setup_CABLE_AUX = 'y' ]]; then
          print "\n\tPlease enter your NCI user ID"
-         read NCI_USERID 
-         mkdir ~/CABLE-AUX 
-         
+         read NCI_USERID
+         mkdir ~/CABLE-AUX
+
          fscp1="scp -r "
          fscp2="@vayu.nci.org.au:/projects/access/CABLE-AUX/"
          fscp3="offline "
@@ -420,52 +423,52 @@ set_up_CABLE_AUX()
          fscp5=$fscp1$NCI_USERID$fscp2
          fscp=$fscp5$fscp3$fscp4$fscp3
          $fscp
-          
+
          RC=$?
-         if [[ $RC > 0 ]];then 
-            print "ERROR: scp of ~/CABLE-AUX/offline failed" 
-            exit $RC 
+         if [[ $RC > 0 ]];then
+            print "ERROR: scp of ~/CABLE-AUX/offline failed"
+            exit $RC
          fi
-         
+
          fscp3="core "
          fscp=$fscp5$fscp3$fscp4$fscp3
          $fscp
-         
+
          RC=$?
-         if [[ $RC > 0 ]];then 
-            print "ERROR: scp of ~/CABLE-AUX/core failed" 
-            exit $RC 
+         if [[ $RC > 0 ]];then
+            print "ERROR: scp of ~/CABLE-AUX/core failed"
+            exit $RC
          fi
-      fi        
+      fi
 }
 
 
 not_recognized()
-{  
+{
    print "\n\n\tThis is not a recognized host for which we " \
-         "know the location of the" 
+         "know the location of the"
    print "\tnetcdf distribution and correct compiler switches."
 
    print "\n\tPlease enter these details as prompted, and the " \
-         "script will be " 
-   print "\tupdated accordingly. " 
+         "script will be "
+   print "\tupdated accordingly. "
    print "\n\tIf this is a common machine for CABLE users, " \
          "please email"
-   print "\n\t\t cable_help@nf.nci.org.au "  
+   print "\n\t\t cable_help@nf.nci.org.au "
    print "\n\talong with your new build_mpi.ksh so that we can " \
          "update the script "
    print "\tfor all users. "
    print "\n\tTo enter compile options for this build press " \
-         "enter, otherwise " 
-   print "\tControl-C to abort script."           
-   
+         "enter, otherwise "
+   print "\tControl-C to abort script."
+
    host_read
 
    print "\n\tPlease supply a comment include the new build " \
-         "script." 
+         "script."
    print "\n\tGenerally the host URL e.g. gadi.nci.org.au "
    read HOST_COMM
-   
+
    build_build
 }
 
@@ -480,15 +483,15 @@ do_i_no_u()
        integer k=0
    fi
    typeset -f subr
-   
+
    while [[ $k -lt $kmax ]]; do
       if [[ $HOST_MACH = ${kh[$k]} ]];then
          echo 'Host recognized as' $HOST_MACH
          subr=host_${kh[$k]}
          $subr $*
-      fi        
+      fi
       (( k = k + 1 ))
-   done 
+   done
 }
 
 
@@ -498,19 +501,19 @@ build_status()
    if [[ $# -gt 1 ]] ; then export PROG="${2}" ; else export PROG='cable-mpi' ; fi
 
    if [[ -f ${cdir}/${PROG} ]]; then
-   	mv ${cdir}/${PROG} .
-   	print '\nBUILD OK\n'
+        mv ${cdir}/${PROG} .
+        print '\nBUILD OK\n'
    else
-      print '\nOooops. Something went wrong\n'        
-      print '\nKnown build issues:\n'        
-      print '\nSome systems require additional library. \n'        
-      print '\nEdit Makefile_offline; add -lnetcdff to LD = ...\n'        
+      print '\nOooops. Something went wrong\n'
+      print '\nKnown build issues:\n'
+      print '\nSome systems require additional library. \n'
+      print '\nEdit Makefile_offline; add -lnetcdff to LD = ...\n'
    fi
-   
+
    exit
 }
 
-      
+
 i_do_now()
 {
       cd ../
@@ -518,8 +521,8 @@ i_do_now()
       tail -n +7 build_mpi.ksh > build_mpi.ksh.tmp
       cat junk build_mpi.ksh.tmp > build_mpi.ksh.new
       mv build_mpi.ksh.new build_mpi.ksh
-      chmod u+x build_mpi.ksh 
-      rm -f build_mpi.ksh.tmp build_mpi.ksh.new junk 
+      chmod u+x build_mpi.ksh
+      rm -f build_mpi.ksh.tmp build_mpi.ksh.new junk
       build_status
 }
 
@@ -528,46 +531,46 @@ build_build()
 {
    if [[ ${dosvn} -eq 1 ]] ; then
        # write file for consumption by Fortran code
-       # get SVN revision number 
+       # get SVN revision number
        CABLE_REV=`svn info | grep Revis |cut -c 11-18`
        if [[ $CABLE_REV = "" ]]; then
-	   echo "this is not an svn checkout"
-	   CABLE_REV=0
-	   echo "setting CABLE revision number to " $CABLE_REV 
-       fi         
+           echo "this is not an svn checkout"
+           CABLE_REV=0
+           echo "setting CABLE revision number to " $CABLE_REV
+       fi
        print $CABLE_REV > ~/.cable_rev
-       # get SVN status 
+       # get SVN status
        CABLE_STAT=`svn status`
        print $CABLE_STAT >> ~/.cable_rev
    fi
 
    if [[ $# -gt 0 ]] ; then export cdir="${1}" ; else export cdir='.mpitmp' ; fi
    if [[ $# -gt 1 ]] ; then export PROG="${2}" ; else export PROG='cable-mpi' ; fi
-       
+
    if [[ ! -d ${cdir} ]]; then
       mkdir ${cdir}
    fi
-   
+
    if [[ -f ${PROG} ]]; then
-      print '\ncable-mpi executable exists. copying to a dated backup file\n' 
+      print '\ncable-mpi executable exists. copying to a dated backup file\n'
       mv ${PROG} ${PROG}.`date +%d.%m.%y`
    fi
-   
+
    # directories contain source code
    PHYS="../core/biogeophys"
    UTIL="../core/utils"
    DRV="."
    CASA="../core/biogeochem"
    BLAZE="../core/blaze"
-   
+
    /bin/cp -p $PHYS/*90  ./${cdir}
    /bin/cp -p $UTIL/*90  ./${cdir}
    /bin/cp -p $DRV/*90   ./${cdir}
    /bin/cp -p $CASA/*90  ./${cdir}
    /bin/cp -p $BLAZE/*90 ./${cdir}
-       
+
    /bin/cp -p Makefile_mpi ./${cdir}
-   
+
    cd ${cdir}/
    make -f Makefile_mpi ${MFLAGS} PROG=${PROG}
 }
