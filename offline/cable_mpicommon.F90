@@ -130,7 +130,8 @@ MODULE cable_mpicommon
   ! Matthias Cuntz: add 1 1D param for 13C -> 61
   ! Matthias Cuntz: add 3 missing 1D param -> 64
   ! Paul Ryan: add 3 missing 1D param -> 67
-  INTEGER, PARAMETER :: ncasa_vec = 67
+  ! Matthias Cuntz: add 2 missing for LUC -> 69
+  INTEGER, PARAMETER :: ncasa_vec = 69
   ! MPI: number of fields included in restart_t type for data
   ! that is returned only for creating a restart file at the end of the run
   !   INTEGER, PARAMETER :: nrestart = 16

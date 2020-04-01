@@ -2494,22 +2494,21 @@ SUBROUTINE casa_cnpbal(casapool,casaflux,casabal)
   !C balance
 
   ! plant (change in stock = npp minus turnover of plant pools)
-   Cbalplant(:)  = sum(casabal%cplantlast,2) -sum(casapool%cplant,2)            &
-                 + casabal%Clabilelast(:)-casapool%clabile(:)                   &
-                 +(casaflux%Cnpp(:) - SUM((casaflux%kplant_tot*casabal%cplantlast),2))*deltpool &
-                 + casapool%dClabiledt(:)* deltpool
+   Cbalplant(:)  = sum(casabal%cplantlast,2) - sum(casapool%cplant,2) &
+                 + casabal%Clabilelast(:) - casapool%clabile(:) &
+                 + (casaflux%Cnpp(:) - sum((casaflux%kplant_tot*casabal%cplantlast),2)) * deltpool &
+                 + casapool%dClabiledt(:) * deltpool
 
-   !soil and litter (change in stock = (base plant turnover - heterotrophic resp) +
+   ! soil and litter (change in stock = (base plant turnover - heterotrophic resp) +
    ! plant turnover by fire (excluding fraction lost to atm) -
    ! litter loss to atmosphere by fire
-   Cbalsoil(:)   = sum(casabal%clitterlast,2) - sum(casapool%clitter,2)         &
-                 + sum(casabal%csoillast,2)   - sum(casapool%csoil,2)           &
-                 +(SUM((casaflux%kplant*casabal%cplantlast),2)-casaflux%Crsoil(:))*deltpool &
-   +(SUM((casaflux%kplant_fire*(1.0_r_2 - casaflux%kplant) * casabal%cplantlast),2) - &
-   casaflux%fluxCtoCO2_plant_fire)*deltpool - casaflux%fluxCtoCO2_litter_fire*deltpool
-   
+   Cbalsoil(:)   = sum(casabal%clitterlast,2) - sum(casapool%clitter,2) &
+                 + sum(casabal%csoillast,2)   - sum(casapool%csoil,2) &
+                 + (SUM(casaflux%kplant*casabal%cplantlast,2) - casaflux%Crsoil(:)) * deltpool &
+                 + ( SUM(casaflux%kplant_fire * (1.0_r_2-casaflux%kplant) * casabal%cplantlast,2) &
+                 - casaflux%fluxCtoCO2_plant_fire ) * deltpool - casaflux%fluxCtoCO2_litter_fire * deltpool
 
-   if (abs(Cbalsoil(1)).gt.0.1) then
+   if (abs(Cbalsoil(1)) .gt. 0.1_r_2) then
       print*, 'Cbalsoil(1)', Cbalsoil(1)
       ! print*, sum(casabal%clitterlast(1,:)) - sum(casapool%clitter(1,:))
       ! mass bal on litter
@@ -2566,25 +2565,24 @@ SUBROUTINE casa_cnpbal(casapool,casaflux,casabal)
    !    ENDIF
    ! ENDDO
 
-   casapool%ctot_0 = sum(casabal%cplantlast,2)+sum(casabal%clitterlast,2) &
-        + sum(casabal%csoillast,2)+ casabal%clabilelast
-   casapool%ctot = sum(casapool%cplant,2)+sum(casapool%clitter,2) &
-        + sum(casapool%csoil,2)+ casapool%clabile
+   casapool%ctot_0 = sum(casabal%cplantlast,2) + sum(casabal%clitterlast,2) &
+        + sum(casabal%csoillast,2) + casabal%clabilelast
+   casapool%ctot = sum(casapool%cplant,2) + sum(casapool%clitter,2) &
+        + sum(casapool%csoil,2) + casapool%clabile
    casabal%cplantlast  = casapool%cplant
    casabal%clabilelast = casapool%clabile
    casabal%clitterlast = casapool%clitter
    casabal%csoillast   = casapool%csoil
    casabal%sumcbal     = casabal%sumcbal + casabal%cbalance
 
-   IF(icycle >1) THEN
-      Nbalplant(:) = sum(casabal%nplantlast,2) -sum(casapool%nplant,2)                  &
-                    +casaflux%Nminuptake(:) *deltpool
-      Nbalsoil(:)  = -sum(casapool%nlitter,2)-sum(casapool%nsoil,2)                     &
-                     -casapool%nsoilmin(:)+ casabal%nsoilminlast(:)                     &
-                     + sum(casabal%nlitterlast,2)    + sum(casabal%nsoillast,2)         &
-                     +(casaflux%Nmindep(:) + casaflux%Nminfix(:)- casaflux%Nminloss(:)  &
-                       -casaflux%Nminleach(:)-casaflux%Nupland(:)) * deltpool
-
+   IF (icycle >1) THEN
+      Nbalplant(:) = sum(casabal%nplantlast,2) -sum(casapool%nplant,2) &
+           +casaflux%Nminuptake(:) *deltpool
+      Nbalsoil(:)  = -sum(casapool%nlitter,2)-sum(casapool%nsoil,2)           &
+           -casapool%nsoilmin(:)+ casabal%nsoilminlast(:)                     &
+           + sum(casabal%nlitterlast,2)    + sum(casabal%nsoillast,2)         &
+           +(casaflux%Nmindep(:) + casaflux%Nminfix(:)- casaflux%Nminloss(:)  &
+           -casaflux%Nminleach(:)-casaflux%Nupland(:)) * deltpool
       casabal%nbalance(:) = Nbalplant(:) + Nbalsoil(:)
 
       casabal%nplantlast  = casapool%nplant
@@ -2592,20 +2590,18 @@ SUBROUTINE casa_cnpbal(casapool,casaflux,casabal)
       casabal%nsoillast   = casapool%nsoil
       casabal%nsoilminlast= casapool%nsoilmin
       casabal%sumnbal     = casabal%sumnbal + casabal%nbalance
-
    ENDIF
 
-   IF(icycle >2) THEN
-      Pbalplant(:) = sum(casabal%Pplantlast,2) -sum(casapool%Pplant,2)                      &
-                   + casaflux%Plabuptake(:) *deltpool
-      Pbalsoil(:)  = -sum(casapool%Plitter,2)        - sum(casapool%Psoil,2)                      &
-                     + sum(casabal%Plitterlast,2)    + sum(casabal%Psoillast,2)                   &
-                   -casapool%psoillab(:)-casapool%psoilsorb(:)-casapool%psoilocc(:)               &
-                   + casabal%psoillablast(:) + casabal%psoilsorblast(:) + casabal%psoilocclast(:) &
-                   +(casaflux%Pdep(:) + casaflux%Pwea(:)                                          &
-                     -casaflux%Pleach(:)-casaflux%Pupland(:)                                      &
-                     -casaflux%Ploss(:)) * deltpool
-
+   IF (icycle >2) THEN
+      Pbalplant(:) = sum(casabal%Pplantlast,2) -sum(casapool%Pplant,2) &
+           + casaflux%Plabuptake(:) *deltpool
+      Pbalsoil(:)  = -sum(casapool%Plitter,2)        - sum(casapool%Psoil,2)              &
+           + sum(casabal%Plitterlast,2)    + sum(casabal%Psoillast,2)                     &
+           -casapool%psoillab(:)-casapool%psoilsorb(:)-casapool%psoilocc(:)               &
+           + casabal%psoillablast(:) + casabal%psoilsorblast(:) + casabal%psoilocclast(:) &
+           +(casaflux%Pdep(:) + casaflux%Pwea(:)                                          &
+           -casaflux%Pleach(:)-casaflux%Pupland(:)                                        &
+           -casaflux%Ploss(:)) * deltpool
       casabal%pbalance(:) = pbalplant(:) + pbalsoil(:)
 
       casabal%pplantlast   = casapool%pplant
@@ -2616,12 +2612,6 @@ SUBROUTINE casa_cnpbal(casapool,casaflux,casabal)
       casabal%psoilocclast = casapool%psoilocc
       casabal%sumpbal  = casabal%sumpbal + casabal%pbalance
    ENDIF
-
-   !write(6999,"(100(f12.5,2x))"),  casabal%cbalance(:)
-   !write(8999,"(100(f12.5,2x))"), - (casaflux%Crsoil-casaflux%cnpp+casaflux%clabloss)
-   !write(7999,"(100(f12.5,2x))"),  casapool%ctot - casapool%ctot_0
-   !write(9999,"(100(f12.5,2x))"), casapool%ctot - casapool%ctot_0 + &
-   ! ( casaflux%Crsoil-casaflux%cnpp+casaflux%clabloss)
 
 END SUBROUTINE casa_cnpbal
 
@@ -2649,16 +2639,18 @@ END SUBROUTINE casa_pdummy
 
 
 SUBROUTINE phenology(iday,veg,phen)
+
   IMPLICIT NONE
-  INTEGER,              INTENT(IN)    :: iday
-  TYPE (veg_parameter_type),    INTENT(INOUT) :: veg  ! vegetation parameters
-  TYPE (phen_variable), INTENT(INOUT) :: phen
+  
+  INTEGER,                  INTENT(IN)    :: iday
+  TYPE(veg_parameter_type), INTENT(INOUT) :: veg  ! vegetation parameters
+  TYPE(phen_variable),      INTENT(INOUT) :: phen
 
   ! local variables (temprary)
   INTEGER :: np
   INTEGER, DIMENSION(mp)  :: days,days1to2, days2to3, days3to4, days4to1
 
-!  PRINT *, 'Within SUBROUTINE phenology, mp = ', mp
+  !  PRINT *, 'Within SUBROUTINE phenology, mp = ', mp
   DO np=1,mp
     days1to2(np) = phen%doyphase(np,2) - phen%doyphase(np,1)
     days2to3(np) = phen%doyphase(np,3) - phen%doyphase(np,2)

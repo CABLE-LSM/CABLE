@@ -30,7 +30,7 @@ contains
 !#define UM_BUILD YES
   SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
        climate,casabiome,casapool,casaflux,casamet,casabal,phen, &
-       pop, spinConv, spinup, ktauday, idoy,loy, dump_read,   &
+       pop, spinConv, spinup, ktauday, idoy, loy, dump_read,   &
        dump_write, LALLOC, c13o2flux, c13o2pools)
 
     USE cable_def_types_mod
@@ -53,11 +53,11 @@ contains
     INTEGER,      INTENT(IN) :: kstart ! starting value of ktau
     INTEGER,      INTENT(IN) :: kend ! total # timesteps in run
 
-    INTEGER,      INTENT(IN)                  :: idoy ,LOY ! day of year (1-365) , Length oy
-    INTEGER,      INTENT(IN)                  :: ktauday
+    INTEGER,      INTENT(IN) :: idoy, LOY ! day of year (1-365) , Length oy
+    INTEGER,      INTENT(IN) :: ktauday
     logical,      INTENT(IN) :: spinConv, spinup
     logical,      INTENT(IN) :: dump_read, dump_write
-    INTEGER,      INTENT(IN)                  :: LALLOC
+    INTEGER,      INTENT(IN) :: LALLOC
 
     REAL,         INTENT(IN) :: dels ! time setp size (s)
     TYPE (met_type), INTENT(INOUT)       :: met  ! met input variables

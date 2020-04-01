@@ -1425,38 +1425,38 @@ CONTAINS
           height_list_weight = 0.0_dp
        ENDIF
        i_height = 0
-       pop%pop_grid(g)%cmass_sum_old = pop%pop_grid(g)%cmass_sum
-       pop%pop_grid(g)%csapwood_sum_old = pop%pop_grid(g)%csapwood_sum
-       pop%pop_grid(g)%cmass_sum = 0.0_dp
-       pop%pop_grid(g)%csapwood_sum = 0.0_dp
-       pop%pop_grid(g)%cheartwood_sum = 0.0_dp
-       pop%pop_grid(g)%height_mean = 0.0_dp
-       pop%pop_grid(g)%fire_mortality = 0.0_dp
-       pop%pop_grid(g)%cat_mortality = 0.0_dp
-       pop%pop_grid(g)%res_mortality = 0.0_dp
-       pop%pop_grid(g)%stress_mortality = 0.0_dp
+       pop%pop_grid(g)%cmass_sum_old      = pop%pop_grid(g)%cmass_sum
+       pop%pop_grid(g)%csapwood_sum_old   = pop%pop_grid(g)%csapwood_sum
+       pop%pop_grid(g)%cmass_sum          = 0.0_dp
+       pop%pop_grid(g)%csapwood_sum       = 0.0_dp
+       pop%pop_grid(g)%cheartwood_sum     = 0.0_dp
+       pop%pop_grid(g)%height_mean        = 0.0_dp
+       pop%pop_grid(g)%fire_mortality     = 0.0_dp
+       pop%pop_grid(g)%cat_mortality      = 0.0_dp
+       pop%pop_grid(g)%res_mortality      = 0.0_dp
+       pop%pop_grid(g)%stress_mortality   = 0.0_dp
        pop%pop_grid(g)%crowding_mortality = 0.0_dp
-       pop%pop_grid(g)%sapwood_loss = 0.0_dp
-       pop%pop_grid(g)%sapwood_area_loss = 0.0_dp
-       pop%pop_grid(g)%growth = 0.0_dp
-       pop%pop_grid(g)%area_growth = 0.0_dp
-       pop%pop_grid(g)%basal_area = 0.0_dp
-       pop%pop_grid(g)%densindiv = 0.0_dp
-       pop%pop_grid(g)%height_max = 0.0_dp
-       pop%pop_grid(g)%crown_cover = 0.0_dp
-       pop%pop_grid(g)%crown_area = 0.0_dp
-       pop%pop_grid(g)%sapwood_area = 0.0_dp
-       pop%pop_grid(g)%crown_volume = 0.0_dp
+       pop%pop_grid(g)%sapwood_loss       = 0.0_dp
+       pop%pop_grid(g)%sapwood_area_loss  = 0.0_dp
+       pop%pop_grid(g)%growth             = 0.0_dp
+       pop%pop_grid(g)%area_growth        = 0.0_dp
+       pop%pop_grid(g)%basal_area         = 0.0_dp
+       pop%pop_grid(g)%densindiv          = 0.0_dp
+       pop%pop_grid(g)%height_max         = 0.0_dp
+       pop%pop_grid(g)%crown_cover        = 0.0_dp
+       pop%pop_grid(g)%crown_area         = 0.0_dp
+       pop%pop_grid(g)%sapwood_area       = 0.0_dp
+       pop%pop_grid(g)%crown_volume       = 0.0_dp
        densindiv_highres = 0.0_dp
        ! loop through patches
        DO P = 1, npatch_active
-          pop%pop_grid(g)%patch(p)%biomass = 0.0_dp
-          pop%pop_grid(g)%patch(p)%sapwood = 0.0_dp
-          pop%pop_grid(g)%patch(p)%sapwood_area = 0.0_dp
-          pop%pop_grid(g)%patch(p)%heartwood = 0.0_dp
+          pop%pop_grid(g)%patch(p)%biomass          = 0.0_dp
+          pop%pop_grid(g)%patch(p)%sapwood          = 0.0_dp
+          pop%pop_grid(g)%patch(p)%sapwood_area     = 0.0_dp
+          pop%pop_grid(g)%patch(p)%heartwood        = 0.0_dp
           pop%pop_grid(g)%patch(p)%layer(1)%biomass = 0.0_dp
           pop%pop_grid(g)%patch(p)%layer(1)%density = 0.0_dp
-          patch_crown_area(p) = 0.0_dp
+          patch_crown_area(p)  = 0.0_dp
           patch_crown_cover(p) = 0.0_dp
           tmp2 = sum(pop%pop_grid(g)%patch(p)%layer(1)%cohort(1:pop%pop_grid(g)%patch(p)%layer(1)%ncohort)%sapwood_area)
 
@@ -1847,7 +1847,7 @@ CONTAINS
                    Psurvival_s = MAX(Psurvival_s,1.0e-3_dp)
                    Psurvival = Psurvival_s*(1.0_dp-frac_intensity1(j)) + Psurvival*frac_intensity1(j)
                 ENDIF
-                !Psurvival = 1 ! test
+                ! Psurvival = 1.0_dp ! test
                 pop%pop_grid(j)%patch(k)%fire_mortality = pop%pop_grid(j)%patch(k)%fire_mortality + &
                      (1.0_dp-Psurvival)*pop%pop_grid(j)%patch(k)%layer(1)%cohort(c)%biomass
                 pop%pop_grid(j)%patch(k)%sapwood_loss = pop%pop_grid(j)%patch(k)%sapwood_loss + &
@@ -1946,19 +1946,13 @@ CONTAINS
              pop%pop_grid(j)%patch(k)%cat_mortality = 0.0_dp
              DO c = 1, pop%pop_grid(j)%patch(k)%layer(1)%ncohort
                 ! kill fraction of each cohort, up to 80% of patch biomass
-
                 if (pop%pop_grid(j)%patch(k)%cat_mortality  < 0.8_dp * pop%pop_grid(j)%patch(k)%Layer(1)%biomass ) then
-
                    Pmort = min(  (0.8_dp*pop%pop_grid(j)%patch(k)%Layer(1)%biomass-pop%pop_grid(j)%patch(k)%fire_mortality) &
                         /pop%pop_grid(j)%patch(k)%layer(1)%cohort(c)%biomass, 1.0_dp)
-
                 else
-
                    Pmort = 0.0_dp
                 endif
                 Psurvival = 1.0_dp - Pmort
-
-
 
                 pop%pop_grid(j)%patch(k)%cat_mortality = pop%pop_grid(j)%patch(k)%cat_mortality + &
                      (1.0_dp-Psurvival)*pop%pop_grid(j)%patch(k)%layer(1)%cohort(c)%biomass
@@ -3458,7 +3452,7 @@ SUBROUTINE SMOOTH_FLUX_cat(POP,g,t)
   REAL(dp) :: dbuf
   INTEGER(i4b) :: t0, tt, n, k
 
-  ! update fire_mortality_history
+  ! update cat_mortality_history
   
   IF (t.gt.NYEAR_HISTORY) THEN
      DO k = 1, NYEAR_HISTORY-1

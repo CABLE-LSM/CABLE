@@ -244,7 +244,7 @@ MODULE casavariable
           fracPalloc => null(),    &
           Crmplant => null(),      &
           kplant => null(),        &
-                                !! vh_js !! additional diagnostic
+          !! vh_js !! additional diagnostic
           Cplant_turnover => null()
      REAL(r_2), DIMENSION(:,:,:),POINTER :: fromPtoL => null()
      REAL(r_2), DIMENSION(:),POINTER :: Cnep => null(),        &
@@ -607,9 +607,9 @@ Contains
          casaflux%Nharvest(arraysize), &
          casaflux%Pharvest(arraysize), &
          casaflux%fcrop(arraysize), &
-         casaflux%Cplant_turnover(arraysize,mplant) , &
-         casaflux%Cplant_turnover_disturbance(arraysize) , &
-         casaflux%Cplant_turnover_crowding(arraysize) , &
+         casaflux%Cplant_turnover(arraysize,mplant), &
+         casaflux%Cplant_turnover_disturbance(arraysize), &
+         casaflux%Cplant_turnover_crowding(arraysize), &
          casaflux%Cplant_turnover_resource_limitation(arraysize))
 
     !CVH Alllocate fire turnover rates and plant-to-litter partitioning coefficients
@@ -860,9 +860,9 @@ Contains
          sum_casaflux%stemnpp(arraysize),                  &
          sum_casaflux%frac_sapwood(arraysize),             &
          sum_casaflux%sapwood_area(arraysize), &
-         sum_casaflux%Cplant_turnover(arraysize,mplant) , &
-         sum_casaflux%Cplant_turnover_disturbance(arraysize) , &
-         sum_casaflux%Cplant_turnover_crowding(arraysize) , &
+         sum_casaflux%Cplant_turnover(arraysize,mplant), &
+         sum_casaflux%Cplant_turnover_disturbance(arraysize), &
+         sum_casaflux%Cplant_turnover_crowding(arraysize), &
          sum_casaflux%Cplant_turnover_resource_limitation(arraysize))
 
     ALLOCATE(sum_casaflux%FluxCtolitter(arraysize,mlitter),    &
@@ -1297,7 +1297,7 @@ Contains
     sum_casaflux%sapwood_area = 0.0_r_2
     sum_casaflux%Cplant_turnover                     = 0.0_r_2
     sum_casaflux%Cplant_turnover_disturbance         = 0.0_r_2
-    sum_casaflux% Cplant_turnover_crowding           = 0.0_r_2
+    sum_casaflux%Cplant_turnover_crowding            = 0.0_r_2
     sum_casaflux%Cplant_turnover_resource_limitation = 0.0_r_2
 
     sum_casaflux%FluxCtolitter = 0.0_r_2
@@ -1446,14 +1446,14 @@ Contains
        sum_casaflux%stemnpp         = sum_casaflux%stemnpp         + casaflux%stemnpp
        sum_casaflux%frac_sapwood    = sum_casaflux%frac_sapwood    + casaflux%frac_sapwood
        sum_casaflux%sapwood_area    = sum_casaflux%sapwood_area    + casaflux%sapwood_area
-       sum_casaflux%Cplant_turnover                     = sum_casaflux%Cplant_turnover + &
-            casaflux%Cplant_turnover
-       sum_casaflux%Cplant_turnover_disturbance         = sum_casaflux%Cplant_turnover_disturbance + &
-            casaflux%Cplant_turnover_disturbance
-       sum_casaflux%Cplant_turnover_crowding            = sum_casaflux%Cplant_turnover_crowding + &
-            casaflux%Cplant_turnover_crowding
-       sum_casaflux%Cplant_turnover_resource_limitation = sum_casaflux%Cplant_turnover_resource_limitation +  &
-            casaflux%Cplant_turnover_resource_limitation
+       sum_casaflux%Cplant_turnover = &
+            sum_casaflux%Cplant_turnover + casaflux%Cplant_turnover
+       sum_casaflux%Cplant_turnover_disturbance = &
+            sum_casaflux%Cplant_turnover_disturbance + casaflux%Cplant_turnover_disturbance
+       sum_casaflux%Cplant_turnover_crowding = &
+            sum_casaflux%Cplant_turnover_crowding + casaflux%Cplant_turnover_crowding
+       sum_casaflux%Cplant_turnover_resource_limitation = &
+            sum_casaflux%Cplant_turnover_resource_limitation + casaflux%Cplant_turnover_resource_limitation
 
        sum_casaflux%FluxCtolitter = sum_casaflux%FluxCtolitter + casaflux%FluxCtolitter
        sum_casaflux%FluxNtolitter = sum_casaflux%FluxNtolitter + casaflux%FluxNtolitter
@@ -1600,9 +1600,12 @@ Contains
        sum_casaflux%stemnpp      = sum_casaflux%stemnpp      * rnsteps
        sum_casaflux%frac_sapwood = sum_casaflux%frac_sapwood * rnsteps
        sum_casaflux%sapwood_area = sum_casaflux%sapwood_area * rnsteps
-       sum_casaflux%Cplant_turnover             = sum_casaflux%Cplant_turnover          * rnsteps
-       sum_casaflux%Cplant_turnover_disturbance = casaflux%Cplant_turnover_disturbance  * rnsteps
-       sum_casaflux%Cplant_turnover_crowding    = sum_casaflux%Cplant_turnover_crowding * rnsteps
+       sum_casaflux%Cplant_turnover = &
+            sum_casaflux%Cplant_turnover                     * rnsteps
+       sum_casaflux%Cplant_turnover_disturbance = &
+            casaflux%Cplant_turnover_disturbance             * rnsteps
+       sum_casaflux%Cplant_turnover_crowding = &
+            sum_casaflux%Cplant_turnover_crowding            * rnsteps
        sum_casaflux%Cplant_turnover_resource_limitation = &
             sum_casaflux%Cplant_turnover_resource_limitation * rnsteps
        sum_casaflux%FluxCtolitter = sum_casaflux%FluxCtolitter * rnsteps
