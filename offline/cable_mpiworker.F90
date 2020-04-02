@@ -171,8 +171,8 @@ CONTAINS
     CHARACTER(LEN=200), PARAMETER :: CABLE_NAMELIST='cable.nml'
 
     ! timing variables
-    INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
-    INTEGER, PARAMETER ::  mloop  = 30 !MCTEST 30  ! CASA-CNP PreSpinup loops
+    INTEGER, PARAMETER ::  kstart = 1  ! start of simulation
+    INTEGER, PARAMETER ::  mloop  = 30 ! CASA-CNP PreSpinup loops
 
     INTEGER :: &
          ktau,        &  ! increment equates to timestep, resets if spinning up
@@ -657,7 +657,6 @@ CONTAINS
                 CALL MPI_Recv(MPI_BOTTOM, 1, casa_dump_t, 0, ktau_gl, icomm, stat, ierr)
              END IF
 
-             !MC - moved from before receiving inp_t to after having received inp_t
              ! Get met data and LAI, set time variables.
              ! Rainfall input may be augmented for spinup purposes:
              met%ofsd = met%fsd(:,1) + met%fsd(:,2)
@@ -698,7 +697,7 @@ CONTAINS
                 veg%ejmax_sun = veg%ejmax
              ENDIF
              
-             !MC if (l_laiFeedbk) veg%vlai(:) = real(casamet%glai(:))
+             !MC - if (l_laiFeedbk) veg%vlai(:) = real(casamet%glai(:))
              if (l_laiFeedbk .and. (icycle>0)) veg%vlai(:) = real(casamet%glai(:))
 
              !TRUNK IF (cable_user%CALL_climate) &
@@ -819,7 +818,6 @@ CONTAINS
 
              ENDIF ! icycle>0
 
-             !MC
              if (.not. casaonly) then
                 ! sumcflux is pulled out of subroutine cbm
                 ! so that casaCNP can be called before adding the fluxes (Feb 2008, YP)
@@ -2590,7 +2588,6 @@ CONTAINS
        write (*,*) 'worker alloc casa and phen var with m patches: ', rank, mp
        call alloc_casavariable(casabiome, casapool, casaflux, casamet, casabal, mp)
        call alloc_phenvariable(phen, mp)
-       !MCINI
        call zero_casavariable(casabiome, casapool, casaflux, casamet, casabal)
        call zero_phenvariable(phen)
     end if
@@ -6668,8 +6665,6 @@ CONTAINS
 
     !TRUNK no call to alloc_cbm_var
     CALL alloc_cbm_var(climate,mp,ktauday)
-
-    !MCINI
     call zero_cbm_var(climate)
 
     !TRUNK but call to climate_init
@@ -7752,7 +7747,6 @@ CONTAINS
     if (.not. associated(c13o2flux%ca)) then
        write(*,*) 'worker alloc c13o2_flux with m patches: ', rank, mp
        call c13o2_alloc_flux(c13o2flux, mp)
-       !MCINI
        call c13o2_zero_flux(c13o2flux)
     end if
 
@@ -7914,7 +7908,6 @@ CONTAINS
     if (.not. associated(c13o2pools%cplant)) then
        write(*,*) 'worker alloc c13o2_pool with m patches: ', rank, mp
        call c13o2_alloc_pools(c13o2pools, mp)
-       !MCINI
        call c13o2_zero_pools(c13o2pools)
     end if
 
@@ -8055,7 +8048,6 @@ CONTAINS
     if (.not. associated(c13o2luc%charvest)) then
        write(*,*) 'worker alloc c13o2_luc with m land points: ', rank, mland
        call c13o2_alloc_luc(c13o2luc, mland)
-       !MCINI
        call c13o2_zero_luc(c13o2luc)
     end if
 

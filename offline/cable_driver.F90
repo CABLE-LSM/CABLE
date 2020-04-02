@@ -80,7 +80,8 @@ PROGRAM cable_offline_driver
   USE cable_climate_mod
 
   ! modules related to CASA-CNP
-  USE casadimension,        ONLY: icycle
+  USE casaparm,             only: leaf
+  USE casadimension,        ONLY: icycle, deltpool
   USE casavariable,         ONLY: casafile, casa_biome, casa_pool, casa_flux, casa_timeunits, &
        !mpidiff
        casa_met, casa_balance, zero_sum_casa, update_sum_casa
@@ -736,7 +737,7 @@ PROGRAM cable_offline_driver
                          climate%modis_igbp(landpt(:)%cstart) ) !CLN here we need to check for the SIMFIRE biome setting
                  ENDIF
               ENDIF
-
+              
               IF ((icycle>0) .AND. spincasa) THEN
                  write(*,*) 'EXT spincasacnp enabled with mloop=', mloop
                  CALL spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
@@ -744,14 +745,15 @@ PROGRAM cable_offline_driver
                       BLAZE, SIMFIRE)
                  SPINon   = .FALSE.
                  SPINconv = .FALSE.
-              ELSEIF ( casaonly .AND. (.NOT. spincasa)) THEN
+                 !MC - MPI sets CASAONLY = .true. here
+              ! ELSEIF ( casaonly .AND. (.NOT. spincasa)) THEN
+              ELSEIF ( casaonly .AND. (.NOT. spincasa) .AND. cable_user%popluc) THEN
                  write(*,*) 'EXT CASAONLY_LUC'
                  CALL CASAONLY_LUC(dels,kstart,kend,veg,soil,casabiome,casapool, &
                       casaflux,casamet,casabal,phen,POP,climate,LALLOC, LUC_EXPT, POPLUC, &
                       sum_casapool, sum_casaflux, c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc)
                  SPINon   = .FALSE.
                  SPINconv = .FALSE.
-                 ktau     = kend
               ENDIF
 
            ENDIF ! CALL1
@@ -1029,7 +1031,6 @@ PROGRAM cable_offline_driver
 
               ! WRITE CASA OUTPUT
               IF (icycle > 0) THEN
-
                  
                  IF (CASA_TIME) THEN
                     CALL WRITE_CASA_OUTPUT_NC( veg, casamet, sum_casapool, casabal, sum_casaflux, &

@@ -89,50 +89,49 @@ contains
 
     IF ( .NOT. dump_read ) THEN  ! construct casa met and flux inputs from current CABLE run
        IF ( TRIM(cable_user%MetType) .EQ. 'cru' .OR. &
-            TRIM(cable_user%MetType) .EQ. 'plum') THEN
-          casaflux%Pdep = met%Pdep
-          casaflux%Nmindep = met%Ndep
+            TRIM(cable_user%MetType) .EQ. 'plum' ) THEN
+          casaflux%Pdep    = real(met%Pdep, r_2)
+          casaflux%Nmindep = real(met%Ndep, r_2)
        ENDIF
 
-       IF(ktau == kstart) THEN
-          casamet%tairk  = 0.0
-          casamet%tsoil  = 0.0
-          casamet%moist  = 0.0
-
+       IF (ktau == kstart) THEN
+          casamet%tairk = 0.0_r_2
+          casamet%tsoil = 0.0_r_2
+          casamet%moist = 0.0_r_2
        ENDIF
 
        IF(MOD(ktau,ktauday)==1) THEN
-          casamet%tairk = met%tk
-          casamet%tsoil = ssnow%tgg
+          casamet%tairk = real(met%tk, r_2)
+          casamet%tsoil = real(ssnow%tgg, r_2)
           !casamet%moist = max(ssnow%wb - ssnow%wbice, 0.0)
           casamet%moist = max(ssnow%wb, 0.0_r_2)
-          casaflux%cgpp = (-canopy%fpn+canopy%frday)*dels
-          casaflux%crmplant(:,leaf) = canopy%frday*dels
+          casaflux%cgpp = real((-canopy%fpn+canopy%frday)*dels, r_2)
+          casaflux%crmplant(:,leaf) = real(canopy%frday*dels, r_2)
           ! 13C
           if (cable_user%c13o2) then
-             c13o2flux%cAn12 = sum(canopy%An,2)    * dels
-             c13o2flux%cAn   = sum(c13o2flux%An,2) * dels
+             c13o2flux%cAn12 = sum(canopy%An,2)    * real(dels, r_2)
+             c13o2flux%cAn   = sum(c13o2flux%An,2) * real(dels, r_2)
           endif
        ELSE
-          Casamet%tairk  =casamet%tairk + met%tk
-          casamet%tsoil = casamet%tsoil + ssnow%tgg
-          !casamet%moist = casamet%moist + max(ssnow%wb -  ssnow%wbice, 0.0)
+          casamet%tairk = casamet%tairk + real(met%tk, r_2)
+          casamet%tsoil = casamet%tsoil + real(ssnow%tgg, r_2)
+          !casamet%moist = casamet%moist + max(ssnow%wb -  ssnow%wbice, 0.0_r_2)
           casamet%moist = casamet%moist + max(ssnow%wb, 0.0_r_2)
-          casaflux%cgpp = casaflux%cgpp + (-canopy%fpn+canopy%frday)*dels
-          casaflux%crmplant(:,leaf) = casaflux%crmplant(:,leaf) + canopy%frday*dels
+          casaflux%cgpp = casaflux%cgpp + real((-canopy%fpn+canopy%frday)*dels, r_2)
+          casaflux%crmplant(:,leaf) = casaflux%crmplant(:,leaf) + real(canopy%frday*dels, r_2)
           ! 13C
           if (cable_user%c13o2) then
-             c13o2flux%cAn12 = c13o2flux%cAn12 + sum(canopy%An,2)    * dels
-             c13o2flux%cAn   = c13o2flux%cAn   + sum(c13o2flux%An,2) * dels
+             c13o2flux%cAn12 = c13o2flux%cAn12 + sum(canopy%An,2)    * real(dels, r_2)
+             c13o2flux%cAn   = c13o2flux%cAn   + sum(c13o2flux%An,2) * real(dels, r_2)
           endif
        ENDIF
 
-       IF(MOD((ktau-kstart+1),ktauday)==0) THEN  ! end of day
-          casamet%tairk=casamet%tairk/real(ktauday,r_2)
-          casamet%tsoil=casamet%tsoil/real(ktauday,r_2)
-          casamet%moist=casamet%moist/real(ktauday,r_2)
+       IF (MOD((ktau-kstart+1),ktauday)==0) THEN  ! end of day
+          casamet%tairk = casamet%tairk / real(ktauday,r_2)
+          casamet%tsoil = casamet%tsoil / real(ktauday,r_2)
+          casamet%moist = casamet%moist / real(ktauday,r_2)
 
-          IF ( icycle .GT. 0 ) THEN
+          IF (icycle > 0) THEN
              IF (trim(cable_user%PHENOLOGY_SWITCH)=='climate') THEN
                 ! get climate_dependent phenology
                 call cable_phenology_clim(veg, climate, phen)
@@ -152,41 +151,32 @@ contains
 #else
              if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
 #endif
-             !write(wlogn,*),'after biogeochem npp:', casaflux%cnpp
-             !write(wlogn,*),'after biogeochem npp:', casapool%cplant
 
-
-             IF (cable_user%CALL_POP) THEN ! accumulate input variables for POP
+             IF (cable_user%CALL_POP) THEN
                 ! accumulate annual variables for use in POP
-                IF(MOD(ktau/ktauday,LOY)==1 ) THEN
-                   casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7
+                IF (MOD(ktau/ktauday,LOY)==1 ) THEN
+                   casaflux%stemnpp  =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_r_2
                    ! (assumes 70% of wood NPP is allocated above ground)
-                   casabal%LAImax = casamet%glai
-                   casabal%Cleafmean = casapool%cplant(:,1)/real(LOY)/1000.
-                   casabal%Crootmean = casapool%cplant(:,3)/real(LOY)/1000.
+                   casabal%LAImax    = casamet%glai
+                   casabal%Cleafmean = casapool%cplant(:,1) / real(LOY,r_2) / 1000.0_r_2
+                   casabal%Crootmean = casapool%cplant(:,3) / real(LOY,r_2) / 1000.0_r_2
                 ELSE
-                   casaflux%stemnpp = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7
-                   casabal%LAImax = max(casamet%glai, casabal%LAImax)
-                   casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1)/real(LOY)/1000.
-                   casabal%Crootmean = casabal%Crootmean + casapool%cplant(:,3)/real(LOY)/1000.
-
+                   casaflux%stemnpp  = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_r_2
+                   casabal%LAImax    = max(casamet%glai, casabal%LAImax)
+                   casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1) / real(LOY,r_2) / 1000.0_r_2
+                   casabal%Crootmean = casabal%Crootmean + casapool%cplant(:,3) / real(LOY,r_2) / 1000.0_r_2
                 ENDIF
              ELSE
-                casaflux%stemnpp = 0.
+                casaflux%stemnpp = 0.0_r_2
              ENDIF ! CALL_POP
 
-          ENDIF  ! icycle .gt. 0
+          ENDIF ! icycle > 0
 
-
-          !           write(912,92) real(idoy), casaflux%stemnpp(1), &
-          !                casaflux%cnpp(1) * casaflux%fracCalloc(1,2) * 0.7, casapool%cplant(1,2)*0.7*1000, &
-          !                casaflux%kplant_tot(1,2)*1000, casaflux%kplant(1,2)*1000
-          ! 92        format (100(f16.8,2x))
        ENDIF  ! end of day
 
     ELSE ! dump_read: ! use casa met and flux inputs from dumpfile
 
-       IF( MOD((ktau-kstart+1),ktauday) == 0 ) THEN  ! end of day
+       IF (MOD((ktau-kstart+1),ktauday) == 0) THEN  ! end of day
 
           ! 13C
           if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
@@ -203,27 +193,22 @@ contains
           if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
 #endif
 
-          IF (cable_user%CALL_POP) THEN ! accumulate input variables for POP
-
+          IF (cable_user%CALL_POP) THEN   
              ! accumulate annual variables for use in POP
-             IF(MOD(ktau/ktauday,LOY)==1) THEN
-                casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7
+             IF (MOD(ktau/ktauday,LOY)==1) THEN
+                casaflux%stemnpp  = casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_r_2
                 ! (assumes 70% of wood NPP is allocated above ground)
-                casabal%LAImax = casamet%glai
-                casabal%Cleafmean = casapool%cplant(:,1)/real(LOY)/1000.
-                casabal%Crootmean = casapool%cplant(:,3)/real(LOY)/1000.
+                casabal%LAImax    = casamet%glai
+                casabal%Cleafmean = casapool%cplant(:,1) / real(LOY,r_2) / 1000.0_r_2
+                casabal%Crootmean = casapool%cplant(:,3) / real(LOY,r_2) / 1000.0_r_2
              ELSE
-                casaflux%stemnpp = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7
-                casabal%LAImax = max(casamet%glai, casabal%LAImax)
-                casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1)/real(LOY)/1000.
-                casabal%Crootmean = casabal%Crootmean +casapool%cplant(:,3)/real(LOY)/1000.
+                casaflux%stemnpp  = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_r_2
+                casabal%LAImax    = max(casamet%glai, casabal%LAImax)
+                casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1) / real(LOY,r_2) / 1000.0_r_2
+                casabal%Crootmean = casabal%Crootmean + casapool%cplant(:,3) / real(LOY,r_2) / 1000.0_r_2
              ENDIF
-
-             !              write(912,91) real(idoy), casaflux%stemnpp(1), &
-             !                   casaflux%cnpp(1) * casaflux%fracCalloc(1,2) * 0.7, casapool%cplant(1,2)*0.7, &
-             !                   casaflux%kplant(1,2)
-             ! 91           format (100(f12.4,2x))
-
+          ELSE
+             casaflux%stemnpp = 0.0_r_2
           ENDIF ! CALL_POP
 
        ENDIF ! end of day
@@ -236,53 +221,53 @@ contains
 
   SUBROUTINE POPdriver(casaflux, casabal, veg, POP)
 
-    USE cable_def_types_mod
-    USE casadimension
-    USE casaparm
-    USE casavariable
-    USE phenvariable
-    USE cable_common_module,  ONLY: CABLE_USER
-    USE TypeDef,              ONLY: i4b, dp
-    USE POPMODULE,            ONLY: POPStep
-    USE POP_TYPES,            ONLY: POP_TYPE
+    use cable_def_types_mod
+    use casadimension
+    use casaparm
+    use casavariable
+    use phenvariable
+    use cable_common_module,  only: CABLE_USER
+    use TypeDef,              only: i4b, dp
+    use POPModule,            only: POPStep
+    use POP_TYPES,            only: POP_TYPE
 
-    IMPLICIT NONE
+    implicit none
 
-    TYPE (veg_parameter_type),  INTENT(IN) :: veg  ! vegetation parameters
-    TYPE (casa_flux),           INTENT(IN) :: casaflux
-    TYPE (casa_balance),        INTENT(IN) :: casabal
-    TYPE(POP_TYPE),             INTENT(INOUT) :: POP
+    type(casa_flux),          INTENT(IN)    :: casaflux
+    type(casa_balance),       INTENT(IN)    :: casabal
+    type(veg_parameter_type), INTENT(IN)    :: veg  ! vegetation parameters
+    type(POP_TYPE),           INTENT(INOUT) :: POP
 
-    REAL(dp)                               :: StemNPP(mp,2)
-    REAL(dp), allocatable :: NPPtoGPP(:)
-    REAL(dp), allocatable ::  LAImax(:)  , Cleafmean(:),  Crootmean(:)
+    real(dp)              :: StemNPP(mp,2)
+    real(dp), allocatable :: NPPtoGPP(:)
+    real(dp), allocatable :: LAImax(:), Cleafmean(:), Crootmean(:)
     !! vh_js !!
-    INTEGER, allocatable :: Iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
+    integer,  allocatable :: Iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
 
-    if (.NOT.Allocated(LAIMax)) allocate(LAIMax(mp))
-    if (.NOT.Allocated(Cleafmean))  allocate(Cleafmean(mp))
-    if (.NOT.Allocated(Crootmean)) allocate(Crootmean(mp))
-    if (.NOT.Allocated(NPPtoGPP)) allocate(NPPtoGPP(mp))
-    if (.NOT.Allocated(Iw)) allocate(Iw(POP%np))
+    if (.not.allocated(LAIMax))    allocate(LAIMax(mp))
+    if (.not.allocated(Cleafmean)) allocate(Cleafmean(mp))
+    if (.not.allocated(Crootmean)) allocate(Crootmean(mp))
+    if (.not.allocated(NPPtoGPP))  allocate(NPPtoGPP(mp))
+    if (.not.allocated(Iw))        allocate(Iw(POP%np))
 
-    IF (cable_user%CALL_POP .and. POP%np.gt.0) THEN ! CALL_POP
+    if (cable_user%CALL_POP .and. POP%np.gt.0) then ! CALL_POP
        Iw = POP%Iwood
 
        StemNPP(:,1) = casaflux%stemnpp
        StemNPP(:,2) = 0.0_dp
-       WHERE (casabal%FCgppyear > 1.e-5_dp .and. casabal%FCnppyear > 1.e-5_dp)
-          NPPtoGPP = casabal%FCnppyear/casabal%FCgppyear
-       ELSEWHERE
+       where (casabal%FCgppyear > 1.e-5_dp .and. casabal%FCnppyear > 1.e-5_dp)
+          NPPtoGPP = casabal%FCnppyear / casabal%FCgppyear
+       elsewhere
           NPPtoGPP = 0.5_dp
-       ENDWHERE
-       LAImax = casabal%LAImax
+       endwhere
+       LAImax    = casabal%LAImax
        Cleafmean = casabal%cleafmean
        Crootmean = casabal%Crootmean
 
-       CALL POPStep(pop, max(StemNPP(Iw,:)/1000._dp,0.0001_dp), int(veg%disturbance_interval(Iw,:), i4b),&
-            real(veg%disturbance_intensity(Iw,:),dp)      ,&
-            max(LAImax(Iw),0.001_dp), Cleafmean(Iw), Crootmean(Iw), NPPtoGPP(Iw))
-    ENDIF ! CALL_POP
+       CALL POPStep(pop, max(StemNPP(Iw,:)/1000.0_dp, 0.0001_dp), int(veg%disturbance_interval(Iw,:), i4b), &
+            real(veg%disturbance_intensity(Iw,:), dp), &
+            max(LAImax(Iw), 0.001_dp), Cleafmean(Iw), Crootmean(Iw), NPPtoGPP(Iw))
+    endif ! CALL_POP
 
   END SUBROUTINE POPdriver
 

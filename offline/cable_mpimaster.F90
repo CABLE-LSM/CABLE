@@ -398,7 +398,7 @@ CONTAINS
     
     integer :: kk
     integer :: lalloc
-    integer, parameter :: mloop = 30 !MCTEST 30   ! CASA-CNP PreSpinup loops
+    integer, parameter :: mloop = 30 ! CASA-CNP PreSpinup loops
     real :: etime, etimelast
 
     ! command line arguments
@@ -645,18 +645,6 @@ CONTAINS
              
              IF (cable_user%POPLUC) THEN
                 CALL LUC_EXPT_INIT(LUC_EXPT)
-                ! call alloc_POPLUC(POPLUC, mland)
-                ! POPLUC%np = mland
-                !MC - Why in MPI but not in cable_driver?
-                !     READ_LUC_RESTART_NC is called in POPLUC_init, which is called in load_parameters
-                ! IF (trim(cable_user%POPLUC_RunType) .EQ. 'restart') THEN
-                !    CALL READ_LUC_RESTART_NC(POPLUC)
-                !    LUC_EXPT%grass    = real(POPLUC%grass)
-                !    LUC_EXPT%primaryf = real(min(POPLUC%primf, 1.0_r_2-POPLUC%grass))
-                !    LUC_EXPT%secdf    = max((1.0 -  LUC_EXPT%grass - LUC_EXPT%primaryf), 0.0)
-                !    LUC_EXPT%crop     = real(max(min(POPLUC%crop, POPLUC%grass), 0.0_r_2))
-                !    LUC_EXPT%past     = max(min(LUC_EXPT%grass - LUC_EXPT%crop, real(POPLUC%past)), 0.0)
-                ! ENDIF
              ENDIF
 
              ! 13C
@@ -725,7 +713,6 @@ CONTAINS
              !TRUNK not in trunk
              if (cable_user%call_climate) then
                 CALL alloc_cbm_var(climate, mp, ktauday)
-                !MCINI
                 call zero_cbm_var(climate)
                 CALL climate_init(climate, mp, ktauday)
                 if (.NOT. cable_user%climate_fromzero) &
@@ -811,6 +798,7 @@ CONTAINS
                    !deallocate(blaze_restart_ts)
                    !deallocate(blaze_out_ts)
                    if (trim(blaze%burnt_area_src) == "SIMFIRE" ) then
+                      !MCfire - mpiworker receives ktau_gl as tag
                       call master_send_input(comm, blaze_in_ts, ktau)
                       call INI_SIMFIRE(mland ,SIMFIRE, &
                          climate%modis_igbp(landpt(:)%cstart) ) !CLN here we need to check for the SIMFIRE biome setting
@@ -837,7 +825,6 @@ CONTAINS
              CALL alloc_cbm_var(imet, mp)
              CALL alloc_cbm_var(iveg, mp)
 
-             !MCINI
              call zero_cbm_var(imet)
              call zero_cbm_var(iveg)
 
@@ -887,8 +874,6 @@ CONTAINS
                      c13o2flux, c13o2pools, c13o2luc, icomm, ocomm)
                 SPINconv = .FALSE.
                 CASAONLY = .TRUE.
-                ktau_gl  = 0
-                ktau     = 0
              ELSEIF ( casaonly .AND. (.NOT. spincasa) .AND. cable_user%popluc) THEN
                 ! 13C
                 write(*,*) 'EXT CASAONLY_LUC'
@@ -896,8 +881,6 @@ CONTAINS
                      casaflux,casamet,casabal,phen,POP,climate,LALLOC, LUC_EXPT, POPLUC, &
                      c13o2flux, c13o2pools, c13o2luc, icomm, ocomm)
                 SPINconv = .FALSE.
-                ktau_gl  = 0
-                ktau     = 0
              ENDIF
 
              ! MPI: mostly original serial code follows...
@@ -1047,7 +1030,7 @@ CONTAINS
              ! Zero out lai where there is no vegetation acc. to veg. index
              WHERE (iveg%iveg(:) .GE. 14) iveg%vlai = 0.
 
-             !MC
+             !MC - commented
              ! if (trim(cable_user%mettype) .ne. 'gswp') CurYear = imet%year(1)
 
              !  IF ( CASAONLY .AND. IS_CASA_TIME("dread", yyyy, iktau, kstart, koffset, &
@@ -1106,7 +1089,6 @@ CONTAINS
                 endif ! icycle>0
 
                 ! MPI: receive this time step's results from the workers
-                !MC veg%iveg is changing during receive for GNU compiler on Explor
                 call master_receive(ocomm, oktau, recv_ts)
                 ! call MPI_Waitall(wnp, recv_req, recv_stats, ierr)
                 if (cable_user%c13o2) call master_receive(ocomm, oktau, c13o2_flux_ts)
@@ -1538,6 +1520,7 @@ CONTAINS
              soilTtemp = ssnow%tgg
              soilMtemp = REAL(ssnow%wb)
           END IF
+          
           ! MPI:
           loop_exit = .FALSE.
 
@@ -10447,37 +10430,6 @@ SUBROUTINE master_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
         endif
         call master_send_input(icomm, casa_dump_ts, idoy)
 
-        ! ! zero annual sums
-        ! if (idoy==1) CALL casa_cnpflux(casaflux,casapool,casabal,.TRUE.)
-        
-        ! CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
-        !      casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter, &
-        !      xksoil,xkleaf,xkleafcold,xkleafdry,&
-        !      cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
-        !      nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
-        !      pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
-        !
-        ! ! update time-aggregates of casa pools and fluxes
-        ! CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
-        !                     & .TRUE. , .FALSE., 1)
-        ! count_sum_casa = count_sum_casa + 1
-        
-        
-        
-        !    ! accumulate annual variables for use in POP
-        !    IF(idoy==1 ) THEN
-        !       casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * &
-        !          0.7 ! (assumes 70% of wood NPP is allocated above ground)
-        !       LAImax = casamet%glai
-        !       Cleafmean = casapool%cplant(:,1)/real(mdyear)/1000.
-        !       Crootmean = casapool%cplant(:,3)/real(mdyear)/1000.
-        !    ELSE
-        !       casaflux%stemnpp = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7
-        !       LAImax = max(casamet%glai, LAImax)
-        !       Cleafmean = Cleafmean + casapool%cplant(:,1)/real(mdyear)/1000.
-        !       Crootmean = Crootmean +casapool%cplant(:,3)/real(mdyear)/1000.
-        !    ENDIF
-
         IF (idoy==mdyear) THEN ! end of year
 
            ! get casa update from workers
@@ -10676,7 +10628,7 @@ SUBROUTINE LUCdriver(casabiome,casapool, casaflux, POP, LUC_EXPT, POPLUC, veg, &
      POPLUC%smharv(k) = real(LUC_EXPT%INPUT(smharv)%VAL(k), r_2)
      POPLUC%syharv(k) = real(LUC_EXPT%INPUT(syharv)%VAL(k), r_2)
 
-     !MC - not in serial code
+     ! MC - not in serial code
      ! POPLUC%ptoc(k) = real(LUC_EXPT%INPUT(ptoc)%VAL(k), r_2)
      ! POPLUC%ptoq(k) = real(LUC_EXPT%INPUT(ptoq)%VAL(k), r_2)
      ! POPLUC%stoc(k) = real(LUC_EXPT%INPUT(stoc)%VAL(k), r_2)
