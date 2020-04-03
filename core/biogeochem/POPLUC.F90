@@ -15,7 +15,7 @@
 ! Called from: cable_driver or cable_mpimaster
 !
 ! SUBROUTINES
-! ZeroPOPLUC(POPLUC)
+! Zero_POPLUC(POPLUC)
 ! execute_luc_event(from_state,to_state,frac_change_grid,g,POPLUC)
 ! CALCULATE_WEIGHTS(POPLUC, g)
 ! INCREMENT_AGE(POPLUC,g)
@@ -134,7 +134,7 @@ CONTAINS
 
   !*******************************************************************************
 
-  SUBROUTINE ZeroPOPLUC(POPLUC)
+  SUBROUTINE Zero_POPLUC(POPLUC)
 
     TYPE(POPLUC_TYPE), INTENT(INOUT) :: POPLUC
     INTEGER:: np
@@ -143,6 +143,9 @@ CONTAINS
 
     POPLUC%firstyear               = 0_i4b
     POPLUC%thisyear                = 0_i4b
+    POPLUC%n_event                 = 0_i4b
+    POPLUC%latitude                = 0.0_dp
+    POPLUC%longitude               = 0.0_dp
     POPLUC%primf                   = 0.0_dp
     POPLUC%secdf                   = 0.0_dp
     POPLUC%grass                   = 0.0_dp
@@ -163,7 +166,6 @@ CONTAINS
     POPLUC%frac_primf              = 0.0_dp
     POPLUC%area_history_secdf      = 0.0_dp
     POPLUC%age_history_secdf       = 0.0_dp
-    POPLUC%n_event                 = 0.0_dp
     POPLUC%freq_age_secondary      = 0.0_dp
     POPLUC%freq_age_primary        = 0.0_dp
     POPLUC%biomass_age_primary     = 0.0_dp
@@ -181,8 +183,13 @@ CONTAINS
     POPLUC%syharv                  = 0.0_dp
     POPLUC%HarvProd                = 0.0_dp
     POPLUC%HarvProdLoss            = 0.0_dp
+    POPLUC%fracHarvProd            = 0.0_dp
+    POPLUC%fracHarvResid           = 0.0_dp
+    POPLUC%fracHarvSecResid        = 0.0_dp
     POPLUC%ClearProd               = 0.0_dp
     POPLUC%ClearProdLoss           = 0.0_dp
+    POPLUC%fracClearProd           = 0.0_dp
+    POPLUC%fracClearResid          = 0.0_dp
     POPLUC%kSecHarv                = 0.0_dp
     POPLUC%kNatDist                = 0.0_dp
     POPLUC%kExpand1                = 0.0_dp
@@ -198,7 +205,7 @@ CONTAINS
     popluc%FluxSClearResidtoLitter = 0.0_dp
     popluc%dcSHarvClear            = 0.0_dp
     
-  END SUBROUTINE ZeroPOPLUC
+  END SUBROUTINE Zero_POPLUC
 
   !*******************************************************************************
 
@@ -208,10 +215,11 @@ CONTAINS
 
     IMPLICIT NONE
 
-    CHARACTER(5), INTENT(IN) :: from_state, to_state
-    REAL(dp), INTENT(INOUT):: frac_change_grid
-    TYPE(POPLUC_TYPE),INTENT(INOUT) :: POPLUC
-    INTEGER(i4b), INTENT(IN) :: g  ! grid cell index
+    CHARACTER(5),      INTENT(IN)    :: from_state, to_state
+    REAL(dp),          INTENT(INOUT) :: frac_change_grid
+    INTEGER(i4b),      INTENT(IN)    :: g  ! grid cell index
+    TYPE(POPLUC_TYPE), INTENT(INOUT) :: POPLUC
+
     REAL(dp) :: frac_open_grid, remaining
     INTEGER(i4b) :: n  ! position of new element in POPLUC%SecFor array
     INTEGER(i4b) :: i
@@ -241,10 +249,10 @@ CONTAINS
              tmp = 0.0_dp
           ENDIF
           POPLUC%kExpand1(g) = 0.0_dp
-          POPLUC%n_event(g) = POPLUC%n_event(g)+1
+          POPLUC%n_event(g)  = POPLUC%n_event(g) + 1
           n = POPLUC%n_event(g)
           POPLUC%area_history_secdf(g,n) = frac_change_grid
-          POPLUC%age_history_secdf(g,n) = 0.0_dp
+          POPLUC%age_history_secdf(g,n)  = 0.0_dp
           POPLUC%freq_age_secondary(g,1) = POPLUC%freq_age_secondary(g,1) + frac_change_grid
 
           IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0_dp) THEN
@@ -379,7 +387,6 @@ CONTAINS
 
     ENDIF
 
-
   ENDSUBROUTINE execute_luc_event
 
 
@@ -425,18 +432,20 @@ CONTAINS
     IMPLICIT NONE
 
     TYPE(POPLUC_TYPE), INTENT(INOUT) :: POPLUC
+    INTEGER(i4b),      INTENT(IN)    :: g
+
     INTEGER(i4b) :: n_event, i
-    INTEGER(i4b), INTENT(IN) :: g
     REAL(dp):: remaining
     REAL(dp):: tmp, tmp1, tmp2
-    n_event =  POPLUC%n_event(g)
+    
+    n_event = POPLUC%n_event(g)
     POPLUC%kSecHarv(g) = 0.0_dp
     POPLUC%kNatDist(g) = 0.0_dp
 
     POPLUC%freq_age_secondary(g,2:age_max)=POPLUC%freq_age_secondary(g,1:age_max-1)
     POPLUC%biomass_age_secondary(g,2:age_max)=POPLUC%biomass_age_secondary(g,1:age_max-1)
 
-    POPLUC%freq_age_secondary(g,1) = 0.0_dp
+    POPLUC%freq_age_secondary(g,1)    = 0.0_dp
     POPLUC%biomass_age_secondary(g,1) = 0.0_dp
     ! adjust secondary age distribution for secondary forest harvest area
 
@@ -530,15 +539,17 @@ CONTAINS
        POPLUC%kNatDist(g) = 0.0_dp
     endif
 
-
   END SUBROUTINE INCREMENT_AGE
 
   !*******************************************************************************
 
   SUBROUTINE POPLUCStep(POPLUC,year)
+    
     IMPLICIT NONE
+    
     TYPE(POPLUC_TYPE), INTENT(INOUT) :: POPLUC
-    INTEGER(i4b), INTENT(IN) :: year
+    INTEGER(i4b),      INTENT(IN)    :: year
+    
     INTEGER(i4b) :: g
 
     POPLUC%it = POPLUC%it + 1
@@ -546,24 +557,16 @@ CONTAINS
     ! vh ! remove code relating to (year.lt.POPLUC%thisyear) ?
     IF (year.lt.POPLUC%thisyear) THEN
 
-       DO g = 1,POPLUC%np
+       DO g=1, POPLUC%np
           ! CALL calculate_weights(POPLUC, g)
           CALL increment_age(POPLUC,g)
        ENDDO
 
     ELSE
 
-       DO g = 1,POPLUC%np
+       DO g=1, POPLUC%np
 
-!!$if (POPLUC%thisyear.gt.860) then
-!!$         POPLUC%smharv = 0.0_dp ! test
-!!$         POPLUC%stog = 0.0_dp ! test
-!!$         POPLUC%syharv = 0.0_dp ! test
-!!$         POPLUC%ptog = 0.0_dp ! test
-!!$         POPLUC%ptos = 0.0_dp ! test
-!!$         POPLUC%gtos = 0.0_dp ! test
-!!$endif
-         POPLUC%kClear(g) = 0.0_dp
+         POPLUC%kClear(g)   = 0.0_dp
          POPLUC%kExpand1(g) = 0.0_dp
          POPLUC%kExpand2(g) = 0.0_dp
          POPLUC%kSecHarv(g) = 0.0_dp
@@ -635,7 +638,8 @@ CONTAINS
 
   !*******************************************************************************
 
-  SUBROUTINE POP_LUC_CASA_transfer(POPLUC,POP,LUC_EXPT,casapool,casabal,casaflux,ktauday)
+  SUBROUTINE POP_LUC_CASA_transfer(POPLUC, POP, LUC_EXPT, &
+       casapool, casabal, casaflux, ktauday)
 
     !-------------------------------------------------------------------------------
     ! This subroutine redestributes carbon (nitrogen and phosphorous) amongst
@@ -1454,7 +1458,7 @@ CONTAINS
     POPLUC%it = 0
     POPLUC%np = np
 
-    CALL ZeroPOPLUC(POPLUC)
+    CALL Zero_POPLUC(POPLUC)
 
     CALL POPLUC_set_params(POPLUC, LUC_EXPT)
 

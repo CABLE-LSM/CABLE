@@ -655,8 +655,7 @@ contains
        enddo
     endif
 
-    ! reset labile C pool,comment out by Q.Zhang 10/09/2011
-    !  casapool%clabile    = 0.0
+    ! reset labile C pool, comment out by Q.Zhang 10/09/2011: casapool%clabile = 0.0
     ! check pool sizes
     casapool%Ctot_0     = 0.0_r_2
     casapool%Ctot       = 0.0_r_2
@@ -673,7 +672,7 @@ contains
     casabal%FCnppyear   = 0.0_r_2
     casabal%FCrsyear    = 0.0_r_2
     casabal%FCneeyear   = 0.0_r_2
-    !vh !
+    ! vh !
     WHERE (casamet%lnonwood==1) casapool%cplant(:,WOOD) = 0.0_r_2
     IF (icycle==1) THEN
        casapool%Nplant(:,:) = casapool%cplant(:,:) * casapool%ratioNCplant(:,:)
@@ -698,7 +697,7 @@ contains
        casabal%FNupyear    = 0.0_r_2
        casabal%FNleachyear = 0.0_r_2
        casabal%FNlossyear  = 0.0_r_2
-       !vh !
+       ! vh !
        WHERE(casamet%lnonwood==1) casapool%nplant(:,WOOD) = 0.0_r_2
     ENDIF
 
@@ -722,7 +721,7 @@ contains
        casabal%FPupyear      = 0.0_r_2
        casabal%FPleachyear   = 0.0_r_2
        casabal%FPlossyear    = 0.0_r_2
-       !vh !
+       ! vh !
        WHERE(casamet%lnonwood==1) casapool%pplant(:,WOOD) = 0.0_r_2
     ENDIF
 
@@ -1052,7 +1051,6 @@ contains
        casabal%FPleachyear = 0.0_r_2
        casabal%FPlossyear  = 0.0_r_2
 
-       !MC - same as nect comment: is this intended?
        casaflux%FluxCtohwp   = 0.0_r_2
        casaflux%FluxNtohwp   = 0.0_r_2
        casaflux%FluxPtohwp   = 0.0_r_2

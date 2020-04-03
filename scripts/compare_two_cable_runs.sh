@@ -1,10 +1,10 @@
 #!/bin/bash
 #
 # compare_two_cable_runs.sh [-h] dir1 dir2
-# Compare restart files of two Cable-POP runs performed with script run_cable-pop.sh.
+# Compare restart and output files of two Cable-POP runs performed with script run_cable-pop.sh.
 #
 # Input
-#     dir1        First directory with Cable-POP output, containing subdirectory restart/.
+#     dir1        First directory with Cable-POP output, containing subdirectories restart/ and outputs/.
 #     dir2        Second directory with Cable-POP output.
 #
 # Options
@@ -25,6 +25,7 @@
 # -------
 # Written  Matthias Cuntz, Mar 2020
 # Modified Matthias Cuntz, Mar 2020 - Changed check with ncdump to be correct on more than two land points
+#          Matthias Cuntz, Apr 2020 - Check Restart and Output files
 #
 set -e
 
@@ -39,10 +40,10 @@ pid=$$
 #
 function usage () {
     printf "${pprog} [-h] dir1 dir2\n"
-    printf "Compare restart files of two Cable-POP runs performed with script run_cable-pop.sh.\n"
+    printf "Compare restart and output files of two Cable-POP runs performed with script run_cable-pop.sh.\n"
     printf "\n"
     printf "Input\n"
-    printf "    dir1        First directory with Cable-POP output, containing subdirectory restart/.\n"
+    printf "    dir1        First directory with Cable-POP output, containing subdirectories restart/ and outputs/.\n"
     printf "    dir2        Second directory with Cable-POP output.\n"
     printf "\n"
     printf "Options\n"
@@ -91,31 +92,26 @@ fi
 # Input directories
 dir1=${1}
 dir2=${2}
-if [[ ! -d ${dir1} ]] ; then
-    printf "Error ${pprog}: First input is not a directory: ${dir1}.\n\n" 1>&2
-    usage 1>&2
-    exit 1
-fi    
-if [[ ! -d ${dir2} ]] ; then
-    printf "Error ${pprog}: Second input is not a directory: ${dir2}.\n\n" 1>&2
-    usage 1>&2
-    exit 1
-fi
-if [[ ! -d ${dir1}/restart ]] ; then
-    printf "Error ${pprog}: First input directory has no subdirectory restart/: ${dir1}.\n\n" 1>&2
-    usage 1>&2
-    exit 1
-fi    
-if [[ ! -d ${dir2}/restart ]] ; then
-    printf "Error ${pprog}: Second input directory has no subdirectory restart/: ${dir1}.\n\n" 1>&2
-    usage 1>&2
-    exit 1
-fi    
+iout="restart outputs"
+for idir in ${dir1} ${dir2} ; do
+    if [[ ! -d ${idir} ]] ; then
+	printf "Error ${pprog}: Input is not a directory: ${idir}.\n\n" 1>&2
+	usage 1>&2
+	exit 1
+    fi
+    for iidir in ${iout} ; do
+	if [[ ! -d ${idir}/${iidir} ]] ; then
+	    printf "Error ${pprog}: There is no subdirectory ${iidir} in input directory ${idir}.\n\n" 1>&2
+	    usage 1>&2
+	    exit 1
+	fi
+    done
+done
 adir1=$(abspath ${dir1})
 adir2=$(abspath ${dir2})
 
 # -------------------------------------------------------------------------------------------------
-# Compare restart files
+# Compare restart/output files
 #
 
 # Explor
@@ -135,36 +131,44 @@ set -e
 suff1="_climate_restart"
 suff2="_zero_biomass _spinup_limit_labile _spinup_analytic_limit_labile _spinup _spinup_analytic _1580_1699 _1700_1899 _1900_2017"
 
-echo "${adir1} vs. ${adir2}"
-
-cd ${adir1}/restart/
+echo ""
+echo ""
+echo "Compare ${adir1} vs. ${adir2}"
 
 if [[ true ]] ; then
-    for suff in ${suff1} ${suff2} ; do
-	echo 'Step ' ${suff}
-	for i in *${suff}.nc ; do
-	    echo ' ' ${i}
-	    set +e
-	    cdo -s diffv ${i} ${adir2}/restart/${i} 2> /dev/null
-	    set -e
-	done
+    for idir in ${iout} ; do
+        echo ""
+        echo "cdo diff in ${idir}"
+        cd ${adir1}/${idir}/
+        for suff in ${suff1} ${suff2} ; do
+            echo '  Step ' ${suff}
+            for i in *${suff}.nc ; do
+                echo '    ' ${i}
+                set +e
+                cdo -s diffv ${i} ${adir2}/${idir}/${i} 2> /dev/null
+                set -e
+            done
+        done
     done
 fi
 
 if [[ true ]] ; then
+    idir=restart
+    echo ""
+    echo "ncdiff pop_cru_ini in ${idir}"
+    cd ${adir1}/${idir}/
     for suff in ${suff2} ; do
-	i=pop_cru_ini${suff}.nc
-	ncdiff ${i} ${adir2}/restart/${i} tmp.${pid}.nc
-	set +e
-	# iout=$(ncdump tmp.${pid}.nc | sed '/ latitude/,/;$/d' | sed '/ longitude/,/;$/d' | grep -v '0, 0' | sed -e '/[:;{}]/d' -e '/^$/d' | sed -e '/=[[:blank:]]$/d')
-	iout=$(ncdump tmp.${pid}.nc | sed -e '/^netcdf/,/^variables:/d' -e '/ latitude/,/;$/d' -e '/ longitude/,/;$/d' -e '/[:{}]/d' -e '/^$/d' -e '/) ;$/d' -e 's/ ;/,/' -e 's/ 0,//g' | sed -e '/^[[:blank:]]*$/d' -e '/=[[:blank:]]*$/d' -e '/[tT]ime =/d')
-	set -e
-	if [[ -n ${iout} ]] ; then
-	    echo " Check ${i} in ${PWD}"
-	    # echo "     ncdiff -O ${i} ${adir2}/restart/${i} tmp.nc ; ncdump tmp.nc | sed '/ latitude/,/;$/d' | sed '/ longitude/,/;$/d' | grep -v '0, 0' | sed -e '/[:;{}]/d' -e '/^$/d'"
-	    echo "     ncdiff -O ${i} ${adir2}/restart/${i} tmp.nc ; ncdump tmp.nc | sed -e '/^netcdf/,/^variables:/d' -e '/ latitude/,/;$/d' -e '/ longitude/,/;$/d' -e '/[:{}]/d' -e '/^$/d' -e '/) ;$/d' -e 's/ ;/,/' -e 's/ 0,//g' | sed -e '/^[[:blank:]]*$/d' -e '/=[[:blank:]]*$/d' -e '/[tT]ime =/d'"
-	fi
-	rm tmp.${pid}.nc
+        i=pop_cru_ini${suff}.nc
+        echo '    ' ${i}
+        ncdiff ${i} ${adir2}/${idir}/${i} tmp.${pid}.nc
+        set +e
+        iout=$(ncdump tmp.${pid}.nc | sed -e '/^netcdf/,/^variables:/d' -e '/ latitude/,/;$/d' -e '/ longitude/,/;$/d' -e '/[:{}]/d' -e '/^$/d' -e '/) ;$/d' -e 's/ ;/,/' -e 's/ 0,//g' | sed -e '/^[[:blank:]]*$/d' -e '/=[[:blank:]]*$/d' -e '/[tT]ime =/d')
+        set -e
+        if [[ -n ${iout} ]] ; then
+            echo "     Check ${i} in ${PWD}"
+            echo "         ncdiff -O ${i} ${adir2}/${idir}/${i} tmp.nc ; ncdump tmp.nc | sed -e '/^netcdf/,/^variables:/d' -e '/ latitude/,/;$/d' -e '/ longitude/,/;$/d' -e '/[:{}]/d' -e '/^$/d' -e '/) ;$/d' -e 's/ ;/,/' -e 's/ 0,//g' | sed -e '/^[[:blank:]]*$/d' -e '/=[[:blank:]]*$/d' -e '/[tT]ime =/d'"
+        fi
+        rm tmp.${pid}.nc
     done
 fi
 

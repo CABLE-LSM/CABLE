@@ -193,6 +193,7 @@ CONTAINS
     USE phenvariable,         ONLY: phen_variable
     use casa_cable,           only: write_casa_dump
     use casa_inout,           only: casa_fluxout, write_casa_restart_nc, write_casa_output_nc
+    use casa_inout,           only: casa_cnpflux
     
     !CLN added
     ! modules related to POP
@@ -1044,6 +1045,7 @@ CONTAINS
 
              ! At first time step of year, set tile area according to updated LU areas
              IF ((ktau == 1) .and. cable_user%POPLUC) THEN
+                if (icycle>1) CALL casa_cnpflux(casaflux,casapool,casabal,.TRUE.)
                 CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT)
              ENDIF
 
@@ -1305,7 +1307,8 @@ CONTAINS
                 endif
                 ! Dynamic LUC
                 ! 13C
-                CALL LUCdriver( casabiome,casapool,casaflux,POP,LUC_EXPT, POPLUC, veg, c13o2pools )
+                CALL LUCdriver(casabiome, casapool, casaflux, &
+                     POP, LUC_EXPT, POPLUC, veg, c13o2pools)
                 ! transfer POP updates to workers
                 off = 1
                 DO rank = 1, wnp
@@ -1316,7 +1319,6 @@ CONTAINS
              ENDIF ! POPLUC
 
              ! one annual time-step of POP (worker calls POP here)
-             !CALL POPdriver(casaflux,casabal,veg, POP)
              CALL master_receive_pop(POP, ocomm)
 
              IF (cable_user%POPLUC) THEN
@@ -1574,7 +1576,7 @@ CONTAINS
 
        IF ( cable_user%CALL_POP .and.POP%np.gt.0 ) THEN
           IF ( CASAONLY .OR. cable_user%POP_fromZero &
-               .or.TRIM(cable_user%POP_out).eq.'ini' ) THEN
+               .or. TRIM(cable_user%POP_out).eq.'ini' ) THEN
              CALL POP_IO( pop, casamet, CurYear+1, 'WRITE_INI', .TRUE.)
           ELSE
              CALL POP_IO( pop, casamet, CurYear+1, 'WRITE_RST', .TRUE.)
@@ -8545,7 +8547,7 @@ SUBROUTINE master_casa_LUC_types(comm, casapool, casabal, casaflux)
 
      bidx = 0
 
-     ! casapool fields
+     ! casapool fields 2D
      bidx = bidx + 1
      CALL MPI_Get_address (casapool%cplant(off,1), displs(bidx), ierr)
      CALL MPI_Type_create_hvector (mplant, r2len, r2stride, MPI_BYTE, types(bidx), ierr)
@@ -8591,8 +8593,25 @@ SUBROUTINE master_casa_LUC_types(comm, casapool, casabal, casaflux)
      CALL MPI_Type_create_hvector (msoil, r2len, r2stride, MPI_BYTE, types(bidx), ierr)
      blocks(bidx) = 1
 
+     ! casabal fields 2D
+     bidx = bidx + 1
+     CALL MPI_Get_address(casabal%cplantlast(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector (mplant, r2len, r2stride, MPI_BYTE, types(bidx), ierr)
+     blocks(bidx) = 1
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (casabal%clitterlast(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector (mlitter, r2len, r2stride, MPI_BYTE, types(bidx), ierr)
+     blocks(bidx) = 1
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (casabal%csoillast(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector (msoil, r2len, r2stride, MPI_BYTE, types(bidx), ierr)
+     blocks(bidx) = 1
+
      last2d = bidx
 
+     ! casapool fields 1D
      bidx = bidx + 1
      CALL MPI_Get_address (casapool%Nsoilmin(off), displs(bidx), ierr)
      blocks(bidx) = r2len
@@ -8601,12 +8620,20 @@ SUBROUTINE master_casa_LUC_types(comm, casapool, casabal, casaflux)
      CALL MPI_Get_address (casapool%clabile(off), displs(bidx), ierr)
      blocks(bidx) = r2len
 
-     ! casabal fields
+     bidx = bidx + 1
+     CALL MPI_Get_address (casapool%ctot(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
+
+     ! casabal fields 1D
      bidx = bidx + 1
      CALL MPI_Get_address (casabal%FCneeyear(off), displs(bidx), ierr)
      blocks(bidx) = r2len
 
-     ! casaflux fields
+     bidx = bidx + 1
+     CALL MPI_Get_address (casabal%clabilelast(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
+
+     ! casaflux fields 1D
      bidx = bidx + 1
      CALL MPI_Get_address (casaflux%fHarvest(off), displs(bidx), ierr)
      blocks(bidx) = r2len
@@ -8623,8 +8650,19 @@ SUBROUTINE master_casa_LUC_types(comm, casapool, casabal, casaflux)
      CALL MPI_Get_address (casaflux%fcrop(off), displs(bidx), ierr)
      blocks(bidx) = r2len
 
-     types(last2d+1:bidx) = MPI_BYTE
+     bidx = bidx + 1
+     CALL MPI_Get_address (casaflux%FluxCtohwp(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
 
+     bidx = bidx + 1
+     CALL MPI_Get_address (casaflux%FluxCtoclear(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (casaflux%CtransferLUC(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
+
+     types(last2d+1:bidx) = MPI_BYTE
 
      ! MPI: sanity check
      IF (bidx /= ntyp) THEN
@@ -8733,7 +8771,6 @@ SUBROUTINE master_pop_types(comm, casamet, pop)
   CALL create_pop_gridcell_type(pop_ts, comm)
 
   ! Send restart stuff once
-
   IF ( .NOT. cable_user%POP_fromZero ) THEN
      off = 1
      DO rank = 1, wnp
@@ -8741,14 +8778,12 @@ SUBROUTINE master_pop_types(comm, casamet, pop)
         IF ( rank .GT. 1 ) off = off + wland(rank-1)%npop_iwood
 
         cnt = wland(rank)%npop_iwood
-! Maciej: worker_pop_types always call MPI_Recv, even if cnt is zero
-!        IF ( cnt .EQ. 0 ) CYCLE
+        ! Maciej: worker_pop_types always call MPI_Recv, even if cnt is zero
+        !        IF ( cnt .EQ. 0 ) CYCLE
         CALL MPI_Send( POP%pop_grid(off), cnt, pop_ts, rank, 0, comm, ierr )
         CALL MPI_Send( POP%it_pop(off), cnt, MPI_INTEGER, rank, 0, comm, ierr )
 
      END DO
-
-!     CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
 
   ENDIF
 
@@ -8779,193 +8814,8 @@ SUBROUTINE master_receive_pop(POP, comm)
      CALL MPI_Recv(POP%it_pop(off), cnt, MPI_INTEGER, rank, 0, comm, stat, ierr)
 
   END DO
-  ! NO Waitall here as some workers might not be involved!!!
 
 END SUBROUTINE master_receive_pop
-
-!!CLNSUBROUTINE master_blaze_types (comm, BLAZE)
-!!CLN
-!!CLN  ! Send blaze restart data to workers
-!!CLN
-!!CLN  use mpi
-!!CLN
-!!CLN  USE blaze, ONLY: TYPE_BLAZE
-!!CLN
-!!CLN  IMPLICIT NONE
-!!CLN
-!!CLN  INTEGER :: comm ! MPI communicator to talk to the workers
-!!CLN
-!!CLN  TYPE(TYPE_BLAZE), INTENT(IN) :: BLAZE
-!!CLN
-!!CLN
-!!CLN
-!!CLN  ! MPI: temp arrays for marshalling all types into a struct
-!!CLN  INTEGER, ALLOCATABLE, DIMENSION(:) :: blocks
-!!CLN  INTEGER(KIND=MPI_ADDRESS_KIND), ALLOCATABLE, DIMENSION(:) :: displs
-!!CLN  INTEGER, ALLOCATABLE, DIMENSION(:) :: types
-!!CLN  INTEGER :: ntyp ! number of worker's types
-!!CLN
-!!CLN  INTEGER :: last2d, i
-!!CLN
-!!CLN  ! MPI: block lenghts for hindexed representing all vectors
-!!CLN  INTEGER, ALLOCATABLE, DIMENSION(:) :: blen
-!!CLN
-!!CLN  ! MPI: block lengths and strides for hvector representing matrices
-!!CLN  INTEGER :: r1len, r2len
-!!CLN  INTEGER(KIND=MPI_ADDRESS_KIND) :: r1stride, r2stride
-!!CLN
-!!CLN  INTEGER :: tsize, totalrecv, totalsend
-!!CLN  INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
-!!CLN
-!!CLN  INTEGER :: rank, off, cnt
-!!CLN  INTEGER :: bidx, midx, vidx, ierr
-!!CLN
-!!CLN
-!!CLN  ! Restart value handles (restart_blaze_ts())
-!!CLN
-!!CLN  ntyp = 9
-!!CLN
-!!CLN  !INTEGER,  DIMENSION(:),  ALLOCATABLE :: DSLR,
-!!CLN  !REAL,     DIMENSION(:),  ALLOCATABLE :: RAINF, KBDI, LR
-!!CLN  !REAL,     DIMENSION(:,:),ALLOCATABLE :: AnnRAINF, DEADWOOD, AGLB_w, AGLB_g, AGLit_w, AGLit_g
-!!CLN
-!!CLN  ALLOCATE (blocks(ntyp))
-!!CLN  ALLOCATE (displs(ntyp))
-!!CLN  ALLOCATE (types(ntyp))
-!!CLN
-!!CLN  istride  = mp * extid ! short integer
-!!CLN  r1stride = mp * extr1 ! single precision
-!!CLN  r2stride = mp * extr2 ! double precision
-!!CLN
-!!CLN  DO rank = 1, wnp
-!!CLN     off = wland(rank)%patch0
-!!CLN     cnt = wland(rank)%npatch
-!!CLN
-!!CLN     i1len = cnt * extid
-!!CLN     r1len = cnt * extr1
-!!CLN     r2len = cnt * extr2
-!!CLN
-!!CLN     bidx = 0
-!!CLN
-!!CLN     ! ------------- 2D arrays -------------
-!!CLN
-!!CLN     ! Annual (daily) rainfall (ncells,366)
-!!CLN     bidx = bidx + 1
-!!CLN     CALL MPI_Get_address (BLAZE%AnnRainf(off,1), displs(bidx), ierr) ! 1
-!!CLN     CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
-!!CLN     &                             types(bidx), ierr)
-!!CLN     blocks(bidx) = 1
-!!CLN
-!!CLN     ! Above ground life woody biomass
-!!CLN     bidx = bidx + 1
-!!CLN     CALL MPI_Get_address (BLAZE%AGLB_w(off,1), displs(bidx), ierr) ! 2
-!!CLN     CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
-!!CLN     &                             types(bidx), ierr)
-!!CLN     blocks(bidx) = 1
-!!CLN
-!!CLN     ! Above ground life grassy biomass
-!!CLN     bidx = bidx + 1
-!!CLN     CALL MPI_Get_address (BLAZE%AGLB_g(off,1), displs(bidx), ierr) ! 3
-!!CLN     CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
-!!CLN     &                             types(bidx), ierr)
-!!CLN     blocks(bidx) = 1
-!!CLN
-!!CLN     ! Above ground woody litter
-!!CLN     bidx = bidx + 1
-!!CLN     CALL MPI_Get_address (BLAZE%AGLit_w(off,1), displs(bidx), ierr) ! 4
-!!CLN     CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
-!!CLN     &                             types(bidx), ierr)
-!!CLN     blocks(bidx) = 1
-!!CLN
-!!CLN     ! Above ground grassy litter
-!!CLN     bidx = bidx + 1
-!!CLN     CALL MPI_Get_address (BLAZE%AGLit_g(off,1), displs(bidx), ierr) ! 5
-!!CLN     CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
-!!CLN     &                             types(bidx), ierr)
-!!CLN     blocks(bidx) = 1
-!!CLN
-!!CLN     last2d = bidx
-!!CLN
-!!CLN     ! ------------- 1D vectors -------------
-!!CLN
-!!CLN     ! Integer days since last rainfall
-!!CLN     bidx = bidx + 1
-!!CLN     CALL MPI_Get_address (BLAZE%DSLR(off), displs(bidx), ierr)
-!!CLN     blocks(bidx) = i1len
-!!CLN
-!!CLN     ! Real(sp) Last rainfall
-!!CLN     bidx = bidx + 1
-!!CLN     CALL MPI_Get_address (BLAZE%LR(off), displs(bidx), ierr)
-!!CLN     blocks(bidx) = r1len
-!!CLN
-!!CLN     ! current KBDI
-!!CLN     bidx = bidx + 1
-!!CLN     CALL MPI_Get_address (BLAZE%KBDI(off), displs(bidx), ierr)
-!!CLN     blocks(bidx) = r1len
-!!CLN
-!!CLN     ! DEADWOOD
-!!CLN     bidx = bidx + 1
-!!CLN     CALL MPI_Get_address (BLAZE%DEADWOOD(off), displs(bidx), ierr)
-!!CLN     blocks(bidx) = r1len
-!!CLN
-!!CLN     ! ------------- Wrap up -------------
-!!CLN
-!!CLN     types(last2d+1:bidx) = MPI_BYTE
-!!CLN
-!!CLN     ! MPI: sanity check
-!!CLN     IF (bidx /= ntyp) THEN
-!!CLN        WRITE (*,*) 'invalid blaze ntyp constant, fix it (12)!'
-!!CLN        CALL MPI_Abort (comm, 1, ierr)
-!!CLN     END IF
-!!CLN
-!!CLN     CALL MPI_Type_create_struct (bidx, blocks, displs, types, blaze_restart_ts(rank), ierr)
-!!CLN     CALL MPI_Type_commit (blaze_restart_ts(rank), ierr)
-!!CLN
-!!CLN     CALL MPI_Type_size (blaze_restart_ts(rank), tsize, ierr)
-!!CLN     CALL MPI_Type_get_extent (blaze_restart_ts(rank), tmplb, text, ierr)
-!!CLN
-!!CLN     WRITE (*,*) 'restart results recv from worker, size, extent, lb: ', &
-!!CLN   &       rank,tsize,text,tmplb
-!!CLN
-!!CLN     totalrecv = totalrecv + tsize
-!!CLN
-!!CLN     ! free the partial types used for matrices
-!!CLN     DO i = 1, last2d
-!!CLN        CALL MPI_Type_free (types(i), ierr)
-!!CLN     END DO
-!!CLN
-!!CLN  END DO
-!!CLN
-!!CLN  WRITE (*,*) 'total size of restart fields received from all workers: ', totalrecv
-!!CLN
-!!CLN  ! MPI: check whether total size of received data equals total
-!!CLN  ! data sent by all the workers
-!!CLN  totalsend = 0
-!!CLN  CALL MPI_Reduce (MPI_IN_PLACE, totalsend, 1, MPI_INTEGER, MPI_SUM, &
-!!CLN    &     0, comm, ierr)
-!!CLN
-!!CLN  WRITE (*,*) 'total size of restart fields sent by all workers: ', totalsend
-!!CLN
-!!CLN  IF (totalrecv /= totalsend) THEN
-!!CLN          WRITE (*,*) 'error: restart fields totalsend and totalrecv differ'
-!!CLN          CALL MPI_Abort (comm, 0, ierr)
-!!CLN  END IF
-!!CLN
-!!CLN  DEALLOCATE(types)
-!!CLN  DEALLOCATE(displs)
-!!CLN  DEALLOCATE(blocks)
-!!CLN
-!!CLN
-!!CLN  ! Standard desired IO (restart_blaze_ts())
-!!CLN
-!!CLN
-!!CLN
-!!CLN
-!!CLN
-!!CLN  RETURN
-!!CLN
-!!CLNEND SUBROUTINE master_blaze_types
-!!CLN
 
 ! 13C
 ! MPI: creates c13o2_flux_ts types to broadcast/scatter the default c13o2_flux parameters to all the workers

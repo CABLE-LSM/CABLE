@@ -141,55 +141,66 @@ host_mcin()
         export FC=ifort
         # release
 	export CFLAGS="-fpp -O3 -nofixed -assume byterecl -fp-model precise -ip -diag-disable=10382 -xHost"
+	export LDFLAGS="-O3"
         if [[ ${idebug} -eq 1 ]] ; then
             # debug
 	    export CFLAGS="-fpp -O0 -debug extended -traceback -g -check all,noarg_temp_created -warn all -fp-stack-check -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0" # -fpe-all=0 -no-ftz -ftrapuv -init=arrays,snan
+	    export LDFLAGS="-O0"
         fi
 	# export CFLAGS="${CFLAGS} -mtune=corei7"
 	# export CFLAGS="${CFLAGS} -march=native"
 	export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
-        export LD=''
-        export NCROOT='/usr/local/netcdf-fortran-4.4.5-ifort'
+        export LD=""
+        export NCROOT="/usr/local/netcdf-fortran-4.4.5-ifort"
     elif [[ ${ignu} -eq 1 ]] ;  then
         # GFORTRAN
         export FC=gfortran
         # release
         export CFLAGS="-cpp -O3 -Wno-aggressive-loop-optimizations -ffree-form -ffixed-line-length-132"
+	export LDFLAGS="-O3"
         if [[ ${idebug} -eq 1 ]] ; then
             # debug
             export CFLAGS="-cpp -O -g -pedantic-errors -Wall -W -Wno-maybe-uninitialized -ffree-form -ffixed-line-length-132 -fbacktrace -ffpe-trap=zero,overflow -finit-real=nan" #  -ffpe-trap=zero,overflow,underflow
+	    export LDFLAGS="-O"
         fi
 	# export CFLAGS="${CFLAGS} -march=native"
 	export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__"
-	export LD=''
-        export NCROOT='/usr/local/netcdf-fortran-4.4.5-gfortran'
+	export LD=""
+        export NCROOT="/usr/local/netcdf-fortran-4.4.5-gfortran"
     elif [[ ${inag} -eq 1 ]] ;  then
         # NAG
         export FC=nagfor
         # release
         export CFLAGS="-O4"
+	export LDFLAGS="-O4"
         if [[ ${idebug} -eq 1 ]] ; then
             # debug
-            export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline"
+            # export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline"
+            # set runtime environment variables: export NAGFORTRAN_RUNTIME_OPTIONS=show_dangling
+            export CFLAGS="-C=alias -C=array -C=bits -C=dangling -C=do -C=intovf -C=present -C=pointer -C=recursion -g -nan -O0 -strict95 -gline"
+	    export LDFLAGS="-O0"
         fi
 	export CFLAGS="${CFLAGS} -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -not_openmp"
+        export CFLAGS="${CFLAGS} -mismatch"
 	# export CFLAGS="${CFLAGS} -march=native"
 	export CFLAGS="${CFLAGS} -D__NAG__"
-        export LD='-ideclient -unsharedrts'
-        export NCROOT='/usr/local/netcdf-fortran-4.4.5-nagfor'
+        export LD="-ideclient -unsharedrts"
+        export NCROOT="/usr/local/netcdf-fortran-4.4.5-nagfor"
     fi
+
+    # All compilers
     # export CFLAGS="${CFLAGS} -D__C13DEBUG__"
     export CFLAGS="${CFLAGS} -D__CRU2017__"
     export CFLAGS="${CFLAGS} -D__NETCDF3__"
 
     # All compilers
-    export NCCROOT='/usr/local'
-    export NCCLIB=${NCCROOT}'/lib'
-    export NCLIB=${NCROOT}'/lib'
-    export NCMOD=${NCROOT}'/include'
-    export LDFLAGS="-L${NCLIB} -L${NCCLIB} -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz"
+    export NCCROOT="/usr/local"
+    export NCCLIB=${NCCROOT}"/lib"
+    export NCLIB=${NCROOT}"/lib"
+    export NCMOD=${NCROOT}"/include"
+    export LDFLAGS="-L${NCLIB} -L${NCCLIB} -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz "${LDFLAGS}
     export dosvn=0
-    export MFLAGS='-j 8'
+    export MFLAGS="-j 8"
     build_build
     cd ../
     build_status
@@ -225,10 +236,12 @@ host_vm_o()
         module load intel/2018.5
         export FC=ifort
         # release
-        export CFLAGS="-O3 -fpp -nofixed -assume byterecl -fp-model precise -ip -xHost -diag-disable=10382"
+	export CFLAGS="-fpp -O3 -nofixed -assume byterecl -fp-model precise -ip -diag-disable=10382 -xHost"
+	export LDFLAGS="-O3"
         if [[ ${idebug} -eq 1 ]] ; then
             # debug
-            export CFLAGS="-check all,noarg_temp_created -warn all -g -debug -traceback -fp-stack-check -O0 -debug -fpp -nofixed -assume byterecl -fp-model precise -ip -xHost -diag-disable=10382"
+	    export CFLAGS="-fpp -O0 -debug extended -traceback -g -check all,noarg_temp_created -warn all -fp-stack-check -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0" # -fpe-all=0 -no-ftz -ftrapuv -init=arrays,snan
+	    export LDFLAGS="-O0"
         fi
 	# export CFLAGS="${CFLAGS} -march=broadwell"     # std / hf
 	# export CFLAGS="${CFLAGS} -march=core-avx2"     # std / hf
@@ -238,17 +251,19 @@ host_vm_o()
 	# export CFLAGS="${CFLAGS} -march=avx"           # ivy / k20
 	# export CFLAGS="${CFLAGS} -mtune=ivybridge"     # ivy / k20
 	export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
-        export LD=''
-        export NCROOT='/home/oqx29/zzy20/local/netcdf-fortran-4.4.4-ifort2018.0'
+        export LD=""
+        export NCROOT="/home/oqx29/zzy20/local/netcdf-fortran-4.4.4-ifort2018.0"
     else
         # GFORTRAN
         module load gcc/6.3.0
         export FC=gfortran
         # release
-        export CFLAGS="-O3 -Wno-aggressive-loop-optimizations -cpp -ffree-form -ffixed-line-length-132"
+        export CFLAGS="-cpp -O3 -Wno-aggressive-loop-optimizations -ffree-form -ffixed-line-length-132"
+	export LDFLAGS="-O3"
         if [[ ${idebug} -eq 1 ]] ; then
             # debug
-            export CFLAGS="-pedantic-errors -Wall -W -O -g -Wno-maybe-uninitialized -cpp -ffree-form -ffixed-line-length-132"
+            export CFLAGS="-cpp -O -g -pedantic-errors -Wall -W -Wno-maybe-uninitialized -ffree-form -ffixed-line-length-132 -fbacktrace -ffpe-trap=zero,overflow -finit-real=nan" #  -ffpe-trap=zero,overflow,underflow
+	    export LDFLAGS="-O"
         fi
 	# export CFLAGS="${CFLAGS} -march=broadwell"     # std / hf
 	# export CFLAGS="${CFLAGS} -mavx2"               # std / hf
@@ -256,21 +271,22 @@ host_vm_o()
 	# export CFLAGS="${CFLAGS} -march=ivybridge"     # ivy / k20
 	# export CFLAGS="${CFLAGS} -mavx"                # ivy / k20
 	export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__" # -pg # gprof --line ./cable gmon.out
-        export LD=''
-        export NCROOT='/home/oqx29/zzy20/local/netcdf-fortran-4.4.4-gfortran63'
+        export LD=""
+        export NCROOT="/home/oqx29/zzy20/local/netcdf-fortran-4.4.4-gfortran63"
     fi
+
+    # All compilers
     # export CFLAGS="${CFLAGS} -D__C13DEBUG__"
     export CFLAGS="${CFLAGS} -D__CRU2017__"
     export CFLAGS="${CFLAGS} -D__NETCDF3__"
 
-    # All compilers
-    export NCCROOT='/home/oqx29/zzy20/local'
-    export NCCLIB=${NCCROOT}'/lib'
-    export NCLIB=${NCROOT}'/lib'
-    export NCMOD=${NCROOT}'/include'
-    export LDFLAGS="-L${NCCLIB} -L${NCLIB} -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz" # -pg
+    export NCCROOT="/home/oqx29/zzy20/local"
+    export NCCLIB=${NCCROOT}"/lib"
+    export NCLIB=${NCROOT}"/lib"
+    export NCMOD=${NCROOT}"/include"
+    export LDFLAGS="-L${NCCLIB} -L${NCLIB} -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz "${LDFLAGS} # " -pg"
     export dosvn=0
-    export MFLAGS='-j 8'
+    export MFLAGS="-j 8"
     build_build
     cd ../
     build_status
@@ -289,17 +305,17 @@ host_gadi()
    module add intel-compiler/2019.5.281
    module add netcdf/4.6.3
 
-   export FC='ifort'
-   export NCDIR=${NETCDF_ROOT}'/lib/Intel'
-   export NCMOD=${NETCDF_ROOT}'/include/Intel'
-   if [[ ${1} == 'debug' ]]; then
+   export FC=ifort
+   export NCDIR=${NETCDF_ROOT}"/lib/Intel"
+   export NCMOD=${NETCDF_ROOT}"/include/Intel"
+   if [[ ${1} == "debug" ]]; then
        # export CFLAGS='-O0 -fpp -traceback -g -fp-model precise -ftz -fpe0'
        export CFLAGS="-fpp -O0 -debug extended -traceback -g -check all,noarg_temp_created -warn all -fp-stack-check -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0" # -fpe-all=0 -no-ftz -ftrapuv"
-       export LDFLAGS='-O0'
+       export LDFLAGS="-O0"
    else
        # export CFLAGS='-O2 -fpp -fp-model precise'
        export CFLAGS="-fpp -O3 -nofixed -assume byterecl -fp-model precise -ip -diag-disable=10382"
-       export LDFLAGS='-O3'
+       export LDFLAGS="-O3"
        # export CFLAGS="${CFLAGS} -xCORE-AVX2 -axSKYLAKE-AVX512,CASCADELAKE" # given in user training: does not work
        export CFLAGS="${CFLAGS} -xCASCADELAKE" # or -xCORE-AVX512 # queues: express / normal
        # export CFLAGS="${CFLAGS} -xBROADWELL"  # or -xCORE-AVX512; queues: expressbw / normalbw
@@ -307,9 +323,9 @@ host_gadi()
    fi
    export CFLAGS="${CFLAGS} -D__CRU2017__"
    export CFLAGS="${CFLAGS} -D__NETCDF3__"
-   export LDFLAGS='-L'${NCDIR}' '${LDFLAGS}
-   export LD='-lnetcdf -lnetcdff'
-   export MFLAGS='-j 8'
+   export LDFLAGS="-L"${NCDIR}" "${LDFLAGS}
+   export LD="-lnetcdf -lnetcdff"
+   export MFLAGS="-j 8"
    build_build
    cd ../
    build_status

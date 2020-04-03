@@ -75,7 +75,8 @@ MODULE cable_mpicommon
   ! Matthias Cuntz: add 11 in case of call_blaze -> 9
   INTEGER, PARAMETER :: ncdumprw = 9
   ! MPI: number of casa_LUC parameters sent/rec'd to/from the workers every year
-  INTEGER, PARAMETER :: nLUCrw = 16
+  ! Matthias Cuntz: add 5 1D and 3 2D used in luc_casa_transfer -> 24
+  INTEGER, PARAMETER :: nLUCrw = 24
 
   ! MPI: number of POP parameters sent/rec'd to/from the workers every
   ! timestep or at start, end. Here, with POP the dimensions are separate!

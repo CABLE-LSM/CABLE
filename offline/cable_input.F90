@@ -2376,9 +2376,9 @@ END SUBROUTINE close_met_file
 !
 !==============================================================================
 
-SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad,        &
-       sum_flux,bal,logn,vegparmnew,casabiome,casapool,    &
-       casaflux,sum_casapool, sum_casaflux,casamet,casabal,phen,POP,spinup,EMSOIL, &
+SUBROUTINE load_parameters(met, air, ssnow, veg, climate, bgc, soil, canopy, rough, rad, &
+       sum_flux, bal, logn, vegparmnew, casabiome, casapool, &
+       casaflux, sum_casapool, sum_casaflux, casamet, casabal, phen, POP, spinup, EMSOIL, &
        TFRZ, LUC_EXPT, POPLUC, BLAZE, SIMFIRE, c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc)
    ! Input variables not listed:
    !   filename%type  - via cable_IO_vars_module
@@ -2471,34 +2471,27 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
     ! 13C
     if (cable_user%c13o2) then
        call c13o2_alloc_flux(c13o2flux, mp)
-       !MCINI
        call c13o2_zero_flux(c13o2flux)
     endif
     WRITE(logn,*) ' CABLE variables allocated with ', mp, ' patch(es).'
 
-    IF (icycle > 0 .OR. CABLE_USER%CASA_DUMP_WRITE ) then
-       CALL alloc_casavariable(casabiome,casapool,casaflux, &
-            casamet,casabal,mp)
-       !MCINI
+    IF ((icycle > 0) .OR. CABLE_USER%CASA_DUMP_WRITE) then
+       CALL alloc_casavariable(casabiome, casapool, casaflux, casamet, casabal, mp)
        call zero_casavariable(casabiome, casapool, casaflux, casamet, casabal)
        ! 13C
        if (cable_user%c13o2) then
           call c13o2_alloc_pools(c13o2pools, mp)
-          !MCINI
           call c13o2_zero_pools(c13o2pools)
        endif
     endif
-    !mpdiff
     CALL alloc_sum_casavariable(sum_casapool, sum_casaflux, mp)
     ! 13C
     if (cable_user%c13o2) then
        call c13o2_alloc_pools(sum_c13o2pools, mp)
-       !MCINI
        call c13o2_zero_pools(sum_c13o2pools)       
     endif
     IF (icycle > 0) THEN
        CALL alloc_phenvariable(phen,mp)
-       !MCINI
        call zero_phenvariable(phen)
     ENDIF
 
@@ -2512,7 +2505,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
     endif
 
     ! Zero out lai where there is no vegetation acc. to veg. index
-    WHERE ( veg%iveg(:) .GE. 14 ) veg%vlai = 0.
+    WHERE (veg%iveg(:) .GE. 14) veg%vlai = 0.
 
     IF (icycle > 0) THEN
       CALL write_cnp_params(veg,casaflux,casamet)
@@ -2520,7 +2513,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
            casamet,phen)
       IF (cable_user%PHENOLOGY_SWITCH.eq.'MODIS') CALL casa_readphen(veg,casamet,phen)
 
-      CALL casa_init(casabiome,casamet,casaflux,casapool,casabal,veg,phen)
+      CALL casa_init(casabiome, casamet, casaflux, casapool, casabal, veg, phen)
       ! 13C
       if (cable_user%c13o2) then
          call c13o2_init_pools(casapool, casaflux, c13o2pools)
@@ -2543,7 +2536,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
 
          CALL POP_init( POP, veg%disturbance_interval(Iwood,:), mp_POP, Iwood )
          IF ( .NOT. (spinup .OR. CABLE_USER%POP_fromZero )) &
-              CALL POP_IO( POP, casamet, cable_user%YearStart, "READ_rst " , .TRUE.)
+              CALL POP_IO(POP, casamet, cable_user%YearStart, "READ_RST", .TRUE.)
       ENDIF
 
       IF (CABLE_USER%POPLUC) then
@@ -2562,52 +2555,17 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
          if (cable_user%c13o2) call c13o2_init_luc(c13o2luc, c13o2pools, veg, mland)
       ENDIF
 
-      !CVH moved initialisations to cable_driver.F90 because climate%modis_igpb is needed,
-      !    and the climate structure has not been initialised at this point.
-
-      ! ! CLN ALLOCATE BLAZE Arrays 
-      ! IF ( cable_user%CALL_BLAZE ) THEN
-      !    ! CLN ?VH is rad%lat/lon below correct? 
-      !    CALL INI_BLAZE ( cable_user%CALL_POP, cable_user%BURNT_AREA, &
-      !         cable_user%BLAZE_TSTEP, mland, rad%latitude(landpt(:)%cstart), &
-      !         rad%longitude(landpt(:)%cstart), BLAZE )
-      !    !CLNIF ( .NOT. spinup) CALL READ_BLAZE_RESTART(...)
-
-      !    IF ( TRIM(cable_user%BURNT_AREA) == "SIMFIRE" ) THEN
-      !       CALL INI_SIMFIRE(mland,cable_user%SIMFIRE_REGION,SIMFIRE, &
-      !            climate%modis_igbp(landpt(:)%cstart) ) !CLN here we need to check for the SIMFIRE biome setting
-            
-      !       IF ( spinup ) THEN
-      !          !CLN get_biomes
-      !       ELSE
-      !          !CLN CALL READ_SIMFIRE_RESTART(...)
-      !       END IF
-      !    END IF
-
-      !    ! CLN enter gfed & PRESCRIBED here
-         
-      !    IF ( BLAZE%ERR ) RETURN            
-      !    ! Read restart values
-      ! ENDIF
-   ENDIF
-
-   ! removed get_default_inits and get_default_lai as they are already done
-   ! in write_default_params
-   !    ! Load default initialisations from Mk3L climatology:
-   !    CALL get_default_inits(met,soil,ssnow,canopy,logn)
-   !
-   !    ! load default LAI values from global data:
-   !    CALL get_default_lai
+   ENDIF ! icycle > 0
 
     ! Look for explicit restart file (which will have parameters):
-    IF ( TRIM(filename%restart_in) .EQ. '' ) filename%restart_in = './'
+    IF (TRIM(filename%restart_in) .EQ. '') filename%restart_in = './'
     frst_in = trim(filename%restart_in)
     ! MC - Fortran inquire returns .true. on directory on *nix but .false. on Windows.
     !        inquire(file=trim(frst_in), exist=exrst)
-    !      Intel as a directory keyword (instead of file) but not gnu.
+    !      Intel has a directory keyword (instead of file) but not gnu.
     !        inquire(directory=trim(frst_in), exist=exrst)
     !      So Cable uses netcdf to open the file if possible.
-    !      Close it immediately, otherwise opened the same file a second time below.
+    !      -> Close it immediately, otherwise the same file is opened a second time below.
     ok = nf90_open(trim(frst_in), nf90_nowrite, ncid_rin)
     if (ok==nf90_noerr) then
        EXRST = .true.

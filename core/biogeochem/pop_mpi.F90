@@ -918,11 +918,11 @@ CONTAINS
 
     ! Scalar Integer
 
-!!$    bidx = bidx + 1
-!!$    CALL MPI_Get_Address (tmp_grid(1)%npatch_active, a2, ierr)
-!!$    disp (bidx) = a2 - a1
-!!$    blen (bidx) = 1
-!!$    btype(bidx) = MPI_INTEGER
+    ! bidx = bidx + 1
+    ! CALL MPI_Get_Address (tmp_grid(1)%npatch_active, a2, ierr)
+    ! disp (bidx) = a2 - a1
+    ! blen (bidx) = 1
+    ! btype(bidx) = MPI_INTEGER
 
     bidx = bidx + 1
     CALL MPI_Get_Address (tmp_grid(1)%LU, a2, ierr)

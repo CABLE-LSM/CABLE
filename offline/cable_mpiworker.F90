@@ -868,7 +868,7 @@ CONTAINS
              ENDIF
              ! one annual time-step of POP
              !write(wlogn,*) 'laimax',  casabal%LAImax
-             CALL POPdriver(casaflux,casabal,veg, POP)
+             CALL POPdriver(casaflux, casabal, veg, POP)
 
              ! Call BLAZE again to compute turnovers depending on POP mortalities
              IF ( cable_user%CALL_BLAZE ) THEN
@@ -7559,6 +7559,18 @@ CONTAINS
     blen(bidx) = r2len * msoil
 
     bidx = bidx + 1
+    CALL MPI_Get_address (casabal%cplantlast(off,1), displs(bidx), ierr)
+    blen(bidx) = r2len * mplant
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (casabal%clitterlast(off,1), displs(bidx), ierr)
+    blen(bidx) = r2len * mlitter
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (casabal%csoillast(off,1), displs(bidx), ierr)
+    blen(bidx) = r2len * msoil
+
+    bidx = bidx + 1
     CALL MPI_Get_address (casapool%Nsoilmin(off), displs(bidx), ierr)
     blen(bidx) = r2len
 
@@ -7567,7 +7579,15 @@ CONTAINS
     blen(bidx) = r2len
 
     bidx = bidx + 1
+    CALL MPI_Get_address (casapool%ctot(off), displs(bidx), ierr)
+    blen(bidx) = r2len
+
+    bidx = bidx + 1
     CALL MPI_Get_address (casabal%FCneeyear(off), displs(bidx), ierr)
+    blen(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (casabal%clabilelast(off), displs(bidx), ierr)
     blen(bidx) = r2len
 
     bidx = bidx + 1
@@ -7586,6 +7606,17 @@ CONTAINS
     CALL MPI_Get_address (casaflux%fcrop(off), displs(bidx), ierr)
     blen(bidx) = r2len
 
+    bidx = bidx + 1
+    CALL MPI_Get_address (casaflux%FluxCtohwp(off), displs(bidx), ierr)
+    blen(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (casaflux%FluxCtoclear(off), displs(bidx), ierr)
+    blen(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (casaflux%CtransferLUC(off), displs(bidx), ierr)
+    blen(bidx) = r2len
 
     ! MPI: sanity check
     IF (bidx /= ntyp) THEN

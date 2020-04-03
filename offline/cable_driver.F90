@@ -80,8 +80,7 @@ PROGRAM cable_offline_driver
   USE cable_climate_mod
 
   ! modules related to CASA-CNP
-  USE casaparm,             only: leaf
-  USE casadimension,        ONLY: icycle, deltpool
+  USE casadimension,        ONLY: icycle
   USE casavariable,         ONLY: casafile, casa_biome, casa_pool, casa_flux, casa_timeunits, &
        !mpidiff
        casa_met, casa_balance, zero_sum_casa, update_sum_casa
@@ -1310,9 +1309,8 @@ PROGRAM cable_offline_driver
   ENDIF
 
   IF ( cable_user%CALL_POP.and.POP%np.gt.0 ) THEN
-     !mpidiff
      IF ( CASAONLY .or. cable_user%pop_fromzero &
-          .or.TRIM(cable_user%POP_out).eq.'ini' ) THEN
+          .or. TRIM(cable_user%POP_out) .eq. 'ini' ) THEN
         CALL POP_IO( pop, casamet, RYEAR+1, 'WRITE_INI', .TRUE.)
      ELSE
         CALL POP_IO( pop, casamet, RYEAR+1, 'WRITE_RST', .TRUE.)
