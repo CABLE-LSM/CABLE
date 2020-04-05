@@ -173,7 +173,7 @@ contains
           !    call c13o2_print_delta_luc(popluc, c13o2luc)
           ! endif
           if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
-          CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
+          CALL biogeochem(idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
                casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter, &
                xksoil,xkleaf,xkleafcold,xkleafdry,&
                cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
@@ -324,7 +324,7 @@ contains
              !         ( YYYY.EQ.cable_user%YearEnd ) )
           ENDIF ! IF (CABLE_USER%POPLUC)
 
-          IF ( IS_CASA_TIME("write", yyyy, ktau, kstart, 0, kend, ktauday, logn) ) THEN
+          IF ( IS_CASA_TIME("write", yyyy, ktau, kstart, 0, ktauday, logn) ) THEN
              CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
                   .FALSE. , .TRUE. , count_sum_casa)
              ! 13C
@@ -355,7 +355,7 @@ contains
 
     enddo ! nyear
 
-    IF (CABLE_USER%POPLUC) CALL WRITE_LUC_RESTART_NC( POPLUC, YYYY )
+    IF (CABLE_USER%POPLUC) CALL WRITE_LUC_RESTART_NC(POPLUC)
 
   END SUBROUTINE CASAONLY_LUC
 
