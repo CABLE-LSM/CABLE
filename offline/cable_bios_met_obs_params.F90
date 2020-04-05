@@ -857,7 +857,7 @@ CONTAINS
 ! already-open met files.
   IF (call1) then
       
-    CALL open_bios_met
+    CALL open_bios_met()
     ALLOCATE (   rain_day(mland))
     ALLOCATE ( swdown_day(mland))
     ALLOCATE (tairmax_day(mland))
@@ -1117,15 +1117,14 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
 
 !******************************************************************************
   
-  SUBROUTINE cable_bios_read_met(MET, CurYear, ktau, kend, islast, dels )
+  SUBROUTINE cable_bios_read_met(MET, CurYear, ktau, dels )
   
     ! Read a single day of meteorology from all bios met files, updating the bios_rundate
     ! If a change of year has occurred, read an annual CO2 record
     
     IMPLICIT NONE
 
-    INTEGER, INTENT(IN)  :: CurYear, ktau, kend
-    LOGICAL, INTENT(IN)  :: islast
+    INTEGER, INTENT(IN)  :: CurYear, ktau
     REAL, INTENT(IN) :: dels                        ! time step size in seconds
     TYPE(MET_TYPE), INTENT(INOUT)       :: MET
 

@@ -202,17 +202,16 @@ END SUBROUTINE carbon_pl
 
 ! -----------------------------------------------------------------------------
 
-SUBROUTINE soilcarb(soil, ssnow, veg, bgc, met, canopy)
+SUBROUTINE soilcarb(soil, ssnow, veg, bgc, canopy)
 
-   USE cable_def_types_mod, ONLY : soil_parameter_type, veg_parameter_type,    &
-                                   soil_snow_type, canopy_type, bgc_pool_type, &
-                                   met_type, mp, ms, mstype
+   USE cable_def_types_mod, ONLY: soil_parameter_type, veg_parameter_type,    &
+                                  soil_snow_type, canopy_type, bgc_pool_type, &
+                                  mp, ms, mstype
 
    USE cable_common_module
 
    TYPE (soil_snow_type), INTENT(IN)        :: ssnow
    TYPE (bgc_pool_type), INTENT(IN)         :: bgc
-   TYPE (met_type), INTENT(IN)              :: met
    TYPE (canopy_type), INTENT(INOUT)        :: canopy
 
    TYPE (soil_parameter_type), INTENT(IN)   :: soil

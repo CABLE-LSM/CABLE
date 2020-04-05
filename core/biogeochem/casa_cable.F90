@@ -28,10 +28,10 @@ module casa_cable
 contains
 
 !#define UM_BUILD YES
-  SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
+  SUBROUTINE bgcdriver(ktau,kstart,dels,met,ssnow,canopy,veg,soil, &
        climate,casabiome,casapool,casaflux,casamet,casabal,phen, &
-       pop, spinConv, spinup, ktauday, idoy, loy, dump_read,   &
-       dump_write, LALLOC, c13o2flux, c13o2pools)
+       pop, ktauday, idoy, loy, dump_read,   &
+       LALLOC, c13o2flux, c13o2pools)
 
     USE cable_def_types_mod
     USE casadimension
@@ -51,12 +51,9 @@ contains
 
     INTEGER,      INTENT(IN) :: ktau ! integration step number
     INTEGER,      INTENT(IN) :: kstart ! starting value of ktau
-    INTEGER,      INTENT(IN) :: kend ! total # timesteps in run
-
     INTEGER,      INTENT(IN) :: idoy, LOY ! day of year (1-365) , Length oy
     INTEGER,      INTENT(IN) :: ktauday
-    logical,      INTENT(IN) :: spinConv, spinup
-    logical,      INTENT(IN) :: dump_read, dump_write
+    logical,      INTENT(IN) :: dump_read
     INTEGER,      INTENT(IN) :: LALLOC
 
     REAL,         INTENT(IN) :: dels ! time setp size (s)
@@ -139,7 +136,7 @@ contains
 
              ! 13C
              if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
-             CALL biogeochem(ktau, dels, idoy, LALLOC, veg, soil, casabiome, casapool, casaflux, &
+             CALL biogeochem(idoy, LALLOC, veg, soil, casabiome, casapool, casaflux, &
                   casamet, casabal, phen, POP, climate,  xnplimit, xkNlimiting, xklitter, xksoil, &
                   xkleaf, xkleafcold, xkleafdry, &
                   cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd, &
@@ -180,7 +177,7 @@ contains
 
           ! 13C
           if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
-          CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
+          CALL biogeochem(idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
                casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter,xksoil,xkleaf, &
                xkleafcold,xkleafdry,&
                cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
@@ -637,7 +634,7 @@ contains
        CALL def_dims(num_dims, ncid, dimID, dim_len, dim_name)
 
        ! define variables: from name, type, dims
-       CALL def_vars(num_vars, ncid, nf90_float, dimID, var_name, varID)
+       CALL def_vars(ncid, nf90_float, dimID, var_name, varID)
 
        ! define variable attributes
        !CLN LATER!             CALL def_var_atts( ncfile, ncid, varID )
@@ -886,8 +883,8 @@ contains
   END SUBROUTINE casa_feedback
 
 
-  SUBROUTINE sumcflux(ktau, kstart, kend, dels, bgc, canopy,  &
-       soil, ssnow, sum_flux, veg, met, casaflux, l_vcmaxFeedbk)
+  SUBROUTINE sumcflux(ktau, kstart, dels, canopy, &
+       sum_flux, casaflux, l_vcmaxFeedbk)
 
     USE cable_def_types_mod
     USE cable_carbon_module
@@ -899,17 +896,11 @@ contains
 
     INTEGER, INTENT(IN)    :: ktau ! integration step number
     INTEGER, INTENT(IN)    :: kstart ! starting value of ktau
-    INTEGER, INTENT(IN)    :: kend ! total # timesteps in run
     !  INTEGER, INTENT(IN)    :: mvtype  ! Number of veg types
     !  INTEGER, INTENT(IN)    :: mstype ! Number of soil types
     REAL,    INTENT(IN)    :: dels ! time setp size (s)
-    TYPE (bgc_pool_type),       INTENT(INOUT) :: bgc
     TYPE (canopy_type),         INTENT(INOUT) :: canopy
-    TYPE (soil_parameter_type), INTENT(INOUT) :: soil
-    TYPE (soil_snow_type),      INTENT(INOUT) :: ssnow
     TYPE (sum_flux_type),       INTENT(INOUT) :: sum_flux
-    TYPE (met_type),            INTENT(IN)    :: met
-    TYPE (veg_parameter_type),  INTENT(INOUT) :: veg
     TYPE (casa_flux),           INTENT(INOUT) :: casaflux
     LOGICAL, INTENT(IN)   :: l_vcmaxFeedbk ! using prognostic Vcmax
 
@@ -1035,13 +1026,13 @@ contains
   END SUBROUTINE totcnppools
 
 
-  SUBROUTINE analyticpool(kend,veg,soil,casabiome,casapool,                                 &
-       casaflux,casamet,casabal,phen,                                    &
+  SUBROUTINE analyticpool(veg,soil,casabiome,casapool,                                 &
+       casaflux,casamet,casabal,                                    &
        avgcleaf2met,avgcleaf2str,avgcroot2met,avgcroot2str,avgcwood2cwd, &
        avgnleaf2met,avgnleaf2str,avgnroot2met,avgnroot2str,avgnwood2cwd, &
        avgpleaf2met,avgpleaf2str,avgproot2met,avgproot2str,avgpwood2cwd, &
-       avgcgpp, avgcnpp, avgnuptake, avgpuptake,                         &
-       avgxnplimit,avgxkNlimiting,avgxklitter,avgxksoil,                 &
+       avgcnpp,                         &
+       avgxkNlimiting,avgxklitter,avgxksoil,                 &
        avgratioNCsoilmic,avgratioNCsoilslow,avgratioNCsoilpass,         &
        avgnsoilmin,avgpsoillab,avgpsoilsorb,avgpsoilocc, &
        avg_c13leaf2met, avg_c13leaf2str, avg_c13root2met, &
@@ -1052,14 +1043,12 @@ contains
     USE casadimension
     USE casaparm
     USE casavariable
-    USE phenvariable
     use cable_common_module, only: cable_user
     ! 13C
     use cable_c13o2_def,     only: c13o2_pool
 
     implicit none
 
-    integer,                   intent(in)    :: kend
     type(veg_parameter_type),  intent(in)    :: veg       ! vegetation parameters
     type(soil_parameter_type), intent(in)    :: soil      ! soil parameters
     type(casa_biome),          intent(in)    :: casabiome
@@ -1067,12 +1056,11 @@ contains
     type(casa_flux),           intent(inout) :: casaflux
     type(casa_met),            intent(in)    :: casamet
     type(casa_balance),        intent(inout) :: casabal
-    type(phen_variable),       intent(in)    :: phen      ! not used
     real(r_2), dimension(mp),  intent(in)    :: avgcleaf2met,avgcleaf2str,avgcroot2met,avgcroot2str,avgcwood2cwd
     real(r_2), dimension(mp),  intent(in)    :: avgnleaf2met,avgnleaf2str,avgnroot2met,avgnroot2str,avgnwood2cwd
     real(r_2), dimension(mp),  intent(in)    :: avgpleaf2met,avgpleaf2str,avgproot2met,avgproot2str,avgpwood2cwd
-    real(r_2), dimension(mp),  intent(in)    :: avgcgpp, avgcnpp, avgnuptake, avgpuptake
-    real(r_2), dimension(mp),  intent(in)    :: avgxnplimit, avgxkNlimiting, avgxklitter, avgxksoil
+    real(r_2), dimension(mp),  intent(in)    :: avgcnpp
+    real(r_2), dimension(mp),  intent(in)    :: avgxkNlimiting, avgxklitter, avgxksoil
     real(r_2), dimension(mp),  intent(in)    :: avgratioNCsoilmic, avgratioNCsoilslow, avgratioNCsoilpass
     real(r_2), dimension(mp),  intent(in)    :: avgnsoilmin, avgpsoillab, avgpsoilsorb, avgpsoilocc
     real(r_2), dimension(mp),  intent(in)    :: avg_c13leaf2met, avg_c13leaf2str

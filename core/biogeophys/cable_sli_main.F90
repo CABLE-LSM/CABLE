@@ -518,7 +518,7 @@ contains
                Tsurface(kk), G0(kk), lE(kk),Epot(kk), &
                tmp1d1a, tmp1d2, tmp1d3, tmp1d4, &
                tmp1d5, tmp1d6, tmp1d7, tmp1d8, tmp1d9,tmp1d10, tmp1d11, &
-               tmp1d12,tmp1d13, tmp1d14, tmp1d15, tmp1d16, ktau)
+               tmp1d12,tmp1d13, tmp1d14, tmp1d15, tmp1d16)
 
        enddo
        canopy%ga  = real(G0)

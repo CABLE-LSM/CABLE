@@ -101,7 +101,8 @@ MODULE POP_Constants
   REAL(dp), PARAMETER :: k_rp = 1.67_dp  ! constant in crown area relation to tree diameter
   REAL(dp), PARAMETER :: ksapwood = 0.05_dp ! rate constant for conversion of sapwood to heartwood (y-1)
   REAL(dp), PARAMETER :: Q=7.0_dp ! governs rate of increase of mortality with age (2=exponential)
-  REAL(dp), PARAMETER :: shootfrac = 0.63_dp
+  REAL,     PARAMETER :: rshootfrac = 0.63
+  REAL(dp), PARAMETER :: shootfrac = real(rshootfrac,dp)
   REAL(dp), PARAMETER :: CtoNw = 400.0_dp
   REAL(dp), PARAMETER ::  CtoNl = 60.0_dp
   REAL(dp), PARAMETER :: CtoNr = 70.0_dp
@@ -625,51 +626,43 @@ CONTAINS
     do g=1,np
        it(g) =  maxval(pop%pop_grid(g)%patch(:)%age(1)) + 1
     enddo
-!!$    DO idisturb = 1,NDISTURB
-!!$       CALL GetUniqueAgeFrequencies(POP, disturbance_interval, idisturb, it)
-!!$    ENDDO
-!!$
-!!$    CALL GetPatchFrequencies(POP,it)
+    ! DO idisturb = 1,NDISTURB
+    !    CALL GetUniqueAgeFrequencies(POP, disturbance_interval, idisturb)
+    ! ENDDO
+
+    ! CALL GetPatchFrequencies(POP)
 
     !call flush(wlogn)
     IF (PRESENT(precip)) THEN
        IF(PRESENT(StemNPP_av)) THEN
-          CALL PatchAnnualDynamics(POP, StemNPP,NPPtoGPP,disturbance_interval, it, precip=precip,StemNPP_av=StemNPP_av)
+          CALL PatchAnnualDynamics(POP, StemNPP, NPPtoGPP, it, precip=precip, StemNPP_av=StemNPP_av)
        ELSE
-          CALL PatchAnnualDynamics(POP, StemNPP,NPPtoGPP,disturbance_interval, it, precip=precip)
+          CALL PatchAnnualDynamics(POP, StemNPP, NPPtoGPP, it, precip=precip)
        ENDIF
     ELSE
        IF(PRESENT(StemNPP_av)) THEN
-          CALL PatchAnnualDynamics(POP, StemNPP,NPPtoGPP,disturbance_interval, it,StemNPP_av=StemNPP_av)
+          CALL PatchAnnualDynamics(POP, StemNPP, NPPtoGPP, it, StemNPP_av=StemNPP_av)
        ELSE
-          CALL PatchAnnualDynamics(POP, StemNPP,NPPtoGPP,disturbance_interval, it)
+          CALL PatchAnnualDynamics(POP, StemNPP, NPPtoGPP, it)
        ENDIF
     ENDIF
 
     IF (NDISTURB.EQ.1) THEN
        IF (PRESENT(precip)) THEN
           !   CALL Patch_disturb(POP,it,1,precip)
-          CALL Patch_partial_disturb2(POP,1,precip)
+          CALL Patch_partial_disturb2(POP,1)
        ELSE
           CALL Patch_disturb(POP,1)
-          ! CALL Patch_partial_disturb2(POP,it,1)
+          ! CALL Patch_partial_disturb2(POP,it)
        ENDIF
     ELSEIF (NDISTURB.EQ.2) THEN
        IF (PRESENT(frac_intensity1)) THEN
-          IF (PRESENT(precip)) THEN
-             CALL Patch_partial_disturb(POP,1,disturbance_intensity,precip,frac_intensity1=frac_intensity1)
-          ELSE
-             CALL Patch_partial_disturb(POP,1,disturbance_intensity,frac_intensity1=frac_intensity1)
-          ENDIF
+          CALL Patch_partial_disturb(POP,1,disturbance_intensity,frac_intensity1=frac_intensity1)
        ELSE
-          IF (PRESENT(precip)) THEN
-             CALL Patch_partial_disturb(POP,1,disturbance_intensity,precip=precip)
-          ELSE
-             CALL Patch_partial_disturb(POP,1,disturbance_intensity)
-          ENDIF
+          CALL Patch_partial_disturb(POP,1,disturbance_intensity)
        ENDIF
        IF (PRESENT(precip)) THEN
-          !CALL Patch_partial_disturb2(POP,it,2,precip)
+          !CALL Patch_partial_disturb2(POP,it,2)
           CALL Patch_disturb(POP,2,precip)
        ELSE
           ! CALL Patch_partial_disturb2(POP,it,2)
@@ -678,10 +671,10 @@ CONTAINS
     ENDIF
 
     DO idisturb = 1,NDISTURB
-       CALL GetUniqueAgeFrequencies(POP, disturbance_interval, idisturb, it)
+       CALL GetUniqueAgeFrequencies(POP, disturbance_interval, idisturb)
     ENDDO
 
-    CALL GetPatchFrequencies(POP,it)
+    CALL GetPatchFrequencies(POP)
 
     !PRINT*,"Get Diags"
     IF (PRESENT(precip)) THEN
@@ -696,15 +689,13 @@ CONTAINS
   !*******************************************************************************
 
   
-  SUBROUTINE PatchAnnualDynamics(pop, StemNPP,NPPtoGPP, disturbance_interval, it, &
-       StemNPP_av, precip)
+  SUBROUTINE PatchAnnualDynamics(pop, StemNPP, NPPtoGPP, it, StemNPP_av, precip)
 
     IMPLICIT NONE
 
     TYPE( POP_TYPE ), INTENT(INOUT) :: pop
     REAL(dp), INTENT(IN)            :: StemNPP(:,:)
     REAL(dp), INTENT(IN)            :: NPPtoGPP(:)
-    INTEGER(i4b), INTENT(IN)        ::  disturbance_interval(:,:)
     REAL(dp), INTENT(IN), OPTIONAL  :: precip(:)
     REAL(dp), OPTIONAL, INTENT(IN)            :: StemNPP_av(:)
     INTEGER(i4b), INTENT(IN)        :: it(:)
@@ -712,7 +703,7 @@ CONTAINS
     REAL(dp) :: densindiv
     REAL(dp) :: tmp,tmp_light,tmp_respiration,tmp_fracnpp, cmass_stem_inc
     INTEGER(i4b) :: j, k,c, idist
-    INTEGER(i4b) :: ivec(NCOHORT_MAX), nc, np, idisturb
+    INTEGER(i4b) :: ivec(NCOHORT_MAX), nc, np
     REAL(dp) :: growth_efficiency,cmass_stem
     REAL(dp) :: mort
     REAL(dp) :: cpc, crown_area
@@ -720,7 +711,6 @@ CONTAINS
     REAL(dp) :: ht, diam, area_growth_grid , basal_grid, basal_new, basal_old
     REAL(dp) :: tmp2(NCOHORT_MAX), freq
 
-    idisturb = 1
     np = SIZE(POP%POP_grid)
 
     ! growth
@@ -1149,12 +1139,12 @@ CONTAINS
   !*******************************************************************************
 
   
-  SUBROUTINE GetUniqueAgeFrequencies(pop, disturbance_interval, idisturb, it)
+  SUBROUTINE GetUniqueAgeFrequencies(pop, disturbance_interval, idisturb)
     
     IMPLICIT NONE
 
     TYPE(POP_TYPE), INTENT(INOUT) :: POP
-    INTEGER(i4b), INTENT(IN) ::  disturbance_interval(:,:), idisturb, it(:)
+    INTEGER(i4b), INTENT(IN) ::  disturbance_interval(:,:), idisturb
     
     INTEGER(i4b) :: g, i,j,k,agecopy,idcopy
     REAL(dp), ALLOCATABLE :: midpoint(:)
@@ -1294,12 +1284,11 @@ CONTAINS
   !*******************************************************************************
 
   
-  SUBROUTINE GetPatchFrequencies(pop,it)
+  SUBROUTINE GetPatchFrequencies(pop)
     
     IMPLICIT NONE
 
     TYPE(POP_TYPE), INTENT(INOUT) :: POP
-    INTEGER(i4b), INTENT(IN) :: it(:)
     
     INTEGER(i4b) :: n1, n2, g, REPCOUNT, np, idist
     REAL(dp) ::  sum_freq
@@ -1780,14 +1769,14 @@ CONTAINS
   !*******************************************************************************
 
   
-  SUBROUTINE Patch_partial_disturb(pop,idisturb,intensity,precip,frac_intensity1)
+  SUBROUTINE Patch_partial_disturb(pop,idisturb,intensity,frac_intensity1)
 
     IMPLICIT NONE
 
     TYPE(POP_TYPE), INTENT(INOUT) :: POP
     INTEGER(i4b), INTENT(IN) ::  idisturb
     REAL(dp), INTENT(IN) :: intensity(:,:)
-    REAL(dp), INTENT(IN), OPTIONAL :: precip(:), frac_intensity1(:)
+    REAL(dp), INTENT(IN), OPTIONAL :: frac_intensity1(:)
     
     INTEGER(i4b) :: j, k, c, nc, np
     INTEGER(i4b) ::  ivec(NCOHORT_MAX)
@@ -1912,13 +1901,12 @@ CONTAINS
   !*******************************************************************************
   
 
-  SUBROUTINE Patch_partial_disturb2(pop,idisturb,precip)
+  SUBROUTINE Patch_partial_disturb2(pop,idisturb)
 
     IMPLICIT NONE
 
     TYPE(POP_TYPE), INTENT(INOUT) :: POP
     INTEGER(i4b), INTENT(IN) ::  idisturb
-    REAL(dp), INTENT(IN), OPTIONAL :: precip(:)
     
     INTEGER(i4b) :: j, k, c, nc, np
     INTEGER(i4b) ::  ivec(NCOHORT_MAX)

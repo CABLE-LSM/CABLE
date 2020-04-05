@@ -198,7 +198,7 @@ CONTAINS
   !*****************************************************************************************
 
   SUBROUTINE forcerestore(Tg0, Rnet0, lE0, dlEdTg, Ta, Tbar, d1, rrc, lambda, &
-       cs, dt, iice, Tg, G, H, lE)
+       dt, iice, Tg, G, H, lE)
 
     ! method applicable to multilayer soil or soil/snow column
     ! derived using Eq's 3-12 in Hirota et al. JGR 2002
@@ -212,7 +212,6 @@ CONTAINS
     REAL(r_2), INTENT(IN)   :: d1 ! diurnal damping depth (m) = sqrt(2*lambda/c/omega) (Hirota et al. eq 40)
     REAL(r_2), INTENT(IN)   :: rrc ! resistance to sensible heat and radiation transfer at ground/air interface [m-1 s]
     REAL(r_2), INTENT(IN)   :: lambda ! thermal conductivity of soil or snow at surface [W m-1 K-1]
-    REAL(r_2), INTENT(IN)   :: cs ! heat capacity of soil or snow at surface [J m-3 K-1]
     REAL(r_2), INTENT(IN)   :: dt ! time step [s]
     INTEGER, INTENT(IN):: iice ! top layer frozen (1) or not (0)
     REAL(r_2), INTENT(OUT) :: Tg, G, H, lE
@@ -290,7 +289,7 @@ CONTAINS
   ! Surface Energy Balance
   SUBROUTINE SEB(n, par, vmet, vsnow, var, qprec, qprec_snow, dx, h0, Tsoil,  &
        Tsurface, G0, lE0, Epot, qsurface, qevap, qliq, qv, &
-       qyb, qTb, qlyb, qvyb, qlTb, qvTb, qh, qadv, qhyb, qhTb, qadvyb, qadvTb, irec)
+       qyb, qTb, qlyb, qvyb, qlTb, qvTb, qh, qadv, qhyb, qhTb, qadvyb, qadvTb)
 
     IMPLICIT NONE
 
@@ -301,7 +300,6 @@ CONTAINS
     TYPE(vars),      DIMENSION(1:n), INTENT(IN) :: var
     REAL(r_2),                       INTENT(IN) :: qprec
     REAL(r_2),                       INTENT(IN) :: qprec_snow
-    INTEGER(i_d),                    INTENT(IN) :: irec
     REAL(r_2),       DIMENSION(1:n), INTENT(IN) :: dx
     REAL(r_2),                       INTENT(IN) :: h0
     REAL(r_2),       DIMENSION(1:n), INTENT(IN) :: Tsoil
@@ -1695,24 +1693,20 @@ CONTAINS
 
   !**********************************************************************************************************************
 
-  SUBROUTINE getheatfluxes_1d(n, dx, dxL, qh, qhya, qhyb, qhTa, qhTb, var, vlit, T, TL, litter, &
+  SUBROUTINE getheatfluxes_1d(n, dx, qh, qhya, qhyb, qhTa, qhTb, var, T, &
        q, qya, qyb, qTa, qTb,qadv, qadvya, qadvyb, qadvTa, qadvTb,advection)
     ! modified 25/05/10 to include contribution to heat flux from liquid water flux in the presence of ice
     IMPLICIT NONE
 
     INTEGER(i_d),               INTENT(IN)    :: n
     REAL(r_2),  DIMENSION(1:n), INTENT(IN)    :: dx
-    REAL(r_2),                  INTENT(IN)    :: dxL
     REAL(r_2),  DIMENSION(0:n), INTENT(INOUT) :: qh, q, qadv
     REAL(r_2),  DIMENSION(0:n), INTENT(INOUT) :: qhya, qya, qadvya
     REAL(r_2),  DIMENSION(0:n), INTENT(INOUT) :: qhyb, qyb, qadvyb
     REAL(r_2),  DIMENSION(0:n), INTENT(INOUT) :: qhTa, qTa, qadvTa
     REAL(r_2),  DIMENSION(0:n), INTENT(INOUT) :: qhTb, qTb, qadvTb
     TYPE(vars), DIMENSION(1:n), INTENT(IN)    :: var
-    TYPE(vars),                 INTENT(IN)    :: vlit
     REAL(r_2),  DIMENSION(1:n), INTENT(IN)    :: T
-    REAL(r_2),                  INTENT(IN)    :: TL
-    LOGICAL,                    INTENT(IN)    :: litter
     INTEGER(i_d),               INTENT(IN)    :: advection
     ! Gets heat fluxes qh and partial derivs qhya, qhyb wrt T and S (if unsat) or phi (if sat).
 
@@ -1795,14 +1789,13 @@ CONTAINS
 
   END SUBROUTINE getheatfluxes_1d
 
-  SUBROUTINE getheatfluxes_2d(dx, dxL, i_qh, i_qhya, i_qhyb, i_qhTa, i_qhTb, var, vlit, T, TL, &
-       litter, i_q,i_qya,i_qyb,i_qTa,i_qTb, &
+  SUBROUTINE getheatfluxes_2d(dx, i_qh, i_qhya, i_qhyb, i_qhTa, i_qhTb, var, T, &
+       i_q,i_qya,i_qyb,i_qTa,i_qTb, &
        i_qadv,i_qadvya, i_qadvyb, i_qadvTa, i_qadvTb, advection)
     ! modified 25/05/10 to include contribution to heat flux from liquid water flux in the presence of ice
     IMPLICIT NONE
 
     REAL(r_2),    DIMENSION(:,:), INTENT(IN)    :: dx      ! :,1:n
-    REAL(r_2),    DIMENSION(:),   INTENT(IN)    :: dxL
     REAL(r_2),    DIMENSION(:,:), INTENT(INOUT) :: i_qh    ! :,0:n => :,1:n+1
     REAL(r_2),    DIMENSION(:,:), INTENT(INOUT) :: i_qhya  ! :,0:n => :,1:n+1
     REAL(r_2),    DIMENSION(:,:), INTENT(INOUT) :: i_qhyb  ! :,0:n => :,1:n+1
@@ -1819,10 +1812,7 @@ CONTAINS
     REAL(r_2),    DIMENSION(:,:), INTENT(INOUT) :: i_qadvTa  ! :,0:n => :,1:n+1
     REAL(r_2),    DIMENSION(:,:), INTENT(INOUT) :: i_qadvTb  ! :,0:n => :,1:n+1
     TYPE(vars),   DIMENSION(:,:), INTENT(IN)    :: var
-    TYPE(vars),   DIMENSION(:),   INTENT(IN)    :: vlit
     REAL(r_2),    DIMENSION(:,:), INTENT(IN)    :: T       ! :,1:n
-    REAL(r_2),    DIMENSION(:),   INTENT(IN)    :: TL
-    LOGICAL,                      INTENT(IN)    :: litter
     INTEGER(i_d),   INTENT(IN)    :: advection
     ! Gets heat fluxes qh and partial derivs qhya, qhyb wrt T and S (if unsat) or phi (if sat).
 
@@ -3570,12 +3560,12 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
   ! Write rh0_sol into rtbis -> rtbis_rh0
   ! It does not check that f(x1) and f(x2) have different signs and not if iteration > MAXIT
 
-  REAL(r_2) ELEMENTAL PURE FUNCTION rtbis_Tfrozen(J, dxsoil, theta,csoil, rhosoil, h0, thre, the, he, b, x1, x2, xacc)
+  REAL(r_2) ELEMENTAL PURE FUNCTION rtbis_Tfrozen(J, dxsoil, theta,csoil, rhosoil, h0, thre, the, he, b, x1, x2)
 
     IMPLICIT NONE
 
     real(r_2), intent(in) :: J, dxsoil, theta, csoil, rhosoil, h0, thre, the, he, b
-    REAL(r_2), INTENT(IN) :: x1, x2, xacc
+    REAL(r_2), INTENT(IN) :: x1, x2
 
     INTEGER(i_d), PARAMETER :: MAXIT=80
     INTEGER(i_d) :: k

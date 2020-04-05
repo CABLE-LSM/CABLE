@@ -880,7 +880,7 @@ contains
   ! Write into 13C Casa output file
   subroutine c13o2_write_output(file_id, vars, var_ids, days, c13o2pools)
 
-    use cable_def_types_mod, only: i_d, dp => r_2
+    use cable_def_types_mod, only: dp => r_2
     use cable_common_module, only: cable_user
     use cable_c13o2_def,     only: c13o2_pool
     use netcdf,              only: nf90_put_var, nf90_noerr

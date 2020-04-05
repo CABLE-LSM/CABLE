@@ -1503,8 +1503,8 @@ END SUBROUTINE open_met_file
 !
 !==============================================================================
 
-SUBROUTINE get_met_data(spinup,spinConv,met,soil,rad,                          &
-       veg,kend,dels, TFRZ, ktau, kstart )
+SUBROUTINE get_met_data(spinup, spinConv, met, rad, &
+     veg, dels, TFRZ, ktau, kstart)
    ! Precision changes from REAL(4) to r_1 enable running with -r8
 
 
@@ -1513,11 +1513,9 @@ SUBROUTINE get_met_data(spinup,spinConv,met,soil,rad,                          &
         spinup,         & ! are we performing a spinup?
         spinConv          ! has model spinup converged?
    TYPE(met_type),             INTENT(INOUT) :: met     ! meteorological data
-   TYPE (soil_parameter_type),INTENT(IN)  :: soil
    TYPE (radiation_type),INTENT(IN)       :: rad
    TYPE(veg_parameter_type),INTENT(INOUT) :: veg ! LAI retrieved from file
    INTEGER, INTENT(IN)               :: ktau, &  ! timestep in loop including spinup
-                                        kend, & ! total number of timesteps in run
                                         kstart  ! starting timestep
    REAL,INTENT(IN)                   :: dels ! time step size
    REAL, INTENT(IN) :: TFRZ
@@ -2376,10 +2374,10 @@ END SUBROUTINE close_met_file
 !
 !==============================================================================
 
-SUBROUTINE load_parameters(met, air, ssnow, veg, climate, bgc, soil, canopy, rough, rad, &
+SUBROUTINE load_parameters(met, air, ssnow, veg, bgc, soil, canopy, rough, rad, &
        sum_flux, bal, logn, vegparmnew, casabiome, casapool, &
        casaflux, sum_casapool, sum_casaflux, casamet, casabal, phen, POP, spinup, EMSOIL, &
-       TFRZ, LUC_EXPT, POPLUC, BLAZE, SIMFIRE, c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc)
+       TFRZ, LUC_EXPT, POPLUC, c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc)
    ! Input variables not listed:
    !   filename%type  - via cable_IO_vars_module
    !   exists%type    - via cable_IO_vars_module
@@ -2392,9 +2390,6 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, climate, bgc, soil, canopy, rou
    USE POPmodule,       ONLY: POP_INIT
    USE POPLUC_module,   ONLY: POPLUC_INIT 
    USE CABLE_LUC_EXPT,  ONLY: LUC_EXPT_TYPE
-
-   USE BLAZE_MOD,       ONLY: TYPE_BLAZE
-   USE SIMFIRE_MOD,     ONLY: TYPE_SIMFIRE
    use casaparm,        only: initcasa
    use casa_inout,      only: casa_readbiome, casa_readphen, casa_init
    use cable_pop_io,    only: pop_io
@@ -2412,7 +2407,6 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, climate, bgc, soil, canopy, rou
    TYPE(air_type),            INTENT(INOUT) :: air
    TYPE(soil_snow_type),      INTENT(INOUT) :: ssnow
    TYPE(veg_parameter_type),  INTENT(OUT)   :: veg
-   TYPE(climate_type),        INTENT(INOUT) :: climate
    TYPE(bgc_pool_type),       INTENT(OUT)   :: bgc
    TYPE(soil_parameter_type), INTENT(OUT)   :: soil
    TYPE(canopy_type),         INTENT(OUT)   :: canopy
@@ -2431,8 +2425,6 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, climate, bgc, soil, canopy, rou
    TYPE(POP_TYPE),            INTENT(INOUT) :: POP
    TYPE(POPLUC_TYPE),         INTENT(INOUT) :: POPLUC
    TYPE(LUC_EXPT_TYPE),       INTENT(INOUT) :: LUC_EXPT
-   TYPE(TYPE_BLAZE),          INTENT(INOUT) :: BLAZE
-   TYPE(TYPE_SIMFIRE),        INTENT(INOUT) :: SIMFIRE
    ! 13C
    type(c13o2_flux),          intent(out)   :: c13o2flux
    type(c13o2_pool),          intent(out)   :: c13o2pools, sum_c13o2pools
@@ -2496,8 +2488,8 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, climate, bgc, soil, canopy, rou
     ENDIF
 
     ! Write parameter values to CABLE's parameter variables:
-    CALL write_default_params(met,air,ssnow,veg,bgc,soil,canopy,rough, &
-            rad,logn,vegparmnew,smoy, TFRZ, LUC_EXPT)
+    CALL write_default_params(met, ssnow, veg, bgc, soil, canopy, rough, &
+            rad, logn, smoy, TFRZ, LUC_EXPT)
     ! 13C
     if (cable_user%c13o2) then
        call c13o2_zero_flux(c13o2flux)
@@ -2513,7 +2505,7 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, climate, bgc, soil, canopy, rou
            casamet,phen)
       IF (cable_user%PHENOLOGY_SWITCH.eq.'MODIS') CALL casa_readphen(veg,casamet,phen)
 
-      CALL casa_init(casabiome, casamet, casaflux, casapool, casabal, veg, phen)
+      CALL casa_init(casamet, casaflux, casapool, casabal, phen)
       ! 13C
       if (cable_user%c13o2) then
          call c13o2_init_pools(casapool, casaflux, c13o2pools)
@@ -2613,8 +2605,7 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, climate, bgc, soil, canopy, rou
             //'Recommend running without restart file.')
 
       ! Load initialisations and parameters from restart file:
-      CALL get_restart_data(logn,ssnow,canopy,rough,bgc,bal,veg, &
-           soil,rad,vegparmnew, EMSOIL)
+      CALL get_restart_data(ssnow, canopy, bgc, bal, veg, rad, EMSOIL)
       
       ! 13C
       if (cable_user%c13o2) then
@@ -2656,14 +2647,14 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, climate, bgc, soil, canopy, rou
 
     ! Construct derived parameters and zero initialisations, regardless
     ! of where parameters and other initialisations have loaded from:
-    CALL derived_parameters(soil,sum_flux,bal,ssnow,veg,rough)
+    CALL derived_parameters(soil, sum_flux, bal, ssnow, veg, rough)
 
     ! Check for basic inconsistencies in parameter values:
-    CALL check_parameter_values(soil,veg,ssnow)
+    CALL check_parameter_values(soil, veg, ssnow)
 
     ! Write per-site parameter values to log file if requested:
-    CALL report_parameters(logn,soil,veg,bgc,rough,ssnow,canopy, &
-         casamet,casapool,casaflux,phen,vegparmnew,verbose)
+    CALL report_parameters(logn, soil, veg, bgc, rough, ssnow, canopy, &
+         casamet, casapool, casaflux, phen, verbose)
 
 END SUBROUTINE load_parameters
 

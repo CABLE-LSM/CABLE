@@ -403,14 +403,14 @@ CONTAINS
        ecy = rny - hcy        ! init current estimate latent heat
 
        sum_rad_rniso = sum(rad%rniso,2)
-       CALL dryLeaf( dels, rad, rough, air, met, &
-            veg, canopy, soil, ssnow, dsx,       &
-            fwsoil, tlfx, tlfy, ecy, hcy,        &
-            rny, gbhu, gbhf, csx, cansat,        &
+       CALL dryLeaf( dels, rad, air, met,  &
+            veg, canopy, soil, ssnow, dsx, &
+            fwsoil, tlfx, tlfy, ecy, hcy,  &
+            rny, gbhu, gbhf, csx, cansat,  &
             ghwet, iter, climate, gmes )
 
-       CALL wetLeaf( dels, rad, rough, air, met, &
-            veg, canopy, cansat, tlfy,           &
+       CALL wetLeaf( dels, rad, air, met, &
+            canopy, cansat, tlfy,    &
             gbhu, gbhf, ghwet )
 
 
@@ -470,7 +470,7 @@ CONTAINS
 
              ! Humidity deficit
              dq = ssnow%qstss - met%qv
-             ssnow%potev =  Humidity_deficit_method(dq, ssnow%qstss)
+             ssnow%potev =  Humidity_deficit_method(dq)
 
           ENDIF
 
@@ -532,7 +532,7 @@ CONTAINS
 
              ! Humidity deficit
              dq = ssnow%qstss - met%qvair
-             ssnow%potev =  Humidity_deficit_method(dq, ssnow%qstss)
+             ssnow%potev =  Humidity_deficit_method(dq)
 
           ENDIF
 
@@ -875,15 +875,13 @@ CONTAINS
 
 
     ! method alternative to P-M formula above
-    FUNCTION humidity_deficit_method(dq, qstss) RESULT(ssnowpotev)
+    FUNCTION humidity_deficit_method(dq) RESULT(ssnowpotev)
 
       use cable_def_types_mod, only: mp
 
       implicit none
 
-      real, dimension(mp), intent(in) :: &
-           dq,   & ! sat spec hum diff.
-           qstss   ! dummy var for compilation
+      real, dimension(mp), intent(in) :: dq
       real, dimension(mp)             :: ssnowpotev
 
       real, dimension(mp) :: idq
@@ -1300,7 +1298,7 @@ CONTAINS
 
     ! -----------------------------------------------------------------------------
 
-    SUBROUTINE wetLeaf( dels, rad, rough, air, met, veg, canopy, cansat, tlfy, &
+    SUBROUTINE wetLeaf( dels, rad, air, met, canopy, cansat, tlfy, &
          gbhu, gbhf, ghwet )
 
       USE cable_def_types_mod
@@ -1309,10 +1307,8 @@ CONTAINS
 
       REAL,                     INTENT(IN)    :: dels ! integration time step (s)
       TYPE(radiation_type),     INTENT(INOUT) :: rad
-      TYPE(roughness_type),     INTENT(INOUT) :: rough
       TYPE(air_type),           INTENT(INOUT) :: air
       TYPE(met_type),           INTENT(INOUT) :: met
-      TYPE(veg_parameter_type), INTENT(INOUT) :: veg
       TYPE(canopy_type),        INTENT(INOUT) :: canopy
       REAL,INTENT(IN), DIMENSION(:) :: &
            cansat, & ! max canopy intercept. (mm)
@@ -1475,7 +1471,7 @@ CONTAINS
   ! -----------------------------------------------------------------------------
 
   
-  SUBROUTINE dryLeaf( dels, rad, rough, air, met, &
+  SUBROUTINE dryLeaf( dels, rad, air, met, &
        veg, canopy, soil, ssnow, dsx, &
        fwsoil, tlfx, tlfy, ecy, hcy, &
        rny, gbhu, gbhf, csx, &
@@ -1488,7 +1484,6 @@ CONTAINS
 
     real,                      intent(in)    :: dels ! integration time step (s)
     type(radiation_type),      intent(inout) :: rad
-    type(roughness_type),      intent(inout) :: rough
     type(air_type),            intent(inout) :: air
     type(met_type),            intent(inout) :: met
     type(veg_parameter_type),  intent(inout) :: veg
@@ -2070,7 +2065,7 @@ CONTAINS
                                 ! Ticket #56, xleuning replaced with gs_coeff here
                gs_coeff(:,:), rad%fvlai(:,:), &
                spread(abs_deltlf,2,mf), &
-               anx(:,:), fwsoil(:), gmes(:,:), met, &
+               anx(:,:), fwsoil(:), gmes(:,:), &
                anrubiscox(:,:), anrubpx(:,:), ansinkx(:,:), eta_x(:,:), dAnx(:,:) )
        ELSE
           CALL photosynthesis( csx(:,:), &
@@ -2081,7 +2076,7 @@ CONTAINS
                                 ! Ticket #56, xleuning replaced with gs_coeff here
                gs_coeff(:,:), rad%fvlai(:,:), &
                spread(abs_deltlf,2,mf), &
-               anx(:,:), fwsoil(:), met, &
+               anx(:,:), fwsoil(:), &
                anrubiscox(:,:), anrubpx(:,:), ansinkx(:,:), eta_x(:,:), dAnx(:,:) )
           ! CALL photosynthesis_orig( csx(:,:), &
           !      SPREAD( cx1(:), 2, mf ), &
@@ -2703,15 +2698,14 @@ CONTAINS
   SUBROUTINE photosynthesis_gm( csxz, cx1z, cx2z, gswminz, &
        rdxz, vcmxt3z, vcmxt4z, vx3z, &
        vx4z, gs_coeffz, vlaiz, deltlfz, anxz, fwsoilz, &
-       gmes,met, anrubiscoz, anrubpz, ansinkz, eta, dA )
+       gmes, anrubiscoz, anrubpz, ansinkz, eta, dA )
 
-    use cable_def_types_mod, only : mp, mf, r_2, met_type
+    use cable_def_types_mod, only : mp, mf, r_2
     use cable_common_module, only: cable_user
 
     implicit none
 
     real(r_2), dimension(mp,mf), intent(in)    :: csxz, gmes
-    type(met_type),              intent(in)    :: met
     real,      dimension(mp,mf), intent(in)    :: &
          cx1z,       & !
          cx2z,       & !
@@ -2927,15 +2921,14 @@ CONTAINS
   SUBROUTINE photosynthesis( csxz, cx1z, cx2z, gswminz, &
        rdxz, vcmxt3z, vcmxt4z, vx3z,                    &
        vx4z, gs_coeffz, vlaiz, deltlfz, anxz, fwsoilz,  &
-       met, anrubiscoz, anrubpz, ansinkz, eta, dA )
+       anrubiscoz, anrubpz, ansinkz, eta, dA )
 
-    use cable_def_types_mod, only : mp, mf, r_2, met_type
+    use cable_def_types_mod, only : mp, mf, r_2
     use cable_common_module, only: cable_user
 
     implicit none
 
     real(r_2), dimension(mp,mf), intent(in) :: csxz
-    type(met_type),              intent(in) :: met
     real,      dimension(mp,mf), intent(in) :: &
          cx1z,       & !
          cx2z,       & !

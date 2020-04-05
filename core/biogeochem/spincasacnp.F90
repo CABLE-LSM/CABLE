@@ -16,7 +16,7 @@ contains
     USE casavariable
     USE phenvariable
     USE POP_Types,           Only: POP_TYPE
-    USE POP_Constants,       ONLY: shootfrac
+    USE POP_Constants,       ONLY: rshootfrac
     ! use cable_pop_io,        only: pop_io
     use casa_cable,          only: POPdriver, read_casa_dump, analyticpool
     use casa_inout,          only: casa_fluxout, biogeochem, write_casa_output_nc
@@ -83,7 +83,6 @@ contains
     integer,  allocatable :: Iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
     integer :: ctime
     real(dp) :: rday
-    real :: rshootfrac
 
     ! 13C
     real(dp), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
@@ -103,7 +102,6 @@ contains
     LOY = 365
     !! vh_js !!
     if (cable_user%CALL_POP) Iw = POP%Iwood
-    rshootfrac = real(shootfrac)
 
     ktauday = int(24.0*3600.0/dels)
     nday    = (kend-kstart+1)/ktauday
@@ -212,7 +210,7 @@ contains
 
           ! 13C
           if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
-          call biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
+          call biogeochem(idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
                casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter, &
                xksoil,xkleaf,xkleafcold,xkleafdry, &
                cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd, &
@@ -383,13 +381,13 @@ contains
     !write(600,*) 'nmet pre-analytic: ' ,  casapool%nlitter(1,metb)
     !write(600,*) 'csoil3 pre-analytic: ', casapool%csoil(3,:)
     !write(600,*) 'csoil1 pre-analytic: ', casapool%csoil(1,:)
-    call analyticpool(kend,veg,soil,casabiome,casapool,                                          &
-         casaflux,casamet,casabal,phen,                                         &
+    call analyticpool(veg,soil,casabiome,casapool,                                          &
+         casaflux,casamet,casabal,                                         &
          avg_cleaf2met,avg_cleaf2str,avg_croot2met,avg_croot2str,avg_cwood2cwd, &
          avg_nleaf2met,avg_nleaf2str,avg_nroot2met,avg_nroot2str,avg_nwood2cwd, &
          avg_pleaf2met,avg_pleaf2str,avg_proot2met,avg_proot2str,avg_pwood2cwd, &
-         avg_cgpp, avg_cnpp, avg_nuptake, avg_puptake,                          &
-         avg_xnplimit,avg_xkNlimiting,avg_xklitter,avg_xksoil,                  &
+         avg_cnpp,                          &
+         avg_xkNlimiting,avg_xklitter,avg_xksoil,                  &
          avg_ratioNCsoilmic,avg_ratioNCsoilslow,avg_ratioNCsoilpass,            &
          avg_nsoilmin,avg_psoillab,avg_psoilsorb,avg_psoilocc, &
          avg_c13leaf2met, avg_c13leaf2str, avg_c13root2met, &
@@ -474,7 +472,7 @@ contains
 
              ! 13C
              if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
-             call biogeochem(ktauy,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
+             call biogeochem(idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
                   casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter,xksoil,xkleaf,&
                   xkleafcold,xkleafdry,&
                   cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &

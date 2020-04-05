@@ -28,7 +28,7 @@ contains
     TYPE(POP_TYPE),   INTENT(INOUT) :: POP
     TYPE(casa_met),   INTENT(IN)    :: casamet
     INTEGER       ,   INTENT(IN)    :: YEAR
-    CHARACTER(LEN=9), INTENT(IN)    :: ACTION
+    CHARACTER(LEN=*), INTENT(IN)    :: ACTION
     LOGICAL,          INTENT(IN)    :: CF
 
     INTEGER          :: STATUS, i, m, p, l, land_ID, patch_ID, ndis_ID

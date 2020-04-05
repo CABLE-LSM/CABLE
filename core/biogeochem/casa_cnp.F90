@@ -977,7 +977,7 @@ END SUBROUTINE casa_xratesoil
 
 
 SUBROUTINE casa_coeffplant(xkleafcold, xkleafdry, xkleaf, veg, casabiome, casapool, &
-     casaflux, casamet, phen)
+     casaflux, casamet)
   ! calculate the plant litter fall rate, litter fall and SOM decomposition rate (1/day)
   ! and the transfer coefficients between different pools
   !
@@ -998,7 +998,6 @@ SUBROUTINE casa_coeffplant(xkleafcold, xkleafdry, xkleaf, veg, casabiome, casapo
   type(casa_pool),          intent(inout) :: casapool
   type(casa_flux),          intent(inout) :: casaflux
   type(casa_met),           intent(inout) :: casamet
-  type(phen_variable),      intent(in)    :: phen
 
   ! local variables
   real(r_2), dimension(mp,mplant) :: ratioligninton
@@ -2286,7 +2285,7 @@ SUBROUTINE casa_Prequire(xpCnpp, Preqmin, Preqmax, PtransPtoP, veg, &
 END SUBROUTINE casa_Prequire
 
 
-SUBROUTINE casa_cnpcycle(veg, casabiome, casapool, casaflux, casamet, LALLOC)
+SUBROUTINE casa_cnpcycle(veg, casabiome, casapool, casaflux, casamet)
 
   ! update all pool sizes
 
@@ -2297,7 +2296,6 @@ SUBROUTINE casa_cnpcycle(veg, casabiome, casapool, casaflux, casamet, LALLOC)
   type(casa_pool),          intent(inout) :: casapool
   type(casa_flux),          intent(inout) :: casaflux
   type(casa_met),           intent(inout) :: casamet
-  integer,                  intent(in)    :: lalloc
 
   ! local variables
   integer :: i, j, k, np

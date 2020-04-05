@@ -149,7 +149,7 @@ CASAONLY_LUC.o: CASAONLY_LUC.F90 cable_define_types.o cable_carbon.o cable_commo
 
 casa_cable.o: casa_cable.F90 POP.o cable_define_types.o cable_common.o cable_carbon.o casa_variable.o \
 	      cable_diag.o cable_phenology.o casa_cnp.o cable_optimiseJVratio.o \
-	      cable_adjustJVgm.o cable_c13o2.o cable_c13o2_def.o pop_io.o
+	      cable_adjustJVgm.o cable_c13o2.o cable_c13o2_def.o pop_io.o casa_inout.o
 
 casa_cnp.o: casa_cnp.F90 cable_define_types.o casa_variable.o 
 

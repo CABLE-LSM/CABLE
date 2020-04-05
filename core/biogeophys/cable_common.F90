@@ -850,7 +850,7 @@ CONTAINS
   END SUBROUTINE init_veg_from_vegin
 
 
-  FUNCTION IS_CASA_TIME(iotype, yyyy, ktau, kstart, koffset, kend, ktauday, logn)
+  FUNCTION IS_CASA_TIME(iotype, yyyy, ktau, kstart, koffset, ktauday, logn)
 
     ! Correctly determine if it is time to dump-read or standard-write
     ! casa output from cable_driver.
@@ -866,7 +866,7 @@ CONTAINS
     IMPLICIT NONE
 
     LOGICAL   :: IS_CASA_TIME
-    INTEGER  ,INTENT(IN) :: yyyy, ktau, kstart, koffset, kend, ktauday, logn
+    INTEGER  ,INTENT(IN) :: yyyy, ktau, kstart, koffset, ktauday, logn
     CHARACTER,INTENT(IN) :: iotype*5
     LOGICAL   :: is_eod, is_eom, is_eoy
     INTEGER   :: doy, m

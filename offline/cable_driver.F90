@@ -96,7 +96,7 @@ PROGRAM cable_offline_driver
   USE POPLUC_Types,  ONLY: POPLUC_Type
   USE POPLUC_Module, ONLY: WRITE_LUC_OUTPUT_NC, &
        POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, POPLUC_set_patchfrac
-  USE POP_Constants, ONLY: shootfrac
+  USE POP_Constants, ONLY: rshootfrac
   use cable_pop_io,  only: pop_io
 
   ! Fire Model BLAZE
@@ -211,7 +211,6 @@ PROGRAM cable_offline_driver
   ! BLAZE variables
   TYPE(TYPE_BLAZE)    :: BLAZE
   TYPE(TYPE_SIMFIRE)  :: SIMFIRE
-  real :: rshootfrac
 
   ! 13C
   type(c13o2_flux) :: c13o2flux
@@ -318,8 +317,6 @@ PROGRAM cable_offline_driver
   INTEGER :: ioerror
   INTEGER :: count_bal = 0
   ! END header
-
-  rshootfrac = real(shootfrac)
 
   ! Open, read and close the namelist file.
   OPEN(10, FILE = CABLE_NAMELIST)
@@ -655,12 +652,12 @@ PROGRAM cable_offline_driver
               IF (cable_user%POPLUC) CALL LUC_EXPT_INIT(LUC_EXPT)
 
               ! 13C
-              CALL load_parameters( met, air, ssnow, veg,climate,bgc,          &
-                   soil, canopy, rough, rad, sum_flux,                  &
-                   bal, logn, vegparmnew, casabiome, casapool,          &
-                   casaflux, sum_casapool, sum_casaflux, &
-                   casamet, casabal, phen, POP, spinup,               &
-                   C%EMSOIL, C%TFRZ, LUC_EXPT, POPLUC, BLAZE, SIMFIRE, &
+              CALL load_parameters( met, air, ssnow, veg, bgc, &
+                   soil, canopy, rough, rad, sum_flux,         &
+                   bal, logn, vegparmnew, casabiome, casapool, &
+                   casaflux, sum_casapool, sum_casaflux,       &
+                   casamet, casabal, phen, POP, spinup,        &
+                   C%EMSOIL, C%TFRZ, LUC_EXPT, POPLUC,         &
                    c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc)
 
               ! 13C
@@ -716,7 +713,7 @@ PROGRAM cable_offline_driver
                  call alloc_cbm_var(climate,mp,ktauday)
                  !MCINI
                  call zero_cbm_var(climate)
-                 call climate_init(climate, mp, ktauday)
+                 call climate_init(climate)
                  if (.not.cable_user%climate_fromzero) call read_climate_restart_nc(climate, ktauday)
               endif
 
@@ -793,8 +790,7 @@ PROGRAM cable_offline_driver
                  ENDIF
               ELSE IF ( TRIM(cable_user%MetType) .EQ. 'bios' ) THEN
                  IF (( .NOT. CASAONLY ).OR. (CASAONLY.and.CALL1))  THEN
-                    CALL  cable_bios_read_met(MET, CurYear, ktau, kend, &
-                         (YYYY.EQ.CABLE_USER%YearEnd .AND. ktau.EQ.kend), dels )
+                    CALL  cable_bios_read_met(MET, CurYear, ktau, dels )
                  END IF
               ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
                  IF (( .NOT. CASAONLY ).OR. (CASAONLY.and.CALL1))  THEN
@@ -804,13 +800,13 @@ PROGRAM cable_offline_driver
                  ENDIF
               ELSE
                  IF (TRIM(cable_user%MetType) .EQ. 'site') &
-                      CALL get_met_data( spinup, spinConv, met, soil, &
-                      rad, veg, kend, dels, C%TFRZ, ktau+koffset_met, &
+                      CALL get_met_data( spinup, spinConv, met, &
+                      rad, veg, dels, C%TFRZ, ktau+koffset_met, &
                       kstart+koffset_met )
                  if (cable_user%perturb_Ta) met%tk = met%tk + cable_user%Ta_perturbation
                  IF (TRIM(cable_user%MetType) .EQ. '') &
-                      CALL get_met_data( spinup, spinConv, met, soil, &
-                      rad, veg, kend, dels, C%TFRZ, ktau+koffset, &
+                      CALL get_met_data( spinup, spinConv, met, &
+                      rad, veg, dels, C%TFRZ, ktau+koffset, &
                       kstart+koffset )
                  IF (TRIM(cable_user%MetType) .EQ. 'site' ) THEN
                     CALL site_get_CO2_Ndep(site)
@@ -858,9 +854,9 @@ PROGRAM cable_offline_driver
 
               IF (TRIM(cable_user%MetType).EQ.'' .OR. &
                    TRIM(cable_user%MetType).EQ.'site' ) THEN
-                 CASA_TIME = IS_CASA_TIME("write", metyear, ktau, kstart, koffset, kend, ktauday, logn)
+                 CASA_TIME = IS_CASA_TIME("write", metyear, ktau, kstart, koffset, ktauday, logn)
               ELSE
-                 CASA_TIME = IS_CASA_TIME("write", yyyy, ktau, kstart, koffset, kend, ktauday, logn)
+                 CASA_TIME = IS_CASA_TIME("write", yyyy, ktau, kstart, koffset, ktauday, logn)
               ENDIF
               liseod = mod((ktau-kstart+1),ktauday) == 0
               liseoy = mod((ktau-kstart+1)/ktauday,LOY) == 0
@@ -884,7 +880,7 @@ PROGRAM cable_offline_driver
 
                  CALL cbm(ktau, dels, air, bgc, canopy, met, &
                           bal, rad, rough, soil, ssnow, &
-                          sum_flux, veg, climate)
+                          veg, climate)
                  ! 13C
                  if (cable_user%c13o2) then
                     gpp  = canopy%An + canopy%Rd
@@ -945,8 +941,8 @@ PROGRAM cable_offline_driver
                  endif ! cable_user%c13o2
 
                  if (cable_user%CALL_climate) then
-                    call cable_climate(ktau_tot, kstart, kend, ktauday, idoy, LOY, met, &
-                                       climate, canopy, veg, ssnow, air, rad, dels, mp)
+                    call cable_climate(ktau_tot, kstart, ktauday, idoy, LOY, met, &
+                                       climate, canopy, veg, ssnow, rad, dels, mp)
                  endif
 
                  ssnow%smelt  = ssnow%smelt  * dels
@@ -954,7 +950,7 @@ PROGRAM cable_offline_driver
                  ssnow%rnof2  = ssnow%rnof2  * dels
                  ssnow%runoff = ssnow%runoff * dels
 
-              ELSE IF ( IS_CASA_TIME("dread", yyyy, ktau, kstart, koffset, kend, ktauday, logn) ) THEN
+              ELSE IF ( IS_CASA_TIME("dread", yyyy, ktau, kstart, koffset, ktauday, logn) ) THEN
                  ! CLN Read from file instead
                  WRITE(CYEAR,FMT="(I4)") CurYear + INT((ktau-kstart+koffset)/(LOY*ktauday))
                  ncfile       = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
@@ -966,11 +962,11 @@ PROGRAM cable_offline_driver
               !spinup=.false. & we want CASA_dump.nc (spinConv=.true.)
               IF ((icycle > 0) .OR. CABLE_USER%CASA_DUMP_WRITE) THEN
 
-                 CALL bgcdriver( ktau, kstart, kend, dels, met, &
+                 CALL bgcdriver( ktau, kstart, dels, met, &
                       ssnow, canopy, veg, soil, climate, casabiome, &
                       casapool, casaflux, casamet, casabal, &
-                      phen, pop, spinConv, spinup, ktauday, idoy, loy, &
-                      CABLE_USER%CASA_DUMP_READ, CABLE_USER%CASA_DUMP_WRITE, &
+                      phen, pop, ktauday, idoy, loy, &
+                      CABLE_USER%CASA_DUMP_READ, &
                       LALLOC, c13o2flux, c13o2pools )
 
                  IF (liseod) THEN ! end of day
@@ -1080,9 +1076,9 @@ PROGRAM cable_offline_driver
                  ! sumcflux is pulled out of subroutine cbm
                  ! so that casaCNP can be called before adding the fluxes
                  ! (Feb 2008, YP)
-                 call sumcflux( ktau, kstart, kend, dels, bgc, &
-                      canopy, soil, ssnow, sum_flux, veg,      &
-                      met, casaflux, l_vcmaxFeedbk )
+                 call sumcflux( ktau, kstart, dels, &
+                      canopy, sum_flux,                  &
+                      casaflux, l_vcmaxFeedbk )
               endif
 
               ! Write timestep's output to file if either: we're not spinning up
@@ -1335,13 +1331,13 @@ PROGRAM cable_offline_driver
   END IF
 
   IF (cable_user%POPLUC .AND. .NOT. CASAONLY ) THEN
-     CALL WRITE_LUC_RESTART_NC ( POPLUC, YYYY )
+     CALL WRITE_LUC_RESTART_NC(POPLUC)
   ENDIF
 
   IF ( .NOT. CASAONLY ) THEN
      ! Write restart file if requested:
      IF (output%restart) &
-          CALL create_restart(logn, dels, ktau, soil, veg, ssnow, canopy, rough, rad, bgc, bal, met)
+          CALL create_restart(logn, dels, ktau, soil, veg, ssnow, canopy, rad, bgc, bal)
      !mpidiff
      if (cable_user%CALL_climate) &
           CALL WRITE_CLIMATE_RESTART_NC(climate, ktauday)

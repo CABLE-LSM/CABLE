@@ -87,12 +87,10 @@ SUBROUTINE cable_diag1( iDiag, basename, dimx, dimy, timestep, node, &
       if( present(once) ) then
          if (timestep == 1) &
          ! write data only on first timestep
-         call cable_diag_data1( iDiag, trim(filename), dimx, timestep, dimy, &
-                             var1 )
+         call cable_diag_data1( iDiag, trim(filename), timestep, dimy, var1 )
       else
          ! write data every timestep
-         call cable_diag_data1( iDiag, trim(filename), dimx, timestep, dimy, &
-                                var1 )
+         call cable_diag_data1( iDiag, trim(filename), timestep, dimy, var1 )
       endif
 
 END SUBROUTINE cable_diag1
@@ -129,9 +127,9 @@ SUBROUTINE cable_diag_desc1( iDiag, filename, dimx, dimy, vname1 )
 END SUBROUTINE cable_diag_desc1
 
 
-SUBROUTINE cable_diag_data1( iDiag, filename, dimx, timestep, kend, var1  )
+SUBROUTINE cable_diag_data1( iDiag, filename, timestep, kend, var1  )
 
-   integer, intent(in) :: iDiag, dimx, timestep, kend
+   integer, intent(in) :: iDiag, timestep, kend
    real, intent(in), dimension(:) :: var1
    character(len=*), intent(in) :: filename
    integer, save :: gopenstatus = 1
@@ -178,13 +176,13 @@ END SUBROUTINE cable_diag_data1
   end subroutine def_dims
 
 
-  subroutine def_vars(nv, ncid, xtype, dimID, var_name, varID)
+  subroutine def_vars(ncid, xtype, dimID, var_name, varID)
 
     use netcdf
     
     implicit none
     
-    integer,                        intent(in)    :: nv, ncid, xtype
+    integer,                        intent(in)    :: ncid, xtype
     integer,          dimension(:), intent(in)    :: dimID
     character(len=*), dimension(:), intent(in)    :: var_name
     integer,          dimension(:), intent(inout) :: varID

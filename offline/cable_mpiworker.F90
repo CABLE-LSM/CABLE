@@ -149,7 +149,7 @@ CONTAINS
     !CLN added
     ! modules related to POP
     USE POP_Types,            ONLY: POP_TYPE
-    USE POP_Constants,        ONLY: shootfrac
+    USE POP_Constants,        ONLY: rshootfrac
 
     ! modules related to fire
     USE BLAZE_MOD,            ONLY: TYPE_BLAZE, BLAZE_ACCOUNTING, INI_BLAZE
@@ -220,7 +220,6 @@ CONTAINS
     TYPE(TYPE_BLAZE)     :: BLAZE
     TYPE(TYPE_SIMFIRE)   :: SIMFIRE
     ! REAL(r_2), DIMENSION(:), ALLOCATABLE :: POP_TO, POP_CWD, POP_STR
-    real :: rshootfrac
 
     ! 13C
     type(c13o2_flux) :: c13o2flux
@@ -302,8 +301,6 @@ CONTAINS
 
     ! Maciej: make sure the variable does not go out of scope
     mp = 0
-
-    rshootfrac = real(shootfrac)
 
     ! Open, read and close the namelist file.
     OPEN(10, FILE=CABLE_NAMELIST)
@@ -497,7 +494,7 @@ CONTAINS
                 endif
                 ! MPI: POP restart received only if pop module AND casa are active
                 if (cable_user%call_pop) then
-                   call worker_pop_types(comm, veg, casamet, pop)
+                   call worker_pop_types(comm, veg, pop)
                 endif
 
                 ! CLN:
@@ -653,7 +650,7 @@ CONTAINS
                 CALL MPI_Recv(MPI_BOTTOM, 1, inp_t, 0, ktau_gl, icomm, stat, ierr)
                 ! MPI: receive casa_dump_data for this step from the master
              ELSEIF ( IS_CASA_TIME("dread", yyyy, ktau, kstart, koffset, &
-                  kend, ktauday, wlogn) ) THEN
+                  ktauday, wlogn) ) THEN
                 CALL MPI_Recv(MPI_BOTTOM, 1, casa_dump_t, 0, ktau_gl, icomm, stat, ierr)
              END IF
 
@@ -680,7 +677,7 @@ CONTAINS
                   call casa_cnpflux(casaflux, casapool, casabal, .true.)
 
              ! Feedback prognostic vcmax and daily LAI from casaCNP to CABLE
-             casa_time = IS_CASA_TIME("write", yyyy, ktau, kstart, koffset, kend, ktauday, logn)
+             casa_time = IS_CASA_TIME("write", yyyy, ktau, kstart, koffset, ktauday, logn)
              liseod = mod((ktau-kstart+1),ktauday) == 0
              liseoy = mod((ktau-kstart+1)/ktauday,LOY) == 0
 
@@ -705,9 +702,9 @@ CONTAINS
              !TRUNK      climate, canopy, air, rad, dels, mp)
 
              ! CALL land surface scheme for this timestep, all grid points:
-             CALL cbm( ktau, dels, air, bgc, canopy, met,                  &
-                  bal, rad, rough, soil, ssnow,                            &
-                  sum_flux, veg, climate)
+             CALL cbm(ktau, dels, air, bgc, canopy, met, &
+                  bal, rad, rough, soil, ssnow,          &
+                  veg, climate)
              ! 13C
              if (cable_user%c13o2) then
                 gpp  = canopy%An + canopy%Rd
@@ -765,8 +762,8 @@ CONTAINS
              
              !TRUNK - call of cable_climet before cbm
              if (cable_user%CALL_climate) &
-                  CALL cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met, &
-                  climate, canopy, veg, ssnow, air,rad, dels,mp)
+                  CALL cable_climate(ktau, kstart, ktauday, idoy, LOY, met, &
+                  climate, canopy, veg, ssnow, rad, dels, mp)
 
              ssnow%smelt  = ssnow%smelt  * dels
              ssnow%rnof1  = ssnow%rnof1  * dels
@@ -781,11 +778,11 @@ CONTAINS
 
              ! serial: IF ((icycle > 0) .OR. CABLE_USER%CASA_DUMP_WRITE) THEN
              IF (icycle>0) THEN
-                call bgcdriver( ktau, kstart, kend, dels, met,          &
+                call bgcdriver( ktau, kstart, dels, met,          &
                      ssnow, canopy, veg, soil,climate, casabiome,       &
                      casapool, casaflux, casamet, casabal,              &
-                     phen, pop, spinConv, spinup, ktauday, idoy, loy,   &
-                     .FALSE., .FALSE., LALLOC, c13o2flux, c13o2pools )
+                     phen, pop, ktauday, idoy, loy,   &
+                     .FALSE., LALLOC, c13o2flux, c13o2pools )
                 write(wlogn,*) 'after bgcdriver ', MPI_BOTTOM, 1, casa_t, 0, ktau_gl, ocomm, ierr
                 !TRUNK no if (liseod) then
                 IF (liseod) THEN
@@ -812,7 +809,7 @@ CONTAINS
                 ! MPI: send the results back to the master
                 IF ( ((.NOT.spinup) .OR. (spinup.AND.spinConv)) .AND. &
                      IS_CASA_TIME("dwrit", yyyy, ktau, kstart, &
-                     koffset, kend, ktauday, wlogn) ) then
+                     koffset, ktauday, wlogn) ) then
                    CALL MPI_Send(MPI_BOTTOM, 1, casa_dump_t, 0, ktau_gl, ocomm, ierr)
                 endif
 
@@ -821,9 +818,9 @@ CONTAINS
              if (.not. casaonly) then
                 ! sumcflux is pulled out of subroutine cbm
                 ! so that casaCNP can be called before adding the fluxes (Feb 2008, YP)
-                call sumcflux( ktau, kstart, kend, dels, bgc, &
-                     canopy, soil, ssnow, sum_flux, veg,      &
-                     met, casaflux, l_vcmaxFeedbk )
+                call sumcflux( ktau, kstart, dels, &
+                     canopy, sum_flux,             &
+                     casaflux, l_vcmaxFeedbk )
                 write(wlogn,*) 'after sumcflux ', ktau
              endif
              ! MPI: send the results back to the master
@@ -874,7 +871,7 @@ CONTAINS
              IF ( cable_user%CALL_BLAZE ) THEN
                 !MC - this is different to serial code
                 call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
-                     casamet, climate, real(shootfrac), idoy, YYYY, 1, POP, veg)
+                     casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg)
              ENDIF
 
              CALL worker_send_pop(POP, ocomm)
@@ -6668,7 +6665,7 @@ CONTAINS
     call zero_cbm_var(climate)
 
     !TRUNK but call to climate_init
-    !CALL climate_init (climate, mp, ktauday)
+    !CALL climate_init (climate)
     ! MPI: allocate temp vectors used for marshalling
     ntyp = nclimate
 
@@ -7654,20 +7651,18 @@ CONTAINS
   END SUBROUTINE worker_casa_LUC_types
 
 
-  SUBROUTINE worker_pop_types(comm, veg, casamet, pop)
+  SUBROUTINE worker_pop_types(comm, veg, pop)
 
     use mpi
     USE POP_mpi
     USE POPmodule,          ONLY: POP_INIT
     USE POP_types,          ONLY: pop_type
-    USE casavariable,       ONLY: casa_met
     USE cable_def_types_mod,ONLY: veg_parameter_type
     USE cable_common_module,ONLY: cable_user
 
     IMPLICIT NONE
 
     INTEGER,         INTENT(IN)    :: comm
-    TYPE (casa_met), INTENT(IN)    :: casamet
     TYPE (pop_type), INTENT(INOUT) :: pop
     TYPE (veg_parameter_type),INTENT(IN) :: veg
 
@@ -8580,7 +8575,7 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
   ! modules related to fire
   use blaze_mod,            only: type_blaze
   use simfire_mod,          only: type_simfire
-  use POP_constants,        only: shootfrac
+  use POP_constants,        only: rshootfrac
 
   implicit none
   
@@ -8634,7 +8629,6 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
   ! blaze variables
   type(type_blaze)   :: blaze
   type(type_simfire) :: simfire
-  real :: rshootfrac
 
   ! 13C
   real(dp), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
@@ -8646,8 +8640,6 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
   !! vh_js !!
   if (cable_user%call_POP) Iw = POP%iwood
 
-  rshootfrac = real(shootfrac)
-  
   ktauday = int(24.0*3600.0/dels)
   nday    = (kend-kstart+1)/ktauday
   loy     = 365
@@ -8719,7 +8711,7 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
         call MPI_Recv(MPI_BOTTOM, 1, casa_dump_t, 0, idoy, icomm, stat, ierr)
         ! 13C
         if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
-        call biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
+        call biogeochem(idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
              casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter, &
              xksoil,xkleaf,xkleafcold,xkleafdry,&
              cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
@@ -8857,13 +8849,13 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
      avg_c13wood2cwd = avg_c13wood2cwd * rday
   endif
 
-  call analyticpool(kend,veg,soil,casabiome,casapool, &
-       casaflux,casamet,casabal,phen,                                         &
+  call analyticpool(veg,soil,casabiome,casapool, &
+       casaflux,casamet,casabal,                                         &
        avg_cleaf2met,avg_cleaf2str,avg_croot2met,avg_croot2str,avg_cwood2cwd, &
        avg_nleaf2met,avg_nleaf2str,avg_nroot2met,avg_nroot2str,avg_nwood2cwd, &
        avg_pleaf2met,avg_pleaf2str,avg_proot2met,avg_proot2str,avg_pwood2cwd, &
-       avg_cgpp, avg_cnpp, avg_nuptake, avg_puptake,                          &
-       avg_xnplimit,avg_xkNlimiting,avg_xklitter,avg_xksoil,                  &
+       avg_cnpp,                          &
+       avg_xkNlimiting,avg_xklitter,avg_xksoil,                  &
        avg_ratioNCsoilmic,avg_ratioNCsoilslow,avg_ratioNCsoilpass,            &
        avg_nsoilmin,avg_psoillab,avg_psoilsorb,avg_psoilocc, &
        avg_c13leaf2met, avg_c13leaf2str, avg_c13root2met, &
@@ -8885,7 +8877,7 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
 
            ! 13C
            if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
-           call biogeochem(ktauy,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
+           call biogeochem(idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
                 casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter,xksoil,xkleaf,&
                 xkleafcold,xkleafdry,&
                 cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
@@ -9021,7 +9013,7 @@ SUBROUTINE worker_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
 
         ! 13C
         if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
-        CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
+        CALL biogeochem(idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
              casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter, &
              xksoil,xkleaf,xkleafcold,xkleafdry,&
              cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &

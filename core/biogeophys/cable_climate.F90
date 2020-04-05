@@ -20,7 +20,7 @@
 MODULE cable_climate_mod
 
   Use cable_def_types_mod, ONLY: met_type, climate_type, canopy_type,soil_snow_type, mp, &
-      r_2, air_type, radiation_type, veg_parameter_type
+      r_2, radiation_type, veg_parameter_type
  USE TypeDef,              ONLY: i4b, dp
  USE cable_IO_vars_module, ONLY: patch
  USE CABLE_COMMON_MODULE, ONLY: CurYear, filename, cable_user, HANDLE_ERR
@@ -29,15 +29,14 @@ CONTAINS
 
   ! ==============================================================================
 
-SUBROUTINE cable_climate(ktau, kstart, kend, ktauday, idoy, LOY, &
-     met, climate, canopy, veg, ssnow, air, rad, &
+SUBROUTINE cable_climate(ktau, kstart, ktauday, idoy, LOY, &
+     met, climate, canopy, veg, ssnow, rad, &
      dels, np)
 
   IMPLICIT NONE
 
   INTEGER,      INTENT(IN) :: ktau ! integration step number
   INTEGER,      INTENT(IN) :: kstart ! starting value of ktau
-  INTEGER,      INTENT(IN) :: kend ! total # timesteps in run
 
   INTEGER,      INTENT(IN)                  :: idoy ,LOY ! day of year (1-365) , Length oy
   INTEGER,      INTENT(IN)                  :: ktauday
@@ -45,7 +44,6 @@ SUBROUTINE cable_climate(ktau, kstart, kend, ktauday, idoy, LOY, &
   TYPE (climate_type), INTENT(INOUT)       :: climate  ! climate variables
   TYPE (canopy_type), INTENT(IN) :: canopy ! vegetation variables
   TYPE (soil_snow_type), INTENT(IN) :: ssnow
-  TYPE (air_type), INTENT(IN)       :: air
   TYPE (radiation_type), INTENT(IN)  :: rad        ! radiation variables
   TYPE (veg_parameter_type), INTENT(IN)  :: veg  ! vegetation parameters
   REAL, INTENT(IN)               :: dels ! integration time setp (s)
@@ -804,12 +802,11 @@ END SUBROUTINE BIOME1_PFT
 
 ! ==============================================================================
 
-SUBROUTINE climate_init( climate,np ,ktauday )
+SUBROUTINE climate_init(climate)
 
   IMPLICIT NONE
 
-  TYPE (climate_type), INTENT(INOUT)       :: climate  ! climate variables
-  INTEGER, INTENT(IN) :: np, ktauday
+  TYPE (climate_type), INTENT(INOUT) :: climate  ! climate variables
 
   ! CALL alloc_cbm_var(climate,np,ktauday)
   

@@ -68,13 +68,12 @@ CONTAINS
 !
 !==============================================================================
 
-SUBROUTINE get_default_inits(met,soil,ssnow,canopy,logn, EMSOIL)
+SUBROUTINE get_default_inits(met, ssnow, canopy, logn, EMSOIL)
 
    IMPLICIT NONE
 
    ! Input arguments
    TYPE (met_type), INTENT(IN)            :: met
-   TYPE (soil_parameter_type), INTENT(IN) :: soil
    TYPE (soil_snow_type), INTENT(INOUT)   :: ssnow
    TYPE (canopy_type), INTENT(OUT)        :: canopy
    INTEGER,INTENT(IN)                :: logn     ! log file unit number
@@ -194,29 +193,24 @@ END SUBROUTINE get_default_inits
 !
 !==============================================================================
 
-SUBROUTINE get_restart_data(logn, ssnow, canopy, rough, bgc, &
-                            bal, veg, soil, rad, vegparmnew, EMSOIL)
+SUBROUTINE get_restart_data(ssnow, canopy, bgc, bal, veg, rad, EMSOIL)
 
    IMPLICIT NONE
 
    ! Input arguments
-   INTEGER,                   INTENT(IN)    :: logn       ! log file number
    TYPE(soil_snow_type),      INTENT(INOUT) :: ssnow      ! soil and snow variables
    TYPE(canopy_type),         INTENT(INOUT) :: canopy     ! vegetation variables
-   TYPE(roughness_type),      INTENT(INOUT) :: rough      ! roughness varibles
    TYPE(bgc_pool_type),       INTENT(INOUT) :: bgc        ! carbon pool variables
    TYPE(balances_type),       INTENT(INOUT) :: bal        ! energy + water balance variables
    TYPE(veg_parameter_type),  INTENT(INOUT) :: veg        ! vegetation parameters
-   TYPE(soil_parameter_type), INTENT(INOUT) :: soil       ! soil parameters
    TYPE(radiation_type),      INTENT(INOUT) :: rad
-   LOGICAL,                   INTENT(IN)    :: vegparmnew ! are we using the new format?
    REAL,                      INTENT(IN)    :: EMSOIL
 
    ! Local variables
    REAL, POINTER,DIMENSION(:) :: &
         lat_restart => null(), &
         lon_restart => null()
-   INTEGER, POINTER, DIMENSION(:) :: INvar => null()
+   ! INTEGER, POINTER, DIMENSION(:) :: INvar => null()
    !    REAL, POINTER,DIMENSION(:,:) :: surffrac => null() ! fraction of each surf type
    INTEGER :: &
         mland_restart,         & ! number of land points in restart file
@@ -232,8 +226,8 @@ SUBROUTINE get_restart_data(logn, ssnow, canopy, rough, bgc, &
    LOGICAL :: &
         from_restart = .TRUE., & ! insist variables/params load
         dummy                    ! To replace completeSet in parameter read; unused
-   REAL,      ALLOCATABLE :: var_r(:)
-   REAL(r_2), ALLOCATABLE :: var_r2(:)
+   ! REAL,      ALLOCATABLE :: var_r(:)
+   ! REAL(r_2), ALLOCATABLE :: var_r2(:)
 
    ! Write to screen the restart file is found:
    WRITE(*,*) 'Reading restart data from: ', TRIM(filename%restart_in)
@@ -269,7 +263,7 @@ SUBROUTINE get_restart_data(logn, ssnow, canopy, rough, bgc, &
    ok = NF90_INQUIRE_DIMENSION(ncid_rin, mpatchID, len=INpatch)
    write(*,*) 'total number of patches in restart file: ', INpatch
    IF (INpatch /= mp) THEN
-      CALL extraRestart(INpatch,ssnow,canopy,rough,bgc,bal,veg,soil,rad, EMSOIL)
+      CALL extraRestart(INpatch, ssnow, canopy, bgc, bal, veg, rad, EMSOIL)
       RETURN
    ENDIF
 
@@ -732,8 +726,8 @@ END SUBROUTINE get_restart_data
 !
 !==============================================================================
 
-SUBROUTINE extraRestart(INpatch,ssnow,canopy,rough,bgc,                        &
-                        bal,veg,soil,rad, EMSOIL)
+SUBROUTINE extraRestart(INpatch, ssnow, canopy, bgc, &
+                        bal, veg, rad, EMSOIL)
    ! Assume this subroutine to be used for first simulation year only,
    ! so do not need to read in tgg, wb, iveg, patchfrac and frac4.
    IMPLICIT NONE
@@ -741,11 +735,9 @@ SUBROUTINE extraRestart(INpatch,ssnow,canopy,rough,bgc,                        &
    TYPE (soil_snow_type),INTENT(INOUT)       :: ssnow  ! soil and snow variables
    TYPE (bgc_pool_type),INTENT(INOUT)        :: bgc    ! carbon pool variables
    TYPE (canopy_type),INTENT(INOUT)          :: canopy ! vegetation variables
-   TYPE (roughness_type),INTENT(INOUT)       :: rough  ! roughness varibles
    TYPE (balances_type),INTENT(INOUT)        :: bal ! energy + water balance variables
    REAL, INTENT(IN) :: EMSOIL
    TYPE (veg_parameter_type), INTENT(INOUT)  :: veg  ! vegetation parameters
-   TYPE (soil_parameter_type), INTENT(INOUT) :: soil ! soil parameters
    TYPE (radiation_type),INTENT(INOUT)       :: rad
 
    ! local variables

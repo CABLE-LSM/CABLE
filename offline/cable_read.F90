@@ -62,7 +62,7 @@ MODULE cable_read_module
 
 CONTAINS
 
-  SUBROUTINE readpar_i(ncid, parname, completeSet, var_i, filename,            &
+  SUBROUTINE readpar_i(ncid, parname, completeSet, var_i, filename, &
                        npatch, dimswitch, from_restart, INpatch)
     ! Subroutine for loading an integer-valued parameter
     INTEGER, INTENT(IN) :: ncid ! netcdf file ID

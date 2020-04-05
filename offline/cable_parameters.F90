@@ -158,7 +158,7 @@ CONTAINS
 
     ! include prescribed soil colour in determining albedo - Ticket #27
     IF (calcsoilalbedo) THEN
-       CALL read_soilcolor(logn)
+       CALL read_soilcolor()
     END IF
 
     ! count to obtain 'landpt', 'max_vegpatches' and 'mp'
@@ -739,7 +739,7 @@ CONTAINS
   END SUBROUTINE spatialSoil
   !=============================================================================
   !subr to read soil color for albed o calc - Ticket #27
-  SUBROUTINE read_soilcolor(logn)
+  SUBROUTINE read_soilcolor()
   ! Read soil color
   !
   ! Input variables:
@@ -756,7 +756,6 @@ CONTAINS
     IMPLICIT NONE
     ! INTEGER, DIMENSION(:), INTENT(INOUT) :: soilcol
     ! TYPE (soil_parameter_type), INTENT(OUT) :: soil
-    INTEGER, INTENT(IN) ::  logn ! log file unit number
 
     ! local variables
     ! INTEGER, DIMENSION(:, :),     ALLOCATABLE :: inSoilColor
@@ -1045,9 +1044,9 @@ CONTAINS
 
   !=============================================================================
 
-  SUBROUTINE write_default_params(met, air, ssnow, veg, bgc, &
+  SUBROUTINE write_default_params(met, ssnow, veg, bgc, &
        soil, canopy, rough, rad, logn, &
-       vegparmnew, month, TFRZ, LUC_EXPT)
+       month, TFRZ, LUC_EXPT)
     ! Initialize many canopy_type, soil_snow_type, soil_parameter_type and
     ! roughness_type variables;
     ! Calculate 'froot' from 'rootbeta' parameter;
@@ -1076,10 +1075,8 @@ CONTAINS
     
     INTEGER,                   INTENT(IN)    :: logn  ! log file unit number
     INTEGER,                   INTENT(IN)    :: month ! month of year
-    LOGICAL,                   INTENT(IN)    :: vegparmnew ! new format input
     REAL,                      INTENT(IN)    :: TFRZ
     TYPE(met_type),            INTENT(INOUT) :: met
-    TYPE(air_type),            INTENT(INOUT) :: air
     TYPE(soil_snow_type),      INTENT(INOUT) :: ssnow
     TYPE(veg_parameter_type),  INTENT(INOUT) :: veg
     TYPE(bgc_pool_type),       INTENT(INOUT) :: bgc
@@ -1861,14 +1858,18 @@ CONTAINS
     END DO
 
   END SUBROUTINE check_parameter_values
-!===============================================================================
+  
+  !===============================================================================
+  
 SUBROUTINE report_parameters(logn, soil, veg, bgc, rough,                    &
                                ssnow, canopy, casamet, casapool, casaflux,     &
-                               phen, vegparmnew, verbose )
-   USE cable_common_module, ONLY : veg_desc, soil_desc
+                               phen, verbose )
+
+  USE cable_common_module, ONLY : veg_desc, soil_desc
+
    IMPLICIT NONE
+
    INTEGER,      INTENT(IN)  :: logn        ! log file unit number
-   LOGICAL,      INTENT(IN)  :: vegparmnew  ! are we using the new format?
    LOGICAL,      INTENT(IN)  :: verbose     ! write all parameter details to
                                             ! log file?
    TYPE (soil_parameter_type), INTENT(IN)  :: soil

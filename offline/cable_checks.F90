@@ -291,12 +291,9 @@ END SUBROUTINE mass_balance
 !
 !==============================================================================
 
-SUBROUTINE energy_balance( dels,ktau,met,rad,canopy,bal,ssnow,                    &
-                             SBOLTZ,EMLEAF, EMSOIL )
+SUBROUTINE energy_balance(met, rad, canopy, bal, ssnow, SBOLTZ, EMLEAF, EMSOIL)
 
    ! Input arguments
-   REAL,INTENT(IN)              :: dels   ! time step size
-    Integer, INTENT(IN)              :: ktau   ! time step size
    TYPE (canopy_type),INTENT(IN)     :: canopy ! canopy variable data
    TYPE(met_type),INTENT(IN)         :: met    ! met data
    TYPE(radiation_type),INTENT(IN)   :: rad    ! met data

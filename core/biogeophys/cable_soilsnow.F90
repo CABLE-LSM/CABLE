@@ -34,7 +34,7 @@ MODULE cable_soil_snow_module
 
    USE cable_def_types_mod, ONLY : soil_snow_type, soil_parameter_type,        &
                              veg_parameter_type, canopy_type, met_type,        &
-                             balances_type, r_2, ms, mp
+                             r_2, ms, mp
    USE cable_data_module, ONLY : issnow_type, point2constants
 
    IMPLICIT NONE
@@ -122,19 +122,15 @@ END SUBROUTINE trimb
 !      Solves implicit soil moisture equation
 !      Science development by Eva Kowalczyk and John McGregor, CMAR
 !
-SUBROUTINE smoisturev (dels,ssnow,soil,veg)
+SUBROUTINE smoisturev(dels, ssnow, soil)
 
    USE cable_common_module
 
    REAL, INTENT(IN) :: dels    ! time step size (s)
-
    TYPE(soil_snow_type),      INTENT(INOUT) ::                                &
       ssnow ! soil and snow variables
-
    TYPE(soil_parameter_type), INTENT(INOUT) ::                                &
       soil  ! soil parameters
-
-   TYPE(veg_parameter_type), INTENT(IN)  :: veg
 
    ! nmeth selects the solution method
    ! Values as follows:
@@ -911,21 +907,16 @@ END SUBROUTINE snow_accum
 
 ! -----------------------------------------------------------------------------
 
-SUBROUTINE surfbv (dels, met, ssnow, soil, veg, canopy )
+SUBROUTINE surfbv(dels, ssnow, soil, veg)
 
    USE cable_common_module
 
    REAL, INTENT(IN) :: dels ! integration time step (s)
-
-   TYPE(canopy_type), INTENT(IN)       :: canopy
-
-   TYPE(met_type),       INTENT(INOUT) :: met    ! all met forcing
    TYPE(soil_snow_type), INTENT(INOUT) :: ssnow  ! soil+snow variables
-
-   TYPE(veg_parameter_type),  INTENT(IN)     :: veg
    TYPE(soil_parameter_type), INTENT(INOUT)  :: soil  ! soil parameters
+   TYPE(veg_parameter_type),  INTENT(IN)     :: veg
 
-!jhan:cable.nml
+   !jhan:cable.nml
    INTEGER, PARAMETER      :: nglacier = 2 ! 0 original, 1 off, 2 new Eva
 
    REAL, DIMENSION(mp) ::                                                      &
@@ -938,7 +929,7 @@ SUBROUTINE surfbv (dels, met, ssnow, soil, veg, canopy )
 
    INTEGER :: k
 
-   CALL smoisturev( dels, ssnow, soil, veg )
+   CALL smoisturev(dels, ssnow, soil)
 
    DO k = 1, ms
       xxx = REAL( soil%ssat,r_2 )
@@ -1279,15 +1270,11 @@ END SUBROUTINE stempv
 
 ! -----------------------------------------------------------------------------
 
-SUBROUTINE snowcheck(dels, ssnow, soil, met )
+SUBROUTINE snowcheck(ssnow, soil)
 
    USE cable_common_module
 
-   REAL, INTENT(IN) :: dels ! integration time step (s)
-
    TYPE(soil_snow_type), INTENT(INOUT) :: ssnow
-   TYPE(met_type),       INTENT(INOUT) :: met ! all met forcing
-
    TYPE(soil_parameter_type), INTENT(INOUT) :: soil  ! soil parameters
 
    INTEGER :: j
@@ -1386,12 +1373,9 @@ END SUBROUTINE snowcheck
 
 ! -----------------------------------------------------------------------------
 
-SUBROUTINE snowl_adjust(dels, ssnow, canopy )
-
-   REAL, INTENT(IN) :: dels ! integration time step (s)
+SUBROUTINE snowl_adjust(ssnow)
 
    TYPE(soil_snow_type), INTENT(INOUT) :: ssnow
-   TYPE(canopy_type), INTENT(INOUT)    :: canopy
 
    REAL(r_2), DIMENSION(mp) ::                                                 &
       excd,    & !
@@ -1595,11 +1579,10 @@ END SUBROUTINE snowl_adjust
 ! END SUBROUTINE soilfreeze
 
 ! same as soilfreeze but with do loop to catch underflows
-SUBROUTINE soilfreeze_serial(dels, soil, ssnow)
+SUBROUTINE soilfreeze_serial(soil, ssnow)
   
   USE cable_common_module
   
-   REAL,                      INTENT(IN)    :: dels ! integration time step (s)
    TYPE(soil_snow_type),      INTENT(INOUT) :: ssnow
    TYPE(soil_parameter_type), INTENT(INOUT) :: soil
 
@@ -1722,7 +1705,7 @@ END SUBROUTINE remove_trans
 !        ivegt - vegetation type
 ! Output
 !        ssnow
-SUBROUTINE soil_snow(dels, soil, ssnow, canopy, met, bal, veg)
+SUBROUTINE soil_snow(dels, soil, ssnow, canopy, met, veg)
    USE cable_common_module
    REAL, INTENT(IN)                    :: dels ! integration time step (s)
    TYPE(soil_parameter_type), INTENT(INOUT) :: soil
@@ -1730,7 +1713,6 @@ SUBROUTINE soil_snow(dels, soil, ssnow, canopy, met, bal, veg)
    TYPE(canopy_type), INTENT(INOUT)         :: canopy
    TYPE(veg_parameter_type), INTENT(INOUT)  :: veg
    TYPE(met_type), INTENT(INOUT)            :: met ! all met forcing
-   TYPE (balances_type), INTENT(INOUT)      :: bal
    INTEGER             :: k
    REAL, DIMENSION(mp) :: snowmlt
    REAL, DIMENSION(mp) :: totwet
@@ -1845,20 +1827,20 @@ SUBROUTINE soil_snow(dels, soil, ssnow, canopy, met, bal, veg)
       ssnow%wbfice(:,k) = ssnow%wbice(:,k) / real(soil%ssat, r_2)
    END DO
 
-   CALL snowcheck (dels, ssnow, soil, met )
+   CALL snowcheck(ssnow, soil)
    
-   CALL snowdensity (dels, ssnow, soil)
+   CALL snowdensity(dels, ssnow, soil)
 
-   CALL snow_accum (dels, canopy, met, ssnow, soil )
+   CALL snow_accum(dels, canopy, met, ssnow, soil)
 
-   CALL snow_melting (dels, snowmlt, ssnow, soil )
+   CALL snow_melting(dels, snowmlt, ssnow, soil)
 
    ! Add snow melt to global snow melt variable:
    ssnow%smelt = snowmlt
 
    ! Adjust levels in the snowpack due to snow accumulation/melting,
    ! snow aging etc...
-   CALL snowl_adjust(dels, ssnow, canopy )
+   CALL snowl_adjust(ssnow)
 
    CALL stempv(dels, canopy, ssnow, soil)
 
@@ -1871,7 +1853,7 @@ SUBROUTINE soil_snow(dels, soil, ssnow, canopy, met, bal, veg)
 
    CALL remove_trans(dels, soil, ssnow, canopy, veg)
 
-   CALL soilfreeze_serial(dels, soil, ssnow)
+   CALL soilfreeze_serial(soil, ssnow)
 
    totwet = canopy%precis + ssnow%smelt
 
@@ -1894,7 +1876,7 @@ SUBROUTINE soil_snow(dels, soil, ssnow, canopy, met, bal, veg)
    ssnow%rnof1  = max(0., ssnow%pudsto - ssnow%pudsmx)
    ssnow%pudsto = ssnow%pudsto - ssnow%rnof1
 
-   CALL surfbv(dels, met, ssnow, soil, veg, canopy )
+   CALL surfbv(dels, ssnow, soil, veg)
 
    ! correction required for energy balance in online simulations
    IF( cable_runtime%um ) THEN

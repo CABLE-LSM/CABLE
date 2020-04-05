@@ -122,10 +122,10 @@ MODULE sli_solve
 CONTAINS
 
   SUBROUTINE get_fluxes_and_derivs( &
-       irec, mp, qprec, qprec_snow, n, dx, h0, &
-       Tsoil, S, &
+       mp, qprec, qprec_snow, n, dx, h0, &
+       Tsoil, &
        qh, vmet, vlit, vsnow, var, T0, Tsurface, &
-       dxL, SL, Tl, &
+       SL, Tl, &
        plit, par, &
        qali, &
        qvh, &
@@ -140,25 +140,26 @@ CONTAINS
        vtop, vbot, &
        lE0, G0, &
        Epot, surface_case, &
-       iflux, litter, j, kk, &
+       iflux, j, kk, &
        advection, dTqwdTa, dTqwdTb, Tqw, keff, &
        hice &
        )
+    
     IMPLICIT NONE
-    INTEGER(i_d)                                           :: irec, mp
+    
+    INTEGER(i_d)                                           :: mp
     REAL(r_2),      DIMENSION(1:mp)                        :: qprec
     REAL(r_2),      DIMENSION(1:mp)                        :: qprec_snow
     INTEGER(i_d)                                           :: n
     REAL(r_2),      DIMENSION(1:n) :: dx
     REAL(r_2),      DIMENSION(1:mp)                        :: h0
-    REAL(r_2),      DIMENSION(1:n) :: Tsoil, S
+    REAL(r_2),      DIMENSION(1:n) :: Tsoil
     REAL(r_2),      DIMENSION(-nsnow_max:n) :: qh
     TYPE(vars_met), DIMENSION(1:mp)                        :: vmet
     TYPE(vars),     DIMENSION(1:mp)                        :: vlit
     TYPE(vars_snow), DIMENSION(1:mp)                       :: vsnow
     TYPE(vars),     DIMENSION(1:n) :: var
     REAL(r_2),      DIMENSION(1:mp)                        :: T0, Tsurface
-    REAL(r_2),      DIMENSION(1:mp)                        :: dxL
     REAL(r_2),      DIMENSION(1:mp)                        :: SL, Tl
     TYPE(params),   DIMENSION(1:mp)                        :: plit
     TYPE(params),   DIMENSION(1:n) :: par
@@ -178,7 +179,6 @@ CONTAINS
     REAL(r_2),          DIMENSION(1:mp)                    :: lE0, G0, Epot
     INTEGER(i_d),       DIMENSION(1:mp)                    :: surface_case
     INTEGER(i_d),       DIMENSION(1:mp)                    :: iflux
-    LOGICAL                                                :: litter
     INTEGER(i_d)                                           :: j, kk
     INTEGER(i_d)                                           :: advection ! switches
     REAL(r_2)                                              :: dTqwdTa, dTqwdTb, Tqw, keff
@@ -247,7 +247,7 @@ CONTAINS
             Tsurface(kk), G0(kk), lE0(kk),Epot(kk),  &
             q(0), qevap(kk), qliq(0), qv(0), &
             qyb(0), qTb(0), qlyb(0), qvyb(0), qlTb(0), qvTb(0), qh(0), &
-            qadv(0), qhyb(0), qhTb(0), qadvyb(0), qadvTb(0), irec)
+            qadv(0), qhyb(0), qhTb(0), qadvyb(0), qadvTb(0))
        qya(0)    = zero
        qTa(0)    = zero
        qlya(0)   = zero
@@ -266,7 +266,7 @@ CONTAINS
             qyb(-vsnow(kk)%nsnow), qTb(-vsnow(kk)%nsnow), qlyb(-vsnow(kk)%nsnow), &
             qvyb(-vsnow(kk)%nsnow), qlTb(-vsnow(kk)%nsnow), qvTb(-vsnow(kk)%nsnow), &
             qh(-vsnow(kk)%nsnow), qadv(-vsnow(kk)%nsnow), qhyb(-vsnow(kk)%nsnow), &
-            qhTb(-vsnow(kk)%nsnow), qadvyb(-vsnow(kk)%nsnow), qadvTb(-vsnow(kk)%nsnow), irec)
+            qhTb(-vsnow(kk)%nsnow), qadvyb(-vsnow(kk)%nsnow), qadvTb(-vsnow(kk)%nsnow))
        qya(-vsnow(kk)%nsnow)    = zero
        qTa(-vsnow(kk)%nsnow)    = zero
        qlya(-vsnow(kk)%nsnow)   = zero
@@ -299,9 +299,9 @@ CONTAINS
 
 
     ! get  fluxes heat and derivatives (at time t=0, i.e. q0 etc.)
-    call getheatfluxes(n, dx(1:n), dxL(kk), &
+    call getheatfluxes(n, dx(1:n), &
          qh(0:n), qhya(0:n), qhyb(0:n), qhTa(0:n), qhTb(0:n), &
-         var(1:n), vlit(kk), Tsoil(1:n), TL(kk), litter, &
+         var(1:n), Tsoil(1:n), &
          q(0:n), qya(0:n), qyb(0:n), qTa(0:n), qTb(0:n), &
          qadv(0:n),qadvya(0:n), qadvyb(0:n), qadvTa(0:n), qadvTb(0:n), &
          advection) ! heat fluxes
@@ -478,10 +478,11 @@ CONTAINS
     again(kk)  = .false. ! flag for recalcn of fluxes (default=false)
     !----- end get fluxes and derivs
   END SUBROUTINE get_fluxes_and_derivs
+  
 
   SUBROUTINE estimate_timestep( &
-       irec, tfin, mp, n, dx, h0, &
-       qh, qhTa, qadvTa, qhTb, qadvTb, &
+       tfin, mp, n, dx, h0, &
+       qh, &
        nsteps, vlit, vsnow, var, &
        dxL, &
        plit, par, &
@@ -497,9 +498,11 @@ CONTAINS
        advection, &
        iqex &
        )
+    
     IMPLICIT NONE
+    
     REAL(r_2)                                              :: tfin
-    INTEGER(i_d)                                           :: mp, irec
+    INTEGER(i_d)                                           :: mp
     INTEGER(i_d)                                           :: n
     REAL(r_2),      DIMENSION(1:n) :: dx
     REAL(r_2),      DIMENSION(1:mp)                        :: h0
@@ -517,8 +520,8 @@ CONTAINS
     INTEGER(i_d), DIMENSION(1:mp)                          :: ns, nsat, nsatlast, nsteps0
     REAL(r_2),    DIMENSION(1:mp)                          :: dmax, dt
     REAL(r_2),    DIMENSION(1:mp)                          :: qpme, t
-    REAL(r_2),    DIMENSION(-nsnow_max:n) :: q, qhTa, qhTb
-    REAL(r_2),    DIMENSION(-nsnow_max:n) :: qadv, qadvTa, qadvTb
+    REAL(r_2),    DIMENSION(-nsnow_max:n) :: q
+    REAL(r_2),    DIMENSION(-nsnow_max:n) :: qadv
     REAL(r_2),    DIMENSION(0:n) :: tmp2d1, tmp2d2,  deltaTmax
     REAL(r_2),          DIMENSION(1:mp)                    :: tmp1d1, tmp1d3
     INTEGER(i_d),       DIMENSION(1:mp)                    :: iflux
@@ -526,7 +529,6 @@ CONTAINS
     INTEGER(i_d)                                           :: kk
     INTEGER(i_d)                                           :: advection ! switches
     REAL(r_2),          DIMENSION(1:n) :: iqex
-
 
     !----- first estimate of time step dt before the calculation
     !      gets revised after the calculation
@@ -805,10 +807,10 @@ CONTAINS
 
 
        CALL get_fluxes_and_derivs( &
-            irec, mp, qprec, qprec_snow, n, dx(:), h0, &
-            Tsoil(:), S(:), &
+            mp, qprec, qprec_snow, n, dx(:), h0, &
+            Tsoil(:), &
             qh(kk,:), vmet, vlit, vsnow, var, T0, Tsurface, &
-            dxL, SL, Tl, &
+            SL, Tl, &
             plit, par, &
             qali, &
             qvh(kk,:), &
@@ -823,15 +825,15 @@ CONTAINS
             vtop, vbot, &
             lE0, G0, &
             Epot, surface_case, &
-            iflux, litter, j, kk, &
+            iflux, j, kk, &
             advection, dTqwdTa, dTqwdTb, Tqw, keff, &
             hice &
             )
 
 
        CALL estimate_timestep( &
-            irec, tfin, mp, n, dx(:), h0, &
-            qh(kk,:), qhTa(:), qadvTa(:), qhTb(:), qadvTb(:), &
+            tfin, mp, n, dx(:), h0, &
+            qh(kk,:), &
             nsteps, vlit, vsnow, var, &
             dxL, &
             plit, par, &
@@ -873,7 +875,7 @@ CONTAINS
             aah(:), bbh(:), cch(:), ddh(:), eeh(:), ffh(:), ggh(:), &
             de(:), q(:), qya(:), qyb(:), qTa(:), qTb(:),qhya(:), qhyb(:), qhTa(:), qhTb(:), qadv(:), qadvya(:), qadvyb(:), &
             qadvTa(:), qadvTb(:),  qsig(:), qhsig(:), qadvsig(:),      &
-            dTsoil(:), tmp2d1(:),   &
+            dTsoil(:),   &
             dthetaldT(:),   nsteps_ice, imelt,     &
             deltaJ_latent_T(:), deltaJ_sensible_S(:),   &
             qrunoff, tmp1d1, tmp1d2, tmp1d3,  tmp1d4,     &
@@ -1322,7 +1324,7 @@ CONTAINS
                    tmp1d3(kk) = rtbis_Tfrozen(tmp1d2(kk), dx(i), theta,par(i)%css, par(i)%rho, &
                         merge(h0(kk),zero,i==1), par(i)%thre, par(i)%the, &
                         par(i)%he, one/(par(i)%lambc*freezefac), &
-                        Tsoil(i)-dTsoil(i)-50._r_2, Tfreezing(kk), 0.0001_r_2)
+                        Tsoil(i)-dTsoil(i)-50._r_2, Tfreezing(kk))
                    tmp1d4(kk) = thetalmax(tmp1d3(kk), S(i), par(i)%he, one/(par(i)%lambc*freezefac), &
                         par(i)%thre, par(i)%the) ! liquid content at solution for Tsoil
                 else
@@ -1916,7 +1918,7 @@ CONTAINS
        qexd, aa, bb, cc, dd, ee, ff, gg, dy, aah, bbh, cch, ddh, eeh, ffh, ggh, &
        de, q, qya, qyb, qTa, qTb,qhya, qhyb, qhTa, qhTb, qadv, qadvya, qadvyb, &
        qadvTa, qadvTb,  qsig, qhsig, qadvsig,      &
-       dTsoil, tmp2d1,   &
+       dTsoil,   &
        dthetaldT,   nsteps_ice, imelt,     &
        deltaJ_latent_T, deltaJ_sensible_S,   &
        qrunoff, tmp1d1, tmp1d2, tmp1d3,  tmp1d4,     &
@@ -1962,7 +1964,6 @@ CONTAINS
     REAL(r_2),    DIMENSION(-nsnow_max:n) :: qadv, qadvya, qadvyb, qadvTa, qadvTb
     REAL(r_2),    DIMENSION(-nsnow_max:n) :: qsig, qhsig, qadvsig
     REAL(r_2),    DIMENSION(1:n) :: dTsoil
-    REAL(r_2),    DIMENSION(0:n) :: tmp2d1
     REAL(r_2),    DIMENSION(1:n) :: dthetaldT
     INTEGER(i_d), DIMENSION(1:n) :: nsteps_ice, imelt
     REAL(r_2),          DIMENSION(1:n) :: deltaJ_latent_T, deltaJ_sensible_S
@@ -3820,61 +3821,62 @@ CONTAINS
   !   end do
   ! END SUBROUTINE solute
   !*********************************************************************************************************************
-  SUBROUTINE snow_augment( mp, kk,  qprec_snow, Ta, tfin,     vsnow     &
-       )
+  
+  ! SUBROUTINE snow_augment( mp, kk,  qprec_snow, Ta, tfin,     vsnow     &
+  !      )
 
-    INTEGER(i_d),                               INTENT(IN)    :: mp    ! # of grid-cells
-    INTEGER(i_d),                               INTENT(IN)    :: kk    ! grid-cell reference
-    REAL(r_2),    DIMENSION(mp),             INTENT(INOUT) :: qprec_snow    ! snowfall ms-1
-    REAL(r_2),    DIMENSION(mp),             INTENT(IN) :: Ta    ! air temp
-    REAL(r_2),                 INTENT(IN) :: tfin    ! time
-    TYPE(vars_snow), DIMENSION(1:mp),           INTENT(INOUT) :: vsnow
-    REAL(r_2),       DIMENSION(1:mp) :: tmp1d1, tmp1d2
+  !   INTEGER(i_d),                               INTENT(IN)    :: mp    ! # of grid-cells
+  !   INTEGER(i_d),                               INTENT(IN)    :: kk    ! grid-cell reference
+  !   REAL(r_2),    DIMENSION(mp),             INTENT(INOUT) :: qprec_snow    ! snowfall ms-1
+  !   REAL(r_2),    DIMENSION(mp),             INTENT(IN) :: Ta    ! air temp
+  !   REAL(r_2),                 INTENT(IN) :: tfin    ! time
+  !   TYPE(vars_snow), DIMENSION(1:mp),           INTENT(INOUT) :: vsnow
+  !   REAL(r_2),       DIMENSION(1:mp) :: tmp1d1, tmp1d2
 
-    if (qprec_snow(kk).gt.0) then
-       ! total energy of augmented snow pack
-       tmp1d1(kk) = rhow*(vsnow(kk)%hsnow(1)-vsnow(kk)%hliq(1))*(csice*vsnow(kk)%tsn(1) - lambdaf) + &
-            rhow*(qprec_snow(kk)*tfin)* &
-            (csice*min(Ta(kk),zero) - lambdaf)
-       ! total water content of augmented snow pack
-       vsnow(kk)%hsnow(1) = vsnow(kk)%hsnow(1) + qprec_snow(kk)*tfin
-       vsnow(kk)%wcol = vsnow(kk)%wcol+qprec_snow(kk)*tfin
+  !   if (qprec_snow(kk).gt.0) then
+  !      ! total energy of augmented snow pack
+  !      tmp1d1(kk) = rhow*(vsnow(kk)%hsnow(1)-vsnow(kk)%hliq(1))*(csice*vsnow(kk)%tsn(1) - lambdaf) + &
+  !           rhow*(qprec_snow(kk)*tfin)* &
+  !           (csice*min(Ta(kk),zero) - lambdaf)
+  !      ! total water content of augmented snow pack
+  !      vsnow(kk)%hsnow(1) = vsnow(kk)%hsnow(1) + qprec_snow(kk)*tfin
+  !      vsnow(kk)%wcol = vsnow(kk)%wcol+qprec_snow(kk)*tfin
 
-       !  write(*,*) 'augment_snow', tfin,kk, qprec_snow(kk), vsnow(kk)%hsnow(1)
-       ! temperature and liquid moisture content of augmented snow pack
-       if (tmp1d1(kk).lt. -vsnow(kk)%hsnow(1)*rhow*lambdaf) then
-          vsnow(kk)%hliq(1)= zero
-          vsnow(kk)%tsn(1)= (tmp1d1(kk)/(rhow*vsnow(kk)%hsnow(1))+lambdaf)/csice
-       else
-          vsnow(kk)%tsn(1)= zero
-          vsnow(kk)%hliq(1)= vsnow(kk)%hsnow(1)+ tmp1d1(kk)/(rhow*lambdaf)
-       endif
+  !      !  write(*,*) 'augment_snow', tfin,kk, qprec_snow(kk), vsnow(kk)%hsnow(1)
+  !      ! temperature and liquid moisture content of augmented snow pack
+  !      if (tmp1d1(kk).lt. -vsnow(kk)%hsnow(1)*rhow*lambdaf) then
+  !         vsnow(kk)%hliq(1)= zero
+  !         vsnow(kk)%tsn(1)= (tmp1d1(kk)/(rhow*vsnow(kk)%hsnow(1))+lambdaf)/csice
+  !      else
+  !         vsnow(kk)%tsn(1)= zero
+  !         vsnow(kk)%hliq(1)= vsnow(kk)%hsnow(1)+ tmp1d1(kk)/(rhow*lambdaf)
+  !      endif
 
-       ! density of augmented snow pack
-       ! snowfall density (tmp1d1), LaChapelle 1969
-       if (Ta(kk) > 2.0_r_2) then
-          tmp1d2(kk) = 189.0_r_2
-       elseif ((Ta(kk) > -15.0_r_2) .and. (Ta(kk) <= 2.0_r_2)) then
-          tmp1d2(kk) = 50.0_r_2 + 1.7_r_2*(Ta(kk)+15.0_r_2)**1.5_r_2
-       else
-          tmp1d2(kk) = 50.0_r_2
-       endif
+  !      ! density of augmented snow pack
+  !      ! snowfall density (tmp1d1), LaChapelle 1969
+  !      if (Ta(kk) > 2.0_r_2) then
+  !         tmp1d2(kk) = 189.0_r_2
+  !      elseif ((Ta(kk) > -15.0_r_2) .and. (Ta(kk) <= 2.0_r_2)) then
+  !         tmp1d2(kk) = 50.0_r_2 + 1.7_r_2*(Ta(kk)+15.0_r_2)**1.5_r_2
+  !      else
+  !         tmp1d2(kk) = 50.0_r_2
+  !      endif
 
-       vsnow(kk)%dens(1) = (vsnow(kk)%dens(1)*(vsnow(kk)%hsnow(1)-qprec_snow(kk)*tfin) &
-            + tmp1d2(kk)*qprec_snow(kk)*tfin)/vsnow(kk)%hsnow(1)
+  !      vsnow(kk)%dens(1) = (vsnow(kk)%dens(1)*(vsnow(kk)%hsnow(1)-qprec_snow(kk)*tfin) &
+  !           + tmp1d2(kk)*qprec_snow(kk)*tfin)/vsnow(kk)%hsnow(1)
 
-       vsnow(kk)%depth(1) = vsnow(kk)%hsnow(1)/(vsnow(kk)%dens(1)/rhow)
+  !      vsnow(kk)%depth(1) = vsnow(kk)%hsnow(1)/(vsnow(kk)%dens(1)/rhow)
 
-       vsnow(kk)%Qprec = qprec_snow(kk)*tfin
-       vsnow(kk)%Qadv_snow=rhow*(qprec_snow(kk))* &
-            (csice*(min(Ta(kk),zero))-lambdaf)*tfin
-       qprec_snow(kk)=0
-       if (vsnow(kk)%nsnow==0) then
-          vsnow(kk)%nsnow=1
-       endif
-    endif
+  !      vsnow(kk)%Qprec = qprec_snow(kk)*tfin
+  !      vsnow(kk)%Qadv_snow=rhow*(qprec_snow(kk))* &
+  !           (csice*(min(Ta(kk),zero))-lambdaf)*tfin
+  !      qprec_snow(kk)=0
+  !      if (vsnow(kk)%nsnow==0) then
+  !         vsnow(kk)%nsnow=1
+  !      endif
+  !   endif
 
-  END SUBROUTINE snow_augment
+  ! END SUBROUTINE snow_augment
 
   !*********************************************************************************************************************
 
@@ -3989,7 +3991,7 @@ CONTAINS
              if ((tmp1*tmp2) < zero) then
                 tmp1d3(kk) = rtbis_Tfrozen(tmp1d2(kk), dx(1), theta,par(1)%css, par(1)%rho, &
                      h0(kk), par(1)%thre, par(1)%the, par(1)%he, one/(par(1)%lambc*freezefac), &
-                     Tsoil(1)-50._r_2, Tfreezing(kk), 0.0001_r_2)
+                     Tsoil(1)-50._r_2, Tfreezing(kk))
 
                 tmp1d4(kk) = thetalmax(tmp1d3(kk), S(1), par(1)%he, one/(par(1)%lambc*freezefac), &
                      par(1)%thre, par(1)%the) ! liquid content at new Tsoil
@@ -4161,7 +4163,7 @@ CONTAINS
                    if ((tmp1*tmp2) < zero) then
                       tmp1d3(kk) = rtbis_Tfrozen(tmp1d2(kk), dx(1), theta,par(1)%css, par(1)%rho, &
                            h0(kk), par(1)%thre, par(1)%the, par(1)%he, one/(par(1)%lambc*freezefac), &
-                           Tsoil(1)-50._r_2, Tfreezing(kk), 0.0001_r_2)
+                           Tsoil(1)-50._r_2, Tfreezing(kk))
 
                       tmp1d4(kk) = thetalmax(tmp1d3(kk), S(1), par(1)%he, one/(par(1)%lambc*freezefac), &
                            par(1)%thre, par(1)%the) ! liquid content at new Tsoil
@@ -4411,7 +4413,7 @@ CONTAINS
                    if ((tmp1*tmp2) < zero) then
                       tmp1d3(kk) = rtbis_Tfrozen(tmp1d2(kk), dx(1), theta,par(1)%css, par(1)%rho, &
                            h0(kk), par(1)%thre, par(1)%the, par(1)%he, one/(par(1)%lambc*freezefac), &
-                           Tsoil(1)-50._r_2, Tfreezing(kk), 0.0001_r_2)
+                           Tsoil(1)-50._r_2, Tfreezing(kk))
 
                       tmp1d4(kk) = thetalmax(tmp1d3(kk), S(1), par(1)%he, one/(par(1)%lambc*freezefac), &
                            par(1)%thre, par(1)%the) ! liquid content at new Tsoil

@@ -2133,7 +2133,7 @@ CONTAINS
 
   !*********************************************************************************************************************
 
-  SUBROUTINE WRITE_LUC_RESTART_NC(POPLUC, ctime)
+  SUBROUTINE WRITE_LUC_RESTART_NC(POPLUC)
 
     use cable_common_module, only: filename, cable_user, HANDLE_ERR
     use netcdf
@@ -2141,7 +2141,6 @@ CONTAINS
     implicit none
 
     type(popluc_type), intent(in) :: POPLUC
-    integer,           intent(in) :: ctime
 
     INTEGER   :: STATUS
     INTEGER   :: land_ID, age_ID, i, mp, nprod_ID

@@ -473,7 +473,7 @@ contains
   END SUBROUTINE casa_readphen
 
 
-  SUBROUTINE casa_init(casabiome,casamet,casaflux,casapool,casabal,veg,phen)
+  SUBROUTINE casa_init(casamet, casaflux, casapool, casabal, phen)
     ! mst not used (BP sep2010)
     !! for first time reading file *_1220.csv  (BP may2010)
     !SUBROUTINE casa_init(mst,casapool,casabal,veg)
@@ -493,13 +493,11 @@ contains
     IMPLICIT NONE
 
     !  INTEGER,        INTENT(IN)    :: mst
-    TYPE (casa_biome),   INTENT(IN)    :: casabiome
     TYPE (casa_met),     INTENT(INOUT) :: casamet
     TYPE (casa_flux),    INTENT(INOUT) :: casaflux
     TYPE (casa_pool),    INTENT(INOUT) :: casapool
     TYPE (casa_balance), INTENT(INOUT) :: casabal
     ! for first time reading file *_1220.csv  (BP may2010)
-    TYPE (veg_parameter_type), INTENT(IN) :: veg
     TYPE (phen_variable),   INTENT(INOUT) :: phen
     ! end addition (BP may2010)
 
@@ -1110,7 +1108,7 @@ contains
 
 
   ! changed by yp wang following Chris Lu 5/nov/2012
-  SUBROUTINE biogeochem(ktau,dels,idoY,LALLOC,veg,soil,casabiome,casapool,casaflux, &
+  SUBROUTINE biogeochem(idoY,LALLOC,veg,soil,casabiome,casapool,casaflux, &
        casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter,xksoil,xkleaf,xkleafcold,xkleafdry, &
        cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd, &
        nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd, &
@@ -1123,8 +1121,6 @@ contains
 
     IMPLICIT NONE
 
-    INTEGER,                   INTENT(IN)    :: ktau
-    REAL,                      INTENT(IN)    :: dels
     INTEGER,                   INTENT(IN)    :: idoy
     INTEGER,                   INTENT(IN)    :: LALLOC
     TYPE(veg_parameter_type),  INTENT(INOUT) :: veg  ! vegetation parameters
@@ -1167,10 +1163,10 @@ contains
        call casa_allocation(veg,soil,casabiome,casaflux,casapool,casamet,phen,LALLOC)
     ENDIF
 
-    call casa_xrateplant(xkleafcold,xkleafdry,xkleaf,veg,casabiome, &
-         casamet,phen)
-    call casa_coeffplant(xkleafcold,xkleafdry,xkleaf,veg,casabiome,casapool, &
-         casaflux,casamet,phen)
+    call casa_xrateplant(xkleafcold, xkleafdry, xkleaf, veg, casabiome, &
+         casamet, phen)
+    call casa_coeffplant(xkleafcold, xkleafdry, xkleaf, veg, casabiome, casapool, &
+         casaflux, casamet)
 
     call casa_xnp(xnplimit,xNPuptake,veg,casabiome,casapool,casaflux,casamet)
 
@@ -1255,9 +1251,9 @@ contains
        deallocate(tmp)
     endif
 
-    call casa_delsoil(veg,casapool,casaflux,casamet,casabiome)
+    call casa_delsoil(veg, casapool, casaflux, casamet, casabiome)
 
-    call casa_cnpcycle(veg,casabiome,casapool,casaflux,casamet, LALLOC)
+    call casa_cnpcycle(veg, casabiome, casapool, casaflux, casamet)
     !! vh_js !!
     !CLN ndummy must be before pdummy!!!!
     IF (icycle<3) then

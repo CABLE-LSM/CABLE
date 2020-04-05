@@ -1846,7 +1846,7 @@ CONTAINS
     IF (check%mass_bal) CALL mass_balance(dels, ktau, ssnow, soil, canopy, met, air, bal)
 
     ! IF asked to check energy balance:
-    IF (check%energy_bal) CALL energy_balance(dels, ktau, met, rad, canopy, bal, ssnow, SBOLTZ, EMLEAF, EMSOIL)
+    IF (check%energy_bal) CALL energy_balance(met, rad, canopy, bal, ssnow, SBOLTZ, EMLEAF, EMSOIL)
 
     ! Initialise output time step counter and month counter:
     IF (ktau == 1) THEN
@@ -3614,7 +3614,7 @@ CONTAINS
   !=============================================================================
 
   SUBROUTINE create_restart(logn, dels, ktau, soil, veg, ssnow, &
-       canopy, rough, rad, bgc, bal, met)
+       canopy, rad, bgc, bal)
 
     ! Creates a restart file for CABLE using a land only grid with mland
     ! land points and max_vegpatches veg/soil patches (some of which may
@@ -3625,13 +3625,11 @@ CONTAINS
     integer,                   intent(in) :: logn   ! log file number
     real,                      intent(in) :: dels   ! time step size
     integer,                   intent(in) :: ktau   ! timestep number in loop which include spinup
-    type(met_type),            intent(in) :: met    ! meteorological data
     type(soil_parameter_type), intent(in) :: soil   ! soil parameters
     type(veg_parameter_type),  intent(in) :: veg    ! vegetation parameters
     type(soil_snow_type),      intent(in) :: ssnow  ! soil and snow variables
     type(bgc_pool_type),       intent(in) :: bgc    ! carbon pool variables
     type(canopy_type),         intent(in) :: canopy ! vegetation variables
-    type(roughness_type),      intent(in) :: rough  ! roughness varibles
     type(radiation_type),      intent(in) :: rad    ! radiation variables
     type(balances_type),       intent(in) :: bal    ! energy and water balance variables
     ! integer, intent(in) :: mvtype
