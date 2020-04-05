@@ -250,7 +250,7 @@ CONTAINS
          PRINT *, 'Variable dimensions do not match:'
          PRINT *, 'nslayer and ms = ', nslayer, ms
          PRINT *, 'ntime not equal 12 months: ', ntime
-         IF (ntime /=12) THEN
+         IF (ntime /= 12) THEN
             CALL cable_abort('Variable dimensions do not match (read_gridinfo)')
          ELSE
             write(*,*) 'warning: soil layers below nslayer will be initialsed with moisture'
@@ -751,6 +751,7 @@ CONTAINS
 
     USE netcdf
     USE cable_common_module, ONLY: filename
+    use mo_utils,            only: ne
     ! USE cable_IO_vars_module, ONLY : soilcol
 
     IMPLICIT NONE
@@ -797,7 +798,7 @@ CONTAINS
                                         'Error reading variable longitude.')
 
     DO r = 1, nlon
-      IF ( inLonSoilCol(r) /= inLon(r) ) CALL nc_abort(ok,                     &
+      IF ( ne(inLonSoilCol(r), inLon(r)) ) CALL nc_abort(ok,                     &
                                                'Wrong resolution in longitude.')
     END DO
 
@@ -807,7 +808,7 @@ CONTAINS
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error reading variable latitude.')
 
     DO r = 1, nlat
-      IF ( inLatSoilCol(r) /= inLat(r) ) CALL nc_abort(ok,                     &
+      IF ( ne(inLatSoilCol(r), inLat(r)) ) CALL nc_abort(ok,                     &
                                                'Wrong resolution in latitude.')
     END DO
 

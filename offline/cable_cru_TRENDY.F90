@@ -1302,6 +1302,7 @@ CONTAINS
     USE cable_common_module,   ONLY: DOYSOD2YMDHMS
     USE cable_weathergenerator,ONLY: WEATHER_GENERATOR_TYPE, WGEN_INIT, &
          WGEN_DAILY_CONSTANTS, WGEN_SUBDIURNAL_MET
+    use mo_utils,              only: eq
 
     IMPLICIT NONE
 
@@ -1355,7 +1356,7 @@ CONTAINS
     met%moy (:) = dM     ! Record the month
 
     ! It's a new day if the hour of the day is zero. 
-    newday = ( met%hod(landpt(1)%cstart).EQ. 0 )
+    newday = eq(met%hod(landpt(1)%cstart), 0.0)
 
     ! Beginning-of-year accounting
     IF (ktau .EQ. 1) THEN  ! ktau is always reset to 1 at the start of the year.
@@ -1383,7 +1384,7 @@ CONTAINS
        !   CALL CPU_TIME(etime)
        !   PRINT *, 'b4 daily ', etime, ' seconds needed '
 
-       LastDayOfYear = (ktau .EQ. kend-((SecDay/dt)-1))
+       LastDayOfYear = ktau .EQ. (kend-(nint(SecDay/dt)-1))
        CALL CRU_GET_DAILY_MET( CRU, LastDayOfYear, LastYearOfMet )
        !   CALL CPU_TIME(etime)
        !   PRINT *, 'after daily ', etime, ' seconds needed '

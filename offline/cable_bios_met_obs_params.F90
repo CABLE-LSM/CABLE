@@ -1121,6 +1121,7 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
   
     ! Read a single day of meteorology from all bios met files, updating the bios_rundate
     ! If a change of year has occurred, read an annual CO2 record
+    use mo_utils, only: eq
     
     IMPLICIT NONE
 
@@ -1141,7 +1142,7 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
     met%doy (landpt(:)%cstart) = INT(REAL(ktau-1) * dels / SecDay ) + 1
     met%year(landpt(:)%cstart) = Curyear  
 
-    newday = ( met%hod(landpt(1)%cstart) .EQ. 0.0 )
+    newday = eq(met%hod(landpt(1)%cstart), 0.0)
     IF ( newday ) THEN
        ! get current day's met
        READ (rain_unit) bios_rundate, rain_day          ! Packed vector of daily AWAP/BIOS rain (mm) 

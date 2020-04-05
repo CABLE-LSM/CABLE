@@ -2957,7 +2957,10 @@ CONTAINS
    !*******************************************************************************
 
    
-SUBROUTINE INTERPOLATE_BIOMASS_2D(pop, disturbance_interval,it,g)
+   SUBROUTINE INTERPOLATE_BIOMASS_2D(pop, disturbance_interval,it,g)
+
+     use mo_utils, only: eq
+     
 IMPLICIT NONE
 
 TYPE(POP_TYPE), INTENT(INOUT) :: POP
@@ -3203,7 +3206,7 @@ DO p=1,np   ! loop over interpolated age pairs
       area(4,3) = area_triangle(real(A1(p),dp), real(A2(p),dp), x(2), y(2), x(3), y(3))
       area(4,4) = area_triangle(real(A1(p),dp), real(A2(p),dp), x(2), y(2), x(4), y(4))
 
-      MASK_INSIDE_TRIANGLE=(area(:,1)==sum(area(:,2:4),2));
+      MASK_INSIDE_TRIANGLE = eq(area(:,1), sum(area(:,2:4),2))
       I_inside_triangle = MINLOC(area(:,1),1,MASK_INSIDE_TRIANGLE)
       z1interp(p) =SUM( z1obs(triangle_points(I_inside_triangle,:))* &
            area(I_inside_triangle,2:4))/sum(area(I_inside_triangle,2:4))

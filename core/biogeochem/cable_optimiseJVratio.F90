@@ -914,6 +914,7 @@ CONTAINS
   FUNCTION rtbis(func,x1,x2,xacc)
 
     !USE nrtype; USE nrutil, ONLY : nrerror
+    use mo_utils, only: eq, le
     
     IMPLICIT NONE
     
@@ -944,8 +945,8 @@ CONTAINS
        dx=dx*0.5
        xmid=rtbis+dx
        fmid=func(xmid)
-       if (fmid <= 0.0) rtbis=xmid
-       if (abs(dx) < xacc .or. fmid == 0.0) RETURN
+       if (le(fmid, 0.0)) rtbis=xmid
+       if (abs(dx) < xacc .or. eq(fmid, 0.0)) RETURN
     end do
     stop 'rtbis: too many bisections'
   END FUNCTION rtbis

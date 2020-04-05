@@ -646,6 +646,8 @@ CONTAINS
     ! pools according to land-use transitions
     !-------------------------------------------------------------------------------
 
+    use mo_utils, only: eq
+    
     IMPLICIT NONE
     
     TYPE(POPLUC_TYPE),   INTENT(INOUT) :: POPLUC
@@ -1349,7 +1351,7 @@ CONTAINS
                 POPLUC%primf(g)  = max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp)
              elseif (ilu == s) then
                 POPLUC%secdf(g) = max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp)
-                if (POPLUC%secdf(g) .eq. 0.0_dp) then
+                if (eq(POPLUC%secdf(g), 0.0_dp)) then
                    POPLUC%freq_age_secondary(g,:) = 0.0_dp
                 endif
              elseif (ilu == gr) then

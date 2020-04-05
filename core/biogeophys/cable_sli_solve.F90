@@ -85,6 +85,7 @@ MODULE sli_solve
        esat_ice, slope_esat_ice, rtbis_Tfrozen, GTFrozen, &
        JSoilLayer, SEB
   USE cable_IO_vars_module, ONLY: wlogn
+  use mo_utils,             only: ne
   
   IMPLICIT NONE
 
@@ -536,7 +537,7 @@ CONTAINS
     tmp2d1(:) = zero ! 1st order estim of rate of change of moisture storage
     tmp2d2(:) = zero ! 1st order estim of rate of change of temperature
     ! estimate rate of change of moisture storage [m/s]
-    where (var(1:n)%isat==0.and.var(1:n)%iice==0.) tmp2d1(1:n) = &
+    where (var(1:n)%isat==0 .and. var(1:n)%iice==0) tmp2d1(1:n) = &
          abs(q(1:n)-q(0:n-1)-iqex(1:n))/(par(1:n)%thre*dx(1:n))
     where (var(1:n)%iice==1)  tmp2d1(1:n) =  tmp2d1(1:n)/2._r_2
     ! estimate rate of change of temperature [K/s]
@@ -4926,7 +4927,7 @@ CONTAINS
     ! upper boundary condition
     cvs = cva + qevap*rbw ! concentration of water vapour at soil/air interface (m3 (H2O liq)/ m3 (air))
 
-    if (var_Dv(ns_ciso) /= zero) then
+    if (ne(var_Dv(ns_ciso), zero)) then
        cv1 = -qv0*(half*dx(ns_ciso))/var_Dv(ns_ciso) + cvs
     else
        cv1 = var_cv(ns_ciso)

@@ -112,6 +112,7 @@ PROGRAM cable_offline_driver
   use cable_c13o2,             only: c13o2_print_delta_flux, c13o2_print_delta_pools, c13o2_print_delta_luc
   use mo_isotope,              only: isoratio ! vpdbc13
   use mo_c13o2_photosynthesis, only: c13o2_discrimination_simple, c13o2_discrimination
+  use mo_utils,                only: eq, ne
 
   ! PLUME-MIP only
   USE CABLE_PLUME_MIP,      ONLY: PLUME_MIP_TYPE, PLUME_MIP_GET_MET,&
@@ -810,7 +811,7 @@ PROGRAM cable_offline_driver
                       kstart+koffset )
                  IF (TRIM(cable_user%MetType) .EQ. 'site' ) THEN
                     CALL site_get_CO2_Ndep(site)
-                    WHERE (met%ca .eq. fixedCO2 /1000000.0)  ! not read in metfile
+                    WHERE (eq(met%ca, fixedCO2 /1000000.0))  ! not read in metfile
                        met%ca = site%CO2 / 1.e+6
                     ENDWHERE
                     met%Ndep = site%Ndep  *1000./10000./365. ! kg ha-1 y-1 > g m-2 d-1
@@ -1132,13 +1133,13 @@ PROGRAM cable_offline_driver
 
                  ! vh ! commented code below detects Nans in evaporation flux and stops if there are any.
                  do kk=1,mp
-                    if (canopy%fe(kk) .NE. canopy%fe(kk)) THEN
+                    if (ne(canopy%fe(kk), canopy%fe(kk))) THEN
                        write(*,*) 'fe nan', kk, ktau,met%qv(kk), met%precip(kk),met%precip_sn(kk), &
                             met%fld(kk), met%fsd(kk,:), met%tk(kk), met%ua(kk), ssnow%potev(kk), met%pmb(kk), &
                             canopy%ga(kk), ssnow%tgg(kk,:), canopy%fwsoil(kk)
                        stop
                     endif
-                    if ( casaflux%cnpp(kk) .NE. casaflux%cnpp(kk)) then
+                    if (ne(casaflux%cnpp(kk), casaflux%cnpp(kk))) then
                        write(*,*) 'npp nan', kk, ktau,  casaflux%cnpp(kk)
                        !stop
                     endif
@@ -1429,6 +1430,7 @@ SUBROUTINE LUCdriver( casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg,
   USE POPLUC_Module,        ONLY: POPLUCStep, POPLUC_weights_Transfer
   ! 13C
   use cable_c13o2_def,      only: c13o2_pool
+  use mo_utils,             only: eq
 
   IMPLICIT NONE
 
@@ -1473,8 +1475,8 @@ SUBROUTINE LUCdriver( casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg,
 
   ! zero secondary forest tiles in POP where secondary forest area is zero
   DO k=1,mland
-     if ((POPLUC%frac_primf(k)-POPLUC%frac_forest(k))==0.0_r_2 &
-          .and. (.not.LUC_EXPT%prim_only(k))) then
+     if ( eq((POPLUC%frac_primf(k)-POPLUC%frac_forest(k)), 0.0_r_2) &
+          .and. (.not. LUC_EXPT%prim_only(k)) ) then
         j = landpt(k)%cstart+1
         do l=1,size(POP%Iwood)
            if( POP%Iwood(l) == j) then

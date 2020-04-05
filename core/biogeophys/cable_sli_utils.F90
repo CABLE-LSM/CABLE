@@ -12,6 +12,7 @@ MODULE sli_utils
        gf, hmin, rhmin, dsmmax, rhocp, vars_snow, vars_met, &
        freezefac, ithermalcond, rmair, Mw
   USE cable_common_module, ONLY: cable_user
+  use mo_utils,            only: eq
 
   IMPLICIT NONE
 
@@ -1282,7 +1283,7 @@ CONTAINS
     qvT(n) = zero
 
     do i=1, n-1
-       if (var(i)%Dv == zero .or. var(i+1)%Dv == zero) then
+       if (eq(var(i)%Dv, zero) .or. eq(var(i+1)%Dv, zero)) then
           q(i)    = q(i) - qv(i)
           qya(i)  = qya(i) - qvya(i)
           qyb(i)  = qyb(i) - qvyb(i)
@@ -1663,7 +1664,7 @@ CONTAINS
     qvT(:,n) = zero
 
     do i=1, n-1
-       where (var(:,i)%Dv == zero .or. var(:,i+1)%Dv == zero)
+       where (eq(var(:,i)%Dv, zero) .or. eq(var(:,i+1)%Dv, zero))
           q(:,i)    = q(:,i) - qv(:,i)
           qya(:,i)  = qya(:,i) - qvya(:,i)
           qyb(:,i)  = qyb(:,i) - qvyb(:,i)
@@ -2243,7 +2244,7 @@ CONTAINS
 
     select case (iso)
     case ("Fr")
-       if (p(3)==zero) then ! linearise near zero
+       if (eq(p(3),zero)) then ! linearise near zero
           p(3) = (0.01_r_2*dsmmax/p(1))**(one/p(2)) ! concn at 0.01*dsmmax
           p(4) = p(1)*p(3)**(p(2)-one) ! slope
        end if
@@ -3202,7 +3203,7 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
     INTEGER(i_d) :: i
     REAL(r_2)     :: an, b, c, d, del, h
 
-    if (x == 0.0_r_2) then
+    if (eq(x, 0.0_r_2)) then
        gcf=1.0_r_2
        RETURN
     end if
@@ -3238,7 +3239,7 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
     INTEGER(i_d) :: n
     REAL(r_2)     :: ap, del, summ
 
-    if (x == 0.0_r_2) then
+    if (eq(x, 0.0_r_2)) then
        gser = 0.0_r_2
        RETURN
     end if
@@ -3362,7 +3363,7 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
        xmid = rtbis_rh0+dx
        fmid = rh0_sol(xmid,sol)
        if (fmid <= zero) rtbis_rh0 = xmid
-       if (abs(dx) < xacc .or. fmid == zero) RETURN
+       if (abs(dx) < xacc .or. eq(fmid, zero)) RETURN
     end do
 
   END FUNCTION rtbis_rh0

@@ -1096,6 +1096,7 @@ END SUBROUTINE GET_PLUME_Ndep
     USE cable_weathergenerator,ONLY: WEATHER_GENERATOR_TYPE, WGEN_INIT, &
          WGEN_DAILY_CONSTANTS, WGEN_SUBDIURNAL_MET
     USE cable_checks_module,   ONLY: rh_sh
+    use mo_utils,              only: eq
 
     IMPLICIT NONE
 
@@ -1134,7 +1135,7 @@ END SUBROUTINE GET_PLUME_Ndep
 
     met%moy (:) = dM
 
-    newday = ( met%hod(landpt(1)%cstart).EQ. 0 )
+    newday = eq(met%hod(landpt(1)%cstart), 0.0)
 
     ! Beginning-of-year accounting
     IF ( ktau .EQ. 1 ) THEN
@@ -1161,8 +1162,8 @@ END SUBROUTINE GET_PLUME_Ndep
 
        !CALL CPU_TIME(etime)
        !  PRINT *, 'b4 daily ', etime, ' seconds needed '
-       CALL PLUME_GET_DAILY_MET( PLUME, (ktau.EQ.kend-((SecDay/dt)-1) .AND. &
-            FILE_SWITCH( PLUME, 'CLOSE' )), islast )
+       CALL PLUME_GET_DAILY_MET( PLUME, (ktau.EQ.(kend-(nint(SecDay/dt)-1))) .AND. &
+            FILE_SWITCH(PLUME, 'CLOSE'), islast )
        !CALL CPU_TIME(etime)
        !   PRINT *, 'after daily ', etime, ' seconds needed '
        !STOP
@@ -1252,7 +1253,7 @@ END SUBROUTINE GET_PLUME_Ndep
     ! ENDIF
     ! Finally closing files when done
 
-    IF ((ktau .EQ. kend .AND. FILE_SWITCH( PLUME, 'CLOSE' )) .OR. islast) THEN
+    IF (((ktau .EQ. kend) .AND. FILE_SWITCH( PLUME, 'CLOSE' )) .OR. islast) THEN
        DO i=1, PLUME%NMET
           STATUS = NF90_CLOSE(PLUME%F_ID(i))
           CALL HANDLE_ERR(STATUS, "Closing PLUME file"//PLUME%MetFile(i))

@@ -35,6 +35,7 @@ contains
          ! c13o2_create_output, c13o2_write_output, c13o2_close_output, &
          ! c13o2_nvars_output, &
          ! c13o2_print_delta_pools, c13o2_print_delta_luc
+    use mo_utils,             only: eq
 
     IMPLICIT NONE
 
@@ -245,8 +246,8 @@ contains
 
                 ! zero secondary forest tiles in POP where secondary forest area is zero
                 DO k=1,mland
-                   if ((POPLUC%primf(k)-POPLUC%frac_forest(k))==0.0_dp &
-                        .and. (.not.LUC_EXPT%prim_only(k))) then
+                   if ( eq((POPLUC%primf(k)-POPLUC%frac_forest(k)), 0.0_dp) &
+                        .and. (.not. LUC_EXPT%prim_only(k)) ) then
 
                       j = landpt(k)%cstart+1
                       do l=1,size(POP%Iwood)

@@ -194,6 +194,8 @@ CONTAINS
 
 SUBROUTINE mass_balance(dels, ktau, ssnow, soil, canopy, met, air, bal)
 
+   use mo_utils, only: eq
+  
    implicit none
   
    ! Input arguments
@@ -220,13 +222,13 @@ SUBROUTINE mass_balance(dels, ktau, ssnow, soil, canopy, met, air, bal)
       delwb(:) = 0.
    ELSE
       ! Calculate change in soil moisture b/w timesteps:
-      IF (MOD(REAL(ktau),2.0)==1.0) THEN         ! if odd timestep
+      IF (eq(MOD(REAL(ktau),2.0), 1.0)) THEN         ! if odd timestep
          bwb(:,:,1)=ssnow%wb
          DO k=1,mp           ! current smoist - prev tstep smoist
             delwb(k) = SUM((bwb(k,:,1)                                         &
                   - (bwb(k,:,2)))*soil%zse)*1000.0
          END DO
-      ELSE IF(MOD(REAL(ktau),2.0)==0.0) THEN    ! if even timestep
+      ELSE IF(eq(MOD(REAL(ktau),2.0), 0.0)) THEN    ! if even timestep
          bwb(:,:,2)=ssnow%wb
          DO k=1,mp           !  current smoist - prev tstep smoist
             delwb(k) = SUM((bwb(k,:,2)                                         &

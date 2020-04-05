@@ -62,7 +62,8 @@ CONTAINS
     USE cable_air_module
     USE cable_common_module
     USE cable_roughness_module
-    use cable_sli_main,         only: sli_main
+    use cable_sli_main, only: sli_main
+    use mo_utils,       only: eq
 
     implicit none
 
@@ -592,7 +593,7 @@ CONTAINS
             C%SBOLTZ*met%tk**4 - C%EMSOIL*C%SBOLTZ*met%tk**4
 
        rlower_limit = canopy%epot * air%rlam / dels
-       where (rlower_limit == 0.0) rlower_limit = 1.e-7 !prevent from 0. by adding 1.e-7 (W/m2)
+       where (eq(rlower_limit, 0.0)) rlower_limit = 1.e-7 !prevent from 0. by adding 1.e-7 (W/m2)
 
        canopy%wetfac_cs = max(0., min(1.0, canopy%fe / rlower_limit))
 
@@ -878,6 +879,7 @@ CONTAINS
     FUNCTION humidity_deficit_method(dq) RESULT(ssnowpotev)
 
       use cable_def_types_mod, only: mp
+      use mo_utils,            only: eq
 
       implicit none
 
@@ -889,7 +891,7 @@ CONTAINS
 
       idq = dq
       do j=1, mp
-         if ((ssnow%snowd(j)>1.0) .or. (ssnow%tgg(j,1).eq.c%tfrz)) &
+         if ((ssnow%snowd(j)>1.0) .or. eq(ssnow%tgg(j,1), c%tfrz)) &
               idq(j) = max(-0.1e-3, idq(j))
       enddo
 
@@ -971,7 +973,8 @@ CONTAINS
 
     SUBROUTINE within_canopy(gbhu, gbhf)
 
-      USE cable_def_types_mod, only : mp, r_2
+      USE cable_def_types_mod, only: mp, r_2
+      use mo_utils,            only: eq
 
       REAL(r_2), INTENT(IN), DIMENSION(:,:) :: &
            gbhu, & ! forcedConvectionBndryLayerCond
@@ -1108,7 +1111,7 @@ CONTAINS
 
 
             DO j=1,mp
-               IF ( (met%fsd(j,1)+met%fsd(j,2))  ==  0.0 ) &
+               IF ( eq((met%fsd(j,1)+met%fsd(j,2)), 0.0) ) &
                     canopy%zetar(j,2) = 0.5 * canopy%zetar(j,2)
             ENDDO
 

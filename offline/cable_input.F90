@@ -294,9 +294,12 @@ END SUBROUTINE get_default_lai
 
 SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
 
-   USE CABLE_COMMON_MODULE, ONLY : IS_LEAPYEAR, YMDHMS2DOYSOD, DOYSOD2YMDHMS,&
-                                   HANDLE_ERR
+   USE CABLE_COMMON_MODULE, ONLY: IS_LEAPYEAR, YMDHMS2DOYSOD, DOYSOD2YMDHMS,&
+        HANDLE_ERR
+   use mo_utils,            only: eq
+   
    IMPLICIT NONE
+   
    ! Input arguments
    REAL, INTENT(OUT) :: dels   ! time step size
    REAL, INTENT(IN) :: TFRZ
@@ -725,7 +728,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
     !****** PALS met file has timevar(1)=0 while timeunits from 00:30:00 ******
     !!CLN CRITICAL! From my point of view, the information in the file is correct...
     !!CLN WHY DO the input files all have bugs???
-    IF (timevar(1) == 0.0_r_2) THEN
+    IF (eq(timevar(1), 0.0_r_2)) THEN
       READ(timeunits(29:30),*) tsmin
       IF (tsmin*60.0 >= dels) THEN
         tsmin = tsmin - INT(dels / 60)
@@ -770,12 +773,14 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
     ! only do this if not already at middle of timestep
     !! vh_js !!
     IF ((TRIM(cable_user%MetType).EQ.'' .OR. &
-                  TRIM(cable_user%MetType).EQ.'site').and. MOD(shod*3600, dels)==0 .and. &
-         (shod.gt.dels/3600./2.) ) THEN
+         TRIM(cable_user%MetType).EQ.'site') .and. &
+         MOD(nint(shod*3600.), int(dels)) == 0 .and. &
+         (shod .gt. dels/3600./2.) ) THEN
        shod = shod - dels/3600./2.
     ELSEIF (TRIM(cable_user%MetType).EQ.''.OR. &
-                  (TRIM(cable_user%MetType).EQ.'site') .and. MOD(shod*3600, dels)==0 .and. &
-         (shod.lt.dels/3600./2.) ) THEN
+         (TRIM(cable_user%MetType).EQ.'site') .and. &
+         MOD(nint(shod*3600.), int(dels)) == 0 .and. &
+         (shod .lt. dels/3600./2.) ) THEN
        shod = shod + dels/3600./2.
     ENDIF
     
@@ -1507,6 +1512,9 @@ SUBROUTINE get_met_data(spinup, spinConv, met, rad, &
      veg, dels, TFRZ, ktau, kstart)
    ! Precision changes from REAL(4) to r_1 enable running with -r8
 
+   use mo_utils, only: eq
+
+   implicit none
 
    ! Input arguments
    LOGICAL, INTENT(IN)                    ::                                   &
@@ -1764,7 +1772,7 @@ SUBROUTINE get_met_data(spinup, spinConv, met, rad, &
       IF(ok /= NF90_NOERR) CALL nc_abort &
            (ok,'Error reading Qair in met data file ' &
            //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
-      IF(convert%Qair==-999.0) THEN
+      IF (eq(convert%Qair, -999.0)) THEN
         ! Convert relative value using only first veg/soil patch values
         ! (identical)
         DO i=1,mland ! over all land points/grid cells
@@ -2067,7 +2075,7 @@ SUBROUTINE get_met_data(spinup, spinConv, met, rad, &
       IF(ok /= NF90_NOERR) CALL nc_abort &
            (ok,'Error reading Qair in met data file ' &
            //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
-      IF(convert%Qair==-999.0) THEN
+      IF (eq(convert%Qair, -999.0)) THEN
         DO i=1,mland ! over all land points/grid cells
           CALL rh_sh(REAL(tmpDat2(i,1)), met%tk(landpt(i)%cstart), &
                met%pmb(landpt(i)%cstart),met%qv(landpt(i)%cstart))
@@ -2277,7 +2285,7 @@ SUBROUTINE get_met_data(spinup, spinConv, met, rad, &
       CALL cable_abort('Unrecognised grid type')
     END IF ! grid type
 
-    if ((.not. exists%Snowf) .or. all(met%precip_sn == 0.0)) then ! honour snowf input
+    if ((.not. exists%Snowf) .or. all(eq(met%precip_sn, 0.0))) then ! honour snowf input
     DO i=1,mland ! over all land points/grid cells
       ! Set solid precip based on temp
       met%precip_sn(landpt(i)%cstart:landpt(i)%cend) = 0.0 ! (EK nov2007)

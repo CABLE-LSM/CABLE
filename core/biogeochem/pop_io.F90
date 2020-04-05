@@ -17,11 +17,12 @@ contains
     ! CLOSE_FILE : Flag to close file at the end of Episode (Episode only)
     ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     USE netcdf
-    USE TypeDef, only: dp
+    USE TypeDef,      only: dp
     USE POP_constants
     USE POP_types
     USE CASAVARIABLE, only: casa_met, icycle
     USE CABLE_COMMON_MODULE
+    use mo_utils,     only: ne
 
     IMPLICIT NONE
 
@@ -1140,7 +1141,7 @@ contains
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
        STATUS = NF90_GET_VAR ( FILE_ID, dID, R1 )
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-       IF ( ANY ( casamet%lat(POP%Iwood) .NE. R1 ) ) THEN
+       IF ( ANY ( ne(casamet%lat(POP%Iwood), R1) ) ) THEN
           WRITE(*,*)"INPUT LATs don't match casamet! pop_bios_io.f90" &
                , TRIM(fname)
           ! STOP
@@ -1149,7 +1150,7 @@ contains
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
        STATUS = NF90_GET_VAR ( FILE_ID, dID, R1 )
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-       IF ( ANY ( casamet%lon(POP%Iwood) .NE. R1 ) ) THEN
+       IF ( ANY ( ne(casamet%lon(POP%Iwood), R1) ) ) THEN
           WRITE(*,*)"INPUT LONs don't match casamet! pop_bios_io.f90" &
                , TRIM(fname)
           !STOP

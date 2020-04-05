@@ -218,6 +218,7 @@ CONTAINS
          c13o2_write_restart_flux, c13o2_write_restart_pools, c13o2_write_restart_luc, &
          c13o2_create_output, c13o2_write_output, c13o2_close_output, c13o2_nvars_output
     use cable_c13o2,          only: c13o2_print_delta_flux, c13o2_print_delta_pools, c13o2_print_delta_luc
+    use mo_utils,             only: ne
 
     ! PLUME-MIP only
     USE CABLE_PLUME_MIP,      ONLY: PLUME_MIP_TYPE, PLUME_MIP_GET_MET,&
@@ -1215,9 +1216,9 @@ CONTAINS
                 !      new_sumfe/count_bal, new_sumfpn/count_bal
                 
                 ! check for Nans in biophysical outputs and abort if there are any
-                IF (any(canopy%fe .NE. canopy%fe)) THEN
+                IF (any(ne(canopy%fe, canopy%fe))) THEN
                    DO kk=1,mp
-                      IF (canopy%fe(kk) .NE. canopy%fe(kk)) THEN
+                      IF (ne(canopy%fe(kk), canopy%fe(kk))) THEN
                          WRITE(*,*) 'Nan in evap flux,', kk, patch(kk)%latitude, patch(kk)%longitude
                          write(*,*) 'fe nan', kk, ktau,met%qv(kk), met%precip(kk),met%precip_sn(kk), &
                               met%fld(kk), met%fsd(kk,:), met%tk(kk), met%ua(kk), &
@@ -10150,6 +10151,7 @@ SUBROUTINE master_CASAONLY_LUC(dels, kstart, kend, veg, casabiome, casapool, &
   use cable_c13o2_def,      only: c13o2_flux, c13o2_pool, c13o2_luc
   use cable_c13o2,          only: c13o2_save_luc, c13o2_update_luc, &
        c13o2_write_restart_pools, c13o2_write_restart_luc
+  use mo_utils,             only: eq
 
   IMPLICIT NONE
   
@@ -10322,8 +10324,8 @@ SUBROUTINE master_CASAONLY_LUC(dels, kstart, kend, veg, casabiome, casapool, &
 
            ! zero secondary forest tiles in POP where secondary forest area is zero
            DO k=1,mland
-              if ((POPLUC%primf(k)-POPLUC%frac_forest(k))==0.0_dp &
-                   .and. (.not.LUC_EXPT%prim_only(k))) then
+              if ( eq(POPLUC%primf(k)-POPLUC%frac_forest(k), 0.0_dp) &
+                   .and. (.not. LUC_EXPT%prim_only(k)) ) then
 
                  j = landpt(k)%cstart+1
                  do l=1,size(POP%Iwood)
@@ -10438,6 +10440,7 @@ SUBROUTINE LUCdriver(casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg, 
        
   ! 13C
   use cable_c13o2_def,      only: c13o2_pool
+  use mo_utils,             only: eq
 
   IMPLICIT NONE
 
@@ -10483,8 +10486,8 @@ SUBROUTINE LUCdriver(casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg, 
 
   ! zero secondary forest tiles in POP where secondary forest area is zero
   DO k=1,mland
-     if ((POPLUC%frac_primf(k)-POPLUC%frac_forest(k))==0.0_r_2 &
-          .and. (.not.LUC_EXPT%prim_only(k))) then
+     if ( eq(POPLUC%frac_primf(k)-POPLUC%frac_forest(k), 0.0_r_2) &
+          .and. (.not. LUC_EXPT%prim_only(k)) ) then
         j = landpt(k)%cstart+1
         do l=1,size(POP%Iwood)
            if( POP%Iwood(l) == j) then

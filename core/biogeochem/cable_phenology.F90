@@ -42,6 +42,8 @@ SUBROUTINE cable_phenology_clim (veg, climate, phen)
   USE casaparm
   USE casavariable
   USE phenvariable
+  use mo_utils, only: eq, ge
+  
   IMPLICIT NONE
 
   TYPE (veg_parameter_type), INTENT(IN)    :: veg  ! vegetation parameters
@@ -133,10 +135,10 @@ endif
     if ((phen_tmp.gt.0.0_r_2) .and. (phen_tmp.lt.1.0_r_2)) then
        phen%phase(np) = 1 ! greenup
        phen%doyphase(np,1) = climate%doy
-    elseif (phen_tmp .ge. 1.0_r_2 ) then
+    elseif (ge(phen_tmp, 1.0_r_2)) then
        phen%phase(np) = 2 ! steady LAI
        phen%doyphase(np,2) = climate%doy
-    elseif (phen_tmp .eq. 0.0_r_2) then
+    elseif (eq(phen_tmp, 0.0_r_2)) then
        phen%phase(np) = 3 ! senescence
        phen%doyphase(np,3) = climate%doy
     endif
