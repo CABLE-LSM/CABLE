@@ -4134,15 +4134,21 @@ SUBROUTINE master_casa_params(comm, casabiome, casapool, casaflux, casamet, casa
      !blen(bidx) = mplant * r2len
 
      bidx = bidx + 1
-     CALL MPI_Get_address (casaflux%kplant(off,1), displs(bidx), ierr)
-     CALL MPI_Type_create_hvector (mplant, r2len, r2stride, MPI_BYTE, &
-     &                             types(bidx), ierr)
+     CALL MPI_Get_address(casaflux%kplant(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(mplant, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
      blen(bidx) = 1
 
      bidx = bidx + 1
-     CALL MPI_Get_address (casaflux%kplant_fire(off,1), displs(bidx), ierr)
-     CALL MPI_Type_create_hvector (mplant, r2len, r2stride, MPI_BYTE, &
-     &                             types(bidx), ierr)
+     CALL MPI_Get_address(casaflux%kplant_fire(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(mplant, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blen(bidx) = 1
+
+     bidx = bidx + 1
+     CALL MPI_Get_address(casaflux%kplant_tot(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(mplant, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
      blen(bidx) = 1
 
      !blen(bidx) = mplant * r2len
@@ -4287,22 +4293,28 @@ SUBROUTINE master_casa_params(comm, casabiome, casapool, casaflux, casamet, casa
      blen(bidx) = r2len
 
      bidx = bidx + 1
-     CALL MPI_Get_address (casaflux%klitter(off,1), displs(bidx), ierr)
-     CALL MPI_Type_create_hvector (mlitter, r2len, r2stride, MPI_BYTE, &
+     CALL MPI_Get_address(casaflux%klitter(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(mlitter, r2len, r2stride, MPI_BYTE, &
           types(bidx), ierr)
      blen(bidx) = 1
      !blen(bidx) = mlitter * r2len
 
      bidx = bidx + 1
-     CALL MPI_Get_address (casaflux%klitter_fire(off,1), displs(bidx), ierr)
-     CALL MPI_Type_create_hvector (mlitter, r2len, r2stride, MPI_BYTE, &
+     CALL MPI_Get_address(casaflux%klitter_fire(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(mlitter, r2len, r2stride, MPI_BYTE, &
           types(bidx), ierr)
      blen(bidx) = 1
 
      bidx = bidx + 1
-     CALL MPI_Get_address (casaflux%ksoil(off,1), displs(bidx), ierr)
-     CALL MPI_Type_create_hvector (msoil, r2len, r2stride, MPI_BYTE, &
-     &                             types(bidx), ierr)
+     CALL MPI_Get_address(casaflux%klitter_tot(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(mlitter, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
+     blen(bidx) = 1
+
+     bidx = bidx + 1
+     CALL MPI_Get_address(casaflux%ksoil(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(msoil, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
      blen(bidx) = 1
      !blen(bidx) = msoil * r2len
 
@@ -6831,15 +6843,15 @@ SUBROUTINE master_casa_types(comm, casapool, casaflux, casamet, casabal, phen)
      blocks(bidx) = 1
 
      bidx = bidx + 1
-     CALL MPI_Get_address (casaflux%kplant(off,1), displs(bidx), ierr)
-     CALL MPI_Type_create_hvector (mplant, r2len, r2stride, MPI_BYTE, &
-          &                             types(bidx), ierr)
+     CALL MPI_Get_address(casaflux%kplant(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(mplant, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
      blocks(bidx) = 1
 
      bidx = bidx + 1
-     CALL MPI_Get_address (casaflux%kplant_fire(off,1), displs(bidx), ierr)
-     CALL MPI_Type_create_hvector (mplant, r2len, r2stride, MPI_BYTE, &
-          &                             types(bidx), ierr)
+     CALL MPI_Get_address(casaflux%kplant_fire(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(mplant, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
      blocks(bidx) = 1
 
      bidx = bidx + 1
@@ -6892,16 +6904,16 @@ SUBROUTINE master_casa_types(comm, casapool, casaflux, casamet, casabal, phen)
      blocks(bidx) = 1
 
      bidx = bidx + 1
-     CALL MPI_Get_address (casaflux%klitter(off,1), displs(bidx), ierr)
-     CALL MPI_Type_create_hvector (mlitter, r2len, r2stride, MPI_BYTE, &
-          &                             types(bidx), ierr)
+     CALL MPI_Get_address(casaflux%klitter(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(mlitter, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
      blocks(bidx) = 1
      !blocks(bidx) = mlitter * r2len
 
      bidx = bidx + 1
-     CALL MPI_Get_address (casaflux%klitter_fire(off,1), displs(bidx), ierr)
-     CALL MPI_Type_create_hvector (mlitter, r2len, r2stride, MPI_BYTE, &
-          &                             types(bidx), ierr)
+     CALL MPI_Get_address(casaflux%klitter_fire(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(mlitter, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
      blocks(bidx) = 1
      !blocks(bidx) = mlitter * r2len
 

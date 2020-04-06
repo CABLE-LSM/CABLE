@@ -57,8 +57,8 @@ MODULE cable_mpicommon
   ! vh added 5 variables DAMM_EnzPool, DAMM_KMO2, DAMM_KMcp, DAMM_Ea, DAMM_alpha
   ! ? 2 extra params -> 222
   ! Matthias Cuntz: add 7 canopy params for 13C -> 229
-  ! Matthias Cuntz: add 1 for fire -> 230
-  INTEGER, PARAMETER :: ncasaparam = 230
+  ! Matthias Cuntz: add 3 for fire -> 232
+  INTEGER, PARAMETER :: ncasaparam = 232
   ! MPI: base number of casa_init parameters sent to the workers
   INTEGER, PARAMETER :: ncinit = 18
 

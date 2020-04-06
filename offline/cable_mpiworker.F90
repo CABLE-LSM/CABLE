@@ -3043,11 +3043,15 @@ CONTAINS
     blen(bidx) = mplant * r2len
 
     bidx = bidx + 1
-    CALL MPI_Get_address (casaflux%kplant, displs(bidx), ierr)
+    CALL MPI_Get_address(casaflux%kplant, displs(bidx), ierr)
     blen(bidx) = mplant * r2len
 
     bidx = bidx + 1
-    CALL MPI_Get_address (casaflux%kplant_fire, displs(bidx), ierr)
+    CALL MPI_Get_address(casaflux%kplant_fire, displs(bidx), ierr)
+    blen(bidx) = mplant * r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address(casaflux%kplant_tot, displs(bidx), ierr)
     blen(bidx) = mplant * r2len
 
     ! 3D
@@ -3184,11 +3188,15 @@ CONTAINS
     blen(bidx) = r2len
 
     bidx = bidx + 1
-    CALL MPI_Get_address (casaflux%klitter, displs(bidx), ierr)
+    CALL MPI_Get_address(casaflux%klitter, displs(bidx), ierr)
     blen(bidx) = mlitter * r2len
 
     bidx = bidx + 1
-    CALL MPI_Get_address (casaflux%klitter_fire, displs(bidx), ierr)
+    CALL MPI_Get_address(casaflux%klitter_fire, displs(bidx), ierr)
+    blen(bidx) = mlitter * r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address(casaflux%klitter_tot, displs(bidx), ierr)
     blen(bidx) = mlitter * r2len
 
     bidx = bidx + 1
@@ -6197,11 +6205,11 @@ CONTAINS
     blocks(bidx) = mplant * r2len
 
     bidx = bidx + 1
-    CALL MPI_Get_address (casaflux%kplant(off,1), displs(bidx), ierr)
+    CALL MPI_Get_address(casaflux%kplant(off,1), displs(bidx), ierr)
     blocks(bidx) = mplant * r2len
 
     bidx = bidx + 1
-    CALL MPI_Get_address (casaflux%kplant_fire(off,1), displs(bidx), ierr)
+    CALL MPI_Get_address(casaflux%kplant_fire(off,1), displs(bidx), ierr)
     blocks(bidx) = mplant * r2len
 
     ! 13C
@@ -6240,11 +6248,11 @@ CONTAINS
     blocks(bidx) = mplant * mlitter * r2len
 
     bidx = bidx + 1
-    CALL MPI_Get_address (casaflux%klitter(off,1), displs(bidx), ierr)
+    CALL MPI_Get_address(casaflux%klitter(off,1), displs(bidx), ierr)
     blocks(bidx) = mlitter * r2len
 
     bidx = bidx + 1
-    CALL MPI_Get_address (casaflux%klitter_fire(off,1), displs(bidx), ierr)
+    CALL MPI_Get_address(casaflux%klitter_fire(off,1), displs(bidx), ierr)
     blocks(bidx) = mlitter * r2len
 
     bidx = bidx + 1

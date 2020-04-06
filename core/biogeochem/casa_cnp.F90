@@ -1007,7 +1007,7 @@ SUBROUTINE casa_coeffplant(xkleafcold, xkleafdry, xkleaf, veg, casabiome, casapo
   casaflux%kplant(:,:)     = 0.0_r_2
   casaflux%kplant_tot(:,:) = 0.0_r_2
 
-  where (casamet%iveg2/=icewater)
+  where (casamet%iveg2 /= icewater)
      ! using max function to avoid dividing by zero, ypw 14/may/2008
      ratioLignintoN(:,leaf)  = ( casapool%Cplant(:,leaf) &
           / ( max(1.0e-10_r_2, casapool%Nplant(:,leaf)) * casabiome%ftransNPtoL(veg%iveg(:),leaf) ) ) &
@@ -1030,7 +1030,7 @@ SUBROUTINE casa_coeffplant(xkleafcold, xkleafdry, xkleaf, veg, casabiome, casapo
   ! set leaf turnover to be the same as froot turnover for C3 & C4 grass
   where (veg%iveg==7 .OR. veg%iveg==6) casaflux%kplant(:,froot) = casaflux%kplant(:,leaf)
 
-  where (casamet%iveg2/=icewater)
+  where (casamet%iveg2 /= icewater)
      ! total turnover rate includes turnover by fire
      casaflux%kplant_tot(:,leaf)  = casaflux%kplant(:,leaf)  + (1.-casaflux%kplant(:,leaf))  * casaflux%kplant_fire(:,leaf)
      casaflux%kplant_tot(:,froot) = casaflux%kplant(:,froot) + (1.-casaflux%kplant(:,froot)) * casaflux%kplant_fire(:,froot)
@@ -1043,8 +1043,8 @@ SUBROUTINE casa_coeffplant(xkleafcold, xkleafdry, xkleaf, veg, casabiome, casapo
   ! When glai<glaimin, leaf biomass will not decrease anymore. (Q.Zhang 10/03/2011)
   do npt=1, mp
      if (casamet%glai(npt) .le. casabiome%glaimin(veg%iveg(npt))) then
-        casaflux%kplant_tot(npt,leaf) = 0.0_r_2
         casaflux%kplant(npt,leaf)     = 0.0_r_2
+        casaflux%kplant_tot(npt,leaf) = 0.0_r_2
      endif
   enddo
 
@@ -1226,17 +1226,17 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
         where ( ( (casapool%dcplantdt(npt,2:3)*deltpool + casapool%cplant(npt,2:3)) .lt. 0.0_r_2) &
              .or. ( (casapool%dcplantdt(npt,2:3)*deltpool + casapool%cplant(npt,2:3)) &
              .lt. 0.5_r_2 * casapool%cplant(npt,2:3) ) )
-           casaflux%kplant_tot(npt,2:3) = 0.0_r_2
            casaflux%kplant(npt,2:3)     = 0.0_r_2
+           casaflux%kplant_tot(npt,2:3) = 0.0_r_2
            !MCfire - casaflux%kplant_fire(npt,2:3) = 0.0_r_2 ?
            casaflux%crmplant(npt,2:3)   = 0.0_r_2
         endwhere
-        if ( any((casapool%cplant(npt,:) + casapool%dcplantdt(npt,:)*deltpool) .lt. 0.0_r_2) ) then
-           casaflux%kplant_tot(npt,1) = 0.0_r_2
-           casaflux%kplant(npt,1)     = 0.0_r_2
-           !MCfire - casaflux%kplant_fire(npt,1) = 0.0_r_2 ?
-           casaflux%crmplant(npt,1)   = min(casaflux%crmplant(npt,1), 0.5_r_2*casaflux%cgpp(npt))
-        endif
+        where ( (casapool%cplant(npt,:) + casapool%dcplantdt(npt,:)*deltpool) .lt. 0.0_r_2 )
+           casaflux%kplant(npt,:)     = 0.0_r_2
+           casaflux%kplant_tot(npt,:) = 0.0_r_2
+           !MCfire - casaflux%kplant_fire(npt,:) = 0.0_r_2 ?
+           casaflux%crmplant(npt,:) = min(casaflux%crmplant(npt,:), 0.5_r_2*casaflux%cgpp(npt))
+        end where
 
         ! revise turnover and NPP and dcplantdt to reflect above adjustments
         casaflux%Cplant_turnover(npt,:) = casaflux%kplant_tot(npt,:)  * casapool%cplant(npt,:)
@@ -1576,16 +1576,22 @@ SUBROUTINE casa_delsoil(veg, casapool, casaflux, casamet, casabiome)
            !vh! set klitter to zero where Nlitter will go -ve
            ! (occurs occasionally for metabolic litter pool) Ticket#108
            where (casaflux%klitter(nland,:) * max(0.0_r_2,casapool%Nlitter(nland,:)).gt. &
-                casapool%Nlitter(nland,:)+casaflux%fluxNtolitter(nland,:)) &
-                casaflux%klitter(nland,:) = 0.0_r_2
+                casapool%Nlitter(nland,:)+casaflux%fluxNtolitter(nland,:))
+              casaflux%klitter(nland,:)     = 0.0_r_2
+              casaflux%klitter_tot(nland,:) = 0.0_r_2
+              !MCfire - casaflux%klitter_fire(nland,:) = 0.0_r_2 ?
+           end where
         endif
 
         if (icycle > 2) then
            !vh! set klitter to zero where Plitter will go -ve
            ! (occurs occasionally for metabolic litter pool) Ticket#108
            where (casaflux%klitter(nland,:) * max(0.0_r_2,casapool%Plitter(nland,:)).gt. &
-                casapool%Plitter(nland,:)+casaflux%fluxPtolitter(nland,:)) &
-                casaflux%klitter(nland,:) = 0.0_r_2
+                casapool%Plitter(nland,:)+casaflux%fluxPtolitter(nland,:))
+              casaflux%klitter(nland,:)     = 0.0_r_2
+              casaflux%klitter_tot(nland,:) = 0.0_r_2
+              !MCfire - casaflux%klitter_fire(nland,:) = 0.0_r_2 ?
+           end where
         endif
 
         ! fire flux to atmosphere from burnt litter material
@@ -2454,8 +2460,10 @@ SUBROUTINE casa_cnpbal(casapool,casaflux,casabal)
   REAL(r_2), DIMENSION(mp) :: cbalplant, nbalplant, pbalplant
   REAL(r_2), DIMENSION(mp) :: cbalsoil,  nbalsoil,  pbalsoil
 
-  real(r_2), dimension(mp) :: tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7, tmp8
+  real(r_2), dimension(mp) :: tmp1, tmp2, tmp3, tmp4, tmp5, tmp6
+  real(r_2)                :: tmp7, tmp8, tmp9, tmp10, tmp11, tmp12, tmp13, tmp14
   real(r_2), parameter     :: prec = 1.0e-10_r_2
+  integer                  :: i
 
   cbalplant(:) = 0.0_r_2
   cbalsoil(:)  = 0.0_r_2
@@ -2476,21 +2484,27 @@ SUBROUTINE casa_cnpbal(casapool,casaflux,casabal)
   tmp3 = casapool%Clabile - casabal%Clabilelast
   tmp4 = casapool%dClabiledt * deltpool
   Cbalplant(:) = tmp1 - tmp2 + tmp3 - tmp4
-  if (any(abs(tmp1 - tmp2) > prec)) then
+  if (any(abs(tmp1 - tmp2) > prec)) then     
      write(*,*) 'Imbalance casapool%Cplant'
-     write(*,*) '  Last Cplant   ', sum(casabal%cplantlast,2)
-     write(*,*) '  This Cplant   ', sum(casapool%cplant,2)
-     write(*,*) '  NPP flux      ', casaflux%Cnpp * deltpool
-     write(*,*) '  Poll turnover ', sum((casaflux%kplant_tot*casabal%cplantlast),2) * deltpool
-     write(*,*) '  Diff Cplant   ', tmp1
-     write(*,*) '  Fluxes        ', tmp2
+     do i=1, mp
+        if (abs(tmp1(i) - tmp2(i)) > prec) then
+           write(*,*) '  Index, Imbalance        ', i, tmp1(i) - tmp2(i)
+           write(*,*) '  Last, Current Cplant    ', sum(casabal%cplantlast(i,:)), sum(casapool%cplant(i,:))
+           write(*,*) '  NPP flux, Pool turnover ', casaflux%Cnpp(i) * deltpool, &
+                sum(casaflux%kplant_tot(i,:)*casabal%cplantlast(i,:)) * deltpool
+           write(*,*) '  Diff Cplant, Fluxes     ', tmp1(i), tmp2(i)
+        endif
+     enddo
   endif
   if (any(abs(tmp3 - tmp4) > prec)) then
      write(*,*) 'Imbalance casapool%Clabile'
-     write(*,*) '  Last Clabile  ', casapool%Clabile
-     write(*,*) '  This Clabile  ', casabal%Clabilelast
-     write(*,*) '  Diff Clabile  ', tmp3
-     write(*,*) '  Deriv Clabile ', tmp4
+     do i=1, mp
+        if (abs(tmp3(i) - tmp4(i)) > prec) then
+           write(*,*) '  Index, Imbalance        ', i, tmp3(i) - tmp4(i)
+           write(*,*) '  Last, Current Clabile ', casapool%Clabile(i), casabal%Clabilelast(i)
+           write(*,*) '  Diff, Deriv Clabile   ', tmp3(i), tmp4(i)
+        endif
+     enddo
   endif
 
   ! soil and litter:
@@ -2508,41 +2522,44 @@ SUBROUTINE casa_cnpbal(casapool,casaflux,casabal)
   Cbalsoil(:) = tmp1 + tmp2 - tmp3 + tmp4 - tmp5 + tmp6
   if (any(abs(Cbalsoil) > prec)) then
      write(*,*) 'Imbalance casapool%Clitter+casapool%Csoil'
-     write(*,*) '  Diff Clitter         ', tmp1
-     write(*,*) '  Diff Csoil           ', tmp2
-     write(*,*) '  Plant turnover       ', sum(casaflux%kplant * casabal%cplantlast,2) * deltpool
-     write(*,*) '  Harvest              ', casaflux%kplant(:,leaf) * casabal%cplantlast(:,leaf) &
-          * casaflux%fharvest * deltpool
-     write(*,*) '  Hetero respiration   ', tmp4
-     write(*,*) '  Fire turnover - atmo ', tmp5 - tmp6
-     write(*,*) '  Diff Clitter+Csoil   ', tmp1 + tmp2
-     write(*,*) '  Fluxes               ', tmp3 - tmp4 + tmp5 - tmp6
-
-     ! fire debug - mass bal on litter
-     tmp1 = sum(casaflux%kplant * casabal%cplantlast, 2) ! plant input
-     tmp2 = sum(casaflux%kplant_fire * (1.0_r_2 - casaflux%kplant) * casabal%cplantlast, 2) - &
-          casaflux%fluxctoco2_plant_fire
-     tmp3 = sum(casaflux%klitter * casabal%clitterlast, 2)
-     tmp4 = sum(casaflux%klitter_fire * (1.0_r_2 - casaflux%klitter) * casabal%clitterlast, 2)
-     tmp5 = sum(casaflux%kplant_tot * casabal%cplantlast, 2)
-     tmp6 = casaflux%fluxCtoCO2_plant_fire
-     tmp7 = sum(casaflux%klitter_tot * casabal%clitterlast, 2)
-     tmp8 = sum(casaflux%kplant_fire * (1.0_r_2 - casaflux%kplant) * casabal%cplantlast, 2)
-     write(*,*) ''
-     write(*,*) '  plant input to litter (base turnover):        ', tmp1
-     write(*,*) '  plant input to litter (fire):                 ', tmp2
-     write(*,*) '  plant input to litter (base turnover + fire): ', tmp1 + tmp2
-     write(*,*) '  fluxCtolitter:                                ', sum(casaflux%FluxCtolitter(3,:))
-     write(*,*) '  plant total turnover:                         ', tmp5
-     write(*,*) '  plant loss to atm (fire):                     ', tmp6
-     write(*,*) '  litter loss (base turnover):                  ', tmp3
-     write(*,*) '  litter loss (fire):                           ', tmp4
-     write(*,*) '  litter loss (base turnover + fire):           ', tmp7
-     write(*,*) '  delta clitt2:                                 ', tmp1 + tmp2 - tmp3 - tmp4
-     write(*,*) '  fluxCtolitter:                                ', sum(casaflux%fluxCtolitter(3,:))
-     write(*,*) '  frac plant fire flux to CO2:                  ', casaflux%FluxFromPtoCO2(3,:)
-     write(*,*) '  frac plant fire flux to litter:               ', sum(casaflux%fromPtoL_fire(3,:,:),1)
-     write(*,*) '  plant loss (fire)                             ', tmp8
+     do i=1, mp
+        if (abs(Cbalsoil(i)) > prec) then
+           write(*,*) '  Index, Imbalance     ', i, Cbalsoil(i)
+           write(*,*) '  Diff Clitter         ', tmp1(i)
+           write(*,*) '  Diff Csoil           ', tmp2(i)
+           write(*,*) '  Plant turnover       ', sum(casaflux%kplant(i,:) * casabal%cplantlast(i,:)) * deltpool
+           write(*,*) '  Harvest              ', casaflux%kplant(i,leaf) * casabal%cplantlast(i,leaf) &
+                * casaflux%fharvest(i) * deltpool
+           write(*,*) '  Hetero respiration   ', tmp4(i)
+           write(*,*) '  Fire turnover - atmo ', tmp5(i) - tmp6(i)
+           write(*,*) '  Diff Clitter+Csoil   ', tmp1(i) + tmp2(i)
+           write(*,*) '  Fluxes               ', tmp3(i) - tmp4(i) + tmp5(i) - tmp6(i)
+           ! fire debug - mass bal on litter
+           tmp7 = sum(casaflux%kplant(i,:) * casabal%cplantlast(i,:)) ! plant input
+           tmp8 = sum(casaflux%kplant_fire(i,:) * (1.0_r_2 - casaflux%kplant(i,:)) * casabal%cplantlast(i,:)) - &
+                casaflux%fluxctoco2_plant_fire(i)
+           tmp9 = sum(casaflux%klitter(i,:) * casabal%clitterlast(i,:))
+           tmp10 = sum(casaflux%klitter_fire(i,:) * (1.0_r_2 - casaflux%klitter(i,:)) * casabal%clitterlast(i,:))
+           tmp11 = sum(casaflux%kplant_tot(i,:) * casabal%cplantlast(i,:))
+           tmp12 = casaflux%fluxCtoCO2_plant_fire(i)
+           tmp13 = sum(casaflux%klitter_tot(i,:) * casabal%clitterlast(i,:))
+           tmp14 = sum(casaflux%kplant_fire(i,:) * (1.0_r_2 - casaflux%kplant(i,:)) * casabal%cplantlast(i,:))
+           write(*,*) '  plant input to litter (base turnover):        ', tmp7
+           write(*,*) '  plant input to litter (fire):                 ', tmp8
+           write(*,*) '  plant input to litter (base turnover + fire): ', tmp7 + tmp8
+           write(*,*) '  fluxCtolitter:                                ', sum(casaflux%FluxCtolitter(i,:))
+           write(*,*) '  plant total turnover:                         ', tmp11
+           write(*,*) '  plant loss to atm (fire):                     ', tmp12
+           write(*,*) '  litter loss (base turnover):                  ', tmp9
+           write(*,*) '  litter loss (fire):                           ', tmp10
+           write(*,*) '  litter loss (base turnover + fire):           ', tmp13
+           write(*,*) '  delta clitt2:                                 ', tmp7 + tmp8 - tmp9 - tmp11
+           write(*,*) '  fluxCtolitter:                                ', sum(casaflux%fluxCtolitter(i,:))
+           write(*,*) '  frac plant fire flux to CO2:                  ', casaflux%FluxFromPtoCO2(i,:)
+           write(*,*) '  frac plant fire flux to litter:               ', sum(casaflux%fromPtoL_fire(i,:,:),1)
+           write(*,*) '  plant loss (fire)                             ', tmp14
+        endif
+     enddo
   endif
 
   casabal%cbalance(:) = Cbalplant(:) + Cbalsoil(:)
