@@ -1261,7 +1261,7 @@ contains
        call casa_pdummy(casapool)
     ENDIF
 
-    call casa_cnpbal(casapool,casaflux,casabal)
+    call casa_cnpbal(casapool,casaflux,casabal,idoy)
 
     call casa_cnpflux(casaflux,casapool,casabal,.false.)
 
