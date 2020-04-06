@@ -3513,14 +3513,19 @@ CONTAINS
      ! get_veg_class_heights.py
      IF (iveg .EQ. 18) THEN ! RF
         height = 32.0 ! m
+        !sapwood_density = 540.0 ! kg m-3
      ELSE IF (iveg .EQ. 19) THEN ! WSF
         height = 29.0 ! m
+        !sapwood_density = 355.0 ! kg m-3
      ELSE IF (iveg .EQ. 20) THEN ! DSF
         height = 25.0 ! m
+        !sapwood_density = 460.0 ! kg m-3
      ELSE IF (iveg .EQ. 21) THEN ! GRW
         height = 11.0 ! m
+        !sapwood_density = 436.67 ! kg m-3
      ELSE IF (iveg .EQ. 22) THEN ! SAW
         height = 7.0 ! m
+        !sapwood_density = 613.33 ! kg m-3
      ENDIF
 
      ! From Bowman we are taking a rough sapwood density (fig 5), which seems

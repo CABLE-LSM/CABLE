@@ -2636,6 +2636,14 @@ CONTAINS
      !root_biomass = 1443.0 * gC2DM ! EBF value
      root_biomass = 832.0 * gC2DM ! Eucface value
 
+     ! sensitivity experiment values
+     !root_biomass = 200. * gC2DM ! Range from Williams 2001, 200-1000
+     !root_biomass = 400. * gC2DM ! Range from Williams 2001, 200-1000
+     !root_biomass = 600. * gC2DM ! Range from Williams 2001, 200-1000
+     !root_biomass = 800. * gC2DM ! Range from Williams 2001, 200-1000
+     !root_biomass = 1000. * gC2DM ! Range from Williams 2001, 200-1000
+
+
      ! Always provide a minimum root biomass
      root_biomass = MAX(5., root_biomass)
 
