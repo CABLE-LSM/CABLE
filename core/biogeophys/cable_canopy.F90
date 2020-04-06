@@ -3499,7 +3499,7 @@ CONTAINS
 
      ! From Togashi et al. it looks like there is no obvious reln btw LA:SA
      ! and moisture so taking a rough average LA:SA
-     la_sa = 5000.0 ! m2 m-2
+     !la_sa = 5000.0 ! m2 m-2
 
      ! We need a height and in the long-term we will use POP, but for now from
      ! Simard et al. and sampling where Butt et al. say there are Eucs...
@@ -3509,30 +3509,42 @@ CONTAINS
       !  height = 10.0 ! m
      !ENDIF
 
-     ! Simard et al. and sampling where our 5 veg classes are
-     ! get_veg_class_heights.py
-     IF (iveg .EQ. 18) THEN ! RF
-        height = 32.0 ! m
-        !sapwood_density = 540.0 ! kg m-3
-     ELSE IF (iveg .EQ. 19) THEN ! WSF
-        height = 29.0 ! m
-        !sapwood_density = 355.0 ! kg m-3
-     ELSE IF (iveg .EQ. 20) THEN ! DSF
-        height = 25.0 ! m
-        !sapwood_density = 460.0 ! kg m-3
-     ELSE IF (iveg .EQ. 21) THEN ! GRW
-        height = 11.0 ! m
-        !sapwood_density = 436.67 ! kg m-3
-     ELSE IF (iveg .EQ. 22) THEN ! SAW
-        height = 7.0 ! m
-        !sapwood_density = 613.33 ! kg m-3
-     ENDIF
-
      ! From Bowman we are taking a rough sapwood density (fig 5), which seems
      ! to agree with Xu et al.
-     sapwood_density = 500.0 ! kg m-3
+     !sapwood_density = 500.0 ! kg m-3
 
-     ! scalar to *roughly* convert stem capacitance. We are broadly matching
+     ! Heights from Simard et al. and sampling where our 5 veg classes are
+     ! get_veg_class_heights.py
+
+     ! la_sa from Li et al. 2019, Functional Ecology, 1–15.
+     ! units are incorrect, need to divide by 4 and convert cm2 to m2
+     ! e.g. ( 1.0 / ( (HV / 4) * 0.0001)
+
+     ! Sapwood density from Li et al. 2018, Plant Cell Environ. 41:646–660.
+
+     IF (iveg .EQ. 18) THEN ! RF
+        height = 32.0 ! m
+        sapwood_density = 540.0 ! kg m-3
+        la_sa = 10000.0 ! m2 m-2
+     ELSE IF (iveg .EQ. 19) THEN ! WSF
+        height = 29.0 ! m
+        sapwood_density = 355.0 ! kg m-3
+        la_sa = 9434.74 ! m2 m-2
+     ELSE IF (iveg .EQ. 20) THEN ! DSF
+        height = 25.0 ! m
+        sapwood_density = 460.0 ! kg m-3
+        la_sa = 7908.55 ! m2 m-2
+     ELSE IF (iveg .EQ. 21) THEN ! GRW
+        height = 11.0 ! m
+        sapwood_density = 436.67 ! kg m-3
+        la_sa = 6139.23 ! m2 m-2
+     ELSE IF (iveg .EQ. 22) THEN ! SAW
+        height = 7.0 ! m
+        sapwood_density = 613.33 ! kg m-3
+        la_sa = 2556.9 ! m2 m-2
+     ENDIF
+
+     ! scalar to convert stem capacitance. We are broadly matching
      ! the spirit of Xu et al. but dropping the root capacitance they include.
      ! We could of course include this but given this is pretty rough, this
      ! seems OK
