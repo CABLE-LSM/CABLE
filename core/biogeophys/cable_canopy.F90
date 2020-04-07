@@ -1594,7 +1594,9 @@ CONTAINS
          ekc,     &
          eko
 
-    real, dimension(:,:), pointer :: gswmin => null() ! min stomatal conductance
+    ! real, dimension(:,:), pointer :: gswmin => null() ! min stomatal conductance
+    ! real, dimension(:,:), allocatable :: gswmin ! min stomatal conductance
+    real, dimension(mp,mf) :: gswmin ! min stomatal conductance
 
     real, dimension(mp,2) ::  gsw_term, lower_limit2  ! local temp var
 
@@ -1602,8 +1604,7 @@ CONTAINS
     real :: vpd, g1 ! Ticket #56
 
     ! END header
-
-    allocate(gswmin(mp,mf))
+    ! allocate(gswmin(mp,mf))
 
     ! Soil water limitation on stomatal conductance:
     if (iter==1) then
@@ -2451,7 +2452,7 @@ CONTAINS
     canopy%ci        = real(spread(met%ca,2,mf),r_2) - &
          canopy%An / (1._r_2/(tiny(1.0_r_2)+1.0_r_2/canopy%gbc+1.0_r_2/canopy%gsc))
 
-    deallocate( gswmin )
+    ! deallocate( gswmin )
 
   END SUBROUTINE dryLeaf
 

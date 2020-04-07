@@ -1585,7 +1585,7 @@ CONTAINS
           ! print*, 'YYYY ', CurYear, YYYY, cable_user%YearEnd
           CALL WRITE_LUC_RESTART_NC(POPLUC)
        ENDIF
-    else
+    else if (icycle > 0) then
        ! 13C
        ! While testing
        if (cable_user%c13o2) then

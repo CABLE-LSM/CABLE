@@ -1695,8 +1695,8 @@ CONTAINS
     
     type(phen_variable), intent(inout) :: phen
 
-    phen%Tkshed         = 0
-    phen%phase          = 0.0_r_2
+    phen%phase          = 0
+    phen%Tkshed         = 0.0_r_2
     phen%doyphase       = 0
     phen%phen           = 0.0
     phen%aphen          = 0.0
