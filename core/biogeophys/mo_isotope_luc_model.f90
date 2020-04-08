@@ -130,6 +130,9 @@ contains
 
     use mo_kind,  only: dp, i4
     use mo_utils, only: eq !, ne
+#ifdef __MPI__
+    use mpi,      only: MPI_Abort
+#endif
 
     implicit none
 
@@ -152,6 +155,9 @@ contains
     real(dp), dimension(size(Ciso,1)) :: iC, iS, iRs, iT, iRt
     real(dp), dimension(size(Ciso,1)) :: Anew ! A at t+dt
     real(dp), dimension(size(Ciso,1)) :: Cnew ! New C pools
+#ifdef __MPI__
+    integer :: ierr
+#endif
 
     ! Check sizes
     nn = size(Ciso,1)
@@ -162,26 +168,38 @@ contains
        write(*,*) '    size(A):    ', size(A,1)
        write(*,*) '    size(dA,1): ', size(dA,1)
        write(*,*) '    size(dA,2): ', size(dA,2)
-       stop 9
+#ifdef __MPI__
+       call MPI_Abort(0, 1015, ierr) ! Do not know comm nor rank here
+#else
+       stop 1015
+#endif
     endif
 
     ! Check dA >= 0
-    if (any(dA < 0._dp)) then
+    if (any(dA < 0.0_dp)) then
        write(*,*) 'Error isotope_luc_model_1d: land area changes between land use classes must be >= 0.'
        write(*,*) '    dA: ', dA
-       stop 9
+#ifdef __MPI__
+       call MPI_Abort(0, 1016, ierr) ! Do not know comm nor rank here
+#else
+       stop 1016
+#endif
     endif
 
     ! ! Check dA(i,:) == 0. if Ciso(i) == 0.
-    ! if (any(eq(Ciso,0._dp))) then
+    ! if (any(eq(Ciso,0.0_dp))) then
     !    do i=1, nn
-    !       if (eq(Ciso(i),0._dp)) then
-    !          if (any(ne(dA(i,:),0._dp))) then
+    !       if (eq(Ciso(i),0.0_dp)) then
+    !          if (any(ne(dA(i,:),0.0_dp))) then
     !             write(*,*) 'Error isotope_luc_model_1d: land area changes from land-use class i must be 0'
     !             write(*,*) '                            if isotope carbon concentration of land-use class is 0.'
     !             write(*,*) '    i, Ciso(i): ', i, Ciso(i)
     !             write(*,*) '       dA(i):   ', dA(i,:)
-    !             stop 9
+! #ifdef __MPI__
+    !             call MPI_Abort(0, 1017, ierr) ! Do not know comm nor rank here
+! #else
+    !             stop 1017
+! #endif
     !          endif
     !       endif
     !    end do
@@ -189,15 +207,19 @@ contains
 
     ! if (present(C)) then
     !    ! Check dA(i,:) == 0. if C(i) == 0.
-    !    if (any(eq(C,0._dp))) then
+    !    if (any(eq(C,0.0_dp))) then
     !       do i=1, nn
-    !          if (eq(C(i),0._dp)) then
-    !             if (any(ne(dA(i,:),0._dp))) then
+    !          if (eq(C(i),0.0_dp)) then
+    !             if (any(ne(dA(i,:),0.0_dp))) then
     !                write(*,*) 'Error isotope_luc_model_1d: land area changes from land-use class i must be 0'
     !                write(*,*) '                            if carbon concentration of land-use class is 0.'
     !                write(*,*) '     i, C(i): ', i, C(i)
     !                write(*,*) '       dA(i): ', dA(i,:)
-    !                stop 9
+! #ifdef __MPI__
+    !                call MPI_Abort(0, 1018, ierr) ! Do not know comm nor rank here
+! #else
+    !                stop 1018
+! #endif
     !             endif
     !          endif
     !       end do
@@ -210,28 +232,28 @@ contains
     if (present(C)) then
        iC = C
     else
-       iC = 1._dp
+       iC = 1.0_dp
     endif
     if (present(S)) then
        iS = S
     else
-       iS = 0._dp
+       iS = 0.0_dp
     endif
     if (present(Rs)) then
        iRs = Rs
     else
-       iRs = 1._dp
+       iRs = 1.0_dp
     endif
     if (present(T)) then
        iT = T
     else
-       iT = 0._dp
+       iT = 0.0_dp
     endif
     if (present(Rt)) then
        iRt = Rt
     else
-       iRt = 1._dp
-       where (iC > 0._dp) iRt = Ciso / iC
+       iRt = 1.0_dp
+       where (iC > 0.0_dp) iRt = Ciso / iC
     endif
     ! Land areas at t+dt
     if (present(At)) then
@@ -241,36 +263,36 @@ contains
     endif
 
     ! ! Isotope ratio - not used -> use Ciso=R*iC directly
-    ! R(:) = 1._dp
-    ! where (iC > 0._dp) R = Ciso / iC
+    ! R(:) = 1.0_dp
+    ! where (iC > 0.0_dp) R = Ciso / iC
 
     ! isotopic LUC model
     ! Ciso = R * iC * (A - sum(dA, dim=2)) + sum(dA * spread(R*iC, dim=2, ncopies=nn), dim=1) + iRs*iS - iRt*iT
     Cnew = Ciso * (A - sum(dA, dim=2)) + sum(dA * spread(Ciso, dim=2, ncopies=nn), dim=1) + iRs*iS - iRt*iT
     if (present(trash)) then
-       where (Anew > 0._dp)
+       where (Anew > 0.0_dp)
           Ciso = Cnew / Anew
        elsewhere
-          Ciso     = 0._dp
+          Ciso     = 0.0_dp
           trash = trash + Ciso
        endwhere
     else
-       where (Anew > 0._dp) Ciso = Cnew / Anew ! keep incoming Ciso if Anew=0.
+       where (Anew > 0.0_dp) Ciso = Cnew / Anew ! keep incoming Ciso if Anew=0.
     endif
 
     if (present(trash)) then
        ! Check final land-use classes
        ! Isotope land-use class became < 0.
-       if (any(Ciso < 0._dp)) then
-          trash = trash + merge(abs(Ciso), 0._dp, Ciso < 0._dp)
-          Ciso = merge(0._dp, Ciso, Ciso < 0._dp)
+       if (any(Ciso < 0.0_dp)) then
+          trash = trash + merge(abs(Ciso), 0.0_dp, Ciso < 0.0_dp)
+          Ciso = merge(0.0_dp, Ciso, Ciso < 0.0_dp)
        endif
        ! Non-isotope land-use class == 0. but isotope land-use class > 0.
        Cnew = iC * (A - sum(dA, dim=2)) + sum(dA * spread(iC, dim=2, ncopies=nn), dim=1) + iS - iT
-       where (Anew > 0._dp) Cnew = Cnew / Anew
-       if (any(eq(Cnew,0._dp) .and. (Ciso > 0._dp))) then
-          trash = trash + merge(Ciso, 0._dp, eq(Cnew,0._dp) .and. (Ciso > 0._dp))
-          Ciso = merge(0._dp, Ciso, eq(Cnew,0._dp) .and. (Ciso > 0._dp))
+       where (Anew > 0.0_dp) Cnew = Cnew / Anew
+       if (any(eq(Cnew,0.0_dp) .and. (Ciso > 0.0_dp))) then
+          trash = trash + merge(Ciso, 0.0_dp, eq(Cnew,0.0_dp) .and. (Ciso > 0.0_dp))
+          Ciso = merge(0.0_dp, Ciso, eq(Cnew,0.0_dp) .and. (Ciso > 0.0_dp))
        endif
        ! Non-isotope land-use class >0. but isotope land-use class == 0.
        ! ???

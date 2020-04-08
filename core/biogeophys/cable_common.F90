@@ -322,7 +322,10 @@ CONTAINS
 
     ! Gets parameter values for each vegetation type and soil type.
 
-    USE cable_def_types_mod, ONLY : mvtype, ms, ncs, ncp, mstype, nrb
+    USE cable_def_types_mod, ONLY: mvtype, ms, ncs, ncp, mstype, nrb
+#ifdef __MPI__
+    use mpi,                 only: MPI_Abort
+#endif
 
     INTEGER,INTENT(IN) :: logn     ! log file unit number
 
@@ -337,14 +340,20 @@ CONTAINS
     REAL    :: notused
     INTEGER :: ioerror ! input error integer
     INTEGER :: a, jveg ! do loop counter
-
-
+#ifdef __MPI__
+    integer :: ierr
+#endif
 
     !================= Read in vegetation type specifications: ============
     OPEN(40,FILE=filename%veg,STATUS='old',ACTION='READ',IOSTAT=ioerror)
 
     IF(ioerror/=0) then
-       STOP 'CABLE_log: Cannot open veg type definitions.'
+       write(*,*) 'CABLE_log: Cannot open veg type definitions.'
+#ifdef __MPI__
+       call MPI_Abort(0, 128, ierr) ! Do not know comm nor rank here
+#else
+       stop 128
+#endif
     ENDIF
 
     IF (vegparmnew) THEN
@@ -408,8 +417,14 @@ CONTAINS
 
           READ(40,*) jveg, vegtypetmp, vegnametmp
 
-          IF( jveg .GT. mvtype )                                             &
-               STOP 'jveg out of range in parameter file'
+          IF ( jveg .GT. mvtype ) then
+             write(*,*) 'jveg out of range in parameter file'
+#ifdef __MPI__
+             call MPI_Abort(0, 129, ierr) ! Do not know comm nor rank here
+#else
+             stop 129
+#endif
+          endif
 
           veg_desc(jveg) = vegnametmp
 
@@ -515,7 +530,12 @@ CONTAINS
     OPEN(40,FILE=filename%soil,STATUS='old',ACTION='READ',IOSTAT=ioerror)
 
     IF(ioerror/=0) then
-       STOP 'CABLE_log: Cannot open soil type definitions.'
+       write(*,*) 'CABLE_log: Cannot open soil type definitions.'
+#ifdef __MPI__
+       call MPI_Abort(0, 130, ierr) ! Do not know comm nor rank here
+#else
+       stop 130
+#endif
     ENDIF
 
     READ(40,*); READ(40,*)
@@ -553,10 +573,17 @@ CONTAINS
   subroutine handle_err(status, msg) ! LN 06/2013
 
     use netcdf
+#ifdef __MPI__
+    use mpi, only: MPI_Abort
+#endif
 
     integer,          intent(in)           :: status
     character(len=*), intent(in), optional :: msg
 
+#ifdef __MPI__
+    integer :: ierr
+#endif
+    
     if (status /= NF90_noerr) then
        write(*,*) "netCDF error:"
        if (present(msg)) write(*,*) msg
@@ -567,7 +594,11 @@ CONTAINS
 !       WRITE(*,*) "UM builds with -i8. Therefore call to nf90_strerror is ", &
 !       " invalid. Quick fix to eliminate for now. Build NF90 with -i8, force -i4?"
 !#endif
-       stop -1
+#ifdef __MPI__
+       call MPI_Abort(0, 131, ierr) ! Do not know comm nor rank here
+#else
+       stop 131
+#endif
     end if
 
   end subroutine handle_err
@@ -629,6 +660,9 @@ CONTAINS
   subroutine ymdhms2doysod(yyyy, mm, dd, hour, minute, second, doy, sod)
 
     ! Compute Day-of-year and second-of-day from given date and time or
+#ifdef __MPI__
+    use mpi, only: MPI_Abort
+#endif
 
     implicit none
 
@@ -637,6 +671,9 @@ CONTAINS
 
     !  logical :: is_leapyear
     integer, dimension(12) :: month = (/ 31,28,31,30,31,30,31,31,30,31,30,31 /)
+#ifdef __MPI__
+    integer :: ierr
+#endif
 
     if (is_leapyear(yyyy)) month(2) = 29
 
@@ -644,7 +681,11 @@ CONTAINS
          mm.gt.12 .or. mm.lt.1) then
        write(*,*) "Wrong date entered in subroutine ymdhms2doysod"
        write(*,*) "Date (ymdhms): ", yyyy, mm, dd, hour, minute, second
-       stop 3
+#ifdef __MPI__
+       call MPI_Abort(0, 132, ierr) ! Do not know comm nor rank here
+#else
+       stop 132
+#endif
     endif
 
     doy = dd
@@ -658,6 +699,10 @@ CONTAINS
   subroutine doysod2ymdhms(yyyy, doy, sod, mm, dd, hour, minute, second)
 
     ! Compute Day-of-year and second-of-day from given date and time or
+    
+#ifdef __MPI__
+    use mpi, only: MPI_Abort
+#endif
 
     implicit none
 
@@ -669,6 +714,9 @@ CONTAINS
     integer :: mon, i
     integer :: ihour, iminute, isecond
     integer, dimension(12) :: month = (/ 31,28,31,30,31,30,31,31,30,31,30,31 /)
+#ifdef __MPI__
+    integer :: ierr
+#endif
 
     if (is_leapyear(yyyy)) month(2) = 29
 
@@ -676,7 +724,11 @@ CONTAINS
          doy.gt.sum(month) .or. doy.lt.1) then
        write(*,*) "Wrong date entered in subroutine doysod2ymdhms"
        write(*,*) "yyyy doy sod: ",yyyy, doy, sod
-       stop 3
+#ifdef __MPI__
+       call MPI_Abort(0, 133, ierr) ! Do not know comm nor rank here
+#else
+       stop 133
+#endif
     endif
 
     mon = 0
@@ -862,6 +914,9 @@ CONTAINS
 !then use common in iovars
 !#ifdef Vanessas_common
     USE cable_IO_vars_module, ONLY: leaps
+#ifdef __MPI__
+    use mpi,                  only: MPI_Abort
+#endif
 !#endif
     IMPLICIT NONE
 
@@ -871,6 +926,9 @@ CONTAINS
     LOGICAL   :: is_eod, is_eom, is_eoy
     INTEGER   :: doy, m
     INTEGER, DIMENSION(12) :: MONTH
+#ifdef __MPI__
+    integer :: ierr
+#endif
 
     is_eom       = .FALSE.
     is_eoy       = .FALSE.
@@ -913,7 +971,11 @@ CONTAINS
     ELSE
        WRITE(logn,*)"Wrong statement 'iotype'", iotype, "in call to IS_CASA_TIME"
        WRITE(*   ,*)"Wrong statement 'iotype'", iotype, "in call to IS_CASA_TIME"
-       STOP -1
+#ifdef __MPI__
+       call MPI_Abort(0, 134, ierr) ! Do not know comm nor rank here
+#else
+       stop 134
+#endif
     ENDIF
 
   END FUNCTION IS_CASA_TIME

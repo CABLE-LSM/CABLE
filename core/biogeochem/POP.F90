@@ -301,16 +301,27 @@ CONTAINS
 
   SUBROUTINE ZeroPOP(POP,n)
 
+#ifdef __MPI__
+    use mpi, only: MPI_Abort
+#endif
+
     IMPLICIT NONE
 
     TYPE(POP_TYPE),    INTENT(INOUT) :: POP
     INTEGER, OPTIONAL, INTENT(IN)    :: n
 
     INTEGER:: g, k, l, c, np, a, b
+#ifdef __MPI__
+    integer :: ierr
+#endif
 
     IF (.NOT. ALLOCATED(pop%pop_grid)) THEN
        WRITE(*,*)" POP not allocated! Abort in ZeroPOP."
-       STOP -1
+#ifdef __MPI__
+       call MPI_Abort(0, 84, ierr) ! Do not know comm nor rank here
+#else
+       stop 84
+#endif
     ENDIF
 
     np = SIZE(pop%pop_grid)
@@ -2320,13 +2331,22 @@ CONTAINS
 
   SUBROUTINE GET_ALLOMETRY( ALLOM_SWITCH,  biomass, density, ht, diam, basal, precip )
 
+#ifdef __MPI__
+    use mpi, only: MPI_Abort
+#endif
+
     IMPLICIT NONE
+
     INTEGER(i4b), INTENT(IN) :: ALLOM_SWITCH
     REAL(dp),     INTENT(IN) :: biomass
     REAL(dp),     INTENT(IN) :: density
     REAL(dp),     INTENT(IN), OPTIONAL :: precip
     REAL(dp),     INTENT(OUT):: ht, diam, basal
 
+#ifdef __MPI__
+    integer :: ierr
+#endif
+    
     ! Standard Allometry
     IF (ALLOM_SWITCH.EQ.0) THEN
        ht   = (Kbiometric**(3.0_dp/4.0_dp))*(4.0_dp*biomass/(max(density,1.0e-5_dp)*WD*PI))**(1.0_dp/4.0_dp)
@@ -2346,7 +2366,11 @@ CONTAINS
        WRITE(*,*)"Invalid Allometry settings in POP!"
        WRITE(*,*)"ALLOM_SWITCH   = ",ALLOM_SWITCH
        WRITE(*,*)"Precip present = ",PRESENT(precip)
-       STOP -1
+#ifdef __MPI__
+       call MPI_Abort(0, 85, ierr) ! Do not know comm nor rank here
+#else
+       stop 85
+#endif
     ENDIF
 
   END SUBROUTINE GET_ALLOMETRY
@@ -2957,9 +2981,12 @@ CONTAINS
    !*******************************************************************************
 
    
-   SUBROUTINE INTERPOLATE_BIOMASS_2D(pop, disturbance_interval,it,g)
+SUBROUTINE INTERPOLATE_BIOMASS_2D(pop, disturbance_interval,it,g)
 
      use mo_utils, only: eq
+#ifdef __MPI__
+     use mpi, only: MPI_Abort
+#endif
      
 IMPLICIT NONE
 
@@ -2986,6 +3013,9 @@ INTEGER(i4b) :: triangle_points(4,3), I_inside_triangle, Ineighbour(8)
 LOGICAL ::  MASK_INSIDE_TRIANGLE(4), IS_NEIGHBOUR(8), tmp_logical
 LOGICAL, allocatable :: MASK2(:), MASK3(:), MASK4(:)
 INTEGER(i4b), allocatable :: address(:,:)
+#ifdef __MPI__
+ integer :: ierr
+#endif
 
  POP%pop_grid(g)%cmass_sum = 0.0_dp
  POP%pop_grid(g)%stress_mortality = 0.0_dp
@@ -3218,7 +3248,11 @@ DO p=1,np   ! loop over interpolated age pairs
 
    case default
       write(*,*) " illegal interpolation case."
-      stop
+#ifdef __MPI__
+      call MPI_Abort(0, 86, ierr) ! Do not know comm nor rank here
+#else
+      stop 86
+#endif
    end select ! interpolation case
 
 ENDDO ! loop over interpolated age pairs

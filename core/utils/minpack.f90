@@ -5640,18 +5640,29 @@ MODULE minpack
       !    Output, real(r_2) :: R8_UNIFORM_01, a new pseudorandom variate,
       !    strictly between 0 and 1.
       !
+#ifdef __MPI__
+      use mpi, only: MPI_Abort
+#endif
+
       implicit none
 
       integer, parameter :: i4_huge = 2147483647
       integer :: k
       real(r_2) :: r8_uniform_01
       integer :: seed
+#ifdef __MPI__
+      integer :: ierr
+#endif
 
       if ( seed == 0 ) then
          write ( *, '(a)' ) ' '
          write ( *, '(a)' ) 'R8_UNIFORM_01 - Fatal error!'
          write ( *, '(a)' ) '  Input value of SEED = 0.'
-         stop 1
+#ifdef __MPI__
+         call MPI_Abort(0, 164, ierr) ! Do not know comm nor rank here
+#else
+         stop 164
+#endif
       end if
 
       k = seed / 127773

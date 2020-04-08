@@ -609,14 +609,29 @@ END SUBROUTINE cable_diag_data1
   ! netCDF error handling
 
   subroutine stderr_nc(status,message, var)
+    
     use netcdf
+#ifdef __MPI__
+    use mpi, only: MPI_Abort
+#endif
+    
     character(len=*), intent(in) :: message, var
     INTEGER, INTENT(IN) :: status
+    
     character(len=7) :: err_mess
+#ifdef __MPI__
+    integer :: ierr
+#endif
+
     err_mess = 'ERROR:'
-    print *, (err_mess//message), var
-    PRINT*,NF90_STRERROR(status)
-    stop
+    write(*,*) err_mess//message, var
+    write(*,*) NF90_STRERROR(status)
+#ifdef __MPI__
+    call MPI_Abort(0, 135, ierr) ! Do not know comm nor rank here
+#else
+    stop 135
+#endif
+
   end subroutine stderr_nc
 #endif
 

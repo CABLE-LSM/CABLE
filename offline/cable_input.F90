@@ -297,6 +297,9 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
    USE CABLE_COMMON_MODULE, ONLY: IS_LEAPYEAR, YMDHMS2DOYSOD, DOYSOD2YMDHMS,&
         HANDLE_ERR
    use mo_utils,            only: eq
+#ifdef __MPI__
+   use mpi,                 only: MPI_Abort
+#endif
    
    IMPLICIT NONE
    
@@ -365,6 +368,9 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
    REAL(4), DIMENSION(:,:,:), ALLOCATABLE :: tempPrecip3 ! used for spinup adj
    LOGICAL                          ::                                         &
         all_met     ! ALL required met in met file (no synthesis)?
+#ifdef __MPI__
+   integer :: ierr
+#endif
 
     ! Initialise parameter loading switch - will be set to TRUE when
     ! parameters are loaded:
@@ -848,7 +854,11 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
           WRITE(*,*) "Chosen period: ",CABLE_USER%YEARSTART,1,CABLE_USER%YEAREND,365
           WRITE(*,*) "Data   period: ",syear,sdoy, eyear,edoy
           WRITE(*,*) "For using the metfile's time set CABLE_USER%YEARSTART = 0 !"
-          STOP
+#ifdef __MPI__
+          call MPI_Abort(0, 6, ierr) ! Do not know comm nor rank here
+#else
+          stop 6
+#endif
        ENDIF
 
        ! Find real kstart!
@@ -1513,6 +1523,9 @@ SUBROUTINE get_met_data(spinup, spinConv, met, rad, &
    ! Precision changes from REAL(4) to r_1 enable running with -r8
 
    use mo_utils, only: eq
+#ifdef __MPI__
+   use mpi,      only: MPI_Abort
+#endif
 
    implicit none
 
@@ -1534,6 +1547,9 @@ SUBROUTINE get_met_data(spinup, spinConv, met, rad, &
    REAL(KIND=4),ALLOCATABLE,DIMENSION(:,:)     :: tmpDat2, tmpDat2x
    REAL(KIND=4),ALLOCATABLE,DIMENSION(:,:,:)   :: tmpDat3, tmpDat3x
    REAL(KIND=4),ALLOCATABLE,DIMENSION(:,:,:,:) :: tmpDat4, tmpDat4x
+#ifdef __MPI__
+   integer :: ierr
+#endif
 
      DO i=1,mland ! over all land points/grid cells
        ! First set timing variables:
@@ -2207,7 +2223,11 @@ SUBROUTINE get_met_data(spinup, spinConv, met, rad, &
             DO i=1,mland ! over all land points/grid cells
               IF ( (landpt(i)%cend - landpt(i)%cstart + 1) < nmetpatches) THEN
                 write(*,*) 'not enough patches at land point ', i
-                STOP
+#ifdef __MPI__
+                call MPI_Abort(0, 7, ierr) ! Do not know comm nor rank here
+#else
+                stop 7
+#endif
               END IF
               DO j=1, nmetpatches
                 veg%vlai(landpt(i)%cstart+j-1) = REAL(tmpDat3(i,j,1))

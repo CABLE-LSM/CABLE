@@ -151,7 +151,7 @@ CONTAINS
 
 
     IF (soilparmnew) THEN
-      PRINT *,      'Use spatially-specific soil properties; ', nlon, nlat
+      WRITE(*,*)      'Use spatially-specific soil properties; ', nlon, nlat
       WRITE(logn,*) 'Use spatially-specific soil properties; ', nlon, nlat
       CALL spatialSoil(nlon, nlat, logn)
     ENDIF
@@ -247,9 +247,9 @@ CONTAINS
     ! check dimensions of soil-layers and time
      !! vh_js !!
       IF ( (nslayer /= ms) .OR. (ntime /= 12)) THEN
-         PRINT *, 'Variable dimensions do not match:'
-         PRINT *, 'nslayer and ms = ', nslayer, ms
-         PRINT *, 'ntime not equal 12 months: ', ntime
+         WRITE(*,*) 'Variable dimensions do not match:'
+         WRITE(*,*) 'nslayer and ms = ', nslayer, ms
+         WRITE(*,*) 'ntime not equal 12 months: ', ntime
          IF (ntime /= 12) THEN
             CALL cable_abort('Variable dimensions do not match (read_gridinfo)')
          ELSE
@@ -716,8 +716,8 @@ CONTAINS
 
     ! Calculate albedo for radiation bands and overwrite previous
     ! initialization
-    PRINT *,      'When choosing spatially-specific soil properties,'
-    PRINT *,      'snow-free albedo is also overwritten by this data set.'
+    WRITE(*,*)      'When choosing spatially-specific soil properties,'
+    WRITE(*,*)      'snow-free albedo is also overwritten by this data set.'
     WRITE(logn, *) 'When choosing spatially-specific soil properties,'
     WRITE(logn, *) 'snow-free albedo is also overwritten by this data set.'
     sfact = 0.68
@@ -861,13 +861,20 @@ CONTAINS
   ! Output variables:
   !   max_vegpatches - via cable_IO_vars_module
   !   landpt%type    - via cable_IO_vars_module (%nap,cstart,cend,ilon,ilat)
+#ifdef __MPI__
+    use mpi, only: MPI_Abort
+#endif
 
     IMPLICIT NONE
+    
     INTEGER, INTENT(IN) :: nlon, nlat
 
     ! local variables
     REAL :: distance, newLength
     INTEGER :: ii, jj, kk, ncount
+#ifdef __MPI__
+    integer :: ierr
+#endif
 
     ! range of longitudes from input file (inLon) should be -180 to 180,
     ! and longitude(:) has already been converted to -180 to 180 for CABLE.
@@ -894,11 +901,15 @@ CONTAINS
 
        END DO
        IF (landpt(kk)%ilon < -900 .OR. landpt(kk)%ilat < -900) THEN
-          PRINT *, 'Land point ', kk, ' cannot find the nearest grid!'
-          PRINT *, 'lon, lat = ', longitude(kk), latitude(kk)
-          PRINT *, 'inLon range:', MINVAL(inLon), MAXVAL(inLon)
-          PRINT *, 'inLat range:', MINVAL(inLat), MAXVAL(inLat)
-          STOP
+          WRITE(*,*) 'Land point ', kk, ' cannot find the nearest grid!'
+          WRITE(*,*) 'lon, lat = ', longitude(kk), latitude(kk)
+          WRITE(*,*) 'inLon range:', MINVAL(inLon), MAXVAL(inLon)
+          WRITE(*,*) 'inLat range:', MINVAL(inLat), MAXVAL(inLat)
+#ifdef __MPI__
+          call MPI_Abort(0, 69, ierr) ! Do not know comm nor rank here
+#else
+          stop 69
+#endif
        END IF
     END DO
 
@@ -929,6 +940,9 @@ CONTAINS
   !   landpt%type    - via cable_IO_vars_module (%nap,cstart,cend,ilon,ilat)
 
     use cable_io_vars_module, only: vegtype_metfile
+#ifdef __MPI__
+    use mpi,                  only: MPI_Abort
+#endif
 
     IMPLICIT NONE
 
@@ -937,6 +951,9 @@ CONTAINS
     ! local variables
     REAL :: distance, newLength
     INTEGER :: ii, jj, kk, tt, ncount
+#ifdef __MPI__
+    integer :: ierr
+#endif
 
     ! range of longitudes from input file (inLon) should be -180 to 180,
     ! and longitude(:) has already been converted to -180 to 180 for CABLE.
@@ -964,11 +981,15 @@ CONTAINS
        END DO
 
        IF (landpt(kk)%ilon < -900 .OR. landpt(kk)%ilat < -900) THEN
-          PRINT *, 'Land point ', kk, ' cannot find the nearest grid!'
-          PRINT *, 'lon, lat = ', longitude(kk), latitude(kk)
-          PRINT *, 'inLon range:', MINVAL(inLon), MAXVAL(inLon)
-          PRINT *, 'inLat range:', MINVAL(inLat), MAXVAL(inLat)
-          STOP
+          WRITE(*,*) 'Land point ', kk, ' cannot find the nearest grid!'
+          WRITE(*,*) 'lon, lat = ', longitude(kk), latitude(kk)
+          WRITE(*,*) 'inLon range:', MINVAL(inLon), MAXVAL(inLon)
+          WRITE(*,*) 'inLat range:', MINVAL(inLat), MAXVAL(inLat)
+#ifdef __MPI__
+          call MPI_Abort(0, 70, ierr) ! Do not know comm nor rank here
+#else
+          stop 70
+#endif
        END IF
 
        landpt(kk)%nap = 0
@@ -980,10 +1001,14 @@ CONTAINS
           END DO
           landpt(kk)%cend = ncount
           IF (landpt(kk)%cend < landpt(kk)%cstart) THEN
-             PRINT *, 'Land point ', kk, ' does not have veg type!'
-             PRINT *, 'landpt%cstart, cend = ', landpt(kk)%cstart, landpt(kk)%cend
-             PRINT *, 'vegtype_metfile = ', vegtype_metfile(kk,:)
-             STOP
+             WRITE(*,*) 'Land point ', kk, ' does not have veg type!'
+             WRITE(*,*) 'landpt%cstart, cend = ', landpt(kk)%cstart, landpt(kk)%cend
+             WRITE(*,*) 'vegtype_metfile = ', vegtype_metfile(kk,:)
+#ifdef __MPI__
+             call MPI_Abort(0, 71, ierr) ! Do not know comm nor rank here
+#else
+             stop 71
+#endif
           END IF
           ! CLN added for npatches
        ELSE IF ( npatch .GT. 1 ) THEN
@@ -996,10 +1021,14 @@ CONTAINS
           ncount = ncount + landpt(kk)%nap
           landpt(kk)%cend = ncount
           IF (landpt(kk)%cend < landpt(kk)%cstart) THEN
-             PRINT *, 'Land point ', kk, ' does not have veg type!'
-             PRINT *, 'landpt%cstart, cend = ', landpt(kk)%cstart, landpt(kk)%cend
-             PRINT *, 'vegtype_metfile = ', vegtype_metfile(kk,:)
-             STOP
+             WRITE(*,*) 'Land point ', kk, ' does not have veg type!'
+             WRITE(*,*) 'landpt%cstart, cend = ', landpt(kk)%cstart, landpt(kk)%cend
+             WRITE(*,*) 'vegtype_metfile = ', vegtype_metfile(kk,:)
+#ifdef __MPI__
+             call MPI_Abort(0, 72, ierr) ! Do not know comm nor rank here
+#else
+             stop 72
+#endif
           END IF
        ELSE
           ! assume nmetpatches to be 1
@@ -1008,18 +1037,26 @@ CONTAINS
              landpt(kk)%nap = 1
              landpt(kk)%cend = ncount
           ELSE
-            PRINT *, 'nmetpatches = ', nmetpatches, '. Should be 1.'
-            PRINT *, 'If soil patches exist, add new code.'
-            STOP
+            WRITE(*,*) 'nmetpatches = ', nmetpatches, '. Should be 1.'
+            WRITE(*,*) 'If soil patches exist, add new code.'
+#ifdef __MPI__
+            call MPI_Abort(0, 73, ierr) ! Do not know comm nor rank here
+#else
+            stop 73
+#endif
           END IF
        END IF
     END DO
 
     ! CLN IF (ncount > mland * nmetpatches) THEN
     IF (ncount > mland * nmetpatches .AND. npatch == 1) THEN
-       PRINT *, ncount, ' should not be greater than mland*nmetpatches.'
-       PRINT *, 'mland, nmetpatches = ', mland, nmetpatches
-       STOP
+       WRITE(*,*) ncount, ' should not be greater than mland*nmetpatches.'
+       WRITE(*,*) 'mland, nmetpatches = ', mland, nmetpatches
+#ifdef __MPI__
+       call MPI_Abort(0, 74, ierr) ! Do not know comm nor rank here
+#else
+       stop 74
+#endif
     END IF
     DEALLOCATE(inLon, inLat)
 
@@ -1027,19 +1064,23 @@ CONTAINS
     max_vegpatches = MAXVAL(landpt(:)%nap)
     !CLN    IF (max_vegpatches /= nmetpatches) THEN
     IF (max_vegpatches /= nmetpatches .and. npatch == 1) THEN
-      PRINT *, 'Error! Met file claiming to have more active patches than'
-      PRINT *, 'it really has. Check met file.'
-      STOP
+      WRITE(*,*) 'Error! Met file claiming to have more active patches than'
+      WRITE(*,*) 'it really has. Check met file.'
+#ifdef __MPI__
+      call MPI_Abort(0, 75, ierr) ! Do not know comm nor rank here
+#else
+      stop 75
+#endif
     END IF
 
     IF (npatch < nmetpatches) THEN
-      PRINT *, 'Warning! Met file data have more patches than the global file.'
-      PRINT *, 'Remember to check final veg type and patch fractions.'
+      WRITE(*,*) 'Warning! Met file data have more patches than the global file.'
+      WRITE(*,*) 'Remember to check final veg type and patch fractions.'
     END IF
 
     ! Write to total # patches - used to allocate all of CABLE's variables:
     mp = ncount
-    PRINT *, 'Total number of patches (countPatch): ', ncount
+    WRITE(*,*) 'Total number of patches (countPatch): ', ncount
 
   END SUBROUTINE countPatch
 
@@ -1071,6 +1112,9 @@ CONTAINS
 
     USE cable_common_module, only: vegin, soilin, calcsoilalbedo, cable_user, &
          init_veg_from_vegin
+#ifdef __MPI__
+    use mpi,                 only: MPI_Abort
+#endif
     
     IMPLICIT NONE
     
@@ -1092,6 +1136,9 @@ CONTAINS
     INTEGER :: ir       ! BP sep2010
     REAL :: totdepth    ! YP oct07
     REAL(r_2) :: tmp    ! BP sep2010
+#ifdef __MPI__
+    integer :: ierr
+#endif
 
     ! ! The following is for the alternate method to calculate froot by Zeng 2001
     ! REAL :: term1(17), term2(17)                ! (BP may2010)
@@ -1224,7 +1271,11 @@ CONTAINS
                 write(*,*) 'patch%frac = ', patch(landpt(e)%cstart:landpt(e)%cend)%frac
                 write(*,*) 'landpoint # ', e
                 write(*,*) 'veg types = ', veg%iveg(landpt(e)%cstart:landpt(e)%cend)
-                STOP
+#ifdef __MPI__
+                call MPI_Abort(0, 76, ierr) ! Do not know comm nor rank here
+#else
+                stop 76
+#endif
              END IF
              patch(landpt(e)%cstart)%frac = patch(landpt(e)%cstart)%frac + 1.0_r_2 - tmp
           END IF
@@ -1486,7 +1537,12 @@ CONTAINS
     ELSE IF (mvtype == 15 .or. mvtype == 16 .or. mvtype == 17) THEN
        WHERE (veg%iveg == 3 .OR. veg%iveg == 4) veg%deciduous = .TRUE.
     ELSE
-       STOP 'Warning. Check number of vegetation types.'
+       write(*,*) 'Warning. Check number of vegetation types.'
+#ifdef __MPI__
+       call MPI_Abort(0, 77, ierr) ! Do not know comm nor rank here
+#else
+       stop 77
+#endif
     END IF
     !    END IF
 

@@ -63,11 +63,23 @@ CONTAINS
 
 SUBROUTINE cable_abort(message)
 
-   ! Input arguments
-   CHARACTER(LEN=*), INTENT(IN) :: message
+#ifdef __MPI__
+  use mpi, only: MPI_Abort
+#endif
 
-   WRITE(*,*) message
-   STOP 1
+  ! Input arguments
+  CHARACTER(LEN=*), INTENT(IN) :: message
+    
+#ifdef __MPI__
+  integer :: ierr
+#endif
+
+  WRITE(*,*) message
+#ifdef __MPI__
+  call MPI_Abort(0, 1, ierr) ! Do not know comm nor rank here
+#else
+  stop 1
+#endif
 
 END SUBROUTINE cable_abort
 
@@ -113,15 +125,26 @@ END SUBROUTINE cable_abort
 SUBROUTINE nc_abort(ok, message)
 
    USE netcdf
+#ifdef __MPI__
+   use mpi, only: MPI_Abort
+#endif
 
    ! Input arguments
    INTEGER,          INTENT(IN) :: ok
    CHARACTER(LEN=*), INTENT(IN) :: message
 
+#ifdef __MPI__
+  integer :: ierr
+#endif
+
    WRITE(*,*) message           ! error from subroutine
    WRITE(*,*) NF90_STRERROR(ok) ! netcdf error details
 
-   STOP 1
+#ifdef __MPI__
+   call MPI_Abort(0, 2, ierr) ! Do not know comm nor rank here
+#else
+   stop 2
+#endif
 
 END SUBROUTINE nc_abort
 
@@ -146,6 +169,9 @@ SUBROUTINE range_abort(message, ktau, met, value, var_range, i, xx, yy)
 
    USE cable_def_types_mod,  ONLY: met_type
    USE cable_IO_vars_module, ONLY: latitude, longitude, landpt, lat_all, lon_all
+#ifdef __MPI__
+   use mpi,                  only: MPI_Abort
+#endif
 
    ! Input arguments
    CHARACTER(LEN=*), INTENT(IN) :: message
@@ -164,6 +190,9 @@ SUBROUTINE range_abort(message, ktau, met, value, var_range, i, xx, yy)
    REAL,INTENT(IN) :: value ! value deemed to be out of range
 
    REAL,DIMENSION(2),INTENT(IN) :: var_range ! appropriate var range
+#ifdef __MPI__
+   integer :: ierr
+#endif
 
    WRITE(*,*) "in SUBR range_abort"
    WRITE(*,*) message ! error from subroutine
@@ -191,7 +220,11 @@ SUBROUTINE range_abort(message, ktau, met, value, var_range, i, xx, yy)
 
    WRITE(*,*) 'Value:',value
 
-   STOP 1
+#ifdef __MPI__
+   call MPI_Abort(0, 3, ierr) ! Do not know comm nor rank here
+#else
+   stop 3
+#endif
 
 END SUBROUTINE range_abort
 

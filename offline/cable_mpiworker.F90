@@ -378,14 +378,22 @@ CONTAINS
     ! associate pointers used locally with global definitions
     CALL point2constants( C )
 
-    IF ( l_casacnp  .AND. ( icycle == 0 .OR. icycle > 3 ) )                   &
-         STOP 'icycle must be 1 to 3 when using casaCNP'
-    IF ( ( l_laiFeedbk .OR. l_vcmaxFeedbk ) .AND. ( .NOT. l_casacnp ) )       &
-         STOP 'casaCNP required to get prognostic LAI or Vcmax'
-    IF ( l_vcmaxFeedbk .AND. icycle < 2 )                                     &
-         STOP 'icycle must be 2 to 3 to get prognostic Vcmax'
-    IF ( icycle > 0 .AND. ( .NOT. soilparmnew ) )                             &
-         STOP 'casaCNP must use new soil parameters'
+    if ( l_casacnp  .and. ( icycle == 0 .or. icycle > 3 ) ) then
+       write(*,*) 'icycle must be 1 to 3 when using casaCNP'
+       call MPI_Abort(comm, 50, ierr)
+    endif
+    if ( ( l_laiFeedbk .or. l_vcmaxFeedbk ) .and. ( .not. l_casacnp ) ) then
+       write(*,*) 'casaCNP required to get prognostic LAI or Vcmax'
+       call MPI_Abort(comm, 51, ierr)
+    endif
+    if ( l_vcmaxFeedbk .AND. icycle < 2 ) then
+       write(*,*) 'icycle must be 2 to 3 to get prognostic Vcmax'
+       call MPI_Abort(comm, 52, ierr)
+    endif
+    if ( icycle > 0 .and. ( .not. soilparmnew ) ) then
+       write(*,*) 'casaCNP must use new soil parameters'
+       call MPI_Abort(comm, 53, ierr)
+    endif
 
     ! Open log file:
     ! MPI: worker logs go to the black hole
@@ -2483,7 +2491,7 @@ CONTAINS
     ! MPI: sanity check
     IF (bidx /= ntyp) THEN
        WRITE (*,*) 'worker ',rank,' invalid number of param_ts fields',bidx,', fix it (20)!'
-       CALL MPI_Abort(comm, 1, ierr)
+       CALL MPI_Abort(comm, 54, ierr)
     END IF
 
     CALL MPI_Type_create_struct (bidx, blen, displs, types, param_ts, ierr)
@@ -3563,7 +3571,7 @@ CONTAINS
     ! MPI: sanity check
     IF (bidx /= ntyp) THEN
        WRITE(*,*) 'worker ', rank, ' invalid number of casa_ts param fields ', bidx, ', fix it (21)!'
-       CALL MPI_Abort(comm, 1, ierr)
+       CALL MPI_Abort(comm, 55, ierr)
     END IF
 
     CALL MPI_Type_create_struct(bidx, blen, displs, types, casa_ts, ierr)
@@ -3751,7 +3759,7 @@ CONTAINS
     ! MPI: sanity check
     IF (bidx /= ntyp) THEN
        WRITE (*,*) 'worker ',rank,': invalid intype nmat, nvec or n3d constant, fix it (22)!'
-       CALL MPI_Abort(comm, 1, ierr)
+       CALL MPI_Abort(comm, 56, ierr)
     END IF
 
 
@@ -5811,7 +5819,7 @@ CONTAINS
     ! MPI: sanity check
     IF (bidx /= ntyp) THEN
        WRITE (*,*) 'worker ',rank,': invalid outtype nmat, nvec or n3d constant, fix it (23)!'
-       CALL MPI_Abort(comm, 1, ierr)
+       CALL MPI_Abort(comm, 57, ierr)
     END IF
 
     types = MPI_BYTE
@@ -6610,7 +6618,7 @@ CONTAINS
     IF (bidx /= ntyp) THEN
        WRITE(*,*) 'worker: invalid number of casa fields, fix it (24)!'
        WRITE(*,*) 'ntyp: ', ntyp, 'bidx: ', bidx
-       CALL MPI_Abort(comm, 1, ierr)
+       CALL MPI_Abort(comm, 58, ierr)
     END IF
 
     types = MPI_BYTE
@@ -7076,7 +7084,7 @@ CONTAINS
     ! MPI: sanity check
     IF (bidx /= ntyp) THEN
        WRITE (*,*) 'worker: invalid number of climate fields, fix it (25)!'
-       CALL MPI_Abort (comm, 1, ierr)
+       CALL MPI_Abort (comm, 59, ierr)
     END IF
 
 
@@ -7231,7 +7239,7 @@ CONTAINS
     ! MPI: sanity check
     IF (bidx /= ntyp) THEN
        WRITE (*,*) 'invalid nrestart constant, fix it (26)!'
-       CALL MPI_Abort (comm, 1, ierr)
+       CALL MPI_Abort (comm, 60, ierr)
     END IF
 
     types = MPI_BYTE
@@ -7441,7 +7449,7 @@ CONTAINS
     ! MPI: sanity check
     IF (bidx /= ntyp) THEN
        WRITE(*,*) 'worker ', rank, ' invalid number of casa_dump_t param fields ', bidx, ', fix it (27)!'
-       CALL MPI_Abort(comm, 1, ierr)
+       CALL MPI_Abort(comm, 61, ierr)
     END IF
 
     CALL MPI_Type_create_struct(bidx, blen, displs, types, casa_dump_t, ierr)
@@ -7626,7 +7634,7 @@ CONTAINS
     ! MPI: sanity check
     IF (bidx /= ntyp) THEN
        WRITE (*,*) 'worker ',rank,' invalid number of casa_LUC_t param fields ',bidx,', fix it (28)!'
-       CALL MPI_Abort (comm, 1, ierr)
+       CALL MPI_Abort (comm, 62, ierr)
     END IF
 
     CALL MPI_Type_create_struct (bidx, blen, displs, types, casa_LUC_t, ierr)
@@ -7847,7 +7855,7 @@ CONTAINS
     ! MPI: sanity check
     if (bidx /= ntyp) then
        write(*,*) 'worker ', rank, ' invalid number of c13o2_flux_ts param fields ', bidx, ', fix it (29)!'
-       call MPI_Abort(comm, 1, ierr)
+       call MPI_Abort(comm, 63, ierr)
     end if
 
     call MPI_Type_create_struct(bidx, blen, displs, types, c13o2_flux_ts, ierr)
@@ -7988,7 +7996,7 @@ CONTAINS
     ! MPI: sanity check
     if (bidx /= ntyp) then
        write(*,*) 'worker ', rank, ' invalid number of c13o2_pool_ts param fields ', bidx, ', fix it (30)!'
-       call MPI_Abort(comm, 1, ierr)
+       call MPI_Abort(comm, 64, ierr)
     end if
 
     call MPI_Type_create_struct(bidx, blen, displs, types, c13o2_pool_ts, ierr)
@@ -8120,7 +8128,7 @@ CONTAINS
     ! MPI: sanity check
     if (bidx /= ntyp) then
        write(*,*) 'worker ', rank, ' invalid number of c13o2_luc_ts param fields ', bidx, ', fix it (31)!'
-       call MPI_Abort(comm, 1, ierr)
+       call MPI_Abort(comm, 65, ierr)
     end if
 
     call MPI_Type_create_struct(bidx, blen, displs, types, c13o2_luc_ts, ierr)
@@ -8269,7 +8277,7 @@ CONTAINS
     if (bidx /= ntyp) then
        write(*,*) 'worker: invalid number of c13o2_flux fields, fix it (32)!'
        write(*,*) 'ntyp: ', ntyp, 'bidx: ', bidx
-       call MPI_Abort(comm, 1, ierr)
+       call MPI_Abort(comm, 66, ierr)
     end if
 
     types = MPI_BYTE
@@ -8375,7 +8383,7 @@ CONTAINS
     if (bidx /= ntyp) then
        write(*,*) 'worker: invalid number of c13o2_pool fields, fix it (33)!'
        write(*,*) 'ntyp: ', ntyp, 'bidx: ', bidx
-       call MPI_Abort(comm, 1, ierr)
+       call MPI_Abort(comm, 67, ierr)
     end if
 
     types = MPI_BYTE
@@ -8473,7 +8481,7 @@ CONTAINS
     if (bidx /= ntyp) then
        write(*,*) 'worker: invalid number of c13o2_luc fields, fix it (34)!'
        write(*,*) 'ntyp: ', ntyp, 'bidx: ', bidx
-       call MPI_Abort(comm, 1, ierr)
+       call MPI_Abort(comm, 68, ierr)
     end if
 
     types = MPI_BYTE

@@ -413,6 +413,9 @@ contains
     use cable_c13o2_def,       only: c13o2_pool, c13o2_luc
     use mo_isotope_pool_model, only: isotope_pool_model
     use mo_isotope_luc_model,  only: isotope_luc_model
+#ifdef __MPI__
+    use mpi,                   only: MPI_Abort
+#endif
 #ifdef __C13DEBUG__
     use casavariable,          only: casa_pool
     use mo_isotope,            only: delta1000
@@ -443,6 +446,9 @@ contains
 
     integer :: nplant, nlitter, nsoil, nharvest, nclearance
     integer :: g, j, l, c, cs, ce
+#ifdef __MPI__
+    integer :: ierr
+#endif
 #ifdef __C13DEBUG__
     real(dp), dimension(size(casasave,1),size(casasave,2)) :: casatmp
     real(dp), dimension(nLU)                               :: csluc
@@ -473,8 +479,12 @@ contains
           j = landpt(g)%cstart ! start index of Cable tiles for grid cell g
           l = landpt(g)%cend   ! end index of Cable tiles for grid cell g
           if ((l-j+1) /= nLU) then
-             write(*,*) 'I do still not understand the tiling: ', g, j, l, nLU
-             stop 9
+             write(*,*) 'I still do not understand the tiling: ', g, j, l, nLU
+#ifdef __MPI__
+             call MPI_Abort(0, 124, ierr) ! Do not know comm nor rank here
+#else
+             stop 124
+#endif
           endif
 #ifdef __C13DEBUG__
           iwtile = l-2
@@ -1569,48 +1579,49 @@ contains
 
     write(*,*) '    delta-13C of Canopy pools'
     
-    if (mp > 21) then
+    ! if (mp > 21) then
 
-       form1 = trim('(a,i1,a,2g15.6e3)')
-       do i=1, npatch
-          write(*,form1) '        Vstarch (na=',i,'): ', &
-               minval(c13o2flux%Vstarch(i:mp:npatch)), maxval(c13o2flux%Vstarch(i:mp:npatch))
-       end do
-       do i=1, npatch
-          write(*,form1) '        dstarch (na=',i,'): ', &
-               delta1000( minval( c13o2flux%Rstarch(i:mp:npatch), &
-               mask=ne(c13o2flux%Rstarch(i:mp:npatch), -999._dp) ), &
-               1.0_dp, 1.0_dp, -999._dp, tiny(1.0_dp) ), &
-               delta1000( maxval( c13o2flux%Rstarch(i:mp:npatch), &
-               mask=ne(c13o2flux%Rstarch(i:mp:npatch), -999._dp) ), &
-               1.0_dp, 1.0_dp, -999._dp, tiny(1.0_dp) )
-       end do
+    !    form1 = trim('(a,i1,a,2g15.6e3)')
+    !    do i=1, npatch
+    !       write(*,form1) '        Vstarch (na=',i,'): ', &
+    !            minval(c13o2flux%Vstarch(i:mp:npatch)), maxval(c13o2flux%Vstarch(i:mp:npatch))
+    !    end do
+    !    do i=1, npatch
+    !       write(*,form1) '        dstarch (na=',i,'): ', &
+    !            delta1000( minval( c13o2flux%Rstarch(i:mp:npatch), &
+    !            mask=ne(c13o2flux%Rstarch(i:mp:npatch), -999._dp) ), &
+    !            1.0_dp, 1.0_dp, -999._dp, tiny(1.0_dp) ), &
+    !            delta1000( maxval( c13o2flux%Rstarch(i:mp:npatch), &
+    !            mask=ne(c13o2flux%Rstarch(i:mp:npatch), -999._dp) ), &
+    !            1.0_dp, 1.0_dp, -999._dp, tiny(1.0_dp) )
+    !    end do
 
-       form2 = trim('(a,i1,a,i1,a,2g15.6e3)')
-       do j=1, nleaf
-          do i=1, npatch
-             write(*,form2) '        dsucrose (na=',i,',nl=',j,'): ', &
-                  delta1000( minval( c13o2flux%Rsucrose(i:mp:npatch,j), &
-                  mask=ne(c13o2flux%Rsucrose(i:mp:npatch,j), -999._dp) ), &
-                  1.0_dp, 1.0_dp, -999._dp, tiny(1.0_dp) ), &
-                  delta1000( maxval( c13o2flux%Rsucrose(i:mp:npatch,j), &
-                  mask=ne(c13o2flux%Rsucrose(i:mp:npatch,j), -999._dp) ), &
-                  1.0_dp, 1.0_dp, -999._dp, tiny(1.0_dp) )
-          end do
-       end do
-       do j=1, nleaf
-          do i=1, npatch
-             write(*,form2) '        dphoto (na=',i,',nl=',j,'): ', &
-                  delta1000( minval( c13o2flux%Rphoto(i:mp:npatch,j), &
-                  mask=ne(c13o2flux%Rphoto(i:mp:npatch,j), -999._dp) ), &
-                  1.0_dp, 1.0_dp, -999._dp, tiny(1.0_dp) ), &
-                  delta1000( maxval( c13o2flux%Rphoto(i:mp:npatch,j), &
-                  mask=ne(c13o2flux%Rphoto(i:mp:npatch,j), -999._dp) ), &
-                  1.0_dp, 1.0_dp, -999._dp, tiny(1.0_dp) )
-          end do
-       end do
+    !    form2 = trim('(a,i1,a,i1,a,2g15.6e3)')
+    !    do j=1, nleaf
+    !       do i=1, npatch
+    !          write(*,form2) '        dsucrose (na=',i,',nl=',j,'): ', &
+    !               delta1000( minval( c13o2flux%Rsucrose(i:mp:npatch,j), &
+    !               mask=ne(c13o2flux%Rsucrose(i:mp:npatch,j), -999._dp) ), &
+    !               1.0_dp, 1.0_dp, -999._dp, tiny(1.0_dp) ), &
+    !               delta1000( maxval( c13o2flux%Rsucrose(i:mp:npatch,j), &
+    !               mask=ne(c13o2flux%Rsucrose(i:mp:npatch,j), -999._dp) ), &
+    !               1.0_dp, 1.0_dp, -999._dp, tiny(1.0_dp) )
+    !       end do
+    !    end do
+    !    do j=1, nleaf
+    !       do i=1, npatch
+    !          write(*,form2) '        dphoto (na=',i,',nl=',j,'): ', &
+    !               delta1000( minval( c13o2flux%Rphoto(i:mp:npatch,j), &
+    !               mask=ne(c13o2flux%Rphoto(i:mp:npatch,j), -999._dp) ), &
+    !               1.0_dp, 1.0_dp, -999._dp, tiny(1.0_dp) ), &
+    !               delta1000( maxval( c13o2flux%Rphoto(i:mp:npatch,j), &
+    !               mask=ne(c13o2flux%Rphoto(i:mp:npatch,j), -999._dp) ), &
+    !               1.0_dp, 1.0_dp, -999._dp, tiny(1.0_dp) )
+    !       end do
+    !    end do
     
-    else if (mp > 3) then
+    ! else if (mp > 3) then
+    if (mp > 3) then
 
        write(form1,'(a,i3,a)') '(a,i1,a,', mp/npatch, 'g15.6e3)'
        do i=1, npatch
@@ -1681,54 +1692,55 @@ contains
 
     write(*,*) '    delta-13C of Casa pools'
 
-    if (mp > 21) then
+    ! if (mp > 21) then
        
-       form1 = trim('(a,i1,a,i1,a,2g15.6e3)')
-       do j=1, nplant
-          do i=1, npatch
-             write(*,form1) '        plant (na=',i,',np=',j,'): ', &
-                  minval( delta1000(c13o2pools%cplant(i:mp:npatch,j), &
-                  casapool%cplant(i:mp:npatch,j), 1.0_dp, -999._dp, tiny(1.0_dp)) ), &
-                  maxval( delta1000(c13o2pools%cplant(i:mp:npatch,j), &
-                  casapool%cplant(i:mp:npatch,j), 1.0_dp, -999._dp, tiny(1.0_dp)) )
-          end do
-       end do
-       do j=1, nlitter
-          do i=1, npatch
-             write(*,form1) '        litter (na=',i,',nl=',j,'): ', &
-                  minval( delta1000(c13o2pools%clitter(i:mp:npatch,j), &
-                  casapool%clitter(i:mp:npatch,j), 1.0_dp, -999._dp, tiny(1.0_dp)) ), &
-                  maxval( delta1000(c13o2pools%clitter(i:mp:npatch,j), &
-                  casapool%clitter(i:mp:npatch,j), 1.0_dp, -999._dp, tiny(1.0_dp)) )
-          end do
-       end do
-       do j=1, nsoil
-          do i=1, npatch
-             write(*,form1) '        soil (na=',i,',ns=',j,'): ', &
-                  minval( delta1000(c13o2pools%csoil(i:mp:npatch,j), &
-                  casapool%csoil(i:mp:npatch,j), 1.0_dp, -999._dp, tiny(1.0_dp)) ), &
-                  maxval( delta1000(c13o2pools%csoil(i:mp:npatch,j), &
-                  casapool%csoil(i:mp:npatch,j), 1.0_dp, -999._dp, tiny(1.0_dp)) )
-          end do
-       end do
+    !    form1 = trim('(a,i1,a,i1,a,2g15.6e3)')
+    !    do j=1, nplant
+    !       do i=1, npatch
+    !          write(*,form1) '        plant (na=',i,',np=',j,'): ', &
+    !               minval( delta1000(c13o2pools%cplant(i:mp:npatch,j), &
+    !               casapool%cplant(i:mp:npatch,j), 1.0_dp, -999._dp, tiny(1.0_dp)) ), &
+    !               maxval( delta1000(c13o2pools%cplant(i:mp:npatch,j), &
+    !               casapool%cplant(i:mp:npatch,j), 1.0_dp, -999._dp, tiny(1.0_dp)) )
+    !       end do
+    !    end do
+    !    do j=1, nlitter
+    !       do i=1, npatch
+    !          write(*,form1) '        litter (na=',i,',nl=',j,'): ', &
+    !               minval( delta1000(c13o2pools%clitter(i:mp:npatch,j), &
+    !               casapool%clitter(i:mp:npatch,j), 1.0_dp, -999._dp, tiny(1.0_dp)) ), &
+    !               maxval( delta1000(c13o2pools%clitter(i:mp:npatch,j), &
+    !               casapool%clitter(i:mp:npatch,j), 1.0_dp, -999._dp, tiny(1.0_dp)) )
+    !       end do
+    !    end do
+    !    do j=1, nsoil
+    !       do i=1, npatch
+    !          write(*,form1) '        soil (na=',i,',ns=',j,'): ', &
+    !               minval( delta1000(c13o2pools%csoil(i:mp:npatch,j), &
+    !               casapool%csoil(i:mp:npatch,j), 1.0_dp, -999._dp, tiny(1.0_dp)) ), &
+    !               maxval( delta1000(c13o2pools%csoil(i:mp:npatch,j), &
+    !               casapool%csoil(i:mp:npatch,j), 1.0_dp, -999._dp, tiny(1.0_dp)) )
+    !       end do
+    !    end do
 
-       form2 = trim('(a,i1,a,2g15.6e3)')
-       do i=1, npatch
-          write(*,form2) '        labile (na=',i,'): ', &
-               minval( delta1000(c13o2pools%clabile(i:mp:npatch), &
-               casapool%clabile(i:mp:npatch), 1.0_dp, -999._dp, tiny(1.0_dp)) ), &
-               maxval( delta1000(c13o2pools%clabile(i:mp:npatch), &
-               casapool%clabile(i:mp:npatch), 1.0_dp, -999._dp, tiny(1.0_dp)) )
-       end do
-       do i=1, npatch
-          write(*,form2) '        charvest (na=',i,'): ', &
-               minval( delta1000(c13o2pools%charvest(i:mp:npatch), &
-               casaflux%charvest(i:mp:npatch), 1.0_dp, -999._dp, tiny(1.0_dp)) ), &
-               maxval( delta1000(c13o2pools%charvest(i:mp:npatch), &
-               casaflux%charvest(i:mp:npatch), 1.0_dp, -999._dp, tiny(1.0_dp)) )
-       end do
+    !    form2 = trim('(a,i1,a,2g15.6e3)')
+    !    do i=1, npatch
+    !       write(*,form2) '        labile (na=',i,'): ', &
+    !            minval( delta1000(c13o2pools%clabile(i:mp:npatch), &
+    !            casapool%clabile(i:mp:npatch), 1.0_dp, -999._dp, tiny(1.0_dp)) ), &
+    !            maxval( delta1000(c13o2pools%clabile(i:mp:npatch), &
+    !            casapool%clabile(i:mp:npatch), 1.0_dp, -999._dp, tiny(1.0_dp)) )
+    !    end do
+    !    do i=1, npatch
+    !       write(*,form2) '        charvest (na=',i,'): ', &
+    !            minval( delta1000(c13o2pools%charvest(i:mp:npatch), &
+    !            casaflux%charvest(i:mp:npatch), 1.0_dp, -999._dp, tiny(1.0_dp)) ), &
+    !            maxval( delta1000(c13o2pools%charvest(i:mp:npatch), &
+    !            casaflux%charvest(i:mp:npatch), 1.0_dp, -999._dp, tiny(1.0_dp)) )
+    !    end do
 
-    else if (mp > 3) then
+    ! else if (mp > 3) then
+    if (mp > 3) then
        
        write(form1,'(a,i3,a)') '(a,i1,a,i1,a,', mp/npatch, 'g15.6e3)'
        do j=1, nplant
@@ -1811,38 +1823,39 @@ contains
 
     write(*,*) '    delta-13C of LUC pools'
 
-    if (mp > 21) then
+    ! if (mp > 21) then
 
-       form1 = trim('(a,i1,a,i1,a,2g15.6e3)')
-       do j=1, nharvest
-          do i=1, npatch
-             write(*,form1) '        harvest (na=',i,',nh=',j,'): ', &
-                  minval( delta1000(c13o2luc%charvest(i:mp:npatch,j), &
-                  popluc%HarvProd(i:mp:npatch,j), 1.0_dp, -999._dp, tiny(1.0_dp)) ), &
-                  maxval( delta1000(c13o2luc%charvest(i:mp:npatch,j), &
-                  popluc%HarvProd(i:mp:npatch,j), 1.0_dp, -999._dp, tiny(1.0_dp)) )
-          end do
-       end do
-       do j=1, nclearance
-          do i=1, npatch
-             write(*,form1) '        clearance (na=',i,',nc=',j,'): ', &
-                  minval( delta1000(c13o2luc%cclearance(i:mp:npatch,j), &
-                  popluc%ClearProd(i:mp:npatch,j), 1.0_dp, -999._dp, tiny(1.0_dp)) ), &
-                  maxval( delta1000(c13o2luc%cclearance(i:mp:npatch,j), &
-                  popluc%ClearProd(i:mp:npatch,j), 1.0_dp, -999._dp, tiny(1.0_dp)) )
-          end do
-       end do
+    !    form1 = trim('(a,i1,a,i1,a,2g15.6e3)')
+    !    do j=1, nharvest
+    !       do i=1, npatch
+    !          write(*,form1) '        harvest (na=',i,',nh=',j,'): ', &
+    !               minval( delta1000(c13o2luc%charvest(i:mp:npatch,j), &
+    !               popluc%HarvProd(i:mp:npatch,j), 1.0_dp, -999._dp, tiny(1.0_dp)) ), &
+    !               maxval( delta1000(c13o2luc%charvest(i:mp:npatch,j), &
+    !               popluc%HarvProd(i:mp:npatch,j), 1.0_dp, -999._dp, tiny(1.0_dp)) )
+    !       end do
+    !    end do
+    !    do j=1, nclearance
+    !       do i=1, npatch
+    !          write(*,form1) '        clearance (na=',i,',nc=',j,'): ', &
+    !               minval( delta1000(c13o2luc%cclearance(i:mp:npatch,j), &
+    !               popluc%ClearProd(i:mp:npatch,j), 1.0_dp, -999._dp, tiny(1.0_dp)) ), &
+    !               maxval( delta1000(c13o2luc%cclearance(i:mp:npatch,j), &
+    !               popluc%ClearProd(i:mp:npatch,j), 1.0_dp, -999._dp, tiny(1.0_dp)) )
+    !       end do
+    !    end do
 
-       form2 = trim('(a,i1,a,2g15.6e3)')
-       do i=1, npatch
-          write(*,form2) '        agric (na=',i,'): ', &
-               minval( delta1000(c13o2luc%cagric(i:mp:npatch), &
-               popluc%AgProd(i:mp:npatch), 1.0_dp, -999._dp, tiny(1.0_dp)) ), &
-               maxval( delta1000(c13o2luc%cagric(i:mp:npatch), &
-               popluc%AgProd(i:mp:npatch), 1.0_dp, -999._dp, tiny(1.0_dp)) )
-       end do
+    !    form2 = trim('(a,i1,a,2g15.6e3)')
+    !    do i=1, npatch
+    !       write(*,form2) '        agric (na=',i,'): ', &
+    !            minval( delta1000(c13o2luc%cagric(i:mp:npatch), &
+    !            popluc%AgProd(i:mp:npatch), 1.0_dp, -999._dp, tiny(1.0_dp)) ), &
+    !            maxval( delta1000(c13o2luc%cagric(i:mp:npatch), &
+    !            popluc%AgProd(i:mp:npatch), 1.0_dp, -999._dp, tiny(1.0_dp)) )
+    !    end do
 
-    else if (mp > 3) then
+    ! else if (mp > 3) then
+    if (mp > 3) then
 
        write(form1,'(a,i3,a)') '(a,i1,a,i1,a,', mp/npatch, 'g15.6e3)'
        do j=1, nharvest
@@ -2160,7 +2173,7 @@ contains
   subroutine c13o2_err_handler(message)
 
 #ifdef __MPI__
-    use mpi
+    use mpi, only: MPI_Abort
 #endif
     
     implicit none
@@ -2173,9 +2186,9 @@ contains
 
     write(*,*) trim(message)
 #ifdef __MPI__
-    call MPI_Abort(0, 0, ierr) ! Do not know comm nor rank here
+    call MPI_Abort(0, 125, ierr) ! Do not know comm nor rank here
 #else
-    stop 9
+    stop 125
 #endif
 
   end subroutine c13o2_err_handler

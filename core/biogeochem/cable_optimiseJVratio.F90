@@ -914,8 +914,11 @@ CONTAINS
   FUNCTION rtbis(func,x1,x2,xacc)
 
     !USE nrtype; USE nrutil, ONLY : nrerror
-    use mo_utils, only: eq, le
-    
+    use mo_utils, only: eq, le, ge
+#ifdef __MPI__
+    use mpi,      only: MPI_Abort
+#endif
+
     IMPLICIT NONE
     
     INTERFACE
@@ -931,9 +934,21 @@ CONTAINS
     INTEGER, PARAMETER :: MAXIT=40
     INTEGER :: j
     REAL :: dx,f,fmid,xmid
-    fmid=func(x2)
-    f=func(x1)
-    if (f*fmid >= 0.0) stop 'rtbis: root must be bracketed'
+#ifdef __MPI__
+    integer :: ierr
+#endif
+    
+    fmid = func(x2)
+    f    = func(x1)
+    if (ge(f*fmid, 0.0)) then
+       write(*,*) 'rtbis: root must be bracketed'
+#ifdef __MPI__
+       call MPI_Abort(0, 89, ierr) ! Do not know comm nor rank here
+#else
+       stop 89
+#endif
+    endif
+    
     if (f < 0.0) then
        rtbis=x1
        dx=x2-x1
@@ -941,14 +956,21 @@ CONTAINS
        rtbis=x2
        dx=x1-x2
     end if
+    
     do j=1,MAXIT
-       dx=dx*0.5
-       xmid=rtbis+dx
-       fmid=func(xmid)
+       dx = dx*0.5
+       xmid = rtbis+dx
+       fmid = func(xmid)
        if (le(fmid, 0.0)) rtbis=xmid
        if (abs(dx) < xacc .or. eq(fmid, 0.0)) RETURN
     end do
-    stop 'rtbis: too many bisections'
+    
+    write(*,*) 'rtbis: too many bisections'
+#ifdef __MPI__
+    call MPI_Abort(0, 90, ierr) ! Do not know comm nor rank here
+#else
+    stop 90
+#endif
   END FUNCTION rtbis
 
   ! ==============================================================================

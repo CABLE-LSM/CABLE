@@ -457,7 +457,7 @@ CONTAINS
           write(logn,*) 'undefined start year for gswp met:'
           write(logn,*) 'enter value for ncciy or'
           write(logn,*) '(cable_user%YearStart and  cable_user%YearEnd) in cable.nml'
-          stop
+          call MPI_Abort(comm, 8, ierr)
        endif
     endif
 
@@ -500,14 +500,22 @@ CONTAINS
     ! associate pointers used locally with global definitions
     call point2constants( C )
 
-    if ( l_casacnp  .and. (icycle == 0 .or. icycle > 3) ) &
-         stop 'icycle must be 1 to 3 when using casaCNP'
-    if ( (l_laifeedbk .or. l_vcmaxfeedbk) .and. (.not. l_casacnp) ) &
-         stop 'casaCNP required to get prognostic LAI or Vcmax'
-    if (l_vcmaxfeedbk .and. icycle < 2) &
-         stop 'icycle must be 2 to 3 to get prognostic Vcmax'
-    if ( icycle > 0 .and. (.not. soilparmnew) ) &
-         stop 'casaCNP must use new soil parameters'
+    if ( l_casacnp  .and. (icycle == 0 .or. icycle > 3) ) then
+       write(*,*) 'icycle must be 1 to 3 when using casaCNP'
+       call MPI_Abort(comm, 9, ierr)
+    endif
+    if ( (l_laifeedbk .or. l_vcmaxfeedbk) .and. (.not. l_casacnp) ) then
+       write(*,*) 'casaCNP required to get prognostic LAI or Vcmax'
+       call MPI_Abort(comm, 10, ierr)
+    endif
+    if (l_vcmaxfeedbk .and. icycle < 2) then
+       write(*,*) 'icycle must be 2 to 3 to get prognostic Vcmax'
+       call MPI_Abort(comm, 11, ierr)
+    endif
+    if ( icycle > 0 .and. (.not. soilparmnew) ) then
+       write(*,*) 'casaCNP must use new soil parameters'
+       call MPI_Abort(comm, 12, ierr)
+    endif
 
     ! casa time count
     ctime = 0
@@ -526,7 +534,7 @@ CONTAINS
        CALL open_met_file( dels, koffset, kend, spinup, C%TFRZ )
        IF ( koffset .NE. 0 .AND. cable_user%CALL_POP ) THEN
           WRITE(*,*) "When using POP, episode must start on Jan 1st!"
-          call MPI_Abort(comm, 991, ierr)
+          call MPI_Abort(comm, 13, ierr)
        ENDIF
     ENDIF
 
@@ -962,7 +970,7 @@ CONTAINS
              if ((CurYear < c13o2_atm_syear) .or. (CurYear > c13o2_atm_eyear)) then
                 write(*,*) 'Current year ', CurYear, 'not in atmospheric delta-13C (min/max): ', &
                      c13o2_atm_syear, c13o2_atm_eyear
-                call MPI_Abort(comm, 911, ierr)
+                call MPI_Abort(comm, 14, ierr)
              endif
              c13o2flux%ca = (c13o2_delta_atm(CurYear) + 1.0_r_2) * real(imet%ca,r_2) ! * vpdbc13 / vpdbc13
              ! broadcast
@@ -1226,7 +1234,7 @@ CONTAINS
                               canopy%ga(kk), ssnow%tgg(kk,:), canopy%fwsoil(kk), &
                               rad%fvlai(kk,:) ,  rad%fvlai(kk,1), &
                               rad%fvlai(kk,2), canopy%vlaiw(kk)
-                         CALL MPI_Abort(comm, 0, ierr)
+                         CALL MPI_Abort(comm, 15, ierr)
                       ENDIF
                    ENDDO
                 ENDIF
@@ -1755,7 +1763,7 @@ SUBROUTINE master_decomp(comm, mland)
   IF (ierr /= 0) THEN
      ! TODO: print an error message
      write(*,*) 'master-decomp MPI_ABORT'
-     CALL MPI_Abort(comm, 0, ierr)
+     CALL MPI_Abort(comm, 16, ierr)
   END IF
 
   ! MPI: calculate landpoint distribution among the workers
@@ -1764,7 +1772,7 @@ SUBROUTINE master_decomp(comm, mland)
   lpw = mland / wnp
   IF (lpw == 0) THEN
      write(*,*) 'number of workers > than mland',wnp,mland
-     CALL MPI_Abort(comm, 0, ierr)
+     CALL MPI_Abort(comm, 17, ierr)
   END IF
   rest = MOD(mland, wnp)
   nxt = 1
@@ -1808,7 +1816,7 @@ SUBROUTINE master_decomp(comm, mland)
      END DO
      IF (patchcnt /= tmp) THEN
         WRITE(*,*) 'invalid patch number for worker ', patchcnt, tmp, rank
-        CALL MPI_Abort(comm, 0, ierr)
+        CALL MPI_Abort(comm, 18, ierr)
      END IF
 
      ! MPI: at this point workers can't determine patches on their own
@@ -3469,7 +3477,7 @@ SUBROUTINE master_cable_params(comm, met, air, ssnow, veg, bgc, soil, canopy, ro
      ! MPI: sanity check
      if (bidx /= ntyp) then
         write(*,*) 'master: invalid number of param_t fields ', bidx, ', fix it (01)!'
-        call MPI_Abort(comm, 1, ierr)
+        call MPI_Abort(comm, 19, ierr)
      end if
 
      call MPI_Type_create_struct(bidx, blen, displs, types, param_t(rank), ierr)
@@ -3499,7 +3507,7 @@ SUBROUTINE master_cable_params(comm, met, air, ssnow, veg, bgc, soil, canopy, ro
 
   IF (localtotal /= remotetotal) THEN
      WRITE(*,*) 'error: total length of cable params sent and received differ'
-     CALL MPI_Abort (comm, 0, ierr)
+     CALL MPI_Abort (comm, 20, ierr)
   END IF
 
   ! so, now send all the parameters
@@ -4765,7 +4773,7 @@ SUBROUTINE master_casa_params(comm, casabiome, casapool, casaflux, casamet, casa
      ! MPI: sanity check
      IF (bidx /= ntyp) THEN
         WRITE(*,*) 'master: invalid number of casa_t param fields ',bidx,', fix it (02)!'
-        CALL MPI_Abort(comm, 1, ierr)
+        CALL MPI_Abort(comm, 21, ierr)
      END IF
 
      CALL MPI_Type_create_struct(bidx, blen, displs, types, casa_t(rank), ierr)
@@ -4794,7 +4802,7 @@ SUBROUTINE master_casa_params(comm, casabiome, casapool, casaflux, casamet, casa
 
   IF (localtotal /= remotetotal) THEN
      WRITE(*,*) 'error: total length of casa params sent and received differ'
-     CALL MPI_Abort (comm, 0, ierr)
+     CALL MPI_Abort (comm, 22, ierr)
   END IF
 
   CALL MPI_Barrier(comm, ierr)
@@ -4971,7 +4979,7 @@ SUBROUTINE master_intypes(comm, met, veg)
      ! MPI: sanity check
      if (bidx /= ntyp) then
         write(*,*) 'master: invalid intype nmat, nvec or n3d constant, fix it (03)!'
-        call MPI_Abort(comm, 1, ierr)
+        call MPI_Abort(comm, 23, ierr)
      end if
 
      ! marshall all fields into a single MPI derived datatype for worker rank
@@ -5002,7 +5010,7 @@ SUBROUTINE master_intypes(comm, met, veg)
 
   if (localtotal /= remotetotal) then
      write(*,*) 'error: total length of input data sent and received differ (01)'
-     call MPI_Abort(comm, 0, ierr)
+     call MPI_Abort(comm, 24, ierr)
   end if
 
   return
@@ -5464,7 +5472,7 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      ! MPI: sanity check
      IF (midx /= nmat) THEN
         WRITE(*,*) 'master: outtype invalid nmat ',midx,' constant, fix it (04)!'
-        CALL MPI_Abort (comm, 1, ierr)
+        CALL MPI_Abort (comm, 25, ierr)
      END IF
 
      ! ------------- 1D arrays -------------
@@ -6551,7 +6559,7 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      ! MPI: sanity check
      if (vidx /= nvec) then
         write(*,*) 'master: outtype invalid nvec ', vidx, ' constant, fix it (05)!'
-        call MPI_Abort(comm, 1, ierr)
+        call MPI_Abort(comm, 26, ierr)
      end if
 
      ! MPI: all vectors into a single hindexed type for each worker
@@ -6606,7 +6614,7 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
 
   IF (totalrecv /= totalsend) THEN
           WRITE(*,*) 'error master: totalsend and totalrecv differ',totalsend,totalrecv
-          CALL MPI_Abort (comm, 0, ierr)
+          CALL MPI_Abort (comm, 27, ierr)
   END IF
 
   DEALLOCATE(blen)
@@ -7316,7 +7324,7 @@ SUBROUTINE master_casa_types(comm, casapool, casaflux, casamet, casabal, phen)
      IF (bidx /= ntyp) THEN
         WRITE(*,*) 'master: invalid number of casa fields, fix it (06)!'
         WRITE(*,*) 'ntyp: ', ntyp, 'bidx: ', bidx
-        CALL MPI_Abort (comm, 1, ierr)
+        CALL MPI_Abort (comm, 28, ierr)
      END IF
 
      CALL MPI_Type_create_struct (bidx, blocks, displs, types, casa_ts(rank), ierr)
@@ -7348,7 +7356,7 @@ SUBROUTINE master_casa_types(comm, casapool, casaflux, casamet, casabal, phen)
 
   IF (totalrecv /= totalsend) THEN
      WRITE(*,*) 'error: casa results totalsend and totalrecv differ'
-     CALL MPI_Abort(comm, 0, ierr)
+     CALL MPI_Abort(comm, 29, ierr)
   END IF
 
   DEALLOCATE(types)
@@ -7819,7 +7827,7 @@ SUBROUTINE master_climate_types (comm, climate, ktauday)
      ! MPI: sanity check
      IF (bidx /= ntyp) THEN
         WRITE(*,*) 'master: invalid number of climate fields, fix it (07)!'
-        CALL MPI_Abort (comm, 1, ierr)
+        CALL MPI_Abort (comm, 30, ierr)
      END IF
 
      CALL MPI_Type_create_struct (bidx, blocks, displs, types, climate_ts(rank), ierr)
@@ -7846,7 +7854,7 @@ SUBROUTINE master_climate_types (comm, climate, ktauday)
 
   IF (totalrecv /= totalsend) THEN
      WRITE(*,*) 'error: climate results totalsend and totalrecv differ'
-     CALL MPI_Abort(comm, 0, ierr)
+     CALL MPI_Abort(comm, 31, ierr)
   END IF
 
   DO rank = 1, wnp
@@ -8186,7 +8194,7 @@ SUBROUTINE master_restart_types(comm, canopy, air)
         WRITE(*,*) 'master: invalid number of restart fields, fix it (09)!'
         WRITE(*,*) 'bidx: ', bidx
         WRITE(*,*) 'ntyp: ', ntyp
-        CALL MPI_Abort(comm, 1, ierr)
+        CALL MPI_Abort(comm, 32, ierr)
      END IF
 
      CALL MPI_Type_create_struct(bidx, blocks, displs, types, restart_ts(rank), ierr)
@@ -8219,7 +8227,7 @@ SUBROUTINE master_restart_types(comm, canopy, air)
 
   IF (totalrecv /= totalsend) THEN
      WRITE(*,*) 'error: restart fields totalsend and totalrecv differ'
-     CALL MPI_Abort(comm, 0, ierr)
+     CALL MPI_Abort(comm, 33, ierr)
   END IF
 
   DEALLOCATE(types)
@@ -8438,7 +8446,7 @@ SUBROUTINE master_casa_dump_types(comm, casamet, casaflux, phen, climate, c13o2f
      ! MPI: sanity check
      IF (bidx /= ntyp) THEN
         WRITE(*,*) 'master: invalid intype in master_casa_dump, fix it (10)!'
-        CALL MPI_Abort(comm, 1, ierr)
+        CALL MPI_Abort(comm, 34, ierr)
      END IF
 
      ! marshall all fields into a single MPI derived datatype for worker rank
@@ -8474,7 +8482,7 @@ SUBROUTINE master_casa_dump_types(comm, casamet, casaflux, phen, climate, c13o2f
 
   IF (localtotal /= remotetotal) THEN
      WRITE(*,*) 'error: total length of input data sent and received differ (03)'
-     CALL MPI_Abort(comm, 0, ierr)
+     CALL MPI_Abort(comm, 35, ierr)
   END IF
 
   !  DO rank = 1, wnp
@@ -8678,7 +8686,7 @@ SUBROUTINE master_casa_LUC_types(comm, casapool, casabal, casaflux)
      ! MPI: sanity check
      IF (bidx /= ntyp) THEN
         WRITE(*,*) 'master: invalid intype in master_casa_LUC, fix it (11)!'
-        CALL MPI_Abort(comm, 1, ierr)
+        CALL MPI_Abort(comm, 36, ierr)
      END IF
 
      ! marshall all fields into a single MPI derived datatype for worker rank
@@ -8716,7 +8724,7 @@ SUBROUTINE master_casa_LUC_types(comm, casapool, casabal, casaflux)
 
   IF (localtotal /= remotetotal) THEN
      WRITE(*,*) 'error: total length of input data sent and received differ (04)'
-     CALL MPI_Abort(comm, 0, ierr)
+     CALL MPI_Abort(comm, 37, ierr)
   END IF
 
 END SUBROUTINE master_casa_LUC_types
@@ -8956,7 +8964,7 @@ subroutine master_c13o2_flux_params(comm, c13o2flux)
      ! MPI: sanity check
      if (bidx /= ntyp) then
         write(*,*) 'master: invalid number of c13o2_flux_t param fields ', bidx, ', fix it (13)!'
-        call MPI_Abort(comm, 1, ierr)
+        call MPI_Abort(comm, 38, ierr)
      end if
 
      call MPI_Type_create_struct(bidx, blen, displs, types, c13o2_flux_t(rank), ierr)
@@ -8984,7 +8992,7 @@ subroutine master_c13o2_flux_params(comm, c13o2flux)
 
   if (localtotal /= remotetotal) then
      write(*,*) 'error: total length of c13o2_flux params sent and received differ'
-     call MPI_Abort(comm, 0, ierr)
+     call MPI_Abort(comm, 39, ierr)
   end if
 
   call MPI_Barrier(comm, ierr)
@@ -9113,7 +9121,7 @@ subroutine master_c13o2_pool_params(comm, c13o2pools)
      ! MPI: sanity check
      if (bidx /= ntyp) then
         write(*,*) 'master: invalid number of c13o2_pool_t param fields ', bidx, ', fix it (14)!'
-        call MPI_Abort(comm, 1, ierr)
+        call MPI_Abort(comm, 40, ierr)
      end if
 
      call MPI_Type_create_struct(bidx, blen, displs, types, c13o2_pool_t(rank), ierr)
@@ -9138,7 +9146,7 @@ subroutine master_c13o2_pool_params(comm, c13o2pools)
 
   if (localtotal /= remotetotal) then
      write(*,*) 'error: total length of c13o2_pool params sent and received differ'
-     call MPI_Abort(comm, 0, ierr)
+     call MPI_Abort(comm, 41, ierr)
   end if
 
   deallocate(types)
@@ -9259,7 +9267,7 @@ subroutine master_c13o2_luc_params(comm, c13o2luc)
      ! MPI: sanity check
      if (bidx /= ntyp) then
         write(*,*) 'master: invalid number of c13o2_luc_t param fields ', bidx, ', fix it (15)!'
-        call MPI_Abort(comm, 1, ierr)
+        call MPI_Abort(comm, 42, ierr)
      end if
 
      call MPI_Type_create_struct(bidx, blen, displs, types, c13o2_luc_t(rank), ierr)
@@ -9287,7 +9295,7 @@ subroutine master_c13o2_luc_params(comm, c13o2luc)
 
   if (localtotal /= remotetotal) then
      write(*,*) 'error: total length of c13o2_luc params sent and received differ'
-     call MPI_Abort(comm, 0, ierr)
+     call MPI_Abort(comm, 43, ierr)
   end if
 
   call MPI_Barrier(comm, ierr)
@@ -9429,7 +9437,7 @@ subroutine master_c13o2_flux_types(comm, c13o2flux)
      if (bidx /= ntyp) then
         write(*,*) 'master: invalid number of c13o2_flux fields, fix it (16)!'
         write(*,*) 'ntyp: ', ntyp, 'bidx: ', bidx
-        call MPI_Abort(comm, 1, ierr)
+        call MPI_Abort(comm, 44, ierr)
      end if
 
      call MPI_Type_create_struct(bidx, blocks, displs, types, c13o2_flux_ts(rank), ierr)
@@ -9463,7 +9471,7 @@ subroutine master_c13o2_flux_types(comm, c13o2flux)
 
   if (totalrecv /= totalsend) then
      write(*,*) 'error: c13o2_flux results totalsend and totalrecv differ'
-     call MPI_Abort(comm, 0, ierr)
+     call MPI_Abort(comm, 45, ierr)
   end if
 
   deallocate(types)
@@ -9574,7 +9582,7 @@ subroutine master_c13o2_pool_types(comm, c13o2pools)
      if (bidx /= ntyp) then
         write(*,*) 'master: invalid number of c13o2_pool fields, fix it (17)!'
         write(*,*) 'ntyp: ', ntyp, 'bidx: ', bidx
-        call MPI_Abort(comm, 1, ierr)
+        call MPI_Abort(comm, 46, ierr)
      end if
 
      call MPI_Type_create_struct(bidx, blocks, displs, types, c13o2_pool_ts(rank), ierr)
@@ -9608,7 +9616,7 @@ subroutine master_c13o2_pool_types(comm, c13o2pools)
 
   if (totalrecv /= totalsend) then
      write(*,*) 'error: c13o2_pool results totalsend and totalrecv differ'
-     call MPI_Abort(comm, 0, ierr)
+     call MPI_Abort(comm, 47, ierr)
   end if
 
   deallocate(types)
@@ -9712,7 +9720,7 @@ subroutine master_c13o2_luc_types(comm, c13o2luc)
      if (bidx /= ntyp) then
         write(*,*) 'master: invalid number of c13o2_luc fields, fix it (18)!'
         write(*,*) 'ntyp: ', ntyp, 'bidx: ', bidx
-        call MPI_Abort(comm, 1, ierr)
+        call MPI_Abort(comm, 48, ierr)
      end if
 
      call MPI_Type_create_struct(bidx, blocks, displs, types, c13o2_luc_ts(rank), ierr)
@@ -9748,7 +9756,7 @@ subroutine master_c13o2_luc_types(comm, c13o2luc)
 
   if (totalrecv /= totalsend) then
      write(*,*) 'error: c13o2_luc results totalsend and totalrecv differ'
-     call MPI_Abort(comm, 0, ierr)
+     call MPI_Abort(comm, 49, ierr)
   end if
 
   return

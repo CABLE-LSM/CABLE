@@ -130,6 +130,9 @@ contains
 
     use mo_kind,  only: dp, i4
     use mo_utils, only: eq, ne
+#ifdef __MPI__
+    use mpi,      only: MPI_Abort
+#endif
 
     implicit none
 
@@ -158,6 +161,9 @@ contains
     real(dp), dimension(size(Ciso,1)) :: isink               ! between pools sink
     real(dp), dimension(size(Ciso,1)) :: isource             ! between pools source
     real(dp), dimension(size(Ciso,1)) :: Cnew                ! New pool size for check
+#ifdef __MPI__
+    integer :: ierr
+#endif
 
     ! Check sizes
     nn = size(Ciso,1)
@@ -168,25 +174,37 @@ contains
        write(*,*) '    size(C):   ', size(C,1)
        write(*,*) '    size(F,1): ', size(F,1)
        write(*,*) '    size(F,2): ', size(F,2)
-       stop 9
+#ifdef __MPI__
+       call MPI_Abort(0, 1001, ierr) ! Do not know comm nor rank here
+#else
+       stop 1001
+#endif
     endif
 
     ! Check F >= 0
-    if (any(F < 0._dp)) then
+    if (any(F < 0.0_dp)) then
        write(*,*) 'Error isotope_pool_model_1d: fluxes between pools must be >= 0.'
        write(*,*) '    F: ', F
-       stop 9
+#ifdef __MPI__
+       call MPI_Abort(0, 1002, ierr) ! Do not know comm nor rank here
+#else
+       stop 1002
+#endif
     endif
 
     ! Check F(i,:) == 0. if C(i) == 0.
-    if (any(eq(C,0._dp))) then
+    if (any(eq(C,0.0_dp))) then
        do i=1, nn
-          if (eq(C(i),0._dp)) then
-             if (any(ne(F(i,:),0._dp))) then
+          if (eq(C(i),0.0_dp)) then
+             if (any(ne(F(i,:),0.0_dp))) then
                 write(*,*) 'Error isotope_pool_model_1d: fluxes from pool i must be 0 if concentration in pool is 0.'
                 write(*,*) '    i, C(i): ', i, C(i)
                 write(*,*) '       F(i): ', F(i,:)
-                stop 9
+#ifdef __MPI__
+                call MPI_Abort(0, 1003, ierr) ! Do not know comm nor rank here
+#else
+                stop 1003
+#endif
              endif
           endif
        end do
@@ -196,42 +214,42 @@ contains
     if (present(S)) then
        iS = S
     else
-       iS = 0._dp
+       iS = 0.0_dp
     endif
     if (present(Rs)) then
        iRs = Rs
     else
-       iRs = 1._dp
+       iRs = 1.0_dp
     endif
     if (present(T)) then
        iT = T
     else
-       iT = 0._dp
+       iT = 0.0_dp
     endif
     if (present(Rt)) then
        iRt = Rt
     else
-       iRt = 1._dp ! could be zero as well to assure no isotopic sink if C=0
-       where (C > 0._dp) iRt = Ciso / C
+       iRt = 1.0_dp ! could be zero as well to assure no isotopic sink if C=0
+       where (C > 0.0_dp) iRt = Ciso / C
     endif
     if (present(alpha)) then
        ialpha = alpha
     else
-       ialpha = 1._dp
+       ialpha = 1.0_dp
     endif
     if (present(alpha)) then
        ialpha = alpha
     else
-       ialpha = 1._dp
+       ialpha = 1.0_dp
     endif
     if (present(beta) .and. (.not. present(T))) then
        iT = beta * C
     endif
 
     ! Isotope ratio
-    ! R(:) = 0._dp
-    R(:) = 1._dp ! could be zero as well to assure no isotopic fluxes if initial C=0
-    where (C > 0._dp) R = Ciso / C
+    ! R(:) = 0.0_dp
+    R(:) = 1.0_dp ! could be zero as well to assure no isotopic fluxes if initial C=0
+    where (C > 0.0_dp) R = Ciso / C
 
     ! alpha * F
     alphaF = ialpha * F
@@ -248,15 +266,15 @@ contains
     if (present(trash)) then
        ! Check final pools
        ! Isotope pool became < 0.
-       if (any(Ciso < 0._dp)) then
-          trash = trash + merge(abs(Ciso), 0._dp, Ciso < 0._dp)
-          Ciso = merge(0._dp, Ciso, Ciso < 0._dp)
+       if (any(Ciso < 0.0_dp)) then
+          trash = trash + merge(abs(Ciso), 0.0_dp, Ciso < 0.0_dp)
+          Ciso = merge(0.0_dp, Ciso, Ciso < 0.0_dp)
        endif
        ! Non-isotope pool == 0. but isotope pool > 0.
        Cnew = C - iT * dt + iS * dt - sum(F, dim=2)* dt + sum(F, dim=1) * dt
-       if (any(eq(Cnew,0._dp) .and. (Ciso > 0._dp))) then
-          trash = trash + merge(Ciso, 0._dp, eq(Cnew,0._dp) .and. (Ciso > 0._dp))
-          Ciso = merge(0._dp, Ciso, eq(Cnew,0._dp) .and. (Ciso > 0._dp))
+       if (any(eq(Cnew,0.0_dp) .and. (Ciso > 0.0_dp))) then
+          trash = trash + merge(Ciso, 0.0_dp, eq(Cnew,0.0_dp) .and. (Ciso > 0.0_dp))
+          Ciso = merge(0.0_dp, Ciso, eq(Cnew,0.0_dp) .and. (Ciso > 0.0_dp))
        endif
        ! Non-isotope pool >0. but isotope pool == 0.
        ! ???
@@ -271,6 +289,9 @@ contains
 
     use mo_kind,  only: dp, i4
     use mo_utils, only: eq, ne
+#ifdef __MPI__
+    use mpi,      only: MPI_Abort
+#endif
 
     implicit none
 
@@ -302,6 +323,9 @@ contains
     real(dp), dimension(size(Ciso,1),size(Ciso,2)) :: isource ! between pools source
     real(dp), dimension(size(Ciso,1),size(Ciso,2)) :: Cnew    ! New pool size for check
     logical :: itrans                                         ! transposed order pools and fluxes
+#ifdef __MPI__
+    integer :: ierr
+#endif
 
     ! Determine order of dimensions
     if (present(trans)) then
@@ -330,7 +354,11 @@ contains
           write(*,*) '    size(C,2):    ', size(C,2)
           write(*,*) '    size(F,2):    ', size(F,2)
           write(*,*) '    size(F,3):    ', size(F,3)
-          stop 9
+#ifdef __MPI__
+          call MPI_Abort(0, 1004, ierr) ! Do not know comm nor rank here
+#else
+          stop 1004
+#endif
        endif
        if ( (size(C,1) /= nland) .or. (size(F,1) /= nland) ) then
           write(*,*) 'Error isotope_pool_model_2d: non-fitting first dimensions between isotopic pools,'
@@ -338,7 +366,11 @@ contains
           write(*,*) '    size(Ciso,1): ', size(Ciso,1)
           write(*,*) '    size(C,1):    ', size(C,1)
           write(*,*) '    size(F,1):    ', size(F,1)
-          stop 9
+#ifdef __MPI__
+          call MPI_Abort(0, 1005, ierr) ! Do not know comm nor rank here
+#else
+          stop 1005
+#endif
        endif
     else
        if ( (size(C,1) /= nn) .or. (size(F,1) /= nn) .or. (size(F,2) /= nn) ) then
@@ -348,7 +380,11 @@ contains
           write(*,*) '    size(C,1):    ', size(C,1)
           write(*,*) '    size(F,1):    ', size(F,1)
           write(*,*) '    size(F,2):    ', size(F,2)
-          stop 9
+#ifdef __MPI__
+          call MPI_Abort(0, 1006, ierr) ! Do not know comm nor rank here
+#else
+          stop 1006
+#endif
        endif
        if ( (size(C,2) /= nland) .or. (size(F,3) /= nland) ) then
           write(*,*) 'Error isotope_pool_model_2d: non-fitting first dimensions between isotopic pools,'
@@ -356,39 +392,55 @@ contains
           write(*,*) '    size(Ciso,2): ', size(Ciso,2)
           write(*,*) '    size(C,2):    ', size(C,2)
           write(*,*) '    size(F,3):    ', size(F,3)
-          stop 9
+#ifdef __MPI__
+          call MPI_Abort(0, 1007, ierr) ! Do not know comm nor rank here
+#else
+          stop 1007
+#endif
        endif
     endif
     
     ! ! Check F >= 0
-    ! if (any(F < 0._dp)) then
+    ! if (any(F < 0.0_dp)) then
     !    write(*,*) 'Error isotope_pool_model_2d: fluxes between pools must be >= 0.'
     !    write(*,*) '    F: ', F
-    !    stop 9
+! #ifdef __MPI__
+    !    call MPI_Abort(0, 1008, ierr) ! Do not know comm nor rank here
+! #else
+    !    stop 1008
+! #endif
     ! endif
 
     ! Check F(i,:) == 0. if C(i) == 0.
-    if (any(eq(C,0._dp))) then
+    if (any(eq(C,0.0_dp))) then
        do j=1, nland
           do i=1, nn
              if (itrans) then
-                if (eq(C(j,i),0._dp)) then
-                   if (any(ne(F(j,i,:),0._dp))) then
+                if (eq(C(j,i),0.0_dp)) then
+                   if (any(ne(F(j,i,:),0.0_dp))) then
                       write(*,*) 'Error isotope_pool_model_2d:'
                       write(*,*) '    fluxes from pool i at land point j must be 0 if concentration in pool is 0.'
                       write(*,*) '    i, j, C(j,i):   ', j, i, C(j,i)
                       write(*,*) '          F(j,i,:): ', F(j,i,:)
-                      stop 9
+#ifdef __MPI__
+                      call MPI_Abort(0, 1009, ierr) ! Do not know comm nor rank here
+#else
+                      stop 1009
+#endif
                    endif
                 endif
              else
-                if (eq(C(i,j),0._dp)) then
-                   if (any(ne(F(i,:,j),0._dp))) then
+                if (eq(C(i,j),0.0_dp)) then
+                   if (any(ne(F(i,:,j),0.0_dp))) then
                       write(*,*) 'Error isotope_pool_model_2d:'
                       write(*,*) '    fluxes from pool i at land point j must be 0 if concentration in pool is 0.'
                       write(*,*) '    i, j, C(i,j):   ', i, j, C(i,j)
                       write(*,*) '          F(i,:,j): ', F(i,:,j)
-                      stop 9
+#ifdef __MPI__
+                      call MPI_Abort(0, 1010, ierr) ! Do not know comm nor rank here
+#else
+                      stop 1010
+#endif
                    endif
                 endif
              endif
@@ -400,43 +452,43 @@ contains
     if (present(S)) then
        iS = S
     else
-       iS = 0._dp
+       iS = 0.0_dp
     endif
     if (present(Rs)) then
        iRs = Rs
     else
-       iRs = 1._dp
+       iRs = 1.0_dp
     endif
     if (present(T)) then
        iT = T
     else
-       iT = 0._dp
+       iT = 0.0_dp
     endif
     if (present(Rt)) then
        iRt = Rt
     else
-       ! iRt = 0._dp
-       iRt = 1._dp ! could be zero as well to assure no isotopic sink if C=0
-       where (C > 0._dp) iRt = Ciso / C
+       ! iRt = 0.0_dp
+       iRt = 1.0_dp ! could be zero as well to assure no isotopic sink if C=0
+       where (C > 0.0_dp) iRt = Ciso / C
     endif
     if (present(alpha)) then
        ialpha = alpha
     else
-       ialpha = 1._dp
+       ialpha = 1.0_dp
     endif
     if (present(alpha)) then
        ialpha = alpha
     else
-       ialpha = 1._dp
+       ialpha = 1.0_dp
     endif
     if (present(beta) .and. (.not. present(T))) then
        iT = beta * C
     endif
 
     ! Isotope ratio
-    ! R(:,:) = 0._dp
-    R(:,:) = 1._dp ! could be zero as well to assure no isotopic fluxes if initial C=0
-    where (C > 0._dp) R = Ciso / C
+    ! R(:,:) = 0.0_dp
+    R(:,:) = 1.0_dp ! could be zero as well to assure no isotopic fluxes if initial C=0
+    where (C > 0.0_dp) R = Ciso / C
 
     ! alpha * F
     alphaF = ialpha * F
@@ -457,9 +509,9 @@ contains
     if (present(trash)) then
         ! Check final pools
         ! Isotope pool became < 0.
-        if (any(Ciso < 0._dp)) then
-           trash = trash + merge(abs(Ciso), 0._dp, Ciso < 0._dp)
-           Ciso = merge(0._dp, Ciso, Ciso < 0._dp)
+        if (any(Ciso < 0.0_dp)) then
+           trash = trash + merge(abs(Ciso), 0.0_dp, Ciso < 0.0_dp)
+           Ciso = merge(0.0_dp, Ciso, Ciso < 0.0_dp)
         endif
         ! Non-isotope pool == 0. but isotope pool > 0.
         if (itrans) then
@@ -467,9 +519,9 @@ contains
         else
            Cnew = C - iT * dt + iS * dt - sum(F, dim=2)* dt + sum(F, dim=1) * dt
         endif
-        if (any(eq(Cnew,0._dp) .and. (Ciso > 0._dp))) then
-           trash = trash + merge(Ciso, 0._dp, eq(Cnew,0._dp) .and. (Ciso > 0._dp))
-           Ciso = merge(0._dp, Ciso, eq(Cnew,0._dp) .and. (Ciso > 0._dp))
+        if (any(eq(Cnew,0.0_dp) .and. (Ciso > 0.0_dp))) then
+           trash = trash + merge(Ciso, 0.0_dp, eq(Cnew,0.0_dp) .and. (Ciso > 0.0_dp))
+           Ciso = merge(0.0_dp, Ciso, eq(Cnew,0.0_dp) .and. (Ciso > 0.0_dp))
         endif
         ! Non-isotope pool >0. but isotope pool == 0.
         ! ???
@@ -488,6 +540,9 @@ contains
   function diag_2d(matrix)
 
     use mo_kind, only: dp, i4
+#ifdef __MPI__
+    use mpi,     only: MPI_Abort
+#endif
 
     implicit none
 
@@ -495,8 +550,18 @@ contains
     real(dp), dimension(:), allocatable  :: diag_2d
 
     integer(i4) :: i
+#ifdef __MPI__
+    integer :: ierr
+#endif
 
-    if (size(matrix,1) /= size(matrix,2)) stop 'diag_2d: array must be squared matrix.'
+    if (size(matrix,1) /= size(matrix,2)) then
+       write(*,*) 'diag_2d: array must be squared matrix.'
+#ifdef __MPI__
+       call MPI_Abort(0, 1011, ierr) ! Do not know comm nor rank here
+#else
+       stop 1011
+#endif
+    endif
     if (.not. allocated(diag_2d)) allocate(diag_2d(size(matrix,1)))
 
     forall(i=1:size(matrix,1)) diag_2d(i) = matrix(i,i)
@@ -507,6 +572,9 @@ contains
   function diag_3d(matrix, trans)
 
     use mo_kind, only: dp, i4
+#ifdef __MPI__
+    use mpi,     only: MPI_Abort
+#endif
 
     implicit none
 
@@ -516,6 +584,9 @@ contains
 
     integer(i4) :: i, j
     logical :: itrans
+#ifdef __MPI__
+    integer :: ierr
+#endif
 
     if (present(trans)) then
        itrans = trans
@@ -524,15 +595,28 @@ contains
     endif
 
     if (itrans) then
-       if (size(matrix,2) /= size(matrix,3)) &
-            stop 'diag_3d: array must be squared matrix in the second and third dimensions if trans=.t.'
+       if (size(matrix,2) /= size(matrix,3)) then
+          write(*,*) 'diag_3d: array must be squared matrix in the second and third dimensions if trans=.t.'
+#ifdef __MPI__
+          call MPI_Abort(0, 1012, ierr) ! Do not know comm nor rank here
+#else
+          stop 1012
+#endif
+       endif
        if (.not. allocated(diag_3d)) allocate(diag_3d(size(matrix,1),size(matrix,2)))
 
        do j=1, size(matrix,1)
           forall(i=1:size(matrix,2)) diag_3d(j,i) = matrix(j,i,i)
        end do
     else
-       if (size(matrix,1) /= size(matrix,2)) stop 'diag_3d: array must be squared matrix in the first and second dimensions.'
+       if (size(matrix,1) /= size(matrix,2)) then
+          write(*,*) 'diag_3d: array must be squared matrix in the first and second dimensions.'
+#ifdef __MPI__
+          call MPI_Abort(0, 1013, ierr) ! Do not know comm nor rank here
+#else
+          stop 1013
+#endif
+       endif
        if (.not. allocated(diag_3d)) allocate(diag_3d(size(matrix,1),size(matrix,3)))
 
        do j=1, size(matrix,3)

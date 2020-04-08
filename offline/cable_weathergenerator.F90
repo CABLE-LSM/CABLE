@@ -336,6 +336,9 @@ SUBROUTINE WGEN_SUBDIURNAL_MET(WG, np, itime)
   ! * 28/02/2012 (VH) :  04 cahnge precip from uniform distribution to evenly distributed over
   ! the periods 0600:0700; 0700:0800; 1500:1600; 1800:1900
   !-------------------------------------------------------------------------------
+#ifdef __MPI__
+  use mpi, only: MPI_Abort
+#endif
 
   IMPLICIT NONE
 
@@ -348,6 +351,9 @@ SUBROUTINE WGEN_SUBDIURNAL_MET(WG, np, itime)
   REAL(sp) :: rntime    ! Real version of ntime
   REAL(sp) :: ritime    ! Real version of current time
   REAL(sp),DIMENSION(np):: PhiLd_Swinbank     ! down longwave irradiance  [W/m2]
+#ifdef __MPI__
+  integer :: ierr
+#endif
 
   !-------------------------------------------------------------------------------
 
@@ -380,7 +386,12 @@ SUBROUTINE WGEN_SUBDIURNAL_MET(WG, np, itime)
 
   IF ( ABS(ritime-REAL(INT(ritime))) .GT. 1.e-7_sp) THEN
      WRITE(*,*) "Only works for integer hourly timestep! tstep = ", ritime
-     STOP  "cable_weathergenerator.F90!"
+     write(*,*) "cable_weathergenerator.F90!"
+#ifdef __MPI__
+     call MPI_Abort(0, 83, ierr) ! Do not know comm nor rank here
+#else
+     stop 83
+#endif
   ENDIF
 
   IF ((WG%ndtime .eq. 24) .OR. (WG%ndtime .eq. 8)) then

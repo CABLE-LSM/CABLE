@@ -1520,6 +1520,9 @@ contains
     USE CABLE_COMMON_MODULE
     USE CABLE_DEF_TYPES_MOD, ONLY: r_2, mp
     USE netcdf
+#ifdef __MPI__
+    use mpi,                 only: MPI_Abort
+#endif
 
     IMPLICIT NONE
 
@@ -1559,6 +1562,9 @@ contains
     ! 2 dim arrays (npt,msoil)
     CHARACTER(len=20),DIMENSION(3) :: A4
     LOGICAL            ::  EXISTFILE, EXISTFILE1
+#ifdef __MPI__
+    integer :: ierr
+#endif
 
     mp4=int(mp,fmp4)
     A1(1) = 'latitude'
@@ -1612,7 +1618,11 @@ contains
           write(*,*) 'CASA restart file:', TRIM(fname), ' does not exist either'
           write(*,*) 'Set cable_user%CASA_fromZero to true to initialise without restart file.'
           write(*,*) 'Otherwise set casafile%cnpipool to netcdf restart file name in cable.nml'
-          stop
+#ifdef __MPI__
+          call MPI_Abort(0, 92, ierr) ! Do not know comm nor rank here
+#else
+          stop 92
+#endif
        ENDIF
     ENDIF
 
@@ -1659,7 +1669,11 @@ contains
        WRITE(*,*) "# mplant  ",mp_dim,"     ",mplant
        WRITE(*,*) "# mlitter ",ml_dim,"     ",mlitter
        WRITE(*,*) "# msoil   ",ms_dim,"     ",msoil
-       STOP
+#ifdef __MPI__
+       call MPI_Abort(0, 93, ierr) ! Do not know comm nor rank here
+#else
+       stop 93
+#endif
     ENDIF
 
     ! LAT & LON

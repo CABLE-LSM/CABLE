@@ -23,6 +23,9 @@ contains
     USE CASAVARIABLE, only: casa_met, icycle
     USE CABLE_COMMON_MODULE
     use mo_utils,     only: ne
+#ifdef __MPI__
+    use mpi,          only: MPI_Abort
+#endif
 
     IMPLICIT NONE
 
@@ -135,6 +138,9 @@ contains
     ! TEMPORARY ARRAYS
     INTEGER,  ALLOCATABLE :: I1(:), I2(:,:), I3(:,:,:), I4(:,:,:,:)
     REAL(dp), ALLOCATABLE :: R1(:), R2(:,:), R3(:,:,:), R4(:,:,:,:)
+#ifdef __MPI__
+    integer :: ierr
+#endif
 
     mp = POP%np
 
@@ -269,7 +275,11 @@ contains
        typ = 'rst'
     ELSE
        WRITE(*,*) "WRONG ACTION:'", TRIM(ACTION), "' in call to pop_io!"
-       STOP -1
+#ifdef __MPI__
+       call MPI_Abort(0, 94, ierr) ! Do not know comm nor rank here
+#else
+       stop 94
+#endif
     ENDIF
 
     ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -717,7 +727,12 @@ contains
              CASE(4)
                 R2(m,:) = POP%pop_grid(m)%hmax
              CASE default
-                STOP "Parameter not assigned in pop_bios_io.f90!"
+                write(*,*) "Parameter not assigned in pop_bios_io.f90!"
+#ifdef __MPI__
+                call MPI_Abort(0, 95, ierr) ! Do not know comm nor rank here
+#else
+                stop 95
+#endif
              END SELECT
           END DO
           STATUS = NF90_PUT_VAR(FILE_ID, VIDR2( i), R2,         &
@@ -741,7 +756,12 @@ contains
              CASE(4)
                 R2(m,:) = POP%pop_grid(m)%diameter_bin
              CASE default
-                STOP "Parameter not assigned in pop_bios_io.f90!"
+                write(*,*) "Parameter not assigned in pop_bios_io.f90!"
+#ifdef __MPI__
+                call MPI_Abort(0, 96, ierr) ! Do not know comm nor rank here
+#else
+                stop 96
+#endif
              END SELECT
           END DO
           STATUS = NF90_PUT_VAR(FILE_ID, VIDR3( i), R2,         &
@@ -759,7 +779,12 @@ contains
              CASE(1)
                 I2( m,: ) = POP%pop_grid(m)%n_age
              CASE default
-                STOP "Parameter not assigned in pop_bios_io.f90!"
+                write(*,*) "Parameter not assigned in pop_bios_io.f90!"
+#ifdef __MPI__
+                call MPI_Abort(0, 97, ierr) ! Do not know comm nor rank here
+#else
+                stop 97
+#endif
              END SELECT
           END DO
           STATUS = NF90_PUT_VAR(FILE_ID, VIDI4( i), I2,         &
@@ -777,7 +802,12 @@ contains
              CASE( 1)
                 I2( m,: ) = POP%pop_grid(m)%patch(:)%id
              CASE default
-                STOP "Parameter not assigned in pop_bios_io.f90!"
+                write(*,*) "Parameter not assigned in pop_bios_io.f90!"
+#ifdef __MPI__
+                call MPI_Abort(0, 98, ierr) ! Do not know comm nor rank here
+#else
+                stop 98
+#endif
              END SELECT
           END DO
           STATUS = NF90_PUT_VAR(FILE_ID, VIDI5( i), I2,         &
@@ -839,7 +869,12 @@ contains
              CASE( 24)
                 R2(m,:)=POP%pop_grid(m)%patch(:)%frac_light_uptake
              CASE default
-                STOP "Parameter not assigned in pop_bios_io.f90!"
+                write(*,*) "Parameter not assigned in pop_bios_io.f90!"
+#ifdef __MPI__
+                call MPI_Abort(0, 99, ierr) ! Do not know comm nor rank here
+#else
+                stop 99
+#endif
              END SELECT
           END DO
           STATUS = NF90_PUT_VAR(FILE_ID, VIDR5( i), R2,         &
@@ -863,7 +898,12 @@ contains
                 CASE( 4)
                    I3(m,p,:)= POP%pop_grid(m)%ranked_age_unique(p,:)
                 CASE default
-                   STOP "Parameter not assigned in pop_bios_io.f90!"
+                   write(*,*) "Parameter not assigned in pop_bios_io.f90!"
+#ifdef __MPI__
+                   call MPI_Abort(0, 100, ierr) ! Do not know comm nor rank here
+#else
+                   stop 100
+#endif
                 END SELECT
              END DO
           END DO
@@ -881,7 +921,12 @@ contains
              CASE( 1)
                 R3(m,:,:)= POP%pop_grid(m)%freq_ranked_age_unique
              CASE default
-                STOP "Parameter not assigned in pop_bios_io.f90!"
+                write(*,*) "Parameter not assigned in pop_bios_io.f90!"
+#ifdef __MPI__
+                call MPI_Abort(0, 101, ierr) ! Do not know comm nor rank here
+#else
+                stop 101
+#endif
              END SELECT
           END DO
 
@@ -900,7 +945,12 @@ contains
                 CASE( 1)
                    I3(m,p,:) =  POP%pop_grid(m)%patch(p)%layer(:)%ncohort
                 CASE default
-                   STOP "Parameter not assigned in pop_bios_io.f90!"
+                   write(*,*) "Parameter not assigned in pop_bios_io.f90!"
+#ifdef __MPI__
+                   call MPI_Abort(0, 102, ierr) ! Do not know comm nor rank here
+#else
+                   stop 102
+#endif
                 END SELECT
              END DO
           END DO
@@ -924,7 +974,12 @@ contains
                 CASE( 4)
                    R3(m,p,:)=POP%pop_grid(m)%patch(p)%layer(:)%hmax
                 CASE default
-                   STOP "Parameter not assigned in pop_bios_io.f90!"
+                   write(*,*) "Parameter not assigned in pop_bios_io.f90!"
+#ifdef __MPI__
+                   call MPI_Abort(0, 103, ierr) ! Do not know comm nor rank here
+#else
+                   stop 103
+#endif
                 END SELECT
              END DO
           END DO
@@ -946,7 +1001,12 @@ contains
                    CASE( 2)
                       I4(m,p,l,:) = POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%id
                    CASE default
-                      STOP "Parameter not assigned in pop_bios_io.f90!"
+                      write(*,*) "Parameter not assigned in pop_bios_io.f90!"
+#ifdef __MPI__
+                      call MPI_Abort(0, 104, ierr) ! Do not know comm nor rank here
+#else
+                      stop 104
+#endif
                    END SELECT
                 END DO
              END DO
@@ -1008,7 +1068,12 @@ contains
                    CASE( 19)
                       R4(m,p,l,:) =POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%Croot
                    CASE default
-                      STOP "Parameter not assigned in pop_bios_io.f90!"
+                      write(*,*) "Parameter not assigned in pop_bios_io.f90!"
+#ifdef __MPI__
+                      call MPI_Abort(0, 105, ierr) ! Do not know comm nor rank here
+#else
+                      stop 105
+#endif
                    END SELECT
                 END DO
              END DO
@@ -1042,7 +1107,11 @@ contains
        INQUIRE( FILE=TRIM(fname), EXIST=EXISTFILE )
        IF (.NOT. EXISTFILE) THEN
           WRITE(*,*) " No ini-restart file found either! ", TRIM(fname)
-          STOP -1
+#ifdef __MPI__
+          call MPI_Abort(0, 106, ierr) ! Do not know comm nor rank here
+#else
+          stop 106
+#endif
        ELSE
           typ = "ini"
        ENDIF
@@ -1102,7 +1171,11 @@ contains
           WRITE(*,*)"NCOHORT_MAX",NCOHORT_MAX_dim,"     ",NCOHORT_MAX
           WRITE(*,*)"# NLAYER   ",NLAYER_dim,"     ",NLAYER
           WRITE(*,*)"# NDISTURB ",NDISTURB_dim,"     ",NDISTURB
-          STOP
+#ifdef __MPI__
+          call MPI_Abort(0, 107, ierr) ! Do not know comm nor rank here
+#else
+          stop 107
+#endif
        ENDIF
 
        ! TIME
@@ -1131,7 +1204,11 @@ contains
           tx = 1
           IF ( typ .NE. "ini" ) THEN
              WRITE(*,*) "Wrong date in input pop restart-file! ",TRIM(fname)
-             STOP
+#ifdef __MPI__
+             call MPI_Abort(0, 108, ierr) ! Do not know comm nor rank here
+#else
+             stop 108
+#endif
           ENDIF
        ENDIF
 
@@ -1233,7 +1310,12 @@ contains
           CASE(24)
              POP%pop_grid(:)%KClump             = R1
           CASE default
-             STOP "Parameter not assigned in pop_bios_io.f90!"
+             write(*,*) "Parameter not assigned in pop_bios_io.f90!"
+#ifdef __MPI__
+             call MPI_Abort(0, 109, ierr) ! Do not know comm nor rank here
+#else
+             stop 109
+#endif
           END SELECT
        END DO
        DEALLOCATE ( R1 )
@@ -1257,7 +1339,12 @@ contains
              CASE( 4)
                 POP%pop_grid(m)%hmax    = R2(m,:)
              CASE default
-                STOP "Parameter not assigned in pop_bios_io.f90!"
+                write(*,*) "Parameter not assigned in pop_bios_io.f90!"
+#ifdef __MPI__
+                call MPI_Abort(0, 110, ierr) ! Do not know comm nor rank here
+#else
+                stop 110
+#endif
              END SELECT
           END DO
        END DO
@@ -1282,7 +1369,12 @@ contains
              CASE( 4)
                 POP%pop_grid(m)%diameter_bin   = R2(m,:)
              CASE default
-                STOP "Parameter not assigned in pop_bios_io.f90!"
+                write(*,*) "Parameter not assigned in pop_bios_io.f90!"
+#ifdef __MPI__
+                call MPI_Abort(0, 111, ierr) ! Do not know comm nor rank here
+#else
+                stop 111
+#endif
              END SELECT
           END DO
        END DO
@@ -1372,7 +1464,12 @@ contains
              CASE( 24)
                 POP%pop_grid(m)%patch(:)%frac_light_uptake  = R2(m,:)
              CASE default
-                STOP "Parameter not assigned in pop_bios_io.f90!"
+                write(*,*) "Parameter not assigned in pop_bios_io.f90!"
+#ifdef __MPI__
+                call MPI_Abort(0, 112, ierr) ! Do not know comm nor rank here
+#else
+                stop 112
+#endif
              END SELECT
           END DO
        END DO
@@ -1398,7 +1495,12 @@ contains
                 CASE( 4)
                    POP%pop_grid(m)%ranked_age_unique(p,:)          = I3(m,p,:)
                 CASE default
-                   STOP "Parameter not assigned in pop_bios_io.f90!"
+                   write(*,*) "Parameter not assigned in pop_bios_io.f90!"
+#ifdef __MPI__
+                   call MPI_Abort(0, 113, ierr) ! Do not know comm nor rank here
+#else
+                   stop 113
+#endif
                 END SELECT
              END DO
           END DO
@@ -1431,7 +1533,12 @@ contains
                 CASE( 1)
                    POP%pop_grid(m)%patch(p)%layer(:)%ncohort = I3(m,p,:)
                 CASE default
-                   STOP "Parameter not assigned in pop_bios_io.f90!"
+                   write(*,*) "Parameter not assigned in pop_bios_io.f90!"
+#ifdef __MPI__
+                   call MPI_Abort(0, 114, ierr) ! Do not know comm nor rank here
+#else
+                   stop 114
+#endif
                 END SELECT
              END DO
           END DO
@@ -1457,7 +1564,12 @@ contains
                 CASE( 4)
                    POP%pop_grid(m)%patch(p)%layer(:)%hmax    = R3(m,p,:)
                 CASE default
-                   STOP "Parameter not assigned in pop_bios_io.f90!"
+                   write(*,*) "Parameter not assigned in pop_bios_io.f90!"
+#ifdef __MPI__
+                   call MPI_Abort(0, 115, ierr) ! Do not know comm nor rank here
+#else
+                   stop 115
+#endif
                 END SELECT
              END DO
           END DO
@@ -1482,7 +1594,12 @@ contains
                    CASE( 2)
                       POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%id  = I4(m,p,l,:)
                    CASE default
-                      STOP "Parameter not assigned in pop_bios_io.f90!"
+                      write(*,*) "Parameter not assigned in pop_bios_io.f90!"
+#ifdef __MPI__
+                      call MPI_Abort(0, 116, ierr) ! Do not know comm nor rank here
+#else
+                      stop 116
+#endif
                    END SELECT
                 END DO
              END DO
@@ -1540,7 +1657,12 @@ contains
                    CASE( 19)
                       POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%Croot                = R4(m,p,l,:)
                    CASE default
-                      STOP "Parameter not assigned in pop_bios_io.f90!"
+                      write(*,*) "Parameter not assigned in pop_bios_io.f90!"
+#ifdef __MPI__
+                      call MPI_Abort(0, 117, ierr) ! Do not know comm nor rank here
+#else
+                      stop 117
+#endif
                    END SELECT
                 END DO
              END DO
@@ -1550,7 +1672,12 @@ contains
 
     ELSE
        WRITE(*,*) 'ACTION = ',TRIM(ACTION)
-       STOP 'Please, enter either "READ" or "WRITE" when calling pop_bios_io.f90!'
+       write(*,*) 'Please, enter either "READ" or "WRITE" when calling pop_bios_io.f90!'
+#ifdef __MPI__
+       call MPI_Abort(0, 118, ierr) ! Do not know comm nor rank here
+#else
+       stop 118
+#endif
     END IF
 
     IF ( CLOSE_FILE .OR. (typ .EQ. 'rst') .OR. (typ .EQ. 'ini') ) THEN

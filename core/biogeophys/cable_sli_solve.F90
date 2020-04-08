@@ -86,6 +86,9 @@ MODULE sli_solve
        JSoilLayer, SEB
   USE cable_IO_vars_module, ONLY: wlogn
   use mo_utils,             only: ne
+#ifdef __MPI__
+  use mpi,                  only: MPI_Abort
+#endif
   
   IMPLICIT NONE
 
@@ -94,6 +97,9 @@ MODULE sli_solve
   PUBLIC :: solve ! solution routine
 
   INTEGER(i_d), DIMENSION(:), ALLOCATABLE :: nless, n_noconverge ! global counters
+#ifdef __MPI__
+  integer :: ierr
+#endif
 
   ! Definitions of public entities and private parameters (see above for default
   ! values):
@@ -280,7 +286,11 @@ CONTAINS
 
     case default
        write(*,*) "solve: illegal surface case."
-       stop 2
+#ifdef __MPI__
+       call MPI_Abort(0, 136, ierr) ! Do not know comm nor rank here
+#else
+       stop 136
+#endif
     end select ! surface_case
     qpme(kk) = q(0) ! water flux into top of soil column
     ! finished all the surfaces
@@ -444,7 +454,11 @@ CONTAINS
           end if
        case default
           write(*,*) "solve: illegal bottom boundary condition."
-          stop 2
+#ifdef __MPI__
+          call MPI_Abort(0, 137, ierr) ! Do not know comm nor rank here
+#else
+          stop 137
+#endif
        end select
     end if
     if (present(qali)) then
@@ -3354,7 +3368,11 @@ CONTAINS
     endif
     if (littercase > 2) then
        write(*,*) 'dolitter not in [0-2]: ', littercase
-       stop 2
+#ifdef __MPI__
+       call MPI_Abort(0, 138, ierr) ! Do not know comm nor rank here
+#else
+       stop 138
+#endif
     endif
 
     if (present(doisotopologue)) then
@@ -3364,11 +3382,19 @@ CONTAINS
     endif
     if (isotopologue > 2) then
        write(*,*) 'doisotopologue not in [0-2]: ', isotopologue
-       stop 2
+#ifdef __MPI__
+       call MPI_Abort(0, 139, ierr) ! Do not know comm nor rank here
+#else
+       stop 139
+#endif
     endif
     if (isotopologue /= 0 .and. (.not. present(ciso))) then
        write(*,*) 'doisotopologue /= 0 but no ciso present.'
-       stop 2
+#ifdef __MPI__
+       call MPI_Abort(0, 140, ierr) ! Do not know comm nor rank here
+#else
+       stop 140
+#endif
     endif
 
     if (present(docondition)) then
@@ -3378,7 +3404,11 @@ CONTAINS
     endif
     if (condition < 0 .or. condition > 3) then
        write(*,*) 'docondition not in [0-3]: ', condition
-       stop 2
+#ifdef __MPI__
+       call MPI_Abort(0, 141, ierr) ! Do not know comm nor rank here
+#else
+       stop 141
+#endif
     endif
 
     if (present(qex)) then
@@ -5068,7 +5098,11 @@ CONTAINS
 
     case default
        write(*,*) "isotope_vap: illegal formulation [1-2]: ", formulation
-       stop 2
+#ifdef __MPI__
+       call MPI_Abort(0, 142, ierr) ! Do not know comm nor rank here
+#else
+       stop 142
+#endif
     end select
 
     ! mean diffusivities
@@ -5287,7 +5321,11 @@ CONTAINS
        write(*,*) 'surface balance ', LHS(ns_ciso), RHS(ns_ciso), qprec_snow*cprec_snow
        write(*,*) 'layer balance ', LHS(ii(1)), RHS(ii(1))
        write(*,*) 'surface sigs ', nsnow_last, deltaSice(ns_ciso), deltaSliq(ns_ciso), cvsig(ns_ciso), deltacv(ns_ciso)
-       stop 2
+#ifdef __MPI__
+       call MPI_Abort(0, 143, ierr) ! Do not know comm nor rank here
+#else
+       stop 143
+#endif
     endif
 
     !   endif ! 1==1

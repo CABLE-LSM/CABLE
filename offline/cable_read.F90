@@ -34,15 +34,23 @@ MODULE cable_read_module
 
 
    USE cable_abort_module
-   USE cable_def_types_mod, ONLY : ms, ncp, r_2, mland, mp, ncs, nrb, msn
+   USE cable_def_types_mod,  ONLY: ms, ncp, r_2, mland, mp, ncs, nrb, msn
    USE cable_IO_vars_module, ONLY: landpt, exists, land_x, land_y, metGrid
    USE netcdf
+#ifdef __MPI__
+   use mpi,                  only: MPI_Abort
+#endif
 
    IMPLICIT NONE
+   
    PRIVATE
-   PUBLIC readpar, redistr_i, redistr_r, redistr_rd, redistr_r2, redistr_r2d
+   
+   PUBLIC :: readpar, redistr_i, redistr_r, redistr_rd, redistr_r2, redistr_r2d
 
   INTEGER :: ok ! netcdf error status
+#ifdef __MPI__
+  integer :: ierr
+#endif
   INTERFACE readpar
      ! Loads a parameter from the met file - chooses subroutine
      ! below depending on number/type/dimension of arguments
@@ -622,7 +630,7 @@ CONTAINS
              END DO
              DEALLOCATE(tmp4r)
           ELSE IF(dimswitch == 'nrb') THEN
-             print *, 'pardims', pardims
+             write(*,*) 'pardims', pardims
              IF(pardims == 2) THEN ! no patch dimension, just a land + other
                                    ! dimension
                 IF(PRESENT(from_restart)) THEN
@@ -638,7 +646,7 @@ CONTAINS
                                    (ok, 'Error reading '//parname//' in file ' &
                                    //TRIM(filename)//' (SUBROUTINE readpar_r2)')
                    ! Set all patches to have the same value:
-                   print *, 'read albsoil: ', tmpjh
+                   write(*,*) 'read albsoil: ', tmpjh
                    var_r2(landpt(i)%cstart:landpt(i)%cend, 1) = tmpjh
                    var_r2(landpt(i)%cstart:landpt(i)%cend, 2) = tmpjh
                    END DO
@@ -860,8 +868,12 @@ CONTAINS
       out_i(landpt(ii)%cstart:landpt(ii)%cend) = in_i(npt-nap(ii) + 1)
     END DO
     IF (npt /= INpatch) THEN
-      PRINT *, parname,' Error: npt /= INpatch, ',npt, INpatch
-      STOP
+      WRITE(*,*) parname,' Error: npt /= INpatch, ',npt, INpatch
+#ifdef __MPI__
+      call MPI_Abort(0, 78, ierr) ! Do not know comm nor rank here
+#else
+      stop 78
+#endif
     END IF
 
   END SUBROUTINE redistr_i
@@ -889,8 +901,12 @@ CONTAINS
       out_r(landpt(ii)%cstart:landpt(ii)%cend) = ave_r
     END DO
     IF (npt /= INpatch) THEN
-      PRINT *, parname,' Error: npt /= INpatch, ',npt, INpatch
-      STOP
+      WRITE(*,*) parname,' Error: npt /= INpatch, ',npt, INpatch
+#ifdef __MPI__
+      call MPI_Abort(0, 79, ierr) ! Do not know comm nor rank here
+#else
+      stop 79
+#endif
     END IF
 
   END SUBROUTINE redistr_r
@@ -918,8 +934,12 @@ CONTAINS
       out_rd(landpt(ii)%cstart:landpt(ii)%cend) = ave_rd
     END DO
     IF (npt /= INpatch) THEN
-      PRINT *, parname,' Error: npt /= INpatch, ',npt, INpatch
-      STOP
+      WRITE(*,*) parname,' Error: npt /= INpatch, ',npt, INpatch
+#ifdef __MPI__
+      call MPI_Abort(0, 80, ierr) ! Do not know comm nor rank here
+#else
+      stop 80
+#endif
     END IF
 
   END SUBROUTINE redistr_rd
@@ -950,8 +970,12 @@ CONTAINS
       END DO
     END DO
     IF (npt /= INpatch) THEN
-      PRINT *, parname,' Error: npt /= INpatch, ',npt, INpatch
-      STOP
+      WRITE(*,*) parname,' Error: npt /= INpatch, ',npt, INpatch
+#ifdef __MPI__
+      call MPI_Abort(0, 81, ierr) ! Do not know comm nor rank here
+#else
+      stop 81
+#endif
     END IF
 
   END SUBROUTINE redistr_r2
@@ -982,8 +1006,12 @@ CONTAINS
       END DO
     END DO
     IF (npt /= INpatch) THEN
-      PRINT *, parname,' Error: npt /= INpatch, ',npt, INpatch
-      STOP
+      WRITE(*,*) parname,' Error: npt /= INpatch, ',npt, INpatch
+#ifdef __MPI__
+      call MPI_Abort(0, 82, ierr) ! Do not know comm nor rank here
+#else
+      stop 82
+#endif
     END IF
 
   END SUBROUTINE redistr_r2d

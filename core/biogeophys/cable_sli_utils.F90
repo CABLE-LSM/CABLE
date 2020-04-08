@@ -13,6 +13,9 @@ MODULE sli_utils
        freezefac, ithermalcond, rmair, Mw
   USE cable_common_module, ONLY: cable_user
   use mo_utils,            only: eq
+#ifdef __MPI__
+  use mpi,                 only: MPI_Abort
+#endif
 
   IMPLICIT NONE
 
@@ -43,6 +46,9 @@ MODULE sli_utils
   REAL(r_2),        DIMENSION(:),   ALLOCATABLE         :: dis
   TYPE(rapointer),  DIMENSION(:,:), ALLOCATABLE         :: isopar
   CHARACTER(LEN=2), DIMENSION(:,:), ALLOCATABLE         :: isotype
+#ifdef __MPI__
+  integer :: ierr
+#endif
 
   ! Subroutine interfaces
 
@@ -897,7 +903,11 @@ CONTAINS
           err = 1
           return
        else
-          stop 1
+#ifdef __MPI__
+          call MPI_Abort(0, 144, ierr) ! Do not know comm nor rank here
+#else
+          stop 144
+#endif
        endif
     endif
     detbet1 = one/detbet
@@ -920,7 +930,11 @@ CONTAINS
              err = 1
              return
           else
-             stop 1
+#ifdef __MPI__
+             call MPI_Abort(0, 145, ierr) ! Do not know comm nor rank here
+#else
+             stop 145
+#endif
           endif
        endif
        detbet1      = one/detbet
@@ -967,7 +981,11 @@ CONTAINS
           err = 1
           return
        else
-          stop 1
+#ifdef __MPI__
+          call MPI_Abort(0, 146, ierr) ! Do not know comm nor rank here
+#else
+          stop 146
+#endif
        endif
     endif
     detbet1(1:mp) = one/detbet(1:mp)
@@ -994,7 +1012,11 @@ CONTAINS
              err = 1
              return
           else
-             stop 1
+#ifdef __MPI__
+             call MPI_Abort(0, 147, ierr) ! Do not know comm nor rank here
+#else
+             stop 147
+#endif
           endif
        endif
        detbet1(1:mp) = one/detbet(1:mp)
@@ -2266,7 +2288,11 @@ CONTAINS
        fd = p(1)*(x-p(2)*c*x**2)+p(3)
     case default
        write(*,*) "isosub: illegal isotherm type"
-       stop 2
+#ifdef __MPI__
+       call MPI_Abort(0, 148, ierr) ! Do not know comm nor rank here
+#else
+       stop 148
+#endif
     end select
 
   END SUBROUTINE isosub
@@ -2297,22 +2323,34 @@ CONTAINS
     REAL(r_2), DIMENSION(2*size(cc),2*size(cc)) :: allmat
     REAL(r_2)    :: eps
     INTEGER(i_d) :: docond ! 0: no conditioning, 1: columns, 2: lines, 3: both
-    INTEGER(i_d) :: ierr ! error code for generic_thomas
+    INTEGER(i_d) :: iierr ! error code for generic_thomas
     ! CHARACTER(LEN=20) :: form1
     ! integer :: i, nn
     !
     ! check input sizes
     if (.not. all((/size(aa)+1,size(bb)+1,size(dd),size(ee)+1,size(ff)+1,size(gg)/) == size(cc))) then
        write(*,*) 'massman_sparse_1d error1: unequal humidity coeffs.'
-       stop 2
+#ifdef __MPI__
+       call MPI_Abort(0, 149, ierr) ! Do not know comm nor rank here
+#else
+       stop 149
+#endif
     end if
     if (.not. all((/size(aah)+1,size(bbh)+1,size(ddh),size(eeh)+1,size(ffh)+1,size(ggh)/) == size(cch))) then
        write(*,*) 'massman_sparse_1d error2: unequal temperature coeffs.'
-       stop 2
+#ifdef __MPI__
+       call MPI_Abort(0, 150, ierr) ! Do not know comm nor rank here
+#else
+       stop 150
+#endif
     end if
     if (size(cc) /= size(cch)) then
        write(*,*) 'massman_sparse_1d error3: unequal temperature and humidity coeffs.'
-       stop 2
+#ifdef __MPI__
+       call MPI_Abort(0, 151, ierr) ! Do not know comm nor rank here
+#else
+       stop 151
+#endif
     end if
     n = size(cc)
     if (present(condition)) then
@@ -2321,7 +2359,7 @@ CONTAINS
        docond = 0
     endif
     if (present(err)) err = 0
-    ierr = 0
+    iierr = 0
     !
     ! Overall matrix
     if (docond >= 1 .and. docond <= 3) then
@@ -2398,13 +2436,17 @@ CONTAINS
     d(1:n,2)     = ggh(1:n)   * lT(1:n)
     !
     ! Call Generic Thomas algorithm
-    call generic_thomas(n,A,B,C,d,x,ierr)
-    if (ierr /= 0) then
+    call generic_thomas(n,A,B,C,d,x,iierr)
+    if (iierr /= 0) then
        if (present(err)) then
           err = 1
           return
        else
-          stop 1
+#ifdef __MPI__
+          call MPI_Abort(0, 152, ierr) ! Do not know comm nor rank here
+#else
+          stop 152
+#endif
        endif
     endif
     dy(1:n) = x(1:n,1) * cS(1:n)
@@ -2437,34 +2479,58 @@ CONTAINS
     REAL(r_2), DIMENSION(1:size(cc,1),2*size(cc,2),2*size(cc,2)) :: allmat
     REAL(r_2)    :: eps
     INTEGER(i_d) :: docond ! 0: no conditioning, 1: columns, 2: lines, 3: both
-    INTEGER(i_d) :: ierr ! error code for generic_thomas
+    INTEGER(i_d) :: iierr ! error code for generic_thomas
     ! CHARACTER(LEN=20) :: form1
     ! integer :: i, k, nn
     !
     ! check input sizes
     if (.not. all((/size(aa,1)+1,size(bb,1)+1,size(dd,1),size(ee,1)+1,size(ff,1)+1,size(gg,1)/) == size(cc,1))) then
        write(*,*) 'massman_sparse_2d error1: unequal humidity coeffs (1st dim).'
-       stop 2
+#ifdef __MPI__
+       call MPI_Abort(0, 153, ierr) ! Do not know comm nor rank here
+#else
+       stop 153
+#endif
     end if
     if (.not. all((/size(aah,1)+1,size(bbh,1)+1,size(ddh,1),size(eeh,1)+1,size(ffh,1)+1,size(ggh,1)/) == size(cch,1))) then
        write(*,*) 'massman_sparse_2d error2: unequal temperature coeffs (1st dim).'
-       stop 2
+#ifdef __MPI__
+       call MPI_Abort(0, 154, ierr) ! Do not know comm nor rank here
+#else
+       stop 154
+#endif
     end if
     if (size(cc,1) /= size(cch,1)) then
        write(*,*) 'massman_sparse_2d error3: unequal temperature and humidity coeffs (1st dim).'
-       stop 2
+#ifdef __MPI__
+       call MPI_Abort(0, 155, ierr) ! Do not know comm nor rank here
+#else
+       stop 155
+#endif
     end if
     if (.not. all((/size(aa,2)+1,size(bb,2)+1,size(dd,2),size(ee,2)+1,size(ff,2)+1,size(gg,2)/) == size(cc,2))) then
        write(*,*) 'massman_sparse_2d error4: unequal humidity coeffs (2nd dim).'
-       stop 2
+#ifdef __MPI__
+       call MPI_Abort(0, 156, ierr) ! Do not know comm nor rank here
+#else
+       stop 156
+#endif
     end if
     if (.not. all((/size(aah,2)+1,size(bbh,2)+1,size(ddh,2),size(eeh,2)+1,size(ffh,2)+1,size(ggh,2)/) == size(cch,2))) then
        write(*,*) 'massman_sparse_2d error5: unequal temperature coeffs (2nd dim).'
-       stop 2
+#ifdef __MPI__
+       call MPI_Abort(0, 157, ierr) ! Do not know comm nor rank here
+#else
+       stop 157
+#endif
     end if
     if (size(cc,2) /= size(cch,2)) then
        write(*,*) 'massman_sparse_2d error6: unequal temperature and humidity coeffs (2nd dim).'
-       stop 2
+#ifdef __MPI__
+       call MPI_Abort(0, 158, ierr) ! Do not know comm nor rank here
+#else
+       stop 158
+#endif
     end if
 
     mp   = size(cc,1)
@@ -2475,7 +2541,7 @@ CONTAINS
        docond = 0
     endif
     if (present(err)) err = 0
-    ierr = 0
+    iierr = 0
     !
     ! Overall matrix
     if (docond >= 1 .and. docond <= 3) then
@@ -2552,13 +2618,17 @@ CONTAINS
     d(1:mp,1:n,2)     = ggh(1:mp,1:n)   * lT(1:mp,1:n)
     !
     ! Call Generic Thomas algorithm
-    call generic_thomas(mp,n,A,B,C,d,x,ierr)
-    if (ierr /= 0) then
+    call generic_thomas(mp,n,A,B,C,d,x,iierr)
+    if (iierr /= 0) then
        if (present(err)) then
           err = 1
           return
        else
-          stop 1
+#ifdef __MPI__
+          call MPI_Abort(0, 159, ierr) ! Do not know comm nor rank here
+#else
+          stop 159
+#endif
        endif
     endif
     dy(1:mp,1:n) = x(1:mp,1:n,1) * cS(1:mp,1:n)
@@ -3943,7 +4013,11 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
     if (present(mask)) then
        if (size(mask) /= size(dat)) then
           write(*,*) 'Error mean_1d: size(mask) /= size(dat)'
-          stop 2
+#ifdef __MPI__
+          call MPI_Abort(0, 160, ierr) ! Do not know comm nor rank here
+#else
+          stop 160
+#endif
        endif
        maske = mask
        n = real(count(maske),r_2)
@@ -3953,7 +4027,11 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
     endif
     if (n <= (1.0_r_2+tiny(1.0_r_2))) then
        write(*,*) 'mean_1d: n must be at least 2'
-       stop 2
+#ifdef __MPI__
+       call MPI_Abort(0, 161, ierr) ! Do not know comm nor rank here
+#else
+       stop 161
+#endif
     endif
 
     ! Mean
@@ -3976,7 +4054,11 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
     if (present(mask)) then
        if (size(mask) /= size(dat)) then
           write(*,*) 'Error mean_2d: size(mask) /= size(dat)'
-          stop 2
+#ifdef __MPI__
+          call MPI_Abort(0, 162, ierr) ! Do not know comm nor rank here
+#else
+          stop 162
+#endif
        endif
        maske = mask
        n = real(count(maske),r_2)
@@ -3986,7 +4068,11 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
     endif
     if (n <= (1.0_r_2+tiny(1.0_r_2))) then
        write(*,*) 'mean_2d: n must be at least 2'
-       stop 2
+#ifdef __MPI__
+       call MPI_Abort(0, 163, ierr) ! Do not know comm nor rank here
+#else
+       stop 163
+#endif
     endif
 
     ! Mean

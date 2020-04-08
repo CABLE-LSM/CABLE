@@ -213,6 +213,10 @@ CONTAINS
     ! Execute a transition between land use types (states)
     !  frac_change_grid = fractional change in unit fraction of grid cell this year
 
+#ifdef __MPI__
+  use mpi, only: MPI_Abort
+#endif
+
     IMPLICIT NONE
 
     CHARACTER(5),      INTENT(IN)    :: from_state, to_state
@@ -224,6 +228,9 @@ CONTAINS
     INTEGER(i4b) :: n  ! position of new element in POPLUC%SecFor array
     INTEGER(i4b) :: i
     REAL(dp) :: tmp, tmp1, tmp2
+#ifdef __MPI__
+    integer :: ierr
+#endif
 
     ! frac_open_grid = 1.0_dp-POPLUC%frac_forest(g)
     frac_open_grid = POPLUC%grass(g)
@@ -273,7 +280,11 @@ CONTAINS
 
        IF (to_state=='PRIMF') THEN
           write(*,*) "Error: cannot create primary forest from secondary forest"
-          STOP
+#ifdef __MPI__
+          call MPI_Abort(0, 87, ierr) ! Do not know comm nor rank here
+#else
+          stop 87
+#endif
        ELSE
           ! Transition from secondary -> non forest (stog)
           ! Assumption: youngest stands cleared first, if stands> 10 years accommodate transition
@@ -383,7 +394,11 @@ CONTAINS
       ELSEIF (to_state=='PRIMF') THEN
 
        write(*,*) "Error: cannot create primary forest from non-forest"
-       STOP
+#ifdef __MPI__
+       call MPI_Abort(0, 88, ierr) ! Do not know comm nor rank here
+#else
+       stop 88
+#endif
 
     ENDIF
 

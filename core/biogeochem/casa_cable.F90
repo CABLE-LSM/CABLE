@@ -727,6 +727,9 @@ contains
     USE cable_data_module,    ONLY: icanopy_type
     USE cable_optimise_JV_module
     USE cable_adjust_JV_gm_module
+#ifdef __MPI__
+    use mpi,                  only: MPI_Abort
+#endif
 
     IMPLICIT NONE
 
@@ -748,6 +751,9 @@ contains
     real                :: relcostJCi
     real, dimension(mp) :: bjvref, relcostJ, Nefftmp
     real, dimension(mp) :: vcmaxx, cfrdx  ! vcmax and cfrd of previous day
+#ifdef __MPI__
+    integer :: ierr
+#endif
 
     vcmaxx = veg%vcmax
     cfrdx  = veg%cfrd
@@ -852,7 +858,12 @@ contains
           endif
 
        else ! cable_user%vcmax .eq. 'standard' or 'Walker2014'
-          stop 'invalid vcmax flag'
+          write(*,*) 'invalid vcmax flag'
+#ifdef __MPI__
+          call MPI_Abort(0, 91, ierr) ! Do not know comm nor rank here
+#else
+          stop 91
+#endif
        endif ! cable_user%vcmax
 
     ENDDO ! np=1,mp

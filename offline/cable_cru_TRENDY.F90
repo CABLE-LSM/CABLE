@@ -109,6 +109,9 @@ CONTAINS
          xdimsize, ydimsize,  & ! (I) Size of grid dimensions
          lat_all, lon_all       ! (R) Grids with the lat or lon of each cell (i.e. repetition along rows/cols), for CABLE.
     USE cable_def_types_mod,  ONLY: mland  ! (I) Number of land cells
+#ifdef __MPI__
+    use mpi,                  only: MPI_Abort
+#endif
 
     IMPLICIT NONE
 
@@ -136,6 +139,9 @@ CONTAINS
 
     ! Flag for errors
     LOGICAL :: ERR = .FALSE.
+#ifdef __MPI__
+    integer :: ierr
+#endif
 
     NAMELIST /CRUNML/ BasePath, MetPath, LandMaskFile, Run, DThrs, DirectRead
 
@@ -264,7 +270,12 @@ CONTAINS
     ! Error trap for bad namelist. 
     IF ( ERR ) THEN
        WRITE(logn,*) "Invalid settings in CRU_INIT"
-       STOP "Invalid settings in CRU_INIT"
+       write(*,*) "Invalid settings in CRU_INIT"
+#ifdef __MPI__
+       call MPI_Abort(0, 5, ierr) ! Do not know comm nor rank here
+#else
+       stop 5
+#endif
     ENDIF
 
     ! ! If this is a S0_TRENDY run look for met data in the spinup directory instead.

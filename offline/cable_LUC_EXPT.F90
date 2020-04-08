@@ -678,6 +678,9 @@ CONTAINS
 
     use netcdf, only: nf90_open, nf90_nowrite, nf90_inq_varid, nf90_inq_dimid, &
          nf90_inquire_dimension, nf90_inq_varid, nf90_get_var, nf90_close, nf90_noerr
+#ifdef __MPI__
+    use mpi,    only: MPI_Abort
+#endif
 
     IMPLICIT NONE
 
@@ -701,6 +704,9 @@ CONTAINS
     REAL, DIMENSION(mland) :: LAT, LON, TMP
     INTEGER(KIND=4) :: TMPI(mland)
     LOGICAL         :: EXISTFILE
+#ifdef __MPI__
+    integer :: ierr
+#endif
 
     mp4 = int(mland,fmp4)
     A0(1) = 'nyears'
@@ -739,7 +745,11 @@ CONTAINS
     IF ( land_dim .NE. mland) THEN
        WRITE(*,*) "Dimension misfit, ", fname
        WRITE(*,*) "land_dim", land_dim
-       STOP
+#ifdef __MPI__
+       call MPI_Abort(0, 4, ierr) ! Do not know comm nor rank here
+#else
+       stop 4
+#endif
     ENDIF
 
     ! LAT & LON

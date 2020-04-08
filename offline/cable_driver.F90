@@ -357,8 +357,7 @@ PROGRAM cable_offline_driver
         write(logn,*) 'undefined start year for gswp met: '
         write(logn,*) 'enter value for ncciy or'
         write(logn,*) '(CABLE_USER%YearStart and  CABLE_USER%YearEnd) in cable.nml'
-
-        stop
+        stop 201
      ENDIF
   ENDIF
 
@@ -439,7 +438,7 @@ PROGRAM cable_offline_driver
      CALL open_met_file( dels, koffset, kend, spinup, C%TFRZ )
      IF ((koffset .NE. 0) .AND. CABLE_USER%CALL_POP) THEN
         WRITE(*,*) "When using POP, episode must start at Jan 1st!"
-        STOP 991
+        STOP 202
      ENDIF
   ELSE IF (NRRRR .GT. 1) THEN
      IF (.NOT. ALLOCATED(GSWP_MID)) ALLOCATE(GSWP_MID(8, CABLE_USER%YearStart:CABLE_USER%YearEnd))
@@ -839,7 +838,7 @@ PROGRAM cable_offline_driver
                  if ((CurYear < c13o2_atm_syear) .or. (CurYear > c13o2_atm_eyear)) then
                     write(*,*) 'Current year ', CurYear, 'not in atmospheric delta-13C (min/max): ', &
                          c13o2_atm_syear, c13o2_atm_eyear
-                    stop 911
+                    stop 203
                  endif
                  c13o2flux%ca = (c13o2_delta_atm(CurYear) + 1.0_r_2) * real(met%ca,r_2) ! * vpdbc13 / vpdbc13
               endif
@@ -1137,7 +1136,7 @@ PROGRAM cable_offline_driver
                        write(*,*) 'fe nan', kk, ktau,met%qv(kk), met%precip(kk),met%precip_sn(kk), &
                             met%fld(kk), met%fsd(kk,:), met%tk(kk), met%ua(kk), ssnow%potev(kk), met%pmb(kk), &
                             canopy%ga(kk), ssnow%tgg(kk,:), canopy%fwsoil(kk)
-                       stop
+                       stop 204
                     endif
                     if (ne(casaflux%cnpp(kk), casaflux%cnpp(kk))) then
                        write(*,*) 'npp nan', kk, ktau,  casaflux%cnpp(kk)

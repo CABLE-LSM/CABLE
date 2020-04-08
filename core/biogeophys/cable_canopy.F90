@@ -1482,6 +1482,9 @@ CONTAINS
 
     use cable_def_types_mod
     use cable_common_module
+#ifdef __MPI__
+    use mpi, only: MPI_Abort
+#endif
 
     implicit none
 
@@ -1602,6 +1605,9 @@ CONTAINS
 
     integer :: i, k, kk  ! iteration count
     real :: vpd, g1 ! Ticket #56
+#ifdef __MPI__
+    integer :: ierr
+#endif
 
     ! END header
     ! allocate(gswmin(mp,mf))
@@ -1617,7 +1623,12 @@ CONTAINS
           elseif (cable_user%fwsoil_switch == 'Lai and Ktaul 2000') then
              call fwsoil_calc_Lai_Ktaul(fwsoil, soil, ssnow, veg)
           else
-             stop 'fwsoil_switch failed.'
+             write(*,*) 'fwsoil_switch failed.'
+#ifdef __MPI__
+             call MPI_Abort(0, 126, ierr) ! Do not know comm nor rank here
+#else
+             stop 126
+#endif
           endif
           canopy%fwsoil = real(fwsoil, r_2)
        elseif ((cable_user%soil_struc=='sli') .or. (cable_user%fwsoil_switch=='Haverd2013')) then
@@ -2051,7 +2062,12 @@ CONTAINS
                 endif
 
              ELSE
-                STOP 'gs_model_switch failed.'
+                write(*,*) 'gs_model_switch failed.'
+#ifdef __MPI__
+                call MPI_Abort(0, 127, ierr) ! Do not know comm nor rank here
+#else
+                stop 127
+#endif
              ENDIF ! IF (cable_user%GS_SWITCH == 'leuning') THEN
              !#endif
 
