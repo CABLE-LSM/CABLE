@@ -10,9 +10,18 @@ fi
 known_hosts()
 {
     if [ -z ${PS3} ] ; then
-        kh=(kh pear mcin vm_o gadi)
+        kh=(kh gadi pear mcin vm_o)
     else
-        set -A kh pear mcin vm_o gadi
+        set -A kh gadi pear mcin vm_o
+    fi
+}
+
+known_domains()
+{
+    if [ -z ${PS3} ] ; then
+        kd=(kd nci.org.au pear local explor)
+    else
+        set -A kd nci.org.au pear local explor
     fi
 }
 
@@ -29,25 +38,27 @@ host_gadi()
    module load intel-compiler/2019.5.281
    module load intel-mpi/2019.5.281
    module load netcdf/4.6.3
-   # module load hdf5/1.10.5
 
    export FC=mpif90
-   # export NCCLIB="${NETCDF_ROOT}/lib"
-   # export NCLIB="${NETCDF_ROOT}/lib/Intel"
-   export NCMOD="${NETCDF_ROOT}/include/Intel"
+   export NCMOD=${NETCDF_ROOT}"/include/Intel"
    if [[ ${1} == "debug" ]]; then
+       # debug
        # export CFLAGS='-O0 -fpp -traceback -g -fp-model precise -ftz -fpe0'
        export CFLAGS="-fpp -O0 -debug extended -traceback -g -check all,noarg_temp_created -warn all -fp-stack-check -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0" # -fpe-all=0 -no-ftz -ftrapuv"
        export LDFLAGS="-O0"
+       OPTFLAG=""
    else
+       # release
        # export CFLAGS='-O2 -fpp -fp-model precise'
        export CFLAGS="-fpp -O3 -nofixed -assume byterecl -fp-model precise -ip -diag-disable=10382"
        export LDFLAGS="-O3"
-       # export CFLAGS="${CFLAGS} -xCORE-AVX2 -axSKYLAKE-AVX512,CASCADELAKE" # given in user training: does not work
-       export CFLAGS="${CFLAGS} -xCASCADELAKE" # or -xCORE-AVX512 # queues: express / normal
-       # export CFLAGS="${CFLAGS} -xBROADWELL"  # or -xCORE-AVX512; queues: expressbw / normalbw
-       # export CFLAGS="${CFLAGS} -xSKYLAKE"    # or -xSKYLAKE-AVX512 depends on performance; queues: normalsl
+       OPTFLAG="-xCASCADELAKE"
+       # OPTFLAG="-xCORE-AVX2 -axSKYLAKE-AVX512,CASCADELAKE" # given in user training: does not work
+       # OPTFLAG="-xCASCADELAKE" # or -xCORE-AVX512;                           queues: express / normal
+       # OPTFLAG="-xBROADWELL"   # or -xCORE-AVX512;                           queues: expressbw / normalbw
+       # OPTFLAG="-xSKYLAKE"     # or -xSKYLAKE-AVX512 depends on performance; queues: normalsl
    fi
+   export CFLAGS="${CFLAGS} ${OPTFLAG}"
    export CFLAGS="${CFLAGS} -D__MPI__"
    export CFLAGS="${CFLAGS} -D__CRU2017__"
    export CFLAGS="${CFLAGS} -D__NETCDF3__"
@@ -142,14 +153,15 @@ host_mcin()
         /opt/intel/compilers_and_libraries/mac/bin/compilervars.sh intel64
         export FC=/usr/local/openmpi-3.1.5-ifort/bin/mpifort
         # release
-        export CFLAGS="-fpp -O3 -nofixed -assume byterecl -fp-model precise -ip -diag-disable=10382 -xHost"
-	export LDFLAGS="-O3"
+        export CFLAGS="-fpp -O3 -nofixed -assume byterecl -fp-model precise -ip -diag-disable=10382"
+        export LDFLAGS="-O3"
+	OPTFLAG="-xHost"
         if [[ ${idebug} -eq 1 ]] ; then
+            # debug
             export CFLAGS="-fpp -O0 -debug extended -traceback -g -check all,noarg_temp_created -warn all -fp-stack-check -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0" # -fpe-all=0 -no-ftz -ftrapuv -init=arrays,snan
-	    export LDFLAGS="-O0"
+            export LDFLAGS="-O0"
+	    OPTFLAG=
         fi
-        # export CFLAGS="${CFLAGS} -mtune=corei7"
-        # export CFLAGS="${CFLAGS} -march=native"
         export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
         export LD=""
         export NCROOT="/usr/local/netcdf-fortran-4.4.5-ifort"
@@ -160,11 +172,13 @@ host_mcin()
         export FC=/usr/local/openmpi-3.1.4-gfortran/bin/mpifort
         # release
         export CFLAGS="-cpp -O3 -Wno-aggressive-loop-optimizations -ffree-form -ffixed-line-length-132"
-	export LDFLAGS="-O3"
+        export LDFLAGS="-O3"
+	OPTFLAG="-march=native"
         if [[ ${idebug} -eq 1 ]] ; then
             # debug
             export CFLAGS="-cpp -O -g -pedantic-errors -Wall -W -Wno-maybe-uninitialized -ffree-form -ffixed-line-length-132 -fbacktrace -ffpe-trap=zero,overflow -finit-real=nan" #  -ffpe-trap=zero,overflow,underflow
-	    export LDFLAGS="-O"
+            export LDFLAGS="-O"
+	    OPTFLAG=
         fi
         # export CFLAGS="${CFLAGS} -march=native"
         export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__"
@@ -177,17 +191,18 @@ host_mcin()
         export FC=/usr/local/openmpi-3.1.5-nagfor/bin/mpifort
         # release
         export CFLAGS="-O4"
-	export LDFLAGS="-O4"
+        export LDFLAGS="-O4"
+	OPTFLAG=
         if [[ ${idebug} -eq 1 ]] ; then
             # debug
             # export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline"
             # set runtime environment variables: export NAGFORTRAN_RUNTIME_OPTIONS=show_dangling
             export CFLAGS="-C=alias -C=array -C=bits -C=dangling -C=do -C=intovf -C=present -C=pointer -C=recursion -g -nan -O0 -strict95 -gline"
-	    export LDFLAGS="-O0"
+            export LDFLAGS="-O0"
+	    OPTFLAG=
         fi
         export CFLAGS="${CFLAGS} -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -not_openmp"
         export CFLAGS="${CFLAGS} -mismatch"
-        # export CFLAGS="${CFLAGS} -march=native"
         export CFLAGS="${CFLAGS} -D__NAG__"
         export LD="-ideclient -unsharedrts"
         export NCROOT="/usr/local/netcdf-fortran-4.4.5-nagfor"
@@ -196,10 +211,11 @@ host_mcin()
     fi
 
     # All compilers
+    export CFLAGS="${CFLAGS} ${OPTFLAG}"
     export CFLAGS="${CFLAGS} -D__MPI__"
-    # export CFLAGS="${CFLAGS} -D__C13DEBUG__"
     export CFLAGS="${CFLAGS} -D__CRU2017__"
     export CFLAGS="${CFLAGS} -D__NETCDF3__"
+    # export CFLAGS="${CFLAGS} -D__C13DEBUG__"
 
     export NCCROOT="/usr/local"
     export NCCLIB=${NCCROOT}"/lib"
@@ -247,20 +263,22 @@ host_vm_o()
         module load intel/2018.5
         export FC=mpifort
         # release
-	export CFLAGS="-fpp -O3 -nofixed -assume byterecl -fp-model precise -ip -diag-disable=10382 -xHost"
-	export LDFLAGS="-O3"
+        export CFLAGS="-fpp -O3 -nofixed -assume byterecl -fp-model precise -ip -diag-disable=10382"
+        export LDFLAGS="-O3"
+	OPTFLAG="-xBROADWELL"
         if [[ ${idebug} -eq 1 ]] ; then
             # debug
-	    export CFLAGS="-fpp -O0 -debug extended -traceback -g -check all,noarg_temp_created -warn all -fp-stack-check -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0" # -fpe-all=0 -no-ftz -ftrapuv -init=arrays,snan
-	    export LDFLAGS="-O0"
+            export CFLAGS="-fpp -O0 -debug extended -traceback -g -check all,noarg_temp_created -warn all -fp-stack-check -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0" # -fpe-all=0 -no-ftz -ftrapuv -init=arrays,snan
+            export LDFLAGS="-O0"
+	    OPTFLAG=
         fi
-        # export CFLAGS="${CFLAGS} -march=broadwell"     # std / hf
-        # export CFLAGS="${CFLAGS} -march=core-avx2"     # std / hf
-        # export CFLAGS="${CFLAGS} -mtune=broadwell"     # std / hf
-        # export CFLAGS="${CFLAGS} -march=skylake-avx512 # sky
-        # export CFLAGS="${CFLAGS} -march=ivybridge"     # ivy / k20
-        # export CFLAGS="${CFLAGS} -march=avx"           # ivy / k20
-        # export CFLAGS="${CFLAGS} -mtune=ivybridge"     # ivy / k20
+        # OPTFLAG="${CFLAGS} -march=broadwell"     # std / hf
+        # OPTFLAG="${CFLAGS} -march=core-avx2"     # std / hf
+        # OPTFLAG="${CFLAGS} -mtune=broadwell"     # std / hf
+        # OPTFLAG="${CFLAGS} -march=skylake-avx512 # sky
+        # OPTFLAG="${CFLAGS} -march=ivybridge"     # ivy / k20
+        # OPTFLAG="${CFLAGS} -march=avx"           # ivy / k20
+        # OPTFLAG="${CFLAGS} -mtune=ivybridge"     # ivy / k20
         export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
         export LD=""
         export NCROOT="/home/oqx29/zzy20/local/netcdf-fortran-4.4.4-ifort2018.0"
@@ -271,23 +289,26 @@ host_vm_o()
         export FC=mpifort
         # release
         export CFLAGS="-cpp -O3 -Wno-aggressive-loop-optimizations -ffree-form -ffixed-line-length-132"
-	export LDFLAGS="-O3"
+        export LDFLAGS="-O3"
+	OPTFLAG="-march=broadwell"
         if [[ ${idebug} -eq 1 ]] ; then
             # debug
             export CFLAGS="-cpp -O -g -pedantic-errors -Wall -W -Wno-maybe-uninitialized -ffree-form -ffixed-line-length-132 -fbacktrace -ffpe-trap=zero,overflow -finit-real=nan" #  -ffpe-trap=zero,overflow,underflow
-	    export LDFLAGS="-O"
+            export LDFLAGS="-O"
+	    OPTFLAG=
         fi
-        # export CFLAGS="${CFLAGS} -march=broadwell"     # std / hf
-        # export CFLAGS="${CFLAGS} -mavx2"               # std / hf
-        # export CFLAGS="${CFLAGS} -march=skylake-avx512 # sky
-        # export CFLAGS="${CFLAGS} -march=ivybridge"     # ivy / k20
-        # export CFLAGS="${CFLAGS} -mavx"                # ivy / k20
+        # OPTFLAG="${CFLAGS} -march=broadwell"     # std / hf
+        # OPTFLAG="${CFLAGS} -mavx2"               # std / hf
+        # OPTFLAG="${CFLAGS} -march=skylake-avx512 # sky
+        # OPTFLAG="${CFLAGS} -march=ivybridge"     # ivy / k20
+        # OPTFLAG="${CFLAGS} -mavx"                # ivy / k20
         export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__"
         export LD=""
         export NCROOT="/home/oqx29/zzy20/local/netcdf-fortran-4.4.4-gfortran63"
     fi
 
     # All compilers
+    export CFLAGS="${CFLAGS} ${OPTFLAG}"
     export CFLAGS="${CFLAGS} -D__MPI__"
     # export CFLAGS="${CFLAGS} -D__C13DEBUG__"
     export CFLAGS="${CFLAGS} -D__CRU2017__"
@@ -306,178 +327,16 @@ host_vm_o()
 }
 
 
-## unknown machine, user entering options stdout
-host_read()
+clean_ask()
 {
-   print "\n\tWhat is the ROOT path of your NetCDF library" \
-         "and .mod file. "
-   print "\tRemember these have to be created by the same " \
-         "Fortran compiler you"
-   print "\twant to use to build CABLE. e.g./usr/local/intel"
-   read NCDF_ROOT
-
-   print "\n\tWhat is the path, relative to the above ROOT, of " \
-         "your NetCDF library."
-   print "\n\tPress enter for default [lib]."
-   read NCDF_DIR
-   if [[ $NCDF_DIR == '' ]]; then
-      export NCDIR=$NCDF_ROOT/'lib'
-   else
-      export NCDIR=$NCDF_ROOT/$NCDF_DIR
-   fi
-
-   print "\n\tWhat is the path, relative to the above ROOT, of " \
-         "your NetCDF .mod file."
-   print "\n\tPress enter for default [include]."
-   read NCDF_MOD
-   if [[ $NCDF_MOD == '' ]]; then
-      export NCMOD=$NCDF_ROOT/'include'
-   else
-      export NCMOD=$NCDF_ROOT/$NCDF_MOD
-   fi
-
-   print "\n\tWhat is the Fortran compiler you wish to use."
-   print "\te.g. ifort, gfortran, nagfor"
-
-   print "\n\tPress enter for default [ifort]."
-   read FCRESPONSE
-   if [[ $FCRESPONSE == '' ]]; then
-      export FC='ifort'
-   else
-      export FC=$FCRESPONSE
-   fi
-
-   print "\n\tWhat are the approriate compiler options"
-   print "\te.g.(ifort) -O2 -fp-model precise "
-   print "\n\tPress enter for default [-O2 -fp-model precise]."
-   read CFLAGRESPONSE
-   if [[ $CFLAGRESPONSE == '' ]]; then
-      export CFLAGS='-O2 -fp-model precise'
-   else
-      export CFLAGS=$CFLAGRESPONSE
-   fi
-
-   iflags='-L'$NCDIR' -O2'
-   export LDFLAGS=$iflags
-
-   print "\n\tWhat are the approriate libraries to link"
-   print "\te.g.(most systems) -lnetcdf "
-   print "\n\tPress enter for default [-lnetcdf]."
-   read LDRESPONSE
-   if [[ $LDRESPONSE == '' ]]; then
-      export LD='-lnetcdf'
-   else
-      export LD=$LDRESPONSE
-   fi
-}
-
-
-host_write()
-{
-   print '#!/bin/ksh' > junk
-   print '' >> junk
-   print 'known_hosts()' >> junk
-   print '{' >> junk
-   print '   set -A kh' ${kh[*]} $HOST_MACH >> junk
-   print '}' >> junk
-   print '' >> junk
-   print '' >> junk
-   print '## '$HOST_COMM >> junk
-   print 'host_'$HOST_MACH'()' >> junk
-   print '{' >> junk
-   print '   export NCDIR='"'"$NCDIR"'" >> junk
-   print '   export NCMOD='"'"$NCMOD"'" >> junk
-   print '   export FC='$FC >> junk
-   print '   export CFLAGS='"'"$CFLAGS"'" >> junk
-   print '   export LD='"'"$LD"'" >> junk
-   print '   export LDFLAGS='"'"$LDFLAGS"'" >> junk
-   print '   build_build' >> junk
-   print '   cd ../' >> junk
-   print '   build_status' >> junk
-   print '}' >> junk
-   print '' >> junk
-   print '' >> junk
+    print '\n\tPress Enter too continue building, Control-C to abort now.\n'
+    read dummy
 }
 
 
 clean_build()
 {
-      print '\ncleaning up\n'
-      print '\n\tPress Enter too continue buiding, Control-C to abort now.\n'
-      read dummy
-      rm -fr .mpitmp*
-}
-
-
-set_up_CABLE_AUX()
-{
-      print "\n\tYou do not have a ~/CABLE-AUX/ directory. This directory"
-      print "\tcontains configuration and data essential to using CABLE."
-      print "\tNCI account holders can have this set up for you now (anywhere)."
-      print "\tOthers will have to use the tarball available for download at ..."
-      print "\n\tDo you want to run set up this directory now? y/[n]"
-      print "\n\t B Y P A S S E D by LN"
-      #read setup_CABLE_AUX
-      setup_CABLE_AUX='n'
-      if [[ $setup_CABLE_AUX = 'y' ]]; then
-         print "\n\tPlease enter your NCI user ID"
-         read NCI_USERID
-         mkdir ~/CABLE-AUX
-
-         fscp1="scp -r "
-         fscp2="@vayu.nci.org.au:/projects/access/CABLE-AUX/"
-         fscp3="offline "
-         fscp4=$HOME"/CABLE-AUX/"
-         fscp5=$fscp1$NCI_USERID$fscp2
-         fscp=$fscp5$fscp3$fscp4$fscp3
-         $fscp
-
-         RC=$?
-         if [[ $RC > 0 ]];then
-            print "ERROR: scp of ~/CABLE-AUX/offline failed"
-            exit $RC
-         fi
-
-         fscp3="core "
-         fscp=$fscp5$fscp3$fscp4$fscp3
-         $fscp
-
-         RC=$?
-         if [[ $RC > 0 ]];then
-            print "ERROR: scp of ~/CABLE-AUX/core failed"
-            exit $RC
-         fi
-      fi
-}
-
-
-not_recognized()
-{
-   print "\n\n\tThis is not a recognized host for which we " \
-         "know the location of the"
-   print "\tnetcdf distribution and correct compiler switches."
-
-   print "\n\tPlease enter these details as prompted, and the " \
-         "script will be "
-   print "\tupdated accordingly. "
-   print "\n\tIf this is a common machine for CABLE users, " \
-         "please email"
-   print "\n\t\t cable_help@nf.nci.org.au "
-   print "\n\talong with your new build_mpi.ksh so that we can " \
-         "update the script "
-   print "\tfor all users. "
-   print "\n\tTo enter compile options for this build press " \
-         "enter, otherwise "
-   print "\tControl-C to abort script."
-
-   host_read
-
-   print "\n\tPlease supply a comment include the new build " \
-         "script."
-   print "\n\tGenerally the host URL e.g. gadi.nci.org.au "
-   read HOST_COMM
-
-   build_build
+    rm -fr .mpitmp*
 }
 
 
@@ -492,8 +351,8 @@ do_i_no_u()
    fi
    typeset -f subr
 
-   while [[ $k -lt $kmax ]]; do
-      if [[ $HOST_MACH = ${kh[$k]} ]];then
+   while [[ $k -lt $kmax ]] ; do
+      if [[ $HOST_MACH = ${kh[$k]} || ${domain} = ${kd[$k]} ]] ; then
          echo 'Host recognized as' $HOST_MACH
          subr=host_${kh[$k]}
          $subr $*
@@ -519,19 +378,6 @@ build_status()
    fi
 
    exit
-}
-
-
-i_do_now()
-{
-      cd ../
-      host_write
-      tail -n +7 build_mpi.ksh > build_mpi.ksh.tmp
-      cat junk build_mpi.ksh.tmp > build_mpi.ksh.new
-      mv build_mpi.ksh.new build_mpi.ksh
-      chmod u+x build_mpi.ksh
-      rm -f build_mpi.ksh.tmp build_mpi.ksh.new junk
-      build_status
 }
 
 
@@ -588,15 +434,28 @@ build_build()
 ## build_mpi.ksh - MAIN SCRIPT STARTS HERE ##
 #############################################
 
+if [[ $1 = 'cclean' ]]; then
+    print '\nCleaning up\n'
+    clean_build
+    shift 1
+fi
 if [[ $1 = 'clean' ]]; then
+    print '\nCleaning up\n'
+    clean_ask
     clean_build
     shift 1
 fi
 
 known_hosts
+known_domains
 HOST_MACH=`uname -n | cut -c 1-4 | tr - _`
+if [ `uname -s` = 'Darwin' ] ; then
+    domain=`hostname`
+else
+    domain=`hostname --domain`
+fi
+domain=${domain#*.}
 do_i_no_u $*
 
-# only ksh because host_write writes ksh script
-not_recognized
-i_do_now
+echo "Error: host not recognized: "${HOST_MACH}" nor domain: "${domain}
+exit 1

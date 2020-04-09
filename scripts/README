@@ -24,6 +24,8 @@ set_latlon_land.py
 
 # Run Cable
 -----------
+compile_cable-pop.sh
+        Submit compilation to compile with -xHost on host machine. Written by Matthias Cuntz.
 reset_restart.bash
 	Utility that batch renames restart files. Written by Vanessa Haverd.
 run_cable-pop.sh
@@ -35,4 +37,4 @@ run_cable_site_CNP.py
 # Output
 --------
 compare_two_cable_runs.sh
-        Compare restart files of two Cable-POP runs performed with script run_cable-pop.sh.run_cable-pop.sh.
+        Compare restart and output files of two runs performed with run_cable-pop.sh. Written by Matthias Cuntz.
