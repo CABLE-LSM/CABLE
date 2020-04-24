@@ -76,9 +76,9 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
   
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
- ! SF%RES    = 1./12.
+  ! SF%RES    = 1./12.
  
- ! SF%RES = 0.5
+  ! SF%RES = 0.5
   SF%NCELLS = NCELLS
 
   ALLOCATE( SF%IGBP        (NCELLS) )
@@ -96,7 +96,6 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
   ALLOCATE( SF%POPDENS     (NCELLS) )
   ALLOCATE( SF%BA_MONTHLY_CLIM(NCELLS,12)) ! fraction of annual burned area in each month
 
-  !MCINI
   call zero_simfire(SF)
 
   SF%IGBP = modis_igbp

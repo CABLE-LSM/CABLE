@@ -145,7 +145,6 @@ CONTAINS
                 bjv_new(k) = bjvref(k)
                 veg%vcmax_shade(k) = veg%vcmax(k)
                 veg%ejmax_shade(k) = veg%ejmax(k)
-                !print*, 'out of bounds'
              endif
           endif
 

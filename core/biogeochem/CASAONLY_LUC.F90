@@ -168,11 +168,6 @@ contains
           endif
 
           ! 13C
-          ! if (cable_user%c13o2) then
-          !    print*, '13C in casaonly_luc - 00 ', nyear, idoy
-          !    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-          !    call c13o2_print_delta_luc(popluc, c13o2luc)
-          ! endif
           if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
           CALL biogeochem(idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
                casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter, &
@@ -182,11 +177,6 @@ contains
                pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
           ! 13C
           if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
-          ! if (cable_user%c13o2) then
-          !    print*, '13C in casaonly_luc - 01 ', nyear, idoy
-          !    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-          !    call c13o2_print_delta_luc(popluc, c13o2luc)
-          ! endif
 
           ! update time-aggregates of casa pools and fluxes
           CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
@@ -276,11 +266,6 @@ contains
                          c13o2pools%cplant(j,wood)  = 0.01_dp ! * vpdbc13 / vpdbc13 ! so that about same numerical precision as 12C
                          c13o2pools%cplant(j,froot) = 0.01_dp ! * vpdbc13 / vpdbc13 !
                       endif
-                      ! if (cable_user%c13o2) then
-                      !    print*, '13C in casaonly_luc - 11'
-                      !    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-                      !    call c13o2_print_delta_luc(popluc, c13o2luc)
-                      ! endif
                    endif
                 ENDDO
 
@@ -294,11 +279,6 @@ contains
                 !      ( YYYY.EQ.cable_user%YearEnd ) )
 
                 ! 13C
-                ! if (cable_user%c13o2) then
-                !    print*, '13C in casaonly_luc - 03'
-                !    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-                !    call c13o2_print_delta_luc(popluc, c13o2luc)
-                ! endif
                 if (cable_user%c13o2) call c13o2_save_luc(casapool, popluc, casasave, lucsave)
                 CALL POP_LUC_CASA_transfer(POPLUC,POP,LUC_EXPT,casapool,casabal,casaflux,ktauday)
                 ! 13C
@@ -308,11 +288,6 @@ contains
 #else
                 if (cable_user%c13o2) call c13o2_update_luc(casasave, lucsave, popluc, luc_expt%prim_only, c13o2pools, c13o2luc)
 #endif
-                ! if (cable_user%c13o2) then
-                !    print*, '13C in casaonly_luc - 04'
-                !    call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
-                !    call c13o2_print_delta_luc(popluc, c13o2luc)
-                ! endif
                 !MC CALL WRITE_LUC_OUTPUT_NC(POPLUC, YYYY, (YYYY.EQ.cable_user%YearEnd))
                 CALL POPLUC_set_patchfrac(POPLUC, LUC_EXPT)
 

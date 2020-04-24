@@ -143,10 +143,12 @@ if [[ true ]] ; then
         for suff in ${suff1} ${suff2} ; do
             echo '  Step ' ${suff}
             for i in *${suff}.nc ; do
-                echo '    ' ${i}
-                set +e
-                cdo -s diffv ${i} ${adir2}/${idir}/${i} 2> /dev/null
-                set -e
+		if [[ -f ${i} ]] ; then
+                    echo '    ' ${i}
+                    set +e
+                    cdo -s diffv ${i} ${adir2}/${idir}/${i} 2> /dev/null
+                    set -e
+		fi
             done
         done
     done
@@ -159,16 +161,18 @@ if [[ true ]] ; then
     cd ${adir1}/${idir}/
     for suff in ${suff2} ; do
         i=pop_cru_ini${suff}.nc
-        echo '    ' ${i}
-        ncdiff ${i} ${adir2}/${idir}/${i} tmp.${pid}.nc
-        set +e
-        iout=$(ncdump tmp.${pid}.nc | sed -e '/^netcdf/,/^variables:/d' -e '/ latitude/,/;$/d' -e '/ longitude/,/;$/d' -e '/[:{}]/d' -e '/^$/d' -e '/) ;$/d' -e 's/ ;/,/' -e 's/ 0,//g' | sed -e '/^[[:blank:]]*$/d' -e '/=[[:blank:]]*$/d' -e '/[tT]ime =/d')
-        set -e
-        if [[ -n ${iout} ]] ; then
-            echo "     Check ${i} in ${PWD}"
-            echo "         ncdiff -O ${i} ${adir2}/${idir}/${i} tmp.nc ; ncdump tmp.nc | sed -e '/^netcdf/,/^variables:/d' -e '/ latitude/,/;$/d' -e '/ longitude/,/;$/d' -e '/[:{}]/d' -e '/^$/d' -e '/) ;$/d' -e 's/ ;/,/' -e 's/ 0,//g' | sed -e '/^[[:blank:]]*$/d' -e '/=[[:blank:]]*$/d' -e '/[tT]ime =/d'"
-        fi
-        rm tmp.${pid}.nc
+	if [[ -f ${i} ]] ; then
+            echo '    ' ${i}
+            ncdiff ${i} ${adir2}/${idir}/${i} tmp.${pid}.nc
+            set +e
+            iout=$(ncdump tmp.${pid}.nc | sed -e '/^netcdf/,/^variables:/d' -e '/ latitude/,/;$/d' -e '/ longitude/,/;$/d' -e '/[:{}]/d' -e '/^$/d' -e '/) ;$/d' -e 's/ ;/,/' -e 's/ 0,//g' | sed -e '/^[[:blank:]]*$/d' -e '/=[[:blank:]]*$/d' -e '/[tT]ime =/d')
+            set -e
+            if [[ -n ${iout} ]] ; then
+		echo "     Check ${i} in ${PWD}"
+		echo "         ncdiff -O ${i} ${adir2}/${idir}/${i} tmp.nc ; ncdump tmp.nc | sed -e '/^netcdf/,/^variables:/d' -e '/ latitude/,/;$/d' -e '/ longitude/,/;$/d' -e '/[:{}]/d' -e '/^$/d' -e '/) ;$/d' -e 's/ ;/,/' -e 's/ 0,//g' | sed -e '/^[[:blank:]]*$/d' -e '/=[[:blank:]]*$/d' -e '/[tT]ime =/d'"
+            fi
+            rm tmp.${pid}.nc
+	fi
     done
 fi
 

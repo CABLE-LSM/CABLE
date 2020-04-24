@@ -72,7 +72,6 @@ MODULE cable_IO_vars_module
 
    END TYPE patch_type
 
-
    TYPE land_type
 
       INTEGER ::                                                               &
@@ -84,8 +83,7 @@ MODULE cable_IO_vars_module
 
    END TYPE land_type
 
-
-   TYPE(land_type),DIMENSION(:),POINTER :: landpt => null()
+   TYPE(land_type),  DIMENSION(:), POINTER :: landpt => null()
    TYPE(patch_type), DIMENSION(:), POINTER :: patch => null()
 
    INTEGER ::                                                                  &

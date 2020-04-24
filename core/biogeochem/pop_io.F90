@@ -41,7 +41,7 @@ contains
     INTEGER          :: nlayer_dim, ndisturb_dim, land_dim
     INTEGER          :: HEIGHT_BINS_dim, npatch2d_dim, NCOHORT_MAX_dim
     INTEGER          :: dID, t_dim, tx=-1, ntile, mp, CNT
-    CHARACTER(len=3) :: typ='rst'
+    CHARACTER(len=3) :: typ
     CHARACTER        :: dum*9, fname*120
     LOGICAL          :: CLOSE_FILE, EXISTFILE
 
@@ -265,6 +265,7 @@ contains
     ! END IF
 
     ! Check for valid ACTION
+    typ = 'rst'
     IF ( INDEX(ACTION,"WRITE_EPI") .GT. 0 ) THEN
        typ = 'out'
     ELSE IF ( INDEX(ACTION,"WRITE_RST") .GT. 0 ) THEN
@@ -335,7 +336,6 @@ contains
           IF ( EXISTFILE .and. (typ.ne.'ini') .and. (typ.ne.'rst') ) THEN  ! file exists
 
              STATUS = NF90_open(trim(fname), mode=nf90_write, ncid=FILE_ID)
-             ! print*, 'OOpen70.1 ', file_id, trim(fname)
              IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
              STATUS = nf90_inq_dimid(FILE_ID, 'time', t_id)
@@ -416,8 +416,7 @@ contains
              STATUS = NF90_create(trim(fname), cmode=ior(nf90_clobber,nf90_64bit_offset), ncid=FILE_ID)
 #else
              STATUS = NF90_create(trim(fname), cmode=ior(nf90_clobber,ior(nf90_netcdf4,nf90_classic_model)), ncid=FILE_ID)
-#endif       
-             ! print*, 'OCreate70 ', file_id, trim(fname)
+#endif
              IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
              ! GLOBAL ATTRIBUTES
@@ -606,7 +605,6 @@ contains
 
        ! WRITE CURRENT STATE
        ! TIME  ( t )
-       ! print*, 'OWrite70 ', file_id
        STATUS = NF90_PUT_VAR(FILE_ID, VIDtime, YEAR, start=(/ CNT /) )
        IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
@@ -1119,7 +1117,6 @@ contains
        WRITE(*,*)"Reading POP-rst file: ", TRIM(fname)
 
        STATUS = NF90_OPEN( TRIM(fname), NF90_NOWRITE, FILE_ID )
-       ! print*, 'OOpen70.2 ', file_id, TRIM(fname)
        IF (STATUS /= NF90_noerr)THEN
           WRITE(*,*)"Error opening file (pop_bios_io.f90) ",TRIM(fname)
           CALL handle_err(STATUS)
@@ -1682,7 +1679,6 @@ contains
 
     IF ( CLOSE_FILE .OR. (typ .EQ. 'rst') .OR. (typ .EQ. 'ini') ) THEN
        ! Close NetCDF file:
-       ! print*, 'OClose70 ', file_id
        STATUS = NF90_close(FILE_ID)
        file_id = -1
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)

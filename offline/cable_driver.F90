@@ -140,7 +140,7 @@ PROGRAM cable_offline_driver
 
   ! timing variables
   INTEGER, PARAMETER :: kstart = 1   ! start of simulation
-  INTEGER, PARAMETER :: mloop  = 30 !MCTEST 30  ! CASA-CNP PreSpinup loops
+  INTEGER, PARAMETER :: mloop  = 30  ! CASA-CNP PreSpinup loops
   INTEGER :: LALLOC ! allocation coefficient for passing to spincasa
 
   INTEGER :: &
@@ -238,7 +238,7 @@ PROGRAM cable_offline_driver
        vegparmnew    = .FALSE., & ! using new format input file (BP dec 2007)
        spinup        = .FALSE., & ! model spinup to soil state equilibrium?
        spinConv      = .FALSE., & ! has spinup converged?
-       spincasainput = .FALSE., & ! TRUE: SAVE input req'd to spin CASA-CNP;
+       spincasainput = .FALSE., & ! TRUE: SAVE input req'd to spin CASA-CNP
                                   ! FALSE: READ input to spin CASA-CNP
        spincasa      = .FALSE., & ! TRUE: CASA-CNP Will spin mloop times,
                                   ! FALSE: no spin up
@@ -711,14 +711,15 @@ PROGRAM cable_offline_driver
 
               if (cable_user%call_climate) then
                  call alloc_cbm_var(climate,mp,ktauday)
-                 !MCINI
                  call zero_cbm_var(climate)
                  call climate_init(climate)
                  if (.not.cable_user%climate_fromzero) call read_climate_restart_nc(climate, ktauday)
               endif
 
-              if (trim(cable_user%MetType) .eq. 'cru') &
-                   casamet%glai = 1.0  ! initialise glai for use in cable_roughness
+              if (trim(cable_user%MetType) .eq. 'cru') then
+                 casamet%glai = 1.0_r_2 ! initialise glai for use in cable_roughness
+                 where (veg%iveg(:) .ge. 14) casamet%glai = 0.0_r_2
+              endif
 
               ! additional params needed for BLAZE
               if ( trim(cable_user%MetType) .eq. 'bios' ) call cable_bios_load_climate_params(climate)
@@ -887,6 +888,14 @@ PROGRAM cable_offline_driver
                     Ra   = isoratio(c13o2flux%ca, real(met%ca,r_2), 1.0_r_2)
                     ! diff = canopy%An - (spread(real(met%ca,r_2),2,mf)-canopy%ci) * &
                     !      (1.0_r_2/(1.0_r_2/canopy%gac+1.0_r_2/canopy%gbc+1.0_r_2/canopy%gsc))
+                    !MCTest
+                    ! c13o2flux%An       = canopy%An
+                    ! c13o2flux%An       = 1.005_r_2 * canopy%An !  * vpdbc13 / vpdbc13 ! Test 5 permil
+                    ! c13o2flux%Disc     = 0.0_r_2
+                    ! c13o2flux%Vstarch  = c13o2flux%Vstarch + 1.0e-6_r_2
+                    ! c13o2flux%Rstarch  = c13o2flux%Rstarch
+                    ! c13o2flux%Rsucrose = c13o2flux%Rsucrose
+                    ! c13o2flux%Rphoto   = c13o2flux%Rphoto
                     do ileaf=1, mf
                        if (cable_user%c13o2_simple_disc) then
                           call c13o2_discrimination_simple( &
@@ -937,7 +946,7 @@ PROGRAM cable_offline_driver
                                c13o2flux%An(:,ileaf) )
                        endif ! cable_user%c13o2_simple_disc
                     end do ! ileaf=1:mf
-                    ! c13o2flux%An = 1.005_r_2 * canopy%An !  * vpdbc13 / vpdbc13 ! Test 5 permil
+                    !MCTest
                  endif ! cable_user%c13o2
 
                  if (cable_user%CALL_climate) then
@@ -1111,7 +1120,7 @@ PROGRAM cable_offline_driver
               ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
               IF (cable_user%consistency_check) THEN
 
-                 count_bal = count_bal +1;
+                 count_bal = count_bal + 1
                  new_sumbal = new_sumbal + SUM(bal%wbal)/mp +  SUM(bal%ebal)/mp
                  new_sumfpn = new_sumfpn + SUM(canopy%fpn)/mp
                  new_sumfe = new_sumfe + SUM(canopy%fe)/mp
@@ -1150,19 +1159,14 @@ PROGRAM cable_offline_driver
                  IF ( ktau == kend ) THEN
                     nkend = nkend+1
                     IF( ABS(new_sumbal-trunk_sumbal) < 1.e-7) THEN
-                       PRINT *, ""
-                       PRINT *, &
-                            "NB. Offline-serial runs spinup cycles:", nkend
-                       PRINT *, &
-                            "Internal check shows this version reproduces the trunk sumbal"
+                       write(*,*) ""
+                       write(*,*) "NB. Offline-serial runs spinup cycles:", nkend
+                       write(*,*) "Internal check shows this version reproduces the trunk sumbal"
                     ELSE
-                       PRINT *, ""
-                       PRINT *, &
-                            "NB. Offline-serial runs spinup cycles:", nkend
-                       PRINT *, &
-                            "Internal check shows in this version new_sumbal != trunk sumbal"
-                       PRINT *, &
-                            "Writing new_sumbal to the file:", TRIM(Fnew_sumbal)
+                       write(*,*) ""
+                       write(*,*) "NB. Offline-serial runs spinup cycles:", nkend
+                       write(*,*) "Internal check shows in this version new_sumbal != trunk sumbal"
+                       write(*,*) "Writing new_sumbal to the file:", TRIM(Fnew_sumbal)
                        OPEN( 12, FILE = Fnew_sumbal )
                        WRITE( 12, '(F20.7)' ) new_sumbal  ! written by previous trunk version
                        CLOSE(12)
@@ -1197,10 +1201,10 @@ PROGRAM cable_offline_driver
                  IF( ANY( ABS(ssnow%wb-soilMtemp)>delsoilM).OR.               &
                       ANY( ABS(ssnow%tgg-soilTtemp)>delsoilT) ) THEN
                     ! No complete convergence yet
-                    PRINT *, 'ssnow%wb : ', ssnow%wb
-                    PRINT *, 'soilMtemp: ', soilMtemp
-                    PRINT *, 'ssnow%tgg: ', ssnow%tgg
-                    PRINT *, 'soilTtemp: ', soilTtemp
+                    write(*,*) 'ssnow%wb : ', ssnow%wb
+                    write(*,*) 'soilMtemp: ', soilMtemp
+                    write(*,*) 'ssnow%tgg: ', ssnow%tgg
+                    write(*,*) 'soilTtemp: ', soilTtemp
                  ELSE ! spinup has converged
                     spinConv = .TRUE.
                     ! Write to screen and log file:
@@ -1284,7 +1288,7 @@ PROGRAM cable_offline_driver
               casabal%FCneeyear = 0.0_r_2
            ENDIF
            CALL CPU_TIME(etime)
-           PRINT *, 'Finished. ', etime, ' seconds needed for year'
+           write(*,*) 'Finished. ', etime, ' seconds needed for year'
 
            ! 13C - While testing
            if (cable_user%c13o2) then
@@ -1304,9 +1308,9 @@ PROGRAM cable_offline_driver
      CALL close_output_file(bal)
   ENDIF
 
-  IF ( cable_user%CALL_POP.and.POP%np.gt.0 ) THEN
-     IF ( CASAONLY .or. cable_user%pop_fromzero &
-          .or. TRIM(cable_user%POP_out) .eq. 'ini' ) THEN
+  IF (cable_user%CALL_POP .and. (POP%np.gt.0)) THEN
+     IF ( CASAONLY .or. cable_user%pop_fromzero .or. &
+          (TRIM(cable_user%POP_out) .eq. 'ini') ) THEN
         CALL POP_IO( pop, casamet, RYEAR+1, 'WRITE_INI', .TRUE.)
      ELSE
         CALL POP_IO( pop, casamet, RYEAR+1, 'WRITE_RST', .TRUE.)
@@ -1375,7 +1379,7 @@ SUBROUTINE prepareFiles(ncciy)
   INTEGER, INTENT(IN) :: ncciy
 
   WRITE(logn,*) 'CABLE offline global run using gswp forcing for ', ncciy
-  PRINT *,      'CABLE offline global run using gswp forcing for ', ncciy
+  write(*,*)    'CABLE offline global run using gswp forcing for ', ncciy
 
   CALL renameFiles(logn,gswpfile%rainf,ncciy,'rainf')
   CALL renameFiles(logn,gswpfile%snowf,ncciy,'snowf')

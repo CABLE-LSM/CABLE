@@ -83,7 +83,6 @@ contains
     ! 13C
     real(dp), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
 
-
     IF ( .NOT. dump_read ) THEN  ! construct casa met and flux inputs from current CABLE run
        IF ( TRIM(cable_user%MetType) .EQ. 'cru' .OR. &
             TRIM(cable_user%MetType) .EQ. 'plum' ) THEN
@@ -348,7 +347,6 @@ contains
 
     if ( allatonce .or. ncall .eq. 1 ) then
        ncok = nf90_open(trim(ncfile), nf90_nowrite, ncrid)
-       ! print*, 'OOpen60 ', ncrid, TRIM(ncfile)
        if (ncok /= nf90_noerr ) call stderr_nc(ncok,'re-opening ', ncfile)
     endif
     if ( allatonce ) then
@@ -506,7 +504,6 @@ contains
     endif ! allatonce
 
     if (allatonce .or. (ncall .eq. kend)) then
-       ! print*, 'OClose60 ', ncrid
        ncok = nf90_close(ncrid)
        ncrid = -1
        if (ncok /= nf90_noerr ) call stderr_nc(ncok,'closing ', ncfile)
@@ -626,11 +623,9 @@ contains
 #else
        ncok = nf90_create(TRIM(ncfile), ior(nf90_clobber,ior(nf90_netcdf4,nf90_classic_model)), ncid)
 #endif
-       ! print*, 'OCreate69 ', ncid, TRIM(ncfile)
        IF (ncok /= nf90_noerr) CALL stderr_nc(ncok, 'ncdf creating ', trim(ncfile))
 
        ! define dimensions: from name and length
-       ! print*, 'def_dims'
        CALL def_dims(num_dims, ncid, dimID, dim_len, dim_name)
 
        ! define variables: from name, type, dims
@@ -639,17 +634,14 @@ contains
        ! define variable attributes
        !CLN LATER!             CALL def_var_atts( ncfile, ncid, varID )
 
-       != print*, 'enddef'
        ncok = nf90_enddef(ncid)
        if (ncok /= nf90_noerr) call stderr_nc(ncok,'end def mode', ncfile)
 
        CALL put_var_nc(ncid, var_name(1), REAL(casamet%lat))
        CALL put_var_nc(ncid, var_name(2), REAL(casamet%lon))
 
-       ! print*, 'OCreated69'
     ENDIF
 
-    !print*, 'OWrite69 ', ncid
     CALL put_var_nc(ncid, var_name(3), casamet%tairk, n_call)
     CALL put_var_nc(ncid, var_name(4), casamet%tsoil, n_call, ms)
     CALL put_var_nc(ncid, var_name(5), casamet%moist, n_call, ms)
@@ -708,7 +700,6 @@ contains
     endif
 
     IF (n_call == kend) then
-       ! print*, 'OClose69 ', ncid
        ncok = nf90_close(ncid) ! close: save new netCDF dataset
        ncid = -1
     endif

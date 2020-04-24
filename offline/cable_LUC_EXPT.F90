@@ -108,7 +108,7 @@ CONTAINS
     ALLOCATE( LUC_EXPT%crop(mland) )
     ALLOCATE( LUC_EXPT%past(mland) )
     ALLOCATE( LUC_EXPT%mtemp_min20(mland) )
-    !MCINI
+
     call luc_expt_zero(LUC_EXPT)
 
     ALLOCATE( CPC(mland))
@@ -187,7 +187,6 @@ CONTAINS
        WRITE(logn,*)  'LUC input data file: ', LUC_EXPT%TransFile(i)
 
        STATUS = NF90_OPEN(TRIM(LUC_EXPT%TransFile(i)), NF90_NOWRITE, LUC_EXPT%F_ID(i))
-       ! print*, 'OOpen30 ', i, LUC_EXPT%nfile, LUC_EXPT%F_ID(i), TRIM(LUC_EXPT%TransFile(i))
        CALL HANDLE_ERR(STATUS, "Opening LUH2 file "//LUC_EXPT%TransFile(i) )
        STATUS = NF90_INQ_VARID(LUC_EXPT%F_ID(i),TRIM(LUC_EXPT%VAR_NAME(i)), LUC_EXPT%V_ID(i))
        CALL HANDLE_ERR(STATUS, "Inquiring LUC_EXPT var "//TRIM(LUC_EXPT%VAR_NAME(i))// &
@@ -224,8 +223,6 @@ CONTAINS
           xds = LUC_EXPT%xdimsize
           yds = LUC_EXPT%ydimsize
        ENDIF
-       ! print*, 'OOpened30'
-       ! write(*,*) 'length LUH2 data: ', tdimsize
     ENDDO
 
     write(*,*) 'LUH2 first year', LUC_EXPT%FirstYEAR
@@ -454,7 +451,6 @@ CONTAINS
        tmparr = 0.0
        LUC_EXPT%prim_only = .TRUE.
        Status = NF90_OPEN(TRIM(NotPrimOnlyFile), NF90_NOWRITE, NotPrimOnly_fID)
-       ! print*, 'OOpen31 ', NotPrimOnly_fID, TRIM(NotPrimOnlyFile)
        CALL HANDLE_ERR(STATUS, "Opening NotPrimOnlyFile"//TRIM(NotPrimOnlyFile ))
        Status = NF90_INQ_VARID( NotPrimOnly_fID,'cum_frac_prim_loss',  NotPrimOnly_vID)
        CALL HANDLE_ERR(STATUS, "Inquiring cum_frac_prim_loss in "//TRIM(NotPrimOnlyFile ) )
@@ -468,9 +464,7 @@ CONTAINS
              i = i+1
           endif
        ENDDO
-       PRINT*, "number of not prim_only grid-cells: ", i
-       PRINT*, "number grid-cells: ", mland
-       ! print*, 'OClose31 ', NotPrimOnly_fID
+       write(*,*) "number of not prim_only grid-cells, number grid-cells: ", i, mland
        STATUS = NF90_CLOSE(NotPrimOnly_fID)
        CALL HANDLE_ERR(STATUS, "Closing NotPrimOnly "//TRIM(NotPrimOnlyFile))
        NotPrimOnly_fID = -1
@@ -509,7 +503,6 @@ CONTAINS
           END WHERE
        END WHERE
     ENDIF
-    ! print*, 'ORead30 '
 
   END SUBROUTINE LUC_EXPT_INIT
 
@@ -730,7 +723,6 @@ CONTAINS
     ENDIF
     ! Open NetCDF file:
     STATUS = NF90_OPEN(TRIM(fname), NF90_NOWRITE, FILE_ID)
-    ! print*, 'OOpen32 ', file_id, TRIM(fname)
     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
     ! dimensions:
@@ -799,7 +791,6 @@ CONTAINS
     ENDWHERE
 
     ! Close NetCDF file:
-    ! print*, 'OClose32 ', file_id
     STATUS  = NF90_close(FILE_ID)
     file_id = -1
     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
@@ -833,7 +824,6 @@ CONTAINS
 
     if (t .LE. LUC_EXPT%nrec) then
        DO i=1, LUC_EXPT%nfile
-          ! print*, 'ORead30 ', i, LUC_EXPT%nfile, LUC_EXPT%F_ID(i)
           IF ( LUC_EXPT%DirectRead ) THEN
              DO k = 1, mland
                 STATUS = NF90_GET_VAR( LUC_EXPT%F_ID(i), LUC_EXPT%V_ID(i), tmp, &
@@ -909,7 +899,6 @@ CONTAINS
     write(*,*) 'Closing LUH2 files.'
     do i=1, LUC_EXPT%nfile
        if (LUC_EXPT%F_ID(i) > -1) then
-          ! print*, 'OClose30 ', i, LUC_EXPT%nfile, LUC_EXPT%F_ID(i)
           status = nf90_close(LUC_EXPT%F_ID(i))
           LUC_EXPT%F_ID(i) = -1
           call handle_err(status, "Closing LUH2 transition file "//trim(LUC_EXPT%TransFile(i)))

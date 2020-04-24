@@ -36,7 +36,7 @@ MODULE mo_isotope
 
   use mo_kind,      only: dp
   use mo_constants, only: Mw_dp, Ma_dp, twothird_dp
-  
+
   implicit none
 
   private
@@ -75,7 +75,7 @@ contains
   !>        \details Elemental routine to calculate the delta value
   !>        from an isotope ratio or the rare and the abundant isotope concentrations
   !>        relative to a given standard.
-  
+
   !>        The delta value can be set to a default value if the abundant
   !>        isotopic concentration is below a give precision.
 
@@ -137,10 +137,13 @@ contains
     else
        delta = rare / istandard - 1.0_dp
     end if
-    
+    !MCTest
+    ! if (abs(delta) < 100.0_dp*epsilon(1.0_dp)) delta = 0.0_dp
+    !MCTest
+
   end function delta
 
-  
+
   ! ------------------------------------------------------------------
 
   !     NAME
@@ -152,7 +155,7 @@ contains
   !>        \details Elemental routine to calculate the delta value in permil
   !>        from an isotope ratio or the rare and the abundant isotope concentrations
   !>        relative to a given standard.
-  
+
   !>        The delta value can be set to a default value if the abundant
   !>        isotopic concentration is below a give precision.
 
@@ -207,17 +210,20 @@ contains
 
     if (present(abundant)) then
        if (abs(abundant) > iprecision) then
-          delta1000 = (rare / abundant / istandard - 1.0_dp) * 1000._dp
+          delta1000 = (rare / abundant / istandard - 1.0_dp) * 1000.0_dp
        else
           delta1000 = idefault
        end if
     else
-       delta1000 = (rare / istandard - 1.0_dp) * 1000._dp
+       delta1000 = (rare / istandard - 1.0_dp) * 1000.0_dp
     end if
-    
+    !MCTest
+    ! if (abs(delta1000) < 100.0_dp*epsilon(1.0_dp)*1000.0_dp) delta1000 = 0.0_dp
+    !MCTest
+
   end function delta1000
 
-  
+
   ! ------------------------------------------------------------------
 
   !     NAME
@@ -271,13 +277,13 @@ contains
     else
        iprecision = 0.0_dp
     endif
-    
+
     if (abs(abundant) > iprecision) then
        isoratio = rare / abundant
     else
        isoratio = idefault
     end if
-    
+
   end function isoratio
 
 END MODULE mo_isotope

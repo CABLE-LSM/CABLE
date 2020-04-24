@@ -190,7 +190,7 @@ CONTAINS
     btype(bidx) = MPI_DOUBLE
 
     IF ( bidx .NE. n_cohort_types ) THEN
-       PRINT*,"Error in pop_mpi layer. bidx ",bidx, " != n_cohort_types ",&
+       WRITE(*,*)"Error in pop_mpi layer. bidx ",bidx, " != n_cohort_types ",&
             n_cohort_types
        CALL MPI_ABORT(comm, 119, ierr)
     ENDIF
@@ -302,7 +302,7 @@ CONTAINS
     btype(bidx) = MPI_DOUBLE
 
     IF ( bidx .NE. n_layer_types ) THEN
-       PRINT*,"Error in pop_mpi layer. bidx ",bidx, " != n_layer_types ",&
+       WRITE(*,*)"Error in pop_mpi layer. bidx ",bidx, " != n_layer_types ",&
             n_layer_types
        CALL MPI_ABORT(comm, 120, ierr)
     ENDIF
@@ -546,7 +546,7 @@ CONTAINS
     btype(bidx) = MPI_INTEGER
 
     IF ( bidx .NE. n_patch_types ) THEN
-       PRINT*,"Error in pop_mpi patch. bidx ",bidx, " != n_patch_types ",&
+       WRITE(*,*)"Error in pop_mpi patch. bidx ",bidx, " != n_patch_types ",&
             n_patch_types
        CALL MPI_ABORT(comm, 121, ierr)
     ENDIF
@@ -932,7 +932,7 @@ CONTAINS
 
 
     IF ( bidx .NE. n_landscape_types ) THEN
-       PRINT*,"Error in pop_mpi landscape. bidx ",bidx, " != n_landscape_types ",&
+       WRITE(*,*)"Error in pop_mpi landscape. bidx ",bidx, " != n_landscape_types ",&
             n_landscape_types
        CALL MPI_ABORT(comm, 122, ierr)
     ENDIF

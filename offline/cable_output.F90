@@ -301,7 +301,6 @@ CONTAINS
 #else
     ok = NF90_CREATE(trim(filename%out), ior(nf90_clobber,ior(nf90_netcdf4,nf90_classic_model)), ncid_out)
 #endif
-    ! print*, 'OCreate60 ', ncid_out, trim(filename%out)
     IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error creating output file '       &
          //TRIM(filename%out)// ' (SUBROUTINE open_output_file)')
     ! Define dimensions:
@@ -1790,7 +1789,6 @@ CONTAINS
     IF(output%params .OR. output%zse) CALL write_ovar(ncid_out, opid%zse, &
          'zse', SPREAD(toreal4(soil%zse), 1, mp),ranges%zse, &
          patchout%zse, 'soil')! no spatial dim at present
-    ! print*, 'OCreated60'
 
   END SUBROUTINE open_output_file
 
@@ -1861,7 +1859,6 @@ CONTAINS
     END IF
     ! Decide on output averaging regime:
     IF(output%averaging(1:3) == 'all') THEN ! write every time step to file
-       ! print*, 'OWrite60.1 ', ncid_out
        ! Set flag to write data for current time step:
        writenow = .TRUE.
        ! Set output time step to be current model time step:
@@ -1870,7 +1867,6 @@ CONTAINS
     ELSE IF (output%averaging(1:4) == 'user' .OR. output%averaging(1:2)=='da') THEN
        ! user defined output interval or daily output
        IF (MOD(ktau, output%interval) == 0) THEN ! i.e.ktau divisible by
-          ! print*, 'OWrite60.2 ', ncid_out
           ! interval
           ! write to output file this time step
           writenow = .TRUE.
@@ -1904,7 +1900,6 @@ CONTAINS
           if (is_leapyear(CurYear)) then
              !! vh_js !!
              IF(ANY(INT(real(lastdayl+dday) * 24. * 3600. / dels) == ktau)) THEN
-                ! print*, 'OWrite60.3 ', ncid_out
                 out_month = MOD(out_month, 12) + 1 ! can only be 1 - 12
                 ! write to output file this time step
                 writenow = .TRUE.
@@ -1919,7 +1914,6 @@ CONTAINS
              ! last time step of month
              !! vh_js !!
              IF(ANY(INT(real(lastday+dday) * 24. * 3600. / dels) == ktau)) THEN
-                ! print*, 'OWrite60.4 ', ncid_out
                 ! increment output month counter
                 out_month = MOD(out_month, 12) + 1 ! can only be 1 - 12
                 ! write to output file this time step
@@ -1937,7 +1931,6 @@ CONTAINS
 
           !! vh_js !!
           IF(ANY(INT((real((lastday+dday))*24.*3600./real(INT(dels))))==ktau)) THEN ! last time step of month
-             ! print*, 'OWrite60.5 ', ncid_out
              ! IF(ANY(((lastday+dday)*24*3600/INT(dels))==ktau)) THEN ! last time step of month
              ! increment output month counter
              out_month = MOD(out_month, 12) + 1 ! can only be 1 - 12
@@ -1963,7 +1956,6 @@ CONTAINS
 
     ! If this time step is an output time step:
     IF (writenow) THEN
-       ! print*, 'OWrite60.6 ', ncid_out
        ! Write to temporary time variable:
        timetemp(1) = REAL(REAL(ktau-backtrack)*dels,r_2)
        ! inquire(unit=ncid_out, opened=opened)
@@ -1975,7 +1967,6 @@ CONTAINS
        IF(ok /= NF90_NOERR) CALL nc_abort(ok, &
             'Error writing time variable to ' &
             //TRIM(filename%out)// '(SUBROUTINE write_output)')
-       ! print*, 'OWrote60.6'
        rinterval  = toreal4(1) / toreal4(output%interval)
        r2interval = 1.0_r_2 / real(output%interval,r_2)
   
@@ -3554,8 +3545,6 @@ CONTAINS
        endif
     endif
 
-    ! if (writenow) print*, 'OWrote60.1'
-
     !MC - Do we need this?
     !     From the netcdf documentation:
     !         The function NF90 SYNC offers a way to synchronize the disk copy of a netCDF dataset
@@ -3564,7 +3553,6 @@ CONTAINS
     !         - To make data available to other processes for reading immediately after it is written.
     !     Both is not the case.
     ok = nf90_sync(ncid_out)
-    ! print*, 'OWrote60.2'
 
   END SUBROUTINE write_output
 
@@ -3581,7 +3569,6 @@ CONTAINS
     INTEGER :: i ! do loop counter
 
     ! Close file
-    ! print*, 'OClose60 ', ncid_out
     ok = NF90_CLOSE(ncid_out)
     ncid_out = -1
     IF (ok /= NF90_NOERR) &
@@ -3673,7 +3660,6 @@ CONTAINS
 #else
     ok = NF90_CREATE(trim(frst_out), ior(nf90_clobber,ior(nf90_netcdf4,nf90_classic_model)), ncid_restart)
 #endif
-    ! print*, 'OCreate61 ', ncid_restart, trim(frst_out)
     IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error creating restart file '      &
          //TRIM(frst_out)// '(SUBROUTINE create_restart)')
     ! Define dimensions:
@@ -4335,7 +4321,6 @@ CONTAINS
     END IF
 
     ! Close restart file
-    ! print*, 'OClose61 ', ncid_restart
     ok = NF90_CLOSE(ncid_restart)
     ncid_restart = -1
 

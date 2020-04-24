@@ -1203,7 +1203,7 @@ contains
        if (any(casaflux%kplant(:,leaf) < 0.0_r_2)) then
           do j=1, mp
              if (casaflux%kplant(j,leaf) < 0.0_r_2) then
-                print*, 'KK20 ', j, casaflux%kplant(j,leaf)
+                print*, 'ERR KK20 ', j, casaflux%kplant(j,leaf)
              endif
           enddo
        endif
@@ -1368,7 +1368,6 @@ contains
 
     ! Create NetCDF file:
     STATUS = NF90_create(trim(fname), ior(nf90_clobber,nf90_64bit_offset), FILE_ID)
-    ! print*, 'OCreate51 ', file_id, trim(fname)
     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
     write(*,*) 'Writing casa restart: ', trim(fname)
 
@@ -1503,7 +1502,6 @@ contains
 
     ENDIF
     ! Close NetCDF file:
-    ! print*, 'OClose51 ', file_id
     STATUS = NF90_close(FILE_ID)
     file_id = -1
     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
@@ -1601,7 +1599,6 @@ contains
     INQUIRE( FILE=TRIM(fname), EXIST=EXISTFILE )
     IF (EXISTFILE) THEN
        STATUS = NF90_OPEN( TRIM(fname), NF90_NOWRITE, FILE_ID )
-       ! print*, 'OOpen50.1 ', file_id, TRIM(fname)
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
        write(*,*) 'initial pool from restart file: ', trim(fname)
     ELSE
@@ -1611,7 +1608,6 @@ contains
        INQUIRE( FILE=TRIM(fname), EXIST=EXISTFILE1 )
        IF (EXISTFILE1) THEN
           STATUS = NF90_OPEN( TRIM(fname), NF90_NOWRITE, FILE_ID )
-          ! print*, 'OOpen50.2 ', file_id, TRIM(fname)
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
           write(*,*) 'initial pool from restart file: ', trim(fname)
        ELSE
@@ -1837,7 +1833,6 @@ contains
        END DO
     ENDIF
 
-    ! print*, 'OClose50 ', file_id
     STATUS  = NF90_CLOSE( FILE_ID )
     file_id = -1
 
@@ -2063,7 +2058,6 @@ contains
 #else
        status = nf90_create(trim(fname), ior(nf90_clobber,ior(nf90_netcdf4,nf90_classic_model)), file_id)
 #endif       
-       ! print*, 'OCreate52 ', file_id, trim(fname)
        if (status /= nf90_noerr) call handle_err(status)
 
        status = nf90_put_att(file_id, nf90_global, "icycle"   , icycle)
@@ -2180,10 +2174,8 @@ contains
        if(status /= nf90_noerr) call handle_err(status)
 
        call1 = .false.
-       ! print*, 'OCreated52'
     endif ! call1
 
-    ! print*, 'OWrite52 ', file_id
     cnt = cnt + 1
 
     ! time  ( t )
@@ -2396,7 +2388,6 @@ contains
 
     if ( lfinal ) then
        ! close netcdf file:
-       ! print*, 'OClose52 ', file_id
        status = nf90_close(file_id)
        file_id = -1
        if (status /= nf90_noerr) call handle_err(status)

@@ -687,7 +687,6 @@ CONTAINS
 
     CALL GetPatchFrequencies(POP)
 
-    !PRINT*,"Get Diags"
     IF (PRESENT(precip)) THEN
        CALL GetDiagnostics(pop, LAI,Cleaf,Croot, disturbance_interval, it,precip)
     ELSE
@@ -1795,7 +1794,6 @@ CONTAINS
     REAL(dp) :: Psurvival_s, Psurvival, char_height
 
     np = SIZE(Pop%pop_grid)
-    !Print*,"CLN Hier PROBLEM PSurv1 unten l1345 wegen PRESENT() "
 
     ! Kills a fraction of biomass in patch when prescribed disturbance interval is reached
     DO j=1,np
@@ -2920,12 +2918,6 @@ CONTAINS
              
              pop%pop_grid(g)%patch(k)%fire_mortality = 0.0_dp
              DO c=1,nc
-!!$         ht = pop%pop_grid(g)%patch(k)%layer(1)%cohort(c)%height
-!!$         cmass_stem = pop%pop_grid(g)%patch(k)%layer(1)%cohort(c)%biomass
-!!$         height_table = MINVAL(ABS(fire_mortality_vs_height(g,:,1)-ht))
-!!$         i_table = MINLOC(ABS(fire_mortality_vs_height(g,:,1)-ht), 1)
-!!$         mort = fire_mortality_vs_height(g,i_table,2)
-!!$         !print*, 'mort, i_table, ht:',  mort, i_table, ht
 
                 dbh = pop%pop_grid(g)%patch(k)%layer(1)%cohort(c)%diameter*100.0_dp
                 cmass_stem = pop%pop_grid(g)%patch(k)%layer(1)%cohort(c)%biomass

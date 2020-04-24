@@ -12,7 +12,7 @@ TYPE TYPE_BLAZE
    CHARACTER,DIMENSION(:),  ALLOCATABLE :: FTYPE*6
    INTEGER                              :: T_AVG, YEAR, MONTH, DAY, DOY, NCELLS, time
    INTEGER                              :: BURNMODE ! 0=off, 1=BLAZE only, 2=BLAZE with POP
-!CRM   INTEGER                              :: IGNITION ! 0=GFED3, 1=SIMFIRE
+   !CRM INTEGER                              :: IGNITION ! 0=GFED3, 1=SIMFIRE
    REAL                                 :: FT,tstp
    LOGICAL                              :: USE_POP = .FALSE., ERR=.FALSE.
    CHARACTER                            :: GFEDP*80, FSTEP*7, BURNT_AREA_SRC*10
@@ -145,7 +145,6 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   ALLOCATE( BLAZE%BGLit_g(np,NPOOLS),BLAZE%BGLit_w(np,NPOOLS) )
   ALLOCATE( BLAZE%CPLANT_g(np,NPOOLS),BLAZE%CPLANT_w(np,NPOOLS) )
 
-  !MCINI
   call zero_blaze(BLAZE)
   
   ! SETTINGS FOR BLAZE (BLAZEFLAG)

@@ -1789,9 +1789,8 @@ ALLOCATE (vegtypeigbp(mland),  avgannmax_fapar(mland))
 
 CALL GET_UNIT(param_unit)  ! Obtain an unused unit number for file reading, reused for all soil vars.
 
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(vegtypeigbp_file), ACCESS='STREAM', &
+OPEN(param_unit, FILE=TRIM(param_path)//TRIM(vegtypeigbp_file), ACCESS='STREAM', &
      FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
-print*, TRIM(param_path)//TRIM(vegtypeigbp_file)
 IF (error_status > 0) THEN
   WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(vegtypeigbp_file) ; STOP ''
 ELSE

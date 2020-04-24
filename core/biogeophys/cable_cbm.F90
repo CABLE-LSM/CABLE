@@ -124,11 +124,9 @@ CONTAINS
    ssnow%owetfac = ssnow%wetfac
 
    IF ( cable_runtime%um ) THEN
-
-     IF( cable_runtime%um_implicit ) THEN
+      IF ( cable_runtime%um_implicit ) THEN
          CALL soil_snow(dels, soil, ssnow, canopy, met, veg)
       ENDIF
-
    ELSE
       IF (cable_user%SOIL_STRUC=='default') THEN
          call soil_snow(dels, soil, ssnow, canopy, met, veg)
@@ -136,7 +134,6 @@ CONTAINS
          CALL sli_main(ktau,dels,veg,soil,ssnow,met,canopy,air,rad,0)
       ENDIF
    ENDIF
-
 
    ssnow%deltss = ssnow%tss-ssnow%otss
    ! correction required for energy balance in online simulations

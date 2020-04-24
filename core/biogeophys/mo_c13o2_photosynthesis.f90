@@ -380,15 +380,6 @@ contains
     ! Done again to account for possible cropping of Cc.
     ! Do not do rabsmc again so that calc of eps_a_eff is still correct.
     where (ca > cc) gabsmc = gabsc * (ca-ci)/(ca-cc)
-    ! if (any(abs(gabsmc-1.0_dp/rabsmc)>(gabsmc*1e-6_dp))) then
-    !    print*, 'GABSMC00 ', ass
-    !    print*, 'GABSMC01 ', ca
-    !    print*, 'GABSMC02 ', ci
-    !    print*, 'GABSMC03 ', cc
-    !    print*, 'GABSMC04 ', 1.1*Gammastar
-    !    print*, 'GABSMC05 ', gabsmc
-    !    print*, 'GABSMC06 ', 1.0_dp/rabsmc
-    ! endif
 
     ! Carboxylation efficiency: initial slope of A vs Ci
     ! From Farquhar et al. (1982), eq. B11
@@ -436,23 +427,16 @@ contains
           ! Day
           ! Same for photorespiration as Wingate et al. (2007) for leaf respiration
           if (isc3(jl)) then ! C3
-             ! print*, 'DD01 ', jl, k(jl), gabsmc(jl)
-             ! print*, 'DD02 ', eps_a_eff(jl), eps_b(jl), eps_f, eps_e
-             ! print*, 'DD03 ', ca(jl), ci(jl), cc(jl), Gammastar(jl)
-             ! print*, 'DD04 ', GPP(jl), Rd(jl)
              Ass13(jl) = (1.0_dp-eps_a_eff(jl)) * gabsmc(jl) / &
                   ( (1.0_dp-eps_a_eff(jl)) * gabsmc(jl) + (1.0_dp-eps_b(jl)) * k(jl) ) * &
                   ( (1.0_dp-eps_b(jl)) * Rair(jl) * k(jl) * ca(jl) - &
                   (1.0_dp-eps_f) * Rphoto(jl) * k(jl) * Gammastar(jl) - &
                   (1.0_dp-eps_e) * Rsucrose(jl) * Rd(jl) )
-             ! print*, 'DD05 ', Ass(jl), Ass13(jl)
              if (ne(Ass(jl),0.0_dp)) then
                 Disc(jl) = 1.0_dp - Ass13(jl) / (Ass(jl)*Rair(jl))
-                ! print*, 'DD06 ', Ass13(jl)/Ass(jl), Disc(jl)*1000._dp
              else
                 Disc(jl) = 0.0_dp
              end if             
-             ! print*, 'DD07 ', ass(jl), gmc(jl), Vcmax(jl)
           else               ! C4
              tmp = cc(jl) * ( 1.0_dp - (1.0_dp-eps_a_eff(jl)) / (1.0_dp-eps_b4(jl)) * Ass(jl)/Vp(jl) - &
                   (1.0_dp-eps_s(jl)) / (1.0_dp-eps_b3) * (1.0_dp-eps_a_eff(jl)) / (1.0_dp-eps_b4(jl)) * &

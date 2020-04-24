@@ -5038,8 +5038,6 @@ CONTAINS
        endif
 
        if (experiment == 16) then
-          ! print*, 'Ha03 ', betaqv
-          ! print*, 'Ha04 ', dbetaqv
           ! betaqv  = one
           ! dbetaqv = zero
        endif
@@ -5072,21 +5070,10 @@ CONTAINS
        betaqv(ns_ciso-1)      = beta(ns_ciso)*alphak_vdiff
        betaqv(ns_ciso:n-1)    = half*(beta(ns_ciso:n-1)+beta(ns_ciso+1:n))*alphak_vdiff
        betaqv(n)              = beta(n)*alphak_vdiff
-       ! print*, 'betaqv ', betaqv
-       ! print*, 'beta ', beta
-       ! print*, 'alpha ', alphak_vdiff, half
 
        dbetaqv(ns_ciso:n-1)   = (beta(ns_ciso:n-1) - beta(ns_ciso+1:n))/deltaz(ns_ciso:n-1)
        dbetaqv(ns_ciso-1)     = zero !! vh ???? !!
        dbetaqv(n)             = zero
-
-       !MC - Test
-       ! if (experiment == 16) then
-       !    print*, 'Ha01 ', betaqv
-       !    ! print*, 'Ha02 ', dbetaqv
-       ! betaqv  = one
-       !   dbetaqv = zero
-       ! endif
 
        ! modify for snow melt (including disappearance of snow pack) and/or transfer from top soil to new snow pack
        if ((qmelt.gt.zero) .or. ((qtransfer).gt.zero)) then
@@ -5211,13 +5198,7 @@ CONTAINS
        dd(n) = dd(n) + qlsig(n)*(cali-cql(n))/sig
     endif
 
-    ! print*, 'aa ', aa(ns_ciso)
-    ! print*, 'bb ', bb(ns_ciso)
-    ! print*, 'cc ', cc(ns_ciso)
-    ! print*, 'dd ', dd(ns_ciso)
     call tri(ns_ciso,n,aa,bb,cc,dd,dc)
-    ! print*, 'After ', bb(ns_ciso) * dc(ns_ciso) + cc(ns_ciso) * dc(ns_ciso+1), dd(ns_ciso), &
-    !      bb(ns_ciso) * dc(ns_ciso) + cc(ns_ciso) * dc(ns_ciso+1) - dd(ns_ciso)
     !MC - Why not sig*dc ... ?
     ! dcice(1:n) = sig*dc(1:n)*kfreeze(1:n) + kfreeze2(1:n)
     dcice(1:n) = dc(1:n)*kfreeze(1:n) + kfreeze2(1:n)
@@ -5268,26 +5249,6 @@ CONTAINS
          (ciso(ns_ciso+1) + sig*dc(ns_ciso+1)))/deltaz(ns_ciso) &
          - (qex_ss(ns_ciso))*(ciso(ns_ciso) + sig*dc(ns_ciso)) &
          - dbetaqv(ns_ciso)*dcqvdcb(ns_ciso)*Dvmean(ns_ciso)*(ciso(ns_ciso) + sig*dc(ns_ciso))
-    ! print*, 'Ha01 ', thetasat(ns_ciso)*dx(ns_ciso)/dt*(dc(ns_ciso)*Seff(ns_ciso) + &
-    !      ciso(ns_ciso)*deltaSeff(ns_ciso)), &
-    !      thetasat(ns_ciso)*dx(ns_ciso)/dt*(dcice(ns_ciso)*Sicesig(ns_ciso) + &
-    !      (cisoice(ns_ciso:n)+sig*dcice(ns_ciso:n))*deltaSice(ns_ciso:n))
-    ! print*, 'Ha02 ', qprec_snow*cprec_snow, &
-    !      qprec*cprec, &
-    !      qevapout*(cevapout + sig*dc(ns_ciso)*dcevapoutdciso), &
-    !      qevapin*cevapin, &
-    !      qlsig(ns_ciso)*(cql(ns_ciso) + sig*dc(ns_ciso)*dcqldca(ns_ciso) + sig*dc(ns_ciso+1)*dcqldcb(ns_ciso)), &
-    !      qvsig(ns_ciso)*betaqv(ns_ciso)*(cqv(ns_ciso) + sig*dc(ns_ciso)*dcqvdca(ns_ciso) + &
-    !      sig*dc(ns_ciso+1)*dcqvdcb(ns_ciso)), &
-    !      Dlmean(ns_ciso)*((ciso(ns_ciso) + sig*dc(ns_ciso))-(ciso(ns_ciso+1)+sig*dc(ns_ciso+1)))/deltaz(ns_ciso), &
-    !      Dvbetamean(ns_ciso)*((ciso(ns_ciso) + sig*dc(ns_ciso)) - &
-    !      (ciso(ns_ciso+1) + sig*dc(ns_ciso+1)))/deltaz(ns_ciso), &
-    !      (qex_ss(ns_ciso))*(ciso(ns_ciso) + sig*dc(ns_ciso)), &
-    !      dbetaqv(ns_ciso)*dcqvdcb(ns_ciso)*Dvmean(ns_ciso)*(ciso(ns_ciso) + sig*dc(ns_ciso))
-    ! print*, 'Ha03 ', qvsig(ns_ciso), betaqv(ns_ciso), cqv(ns_ciso), sig, dc(ns_ciso), dcqvdca(ns_ciso), &
-    !      dc(ns_ciso+1), dcqvdcb(ns_ciso)
-    ! print*, 'Ha04 ', cqv(ns_ciso), sig*dc(ns_ciso)*dcqvdca(ns_ciso), sig*dc(ns_ciso+1)*dcqvdcb(ns_ciso)
-
 
     RHS(1) = RHS(1) -qrunoff*(ciso(1) + sig*dc(1))
 

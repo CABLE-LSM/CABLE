@@ -314,7 +314,7 @@ MODULE mo_utils
   !     EXAMPLE
   !         sca = 1.1
   !         vec = (/ 0.0, 1.1, 2.2, 3.3 /)
-  !         if (isin(sca, vec)) print*, 'It is in.'
+  !         if (isin(sca, vec)) write(*,*) 'It is in.'
   !         -> see also example in test directory
   !
   !     LITERATURE

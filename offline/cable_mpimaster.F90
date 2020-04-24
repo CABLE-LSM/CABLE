@@ -729,8 +729,10 @@ CONTAINS
                      CALL READ_CLIMATE_RESTART_NC(climate, ktauday)
              endif
 
-             if (trim(cable_user%MetType) .eq. 'cru') &
-                  casamet%glai = 1.0  ! initialise glai for use in cable_roughness
+             if (trim(cable_user%MetType) .eq. 'cru') then
+                casamet%glai = 1.0_r_2 ! initialise glai for use in cable_roughness
+                where (veg%iveg(:) .ge. 14) casamet%glai = 0.0_r_2
+             endif
 
              if ( trim(cable_user%MetType) .eq. 'bios' ) call cable_bios_load_climate_params(climate)
 
@@ -1568,7 +1570,7 @@ CONTAINS
        ! CALL casa_poolout( ktau, veg, soil, casabiome, &
        !     casapool, casaflux, casamet, casabal, phen )
        CALL casa_fluxout(nyear, veg, soil, casabal, casamet)
-       CALL write_casa_restart_nc( casamet, casapool,casaflux,phen,CASAONLY )
+       CALL write_casa_restart_nc(casamet, casapool, casaflux, phen, CASAONLY)
        ! CALL write_casa_restart_nc ( casamet, casapool, met, CASAONLY )
        ! 13C
        if (cable_user%c13o2) then
@@ -1576,6 +1578,7 @@ CONTAINS
           call c13o2_write_restart_pools(c13o2pools)
           if (cable_user%POPLUC) call c13o2_write_restart_luc(c13o2luc)
           ! While testing
+          print*, 'not spincasa and not casaonly'
           call c13o2_print_delta_flux(c13o2flux)
           call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
           if (cable_user%POPLUC) call c13o2_print_delta_luc(popluc, c13o2luc)
@@ -1590,13 +1593,13 @@ CONTAINS
           ENDIF
        END IF
        IF (cable_user%POPLUC .and. .NOT. CASAONLY ) THEN
-          ! print*, 'YYYY ', CurYear, YYYY, cable_user%YearEnd
           CALL WRITE_LUC_RESTART_NC(POPLUC)
        ENDIF
     else if (icycle > 0) then
        ! 13C
        ! While testing
        if (cable_user%c13o2) then
+          print*, 'spincasa or casaonly'
           call c13o2_print_delta_flux(c13o2flux)
           call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
           if (cable_user%POPLUC) call c13o2_print_delta_luc(popluc, c13o2luc)
@@ -7316,6 +7319,10 @@ SUBROUTINE master_casa_types(comm, casapool, casaflux, casamet, casabal, phen)
 
      bidx = bidx + 1
      CALL MPI_Get_address (casaflux%FluxCtoclear(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (casapool%dClabiledt(off), displs(bidx), ierr)
      blocks(bidx) = r2len
 
      types(last2d+1:bidx) = MPI_BYTE

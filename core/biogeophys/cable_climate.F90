@@ -1029,7 +1029,6 @@ SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
   ENDIF
   ! Create NetCDF file:
   STATUS = NF90_create(trim(fname), ior(nf90_clobber,nf90_64bit_offset), FILE_ID)
-  ! print*, 'OCreate91 ', file_id, trim(fname)
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
   STATUS = NF90_PUT_ATT( FILE_ID, NF90_GLOBAL, "Valid restart date", "01/01/"//CYEAR  )
@@ -1284,7 +1283,6 @@ SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
 
 
   ! Close NetCDF file:
-  ! print*, 'OClose91 ', file_id
   STATUS = NF90_close(FILE_ID)
   file_id = -1
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
@@ -1423,9 +1421,7 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate, ktauday )
 # ifndef UM_BUILD
   ! Open NetCDF file:
   STATUS = NF90_OPEN(trim(fname), NF90_NOWRITE, FILE_ID)
-  ! print*, 'OOpen90 ', file_id, trim(fname)
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-
 
   ! dimensions:
   ! Land (number of points)
@@ -1534,7 +1530,7 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate, ktauday )
      END SELECT
   END DO
 
-  print*, 'DSLR init', climate%DSLR
+  ! write(*,*) 'DSLR init', climate%DSLR
   
   
  ! READ 2-dimensional fields (nyear)
@@ -1605,7 +1601,6 @@ SUBROUTINE READ_CLIMATE_RESTART_NC ( climate, ktauday )
 
 
   ! Close NetCDF file:
-  ! print*, 'OClose90 ', file_id
   STATUS = NF90_close(FILE_ID)
   file_id = -1
   IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)

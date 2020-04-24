@@ -186,7 +186,6 @@ SUBROUTINE get_default_lai
    WRITE(logn,*) ' Loading LAI from default file ', TRIM(filename%LAI)
    ! Open netcdf file
    ok = NF90_OPEN(trim(filename%LAI),0,ncid)
-   ! print*, 'OOpen10 ', ncid, trim(filename%LAI)
    IF (ok /= NF90_NOERR) CALL nc_abort(ok,'Error opening default LAI file.')
 
    ok = NF90_INQ_DIMID(ncid,'x',xID)
@@ -255,7 +254,6 @@ SUBROUTINE get_default_lai
    END IF
 
    ! Close netcdf file
-   ! print*, 'OClose10 ', ncid
    ok = NF90_CLOSE(ncid)
    ncid = -1
 
@@ -392,49 +390,41 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
     IF (ncciy > 0) THEN
        WRITE(logn,*) 'Opening met data file: ', TRIM(gswpfile%rainf), ' and 7 more'
        ok = NF90_OPEN(trim(gswpfile%rainf),0,ncid_rain)
-       ! print*, 'OOpen19.1 ', ncid_rain, trim(gswpfile%rainf)
        IF (ok /= NF90_NOERR) THEN
           WRITE(*,*) 'rainf'
           CALL handle_err( ok )
        ENDIF
        ok = NF90_OPEN(trim(gswpfile%snowf),0,ncid_snow)
-       ! print*, 'OOpen19.2 ', ncid_snow, trim(gswpfile%snowf)
        IF (ok /= NF90_NOERR) THEN
           WRITE(*,*) 'snow'
           CALL handle_err( ok )
        ENDIF
        ok = NF90_OPEN(trim(gswpfile%LWdown),0,ncid_lw)
-       ! print*, 'OOpen19.3 ', ncid_lw, trim(gswpfile%LWdown)
        IF (ok /= NF90_NOERR) THEN
           WRITE(*,*) 'lw'
           CALL handle_err( ok )
        ENDIF
        ok = NF90_OPEN(trim(gswpfile%SWdown),0,ncid_sw)
-       ! print*, 'OOpen19.4 ', ncid_sw, trim(gswpfile%SWdown)
        IF (ok /= NF90_NOERR) THEN
           WRITE(*,*) 'sw'
           CALL handle_err( ok )
        ENDIF
        ok = NF90_OPEN(trim(gswpfile%PSurf),0,ncid_ps)
-       ! print*, 'OOpen19.5 ', ncid_ps, trim(gswpfile%PSurf)
        IF (ok /= NF90_NOERR) THEN
           WRITE(*,*) 'ps'
           CALL handle_err( ok )
        ENDIF
        ok = NF90_OPEN(trim(gswpfile%Qair),0,ncid_qa)
-       ! print*, 'OOpen19.6 ', ncid_qa, trim(gswpfile%Qair)
        IF (ok /= NF90_NOERR) THEN
           WRITE(*,*) 'qa'
           CALL handle_err( ok )
        ENDIF
        ok = NF90_OPEN(trim(gswpfile%Tair),0,ncid_ta)
-       ! print*, 'OOpen19.7 ', ncid_ta, trim(gswpfile%Tair)
        IF (ok /= NF90_NOERR) THEN
           WRITE(*,*) 'ta'
           CALL handle_err( ok )
        ENDIF
        ok = NF90_OPEN(trim(gswpfile%wind),0,ncid_wd)
-       ! print*, 'OOpen19.8 ', ncid_wd, trim(gswpfile%wind)
        IF (ok /= NF90_NOERR) THEN
           WRITE(*,*) 'wind', ncid_wd
           CALL handle_err( ok )
@@ -443,7 +433,6 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
     ELSE
        WRITE(logn,*) 'Opening met data file: ', TRIM(filename%met)
        ok = NF90_OPEN(trim(filename%met),0,ncid_met) ! open met data file
-       ! print*, 'OOpen19.9 ', ncid_met, trim(filename%met)
        IF (ok /= NF90_NOERR) CALL nc_abort &
             (ok,'Error opening netcdf met forcing file '//TRIM(filename%met)// &
             ' (SUBROUTINE open_met_file)')
@@ -1492,7 +1481,6 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
        WRITE(logn,*) 'Found all ESSENTIAL met variables in met file,', &
             ' some synthesised (as above).'
     END IF
-    ! print*, 'OOpened19 ', ncid_met
 
    !!=================^^ End met variables search^^=======================
 END SUBROUTINE open_met_file
@@ -1726,7 +1714,6 @@ SUBROUTINE get_met_data(spinup, spinConv, met, rad, &
     ENDDO
 
     IF (metGrid=='mask') THEN
-       ! print*, 'ORead19.1 ', ncid_met
       ! N.B. not for GSWP runs, therefore only one met file here.
       ! Also, xdimsize and ydimsize are passed from io_variables.
 
@@ -2025,7 +2012,6 @@ SUBROUTINE get_met_data(spinup, spinConv, met, rad, &
 
     ELSE IF(metGrid=='land') THEN
 
-      ! print*, 'ORead19.2 ', ncid_met
       ! Collect data from land only grid in netcdf file:
       ALLOCATE(tmpDat1(mland))
       ALLOCATE(tmpDat2(mland,1))
@@ -2361,7 +2347,6 @@ END SUBROUTINE get_met_data
 
 SUBROUTINE close_met_file
 
-  ! print*, 'OClose19 ', ncid_met
   ok=NF90_CLOSE(ncid_met)
   ncid_met = -1
   IF(ok /= NF90_NOERR) CALL nc_abort (ok,'Error closing met data file ' &
@@ -2543,7 +2528,7 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, bgc, soil, canopy, rough, rad, 
       !! vh_js !!
       IF ( CABLE_USER%CALL_POP ) THEN
          ! evaluate mp_POP and POP_array
-         mp_POP = COUNT(casamet%iveg2==forest)+COUNT(casamet%iveg2==shrub)
+         mp_POP = COUNT(casamet%iveg2==forest) + COUNT(casamet%iveg2==shrub)
 
          ALLOCATE(Iwood(mp_POP))
          j = 1
@@ -2604,7 +2589,6 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, bgc, soil, canopy, rough, rad, 
 
     IF ( EXRST ) THEN
        ok = NF90_OPEN(TRIM(frst_in),NF90_NOWRITE,ncid_rin) ! open restart file
-       ! print*, 'OOpen21 ', ncid_rin, TRIM(frst_in)
        IF (ok /= NF90_NOERR) CALL HANDLE_ERR(ok)
        ! Any restart file exists, parameters and init will be loaded from it.
        WRITE(logn,*) ' Overwriting initialisations with values in ', &
@@ -2730,7 +2714,6 @@ SUBROUTINE get_parameters_met(soil,veg,bgc,rough,completeSet)
 !    END IF
 
    completeSet=.TRUE. ! initialise (assume all param will load from met file)
-   ! print*, 'ORead19.3 ', ncid_met
 
    ! Get parameter values:
    ! Arguments: netcdf file ID; parameter name; complete set check;
@@ -2883,7 +2866,6 @@ SUBROUTINE allocate_cable_vars(air,bgc,canopy,met,bal,                         &
    CALL alloc_cbm_var(sum_flux, arraysize)
    CALL alloc_cbm_var(veg, arraysize)
 
-   !MCINI
    call zero_cbm_var(air)
    call zero_cbm_var(bgc)
    call zero_cbm_var(canopy)

@@ -236,10 +236,10 @@ CONTAINS
          vegparmnew    = .FALSE., & ! using new format input file (BP dec 2007)
          spinup        = .FALSE., & ! model spinup to soil state equilibrium?
          spinConv      = .FALSE., & ! has spinup converged?
-         spincasainput = .FALSE., & ! TRUE: SAVE input req'd to spin CASA-CNP;
-         ! FALSE: READ input to spin CASA-CNP
+         spincasainput = .FALSE., & ! TRUE: SAVE input req'd to spin CASA-CNP
+                                    ! FALSE: READ input to spin CASA-CNP
          spincasa      = .FALSE., & ! TRUE: CASA-CNP Will spin mloop times,
-         ! FALSE: no spin up
+                                    ! FALSE: no spin up
          l_casacnp     = .FALSE., & ! using CASA-CNP with CABLE
          l_laiFeedbk   = .FALSE., & ! using prognostic LAI
          l_vcmaxFeedbk = .FALSE., & ! using prognostic Vcmax
@@ -586,8 +586,10 @@ CONTAINS
              met%ofsd = 0.1
              ! vh !
              met%pdep = 0.0
-             if (trim(cable_user%MetType) .eq. 'cru') &
-                  casamet%glai = 1.0
+             if (trim(cable_user%MetType) .eq. 'cru') then
+                casamet%glai = 1.0_r_2
+                where (veg%iveg(:) .ge. 14) casamet%glai = 0.0_r_2
+             endif
 
              ! CALL worker_sumcasa_types(comm, sum_casapool, sum_casaflux)
              ! ! 13C
@@ -717,6 +719,14 @@ CONTAINS
              if (cable_user%c13o2) then
                 gpp  = canopy%An + canopy%Rd
                 Ra   = isoratio(c13o2flux%ca, real(met%ca,r_2), 1.0_r_2)
+                !MCTest
+                ! c13o2flux%An       = canopy%An
+                ! c13o2flux%An       = 1.005_r_2 * canopy%An !  * vpdbc13 / vpdbc13 ! Test 5 permil
+                ! c13o2flux%Disc     = 0.0_r_2
+                ! c13o2flux%Vstarch  = c13o2flux%Vstarch + 1.0e-6_r_2
+                ! c13o2flux%Rstarch  = c13o2flux%Rstarch
+                ! c13o2flux%Rsucrose = c13o2flux%Rsucrose
+                ! c13o2flux%Rphoto   = c13o2flux%Rphoto
                 do ileaf=1, mf
                    if (cable_user%c13o2_simple_disc) then
                       call c13o2_discrimination_simple( &
@@ -765,7 +775,7 @@ CONTAINS
                            c13o2flux%An(:,ileaf) )
                    endif ! cable_user%c13o2_simple_disc
                 end do ! ileaf=1:mf
-                ! c13o2flux%An = 1.005_r_2 * canopy%An !  * vpdbc13 / vpdbc13 ! Test 5 permil
+                !MCTest
              endif ! cable_user%c13o2
              
              !TRUNK - call of cable_climet before cbm
@@ -6612,6 +6622,10 @@ CONTAINS
 
     bidx = bidx + 1
     CALL MPI_Get_address (casaflux%FluxCtoclear(off), displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (casapool%dClabiledt(off), displs(bidx), ierr)
     blocks(bidx) = r2len
 
     ! MPI: sanity check

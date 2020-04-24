@@ -238,7 +238,6 @@ CONTAINS
     IF (from_state=='PRIMF') THEN
 
        IF (frac_change_grid.GT.POPLUC%primf(g)) THEN
-          ! PRINT*, "Warning: requested reduction in primary forest area exceeds primary forest area"
           IF (to_state=='SECDF') POPLUC%ptos(g) = POPLUC%primf(g)
           IF (to_state=='C3ANN') POPLUC%ptog(g) = POPLUC%primf(g)
           frac_change_grid = POPLUC%primf(g)
@@ -1902,7 +1901,6 @@ CONTAINS
 #else
        STATUS = NF90_create(trim(fname), ior(nf90_clobber,ior(nf90_netcdf4,nf90_classic_model)), FILE_ID)
 #endif
-       ! print*, 'OCreate65 ', file_id, trim(fname)
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
        STATUS = NF90_PUT_ATT( FILE_ID, NF90_GLOBAL, "StartYear", CABLE_USER%YEARSTART )
@@ -2012,14 +2010,12 @@ CONTAINS
        IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
        CALL1 = .FALSE.
-       ! print*, 'OCreated65'
 
     ENDIF ! CALL1
 
 
 
     ! TIME  ( t )
-    ! print*, 'OWrite65 ', file_id
     STATUS = NF90_PUT_VAR(FILE_ID, VIDtime, ctime, start=(/ CNT /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
@@ -2139,7 +2135,6 @@ CONTAINS
 
     IF ( FINAL ) THEN
        ! Close NetCDF file:
-       ! print*, 'OClose65 ', file_id
        STATUS  = NF90_close(FILE_ID)
        file_id = -1
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
@@ -2213,7 +2208,6 @@ CONTAINS
 
     ! Create NetCDF file:
     STATUS = NF90_create(trim(fname), ior(nf90_clobber,nf90_64bit_offset), FILE_ID)
-    ! print*, 'OCreate66 ', file_id, trim(fname)
     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
     ! Put the file in define mode:
@@ -2289,7 +2283,6 @@ CONTAINS
 
 
     ! Close NetCDF file:
-    ! print*, 'OClose66 ', file_id
     STATUS = NF90_close(FILE_ID)
     file_id = -1
     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
@@ -2349,7 +2342,6 @@ CONTAINS
        fname = TRIM(filename%path)//'/'//TRIM(cable_user%RunIden)//'_'//'LUC_rst.nc'
     ENDIF
     STATUS = NF90_OPEN( TRIM(fname), NF90_NOWRITE, FILE_ID )
-    ! print*, 'OOpen67 ', file_id, trim(fname)
     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
     ! DIMS
@@ -2418,7 +2410,6 @@ CONTAINS
        END SELECT
     END DO
 
-    ! print*, 'OClose67 ', file_id
     STATUS = NF90_CLOSE( FILE_ID )
     file_id = -1
 
@@ -2589,7 +2580,6 @@ CONTAINS
 #else
        STATUS = NF90_create(trim(fname), ior(nf90_clobber,ior(nf90_netcdf4,nf90_classic_model)), FILE_ID)
 #endif
-       ! print*, 'OCreate68 ', file_id, trim(fname)
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
        ! Put the file in define mode:
@@ -2823,12 +2813,10 @@ CONTAINS
        IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
        CALL1 = .FALSE.
-       ! print*, 'OCreated68'
 
     ENDIF ! CALL1
 
     ! TIME  ( t )
-    ! print*, 'OWrite68 ', file_id
     STATUS = NF90_PUT_VAR(FILE_ID, VIDtime, ctime, start=(/ CNT /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
@@ -3024,7 +3012,6 @@ CONTAINS
 
     IF ( FINAL ) THEN
        ! Close NetCDF file:
-       ! print*, 'OClose68 ', file_id
        STATUS  = NF90_close(FILE_ID)
        file_id = -1
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)

@@ -1987,9 +1987,6 @@ CONTAINS
              endif !cable_user%call_climate
 
              ! apply fwsoil to gmes
-             ! if (any(gmes(i,:) < real(tiny(1.0),r_2) .and. gmes(i,:) > 0._r_2)) print*, 'CA03 ', gmes(i,:)
-             ! if (fwsoil(i) < tiny(1.0)) print*, 'CA04 ', i, fwsoil(i)
-             ! if (veg%gmmax(i) < tiny(1.0)) print*, 'CA05 ', veg%gmmax(i)
              gmes(i,1) = MAX(gmes(i,1) * real(fwsoil(i),r_2), real(0.15 * veg%gmmax(i),r_2))
              gmes(i,2) = MAX(gmes(i,2) * real(fwsoil(i),r_2), real(0.15 * veg%gmmax(i),r_2))
 
@@ -2357,18 +2354,18 @@ CONTAINS
                 IF( ABS( canopy%fevc(i) - real(SUM(oldevapfbl(i,:)) * air%rlam(i) &
                      /dels, r_2) ) > 1.0e-4_r_2 ) THEN
 
-                   PRINT *, 'Error! oldevapfbl not right.', ktau_gl, i
-                   PRINT *, 'ecx, ecy = ', ecx(i), ecy(i)
-                   PRINT *, 'or in mm = ', ecx(i) * ( 1.0 - canopy%fwet(i) ) &
+                   WRITE(*,*) 'ERROR! oldevapfbl not right.', ktau_gl, i
+                   WRITE(*,*) 'ecx, ecy = ', ecx(i), ecy(i)
+                   WRITE(*,*) 'or in mm = ', ecx(i) * ( 1.0 - canopy%fwet(i) ) &
                         / air%rlam(i) * dels, &
                         ecy(i) * ( 1.0 - canopy%fwet(i) ) / &
                         air%rlam(i) * dels
 
-                   PRINT *,'fevc = ', canopy%fevc(i), SUM( oldevapfbl(i,:) ) * &
+                   WRITE(*,*)'fevc = ', canopy%fevc(i), SUM( oldevapfbl(i,:) ) * &
                         air%rlam(i) / dels
-                   PRINT *, 'fwet = ', canopy%fwet(i)
-                   PRINT *, 'oldevapfbl = ', oldevapfbl(i,:)
-                   PRINT *, 'ssnow%evapfbl before rescaling: ', &
+                   WRITE(*,*) 'fwet = ', canopy%fwet(i)
+                   WRITE(*,*) 'oldevapfbl = ', oldevapfbl(i,:)
+                   WRITE(*,*) 'ssnow%evapfbl before rescaling: ', &
                         ssnow%evapfbl(i,:)
                    ! STOP
 

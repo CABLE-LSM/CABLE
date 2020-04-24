@@ -131,7 +131,6 @@ SUBROUTINE WGEN_INIT( WG, np, latitude, dels )
   ALLOCATE ( WG%VapPmb1500Prev     (np) )  ! 1500 (prev day) water vapour pressure [mb]
   ALLOCATE ( WG%VapPmb0900Next     (np) )  ! 0900(next day) water vapour pressure [mb]
 
-  !MCINI
   call wgen_zero(WG)
 
   WG%LatDeg(:) = latitude(:)
