@@ -41,10 +41,11 @@ Modified Matthias Cuntz, Apr 2020 - updated to same structure as other netcdf ut
 # Functions
 #
 
-def _get_variable_definition(ncvar):
+def _get_variable_definition(ncvar, chunksizes=True):
     out    = ncvar.filters() if ncvar.filters() else {}
     dims   = list(ncvar.dimensions)
-    chunks = ncvar.chunking() if not isinstance(ncvar.chunking(), str) else None
+    if chunksizes:
+        chunks = ncvar.chunking() if not isinstance(ncvar.chunking(), str) else None
     if "missing_value" in dir(ncvar):
         ifill = ncvar.missing_value
     elif "_FillValue" in dir(ncvar):
@@ -55,13 +56,14 @@ def _get_variable_definition(ncvar):
         "name"       : ncvar.name,
         "dtype"      : ncvar.dtype,
         "dimensions" : dims,
-        "chunksizes" : chunks,
         "fill_value" : ifill,
     })
+    if chunksizes:
+        out.update({"chunksizes" : chunks})
     return out
 
 
-def _create_output_variables(fi, fo, time=False, izip=False):
+def _create_output_variables(fi, fo, time=False, izip=False, chunksizes=True):
     # loop over input variables
     for ivar in fi.variables.values():
         if time:
@@ -70,7 +72,7 @@ def _create_output_variables(fi, fo, time=False, izip=False):
             itime = 'time' not in ivar.dimensions
         if itime:
             # create output variable
-            invardef = _get_variable_definition(ivar)
+            invardef = _get_variable_definition(ivar, chunksizes=chunksizes)
             if izip: invardef.update({'zlib':True})
             ovar = fo.createVariable(invardef.pop("name"), invardef.pop("dtype"), **invardef)
             for k in ivar.ncattrs():
@@ -201,10 +203,10 @@ for d in fi.dimensions.values():
 #
 
 # create static variables (independent of time)
-_create_output_variables(fi, fo, time=False, izip=izip)
+_create_output_variables(fi, fo, time=False, izip=izip, chunksizes=False)
 
 # create dynamic variables (time dependent)
-_create_output_variables(fi, fo, time=True, izip=izip)
+_create_output_variables(fi, fo, time=True, izip=izip, chunksizes=False)
 
 # copy static variables
 for ivar in fi.variables.values():
@@ -314,10 +316,10 @@ for ifile in restartfiles:
     # Create output variables
 
     # create static variables (independent of time)
-    _create_output_variables(fi, fo, time=False, izip=izip)
+    _create_output_variables(fi, fo, time=False, izip=izip, chunksizes=False)
 
     # create dynamic variables (time dependent)
-    _create_output_variables(fi, fo, time=True, izip=izip)
+    _create_output_variables(fi, fo, time=True, izip=izip, chunksizes=False)
 
     #
     # Copy variables, selecting the land points with latitude,longitude    
