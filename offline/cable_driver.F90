@@ -1325,8 +1325,8 @@ PROGRAM cable_offline_driver
      CALL write_casa_restart_nc( casamet, casapool,casaflux,phen, CASAONLY )
      ! 13C
      if (cable_user%c13o2) then
-        call c13o2_write_restart_pools(c13o2pools)
-        if (cable_user%POPLUC) call c13o2_write_restart_luc(c13o2luc)
+        call c13o2_write_restart_pools(casamet, c13o2pools)
+        if (cable_user%POPLUC) call c13o2_write_restart_luc(casamet, c13o2luc)
         ! While testing
         call c13o2_print_delta_flux(c13o2flux)
         call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)
@@ -1346,7 +1346,7 @@ PROGRAM cable_offline_driver
      if (cable_user%CALL_climate) &
           CALL WRITE_CLIMATE_RESTART_NC(climate, ktauday)
      ! 13C
-     if (cable_user%c13o2) call c13o2_write_restart_flux(c13o2flux)
+     if (cable_user%c13o2) call c13o2_write_restart_flux(casamet, c13o2flux)
      !--- LN ------------------------------------------[
   ENDIF
 

@@ -700,7 +700,7 @@ contains
     integer,           dimension(3)                  :: idids ! tmp for dim ids
 
     ! dimension names
-    dims(1) = 'ntile'
+    dims(1) = 'land'
     dims(2) = 'nplant'
     dims(3) = 'nlitter'
     dims(4) = 'nsoil'
@@ -741,13 +741,13 @@ contains
     ! uvars(8) = 'kg(13C)/m^2'
     ! number of dimensions
     dvars(1) = 1 ! time
-    dvars(2) = 1 ! ntile
-    dvars(3) = 1 ! ntile
-    dvars(4) = 3 ! ntile, nplant, time
-    dvars(5) = 3 ! ntile, nlitter, time
-    dvars(6) = 3 ! ntile, nsoil, time
-    dvars(7) = 2 ! ntile, time
-    ! dvars(8) = 2 ! ntile, time
+    dvars(2) = 1 ! land
+    dvars(3) = 1 ! land
+    dvars(4) = 3 ! land, nplant, time
+    dvars(5) = 3 ! land, nlitter, time
+    dvars(6) = 3 ! land, nsoil, time
+    dvars(7) = 2 ! land, time
+    ! dvars(8) = 2 ! land, time
     ! variable type
     tvars(1) = nf90_int
     tvars(2) = nf90_double
@@ -1067,9 +1067,10 @@ contains
   ! ------------------------------------------------------------------
 
   ! Write 13C Canopy pools into restart file
-  subroutine c13o2_write_restart_flux(c13o2flux)
+  subroutine c13o2_write_restart_flux(casamet, c13o2flux)
 
     use cable_common_module, only: cable_user, filename, CurYear
+    use casavariable,        only: casa_met
     use cable_c13o2_def,     only: c13o2_flux
     use netcdf,              only: nf90_create, nf90_clobber, nf90_64bit_offset, nf90_noerr, &
          nf90_put_att, nf90_global, nf90_def_dim, &
@@ -1077,6 +1078,7 @@ contains
 
     implicit none
 
+    type(casa_met),   intent(in) :: casamet
     type(c13o2_flux), intent(in) :: c13o2flux
 
     ! local variables
@@ -1085,7 +1087,7 @@ contains
     character(len=200) :: fname, cyear
 
     ! 1 dim arrays (npt,)
-    integer, parameter :: nlandvars = 2
+    integer, parameter :: nlandvars = 4
     character(len=40), dimension(nlandvars)  :: landvars
     ! 2 dim arrays (npt,nleaf)
     integer, parameter :: nleafvars = 2
@@ -1095,8 +1097,10 @@ contains
     integer, dimension(nleafvars)  :: leafvars_id
 
     ! Variables
-    landvars(1) = 'Vstarch'
-    landvars(2) = 'Rstarch'
+    landvars(1) = 'latitude'
+    landvars(2) = 'longitude'
+    landvars(3) = 'Vstarch'
+    landvars(4) = 'Rstarch'
     leafvars(1) = 'Rsucrose'
     leafvars(2) = 'Rphoto'
 
@@ -1120,7 +1124,7 @@ contains
          call c13o2_err_handler('Could not set global date attribute in c13o2 restart_out_flux file: '//trim(fname))
 
     ! define dimensions
-    status = nf90_def_dim(file_id, 'nland', c13o2flux%ntile, land_id)
+    status = nf90_def_dim(file_id, 'land', c13o2flux%ntile, land_id)
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could not define land dimension in c13o2 restart_out_flux file: '//trim(fname))
     status = nf90_def_dim(file_id, 'nleaf', c13o2flux%nleaf, leaf_id)
@@ -1148,12 +1152,18 @@ contains
          call c13o2_err_handler('Could not end definition phase of c13o2 restart_out_flux file: '//trim(fname))
 
     ! put variables
-    status = nf90_put_var(file_id, landvars_id(1), c13o2flux%Vstarch)
+    status = nf90_put_var(file_id, landvars_id(1), casamet%lat)
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could put variable '//trim(landvars(1))//' to c13o2 restart_out_flux file: '//trim(fname))
-    status = nf90_put_var(file_id, landvars_id(2), c13o2flux%Rstarch)
+    status = nf90_put_var(file_id, landvars_id(2), casamet%lon)
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could put variable '//trim(landvars(2))//' to c13o2 restart_out_flux file: '//trim(fname))
+    status = nf90_put_var(file_id, landvars_id(3), c13o2flux%Vstarch)
+    if (status /= nf90_noerr) &
+         call c13o2_err_handler('Could put variable '//trim(landvars(3))//' to c13o2 restart_out_flux file: '//trim(fname))
+    status = nf90_put_var(file_id, landvars_id(4), c13o2flux%Rstarch)
+    if (status /= nf90_noerr) &
+         call c13o2_err_handler('Could put variable '//trim(landvars(4))//' to c13o2 restart_out_flux file: '//trim(fname))
     status = nf90_put_var(file_id, leafvars_id(1), c13o2flux%Rsucrose)
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could put variable '//trim(leafvars(1))//' to c13o2 restart_out_flux file: '//trim(fname))
@@ -1244,9 +1254,10 @@ contains
   ! ------------------------------------------------------------------
 
   ! Write 13C Casa pools into restart file
-  subroutine c13o2_write_restart_pools(c13o2pools)
+  subroutine c13o2_write_restart_pools(casamet, c13o2pools)
 
     use cable_common_module, only: cable_user, filename, CurYear
+    use casavariable,        only: casa_met
     use cable_c13o2_def,     only: c13o2_pool
     use netcdf,              only: nf90_create, nf90_clobber, nf90_64bit_offset, nf90_noerr, &
          nf90_put_att, nf90_global, nf90_def_dim, &
@@ -1254,6 +1265,7 @@ contains
 
     implicit none
 
+    type(casa_met),   intent(in) :: casamet
     type(c13o2_pool), intent(in) :: c13o2pools
 
     ! local variables
@@ -1262,7 +1274,7 @@ contains
     character(len=200) :: fname, cyear
 
     ! 1 dim arrays (npt,)
-    integer, parameter :: nlandvars = 2
+    integer, parameter :: nlandvars = 4
     character(len=40), dimension(nlandvars)  :: landvars
     ! 2 dim arrays (npt,nplant)
     integer, parameter :: nplantvars = 1
@@ -1280,8 +1292,10 @@ contains
     integer, dimension(nsoilvars)   :: soilvars_id
 
     ! Variables
-    landvars(1)   = 'clabile'
-    landvars(2)   = 'charvest'
+    landvars(1)   = 'latitude'
+    landvars(2)   = 'longitude'
+    landvars(3)   = 'clabile'
+    landvars(4)   = 'charvest'
     plantvars(1)  = 'cplant'
     littervars(1) = 'clitter'
     soilvars(1)   = 'csoil'
@@ -1306,7 +1320,7 @@ contains
          call c13o2_err_handler('Could not set global date attribute in c13o2 restart_out_pools file: '//trim(fname))
 
     ! define dimensions
-    status = nf90_def_dim(file_id, 'nland', c13o2pools%ntile, land_id)
+    status = nf90_def_dim(file_id, 'land', c13o2pools%ntile, land_id)
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could not define land dimension in c13o2 restart_out_pools file: '//trim(fname))
     status = nf90_def_dim(file_id, 'nplant', c13o2pools%nplant, plant_id)
@@ -1354,12 +1368,18 @@ contains
          call c13o2_err_handler('Could not end definition phase of c13o2 restart_out_pools file: '//trim(fname))
 
     ! put variables
-    status = nf90_put_var(file_id, landvars_id(1), c13o2pools%clabile)
+    status = nf90_put_var(file_id, landvars_id(1), casamet%lat)
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could put variable '//trim(landvars(1))//' to c13o2 restart_out_pools file: '//trim(fname))
-    status = nf90_put_var(file_id, landvars_id(2), c13o2pools%charvest)
+    status = nf90_put_var(file_id, landvars_id(2), casamet%lon)
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could put variable '//trim(landvars(2))//' to c13o2 restart_out_pools file: '//trim(fname))
+    status = nf90_put_var(file_id, landvars_id(3), c13o2pools%clabile)
+    if (status /= nf90_noerr) &
+         call c13o2_err_handler('Could put variable '//trim(landvars(3))//' to c13o2 restart_out_pools file: '//trim(fname))
+    status = nf90_put_var(file_id, landvars_id(4), c13o2pools%charvest)
+    if (status /= nf90_noerr) &
+         call c13o2_err_handler('Could put variable '//trim(landvars(4))//' to c13o2 restart_out_pools file: '//trim(fname))
     status = nf90_put_var(file_id, plantvars_id(1), c13o2pools%cplant)
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could put variable '//trim(plantvars(1))//' to c13o2 restart_out_pools file: '//trim(fname))
@@ -1439,9 +1459,10 @@ contains
   ! ------------------------------------------------------------------
 
   ! Write 13C Casa pools into restart file
-  subroutine c13o2_write_restart_luc(c13o2luc)
+  subroutine c13o2_write_restart_luc(casamet, c13o2luc)
 
     use cable_common_module, only: cable_user, filename, CurYear
+    use casavariable,        only: casa_met
     use cable_c13o2_def,     only: c13o2_luc
     use netcdf,              only: nf90_create, nf90_clobber, nf90_64bit_offset, nf90_noerr, &
          nf90_put_att, nf90_global, nf90_def_dim, &
@@ -1449,6 +1470,7 @@ contains
 
     implicit none
 
+    type(casa_met),  intent(in) :: casamet
     type(c13o2_luc), intent(in) :: c13o2luc
 
     ! local variables
@@ -1457,7 +1479,7 @@ contains
     character(len=200) :: fname, cyear
 
     ! 1 dim arrays (npt,)
-    integer, parameter :: nlandvars = 1
+    integer, parameter :: nlandvars = 3
     character(len=40), dimension(nlandvars)      :: landvars
     ! 2 dim arrays (npt,nharvest)
     integer, parameter :: nharvestvars = 1
@@ -1471,7 +1493,9 @@ contains
     integer, dimension(nclearancevars) :: clearancevars_id
 
     ! Variables
-    landvars(1)      = 'cagric'
+    landvars(1)      = 'latitude'
+    landvars(2)      = 'longitude'
+    landvars(3)      = 'cagric'
     harvestvars(1)   = 'charvest'
     clearancevars(1) = 'cclearance'
 
@@ -1495,7 +1519,7 @@ contains
          call c13o2_err_handler('Could not set global date attribute in c13o2 restart_out_luc file: '//trim(fname))
 
     ! define dimensions
-    status = nf90_def_dim(file_id, 'nland', c13o2luc%nland, land_id)
+    status = nf90_def_dim(file_id, 'land', c13o2luc%nland, land_id)
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could not define land dimension in c13o2 restart_out_luc file: '//trim(fname))
     status = nf90_def_dim(file_id, 'nharvest', c13o2luc%nharvest, harvest_id)
@@ -1533,9 +1557,15 @@ contains
          call c13o2_err_handler('Could not end definition phase of c13o2 restart_out_luc file: '//trim(fname))
 
     ! put variables
-    status = nf90_put_var(file_id, landvars_id(1), c13o2luc%cagric)
+    status = nf90_put_var(file_id, landvars_id(1), casamet%lat)
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could put variable '//trim(landvars(1))//' to c13o2 restart_out_luc file: '//trim(fname))
+    status = nf90_put_var(file_id, landvars_id(2), casamet%lon)
+    if (status /= nf90_noerr) &
+         call c13o2_err_handler('Could put variable '//trim(landvars(2))//' to c13o2 restart_out_luc file: '//trim(fname))
+    status = nf90_put_var(file_id, landvars_id(3), c13o2luc%cagric)
+    if (status /= nf90_noerr) &
+         call c13o2_err_handler('Could put variable '//trim(landvars(3))//' to c13o2 restart_out_luc file: '//trim(fname))
     status = nf90_put_var(file_id, harvestvars_id(1), c13o2luc%charvest)
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could put variable '//trim(harvestvars(1))//' to c13o2 restart_out_luc file: '//trim(fname))

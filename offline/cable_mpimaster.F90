@@ -1574,9 +1574,9 @@ CONTAINS
        ! CALL write_casa_restart_nc ( casamet, casapool, met, CASAONLY )
        ! 13C
        if (cable_user%c13o2) then
-          call c13o2_write_restart_flux(c13o2flux)
-          call c13o2_write_restart_pools(c13o2pools)
-          if (cable_user%POPLUC) call c13o2_write_restart_luc(c13o2luc)
+          call c13o2_write_restart_flux(casamet, c13o2flux)
+          call c13o2_write_restart_pools(casamet, c13o2pools)
+          if (cable_user%POPLUC) call c13o2_write_restart_luc(casamet, c13o2luc)
           ! While testing
           print*, 'not spincasa and not casaonly'
           call c13o2_print_delta_flux(c13o2flux)
@@ -10133,7 +10133,7 @@ SUBROUTINE master_spincasacnp(dels, kstart, kend, mloop, veg, soil, casabiome, c
   ! 13C
   if (cable_user%c13o2) then
      call master_receive(ocomm, 0, c13o2_pool_ts)
-     call c13o2_write_restart_pools(c13o2pools)
+     call c13o2_write_restart_pools(casamet, c13o2pools)
   endif
 
   if ( cable_user%call_POP .and. (POP%np.gt.0) ) then
@@ -10433,8 +10433,8 @@ SUBROUTINE master_CASAONLY_LUC(dels, kstart, kend, veg, casabiome, casapool, &
   CALL write_casa_restart_nc(casamet, casapool, casaflux, phen, .TRUE.)
   ! 13C
   if (cable_user%c13o2) then
-     call c13o2_write_restart_pools(c13o2pools)
-     if (cable_user%POPLUC) call c13o2_write_restart_luc(c13o2luc)
+     call c13o2_write_restart_pools(casamet, c13o2pools)
+     if (cable_user%POPLUC) call c13o2_write_restart_luc(casamet, c13o2luc)
   endif
 
   CALL POP_IO(pop, casamet, myearspin, 'WRITE_INI', .TRUE.)
