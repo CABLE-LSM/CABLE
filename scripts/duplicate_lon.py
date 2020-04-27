@@ -30,14 +30,14 @@ History
 Written  Matthias Cuntz, Dec 2019
 Modified Matthias Cuntz, Jan 2020 - added ncopy
                                   - copy global attributes and append history
+         Matthias Cuntz, Apr 2020 - use create_variable function as in sum_patchfrac.py
 """
 
 # -------------------------------------------------------------------------
 # Functions
 #
 
-# Copied from jams.netcdf4
-def getVariableDefinition(ncvar):
+def _get_variable_definition(ncvar):
     out  = ncvar.filters() if ncvar.filters() else {}
     dims = list(ncvar.dimensions)
     # Do not set chunksize because it should be only 2
@@ -56,6 +56,25 @@ def getVariableDefinition(ncvar):
         "fill_value" : ifill,
     })
     return out
+
+
+def _create_output_variables(fi, fo, time=False, izip=False):
+    # loop over input variables
+    for ivar in fi.variables.values():
+        if time:
+            itime = 'time' in ivar.dimensions
+        else:
+            itime = 'time' not in ivar.dimensions
+        if itime:
+            # create output variable
+            invardef = _get_variable_definition(ivar)
+            if izip: invardef.update({'zlib':True})
+            ovar = fo.createVariable(invardef.pop("name"), invardef.pop("dtype"), **invardef)
+            for k in ivar.ncattrs():
+                iattr = ivar.getncattr(k)
+                if (k != 'missing_value') and (k != '_FillValue'):
+                    ovar.setncattr(k, iattr)
+    return
 
 
 # -------------------------------------------------------------------------
@@ -86,12 +105,11 @@ izip  = args.izip
 ifile = args.ifile
 del parser, args
 
+import sys
 import numpy as np
 import netCDF4 as nc
-import os
-import sys
 import time as ptime
-tstart = ptime.time()
+# tstart = ptime.time()
 
 # -------------------------------------------------------------------------
 # Copy data
@@ -142,30 +160,21 @@ for d in fi.dimensions.values():
     l = None if d.isunlimited() else len(d)
     if (d.name=='longitude' or d.name=='lon' or d.name=='x'): l = ncopy
     fo.createDimension(d.name, l)
-    
+
+#
 # Create output variables
-# patchfrac = fi.variables['patchfrac']
-# create static variables (non-time dependent)
-for ivar in fi.variables.values():
-    if 'time' not in ivar.dimensions:
-        invardef = getVariableDefinition(ivar)
-        if izip: invardef.update({'zlib':True})
-        ovar = fo.createVariable(invardef.pop("name"), invardef.pop("dtype"), **invardef)
-        for k in ivar.ncattrs():
-            iattr = ivar.getncattr(k)
-            if (k != 'missing_value') and (k != '_FillValue'):
-                ovar.setncattr(k, iattr)
+#
+
+# create static variables (independent of time)
+_create_output_variables(fi, fo, time=False, izip=izip)
+
 # create dynamic variables (time dependent)
-for ivar in fi.variables.values():
-    if 'time' in ivar.dimensions:
-        invardef = getVariableDefinition(ivar)
-        if izip: invardef.update({'zlib':True})
-        ovar = fo.createVariable(invardef.pop("name"), invardef.pop("dtype"), **invardef)
-        for k in ivar.ncattrs():
-            iattr = ivar.getncattr(k)            
-            if (k != 'missing_value') and (k != '_FillValue'):
-                ovar.setncattr(k, iattr)
+_create_output_variables(fi, fo, time=True, izip=izip)
+
+#
 # Copy variables from in to out
+#
+
 # copy static variables
 for ivar in fi.variables.values():
     if 'time' not in ivar.dimensions:
@@ -174,14 +183,11 @@ for ivar in fi.variables.values():
             for nn in range(ncopy):
                 ovar[:,nn,...] = ivar[:,0,...]
         elif (lonname in ivar.dimensions):
-            # if (ivar.name == lonname):
-            #     ovar[0,...] = ivar[0,...] - 1. # one degree to the west
-            # else:
-            #     ovar[0,...] = ivar[0,...]
             for nn in range(ncopy):
                 ovar[nn,...] = ivar[0,...]
         else:
             ovar[:] = ivar[:]
+
 # copy dynamic variables
 if 'time' in fi.dimensions:
     ntime = fi.dimensions['time'].size
@@ -206,5 +212,5 @@ fo.close()
 # -------------------------------------------------------------------------
 # Finish
 
-tstop = ptime.time()
+# tstop = ptime.time()
 # print('Finished in [s]: {:.2f}'.format(tstop-tstart))

@@ -29,14 +29,14 @@ History
 -------
 Written  Matthias Cuntz, Nov 2019
 Modified Matthias Cuntz, Jan 2020 - copy global attributes and append history
+         Matthias Cuntz, Apr 2020 - use create_variable function as in sum_patchfrac.py
 """
 
 # -------------------------------------------------------------------------
 # Functions
 #
 
-# Copied from jams.netcdf4
-def getVariableDefinition(ncvar):
+def _get_variable_definition(ncvar):
     out  = ncvar.filters() if ncvar.filters() else {}
     dims = list(ncvar.dimensions)
     if 'x' in dims: dims[dims.index('x')] = 'lon'
@@ -59,9 +59,30 @@ def getVariableDefinition(ncvar):
     })
     return out
 
+
+def _create_output_variables(fi, fo, time=False, izip=False):
+    # loop over input variables
+    for ivar in fi.variables.values():
+        if time:
+            itime = 'time' in ivar.dimensions
+        else:
+            itime = 'time' not in ivar.dimensions
+        if itime:
+            # create output variable
+            invardef = _get_variable_definition(ivar)
+            if izip: invardef.update({'zlib':True})
+            ovar = fo.createVariable(invardef.pop("name"), invardef.pop("dtype"), **invardef)
+            for k in ivar.ncattrs():
+                iattr = ivar.getncattr(k)
+                if (k != 'missing_value') and (k != '_FillValue'):
+                    ovar.setncattr(k, iattr)
+    return
+
+
 # get index in vector vec of value closest to num
-def closest(vec, num):
-    return np.argmin(np.abs(vec-num))
+import numpy as np
+def _closest(vec, num):
+    return np.argmin(np.abs(np.array(vec)-num))
 
 
 # -------------------------------------------------------------------------
@@ -136,8 +157,8 @@ else:
     lonname = 'lon'
 ilats = fi.variables[latname][:]
 ilons = fi.variables[lonname][:]
-iilats = closest(ilats, lats)
-iilons = closest(ilons, lons)
+iilats = _closest(ilats, lats)
+iilons = _closest(ilons, lons)
 
 # Copy global attributes
 for k in fi.ncattrs():
@@ -151,30 +172,21 @@ for d in fi.dimensions.values():
     l = None if d.isunlimited() else len(d)
     if d.name=='lat' or d.name=='latitude' or d.name=='lon' or d.name=='longitude': l = nlatlon
     fo.createDimension(d.name, l)
-    
+
+#
 # Create output variables
-# patchfrac = fi.variables['patchfrac']
-# create static variables (non-time dependent)
-for ivar in fi.variables.values():
-    if 'time' not in ivar.dimensions:
-        invardef = getVariableDefinition(ivar)
-        if izip: invardef.update({'zlib':True})
-        ovar = fo.createVariable(invardef.pop("name"), invardef.pop("dtype"), **invardef)
-        for k in ivar.ncattrs():
-            iattr = ivar.getncattr(k)
-            if (k != 'missing_value') and (k != '_FillValue'):
-                ovar.setncattr(k, iattr)
+#
+
+# create static variables (independent of time)
+_create_output_variables(fi, fo, time=False, izip=izip)
+
 # create dynamic variables (time dependent)
-for ivar in fi.variables.values():
-    if 'time' in ivar.dimensions:
-        invardef = getVariableDefinition(ivar)
-        if izip: invardef.update({'zlib':True})
-        ovar = fo.createVariable(invardef.pop("name"), invardef.pop("dtype"), **invardef)
-        for k in ivar.ncattrs():
-            iattr = ivar.getncattr(k)
-            if (k != 'missing_value') and (k != '_FillValue'):
-                ovar.setncattr(k, iattr)
+_create_output_variables(fi, fo, time=True, izip=izip)
+
+#
 # Copy variables from in to out
+#
+
 # copy static variables
 for ivar in fi.variables.values():
     if 'time' not in ivar.dimensions:
@@ -187,6 +199,7 @@ for ivar in fi.variables.values():
             ovar[:] = ivar[iilons,...]
         else:
             ovar[:] = ivar[:]
+
 # copy dynamic variables
 if 'time' in fi.dimensions:
     ntime = fi.dimensions['time'].size
