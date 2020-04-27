@@ -5,36 +5,46 @@ Existing scripts
 ---------------
 # Written by Lars Nieradzik.
 create_landmask.py
-	Generate global landmask file from a list of lat,lon tupels in a file. Files are hardcoded in script.
+    Generate global landmask file from a list of lat,lon tupels in a file. Files are hardcoded in script.
 create_latlon_land.py
-	Generate a number of random lat,lon points. Same as generate_latlonlist.py but using variable land (0/1) instead of variable iveg (1-17). Files are hardcoded in script.
+    Generate a number of random lat,lon points. Same as generate_latlonlist.py but using variable land (0/1) instead of variable iveg (1-17). Files are hardcoded in script.
 generate_latlonlist.py
-	Generate a number of random lat,lon points. Same as create_latlon_land.py but using variable iveg (1-17) instead of variable land (0/1). Files are hardcoded in script.
+    Generate a number of random lat,lon points. Same as create_latlon_land.py but using variable iveg (1-17) instead of variable land (0/1). Files are hardcoded in script.
 lnutils.py
-	Python utilities used in create_landmask.py.
+    Python utilities used in create_landmask.py.
 
 # Written by Matthias Cuntz.
 duplicate_lon.py
-	Copies all variables of a single grid cell file into a second (or more) grid cell(s) with the same lat/lon.
+    Copies all variables of a single grid cell file into a second (or more) grid cell(s) with the same lat/lon.
 extract_latlon.py
-	Extract a single latitude/longitude point from a netcdf file.
+    Extract a single latitude/longitude point from a netcdf file.
 set_latlon_land.py
-	Sets the land variable of netcdf file to 1 at given latitude/longitude points, otherwise 0.
+    Sets the land variable of netcdf file to 1 at given latitude/longitude points, otherwise 0.
 
 
 # Run Cable
 -----------
 compile_cable-pop.sh
-        Submit compilation to compile with -xHost on host machine. Written by Matthias Cuntz.
+    Submit compilation to compile with -xHost on host machine.
+    Written by Matthias Cuntz.
+extract_latlon_restart.py
+    Generate global landmask from a list of lat,lon tupels, and extract tiles from any number of restart files.
+    Written by Matthias Cuntz.
 reset_restart.bash
-	Utility that batch renames restart files. Written by Vanessa Haverd.
+    Utility that batch renames restart files.
+    Written by Vanessa Haverd.
 run_cable-pop.sh
-        Full Cable run with biomass spinup, POP, land-use change, etc. Written by Matthias Cuntz.
+    Full Cable run with biomass spinup, POP, land-use change, etc.
+    Written by Matthias Cuntz.
 run_cable_site_CNP.py
-	Full cable run with spinup at single sites. Written by Martin De Kauwe and Vanessa Haverd.
+    Full cable run with spinup at single sites.
+    Written by Martin De Kauwe and Vanessa Haverd.
 
 
 # Output
 --------
+# Written by Matthias Cuntz
 compare_two_cable_runs.sh
-        Compare restart and output files of two runs performed with run_cable-pop.sh. Written by Matthias Cuntz.
+    Compare restart and output files of two runs performed with run_cable-pop.sh.
+sum_patchfrac.py
+    Copies Cable output summing variables weighted with patchfrac.
