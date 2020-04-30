@@ -835,6 +835,7 @@ CONTAINS
   !  lon_all = UNPACK(longitude,mask=LandMaskLogical,field=-9999.)
  
   FORALL (icol=1:MaskCols) lon_all(icol,:) = MaskCtrW + (real(icol-1) * MaskRes)
+  lat_all(irow,:) = (real(MaskRows - irow) * MaskRes) + MaskCtrS
   FORALL (irow=1:MaskRows) lat_all(:,irow) = (real(MaskRows - irow) * MaskRes) + MaskCtrS
 
  
@@ -871,7 +872,7 @@ CONTAINS
     ALLOCATE (next_vp0900(mland))
 
 ! Whether start and end dates are user specified or not, we need to know 
-! what the date range in the met files is, so dummy-read the rainfall.
+! what the date range in the met files is, so dummy-read the rainfall.r
     READ (rain_unit,IOSTAT=error_status) bios_startdate, rain_day
     DO WHILE (error_status > 0)
        READ (rain_unit,IOSTAT=error_status) bios_enddate, rain_day
