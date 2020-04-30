@@ -35,58 +35,8 @@ History
 Written  Matthias Cuntz, Oct 2018
 Modified Matthias Cuntz, Apr 2020 - updated to same structure as other netcdf utilities
                                   - allow several lats/lons via input file
+         Matthias Cuntz, Apr 2020 - use python module cablepop
 """
-
-# -------------------------------------------------------------------------
-# Functions
-#
-
-def _get_variable_definition(ncvar, chunksizes=True):
-    out    = ncvar.filters() if ncvar.filters() else {}
-    dims   = list(ncvar.dimensions)
-    if chunksizes:
-        chunks = ncvar.chunking() if not isinstance(ncvar.chunking(), str) else None
-    if "missing_value" in dir(ncvar):
-        ifill = ncvar.missing_value
-    elif "_FillValue" in dir(ncvar):
-        ifill = ncvar._FillValue
-    else:
-        ifill = None
-    out.update({
-        "name"       : ncvar.name,
-        "dtype"      : ncvar.dtype,
-        "dimensions" : dims,
-        "fill_value" : ifill,
-    })
-    if chunksizes:
-        out.update({"chunksizes" : chunks})
-    return out
-
-
-def _create_output_variables(fi, fo, time=False, izip=False, chunksizes=True):
-    # loop over input variables
-    for ivar in fi.variables.values():
-        if time:
-            itime = 'time' in ivar.dimensions
-        else:
-            itime = 'time' not in ivar.dimensions
-        if itime:
-            # create output variable
-            invardef = _get_variable_definition(ivar, chunksizes=chunksizes)
-            if izip: invardef.update({'zlib':True})
-            ovar = fo.createVariable(invardef.pop("name"), invardef.pop("dtype"), **invardef)
-            for k in ivar.ncattrs():
-                iattr = ivar.getncattr(k)
-                if (k != 'missing_value') and (k != '_FillValue'):
-                    ovar.setncattr(k, iattr)
-    return
-
-
-# get index in vector vec of value closest to num
-import numpy as np
-def _closest(vec, num):
-    return np.argmin(np.abs(np.array(vec)-num))
-
 
 # -------------------------------------------------------------------------
 # Command line
@@ -126,6 +76,7 @@ import numpy as np
 import netCDF4 as nc
 import os
 import sys
+import cablepop as cp
 import time as ptime
 # tstart = ptime.time()
 
@@ -154,10 +105,8 @@ nlatlon = lats.size
 # Create new mask file
 #
 
-ifile  = maskfile
-sifile = ifile.split('.')
-sifile[-2] = sifile[-2]+'-extract'
-ofile  = '.'.join(sifile)
+ifile = maskfile
+ofile = cp.set_output_filename(ifile, '-extract')
 print('Create ', ofile)
 fi = nc.Dataset(ifile, 'r')
 if 'land' not in fi.variables:
@@ -168,7 +117,10 @@ if 'land' not in fi.variables:
 if izip:
     fo = nc.Dataset(ofile, 'w', format='NETCDF4')
 else:
-    fo = nc.Dataset(ofile, 'w', format=fi.file_format)
+    if 'file_format' in dir(fi):
+        fo = nc.Dataset(ofile, 'w', format=fi.file_format)
+    else:
+        fo = nc.Dataset(ofile, 'w', format='NETCDF3_64BIT_OFFSET')
 
 # lat/lon indices
 if 'latitude' in fi.variables:
@@ -184,29 +136,20 @@ inlons = fi.variables[lonname][:]
 iinlats = []
 iinlons = []
 for ii in range(nlatlon):
-    iinlats.append(_closest(inlats, lats[ii]))
-    iinlons.append(_closest(inlons, lons[ii]))
-
-# Copy global attributes
-for k in fi.ncattrs():
-    iattr = fi.getncattr(k)
-    if (k == 'history'):
-        iattr = iattr + '\n' + ptime.asctime() + ': ' + ' '.join(sys.argv)
-    fo.setncattr(k, iattr)
+    iinlats.append(cp.closest(inlats, lats[ii]))
+    iinlons.append(cp.closest(inlons, lons[ii]))
+    
+# Copy global attributes, adding script
+cp.set_global_attributes(fi, fo, add={'history':ptime.asctime()+': '+' '.join(sys.argv)})
 
 # Copy dimensions
-for d in fi.dimensions.values():
-    fo.createDimension(d.name, None if d.isunlimited() else len(d))
-
-#
-# Create output variables
-#
+cp.create_dimensions(fi, fo)
 
 # create static variables (independent of time)
-_create_output_variables(fi, fo, time=False, izip=izip, chunksizes=False)
+cp.create_variables(fi, fo, time=False, izip=izip, chunksizes=False)
 
 # create dynamic variables (time dependent)
-_create_output_variables(fi, fo, time=True, izip=izip, chunksizes=False)
+cp.create_variables(fi, fo, time=True, izip=izip, chunksizes=False)
 
 # copy static variables
 for ivar in fi.variables.values():
@@ -238,9 +181,7 @@ fo.close()
 #
 
 for ifile in restartfiles:
-    sifile = ifile.split('.')
-    sifile[-2] = sifile[-2]+'-extract'
-    ofile = '.'.join(sifile)
+    ofile = cp.set_output_filename(ifile, '-extract')
     print('Extract ', ofile)
     fi = nc.Dataset(ifile, 'r')
 
@@ -271,8 +212,8 @@ for ifile in restartfiles:
         # indices of grid cells lats/lons on grid cell basis
         miiland = []
         for ii in range(nlatlon):
-            miilat0 = _closest(mlats, lats[ii])
-            miilon0 = _closest(mlons, lons[ii])
+            miilat0 = cp.closest(mlats, lats[ii])
+            miilon0 = cp.closest(mlons, lons[ii])
             miiland.extend(np.where((np.array(mlats) == mlats[miilat0]) & (np.array(mlons) == mlons[miilon0]))[0])
         if len(miiland) == 0:
             print('-> no land point.')
@@ -281,47 +222,39 @@ for ifile in restartfiles:
     else:
         tlats = fi.variables[latname][:]
         tlons = fi.variables[lonname][:]
+        miiland = []
     # indices of grid cells lats/lons on tile basis
     tiiland = []
     for ii in range(nlatlon):
-        tiilat0 = _closest(tlats, lats[ii])
-        tiilon0 = _closest(tlons, lons[ii])
+        tiilat0 = cp.closest(tlats, lats[ii])
+        tiilon0 = cp.closest(tlons, lons[ii])
         tiiland.extend(np.where((np.array(tlats) == tlats[tiilat0]) & (np.array(tlons) == tlons[tiilon0]))[0])
     if len(tiiland) == 0:
         print('-> no land point or forested area.')
         fi.close()
         continue
 
-    #
     # Create output file
     if izip:
         fo = nc.Dataset(ofile, 'w', format='NETCDF4')
     else:
-        fo = nc.Dataset(ofile, 'w', format=fi.file_format)
-
-    #
-    # Copy dimensions
-    for d in fi.dimensions.values():
-        if d.isunlimited():
-            nd = None
-        elif (d.name == 'mp') or (d.name == 'land') or (d.name == 'nland'):
-            nd = len(tiiland)
-        elif (d.name == 'mland'):
-            nd = len(miiland)
+        if 'file_format' in dir(fi):
+            fo = nc.Dataset(ofile, 'w', format=fi.file_format)
         else:
-            nd = len(d)
-        fo.createDimension(d.name, nd)
+            fo = nc.Dataset(ofile, 'w', format='NETCDF3_64BIT_OFFSET')
+    
+    # Copy global attributes, adding script
+    cp.set_global_attributes(fi, fo, add={'history':ptime.asctime()+': '+' '.join(sys.argv)})
 
-    #
-    # Create output variables
+    # Copy dimensions
+    cp.create_dimensions(fi, fo, change={'mp':len(tiiland), 'land':len(tiiland), 'nland':len(tiiland), 'mland':len(miiland)})
 
     # create static variables (independent of time)
-    _create_output_variables(fi, fo, time=False, izip=izip, chunksizes=False)
+    cp.create_variables(fi, fo, time=False, izip=izip, chunksizes=False)
 
     # create dynamic variables (time dependent)
-    _create_output_variables(fi, fo, time=True, izip=izip, chunksizes=False)
+    cp.create_variables(fi, fo, time=True, izip=izip, chunksizes=False)
 
-    #
     # Copy variables, selecting the land points with latitude,longitude    
     for ivar in fi.variables.values():
         ovar = fo.variables[ivar.name]
@@ -339,7 +272,6 @@ for ifile in restartfiles:
             ovar = fo.variables[ivar.name]
             ovar[:] = ivar[:]
 
-    #
     # Close restart files
     fi.close()
     fo.close()

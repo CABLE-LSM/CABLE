@@ -1,5 +1,9 @@
 Existing scripts
 ----------------
+Note: the scripts of Matthias Cuntz use the Python library cablepop.
+      Add this scripts directory to your PYTHONPATH, e.g.
+      export PYTHONPATH=${PYTHONPATH}:${PWD}
+
 
 # Prepare input
 ---------------
@@ -18,6 +22,8 @@ duplicate_lon.py
     Copies all variables of a single grid cell file into a second (or more) grid cell(s) with the same lat/lon.
 extract_latlon.py
     Extract a single latitude/longitude point from a netcdf file.
+extract_latlon_restart.py
+    Generate global landmask from a list of lat,lon tupels, and extract tiles from any number of restart files.
 set_latlon_land.py
     Sets the land variable of netcdf file to 1 at given latitude/longitude points, otherwise 0.
 
@@ -26,9 +32,6 @@ set_latlon_land.py
 -----------
 compile_cable-pop.sh
     Submit compilation to compile with -xHost on host machine.
-    Written by Matthias Cuntz.
-extract_latlon_restart.py
-    Generate global landmask from a list of lat,lon tupels, and extract tiles from any number of restart files.
     Written by Matthias Cuntz.
 reset_restart.bash
     Utility that batch renames restart files.
@@ -46,5 +49,7 @@ run_cable_site_CNP.py
 # Written by Matthias Cuntz
 compare_two_cable_runs.sh
     Compare restart and output files of two runs performed with run_cable-pop.sh.
+sum_patchcasa.py
+    Copy Casa output summing the patches on the same grid point.
 sum_patchfrac.py
-    Copies Cable output summing variables weighted with patchfrac.
+    Copy Cable output summing variables weighted with patchfrac.

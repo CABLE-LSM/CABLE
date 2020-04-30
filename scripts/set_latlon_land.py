@@ -27,60 +27,8 @@ Written  Matthias Cuntz, Nov 2019
 Modified Matthias Cuntz, Jan 2020 - copy global attributes and append history
          Matthias Cuntz, Apr 2020 - use create_variable function as in sum_patchfrac.py
                                   - lat,lon given with -l option
+         Matthias Cuntz, Apr 2020 - use python module cablepop
 """
-
-# -------------------------------------------------------------------------
-# Functions
-#
-
-# Copied from jams.netcdf4
-def _get_variable_definition(ncvar):
-    out  = ncvar.filters() if ncvar.filters() else {}
-    dims = list(ncvar.dimensions)
-    if 'x' in dims: dims[dims.index('x')] = 'lon'
-    if 'y' in dims: dims[dims.index('y')] = 'lat'
-    chunks = ncvar.chunking() if not isinstance(ncvar.chunking(), str) else None
-    if "missing_value" in dir(ncvar):
-        ifill = ncvar.missing_value
-    elif "_FillValue" in dir(ncvar):
-        ifill = ncvar._FillValue
-    else:
-        ifill = None
-    out.update({
-        "name"       : ncvar.name,
-        "dtype"      : ncvar.dtype,
-        "dimensions" : dims,
-        "chunksizes" : chunks,
-        # "fill_value" : ncvar._FillValue if "_FillValue" in dir(ncvar) else None,
-        "fill_value" : ifill,
-        })
-    return out
-
-
-def _create_output_variables(fi, fo, time=False, izip=False):
-    # loop over input variables
-    for ivar in fi.variables.values():
-        if time:
-            itime = 'time' in ivar.dimensions
-        else:
-            itime = 'time' not in ivar.dimensions
-        if itime:
-            # create output variable
-            invardef = _get_variable_definition(ivar)
-            if izip: invardef.update({'zlib':True})
-            ovar = fo.createVariable(invardef.pop("name"), invardef.pop("dtype"), **invardef)
-            for k in ivar.ncattrs():
-                iattr = ivar.getncattr(k)
-                if (k != 'missing_value') and (k != '_FillValue'):
-                    ovar.setncattr(k, iattr)
-    return
-
-
-# get index in vector vec of value closest to num
-import numpy as np
-def _closest(vec, num):
-    return np.argmin(np.abs(np.array(vec)-num))
-
 
 # -------------------------------------------------------------------------
 # Command line
@@ -120,6 +68,7 @@ import numpy as np
 import netCDF4 as nc
 import os
 import sys
+import cablepop as cp
 import time as ptime
 # tstart = ptime.time()
 
@@ -146,9 +95,7 @@ nlatlon = lats.size
 #
 
 if ofile is None: # Default output filename
-    sifile = ifile.split('.')
-    sifile[-2] = sifile[-2]+'-masked'
-    ofile = '.'.join(sifile)
+    ofile = cp.set_output_filename(ifile, '-masked')
 fi = nc.Dataset(ifile, 'r')
 if 'land' not in fi.variables:
     fi.close()
@@ -158,10 +105,10 @@ if 'land' not in fi.variables:
 if izip:
     fo = nc.Dataset(ofile, 'w', format='NETCDF4')
 else:
-    # try:
-    fo = nc.Dataset(ofile, 'w', format=fi.file_format)
-    # except:
-    #     fo = nc.Dataset(ofile, 'w', format='NETCDF4')
+    if 'file_format' in dir(fi):
+        fo = nc.Dataset(ofile, 'w', format=fi.file_format)
+    else:
+        fo = nc.Dataset(ofile, 'w', format='NETCDF3_64BIT_OFFSET')
 
 # lat/lon indices
 if 'latitude' in fi.dimensions.keys():
@@ -177,29 +124,20 @@ ilons = fi.variables[lonname][:]
 iilats = []
 iilons = []
 for ii in range(nlatlon):
-    iilats.append(_closest(ilats, lats[ii]))
-    iilons.append(_closest(ilons, lons[ii]))
+    iilats.append(cp.closest(ilats, lats[ii]))
+    iilons.append(cp.closest(ilons, lons[ii]))
 
-# Copy global attributes
-for k in fi.ncattrs():
-    iattr = fi.getncattr(k)
-    if (k == 'history'):
-        iattr = iattr + '\n' + ptime.asctime() + ': ' + ' '.join(sys.argv)
-    fo.setncattr(k, iattr)
-    
+# Copy global attributes, adding script
+cp.set_global_attributes(fi, fo, add={'history':ptime.asctime()+': '+' '.join(sys.argv)})
+
 # Copy dimensions
-for d in fi.dimensions.values():
-    fo.createDimension(d.name, None if d.isunlimited() else len(d))
-
-#
-# Create output variables
-#
+cp.create_dimensions(fi, fo)
 
 # create static variables (independent of time)
-_create_output_variables(fi, fo, time=False, izip=izip)
+cp.create_variables(fi, fo, time=False, izip=izip, renamedim={'x':'lon', 'y':'lat'})
 
 # create dynamic variables (time dependent)
-_create_output_variables(fi, fo, time=True, izip=izip)
+cp.create_variables(fi, fo, time=True, izip=izip, renamedim={'x':'lon', 'y':'lat'})
 
 #
 # Copy variables from in to out
