@@ -835,7 +835,7 @@ CONTAINS
   !  lon_all = UNPACK(longitude,mask=LandMaskLogical,field=-9999.)
  
   FORALL (icol=1:MaskCols) lon_all(icol,:) = MaskCtrW + (real(icol-1) * MaskRes)
-  lat_all(irow,:) = (real(MaskRows - irow) * MaskRes) + MaskCtrS
+ 
   FORALL (irow=1:MaskRows) lat_all(:,irow) = (real(MaskRows - irow) * MaskRes) + MaskCtrS
 
  
@@ -847,6 +847,8 @@ CONTAINS
 
   !lat_all = UNPACK(latitude,mask=LandMaskLogical,field=-9999.)
   !lon_all = UNPACK(longitude,mask=LandMaskLogical,field=-9999.)
+
+  
 
   !Finished reading grids. Only mland vectors from now on.
   DEALLOCATE (ColRowGrid)
