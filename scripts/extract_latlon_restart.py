@@ -247,7 +247,7 @@ for ifile in restartfiles:
     cp.set_global_attributes(fi, fo, add={'history':ptime.asctime()+': '+' '.join(sys.argv)})
 
     # Copy dimensions
-    cp.create_dimensions(fi, fo, change={'mp':len(tiiland), 'land':len(tiiland), 'nland':len(tiiland), 'mland':len(miiland)})
+    cp.create_dimensions(fi, fo, changedim={'mp':len(tiiland), 'land':len(tiiland), 'nland':len(tiiland), 'mland':len(miiland)})
 
     # create static variables (independent of time)
     cp.create_variables(fi, fo, time=False, izip=izip, chunksizes=False)

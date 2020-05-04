@@ -816,8 +816,8 @@ contains
           ! adjust Vcmax and Jmax accounting for gm, but only if the implicit values
           ! have changed.
           if (cable_user%explicit_gm) then
-!write(901,*) vcmaxx(1), veg%vcmax(1), cfrdx(1), veg%cfrd(1), ktau
-!write(902,*) vcmaxx(2), veg%vcmax(2), cfrdx(2), veg%cfrd(2)              
+             ! write(901,*) vcmaxx(1), veg%vcmax(1), cfrdx(1), veg%cfrd(1), ktau
+             ! write(902,*) vcmaxx(2), veg%vcmax(2), cfrdx(2), veg%cfrd(2)              
              if ( ABS(vcmaxx(np) - veg%vcmax(np)) .GT. 1.0E-08 .OR. &
                   ABS(cfrdx(np) - veg%cfrd(np)) .GT. 1.0E-05 .OR. &
                   ktau .LT. ktauday ) then

@@ -26,7 +26,7 @@ History
 -------
 Written  Matthias Cuntz, Oct 2018
 Modified Matthias Cuntz, Apr 2020 - set _FillValue when creating variables
-                                 - script more general for all Cable-POP output files
+                                  - script more general for all Cable-POP output files
          Matthias Cuntz, Apr 2020 - use python module cablepop
 """
 
@@ -64,8 +64,8 @@ import sys
 import numpy as np
 import netCDF4 as nc
 import cablepop as cp
+import time as ptime
 if verbose:
-    import time as ptime
     tstart = ptime.time()
 
 # -------------------------------------------------------------------------
@@ -97,7 +97,7 @@ else:
 cp.set_global_attributes(fi, fo, add={'history':ptime.asctime()+': '+' '.join(sys.argv)})
 
 # Copy dimensions
-cp.create_dimensions(fi, fo, exclude=['patch'])
+cp.create_dimensions(fi, fo, removedim=['patch'])
 
 # Check patch dimensions
 patchfrac = fi.variables['patchfrac']

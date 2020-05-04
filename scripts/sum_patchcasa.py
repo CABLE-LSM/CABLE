@@ -61,8 +61,8 @@ import sys
 import numpy as np
 import netCDF4 as nc
 import cablepop as cp
+import time as ptime
 if verbose:
-    import time as ptime
     tstart = ptime.time()
 
 # -------------------------------------------------------------------------
@@ -105,13 +105,13 @@ lidx = lidx[:nidx]
 cp.set_global_attributes(fi, fo, add={'history':ptime.asctime()+': '+' '.join(sys.argv)})
 
 # Copy dimensions
-cp.create_dimensions(fi, fo, change={'land':nidx, 'ntile':nidx})
+cp.create_dimensions(fi, fo, changedim={'land':nidx, 'ntile':nidx})
 
 # create static variables (independent of time)
-cp.create_variables(fi, fo, time=False, izip=izip, fill=-1e33, chunksizes=False)
+cp.create_variables(fi, fo, time=False, izip=izip, fill=True, chunksizes=False)
 
 # create dynamic variables (time dependent)
-cp.create_variables(fi, fo, time=True, izip=izip, fill=-1e33, chunksizes=False)
+cp.create_variables(fi, fo, time=True, izip=izip, fill=True, chunksizes=False)
 
 #
 # Copy variables from in to out, summing the patches
@@ -136,12 +136,20 @@ for ivar in fi.variables.values():
         outshape[-1] = nidx
         # fill in memory, then write to disk in one go
         out = np.full(outshape, ovar._FillValue)
-        if len(outshape) == 1:
-            for i in range(nidx):
-                out[i] = invar[sidx[i]:sidx[i]+lidx[i]].sum()
+        if ivar.name == 'latitude' or ivar.name == 'longitude':
+            if len(outshape) == 1:
+                for i in range(nidx):
+                    out[i] = invar[sidx[i]]
+            else:
+                for i in range(nidx):
+                    out[...,i] = invar[...,sidx[i]]
         else:
-            for i in range(nidx):
-                out[...,i] = invar[...,sidx[i]:sidx[i]+lidx[i]].sum(axis=-1)
+            if len(outshape) == 1:
+                for i in range(nidx):
+                    out[i] = invar[sidx[i]:sidx[i]+lidx[i]].sum()
+            else:
+                for i in range(nidx):
+                    out[...,i] = invar[...,sidx[i]:sidx[i]+lidx[i]].sum(axis=-1)
     else:
         out = invar
     ovar[:] = out

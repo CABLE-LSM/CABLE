@@ -2029,7 +2029,7 @@ contains
 
     ! Get File-Name
     if (len_trim(casafile%out) > 0) then
-       fname = trim(casafile%out)      
+       fname = trim(casafile%out)
     else
        if (len_trim(cable_user%mettype) > 0) then
           if (cable_user%yearstart < 1000) then
@@ -2057,7 +2057,7 @@ contains
        status = nf90_create(trim(fname), ior(nf90_clobber,nf90_64bit_offset), file_id)
 #else
        status = nf90_create(trim(fname), ior(nf90_clobber,ior(nf90_netcdf4,nf90_classic_model)), file_id)
-#endif       
+#endif
        if (status /= nf90_noerr) call handle_err(status)
 
        status = nf90_put_att(file_id, nf90_global, "icycle"   , icycle)
