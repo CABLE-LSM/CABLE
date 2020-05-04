@@ -2029,7 +2029,7 @@ contains
 
     ! Get File-Name
     if (len_trim(casafile%out) > 0) then
-       fname = trim(casafile%out)
+       fname = trim(casafile%out)      
     else
        if (len_trim(cable_user%mettype) > 0) then
           if (cable_user%yearstart < 1000) then

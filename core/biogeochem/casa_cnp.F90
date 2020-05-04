@@ -1895,7 +1895,12 @@ SUBROUTINE casa_delsoil(veg, casapool, casaflux, casamet, casabiome)
                 )
            xdplabsorb(nland) = 1.0_r_2+ casaflux%Psorbmax(nland)*casaflux%kmlabp(nland) &
                 /((casaflux%kmlabp(nland)+casapool%Psoillab(nland))**2)
+write(801,*) 'xdplabsorb(1):', xdplabsorb(1)
+write(801,*) 'casaflux%Psorbmax(1):', casaflux%Psorbmax(1)
+write(801,*) 'casapool%Psoillab(1):', casapool%Psoillab(1)
+write(801,*) 'casaflux%kmlabp(1):', casaflux%kmlabp(1)
 
+           
            !  write(*,*) 'xdplabsorb:',  xdplabsorb(nland), casaflux%Psorbmax(nland), casaflux%kmlabp(nland), &
            !      casaflux%kmlabp(nland), casapool%Psoillab(nland)
            casapool%dPlitterdt(nland,:) = casaflux%fluxPtolitter(nland,:)  &
