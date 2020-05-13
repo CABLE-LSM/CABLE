@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from __future__ import division, absolute_import, print_function
 """
 closest : Index of an array (arr) at which the entry is closest to a given number (num),
           which is `argmin(abs(arr-num))`.
@@ -23,6 +22,7 @@ The following functions are provided:
 .. autosummary::
    closest
 """
+from __future__ import division, absolute_import, print_function
 import numpy as np
 
 def closest(arr, num, value=False):
@@ -68,9 +68,9 @@ def closest(arr, num, value=False):
 
     History
     -------
-    Written,  MC, Jan 2012
-    Modified, MC, Feb 2013 - ported to Python 3
-              MC, Apr 2020 - numpy docstring format
+    Written,  Matthias Cuntz, Jan 2012
+    Modified, Matthias Cuntz, Feb 2013 - ported to Python 3
+              Matthias Cuntz, Apr 2020 - numpy docstring format
     """
     out = np.ma.argmin(np.ma.abs(np.ma.array(arr)-num))
     if value:

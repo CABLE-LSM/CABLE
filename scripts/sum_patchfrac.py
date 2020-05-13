@@ -92,7 +92,7 @@ else:
         fo = nc.Dataset(ofile, 'w', format=fi.file_format)
     else:
         fo = nc.Dataset(ofile, 'w', format='NETCDF3_64BIT_OFFSET')
-    
+
 # Copy global attributes, adding script
 cp.set_global_attributes(fi, fo, add={'history':ptime.asctime()+': '+' '.join(sys.argv)})
 

@@ -1,8 +1,9 @@
 #!/usr/bin/env python
+from __future__ import print_function
 """
-usage: nopatch2d.py [-h] [-o output_netcdf] [-v] [-z] [input_netcdf]
+usage: sum_patchcasa2d.py [-h] [-o output_netcdf] [-v] [-z] [input_netcdf]
 
-Transform Cable or Casa output with summed patches to 2D arrays with latitude/longitude.
+Copy Casa output summing the patches on the same grid point and make lat/lon output.
 
 positional arguments:
   input_netcdf          input netcdf file.
@@ -10,7 +11,8 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   -o output_netcdf, --outfile output_netcdf
-                        output netcdf file name (default: input-2d.nc).
+                        output netcdf file name (default: input-
+                        no_patch2d.nc).
   -v, --verbose         Feedback during copy (default: no feedback).
   -z, --zip             Use netCDF4 variable compression (default: same format
                         as input file).
@@ -18,17 +20,13 @@ optional arguments:
 
 Example
 -------
-  python nopatch2d.py -z -o cru_out_casa_2009_2011-no_patch-2d.nc cru_out_casa_2009_2011-no_patch.nc
+  python sum_patchcasa2d.py -o cru_out_casa_2009_2011-no_patch2d.nc cru_out_casa_2009_2011.nc
 
 
 History
 -------
-Written  Matthias Cuntz, May 2020
-Modified Matthias Cuntz, May 2020 - use llKDTree from cablepop library
-
-ToDo: create 2d fields per time step rather than whole arrays at once.
+Written  Matthias Cuntz, May 2020 - from sum_patchcasa.py and nopatch2d.py
 """
-from __future__ import division, absolute_import, print_function
 
 # -------------------------------------------------------------------------
 # Command line
@@ -40,10 +38,10 @@ ofile   = None
 verbose = False
 izip    = False
 parser  = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
-                                  description=('''Transform Cable or Casa output with summed patches to 2D arrays with latitude/longitude.'''))
+                                  description=('''Copy Casa output summing the patches on the same grid point and make lat/lon output.'''))
 parser.add_argument('-o', '--outfile', action='store',
                     default=ofile, dest='ofile', metavar='output_netcdf',
-                        help='output netcdf file name (default: input-2d.nc).')
+                        help='output netcdf file name (default: input-no_patch2d.nc).')
 parser.add_argument('-v', '--verbose', action='store_true', default=verbose, dest='verbose',
                     help='Feedback during copy (default: no feedback).')
 parser.add_argument('-z', '--zip', action='store_true', default=izip, dest='izip',
@@ -76,7 +74,7 @@ if verbose:
 # Open files
 #
 if ofile is None: # Default output filename
-    ofile = cp.set_output_filename(ifile, '-2d')
+    ofile = cp.set_output_filename(ifile, '-no_patch2d')
 fi = nc.Dataset(ifile, 'r')
 if verbose: print('Input file:  ', ifile)
 if verbose: print('Output file: ', ofile)
@@ -88,28 +86,36 @@ else:
     else:
         fo = nc.Dataset(ofile, 'w', format='NETCDF3_64BIT_OFFSET')
 
-# get latitude/longitude indices
-if 'local_lat' in fi.variables:
-    ilats = fi.variables['local_lat'][:]
-    ilons = fi.variables['local_lon'][:]
-else:
-    ilats = fi.variables['latitude'][:]
-    ilons = fi.variables['longitude'][:]
+# Determine number of land points
+lats = fi.variables['latitude'][:]
+lons = fi.variables['longitude'][:]
+sidx = np.zeros(lats.size, dtype=np.int)
+lidx = np.ones(lats.size,  dtype=np.int)
+nidx = 0
+for i in range(1,lons.size):
+   if (lons[i] == lons[i-1]) and (lats[i] == lats[i-1]):
+       lidx[nidx] += 1
+   else:
+       nidx += 1
+       sidx[nidx] = i
+       lidx[nidx] = 1
+sidx = sidx[:nidx]
+lidx = lidx[:nidx]
+
+# Get latitude/longitude indices
+# input grid
+ilats = fi.variables['latitude'][sidx]
+ilons = fi.variables['longitude'][sidx]
 nland = ilats.size
-if 'x' in fi.dimensions: # use existing grid
-    olat = fi.variables['y'][:]
-    olon = fi.variables['x'][:]
-    nlat   = olat.size
-    nlon   = olon.size
-else:                    # great new global grid -60 to +90 latitudes
-    dlat = np.abs(np.diff(np.unique(np.sort(ilats)))).min() # 0.5, 1 degree
-    dlon = np.abs(np.diff(np.unique(np.sort(ilons)))).min() # 0.5, 1 degree
-    nlat = np.rint(150./dlat).astype(np.int) # 300, 150
-    nlon = np.rint(360./dlon).astype(np.int) # 720, 360
-    clat = ilats.min() % 1. # 0.0 or 0.25, 0.0 or 0.5
-    clon = ilons.min() % 1. # 0.0 or 0.25, 0.0 or 0.5
-    olat = -60.  + clat + np.arange(nlat)/float(nlat-1) * (150.-dlat) # new lats
-    olon = -180. + clon + np.arange(nlon)/float(nlon-1) * (360.-dlon) # new lons
+# output grid
+dlat = np.abs(np.diff(np.unique(np.sort(ilats)))).min() # 0.5, 1 degree
+dlon = np.abs(np.diff(np.unique(np.sort(ilons)))).min() # 0.5, 1 degree
+nlat = np.rint(150./dlat).astype(np.int) # 300, 150
+nlon = np.rint(360./dlon).astype(np.int) # 720, 360
+clat = ilats.min() % 1. # 0.0 or 0.25, 0.0 or 0.5
+clon = ilons.min() % 1. # 0.0 or 0.25, 0.0 or 0.5
+olat = -60.  + clat + np.arange(nlat)/float(nlat-1) * (150.-dlat) # new lats
+olon = -180. + clon + np.arange(nlon)/float(nlon-1) * (360.-dlon) # new lons
 olon2d, olat2d = np.meshgrid(olon, olat) # new lats, lons in 2D
 lltree = cp.llKDTree(olat2d, olon2d) # KD-tree
 iidl   = np.arange(nland, dtype=np.int) # indices of land in input grid
@@ -127,18 +133,14 @@ cp.set_global_attributes(fi, fo, add={'history':ptime.asctime()+': '+' '.join(sy
 cp.create_dimensions(fi, fo, removedim=['land', 'ntile'], adddim={'x':nlon, 'y':nlat})
 
 # create static variables (independent of time)
-if 'local_lat' in fi.variables:
-    renvar = {} #{'latitude':'nav_lat', 'longitude':'nav_lon'}
-else:
-    renvar = {}
 cp.create_variables(fi, fo, time=False, izip=izip, fill=True, chunksizes=False,
-                    renamevar=renvar, replacedim={'land':('y','x'), 'ntile':('y','x')})
+                    replacedim={'land':('y','x'), 'ntile':('y','x')})
 # create dynamic variables (time dependent)
 cp.create_variables(fi, fo, time=True, izip=izip, fill=True, chunksizes=False,
-                    renamevar=renvar, replacedim={'land':('y','x'), 'ntile':('y','x')})
+                    replacedim={'land':('y','x'), 'ntile':('y','x')})
 
 #
-# Copy variables from in to out expanding the land dimension to y, x
+# Copy variables from in to out, summing the patches and make lat/lon
 #
 
 # copy static and dynamic variables
@@ -156,8 +158,9 @@ for ivar in fi.variables.values():
     ovar  = fo.variables[ivar.name]
     invar = ivar[:] # read whole field, otherwise times increasing sharpely
     if ('land' in ivar.dimensions) or ('ntile' in ivar.dimensions):
-        outshape = list(invar.shape)
-        outshape[-1] = nlat   # land to y,x
+        # sum patch
+        outshape     = list(invar.shape)
+        outshape[-1] = nlat   # patch to y,x
         outshape.append(nlon)
         # fill in memory, then write to disk in one go
         out = np.full(outshape, ovar._FillValue)
@@ -167,9 +170,11 @@ for ivar in fi.variables.values():
             out = olon2d
         else:
             if len(invar.shape) == 1:
-                out[oidy, oidx] = invar[iidl]
+                for i in range(nidx):
+                    out[oidy[i], oidx[i]] = invar[sidx[i]:sidx[i]+lidx[i]].sum()
             else:
-                out[..., oidy, oidx] = invar[..., iidl]
+                for i in range(nidx):
+                    out[..., oidy[i], oidx[i]] = invar[...,sidx[i]:sidx[i]+lidx[i]].sum(axis=-1)
     else:
         out = invar
     ovar[:] = out

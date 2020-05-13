@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from __future__ import print_function
 """
 usage: sum_patchcasa.py [-h] [-o output_netcdf] [-v] [-z] [input_netcdf]
 
@@ -26,6 +25,7 @@ History
 -------
 Written  Matthias Cuntz, Apr 2020 - from sum_patchfrac.py and casa2d.py
 """
+from __future__ import division, absolute_import, print_function
 
 # -------------------------------------------------------------------------
 # Command line
@@ -91,8 +91,8 @@ lons = fi.variables['longitude'][:]
 sidx = np.zeros(lats.size, dtype=np.int)
 lidx = np.ones(lats.size,  dtype=np.int)
 nidx = 0
-for i in range(1,lons.size): 
-   if (lons[i] == lons[i-1]) and (lats[i] == lats[i-1]): 
+for i in range(1,lons.size):
+   if (lons[i] == lons[i-1]) and (lats[i] == lats[i-1]):
        lidx[nidx] += 1
    else:
        nidx += 1
@@ -100,7 +100,7 @@ for i in range(1,lons.size):
        lidx[nidx] = 1
 sidx = sidx[:nidx]
 lidx = lidx[:nidx]
-    
+
 # Copy global attributes, adding script
 cp.set_global_attributes(fi, fo, add={'history':ptime.asctime()+': '+' '.join(sys.argv)})
 
