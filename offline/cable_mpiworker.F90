@@ -291,7 +291,7 @@ CONTAINS
          cable_user           ! additional USER switches
 
     INTEGER :: LALLOC
-    
+
     ! command line arguments
     integer :: narg, len1, len2
     character(len=500) :: arg1
@@ -703,7 +703,7 @@ CONTAINS
                 veg%vcmax_sun = veg%vcmax
                 veg%ejmax_sun = veg%ejmax
              ENDIF
-             
+
              !MC - if (l_laiFeedbk) veg%vlai(:) = real(casamet%glai(:))
              if (l_laiFeedbk .and. (icycle>0)) veg%vlai(:) = real(casamet%glai(:))
 
@@ -720,64 +720,64 @@ CONTAINS
                 gpp  = canopy%An + canopy%Rd
                 Ra   = isoratio(c13o2flux%ca, real(met%ca,r_2), 1.0_r_2)
                 !MCTest
-                ! c13o2flux%An       = canopy%An
+                c13o2flux%An       = canopy%An
                 ! c13o2flux%An       = 1.005_r_2 * canopy%An !  * vpdbc13 / vpdbc13 ! Test 5 permil
-                ! c13o2flux%Disc     = 0.0_r_2
-                ! c13o2flux%Vstarch  = c13o2flux%Vstarch + 1.0e-6_r_2
-                ! c13o2flux%Rstarch  = c13o2flux%Rstarch
-                ! c13o2flux%Rsucrose = c13o2flux%Rsucrose
-                ! c13o2flux%Rphoto   = c13o2flux%Rphoto
-                do ileaf=1, mf
-                   if (cable_user%c13o2_simple_disc) then
-                      call c13o2_discrimination_simple( &
-                           ! -- Input
-                           ! isc3
-                           real(dels,r_2), canopy%isc3, &
-                           ! GPP and Leaf respiration
-                           gpp(:,ileaf), canopy%Rd(:,ileaf), &
-                           ! Ambient and stomatal CO2 concentration
-                           real(met%ca,r_2), canopy%ci(:,ileaf), &
-                           ! leaf temperature
-                           real(canopy%tlf,r_2), &
-                           ! Ambient isotope ratio
-                           Ra, &
-                           ! -- Inout
-                           ! Starch pool and its isotope ratio
-                           c13o2flux%Vstarch, c13o2flux%Rstarch, &
-                           ! -- Output
-                           ! discrimination
-                           c13o2flux%Disc(:,ileaf), &
-                           ! 13CO2 flux
-                           c13o2flux%An(:,ileaf) )
-                   else
-                      call c13o2_discrimination( &
-                           ! -- Input
-                           real(dels,r_2), canopy%isc3, &
-                           ! Photosynthesis variables
-                           ! Vcmax<< because of temperature dependence of Vcmax
-                           canopy%vcmax(:,ileaf), gpp(:,ileaf), canopy%Rd(:,ileaf), canopy%gammastar(:,ileaf), &
-                           ! CO2 concentrations
-                           real(met%ca,r_2), canopy%ci(:,ileaf), &
-                           ! Conductances
-                           canopy%gac(:,ileaf), canopy%gbc(:,ileaf), canopy%gsc(:,ileaf), &
-                           ! leaf temperature
-                           real(canopy%tlf,r_2), &
-                           ! Ambient isotope ratio
-                           Ra, &
-                           ! -- Inout
-                           ! Starch pool and isotope ratios of pools for respiration
-                           c13o2flux%Vstarch, c13o2flux%Rstarch, &
-                           c13o2flux%Rsucrose(:,ileaf), c13o2flux%Rphoto(:,ileaf), &
-                           ! -- Output
-                           ! discrimination
-                           c13o2flux%Disc(:,ileaf), &
-                           ! 13CO2 flux
-                           c13o2flux%An(:,ileaf) )
-                   endif ! cable_user%c13o2_simple_disc
-                end do ! ileaf=1:mf
+                c13o2flux%Disc     = 0.0_r_2
+                c13o2flux%Vstarch  = c13o2flux%Vstarch + 1.0e-6_r_2
+                c13o2flux%Rstarch  = c13o2flux%Rstarch
+                c13o2flux%Rsucrose = c13o2flux%Rsucrose
+                c13o2flux%Rphoto   = c13o2flux%Rphoto
+                ! do ileaf=1, mf
+                !    if (cable_user%c13o2_simple_disc) then
+                !       call c13o2_discrimination_simple( &
+                !            ! -- Input
+                !            ! isc3
+                !            real(dels,r_2), canopy%isc3, &
+                !            ! GPP and Leaf respiration
+                !            gpp(:,ileaf), canopy%Rd(:,ileaf), &
+                !            ! Ambient and stomatal CO2 concentration
+                !            real(met%ca,r_2), canopy%ci(:,ileaf), &
+                !            ! leaf temperature
+                !            real(canopy%tlf,r_2), &
+                !            ! Ambient isotope ratio
+                !            Ra, &
+                !            ! -- Inout
+                !            ! Starch pool and its isotope ratio
+                !            c13o2flux%Vstarch, c13o2flux%Rstarch, &
+                !            ! -- Output
+                !            ! discrimination
+                !            c13o2flux%Disc(:,ileaf), &
+                !            ! 13CO2 flux
+                !            c13o2flux%An(:,ileaf) )
+                !    else
+                !       call c13o2_discrimination( &
+                !            ! -- Input
+                !            real(dels,r_2), canopy%isc3, &
+                !            ! Photosynthesis variables
+                !            ! Vcmax<< because of temperature dependence of Vcmax
+                !            canopy%vcmax(:,ileaf), gpp(:,ileaf), canopy%Rd(:,ileaf), canopy%gammastar(:,ileaf), &
+                !            ! CO2 concentrations
+                !            real(met%ca,r_2), canopy%ci(:,ileaf), &
+                !            ! Conductances
+                !            canopy%gac(:,ileaf), canopy%gbc(:,ileaf), canopy%gsc(:,ileaf), &
+                !            ! leaf temperature
+                !            real(canopy%tlf,r_2), &
+                !            ! Ambient isotope ratio
+                !            Ra, &
+                !            ! -- Inout
+                !            ! Starch pool and isotope ratios of pools for respiration
+                !            c13o2flux%Vstarch, c13o2flux%Rstarch, &
+                !            c13o2flux%Rsucrose(:,ileaf), c13o2flux%Rphoto(:,ileaf), &
+                !            ! -- Output
+                !            ! discrimination
+                !            c13o2flux%Disc(:,ileaf), &
+                !            ! 13CO2 flux
+                !            c13o2flux%An(:,ileaf) )
+                !    endif ! cable_user%c13o2_simple_disc
+                ! end do ! ileaf=1:mf
                 !MCTest
              endif ! cable_user%c13o2
-             
+
              !TRUNK - call of cable_climet before cbm
              if (cable_user%CALL_climate) &
                   CALL cable_climate(ktau, kstart, ktauday, idoy, LOY, met, &
@@ -911,7 +911,7 @@ CONTAINS
           !    CONTINUE
           !    !CALL worker_send_pop(POP, ocomm)
           ! ENDIF
-          
+
           IF ((icycle.gt.0) .AND. (.NOT.casaonly)) THEN
              ! re-initalise annual flux sums
              casabal%FCgppyear = 0.0_r_2
@@ -2025,7 +2025,7 @@ CONTAINS
     bidx = bidx + 1
     call MPI_Get_address(canopy%An, displs(bidx), ierr)
     blen(bidx) = mf * r2len
-    
+
     bidx = bidx + 1
     call MPI_Get_address(canopy%Rd, displs(bidx), ierr)
     blen(bidx) = mf * r2len
@@ -7433,7 +7433,7 @@ CONTAINS
        CALL MPI_Get_address(climate%last_precip, displs(bidx), ierr)
        blen(bidx) = r1len
     endif
-    
+
     ! ------- casaflux - N and P deposition ---
 
     if (icycle>1) then
@@ -7544,9 +7544,9 @@ CONTAINS
     r1len = mp * extr1
     r2len = mp * extr2
     i1len = mp * extid
-    
+
     off  = 1
-    
+
     bidx = 0
 
     bidx = bidx + 1
@@ -8608,7 +8608,7 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
   use POP_constants,        only: rshootfrac
 
   implicit none
-  
+
   !!CLN  character(len=99), intent(in)  :: fcnpspin
   real,                      intent(in)    :: dels
   integer,                   intent(in)    :: kstart
@@ -8673,7 +8673,7 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
   ktauday = int(24.0*3600.0/dels)
   nday    = (kend-kstart+1)/ktauday
   loy     = 365
-   
+
   ! chris 12/oct/2012 for spin up casa
   if (.not.(allocated(avg_cleaf2met)))  allocate(avg_cleaf2met(mp), avg_cleaf2str(mp), avg_croot2met(mp), avg_croot2str(mp), &
        avg_cwood2cwd(mp), &
@@ -8832,7 +8832,7 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
   !!CLN    CLOSE(91)
   ! average
   rday = 1.0_dp / real(nday*myearspin, dp)
-  
+
   avg_cleaf2met       = avg_cleaf2met       * rday
   avg_cleaf2str       = avg_cleaf2str       * rday
   avg_croot2met       = avg_croot2met       * rday
@@ -8892,7 +8892,7 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
        avg_c13root2str, avg_c13wood2cwd, c13o2pools)
 
   nloop1= max(1,mloop-3)
-  
+
   do nloop=1, mloop
      !!CLN  OPEN(91,file=fcnpspin)
      !!CLN  read(91,*)
@@ -8948,7 +8948,7 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
               casaflux%stemnpp = 0.0_dp
            endif ! CALL_POP
            write(wlogn,*) 'idoy ', idoy
-           
+
         enddo   ! end of idoy
 
      enddo   ! end of nyear
@@ -8989,7 +8989,7 @@ SUBROUTINE worker_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
   use cable_c13o2,         only: c13o2_save_casapool, c13o2_update_pools
 
   IMPLICIT NONE
-  
+
   !!CLN  CHARACTER(LEN=99), INTENT(IN)  :: fcnpspin
   real,                      intent(in)    :: dels
   integer,                   intent(in)    :: kstart
@@ -9028,7 +9028,7 @@ SUBROUTINE worker_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
   ! 13C
   real(dp), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
 
-  
+
   ktauday = int(24.0*3600.0/dels)
   nday    = (kend-kstart+1)/ktauday
 
