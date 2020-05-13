@@ -189,7 +189,7 @@ contains
           if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
 #endif
 
-          IF (cable_user%CALL_POP) THEN   
+          IF (cable_user%CALL_POP) THEN
              ! accumulate annual variables for use in POP
              IF (MOD(ktau/ktauday,LOY)==1) THEN
                 casaflux%stemnpp  = casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_r_2
@@ -817,7 +817,7 @@ contains
           ! have changed.
           if (cable_user%explicit_gm) then
              ! write(901,*) vcmaxx(1), veg%vcmax(1), cfrdx(1), veg%cfrd(1), ktau
-             ! write(902,*) vcmaxx(2), veg%vcmax(2), cfrdx(2), veg%cfrd(2)              
+             ! write(902,*) vcmaxx(2), veg%vcmax(2), cfrdx(2), veg%cfrd(2)
              if ( ABS(vcmaxx(np) - veg%vcmax(np)) .GT. 1.0E-08 .OR. &
                   ABS(cfrdx(np) - veg%cfrd(np)) .GT. 1.0E-05 .OR. &
                   ktau .LT. ktauday ) then

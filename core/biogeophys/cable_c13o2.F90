@@ -102,9 +102,9 @@ contains
     Dc3 = 4.4e-3_dp + (29.e-3_dp-4.4e-3_dp) * 0.7_dp
     Dc4 = 3.0e-3_dp
     !MCTest
-    ! da  = 0.0_dp
-    ! Dc3 = 0.0_dp
-    ! Dc4 = 0.0_dp
+    da  = 0.0_dp
+    Dc3 = 0.0_dp
+    Dc4 = 0.0_dp
     !MCTest
     ! Divide by VPDB so that about same numerical precision as 12C
     c13o2flux%ca  = (1.0_dp + da) * met%ca ! * vpdbc13 / vpdbc13
@@ -238,34 +238,34 @@ contains
     call c13o2_fluxmatrix_pools(casaflux, fluxmatrix)
     ! sources such as photosynthesis
     call c13o2_sources_pools(c13o2flux, casaflux, casasources)
-    ! #ifdef __C13DEBUG__
-    ! call c13o2_sources_pools_nofrac(c13o2flux, casaflux, casasourcestmp)
-    ! #endif
+#ifdef __C13DEBUG__
+    call c13o2_sources_pools_nofrac(c13o2flux, casaflux, casasourcestmp)
+#endif
     ! sinks such as respiration
     call c13o2_sinks_pools(casaflux, casasinks)
 
-    ! #ifdef __C13DEBUG__
-    ! ! Check C fluxes
-    ! mp = size(casasave,1)
-    ! do i=1, mp
-    !    do j=1, 3 ! pools
-    !       ! inew = casasave(i,j) + casaflux%fracCalloc(i,j) * casaflux%Cnpp(i) &
-    !       !      - casaflux%FluxFromPtoCO2(i,j) - sum(casaflux%FluxFromPtoL(i,j,:))
-    !       ! print*, 'Plant ', i, j, casapool%cplant(i,j)-inew
-    !       ! inew = casasave(i,3+j) &
-    !       !      - casaflux%FluxFromLtoCO2(i,j) + sum(casaflux%FluxFromPtoL(i,:,j)) - sum(casaflux%FluxFromLtoS(i,j,:))
-    !       ! print*, 'Litter ', i, j, casapool%clitter(i,j)-inew
-    !       inew = casasave(i,6+j) &
-    !            - casaflux%FluxFromStoCO2(i,j) + sum(casaflux%FluxFromLtoS(i,:,j)) - sum(casaflux%FluxFromStoS(i,j,:)) &
-    !            + sum(casaflux%FluxFromStoS(i,:,j))
-    !       print*, '    Soil ', i, j, mydiff(casapool%csoil(i,j),inew)
-    !       ! if (abs(casapool%csoil(i,j)-inew) > 1e-12_dp) then
-    !       !    print*, 's01 ', casasave(i,6+j), casaflux%FluxFromStoCO2(i,j), sum(casaflux%FluxFromLtoS(i,:,j))
-    !       !    print*, 's02 ', sum(casaflux%FluxFromStoS(i,j,:)), sum(casaflux%FluxFromStoS(i,:,j))
-    !       ! endif
-    !    end do
-    ! end do
-    ! #endif
+#ifdef __C13DEBUG__
+    ! Check C fluxes
+    mp = size(casasave,1)
+    do i=1, mp
+       do j=1, 3 ! pools
+          inew = casasave(i,j) + casaflux%fracCalloc(i,j) * casaflux%Cnpp(i) &
+               - casaflux%FluxFromPtoCO2(i,j) - sum(casaflux%FluxFromPtoL(i,j,:))
+          print*, 'Plant ', i, j, casasave(i,j), casapool%cplant(i,j), casapool%cplant(i,j)-inew
+          ! inew = casasave(i,3+j) &
+          !      - casaflux%FluxFromLtoCO2(i,j) + sum(casaflux%FluxFromPtoL(i,:,j)) - sum(casaflux%FluxFromLtoS(i,j,:))
+          ! print*, 'Litter ', i, j, casapool%clitter(i,j)-inew
+          ! inew = casasave(i,6+j) &
+          !      - casaflux%FluxFromStoCO2(i,j) + sum(casaflux%FluxFromLtoS(i,:,j)) - sum(casaflux%FluxFromStoS(i,j,:)) &
+          !      + sum(casaflux%FluxFromStoS(i,:,j))
+          ! print*, '    Soil ', i, j, mydiff(casapool%csoil(i,j),inew)
+          ! if (abs(casapool%csoil(i,j)-inew) > 1e-12_dp) then
+          !    print*, 's01 ', casasave(i,6+j), casaflux%FluxFromStoCO2(i,j), sum(casaflux%FluxFromLtoS(i,:,j))
+          !    print*, 's02 ', sum(casaflux%FluxFromStoS(i,j,:)), sum(casaflux%FluxFromStoS(i,:,j))
+          ! endif
+       end do
+    end do
+#endif
 
     ! Calc the isotope pool model
     ! print*, '    DSoil11 ', mydiff(casasave(:,7:9), c13o2save(:,7:9))
@@ -277,14 +277,32 @@ contains
     ! print*, '    iSink01 ', mydiff(sum(casaflux%FluxFromStoS,3), sum(fluxmatrix(:,7:9,:), dim=3))
     ! print*, 'Ci01 ', casapool%cplant, casapool%clitter, casapool%csoil, casapool%clabile
     call isotope_pool_model(deltpool, c13o2save, casasave, fluxmatrix, S=casasources, T=casasinks, trans=.true.)
+#ifdef __C13DEBUG__
+    ! Check 13C fluxes
+    mp = size(casasave,1)
+    do i=1, mp
+       do j=1, 3 ! pools
+          inew = c13o2pools%cplant(i,j) + casaflux%fracCalloc(i,j) * casaflux%Cnpp(i) &
+               - casaflux%FluxFromPtoCO2(i,j) - sum(casaflux%FluxFromPtoL(i,j,:))
+          print*, 'Plant13 ', i, j, c13o2pools%cplant(i,j), c13o2save(i,j), c13o2save(i,j)-inew
+       end do
+    end do
+#endif
     ! print*, 'Ci03 ', c13o2save
-    ! #ifdef __C13DEBUG__
+#ifdef __C13DEBUG__
     ! print*, '    Diff1 plant ', mydiff(casapool%cplant,c13o2save(:,1:3))
     ! print*, '    Diff1 litter ', mydiff(casapool%clitter,c13o2save(:,4:6))
     ! print*, '    Diff1 soil ', mydiff(casapool%csoil,c13o2save(:,7:9))
     ! print*, '    Diff1 labile ', casapool%clabile-c13o2save(:,10)
-    ! casatmp = casasave
-    ! call isotope_pool_model(deltpool, casatmp, casasave, fluxmatrix, S=casasourcestmp, T=casasinks, trans=.true.)
+    casatmp = casasave
+    call isotope_pool_model(deltpool, casatmp, casasave, fluxmatrix, S=casasourcestmp, T=casasinks, trans=.true.)
+    ! Check 13C fluxes
+    mp = size(casasave,1)
+    do i=1, mp
+       do j=1, 3 ! pools
+          print*, 'Plant12 ', i, j, c13o2save(i,j), casatmp(i,j), c13o2save(i,j)-casatmp(i,j)
+       end do
+    end do
     ! print*, '    DSoil12 ', mydiff(casatmp(:,7:9),c13o2save(:,7:9))
     ! print*, '    Diff2 plant ', mydiff(casapool%cplant,casatmp(:,1:3))
     ! print*, '    Diff2 litter ', mydiff(casapool%clitter,casatmp(:,4:6))
@@ -316,7 +334,7 @@ contains
     !    print*, '    DLabile03 ', casatmp(:,10)
     !    print*, '    DLabile04 ', casapool%clabile-c13o2save(:,10)
     ! endif
-    ! #endif
+#endif
 
     ! put new solution into initial c13o2_pool type
     call c13o2_c13o2pools_back(c13o2pools, c13o2save)
@@ -786,7 +804,7 @@ contains
     status = nf90_create(trim(fname), cmode=ior(nf90_clobber,nf90_64bit_offset), ncid=file_id)
 #else
     status = nf90_create(trim(fname), cmode=ior(nf90_clobber,ior(nf90_netcdf4,nf90_classic_model)), ncid=file_id)
-#endif       
+#endif
     if (status /= nf90_noerr) &
          call c13o2_err_handler('Could not open c13o2 output file: '//trim(fname))
 
@@ -888,7 +906,7 @@ contains
        endif
     end do
     ! write(*,*) 'Defined 13CO2 output file.'
-    
+
     ! do i=1, mland
     !    s = landpt(i)%cstart
     !    e = landpt(i)%cend
@@ -1615,7 +1633,7 @@ contains
     real(dp), dimension(npatchmax,mf) :: minipl, maxipl
 
     write(*,*) '  delta-13C of Canopy pools'
-    
+
     if (mland > nminmax) then
 
        ! Vstarch
@@ -1690,9 +1708,9 @@ contains
        write(form,'(a,i3,a)') '(a,', npatchmax*mf, 'g15.6e3)'
        write(*,form) '     dphoto   min: ', minipl
        write(*,form) '              max: ', maxipl
-           
+
     else if (mland > 1) then
-       
+
        do i=1, mland
           npatch = landpt(i)%nap
           s      = landpt(i)%cstart
@@ -1700,7 +1718,7 @@ contains
           write(form,'(a,i3,a)') '(a,i02,a,', npatch, 'g15.6e3)'
           write(*,form) '     Vstarch (n=',i,'):   ', c13o2flux%Vstarch(s:e)
        end do
-       
+
        do i=1, mland
           npatch = landpt(i)%nap
           s      = landpt(i)%cstart
@@ -1718,7 +1736,7 @@ contains
           write(*,form) '     dsucrose (n=',i,'): ', &
                delta1000(c13o2flux%Rsucrose(s:e,:), one, one, undef, tini)
        end do
-       
+
        do i=1, mland
           npatch = landpt(i)%nap
           s      = landpt(i)%cstart
@@ -1729,9 +1747,9 @@ contains
        end do
 
     else ! mland == 1
-       
+
        npatch = landpt(mland)%nap
-       
+
        write(form,'(a,i3,a)') '(a,', npatch, 'g15.6e3)'
        write(*,form) '     Vstarch:  ', c13o2flux%Vstarch(:)
 
@@ -1746,7 +1764,7 @@ contains
             delta1000(c13o2flux%Rphoto(:,:), one, one, undef, tini)
 
     endif ! mland
-    
+
   end subroutine c13o2_print_delta_flux
 
   ! Print 13C delta values of Casa pools on screen
@@ -1886,7 +1904,7 @@ contains
        write(*,form) '              max: ', maxip
 
     else if (mland > 1) then
-       
+
        do i=1, mland
           npatch = landpt(i)%nap
           s      = landpt(i)%cstart
@@ -1922,7 +1940,7 @@ contains
           write(*,form) '     dlabile (n=',i,'):  ', &
                delta1000(c13o2pools%clabile(s:e), casapool%clabile(s:e), one, undef, tini)
        end do
-       
+
        do i=1, mland
           npatch = landpt(i)%nap
           s      = landpt(i)%cstart
@@ -1931,9 +1949,9 @@ contains
           write(*,form) '     dharvest (n=',i,'): ', &
                delta1000(c13o2pools%charvest(s:e), casaflux%charvest(s:e), one, undef, tini)
        end do
-       
+
     else ! mland == 1
-       
+
        npatch = landpt(mland)%nap
 
        write(form,'(a,i3,a)') '(a,', npatch*nplant, 'g15.6e3)'
@@ -1954,7 +1972,7 @@ contains
 
        write(*,form) '     dharvest: ', &
             delta1000(c13o2pools%charvest(:), casaflux%charvest(:), one, undef, tini)
-       
+
     endif ! mland
 
   end subroutine c13o2_print_delta_pools
@@ -2026,7 +2044,7 @@ contains
           write(*,form) '     dharvest (n=',i,'):   ', &
                delta1000(c13o2luc%charvest(:,i), popluc%HarvProd(:,i), one, undef, tini)
        end do
-       
+
        do i=1, nclearance
           write(*,form) '     dclearance (n=',i,'): ', &
                delta1000(c13o2luc%cclearance(:,i), popluc%ClearProd(:,i), one, undef, tini)
@@ -2035,7 +2053,7 @@ contains
        write(form,'(a,i3,a)') '(a,', mland, 'g15.6e3)'
        write(*,form) '     dagric:            ', &
             delta1000(c13o2luc%cagric(:), popluc%AgProd(:), one, undef, tini)
-       
+
     else ! mland == 1
 
        write(form,'(a,i3,a)') '(a,', mland*nharvest, 'g15.6e3)'
@@ -2332,7 +2350,7 @@ contains
 #ifdef __MPI__
     use mpi, only: MPI_Abort
 #endif
-    
+
     implicit none
 
     character(len=*), intent(in) :: message

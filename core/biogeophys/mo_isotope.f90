@@ -211,15 +211,18 @@ contains
     if (present(abundant)) then
        if (abs(abundant) > iprecision) then
           delta1000 = (rare / abundant / istandard - 1.0_dp) * 1000.0_dp
+          ! !MCTest
+          ! if (abs(delta1000) < 1000.0_dp*epsilon(1.0_dp)*1000.0_dp*(10._dp**abs(log10(abundant)))) delta1000 = 0.0_dp
+          ! !MCTest
        else
           delta1000 = idefault
        end if
     else
        delta1000 = (rare / istandard - 1.0_dp) * 1000.0_dp
+       ! !MCTest
+       ! if (abs(delta1000) < 1000.0_dp*epsilon(1.0_dp)*1000.0_dp*(10._dp**abs(log10(rare)))) delta1000 = 0.0_dp
+       ! !MCTest
     end if
-    !MCTest
-    ! if (abs(delta1000) < 100.0_dp*epsilon(1.0_dp)*1000.0_dp) delta1000 = 0.0_dp
-    !MCTest
 
   end function delta1000
 

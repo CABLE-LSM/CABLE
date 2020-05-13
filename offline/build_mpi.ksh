@@ -155,12 +155,12 @@ host_mcin()
         # release
         export CFLAGS="-fpp -O3 -nofixed -assume byterecl -fp-model precise -ip -diag-disable=10382"
         export LDFLAGS="-O3"
-	OPTFLAG="-xHost"
+        OPTFLAG="-xHost"
         if [[ ${idebug} -eq 1 ]] ; then
             # debug
             export CFLAGS="-fpp -O0 -debug extended -traceback -g -check all,noarg_temp_created -warn all -fp-stack-check -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0" # -fpe-all=0 -no-ftz -ftrapuv -init=arrays,snan
             export LDFLAGS="-O0"
-	    OPTFLAG=
+            OPTFLAG=
         fi
         export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
         export LD=""
@@ -173,12 +173,12 @@ host_mcin()
         # release
         export CFLAGS="-cpp -O3 -Wno-aggressive-loop-optimizations -ffree-form -ffixed-line-length-132"
         export LDFLAGS="-O3"
-	OPTFLAG="-march=native"
+        OPTFLAG="-march=native"
         if [[ ${idebug} -eq 1 ]] ; then
             # debug
             export CFLAGS="-cpp -O -g -pedantic-errors -Wall -W -Wno-maybe-uninitialized -ffree-form -ffixed-line-length-132 -fbacktrace -ffpe-trap=zero,overflow -finit-real=nan" #  -ffpe-trap=zero,overflow,underflow
             export LDFLAGS="-O"
-	    OPTFLAG=
+            OPTFLAG=
         fi
         # export CFLAGS="${CFLAGS} -march=native"
         export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__"
@@ -192,14 +192,14 @@ host_mcin()
         # release
         export CFLAGS="-O4"
         export LDFLAGS="-O4"
-	OPTFLAG=
+        OPTFLAG=
         if [[ ${idebug} -eq 1 ]] ; then
             # debug
             # export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline"
             # set runtime environment variables: export NAGFORTRAN_RUNTIME_OPTIONS=show_dangling
             export CFLAGS="-C=alias -C=array -C=bits -C=dangling -C=do -C=intovf -C=present -C=pointer -C=recursion -g -nan -O0 -strict95 -gline"
             export LDFLAGS="-O0"
-	    OPTFLAG=
+            OPTFLAG=
         fi
         export CFLAGS="${CFLAGS} -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -not_openmp"
         export CFLAGS="${CFLAGS} -mismatch"
@@ -265,12 +265,12 @@ host_vm_o()
         # release
         export CFLAGS="-fpp -O3 -nofixed -assume byterecl -fp-model precise -ip -diag-disable=10382"
         export LDFLAGS="-O3"
-	OPTFLAG="-xBROADWELL"
+        OPTFLAG="-xBROADWELL"
         if [[ ${idebug} -eq 1 ]] ; then
             # debug
             export CFLAGS="-fpp -O0 -debug extended -traceback -g -check all,noarg_temp_created -warn all -fp-stack-check -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0" # -fpe-all=0 -no-ftz -ftrapuv -init=arrays,snan
             export LDFLAGS="-O0"
-	    OPTFLAG=
+            OPTFLAG=
         fi
         # OPTFLAG="${CFLAGS} -march=broadwell"     # std / hf
         # OPTFLAG="${CFLAGS} -march=core-avx2"     # std / hf
@@ -290,12 +290,12 @@ host_vm_o()
         # release
         export CFLAGS="-cpp -O3 -Wno-aggressive-loop-optimizations -ffree-form -ffixed-line-length-132"
         export LDFLAGS="-O3"
-	OPTFLAG="-march=broadwell"
+        OPTFLAG="-march=broadwell"
         if [[ ${idebug} -eq 1 ]] ; then
             # debug
             export CFLAGS="-cpp -O -g -pedantic-errors -Wall -W -Wno-maybe-uninitialized -ffree-form -ffixed-line-length-132 -fbacktrace -ffpe-trap=zero,overflow -finit-real=nan" #  -ffpe-trap=zero,overflow,underflow
             export LDFLAGS="-O"
-	    OPTFLAG=
+            OPTFLAG=
         fi
         # OPTFLAG="${CFLAGS} -march=broadwell"     # std / hf
         # OPTFLAG="${CFLAGS} -mavx2"               # std / hf

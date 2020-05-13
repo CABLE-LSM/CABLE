@@ -18,7 +18,7 @@
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH --ntasks-per-node=1
-#SBATCH -c 8
+#SBATCH -c 4
 # time (day-hh:mm:ss) / memory (optional, units K,M,G,T)
 #SBATCH -t 00:19:59
 #SBATCH --mem=4G
@@ -36,7 +36,7 @@
 #PBS -q normal
 #PBS -l walltime=00:19:59
 #PBS -l mem=4GB
-#PBS -l ncpus=8
+#PBS -l ncpus=4
 # #PBS -l jobfs=1GB
 #PBS -l software=netCDF:MPI:Intel:GNU
 #PBS -r y
@@ -48,7 +48,7 @@
 # Compile MPI version
 dompi=1   # 0: serial code; 1: parallel code
 doclean=1 # 0: make; 1: clean existing compile directory first
-mflag=8   # Numbers of jobs of make to run simultaneously. Set to "" to not limit number of jobs.
+mflag=4   # Numbers of jobs of make to run simultaneously. Set to "" to not limit number of jobs.
           # Could be 2*${SLURM_CPUS_PER_TASK}+1 in case of Slurm
 
 # --------------------------------------------------------------------
