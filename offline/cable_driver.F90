@@ -108,7 +108,8 @@ PROGRAM cable_offline_driver
        c13o2_update_sum_pools, c13o2_zero_sum_pools
   use cable_c13o2,             only: c13o2_save_luc, c13o2_update_luc, &
        c13o2_write_restart_flux, c13o2_write_restart_pools, c13o2_write_restart_luc, &
-       c13o2_create_output, c13o2_write_output, c13o2_close_output, c13o2_nvars_output
+       c13o2_create_output, c13o2_write_output, c13o2_close_output, c13o2_nvars_output, &
+       c13o2_sanity_pools, c13o2_sanity_luc
   use cable_c13o2,             only: c13o2_print_delta_flux, c13o2_print_delta_pools, c13o2_print_delta_luc
   use mo_isotope,              only: isoratio ! vpdbc13
   use mo_c13o2_photosynthesis, only: c13o2_discrimination_simple, c13o2_discrimination
@@ -744,6 +745,8 @@ PROGRAM cable_offline_driver
                  CALL spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
                       casaflux,casamet,casabal,phen,POP,climate,LALLOC, c13o2flux, c13o2pools, &
                       BLAZE, SIMFIRE)
+                 if (cable_user%c13o2) call c13o2_sanity_pools(casapool, casaflux, c13o2pools)
+                 ! Set 13C and 12C LUC pools to 0 if any < epsilon(1.0_dp)
                  SPINon   = .FALSE.
                  SPINconv = .FALSE.
                  !MC - MPI sets CASAONLY = .true. here
@@ -753,6 +756,10 @@ PROGRAM cable_offline_driver
                  CALL CASAONLY_LUC(dels,kstart,kend,veg,soil,casabiome,casapool, &
                       casaflux,casamet,casabal,phen,POP,climate,LALLOC, LUC_EXPT, POPLUC, &
                       sum_casapool, sum_casaflux, c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc)
+                 if (cable_user%c13o2) then
+                    call c13o2_sanity_pools(casapool, casaflux, c13o2pools)
+                    call c13o2_sanity_luc(popluc, c13o2luc)
+                 endif
                  SPINon   = .FALSE.
                  SPINconv = .FALSE.
               ENDIF
@@ -981,6 +988,7 @@ PROGRAM cable_offline_driver
                       phen, pop, ktauday, idoy, loy, &
                       CABLE_USER%CASA_DUMP_READ, &
                       LALLOC, c13o2flux, c13o2pools )
+                 if (cable_user%c13o2) call c13o2_sanity_pools(casapool, casaflux, c13o2pools)
                  ! if (any(delta1000(c13o2pools%cplant, casapool%cplant, 1.0_r_2, 0.0_r_2, tiny(1.0_r_2)) > 0.0_r_2)) then
                  !    print*, 'CC04.01 ', casapool%cplant
                  !    print*, 'CC04.02 ', c13o2pools%cplant
@@ -1003,6 +1011,7 @@ PROGRAM cable_offline_driver
                     IF (CABLE_USER%POPLUC) THEN
                        ! Dynamic LUC
                        CALL LUCdriver(casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg, c13o2pools)
+                       if (cable_user%c13o2) call c13o2_sanity_pools(casapool, casaflux, c13o2pools)
                     ENDIF
 
                     ! one annual time-step of POP
@@ -1020,6 +1029,10 @@ PROGRAM cable_offline_driver
 #else
                           call c13o2_update_luc(casasave, lucsave, popluc, luc_expt%prim_only, c13o2pools, c13o2luc)
 #endif
+                          if (cable_user%c13o2) then
+                             call c13o2_sanity_pools(casapool, casaflux, c13o2pools)
+                             call c13o2_sanity_luc(popluc, c13o2luc)
+                          endif
                        endif
                        ! Dynamic LUC: write output
                        CALL WRITE_LUC_OUTPUT_NC( POPLUC, YYYY, ( YYYY.EQ.cable_user%YearEnd ))

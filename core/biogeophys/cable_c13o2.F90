@@ -47,6 +47,8 @@ MODULE cable_c13o2
   public :: c13o2_print_delta_flux  ! Print delta values of all Canopy pools on screen
   public :: c13o2_print_delta_pools ! Print delta values of all Casa pools on screen
   public :: c13o2_print_delta_luc   ! Print delta values of all LUC pools on screen
+  public :: c13o2_sanity_pools      ! Set 13C and 12C Casa pools to 0 if any < epsilon(1.0_dp)
+  public :: c13o2_sanity_luc        ! Set 13C and 12C LUC pools to 0 if any < epsilon(1.0_dp)
 
   ! ------------------------------------------------------------------
   ! Private
@@ -2071,6 +2073,51 @@ contains
     endif ! mland
 
   end subroutine c13o2_print_delta_luc
+
+  ! ------------------------------------------------------------------
+
+  ! Catch underflow in pools
+  subroutine c13o2_sanity_pools(casapool, casaflux, c13o2pools)
+
+    use casavariable,    only: casa_pool, casa_flux
+    use cable_c13o2_def, only: c13o2_pool
+    use mo_isotope,      only: isosanity
+
+    implicit none
+
+    type(casa_pool),  intent(inout) :: casapool
+    type(casa_flux),  intent(inout) :: casaflux
+    type(c13o2_pool), intent(inout) :: c13o2pools
+
+    logical, parameter :: doabsolute = .true. ! allow negative to still see errors
+
+    call isosanity(c13o2pools%cplant,   casapool%cplant,   absolute=doabsolute)
+    call isosanity(c13o2pools%clitter,  casapool%clitter,  absolute=doabsolute)
+    call isosanity(c13o2pools%csoil,    casapool%csoil,    absolute=doabsolute)
+    call isosanity(c13o2pools%clabile,  casapool%clabile,  absolute=doabsolute)
+    call isosanity(c13o2pools%charvest, casaflux%charvest, absolute=doabsolute)
+
+  end subroutine c13o2_sanity_pools
+
+  ! Catch underflow in luc
+  subroutine c13o2_sanity_luc(popluc, c13o2luc)
+
+    use popluc_types,     only: popluc_type
+    use cable_c13o2_def,  only: c13o2_luc
+    use mo_isotope,       only: isosanity
+
+    implicit none
+
+    type(popluc_type), intent(inout) :: popluc
+    type(c13o2_luc),   intent(inout) :: c13o2luc
+
+    logical, parameter :: doabsolute = .true. ! allow negative to still see errors
+
+    call isosanity(c13o2luc%charvest,   popluc%HarvProd,  absolute=doabsolute)
+    call isosanity(c13o2luc%cclearance, popluc%ClearProd, absolute=doabsolute)
+    call isosanity(c13o2luc%cagric,     popluc%AgProd,    absolute=doabsolute)
+
+  end subroutine c13o2_sanity_luc
 
   ! ------------------------------------------------------------------
 

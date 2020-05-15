@@ -158,7 +158,8 @@ CONTAINS
 
     ! 13C
     use cable_c13o2_def,         only: c13o2_flux, c13o2_pool, c13o2_luc ! , &
-         ! c13o2_update_sum_pools, c13o2_zero_sum_pools
+    ! c13o2_update_sum_pools, c13o2_zero_sum_pools
+    use cable_c13o2,             only: c13o2_sanity_pools
     use mo_isotope,              only: isoratio ! vpdbc13
     use mo_c13o2_photosynthesis, only: c13o2_discrimination_simple, c13o2_discrimination
 
@@ -601,6 +602,7 @@ CONTAINS
                 CALL worker_spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
                      casaflux,casamet,casabal,phen,POP,climate,LALLOC, &
                      c13o2flux, c13o2pools, icomm, ocomm)
+                if (cable_user%c13o2) call c13o2_sanity_pools(casapool, casaflux, c13o2pools)
                 SPINconv = .FALSE.
                 CASAONLY = .TRUE.
                 ktau_gl  = 0
@@ -609,6 +611,7 @@ CONTAINS
                 CALL worker_CASAONLY_LUC(dels,kstart,kend,veg,soil,casabiome,casapool, &
                      casaflux,casamet,casabal,phen,POP,climate,LALLOC, &
                      c13o2flux, c13o2pools, icomm, ocomm)
+                if (cable_user%c13o2) call c13o2_sanity_pools(casapool, casaflux, c13o2pools)
                 SPINconv = .FALSE.
                 ktau_gl  = 0
                 ktau     = 0
@@ -801,6 +804,7 @@ CONTAINS
                      casapool, casaflux, casamet, casabal,              &
                      phen, pop, ktauday, idoy, loy,   &
                      .FALSE., LALLOC, c13o2flux, c13o2pools )
+                if (cable_user%c13o2) call c13o2_sanity_pools(casapool, casaflux, c13o2pools)
                 write(wlogn,*) 'after bgcdriver ', MPI_BOTTOM, 1, casa_t, 0, ktau_gl, ocomm, ierr
                 !TRUNK no if (liseod) then
                 IF (liseod) THEN
@@ -8598,7 +8602,7 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
   use TypeDef,              only: dp
   ! 13C
   use cable_c13o2_def,      only: c13o2_pool, c13o2_flux
-  use cable_c13o2,          only: c13o2_save_casapool, c13o2_update_pools
+  use cable_c13o2,          only: c13o2_save_casapool, c13o2_update_pools, c13o2_sanity_pools
   use mo_isotope,           only: isoratio
 
   use mpi
@@ -8760,6 +8764,7 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
            avg_c13wood2cwd(:) = avg_c13wood2cwd(:) + &
                 cwood2cwd(:) * isoratio(c13o2pools%cplant(:,wood), casasave(:,wood), 0.0_dp, tiny(1.0_dp))
            call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
+           if (cable_user%c13o2) call c13o2_sanity_pools(casapool, casaflux, c13o2pools)
         endif
 
         if (cable_user%call_POP .and. POP%np.gt.0) then ! CALL_POP
@@ -8890,6 +8895,7 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
        avg_nsoilmin,avg_psoillab,avg_psoilsorb,avg_psoilocc, &
        avg_c13leaf2met, avg_c13leaf2str, avg_c13root2met, &
        avg_c13root2str, avg_c13wood2cwd, c13o2pools)
+  if (cable_user%c13o2) call c13o2_sanity_pools(casapool, casaflux, c13o2pools)
 
   nloop1= max(1,mloop-3)
 
@@ -8914,7 +8920,10 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
                 nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
                 pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
            ! 13C
-           if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
+           if (cable_user%c13o2) then
+              call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
+              call c13o2_sanity_pools(casapool, casaflux, c13o2pools)
+           endif
 
            !! CLN BLAZE here
            !!CLNblaze_spin_year = 1900 - myearspin + nyear
@@ -8986,7 +8995,8 @@ SUBROUTINE worker_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
   use mpi
   ! 13C
   use cable_c13o2_def,     only: c13o2_flux, c13o2_pool
-  use cable_c13o2,         only: c13o2_save_casapool, c13o2_update_pools
+  use cable_c13o2,         only: c13o2_save_casapool, c13o2_update_pools, &
+       c13o2_sanity_pools
 
   IMPLICIT NONE
 
@@ -9050,7 +9060,10 @@ SUBROUTINE worker_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
              nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
              pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
         ! 13C
-        if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
+        if (cable_user%c13o2) then
+           call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
+           call c13o2_sanity_pools(casapool, casaflux, c13o2pools)
+        endif
 
         !! CLN BLAZE here
 

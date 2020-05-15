@@ -25,7 +25,7 @@ contains
     use cable_c13o2_def,     only: c13o2_pool, c13o2_flux
     use cable_c13o2,         only: c13o2_save_casapool, c13o2_update_pools, &
          c13o2_create_output, c13o2_write_output, c13o2_close_output, &
-         c13o2_nvars_output
+         c13o2_nvars_output, c13o2_sanity_pools
     use mo_isotope,          only: isoratio
     USE BLAZE_MOD,           ONLY: TYPE_BLAZE,  BLAZE_ACCOUNTING,  WRITE_BLAZE_OUTPUT_NC
     USE SIMFIRE_MOD,         ONLY: TYPE_SIMFIRE
@@ -229,6 +229,7 @@ contains
              avg_c13wood2cwd(:) = avg_c13wood2cwd(:) + &
                   cwood2cwd(:) * isoratio(c13o2pools%cplant(:,wood), casasave(:,wood), 0.0_dp, tiny(1.0_dp))
              call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
+             call c13o2_sanity_pools(casapool, casaflux, c13o2pools)
           endif
 
           if (cable_user%CALL_BLAZE) then
@@ -392,6 +393,7 @@ contains
          avg_nsoilmin,avg_psoillab,avg_psoilsorb,avg_psoilocc, &
          avg_c13leaf2met, avg_c13leaf2str, avg_c13root2met, &
          avg_c13root2str, avg_c13wood2cwd, c13o2pools)
+    if (cable_user%c13o2) call c13o2_sanity_pools(casapool, casaflux, c13o2pools)
     !write(600,*) 'csoil3 post-analytic: ', casapool%csoil(3,:)
     !write(600,*) 'csoil1 post-analytic: ', casapool%csoil(1,:)
 
@@ -479,7 +481,10 @@ contains
                   nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
                   pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
              ! 13C
-             if (cable_user%c13o2) call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
+             if (cable_user%c13o2) then
+                call c13o2_update_pools(casasave, casaflux, c13o2flux, c13o2pools)
+                call c13o2_sanity_pools(casapool, casaflux, c13o2pools)
+             endif
 
              if (cable_user%CALL_BLAZE) then
                 CALL BLAZE_ACCOUNTING(BLAZE, climate, ktau, dels, YYYY, idoy)
