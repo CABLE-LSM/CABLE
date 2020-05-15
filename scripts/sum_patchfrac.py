@@ -83,6 +83,18 @@ if 'patchfrac' not in fi.variables:
     print('No variable patchfrac in input file '+ifile)
     import sys
     sys.exit()
+# Check patch dimensions 1
+patchfrac = fi.variables['patchfrac']
+if 'patch' in patchfrac.dimensions:
+    pname = 'patch'
+elif 'mp' in patchfrac.dimensions:
+    pname = 'mp'
+else:
+    fi.close()
+    print("Did not understand patchfrac: neither 'patch' nor 'mp' in dimensions - "+ifile)
+    import sys
+    sys.exit()
+
 if verbose: print('Input file:  ', ifile)
 if verbose: print('Output file: ', ofile)
 if izip:
@@ -93,15 +105,8 @@ else:
     else:
         fo = nc.Dataset(ofile, 'w', format='NETCDF3_64BIT_OFFSET')
 
-# Copy global attributes, adding script
-cp.set_global_attributes(fi, fo, add={'history':ptime.asctime()+': '+' '.join(sys.argv)})
-
-# Copy dimensions
-cp.create_dimensions(fi, fo, removedim=['patch'])
-
-# Check patch dimensions
-patchfrac = fi.variables['patchfrac']
-pidx   = patchfrac.dimensions.index('patch')   # positive index from front
+# Check patch dimensions 2
+pidx   = patchfrac.dimensions.index(pname)   # positive index from front
 npatch = patchfrac.shape[pidx]
 if 'time' in patchfrac.dimensions:
     pidxt = True
@@ -109,11 +114,17 @@ else:
     pidxt = False
 ntime  = fi.dimensions['time'].size
 
+# Copy global attributes, adding script
+cp.set_global_attributes(fi, fo, add={'history':ptime.asctime()+': '+' '.join(sys.argv)})
+
+# Copy dimensions
+cp.create_dimensions(fi, fo, removedim=[pname])
+
 # create static variables (independent of time)
-cp.create_variables(fi, fo, time=False, izip=izip, removedim='patch')
+cp.create_variables(fi, fo, time=False, izip=izip, removedim=pname)
 
 # create dynamic variables (time dependent)
-cp.create_variables(fi, fo, time=True, izip=izip, removedim='patch')
+cp.create_variables(fi, fo, time=True, izip=izip, removedim=pname)
 
 #
 # Copy variables from in to out, summing the patches
@@ -130,8 +141,8 @@ for ivar in fi.variables.values():
     if 'time' not in ivar.dimensions:
         ovar  = fo.variables[ivar.name]
         invar = ivar[:]
-        if 'patch' in ivar.dimensions:
-            idx = ivar.dimensions.index('patch')
+        if pname in ivar.dimensions:
+            idx = ivar.dimensions.index(pname)
             if ivar.name == 'iveg':
                 # take first patch, could also be patch with maximum frac
                 out = np.delete(invar, range(1,npatch), axis=idx).squeeze()
@@ -158,8 +169,8 @@ for tt in range(ntime):
         if 'time' in ivar.dimensions:
             ovar = fo.variables[ivar.name]
             invar = ivar[tt,...]
-            if 'patch' in ivar.dimensions:
-                idx = ivar.dimensions.index('patch') - 1 # -1 because time removed at beginning
+            if pname in ivar.dimensions:
+                idx = ivar.dimensions.index(pname) - 1 # -1 because time removed at beginning
                 if ivar.name == 'iveg':
                     # take first patch, could also be patch with maximum frac
                     out = np.delete(invar, range(1,npatch), axis=idx).squeeze()

@@ -85,7 +85,11 @@ def _get_variable_definition(ncvar):
     """
     out = ncvar.filters() if ncvar.filters() else {}
     # chunksizes
-    chunks = list(ncvar.chunking()) if not isinstance(ncvar.chunking(), str) else None
+    chunks = None
+    if "chunking" in dir(ncvar):
+        if ncvar.chunking() is not None:
+            if not isinstance(ncvar.chunking(), str):
+                chunks = list(ncvar.chunking())
     # missing value
     if "missing_value" in dir(ncvar):
         ifill = ncvar.missing_value
@@ -263,10 +267,11 @@ def create_variables(fi, fo, time=None, izip=False, fill=None, chunksizes=True,
                         rdim = _tolist(replacedim[dd])
                         ip = dims.index(dd)
                         dims = dims[:ip] + rdim + dims[ip+1:]
-                        rchunk = []
-                        for cc in rdim:
-                            rchunk.append(len(fo.dimensions[cc])) # use fo not fi because new dims perhaps not yet in fi
-                        chunks = chunks[:ip] + rchunk + chunks[ip+1:]
+                        if chunks:
+                            rchunk = []
+                            for cc in rdim:
+                                rchunk.append(len(fo.dimensions[cc])) # use fo not fi because new dims perhaps not yet in fi
+                            chunks = chunks[:ip] + rchunk + chunks[ip+1:]
                 invardef['dimensions'] = dims
                 invardef['chunksizes'] = chunks
                 # set missing value if None
