@@ -43,7 +43,7 @@ MODULE cable_gw_hydro_module
        cable_runtime,&
        max_glacier_snowd
 
-  USE cable_soil_snow_module, ONLY : trimb, snow_processes_soil_thermal
+  USE cbl_soil_snow_subrs_module, ONLY : trimb, snow_processes_soil_thermal
 
   USE cable_data_module, ONLY: igwhydro_type,point2constants
 

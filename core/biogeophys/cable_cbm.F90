@@ -44,7 +44,7 @@ CONTAINS
 
     USE cable_common_module
     USE cable_carbon_module
-    USE cable_soil_snow_module, ONLY : soil_snow
+    USE cbl_soil_snow_main_module, ONLY : soil_snow
     USE cable_def_types_mod
     USE cable_roughness_module, ONLY : ruff_resist
     USE cable_radiation_module, ONLY : init_radiation

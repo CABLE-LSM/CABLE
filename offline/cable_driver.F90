@@ -123,7 +123,7 @@ PROGRAM cable_offline_driver
 #endif
   USE casa_inout_module
   USE casa_cable
-
+USE cbl_soil_snow_init_special_module
   IMPLICIT NONE
 
   ! CABLE namelist: model configuration, runtime/user switches
@@ -683,6 +683,8 @@ PROGRAM cable_offline_driver
            IF (casaonly) THEN
               EXIT
            ENDIF
+
+  call spec_init_soil_snow(dels, soil, ssnow, canopy, met, bal, veg)
 
            ! time step loop over ktau
            DO ktau=kstart, kend
