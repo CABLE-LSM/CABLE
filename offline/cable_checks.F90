@@ -129,13 +129,14 @@ MODULE cable_checks_module
            clay = (/0.0,1.0/),                 &
            css = (/700.0,2200.0/),             &
            rhosoil = (/300.0,3000.0/),         &
-           hyds = (/5.0E-7,8.5E-3/),           & ! vh_js ! sep14
+           hyds = (/5.0E-7,8.5/),              & ! vh_js ! sep14 ! MMY
+           ! MMY 8.5E-3->8.5 since hyds uses m/s, but hyds_vec uses mm/s
            rs20 = (/0.0,10.0/),                &
            sand = (/0.0,1.0/),                 &
            sfc = (/0.1,0.5/),                  &
            silt = (/0.0,1.0/),                 &
            ssat = (/0.35,0.5/),                &
-           sucs = (/-0.8,-0.03/),              &
+           sucs = (/30.,800./),                & ! MMY the range [-0.8,-0.03] doesn't suit for Mark Decker's version
            swilt = (/0.05,0.4/),               &
            froot = (/0.0,1.0/),                &
            zse = (/0.0,5.0/),                  &
@@ -179,7 +180,7 @@ MODULE cable_checks_module
            WatTable = (/0.0,1.0e10/),          &
            GWwb = (/0.0,1.0/),              &
            SatFrac = (/0.0,1.0/),              &
-           Qrecharge = (/-9999.0,9999.0/) 
+           Qrecharge = (/-9999.0,9999.0/)
    END TYPE ranges_type
    TYPE(ranges_type),SAVE :: ranges
 
@@ -212,6 +213,7 @@ SUBROUTINE mass_balance(dels,ktau, ssnow,soil,canopy,met,                       
 
    ! Local variables
    REAL(r_2), DIMENSION(:,:,:),POINTER, SAVE :: bwb         ! volumetric soil moisture
+   REAL(r_2), DIMENSION(:,:),POINTER, SAVE   :: bwb_gw ! volumetric gw soil moisture ! MMY
    REAL(r_2), DIMENSION(mp)                  :: delwb       ! change in soilmoisture
                                                             ! b/w tsteps
    REAL, DIMENSION(mp)                  :: canopy_wbal !canopy water balance
@@ -220,26 +222,56 @@ SUBROUTINE mass_balance(dels,ktau, ssnow,soil,canopy,met,                       
 
    IF(ktau==1) THEN
       ALLOCATE( bwb(mp,ms,2) )
+      ALLOCATE( bwb_gw(mp,2) ) ! MMY
       ! initial vlaue of soil moisture
       bwb(:,:,1)=ssnow%wb
-       bwb(:,:,2)=ssnow%wb
-       delwb(:) = 0.
+      bwb(:,:,2)=ssnow%wb
+      bwb_gw(:,1)=ssnow%GWwb ! MMY
+      bwb_gw(:,2)=ssnow%GWwb ! MMY
+      delwb(:) = 0.
    ELSE
       ! Calculate change in soil moisture b/w timesteps:
-      IF(MOD(REAL(ktau),2.0)==1.0) THEN         ! if odd timestep
-         bwb(:,:,1)=ssnow%wb
-         DO k=1,mp           ! current smoist - prev tstep smoist
-            delwb(k) = SUM((bwb(k,:,1)                                         &
-                  - (bwb(k,:,2)))*soil%zse)*1000.0
-         END DO
-      ELSE IF(MOD(REAL(ktau),2.0)==0.0) THEN    ! if even timestep
-         bwb(:,:,2)=ssnow%wb
-         DO k=1,mp           !  current smoist - prev tstep smoist
-            delwb(k) = SUM((bwb(k,:,2)                                         &
-                 - (bwb(k,:,1)))*soil%zse)*1000.0
-         END DO
-      END IF
-   END IF
+
+      ! ________________ MMY, Water Balance Equation for GW_ON _______________
+      ! MMY to fix water balance bug when gw-on
+      IF ( cable_user%GW_MODEL) THEN ! MMY
+
+       IF(MOD(REAL(ktau),2.0)==1.0) THEN         ! if odd timestep
+          bwb(:,:,1)=ssnow%wb
+          bwb_gw(:,1)=ssnow%GWwb
+          DO k=1,mp           ! current smoist - prev tstep smoist
+             delwb(k) = ( SUM( (bwb(k,:,1) - bwb(k,:,2))*soil%zse ) +         &
+                          (bwb_gw(k,1) - bwb_gw(k,2))*soil%GWdz(k) ) *1000.0
+          END DO
+       ELSE IF(MOD(REAL(ktau),2.0)==0.0) THEN    ! if even timestep
+          bwb(:,:,2)=ssnow%wb
+          bwb_gw(:,2)=ssnow%GWwb
+          DO k=1,mp           !  current smoist - prev tstep smoist
+             delwb(k) = ( SUM( (bwb(k,:,2) - bwb(k,:,1))*soil%zse ) +         &
+                          (bwb_gw(k,2) -bwb_gw(k,1))*soil%GWdz(k) ) *1000.0
+          END DO
+       END IF
+      ! ______________________________________________________________________
+
+      ELSE ! MMY
+
+       IF(MOD(REAL(ktau),2.0)==1.0) THEN         ! if odd timestep
+          bwb(:,:,1)=ssnow%wb
+          DO k=1,mp           ! current smoist - prev tstep smoist
+             delwb(k) = SUM((bwb(k,:,1)                                         &
+                   - (bwb(k,:,2)))*soil%zse)*1000.0
+          END DO
+       ELSE IF(MOD(REAL(ktau),2.0)==0.0) THEN    ! if even timestep
+          bwb(:,:,2)=ssnow%wb
+          DO k=1,mp           !  current smoist - prev tstep smoist
+             delwb(k) = SUM((bwb(k,:,2)                                         &
+                  - (bwb(k,:,1)))*soil%zse)*1000.0
+          END DO
+       END IF
+
+      END IF ! MMY
+
+    END IF
 
 
 
@@ -249,9 +281,18 @@ SUBROUTINE mass_balance(dels,ktau, ssnow,soil,canopy,met,                       
    !      it's included in change in canopy storage calculation))
    ! rml 28/2/11 ! BP changed rnof1+rnof2 to ssnow%runoff which also included rnof5
    ! which is used when nglacier=2 in soilsnow routines (BP feb2011)
-   bal%wbal = REAL(met%precip - canopy%delwc - ssnow%snowd+ssnow%osnowd        &
-        - ssnow%runoff-(canopy%fevw+canopy%fevc                                &
-        + canopy%fes/ssnow%cls)*dels/air%rlam - delwb - ssnow%qrecharge)
+
+   IF ( cable_user%GW_MODEL) THEN ! MMY
+   ! ________________ MMY, Water Balance Equation for GW_ON _______________
+     bal%wbal = REAL(met%precip - canopy%delwc - ssnow%snowd+ssnow%osnowd       &
+         - ssnow%runoff-(canopy%fevw+canopy%fevc                                &
+         + canopy%fes/ssnow%cls)*dels/air%rlam - delwb) ! remove qrecharge
+   ! ______________________________________________________________________
+   ELSE ! MMY
+     bal%wbal = REAL(met%precip - canopy%delwc - ssnow%snowd+ssnow%osnowd        &
+         - ssnow%runoff-(canopy%fevw+canopy%fevc                                &
+         + canopy%fes/ssnow%cls)*dels/air%rlam - delwb - ssnow%qrecharge)
+   END IF ! MMY
 
    ! Canopy water balance: precip-change.can.storage-throughfall-evap+dew
    canopy_wbal = REAL(met%precip-canopy%delwc-canopy%through                   &
@@ -261,16 +302,16 @@ SUBROUTINE mass_balance(dels,ktau, ssnow,soil,canopy,met,                       
       ! delwcol includes change in soil water, pond and snowpack
       bal%wbal = canopy_wbal + REAL(canopy%through - ssnow%delwcol-ssnow%runoff &
                   - ssnow%evap - max(canopy%fevc,0.0)*dels/air%rlam, r_2)
-   
+
    ENDIF
 
 
-   if(ktau==1) then 
-      bal%wbal_tot = 0.; bal%precip_tot = 0. 
+   if(ktau==1) then
+      bal%wbal_tot = 0.; bal%precip_tot = 0.
       bal%rnoff_tot = 0.; bal%evap_tot = 0.
-   endif   
-   
-   IF(ktau>10) THEN ! Avoid wobbly balances for ktau<10 pending later fix 
+   endif
+
+   IF(ktau>10) THEN ! Avoid wobbly balances for ktau<10 pending later fix
       ! Add to accumulation variables:
       bal%wbal_tot = bal%wbal_tot + bal%wbal
       bal%precip_tot = bal%precip_tot + met%precip
@@ -321,7 +362,7 @@ SUBROUTINE energy_balance( dels,ktau,met,rad,canopy,bal,ssnow,                  
          - canopy%fnv - canopy%fns
 
     !  soil energy - INH Ticket #133 corrected for consistency with %Ebal
-    !  this includes the correction terms 
+    !  this includes the correction terms
     bal%EbalSoil =canopy%fns - canopy%fes & !*ssnow%cls &
          & -canopy%fhs -canopy%ga
 
