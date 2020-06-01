@@ -25,8 +25,8 @@
 
 # Additions for SLI (Vanessa Haverd)
 # Additions for SpinCASA (Lars Nieradzik)
-# Additions for climate and phenology (Vanessa Haverd)
-#
+# Additions for POP, climate and phenology (Vanessa Haverd)
+# Additions for Land use change (Vanessa Haverd)
 # ==============================================================================
 ##########################################################################
 
@@ -100,7 +100,7 @@ cable_carbon.o: cable_carbon.F90 cable_define_types.o cable_common.o cable_data.
 
 cable_cbm.o: cable_cbm.F90 cable_carbon.o cbl_soilsnow_main.o cable_canopy.o cable_define_types.o cable_roughness.o cable_radiation.o cable_albedo.o casa_variable.o cable_common.o cable_data.o cable_gw_hydro.o cable_psm.o
 
-cable_checks.o: cable_checks.F90 cable_radiation.o cable_common.o
+cable_checks.o: cable_checks.F90 cable_radiation.o cable_common.o cable_data.o
 
 cable_driver.o: cable_driver.F90 pop_io.o cable_diag.o cable_output.o \
 		cable_iovars.o cable_cbm.o casa_variable.o casa_cable.o casa_cnp.o \
@@ -117,7 +117,7 @@ cable_read.o: cable_read.F90 cable_iovars.o cable_abort.o
 
 cable_initialise.o: cable_initialise.F90 cable_read.o cable_iovars.o cable_abort.o  cable_define_types.o
 
-cable_write.o: cable_write.F90 cable_iovars.o cable_abort.o cable_define_types.o
+cable_write.o: cable_write.F90 cable_iovars.o cable_abort.o cable_define_types.o casa_variable.o
 
 cable_input.o: cable_input.F90 POP.o cable_checks.o cable_abort.o cable_read.o cable_initialise.o cable_radiation.o \
 	       cable_parameters.o cable_common.o cable_LUC_EXPT.o POPLUC.o casa_inout.o
@@ -136,7 +136,8 @@ cbl_soilsnow_init_special.o: cbl_soilsnow_init_special.F90 cable_iovars.o cable_
 
 casa_variable.o: casa_variable.F90 POP.o casa_dimension.o casa_param.o
 
-spincasacnp.o: spincasacnp.F90  cable_define_types.o  cable_carbon.o cable_common.o casa_variable.o casa_phenology.o casa_cable.o
+spincasacnp.o: spincasacnp.F90  cable_define_types.o  cable_carbon.o cable_common.o \
+	 casa_variable.o casa_phenology.o  casa_cable.o
 
 #cable_LUC.o: cable_LUC.F90 cable_carbon.o cable_common.o casa_variable.o POP.o POPLUC.o cable_LUC_EXPT.o
 

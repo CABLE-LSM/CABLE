@@ -156,6 +156,8 @@ CONTAINS
 
     USE cable_namelist_util, ONLY : get_namelist_file_name,&
          CABLE_NAMELIST,arg_not_namelist
+    
+USE cbl_soil_snow_init_special_module
     IMPLICIT NONE
 
     ! MPI:
@@ -568,6 +570,9 @@ CONTAINS
           IF (spincasa .OR. casaonly) THEN
              EXIT
           ENDIF
+
+  call spec_init_soil_snow(dels, soil, ssnow, canopy, met, bal, veg)
+  
           ! IF (.NOT.spincasa) THEN
           ! time step loop over ktau
           KTAULOOP:DO ktau=kstart, kend
