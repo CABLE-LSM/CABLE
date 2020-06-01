@@ -509,7 +509,6 @@ CONTAINS
                   !(ssnow%rtsoil + real((1-ssnow%isflag))*veg%clitt*0.003/canopy%kthLitt/(air%rho*C%CAPP))
                   (ssnow%rtsoil + rhlitt)
           ELSE ! MMY if gw-on but or-off, carry out below
-              PRINT *, "=== MMY TEST : ssnow%rt_qh_sublayer", ssnow%rt_qh_sublayer ! MMY
              canopy%fhs = air%rho*C%CAPP*(ssnow%tss - met%tvair) /ssnow%rtsoil
           ENDIF
 
@@ -562,7 +561,6 @@ CONTAINS
                   !(ssnow%rtsoil +  real((1-ssnow%isflag))*veg%clitt*0.003/canopy%kthLitt/(air%rho*C%CAPP))
                   (ssnow%rtsoil + rhlitt)
           else ! MMY if gw-on but or-off, carry out below
-             PRINT *, "=== MMY TEST : ssnow%rt_qh_sublayer", ssnow%rt_qh_sublayer ! MMY
              canopy%fhs = air%rho*C%CAPP*(ssnow%tss - met%tvair) /ssnow%rtsoil
           ENDIF
 
@@ -874,8 +872,8 @@ CONTAINS
           ENDWHERE
        ENDIF
 
-       IF (cable_user%gw_model .or. cable_user%or_evap) THEN
-
+       !IF (cable_user%gw_model .or. cable_user%or_evap) THEN ! MMY
+       IF (cable_user%or_evap) THEN ! MMY
          ! _______________________ MMY redundant ___________________
          !ssnow%dfh_dtg = air%rho*C%CAPP/(ssnow%rtsoil+ real(ssnow%rt_qh_sublayer))
 

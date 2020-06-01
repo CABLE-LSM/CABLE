@@ -1606,16 +1606,6 @@ SUBROUTINE calc_srf_wet_fraction(ssnow,soil,met,veg)
 
        call saturated_fraction(ssnow,soil,veg)
 
-
-       do i = 1,mp
-
-          dzmm_one  = m2mm * real(soil%zse_vec(i,1),r_2)
-          icemass  = ssnow%wbice(i,1) * dzmm_one
-          liqmass  = (ssnow%wb(i,1)-den_rat*ssnow%wbice(i,1)) * dzmm_one
-          totmass  = max(liqmass+icemass,real(1e-2,r_2))
-          icef(i)     = max(0._r_2,min(1._r_2, gw_params%IceBeta*icemass / totmass))
-      end do
-
       do i = 1,mp
         ! MMY it doesn't match to icef in SUBROUTINE ovrlndflx. I made them consistent
          dzmm_one  = m2mm * real(soil%zse_vec(i,1),r_2)
