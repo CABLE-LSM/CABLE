@@ -200,8 +200,8 @@ MODULE casavariable
      REAL(r_2), DIMENSION(:),POINTER    :: FluxNtoclear
      REAL(r_2), DIMENSION(:),POINTER    :: FluxPtoclear
      REAL(r_2), DIMENSION(:),POINTER    :: CtransferLUC
-
-
+     REAL(r_2), DIMENSION(:),POINTER      :: meangpp
+     REAL(r_2), DIMENSION(:),POINTER      :: meanrleaf 
   END TYPE casa_flux
 
   TYPE casa_met
@@ -473,6 +473,9 @@ CONTAINS
 
     ALLOCATE(casaflux%FluxCtoco2(arraysize))
 
+  ALLOCATE(casaflux%meangpp(arraysize))
+  ALLOCATE(casaflux%meanrleaf(arraysize))
+  
     ALLOCATE(casamet%glai(arraysize),                &
          casamet%lnonwood(arraysize),            &
          casamet%Tairk(arraysize),               &

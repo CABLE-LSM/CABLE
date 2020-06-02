@@ -104,20 +104,26 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
          casamet%tairk = met%tk
          casamet%tsoil = ssnow%tgg
          casamet%moist = ssnow%wb
-         casaflux%cgpp = (-canopy%fpn+canopy%frday)*dels
-         casaflux%crmplant(:,leaf) = canopy%frday*dels
+!         casaflux%cgpp = (-canopy%fpn+canopy%frday)*dels
+!         casaflux%crmplant(:,leaf) = canopy%frday*dels
+         casaflux%meangpp = (-canopy%fpn+canopy%frday)*dels
+         casaflux%meanrleaf = canopy%frday*dels
       ELSE
          Casamet%tairk  =casamet%tairk + met%tk
          casamet%tsoil = casamet%tsoil + ssnow%tgg
          casamet%moist = casamet%moist + ssnow%wb
-         casaflux%cgpp = casaflux%cgpp + (-canopy%fpn+canopy%frday)*dels
-         casaflux%crmplant(:,leaf) = casaflux%crmplant(:,leaf) + canopy%frday*dels
+!         casaflux%cgpp = casaflux%cgpp + (-canopy%fpn+canopy%frday)*dels
+!         casaflux%crmplant(:,leaf) = casaflux%crmplant(:,leaf) + canopy%frday*dels
+         casaflux%meangpp = casaflux%meangpp + (-canopy%fpn+canopy%frday)*dels
+         casaflux%meanrleaf = casaflux%meanrleaf + canopy%frday*dels
       ENDIF
 
       IF(MOD((ktau-kstart+1),ktauday)==0) THEN  ! end of day
          casamet%tairk  =casamet%tairk/FLOAT(ktauday)
          casamet%tsoil=casamet%tsoil/FLOAT(ktauday)
          casamet%moist=casamet%moist/FLOAT(ktauday)
+         casaflux%cgpp = casaflux%meangpp
+         casaflux%crmplant(:,leaf) = casaflux%meanrleaf
 
          IF ( icycle .GT. 0 ) THEN
             IF (trim(cable_user%PHENOLOGY_SWITCH)=='climate') THEN

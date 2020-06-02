@@ -70,6 +70,8 @@ subroutine Implicit_unpack( cycleno, & ! nucycles
                                   basic_diag, veg
 
   USE cable_decs_mod, ONLY : L_tile_pts!, rho_water
+  
+  !#82!USE casa_types_mod!, ONLY : L_tile_pts!, rho_water
 
   implicit none
         
@@ -390,6 +392,34 @@ subroutine Implicit_unpack( cycleno, & ! nucycles
       t1p5m(L)=sum(t1p5m_tile(L,:))
     ENDDO
   ENDDO
+
+!#82!     ! Lestevens - Passing CO2 from CABLE to bl_trmix_dd.F90
+!#82!!     FRS_TILE       = UNPACK(canopy%frs, um1%L_TILE_PTS, miss)
+!#82!!     NEE_TILE       = UNPACK(canopy%fnee, um1%L_TILE_PTS, miss)
+!#82!!     NPP_TILE       = UNPACK(canopy%fnpp, um1%L_TILE_PTS, miss)
+!#82!!     GLEAF_TILE     = UNPACK(canopy%frday,um1%L_TILE_PTS, miss)
+!#82!
+!#82!! TZ: output casa fluxes instead of canopy fluxes
+!#82!     FRS_TILE    = UNPACK((casaflux%crsoil)/86400.0, um1%L_TILE_PTS, miss)
+!#82!     NPP_TILE    = UNPACK((casaflux%cnpp)/86400.0, um1%L_TILE_PTS, miss)
+!#82!     NEE_TILE    = UNPACK((casaflux%crsoil-casaflux%cnpp)/86400.0, um1%L_TILE_PTS, miss)
+!#82!     GLEAF_TILE  = UNPACK((casaflux%crmplant(:,1))/86400.0, um1%L_TILE_PTS, miss)
+!#82!     FRP_TILE    = UNPACK((casaflux%crmplant(:,2)+casaflux%crmplant(:,3)+casaflux%crgplant)/86400.0, um1%L_TILE_PTS, miss)
+!#82!     IF( cable_user%leaf_respiration == 'on' .OR. cable_user%leaf_respiration == 'ON') THEN
+!#82!        GPP_TILE = UNPACK((casaflux%cnpp+casaflux%crmplant(:,2)+casaflux%crmplant(:,3)+casaflux%crgplant)/86400.0, um1%L_TILE_PTS, miss)
+!#82!     ELSE  
+!#82!        GPP_TILE = UNPACK((casaflux%cnpp+casaflux%crmplant(:,1)+casaflux%crmplant(:,2)+casaflux%crmplant(:,3)+casaflux%crgplant)/86400.0, um1%L_TILE_PTS, miss)
+!#82!     ENDIF
+!#82!
+!#82!!      IF( cable_user%leaf_respiration == 'on' .OR.                             &
+!#82!!           cable_user%leaf_respiration == 'ON') THEN
+!#82!!         GPP_TILE = UNPACK(canopy%fnpp+canopy%frp, um1%L_TILE_PTS, miss)
+!#82!!      ELSE 
+!#82!!         GPP_TILE = UNPACK(canopy%fnpp+canopy%frp+canopy%frday,  &
+!#82!!                            um1%L_TILE_PTS, miss)
+!#82!!      ENDIF
+!#82!
+!#82!!     FRP_TILE       = UNPACK(canopy%frp, um1%L_TILE_PTS, miss)
 
   !-------- End Unique subroutine body -----------
 

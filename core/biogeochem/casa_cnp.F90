@@ -536,7 +536,7 @@ CONTAINS
 
     REAL(r_2), DIMENSION(mp)        :: Ygrow        ! growth efficiency Q.Zhang 22/02/2011
     REAL(r_2), DIMENSION(mp,mplant) :: ratioPNplant ! Q.Zhang 22/02/2011
-    REAL(r_2), DIMENSION(mp)        :: delcrmwood,delcrmfroot    ! reduction in wood and root respiration when NPP <0.0
+    REAL(r_2), DIMENSION(mp)        :: delcrmleaf, delcrmwood,delcrmfroot    ! reduction in wood and root respiration when NPP <0.0
     REAL(r_2), DIMENSION(mp)        :: resp_coeff_root, resp_coeff_sapwood, resp_coeff
     REAL,  DIMENSION(mp)        :: nleaf, pleaf, vcmaxmax
 
@@ -554,6 +554,7 @@ CONTAINS
 
     casaflux%crmplant(:,wood) = 0.0
     casaflux%crmplant(:,froot) = 0.0
+    delcrmleaf   = 0.0
     delcrmwood   = 0.0
     delcrmfroot  = 0.0
     casaflux%crgplant = 0.0
@@ -679,16 +680,17 @@ CONTAINS
           ELSEWHERE
              casaflux%crgplant(:) = 0.0
           ENDWHERE
-       ENDWHERE
+       ENDWHERE !(casamet%iveg2/=icewater)
 
        Casaflux%cnpp(:) = casaflux%Cgpp(:)-SUM(casaflux%crmplant(:,:),2) - casaflux%crgplant(:)
 
-    ELSE
+    ELSE !IF (cable_user%CALL_climate) THEN
 
 
        WHERE(casamet%iveg2/=icewater)
           WHERE(casamet%tairk >250.0)
              WHERE(casapool%cplant(:,wood)>1.0e-6)
+
                 casaflux%crmplant(:,wood)  =  resp_coeff * casaflux%frac_sapwood(:) * &
                      casabiome%rmplant(veg%iveg(:),wood) &
                      * casapool%nplant(:,wood)             &
@@ -710,7 +712,7 @@ CONTAINS
                   / (casamet%tsoilavg(:)+46.02-tkzeroc)))
 
           ENDWHERE
-          !    casaflux%crmplant(:,leaf) = casaflux%crmplant(:,leaf) + casaflux%clabloss(:)
+          casaflux%crmplant(:,leaf) = casaflux%crmplant(:,leaf) + casaflux%clabloss(:)
 
           WHERE((casaflux%Cgpp-SUM(casaflux%crmplant,2))>0.0)
              !casaflux%crgplant(:)  = 0.25* max(0.0,casaflux%Cgpp(:)-SUM(casaflux%crmplant(:,:),2))
@@ -728,8 +730,31 @@ CONTAINS
           ! changes made by yp wang 5 april 2013
           Casaflux%cnpp(:) = casaflux%Cgpp(:)-SUM(casaflux%crmplant(:,:),2) - casaflux%crgplant(:)
 
+    WHERE(casaflux%Cnpp < 0.0)
+! change made here by ypw on 11-7-2016 to include leaf maintenance respiration
+      delcrmleaf(:)  = casaflux%Cnpp(:) * casaflux%crmplant(:,leaf) &
+                     / max(0.01,(casaflux%crmplant(:,leaf)+casaflux%crmplant(:,wood) &
+                               + casaflux%crmplant(:,froot)))
+      delcrmwood(:)  = casaflux%Cnpp(:) * casaflux%crmplant(:,wood) &
+                     / max(0.01,(casaflux%crmplant(:,leaf)+casaflux%crmplant(:,wood) &
+                               + casaflux%crmplant(:,froot)))
+      delcrmfroot(:) = casaflux%Cnpp(:) * casaflux%crmplant(:,froot) &
+                     / max(0.01,(casaflux%crmplant(:,leaf)+casaflux%crmplant(:,wood) &
+                               + casaflux%crmplant(:,froot)))
 
-       ENDWHERE
+         casaflux%crmplant(:,leaf)  = casaflux%crmplant(:,leaf)  + delcrmleaf(:)
+      casaflux%crmplant(:,wood)  = casaflux%crmplant(:,wood)  + delcrmwood(:)
+      casaflux%crmplant(:,froot) = casaflux%crmplant(:,froot) + delcrmfroot(:)
+  !    casaflux%Cnpp(:) = casaflux%Cnpp(:) -delcrmwood(:)-delcrmfroot(:)
+      casaflux%crgplant(:) = 0.0
+    ENDWHERE
+
+
+
+       ENDWHERE ! (casamet%iveg2/=icewater)
+  
+  casaflux%Cnpp(:) = casaflux%Cgpp(:) - SUM(casaflux%crmplant(:,:),2) &
+                   - casaflux%crgplant(:)
 
     ENDIF
 
