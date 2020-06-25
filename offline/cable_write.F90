@@ -862,7 +862,7 @@ CONTAINS
           ELSE IF(dimswitch == 'radiation') THEN
              IF(.NOT. ASSOCIATED(otmp3lpr))                                    &
                                   ALLOCATE(otmp3lpr(mland, max_vegpatches, nrb))
-          ELSE IF(dimswitch == 'snow') THEN
+          ELSE IF(dimswitch == 'snow' .OR. dimswitch == 'r2snow') THEN
              IF(.NOT. ASSOCIATED(otmp3lpsn))                                   &
                                  ALLOCATE(otmp3lpsn(mland, max_vegpatches, msn))
           else if (dimswitch == 'generic') then ! dimensions are determined from input var
@@ -900,7 +900,7 @@ CONTAINS
              IF(.NOT.ASSOCIATED(otmp2lsc)) ALLOCATE(otmp2lsc(mland,ncs))
           ELSE IF(dimswitch=='radiation') THEN
              IF(.NOT.ASSOCIATED(otmp2lr)) ALLOCATE(otmp2lr(mland,nrb))
-          ELSE IF(dimswitch=='snow') THEN
+          ELSE IF(dimswitch=='snow' .OR. dimswitch == 'r2snow') THEN
              IF(.NOT.ASSOCIATED(otmp2lsn)) ALLOCATE(otmp2lsn(mland,msn))
           ELSE IF(dimswitch=='surftype') THEN
              IF(.NOT.ASSOCIATED(otmp2lsf)) ALLOCATE(otmp2lsf(mland,4))
@@ -2642,12 +2642,12 @@ CONTAINS
     REAL(r_2),POINTER,DIMENSION(:,:,:) :: tmpout => null()
 
     ! Check the nature of the parameter's second dimension:
-    IF(dimswitch == 'soil') THEN ! i.e. spatial and soil
-       IF(PRESENT(restart)) THEN
-          ! Write data to restart file
-          ok = NF90_PUT_VAR(ncid, parID, par_r2d,                              &
-                            start = (/1, 1/), count = (/mp, ms/))
-       ELSE
+    if (present(restart)) then
+       ! Write data to restart file
+       ok = NF90_PUT_VAR(ncid, parID, par_r2d, &
+            start = (/1, 1/), count = (/size(par_r2d,1), size(par_r2d,2)/))
+    ELSE
+       IF(dimswitch == 'soil') THEN ! i.e. spatial and soil
           ALLOCATE(tmpout(mland, max_vegpatches, ms))
           DO i = 1, mland ! over all land grid points
              ! First write data for active patches:
@@ -2659,7 +2659,7 @@ CONTAINS
                                                            REAL(ncmissingr, r_2)
              IF (check%ranges) THEN  ! Check ranges over active patches:
                 DO j = 1, landpt(i)%nap
-                   IF (ANY(tmpout(i, j, :) < real(prange(1),r_2)) .OR.                    &
+                   IF (ANY(tmpout(i, j, :) < real(prange(1),r_2)) .OR.         &
                         ANY(tmpout(i, j, :) > real(prange(2),r_2)))  THEN
                       WRITE(*, *) 'Parameter '//pname//                        &
                                   ' is set at a value out of specified ranges!'
@@ -2674,15 +2674,15 @@ CONTAINS
                             start = (/1, 1, 1/),                               &
                             count = (/mland, max_vegpatches, ms/)) ! write data to file
           DEALLOCATE(tmpout)
+       ELSE
+          CALL cable_abort('Parameter '//pname// &
+               ' defined with unknown dimension switch - '//dimswitch// &
+               ' - in SUBROUTINE write_output_parameter_r2d')
        END IF
-    ELSE
-       CALL cable_abort('Parameter '//pname//                                        &
-                  ' defined with unknown dimension switch - '//dimswitch//     &
-                  ' - in SUBROUTINE write_output_parameter_r2d')
     END IF
     ! Check writing was successful:
-    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing '//pname//           &
-             ' variable to output file (SUBROUTINE write_output_parameter_r2d)')
+    IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing '//pname// &
+         ' variable to output file (SUBROUTINE write_output_parameter_r2d)')
 
   END SUBROUTINE write_output_parameter_r2d
 

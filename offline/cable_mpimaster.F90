@@ -2294,9 +2294,9 @@ SUBROUTINE master_cable_params(comm, met, air, ssnow, veg, bgc, soil, canopy, ro
 
 
      bidx = bidx + 1
-     CALL MPI_Get_address (ssnow%snowliq(off,1), displs(bidx), ierr)
-     CALL MPI_Type_create_hvector (3, r2len, r2stride, MPI_BYTE, &
-          &                             types(bidx), ierr)
+     CALL MPI_Get_address(ssnow%snowliq(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(msn, r2len, r2stride, MPI_BYTE, &
+          types(bidx), ierr)
      blen(bidx) = 1
 
      bidx = bidx + 1
@@ -5345,9 +5345,9 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
 
      midx = midx + 1
-     CALL MPI_Get_address (ssnow%snowliq(off,1), maddr(midx), ierr) ! 15
-     CALL MPI_Type_create_hvector (3, r2len, r2stride, MPI_BYTE, &
-          &                        mat_t(midx, rank), ierr)
+     CALL MPI_Get_address(ssnow%snowliq(off,1), maddr(midx), ierr) ! 15
+     CALL MPI_Type_create_hvector(msn, r2len, r2stride, MPI_BYTE, &
+          mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
 
      ! end additional for sli

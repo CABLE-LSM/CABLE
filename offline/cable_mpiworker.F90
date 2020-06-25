@@ -1397,7 +1397,7 @@ CONTAINS
 
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%snowliq, displs(bidx), ierr)
-    blen(bidx) = 3 * r2len
+    blen(bidx) = msn * r2len
 
 
     bidx = bidx + 1
@@ -4114,7 +4114,7 @@ CONTAINS
 
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%snowliq(off,1), displs(bidx), ierr)
-    blocks(bidx) = r2len * 3
+    blocks(bidx) = r2len * msn
     ! end additional for sli
 
     ! rad 2D

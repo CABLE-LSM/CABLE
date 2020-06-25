@@ -85,9 +85,9 @@ MODULE cable_output_module
           A13n, aDisc13, c13plant, c13litter, c13soil, c13labile
   END TYPE out_varID_type
   TYPE(out_varID_type) :: ovid ! netcdf variable IDs for output variables
-  
+
   TYPE(parID_type) :: opid ! netcdf variable IDs for output variables
-  
+
   TYPE output_temporary_type
      REAL(KIND=4), POINTER, DIMENSION(:) :: SWdown => null() ! 6 downward short-wave radiation [W/m2]
      REAL(KIND=4), POINTER, DIMENSION(:) :: LWdown => null() ! 7 downward long-wave radiation [W/m2]
@@ -263,7 +263,7 @@ MODULE cable_output_module
      REAL(KIND=r_2), POINTER, DIMENSION(:)   :: c13labile => null() ! 13C excess carbon pools
   END TYPE output_temporary_type
   TYPE(output_temporary_type), SAVE :: out
-  
+
   INTEGER :: ok   ! netcdf error status
 
   interface toreal4
@@ -1835,11 +1835,11 @@ CONTAINS
     real(r_2)    :: r2interval, gd2umols
     real(kind=4), parameter :: zero4 = real(0.0,4)
     real, dimension(mp) :: totlai
-    
+
     ! logical :: opened
     ! integer :: varid
     gd2umols = 1.0_r_2 / (86400.0_r_2 * 1.201e-5_r_2)
-    
+
     ! IF asked to check mass/water balance:
     IF (check%mass_bal) CALL mass_balance(dels, ktau, ssnow, soil, canopy, met, air, bal)
 
@@ -1969,15 +1969,15 @@ CONTAINS
             //TRIM(filename%out)// '(SUBROUTINE write_output)')
        rinterval  = toreal4(1) / toreal4(output%interval)
        r2interval = 1.0_r_2 / real(output%interval,r_2)
-  
+
     END IF
 
     ! Arguments to write_ovar: current time step; output file netcdf file ID;
     ! netcdf variable ID; variable name; variable data; variable ranges;
     ! non-land fill value; include patch info for this var; any specific
     ! formatting info; met variables for reporting in case of abort.
-   
-    
+
+
 
     ! SWdown:  downward short-wave radiation [W/m^2]
     IF(output%met .OR. output%SWdown) THEN
@@ -3307,7 +3307,7 @@ CONTAINS
           ! Reset temporary output variable:
           out%PlantTurnoverWoodResourceLim = zero4
        END IF
-       
+
        IF (cable_user%POPLUC) THEN
           ! Add current timestep's value to total of temporary output variable:
           out%LandUseFlux = out%LandUseFlux + &
@@ -3735,7 +3735,7 @@ CONTAINS
          '(SUBROUTINE create_restart)')
 
     ! Define number of active patches variable:
-    ok = NF90_DEF_VAR(ncid_restart, 'nap', NF90_FLOAT, (/mlandID/), napID)
+    ok = NF90_DEF_VAR(ncid_restart, 'nap', NF90_INT, (/mlandID/), napID)
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
          (ok, 'Error defining nap variable in restart file. '// &
          '(SUBROUTINE create_restart)')
@@ -4043,7 +4043,7 @@ CONTAINS
        !MC - Should be r_2 but specific subroutine not coded yet in cable_write
        CALL define_ovar(ncid_restart, snowliqID, 'snowliq', 'mm', &
             'liquid water content of snowpack', &
-            .TRUE., snowID, 'snow', 0, 0, 0, mpID, dummy, .TRUE.)
+            .TRUE., snowID, 'r2snow', 0, 0, 0, mpID, dummy, .TRUE.)
        CALL define_ovar(ncid_restart,scondsID,'sconds','Wm-1K-1', &
             'thermal cond of snowpack', &
             .TRUE.,snowID,'snow',0,0,0,mpID,dummy,.TRUE.)
@@ -4108,11 +4108,11 @@ CONTAINS
          //TRIM(frst_out)// '(SUBROUTINE create_restart)')
 
     ! Write number of veg and soil types
-    ok = NF90_PUT_VAR(ncid_restart, rpid%mvtype,mvtype)
+    ok = NF90_PUT_VAR(ncid_restart, rpid%mvtype, mvtype)
     IF(ok /= NF90_NOERR) CALL nc_abort(ok,                                     &
          'Error writing mvtype parameter to '    &
          //TRIM(frst_out)// '(SUBROUTINE create_restart)')
-    ok = NF90_PUT_VAR(ncid_restart, rpid%mstype,mstype)
+    ok = NF90_PUT_VAR(ncid_restart, rpid%mstype, mstype)
     IF(ok /= NF90_NOERR) CALL nc_abort(ok,                                     &
          'Error writing mstype parameter to '    &
          //TRIM(frst_out)// '(SUBROUTINE create_restart)')
@@ -4270,7 +4270,7 @@ CONTAINS
     CALL write_ovar (ncid_restart, fevID, 'fev', toreal4(canopy%fev),          &
          (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
     CALL write_ovar (ncid_restart, fesID, 'fes', canopy%fes, &
-         (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
+         (/-99999.0, 9999999.0/), .TRUE., 'r2', .TRUE.)
     CALL write_ovar (ncid_restart, fhsID, 'fhs', toreal4(canopy%fhs),          &
          (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
     CALL write_ovar (ncid_restart, wbtot0ID, 'wbtot0', toreal4(bal%wbtot0),    &
@@ -4300,24 +4300,22 @@ CONTAINS
        ! CALL write_ovar (ncid_restart,rpid%F10,'F10', &
        !      toreal4(veg%F10),(/-99999.0,99999.0/),.TRUE.,'real',.TRUE.)
        ! Write SLI variables:
-       CALL write_ovar (ncid_restart,SID,'S',ssnow%S, &
-            (/0.0,1.5/),.TRUE.,'soil',.TRUE.)
-       CALL write_ovar (ncid_restart,TsoilID,'Tsoil',ssnow%Tsoil, &
-            (/-100.0,100.0/),.TRUE.,'soil',.TRUE.)
-!!$       CALL write_ovar (ncid_restart,snowliqID,'snowliq',ssnow%snowliq, &
-!!$            (/-99999.0,99999.0/),.TRUE.,'snow',.TRUE.) ! vh ! needs fixing
-
-       CALL write_ovar (ncid_restart,snowliqID,'snowliq',toreal4(ssnow%snowliq), &
-            (/-99999.0,99999.0/),.TRUE.,'snow',.TRUE.)
-       CALL write_ovar (ncid_restart,scondsID,'sconds',toreal4(ssnow%sconds), &
-            (/-99999.0,99999.0/),.TRUE.,'snow',.TRUE.)
-       CALL write_ovar (ncid_restart,h0ID,'h0',ssnow%h0, &
-            (/-99999.0,99999.0/),.TRUE.,'real',.TRUE.)
-       CALL write_ovar (ncid_restart,nsnowID,'nsnow',toreal4(ssnow%nsnow), &
-            (/-99999.0,99999.0/),.TRUE.,'integer',.TRUE.)
-       CALL write_ovar (ncid_restart,TsurfaceID,'Tsurface',ssnow%Tsurface, &
-            (/-99999.0,99999.0/),.TRUE.,'real',.TRUE.)
-
+       CALL write_ovar(ncid_restart,SID, 'S', ssnow%S, &
+            (/0.0,1.5/), .TRUE., 'soil', .TRUE.)
+       CALL write_ovar(ncid_restart, TsoilID, 'Tsoil', ssnow%Tsoil, &
+            (/-100.0,100.0/), .TRUE., 'soil', .TRUE.)
+       ! CALL write_ovar(ncid_restart, snowliqID, 'snowliq', ssnow%snowliq, &
+       !      (/-99999.0,99999.0/), .TRUE., 'snow', .TRUE.) ! vh ! needs fixing
+       CALL write_ovar(ncid_restart, snowliqID, 'snowliq', ssnow%snowliq, &
+            (/-99999.0,99999.0/), .TRUE., 'snow', .TRUE.)
+       CALL write_ovar(ncid_restart, scondsID, 'sconds', ssnow%sconds, &
+            (/-99999.0,99999.0/), .TRUE., 'snow', .TRUE.)
+       CALL write_ovar(ncid_restart, h0ID, 'h0', ssnow%h0, &
+            (/-99999.0,99999.0/), .TRUE., 'real', .TRUE.)
+       CALL write_ovar(ncid_restart, nsnowID, 'nsnow', toreal4(ssnow%nsnow), &
+            (/-99999.0,99999.0/), .TRUE., 'integer',.TRUE.)
+       CALL write_ovar(ncid_restart, TsurfaceID, 'Tsurface', ssnow%Tsurface, &
+            (/-99999.0,99999.0/), .TRUE., 'real', .TRUE.)
     END IF
 
     ! Close restart file
@@ -4333,12 +4331,12 @@ CONTAINS
   elemental pure function dp2sp(var)
 
     use cable_def_types_mod, only: r_2
-    
+
     implicit none
 
     real(r_2),   intent(in) :: var
     real(kind=4)            :: dp2sp
-    
+
     real(r_2),    parameter :: tini = real(tiny(1.0),r_2)
     real(kind=4), parameter :: zero = real(0.0,4)
 
@@ -4352,28 +4350,28 @@ CONTAINS
 
   end function dp2sp
 
-  
+
   elemental pure function i2sp(var)
 
     implicit none
 
     integer  ,   intent(in) :: var
     real(kind=4)            :: i2sp
-    
+
     i2sp = real(var,4)
 
     return
 
   end function i2sp
-  
-  
+
+
   elemental pure function sp2sp(var)
-    
+
     implicit none
 
     real,        intent(in) :: var
     real(kind=4)            :: sp2sp
-    
+
     real,         parameter :: tini = tiny(1.0)
     real(kind=4), parameter :: zero = real(0.0,4)
 

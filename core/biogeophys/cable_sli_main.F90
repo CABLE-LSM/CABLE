@@ -136,21 +136,21 @@ contains
 
     ! output files for testing purposes
     if (first) then
-!!$     open (unit=332,file="vh08.out",status="replace",position="rewind")
-!!$     open (unit=334,file="S.out",status="replace",position="rewind")
-!!$     open (unit=336,file="Tsoil.out",status="replace",position="rewind")
-!!$     open (unit=335,file="SEB.out",status="replace",position="rewind")
-!!$     open (unit=337,file="soil_log.out",status="replace",position="rewind")
-!!$     open(unit=338, file="thetai.out", status="replace", position="rewind")
-!!$     open(unit=340, file="snow.out", status="replace", position="rewind")
-!!$     open(unit=346, file="diags.out",status="replace", position="rewind")
-!!$     open(unit=369, file="vmet.out", status="replace", position="rewind", recl=20*20)
-!!$     open(unit=370, file="qex.out",status="replace", position="rewind")
-!!$     open(unit=371, file="q.out",status="replace", position="rewind")
+       ! open(unit=332, file="vh08.out", status="replace", position="rewind")
+       ! open(unit=334, file="S.out", status="replace", position="rewind")
+       ! open(unit=336, file="Tsoil.out", status="replace", position="rewind")
+       ! open(unit=335, file="SEB.out", status="replace", position="rewind")
+       ! open(unit=337, file="soil_log.out", status="replace", position="rewind")
+       ! open(unit=338, file="thetai.out", status="replace", position="rewind")
+       ! open(unit=340, file="snow.out", status="replace", position="rewind")
+       ! open(unit=346, file="diags.out", status="replace", position="rewind")
+       ! open(unit=369, file="vmet.out", status="replace", position="rewind", recl=20*20)
+       ! open(unit=370, file="qex.out", status="replace", position="rewind")
+       ! open(unit=371, file="q.out", status="replace", position="rewind")
 
-       !open(unit=339, file="latlong.out",status="replace", position="rewind")
+       ! open(unit=339, file="latlong.out", status="replace", position="rewind")
        ! write(339,"(20000f8.2)") rad%latitude
-       !write(339,"(20000f8.2)") rad%longitude
+       ! write(339,"(20000f8.2)") rad%longitude
        counter = 0
     endif
 
@@ -181,7 +181,7 @@ contains
     endif
 
     ! If we want solutes:
-!!$     if (.not. allocated(bd)) allocate(bd(soil%nhorizons(k)))
+    ! if (.not. allocated(bd)) allocate(bd(soil%nhorizons(k)))
 
     ! Litter parameters:
     if (.not. allocated(plit)) then
@@ -214,7 +214,7 @@ contains
     vmet%phiva = Dva * vmet%cva
     vmet%Rn    = canopy%fns
     ! vmet%Rnsw  = rad%qssabs  ! shortwave radiation absorbed
-    vmet%Rnsw = zero ! all radiation absorbed at snow surface
+    vmet%Rnsw  = zero ! all radiation absorbed at snow surface
     ! vmet%Rnsw = vmet%Rn ! all radiation absorbed beneath snow surface
     Etrans     = max(canopy%fevc/air%rlam/thousand, zero) ! m s-1
     where (canopy%fevc .lt. zero)
@@ -225,13 +225,13 @@ contains
 
     ! zero runoff here, in case error is returned to avoid excessive runoff from previous time-step.
     ! (Runoff is multipled by dt in cable_driver.F90)
-    ssnow%rnof1 = 0.0
-    ssnow%rnof2 = 0.0
-    ssnow%runoff = 0.0
-    ssnow%E_fusion_sn = 0.0
-    ssnow%E_sublimation_sn = 0.0
-    ssnow%evap_liq_sn = 0.0
-    ssnow%surface_melt = 0.0
+    ssnow%rnof1            = 0.0
+    ssnow%rnof2            = 0.0
+    ssnow%runoff           = 0.0
+    ssnow%E_fusion_sn      = zero
+    ssnow%E_sublimation_sn = zero
+    ssnow%evap_liq_sn      = zero
+    ssnow%surface_melt     = zero
     ! Set isotopes to zero
     vmet%civa = zero
 
@@ -281,14 +281,11 @@ contains
        first = .false.
     endif
 
-
     Tsurface = ssnow%Tsurface
     T0       = ssnow%Tsurface
     deltaTa  = zero
     lE_old   = ssnow%lE
     zdelta   = ssnow%zdelta
-
-
 
     SL    = 0.5_r_2   ! degree of litter saturation
     Tsoil = ssnow%Tsoil
@@ -299,7 +296,6 @@ contains
     ssnow%smelt = zero
     ssnow%cls   = one
     S           = ssnow%S                ! degree of soil saturation
-
 
     ! ----------------------------------------------------------------
     ! Iinitialise phi where it is (frozen and saturated) and where (pond >zero)
@@ -509,8 +505,6 @@ contains
 
     if (SEB_only == 1) then
        do kk=1, mp
-
-
           ! call hyofS(S(kk,:), Tsoil(kk,:), par(kk,:), var(kk,:))
           call hyofS(S(kk,1), Tsoil(kk,1), par(kk,1), var(kk,1))
           CALL SEB(ms, par(kk,:), vmet(kk), vsnow(kk), var(kk,:), qprec(kk), qprec_snow(kk), dx(kk,:), &
@@ -519,20 +513,19 @@ contains
                tmp1d1a, tmp1d2, tmp1d3, tmp1d4, &
                tmp1d5, tmp1d6, tmp1d7, tmp1d8, tmp1d9,tmp1d10, tmp1d11, &
                tmp1d12,tmp1d13, tmp1d14, tmp1d15, tmp1d16)
-
        enddo
        canopy%ga  = real(G0)
        canopy%fes = real(lE)
        canopy%fhs = canopy%fns - canopy%ga - real(canopy%fes)
        ssnow%tss  = real(Tsurface + Tzero)
        ssnow%potev  = real(Epot)
-
     else ! full SLI
        ! save for output, because they get changed with litter in solve
        rbw = vmet(1)%rbw
        rbh = vmet(1)%rbh
        rrc = vmet(1)%rrc
        !write(*,*), 'b4 solve', ktau
+       call hyofS(S, Tsoil, par, var)
        call solve( ti, tf, ktau, mp, qprec, qprec_snow, ms, dx, &
             h0, S, thetai, Jsensible, Tsoil, evap, &
             evap_pot, runoff, infil, drn, discharge, qh, &

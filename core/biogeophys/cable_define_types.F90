@@ -959,7 +959,7 @@ CONTAINS
     ALLOCATE( var%cisoL(mp) )
     ALLOCATE( var%rlitt(mp) )
     ALLOCATE( var%thetai(mp,ms) )
-    ALLOCATE( var%snowliq(mp,3) )
+    ALLOCATE( var%snowliq(mp,msn) )
     ALLOCATE( var%nsteps(mp) )
     ALLOCATE( var%nsnow(mp) )
     ALLOCATE( var%TsurfaceFR(mp) )
@@ -1968,10 +1968,10 @@ CONTAINS
 
   END SUBROUTINE zero_balances_type
 
-  
+
   ! ------------------------------------------------------------------------------
 
-  
+
   SUBROUTINE zero_soil_parameter_type(var)
 
     TYPE(soil_parameter_type), INTENT(inout) :: var
@@ -2014,10 +2014,10 @@ CONTAINS
 
   END SUBROUTINE zero_soil_parameter_type
 
-  
+
   ! ------------------------------------------------------------------------------
 
-  
+
   SUBROUTINE zero_soil_snow_type(var)
 
     TYPE(soil_snow_type), INTENT(inout) :: var
@@ -2125,10 +2125,10 @@ CONTAINS
 
   END SUBROUTINE zero_soil_snow_type
 
-  
+
   ! ------------------------------------------------------------------------------
 
-  
+
   SUBROUTINE zero_veg_parameter_type(var)
 
     TYPE(veg_parameter_type), INTENT(inout) :: var
@@ -2193,10 +2193,10 @@ CONTAINS
 
   END SUBROUTINE zero_veg_parameter_type
 
-  
+
   ! ------------------------------------------------------------------------------
 
-  
+
   SUBROUTINE zero_canopy_type(var)
 
     TYPE(canopy_type), INTENT(inout) :: var
@@ -2306,10 +2306,10 @@ CONTAINS
 
   END SUBROUTINE zero_canopy_type
 
-  
+
   ! ------------------------------------------------------------------------------
 
-  
+
   SUBROUTINE zero_radiation_type(var)
 
     TYPE(radiation_type), INTENT(inout) :: var
@@ -2347,10 +2347,10 @@ CONTAINS
 
   END SUBROUTINE zero_radiation_type
 
-  
+
   ! ------------------------------------------------------------------------------
 
-  
+
   SUBROUTINE zero_roughness_type(var)
 
     TYPE(roughness_type), INTENT(inout) :: var
@@ -2380,10 +2380,10 @@ CONTAINS
 
   END SUBROUTINE zero_roughness_type
 
-  
+
   ! ------------------------------------------------------------------------------
 
-  
+
   SUBROUTINE zero_air_type(var)
 
     TYPE(air_type), INTENT(inout) :: var
@@ -2400,10 +2400,10 @@ CONTAINS
 
   END SUBROUTINE zero_air_type
 
-  
+
   ! ------------------------------------------------------------------------------
 
-  
+
   SUBROUTINE zero_met_type(var)
 
     TYPE(met_type), INTENT(inout) :: var
@@ -2435,10 +2435,10 @@ CONTAINS
 
   END SUBROUTINE zero_met_type
 
-  
+
   ! ------------------------------------------------------------------------------
 
-  
+
   SUBROUTINE zero_climate_type(var)
 
     IMPLICIT NONE
@@ -2524,10 +2524,10 @@ CONTAINS
 
   END SUBROUTINE zero_climate_type
 
-  
+
   ! ------------------------------------------------------------------------------
 
-  
+
   SUBROUTINE zero_sum_flux_type(var)
 
     TYPE(sum_flux_type), INTENT(inout) :: var
@@ -2547,10 +2547,10 @@ CONTAINS
 
   END SUBROUTINE zero_sum_flux_type
 
-  
+
   ! ------------------------------------------------------------------------------
 
-  
+
   SUBROUTINE zero_bgc_pool_type(var)
 
     TYPE(bgc_pool_type), INTENT(inout) :: var
@@ -2560,7 +2560,7 @@ CONTAINS
 
   END SUBROUTINE zero_bgc_pool_type
 
-  
+
   ! ------------------------------------------------------------------------------
 
 END MODULE cable_def_types_mod

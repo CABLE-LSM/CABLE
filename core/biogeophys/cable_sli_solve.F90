@@ -89,7 +89,7 @@ MODULE sli_solve
 #ifdef __MPI__
   use mpi,                  only: MPI_Abort
 #endif
-  
+
   IMPLICIT NONE
 
   PRIVATE
@@ -151,9 +151,9 @@ CONTAINS
        advection, dTqwdTa, dTqwdTb, Tqw, keff, &
        hice &
        )
-    
+
     IMPLICIT NONE
-    
+
     INTEGER(i_d)                                           :: mp
     REAL(r_2),      DIMENSION(1:mp)                        :: qprec
     REAL(r_2),      DIMENSION(1:mp)                        :: qprec_snow
@@ -493,7 +493,7 @@ CONTAINS
     again(kk)  = .false. ! flag for recalcn of fluxes (default=false)
     !----- end get fluxes and derivs
   END SUBROUTINE get_fluxes_and_derivs
-  
+
 
   SUBROUTINE estimate_timestep( &
        tfin, mp, n, dx, h0, &
@@ -513,9 +513,9 @@ CONTAINS
        advection, &
        iqex &
        )
-    
+
     IMPLICIT NONE
-    
+
     REAL(r_2)                                              :: tfin
     INTEGER(i_d)                                           :: mp
     INTEGER(i_d)                                           :: n
@@ -3852,7 +3852,7 @@ CONTAINS
   !   end do
   ! END SUBROUTINE solute
   !*********************************************************************************************************************
-  
+
   ! SUBROUTINE snow_augment( mp, kk,  qprec_snow, Ta, tfin,     vsnow     &
   !      )
 
@@ -4031,7 +4031,7 @@ CONTAINS
                 write(wlogn,*) "Assume soil is totally frozen"
                 tmp1d3(kk) = (tmp1d2(kk) + rhow*lambdaf*(theta*dx(1) +  h0(kk))) / &
                      (dx(1)*par(1)%css*par(1)%rho + rhow*csice*(theta*dx(1) + h0(kk)))
-                tmp1d4(kk) = 0.0_r_2                
+                tmp1d4(kk) = 0.0_r_2
                 write(wlogn,*) "frozen soil temperature: ", tmp1d3(kk)
              endif
 
@@ -4203,7 +4203,7 @@ CONTAINS
                       write(wlogn,*) "Assume soil is totally frozen"
                       tmp1d3(kk) = (Jsoil + rhow*lambdaf*(theta*dx(1) +  h0(kk))) / &
                            (dx(1)*par(1)%css*par(1)%rho + rhow*csice*(theta*dx(1) + h0(kk)))
-                      tmp1d4(kk) = 0.0_r_2                
+                      tmp1d4(kk) = 0.0_r_2
                       write(wlogn,*) "frozen soil temperature: ", tmp1d3(kk)
                    endif
 
@@ -4378,7 +4378,7 @@ CONTAINS
              !calculate new thetal, consistent with total energy and new pond height
              theta = S(1)*(par(1)%thre) + (par(1)%the - par(1)%thre)
              theta_tmp = theta
-                      
+
              if (h0(kk)>zero) then
                 h0(kk) = h0(kk) +  qmelt(vsnow(kk)%nsnow)
              elseif ((theta+qmelt(vsnow(kk)%nsnow)/dx(1))<par(1)%the) then
@@ -4430,7 +4430,7 @@ CONTAINS
                    var(1)%thetai = zero
                    var(1)%thetal = theta
                 else
-                 
+
                    ! frozen remaining frozen
                    Jsoil = tmp1d2(kk) ! total energy in  soil layer
                    !check there is a zero
@@ -4453,7 +4453,7 @@ CONTAINS
                       write(wlogn,*) "Assume soil is totally frozen"
                       tmp1d3(kk) = (Jsoil + rhow*lambdaf*(theta*dx(1) +  h0(kk))) / &
                            (dx(1)*par(1)%css*par(1)%rho + rhow*csice*(theta*dx(1) + h0(kk)))
-                      tmp1d4(kk) = 0.0_r_2                
+                      tmp1d4(kk) = 0.0_r_2
                       write(wlogn,*) "frozen soil temperature: ", tmp1d3(kk)
                    endif
 
@@ -4488,7 +4488,7 @@ CONTAINS
              vsnow(kk)%FluxDivergence = vsnow(kk)%Qadv_rain + vsnow(kk)%Qadv_snow + vsnow(kk)%Qadv_vap + &
                   vsnow(kk)%Qadv_melt + vsnow(kk)%Qcond_net  +  vsnow(kk)%Qadv_transfer
           endif ! (melt_transfer==.true.)
-       endif ! remove  melt water 
+       endif ! remove  melt water
 
        do i=1, vsnow(kk)%nsnow
           vsnow(kk)%dens(i) = vsnow(kk)%hsnow(i)/vsnow(kk)%depth(i)*rhow

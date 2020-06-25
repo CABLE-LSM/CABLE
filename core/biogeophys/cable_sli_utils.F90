@@ -389,13 +389,13 @@ CONTAINS
              isEpot = .false.
              lE0 = E_vap+E_liq
              dEdTs = zero
-          endif          
+          endif
           ! lE0 = min(Epot, E_vap+E_liq) ! analytic approximation (See Haverd et al. 2013, Appxx)
           ! if (Epot .gt. (E_vap+E_liq)) dEdTs = zero
           Tsurface = (-half*dx(1)*lE0 + half*dx(1)*vmet%Rn + &
                var(1)%kth*Tsoil(1) + half*dx(1)*(one/vmet%rbh*rhocp)*vmet%Ta) &
                /(var(1)%kth + half*dx(1)*(one/vmet%rbh*rhocp))
-          
+
           G0       = var(1)%kth/(half*dx(1))*(Tsurface-Tsoil(1))
           dGdTsoil  =  -var(1)%kth/(half*dx(1))
 
@@ -471,14 +471,14 @@ CONTAINS
        qadvTb = dTqwdTb + rhow*cswat*Tqw*qTb
        qadvyb =  rhow*cswat*qyb*Tqw
        qadvyb = 0
-     
 
-       qadvTb = 0 ! test vh! 
-       
+
+       qadvTb = 0 ! test vh!
+
        qh = qadv + G0
        qhyb = qadvyb
        qhTb = dGdTsoil + qadvTb
-      
+
     case (2) !dedicated snow layer
        ! NB Only longwave component of net radiation directly affects SEB: sw component is absorbed internally
 
@@ -565,7 +565,7 @@ CONTAINS
        qadvyb = zero
        qhyb   = qhyb + qadvyb
        qhTb   = qhTb + qadvTb
-       
+
 
        qv   = -qevap
        qliq = zero
@@ -2705,7 +2705,7 @@ CONTAINS
 
   !**********************************************************************************************************************
 
- ! ELEMENTAL PURE 
+ ! ELEMENTAL PURE
 SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
        Ts, E, H, G, &
        dEdrha, dEdTs, dEdTsoil, dGdTa, dGdTsoil,iice)
@@ -2845,54 +2845,54 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
        !par(:,i)%LambdaS    = real(soil%LambdaS(index),r_2)
        par(:,i)%LambdaS    = 2830_r_2 ! Sispat Manual Table 2
     enddo
-    
-! special for Cumberland: set soil params to clay:                                                                                    
-    if (cable_user%Cumberland_soil) then                                                                                                                 
-       do i=1,ms                                                                                                                        
-          par(:,i)%thw        = 0.286                                                                                                    
-          par(:,i)%thfc       = 0.367                                                                                                    
-          par(:,i)%the        = 0.482                                                                                                    
-          par(:,i)%thre       = real(soil%ssat(index),r_2) - par(:,i)%thr                                                                
-          par(:,i)%he         = -0.405                                                                                                   
-          par(:,i)%Ke         = 1e-6                                                                                                     
-          par(:,i)%lam        = 1./11.4                                                                                                  
-          par(:,i)%eta        = two/par(:,i)%lam + two + one                                                                             
-          par(:,i)%KSe        = par(:,i)%eta * par(:,i)%Ke    ! dK/dS at he                                                              
-          par(:,i)%phie       = par(:,i)%Ke * par(:,i)%he / (one - par(:,i)%lam * par(:,i)%eta) ! MFP at he                              
-          par(:,i)%phiSe      = (par(:,i)%eta - one/par(:,i)%lam) * par(:,i)%phie    ! dphi/dS at he                                     
+
+! special for Cumberland: set soil params to clay:
+    if (cable_user%Cumberland_soil) then
+       do i=1,ms
+          par(:,i)%thw        = 0.286
+          par(:,i)%thfc       = 0.367
+          par(:,i)%the        = 0.482
+          par(:,i)%thre       = real(soil%ssat(index),r_2) - par(:,i)%thr
+          par(:,i)%he         = -0.405
+          par(:,i)%Ke         = 1e-6
+          par(:,i)%lam        = 1./11.4
+          par(:,i)%eta        = two/par(:,i)%lam + two + one
+          par(:,i)%KSe        = par(:,i)%eta * par(:,i)%Ke    ! dK/dS at he
+          par(:,i)%phie       = par(:,i)%Ke * par(:,i)%he / (one - par(:,i)%lam * par(:,i)%eta) ! MFP at he
+          par(:,i)%phiSe      = (par(:,i)%eta - one/par(:,i)%lam) * par(:,i)%phie    ! dphi/dS at he
           par(:,i)%clay       = 0.67
 
-!!$          par(:,i)%thw        = 0.178                                                                                                    
-!!$          par(:,i)%thfc       = 0.367                                                                                                    
-!!$          par(:,i)%the        = 0.45                                                                                                    
-!!$          par(:,i)%thre       = real(soil%ssat(index),r_2) - par(:,i)%thr                                                                
-!!$          par(:,i)%he         = -0.572                                                                                                   
-!!$          par(:,i)%Ke         = 2.8e-5                                                                                                    
-!!$          par(:,i)%lam        = 1./8.7                                                                                                  
-!!$          par(:,i)%eta        = two/par(:,i)%lam + two + one                                                                             
-!!$          par(:,i)%KSe        = par(:,i)%eta * par(:,i)%Ke    ! dK/dS at he                                                              
-!!$          par(:,i)%phie       = par(:,i)%Ke * par(:,i)%he / (one - par(:,i)%lam * par(:,i)%eta) ! MFP at he                              
-!!$          par(:,i)%phiSe      = (par(:,i)%eta - one/par(:,i)%lam) * par(:,i)%phie    ! dphi/dS at he                                     
+!!$          par(:,i)%thw        = 0.178
+!!$          par(:,i)%thfc       = 0.367
+!!$          par(:,i)%the        = 0.45
+!!$          par(:,i)%thre       = real(soil%ssat(index),r_2) - par(:,i)%thr
+!!$          par(:,i)%he         = -0.572
+!!$          par(:,i)%Ke         = 2.8e-5
+!!$          par(:,i)%lam        = 1./8.7
+!!$          par(:,i)%eta        = two/par(:,i)%lam + two + one
+!!$          par(:,i)%KSe        = par(:,i)%eta * par(:,i)%Ke    ! dK/dS at he
+!!$          par(:,i)%phie       = par(:,i)%Ke * par(:,i)%he / (one - par(:,i)%lam * par(:,i)%eta) ! MFP at he
+!!$          par(:,i)%phiSe      = (par(:,i)%eta - one/par(:,i)%lam) * par(:,i)%phie    ! dphi/dS at he
 !!$          par(:,i)%clay       = 0.2
-          
-       enddo 
+
+       enddo
     endif
-                                                                                                                                    
-!!$   ! special for Cumberland: set top 3 layers to sand                                                                             
-!!$   do i=1,3                                                                                                                       
-!!$      par(:,i)%thw        = 0.175                                                                                                 
-!!$      par(:,i)%thfc       = 0.255                                                                                                 
-!!$      par(:,i)%the        = 0.420                                                                                                 
-!!$      par(:,i)%thre       = real(soil%ssat(index),r_2) - par(:,i)%thr                                                             
-!!$      par(:,i)%he         = -0.299                                                                                                
-!!$      par(:,i)%Ke         = 6.e-6                                                                                                 
-!!$      par(:,i)%lam        = 1./7.12                                                                                               
-!!$      par(:,i)%eta        = two/par(:,i)%lam + two + one                                                                          
-!!$      par(:,i)%KSe        = par(:,i)%eta * par(:,i)%Ke    ! dK/dS at he                                                           
-!!$      par(:,i)%phie       = par(:,i)%Ke * par(:,i)%he / (one - par(:,i)%lam * par(:,i)%eta) ! MFP at he                           
-!!$      par(:,i)%phiSe      = (par(:,i)%eta - one/par(:,i)%lam) * par(:,i)%phie    ! dphi/dS at he                                  
-!!$      par(:,i)%clay       = 0.27                                                                                                  
-!!$                                                                                                                                  
+
+!!$   ! special for Cumberland: set top 3 layers to sand
+!!$   do i=1,3
+!!$      par(:,i)%thw        = 0.175
+!!$      par(:,i)%thfc       = 0.255
+!!$      par(:,i)%the        = 0.420
+!!$      par(:,i)%thre       = real(soil%ssat(index),r_2) - par(:,i)%thr
+!!$      par(:,i)%he         = -0.299
+!!$      par(:,i)%Ke         = 6.e-6
+!!$      par(:,i)%lam        = 1./7.12
+!!$      par(:,i)%eta        = two/par(:,i)%lam + two + one
+!!$      par(:,i)%KSe        = par(:,i)%eta * par(:,i)%Ke    ! dK/dS at he
+!!$      par(:,i)%phie       = par(:,i)%Ke * par(:,i)%he / (one - par(:,i)%lam * par(:,i)%eta) ! MFP at he
+!!$      par(:,i)%phiSe      = (par(:,i)%eta - one/par(:,i)%lam) * par(:,i)%phie    ! dphi/dS at he
+!!$      par(:,i)%clay       = 0.27
+!!$
 !!$   enddo
 
 
