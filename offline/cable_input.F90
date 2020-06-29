@@ -54,7 +54,7 @@ MODULE cable_input_module
    USE cable_init_module
    USE netcdf                   ! link must be made in cd to netcdf-x.x.x/src/f90/netcdf.mod
    USE cable_common_module,     ONLY: filename, cable_user, CurYear, HANDLE_ERR, is_leapyear
-   
+
    IMPLICIT NONE
 
    PRIVATE
@@ -298,9 +298,9 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
 #ifdef __MPI__
    use mpi,                 only: MPI_Abort
 #endif
-   
+
    IMPLICIT NONE
-   
+
    ! Input arguments
    REAL, INTENT(OUT) :: dels   ! time step size
    REAL, INTENT(IN) :: TFRZ
@@ -641,7 +641,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
        exists%patch = .TRUE.
        ok = NF90_INQUIRE_DIMENSION(ncid_met,patchdimID,len=nmetpatches)
     END IF
-   
+
     ! Check if monthly dimension exists for LAI info
     ok = NF90_INQ_DIMID(ncid_met,'monthly', monthlydimID)
     IF(ok==NF90_NOERR) THEN ! if found
@@ -778,7 +778,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
          (shod .lt. dels/3600./2.) ) THEN
        shod = shod + dels/3600./2.
     ENDIF
-    
+
     ! Decide day-of-year for non-leap year:
     CALL YMDHMS2DOYSOD( syear, smoy, sdoytmp, INT(shod), 0, 0, sdoy, ssod )
        ! Number of days between start position and 1st timestep:
@@ -1160,14 +1160,14 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
     ! Look for vcmax
     write(logn,*) 'looking for vcmax'
     ok = NF90_INQ_VARID(ncid_met,'vcmax',id%vcmax)
-    write(logn,*) 'exists vcmax: ' , (ok==NF90_NOERR) 
+    write(logn,*) 'exists vcmax: ' , (ok==NF90_NOERR)
     IF(ok == NF90_NOERR) THEN ! If inquiry is okay
        exists%vcmax = .TRUE. ! vcmax is present in met file
        ! Check dimension of vcmax variable:
        ok=NF90_INQUIRE_VARIABLE(ncid_met,id%vcmax, &
             ndims=vcmax_dims,dimids=vcmaxdimids)
        write(logn,*) 'time dim ' , timedimID(1)
-       write(logn,*) 'vcmax dim ' , vcmaxdimids 
+       write(logn,*) 'vcmax dim ' , vcmaxdimids
        write(logn,*) 'vcmax dim = time dim ' , (ANY(vcmaxdimids==timedimID(1)))
        ! If any of vcmax's dimensions are the time dimension
        IF(ANY(vcmaxdimids==timedimID(1))) THEN
@@ -1186,7 +1186,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
     ! Look for LAI - - - - - - - - - - - - - - - - - - - - - - - - -
     write(logn,*) 'looking for LAI'
     ok = NF90_INQ_VARID(ncid_met,'LAI',id%LAI)
-    write(logn,*) 'exists LAI: ' , (ok==NF90_NOERR) 
+    write(logn,*) 'exists LAI: ' , (ok==NF90_NOERR)
     IF(ok == NF90_NOERR) THEN ! If inquiry is okay
        exists%LAI = .TRUE. ! LAI is present in met file
        ! LAI will be read in which ever land grid is used
@@ -1374,10 +1374,10 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
              END DO
               write(*,*) 'nmetpatches', nmetpatches
               write(*,*) 'vegtype_metfile(i,:): ', vegtype_metfile(:,:)
-   
+
           END IF
        ELSE IF(metGrid=='land') THEN
-          
+
           ! Collect data from land only grid in netcdf file:
           IF(iveg_dims==1) THEN ! i.e. no patch specific iveg information
              DO i = 1, mland
@@ -1405,7 +1405,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
                 ok= NF90_GET_VAR(ncid_met, id%iveg, &
                      vegtype_metfile(i,:),&
                      start=(/i,1/), count=(/1,nmetpatches/))
-               
+
                 IF(ok /= NF90_NOERR) CALL nc_abort &
                      (ok,'Error reading iveg in met data file ' &
                      //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
@@ -1921,7 +1921,7 @@ SUBROUTINE get_met_data(spinup, spinConv, met, rad, &
 
        END IF
       END IF
-    
+
       ! Get LAI, if it's present, for mask grid:- - - - - - - - - - - - -
       IF(exists%LAI) THEN ! If LAI exists in met file
         IF(exists%LAI_T) THEN ! i.e. time dependent LAI
@@ -2003,7 +2003,7 @@ SUBROUTINE get_met_data(spinup, spinConv, met, rad, &
 
            veg%vlai(landpt(i)%cstart:landpt(i)%cend) =  &
                 defaultLAI(landpt(i)%cstart:landpt(i)%cend,met%moy(landpt(i)%cstart))
-             
+
         ENDDO
       END IF
 
@@ -2401,7 +2401,7 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, bgc, soil, canopy, rough, rad, 
    !   max_vegpatches - via cable_IO_vars_module
    !! vh_js !!
    USE POPmodule,       ONLY: POP_INIT
-   USE POPLUC_module,   ONLY: POPLUC_INIT 
+   USE POPLUC_module,   ONLY: POPLUC_INIT
    USE CABLE_LUC_EXPT,  ONLY: LUC_EXPT_TYPE
    use casaparm,        only: initcasa
    use casa_inout,      only: casa_readbiome, casa_readphen, casa_init
@@ -2454,7 +2454,7 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, bgc, soil, canopy, rough, rad, 
         mpID,       &
         i , j         ! do loop variables
    CHARACTER :: frst_in*500, CYEAR*4
-   
+
    ! vh_js
    INTEGER :: mp_POP
    INTEGER, dimension(:), ALLOCATABLE :: Iwood
@@ -2493,7 +2493,7 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, bgc, soil, canopy, rough, rad, 
     ! 13C
     if (cable_user%c13o2) then
        call c13o2_alloc_pools(sum_c13o2pools, mp)
-       call c13o2_zero_pools(sum_c13o2pools)       
+       call c13o2_zero_pools(sum_c13o2pools)
     endif
     IF (icycle > 0) THEN
        CALL alloc_phenvariable(phen,mp)
@@ -2618,7 +2618,7 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, bgc, soil, canopy, rough, rad, 
 
       ! Load initialisations and parameters from restart file:
       CALL get_restart_data(ssnow, canopy, bgc, bal, veg, rad, EMSOIL)
-      
+
       ! 13C
       if (cable_user%c13o2) then
          call c13o2_init_flux(met, canopy, c13o2flux)
@@ -2729,8 +2729,8 @@ SUBROUTINE get_parameters_met(soil,veg,bgc,rough,completeSet)
    allocate(tmp(size(patch(:)%frac,1)))
    ! CALL readpar(ncid_met,'patchfrac',completeSet,patch(:)%frac,filename%met, nmetpatches,'def')
    CALL readpar(ncid_met, 'patchfrac', completeSet, tmp, filename%met, nmetpatches, 'def')
-   
-   
+
+
    if (completeSet) patch(:)%frac = real(tmp,r_2)
    deallocate(tmp)
    ! CALL readpar(ncid_met,'isoil',completeSet,soil%isoilm,filename%met, &
@@ -2877,7 +2877,7 @@ SUBROUTINE allocate_cable_vars(air,bgc,canopy,met,bal,                         &
    call zero_cbm_var(ssnow)
    call zero_cbm_var(sum_flux)
    call zero_cbm_var(veg)
-   
+
    ! Allocate patch fraction variable:
    ALLOCATE(patch(arraysize))
 

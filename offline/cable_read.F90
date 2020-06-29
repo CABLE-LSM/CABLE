@@ -32,9 +32,8 @@
 !
 MODULE cable_read_module
 
-
    USE cable_abort_module
-   USE cable_def_types_mod,  ONLY: ms, ncp, r_2, mland, mp, ncs, nrb, msn
+   USE cable_def_types_mod,  ONLY: ms, ncp, r_2, mland, mp, ncs, nrb, msn, mf
    USE cable_IO_vars_module, ONLY: landpt, exists, land_x, land_y, metGrid
    USE netcdf
 #ifdef __MPI__
@@ -76,8 +75,7 @@ CONTAINS
     INTEGER, INTENT(IN) :: ncid ! netcdf file ID
     INTEGER, INTENT(IN) :: npatch ! # of veg patches in parameter's file
     INTEGER, INTENT(IN),OPTIONAL :: INpatch
-    INTEGER, DIMENSION(:), INTENT(INOUT) :: var_i ! returned parameter
-                                                       ! values
+    INTEGER, DIMENSION(:), INTENT(INOUT) :: var_i ! returned parameter values
     LOGICAL, INTENT(IN),OPTIONAL :: from_restart ! reading from restart file?
     LOGICAL, INTENT(INOUT) :: completeSet ! has every parameter been loaded?
     CHARACTER(LEN=*), INTENT(IN) :: parname ! name of parameter
@@ -95,100 +93,97 @@ CONTAINS
                                                        ! in
 
     ! Check if parameter exists:
-    ok = NF90_INQ_VARID(ncid,parname, parID)
-    IF(ok /= NF90_NOERR) THEN ! if it doesn't exist
-       completeSet=.FALSE.
+    ok = NF90_INQ_VARID(ncid, parname, parID)
+    IF (ok /= NF90_NOERR) THEN ! if it doesn't exist
+       completeSet = .FALSE.
        ! If this routine is reading from the restart, abort
-       IF(PRESENT(from_restart))  write(*,*) ' Error reading '//parname//' in file ' &
-                                   //TRIM(filename)//' (SUBROUTINE readpar_i)'
+       IF (PRESENT(from_restart)) &
+            write(*,*) ' Error reading '//parname//' in file ' &
+            //TRIM(filename)//' (SUBROUTINE readpar_i)'
     ELSE
        exists%parameters = .TRUE. ! Note that pars were found in file
        ! Check for grid type - restart file uses land type grid
-       IF(metGrid == 'land' .OR. PRESENT(from_restart)) THEN
+       IF (metGrid == 'land' .OR. PRESENT(from_restart)) THEN
           ! Collect data from land only grid in netcdf file.
           ! First, check whether parameter has patch dimension:
           ok = NF90_INQUIRE_VARIABLE(ncid, parID, ndims=pardims)
-          IF(pardims == 1) THEN ! no patch dimension, just a single land
-                                ! dimension
-             IF(PRESENT(from_restart)) THEN
-                ok = NF90_GET_VAR(ncid, parID, var_i, start=(/1/),             &
-                                  count=(/INpatch/))
-                IF(ok /= NF90_NOERR) CALL nc_abort                             &
-                                    (ok,'Error reading '//parname//' in file ' &
-                                    //TRIM(filename)//' (SUBROUTINE readpar_i)')
+          IF (pardims == 1) THEN ! no patch dimension, just a single land dimension
+             IF (PRESENT(from_restart)) THEN
+                ok = NF90_GET_VAR(ncid, parID, var_i, start=(/1/), &
+                     count=(/INpatch/))
+                IF (ok /= NF90_NOERR) &
+                     CALL nc_abort(ok,'Error reading '//parname//' in file ' &
+                     //TRIM(filename)//' (SUBROUTINE readpar_i)')
              ELSE
-                DO i = 1, mland ! over all land points/grid cells
-                   ok = NF90_GET_VAR(ncid, parID, data1i, start=(/i/),         &
-                                     count=(/1/))
-                   IF(ok /= NF90_NOERR) CALL nc_abort                          &
-                                   (ok, 'Error reading '//parname//' in file ' &
-                                    //TRIM(filename)//' (SUBROUTINE readpar_i)')
+                DO i=1, mland ! over all land points/grid cells
+                   ok = NF90_GET_VAR(ncid, parID, data1i, start=(/i/), &
+                        count=(/1/))
+                   IF (ok /= NF90_NOERR) &
+                        CALL nc_abort(ok, 'Error reading '//parname//' in file ' &
+                        //TRIM(filename)//' (SUBROUTINE readpar_i)')
                    ! Write non-patch-specific value to all patches:
                    var_i(landpt(i)%cstart:landpt(i)%cend) = data1i(1)
                 END DO
              END IF
-          ELSE IF(pardims == 2) THEN ! i.e. parameter has a patch dimension
+          ELSE IF (pardims == 2) THEN ! i.e. parameter has a patch dimension
              ALLOCATE(tmp2i(1, npatch))
-             DO i = 1, mland ! over all land points/grid cells
-                ok = NF90_GET_VAR(ncid, parID, tmp2i,                          &
-                                  start=(/i,1/), count=(/1,npatch/))
-                IF(ok /= NF90_NOERR) CALL nc_abort                             &
-                          (ok, 'Error reading '//parname//' in met data file ' &
-                                    //TRIM(filename)//' (SUBROUTINE readpar_i)')
+             DO i=1, mland ! over all land points/grid cells
+                ok = NF90_GET_VAR(ncid, parID, tmp2i, &
+                     start=(/i,1/), count=(/1,npatch/))
+                IF (ok /= NF90_NOERR) &
+                     CALL nc_abort(ok, 'Error reading '//parname//' in met data file ' &
+                     //TRIM(filename)//' (SUBROUTINE readpar_i)')
                 ! Set values for this par for the # patches that exist
-                var_i(landpt(i)%cstart:(landpt(i)%cstart + npatch - 1)) =      &
-                      tmp2i(1, :)
+                var_i(landpt(i)%cstart:(landpt(i)%cstart + npatch - 1)) = tmp2i(1, :)
              END DO
              DEALLOCATE(tmp2i)
           ELSE
-             CALL cable_abort('Dimension of '//parname//' parameter in '//           &
-                        TRIM(filename)//' unknown.')
+             CALL cable_abort('Dimension of '//parname//' parameter in '// &
+                  TRIM(filename)//' unknown.')
           END IF
-       ELSE IF(metGrid == 'mask') THEN ! Get data from land/sea mask type grid:
+       ELSE IF (metGrid == 'mask') THEN ! Get data from land/sea mask type grid:
           ! First, check whether parameter has patch dimension:
           ok = NF90_INQUIRE_VARIABLE(ncid, parID, ndims=pardims)
-          IF(pardims == 2) THEN ! i.e. no patch dimension, just x-y grid
-                                ! dimensions
+          IF (pardims == 2) THEN ! i.e. no patch dimension, just x-y grid dimensions
              DO i = 1, mland ! over all land points/grid cells
-                ok = NF90_GET_VAR(ncid, parID, data2i,                         &
-                                  start=(/land_x(i),land_y(i)/), count=(/1,1/))
-                IF(ok /= NF90_NOERR) CALL nc_abort                             &
-                                   (ok, 'Error reading '//parname//' in file ' &
-                                    //TRIM(filename)//' (SUBROUTINE readpar_i)')
+                ok = NF90_GET_VAR(ncid, parID, data2i, &
+                     start=(/land_x(i),land_y(i)/), count=(/1,1/))
+                IF (ok /= NF90_NOERR) &
+                     CALL nc_abort(ok, 'Error reading '//parname//' in file ' &
+                     //TRIM(filename)//' (SUBROUTINE readpar_i)')
                 ! Set all patches to have the same value for this par:
                 var_i(landpt(i)%cstart:landpt(i)%cend) = data2i(1, 1)
              END DO
-          ELSE IF(pardims == 3) THEN ! i.e. parameter has a patch dimension
+          ELSE IF (pardims == 3) THEN ! i.e. parameter has a patch dimension
              ALLOCATE(tmp3i(1, 1, npatch))
              DO i = 1, mland ! over all land points/grid cells
-                ok = NF90_GET_VAR(ncid, parID, tmp3i,                          &
-                                  start=(/land_x(i), land_y(i), 1/),           &
-                                  count=(/1, 1, npatch/))
-                IF(ok /= NF90_NOERR) CALL nc_abort                             &
-                     (ok,'Error reading '//parname//' in file '                &
+                ok = NF90_GET_VAR(ncid, parID, tmp3i, &
+                     start=(/land_x(i), land_y(i), 1/), &
+                     count=(/1, 1, npatch/))
+                IF (ok /= NF90_NOERR) &
+                     CALL nc_abort(ok,'Error reading '//parname//' in file ' &
                      //TRIM(filename)//' (SUBROUTINE readpar_i)')
                 ! Set values for this par for the # patches that exist
-                var_i(landpt(i)%cstart:(landpt(i)%cstart + npatch - 1)) =      &
-                                                                  tmp3i(1, 1, :)
+                var_i(landpt(i)%cstart:(landpt(i)%cstart + npatch - 1)) = tmp3i(1, 1, :)
              END DO
              DEALLOCATE(tmp3i)
           ELSE
-             CALL cable_abort('Dimension of '//parname//' parameter in met file '//  &
-                        'unknown.')
+             CALL cable_abort('Dimension of '//parname//' parameter in met file unknown.')
           END IF
        END IF ! gridtype land or mask
     END IF ! parameter's existence
 
   END SUBROUTINE readpar_i
+
   !=============================================================================
-  SUBROUTINE readpar_r(ncid, parname, completeSet, var_r, filename,            &
+
+  SUBROUTINE readpar_r(ncid, parname, completeSet, var_r, filename, &
                        npatch, dimswitch, from_restart, INpatch)
     ! Subroutine for loading a real-valued parameter
     INTEGER, INTENT(IN) :: ncid ! netcdf file ID
     INTEGER, INTENT(IN) :: npatch ! # of veg patches in parameter's file
     INTEGER, INTENT(IN), OPTIONAL :: INpatch
-    REAL(KIND=4), DIMENSION(:), INTENT(INOUT) :: var_r ! returned parameter
-                                                       ! values
+    REAL(KIND=4), DIMENSION(:), INTENT(INOUT) :: var_r ! returned parameter values
     LOGICAL, INTENT(IN), OPTIONAL :: from_restart ! reading from restart file?
     LOGICAL, INTENT(INOUT) :: completeSet ! has every parameter been loaded?
     CHARACTER(LEN=*), INTENT(IN) :: parname ! name of parameter
@@ -201,133 +196,136 @@ CONTAINS
     REAL(KIND=4), DIMENSION(1) :: data1r ! temporary for ncdf read in
     REAL(KIND=4), DIMENSION(1, 1) :: data2r ! temporary for ncdf read in
     REAL(KIND=4), DIMENSION(:, :), POINTER :: tmp2r => null() ! temporary for ncdf read in
-    REAL(KIND=4), DIMENSION(:, :, :), POINTER :: tmp3r => null() ! temporary for ncdf read
-                                                       ! in
+    REAL(KIND=4), DIMENSION(:, :, :), POINTER :: tmp3r => null() ! temporary for ncdf read in
 
     ! Check if parameter exists:
     ok = NF90_INQ_VARID(ncid, parname, parID)
-    IF(ok /= NF90_NOERR) THEN ! if it doesn't exist
+    IF (ok /= NF90_NOERR) THEN ! if it doesn't exist
        completeSet = .FALSE.
        ! If this routine is reading from the restart, abort
-       IF(PRESENT(from_restart)) CALL nc_abort(ok,'Error reading '//parname//  &
-                         ' in file '//TRIM(filename)// '(SUBROUTINE readpar_r)')
+       IF (PRESENT(from_restart)) &
+            CALL nc_abort(ok,'Error reading '//parname// &
+            ' in file '//TRIM(filename)// '(SUBROUTINE readpar_r)')
     ELSE
        exists%parameters = .TRUE. ! Note that pars were found in file
        ! If block to distinguish params with non-spatial dimensions:
-       IF(dimswitch == 'def') THEN ! i.e. parameters with one spatial dim
-                                   ! of length mland*maxpatches
+       IF (dimswitch == 'def') THEN ! i.e. parameters with one spatial dim
+                                    ! of length mland*maxpatches
           ! Check for grid type - restart file uses land type grid
           IF(metGrid == 'land' .OR. PRESENT(from_restart)) THEN
              ! Collect data from land only grid in netcdf file.
              ! First, check whether parameter has patch dimension:
              ok = NF90_INQUIRE_VARIABLE(ncid, parID, ndims=pardims)
-             IF(pardims == 1) THEN ! no patch dimension, just a single land
-                                   ! dimension
-                IF(PRESENT(from_restart)) THEN
-                   ok = NF90_GET_VAR(ncid, parID, var_r, start=(/1/),          &
-                                     count=(/INpatch/))
-                   IF(ok /= NF90_NOERR) CALL nc_abort                          &
-                                    (ok,'Error reading '//parname//' in file ' &
-                                    //TRIM(filename)//' (SUBROUTINE readpar_r)')
+             IF (pardims == 1) THEN ! no patch dimension, just a single land dimension
+                IF (PRESENT(from_restart)) THEN
+                   ok = NF90_GET_VAR(ncid, parID, var_r, start=(/1/), count=(/INpatch/))
+                   IF (ok /= NF90_NOERR) &
+                        CALL nc_abort(ok,'Error reading '//parname//' in file ' &
+                        //TRIM(filename)//' (SUBROUTINE readpar_r)')
                 ELSE
                    DO i = 1, mland ! over all land points/grid cells
-                      ok = NF90_GET_VAR(ncid, parID, data1r, start=(/i/),      &
-                                        count=(/1/))
-                      IF(ok /= NF90_NOERR) CALL nc_abort                       &
-                                    (ok,'Error reading '//parname//' in file ' &
-                                    //TRIM(filename)//' (SUBROUTINE readpar_r)')
+                      ok = NF90_GET_VAR(ncid, parID, data1r, start=(/i/), count=(/1/))
+                      IF (ok /= NF90_NOERR) &
+                           CALL nc_abort(ok,'Error reading '//parname//' in file ' &
+                           //TRIM(filename)//' (SUBROUTINE readpar_r)')
                       ! All patches set to the same value if no patch info:
                       var_r(landpt(i)%cstart:landpt(i)%cend) = data1r(1)
                    END DO
                 END IF
-             ELSE IF(pardims == 2) THEN ! i.e. parameter has a patch dimension
+             ELSE IF (pardims == 2) THEN ! i.e. parameter has a patch dimension
                 ALLOCATE(tmp2r(1, npatch))
-                DO i = 1, mland ! over all land points/grid cells
-                   ok = NF90_GET_VAR(ncid, parID, tmp2r,                       &
-                                     start=(/i, 1/), count=(/1, npatch/))
-                   IF(ok /= NF90_NOERR) CALL nc_abort                          &
-                                    (ok,'Error reading '//parname//' in file ' &
-                                    //TRIM(filename)//' (SUBROUTINE readpar_r)')
+                DO i=1, mland ! over all land points/grid cells
+                   ok = NF90_GET_VAR(ncid, parID, tmp2r, &
+                        start=(/i, 1/), count=(/1, npatch/))
+                   IF(ok /= NF90_NOERR) &
+                        CALL nc_abort(ok,'Error reading '//parname//' in file ' &
+                        //TRIM(filename)//' (SUBROUTINE readpar_r)')
                    ! Set values for this par for the # patches that exist
-                   var_r(landpt(i)%cstart:(landpt(i)%cstart + npatch - 1)) =   &
-                         tmp2r(1, :)
+                   var_r(landpt(i)%cstart:(landpt(i)%cstart + npatch - 1)) = tmp2r(1, :)
                 END DO
                 DEALLOCATE(tmp2r)
              ELSE
-                CALL cable_abort('Dimension of '//parname//                          &
-                           ' parameter in met file unknown.')
+                CALL cable_abort('Dimension of '//parname// &
+                     ' parameter in met file unknown.')
              END IF
-          ELSE IF(metGrid == 'mask') THEN ! Get data from land/sea mask type
-                                          ! grid:
+          ELSE IF (metGrid == 'mask') THEN ! Get data from land/sea mask type grid:
              ! First, check whether parameter has patch dimension:
              ok = NF90_INQUIRE_VARIABLE(ncid, parID, ndims=pardims)
-             IF(pardims == 2) THEN ! no patch dimension, just x-y grid
-                                   ! dimensions
-                DO i = 1, mland ! over all land points/grid cells
-                   ok = NF90_GET_VAR(ncid, parID, data2r,                      &
-                                  start=(/land_x(i),land_y(i)/), count=(/1, 1/))
-                   IF(ok /= NF90_NOERR) CALL nc_abort                          &
-                                    (ok,'Error reading '//parname//' in file ' &
-                                    //TRIM(filename)//' (SUBROUTINE readpar_r)')
+             IF (pardims == 2) THEN ! no patch dimension, just x-y grid dimensions
+                DO i=1, mland ! over all land points/grid cells
+                   ok = NF90_GET_VAR(ncid, parID, data2r, &
+                        start=(/land_x(i),land_y(i)/), count=(/1, 1/))
+                   IF (ok /= NF90_NOERR) &
+                        CALL nc_abort(ok,'Error reading '//parname//' in file ' &
+                        //TRIM(filename)//' (SUBROUTINE readpar_r)')
                    ! Set all patches to have the same value for this par:
                    var_r(landpt(i)%cstart:landpt(i)%cend) = data2r(1, 1)
                 END DO
-             ELSE IF(pardims == 3) THEN ! i.e. parameter has a patch dimension
+             ELSE IF (pardims == 3) THEN ! i.e. parameter has a patch dimension
                 ALLOCATE(tmp3r(1, 1, npatch))
-                DO i = 1, mland ! over all land points/grid cells
-                   ok = NF90_GET_VAR(ncid, parID, tmp3r,                       &
-                                     start=(/land_x(i), land_y(i), 1/),        &
-                                     count=(/1, 1, npatch/))
-                   IF(ok /= NF90_NOERR) CALL nc_abort                          &
-                                    (ok,'Error reading '//parname//' in file ' &
-                                    //TRIM(filename)//' (SUBROUTINE readpar_r)')
+                DO i=1, mland ! over all land points/grid cells
+                   ok = NF90_GET_VAR(ncid, parID, tmp3r, &
+                        start=(/land_x(i), land_y(i), 1/), &
+                        count=(/1, 1, npatch/))
+                   IF (ok /= NF90_NOERR) &
+                        CALL nc_abort(ok,'Error reading '//parname//' in file ' &
+                        //TRIM(filename)//' (SUBROUTINE readpar_r)')
                    ! Set values for this par for the # patches that exist
-                   var_r(landpt(i)%cstart:(landpt(i)%cstart + npatch - 1)) =   &
-                                                                  tmp3r(1, 1, :)
+                   var_r(landpt(i)%cstart:(landpt(i)%cstart + npatch - 1)) = tmp3r(1, 1, :)
                 END DO
                 DEALLOCATE(tmp3r)
              ELSE
-                CALL cable_abort('Dimension of '//parname//                          &
+                CALL cable_abort('Dimension of '//parname// &
                      ' parameter in met file unknown.')
              END IF
           END IF ! gridtype land or mask
-       ELSE IF(dimswitch == 'ms') THEN ! ie par has only soil dimension, no
-                                       ! spatial
+       ELSE IF (dimswitch == 'ms') THEN ! ie par has only soil dimension, no spatial
           ! Load parameter values (e.g. zse):
           ok = NF90_GET_VAR(ncid, parID, var_r, start=(/1/), count=(/ms/))
-          IF(ok /= NF90_NOERR) CALL nc_abort                                   &
-                                    (ok,'Error reading '//parname//' in file ' &
-                                    //TRIM(filename)//' (SUBROUTINE readpar_r)')
-       ELSE IF(dimswitch == 'ncp') THEN ! ie par has only ncp dimension e.g.
-                                        ! ratecp
+          IF(ok /= NF90_NOERR) &
+               CALL nc_abort(ok,'Error reading '//parname//' in file ' &
+               //TRIM(filename)//' (SUBROUTINE readpar_r)')
+       ELSE IF (dimswitch == 'msn') THEN ! ie par has only snow dimension, no spatial
+          ! Load parameter values
+          ok = NF90_GET_VAR(ncid, parID, var_r, start=(/1/), count=(/msn/))
+          IF(ok /= NF90_NOERR) &
+               CALL nc_abort(ok,'Error reading '//parname//' in file ' &
+               //TRIM(filename)//' (SUBROUTINE readpar_r)')
+       ELSE IF (dimswitch == 'mf') THEN ! ie par has only leaf dimension, no spatial
+          ! Load parameter values
+          ok = NF90_GET_VAR(ncid, parID, var_r, start=(/1/), count=(/mf/))
+          IF(ok /= NF90_NOERR) &
+               CALL nc_abort(ok,'Error reading '//parname//' in file ' &
+               //TRIM(filename)//' (SUBROUTINE readpar_r)')
+       ELSE IF (dimswitch == 'ncp') THEN ! ie par has only ncp dimension e.g. ratecp
           ! Load ratecp parameter values:
           ok = NF90_GET_VAR(ncid, parID, var_r, start=(/1/), count=(/ncp/))
-          IF(ok /= NF90_NOERR) CALL nc_abort                                   &
-                                   (ok, 'Error reading '//parname//' in file ' &
-                                    //TRIM(filename)//' (SUBROUTINE readpar_r)')
-       ELSE IF(dimswitch == 'ncs') THEN ! ie par has only ncs dimension e.g.
-                                        ! ratecs
+          IF (ok /= NF90_NOERR) &
+               CALL nc_abort(ok, 'Error reading '//parname//' in file ' &
+               //TRIM(filename)//' (SUBROUTINE readpar_r)')
+       ELSE IF (dimswitch == 'ncs') THEN ! ie par has only ncs dimension e.g. ratecs
           ! Load parameter values:
           ok = NF90_GET_VAR(ncid, parID, var_r, start=(/1/), count=(/ncs/))
-          IF(ok /= NF90_NOERR) CALL nc_abort                                   &
-                                    (ok,'Error reading '//parname//' in file ' &
-                                    //TRIM(filename)//' (SUBROUTINE readpar_r)')
+          IF (ok /= NF90_NOERR) &
+               CALL nc_abort(ok,'Error reading '//parname//' in file ' &
+               //TRIM(filename)//' (SUBROUTINE readpar_r)')
        ELSE
-          CALL cable_abort('Parameter or initial state '//parname//                  &
-                     ' called with unknown dimension switch - '//dimswitch//   &
-                     ' - in INTERFACE readpar')
+          CALL cable_abort('Parameter or initial state '//parname// &
+               ' called with unknown dimension switch - '//dimswitch//   &
+               ' - in INTERFACE readpar')
        END IF ! dimension of parameter i.e. is this zse or ratecp or ratecs
     END IF ! parameter's existence
 
   END SUBROUTINE readpar_r
+
   !=============================================================================
-  SUBROUTINE readpar_rd(ncid, parname, completeSet, var_rd, filename,          &
+
+  SUBROUTINE readpar_rd(ncid, parname, completeSet, var_rd, filename, &
                         npatch, dimswitch, from_restart, INpatch)
     ! Subroutine for loading a double precision real-valued parameter
     INTEGER, INTENT(IN) :: ncid ! netcdf file ID
     INTEGER, INTENT(IN) :: npatch ! # of veg patches in parameter's file
-    REAL(r_2), DIMENSION(:), INTENT(INOUT) :: var_rd ! returned parameter
-                                                     ! values
+    REAL(r_2), DIMENSION(:), INTENT(INOUT) :: var_rd ! returned parameter values
     LOGICAL, INTENT(IN), OPTIONAL :: from_restart ! reading from restart file?
     LOGICAL, INTENT(INOUT) :: completeSet ! has every parameter been loaded?
     CHARACTER(LEN=*), INTENT(IN) :: parname ! name of parameter
@@ -340,166 +338,197 @@ CONTAINS
     INTEGER :: i ! do loop counter
     REAL(4), DIMENSION(1) :: data1r ! temporary for ncdf read in
     REAL(4), DIMENSION(1, 1) :: data2r ! temporary for ncdf read in
-    REAL(4), DIMENSION(:), POINTER :: tmp1r => null() ! temporary for ncdf read in
     REAL(4), DIMENSION(:, :), POINTER :: tmp2r => null() ! temporary for ncdf read in
     REAL(4), DIMENSION(:, :, :), POINTER :: tmp3r => null() ! temporary for ncdf read in
 
     ! Check if parameter exists:
     ok = NF90_INQ_VARID(ncid, parname, parID)
-    IF(ok /= NF90_NOERR) THEN ! if it doesn't exist
+    IF (ok /= NF90_NOERR) THEN ! if it doesn't exist
        completeSet = .FALSE.
        ! If this routine is reading from the restart, abort
-       IF(PRESENT(from_restart)) CALL nc_abort(ok,'Error reading '//parname//  &
-                        ' in file '//TRIM(filename)// '(SUBROUTINE readpar_rd)')
+       IF (PRESENT(from_restart)) CALL nc_abort(ok,'Error reading '//parname//  &
+            ' in file '//TRIM(filename)// '(SUBROUTINE readpar_rd)')
     ELSE
        exists%parameters = .TRUE. ! Note that pars were found in file
        ! If block to distinguish params with non-spatial dimensions:
-       IF(dimswitch(1:3) == 'def') THEN ! i.e. parameters with one spatial dim
+       IF (dimswitch(1:3) == 'def') THEN ! i.e. parameters with one spatial dim
           ! of length mland*maxpatches
           ! Check for grid type - restart file uses land type grid
-          IF(metGrid == 'land' .OR. PRESENT(from_restart)) THEN
+          IF (metGrid == 'land' .OR. PRESENT(from_restart)) THEN
              ! Collect data from land only grid in netcdf file.
              ! First, check whether parameter has patch dimension:
              ok = NF90_INQUIRE_VARIABLE(ncid, parID, ndims=pardims)
-             IF(pardims == 1) THEN ! no patch dimension, just a single land
-                                   ! dimension
-                IF(PRESENT(from_restart)) THEN
-!                   IF(dimswitch(1:4) == 'defd') THEN ! ie we're expecting to
-                                                      ! read double prec.
-!                      ! Read double precision data:
-!                      ok = NF90_GET_VAR(ncid,parID,var_rd,start=(/1/),        &
-!                                        count=(/INpatch/))
-!                   ELSE ! ie we're reading single prec. var in netdf file
-                      ! Read single precision data:
-                      ALLOCATE(tmp1r(INpatch))
-                      ok = NF90_GET_VAR(ncid, parID, tmp1r, start=(/1/),       &
-                                        count=(/INpatch/))
-                      var_rd = REAL(tmp1r, r_2)
-                      DEALLOCATE(tmp1r)
-!                   END IF
-                      IF(ok /= NF90_NOERR) CALL nc_abort                       &
-                                    (ok,'Error reading '//parname//' in file ' &
-                                   //TRIM(filename)//' (SUBROUTINE readpar_rd)')
+             IF (pardims == 1) THEN ! no patch dimension, just a single land dimension
+                IF (PRESENT(from_restart)) THEN
+                   ! IF(dimswitch(1:4) == 'defd') THEN ! ie we're expecting to read double prec.
+                   !    ! Read double precision data:
+                   !    ok = NF90_GET_VAR(ncid,parID,var_rd,start=(/1/), &
+                   !        count=(/INpatch/))
+                   ! ELSE ! ie we're reading single prec. var in netdf file
+                   ! Read single precision data:
+                   ok = NF90_GET_VAR(ncid, parID, var_rd, start=(/1/), &
+                        count=(/INpatch/))
+                   ! END IF
+                   IF (ok /= NF90_NOERR) &
+                        CALL nc_abort(ok,'Error reading '//parname//' in file ' &
+                        //TRIM(filename)//' (SUBROUTINE readpar_rd)')
                 ELSE ! reading from met file
-                   DO i = 1, mland ! over all land points/grid cells
-                      ok = NF90_GET_VAR(ncid, parID, data1r, start=(/i/),      &
-                                        count=(/1/))
-                      IF(ok /= NF90_NOERR) CALL nc_abort                       &
-                                    (ok,'Error reading '//parname//' in file ' &
-                                   //TRIM(filename)//' (SUBROUTINE readpar_rd)')
+                   DO i=1, mland ! over all land points/grid cells
+                      ok = NF90_GET_VAR(ncid, parID, data1r, start=(/i/), &
+                           count=(/1/))
+                      IF (ok /= NF90_NOERR) &
+                           CALL nc_abort(ok,'Error reading '//parname//' in file ' &
+                           //TRIM(filename)//' (SUBROUTINE readpar_rd)')
                       ! Give single value to all patches if no patch specific
                       ! info:
-                      var_rd(landpt(i)%cstart:landpt(i)%cend) =                &
-                                                            REAL(data1r(1))
+                      var_rd(landpt(i)%cstart:landpt(i)%cend) = real(data1r(1), r_2)
                    END DO
                 END IF
-             ELSE IF(pardims == 2) THEN ! i.e. parameter has a patch dimension
+             ELSE IF (pardims == 2) THEN ! i.e. parameter has a patch dimension
                 ! NB restart file will not have a patch dimension, therefore
                 ! all reads here are of single precision variables.
-                ALLOCATE(tmp2r(1, npatch))
-                DO i = 1, mland ! over all land points/grid cells
-                   ok = NF90_GET_VAR(ncid, parID, tmp2r,                       &
-                                     start=(/i, 1/), count=(/1, npatch/))
-                   IF(ok /= NF90_NOERR) CALL nc_abort                          &
-                                   (ok, 'Error reading '//parname//' in file ' &
-                                   //TRIM(filename)//' (SUBROUTINE readpar_rd)')
-                   ! Set values for this par for the # patches that exist
-                   var_rd(landpt(i)%cstart:(landpt(i)%cstart + npatch - 1)) =  &
-                                                          REAL(tmp2r(1, :), r_2)
-                END DO
-                DEALLOCATE(tmp2r)
+                if (present(from_restart)) then
+                   CALL nc_abort(-99, 'Should not be here 1 (SUBROUTINE readpar_rd)')
+                else
+                   ALLOCATE(tmp2r(1, npatch))
+                   DO i=1, mland ! over all land points/grid cells
+                      ok = NF90_GET_VAR(ncid, parID, tmp2r, &
+                           start=(/i, 1/), count=(/1, npatch/))
+                      IF (ok /= NF90_NOERR) &
+                           CALL nc_abort(ok, 'Error reading '//parname//' in file ' &
+                           //TRIM(filename)//' (SUBROUTINE readpar_rd)')
+                      ! Set values for this par for the # patches that exist
+                      var_rd(landpt(i)%cstart:(landpt(i)%cstart + npatch - 1)) = REAL(tmp2r(1, :), r_2)
+                   END DO
+                   DEALLOCATE(tmp2r)
+                endif
              ELSE
-                CALL cable_abort('Dimension of '//parname//                          &
+                CALL cable_abort('Dimension of '//parname// &
                      ' parameter in met file unknown.')
              END IF
-          ELSE IF(metGrid == 'mask') THEN ! Get data from land/sea mask type
-                                          ! grid:
+          ELSE IF (metGrid == 'mask') THEN ! Get data from land/sea mask type grid:
              ! NB restart file will not have mask grid, therefore all reads
              ! here are of single precision variables in the netcdf met file
              ! First, check whether parameter has patch dimension:
-             ok = NF90_INQUIRE_VARIABLE(ncid, parID, ndims=pardims)
-             IF(pardims == 2) THEN ! no patch dimension, just x-y grid
-                                   ! dimensions
-                DO i=1, mland ! over all land points/grid cells
-                   ok= NF90_GET_VAR(ncid, parID, data2r,                       &
-                                    start=(/land_x(i), land_y(i)/),            &
-                                    count=(/1, 1/))
-                   IF(ok /= NF90_NOERR) CALL nc_abort                          &
-                                   (ok, 'Error reading '//parname//' in file ' &
-                                   //TRIM(filename)//' (SUBROUTINE readpar_rd)')
-                   ! Set all patches to have the same value for this par:
-                   var_rd(landpt(i)%cstart:landpt(i)%cend) =                   &
-                                                         REAL(data2r(1, 1), r_2)
-                END DO
-             ELSE IF(pardims == 3) THEN ! i.e. parameter has a patch dimension
-                ALLOCATE(tmp3r(1, 1, npatch))
-                DO i = 1, mland ! over all land points/grid cells
-                   ok = NF90_GET_VAR(ncid, parID, tmp3r,                       &
-                                     start=(/land_x(i), land_y(i), 1/),        &
-                                     count=(/1, 1, npatch/))
-                   IF(ok /= NF90_NOERR) CALL nc_abort                          &
-                                   (ok, 'Error reading '//parname//' in file ' &
-                                   //TRIM(filename)//' (SUBROUTINE readpar_rd)')
-                   ! Set values for this par for the # patches that exist
-                   var_rd(landpt(i)%cstart:(landpt(i)%cstart + npatch - 1))    &
-                                                     = REAL(tmp3r(1, 1, :), r_2)
-                END DO
-                DEALLOCATE(tmp3r)
-             ELSE
-                CALL cable_abort('Dimension of '//parname//                          &
-                           ' parameter in met file unknown.')
-             END IF
+             if (present(from_restart)) then
+                CALL nc_abort(-99, 'Should not be here 2 (SUBROUTINE readpar_rd)')
+             else
+                ok = NF90_INQUIRE_VARIABLE(ncid, parID, ndims=pardims)
+                IF (pardims == 2) THEN ! no patch dimension, just x-y grid dimensions
+                   DO i=1, mland ! over all land points/grid cells
+                      ok= NF90_GET_VAR(ncid, parID, data2r, &
+                           start=(/land_x(i), land_y(i)/), &
+                           count=(/1, 1/))
+                      IF (ok /= NF90_NOERR) &
+                           CALL nc_abort(ok, 'Error reading '//parname//' in file ' &
+                           //TRIM(filename)//' (SUBROUTINE readpar_rd)')
+                      ! Set all patches to have the same value for this par:
+                      var_rd(landpt(i)%cstart:landpt(i)%cend) = REAL(data2r(1, 1), r_2)
+                   END DO
+                ELSE IF (pardims == 3) THEN ! i.e. parameter has a patch dimension
+                   ALLOCATE(tmp3r(1, 1, npatch))
+                   DO i = 1, mland ! over all land points/grid cells
+                      ok = NF90_GET_VAR(ncid, parID, tmp3r, &
+                           start=(/land_x(i), land_y(i), 1/), &
+                           count=(/1, 1, npatch/))
+                      IF(ok /= NF90_NOERR) &
+                           CALL nc_abort(ok, 'Error reading '//parname//' in file ' &
+                           //TRIM(filename)//' (SUBROUTINE readpar_rd)')
+                      ! Set values for this par for the # patches that exist
+                      var_rd(landpt(i)%cstart:(landpt(i)%cstart + npatch - 1)) = REAL(tmp3r(1, 1, :), r_2)
+                   END DO
+                   DEALLOCATE(tmp3r)
+                ELSE
+                   CALL cable_abort('Dimension of '//parname// &
+                        ' parameter in met file unknown.')
+                END IF
+             endif
           ELSE
              CALL cable_abort('Prescribed input grid '//metGrid//' unknown.')
           END IF ! gridtype land or mask
-
-       ELSE IF(dimswitch(1:2) == 'ms') THEN ! ie par has only soil dimension,
-                                            ! no spatial
-          ! Load parameter values (e.g. zse):
-          DO i = 1, ms
-             ok = NF90_GET_VAR(ncid, parID, data1r, start=(/i/), count=(/1/))
-             IF(ok /= NF90_NOERR) CALL nc_abort                                &
-                                   (ok, 'Error reading '//parname//' in file ' &
-                                   //TRIM(filename)//' (SUBROUTINE readpar_rd)')
-             var_rd(i) = REAL(data1r(1), r_2)
-          END DO
-       ELSE IF(dimswitch(1:3) == 'ncp') THEN ! ie par has only ncp dimension
-                                             ! e.g. ratecp
-          ! Load ratecp parameter values:
-          DO i = 1, ncp
-             ok = NF90_GET_VAR(ncid, parID, data1r, start=(/i/), count=(/1/))
-             IF(ok /= NF90_NOERR) CALL nc_abort                                &
-                                   (ok, 'Error reading '//parname//' in file ' &
-                                   //TRIM(filename)//' (SUBROUTINE readpar_rd)')
-             var_rd(i) = REAL(data1r(1), r_2)
-          END DO
-       ELSE IF(dimswitch(1:3) == 'ncs') THEN ! ie par has only ncs dimension
-                                             ! e.g. ratecs
-          ! Load parameter values:
-          DO i = 1, ncs
-             ok = NF90_GET_VAR(ncid, parID, data1r, start=(/i/), count=(/1/))
-             IF(ok /= NF90_NOERR) CALL nc_abort                                &
-                                    (ok,'Error reading '//parname//' in file ' &
-                                   //TRIM(filename)//' (SUBROUTINE readpar_rd)')
-             var_rd(i) = REAL(data1r(1), r_2)
-          END DO
+       ELSE IF (dimswitch(1:2) == 'ms') THEN ! ie par has only soil dimension, no spatial
+          if (present(from_restart)) then
+             CALL nc_abort(-99, 'Should not be here 3 (SUBROUTINE readpar_rd)')
+          else
+              ! Load parameter values
+              DO i=1, ms
+                 ok = NF90_GET_VAR(ncid, parID, data1r, start=(/i/), count=(/1/))
+                 IF (ok /= NF90_NOERR) &
+                      CALL nc_abort(ok, 'Error reading '//parname//' in file ' &
+                      //TRIM(filename)//' (SUBROUTINE readpar_rd)')
+                 var_rd(i) = REAL(data1r(1), r_2)
+              END DO
+           endif
+        ELSE IF (dimswitch(1:2) == 'msn') THEN ! ie par has only soil dimension, no spatial
+           if (present(from_restart)) then
+              CALL nc_abort(-99, 'Should not be here 4 (SUBROUTINE readpar_rd)')
+           else
+              ! Load parameter values
+              DO i=1, msn
+                 ok = NF90_GET_VAR(ncid, parID, data1r, start=(/i/), count=(/1/))
+                 IF (ok /= NF90_NOERR) &
+                      CALL nc_abort(ok, 'Error reading '//parname//' in file ' &
+                      //TRIM(filename)//' (SUBROUTINE readpar_rd)')
+                 var_rd(i) = REAL(data1r(1), r_2)
+              END DO
+           endif
+        ELSE IF (dimswitch(1:2) == 'mf') THEN ! ie par has only soil dimension, no spatial
+           if (present(from_restart)) then
+              CALL nc_abort(-99, 'Should not be here 5 (SUBROUTINE readpar_rd)')
+           else
+              ! Load parameter values
+              DO i=1, mf
+                 ok = NF90_GET_VAR(ncid, parID, data1r, start=(/i/), count=(/1/))
+                 IF (ok /= NF90_NOERR) &
+                      CALL nc_abort(ok, 'Error reading '//parname//' in file ' &
+                      //TRIM(filename)//' (SUBROUTINE readpar_rd)')
+                 var_rd(i) = REAL(data1r(1), r_2)
+              END DO
+           endif
+       ELSE IF (dimswitch(1:3) == 'ncp') THEN ! ie par has only ncp dimension e.g. ratecp
+          if (present(from_restart)) then
+             CALL nc_abort(-99, 'Should not be here 6 (SUBROUTINE readpar_rd)')
+          else
+             ! Load ratecp parameter values:
+             DO i=1, ncp
+                ok = NF90_GET_VAR(ncid, parID, data1r, start=(/i/), count=(/1/))
+                IF(ok /= NF90_NOERR) &
+                     CALL nc_abort(ok, 'Error reading '//parname//' in file ' &
+                     //TRIM(filename)//' (SUBROUTINE readpar_rd)')
+                var_rd(i) = REAL(data1r(1), r_2)
+             END DO
+          endif
+       ELSE IF (dimswitch(1:3) == 'ncs') THEN ! ie par has only ncs dimension e.g. ratecs
+          if (present(from_restart)) then
+             CALL nc_abort(-99, 'Should not be here 7 (SUBROUTINE readpar_rd)')
+          else
+             ! Load parameter values:
+             DO i=1, ncs
+                ok = NF90_GET_VAR(ncid, parID, data1r, start=(/i/), count=(/1/))
+                IF(ok /= NF90_NOERR) &
+                     CALL nc_abort(ok,'Error reading '//parname//' in file ' &
+                     //TRIM(filename)//' (SUBROUTINE readpar_rd)')
+                var_rd(i) = REAL(data1r(1), r_2)
+             END DO
+          endif
        ELSE
-          CALL cable_abort('Parameter or initial state '//parname//                  &
-                     ' called with unknown dimension switch - '//dimswitch//   &
-                     ' - in INTERFACE readpar')
+          CALL cable_abort('Parameter or initial state '//parname// &
+               ' called with unknown dimension switch - '//dimswitch// &
+               ' - in INTERFACE readpar')
        END IF ! dimension of parameter i.e. is this zse or ratecp or ratecs
     END IF ! parameter's existence
 
   END SUBROUTINE readpar_rd
+
   !=============================================================================
-  SUBROUTINE readpar_r2(ncid, parname, completeSet, var_r2, filename,          &
+
+  SUBROUTINE readpar_r2(ncid, parname, completeSet, var_r2, filename, &
                         npatch, dimswitch, from_restart, INpatch)
     ! Subroutine for loading a two dimensional real-valued parameter
     INTEGER, INTENT(IN) :: ncid ! netcdf file ID
     INTEGER, INTENT(IN) :: npatch ! number of veg patches in file
     INTEGER, INTENT(IN), OPTIONAL :: INpatch
-    REAL(KIND=4), DIMENSION(:,:), INTENT(INOUT) :: var_r2 ! returned parameter
-                                                          ! values
+    REAL(KIND=4), DIMENSION(:,:), INTENT(INOUT) :: var_r2 ! returned parameter values
     LOGICAL, INTENT(IN), OPTIONAL :: from_restart ! reading from restart file?
     LOGICAL, INTENT(INOUT) :: completeSet ! has every parameter been loaded?
     CHARACTER(LEN=*), INTENT(IN) :: filename ! file containing parameter values
@@ -515,152 +544,152 @@ CONTAINS
                                                           ! read in
     REAL(KIND=4), DIMENSION(:, :, :), POINTER    :: tmp3r => null() ! temporary for ncdf
                                                           ! read in
-    REAL(KIND=4), DIMENSION(:, :, :, :), POINTER :: tmp4r => null() ! temporary for ncdf
-                                                          ! read in
+    REAL(KIND=4), DIMENSION(:, :, :, :), POINTER :: tmp4r => null() ! temporary for ncdf read in
     REAL :: tmpjh
-     ! Check if parameter exists:
+
+    ! Check if parameter exists:
     ok = NF90_INQ_VARID(ncid, parname, parID)
-    IF(ok /= NF90_NOERR) THEN ! if it doesn't exist
+    IF (ok /= NF90_NOERR) THEN ! if it doesn't exist
        completeSet = .FALSE.
        ! If this routine is reading from the restart, abort
-       IF(PRESENT(from_restart)) CALL nc_abort(ok, 'Error reading '//parname   &
-                      //' in file '//TRIM(filename)// '(SUBROUTINE readpar_r2)')
+       IF (PRESENT(from_restart)) CALL nc_abort(ok, 'Error reading '//parname &
+            //' in file '//TRIM(filename)// '(SUBROUTINE readpar_r2)')
     ELSE
        exists%parameters = .TRUE. ! Note that pars were found in file
        ! Decide which 2nd dimension of parameter/init state we're loading:
-       IF(dimswitch == 'ms') THEN
+       IF (dimswitch == 'ms') THEN
           dimctr = ms ! i.e. horizontal spatial and soil
-       ELSE IF(dimswitch == 'snow') THEN
+       ELSE IF (dimswitch == 'msn') THEN
           dimctr = msn ! i.e. horizontal spatial and snow
-       ELSE IF(dimswitch == 'nrb') THEN
+       ELSE IF (dimswitch == 'mf') THEN
+          dimctr = mf ! i.e. horizontal spatial and snow
+       ELSE IF (dimswitch == 'snow') THEN
+          dimctr = msn ! i.e. horizontal spatial and snow
+       ELSE IF (dimswitch == 'nrb') THEN
           dimctr = nrb ! i.e. horizontal spatial and radiation bands
-       ELSE IF(dimswitch == 'ncp') THEN
+       ELSE IF (dimswitch == 'ncp') THEN
           dimctr = ncp ! i.e. horizontal spatial and plant carbon pools
-       ELSE IF(dimswitch == 'ncs') THEN
+       ELSE IF (dimswitch == 'ncs') THEN
           dimctr = ncs ! i.e. horizontal spatial and soil carbon pools
        ELSE
-          CALL cable_abort('Parameter or initial state '//parname//                  &
-                     ' called with unknown dimension switch - '//dimswitch//   &
-                     ' - in INTERFACE readpar SUBROUTINE readpar_r2')
+          CALL cable_abort('Parameter or initial state '//parname// &
+               ' called with unknown dimension switch - '//dimswitch// &
+               ' - in INTERFACE readpar SUBROUTINE readpar_r2')
        END IF
 
-
        ! Check for grid type - restart file uses land type grid
-       IF(metGrid == 'land' .OR. PRESENT(from_restart)) THEN
+       IF (metGrid == 'land' .OR. PRESENT(from_restart)) THEN
           ! Collect data from land only grid in netcdf file.
           ! First, check whether parameter has patch dimension:
           ok = NF90_INQUIRE_VARIABLE(ncid, parID, ndims=pardims)
-          IF(pardims == 2) THEN ! no patch dimension, just a land + other
-                                ! dimension
-             IF(PRESENT(from_restart)) THEN
-                ok = NF90_GET_VAR(ncid, parID, var_r2, start=(/1, 1/),         &
-                                  count=(/INpatch, dimctr/))
-!    WRITE(45,*) 'Is tgg read here?'
-                IF(ok /= NF90_NOERR) CALL nc_abort                             &
-                                    (ok, 'Error reading '//parname//' in file' &
-                                   //TRIM(filename)//' (SUBROUTINE readpar_rd)')
+          IF (pardims == 2) THEN ! no patch dimension, just a land + other dimension
+             IF (PRESENT(from_restart)) THEN
+                ok = NF90_GET_VAR(ncid, parID, var_r2, start=(/1, 1/), &
+                     count=(/INpatch, dimctr/))
+                ! WRITE(45,*) 'Is tgg read here?'
+                IF (ok /= NF90_NOERR) &
+                     CALL nc_abort(ok, 'Error reading '//parname//' in file' &
+                     //TRIM(filename)//' (SUBROUTINE readpar_rd)')
              ELSE
                 ALLOCATE(tmp2r(1, dimctr))
-                DO i = 1, mland ! over all land points/grid cells
-                   ok = NF90_GET_VAR(ncid, parID, tmp2r,                       &
+                DO i=1, mland ! over all land points/grid cells
+                   ok = NF90_GET_VAR(ncid, parID, tmp2r, &
                         start=(/i, 1/), count=(/1, dimctr/))
-                   IF(ok /= NF90_NOERR) CALL nc_abort                          &
-                                   (ok, 'Error reading '//parname//' in file ' &
-                                   //TRIM(filename)//' (SUBROUTINE readpar_r2)')
-                   DO j = 1, dimctr
+                   IF(ok /= NF90_NOERR) &
+                        CALL nc_abort(ok, 'Error reading '//parname//' in file ' &
+                        //TRIM(filename)//' (SUBROUTINE readpar_r2)')
+                   DO j=1, dimctr
                       ! Set all patches to have the same value:
                       var_r2(landpt(i)%cstart:landpt(i)%cend, j) = tmp2r(1, j)
                    END DO
                 END DO
                 DEALLOCATE(tmp2r)
              END IF
-          ELSE IF(pardims == 3) THEN ! i.e. parameter has a patch dimension
+          ELSE IF (pardims == 3) THEN ! i.e. parameter has a patch dimension
              ALLOCATE(tmp3r(1, npatch, dimctr))
-             DO i = 1, mland ! over all land points/grid cells
-                ok = NF90_GET_VAR(ncid, parID, tmp3r,                          &
-                                start=(/i, 1, 1/), count=(/1, npatch, dimctr/))
-                IF(ok /= NF90_NOERR) CALL nc_abort                             &
-                                   (ok, 'Error reading '//parname//' in file ' &
-                                   //TRIM(filename)//' (SUBROUTINE readpar_r2)')
-                DO j = 1, dimctr
+             DO i=1, mland ! over all land points/grid cells
+                ok = NF90_GET_VAR(ncid, parID, tmp3r, &
+                     start=(/i, 1, 1/), count=(/1, npatch, dimctr/))
+                IF(ok /= NF90_NOERR) &
+                     CALL nc_abort(ok, 'Error reading '//parname//' in file ' &
+                     //TRIM(filename)//' (SUBROUTINE readpar_r2)')
+                DO j=1, dimctr
                    ! Set values for this par for the # patches that exist
-                   var_r2(landpt(i)%cstart:(landpt(i)%cstart + npatch          &
-                                                         - 1), j) = tmp3r(1,:,j)
+                   var_r2(landpt(i)%cstart:(landpt(i)%cstart + npatch - 1), j) = tmp3r(1,:,j)
                 END DO
              END DO
              DEALLOCATE(tmp3r)
           ELSE
-             CALL cable_abort('Dimension of '//parname//' parameter in met file '//  &
-                        'unknown.')
+             CALL cable_abort('Dimension of '//parname//' parameter in met file '// &
+                  'unknown.')
           END IF
-       ELSEIF(metGrid == 'mask') THEN ! Get data from land/sea mask type grid:
+       ELSEIF (metGrid == 'mask') THEN ! Get data from land/sea mask type grid:
           ! First, check whether parameter has patch dimension:
           ok=NF90_INQUIRE_VARIABLE(ncid, parID, ndims=pardims)
-
-          IF(pardims == 3) THEN ! no patch dimension, just x-y + soil grid
-                                ! dimension
+          IF (pardims == 3) THEN ! no patch dimension, just x-y + soil grid dimension
              ALLOCATE(tmp3r(1, 1, ms))
-             DO i = 1, mland ! over all land points/grid cells
-                ok =  NF90_GET_VAR(ncid, parID, tmp3r,                         &
-                                   start=(/land_x(i), land_y(i), 1/),          &
-                                   count=(/1, 1, dimctr/))
-                IF(ok /= NF90_NOERR) CALL nc_abort                             &
-                                   (ok, 'Error reading '//parname//' in file ' &
-                                   //TRIM(filename)//' (SUBROUTINE readpar_r2)')
+             DO i=1, mland ! over all land points/grid cells
+                ok =  NF90_GET_VAR(ncid, parID, tmp3r, &
+                     start=(/land_x(i), land_y(i), 1/), &
+                     count=(/1, 1, dimctr/))
+                IF (ok /= NF90_NOERR) &
+                     CALL nc_abort(ok, 'Error reading '//parname//' in file ' &
+                     //TRIM(filename)//' (SUBROUTINE readpar_r2)')
                 ! Set all patches to have the same value for this par:
-                DO j = 1, dimctr
+                DO j=1, dimctr
                    var_r2(landpt(i)%cstart:landpt(i)%cend,j) = tmp3r(1,1,j)
                 END DO
              END DO
              DEALLOCATE(tmp3r)
-          ELSE IF(pardims == 4) THEN ! i.e. soil parameter has a patch dimension
+          ELSE IF (pardims == 4) THEN ! i.e. soil parameter has a patch dimension
              ALLOCATE(tmp4r(1, 1, npatch, dimctr))
-             DO  i = 1, mland ! over all land points/grid cells
-                ok = NF90_GET_VAR(ncid, parID, tmp4r,                          &
-                                  start=(/land_x(i),land_y(i), 1, 1/),         &
-                                  count=(/1, 1, npatch, dimctr/))
-                IF(ok /= NF90_NOERR) CALL nc_abort                             &
-                                   (ok, 'Error reading '//parname//' in file ' &
-                                   //TRIM(filename)//' (SUBROUTINE readpar_r2)')
-                DO j = 1, dimctr
+             DO i=1, mland ! over all land points/grid cells
+                ok = NF90_GET_VAR(ncid, parID, tmp4r, &
+                     start=(/land_x(i),land_y(i), 1, 1/), &
+                     count=(/1, 1, npatch, dimctr/))
+                IF (ok /= NF90_NOERR) &
+                     CALL nc_abort(ok, 'Error reading '//parname//' in file ' &
+                     //TRIM(filename)//' (SUBROUTINE readpar_r2)')
+                DO j=1, dimctr
                    ! Set values for this par for the # patches that exist
                    var_r2(landpt(i)%cstart:(landpt(i)%cstart + npatch -1 ), j) &
                                                              = tmp4r(1, 1, :, j)
                 END DO
              END DO
              DEALLOCATE(tmp4r)
-          ELSE IF(dimswitch == 'nrb') THEN
+          ELSE IF (dimswitch == 'nrb') THEN
              write(*,*) 'pardims', pardims
-             IF(pardims == 2) THEN ! no patch dimension, just a land + other
-                                   ! dimension
-                IF(PRESENT(from_restart)) THEN
-                   ok = NF90_GET_VAR(ncid, parID, var_r2, start=(/1, 1/),      &
-                                     count=(/INpatch, dimctr/))
-                   IF(ok /= NF90_NOERR) CALL nc_abort                          &
-                                     (ok,'Error reading '//parname//' in file' &
-                                   //TRIM(filename)//' (SUBROUTINE readpar_rd)')
+             IF (pardims == 2) THEN ! no patch dimension, just a land + other dimension
+                IF (PRESENT(from_restart)) THEN
+                   ok = NF90_GET_VAR(ncid, parID, var_r2, start=(/1, 1/), &
+                        count=(/INpatch, dimctr/))
+                   IF (ok /= NF90_NOERR) &
+                        CALL nc_abort(ok,'Error reading '//parname//' in file' &
+                        //TRIM(filename)//' (SUBROUTINE readpar_rd)')
                 ELSE
-                   DO i = 1, mland ! over all land points/grid cells
+                   DO i=1, mland ! over all land points/grid cells
                       ok = NF90_GET_VAR(ncid, parID, tmpjh, start=(/i/))
-                   IF(ok /= NF90_NOERR) CALL nc_abort                          &
-                                   (ok, 'Error reading '//parname//' in file ' &
-                                   //TRIM(filename)//' (SUBROUTINE readpar_r2)')
-                   ! Set all patches to have the same value:
-                   write(*,*) 'read albsoil: ', tmpjh
-                   var_r2(landpt(i)%cstart:landpt(i)%cend, 1) = tmpjh
-                   var_r2(landpt(i)%cstart:landpt(i)%cend, 2) = tmpjh
+                      IF (ok /= NF90_NOERR) &
+                           CALL nc_abort(ok, 'Error reading '//parname//' in file ' &
+                           //TRIM(filename)//' (SUBROUTINE readpar_r2)')
+                      ! Set all patches to have the same value:
+                      write(*,*) 'read albsoil: ', tmpjh
+                      var_r2(landpt(i)%cstart:landpt(i)%cend, 1) = tmpjh
+                      var_r2(landpt(i)%cstart:landpt(i)%cend, 2) = tmpjh
                    END DO
                 END IF
              END IF
           ELSE
-             CALL cable_abort('Dimension of '//parname//' parameter in met file '//  &
-                        'unknown.')
+             CALL cable_abort('Dimension of '//parname//' parameter in met file '// &
+                  'unknown.')
           END IF
        END IF ! gridtype land or mask
     END IF ! parameter's existence
 
   END SUBROUTINE readpar_r2
+
   !=============================================================================
+
   SUBROUTINE readpar_r2d(ncid, parname, completeSet, var_r2d, filename,        &
                          npatch, dimswitch, from_restart, INpatch)
     ! Subroutine for loading a double precision two dimensional real-valued
@@ -680,8 +709,6 @@ CONTAINS
     INTEGER :: pardims ! # dimensions of parameter
     INTEGER :: dimctr ! size of non-spatial (2nd) dimension of parameter
     INTEGER :: i,j ! do loop counter
-    REAL(8), DIMENSION(:, :), POINTER       :: tmp2rd => null() ! temporary for ncdf
-                                                      ! read in
     REAL(4), DIMENSION(:, :), POINTER       :: tmp2r => null()  ! temporary for ncdf
                                                       ! read in
     REAL(4), DIMENSION(:, :, :), POINTER    :: tmp3r => null()  ! temporary for ncdf
@@ -691,158 +718,150 @@ CONTAINS
 
     ! Check if parameter exists:
     ok = NF90_INQ_VARID(ncid,parname,parID)
-    IF(ok /= NF90_NOERR) THEN ! if it doesn't exist
+    IF (ok /= NF90_NOERR) THEN ! if it doesn't exist
        completeSet = .FALSE.
        ! If this routine is reading from the restart, abort
-       IF(PRESENT(from_restart))  write(*,*) ' Error reading '//parname//' in file ' &
-                                   //TRIM(filename)//' (SUBROUTINE readpar_r2d)'
+       IF (PRESENT(from_restart)) &
+            write(*,*) ' Error reading '//parname//' in file ' &
+            //TRIM(filename)//' (SUBROUTINE readpar_r2d)'
     ELSE
        exists%parameters = .TRUE. ! Note that pars were found in file
        ! Decide which 2nd dimension of parameter /init state we're loading:
-       IF(dimswitch(1:2) == 'ms') THEN
+       IF (dimswitch(1:2) == 'ms') THEN
           dimctr = ms ! i.e. horizontal spatial and soil
-       ELSE IF(dimswitch(1:4) == 'snow') THEN
+       ELSE IF (dimswitch(1:3) == 'msd') THEN
+          dimctr = ms ! i.e. horizontal spatial and soil
+       ELSE IF (dimswitch(1:3) == 'msn') THEN
           dimctr = msn ! i.e. horizontal spatial and snow
-       ELSE IF(dimswitch(1:3) == 'nrb') THEN
+       ELSE IF (dimswitch(1:2) == 'mf') THEN
+          dimctr = mf ! i.e. horizontal spatial and leaf
+       ELSE IF (dimswitch(1:4) == 'snow') THEN
+          dimctr = msn ! i.e. horizontal spatial and snow
+       ELSE IF (dimswitch(1:3) == 'nrb') THEN
           dimctr = nrb ! i.e. horizontal spatial and radiation bands
-       ELSE IF(dimswitch(1:3) == 'ncp') THEN
+       ELSE IF (dimswitch(1:3) == 'ncp') THEN
           dimctr = ncp ! i.e. horizontal spatial and plant carbon pools
-       ELSE IF(dimswitch(1:3) == 'ncs') THEN
+       ELSE IF (dimswitch(1:3) == 'ncs') THEN
           dimctr = ncs ! i.e. horizontal spatial and soil carbon pools
        ELSE
-          CALL cable_abort('Parameter or initial state '//parname//                  &
-                     ' called with unknown dimension switch - '//dimswitch//   &
-                     ' - in INTERFACE readpar')
+          CALL cable_abort('Parameter or initial state '//parname// &
+               ' called with unknown dimension switch - '//dimswitch//   &
+               ' - in INTERFACE readpar')
        END IF
 
-
        ! Check for grid type - restart file uses land type grid
-       IF(metGrid == 'land' .OR. PRESENT(from_restart)) THEN
+       IF (metGrid == 'land' .OR. PRESENT(from_restart)) THEN
           ! Collect data from land only grid in netcdf file.
           ! First, check whether parameter has patch dimension:
           ok = NF90_INQUIRE_VARIABLE(ncid, parID, ndims=pardims)
-
-          IF(pardims == 2) THEN ! no patch dimension, just a land+soil
-                                ! dimensions
+          IF (pardims == 2) THEN ! no patch dimension, just a land+soil dimensions
              ! If we really are reading a double precision variable
              ! from the netcdf restart file, dimswitch will show this:
              ! equivalent to using "IF(PRESENT(from_restart)) THEN"
-             IF(dimswitch == 'msd' .OR. dimswitch == 'snowd' .OR.              &
-                dimswitch == 'nrbd' .OR. dimswitch == 'ncpd'                   &
-                .OR. dimswitch == 'ncsd'.OR. dimswitch == 'ms') THEN
-               ALLOCATE(tmp2rd(INpatch, dimctr))
-               ok = NF90_GET_VAR(ncid, parID, tmp2rd,                          &
-                                 start=(/1, 1/), count=(/INpatch, dimctr/))
-               IF(ok /= NF90_NOERR) CALL nc_abort                              &
-                          (ok, 'Error reading '//parname//' in met data file ' &
-                                  //TRIM(filename)//' (SUBROUTINE readpar_r2d)')
-               var_r2d(:, :) = REAL(tmp2rd(:, :), r_2)
-
-               DEALLOCATE(tmp2rd)
-!              ALLOCATE(tmp2rd(1,dimctr))
-!              DO i=1, mland ! over all land points/grid cells
-!                 ok= NF90_GET_VAR(ncid, parID, tmp2rd,                        &
-!                                  start=(/i,1/), count=(/1,dimctr/))
-!                 IF(ok /= NF90_NOERR) CALL nc_abort                           &
-!                    (ok,'Error reading '//parname//' in met data file '       &
-!                      //TRIM(filename)//' (SUBROUTINE readpar_r2d)')
-!                 DO j=1, dimctr
-!                    var_r2d(landpt(i)%cstart:landpt(i)%cend,j) =              &
-!                      REAL(tmp2rd(1,j),r_2)
-!                 END DO
-!              END DO
-!              DEALLOCATE(tmp2rd)
-   ! WRITE(45,*) 'After read-in restart values'
-   ! WRITE(45,*) '1039_var_r2d = ', var_r2d(1039,:)
-   ! WRITE(45,*) '1672_var_r2d = ', var_r2d(1672,:)
-            ELSE
-                ALLOCATE(tmp2r(1, dimctr))
-                DO i = 1, mland ! over all land points/grid cells
-                   ok = NF90_GET_VAR(ncid, parID, tmp2r,                       &
-                                     start=(/i, 1/), count=(/1, dimctr/))
-                   IF(ok /= NF90_NOERR) CALL nc_abort                          &
-                       (ok, 'Error reading '//parname//' in met data file '    &
-                        //TRIM(filename)//' (SUBROUTINE readpar_r2d)')
-                   DO j = 1, dimctr
-                      var_r2d(landpt(i)%cstart:landpt(i)%cend, j) =            &
-                           REAL(tmp2r(1,j))
-
-                   END DO
-                END DO
-
-                DEALLOCATE(tmp2r)
-             END IF ! reading a d.p. var from netcdf
-          ELSE IF(pardims == 3) THEN ! i.e. parameter has a patch dimension
+             IF (dimswitch == 'ms' .OR. dimswitch == 'msd' .OR. &
+                  dimswitch == 'msn' .OR. dimswitch == 'mf' .OR. &
+                  dimswitch == 'snow' .OR. dimswitch == 'nrb' .OR. &
+                  dimswitch == 'ncp'.OR. dimswitch == 'ncs') THEN
+                ok = NF90_GET_VAR(ncid, parID, var_r2d, &
+                     start=(/1, 1/), count=(/INpatch, dimctr/))
+                IF (ok /= NF90_NOERR) &
+                     CALL nc_abort(ok, 'Error reading '//parname//' in met data file ' &
+                     //TRIM(filename)//' (SUBROUTINE readpar_r2d)')
+             ELSE
+               if (present(from_restart)) then
+                  CALL nc_abort(-99, 'Should not be here 1 (SUBROUTINE readpar_r2d)')
+               else
+                  ALLOCATE(tmp2r(1, dimctr))
+                  DO i = 1, mland ! over all land points/grid cells
+                     ok = NF90_GET_VAR(ncid, parID, tmp2r, &
+                          start=(/i, 1/), count=(/1, dimctr/))
+                     IF(ok /= NF90_NOERR) &
+                          CALL nc_abort(ok, 'Error reading '//parname//' in met data file ' &
+                          //TRIM(filename)//' (SUBROUTINE readpar_r2d)')
+                     DO j = 1, dimctr
+                        var_r2d(landpt(i)%cstart:landpt(i)%cend, j) = REAL(tmp2r(1,j), r_2)
+                     END DO
+                  END DO
+                  DEALLOCATE(tmp2r)
+               endif
+             END IF ! reading a dp var from netcdf
+          ELSE IF (pardims == 3) THEN ! i.e. parameter has a patch dimension
              ! Note that restart file doesn't have a patch dimension,
              ! so that reads below are of single precision vares from met file
-
-             ALLOCATE(tmp3r(1,npatch,dimctr))
-             DO i = 1, mland ! over all land points/grid cells
-                ok = NF90_GET_VAR(ncid, parID, tmp3r,                          &
-                     start=(/i, 1, 1/), count=(/1, npatch, dimctr/))
-
-
-                IF(ok /= NF90_NOERR) CALL nc_abort                             &
-                          (ok, 'Error reading '//parname//' in met data file ' &
-                                  //TRIM(filename)//' (SUBROUTINE readpar_r2d)')
-                DO j = 1, dimctr
-                   ! Set values for this par for the # patches that exist
-                   var_r2d(landpt(i)%cstart:(landpt(i)%cstart + npatch - 1),j) &
-                                                        = REAL(tmp3r(1,:,j),r_2)
+             if (present(from_restart)) then
+                CALL nc_abort(-99, 'Should not be here 2 (SUBROUTINE readpar_r2d)')
+             else
+                ALLOCATE(tmp3r(1,npatch,dimctr))
+                DO i=1, mland ! over all land points/grid cells
+                   ok = NF90_GET_VAR(ncid, parID, tmp3r, &
+                        start=(/i, 1, 1/), count=(/1, npatch, dimctr/))
+                   IF (ok /= NF90_NOERR) &
+                        CALL nc_abort(ok, 'Error reading '//parname//' in met data file ' &
+                        //TRIM(filename)//' (SUBROUTINE readpar_r2d)')
+                   DO j=1, dimctr
+                      ! Set values for this par for the # patches that exist
+                      var_r2d(landpt(i)%cstart:(landpt(i)%cstart + npatch - 1),j) &
+                           = REAL(tmp3r(1,:,j), r_2)
+                   END DO
                 END DO
-             END DO
-             DEALLOCATE(tmp3r)
+                DEALLOCATE(tmp3r)
+             endif
           ELSE
-             CALL cable_abort('Dimension of '//parname//' parameter in met file'//   &
-                        'unknown.')
+             CALL cable_abort('Dimension of '//parname//' parameter in met file'// &
+                  'unknown.')
           END IF
-       ELSEIF(metGrid == 'mask') THEN ! Get data from land/sea mask type grid:
+       ELSEIF (metGrid == 'mask') THEN ! Get data from land/sea mask type grid:
           ! NB restart file won't have mask grid, therefore below we are
           ! reading single precision variables from the met file
           ! First, check whether parameter has patch dimension:
-          ok = NF90_INQUIRE_VARIABLE(ncid, parID, ndims=pardims)
-          IF(pardims == 3) THEN ! no patch dimension, just x-y + soil grid
-                                ! dimension
-             ALLOCATE(tmp3r(1, 1, dimctr))
-             DO i = 1, mland ! over all land points/grid cells
-                ok = NF90_GET_VAR(ncid, parID, tmp3r,                          &
-                                  start=(/land_x(i), land_y(i), 1/),           &
-                                  count=(/1, 1, dimctr/))
-                IF(ok /= NF90_NOERR) CALL nc_abort                             &
-                          (ok, 'Error reading '//parname//' in met data file ' &
-                                  //TRIM(filename)//' (SUBROUTINE readpar_r2d)')
-                ! Set all patches to have the same value for this par:
-                DO j = 1, dimctr
-                   var_r2d(landpt(i)%cstart:landpt(i)%cend, j) =               &
-                                                       REAL(tmp3r(1, 1, j), r_2)
+          if (present(from_restart)) then
+             CALL nc_abort(-99, 'Should not be here 3 (SUBROUTINE readpar_r2d)')
+          else
+             ok = NF90_INQUIRE_VARIABLE(ncid, parID, ndims=pardims)
+             IF (pardims == 3) THEN ! no patch dimension, just x-y + soil grid dimension
+                ALLOCATE(tmp3r(1, 1, dimctr))
+                DO i=1, mland ! over all land points/grid cells
+                   ok = NF90_GET_VAR(ncid, parID, tmp3r, &
+                        start=(/land_x(i), land_y(i), 1/), &
+                        count=(/1, 1, dimctr/))
+                   IF (ok /= NF90_NOERR) &
+                        CALL nc_abort(ok, 'Error reading '//parname//' in met data file ' &
+                        //TRIM(filename)//' (SUBROUTINE readpar_r2d)')
+                   ! Set all patches to have the same value for this par:
+                   DO j=1, dimctr
+                      var_r2d(landpt(i)%cstart:landpt(i)%cend, j) = &
+                           REAL(tmp3r(1, 1, j), r_2)
+                   END DO
                 END DO
-             END DO
-             DEALLOCATE(tmp3r)
-          ELSE IF(pardims == 4) THEN ! i.e. soil parameter has a patch dimension
-             ALLOCATE(tmp4r(1,1,npatch,dimctr))
-             DO i = 1, mland ! over all land points/grid cells
-                ok = NF90_GET_VAR(ncid, parID, tmp4r,                          &
-                                  start=(/land_x(i), land_y(i), 1, 1/),        &
-                                  count=(/1, 1, npatch, dimctr/))
-                IF(ok /= NF90_NOERR) CALL nc_abort                             &
-                           (ok,'Error reading '//parname//' in met data file ' &
-                                  //TRIM(filename)//' (SUBROUTINE readpar_r2d)')
-                DO j = 1, dimctr
-                   ! Set values for this par for the # patches that exist
-                   var_r2d(landpt(i)%cstart:(landpt(i)%cstart + npatch         &
-                                         - 1), j) = REAL(tmp4r(1, 1, :, j), r_2)
+                DEALLOCATE(tmp3r)
+             ELSE IF (pardims == 4) THEN ! i.e. soil parameter has a patch dimension
+                ALLOCATE(tmp4r(1,1,npatch,dimctr))
+                DO i=1, mland ! over all land points/grid cells
+                   ok = NF90_GET_VAR(ncid, parID, tmp4r, &
+                        start=(/land_x(i), land_y(i), 1, 1/), &
+                        count=(/1, 1, npatch, dimctr/))
+                   IF(ok /= NF90_NOERR) &
+                        CALL nc_abort(ok,'Error reading '//parname//' in met data file ' &
+                        //TRIM(filename)//' (SUBROUTINE readpar_r2d)')
+                   DO j=1, dimctr
+                      ! Set values for this par for the # patches that exist
+                      var_r2d(landpt(i)%cstart:(landpt(i)%cstart + npatch - 1), j) = &
+                           REAL(tmp4r(1, 1, :, j), r_2)
+                   END DO
                 END DO
-             END DO
-             DEALLOCATE(tmp4r)
-          ELSE
-             CALL cable_abort('Dimension of '//parname//' parameter in met file'//   &
-                        'unknown.')
-          END IF
+                DEALLOCATE(tmp4r)
+             ELSE
+                CALL cable_abort('Dimension of '//parname//' parameter in met file'// &
+                  'unknown.')
+             END IF
+          endif
        END IF ! gridtype land or mask
     END IF ! parameter's existence
 
   END SUBROUTINE readpar_r2d
+
   !=============================================================================
+
   SUBROUTINE redistr_i(INpatch, nap, in_i, out_i, parname)
     IMPLICIT NONE
     INTEGER,     INTENT(IN)  :: INpatch

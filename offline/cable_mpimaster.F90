@@ -1584,7 +1584,7 @@ CONTAINS
        if (cable_user%c13o2) then
           call c13o2_write_restart_flux(casamet, c13o2flux)
           call c13o2_write_restart_pools(casamet, c13o2pools)
-          if (cable_user%POPLUC) call c13o2_write_restart_luc(casamet, c13o2luc)
+          if (cable_user%POPLUC) call c13o2_write_restart_luc(popluc, c13o2luc)
           ! While testing
           print*, 'not spincasa and not casaonly'
           call c13o2_print_delta_flux(c13o2flux)
@@ -9200,6 +9200,7 @@ subroutine master_c13o2_luc_params(comm, c13o2luc)
   !      MPI_Type_get_extent, MPI_Reduce, MPI_IN_PLACE, MPI_INTEGER, MPI_SUM, &
   !      MPI_Barrier
   use cable_def_types_mod, only: mland
+  ! use cable_def_types_mod, only: mp
   use cable_c13o2_def,     only: c13o2_luc
   use cable_mpicommon,     only: nc13o2_luc
 
@@ -9240,6 +9241,9 @@ subroutine master_c13o2_luc_params(comm, c13o2luc)
   r1stride = mland * extr1
   r2stride = mland * extr2
   istride  = mland * extid
+  ! r1stride = mp * extr1
+  ! r2stride = mp * extr2
+  ! istride  = mp * extid
 
   ! default type is byte, to be overriden for multi-D types
   types = MPI_BYTE
@@ -9653,6 +9657,7 @@ subroutine master_c13o2_luc_types(comm, c13o2luc)
   !      MPI_Type_get_extent, MPI_Type_free, MPI_Reduce, MPI_IN_PLACE, &
   !      MPI_INTEGER, MPI_SUM
   use cable_def_types_mod, only: mland
+  ! use cable_def_types_mod, only: mp
   use cable_c13o2_def,     only: c13o2_luc
   use cable_mpicommon,     only: nc13o2_luc
 
@@ -9694,6 +9699,9 @@ subroutine master_c13o2_luc_types(comm, c13o2luc)
   r1stride = mland * extr1
   r2stride = mland * extr2
   istride  = mland * extid
+  ! r1stride = mp * extr1
+  ! r2stride = mp * extr2
+  ! istride  = mp * extid
 
   ! counter to sum total number of bytes receives from all workers
   totalrecv = 0
@@ -10454,7 +10462,7 @@ SUBROUTINE master_CASAONLY_LUC(dels, kstart, kend, veg, casabiome, casapool, &
   ! 13C
   if (cable_user%c13o2) then
      call c13o2_write_restart_pools(casamet, c13o2pools)
-     if (cable_user%POPLUC) call c13o2_write_restart_luc(casamet, c13o2luc)
+     if (cable_user%POPLUC) call c13o2_write_restart_luc(popluc, c13o2luc)
   endif
 
   CALL POP_IO(pop, casamet, myearspin, 'WRITE_INI', .TRUE.)

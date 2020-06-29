@@ -8072,6 +8072,7 @@ CONTAINS
     !      MPI_Type_get_extent, MPI_Reduce, MPI_DATATYPE_NULL, MPI_INTEGER, MPI_Sum, &
     !      MPI_Barrier, MPI_Recv, MPI_Get_count, MPI_SUCCESS, MPI_Unpack, MPI_BOTTOM, MPI_Type_Free
     use cable_def_types_mod, only: mland
+    ! use cable_def_types_mod, only: mp
     use cable_c13o2_def,     only: c13o2_luc, c13o2_alloc_luc, c13o2_zero_luc
 
     implicit none
@@ -8108,6 +8109,8 @@ CONTAINS
     if (.not. associated(c13o2luc%charvest)) then
        write(*,*) 'worker alloc c13o2_luc with m land points: ', rank, mland
        call c13o2_alloc_luc(c13o2luc, mland)
+       ! write(*,*) 'worker alloc c13o2_luc with m land points: ', rank, mp
+       ! call c13o2_alloc_luc(c13o2luc, mp)
        call c13o2_zero_luc(c13o2luc)
     end if
 
@@ -8124,6 +8127,10 @@ CONTAINS
     r2len = mland * extr2
     i1len = mland * extid
     llen  = mland * extl
+    ! r1len = mp * extr1
+    ! r2len = mp * extr2
+    ! i1len = mp * extid
+    ! llen  = mp * extl
 
     bidx = 0
 
@@ -8435,6 +8442,7 @@ CONTAINS
     !      MPI_Type_commit, MPI_Type_size, MPI_Type_get_extent, MPI_Reduce, &
     !      MPI_DATATYPE_NULL, MPI_INTEGER, MPI_Sum
     use cable_def_types_mod, only: mland
+    ! use cable_def_types_mod, only: mp
     use cable_c13o2_def,     only: c13o2_luc
     use cable_mpicommon,     only: nc13o2_luc
 
@@ -8471,6 +8479,7 @@ CONTAINS
     !cnt = wpatch%npatch
     off = 1
     cnt = mland
+    ! cnt = mp
 
     r1len = cnt * extr1
     r2len = cnt * extr2

@@ -1174,22 +1174,22 @@ contains
     ! put variables
     status = nf90_put_var(file_id, landvars_id(1), casamet%lat)
     if (status /= nf90_noerr) &
-         call c13o2_err_handler('Could put variable '//trim(landvars(1))//' to c13o2 restart_out_flux file: '//trim(fname))
+         call c13o2_err_handler('Could not put variable '//trim(landvars(1))//' to c13o2 restart_out_flux file: '//trim(fname))
     status = nf90_put_var(file_id, landvars_id(2), casamet%lon)
     if (status /= nf90_noerr) &
-         call c13o2_err_handler('Could put variable '//trim(landvars(2))//' to c13o2 restart_out_flux file: '//trim(fname))
+         call c13o2_err_handler('Could not put variable '//trim(landvars(2))//' to c13o2 restart_out_flux file: '//trim(fname))
     status = nf90_put_var(file_id, landvars_id(3), c13o2flux%Vstarch)
     if (status /= nf90_noerr) &
-         call c13o2_err_handler('Could put variable '//trim(landvars(3))//' to c13o2 restart_out_flux file: '//trim(fname))
+         call c13o2_err_handler('Could not put variable '//trim(landvars(3))//' to c13o2 restart_out_flux file: '//trim(fname))
     status = nf90_put_var(file_id, landvars_id(4), c13o2flux%Rstarch)
     if (status /= nf90_noerr) &
-         call c13o2_err_handler('Could put variable '//trim(landvars(4))//' to c13o2 restart_out_flux file: '//trim(fname))
+         call c13o2_err_handler('Could not put variable '//trim(landvars(4))//' to c13o2 restart_out_flux file: '//trim(fname))
     status = nf90_put_var(file_id, leafvars_id(1), c13o2flux%Rsucrose)
     if (status /= nf90_noerr) &
-         call c13o2_err_handler('Could put variable '//trim(leafvars(1))//' to c13o2 restart_out_flux file: '//trim(fname))
+         call c13o2_err_handler('Could not put variable '//trim(leafvars(1))//' to c13o2 restart_out_flux file: '//trim(fname))
     status = nf90_put_var(file_id, leafvars_id(2), c13o2flux%Rphoto)
     if (status /= nf90_noerr) &
-         call c13o2_err_handler('Could put variable '//trim(leafvars(2))//' to c13o2 restart_out_flux file: '//trim(fname))
+         call c13o2_err_handler('Could not put variable '//trim(leafvars(2))//' to c13o2 restart_out_flux file: '//trim(fname))
 
     ! close restart file
     status = nf90_close(file_id)
@@ -1390,25 +1390,25 @@ contains
     ! put variables
     status = nf90_put_var(file_id, landvars_id(1), casamet%lat)
     if (status /= nf90_noerr) &
-         call c13o2_err_handler('Could put variable '//trim(landvars(1))//' to c13o2 restart_out_pools file: '//trim(fname))
+         call c13o2_err_handler('Could not put variable '//trim(landvars(1))//' to c13o2 restart_out_pools file: '//trim(fname))
     status = nf90_put_var(file_id, landvars_id(2), casamet%lon)
     if (status /= nf90_noerr) &
-         call c13o2_err_handler('Could put variable '//trim(landvars(2))//' to c13o2 restart_out_pools file: '//trim(fname))
+         call c13o2_err_handler('Could not put variable '//trim(landvars(2))//' to c13o2 restart_out_pools file: '//trim(fname))
     status = nf90_put_var(file_id, landvars_id(3), c13o2pools%clabile)
     if (status /= nf90_noerr) &
-         call c13o2_err_handler('Could put variable '//trim(landvars(3))//' to c13o2 restart_out_pools file: '//trim(fname))
+         call c13o2_err_handler('Could not put variable '//trim(landvars(3))//' to c13o2 restart_out_pools file: '//trim(fname))
     status = nf90_put_var(file_id, landvars_id(4), c13o2pools%charvest)
     if (status /= nf90_noerr) &
-         call c13o2_err_handler('Could put variable '//trim(landvars(4))//' to c13o2 restart_out_pools file: '//trim(fname))
+         call c13o2_err_handler('Could not put variable '//trim(landvars(4))//' to c13o2 restart_out_pools file: '//trim(fname))
     status = nf90_put_var(file_id, plantvars_id(1), c13o2pools%cplant)
     if (status /= nf90_noerr) &
-         call c13o2_err_handler('Could put variable '//trim(plantvars(1))//' to c13o2 restart_out_pools file: '//trim(fname))
+         call c13o2_err_handler('Could not put variable '//trim(plantvars(1))//' to c13o2 restart_out_pools file: '//trim(fname))
     status = nf90_put_var(file_id, littervars_id(1), c13o2pools%clitter)
     if (status /= nf90_noerr) &
-         call c13o2_err_handler('Could put variable '//trim(littervars(1))//' to c13o2 restart_out_pools file: '//trim(fname))
+         call c13o2_err_handler('Could not put variable '//trim(littervars(1))//' to c13o2 restart_out_pools file: '//trim(fname))
     status = nf90_put_var(file_id, soilvars_id(1), c13o2pools%csoil)
     if (status /= nf90_noerr) &
-         call c13o2_err_handler('Could put variable '//trim(soilvars(1))//' to c13o2 restart_out_pools file: '//trim(fname))
+         call c13o2_err_handler('Could not put variable '//trim(soilvars(1))//' to c13o2 restart_out_pools file: '//trim(fname))
 
     ! close restart file
     status = nf90_close(file_id)
@@ -1479,10 +1479,10 @@ contains
   ! ------------------------------------------------------------------
 
   ! Write 13C Casa pools into restart file
-  subroutine c13o2_write_restart_luc(casamet, c13o2luc)
+  subroutine c13o2_write_restart_luc(popluc, c13o2luc)
 
     use cable_common_module, only: cable_user, filename, CurYear
-    use casavariable,        only: casa_met
+    use popluc_types,        only: popluc_type
     use cable_c13o2_def,     only: c13o2_luc
     use netcdf,              only: nf90_create, nf90_clobber, nf90_64bit_offset, nf90_noerr, &
          nf90_put_att, nf90_global, nf90_def_dim, &
@@ -1490,8 +1490,8 @@ contains
 
     implicit none
 
-    type(casa_met),  intent(in) :: casamet
-    type(c13o2_luc), intent(in) :: c13o2luc
+    type(popluc_type), intent(in) :: popluc
+    type(c13o2_luc),   intent(in) :: c13o2luc
 
     ! local variables
     integer :: file_id, land_id, harvest_id, clearance_id
@@ -1577,21 +1577,21 @@ contains
          call c13o2_err_handler('Could not end definition phase of c13o2 restart_out_luc file: '//trim(fname))
 
     ! put variables
-    status = nf90_put_var(file_id, landvars_id(1), casamet%lat)
+    status = nf90_put_var(file_id, landvars_id(1), popluc%latitude)
     if (status /= nf90_noerr) &
-         call c13o2_err_handler('Could put variable '//trim(landvars(1))//' to c13o2 restart_out_luc file: '//trim(fname))
-    status = nf90_put_var(file_id, landvars_id(2), casamet%lon)
+         call c13o2_err_handler('Could not put variable '//trim(landvars(1))//' to c13o2 restart_out_luc file: '//trim(fname))
+    status = nf90_put_var(file_id, landvars_id(2), popluc%longitude)
     if (status /= nf90_noerr) &
-         call c13o2_err_handler('Could put variable '//trim(landvars(2))//' to c13o2 restart_out_luc file: '//trim(fname))
+         call c13o2_err_handler('Could not put variable '//trim(landvars(2))//' to c13o2 restart_out_luc file: '//trim(fname))
     status = nf90_put_var(file_id, landvars_id(3), c13o2luc%cagric)
     if (status /= nf90_noerr) &
-         call c13o2_err_handler('Could put variable '//trim(landvars(3))//' to c13o2 restart_out_luc file: '//trim(fname))
+         call c13o2_err_handler('Could not put variable '//trim(landvars(3))//' to c13o2 restart_out_luc file: '//trim(fname))
     status = nf90_put_var(file_id, harvestvars_id(1), c13o2luc%charvest)
     if (status /= nf90_noerr) &
-         call c13o2_err_handler('Could put variable '//trim(harvestvars(1))//' to c13o2 restart_out_luc file: '//trim(fname))
+         call c13o2_err_handler('Could not put variable '//trim(harvestvars(1))//' to c13o2 restart_out_luc file: '//trim(fname))
     status = nf90_put_var(file_id, clearancevars_id(1), c13o2luc%cclearance)
     if (status /= nf90_noerr) &
-         call c13o2_err_handler('Could put variable '//trim(clearancevars(1))//' to c13o2 restart_out_luc file: '//trim(fname))
+         call c13o2_err_handler('Could not put variable '//trim(clearancevars(1))//' to c13o2 restart_out_luc file: '//trim(fname))
 
     ! close restart file
     status = nf90_close(file_id)

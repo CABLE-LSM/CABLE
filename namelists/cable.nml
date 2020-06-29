@@ -76,7 +76,7 @@
     cable_user%CASA_SPIN_ENDYEAR   = 1859         ! default = 1960
     cable_user%LogWorker           = .FALSE.
     cable_user%SSNOW_POTEV         = 'P-M'        ! Humidity Deficit Method
-    cable_user%SOIL_STRUC          = 'default'    ! 'default','default'
+    cable_user%SOIL_STRUC          = 'default'    ! 'default','sli'
     cable_user%CALL_POP            = .TRUE.       ! TRUE uses POP population dynamics model, coupled to CASA.
     cable_user%POP_out             = 'epi'        ! ! Pop-output file either 'rst':Standard restart OR 'epi' for whole episode
     cable_user%POP_fromZero        = .FALSE.      ! Start POP from Zero, don't read restart file

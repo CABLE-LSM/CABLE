@@ -1348,7 +1348,7 @@ PROGRAM cable_offline_driver
      ! 13C
      if (cable_user%c13o2) then
         call c13o2_write_restart_pools(casamet, c13o2pools)
-        if (cable_user%POPLUC) call c13o2_write_restart_luc(casamet, c13o2luc)
+        if (cable_user%POPLUC) call c13o2_write_restart_luc(popluc, c13o2luc)
         ! While testing
         call c13o2_print_delta_flux(c13o2flux)
         call c13o2_print_delta_pools(casapool, casaflux, c13o2pools)

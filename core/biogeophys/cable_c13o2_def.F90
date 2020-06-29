@@ -33,7 +33,7 @@ MODULE cable_c13o2_def
 
   ! variables
   real(dp), dimension(:), allocatable :: c13o2_delta_atm
-  
+
   ! types
   type c13o2_flux ! all fluxes in units mol(13CO2)/m2s
      integer                           :: ntile, nleaf
@@ -67,7 +67,7 @@ MODULE cable_c13o2_def
      real(dp), dimension(:),   pointer :: clabile => null()  ! 13C content in excess pool
      real(dp), dimension(:),   pointer :: charvest => null() ! 13C content in agricultural harvest products
   end type c13o2_pool
-  
+
   type c13o2_luc  ! all pools in units g(C)/m2
      integer                           :: nland, nharvest, nclearance, npools
      real(dp), dimension(:,:), pointer :: charvest => null()   ! 13C content in harvest products
@@ -87,7 +87,7 @@ contains
     use cable_def_types_mod, only: mf
 
     implicit none
-    
+
     type(c13o2_flux), intent(inout) :: c13o2flux
     integer,          intent(in)    :: ntile
 
@@ -114,7 +114,7 @@ contains
     use casadimension, only: mplant, mlitter, msoil
 
     implicit none
-    
+
     type(c13o2_pool), intent(inout) :: c13o2pools
     integer,          intent(in)    :: ntile
 
@@ -128,7 +128,7 @@ contains
     allocate(c13o2pools%csoil(ntile,msoil))
     allocate(c13o2pools%clabile(ntile))
     allocate(c13o2pools%charvest(ntile))
-    
+
   end subroutine c13o2_alloc_pools
 
   ! ------------------------------------------------------------------
@@ -137,9 +137,9 @@ contains
   subroutine c13o2_alloc_luc(c13o2luc, nland)
 
     use popluc_module, only: kHarvProd, kClearProd
-    
+
     implicit none
-    
+
     type(c13o2_luc), intent(inout) :: c13o2luc
     integer,         intent(in)    :: nland
 
@@ -185,7 +185,7 @@ contains
     use cable_def_types_mod, only: dp => r_2
 
     implicit none
-    
+
     type(c13o2_pool), intent(inout) :: c13o2pools
 
     c13o2pools%cplant   = 0.0_dp
@@ -193,7 +193,7 @@ contains
     c13o2pools%csoil    = 0.0_dp
     c13o2pools%clabile  = 0.0_dp
     c13o2pools%charvest = 0.0_dp
-    
+
   end subroutine c13o2_zero_pools
 
   ! ------------------------------------------------------------------
@@ -214,14 +214,14 @@ contains
   end subroutine c13o2_zero_luc
 
   ! ------------------------------------------------------------------
-  
+
   ! Zero the accumulated output for 13CO2
   subroutine c13o2_zero_sum_pools(sum_c13o2pools)
 
     use cable_def_types_mod, only: dp => r_2
 
     implicit none
-    
+
     type(c13o2_pool), intent(inout) :: sum_c13o2pools
 
     sum_c13o2pools%cplant   = 0.0_dp
@@ -238,14 +238,14 @@ contains
   subroutine c13o2_update_sum_pools(sum_c13o2pools, c13o2pools, sum_now, average_now, nsteps)
 
     implicit none
-    
+
     type(c13o2_pool), intent(inout) :: sum_c13o2pools
     type(c13o2_pool), intent(in)    :: c13o2pools
     logical,          intent(in)    :: sum_now, average_now
     integer,          intent(in)    :: nsteps
 
     real(dp) :: rsteps ! 1/real(nsteps)
-    
+
     if (sum_now) then
        sum_c13o2pools%cplant  =  sum_c13o2pools%cplant   + c13o2pools%cplant
        sum_c13o2pools%clitter  = sum_c13o2pools%clitter  + c13o2pools%clitter
