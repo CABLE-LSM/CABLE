@@ -675,7 +675,6 @@ CONTAINS
        exists%patch = .TRUE.
        ok = NF90_INQUIRE_DIMENSION(ncid_met,patchdimID,len=nmetpatches)
     END IF
-    nmetpatches = 1       ! initialised so that old met files without patch
 
     ! Check if monthly dimension exists for LAI info
     ok = NF90_INQ_DIMID(ncid_met,'monthly', monthlydimID)
@@ -1367,7 +1366,7 @@ CONTAINS
        exists%parameters = .TRUE.
        ! Allocate space for user-defined veg type variable:
        ALLOCATE(vegtype_metfile(mland,nmetpatches))
-       IF(cable_user%NtilesThruMetFile)  ALLOCATE(vegpatch_metfile(mland,nmetpatches))
+       IF(exists%patch)  ALLOCATE(vegpatch_metfile(mland,nmetpatches))
 
        ! Check dimension of veg type:
        ok=NF90_INQUIRE_VARIABLE(ncid_met,id%iveg,ndims=iveg_dims)
@@ -1399,7 +1398,8 @@ CONTAINS
                      (ok,'Error reading iveg in met data file ' &
                      //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
 
-              IF(cable_user%NtilesThruMetFile) then
+              IF(exists%patch) then
+       
                 !Anna: also read patch fractions
                 ok= NF90_GET_VAR(ncid_met,id%patchfrac,vegpatch_metfile(i,:), &
                      start=(/land_x(i),land_y(i),1/),count=(/1,1,nmetpatches/))
@@ -1431,7 +1431,7 @@ CONTAINS
                   'by a patchfrac variable - this was not found in met data file '&
                   //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
 
-              IF(cable_user%NtilesThruMetFile) then
+              IF(exists%patch) then
                 !Anna: also read patch fractions
                 ok= NF90_GET_VAR(ncid_met,id%patchfrac,vegpatch_metfile(i,:), &
                      start=(/land_x(i),land_y(i),1/),count=(/1,1,nmetpatches/))
@@ -1453,7 +1453,8 @@ CONTAINS
        END IF
     ELSE
        NULLIFY(vegtype_metfile)
-       IF(cable_user%NtilesThruMetFile) NULLIFY(vegpatch_metfile)
+       IF(exists%patch) NULLIFY(vegpatch_metfile)
+       
     END IF
 
     ! Look for soil type:

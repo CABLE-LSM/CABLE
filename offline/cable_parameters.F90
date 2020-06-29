@@ -156,7 +156,7 @@ CONTAINS
     WRITE(logn,*) ' Reading grid info from ', TRIM(filename%type)
     WRITE(logn,*) ' And assigning C4 fraction according to veg classification.'
     WRITE(logn,*)
-    IF(cable_user%NtilesThruMetFile) THEN
+    IF(exists%patch) THEN
       CALL read_gridinfo(nlon,nlat,nmetpatches)!, &
     ELSE 
       CALL read_gridinfo(nlon,nlat,npatch)
@@ -241,7 +241,7 @@ CONTAINS
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error inquiring y dimension.')
     ok = NF90_INQUIRE_DIMENSION(ncid, yID, LEN=nlat)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error getting y dimension.')
-    IF(.NOT. cable_user%NtilesThruMetFile) THEN
+    IF(.NOT. exists%patch) THEN
       ok = NF90_INQ_DIMID(ncid, 'patch', pID)
       IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error inquiring patch dimension.')
       ok = NF90_INQUIRE_DIMENSION(ncid, pID, LEN=npatch)
@@ -304,7 +304,7 @@ CONTAINS
     ok = NF90_GET_VAR(ncid, varID, inLat)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error reading variable latitude.')
 
-    IF(.NOT. cable_user%NtilesThruMetFile) THEN
+    IF(.NOT. exists%patch) THEN
       ok = NF90_INQ_VARID(ncid, 'iveg', varID)
       IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error finding variable iveg.')
       !CLN    ok = NF90_GET_VAR(ncid, varID, idummy)
@@ -1461,7 +1461,7 @@ CONTAINS
           veg%iveg(landpt(e)%cstart:landpt(e)%cstart + nmetpatches - 1) =      &
                vegtype_metfile(e, :)
 
-        IF(cable_user%NtilesThruMetFile) &
+        IF(exists%patch) &
           patch(landpt(e)%cstart:landpt(e)%cstart)%frac =      &
                                                            vegpatch_metfile(e, :)
 
