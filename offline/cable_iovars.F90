@@ -24,7 +24,7 @@ MODULE cable_IO_vars_module
    IMPLICIT NONE
 
    PUBLIC
-   
+
    PRIVATE :: r_2, mvtype, mstype
 
 
@@ -265,7 +265,7 @@ MODULE cable_IO_vars_module
          Fwsoil = .FALSE.,      & ! soil moisture modifier to stomatal conductance
          Area = .FALSE., & ! patch area in km2
          GPP_components = .TRUE.,    & ! sunlit and shaded GPP, plus J and C limited components
-         
+
          ! vh_mc ! additional variables for ESM-SnowMIP
          hfds       = .false., & ! downward heat flux at ground surface [W/m2]
          hfdsn      = .false., & ! downward heat flux into snowpack [W/m2]
@@ -306,7 +306,7 @@ MODULE cable_IO_vars_module
          tsns       = .false., & ! snow surface temperature [K]
 
          !! vh_js !! additional casa variables
- 
+
          NBP = .FALSE., &
          dCdt = .FALSE., &
          TotSoilCarb = .FALSE.,   &
@@ -356,9 +356,9 @@ MODULE cable_IO_vars_module
          hc = .FALSE.,        & ! height of canopy [m]
          rp20  = .FALSE.,     & ! plant respiration coefficient at
                                 ! 20 C [-] 0.1 - 10 (frp 0 - 15e-6 mol/m2/s)
-         g0   = .FALSE.,      & ! Ticket #56      
+         g0   = .FALSE.,      & ! Ticket #56
          g1   = .FALSE.,      & ! Ticket #56
-         rpcoef  = .FALSE.,   & ! temperature coef nonleaf plant 
+         rpcoef  = .FALSE.,   & ! temperature coef nonleaf plant
                                 ! respiration [1/C] (0.8 - 1.5)
          shelrb  = .FALSE.,   & ! sheltering factor [-] {avoid - insensitive?}
          vcmax  = .FALSE.,    & ! maximum RuBP carboxylation rate
@@ -403,7 +403,7 @@ MODULE cable_IO_vars_module
    REAL,POINTER,DIMENSION(:,:)  :: defaultLAI => null() ! in case met file/host model
                                               ! has no LAI
    REAL :: fixedCO2 ! CO2 level if CO2air not in met file
-    
+
    ! For threading:
    !$OMP THREADPRIVATE(landpt,patch)
    ! for mpi debugging

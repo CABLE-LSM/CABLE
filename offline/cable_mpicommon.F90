@@ -41,7 +41,8 @@ MODULE cable_mpicommon
   ! ? 3 extra params -> 311
   ! Matthias Cuntz: add 9 canopy params for 13C -> 320
   ! Paul Ryan: add 1 soil params for SLI -> 321
-  INTEGER, PARAMETER :: nparam = 321
+  ! Matthias Cuntz: add 1 soil params for SLI -> 322
+  INTEGER, PARAMETER :: nparam = 322
   ! MPI: extra params sent only if nsoilparmnew is true
   INTEGER, PARAMETER :: nsoilnew = 1
 
@@ -99,7 +100,8 @@ MODULE cable_mpicommon
   ! MPI: CABLE_r491, after following up with Bernard on the new variables
   ! vh sli nmat + 4 36 -> 40
   ! Matthias Cuntz: add 8 2D canopy params for 13C -> 48
-  INTEGER, PARAMETER :: nmat = 48
+  ! Matthias Cuntz: add 1 2D ssnow params for SLI -> 49
+  INTEGER, PARAMETER :: nmat = 49
 
   ! MPI: number of contig vector parts / worker (results)
   !   INTEGER, PARAMETER :: nvec = 149

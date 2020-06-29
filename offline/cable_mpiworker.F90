@@ -1382,7 +1382,7 @@ CONTAINS
     CALL MPI_Get_address (ssnow%wblf, displs(bidx), ierr)
     blen(bidx) = ms * r2len
 
-    ! additional  for sli
+    ! additional for sli
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%S, displs(bidx), ierr)
     blen(bidx) = ms * r2len
@@ -1399,7 +1399,6 @@ CONTAINS
     CALL MPI_Get_address (ssnow%snowliq, displs(bidx), ierr)
     blen(bidx) = msn * r2len
 
-
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%Tsurface, displs(bidx), ierr)
     blen(bidx) = r2len
@@ -1411,6 +1410,10 @@ CONTAINS
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%nsnow, displs(bidx), ierr)
     blen(bidx) = I1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address(ssnow%sconds, displs(bidx), ierr)
+    blen(bidx) = msn * r1len
     ! end additional for sli
 
     bidx = bidx + 1
@@ -3881,7 +3884,7 @@ CONTAINS
     r1len = cnt * extr1
     r2len = cnt * extr2
     I1LEN = cnt * extid
-    llen = cnt * extl
+    llen  = cnt * extl
 
     ! ------------- 3D arrays -------------
 
@@ -4115,6 +4118,10 @@ CONTAINS
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%snowliq(off,1), displs(bidx), ierr)
     blocks(bidx) = r2len * msn
+
+    bidx = bidx + 1
+    CALL MPI_Get_address(ssnow%sconds(off,1), displs(bidx), ierr)
+    blocks(bidx) = r1len * msn
     ! end additional for sli
 
     ! rad 2D
