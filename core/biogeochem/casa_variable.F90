@@ -61,7 +61,7 @@ MODULE casaparm
   USE casadimension
 
   IMPLICIT NONE
-  
+
   INTEGER, PARAMETER :: initcasa = 1  ! =0 spin; 1 restart file
   INTEGER, PARAMETER :: iceland  = 17 !=13 for casa vegtype =15 for IGBP vegtype
   INTEGER, PARAMETER :: cropland = 9  ! 12 and 14 for IGBP vegtype
@@ -102,7 +102,7 @@ MODULE casaparm
   !  REAL(r_2), PARAMETER :: xkplab=0.5_r_2*deltcasa
   !  REAL(r_2), PARAMETER :: xkpsorb=0.01_r_2*deltcasa
   !  REAL(r_2), PARAMETER :: xkpocc =0.01_r_2*deltcasa
-  
+
 END MODULE casaparm
 
 
@@ -173,7 +173,7 @@ MODULE casavariable
      REAL(r_2), DIMENSION(:,:),POINTER :: soilrate => null()
   END TYPE casa_biome
 
-  
+
   TYPE casa_pool
      REAL(r_2), DIMENSION(:),POINTER :: Clabile => null(),       &
           dClabiledt => null(),    &
@@ -219,7 +219,7 @@ MODULE casavariable
           ratioPClitter => null()
   END TYPE casa_pool
 
-  
+
   TYPE casa_flux
      REAL(r_2), DIMENSION(:),POINTER :: Cgpp => null(),          &
           Cnpp => null(),          &
@@ -327,7 +327,7 @@ MODULE casavariable
      REAL(r_2), DIMENSION(:),     POINTER :: FluxFromPtoHarvest => null()
   END TYPE casa_flux
 
-  
+
   TYPE casa_met
      REAL(r_2), DIMENSION(:),POINTER    :: glai => null(),     &
           Tairk => null(),    &
@@ -381,7 +381,7 @@ MODULE casavariable
       INTEGER, DIMENSION(:,:), POINTER :: DSLR_spin => null()
   END TYPE casa_met
 
-  
+
   TYPE casa_balance
      REAL(r_2), DIMENSION(:),POINTER   :: FCgppyear => null(), FCnppyear => null(), &
           FCrmleafyear => null(), FCrmwoodyear => null(), FCrmrootyear => null(), FCrgrowyear => null(), &
@@ -403,7 +403,7 @@ MODULE casavariable
      REAL(r_2), DIMENSION(:),POINTER   :: clabilelast => null()
   END TYPE casa_balance
 
-  
+
   ! The following declarations are removed and have to be passed using
   ! parameter list for each subroutine (BP apr2010)
   !  TYPE (casa_biome)              :: casabiome
@@ -412,7 +412,7 @@ MODULE casavariable
   !  TYPE (casa_met)                :: casamet
   !  TYPE (casa_balance)            :: casabal
 
-  
+
   ! Added filename type for casaCNP (BP apr2010)
   TYPE casafiles_type
      CHARACTER(LEN=200) :: cnpbiome    ! file for biome-specific BGC parameters
@@ -435,22 +435,46 @@ MODULE casavariable
   END TYPE casafiles_type
   TYPE(casafiles_type) :: casafile
 
-  
+  public :: alloc_casavariable
+  interface alloc_casavariable
+     module procedure &
+          alloc_casabiome, &
+          alloc_casapool, &
+          alloc_casaflux, &
+          alloc_casamet,  &
+          alloc_casabal
+  end interface alloc_casavariable
+
+  public :: zero_casavariable
+  interface zero_casavariable
+     module procedure &
+          zero_casabiome, &
+          zero_casapool, &
+          zero_casaflux, &
+          zero_casamet,  &
+          zero_casabal
+  end interface zero_casavariable
+
+  public :: print_casavariable
+  interface print_casavariable
+     module procedure &
+          print_casabiome, &
+          print_casapool, &
+          print_casaflux, &
+          print_casamet,  &
+          print_casabal
+  end interface print_casavariable
+
 Contains
 
-  
-  SUBROUTINE alloc_casavariable(casabiome, casapool, casaflux, casamet, casabal, arraysize)
-    
-    IMPLICIT NONE
-    
-    TYPE (casa_biome)  , INTENT(INOUT) :: casabiome
-    TYPE (casa_pool)   , INTENT(INOUT) :: casapool
-    TYPE (casa_flux)   , INTENT(INOUT) :: casaflux
-    TYPE (casa_met)    , INTENT(INOUT) :: casamet
-    TYPE (casa_balance), INTENT(INOUT) :: casabal
-    INTEGER,             INTENT(IN) :: arraysize
+  SUBROUTINE alloc_casabiome(casabiome, arraysize)
 
-    ALLOCATE(casabiome%ivt2(mvtype),               &
+    implicit none
+
+    type(casa_biome), intent(inout) :: casabiome
+    integer,          intent(in)    :: arraysize
+
+    allocate(casabiome%ivt2(mvtype),               &
          casabiome%xkleafcoldmax(mvtype),          &
          casabiome%xkleafcoldexp(mvtype),          &
          casabiome%xkleafdrymax(mvtype),           &
@@ -508,7 +532,17 @@ Contains
          casabiome%DAMM_alpha(mvtype)     &
          )
 
-    ALLOCATE(casapool%Clabile(arraysize),           &
+  END SUBROUTINE alloc_casabiome
+
+
+  SUBROUTINE alloc_casapool(casapool, arraysize)
+
+    implicit none
+
+    type(casa_pool), intent(inout) :: casapool
+    integer,         intent(in)    :: arraysize
+
+    allocate(casapool%Clabile(arraysize),           &
          casapool%dClabiledt(arraysize),            &
          casapool%Cplant(arraysize,mplant),         &
          casapool%Nplant(arraysize,mplant),         &
@@ -549,9 +583,20 @@ Contains
          casapool%ratioPCplant(arraysize,mplant),   &
          casapool%ratioPClitter(arraysize,mlitter), &
          casapool%Ctot_0(arraysize),                &
-         casapool%Ctot(arraysize)   )               
+         casapool%Ctot(arraysize)   )
 
-    ALLOCATE(casaflux%Cgpp(arraysize),                 &
+
+  END SUBROUTINE alloc_casapool
+
+
+  SUBROUTINE alloc_casaflux(casaflux, arraysize)
+
+    implicit none
+
+    type(casa_flux), intent(inout) :: casaflux
+    integer,         intent(in)    :: arraysize
+
+    allocate(casaflux%Cgpp(arraysize),                 &
          casaflux%Cnpp(arraysize),                     &
          casaflux%Crp(arraysize),                      &
          casaflux%Crgplant(arraysize),                 &
@@ -613,7 +658,7 @@ Contains
          casaflux%Cplant_turnover_resource_limitation(arraysize))
 
     !CVH Alllocate fire turnover rates and plant-to-litter partitioning coefficients
-    ALLOCATE(casaflux%fromPtoL_fire(arraysize,mlitter,mplant), &
+    allocate(casaflux%fromPtoL_fire(arraysize,mlitter,mplant), &
          casaflux%kplant_fire(arraysize,mplant),        &
          casaflux%klitter_fire(arraysize,mlitter),           &
          casaflux%kplant_tot(arraysize,mplant),        &
@@ -625,27 +670,27 @@ Contains
          casaflux%FluxNtoAtm_fire(arraysize))
     !casaflux%fire_mortality_vs_height(arraysize,mheights,2))
 
-    ALLOCATE(casaflux%FluxCtolitter(arraysize,mlitter),    &
+    allocate(casaflux%FluxCtolitter(arraysize,mlitter),    &
          casaflux%FluxNtolitter(arraysize,mlitter),    &
          casaflux%FluxPtolitter(arraysize,mlitter))
 
-    ALLOCATE(casaflux%FluxCtosoil(arraysize,msoil),        &
+    allocate(casaflux%FluxCtosoil(arraysize,msoil),        &
          casaflux%FluxNtosoil(arraysize,msoil),        &
          casaflux%FluxPtosoil(arraysize,msoil))
 
-    ALLOCATE(casaflux%FluxCtohwp(arraysize),    &
+    allocate(casaflux%FluxCtohwp(arraysize),    &
          casaflux%FluxNtohwp(arraysize),    &
          casaflux%FluxPtohwp(arraysize))
 
-    ALLOCATE(casaflux%FluxCtoclear(arraysize),    &
+    allocate(casaflux%FluxCtoclear(arraysize),    &
          casaflux%FluxNtoclear(arraysize),    &
          casaflux%FluxPtoclear(arraysize))
 
-    ALLOCATE(casaflux%CtransferLUC(arraysize))
+    allocate(casaflux%CtransferLUC(arraysize))
 
-    ALLOCATE(casaflux%FluxCtoco2(arraysize))
+    allocate(casaflux%FluxCtoco2(arraysize))
 
-    ALLOCATE(casaflux%FluxFromPtoL(arraysize,mplant,mlitter), &
+    allocate(casaflux%FluxFromPtoL(arraysize,mplant,mlitter), &
          casaflux%FluxFromLtoS(arraysize,mlitter,msoil), &
          casaflux%FluxFromStoS(arraysize,msoil,msoil), &
          casaflux%FluxFromPtoCO2(arraysize,mplant), &
@@ -653,7 +698,17 @@ Contains
          casaflux%FluxFromStoCO2(arraysize,msoil), &
          casaflux%FluxFromPtoHarvest(arraysize))
 
-    ALLOCATE(casamet%glai(arraysize),                 &
+  END SUBROUTINE alloc_casaflux
+
+
+  SUBROUTINE alloc_casamet(casamet, arraysize)
+
+    implicit none
+
+    type(casa_met), intent(inout) :: casamet
+    integer,        intent(in)    :: arraysize
+
+    allocate(casamet%glai(arraysize),                 &
          casamet%lnonwood(arraysize),             &
          casamet%Tairk(arraysize),                &
          casamet%precip(arraysize),               &
@@ -701,7 +756,17 @@ Contains
             casamet%DSLR_spin(arraysize,mdyear), &
             casamet%last_precip_spin(arraysize,mdyear))
 
-    ALLOCATE(casabal%FCgppyear(arraysize),           &
+  END SUBROUTINE alloc_casamet
+
+
+  SUBROUTINE alloc_casabal(casabal, arraysize)
+
+    implicit none
+
+    type(casa_balance), intent(inout) :: casabal
+    integer,            intent(in)    :: arraysize
+
+    allocate(casabal%FCgppyear(arraysize),           &
          casabal%FCnppyear(arraysize),           &
          casabal%FCrpyear(arraysize),            &
          casabal%FCrmleafyear(arraysize),        &
@@ -722,29 +787,29 @@ Contains
          casabal%FPupyear(arraysize),            &
          casabal%FPleachyear(arraysize),         &
          casabal%FPlossyear(arraysize),          &
-         casabal%dCdtyear(arraysize),            & 
-         casabal%LAImax(arraysize),              &  
-         casabal%Cleafmean(arraysize),           & 
+         casabal%dCdtyear(arraysize),            &
+         casabal%LAImax(arraysize),              &
+         casabal%Cleafmean(arraysize),           &
          casabal%Crootmean(arraysize)) !,           &
     !casabal%fire_mortality_vs_height(arraysize,mheights,2) )
 
 
-    ALLOCATE(casabal%glaimon(arraysize,12),          &
+    allocate(casabal%glaimon(arraysize,12),          &
          casabal%glaimonx(arraysize,12))
 
-    ALLOCATE(casabal%cplantlast(arraysize,mplant),   &
+    allocate(casabal%cplantlast(arraysize,mplant),   &
          casabal%nplantlast(arraysize,mplant),   &
          casabal%pplantlast(arraysize,mplant))
 
-    ALLOCATE(casabal%clitterlast(arraysize,mlitter), &
+    allocate(casabal%clitterlast(arraysize,mlitter), &
          casabal%nlitterlast(arraysize,mlitter), &
          casabal%plitterlast(arraysize,mlitter))
 
-    ALLOCATE(casabal%csoillast(arraysize,msoil),     &
+    allocate(casabal%csoillast(arraysize,msoil),     &
          casabal%nsoillast(arraysize,msoil),     &
          casabal%psoillast(arraysize,msoil))
 
-    ALLOCATE(casabal%nsoilminlast(arraysize),        &
+    allocate(casabal%nsoilminlast(arraysize),        &
          casabal%psoillablast(arraysize),        &
          casabal%psoilsorblast(arraysize),       &
          casabal%psoilocclast(arraysize),        &
@@ -754,9 +819,9 @@ Contains
          casabal%sumcbal(arraysize),             &
          casabal%sumnbal(arraysize),             &
          casabal%sumpbal(arraysize),             &
-         casabal%clabilelast(arraysize))       
+         casabal%clabilelast(arraysize))
 
-  END SUBROUTINE alloc_casavariable
+  END SUBROUTINE alloc_casabal
 
 
   SUBROUTINE alloc_sum_casavariable(sum_casapool, sum_casaflux, arraysize)
@@ -897,15 +962,11 @@ Contains
   END SUBROUTINE alloc_sum_casavariable
 
 
-  subroutine zero_casavariable(casabiome, casapool, casaflux, casamet, casabal)
-    
+  subroutine zero_casabiome(casabiome)
+
     implicit none
-    
-    type(casa_biome)  , intent(inout) :: casabiome
-    type(casa_pool)   , intent(inout) :: casapool
-    type(casa_flux)   , intent(inout) :: casaflux
-    type(casa_met)    , intent(inout) :: casamet
-    type(casa_balance), intent(inout) :: casabal
+
+    type(casa_biome), intent(inout) :: casabiome
 
     casabiome%ivt2                 = 0.0_r_2
     casabiome%xkleafcoldmax        = 0.0_r_2
@@ -961,6 +1022,15 @@ Contains
     casabiome%DAMM_Ea              = 0.0_r_2
     casabiome%DAMM_alpha           = 0.0_r_2
 
+  END SUBROUTINE zero_casabiome
+
+
+  subroutine zero_casapool(casapool)
+
+    implicit none
+
+    type(casa_pool), intent(inout) :: casapool
+
     casapool%Clabile        = 0.0_r_2
     casapool%dClabiledt     = 0.0_r_2
     casapool%Cplant         = 0.0_r_2
@@ -1003,6 +1073,15 @@ Contains
     casapool%ratioPClitter  = 0.0_r_2
     casapool%Ctot_0         = 0.0_r_2
     casapool%Ctot           = 0.0_r_2
+
+  END SUBROUTINE zero_casapool
+
+
+  subroutine zero_casaflux(casaflux)
+
+    implicit none
+
+    type(casa_flux), intent(inout) :: casaflux
 
     casaflux%Cgpp         = 0.0_r_2
     casaflux%Cnpp         = 0.0_r_2
@@ -1104,6 +1183,15 @@ Contains
     casaflux%FluxFromStoCO2     = 0.0_r_2
     casaflux%FluxFromPtoHarvest = 0.0_r_2
 
+  END SUBROUTINE zero_casaflux
+
+
+  subroutine zero_casamet(casamet)
+
+    implicit none
+
+    type(casa_met), intent(inout) :: casamet
+
     casamet%glai           = 0.0_r_2
     casamet%lnonwood       = 0.0_r_2
     casamet%Tairk          = 0.0_r_2
@@ -1139,6 +1227,15 @@ Contains
     casamet%mtempspin      = 0.0_r_2
     casamet%cAn12spin      = 0.0_r_2
     casamet%cAn13spin      = 0.0_r_2
+
+  END SUBROUTINE zero_casamet
+
+
+  subroutine zero_casabal(casabal)
+
+    implicit none
+
+    type(casa_balance), intent(inout) :: casabal
 
     casabal%FCgppyear    = 0.0_r_2
     casabal%FCnppyear    = 0.0_r_2
@@ -1193,7 +1290,338 @@ Contains
     casabal%sumpbal       = 0.0_r_2
     casabal%clabilelast   = 0.0_r_2
 
-  END SUBROUTINE zero_casavariable
+  END SUBROUTINE zero_casabal
+
+
+  subroutine print_casabiome(casabiome)
+
+    implicit none
+
+    type(casa_biome), intent(in) :: casabiome
+
+    write(*,*) 'ivt2 ', casabiome%ivt2
+    write(*,*) 'xkleafcoldmax ', casabiome%xkleafcoldmax
+    write(*,*) 'xkleafcoldexp ', casabiome%xkleafcoldexp
+    write(*,*) 'xkleafdrymax ', casabiome%xkleafdrymax
+    write(*,*) 'xkleafdryexp ', casabiome%xkleafdryexp
+    write(*,*) 'glaimax ', casabiome%glaimax
+    write(*,*) 'glaimin ', casabiome%glaimin
+    write(*,*) 'sla ', casabiome%sla
+    write(*,*) 'ratiofrootleaf ', casabiome%ratiofrootleaf
+    write(*,*) 'kroot ', casabiome%kroot
+    write(*,*) 'krootlen ', casabiome%krootlen
+    write(*,*) 'rootdepth ', casabiome%rootdepth
+    write(*,*) 'kuptake ', casabiome%kuptake
+    write(*,*) 'kminN ', casabiome%kminN
+    write(*,*) 'KuplabP ', casabiome%KuplabP
+    write(*,*) 'kclabrate ', casabiome%kclabrate
+    write(*,*) 'xnpmax ', casabiome%xnpmax
+    write(*,*) 'q10soil ', casabiome%q10soil
+    write(*,*) 'xkoptlitter ', casabiome%xkoptlitter
+    write(*,*) 'xkoptsoil ', casabiome%xkoptsoil
+    write(*,*) 'xkplab ', casabiome%xkplab
+    write(*,*) 'xkpsorb ', casabiome%xkpsorb
+    write(*,*) 'xkpocc ', casabiome%xkpocc
+    write(*,*) 'prodptase ', casabiome%prodptase
+    write(*,*) 'costnpup ', casabiome%costnpup
+    write(*,*) 'maxfinelitter ', casabiome%maxfinelitter
+    write(*,*) 'maxcwd ', casabiome%maxcwd
+    write(*,*) 'nintercept ', casabiome%nintercept
+    write(*,*) 'nslope ', casabiome%nslope
+    write(*,*) 'plantrate ', casabiome%plantrate
+    write(*,*) 'rmplant ', casabiome%rmplant
+    write(*,*) 'fracnpptoP ', casabiome%fracnpptoP
+    write(*,*) 'fraclignin ', casabiome%fraclignin
+    write(*,*) 'fraclabile ', casabiome%fraclabile
+    write(*,*) 'ratioNCplantmin ', casabiome%ratioNCplantmin
+    write(*,*) 'ratioNCplantmax ', casabiome%ratioNCplantmax
+    write(*,*) 'ratioNPplantmin ', casabiome%ratioNPplantmin
+    write(*,*) 'ratioNPplantmax ', casabiome%ratioNPplantmax
+    write(*,*) 'fracLigninplant ', casabiome%fracLigninplant
+    write(*,*) 'ftransNPtoL ', casabiome%ftransNPtoL
+    write(*,*) 'ftransPPtoL ', casabiome%ftransPPtoL
+    write(*,*) 'litterrate ', casabiome%litterrate
+    write(*,*) 'soilrate ', casabiome%soilrate
+    write(*,*) 'ratioPcplantmax ', casabiome%ratioPcplantmax
+    write(*,*) 'ratioPcplantmin ', casabiome%ratioPcplantmin
+    write(*,*) 'la_to_sa ', casabiome%la_to_sa
+    write(*,*) 'vcmax_scalar ', casabiome%vcmax_scalar
+    write(*,*) 'disturbance_interval ', casabiome%disturbance_interval
+    write(*,*) 'DAMM_EnzPool ', casabiome%DAMM_EnzPool
+    write(*,*) 'DAMM_KMO2 ', casabiome%DAMM_KMO2
+    write(*,*) 'DAMM_KMcp ', casabiome%DAMM_KMcp
+    write(*,*) 'DAMM_Ea ', casabiome%DAMM_Ea
+    write(*,*) 'DAMM_alpha ', casabiome%DAMM_alpha
+
+  END SUBROUTINE print_casabiome
+
+
+  subroutine print_casapool(casapool)
+
+    implicit none
+
+    type(casa_pool), intent(in) :: casapool
+
+    write(*,*) 'Clabile ', casapool%Clabile
+    write(*,*) 'dClabiledt ', casapool%dClabiledt
+    write(*,*) 'Cplant ', casapool%Cplant
+    write(*,*) 'Nplant ', casapool%Nplant
+    write(*,*) 'Pplant ', casapool%Pplant
+    write(*,*) 'dCplantdt ', casapool%dCplantdt
+    write(*,*) 'dNplantdt ', casapool%dNplantdt
+    write(*,*) 'dPplantdt ', casapool%dPplantdt
+    write(*,*) 'ratioNCplant ', casapool%ratioNCplant
+    write(*,*) 'ratioNPplant ', casapool%ratioNPplant
+    write(*,*) 'Nsoilmin ', casapool%Nsoilmin
+    write(*,*) 'Psoillab ', casapool%Psoillab
+    write(*,*) 'Psoilsorb ', casapool%Psoilsorb
+    write(*,*) 'Psoilocc ', casapool%Psoilocc
+    write(*,*) 'dNsoilmindt ', casapool%dNsoilmindt
+    write(*,*) 'dPsoillabdt ', casapool%dPsoillabdt
+    write(*,*) 'dPsoilsorbdt ', casapool%dPsoilsorbdt
+    write(*,*) 'dPsoiloccdt ', casapool%dPsoiloccdt
+    write(*,*) 'Clitter ', casapool%Clitter
+    write(*,*) 'Nlitter ', casapool%Nlitter
+    write(*,*) 'Plitter ', casapool%Plitter
+    write(*,*) 'dClitterdt ', casapool%dClitterdt
+    write(*,*) 'dNlitterdt ', casapool%dNlitterdt
+    write(*,*) 'dPlitterdt ', casapool%dPlitterdt
+    write(*,*) 'ratioNClitter ', casapool%ratioNClitter
+    write(*,*) 'ratioNPlitter ', casapool%ratioNPlitter
+    write(*,*) 'Csoil ', casapool%Csoil
+    write(*,*) 'Nsoil ', casapool%Nsoil
+    write(*,*) 'Psoil ', casapool%Psoil
+    write(*,*) 'dCsoildt ', casapool%dCsoildt
+    write(*,*) 'dNsoildt ', casapool%dNsoildt
+    write(*,*) 'dPsoildt ', casapool%dPsoildt
+    write(*,*) 'ratioNCsoil ', casapool%ratioNCsoil
+    write(*,*) 'ratioNPsoil ', casapool%ratioNPsoil
+    write(*,*) 'ratioNCsoilnew ', casapool%ratioNCsoilnew
+    write(*,*) 'ratioNCsoilmin ', casapool%ratioNCsoilmin
+    write(*,*) 'ratioNCsoilmax ', casapool%ratioNCsoilmax
+    write(*,*) 'ratioPCsoil ', casapool%ratioPCsoil
+    write(*,*) 'ratioPCplant ', casapool%ratioPCplant
+    write(*,*) 'ratioPClitter ', casapool%ratioPClitter
+    write(*,*) 'Ctot_0 ', casapool%Ctot_0
+    write(*,*) 'Ctot ', casapool%Ctot
+
+  END SUBROUTINE print_casapool
+
+
+  subroutine print_casaflux(casaflux)
+
+    implicit none
+
+    type(casa_flux), intent(in) :: casaflux
+
+    write(*,*) 'Cgpp ', casaflux%Cgpp
+    write(*,*) 'Cnpp ', casaflux%Cnpp
+    write(*,*) 'Crp ', casaflux%Crp
+    write(*,*) 'Crgplant ', casaflux%Crgplant
+    write(*,*) 'Nminfix ', casaflux%Nminfix
+    write(*,*) 'Nminuptake ', casaflux%Nminuptake
+    write(*,*) 'Plabuptake ', casaflux%Plabuptake
+    write(*,*) 'Clabloss ', casaflux%Clabloss
+    write(*,*) 'fracClabile ', casaflux%fracClabile
+    write(*,*) 'fracCalloc ', casaflux%fracCalloc
+    write(*,*) 'fracNalloc ', casaflux%fracNalloc
+    write(*,*) 'fracPalloc ', casaflux%fracPalloc
+    write(*,*) 'kplant ', casaflux%kplant
+    write(*,*) 'Crmplant ', casaflux%Crmplant
+    write(*,*) 'fromPtoL ', casaflux%fromPtoL
+    write(*,*) 'Cnep ', casaflux%Cnep
+    write(*,*) 'Crsoil ', casaflux%Crsoil
+    write(*,*) 'Nmindep ', casaflux%Nmindep
+    write(*,*) 'Nminloss ', casaflux%Nminloss
+    write(*,*) 'Nminleach ', casaflux%Nminleach
+    write(*,*) 'Nupland ', casaflux%Nupland
+    write(*,*) 'Nlittermin ', casaflux%Nlittermin
+    write(*,*) 'Nsmin ', casaflux%Nsmin
+    write(*,*) 'Nsimm ', casaflux%Nsimm
+    write(*,*) 'Nsnet ', casaflux%Nsnet
+    write(*,*) 'fNminloss ', casaflux%fNminloss
+    write(*,*) 'fNminleach ', casaflux%fNminleach
+    write(*,*) 'Pdep ', casaflux%Pdep
+    write(*,*) 'Pwea ', casaflux%Pwea
+    write(*,*) 'Pleach ', casaflux%Pleach
+    write(*,*) 'Ploss ', casaflux%Ploss
+    write(*,*) 'Pupland ', casaflux%Pupland
+    write(*,*) 'Plittermin ', casaflux%Plittermin
+    write(*,*) 'Psmin ', casaflux%Psmin
+    write(*,*) 'Psimm ', casaflux%Psimm
+    write(*,*) 'Psnet ', casaflux%Psnet
+    write(*,*) 'fPleach ', casaflux%fPleach
+    write(*,*) 'kplab ', casaflux%kplab
+    write(*,*) 'kpsorb ', casaflux%kpsorb
+    write(*,*) 'kpocc ', casaflux%kpocc
+    write(*,*) 'kmlabP ', casaflux%kmlabP
+    write(*,*) 'Psorbmax ', casaflux%Psorbmax
+    write(*,*) 'klitter ', casaflux%klitter
+    write(*,*) 'ksoil ', casaflux%ksoil
+    write(*,*) 'fromLtoS ', casaflux%fromLtoS
+    write(*,*) 'fromStoS ', casaflux%fromStoS
+    write(*,*) 'fromLtoCO2 ', casaflux%fromLtoCO2
+    write(*,*) 'fromStoCO2 ', casaflux%fromStoCO2
+    write(*,*) 'stemnpp ', casaflux%stemnpp
+    write(*,*) 'frac_sapwood ', casaflux%frac_sapwood
+    write(*,*) 'sapwood_area ', casaflux%sapwood_area
+    write(*,*) 'fharvest ', casaflux%fharvest
+    write(*,*) 'Charvest ', casaflux%Charvest
+    write(*,*) 'Nharvest ', casaflux%Nharvest
+    write(*,*) 'Pharvest ', casaflux%Pharvest
+    write(*,*) 'fcrop ', casaflux%fcrop
+    write(*,*) 'Cplant_turnover ', casaflux%Cplant_turnover
+    write(*,*) 'Cplant_turnover_disturbance ', casaflux%Cplant_turnover_disturbance
+    write(*,*) 'Cplant_turnover_crowding ', casaflux%Cplant_turnover_crowding
+    write(*,*) 'Cplant_turnover_resource_limitation ', casaflux%Cplant_turnover_resource_limitation
+
+    write(*,*) 'fromPtoL_fire ', casaflux%fromPtoL_fire
+    write(*,*) 'kplant_fire ', casaflux%kplant_fire
+    write(*,*) 'klitter_fire ', casaflux%klitter_fire
+    write(*,*) 'kplant_tot ', casaflux%kplant_tot
+    write(*,*) 'klitter_tot ', casaflux%klitter_tot
+    write(*,*) 'FluxCtoCO2_plant_fire ', casaflux%FluxCtoCO2_plant_fire
+    write(*,*) 'FluxCtoCO2_litter_fire ', casaflux%FluxCtoCO2_litter_fire
+    write(*,*) 'fluxfromPtoCO2_fire ', casaflux%fluxfromPtoCO2_fire
+    write(*,*) 'fluxfromLtoCO2_fire ', casaflux%fluxfromLtoCO2_fire
+    write(*,*) 'FluxNtoAtm_fire ', casaflux%FluxNtoAtm_fire
+
+    write(*,*) 'FluxCtolitter ', casaflux%FluxCtolitter
+    write(*,*) 'FluxNtolitter ', casaflux%FluxNtolitter
+    write(*,*) 'FluxPtolitter ', casaflux%FluxPtolitter
+
+    write(*,*) 'FluxCtosoil ', casaflux%FluxCtosoil
+    write(*,*) 'FluxNtosoil ', casaflux%FluxNtosoil
+    write(*,*) 'FluxPtosoil ', casaflux%FluxPtosoil
+
+    write(*,*) 'FluxCtohwp ', casaflux%FluxCtohwp
+    write(*,*) 'FluxNtohwp ', casaflux%FluxNtohwp
+    write(*,*) 'FluxPtohwp ', casaflux%FluxPtohwp
+
+    write(*,*) 'FluxCtoclear ', casaflux%FluxCtoclear
+    write(*,*) 'FluxNtoclear ', casaflux%FluxNtoclear
+    write(*,*) 'FluxPtoclear ', casaflux%FluxPtoclear
+
+    write(*,*) 'CtransferLUC ', casaflux%CtransferLUC
+
+    write(*,*) 'FluxCtoco2 ', casaflux%FluxCtoco2
+
+    write(*,*) 'FluxFromPtoL ', casaflux%FluxFromPtoL
+    write(*,*) 'FluxFromLtoS ', casaflux%FluxFromLtoS
+    write(*,*) 'FluxFromStoS ', casaflux%FluxFromStoS
+    write(*,*) 'FluxFromPtoCO2 ', casaflux%FluxFromPtoCO2
+    write(*,*) 'FluxFromLtoCO2 ', casaflux%FluxFromLtoCO2
+    write(*,*) 'FluxFromStoCO2 ', casaflux%FluxFromStoCO2
+    write(*,*) 'FluxFromPtoHarvest ', casaflux%FluxFromPtoHarvest
+
+  END SUBROUTINE print_casaflux
+
+
+  subroutine print_casamet(casamet)
+
+    implicit none
+
+    type(casa_met), intent(in) :: casamet
+
+    write(*,*) 'glai ', casamet%glai
+    write(*,*) 'lnonwood ', casamet%lnonwood
+    write(*,*) 'Tairk ', casamet%Tairk
+    write(*,*) 'precip ', casamet%precip
+    write(*,*) 'tsoilavg ', casamet%tsoilavg
+    write(*,*) 'moistavg ', casamet%moistavg
+    write(*,*) 'btran ', casamet%btran
+    write(*,*) 'Tsoil ', casamet%Tsoil
+    write(*,*) 'moist ', casamet%moist
+    write(*,*) 'iveg2 ', casamet%iveg2
+    write(*,*) 'ijgcm ', casamet%ijgcm
+    write(*,*) 'isorder ', casamet%isorder
+    write(*,*) 'lat ', casamet%lat
+    write(*,*) 'lon ', casamet%lon
+    write(*,*) 'areacell ', casamet%areacell
+    write(*,*) 'Tairkspin ', casamet%Tairkspin
+    write(*,*) 'cgppspin ', casamet%cgppspin
+    write(*,*) 'crmplantspin_1 ', casamet%crmplantspin_1
+    write(*,*) 'crmplantspin_2 ', casamet%crmplantspin_2
+    write(*,*) 'crmplantspin_3 ', casamet%crmplantspin_3
+    write(*,*) 'Tsoilspin_1 ', casamet%Tsoilspin_1
+    write(*,*) 'Tsoilspin_2 ', casamet%Tsoilspin_2
+    write(*,*) 'Tsoilspin_3 ', casamet%Tsoilspin_3
+    write(*,*) 'Tsoilspin_4 ', casamet%Tsoilspin_4
+    write(*,*) 'Tsoilspin_5 ', casamet%Tsoilspin_5
+    write(*,*) 'Tsoilspin_6 ', casamet%Tsoilspin_6
+    write(*,*) 'moistspin_1 ', casamet%moistspin_1
+    write(*,*) 'moistspin_2 ', casamet%moistspin_2
+    write(*,*) 'moistspin_3 ', casamet%moistspin_3
+    write(*,*) 'moistspin_4 ', casamet%moistspin_4
+    write(*,*) 'moistspin_5 ', casamet%moistspin_5
+    write(*,*) 'moistspin_6 ', casamet%moistspin_6
+    write(*,*) 'mtempspin ', casamet%mtempspin
+    write(*,*) 'cAn12spin ', casamet%cAn12spin
+    write(*,*) 'cAn13spin ', casamet%cAn13spin
+
+  END SUBROUTINE print_casamet
+
+
+  subroutine print_casabal(casabal)
+
+    implicit none
+
+    type(casa_balance), intent(in) :: casabal
+
+    write(*,*) 'FCgppyear ', casabal%FCgppyear
+    write(*,*) 'FCnppyear ', casabal%FCnppyear
+    write(*,*) 'FCrpyear ', casabal%FCrpyear
+    write(*,*) 'FCrmleafyear ', casabal%FCrmleafyear
+    write(*,*) 'FCrmwoodyear ', casabal%FCrmwoodyear
+    write(*,*) 'FCrmrootyear ', casabal%FCrmrootyear
+    write(*,*) 'FCrgrowyear ', casabal%FCrgrowyear
+    write(*,*) 'FCrsyear ', casabal%FCrsyear
+    write(*,*) 'FCneeyear ', casabal%FCneeyear
+    write(*,*) 'FNdepyear ', casabal%FNdepyear
+    write(*,*) 'FNfixyear ', casabal%FNfixyear
+    write(*,*) 'FNsnetyear ', casabal%FNsnetyear
+    write(*,*) 'FNupyear ', casabal%FNupyear
+    write(*,*) 'FNleachyear ', casabal%FNleachyear
+    write(*,*) 'FNlossyear ', casabal%FNlossyear
+    write(*,*) 'FPweayear ', casabal%FPweayear
+    write(*,*) 'FPdustyear ', casabal%FPdustyear
+    write(*,*) 'FPsnetyear ', casabal%FPsnetyear
+    write(*,*) 'FPupyear ', casabal%FPupyear
+    write(*,*) 'FPleachyear ', casabal%FPleachyear
+    write(*,*) 'FPlossyear ', casabal%FPlossyear
+    write(*,*) 'dCdtyear ', casabal%dCdtyear
+    write(*,*) 'LAImax ', casabal%LAImax
+    write(*,*) 'Cleafmean ', casabal%Cleafmean
+    write(*,*) 'Crootmean ', casabal%Crootmean
+
+    write(*,*) 'glaimon ', casabal%glaimon
+    write(*,*) 'glaimonx ', casabal%glaimonx
+
+    write(*,*) 'cplantlast ', casabal%cplantlast
+    write(*,*) 'nplantlast ', casabal%nplantlast
+    write(*,*) 'pplantlast ', casabal%pplantlast
+
+    write(*,*) 'clitterlast ', casabal%clitterlast
+    write(*,*) 'nlitterlast ', casabal%nlitterlast
+    write(*,*) 'plitterlast ', casabal%plitterlast
+
+    write(*,*) 'csoillast ', casabal%csoillast
+    write(*,*) 'nsoillast ', casabal%nsoillast
+    write(*,*) 'psoillast ', casabal%psoillast
+
+    write(*,*) 'nsoilminlast ', casabal%nsoilminlast
+    write(*,*) 'psoillablast ', casabal%psoillablast
+    write(*,*) 'psoilsorblast ', casabal%psoilsorblast
+    write(*,*) 'psoilocclast ', casabal%psoilocclast
+    write(*,*) 'cbalance ', casabal%cbalance
+    write(*,*) 'nbalance ', casabal%nbalance
+    write(*,*) 'pbalance ', casabal%pbalance
+    write(*,*) 'sumcbal ', casabal%sumcbal
+    write(*,*) 'sumnbal ', casabal%sumnbal
+    write(*,*) 'sumpbal ', casabal%sumpbal
+    write(*,*) 'clabilelast ', casabal%clabilelast
+
+  END SUBROUTINE print_casabal
 
 
   SUBROUTINE zero_sum_casa(sum_casapool, sum_casaflux)
@@ -1335,7 +1763,7 @@ Contains
   SUBROUTINE update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, sum_now, average_now, nsteps)
 
     IMPLICIT NONE
-    
+
     TYPE(casa_pool), INTENT(INOUT) :: sum_casapool
     TYPE(casa_flux), INTENT(INOUT) :: sum_casaflux
     TYPE(casa_pool), INTENT(IN)    :: casapool
@@ -1646,11 +2074,11 @@ END MODULE casavariable
 
 
 MODULE phenvariable
-  
+
   USE casadimension
-  
+
   IMPLICIT NONE
-  
+
   TYPE phen_variable
      INTEGER,   DIMENSION(:),  POINTER :: phase => null()
      REAL(r_2), DIMENSION(:),  POINTER :: TKshed => null()
@@ -1664,14 +2092,14 @@ MODULE phenvariable
      INTEGER,   DIMENSION(:,:),POINTER :: doyphasespin_4 => null()
   END type phen_variable
 
-  
+
 CONTAINS
 
-  
+
   SUBROUTINE alloc_phenvariable(phen,arraysize)
 
     IMPLICIT NONE
-    
+
     TYPE(phen_variable), INTENT(INOUT) :: phen
     INTEGER,             INTENT(IN) :: arraysize
 
@@ -1685,14 +2113,14 @@ CONTAINS
          phen%doyphasespin_2(arraysize,mdyear), &
          phen%doyphasespin_3(arraysize,mdyear), &
          phen%doyphasespin_4(arraysize,mdyear))
-    
+
   END SUBROUTINE alloc_phenvariable
 
-  
+
   subroutine zero_phenvariable(phen)
 
     implicit none
-    
+
     type(phen_variable), intent(inout) :: phen
 
     phen%phase          = 0
@@ -1705,7 +2133,7 @@ CONTAINS
     phen%doyphasespin_2 = 0
     phen%doyphasespin_3 = 0
     phen%doyphasespin_4 = 0
-    
+
   end subroutine zero_phenvariable
-  
+
 End MODULE phenvariable

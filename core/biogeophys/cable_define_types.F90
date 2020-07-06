@@ -777,6 +777,22 @@ MODULE cable_def_types_mod
           zero_climate_type
   end interface zero_cbm_var
 
+  public :: print_cbm_var
+  interface print_cbm_var
+     module procedure print_balances_type, &
+          print_soil_parameter_type,         &
+          print_soil_snow_type,              &
+          print_veg_parameter_type,          &
+          print_canopy_type,                 &
+          print_radiation_type,              &
+          print_roughness_type,              &
+          print_air_type,                    &
+          print_met_type,                    &
+          print_sum_flux_type,               &
+          print_bgc_pool_type,               &
+          print_climate_type
+  end interface print_cbm_var
+
 CONTAINS
 
   SUBROUTINE alloc_balances_type(var, mp)
@@ -2559,6 +2575,641 @@ CONTAINS
     var%csoil  = 0
 
   END SUBROUTINE zero_bgc_pool_type
+
+
+  ! ------------------------------------------------------------------------------
+
+
+  SUBROUTINE print_balances_type(var)
+
+    TYPE(balances_type), INTENT(in) :: var
+
+    write(*,*) 'drybal ', var%drybal
+    write(*,*) 'ebal ', var%ebal
+    write(*,*) 'ebal_tot ', var%ebal_tot
+    write(*,*) 'ebaltr ', var%ebaltr
+    write(*,*) 'ebal_tottr ', var%ebal_tottr
+    write(*,*) 'ebal_cncheck ', var%ebal_cncheck
+    write(*,*) 'ebal_tot_cncheck ', var%ebal_tot_cncheck
+    write(*,*) 'evap_tot ', var%evap_tot
+    write(*,*) 'osnowd0 ', var%osnowd0
+    write(*,*) 'precip_tot ', var%precip_tot
+    write(*,*) 'rnoff_tot ', var%rnoff_tot
+    write(*,*) 'wbal ', var%wbal
+    write(*,*) 'wbal_tot ', var%wbal_tot
+    write(*,*) 'wbtot0 ', var%wbtot0
+    write(*,*) 'wetbal ', var%wetbal
+    write(*,*) 'cansto0 ', var%cansto0
+    write(*,*) 'evapc_tot ', var%evapc_tot
+    write(*,*) 'evaps_tot ', var%evaps_tot
+    write(*,*) 'rnof1_tot ', var%rnof1_tot
+    write(*,*) 'rnof2_tot ', var%rnof2_tot
+    write(*,*) 'snowdc_tot ', var%snowdc_tot
+    write(*,*) 'wbal_tot1 ', var%wbal_tot1
+    write(*,*) 'owbtot ', var%owbtot
+    write(*,*) 'delwc_tot ', var%delwc_tot
+    write(*,*) 'qasrf_tot ', var%qasrf_tot
+    write(*,*) 'qfsrf_tot ', var%qfsrf_tot
+    write(*,*) 'qssrf_tot ', var%qssrf_tot
+
+    write(*,*) 'Radbal ', var%Radbal
+    write(*,*) 'EbalSoil ', var%EbalSoil
+    write(*,*) 'Ebalveg ', var%Ebalveg
+    write(*,*) 'Radbalsum ', var%Radbalsum
+
+  END SUBROUTINE print_balances_type
+
+
+  ! ------------------------------------------------------------------------------
+
+
+  SUBROUTINE print_soil_parameter_type(var)
+
+    TYPE(soil_parameter_type), INTENT(in) :: var
+
+    write(*,*) 'bch ', var%bch
+    write(*,*) 'c3 ', var%c3
+    write(*,*) 'clay ', var%clay
+    write(*,*) 'css ', var%css
+    write(*,*) 'hsbh ', var%hsbh
+    write(*,*) 'hyds ', var%hyds
+    write(*,*) 'i2bp3 ', var%i2bp3
+    write(*,*) 'ibp2 ', var%ibp2
+    write(*,*) 'isoilm ', var%isoilm
+    write(*,*) 'rhosoil ', var%rhosoil
+    write(*,*) 'sand ', var%sand
+    write(*,*) 'sfc ', var%sfc
+    write(*,*) 'silt ', var%silt
+    write(*,*) 'ssat ', var%ssat
+    write(*,*) 'sucs ', var%sucs
+    write(*,*) 'swilt ', var%swilt
+    write(*,*) 'zse ', var%zse
+    write(*,*) 'zshh ', var%zshh
+    write(*,*) 'cnsd ', var%cnsd
+    write(*,*) 'albsoil ', var%albsoil
+    write(*,*) 'pwb_min ', var%pwb_min
+    write(*,*) 'albsoilf ', var%albsoilf
+    write(*,*) 'soilcol ', var%soilcol
+
+    write(*,*) 'nhorizons ', var%nhorizons
+    write(*,*) 'ishorizon ', var%ishorizon
+    write(*,*) 'clitt ', var%clitt
+    write(*,*) 'zeta ', var%zeta
+    write(*,*) 'fsatmax ', var%fsatmax
+    write(*,*) 'swilt_vec ', var%swilt_vec
+    write(*,*) 'ssat_vec ', var%ssat_vec
+    write(*,*) 'sfc_vec ', var%sfc_vec
+    write(*,*) 'swilt_vec ', var%swilt_vec
+    write(*,*) 'ssat_vec ', var%ssat_vec
+    write(*,*) 'sfc_vec ', var%sfc_vec
+
+  END SUBROUTINE print_soil_parameter_type
+
+
+  ! ------------------------------------------------------------------------------
+
+
+  SUBROUTINE print_soil_snow_type(var)
+
+    TYPE(soil_snow_type), INTENT(in) :: var
+
+    write(*,*) 'iantrct ', var%iantrct
+    write(*,*) 'pudsto ', var%pudsto
+    write(*,*) 'pudsmx ', var%pudsmx
+    write(*,*) 'dtmlt ', var%dtmlt
+    write(*,*) 'albsoilsn ', var%albsoilsn
+    write(*,*) 'cls ', var%cls
+    write(*,*) 'dfn_dtg ', var%dfn_dtg
+    write(*,*) 'dfh_dtg ', var%dfh_dtg
+    write(*,*) 'dfe_ddq ', var%dfe_ddq
+    write(*,*) 'ddq_dtg ', var%ddq_dtg
+    write(*,*) 'evapsn ', var%evapsn
+    write(*,*) 'fwtop ', var%fwtop
+    write(*,*) 'fwtop1 ', var%fwtop1
+    write(*,*) 'fwtop2 ', var%fwtop2
+    write(*,*) 'fwtop3 ', var%fwtop3
+    write(*,*) 'gammzz ', var%gammzz
+    write(*,*) 'isflag ', var%isflag
+    write(*,*) 'osnowd ', var%osnowd
+    write(*,*) 'potev ', var%potev
+    write(*,*) 'runoff ', var%runoff
+    write(*,*) 'rnof1 ', var%rnof1
+    write(*,*) 'rnof2 ', var%rnof2
+    write(*,*) 'rtsoil ', var%rtsoil
+    write(*,*) 'sconds ', var%sconds
+    write(*,*) 'sdepth ', var%sdepth
+    write(*,*) 'smass ', var%smass
+    write(*,*) 'snage ', var%snage
+    write(*,*) 'snowd ', var%snowd
+    write(*,*) 'smelt ', var%smelt
+    write(*,*) 'ssdn ', var%ssdn
+    write(*,*) 'ssdnn ', var%ssdnn
+    write(*,*) 'tgg ', var%tgg
+    write(*,*) 'tggsn ', var%tggsn
+    write(*,*) 'tss ', var%tss
+    write(*,*) 'tss_p ', var%tss_p
+    write(*,*) 'deltss ', var%deltss
+    write(*,*) 'owb1 ', var%owb1
+    write(*,*) 'wb ', var%wb
+    write(*,*) 'wbice ', var%wbice
+    write(*,*) 'wblf ', var%wblf
+    write(*,*) 'wbtot ', var%wbtot
+    write(*,*) 'wbtot1 ', var%wbtot1
+    write(*,*) 'wbtot2 ', var%wbtot2
+    write(*,*) 'wb_lake ', var%wb_lake
+    write(*,*) 'sinfil ', var%sinfil
+    write(*,*) 'evapfbl ', var%evapfbl
+    write(*,*) 'qstss ', var%qstss
+    write(*,*) 'wetfac ', var%wetfac
+    write(*,*) 'owetfac ', var%owetfac
+    write(*,*) 't_snwlr ', var%t_snwlr
+    write(*,*) 'wbfice ', var%wbfice
+    write(*,*) 'tggav ', var%tggav
+    write(*,*) 'otgg ', var%otgg
+    write(*,*) 'otss ', var%otss
+    write(*,*) 'otss_0 ', var%otss_0
+    write(*,*) 'tprecip ', var%tprecip
+    write(*,*) 'tevap ', var%tevap
+    write(*,*) 'trnoff ', var%trnoff
+    write(*,*) 'totenbal ', var%totenbal
+    write(*,*) 'totenbal2 ', var%totenbal2
+    write(*,*) 'fland ', var%fland
+    write(*,*) 'ifland ', var%ifland
+    write(*,*) 'tilefrac ', var%tilefrac
+    write(*,*) 'qasrf ', var%qasrf
+    write(*,*) 'qfsrf ', var%qfsrf
+    write(*,*) 'qssrf ', var%qssrf
+
+    write(*,*) 'S ', var%S
+    write(*,*) 'Tsoil ', var%Tsoil
+    write(*,*) 'SL ', var%SL
+    write(*,*) 'TL ', var%TL
+    write(*,*) 'h0 ', var%h0
+    write(*,*) 'rex ', var%rex
+    write(*,*) 'wflux ', var%wflux
+    write(*,*) 'delwcol ', var%delwcol
+    write(*,*) 'zdelta ', var%zdelta
+    write(*,*) 'kth ', var%kth
+    write(*,*) 'Tsurface ', var%Tsurface
+    write(*,*) 'lE ', var%lE
+    write(*,*) 'evap ', var%evap
+    write(*,*) 'ciso ', var%ciso
+    write(*,*) 'cisoL ', var%cisoL
+    write(*,*) 'rlitt ', var%rlitt
+    write(*,*) 'thetai ', var%thetai
+    write(*,*) 'snowliq ', var%snowliq
+    write(*,*) 'nsteps ', var%nsteps
+    write(*,*) 'nsnow ', var%nsnow
+    write(*,*) 'TsurfaceFR ', var%TsurfaceFR
+    write(*,*) 'Ta_daily ', var%Ta_daily
+    write(*,*) 'Qadv_daily ', var%Qadv_daily
+    write(*,*) 'G0_daily ', var%G0_daily
+    write(*,*) 'Qevap_daily ', var%Qevap_daily
+    write(*,*) 'Qprec_daily ', var%Qprec_daily
+    write(*,*) 'Qprec_snow_daily ', var%Qprec_snow_daily
+    write(*,*) 'E_fusion_sn ', var%E_fusion_sn
+    write(*,*) 'E_sublimation_sn ', var%E_sublimation_sn
+    write(*,*) 'latent_heat_sn ', var%latent_heat_sn
+    write(*,*) 'evap_liq_sn ', var%evap_liq_sn
+    write(*,*) 'surface_melt ', var%surface_melt
+    write(*,*) 'Qadv_rain_sn ', var%Qadv_rain_sn
+
+  END SUBROUTINE print_soil_snow_type
+
+
+  ! ------------------------------------------------------------------------------
+
+
+  SUBROUTINE print_veg_parameter_type(var)
+
+    TYPE(veg_parameter_type), INTENT(in) :: var
+
+    write(*,*) 'canst1 ', var%canst1
+    write(*,*) 'dleaf ', var%dleaf
+    write(*,*) 'ejmax ', var%ejmax
+    write(*,*) 'ejmax_shade ', var%ejmax_shade
+    write(*,*) 'ejmax_sun ', var%ejmax_sun
+    write(*,*) 'iveg ', var%iveg
+    write(*,*) 'ivegp ', var%ivegp
+    write(*,*) 'iLU ', var%iLU
+    write(*,*) 'meth ', var%meth
+    write(*,*) 'frac4 ', var%frac4
+    write(*,*) 'hc ', var%hc
+    write(*,*) 'vlai ', var%vlai
+    write(*,*) 'xalbnir ', var%xalbnir
+    write(*,*) 'rp20 ', var%rp20
+    write(*,*) 'rpcoef ', var%rpcoef
+    write(*,*) 'rs20 ', var%rs20
+    write(*,*) 'shelrb ', var%shelrb
+    write(*,*) 'vegcf ', var%vegcf
+    write(*,*) 'tminvj ', var%tminvj
+    write(*,*) 'toptvj ', var%toptvj
+    write(*,*) 'tmaxvj ', var%tmaxvj
+    write(*,*) 'vbeta ', var%vbeta
+    write(*,*) 'vcmax ', var%vcmax
+    write(*,*) 'vcmax_shade ', var%vcmax_shade
+    write(*,*) 'vcmax_sun ', var%vcmax_sun
+    write(*,*) 'xfang ', var%xfang
+    write(*,*) 'extkn ', var%extkn
+    write(*,*) 'wai ', var%wai
+    write(*,*) 'deciduous ', var%deciduous
+    write(*,*) 'froot ', var%froot
+    write(*,*) 'refl ', var%refl
+    write(*,*) 'taul ', var%taul
+    write(*,*) 'vlaimax ', var%vlaimax
+    write(*,*) 'a1gs ', var%a1gs
+    write(*,*) 'd0gs ', var%d0gs
+    write(*,*) 'alpha ', var%alpha
+    write(*,*) 'convex ', var%convex
+    write(*,*) 'cfrd ', var%cfrd
+    write(*,*) 'gswmin ', var%gswmin
+    write(*,*) 'conkc0 ', var%conkc0
+    write(*,*) 'conko0 ', var%conko0
+    write(*,*) 'ekc ', var%ekc
+    write(*,*) 'eko ', var%eko
+    write(*,*) 'g0 ', var%g0
+    write(*,*) 'g1 ', var%g1
+    write(*,*) 'vcmaxcc ', var%vcmaxcc
+    write(*,*) 'ejmaxcc ', var%ejmaxcc
+    write(*,*) 'gmmax ', var%gmmax
+
+    write(*,*) 'rootbeta ', var%rootbeta
+    write(*,*) 'gamma ', var%gamma
+    write(*,*) 'F10 ', var%F10
+    write(*,*) 'ZR ', var%ZR
+    write(*,*) 'clitt ', var%clitt
+
+    write(*,*) 'disturbance_interval ', var%disturbance_interval
+    write(*,*) 'disturbance_intensity ', var%disturbance_intensity
+
+  END SUBROUTINE print_veg_parameter_type
+
+
+  ! ------------------------------------------------------------------------------
+
+
+  SUBROUTINE print_canopy_type(var)
+
+    TYPE(canopy_type), INTENT(in) :: var
+
+    write(*,*) 'fess ', var%fess
+    write(*,*) 'fesp ', var%fesp
+    write(*,*) 'cansto ', var%cansto
+    write(*,*) 'cduv ', var%cduv
+    write(*,*) 'delwc ', var%delwc
+    write(*,*) 'dewmm ', var%dewmm
+    write(*,*) 'dgdtg ', var%dgdtg
+    write(*,*) 'fe ', var%fe
+    write(*,*) 'fh ', var%fh
+    write(*,*) 'fpn ', var%fpn
+    write(*,*) 'frp ', var%frp
+    write(*,*) 'frpw ', var%frpw
+    write(*,*) 'frpr ', var%frpr
+    write(*,*) 'frs ', var%frs
+    write(*,*) 'fnee ', var%fnee
+    write(*,*) 'frday ', var%frday
+    write(*,*) 'fnv ', var%fnv
+    write(*,*) 'fev ', var%fev
+    write(*,*) 'fevc ', var%fevc
+    write(*,*) 'fhv ', var%fhv
+    write(*,*) 'fns ', var%fns
+    write(*,*) 'fhs ', var%fhs
+    write(*,*) 'fhs_cor ', var%fhs_cor
+    write(*,*) 'ga ', var%ga
+    write(*,*) 'ghflux ', var%ghflux
+    write(*,*) 'precis ', var%precis
+    write(*,*) 'qscrn ', var%qscrn
+    write(*,*) 'rnet ', var%rnet
+    write(*,*) 'rniso ', var%rniso
+    write(*,*) 'segg ', var%segg
+    write(*,*) 'sghflux ', var%sghflux
+    write(*,*) 'through ', var%through
+    write(*,*) 'spill ', var%spill
+    write(*,*) 'tscrn ', var%tscrn
+    write(*,*) 'wcint ', var%wcint
+    write(*,*) 'tv ', var%tv
+    write(*,*) 'us ', var%us
+    write(*,*) 'uscrn ', var%uscrn
+    write(*,*) 'rghlai ', var%rghlai
+    write(*,*) 'vlaiw ', var%vlaiw
+    write(*,*) 'fwet ', var%fwet
+    write(*,*) 'A_sh ', var%A_sh
+    write(*,*) 'A_sl ', var%A_sl
+    write(*,*) 'A_slC ', var%A_slC
+    write(*,*) 'A_shC ', var%A_shC
+    write(*,*) 'A_slJ ', var%A_slJ
+    write(*,*) 'A_shJ ', var%A_shJ
+    write(*,*) 'GPP_sh ', var%GPP_sh
+    write(*,*) 'GPP_sl ', var%GPP_sl
+    write(*,*) 'fevc_sh ', var%fevc_sh
+    write(*,*) 'fevc_sl ', var%fevc_sl
+    write(*,*) 'eta_GPP_cs ', var%eta_GPP_cs
+    write(*,*) 'eta_fevc_cs ', var%eta_fevc_cs
+    write(*,*) 'eta_A_cs ', var%eta_A_cs
+    write(*,*) 'eta_A_cs_sh ', var%eta_A_cs_sh
+    write(*,*) 'eta_A_cs_sl ', var%eta_A_cs_sl
+    write(*,*) 'eta_fevc_cs_sh ', var%eta_fevc_cs_sh
+    write(*,*) 'eta_fevc_cs_sl ', var%eta_fevc_cs_sl
+    write(*,*) 'cs ', var%cs
+    write(*,*) 'dAdcs ', var%dAdcs
+    write(*,*) 'cs_sl ', var%cs_sl
+    write(*,*) 'cs_sh ', var%cs_sh
+    write(*,*) 'tlf ', var%tlf
+    write(*,*) 'dlf ', var%dlf
+
+    write(*,*) 'evapfbl ', var%evapfbl
+    write(*,*) 'epot ', var%epot
+    write(*,*) 'fnpp ', var%fnpp
+    write(*,*) 'fevw_pot ', var%fevw_pot
+    write(*,*) 'gswx_T ', var%gswx_T
+    write(*,*) 'cdtq ', var%cdtq
+    write(*,*) 'wetfac_cs ', var%wetfac_cs
+    write(*,*) 'fevw ', var%fevw
+    write(*,*) 'fhvw ', var%fhvw
+    write(*,*) 'fes ', var%fes
+    write(*,*) 'fes_cor ', var%fes_cor
+    write(*,*) 'gswx ', var%gswx
+    write(*,*) 'oldcansto ', var%oldcansto
+    write(*,*) 'zetar ', var%zetar
+    write(*,*) 'zetash ', var%zetash
+    write(*,*) 'fwsoil ', var%fwsoil
+    write(*,*) 'ofes ', var%ofes
+
+    write(*,*) 'gw ', var%gw
+    write(*,*) 'ancj ', var%ancj
+    write(*,*) 'tlfy ', var%tlfy
+    write(*,*) 'ecy ', var%ecy
+    write(*,*) 'ecx ', var%ecx
+    write(*,*) 'fwsoil ', var%fwsoil
+
+    write(*,*) 'kthLitt ', var%kthLitt
+    write(*,*) 'DvLitt ', var%DvLitt
+
+    write(*,*) 'An ', var%An
+    write(*,*) 'Rd ', var%Rd
+    write(*,*) 'isc3 ', var%isc3
+    write(*,*) 'vcmax ', var%vcmax
+    write(*,*) 'gammastar ', var%gammastar
+    write(*,*) 'gsc ', var%gsc
+    write(*,*) 'gbc ', var%gbc
+    write(*,*) 'gac ', var%gac
+    write(*,*) 'ci ', var%ci
+
+  END SUBROUTINE print_canopy_type
+
+
+  ! ------------------------------------------------------------------------------
+
+
+  SUBROUTINE print_radiation_type(var)
+
+    TYPE(radiation_type), INTENT(in) :: var
+
+    write(*,*) 'albedo ', var%albedo
+    write(*,*) 'extkb ', var%extkb
+    write(*,*) 'extkd2 ', var%extkd2
+    write(*,*) 'extkd ', var%extkd
+    write(*,*) 'flws ', var%flws
+    write(*,*) 'fvlai ', var%fvlai
+    write(*,*) 'latitude ', var%latitude
+    write(*,*) 'lwabv ', var%lwabv
+    write(*,*) 'qcan ', var%qcan
+    write(*,*) 'qssabs ', var%qssabs
+    write(*,*) 'rhocdf ', var%rhocdf
+    write(*,*) 'rniso ', var%rniso
+    write(*,*) 'scalex ', var%scalex
+    write(*,*) 'transd ', var%transd
+    write(*,*) 'trad ', var%trad
+    write(*,*) 'reffdf ', var%reffdf
+    write(*,*) 'reffbm ', var%reffbm
+    write(*,*) 'extkbm ', var%extkbm
+    write(*,*) 'extkdm ', var%extkdm
+    write(*,*) 'cexpkbm ', var%cexpkbm
+    write(*,*) 'cexpkdm ', var%cexpkdm
+    write(*,*) 'fbeam ', var%fbeam
+    write(*,*) 'rhocbm ', var%rhocbm
+    write(*,*) 'transb ', var%transb
+    write(*,*) 'albedo_T ', var%albedo_T
+    write(*,*) 'gradis ', var%gradis
+    write(*,*) 'longitude ', var%longitude
+    write(*,*) 'workp1 ', var%workp1
+    write(*,*) 'workp2 ', var%workp2
+    write(*,*) 'workp3 ', var%workp3
+
+  END SUBROUTINE print_radiation_type
+
+
+  ! ------------------------------------------------------------------------------
+
+
+  SUBROUTINE print_roughness_type(var)
+
+    TYPE(roughness_type), INTENT(in) :: var
+
+    write(*,*) 'coexp ', var%coexp
+    write(*,*) 'disp ', var%disp
+    write(*,*) 'hruff ', var%hruff
+    write(*,*) 'hruff_grmx ', var%hruff_grmx
+    write(*,*) 'rt0us ', var%rt0us
+    write(*,*) 'rt1usa ', var%rt1usa
+    write(*,*) 'rt1usb ', var%rt1usb
+    write(*,*) 'rt1 ', var%rt1
+    write(*,*) 'term2 ', var%term2
+    write(*,*) 'term3 ', var%term3
+    write(*,*) 'term5 ', var%term5
+    write(*,*) 'term6 ', var%term6
+    write(*,*) 'term6a ', var%term6a
+    write(*,*) 'usuh ', var%usuh
+    write(*,*) 'za_uv ', var%za_uv
+    write(*,*) 'za_tq ', var%za_tq
+    write(*,*) 'z0m ', var%z0m
+    write(*,*) 'zref_uv ', var%zref_uv
+    write(*,*) 'zref_tq ', var%zref_tq
+    write(*,*) 'zruffs ', var%zruffs
+    write(*,*) 'z0soilsn ', var%z0soilsn
+    write(*,*) 'z0soil ', var%z0soil
+
+  END SUBROUTINE print_roughness_type
+
+
+  ! ------------------------------------------------------------------------------
+
+
+  SUBROUTINE print_air_type(var)
+
+    TYPE(air_type), INTENT(in) :: var
+
+    write(*,*) 'rho ', var%rho
+    write(*,*) 'volm ', var%volm
+    write(*,*) 'rlam ', var%rlam
+    write(*,*) 'qsat ', var%qsat
+    write(*,*) 'epsi ', var%epsi
+    write(*,*) 'visc ', var%visc
+    write(*,*) 'psyc ', var%psyc
+    write(*,*) 'dsatdk ', var%dsatdk
+    write(*,*) 'cmolar ', var%cmolar
+
+  END SUBROUTINE print_air_type
+
+
+  ! ------------------------------------------------------------------------------
+
+
+  SUBROUTINE print_met_type(var)
+
+    TYPE(met_type), INTENT(in) :: var
+
+    write(*,*) 'ca ', var%ca
+    write(*,*) 'year ', var%year
+    write(*,*) 'moy ', var%moy
+    write(*,*) 'doy ', var%doy
+    write(*,*) 'hod ', var%hod
+    write(*,*) 'fsd ', var%fsd
+    write(*,*) 'ofsd ', var%ofsd
+    write(*,*) 'fld ', var%fld
+    write(*,*) 'precip ', var%precip
+    write(*,*) 'precip_sn ', var%precip_sn
+    write(*,*) 'tk ', var%tk
+    write(*,*) 'tvair ', var%tvair
+    write(*,*) 'tvrad ', var%tvrad
+    write(*,*) 'pmb ', var%pmb
+    write(*,*) 'ua ', var%ua
+    write(*,*) 'qv ', var%qv
+    write(*,*) 'qvair ', var%qvair
+    write(*,*) 'da ', var%da
+    write(*,*) 'dva ', var%dva
+    write(*,*) 'coszen ', var%coszen
+    write(*,*) 'Ndep ', var%Ndep
+    write(*,*) 'Pdep ', var%Pdep
+    write(*,*) 'rhum ', var%rhum
+    write(*,*) 'u10 ', var%u10
+
+  END SUBROUTINE print_met_type
+
+
+  ! ------------------------------------------------------------------------------
+
+
+  SUBROUTINE print_climate_type(var)
+
+    IMPLICIT NONE
+
+    TYPE(climate_type), INTENT(in) :: var
+
+    write(*,*) 'chilldays ', var%chilldays
+    write(*,*) 'iveg ', var%iveg
+    write(*,*) 'biome ', var%biome
+    write(*,*) 'GMD ', var%GMD
+    write(*,*) 'modis_igbp ', var%modis_igbp
+    write(*,*) 'DSLR ', var%DSLR
+    write(*,*) 'NDAY_Nesterov ', var%NDAY_Nesterov
+
+    write(*,*) 'dtemp ', var%dtemp
+    write(*,*) 'dmoist ', var%dmoist
+    write(*,*) 'dmoist_min ', var%dmoist_min
+    write(*,*) 'dmoist_min20 ', var%dmoist_min20
+    write(*,*) 'dmoist_max ', var%dmoist_max
+    write(*,*) 'dmoist_max20 ', var%dmoist_max20
+    write(*,*) 'mtemp ', var%mtemp
+    write(*,*) 'qtemp ', var%qtemp
+    write(*,*) 'mmoist ', var%mmoist
+    write(*,*) 'mtemp_min ', var%mtemp_min
+    write(*,*) 'mtemp_max ', var%mtemp_max
+    write(*,*) 'qtemp_max ', var%qtemp_max
+    write(*,*) 'qtemp_max_last_year ', var%qtemp_max_last_year
+    write(*,*) 'mtemp_min20 ', var%mtemp_min20
+    write(*,*) 'mtemp_max20 ', var%mtemp_max20
+    write(*,*) 'atemp_mean ', var%atemp_mean
+    write(*,*) 'AGDD5 ', var%AGDD5
+    write(*,*) 'GDD5 ', var%GDD5
+    write(*,*) 'AGDD0 ', var%AGDD0
+    write(*,*) 'GDD0 ', var%GDD0
+    write(*,*) 'alpha_PT ', var%alpha_PT
+    write(*,*) 'evap_PT ', var%evap_PT
+    write(*,*) 'aevap ', var%aevap
+    write(*,*) 'alpha_PT20 ', var%alpha_PT20
+    write(*,*) 'GDD0_rec ', var%GDD0_rec
+    write(*,*) 'frec ', var%frec
+    write(*,*) 'dtemp_min ', var%dtemp_min
+    write(*,*) 'fdorm ', var%fdorm
+    write(*,*) 'fapar_ann_max ', var%fapar_ann_max
+    write(*,*) 'fapar_ann_max_last_year ', var%fapar_ann_max_last_year
+    write(*,*) 'AvgAnnMaxFAPAR ', var%AvgAnnMaxFAPAR
+    write(*,*) 'dtemp_max ', var%dtemp_max
+    write(*,*) 'drhum ', var%drhum
+    write(*,*) 'du10_max ', var%du10_max
+    write(*,*) 'dprecip ', var%dprecip
+    write(*,*) 'aprecip ', var%aprecip
+    write(*,*) 'aprecip_av20 ', var%aprecip_av20
+    write(*,*) 'last_precip ', var%last_precip
+    write(*,*) 'KBDI ', var%KBDI
+    write(*,*) 'FFDI ', var%FFDI
+    write(*,*) 'D_MacArthur ', var%D_MacArthur
+    write(*,*) 'Nesterov_Current ', var%Nesterov_Current
+    write(*,*) 'Nesterov_ann_max ', var%Nesterov_ann_max
+    write(*,*) 'Nesterov_ann_max_last_year ', var%Nesterov_ann_max_last_year
+    write(*,*) 'Nesterov_ann_running_max ', var%Nesterov_ann_running_max
+
+    write(*,*) 'mtemp_min_20 ', var%mtemp_min_20
+    write(*,*) 'mtemp_max_20 ', var%mtemp_max_20
+    write(*,*) 'dmoist_min_20 ', var%dmoist_min_20
+    write(*,*) 'dmoist_max_20 ', var%dmoist_max_20
+    write(*,*) 'dtemp_31 ', var%dtemp_31
+    write(*,*) 'dmoist_31 ', var%dmoist_31
+    write(*,*) 'alpha_PT_20 ', var%alpha_PT_20
+    write(*,*) 'dtemp_91 ', var%dtemp_91
+    write(*,*) 'APAR_leaf_sun ', var%APAR_leaf_sun
+    write(*,*) 'APAR_leaf_shade ', var%APAR_leaf_shade
+    write(*,*) 'Dleaf_sun ', var%Dleaf_sun
+    write(*,*) 'Dleaf_shade ', var%Dleaf_shade
+    write(*,*) 'Tleaf_sun ', var%Tleaf_sun
+    write(*,*) 'Tleaf_shade ', var%Tleaf_shade
+    write(*,*) 'cs_sun ', var%cs_sun
+    write(*,*) 'cs_shade ', var%cs_shade
+    write(*,*) 'scalex_sun ', var%scalex_sun
+    write(*,*) 'scalex_shade ', var%scalex_shade
+    write(*,*) 'fwsoil ', var%fwsoil
+    write(*,*) 'aprecip_20 ', var%aprecip_20
+    write(*,*) 'Rd_sun ', var%Rd_sun
+    write(*,*) 'Rd_shade ', var%Rd_shade
+
+  END SUBROUTINE print_climate_type
+
+
+  ! ------------------------------------------------------------------------------
+
+
+  SUBROUTINE print_sum_flux_type(var)
+
+    TYPE(sum_flux_type), INTENT(in) :: var
+
+    write(*,*) 'sumpn ', var%sumpn
+    write(*,*) 'sumrp ', var%sumrp
+    write(*,*) 'sumrpw ', var%sumrpw
+    write(*,*) 'sumrpr ', var%sumrpr
+    write(*,*) 'sumrs ', var%sumrs
+    write(*,*) 'sumrd ', var%sumrd
+    write(*,*) 'dsumpn ', var%dsumpn
+    write(*,*) 'dsumrp ', var%dsumrp
+    write(*,*) 'dsumrs ', var%dsumrs
+    write(*,*) 'dsumrd ', var%dsumrd
+    write(*,*) 'sumxrp ', var%sumxrp
+    write(*,*) 'sumxrs ', var%sumxrs
+
+  END SUBROUTINE print_sum_flux_type
+
+
+  ! ------------------------------------------------------------------------------
+
+
+  SUBROUTINE print_bgc_pool_type(var)
+
+    TYPE(bgc_pool_type), INTENT(in) :: var
+
+    write(*,*) 'cplant ', var%cplant
+    write(*,*) 'csoil ', var%csoil
+
+  END SUBROUTINE print_bgc_pool_type
 
 
   ! ------------------------------------------------------------------------------

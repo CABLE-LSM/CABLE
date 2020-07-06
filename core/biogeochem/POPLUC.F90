@@ -134,78 +134,148 @@ CONTAINS
 
   !*******************************************************************************
 
-  SUBROUTINE Zero_POPLUC(POPLUC)
+  SUBROUTINE zero_popluc(popluc)
 
-    TYPE(POPLUC_TYPE), INTENT(INOUT) :: POPLUC
-    INTEGER:: np
+    type(popluc_type), intent(inout) :: popluc
 
-    np = popluc%np
-
-    POPLUC%firstyear               = 0_i4b
-    POPLUC%thisyear                = 0_i4b
-    POPLUC%n_event                 = 0_i4b
-    POPLUC%latitude                = 0.0_dp
-    POPLUC%longitude               = 0.0_dp
-    POPLUC%primf                   = 0.0_dp
-    POPLUC%secdf                   = 0.0_dp
-    POPLUC%grass                   = 0.0_dp
-    POPLUC%crop                    = 0.0_dp
-    POPLUC%past                    = 0.0_dp
-    POPLUC%ptos                    = 0.0_dp
-    POPLUC%ptog                    = 0.0_dp
-    POPLUC%stog                    = 0.0_dp
-    POPLUC%gtop                    = 0.0_dp
-    POPLUC%gtos                    = 0.0_dp
-    POPLUC%ptoc                    = 0.0_dp
-    POPLUC%ptoq                    = 0.0_dp
-    POPLUC%stoc                    = 0.0_dp
-    POPLUC%stoq                    = 0.0_dp
-    POPLUC%qtos                    = 0.0_dp
-    POPLUC%ctos                    = 0.0_dp
-    POPLUC%frac_forest             = 0.0_dp
-    POPLUC%frac_primf              = 0.0_dp
-    POPLUC%area_history_secdf      = 0.0_dp
-    POPLUC%age_history_secdf       = 0.0_dp
-    POPLUC%freq_age_secondary      = 0.0_dp
-    POPLUC%freq_age_primary        = 0.0_dp
-    POPLUC%biomass_age_primary     = 0.0_dp
-    POPLUC%biomass_age_secondary   = 0.0_dp
-    POPLUC%FNEP                    = 0.0_dp
-    POPLUC%Clitt                   = 0.0_dp
-    POPLUC%Csoil                   = 0.0_dp
-    POPLUC%Cbiomass                = 0.0_dp
-    POPLUC%FHarvest                = 0.0_dp
-    POPLUC%FClearance              = 0.0_dp
-    POPLUC%FTransferNet            = 0.0_dp
-    POPLUC%FTransferGross          = 0.0_dp
-    POPLUC%pharv                   = 0.0_dp
-    POPLUC%smharv                  = 0.0_dp
-    POPLUC%syharv                  = 0.0_dp
-    POPLUC%HarvProd                = 0.0_dp
-    POPLUC%HarvProdLoss            = 0.0_dp
-    POPLUC%fracHarvProd            = 0.0_dp
-    POPLUC%fracHarvResid           = 0.0_dp
-    POPLUC%fracHarvSecResid        = 0.0_dp
-    POPLUC%ClearProd               = 0.0_dp
-    POPLUC%ClearProdLoss           = 0.0_dp
-    POPLUC%fracClearProd           = 0.0_dp
-    POPLUC%fracClearResid          = 0.0_dp
-    POPLUC%kSecHarv                = 0.0_dp
-    POPLUC%kNatDist                = 0.0_dp
-    POPLUC%kExpand1                = 0.0_dp
-    POPLUC%kExpand2                = 0.0_dp
-    POPLUC%kClear                  = 0.0_dp
-    POPLUC%cRelClear               = 0.0_dp
-    POPLUC%AgProd                  = 0.0_dp
-    POPLUC%AgProdLoss              = 0.0_dp
-    POPLUC%FAg                     = 0.0_dp
+    popluc%firstyear               = 0_i4b
+    popluc%thisyear                = 0_i4b
+    popluc%n_event                 = 0_i4b
+    popluc%latitude                = 0.0_dp
+    popluc%longitude               = 0.0_dp
+    popluc%primf                   = 0.0_dp
+    popluc%secdf                   = 0.0_dp
+    popluc%grass                   = 0.0_dp
+    popluc%crop                    = 0.0_dp
+    popluc%past                    = 0.0_dp
+    popluc%ptos                    = 0.0_dp
+    popluc%ptog                    = 0.0_dp
+    popluc%stog                    = 0.0_dp
+    popluc%gtop                    = 0.0_dp
+    popluc%gtos                    = 0.0_dp
+    popluc%ptoc                    = 0.0_dp
+    popluc%ptoq                    = 0.0_dp
+    popluc%stoc                    = 0.0_dp
+    popluc%stoq                    = 0.0_dp
+    popluc%qtos                    = 0.0_dp
+    popluc%ctos                    = 0.0_dp
+    popluc%frac_forest             = 0.0_dp
+    popluc%frac_primf              = 0.0_dp
+    popluc%area_history_secdf      = 0.0_dp
+    popluc%age_history_secdf       = 0.0_dp
+    popluc%freq_age_secondary      = 0.0_dp
+    popluc%freq_age_primary        = 0.0_dp
+    popluc%biomass_age_primary     = 0.0_dp
+    popluc%biomass_age_secondary   = 0.0_dp
+    popluc%FNEP                    = 0.0_dp
+    popluc%Clitt                   = 0.0_dp
+    popluc%Csoil                   = 0.0_dp
+    popluc%Cbiomass                = 0.0_dp
+    popluc%FHarvest                = 0.0_dp
+    popluc%FClearance              = 0.0_dp
+    popluc%FTransferNet            = 0.0_dp
+    popluc%FTransferGross          = 0.0_dp
+    popluc%pharv                   = 0.0_dp
+    popluc%smharv                  = 0.0_dp
+    popluc%syharv                  = 0.0_dp
+    popluc%HarvProd                = 0.0_dp
+    popluc%HarvProdLoss            = 0.0_dp
+    popluc%fracHarvProd            = 0.0_dp
+    popluc%fracHarvResid           = 0.0_dp
+    popluc%fracHarvSecResid        = 0.0_dp
+    popluc%ClearProd               = 0.0_dp
+    popluc%ClearProdLoss           = 0.0_dp
+    popluc%fracClearProd           = 0.0_dp
+    popluc%fracClearResid          = 0.0_dp
+    popluc%kSecHarv                = 0.0_dp
+    popluc%kNatDist                = 0.0_dp
+    popluc%kExpand1                = 0.0_dp
+    popluc%kExpand2                = 0.0_dp
+    popluc%kClear                  = 0.0_dp
+    popluc%cRelClear               = 0.0_dp
+    popluc%AgProd                  = 0.0_dp
+    popluc%AgProdLoss              = 0.0_dp
+    popluc%FAg                     = 0.0_dp
     popluc%FluxPHarvResidtoLitter  = 0.0_dp
     popluc%FluxSHarvResidtoLitter  = 0.0_dp
     popluc%FluxPClearResidtoLitter = 0.0_dp
     popluc%FluxSClearResidtoLitter = 0.0_dp
     popluc%dcSHarvClear            = 0.0_dp
-    
-  END SUBROUTINE Zero_POPLUC
+
+  END SUBROUTINE zero_popluc
+
+  !*******************************************************************************
+
+  SUBROUTINE print_popluc(popluc)
+
+    type(popluc_type), intent(in) :: popluc
+
+    write(*,*) 'np ', popluc%np
+    write(*,*) 'firstyear ', popluc%firstyear
+    write(*,*) 'thisyear ', popluc%thisyear
+    write(*,*) 'n_event ', popluc%n_event
+    write(*,*) 'latitude ', popluc%latitude
+    write(*,*) 'longitude ', popluc%longitude
+    write(*,*) 'primf ', popluc%primf
+    write(*,*) 'secdf ', popluc%secdf
+    write(*,*) 'grass ', popluc%grass
+    write(*,*) 'crop ', popluc%crop
+    write(*,*) 'past ', popluc%past
+    write(*,*) 'ptos ', popluc%ptos
+    write(*,*) 'ptog ', popluc%ptog
+    write(*,*) 'stog ', popluc%stog
+    write(*,*) 'gtop ', popluc%gtop
+    write(*,*) 'gtos ', popluc%gtos
+    write(*,*) 'ptoc ', popluc%ptoc
+    write(*,*) 'ptoq ', popluc%ptoq
+    write(*,*) 'stoc ', popluc%stoc
+    write(*,*) 'stoq ', popluc%stoq
+    write(*,*) 'qtos ', popluc%qtos
+    write(*,*) 'ctos ', popluc%ctos
+    write(*,*) 'frac_forest ', popluc%frac_forest
+    write(*,*) 'frac_primf ', popluc%frac_primf
+    write(*,*) 'area_history_secdf ', popluc%area_history_secdf
+    write(*,*) 'age_history_secdf ', popluc%age_history_secdf
+    write(*,*) 'freq_age_secondary ', popluc%freq_age_secondary
+    write(*,*) 'freq_age_primary ', popluc%freq_age_primary
+    write(*,*) 'biomass_age_primary ', popluc%biomass_age_primary
+    write(*,*) 'biomass_age_secondary ', popluc%biomass_age_secondary
+    write(*,*) 'FNEP ', popluc%FNEP
+    write(*,*) 'Clitt ', popluc%Clitt
+    write(*,*) 'Csoil ', popluc%Csoil
+    write(*,*) 'Cbiomass ', popluc%Cbiomass
+    write(*,*) 'FHarvest ', popluc%FHarvest
+    write(*,*) 'FClearance ', popluc%FClearance
+    write(*,*) 'FTransferNet ', popluc%FTransferNet
+    write(*,*) 'FTransferGross ', popluc%FTransferGross
+    write(*,*) 'pharv ', popluc%pharv
+    write(*,*) 'smharv ', popluc%smharv
+    write(*,*) 'syharv ', popluc%syharv
+    write(*,*) 'HarvProd ', popluc%HarvProd
+    write(*,*) 'HarvProdLoss ', popluc%HarvProdLoss
+    write(*,*) 'fracHarvProd ', popluc%fracHarvProd
+    write(*,*) 'fracHarvResid ', popluc%fracHarvResid
+    write(*,*) 'fracHarvSecResid ', popluc%fracHarvSecResid
+    write(*,*) 'ClearProd ', popluc%ClearProd
+    write(*,*) 'ClearProdLoss ', popluc%ClearProdLoss
+    write(*,*) 'fracClearProd ', popluc%fracClearProd
+    write(*,*) 'fracClearResid ', popluc%fracClearResid
+    write(*,*) 'kSecHarv ', popluc%kSecHarv
+    write(*,*) 'kNatDist ', popluc%kNatDist
+    write(*,*) 'kExpand1 ', popluc%kExpand1
+    write(*,*) 'kExpand2 ', popluc%kExpand2
+    write(*,*) 'kClear ', popluc%kClear
+    write(*,*) 'cRelClear ', popluc%cRelClear
+    write(*,*) 'AgProd ', popluc%AgProd
+    write(*,*) 'AgProdLoss ', popluc%AgProdLoss
+    write(*,*) 'FAg ', popluc%FAg
+    write(*,*) 'FluxPHarvResidtoLitter ', popluc%FluxPHarvResidtoLitter
+    write(*,*) 'FluxSHarvResidtoLitter ', popluc%FluxSHarvResidtoLitter
+    write(*,*) 'FluxPClearResidtoLitter ', popluc%FluxPClearResidtoLitter
+    write(*,*) 'FluxSClearResidtoLitter ', popluc%FluxSClearResidtoLitter
+    write(*,*) 'dcSHarvClear ', popluc%dcSHarvClear
+
+  END SUBROUTINE print_POPLUC
 
   !*******************************************************************************
 
@@ -415,7 +485,7 @@ CONTAINS
 
     type(popluc_type), intent(inout) :: POPLUC
     integer(i4b),      intent(in)    :: g
-    
+
     integer(i4b) :: age, i, iage
     real(dp)     :: fac, disturbance_freq
 
@@ -451,7 +521,7 @@ CONTAINS
     INTEGER(i4b) :: n_event, i
     REAL(dp):: remaining
     REAL(dp):: tmp, tmp1, tmp2
-    
+
     n_event = POPLUC%n_event(g)
     POPLUC%kSecHarv(g) = 0.0_dp
     POPLUC%kNatDist(g) = 0.0_dp
@@ -558,12 +628,12 @@ CONTAINS
   !*******************************************************************************
 
   SUBROUTINE POPLUCStep(POPLUC,year)
-    
+
     IMPLICIT NONE
-    
+
     TYPE(POPLUC_TYPE), INTENT(INOUT) :: POPLUC
     INTEGER(i4b),      INTENT(IN)    :: year
-    
+
     INTEGER(i4b) :: g
 
     POPLUC%it = POPLUC%it + 1
@@ -621,7 +691,7 @@ CONTAINS
     ! This subroutine transfers LUC-determined age distributions to POP
     !-------------------------------------------------------------------------------
     IMPLICIT NONE
-    
+
     TYPE(POPLUC_TYPE),   INTENT(IN)    :: POPLUC
     TYPE(POP_TYPE),      INTENT(INOUT) :: POP
     TYPE(LUC_EXPT_TYPE), INTENT(IN)    :: LUC_EXPT
@@ -661,9 +731,9 @@ CONTAINS
     !-------------------------------------------------------------------------------
 
     use mo_utils, only: eq
-    
+
     IMPLICIT NONE
-    
+
     TYPE(POPLUC_TYPE),   INTENT(INOUT) :: POPLUC
     TYPE(POP_TYPE),      INTENT(INOUT) :: POP
     TYPE(LUC_EXPT_TYPE), INTENT(IN)    :: LUC_EXPT
@@ -671,7 +741,7 @@ CONTAINS
     TYPE(casa_balance),  INTENT(INOUT) :: casabal
     TYPE(casa_flux),     INTENT(INOUT) :: casaflux
     INTEGER,             INTENT(IN)    :: ktauday
-    
+
     ! number of cable time-steps in a day (for needed for LUC flux output)
     integer:: g, k, j, l, idp, irp, idlu, irlu, ilu
     INTEGER, PARAMETER :: &
@@ -754,7 +824,7 @@ CONTAINS
     popluc%FluxPClearResidtoLitter = 0.0_dp
     popluc%FluxSClearResidtoLitter = 0.0_dp
     popluc%dcSHarvClear            = 0.0_dp
-    
+
     DO g = 1,POPLUC%np  ! loop over CABLE grid-cells
        dcHarv(g)  = 0.0_dp
        dcClear(g) = 0.0_dp
@@ -1167,7 +1237,7 @@ CONTAINS
                 ! Clearance Flux
                 ! primary forest to grass
                 if ((idlu==p) .and. irlu ==gr) then
-                   popluc%FClearance(g,idlu) =  (1.0_dp -POPLUC%fracClearResid(g)) & 
+                   popluc%FClearance(g,idlu) =  (1.0_dp -POPLUC%fracClearResid(g)) &
                         * casapool%cplant(idp,2)*deltaA
                 endif
 
@@ -1351,7 +1421,7 @@ CONTAINS
              endif
              !if (g==3 .and. POPLUC%thisyear==1837 ) write(*,*) 'c01c',  casapool%cplant(irp,2), ilu,dcharvclear(g)
           enddo ! ilu=1, nlu
-          
+
           ! POPLUC diagnostics
           ! pools in gC per m2 of gridcell
           ! NEP in g C y-1 per m2 of gridcell
@@ -1768,7 +1838,7 @@ CONTAINS
     USE netcdf
 
     IMPLICIT NONE
-    
+
     TYPE(POPLUC_TYPE), INTENT(IN) :: POPLUC
     INTEGER,           INTENT(IN) :: ctime
     LOGICAL,           INTENT(IN) :: FINAL
@@ -1805,7 +1875,7 @@ CONTAINS
     REAL(dp), ALLOCATABLE :: freq_age_secondary(:,:)
     INTEGER :: g
     LOGICAL :: put_age_vars
-    
+
     mp = POPLUC%np
     nprod = 3
     put_age_vars=.TRUE.
@@ -1892,7 +1962,7 @@ CONTAINS
     else
        fname = trim(filename%path)//'/'//trim(cable_user%RunIden)//'_'//trim(dum)//'_LUC_out.nc'
     endif
-    
+
     IF ( CALL1 ) THEN
 
        ! Create NetCDF file:
@@ -2474,13 +2544,13 @@ CONTAINS
     REAL(dp), DIMENSION(:,:,:), ALLOCATABLE :: tmparr1
     REAL(dp), DIMENSION(:,:,:), ALLOCATABLE :: tmparr2
     REAL(dp), DIMENSION(:,:,:), ALLOCATABLE :: tmparr3
-    
+
     mp = POPLUC%np
     nx = xdimsize
     ny = ydimsize
     nprod = 3
     put_age_vars = .FALSE.
-    
+
     allocate(freq_age_secondary(mp,age_max))
     ALLOCATE(landmask(xdimsize, ydimsize)) ! Local use in this routine (integer)
     ALLOCATE(fieldr(xdimsize, ydimsize))   ! field for UNPACK command (reals)
@@ -2488,7 +2558,7 @@ CONTAINS
     ALLOCATE(tmparr1(xdimsize, ydimsize, nLU))
     ALLOCATE(tmparr2(xdimsize, ydimsize, nTrans))
     ALLOCATE(tmparr3(xdimsize, ydimsize, nprod))
-    
+
     ! Convert the integer 'mask' into the logical 'landmask'
     WHERE (mask .EQ. 1 )
        landmask = .TRUE.

@@ -21,18 +21,18 @@
 !          Modified from cable_driver.F90 in CABLE-2.0_beta r171 by B Pak
 !
 ! ==============================================================================
-! Uses:           mpi
-!                 cable_mpicommon
-!                 cable_def_types_mod
-!                 cable_IO_vars_module
-!                 cable_common_module
-!                 cable_data_module
-!                 cable_input_module
-!                 cable_output_module
-!                 cable_cbm_module
-!                 casadimension
-!                 casavariable
-!                 phenvariable
+! Uses:        mpi
+!              cable_mpicommon
+!              cable_def_types_mod
+!              cable_IO_vars_module
+!              cable_common_module
+!              cable_data_module
+!              cable_input_module
+!              cable_output_module
+!              cable_cbm_module
+!              casadimension
+!              casavariable
+!              phenvariable
 !
 ! CALLs:       point2constants
 !              open_met_file
@@ -2310,8 +2310,16 @@ SUBROUTINE master_cable_params(comm, met, air, ssnow, veg, bgc, soil, canopy, ro
      blen(bidx) = I1len
 
      bidx = bidx + 1
-     CALL MPI_Get_address(ssnow%sconds(off,1), displs(bidx), ierr)
-     CALL MPI_Type_create_hvector(msn, r1len, r1stride, MPI_BYTE, &
+     CALL MPI_Get_address(ssnow%lE(off), displs(bidx), ierr)
+     blen(bidx) = r2len
+
+     bidx = bidx + 1
+     CALL MPI_Get_address(ssnow%zdelta(off), displs(bidx), ierr)
+     blen(bidx) = r2len
+
+     bidx = bidx + 1
+     CALL MPI_Get_address(ssnow%rex(off,1), displs(bidx), ierr)
+     CALL MPI_Type_create_hvector(ms, r2len, r1stride, MPI_BYTE, &
           types(bidx), ierr)
      blen(bidx) = 1
      ! end additional for sli
@@ -2812,6 +2820,10 @@ SUBROUTINE master_cable_params(comm, met, air, ssnow, veg, bgc, soil, canopy, ro
 
      bidx = bidx + 1
      CALL MPI_Get_address (canopy%fes(off), displs(bidx), ierr)
+     blen(bidx) = r2len
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (canopy%ofes(off), displs(bidx), ierr)
      blen(bidx) = r2len
 
      bidx = bidx + 1

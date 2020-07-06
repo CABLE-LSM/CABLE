@@ -146,7 +146,7 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   ALLOCATE( BLAZE%CPLANT_g(np,NPOOLS),BLAZE%CPLANT_w(np,NPOOLS) )
 
   call zero_blaze(BLAZE)
-  
+
   ! SETTINGS FOR BLAZE (BLAZEFLAG)
   ! bit value:               0            | 1
   ! 0th bit(1), general    : off          | on
@@ -235,6 +235,53 @@ subroutine zero_blaze(blaze)
   blaze%FLUXES       = 0
 
 end subroutine zero_blaze
+
+
+subroutine print_blaze(blaze)
+
+  type(type_blaze), intent(in) :: blaze
+
+  write(*,*) 'DSLR ', blaze%DSLR
+  write(*,*) 'ilon ', blaze%ilon
+  write(*,*) 'jlat ', blaze%jlat
+  write(*,*) 'Flix ', blaze%Flix
+  write(*,*) 'RAINF ', blaze%RAINF
+  write(*,*) 'KBDI ', blaze%KBDI
+  write(*,*) 'LR ', blaze%LR
+  write(*,*) 'U10 ', blaze%U10
+  write(*,*) 'RH ', blaze%RH
+  write(*,*) 'TMAX ', blaze%TMAX
+  write(*,*) 'TMIN ', blaze%TMIN
+  write(*,*) 'AREA ', blaze%AREA
+  write(*,*) 'w_prior ', blaze%w_prior
+  write(*,*) 'FFDI ', blaze%FFDI
+  write(*,*) 'FLI ', blaze%FLI
+  write(*,*) 'ROS ', blaze%ROS
+  write(*,*) 'Z ', blaze%Z
+  write(*,*) 'D ', blaze%D
+  write(*,*) 'w ', blaze%w
+  write(*,*) 'LAT ', blaze%LAT
+  write(*,*) 'LON ', blaze%LON
+  write(*,*) 'DFLI ', blaze%DFLI
+  write(*,*) 'AB ', blaze%AB
+  write(*,*) 'CAvgAnnRainf ', blaze%CAvgAnnRainf
+  write(*,*) 'DEADWOOD ', blaze%DEADWOOD
+  write(*,*) 'POP_TO ', blaze%POP_TO
+  write(*,*) 'POP_CWD ', blaze%POP_CWD
+  write(*,*) 'POP_STR ', blaze%POP_STR
+  write(*,*) 'shootfrac ', blaze%shootfrac
+  write(*,*) 'AnnRAINF ', blaze%AnnRAINF
+  write(*,*) 'TO ', blaze%TO
+  write(*,*) 'AGLit_w ', blaze%AGLit_w
+  write(*,*) 'AGLit_g ', blaze%AGLit_g
+  write(*,*) 'BGLit_w ', blaze%BGLit_w
+  write(*,*) 'BGLit_g ', blaze%BGLit_g
+  write(*,*) 'CPLANT_g ', blaze%CPLANT_g
+  write(*,*) 'CPLANT_w ', blaze%CPLANT_w
+  write(*,*) 'AvgAnnRAINF ', blaze%AvgAnnRAINF
+  write(*,*) 'FLUXES ', blaze%FLUXES
+
+end subroutine print_blaze
 
 
 SUBROUTINE BLAZE_ACCOUNTING(BLAZE, climate,  ktau, dels, year, doy)

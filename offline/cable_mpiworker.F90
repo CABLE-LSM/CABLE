@@ -482,8 +482,8 @@ CONTAINS
              endif
 
              ktauday = int(24.0*3600.0/dels)
-             !TRUNK IF (cable_user%call_climate) &
-             CALL worker_climate_types(comm, climate, ktauday)
+             if (cable_user%call_climate) &
+                  CALL worker_climate_types(comm, climate, ktauday)
 
              ! MPI: mvtype and mstype send out here instead of inside worker_casa_params
              !      so that old CABLE carbon module can use them. (BP May 2013)
@@ -510,7 +510,6 @@ CONTAINS
                 if (cable_user%call_blaze) then
                    ! ! allocate biomass turnover pools when both pop and blaze are active
                    ! if (cable_user%call_pop) allocate(pop_to(mp), pop_cwd(mp), pop_str(mp))
-
                    call ini_blaze( mland, rad%latitude(landpt(:)%cstart), &
                                    rad%longitude(landpt(:)%cstart), blaze )
 
@@ -525,9 +524,8 @@ CONTAINS
                    ! cln:  burnt_area
                    if ( blaze%burnt_area_src == "SIMFIRE" ) then
                       call MPI_recv(MPI_BOTTOM, 1, blaze_in_t, 0, ktau_gl, comm, stat, ierr)
-                      call INI_SIMFIRE(mland ,SIMFIRE, &
-
-                         climate%modis_igbp(landpt(:)%cstart) ) !CLN here we need to check for the SIMFIRE biome setting
+                      !CLN here we need to check for the SIMFIRE biome setting
+                      call INI_SIMFIRE(mland, SIMFIRE, climate%modis_igbp(landpt(:)%cstart))
                       !par blaze restart not required uses climate data
                       !call worker_simfire_types(comm, mland, simfire, simfire_restart_t, simfire_inp_t, simfire_out_t)
                       !if (.not. spinup) then
@@ -709,10 +707,6 @@ CONTAINS
 
              !MC - if (l_laiFeedbk) veg%vlai(:) = real(casamet%glai(:))
              if (l_laiFeedbk .and. (icycle>0)) veg%vlai(:) = real(casamet%glai(:))
-
-             !TRUNK IF (cable_user%CALL_climate) &
-             !TRUNK      CALL cable_climate(ktau_tot,kstart,kend,ktauday,idoy,LOY,met, &
-             !TRUNK      climate, canopy, air, rad, dels, mp)
 
              ! CALL land surface scheme for this timestep, all grid points:
              CALL cbm(ktau, dels, air, bgc, canopy, met, &
@@ -1412,8 +1406,16 @@ CONTAINS
     blen(bidx) = I1len
 
     bidx = bidx + 1
-    CALL MPI_Get_address(ssnow%sconds, displs(bidx), ierr)
-    blen(bidx) = msn * r1len
+    CALL MPI_Get_address (ssnow%lE, displs(bidx), ierr)
+    blen(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%zdelta, displs(bidx), ierr)
+    blen(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address(ssnow%rex, displs(bidx), ierr)
+    blen(bidx) = ms * r2len
     ! end additional for sli
 
     bidx = bidx + 1
@@ -1907,6 +1909,10 @@ CONTAINS
 
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%fes, displs(bidx), ierr)
+    blen(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%ofes, displs(bidx), ierr)
     blen(bidx) = r2len
 
     bidx = bidx + 1
@@ -2608,9 +2614,17 @@ CONTAINS
 
     if (.not. associated(casabiome%ivt2)) then
        write (*,*) 'worker alloc casa and phen var with m patches: ', rank, mp
-       call alloc_casavariable(casabiome, casapool, casaflux, casamet, casabal, mp)
+       CALL alloc_casavariable(casabiome, mp)
+       CALL alloc_casavariable(casapool, mp)
+       CALL alloc_casavariable(casaflux, mp)
+       CALL alloc_casavariable(casamet, mp)
+       CALL alloc_casavariable(casabal, mp)
        call alloc_phenvariable(phen, mp)
-       call zero_casavariable(casabiome, casapool, casaflux, casamet, casabal)
+       call zero_casavariable(casabiome)
+       call zero_casavariable(casapool)
+       call zero_casavariable(casaflux)
+       call zero_casavariable(casamet)
+       call zero_casavariable(casabal)
        call zero_phenvariable(phen)
     end if
 

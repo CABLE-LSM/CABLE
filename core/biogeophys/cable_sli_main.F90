@@ -514,11 +514,11 @@ contains
                tmp1d5, tmp1d6, tmp1d7, tmp1d8, tmp1d9,tmp1d10, tmp1d11, &
                tmp1d12,tmp1d13, tmp1d14, tmp1d15, tmp1d16)
        enddo
-       canopy%ga  = real(G0)
-       canopy%fes = real(lE)
-       canopy%fhs = canopy%fns - canopy%ga - real(canopy%fes)
-       ssnow%tss  = real(Tsurface + Tzero)
-       ssnow%potev  = real(Epot)
+       canopy%ga   = real(G0)
+       canopy%fes  = lE
+       canopy%fhs  = canopy%fns - canopy%ga - real(canopy%fes)
+       ssnow%tss   = real(Tsurface + Tzero)
+       ssnow%potev = real(Epot)
     else ! full SLI
        ! save for output, because they get changed with litter in solve
        rbw = vmet(1)%rbw
@@ -571,15 +571,12 @@ contains
        win = win + (qprec+qprec_snow)*(tf-ti)
 
        if (1 == 0 .and. wlogn == 1011) then
-
           k=79
-
-
-!!$  if(k==1) then
-!!$write(*,"(100e16.6)") &
-!!$(win(k)-(wp(k)-wpi(k)+deltah0(k)+runoff(k)+evap(k)+drn(k))-Etrans(k)*dt)*1000, &
-!!$win(k)*1000, (wp(k)-wpi(k)+deltah0(k))*1000, runoff(k)*1000+drn(k)*1000, evap(k)*1000,  Etrans(k)*dt*1000
-!!$endif
+          ! if(k==1) then
+          !     write(*,"(100e16.6)") &
+          !    (win(k)-(wp(k)-wpi(k)+deltah0(k)+runoff(k)+evap(k)+drn(k))-Etrans(k)*dt)*1000, &
+          !    win(k)*1000, (wp(k)-wpi(k)+deltah0(k))*1000, runoff(k)*1000+drn(k)*1000, evap(k)*1000,  Etrans(k)*dt*1000
+          ! endif
           write(332,"(i8,i8,18e16.6)") ktau, nsteps(k), wp(k)-wpi(k), infil(k)-drn(k), runoff(k), &
                win(k)-(wp(k)-wpi(k)+deltah0(k)+runoff(k)+evap(k)+drn(k))-Etrans(k)*dt, wp(k), &
                evap(k), evap_pot(k), infil(k), &
@@ -637,7 +634,7 @@ contains
        end do
 
        if (cable_user%fwsoil_switch.ne.'Haverd2013') then
-          where (err(1:mp) == 0) canopy%fwsoil = real(fws)
+          where (err(1:mp) == 0) canopy%fwsoil = fws
        endif
 
        if (litter==0) then

@@ -93,7 +93,7 @@ SUBROUTINE cable_climate(ktau, kstart, ktauday, idoy, LOY, &
   ENDIF
 
   ! accumulate daily temperature, evap and potential evap
-  IF(MOD(ktau,ktauday)==1) THEN
+  IF (MOD(ktau,ktauday)==1) THEN
      climate%dtemp     = met%tk - 273.15
      climate%dmoist    = sum(real(ssnow%wb(:,:))*veg%froot(:,:), 2)
      climate%dtemp_min = climate%dtemp

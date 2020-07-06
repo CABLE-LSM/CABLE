@@ -44,7 +44,7 @@ MODULE mo_c13o2_photosynthesis
   private
 
   ! Public routines and variables
-  
+
   public :: c13o2_discrimination        ! Photosynthetic 13C discrimination
   public :: c13o2_discrimination_simple ! Simple 13C discrimination = a+(b-a)*ci/ca
   public :: init_starch_pool            ! Initialise starch pool and its isotope ratio
@@ -59,9 +59,9 @@ MODULE mo_c13o2_photosynthesis
   ! Isotopic composition if pool used for photorespiration
   real(dp), dimension(:), allocatable, public :: Rphoto
 
-  
+
   ! Private parameters
-  
+
   ! Mesophyll conductance factor for C3
   ! ISOLSM takes 8000 but for C4. John Evans suggests that it should be ca. 3000 for C3.
   ! gm for C4 is about twice that of C3 (Evans & v.Caemmerer 1996).
@@ -75,7 +75,7 @@ MODULE mo_c13o2_photosynthesis
   real(dp), parameter :: frdm = 0.5_dp    ! von Caemmerer (2000), Table 4.1
 
   ! mesophyll to bundle sheat conductance for CO2 in C4, von Caemmerer (2000) Section 4.3.2.2
-  real(dp), parameter :: gbsc = 2.e-3_dp 
+  real(dp), parameter :: gbsc = 2.e-3_dp
 
   ! Leakage of bundle sheat to mesophyll in C4 plants during the day, von Caemmerer (2000) Section 4.3.3.2
   ! LPJ used 0.4
@@ -270,7 +270,7 @@ contains
     real(dp) :: add_r     ! isotope ratio of new flux
 
     nn = size(isc3,1)
-    
+
     ! For C4
     Rdm = frdm*Rd  ! C4: respiration in mesophyll
     Rds = Rd - Rdm ! C4: respiration in bundle sheat
@@ -351,7 +351,7 @@ contains
     ! Total conductance from canopy to sites of carboxylation for CO2
     rabsmc = rac + rbc + rsc + rwc + rmlc
     gabsmc = 1.0_dp / rabsmc
-    
+
     !
     !-- CO2 concentrations
     !
@@ -371,7 +371,7 @@ contains
     ! ! cf. rwc, rmlc above (0.25 from Lloyd & Farquhar 1994)
     ! cw = ci - 0.25_dp*(ci-cc)
 
-    
+
     !
     !-- Other photosynthesis variables
     !
@@ -399,28 +399,28 @@ contains
     Vc = k*ctmp
     ! Photorespiration rate = 0.5*Vo
     photo = k*Gammastar
-    
+
     !
     !-- Fractionations
     !
-    
+
     ! diffusion fractionation through lamina
     eps_ab = 1.0_dp - (1.0_dp-eps_a)**twothird_dp
     ! frac. during CO2 dissolution
     eps_es = (1.18_dp - 0.0041_dp*(Tl-T0_dp))*1.e-3_dp ! Vogel et al. (Z Physik, 1970), Szaran (Chemical Geology, 1998)
     ! discrimination by PEP-c (<0)
-    eps_b4 = (26.19_dp - 9483._dp/Tl)*1.e-3_dp         ! Henderson et al. (Aust J Plant Physiol, 1992)         
+    eps_b4 = (26.19_dp - 9483._dp/Tl)*1.e-3_dp         ! Henderson et al. (Aust J Plant Physiol, 1992)
     ! effective discrimination of carboxylation in C3 plants
     eps_b = eps_b3*(1.0_dp-beta) + eps_b4*beta         ! Brugnoli & Farquhar (2000)
     ! frac. during leakage of bundle sheets in C4
     eps_s = eps_es + eps_al
     ! effective fractionation from canopy canopy to sites of carboxylation (chloroplast interior)
     eps_a_eff = (rac*0.0_dp + rbc*eps_ab + rsc*eps_a + rwc*eps_a + rmlc*eps_s) / (rabsmc)
-    
+
     !
     !-- 13CO2 fluxes
     !
-    
+
     eps_night = 0.0_dp
     do jl=1, nn
        if (k(jl) > 0.0_dp) then
@@ -436,7 +436,7 @@ contains
                 Disc(jl) = 1.0_dp - Ass13(jl) / (Ass(jl)*Rair(jl))
              else
                 Disc(jl) = 0.0_dp
-             end if             
+             end if
           else               ! C4
              tmp = cc(jl) * ( 1.0_dp - (1.0_dp-eps_a_eff(jl)) / (1.0_dp-eps_b4(jl)) * Ass(jl)/Vp(jl) - &
                   (1.0_dp-eps_s(jl)) / (1.0_dp-eps_b3) * (1.0_dp-eps_a_eff(jl)) / (1.0_dp-eps_b4(jl)) * &
@@ -464,7 +464,7 @@ contains
        !
        !-- 13CO2 pools
        !
-       
+
        ! Update substrate pools
        ! 2/3 of assimilation is sugar, 1/3 goes into starch pool
        if (Ass(jl) > 0.0_dp) then
@@ -675,7 +675,7 @@ contains
     real(dp), intent(inout) :: Rstarch
     real(dp), intent(in)    :: Rinitc3
     real(dp), intent(in)    :: Rinitc4
-    
+
     ! initialise
     Vstarch  = 0.0_dp
     if (isc3) then
@@ -724,7 +724,7 @@ contains
     real(dp), intent(inout) :: Rphoto
     real(dp), intent(in)    :: Rinitc3
     real(dp), intent(in)    :: Rinitc4
-    
+
     ! initialise
     if (isc3) then
        Rsucrose = Rinitc3

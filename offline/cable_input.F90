@@ -2481,8 +2481,16 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, bgc, soil, canopy, rough, rad, 
     WRITE(logn,*) ' CABLE variables allocated with ', mp, ' patch(es).'
 
     IF ((icycle > 0) .OR. CABLE_USER%CASA_DUMP_WRITE) then
-       CALL alloc_casavariable(casabiome, casapool, casaflux, casamet, casabal, mp)
-       call zero_casavariable(casabiome, casapool, casaflux, casamet, casabal)
+       CALL alloc_casavariable(casabiome, mp)
+       CALL alloc_casavariable(casapool, mp)
+       CALL alloc_casavariable(casaflux, mp)
+       CALL alloc_casavariable(casamet, mp)
+       CALL alloc_casavariable(casabal, mp)
+       call zero_casavariable(casabiome)
+       call zero_casavariable(casapool)
+       call zero_casavariable(casaflux)
+       call zero_casavariable(casamet)
+       call zero_casavariable(casabal)
        ! 13C
        if (cable_user%c13o2) then
           call c13o2_alloc_pools(c13o2pools, mp)
