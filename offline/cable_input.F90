@@ -716,10 +716,10 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
     IF(ok /= NF90_NOERR) CALL nc_abort &
          (ok,'Error reading time variable in met data file ' &
          //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
-    IF (cable_user%gswp3) then         !Hack the GSWP3 time units to make from start of year
-                                       ! MMY need to check for Princeton data, since it start at 3am
+    IF (cable_user%gswp3) then   !Hack the GSWP3 time units to make from start of year
        timevar(:) = (timevar(:)-timevar(1))*3600.0 + 1.5*3600.0  !convert hours to seconds
     end if
+
     ! Set time step size:
     dels = REAL(timevar(2) - timevar(1))
     WRITE(logn,'(1X,A29,I8,A3,F10.3,A5)') 'Number of time steps in run: ',&
@@ -781,7 +781,9 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
     !****** done bug fixing for timevar in PALS met file **********************
 
     !********* gswp input file has bug in timeunits ************
-    IF (ncciy > 0) WRITE(timeunits(26:27),'(i2.2)') 0
+    IF (TRIM(cable_user%MetType) .NE. "prin") THEN ! MMY
+      IF (ncciy > 0) WRITE(timeunits(26:27),'(i2.2)') 0
+    END IF ! MMY
     !********* done bug fixing for timeunits in gwsp file ******
     WRITE(logn,*) 'Time variable units: ', timeunits
     ! Get coordinate field:
@@ -807,16 +809,23 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
     ! Use internal files to convert "time" variable units (giving the run's
     ! start time) from character to integer; calculate starting hour-of-day,
     ! day-of-year, year:
-    IF (.not.cable_user%GSWP3) then
-       READ(timeunits(15:18),*) syear
-       READ(timeunits(20:21),*) smoy ! integer month
-       READ(timeunits(23:24),*) sdoytmp ! integer day of that month
-       READ(timeunits(26:27),*) shod  ! starting hour of day
+    IF (.not. cable_user%GSWP3) then
+      IF (cable_user%MetType .eq. "prin") THEN ! MMY
+         READ(timeunits(13:16),*) syear ! MMY
+         READ(timeunits(18:19),*) smoy ! integer month ! MMY
+         READ(timeunits(21:22),*) sdoytmp ! integer day of that month ! MMY
+         READ(timeunits(24:25),*) shod  ! starting hour of day ! MMY
+      ELSE ! MMY
+        READ(timeunits(15:18),*) syear
+        READ(timeunits(20:21),*) smoy ! integer month
+        READ(timeunits(23:24),*) sdoytmp ! integer day of that month
+        READ(timeunits(26:27),*) shod  ! starting hour of day
+      END IF ! MMY
     ELSE
        syear=ncciy
        smoy=1
        sdoytmp=1
-       shod=0 ! MMY may need to chance for princeton
+       shod=0
     END IF
     ! if site data, shift start time to middle of timestep
     ! only do this if not already at middle of timestep
@@ -2099,7 +2108,7 @@ SUBROUTINE get_met_data(spinup,spinConv,met,soil,rad,                          &
       DEALLOCATE(tmpDat2,tmpDat3,tmpDat4,tmpDat3x,tmpDat4x)
 
     ELSE IF(metGrid=='land') THEN
-
+      PRINT *, "metGrid=='land'" ! MMY
       ! Collect data from land only grid in netcdf file:
       ALLOCATE(tmpDat1(mland))
       ALLOCATE(tmpDat2(mland,1))

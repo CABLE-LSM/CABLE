@@ -469,7 +469,7 @@ PROGRAM cable_offline_driver
         ELSE IF ( TRIM(cable_user%MetType) .EQ. 'prin' ) THEN
            ncciy = CurYear
 
-           CALL prepareFiles(ncciy)
+           CALL prepareFiles_princeton(ncciy) ! MMY
            IF ( RRRR .EQ. 1 ) THEN
            CALL open_met_file( dels, koffset, kend, spinup, C%TFRZ )
            IF (leaps.and.is_leapyear(YYYY).and.kend.eq.2920) THEN
@@ -494,7 +494,7 @@ PROGRAM cable_offline_driver
            ncid_qa   = GSWP_MID(6,YYYY)
            ncid_ta   = GSWP_MID(7,YYYY)
            ncid_wd   = GSWP_MID(8,YYYY)
-           kend        = ktauday * LOY ! MMY
+           kend      = ktauday * LOY ! MMY
            ENDIF
 ! ______________________________________________________________________________
 
@@ -1149,7 +1149,6 @@ PROGRAM cable_offline_driver
 
 END PROGRAM cable_offline_driver
 
-! MMY need for Princeton
 SUBROUTINE prepareFiles(ncciy)
   USE cable_IO_vars_module, ONLY: logn,gswpfile
   IMPLICIT NONE
@@ -1169,8 +1168,6 @@ SUBROUTINE prepareFiles(ncciy)
 
 END SUBROUTINE prepareFiles
 
-
-! MMY need for princeton
 SUBROUTINE renameFiles(logn,inFile,ncciy,inName)
   IMPLICIT NONE
   INTEGER, INTENT(IN) :: logn,ncciy
@@ -1185,6 +1182,48 @@ SUBROUTINE renameFiles(logn,inFile,ncciy,inName)
   WRITE(logn,*) TRIM(inName), ' global data from ', TRIM(inFile)
 
 END SUBROUTINE renameFiles
+
+
+! _______________________ MMY for Princeton input ______________________________
+SUBROUTINE prepareFiles_princeton(ncciy)
+  USE cable_IO_vars_module, ONLY: logn,gswpfile
+  IMPLICIT NONE
+  INTEGER, INTENT(IN) :: ncciy
+
+  WRITE(logn,*) 'CABLE offline global run using princeton forcing for ', ncciy
+  PRINT *,     'CABLE offline global run using princeton forcing for ', ncciy
+
+  CALL renameFiles_princeton(logn,gswpfile%rainf,ncciy,'rainf')
+  CALL renameFiles_princeton(logn,gswpfile%LWdown,ncciy,'LWdown')
+  CALL renameFiles_princeton(logn,gswpfile%SWdown,ncciy,'SWdown')
+  CALL renameFiles_princeton(logn,gswpfile%PSurf,ncciy,'PSurf')
+  CALL renameFiles_princeton(logn,gswpfile%Qair,ncciy,'Qair')
+  CALL renameFiles_princeton(logn,gswpfile%Tair,ncciy,'Tair')
+  CALL renameFiles_princeton(logn,gswpfile%wind,ncciy,'wind')
+
+END SUBROUTINE prepareFiles_princeton
+
+SUBROUTINE renameFiles_princeton(logn,inFile,ncciy,inName)
+  IMPLICIT NONE
+  INTEGER, INTENT(IN) :: logn,ncciy
+  INTEGER:: nn
+  CHARACTER(LEN=200), INTENT(INOUT) :: inFile
+  CHARACTER(LEN=*),  INTENT(IN)        :: inName
+  INTEGER :: idummy
+
+  nn = INDEX(inFile,'19')
+  READ(inFile(nn:nn+3),'(i4)') idummy
+  WRITE(inFile(nn:nn+3),'(i4.4)') ncciy
+  nn = RINDEX(inFile,'19')
+  READ(inFile(nn:nn+3),'(i4)') idummy
+  WRITE(inFile(nn:nn+3),'(i4.4)') ncciy
+  READ(inFile(nn-5:nn-2),'(i4)') idummy
+  WRITE(inFile(nn-5:nn-2),'(i4.4)') ncciy
+  WRITE(logn,*) TRIM(inName), ' global data from ', TRIM(inFile)
+
+END SUBROUTINE renameFiles_princeton
+
+! ______________________________________________________________________________
 
 !***************************************************************************************
 ! subroutine for reading LU input data, zeroing biomass in empty secondary forest tiles
