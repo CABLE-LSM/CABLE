@@ -105,7 +105,7 @@ PROGRAM cable_offline_driver
   USE POP_Types,         ONLY: POP_TYPE
   USE POPLUC_Types, ONLY : POPLUC_Type
   USE POPLUC_Module, ONLY:  WRITE_LUC_OUTPUT_NC, WRITE_LUC_OUTPUT_GRID_NC, &
-       POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, POPLUC_set_patchfrac 
+       POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, POPLUC_set_patchfrac
   USE POP_Constants,         ONLY: HEIGHT_BINS, NCOHORT_MAX
 
   ! PLUME-MIP only
@@ -120,7 +120,7 @@ PROGRAM cable_offline_driver
   USE F90_UNIX
 #endif
   use casa_inout_module
-  use casa_cable   
+  use casa_cable
 
   IMPLICIT NONE
 
@@ -322,12 +322,12 @@ PROGRAM cable_offline_driver
         CABLE_USER%YearEnd = ncciy
      ELSEIF  ( CABLE_USER%YearStart.eq.0 .and. ncciy.eq.0) THEN
         PRINT*, 'undefined start year for gswp met: '
-        PRINT*, 'enter value for ncciy or'  
+        PRINT*, 'enter value for ncciy or'
         PRINT*, '(CABLE_USER%YearStart and  CABLE_USER%YearEnd) &
              in cable.nml'
 
         write(logn,*) 'undefined start year for gswp met: '
-        write(logn,*) 'enter value for ncciy or'  
+        write(logn,*) 'enter value for ncciy or'
         write(logn,*) '(CABLE_USER%YearStart and  CABLE_USER%YearEnd) &
              in cable.nml'
 
@@ -404,6 +404,7 @@ PROGRAM cable_offline_driver
   IF ( TRIM(cable_user%MetType) .NE. "gswp" .AND. &
        TRIM(cable_user%MetType) .NE. "gpgs" .AND. &
        TRIM(cable_user%MetType) .NE. "plum" .AND. &
+       TRIM(cable_user%MetType) .NE. "prin" .AND. & ! MMY
        TRIM(cable_user%MetType) .NE. "cru") THEN
      CALL open_met_file( dels, koffset, kend, spinup, C%TFRZ )
      IF ( koffset .NE. 0 .AND. CABLE_USER%CALL_POP ) THEN
@@ -464,14 +465,45 @@ PROGRAM cable_offline_driver
            ncid_wd   = GSWP_MID(8,YYYY)
            kend        = ktauday * LOY
            ENDIF
+! __________________________ MMY using Princeton _______________________________
+        ELSE IF ( TRIM(cable_user%MetType) .EQ. 'prin' ) THEN
+           ncciy = CurYear
+
+           CALL prepareFiles(ncciy)
+           IF ( RRRR .EQ. 1 ) THEN
+           CALL open_met_file( dels, koffset, kend, spinup, C%TFRZ )
+           IF (leaps.and.is_leapyear(YYYY).and.kend.eq.2920) THEN
+              STOP 'LEAP YEAR INCOMPATIBILITY WITH INPUT MET !!!'
+           ENDIF
+           IF ( NRRRR .GT. 1 ) THEN
+              GSWP_MID(1,YYYY) = ncid_rain
+              ! GSWP_MID(2,YYYY) = ncid_snow MMY
+              GSWP_MID(3,YYYY) = ncid_lw
+              GSWP_MID(4,YYYY) = ncid_sw
+              GSWP_MID(5,YYYY) = ncid_ps
+              GSWP_MID(6,YYYY) = ncid_qa
+              GSWP_MID(7,YYYY) = ncid_ta
+              GSWP_MID(8,YYYY) = ncid_wd
+           ENDIF
+           ELSE
+           ncid_rain = GSWP_MID(1,YYYY)
+           ! ncid_snow = GSWP_MID(2,YYYY) MMY
+           ncid_lw   = GSWP_MID(3,YYYY)
+           ncid_sw   = GSWP_MID(4,YYYY)
+           ncid_ps   = GSWP_MID(5,YYYY)
+           ncid_qa   = GSWP_MID(6,YYYY)
+           ncid_ta   = GSWP_MID(7,YYYY)
+           ncid_wd   = GSWP_MID(8,YYYY)
+           kend        = ktauday * LOY ! MMY
+           ENDIF
+! ______________________________________________________________________________
+
         ELSE IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN
            ! PLUME experiment setup using WATCH
            IF ( CALL1 ) THEN
 
            CALL CPU_TIME(etime)
            CALL PLUME_MIP_INIT( PLUME )
-
-     
 
            dels        = PLUME%dt
            koffset   = 0
@@ -485,7 +517,7 @@ PROGRAM cable_offline_driver
                  str3 = adjustl(str3)
                  timeunits="seconds since "//trim(str1)//"-"//trim(str2)//"-"//trim(str3)//" &
                             00:00"
-               
+
            ENDIF
            IF ( .NOT. PLUME%LeapYears ) LOY = 365
            kend = NINT(24.0*3600.0/dels) * LOY
@@ -526,7 +558,7 @@ PROGRAM cable_offline_driver
     ! be chosen from a coarse global grid of veg and soil types, based on
     ! the lat/lon coordinates. Allocation of CABLE's main variables also here.
     IF ( CALL1 ) THEN
-       
+
        IF (cable_user%POPLUC) THEN
           CALL LUC_EXPT_INIT (LUC_EXPT)
        ENDIF
@@ -559,7 +591,7 @@ PROGRAM cable_offline_driver
              CALL open_output_file( dels, soil, veg, bgc, rough )
           ENDIF
        ENDIF
-       
+
        ssnow%otss_0 = ssnow%tgg(:,1)
        ssnow%otss = ssnow%tgg(:,1)
        ssnow%tss = ssnow%tgg(:,1)
@@ -567,14 +599,14 @@ PROGRAM cable_offline_driver
        canopy%fhs_cor = 0.
        met%ofsd = 0.1
 
-       
+
        CALL zero_sum_casa(sum_casapool, sum_casaflux)
        count_sum_casa = 0
-       
+
        if (cable_user%call_climate) CALL climate_init ( climate, mp )
        if (cable_user%call_climate .AND.(.NOT.cable_user%climate_fromzero)) &
             CALL READ_CLIMATE_RESTART_NC (climate)
-       
+
        spinConv = .FALSE. ! initialise spinup convergence variable
        IF (.NOT.spinup)     spinConv=.TRUE.
        IF( icycle>0 .AND. spincasa) THEN
@@ -582,7 +614,7 @@ PROGRAM cable_offline_driver
           CALL spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
                casaflux,casamet,casabal,phen,POP,climate,LALLOC)
           SPINon = .FALSE.
-          SPINconv = .FALSE. 
+          SPINconv = .FALSE.
 
        ELSEIF ( casaonly .AND. (.NOT. spincasa) .AND. cable_user%popluc) THEN
 
@@ -590,15 +622,15 @@ PROGRAM cable_offline_driver
                casaflux,casamet,casabal,phen,POP,climate,LALLOC, LUC_EXPT, POPLUC, &
                sum_casapool, sum_casaflux)
           SPINon = .FALSE.
-          SPINconv = .FALSE. 
+          SPINconv = .FALSE.
           ktau = kend
-          
+
        ENDIF
-       
-       
-       
+
+
+
     ENDIF ! CALL 1
-    
+
     ! globally (WRT code) accessible kend through USE cable_common_module
      kwidth_gl = int(dels)
     kend_gl  = kend
@@ -607,46 +639,46 @@ PROGRAM cable_offline_driver
     IF (casaonly) THEN
              EXIT
     ENDIF
-    
+
        ! time step loop over ktau
        DO ktau=kstart, kend
-          
+
           write(logn,*) 'Progress -',real(ktau)/real(kend)*100.0
 
           ! increment total timstep counter
           ktau_tot = ktau_tot + 1
-          
+
           ! globally (WRT code) accessible kend through USE cable_common_module
           ktau_gl = ktau_tot
-          
+
           idoy =INT( MOD(REAL(CEILING(REAL((ktau+koffset)/ktauday))),REAL(LOY)))
           IF ( idoy .EQ. 0 ) idoy = LOY
- 
+
           ! needed for CASA-CNP
           nyear     =INT((kend+koffset)/(LOY*ktauday))
-          
+
           ! Get met data and LAI, set time variables.
           ! Rainfall input may be augmented for spinup purposes:
           IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN
-             
+
              IF (( .NOT. CASAONLY ) .OR. (CASAONLY.and.CALL1))  THEN
                 CALL PLUME_MIP_GET_MET(PLUME, MET, YYYY, ktau, kend, &
                      (YYYY.EQ.CABLE_USER%YearEnd .AND. ktau.EQ.kend))
-                
+
              ENDIF
-             
+
           ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
                     IF (( .NOT. CASAONLY ).OR. (CASAONLY.and.CALL1))  THEN
                        CALL CRU_GET_SUBDIURNAL_MET(CRU, met, &
                             YYYY, ktau, kend, &
-                            YYYY.EQ.CABLE_USER%YearEnd)  
+                            YYYY.EQ.CABLE_USER%YearEnd)
                     ENDIF
            ELSE
              CALL get_met_data( spinup, spinConv, met, soil,           &
                   rad, veg, kend, dels, C%TFRZ, ktau+koffset,           &
                          kstart+koffset )
           ENDIF
- 
+
           IF (TRIM(cable_user%MetType).EQ.'' ) THEN
              CurYear = met%year(1)
              IF ( leaps .AND. IS_LEAPYEAR( CurYear ) ) THEN
@@ -664,17 +696,17 @@ PROGRAM cable_offline_driver
           ! and zero casa fluxes
           IF (ktau == 1) THEN
              if (icycle>1) CALL casa_cnpflux(casaflux,casapool,casabal,.TRUE.)
-             if ( CABLE_USER%POPLUC) CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT)   
+             if ( CABLE_USER%POPLUC) CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT)
           ENDIF
-          
+
           IF ( .NOT. CASAONLY ) THEN
-             
+
              ! Feedback prognostic vcmax and daily LAI from casaCNP to CABLE
              IF (l_vcmaxFeedbk) CALL casa_feedback( ktau, veg, casabiome,      &
                   casapool, casamet )
-             
+
              IF (l_laiFeedbk.and.icycle>0) veg%vlai(:) = casamet%glai(:)
-             
+
              ! Call land surface scheme for this timestep, all grid points:
                     CALL cbm(ktau, dels, air, bgc, canopy, met,                &
                          bal, rad, rough, soil, ssnow,                     &
@@ -683,16 +715,16 @@ PROGRAM cable_offline_driver
                  if (cable_user%CALL_climate) &
                   CALL cable_climate(ktau_tot,kstart,kend,ktauday,idoy,LOY,met, &
                   climate, canopy, air, dels, mp)
-                    
-                    
+
+
                     ssnow%smelt = ssnow%smelt*dels
                     ssnow%rnof1 = ssnow%rnof1*dels
                     ssnow%rnof2 = ssnow%rnof2*dels
                     ssnow%runoff = ssnow%runoff*dels
-                    
-                    
-                    
-                    
+
+
+
+
 
                  ELSE IF ( IS_CASA_TIME("dread", yyyy, ktau, kstart, &
                       koffset, kend, ktauday, logn) ) THEN                 ! CLN READ FROM FILE INSTEAD !
@@ -702,7 +734,7 @@ PROGRAM cable_offline_driver
 
                     CALL read_casa_dump( ncfile, casamet, casaflux,phen, climate, casa_it, kend, .FALSE. )
                  ENDIF
-                 
+
                  !jhan this is insufficient testing. condition for
                  !spinup=.false. & we want CASA_dump.nc (spinConv=.true.)
                  IF(icycle >0 .OR.      CABLE_USER%CASA_DUMP_WRITE ) THEN
@@ -716,7 +748,7 @@ PROGRAM cable_offline_driver
                          LALLOC )
 
                     IF(MOD((ktau-kstart+1),ktauday)==0) THEN
-                    
+
                        !mpidiff
                        ! update time-aggregates of casa pools and fluxes
                        CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
@@ -735,7 +767,7 @@ PROGRAM cable_offline_driver
 
                        ! one annual time-step of POP
                        CALL POPdriver(casaflux,casabal,veg, POP)
-                       
+
                        IF (CABLE_USER%POPLUC) THEN
                        ! Dynamic LUC: update casa pools according to LUC transitions
                           CALL POP_LUC_CASA_transfer(POPLUC,POP,LUC_EXPT,casapool,casabal,casaflux,ktauday)
@@ -780,7 +812,7 @@ PROGRAM cable_offline_driver
                           ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
 
                           IF (TRIM(cable_user%MetType).EQ.'' ) THEN
-                               CALL write_casa_dump( ncfile, casamet , casaflux, phen, climate, idoy, &    
+                               CALL write_casa_dump( ncfile, casamet , casaflux, phen, climate, idoy, &
                                  kend/ktauday )
                        !      CALL write_casa_dump( ncfile, casamet , casaflux, phen, climate,&
                        !           INT(met%doy(lbound(met%doy,dim=1))), LOY )
@@ -859,7 +891,7 @@ PROGRAM cable_offline_driver
                          net photosynthesis"
                     if (ktau == kend) write(logn,*), "sum_fe[Wm-2], sum_fpn[umol/m2/s]",  &
                          new_sumfe/count_bal, new_sumfpn/count_bal
-                  
+
 
 ! vh ! commented code below detects Nans in evaporation flux and stops if there are any.
 !!$           do kk=1,mp
@@ -918,9 +950,9 @@ PROGRAM cable_offline_driver
                  CALL1 = .FALSE.
 
               END DO ! END Do loop over timestep ktau
-           
+
               CALL1 = .FALSE.
-           
+
         !jhan this is insufficient testing. condition for
         !spinup=.false. & we want CASA_dump.nc (spinConv=.true.)
         ! see if spinup (if conducting one) has converged:
@@ -1104,7 +1136,7 @@ PROGRAM cable_offline_driver
 
 
   IF ( TRIM(cable_user%MetType) .NE. "gswp" .AND. &
-       TRIM(cable_user%MetType) .NE. "plum" .AND. & 
+       TRIM(cable_user%MetType) .NE. "plum" .AND. &
        TRIM(cable_user%MetType) .NE. "cru" ) CALL close_met_file
 
   !WRITE(logn,*) bal%wbal_tot, bal%ebal_tot, bal%ebal_tot_cncheck
@@ -1117,7 +1149,7 @@ PROGRAM cable_offline_driver
 
 END PROGRAM cable_offline_driver
 
-
+! MMY need for Princeton
 SUBROUTINE prepareFiles(ncciy)
   USE cable_IO_vars_module, ONLY: logn,gswpfile
   IMPLICIT NONE
@@ -1138,7 +1170,7 @@ SUBROUTINE prepareFiles(ncciy)
 END SUBROUTINE prepareFiles
 
 
-
+! MMY need for princeton
 SUBROUTINE renameFiles(logn,inFile,ncciy,inName)
   IMPLICIT NONE
   INTEGER, INTENT(IN) :: logn,ncciy
@@ -1193,8 +1225,8 @@ SUBROUTINE LUCdriver( casabiome,casapool, &
 
   integer ::  k, j, l, yyyy
 
- 
- 
+
+
   write(*,*) 'cablecasa_LUC', CurYear
   yyyy = CurYear
 
@@ -1208,7 +1240,7 @@ SUBROUTINE LUCdriver( casabiome,casapool, &
      POPLUC%ptos(k) = LUC_EXPT%INPUT(ptos)%VAL(k)
      POPLUC%ptog(k) = LUC_EXPT%INPUT(ptog)%VAL(k)
      POPLUC%stop(k) = 0.0
-     POPLUC%stog(k) = LUC_EXPT%INPUT(stog)%VAL(k) 
+     POPLUC%stog(k) = LUC_EXPT%INPUT(stog)%VAL(k)
      POPLUC%gtop(k) = 0.0
      POPLUC%gtos(k) = LUC_EXPT%INPUT(gtos)%VAL(k)
      POPLUC%pharv(k) = LUC_EXPT%INPUT(pharv)%VAL(k)

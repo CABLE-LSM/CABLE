@@ -2,7 +2,7 @@
 
 known_hosts()
 {
-   set -A kh cher burn shin  raij pear mael mons cycl hurr typh
+   set -A kh cher burn shin  raij pear mael mons cycl hurr typh gadi
 }
 
 host_cycl()
@@ -89,6 +89,29 @@ host_mael()
    cd ../
    build_status
 }
+
+host_gadi()
+{
+   . /etc/bashrc
+   module purge
+   module add intel-compiler/2019.3.199
+   module add intel-mpi/2019.3.199
+   module add netcdf/4.6.3
+
+   export FC='mpif90'
+   export NCDIR=$NETCDF_ROOT'/lib/Intel'
+   export NCMOD=$NETCDF_ROOT'/include/Intel'
+   export CFLAGS='-O2 -fp-model precise'
+   if [[ $1 = 'debug' ]]; then
+      export CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0'
+   fi
+   export LDFLAGS='-L'$NCDIR' -O0'
+   export LD='-lnetcdf -lnetcdff'
+   build_build
+   cd ../
+   build_status
+}
+
 
 
 ## raijin.nci.org.au

@@ -54,7 +54,7 @@ MODULE cable_input_module
    USE cable_init_module
    USE netcdf ! link must be made in cd to netcdf-x.x.x/src/f90/netcdf.mod
    USE cable_common_module, ONLY : filename, cable_user, CurYear, HANDLE_ERR, is_leapyear
-   USE casa_inout_module, ONLY: casa_readbiome, casa_readphen, casa_init 
+   USE casa_inout_module, ONLY: casa_readbiome, casa_readphen, casa_init
 
    IMPLICIT NONE
 
@@ -425,7 +425,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
              CALL nc_abort(ok, "Error opening GSWP3 mask file")
           end if
           LAT1D = .true.   !GSWP3 forcing has 1d lat/lon variables
-          LON1D = .true.  
+          LON1D = .true.
        else
           ncid_mask = ncid_rain
        end if
@@ -534,9 +534,9 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
     ! (and allow neither if only one gridpoint). "mask" is a 2D variable
     ! with dims x,y and "land" is a 1D variable.
     if (.not.cable_user%gswp3) then
-       ok = NF90_INQ_VARID(ncid_mask, 'mask', maskID) ! check for "mask" 
+       ok = NF90_INQ_VARID(ncid_mask, 'mask', maskID) ! check for "mask"
     else
-       ok = NF90_INQ_VARID(ncid_mask, 'landsea', maskID) ! check for "mask" 
+       ok = NF90_INQ_VARID(ncid_mask, 'landsea', maskID) ! check for "mask"
     end if
     IF(ok /= NF90_NOERR) THEN ! if error, i.e. no "mask" variable:
        ! Check for "land" variable:
@@ -717,6 +717,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
          (ok,'Error reading time variable in met data file ' &
          //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
     IF (cable_user%gswp3) then         !Hack the GSWP3 time units to make from start of year
+                                       ! MMY need to check for Princeton data, since it start at 3am
        timevar(:) = (timevar(:)-timevar(1))*3600.0 + 1.5*3600.0  !convert hours to seconds
     end if
     ! Set time step size:
@@ -806,16 +807,16 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
     ! Use internal files to convert "time" variable units (giving the run's
     ! start time) from character to integer; calculate starting hour-of-day,
     ! day-of-year, year:
-    IF (.not.cable_user%GSWP3) then 
+    IF (.not.cable_user%GSWP3) then
        READ(timeunits(15:18),*) syear
        READ(timeunits(20:21),*) smoy ! integer month
        READ(timeunits(23:24),*) sdoytmp ! integer day of that month
-       READ(timeunits(26:27),*) shod  ! starting hour of day 
-    ELSE 
+       READ(timeunits(26:27),*) shod  ! starting hour of day
+    ELSE
        syear=ncciy
        smoy=1
        sdoytmp=1
-       shod=0
+       shod=0 ! MMY may need to chance for princeton
     END IF
     ! if site data, shift start time to middle of timestep
     ! only do this if not already at middle of timestep
@@ -827,8 +828,8 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
          (shod.lt.dels/3600./2.) ) THEN
        shod = shod + dels/3600./2.
     ENDIF
-    
-   
+
+
     ! Decide day-of-year for non-leap year:
     CALL YMDHMS2DOYSOD( syear, smoy, sdoytmp, INT(shod), 0, 0, sdoy, ssod )
        ! Number of days between start position and 1st timestep:
@@ -1893,7 +1894,7 @@ SUBROUTINE get_met_data(spinup,spinConv,met,soil,rad,                          &
                REAL(tmpDat3(land_x(i),land_y(i),1))**2)
         ENDDO
       END IF
-   
+
     ELSE ! Anna, site runs need extra z dimension
       IF(exists%Wind) THEN ! Scalar Wind
         ok= NF90_GET_VAR(ncid_met,id%Wind,tmpDat4, &
@@ -2090,7 +2091,7 @@ SUBROUTINE get_met_data(spinup,spinConv,met,soil,rad,                          &
 
            veg%vlai(landpt(i)%cstart:landpt(i)%cend) =  &
                 defaultLAI(landpt(i)%cstart:landpt(i)%cend,met%moy(landpt(i)%cstart))
-             
+
         ENDDO
       END IF
 
@@ -2486,7 +2487,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
    !   max_vegpatches - via cable_IO_vars_module
 !! vh_js !!
    USE POPmodule, ONLY: POP_INIT
-   USE POPLUC_module, ONLY: POPLUC_INIT 
+   USE POPLUC_module, ONLY: POPLUC_INIT
    USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE
 
    IMPLICIT NONE
@@ -2518,7 +2519,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
    INTEGER,INTENT(IN)                      :: logn     ! log file unit number
    LOGICAL,INTENT(IN)                      :: &
          vegparmnew, &  ! are we using the new format?
-!! vh_js !!  
+!! vh_js !!
        spinup         ! for POP (initialize pop)
    REAL, INTENT(IN) :: TFRZ, EMSOIL
 
@@ -2615,7 +2616,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
          ! read POP_LUC restart file here
          ! set POP%LU here for secondary tiles if cable_user%POPLUC_RunType is not 'static'
          CALL POPLUC_init(POPLUC,LUC_EXPT, casapool, casaflux, casabiome, veg, POP, mland)
-         
+
       ENDIF
 
    ENDIF
