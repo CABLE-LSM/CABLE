@@ -460,7 +460,7 @@ CONTAINS
     character(len=200) :: metp ! Local repr of met path
 #ifdef __CRU2017__
     character(len=*), parameter :: cruver="crujra.V1.1" ! CRU version
-#elseif __CRU2018__
+#elif __CRU2018__
     character(len=*), parameter :: cruver="crujra.v2.0" ! CRU version
 #else
     character(len=*), parameter :: cruver="crujra.v2.1" ! CRU version
@@ -589,7 +589,7 @@ CONTAINS
 #ifdef __CRU2017__
           ALLOCATE( CRU%CO2VALS( 1700:2017 ) )
           CO2FILE = TRIM(CRU%BasePath)//"/co2/global_co2_ann_1700_2017.csv"
-#elseif __CRU2018__
+#elif __CRU2018__
           ALLOCATE( CRU%CO2VALS( 1700:2018 ) )
           CO2FILE = TRIM(CRU%BasePath)//"/co2/global_co2_ann_1700_2018.csv"
 #else
