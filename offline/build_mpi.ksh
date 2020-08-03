@@ -10,18 +10,19 @@ fi
 known_hosts()
 {
     if [ -z ${PS3} ] ; then
-        kh=(kh gadi pear mcin vm_o)
+        kh=(kh gadi pear mcin mc16 vm_o)
     else
-        set -A kh gadi pear mcin vm_o
+        set -A kh gadi pear mcin mc16 vm_o
     fi
 }
+
 
 known_domains()
 {
     if [ -z ${PS3} ] ; then
-        kd=(kd nci.org.au pear local explor)
+        kd=(kd nci.org.au pear local local explor)
     else
-        set -A kd nci.org.au pear local explor
+        set -A kd nci.org.au pear local local explor
     fi
 }
 
@@ -29,45 +30,45 @@ known_domains()
 ## gadi.nci.org.au
 host_gadi()
 {
-   if [ -z ${PS3} ] ; then
-      . /etc/bashrc
-   else
-      . /etc/kshrc
-   fi
-   module purge
-   module load intel-compiler/2019.5.281
-   module load intel-mpi/2019.5.281
-   module load netcdf/4.6.3
+    if [ -z ${PS3} ] ; then
+        . /etc/bashrc
+    else
+        . /etc/kshrc
+    fi
+    module purge
+    module load intel-compiler/2019.5.281
+    module load intel-mpi/2019.5.281
+    module load netcdf/4.6.3
 
-   export FC=mpif90
-   export NCMOD=${NETCDF_ROOT}"/include/Intel"
-   if [[ ${1} == "debug" ]]; then
-       # debug
-       # export CFLAGS='-O0 -fpp -traceback -g -fp-model precise -ftz -fpe0'
-       export CFLAGS="-fpp -O0 -debug extended -traceback -g -check all,noarg_temp_created -warn all -fp-stack-check -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0" # -fpe-all=0 -no-ftz -ftrapuv"
-       export LDFLAGS="-O0"
-       OPTFLAG=""
-   else
-       # release
-       # export CFLAGS='-O2 -fpp -fp-model precise'
-       export CFLAGS="-fpp -O3 -nofixed -assume byterecl -fp-model precise -ip -diag-disable=10382"
-       export LDFLAGS="-O3"
-       OPTFLAG="-xCASCADELAKE"
-       # OPTFLAG="-xCORE-AVX2 -axSKYLAKE-AVX512,CASCADELAKE" # given in user training: does not work
-       # OPTFLAG="-xCASCADELAKE" # or -xCORE-AVX512;                           queues: express / normal
-       # OPTFLAG="-xBROADWELL"   # or -xCORE-AVX512;                           queues: expressbw / normalbw
-       # OPTFLAG="-xSKYLAKE"     # or -xSKYLAKE-AVX512 depends on performance; queues: normalsl
-   fi
-   export CFLAGS="${CFLAGS} ${OPTFLAG}"
-   export CFLAGS="${CFLAGS} -D__MPI__"
-   #export CFLAGS="${CFLAGS} -D__CRU2017__"
-   export CFLAGS="${CFLAGS} -D__NETCDF3__"
-   export LDFLAGS="-L"${NCDIR}" "${LDFLAGS}
-   export LD="-lnetcdf -lnetcdff"
-   export MFLAGS="-j 8"
-   build_build
-   cd ../
-   build_status
+    export FC=mpif90
+    export NCMOD=${NETCDF_ROOT}"/include/Intel"
+    if [[ ${1} == "debug" ]]; then
+        # debug
+        # export CFLAGS='-O0 -fpp -traceback -g -fp-model precise -ftz -fpe0'
+        export CFLAGS="-fpp -O0 -debug extended -traceback -g -check all,noarg_temp_created -warn all -fp-stack-check -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0" # -fpe-all=0 -no-ftz -ftrapuv"
+        export LDFLAGS="-O0"
+        OPTFLAG=""
+    else
+        # release
+        # export CFLAGS='-O2 -fpp -fp-model precise'
+        export CFLAGS="-fpp -O3 -nofixed -assume byterecl -fp-model precise -ip -diag-disable=10382"
+        export LDFLAGS="-O3"
+        OPTFLAG="-xCASCADELAKE"
+        # OPTFLAG="-xCORE-AVX2 -axSKYLAKE-AVX512,CASCADELAKE" # given in user training: does not work
+        # OPTFLAG="-xCASCADELAKE" # or -xCORE-AVX512;                           queues: express / normal
+        # OPTFLAG="-xBROADWELL"   # or -xCORE-AVX512;                           queues: expressbw / normalbw
+        # OPTFLAG="-xSKYLAKE"     # or -xSKYLAKE-AVX512 depends on performance; queues: normalsl
+    fi
+    export CFLAGS="${CFLAGS} ${OPTFLAG}"
+    export CFLAGS="${CFLAGS} -D__MPI__"
+    #export CFLAGS="${CFLAGS} -D__CRU2017__"
+    export CFLAGS="${CFLAGS} -D__NETCDF3__"
+    export LDFLAGS="-L"${NCDIR}" "${LDFLAGS}
+    export LD="-lnetcdf -lnetcdff"
+    export MFLAGS="-j 8"
+    build_build
+    cd ../
+    build_status
 }
 
 
@@ -102,7 +103,7 @@ host_pear()
     export CFLAGS="${CFLAGS} -D__NETCDF3__"
 
     #   export CFLAGS='-O0 -fp-model precise -g -debug all -traceback -fpe0 '
-       #export CFLAGS='  -g -debug -traceback -fp-stack-check -O0 -debug -fpe0 -no-ftz -ftrapuv'
+    #export CFLAGS='  -g -debug -traceback -fp-stack-check -O0 -debug -fpe0 -no-ftz -ftrapuv'
 
     # best debug flags
     #   export LDFLAGS='-g -L'$NCDIR  #'-L'$NCDIR' -O2'
@@ -184,6 +185,119 @@ host_mcin()
         export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__"
         export LD=""
         export NCROOT="/usr/local/netcdf-fortran-4.4.5-gfortran"
+        export cdir=".mpitmp-gfortran"
+        export PROG=cable-mpi-gfortran
+    elif [[ ${inag} -eq 1 ]] ;  then
+        # NAG
+        export FC=/usr/local/openmpi-3.1.5-nagfor/bin/mpifort
+        # release
+        export CFLAGS="-O4"
+        export LDFLAGS="-O4"
+        OPTFLAG=
+        if [[ ${idebug} -eq 1 ]] ; then
+            # debug
+            # export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline"
+            # set runtime environment variables: export NAGFORTRAN_RUNTIME_OPTIONS=show_dangling
+            export CFLAGS="-C=alias -C=array -C=bits -C=dangling -C=do -C=intovf -C=present -C=pointer -C=recursion -g -nan -O0 -strict95 -gline"
+            export LDFLAGS="-O0"
+            OPTFLAG=
+        fi
+        export CFLAGS="${CFLAGS} -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -not_openmp"
+        export CFLAGS="${CFLAGS} -mismatch"
+        export CFLAGS="${CFLAGS} -D__NAG__"
+        export LD="-ideclient -unsharedrts"
+        export NCROOT="/usr/local/netcdf-fortran-4.4.5-nagfor"
+        export cdir=".mpitmp-nagfor"
+        export PROG=cable-mpi-nagfor
+    fi
+
+    # All compilers
+    export CFLAGS="${CFLAGS} ${OPTFLAG}"
+    export CFLAGS="${CFLAGS} -D__MPI__"
+    export CFLAGS="${CFLAGS} -D__CRU2017__"
+    export CFLAGS="${CFLAGS} -D__NETCDF3__"
+    # export CFLAGS="${CFLAGS} -D__C13DEBUG__"
+
+    export NCCROOT="/usr/local"
+    export NCCLIB=${NCCROOT}"/lib"
+    export NCLIB=${NCROOT}"/lib"
+    export NCMOD=${NCROOT}"/include"
+    export LDFLAGS="-L${NCLIB} -lnetcdff -L${NCCLIB} -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz "${LDFLAGS}
+    export dosvn=0
+    export MFLAGS="-j 8"
+    build_build ${cdir} ${PROG}
+    cd ../
+    build_status ${cdir} ${PROG}
+}
+
+
+host_mc16()
+{
+    idebug=0
+    iintel=0
+    ignu=1
+    inag=0
+    np=$#
+    for ((i=0; i<${np}; i++)) ; do
+        if [[ "${1}" == "debug" ]] ; then
+            idebug=1
+            shift 1
+        elif [[ "${1}" == "ifort" || "${1}" == "intel" ]] ; then
+            iintel=1
+            ignu=0
+            inag=0
+            shift 1
+        elif [[ "${1}" == "gfortran" || "${1}" == "gnu" ]] ; then
+            iintel=0
+            ignu=1
+            inag=0
+            shift 1
+        elif [[ "${1}" == "nagfor" || "${1}" == "nag" ]] ; then
+            iintel=0
+            ignu=0
+            inag=1
+            shift 1
+        else
+            echo "Error: command line option not known: " ${1}
+            exit 1
+        fi
+    done
+    if [[ ${iintel} -eq 1 ]] ;  then
+        # INTEL
+        /opt/intel/compilers_and_libraries/mac/bin/compilervars.sh intel64
+        export FC=/usr/local/openmpi-3.1.5-ifort/bin/mpifort
+        # release
+        export CFLAGS="-fpp -O3 -nofixed -assume byterecl -fp-model precise -ip -diag-disable=10382"
+        export LDFLAGS="-O3"
+        OPTFLAG="-xHost"
+        if [[ ${idebug} -eq 1 ]] ; then
+            # debug
+            export CFLAGS="-fpp -O0 -debug extended -traceback -g -check all,noarg_temp_created -warn all -fp-stack-check -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0" # -fpe-all=0 -no-ftz -ftrapuv -init=arrays,snan
+            export LDFLAGS="-O0"
+            OPTFLAG=
+        fi
+        export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
+        export LD=""
+        export NCROOT="/usr/local/netcdf-fortran-4.4.5-ifort"
+        export cdir=".mpitmp-ifort"
+        export PROG=cable-mpi-ifort
+    elif [[ ${ignu} -eq 1 ]] ;  then
+        # GFORTRAN
+        export FC=/usr/local/openmpi-4.0.4-gfortran/bin/mpifort
+        # release
+        export CFLAGS="-cpp -O3 -Wno-aggressive-loop-optimizations -ffree-form -ffixed-line-length-132 -frecursive"
+        export LDFLAGS="-O3"
+        OPTFLAG="-march=native"
+        if [[ ${idebug} -eq 1 ]] ; then
+            # debug
+            export CFLAGS="-cpp -O -g -pedantic-errors -Wall -W -Wno-maybe-uninitialized -ffree-form -ffixed-line-length-132 -frecursive -fbacktrace -ffpe-trap=zero,overflow -finit-real=nan" #  -ffpe-trap=zero,overflow,underflow
+            export LDFLAGS="-O"
+            OPTFLAG=
+        fi
+        # export CFLAGS="${CFLAGS} -march=native"
+        export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__"
+        export LD=""
+        export NCROOT="/usr/local/netcdf-fortran-4.5.3-gfortran"
         export cdir=".mpitmp-gfortran"
         export PROG=cable-mpi-gfortran
     elif [[ ${inag} -eq 1 ]] ;  then
@@ -340,93 +454,121 @@ clean_build()
 }
 
 
+# returns the index of the first appearance of
+# the first argument string in the rest of the arguments.
+# returns -1 if not present.
+# Can return 0, i.e. script exists if set -e
+iisin()
+{
+    tofind=${1}
+    shift
+    ii=0
+    lauf=-1
+    for i in $@ ; do
+        (( lauf = lauf + 1 ))
+        if [[ ${i} == ${tofind} ]] ; then
+            ii=${lauf}
+            break
+        fi
+    done
+    echo ${ii}
+}
+
+
 do_i_no_u()
 {
-   if [ -z ${PS3} ] ; then
-       kmax=${#kh[*]}
-       k=0
-   else
-       integer kmax=${#kh[*]}
-       integer k=0
-   fi
-   typeset -f subr
+    if [ -z ${PS3} ] ; then
+        kmax=${#kh[*]}
+        k=0
+    else
+        integer kmax=${#kh[*]}
+        integer k=0
+    fi
+    typeset -f subr
 
-   while [[ $k -lt $kmax ]] ; do
-      if [[ $HOST_MACH = ${kh[$k]} || ${domain} = ${kd[$k]} ]] ; then
-         echo 'Host recognized as' $HOST_MACH
-         subr=host_${kh[$k]}
-         $subr $*
-      fi
-      (( k = k + 1 ))
-   done
+    ii=`iisin ${HOST_MACH} ${kh[*]}`
+    if [[ ${ii} -gt 0 ]] ; then
+        echo 'Host recognized as' ${HOST_MACH}
+        subr=host_${kh[$ii]}
+    else
+        ii=`iisin ${domain} ${kd[*]}`
+        if [[ ${ii} -gt 0 ]] ; then
+            echo 'Domain recognized as' ${domain}
+            subr=host_${kd[$ii]}
+        else
+            echo "Neither host nor domain recognized: host ${HOST_MACH} and domain ${domain}."
+            exit
+        fi
+    fi
+    ${subr} $*
 }
 
 
 build_status()
 {
-   if [[ $# -gt 0 ]] ; then export cdir="${1}" ; else export cdir='.mpitmp' ; fi
-   if [[ $# -gt 1 ]] ; then export PROG="${2}" ; else export PROG='cable-mpi' ; fi
+    if [[ $# -gt 0 ]] ; then export cdir="${1}" ; else export cdir='.mpitmp' ; fi
+    if [[ $# -gt 1 ]] ; then export PROG="${2}" ; else export PROG='cable-mpi' ; fi
 
-   if [[ -f ${cdir}/${PROG} ]]; then
+    if [[ -f ${cdir}/${PROG} ]]; then
         mv ${cdir}/${PROG} .
         print '\nBUILD OK\n'
-   else
-      print '\nOooops. Something went wrong\n'
-      print '\nKnown build issues:\n'
-      print '\nSome systems require additional library. \n'
-      print '\nEdit Makefile_offline; add -lnetcdff to LD = ...\n'
-   fi
+    else
+        print '\nOooops. Something went wrong\n'
+        print '\nKnown build issues:\n'
+        print '\nSome systems require additional library. \n'
+        print '\nEdit Makefile_offline; add -lnetcdff to LD = ...\n'
+    fi
 
-   exit
+    exit
 }
 
 
 build_build()
 {
-   if [[ ${dosvn} -eq 1 ]] ; then
-       # write file for consumption by Fortran code
-       # get SVN revision number
-       CABLE_REV=`svn info | grep Revis |cut -c 11-18`
-       if [[ $CABLE_REV = "" ]]; then
-           echo "this is not an svn checkout"
-           CABLE_REV=0
-           echo "setting CABLE revision number to " $CABLE_REV
-       fi
-       print $CABLE_REV > ~/.cable_rev
-       # get SVN status
-       CABLE_STAT=`svn status`
-       print $CABLE_STAT >> ~/.cable_rev
-   fi
+    if [[ ${dosvn} -eq 1 ]] ; then
+        # write file for consumption by Fortran code
+        # get SVN revision number
+        CABLE_REV=`svn info | grep Revis |cut -c 11-18`
+        if [[ $CABLE_REV = "" ]]; then
+            echo "this is not an svn checkout"
+            CABLE_REV=0
+            echo "setting CABLE revision number to " $CABLE_REV
+        fi
+        print $CABLE_REV > ~/.cable_rev
+        # get SVN status
+        CABLE_STAT=`svn status`
+        print $CABLE_STAT >> ~/.cable_rev
+    fi
 
-   if [[ $# -gt 0 ]] ; then export cdir="${1}" ; else export cdir='.mpitmp' ; fi
-   if [[ $# -gt 1 ]] ; then export PROG="${2}" ; else export PROG='cable-mpi' ; fi
+    if [[ $# -gt 0 ]] ; then export cdir="${1}" ; else export cdir='.mpitmp' ; fi
+    if [[ $# -gt 1 ]] ; then export PROG="${2}" ; else export PROG='cable-mpi' ; fi
 
-   if [[ ! -d ${cdir} ]]; then
-      mkdir ${cdir}
-   fi
+    if [[ ! -d ${cdir} ]]; then
+        mkdir ${cdir}
+    fi
 
-   if [[ -f ${PROG} ]]; then
-      print '\ncable-mpi executable exists. copying to a dated backup file\n'
-      mv ${PROG} ${PROG}.`date +%d.%m.%y`
-   fi
+    if [[ -f ${PROG} ]]; then
+        print '\ncable-mpi executable exists. copying to a dated backup file\n'
+        mv ${PROG} ${PROG}.`date +%d.%m.%y`
+    fi
 
-   # directories contain source code
-   PHYS="../core/biogeophys"
-   UTIL="../core/utils"
-   DRV="."
-   CASA="../core/biogeochem"
-   BLAZE="../core/blaze"
+    # directories contain source code
+    PHYS="../core/biogeophys"
+    UTIL="../core/utils"
+    DRV="."
+    CASA="../core/biogeochem"
+    BLAZE="../core/blaze"
 
-   /bin/cp -p $PHYS/*90  ./${cdir}
-   /bin/cp -p $UTIL/*90  ./${cdir}
-   /bin/cp -p $DRV/*90   ./${cdir}
-   /bin/cp -p $CASA/*90  ./${cdir}
-   /bin/cp -p $BLAZE/*90 ./${cdir}
+    /bin/cp -p $PHYS/*90  ./${cdir}
+    /bin/cp -p $UTIL/*90  ./${cdir}
+    /bin/cp -p $DRV/*90   ./${cdir}
+    /bin/cp -p $CASA/*90  ./${cdir}
+    /bin/cp -p $BLAZE/*90 ./${cdir}
 
-   /bin/cp -p Makefile_mpi ./${cdir}
+    /bin/cp -p Makefile_mpi ./${cdir}
 
-   cd ${cdir}/
-   make -f Makefile_mpi ${MFLAGS} PROG=${PROG}
+    cd ${cdir}/
+    make -f Makefile_mpi ${MFLAGS} PROG=${PROG}
 }
 
 

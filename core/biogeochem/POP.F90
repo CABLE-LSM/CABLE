@@ -44,13 +44,13 @@ MODULE TypeDef
   INTEGER,PARAMETER :: i4b = SELECTED_INT_KIND(9)
   INTEGER,PARAMETER :: i2b = SELECTED_INT_KIND(4)
   INTEGER,PARAMETER :: i1b = SELECTED_INT_KIND(2)
-  
+
   ! Define single and double precision real kind parameters:
   ! * Kind(1.0)   defines sp as the machine's default size for single precision
   ! * Kind(1.0d0) defines dp as the machine's default size for double precision
   INTEGER,PARAMETER :: sp  = KIND(1.0)
   INTEGER,PARAMETER :: dp  = KIND(1.0d0)
-  
+
   ! lgt is set to the default kind required for representing logical values.
   INTEGER,PARAMETER :: lgt = KIND(.TRUE.)
 
@@ -61,7 +61,7 @@ END MODULE TypeDef
 
 
 MODULE POP_Constants
-  
+
   USE TYPEdef, ONLY: dp, i4b
 
   IMPLICIT NONE
@@ -135,7 +135,7 @@ MODULE POP_Constants
   INTEGER(i4b), PARAMETER :: NYEAR_WINDOW  = 5                  ! one-side of smoothing window (y)
   INTEGER(i4b), PARAMETER :: NYEAR_SMOOTH  = 2*NYEAR_WINDOW + 1 ! smoothing window (y)
   INTEGER(i4b), PARAMETER :: NYEAR_HISTORY = NYEAR_SMOOTH-NYEAR_WINDOW
-  INTEGER(i4b), PARAMETER :: AGEMAX = 1000 
+  INTEGER(i4b), PARAMETER :: AGEMAX = 1000
 
 END MODULE POP_Constants
 
@@ -431,7 +431,7 @@ CONTAINS
              POP%pop_grid(g)%patch(k)%Layer(L)%density = 0.0_dp ! layer tree density
              POP%pop_grid(g)%patch(k)%Layer(L)%hmean   = 0.0_dp ! layer mean tree height (weighted mean over patches)
              POP%pop_grid(g)%patch(k)%Layer(L)%hmax    = 0.0_dp ! layer max tree height
-             
+
              DO c=1, NCOHORT_MAX
                 POP%pop_grid(g)%patch(k)%Layer(L)%cohort(c)%id                   = 0
                 POP%pop_grid(g)%patch(k)%Layer(L)%cohort(c)%age                  = 0      ! cohort age
@@ -456,19 +456,19 @@ CONTAINS
                 POP%pop_grid(g)%patch(k)%Layer(L)%cohort(c)%Cleaf                = 0.0_dp
                 POP%pop_grid(g)%patch(k)%Layer(L)%cohort(c)%Croot                = 0.0_dp
              ENDDO ! NCOHORT_MAX
-             
+
           ENDDO ! NLAYER
-          
+
        ENDDO ! NPATCH2D
-       
+
     ENDDO ! pop_grid%np
 
   END SUBROUTINE ZeroPOP
 
-  
+
   !*******************************************************************************
 
-  
+
   SUBROUTINE InitPOP2D_Poisson(POP, mean_disturbance_interval, m)
     ! Initialises vector of patches with maximum age correpondding to 95% of pdf
     ! Starting year: uniform distribution up to maximum age
@@ -478,7 +478,7 @@ CONTAINS
     TYPE(POP_TYPE), INTENT(INOUT) :: POP
     INTEGER(i4b),   INTENT(IN)    :: mean_disturbance_interval(:,:)
     INTEGER(i4b),   INTENT(IN), optional :: m
-    
+
     INTEGER(i4b) :: j, k, g, ipatch, idist, p, c, i
     INTEGER(i4b) :: disturbance_interval
     INTEGER(i4b):: Poisson_age(1000)
@@ -488,7 +488,7 @@ CONTAINS
     REAL(dp):: disturbance_freq
     INTEGER:: tmp2(PATCH_REPS1), tmp3(PATCH_REPS2)
     INTEGER:: a,b
-    
+
     np = SIZE(POP%pop_grid)
     a = 1
     b = np
@@ -605,13 +605,13 @@ CONTAINS
 
   END SUBROUTINE InitPOP2D_Poisson
 
-  
+
   !*******************************************************************************
 
-  
+
   SUBROUTINE POPStep(POP, StemNPP, disturbance_interval, disturbance_intensity,LAI,Cleaf,Croot, &
        NPPtoGPP, StemNPP_av,frac_intensity1,precip)
-    
+
     IMPLICIT NONE
 
     TYPE(POP_TYPE), INTENT(INOUT) :: POP
@@ -634,8 +634,8 @@ CONTAINS
     np = SIZE(POP%POP_grid)
     allocate(it(np))
 
-    do g=1,np
-       it(g) =  maxval(pop%pop_grid(g)%patch(:)%age(1)) + 1
+    do g=1, np
+       it(g) = maxval(pop%pop_grid(g)%patch(:)%age(1)) + 1
     enddo
     ! DO idisturb = 1,NDISTURB
     !    CALL GetUniqueAgeFrequencies(POP, disturbance_interval, idisturb)
@@ -695,10 +695,10 @@ CONTAINS
 
   END SUBROUTINE POPStep
 
-  
+
   !*******************************************************************************
 
-  
+
   SUBROUTINE PatchAnnualDynamics(pop, StemNPP, NPPtoGPP, it, StemNPP_av, precip)
 
     IMPLICIT NONE
@@ -961,7 +961,7 @@ CONTAINS
              IF ( PRESENT(precip) ) THEN
                 CALL GET_ALLOMETRY( ALLOM_SWITCH,  cmass_stem, densindiv, ht, diam, basal_new, precip(j))
              ELSE
-                
+
                 CALL GET_ALLOMETRY( ALLOM_SWITCH,  cmass_stem, densindiv, ht, diam, basal_new )
              ENDIF
 
@@ -1145,17 +1145,17 @@ CONTAINS
 
   END SUBROUTINE PatchAnnualDynamics
 
-  
+
   !*******************************************************************************
 
-  
+
   SUBROUTINE GetUniqueAgeFrequencies(pop, disturbance_interval, idisturb)
-    
+
     IMPLICIT NONE
 
     TYPE(POP_TYPE), INTENT(INOUT) :: POP
     INTEGER(i4b), INTENT(IN) ::  disturbance_interval(:,:), idisturb
-    
+
     INTEGER(i4b) :: g, i,j,k,agecopy,idcopy
     REAL(dp), ALLOCATABLE :: midpoint(:)
     INTEGER(i4b), ALLOCATABLE :: ranked_age(:), ranked_age_init(:)
@@ -1290,16 +1290,16 @@ CONTAINS
 
   END SUBROUTINE GetUniqueAgeFrequencies
 
-  
+
   !*******************************************************************************
 
-  
+
   SUBROUTINE GetPatchFrequencies(pop)
-    
+
     IMPLICIT NONE
 
     TYPE(POP_TYPE), INTENT(INOUT) :: POP
-    
+
     INTEGER(i4b) :: n1, n2, g, REPCOUNT, np, idist
     REAL(dp) ::  sum_freq
 
@@ -1351,15 +1351,15 @@ CONTAINS
 
   END SUBROUTINE GetPatchFrequencies
 
-  
+
   !*******************************************************************************
 
-  
+
   SUBROUTINE GetDiagnostics(pop,LAI,Cleaf,Croot,disturbance_interval, it, precip)
     ! Gets diagnostic data for current landscape structure
-    
+
     IMPLICIT NONE
-    
+
     TYPE(POP_TYPE), INTENT(INOUT) :: POP
     REAL(dp), INTENT(IN) ::  LAI(:)
     REAL(dp), INTENT(IN) ::  Cleaf(:)
@@ -1388,19 +1388,16 @@ CONTAINS
     IF(.NOT.ALLOCATED(limits_highres)) ALLOCATE(limits_highres(HEIGHT_BINS_highres+1))
     IF(.NOT.ALLOCATED(DENSINDIV_HIGHRES)) ALLOCATE(DENSINDIV_HIGHRES(HEIGHT_BINS_highres))
 
-
     limits_highres(1) = 0.0_dp
     np = SIZE(Pop%pop_grid)
 
-    DO g=1,np
+    DO g=1, np
        npatch_active = NPATCH2D
        IF (MAX_HEIGHT_SWITCH.EQ.1) THEN
           ALLOCATE(height_list(NPATCH2D*NCOHORT_MAX))
           ALLOCATE(height_list_weight(NPATCH2D*NCOHORT_MAX))
        ENDIF
        !  IF(.NOT.ALLOCATED(MASK)) ALLOCATE(MASK(POP%pop_grid%npatch_active))
-
-
 
        DO i=1,HEIGHT_BINS
           limits(i+1) = BIN_POWER**REAL(i,dp)
@@ -1499,11 +1496,8 @@ CONTAINS
                 IF (ht.GT.limits_highres(j)) ct_highres = j
              ENDDO ! bins
 
-
-
              pop%pop_grid(g)%patch(p)%layer(1)%biomass = pop%pop_grid(g)%patch(p)%layer(1)%biomass + cmass_stem
              pop%pop_grid(g)%patch(p)%layer(1)%density = pop%pop_grid(g)%patch(p)%layer(1)%density + densindiv
-
 
              IF (diam*100.0_dp .GT. 1.0_dp) THEN
                 patch_crown_area(p) = patch_crown_area(p) + densindiv*PI*(diam*100.0_dp*0.1492_dp)**2 ! uses GC relationship
@@ -1775,10 +1769,10 @@ CONTAINS
 
   END SUBROUTINE GetDiagnostics
 
-  
+
   !*******************************************************************************
 
-  
+
   SUBROUTINE Patch_partial_disturb(pop,idisturb,intensity,frac_intensity1)
 
     IMPLICIT NONE
@@ -1787,7 +1781,7 @@ CONTAINS
     INTEGER(i4b), INTENT(IN) ::  idisturb
     REAL(dp), INTENT(IN) :: intensity(:,:)
     REAL(dp), INTENT(IN), OPTIONAL :: frac_intensity1(:)
-    
+
     INTEGER(i4b) :: j, k, c, nc, np
     INTEGER(i4b) ::  ivec(NCOHORT_MAX)
     REAL(dp) :: ht, diam
@@ -1906,9 +1900,9 @@ CONTAINS
 
   END SUBROUTINE Patch_partial_disturb
 
-  
+
   !*******************************************************************************
-  
+
 
   SUBROUTINE Patch_partial_disturb2(pop,idisturb)
 
@@ -1916,7 +1910,7 @@ CONTAINS
 
     TYPE(POP_TYPE), INTENT(INOUT) :: POP
     INTEGER(i4b), INTENT(IN) ::  idisturb
-    
+
     INTEGER(i4b) :: j, k, c, nc, np
     INTEGER(i4b) ::  ivec(NCOHORT_MAX)
     REAL(dp) :: Psurvival, frac_mort, Pmort
@@ -2011,10 +2005,10 @@ CONTAINS
 
   END SUBROUTINE Patch_partial_disturb2
 
-  
+
   !*******************************************************************************
 
-  
+
   SUBROUTINE Patch_disturb(pop,idisturb,precip)
     IMPLICIT NONE
 
@@ -2124,10 +2118,10 @@ CONTAINS
 
   END SUBROUTINE Patch_disturb
 
-  
+
   !*******************************************************************************
 
-  
+
   SUBROUTINE  layer_recruitment(pop,precip)
 
     IMPLICIT NONE
@@ -2155,7 +2149,7 @@ CONTAINS
           densindiv=DENSINDIV_MAX*mu + pop%pop_grid(j)%patch(k)%fire_top_kill_density
           cmass=CMASS_STEM_INIT*densindiv/DENSINDIV_MAX
 
-          !write(5599,*),  pop%pop_grid(j)%patch(k)%fire_top_kill_density,  densindiv, pop%pop_grid(j)%patch(k)%Layer(1)%ncohort 
+          !write(5599,*),  pop%pop_grid(j)%patch(k)%fire_top_kill_density,  densindiv, pop%pop_grid(j)%patch(k)%Layer(1)%ncohort
           !COMMLN below: should not be cohort +1 or .LE. !
           IF (cmass>EPS*10.0_dp .AND. densindiv>DENSINDIV_MIN .AND. &
                (pop%pop_grid(j)%patch(k)%Layer(1)%ncohort+1).LT.NCOHORT_MAX) THEN
@@ -2182,11 +2176,11 @@ CONTAINS
     ENDDO
 
   END SUBROUTINE layer_recruitment
-  
+
 
   !*******************************************************************************
 
-  
+
   SUBROUTINE  layer_recruitment_single_patch(pop, index, grid_index,precip)
 
     IMPLICIT NONE
@@ -2194,7 +2188,7 @@ CONTAINS
     TYPE(POP_TYPE), INTENT(INOUT)  :: POP
     REAL(dp), INTENT(IN), OPTIONAL :: precip(:)
     INTEGER(i4b), INTENT(IN) :: index, grid_index
-    
+
     REAL(dp) :: f, mu, densindiv, cmass, ht
     INTEGER(i4b) :: j, k, ncohort, np
     REAL(dp) :: diam,basal
@@ -2344,7 +2338,7 @@ CONTAINS
 #ifdef __MPI__
     integer :: ierr
 #endif
-    
+
     ! Standard Allometry
     IF (ALLOM_SWITCH.EQ.0) THEN
        ht   = (Kbiometric**(3.0_dp/4.0_dp))*(4.0_dp*biomass/(max(density,1.0e-5_dp)*WD*PI))**(1.0_dp/4.0_dp)
@@ -2439,10 +2433,10 @@ CONTAINS
 
   END FUNCTION GetHeight
 
-  
+
   !*******************************************************************************
 
-  
+
   SUBROUTINE INTERPOLATE_BIOMASS_1D(pop, disturbance_interval,it,g)
     IMPLICIT NONE
 
@@ -2481,7 +2475,7 @@ CONTAINS
           IF (pop%pop_grid(g)%freq_age(iage)>0) THEN
              EXIT
           ELSE
-             nage = nage - 1 
+             nage = nage - 1
           ENDIF
        ENDDO
     ENDIF
@@ -2558,7 +2552,7 @@ CONTAINS
           growth_age(iage) =  &
                SUM(pop%pop_grid(g)%patch(:)%growth,MASK)/SUM(tmp_array)
           csapwood_age(iage) = SUM(pop%pop_grid(g)%patch(:)%sapwood,MASK)/SUM(tmp_array)
-          sapwood_area_age(iage) = & 
+          sapwood_area_age(iage) = &
                SUM(pop%pop_grid(g)%patch(:)%sapwood_area,MASK)/SUM(tmp_array)
           stress_mort_age(iage)= &
                SUM(pop%pop_grid(g)%patch(:)%stress_mortality,MASK)/SUM(tmp_array)
@@ -2691,10 +2685,10 @@ CONTAINS
        POP%pop_grid(g)%sapwood_area =  POP%pop_grid(g)%sapwood_area + &
             freq_age(iage)*sapwood_area_age(iage)
 
-!!$if (g==2) then 
+!!$if (g==2) then
 !!$write(71, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage), growth_age(iage),  stress_mort_age(iage), &
 !!$ crowd_mort_age(iage), tmp_min, tmp_max, real(age_max_growth), real(age_min_growth)
-!!$endif 
+!!$endif
 
 !!$if (g==2) write(72, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage)
 !!$if (g==1) write(71, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage)
@@ -2706,16 +2700,16 @@ CONTAINS
        pop%pop_grid(g)%biomass_age(iage) = cmass_age(iage)
     enddo
 
-    
+
     POP%pop_grid(g)%cat_mortality = POP%pop_grid(g)%growth - &
          POP%pop_grid(g)%stress_mortality - &
          POP%pop_grid(g)%crowding_mortality - &
          ( POP%pop_grid(g)%cmass_sum- POP%pop_grid(g)%cmass_sum_old)
 
-    
+
     POP%pop_grid(g)%fire_mortality = 0.0_dp
     POP%pop_grid(g)%res_mortality  = 0.0_dp
-    
+
 !!$if (g==4) then
 !!$   write(*,*) 'it, nage, growth', it, nage
 !!$write(*,*) 'patch biomass', pop%pop_grid(g)%patch(1:5)%layer(1)%biomass
@@ -2734,10 +2728,10 @@ CONTAINS
 
   END SUBROUTINE INTERPOLATE_BIOMASS_1D
 
-  
+
   !*******************************************************************************
 
-  
+
   SUBROUTINE INTERPOLATE_FIREMORTALITY(pop, disturbance_interval,it,g)
     IMPLICIT NONE
 
@@ -2767,7 +2761,7 @@ CONTAINS
           IF (pop%pop_grid(g)%freq_age(iage)>0) THEN
              EXIT
           ELSE
-             nage = nage - 1 
+             nage = nage - 1
           ENDIF
        ENDDO
     ENDIF
@@ -2879,17 +2873,17 @@ CONTAINS
             freq_age(iage)*fire_mort_age(iage)
 
     enddo
-    
+
     DEALLOCATE(age)
     DEALLOCATE(freq_age)
     DEALLOCATE(fire_mort_age)
 
   END SUBROUTINE INTERPOLATE_FIREMORTALITY
 
-  
+
   !*******************************************************************************
 
-  
+
   SUBROUTINE ADJUST_POP_FOR_FIRE(pop,disturbance_interval, burned_area, FLI)
     ! reduces biomass on a cohort basis according to mortality vs dbh function
     ! interpolates patch-based fire mortality to get grid-cell mortality
@@ -2908,14 +2902,14 @@ CONTAINS
     DO g=1,np
        POP%pop_grid(g)%fire_mortality = 0.0_dp
 
-       
-       
+
+
        if (burned_area(g) > 0.0_dp) then
 
           it = maxval(pop%pop_grid(g)%patch(:)%age(1)) + 1
           DO k=1,NPATCH
              nc = pop%pop_grid(g)%patch(k)%Layer(1)%ncohort
-             
+
              pop%pop_grid(g)%patch(k)%fire_mortality = 0.0_dp
              DO c=1,nc
 
@@ -2933,7 +2927,7 @@ CONTAINS
                      pop%pop_grid(g)%patch(k)%Layer(1)%cohort(c)%heartwood *(1.0_dp-mort)
                 pop%pop_grid(g)%patch(k)%Layer(1)%cohort(c)%sapwood =  &
                      pop%pop_grid(g)%patch(k)%Layer(1)%cohort(c)%sapwood *(1.0_dp-mort)
-               
+
                 pop%pop_grid(g)%patch(k)%fire_top_kill_density = &
                      pop%pop_grid(g)%patch(k)%fire_top_kill_density + &
                      pop%pop_grid(g)%patch(k)%Layer(1)%cohort(c)%density *mort
@@ -2941,45 +2935,45 @@ CONTAINS
                 pop%pop_grid(g)%patch(k)%Layer(1)%cohort(c)%density = &
                      pop%pop_grid(g)%patch(k)%Layer(1)%cohort(c)%density*(1.0_dp-mort)
 
-               
+
              ENDDO
 
-             
+
              nc = pop%pop_grid(g)%patch(k)%Layer(1)%ncohort
              pop%pop_grid(g)%patch(k)%biomass_old =  pop%pop_grid(g)%patch(k)%Layer(1)%biomass
              pop%pop_grid(g)%patch(k)%Layer(1)%biomass = &
                   SUM(pop%pop_grid(g)%patch(k)%Layer(1)%cohort(1:nc)%biomass)
-             
+
              ! need to remove cohorts with very low density?
              ! This will get done at the end of the year anyway
-              
+
           ENDDO
-        
+
 
        ENDIF
        ! INTREPOLATE amongst patches to get total biomass lost to fire
-       ! creates new value for  POP%pop_grid(g)%fire_mortality 
+       ! creates new value for  POP%pop_grid(g)%fire_mortality
        CALL INTERPOLATE_FIREMORTALITY(pop, disturbance_interval,it,g)
-       
+
        POP%pop_grid(g)%cmass_sum = POP%pop_grid(g)%cmass_sum - POP%pop_grid(g)%fire_mortality
-      
-              
+
+
 
      ENDDO
-     
+
    END SUBROUTINE ADJUST_POP_FOR_FIRE
 
-   
+
    !*******************************************************************************
 
-   
+
 SUBROUTINE INTERPOLATE_BIOMASS_2D(pop, disturbance_interval,it,g)
 
      use mo_utils, only: eq
 #ifdef __MPI__
      use mpi, only: MPI_Abort
 #endif
-     
+
 IMPLICIT NONE
 
 TYPE(POP_TYPE), INTENT(INOUT) :: POP
@@ -3402,15 +3396,16 @@ END SUBROUTINE INTERPOLATE_BIOMASS_2D
 
 !******************************************************************************
 
+
 SUBROUTINE SMOOTH_FLUX(POP,g,t)
 
   IMPLICIT NONE
 
   TYPE(POP_TYPE), INTENT(INOUT) :: POP
   INTEGER(i4b),   INTENT(IN)    :: g, t
-  
+
   INTEGER(i4b), PARAMETER :: SPAN = NYEAR_WINDOW
-  REAL(dp) :: x(SPAN+1), y(SPAN+1), a, b, r
+  REAL(dp) :: x(NYEAR_SMOOTH), y(NYEAR_SMOOTH), a, b, r
   REAL(dp) :: sumflux, sumsmooth, flux(NYEAR_HISTORY), smoothed_flux
   REAL(dp) :: dbuf
   INTEGER(i4b) :: t0, tt, n, k
@@ -3429,12 +3424,11 @@ SUBROUTINE SMOOTH_FLUX(POP,g,t)
   n = 0
   sumflux   = 0.0_dp
   sumsmooth = 0.0_dp
-
-  DO tt = 1,NYEAR_SMOOTH
+  DO tt=1, NYEAR_SMOOTH
      IF ((t0+tt).GE.1 .AND. (t0+tt).LE.t+1) THEN
         sumflux = sumflux + flux(t0+tt)
         y(tt) = flux(t0+tt)
-        x(tt) = tt
+        x(tt) = real(tt,dp)
         n = n+1
         IF ((t0+tt).eq.t+1) THEN
            CALL regress(x,y,n,a,b,r)
@@ -3445,10 +3439,9 @@ SUBROUTINE SMOOTH_FLUX(POP,g,t)
      ENDIF
   ENDDO
 
-  dbuf =POP%pop_grid(g)%smoothing_buffer/(real(NYEAR_SMOOTH,dp)/2.0_dp)
-  smoothed_flux=max(sumflux/real(n)+dbuf, 0.0_dp)
+  dbuf = POP%pop_grid(g)%smoothing_buffer / (real(NYEAR_SMOOTH,dp)/2.0_dp)
+  smoothed_flux = max(sumflux/real(n)+dbuf, 0.0_dp)
   POP%pop_grid(g)%smoothing_buffer = POP%pop_grid(g)%smoothing_buffer + flux(t) - smoothed_flux
-  
   POP%pop_grid(g)%fire_mortality_smoothed = smoothed_flux
 
 END SUBROUTINE SMOOTH_FLUX
@@ -3464,13 +3457,13 @@ SUBROUTINE SMOOTH_FLUX_cat(POP,g,t)
   TYPE(POP_TYPE), INTENT(INOUT) :: POP
   INTEGER(i4b), INTENT(IN) :: g, t
   INTEGER(i4b), PARAMETER :: SPAN = NYEAR_WINDOW
-  REAL(dp) :: x(SPAN+1), y(SPAN+1), a, b, r
+  REAL(dp) :: x(NYEAR_SMOOTH), y(NYEAR_SMOOTH), a, b, r
   REAL(dp) :: sumflux, sumsmooth, flux(NYEAR_HISTORY), smoothed_flux
   REAL(dp) :: dbuf
   INTEGER(i4b) :: t0, tt, n, k
 
   ! update cat_mortality_history
-  
+
   IF (t.gt.NYEAR_HISTORY) THEN
      DO k = 1, NYEAR_HISTORY-1
         POP%pop_grid(g)%cat_mortality_history(k) = POP%pop_grid(g)%cat_mortality_history(k+1)
@@ -3483,12 +3476,11 @@ SUBROUTINE SMOOTH_FLUX_cat(POP,g,t)
   n = 0
   sumflux = 0.0_dp
   sumsmooth = 0.0_dp
-
   DO tt=1, NYEAR_SMOOTH
      IF ((t0+tt).GE.1 .AND. (t0+tt).LE.t+1) THEN
         sumflux = sumflux + flux(t0+tt-1)
         y(tt) = flux(t0+tt-1)
-        x(tt) = tt
+        x(tt) = real(tt, dp)
         n = n+1
         IF ((t0+tt).eq.t+1) THEN
            CALL regress(x,y,n,a,b,r)
@@ -3500,9 +3492,8 @@ SUBROUTINE SMOOTH_FLUX_cat(POP,g,t)
   ENDDO
 
   dbuf = POP%pop_grid(g)%smoothing_buffer_cat/(real(NYEAR_SMOOTH,dp)/2.0_dp)
-  smoothed_flux=max(sumflux/real(n)+dbuf, 0.0_dp)
+  smoothed_flux = max(sumflux/real(n)+dbuf, 0.0_dp)
   POP%pop_grid(g)%smoothing_buffer_cat = POP%pop_grid(g)%smoothing_buffer_cat + flux(t) - smoothed_flux
-  
   POP%pop_grid(g)%cat_mortality_smoothed = smoothed_flux
 
 END SUBROUTINE SMOOTH_FLUX_cat
@@ -3521,10 +3512,10 @@ SUBROUTINE REGRESS(x, y, n, a, b, r)
   REAL(dp)::  sx,sy,sxx,sxy,delta,meanx,meany,sdx,sdy
   INTEGER(i4b) :: i
 
-  !Performs a linear regression of array y on array x (n values)
+  ! Performs a linear regression of array y on array x (n values)
   ! returning parameters a and b in the fitted model: y=a+bx
   ! Source: Press et al 1986, Sect 14.2
-  !  also returns Pearson r
+  ! also returns Pearson r
 
   sx=0.0_dp
   sy=0.0_dp
@@ -3562,9 +3553,9 @@ END SUBROUTINE REGRESS
 
 
 REAL(dp) FUNCTION Area_Triangle(x1,y1,x2,y2,x3,y3)
-  
+
   IMPLICIT NONE
-  
+
   REAL(dp), INTENT(IN) :: x1, y1, x2, y2, x3, y3
 
   area_triangle = abs((x1*(y2-y3) + x2*(y3-y1)+ x3*(y1-y2))/2.0_dp)
@@ -3602,9 +3593,9 @@ END FUNCTION TopKill_Collins
 ! given height (m), stem biomass (kgC/m2) and tree population density (indiv/m2)
 
 SUBROUTINE Allometry(height,biomass,density,diam,basal)
-  
+
   IMPLICIT NONE
-  
+
   REAL(dp), INTENT(IN) :: height
   REAL(dp), INTENT(IN) :: biomass
   REAL(dp), INTENT(IN) :: density
@@ -3641,7 +3632,7 @@ END SUBROUTINE Allometry
     ! basal    : Basal area [m2/ha]
     REAL(dp), INTENT(IN) :: agbiomass, density
     REAL(dp), INTENT(OUT):: height, dbh, basal
-    
+
     REAL(dp), PARAMETER  :: beta0 = -2.3046_dp
     REAL(dp), PARAMETER  :: beta1 = 2.5243_dp
     REAL(dp), PARAMETER  :: gC2DM = 1.0_dp/0.49_dp  ! ratio Dry matter mass to g(C)
@@ -3658,15 +3649,15 @@ END SUBROUTINE Allometry
 
   END SUBROUTINE Williams_Allometry
 
-  
+
   !*******************************************************************************
 
-  
+
   SUBROUTINE POP_init(POP, disturbance_interval, np, Iwood, precip)
-    
+
     USE POP_types, ONLY: POP_TYPE
     USE TypeDef,   ONLY: i4b
-    
+
     IMPLICIT NONE
 
     TYPE(POP_TYPE), INTENT(INOUT) :: POP
@@ -3674,7 +3665,7 @@ END SUBROUTINE Allometry
     INTEGER(i4b),   INTENT(IN)    :: np
     INTEGER(i4b),   INTENT(IN)    :: Iwood(:)
     REAL(dp),       INTENT(IN), OPTIONAL :: precip(:)
-    
+
     INTEGER(i4b) :: j, k
 
     CALL alloc_POP(pop,int(np))
@@ -3683,9 +3674,9 @@ END SUBROUTINE Allometry
     POP%it_pop = 0
     ! POP%LU = 1  ! initialise to primary forest
     POP%pop_grid(:)%LU = 1
-    
+
     CALL ZeroPOP(pop)
-    
+
     CALL InitPOP2D_Poisson(pop, INT(disturbance_interval,i4b))
 
     DO j=1,np
@@ -3701,27 +3692,27 @@ END SUBROUTINE Allometry
 
   END SUBROUTINE POP_init
 
-  
+
   !*******************************************************************************
 
-  
+
   SUBROUTINE POP_init_single(POP, disturbance_interval, n, precip)
 
     USE POP_types, ONLY: POP_TYPE
     USE TypeDef,   ONLY: i4b
-    
+
     IMPLICIT NONE
 
     TYPE(POP_TYPE), INTENT(INOUT) :: POP
     INTEGER(i4b),   INTENT(IN)    :: disturbance_interval(:,:)
     INTEGER(i4b),   INTENT(IN)    :: n
     REAL(dp),       INTENT(IN), OPTIONAL :: precip(:)
-    
+
     INTEGER(i4b) :: j, k
-    
+
     POP%it_pop(n) = 0
     CALL ZeroPOP(pop, n)
-    
+
     CALL InitPOP2D_Poisson(pop, INT(disturbance_interval,i4b), n)
 
     DO j=n,n
@@ -3737,10 +3728,10 @@ END SUBROUTINE Allometry
 
   END SUBROUTINE POP_init_single
 
-  
+
   !*******************************************************************************
 
-  
+
   SUBROUTINE alloc_POP(POP, arraysize)
 
     USE POP_Types, Only: POP_TYPE
@@ -3758,7 +3749,7 @@ END SUBROUTINE Allometry
   END SUBROUTINE alloc_POP
 
   !*******************************************************************************
-  
+
 END MODULE POPModule
 
 !*******************************************************************************
