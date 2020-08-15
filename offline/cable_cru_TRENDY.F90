@@ -25,12 +25,12 @@ MODULE CABLE_CRU
     INTEGER :: NMET               ! Number of met variable types (rain, lwdn etc) NOT INCLUDING prevTmax and nextTmin
     INTEGER :: xdimsize, ydimsize ! Landmask grid size dimensions (x=cols, y=rows)
     INTEGER :: tdimsize           ! Time dimension of metfiles (met data timesteps per annual file)
-    INTEGER :: CYEAR              ! Current run year, same as CurYear, not necessarily the same as MetYear
-    INTEGER :: MetStart           ! First year of met
-    INTEGER :: MetEnd             ! Last year of met
-    INTEGER :: CTSTEP             ! Current met data timestep (1 to tdimsize, i.e. 365 for CRU-NCEP annual daily files)
-    INTEGER :: DTsecs             ! Model timestep in seconds, converted from namelist value in hours
-    INTEGER :: ktau               ! Current model timestep, reset at the start of a new year of met
+    INTEGER :: CYEAR              ! Current Run Year, Same As Curyear, Not Necessarily The Same As Metyear
+    Integer :: Metstart           ! First Year Of Met
+    Integer :: Metend             ! Last Year Of Met
+    Integer :: Ctstep             ! Current Met Data Timestep (1 To Tdimsize, I.E. 365 For Cru-Ncep Annual Daily Files)
+    Integer :: Dtsecs             ! Model Timestep In Seconds, Converted From Namelist Value In Hours
+    Integer :: Ktau               ! Current model timestep, reset at the start of a new year of met
     INTEGER :: metrecyc=20        ! number of years for the met recycling
     INTEGER, DIMENSION(9) :: F_ID, V_ID ! NetCDF object id's for files and variables (NetCDF bookkeeping stuff)
     ! Avg of one day's diurnal cycle of lwdn calculated by Swinbank. AVG_LWDN
@@ -42,7 +42,7 @@ MODULE CABLE_CRU
     LOGICAL :: LeapYears  ! Flag for whether leaps years occur, required by CABLE. Always false for CRUNCEP (no Feb 29th) 
     LOGICAL, DIMENSION(:,:), ALLOCATABLE :: LandMask ! Logical landmask, true for land, false for non-land
     !
-    CHARACTER(len=30)  :: Run            ! Where run type is      : "S0_TRENDY", "S1_TRENDY", "S2_TRENDY"
+    CHARACTER(len=30)  :: Run            ! Where run type is      : "S0_TRENDY", "S1_TRENDY", "S2-T_TRENDY"
     CHARACTER(len=15)  :: CO2            ! CO2 takes value        : "static1860", "1860_1900", "1901_2015" 
     CHARACTER(len=15)  :: Ndep           ! Ndep takes value        : "static1860", "1860_1900", "1901_2015"
     CHARACTER(len=15)  :: Forcing        ! Met Forcing takes value: "spinup",        "spinup", "1901_2015" 
@@ -723,10 +723,12 @@ CONTAINS
      !!$    ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY' ) THEN
      !!$      MetYear = CRU%CYEAR
      !!$    ENDIF
-     IF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY' .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' ) &
+     IF ((TRIM(CRU%Run) .EQ. 'S0_TRENDY') .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' ) &
           .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2') &
-          .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Ndep' )) THEN
+          .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Ndep' ) .OR. (INT(CRU%CYEAR).LT.1901)) THEN
+        
         MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,CRU%metrecyc)
+        print*, (INT(CRU%CYEAR).LT.1901) , Metyear
      ELSEIF  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Precip' .OR. &
           TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Precip'.OR. &
           TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Temp_Precip'.OR. &
