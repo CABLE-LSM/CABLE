@@ -468,6 +468,8 @@ CONTAINS
 
     ! Create a character version of the year for building that part of the filename.
     write(cy, fmt='(i4)') cyear
+!    write(cy,version of the year for building that part of the filename.                                    
+    write(cy,  fmt='(i4)')1901 + MOD(CRU%CYEAR-1691,CRU%metrecyc)
 
     ! Initialise the filename with the met path
     metp = trim(CRU%MetPath)
@@ -727,7 +729,7 @@ CONTAINS
           .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2') &
           .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Ndep' ) .OR. (INT(CRU%CYEAR).LT.1901)) THEN
         
-        MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,CRU%metrecyc)
+        MetYear = 1901 + MOD(CRU%CYEAR-1691,CRU%metrecyc)
         print*, (INT(CRU%CYEAR).LT.1901) , Metyear
      ELSEIF  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Precip' .OR. &
           TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Precip'.OR. &
@@ -773,7 +775,7 @@ CONTAINS
            MetYear = CRU%CYEAR
         ENDIF
      ENDIF
-
+   MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,CRU%metrecyc)! specialforr S3
     CALL CRU_GET_FILENAME( CRU, MetYear, iVar, CRU%MetFile(iVar) ) ! Call routine to build the filenames.
 
     ! Open the new met files and access the variables by their name and variable id.
