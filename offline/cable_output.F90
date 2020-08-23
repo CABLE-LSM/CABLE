@@ -1279,6 +1279,7 @@ CONTAINS
 
     ! Write global attributes for file:
     CALL DATE_AND_TIME(todaydate, nowtime)
+    PRINT *, "Successful call DATE_AND_TIME" ! MMY
     todaydate = todaydate(1:4)//'/'//todaydate(5:6)//'/'//todaydate(7:8)
     nowtime = nowtime(1:2)//':'//nowtime(3:4)//':'//nowtime(5:6)
     ok = NF90_PUT_ATT(ncid_out, NF90_GLOBAL, "Production",                     &
@@ -1333,7 +1334,7 @@ CONTAINS
        CALL abort ('Unknown output averaging interval specified '//            &
             'in namelist file. (SUBROUTINE open_output_file)')
     END IF
-
+    PRINT *, "Successful carry out POINT 1" ! MMY
     ! End netcdf define mode:
     ok = NF90_ENDDEF(ncid_out)
     IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error creating output file '       &

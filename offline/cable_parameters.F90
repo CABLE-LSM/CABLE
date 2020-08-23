@@ -20,7 +20,7 @@
 ! Contact: Bernard.Pak@csiro.au
 !
 ! History: Changes since v1.4b for global offline (GSWP) cases, read in new
-!          input files
+!          inpu files
 !          Two subroutines moved to cable_common (reading veg and soil parameter
 !          files)
 !          Addition of code for CASA-CNP
@@ -826,6 +826,7 @@ CONTAINS
              END IF
           END DO
        END DO
+
        IF (landpt(kk)%ilon < -900 .OR. landpt(kk)%ilat < -900) THEN
           PRINT *, 'Land point ', kk, ' cannot find the nearest grid!'
           PRINT *, 'lon, lat = ', longitude(kk), latitude(kk)
@@ -841,9 +842,6 @@ CONTAINS
 
 
  !=============================================================================
-
-
-
 
 
   SUBROUTINE countPatch(nlon, nlat, npatch)
@@ -895,6 +893,12 @@ CONTAINS
              END IF
           END DO
        END DO
+
+       IF (longitude(kk)-inLon(landpt(kk)%ilon) /= 0.) print *, "longitude: ", longitude(kk), &   ! MMY
+                                                                "inLon: ", inLon(landpt(kk)%ilon) ! MMY
+       IF (latitude(kk)-inLat(landpt(kk)%ilat) /= 0.) print *, "latitude: ", latitude(kk),    &   ! MMY
+                                                               "inLat: ", inLat(landpt(kk)%ilat)  ! MMY
+
        IF (landpt(kk)%ilon < -900 .OR. landpt(kk)%ilat < -900) THEN
           PRINT *, 'Land point ', kk, ' cannot find the nearest grid!'
           PRINT *, 'lon, lat = ', longitude(kk), latitude(kk)
@@ -1335,7 +1339,9 @@ CONTAINS
 
     ! check tgg and alb
     IF(ANY(ssnow%tgg > 350.0) .OR. ANY(ssnow%tgg < 180.0))                     &
-           CALL abort('Soil temps nuts')
+            ! PRINT *, "sand are", soil%sand ! MMY
+            ! PRINT *, "tgg are", ssnow%tgg ! MMY
+            CALL abort('Soil temps nuts')
     IF(ANY(ssnow%albsoilsn > 1.0) .OR. ANY(ssnow%albsoilsn < 0.0))             &
            CALL abort('Albedo nuts')
 
@@ -2829,7 +2835,11 @@ END SUBROUTINE report_parameters
     !8
     soil%GWssat_vec(:) = get_gw_data(ncid_elev,file_status,'Sy',inssat(:,:),nlon,nlat)
     soil%GWssat_vec(:) = max(0.23_r_2,soil%GWssat_vec(:))
-
+    !_______________________ MMY change to LIS GWssat __________________________
+    PRINT *, soil%GWssat_vec(:)
+    soil%GWssat_vec(:) = 0.44
+    PRINT *, soil%GWssat_vec(:)
+    !___________________________________________________________________________
     soil%GWwatr(:) = 0.0
 
     soil%ssat_vec(:,:) = get_gw_data(ncid_elev,file_status,'ssat_vec',inssat(:,:),nlon,nlat,ms)

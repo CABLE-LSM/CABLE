@@ -94,8 +94,8 @@ host_gadi()
 {
    . /etc/bashrc
    module purge
-   module add intel-compiler/2019.3.199
-   module add intel-mpi/2019.3.199
+   module add intel-compiler/2019.5.281
+   module add intel-mpi/2019.5.281
    module add netcdf/4.6.3
 
    export FC='mpif90'

@@ -1,5 +1,5 @@
 MODULE cable_pft_params_mod
-   IMPLICIT NONE 
+   IMPLICIT NONE
 
   TYPE vegin_type
 
@@ -36,7 +36,7 @@ MODULE cable_pft_params_mod
           ekc,        &
           eko,        &
           g0,         & !  Ticket #56
-          g1,         & !  Ticket #56 
+          g1,         & !  Ticket #56
           zr,         &
           clitt
 
@@ -61,16 +61,16 @@ CONTAINS
 
 subroutine cable_pft_params()
 
-   ! Gets parameter values for each vegetation type 
-   USE cable_def_types_mod, ONLY : mvtype, ms, ncs, ncp, nrb 
+   ! Gets parameter values for each vegetation type
+   USE cable_def_types_mod, ONLY : mvtype, ms, ncs, ncp, nrb
 
    INTEGER :: a, jveg ! do loop counter
   logical, save :: first_call = .true.
-   mvtype=17    
+   mvtype=17
 
     ! Allocate memory for type-specific vegetation parameters:
   if( first_call ) then
-  
+
     ALLOCATE (                                                               &
          vegin%canst1( mvtype ), vegin%dleaf( mvtype ),                        &
          vegin%length( mvtype ), vegin%width( mvtype ),                        &
@@ -96,10 +96,10 @@ subroutine cable_pft_params()
          !! vh_veg_params !!
          vegin%zr(mvtype), vegin%clitt(mvtype) )
 
- !PFT parameters: description and corresponding variable name in code. 
+ !PFT parameters: description and corresponding variable name in code.
  !PFT parameters are assigned as TYPE vegin% but later used as veg%
- 
- !PFT: evergreen_needleleaf                                                  
+
+ !PFT: evergreen_needleleaf
  !=========================================================
     vegin%canst1(1) =        0.100000
    vegin%length(1) =        0.055000
@@ -157,8 +157,8 @@ subroutine cable_pft_params()
        vegin%g1(1) =        2.346064
        vegin%zr(1) =        1.800000
     vegin%clitt(1) =       20.000000
- 
- !PFT: evergreen_broadleaf                                                   
+
+ !PFT: evergreen_broadleaf
  !=========================================================
     vegin%canst1(2) =        0.100000
    vegin%length(2) =        0.100000
@@ -216,8 +216,8 @@ subroutine cable_pft_params()
        vegin%g1(2) =        4.114762
        vegin%zr(2) =        3.000000
     vegin%clitt(2) =        6.000000
- 
- !PFT: deciduous_needleleaf                                                  
+
+ !PFT: deciduous_needleleaf
  !=========================================================
     vegin%canst1(3) =        0.100000
    vegin%length(3) =        0.040000
@@ -275,8 +275,8 @@ subroutine cable_pft_params()
        vegin%g1(3) =        2.346064
        vegin%zr(3) =        2.000000
     vegin%clitt(3) =       10.000000
- 
- !PFT: deciduous_broadleaf                                                   
+
+ !PFT: deciduous_broadleaf
  !=========================================================
     vegin%canst1(4) =        0.100000
    vegin%length(4) =        0.150000
@@ -334,8 +334,8 @@ subroutine cable_pft_params()
        vegin%g1(4) =        4.447321
        vegin%zr(4) =        2.000000
     vegin%clitt(4) =       13.000000
- 
- !PFT: shrub                                                                 
+
+ !PFT: shrub
  !=========================================================
     vegin%canst1(5) =        0.100000
    vegin%length(5) =        0.100000
@@ -393,8 +393,8 @@ subroutine cable_pft_params()
        vegin%g1(5) =        4.694803
        vegin%zr(5) =        2.500000
     vegin%clitt(5) =        2.000000
- 
- !PFT: C3                                                                    
+
+ !PFT: C3
  !=========================================================
     vegin%canst1(6) =        0.100000
    vegin%length(6) =        0.300000
@@ -452,8 +452,8 @@ subroutine cable_pft_params()
        vegin%g1(6) =        5.248500
        vegin%zr(6) =        0.500000
     vegin%clitt(6) =        2.000000
- 
- !PFT: C4                                                                    
+
+ !PFT: C4
  !=========================================================
     vegin%canst1(7) =        0.100000
    vegin%length(7) =        0.300000
@@ -511,8 +511,8 @@ subroutine cable_pft_params()
        vegin%g1(7) =        1.616178
        vegin%zr(7) =        0.500000
     vegin%clitt(7) =        0.300000
- 
- !PFT: Tundra                                                                
+
+ !PFT: Tundra
  !=========================================================
     vegin%canst1(8) =        0.100000
    vegin%length(8) =        0.300000
@@ -570,8 +570,8 @@ subroutine cable_pft_params()
        vegin%g1(8) =        2.222156
        vegin%zr(8) =        0.500000
     vegin%clitt(8) =        0.300000
- 
- !PFT: C3                                                                    
+
+ !PFT: C3
  !=========================================================
     vegin%canst1(9) =        0.100000
    vegin%length(9) =        0.300000
@@ -629,8 +629,8 @@ subroutine cable_pft_params()
        vegin%g1(9) =        5.789377
        vegin%zr(9) =        0.500000
     vegin%clitt(9) =        0.000000
- 
- !PFT: C4                                                                    
+
+ !PFT: C4
  !=========================================================
     vegin%canst1(10) =        0.100000
    vegin%length(10) =        0.300000
@@ -688,8 +688,8 @@ subroutine cable_pft_params()
        vegin%g1(10) =        1.616178
        vegin%zr(10) =        0.500000
     vegin%clitt(10) =        0.000000
- 
- !PFT: wetland                                                               
+
+ !PFT: wetland
  !=========================================================
     vegin%canst1(11) =        0.100000
    vegin%length(11) =        0.300000
@@ -747,8 +747,8 @@ subroutine cable_pft_params()
        vegin%g1(11) =        5.248500
        vegin%zr(11) =        1.800000
     vegin%clitt(11) =        2.000000
- 
- !PFT: empty                                                                 
+
+ !PFT: empty
  !=========================================================
     vegin%canst1(12) =        0.100000
    vegin%length(12) =        0.030000
@@ -806,8 +806,8 @@ subroutine cable_pft_params()
        vegin%g1(12) =        5.248500
        vegin%zr(12) =        3.100000
     vegin%clitt(12) =        2.000000
- 
- !PFT: empty                                                                 
+
+ !PFT: empty
  !=========================================================
     vegin%canst1(13) =        0.100000
    vegin%length(13) =        0.242000
@@ -865,8 +865,8 @@ subroutine cable_pft_params()
        vegin%g1(13) =        0.000000
        vegin%zr(13) =        3.000000
     vegin%clitt(13) =        0.000000
- 
- !PFT: barren                                                                
+
+ !PFT: barren
  !=========================================================
     vegin%canst1(14) =        0.100000
    vegin%length(14) =        0.030000
@@ -924,8 +924,8 @@ subroutine cable_pft_params()
        vegin%g1(14) =        5.248500
        vegin%zr(14) =        1.000000
     vegin%clitt(14) =        0.000000
- 
- !PFT: urban                                                                 
+
+ !PFT: urban
  !=========================================================
     vegin%canst1(15) =        0.100000
    vegin%length(15) =        0.030000
@@ -983,8 +983,8 @@ subroutine cable_pft_params()
        vegin%g1(15) =        5.248500
        vegin%zr(15) =        1.000000
     vegin%clitt(15) =        0.000000
- 
- !PFT: lakes                                                                 
+
+ !PFT: lakes
  !=========================================================
     vegin%canst1(16) =        0.100000
    vegin%length(16) =        0.030000
@@ -1042,8 +1042,8 @@ subroutine cable_pft_params()
        vegin%g1(16) =        5.248500
        vegin%zr(16) =        1.000000
     vegin%clitt(16) =        0.000000
- 
- !PFT: ice                                                                   
+
+ !PFT: ice
  !=========================================================
     vegin%canst1(17) =        0.100000
    vegin%length(17) =        0.030000
@@ -1104,11 +1104,10 @@ subroutine cable_pft_params()
   endif
 
   first_call = .false.
-      
+
    ! new calculation dleaf since April 2012 (cable v1.8 did not use width)
    vegin%dleaf = SQRT(vegin%width * vegin%length)
-    
+
 End subroutine cable_pft_params
 
 END MODULE cable_pft_params_mod
-
