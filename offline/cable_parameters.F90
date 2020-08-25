@@ -2836,9 +2836,9 @@ END SUBROUTINE report_parameters
     soil%GWssat_vec(:) = get_gw_data(ncid_elev,file_status,'Sy',inssat(:,:),nlon,nlat)
     soil%GWssat_vec(:) = max(0.23_r_2,soil%GWssat_vec(:))
     !_______________________ MMY change to LIS GWssat __________________________
-    PRINT *, soil%GWssat_vec(:)
-    soil%GWssat_vec(:) = 0.44
-    PRINT *, soil%GWssat_vec(:)
+    !PRINT *, soil%GWssat_vec(:)
+    !soil%GWssat_vec(:) = 0.44
+    !PRINT *, soil%GWssat_vec(:)
     !___________________________________________________________________________
     soil%GWwatr(:) = 0.0
 
