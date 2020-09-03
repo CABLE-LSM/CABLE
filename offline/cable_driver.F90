@@ -452,8 +452,10 @@ USE cbl_soil_snow_init_special_module
            CurYear = YYYY
            IF ( leaps .AND. IS_LEAPYEAR( YYYY ) ) THEN
               LOY = 366
+              calendar = "standard"
            ELSE
               LOY = 365
+              calendar = "noleap"
            ENDIF
            ! Check for gswp run
            IF ( TRIM(cable_user%MetType) .EQ. 'gswp' ) THEN
