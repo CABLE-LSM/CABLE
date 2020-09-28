@@ -487,12 +487,12 @@ do_i_no_u()
     typeset -f subr
 
     ii=`iisin ${HOST_MACH} ${kh[*]}`
-    if [[ ${ii} -gt 0 ]] ; then
+    if [[ ${ii} -ge 0 ]] ; then
         echo 'Host recognized as' ${HOST_MACH}
         subr=host_${kh[$ii]}
     else
         ii=`iisin ${domain} ${kd[*]}`
-        if [[ ${ii} -gt 0 ]] ; then
+        if [[ ${ii} -ge 0 ]] ; then
             echo 'Domain recognized as' ${domain}
             subr=host_${kd[$ii]}
         else
