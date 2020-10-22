@@ -1755,13 +1755,13 @@ CONTAINS
                 end if
              end do
           end do
+       ! _________________ MMY remove hyds change with depth ________________
+       !ELSE
 
-       ELSE
-
-          DO klev=1,ms
-              soil%hyds_vec(:,klev) = soil%hyds_vec(:,klev)*exp(-soil%hkrz(:)*(soil_depth(:,klev)-soil%zdepth(:)))
-          END DO
-
+       !   DO klev=1,ms
+       !       soil%hyds_vec(:,klev) = soil%hyds_vec(:,klev)*exp(-soil%hkrz(:)*(soil_depth(:,klev)-soil%zdepth(:)))
+       !   END DO
+       ! ___________________________________________________________________
        END IF  !use either uni or multi cosby transfer func
 
        !set the non-vectored values to srf value
@@ -2947,6 +2947,14 @@ END SUBROUTINE report_parameters
     ENDDO
 
     !removed gw_soils for now
+  
+    !___________________ MMY GW_vec = ms6 ____________________
+     soil%GWhyds_vec(:) = soil%hyds_vec(:,ms) 
+     soil%GWssat_vec(:) = soil%ssat_vec(:,ms) 
+     soil%GWsucs_vec(:) = soil%sucs_vec(:,ms)
+     soil%GWbch_vec(:)  = soil%bch_vec(:,ms) 
+     soil%GWwatr(:)     = soil%watr(:,ms)    
+    !_________________________________________________________
 
 
   END SUBROUTINE GWspatialParameters
