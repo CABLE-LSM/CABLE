@@ -2122,7 +2122,7 @@ END SUBROUTINE calc_soil_hydraulic_props
           ! sm_tot(i) = sum(ssnow%qhlev(i,k_drain(i):ms+1),dim=1) ! MMY
           ! ______ MMY find this calculation from version : cable-2.2.3-pore-scale-model _______________
           sm_tot(i) = max(ssnow%GWwb(i)-soil%GWwatr(i),0._r_2)
-        	do k=k_drain(i),ms
+          do k=k_drain(i),ms
             sm_tot(i) = sm_tot(i) + max(ssnow%wbliq(i,k)-soil%watr(i,k),0._r_2)!*dzmm(k)
           end do
           ! ____________________________________________________________________________________________
@@ -2142,6 +2142,13 @@ END SUBROUTINE calc_soil_hydraulic_props
           ssnow%qhlev(i,k) = max(ssnow%wbliq(i,k)-ssnow%watr_hys(i,k),0._r_2)*&
                                    ice_factor(i,k)*ssnow%qhz(i)/sm_tot(i)
        end do
+
+       ! _____________ MMY: Groundwater extraction _____________
+        ssnow%qhlev(i,ms+1) = ssnow%qhlev(i,ms+1) + 0.00000264
+       ! 0.00000264=                                                 &
+       !         0.05(m3/m3)*1000(m2mm)*25(aquifer thickness)        &
+       !         /30(years)/365(days)/24(hours)/3600(seconds)
+       ! _______________________________________________________
 
        !incase every layer is frozen very dry
        ssnow%qhz(i) = sum(ssnow%qhlev(i,:),dim=1)
