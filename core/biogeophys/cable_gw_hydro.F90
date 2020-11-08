@@ -799,8 +799,7 @@ END SUBROUTINE remove_transGW
        ssnow%wbliq(i,ms) = ssnow%wbliq(i,ms) - ssnow%Qrecharge(i)*dels/(m2mm*soil%zse_vec(i,ms))
     end do
     do i=1,mp
-       ssnow%GWwb(i) = ssnow%GWwb(i)  +  (ssnow%Qrecharge(i)-ssnow%qhlev(i,ms+1)-0.000000052) & ! MMY extract GW
-                       *dels/(m2mm*soil%GWdz(i))                                                ! MMY
+       ssnow%GWwb(i) = ssnow%GWwb(i)  +  (ssnow%Qrecharge(i)-ssnow%qhlev(i,ms+1))*dels/(m2mm*soil%GWdz(i))
     end do
 
     !determine the available pore space
@@ -1055,8 +1054,8 @@ SUBROUTINE soil_snow_gw(dels, soil, ssnow, canopy, met, bal, veg)
 
    CALL  GWsoilfreeze(dels, soil, ssnow)
 
-   ssnow%fwtop = canopy%precis/dels + ssnow%smelt/dels & !water from canopy and snowmelt [mm/s]
-                 + 0.000000052 ! MMY GW extraction -> irrigation  
+   ssnow%fwtop = canopy%precis/dels + ssnow%smelt/dels   !water from canopy and snowmelt [mm/s]
+
    CALL iterative_wtd (ssnow, soil, veg, .true. )
 
    CALL ovrlndflx (dels, ssnow, soil, veg, canopy,use_sli )         !surface runoff, incorporate ssnow%pudsto?
@@ -2143,13 +2142,6 @@ END SUBROUTINE calc_soil_hydraulic_props
           ssnow%qhlev(i,k) = max(ssnow%wbliq(i,k)-ssnow%watr_hys(i,k),0._r_2)*&
                                    ice_factor(i,k)*ssnow%qhz(i)/sm_tot(i)
        end do
-
-       ! _____________ MMY: Groundwater extraction _____________
-       ! ssnow%qhlev(i,ms+1) = ssnow%qhlev(i,ms+1) + 0.0000052 ! 1.64mm/yr*100
-       ! 0.000000052=                                           &
-       !   1.64(mm/yr - 2018-19 lisenced extraction in NSW+VIC) &
-       !   /365(days)/24(hours)/3600(seconds)
-       ! _______________________________________________________
                                           
        !incase every layer is frozen very dry
        ssnow%qhz(i) = sum(ssnow%qhlev(i,:),dim=1)
