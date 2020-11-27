@@ -3494,25 +3494,6 @@ CONTAINS
      REAL                :: stem_capac, la_sa, height, sapwood_density
      REAL                :: capac_conv
 
-     ! We need to scale up the measurements to infer a total stem capacitance
-     ! These assumption will *clearly* need to be improved!
-
-     ! From Togashi et al. it looks like there is no obvious reln btw LA:SA
-     ! and moisture so taking a rough average LA:SA
-     !la_sa = 5000.0 ! m2 m-2
-
-     ! We need a height and in the long-term we will use POP, but for now from
-     ! Simard et al. and sampling where Butt et al. say there are Eucs...
-     !IF (iveg .LE. 20) THEN ! RF, WSF, DSF
-      !  height = 20.0 ! m
-     !ELSE
-      !  height = 10.0 ! m
-     !ENDIF
-
-     ! From Bowman we are taking a rough sapwood density (fig 5), which seems
-     ! to agree with Xu et al.
-     !sapwood_density = 500.0 ! kg m-3
-
      ! Heights from Simard et al. and sampling where our 5 veg classes are
      ! get_veg_class_heights.py
 
