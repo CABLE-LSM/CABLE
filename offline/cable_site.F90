@@ -49,9 +49,9 @@ MODULE CABLE_site
      CHARACTER(len=200) :: CO2NdepFile   ! CO2Ndepfile with path
      INTEGER :: spinstartyear
      INTEGER :: spinendyear
-     REAL :: spinCO2 ! ppm in 1850
-     REAL :: spinNdep  ! kgNha-1y-1 in 1850
-     REAL :: spinPdep  ! kgPha-1y-1 in 1850
+     REAL :: spinCO2 ! ppm (pre-industrial)
+     REAL :: spinNdep  ! kgNha-1y-1 (pre-industrial)
+     REAL :: spinPdep  ! kgPha-1y-1 (pre-industrial)
      REAL :: CO2   ! CO2 for current time step
      REAL :: Ndep  ! Ndep for current time step
      REAL :: Pdep  ! Pdep for current time step
@@ -83,9 +83,9 @@ CONTAINS
     CHARACTER(len=200)   :: CO2NdepFile
     INTEGER :: spinstartyear
     INTEGER :: spinendyear
-    REAL :: spinCO2 ! ppm in 1850
-    REAL :: spinNdep  ! kgNha-1y-1 in 1850
-    REAL :: spinPdep  ! kgPha-1y-1 in 1850
+    REAL :: spinCO2 ! ppm (pre-industrial)
+    REAL :: spinNdep  ! kgNha-1y-1 (pre-industrial)
+    REAL :: spinPdep  ! kgPha-1y-1 (pre-industrial)
  
     ! Flag for errors
 
@@ -100,9 +100,9 @@ CONTAINS
 
     ! Assign namelist settings to corresponding CRU defined-type elements
     site%RunType = RunType
-    site%CO2NDepFile      = CO2NdepFile
+    site%CO2NDepFile = CO2NdepFile
     site%spinstartyear = spinstartyear
-    site%spinendyear          = spinendyear
+    site%spinendyear = spinendyear
     site%spinCO2 = spinCO2
     site%spinNdep = spinNdep    
     site%spinPdep = spinPdep    
@@ -145,8 +145,8 @@ CONTAINS
 
   IMPLICIT NONE
   
-  TYPE(site_TYPE) :: site           ! site structure
-  INTEGER              :: iunit, iyear, IOS = 0
+  TYPE(site_TYPE)      :: site           ! site structure
+  INTEGER              :: iunit, iyear, CO2_startyear, CO2_endyear, IOS = 0
   LOGICAL,        SAVE :: CALL1 = .TRUE.  ! A *local* variable recording the first call of this routine 
 
 ! For S0_TRENDY, use only static 1860 CO2 value and return immediately
@@ -161,14 +161,24 @@ CONTAINS
 
 ! On the first call, allocate the CRU%CO2VALS array to store the entire history of annual CO2 
 ! values, open the (ascii) CO2 file and read the values into the array. 
-    IF (CALL1) THEN
-      ALLOCATE( site%CO2VALS( 1850:2100 ) )
-      ALLOCATE( site%NdepVALS( 1850:2100 )) 
-      ALLOCATE( site%PdepVALS( 1850:2100 )) 
+     IF (CALL1) THEN
       CALL GET_UNIT(iunit)
       OPEN (iunit, FILE=TRIM(site%CO2NdepFILE), STATUS="OLD", ACTION="READ")
-      ! get past header
-      READ(iunit, *)
+      ! determine start- and endyear of CO2_NPdep file
+      READ(iunit, *, IOSTAT=IOS)  ! get past header
+      READ(iunit, FMT=*, IOSTAT=IOS) iyear
+      CO2_startyear = iyear
+      DO WHILE( IOS .EQ. 0 )
+        READ(iunit, FMT=* , IOSTAT=IOS) iyear
+      END DO
+      CO2_endyear = iyear 
+
+      ALLOCATE( site%CO2VALS( CO2_startyear:CO2_endyear ) )
+      ALLOCATE( site%NdepVALS( CO2_startyear:CO2_endyear )) 
+      ALLOCATE( site%PdepVALS( CO2_startyear:CO2_endyear ))     
+      
+      REWIND(iunit)
+      READ(iunit, *,IOSTAT=IOS)  ! get past header
       DO WHILE( IOS .EQ. 0 )
         READ(iunit, FMT=* , IOSTAT=IOS) iyear, site%CO2VALS(iyear), site%NdepVALS(iyear), &
              site%PdepVALS(iyear)

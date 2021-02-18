@@ -174,6 +174,7 @@ CONTAINS
     met%qvair = met%qv
     canopy%tv = met%tvair
 
+    
     ! Initialise sunlit and shaded Ac and Aj diagnostics
     canopy%A_sh           = 0.0_r_2
     canopy%A_sl           = 0.0_r_2
