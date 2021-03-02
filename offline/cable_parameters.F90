@@ -322,10 +322,7 @@ CONTAINS
       !loop through lat and lon to fill patch and veg vars
       DO lon = 1,nlon
         DO lat = 1, nlat
-          inPFrac(lon,lat,1) = vegpatch_metfile(1,1) !Anna: passing met patchfrac here
-          inPFrac(lon,lat,2) = vegpatch_metfile(1,2) !Anna: passing met patchfrac here
-          inPFrac(lon,lat,3) = vegpatch_metfile(1,3) !Anna: passing met patchfrac here
-          inPFrac(lon,lat,4) = vegpatch_metfile(1,4) !Anna: passing met patchfrac here
+          inPFrac(lon,lat,:) = vegpatch_metfile(1,:) !Anna: passing met patchfrac here
           inVeg(lon,lat,:) = vegtype_metfile(1,:)
         ENDDO
       ENDDO
