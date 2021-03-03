@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # --------------------------------------------------------------------
 #
 # Compile Cable-POP using korn-shell scripts build(_mpi).ksh.

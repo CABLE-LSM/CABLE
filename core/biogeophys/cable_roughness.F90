@@ -56,9 +56,11 @@ SUBROUTINE ruff_resist(veg, rough, ssnow, canopy)
 
    CALL point2constants( C )
 
-! JK: temporary bug fix: don't let veg%hc fall to 0
-   veg%hc = MAX(veg%hc,1.0)
+   !ASKJK - in NESP but not gm branch: remove ?
+   ! JK: temporary bug fix: don't let veg%hc fall to 0
+   veg%hc = MAX(veg%hc, 1.0)
    !write(90,*) 'veg%hc:', veg%hc
+   !ASKJK - in NESP but not gm branch: remove ?
 
    ! for site-level runs, subtract displacement height from reference height
    take_off_disp = 0.0

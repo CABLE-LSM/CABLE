@@ -156,6 +156,9 @@ CONTAINS
     USE BLAZE_MPI,            ONLY: WORKER_BLAZE_TYPES ! , WORKER_SIMFIRE_TYPES
     USE SIMFIRE_MOD,          ONLY: TYPE_SIMFIRE, INI_SIMFIRE
 
+    ! gm
+    USE cable_adjust_JV_gm_module, ONLY: read_gm_LUT, LUT_VcmaxJmax, LUT_gm, LUT_Vcmax, LUT_Rd
+
     ! 13C
     use cable_c13o2_def,         only: c13o2_flux, c13o2_pool, c13o2_luc ! , &
     ! c13o2_update_sum_pools, c13o2_zero_sum_pools
@@ -396,6 +399,11 @@ CONTAINS
        call MPI_Abort(comm, 53, ierr)
     endif
 
+    ! gm lookup table
+    if (cable_user%explicit_gm .and. len(trim(cable_user%gm_LUT_file)) .gt. 1) then
+      write(*,*) 'Reading gm LUT file'
+      call read_gm_LUT(cable_user%gm_LUT_file, LUT_VcmaxJmax, LUT_gm, LUT_Vcmax, LUT_Rd)
+    endif
     ! Open log file:
     ! MPI: worker logs go to the black hole
     ! by opening the file we don't need to touch any of the code that writes
@@ -1477,6 +1485,14 @@ CONTAINS
     blen(bidx) = r1len
 
     bidx = bidx + 1
+    CALL MPI_Get_address (veg%ejmax_shade, displs(bidx), ierr)
+    blen(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (veg%ejmax_sun, displs(bidx), ierr)
+    blen(bidx) = r1len
+
+    bidx = bidx + 1
     CALL MPI_Get_address (veg%frac4, displs(bidx), ierr)
     blen(bidx) = r1len
 
@@ -1544,6 +1560,14 @@ CONTAINS
 
     bidx = bidx + 1
     CALL MPI_Get_address (veg%vcmax, displs(bidx), ierr)
+    blen(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (veg%vcmax_sun, displs(bidx), ierr)
+    blen(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (veg%vcmax_shade, displs(bidx), ierr)
     blen(bidx) = r1len
 
     !  bidx = bidx + 1
@@ -1645,8 +1669,33 @@ CONTAINS
     ! Ticket #56, finish adding new veg parms
 
     bidx = bidx + 1
+    CALL MPI_Get_address (veg%vcmaxcc, displs(bidx), ierr)
+    blen(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (veg%ejmaxcc, displs(bidx), ierr)
+    blen(bidx) = r1len
+
+    bidx = bidx + 1
     CALL MPI_Get_address (veg%gmmax, displs(bidx), ierr)
     blen(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (veg%gm, displs(bidx), ierr)
+    blen(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (veg%c4kci, displs(bidx), ierr)
+    blen(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (veg%c4kcc, displs(bidx), ierr)
+    blen(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (veg%bjv, displs(bidx), ierr)
+    blen(bidx) = r1len
+
 
     ! ----------- bgc --------------
 
@@ -8695,7 +8744,7 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
   type(type_simfire) :: simfire
 
   ! 13C
-  real(dp), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
+  real(r_2), dimension(:,:), allocatable :: casasave
   real(r_2), dimension(:), allocatable :: avg_c13leaf2met, avg_c13leaf2str, avg_c13root2met, &
        avg_c13root2str, avg_c13wood2cwd
 
@@ -8707,6 +8756,9 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
   ktauday = int(24.0*3600.0/dels)
   nday    = (kend-kstart+1)/ktauday
   loy     = 365
+
+  ! 13C
+  if (cable_user%c13o2) allocate(casasave(c13o2pools%ntile,c13o2pools%npools))
 
   ! chris 12/oct/2012 for spin up casa
   if (.not.(allocated(avg_cleaf2met)))  allocate(avg_cleaf2met(mp), avg_cleaf2str(mp), avg_croot2met(mp), avg_croot2str(mp), &
@@ -9066,8 +9118,10 @@ SUBROUTINE worker_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
   integer :: ierr, rank
   integer :: yyyy
   ! 13C
-  real(dp), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
+  real(dp), dimension(:,:), allocatable :: casasave
 
+  ! 13C
+  if (cable_user%c13o2) allocate(casasave(c13o2pools%ntile,c13o2pools%npools))
 
   ktauday = int(24.0*3600.0/dels)
   nday    = (kend-kstart+1)/ktauday

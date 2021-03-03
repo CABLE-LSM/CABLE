@@ -198,6 +198,7 @@ MODULE cable_IO_vars_module
 
       ! variables specified individually:
       LOGICAL ::                                                               &
+         fbeam = .FALSE.,     & ! fraction of direct visible radiation
          SWdown = .FALSE.,    & ! 6 downward short-wave radiation [W/m2]
          LWdown = .FALSE.,    & ! 7 downward long-wave radiation [W/m2]
          Rainf = .FALSE.,     & ! 8 rainfall [kg/m2/s]
@@ -265,6 +266,7 @@ MODULE cable_IO_vars_module
          Fwsoil = .FALSE.,      & ! soil moisture modifier to stomatal conductance
          Area = .FALSE., & ! patch area in km2
          GPP_components = .TRUE.,    & ! sunlit and shaded GPP, plus J and C limited components
+         Qcan = .FALSE.,     & ! absorbed radiation by canopy
 
          ! vh_mc ! additional variables for ESM-SnowMIP
          hfds       = .false., & ! downward heat flux at ground surface [W/m2]

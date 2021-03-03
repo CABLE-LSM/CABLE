@@ -28,13 +28,13 @@ module cable_data_module
    ! definition of major types of constants
 
    TYPE physical_constants
-      real ::                                                                  &
-      capp   = 1004.64, & ! air spec. heat (J/kg/K)
-      hl = 2.5014e6, & ! air spec. heat (J/kg/K)
-      hlf = 0.334e6, & ! latent heat of fusion
-      hls = 2.8350e6, & ! latent heat of sublimation (J/kg)
-      !hl = 2.5104e6, & ! air spec. heat (J/kg/K)
-      !hlf = 0.335e6, & ! latent heat of fusion
+      real :: &
+      capp = 1004.64, & ! air spec. heat (J/kg/K)
+      hl   = 2.5014e6, & ! air spec. heat (J/kg/K)
+      hlf  = 0.334e6, & ! latent heat of fusion
+      hls  = 2.8350e6, & ! latent heat of sublimation (J/kg)
+      ! hl   = 2.5104e6, & ! air spec. heat (J/kg/K)
+      ! hlf  = 0.335e6, & ! latent heat of fusion
       dheat  = 21.5E-6, & ! molecular diffusivity for heat
       !grav   = 9.80, & ! gravity acceleration (m/s2)
       grav   = 9.8086, & ! gravity acceleration (m/s2)
@@ -77,7 +77,7 @@ module cable_data_module
       zetneg = -15.0, & ! negative limit on za/L when niter>=3
       zetpos = 1.0,  & ! positive limit on za/L when niter>=3
       zdlin  = 1.0,  & ! height frac of d below which TL linear
-    !  umin   = 0.1
+      ! umin   = 0.1
       umin   = 1.0
    END TYPE physical_constants
 
@@ -92,34 +92,47 @@ module cable_data_module
       real, DIMENSION(3) :: gauss_w=(/0.308,0.514,0.178/) ! Gaussian integ. weights
       !--- jhan: can make these trigger of #defines/namelist
 
-!! vh_js !! smaller values
+      !! vh_js !! smaller values
       real:: RAD_THRESH = 0.001
       real:: LAI_THRESH = 0.001
    end type other_constants
 
    type photosynthetic_constants
       ! All parameters from Bernacchi et al., 2001, 2002, PCE
-      integer:: maxiter=20 ! max # interations for leaf temperature
+      integer :: maxiter=20     ! max # interations for leaf temperature
+      integer :: ndays_optim=5  ! number of days taken into account for Jmax/Vcmax optimisation
       !real :: gam0     = 34.6E-6  ! (Bernacci 2001 )36.9 @ 25C (von Cammerer)
-      real :: bjvref    = 1.7        ! Ci-based Jmax/Vcmax ratio at 25 degC
+      real :: bjvref    = 1.8245     ! Ci-based Jmax/Vcmax ratio at 25 degC
+                                     ! Tgrowth=15degC and Thome=25degC (Kumarathunge et al. 2019)
       real :: relcostJ_coord = 1.6   ! Ci-based relative cost of Jmax to Vcmax
                                      ! with forced coordination (Chen et al. 1993)
       real :: relcostJ_optim = 2.3   ! Ci-based relative cost of Jmax to Vcmax
                                      ! with photosyn. optimisation (coord = FALSE)
+      real :: tAPAR_optim = 60.0E-6  ! APAR threshold for photosyn. optimisation (mol m-2 s-1)
       real :: gam1      = 0.0509
       real :: gam2      = 0.0010
-      real :: gam0      = 42.75E-6   ! Ci-based Gammastar (mol mol-1) 
-      real :: gam0cc    = 37.43E-6   ! Cc-based Gammastar (mol mol-1)
+      ! Ci-based Rubisco kinetic constants from Bernacchi et al. 2001
+      real :: gam0      = 42.75E-6   ! Ci-based Gammastar (mol mol-1)
       real :: conkc0    = 404.9E-6   ! Ci-based MM constant for CO2 (mol mol-1)
-      real :: conkc0cc  = 272.38E-6  ! Cc-based MM constant for CO2 (mol mol-1)
       real :: conko0    = 278.4E-3   ! Ci-based MM constant for O2 (mol mol-1)
-      real :: conko0cc  = 165.82E-3  ! Cc-based MM constant for O2 (mol mol-1)
       real :: egam      = 37830.0    ! activation energy for Gammastar_Ci (J mol-1)
-      real :: egamcc    = 24460.0    ! activation energy for Gammastar_Cc (J mol-1)
       real :: ekc       = 79430.0    ! activation energy for conkc (J mol-1)
-      real :: ekccc     = 80990.0    ! activation energy for conkccc (J mol-1)
       real :: eko       = 36380.0    ! activation energy for conko (J mol-1)
+      ! Cc-based Rubisco kinetic constants from Bernacchi et al. 2002
+      real :: gam0cc    = 37.43E-6   ! Cc-based Gammastar (mol mol-1)
+      real :: conkc0cc  = 272.38E-6  ! Cc-based MM constant for CO2 (mol mol-1)
+      real :: conko0cc  = 165.82E-3  ! Cc-based MM constant for O2 (mol mol-1)
+      real :: egamcc    = 24460.0    ! activation energy for Gammastar_Cc (J mol-1)
+      real :: ekccc     = 80990.0    ! activation energy for conkccc (J mol-1)
       real :: ekocc     = 23720.0    ! activation energy for conkocc (J mol-1)
+      ! Cc-based Rubisco kinetic constants from Walker et al. 2013 (A. thaliana)
+      real :: gam0ccw   = 36.40E-6   ! Cc-based Gammastar (mol mol-1)
+      real :: conkc0ccw = 265.00E-6  ! Cc-based MM constant for CO2 (mol mol-1)
+      real :: conko0ccw = 201.00E-3  ! Cc-based MM constant for O2 (mol mol-1)
+      real :: egamccw   = 33700.0    ! activation energy for Gammastar_Cc (J mol-1)
+      real :: ekcccw    = 49700.0    ! activation energy for conkccc (J mol-1)
+      real :: ekoccw    = 29100.0    ! activation energy for conkocc (J mol-1)
+      ! other constants
       real :: rgbwc     = 1.32
       real :: rgswc     = 1.57
       real :: tmaxj     = 45.0
@@ -128,7 +141,10 @@ module cable_data_module
       real :: tminv     = -5.0
       real :: toptj     = 20.0
       real :: toptv     = 20.0
-      real :: trefk     = 298.2  !reference temperature K
+      real :: trefk     = 298.15  ! reference temperature K
+      real :: qs        = 0.50    ! exponent of water stress scalar for gs
+      real :: qm        = 0.75    ! exponent of water stress scalar for gm
+      real :: qb        = 0.25    ! exponent of water stress scalar for Vcmax and Jmax
    end type photosynthetic_constants
 
    ! instantiate major types of constants
@@ -179,18 +195,20 @@ module cable_data_module
          RMH2O, APOL, A33, VONK, ZETA0,                                        &
          ! photosynthetic constants
          RGSWC, BJVREF, RELCOSTJ_COORD,                                        &
-         RELCOSTJ_OPTIM, GAM1, GAM2,                                           &
+         RELCOSTJ_OPTIM, TAPAR_OPTIM, GAM1, GAM2,                              &
          GAM0, CONKC0, CONKO0,                                                 &
-         GAM0CC, CONKC0CC, CONKO0CC,                                           &
          EGAM, EKC, EKO,                                                       &
+         GAM0CC, CONKC0CC, CONKO0CC,                                           &
          EGAMCC, EKCCC, EKOCC,                                                 &
-         RGBWC,TREFK,                                                          &
+         GAM0CCW, CONKC0CCW, CONKO0CCW,                                        &
+         EGAMCCW, EKCCCW, EKOCCW,                                              &
+         RGBWC,TREFK, QS, QM, QB,                                              &
          ! math constants
          PI_C,                                                                 &
          ! other constants
          LAI_THRESH
 
-      INTEGER, POINTER :: MAXITER
+      INTEGER, POINTER :: MAXITER, NDAYS_OPTIM
 
    END TYPE icanopy_type
 
@@ -338,29 +356,40 @@ SUBROUTINE canopy_type_ptr(C)
    C%VONK  => PHYS%VONK
    C%ZETA0 => PHYS%ZETA0
 
-   C%MAXITER  => PHOTO%MAXITER ! only integer here
+   C%MAXITER     => PHOTO%MAXITER
+   C%NDAYS_OPTIM => PHOTO%NDAYS_OPTIM
 
    !photosynthetic constants
    C%RGSWC     => PHOTO%RGSWC
-   C%GAM0      => PHOTO%GAM0
-   C%GAM2      => PHOTO%GAM2
    C%RGBWC     => PHOTO%RGBWC
    C%BJVREF    => PHOTO%BJVREF
    C%RELCOSTJ_COORD => PHOTO%RELCOSTJ_COORD
    C%RELCOSTJ_OPTIM => PHOTO%RELCOSTJ_OPTIM
+   C%TAPAR_OPTIM    => PHOTO%TAPAR_OPTIM
    C%GAM1      => PHOTO%GAM1
-   C%GAM0CC    => PHOTO%GAM0CC
+   C%GAM2      => PHOTO%GAM2
+   C%GAM0      => PHOTO%GAM0
    C%CONKC0    => PHOTO%CONKC0
-   C%CONKC0CC  => PHOTO%CONKC0CC
    C%CONKO0    => PHOTO%CONKO0
-   C%CONKO0CC  => PHOTO%CONKO0CC
    C%EGAM      => PHOTO%EGAM
-   C%EGAMCC    => PHOTO%EGAMCC
    C%EKC       => PHOTO%EKC
-   C%EKCCC     => PHOTO%EKCCC
    C%EKO       => PHOTO%EKO
+   C%GAM0CC    => PHOTO%GAM0CC
+   C%CONKC0CC  => PHOTO%CONKC0CC
+   C%CONKO0CC  => PHOTO%CONKO0CC
+   C%EGAMCC    => PHOTO%EGAMCC
+   C%EKCCC     => PHOTO%EKCCC
    C%EKOCC     => PHOTO%EKOCC
+   C%GAM0CCW   => PHOTO%GAM0CCW
+   C%CONKC0CCW => PHOTO%CONKC0CCW
+   C%CONKO0CCW => PHOTO%CONKO0CCW
+   C%EGAMCCW   => PHOTO%EGAMCCW
+   C%EKCCCW    => PHOTO%EKCCCW
+   C%EKOCCW    => PHOTO%EKOCCW
    C%TREFK     => PHOTO%TREFK
+   C%QS        => PHOTO%QS
+   C%QM        => PHOTO%QM
+   C%QB        => PHOTO%QB
 
    ! math constants
    C%PI_C  => MATH%PI_C

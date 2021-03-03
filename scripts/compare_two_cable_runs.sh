@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # compare_two_cable_runs.sh [-h] dir1 dir2
 # Compare restart and output files of two Cable-POP runs performed with script run_cable-pop.sh.

@@ -36,7 +36,7 @@ MODULE cable_checks_module
    IMPLICIT NONE
 
    PRIVATE
-   
+
    PUBLIC :: ranges_type, ranges, mass_balance, energy_balance, rh_sh
 
    ! TYPE units_type
@@ -50,130 +50,131 @@ MODULE cable_checks_module
    ! TYPE(units_type) :: units
 
    TYPE ranges_type
-      REAL, DIMENSION(2) ::                                               &
-           nav_lon = (/-360.0,360.0/),         &
-           nav_lat = (/-90.0,90.0/),           &
-           time,                               &
-           timestp,                            &
-           ! possible forcing variables for CABLE
-           SWdown = (/0.0,1360.0/),            & ! W/m^2
-          LWdown = (/0.0,950.0/),             & ! W/m^2
-          Rainf = (/0.0,0.1/),               & ! mm/s
-          Snowf = (/0.0,0.1/),             & ! mm/s
-           PSurf = (/500.0,1100.0/),           & ! mbar/hPa
-           Tair = (/200.0,333.0/),             & ! K
-          Qair = (/0.0,0.1/),                & ! g/g
-           CO2air = (/160.0,2000.0/),          & ! ppmv
-           Wind = (/0.0,75.0/),                & ! m/s
-           Wind_N = (/-75.0,75.0/),            & ! m/s
-           Wind_E = (/-75.0,75.0/),            & ! m/s
-           ! possible output variables
-          Qh = (/-2000.0,2000.0/),            & ! W/m^2
-          Qle = (/-2500.0,2500.0/),           & ! W/m^2
-          Qg = (/-4000.0,4000.0/),            & ! W/m^2
-           SWnet = (/0.0,1350.0/),             & ! W/m^2 (YP oct07)
-           ! SWnet = (/0.0,1250.0/),            & ! W/m^2
-           LWnet = (/-500.0,510.0/),           & ! W/m^2
-           Rnet = (/-500.0,1250.0/),           & ! W/m^2
-          Evap = (/-0.0045,0.0045/),         &  ! note this is also used for snow melt !
-          Ewater = (/-0.0005,0.0005/),        &
-          ESoil = (/-0.0015,0.0015/),         &
-           TVeg = (/-0.0003,0.0003/),          &
-           ECanop = (/-0.0003,0.0003/),        &
-           PotEvap = (/-0.0006,0.0006/),       &
-           ACond = (/0.0,1.0/),                &
-           SoilWet = (/-0.4,1.2/),             &
-           Albedo = (/0.0,1.0/),               &
-           visAlbedo = (/0.0,1.0/),            & ! vars intro for Ticket #27
-           nirAlbedo = (/0.0,1.0/),            & ! vars intro for Ticket #27
-           VegT = (/213.0,353.0/),             &
-           SoilTemp = (/213.0,353.0/),         &
-           SoilMoist = (/0.0,2000.0/),         &
-          Qs = (/0.0,15.0/),                   &
-          Qsb = (/0.0,15.0/),                  &
-           DelSoilMoist  = (/-2000.0,2000.0/), &
-           DelSWE  = (/-2000.0,2000.0/),       &
-           DelIntercept = (/-100.0,100.0/),    &
-           SnowT  = (/213.0,280.0/),           &
-           BaresoilT = (/213.0,343.0/),        &
-           AvgSurfT = (/213.0,333.0/),         &
-           RadT = (/200.0,373.0/),             &
-           !! vh_js !!
-           SWE = (/0.0,4000.0/),               &
-           RootMoist = (/0.0,2000.0/),         &
-           CanopInt = (/0.0,100.0/),           &
-           NEE = (/-70.0,50.0/),               & ! umol/m2/s
-           NPP = (/-20.0,75.0/),               & ! umol/m2/s
-           GPP = (/-20.0,100.0/),              & ! umol/m2/s
-           AutoResp = (/-50.0,20.0/),          & ! umol/m2/s
-           LeafResp = (/-50.0,20.0/),          & ! umol/m2/s
-           HeteroResp = (/-50.0,20.0/),        & ! umol/m2/s
-           HSoil = (/-1000.0,1000.0/),         &
-           HVeg = (/-1000.0,1000.0/),          &
-           SnowDepth = (/0.0,50.0/),           & ! EK nov07
-           Wbal = (/-999999.0,999999.0/),      &
-           Ebal = (/-999999.0,999999.0/),      &
-           !! vh_js !!
-           CanT = (/213.0,333.0/),      &
-           Fwsoil = (/0.0,1.0/),      &
-           ! parameters:
-           albsoil = (/0.0,0.9/),              &
-           isoil = (/1.0,30.0/),               &
-           iveg = (/1.0,30.0/),                &
-           bch = (/2.0,15.0/),                 &
-           latitude = (/-90.0,90.0/),          &
-           c3 = (/0.0,1.0/),                   & ! EK nov07
-           clay = (/0.0,1.0/),                 &
-           css = (/700.0,2200.0/),             &
-           rhosoil = (/300.0,3000.0/),         &
-           hyds = (/5.0E-7,8.5E-3/),           & ! vh_js ! sep14
-           rs20 = (/0.0,10.0/),                &
-           sand = (/0.0,1.0/),                 &
-           sfc = (/0.1,0.5/),                  &
-           silt = (/0.0,1.0/),                 &
-           ssat = (/0.35,0.5/),                &
-           sucs = (/-0.8,-0.03/),              &
-           swilt = (/0.05,0.4/),               &
-           froot = (/0.0,1.0/),                &
-           zse = (/0.0,5.0/),                  &
-           canst1 = (/0.05,0.15/),             &
-           dleaf = (/0.005,0.4/),              &
-           ejmax = (/1.0E-5,3.0E-4/),          &
-           frac4 = (/0.0,1.0/),                &
-           hc = (/0.0,100.0/),                 &
-           lai = (/0.0,8.0/),                  &
-           rp20 = (/0.0,10.0/),                &
-           vbeta =(/-999999.0,999999.0/),      &
-           g0 = (/-0.5,0.5/),                  & ! Ticket #56 (must find better range)
-           g1 = (/0.0,20.0/),                  & ! Ticket #56 (must find better range)
-           xalbnir = (/0.0,1.5/),              &
-           meth = (/0.0,1.0/),                 &
-           za =(/0.0,150.0/),                  &
-           rpcoef = (/0.05,1.5/),              &
-           shelrb = (/1.0,3.0/),               &
-           vcmax = (/5.0E-6,1.5E-4/),          &
-           xfang = (/-1.0,0.5/),               &
-           ratecp = (/0.01,3.0/),              &
-           ratecs = (/0.01,3.0/),              &
-           refsbare = (/0.0,0.5/),             &
-           taul = (/0.0,0.3/),                 &
-           refl = (/0.0,0.5/),                 &
-           tauw = (/0.0,0.1/),                 &
-           refw = (/0.0,0.5/),                 &
-           extkn = (/0.0,10.0/),               & ! YP oct07
-           wai = (/0.0,5.0/),                  & ! YP oct07
-           vegcf = (/0.0,100.0/),              & ! YP oct07
-           tminvj = (/-20.0,15.0/),            &
-           tmaxvj = (/-15.0,30.0/),            &
-           rootbeta = (/0.7,1.0/),             & ! YP oct07
-           veg_class = (/1.0,20.0/),           &
-           soil_class = (/1.0,20.0/)  , &
-           TotLivBiomass =  (/0.0, 1000./),      &
-           TotSoilCarb =  (/0.0, 1000./),      &
-           TotLittCarb =  (/0.0, 1000./), &
-           Area = (/0.0, 5000./), &
-           gsw_sl = (/0.0, 1.0/), &
-           gsw_sh = (/0.0, 1.0/)  
+      REAL, DIMENSION(2) ::                               &
+           nav_lon = (/-360.0,360.0/),                    &
+           nav_lat = (/-90.0,90.0/),                      &
+           time,                                          &
+           timestp,                                       &
+                                ! possible forcing variables for CABLE
+           SWdown = (/0.0,1360.0/),                       & ! W/m^2
+           LWdown = (/0.0,950.0/),                        & ! W/m^2
+           Rainf = (/0.0,0.1/),                           & ! mm/s
+           Snowf = (/0.0,0.1/),                           & ! mm/s
+           PSurf = (/500.0,1100.0/),                      & ! mbar/hPa
+           Tair = (/200.0,333.0/),                        & ! K
+           Qair = (/0.0,0.1/),                            & ! g/g
+           CO2air = (/160.0,2000.0/),                     & ! ppmv
+           Wind = (/0.0,75.0/),                           & ! m/s
+           Wind_N = (/-75.0,75.0/),                       & ! m/s
+           Wind_E = (/-75.0,75.0/),                       & ! m/s
+                                ! possible output variables
+           Qh = (/-2000.0,2000.0/),                       & ! W/m^2
+           Qle = (/-2500.0,2500.0/),                      & ! W/m^2
+           Qg = (/-4000.0,4000.0/),                       & ! W/m^2
+           SWnet = (/0.0,1350.0/),                        & ! W/m^2 (YP oct07)
+                                ! SWnet = (/0.0,1250.0/), & ! W/m^2
+           Qcan = (/-500.0,1360.0/),                      & ! W/m2
+           LWnet = (/-500.0,510.0/),                      & ! W/m^2
+           Rnet = (/-500.0,1250.0/),                      & ! W/m^2
+           Evap = (/-0.0045,0.0045/),                     &  ! note this is also used for snow melt !
+           Ewater = (/-0.0005,0.0005/),                   &
+           ESoil = (/-0.0015,0.0015/),                    &
+           TVeg = (/-0.0003,0.0003/),                     &
+           ECanop = (/-0.0003,0.0003/),                   &
+           PotEvap = (/-0.0006,0.0006/),                  &
+           ACond = (/0.0,1.0/),                           &
+           SoilWet = (/-0.4,1.2/),                        &
+           Albedo = (/0.0,1.0/),                          &
+           visAlbedo = (/0.0,1.0/),                       & ! vars intro for Ticket #27
+           nirAlbedo = (/0.0,1.0/),                       & ! vars intro for Ticket #27
+           VegT = (/213.0,353.0/),                        &
+           SoilTemp = (/213.0,353.0/),                    &
+           SoilMoist = (/0.0,2000.0/),                    &
+           Qs = (/0.0,15.0/),                             &
+           Qsb = (/0.0,15.0/),                            &
+           DelSoilMoist  = (/-2000.0,2000.0/),            &
+           DelSWE  = (/-2000.0,2000.0/),                  &
+           DelIntercept = (/-100.0,100.0/),               &
+           SnowT  = (/213.0,280.0/),                      &
+           BaresoilT = (/213.0,343.0/),                   &
+           AvgSurfT = (/213.0,333.0/),                    &
+           RadT = (/200.0,373.0/),                        &
+                                !! vh_js !!
+           SWE = (/0.0,4000.0/),                          &
+           RootMoist = (/0.0,2000.0/),                    &
+           CanopInt = (/0.0,100.0/),                      &
+           NEE = (/-70.0,50.0/),                          & ! umol/m2/s
+           NPP = (/-20.0,75.0/),                          & ! umol/m2/s
+           GPP = (/-20.0,100.0/),                         & ! umol/m2/s
+           AutoResp = (/-50.0,20.0/),                     & ! umol/m2/s
+           LeafResp = (/-50.0,20.0/),                     & ! umol/m2/s
+           HeteroResp = (/-50.0,20.0/),                   & ! umol/m2/s
+           HSoil = (/-1000.0,1000.0/),                    &
+           HVeg = (/-1000.0,1000.0/),                     &
+           SnowDepth = (/0.0,50.0/),                      & ! EK nov07
+           Wbal = (/-999999.0,999999.0/),                 &
+           Ebal = (/-999999.0,999999.0/),                 &
+                                !! vh_js !!
+           CanT = (/213.0,333.0/),                        &
+           Fwsoil = (/0.0,1.0/),                          &
+                                ! parameters:
+           albsoil = (/0.0,0.9/),                         &
+           isoil = (/1.0,30.0/),                          &
+           iveg = (/1.0,30.0/),                           &
+           bch = (/2.0,15.0/),                            &
+           latitude = (/-90.0,90.0/),                     &
+           c3 = (/0.0,1.0/),                              & ! EK nov07
+           clay = (/0.0,1.0/),                            &
+           css = (/700.0,2200.0/),                        &
+           rhosoil = (/300.0,3000.0/),                    &
+           hyds = (/5.0E-7,8.5E-3/),                      & ! vh_js ! sep14
+           rs20 = (/0.0,10.0/),                           &
+           sand = (/0.0,1.0/),                            &
+           sfc = (/0.1,0.5/),                             &
+           silt = (/0.0,1.0/),                            &
+           ssat = (/0.35,0.5/),                           &
+           sucs = (/-0.8,-0.03/),                         &
+           swilt = (/0.05,0.4/),                          &
+           froot = (/0.0,1.0/),                           &
+           zse = (/0.0,5.0/),                             &
+           canst1 = (/0.05,0.15/),                        &
+           dleaf = (/0.005,0.4/),                         &
+           ejmax = (/0.0,1.0E-3/),                        &
+           frac4 = (/0.0,1.0/),                           &
+           hc = (/0.0,100.0/),                            &
+           lai = (/0.0,8.0/),                             &
+           rp20 = (/0.0,10.0/),                           &
+           vbeta =(/-999999.0,999999.0/),                 &
+           g0 = (/-0.5,0.5/),                             & ! Ticket #56 (must find better range)
+           g1 = (/0.0,20.0/),                             & ! Ticket #56 (must find better range)
+           xalbnir = (/0.0,1.5/),                         &
+           meth = (/0.0,1.0/),                            &
+           za =(/0.0,150.0/),                             &
+           rpcoef = (/0.05,1.5/),                         &
+           shelrb = (/1.0,3.0/),                          &
+           vcmax = (/0.0,5.0E-4/),                        &
+           xfang = (/-1.0,0.5/),                          &
+           ratecp = (/0.01,3.0/),                         &
+           ratecs = (/0.01,3.0/),                         &
+           refsbare = (/0.0,0.5/),                        &
+           taul = (/0.0,0.3/),                            &
+           refl = (/0.0,0.5/),                            &
+           tauw = (/0.0,0.1/),                            &
+           refw = (/0.0,0.5/),                            &
+           extkn = (/0.0,10.0/),                          & ! YP oct07
+           wai = (/0.0,5.0/),                             & ! YP oct07
+           vegcf = (/0.0,100.0/),                         & ! YP oct07
+           tminvj = (/-20.0,15.0/),                       &
+           tmaxvj = (/-15.0,30.0/),                       &
+           rootbeta = (/0.7,1.0/),                        & ! YP oct07
+           veg_class = (/1.0,20.0/),                      &
+           soil_class = (/1.0,20.0/)  ,                   &
+           TotLivBiomass =  (/0.0, 1000./),               &
+           TotSoilCarb =  (/0.0, 1000./),                 &
+           TotLittCarb =  (/0.0, 1000./),                 &
+           Area = (/0.0, 5000./),                         &
+           gsw_sl = (/0.0, 1.0/),                         &
+           gsw_sh = (/0.0, 1.0/)
    END TYPE ranges_type
    TYPE(ranges_type),SAVE :: ranges
 
@@ -195,9 +196,9 @@ CONTAINS
 SUBROUTINE mass_balance(dels, ktau, ssnow, soil, canopy, met, air, bal)
 
    use mo_utils, only: eq
-  
+
    implicit none
-  
+
    ! Input arguments
    REAL,INTENT(IN)                          :: dels        ! time step size
    INTEGER, INTENT(IN)                      :: ktau        ! timestep number
@@ -237,8 +238,6 @@ SUBROUTINE mass_balance(dels, ktau, ssnow, soil, canopy, met, air, bal)
       END IF
    END IF
 
-
-
    ! net water into soil (precip-(change in canopy water storage)
    !  - (change in snow depth) - (surface runoff) - (deep drainage)
    !  - (evaporated water from vegetation and soil(excluding fevw, since
@@ -257,18 +256,18 @@ SUBROUTINE mass_balance(dels, ktau, ssnow, soil, canopy, met, air, bal)
       ! delwcol includes change in soil water, pond and snowpack
       bal%wbal = canopy_wbal + canopy%through - ssnow%runoff - &
            real(ssnow%delwcol) - real(ssnow%evap) - max(real(canopy%fevc), 0.0)*dels/air%rlam
-   
-   ENDIF
-!!$write(*,"(100e16.6)")  REAL(canopy%through(1) - ssnow%delwcol(1)-ssnow%runoff(1) &
-!!$                  - ssnow%evap(1) - max(canopy%fevc(1),0.0)*dels/air%rlam(1), r_2), &
-!!$canopy%through(1),  ssnow%delwcol(1), ssnow%runoff(1),  ssnow%evap(1),  max(canopy%fevc(1),0.0)*dels/air%rlam(1)
 
-   if(ktau==1) then 
-      bal%wbal_tot = 0.; bal%precip_tot = 0. 
+   ENDIF
+   ! write(*,"(100e16.6)")  REAL(canopy%through(1) - ssnow%delwcol(1)-ssnow%runoff(1) &
+   !                   - ssnow%evap(1) - max(canopy%fevc(1),0.0)*dels/air%rlam(1), r_2), &
+   ! canopy%through(1),  ssnow%delwcol(1), ssnow%runoff(1),  ssnow%evap(1),  max(canopy%fevc(1),0.0)*dels/air%rlam(1)
+
+   if(ktau==1) then
+      bal%wbal_tot = 0.; bal%precip_tot = 0.
       bal%rnoff_tot = 0.; bal%evap_tot = 0.
-   endif   
-   
-   IF(ktau>10) THEN ! Avoid wobbly balances for ktau<10 pending later fix 
+   endif
+
+   IF(ktau>10) THEN ! Avoid wobbly balances for ktau<10 pending later fix
       ! Add to accumulation variables:
       bal%wbal_tot = bal%wbal_tot + bal%wbal
       bal%precip_tot = bal%precip_tot + met%precip
@@ -306,7 +305,7 @@ SUBROUTINE energy_balance(met, rad, canopy, bal, ssnow, SBOLTZ, EMLEAF, EMSOIL)
       EMLEAF,  & !leaf emissivity
       EMSOIL     !leaf emissivity
 
-!! vh_js !! note changes to this subroutine. Need to use ssnow%otss (not ssnow%tss) in these calculations.
+    !! vh_js !! note changes to this subroutine. Need to use ssnow%otss (not ssnow%tss) in these calculations.
 
     !! vh !! March 2014
 
@@ -331,9 +330,9 @@ SUBROUTINE energy_balance(met, rad, canopy, bal, ssnow, SBOLTZ, EMLEAF, EMSOIL)
     ! Add to cumulative balance:
     bal%ebal_tot  = bal%ebal_tot  + bal%ebal
     bal%RadbalSum = bal%RadbalSum + bal%Radbal
-!!$write(3355,"(200e16.6)")  bal%EbalSoil
-!!$write(3356,"(200e16.6)")  bal%Ebalveg
-!!$write(3357,"(200e16.6)")  bal%Ebal
+    ! write(3355,"(200e16.6)")  bal%EbalSoil
+    ! write(3356,"(200e16.6)")  bal%Ebalveg
+    ! write(3357,"(200e16.6)")  bal%Ebal
 END SUBROUTINE energy_balance
 
 !==============================================================================

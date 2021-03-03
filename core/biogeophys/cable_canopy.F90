@@ -29,7 +29,7 @@
 !        : Vanessa Haverd added new fwsoil_switch  for response of stomatal conductance
 !          to soil moisture, which resolves decoupling of transpiration and
 !          photosynthesis at low soil moisture. Search for "Haverd2013".
-!        : Vanessa Hverd added new logical switch cable_user%litter. When 'true',
+!        : Vanessa Haverd added new logical switch cable_user%litter. When 'true',
 !          leaf litter suppresses soil evaporation
 !        : Vanessa Haverd added new switch to enable SLI alternative to default soil
 !          module. When cable_user%soil_struc=='sli', then SLI is used to compute
@@ -47,7 +47,7 @@ MODULE cable_canopy_module
   implicit none
 
   public :: define_canopy, xvcmxt3, xejmxt3, ej3x, xrdt, xgmesT, &
-       xvcmxt3_acclim, xejmxt3_acclim
+       xvcmxt3_acclim, xejmxt3_acclim, light_inhibition
 
   private
 
@@ -128,9 +128,6 @@ CONTAINS
          gbhu => null(),          & ! forcedConvectionBndryLayerCond
          gbhf => null(),          & ! freeConvectionBndryLayerCond
          csx => null()              ! leaf surface CO2 concentration
-    REAL(r_2), DIMENSION(:,:), POINTER ::  gmes => null()  ! mesophyll conductance
-    !mesophyll conductance extinction coeff't (Sun et al. 2014 SI Eq S7)
-    !REAL :: gmax0 ! max mesophyll conductacne at canopy top
     REAL :: rt_min
     REAL, DIMENSION(mp) :: zstar, rL, phist, csw, psihat,rt0bus
 
@@ -152,9 +149,7 @@ CONTAINS
     ALLOCATE(ecy(mp), hcy(mp), rny(mp))
     ALLOCATE(gbhf(mp,mf), csx(mp,mf))
     ALLOCATE(ghwet(mp))
-    ALLOCATE(gmes(mp,mf))
 
-    gmes = 0.0_r_2
 
     ! BATS-type canopy saturation proportional to LAI:
     cansat = veg%canst1 * canopy%vlaiw
@@ -174,7 +169,6 @@ CONTAINS
     met%qvair = met%qv
     canopy%tv = met%tvair
 
-    
     ! Initialise sunlit and shaded Ac and Aj diagnostics
     canopy%A_sh           = 0.0_r_2
     canopy%A_sl           = 0.0_r_2
@@ -381,21 +375,6 @@ CONTAINS
                 gbhu(j,2) = gbhu(j,2) * 2.0_r_2
              endif
 
-             if (cable_user%explicit_gm) then
-                ! JK: gmmax now comes from param file
-                !gmax0 = 2.47/10.1 ! molm-2s-1
-                !if (veg%iveg(j).eq.1) then
-                !   gmax0 = 1.21/10.1
-                !elseif (veg%iveg(j).eq.2) then
-                !   gmax0 = 1.36/10.1
-                !elseif (veg%iveg(j).eq.3) then
-                !   gmax0 = 2.14/10.1
-                !elseif (veg%iveg(j).eq.7) then
-                !   gmax0 = 0.3
-                !endif
-                gmes(j,1) = real(veg%gmmax(j) * rad%scalex(j,1), r_2) * xgmesT(tlfx(j))
-                gmes(j,2) = real(veg%gmmax(j) * rad%scalex(j,2), r_2) * xgmesT(tlfx(j))
-             endif              !
           ENDIF ! canopy%vlaiw(j) > C%LAI_THRESH
 
        ENDDO ! j=1, mp
@@ -409,7 +388,7 @@ CONTAINS
             veg, canopy, soil, ssnow, dsx, &
             fwsoil, tlfx, tlfy, ecy, hcy,  &
             rny, gbhu, gbhf, csx, cansat,  &
-            ghwet, iter, climate, gmes )
+            ghwet, iter, climate)
 
        CALL wetLeaf( dels, rad, air, met, &
             canopy, cansat, tlfy,    &
@@ -443,7 +422,6 @@ CONTAINS
                 canopy%tv(j) = met%tk(j)
              endif
 
-
           ELSE ! sparse canopy
 
              canopy%tv(j) = met%tk(j)
@@ -456,14 +434,12 @@ CONTAINS
        canopy%fns = rad%qssabs + rad%transd*met%fld + (1.0-rad%transd)*C%EMLEAF* &
             C%SBOLTZ*canopy%tv**4 - C%EMSOIL*C%SBOLTZ* tss4
 
-
        ! Saturation specific humidity at soil/snow surface temperature:
        call qsatfjh(ssnow%qstss,ssnow%tss-C%tfrz,met%pmb)
 
-
        If (cable_user%soil_struc=='default') THEN
 
-          IF(cable_user%ssnow_POTEV== "P-M") THEN
+          IF (cable_user%ssnow_POTEV== "P-M") THEN
 
              !--- uses %ga from previous timestep
              ssnow%potev = Penman_Monteith(canopy%ga)
@@ -497,25 +473,24 @@ CONTAINS
        ENDIF
 
        !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-       !      ! SPECIAL for global offine met: set screen t and humidity as met inputs
+       ! ! SPECIAL for global offine met: set screen t and humidity as met inputs
+       ! tstar = - (canopy%fhv+canopy%fhs) / ( air%rho*C%capp*canopy%us)
+       ! qstar = - (canopy%fev+canopy%fes) / ( air%rho*air%rlam *canopy%us)
+       ! zscrn = max(rough%z0m,1.8-rough%disp)
+       ! denom = ( log(rough%zref_tq/zscrn)- psis(canopy%zetar(:,iter)) + &
+       !      psis(canopy%zetar(:,iter) * zscrn / rough%zref_tq) ) /C%vonk
        !
-       !       tstar = - (canopy%fhv+canopy%fhs) / ( air%rho*C%capp*canopy%us)
-       !       qstar = - (canopy%fev+canopy%fes) / ( air%rho*air%rlam *canopy%us)
-       !       zscrn = max(rough%z0m,1.8-rough%disp)
-       !       denom = ( log(rough%zref_tq/zscrn)- psis(canopy%zetar(:,iter)) + &
-       !            psis(canopy%zetar(:,iter) * zscrn / rough%zref_tq) ) /C%vonk
+       ! where (canopy%zetar(:,iter) > 0.7)
+       !    zeta2=canopy%zetar(:,iter) * zscrn / rough%zref_tq
+       !    denom =alpha1* ((canopy%zetar(:,iter)**beta1* &
+       !         (1.0+gamma1*canopy%zetar(:,iter)**(1.0-beta1))) &
+       !         - (zeta2**beta1*(1.0+gamma1*zeta2**(1.0-beta1)))) /C%vonk
+       ! endwhere
        !
-       !       where (canopy%zetar(:,iter) > 0.7)
-       !          zeta2=canopy%zetar(:,iter) * zscrn / rough%zref_tq
-       !          denom =alpha1* ((canopy%zetar(:,iter)**beta1* &
-       !               (1.0+gamma1*canopy%zetar(:,iter)**(1.0-beta1))) &
-       !               - (zeta2**beta1*(1.0+gamma1*zeta2**(1.0-beta1)))) /C%vonk
-       !       endwhere
-       !
-       !       where (abs( tstar*denom ).lt. 5.0)
-       !          met%tk = canopy%tscrn + tstar*denom
-       !          met%qv = max(canopy%qscrn + qstar*denom, 0.0)
-       !       endwhere
+       ! where (abs( tstar*denom ).lt. 5.0)
+       !    met%tk = canopy%tscrn + tstar*denom
+       !    met%qv = max(canopy%qscrn + qstar*denom, 0.0)
+       ! endwhere
        !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
        CALL within_canopy( gbhu, gbhf )
@@ -556,9 +531,11 @@ CONTAINS
           canopy%ga = canopy%fns - canopy%fhs - real(canopy%fes) !*ssnow%cls
 
        ELSEIF (cable_user%soil_struc=='sli') THEN
+
           ! SLI SEB to get canopy%fhs, canopy%fess, canopy%ga
           ! (Based on old Tsoil, new canopy%tv, new canopy%fns)
           CALL sli_main(1,dels,veg,soil,ssnow,met,canopy,air,rad,1)
+
        ENDIF
 
        ! Set total latent heat:
@@ -630,7 +607,6 @@ CONTAINS
          - psis( canopy%zetar(:,NITER)) &
          + psis(canopy%zetar(:,NITER)*0.1*rough%z0m/rough%zref_tq) ) ! n
 
-
     ! Calculate screen temperature: 1) original method from SCAM
     ! screen temp., windspeed and relative humidity at 1.5m
     ! screen temp., windspeed and relative humidity at 2.0m
@@ -688,7 +664,6 @@ CONTAINS
                   ( zscl(j) - rough%hruff(j) ) / &
                   ( C%A33**2 * C%CTL * rough%hruff(j) )
 
-
           ELSEIF( zscl(j) >= rough%zruffs(j) ) THEN
 
              r_sc(j) = rough%rt0us(j) + rough%rt1usa(j) + rough%rt1usb(j) + &
@@ -725,13 +700,12 @@ CONTAINS
        canopy%qscrn(j) = met%qv(j) - qstar(j) * ftemp(j)
 
        IF( canopy%vlaiw(j) >C%LAI_THRESH .and. rough%hruff(j) > 0.01) &
-            
+
             canopy%qscrn(j) = qsurf(j) + (met%qv(j) - qsurf(j)) * MIN( 1., &
             r_sc(j) / MAX( 1., rough%rt0us(j) + &
             rough%rt1usa(j) + rough%rt1usb(j) + rt1usc(j) ) )
 
     ENDDO
-
 
     ! Calculate dewfall: from negative lh wet canopy + neg. lh dry canopy:
     canopy%dewmm = -(min(0.0,canopy%fevw) + min(0.0,real(canopy%fevc))) * &
@@ -803,12 +777,9 @@ CONTAINS
 
     RETURN
 
-
   CONTAINS
 
-
     ! ------------------------------------------------------------------------------
-
 
     SUBROUTINE comp_friction_vel()
 
@@ -834,9 +805,7 @@ CONTAINS
 
     END SUBROUTINE comp_friction_vel
 
-
     ! ------------------------------------------------------------------------------
-
 
     FUNCTION Penman_Monteith(ground_H_flux) RESULT(ssnowpotev)
 
@@ -848,10 +817,10 @@ CONTAINS
       real, dimension(mp)              :: ssnowpotev ! returned result of function
 
       real, dimension(mp) :: &
-           sss,             & ! var for Penman-Monteith soil evap
-           cc1,             & ! var for Penman-Monteith soil evap
-           cc2,             & ! var for Penman-Monteith soil evap
-           qsatfvar           !
+           sss,              & ! var for Penman-Monteith soil evap
+           cc1,              & ! var for Penman-Monteith soil evap
+           cc2,              & ! var for Penman-Monteith soil evap
+           qsatfvar            !
 
       ! Penman-Monteith formula
       sss = air%dsatdk
@@ -872,9 +841,7 @@ CONTAINS
 
     END FUNCTION Penman_Monteith
 
-
     ! ------------------------------------------------------------------------------
-
 
     ! method alternative to P-M formula above
     FUNCTION humidity_deficit_method(dq) RESULT(ssnowpotev)
@@ -906,9 +873,7 @@ CONTAINS
 
     END FUNCTION humidity_deficit_method
 
-
     ! ------------------------------------------------------------------------------
-
 
     SUBROUTINE Latent_heat_flux()
 
@@ -968,9 +933,7 @@ CONTAINS
 
     END SUBROUTINE latent_heat_flux
 
-
     ! -----------------------------------------------------------------------------
-
 
     SUBROUTINE within_canopy(gbhu, gbhf)
 
@@ -1075,7 +1038,6 @@ CONTAINS
 
     END SUBROUTINE within_canopy
 
-
     ! -----------------------------------------------------------------------------
 
     SUBROUTINE update_zetar()
@@ -1134,10 +1096,8 @@ CONTAINS
 
     END SUBROUTINE update_zetar
 
-
     ! -----------------------------------------------------------------------------
 
-    
     ! not used
     ! FUNCTION qsatf(j,tair,pmb) RESULT(r)
     !   ! MRR, 1987
@@ -1155,9 +1115,7 @@ CONTAINS
 
     ! END FUNCTION qsatf
 
-
     ! -----------------------------------------------------------------------------
-
 
     SUBROUTINE qsatfjh(var, tair, pmb)
 
@@ -1179,9 +1137,7 @@ CONTAINS
 
     END SUBROUTINE qsatfjh
 
-
     ! -----------------------------------------------------------------------------
-
 
     SUBROUTINE qsatfjh2(var, tair, pmb)
 
@@ -1196,9 +1152,7 @@ CONTAINS
 
     END SUBROUTINE qsatfjh2
 
-
     ! -----------------------------------------------------------------------------
-
 
     FUNCTION psim(zeta) RESULT(r)
       ! mrr, 16-sep-92 (from function psi: mrr, edinburgh 1977)
@@ -1239,10 +1193,8 @@ CONTAINS
 
     END FUNCTION psim
 
-
     ! -----------------------------------------------------------------------------
 
-    
     ELEMENTAL FUNCTION psis(zeta) RESULT(r)
       ! mrr, 16-sep-92 (from function psi: mrr, edinburgh 1977)
       ! computes integrated stability function psis(z/l) (z/l=zeta)
@@ -1281,9 +1233,7 @@ CONTAINS
 
     END FUNCTION psis
 
-
     ! -----------------------------------------------------------------------------
-
 
     ! not used
     ! ELEMENTAL FUNCTION rplant(rpconst, rpcoef, tair) result(z)
@@ -1298,7 +1248,6 @@ CONTAINS
     !   z = rpconst * exp(rpcoef * tair)
 
     ! END FUNCTION rplant
-
 
     ! -----------------------------------------------------------------------------
 
@@ -1388,16 +1337,14 @@ CONTAINS
 
     END SUBROUTINE wetLeaf
 
-    
     ! -----------------------------------------------------------------------------
 
-    
   END SUBROUTINE define_canopy
 
-  
+
   ! -----------------------------------------------------------------------------
 
-  
+
   SUBROUTINE Surf_wetness_fact( cansat, canopy, ssnow,veg, met, soil, dels )
 
     USE cable_common_module
@@ -1463,7 +1410,6 @@ CONTAINS
 
     ENDDO
 
-
     ! owetfac introduced to reduce sharp changes in dry regions,
     ! especially in offline runs in which there may be discrepancies b/n
     ! timing of precip and temperature change (EAK apr2009)
@@ -1471,15 +1417,15 @@ CONTAINS
 
   END SUBROUTINE Surf_wetness_fact
 
-  
+
   ! -----------------------------------------------------------------------------
 
-  
+
   SUBROUTINE dryLeaf( dels, rad, air, met, &
        veg, canopy, soil, ssnow, dsx, &
        fwsoil, tlfx, tlfy, ecy, hcy, &
        rny, gbhu, gbhf, csx, &
-       cansat, ghwet, iter, climate, gmes )
+       cansat, ghwet, iter, climate)
 
     use cable_def_types_mod
     use cable_common_module
@@ -1514,11 +1460,9 @@ CONTAINS
     real(r_2), dimension(:),   intent(out)   :: ghwet  ! cond for heat for a wet canopy
     integer,                   intent(in)    :: iter
     type(climate_type),        intent(in)    :: climate
-    real(r_2), dimension(:,:), intent(inout) :: gmes             ! mesophyll conductance
 
-    !local variables
-    real, parameter  :: &
-         jtomol = 4.6e-6  ! Convert from J to Mol for light
+    !local variables (JK: move parameters to different routine at some point)
+    real, parameter :: jtomol = 4.6e-6  ! Convert from J to Mol for light
 
     real, dimension(mp) :: &
          conkct,        & ! Michaelis Menton const.
@@ -1539,9 +1483,12 @@ CONTAINS
          sum_gbh,       & !
          ccfevw,        & ! limitation term for
                                 ! wet canopy evaporation rate
-         temp,          & !
-         temp_sun,      & !
-         temp_shade       !
+         temp_c3,       & !
+         temp_c4,       & !
+         temp_sun_c3,   & !
+         temp_shade_c3, & !
+         temp_sun_c4,   & !
+         temp_shade_c4    !
 
     real(r_2), dimension(mp)  :: &
          ecx,        & ! lat. hflux big leaf
@@ -1578,7 +1525,9 @@ CONTAINS
          anrubpx,    & ! net photosynthesis (rubp limited)
          ansinkx,    & ! net photosynthesis (sink limited)
          anrubiscoy, & ! net photosynthesis (rubisco limited)
-         anrubpy       ! net photosynthesis (rubp limited)
+         anrubpy,    & ! net photosynthesis (rubp limited)
+         kc4,        & ! An-Ci slope in Collatz 1992 model
+         gmes          ! mesophyll conductance of big leaf
 
     real(r_2), dimension(mp,mf)  ::  dAnrubiscox, & ! CO2 elasticity of net photosynthesis (rubisco limited)
          dAnrubpx, &   !  (rubp limited)
@@ -1596,7 +1545,10 @@ CONTAINS
          conko0,  &
          egam,    &
          ekc,     &
-         eko
+         eko,     &
+         qs,      &
+         qm,      &
+         qb
 
     ! real, dimension(:,:), pointer :: gswmin => null() ! min stomatal conductance
     ! real, dimension(:,:), allocatable :: gswmin ! min stomatal conductance
@@ -1739,16 +1691,26 @@ CONTAINS
              ! Conductance for heat and longwave radiation:
              ghr(i,:) = rad%gradis(i,:)+gh(i,:)
 
-
-
              ! Choose Ci-based (implicit gm) or Cc-based (explicit gm) parameters
              if (cable_user%explicit_gm) then
-                gam0    = C%gam0cc
-                conkc0  = C%conkc0cc
-                conko0  = C%conko0cc
-                egam    = C%egamcc
-                ekc     = C%ekccc
-                eko     = C%ekocc
+                if (trim(cable_user%Rubisco_parameters) == 'Bernacchi_2002') then
+                   gam0    = C%gam0cc
+                   conkc0  = C%conkc0cc
+                   conko0  = C%conko0cc
+                   egam    = C%egamcc
+                   ekc     = C%ekccc
+                   eko     = C%ekocc
+                else if (trim(cable_user%Rubisco_parameters) == 'Walker_2013') then
+                   gam0    = C%gam0ccw
+                   conkc0  = C%conkc0ccw
+                   conko0  = C%conko0ccw
+                   egam    = C%egamccw
+                   ekc     = C%ekcccw
+                   eko     = C%ekoccw
+                endif
+                qs      = C%qs
+                qm      = C%qm
+                qb      = C%qb
              else
                 gam0   = C%gam0
                 conkc0 = C%conkc0
@@ -1756,6 +1718,9 @@ CONTAINS
                 egam   = C%egam
                 ekc    = C%ekc
                 eko    = C%eko
+                qs     = 0.5
+                qm     = 0.0     ! not used
+                qb     = 1.0
              endif
              ! JK: veg%vcmax_sun and veg%vcmax_shade are Cc-based if cable_user%explicit_gm = TRUE
              !     and Ci-based otherwise. If cable_user%coordinate_photosyn = FALSE,
@@ -1763,65 +1728,49 @@ CONTAINS
              !     and veg%vcmax_sun = veg%vcmax_shade = veg%vcmax otherwise.
              !     See also Subroutine 'casa_feedback' in casa_cable.F90. Same applies to ejmax.
 
-
              ! Leuning 2002 (PCE) equation for temperature response
              ! used for Vcmax for C3 plants:
-             if (.not.cable_user%acclimate_photosyn) then
-                if (cable_user%perturb_biochem_by_T) then
-                   temp_sun(i)   = xvcmxt3(tlfx(i)+cable_user%Ta_perturbation) * &
-                        veg%vcmax_sun(i) * (1.0-veg%frac4(i))
-                   temp_shade(i) = xvcmxt3(tlfx(i)+cable_user%Ta_perturbation) * &
-                        veg%vcmax_shade(i) * (1.0-veg%frac4(i))
-                else
-                   temp_sun(i)   = xvcmxt3(tlfx(i)) * veg%vcmax_sun(i) * (1.0-veg%frac4(i))
-                   temp_shade(i) = xvcmxt3(tlfx(i)) * veg%vcmax_shade(i) * (1.0-veg%frac4(i))
-                endif
+             if (.not. cable_user%acclimate_photosyn) then
+                temp_sun_c3(i)   = xvcmxt3(tlfx(i)) * veg%vcmax_sun(i) * (1.0-veg%frac4(i))
+                temp_shade_c3(i) = xvcmxt3(tlfx(i)) * veg%vcmax_shade(i) * (1.0-veg%frac4(i))
+                temp_sun_c4(i)   = xvcmxt4(tlfx(i)) * veg%vcmax_sun(i) * veg%frac4(i)
+                temp_shade_c4(i) = xvcmxt4(tlfx(i)) * veg%vcmax_shade(i) * veg%frac4(i)
              else
-                if (cable_user%perturb_biochem_by_T) then
-                   call xvcmxt3_acclim(tlfx(i)+cable_user%Ta_perturbation, climate%mtemp(i) , temp(i))
-                else
-                   call xvcmxt3_acclim(tlfx(i), climate%mtemp(i) , temp(i))
-                endif
-                temp_sun(i)   = temp(i) * veg%vcmax_sun(i) * (1.0-veg%frac4(i))
-                temp_shade(i) = temp(i) * veg%vcmax_shade(i) * (1.0-veg%frac4(i))
+                call xvcmxt3_acclim(tlfx(i), climate%mtemp(i) , temp_c3(i))
+                call xvcmxt4_acclim(tlfx(i), climate%mtemp(i) , temp_c4(i))
+                temp_sun_c3(i)   = temp_c3(i) * veg%vcmax_sun(i) * (1.0-veg%frac4(i))
+                temp_shade_c3(i) = temp_c3(i) * veg%vcmax_shade(i) * (1.0-veg%frac4(i))
+                temp_sun_c4(i)   = temp_c4(i) * veg%vcmax_sun(i) * veg%frac4(i)
+                temp_shade_c4(i) = temp_c4(i) * veg%vcmax_shade(i) * veg%frac4(i)
              endif
-             vcmxt3(i,1) = rad%scalex(i,1) * temp_sun(i)
-             vcmxt3(i,2) = rad%scalex(i,2) * temp_shade(i)
+             vcmxt3(i,1) = rad%scalex(i,1) * temp_sun_c3(i) * fwsoil(i)**qb
+             vcmxt3(i,2) = rad%scalex(i,2) * temp_shade_c3(i) * fwsoil(i)**qb
+             vcmxt4(i,1) = rad%scalex(i,1) * temp_sun_c4(i) * fwsoil(i)**qb
+             vcmxt4(i,2) = rad%scalex(i,2) * temp_shade_c4(i) * fwsoil(i)**qb
 
-             ! Temperature response Vcmax, C4 plants (Collatz et al 1989):
-             temp_sun(i)   = xvcmxt4(tlfx(i)-C%tfrz) * veg%vcmax_sun(i) * veg%frac4(i)
-             temp_shade(i) = xvcmxt4(tlfx(i)-C%tfrz) * veg%vcmax_shade(i) * veg%frac4(i)
-             vcmxt4(i,1) = rad%scalex(i,1) * temp_sun(i)
-             vcmxt4(i,2) = rad%scalex(i,2) * temp_shade(i)
-
+             ! apply same scaling for k as for Vcmax in C4 plants
+             if (.not. cable_user%explicit_gm) then
+                kc4(i,1) = veg%c4kci(i) * vcmxt4(i,1)/veg%vcmax_sun(i)
+                kc4(i,2) = veg%c4kci(i) * vcmxt4(i,2)/veg%vcmax_shade(i)
+             else
+                kc4(i,1) = veg%c4kcc(i) * vcmxt4(i,1)/veg%vcmax_sun(i)
+                kc4(i,2) = veg%c4kcc(i) * vcmxt4(i,2)/veg%vcmax_shade(i)
+             endif
 
              ! Leuning 2002 (PCE) equation for temperature response
              ! used for Jmax for C3 plants:
              if (.not.cable_user%acclimate_photosyn) then
-                if (cable_user%perturb_biochem_by_T) then
-                   temp_sun(i)   = xejmxt3(tlfx(i)+cable_user%Ta_perturbation) * &
-                        veg%ejmax_sun(i) * (1.0-veg%frac4(i))
-                   temp_shade(i) = xejmxt3(tlfx(i)+cable_user%Ta_perturbation) * &
-                        veg%ejmax_shade(i) * (1.0-veg%frac4(i))
-                else
-                   temp_sun(i)   = xejmxt3(tlfx(i)) * &
-                        veg%ejmax_sun(i) * (1.0-veg%frac4(i))
-                   temp_shade(i) = xejmxt3(tlfx(i)) * &
-                        veg%ejmax_shade(i) * (1.0-veg%frac4(i))
-                endif
+                temp_sun_c3(i) = xejmxt3(tlfx(i)) * &
+                                 veg%ejmax_sun(i) * (1.0-veg%frac4(i))
+                temp_shade_c3(i) = xejmxt3(tlfx(i)) * &
+                                   veg%ejmax_shade(i) * (1.0-veg%frac4(i))
              else
-                if (cable_user%perturb_biochem_by_T) then
-                   call xejmxt3_acclim(tlfx(i)+cable_user%Ta_perturbation, &
-                        climate%mtemp(i), climate%mtemp_max20(i), temp(i))
-                else
-                   call xejmxt3_acclim(tlfx(i), climate%mtemp(i), climate%mtemp_max20(i), temp(i))
-                endif
-                temp_sun(i)   = temp(i) * veg%ejmax_sun(i) * (1.0-veg%frac4(i))
-                temp_shade(i) = temp(i) * veg%ejmax_shade(i) * (1.0-veg%frac4(i))
+                call xejmxt3_acclim(tlfx(i), climate%mtemp(i), climate%mtemp_max20(i), temp_c3(i))
+                temp_sun_c3(i)   = temp_c3(i) * veg%ejmax_sun(i) * (1.0-veg%frac4(i))
+                temp_shade_c3(i) = temp_c3(i) * veg%ejmax_shade(i) * (1.0-veg%frac4(i))
              endif
-             ejmxt3(i,1) = rad%scalex(i,1) * temp_sun(i)
-             ejmxt3(i,2) = rad%scalex(i,2) * temp_shade(i)
-
+             ejmxt3(i,1) = rad%scalex(i,1) * temp_sun_c3(i) * fwsoil(i)**qb
+             ejmxt3(i,2) = rad%scalex(i,2) * temp_shade_c3(i) * fwsoil(i)**qb
 
              ! Difference between leaf temperature and reference temperature:
              tdiff(i) = tlfx(i) - C%TREFK
@@ -1844,27 +1793,14 @@ CONTAINS
              cx2(i) = 2.0 * gam0 * EXP( ( egam / (C%rgas*C%trefk) ) &
                   * ( 1.0 - C%trefk/tlfx(i) ) )
 
-             if (cable_user%perturb_biochem_by_T) then
-                cx2(i) = 2.0 * gam0 * EXP( ( egam / (C%rgas*C%trefk) ) &
-                     * ( 1.0 - C%trefk/(tlfx(i)+cable_user%Ta_perturbation) ) )
-
-
-                conkot(i) = conko0 * EXP( ( eko / (C%rgas*C%trefk) ) &
-                     * ( 1.0 - C%trefk/(tlfx(i)+cable_user%Ta_perturbation) ) )
-
-                conkct(i) = conkc0 * EXP( ( ekc / (C%rgas*C%trefk) ) &
-                     * ( 1.0 - C%trefk/(tlfx(i)+cable_user%Ta_perturbation) ) )
-
-                cx1(i) = conkct(i) * (1.0+0.21/conkot(i))
-             endif
-
              ! All equations below in appendix E in Wang and Leuning 1998 are
              ! for calculating anx, csx and gswx for Rubisco limited,
-             ! RuBP limited, sink limited
+             ! RuBP limited, sink limited.
+             ! JK: vx4 changed to correspond to formulation in Collatz et al. 1992
              temp2(i,:) = rad%qcan(i,:,1) * jtomol * (1.0-veg%frac4(i))
              vx3(i,:)   = ej3x(temp2(i,:), veg%alpha(i), veg%convex(i), ejmxt3(i,:))
-             temp2(i,:) = rad%qcan(i,:,1) * jtomol * veg%frac4(i)
-             vx4(i,:)   = ej4x(temp2(i,:), veg%alpha(i), veg%convex(i), vcmxt4(i,:))
+             vx4(i,:)   = veg%alpha(i) * rad%qcan(i,:,1) * jtomol * veg%frac4(i) * fwsoil(i)**qb
+             !vx4(i,:)   = ej4x(temp2(i,:), veg%alpha(i), veg%convex(i), vcmxt4(i,:))
              rdx(i,:)   = veg%cfrd(i)*Vcmxt3(i,:) + veg%cfrd(i)*vcmxt4(i,:)
 
              !Vanessa - the trunk does not contain xleauning as of Ticket#56 inclusion
@@ -1877,20 +1813,13 @@ CONTAINS
 
              if (cable_user%CALL_climate) then
                 ! if (veg%iveg(i).eq.1) then
-
-
                 !    temp2(i,1) = rad%qcan(i,1,1) * jtomol * (1.0-veg%frac4(i))
                 !    temp2(i,2) = rad%qcan(i,2,1) * jtomol * (1.0-veg%frac4(i))
-
-
                 !    vx3(i,1)  = ej3x(temp2(i,1),climate%frec(i)*veg%alpha(i), &
                 !         veg%convex(i),ejmxt3(i,1))
                 !    vx3(i,2)  = ej3x(temp2(i,2),climate%frec(i)*veg%alpha(i), &
                 !         veg%convex(i),ejmxt3(i,2))
-
-
                 !    temp(i) =  xvcmxt3(tlfx(i)) * veg%vcmax(i) * (1.0-veg%frac4(i))
-
                 !    vcmxt3(i,1) = rad%scalex(i,1) * temp(i) * climate%frec(i)
                 !    vcmxt3(i,2) = rad%scalex(i,2) * temp(i) * climate%frec(i)
                 ! endif
@@ -1921,13 +1850,14 @@ CONTAINS
                    rdx(i,2) = rdx(i,1)
 
                 elseif (veg%iveg(i).eq.1   ) then ! evergreen needleleaf forest
+
                    rdx(i,1) = 1.0*(1.2877e-6+0.0116*veg%vcmax(i)- &
                         0.0334*climate%qtemp_max_last_year(i)*1e-6)
 
                    rdx(i,2) = rdx(i,1)
 
-
                 elseif ( veg%iveg(i).eq. 3  ) then ! decid needleleaf forest
+
                    rdx(i,1) = 1.0*(1.2877e-6+0.0116*veg%vcmax(i)- &
                         0.0334*climate%qtemp_max_last_year(i)*1e-6)
 
@@ -1935,46 +1865,35 @@ CONTAINS
 
                 elseif (veg%iveg(i).eq.6 .or. veg%iveg(i).eq.8 .or. &
                      veg%iveg(i).eq. 9  ) then ! C3 grass, tundra, crop
+
                    rdx(i,1) = 0.8*(1.6737e-6+0.0116*veg%vcmax(i)- &
                         0.0334*climate%qtemp_max_last_year(i)*1e-6)
 
                    rdx(i,2) = rdx(i,1)
 
                 else  ! shrubs and other (C4 grass and crop)
+
                    rdx(i,1) = 0.7*(1.5758e-6+0.0116*veg%vcmax(i)- &
                         0.0334*climate%qtemp_max_last_year(i)*1e-6)
                    rdx(i,2) = rdx(i,1)
+
                 endif
                 veg%cfrd(i) = rdx(i,1) / veg%vcmax(i)
                 ! modify for leaf area and instanteous temperature response (Rd25 -> Rd)
-                rdx(i,1) = rdx(i,1) * xrdt(tlfx(i)) * rad%scalex(i,1)
-                rdx(i,2) = rdx(i,2) * xrdt(tlfx(i)) * rad%scalex(i,2)
+                rdx(i,1) = rdx(i,1) * xrdt(tlfx(i)) * rad%scalex(i,1) * fwsoil(i)**qb
+                rdx(i,2) = rdx(i,2) * xrdt(tlfx(i)) * rad%scalex(i,2) * fwsoil(i)**qb
 
                 ! reduction of daytime leaf dark-respiration to account for
                 !photo-inhibition
-                !Mercado, L. M., Huntingford, C., Gash, J. H. C., Cox, P. M.,
-                ! and Jogireddy, V.:
-                ! Improving the representation of radiation
-                !interception and photosynthesis for climate model applications,
-                !Tellus B, 59, 553-565, 2007.
-                ! Equation 3
-                ! (Brooks and Farquhar, 1985, as implemented by Lloyd et al., 1995).
-                ! Rc = Rd 0 < Io < 10 umol quanta m-2 s-1
-                ! Rc = [0.5 * 0.05 ln(Io)] Rd Io > 10 umol quanta m-2 s-1
-
-                if (jtomol*1.0e6*rad%qcan(i,1,1).gt.10.0) &
-                     rdx(i,1) = rdx(i,1) * &
-                     (0.5 - 0.05*log(jtomol*1.0e6*rad%qcan(i,1,1)))
-
-                if (jtomol*1.0e6*rad%qcan(i,1,2).gt.10.0) &
-                     rdx(i,2) = rdx(i,2) * &
-                     (0.5 - 0.05*log(jtomol*1.0e6*rad%qcan(i,1,2)))
+                rdx(i,1) = rdx(i,1) * light_inhibition(rad%qcan(i,1,1)*jtomol*1.0e6)
+                rdx(i,2) = rdx(i,2) * light_inhibition(rad%qcan(i,1,2)*jtomol*1.0e6)
 
                 ! special for YP photosynthesis
                 rdx3(i,1) = rdx(i,1);
                 rdx3(i,2) = rdx(i,2);
                 rdx4(i,1) = rdx(i,1);
                 rdx4(i,2) = rdx(i,2);
+
              else !cable_user%call_climate
 
                 rdx(i,1) = (veg%cfrd(i)*vcmxt3(i,1) + veg%cfrd(i)*vcmxt4(i,1))
@@ -1987,13 +1906,20 @@ CONTAINS
 
              endif !cable_user%call_climate
 
-             ! apply fwsoil to gmes
-             gmes(i,1) = MAX(gmes(i,1) * real(fwsoil(i),r_2), real(0.15 * veg%gmmax(i),r_2))
-             gmes(i,2) = MAX(gmes(i,2) * real(fwsoil(i),r_2), real(0.15 * veg%gmmax(i),r_2))
+             ! calculate canopy-level mesophyll conductance
+             if (cable_user%explicit_gm) then
+                gmes(i,1) = veg%gm(i) * rad%scalex(i,1) * xgmesT(tlfx(i)) * max(0.15,fwsoil(i)**qm)
+                gmes(i,2) = veg%gm(i) * rad%scalex(i,2) * xgmesT(tlfx(i)) * max(0.15,fwsoil(i)**qm)
+
+                !gmes(i,1) = gmes(i,1) * MAX(0.15_r_2,real(fwsoil(i)**qm,r_2))
+                !gmes(i,2) = gmes(i,2) * MAX(0.15_r_2,real(fwsoil(i)**qm,r_2))
+             else ! gmes = 0.0 easier to debug than inf
+                gmes(i,1) = 0.0
+                gmes(i,2) = 0.0
+             endif
 
              ! Ticket #56 added switch for Belinda Medlyn's model
              IF (cable_user%GS_SWITCH == 'leuning') THEN
-
                 ! vh: added calculation of CO2 compensation point
                 if ((vcmxt3(i,1)+vcmxt4(i,1)).gt.1.0e-8) then
                    co2cp(i,1) = (cx2(i)/2.0 +  conkct(i) * (1.0 + 0.21/conkot(i))* &
@@ -2022,22 +1948,22 @@ CONTAINS
                 vpd =  dsx(i)
 
                 ! vh re-write so that a1 and d0 are not correlated
-                gs_coeff(i,1) = ( fwsoil(i) / ( real(csx(i,1)) - co2cp(i,1) ) ) &
+                gs_coeff(i,1) = ( fwsoil(i)**qs / ( real(csx(i,1)) - co2cp(i,1) ) ) &
                      * ( 1.0 / ( 1.0/veg%a1gs(i) + (vpd/veg%d0gs(i))))
 
-                gs_coeff(i,2) = ( fwsoil(i) / ( real(csx(i,2)) - co2cp(i,2) ) ) &
+                gs_coeff(i,2) = ( fwsoil(i)**qs / ( real(csx(i,2)) - co2cp(i,2) ) ) &
                      * ( 1.0 / ( 1.0/veg%a1gs(i) + (vpd/veg%d0gs(i))))
 
-                ! gs_coeff(i,1) = ( fwsoil(i) / ( csx(i,1) - co2cp3 ) ) &
+                ! gs_coeff(i,1) = ( fwsoil(i)**qs / ( csx(i,1) - co2cp3 ) ) &
                 !      * ( veg%a1gs(i) / ( 1.0 + dsx(i)/veg%d0gs(i)))
 
-                ! gs_coeff(i,2) = ( fwsoil(i) / ( csx(i,2) - co2cp3 ) ) &
+                ! gs_coeff(i,2) = ( fwsoil(i)**qs / ( csx(i,2) - co2cp3 ) ) &
                 !      * ( veg%a1gs(i) / ( 1.0 + dsx(i)/veg%d0gs(i)))
 
                 ! Medlyn BE et al (2011) Global Change Biology 17: 2134-2144.
              ELSEIF(cable_user%GS_SWITCH == 'medlyn') THEN
-                gswmin(i,1) = veg%g0(i)
-                gswmin(i,2) = veg%g0(i)
+                gswmin(i,1) = veg%g0(i) * rad%scalex(i,1)
+                gswmin(i,2) = veg%g0(i) * rad%scalex(i,2)
 
                 IF (dsx(i) < 50.0) THEN
                    vpd  = 0.05 ! kPa
@@ -2048,17 +1974,17 @@ CONTAINS
 
                 g1 = veg%g1(i)
 
-                !gs_coeff(i,1) = (1.0* fwsoil(i) + (g1 * fwsoil(i)) / SQRT(vpd)) / csx(i,1)
-                !gs_coeff(i,2) = (1.0* fwsoil(i) + (g1 * fwsoil(i)) / SQRT(vpd)) / csx(i,2)
+                !gs_coeff(i,1) = (1.0* fwsoil(i)**qs + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / csx(i,1)
+                !gs_coeff(i,2) = (1.0* fwsoil(i)**qs + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / csx(i,2)
 
+                ! gs_coeff for CO2, hence no 1.6 factor as in the original model
                 if (fwsoil(i) .LE. 0.05) then
-                   gs_coeff(i,1) = (1.0* fwsoil(i) + (g1 * fwsoil(i)) / SQRT(vpd)) / real(csx(i,1))
-                   gs_coeff(i,2) = (1.0* fwsoil(i) + (g1 * fwsoil(i)) / SQRT(vpd)) / real(csx(i,2))
+                   gs_coeff(i,1) = (1.0* fwsoil(i)**qs + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / real(csx(i,1))
+                   gs_coeff(i,2) = (1.0* fwsoil(i)**qs + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / real(csx(i,2))
                 else
-                   gs_coeff(i,1) = (1.0 + (g1 * fwsoil(i)) / SQRT(vpd)) / real(csx(i,1))
-                   gs_coeff(i,2) = (1.0 + (g1 * fwsoil(i)) / SQRT(vpd)) / real(csx(i,2))
+                   gs_coeff(i,1) = (1.0 + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / real(csx(i,1))
+                   gs_coeff(i,2) = (1.0 + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / real(csx(i,2))
                 endif
-
              ELSE
                 write(*,*) 'gs_model_switch failed.'
 #ifdef __MPI__
@@ -2073,41 +1999,17 @@ CONTAINS
 
        ENDDO !i=1,mp
 
-
-       if (cable_user%explicit_gm) then
-          CALL photosynthesis_gm( csx(:,:), &
-               spread(cx1(:),2,mf), &
-               spread(cx2(:),2,mf), &
-               gswmin(:,:), rdx(:,:), vcmxt3(:,:), &
-               vcmxt4(:,:), vx3(:,:), vx4(:,:), &
-                                ! Ticket #56, xleuning replaced with gs_coeff here
-               gs_coeff(:,:), rad%fvlai(:,:), &
-               spread(abs_deltlf,2,mf), &
-               anx(:,:), fwsoil(:), gmes(:,:), &
-               anrubiscox(:,:), anrubpx(:,:), ansinkx(:,:), eta_x(:,:), dAnx(:,:) )
-       ELSE
-          CALL photosynthesis( csx(:,:), &
-               spread(cx1(:),2,mf), &
-               spread(cx2(:),2,mf), &
-               gswmin(:,:), rdx(:,:), vcmxt3(:,:), &
-               vcmxt4(:,:), vx3(:,:), vx4(:,:), &
-                                ! Ticket #56, xleuning replaced with gs_coeff here
-               gs_coeff(:,:), rad%fvlai(:,:), &
-               spread(abs_deltlf,2,mf), &
-               anx(:,:), fwsoil(:), &
-               anrubiscox(:,:), anrubpx(:,:), ansinkx(:,:), eta_x(:,:), dAnx(:,:) )
-          ! CALL photosynthesis_orig( csx(:,:), &
-          !      SPREAD( cx1(:), 2, mf ), &
-          !      SPREAD( cx2(:), 2, mf ), &
-          !      gswmin(:,:), rdx(:,:), vcmxt3(:,:), &
-          !      vcmxt4(:,:), vx3(:,:), vx4(:,:), &
-          !      ! Ticket #56, xleuning replaced with gs_coeff here
-          !      gs_coeff(:,:), rad%fvlai(:,:), &
-          !      SPREAD( abs_deltlf, 2, mf ), &
-          !      anx(:,:), fwsoil(:), met , anrubiscox(:,:), anrubpx(:,:) &
-          !      , dAnrubiscox(:,:), dAnrubpx(:,:))
-       ENDIF
-
+       ! gmes is 0.0 if explicit_gm = FALSE (easier to debug)
+       CALL photosynthesis_gm( csx(:,:), &
+            spread(cx1(:),2,mf), &
+            spread(cx2(:),2,mf), &
+            gswmin(:,:), rdx(:,:), vcmxt3(:,:), &
+            vcmxt4(:,:), vx3(:,:), vx4(:,:), &
+                              ! Ticket #56, xleuning replaced with gs_coeff here
+            gs_coeff(:,:), rad%fvlai(:,:), &
+            spread(abs_deltlf,2,mf), &
+            anx(:,:), fwsoil(:), qs, gmes(:,:), kc4(:,:), &
+            anrubiscox(:,:), anrubpx(:,:), ansinkx(:,:), eta_x(:,:), dAnx(:,:) )
 
        DO i=1,mp
 
@@ -2123,14 +2025,14 @@ CONTAINS
 
                    ! Ticket #56, xleuning replaced with gs_coeff here
                    if (cable_user%g0_switch == 'default') then
-                      canopy%gswx(i,kk) = MAX( 1.e-3, gswmin(i,kk)*fwsoil(i) + &
+                      canopy%gswx(i,kk) = MAX( 1.e-3, gswmin(i,kk)*fwsoil(i)**qs + &
                            MAX( 0.0, C%RGSWC * gs_coeff(i,kk) * &
                            anx(i,kk) ) )
                    elseif (cable_user%g0_switch == 'maximum') then
                       ! set gsw to maximum of g0*fwsoil and humidity-dependent term,
                       ! according to third formulation suggested by Lombardozzi et al.,
                       ! GMD 10, 321-331, 2017, and applied in CLM
-                      canopy%gswx(i,kk) = MAX( 1.e-3, max(gswmin(i,kk)*fwsoil(i), &
+                      canopy%gswx(i,kk) = MAX( 1.e-3, max(gswmin(i,kk)*fwsoil(i)**qs, &
                            MAX( 0.0, C%RGSWC * gs_coeff(i,kk) * &
                            anx(i,kk) )) )
 
@@ -2264,12 +2166,13 @@ CONTAINS
 
           ENDIF
 
-          IF ( abs_deltlf(i) > 0.1 ) &
-                                ! after 4 iterations, take mean of current & previous estimates
-                                ! as the next estimate of leaf temperature, to avoid oscillation
-               tlfx(i) = ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) *tlfxx(i) + &
-               ( 1.0 - ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) ) &
-               * tlfx(i)
+          if ( abs_deltlf(i) > 0.1 ) then
+             ! after 4 iterations, take mean of current & previous estimates
+             ! as the next estimate of leaf temperature, to avoid oscillation
+             tlfx(i) = ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) *tlfxx(i) + &
+                  ( 1.0 - ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) ) &
+                  * tlfx(i)
+          endif
 
           IF (k==1) THEN
              ! take the first iterated estimates as the defaults
@@ -2294,49 +2197,6 @@ CONTAINS
 
     END DO  ! DO WHILE (ANY(abs_deltlf > 0.1) .AND.  k < C%MAXITER)
 
-    ! write(3333,"(200e16.6)") tlfx
-    ! write(3334,"(200e16.6)") met%tvair
-    ! write(3335,"(200e16.6)") met%tk
-    ! write(3336,"(200e16.6)") canopy%gswx(:,1)
-    ! write(3337,"(200e16.6)") canopy%gswx(:,2)
-    ! write(3338,"(200e16.6)") gbhu(:,1)
-    ! write(3339,"(200e16.6)") gbhu(:,2)
-    ! write(3340,"(200e16.6)") gbhf(:,1)
-    ! write(3341,"(200e16.6)") gbhf(:,2)
-    ! write(3342,"(200e16.6)") rad%qcan(:,1,1)
-    ! write(3343,"(200e16.6)") rad%qcan(:,2,1)
-    ! write(3344,"(200e16.6)") gw(:,1)
-    ! write(3345,"(200e16.6)") gw(:,2)
-    ! write(3346,"(200e16.6)") met%dva
-    ! write(3347,"(200e16.6)") met%ua
-    ! write(3348,"(200e16.6)") rad%fvlai(:,1)
-    ! write(3349,"(200e16.6)") rad%fvlai(:,2)
-    ! write(3350,"(200e16.6)") dsx
-    ! write(3351,"(200e16.6)") ecx
-    ! write(3352,"(200e16.6)") met%hod
-    ! write(3353,"(200e16.6)") an_y(:,1)
-    ! write(3354,"(200e16.6)") an_y(:,2)
-    ! write(3355,"(200e16.6)") veg%vcmax_sun
-    ! write(3356,"(200e16.6)") veg%ejmax_sun
-    ! write(3357,"(200e16.6)") gmes(:,1)
-    ! write(3358,"(200e16.6)") gmes(:,2)
-    ! write(3359,"(200e16.6)") met%ca
-    ! write(3360,"(200e16.6)") csx(:,1)
-
-    ! write(3361,"(200e16.6)") csx(:,1) - C%RGBWC*anx(:,1) / ( &
-    !      max( canopy%gswx(:,1), 0.01) )
-
-    ! write(3362,"(200e16.6)") csx(:,1) - C%RGBWC*anx(:,1) / ( &
-    !      max(canopy%gswx(:,1),0.01) )- anx(:,1) / ( &
-    !      max(gmes(:,1),0.01) )
-    ! write(3363,"(200e16.6)") canopy%fwsoil
-    ! write(3364,"(200e16.6)")  gs_coeff(:,1)
-    ! write(3365,"(200e16.6)")  gs_coeff(:,2)
-    ! write(3366,"(200e16.6)") veg%vcmax_shade
-    ! write(3367,"(200e16.6)") veg%ejmax_shade
-    ! write(3378,"(200e16.6)") anrubiscoy(:,2)
-    ! write(3369,"(200e16.6)") anrubpy(:,2)
-    
     ! dry canopy flux
     canopy%fevc = (1.0_r_2-real(canopy%fwet,r_2)) * ecy
 
@@ -2470,261 +2330,24 @@ CONTAINS
 
   END SUBROUTINE dryLeaf
 
-  ! -----------------------------------------------------------------------------
-
-  ! not used
-  !  ! Ticket #56, xleuningz repalced with gs_coeffz
-  !  SUBROUTINE photosynthesis_orig( csxz, cx1z, cx2z, gswminz, &
-  !       rdxz, vcmxt3z, vcmxt4z, vx3z, &
-  !       vx4z, gs_coeffz, vlaiz, deltlfz, anxz, fwsoilz, met, &
-  !       anrubiscoz, anrubpz , dAmc, dAme )
-
-  !    use cable_def_types_mod, only : mp, mf, r_2, met_type
-
-  !    implicit none
-
-  !    real(r_2), dimension(mp,mf), intent(in)    :: csxz
-  !    type (met_type),             intent(in)    :: met
-  !    real,      dimension(mp,mf), intent(in)    :: &
-  !         cx1z, & !
-  !         cx2z, & !
-  !         gswminz, & !
-  !         rdxz, & !
-  !         vcmxt3z, & !
-  !         vcmxt4z, & !
-  !         vx4z, & !
-  !         vx3z, & !
-  !         gs_coeffz, & ! Ticket #56, xleuningz repalced with gs_coeffz
-  !         vlaiz, & !
-  !         deltlfz  !
-  !    real,      dimension(mp,mf), intent(inout) :: anxz, anrubiscoz, anrubpz
-  !    real(r_2), dimension(mp,mf), intent(out)   :: dAmc, dAme
-
-  !    ! local variables
-  !    real(r_2), dimension(mp,mf) :: &
-  !         coef0z, coef1z, coef2z, ciz, delcxz
-  !    real(r_2) :: gamma, beta, gammast, g0, X, Rd, cs
-  !    real(r_2) :: Am
-  !    real, dimension(mp,mf) :: ansinkz
-  !    real, dimension(mp) :: fwsoilz
-  !    real, parameter  :: effc4 = 4000.0  ! Vc=effc4*Ci*Vcmax (see Bonan,LSM version 1.0, p106)
-  !    integer :: i, j
-
-  !    !MC - fwsoil not defined. Stopped single/double precision rewrite.
-  !    !     subroutine not used at the moment
-  !    stop 2
-
-  !    dAmc = 0.0_r_2
-  !    dAme = 0.0_r_2
-
-  !    DO i=1,mp
-
-  !       IF (sum(vlaiz(i,:)) .GT. C%LAI_THRESH) THEN
-
-  !          DO j=1, mf
-
-  !             IF ((vlaiz(i,j) .GT. C%LAI_THRESH) .AND. (deltlfz(i,j) .GT. 0.1)) THEN
-
-  !                ! Rubisco limited:
-  !                coef2z(i,j) = gswminz(i,j)*fwsoilz(i) / C%RGSWC + gs_coeffz(i,j) * &
-  !                     ( vcmxt3z(i,j) - ( rdxz(i,j)-vcmxt4z(i,j) ) )
-
-  !                coef1z(i,j) = (1.0_r_2-csxz(i,j)*gs_coeffz(i,j)) * &
-  !                     (vcmxt3z(i,j)+vcmxt4z(i,j)-rdxz(i,j)) &
-  !                     + (gswminz(i,j)*fwsoilz(i)/C%RGSWC)*(cx1z(i,j)-csxz(i,j)) &
-  !                     - gs_coeffz(i,j)*(vcmxt3z(i,j)*cx2z(i,j)/2.0_r_2 &
-  !                     + cx1z(i,j)*(rdxz(i,j)-vcmxt4z(i,j) ) )
-
-  !                coef0z(i,j) = -(1.0_r_2-csxz(i,j)*gs_coeffz(i,j)) * &
-  !                     (vcmxt3z(i,j)*cx2z(i,j)/2.0_r_2 &
-  !                     + cx1z(i,j)*( rdxz(i,j)-vcmxt4z(i,j ) ) ) &
-  !                     -( gswminz(i,j)*fwsoilz(i)/C%RGSWC ) * cx1z(i,j)*csxz(i,j)
-
-  !               ! kdcorbin,09/10 - new calculations
-  !               if ( (abs(coef2z(i,j)) .gt. 1.0e-9_r_2) .and. &
-  !                    (abs(coef1z(i,j)) .lt. 1.0e-9_r_2) ) then
-  !                  ! no solution, give it a huge number as
-  !                  ! quadratic below cannot handle zero denominator
-  !                  ciz(i,j)        = 99999.0_r_2
-  !                  anrubiscoz(i,j) = real(ciz(i,j)) ! OR do ciz=0 and calc anrubiscoz
-  !               endif
-
-  !               ! solve linearly
-  !               if ( (abs(coef2z(i,j)) < 1.0e-9_r_2) .and. &
-  !                    (abs(coef1z(i,j)) >= 1.0e-9_r_2) ) then
-  !                  ! same reason as above
-  !                  ciz(i,j) = -1.0_r_2 * coef0z(i,j) / coef1z(i,j)
-  !                  ciz(i,j) = max(0.0_r_2, ciz(i,j))
-  !                  ciz(i,j) = vcmxt3z(i,j)*(ciz(i,j)-cx2z(i,j) / 2.0_r_2) / &
-  !                       (ciz(i,j) + cx1z(i,j)) + vcmxt4z(i,j) - rdxz(i,j)
-  !                  anrubiscoz(i,j) = real(ciz(i,j)) ! OR do ciz=0 and calc anrubiscoz
-  !               endif
-
-  !               ! solve quadratic (only take the more positive solution)
-  !               if (abs(coef2z(i,j)) >= 1.0e-9_r_2) then
-
-  !                  delcxz(i,j) = coef1z(i,j)**2 - 4.0_r_2 * coef0z(i,j) * coef2z(i,j)
-
-  !                  ciz(i,j) = ( -coef1z(i,j) + sqrt( max(0.0_r_2, delcxz(i,j)) ) ) / &
-  !                       (2.0_r_2*coef2z(i,j))
-  !                  ciz(i,j) = max(0.0_r_2, ciz(i,j)) ! must be positive (concentration always +ve)
-
-  !                  ciz(i,j) = vcmxt3z(i,j) * (ciz(i,j) - cx2z(i,j) / 2.0_r_2) / &
-  !                       (ciz(i,j) + cx1z(i,j)) + vcmxt4z(i,j) - rdxz(i,j)
-  !                  anrubiscoz(i,j) = real(ciz(i,j)) ! OR do ciz=0 and calc anrubiscoz
-  !               endif
-
-
-  !               ! RuBP limited:
-  !               coef2z(i,j) = gswminz(i,j)*fwsoilz(i) / C%RGSWC + gs_coeffz(i,j) &
-  !                             * ( vx3z(i,j) - ( rdxz(i,j) - vx4z(i,j) ) )
-
-  !               coef1z(i,j) = ( 1.0 - csxz(i,j) * gs_coeffz(i,j) ) * &
-  !                             ( vx3z(i,j) + vx4z(i,j) - rdxz(i,j) ) &
-  !                             + ( gswminz(i,j)*fwsoilz(i) / C%RGSWC ) * &
-  !                             ( cx2z(i,j) - csxz(i,j) ) - gs_coeffz(i,j) &
-  !                             * ( vx3z(i,j) * cx2z(i,j) / 2.0 + cx2z(i,j) * &
-  !                             ( rdxz(i,j) - vx4z(i,j) ) )
-
-  !               coef0z(i,j) = -(1.0-csxz(i,j)*gs_coeffz(i,j)) * &
-  !                             (vx3z(i,j)*cx2z(i,j)/2.0 &
-  !                             + cx2z(i,j)*(rdxz(i,j)-vx4z(i,j))) &
-  !                         - (gswminz(i,j)*fwsoilz(i)/C%RGSWC)*cx2z(i,j)*csxz(i,j)
-
-
-  !               !kdcorbin, 09/10 - new calculations
-  !               ! no solution, give it a huge number
-  !               IF( ABS( coef2z(i,j) ) < 1.0e-9 .AND. &
-  !                    ABS( coef1z(i,j) ) < 1.0e-9 ) THEN
-
-  !                  ciz(i,j)     = 99999.0_r_2
-  !                  anrubpz(i,j) = real(ciz(i,j))
-
-  !               ENDIF
-
-  !               ! solve linearly
-  !               IF( ABS( coef2z(i,j) ) < 1.e-9 .AND. &
-  !                    ABS( coef1z(i,j) ) >= 1.e-9) THEN
-
-  !                  ciz(i,j) = -1.0 * coef0z(i,j) / coef1z(i,j)
-
-  !                  ciz(i,j) = MAX(0.0_r_2,ciz(i,j))
-
-  !                  ciz(i,j) = vx3z(i,j)*(ciz(i,j)-cx2z(i,j)/2.0) / &
-  !                       (ciz(i,j)+cx2z(i,j)) +vx4z(i,j)-rdxz(i,j)
-  !                  anrubpz(i,j) = real(ciz(i,j))
-
-  !               ENDIF
-
-  !               ! solve quadratic (only take the more positive solution)
-  !               IF ( ABS( coef2z(i,j)) >= 1.e-9 ) THEN
-
-  !                  delcxz(i,j) = coef1z(i,j)**2 -4.0*coef0z(i,j)*coef2z(i,j)
-
-  !                  ciz(i,j) = (-coef1z(i,j)+SQRT(MAX(0.0_r_2,delcxz(i,j)))) &
-  !                       /(2.0*coef2z(i,j))
-
-  !                  ciz(i,j) = MAX(0.0_r_2,ciz(i,j))
-
-  !                  ciz(i,j) = vx3z(i,j)*(ciz(i,j)-cx2z(i,j)/2.0) / &
-  !                       (ciz(i,j)+cx2z(i,j)) +vx4z(i,j)-rdxz(i,j)
-  !                  anrubpz(i,j) = real(ciz(i,j))
-
-  !                  gamma =   vx3z(i,j)
-  !                  beta = cx2z(i,j)
-  !                  X = gs_coeffz(i,j)
-  !                  g0 = gswminz(i,j)*fwsoilz(i) / C%RGSWC
-  !                  cs = csxz(i,j)
-  !                  gammast = cx2z(i,j)/2.0
-  !                  Rd = rdxz(i,j)
-  !                  CALL fAndAn1(cs, g0, X*cs, gamma, beta, gammast, Rd, &
-  !                       Am, dAme(i,j))
-
-  !               ENDIF
-
-  !               ! Sink limited:
-  !               coef2z(i,j) = gs_coeffz(i,j)
-
-  !               coef1z(i,j) = gswminz(i,j)*fwsoilz(i)/C%RGSWC + gs_coeffz(i,j) &
-  !                             * (rdxz(i,j) - 0.5*vcmxt3z(i,j)) &
-  !                             + effc4 * vcmxt4z(i,j) - gs_coeffz(i,j) &
-  !                             * csxz(i,j) * effc4 * vcmxt4z(i,j)
-
-  !               coef0z(i,j) = -( gswminz(i,j)*fwsoilz(i)/C%RGSWC )*csxz(i,j)*effc4 &
-  !                             * vcmxt4z(i,j) + ( rdxz(i,j) &
-  !                           - 0.5 * vcmxt3z(i,j)) * gswminz(i,j)*fwsoilz(i)/C%RGSWC
-
-  !               ! no solution, give it a huge number
-  !               IF( ABS( coef2z(i,j) ) < 1.0e-9 .AND. &
-  !                    ABS( coef1z(i,j)) < 1.0e-9 ) THEN
-
-  !                  ciz(i,j)     = 99999.0_r_2
-  !                  ansinkz(i,j) = real(ciz(i,j))
-
-  !               ENDIF
-
-  !               ! solve linearly
-  !               IF( ABS( coef2z(i,j) ) < 1.e-9 .AND. &
-  !                    ABS( coef1z(i,j) ) >= 1.e-9 ) THEN
-
-  !                  ciz(i,j) = -1.0 * coef0z(i,j) / coef1z(i,j)
-  !                  ansinkz(i,j) = real(ciz(i,j))
-
-  !               ENDIF
-
-  !               ! solve quadratic (only take the more positive solution)
-  !               IF( ABS( coef2z(i,j) ) >= 1.e-9 ) THEN
-
-  !                  delcxz(i,j) = coef1z(i,j)**2 -4.0*coef0z(i,j)*coef2z(i,j)
-
-  !                  ciz(i,j) = (-coef1z(i,j)+SQRT (MAX(0.0_r_2,delcxz(i,j)) ) ) &
-  !                       / ( 2.0 * coef2z(i,j) )
-
-  !                  ansinkz(i,j) = real(ciz(i,j))
-
-  !               ENDIF
-
-  !               ! minimal of three limited rates
-
-
-  !            ENDIF
-  !            anxz(i,j) = MIN(anrubiscoz(i,j),anrubpz(i,j),ansinkz(i,j))
-  !            ! if (i==1 .and. j==2 .and. floor(met%hod(1))==12) then
-  !            !    write(3372,"(200e16.6)") anrubiscoz(i,j), &
-  !            !         anrubpz(i,j), &
-  !            !         ansinkz(i,j),  anxz(i,j)
-  !            ! elseif (i.eq.4 .and.j==2.and. floor(met%hod(1))==12) then
-  !            !    write(3373,"(200e16.6)") anrubiscoz(i,j), &
-  !            !         anrubpz(i,j), &
-  !            !         ansinkz(i,j),  anxz(i,j)
-  !            ! endif
-
-  !         ENDDO
-
-  !      ENDIF
-
-  !   ENDDO
-
-  ! END SUBROUTINE photosynthesis_orig
-
 
   ! ------------------------------------------------------------------------------
 
 
-  ! vh adaptation of photosynthesis calculation to
-  ! account for finite mesophyll conductance (gm) (cable_user%explicit_gm = TRUE)
+  ! JK: subroutine photosynthesis_gm now used with and without explicit gm (cable_user%explicit_gm)
   SUBROUTINE photosynthesis_gm( csxz, cx1z, cx2z, gswminz, &
        rdxz, vcmxt3z, vcmxt4z, vx3z, &
-       vx4z, gs_coeffz, vlaiz, deltlfz, anxz, fwsoilz, &
-       gmes, anrubiscoz, anrubpz, ansinkz, eta, dA )
+       vx4z, gs_coeffz, vlaiz, deltlfz, anxz, fwsoilz, qs, &
+       gmes, kc4, anrubiscoz, anrubpz, ansinkz, eta, dA )
 
     use cable_def_types_mod, only : mp, mf, r_2
     use cable_common_module, only: cable_user
 
     implicit none
 
-    real(r_2), dimension(mp,mf), intent(in)    :: csxz, gmes
-    real,      dimension(mp,mf), intent(in)    :: &
+    real(r_2), dimension(mp,mf), intent(in) :: csxz
+    real,      dimension(mp,mf), intent(in) :: gmes
+    real,      dimension(mp,mf), intent(in) :: &
          cx1z,       & !
          cx2z,       & !
          rdxz,       & !
@@ -2734,18 +2357,20 @@ CONTAINS
          vx3z,       & !
          gs_coeffz,  & ! Ticket #56, xleuningz repalced with gs_coeffz
          vlaiz,      & !
-         deltlfz
+         deltlfz,    & !
+         kc4           !
+    real,      dimension(mp),    intent(in)    :: fwsoilz
+    real,                        intent(in)    :: qs
     real,      dimension(mp,mf), intent(inout) :: gswminz
     real,      dimension(mp,mf), intent(inout) :: anxz, anrubiscoz, anrubpz, ansinkz
     real(r_2), dimension(mp,mf), intent(out)   :: eta, dA
 
     ! local variables
     real(r_2), dimension(mp,mf) :: dAmp, dAme, dAmc, eta_p, eta_e, eta_c
-    real, dimension(mp) :: fwsoilz
-    real, parameter  :: effc4 = 4000.0  ! Vc=effc4*Ci*Vcmax (see Bonan,LSM version 1.0, p106)
+    !real, dimension(mp) :: fwsoilz  ! why was this local??
     real(r_2) :: gamma, beta, gammast, gm, g0, X, Rd, cs
-    real(r_2) :: cc
-    real(r_2) :: Am, gsm
+    real(r_2) :: cc, gsm
+    real(r_2) :: Am
     integer :: i, j
     ! for minimum of 3 rates and corresponding elasticities
     real,      dimension(3) :: tmp3
@@ -2776,7 +2401,7 @@ CONTAINS
                 ! C3, Rubisco limited, accounting for explicit mesophyll conductance
                 if ((vcmxt3z(i,j) .gt. 1.0e-8) .and. (gs_coeffz(i,j) .gt. 100.)) then
                    cs      = csxz(i,j)
-                   g0      = real(gswminz(i,j) * fwsoilz(i) / C%RGSWC, r_2)
+                   g0      = real(gswminz(i,j) * fwsoilz(i)**qs / C%RGSWC, r_2)
                    X       = real(gs_coeffz(i,j), r_2)
                    gamma   = real(vcmxt3z(i,j), r_2)
                    beta    = real(cx1z(i,j), r_2)
@@ -2786,22 +2411,37 @@ CONTAINS
 
                    if (trim(cable_user%g0_switch) == 'default') then
                       ! get partial derivative of A wrt cs
-                      call fAmdAm1(cs, g0, X*cs, gamma, beta, gammast, Rd, &
-                           gm, Am, dAmc(i,j))
+                      if (cable_user%explicit_gm) then
+                         call fAmdAm_c3(cs, g0, X*cs, gamma, beta, gammast, Rd, &
+                              gm, Am, dAmc(i,j))
+                      else
+                         call fAndAn_c3(cs, g0, X*cs, gamma, beta, gammast, Rd, &
+                              Am, dAmc(i,j))
+                      endif
                    elseif (trim(cable_user%g0_switch) == 'maximum') then
                       ! set g0 to zero initially
-                      call fAmdAm1(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
-                           gm, Am, dAmc(i,j))
-                      ! repeat calculation if g0 > A*X
-                      if (g0 .gt. Am*X) then
-                         call fAmdAm1(cs, g0, 0.0_r_2, gamma, beta, gammast, Rd, &
+                      if (cable_user%explicit_gm) then
+                         call fAmdAm_c3(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
                               gm, Am, dAmc(i,j))
+                         if (g0 .gt. Am*X) then ! repeat calculation if g0 > A*X
+                            call fAmdAm_c3(cs, g0, 0.1e-4_r_2, gamma, beta, gammast, Rd, &
+                                 gm, Am, dAmc(i,j))
+                         endif
+                      else
+                         call fAndAn_c3(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
+                              Am, dAmc(i,j))
+                         if (g0 .gt. Am*X) then ! repeat calculation if g0 > A*X
+                            call fAndAn_c3(cs, g0, 0.1e-4_r_2, gamma, beta, gammast, Rd, &
+                              Am, dAmc(i,j))
+                         endif
                       endif
                    endif
                    anrubiscoz(i,j) = real(Am)
 
-                   gsm = (gm * (g0+X*Am)) / (gm + (g0+X*Am))
-                   cc  = cs - Am / max(gsm, 1.0e-4_r_2)
+                   if (cable_user%explicit_gm) then
+                      gsm = (gm * (g0+X*Am)) / (gm + (g0+X*Am))
+                      cc  = cs - Am / max(gsm, 1.0e-4_r_2)
+                   endif
                    if (Am > 0.0_r_2) eta_c(i,j) = dAmc(i,j) * cs / Am
                 endif  ! C3
 
@@ -2816,7 +2456,7 @@ CONTAINS
                 if ( (vcmxt3z(i,j) .gt. 0.0) .and. (gs_coeffz(i,j) .gt. 100.) .and. &
                      (vx3z(i,j) .gt. 1.0e-8) ) then
                    cs      = csxz(i,j)
-                   g0      = real(gswminz(i,j) * fwsoilz(i) / C%RGSWC, r_2)
+                   g0      = real(gswminz(i,j) * fwsoilz(i)**qs / C%RGSWC, r_2)
                    X       = real(gs_coeffz(i,j), r_2)
                    gamma   = real(vx3z(i,j), r_2)
                    beta    = real(cx2z(i,j), r_2)
@@ -2825,22 +2465,39 @@ CONTAINS
                    gm      = gmes(i,j)
 
                    if (trim(cable_user%g0_switch) == 'default') then
-                      call fAmdAm1(cs, g0, X*cs, gamma, beta, gammast, Rd, &
-                           gm, Am, dAme(i,j))
-                   elseif (trim(cable_user%g0_switch) == 'maximum') then
-                      call fAmdAm1(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
-                           gm, Am, dAme(i,j))
-                      ! repeat calculation if g0 > A*X
-                      if (g0 .gt. Am*X) then
-                         call fAmdAm1(cs, g0, 0.0_r_2, gamma, beta, gammast, Rd, &
+                      if (cable_user%explicit_gm) then
+                         call fAmdAm_c3(cs, g0, X*cs, gamma, beta, gammast, Rd, &
                               gm, Am, dAme(i,j))
+                      else
+                        call fAndAn_c3(cs, g0, X*cs, gamma, beta, gammast, Rd, &
+                             Am, dAme(i,j))
+                      endif
+                   elseif (trim(cable_user%g0_switch) == 'maximum') then
+                      if (cable_user%explicit_gm) then
+                         call fAmdAm_c3(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
+                              gm, Am, dAme(i,j))
+                         ! repeat calculation if g0 > A*X
+                         if (g0 .gt. Am*X) then
+                            call fAmdAm_c3(cs, g0, 0.1e-4_r_2, gamma, beta, gammast, Rd, &
+                                 gm, Am, dAme(i,j))
+                         endif
+                      else
+                         call fAndAn_c3(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
+                              Am, dAme(i,j))
+                         ! repeat calculation if g0 > A*X
+                         if (g0 .gt. Am*X) then
+                            call fAndAn_c3(cs, g0, 0.1e-4_r_2, gamma, beta, gammast, Rd, &
+                                 Am, dAme(i,j))
+                         endif
                       endif
                    endif
                    anrubpz(i,j) = real(Am)
 
+                   if (cable_user%explicit_gm) then
+                      gsm = (gm * (g0+X*Am)) / (gm + (g0+X*Am))
+                      cc  = cs - Am / max(gsm, 1.0e-4_r_2)
+                   endif
                    if (Am > 0.0_r_2) eta_e(i,j) = dAme(i,j) * cs / Am
-                   gsm = (gm * (g0+X*Am)) / (gm + (g0+X*Am))
-                   cc  = cs - Am / max(gsm, 1.0e-4_r_2)
                 endif  ! C3
 
                 ! C4, RuBP limited, accounting for explicit mesophyll conductance
@@ -2859,27 +2516,39 @@ CONTAINS
 
                 elseif ((vcmxt4z(i,j) .gt. 1.0e-10) .and. (gs_coeffz(i,j) .gt. 100.)) then ! C4
                    cs         = csxz(i,j)
-                   g0         = 0.0_r_2
+                   g0         = real(gswminz(i,j) * fwsoilz(i)**qs / C%RGSWC, r_2)
                    X          = real(gs_coeffz(i,j), r_2)
-                   gamma      = real(effc4 * vcmxt4z(i,j), r_2)
+                   gamma      = real(kc4(i,j),r_2) ! k in Collatz 1992
                    beta       = 0.0_r_2
                    gammast    = 0.0_r_2
                    Rd         = real(rdxz(i,j), r_2)
                    gm         = gmes(i,j)
 
                    if (trim(cable_user%g0_switch) == 'default') then
-                      call fAndAn2(cs, g0, X*cs, gamma, beta, gammast, Rd, &
-                           Am, dAmp(i,j))
-                   elseif (trim(cable_user%g0_switch) == 'maximum') then
-                      call fAndAn2(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
-                           Am, dAmp(i,j))
-                      if (g0 .gt. Am*X) then
-                         call fAndAn2(cs, g0, 0.0_r_2, gamma, beta, gammast, Rd, &
+                      if (cable_user%explicit_gm) then
+                         call fAmdAm_c4(cs, g0, X*cs, gamma, beta, gammast, Rd, gm, &
+                              Am, dAmp(i,j))
+                      else
+                         call fAndAn_c4(cs, g0, X*cs, gamma, beta, gammast, Rd, &
                               Am, dAmp(i,j))
                       endif
+                   elseif (trim(cable_user%g0_switch) == 'maximum') then
+                      if (cable_user%explicit_gm) then
+                         call fAmdAm_c4(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, gm, &
+                              Am, dAmp(i,j))
+                         if (g0 .gt. Am*X) then
+                            call fAmdAm_c4(cs, g0, 0.1e-4_r_2, gamma, beta, gammast, Rd, gm, &
+                                 Am, dAmp(i,j))
+                         endif
+                      else
+                         call fAndAn_c4(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
+                              Am, dAmp(i,j))
+                         if (g0 .gt. Am*X) then
+                            call fAndAn_c4(cs, g0, 0.1e-4_r_2, gamma, beta, gammast, Rd, &
+                                 Am, dAmp(i,j))
+                         endif
+                      endif
                    endif
-                   ! CALL fAmdAm2(cs, g0, X*cs, gamma, beta, gammast, Rd, &
-                   !      gm, Am, dAmp(i,j))  ! vh ! not sure why this one is commented out: need to test
                    ansinkz(i,j) = real(Am)
 
                    dAmp(i,j)  = 0.0_r_2
@@ -2890,17 +2559,6 @@ CONTAINS
              endif ! deltlfz > 0.1
 
              ! minimal of three limited rates
-             ! anxz(i,j) = MIN(anrubiscoz(i,j),anrubpz(i,j),ansinkz(i,j))
-             ! if ( anxz(i,j) .eq. anrubiscoz(i,j)) then
-             !    dA(i,j) = dAmc(i,j)
-             !    eta(i,j) = eta_c(i,j)
-             ! elseif ( anxz(i,j) .eq. anrubpz(i,j)) then
-             !    dA(i,j) = dAme(i,j)
-             !    eta(i,j) = eta_e(i,j)
-             ! elseif ( anxz(i,j) .eq. ansinkz(i,j)) then
-             !    dA(i,j) = dAmp(i,j)
-             !    eta(i,j) = eta_p(i,j)
-             ! endif
              tmp3      = (/ anrubiscoz(i,j), anrubpz(i,j), ansinkz(i,j) /)
              ii        = minloc(tmp3)
              anxz(i,j) = tmp3(ii(1))
@@ -2933,272 +2591,34 @@ CONTAINS
   END SUBROUTINE photosynthesis_gm
 
 
-  ! ------------------------------------------------------------------------------
+  !---------------------------------------------------------------------------------------
 
 
-  SUBROUTINE photosynthesis( csxz, cx1z, cx2z, gswminz, &
-       rdxz, vcmxt3z, vcmxt4z, vx3z,                    &
-       vx4z, gs_coeffz, vlaiz, deltlfz, anxz, fwsoilz,  &
-       anrubiscoz, anrubpz, ansinkz, eta, dA )
-
-    use cable_def_types_mod, only : mp, mf, r_2
-    use cable_common_module, only: cable_user
-
+  FUNCTION light_inhibition(APAR) RESULT(xrd)
+    !Mercado, L. M., Huntingford, C., Gash, J. H. C., Cox, P. M.,
+    ! and Jogireddy, V.:
+    ! Improving the representation of radiation
+    !interception and photosynthesis for climate model applications,
+    !Tellus B, 59, 553-565, 2007.
+    ! Equation 3
+    ! (Brooks and Farquhar, 1985, as implemented by Lloyd et al., 1995).
+    ! Rc = Rd 0 < Io < 10 umol quanta m-2 s-1
+    ! Rc = [0.5 * 0.05 ln(Io)] Rd Io > 10 umol quanta m-2 s-1
+    ! JK: note that APAR is incoming radation in the original formulations
+    !     However, APAR considered a good proxy here
     implicit none
 
-    real(r_2), dimension(mp,mf), intent(in) :: csxz
-    real,      dimension(mp,mf), intent(in) :: &
-         cx1z,       & !
-         cx2z,       & !
-         rdxz,       & !
-         vcmxt3z,    & !
-         vcmxt4z,    & !
-         vx4z,       & !
-         vx3z,       & !
-         gswminz,    &
-         vlaiz,      & !
-         deltlfz
-    real,      dimension(mp,mf), intent(inout) :: gs_coeffz ! Ticket #56, xleuningz replaced with gs_coeffz
-    real,      dimension(mp,mf), intent(inout) :: anxz, anrubiscoz, anrubpz, ansinkz
-    real(r_2), dimension(mp,mf), intent(out)   :: eta, dA
+    real, intent(in) :: APAR  ! absorbed PAR in umol m-2 s-1
+    real             :: xrd   ! light inhibition of Rd (0-1)
 
-    ! local variables
-    real(r_2), dimension(mp,mf) :: &
-         coef0z, coef1z, coef2z, ciz, delcxz, &
-         dAmc, dAme, dAmp, eta_c, eta_e, eta_p
+    if (APAR > 10.0) then
+        xrd = 0.5 - 0.05 * log(APAR)
+    else
+        xrd = 1.0
+    endif
 
-    real, dimension(mp) :: fwsoilz
+  END FUNCTION light_inhibition
 
-    real, parameter  :: effc4 = 4000.0  ! Vc=effc4*Ci*Vcmax (see Bonan,LSM version 1.0, p106)
-
-    real(r_2) :: gamma, beta, gammast, g0, X, Rd, cs
-    real(r_2) :: Am
-    integer :: i, j
-    ! for minimum of 3 rates and corresponding elasticities
-    real,      dimension(3) :: tmp3
-    real(r_2), dimension(3) :: dtmp3
-    integer,   dimension(1) :: ii
-
-    do i=1, mp
-       do j=1, mf
-          if (vlaiz(i,j) .gt. C%lai_thresh) then
-             if (deltlfz(i,j) .gt. 0.1) then
-                anxz(i,j)       = -rdxz(i,j)
-                anrubiscoz(i,j) = -rdxz(i,j)
-                anrubpz(i,j)    = -rdxz(i,j)
-                ansinkz(i,j)    = -rdxz(i,j)
-                dAmc(i,j)       = 0.0_r_2
-                dAme(i,j)       = 0.0_r_2
-                dAmp(i,j)       = 0.0_r_2
-                dA(i,j)         = 0.0_r_2
-                eta_c(i,j)      = 0.0_r_2
-                eta_e(i,j)      = 0.0_r_2
-                eta_p(i,j)      = 0.0_r_2
-                eta(i,j)        = 0.0_r_2
-
-                ! Rubisco limited:
-
-                if ((vcmxt3z(i,j) .gt. 1.0e-8) .and. (gs_coeffz(i,j) .gt. 100.)) then ! C3
-
-                   cs      = csxz(i,j)
-                   g0      = real(gswminz(i,j) * fwsoilz(i) / C%RGSWC, r_2)
-                   X       = real(gs_coeffz(i,j), r_2)
-                   gamma   = real(vcmxt3z(i,j), r_2)
-                   beta    = real(cx1z(i,j), r_2)
-                   gammast = real(cx2z(i,j) / 2.0, r_2)
-                   Rd      = real(rdxz(i,j), r_2)
-
-                   if (trim(cable_user%g0_switch) == 'default') then
-                      ! get An and partial derivative of A wrt cs
-                      call fAndAn1(cs, g0, X*cs, gamma, beta, gammast, Rd, &
-                           Am, dAmc(i,j))
-                   elseif (trim(cable_user%g0_switch) == 'maximum') then
-                      ! set g0 to zero initially
-                      call fAndAn1(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
-                           Am, dAmc(i,j))
-                      ! repeat calculation if g0 > A*X
-                      if (g0 .gt. Am*X) then
-                         call fAndAn1(cs, g0, 0.0_r_2, gamma, beta, gammast, Rd, &
-                              Am, dAmc(i,j))
-                      endif
-                   endif
-
-                   anrubiscoz(i,j) = real(Am)
-                   if (Am > 0.0_r_2) eta_c(i,j) = dAmc(i,j) * cs / Am
-
-                endif  ! C3, Rubisco limited
-
-                ! C4
-                if (vcmxt4z(i,j) .gt. 1.0e-8) then
-                   anrubiscoz(i,j) = vcmxt4z(i,j) - rdxz(i,j)
-                   dAmc(i,j)  = 0.0_r_2
-                   eta_c(i,j) = 0.0_r_2
-                endif
-
-                if ((vcmxt3z(i,j) .gt. 0.0) .and. (gs_coeffz(i,j) .gt. 100.) .and. &
-                     (vx3z(i,j) .gt. 1.0e-8)) then ! C3
-
-                   cs      = csxz(i,j)
-                   g0      = real(gswminz(i,j) * fwsoilz(i) / C%RGSWC, r_2)
-                   X       = real(gs_coeffz(i,j), r_2)
-                   gamma   = real(vx3z(i,j), r_2)
-                   beta    = real(cx2z(i,j), r_2)
-                   gammast = real(cx2z(i,j) / 2.0, r_2)
-                   Rd      = real(rdxz(i,j), r_2)
-
-                   if (trim(cable_user%g0_switch) == 'default') then
-                      call fAndAn1(cs, g0, X*cs, gamma, beta, gammast, Rd, &
-                           Am, dAme(i,j))
-                   elseif (trim(cable_user%g0_switch) == 'maximum') then
-                      call fAndAn1(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
-                           Am, dAme(i,j))
-                      ! repeat calculation if g0 > A*X
-                      if (g0 .gt. Am*X) then
-                         call fAndAn1(cs, g0, 0.0_r_2, gamma, beta, gammast, Rd, &
-                              Am, dAme(i,j))
-                      endif
-                   endif
-
-                   anrubpz(i,j) = real(Am)
-                   if (Am > 0) eta_e(i,j) = dAme(i,j) * cs / Am
-
-                endif ! C3, RuBp
-
-                ! C4 RubP calculation
-                g0 = gswminz(i,j)*fwsoilz(i) / C%RGSWC
-                IF (vx4z(i,j) .gt. 1.0e-8) then
-                   anrubpz(i,j) = vx4z(i,j) - rdxz(i,j)
-                   dAme(i,j)    = 0.0_r_2
-                   eta_e(i,j)   = 0.0_r_2
-                ENDIF
-
-                ! Sink limited:
-                if (vcmxt3z(i,j).gt.1e-10) then ! C3
-
-                   ansinkz(i,j) = 0.5 * vcmxt3z(i,j) - rdxz(i,j)
-                   dAmp(i,j)    = 0.0_r_2
-                   eta_p(i,j)   = 0.0_r_2
-
-                elseif ((vcmxt4z(i,j) .gt. 1.0e-10) .and. (gs_coeffz(i,j) .gt. 100.)) then ! C4
-
-                   coef2z(i,j) = real(gs_coeffz(i,j), r_2)
-                   cs      = csxz(i,j)
-                   if (trim(cable_user%g0_switch) == 'default') then
-                      g0 = real(gswminz(i,j) * fwsoilz(i) / C%RGSWC, r_2)
-                   elseif (trim(cable_user%g0_switch) == 'maximum') then
-                      g0 = 0.0_r_2
-                   endif
-                   X       = real(gs_coeffz(i,j), r_2)
-                   gamma   = real(effc4 * vcmxt4z(i,j), r_2)
-                   Rd      = real(rdxz(i,j), r_2)
-
-                   coef1z(i,j) = g0 + X * Rd + gamma * (1.0_r_2 - X * cs)
-                   coef0z(i,j) = g0 * (Rd - cs * gamma)
-
-                   ! no solution, give it a huge number
-                   if ((abs(coef2z(i,j)) < 1.0e-9_r_2) .and. (abs(coef1z(i,j)) < 1.0e-9_r_2)) then
-                      ciz(i,j)     = 99999.0_r_2
-                      ansinkz(i,j) = real(ciz(i,j))
-                   endif
-
-                   ! solve linearly
-                   if ( (abs(coef2z(i,j)) < 1.0e-9_r_2) .and. &
-                        (abs(coef1z(i,j)) >= 1.0e-9_r_2) ) then
-                      ciz(i,j)     = -1.0_r_2 * coef0z(i,j) / coef1z(i,j)
-                      ansinkz(i,j) = real(ciz(i,j))
-                   endif
-
-                   ! solve quadratic (only take the more positive solution)
-                   if (abs(coef2z(i,j)) >= 1.0e-9_r_2) then
-                      delcxz(i,j)  = coef1z(i,j)**2 - 4.0_r_2*coef0z(i,j)*coef2z(i,j)
-                      ciz(i,j)     = (-coef1z(i,j) + sqrt(max(0.0_r_2, delcxz(i,j)))) / &
-                           (2.0_r_2 * coef2z(i,j))
-                      ansinkz(i,j) = real(ciz(i,j))
-                   endif
-
-                   if (trim(cable_user%g0_switch) == 'maximum') then
-                      ! repeat calculation of ansinkz, if g0 > A*X
-                      if (g0 .gt. ciz(i,j)*X) then
-                         X = 0.0_r_2
-                         coef2z(i,j) = X
-                         coef1z(i,j) = g0 + X * Rd + gamma  * (1.0_r_2 - X * cs)
-                         coef0z(i,j) = -g0 * cs * gamma + Rd * g0
-
-
-                         if ((abs(coef2z(i,j)) < 1.0e-9_r_2) .and. (abs(coef1z(i,j)) < 1.0e-9_r_2)) then
-                            ciz(i,j)     = 99999.0_r_2
-                            ansinkz(i,j) = real(ciz(i,j))
-                         endif
-
-                         ! solve linearly
-                         if ( (abs(coef2z(i,j)) < 1.0e-9_r_2) .and. &
-                              (abs(coef1z(i,j)) >= 1.0e-9_r_2) ) then
-                            ciz(i,j)     = -1.0_r_2 * coef0z(i,j) / coef1z(i,j)
-                            ansinkz(i,j) = real(ciz(i,j))
-                         endif
-
-                         ! solve quadratic (only take the more positive solution)
-                         if (abs(coef2z(i,j)) >= 1.0e-9_r_2) then
-                            delcxz(i,j)  = coef1z(i,j)**2 - 4.0_r_2*coef0z(i,j)*coef2z(i,j)
-                            ciz(i,j)     = (-coef1z(i,j) + sqrt(max(0.0_r_2, delcxz(i,j)))) / &
-                                 (2.0_r_2 * coef2z(i,j))
-                            ansinkz(i,j) = real(ciz(i,j))
-                         endif
-                      endif ! g0 > A*X
-                   endif ! g0_switch==maximum
-
-                   dAmp(i,j)  = 0.0_r_2
-                   eta_p(i,j) = 0.0_r_2
-
-                endif ! C3 / C4
-
-             endif ! deltlfz > 0.1
-
-             ! minimal of three limited rates
-             ! anxz(i,j) = min(anrubiscoz(i,j), anrubpz(i,j), ansinkz(i,j))
-             ! if (anxz(i,j) .eq. anrubiscoz(i,j)) then
-             !    dA(i,j)  = dAmc(i,j)
-             !    eta(i,j) = eta_c(i,j)
-             ! elseif (anxz(i,j) .eq. anrubpz(i,j)) then
-             !    dA(i,j)  = dAme(i,j)
-             !    eta(i,j) = eta_e(i,j)
-             ! elseif (anxz(i,j) .eq. ansinkz(i,j)) then
-             !    dA(i,j)  = dAmp(i,j)
-             !    eta(i,j) = eta_p(i,j)
-             ! endif
-             tmp3      = (/ anrubiscoz(i,j), anrubpz(i,j), ansinkz(i,j) /)
-             ii        = minloc(tmp3)
-             anxz(i,j) = tmp3(ii(1))
-             dtmp3     = (/ dAmc(i,j), dAme(i,j), dAmp(i,j) /)
-             dA(i,j)   = dtmp3(ii(1))
-             dtmp3     = (/ eta_c(i,j), eta_e(i,j), eta_p(i,j) /)
-             eta(i,j)  = dtmp3(ii(1))
-
-          else ! vlaiz > c%lai_thresh
-
-             anxz(i,:)       = 0.0
-             anrubiscoz(i,:) = 0.0
-             anrubpz(i,:)    = 0.0
-             ansinkz(i,:)    = 0.0
-             dAmc(i,:)       = 0.0_r_2
-             dAme(i,:)       = 0.0_r_2
-             dAmp(i,:)       = 0.0_r_2
-             dA(i,:)         = 0.0_r_2
-             eta_c(i,:)      = 0.0_r_2
-             eta_e(i,:)      = 0.0_r_2
-             eta_p(i,:)      = 0.0_r_2
-             eta(i,:)        = 0.0_r_2
-
-          endif ! vlaiz > c%lai_thresh
-
-       enddo ! j=1, mf
-
-    enddo ! i=1, mp
-
-  END SUBROUTINE photosynthesis
-
-
-  !---------------------------------------------------------------------------------------
 
 
   ELEMENTAL PURE FUNCTION ej3x(parx, alpha, convex, x) RESULT(z)
@@ -3241,54 +2661,35 @@ CONTAINS
   ! ------------------------------------------------------------------------------
 
 
-  ! Explicit array dimensions as temporary work around for NEC inlining problem
-  ELEMENTAL PURE FUNCTION xvcmxt4(x) RESULT(z)
-
-    implicit none
-
-    real, intent(in) :: x
-
-    real, parameter :: q10c4 = 2.0
-    real :: z
-
-    ! z = q10c4 ** (0.1 * x - 2.5) / &
-    !     ((1.0 + exp(0.3 * (13.0 - x))) * (1.0 + exp(0.3 * (x - 36.0))))
-    z = q10c4**(0.1*x - 2.5) / &
-         ( (1.0 + exp(0.3 * (13.0 - x))) * (1.0 + exp(0.2 * (x - 38.0))) )
-
-  END FUNCTION xvcmxt4
-
-
-  ! ------------------------------------------------------------------------------
-
-
   FUNCTION xgmesT(x) RESULT(z)
     ! Temperature response of mesophyll conductance
     ! parameters as in Knauer et al. 2019 (from Bernacchi et al. 2002)
 
-    use cable_def_types_mod, only: r_2
-
     implicit none
 
     real, intent(in) :: x
-    real(r_2)        :: z
+    real             :: z
 
-    real(r_2) :: xgmes, TrefK, Rgas
+    real :: EHa, EHd, Entrop
+    real :: xgmes
 
-    real(r_2), parameter :: EHa    = 49.6e3_r_2  ! J/mol
-    real(r_2), parameter :: EHd    = 437.4e3_r_2 ! J/mol
-    real(r_2), parameter :: Entrop = 1.4e3_r_2   ! J/mol/K
+    if (trim(cable_user%Rubisco_parameters) == 'Bernacchi_2002') then
+       EHa    = 49.6e3  ! J/mol
+       EHd    = 437.4e3 ! J/mol
+       Entrop = 1.4e3   ! J/mol/K
+    else if (trim(cable_user%Rubisco_parameters) == 'Walker_2013') then
+       EHa    = 7.4e3   ! J/mol
+       EHd    = 434.0e3 ! J/mol
+       Entrop = 1.4e3   ! J/mol/K
+    endif
 
     CALL point2constants(C)
 
-    TrefK = real(C%TrefK, r_2)
-    Rgas  = real(C%Rgas, r_2)
+    xgmes = exp(EHa * (x - C%TrefK) / (C%TrefK * C%Rgas * x )) * &
+         (1.0 + exp((C%TrefK * Entrop - EHd) / (C%TrefK * C%Rgas))) / &
+         (1.0 + exp((x * Entrop - EHd) / (x * C%Rgas)))
 
-    xgmes = exp(EHa * (x - TrefK) / (TrefK * Rgas * x )) * &
-         (1.0_r_2 + exp((TrefK * Entrop - EHd) / (TrefK * Rgas))) / &
-         (1.0_r_2 + exp((x * Entrop - EHd) / (x * Rgas)))
-
-    z = max(0.0_r_2, xgmes)
+    z = max(0.0, xgmes)
 
   END FUNCTION xgmesT
 
@@ -3296,28 +2697,36 @@ CONTAINS
   ! ------------------------------------------------------------------------------
 
 
-  FUNCTION xvcmxt3(x) RESULT(z)
-    !  Leuning 2002 (PCE) equation for temperature response
-    !  used for Vcmax for c3 plants
+  FUNCTION xvcmxt3(Tk) RESULT(z)
+    !  Vcmax temperature response (Arrhenius function)
 
     implicit none
 
-    real, intent(in) :: x
-    real             :: z
+    real, intent(in) :: Tk
+    real             :: xv, z
+    !real :: xvcnum, xvcden
 
-    real :: xvcnum, xvcden
+    !real, parameter :: EHaVc  = 73637.0  ! J/mol (Leuning 2002)
+    !real, parameter :: EHdVc  = 149252.0 ! J/mol (Leuning 2002)
+    !real, parameter :: EntropVc = 486.0  ! J/mol/K (Leuning 2002)
+    !real, parameter :: xVccoef = 1.17461 ! derived parameter
 
-    real, parameter :: EHaVc  = 73637.0  ! J/mol (Leuning 2002)
-    real, parameter :: EHdVc  = 149252.0 ! J/mol (Leuning 2002)
-    real, parameter :: EntropVc = 486.0  ! J/mol/K (Leuning 2002)
-    real, parameter :: xVccoef = 1.17461 ! derived parameter
+    ! Parameters calculated from Kumarathunge et al. 2019 with Tgrowth = 15 degC
+    real, parameter :: EaV = 59700.0  ! J/mol
+    real, parameter :: EdV = 200000.0 ! J/mol
+    real, parameter :: dSV = 639.43   ! J/mol/K
 
     ! xVccoef=1.0+exp((EntropJx*C%TREFK-EHdJx)/(Rconst*C%TREFK))
-    CALL point2constants(C)
+    call point2constants(C)
 
-    xvcnum = xvccoef*exp( ( ehavc / ( C%rgas*C%TREFK ) )* ( 1.-C%TREFK/x ) )
-    xvcden = 1.0+exp( ( entropvc*x-ehdvc ) / ( C%rgas*x ) )
-    z = max( 0.0, xvcnum / xvcden )
+    !xvcnum = xvccoef * exp(( EHaVc / (C%Rgas * C%TREFK ) )* ( 1.0 - C%TREFK/Tk ) )
+    !xvcden = 1.0 + exp( ( EntropVc * Tk - EHdVc) / ( C%rgas * Tk ) )
+    !z = max(0.0, xvcnum / xvcden)
+
+    xv = exp(EaV * (Tk - C%TrefK) / (C%TrefK * C%Rgas * Tk )) * &
+          (1.0 + exp((C%TrefK * dSV - EdV) / (C%TrefK * C%Rgas))) / &
+          (1.0 + exp((Tk * dSV - EdV) / (Tk * C%Rgas)))
+    z = max(0.0, xv)
 
   END FUNCTION xvcmxt3
 
@@ -3325,7 +2734,41 @@ CONTAINS
   ! ------------------------------------------------------------------------------
 
 
-  elemental pure subroutine xvcmxt3_acclim(Tk, Tgrowth, trf)
+  ! Explicit array dimensions as temporary work around for NEC inlining problem
+  FUNCTION xvcmxt4(Tk) RESULT(z)
+
+    implicit none
+
+    real, intent(in) :: Tk  ! leaf temperature in Kelvin
+    real             :: xc4, z
+
+    !real, parameter :: q10c4 = 2.0
+    ! parameter values from Massad et al. 2007, PCE 30, 1191-1204, slightly adjusted to
+    ! get optimum at ~36degC as in Yamori et al. 2014
+    real, parameter :: EHa    = 66000.0  ! 67.29e3_r_2   ! J/mol
+    real, parameter :: EHd    = 145000.0 ! 144.57e3_r_2  ! J/mol
+    real, parameter :: Entrop = 469.4217 ! 0.472e3_r_2   ! J/mol/K
+
+    ! Q10 function replaced with Arrhenius function for the sake of parameter
+    ! identifiability/interpretability
+    !z = q10c4**(0.1*x - 2.5) / &
+    !     ( (1.0 + exp(0.3 * (13.0 - x))) * (1.0 + exp(0.2 * (x - 38.0))) )
+
+    call point2constants(C)
+
+    xc4 = exp(EHa * (Tk - C%TrefK) / (C%TrefK * C%Rgas * Tk )) * &
+          (1.0 + exp((C%TrefK * Entrop - EHd) / (C%TrefK * C%Rgas))) / &
+          (1.0 + exp((Tk * Entrop - EHd) / (Tk * C%Rgas)))
+
+    z = max(0.0, xc4)
+
+  END FUNCTION xvcmxt4
+
+
+  ! ------------------------------------------------------------------------------
+
+
+  Subroutine xvcmxt3_acclim(Tk, Tgrowth, trf)
     ! acclimated temperature response of Vcmax. Kumarathunge et al., New. Phyt., 2019,
     ! Eq 7 and Table 2
 
@@ -3334,23 +2777,50 @@ CONTAINS
     real, intent(in)  :: Tk, Tgrowth  ! instantaneous T in K, growth T in degC
     real, intent(out) :: trf
 
-    real :: xVccoef, EHaVc, EHdVc,  EntropVc, aKK, bKK, rgas, TREFK, xvcnum, xvcden
+    real :: xVccoef, EHaVc, EHdVc, EntropVc, xvcnum, xvcden
 
-    EHaVc = 42.6 * 1000.0 + 1.14*Tgrowth*1000.0
+    EHaVc = (42.6 + 1.14*Tgrowth) * 1000.0
+    entropvc = (645.13 -0.38 * Tgrowth)
     EHdVc = 200000.0
-    aKK   = 645.13
-    bKK   = -0.38
-    rgas  = 8.314
-    TREFK = 298.15
 
-    entropvc = (aKK + bKK * Tgrowth)
-    xVccoef  = 1.0 + exp((entropvc * TREFK - EHdVc)/  ( rgas*TREFK ) )
-    xvcnum   = xVccoef * exp( ( EHaVc / ( rgas*TREFK ) )* ( 1.-TREFK/Tk ) )
-    xvcden   = 1.0 + exp( ( entropvc*Tk-EHdVc ) / ( rgas*Tk ) )
+    call point2constants(C)
+
+    xVccoef  = 1.0 + exp((entropvc * C%TREFK - EHdVc)/  ( C%Rgas * C%TREFK ) )
+    xvcnum   = xVccoef * exp((EHaVc / (C%Rgas * C%TREFK ) )* ( 1.0 - C%TREFK/Tk ) )
+    xvcden   = 1.0 + exp((entropvc * Tk- EHdVc) / (C%Rgas * Tk ) )
 
     trf = max( 0.0, xvcnum / xvcden )
 
   end subroutine xvcmxt3_acclim
+
+
+  ! ------------------------------------------------------------------------------
+
+
+  Subroutine xvcmxt4_acclim(Tk, Tgrowth, trf)
+    ! acclimated temperature response of Vcmax for C4 plants.
+    ! Data fitted to obtain Topt-Tgrowth response as shown in Yamori et al. 2014, Photosny Research Fig. 5
+
+    implicit none
+
+    real, intent(in)  :: Tk, Tgrowth  ! instantaneous T in K, growth T in degC
+    real, intent(out) :: trf
+
+    real :: xVccoef, EHaVc, EHdVc, EntropVc, xvcnum, xvcden
+
+    EHaVc = (45.0 + 1.05 * Tgrowth) * 1000.0
+    entropvc = (472.0 -0.128913 * Tgrowth)
+    EHdVc = 145000.0
+
+    call point2constants(C)
+
+    xVccoef  = 1.0 + exp((entropvc * C%TREFK - EHdVc)/  (C%Rgas * C%TREFK) )
+    xvcnum   = xVccoef * exp((EHaVc / (C%Rgas * C%TREFK ) ) * (1.0 - C%TREFK/Tk) )
+    xvcden   = 1.0 + exp((entropvc * Tk - EHdVc ) / (C%Rgas * Tk ) )
+
+    trf = max(0.0, xvcnum / xvcden )
+
+  end Subroutine xvcmxt4_acclim
 
 
   ! ------------------------------------------------------------------------------
@@ -3374,26 +2844,35 @@ CONTAINS
   ! ------------------------------------------------------------------------------
 
 
-  FUNCTION xejmxt3(x) RESULT(z)
-    ! Leuning 2002 (PCE) equation for temperature response
-    ! used for jmax for C3 plants
+  FUNCTION xejmxt3(Tk) RESULT(z)
+    ! Temperature response of Jmax (Arrhenius function)
 
     implicit none
 
-    real, intent(in) :: x
-    real             :: z
+    real, intent(in) :: Tk  ! Leaf temperature in Kelvin
+    real             :: xj, z
 
-    real :: xjxnum, xjxden
-    real, parameter :: EHaJx  = 50300.0  ! J/mol (Leuning 2002)
-    real, parameter :: EHdJx  = 152044.0 ! J/mol (Leuning 2002)
-    real, parameter :: EntropJx = 495.0  ! J/mol/K (Leuning 2002)
-    real, parameter :: xjxcoef = 1.16715 ! derived parameter
+    !real :: xjxnum, xjxden
+    !real, parameter :: EHaJx  = 50300.0  ! J/mol (Leuning 2002)
+    !real, parameter :: EHdJx  = 152044.0 ! J/mol (Leuning 2002)
+    !real, parameter :: EntropJx = 495.0  ! J/mol/K (Leuning 2002)
+    !real, parameter :: xjxcoef = 1.16715 ! derived parameter
 
-    CALL point2constants(C)
+    ! Parameters calculated from Kumarathunge et al. 2019 with Thome = 25degC and Tgrowth = 15degC
+    real, parameter :: EaJ = 40710  ! J/mol (Leuning 2002)
+    real, parameter :: EdJ = 200000 ! J/mol (Leuning 2002)
+    real, parameter :: dSJ = 642.97 ! J/mol/K (Leuning 2002)
 
-    xjxnum = xjxcoef*exp( ( ehajx / ( C%rgas*C%TREFK ) ) * ( 1.-C%TREFK / x ) )
-    xjxden = 1.0+exp( ( entropjx*x-ehdjx) / ( C%rgas*x ) )
-    z = max(0.0, xjxnum/xjxden)
+    call point2constants(C)
+
+    !xjxnum = xjxcoef*exp( ( EHaJx / ( C%Rgas * C%TREFK)) * (1.0 - C%TREFK / Tk ) )
+    !xjxden = 1.0 + exp((EntropJx * Tk - EHdJx) / ( C%Rgas * Tk ) )
+    !z = max(0.0, xjxnum/xjxden)
+
+    xj = exp(EaJ * (Tk - C%TrefK) / (C%TrefK * C%Rgas * Tk )) * &
+          (1.0 + exp((C%TrefK * dSJ - EdJ) / (C%TrefK * C%Rgas))) / &
+          (1.0 + exp((Tk * dSJ - EdJ) / (Tk * C%Rgas)))
+    z = max(0.0, xj)
 
   END FUNCTION xejmxt3
 
@@ -3401,28 +2880,25 @@ CONTAINS
   ! ------------------------------------------------------------------------------
 
 
-  elemental pure subroutine xejmxt3_acclim(Tk, Tgrowth, Thome, trf)
+  Subroutine xejmxt3_acclim(Tk, Tgrowth, Thome, trf)
 
     ! acclimated temperature response of Jmax. Kumarathunge et al., New. Phyt., 2019,
     ! Eq 7 and Table 2
     REAL, INTENT(IN) :: Tk, Tgrowth, Thome  ! instantaneous T in K, home and growth T in degC
     REAL, INTENT(OUT) :: trf
-    REAL:: xVccoef, EHaVc, EHdVc,  EntropVc, aKK, bKK, cKK, rgas, TREFK, xvcnum, xvcden
+    REAL:: xVccoef, EHaVc, EHdVc, EntropVc, xvcnum, xvcden
 
 
     EHaVc = 40.71 * 1000.0
     EHdVc  = 200000.0
-    aKK = 658.77
-    bKK = -0.84
-    cKK = -0.52
-    rgas = 8.314
-    TREFK = 298.15
+    entropvc = (658.77 -0.84 * Thome) -0.52 * (Tgrowth - Thome)
 
-    entropvc = (aKK + bKK * Thome) + cKK * (Tgrowth - Thome)
-    xVccoef  = 1.0 + exp((entropvc * TREFK - EHdVc)/  ( rgas*TREFK ) )
-    xvcnum = xVccoef * exp( ( EHaVc / ( rgas*TREFK ) )* ( 1.-TREFK/Tk ) )
-    xvcden=1.0 + exp( ( entropvc*Tk-EHdVc ) / ( rgas*Tk ) )
-    trf = max( real(0.0), xvcnum / xvcden )
+    call point2constants(C)
+
+    xVccoef = 1.0 + exp((entropvc * C%TREFK - EHdVc)/  (C%Rgas * C%TREFK) )
+    xvcnum  = xVccoef * exp((EHaVc / (C%Rgas * C%TREFK ) ) * ( 1.0 - C%TREFK/Tk) )
+    xvcden  = 1.0 + exp((entropvc * Tk - EHdVc ) / (C%Rgas * Tk) )
+    trf = max(real(0.0), xvcnum / xvcden )
 
   end subroutine xejmxt3_acclim
 
@@ -3689,8 +3165,12 @@ CONTAINS
 
   END SUBROUTINE getrex_1d
 
-  !*****************************************************************************************
+
+  ! ------------------------------------------------------------------------------
   ! not used
+  !
+
+
   ! SUBROUTINE cubic_root_solver(a0,a1,a2,x1,x2,x3)
 
   !   USE cable_def_types_mod, only: r_2
@@ -3720,10 +3200,12 @@ CONTAINS
   !   endif
 
   ! END SUBROUTINE cubic_root_solver
-  !*****************************************************************************************
 
 
-  ! functions for infinite mesophyll conductance
+  ! ------------------------------------------------------------------------------
+
+
+  ! functions for implicit mesophyll conductance
   elemental pure subroutine fabc(Cs, g0, x, gamma, beta, Gammastar, Rd, a, b, c)
 
     use cable_def_types_mod, only: r_2
@@ -3740,7 +3222,7 @@ CONTAINS
   end subroutine fabc
 
 
-  elemental pure subroutine fabc2(Cs, g0, x, gamma, beta, Gammastar, Rd, a, b, c)
+  elemental pure subroutine fabc_c4(Cs, g0, x, gamma, beta, Gammastar, Rd, a, b, c)
 
     use cable_def_types_mod, only: r_2
 
@@ -3753,10 +3235,10 @@ CONTAINS
     b = (g0+gamma*(1.0_r_2-x))*Cs - x*(beta-Rd)
     c =  -gamma*g0*Cs**2 - g0*(beta-Rd)*Cs
 
-  end subroutine fabc2
+  end subroutine fabc_c4
 
 
-  elemental pure subroutine fAn(a, b, c, A2)
+  elemental pure subroutine fAn_c3(a, b, c, A2)
 
     use cable_def_types_mod, only: r_2
 
@@ -3770,10 +3252,10 @@ CONTAINS
     s2 = b**2 - 4.0_r_2*a*c
     A2 = (-b - sqrt(s2))/(2.0_r_2*a)
 
-  end subroutine fAn
+  end subroutine fAn_c3
 
 
-  elemental pure subroutine fAn2(a, b, c, A2)
+  elemental pure subroutine fAn_c4(a, b, c, A2)
 
     use cable_def_types_mod, only: r_2
 
@@ -3787,7 +3269,7 @@ CONTAINS
     s2 = b**2 - 4.0_r_2*a*c
     A2 = (-b + sqrt(s2))/(2.0_r_2*a)
 
-  end subroutine fAn2
+  end subroutine fAn_c4
 
 
   elemental pure subroutine fdabc(Cs, g0, x, gamma, beta, Gammastar, Rd, da, db, dc)
@@ -3806,7 +3288,7 @@ CONTAINS
   end subroutine fdabc
 
 
-  elemental pure subroutine fdabc2(Cs, g0, x, gamma, beta, Gammastar, Rd, da, db, dc)
+  elemental pure subroutine fdabc_c4(Cs, g0, x, gamma, beta, Gammastar, Rd, da, db, dc)
 
     use cable_def_types_mod, only: r_2
 
@@ -3819,10 +3301,10 @@ CONTAINS
     db = g0 + gamma*(1.0_r_2-x)
     dc = -2.0_r_2*gamma*g0*Cs - g0*(beta-Rd)
 
-  end subroutine fdabc2
+  end subroutine fdabc_c4
 
 
-  elemental pure subroutine fdAn(a, b, c, da, db, dc, dA2)
+  elemental pure subroutine fdAn_c3(a, b, c, da, db, dc, dA2)
 
     use cable_def_types_mod, only: r_2
 
@@ -3837,10 +3319,10 @@ CONTAINS
     p = (2.0_r_2*b*db - 4.0_r_2*c*da - 4.0_r_2*a*dc)/(2.0_r_2*s)
     dA2 = (-db - p)/(2.0_r_2*a) - (-b - s)/(2.0_r_2*a**2)*da
 
-  end subroutine fdAn
+  end subroutine fdAn_c3
 
 
-  elemental pure subroutine fdAn2(a, b, c, da, db, dc, dA2)
+  elemental pure subroutine fdAn_c4(a, b, c, da, db, dc, dA2)
 
     use cable_def_types_mod, only: r_2
 
@@ -3855,10 +3337,10 @@ CONTAINS
     p = (2.0_r_2*b*db - 4.0_r_2*c*da - 4.0_r_2*a*dc)/(2.0_r_2*s)
     dA2 = (-db + p)/(2.0_r_2*a) - (-b + s)/(2.0_r_2*a**2)*da
 
-  end subroutine fdAn2
+  end subroutine fdAn_c4
 
 
-  elemental pure subroutine fAndAn1(Cs, g0, x, gamma, beta, Gammastar, Rd, An, dAn)
+  elemental pure subroutine fAndAn_c3(Cs, g0, x, gamma, beta, Gammastar, Rd, An, dAn)
 
     use cable_def_types_mod, only: r_2
 
@@ -3870,14 +3352,14 @@ CONTAINS
     real(r_2) :: a, b, c, da, db, dc
 
     call fabc(Cs, g0, x, gamma, beta, Gammastar, Rd,a,b,c)
-    call fAn(a, b, c, An)
+    call fAn_c3(a, b, c, An)
     call fdabc(Cs, g0, x, gamma, beta, Gammastar, Rd, da, db, dc)
-    call fdAn(a, b, c, da, db, dc, dAn)
+    call fdAn_c3(a, b, c, da, db, dc, dAn)
 
-  end subroutine fAndAn1
+  end subroutine fAndAn_c3
 
 
-  elemental pure subroutine fAndAn2(Cs, g0, x, gamma, beta, Gammastar, Rd, An, dAn)
+  elemental pure subroutine fAndAn_c4(Cs, g0, x, gamma, beta, Gammastar, Rd, An, dAn)
 
     use cable_def_types_mod, only: r_2
 
@@ -3888,12 +3370,12 @@ CONTAINS
 
     real(r_2) :: a, b, c, da, db, dc
 
-    call fabc2(Cs, g0, x, gamma, beta, Gammastar, Rd,a,b,c)
-    call fAn2(a, b, c, An)
-    call fdabc2(Cs, g0, x, gamma, beta, Gammastar, Rd, da, db, dc)
-    call fdAn2(a, b, c, da, db, dc, dAn)
+    call fabc_c4(Cs, g0, x, gamma, beta, Gammastar, Rd,a,b,c)
+    call fAn_c4(a, b, c, An)
+    call fdabc_c4(Cs, g0, x, gamma, beta, Gammastar, Rd, da, db, dc)
+    call fdAn_c4(a, b, c, da, db, dc, dAn)
 
-  end subroutine fAndAn2
+  end subroutine fAndAn_c4
 
 
   ! not used
@@ -3954,21 +3436,20 @@ CONTAINS
   end subroutine fabcd
 
 
-  ! not used
-  ! elemental pure subroutine fabcm(Cs, g0, x, gamma, beta, Gammastar, Rd, gm, a, b, c1)
+  elemental pure subroutine fabcm(Cs, g0, x, gamma, beta, Gammastar, Rd, gm, a, b, c1)
 
-  !   use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r_2
 
-  !   implicit none
+    implicit none
 
-  !   real(r_2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd, gm
-  !   real(r_2), intent(out) :: a,b,c1
+    real(r_2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd, gm
+    real(r_2), intent(out) :: a,b,c1
 
-  !   a  = x*(gm+gamma)
-  !   b  = ((gm+g0)*gamma + g0*gm - gm*gamma*x)*Cs - gm*x*(beta-Rd)
-  !   c1 = -gm*g0*gamma*Cs**2 - gm*g0*(beta-Rd)*Cs
+    a  = x*(gm+gamma)
+    b  = ((gm+g0)*gamma + g0*gm - gm*gamma*x)*Cs - gm*x*(beta-Rd)
+    c1 = -gm*g0*gamma*Cs**2 - gm*g0*(beta-Rd)*Cs
 
-  ! end subroutine fabcm
+  end subroutine fabcm
 
 
   elemental pure subroutine fpq(a, b, c, d, p, q)
@@ -4003,23 +3484,22 @@ CONTAINS
   end subroutine fdabcd
 
 
-  ! not used
-  ! elemental pure subroutine fdabcm(Cs, g0, x, gamma, beta, Gammastar, Rd, gm, da, db, dc)
+  elemental pure subroutine fdabcm(Cs, g0, x, gamma, beta, Gammastar, Rd, gm, da, db, dc)
 
-  !   use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r_2
 
-  !   implicit none
+    implicit none
 
-  !   real(r_2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd, gm
-  !   real(r_2), intent(out) :: da, db, dc
+    real(r_2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd, gm
+    real(r_2), intent(out) :: da, db, dc
 
-  !   da = 0.0_r_2
-  !   db = (gm+g0)*gamma + g0*gm - gm*gamma*x
-  !   dc = -2.0_r_2*gm*g0*gamma*Cs - gm*g0*(beta-Rd)
+    da = 0.0_r_2
+    db = (gm+g0)*gamma + g0*gm - gm*gamma*x
+    dc = -2.0_r_2*gm*g0*gamma*Cs - gm*g0*(beta-Rd)
 
-  ! end subroutine fdabcm
+  end subroutine fdabcm
 
-  
+
   elemental pure subroutine fdpq(a, b, c, d, da, db, dc, dd, dp, dq)
 
     use cable_def_types_mod, only: r_2
@@ -4039,7 +3519,7 @@ CONTAINS
   end subroutine fdpq
 
 
-  elemental pure subroutine fAm(a, b, c1, d, p, q, Am)
+  elemental pure subroutine fAm_c3(a, b, c1, d, p, q, Am)
 
     use cable_def_types_mod, only: r_2
     use mo_constants, only: pi => pi_dp
@@ -4056,28 +3536,27 @@ CONTAINS
     k  = 1.0_r_2
     Am = 2.0_r_2*sqrt(p3)*cos(acos(pq)/3.0_r_2 - 2.0_r_2*pi*k/3.0_r_2) - b/(3.0_r_2*a)
 
-  end subroutine fAm
+  end subroutine fAm_c3
 
 
-  ! not used
-  ! elemental pure subroutine fAm2(a, b, c1, Am)
+  elemental pure subroutine fAm_c4(a, b, c1, Am)
 
-  !   use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r_2
 
-  !   implicit none
+    implicit none
 
-  !   real(r_2), intent(in) :: a, b, c1
-  !   real(r_2), intent(out) :: Am
+    real(r_2), intent(in) :: a, b, c1
+    real(r_2), intent(out) :: Am
 
-  !   real(r_2) :: s2
+    real(r_2) :: s2
 
-  !   s2 = b**2 - 4.0_r_2*a*c1
-  !   Am = (-b + sqrt(s2))/(2.0_r_2*a)
+    s2 = b**2 - 4.0_r_2*a*c1
+    Am = (-b + sqrt(s2))/(2.0_r_2*a)
 
-  ! end subroutine fAm2
+  end subroutine fAm_c4
 
 
-  elemental pure subroutine fdAm(a, b, c1, d, p, q, da, db, dc, dd, dp, dq, dAm)
+  elemental pure subroutine fdAm_c3(a, b, c1, d, p, q, da, db, dc, dd, dp, dq, dAm)
 
     use cable_def_types_mod, only: r_2
     use mo_constants, only: pi => pi_dp
@@ -4099,28 +3578,28 @@ CONTAINS
          q/p*3.0_r_2/2.0_r_2*1.0_r_2/sqrt(1.0_r_2/p3)*1.0_r_2/p**2*dp)) - &
          db/(3.0_r_2*a) + b/(3.0_r_2*a**2)*da
 
-  end subroutine fdAm
-
-  ! not used
-  ! elemental pure subroutine fdAm2(a, b, c1, da, db, dc, dAm)
-
-  !   use cable_def_types_mod, only: r_2
-
-  !   implicit none
-
-  !   real(r_2), intent(in) :: a, b, c1, da, db, dc
-  !   real(r_2), intent(out) :: dAm
-
-  !   real(r_2) :: s, p
-
-  !   s = sqrt(b**2 - 4.0_r_2*a*c1)
-  !   p = (2.0_r_2*b*db - 4.0_r_2*c1*da - 4.0_r_2*a*dc)/(2.0_r_2*s)
-  !   dAm = (-db + p)/(2.0_r_2*a) - (-b + s)/(2.0_r_2*a**2)*da
-
-  ! end subroutine fdAm2
+  end subroutine fdAm_c3
 
 
-  elemental pure subroutine fAmdAm1(Cs, g0, x, gamma, beta, Gammastar, Rd, gm, &
+  elemental pure subroutine fdAm_c4(a, b, c1, da, db, dc, dAm)
+
+    use cable_def_types_mod, only: r_2
+
+    implicit none
+
+    real(r_2), intent(in) :: a, b, c1, da, db, dc
+    real(r_2), intent(out) :: dAm
+
+    real(r_2) :: s, p
+
+    s = sqrt(b**2 - 4.0_r_2*a*c1)
+    p = (2.0_r_2*b*db - 4.0_r_2*c1*da - 4.0_r_2*a*dc)/(2.0_r_2*s)
+    dAm = (-db + p)/(2.0_r_2*a) - (-b + s)/(2.0_r_2*a**2)*da
+
+  end subroutine fdAm_c4
+
+
+  elemental pure subroutine fAmdAm_c3(Cs, g0, x, gamma, beta, Gammastar, Rd, gm, &
        Am, dAm)
 
     use cable_def_types_mod, only: r_2
@@ -4134,33 +3613,32 @@ CONTAINS
 
     call fabcd(Cs, g0, x, gamma, beta, Gammastar, Rd, gm, a, b, c, d)
     call fpq(a, b, c, d, p, q)
-    call fAm(a, b, c, d, p, q, Am)
+    call fAm_c3(a, b, c, d, p, q, Am)
     call fdabcd(Cs, g0, x, gamma, beta, Gammastar, Rd, gm, da, db, dc, dd)
     call fdpq(a, b, c, d, da, db, dc, dd, dp, dq)
-    call fdAm(a, b, c, d, p, q, da, db, dc, dd, dp, dq, dAm)
+    call fdAm_c3(a, b, c, d, p, q, da, db, dc, dd, dp, dq, dAm)
 
-  end subroutine fAmdAm1
+  end subroutine fAmdAm_c3
 
 
-  ! not used
-  ! elemental pure subroutine fAmdAm2(Cs, g0, x, gamma, beta, Gammastar, Rd, gm, &
-  !      Am, dAm)
+  elemental pure subroutine fAmdAm_c4(Cs, g0, x, gamma, beta, Gammastar, Rd, gm, &
+       Am, dAm)
 
-  !   use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r_2
 
-  !   implicit none
+    implicit none
 
-  !   real(r_2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd, gm
-  !   real(r_2), intent(out) :: Am, dAm
+    real(r_2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd, gm
+    real(r_2), intent(out) :: Am, dAm
 
-  !   real(r_2) :: a, b, c1, da, db, dc
+    real(r_2) :: a, b, c1, da, db, dc
 
-  !   call fabcm(Cs, g0, x, gamma, beta, Gammastar, Rd, gm,a,b,c1)
-  !   call fAm2(a, b, c1, Am)
-  !   call fdabcm(Cs, g0, x, gamma, beta, Gammastar, Rd, gm, da, db, dc)
-  !   call fdAm2(a, b, c1, da, db, dc, dAm)
+    call fabcm(Cs, g0, x, gamma, beta, Gammastar, Rd, gm,a,b,c1)
+    call fAm_c4(a, b, c1, Am)
+    call fdabcm(Cs, g0, x, gamma, beta, Gammastar, Rd, gm, da, db, dc)
+    call fdAm_c4(a, b, c1, da, db, dc, dAm)
 
-  ! end subroutine fAmdAm2
+  end subroutine fAmdAm_c4
 
 
   ! not used
@@ -4201,7 +3679,5 @@ CONTAINS
   !   endif
 
   ! end subroutine fAmdAm
-
-  !**********
 
 END MODULE cable_canopy_module

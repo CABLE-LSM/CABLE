@@ -30,7 +30,7 @@ contains
 !#define UM_BUILD YES
   SUBROUTINE bgcdriver(ktau,kstart,dels,met,ssnow,canopy,veg,soil, &
        climate,casabiome,casapool,casaflux,casamet,casabal,phen, &
-       pop, ktauday, idoy, loy, dump_read,   &
+       pop, ktauday, idoy, loy, dump_read, &
        LALLOC, c13o2flux, c13o2pools)
 
     USE cable_def_types_mod
@@ -81,11 +81,14 @@ contains
     real(r_2), dimension(mp)  :: xnplimit,  xkNlimiting, xklitter, xksoil ,xkleaf,xkleafcold,xkleafdry
 
     ! 13C
-    real(dp), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
+    real(dp), dimension(:,:), allocatable :: casasave
+
+    ! 13C
+    if (cable_user%c13o2) allocate(casasave(c13o2pools%ntile,c13o2pools%npools))
 
     IF ( .NOT. dump_read ) THEN  ! construct casa met and flux inputs from current CABLE run
        IF ( TRIM(cable_user%MetType) .EQ. 'cru' .OR. &
-            TRIM(cable_user%MetType) .EQ. 'plum' .OR. &
+            TRIM(cable_user%MetType) .EQ. 'plume' .OR. &
             TRIM(cable_user%MetType) .EQ. 'site' ) THEN
           casaflux%Pdep    = real(met%Pdep, r_2)
           casaflux%Nmindep = real(met%Ndep, r_2)
@@ -614,8 +617,6 @@ contains
     dim_len(num_dims) = NF90_unlimited
     zeros = 0.0_r_2
 
-
-
     IF (n_call == 1) THEN
 
        ! create netCDF dataset: enter define mode
@@ -739,22 +740,33 @@ contains
     integer np,ivt
     real(r_2), dimension(mp) :: ncleafx, npleafx, pleafx, nleafx ! local variables
     real, dimension(17) ::  xnslope
+    !ASKJK - what are these hard-coded parameters? Why hard-coded?
     data xnslope/0.80,1.00,2.00,1.00,1.00,1.00,0.50,1.00,0.34,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00/
     real                :: relcostJCi
-    real, dimension(mp) :: bjvref, relcostJ, Nefftmp
-    real, dimension(mp) :: vcmaxx, cfrdx  ! vcmax and cfrd of previous day
+    real, dimension(mp) :: relcostJ, Nefftmp
+    real, save, dimension(17) :: vcmaxx         ! last updated vcmaxx
+    real, save, dimension(17) :: vcmax_ref      ! vcmax25 at gmmax25
+    data vcmax_ref/35.9e-6,47.6e-6,35.9e-6,71.1e-6,39.4e-6,64.3e-6,50.0e-6,32.8e-6,17.2e-6,50.0e-6, &
+         50.0e-6,50.0e-6,50.0e-6,50.0e-6,50.0e-6,50.0e-6,50.0e-6/
+    !ASKJK - what are these hard-coded parameters? Why hard-coded?
+    real, dimension(mp) :: bjvci          ! Ci-based Jmax/Vcmax ratio
+    real                :: gm_vcmax_slope ! slope between gmmax25 and Vcmax25 ((mol m-2 s-1) / (umol m-2 s-1))
+    real, parameter     :: effc4 = 20000.0  ! Vc=effc4*Ci*Vcmax (see Bonan et al. 2011, JGR 116)
 #ifdef __MPI__
     integer :: ierr
 #endif
-
-    vcmaxx = veg%vcmax
-    cfrdx  = veg%cfrd
 
     ! first initialize
     CALL point2constants(PHOTO)
     ncleafx(:) = casabiome%ratioNCplantmax(veg%iveg(:),leaf)
     npleafx(:) = casabiome%ratioNPplantmin(veg%iveg(:),leaf)
-    bjvref(:)  = PHOTO%bjvref     ! 1.7, Walker et al. 2014
+
+    if (cable_user%acclimate_photosyn) then
+       veg%bjv(:) = 2.56 - 0.0375 * climate%mtemp_max20(:) - 0.0202 * (climate%mtemp(:) -  climate%mtemp_max20(:))
+    else
+       veg%bjv(:) = PHOTO%bjvref  ! 1.8245 at Tgrowth=15degC and Thome=25degC Kumarathunge et al. 2019, acclimises
+    endif
+
     DO np=1,mp
        ivt=veg%iveg(np)
        IF (casamet%iveg2(np)/=icewater &
@@ -772,7 +784,7 @@ contains
           ENDIF
        ENDIF
 
-       IF (TRIM(cable_user%vcmax).eq.'standard') then
+       if (trim(cable_user%vcmax).eq.'standard') then
           IF (casamet%glai(np) > casabiome%glaimin(ivt)) THEN
              IF (ivt/=2) THEN
                 veg%vcmax(np) = real(casabiome%nintercept(ivt) &
@@ -789,8 +801,9 @@ contains
              ENDIF
              veg%vcmax(np) = veg%vcmax(np) * xnslope(ivt)
           ENDIF
-          veg%ejmax = 2.0 * veg%vcmax
-       elseif (TRIM(cable_user%vcmax).eq.'Walker2014') then
+          veg%ejmax = veg%bjv * veg%vcmax
+          veg%c4kci = effc4 * veg%vcmax
+       elseif (trim(cable_user%vcmax).eq.'Walker2014') then
           ! Walker, A. P. et al.: The relationship of leaf photosynthetic traits - Vcmax and Jmax -
           !   to leaf nitrogen, leaf phosphorus, and specific leaf area: a meta-analysis and modeling study,
           !   Ecology and Evolution, 4, 3218-3235, 2014.
@@ -798,37 +811,65 @@ contains
           !      0.282*log(pleafx(np))*log(nleafx(np))) * 1.0e-6
           nleafx(np) = ncleafx(np)/casabiome%sla(ivt) ! leaf N in g N m-2 leaf
           pleafx(np) = nleafx(np)/npleafx(np) ! leaf P in g P m-2 leaf
-
-          if (ivt .EQ. 7 .OR.ivt .EQ. 9  ) then
+          if (ivt .EQ. 7 .OR. ivt .EQ. 10) then
              ! special for C4 grass: scale value from  parameter file
              veg%vcmax(np) = real(casabiome%vcmax_scalar(ivt)) * 1.0e-5
-             veg%ejmax(np) = 2.0 * veg%vcmax(np)
+             veg%ejmax(np) = 2.0 * veg%vcmax(np)  ! not used for C4
           elseif (ivt.eq.1) then
              ! account here for spring recovery
              veg%vcmax(np) = real( vcmax_np(nleafx(np), pleafx(np)) * &
                   casabiome%vcmax_scalar(ivt) * real(climate%frec(np),r_2) )
-             veg%ejmax(np) = bjvref(np) * veg%vcmax(np)
+             veg%ejmax(np) = veg%bjv(np) * veg%vcmax(np)
           else
              veg%vcmax(np) = real( vcmax_np(nleafx(np), pleafx(np)) * &
                   casabiome%vcmax_scalar(ivt) )
-             veg%ejmax(np) = bjvref(np) * veg%vcmax(np)
+             veg%ejmax(np) = veg%bjv(np) * veg%vcmax(np)
           endif
+          veg%c4kci(np) = effc4 * veg%vcmax(np)  ! not used for C3 plants
 
-          ! adjust Vcmax and Jmax accounting for gm, but only if the implicit values
-          ! have changed.
+          ! adjust Vcmax and Jmax accounting for gm
           if (cable_user%explicit_gm) then
-             ! write(901,*) vcmaxx(1), veg%vcmax(1), cfrdx(1), veg%cfrd(1), ktau
-             ! write(902,*) vcmaxx(2), veg%vcmax(2), cfrdx(2), veg%cfrd(2)
-             if ( ABS(vcmaxx(np) - veg%vcmax(np)) .GT. 1.0E-08 .OR. &
-                  ABS(cfrdx(np) - veg%cfrd(np)) .GT. 1.0E-05 .OR. &
-                  ktau .LT. ktauday ) then
-                ! The approach by Sun et al. 2014 is replaced with a subroutine
-                ! based on Knauer et al. 2019, GCB
-                CALL adjust_JV_gm(veg)
+             if (ivt .EQ. 1 .OR. ivt .EQ. 3) then  ! slopes from database as presented in Knauer et al. 2019, GCB
+                gm_vcmax_slope = 0.0035e6_r_2
+             else
+                gm_vcmax_slope = 0.0020e6_r_2
+             endif
+             ! establish a relationship between gmmax and Vcmax
+             if (ivt .EQ. 7 .OR. ivt .EQ. 10) then ! no changes for C4 plants
+                vcmax_ref(ivt) = veg%vcmax(np)
+             endif
+
+             veg%gm(np) = veg%gmmax(np) + &
+                  gm_vcmax_slope * (veg%vcmax(np) - vcmax_ref(ivt))
+             !write(86,*) "veg%gm:", veg%gm
+             !write(86,*) "veg%gmmax:", veg%gmmax
+             !write(86,*) "vcmax_ref(ivt):", vcmax_ref(ivt)
+             !write(86,*) "veg%vcmax:", veg%vcmax
+             !write(86,*) "casabiome%sla:", casabiome%sla
+             !write(86,*) "casabiome%ratioNCplantmin(:,leaf)", casabiome%ratioNCplantmin(:,leaf)
+             !write(86,*) "nleafx(np):", nleafx(np)
+
+             !if (.not. veg%is_read_gmLUT) then  ! not working
+             !if (ABS(vcmaxx(np) - veg%vcmax(np)) .GT. 1.0E-08 .OR. ktau==1) then
+             if (ktau==1) then
+                ! C4 plants: first time step only because Vcmax does not change with N
+                call adjust_k_Collatz(veg,np)
+             endif
+             ! adjust parameters
+             if (len(trim(cable_user%gm_LUT_file)) .gt. 1) then
+                call find_Vcmax_Jmax_LUT(veg,np,LUT_VcmaxJmax,LUT_gm,LUT_vcmax,LUT_Rd)
+             else  ! no LUT, adjustment using An-Ci curves
+                if ( ABS(vcmaxx(ivt) - veg%vcmax(np)) .GT. 5.0E-08 .OR. ktau .LT. ktauday ) then
+                     vcmaxx(ivt) = veg%vcmax(np)
+                   ! The approach by Sun et al. 2014 is replaced with a subroutine
+                   ! based on Knauer et al. 2019, GCB
+                   call adjust_JV_gm(veg,np)
+                endif
              endif
 
              ! recalculate bjvref
-             bjvref(np) = veg%ejmaxcc(np) / veg%vcmaxcc(np)
+             bjvci(np) = veg%bjv(np)   ! temporarily save Ci-based bjv
+             veg%bjv(np) = veg%ejmaxcc(np) / veg%vcmaxcc(np)
 
              ! recalculate relcost_J in a way that Neff is the same with
              ! finite (explicit) and infinite (implicit) gm
@@ -838,11 +879,10 @@ contains
                 relcostJCi = PHOTO%relcostJ_optim
              endif
 
-             Nefftmp(np) = veg%vcmax(np) + relcostJCi * PHOTO%bjvref *  &
+             Nefftmp(np) = veg%vcmax(np) + relcostJCi * bjvci(np) *  &
                   veg%vcmax(np) / 4.0
-             relcostJ(np) = 1.0 / (bjvref(np) * veg%vcmaxcc(np) / 4.0) * &
+             relcostJ(np) = 1.0 / (veg%bjv(np) * veg%vcmaxcc(np) / 4.0) * &
                   (Nefftmp(np) - veg%vcmaxcc(np))
-
           else  ! infinite gm
              if (coord) then
                 relcostJ(:) = PHOTO%relcostJ_coord
@@ -850,7 +890,6 @@ contains
                 relcostJ(:) = PHOTO%relcostJ_optim
              endif
           endif
-
        else ! cable_user%vcmax .eq. 'standard' or 'Walker2014'
           write(*,*) 'invalid vcmax flag'
 #ifdef __MPI__
@@ -859,12 +898,11 @@ contains
           stop 91
 #endif
        endif ! cable_user%vcmax
-
-    ENDDO ! np=1,mp
+    ENDDO ! np=1, mp
 
     !if (mod(ktau,ktauday) ==1) then   ! JK: whole routine is now called once per day
     if (cable_user%coordinate_photosyn) then
-       CALL optimise_JV(veg, climate, ktauday, bjvref, relcostJ)
+       CALL optimise_JV(veg, climate, ktauday, veg%bjv, relcostJ)
     else
        if (cable_user%explicit_gm) then
           veg%vcmax_shade = veg%vcmaxcc
@@ -880,7 +918,6 @@ contains
           veg%ejmax_sun = veg%ejmax
        endif
     endif
-
     ! for 2 day test
     !if (ktau == ) stop
 
@@ -960,6 +997,7 @@ contains
 
   END SUBROUTINE sumcflux
 
+
   SUBROUTINE totcnppools(kloop,veg,casamet,casapool,bmcplant,bmnplant,bmpplant,bmclitter,bmnlitter,bmplitter, &
        bmcsoil,bmnsoil,bmpsoil,bmnsoilmin,bmpsoillab,bmpsoilsorb,bmpsoilocc,bmarea)
     ! this subroutine is temporary, and its needs to be modified for multiple tiles within a cell
@@ -979,7 +1017,6 @@ contains
     real,      dimension(mvtype)             :: bmarea
     ! local variables
     INTEGER  npt,nvt
-
 
     bmcplant(kloop,:,:)  = 0.0;  bmnplant(kloop,:,:)  = 0.0; bmpplant(kloop,:,:)  = 0.0
     bmclitter(kloop,:,:) = 0.0;  bmnlitter(kloop,:,:) = 0.0; bmplitter(kloop,:,:) = 0.0

@@ -94,6 +94,7 @@
     cable_user%vcmax               = 'Walker2014'
     cable_user%gs_switch           = 'medlyn'
     cable_user%explicit_gm         = .FALSE.
+    cable_user%Rubisco_parameters  = 'Bernacchi_2002'
     cable_user%coordinate_photosyn = .TRUE.
     cable_user%acclimate_photosyn  = .FALSE.
     cable_user%g0_switch           = 'default'

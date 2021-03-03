@@ -103,6 +103,9 @@ PROGRAM cable_offline_driver
   USE BLAZE_MOD,     ONLY: TYPE_BLAZE, INI_BLAZE, BLAZE_ACCOUNTING,  WRITE_BLAZE_OUTPUT_NC
   USE SIMFIRE_MOD,   ONLY: TYPE_SIMFIRE, INI_SIMFIRE
 
+  ! gm
+  use cable_adjust_JV_gm_module, only: read_gm_LUT, LUT_VcmaxJmax, LUT_gm, LUT_Vcmax, LUT_Rd
+
   ! 13C
   use cable_c13o2_def,         only: c13o2_delta_atm, c13o2_flux, c13o2_pool, c13o2_luc, &
        c13o2_update_sum_pools, c13o2_zero_sum_pools
@@ -433,7 +436,7 @@ PROGRAM cable_offline_driver
 
   ! IF ( TRIM(cable_user%MetType) .NE. "gswp" .AND. &
   !      TRIM(cable_user%MetType) .NE. "gpgs" .AND. &
-  !      TRIM(cable_user%MetType) .NE. "plum" .AND. &
+  !      TRIM(cable_user%MetType) .NE. "plume" .AND. &
   !      TRIM(cable_user%MetType) .NE. "cru") THEN
   IF ((TRIM(cable_user%MetType) .EQ. 'site') .OR. &
        (TRIM(cable_user%MetType) .EQ. '')) THEN
@@ -445,6 +448,13 @@ PROGRAM cable_offline_driver
   ELSE IF (NRRRR .GT. 1) THEN
      IF (.NOT. ALLOCATED(GSWP_MID)) ALLOCATE(GSWP_MID(8, CABLE_USER%YearStart:CABLE_USER%YearEnd))
   ENDIF
+
+
+  ! gm lookup table
+  if (cable_user%explicit_gm .and. len(trim(cable_user%gm_LUT_file)) .gt. 1) then
+     write(*,*) 'Reading gm LUT file'
+     call read_gm_LUT(cable_user%gm_LUT_file,LUT_VcmaxJmax,LUT_gm,LUT_Vcmax,LUT_Rd)
+  endif
 
   ! 13C
   ! Read atmospheric delta-13C values
@@ -540,7 +550,7 @@ PROGRAM cable_offline_driver
                  ncid_wd   = GSWP_MID(8,YYYY)
                  kend      = ktauday * LOY
               ENDIF
-           ELSE IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN
+           ELSE IF ( TRIM(cable_user%MetType) .EQ. 'plume' ) THEN
               ! PLUME experiment setup using WATCH
               if (CALL1) then
                  call cpu_time(etime)
@@ -795,7 +805,7 @@ PROGRAM cable_offline_driver
 
               ! Get met data and LAI, set time variables.
               ! Rainfall input may be augmented for spinup purposes:
-              IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN
+              IF ( TRIM(cable_user%MetType) .EQ. 'plume' ) THEN
                  IF (( .NOT. CASAONLY ) .OR. (CASAONLY.and.CALL1))  THEN
                     CALL PLUME_MIP_GET_MET(PLUME, MET, YYYY, ktau, kend, &
                          (YYYY.EQ.CABLE_USER%YearEnd .AND. ktau.EQ.kend))
@@ -1115,7 +1125,7 @@ PROGRAM cable_offline_driver
               ! Write timestep's output to file if either: we're not spinning up
               ! or we're spinning up and the spinup has converged:
               IF ( (.NOT. CASAONLY) .AND. spinConv ) THEN
-                 IF ( TRIM(cable_user%MetType) .EQ. 'plum'  .OR.  &
+                 IF ( TRIM(cable_user%MetType) .EQ. 'plume'  .OR.  &
                       TRIM(cable_user%MetType) .EQ. 'cru'   .OR.  &
                       TRIM(cable_user%MetType) .EQ. 'bios'  .OR.  &
                       TRIM(cable_user%MetType) .EQ. 'gswp'  .OR.  &
@@ -1374,7 +1384,7 @@ PROGRAM cable_offline_driver
 
   IF ( TRIM(cable_user%MetType) .NE. "gswp" .AND. &
        TRIM(cable_user%MetType) .NE. "bios" .AND. &
-       TRIM(cable_user%MetType) .NE. "plum" .AND. &
+       TRIM(cable_user%MetType) .NE. "plume" .AND. &
        TRIM(cable_user%MetType) .NE. "cru" ) CALL close_met_file
 
   if (trim(cable_user%MetType) == 'cru') call cru_close(CRU)

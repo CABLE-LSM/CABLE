@@ -56,7 +56,7 @@ MODULE cable_output_module
   TYPE out_varID_type ! output variable IDs in netcdf file
      INTEGER :: SWdown, LWdown, Wind, Wind_E, PSurf,                 &
           Tair, Qair, Rainf, Snowf, CO2air,                          &
-          Qle, Qh, Qg, NEE, SWnet,                                   &
+          Qle, Qh, Qg, NEE, fbeam, SWnet,                            &
           LWnet, SoilMoist, SoilTemp, Albedo,                        &
           visAlbedo, nirAlbedo, SoilMoistIce,                        &
           Qs, Qsb, Evap, BaresoilT, SWE, SnowT,                      &
@@ -77,10 +77,11 @@ MODULE cable_output_module
           PlantTurnover, PlantTurnoverLeaf, PlantTurnoverFineRoot, &
           PlantTurnoverWood, PlantTurnoverWoodDist, PlantTurnoverWoodCrowding, &
           PlantTurnoverWoodResourceLim, dCdt, Area, LandUseFlux, patchfrac, &
-          vcmax,ejmax, hc, GPP_sh, GPP_sl, GPP_shC, GPP_slC, GPP_shJ, GPP_slJ, &
+          vcmax, ejmax, hc, &
+          GPP_sh, GPP_sl, GPP_shC, GPP_slC, GPP_shJ, GPP_slJ, &
           eta_GPP_cs,  eta_TVeg_cs, dGPPdcs, CO2s, gsw_sl, gsw_sh, gsw_TVeg, &
           An_sl, An_sh, scalex_sl, scalex_sh, dlf,vcmax_ts, jmax_ts, &
-          ci_sl, ci_sh, &
+          ci_sl, ci_sh, qcan_sl, qcan_sh, &
           An, Rd, cplant, clitter, csoil, clabile, &
           A13n, aDisc13, c13plant, c13litter, c13soil, c13labile
   END TYPE out_varID_type
@@ -105,6 +106,7 @@ MODULE cable_output_module
      REAL(KIND=4), POINTER, DIMENSION(:) :: Qh => null()     ! 17 sensible heat flux [W/m2]
      REAL(KIND=4), POINTER, DIMENSION(:) :: Qle => null()    ! 18 latent heat flux [W/m2]
      REAL(KIND=4), POINTER, DIMENSION(:) :: Qg => null()     ! 19 ground heat flux [W/m2]
+     REAL(KIND=4), POINTER, DIMENSION(:) :: fbeam => null()  ! 20 fracion of direct radiation
      REAL(KIND=4), POINTER, DIMENSION(:) :: SWnet => null()  ! 20 net shortwave [W/m2]
      REAL(KIND=4), POINTER, DIMENSION(:) :: LWnet => null()  ! 21 net longwave [W/m2]
      REAL(KIND=4), POINTER, DIMENSION(:) :: Evap => null()   ! 22 total evapotranspiration [kg/m2/s]
@@ -247,8 +249,10 @@ MODULE cable_output_module
      REAL(KIND=4), POINTER, DIMENSION(:) :: jmax_ts => null()
      REAL(KIND=4), POINTER, DIMENSION(:) :: gsw_sl => null()   ! stomatal conductance (sunlit leaves)
      REAL(KIND=4), POINTER, DIMENSION(:) :: gsw_sh => null()   ! stomatal conductance (shaded leaves)
-     REAL(KIND=4), POINTER, DIMENSION(:) :: RootResp => null()   !  autotrophic root respiration [umol/m2/s]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: StemResp => null()   !  autotrophic stem respiration [umol/m2/s]
+     REAL(KIND=4), POINTER, DIMENSION(:) :: RootResp => null()   ! autotrophic root respiration [umol/m2/s]
+     REAL(KIND=4), POINTER, DIMENSION(:) :: StemResp => null()   ! autotrophic stem respiration [umol/m2/s]
+     REAL(KIND=4), POINTER, DIMENSION(:,:) :: qcan_sl => null()   ! absorbed radiation by canopy (sunlit leaves) [W/m2]
+     REAL(KIND=4), POINTER, DIMENSION(:,:) :: qcan_sh => null()   ! absorbed radiation by canopy (shaded leaves) [W/m2]
      REAL(KIND=r_2), POINTER, DIMENSION(:)   :: An => null()        ! total net assimilation
      REAL(KIND=r_2), POINTER, DIMENSION(:)   :: Rd => null()        ! total leaf respiration
      REAL(KIND=r_2), POINTER, DIMENSION(:,:) :: cplant => null()    ! plant carbon pools
@@ -285,7 +289,7 @@ CONTAINS
     TYPE(roughness_type),      INTENT(IN) :: rough
     ! REAL, POINTER,DIMENSION(:,:) :: surffrac ! fraction of each surf type
 
-    INTEGER :: xID, yID, zID, radID, soilID, soilcarbID,                  &
+    INTEGER :: xID, yID, zID, radID, soilID, soilcarbID,         &
          plantcarbID, tID, landID, patchID ! dimension IDs
     INTEGER :: latID, lonID, llatvID, llonvID ! time,lat,lon variable ID
     INTEGER :: xvID, yvID   ! coordinate variable IDs for GrADS readability
@@ -625,6 +629,20 @@ CONTAINS
             xID, yID, zID, landID, patchID, tID)
        ALLOCATE(out%ci_sh(mp))
        out%ci_sh = zero4 ! initialise
+
+       CALL define_ovar(ncid_out, ovid%qcan_sl, 'qcan_sl', 'W/m^2',               &
+            'absorbed radiation by canopy, sunlit leaves', patchout%Qcan, 'radiation',    &
+            xID, yID, zID, landID, patchID, radID, tID)
+       ALLOCATE(out%qcan_sl(mp,nrb))
+       out%qcan_sl = zero4 ! initialise
+
+       CALL define_ovar(ncid_out, ovid%qcan_sh, 'qcan_sh', 'W/m^2',               &
+            'absorbed radiation by canopy, shaded leaves', patchout%Qcan, 'radiation',    &
+            xID, yID, zID, landID, patchID, radID, tID)
+       ALLOCATE(out%qcan_sh(mp,nrb))
+       out%qcan_sh = zero4 ! initialise
+
+
     END IF
 
     IF(output%flux .OR. output%ESoil) THEN
@@ -661,7 +679,6 @@ CONTAINS
        ALLOCATE(out%NEE(mp))
        out%NEE = zero4 ! initialise
     END IF
-
 
 
     ! Define soil state variables in output file and allocate temp output vars:
@@ -720,6 +737,14 @@ CONTAINS
        out%SnowDepth = zero4 ! initialise
     END IF
     ! Define radiative variables in output file and allocate temp output vars:
+    IF(output%radiation) THEN
+       CALL define_ovar(ncid_out, ovid%fbeam, 'fbeam', '-',                &
+            'fraction of direct radiation (visible)',         &
+            patchout%fbeam, 'dummy', xID, yID, zID, landID,       &
+            patchID, tID)
+       ALLOCATE(out%fbeam(mp))
+       out%fbeam = zero4 ! initialise
+    END IF
     IF(output%radiation .OR. output%SWnet) THEN
        CALL define_ovar(ncid_out, ovid%SWnet, 'SWnet', 'W/m^2',                &
             'Net shortwave radiation absorbed by surface',         &
@@ -823,7 +848,7 @@ CONTAINS
        out%vcmax = zero4 ! initialise
 
        CALL define_ovar(ncid_out, ovid%ejmax, 'jmax', '-',                        &
-            'jmax at 25 degC [mol(e)/m^2/s]', patchout%LAI, 'dummy', xID,         &
+            'Jmax at 25 degC [mol(e)/m^2/s]', patchout%LAI, 'dummy', xID,         &
             yID, zID, landID, patchID, tID)
        ALLOCATE(out%ejmax(mp))
        out%ejmax = zero4 ! initialise
@@ -979,15 +1004,15 @@ CONTAINS
        ALLOCATE(out%CO2s(mp))
        out%CO2s = zero4 ! initialise
 
-       CALL define_ovar(ncid_out, ovid%vcmax_ts, 'vcmax_time_series', 'mol/m^2/s',               &
-            'vcmax', &
+       CALL define_ovar(ncid_out, ovid%vcmax_ts, 'vcmax_weighted', 'mol/m^2/s',               &
+            'vcmax weighted by sunlit/shaded LAI', &
             patchout%GPP,              &
             'dummy', xID, yID, zID, landID, patchID, tID)
        ALLOCATE(out%vcmax_ts(mp))
        out%vcmax_ts = zero4 ! initialise
 
-       CALL define_ovar(ncid_out, ovid%jmax_ts, 'jmax_time_series', 'mol/m^2/s',               &
-            'jmax', &
+       CALL define_ovar(ncid_out, ovid%jmax_ts, 'jmax_weighted', 'mol/m^2/s',               &
+            'jmax weighted by sunlit/shaded LAI', &
             patchout%GPP,              &
             'dummy', xID, yID, zID, landID, patchID, tID)
        ALLOCATE(out%jmax_ts(mp))
@@ -2318,6 +2343,35 @@ CONTAINS
        END IF
     END IF
 
+    ! Qcan: absorbed radiation by sunlit canopy [W/m^2]
+    IF(output%flux) THEN
+       ! Add current timestep's value to total of temporary output variable:
+       out%qcan_sl = out%qcan_sl + toreal4(rad%qcan(:,1,:))
+       IF(writenow) THEN
+          ! Divide accumulated variable by number of accumulated time steps:
+          out%qcan_sl = out%qcan_sl * rinterval
+          ! Write value to file:
+          CALL write_ovar(out_timestep, ncid_out, ovid%qcan_sl, 'qcan_sl', out%qcan_sl,    &
+               ranges%Qcan, patchout%Qcan, 'radiation', met)
+          ! Reset temporary output variable:
+          out%qcan_sl = zero4
+       END IF
+
+       ! Add current timestep's value to total of temporary output variable:
+       out%qcan_sh = out%qcan_sh + toreal4(rad%qcan(:,2,:))
+       IF(writenow) THEN
+          ! Divide accumulated variable by number of accumulated time steps:
+          out%qcan_sh = out%qcan_sh * rinterval
+          ! Write value to file:
+          CALL write_ovar(out_timestep, ncid_out, ovid%qcan_sh, 'qcan_sh', out%qcan_sh,    &
+               ranges%Qcan, patchout%Qcan, 'radiation', met)
+          ! Reset temporary output variable:
+          out%qcan_sh = zero4
+       END IF
+    END IF
+
+
+
     !-----------------------WRITE SOIL STATE DATA-------------------------------
     ! SoilMoist: av.layer soil moisture [kg/m^2]
     IF(output%soil .OR. output%SoilMoist) THEN
@@ -2425,6 +2479,21 @@ CONTAINS
        END IF
     END IF
     !-------------------------WRITE RADIATION DATA------------------------------
+    ! fraction of direct radiation [0-1]
+    IF (output%radiation) THEN
+       ! Add current timestep's value to total of temporary output variable:
+       out%fbeam = out%fbeam + toreal4(rad%fbeam(:,1))
+       IF(writenow) THEN
+          ! Divide accumulated variable by number of accumulated time steps:
+          out%fbeam = out%fbeam * rinterval
+          ! Write value to file:
+          CALL write_ovar(out_timestep, ncid_out, ovid%fbeam, 'fbeam',         &
+               out%fbeam, ranges%Albedo, patchout%fbeam, 'default', met)
+          ! Reset temporary output variable:
+          out%fbeam = zero4
+       END IF
+    END IF
+
     ! SWnet: net shortwave [W/m^2]
     IF (output%radiation .OR. output%SWnet) THEN
        ! Add current timestep's value to total of temporary output variable:
@@ -2630,7 +2699,7 @@ CONTAINS
           out%ejmax = out%ejmax * rinterval
           ! Write value to file:
           CALL write_ovar(out_timestep, ncid_out, ovid%ejmax, 'jmax', out%ejmax,    &
-               ranges%vcmax, patchout%LAI, 'default', met)
+               ranges%ejmax, patchout%LAI, 'default', met)
           ! Reset temporary output variable:
           out%ejmax = zero4
        END IF
@@ -2803,13 +2872,13 @@ CONTAINS
                out%CO2s,    &
                ranges%GPP, patchout%GPP, 'default', met)
 
-          CALL write_ovar(out_timestep, ncid_out, ovid%vcmax_ts, 'time-varying vcmax', &
+          CALL write_ovar(out_timestep, ncid_out, ovid%vcmax_ts, 'LAI-weighted vcmax', &
                out%vcmax_ts,    &
                ranges%vcmax, patchout%GPP, 'default', met)
 
-          CALL write_ovar(out_timestep, ncid_out, ovid%jmax_ts, 'time-varying jmax', &
+          CALL write_ovar(out_timestep, ncid_out, ovid%jmax_ts, 'LAI-weighted jmax', &
                out%jmax_ts,    &
-               ranges%vcmax, patchout%GPP, 'default', met)
+               ranges%ejmax, patchout%GPP, 'default', met)
 
           ! Reset temporary output variable:
           out%GPP_sh      = zero4
@@ -3626,7 +3695,7 @@ CONTAINS
     integer :: ncid_restart ! netcdf restart file id
     ! real, pointer,dimension(:,:) :: surffrac ! fraction of each surf type
     integer :: dummy ! dummy argument in subroutine call
-    integer :: mlandID, mpID, radID, soilID, napID,                       &
+    integer :: mlandID, mpID, radID, soilID, napID,               &
          soilcarbID, plantcarbID, tID, snowID ! dimension IDs
     !    integer :: mlandID, surftypeID, patchID, radID, soilID, &
     !         soilcarbID, plantcarbID, tID, snowID ! dimension IDs

@@ -211,6 +211,11 @@ CONTAINS
     USE BLAZE_MPI,            ONLY: MASTER_BLAZE_TYPES ! , MASTER_SIMFIRE_TYPES
     USE SIMFIRE_MOD,          ONLY: TYPE_SIMFIRE, INI_SIMFIRE
 
+    !ASKJK - why in mpimaster and mpiworker?
+    ! gm
+    use cable_adjust_JV_gm_module, only: read_gm_LUT, LUT_VcmaxJmax, LUT_gm, LUT_Vcmax, LUT_Rd
+    !ASKJK - why in mpimaster and mpiworker?
+
     ! 13C
     use cable_c13o2_def,      only: c13o2_delta_atm, c13o2_flux, c13o2_pool, c13o2_luc, &
          c13o2_update_sum_pools, c13o2_zero_sum_pools
@@ -529,7 +534,7 @@ CONTAINS
     ! latitudes, longitudes, number of sites.
     IF (TRIM(cable_user%MetType) .NE. "gswp" .AND. &
         TRIM(cable_user%MetType) .NE. "gpgs" .AND. &
-        TRIM(cable_user%MetType) .NE. "plum" .AND. &
+        TRIM(cable_user%MetType) .NE. "plume" .AND. &
         TRIM(cable_user%MetType) .NE. "bios" .AND. &
         TRIM(cable_user%MetType) .NE. "cru") THEN
        CALL open_met_file( dels, koffset, kend, spinup, C%TFRZ )
@@ -538,6 +543,14 @@ CONTAINS
           call MPI_Abort(comm, 13, ierr)
        ENDIF
     ENDIF
+
+    !ASKJK - why in mpimaster and mpiworker?
+    ! Read gm lookup table
+    if (cable_user%explicit_gm .and. len(trim(cable_user%gm_LUT_file)) .gt. 1) then
+        WRITE(*,*) 'Reading gm LUT file'
+        call read_gm_LUT(cable_user%gm_LUT_file, LUT_VcmaxJmax, LUT_gm, LUT_Vcmax, LUT_Rd)
+    endif
+    !ASKJK - why in mpimaster and mpiworker?
 
     ! 13C
     ! Read atmospheric delta-13C values
@@ -602,7 +615,7 @@ CONTAINS
              write(*,*) 'Looking for global offline run info.'
              call preparefiles(ncciy)
              call open_met_file( dels, koffset, kend, spinup, c%tfrz )
-          else if (trim(cable_user%MetType) .eq. 'plum') then
+          else if (trim(cable_user%MetType) .eq. 'plume') then
              if ( CALL1 ) THEN
                 call cpu_time(etime)
                 call plume_mip_init( plume )
@@ -928,7 +941,7 @@ CONTAINS
 
           ! Read ahead: send input before workes start ktau loop
           IF (.NOT. CASAONLY) THEN
-             IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN
+             IF ( TRIM(cable_user%MetType) .EQ. 'plume' ) THEN
                 CALL PLUME_MIP_GET_MET(PLUME, iMET, YYYY, iktau, kend, &
                      (YYYY.EQ.cable_user%YearEnd .AND. iktau.EQ.kend))
              ELSE IF ( TRIM(cable_user%MetType) .EQ. 'bios' ) THEN
@@ -1012,7 +1025,7 @@ CONTAINS
              ! Get met data and LAI, set time variables.
              ! Rainfall input may be augmented for spinup purposes:
              !          met%ofsd = met%fsd(:,1) + met%fsd(:,2)
-             if (trim(cable_user%MetType) .eq. 'plum') then
+             if (trim(cable_user%MetType) .eq. 'plume') then
                 call plume_mip_get_met(plume, imet, yyyy, iktau, kend, &
                      yyyy.eq.cable_user%YearEnd .AND. iktau.EQ.kend)
              else if (trim(cable_user%MetType) .eq. 'bios') then
@@ -1196,7 +1209,7 @@ CONTAINS
                 endif
 
                 if ((.not. CASAONLY) .and. spinConv) then
-                   if (trim(cable_user%mettype) .eq. 'plum' &
+                   if (trim(cable_user%mettype) .eq. 'plume' &
                        .or. trim(cable_user%mettype) .eq. 'cru' &
                        .or. trim(cable_user%mettype) .eq. 'bios' &
                        .or. trim(cable_user%mettype) .eq. 'gswp') then
@@ -1433,7 +1446,7 @@ CONTAINS
              ENDIF
 
              IF ( (.NOT. CASAONLY) .AND. spinConv ) THEN
-                IF ( TRIM(cable_user%MetType) .EQ. 'plum' &
+                IF ( TRIM(cable_user%MetType) .EQ. 'plume' &
                      .OR. TRIM(cable_user%MetType) .EQ. 'cru'   &
                      .OR. TRIM(cable_user%MetType) .EQ. 'bios'   &
                      .OR. TRIM(cable_user%MetType) .EQ. 'gswp') then
@@ -1638,7 +1651,7 @@ CONTAINS
     ! Close met data input file:
     IF ( TRIM(cable_user%MetType) .NE. "gswp" .AND. &
          TRIM(cable_user%MetType) .NE. "bios" .AND. &
-         TRIM(cable_user%MetType) .NE. "plum" .AND. &
+         TRIM(cable_user%MetType) .NE. "plume" .AND. &
          TRIM(cable_user%MetType) .NE. "cru") CALL close_met_file()
     IF (.NOT. CASAONLY) THEN
        ! Close output file and deallocate main variables:
@@ -2385,6 +2398,14 @@ SUBROUTINE master_cable_params(comm, met, air, ssnow, veg, bgc, soil, canopy, ro
      blen(bidx) = r1len
 
      bidx = bidx + 1
+     CALL MPI_Get_address (veg%ejmax_shade(off), displs(bidx), ierr)
+     blen(bidx) = r1len
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (veg%ejmax_sun(off), displs(bidx), ierr)
+     blen(bidx) = r1len
+
+     bidx = bidx + 1
      CALL MPI_Get_address (veg%frac4(off), displs(bidx), ierr)
      blen(bidx) = r1len
 
@@ -2455,6 +2476,14 @@ SUBROUTINE master_cable_params(comm, met, air, ssnow, veg, bgc, soil, canopy, ro
 
      bidx = bidx + 1
      CALL MPI_Get_address (veg%vcmax(off), displs(bidx), ierr)
+     blen(bidx) = r1len
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (veg%vcmax_sun(off), displs(bidx), ierr)
+     blen(bidx) = r1len
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (veg%vcmax_shade(off), displs(bidx), ierr)
      blen(bidx) = r1len
 
     ! bidx = bidx + 1
@@ -2566,7 +2595,31 @@ SUBROUTINE master_cable_params(comm, met, air, ssnow, veg, bgc, soil, canopy, ro
      ! Ticket #56, finish adding new veg parms
 
      bidx = bidx + 1
+     CALL MPI_Get_address (veg%vcmaxcc(off), displs(bidx), ierr)
+     blen(bidx) = r1len
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (veg%ejmaxcc(off), displs(bidx), ierr)
+     blen(bidx) = r1len
+
+     bidx = bidx + 1
      CALL MPI_Get_address (veg%gmmax(off), displs(bidx), ierr)
+     blen(bidx) = r1len
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (veg%gm(off), displs(bidx), ierr)
+     blen(bidx) = r1len
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (veg%c4kci(off), displs(bidx), ierr)
+     blen(bidx) = r1len
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (veg%c4kcc(off), displs(bidx), ierr)
+     blen(bidx) = r1len
+
+     bidx = bidx + 1
+     CALL MPI_Get_address (veg%bjv(off), displs(bidx), ierr)
      blen(bidx) = r1len
 
 
@@ -10249,8 +10302,8 @@ SUBROUTINE master_CASAONLY_LUC(dels, kstart, kend, veg, casabiome, casapool, &
   integer :: k, j, l
   integer :: rank, off, cnt, ierr
   ! 13C
-  real(dp), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
-  real(dp), dimension(c13o2luc%nland,c13o2luc%npools)     :: lucsave
+  real(dp), dimension(:,:), allocatable :: casasave
+  real(dp), dimension(:,:), allocatable :: lucsave
 
 
   !  if (.NOT.Allocated(LAIMax)) allocate(LAIMax(mp))
@@ -10268,6 +10321,12 @@ SUBROUTINE master_CASAONLY_LUC(dels, kstart, kend, veg, casabiome, casapool, &
   !  ctime = 0
   !  CALL zero_sum_casa(sum_casapool, sum_casaflux)
   !       count_sum_casa = 0
+
+  ! 13C
+  if (cable_user%c13o2) then
+     allocate(casasave(c13o2pools%ntile,c13o2pools%npools))
+     allocate(lucsave(c13o2luc%nland,c13o2luc%npools))
+  endif
 
   myearspin = cable_user%yearend - cable_user%yearstart + 1
   yyyy      = cable_user%yearstart - 1
