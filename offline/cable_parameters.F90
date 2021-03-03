@@ -1109,9 +1109,9 @@ CONTAINS
 #ifdef __MPI__
     use mpi,                 only: MPI_Abort
 #endif
-    
+
     IMPLICIT NONE
-    
+
     INTEGER,                   INTENT(IN)    :: logn  ! log file unit number
     INTEGER,                   INTENT(IN)    :: month ! month of year
     REAL,                      INTENT(IN)    :: TFRZ
@@ -1375,7 +1375,7 @@ CONTAINS
        ! This means that if met file just has veg type and no other parameters,
        ! the other veg parameters will be chosen as a function of this type:
        ! N.B. for offline run only
-       IF(ASSOCIATED(vegtype_metfile)) THEN ! i.e. iveg found in the met file
+       IF (ASSOCIATED(vegtype_metfile)) THEN ! i.e. iveg found in the met file
           ! Overwrite iveg for those patches available in met file,
           ! which are currently set to def values above:
           veg%iveg(landpt(e)%cstart:landpt(e)%cstart + nmetpatches - 1) = &
@@ -1391,12 +1391,12 @@ CONTAINS
           END DO
        END IF
        ! Similarly, if user defined soil types are present then use them:
-       IF(ASSOCIATED(soiltype_metfile)) THEN ! i.e. isoil found in the met file
+       IF (ASSOCIATED(soiltype_metfile)) THEN ! i.e. isoil found in the met file
           soil%isoilm(landpt(e)%cstart:landpt(e)%cstart + nmetpatches - 1) = &
                soiltype_metfile(e, :)
        END IF
        ! offline only above
-       !call veg% init that is common
+       ! call veg% init that is common
        CALL init_veg_from_vegin(landpt(e)%cstart, landpt(e)%cend, veg)
 
        ! Prescribe parameters for current gridcell based on veg/soil type (which
@@ -1482,7 +1482,7 @@ CONTAINS
           veg%ejmax(h) = 2.0 * veg%vcmax(h)
 
        END DO ! over each veg patch in land point
-       
+
     END DO ! over all land points
     soil%albsoil = ssnow%albsoilsn
 
