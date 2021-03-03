@@ -151,7 +151,7 @@ cable_roughness.o: cable_roughness.F90 cable_define_types.o cable_common.o cable
 cable_soilsnow.o: cable_soilsnow.F90 cable_iovars.o cable_define_types.o cable_common.o \
 		  cable_data.o
 
-casa_variable.o: casa_variable.F90 POP.o
+casa_variable.o: casa_variable.F90 POP.o cable_define_types.o
 
 #spincasacnp.o: spincasacnp.F90 cable_define_types.o cable_carbon.o cable_common.o \
 #	 casa_variable.o cable_c13o2.o cable_c13o2_def.o casa_inout.o blaze.o casa_cable.o casa_inout.o pop_io.o
@@ -174,7 +174,7 @@ casa_inout.o: casa_inout.F90 POP.o cable_define_types.o cable_iovars.o casa_vari
 
 cable_common.o: cable_common.F90 cable_define_types.o cable_iovars.o
 
-POP.o: POP.F90 cable_define_types.o
+POP.o: POP.F90 cable_define_types.o mo_utils.o
 
 POPLUC.o: POPLUC.F90 cable_define_types.o cable_iovars.o casa_variable.o cable_common.o cable_LUC_EXPT.o
 
@@ -217,7 +217,7 @@ blaze.o: blaze.F90 simfire.o cable_iovars.o cable_common.o cable_define_types.o
 
 simfire.o: simfire.F90 cable_common.o
 
-blaze_driver.o: blaze_driver.F90 blaze.o simfire.o casa_variable.o
+blaze_driver.o: blaze_driver.F90 blaze.o simfire.o casa_variable.o POP.o cable_define_types.o
 
 blaze_mpi.o: blaze_mpi.F90 blaze.o simfire.o cable_mpicommon.o cable_define_types.o
 
@@ -234,8 +234,7 @@ cable_c13o2.o: cable_c13o2.F90 cable_c13o2_def.o cable_define_types.o cable_iova
 mo_isotope_luc_model.o: mo_isotope_luc_model.f90 mo_utils.o mo_kind.o
 
 minpack.o: minpack.f90 cable_define_types.o
-cable_adjustJVgm.o: cable_adjustJVgm.F90 cable_define_types.o minpack.o
-
+cable_adjustJVgm.o: cable_adjustJVgm.F90 cable_define_types.o cable_abort.o cable_canopy.o minpack.o
 
 # make clean option
 clean:

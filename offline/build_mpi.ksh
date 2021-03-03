@@ -61,7 +61,7 @@ host_gadi()
     fi
     export CFLAGS="${CFLAGS} ${OPTFLAG}"
     export CFLAGS="${CFLAGS} -D__MPI__"
-    #export CFLAGS="${CFLAGS} -D__CRU2017__"
+    # export CFLAGS="${CFLAGS} -D__CRU2017__"
     export CFLAGS="${CFLAGS} -D__NETCDF3__"
     export LDFLAGS="-L"${NCDIR}" "${LDFLAGS}
     export LD="-lnetcdf -lnetcdff"
@@ -98,8 +98,8 @@ host_pear()
     #   export CFLAGS='-O0 '
 
     #export CFLAGS='-O0 -fp-model precise -g -debug -traceback -fpp '
-    #export CFLAGS="${CFLAGS} -D__CRU2018__"
-    export CFLAGS="${CFLAGS} -D__CRU2017__"
+    # export CFLAGS="${CFLAGS} -D__CRU2018__"
+    # export CFLAGS="${CFLAGS} -D__CRU2017__"
     export CFLAGS="${CFLAGS} -D__NETCDF3__"
 
     #   export CFLAGS='-O0 -fp-model precise -g -debug all -traceback -fpe0 '
@@ -265,7 +265,7 @@ host_mc16()
     if [[ ${iintel} -eq 1 ]] ;  then
         # INTEL
         /opt/intel/compilers_and_libraries/mac/bin/compilervars.sh intel64
-        export FC=/usr/local/openmpi-3.1.5-ifort/bin/mpifort
+        export FC=/usr/local/openmpi-4.0.5-ifort/bin/mpifort
         # release
         export CFLAGS="-fpp -O3 -nofixed -assume byterecl -fp-model precise -ip -diag-disable=10382"
         export LDFLAGS="-O3"
@@ -278,7 +278,7 @@ host_mc16()
         fi
         export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
         export LD=""
-        export NCROOT="/usr/local/netcdf-fortran-4.4.5-ifort"
+        export NCROOT="/usr/local/netcdf-fortran-4.5.3-ifort"
         export cdir=".mpitmp-ifort"
         export PROG=cable-mpi-ifort
     elif [[ ${ignu} -eq 1 ]] ;  then
@@ -302,7 +302,7 @@ host_mc16()
         export PROG=cable-mpi-gfortran
     elif [[ ${inag} -eq 1 ]] ;  then
         # NAG
-        export FC=/usr/local/openmpi-3.1.5-nagfor/bin/mpifort
+        export FC=/usr/local/openmpi-4.0.5-nagfor/bin/mpifort
         # release
         export CFLAGS="-O4"
         export LDFLAGS="-O4"
@@ -319,7 +319,7 @@ host_mc16()
         export CFLAGS="${CFLAGS} -mismatch"
         export CFLAGS="${CFLAGS} -D__NAG__"
         export LD="-ideclient -unsharedrts"
-        export NCROOT="/usr/local/netcdf-fortran-4.4.5-nagfor"
+        export NCROOT="/usr/local/netcdf-fortran-4.5.3-nagfor"
         export cdir=".mpitmp-nagfor"
         export PROG=cable-mpi-nagfor
     fi
