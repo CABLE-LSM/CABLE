@@ -19,8 +19,11 @@ contains
          vars_met, vars, vars_snow, &                                  ! types
          MW, Rgas, Lambdas, lambdaf, csice, cswat, rhow, nsnow_max, e5, &
          freezefac, topmodel, alpha, botbc
-    USE sli_utils,            ONLY: x, dx, par, setpar, setpar_Loetsch, setx, plit, dxL, setlitterpar, esat, &
-         esat_ice, slope_esat_ice, thetalmax, Tfrz,  hyofS, SEB
+    USE sli_utils,            ONLY: x, dx, par, setpar, setpar_Loetsch, printparams, &
+         setx, plit, dxL, setlitterpar, esat, &
+         esat_ice, slope_esat_ice, thetalmax, Tfrz,  hyofS, SEB, &
+         zerovars, zerovars_met, zerovars_snow, &
+         printvars, printvars_met, printvars_snow
     USE sli_roots,            ONLY: setroots, getrex
     USE sli_solve,            ONLY: solve
     USE cable_IO_vars_module, ONLY: wlogn
@@ -34,13 +37,13 @@ contains
     TYPE(met_type),            INTENT(INOUT) :: met     ! all r_1
     TYPE(canopy_type),         INTENT(INOUT) :: canopy  ! all r_1
     TYPE(air_type),            INTENT(INOUT) :: air     ! all r_1
-    TYPE (radiation_type),     INTENT(IN)    :: rad
+    TYPE(radiation_type),      INTENT(IN)    :: rad
     INTEGER,                   INTENT(IN)    :: ktau ! integration step number
     INTEGER,                   INTENT(IN)    :: SEB_only ! integration step number
 
-    REAL(r_2), PARAMETER :: emsoil=0.97
-    REAL(r_2), PARAMETER :: rhocp=1.1822e3
-    REAL(r_2), PARAMETER :: Dva = 2.17e-5
+    REAL(r_2), PARAMETER :: emsoil = 0.97_r_2
+    REAL(r_2), PARAMETER :: rhocp = 1.1822e3_r_2
+    REAL(r_2), PARAMETER :: Dva   = 2.17e-5_r_2
     INTEGER(i_d) :: i, k, kk, setroot
     REAL(r_2)    :: ti, tf
     TYPE(vars_met),  DIMENSION(1:mp)      :: vmet ! Meteorology above soil
@@ -134,6 +137,11 @@ contains
     hice       = zero
     err        = 0
 
+    vmet  = zerovars_met()
+    vlit  = zerovars()
+    var   = zerovars()
+    vsnow = zerovars_snow()
+
     ! output files for testing purposes
     if (first) then
        ! open(unit=332, file="vh08.out", status="replace", position="rewind")
@@ -194,7 +202,7 @@ contains
        vmet%rha   = zero
        vmet%rrc   = zero
        vmet%Rn    = zero
-       vmet%Rnsw = zero
+       vmet%Rnsw  = zero
        vmet%cva   = zero
        vmet%civa  = zero
        vmet%phiva = zero
@@ -509,10 +517,29 @@ contains
           call hyofS(S(kk,1), Tsoil(kk,1), par(kk,1), var(kk,1))
           CALL SEB(ms, par(kk,:), vmet(kk), vsnow(kk), var(kk,:), qprec(kk), qprec_snow(kk), dx(kk,:), &
                h0(kk), Tsoil(kk,:), &
-               Tsurface(kk), G0(kk), lE(kk),Epot(kk), &
+               Tsurface(kk), G0(kk), lE(kk), Epot(kk), &
                tmp1d1a, tmp1d2, tmp1d3, tmp1d4, &
                tmp1d5, tmp1d6, tmp1d7, tmp1d8, tmp1d9,tmp1d10, tmp1d11, &
                tmp1d12,tmp1d13, tmp1d14, tmp1d15, tmp1d16)
+       enddo
+       print*, 'SEB01 ', mp, ms
+       do kk=1, mp
+          call printvars_met(vmet(kk))
+          call printvars_snow(vsnow(kk))
+          do i=1, ms
+             print*, 'i/ms ', i, ms
+             call printparams(par(kk,i))
+             call printvars(var(kk,i))
+          enddo
+          print*, 'qprec ', qprec(kk)
+          print*, 'qprec_snow ', qprec_snow(kk)
+          print*, 'dx ', dx(kk,:)
+          print*, 'h0 ', h0(kk)
+          print*, 'Tsoil ', Tsoil(kk,:)
+          print*, 'Tsurface ', Tsurface(kk)
+          print*, 'G0 ', G0(kk)
+          print*, 'lE ', lE(kk)
+          print*, 'Epot ', Epot(kk)
        enddo
        canopy%ga   = real(G0)
        canopy%fes  = lE

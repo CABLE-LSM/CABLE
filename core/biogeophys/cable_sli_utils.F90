@@ -24,9 +24,12 @@ MODULE sli_utils
   PUBLIC :: dx, dxL, par, plit, sol, x ! soil water parameters
   PUBLIC :: bd, dis, isopar, isotype   ! soil solute parameters
   PUBLIC :: aquifer_props, flux, generic_thomas, getfluxes_vp, getheatfluxes, hyofh, hyofS, isosub ! subroutines
-  PUBLIC :: litter_props, massman_sparse, potential_evap, setlitterpar, setpar, setpar_Loetsch, setsol, setx, tri
+  PUBLIC :: litter_props, massman_sparse, potential_evap
+  PUBLIC :: setlitterpar, setpar, setpar_Loetsch, setsol, setx, tri, printparams
   PUBLIC :: csat, csoil, dthetalmaxdT, dthetalmaxdTh, esat, esat_ice, gammln, igamma, phi, rh0_sol, rtbis_rh0 ! functions
-  PUBLIC :: slope_csat, slope_esat,slope_esat_ice, Sofh, Tfrz, thetalmax, weight, zerovars, Tthetalmax, Tfrozen
+  PUBLIC :: slope_csat, slope_esat,slope_esat_ice, Sofh, Tfrz, thetalmax, weight, Tthetalmax, Tfrozen
+  PUBLIC :: zerovars, zerovars_met, zerovars_snow, zerovars_aquifer
+  PUBLIC :: printvars, printvars_met, printvars_snow, printvars_aquifer
   PUBLIC :: rtbis_Tfrozen, GTfrozen, JSoilLayer, forcerestore, SEB
   PUBLIC :: spline_b, mean, nse
 
@@ -2849,49 +2852,48 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 ! special for Cumberland: set soil params to clay:
     if (cable_user%Cumberland_soil) then
        do i=1,ms
-          par(:,i)%thw        = 0.286
-          par(:,i)%thfc       = 0.367
-          par(:,i)%the        = 0.482
+          par(:,i)%thw        = 0.286_r_2
+          par(:,i)%thfc       = 0.367_r_2
+          par(:,i)%the        = 0.482_r_2
           par(:,i)%thre       = real(soil%ssat(index),r_2) - par(:,i)%thr
-          par(:,i)%he         = -0.405
-          par(:,i)%Ke         = 1e-6
-          par(:,i)%lam        = 1./11.4
+          par(:,i)%he         = -0.405_r_2
+          par(:,i)%Ke         = 1.e-6_r_2
+          par(:,i)%lam        = 1._r_2/11.4_r_2
           par(:,i)%eta        = two/par(:,i)%lam + two + one
           par(:,i)%KSe        = par(:,i)%eta * par(:,i)%Ke    ! dK/dS at he
           par(:,i)%phie       = par(:,i)%Ke * par(:,i)%he / (one - par(:,i)%lam * par(:,i)%eta) ! MFP at he
           par(:,i)%phiSe      = (par(:,i)%eta - one/par(:,i)%lam) * par(:,i)%phie    ! dphi/dS at he
-          par(:,i)%clay       = 0.67
+          par(:,i)%clay       = 0.67_r_2
 
-!!$          par(:,i)%thw        = 0.178
-!!$          par(:,i)%thfc       = 0.367
-!!$          par(:,i)%the        = 0.45
+!!$          par(:,i)%thw        = 0.178_r_2
+!!$          par(:,i)%thfc       = 0.367_r_2
+!!$          par(:,i)%the        = 0.45_r_2
 !!$          par(:,i)%thre       = real(soil%ssat(index),r_2) - par(:,i)%thr
-!!$          par(:,i)%he         = -0.572
-!!$          par(:,i)%Ke         = 2.8e-5
-!!$          par(:,i)%lam        = 1./8.7
+!!$          par(:,i)%he         = -0.572_r_2
+!!$          par(:,i)%Ke         = 2.8e-5_r_2
+!!$          par(:,i)%lam        = 1._r_2/8.7_r_2
 !!$          par(:,i)%eta        = two/par(:,i)%lam + two + one
 !!$          par(:,i)%KSe        = par(:,i)%eta * par(:,i)%Ke    ! dK/dS at he
 !!$          par(:,i)%phie       = par(:,i)%Ke * par(:,i)%he / (one - par(:,i)%lam * par(:,i)%eta) ! MFP at he
 !!$          par(:,i)%phiSe      = (par(:,i)%eta - one/par(:,i)%lam) * par(:,i)%phie    ! dphi/dS at he
-!!$          par(:,i)%clay       = 0.2
-
+!!$          par(:,i)%clay       = 0.2_r_2
        enddo
     endif
 
 !!$   ! special for Cumberland: set top 3 layers to sand
 !!$   do i=1,3
-!!$      par(:,i)%thw        = 0.175
-!!$      par(:,i)%thfc       = 0.255
-!!$      par(:,i)%the        = 0.420
+!!$      par(:,i)%thw        = 0.175_r_2
+!!$      par(:,i)%thfc       = 0.255_r_2
+!!$      par(:,i)%the        = 0.420_r_2
 !!$      par(:,i)%thre       = real(soil%ssat(index),r_2) - par(:,i)%thr
-!!$      par(:,i)%he         = -0.299
-!!$      par(:,i)%Ke         = 6.e-6
-!!$      par(:,i)%lam        = 1./7.12
+!!$      par(:,i)%he         = -0.299_r_2
+!!$      par(:,i)%Ke         = 6.e-6_r_2
+!!$      par(:,i)%lam        = 1._r_2/7.12_r_2
 !!$      par(:,i)%eta        = two/par(:,i)%lam + two + one
 !!$      par(:,i)%KSe        = par(:,i)%eta * par(:,i)%Ke    ! dK/dS at he
 !!$      par(:,i)%phie       = par(:,i)%Ke * par(:,i)%he / (one - par(:,i)%lam * par(:,i)%eta) ! MFP at he
 !!$      par(:,i)%phiSe      = (par(:,i)%eta - one/par(:,i)%lam) * par(:,i)%phie    ! dphi/dS at he
-!!$      par(:,i)%clay       = 0.27
+!!$      par(:,i)%clay       = 0.27_r_2
 !!$
 !!$   enddo
 
@@ -3805,6 +3807,285 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
     zerovars%macropore_factor = zero
 
   END FUNCTION zerovars
+
+  !**********************************************************************************************************************
+
+  FUNCTION zerovars_met()
+
+    ! Sets all fields of type vars_met to zero
+
+    IMPLICIT NONE
+
+    TYPE(vars_met) :: zerovars_met
+
+    zerovars_met%Ta    = zero
+    zerovars_met%rha   = zero
+    zerovars_met%rbw   = zero
+    zerovars_met%rbh   = zero
+    zerovars_met%rrc   = zero
+    zerovars_met%Rn    = zero
+    zerovars_met%Da    = zero
+    zerovars_met%cva   = zero
+    zerovars_met%civa  = zero
+    zerovars_met%phiva = zero
+    zerovars_met%Rnsw  = zero
+
+  END FUNCTION zerovars_met
+
+  !**********************************************************************************************************************
+
+  FUNCTION zerovars_snow()
+
+    ! Sets all fields of type vars_snow to zero
+
+    IMPLICIT NONE
+
+    TYPE(vars_snow) :: zerovars_snow
+
+    zerovars_snow%nsnow                    = 0
+    zerovars_snow%nsnow_last               = 0
+    zerovars_snow%depth                    = zero
+    zerovars_snow%hsnow                    = zero
+    zerovars_snow%hliq                     = zero
+    zerovars_snow%dens                     = zero
+    zerovars_snow%tsn                      = zero
+    zerovars_snow%kH                       = zero
+    zerovars_snow%kE                       = zero
+    zerovars_snow%kth                      = zero
+    zerovars_snow%Dv                       = zero
+    zerovars_snow%cv                       = zero
+    zerovars_snow%sl                       = zero
+    zerovars_snow%melt                     = zero
+    zerovars_snow%Jsensible                = zero
+    zerovars_snow%Jlatent                  = zero
+    zerovars_snow%deltaJlatent             = zero
+    zerovars_snow%deltaJsensible           = zero
+    zerovars_snow%fsnowliq_max             = zero
+    zerovars_snow%wcol                     = zero
+    zerovars_snow%Qadv_snow                = zero
+    zerovars_snow%Qadv_rain                = zero
+    zerovars_snow%totdepth                 = zero
+    zerovars_snow%J                        = zero
+    zerovars_snow%Qadv_melt                = zero
+    zerovars_snow%Qadv_vap                 = zero
+    zerovars_snow%Qcond_net                = zero
+    zerovars_snow%Qadv_transfer            = zero
+    zerovars_snow%Qmelt                    = zero
+    zerovars_snow%Qtransfer                = zero
+    zerovars_snow%FluxDivergence           = zero
+    zerovars_snow%deltaJ                   = zero
+    zerovars_snow%Qvap                     = zero
+    zerovars_snow%MoistureFluxDivergence   = zero
+    zerovars_snow%Qprec                    = zero
+    zerovars_snow%Qevap                    = zero
+    zerovars_snow%deltawcol                = zero
+
+  END FUNCTION zerovars_snow
+
+  !**********************************************************************************************************************
+
+  FUNCTION zerovars_aquifer()
+
+    ! Sets all fields of type vars_aquifer to zero
+
+    IMPLICIT NONE
+
+    TYPE(vars_aquifer) :: zerovars_aquifer
+
+    zerovars_aquifer%isat      = 0
+    zerovars_aquifer%zdelta    = zero
+    zerovars_aquifer%zsoil     = zero
+    zerovars_aquifer%zzero     = zero
+    zerovars_aquifer%K         = zero
+    zerovars_aquifer%Wa        = zero
+    zerovars_aquifer%discharge = zero
+    zerovars_aquifer%f         = zero
+    zerovars_aquifer%Rsmax     = zero
+    zerovars_aquifer%Sy        = zero
+
+  END FUNCTION zerovars_aquifer
+
+  !**********************************************************************************************************************
+
+  SUBROUTINE printparams(par)
+
+    ! prints all fields of type vars
+
+    implicit none
+
+    type(params) :: par
+
+    write(*,*) 'par%the ', par%the
+    write(*,*) 'par%thre ', par%thre
+    write(*,*) 'par%he ', par%he
+    write(*,*) 'par%lam ', par%lam
+    write(*,*) 'par%Ke ', par%Ke
+    write(*,*) 'par%eta ', par%eta
+    write(*,*) 'par%thr ', par%thr
+    write(*,*) 'par%KSe ', par%KSe
+    write(*,*) 'par%phie ', par%phie
+    write(*,*) 'par%phiSe ', par%phiSe
+    write(*,*) 'par%rho ', par%rho
+    write(*,*) 'par%thw ', par%thw
+    write(*,*) 'par%thfc ', par%thfc
+    write(*,*) 'par%kd ', par%kd
+    write(*,*) 'par%css ', par%css
+    write(*,*) 'par%clay ', par%clay
+    write(*,*) 'par%tortuosity ', par%tortuosity
+    write(*,*) 'par%ishorizon ', par%ishorizon
+    write(*,*) 'par%zeta ', par%zeta
+    write(*,*) 'par%fsatmax ', par%fsatmax
+    write(*,*) 'par%lambc ', par%lambc
+    write(*,*) 'par%LambdaS ', par%LambdaS
+
+  END SUBROUTINE printparams
+
+  !**********************************************************************************************************************
+
+  SUBROUTINE printvars(var)
+
+    ! prints all fields of type vars
+
+    implicit none
+
+    type(vars) :: var
+
+    write(*,*) 'vars%isat ', var%isat
+    write(*,*) 'vars%h ', var%h
+    write(*,*) 'vars%phi ', var%phi
+    write(*,*) 'vars%phiS ', var%phiS
+    write(*,*) 'vars%K ', var%K
+    write(*,*) 'vars%KS ', var%KS
+    write(*,*) 'vars%Dv ', var%Dv
+    write(*,*) 'vars%cvsat ', var%cvsat
+    write(*,*) 'vars%rh ', var%rh
+    write(*,*) 'vars%phiv ', var%phiv
+    write(*,*) 'vars%phivS ', var%phivS
+    write(*,*) 'vars%kH ', var%kH
+    write(*,*) 'vars%kE ', var%kE
+    write(*,*) 'vars%kth ', var%kth
+    write(*,*) 'vars%csoil ', var%csoil
+    write(*,*) 'vars%eta_th ', var%eta_th
+    write(*,*) 'vars%hS ', var%hS
+    write(*,*) 'vars%rhS ', var%rhS
+    write(*,*) 'vars%sl ', var%sl
+    write(*,*) 'vars%cv ', var%cv
+    write(*,*) 'vars%cvsatT ', var%cvsatT
+    write(*,*) 'vars%cvS ', var%cvS
+    write(*,*) 'vars%kv ', var%kv
+    write(*,*) 'vars%iice ', var%iice
+    write(*,*) 'vars%thetai ', var%thetai
+    write(*,*) 'vars%thetal ', var%thetal
+    write(*,*) 'vars%phiT ', var%phiT
+    write(*,*) 'vars%KT ', var%KT
+    write(*,*) 'vars%lambdav ', var%lambdav
+    write(*,*) 'vars%lambdaf ', var%lambdaf
+    write(*,*) 'vars%he ', var%he
+    write(*,*) 'vars%phie ', var%phie
+    write(*,*) 'vars%Ksat ', var%Ksat
+    write(*,*) 'vars%dthetaldT ', var%dthetaldT
+    write(*,*) 'vars%Tfrz ', var%Tfrz
+    write(*,*) 'vars%csoileff ', var%csoileff
+    write(*,*) 'vars%zsat ', var%zsat
+    write(*,*) 'vars%macropore_factor ', var%macropore_factor
+
+  END SUBROUTINE printvars
+
+  !**********************************************************************************************************************
+
+  SUBROUTINE printvars_met(var)
+
+    ! prints all fields of type vars
+
+    implicit none
+
+    type(vars_met) :: var
+
+    write(*,*) 'vars_met%Ta ', var%Ta
+    write(*,*) 'vars_met%rha ', var%rha
+    write(*,*) 'vars_met%rbw ', var%rbw
+    write(*,*) 'vars_met%rbh ', var%rbh
+    write(*,*) 'vars_met%rrc ', var%rrc
+    write(*,*) 'vars_met%Rn ', var%Rn
+    write(*,*) 'vars_met%Da ', var%Da
+    write(*,*) 'vars_met%cva ', var%cva
+    write(*,*) 'vars_met%civa ', var%civa
+    write(*,*) 'vars_met%phiva ', var%phiva
+    write(*,*) 'vars_met%Rnsw ', var%Rnsw
+
+  END SUBROUTINE printvars_met
+
+  !**********************************************************************************************************************
+  
+  SUBROUTINE printvars_snow(var)
+
+    ! prints all fields of type vars
+
+    implicit none
+
+    type(vars_snow) :: var
+
+    write(*,*) 'vars_snow%nsnow ', var%nsnow
+    write(*,*) 'vars_snow%nsnow_last ', var%nsnow_last
+    write(*,*) 'vars_snow%depth ', var%depth
+    write(*,*) 'vars_snow%hsnow ', var%hsnow
+    write(*,*) 'vars_snow%hliq ', var%hliq
+    write(*,*) 'vars_snow%dens ', var%dens
+    write(*,*) 'vars_snow%tsn ', var%tsn
+    write(*,*) 'vars_snow%kH ', var%kH
+    write(*,*) 'vars_snow%kE ', var%kE
+    write(*,*) 'vars_snow%kth ', var%kth
+    write(*,*) 'vars_snow%Dv ', var%Dv
+    write(*,*) 'vars_snow%cv ', var%cv
+    write(*,*) 'vars_snow%sl ', var%sl
+    write(*,*) 'vars_snow%melt ', var%melt
+    write(*,*) 'vars_snow%Jsensible ', var%Jsensible
+    write(*,*) 'vars_snow%Jlatent ', var%Jlatent
+    write(*,*) 'vars_snow%deltaJsensible ', var%deltaJsensible
+    write(*,*) 'vars_snow%fsnowliq_max ', var%fsnowliq_max
+    write(*,*) 'vars_snow%wcol ', var%wcol
+    write(*,*) 'vars_snow%Qadv_snow ', var%Qadv_snow
+    write(*,*) 'vars_snow%Qadv_rain ', var%Qadv_rain
+    write(*,*) 'vars_snow%totdepth ', var%totdepth
+    write(*,*) 'vars_snow%J ', var%J
+    write(*,*) 'vars_snow%Qadv_melt ', var%Qadv_melt
+    write(*,*) 'vars_snow%Qadv_vap ', var%Qadv_vap
+    write(*,*) 'vars_snow%Qcond_net ', var%Qcond_net
+    write(*,*) 'vars_snow%Qadv_transfer ', var%Qadv_transfer
+    write(*,*) 'vars_snow%Qmelt ', var%Qmelt
+    write(*,*) 'vars_snow%Qtransfer ', var%Qtransfer
+    write(*,*) 'vars_snow%FluxDivergence ', var%FluxDivergence
+    write(*,*) 'vars_snow%deltaJ ', var%deltaJ
+    write(*,*) 'vars_snow%Qvap ', var%Qvap
+    write(*,*) 'vars_snow%MoistureFluxDivergence ', var%MoistureFluxDivergence
+    write(*,*) 'vars_snow%Qprec ', var%Qprec
+    write(*,*) 'vars_snow%Qevap ', var%Qevap
+    write(*,*) 'vars_snow%deltawcol ', var%deltawcol
+
+  END SUBROUTINE printvars_snow
+
+  !**********************************************************************************************************************
+
+  SUBROUTINE printvars_aquifer(var)
+
+    ! prints all fields of type vars
+
+    implicit none
+
+    type(vars_aquifer) :: var
+
+    write(*,*) 'vars_aquifer%isat ', var%isat
+    write(*,*) 'vars_aquifer%zdelta ', var%zdelta
+    write(*,*) 'vars_aquifer%zsoil ', var%zsoil
+    write(*,*) 'vars_aquifer%zzero ', var%zzero
+    write(*,*) 'vars_aquifer%K ', var%K
+    write(*,*) 'vars_aquifer%Wa ', var%Wa
+    write(*,*) 'vars_aquifer%discharge ', var%discharge
+    write(*,*) 'vars_aquifer%f ', var%f
+    write(*,*) 'vars_aquifer%Rsmax ', var%Rsmax
+    write(*,*) 'vars_aquifer%Sy ', var%Sy
+
+  END SUBROUTINE printvars_aquifer
 
   !**********************************************************************************************************************
 

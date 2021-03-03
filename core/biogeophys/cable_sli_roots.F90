@@ -10,9 +10,9 @@ MODULE sli_roots
   PUBLIC :: setroots, getrex ! routines
 
   ! b1, b2 - params used to get root distribution param b (Li et al., J Hydrolo 2001).
-  REAL(r_2), PARAMETER :: b1     = 24.66
-  REAL(r_2), PARAMETER :: b2     = 1.59
-  REAL(r_2), PARAMETER :: lambda = 1.0
+  REAL(r_2), PARAMETER :: b1     = 24.66_r_2
+  REAL(r_2), PARAMETER :: b2     = 1.59_r_2
+  REAL(r_2), PARAMETER :: lambda = 1.0_r_2
 
   INTERFACE setroots
      MODULE PROCEDURE setroots_1d

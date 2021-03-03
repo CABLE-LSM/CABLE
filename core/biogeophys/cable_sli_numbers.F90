@@ -145,7 +145,7 @@ MODULE sli_numbers
           Jsensible, Jlatent,  deltaJlatent, deltaJsensible, fsnowliq_max
      REAL(r_2) ::  wcol, Qadv_snow, Qadv_rain, totdepth, J, &
           Qadv_melt, Qadv_vap, Qcond_net, &
-          Qadv_transfer, Qmelt, Qtransfer,FluxDivergence, deltaJ, &
+          Qadv_transfer, Qmelt, Qtransfer, FluxDivergence, deltaJ, &
           Qvap, MoistureFluxDivergence, Qprec, Qevap, deltawcol
      INTEGER(i_d) :: nsnow, nsnow_last
   END TYPE vars_snow
