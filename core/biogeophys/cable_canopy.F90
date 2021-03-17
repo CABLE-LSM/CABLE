@@ -1886,7 +1886,7 @@ CONTAINS
                 ! reduction of daytime leaf dark-respiration to account for
                 !photo-inhibition
                 rdx(i,1) = rdx(i,1) * light_inhibition(rad%qcan(i,1,1)*jtomol*1.0e6)
-                rdx(i,2) = rdx(i,2) * light_inhibition(rad%qcan(i,1,2)*jtomol*1.0e6)
+                rdx(i,2) = rdx(i,2) * light_inhibition(rad%qcan(i,2,1)*jtomol*1.0e6)
 
                 ! special for YP photosynthesis
                 rdx3(i,1) = rdx(i,1);
