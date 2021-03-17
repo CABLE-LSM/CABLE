@@ -56,18 +56,11 @@ SUBROUTINE ruff_resist(veg, rough, ssnow, canopy)
 
    CALL point2constants( C )
 
-   !ASKJK - in NESP but not gm branch: remove ?
-   ! JK: temporary bug fix: don't let veg%hc fall to 0
-   veg%hc = MAX(veg%hc, 1.0)
-   !write(90,*) 'veg%hc:', veg%hc
-   !ASKJK - in NESP but not gm branch: remove ?
-
    ! for site-level runs, subtract displacement height from reference height
    take_off_disp = 0.0
    if (trim(cable_user%MetType) .EQ. 'site') then
      take_off_disp = 1.0
    endif
-
 
    ! Set canopy height above snow level:
    rough%hruff = MAX( 1.e-6, veg%hc - 1.2 * ssnow%snowd /                       &
@@ -154,7 +147,7 @@ SUBROUTINE ruff_resist(veg, rough, ssnow, canopy)
       rough%zref_tq = MAX(2.0, rough%za_tq - take_off_disp * rough%disp)
       rough%zref_uv = MAX(rough%zref_uv, rough%hruff - rough%disp)
       rough%zref_tq = MAX(rough%zref_tq, rough%hruff - rough%disp)
-      
+
 
       ! Calculate roughness length:
       rough%z0m = ( (1.0 - dh) * EXP( LOG( C%CCW_C ) - 1. + 1. / C%CCW_C       &
@@ -172,7 +165,7 @@ SUBROUTINE ruff_resist(veg, rough, ssnow, canopy)
       rough%term6 =  EXP( 3. * rough%coexp * ( rough%disp / rough%hruff -1. ) )
       rough%term6a = EXP(rough%coexp * ( 0.1 * rough%hruff / rough%hruff -1. ))
 
-     
+
          ! eq. 3.54, SCAM manual (CSIRO tech report 132)
          rough%rt0us  = rough%term5 * ( C%ZDLIN * LOG(                            &
               C%ZDLIN * rough%disp / rough%z0soilsn ) +                 &

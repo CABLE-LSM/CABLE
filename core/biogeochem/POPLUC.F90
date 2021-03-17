@@ -2006,7 +2006,7 @@ CONTAINS
        DO i = 1, SIZE(A1)
           STATUS = NF90_def_var(FILE_ID,TRIM(A1(i)) ,NF90_FLOAT,(/land_ID,t_ID/),VID1(i) &
 #ifndef __NETCDF3__
-               , deflate_level=1 &
+               , deflate_level=4 &
 #endif
                )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
@@ -2015,7 +2015,7 @@ CONTAINS
        DO i = 1, SIZE(AI1)
           STATUS = NF90_def_var(FILE_ID,TRIM(AI1(i)) ,NF90_INT,(/land_ID,t_ID/),VIDI1(i) &
 #ifndef __NETCDF3__
-               , deflate_level=1 &
+               , deflate_level=4 &
 #endif
                )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
@@ -2024,7 +2024,7 @@ CONTAINS
           DO i = 1, SIZE(A2)
              STATUS = NF90_def_var(FILE_ID,TRIM(A2(i)) ,NF90_FLOAT,(/land_ID,age_ID,t_ID/),VID2(i) &
 #ifndef __NETCDF3__
-                  , deflate_level=1 &
+                  , deflate_level=4 &
 #endif
                   )
              IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
@@ -2044,7 +2044,7 @@ CONTAINS
        DO i = 1, SIZE(A4)
           STATUS = NF90_def_var(FILE_ID,TRIM(A4(i)) ,NF90_FLOAT,(/land_ID,nLU_ID,t_ID/),VID4(i) &
 #ifndef __NETCDF3__
-               , deflate_level=1 &
+               , deflate_level=4 &
 #endif
                )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
@@ -2053,7 +2053,7 @@ CONTAINS
        DO i = 1, SIZE(A5)
           STATUS = NF90_def_var(FILE_ID,TRIM(A5(i)) ,NF90_FLOAT,(/land_ID,ntrans_ID,t_ID/),VID5(i) &
 #ifndef __NETCDF3__
-               , deflate_level=1 &
+               , deflate_level=4 &
 #endif
                )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
@@ -2062,7 +2062,7 @@ CONTAINS
        DO i = 1, SIZE(A6)
           STATUS = NF90_def_var(FILE_ID,TRIM(A6(i)) ,NF90_FLOAT,(/land_ID,nprod_ID,t_ID/),VID6(i) &
 #ifndef __NETCDF3__
-               , deflate_level=1 &
+               , deflate_level=4 &
 #endif
                )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
@@ -2750,7 +2750,7 @@ CONTAINS
        DO i = 1, SIZE(A1)
           STATUS = NF90_def_var(FILE_ID, TRIM(A1(i)), NF90_FLOAT, (/xID, yID,t_ID/), VID1(i) &
 #ifndef __NETCDF3__
-               , deflate_level=1 &
+               , deflate_level=4 &
 #endif
                )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
@@ -2770,7 +2770,7 @@ CONTAINS
        DO i = 1, SIZE(AI1)
           STATUS = NF90_def_var(FILE_ID, TRIM(AI1(i)), NF90_INT, (/xID, yID,t_ID/), VIDI1(i) &
 #ifndef __NETCDF3__
-               , deflate_level=1 &
+               , deflate_level=4 &
 #endif
                )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
@@ -2792,7 +2792,7 @@ CONTAINS
           DO i = 1, SIZE(A2)
              STATUS = NF90_def_var(FILE_ID, TRIM(A2(i)), NF90_FLOAT, (/xID, yID,age_ID,t_ID/), VID2(i) &
 #ifndef __NETCDF3__
-                  , deflate_level=1 &
+                  , deflate_level=4 &
 #endif
                   )
              IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
@@ -2802,7 +2802,7 @@ CONTAINS
        DO i = 1, SIZE(A4)
           STATUS = NF90_def_var(FILE_ID, TRIM(A4(i)), NF90_FLOAT, (/xID, yID,nLU_ID,t_ID/), VID4(i) &
 #ifndef __NETCDF3__
-               , deflate_level=1 &
+               , deflate_level=4 &
 #endif
                )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
@@ -2821,7 +2821,7 @@ CONTAINS
        DO i = 1, SIZE(A5)
           STATUS = NF90_def_var(FILE_ID, TRIM(A5(i)), NF90_FLOAT, (/xID, yID,ntrans_ID,t_ID/), VID5(i) &
 #ifndef __NETCDF3__
-               , deflate_level=1 &
+               , deflate_level=4 &
 #endif
                )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
@@ -2841,7 +2841,7 @@ CONTAINS
        DO i = 1, SIZE(A6)
           STATUS = NF90_def_var(FILE_ID, TRIM(A6(i)), NF90_FLOAT, (/xID, yID ,nprod_ID,t_ID/), VID6(i) &
 #ifndef __NETCDF3__
-               , deflate_level=1 &
+               , deflate_level=4 &
 #endif
                )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)

@@ -1,13 +1,13 @@
-&PLUMENML
-	BasePath     = "/g/data/x45/ipbes/ipsl/1deg"
-        LandMaskFile = "/OSM/CBR/OA_GLOBALCABLE/work/Vanessa/MASKS/test_savanna_1x1.nc"
-	Run          = "spinup"         ! Run types are 'spinup', '1850_1900', '1901_2001', '1901_2005', '2006_2099'
-	Forcing      = "ipsl-cm5a-lr"
-	RCP          = "hist"           ! 'hist', '2.6', '4.5', '6.0', '8.5'
-	CO2          = "static1850"
-	CO2file      = "/g/data/x45/ipbes/co2/co2_1850_2005_hist.dat"
-	NDEP         = "static1850"
-	NDEPfile     = "/g/data/x45/ipbes/ndep/NOy_plus_NHx_dry_plus_wet_deposition_hist_1850_2015_annual_1deg.nc"
-	DT           = 3.0          ! subdiurnal time step in hours
-	DirectRead   = .FALSE.
-&end
+&plumenml
+  BasePath     = "/g/data/x45/ipbes/ipsl/1deg"
+  LandMaskFile = "/OSM/CBR/OA_GLOBALCABLE/work/Vanessa/MASKS/test_savanna_1x1.nc"
+	Run        = "spinup"  ! Run types are 'spinup', '1850_1900', '1901_2001', '1901_2005', '2006_2099'
+	Forcing    = "ipsl-cm5a-lr"
+	RCP        = "hist"    ! 'hist', '2.6', '4.5', '6.0', '8.5'
+	CO2        = "static1850"
+	CO2file    = "/g/data/x45/ipbes/co2/co2_1850_2005_hist.dat"
+	NDEP       = "static1850"
+	NDEPfile   = "/g/data/x45/ipbes/ndep/NOy_plus_NHx_dry_plus_wet_deposition_hist_1850_2015_annual_1deg.nc"
+	DT         = 3.0       ! subdiurnal time step in hours
+  DirectRead = .false.
+/

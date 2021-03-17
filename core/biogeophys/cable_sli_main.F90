@@ -522,25 +522,25 @@ contains
                tmp1d5, tmp1d6, tmp1d7, tmp1d8, tmp1d9,tmp1d10, tmp1d11, &
                tmp1d12,tmp1d13, tmp1d14, tmp1d15, tmp1d16)
        enddo
-       print*, 'SEB01 ', mp, ms
-       do kk=1, mp
-          call printvars_met(vmet(kk))
-          call printvars_snow(vsnow(kk))
-          do i=1, ms
-             print*, 'i/ms ', i, ms
-             call printparams(par(kk,i))
-             call printvars(var(kk,i))
-          enddo
-          print*, 'qprec ', qprec(kk)
-          print*, 'qprec_snow ', qprec_snow(kk)
-          print*, 'dx ', dx(kk,:)
-          print*, 'h0 ', h0(kk)
-          print*, 'Tsoil ', Tsoil(kk,:)
-          print*, 'Tsurface ', Tsurface(kk)
-          print*, 'G0 ', G0(kk)
-          print*, 'lE ', lE(kk)
-          print*, 'Epot ', Epot(kk)
-       enddo
+       ! print*, 'SEB01 ', mp, ms
+       ! do kk=1, mp
+       !    call printvars_met(vmet(kk))
+       !    call printvars_snow(vsnow(kk))
+       !    do i=1, ms
+       !       print*, 'i/ms ', i, ms
+       !       call printparams(par(kk,i))
+       !       call printvars(var(kk,i))
+       !    enddo
+       !    print*, 'qprec ', qprec(kk)
+       !    print*, 'qprec_snow ', qprec_snow(kk)
+       !    print*, 'dx ', dx(kk,:)
+       !    print*, 'h0 ', h0(kk)
+       !    print*, 'Tsoil ', Tsoil(kk,:)
+       !    print*, 'Tsurface ', Tsurface(kk)
+       !    print*, 'G0 ', G0(kk)
+       !    print*, 'lE ', lE(kk)
+       !    print*, 'Epot ', Epot(kk)
+       ! enddo
        canopy%ga   = real(G0)
        canopy%fes  = lE
        canopy%fhs  = canopy%fns - canopy%ga - real(canopy%fes)

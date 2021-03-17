@@ -205,7 +205,7 @@ CONTAINS
         ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/xID, yID, patchID, tID/), &
              varID &
 #ifndef __NETCDF3__
-             , deflate_level=1 &
+             , deflate_level=4 &
 #endif
              )
         IF (ok /= NF90_NOERR) CALL nc_abort                                    &
@@ -223,7 +223,7 @@ CONTAINS
           ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/xID, yID, zID, tID/),   &
                varID &
 #ifndef __NETCDF3__
-               , deflate_level=1 &
+               , deflate_level=4 &
 #endif
                )
           ! If not already allocated, allocate a temporary storage variable
@@ -234,7 +234,7 @@ CONTAINS
           WRITE(logn, *) 'Writing '//vname//' to output file using mask grid'
           ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/xID, yID, tID/), varID &
 #ifndef __NETCDF3__
-               , deflate_level=1 &
+               , deflate_level=4 &
 #endif
                )
           ! If not already allocated, allocate a temporary storage variable
@@ -254,7 +254,7 @@ CONTAINS
         ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/landID, patchID, tID/),   &
              varID &
 #ifndef __NETCDF3__
-             , deflate_level=1 &
+             , deflate_level=4 &
 #endif
              )
         IF (ok /= NF90_NOERR) CALL nc_abort                                    &
@@ -268,7 +268,7 @@ CONTAINS
         WRITE(logn, *) 'Writing '//vname//' to output file using land grid'
         ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/landID,tID/), varID &
 #ifndef __NETCDF3__
-             , deflate_level=1 &
+             , deflate_level=4 &
 #endif
              )
         IF (ok /= NF90_NOERR) CALL nc_abort                                    &
@@ -335,7 +335,7 @@ CONTAINS
         ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/xID, yID, patchID,        &
              othdimID, tID/), varID &
 #ifndef __NETCDF3__
-             , deflate_level=1 &
+             , deflate_level=4 &
 #endif
              )
         IF (ok /= NF90_NOERR) CALL nc_abort                                    &
@@ -378,7 +378,7 @@ CONTAINS
         WRITE(logn, *) 'Writing '//vname//' to output file using mask grid'
         ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/xID, yID, othdimID, tID/), varID &
 #ifndef __NETCDF3__
-             , deflate_level=1 &
+             , deflate_level=4 &
 #endif
              )
         IF (ok /= NF90_NOERR) CALL nc_abort                                    &
@@ -427,7 +427,7 @@ CONTAINS
         ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/landID, patchID,          &
              othdimID, tID/), varID &
 #ifndef __NETCDF3__
-             , deflate_level=1 &
+             , deflate_level=4 &
 #endif
              )
         IF (ok /= NF90_NOERR) CALL nc_abort                                    &
@@ -477,7 +477,7 @@ CONTAINS
         ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/landID, othdimID, tID/),  &
              varID &
 #ifndef __NETCDF3__
-             , deflate_level=1 &
+             , deflate_level=4 &
 #endif
              )
         IF (ok /= NF90_NOERR) CALL nc_abort                                    &
@@ -570,19 +570,19 @@ CONTAINS
           if (dimswitch(1:2) == 're') then
              ok = nf90_def_var(ncid, pname, nf90_float, (/xid, yid, patchid/), parid &
 #ifndef __NETCDF3__
-                  , deflate_level=1 &
+                  , deflate_level=4 &
 #endif
                   )
           else if (dimswitch(1:2) == 'r2') then
              ok = nf90_def_var(ncid, pname, nf90_float, (/xid, yid, patchid/), parid &
 #ifndef __NETCDF3__
-                  , deflate_level=1 &
+                  , deflate_level=4 &
 #endif
                   )
           else if (dimswitch(1:1) == 'i') then
              ok = nf90_def_var(ncid, pname, nf90_int, (/xid, yid, patchid/), parid &
 #ifndef __NETCDF3__
-                  , deflate_level=1 &
+                  , deflate_level=4 &
 #endif
                   )
           end if
@@ -597,19 +597,19 @@ CONTAINS
           if (dimswitch(1:2) == 're') then
              ok = nf90_def_var(ncid, pname, nf90_float, (/xid, yid/), parid &
 #ifndef __NETCDF3__
-                  , deflate_level=1 &
+                  , deflate_level=4 &
 #endif
                   )
           else if (dimswitch(1:2) == 'r2') then
              ok = nf90_def_var(ncid, pname, nf90_double, (/xid, yid/), parid &
 #ifndef __NETCDF3__
-                  , deflate_level=1 &
+                  , deflate_level=4 &
 #endif
                   )
           else if (dimswitch(1:1) == 'i') then
              ok = nf90_def_var(ncid, pname, nf90_int, (/xid, yid/), parid &
 #ifndef __NETCDF3__
-                  , deflate_level=1 &
+                  , deflate_level=4 &
 #endif
                   )
           end if
@@ -631,19 +631,19 @@ CONTAINS
           if (dimswitch(1:2) == 're') then
              ok = nf90_def_var(ncid, pname, nf90_float, (/landid, patchid/), parid &
 #ifndef __NETCDF3__
-                  , deflate_level=1 &
+                  , deflate_level=4 &
 #endif
                   )
           else if (dimswitch(1:2) == 'r2') then
              ok = nf90_def_var(ncid, pname, nf90_double, (/landid, patchid/), parid &
 #ifndef __NETCDF3__
-             , deflate_level=1 &
+             , deflate_level=4 &
 #endif
                   )
           else if(dimswitch(1:1) == 'i') then
              ok = nf90_def_var(ncid, pname, nf90_int, (/landid, patchid/), parid &
 #ifndef __NETCDF3__
-             , deflate_level=1 &
+             , deflate_level=4 &
 #endif
                   )
           end if
@@ -661,19 +661,19 @@ CONTAINS
           if (dimswitch(1:2) == 're') then
              ok = nf90_def_var(ncid, pname, nf90_float, (/landid/), parid &
 #ifndef __NETCDF3__
-             , deflate_level=1 &
+             , deflate_level=4 &
 #endif
                   )
           else if (dimswitch(1:2) == 'r2') then
              ok = nf90_def_var(ncid, pname, nf90_double, (/landid/), parid &
 #ifndef __NETCDF3__
-             , deflate_level=1 &
+             , deflate_level=4 &
 #endif
                   )
           else if (dimswitch(1:1) == 'i') then
              ok = nf90_def_var(ncid, pname, nf90_int, (/landid/), parid &
 #ifndef __NETCDF3__
-             , deflate_level=1 &
+             , deflate_level=4 &
 #endif
                   )
           end if
@@ -764,7 +764,7 @@ CONTAINS
           ok = NF90_DEF_VAR(ncid, pname, NF90_FLOAT, (/xID, yID, patchID,      &
                othdimID/),parID &
 #ifndef __NETCDF3__
-             , deflate_level=1 &
+             , deflate_level=4 &
 #endif
                )
           IF (ok /= NF90_NOERR) CALL nc_abort                                  &
@@ -792,7 +792,7 @@ CONTAINS
           ok = NF90_DEF_VAR(ncid, pname, NF90_FLOAT, (/xID, yID, othdimID/)    &
                , parID &
 #ifndef __NETCDF3__
-             , deflate_level=1 &
+             , deflate_level=4 &
 #endif
                )
           ! If not already allocated, allocate a temporary storage variable
@@ -834,14 +834,14 @@ CONTAINS
              ok = NF90_DEF_VAR(ncid, pname, NF90_DOUBLE, (/landID, patchID,    &
                   othdimID/), parID &
 #ifndef __NETCDF3__
-             , deflate_level=1 &
+             , deflate_level=4 &
 #endif
                   )
           ELSE
              ok = NF90_DEF_VAR(ncid, pname, NF90_FLOAT, (/landID, patchID,     &
                   othdimID/), parID &
 #ifndef __NETCDF3__
-             , deflate_level=1 &
+             , deflate_level=4 &
 #endif
                   )
           END IF
@@ -877,13 +877,13 @@ CONTAINS
           IF(dimswitch(1:2)=='r2') THEN
              ok=NF90_DEF_VAR(ncid,pname,NF90_DOUBLE,(/landID,othdimID/),parID &
 #ifndef __NETCDF3__
-             , deflate_level=1 &
+             , deflate_level=4 &
 #endif
                   )
           ELSE
              ok=NF90_DEF_VAR(ncid,pname,NF90_FLOAT,(/landID,othdimID/),parID &
 #ifndef __NETCDF3__
-             , deflate_level=1 &
+             , deflate_level=4 &
 #endif
                   )
           END IF

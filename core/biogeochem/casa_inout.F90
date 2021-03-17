@@ -2102,7 +2102,7 @@ contains
        do i=1, na1
           status = nf90_def_var(file_id, trim(a1(i)), nf90_float, (/land_id,t_id/), vid1(i) &
 #ifndef __NETCDF3__
-               , deflate_level=1 &
+               , deflate_level=4 &
 #endif
                )
           if (status /= nf90_noerr) call handle_err(status)
@@ -2111,7 +2111,7 @@ contains
        do i=1, na2
           status = nf90_def_var(file_id, trim(a2(i)), nf90_float, (/land_id,plant_id,t_id/), vid2(i) &
 #ifndef __NETCDF3__
-               , deflate_level=1 &
+               , deflate_level=4 &
 #endif
                )
           if (status /= nf90_noerr) call handle_err(status)
@@ -2120,7 +2120,7 @@ contains
        do i=1, na3
           status = nf90_def_var(file_id, trim(a3(i)), nf90_float, (/land_id,litter_id,t_id/), vid3(i) &
 #ifndef __NETCDF3__
-               , deflate_level=1 &
+               , deflate_level=4 &
 #endif
                )
           if (status /= nf90_noerr) call handle_err(status)
@@ -2129,7 +2129,7 @@ contains
        do i=1, na4
           status = nf90_def_var(file_id, trim(a4(i)), nf90_float, (/land_id,soil_id,t_id/), vid4(i) &
 #ifndef __NETCDF3__
-               , deflate_level=1 &
+               , deflate_level=4 &
 #endif
                )
           if (status /= nf90_noerr) call handle_err(status)
@@ -2138,7 +2138,7 @@ contains
        do i=1, na5
           status = nf90_def_var(file_id, trim(a5(i)), nf90_float, (/land_id,litter_id,plant_id,t_id/), vid5(i) &
 #ifndef __NETCDF3__
-               , deflate_level=1 &
+               , deflate_level=4 &
 #endif
                )
           if (status /= nf90_noerr) call handle_err(status)
@@ -2147,7 +2147,7 @@ contains
        do i=1, na6
           status = nf90_def_var(file_id, trim(a6(i)), nf90_float, (/land_id,soil_id,litter_id,t_id/), vid6(i) &
 #ifndef __NETCDF3__
-               , deflate_level=1 &
+               , deflate_level=4 &
 #endif
                )
           if (status /= nf90_noerr) call handle_err(status)
@@ -2156,7 +2156,7 @@ contains
        do i=1, na7
           status = nf90_def_var(file_id, trim(a7(i)), nf90_float, (/land_id,soil_id,soil_id,t_id/), vid7(i) &
 #ifndef __NETCDF3__
-               , deflate_level=1 &
+               , deflate_level=4 &
 #endif
                )
           if (status /= nf90_noerr) call handle_err(status)

@@ -211,10 +211,10 @@ CONTAINS
     USE BLAZE_MPI,            ONLY: MASTER_BLAZE_TYPES ! , MASTER_SIMFIRE_TYPES
     USE SIMFIRE_MOD,          ONLY: TYPE_SIMFIRE, INI_SIMFIRE
 
-    !ASKJK - why in mpimaster and mpiworker?
+    !MCJK - check if need in mpimaster and mpiworker
     ! gm
     use cable_adjust_JV_gm_module, only: read_gm_LUT, LUT_VcmaxJmax, LUT_gm, LUT_Vcmax, LUT_Rd
-    !ASKJK - why in mpimaster and mpiworker?
+    !MCJK - check if need in mpimaster and mpiworker
 
     ! 13C
     use cable_c13o2_def,      only: c13o2_delta_atm, c13o2_flux, c13o2_pool, c13o2_luc, &
@@ -544,13 +544,13 @@ CONTAINS
        ENDIF
     ENDIF
 
-    !ASKJK - why in mpimaster and mpiworker?
+    !MCJK - check if need in mpimaster and mpiworker
     ! Read gm lookup table
     if (cable_user%explicit_gm .and. len(trim(cable_user%gm_LUT_file)) .gt. 1) then
         WRITE(*,*) 'Reading gm LUT file'
         call read_gm_LUT(cable_user%gm_LUT_file, LUT_VcmaxJmax, LUT_gm, LUT_Vcmax, LUT_Rd)
     endif
-    !ASKJK - why in mpimaster and mpiworker?
+    !MCJK - check if need in mpimaster and mpiworker
 
     ! 13C
     ! Read atmospheric delta-13C values

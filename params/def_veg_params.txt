@@ -1,5 +1,5 @@
-CSIRO veg type parameters (2nd guess calibration) !ASKJK - different params here an in pftlookup.csv, where from?
-17   ! number of vegetation types                 !ASKJK - e.g. params for iveg=14=noveg=barren in pftlookup.csv
+CSIRO veg type parameters (2nd guess calibration)
+17   ! number of vegetation types
 1   forest     evergreen_needleleaf       ! veg number, type and name
 17.0   0.01   0.001  0.055  0.0           ! canopy hgt(m),leaf angle,lf width(m),lf length(m),C4 fraction
 0.09  0.30  0.010  0.160  0.390  0.010  ! rholeaf-vis,nir,therm, rhowood-vis,nir,therm

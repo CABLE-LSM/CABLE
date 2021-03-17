@@ -131,23 +131,23 @@ CONTAINS
       IF (cable_user%SOIL_STRUC=='default') THEN
          call soil_snow(dels, soil, ssnow, canopy, met, veg)
       ELSEIF (cable_user%SOIL_STRUC=='sli') THEN
-         print*, 'SLIMAIN01 ', ktau, dels
-         call print_cbm_var(veg)
-         call print_cbm_var(soil)
-         call print_cbm_var(ssnow)
-         call print_cbm_var(met)
-         call print_cbm_var(canopy)
-         call print_cbm_var(air)
-         call print_cbm_var(rad)
+         ! print*, 'SLIMAIN01 ', ktau, dels
+         ! call print_cbm_var(veg)
+         ! call print_cbm_var(soil)
+         ! call print_cbm_var(ssnow)
+         ! call print_cbm_var(met)
+         ! call print_cbm_var(canopy)
+         ! call print_cbm_var(air)
+         ! call print_cbm_var(rad)
          CALL sli_main(ktau, dels, veg, soil, ssnow, met, canopy, air, rad, 0)
-         print*, 'SLIMAIN02 ', ktau, dels
-         call print_cbm_var(veg)
-         call print_cbm_var(soil)
-         call print_cbm_var(ssnow)
-         call print_cbm_var(met)
-         call print_cbm_var(canopy)
-         call print_cbm_var(air)
-         call print_cbm_var(rad)
+         ! print*, 'SLIMAIN02 ', ktau, dels
+         ! call print_cbm_var(veg)
+         ! call print_cbm_var(soil)
+         ! call print_cbm_var(ssnow)
+         ! call print_cbm_var(met)
+         ! call print_cbm_var(canopy)
+         ! call print_cbm_var(air)
+         ! call print_cbm_var(rad)
       ENDIF
    ENDIF
 
