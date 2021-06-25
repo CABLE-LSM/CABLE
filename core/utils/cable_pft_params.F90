@@ -1142,8 +1142,17 @@ CONTAINS
        vegin%zr(17) =        1.000000
        vegin%clitt(17) =        0.000000
 
-       !PFT: New NSW PFT, rainforest (RAF) mgk576, 16/7/19
+       !PFT: New PFT, Eucalyptus blakelyi, mgk576, 25/7/21
        !=========================================================
+
+       vegin%Kmax(18) = 1.5
+       vegin%Kcrit(18) = 0.075 ! vegin%Kmax(18) * 0.05
+       vegin%b_plant(18) = 5.030576014
+       vegin%c_plant(18) = 3.355198155
+       vegin%gmin(18) = 0.720828 ! single sided, above was double-sided, mmol m-2 s-1
+       vegin%vcmax(18) = 0.000087
+       vegin%ejmax(18) = 0.000145
+
        vegin%canst1(18) =        0.100000
        vegin%length(18) =        0.100000
        vegin%width(18) =        0.050000
@@ -1202,26 +1211,17 @@ CONTAINS
        vegin%zr(18) =        3.000000
        vegin%clitt(18) =        6.000000
 
-
-
-       !vegin%gmin(18) = 0.478135  ! mmol m-2 s-1
-       vegin%gmin(18) = 0.2390675  ! single sided, above was double sided mmol m-2 s-1
-       vegin%vcmax(18) = 0.000044
-       vegin%ejmax(18) = 0.000074
-       vegin%g1(18) = 4.192749  ! (-)
-       vegin%sf(18) = 2.000000
-       vegin%psi_f(18) = -2.046428
-       vegin%X_hyd(18) = 50.0
-       vegin%p50(18) = -4.32945
-       vegin%s50(18) = 74.283377
-       vegin%kp_sat(18) = 0.851595
-       vegin%Cl(18) = 659.0
-       vegin%Cs(18) = 8819.184742
-
-
-
-       !PFT: New Wet sclerophyll forests (WSF) mgk576, 16/7/19
+       !PFT: New PFT, Eucalyptus camaldulensis, mgk576, 25/7/21
        !=========================================================
+
+       vegin%Kmax(19) = 1.5
+       vegin%Kcrit(19) = 0.075 ! vegin%Kmax(18) * 0.05
+       vegin%b_plant(19) = 4.102123226
+       vegin%c_plant(19) = 4.347350048
+       vegin%gmin(19) = 0.720828 ! single sided, above was double-sided, mmol m-2 s-1
+       vegin%vcmax(19) = 0.000112
+       vegin%ejmax(19) = 0.000187
+
        vegin%canst1(19) =        0.100000
        vegin%length(19) =        0.100000
        vegin%width(19) =        0.050000
@@ -1276,33 +1276,26 @@ CONTAINS
        vegin%eko(19) =    36000.000000
        vegin%g0(19) =        1E-09!0.000000
        !vegin%g1(19) =        4.114762
+
        vegin%zr(19) =        3.000000
        vegin%clitt(19) =        6.000000
 
-
-
-       !vegin%gmin(19) = 1.275279  ! mmol m-2 s-1
-       vegin%gmin(19) = 0.6376395  ! single sided, above was double-sided, mmol m-2 s-1
-       vegin%vcmax(19) = 0.000085
-       vegin%ejmax(19) = 0.000142
-       vegin%g1(19) = 3.154297 ! 4.12
-       vegin%sf(19) = 2.000000
-       vegin%psi_f(19) = -2.455474
-       vegin%X_hyd(19) = 50.0
-       vegin%p50(19) = -3.002384
-       vegin%s50(19) = 35.26948
-       vegin%kp_sat(19) = 1.686987 ! 4.0
-       vegin%Cl(19) = 342.904821
-       vegin%Cs(19) = 53266.089926
-
-
-       !PFT: New Dry sclerophyll forests (DSF) mgk576, 16/7/19
+       !PFT: New PFT, Eucalyptus crebra, mgk576, 25/7/21
        !=========================================================
+
+       vegin%Kmax(20) = 1.5
+       vegin%Kcrit(20) = 0.075 ! vegin%Kmax(18) * 0.05
+       vegin%b_plant(20) = 5.52013939
+       vegin%c_plant(20) = 3.075600898
+       vegin%gmin(20) = 0.720828 ! single sided, above was double-sided, mmol m-2 s-1
+       vegin%vcmax(20) = 0.000087
+       vegin%ejmax(20) = 0.000145
+
        vegin%canst1(20) =        0.100000
        vegin%length(20) =        0.100000
        vegin%width(20) =        0.050000
-       !vegin%vcmax(19) =        0.000055
-       !vegin%ejmax(19) =        0.000000
+       !vegin%vcmax(20) =        0.000055
+       !vegin%ejmax(20) =        0.000000
        vegin%hc(20) =       35.000000
        vegin%xfang(20) =        0.100000
        vegin%rp20(20) =        0.600000
@@ -1352,31 +1345,26 @@ CONTAINS
        vegin%eko(20) =    36000.000000
        vegin%g0(20) =        1E-09!0.000000
        !vegin%g1(20) =        4.114762
+
        vegin%zr(20) =        3.000000
        vegin%clitt(20) =        6.000000
 
-       !vegin%gmin(20) = 1.441656  ! mmol m-2 s-1
-       vegin%gmin(20) = 0.720828 ! single sided, above was double-sided, mmol m-2 s-1
-       vegin%vcmax(20) = 0.000076
-       vegin%ejmax(20) = 0.000126
-       vegin%g1(20) = 4.788591
-       vegin%sf(20) = 2.000000
-       vegin%psi_f(20) = -1.668544
-       vegin%X_hyd(20) = 50.0
-       vegin%p50(20) = -3.504141
-       vegin%s50(20) = 30.468839
-       vegin%kp_sat(20) = 3.142807
-       vegin%Cl(20) = 349.193238
-       vegin%Cs(20) = 26255.434013
-
-
-       !PFT: New Grassy woodland (GRW) mgk576, 16/7/19
+       !PFT: New PFT, Eucalyptus dunnii, mgk576, 25/7/21
        !=========================================================
+
+       vegin%Kmax(21) = 1.5
+       vegin%Kcrit(21) = 0.075 ! vegin%Kmax(18) * 0.05
+       vegin%b_plant(21) = 5.557394056
+       vegin%c_plant(21) = 3.059620633
+       vegin%gmin(21) = 0.720828 ! single sided, above was double-sided, mmol m-2 s-1
+       vegin%vcmax(21) = 0.000087
+       vegin%ejmax(21) = 0.000145
+
        vegin%canst1(21) =        0.100000
        vegin%length(21) =        0.100000
        vegin%width(21) =        0.050000
-       !vegin%vcmax(19) =        0.000055
-       !vegin%ejmax(19) =        0.000000
+       !vegin%vcmax(21) =        0.000055
+       !vegin%ejmax(21) =        0.000000
        vegin%hc(21) =       35.000000
        vegin%xfang(21) =        0.100000
        vegin%rp20(21) =        0.600000
@@ -1392,27 +1380,27 @@ CONTAINS
        vegin%tminvj(21) =      -15.000000
        vegin%tmaxvj(21) =      -10.000000
        vegin%vbeta(21) =        2.000000
-       vegin%froot(1,21) =        0.200000
-       vegin%froot(2,21) =        0.200000
-       vegin%froot(3,21) =        0.200000
-       vegin%froot(4,21) =        0.200000
-       vegin%froot(5,21) =        0.200000
-       vegin%froot(6,21) =        0.200000
-       vegin%refl(1,21) =        0.076000
-       vegin%taul(1,21) =        0.050000
-       vegin%refl(2,21) =        0.350000
-       vegin%taul(2,21) =        0.250000
-       vegin%refl(3,21) =        0.010000
-       vegin%taul(3,21) =        0.010000
-       vegin%csoil(1,21) =      303.000000
-       vegin%ratecs(1,21) =        2.000000
-       vegin%csoil(2,21) =      606.000000
-       vegin%ratecs(2,21) =        0.500000
-       vegin%cplant(1,21) =      300.000000
-       vegin%ratecp(1,21) =        1.000000
-       vegin%cplant(2,21) =    16833.000000
-       vegin%ratecp(2,21) =        0.030000
-       vegin%cplant(3,21) =     1443.000000
+       vegin%froot(1,22) =        0.200000
+       vegin%froot(2,22) =        0.200000
+       vegin%froot(3,22) =        0.200000
+       vegin%froot(4,22) =        0.200000
+       vegin%froot(5,22) =        0.200000
+       vegin%froot(6,22) =        0.200000
+       vegin%refl(1,22) =        0.076000
+       vegin%taul(1,22) =        0.050000
+       vegin%refl(2,22) =        0.350000
+       vegin%taul(2,22) =        0.250000
+       vegin%refl(3,22) =        0.010000
+       vegin%taul(3,22) =        0.010000
+       vegin%csoil(1,22) =      303.000000
+       vegin%ratecs(1,22) =        2.000000
+       vegin%csoil(2,22) =      606.000000
+       vegin%ratecs(2,22) =        0.500000
+       vegin%cplant(1,22) =      300.000000
+       vegin%ratecp(1,22) =        1.000000
+       vegin%cplant(2,22) =    16833.000000
+       vegin%ratecp(2,22) =        0.030000
+       vegin%cplant(3,22) =     1443.000000
        vegin%ratecp(3,21) =        0.140000
        vegin%a1gs(21) =        9.000000
        vegin%d0gs(21) =     1500.000000
@@ -1426,31 +1414,26 @@ CONTAINS
        vegin%eko(21) =    36000.000000
        vegin%g0(21) =        1E-09!0.000000
        !vegin%g1(21) =        4.114762
+
        vegin%zr(21) =        3.000000
        vegin%clitt(21) =        6.000000
 
-
-       !vegin%gmin(21) = 1.319197  ! mmol m-2 s-1
-       vegin%gmin(21) = 0.6595985 ! single sided, above was double-sided, mmol m-2 s-1
-       vegin%vcmax(21) = 0.000062
-       vegin%ejmax(21) = 0.000104
-       vegin%g1(21) = 4.811896
-       vegin%sf(21) = 2.000000
-       vegin%psi_f(21) = -3.406408
-       vegin%X_hyd(21) = 50.0
-       vegin%p50(21) = -4.32945
-       vegin%s50(21) = 26.690161
-       vegin%kp_sat(21) = 3.215984
-       vegin%Cl(21) = 405.135682
-       vegin%Cs(21) = 32508.644713
-
-       !PFT: New Semi-arid woodland (SAW) mgk576, 16/7/19
+       !PFT: New PFT, Eucalyptus globulus, mgk576, 25/7/21
        !=========================================================
+
+       vegin%Kmax(22) = 1.5
+       vegin%Kcrit(22) = 0.075 ! vegin%Kmax(18) * 0.05
+       vegin%b_plant(22) = 2.550186588
+       vegin%c_plant(22) = 8.298063366
+       vegin%gmin(22) = 0.720828 ! single sided, above was double-sided, mmol m-2 s-1
+       vegin%vcmax(22) = 0.000086
+       vegin%ejmax(22) = 0.000144
+
        vegin%canst1(22) =        0.100000
        vegin%length(22) =        0.100000
        vegin%width(22) =        0.050000
-       !vegin%vcmax(19) =        0.000055
-       !vegin%ejmax(19) =        0.000000
+       !vegin%vcmax(22) =        0.000055
+       !vegin%ejmax(22) =        0.000000
        vegin%hc(22) =       35.000000
        vegin%xfang(22) =        0.100000
        vegin%rp20(22) =        0.600000
@@ -1500,23 +1483,221 @@ CONTAINS
        vegin%eko(22) =    36000.000000
        vegin%g0(22) =        1E-09!0.000000
        !vegin%g1(22) =        4.114762
+
        vegin%zr(22) =        3.000000
        vegin%clitt(22) =        6.000000
 
 
-       !vegin%gmin(22) = 1.644874  ! mmol m-2 s-1
-       vegin%gmin(22) = 0.822437 ! single sided, above was double-sided, mmol m-2 s-1
-       vegin%vcmax(22) = 0.000093
-       vegin%ejmax(22) = 0.000155
-       vegin%g1(22) = 5.112146
-       vegin%sf(22) = 2.000000
-       vegin%psi_f(22) = -3.688683
-       vegin%X_hyd(22) = 50.0
-       vegin%p50(22) = -7.093755
-       vegin%s50(22) = 17.798
-       vegin%kp_sat(22) = 0.851595
-       vegin%Cl(22) = 509.05840
-       vegin%Cs(22) = 11598.489913
+       !PFT: New PFT, Eucalyptus grandis, mgk576, 25/7/21
+       !=========================================================
+
+       vegin%Kmax(23) = 1.5
+       vegin%Kcrit(23) = 0.075 ! vegin%Kmax(18) * 0.05
+       vegin%b_plant(23) = 3.579776939
+       vegin%c_plant(23) = 5.286522315
+       vegin%gmin(23) = 0.720828 ! single sided, above was double-sided, mmol m-2 s-1
+       vegin%vcmax(23) = 0.000094
+       vegin%ejmax(23) = 0.000157
+
+       vegin%canst1(23) =        0.100000
+       vegin%length(23) =        0.100000
+       vegin%width(23) =        0.050000
+       !vegin%vcmax(23) =        0.000055
+       !vegin%ejmax(23) =        0.000000
+       vegin%hc(23) =       35.000000
+       vegin%xfang(23) =        0.100000
+       vegin%rp20(23) =        0.600000
+       vegin%rpcoef(23) =        0.083200
+       vegin%rs20(23) =        1.000000
+       vegin%wai(23) =        1.000000
+       vegin%rootbeta(23) =        0.962000
+       vegin%shelrb(23) =        2.000000
+       vegin%vegcf(23) =       14.000000
+       vegin%frac4(23) =        0.000000
+       vegin%xalbnir(23) =        1.000000
+       vegin%extkn(23) =        0.001000
+       vegin%tminvj(23) =      -15.000000
+       vegin%tmaxvj(23) =      -10.000000
+       vegin%vbeta(23) =        2.000000
+       vegin%froot(1,23) =        0.200000
+       vegin%froot(2,23) =        0.200000
+       vegin%froot(3,23) =        0.200000
+       vegin%froot(4,23) =        0.200000
+       vegin%froot(5,23) =        0.200000
+       vegin%froot(6,23) =        0.200000
+       vegin%refl(1,23) =        0.076000
+       vegin%taul(1,23) =        0.050000
+       vegin%refl(2,23) =        0.350000
+       vegin%taul(2,23) =        0.250000
+       vegin%refl(3,23) =        0.010000
+       vegin%taul(3,23) =        0.010000
+       vegin%csoil(1,23) =      303.000000
+       vegin%ratecs(1,23) =        2.000000
+       vegin%csoil(2,23) =      606.000000
+       vegin%ratecs(2,23) =        0.500000
+       vegin%cplant(1,23) =      300.000000
+       vegin%ratecp(1,23) =        1.000000
+       vegin%cplant(2,23) =    16833.000000
+       vegin%ratecp(2,23) =        0.030000
+       vegin%cplant(3,23) =     1443.000000
+       vegin%ratecp(3,23) =        0.140000
+       vegin%a1gs(23) =        9.000000
+       vegin%d0gs(23) =     1500.000000
+       vegin%alpha(23) =        0.200000
+       vegin%convex(23) =        0.700000
+       vegin%cfrd(23) =        0.015000
+       vegin%gswmin(23) =        0.010000
+       vegin%conkc0(23) =        0.000302
+       vegin%conko0(23) =        0.256000
+       vegin%ekc(23) =    59430.000000
+       vegin%eko(23) =    36000.000000
+       vegin%g0(23) =        1E-09!0.000000
+       !vegin%g1(23) =        4.114762
+
+       vegin%zr(23) =        3.000000
+       vegin%clitt(23) =        6.000000
+
+       !PFT: New PFT, Eucalyptus largiflorens, mgk576, 25/7/21
+       !=========================================================
+
+       vegin%Kmax(24) = 1.5
+       vegin%Kcrit(24) = 0.075 ! vegin%Kmax(18) * 0.05
+       vegin%b_plant(24) = 8.28282906
+       vegin%c_plant(24) = 3.251978832
+       vegin%gmin(24) = 0.720828 ! single sided, above was double-sided, mmol m-2 s-1
+       vegin%vcmax(24) = 0.000087
+       vegin%ejmax(24) = 0.000145
+
+       vegin%canst1(24) =        0.100000
+       vegin%length(24) =        0.100000
+       vegin%width(24) =        0.050000
+       !vegin%vcmax(24) =        0.000055
+       !vegin%ejmax(24) =        0.000000
+       vegin%hc(24) =       35.000000
+       vegin%xfang(24) =        0.100000
+       vegin%rp20(24) =        0.600000
+       vegin%rpcoef(24) =        0.083200
+       vegin%rs20(24) =        1.000000
+       vegin%wai(24) =        1.000000
+       vegin%rootbeta(24) =        0.962000
+       vegin%shelrb(24) =        2.000000
+       vegin%vegcf(24) =       14.000000
+       vegin%frac4(24) =        0.000000
+       vegin%xalbnir(24) =        1.000000
+       vegin%extkn(24) =        0.001000
+       vegin%tminvj(24) =      -15.000000
+       vegin%tmaxvj(24) =      -10.000000
+       vegin%vbeta(24) =        2.000000
+       vegin%froot(1,24) =        0.200000
+       vegin%froot(2,24) =        0.200000
+       vegin%froot(3,24) =        0.200000
+       vegin%froot(4,24) =        0.200000
+       vegin%froot(5,24) =        0.200000
+       vegin%froot(6,24) =        0.200000
+       vegin%refl(1,24) =        0.076000
+       vegin%taul(1,24) =        0.050000
+       vegin%refl(2,24) =        0.350000
+       vegin%taul(2,24) =        0.250000
+       vegin%refl(3,24) =        0.010000
+       vegin%taul(3,24) =        0.010000
+       vegin%csoil(1,24) =      303.000000
+       vegin%ratecs(1,24) =        2.000000
+       vegin%csoil(2,24) =      606.000000
+       vegin%ratecs(2,24) =        0.500000
+       vegin%cplant(1,24) =      300.000000
+       vegin%ratecp(1,24) =        1.000000
+       vegin%cplant(2,24) =    16833.000000
+       vegin%ratecp(2,24) =        0.030000
+       vegin%cplant(3,24) =     1443.000000
+       vegin%ratecp(3,24) =        0.140000
+       vegin%a1gs(24) =        9.000000
+       vegin%d0gs(24) =     1500.000000
+       vegin%alpha(24) =        0.200000
+       vegin%convex(24) =        0.700000
+       vegin%cfrd(24) =        0.015000
+       vegin%gswmin(24) =        0.010000
+       vegin%conkc0(24) =        0.000302
+       vegin%conko0(24) =        0.256000
+       vegin%ekc(24) =    59430.000000
+       vegin%eko(24) =    36000.000000
+       vegin%g0(24) =        1E-09!0.000000
+       !vegin%g1(24) =        4.114762
+
+       vegin%zr(24) =        3.000000
+       vegin%clitt(24) =        6.000000
+
+       !PFT: New PFT, Eucalyptus macrorhyncha, mgk576, 25/7/21
+       !=========================================================
+
+       vegin%Kmax(25) = 1.5
+       vegin%Kcrit(25) = 0.075 ! vegin%Kmax(18) * 0.05
+       vegin%b_plant(25) = 4.400036199
+       vegin%c_plant(25) = 3.948576733
+       vegin%gmin(25) = 0.720828 ! single sided, above was double-sided, mmol m-2 s-1
+       vegin%vcmax(25) = 0.000087
+       vegin%ejmax(25) = 0.000145
+
+       vegin%canst1(25) =        0.100000
+       vegin%length(25) =        0.100000
+       vegin%width(25) =        0.050000
+       !vegin%vcmax(25) =        0.000055
+       !vegin%ejmax(25) =        0.000000
+       vegin%hc(25) =       35.000000
+       vegin%xfang(25) =        0.100000
+       vegin%rp20(25) =        0.600000
+       vegin%rpcoef(25) =        0.083200
+       vegin%rs20(25) =        1.000000
+       vegin%wai(25) =        1.000000
+       vegin%rootbeta(25) =        0.962000
+       vegin%shelrb(25) =        2.000000
+       vegin%vegcf(25) =       14.000000
+       vegin%frac4(25) =        0.000000
+       vegin%xalbnir(25) =        1.000000
+       vegin%extkn(25) =        0.001000
+       vegin%tminvj(25) =      -15.000000
+       vegin%tmaxvj(25) =      -10.000000
+       vegin%vbeta(25) =        2.000000
+       vegin%froot(1,25) =        0.200000
+       vegin%froot(2,25) =        0.200000
+       vegin%froot(3,25) =        0.200000
+       vegin%froot(4,25) =        0.200000
+       vegin%froot(5,25) =        0.200000
+       vegin%froot(6,25) =        0.200000
+       vegin%refl(1,25) =        0.076000
+       vegin%taul(1,25) =        0.050000
+       vegin%refl(2,25) =        0.350000
+       vegin%taul(2,25) =        0.250000
+       vegin%refl(3,25) =        0.010000
+       vegin%taul(3,25) =        0.010000
+       vegin%csoil(1,25) =      303.000000
+       vegin%ratecs(1,25) =        2.000000
+       vegin%csoil(2,25) =      606.000000
+       vegin%ratecs(2,25) =        0.500000
+       vegin%cplant(1,25) =      300.000000
+       vegin%ratecp(1,25) =        1.000000
+       vegin%cplant(2,25) =    16833.000000
+       vegin%ratecp(2,25) =        0.030000
+       vegin%cplant(3,25) =     1443.000000
+       vegin%ratecp(3,25) =        0.140000
+       vegin%a1gs(25) =        9.000000
+       vegin%d0gs(25) =     1500.000000
+       vegin%alpha(25) =        0.200000
+       vegin%convex(25) =        0.700000
+       vegin%cfrd(25) =        0.015000
+       vegin%gswmin(25) =        0.010000
+       vegin%conkc0(25) =        0.000302
+       vegin%conko0(25) =        0.256000
+       vegin%ekc(25) =    59430.000000
+       vegin%eko(25) =    36000.000000
+       vegin%g0(25) =        1E-09!0.000000
+       !vegin%g1(25) =        4.114762
+
+       vegin%zr(25) =        3.000000
+       vegin%clitt(25) =        6.000000
+
+
+
+
 
     ENDIF
 
