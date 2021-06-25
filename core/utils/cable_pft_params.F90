@@ -43,6 +43,10 @@ MODULE cable_pft_params_mod
           psi_f ,     & ! mgk576
           X_hyd,      & ! mgk576
           p50,        & ! mgk576MPa
+          Kmax,       & ! mgk576MPa +1
+          Kcrit,       & ! mgk576MPa +2
+          b_plant,    & ! mgk576MPa +3
+          c_plant,    & ! mgk576MPa +4
           s50,        & ! mgk576MPa
           kp_sat,     & ! mgk576MPa
           Cl,         & ! mgk576MPa
@@ -107,7 +111,9 @@ CONTAINS
             vegin%zr(mvtype), vegin%clitt(mvtype) ,                               &
             !mgk576
             vegin%sf(mvtype), vegin%psi_f(mvtype) ,                               &
-            vegin%X_hyd(mvtype), vegin%p50(mvtype), vegin%s50(mvtype),           &
+            vegin%X_hyd(mvtype), vegin%p50(mvtype), vegin%Kmax(mvtype),           &
+            vegin%Kcrit(mvtype), vegin%b_plant(mvtype),                           &
+            vegin%c_plant(mvtype), vegin%s50(mvtype),                             &
             vegin%kp_sat(mvtype), vegin%Cl(mvtype), vegin%Cs(mvtype),           &
             vegin%gmin(mvtype))
 
@@ -2186,7 +2192,7 @@ CONTAINS
        vegin%zr(32) =        3.000000
        vegin%clitt(32) =        6.000000
 
-       
+
     ENDIF
 
     first_call = .FALSE.
