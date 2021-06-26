@@ -1654,7 +1654,7 @@ CONTAINS
     canopy%kplant(:) = 0.0
     canopy%plc(:) = 0.0
 
-    ssnow%tot_bg_resist(:) = 0.0
+    ssnow%Rsr(:) = 0.0
     ssnow%weighted_psi_soil(:) = 0.0
     ssnow%soilR(:,:) = 0.0
     ssnow%psi_soil(:,:) = 0.0
