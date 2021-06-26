@@ -1027,7 +1027,7 @@ CONTAINS
     ALLOCATE( var%wmtot(mp,ms) )
 
     ! Allocate variables for plant hydraulics, mgk576, 9/10/17
-    ALLOCATE ( var%tot_bg_resist(mp) )
+    ALLOCATE ( var%Rsr(mp) )
     ALLOCATE ( var%soilR(mp,ms) )
     ALLOCATE ( var%fraction_uptake(mp,ms) )
     ALLOCATE ( var%psi_soil(mp,ms) )
@@ -1680,7 +1680,7 @@ CONTAINS
     DEALLOCATE( var%wmtot )
 
     ! Deallocate variables for plant hydraulics, mgk576, 9/10/17
-    DEALLOCATE( var%tot_bg_resist  )
+    DEALLOCATE( var%Rsr  )
     DEALLOCATE( var%soilR  )
     DEALLOCATE( var%fraction_uptake  )
     DEALLOCATE( var%psi_soil )
