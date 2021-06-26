@@ -1216,7 +1216,7 @@ CONTAINS
     blen(bidx) = r2len
 
     bidx = bidx + 1
-    CALL MPI_Get_address (ssnow%tot_bg_resist, displs(bidx), ierr)
+    CALL MPI_Get_address (ssnow%Rsr, displs(bidx), ierr)
     blen(bidx) = r2len
 
 
@@ -4964,7 +4964,7 @@ CONTAINS
     blocks(bidx) = r2len
 
     bidx = bidx + 1
-    CALL MPI_Get_address (ssnow%tot_bg_resist(off), displs(bidx), ierr)
+    CALL MPI_Get_address (ssnow%Rsr(off), displs(bidx), ierr)
     blocks(bidx) = r2len
 
     !vidx = vidx + 1
