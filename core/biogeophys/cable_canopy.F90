@@ -1795,8 +1795,22 @@ CONTAINS
     REAL, PARAMETER :: MMOL_2_MOL = 1.0 / MOL_2_MMOL
     REAL, PARAMETER :: MB_TO_PA = 100.
 
-    INTEGER :: i, j, k, kk  ! iteration count
+    INTEGER :: i, j, k, kk, h  ! iteration count
     REAL :: vpd, g1, ktot, fw, refill ! Ticket #56
+
+
+    REAL :: press
+
+    INTEGER, PARAMETER :: resolution = 1000 ! allows jumps in Ci ~ 0.35 umol mol-1
+    REAL, DIMENSION(2) :: an_canopy
+    REAL :: e_canopy
+    REAL(r_2), DIMENSION(resolution) :: p
+
+    REAL :: MOL_WATER_2_G_WATER, G_TO_KG, UMOL_TO_MOL, MB_TO_KPA, PA_TO_KPA
+    REAL :: avg_kplant, new_plc
+    REAL, DIMENSION(mf) :: Kcmax
+
+
 #define VanessasCanopy
 #ifdef VanessasCanopy
     REAL, DIMENSION(mp,mf)  ::                                                  &
@@ -1819,7 +1833,7 @@ CONTAINS
           ELSEIF(cable_user%FWSOIL_SWITCH == 'Lai and Ktaul 2000') THEN
              CALL fwsoil_calc_Lai_Ktaul(fwsoil, soil, ssnow, veg)
           ! Water stress is inferred from the hydraulics approach instead.
-          ELSE IF(cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+       ELSE IF(cable_user%FWSOIL_SWITCH == 'profitmax') THEN
              fwsoil = 1.0
           ELSE
              STOP 'fwsoil_switch failed.'
@@ -1832,6 +1846,12 @@ CONTAINS
 
 
     ENDIF
+
+     MOL_WATER_2_G_WATER = 18.02
+     G_TO_KG = 1E-03
+     UMOL_TO_MOL = 1E-06
+     MB_TO_KPA = 0.1
+     PA_TO_KPA = 1E-03
 
     ! weight min stomatal conductance by C3 an C4 plant fractions
     frac42 = SPREAD(veg%frac4, 2, mf) ! frac C4 plants
@@ -1885,13 +1905,15 @@ CONTAINS
     deltlfy = abs_deltlf
     k = 0
 
+    DO i=1,mp
+      Kcmax(1) = veg%Kmax(i)
+      Kcmax(2) = veg%Kmax(i)
+    END DO
 
     !kdcorbin, 08/10 - doing all points all the time
     DO WHILE (k < C%MAXITER)
        k = k + 1
        DO i=1,mp
-
-
 
           IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. abs_deltlf(i) > 0.1) THEN
 
@@ -1959,6 +1981,7 @@ CONTAINS
 
              ! "d_{3}" in Wang and Leuning, 1998, appendix E:
              cx1(i) = conkct(i) * (1.0+0.21/conkot(i))
+
              cx2(i) = 2.0 * C%gam0 * ( 1.0 + C%gam1 * tdiff(i)                  &
                   + C%gam2 * tdiff(i) * tdiff(i) )
 
@@ -2074,7 +2097,7 @@ CONTAINS
 
              ! Medlyn BE et al (2011) Global Change Biology 17: 2134-2144.
              ELSEIF(cable_user%GS_SWITCH == 'medlyn' .AND. &
-                    cable_user%FWSOIL_SWITCH /= 'hydraulics') THEN
+                    cable_user%FWSOIL_SWITCH /= 'profitmax') THEN
 
                 gswmin = veg%g0(i)
 
@@ -2098,19 +2121,39 @@ CONTAINS
                 END IF
 
              ELSE IF (cable_user%GS_SWITCH == 'medlyn' .AND. &
-                     cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+                      cable_user%FWSOIL_SWITCH == 'profitmax') THEN
 
-                ! We will use min of gmin below, this needs to be 0
-                gswmin = 0.0
+                ! Profix-Max hydraulics model
+                vpd = dsx(i) * PA_TO_KPA
+                press = met%pmb(i) * MB_TO_KPA
 
-                CALL calc_hydr_conduc(canopy, ssnow, rad, veg, veg%kp_sat(i), i)
 
-                ! Sensitivity of stomata to leaf water potential [0-1]
-                fw = f_tuzet(canopy%psi_leaf_prev(i), veg%sf(i), veg%psi_f(i))
+                IF (vpd < 0.05) THEN
+                   ecx(i) = 0.0
+                   anx(i,1) = 0.0 - rdx(i,1)
+                   anx(i,2) = 0.0 - rdx(i,2)
+                ELSE
+                   CALL optimisation(canopy, rad, ssnow, rad%qcan, vpd, press, tlfx(i), &
+                                     csx, rad%fvlai, &
+                                     ssnow%weighted_psi_soil(i), &
+                                     ssnow%Rsr(i), Kcmax, veg%Kmax(i), veg%Kcrit(i), &
+                                     veg%b_plant(i), veg%c_plant(i), &
+                                     resolution, vcmxt3, ejmxt3, rdx, vx3, &
+                                     cx1(i), an_canopy, e_canopy, veg%gmin(i), &
+                                     p, i)
 
-                ! convert to conductance to CO2, NB g1 here is unitless
-                gs_coeff(i,1) = (veg%g1(i) / csx(i,1) * fw) / C%RGSWC
-                gs_coeff(i,2) = (veg%g1(i) / csx(i,2) * fw) / C%RGSWC
+                   ! fix units for CABLE and pack into arrays
+                   anx(i,1) = an_canopy(1) * UMOL_TO_MOL
+                   anx(i,2) = an_canopy(2) * UMOL_TO_MOL
+
+                   ! fix units for CABLE and pack into arrays
+                   IF (e_canopy > 0.0) THEN
+                      conv = MOL_WATER_2_G_WATER * G_TO_KG
+                      ecx(i) = e_canopy * air%rlam(i) * conv
+                   ELSE
+                      ecx(i) = 0.0
+                   END IF
+                END IF
 
              ELSE
                print*, cable_user%GS_SWITCH, cable_user%FWSOIL_SWITCH, veg%iveg(i)
@@ -2122,15 +2165,19 @@ CONTAINS
 
        ENDDO !i=1,mp
 
-       CALL photosynthesis( csx(:,:),                                           &
-            SPREAD( cx1(:), 2, mf ),                            &
-            SPREAD( cx2(:), 2, mf ),                            &
-            gswmin(:,:), rdx(:,:), vcmxt3(:,:),                 &
-            vcmxt4(:,:), vx3(:,:), vx4(:,:),                    &
-                                ! Ticket #56, xleuning replaced with gs_coeff here
-            gs_coeff(:,:), rad%fvlai(:,:),&
-            SPREAD( abs_deltlf, 2, mf ),                        &
-            anx(:,:), fwsoil(:) )
+       IF (cable_user%FWSOIL_SWITCH /= 'profitmax') THEN
+
+          CALL photosynthesis( csx(:,:),                           &
+               SPREAD( cx1(:), 2, mf ),                            &
+               SPREAD( cx2(:), 2, mf ),                            &
+               gswmin(:,:), rdx(:,:), vcmxt3(:,:),                 &
+               vcmxt4(:,:), vx3(:,:), vx4(:,:),                    &
+                                   ! Ticket #56, xleuning replaced with gs_coeff here
+               gs_coeff(:,:), rad%fvlai(:,:),&
+               SPREAD( abs_deltlf, 2, mf ),                        &
+               anx(:,:), fwsoil(:) )
+
+       END IF
 
        DO i=1,mp
 
@@ -2150,26 +2197,6 @@ CONTAINS
                         MAX( 0.0, C%RGSWC * gs_coeff(i,kk) *     &
                         anx(i,kk) ) )
 
-                   ! Don't add gmin, instead use it as the lower boundary
-                   IF (cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
-
-                      gmin = (veg%gmin(i) * MMOL_2_MOL) * rad%scalex(i,kk)
-
-                      ! We're going to recalc this below after we've finished
-                      ! iterating, but we need to check if we've reached the
-                      ! point of hydraulic failure and if so, we don't want
-                      ! model to crash, so, reset things as we won't interpret
-                      ! things meanginfully
-                      canopy%plc(i) = calc_plc(canopy%kplant(i), veg%kp_sat(i))
-                      IF (canopy%plc(i) >= 88.) THEN
-                         gmin = 1E-09
-                      ENDIF
-
-                      canopy%gswx(i,kk) = MAX(gmin,     &
-                                              MAX(0.0, C%RGSWC * &
-                                                       gs_coeff(i,kk) * &
-                                                       anx(i,kk)))
-                   ENDIF
 
                    !Recalculate conductance for water:
                    gw(i,kk) = 1.0 / ( 1.0 / canopy%gswx(i,kk) +                 &
@@ -2187,14 +2214,19 @@ CONTAINS
 
              ENDDO
 
-             ecx(i) = ( air%dsatdk(i) * ( rad%rniso(i,1) - C%capp * C%rmair     &
-                  * ( met%tvair(i) - met%tk(i) ) * rad%gradis(i,1) )        &
-                  + C%capp * C%rmair * met%dva(i) * ghr(i,1) )              &
-                  / ( air%dsatdk(i) + psycst(i,1) ) + ( air%dsatdk(i)       &
-                  * ( rad%rniso(i,2) - C%capp * C%rmair * ( met%tvair(i) -  &
-                  met%tk(i) ) * rad%gradis(i,2) ) + C%capp * C%rmair *      &
-                  met%dva(i) * ghr(i,2) ) /                                 &
-                  ( air%dsatdk(i) + psycst(i,2) )
+             IF (cable_user%FWSOIL_SWITCH /= 'profitmax') THEN
+
+                ecx(i) = ( air%dsatdk(i) * ( rad%rniso(i,1) - C%capp * C%rmair     &
+                     * ( met%tvair(i) - met%tk(i) ) * rad%gradis(i,1) )        &
+                     + C%capp * C%rmair * met%dva(i) * ghr(i,1) )              &
+                     / ( air%dsatdk(i) + psycst(i,1) ) + ( air%dsatdk(i)       &
+                     * ( rad%rniso(i,2) - C%capp * C%rmair * ( met%tvair(i) -  &
+                     met%tk(i) ) * rad%gradis(i,2) ) + C%capp * C%rmair *      &
+                     met%dva(i) * ghr(i,2) ) /                                 &
+                     ( air%dsatdk(i) + psycst(i,2) )
+
+            END IF
+
 
              IF (cable_user%fwsoil_switch=='Haverd2013') THEN
                 ! avoid root-water extraction when fwsoil is zero
@@ -2222,91 +2254,8 @@ CONTAINS
              ! PH: mgk576, 13/10/17
              ! This is over the combined direct & diffuse leaves due to the
              ! way the loops fall above
-             ELSEIF (cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+          ELSEIF (cable_user%FWSOIL_SWITCH == 'profitmax') THEN
 
-
-                ! Transpiration: W m-2 -> kg m-2 s-1 -> mmol m-2 s-1
-                IF (ecx(i) > 0.0) THEN
-                   conv = KG_2_G * G_WATER_TO_MOL * MOL_2_MMOL
-                   trans_mmol = ecx(i) / air%rlam(i) * conv
-                ELSE
-                   trans_mmol = 0.0
-                END IF
-
-                ! Calculate the leaf water potential.
-                CALL calc_psi_leaf(canopy, trans_mmol, dels, veg%Cl(i), i)
-
-                ! Flux from stem to leaf (mmol s-1) = change in leaf storage,
-                ! plus transpiration
-                CALL calc_flux_to_leaf(canopy, trans_mmol, dels, veg%Cl(i), i)
-
-                ! Update stem water potential
-                CALL calc_psi_stem(canopy, dels, veg%Cs(i), veg%p50(i), &
-                                   veg%iveg(i), i)
-
-                ! Flux from the soil to the stem = change in storage +
-                ! flux_to_leaf
-                CALL calc_flux_to_stem(canopy, dels, veg%Cs(i), veg%iveg(i), i)
-
-                ! Update psi_stem
-                canopy%psi_stem_prev(i) = canopy%psi_stem(i)
-                CALL calc_psi_stem_again(canopy, dels, veg%Cs(i), &
-                                          veg%Cl(i), trans_mmol, veg%p50(i), &
-                                          veg%iveg(i), i)
-
-                ! Flux from the soil to the stem = change in storage +
-                ! flux_to_leaf
-                CALL calc_flux_to_stem_again(canopy, dels, veg%Cs(i), &
-                                             trans_mmol, veg%iveg(i), i)
-
-
-                ! If we've reached the point of hydraulic failure, don't allow
-                ! the water potentials to fall away to silly values
-                IF (canopy%plc(i) >= 88.) THEN
-
-                   IF (canopy%psi_leaf(i) > canopy%psi_leaf_prev(i)) THEN
-                      canopy%psi_leaf_prev(i) = canopy%psi_leaf(i)
-                   ENDIF
-
-                   IF (ssnow%weighted_psi_soil(i) > canopy%psi_soil_prev(i)) THEN
-                      canopy%psi_soil_prev(i) = ssnow%weighted_psi_soil(i)
-                   ENDIF
-
-                   IF (canopy%psi_stem(i) > canopy%psi_stem_prev(i)) THEN
-                      canopy%psi_stem_prev(i) = canopy%psi_stem(i)
-                   ENDIF
-
-                ELSE
-                   ! store current water potentials for next time step
-                   canopy%psi_leaf_prev(i) = canopy%psi_leaf(i)
-                   canopy%psi_soil_prev(i) = ssnow%weighted_psi_soil(i)
-                   canopy%psi_stem_prev(i) = canopy%psi_stem(i)
-
-                ENDIF
-
-                ! store current water potentials for next time step
-                !canopy%psi_leaf_prev(i) = canopy%psi_leaf(i)
-                !canopy%psi_soil_prev(i) = ssnow%weighted_psi_soil(i)
-                !canopy%psi_stem_prev(i) = canopy%psi_stem(i)
-
-                ! Force overnight refilling - we need the real time
-                ! as this won't work with 30 min and hourly
-
-                IF ( (met%hod(i) >= 6 .AND. met%hod(i) < 7) .AND. &
-                     (canopy%psi_stem(i) < ssnow%weighted_psi_soil(i)) .AND. &
-                       canopy%psi_stem(i) > -4.0)  THEN
-
-                      refill = abs(canopy%psi_stem(i) - &
-                                  ssnow%weighted_psi_soil(i)) * 0.8
-                      canopy%psi_stem(i) = canopy%psi_stem(i) + refill
-
-                      ! Ensure we can't refill above psi_soil
-                      canopy%psi_stem(i) = min(canopy%psi_stem(i), &
-                                               ssnow%weighted_psi_soil(i))
-
-                      canopy%psi_stem_prev(i) = canopy%psi_stem(i)
-
-                ENDIF
 
                 IF (ecx(i) > 0.0 .AND. canopy%fwet(i) < 1.0) THEN
                     evapfb(i) = ( 1.0 - canopy%fwet(i)) * REAL( ecx(i) ) *dels  &
@@ -2429,7 +2378,6 @@ CONTAINS
 
     END DO  ! DO WHILE (ANY(abs_deltlf > 0.1) .AND.  k < C%MAXITER)
 
-
     ! dry canopy flux
     canopy%fevc = (1.0-canopy%fwet) * ecy
 
@@ -2483,11 +2431,38 @@ CONTAINS
     canopy%fpn = MIN(-12.0 * SUM(an_y, 2), canopy%frday)
     canopy%evapfbl = ssnow%evapfbl
 
-    IF (cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+    IF (cable_user%FWSOIL_SWITCH == 'profitmax') THEN
 
        ! Calculate this here after we've finsihed iterating...
        DO i = 1, mp
-          canopy%plc(i) = calc_plc(canopy%kplant(i), veg%kp_sat(i))
+
+          ! Plant hydraulic conductance (mmol m-2 leaf s-1 MPa-1)
+          IF (rad%fvlai(i,1) > 0.001 .AND. rad%fvlai(i,2) > 0.001) THEN
+             !print*, "here"
+             avg_kplant = (Kcmax(1) + Kcmax(2)) / 2.0
+          ELSE IF (rad%fvlai(i,1) > 0.001 .AND. rad%fvlai(i,2) < 0.001) THEN
+             !print*, "no here"
+             avg_kplant = Kcmax(1)
+          ELSE IF (rad%fvlai(i,2) > 0.001 .AND. rad%fvlai(i,1) < 0.001) THEN
+             !print*, "no no here"
+             avg_kplant = Kcmax(2)
+          END IF
+
+
+          canopy%kplant(i) = avg_kplant
+
+          new_plc = calc_plc(avg_kplant, veg%Kmax(i))
+
+          ! This will get a cumulative plc, but cannot reset....
+          ! Used in swiss experiment for one summer
+          !IF (new_plc > canopy%plc_prev(i)) THEN
+         !    canopy%plc(i) = new_plc
+         !    canopy%plc_prev(i) = new_plc
+          !ENDIF ! otherwise don't update
+
+          ! allows for resetting...used in furture runs as we're collecting
+          ! continuous dry spells, but dont have growth so need to allow a reset
+          canopy%plc(i) = new_plc
 
           ! We've reached the point of hydraulic failure, so hold the plc
           ! here for outputting purposes..
@@ -3060,479 +3035,6 @@ CONTAINS
   END SUBROUTINE getrex_1d
   !*********************************************************************************************************************
 
-  ! ----------------------------------------------------------------------------
-  FUNCTION f_tuzet(psi_leaf, sf, psi_f) RESULT(fw)
-     ! Empirical logistic function to describe the sensitivity of stomata
-     ! to leaf water potential.
-     !
-     ! Sigmoid function assumes that stomata are insensitive to psi_leaf at
-     ! values close to zero and that stomata rapidly close with decreasing
-     ! psi_leaf.
-     !
-     ! Reference:
-     ! ----------
-     ! * Tuzet et al. (2003) A coupled model of stomatal conductance,
-     !   photosynthesis and transpiration. Plant, Cell and Environment 26,
-     !   1097–1116
-     !
-     ! Martin De Kauwe, 3rd June, 2019
-
-     IMPLICIT NONE
-
-     REAL             :: num, den, fw
-     REAL, INTENT(IN) :: psi_leaf, sf, psi_f
-
-     !print*, "tuzet", sf, psi_f, psi_leaf
-     num = 1.0 + EXP(sf * psi_f)
-     den = 1.0 + EXP(sf * (psi_f - psi_leaf))
-     fw = num / den ! unitless
-     !fw = MAX(1.0e-9, MIN(1.0, num / den))
-
-  END FUNCTION f_tuzet
-  ! ----------------------------------------------------------------------------
-
-  ! ----------------------------------------------------------------------------
-  SUBROUTINE calc_hydr_conduc(canopy, ssnow, rad, veg, kp_sat, i)
-     ! Calculate conductance terms (root to stem & stem to leaf)
-     !
-     ! Martin De Kauwe, 3rd June, 2019
-
-     USE cable_common_module
-     USE cable_def_types_mod
-
-     IMPLICIT NONE
-
-     TYPE (canopy_type), INTENT(INOUT)          :: canopy
-     TYPE (soil_snow_type), INTENT(INOUT)       :: ssnow
-     TYPE (radiation_type), INTENT(INOUT)       :: rad
-     TYPE (veg_parameter_type), INTENT(INOUT)   :: veg
-
-     INTEGER, INTENT(IN) :: i ! patch
-
-     ! plant saturated hydraulic conductance (mmol m-2 ground s-1 MPa-1)
-     REAL, INTENT(IN)    :: kp_sat
-     REAL                :: ksoil, kroot2stem, kplant
-
-     ! Soil-stem conductance (mmol m-2 leaf s-1 MPa-1)
-     ksoil = 1.0 / ssnow%tot_bg_resist(i)
-
-     ! Plant hydraulic conductance (mmol m-2 leaf s-1 MPa-1). NB. depends on
-     ! stem water potential from the previous timestep.
-     canopy%kplant(i) = kp_sat * &
-                        fsig_hydr(canopy%psi_stem_prev(i), veg%X_hyd(i), &
-                                  veg%p50(i), veg%s50(i))
-
-     ! Conductance from root surface to the stem water pool, assumed to be
-     ! halfway to the leaves
-     ! (mmol m-2 ground area s-1 MPa-1)
-     kroot2stem = 2.0 * canopy%kplant(i)
-
-     ! Conductance from soil to stem water store
-     ! (mmol m-2 ground area s-1 MPa-1)
-     canopy%ksoil2stem(i) = (1.0 / (1.0 / ksoil + 1.0 / kroot2stem)) * &
-                             canopy%vlaiw(i)
-
-     ! Conductance from stem water store to leaf
-     ! (mmol m-2 ground area s-1 MPa-1)
-     canopy%kstem2leaf(i) = 2.0 * canopy%kplant(i) * canopy%vlaiw(i)
-
-  END SUBROUTINE calc_hydr_conduc
-  ! ----------------------------------------------------------------------------
-
-  ! ----------------------------------------------------------------------------
-  FUNCTION fsig_hydr(psi_stem_prev, X_hyd, p50, s50) RESULT(relk)
-     ! Calculate relative plant conductance as a function of xylem pressure
-     !
-     ! Reference:
-     ! ==========
-     ! * Xu, X., Medvigy, D., Powers, J. S., Becknell, J. M. and Guan, K.
-     !   (2016), Diversity in plant hydraulic traits explains seasonal and
-     !    inter-annual variations of vegetation dynamics in seasonally dry
-     !    tropical forests. New Phytol, 212: 80–95. doi:10.1111/nph.14009.
-     !
-     ! Martin De Kauwe, 3rd June, 2019
-
-     IMPLICIT NONE
-
-     REAL             :: PX, V, p, relk, PX50
-     REAL, INTENT(IN) :: psi_stem_prev, X_hyd, p50, s50
-
-     ! xylem pressure (MPa)
-     PX = ABS(psi_stem_prev)
-
-     ! the xylem pressure (P) x% of the conductivity is lost (MPa)
-     PX50 = ABS(p50)
-
-     V = (X_hyd - 100.) * LOG(1.0 - X_hyd / 100.)
-     p = (PX / PX50)**((PX50 * s50) / V)
-
-     ! relative conductance (K/Kmax) as a funcion of xylem pressure (%)
-     ! (unitless)
-     relk = (1. - X_hyd / 100.)**p
-     !relk = max(1.0e-9, min(1.0, relk))
-
-  END FUNCTION fsig_hydr
-  ! ----------------------------------------------------------------------------
-
-  ! ----------------------------------------------------------------------------
-  SUBROUTINE calc_psi_leaf(canopy, transpiration, dels, Cl, i)
-     ! Calculate the leaf water potential (MPa)
-     !
-     ! Reference:
-     ! ==========
-     ! * Xu, X., Medvigy, D., Powers, J. S., Becknell, J. M. and Guan, K.
-     !   (2016), Diversity in plant hydraulic traits explains seasonal and
-     !    inter-annual variations of vegetation dynamics in seasonally dry
-     !    tropical forests. New Phytol, 212: 80–95. doi:10.1111/nph.14009.
-     !
-     ! Martin De Kauwe, 3rd June, 2019
-
-     USE cable_common_module
-     USE cable_def_types_mod
-
-     IMPLICIT NONE
-
-     TYPE (canopy_type), INTENT(INOUT)    :: canopy
-
-     INTEGER, INTENT(IN) :: i ! patch
-     REAL, INTENT(IN)    :: transpiration ! mmol m-2 ground s-1
-     REAL                :: ap, bp, leaf_capac
-     REAL, PARAMETER     :: psi_leaf_min = -20.0 ! MPa
-     REAL, INTENT(IN)    :: dels ! integration time step (s)
-     REAL, INTENT(IN)    :: Cl ! Leaf capacitance (mmol m-2 leaf MPa-1)
-
-     ! scale up leaf-specific capacitance (mmol m-2 ground area MPa-1 s-1)
-     leaf_capac = Cl * canopy%vlaiw(i)
-
-     ! is there is conductance in the trunk?
-     IF (canopy%kstem2leaf(i)  > 1E-09) THEN
-        ap = - canopy%kstem2leaf(i) / leaf_capac  ! unitless
-        bp = (canopy%psi_stem_prev(i) * &
-              canopy%kstem2leaf(i) - transpiration) / leaf_capac ! MPa
-        canopy%psi_leaf(i) = ((ap * canopy%psi_leaf_prev(i) + bp) *  &
-                              EXP(ap * dels) - bp) / ap  ! MPa
-
-     ! No conductance in the trunk, delta psi_leaf is due to transpiration
-     ELSE
-        canopy%psi_leaf(i) = (canopy%psi_leaf_prev(i) - transpiration * dels) &
-                            / leaf_capac ! MPa
-     ENDIF
-
-     IF (canopy%psi_leaf(i) < psi_leaf_min) THEN
-        canopy%psi_leaf(i) = psi_leaf_min ! MPa
-     ENDIF
-
-  END SUBROUTINE calc_psi_leaf
-  ! ----------------------------------------------------------------------------
-
-  ! ----------------------------------------------------------------------------
-  SUBROUTINE calc_flux_to_leaf(canopy, transpiration, dels, Cl, i)
-     ! Flux from stem to leaf = change in leaf storage, plus transpiration
-     !
-     ! Reference:
-     ! ==========
-     ! * Xu, X., Medvigy, D., Powers, J. S., Becknell, J. M. and Guan, K.
-     !   (2016), Diversity in plant hydraulic traits explains seasonal and
-     !    inter-annual variations of vegetation dynamics in seasonally dry
-     !    tropical forests. New Phytol, 212: 80–95. doi:10.1111/nph.14009.
-     !
-     ! Martin De Kauwe, 3rd June, 2019
-
-     USE cable_common_module
-     USE cable_def_types_mod
-
-     IMPLICIT NONE
-
-     TYPE (canopy_type), INTENT(INOUT)    :: canopy
-
-     REAL                :: leaf_capac
-     REAL, INTENT(IN)    :: transpiration ! mmol m-2 ground s-1
-     REAL, INTENT(IN)    :: Cl ! Leaf capacitance (mmol m-2 leaf MPa-1)
-     REAL, INTENT(IN)    :: dels ! integration time step (s)
-     INTEGER, INTENT(IN) :: i ! patch
-
-     ! scale up leaf-specific capacitance (mmol m-2 ground area MPa-1 s-1)
-     leaf_capac = Cl * canopy%vlaiw(i)
-
-     ! is there conductance in the trunk?
-     IF (canopy%kstem2leaf(i) > 1E-09) THEN
-
-        ! J_sl: sapflow rate from stem to leaf within the time step
-        ! (mmol m−2 s−1)
-        canopy%flx_to_leaf(i) = (canopy%psi_leaf(i) - &
-                                 canopy%psi_leaf_prev(i)) * &
-                                 leaf_capac / dels + transpiration
-
-     ! J_sl: no conductance in the trunk (mmol m−2 s−1)
-     ELSE
-        canopy%flx_to_leaf(i) = 0.0
-     ENDIF
-
-  END SUBROUTINE calc_flux_to_leaf
-  ! ----------------------------------------------------------------------------
-
-  ! ----------------------------------------------------------------------------
-  SUBROUTINE calc_flux_to_stem(canopy, dels, Cs, iveg, i)
-     ! Calculate the flux from the root to the stem, i.e. the root water
-     ! uptake (mmol s-1) = change in stem storage plus flux_to_leaf
-     !
-     ! Martin De Kauwe, 3rd June, 2019
-
-     USE cable_common_module
-     USE cable_def_types_mod
-
-     IMPLICIT NONE
-
-     TYPE (canopy_type), INTENT(INOUT)    :: canopy
-
-     INTEGER, INTENT(IN) :: i ! patch
-     INTEGER, INTENT(IN) :: iveg
-     REAL, INTENT(IN)    :: dels ! integration time step (s)
-     REAL, INTENT(IN)    :: Cs ! Stem capacitance (mmol kg-1 MPa-1)
-     REAL                :: stem_capac ! mmol MPa-1
-
-     ! mmol m-2 MPa-1 s-1
-     stem_capac = Cs * scale_up_stem_capac(canopy%vlaiw(i), iveg)
-
-     IF (canopy%ksoil2stem(i) == 0.0) THEN
-         ! J_sr: plant cannot take up water, change of psi_stem is solely due to
-         ! flux_to_leaf, mmol m−2 s−1
-        canopy%flx_to_stem(i) = 0.0
-     ELSE
-        ! J_sr: plant can take up water
-        ! (mmol m−2 s−1)
-        canopy%flx_to_stem(i) = (canopy%psi_stem(i) - &
-                                 canopy%psi_stem_prev(i)) * &
-                                 stem_capac / dels + canopy%flx_to_leaf(i)
-     ENDIF
-
-  END SUBROUTINE calc_flux_to_stem
-  ! ----------------------------------------------------------------------------
-
-  ! ----------------------------------------------------------------------------
-  SUBROUTINE calc_psi_stem(canopy, dels, Cs, p50, iveg, i)
-     ! Calculate the stem water potential (MPa)
-     !
-     ! Reference:
-     ! ==========
-     ! * Xu, X., Medvigy, D., Powers, J. S., Becknell, J. M. and Guan, K.
-     !   (2016), Diversity in plant hydraulic traits explains seasonal and
-     !    inter-annual variations of vegetation dynamics in seasonally dry
-     !    tropical forests. New Phytol, 212: 80–95. doi:10.1111/nph.14009.
-     !
-     ! Martin De Kauwe, 3rd June, 2019
-
-     USE cable_common_module
-     USE cable_def_types_mod
-
-     IMPLICIT NONE
-
-     TYPE (canopy_type), INTENT(INOUT)    :: canopy
-
-     REAL, INTENT(IN)    :: dels ! integration time step (s)
-     REAL, INTENT(IN)    :: Cs ! Stem capacitance (mmol kg-1 MPa-1)
-     REAL, INTENT(IN)    :: p50
-     REAL                :: stem_capac, ap, bp, psi_stem_min
-     INTEGER, INTENT(IN) :: i ! patch
-     INTEGER, INTENT(IN) :: iveg
-
-     psi_stem_min = 2.0 * p50 ! MPa
-
-     ! mmol m-2 MPa-1 s-1
-     stem_capac = Cs * scale_up_stem_capac(canopy%vlaiw(i), iveg)
-
-     ! Plant cannot take up water, change of psi_stem is solely due to
-     ! flux_to_leaf (J_rl), MPa
-     IF (canopy%ksoil2stem(i) == 0.0) THEN
-        canopy%psi_stem(i) = canopy%psi_stem_prev(i) - canopy%flx_to_leaf(i) * &
-                              dels / stem_capac
-
-     ! plant can take up water
-     ELSE
-        ap = - canopy%ksoil2stem(i) / stem_capac ! unitless
-        bp = (canopy%ksoil2stem(i) * &
-              canopy%psi_soil_prev(i) - canopy%flx_to_leaf(i)) / stem_capac !MPa
-        canopy%psi_stem(i) = ((ap * canopy%psi_stem_prev(i) + bp) * &
-                             EXP(ap * dels) - bp) / ap  ! MPa
-
-     ENDIF
-
-     IF (canopy%psi_stem(i) < psi_stem_min) THEN
-        canopy%psi_stem(i) = psi_stem_min ! MPa
-     ENDIF
-
-  END SUBROUTINE calc_psi_stem
-  ! ----------------------------------------------------------------------------
-
-  ! ----------------------------------------------------------------------------
-  SUBROUTINE calc_flux_to_stem_again(canopy, dels, Cs, transpiration, iveg, i)
-     ! Calculate the flux from the root to the stem, i.e. the root water
-     ! uptake (mmol s-1) = change in stem storage plus flux_to_leaf
-     !
-     ! Martin De Kauwe, 3rd June, 2019
-
-     USE cable_common_module
-     USE cable_def_types_mod
-
-     IMPLICIT NONE
-
-     TYPE (canopy_type), INTENT(INOUT)    :: canopy
-
-     INTEGER, INTENT(IN) :: i ! patch
-     INTEGER, INTENT(IN) :: iveg
-     REAL, INTENT(IN)    :: dels ! integration time step (s)
-     REAL, INTENT(IN)    :: Cs ! Stem capacitance (mmol kg-1 MPa-1)
-     REAL, INTENT(IN)    :: transpiration ! mmol m-2 ground s-1
-     REAL                :: stem_capac
-
-     ! mmol m-2 MPa-1 s-1
-     stem_capac = Cs * scale_up_stem_capac(canopy%vlaiw(i), iveg)
-
-     ! J_sr: plant cannot take up water, change of psi_stem is solely due to
-     ! flux_to_leaf (J_rl), mmol m−2 s−1
-     IF (canopy%ksoil2stem(i) == 0.0) THEN
-        canopy%flx_to_stem(i) = 0.0
-     ELSE
-        ! J_sr: plant can take up water,  mmol m−2 s−1
-        canopy%flx_to_stem(i) = (canopy%psi_stem(i) - &
-                                 canopy%psi_stem_prev(i)) * &
-                                 stem_capac / dels + transpiration
-     ENDIF
-
-  END SUBROUTINE calc_flux_to_stem_again
-  ! ----------------------------------------------------------------------------
-
-  ! ----------------------------------------------------------------------------
-  SUBROUTINE calc_psi_stem_again(canopy, dels, Cs, Cl, transpiration, p50, &
-                                 iveg, i)
-     ! Calculate the stem water potential (MPa)
-     !
-     ! Reference:
-     ! ==========
-     ! * Xu, X., Medvigy, D., Powers, J. S., Becknell, J. M. and Guan, K.
-     !   (2016), Diversity in plant hydraulic traits explains seasonal and
-     !    inter-annual variations of vegetation dynamics in seasonally dry
-     !    tropical forests. New Phytol, 212: 80–95. doi:10.1111/nph.14009.
-     !
-     ! Can write the dynamic equation as: dpsi_leaf_dt = b + a*psi_leaf
-     ! Then it follows (Xu et al. 2016, Appendix, and Code).”
-     !
-     ! Martin De Kauwe, 3rd June, 2019
-
-     USE cable_common_module
-     USE cable_def_types_mod
-
-     IMPLICIT NONE
-
-     TYPE (canopy_type), INTENT(INOUT)    :: canopy
-
-     REAL                :: ap, bp, total_capac, stem_capac, leaf_capac
-     REAL                :: psi_stem_min
-     REAL, INTENT(IN)    :: dels ! integration time step (s)
-     REAL, INTENT(IN)    :: Cs ! Stem capacitance (mmol kg-1 MPa-1)
-     REAL, INTENT(IN)    :: Cl ! Leaf capacitance (mmol m-2 leaf MPa-1)
-     REAL, INTENT(IN)    :: p50
-     REAL, INTENT(IN)    :: transpiration ! mmol m-2 ground s-1
-     INTEGER, INTENT(IN) :: i ! patch
-     INTEGER, INTENT(IN) :: iveg
-
-     psi_stem_min = 2.0 * p50
-
-     ! scale up leaf-specific capacitance (mmol m-2 ground area MPa-1 s-1)
-     leaf_capac = Cl * canopy%vlaiw(i)
-
-     ! mmol m-2 MPa-1 s-1
-     stem_capac = Cs * scale_up_stem_capac(canopy%vlaiw(i), iveg)
-
-     ! mmol m-2 MPa-1 s-1
-     total_capac = stem_capac + leaf_capac
-
-     ! J_sr: plant cannot take up water, change of psi_stem is solely due to
-     ! flux_to_leaf (J_rl)
-     IF (canopy%ksoil2stem(i) == 0.0) THEN
-        canopy%psi_stem(i) = canopy%psi_stem_prev(i) - &
-                             transpiration * dels / total_capac ! MPa
-
-     ! plant can take up water
-     ELSE
-        ap = - canopy%ksoil2stem(i) / total_capac ! unitless
-        bp = (canopy%ksoil2stem(i) * &
-              canopy%psi_soil_prev(i) - transpiration) / total_capac ! MPa
-        canopy%psi_stem(i) = ((ap * canopy%psi_stem_prev(i) + bp) * &
-                             EXP(ap * dels) - bp) / ap  ! MPa
-
-     ENDIF
-
-
-     IF (canopy%psi_stem(i) < psi_stem_min) THEN
-        canopy%psi_stem(i) = psi_stem_min ! MPa
-     ENDIF
-
-  END SUBROUTINE calc_psi_stem_again
-  ! ----------------------------------------------------------------------------
-
-  FUNCTION scale_up_stem_capac(lai, iveg) RESULT(capac_conv)
-     ! Calculate relative plant conductance as a function of xylem pressure
-     !
-     ! References:
-     ! ==========
-     ! * Togashi et al. (2015) Morphological and moisture availability controls
-     !   of the leaf area‐to‐sapwood area ratio: analysis of measurements on
-     !   Australian trees. Ecology and Evolution, 5, 1263–1270.
-     ! * Simard et al. ( 2011) Mapping forest canopy height globally with
-     !   spaceborne lidar, J. Geophys. Res., 116, G04021.
-     ! * Bowman et al. (2005) Sap flow rates and sapwood density are critical
-     !   factors in within‐ and between‐tree variation in CO2 efflux from stems
-     !   of mature Dacrydium cupressinum trees. New Phytologist, 167: 815-828.
-     !
-     ! Martin De Kauwe, 16th September, 2019
-
-     IMPLICIT NONE
-
-     REAL, INTENT(IN)    :: lai ! m2 m-2
-     INTEGER, INTENT(IN) :: iveg
-     REAL                :: stem_capac, la_sa, height, sapwood_density
-     REAL                :: capac_conv
-
-     ! Heights from Simard et al. and sampling where our 5 veg classes are
-     ! get_veg_class_heights.py
-
-     ! la_sa from Li et al. 2019, Functional Ecology, 1–15.
-     ! units are incorrect, need to divide by 4 and convert cm2 to m2
-     ! e.g. ( 1.0 / ( (HV / 4) * 0.0001)
-
-     ! Sapwood density from Li et al. 2018, Plant Cell Environ. 41:646–660.
-
-     IF (iveg .EQ. 18) THEN ! RF
-        height = 32.0 ! m
-        sapwood_density = 540.0 ! kg m-3
-        la_sa = 10000.0 ! m2 m-2
-     ELSE IF (iveg .EQ. 19) THEN ! WSF
-        height = 29.0 ! m
-        sapwood_density = 355.0 ! kg m-3
-        la_sa = 9434.74 ! m2 m-2
-     ELSE IF (iveg .EQ. 20) THEN ! DSF
-        height = 25.0 ! m
-        sapwood_density = 460.0 ! kg m-3
-        la_sa = 7908.55 ! m2 m-2
-     ELSE IF (iveg .EQ. 21) THEN ! GRW
-        height = 11.0 ! m
-        sapwood_density = 436.67 ! kg m-3
-        la_sa = 6139.23 ! m2 m-2
-     ELSE IF (iveg .EQ. 22) THEN ! SAW
-        height = 7.0 ! m
-        sapwood_density = 613.33 ! kg m-3
-        la_sa = 2556.9 ! m2 m-2
-     ENDIF
-
-     ! scalar to convert stem capacitance. We are broadly matching
-     ! the spirit of Xu et al. but dropping the root capacitance they include.
-     ! We could of course include this but given this is pretty rough, this
-     ! seems OK
-     capac_conv = lai * height / la_sa * sapwood_density ! kg m-2
-
-  END FUNCTION scale_up_stem_capac
-  ! ----------------------------------------------------------------------------
 
   FUNCTION calc_plc(kplant, kp_sat) RESULT(plc)
      ! Calculates the percent loss of conductivity, PLC (-)
@@ -3549,6 +3051,475 @@ CONTAINS
      plc = max(1.0e-9, min(100.0, plc))
 
    END FUNCTION calc_plc
-   ! ----------------------------------------------------------------------------
+   ! ---------------------------------------------------------------------------
+
+   ! ---------------------------------------------------------------------------
+   SUBROUTINE optimisation(canopy, rad, ssnow, qcan, vpd, press, tleaf, csx, lai_leaf, &
+                           psi_soil, Rsr, Kcmax, Kmax, Kcrit, b_plant, &
+                           c_plant, N, vcmxt3, ejmxt3, rdx, vx3, cx1, &
+                           an_canopy, e_canopy, gmin, p, i)
+
+      ! Optimisation wrapper for the ProfitMax model. The Sperry model
+      ! assumes that plant maximises the normalised (0-1) difference
+      ! between the relative gain and relative hydraulic risk at every timestep
+      !
+      ! Implementation broadly follows Manon's code.
+      !
+      ! References:
+      ! -----------
+      ! * Sperry JS, Venturas MD, Anderegg WRL, Mencuccini M, Mackay DS,
+      !   Wang Y, Love DM. 2017. Predicting stomatal responses to the
+      !   environment from the optimization of photosynthetic gain and
+      !   hydraulic cost. Plant, Cell & Environment 40: 816–830.
+      !
+      ! * Sabot, M.E.B., De Kauwe, M.G., Pitman, A.J., Medlyn, B.E.,
+      !   Verhoef, A., Ukkola, A.M. and Abramowitz, G. (2020), Plant profit
+      !   maximization improves predictions of European forest responses to
+      !   drought. New Phytol, 226: 1638-1655. doi:10.1111/nph.16376
+      !
+      ! Martin De Kauwe, 27th August, 2020
+
+      USE cable_def_types_mod
+      USE cable_common_module
+
+      IMPLICIT NONE
+
+      TYPE (canopy_type), INTENT(INOUT) :: canopy
+      TYPE (radiation_type), INTENT(INOUT) :: rad
+       TYPE (soil_snow_type), INTENT(INOUT)      :: ssnow
+      INTEGER, INTENT(IN) :: i, N
+      INTEGER :: j, k, idx
+
+      REAL, INTENT(IN) :: cx1, Kmax, Kcrit, b_plant, c_plant, vpd, press, tleaf
+      REAL, INTENT(IN) :: gmin
+      REAL(r_2), INTENT(IN) :: psi_soil, Rsr
+      REAL, INTENT(INOUT) :: e_canopy
+      REAL, DIMENSION(mf), INTENT(INOUT) :: an_canopy, Kcmax
+      REAL(r_2), DIMENSION(mp,mf), INTENT(IN) :: csx
+      REAL, DIMENSION(mp,mf,nrb), INTENT(IN) :: qcan
+      REAL(r_2), DIMENSION(N), INTENT(INOUT) :: p
+      REAL(r_2), DIMENSION(N) :: p_potentials
+      REAL, DIMENSION(N) :: Ci, Ac, Aj, A, an_leaf, gsc
+      LOGICAL, DIMENSION(N) ::  mask
+      REAL, DIMENSION(mp,mf), INTENT(IN) :: vcmxt3, ejmxt3, rdx, vx3, lai_leaf
+      REAL, DIMENSION(N) :: Kc, e_leaf, cost, gain, profit
+      REAL :: p_crit, lower, upper, Cs, apar
+      REAL :: J_TO_MOL, MOL_TO_UMOL, gsw, Vcmax, Jmax, Rd, Vj, Km
+      REAL, DIMENSION(mf) :: e_leaves, p_leaves
+      REAL :: Kplant, Rsrl, e_cuticular, gamma_star
+      REAL, PARAMETER :: MMOL_2_MOL = 0.001
+      REAL, PARAMETER :: MOL_TO_MMOL = 1E3
+      REAL, DIMENSION(2)  :: fsun
+
+      logical :: bounded_psi
+      bounded_psi = .false.!.false.
+
+      MOL_TO_UMOL = 1E6
+      J_TO_MOL = 4.6E-6  ! Convert from J to Mol for light
+
+      !  Michaelis Menten coefficient, umol m-2 s-1
+      Km = cx1 * MOL_TO_UMOL
+
+      ! Canopy xylem pressure (P_crit) MPa, beyond which tree
+      ! desiccates (Ecrit), MPa
+      p_crit = -b_plant * log(Kmax / Kcrit)**(1.0 / c_plant)
+
+
+
+      ! Loop over sunlit,shaded parts of the canopy and solve the carbon uptake
+      ! and transpiration
+      DO j=1, 2
+
+         fsun(j) = rad%fvlai(i,j) / canopy%vlaiw(i)
+
+         ! Convert total soil-to-root resistance from ...
+         ! MPa s m2 (ground) mmol-1 H2O -> MPa s m2 (leaf) mmol-1 H2O
+         IF (lai_leaf(i,j) > 0.0) THEN
+            Rsrl = Rsr * lai_leaf(i,j)
+         ELSE
+            Rsrl = Rsr
+         END IF
+
+         ! Total soil–plant hydraulic conductance (combined assuming
+         ! resistances are coupled in parallel)
+         ! mmol m-2 MPa-1 leaf s-1
+         !Kplant = 1.0 / (1.0 / Kmax + Rsrl)
+         Kplant = Kmax
+
+         ! CO2 concentration at the leaf surface, umol m-2 -s-1
+         Cs = csx(i,j) * MOL_TO_UMOL
+
+         gamma_star = 0.0 ! cable says it is 0
+
+         ! Generate a sequence of Ci's that we will solve the optimisation
+         ! model for, range btw gamma_star and Cs. umol mol-1
+         lower = gamma_star
+         upper = Cs
+         DO k=1, N
+            Ci(k)  = lower + float(k) * (upper - lower) / float(N-1)
+         END DO
+
+         ! absorbed par for the sunlit or shaded leaf, umol m-2 -s-1
+         apar = qcan(i,j,1) * J_TO_MOL * MOL_TO_UMOL
+
+         ! max rate of rubisco activity, scaled up to sunlit/shaded canopy
+         Vcmax = vcmxt3(i,j) * MOL_TO_UMOL
+
+         ! potential rate of electron transport, scaled up to sun/shade canopy
+         Jmax = ejmxt3(i,j) * MOL_TO_UMOL
+
+         ! day respiration, scaled up to sunlit/shaded canopy
+         Rd = rdx(i,j) * MOL_TO_UMOL
+
+         ! Rate of electron transport (NB this is = J/4)
+         Vj = vx3(i,j) * MOL_TO_UMOL
+
+         ! If there is bugger all light, assume there are no fluxes
+         IF (apar < 50) THEN
+            ! load into stores
+            an_canopy = 0.0 ! umol m-2 s-1
+            e_canopy = 0.0 ! mol H2O m-2 s-1
+            canopy%psi_leaf(i) = canopy%psi_leaf_prev(i) ! MPa
+         ELSE
+
+            ! Calculate the sunlit/shaded A_leaf (i.e. scaled up), umol m-2 s-1
+            Ac = assim(Ci, gamma_star, Vcmax, Km) ! umol m-2 s-1
+            Aj = assim(Ci, gamma_star, Vj, 2.0*gamma_star) ! umol m-2 s-1
+            A = -QUADP(1.0-1E-04, Ac+Aj, Ac*Aj) ! umol m-2 s-1
+            an_leaf = A - Rd ! Net photosynthesis, umol m-2 s-1
+
+            ! Use an_leaf to infer gsc_sun/sha. NB. An is the scaled up values
+            ! via scalex
+            gsc = an_leaf / (Cs - Ci) ! mol CO2 m-2 s-1
+
+            ! Assuming perfect coupling, infer E_sun/sha from gsc. NB. as we're
+            ! iterating, Tleaf will change and so VPD, maintaining energy
+            ! balance
+            e_leaf = gsc * C%RGSWC / press * vpd ! mol H2O m-2 s-1
+
+            ! MPa
+            p = calc_psi_leaf(ssnow%weighted_psi_soil(i), e_leaf, &
+                              rad%scalex(i,j), Kplant, N)
+
+            ! Ensure we don't check for profit in bad psi_leaf search space
+            where (p >= ssnow%weighted_psi_soil(i) .OR. p <= p_crit)
+                mask = .FALSE.
+            elsewhere
+                mask = .TRUE.
+            end where
+
+            ! Soil–plant hydraulic conductance at canopy xylem pressure,
+            ! mmol m-2 s-1 MPa-1
+            Kc = Kplant * get_xylem_vulnerabilityx(p, b_plant, c_plant)
+
+            ! Plant hydraulic conductance (mmol m-2 leaf s-1 MPa-1)
+            kcmax(j) = Kplant * get_xylem_vulnerability(psi_soil, b_plant, &
+                                                        c_plant)
+
+            ! normalised gain (-)
+            gain = an_leaf / MAXVAL(an_leaf, mask=mask)
+
+            ! normalised cost (-)
+            cost = (kcmax(j) - Kc) / (kcmax(j) - Kcrit)
+
+            ! Locate maximum profit
+            profit = gain - cost
+            idx = MAXLOC(profit, 1, mask=mask)
+
+            ! load into stores
+            an_canopy(j) = an_leaf(idx) ! umol m-2 s-1
+            e_leaves(j) = e_leaf(idx) ! mol H2O m-2 s-1
+            p_leaves(j) = p(idx)
+
+            ! scale up cuticular conductance, mol H2O m-2 s-1
+            !e_cuticular = gmin * MMOL_2_MOL * rad%scalex(i,j) / press * vpd
+            !!!!!!e_cuticular = gmin * MMOL_2_MOL * rad%scalex(i,j) * vpd
+            ! Don't add gmin, instead use it as the lower boundary
+            !IF (e_leaves(j) < e_cuticular) THEN
+            !   e_leaves(j) = e_cuticular ! mol H2O m-2 s-1
+            !END IF
+
+
+         END IF
+      END DO
+
+
+      ! If there was light, save transpiration, NB. cable doesn't save
+      ! individual sunlit/shaded transpiration
+      IF (apar > 50) THEN
+
+         !canopy%psi_leaf(i) = sum(p_leaves) / 2.0 ! MPa
+         canopy%psi_leaf(i) = (p_leaves(1) * fsun(1)) + (p_leaves(2) * fsun(2))
+         canopy%psi_leaf_prev(i) = canopy%psi_leaf(i) ! MPa
+         canopy%psi_soil_prev(i) = psi_soil ! MPa
+
+         !if (canopy%psi_soil_prev(i) < -0.5) then
+         !    print*, "out", an_canopy(1), e_leaves(1), an_canopy(2), e_leaves(2), canopy%psi_leaf(i), p_leaves(1), p_leaves(2)
+         !    stop
+         !end if
+
+         e_canopy = sum(e_leaves) ! mol H2O m-2 s-1
+
+
+
+      END IF
+
+
+
+   END SUBROUTINE optimisation
+   ! ---------------------------------------------------------------------------
+
+   ! ---------------------------------------------------------------------------
+   FUNCTION calc_psi_leaf(psi_soil, e_leaf, scalex, Kplant, N) RESULT(psi_leaf)
+
+      ! Calculation the approximate matching psi_leaf from the transpiration
+      ! array
+      !
+      ! Martin De Kauwe, 3rd March, 2020
+      USE cable_def_types_mod
+      USE cable_common_module
+
+      IMPLICIT NONE
+
+      INTEGER, INTENT(IN) :: N
+
+      REAL(r_2) :: psi_soil
+      REAL, DIMENSION(N) :: eleaf_mmol
+      REAL, INTENT(IN) :: Kplant, scalex
+      REAL, INTENT(IN), DIMENSION(N) :: e_leaf
+      REAL, DIMENSION(N) :: psi_leaf
+      REAL, PARAMETER :: MOL_TO_MMOL = 1E3
+
+      ! Rescale from canopy to leaf..as e_leaf is E_sun/sha i.e. big-leaf to
+      ! unit leaf, mmol m-2 s-1
+      eleaf_mmol = e_leaf * MOL_TO_MMOL / scalex
+
+      ! Infer the matching leaf water potential (MPa).
+      psi_leaf = psi_soil - eleaf_mmol / Kplant
+
+      !psi_leaf = psi_soil - ((e_leaf * MOL_TO_MMOL) / &
+      !         scalex ) / Kplant
+
+
+   END FUNCTION calc_psi_leaf
+   ! ---------------------------------------------------------------------------
+
+   ! ---------------------------------------------------------------------------
+   FUNCTION assim(Ci, gamma_star, a1, a2) RESULT(assimilation)
+
+      ! Calculation of photosynthesis with the limitation defined by the
+      ! variables passed as a1 and a2, i.e. if we are calculating vcmax or
+      ! jmax limited assimilation rates.
+      !
+      ! Martin De Kauwe, 27th August, 2020
+      IMPLICIT NONE
+      REAL, DIMENSION(:), INTENT(IN) :: Ci
+      REAL, INTENT(IN) :: gamma_star, a1, a2
+      REAL, DIMENSION( SIZE(Ci) ) :: assimilation
+
+      assimilation = a1 * (Ci - gamma_star) / (a2 + Ci)
+
+   END FUNCTION assim
+   ! ---------------------------------------------------------------------------
+
+   !**********************************************************************
+   FUNCTION QUADP(A,B,C) RESULT(root)
+   ! Solves the quadratic equation - finds larger root.
+   !**********************************************************************
+
+       IMPLICIT NONE
+       REAL :: A
+       REAL, DIMENSION(:), INTENT(IN) :: B,C
+       REAL, DIMENSION( SIZE(B) ) :: root, d
+       INTEGER IQERROR
+
+       !IQERROR = 0
+
+       d = B*B - 4.0 * A * C ! discriminant
+       where (d < 0.0)
+          root = 0.0
+       end where
+
+
+       root = (- B + SQRT(B*B - 4*A*C)) / (2.*A)
+       where (A == 0.0 .AND. B  == 0.0)
+          root = 0.0
+       elsewhere (A == 0.0 .AND. B > 0.0)
+          root = -C/B
+       end where
+
+   END FUNCTION QUADP
+   ! ---------------------------------------------------------------------------
+
+   ! ---------------------------------------------------------------------------
+   FUNCTION calc_transpiration(p, N, Kmax, b_plant, c_plant) RESULT(e_leaf)
+
+      ! At steady-state, transpiration is the integral of the plant's
+      ! vulnerability curve from zero (no cuticular conductance) to its
+      ! maximum (e_crit) (Sperry & Love 2015). By integrating across the
+      ! soil–plant vulnerability curve, the relation between transpiration and
+      ! a given total pressure drop can be found.
+      !
+      ! Martin De Kauwe, 27th August, 2020
+
+      USE cable_def_types_mod
+      USE cable_common_module
+
+      IMPLICIT NONE
+
+      REAL(r_2), DIMENSION(N), INTENT(IN) :: p
+      REAL, INTENT(IN) :: b_plant, c_plant, Kmax
+      REAL, DIMENSION(N) :: e_leaf
+      REAL, PARAMETER :: MMOL_2_MOL = 1E-03
+
+      INTEGER, INTENT(IN) :: N
+      INTEGER :: h
+
+      ! integrate over the full range of water potentials from psi_soil to
+      ! e_crit
+      DO h=1, N
+         e_leaf(h) = integrate_vulnerability(N, p(h), p(1), b_plant, c_plant)
+         IF (e_leaf(h) > 1.0E-09) then
+            e_leaf(h) = e_leaf(h) * Kmax * MMOL_2_MOL ! mol m-2 s-1
+         END IF
+      END DO
+
+   END FUNCTION calc_transpiration
+   ! ---------------------------------------------------------------------------
+
+   ! ---------------------------------------------------------------------------
+   FUNCTION get_xylem_vulnerabilityx(p, b_plant, c_plant) RESULT(weibull)
+
+      ! Calculate the vulnerability to cavitation using a Weibull function
+      !
+      ! Martin De Kauwe, 27th August, 2020
+
+      USE cable_def_types_mod
+      USE cable_common_module
+
+      IMPLICIT NONE
+      REAL(r_2), DIMENSION(:), INTENT(IN) :: p
+
+      REAL, INTENT(IN) :: b_plant, c_plant
+      REAL, DIMENSION( SIZE(p) ) :: weibull
+
+
+      weibull = max(1.0E-09, exp(-(-p / b_plant)**c_plant))
+
+   END FUNCTION get_xylem_vulnerabilityx
+   ! ---------------------------------------------------------------------------
+
+   ! ---------------------------------------------------------------------------
+   FUNCTION get_xylem_vulnerability(p, b_plant, c_plant) RESULT(weibull)
+
+      ! Calculate the vulnerability to cavitation using a Weibull function
+      !
+      ! Martin De Kauwe, 27th August, 2020
+
+      USE cable_def_types_mod
+      USE cable_common_module
+
+      IMPLICIT NONE
+
+      REAL(r_2), INTENT(IN) :: p
+      REAL, INTENT(IN) :: b_plant, c_plant
+      REAL :: weibull
+
+      weibull = max(1.0E-09, exp(-(-p / b_plant)**c_plant))
+
+   END FUNCTION get_xylem_vulnerability
+   ! ---------------------------------------------------------------------------
+
+   ! ---------------------------------------------------------------------------
+   FUNCTION integrate_vulnerability(N, a, b, b_plant, c_plant) RESULT(value2)
+
+      ! Approximate the integration with the mid-point rule
+      !
+      ! Martin De Kauwe, 27th August, 2020
+
+      USE cable_def_types_mod
+      USE cable_common_module
+
+      IMPLICIT NONE
+
+      REAL :: value1, value2
+      REAL(r_2), INTENT(IN) :: a, b
+      REAL, INTENT(IN) :: b_plant, c_plant
+      INTEGER, INTENT(IN) :: N
+      INTEGER :: h
+
+      value1 = 0.0
+      value2 = 0.0
+
+      DO h=1, N+1
+         value1 = value1 + &
+                  get_xylem_vulnerability(a + ((n - 0.5) * ((b - a) /&
+                                          float(N))), b_plant, c_plant)
+      END DO
+      value2 = ((b - a) / float(N)) * value1
+
+   END FUNCTION integrate_vulnerability
+   ! ---------------------------------------------------------------------------
+
+   ! ---------------------------------------------------------------------------
+   FUNCTION calc_michaelis_menten_constants(Tleaf) RESULT(Km)
+
+      REAL :: Kc, Ko, Km, Kc25, Ko25, Ec, Eo, Oi
+      REAL, INTENT(IN) :: tleaf
+
+      ! Michaelis-Menten coefficents for carboxylation by Rubisco at
+      ! 25degC [umol mol-1] or 298 K
+      Kc25 = 404.9
+
+      ! Michaelis-Menten coefficents for oxygenation by Rubisco at
+      ! 25degC [mmol mol-1]. Note value in Bernacchie 2001 is in mmol!!
+      ! or 298 K
+      Ko25 = 278.4
+
+      ! Activation energy for carboxylation [J mol-1]
+      Ec = 79430.0
+
+      ! Activation energy for oxygenation [J mol-1]
+      Eo = 36380.0
+
+      ! intercellular concentration of O2 [mmol mol-1]
+      Oi = 210.0
+
+      Kc = arrh(Kc25, Ec, Tleaf)
+      Ko = arrh(Ko25, Eo, Tleaf)
+
+      Km = Kc * (1.0 + Oi / Ko)
+
+   END FUNCTION calc_michaelis_menten_constants
+   ! ---------------------------------------------------------------------------
+
+   ! ---------------------------------------------------------------------------
+   FUNCTION arrh(k25, Ea, Tk) RESULT(a)
+
+      REAL :: k25, Ea, Tk, a
+      REAL, PARAMETER :: RGAS = 8.314
+
+      a = k25 * exp((Ea * (Tk - 298.15)) / (298.15 * RGAS * Tk))
+
+   END FUNCTION arrh
+   ! ---------------------------------------------------------------------------
+
+   ! ---------------------------------------------------------------------------
+   FUNCTION peaked_arrh(k25, Ea, Tk, deltaS, Hd) RESULT(pa)
+
+      REAL :: k25, Ea, Tk, deltaS, Hd, pa, arg1, arg2, arg3
+      REAL, PARAMETER :: RGAS = 8.314
+
+      arg1 = arrh(k25, Ea, Tk)
+      arg2 = 1.0 + exp((298.15 * deltaS - Hd) / (298.15 * RGAS))
+      arg3 = 1.0 + exp((Tk * deltaS - Hd) / (Tk * RGAS))
+
+      pa = arg1 * arg2 / arg3
+
+   END FUNCTION peaked_arrh
+   ! ---------------------------------------------------------------------------
+
+
+
 
 END MODULE cable_canopy_module

@@ -1602,7 +1602,7 @@ CONTAINS
     REAL(r_2), DIMENSION(mp)      :: demand, supply, difference
     INTEGER k, i
 
-    IF (cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+    IF (cable_user%FWSOIL_SWITCH == 'profitmax') THEN
        ! This follows the default extraction logic, but instead of weighting
        ! by froot, we are weighting by the frac uptake we calculated when we
        ! were weighting the soil water potential.
@@ -2210,6 +2210,7 @@ CONTAINS
              Sr(j,k) = MIN( 0.9999 , &
                   MAX(0., ssnow%wb(j,k)-soil%watr(j,k))/(soil%ssat_vec(j,k)-soil%watr(j,k)) )
 
+
              !frozen or not?
              IF (Sr(j,k) .GE. 0.05) THEN
                 Ke(j,k) = 0.7*LOG10(Sr(j,k)) + 1.0
@@ -2608,6 +2609,7 @@ CONTAINS
      REAL, PARAMETER :: TINY_NUMBER = 1E-35
      REAL, PARAMETER :: HUGE_NUMBER = 1E35
      REAL, PARAMETER :: BIG_NUMBER = 1E9
+     REAL, PARAMETER :: SMALL_NUMBER = 1E-9
 
      REAL, DIMENSION(ms) :: depth
      REAL                :: root_mass, rs, Ksoil, root_biomass, root_depth
@@ -2636,6 +2638,8 @@ CONTAINS
      !root_biomass = 1443.0 * gC2DM ! EBF value
      root_biomass = 832.0 * gC2DM ! Eucface value
 
+     !root_biomass = 318.9 * gC2DM ! Spruce experiment
+
      ! sensitivity experiment values
      !root_biomass = 200. * gC2DM ! Range from Williams 2001, 200-1000
      !root_biomass = 400. * gC2DM ! Range from Williams 2001, 200-1000
@@ -2655,15 +2659,8 @@ CONTAINS
      DO j = 1, ms ! Loop over 6 soil layers
 
         ! Soil Hydraulic conductivity (m s-1), Campbell 1974
-        IF (ssnow%wb(i,j) < 0.05) then ! avoid underflow problem
-           Ksoil = TINY_NUMBER
-        ELSE
-           Ksoil = soil%hyds(i) * (ssnow%wb(i,j) / &
-                     soil%ssat(i))**(2.0 * soil%bch(i) + 3.0)
-           ! Not sure why, but Remko has the exponent written differently...
-           !Ksoil = soil%hyds(i) * (ssnow%wb(i,j) / &
-           !         soil%ssat(i))**(2.0 + soil%bch(i) / 3.0)
-        ENDIF
+        Ksoil = soil%hyds(i) * &
+                     (ssnow%wb(i,j) / soil%ssat(i))**(2.0 * soil%bch(i) + 3.0)
 
         ! converts from m s-1 to m2 s-1 MPa-1
         Ksoil = Ksoil / head
@@ -2671,8 +2668,10 @@ CONTAINS
         ! Calculate soil-root hydraulic resistance
 
         ! prevent floating point error
-        IF (Ksoil < TINY_NUMBER) THEN
-           ssnow%soilR(i,j) = HUGE_NUMBER
+        !IF (Ksoil < TINY_NUMBER) THEN
+        IF (Ksoil < SMALL_NUMBER) THEN
+           !ssnow%soilR(i,j) = HUGE_NUMBER
+           ssnow%soilR(i,j) = BIG_NUMBER
            rsum = rsum + ( 1.0 / ssnow%soilR(i,j) )
         ELSE
 
@@ -2690,7 +2689,7 @@ CONTAINS
            ! (Gardner 1960, Newman 1969)
            rs = SQRT(1.0 / (root_length(j) * pi))
 
-           ! Soil-to-root resistance (MPa s m2 mmol-1 H2O)
+           ! Soil-to-root resistance (MPa s m2 (ground) mmol-1 H2O)
            soil_resist = LOG(rs / root_radius) / &
                          (2.0 * pi * root_length(j) * soil%zse(j) * Ksoil)
 
@@ -2701,21 +2700,23 @@ CONTAINS
            ! resistance (is part of plant resistance)
            ! MPa s m2 mmol-1 H2O
            ssnow%soilR(i,j) = soil_resist !+ root_resist
+
+
         END IF
 
-        !print*, "DEBUG soilR:", j,  ssnow%soilR(i,j), Ksoil, root_mass, root_length(j), soil_resist
+        !print*, "DEBUG soilR:", j,  ssnow%soilR(i,j), Ksoil, root_mass, root_biomass , rsum
 
-        IF (ssnow%soilR(i,j) .GT. 0.0) THEN
-           ! Need to combine resistances in parallel, but we only want the
-           ! soil term as the root component is part of the plant resistance
-           rsum = rsum + ( 1.0 / ssnow%soilR(i,j) )
-        ENDIF
+
+        ! Need to combine resistances in parallel, but we only want the
+        ! soil term as the root component is part of the plant resistance
+        rsum = rsum + ( 1.0 / ssnow%soilR(i,j) )
 
      END DO
 
-     ! rsum calc above is 1/rsum, as we're combining in parallel, turn back into
-     ! resistance (MPa s m2 mmol-1 H2O)
-     ssnow%tot_bg_resist(i) = 1.0 / rsum
+     ! rsum calc above is 1/rsum (i.e. conductance(, as we're combining in
+     ! parallel, turn back into resistance (MPa s m2 mmol-1 H2O)
+     ssnow%Rsr(i) = 1.0 / rsum
+
 
   END SUBROUTINE calc_soil_root_resistance
   ! ----------------------------------------------------------------------------
@@ -2762,7 +2763,7 @@ CONTAINS
   ! ----------------------------------------------------------------------------
 
   ! ----------------------------------------------------------------------------
-  SUBROUTINE calc_weighted_swp_and_frac_uptake(ssnow, soil, canopy, &
+  SUBROUTINE calc_weighted_swp_and_frac_uptake(ssnow, soil, canopy, veg, &
                                                root_length, i)
      !
      ! Determine weighted SWP given the the maximum rate of water supply from
@@ -2783,6 +2784,7 @@ CONTAINS
      TYPE (soil_snow_type), INTENT(INOUT)      :: ssnow
      TYPE (soil_parameter_type), INTENT(INOUT) :: soil
      TYPE(canopy_type), INTENT(INOUT)          :: canopy ! vegetation variables
+     TYPE(veg_parameter_type), INTENT(IN)      :: veg
 
      REAL, PARAMETER :: MM_TO_M = 0.001
      REAL, PARAMETER :: KPA_2_MPa = 0.001
@@ -2794,7 +2796,7 @@ CONTAINS
 
      REAL, DIMENSION(ms)            :: swp, est_evap
      REAL, DIMENSION(:), INTENT(IN) :: root_length
-     REAL                           :: total_est_evap, swp_diff
+     REAL                           :: total_est_evap, swp_diff, depth_sum
 
      INTEGER, INTENT(IN) :: i
      INTEGER             :: j
@@ -2811,7 +2813,8 @@ CONTAINS
      ! Estimate max transpiration from gradient-gravity / soil resistance
      DO j = 1, ms ! Loop over 6 soil layers
 
-        IF (ssnow%soilR(i,j) .GT. 0.0) THEN
+        IF (ssnow%soilR(i,j) .GT. 0.0 .AND. veg%froot(i,j) .GT. 0.0) THEN
+
            est_evap(j) = MAX(0.0, &
                         (ssnow%psi_soil(i,j) - min_root_wp) / ssnow%soilR(i,j))
         ELSE
@@ -2819,13 +2822,15 @@ CONTAINS
         ENDIF
 
         ! No uptake from frozen soils
-        !IF ( ssnow%wbice(i,j) .gt. 0.01 ) THEN
-        !  est_evap(i) = 0.0
-        !ENDIF
+        IF ( ssnow%wbice(i,j) .gt. 0.0 ) THEN
+           est_evap(j) = 0.0
+        ENDIF
 
-        ! Soil water potential weighted by layer Emax (from SPA)
-        ssnow%weighted_psi_soil(i) = ssnow%weighted_psi_soil(i) + &
-                                     ssnow%psi_soil(i,j) * est_evap(j)
+        IF (veg%froot(i,j) .GT. 0.0) THEN
+           ! Soil water potential weighted by layer Emax (from SPA)
+           ssnow%weighted_psi_soil(i) = ssnow%weighted_psi_soil(i) + &
+                                        ssnow%psi_soil(i,j) * est_evap(j)
+        ENDIF
      END DO
      total_est_evap = SUM(est_evap)
 
@@ -2835,15 +2840,19 @@ CONTAINS
         ssnow%weighted_psi_soil(i) = ssnow%weighted_psi_soil(i) / total_est_evap
      ELSE
         ssnow%weighted_psi_soil(i) = 0.0
+        depth_sum = 0.0
         DO j = 1, ms ! Loop over 6 soil layers
-           ssnow%weighted_psi_soil(i) = ssnow%weighted_psi_soil(i) + &
-                                          ssnow%psi_soil(i,j) * soil%zse(j)
+           IF (veg%froot(i,j) .GT. 0.0) THEN
+              ssnow%weighted_psi_soil(i) = ssnow%weighted_psi_soil(i) + &
+                                           ssnow%psi_soil(i,j) * soil%zse(j)
+              depth_sum = depth_sum + soil%zse(j)
+           ENDIF
         END DO
-        ssnow%weighted_psi_soil(i) = ssnow%weighted_psi_soil(i) / SUM(soil%zse)
+        ssnow%weighted_psi_soil(i) = ssnow%weighted_psi_soil(i) / depth_sum
      END IF
 
-     IF (ssnow%weighted_psi_soil(i) < -50.0) THEN
-        ssnow%weighted_psi_soil(i) = -50.0
+     IF (ssnow%weighted_psi_soil(i) < -20.0) THEN
+        ssnow%weighted_psi_soil(i) = -20.0
      ENDIF
 
      ! SPA method to figure out relative water uptake.
