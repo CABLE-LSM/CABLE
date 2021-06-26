@@ -80,8 +80,8 @@ CONTAINS
     INTEGER :: a, jveg ! do loop counter
     LOGICAL, SAVE :: first_call = .TRUE.
     !mvtype=17
-    mvtype=22 ! mgk576
-
+    !mvtype=22 ! mgk576
+    mvtype=32 ! mgk576, 26 Jun 2021, profit max
     ! Allocate memory for type-specific vegetation parameters:
     IF( first_call ) THEN
 
