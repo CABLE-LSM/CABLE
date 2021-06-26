@@ -197,14 +197,14 @@ CONTAINS
     !print*, " "
 
     ! PH: mgk576, 13/10/17, added two funcs
-    IF (cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+    IF (cable_user%FWSOIL_SWITCH == 'profitmax') THEN
        DO i = 1, mp
 
           CALL calc_soil_root_resistance(ssnow, soil, veg, bgc, root_length, i)
           CALL calc_swp(ssnow, soil, i)
-          CALL calc_weighted_swp_and_frac_uptake(ssnow, soil, canopy, &
+          CALL calc_weighted_swp_and_frac_uptake(ssnow, soil, canopy, veg, &
                                                  root_length, i)
-
+         
        END DO
     END IF
 
