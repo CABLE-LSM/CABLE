@@ -40,7 +40,8 @@ MODULE cable_mpicommon
   ! VH add 9 params for sli 299 -> 308
   ! INH add 7 params for REV_CORR package
   !INTEGER, PARAMETER :: nparam = 331 !326!308  ! as it was before mgk576 changes
-  INTEGER, PARAMETER :: nparam = 356 ! mgk576, added 25 (9 params, 13 x 1D vectors & 3 x 2D matrix)
+  !INTEGER, PARAMETER :: nparam = 356 ! mgk576, added 25 (9 params, 13 x 1D vectors & 3 x 2D matrix)
+  INTEGER, PARAMETER :: nparam = 360 ! mgk576, added 25 (13 params, 13 x 1D vectors & 3 x 2D matrix)
   ! MPI: extra params sent only if nsoilparmnew is true
   INTEGER, PARAMETER :: nsoilnew = 1
 
@@ -122,7 +123,7 @@ MODULE cable_mpicommon
   ! that is returned only for creating a restart file at the end of the run
   !INTEGER, PARAMETER :: nrestart = 16
   ! MPI: gol124: canopy%rwater removed when Bernard ported to CABLE_r491
-  INTEGER, PARAMETER :: nrestart = 15 
+  INTEGER, PARAMETER :: nrestart = 15
   !INTEGER, PARAMETER :: nrestart = 18 ! mgdk added 3 more
   INTEGER, PARAMETER :: nsumcasaflux = 62
   INTEGER, PARAMETER :: nsumcasapool = 40

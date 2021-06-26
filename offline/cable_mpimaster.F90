@@ -2338,6 +2338,22 @@ CONTAINS
        blen(bidx) = r1len
 
        bidx = bidx + 1
+       CALL MPI_Get_address (veg%Kmax(off), displs(bidx), ierr)
+       blen(bidx) = r1len
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (veg%Kcrit(off), displs(bidx), ierr)
+       blen(bidx) = r1len
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (veg%b_plant(off), displs(bidx), ierr)
+       blen(bidx) = r1len
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (veg%c_plant(off), displs(bidx), ierr)
+       blen(bidx) = r1len
+
+       bidx = bidx + 1
        CALL MPI_Get_address (veg%s50(off), displs(bidx), ierr)
        blen(bidx) = r1len
 
