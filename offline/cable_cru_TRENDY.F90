@@ -42,7 +42,7 @@ MODULE CABLE_CRU
     LOGICAL :: LeapYears  ! Flag for whether leaps years occur, required by CABLE. Always false for CRUNCEP (no Feb 29th)
     LOGICAL, DIMENSION(:,:), ALLOCATABLE :: LandMask ! Logical landmask, true for land, false for non-land
     !
-    CHARACTER(len=30)  :: Run            ! Where run type is      : "S0_TRENDY", "S1_TRENDY", "S2-T_TRENDY"
+    CHARACTER(len=30)  :: Run            ! Where run type is      : "S0_TRENDY", "S1_TRENDY", "S2_TRENDY"
     CHARACTER(len=15)  :: CO2            ! CO2 takes value        : "static1860", "1860_1900", "1901_2015"
     CHARACTER(len=15)  :: Ndep           ! Ndep takes value        : "static1860", "1860_1900", "1901_2015"
     CHARACTER(len=15)  :: Forcing        ! Met Forcing takes value: "spinup",        "spinup", "1901_2015"
@@ -468,8 +468,6 @@ CONTAINS
 
     ! Create a character version of the year for building that part of the filename.
     write(cy, fmt='(i4)') cyear
-    ! write(cy,version of the year for building that part of the filename.
-    write(cy, fmt='(i4)') 1901 + MOD(CRU%CYEAR-1691, CRU%metrecyc)
 
     ! Initialise the filename with the met path
     metp = trim(CRU%MetPath)
@@ -713,7 +711,8 @@ CONTAINS
 
   ! Keep the initial value of CYEAR for calculation of different MetYear if required.
   !IF (CALL1) RunStartYear = 1710 ! edit vh !
-  IF (CALL1) RunStartYear = 1691 ! edit vh !
+  !IF (CALL1) RunStartYear = 1691 ! edit vh !
+  IF (CALL1) RunStartYear = 1501 ! edit vh !
 
   DO iVar = 1, CRU%NMET  ! For each met variable
 
@@ -727,9 +726,10 @@ CONTAINS
      !!$    ENDIF
      IF ((TRIM(CRU%Run) .EQ. 'S0_TRENDY') .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' ) &
           .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2') &
-          .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Ndep' ) .OR. (INT(CRU%CYEAR).LT.1901)) THEN
+          .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Ndep' ) ) THEN
 
-        MetYear = 1901 + MOD(CRU%CYEAR-1691, CRU%metrecyc)
+        MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear, CRU%metrecyc)
+        
      ELSEIF  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Precip' .OR. &
           TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Precip'.OR. &
           TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Temp_Precip'.OR. &
@@ -774,7 +774,6 @@ CONTAINS
            MetYear = CRU%CYEAR
         ENDIF
      ENDIF
-   MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,CRU%metrecyc)! specialforr S3
     CALL CRU_GET_FILENAME( CRU, MetYear, iVar, CRU%MetFile(iVar) ) ! Call routine to build the filenames.
 
     ! Open the new met files and access the variables by their name and variable id.
@@ -822,7 +821,8 @@ CONTAINS
     ! Keep the initial value of CYEAR for calculation of different MetYear if required.
     IF (CALL1) THEN
        !RunStartYear = CRU%CYEAR
-       RunStartYear = 1691
+       !RunStartYear = 1691
+       RunStartYear = 1501
        ! If this is not the first call, capture the existing Tmax from the previous day as the
        ! 'previous Tmax' before reading another one. Move the existing next day's Tmin into the current
        ! Tmin before reading a new 'next Tmin'. These previous and next values are required for the
