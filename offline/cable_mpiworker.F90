@@ -323,7 +323,7 @@ CONTAINS
        casafile%cnpipool = arg2(1:len2)
     endif
 
-    IF (CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static') &
+    IF (CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static' ) &
          CABLE_USER%POPLUC= .FALSE.
 
     ! Get worker's rank and determine logfile-unit

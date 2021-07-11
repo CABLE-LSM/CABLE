@@ -684,7 +684,7 @@ PROGRAM cable_offline_driver
                  if (cable_user%popluc) allocate(lucsave(c13o2luc%nland,c13o2luc%npools))
               endif
 
-              if (cable_user%POPLUC .and. trim(cable_user%POPLUC_RunType) .eq. 'static') cable_user%POPLUC= .FALSE.
+              if (cable_user%POPLUC .and. trim(cable_user%POPLUC_RunType) .eq. 'static' ) cable_user%POPLUC= .FALSE.
 
               ! Having read the default parameters, if this is a bios run we will now
               ! overwrite the subset of them required for bios.
