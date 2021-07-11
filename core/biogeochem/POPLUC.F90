@@ -1590,7 +1590,7 @@ CONTAINS
           ENDIF
        ENDDO
 
-    ELSEIF (cable_user%POPLUC_RunType .eq. 'restart' .OR. cable_user%POPLUC_RunType .eq. 'restart_spinup') THEN
+    ELSEIF (cable_user%POPLUC_RunType .eq. 'restart') THEN
 
        CALL READ_LUC_RESTART_NC(POPLUC)
 

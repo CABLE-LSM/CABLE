@@ -103,7 +103,7 @@ MODULE cable_common_module
      CHARACTER(LEN=200) :: LUC_restart_out = ''
      CHARACTER(LEN=8)   :: CASA_OUT_FREQ = 'annually' ! 'daily', 'monthly', 'annually'
      CHARACTER(LEN=10)  :: vcmax = 'standard'         ! "standard" or "Walker2014"
-     CHARACTER(LEN=20)  :: POPLUC_RunType = 'static'  ! 'static', 'init', 'restart'
+     CHARACTER(LEN=10)  :: POPLUC_RunType = 'static'  ! 'static', 'init', 'restart'
      CHARACTER(LEN=200) :: BLAZE_outfile = ''
      CHARACTER(LEN=200) :: gm_LUT_file = ''           ! LUT file used if explicit_gm = .true.
      ! Options: Bernacchi_2002 or Walker_2013. Only used if explicit_gm = .true.

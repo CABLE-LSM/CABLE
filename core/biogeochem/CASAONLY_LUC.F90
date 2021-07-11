@@ -331,11 +331,8 @@ contains
 
     enddo ! nyear
 
-    IF (CABLE_USER%POPLUC) then
-       write(73,*) "HERE"
-       CALL WRITE_LUC_RESTART_NC(POPLUC)
-    endif
-       
+    IF (CABLE_USER%POPLUC) CALL WRITE_LUC_RESTART_NC(POPLUC)
+
   END SUBROUTINE CASAONLY_LUC
 
 end module cable_casaonly_luc
