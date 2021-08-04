@@ -3122,6 +3122,11 @@ CONTAINS
 
       ! Canopy xylem pressure (P_crit) MPa, beyond which tree
       ! desiccates (Ecrit), MPa
+      print*, b_plant
+      print*, c_plant
+      print*, Kmax
+      print*, Kcrit
+
       p_crit = -b_plant * log(Kmax / Kcrit)**(1.0 / c_plant)
 
 
