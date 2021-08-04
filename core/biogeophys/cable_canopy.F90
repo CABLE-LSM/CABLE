@@ -3195,12 +3195,8 @@ CONTAINS
 
             ! Use an_leaf to infer gsc_sun/sha. NB. An is the scaled up values
             ! via scalex
-            Cx = Cs - Ci
-            IF (Cx > 1.e-6) THEN
-               gsc = an_leaf / Cx ! mol CO2 m-2 s-1
-            ELSE
-               gsc = 1.e-6
-            END IF
+            gsc = an_leaf / MAX(1.e-6, Cs - Ci) ! mol CO2 m-2 s-1
+            
             ! Assuming perfect coupling, infer E_sun/sha from gsc. NB. as we're
             ! iterating, Tleaf will change and so VPD, maintaining energy
             ! balance
