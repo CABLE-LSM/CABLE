@@ -2191,6 +2191,10 @@ CONTAINS
                         gbhu(i,kk) + gbhf(i,kk) )
                    csx(i,kk) = MAX( 1.0e-4_r_2, csx(i,kk) )
 
+                   print*, "gswmin", gswmin(i,kk)
+                   print*, "anx", anx(i,kk)
+                   print*, "fwsoil", fwsoil(i)
+                   print*, "gscoeff", gs_coeff(i,kk)
 
                    ! Ticket #56, xleuning replaced with gs_coeff here
                    canopy%gswx(i,kk) = MAX( 1.e-3, gswmin(i,kk)*fwsoil(i) +     &
