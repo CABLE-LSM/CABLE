@@ -301,7 +301,11 @@ CONTAINS
     CRU%NMET = 9
     CRU%VAR_NAME(rain)  = "pre"
     CRU%VAR_NAME(lwdn)  = "dlwrf"
+#ifdef __CRU2020__
+    CRU%VAR_NAME(swdn)  = "tswrf"
+#else
     CRU%VAR_NAME(swdn)  = "dswrf"
+#endif
     CRU%VAR_NAME(pres)  = "pres"
     CRU%VAR_NAME(qair)  = "spfh"
     CRU%VAR_NAME(tmax)  = "tmax"
@@ -462,6 +466,8 @@ CONTAINS
     character(len=*), parameter :: cruver="crujra.V1.1" ! CRU version
 #elif __CRU2018__
     character(len=*), parameter :: cruver="crujra.v2.0" ! CRU version
+#elif __CRU2020__
+    character(len=*), parameter :: cruver="crujra.v2.2" ! CRU version
 #else
     character(len=*), parameter :: cruver="crujra.v2.1" ! CRU version
 #endif
@@ -529,7 +535,11 @@ CONTAINS
     case(lwdn)
        fn = trim(fn)//"/dlwrf/"//cruver//".5d.dlwrf."//cy//".365d.noc.daymean.1deg.nc"
     case(swdn)
+#ifdef __CRU2020__
+       fn = trim(fn)//"/tswrf/tswrf_v10_"//cy//".daymean.1deg.nc"
+#else
        fn = trim(fn)//"/dswrf/"//cruver//".5d.dswrf."//cy//".365d.noc.daymean.1deg.nc"
+#endif
     case(pres)
        fn = trim(fn)//"/pres/"//cruver//".5d.pres."//cy//".365d.noc.daymean.1deg.nc"
     case(qair)
@@ -543,18 +553,6 @@ CONTAINS
     case(vwind)
        fn = trim(fn)//"/vgrd/"//cruver//".5d.vgrd."//cy//".365d.noc.daymean.1deg.nc"
     end select
-
-    ! SELECT CASE ( par )
-    ! CASE(rain) ; FN = TRIM(FN)//"/pre/crujra.v2.0.5d.pre."//cy//".365d.noc.daytot.1deg.nc"
-    ! CASE(lwdn) ; FN = TRIM(FN)//"/dlwrf/crujra.v2.0.5d.dlwrf."//cy//".365d.noc.daymean.1deg.nc"
-    ! CASE(swdn) ; FN = TRIM(FN)//"/dswrf/crujra.v2.0.5d.dswrf."//cy//".365d.noc.daymean.1deg.nc"
-    ! CASE(pres) ; FN = TRIM(FN)//"/pres/crujra.v2.0.5d.pres."//cy//".365d.noc.daymean.1deg.nc"
-    ! CASE(qair) ; FN = TRIM(FN)//"/spfh/crujra.v2.0.5d.spfh."//cy//".365d.noc.daymean.1deg.nc"
-    ! CASE(tmax,PrevTmax) ; FN = TRIM(FN)//"/tmax/crujra.v2.0.5d.tmax."//cy//".365d.noc.daymax.1deg.nc"
-    ! CASE(tmin,NextTmin) ; FN = TRIM(FN)//"/tmin/crujra.v2.0.5d.tmin."//cy//".365d.noc.daymin.1deg.nc"
-    ! CASE(uwind) ; FN = TRIM(FN)//"/ugrd/crujra.v2.0.5d.ugrd."//cy//".365d.noc.daymean.1deg.nc"
-    ! CASE(vwind) ; FN = TRIM(FN)//"/vgrd/crujra.v2.0.5d.vgrd."//cy//".365d.noc.daymean.1deg.nc"
-    ! END SELECT
 
   END SUBROUTINE CRU_GET_FILENAME
 
@@ -592,6 +590,9 @@ CONTAINS
 #elif __CRU2018__
           ALLOCATE( CRU%CO2VALS( 1700:2018 ) )
           CO2FILE = TRIM(CRU%BasePath)//"/co2/global_co2_ann_1700_2018.csv"
+#elif __CRU2020__
+          ALLOCATE( CRU%CO2VALS( 1700:2020 ) )
+          CO2FILE = TRIM(CRU%BasePath)//"/co2/global_co2_ann_1700_2020.txt"
 #else
           ALLOCATE( CRU%CO2VALS( 1700:2019 ) )
           CO2FILE = TRIM(CRU%BasePath)//"/co2/global_co2_ann_1700_2019.txt"
@@ -662,9 +663,10 @@ CONTAINS
        ! Set internal counter
        CRU%Ndep_CTSTEP = 1
 
-       IF ( TRIM(CRU%Ndep) .EQ. "static1860" .OR. CRU%CYEAR<=1860) THEN
-          ! read Ndep at year 1860 (noting that file starts at 1850)
-          CRU%Ndep_CTSTEP = 11
+       IF ( TRIM(CRU%Ndep) .EQ. "static1860" .OR. CRU%CYEAR<=1850) THEN
+          ! read Ndep at year 1850 (file starts at 1850)
+          ! prior to TRENDYv10: year 1860
+          CRU%Ndep_CTSTEP = 1
           t =  CRU%Ndep_CTSTEP
           ErrStatus = NF90_GET_VAR(CRU%NdepF_ID, CRU%NdepV_ID, tmparr, &
                start=(/1,1,t/),count=(/xds,yds,1/) )
@@ -676,9 +678,9 @@ CONTAINS
        CALL1 = .FALSE.
     END IF
 
-    IF ( TRIM(CRU%Ndep) .NE. "static1860" .and.  CRU%CYEAR>1860) THEN
-       ! read Ndep at current year (noting that file starts at 1850 and ends in 2015)
-       CRU%Ndep_CTSTEP = min(CRU%CYEAR, 2015) - 1850 + 1
+    IF ( TRIM(CRU%Ndep) .NE. "static1860" .and.  CRU%CYEAR>1850) THEN
+       ! read Ndep at current year (noting that file starts at 1850 and ends in 2099)
+       CRU%Ndep_CTSTEP = min(CRU%CYEAR, 2099) - 1850 + 1
        t =  CRU%Ndep_CTSTEP
        ErrStatus = NF90_GET_VAR(CRU%NdepF_ID, CRU%NdepV_ID, tmparr, &
             start=(/1,1,t/),count=(/xds,yds,1/) )
@@ -712,7 +714,7 @@ CONTAINS
   ! Keep the initial value of CYEAR for calculation of different MetYear if required.
   !IF (CALL1) RunStartYear = 1710 ! edit vh !
   !IF (CALL1) RunStartYear = 1691 ! edit vh !
-  IF (CALL1) RunStartYear = 1501 ! edit vh !
+  IF (CALL1) RunStartYear = 1501 ! edit jk !
 
   DO iVar = 1, CRU%NMET  ! For each met variable
 
