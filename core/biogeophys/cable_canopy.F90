@@ -2185,16 +2185,12 @@ CONTAINS
 
              DO kk=1,mf
 
-                IF(rad%fvlai(i,kk)>C%LAI_THRESH) THEN
+                IF(rad%fvlai(i,kk)>C%LAI_THRESH .AND. cable_user%FWSOIL_SWITCH /= 'profitmax') THEN
 
                    csx(i,kk) = met%ca(i) - C%RGBWC*anx(i,kk) / (                &
                         gbhu(i,kk) + gbhf(i,kk) )
                    csx(i,kk) = MAX( 1.0e-4_r_2, csx(i,kk) )
 
-                   print*, "gswmin", gswmin(i,kk)
-                   print*, "anx", anx(i,kk)
-                   print*, "fwsoil", fwsoil(i)
-                   print*, "gscoeff", gs_coeff(i,kk)
 
                    ! Ticket #56, xleuning replaced with gs_coeff here
                    canopy%gswx(i,kk) = MAX( 1.e-3, gswmin(i,kk)*fwsoil(i) +     &
@@ -3124,7 +3120,6 @@ CONTAINS
       !  Michaelis Menten coefficient, umol m-2 s-1
       Km = cx1 * MOL_TO_UMOL
 
-      print*, "km", km
       ! Canopy xylem pressure (P_crit) MPa, beyond which tree
       ! desiccates (Ecrit), MPa
       !print*, "b_plant", b_plant
@@ -3134,7 +3129,7 @@ CONTAINS
 
       p_crit = -b_plant * log(Kmax / Kcrit)**(1.0 / c_plant)
 
-      print*, "p_crit", p_crit
+
 
       ! Loop over sunlit,shaded parts of the canopy and solve the carbon uptake
       ! and transpiration
@@ -3159,9 +3154,6 @@ CONTAINS
          ! CO2 concentration at the leaf surface, umol m-2 -s-1
          Cs = csx(i,j) * MOL_TO_UMOL
 
-         print*, "Cs", Cs
-         print*, "Kplant", Kplant
-
          gamma_star = 0.0 ! cable says it is 0
 
          ! Generate a sequence of Ci's that we will solve the optimisation
@@ -3172,12 +3164,8 @@ CONTAINS
             Ci(k)  = lower + float(k) * (upper - lower) / float(N-1)
          END DO
 
-         print*, "Ci", Ci
-
          ! absorbed par for the sunlit or shaded leaf, umol m-2 -s-1
          apar = qcan(i,j,1) * J_TO_MOL * MOL_TO_UMOL
-
-         print*, "apar", apar
 
          ! max rate of rubisco activity, scaled up to sunlit/shaded canopy
          Vcmax = vcmxt3(i,j) * MOL_TO_UMOL
@@ -3190,11 +3178,6 @@ CONTAINS
 
          ! Rate of electron transport (NB this is = J/4)
          Vj = vx3(i,j) * MOL_TO_UMOL
-
-         print*, "Vcmax", Vcmax
-         print*, "Jmax", Jmax
-         print*, "Rd", Rd
-         print*, "Vj", Vj
 
          ! If there is bugger all light, assume there are no fluxes
          IF (apar < 50) THEN
@@ -3210,22 +3193,14 @@ CONTAINS
             A = -QUADP(1.0-1E-04, Ac+Aj, Ac*Aj) ! umol m-2 s-1
             an_leaf = A - Rd ! Net photosynthesis, umol m-2 s-1
 
-            print*, "Ac", Ac
-            print*, "Aj", Aj
-            print*, "an_leaf", an_leaf
-
             ! Use an_leaf to infer gsc_sun/sha. NB. An is the scaled up values
             ! via scalex
             gsc = an_leaf / (Cs - Ci) ! mol CO2 m-2 s-1
-
-            print*, "gsc", gsc
 
             ! Assuming perfect coupling, infer E_sun/sha from gsc. NB. as we're
             ! iterating, Tleaf will change and so VPD, maintaining energy
             ! balance
             e_leaf = gsc * C%RGSWC / press * vpd ! mol H2O m-2 s-1
-
-            print*, "e_leaf", e_leaf
 
             ! MPa
             p = calc_psi_leaf(ssnow%weighted_psi_soil(i), e_leaf, &
@@ -3238,19 +3213,13 @@ CONTAINS
                 mask = .TRUE.
             end where
 
-            print*, "p", p
-
             ! Soil–plant hydraulic conductance at canopy xylem pressure,
             ! mmol m-2 s-1 MPa-1
             Kc = Kplant * get_xylem_vulnerabilityx(p, b_plant, c_plant)
 
-            print*, "Kc", Kc
-
             ! Plant hydraulic conductance (mmol m-2 leaf s-1 MPa-1)
             kcmax(j) = Kplant * get_xylem_vulnerability(psi_soil, b_plant, &
                                                         c_plant)
-
-            print*, "Kcmax", kcmax(j)
 
             ! normalised gain (-)
             gain = an_leaf / MAXVAL(an_leaf, mask=mask)
@@ -3258,13 +3227,10 @@ CONTAINS
             ! normalised cost (-)
             cost = (kcmax(j) - Kc) / (kcmax(j) - Kcrit)
 
-            print*, "gain", gain
-            print*, "cost", cost
-
             ! Locate maximum profit
             profit = gain - cost
             idx = MAXLOC(profit, 1, mask=mask)
-            print*, "idx", idx
+
             ! load into stores
             an_canopy(j) = an_leaf(idx) ! umol m-2 s-1
             e_leaves(j) = e_leaf(idx) ! mol H2O m-2 s-1
