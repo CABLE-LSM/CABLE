@@ -3099,7 +3099,7 @@ CONTAINS
       REAL, DIMENSION(mp,mf,nrb), INTENT(IN) :: qcan
       REAL(r_2), DIMENSION(N), INTENT(INOUT) :: p
       REAL(r_2), DIMENSION(N) :: p_potentials
-      REAL, DIMENSION(N) :: Ci, Ac, Aj, A, an_leaf, gsc
+      REAL, DIMENSION(N) :: Ci, Ac, Aj, A, an_leaf, gsc, Cx
       LOGICAL, DIMENSION(N) ::  mask
       REAL, DIMENSION(mp,mf), INTENT(IN) :: vcmxt3, ejmxt3, rdx, vx3, lai_leaf
       REAL, DIMENSION(N) :: Kc, e_leaf, cost, gain, profit
@@ -3195,8 +3195,12 @@ CONTAINS
 
             ! Use an_leaf to infer gsc_sun/sha. NB. An is the scaled up values
             ! via scalex
-            gsc = an_leaf / (Cs - Ci) ! mol CO2 m-2 s-1
-
+            Cx = Cs - Ci
+            IF (Cx > 1.e-6) THEN
+               gsc = an_leaf / Cx ! mol CO2 m-2 s-1
+            ELSE
+               gsc = 1.e-6
+            END IF
             ! Assuming perfect coupling, infer E_sun/sha from gsc. NB. as we're
             ! iterating, Tleaf will change and so VPD, maintaining energy
             ! balance
