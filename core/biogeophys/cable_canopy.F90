@@ -3196,7 +3196,7 @@ CONTAINS
             ! Use an_leaf to infer gsc_sun/sha. NB. An is the scaled up values
             ! via scalex
             gsc = an_leaf / MAX(1.e-6, Cs - Ci) ! mol CO2 m-2 s-1
-            
+
             ! Assuming perfect coupling, infer E_sun/sha from gsc. NB. as we're
             ! iterating, Tleaf will change and so VPD, maintaining energy
             ! balance
@@ -3408,7 +3408,10 @@ CONTAINS
       REAL, INTENT(IN) :: b_plant, c_plant
       REAL, DIMENSION( SIZE(p) ) :: weibull
 
-
+      print*, "b_plant", b_plant
+      print*, "c_plant", c_plant
+      print*, "p", p
+      print*, " "
       weibull = max(1.0E-09, exp(-(-p / b_plant)**c_plant))
 
    END FUNCTION get_xylem_vulnerabilityx
