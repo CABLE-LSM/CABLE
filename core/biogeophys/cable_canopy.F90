@@ -3122,11 +3122,11 @@ CONTAINS
 
       ! Canopy xylem pressure (P_crit) MPa, beyond which tree
       ! desiccates (Ecrit), MPa
-      print*, "b_plant", b_plant
-      print*, "c_plant", c_plant
-      print*, "Kmax", Kmax
-      print*, "Kcrit", Kcrit
-      stop
+      !print*, "b_plant", b_plant
+      !print*, "c_plant", c_plant
+      !print*, "Kmax", Kmax
+      !print*, "Kcrit", Kcrit
+
       p_crit = -b_plant * log(Kmax / Kcrit)**(1.0 / c_plant)
 
 
@@ -3408,10 +3408,10 @@ CONTAINS
       REAL, INTENT(IN) :: b_plant, c_plant
       REAL, DIMENSION( SIZE(p) ) :: weibull
 
-      print*, "b_plant", b_plant
-      print*, "c_plant", c_plant
-      print*, "p", p
-      print*, " "
+      !print*, "b_plant", b_plant
+      !print*, "c_plant", c_plant
+      !print*, "p", p
+      !print*, " "
       weibull = max(1.0E-09, exp(-(-p / b_plant)**c_plant))
 
    END FUNCTION get_xylem_vulnerabilityx
@@ -3433,7 +3433,8 @@ CONTAINS
       REAL, INTENT(IN) :: b_plant, c_plant
       REAL :: weibull
 
-      weibull = max(1.0E-09, exp(-(-p / b_plant)**c_plant))
+      !weibull = max(1.0E-09, exp(-(-p / b_plant)**c_plant))
+      weibull = min(1.0, max(1.0E-09, exp(-(-p / b_plant)**c_plant)))
 
    END FUNCTION get_xylem_vulnerability
    ! ---------------------------------------------------------------------------
