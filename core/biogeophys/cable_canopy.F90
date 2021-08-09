@@ -3412,7 +3412,8 @@ CONTAINS
       !print*, "c_plant", c_plant
       !print*, "p", p
       !print*, " "
-      weibull = max(1.0E-09, exp(-(-p / b_plant)**c_plant))
+      !weibull = max(1.0E-09, exp(-(-p / b_plant)**c_plant))
+      weibull = min(1.0, max(1.0E-09, exp(-(-p / b_plant)**c_plant)))
 
    END FUNCTION get_xylem_vulnerabilityx
    ! ---------------------------------------------------------------------------
