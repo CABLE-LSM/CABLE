@@ -1168,7 +1168,9 @@ CONTAINS
     END IF
     ! Look for CO2air (can be assumed to be static):- - - - - - - - - - -
     ok = NF90_INQ_VARID(ncid_met,'CO2air',id%CO2air)
-    IF(ok == NF90_NOERR) THEN ! If inquiry is okay
+    !IF(ok == NF90_NOERR) THEN ! If inquiry is okay
+    ! MDK, 4th march 2020, added method to bypass co2 in met file for Narclim work
+    IF(ok == NF90_NOERR .AND. fixedCO2 < 0.0) THEN ! If inquiry is okay
        exists%CO2air = .TRUE. ! CO2air is present in met file
        ! Get CO2air units:
        ok = NF90_GET_ATT(ncid_met,id%CO2air,'units',metunits%CO2air)
@@ -2824,6 +2826,12 @@ CONTAINS
     CALL readpar(ncid_met,'ejmax',completeSet,veg%ejmax,filename%met,           &
          nmetpatches,'def')
     CALL readpar(ncid_met,'vcmax',completeSet,veg%vcmax,filename%met,           &
+         nmetpatches,'def')
+    CALL readpar(ncid_met,'b_plant',completeSet,veg%b_plant,filename%met,           & ! mgk576, hydraulics
+         nmetpatches,'def')
+    CALL readpar(ncid_met,'c_plant',completeSet,veg%c_plant,filename%met,           & ! mgk576, hydraulics
+         nmetpatches,'def')
+    CALL readpar(ncid_met,'Kmax',completeSet,veg%Kmax,filename%met,           & ! mgk576, hydraulics
          nmetpatches,'def')
     CALL readpar(ncid_met,'rp20',completeSet,veg%rp20,filename%met,             &
          nmetpatches,'def')
