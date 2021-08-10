@@ -1984,7 +1984,7 @@ CONTAINS
        vegin%zr(29) =        3.000000
        vegin%clitt(29) =        6.000000
 
-       !PFT: New PFT, , mgk576, 25/7/21
+       !PFT: New PFT, E. sideroxylon, mgk576, 25/7/21
        !=========================================================
 
        vegin%Kmax(30) = 1.5
