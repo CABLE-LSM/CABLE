@@ -2381,7 +2381,7 @@ CONTAINS
     ! dry canopy flux
     canopy%fevc = (1.0-canopy%fwet) * ecy
 
-    IF (cable_user%fwsoil_switch.NE.'Haverd2013' .AND. cable_user%fwsoil_switch.NE.'hydraulics') THEN
+    IF (cable_user%fwsoil_switch.NE.'Haverd2013' .AND. cable_user%fwsoil_switch.NE.'profitmax') THEN
     !IF (cable_user%fwsoil_switch.NE.'Haverd2013') THEN
 
        ! Recalculate ssnow%evapfbl as ecy may not be updated with the ecx
