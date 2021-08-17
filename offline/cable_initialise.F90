@@ -319,7 +319,8 @@ CONTAINS
           IF(ok/=NF90_NOERR) CALL nc_abort(ok,'Error reading nvegt in file '    &
                //TRIM(filename%restart_in)// '(SUBROUTINE get_restart)')
           !IF(INvegt > 17) CALL nc_abort(ok,'Error: nvegt value in file '        &
-          IF(INvegt > 22) CALL nc_abort(ok,'Error: nvegt value in file '        &
+          !IF(INvegt > 22) CALL nc_abort(ok,'Error: nvegt value in file '        &
+          IF(INvegt > 32) CALL nc_abort(ok,'Error: nvegt value in file '        & !mgk576 hydraulics
                //TRIM(filename%restart_in)// ' out of range')
           IF (INvegt /= mvtype) PRINT *, 'Warning: INvegt, nvegt = ', INvegt, mvtype
        ENDIF
@@ -337,7 +338,8 @@ CONTAINS
        IF(ok/=NF90_NOERR) CALL nc_abort(ok,'Error reading mvtype in file '      &
             //TRIM(filename%restart_in)// '(SUBROUTINE get_restart)')
        !IF(INvegt > 17) CALL nc_abort(ok,'Error: mvtype value in file '          &
-       IF(INvegt > 22) CALL nc_abort(ok,'Error: mvtype value in file '          &
+       !IF(INvegt > 22) CALL nc_abort(ok,'Error: mvtype value in file '          &
+       IF(INvegt > 32) CALL nc_abort(ok,'Error: mvtype value in file '          & !mgk576 hydraulics
             //TRIM(filename%restart_in)// ' out of range')
        IF (INvegt /= mvtype) PRINT *, 'Warning: INvegt, mvtype = ', INvegt, mvtype
     ENDIF
