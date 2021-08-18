@@ -1808,7 +1808,7 @@ CONTAINS
 
     REAL :: MOL_WATER_2_G_WATER, G_TO_KG, UMOL_TO_MOL, MB_TO_KPA, PA_TO_KPA
     REAL :: avg_kplant, new_plc
-    REAL, DIMENSION(mf) :: Kcmax
+    REAL, DIMENSION(mp,mf) :: Kcmax
 
 
 #define VanessasCanopy
@@ -1906,8 +1906,8 @@ CONTAINS
     k = 0
 
     DO i=1,mp
-      Kcmax(1) = veg%Kmax(i)
-      Kcmax(2) = veg%Kmax(i)
+      Kcmax(i,1) = veg%Kmax(i)
+      Kcmax(i,2) = veg%Kmax(i)
     END DO
 
     !kdcorbin, 08/10 - doing all points all the time
@@ -2439,13 +2439,13 @@ CONTAINS
           ! Plant hydraulic conductance (mmol m-2 leaf s-1 MPa-1)
           IF (rad%fvlai(i,1) > 0.001 .AND. rad%fvlai(i,2) > 0.001) THEN
              !print*, "here"
-             avg_kplant = (Kcmax(1) + Kcmax(2)) / 2.0
+             avg_kplant = (Kcmax(i,1) + Kcmax(i,2)) / 2.0
           ELSE IF (rad%fvlai(i,1) > 0.001 .AND. rad%fvlai(i,2) < 0.001) THEN
              !print*, "no here"
-             avg_kplant = Kcmax(1)
+             avg_kplant = Kcmax(i,1)
           ELSE IF (rad%fvlai(i,2) > 0.001 .AND. rad%fvlai(i,1) < 0.001) THEN
              !print*, "no no here"
-             avg_kplant = Kcmax(2)
+             avg_kplant = Kcmax(i,2)
           END IF
 
 
@@ -3094,7 +3094,8 @@ CONTAINS
       REAL, INTENT(IN) :: gmin
       REAL(r_2), INTENT(IN) :: psi_soil, Rsr
       REAL, INTENT(INOUT) :: e_canopy
-      REAL, DIMENSION(mf), INTENT(INOUT) :: an_canopy, Kcmax
+      REAL, DIMENSION(mf), INTENT(INOUT) :: an_canopy
+      REAL, DIMENSION(mp, mf), INTENT(INOUT) :: Kcmax
       REAL(r_2), DIMENSION(mp,mf), INTENT(IN) :: csx
       REAL, DIMENSION(mp,mf,nrb), INTENT(IN) :: qcan
       REAL(r_2), DIMENSION(N), INTENT(INOUT) :: p
@@ -3218,14 +3219,14 @@ CONTAINS
             Kc = Kplant * get_xylem_vulnerabilityx(p, b_plant, c_plant)
 
             ! Plant hydraulic conductance (mmol m-2 leaf s-1 MPa-1)
-            kcmax(j) = Kplant * get_xylem_vulnerability(psi_soil, b_plant, &
-                                                        c_plant)
+            kcmax(i,j) = Kplant * get_xylem_vulnerability(psi_soil, b_plant, &
+                                                          c_plant)
 
             ! normalised gain (-)
             gain = an_leaf / MAXVAL(an_leaf, mask=mask)
 
             ! normalised cost (-)
-            cost = (kcmax(j) - Kc) / (kcmax(j) - Kcrit)
+            cost = (kcmax(i,j) - Kc) / (kcmax(i,j) - Kcrit)
 
             ! Locate maximum profit
             profit = gain - cost
