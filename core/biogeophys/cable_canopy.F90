@@ -3238,12 +3238,12 @@ CONTAINS
             p_leaves(j) = p(idx)
 
             ! scale up cuticular conductance, mol H2O m-2 s-1
-            !e_cuticular = gmin * MMOL_2_MOL * rad%scalex(i,j) / press * vpd
+            e_cuticular = gmin * MMOL_2_MOL * rad%scalex(i,j) / press * vpd
             !!!!!!e_cuticular = gmin * MMOL_2_MOL * rad%scalex(i,j) * vpd
             ! Don't add gmin, instead use it as the lower boundary
-            !IF (e_leaves(j) < e_cuticular) THEN
-            !   e_leaves(j) = e_cuticular ! mol H2O m-2 s-1
-            !END IF
+            IF (e_leaves(j) < e_cuticular) THEN
+               e_leaves(j) = e_cuticular ! mol H2O m-2 s-1
+            END IF
 
 
          END IF
