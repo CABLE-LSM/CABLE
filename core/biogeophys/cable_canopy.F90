@@ -2435,10 +2435,7 @@ CONTAINS
        ! Calculate this here after we've finsihed iterating...
        DO i = 1, mp
 
-          ! Plant hydraulic conductance (mmol m-2 leaf s-1 MPa-1)
-          canopy%kplant(i) = Kcmax(i)
-
-          new_plc = calc_plc(canopy%kplant(i), veg%Kmax(i))
+          new_plc = calc_plc(Kcmax(i), veg%Kmax(i))
 
           ! This will get a cumulative plc, but cannot reset....
           ! Used in swiss experiment for one summer
