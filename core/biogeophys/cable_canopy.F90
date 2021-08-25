@@ -3193,11 +3193,11 @@ CONTAINS
             e_leaf = gsc * C%RGSWC / press * vpd ! mol H2O m-2 s-1
 
             ! MPa
-            p = calc_psi_leaf(ssnow%weighted_psi_soil(i), e_leaf, &
+            p = calc_psi_leaf(psi_soil, e_leaf, &
                               rad%scalex(i,j), Kplant, N)
 
             ! Ensure we don't check for profit in bad psi_leaf search space
-            where (p >= ssnow%weighted_psi_soil(i) .OR. p <= p_crit)
+            where (p >= psi_soil .OR. p <= p_crit)
                 mask = .FALSE.
             elsewhere
                 mask = .TRUE.
