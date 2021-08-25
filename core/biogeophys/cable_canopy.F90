@@ -1906,8 +1906,13 @@ CONTAINS
     k = 0
 
     DO i=1,mp
-      Kcmax(i) = veg%Kmax(i)
+      ! Plant hydraulic conductance (mmol m-2 leaf s-1 MPa-1)
+      kcmax(i) = veg%Kmax(i) * &
+                  get_xylem_vulnerability(ssnow%weighted_psi_soil(i), &
+                                          veg%b_plant(i), veg%c_plant(i))
     END DO
+
+
 
     !kdcorbin, 08/10 - doing all points all the time
     DO WHILE (k < C%MAXITER)
@@ -3079,7 +3084,7 @@ CONTAINS
       REAL(r_2), INTENT(IN) :: psi_soil, Rsr
       REAL, INTENT(INOUT) :: e_canopy
       REAL, DIMENSION(mf), INTENT(INOUT) :: an_canopy
-      REAL, DIMENSION(mp), INTENT(INOUT) :: Kcmax
+      REAL, DIMENSION(mp), INTENT(IN) :: Kcmax
       REAL(r_2), DIMENSION(mp,mf), INTENT(IN) :: csx
       REAL, DIMENSION(mp,mf,nrb), INTENT(IN) :: qcan
       REAL(r_2), DIMENSION(N), INTENT(INOUT) :: p
@@ -3113,10 +3118,6 @@ CONTAINS
       !print*, "Kcrit", Kcrit
 
       p_crit = -b_plant * log(Kmax / Kcrit)**(1.0 / c_plant)
-
-      ! Plant hydraulic conductance (mmol m-2 leaf s-1 MPa-1)
-      !kcmax(i) = Kplant * get_xylem_vulnerability(psi_soil, b_plant, c_plant)
-      kcmax(i) = Kmax * get_xylem_vulnerability(psi_soil, b_plant, c_plant)
 
       ! Loop over sunlit,shaded parts of the canopy and solve the carbon uptake
       ! and transpiration
