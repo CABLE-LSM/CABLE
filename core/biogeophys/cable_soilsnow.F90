@@ -2756,7 +2756,12 @@ CONTAINS
        ! what is used anyway
        t_over_t_sat = MAX(1.0e-9, MIN(1.0, ssnow%wb(i,j) / soil%ssat(i)))
        !ssnow%psi_soil(i,j) = psi_sat * t_over_t_sat**(-soil%bch(i))
-       ssnow%psi_soil(i,j) = MAX(-20.0, psi_sat * t_over_t_sat**(-soil%bch(i)))
+       IF (j == 1) THEN
+          ssnow%psi_soil(i,j) = MAX(-5.0, psi_sat * t_over_t_sat**(-soil%bch(i)))
+       ELSE IF
+          ssnow%psi_soil(i,j) = MAX(-12.0, psi_sat * t_over_t_sat**(-soil%bch(i)))
+       END IF
+
     END DO
 
   END SUBROUTINE calc_swp
