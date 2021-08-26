@@ -2758,7 +2758,7 @@ CONTAINS
        !ssnow%psi_soil(i,j) = psi_sat * t_over_t_sat**(-soil%bch(i))
        IF (j == 1 . OR. j == 2) THEN
           ssnow%psi_soil(i,j) = MAX(-5.0, psi_sat * t_over_t_sat**(-soil%bch(i)))
-       ELSE IF
+       ELSE
           ssnow%psi_soil(i,j) = MAX(-12.0, psi_sat * t_over_t_sat**(-soil%bch(i)))
        END IF
 
