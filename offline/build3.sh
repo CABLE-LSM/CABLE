@@ -106,7 +106,6 @@ build_build()
 
 /bin/cp -p serial_cable ./.tmp
 /bin/cp -p Makefile  ./.tmp
-/bin/cp -p Makefile3_offline  ./.tmp
 /bin/cp -p Makefile3_mpi  ./.tmp
 
 cd .tmp/
@@ -125,11 +124,9 @@ echo  ''
 
 make -f Makefile #this makes elements of CABLE that are common to all apps
 if [[ $1 = 'mpi' ]]; then
-   echo '$AOBJ'
    make -f Makefile3_mpi #this makes elements of CABLE that are specific to MPI CABLE
 else
    ./serial_cable  "$FC" "$CFLAGS" "$LDFLAGS" "$LD" "$NCMOD"
-   #make -f Makefile3_offline #this makes elements of CABLE that are specific to serial CABLE
 fi
 
 }
