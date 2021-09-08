@@ -26,7 +26,6 @@
 !                 cable_def_types_mod
 !                 cable_IO_vars_module
 !                 cable_common_module
-!                 cable_data_module
 !                 cable_input_module
 !                 cable_output_module
 !                 cable_cbm_module
@@ -156,7 +155,7 @@ CONTAINS
     USE mpi
 
     USE cable_def_types_mod
-    USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,                  &
+    USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,globalMetfile, &
          verbose, fixedCO2,output,check,patchout,    &
          patch_type,soilparmnew,&
          defaultLAI, sdoy, smoy, syear, timeunits, exists, output, &
@@ -164,9 +163,14 @@ CONTAINS
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
          cable_runtime, fileName, myhome,            &
          redistrb, wiltParam, satuParam, CurYear,    &
-         IS_LEAPYEAR, IS_CASA_TIME, calcsoilalbedo,                &
-         report_version_no, kwidth_gl, gw_params
-    USE cable_data_module,    ONLY: driver_type, point2constants
+         IS_LEAPYEAR, calcsoilalbedo,                &
+         kwidth_gl, gw_params
+  USE casa_ncdf_module, ONLY: is_casa_time
+! physical constants
+USE cable_phys_constants_mod, ONLY : CTFRZ   => TFRZ
+USE cable_phys_constants_mod, ONLY : CEMLEAF => EMLEAF
+USE cable_phys_constants_mod, ONLY : CEMSOIL => EMSOIL
+USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
     USE cable_input_module,   ONLY: open_met_file,load_parameters,              &
          get_met_data,close_met_file
     USE cable_output_module,  ONLY: create_restart,open_output_file,            &
@@ -247,7 +251,6 @@ CONTAINS
     ! CABLE parameters
     TYPE (soil_parameter_type) :: soil ! soil parameters
     TYPE (veg_parameter_type)  :: veg  ! vegetation parameters: see below for iveg in MPI variables
-    TYPE (driver_type)    :: C         ! constants used locally
 
     TYPE (sum_flux_type)  :: sum_flux ! cumulative flux variables
     TYPE (bgc_pool_type)  :: bgc  ! carbon pool variables
@@ -347,6 +350,7 @@ CONTAINS
          casafile,         &
          ncciy,            &
          gswpfile,         &
+         globalMetfile,    &
          redistrb,         &
          wiltParam,        &
          satuParam,        &
@@ -377,8 +381,6 @@ CONTAINS
 
     ! Open log file:
     OPEN(logn,FILE=filename%log)
-
-    CALL report_version_no( logn )
 
     IF( IARGC() > 0 ) THEN
        CALL GETARG(1, filename%met)
@@ -438,9 +440,6 @@ CONTAINS
 
     cable_runtime%offline = .TRUE.
 
-    ! associate pointers used locally with global definitions
-    CALL point2constants( C )
-
     IF( l_casacnp  .AND. ( icycle == 0 .OR. icycle > 3 ) )                   &
          STOP 'icycle must be 1 to 3 when using casaCNP'
     IF( ( l_laiFeedbk .OR. l_vcmaxFeedbk ) .AND. ( .NOT. l_casacnp ) )       &
@@ -462,8 +461,9 @@ CONTAINS
          TRIM(cable_user%MetType) .NE. "gswp3" .AND. &
          TRIM(cable_user%MetType) .NE. "gpgs" .AND. &
          TRIM(cable_user%MetType) .NE. "plum"  .AND. &
-         TRIM(cable_user%MetType) .NE. "cru") THEN
-       CALL open_met_file( dels, koffset, kend, spinup, C%TFRZ )
+         TRIM(cable_user%MetType) .NE. "cru"  .AND. &
+         TRIM(cable_user%MetType) .NE. "gpcc") THEN
+       CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
        IF ( koffset .NE. 0 .AND. CABLE_USER%CALL_POP ) THEN
           WRITE(*,*)"When using POP, episode must start at Jan 1st!"
           STOP 991
@@ -536,12 +536,12 @@ CONTAINS
              ncciy = CurYear
              WRITE(*,*) 'Looking for global offline run info.'
              CALL prepareFiles(ncciy)
-             CALL open_met_file( dels, koffset, kend, spinup, C%TFRZ )
+             CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
 
           ELSE IF (TRIM(cable_user%MetType) .EQ. 'gswp3') THEN
              ncciy = CurYear
              WRITE(*,*) 'Looking for global offline run info.'
-             CALL open_met_file( dels, koffset, kend, spinup, C%TFRZ )
+             CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
 
              IF ( leaps .AND. IS_LEAPYEAR( YYYY ) ) THEN
                 calendar = "standard"
@@ -549,6 +549,10 @@ CONTAINS
                 calendar = "noleap"
              ENDIF
 
+           ELSE IF ( globalMetfile%l_gpcc ) THEN
+             ncciy = CurYear
+             WRITE(*,*) 'Looking for global offline run info.'
+             CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
 
           ENDIF
 
@@ -574,7 +578,7 @@ CONTAINS
                   bal, logn, vegparmnew, casabiome, casapool,		 &
                   casaflux, sum_casapool, sum_casaflux, &
                   casamet, casabal, phen, POP, spinup,	       &
-                  C%EMSOIL, C%TFRZ, LUC_EXPT, POPLUC )
+                  CEMSOIL, CTFRZ, LUC_EXPT, POPLUC )
 
              IF (CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static') &
                   CABLE_USER%POPLUC= .FALSE.
@@ -756,7 +760,7 @@ CONTAINS
 
              ELSE
                 CALL get_met_data( spinup, spinConv, imet, soil,                 &
-                     rad, iveg, kend, dels, C%TFRZ, iktau+koffset,                &
+                     rad, iveg, kend, dels, CTFRZ, iktau+koffset,                &
                      kstart+koffset )
 
              ENDIF
@@ -829,7 +833,7 @@ CONTAINS
              ELSE
 
                 CALL get_met_data( spinup, spinConv, imet, soil,                 &
-                     rad, iveg, kend, dels, C%TFRZ, iktau+koffset,                &
+                     rad, iveg, kend, dels, CTFRZ, iktau+koffset,                &
                      kstart+koffset )
 
              ENDIF
@@ -947,12 +951,12 @@ CONTAINS
                         .OR. TRIM(cable_user%MetType) .EQ. 'gswp3') THEN
                       CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, &
                            casamet,ssnow,         &
-                           rad, bal, air, soil, veg, C%SBOLTZ,     &
-                           C%EMLEAF, C%EMSOIL )
+                           rad, bal, air, soil, veg, CSBOLTZ,     &
+                           CEMLEAF, CEMSOIL )
                    ELSE
                       CALL write_output( dels, ktau, met, canopy, casaflux, casapool, &
                            casamet, ssnow,   &
-                           rad, bal, air, soil, veg, C%SBOLTZ, C%EMLEAF, C%EMSOIL )
+                           rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
 
                    ENDIF
                 END IF
@@ -1167,12 +1171,12 @@ CONTAINS
 
                    CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, &
                         casamet, ssnow,         &
-                        rad, bal, air, soil, veg, C%SBOLTZ,     &
-                        C%EMLEAF, C%EMSOIL )
+                        rad, bal, air, soil, veg, CSBOLTZ,     &
+                        CEMLEAF, CEMSOIL )
                 ELSE
                    CALL write_output( dels, ktau, met, canopy, casaflux, casapool, casamet, &
                         ssnow,   &
-                        rad, bal, air, soil, veg, C%SBOLTZ, C%EMLEAF, C%EMSOIL )
+                        rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
 
                 ENDIF
              END IF
@@ -1293,7 +1297,7 @@ CONTAINS
              END IF
           END IF
 
-          IF ( YYYY.EQ. CABLE_USER%YearEnd ) THEN
+          IF ( YYYY.GT. CABLE_USER%YearEnd ) THEN
              ! store soil moisture and temperature
              soilTtemp = ssnow%tgg
              soilMtemp = REAL(ssnow%wb)
@@ -1597,15 +1601,15 @@ CONTAINS
 
     TYPE (met_type), INTENT(INOUT) :: met
     TYPE (air_type), INTENT(INOUT) :: air
-    TYPE (soil_snow_type), INTENT(OUT) :: ssnow
-    TYPE (veg_parameter_type), INTENT(OUT)  :: veg
-    TYPE (bgc_pool_type), INTENT(OUT)  :: bgc
-    TYPE (soil_parameter_type), INTENT(OUT) :: soil
-    TYPE (canopy_type), INTENT(OUT)    :: canopy
-    TYPE (roughness_type), INTENT(OUT) :: rough
-    TYPE (radiation_type),INTENT(OUT)  :: rad
-    TYPE (sum_flux_type), INTENT(OUT)  :: sum_flux
-    TYPE (balances_type), INTENT(OUT)  :: bal
+    TYPE (soil_snow_type),      INTENT(INOUT) :: ssnow
+    TYPE (veg_parameter_type),  INTENT(INOUT) :: veg
+    TYPE (bgc_pool_type),       INTENT(INOUT) :: bgc
+    TYPE (soil_parameter_type), INTENT(INOUT) :: soil
+    TYPE (canopy_type),         INTENT(INOUT) :: canopy
+    TYPE (roughness_type),      INTENT(INOUT) :: rough
+    TYPE (radiation_type),      INTENT(INOUT) :: rad
+    TYPE (sum_flux_type),       INTENT(INOUT) :: sum_flux
+    TYPE (balances_type),       INTENT(INOUT) :: bal
 
 
     ! local vars
@@ -7498,9 +7502,10 @@ CONTAINS
             &                             types(bidx), ierr)
        blocks(bidx) = 1
 
-       bidx = bidx + 1
-       CALL MPI_Get_address (climate%mtemp_max(off), displs(bidx), ierr)
-       blocks(bidx) = r1len
+       ! #294 - Avoid malformed var write for now 
+       ! bidx = bidx + 1
+       ! CALL MPI_Get_address (climate%mtemp_max(off), displs(bidx), ierr)
+       ! blocks(bidx) = r1len
 
        !****************************************************************
        ! Ndep
@@ -8221,7 +8226,8 @@ CONTAINS
 
     USE cable_def_types_mod
     USE cable_carbon_module
-    USE cable_common_module, ONLY: CABLE_USER, is_casa_time
+    USE cable_common_module, ONLY: CABLE_USER
+  USE casa_ncdf_module, ONLY: is_casa_time
     USE cable_IO_vars_module, ONLY: logn, landpt, patch, output
     USE casadimension
     USE casaparm
@@ -8524,7 +8530,8 @@ CONTAINS
 
     USE cable_def_types_mod , ONLY: veg_parameter_type, mland
     USE cable_carbon_module
-    USE cable_common_module, ONLY: CABLE_USER, is_casa_time, CurYear
+    USE cable_common_module, ONLY: CABLE_USER, CurYear
+  USE casa_ncdf_module, ONLY: is_casa_time
     USE cable_IO_vars_module, ONLY: logn, landpt, patch
     USE casadimension
     USE casaparm

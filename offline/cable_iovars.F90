@@ -95,7 +95,27 @@ MODULE cable_IO_vars_module
        nmetpatches         ! size of patch dimension in met file, if exists
 
   ! =============== File details ==========================
+   TYPE globalMet_type
+     LOGICAL           ::                                                     &
+       l_gpcc,&! = .FALSE., &         ! ypwang following Chris Lu (30/oct/2012)
+       l_gswp,&!= .FALSE. , &         ! BP May 2013
+       l_ncar,&! = .FALSE., &         ! BP Dec 2013
+       l_access ! = .FALSE.          ! BP May 2013
 
+      CHARACTER(LEN=99) ::                                                     &
+         rainf, &
+         snowf, &
+         LWdown, &
+         SWdown, &
+         PSurf, &
+         Qair, &
+         Tair, &
+         wind
+
+   END TYPE globalMet_type
+   
+   TYPE(globalMet_type) :: globalMetfile
+ 
   TYPE gswp_type
 
      CHARACTER(LEN=200) ::                                                     &

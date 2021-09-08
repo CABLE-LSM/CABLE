@@ -35,12 +35,12 @@
    l_laiFeedbk   = .FALSE.  ! using prognostic LAI
    l_vcmaxFeedbk = .FALSE.  ! using prognostic Vcmax
    icycle = 0   ! BP pull it out from casadimension and put here; 0 for not using casaCNP, 1 for C, 2 for C+N, 3 for C+N+P
-   casafile%cnpipool='/projects/access/CABLE-AUX/core/biogeochem/poolcnpInTumbarumba.csv'  ! 
-   casafile%cnpbiome='/projects/access/CABLE-AUX/core/biogeochem/pftlookup_csiro_v16_17tiles.csv'  ! biome specific BGC parameters
+   casafile%cnpipool='/projects/access/from_raijin/CABLE-AUX/core/biogeochem/poolcnpInTumbarumba.csv'  ! 
+   casafile%cnpbiome='pftlookup.csv'  ! biome specific BGC parameters
    casafile%cnpepool='poolcnpOut.csv'    ! end of run pool size
    casafile%cnpmetout='casamet.nc'                ! output daily met forcing for spinning casacnp
    casafile%cnpmetin=''          ! list of daily met files for spinning casacnp
-   casafile%phen='/projects/access/CABLE-AUX/core/biogeochem/modis_phenology_csiro.txt'        ! modis phenology
+   casafile%phen='/projects/access/from_raijin/CABLE-AUX/core/biogeochem/modis_phenology_csiro.txt'        ! modis phenology
    casafile%cnpflux='cnpfluxOut.csv'
    ncciy = 0 ! 0 for not using gswp; 4-digit year input for year of gswp met
    gswpfile%rainf = 'gswp/Rainf_gswp1987.nc'
@@ -58,6 +58,7 @@
                                                  ! 1. standard 
                                                  ! 2. non-linear extrapolation 
                                                  ! 3. Lai and Ktaul 2000 
+   cable_user%GS_SWITCH = 'leuning'
    cable_user%DIAG_SOIL_RESP = 'ON ' 
    cable_user%LEAF_RESPIRATION = 'ON ' 
    cable_user%RUN_DIAG_LEVEL= 'BASIC'        ! choices are: 

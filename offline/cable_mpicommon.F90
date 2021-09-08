@@ -55,7 +55,7 @@ MODULE cable_mpicommon
 
   ! MPI: number of casa_dump parameters sent/rec'd to/from the workers every
   ! timestep
-  INTEGER, PARAMETER :: ncdumprw = 9
+  INTEGER, PARAMETER :: ncdumprw = 8  !reduced from 9 - #294
   ! MPI: number of casa_LUC parameters sent/rec'd to/from the workers every
   ! year
   INTEGER, PARAMETER :: nLUCrw = 12

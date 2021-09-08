@@ -59,8 +59,7 @@ MODULE cable_param_module
   USE phenvariable
   USE cable_abort_module
   USE cable_IO_vars_module
-  USE cable_common_module, ONLY: cable_user, hide, gw_params, &
-                                 init_veg_from_vegin
+  USE cable_common_module, ONLY: cable_user, gw_params
   USE cable_pft_params_mod
   USE cable_soil_params_mod
   USE CABLE_LUC_EXPT, ONLY: LUC_EXPT, LUC_EXPT_TYPE, LUC_EXPT_SET_TILES
@@ -148,11 +147,6 @@ CONTAINS
     INTEGER :: nlon
     INTEGER :: nlat
 
-    ! Get parameter values for all default veg and soil types:
-    !CALL get_type_parameters(logn, vegparmnew, classification)
-    CALL cable_pft_params()
-    CALL cable_soil_params()
-
     WRITE(logn,*) ' Reading grid info from ', TRIM(filename%type)
     WRITE(logn,*) ' And assigning C4 fraction according to veg classification.'
     WRITE(logn,*)
@@ -174,6 +168,11 @@ CONTAINS
        WRITE(logn,*) 'Use spatially-specific soil properties; ', nlon, nlat
        CALL spatialSoil(nlon, nlat, logn)
     ENDIF
+
+    ! Get parameter values for all default veg and soil types:
+    !CALL get_type_parameters(logn, vegparmnew, classification)
+    CALL cable_pft_params()
+    CALL cable_soil_params()
 
     ! include prescribed soil colour in determining albedo - Ticket #27
     IF (calcsoilalbedo) THEN
@@ -1134,8 +1133,7 @@ CONTAINS
     !   landpt(mp)%type- via cable_IO_vars_module (%nap,cstart,cend,ilon,ilat)
     !   patch(mp)%type - via cable_IO_vars_module (%frac,longitude,latitude)
 
-    USE cable_common_module, ONLY : vegin, soilin, &
-         calcsoilalbedo,cable_user,init_veg_from_vegin
+    USE cable_common_module, ONLY : calcsoilalbedo,cable_user
 
     IMPLICIT NONE
     INTEGER,               INTENT(IN)    :: logn  ! log file unit number
@@ -1460,7 +1458,7 @@ CONTAINS
 
         IF(exists%patch) &
           patch(landpt(e)%cstart:landpt(e)%cstart)%frac =      &
-                                                           vegpatch_metfile(e, :)
+                                                          vegpatch_metfile(e,landpt(e)%cstart:landpt(e)%cstart )
 
           ! In case gridinfo file provides more patches than met file(BP may08)
           DO f = nmetpatches+1, landpt(e)%nap
@@ -2667,6 +2665,80 @@ CONTAINS
     END DO
 
   END SUBROUTINE report_parameters
+
+  SUBROUTINE init_veg_from_vegin(ifmp,fmp, veg, soil_zse )
+    USE cable_def_types_mod, ONLY : veg_parameter_type, ms
+    INTEGER ::  ifmp,  & ! start local mp, # landpoints (jhan:when is this not 1 )
+         fmp     ! local mp, # landpoints
+    REAL, DIMENSION(ms) :: soil_zse
+
+    TYPE(veg_parameter_type) :: veg
+
+    INTEGER :: is
+    REAL :: totdepth
+    INTEGER :: h
+
+    ! Prescribe parameters for current gridcell based on veg/soil type (which
+    ! may have loaded from default value file or met file):
+    DO h = ifmp, fmp          ! over each patch in current grid
+       veg%frac4(h)    = vegin%frac4(veg%iveg(h))
+       veg%taul(h,1)    = vegin%taul(1,veg%iveg(h))
+       veg%taul(h,2)    = vegin%taul(2,veg%iveg(h))
+       veg%refl(h,1)    = vegin%refl(1,veg%iveg(h))
+       veg%refl(h,2)    = vegin%refl(2,veg%iveg(h))
+       veg%canst1(h)   = vegin%canst1(veg%iveg(h))
+       veg%dleaf(h)    = vegin%dleaf(veg%iveg(h))
+       veg%vcmax(h)    = vegin%vcmax(veg%iveg(h))
+       veg%ejmax(h)    = vegin%ejmax(veg%iveg(h))
+       veg%hc(h)       = vegin%hc(veg%iveg(h))
+       veg%xfang(h)    = vegin%xfang(veg%iveg(h))
+       veg%vbeta(h)    = vegin%vbeta(veg%iveg(h))
+       veg%xalbnir(h)  = vegin%xalbnir(veg%iveg(h))
+       veg%rp20(h)     = vegin%rp20(veg%iveg(h))
+       veg%rpcoef(h)   = vegin%rpcoef(veg%iveg(h))
+       veg%rs20(h)     = vegin%rs20(veg%iveg(h))
+       veg%shelrb(h)   = vegin%shelrb(veg%iveg(h))
+       veg%wai(h)      = vegin%wai(veg%iveg(h))
+       veg%a1gs(h)     = vegin%a1gs(veg%iveg(h))
+       veg%d0gs(h)     = vegin%d0gs(veg%iveg(h))
+       veg%vegcf(h)    = vegin%vegcf(veg%iveg(h))
+       veg%extkn(h)    = vegin%extkn(veg%iveg(h))
+       veg%tminvj(h)   = vegin%tminvj(veg%iveg(h))
+       veg%tmaxvj(h)   = vegin%tmaxvj(veg%iveg(h))
+       veg%g0(h)       = vegin%g0(veg%iveg(h)) ! Ticket #56
+       veg%g1(h)       = vegin%g1(veg%iveg(h)) ! Ticket #56
+       veg%a1gs(h)   = vegin%a1gs(veg%iveg(h))
+       veg%d0gs(h)   = vegin%d0gs(veg%iveg(h))
+       veg%alpha(h)  = vegin%alpha(veg%iveg(h))
+       veg%convex(h) = vegin%convex(veg%iveg(h))
+       veg%cfrd(h)   = vegin%cfrd(veg%iveg(h))
+       veg%gswmin(h) = vegin%gswmin(veg%iveg(h))
+       veg%conkc0(h) = vegin%conkc0(veg%iveg(h))
+       veg%conko0(h) = vegin%conko0(veg%iveg(h))
+       veg%ekc(h)    = vegin%ekc(veg%iveg(h))
+       veg%eko(h)    = vegin%eko(veg%iveg(h))
+       veg%rootbeta(h)  = vegin%rootbeta(veg%iveg(h))
+       veg%zr(h)       = vegin%zr(veg%iveg(h))
+       veg%clitt(h)    = vegin%clitt(veg%iveg(h))
+    END DO ! over each veg patch in land point
+
+    ! calculate vegin%froot from using rootbeta and soil depth
+    ! (Jackson et al. 1996, Oceologica, 108:389-411)
+    totdepth = 0.0
+    DO is = 1, ms-1
+       totdepth = totdepth + soil_zse(is) * 100.0  ! unit in centimetres
+       veg%froot(:, is) = MIN( 1.0, 1.0-veg%rootbeta(:)**totdepth )
+    END DO
+    veg%froot(:, ms) = 1.0 - veg%froot(:, ms-1)
+    DO is = ms-1, 2, -1
+       veg%froot(:, is) = veg%froot(:, is)-veg%froot(:,is-1)
+    END DO
+
+
+
+
+
+  END SUBROUTINE init_veg_from_vegin
 
 
 END MODULE cable_param_module

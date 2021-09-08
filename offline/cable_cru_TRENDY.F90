@@ -1,9 +1,8 @@
 MODULE CABLE_CRU
 
   USE netcdf                         ! Access to netcdf routines
-  USE CABLE_COMMON_MODULE, ONLY: &   ! Selected cable_common.f90 routines:
-       HANDLE_ERR,  &                 ! Print error status info returned by netcdf file operations
-       GET_UNIT                       ! Finds an unused unit number for file opens
+       
+  USE casa_ncdf_module, ONLY: HANDLE_ERR, GET_UNIT                       ! Finds an unused unit number for file opensYMDHMS2DOYSOD, DOYSOD2YMDHMS
 
   USE cable_IO_vars_module, ONLY: &  ! Selected cable_iovars.F90 variables:
        logn,            &             ! Log file unit number
@@ -1218,7 +1217,7 @@ CONTAINS
 
     USE cable_def_types_mod,   ONLY: MET_TYPE
     USE cable_IO_vars_module,  ONLY: LANDPT, latitude
-    USE cable_common_module,   ONLY: DOYSOD2YMDHMS
+  USE casa_ncdf_module, ONLY: DOYSOD2YMDHMS
     USE cable_weathergenerator,ONLY: WEATHER_GENERATOR_TYPE, WGEN_INIT, &
          WGEN_DAILY_CONSTANTS, WGEN_SUBDIURNAL_MET
     USE cable_checks_module,   ONLY: rh_sh

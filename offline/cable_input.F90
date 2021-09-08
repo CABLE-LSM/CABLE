@@ -48,13 +48,13 @@ MODULE cable_input_module
   USE POPLUC_Types,               ONLY: POPLUC_TYPE
   USE cable_param_module
   USE cable_checks_module,     ONLY: ranges, rh_sh
-  USE cable_radiation_module,  ONLY: sinbet
+  USE cbl_sinbet_mod,  ONLY: sinbet
   USE cable_IO_vars_module
   USE cable_read_module,       ONLY: readpar
   USE cable_init_module
   USE netcdf ! link must be made in cd to netcdf-x.x.x/src/f90/netcdf.mod
-  USE cable_common_module, ONLY : filename, cable_user, CurYear, HANDLE_ERR, &
-                                  is_leapyear
+  USE cable_common_module, ONLY : filename, cable_user, CurYear, is_leapyear
+  USE casa_ncdf_module, ONLY: HANDLE_ERR
   USE casa_inout_module, ONLY: casa_readbiome, casa_readphen, casa_init
 
   IMPLICIT NONE
@@ -293,8 +293,8 @@ CONTAINS
 
   SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
 
-    USE CABLE_COMMON_MODULE, ONLY : IS_LEAPYEAR, YMDHMS2DOYSOD, DOYSOD2YMDHMS,&
-         HANDLE_ERR
+    USE CABLE_COMMON_MODULE, ONLY : IS_LEAPYEAR
+  USE casa_ncdf_module, ONLY: HANDLE_ERR, YMDHMS2DOYSOD, DOYSOD2YMDHMS
     IMPLICIT NONE
     ! Input arguments
     REAL, INTENT(OUT) :: dels   ! time step size
@@ -380,43 +380,85 @@ CONTAINS
 
     ! Open netcdf file:
     IF (ncciy > 0) THEN
-       WRITE(logn,*) 'Opening met data file: ', TRIM(gswpfile%rainf), ' and 7 more'
-       ok = NF90_OPEN(gswpfile%rainf,0,ncid_rain)
+
+       IF( globalMetfile%l_gpcc ) THEN
+       WRITE(logn,*) 'Opening met data file: ', TRIM(globalMetfile%rainf), ' and 7 more'
+       ELSE
+         WRITE(logn,*) 'Opening met data file: ', TRIM(gswpfile%rainf), ' and 7 more'
+       ENDIF
+ 
+       IF( globalMetfile%l_gpcc ) THEN
+       ok = NF90_OPEN(globalMetfile%rainf,0,ncid_rain)
+       ELSE
+         ok = NF90_OPEN(gswpfile%rainf,0,ncid_rain)
+       ENDIF
        IF (ok /= NF90_NOERR) THEN
           PRINT*,'rainf'
           CALL handle_err( ok )
        ENDIF
-       ok = NF90_OPEN(gswpfile%snowf,0,ncid_snow)
-       IF (ok /= NF90_NOERR) THEN
-          PRINT*,'snow'
-          CALL handle_err( ok )
+       IF(.NOT. globalMetfile%l_gpcc) THEN
+         ok = NF90_OPEN(gswpfile%snowf,0,ncid_snow)
+         IF (ok /= NF90_NOERR) THEN
+            PRINT*,'snow'
+            CALL handle_err( ok )
+         ENDIF
        ENDIF
-       ok = NF90_OPEN(gswpfile%LWdown,0,ncid_lw)
+       
+       IF( globalMetfile%l_gpcc ) THEN
+       ok = NF90_OPEN(globalMetfile%LWdown,0,ncid_lw)
+       ELSE
+         ok = NF90_OPEN(gswpfile     %LWdown,0,ncid_lw)
+       ENDIF
        IF (ok /= NF90_NOERR) THEN
           PRINT*,'lw'
           CALL handle_err( ok )
        ENDIF
-       ok = NF90_OPEN(gswpfile%SWdown,0,ncid_sw)
+       
+       IF( globalMetfile%l_gpcc ) THEN
+       ok = NF90_OPEN(globalMetfile%SWdown,0,ncid_sw)
+       ELSE
+         ok = NF90_OPEN(gswpfile%SWdown,0,ncid_sw)
+       ENDIF
        IF (ok /= NF90_NOERR) THEN
           PRINT*,'sw'
           CALL handle_err( ok )
        ENDIF
-       ok = NF90_OPEN(gswpfile%PSurf,0,ncid_ps)
+       
+       IF( globalMetfile%l_gpcc ) THEN
+       ok = NF90_OPEN(globalMetfile%PSurf,0,ncid_ps)
+       ELSE
+         ok = NF90_OPEN(gswpfile%PSurf,0,ncid_ps)
+       ENDIF
        IF (ok /= NF90_NOERR) THEN
           PRINT*,'ps'
           CALL handle_err( ok )
        ENDIF
-       ok = NF90_OPEN(gswpfile%Qair,0,ncid_qa)
+       
+       IF( globalMetfile%l_gpcc ) THEN
+       ok = NF90_OPEN(globalMetfile%Qair,0,ncid_qa)
+       ELSE
+         ok = NF90_OPEN(gswpfile%Qair,0,ncid_qa)
+       ENDIF
        IF (ok /= NF90_NOERR) THEN
           PRINT*,'qa'
           CALL handle_err( ok )
        ENDIF
-       ok = NF90_OPEN(gswpfile%Tair,0,ncid_ta)
+       
+       IF( globalMetfile%l_gpcc ) THEN
+       ok = NF90_OPEN(globalMetfile%Tair,0,ncid_ta)
+       ELSE
+         ok = NF90_OPEN(gswpfile%Tair,0,ncid_ta)
+       ENDIF
        IF (ok /= NF90_NOERR) THEN
           PRINT*,'ta'
           CALL handle_err( ok )
        ENDIF
-       ok = NF90_OPEN(gswpfile%wind,0,ncid_wd)
+       
+       IF( globalMetfile%l_gpcc ) THEN
+       ok = NF90_OPEN(globalMetfile%wind,0,ncid_wd)
+       ELSE
+         ok = NF90_OPEN(gswpfile%wind,0,ncid_wd)
+       ENDIF
        IF (ok /= NF90_NOERR) THEN
           PRINT*,'wind',ncid_wd
           CALL handle_err( ok )
@@ -935,7 +977,20 @@ CONTAINS
     all_met = .TRUE. ! initialise
     ! Look for SWdown (essential):- - - - - - - - - - - - - - - - - -
     IF (ncciy > 0) ncid_met = ncid_sw
+
+   ! option was added by Chris Lu to allow for different variable names between GPCC and GSWP forcings
+   ! added by ypwang 30/oct/2012 
+    IF(globalMetfile%l_gpcc)THEN
+       ok = NF90_INQ_VARID(ncid_met,'dswrf',id%SWdown)
+
+    ELSE IF(globalMetfile%l_access)THEN
+       ok = NF90_INQ_VARID(ncid_met,'rsds',id%SWdown)
+    ELSE IF(globalMetfile%l_ncar)THEN
+       ok = NF90_INQ_VARID(ncid_met,'FSDS',id%SWdown)
+    ELSE    ! for gswp and single site
     ok = NF90_INQ_VARID(ncid_met,'SWdown',id%SWdown)
+    END IF
+
     IF(ok /= NF90_NOERR) CALL nc_abort &
          (ok,'Error finding SWdown in met data file ' &
          //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
@@ -954,7 +1009,17 @@ CONTAINS
     END IF
     ! Look for Tair (essential):- - - - - - - - - - - - - - - - - - -
     IF (ncciy > 0) ncid_met = ncid_ta
+
+    IF(globalMetfile%l_gpcc)THEN
+       ok = NF90_INQ_VARID(ncid_met,'tas',id%Tair)
+    ELSE IF(globalMetfile%l_access)THEN
+       ok = NF90_INQ_VARID(ncid_met,'tas',id%Tair)
+    ELSE IF(globalMetfile%l_ncar)THEN
+       ok = NF90_INQ_VARID(ncid_met,'TBOT',id%Tair)
+    ELSE    ! for gswp and single site
     ok = NF90_INQ_VARID(ncid_met,'Tair',id%Tair)
+    END IF
+
     IF(ok /= NF90_NOERR) CALL nc_abort &
          (ok,'Error finding Tair in met data file ' &
          //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
@@ -977,7 +1042,16 @@ CONTAINS
     END IF
     ! Look for Qair (essential):- - - - - - - - - - - - - - - - - - -
     IF (ncciy > 0) ncid_met = ncid_qa
+    IF(globalMetfile%l_gpcc)THEN
+       ok = NF90_INQ_VARID(ncid_met,'shum',id%Qair)
+    ELSE IF(globalMetfile%l_access)THEN
+       ok = NF90_INQ_VARID(ncid_met,'huss',id%Qair)
+    ELSE IF(globalMetfile%l_ncar)THEN
+       ok = NF90_INQ_VARID(ncid_met,'QBOT',id%Qair)
+    ELSE    ! for gswp and single site
     ok = NF90_INQ_VARID(ncid_met,'Qair',id%Qair)
+    END IF
+
     IF(ok /= NF90_NOERR) CALL nc_abort &
          (ok,'Error finding Qair in met data file ' &
          //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
@@ -1001,8 +1075,17 @@ CONTAINS
     END IF
     ! Look for Rainf (essential):- - - - - - - - - - - - - - - - - -
     IF (ncciy > 0) ncid_met = ncid_rain
+
+    IF(globalMetfile%l_gpcc)THEN                !Chris 6/Sep/2012
+       ok = NF90_INQ_VARID(ncid_met,'prcp',id%Rainf)
+    ELSE IF(globalMetfile%l_access)THEN
+       ok = NF90_INQ_VARID(ncid_met,'pr',id%Rainf)
+    ELSE IF(globalMetfile%l_ncar)THEN
+       ok = NF90_INQ_VARID(ncid_met,'RAIN',id%Rainf)
+    ELSE    ! for gswp and single site
     ok = NF90_INQ_VARID(ncid_met,'Rainf',id%Rainf)
-    IF(ok .NE. NF90_NOERR) ok = NF90_INQ_VARID(ncid_met,'Precip',id%Rainf)
+    END IF
+
     IF(ok /= NF90_NOERR) CALL nc_abort &
          (ok,'Error finding Rainf in met data file ' &
          //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
@@ -1031,7 +1114,14 @@ CONTAINS
     ranges%Rainf = ranges%Rainf*dels ! range therefore depends on dels
     ! Look for Wind (essential):- - - - - - - - - - - - - - - - - - -
     IF (ncciy > 0) ncid_met = ncid_wd
+    IF(globalMetfile%l_gpcc .OR. globalMetfile%l_access)THEN
+       ok = NF90_INQ_VARID(ncid_met,'wind',id%Wind)
+    ELSE IF(globalMetfile%l_ncar)THEN
+       ok = NF90_INQ_VARID(ncid_met,'WIND',id%Wind)
+    ELSE    ! for gswp and single site
     ok = NF90_INQ_VARID(ncid_met,'Wind',id%Wind)
+    END IF
+
     IF(ok /= NF90_NOERR) THEN
        ! Look for vector wind:
        ok = NF90_INQ_VARID(ncid_met,'Wind_N',id%Wind)
@@ -1059,7 +1149,16 @@ CONTAINS
     ! Now "optional" variables:
     ! Look for LWdown (can be synthesised):- - - - - - - - - - - - - - -
     IF (ncciy > 0) ncid_met = ncid_lw
+    IF(globalMetfile%l_gpcc)THEN
+       ok = NF90_INQ_VARID(ncid_met,'dlwrf',id%LWdown)
+    ELSE IF(globalMetfile%l_access)THEN
+       ok = NF90_INQ_VARID(ncid_met,'rlds',id%LWdown)
+    ELSE IF(globalMetfile%l_ncar)THEN
+       ok = NF90_INQ_VARID(ncid_met,'FLDS',id%LWdown)
+    ELSE    ! for gswp and single site
     ok = NF90_INQ_VARID(ncid_met,'LWdown',id%LWdown)
+    END IF
+
     IF(ok == NF90_NOERR) THEN ! If inquiry is okay
        exists%LWdown = .TRUE. ! LWdown is present in met file
        ! Get LWdown units and check okay:
@@ -1088,8 +1187,16 @@ CONTAINS
     END IF
     ! Look for PSurf (can be synthesised):- - - - - - - - - - - - - - - -
     IF (ncciy > 0) ncid_met = ncid_ps
+    IF(globalMetfile%l_gpcc)THEN
+       ok = NF90_INQ_VARID(ncid_met,'pres',id%PSurf)
+    ELSE IF(globalMetfile%l_access)THEN
+       ok = NF90_INQ_VARID(ncid_met,'ps',id%PSurf)
+    ELSE IF(globalMetfile%l_ncar)THEN
+       ok = NF90_INQ_VARID(ncid_met,'PBOT',id%PSurf)
+    ELSE    ! for gswp and single site
     ok = NF90_INQ_VARID(ncid_met,'PSurf',id%PSurf)
-    IF(ok .NE. NF90_NOERR) ok = NF90_INQ_VARID(ncid_met,'Psurf',id%PSurf)
+    END IF
+
     IF(ok == NF90_NOERR) THEN ! If inquiry is okay
        exists%PSurf = .TRUE. ! PSurf is present in met file
        ! Get PSurf units and check:
@@ -1190,7 +1297,11 @@ CONTAINS
             'values will be fixed at ',INT(fixedCO2),' ppmv'
     END IF
     ! Look for Snowf (could be part of Rainf variable):- - - - - - - - - -
-    IF (ncciy > 0) ncid_met = ncid_snow
+    !IF (ncciy > 0 .AND. (globalMetfile%l_gpcc .OR. globalMetfile%l_gswp .OR. globalMetfile%l_ncar))Then
+    IF (ncciy > 0 .AND. ( globalMetfile%l_gswp .OR. globalMetfile%l_ncar))Then
+       ncid_met = ncid_snow
+    END IF
+
     ok = NF90_INQ_VARID(ncid_met,'Snowf',id%Snowf)
     IF(ok == NF90_NOERR) THEN ! If inquiry is okay
        exists%Snowf = .TRUE. ! Snowf is present in met file

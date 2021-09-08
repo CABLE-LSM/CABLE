@@ -26,10 +26,8 @@
 MODULE CABLE_site
 
 
-  USE CABLE_COMMON_MODULE, ONLY: &   ! Selected cable_common.f90 routines:
-       HANDLE_ERR,  &                 ! Print error status info returned by netcdf file operations
-       GET_UNIT, &                       ! Finds an unused unit number for file opens
-       CurYear !  current year of multiannual run
+  USE casa_ncdf_module, ONLY: HANDLE_ERR, GET_UNIT
+  USE CABLE_COMMON_MODULE, ONLY: CurYear !  current year of multiannual run
 
   USE cable_IO_vars_module, ONLY: &  ! Selected cable_iovars.F90 variables:
        logn

@@ -1,8 +1,8 @@
 MODULE CABLE_LUC_EXPT
 
   USE netcdf
-  USE CABLE_COMMON_MODULE, ONLY: IS_LEAPYEAR, LEAP_DAY, &
-       HANDLE_ERR, GET_UNIT
+  USE casa_ncdf_module, ONLY: HANDLE_ERR, GET_UNIT
+  USE CABLE_COMMON_MODULE, ONLY: IS_LEAPYEAR, LEAP_DAY
 
   USE cable_IO_vars_module, ONLY: logn, land_x, land_y, landpt, latitude, longitude
   USE cable_def_types_mod,  ONLY: mland, r_2

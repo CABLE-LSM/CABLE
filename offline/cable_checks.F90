@@ -30,7 +30,6 @@ MODULE cable_checks_module
   ! particular sections of the code - largely for diagnostics/fault finding.
   ! rh_sh - converts relative to sensible humidity if met file units require it
   !
-  USE cable_radiation_module, ONLY: sinbet
   USE cable_def_types_mod
   USE cable_common_module, ONLY: cable_user
 

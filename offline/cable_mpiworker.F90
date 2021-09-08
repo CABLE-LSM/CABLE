@@ -36,7 +36,7 @@
 !                 casa_cable
 !                 casa_inout_module
 !
-! CALLs:       point2constants
+! CALLs:       
 !              casa_feedback
 !              cbm
 !              bgcdriver
@@ -114,6 +114,7 @@ MODULE cable_mpiworker
   !debug moved to iovars -- easy to pass around
 
   PUBLIC :: mpidrv_worker
+  REAL, allocatable  :: heat_cap_lower_limit(:,:)
 
 CONTAINS
 
@@ -122,16 +123,16 @@ CONTAINS
     USE mpi
 
     USE cable_def_types_mod
-    USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,                  &
+    USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps, globalMetfile,  &
          verbose, fixedCO2,output,check,patchout,    &
          patch_type,soilparmnew,&
          defaultLAI, wlogn
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
          cable_runtime, filename, myhome,            &
          redistrb, wiltParam, satuParam, CurYear,    &
-         IS_LEAPYEAR, IS_CASA_TIME, calcsoilalbedo,                &
-         report_version_no, kwidth_gl, gw_params
-    USE cable_data_module,    ONLY: driver_type, point2constants
+         IS_LEAPYEAR, calcsoilalbedo,                &
+         kwidth_gl, gw_params
+  USE casa_ncdf_module, ONLY: is_casa_time
     USE cable_input_module,   ONLY: open_met_file,load_parameters,              &
          get_met_data,close_met_file
     USE cable_output_module,  ONLY: create_restart,open_output_file,            &
@@ -204,7 +205,6 @@ USE cbl_soil_snow_init_special_module
     ! CABLE parameters
     TYPE (soil_parameter_type) :: soil ! soil parameters
     TYPE (veg_parameter_type)  :: veg  ! vegetation parameters
-    TYPE (driver_type)    :: C         ! constants used locally
 
     TYPE (sum_flux_type)  :: sum_flux ! cumulative flux variables
     TYPE (bgc_pool_type)  :: bgc  ! carbon pool variables
@@ -273,6 +273,7 @@ USE cbl_soil_snow_init_special_module
          casafile,         &
          ncciy,            &
          gswpfile,         &
+         globalMetfile,    &   
          redistrb,         &
          wiltParam,        &
          satuParam,        &
@@ -281,6 +282,10 @@ USE cbl_soil_snow_init_special_module
 
     INTEGER :: i,x,kk
     INTEGER :: LALLOC, iu
+!For consistency w JAC
+  REAL,ALLOCATABLE, SAVE :: c1(:,:)
+  REAL,ALLOCATABLE, SAVE :: rhoch(:,:)
+  REAL,ALLOCATABLE, SAVE :: xk(:,:)
     ! END header
 
     ! Maciej: make sure the variable does not go out of scope
@@ -352,9 +357,6 @@ USE cbl_soil_snow_init_special_module
     ENDIF
 
     cable_runtime%offline = .TRUE.
-
-    ! associate pointers used locally with global definitions
-    CALL point2constants( C )
 
     IF( l_casacnp  .AND. ( icycle == 0 .OR. icycle > 3 ) )                   &
          STOP 'icycle must be 1 to 3 when using casaCNP'
@@ -571,7 +573,13 @@ USE cbl_soil_snow_init_special_module
              EXIT
           ENDIF
 
-  call spec_init_soil_snow(dels, soil, ssnow, canopy, met, bal, veg)
+  if( .NOT. allocated(heat_cap_lower_limit) ) then
+    allocate( heat_cap_lower_limit(mp,ms) ) 
+    heat_cap_lower_limit = 0.01
+  end if
+
+  call spec_init_soil_snow(dels, soil, ssnow, canopy, met, bal, veg, heat_cap_lower_limit)
+
   
           ! IF (.NOT.spincasa) THEN
           ! time step loop over ktau
@@ -642,10 +650,10 @@ USE cbl_soil_snow_init_special_module
                   climate, canopy, air, rad, dels, mp)
 
 
+   IF (.NOT. allocated(c1)) ALLOCATE( c1(mp,nrb), rhoch(mp,nrb), xk(mp,nrb) )
              ! CALL land surface scheme for this timestep, all grid points:
-             CALL cbm( ktau, dels, air, bgc, canopy, met,                  &
-                  bal, rad, rough, soil, ssnow,                            &
-                  sum_flux, veg, climate)
+   CALL cbm( ktau, dels, air, bgc, canopy, met, bal,                             &
+             rad, rough, soil, ssnow, sum_flux, veg, climate, xk, c1, rhoch )
 
              ssnow%smelt  = ssnow%smelt*dels
              ssnow%rnof1  = ssnow%rnof1*dels
@@ -6860,9 +6868,10 @@ USE cbl_soil_snow_init_special_module
     CALL MPI_Get_address (phen%doyphase, displs(bidx), ierr)
     blen(bidx) = mphase * i1len
 
-    bidx = bidx + 1
-    CALL MPI_Get_address (climate%mtemp_max, displs(bidx), ierr)
-    blen(bidx) = r1len
+    ! #294 - Avoid malformed var write for now 
+    ! bidx = bidx + 1
+    ! CALL MPI_Get_address (climate%mtemp_max, displs(bidx), ierr)
+    ! blen(bidx) = r1len
 
     !****************************************************************
     ! Ndep
