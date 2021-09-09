@@ -1722,9 +1722,9 @@ CONTAINS
           IF (veg%iveg(hh) == cropland .OR. veg%iveg(hh) == croplnd2) THEN
              ! P fertilizer =13 Mt P globally in 1994
              casaflux%Pdep(hh)    = casaflux%Pdep(hh)                             &
-                  + patch(hh)%frac * 0.7 / 365.0
+                  + 0.7 / 365.0
              casaflux%Nmindep(hh) = casaflux%Nmindep(hh)                          &
-                  + patch(hh)%frac * 4.0 / 365.0
+                  + 4.0 / 365.0
           ENDIF
        ENDDO
     ENDDO
