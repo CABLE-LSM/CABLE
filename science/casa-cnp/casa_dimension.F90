@@ -39,7 +39,6 @@ MODULE casadimension
   INTEGER, PARAMETER :: mdweek=7           ! days per week
   INTEGER, PARAMETER :: mmyear=12          ! month per year
   INTEGER, PARAMETER :: mt=36500           ! integration time step
-  INTEGER, PARAMETER :: mpftmax=2          ! max. PFT/cell
   INTEGER, PARAMETER :: mplant = 3         ! plant pools
   INTEGER, PARAMETER :: mlitter= 3         ! litter pools
   INTEGER, PARAMETER :: msoil  = 3         ! soil pools
