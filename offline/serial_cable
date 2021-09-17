@@ -11,19 +11,10 @@ export CINC="-I$NCMOD"
 export supr=' -warn nostderrors -diag-disable 10145 '
 mkdir -p tmpo
 rm -f cable_driver.o
+
 cp *.o tmpo/
 export FOBJS=`ls tmpo/`
 
-$1 $supr $2 $3 $4 -c spincasacnp.F90  cable_define_types.o  cable_carbon.o cable_common.o \
-	 casa_variable.o casa_phenology.o  casa_cable.o
-
-$1 $supr$2 $3 $4 -c cbl_model_driver_offline.F90 cable_phys_constants_mod.o cable_carbon.o cbl_soilsnow_main.o cable_canopy.o cable_define_types.o cable_roughness.o cbl_radiation.o cbl_albedo.o casa_variable.o cable_common.o cable_gw_hydro.o cable_psm.o cbl_masks.o
-
-$1 $supr $2 $3 $4 -c CASAONLY_LUC.F90 cable_define_types.o  cable_carbon.o cable_common.o \
-		casa_variable.o POP.o POPLUC.o cable_LUC_EXPT.o
-
-export LOBJS="spincasacnp.o cbl_model_driver_offline.o CASAONLY_LUC.o"
-
-$FC $supr $CFLAGS $LDFLAGS $LD -o cable cable_driver.F90 $FOBJS $LOBJS $CINC 
+$FC $supr $CFLAGS $LDFLAGS $LD -o cable cable_driver.F90 $FOBJS $CINC 
 
 rm -fr tmpo/

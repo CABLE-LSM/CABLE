@@ -171,7 +171,7 @@ spincasacnp.o: spincasacnp.F90  cable_define_types.o  cable_carbon.o cable_commo
 
 #cable_LUC.o: cable_LUC.F90 cable_carbon.o cable_common.o casa_variable.o POP.o POPLUC.o cable_LUC_EXPT.o
 
-CASAONLY_LUC.o: CASAONLY_LUC.o cable_define_types.o  cable_carbon.o cable_common.o casa_variable.o POP.o POPLUC.o cable_LUC_EXPT.o casa_ncdf.o
+CASAONLY_LUC.o: CASAONLY_LUC.F90 cable_define_types.o  cable_carbon.o cable_common.o casa_variable.o POP.o POPLUC.o cable_LUC_EXPT.o casa_ncdf.o
 
 casa_cable.o: casa_cable.F90 POP.o cable_define_types.o  cable_carbon.o casa_variable.o \
 	      cable_diag.o cable_phenology.o casa_cnp.o casa_inout.o casa_ncdf.o
@@ -285,6 +285,9 @@ all  : cable_math_constants_mod.o   \
 	casa_phenology.o         	   \
 	casa_cnp.o               	   \
 	casa_cable.o             	   \
+	spincasacnp.o             	   \
+	CASAONLY_LUC.o             	   \
+	cbl_model_driver_offline.o             	   \
 	casa_inout.o
 
 # make clean option
