@@ -259,9 +259,12 @@ CONTAINS
        vegin%X_hyd(2) = 50.0
        vegin%p50(2) = -3.002384
        vegin%s50(2) = 35.26948
-       vegin%kp_sat(2) = 1.686987 ! 4.0
+       !vegin%kp_sat(2) = 1.686987 ! 4.0
        vegin%Cl(2) = 342.904821
        vegin%Cs(2) = 53266.089926
+
+       vegin%Kmax(2) = 1.5
+       vegin%Kcrit(2) = 0.075 ! vegin%Kmax(18) * 0.05
 
        !PFT: deciduous_needleleaf
        !=========================================================

@@ -2131,7 +2131,7 @@ CONTAINS
                 vpd = dsx(i) * PA_TO_KPA
                 press = met%pmb(i) * MB_TO_KPA
 
-
+               
                 IF (vpd < 0.05) THEN
                    ecx(i) = 0.0
                    anx(i,1) = 0.0 - rdx(i,1)
