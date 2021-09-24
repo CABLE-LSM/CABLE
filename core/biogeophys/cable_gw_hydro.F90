@@ -2184,7 +2184,7 @@ END SUBROUTINE calc_soil_hydraulic_props
                            1e-5),10000.0)) ! ensure some variability
              ssnow%satfrac(i)    = max(0._r_2,min(0.99_r_2,&
                  !note UM wants std03, and erf is not included then
-                                   1._r_2 - my_erf( slopeSTDmm / sqrt(2.0* S(i)) ) ) )
+                                   1._r_2 - my_erf( slopeSTDmm * sqrt(2.0* S(i)) ) ) ) ! MMY change / to *@24 Sep 2021
           elseif (veg%iveg(i) .lt. 16) then
              ssnow%satfrac(i) = 0._r_2
           else
