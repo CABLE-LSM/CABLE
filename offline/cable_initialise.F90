@@ -146,6 +146,7 @@ CONTAINS
     canopy%psi_leaf_prev = -0.01
     canopy%psi_stem_prev = -0.01
     canopy%psi_soil_prev = -0.01
+    
 
   END SUBROUTINE get_default_inits
 

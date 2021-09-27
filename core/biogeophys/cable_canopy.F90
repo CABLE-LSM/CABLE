@@ -2195,12 +2195,13 @@ CONTAINS
                         gbhu(i,kk) + gbhf(i,kk) )
                    csx(i,kk) = MAX( 1.0e-4_r_2, csx(i,kk) )
 
+                   IF (cable_user%FWSOIL_SWITCH /= 'profitmax') THEN
 
-                   ! Ticket #56, xleuning replaced with gs_coeff here
-                   canopy%gswx(i,kk) = MAX( 1.e-3, gswmin(i,kk)*fwsoil(i) +     &
-                        MAX( 0.0, C%RGSWC * gs_coeff(i,kk) *     &
-                        anx(i,kk) ) )
-
+                      ! Ticket #56, xleuning replaced with gs_coeff here
+                      canopy%gswx(i,kk) = MAX( 1.e-3, gswmin(i,kk)*fwsoil(i) +     &
+                           MAX( 0.0, C%RGSWC * gs_coeff(i,kk) *     &
+                           anx(i,kk) ) )
+                   END IF
 
                    !Recalculate conductance for water:
                    gw(i,kk) = 1.0 / ( 1.0 / canopy%gswx(i,kk) +                 &
@@ -2435,6 +2436,7 @@ CONTAINS
     canopy%fpn = MIN(-12.0 * SUM(an_y, 2), canopy%frday)
     canopy%evapfbl = ssnow%evapfbl
 
+   
     IF (cable_user%FWSOIL_SWITCH == 'profitmax') THEN
 
        ! Calculate this here after we've finsihed iterating...
@@ -2444,14 +2446,13 @@ CONTAINS
 
           ! This will get a cumulative plc, but cannot reset....
           ! Used in swiss experiment for one summer
-          !IF (new_plc > canopy%plc_prev(i)) THEN
-         !    canopy%plc(i) = new_plc
-         !    canopy%plc_prev(i) = new_plc
-          !ENDIF ! otherwise don't update
+          IF (new_plc > canopy%plc(i) ) THEN
+             canopy%plc(i) = new_plc
+          ENDIF ! otherwise don't update
 
           ! allows for resetting...used in furture runs as we're collecting
           ! continuous dry spells, but dont have growth so need to allow a reset
-          canopy%plc(i) = new_plc
+          !canopy%plc(i) = new_plc
 
           ! We've reached the point of hydraulic failure, so hold the plc
           ! here for outputting purposes..
@@ -3219,7 +3220,7 @@ CONTAINS
             an_canopy(j) = an_leaf(idx) ! umol m-2 s-1
             e_leaves(j) = e_leaf(idx) ! mol H2O m-2 s-1
             p_leaves(j) = p(idx)
-
+            canopy%gswx(i,j) = MAX( 1.e-3, gsc(idx))
             ! scale up cuticular conductance, mol H2O m-2 s-1
             !e_cuticular = gmin * MMOL_2_MOL * rad%scalex(i,j) / press * vpd
 
