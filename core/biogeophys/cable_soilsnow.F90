@@ -1599,7 +1599,8 @@ CONTAINS
     TYPE(veg_parameter_type), INTENT(INOUT)  :: veg
     REAL(r_2), DIMENSION(mp,0:ms) :: diff
     REAL(r_2), DIMENSION(mp)      :: xx,xxd,evap_cur
-    REAL(r_2), DIMENSION(mp)      :: demand, supply, difference
+    REAL(r_2), DIMENSION(mp)      :: demand, difference
+    REAL(r_2), DIMENSION(mp,0:ms) :: supply
     INTEGER k, i
 
     IF (cable_user%FWSOIL_SWITCH == 'profitmax') THEN
@@ -1613,31 +1614,35 @@ CONTAINS
        difference = 0._r_2
        supply = 0._r_2
 
+       xx = 0.; xxd = 0.; diff(:,:) = 0.
        DO k = 1, ms
           WHERE (canopy%fevc > 0.0)
 
              ! Calculate the amount of water we wish to extract from each
              ! layer, kg/m2
              demand = canopy%fevc * dels / C%HL * &
-                         ssnow%fraction_uptake(:,k)
+                         ssnow%fraction_uptake(:,k) + supply(:,k-1)
 
              ! Calculate the amount of water available in the layer
-             supply = MAX(0.0, ssnow%wb(:,k) - soil%swilt) * &
+             supply(:,k) = MAX(0.0, ssnow%wb(:,k) - soil%swilt) * &
                             (soil%zse(k) * C%density_liq)
 
-             difference = supply - demand
+             difference = demand - supply(:,k)
 
              ! Calculate new layer water balance
-             WHERE (difference < 0.0)
+             WHERE (difference > 0.0)
                 ! We don't have sufficent water to supply demand, extract only
                 ! the remaining SW in the layer
-                ssnow%wb(:,k) = ssnow%wb(:,k) - supply / &
-                                   (soil%zse(k) * C%density_liq)
+                ssnow%wb(:,k) = ssnow%wb(:,k) - supply(:,k) / &
+                                 (soil%zse(k)*C%density_liq)
+                supply(:,k) = difference
              ELSEWHERE
                 ! We have sufficent water to supply demand, extract needed SW
                 ! from the layer
                 ssnow%wb(:,k) = ssnow%wb(:,k) - demand / &
-                                   (soil%zse(k) * C%density_liq)
+                                 (soil%zse(k)*C%density_liq)
+
+                supply(:,k) = 0.0
              ENDWHERE
 
           END WHERE   !fvec > 0

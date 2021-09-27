@@ -2436,7 +2436,7 @@ CONTAINS
     canopy%fpn = MIN(-12.0 * SUM(an_y, 2), canopy%frday)
     canopy%evapfbl = ssnow%evapfbl
 
-   
+
     IF (cable_user%FWSOIL_SWITCH == 'profitmax') THEN
 
        ! Calculate this here after we've finsihed iterating...
@@ -3129,7 +3129,7 @@ CONTAINS
          ! Convert total soil-to-root resistance from ...
          ! MPa s m2 (ground) mmol-1 H2O -> MPa s m2 (leaf) mmol-1 H2O
          IF (lai_leaf(i,j) > 0.0) THEN
-            Rsrl = Rsr * lai_leaf(i,j)
+            Rsrl = Rsr / fsun(j)
          ELSE
             Rsrl = Rsr
          END IF
