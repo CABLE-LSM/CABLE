@@ -2131,7 +2131,7 @@ CONTAINS
                 vpd = dsx(i) * PA_TO_KPA
                 press = met%pmb(i) * MB_TO_KPA
 
-               
+
                 IF (vpd < 0.05) THEN
                    ecx(i) = 0.0
                    anx(i,1) = 0.0 - rdx(i,1)
@@ -3182,7 +3182,7 @@ CONTAINS
             an_leaf = A - Rd ! Net photosynthesis, umol m-2 s-1
 
             ! Use an_leaf to infer gsc_sun/sha. NB. An is the scaled up values
-            ! via scalex
+            ! via scalex applied to Vcmax/Jmax
             gsc = an_leaf / MAX(1.e-6, Cs - Ci) ! mol CO2 m-2 s-1
 
             ! Assuming perfect coupling, infer E_sun/sha from gsc. NB. as we're
