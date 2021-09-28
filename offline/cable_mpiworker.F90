@@ -4536,6 +4536,10 @@ CONTAINS
     CALL MPI_Get_address (canopy%fnv(off), displs(bidx), ierr)
     blocks(bidx) = r1len
 
+    ! plant hydraulics, 28 sept 2021, mgk576
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%plc(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
 
     ! gol124: MPI: DONE until here!!!
 
@@ -6902,6 +6906,11 @@ CONTAINS
 
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%fnv(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+
+    ! plant hydraulics, mgdk576, 28/Sept/2021: +1 restart
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%plc(off), displs(bidx), ierr)
     blocks(bidx) = r1len
 
     ! plant hydraulics, mgdk576, 23/07/2019: +3 restart

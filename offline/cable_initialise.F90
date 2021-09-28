@@ -146,7 +146,13 @@ CONTAINS
     canopy%psi_leaf_prev = -0.01
     canopy%psi_stem_prev = -0.01
     canopy%psi_soil_prev = -0.01
-    
+
+    canopy%plc(:) = 0.0
+    ssnow%weighted_psi_soil(:) = 0.0
+    ssnow%soilR(:,:) = 0.0
+    ssnow%psi_soil(:,:) = 0.0
+    ssnow%fraction_uptake(:,:) = 0.0
+    ssnow%Rsr(:) = 0.0
 
   END SUBROUTINE get_default_inits
 

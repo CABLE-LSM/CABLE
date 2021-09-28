@@ -1665,9 +1665,6 @@ CONTAINS
 
 
 
-
-
-
   END SUBROUTINE write_default_params
   !=============================================================================
   SUBROUTINE write_cnp_params(veg, casaflux, casamet)
