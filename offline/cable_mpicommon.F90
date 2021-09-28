@@ -123,8 +123,7 @@ MODULE cable_mpicommon
   ! that is returned only for creating a restart file at the end of the run
   !INTEGER, PARAMETER :: nrestart = 16
   ! MPI: gol124: canopy%rwater removed when Bernard ported to CABLE_r491
-  !INTEGER, PARAMETER :: nrestart = 15
-  INTEGER, PARAMETER :: nrestart = 16 ! mgdk added 1 more
+  INTEGER, PARAMETER :: nrestart = 15
   !INTEGER, PARAMETER :: nrestart = 18 ! mgdk added 3 more
   INTEGER, PARAMETER :: nsumcasaflux = 62
   INTEGER, PARAMETER :: nsumcasapool = 40
