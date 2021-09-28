@@ -122,11 +122,21 @@ CONTAINS
 
        !PFT: evergreen_needleleaf
        !=========================================================
+
+       ! Hydraulics
+       vegin%Kmax(1) = 0.8
+       vegin%Kcrit(1) = 0.04 ! vegin%Kmax(1) * 0.05
+       vegin%b_plant(1) = 4.102123226
+       vegin%c_plant(1) = 4.347350048
+       vegin%gmin(1) = 0.720828 ! single sided, above was double-sided, mmol m-2 s-1
+       vegin%vcmax(1) = 0.000112
+       vegin%ejmax(1) = 0.000187
+
        vegin%canst1(1) =        0.100000
        vegin%length(1) =        0.055000
        vegin%width(1) =        0.001000
-       vegin%vcmax(1) =        0.000040
-       vegin%ejmax(1) =        0.000000
+       !vegin%vcmax(1) =        0.000040
+       !vegin%ejmax(1) =        0.000000
        vegin%hc(1) =       17.000000
        vegin%xfang(1) =        0.010000
        vegin%rp20(1) =        3.000000
@@ -178,6 +188,7 @@ CONTAINS
        vegin%g1(1) =        2.346064
        vegin%zr(1) =        1.800000
        vegin%clitt(1) =       20.000000
+
 
        !PFT: evergreen_broadleaf
        !=========================================================
