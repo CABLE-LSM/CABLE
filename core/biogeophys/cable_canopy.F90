@@ -3094,13 +3094,14 @@ CONTAINS
       LOGICAL, DIMENSION(N) ::  mask
       REAL, DIMENSION(mp,mf), INTENT(IN) :: vcmxt3, ejmxt3, rdx, vx3, lai_leaf
       REAL, DIMENSION(N) :: Kc, e_leaf, cost, gain, profit
-      REAL :: p_crit, lower, upper, Cs, apar
+      REAL :: p_crit, lower, upper, Cs
       REAL :: J_TO_MOL, MOL_TO_UMOL, gsw, Vcmax, Jmax, Rd, Vj, Km
       REAL, DIMENSION(mf) :: e_leaves, p_leaves
       REAL :: Kplant, Rsrl, e_cuticular, gamma_star
       REAL, PARAMETER :: MMOL_2_MOL = 0.001
       REAL, PARAMETER :: MOL_TO_MMOL = 1E3
       REAL, DIMENSION(2)  :: fsun
+      REAL, DIMENSION(2)  :: apar
 
       logical :: bounded_psi
       bounded_psi = .false.!.false.
@@ -3113,11 +3114,6 @@ CONTAINS
 
       ! Canopy xylem pressure (P_crit) MPa, beyond which tree
       ! desiccates (Ecrit), MPa
-      !print*, "b_plant", b_plant
-      !print*, "c_plant", c_plant
-      !print*, "Kmax", Kmax
-      !print*, "Kcrit", Kcrit
-
       p_crit = -b_plant * log(Kmax / Kcrit)**(1.0 / c_plant)
 
       ! Loop over sunlit,shaded parts of the canopy and solve the carbon uptake
@@ -3128,11 +3124,11 @@ CONTAINS
 
          ! Convert total soil-to-root resistance from ...
          ! MPa s m2 (ground) mmol-1 H2O -> MPa s m2 (leaf) mmol-1 H2O
-         IF (lai_leaf(i,j) > 0.0) THEN
-            Rsrl = Rsr / fsun(j)
-         ELSE
-            Rsrl = Rsr
-         END IF
+         !IF (lai_leaf(i,j) > 0.0) THEN
+         !   Rsrl = Rsr / fsun(j)
+         !ELSE
+         !   Rsrl = Rsr
+         !END IF
 
          ! Total soil–plant hydraulic conductance (combined assuming
          ! resistances are coupled in parallel)
@@ -3154,7 +3150,7 @@ CONTAINS
          END DO
 
          ! absorbed par for the sunlit or shaded leaf, umol m-2 -s-1
-         apar = qcan(i,j,1) * J_TO_MOL * MOL_TO_UMOL
+         apar(j) = qcan(i,j,1) * J_TO_MOL * MOL_TO_UMOL
 
          ! max rate of rubisco activity, scaled up to sunlit/shaded canopy
          Vcmax = vcmxt3(i,j) * MOL_TO_UMOL
@@ -3165,15 +3161,25 @@ CONTAINS
          ! day respiration, scaled up to sunlit/shaded canopy
          Rd = rdx(i,j) * MOL_TO_UMOL
 
-         ! Rate of electron transport (NB this is = J/4)
+         ! Rate of electron transport (NB this is = J/4) so is a func of apar
+         ! incase you panic again and wonder where apar is actually being used
          Vj = vx3(i,j) * MOL_TO_UMOL
 
          ! If there is bugger all light, assume there are no fluxes
-         IF (apar < 50) THEN
+         IF (apar(j) < 50) THEN
             ! load into stores
             an_canopy = 0.0 ! umol m-2 s-1
             e_canopy = 0.0 ! mol H2O m-2 s-1
-            canopy%psi_leaf(i) = canopy%psi_leaf_prev(i) ! MPa
+
+            ! It's not clear what should happen to the leaf water potential if
+            ! there is no light. We could use the previous calculated value,
+            ! but then you have a constant offset. Going to set it to the
+            ! weighted soil water potential on the basis that there is "some"
+            ! evidence the leaf and soil water potential come back into
+            ! equilibrium overnight. Plus these values don't get used in any
+            ! meaningful way...
+            !canopy%psi_leaf(i) = canopy%psi_leaf_prev(i) ! MPa
+            canopy%psi_leaf(i) = ssnow%weighted_psi_soil(i)
          ELSE
 
             ! Calculate the sunlit/shaded A_leaf (i.e. scaled up), umol m-2 s-1
@@ -3229,32 +3235,32 @@ CONTAINS
             !   e_leaves(j) = e_cuticular ! mol H2O m-2 s-1
             !END IF
 
+            ! If there was light, save transpiration, NB. cable doesn't save
+            ! individual sunlit/shaded transpiration
+            IF (apar(1) >= 50 .AND. apar(2) >= 50) THEN
+
+               !canopy%psi_leaf(i) = sum(p_leaves) / 2.0 ! MPa
+               canopy%psi_leaf(i) = (p_leaves(1) * fsun(1)) + (p_leaves(2) * fsun(2))
+               !canopy%psi_leaf_prev(i) = canopy%psi_leaf(i) ! MPa
+
+            ELSE IF (apar(1) >= 50 .AND. apar(2) < 50) THEN
+
+               canopy%psi_leaf(i) = p_leaves(1)
+               !canopy%psi_leaf_prev(i) = canopy%psi_leaf(i) ! MPa
+
+            ELSE IF (apar(1) < 50 .AND. apar(2) >= 50) THEN
+
+               canopy%psi_leaf(i) = p_leaves(2)
+               !canopy%psi_leaf_prev(i) = canopy%psi_leaf(i) ! MPa
+
+            END IF
+            
+            canopy%psi_soil_prev(i) = psi_soil ! MPa
+            e_canopy = sum(e_leaves) ! mol H2O m-2 s-1
 
          END IF
+
       END DO
-
-
-      ! If there was light, save transpiration, NB. cable doesn't save
-      ! individual sunlit/shaded transpiration
-      IF (apar > 50) THEN
-
-         !canopy%psi_leaf(i) = sum(p_leaves) / 2.0 ! MPa
-         canopy%psi_leaf(i) = (p_leaves(1) * fsun(1)) + (p_leaves(2) * fsun(2))
-         canopy%psi_leaf_prev(i) = canopy%psi_leaf(i) ! MPa
-         canopy%psi_soil_prev(i) = psi_soil ! MPa
-
-         !if (canopy%psi_soil_prev(i) < -0.5) then
-         !    print*, "out", an_canopy(1), e_leaves(1), an_canopy(2), e_leaves(2), canopy%psi_leaf(i), p_leaves(1), p_leaves(2)
-         !    stop
-         !end if
-
-         e_canopy = sum(e_leaves) ! mol H2O m-2 s-1
-
-
-
-      END IF
-
-
 
    END SUBROUTINE optimisation
    ! ---------------------------------------------------------------------------
