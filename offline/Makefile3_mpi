@@ -43,6 +43,7 @@ cbl_model_driver_offline.o   \
 cbl_hgtAbove_snow.o cbl_lai_eff.o \
 cable_iovars.o cable_abort.o \
 cable_parameters.o cable_read.o cable_initialise.o cable_input.o \
+cable_metutils.o \
 cable_write.o cable_output.o cable_checks.o \
 cable_define_types.o cable_common.o \
 cbl_soilsnow_main.o cbl_soilsnow_subrs.o cbl_soilsnow_init_special.o \

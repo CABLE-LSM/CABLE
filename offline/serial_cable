@@ -15,6 +15,9 @@ rm -f cable_driver.o
 cp *.o tmpo/
 export FOBJS=`ls tmpo/`
 
-$FC $supr $CFLAGS $LDFLAGS $LD -o cable cable_driver.F90 $FOBJS $CINC 
+# this is the executable we are building
+PROG=cable
+
+$FC $supr $CFLAGS $LDFLAGS $LD -o $PROG cable_driver.F90 $FOBJS $CINC 
 
 rm -fr tmpo/
