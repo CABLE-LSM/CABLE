@@ -2755,22 +2755,17 @@ CONTAINS
 
      DO j = 1, ms ! Loop over 6 soil layers
 
-        ! Below the wilting point (-1.5 MPa) the water potential drops to
-       ! silly value. This really only an issue for the v.top
-       ! two layers and has negligble impact on the weighted psi_soil which is
-       ! what is used anyway
+       ! Below the wilting point (-1.5 MPa) the water potential drops to
+       ! silly value, due to the non-linear reln btw swc and swp. This is really
+       ! more of an implentation issue. The very thin upper layers would obv
+       ! get extremely negative, which in turn would bias the weighted_swp.
+       ! The bounding here can be considered as a physical disconnection of the
+       ! roots from the soil, although frankly this is an imperfect solution
+       ! to the use of layer thickness and inferring swp.
        t_over_t_sat = MAX(1.0e-9, MIN(1.0, ssnow%wb(i,j) / soil%ssat(i)))
        !ssnow%psi_soil(i,j) = psi_sat * t_over_t_sat**(-soil%bch(i))
 
-       IF (j == 1) THEN
-          ssnow%psi_soil(i,j) = MAX(-1.5, psi_sat * t_over_t_sat**(-soil%bch(i)))
-       ELSEIF (j == 2) THEN
-          ssnow%psi_soil(i,j) = MAX(-2.5, psi_sat * t_over_t_sat**(-soil%bch(i)))
-       ELSE
-          ssnow%psi_soil(i,j) = MAX(-5.0, psi_sat * t_over_t_sat**(-soil%bch(i)))
-       END IF
-
-       !ssnow%psi_soil(i,j) = MAX(-5.0, psi_sat * t_over_t_sat**(-soil%bch(i)))
+       ssnow%psi_soil(i,j) = MAX(-5.0, psi_sat * t_over_t_sat**(-soil%bch(i)))
 
     END DO
 
