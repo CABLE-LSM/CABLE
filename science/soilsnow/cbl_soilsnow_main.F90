@@ -9,13 +9,24 @@ USE cable_phys_constants_mod, ONLY : CHLF => HLF
 USE cable_phys_constants_mod, ONLY : CHLS => HLS
 USE cable_phys_constants_mod, ONLY : Cdensity_liq => density_liq
 
-
   USE cable_common_module, ONLY: cable_user,snow_ccnsw,snmin,&
        max_ssdn,max_sconds,frozen_limit,&
        max_glacier_snowd
 
   IMPLICIT NONE
 
+   REAL, PARAMETER ::                                                          &
+      cgsnow = 2090.0,     & ! specific heat capacity for snow
+      csice = 2.100e3,     & ! specific heat capacity for ice
+      cswat = 4.218e3,     & ! specific heat capacity for water
+      rhowat = 1000.0 !,     & ! density of water
+      !snmin = 1.,          & ! for 3-layer;
+      !max_ssdn = 750.0,    & !
+      !max_sconds = 2.51,   & !
+      !frozen_limit = 0.85    ! EAK Feb2011 (could be 0.95)
+   
+   !REAL :: cp    ! specific heat capacity for air
+   
   PRIVATE
 
   PUBLIC soil_snow 
@@ -65,7 +76,7 @@ USE cbl_soil_snow_subrs_module
     ! appropriate for ACCESS1.0
     !max_glacier_snowd = 50000.0
     ! appropriate for ACCESS1.3
-    !max_glacier_snowd = 1100.0
+    max_glacier_snowd = 1100.0
 
     zsetot = SUM(soil%zse)
     ssnow%tggav = 0.
@@ -74,9 +85,9 @@ USE cbl_soil_snow_subrs_module
     END DO
 
 
-    !H!IF( cable_runtime%offline .OR. cable_runtime%mk3l ) THEN
-       ssnow%t_snwlr = 0.05
-    !H!ENDIF
+    IF( cable_runtime%offline .OR. cable_runtime%mk3l ) THEN
+      ssnow%t_snwlr = 0.05
+    ENDIF
 
     ssnow%fwtop1 = 0.0
     ssnow%fwtop2 = 0.0
@@ -96,6 +107,13 @@ USE cbl_soil_snow_subrs_module
        END DO
     END IF
     wbliq = ssnow%wb - ssnow%wbice
+
+   xx=soil%css * soil%rhosoil
+   IF (ktau <= 1)                                                              &
+     ssnow%gammzz(:,1) = MAX( (1.0 - soil%ssat) * soil%css * soil%rhosoil      &
+            & + (ssnow%wb(:,1) - ssnow%wbice(:,1) ) * cswat * rhowat           &
+            & + ssnow%wbice(:,1) * csice * rhowat * .9, xx ) * soil%zse(1) +   &
+            & (1. - ssnow%isflag) * cgsnow * ssnow%snowd
 
     DO k = 1, ms ! for stempv
 
