@@ -15,8 +15,11 @@ TYPE TYPE_BLAZE
    !CRM INTEGER                              :: IGNITION ! 0=GFED3, 1=SIMFIRE
    REAL                                 :: FT,tstp
    LOGICAL                              :: USE_POP = .FALSE., ERR=.FALSE.
-   CHARACTER                            :: GFEDP*80, FSTEP*7, BURNT_AREA_SRC*10
+   CHARACTER                            :: GFEDP*80, FSTEP*7
    CHARACTER(LEN=4)                     :: OUTMODE = "full" !"std" ! "full" for diagnostical purposes
+   CHARACTER(len=8) :: BLAZE_TSTEP    = "annually"  ! Call frequency ("daily","monthly","annually")
+   CHARACTER(len=6) :: SIMFIRE_REGION = "GLOBAL"    ! either GLOBAL, EUROPE, ANZ
+   CHARACTER(len=7) :: BURNT_AREA_SRC = "SIMFIRE"   ! either SIMFIRE or NONE !CLN for now!
 END TYPE TYPE_BLAZE
 
 TYPE TYPE_TURNOVER
@@ -85,18 +88,18 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   INTEGER            , INTENT(IN)    :: np
   REAL, DIMENSION(np), INTENT(IN)    :: LAT, LON
   TYPE(TYPE_BLAZE)   , INTENT(INOUT) :: BLAZE
-  INTEGER, PARAMETER        :: NPOOLS = 3
-  CHARACTER(len=400)   :: HydePath, BurnedAreaFile, &
-       BurnedAreaClimatologyFile, SIMFIRE_REGION
-  CHARACTER(len=10)   :: BurnedAreaSource
+  INTEGER, PARAMETER  :: NPOOLS = 3
+  CHARACTER(len=400)  :: BurnedAreaFile = ""
+  CHARACTER(len=10)   :: BurnedAreaSource = "SIMFIRE", blazeTStep = "annually"
   INTEGER :: iu
 
-  NAMELIST /BLAZENML/ HydePath,  BurnedAreaSource, BurnedAreaFile, BurnedAreaClimatologyFile, &
-       SIMFIRE_REGION
-
+  !CLNNAMELIST /BLAZENML/ HydePath,  BurnedAreaSource, BurnedAreaFile, BurnedAreaClimatologyFile, &
+  !CLN     SIMFIRE_REGION
+  NAMELIST /BLAZENML/ blazeTStep,  BurnedAreaSource, BurnedAreaFile
+       
   ! READ BLAZE settings
   CALL GET_UNIT(iu)
-  OPEN (iu,FILE="BLAZE.nml",STATUS='OLD',ACTION='READ')
+  OPEN (iu,FILE="blaze.nml",STATUS='OLD',ACTION='READ')
   READ (iu,NML=BLAZENML)
   CLOSE(iu)
 
@@ -158,7 +161,7 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   ! BLAZE(+1) full (+2) with GFED (+0)          -> BLAZEFLAG=3
 
 
-  BLAZE%BURNMODE = 1    ! Full. All Fluxes computed by BLAZE
+  BLAZE%BURNMODE = 2    ! Full. All Fluxes computed by BLAZE
   WRITE(*,*) " BLAZE: Full Mode"
   WRITE(*,*) " Burnt-area source: ", TRIM(BurnedAreaSource)
 
@@ -798,7 +801,7 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
      ! CALL SIMFIRE DAILY FOR ACOUNTING OF PARAMETERS
      CALL SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YYYY, BLAZE%AB , climate)
 
-
+PRINT*,"BLAZE doy,AB",doy,BLAZE%AB
      DO np = 1, BLAZE%NCELLS
         IF ( AVAIL_FUEL(1, CPLANT_w(np,:), CPLANT_g(np,:),BLAZE%AGLit_w(np,:),BLAZE%AGLit_g(np,:) ) .LE. MIN_FUEL ) &
              BLAZE%AB(np) = 0.
@@ -838,7 +841,7 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
 !CLN     AGL(np,CWD) = AGL(np,CWD) + &
 !CLN          !       (1.-exp(-0.5*tstp/SF(ft))) * SUM(DEADWOOD(np,:))
 !CLN          (1.-exp(-0.5*tstp/15.)) * SUM(DEADWOOD(np,:))
-
+ 
 !CLN      BLAZE%DEADWOOD(np,:) = DEADWOOD(np,:) * exp(-0.5*tstp/15.)
 
   END DO

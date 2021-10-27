@@ -1,7 +1,7 @@
 &cable
     filename%met                   = ''
     filename%path                  = './'
-    filename%type                  = 'CABLE-AUX/offline/gridinfo_CSIRO_1x1.nc'
+    filename%type                  = 'CABLE-AUX/offline/gridinfo_CSIRO_CRU05x05_4tiles.nc'
     filename%veg                   = 'driver_files/def_veg_params.txt'
     filename%soil                  = 'driver_files/def_soil_params.txt'
     filename%log                   = 'logs/log_cable.txt'
@@ -14,10 +14,10 @@
     cable_user%POP_restart_in      = 'restart/pop_cru_ini.nc'     ! POP restart_in
     cable_user%POP_restart_out     = 'restart/pop_cru_ini.nc'     ! POP restart_out
     cable_user%LUC_restart_in      = ''                           ! LUC restart_in
-    cable_user%LUC_restart_out     = 'restart/cru_LUC_rst.nc'     ! LUC restart_out
-    cable_user%LUC_outfile         = 'outputs/cru_out_LUC.nc'
-    cable_user%climate_restart_in  = 'restart/cru_climate_rst.nc' ! climate restart_in
-    cable_user%climate_restart_out = 'restart/cru_climate_rst.nc' ! climate restart_out
+    cable_user%LUC_restart_out     = 'restart/bios_LUC_rst.nc'     ! LUC restart_out
+    cable_user%LUC_outfile         = 'outputs/bios_out_LUC.nc'
+    cable_user%climate_restart_in  = 'restart/bios_climate_rst.nc' ! climate restart_in
+    cable_user%climate_restart_out = 'restart/bios_climate_rst.nc' ! climate restart_out
     vegparmnew                     = .TRUE.       ! using new format when true
     soilparmnew                    = .TRUE.       ! using new format when true
     spinup                         = .FALSE.      ! do we spin up the model?
@@ -29,7 +29,6 @@
     output%flux                    = .TRUE.       ! convective, runoff, NEE
     output%soil                    = .TRUE.       ! soil states
     output%snow                    = .TRUE.       ! snow states
-    output%snowmip                 = .false.      ! ESM-SnowMIP variables
     output%radiation               = .TRUE.       ! net rad, albedo
     output%casa                    = .TRUE.
     output%carbon                  = .TRUE.       ! NEE, GPP, NPP, stores
@@ -52,7 +51,7 @@
     icycle = 2                                    ! BP pull it out from casadimension and put here; 0 for not using casaCNP,
                                                   ! 1 for C, 2 for C+N, 3 for C+N+P
     casafile%cnpbiome              = 'driver_files/pftlookup.csv'                  ! biome specific BGC parameters
-    casafile%phen                  = 'CABLE-AUX/offline/modis_phenology_csiro.txt' ! modis phenology
+    casafile%phen                  = 'CABLE-AUX/core/biogeochem/modis_phenology_csiro.txt' ! modis phenology
     casafile%cnpflux               = 'cnpfluxOut.csv'
     ncciy                          = 0            ! 0 for not using gswp; 4-digit year input for year of gswp met
     redistrb                       = .FALSE.      ! Turn on/off the hydraulic redistribution
@@ -76,15 +75,16 @@
     cable_user%CASA_SPIN_ENDYEAR   = 1859         ! default = 1960
     cable_user%LogWorker           = .FALSE.
     cable_user%SSNOW_POTEV         = 'P-M'        ! Humidity Deficit Method
-    cable_user%SOIL_STRUC          = 'default'    ! 'default','sli'
+    cable_user%SOIL_STRUC          = 'sli'    ! 'default','sli'
+    cable_user%Rubisco_parameters  = 'Bernacchi_2000'
     cable_user%CALL_POP            = .TRUE.       ! TRUE uses POP population dynamics model, coupled to CASA.
-    cable_user%POP_out             = 'epi'        ! ! Pop-output file either 'rst':Standard restart OR 'epi' for whole episode
+    cable_user%POP_out             = 'ini'        ! ! Pop-output file either 'rst':Standard restart OR 'epi' for whole episode
     cable_user%POP_fromZero        = .FALSE.      ! Start POP from Zero, don't read restart file
     cable_user%CASA_fromZero       = .FALSE.
-    cable_user%RunIden             = 'cru'        ! Unique identifier for model Run, will be used in Filenames
+    cable_user%RunIden             = 'bios'        ! Unique identifier for model Run, will be used in Filenames
     cable_user%YearStart           = 1990         ! YYYY 4 digit year
     cable_user%YearEnd             = 2017         ! YYYY 4 digit year
-    cable_user%MetType             = 'cru'        ! Either 'gswp' or 'plum' for PLUME
+    cable_user%MetType             = 'bios'        ! Either 'gswp' or 'plum' for PLUME
     cable_user%CASA_OUT_FREQ       = 'monthly'    ! casa standard output freq
     cable_user%CLIMATE_fromZero    = .FALSE.
     cable_user%CALL_CLIMATE        = .TRUE.
@@ -92,25 +92,15 @@
     cable_user%POPLUC              = .TRUE.
     cable_user%POPLUC_RunType      = 'static'
     cable_user%vcmax               = 'Walker2014'
-    cable_user%gs_switch           = 'medlyn'
-    cable_user%explicit_gm         = .FALSE.
-    cable_user%Rubisco_parameters  = 'Bernacchi_2002'
+    cable_user%gs_switch           = 'leuning'
     cable_user%coordinate_photosyn = .TRUE.
-    cable_user%acclimate_photosyn  = .FALSE.
-    cable_user%g0_switch           = 'default'
+    cable_user%acclimate_photosyn  = .TRUE.
+    cable_user%acclimate_autoresp_seasonal = .TRUE.
     cable_user%limit_labile        = .FALSE.
     cable_user%SRF                 = .TRUE.
     cable_user%SMRF_NAME           = 'Trudinger2016'
-    cable_user%STRF_NAME           = 'LT1994'
-    cable_user%c13o2             = .false.        ! switch 13CO2 calculations on
-    cable_user%c13o2_simple_disc = .false.        ! simple or full leaf discrimination
-    cable_user%c13o2_delta_atm_file    = 'graven_et_al_gmd_2017-table_s1-delta_13c.txt' ! atmospheric 13CO2
-    cable_user%c13o2_outfile           = 'outputs/cru_out_casa_c13o2.nc'  ! 13C Casa and LUC output file
-    cable_user%c13o2_restart_in_flux   = 'restart/cru_c13o2_flux_rst.nc'  ! 13CO2 restart Canopy input file
-    cable_user%c13o2_restart_out_flux  = 'restart/cru_c13o2_flux_rst.nc'  ! 13CO2 restart Canopy output file
-    cable_user%c13o2_restart_in_pools  = 'restart/cru_c13o2_pools_rst.nc' ! 13CO2 restart Casa input file
-    cable_user%c13o2_restart_out_pools = 'restart/cru_c13o2_pools_rst.nc' ! 13CO2 restart Casa output file
-    cable_user%c13o2_restart_in_luc    = 'restart/cru_c13o2_luc_rst.nc'   ! 13CO2 restart LUC input file
-    cable_user%c13o2_restart_out_luc   = 'restart/cru_c13o2_luc_rst.nc'   ! 13CO2 restart LUC output file
-    output%c13o2 = .true.                         ! 13C in Cable output
-/
+    cable_user%STRF_NAME           = 'Q10'
+    cable_user%within_canopy_isothermal = .TRUE.
+    cable_user%amphistomatous      = .TRUE.
+    cable_user%CALL_BLAZE          = .TRUE.		! Switch on/off Fire-model BLAZE
+&end
