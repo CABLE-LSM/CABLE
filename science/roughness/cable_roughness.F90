@@ -53,7 +53,7 @@ SUBROUTINE ruff_resist(veg, rough, ssnow, canopy, LAI_pft, HGT_pft, reducedLAIdu
     !      MRR draft paper "Simplified expressions...", dec-92
     ! modified to include resistance calculations by Ray leuning 19 Jun 1998
 
-    USE cable_common_module, ONLY : cable_user
+    USE cable_common_module, ONLY : cable_user, cable_runtime
     USE cable_def_types_mod, ONLY : veg_parameter_type, roughness_type,         &
          soil_snow_type, canopy_type, mp
 !subrs
@@ -92,10 +92,10 @@ rough%hruff =  HeightAboveSnow
 call LAI_eff( mp, veg%vlai, veg%hc, HeightAboveSnow, &
                 reducedLAIdue2snow)
 
-    canopy%vlaiw  = reducedLAIdue2snow
-    canopy%rghlai = canopy%vlaiw
+canopy%vlaiw  = reducedLAIdue2snow
+canopy%rghlai = canopy%vlaiw
 
-    IF (cable_user%soil_struc=='default') THEN
+IF (cable_user%soil_struc=='default') THEN
 
        ! Roughness length of bare soil (m): new formulation- E.Kowalczyk 2014
        IF (.NOT.cable_user%l_new_roughness_soil .AND. (.NOT.cable_user%or_evap)) THEN
@@ -112,20 +112,20 @@ call LAI_eff( mp, veg%vlai, veg%hc, HeightAboveSnow, &
        WHERE( ssnow%snowd .GT. 0.01 .AND. veg%iveg == 17  )  &
             rough%z0soilsn =  MAX(rough%z0soilsn, z0soilsn_min_PF )
 
-    ELSEIF (cable_user%soil_struc=='sli') THEN
+ELSEIF (cable_user%soil_struc=='sli') THEN
 
        rough%z0soil = 0.01*MIN(1.0,canopy%vlaiw) + 0.02*MIN(canopy%us**2/CGRAV,1.0)
        rough%z0soilsn = MAX(1.e-2,rough%z0soil) ! (1e-2: Mori et al., J Ag Met, 2010)
 
 
        WHERE( ssnow%snowd .GT. 0.01   )  &
-            rough%z0soilsn =  MAX( 1.e-2, rough%z0soil - rough%z0soil*MIN(ssnow%snowd,10.)/10.)
+     rough%z0soilsn =  MAX( 1.e-2,                                            &      
+                           rough%z0soil - rough%z0soil*MIN(ssnow%snowd,10.)/10.)
 
-    ENDIF
+ENDIF
 
-    !! vh_js !! use LAI_THRESH here
 do i=1,mp
-    if( canopy%vlaiw(i) .LT. CLAI_THRESH  .OR.                                          &
+  if( canopy%vlaiw(i) .LE. CLAI_THRESH  .OR.                                          &
          rough%hruff(i) .LT. rough%z0soilsn(i) ) then ! BARE SOIL SURFACE
 
        rough%z0m(i) = rough%z0soilsn(i)
@@ -133,6 +133,10 @@ do i=1,mp
        rough%disp(i) = 0.0
 
        ! Reference height zref is height above the displacement height
+    IF( cable_runtime%esm15 ) THEN
+      rough%zref_uv(i) = MAX( 3.5, rough%za_uv(i) )
+      rough%zref_tq(i) = MAX( 3.5, rough%za_tq(i) )
+    ELSE     
        ! Ticket #148: Reference height is height above the displacement height
        ! noting that this must be above the roughness length and rough%hruff-rough%disp
        ! (though second case is unlikely to be attained)
@@ -140,6 +144,7 @@ do i=1,mp
        rough%zref_tq(i) = MAX( 3.5 + rough%z0m(i), rough%za_tq(i) )
        rough%zref_uv(i) = MAX( rough%zref_uv(i), rough%hruff(i)-rough%disp(i) )
        rough%zref_tq(i) = MAX( rough%zref_tq(i), rough%hruff(i)-rough%disp(i) )
+    END IF
 
        rough%zruffs(i) = 0.0
        rough%rt1usa(i) = 0.0
@@ -176,18 +181,23 @@ do i=1,mp
        ! Calculate zero-plane displacement:
        rough%disp(i) = dh(i)* rough%hruff(i)
 
-
        ! Calculate roughness length:
        rough%z0m(i) = ( (1.0 - dh(i)) * EXP( LOG( CCCW_C ) - 1. + 1. / CCCW_C       &
             - CVONK / rough%usuh(i) ) ) * rough%hruff(i)
 
        ! Reference height zref is height above the displacement height
+    IF( cable_runtime%esm15 ) THEN
+      rough%zref_uv(i) = MAX( 3.5, rough%za_uv(i) )
+      rough%zref_tq(i) = MAX( 3.5, rough%za_tq(i) )
+    ELSE
+     ! Reference height zref is height above the displacement height
        ! Ticket #148: Reference height is height above the displacement height
        ! noting that this must be above the roughness length and rough%hruff-rough%disp
        rough%zref_uv(i) = MAX( 3.5 + rough%z0m(i), rough%za_uv(i) )
        rough%zref_tq(i) = MAX( 3.5 + rough%z0m(i), rough%za_tq(i) )
        rough%zref_uv(i) = MAX( rough%zref_uv(i), rough%hruff(i)-rough%disp(i) )
        rough%zref_tq(i) = MAX( rough%zref_tq(i), rough%hruff(i)-rough%disp(i) )
+    END IF
 
        ! find coexp: see notes "simplified wind model ..." eq 34a
        ! Extinction coefficient for wind profile in canopy:
@@ -200,7 +210,6 @@ do i=1,mp
        rough%term5(i)  = MAX( ( 2. / 3. ) * rough%hruff(i) / rough%disp(i), 1.0 )
        rough%term6(i) =  EXP( 3. * rough%coexp(i) * ( rough%disp(i) / rough%hruff(i) -1. ) )
        rough%term6a(i) = EXP(rough%coexp(i) * ( 0.1 * rough%hruff(i) / rough%hruff(i) -1. ))
-
 
        ! eq. 3.54, SCAM manual (CSIRO tech report 132)
        rough%rt0us(i)  = rough%term5(i) * ( CZDLIN * LOG(                            &
@@ -234,6 +243,7 @@ end do
 
        ENDWHERE
     ENDIF
+
 
 END SUBROUTINE ruff_resist
 
