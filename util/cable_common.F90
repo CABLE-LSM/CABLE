@@ -52,7 +52,7 @@ USE cable_runtime_opts_mod ,ONLY : wiltparam
    !---CABLE runtime switches def in this type
    TYPE kbl_internal_switches
       LOGICAL :: um = .FALSE., um_explicit = .FALSE., um_implicit = .FALSE.,   &
-          um_radiation = .FALSE., um_hydrology = .FALSE.
+          um_radiation = .FALSE., um_hydrology = .FALSE., esm15 = .FALSE.
       LOGICAL :: offline = .FALSE., mk3l = .FALSE.
    END TYPE kbl_internal_switches 
 
