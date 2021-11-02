@@ -1,6 +1,6 @@
 &blazenml
     blazeTStep       = "annually"	! Call frequency ("daily","monthly","annually")
-    BurnedAreaSource = "PRESCRIBED"    	! Burnt Area ("PRESCRIBED","SIMFIRE","GFED4") 
+    BurnedAreaSource = "SIMFIRE"    	! Burnt Area ("PRESCRIBED","SIMFIRE","GFED4") 
     BurnedAreaFile   = "/home/x_larni/STOREDIR/DATA/CABLE_INPUT/DATA_BLAZE/BA_Aust_2001-2019.nc"     		! used for Prescribed fires !CLN not available for now!
     OutputMode       = "full"      	! "std" for standard vars, "full" for full set of BLAZE output
 &end
