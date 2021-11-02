@@ -505,10 +505,6 @@ IF ( BIOME .EQ. 0 ) THEN
 ELSE
    ANNUAL_BA = &
         a(BIOME,ai) * FAPAR ** b(ai) * (scalar * FIRE_IDX) ** c(ai) * EXP(e(ai)*POPDENS)
-
-
-    ANNUAL_BA = &
-        a(BIOME,ai) * FAPAR ** b(ai) * (scalar * FIRE_IDX) ** c(ai) * EXP(e(ai)*POPDENS)
 !CLNELSE
 !CLN ! W.KNORR: Instead of fpar_corr1 * fpar_leafon + fpar_corr2 * fpar_leafon * fpar_leafon,
 !CLN ! simply use FAPAR - the correction takes into account that fpar_leafon has a high bias

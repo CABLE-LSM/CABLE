@@ -89,13 +89,13 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   REAL, DIMENSION(np), INTENT(IN)    :: LAT, LON
   TYPE(TYPE_BLAZE)   , INTENT(INOUT) :: BLAZE
   INTEGER, PARAMETER  :: NPOOLS = 3
-  CHARACTER(len=400)  :: BurnedAreaFile = ""
+  CHARACTER(len=400)  :: BurnedAreaFile = "", OutputMode="full" 
   CHARACTER(len=10)   :: BurnedAreaSource = "SIMFIRE", blazeTStep = "annually"
   INTEGER :: iu
 
   !CLNNAMELIST /BLAZENML/ HydePath,  BurnedAreaSource, BurnedAreaFile, BurnedAreaClimatologyFile, &
   !CLN     SIMFIRE_REGION
-  NAMELIST /BLAZENML/ blazeTStep,  BurnedAreaSource, BurnedAreaFile
+  NAMELIST /BLAZENML/ blazeTStep,  BurnedAreaSource, BurnedAreaFile, OutputMode
        
   ! READ BLAZE settings
   CALL GET_UNIT(iu)
@@ -149,6 +149,9 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   ALLOCATE( BLAZE%CPLANT_g(np,NPOOLS),BLAZE%CPLANT_w(np,NPOOLS) )
 
   call zero_blaze(BLAZE)
+  
+  BLAZE%BURNT_AREA_SRC = trim(BurnedAreaSource)
+  BLAZE%OUTMODE = TRIM(OutputMode)
 
   ! SETTINGS FOR BLAZE (BLAZEFLAG)
   ! bit value:               0            | 1
@@ -160,10 +163,10 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   ! BLAZE(+1) with FLI-only(+0) and SIMFIRE(+4) -> BLAZEFLAG=5
   ! BLAZE(+1) full (+2) with GFED (+0)          -> BLAZEFLAG=3
 
-
   BLAZE%BURNMODE = 2    ! Full. All Fluxes computed by BLAZE
   WRITE(*,*) " BLAZE: Full Mode"
   WRITE(*,*) " Burnt-area source: ", TRIM(BurnedAreaSource)
+  WRITE(*,*) " BLAZE output mode: ", TRIM(OutputMode)
 
   BLAZE%DSLR      = 0
   BLAZE%RAINF     = 0.
@@ -180,8 +183,6 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
 !!$  BLAZE%T_AVG = 5
 !!$  ! deadwood decay scale time [a]
 !!$  BLAZE%FT    = 30
-
-  BLAZE%BURNT_AREA_SRC = trim(BurnedAreaSource)
 
   BLAZE%CPLANT_g = 0.0
   BLAZE%CPLANT_w = 0.0
@@ -930,8 +931,8 @@ END SUBROUTINE RUN_BLAZE
        IF  (LEN_TRIM( TRIM(cable_user%BLAZE_outfile) ) .gt. 0 ) THEN
           fname = TRIM(cable_user%BLAZE_outfile)
        ELSE
-          fname = TRIM(filename%path)//'/'//TRIM(cable_user%RunIden)//'_'//&
-               TRIM(dum)//'_BLAZE_out.nc'
+          fname = TRIM(filename%path)//'/outputs/'//TRIM(cable_user%RunIden)//'_out_blaze_'//&
+               TRIM(dum)//'.nc'
        ENDIF
 
        ! Create NetCDF file:
@@ -954,7 +955,7 @@ END SUBROUTINE RUN_BLAZE
        STATUS = NF90_def_var(FILE_ID,'time' ,NF90_INT,(/t_ID/),VIDtime )
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
-       !write(*,*) 'timeunits', TRIM(timeunits), t_ID, FILE_ID
+       write(*,*) 'timeunits', TRIM(timeunits), t_ID, FILE_ID
 
        STATUS = NF90_PUT_ATT(FILE_ID, VIDtime, 'units', TRIM(timeunits))
        IF (STATUS /= NF90_NOERR)  CALL handle_err(STATUS)

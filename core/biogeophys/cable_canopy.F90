@@ -2681,6 +2681,12 @@ CONTAINS
        EHa    = 7.4e3   ! J/mol
        EHd    = 434.0e3 ! J/mol
        Entrop = 1.4e3   ! J/mol/K
+    else
+#ifdef __MPI__
+             call MPI_Abort(0, 926, ierr) ! Do not know comm nor rank here
+#else
+             stop 926
+#endif
     endif
 
     CALL point2constants(C)

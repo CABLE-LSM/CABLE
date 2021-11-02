@@ -76,7 +76,7 @@
     cable_user%LogWorker           = .FALSE.
     cable_user%SSNOW_POTEV         = 'P-M'        ! Humidity Deficit Method
     cable_user%SOIL_STRUC          = 'sli'    ! 'default','sli'
-    cable_user%Rubisco_parameters  = 'Bernacchi_2000'
+    cable_user%Rubisco_parameters  = 'Bernacchi_2002'
     cable_user%CALL_POP            = .TRUE.       ! TRUE uses POP population dynamics model, coupled to CASA.
     cable_user%POP_out             = 'ini'        ! ! Pop-output file either 'rst':Standard restart OR 'epi' for whole episode
     cable_user%POP_fromZero        = .FALSE.      ! Start POP from Zero, don't read restart file
