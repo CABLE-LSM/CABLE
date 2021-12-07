@@ -69,6 +69,8 @@ casa_dimension.o \
 casa_phenology.o \
 casa_cnp.o \
 casa_cable.o casa_inout.o \
+landuse_constant.o \
+landuse3.o landuse_inout.o
 
 # this is the executable we are building
 PROG = cable-mpi
@@ -103,11 +105,13 @@ cable_mpimaster.o: cable_mpimaster.F90 cable_mpicommon.o cable_output.o \
 	cable_sli_main.o cable_plume_mip.o pop_io.o pop_mpi.o \
 	cable_climate.o cable_cru_TRENDY.o POPLUC.o cable_LUC_EXPT.o \
 	CASAONLY_LUC.o cable_namelist_input.o \
+	landuse_constant.o landuse3.o landuse_inout.o \
 	cable_site.o cbl_soilsnow_init_special.o cable_diag.o 
 
 cable_mpiworker.o: cable_mpiworker.F90 cable_mpicommon.o cable_output.o \
 	cable_iovars.o cbl_model_driver_offline.o  casa_variable.o casa_cable.o casa_cnp.o \
 	casa_inout.o cable_input.o cable_define_types.o  cable_common.o pop_mpi.o \
+	landuse_constant.o landuse3.o landuse_inout.o \
 	cable_climate.o cable_namelist_input.o cbl_soilsnow_init_special.o cbl_hgtAbove_snow.o cable_diag.o cbl_masks.o  cbl_albedo.o 
 
 cable_mpidrv.o: cable_mpidrv.F90 cable_mpicommon.o cable_mpimaster.o cable_mpiworker.o cable_namelist_input.o

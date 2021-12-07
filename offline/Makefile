@@ -66,7 +66,8 @@ LSRC =                          \
 	cable_weathergenerator.F90 cable_climate.F90 cable_phenology.F90 					 \
 	cable_cru_TRENDY.F90 POPLUC.F90 cable_LUC_EXPT.F90												 \
 	cable_gw_hydro.F90 cable_psm.F90 cable_namelist_input.F90									 \
-	cable_site.F90 cable_climate_type_mod.F90 cable_metutils.F90
+	cable_site.F90 cable_climate_type_mod.F90 cable_metutils.F90               \
+	landuse3.F90 landuse_inout.F90 landuse_constant.F90
 
 # this is the executable we are building
 PROG = cable
@@ -178,7 +179,9 @@ CASAONLY_LUC.o: CASAONLY_LUC.F90 cable_define_types.o  cable_carbon.o cable_comm
 casa_cable.o: casa_cable.F90 POP.o cable_define_types.o  cable_carbon.o casa_variable.o \
 	      cable_diag.o cable_phenology.o casa_cnp.o casa_inout.o casa_ncdf.o
 
-casa_cnp.o: casa_cnp.F90 cable_define_types.o  casa_variable.o
+landuse_constant.o: landuse_constant.F90 cable_define_types.o casa_dimension.o
+
+casa_cnp.o: casa_cnp.F90 cable_define_types.o  casa_variable.o landuse_constant.o
 
 casa_inout.o: casa_inout.F90 POP.o cable_define_types.o  cable_iovars.o casa_variable.o casa_cnp.o casa_ncdf.o
 
@@ -224,6 +227,14 @@ cable_namelist_input.o: cable_namelist_input.F90
 cable_site.o: cable_site.F90 cable_iovars.o cable_common.o
 
 
+landuse3.o: landuse3.F90 cable_define_types.o casa_dimension.o landuse_constant.o cable_common.o \
+            cable_iovars.o casa_variable.o casa_phenology.o
+
+landuse_inout.o: landuse_inout.F90 cable_define_types.o landuse_constant.o landuse3.o cable_common.o cable_iovars.o cable_abort.o
+
+
+
+
 # these are all the files we are compiling
 all  : cable_math_constants_mod.o   \
 	cable_phys_constants_mod.o 	 \
@@ -237,9 +248,9 @@ all  : cable_math_constants_mod.o   \
 	cbl_lai_eff.o								 \
 	cable_iovars.o            	 \
 	casa_ncdf.o               	 \
-  cbl_albedo.o         		 	   \
+	cbl_albedo.o         		 	   \
 	cbl_snow_albedo.o					   \
-  cbl_soilColour_albedo.o      \
+	cbl_soilColour_albedo.o      \
 	cbl_rhoch.o         	       \
 	cbl_spitter.o       	       \
 	cbl_sinbet.o        	       \
@@ -272,7 +283,7 @@ all  : cable_math_constants_mod.o   \
 	cable_plume_mip.o        	   \
 	cable_weathergenerator.o 	   \
 	cable_climate.o          	   \
-	cable_climate_type_mod.o           \
+	cable_climate_type_mod.o     \
 	cable_phenology.o        	   \
 	cable_cru_TRENDY.o       	   \
 	POPLUC.o                 	   \
@@ -287,12 +298,16 @@ all  : cable_math_constants_mod.o   \
 	casa_phenology.o         	   \
 	casa_cnp.o               	   \
 	casa_cable.o             	   \
-	spincasacnp.o             	   \
-	CASAONLY_LUC.o             	   \
-	cbl_model_driver_offline.o             	   \
-	casa_inout.o
+	spincasacnp.o             	 \
+	CASAONLY_LUC.o             	 \
+	cbl_model_driver_offline.o   \
+	casa_inout.o                 \
+	landuse_constant.o           \
+	landuse3.o                   \
+	landuse_inout.o                        
+
 
 # make clean option
 clean:
-	rm -f *.o *.mod 
+	rm -fr .tmp
 

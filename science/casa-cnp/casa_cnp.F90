@@ -56,7 +56,8 @@ MODULE casa_cnp_module
   USE casaparm
   USE casavariable
   USE phenvariable
-  USE cable_common_module, ONLY: cable_user ! Custom soil respiration: Ticket #42
+  USE cable_common_module, ONLY: cable_user,l_landuse ! Custom soil respiration: Ticket #42
+  USE landuse_constant
   IMPLICIT NONE
   REAL(r_2), PARAMETER :: zero = 0.0_r_2
   REAL(r_2), PARAMETER :: one  = 1.0_r_2
@@ -2206,6 +2207,7 @@ END SUBROUTINE casa_rplant1
     INTEGER , INTENT(IN) :: LALLOC
     ! local variables
     REAL(r_2), DIMENSION(mp)   :: plabsorb,deltap
+    REAL(r_2), DIMENSION(mp,mwood)   :: delcwoodprod,delnwoodprod,delpwoodprod
     INTEGER i,j,k,np,nland
 
     !  PRINT *, 'mp here is ', mp
@@ -2347,6 +2349,24 @@ END SUBROUTINE casa_rplant1
        ENDIF
     ENDDO !end of "np"
 
+    ! calculate the decay of wood product pools
+    if(l_landuse) then
+
+       DO np=1,mp
+          delcwoodprod(np,:) =0.0        
+          delnwoodprod(np,:) =0.0        
+          delpwoodprod(np,:) =0.0        
+          IF(casamet%iveg2(np) .ne. icewater) THEN
+             delcwoodprod(np,:) = - ratewoodprod(:) *casapool%cwoodprod(np,:) * deltcasa
+             delnwoodprod(np,:) = - ratewoodprod(:) *casapool%nwoodprod(np,:) * deltcasa
+             delpwoodprod(np,:) = - ratewoodprod(:) *casapool%pwoodprod(np,:) * deltcasa
+             casapool%cwoodprod(np,:) = casapool%cwoodprod(np,:) + delcwoodprod(np,:)
+             casapool%nwoodprod(np,:) = casapool%nwoodprod(np,:) + delnwoodprod(np,:)
+             casapool%pwoodprod(np,:) = casapool%pwoodprod(np,:) + delpwoodprod(np,:)
+          endif        
+       ENDDO   
+
+     endif
 
 
   END SUBROUTINE casa_cnpcycle

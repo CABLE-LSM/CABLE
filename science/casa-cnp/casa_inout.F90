@@ -971,7 +971,8 @@ CONTAINS
        !vh !
        WHERE(casamet%lnonwood==1) casapool%pplant(:,WOOD) = 0.0
     ENDIF
-
+    
+    casapool%cwoodprod=0.0; casapool%nwoodprod=0.0;casapool%pwoodprod=0.0
 
   END SUBROUTINE casa_init
 
@@ -1742,7 +1743,7 @@ CONTAINS
     USE CASAVARIABLE
     USE phenvariable
     USE CABLE_COMMON_MODULE
-  USE casa_ncdf_module, ONLY: HANDLE_ERR
+    USE casa_ncdf_module, ONLY: HANDLE_ERR
     USE CABLE_DEF_TYPES_MOD, ONLY: MET_TYPE, r_2, mp
     USE netcdf
 
@@ -1758,7 +1759,7 @@ CONTAINS
     INTEGER*4, PARAMETER   :: pmp4 =0
     INTEGER, PARAMETER   :: fmp4 = KIND(pmp4)
     INTEGER*4   :: STATUS, i
-    INTEGER*4   :: FILE_ID, dID, land_dim, mp_dim, ml_dim, ms_dim
+    INTEGER*4   :: FILE_ID, dID, land_dim, mp_dim, ml_dim, ms_dim, mw_dim
     CHARACTER :: FRST_IN*99, CYEAR*4, CDATE*12, RSTDATE*12, FNAME*99
 
     ! ! 1 dim arrays (npt )
@@ -1782,6 +1783,9 @@ CONTAINS
     CHARACTER(len=20),DIMENSION(3) :: A3
     ! 2 dim arrays (npt,msoil)
     CHARACTER(len=20),DIMENSION(3) :: A4
+    ! 2-d array (npt,mwood)
+    CHARACTER(len=20),DIMENSION(3) :: A5
+
     INTEGER :: VID1(SIZE(A1)), VID2(SIZE(A2)), VID3(SIZE(A3)), VID4(SIZE(A4))
     LOGICAL            ::  EXISTFILE, EXISTFILE1
     mp4=INT(mp,fmp4)
@@ -1810,6 +1814,12 @@ CONTAINS
     A4(1) = 'csoil'
     A4(2) = 'nsoil'
     A4(3) = 'psoil'
+
+    A5(1) = 'cwoodprod'
+    A5(2) = 'nwoodprod'
+    A5(3) = 'pwoodprod'
+
+
 
     !fname = TRIM(filename%path)//'/'//TRIM( cable_user%RunIden )//&
     !       '_casa_rst.nc'
@@ -1870,6 +1880,13 @@ CONTAINS
     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
     STATUS = NF90_INQUIRE_DIMENSION( FILE_ID, dID, LEN=ms_dim )
     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+
+    if(l_landuse) then
+       STATUS = NF90_INQ_DIMID( FILE_ID, 'mwood', dID )
+       IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+       STATUS = NF90_INQUIRE_DIMENSION( FILE_ID, dID, LEN=mw_dim )
+       IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+    endif
 
     IF ( land_dim .NE. SIZE(casamet%lon) .OR. mp_dim .NE. mplant .OR. &
          ml_dim   .NE. mlitter             .OR. ms_dim .NE. msoil ) THEN
@@ -2006,6 +2023,23 @@ CONTAINS
        CASE ('nsoil' ) ; casapool%nsoil = TMP4
        END SELECT
     END DO
+
+    if(l_landuse) then
+
+       DO i = 1, SIZE(A5)
+          STATUS = NF90_INQ_VARID( FILE_ID, A5(i), dID )
+          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+           STATUS = NF90_GET_VAR( FILE_ID, dID, TMP4 )
+          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+          SELECT CASE ( TRIM(A4(i)))
+             CASE ('cwoodprod' ) ; casapool%cwoodprod = TMP4
+             CASE ('nwoodprod' ) ; casapool%nwoodprod = TMP4
+             CASE ('pwoodprod' ) ; casapool%pwoodprod = TMP4
+          END SELECT
+        END DO
+
+    endif
+
     IF (icycle==3) THEN
        DO i = 1, SIZE(A4)
           STATUS = NF90_INQ_VARID( FILE_ID, A4(i), dID )

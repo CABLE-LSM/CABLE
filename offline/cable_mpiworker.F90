@@ -228,6 +228,7 @@ USE cbl_soil_snow_init_special_module
          spinConv      = .FALSE., & ! has spinup converged?
          spincasa      = .FALSE., & ! TRUE: CASA-CNP Will spin mloop times,
          l_casacnp     = .FALSE., & ! using CASA-CNP with CABLE
+         l_landuse     = .FALSE., & ! using LANDUSE                 
          l_laiFeedbk   = .FALSE., & ! using prognostic LAI
          l_vcmaxFeedbk = .FALSE., & ! using prognostic Vcmax
          CASAONLY      = .FALSE., & ! ONLY Run CASA-CNP
@@ -267,6 +268,7 @@ USE cbl_soil_snow_init_special_module
          fixedCO2,         &
          spincasa,         &
          l_casacnp,        &
+         l_landuse,        &
          l_laiFeedbk,      &
          l_vcmaxFeedbk,    &
          icycle,           &
@@ -2917,6 +2919,18 @@ USE cbl_soil_snow_init_special_module
     !    blen(bidx) = mplant * r2len
     ! Maciej
     blen(bidx) = msoil * r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (casapool%cwoodprod, displs(bidx), ierr)
+    blen(bidx) = mwood * r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (casapool%nwoodprod, displs(bidx), ierr)
+    blen(bidx) = mwood * r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (casapool%pwoodprod, displs(bidx), ierr)
+    blen(bidx) = mwood * r2len
 
     ! ------- casaflux ----
 
@@ -5955,6 +5969,19 @@ USE cbl_soil_snow_init_special_module
     CALL MPI_Get_address (casapool%ratioPCsoil(off,1), displs(bidx), ierr)
     blocks(bidx) = r2len * msoil
 
+    bidx = bidx + 1
+    CALL MPI_Get_address (casapool%cwoodprod(off,1), displs(bidx), ierr)
+    blocks(bidx) = r2len * mwood
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (casapool%nwoodprod(off,1), displs(bidx), ierr)
+    blocks(bidx) = r2len * mwood
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (casapool%pwoodprod(off,1), displs(bidx), ierr)
+    blocks(bidx) = r2len * mwood
+
+   ! 
 
     bidx = bidx + 1
     CALL MPI_Get_address (phen%doyphase(off,1), displs(bidx), ierr)
