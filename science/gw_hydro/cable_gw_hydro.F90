@@ -43,8 +43,6 @@ MODULE cable_gw_hydro_module
        cable_runtime,&
        max_glacier_snowd
 
-  USE cbl_soil_snow_subrs_module, ONLY : trimb, snow_processes_soil_thermal
-
 !distribute these per sbr
 USE cable_phys_constants_mod, ONLY : CTFRZ => TFRZ
 USE cable_phys_constants_mod, ONLY : CHL => HL
@@ -90,6 +88,7 @@ CONTAINS
     !these are r_2.  this breaks bitwise compatibility with trunk
     !if acceptable this routine does the same thing but with r_2 soil params
     ! if max_ice_frac always set to frozen_limit and tgg_tmp is always CTFRZ
+IMPLICIT NONE
 
     REAL, INTENT(IN)                    :: dels ! integration time step (s)
     TYPE(soil_snow_type), INTENT(INOUT)      :: ssnow
@@ -664,6 +663,7 @@ CONTAINS
   !
   SUBROUTINE smoistgw (dels,ktau,ssnow,soil,veg,canopy)
     USE cable_common_module
+USE trimb_mod,                       ONLY : trimb
 
     IMPLICIT NONE
 
@@ -913,6 +913,7 @@ CONTAINS
     USE cable_IO_vars_module, ONLY: wlogn
 
     USE cable_common_module
+USE snow_processes_soil_thermal_mod, ONLY : snow_processes_soil_thermal
     REAL                     , INTENT(IN)     :: dels ! integration time step (s)
     TYPE(soil_parameter_type), INTENT(INOUT)  :: soil
     TYPE(soil_snow_type)     , INTENT(INOUT)  :: ssnow

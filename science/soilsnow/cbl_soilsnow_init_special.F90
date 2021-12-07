@@ -1,19 +1,6 @@
 MODULE cbl_soil_snow_init_special_module
 
-  USE cable_def_types_mod, ONLY : soil_snow_type, soil_parameter_type,        &
-       veg_parameter_type, canopy_type, met_type,        &
-       balances_type, r_2, ms, mp
-
-USE cable_phys_constants_mod, ONLY : CTFRZ => TFRZ
-USE cable_phys_constants_mod, ONLY : CHL => HL
-USE cable_phys_constants_mod, ONLY : Cdensity_liq => density_liq
-USE cable_phys_constants_mod, ONLY : Ccgsnow => cgsnow
-USE cable_phys_constants_mod, ONLY : Ccswat => cswat
-USE cable_phys_constants_mod, ONLY : Ccsice => csice
-
-  USE cable_common_module, ONLY: cable_user,snow_ccnsw,snmin,&
-       max_ssdn,max_sconds,frozen_limit,&
-       max_glacier_snowd
+USE cbl_ssnow_data_mod
 
   IMPLICIT NONE
 
@@ -26,8 +13,6 @@ CONTAINS
 
 SUBROUTINE spec_init_soil_snow(dels, soil, ssnow, canopy, met, bal, veg,heat_cap_lower_limit)
 USE cable_common_module
-!all subrs-implement ONLY:
-USE cbl_soil_snow_subrs_module
 REAL, INTENT(IN)                    :: dels ! integration time step (s)
 TYPE(soil_parameter_type), INTENT(INOUT) :: soil
 TYPE(soil_snow_type), INTENT(INOUT)      :: ssnow

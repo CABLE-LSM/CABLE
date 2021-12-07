@@ -16,6 +16,12 @@ host_gadi()
    module add intel-compiler/2019.5.281
    module add netcdf/4.6.3
 
+   export NCDIR=$NETCDF_ROOT'/lib/Intel'
+   export NCMOD=$NETCDF_ROOT'/include/Intel'
+   export CFLAGS='-O2 -fp-model precise'
+   export LDFLAGS='-L'$NCDIR' -O0'
+   export LD='-lnetcdf -lnetcdff'
+
    if [[ $1 = 'mpi' ]]; then
       module add intel-mpi/2019.5.281
       export FC='mpif90'
@@ -23,9 +29,6 @@ host_gadi()
       export FC='ifort'
    fi
    
-   export NCDIR=$NETCDF_ROOT'/lib/Intel'
-   export NCMOD=$NETCDF_ROOT'/include/Intel'
-   export CFLAGS='-O2 -fp-model precise'
    if [[ $1 = 'MGK' ]]; then
       export CFLAGS='-O2'
       #export NCMOD=$NETCDF_ROOT'/include'
@@ -35,8 +38,6 @@ host_gadi()
       export CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0'
       #export CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0 -check all,noarg_temp_created'
    fi
-   export LDFLAGS='-L'$NCDIR' -O0'
-   export LD='-lnetcdf -lnetcdff'
    
    if [[ $1 = 'mpi' ]]; then
     build_build mpi
@@ -84,7 +85,6 @@ build_build()
    LUC="../science/landuse"
    OFF="../offline"
    UTI="../util"
-#DIA="../util/diag"
    PAR="../params"
    SLI="../science/sli"
    POP="../science/pop"
@@ -102,12 +102,11 @@ build_build()
    /bin/cp -p $OFF/*90 ./.tmp
 
 /bin/cp -p $UTI/*90 ./.tmp
-#/bin/cp -p $DIA/*90 ./.tmp
 /bin/cp -p $PAR/*90 ./.tmp
 
 /bin/cp -p serial_cable ./.tmp
+/bin/cp -p parallel_cable ./.tmp
 /bin/cp -p Makefile  ./.tmp
-/bin/cp -p Makefile3_mpi  ./.tmp
 
 cd .tmp/
 
@@ -125,9 +124,9 @@ echo  ''
 
 make -f Makefile #this makes elements of CABLE that are common to all apps
 if [[ $1 = 'mpi' ]]; then
-   make -f Makefile3_mpi #this makes elements of CABLE that are specific to MPI CABLE
+   ./parallel_cable "$FC" "$CFLAGS" "$LDFLAGS" "$LD" "$NCMOD"
 else
-   ./serial_cable  "$FC" "$CFLAGS" "$LDFLAGS" "$LD" "$NCMOD"
+   ./serial_cable "$FC" "$CFLAGS" "$LDFLAGS" "$LD" "$NCMOD"
 fi
 
 }

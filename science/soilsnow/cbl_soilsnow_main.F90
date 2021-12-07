@@ -1,17 +1,6 @@
 MODULE cbl_soil_snow_main_module
 
-  USE cable_def_types_mod, ONLY : soil_snow_type, soil_parameter_type,        &
-       veg_parameter_type, canopy_type, met_type,        &
-       balances_type, r_2, ms, mp
-
-USE cable_phys_constants_mod, ONLY : CHL => HL
-USE cable_phys_constants_mod, ONLY : CHLF => HLF
-USE cable_phys_constants_mod, ONLY : CHLS => HLS
-USE cable_phys_constants_mod, ONLY : Cdensity_liq => density_liq
-
-  USE cable_common_module, ONLY: cable_user,snow_ccnsw,snmin,&
-       max_ssdn,max_sconds,frozen_limit,&
-       max_glacier_snowd
+USE cbl_ssnow_data_mod
 
   IMPLICIT NONE
 
@@ -49,8 +38,18 @@ CONTAINS
   !        ssnow
   SUBROUTINE soil_snow(dels, soil, ssnow, canopy, met, bal, veg)
     USE cable_common_module
-!all subrs-implement ONLY:
-USE cbl_soil_snow_subrs_module
+!called subrs
+USE hydraulic_redistribution_mod, ONLY: hydraulic_redistribution
+USE soilfreeze_mod,               ONLY: soilfreeze
+USE remove_trans_mod,             ONLY: remove_trans
+USE snowl_adjust_mod,             ONLY: snowl_adjust
+USE snowCheck_mod,                ONLY: snowCheck
+USE stempv_mod,                   ONLY: stempv
+USE surfbv_mod,                   ONLY: surfbv
+USE snow_melting_mod,             ONLY: snow_melting
+USE snow_accum_mod,               ONLY: snow_accum
+USE snowdensity_mod,              ONLY: snowDensity
+
 
     REAL, INTENT(IN)                    :: dels ! integration time step (s)
     TYPE(soil_parameter_type), INTENT(INOUT) :: soil
