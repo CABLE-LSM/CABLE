@@ -40,10 +40,10 @@ LSRC =                          \
 	cable_pft_params.F90          \
 	cable_soil_params.F90         \
 	casa_ncdf.F90               	\
-	cbl_masks.F90              \
+	cbl_masks.F90                 \
 	cbl_hgtAbove_snow.F90     		\
 	cbl_lai_eff.F90    		 				\
-	cbl_model_driver_offline.F90 \
+	cbl_model_driver_offline.F90  \
   cbl_albedo.F90    					  \
 	cbl_snow_albedo.F90					  \
   cbl_soilColour_albedo.F90     \
@@ -52,19 +52,19 @@ LSRC =                          \
 	cbl_sinbet.F90        	      \
 	cbl_radiation.F90     	      \
 	cbl_init_radiation.F90	      \
-	casa_dimension.F90 casa_phenology.F90 casa_param.F90 											 \
-	cable_common.F90 cable_define_types.F90 cable_iovars.F90	   \
-	cable_abort.F90 casa_variable.F90 cable_parameters.F90                     \
- cbl_soilsnow_init_special.F90 cbl_soilfreeze_mod.F90    \
- cbl_snowMelt.F90 cbl_snowl_adjust.F90                   \
- cbl_snowDensity.F90 cbl_snowCheck.F90                   \
- cbl_snowAccum.F90 cbl_smoisturev.F90                    \
- cbl_remove_trans.F90 cbl_hyd_redistrib.F90              \
- cbl_conductivity.F90 cbl_Oldconductivity.F90            \
- cbl_GW.F90 cbl_thermal.F90                              \
- cbl_soilsnow_data.F90 cbl_trimb.F90                     \
- cbl_stempv.F90 cbl_soilsnow_main.F90                    \
- cbl_surfbv.F90                                          \
+	casa_dimension.F90 casa_phenology.F90 casa_param.F90      \
+	cable_common.F90 cable_define_types.F90 cable_iovars.F90  \
+	cable_abort.F90 casa_variable.F90 cable_parameters.F90    \
+  cbl_soilsnow_init_special.F90 cbl_soilfreeze.F90          \
+  cbl_snowMelt.F90 cbl_snowl_adjust.F90                     \
+  cbl_snowDensity.F90 cbl_snowCheck.F90                     \
+  cbl_snowAccum.F90 cbl_smoisturev.F90                      \
+  cbl_remove_trans.F90 cbl_hyd_redistrib.F90                \
+  cbl_conductivity.F90 cbl_Oldconductivity.F90              \
+  cbl_GW.F90 cbl_thermal.F90                                \
+  cbl_soilsnow_data.F90 cbl_trimb.F90                       \
+  cbl_stempv.F90 cbl_soilsnow_main.F90                      \
+  cbl_surfbv.F90                                            \
 	cable_air.F90 cable_roughness.F90 																				 \
 	cable_carbon.F90 cable_canopy.F90 cable_checks.F90 												 \
 	cable_read.F90 cable_initialise.F90 cable_input.F90 cable_write.F90				 \
@@ -139,7 +139,7 @@ cbl_init_radiation.o: cbl_init_radiation.F90 cable_other_constants_mod.o cable_m
 #soilsnow
 cbl_soilsnow_data.o: cbl_soilsnow_data.F90 cable_phys_constants_mod.o cable_define_types.o cable_common.o 
 cbl_trimb.o: cbl_trimb.F90 cbl_soilsnow_data.o 
-cbl_soilfreeze_mod.o: cbl_soilfreeze_mod.F90 cbl_soilsnow_data.o cable_phys_constants_mod.o cable_define_types.o cable_common.o 
+cbl_soilfreeze.o: cbl_soilfreeze.F90 cbl_soilsnow_data.o cable_phys_constants_mod.o cable_define_types.o cable_common.o 
 cbl_snowMelt.o: cbl_snowMelt.F90 cbl_soilsnow_data.o cable_define_types.o
 cbl_snowl_adjust.o: cbl_snowl_adjust.F90 cbl_soilsnow_data.o cable_define_types.o
 cbl_snowDensity.o: cbl_snowDensity.F90 cbl_soilsnow_data.o cable_define_types.o
@@ -155,7 +155,7 @@ cbl_surfbv.o: cbl_surfbv.F90 cbl_soilsnow_data.o cable_define_types.o cable_comm
 cbl_stempv.o: cbl_stempv.F90 cbl_trimb.o cbl_soilsnow_data.o cbl_conductivity.o cbl_Oldconductivity.o
 cbl_smoisturev.o: cbl_smoisturev.F90 cbl_trimb.o cbl_soilsnow_data.o cable_define_types.o cable_common.o 
 cbl_soilsnow_init_special.o: cbl_soilsnow_init_special.F90 cbl_soilsnow_data.o cable_iovars.o
-cbl_soilsnow_main.o: cbl_soilsnow_main.F90 cbl_soilsnow_data.o cbl_soilfreeze_mod.o cbl_snowMelt.o cbl_snowl_adjust.o cbl_snowDensity.o cbl_snowCheck.o cbl_snowAccum.o cbl_remove_trans.o cbl_hyd_redistrib.o cbl_conductivity.o cbl_Oldconductivity.o cbl_GW.o cbl_thermal.o cbl_surfbv.o cbl_stempv.o cbl_smoisturev.o
+cbl_soilsnow_main.o: cbl_soilsnow_main.F90 cbl_soilsnow_data.o cbl_soilfreeze.o cbl_snowMelt.o cbl_snowl_adjust.o cbl_snowDensity.o cbl_snowCheck.o cbl_snowAccum.o cbl_remove_trans.o cbl_hyd_redistrib.o cbl_conductivity.o cbl_Oldconductivity.o cbl_GW.o cbl_thermal.o cbl_surfbv.o cbl_stempv.o cbl_smoisturev.o
 
 #science subrs
 casa_phenology.o: casa_phenology.F90
@@ -294,7 +294,7 @@ all  : cable_math_constants_mod.o   \
 	cbl_soilsnow_main.o   	 	   \
 	cbl_soilsnow_init_special.o  \
 	cbl_soilsnow_init_special.o  \
-	cbl_soilfreeze_mod.o         \
+	cbl_soilfreeze.o             \
 	cbl_snowMelt.o               \
 	cbl_snowl_adjust.o           \
 	cbl_snowDensity.o            \

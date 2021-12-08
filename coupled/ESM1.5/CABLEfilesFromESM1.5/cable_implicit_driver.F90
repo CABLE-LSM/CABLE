@@ -57,13 +57,11 @@ subroutine cable_implicit_driver( LS_RAIN, CON_RAIN, LS_SNOW, CONV_SNOW,       &
                                   NPP_FT_ACC,RESP_W_FT_ACC,RESP_S_ACC,          &
                                   FNSNET,FNLEACH,FNUP,FNLOSS,FNDEP,FNFIX,idoy )
 
-   USE cable_def_types_mod, ONLY : mp
+   USE cable_def_types_mod, ONLY : mp, nrb, c1, rhoch, xk
    USE cable_data_module,   ONLY : PHYS
    USE cable_um_tech_mod,   ONLY : um1, conv_rain_prevstep, conv_snow_prevstep,&
                                   air, bgc, canopy, met, bal, rad, rough,      &
-                                  ssnow, sum_flux
-    USE cable_params_mod, ONLY : veg => veg_cbl 
-    USE cable_params_mod, ONLY : soil => soil_cbl 
+                                  ssnow, sum_flux, veg, soil
    USE cable_common_module, ONLY : cable_runtime, cable_user, l_casacnp,       &
                                    l_vcmaxFeedbk, knode_gl, ktau_gl, kend_gl
    USE cable_um_init_subrs_mod, ONLY : um2cable_rr
@@ -75,9 +73,6 @@ subroutine cable_implicit_driver( LS_RAIN, CON_RAIN, LS_SNOW, CONV_SNOW,       &
    USE bgcdriver_mod, ONLY : bgcdriver
    USE sumcflux_mod, ONLY : sumcflux
    USE casa_um_inout_mod
-USE cbl_rhoch_ESM1pt5_module, ONLY : rhoch =>rhoch_gl,  &
-                                     c1 => c1_gl, &
-                                     xk => xk_gl
 
    IMPLICIT NONE
         
@@ -282,12 +277,12 @@ USE cbl_rhoch_ESM1pt5_module, ONLY : rhoch =>rhoch_gl,  &
       met%qv = met%qv + dqwc
       met%tvair = met%tk
       met%tvrad = met%tk
-      met%doy = idoy + 1
+      !d1!met%doy = idoy + 1
  
       canopy%cansto = canopy%oldcansto
 
    CALL cbm( timestep, air, bgc, canopy, met, bal,                             &
-             rad, rough, soil, ssnow, sum_flux, veg, xk, c1, rhoch )
+             rad, rough, soil, ssnow, sum_flux, veg )
 
       ! Lestevens - temporary ?
       ktauday = int(24.0*3600.0/TIMESTEP)
@@ -338,7 +333,7 @@ USE cbl_rhoch_ESM1pt5_module, ONLY : rhoch =>rhoch_gl,  &
       endif
        
       cable_runtime%um_implicit = .FALSE.
-  
+
 END SUBROUTINE cable_implicit_driver
 
 
@@ -364,8 +359,7 @@ SUBROUTINE implicit_unpack( TSOIL, TSOIL_TILE, SMCL, SMCL_TILE,                &
  
    USE cable_def_types_mod, ONLY : mp
    USE cable_data_module,   ONLY : PHYS
-   USE cable_um_tech_mod,   ONLY : um1 ,canopy, rad, ssnow, air
-    USE cable_params_mod, ONLY : soil => soil_cbl 
+   USE cable_um_tech_mod,   ONLY : um1 ,canopy, rad, ssnow, air, soil
    USE cable_common_module, ONLY : cable_runtime, cable_user
    USE casa_types_mod
    IMPLICIT NONE

@@ -77,13 +77,12 @@ USE cable_pft_params_mod, ONLY : cable_pft_params
 
    USE casa_um_inout_mod
 !CBL3
-USE cbl_soil_snow_init_special_module, ONLY: spec_init_soil_snow
+!draft1!USE cbl_soil_snow_init_special_module, ONLY: spec_init_soil_snow
 USE cable_common_module, ONLY : kwidth_gl 
 USE cable_def_types_mod, ONLY : ms
-USE cable_um_tech_mod,   ONLY : ssnow, canopy, met, bal
-    USE cable_params_mod, ONLY : veg => veg_cbl 
-    USE cable_params_mod, ONLY : soil => soil_cbl 
+USE cable_um_tech_mod,   ONLY : ssnow, canopy, met, bal, veg, soil
 USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
+USE cbl_ssnow_data_mod, ONLY: heat_cap_lower_limit
 
    !-------------------------------------------------------------------------- 
    !--- INPUT ARGS FROM cable_explicit_driver() ------------------------------
@@ -247,8 +246,6 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
          
 !CBL3
 REAL, DIMENSION(land_pts, ntiles) ::  clobbered_htveg
-REAL :: heat_cap_lower_limit(mp,ms)
-heat_cap_lower_limit = 0.01
 
       !---------------------------------------------------------------------!
       !--- code to create type um1% conaining UM basic vars describing    --! 
@@ -279,6 +276,7 @@ heat_cap_lower_limit = 0.01
       !--- IF the tile is "active"
       IF ( first_call ) THEN
       
+         L_TILE_PTS     = .FALSE.
          um1%L_TILE_PTS = .FALSE.
          mp = SUM(um1%TILE_PTS)
          mland = LAND_PTS
@@ -289,8 +287,8 @@ heat_cap_lower_limit = 0.01
             DO j=1,ntiles
                
                IF( um1%TILE_FRAC(i,j) .GT. 0.0 ) THEN 
-                     um1%L_TILE_PTS(i,j) = .TRUE.
-                     L_TILE_PTS(i,j) = .TRUE.
+                  L_TILE_PTS(i,j)     = .TRUE.
+                  um1%L_TILE_PTS(i,j) = .TRUE.
                   !jhan:can set veg%iveg from  here ?
                   tile_index_mp(i,j) = j 
                ENDIF
@@ -314,12 +312,10 @@ heat_cap_lower_limit = 0.01
       endif
 
       !--- initialize veg   
-!CALL initialize_veg(clobbered_htveg , land_pts, npft, ntiles, sm_levels, mp,     &
 CALL initialize_veg( kblum_veg%htveg , land_pts, npft, ntiles, sm_levels, mp,     &
                      canht_ft, lai_ft, dzsoil, veg,         &
                     tile_pts, tile_index, tile_frac, L_tile_pts,                 &
                     CLAI_thresh )
-!kblum_veg%htveg = clobbered_htveg
  
       !--- initialize soil
       CALL initialize_soil( bexp, hcon, satcon, sathh, smvcst, smvcwt,      &
@@ -349,8 +345,6 @@ CALL initialize_veg( kblum_veg%htveg , land_pts, npft, ntiles, sm_levels, mp,   
  
       IF( first_call ) THEN
 !CBL3call spec_init_soil_snow( real(kwidth_gl), soil_cbl, ssnow_cbl, canopy_cbl, met_cbl, bal_cbl, veg_cbl,heat_cap_loower_limit)
-call spec_init_soil_snow( real(kwidth_gl), soil, ssnow, canopy, met, bal, veg, &
-        heat_cap_lower_limit )
          CALL init_bgc_vars() 
          CALL init_sumflux_zero() 
 
@@ -381,7 +375,7 @@ call spec_init_soil_snow( real(kwidth_gl), soil, ssnow, canopy, met, bal, veg, &
 
          endif
 
-      first_call = .FALSE. 
+         first_call = .FALSE. 
       
 END SUBROUTINE interface_UM_data
                                    

@@ -65,9 +65,7 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
    
    !--- reads runtime and user switches and reports
    USE cable_um_tech_mod, ONLY : cable_um_runtime_vars, air, bgc, canopy,      &
-                                 met, bal, rad, rough, ssnow, sum_flux
-    USE cable_params_mod, ONLY : veg => veg_cbl 
-    USE cable_params_mod, ONLY : soil => soil_cbl 
+                                 met, bal, rad, rough, ssnow, sum_flux, veg, soil
    !--- vars common to CABLE declared 
    USE cable_common_module, ONLY : cable_runtime, cable_user, ktau_gl,         &
                                    knode_gl, kwidth_gl, kend_gl,               &
@@ -79,7 +77,7 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
    !--- subr to call CABLE model
    USE cable_cbm_module, ONLY : cbm
 
-   USE cable_def_types_mod, ONLY : mp, nrb
+   USE cable_def_types_mod, ONLY : mp, nrb, c1, rhoch, xk
 
    !--- include subr called to write data for testing purposes 
    USE casa_um_inout_mod
@@ -87,10 +85,6 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
    USE casa_types_mod
 
   USE feedback_mod
-
-USE cbl_rhoch_ESM1pt5_module, ONLY : rhoch =>rhoch_gl, & 
-                                     c1 => c1_gl, &
-                                     xk => xk_gl
 
    IMPLICIT NONE
  
@@ -309,8 +303,13 @@ USE cbl_rhoch_ESM1pt5_module, ONLY : rhoch =>rhoch_gl, &
    !___ 1st call in RUN (!=ktau_gl -see below) 
    LOGICAL, SAVE :: first_cable_call = .TRUE.
  
+integer :: j
+
+   
+
    !--- initialize cable_runtime% switches 
    cable_runtime%um = .TRUE.
+   cable_runtime%esm15 = .TRUE.
    
    !--- basic info from global model passed to cable_common_module 
    !--- vars so don't need to be passed around, just USE _module
@@ -389,22 +388,14 @@ USE cbl_rhoch_ESM1pt5_module, ONLY : rhoch =>rhoch_gl, &
    IF(l_laiFeedbk) veg%vlai(:) = casamet%glai(:)
 
    canopy%oldcansto=canopy%cansto
-   
-   IF (.NOT. allocated(c1)) ALLOCATE( c1(mp,nrb), rhoch(mp,nrb), xk(mp,nrb) )
 
+   IF(.NOT. ALLOCATED(c1) ) ALLOCATE( c1(mp,nrb), rhoch(mp,nrb), xk(mp,nrb) )
    !---------------------------------------------------------------------!
    !--- real(timestep) width, CABLE types passed to CABLE "engine" as ---!  
    !--- req'd by Mk3L  --------------------------------------------------!
    !---------------------------------------------------------------------!
    CALL cbm( timestep, air, bgc, canopy, met, bal,                             &
-             rad, rough, soil, ssnow, sum_flux, veg, xk, c1, rhoch )
-
-! output CO2_MMR value used in CABLE (passed from UM)
-  if ( (knode_gl.eq.1) .and. (ktau_gl.eq.1) ) then
-        write(6,*) 'CO2_MMR in CABLE: ',  met%ca(1)*44./28.966
-  end if
-
-
+             rad, rough, soil, ssnow, sum_flux, veg )
 
    !---------------------------------------------------------------------!
    !--- pass land-surface quantities calc'd by CABLE in explicit call ---!
@@ -424,7 +415,6 @@ USE cbl_rhoch_ESM1pt5_module, ONLY : rhoch =>rhoch_gl, &
 
 
    cable_runtime%um_explicit = .FALSE.
-
 
 END SUBROUTINE cable_explicit_driver
 
@@ -633,14 +623,12 @@ SUBROUTINE cable_expl_unpack( FTL_TILE_CAB, FTL_CAB, FTL_TILE, FQW_TILE,       &
       RECIPLMOTILE =  canopy_zetar(:,niter) / rough_zref_tq
       RECIP_L_MO_TILE = UNPACK( RECIPLMOTILE, um1%l_tile_pts, miss )
       EPOT_TILE = UNPACK( canopy_epot, um1%l_tile_pts, miss )
-      
 
       IF(first_cable_call) THEN 
          l_tile_pts = um1%l_tile_pts
          first_cable_call = .FALSE.
       ENDIF
 
-   
 END SUBROUTINE cable_expl_unpack
     
 !============================================================================

@@ -18,6 +18,8 @@ USE cable_common_module, ONLY: cable_user,snow_ccnsw,snmin,&
        max_ssdn,max_sconds,frozen_limit,&
        max_glacier_snowd
 
-  IMPLICIT NONE
+IMPLICIT NONE
+
+REAL, ALLOCATABLE :: heat_cap_lower_limit(:,:)
 
 END MODULE cbl_ssnow_data_mod

@@ -85,9 +85,10 @@ REAL :: heat_cap_lower_limit(mp,ms)
 
        wblfsp = ssnow%wblf(:,k)
 
-       xx = heat_cap_lower_limit(:,1)
+      !esm15 xx = soil%css * soil%rhosoil
+       xx = heat_cap_lower_limit(:,k)
 
-       ssnow%gammzz(:,k) = MAX( (heat_cap_lower_limit(:,1)), &
+       ssnow%gammzz(:,k) = MAX( heat_cap_lower_limit(:,k), &
             ( 1.0 - soil%ssat ) * soil%css * soil%rhosoil   &
             + soil%ssat * ( wblfsp * Ccswat * Cdensity_liq +            &
             ssnow%wbfice(:,k) * Ccsice * Cdensity_liq * 0.9 ) )     &
@@ -110,7 +111,7 @@ REAL :: heat_cap_lower_limit(mp,ms)
           wblfsp = ssnow%wblf(:,k)
           xx = soil%css * soil%rhosoil
 
-          ssnow%gammzz(:,k) = MAX( REAL(heat_cap_lower_limit(:,1)), &
+          ssnow%gammzz(:,k) = MAX( REAL(heat_cap_lower_limit(:,k)), &
                ( 1.0 - soil%ssat ) * soil%css * soil%rhosoil   &
                + soil%ssat * ( wblfsp * Ccswat * Cdensity_liq +            &
                ssnow%wbfice(:,k) * Ccsice * Cdensity_liq * 0.9 ) )     &
@@ -185,7 +186,7 @@ REAL :: heat_cap_lower_limit(mp,ms)
                soil%rhosoil + soil%ssat * ( wblfsp * Ccswat *     &
                Cdensity_liq + ssnow%wbfice(:,k) * Ccsice * Cdensity_liq *     &
                0.9) , &
-               (heat_cap_lower_limit(:,k)) ) * soil%zse(k)
+               heat_cap_lower_limit(:,k) ) * soil%zse(k)
 
           dtg = dels / ssnow%gammzz(:,k)
           at(:,k) = - dtg * coeff(:,k)

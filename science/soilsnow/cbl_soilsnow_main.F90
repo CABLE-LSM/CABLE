@@ -2,23 +2,13 @@ MODULE cbl_soil_snow_main_module
 
 USE cbl_ssnow_data_mod
 
-  IMPLICIT NONE
+IMPLICIT NONE
 
-   REAL, PARAMETER ::                                                          &
-      cgsnow = 2090.0,     & ! specific heat capacity for snow
-      csice = 2.100e3,     & ! specific heat capacity for ice
-      cswat = 4.218e3,     & ! specific heat capacity for water
-      rhowat = 1000.0 !,     & ! density of water
-      !snmin = 1.,          & ! for 3-layer;
-      !max_ssdn = 750.0,    & !
-      !max_sconds = 2.51,   & !
-      !frozen_limit = 0.85    ! EAK Feb2011 (could be 0.95)
+PRIVATE
    
-   !REAL :: cp    ! specific heat capacity for air
+PUBLIC soil_snow ! must be available outside this module
    
-  PRIVATE
 
-  PUBLIC soil_snow 
 
 CONTAINS
 
@@ -50,7 +40,6 @@ USE snow_melting_mod,             ONLY: snow_melting
 USE snow_accum_mod,               ONLY: snow_accum
 USE snowdensity_mod,              ONLY: snowDensity
 
-
     REAL, INTENT(IN)                    :: dels ! integration time step (s)
     TYPE(soil_parameter_type), INTENT(INOUT) :: soil
     TYPE(soil_snow_type), INTENT(INOUT)      :: ssnow
@@ -66,25 +55,23 @@ USE snowdensity_mod,              ONLY: snowDensity
     REAL(r_2), DIMENSION(mp) :: xxx,deltat,sinfil1,sinfil2,sinfil3
     REAL                :: zsetot
     INTEGER, SAVE :: ktau =0
-  REAL :: heat_cap_lower_limit(mp,ms)
-  REAL :: wbliq(mp,ms)
+REAL :: wbliq(mp,ms)
 
+  IF(.NOT. ALLOCATED(heat_cap_lower_limit)) THEN
+    ALLOCATE( heat_cap_lower_limit(mp,ms) )
+  END IF  
     ktau = ktau +1
 
-    !jhan - make switchable
-    ! appropriate for ACCESS1.0
-    !max_glacier_snowd = 50000.0
-    ! appropriate for ACCESS1.3
-    max_glacier_snowd = 1100.0
+  max_glacier_snowd = 1100.0 ! for ACCESS1.3 onwards. = 50000.0 for ACCESS1.0
 
     zsetot = SUM(soil%zse)
     ssnow%tggav = 0.
     DO k = 1, ms
-       ssnow%tggav = ssnow%tggav  + soil%zse(k)*ssnow%tgg(:,k)/zsetot
+      ssnow%tggav = ssnow%tggav  + soil%zse(k)*ssnow%tgg(:,k)/zsetot
+      heat_cap_lower_limit(:,k) = MAX( 0.01, soil%css(:) * soil%rhosoil(:) )
     END DO
 
-
-    IF( cable_runtime%offline .OR. cable_runtime%mk3l ) THEN
+  IF( cable_runtime%offline .or. cable_runtime%mk3l ) THEN !in um_init for UM
       ssnow%t_snwlr = 0.05
     ENDIF
 
@@ -98,21 +85,19 @@ USE snowdensity_mod,              ONLY: snowDensity
     ssnow%dtmlt = 0.0
     ssnow%osnowd = ssnow%snowd
 
-    IF (cable_user%soil_thermal_fix) THEN
-       heat_cap_lower_limit(:,:) = 0.01  !never allow /0
-    ELSE
-       DO k=1,ms
-          heat_cap_lower_limit(:,k) = soil%css(:) * soil%rhosoil(:)
-       END DO
-    END IF
+
     wbliq = ssnow%wb - ssnow%wbice
+
+  !%cable_runtime_coupled special initalizations in um_init NA for ESM1.5
 
    xx=soil%css * soil%rhosoil
    IF (ktau <= 1)                                                              &
      ssnow%gammzz(:,1) = MAX( (1.0 - soil%ssat) * soil%css * soil%rhosoil      &
-            & + (ssnow%wb(:,1) - ssnow%wbice(:,1) ) * cswat * rhowat           &
-            & + ssnow%wbice(:,1) * csice * rhowat * .9, xx ) * soil%zse(1) +   &
-            & (1. - ssnow%isflag) * cgsnow * ssnow%snowd
+            & + (ssnow%wb(:,1) - ssnow%wbice(:,1) ) * Ccswat * Cdensity_liq           &
+            & + ssnow%wbice(:,1) * Ccsice * Cdensity_liq * .9, xx ) * soil%zse(1) +   &
+            & (1. - ssnow%isflag) * Ccgsnow * ssnow%snowd
+
+
 
     DO k = 1, ms ! for stempv
 
@@ -177,31 +162,27 @@ USE snowdensity_mod,              ONLY: snowDensity
 
     CALL surfbv(dels, met, ssnow, soil, veg, canopy )
 
+! correction required for energy balance in online simulations
+IF( cable_runtime%um ) THEN
+  canopy%fhs_cor = ssnow%dtmlt(:,1)*ssnow%dfh_dtg
+  canopy%fes_cor = ssnow%dtmlt(:,1)*ssnow%dfe_dtg
 
-    !H!! correction required for energy balance in online simulations
-    !H!IF( cable_runtime%um ) THEN
+  canopy%fhs = canopy%fhs+canopy%fhs_cor
+  canopy%fes = canopy%fes+canopy%fes_cor
 
-    !H!   !cls package - rewritten for flexibility
-    !H!   canopy%fhs_cor = ssnow%dtmlt(:,1)*ssnow%dfh_dtg
-    !H!   !canopy%fes_cor = ssnow%dtmlt(:,1)*(ssnow%dfe_ddq * ssnow%ddq_dtg)
-    !H!   canopy%fes_cor = ssnow%dtmlt(:,1)*ssnow%dfe_dtg
+  !REV_CORR associated changes to other energy balance terms
+  !NB canopy%fns changed not rad%flws as the correction term needs to
+  !pass through the canopy in entirety, not be partially absorbed
+  IF (cable_user%L_REV_CORR) THEN
+    canopy%fns_cor = ssnow%dtmlt(:,1)*ssnow%dfn_dtg
+    canopy%ga_cor = ssnow%dtmlt(:,1)*canopy%dgdtg
 
-    !H!   canopy%fhs = canopy%fhs+canopy%fhs_cor
-    !H!   canopy%fes = canopy%fes+canopy%fes_cor
+    canopy%fns = canopy%fns + canopy%fns_cor
+    canopy%ga = canopy%ga + canopy%ga_cor
 
-    !H!   !REV_CORR associated changes to other energy balance terms
-    !H!   !NB canopy%fns changed not rad%flws as the correction term needs to
-    !H!   !pass through the canopy in entirety, not be partially absorbed
-    !H!   IF (cable_user%L_REV_CORR) THEN
-    !H!      canopy%fns_cor = ssnow%dtmlt(:,1)*ssnow%dfn_dtg
-    !H!      canopy%ga_cor = ssnow%dtmlt(:,1)*canopy%dgdtg
-
-    !H!      canopy%fns = canopy%fns + canopy%fns_cor
-    !H!      canopy%ga = canopy%ga + canopy%ga_cor
-
-    !H!      canopy%fess = canopy%fess + canopy%fes_cor
-    !H!   ENDIF
-    !H!ENDIF
+    canopy%fess = canopy%fess + canopy%fes_cor
+   ENDIF
+ENDIF
 
     ! redistrb (set in cable.nml) by default==.FALSE.
     IF( redistrb )                                                              &
@@ -219,6 +200,9 @@ USE snowdensity_mod,              ONLY: snowDensity
        ssnow%wbtot = ssnow%wbtot + REAL(ssnow%wb(:,k)*1000.0*soil%zse(k),r_2)
     END DO
 
-  END SUBROUTINE soil_snow
+  IF( ALLOCATED(heat_cap_lower_limit) ) DEALLOCATE(heat_cap_lower_limit)
+
+RETURN
+END SUBROUTINE soil_snow
 
 END MODULE cbl_soil_snow_main_module

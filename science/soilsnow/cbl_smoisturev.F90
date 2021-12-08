@@ -6,10 +6,10 @@ PUBLIC  smoisturev
 
 CONTAINS
 
-  !      Solves implicit soil moisture equation
-  !      Science development by Eva Kowalczyk and John McGregor, CMAR
+!      Solves implicit soil moisture equation
+!      Science development by Eva Kowalczyk and John McGregor, CMAR
 SUBROUTINE smoisturev (dels,ssnow,soil,veg)
-USE trimb_mod,                   ONLY : trimb
+USE trimb_mod,                    ONLY: trimb
 USE cable_common_module
 IMPLICIT NONE
 
@@ -430,6 +430,6 @@ IMPLICIT NONE
        ssnow%wbice(:,k) = MIN( ssnow%wbice(:,k), frozen_limit * ssnow%wb(:,k) )
     END DO
 
-  END SUBROUTINE smoisturev
+END SUBROUTINE smoisturev
 
 END MODULE smoisturev_mod

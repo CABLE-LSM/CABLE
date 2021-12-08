@@ -11,8 +11,7 @@ CONTAINS
 
    SUBROUTINE cbm( dels, air, bgc, canopy, met,                                &
                    bal, rad, rough, soil,                                      &
-                   ssnow, sum_flux, veg,                                       &
-                   xk, c1, rhoch )
+                   ssnow, sum_flux, veg )
     
    USE cable_common_module
    USE cable_carbon_module
@@ -58,29 +57,23 @@ USE cable_climate_type_mod, ONLY : climate_cbl
    INTEGER :: k,kk,j  
 
 CHARACTER(LEN=*), PARAMETER :: subr_name = "cbl_model_driver"
-LOGICAL :: jls_standalone= .TRUE.
-LOGICAL :: jls_radiation= .FALSE.
+LOGICAL :: jls_standalone = .FALSE.
+LOGICAL :: jls_radiation  = .FALSE.
 LOGICAL :: cbl_standalone = .FALSE.    
-
-!co-efficients usoughout init_radiation ` called from _albedo as well
-REAL :: c1(mp,nrb)
-REAL :: rhoch(mp,nrb)
-REAL :: xk(mp,nrb)
 
    ! assign local ptrs to constants defined in cable_data_module
    CALL point2constants(C)    
 
-   cable_runtime%um_radiation = .FALSE.
+      cable_runtime%um_radiation = .FALSE.
+      
+      IF( cable_runtime%um_explicit ) THEN
+!d1!      met%DoY = met%DoY + 1.
+        CALL ruff_resist( veg, rough, ssnow, canopy, veg%vlai, veg%hc, canopy%vlaiw )
+         met%tk = met%tk + C%grav/C%capp*(rough%zref_tq + 0.9*rough%z0m)
+      ENDIF
+      
+      CALL define_air (met, air)
    
-   IF( cable_runtime%um_explicit ) THEN
-      met%DoY = met%DoY + 1.
-      CALL ruff_resist( veg, rough, ssnow, canopy, veg%vlai, veg%hc, canopy%vlaiw )
-      !ESM1.5CALL ruff_resist(veg, rough, ssnow, canopy)
-      met%tk = met%tk + C%grav/C%capp*(rough%zref_tq + 0.9*rough%z0m)
-   ENDIF
-   
-   CALL define_air (met, air)
-
 call fveg_mask( veg_mask, mp, Clai_thresh, canopy%vlaiw )
 call fsunlit_mask( sunlit_mask, mp, CRAD_THRESH,( met%fsd(:,1)+met%fsd(:,2) ) )
 call fsunlit_veg_mask( sunlit_veg_mask, mp )
@@ -101,7 +94,7 @@ CALL init_radiation( &
                      met%coszen, int(met%DoY), met%fsd,                        &
                      !coszen, metDoY, SW_down,                                 &
                      canopy%vlaiw  ) !reducedLAIdue2snow 
-                    
+ 
       IF( cable_runtime%um_explicit ) THEN
 
  CALL Albedo( ssnow%AlbSoilsn, soil%AlbSoil,                                 &
@@ -133,7 +126,7 @@ CALL init_radiation( &
            ) !EffSurfRefl_dif, EffSurfRefl_beam 
 
       ENDIF
-    
+   
    ! Calculate canopy variables:
    CALL define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy, climate_cbl, sunlit_veg_mask, canopy%vlaiw )
 

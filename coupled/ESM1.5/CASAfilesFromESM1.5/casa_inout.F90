@@ -956,6 +956,8 @@ SUBROUTINE casa_cnpflux(casaflux,casabal)
 !  REAL(r_2), INTENT(INOUT) :: clitterinput(mp,3),csoilinput(mp,3)
   INTEGER n
 
+casaflux%Crp = 0.
+
   casabal%FCgppyear = casabal%FCgppyear + casaflux%Cgpp   * deltpool
   casabal%FCrpyear  = casabal%FCrpyear  + casaflux%Crp    * deltpool
   casabal%FCnppyear = casabal%FCnppyear + casaflux%Cnpp   * deltpool

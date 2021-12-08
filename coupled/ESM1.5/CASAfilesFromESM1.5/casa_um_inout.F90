@@ -60,9 +60,7 @@ SUBROUTINE init_casacnp(sin_theta_latitude,cpool_tile,npool_tile,ppool_tile, &
                            GLAI,PHENPHASE,PREV_YR_SFRAC,idoy)
 ! Lest 20 Jan 2011
     USE cable_def_types_mod
-    USE cable_um_tech_mod, ONLY : um1, canopy
-    USE cable_params_mod, ONLY : veg => veg_cbl 
-    USE cable_params_mod, ONLY : soil => soil_cbl 
+    USE cable_um_tech_mod, ONLY : um1, veg, soil, canopy
     USE casavariable
     USE phenvariable
     USE casa_types_mod
@@ -1332,8 +1330,7 @@ END SUBROUTINE unpack_glai
 
 SUBROUTINE casa_ndep_pk(nidep)
 
-    USE cable_um_tech_mod, ONLY : um1
-    USE cable_params_mod, ONLY : soil => soil_cbl 
+    USE cable_um_tech_mod, ONLY : um1,soil
     USE cable_def_types_mod
     USE casavariable
     USE casa_types_mod

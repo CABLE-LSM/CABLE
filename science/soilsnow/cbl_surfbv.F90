@@ -44,6 +44,7 @@ IMPLICIT NONE
     ELSE
        nglacier = 2
     ENDIF
+    IF( cable_runtime%esm15 ) nglacier = 2
 
     CALL smoisturev( dels, ssnow, soil, veg )
 
@@ -53,6 +54,7 @@ IMPLICIT NONE
             * 1000.0 )  * soil%zse(k)
        ssnow%wb(:,k) = MAX( 0.01_r_2, MIN( ssnow%wb(:,k), xxx ) )
     END DO
+
     ! for deep runoff use wb-sfc, but this value not to exceed .99*wb-wbice
     ! account for soil/ice cracking
     ! fracm = MIN(0.2, 1. - MIN(1., ssnow%wb(:,ms) / soil%sfc ) )

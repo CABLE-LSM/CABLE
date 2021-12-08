@@ -1,5 +1,3 @@
-!if(knode_gl == 117 ) OPEN(unit=781,FILE="/home/599/jxs599/iveg1.txt")
-!if(knode_gl == 117 ) write(781,*), 'iveg1 ',veg_cbl%iveg 
 !==============================================================================
 ! This source code is part of the 
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
@@ -131,9 +129,7 @@ SUBROUTINE initialize_soil( bexp, hcon, satcon, sathh, smvcst, smvcwt,         &
                             dzsoil ) 
 
    USE cable_def_types_mod, ONLY : ms, mstype, mp, r_2
-   USE cable_um_tech_mod,   ONLY : um1, ssnow 
-    USE cable_params_mod, ONLY : veg => veg_cbl 
-    USE cable_params_mod, ONLY : soil => soil_cbl 
+   USE cable_um_tech_mod,   ONLY : um1, ssnow, veg, soil 
    USE cable_common_module, ONLY : cable_runtime, cable_user
 USE cable_params_mod, ONLY : soilin
    
@@ -271,7 +267,7 @@ USE cable_params_mod, ONLY : soilin
 !========================================================================
           
 SUBROUTINE initialize_veg( clobbered_htveg, land_pts, npft, ntiles, ms, mp,      &
-                           canht_ft, lai_ft, soil_zse, veg_cbl,                  &
+                           canht_ft, lai_ft, soil_zse, veg,                  &
                     tile_pts, tile_index, tile_frac, L_tile_pts,                 &
                     CLAI_thresh )
 
@@ -291,7 +287,7 @@ INTEGER ::  tile_index(land_pts, ntiles)  ! index of tile
 LOGICAL ::  L_tile_pts(land_pts, ntiles)  ! true IF vegetation (tile) fraction is greater than 0
 REAL    ::  clobbered_htveg(land_pts, ntiles)
 REAL    :: soil_zse(ms)       !soil layer thickness [dzsoil]
-TYPE(veg_parameter_type), INTENT(INOUT) :: veg_cbl
+TYPE(veg_parameter_type), INTENT(INOUT) :: veg
 REAL, INTENT(IN) :: canht_ft(land_pts, npft)
 REAL, INTENT(IN) :: lai_ft(land_pts, npft) 
 LOGICAL, SAVE :: first_call= .TRUE. ! defs 1st call to CABLE in this run
@@ -307,29 +303,28 @@ IF(first_call)  THEN
       IF ( tile_frac(j,i) > 0.0 ) JSurfaceTypeID(j,i) = i
     END DO
   END DO
-  veg_cbl%iveg = PACK( JSurfaceTypeID, L_tile_pts)
+  veg%iveg = PACK( JSurfaceTypeID, L_tile_pts)
 
   CALL init_veg_pars_fr_vegin( soil_zse ) 
    ! Fix in-canopy turbulence scheme globally:
-   veg_cbl%meth = 1
+   veg%meth = 1
 ENDIF
 first_call= .FALSE.
 
 !---clobbers veg height, lai and resets ivegt for CABLE tiles
-!CALL clobber_height_lai( canht_ft, lai_ft, veg_cbl )
+!CALL clobber_height_lai( canht_ft, lai_ft, veg)
 ! limit IN height, LAI  and initialize existing cable % types
-CALL limit_HGT_LAI( clobbered_htveg, veg_cbl%vlai, veg_cbl%hc, mp, land_pts, ntiles,           &
+CALL limit_HGT_LAI( clobbered_htveg, veg%vlai, veg%hc, mp, land_pts, ntiles,           &
                     tile_pts, tile_index, tile_frac, L_tile_pts,              &
                     LAI_ft, canht_ft, CLAI_thresh )
      
 END SUBROUTINE initialize_veg
 
-
+   
 SUBROUTINE init_veg_pars_fr_vegin( soil_zse ) 
   USE cable_common_module, ONLY : cable_user, &
                                   knode_gl, ktau_gl
-    USE cable_params_mod, ONLY : veg => veg_cbl 
-    !USE cable_params_mod, ONLY : soil => soil_cbl 
+USE cable_um_tech_mod,   ONLY : veg, soil
   USE cable_def_types_mod, ONLY : mp,ms
 
   real, dimension(ms) :: soil_zse 
@@ -425,22 +420,21 @@ USE cable_params_mod, ONLY : vegin
   END DO
 
 
- 
- 
-  
+
+
+
   END SUBROUTINE init_veg_from_vegin 
 
 
 
 SUBROUTINE clobber_height_lai( um_htveg, um_lai, veg)
 USE cable_um_tech_mod, ONLY : um1, kblum_veg
-
 USE cable_params_mod,  ONLY: veg_parameter_type
 USE cable_def_types_mod
 TYPE(veg_parameter_type), INTENT(INOUT) :: veg
-   REAL, INTENT(IN), DIMENSION(um1%land_pts, um1%npft) ::                      &
-                                                          um_htveg, um_lai
-   INTEGER :: i,j,n
+REAL, INTENT(IN) :: um_htveg(um1%land_pts, um1%npft)
+REAL, INTENT(IN) :: um_lai(um1%land_pts, um1%npft)
+INTEGER :: i,j,n
     
    DO N=1,um1%NTILES
       DO J=1,um1%TILE_PTS(N)
@@ -549,9 +543,8 @@ SUBROUTINE initialize_radiation( sw_down, lw_down, cos_zenith_angle,           &
 
    USE cable_def_types_mod, ONLY : mp
    USE cable_data_module,   ONLY : PHYS, OTHER
-   USE cable_um_tech_mod,   ONLY : um1, rad, met,                               & 
+   USE cable_um_tech_mod,   ONLY : um1, rad, met, soil,                          & 
                                    conv_rain_prevstep, conv_snow_prevstep
-    USE cable_params_mod, ONLY : soil => soil_cbl 
    USE cable_common_module, ONLY : cable_runtime, cable_user
 
    REAL, INTENT(INOUT), DIMENSION(um1%row_length, um1%rows) :: sw_down
@@ -703,8 +696,7 @@ SUBROUTINE initialize_soilsnow( smvcst, tsoil_tile, sthf_tile, smcl_tile,      &
    USE cable_def_types_mod,  ONLY : mp, msn
    USE cable_data_module,   ONLY : PHYS
    USE cable_um_tech_mod,   ONLY : um1, ssnow, met, bal
-    USE cable_params_mod, ONLY : veg => veg_cbl 
-    USE cable_params_mod, ONLY : soil => soil_cbl 
+USE cable_um_tech_mod,   ONLY : veg, soil
    USE cable_common_module, ONLY : cable_runtime, cable_user
    
    REAL, INTENT(IN), DIMENSION(um1%land_pts) :: smvcst
@@ -905,7 +897,7 @@ END SUBROUTINE initialize_soilsnow
           
 SUBROUTINE initialize_roughness( z1_tq, z1_uv, htveg )  
    USE cable_um_tech_mod,   ONLY : um1, rough
-    USE cable_params_mod, ONLY : veg => veg_cbl 
+USE cable_um_tech_mod,   ONLY : veg
    USE cable_common_module, ONLY : ktau_gl
    USE cable_def_types_mod, ONLY : mp
    USE cable_common_module, ONLY : cable_runtime, cable_user
@@ -1113,7 +1105,7 @@ SUBROUTINE init_bgc_vars()
    USE cable_def_types_mod, ONLY : ncs, ncp 
    USE cable_um_tech_mod,   ONLY : bgc
 USE cable_params_mod, ONLY : vegin
-    USE cable_params_mod, ONLY : veg => veg_cbl 
+USE cable_um_tech_mod,   ONLY : veg
    
    INTEGER :: k
 
@@ -1146,24 +1138,24 @@ END SUBROUTINE init_sumflux_zero
 !========================================================================
 
 SUBROUTINE alloc_cable_types()
-  USE cable_def_types_mod,    ONLY : mp, alloc_cbm_var
+   USE cable_def_types_mod, ONLY : mp, alloc_cbm_var
   USE cable_um_tech_mod,      ONLY : air, met, bal, rad, rough, sum_flux, bgc
-  USE cable_params_mod,         ONLY : veg_cbl, soil_cbl 
+USE cable_um_tech_mod,   ONLY : veg, soil
   USE allocate_veg_params_mod,  ONLY : allocate_veg_parameter_type
   USE allocate_soil_params_mod, ONLY : allocate_soil_parameter_type
   USE cable_um_tech_mod,        ONLY : canopy, ssnow
 USE cable_canopy_type_mod, ONLY : alloc_canopy_type
 USE cable_soil_snow_type_mod, ONLY : alloc_soil_snow_type
 
-    CALL alloc_cbm_var(air, mp)
-    CALL alloc_cbm_var(met, mp)
-    CALL alloc_cbm_var(bal, mp)
-    CALL alloc_cbm_var(rad, mp)
-    CALL alloc_cbm_var(rough, mp)
-    CALL alloc_cbm_var(sum_flux, mp)
-    CALL alloc_cbm_var(bgc, mp)
-    CALL allocate_veg_parameter_type(veg_cbl, mp)
-    CALL allocate_soil_parameter_type(soil_cbl, mp)
+      CALL alloc_cbm_var(air, mp)
+      CALL alloc_cbm_var(met, mp)
+      CALL alloc_cbm_var(bal, mp)
+      CALL alloc_cbm_var(rad, mp)
+      CALL alloc_cbm_var(rough, mp)
+      CALL alloc_cbm_var(sum_flux, mp)
+      CALL alloc_cbm_var(bgc, mp)
+    CALL allocate_veg_parameter_type(veg, mp)
+    CALL allocate_soil_parameter_type(soil, mp)
     CALL alloc_canopy_type(canopy, mp)
     CALL alloc_soil_snow_type(ssnow, mp)
 

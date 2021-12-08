@@ -6,10 +6,11 @@ PUBLIC  snowcheck
 
 CONTAINS
 
-  SUBROUTINE snowcheck(dels, ssnow, soil, met )
+SUBROUTINE snowcheck(dels, ssnow, soil, met )
 
     USE cable_common_module
 
+IMPLICIT NONE
     REAL, INTENT(IN) :: dels ! integration time step (s)
 
     TYPE(soil_snow_type), INTENT(INOUT) :: ssnow
@@ -18,7 +19,6 @@ CONTAINS
     TYPE(soil_parameter_type), INTENT(INOUT) :: soil  ! soil parameters
 
     INTEGER :: k,j
-
 
     DO j=1,mp
 
@@ -97,6 +97,7 @@ CONTAINS
 
     ENDDO ! END: DO j=1,mp
 
-  END SUBROUTINE snowcheck
+END SUBROUTINE snowcheck 
+
 
 END MODULE snowcheck_mod

@@ -8,6 +8,7 @@ CONTAINS
 
 SUBROUTINE soilfreeze(dels, soil, ssnow,heat_cap_lower_limit)
     USE cable_common_module
+IMPLICIT NONE
     REAL, INTENT(IN)                    :: dels ! integration time step (s)
     TYPE(soil_snow_type), INTENT(INOUT)      :: ssnow
     TYPE(soil_parameter_type), INTENT(INOUT) :: soil
@@ -64,7 +65,7 @@ REAL :: heat_cap_lower_limit(mp,ms)
 
     END DO
 
-  END SUBROUTINE soilfreeze
+END SUBROUTINE soilfreeze
 
 END MODULE soilfreeze_mod
 

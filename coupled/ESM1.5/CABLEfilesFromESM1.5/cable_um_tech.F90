@@ -30,10 +30,14 @@
 
 MODULE cable_um_tech_mod
    
-   USE cable_def_types_mod, ONLY : air_type, bgc_pool_type, met_type,          &
+   USE cable_def_types_mod, ONLY : air_type, bgc_pool_type, met_type,         &
                    balances_type, radiation_type, roughness_type, sum_flux_type
-   USE cable_def_types_mod, ONLY : ssnow =>   ssnow_cbl
-   USE cable_def_types_mod, ONLY : canopy =>  canopy_cbl
+   USE cable_def_types_mod, ONLY : soil_snow_type
+   USE cable_def_types_mod, ONLY : canopy_type
+   USE cable_params_mod,    ONLY : veg_parameter_type
+   USE cable_params_mod,    ONLY : soil_parameter_type
+
+
    IMPLICIT NONE
 
    TYPE(air_type), SAVE             :: air
@@ -43,6 +47,10 @@ MODULE cable_um_tech_mod
    TYPE(radiation_type), SAVE       :: rad
    TYPE(roughness_type), SAVE       :: rough
    TYPE(sum_flux_type), SAVE        :: sum_flux
+   TYPE(canopy_type), SAVE          :: canopy
+   TYPE(soil_snow_type), SAVE       :: ssnow
+   TYPE(veg_parameter_type), SAVE   :: veg
+   TYPE(soil_parameter_type), SAVE  :: soil
 
    TYPE derived_rad_bands    
       REAL, ALLOCATABLE ::                                                     &

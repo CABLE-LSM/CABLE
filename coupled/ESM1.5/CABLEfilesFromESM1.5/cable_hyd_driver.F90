@@ -36,8 +36,7 @@ SUBROUTINE cable_hyd_driver( SNOW_TILE, LYING_SNOW, SURF_ROFF, SUB_SURF_ROFF,  &
 
    USE cable_data_module,   ONLY : PHYS, OTHER
    USE cable_common_module!, only : cable_runtime, cable_user
-   USE cable_um_tech_mod, only : um1, ssnow, canopy
-   USE cable_params_mod, only : veg => veg_cbl
+   USE cable_um_tech_mod, only : um1, ssnow, canopy, veg, soil
    IMPLICIT NONE
 
    REAL, INTENT(OUT), DIMENSION(um1%LAND_PTS,um1%NTILES) ::                    &

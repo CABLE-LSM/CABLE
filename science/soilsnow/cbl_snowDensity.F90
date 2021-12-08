@@ -8,6 +8,7 @@ CONTAINS
 
 SUBROUTINE snowdensity (dels, ssnow, soil)
 
+IMPLICIT NONE
     REAL, INTENT(IN) :: dels   ! integration time step (s)
 
     TYPE(soil_snow_type),      INTENT(INOUT) :: ssnow

@@ -35,22 +35,17 @@ MODULE cable_def_types_mod
 !cbl3!USE cable_balances_type_mod,  ONLY: balances_type
 !cbl3!USE cable_bgc_pool_type_mod,  ONLY: bgc_pool_type
 USE cable_canopy_type_mod,    ONLY: canopy_type
-USE cable_canopy_type_mod,    ONLY: canopy_cbl 
 USE cable_climate_type_mod,   ONLY: climate_type
 !cbl3!USE cable_met_type_mod,       ONLY: met_type
 !cbl3!USE cable_radiation_type_mod, ONLY: radiation_type
 !cbl3!USE cable_roughness_type_mod, ONLY: roughness_type
 USE cable_soil_snow_type_mod, ONLY: soil_snow_type
-USE cable_soil_snow_type_mod, ONLY: ssnow_cbl
 !cbl3!USE cable_sum_flux_type_mod,  ONLY: sum_flux_type
 USE cable_params_mod,         ONLY: veg_parameter_type
 USE cable_params_mod,         ONLY: soil_parameter_type
 
-USE cable_soil_snow_type_mod, ONLY: alloc_soil_snow_type
-USE cable_canopy_type_mod,    ONLY: alloc_canopy_type
-
 USE cable_types_mod, ONLY: r_2
-  ! Contains all variables which are not subroutine-internal
+   ! Contains all variables which are not subroutine-internal
 
    IMPLICIT NONE
 
@@ -75,6 +70,11 @@ USE cable_types_mod, ONLY: r_2
       niter = 4,     & ! number of iterations for za/L
       ms = 6           ! # soil layers
 
+!ID-ed in CABLE3
+!co-efficients usoughout init_radiation ` called from _albedo as well
+REAL,allocatable, SAVE :: c1(:,:)
+REAL,allocatable, SAVE :: rhoch(:,:)
+REAL,allocatable, SAVE :: xk(:,:)
   
 ! .............................................................................
 
@@ -300,9 +300,7 @@ USE cable_types_mod, ONLY: r_2
 
    INTERFACE dealloc_cbm_var
       MODULE PROCEDURE dealloc_balances_type,                                  &
-         dealloc_soil_parameter_type,                                          &
          dealloc_soil_snow_type,                                               &
-         dealloc_veg_parameter_type,                                           &
          dealloc_canopy_type,                                                  &
          dealloc_radiation_type,                                               &
          dealloc_roughness_type,                                               &
@@ -351,7 +349,7 @@ SUBROUTINE alloc_balances_type(var, mp)
 END SUBROUTINE alloc_balances_type
 
 ! ------------------------------------------------------------------------------
-   
+
 SUBROUTINE alloc_radiation_type(var, mp)
 
    TYPE(radiation_type), INTENT(inout) :: var
@@ -573,7 +571,7 @@ SUBROUTINE dealloc_soil_parameter_type(var)
    DEALLOCATE( var% albsoilf )  
    
 END SUBROUTINE dealloc_soil_parameter_type
- 
+
 ! ------------------------------------------------------------------------------
 
 SUBROUTINE dealloc_soil_snow_type(var)
@@ -649,41 +647,6 @@ SUBROUTINE dealloc_soil_snow_type(var)
    
 END SUBROUTINE dealloc_soil_snow_type
    
-! ------------------------------------------------------------------------------
-
-SUBROUTINE dealloc_veg_parameter_type(var)
-
-   TYPE(veg_parameter_type), INTENT(inout) :: var
-
-   DEALLOCATE( var% canst1 ) 
-   DEALLOCATE( var% dleaf )  
-   DEALLOCATE( var% ejmax ) 
-   DEALLOCATE( var% iveg ) 
-   DEALLOCATE( var% meth ) 
-   DEALLOCATE( var% frac4 )  
-   DEALLOCATE( var% hc )     
-   DEALLOCATE( var% vlai )   
-   DEALLOCATE( var% xalbnir ) 
-   DEALLOCATE( var% rp20 )   
-   DEALLOCATE( var% rpcoef ) 
-   DEALLOCATE( var% rs20 )   
-   DEALLOCATE( var% shelrb ) 
-   DEALLOCATE( var% vegcf )  
-   DEALLOCATE( var% tminvj ) 
-   DEALLOCATE( var% tmaxvj ) 
-   DEALLOCATE( var% vbeta)  
-   DEALLOCATE( var% vcmax )  
-   DEALLOCATE( var% xfang )  
-   DEALLOCATE( var%extkn ) 
-   DEALLOCATE( var%wai )   
-   DEALLOCATE( var%deciduous ) 
-   DEALLOCATE( var%froot) 
-   DEALLOCATE( var%refl )
-   DEALLOCATE( var%taul ) 
-   
-END SUBROUTINE dealloc_veg_parameter_type
-   
-! ------------------------------------------------------------------------------
 
 SUBROUTINE dealloc_canopy_type(var)
 

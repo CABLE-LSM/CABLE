@@ -12,6 +12,7 @@ export supr=' -warn nostderrors -diag-disable 10145 '
 mkdir -p tmpo
 rm -f cable-mpi
 rm -f cable_mpi*.o
+rm -f pop_mpi.o
 
 cp *.o tmpo/
 export FOBJS=`ls tmpo/`

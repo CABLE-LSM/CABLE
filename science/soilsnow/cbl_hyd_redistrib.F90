@@ -6,14 +6,15 @@ PUBLIC  hydraulic_redistribution
 
 CONTAINS
 
-  !+++++++++++++++++++  Hydraulic Redistribution Section  ++++++++++++++++++++++
-  ! Science from Ryel et al. Oecologia, 2002; Lee et al., 2005, PNAS
-  ! Code by LiLH 16 Feb, 2011
-  ! Fixed problem of negative wb in global run by BP Mar 2011
-  SUBROUTINE hydraulic_redistribution(dels, soil, ssnow, canopy, veg, met)
+!+++++++++++++++++++  Hydraulic Redistribution Section  ++++++++++++++++++++++
+! Science from Ryel et al. Oecologia, 2002; Lee et al., 2005, PNAS
+! Code by LiLH 16 Feb, 2011
+! Fixed problem of negative wb in global run by BP Mar 2011
+SUBROUTINE hydraulic_redistribution(dels, soil, ssnow, canopy, veg, met)
 
     USE cable_common_module, ONLY : wiltParam, satuParam
 
+IMPLICIT NONE
     REAL, INTENT(IN) :: dels ! integration time step (s)
 
     TYPE(soil_parameter_type), INTENT(IN) :: soil
@@ -215,7 +216,7 @@ CONTAINS
        ENDDO
     ENDDO
 
-  END SUBROUTINE hydraulic_redistribution
+END SUBROUTINE hydraulic_redistribution
 
 END MODULE hydraulic_redistribution_mod
 
