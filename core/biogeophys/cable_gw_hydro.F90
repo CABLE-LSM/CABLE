@@ -1067,7 +1067,14 @@ SUBROUTINE soil_snow_gw(dels, soil, ssnow, canopy, met, bal, veg)
    IF (gw_params%BC_hysteresis)  &
              CALL swc_hyst_direction(soil,ssnow,veg)
 
-   call swc_smp_dsmpdw(soil,ssnow)
+   !call swc_smp_dsmpdw(soil,ssnow)
+   if (gw_params%BC_hysteresis) then
+      call brook_corey_hysteresis_swc_smp(soil,ssnow)
+   elseif (gw_params%HC_SWC) then
+      call hutson_cass_swc_smp(soil,ssnow)
+   else
+      call brook_corey_swc_smp(soil,ssnow)
+   end if
 
    ! correction required for energy balance in online simulations
    IF( cable_runtime%um ) THEN
@@ -1701,13 +1708,13 @@ SUBROUTINE calc_soil_hydraulic_props(ssnow,soil,veg)
    REAL(r_2), DIMENSION(mp,ms+1) :: hk_ice_factor
 
    if (gw_params%BC_hysteresis) then
-      swc_smp_dsmpdw => brook_corey_hysteresis_swc_smp
+      !swc_smp_dsmpdw => brook_corey_hysteresis_swc_smp
       ssnow%sucs_hys(:,:) = ssnow%hys_fac(:,:)*soil%sucs_vec(:,:)
    elseif (gw_params%HC_SWC) then
-      swc_smp_dsmpdw => hutson_cass_swc_smp
+      !swc_smp_dsmpdw => hutson_cass_swc_smp
       ssnow%sucs_hys(:,:) = soil%sucs_vec(:,:)
    else
-      swc_smp_dsmpdw => brook_corey_swc_smp
+      !swc_smp_dsmpdw => brook_corey_swc_smp
       ssnow%sucs_hys(:,:) = soil%sucs_vec(:,:)
    end if
 
@@ -1788,7 +1795,15 @@ SUBROUTINE calc_soil_hydraulic_props(ssnow,soil,veg)
     !soil potential (head) calculations can use brooks-corey
     !or hutson-cass SWC
 
-    call swc_smp_dsmpdw(soil,ssnow)
+    !call swc_smp_dsmpdw(soil,ssnow)
+    if (gw_params%BC_hysteresis) then
+       call brook_corey_hysteresis_swc_smp(soil,ssnow)
+    elseif (gw_params%HC_SWC) then
+       call hutson_cass_swc_smp(soil,ssnow)
+    else
+       call brook_corey_swc_smp(soil,ssnow)
+    end if
+
 
     !hydraulic conductivity
     !Interfacial so uses layer i and i+1
@@ -2142,7 +2157,7 @@ END SUBROUTINE calc_soil_hydraulic_props
           ssnow%qhlev(i,k) = max(ssnow%wbliq(i,k)-ssnow%watr_hys(i,k),0._r_2)*&
                                    ice_factor(i,k)*ssnow%qhz(i)/sm_tot(i)
        end do
-                                          
+
        !incase every layer is frozen very dry
        ssnow%qhz(i) = sum(ssnow%qhlev(i,:),dim=1)
 
@@ -2203,6 +2218,11 @@ END SUBROUTINE calc_soil_hydraulic_props
     REAL(r_2), DIMENSION(mp) :: unsat_wb,unsat_smp
     INTEGER :: i
 
+    ! Need a matching array of ones to use in Mark's call to the intrinsic
+    ! sign func below
+    ! mgk, 24/07/2018
+    REAL(r_2), DIMENSION(mp,ms) :: minus_ones
+
     !CALL point2constants( C )
 
     !if gw_model = true
@@ -2212,6 +2232,7 @@ END SUBROUTINE calc_soil_hydraulic_props
                    !cable_um_init_subrs.F90 or cable_parameters:
                             !ssat_vec(i,:) = ssat(i)
                             !so ssat_vec can be used although soilsnow uses ssat
+    minus_ones = -1.
 
     do i=1,mp
        if (veg%iveg(i) .lt. 16 .and. soil%isoilm(i) .ne. 9 .and. &
@@ -2223,11 +2244,16 @@ END SUBROUTINE calc_soil_hydraulic_props
           !     ??? so I didn't modify.
           unsat_wb(i) = max(ssnow%watr_hys(i,1)+1e-2, min(ssnow%ssat_hys(i,1), unsat_wb(i) ) )
 
-          unsat_smp(i) = sign(ssnow%sucs_hys(i,1),-1.0) * min(1.0, &
-                         (max(0.01, (unsat_wb(i)-ssnow%watr_hys(i,1))/(ssnow%ssat_hys(i,1)-&
-                         ssnow%watr_hys(i,1)) ) )** (-soil%bch_vec(i,1)) )
+          !unsat_smp(i) = sign(soil%sucs_vec(i,1),-1.0) * min(1.0, &
+          !                         (max(0.001, (unsat_wb(i)-soil%watr(i,1))/(soil%ssat_vec(i,1)-&
+          !                         soil%watr(i,1)) ) )** (-soil%bch_vec(i,1)) )
 
-          unsat_smp(i) = max(-1.0e4,unsat_smp(i) )/m2mm !m
+          ! mgk, 24/07/2018 - fix to compile
+          unsat_smp(i) = SIGN(soil%sucs_vec(i,1),minus_ones(i,1)) * MIN(1.0, &
+               (MAX(0.001, (unsat_wb(i)-soil%watr(i,1))/(soil%ssat_vec(i,1)-&
+               soil%watr(i,1)) ) )** (-soil%bch_vec(i,1)) )
+
+          unsat_smp(i) = MAX(-1.0e7,unsat_smp(i) )/1000._r_2 !m
 
           ssnow%rh_srf(i) = max(0.,min(1., &
                          exp(9.81*unsat_smp(i)/(ssnow%tgg(i,1)*461.4)) ) )
@@ -2551,7 +2577,15 @@ subroutine swc_hyst_direction(soil,ssnow,veg)
 
    delta_wbliq = ssnow%wbliq - ssnow%wbliq_old
    !soil hydraulic state/props  so smp out matches the wb out
-   call swc_smp_dsmpdw(soil,ssnow)
+   !call swc_smp_dsmpdw(soil,ssnow)
+   if (gw_params%BC_hysteresis) then
+      call brook_corey_hysteresis_swc_smp(soil,ssnow)
+   elseif (gw_params%HC_SWC) then
+      call hutson_cass_swc_smp(soil,ssnow)
+   else
+      call brook_corey_swc_smp(soil,ssnow)
+   end if
+
      !switch drying/wetting curve
     do k=1,ms
        do i=1,mp
