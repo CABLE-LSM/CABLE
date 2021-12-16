@@ -293,19 +293,18 @@ USE landuse_variable
   INTEGER :: count_bal = 0
 
 ! for landuse
-  integer     mlon,mlat, mpx
-  real(r_2), dimension(:,:,:),   allocatable,  save  :: luc_atransit
-  real(r_2), dimension(:,:),     allocatable,  save  :: luc_fharvw
-  real(r_2), dimension(:,:,:),   allocatable,  save  :: luc_xluh2cable
-  real(r_2), dimension(:),       allocatable,  save  :: arealand        
-  integer,   dimension(:,:),     allocatable,  save  :: landmask
-  integer,   dimension(:),       allocatable,  save  :: cstart,cend,nap
-  real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
+integer     mlon,mlat, mpx
+real(r_2), dimension(:,:,:),   allocatable,  save  :: luc_atransit
+real(r_2), dimension(:,:),     allocatable,  save  :: luc_fharvw
+real(r_2), dimension(:,:,:),   allocatable,  save  :: luc_xluh2cable
+real(r_2), dimension(:),       allocatable,  save  :: arealand        
+integer,   dimension(:,:),     allocatable,  save  :: landmask
+integer,   dimension(:),       allocatable,  save  :: cstart,cend,nap
+real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
 
+! END header
 
-
-  ! END header
-
+  cable_runtime%offline = .TRUE.
   !check to see if first argument passed to cable is
   !the name of the namelist file
   !if not use cable.nml
