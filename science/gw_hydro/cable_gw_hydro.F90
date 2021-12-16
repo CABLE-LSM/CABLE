@@ -1906,10 +1906,8 @@ USE snow_processes_soil_thermal_mod, ONLY : snow_processes_soil_thermal
 
     REAL(r_2), DIMENSION(mp) :: unsat_wb,unsat_smp
 
-    ! Need a matching array of ones to use in Mark's call to the intrinsic
-    ! sign func below
-    ! mgk, 24/07/2018
-    REAL(r_2), DIMENSION(mp,ms) :: ones
+    ! Need a matching array of NEGATIVE ones for the intrinsic sign func below
+    REAL(r_2), DIMENSION(mp,ms) :: minus_ones
 
     INTEGER :: i
 
@@ -1920,6 +1918,8 @@ USE snow_processes_soil_thermal_mod, ONLY : snow_processes_soil_thermal
     !cable_um_init_subrs.F90 or cable_parameters:
     !ssat_vec(i,:) = ssat(i)
     !so ssat_vec can be used although soilsnow uses ssat
+    
+    minus_ones = -1.0_r_2
 
     DO i=1,mp
        IF (veg%iveg(i) .LT. 16 .AND. soil%isoilm(i) .NE. 9 .AND. &
@@ -1935,7 +1935,7 @@ USE snow_processes_soil_thermal_mod, ONLY : snow_processes_soil_thermal
           !                         soil%watr(i,1)) ) )** (-soil%bch_vec(i,1)) )
 
           ! mgk, 24/07/2018 - fix to compile
-          unsat_smp(i) = SIGN(soil%sucs_vec(i,1),ones(i,1)) * MIN(1.0, &
+          unsat_smp(i) = SIGN(soil%sucs_vec(i,1),minus_ones(i,1)) * MIN(1.0, &
                (MAX(0.001, (unsat_wb(i)-soil%watr(i,1))/(soil%ssat_vec(i,1)-&
                soil%watr(i,1)) ) )** (-soil%bch_vec(i,1)) )
 
