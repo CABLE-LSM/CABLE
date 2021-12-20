@@ -2988,13 +2988,11 @@ CONTAINS
     dummy = 0 ! initialise
 
     WRITE(logn, '(A24)') ' Writing restart file...'
-    IF ( TRIM(filename%path) .EQ. '' ) filename%path = './'
-    frst_out = TRIM(filename%path)//'/'//TRIM(filename%restart_out)
+    frst_out = TRIM(filename%restart_out)
     ! Look for explicit restart file (netCDF). If not, asssume input is path
     IF ( INDEX(TRIM(frst_out),'.nc',BACK=.TRUE.) .NE. LEN_TRIM(frst_out)-2 ) THEN
        WRITE( CYEAR,FMT="(I4)" ) CurYear + 1
-       frst_out = TRIM(filename%path)//'/'//TRIM(cable_user%RunIden)//&
-            '_'//CYEAR//'_cable_rst.nc'
+       frst_out = TRIM(cable_user%RunIden)//'_'//CYEAR//'_cable_rst.nc'
     ENDIF
 
     ! Create output file:
