@@ -9,10 +9,10 @@ PUBLIC
 !   Other CABLE constants
 !
 ! Code Owner: Please refer to ModuleLeaders.txt
-! This file belongs in 
+! This file belongs in CABLE SCIENCE
 !-----------------------------------------------------------------------------
 
-INTEGER, PARAMETER ::                                                         &
+INTEGER, PARAMETER ::                                                          &
   swb = 2,           & ! 2 shortwave bands (initial division - visible /
                        !   near infrared)
   n_sw_bands = 4,    & ! total number of shortwave radiation bands
@@ -29,21 +29,21 @@ INTEGER, PARAMETER ::                                                         &
   n_assim_rates = 3, & ! Rubisco, RuBP and Sink-limited rates of photosynthesis
   n_soiltypes = 9      ! number of soil types
 
-REAL, PARAMETER ::                                                            &
+REAL, PARAMETER ::                                                             &
   max_snow_depth = 50000.0,  & ! maximum depth of lying snow on tiles (kg/m2)
   init_snow_rho1l = 140.0      ! Initial value for snow mean density
-
-REAL, PARAMETER :: gauss_w(nrb)=(/0.308,0.514,0.178 /) ! Gaussian integ. weights
+! Gaussian integ. weights
+!REAL, PARAMETER :: gauss_w(nrb)=(/0.308,0.514,0.178 /) ! F90 
+REAL, PARAMETER :: gauss_w(nrb)=[0.308,0.514,0.178 ]    ! F03
 REAL, PARAMETER :: rad_thresh = 0.001
                         ! minimum zenithal angle for downward SW radiation
 REAL, PARAMETER :: lai_thresh = 0.001
                         ! threshold for minimum significant LAI
 
-real :: coszen_tols = 1.0e-4
-                        !minimum (cosine)zenith angle of sun signalling sunrise 
-!minimum roughness of bare soil surface
-real, parameter :: z0surf_min = 1.e-7
-!minimum roughness of bare snow surface
-!H!real, parameter :: z0snow_min = 1.e-7
+! minimum (cosine)zenith angle of sun signalling sunrise 
+REAL, PARAMETER :: coszen_tols = 1.0e-4
+
+REAL, PARAMETER :: z0surf_min = 1.e-7 ! min. roughness of bare soil surface
+!H!REAL, PARAMETER :: z0snow_min = 1.e-7 ! min. roughness of bare snow surface
 
 END MODULE cable_other_constants_mod
