@@ -1203,7 +1203,7 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
      allocate(luc_fharvw(mland,mharvw)) 
      allocate(luc_xluh2cable(mland,mvmax,mstate))  
      allocate(landmask(mlon,mlat))
-          
+     allocate(arealand(mland))
      allocate(patchfrac_new(mlon,mlat,mvmax))
      allocate(cstart(mland),cend(mland),nap(mland))
 
