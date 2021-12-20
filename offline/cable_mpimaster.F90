@@ -642,7 +642,19 @@ CONTAINS
                 call cru_init( cru )
                 dels         = cru%dtsecs
                 koffset      = 0
-                leaps        = .false. ! No leap years in CRU-NCEP
+                if (CRU%MetVersion .EQ. "VERIFY_2021") then
+                   leaps = .true.
+                   calendar = "standard"
+                   IF ( IS_LEAPYEAR(CurYear) ) THEN
+                      LOY = 366
+                   ELSE
+                      LOY = 365
+                   ENDIF
+                else
+                   leaps        = .false. ! No leap years in CRU-NCEP
+                   calendar     = "noleap"
+                   LOY = 365
+                endif
                 exists%Snowf = .false. ! No snow in CRU-NCEP, so ensure it will
                                        ! be determined from temperature in CABLE
                 write(str1,'(i4)') CurYear
@@ -651,7 +663,6 @@ CONTAINS
                 calendar  = "standard"
                 casa_timeunits = "days since "//trim(str1)//"-01-01 00:00:00"
              endif
-             LOY = 365
              kend = nint(24.0*3600.0/dels) * LOY
              ! no ( trim(cable_user%MetType) .eq. 'site' ) in MPI
           endif ! cable_user%MetType
@@ -1045,7 +1056,6 @@ CONTAINS
                      rad, iveg, dels, c%tfrz, iktau+koffset, &
                      kstart+koffset)
              endif
-
              IF (TRIM(cable_user%MetType) .EQ. '') THEN
                 CurYear = imet%year(1)
                 IF ( leaps .AND. IS_LEAPYEAR(CurYear) ) THEN
@@ -1053,7 +1063,7 @@ CONTAINS
                 ELSE
                    LOY = 365
                 ENDIF
-             ENDIF
+             ENDIF            
              imet%ofsd = imet%fsd(:,1) + imet%fsd(:,2)
              canopy%oldcansto = canopy%cansto
              ! Zero out lai where there is no vegetation acc. to veg. index
@@ -1070,9 +1080,9 @@ CONTAINS
              !     casa_it = NINT( REAL(iktau / ktauday) )
              !     CALL read_casa_dump( ncfile, casamet, casaflux, casa_it, kend, .FALSE. )
              !  ENDIF
-
              ! At first time step of year, set tile area according to updated LU areas
              IF ((ktau == 1) .and. cable_user%POPLUC) THEN
+
                 if (icycle>1) CALL casa_cnpflux(casaflux,casapool,casabal,.TRUE.)
                 CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT)
              ENDIF
@@ -1080,7 +1090,6 @@ CONTAINS
              casa_time = IS_CASA_TIME("write", yyyy, oktau, kstart, koffset, ktauday, logn)
              liseod = mod((oktau-kstart+1+koffset),ktauday) == 0
              liseoy = mod((oktau-kstart+1+koffset)/ktauday,LOY) == 0
-
              if (.not. CASAONLY) then
 
                 if (icycle > 0) then
@@ -1117,16 +1126,13 @@ CONTAINS
                       ! call MPI_Waitall(wnp, recv_req, recv_stats, ierr)
                    endif
                 endif ! icycle>0
-
                 ! MPI: receive this time step's results from the workers
                 call master_receive(ocomm, oktau, recv_ts)
                 ! call MPI_Waitall(wnp, recv_req, recv_stats, ierr)
                 if (cable_user%c13o2) call master_receive(ocomm, oktau, c13o2_flux_ts)
-
                 ! MPI: scatter input data to the workers
                 call master_send_input(icomm, inp_ts, iktau)
                 ! call MPI_Waitall (wnp, inp_req, inp_stats, ierr)
-
                 ! 13C
                 if (cable_user%c13o2) then
                    ! already checked that CurYear in input file
@@ -1137,7 +1143,6 @@ CONTAINS
                       call MPI_Send(c13o2flux%ca(off), cnt, MPI_DOUBLE_PRECISION, rank, 0, icomm, ierr)
                    end do
                 endif
-
                 if ( ((.not.spinup) .or. (spinup.and.spinConv)) .and. liseod ) then
                    if ( cable_user%casa_dump_write )  then
                       !cln check for leap year
@@ -1148,7 +1153,6 @@ CONTAINS
                            c13o2flux, idoy, kend/ktauday)
                    endif
                 endif
-
              ! else if ( mod((iktau-kstart+1+koffset),ktauday)==0 ) then
              else if (is_casa_time("dread", yyyy, iktau, kstart, koffset, &
                   ktauday, logn)) then
@@ -1157,7 +1161,6 @@ CONTAINS
                 ! call MPI_Waitall (wnp, inp_req, inp_stats, ierr)
 
              endif ! .not. CASAONLY
-
              ! call MPI_Waitall(wnp, recv_req, recv_stats, ierr)
              ! call MPI_Waitall(wnp, inp_req, inp_stats, ierr)
 
@@ -1166,14 +1169,12 @@ CONTAINS
 
              ! Zero out lai where there is no vegetation acc. to veg. index
              where (iveg%iveg(:) .ge. 14) iveg%vlai = 0.
-
              ! Write time step's output to file if either: we're not spinning up
              ! or we're spinning up and the spinup has converged:
              ! MPI: TODO: pull mass and energy balance calculation from write_output
              ! and refactor into worker code
 
              ktau_gl = oktau
-
              if ((.not.spinup) .or. (spinup.and.spinConv)) then
                 if (icycle > 0) then
                    if (casa_time) then
@@ -1207,7 +1208,6 @@ CONTAINS
                       endif
                    endif
                 endif
-
                 if ((.not. CASAONLY) .and. spinConv) then
                    if (trim(cable_user%mettype) .eq. 'plume' &
                        .or. trim(cable_user%mettype) .eq. 'cru' &
@@ -1227,7 +1227,6 @@ CONTAINS
                 end if
 
              endif ! .not. spinup .or. (spinup.and.spinConv)
-
              !---------------------------------------------------------------------!
              ! Check this run against standard for quasi-bitwise reproducability   !
              ! Check triggered by cable_user%consistency_check=.TRUE. in cable.nml !
@@ -1279,7 +1278,6 @@ CONTAINS
              CALL1 = .false.
 
           end do KTAULOOP ! END Do loop over timestep ktau
-
           CALL1 = .false.
 
           ! MPI: read ahead tail to receive (last step and write)
@@ -1317,7 +1315,6 @@ CONTAINS
 
           met%ofsd = met%fsd(:,1) + met%fsd(:,2)
           canopy%oldcansto = canopy%cansto
-
           IF ( TRIM(cable_user%MetType) .EQ. "gswp" ) &
                CALL close_met_file()
 
@@ -10588,11 +10585,8 @@ SUBROUTINE LUCdriver(casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg, 
 
   write(*,*) 'cablecasa_LUC', CurYear
   yyyy = CurYear
-
   LUC_EXPT%CTSTEP = yyyy -  LUC_EXPT%FirstYear + 1
-
   CALL READ_LUH2(LUC_EXPT)
-
   DO k=1,mland
      POPLUC%ptos(k)   = real(LUC_EXPT%INPUT(ptos)%VAL(k), r_2)
      POPLUC%ptog(k)   = real(LUC_EXPT%INPUT(ptog)%VAL(k), r_2)
@@ -10613,7 +10607,6 @@ SUBROUTINE LUCdriver(casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg, 
 
      POPLUC%thisyear = yyyy
   ENDDO
-
   ! zero secondary forest tiles in POP where secondary forest area is zero
   DO k=1,mland
      if ( eq(POPLUC%frac_primf(k)-POPLUC%frac_forest(k), 0.0_r_2) &
@@ -10648,7 +10641,7 @@ SUBROUTINE LUCdriver(casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg, 
 
      endif
   ENDDO
-
+  
   CALL POPLUCStep(POPLUC,yyyy)
 
   CALL POPLUC_weights_transfer(POPLUC,POP,LUC_EXPT)

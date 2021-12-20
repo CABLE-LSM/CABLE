@@ -156,11 +156,6 @@ CONTAINS
     LUC_EXPT%VAR_NAME(4) = 'gtos'
     LUC_EXPT%VAR_NAME(5) = 'grass'
     LUC_EXPT%VAR_NAME(6) = 'primaryf'
-    ! #ifdef __CRU2017__
-    !     LUC_EXPT%VAR_NAME(7) = 'pharv'
-    ! #else
-    !     LUC_EXPT%VAR_NAME(7) = 'ptos'
-    ! #endif
     LUC_EXPT%VAR_NAME(7) = 'pharv'
     LUC_EXPT%VAR_NAME(8) = 'smharv'
     LUC_EXPT%VAR_NAME(9) = 'syharv'
@@ -737,6 +732,7 @@ CONTAINS
     IF ( land_dim .NE. mland) THEN
        WRITE(*,*) "Dimension misfit, ", fname
        WRITE(*,*) "land_dim", land_dim
+       WRITE(*,*) "mland", mland
 #ifdef __MPI__
        call MPI_Abort(0, 4, ierr) ! Do not know comm nor rank here
 #else

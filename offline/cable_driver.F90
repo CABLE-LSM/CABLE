@@ -580,16 +580,26 @@ PROGRAM cable_offline_driver
                  call cru_init(cru)
                  dels         = cru%dtsecs
                  koffset      = 0
-                 leaps        = .false. ! No leap years in CRU-NCEP
+                 if (CRU%MetVersion .EQ. "VERIFY_2021") then
+                    leaps = .true.
+                    calendar = "standard"
+                    IF ( IS_LEAPYEAR(CurYear) ) THEN
+                       LOY = 366
+                    ELSE
+                       LOY = 365
+                    ENDIF
+                 else
+                    leaps     = .false. ! No leap years in CRU-NCEP
+                    calendar  = "noleap"
+                    LOY = 365
+                 endif
                  exists%Snowf = .false. ! No snow in CRU-NCEP, so ensure it will
                                         ! be determined from temperature in CABLE
                  write(str1,'(i4)') CurYear
                  str1 = adjustl(str1)
                  timeunits = "seconds since "//trim(str1)//"-01-01 00:00:00"
-                 calendar  = "noleap"
                  casa_timeunits = "days since "//trim(str1)//"-01-01 00:00:00"
               ENDIF
-              LOY = 365
               kend = NINT(24.0*3600.0/dels) * LOY
            ELSE IF ( TRIM(cable_user%MetType) .EQ. 'site' ) THEN
               ! site experiment eg AmazonFace (spinup or transient run type)
@@ -991,7 +1001,7 @@ PROGRAM cable_offline_driver
               !jhan this is insufficient testing. condition for
               !spinup=.false. & we want CASA_dump.nc (spinConv=.true.)
               IF ((icycle > 0) .OR. CABLE_USER%CASA_DUMP_WRITE) THEN
-
+                 
                  CALL bgcdriver( ktau, kstart, dels, met, &
                       ssnow, canopy, veg, soil, climate, casabiome, &
                       casapool, casaflux, casamet, casabal, &
@@ -1506,6 +1516,7 @@ SUBROUTINE LUCdriver( casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg,
      ! POPLUC%qtos(k) = real(LUC_EXPT%INPUT(qtos)%VAL(k), r_2)
 
      POPLUC%thisyear  = yyyy
+     
   ENDDO
 
   ! zero secondary forest tiles in POP where secondary forest area is zero
@@ -1544,6 +1555,6 @@ SUBROUTINE LUCdriver( casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg,
 
   CALL POPLUCStep(POPLUC,yyyy)
 
-  CALL POPLUC_weights_transfer(POPLUC,POP,LUC_EXPT)
+CALL POPLUC_weights_transfer(POPLUC,POP,LUC_EXPT)
 
 END SUBROUTINE LUCdriver

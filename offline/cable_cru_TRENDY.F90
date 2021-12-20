@@ -46,9 +46,9 @@ MODULE CABLE_CRU
     CHARACTER(len=15)  :: CO2            ! CO2 takes value        : "static1860", "1860_1900", "1901_2015"
     CHARACTER(len=15)  :: Ndep           ! Ndep takes value        : "static1860", "1860_1900", "1901_2015"
     CHARACTER(len=15)  :: Forcing        ! Met Forcing takes value: "spinup",        "spinup", "1901_2015"
-    !
     CHARACTER(len=200) :: BasePath       ! Full path for the location of data used for CRU runs "/x/y"
     CHARACTER(len=200) :: MetPath        ! Full path for the location of the met files "/x/y"
+    CHARACTER(len=50)  :: MetVersion     ! Met Forcing Version (currently CRUJRA_YEAR and VERIFY_2021)
     CHARACTER(len=200) :: LandMaskFile   ! Land mask filename, without path
     ! Netcdf variable 'Name' for each type of met (dim=# of met vars). Note: Name, not 'Title'
     CHARACTER(len=30),  DIMENSION(9)  :: VAR_NAME
@@ -133,6 +133,7 @@ CONTAINS
     CHARACTER(len=30)  :: Run
     CHARACTER(len=200) :: BasePath
     CHARACTER(len=200) :: MetPath
+    CHARACTER(len=50)  :: MetVersion
     CHARACTER(len=200) :: LandMaskFile
     REAL               :: DThrs   ! CABLE timestep (hrs), converted immediately to integer seconds for CRU%DTsecs
     REAL,    DIMENSION(:),   ALLOCATABLE :: CRU_lats, CRU_lons  ! Lat/long values for each grid rows/cols from landmask.
@@ -144,7 +145,7 @@ CONTAINS
     integer :: ierr
 #endif
 
-    NAMELIST /CRUNML/ BasePath, MetPath, LandMaskFile, Run, DThrs, DirectRead
+    NAMELIST /CRUNML/ BasePath, MetPath, MetVersion, LandMaskFile, Run, DThrs, DirectRead
 
     ! Read CRU namelist settings
     CALL GET_UNIT(nmlunit)  ! CABLE routine finds spare unit number
@@ -155,6 +156,7 @@ CONTAINS
     ! Assign namelist settings to corresponding CRU defined-type elements
     CRU%BasePath     = BasePath
     CRU%MetPath      = MetPath
+    CRU%MetVersion   = trim(MetVersion)
     CRU%LandMaskFile = trim(LandMaskFile)
     CRU%Run          = Run
     CRU%DTsecs       = int(DThrs * 3600.)  ! in seconds
@@ -298,14 +300,11 @@ CONTAINS
     ! CRU%VAR_NAME(uwind) = "U_wind_component"
     ! CRU%VAR_NAME(vwind) = "V_wind_component"
 
+    ! Default
     CRU%NMET = 9
     CRU%VAR_NAME(rain)  = "pre"
     CRU%VAR_NAME(lwdn)  = "dlwrf"
-#ifdef __CRU2020__
-    CRU%VAR_NAME(swdn)  = "tswrf"
-#else
     CRU%VAR_NAME(swdn)  = "dswrf"
-#endif
     CRU%VAR_NAME(pres)  = "pres"
     CRU%VAR_NAME(qair)  = "spfh"
     CRU%VAR_NAME(tmax)  = "tmax"
@@ -313,6 +312,20 @@ CONTAINS
     CRU%VAR_NAME(uwind) = "ugrd"
     CRU%VAR_NAME(vwind) = "vgrd"
 
+    IF (CRU%MetVersion == "CRUJRA_2021") THEN
+       CRU%VAR_NAME(swdn) = "tswrf"
+    ELSE IF (CRU%MetVersion == "VERIFY_2021") THEN
+       CRU%VAR_NAME(rain)  = "Precipalign"
+       CRU%VAR_NAME(lwdn)  = "LWdownnoalign"
+       CRU%VAR_NAME(swdn)  = "SWdownalign"
+       CRU%VAR_NAME(pres)  = "Psurfnoalign"
+       CRU%VAR_NAME(qair)  = "Qairnoalign"
+       CRU%VAR_NAME(tmax)  = "Tmaxalign"
+       CRU%VAR_NAME(tmin)  = "Tminalign"
+       CRU%VAR_NAME(uwind) = "Wind_Enoalign" 
+       CRU%VAR_NAME(vwind) = "Wind_Nnoalign"
+    END IF
+    
     write(*,'(a)') "========================================= CRU ============"
     WRITE(logn,*)  "========================================= CRU ============"
 
@@ -460,17 +473,17 @@ CONTAINS
     integer,            intent(in)  :: par    ! Index (1-9) of which met quantity will be sought
     character(len=200), intent(out) :: fn     ! Met filename (outgoing)
 
-    character(len=4)   :: cy   ! Character representation of cyear
-    character(len=200) :: metp ! Local repr of met path
-#ifdef __CRU2017__
-    character(len=*), parameter :: cruver="crujra.V1.1" ! CRU version
-#elif __CRU2018__
-    character(len=*), parameter :: cruver="crujra.v2.0" ! CRU version
-#elif __CRU2020__
-    character(len=*), parameter :: cruver="crujra.v2.2" ! CRU version
-#else
-    character(len=*), parameter :: cruver="crujra.v2.1" ! CRU version
-#endif
+    character(len=4)   :: cy     ! Character representation of cyear
+    character(len=200) :: metp   ! Local repr of met path
+    character(len=50)  :: cruver ! cru version as in filename
+
+    SELECT CASE (CRU%MetVersion)
+       CASE("CRUJRA_2018") ; cruver="crujra.V1.1"
+       CASE("CRUJRA_2019") ; cruver="crujra.v2.0"
+       CASE("CRUJRA_2020") ; cruver="crujra.v2.1"
+       CASE("CRUJRA_2021") ; cruver="crujra.v2.2"
+       CASE("VERIFY_2021") ; cruver="cru_verify"
+    END SELECT
 
     ! Create a character version of the year for building that part of the filename.
     write(cy, fmt='(i4)') cyear
@@ -481,79 +494,46 @@ CONTAINS
 
     ! Build the rest of the filename according to the value of par, which references 11 possible
     ! types of met through the parameter names rain, lwdn, etc.
-    ! SELECT CASE ( par )
-    ! CASE(rain) ; FN = TRIM(FN)//"/rain/cruncep2015_1_rain_"//cy//".daymean.nc"
-    ! CASE(lwdn) ; FN = TRIM(FN)//"/lwdown/cruncep2015_1_lwdown_"//cy//".daymean.nc"
-    ! CASE(swdn) ; FN = TRIM(FN)//"/swdown/cruncep2015_1_swdown_"//cy//".daymean.nc"
-    ! CASE(pres) ; FN = TRIM(FN)//"/press/cruncep2015_1_press_"//cy//".daymean.nc"
-    ! CASE(qair) ; FN = TRIM(FN)//"/qair/cruncep2015_1_qair_"//cy//".daymean.nc"
-    ! CASE(tmax,PrevTmax) ; FN = TRIM(FN)//"/tmax/cruncep2015_1_tair_"//cy//".daymax.nc"
-    ! CASE(tmin,NextTmin) ; FN = TRIM(FN)//"/tmin/cruncep2015_1_tair_"//cy//".daymin.nc"
-    ! CASE(uwind) ; FN = TRIM(FN)//"/uwind/cruncep2015_1_uwind_"//cy//".daymean.nc"
-    ! CASE(vwind) ; FN = TRIM(FN)//"/vwind/cruncep2015_1_vwind_"//cy//".daymean.nc"
-    ! END SELECT
 
-    ! SELECT CASE ( par )
-    ! CASE(rain) ; FN = TRIM(FN)//"/rain/cruncepV8_rain_"//cy//".daytot.nc"
-    ! CASE(lwdn) ; FN = TRIM(FN)//"/lwdown/cruncepV8_lwdown_"//cy//".daymean.nc"
-    ! CASE(swdn) ; FN = TRIM(FN)//"/swdown/cruncepV8_swdown_"//cy//".daymean.nc"
-    ! CASE(pres) ; FN = TRIM(FN)//"/press/cruncepV8_press_"//cy//".daymean.nc"
-    ! CASE(qair) ; FN = TRIM(FN)//"/qair/cruncepV8_qair_"//cy//".daymean.nc"
-    ! CASE(tmax,PrevTmax) ; FN = TRIM(FN)//"/tmax/cruncepV8_tmax_"//cy//".daymax.nc"
-    ! CASE(tmin,NextTmin) ; FN = TRIM(FN)//"/tmin/cruncepV8_tmin_"//cy//".daymin.nc"
-    ! CASE(uwind) ; FN = TRIM(FN)//"/uwind/cruncepV8_uwind_"//cy//".daymean.nc"
-    ! CASE(vwind) ; FN = TRIM(FN)//"/vwind/cruncepV8_vwind_"//cy//".daymean.nc"
-    ! END SELECT
-
-    ! SELECT CASE ( par )
-    ! CASE(rain) ; FN = TRIM(FN)//"/pre/crujra.V1.1.5d.pre."//cy//".365d.noc.daytot.1deg.nc"
-    ! CASE(lwdn) ; FN = TRIM(FN)//"/dlwrf/crujra.V1.1.5d.dlwrf."//cy//".365d.noc.daymean.1deg.nc"
-    ! CASE(swdn) ; FN = TRIM(FN)//"/dswrf/crujra.V1.1.5d.dswrf."//cy//".365d.noc.daymean.1deg.nc"
-    ! CASE(pres) ; FN = TRIM(FN)//"/pres/crujra.V1.1.5d.pres."//cy//".365d.noc.daymean.1deg.nc"
-    ! CASE(qair) ; FN = TRIM(FN)//"/spfh/crujra.V1.1.5d.spfh."//cy//".365d.noc.daymean.1deg.nc"
-    ! CASE(tmax,PrevTmax) ; FN = TRIM(FN)//"/tmax/crujra.V1.1.5d.tmax."//cy//".365d.noc.daymax.1deg.nc"
-    ! CASE(tmin,NextTmin) ; FN = TRIM(FN)//"/tmin/crujra.V1.1.5d.tmin."//cy//".365d.noc.daymin.1deg.nc"
-    ! CASE(uwind) ; FN = TRIM(FN)//"/ugrd/crujra.V1.1.5d.ugrd."//cy//".365d.noc.daymean.1deg.nc"
-    ! CASE(vwind) ; FN = TRIM(FN)//"/vgrd/crujra.V1.1.5d.vgrd."//cy//".365d.noc.daymean.1deg.nc"
-    ! END SELECT
-
-    ! SELECT CASE ( par )
-    ! CASE(rain) ; FN = TRIM(FN)//"/pre/crujra.V2.0.5d.pre."//cy//".365d.noc.daytot.1deg.nc"
-    ! CASE(lwdn) ; FN = TRIM(FN)//"/dlwrf/crujra.V2.0.5d.dlwrf."//cy//".365d.noc.daymean.1deg.nc"
-    ! CASE(swdn) ; FN = TRIM(FN)//"/dswrf/crujra.V2.0.5d.dswrf."//cy//".365d.noc.daymean.1deg.nc"
-    ! CASE(pres) ; FN = TRIM(FN)//"/pres/crujra.V2.0.5d.pres."//cy//".365d.noc.daymean.1deg.nc"
-    ! CASE(qair) ; FN = TRIM(FN)//"/spfh/crujra.V2.0.5d.spfh."//cy//".365d.noc.daymean.1deg.nc"
-    ! CASE(tmax,PrevTmax) ; FN = TRIM(FN)//"/tmax/crujra.V2.0.5d.tmax."//cy//".365d.noc.daymax.1deg.nc"
-    ! CASE(tmin,NextTmin) ; FN = TRIM(FN)//"/tmin/crujra.V2.0.5d.tmin."//cy//".365d.noc.daymin.1deg.nc"
-    ! CASE(uwind) ; FN = TRIM(FN)//"/ugrd/crujra.V2.0.5d.ugrd."//cy//".365d.noc.daymean.1deg.nc"
-    ! CASE(vwind) ; FN = TRIM(FN)//"/vgrd/crujra.V2.0.5d.vgrd."//cy//".365d.noc.daymean.1deg.nc"
-    ! END SELECT
-
-    select case(par)
-    case(rain)
-       fn = trim(fn)//"/pre/"//cruver//".5d.pre."//cy//".365d.noc.daytot.1deg.nc"
-    case(lwdn)
-       fn = trim(fn)//"/dlwrf/"//cruver//".5d.dlwrf."//cy//".365d.noc.daymean.1deg.nc"
-    case(swdn)
-#ifdef __CRU2020__
-       fn = trim(fn)//"/tswrf/tswrf_v10_"//cy//".daymean.1deg.nc"
-#else
-       fn = trim(fn)//"/dswrf/"//cruver//".5d.dswrf."//cy//".365d.noc.daymean.1deg.nc"
-#endif
-    case(pres)
-       fn = trim(fn)//"/pres/"//cruver//".5d.pres."//cy//".365d.noc.daymean.1deg.nc"
-    case(qair)
-       fn = trim(fn)//"/spfh/"//cruver//".5d.spfh."//cy//".365d.noc.daymean.1deg.nc"
-    case(tmax,PrevTmax)
-       fn = trim(fn)//"/tmax/"//cruver//".5d.tmax."//cy//".365d.noc.daymax.1deg.nc"
-    case(tmin,NextTmin)
-       fn = trim(fn)//"/tmin/"//cruver//".5d.tmin."//cy//".365d.noc.daymin.1deg.nc"
-    case(uwind)
-       fn = trim(fn)//"/ugrd/"//cruver//".5d.ugrd."//cy//".365d.noc.daymean.1deg.nc"
-    case(vwind)
-       fn = trim(fn)//"/vgrd/"//cruver//".5d.vgrd."//cy//".365d.noc.daymean.1deg.nc"
-    end select
-
+    IF (CRU%MetVersion == "VERIFY_2021") THEN
+      SELECT CASE ( par )
+         CASE(rain) ; FN = TRIM(FN)//"/"//trim(cruver)//"_"//cy//"_daily_Precipalign.nc"
+         CASE(lwdn) ; FN = TRIM(FN)//"/"//trim(cruver)//"_"//cy//"_daily_LWdownnoalign.nc"
+         CASE(swdn) ; FN = TRIM(FN)//"/"//trim(cruver)//"_"//cy//"_daily_SWdownalign.nc"
+         CASE(pres) ; FN = TRIM(FN)//"/"//trim(cruver)//"_"//cy//"_daily_Psurfnoalign.nc"
+         CASE(qair) ; FN = TRIM(FN)//"/"//trim(cruver)//"_"//cy//"_daily_Qairnoalign.nc"
+         CASE(tmax,PrevTmax) ; FN = TRIM(FN)//"/"//trim(cruver)//"_"//cy//"_daily_Tmaxalign.nc"
+         CASE(tmin,NextTmin) ; FN = TRIM(FN)//"/"//trim(cruver)//"_"//cy//"_daily_Tminalign.nc"
+         CASE(uwind) ; FN = TRIM(FN)//"/"//trim(cruver)//"_"//cy//"_daily_Wind_Enoalign.nc"
+         CASE(vwind) ; FN = TRIM(FN)//"/"//trim(cruver)//"_"//cy//"_daily_Wind_Nnoalign.nc"
+      END SELECT
+    ELSE
+      select case(par)
+        case(rain)
+          fn = trim(fn)//"/pre/"//trim(cruver)//".5d.pre."//cy//".365d.noc.daytot.1deg.nc"
+        case(lwdn)
+          fn = trim(fn)//"/dlwrf/"//trim(cruver)//".5d.dlwrf."//cy//".365d.noc.daymean.1deg.nc"
+        case(swdn)
+           IF (CRU%MetVersion == "CRUJRA_2021") THEN
+              fn = trim(fn)//"/tswrf/tswrf_v10_"//cy//".daymean.1deg.nc"
+           ELSE
+              fn = trim(fn)//"/dswrf/"//trim(cruver)//".5d.dswrf."//cy//".365d.noc.daymean.1deg.nc"
+           ENDIF
+       case(pres)
+          fn = trim(fn)//"/pres/"//trim(cruver)//".5d.pres."//cy//".365d.noc.daymean.1deg.nc"
+       case(qair)
+          fn = trim(fn)//"/spfh/"//trim(cruver)//".5d.spfh."//cy//".365d.noc.daymean.1deg.nc"
+       case(tmax,PrevTmax)
+          fn = trim(fn)//"/tmax/"//trim(cruver)//".5d.tmax."//cy//".365d.noc.daymax.1deg.nc"
+       case(tmin,NextTmin)
+          fn = trim(fn)//"/tmin/"//trim(cruver)//".5d.tmin."//cy//".365d.noc.daymin.1deg.nc"
+       case(uwind)
+          fn = trim(fn)//"/ugrd/"//trim(cruver)//".5d.ugrd."//cy//".365d.noc.daymean.1deg.nc"
+       case(vwind)
+          fn = trim(fn)//"/vgrd/"//trim(cruver)//".5d.vgrd."//cy//".365d.noc.daymean.1deg.nc"
+       end select
+    ENDIF
+    
   END SUBROUTINE CRU_GET_FILENAME
 
   !**************************************************************************************************
@@ -584,19 +564,21 @@ CONTAINS
        ! On the first call, allocate the CRU%CO2VALS array to store the entire history of annual CO2
        ! values, open the (ascii) CO2 file and read the values into the array.
        IF (CALL1) THEN
-#ifdef __CRU2017__
-          ALLOCATE( CRU%CO2VALS( 1700:2017 ) )
-          CO2FILE = TRIM(CRU%BasePath)//"/co2/global_co2_ann_1700_2017.csv"
-#elif __CRU2018__
-          ALLOCATE( CRU%CO2VALS( 1700:2018 ) )
-          CO2FILE = TRIM(CRU%BasePath)//"/co2/global_co2_ann_1700_2018.csv"
-#elif __CRU2020__
-          ALLOCATE( CRU%CO2VALS( 1700:2020 ) )
-          CO2FILE = TRIM(CRU%BasePath)//"/co2/global_co2_ann_1700_2020.txt"
-#else
-          ALLOCATE( CRU%CO2VALS( 1700:2019 ) )
-          CO2FILE = TRIM(CRU%BasePath)//"/co2/global_co2_ann_1700_2019.txt"
-#endif
+          SELECT CASE (CRU%MetVersion)
+             CASE("CRUJRA_2018") 
+                ALLOCATE( CRU%CO2VALS( 1700:2017 ) )
+                CO2FILE = TRIM(CRU%BasePath)//"/co2/global_co2_ann_1700_2017.csv"
+             CASE("CRUJRA_2019")
+                ALLOCATE( CRU%CO2VALS( 1700:2018 ) )
+                CO2FILE = TRIM(CRU%BasePath)//"/co2/global_co2_ann_1700_2018.csv"
+             CASE("CRUJRA_2020")
+                ALLOCATE( CRU%CO2VALS( 1700:2019 ) )
+                CO2FILE = TRIM(CRU%BasePath)//"/co2/global_co2_ann_1700_2019.txt"
+             CASE("CRUJRA_2021","VERIFY_2021")
+                ALLOCATE( CRU%CO2VALS( 1700:2020 ) )
+               CO2FILE = TRIM(CRU%BasePath)//"/co2/global_co2_ann_1700_2020.txt"
+          END SELECT
+            
           CALL GET_UNIT(iunit)
           OPEN(iunit, FILE=TRIM(CO2FILE), STATUS="OLD", ACTION="READ")
           DO WHILE( IOS .EQ. 0 )
@@ -645,11 +627,13 @@ CONTAINS
     ! On the first call, allocate the CRU%CO2VALS array to store the entire history of annual CO2
     ! values, open the (ascii) CO2 file and read the values into the array.
     IF (CALL1) THEN
-#ifdef __CRU2017__
-       NdepFILE = trim(CRU%BasePath)//"/ndep/NOy_plus_NHx_dry_plus_wet_deposition_hist_1850_2015_annual_1deg.nc"
-#else
-       NdepFILE = TRIM(CRU%BasePath)//"/ndep/NOy_plus_NHx_dry_plus_wet_deposition_1850_2099_annual.1deg.nc"
-#endif
+       IF (CRU%MetVersion == "CRUJRA_2018") THEN
+          NdepFILE = trim(CRU%BasePath)//"/ndep/NOy_plus_NHx_dry_plus_wet_deposition_hist_1850_2015_annual_1deg.nc"
+       ELSE IF (CRU%MetVersion == "VERIFY_2021") THEN
+          NdepFILE = TRIM(CRU%BasePath)//"/ndep/NOy_plus_NHx_dry_plus_wet_deposition_1850_2099_annual.0.125deg_Europe.nc"
+       ELSE
+          NdepFILE = TRIM(CRU%BasePath)//"/ndep/NOy_plus_NHx_dry_plus_wet_deposition_1850_2099_annual.1deg.nc"
+       END IF
 
        ! Open the NDep and access the variables by their name and variable id.
        write(*,'(a)') 'Opening ndep data file: '//trim(NdepFILE)
@@ -1265,7 +1249,7 @@ CONTAINS
                   start=(/1,1,t/),count=(/xds,yds,1/) )
              CALL HANDLE_ERR(ErrStatus, "Reading from "//trim(CRU%MetFile(iVar)))
              DO k = 1, CRU%mland
-                CRU%MET(ii)%METVALS(k) = tmparr( land_x(k), land_y(k) )
+                CRU%MET(ii)%METVALS(k) = tmparr( land_x(k), land_y(k) )   
              END DO
           ENDIF
 

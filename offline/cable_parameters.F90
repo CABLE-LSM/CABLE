@@ -160,7 +160,7 @@ CONTAINS
     IF (calcsoilalbedo) THEN
        CALL read_soilcolor()
     END IF
-
+    
     ! count to obtain 'landpt', 'max_vegpatches' and 'mp'
     CALL countPatch(nlon, nlat, npatch)
 
@@ -347,7 +347,6 @@ CONTAINS
     ok = NF90_INQ_VARID(ncid, 'patchfrac', varID)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
                                         'Error finding variable patchfrac.')
-
     if (npatch_LUC .gt. npatch) then
        ok = NF90_GET_VAR(ncid, varID, rdummy)
        DO pp=1,npatch_LUC
@@ -485,7 +484,7 @@ CONTAINS
       inNfix  = inNfix  / 365.0
       inPwea  = inPwea  / 365.0
       inPdust = inPdust / 365.0
-
+      
     ENDIF
 
     ok = NF90_CLOSE(ncid)
@@ -877,7 +876,7 @@ CONTAINS
     ncount = 0
 
     DO kk = 1, mland
-       distance = 3.0 ! initialise, units are degrees
+       distance = 12.0 ! initialise, units are degrees
        DO jj = 1, nlat
           DO ii = 1, nlon
              IF (inVeg(ii,jj, 1) > 0 .and. inTgg(ii,jj,1,1).gt.0.0) THEN
@@ -887,7 +886,6 @@ CONTAINS
                    distance = newLength
                    landpt(kk)%ilon = ii
                    landpt(kk)%ilat = jj
-
                 END IF
              END IF
 
@@ -956,10 +954,9 @@ CONTAINS
     ncount = 0
     DO kk=1, mland
 
-       distance = 3.0 ! initialise, units are degrees
+       distance = 12.0 ! initialise, units are degrees
        DO jj=1, nlat
           DO ii=1, nlon
-
              IF (inVeg(ii,jj, 1) > 0 .and. inTgg(ii,jj,1,1).gt.0.0 ) THEN
                 newLength = SQRT((inLon(ii) - longitude(kk))**2 &
                      + (inLat(jj) -  latitude(kk))**2)
@@ -1041,7 +1038,6 @@ CONTAINS
           END IF
        END IF
     END DO
-
     ! CLN IF (ncount > mland * nmetpatches) THEN
     IF (ncount > mland * nmetpatches .AND. npatch == 1) THEN
        WRITE(*,*) ncount, ' should not be greater than mland*nmetpatches.'
@@ -1234,7 +1230,6 @@ CONTAINS
             inVeg(landpt(e)%ilon, landpt(e)%ilat, 1:landpt(e)%nap)
        patch(landpt(e)%cstart:landpt(e)%cend)%frac =                            &
             real(inPFrac(landpt(e)%ilon, landpt(e)%ilat, 1:landpt(e)%nap), r_2)
-
        ! set land use (1 = primary; 2 = secondary, 3 = open)
        veg%iLU(landpt(e)%cstart:landpt(e)%cend)= 1
        veg%ivegp(landpt(e)%cstart:landpt(e)%cend) = veg%iveg(landpt(e)%cstart:landpt(e)%cend)
