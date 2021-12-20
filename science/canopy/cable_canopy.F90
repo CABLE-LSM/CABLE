@@ -500,6 +500,8 @@ CALL radiation( ssnow, veg, air, met, rad, canopy, sunlit_veg_mask, &
                   canopy%DvLitt
           ENDIF
 
+          !latent heat flux density of water (W/m2) - soil componenet of 
+          !potential evapotranspiration 
           IF(cable_user%ssnow_POTEV== "P-M") THEN
 
              !--- uses %ga from previous timestep
@@ -625,7 +627,9 @@ write(6,*) "SLI is not an option right now"
 
        canopy%rnet = canopy%fnv + canopy%fns
 
-       !INH: If PM routine corrected then match changes here
+       !upwards flux density of water (kg/m2/s) - potential evapotranspiration 
+       !radiation weighted soil and canopy contributions
+       !Note: If PM routine corrected then match changes here
        canopy%epot = ((1.-rad%transd)*canopy%fevw_pot +                         &
             rad%transd*ssnow%potev*ssnow%cls) * dels/air%rlam
 
@@ -1644,6 +1648,8 @@ write(6,*) "GW or ORevepis not an option right now"
                  / ( air%dsatdk(j)+air%psyc(j)*ghrwet(j) / gwwet(j) )  &
                  , ccfevw(j) )
 
+            !upwards flux density of water (kg/m2/s) - canopy componenet of 
+            !potential evapotranspiration 
             canopy%fevw_pot(j) = ( air%dsatdk(j)* (sum_rad_rniso(j) -             &
                  CCAPP * Crmair * ( met%tvair(j) - met%tk(j) )  &
                  *sum_rad_gradis(j) )                             &
