@@ -32,7 +32,7 @@
 
 # these are all the files we are compiling
 LSRC =                          \
- 	cable_math_constants_mod.F90  \
+ 	cable_maths_constants_mod.F90  \
  	cable_phys_constants_mod.F90  \
  	cable_other_constants_mod.F90 \
  	cable_photo_constants_mod.F90 \
@@ -100,7 +100,7 @@ all :
 # dependencies
 #
 # parameters/constants 
-cable_math_constants_mod.o: cable_math_constants_mod.F90
+cable_maths_constants_mod.o: cable_maths_constants_mod.F90
 cable_phys_constants_mod.o: cable_phys_constants_mod.F90
 cable_other_constants_mod.o: cable_other_constants_mod.F90
 cable_photo_constants_mod.o: cable_photo_constants_mod.F90
@@ -133,9 +133,9 @@ cbl_soilColour_albedo.o: cbl_soilColour_albedo.F90
 #radiation
 cbl_rhoch.o: cbl_rhoch.F90
 cbl_spitter.o: cbl_spitter.F90
-cbl_sinbet.o: cbl_sinbet.F90 cable_math_constants_mod.o
+cbl_sinbet.o: cbl_sinbet.F90 cable_maths_constants_mod.o
 cbl_radiation.o: cbl_radiation.F90 cable_define_types.o cable_common.o cbl_init_radiation.o cable_phys_constants_mod.o
-cbl_init_radiation.o: cbl_init_radiation.F90 cable_other_constants_mod.o cable_math_constants_mod.o cable_define_types.o cable_common.o cbl_spitter.o cbl_rhoch.o
+cbl_init_radiation.o: cbl_init_radiation.F90 cable_other_constants_mod.o cable_maths_constants_mod.o cable_define_types.o cable_common.o cbl_spitter.o cbl_rhoch.o
 #soilsnow
 cbl_soilsnow_data.o: cbl_soilsnow_data.F90 cable_phys_constants_mod.o cable_define_types.o cable_common.o 
 cbl_trimb.o: cbl_trimb.F90 cbl_soilsnow_data.o 
@@ -162,7 +162,7 @@ casa_phenology.o: casa_phenology.F90
 
 cable_air.o: cable_air.F90 cable_define_types.o cable_common.o
 
-cable_canopy.o: cable_canopy.F90 cable_math_constants_mod.o cable_phys_constants_mod.o cable_other_constants_mod.o cable_photo_constants_mod.o cable_define_types.o cbl_radiation.o cable_roughness.o cable_air.o cable_common.o cable_sli_utils.o cable_sli_main.o cable_gw_hydro.o cable_iovars.o cable_psm.o cable_gw_hydro.o
+cable_canopy.o: cable_canopy.F90 cable_maths_constants_mod.o cable_phys_constants_mod.o cable_other_constants_mod.o cable_photo_constants_mod.o cable_define_types.o cbl_radiation.o cable_roughness.o cable_air.o cable_common.o cable_sli_utils.o cable_sli_main.o cable_gw_hydro.o cable_iovars.o cable_psm.o cable_gw_hydro.o
 
 cable_carbon.o: cable_carbon.F90 cable_define_types.o cable_common.o
 
@@ -261,7 +261,7 @@ landuse_inout.o: landuse_inout.F90 cable_define_types.o landuse_constant.o landu
 
 
 # these are all the files we are compiling
-all  : cable_math_constants_mod.o   \
+all  : cable_maths_constants_mod.o   \
 	cable_phys_constants_mod.o 	 \
 	cable_other_constants_mod.o	 \
 	cable_photo_constants_mod.o  \
