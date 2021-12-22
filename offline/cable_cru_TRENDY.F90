@@ -164,6 +164,18 @@ CONTAINS
 
     ! Assign Forcing and CO2 labels based only on the value of CRU%Run
     SELECT CASE(TRIM(CRU%Run))
+    CASE( "drought_heat_spinup" )
+       CRU%Forcing = "spinup"
+       CRU%CO2     = "static2011"
+       CRU%Ndep    = "static2011"
+       write(*,'(a)') "Run = 'drought_heat_spinup': Therefore Forcing = 'spinup', CO2 and Ndep = 'static2011'"
+       WRITE(logn,*)  "Run = 'drought_heat_spinup': Therefore Forcing = 'spinup', CO2 and Ndep = 'static2011'"
+    CASE( "drought_heat_run" )
+       CRU%Forcing = "2000_2099"
+       CRU%CO2     = "static2011"
+       CRU%Ndep    = "static2011"
+       write(*,'(a)') "Run = 'drought_heat_run': Therefore Forcing = 'spinup', CO2 and Ndep = 'static2011'"
+       WRITE(logn,*)  "Run = 'drought_heat_run': Therefore Forcing = '2000_2099', CO2 and Ndep = 'static2011'"
     CASE( "S0_TRENDY" )
        CRU%Forcing = "spinup"
        CRU%CO2     = "static1860"
@@ -312,6 +324,8 @@ CONTAINS
     CRU%VAR_NAME(uwind) = "ugrd"
     CRU%VAR_NAME(vwind) = "vgrd"
 
+    CRU%Metstart = 1901
+
     IF (CRU%MetVersion == "CRUJRA_2021") THEN
        CRU%VAR_NAME(swdn) = "tswrf"
     ELSE IF (CRU%MetVersion == "VERIFY_2021") THEN
@@ -324,6 +338,18 @@ CONTAINS
        CRU%VAR_NAME(tmin)  = "Tminalign"
        CRU%VAR_NAME(uwind) = "Wind_Enoalign" 
        CRU%VAR_NAME(vwind) = "Wind_Nnoalign"
+    ELSE IF (CRU%MetVersion == "Drought_Heat") THEN
+       CRU%VAR_NAME(rain) = "pr"
+       CRU%VAR_NAME(lwdn) = "lwd"
+       CRU%VAR_NAME(swdn) = "swd"
+       CRU%VAR_NAME(pres) = "psl"
+       CRU%VAR_NAME(qair) = "Qair"
+       CRU%VAR_NAME(tmax) = "tasmax"
+       CRU%VAR_NAME(tmin) = "tasmin"
+       CRU%VAR_NAME(uwind) = "uas"
+       CRU%VAR_NAME(vwind) = "vas"
+
+       CRU%Metstart = 2000
     END IF
     
     write(*,'(a)') "========================================= CRU ============"
@@ -477,14 +503,6 @@ CONTAINS
     character(len=200) :: metp   ! Local repr of met path
     character(len=50)  :: cruver ! cru version as in filename
 
-    SELECT CASE (CRU%MetVersion)
-       CASE("CRUJRA_2018") ; cruver="crujra.V1.1"
-       CASE("CRUJRA_2019") ; cruver="crujra.v2.0"
-       CASE("CRUJRA_2020") ; cruver="crujra.v2.1"
-       CASE("CRUJRA_2021") ; cruver="crujra.v2.2"
-       CASE("VERIFY_2021") ; cruver="cru_verify"
-    END SELECT
-
     ! Create a character version of the year for building that part of the filename.
     write(cy, fmt='(i4)') cyear
 
@@ -492,10 +510,31 @@ CONTAINS
     metp = trim(CRU%MetPath)
     fn   = trim(metp)
 
+    SELECT CASE (CRU%MetVersion)
+       CASE("CRUJRA_2018") ; cruver="crujra.V1.1"
+       CASE("CRUJRA_2019") ; cruver="crujra.v2.0"
+       CASE("CRUJRA_2020") ; cruver="crujra.v2.1"
+       CASE("CRUJRA_2021") ; cruver="crujra.v2.2"
+       CASE("VERIFY_2021") ; cruver="cru_verify"
+       CASE("Drought_Heat"); cruver=fn(SCAN(fn,"/",.TRUE.)+1:) ! scenario
+    END SELECT
+       
     ! Build the rest of the filename according to the value of par, which references 11 possible
     ! types of met through the parameter names rain, lwdn, etc.
 
-    IF (CRU%MetVersion == "VERIFY_2021") THEN
+    IF (CRU%MetVersion == "Drought_Heat") THEN
+       SELECT CASE(par)
+          CASE(rain) ; FN = TRIM(FN)//"/pr/"//trim(cruver)//"_pr_"//cy//".nc"
+          CASE(lwdn) ; FN = TRIM(FN)//"/lwd/"//trim(cruver)//"_lwd_"//cy//".nc" 
+          CASE(swdn) ; FN = TRIM(FN)//"/swd/"//trim(cruver)//"_swd_"//cy//".nc"
+          CASE(pres) ; FN = TRIM(FN)//"/psl/"//trim(cruver)//"_psl_"//cy//".nc"
+          CASE(qair) ; FN = TRIM(FN)//"/Qair/"//trim(cruver)//"_Qair_"//cy//".nc"
+          CASE(tmax,PrevTmax) ; FN = TRIM(FN)//"/tasmax/"//trim(cruver)//"_tasmax_"//cy//".nc"
+          CASE(tmin,NextTmin) ; FN = TRIM(FN)//"/tasmin/"//trim(cruver)//"_tasmin_"//cy//".nc"
+          CASE(uwind) ; FN = TRIM(FN)//"/uas/"//trim(cruver)//"_uas_"//cy//".nc"
+          CASE(vwind) ; FN = TRIM(FN)//"/vas/"//trim(cruver)//"_vas_"//cy//".nc"
+       END SELECT
+    ELSE IF (CRU%MetVersion == "VERIFY_2021") THEN
       SELECT CASE ( par )
          CASE(rain) ; FN = TRIM(FN)//"/"//trim(cruver)//"_"//cy//"_daily_Precipalign.nc"
          CASE(lwdn) ; FN = TRIM(FN)//"/"//trim(cruver)//"_"//cy//"_daily_LWdownnoalign.nc"
@@ -558,7 +597,10 @@ CONTAINS
        !CO2air = 286.42   ! CO2 in ppm for 1860
        CO2air = 276.59   ! CO2 in ppm for 1700
        RETURN
-
+    ELSE IF ( TRIM(CRU%CO2) .EQ. "static2011") THEN
+       CO2air = 389.78   ! CO2 in ppm for 2011
+       RETURN
+    
     ELSE ! If not S0_TRENDY, varying CO2 values will be used...
 
        ! On the first call, allocate the CRU%CO2VALS array to store the entire history of annual CO2
@@ -627,7 +669,9 @@ CONTAINS
     ! On the first call, allocate the CRU%CO2VALS array to store the entire history of annual CO2
     ! values, open the (ascii) CO2 file and read the values into the array.
     IF (CALL1) THEN
-       IF (CRU%MetVersion == "CRUJRA_2018") THEN
+       IF (CRU%MetVersion == "Drought_Heat") THEN
+          NdepFILE = trim(CRU%BasePath)//"/ndep/ndep_NHx_NOy_2011_1x1deg.nc"
+       ELSE IF (CRU%MetVersion == "CRUJRA_2018") THEN
           NdepFILE = trim(CRU%BasePath)//"/ndep/NOy_plus_NHx_dry_plus_wet_deposition_hist_1850_2015_annual_1deg.nc"
        ELSE IF (CRU%MetVersion == "VERIFY_2021") THEN
           NdepFILE = TRIM(CRU%BasePath)//"/ndep/NOy_plus_NHx_dry_plus_wet_deposition_1850_2099_annual.0.125deg_Europe.nc"
@@ -647,7 +691,7 @@ CONTAINS
        ! Set internal counter
        CRU%Ndep_CTSTEP = 1
 
-       IF ( TRIM(CRU%Ndep) .EQ. "static1860" .OR. CRU%CYEAR<=1850) THEN
+       IF ( TRIM(CRU%Ndep) .EQ. "static1860" .OR. TRIM(CRU%Ndep) .EQ. "static2011" .OR. CRU%CYEAR<=1850) THEN
           ! read Ndep at year 1850 (file starts at 1850)
           ! prior to TRENDYv10: year 1860
           CRU%Ndep_CTSTEP = 1
@@ -662,7 +706,7 @@ CONTAINS
        CALL1 = .FALSE.
     END IF
 
-    IF ( TRIM(CRU%Ndep) .NE. "static1860" .and.  CRU%CYEAR>1850) THEN
+    IF ( TRIM(CRU%Ndep) .NE. "static1860" .AND. TRIM(CRU%Ndep) .NE. "static2011" .AND. CRU%CYEAR>1850) THEN
        ! read Ndep at current year (noting that file starts at 1850 and ends in 2099)
        CRU%Ndep_CTSTEP = min(CRU%CYEAR, 2099) - 1850 + 1
        t =  CRU%Ndep_CTSTEP
@@ -710,13 +754,21 @@ CONTAINS
      !!$    ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY' ) THEN
      !!$      MetYear = CRU%CYEAR
      !!$    ENDIF
-     IF ((TRIM(CRU%Run) .EQ. 'S0_TRENDY') .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' ) &
+     IF ( TRIM(CRU%Run) .EQ. 'drought_heat_spinup' ) THEN
+
+        MetYear = 2000 + MOD(CRU%CYEAR, 100)
+
+     ELSE IF ( TRIM(CRU%Run) .EQ. 'drought_heat_run' ) THEN
+
+        MetYear = CRU%CYEAR
+        
+     ELSE IF ((TRIM(CRU%Run) .EQ. 'S0_TRENDY') .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' ) &
           .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2') &
           .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Ndep' ) ) THEN
 
         MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear, CRU%metrecyc)
         
-     ELSEIF  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Precip' .OR. &
+     ELSE IF  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Precip' .OR. &
           TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Precip'.OR. &
           TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Temp_Precip'.OR. &
           TRIM(CRU%Run) .EQ. 'S0_TRENDY_Temp_Precip' ) THEN
@@ -735,7 +787,7 @@ CONTAINS
            ENDIF
         ENDIF
 
-     ELSEIF  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Temp' .OR. &
+     ELSE IF  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Temp' .OR. &
           TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Temp' ) THEN
 
         IF (iVar.EQ.6 .OR. iVar.EQ.7) THEN
@@ -846,7 +898,15 @@ CONTAINS
 
     ! print *,  "CRU%CTSTEP, LastDayOfYear, LastYearOfMet", CRU%CTSTEP, LastDayOfYear, LastYearOfMet
     DO iVar = 1, CRU%NMET
-       IF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY' .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' ) &
+       IF ( TRIM(CRU%Run) .EQ. 'drought_heat_spinup' ) THEN
+
+          MetYear = 2000 + MOD(CRU%CYEAR, 100)
+
+       ELSE IF ( TRIM(CRU%Run) .EQ. 'drought_heat_run' ) THEN
+
+          MetYear = CRU%CYEAR
+          
+       ELSE IF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY' .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' ) &
             .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2') &
             .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Ndep' )) THEN
           MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,CRU%metrecyc)
@@ -969,7 +1029,15 @@ CONTAINS
                 ! ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY' ) THEN
                 !   NextMetYear = CRU%CYEAR + 1
                 ! ENDIF
-                IF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY' .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' ) &
+                IF ( TRIM(CRU%Run) .EQ. 'drought_heat_spinup' ) THEN
+
+                   NextMetYear = 2000 + MOD(CRU%CYEAR, 100) + 1
+
+                ELSE IF ( TRIM(CRU%Run) .EQ. 'drought_heat_run' ) THEN
+
+                   NextMetYear = CRU%CYEAR + 1
+                   
+                ELSEIF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY' .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' ) &
                      .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2') &
                      .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Ndep' )) THEN
                    NextMetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,CRU%metrecyc)
@@ -1089,9 +1157,9 @@ CONTAINS
              ! Assign the met variable index to be prevTmax. iVar will still refer to Tmax.
              ii = prevTmax
 
-             ! If the very first MetYear is more than 1901, there is a previous year of Tmax data available.
+             ! If the very first MetYear is more than CRU%Metstart, there is a previous year of Tmax data available.
              ! such as during spinups, when the starting year is 1951.
-             IF ( MetYear .GT. 1901 ) THEN
+             IF ( MetYear .GT. CRU%Metstart ) THEN
 
                 ! Open the previous year's Tmax file (MetYear-1)
                 CALL CRU_GET_FILENAME( CRU, MetYear-1, iVar, filename )
@@ -1157,9 +1225,9 @@ CONTAINS
                    END DO
                 ENDIF
 
-             ELSE ! MetYear = 1901
+             ELSE ! MetYear = CRU%Metstart
 
-                ! Where MetYear is 1901, there is no previous Tmax value available, so we read the
+                ! Where MetYear is CRU%Metstart, there is no previous Tmax value available, so we read the
                 ! Jan 1 value into Tmax, then assign it to prevTmax as well
 
                 ! ! Open the 1901 Tmax file (MetYear)
@@ -1192,7 +1260,7 @@ CONTAINS
                 ! Now set the value for prevTmax (ii) equal to the current value for Tmax.
                 CRU%MET(ii)%METVALS(:) = CRU%MET(iVar)%METVALS(:)
 
-             ENDIF  ! End of If MetYear > 1901
+             ENDIF  ! End of If MetYear > CRU%Metstart
 
           ELSE  ! Not CALL1
 
