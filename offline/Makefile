@@ -32,7 +32,8 @@
 
 # these are all the files we are compiling
 LSRC =                          \
- 	cable_maths_constants_mod.F90  \
+ 	grid_constants_cbl.F90        \
+ 	cable_maths_constants_mod.F90 \
  	cable_phys_constants_mod.F90  \
  	cable_other_constants_mod.F90 \
  	cable_photo_constants_mod.F90 \
@@ -100,9 +101,11 @@ all :
 # dependencies
 #
 # parameters/constants 
+
+grid_constants_cbl.o: grid_constants_cbl.F90
 cable_maths_constants_mod.o: cable_maths_constants_mod.F90
 cable_phys_constants_mod.o: cable_phys_constants_mod.F90
-cable_other_constants_mod.o: cable_other_constants_mod.F90
+cable_other_constants_mod.o: cable_other_constants_mod.F90 grid_constants_cbl.o
 cable_photo_constants_mod.o: cable_photo_constants_mod.F90
 cable_runtime_opts_mod.o: cable_runtime_opts_mod.F90
 cable_pft_params.o: cable_pft_params.F90 cable_define_types.o
@@ -261,7 +264,8 @@ landuse_inout.o: landuse_inout.F90 cable_define_types.o landuse_constant.o landu
 
 
 # these are all the files we are compiling
-all  : cable_maths_constants_mod.o   \
+all  : grid_constants_cbl.o    \
+  cable_maths_constants_mod.o  \
 	cable_phys_constants_mod.o 	 \
 	cable_other_constants_mod.o	 \
 	cable_photo_constants_mod.o  \

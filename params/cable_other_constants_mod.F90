@@ -1,5 +1,8 @@
 MODULE cable_other_constants_mod
 
+USE grid_constants_mod_cbl, ONLY : nrb, nsl, nsCs, nvCs
+USE grid_constants_mod_cbl, ONLY : msn =>  nsnl
+
 IMPLICIT NONE
 
 PUBLIC
@@ -14,18 +17,13 @@ PUBLIC
 
 INTEGER, PARAMETER ::                                                          &
   swb = 2,           & ! 2 shortwave bands (initial division - visible /
-                       !   near infrared)
+                       ! near infrared)
   n_sw_bands = 4,    & ! total number of shortwave radiation bands
-                       !   (above divided into direct / diffuse)
-  nrb = 3,           & ! number of radiation bands normally in use
+                       ! (above divided into direct / diffuse)
   mf = 2,            & ! types of leaves (sunlit / shaded)
-  msn = 3,           & ! max # snow layers
   r_2  = SELECTED_REAL_KIND(12, 50), &!this will be removed
                        ! double precision real dimension
   niter = 4,         & ! number of iterations for za/L
-  nsl = 6,           & ! number of soil layers
-  nscs = 2,          & ! number of soil carbon stores
-  nvcs = 3,          & ! number of vegetation carbon stores
   n_assim_rates = 3, & ! Rubisco, RuBP and Sink-limited rates of photosynthesis
   n_soiltypes = 9      ! number of soil types
 
