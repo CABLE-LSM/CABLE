@@ -1632,10 +1632,6 @@ write(6,*) "GW or ORevepis not an option right now"
             gwwet(j) = 1.075 * sum_gbh(j)
             ghrwet(j) = sum_rad_gradis(j) + ghwet(j)
 
-            ! Calculate fraction of canopy which is wet:
-            canopy%fwet(j) = MAX( 0.0, MIN( 1.0,                                  &
-                 0.8 * canopy%cansto(j) / MAX( cansat(j), 0.01 ) ) )
-
             ! Calculate lat heat from wet canopy, may be neg. if dew on wet canopy
             ! to avoid excessive evaporation:
             ccfevw(j) = MIN(canopy%cansto(j) * air%rlam(j) / dels, &
@@ -1959,10 +1955,6 @@ write(6,*) "GW or ORevepis not an option right now"
              ghwet(i) = 2.0   * sum_gbh(i)
              gwwet(i) = 1.075 * sum_gbh(i)
              ghrwet(i) = sum_rad_gradis(i) + ghwet(i)
-
-             ! Calculate fraction of canopy which is wet:
-             canopy%fwet(i) = MAX( 0.0, MIN( 1.0, 0.8 * canopy%cansto(i)/ MAX(  &
-                  cansat(i),0.01 ) ) )
 
              ! Calculate lat heat from wet canopy, may be neg.
              ! if dew on wet canopy to avoid excessive evaporation:
