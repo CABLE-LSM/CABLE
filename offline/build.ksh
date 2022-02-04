@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 
 export dosvn=0 # 1/0: do/do not check svn
 
@@ -38,7 +38,7 @@ host_gadi()
     module purge
     module load intel-compiler/2019.5.281
     module load netcdf/4.6.3
-
+    
     export FC=ifort
     export NCDIR=${NETCDF_ROOT}"/lib/Intel"
     export NCMOD=${NETCDF_ROOT}"/include/Intel"

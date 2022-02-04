@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 
 export dosvn=0 # 1/0: do/do not check svn
 

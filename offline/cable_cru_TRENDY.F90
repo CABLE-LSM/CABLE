@@ -174,7 +174,7 @@ CONTAINS
        CRU%Forcing = "2000_2099"
        CRU%CO2     = "static2011"
        CRU%Ndep    = "static2011"
-       write(*,'(a)') "Run = 'drought_heat_run': Therefore Forcing = 'spinup', CO2 and Ndep = 'static2011'"
+       write(*,'(a)') "Run = 'drought_heat_run': Therefore Forcing = '2000_2099', CO2 and Ndep = 'static2011'"
        WRITE(logn,*)  "Run = 'drought_heat_run': Therefore Forcing = '2000_2099', CO2 and Ndep = 'static2011'"
     CASE( "S0_TRENDY" )
        CRU%Forcing = "spinup"
@@ -669,7 +669,7 @@ CONTAINS
     ! On the first call, allocate the CRU%CO2VALS array to store the entire history of annual CO2
     ! values, open the (ascii) CO2 file and read the values into the array.
     IF (CALL1) THEN
-       IF (CRU%MetVersion == "Drought_Heat") THEN
+       IF (trim(CRU%MetVersion) == "Drought_Heat") THEN
           NdepFILE = trim(CRU%BasePath)//"/ndep/ndep_NHx_NOy_2011_1x1deg.nc"
        ELSE IF (CRU%MetVersion == "CRUJRA_2018") THEN
           NdepFILE = trim(CRU%BasePath)//"/ndep/NOy_plus_NHx_dry_plus_wet_deposition_hist_1850_2015_annual_1deg.nc"
