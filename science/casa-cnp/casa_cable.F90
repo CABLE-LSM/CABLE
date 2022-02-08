@@ -813,8 +813,10 @@ END SUBROUTINE sumcflux
                           avgpleaf2met,avgpleaf2str,avgproot2met,avgproot2str,avgpwood2cwd, &
                           avgcgpp, avgcnpp, avgnuptake, avgpuptake,                         &
                           avgxnplimit,avgxkNlimiting,avgxklitter,avgxksoil,                 &
-                          avgratioNCsoilmic,avgratioNCsoilslow,avgratioNCsoilpass,         &
-                          avgnsoilmin,avgpsoillab,avgpsoilsorb,avgpsoilocc)
+                          avgratioNCsoilmic,avgratioNCsoilslow,avgratioNCsoilpass,          &
+                          avgnsoilmin,avgpsoillab,avgpsoilsorb,avgpsoilocc,                 &
+                          avg_af, avg_aw, avg_ar, avg_lf, avg_lw, avg_lr,                   &
+                          avg_annual_cnpp)
   USE cable_def_types_mod
   USE cable_carbon_module
   USE casadimension
@@ -841,6 +843,8 @@ END SUBROUTINE sumcflux
   real(r_2), dimension(mp) :: avgxnplimit,avgxkNlimiting,avgxklitter,avgxksoil
   real, dimension(mp)      :: avgratioNCsoilmic,  avgratioNCsoilslow,  avgratioNCsoilpass
   real,      dimension(mp) :: avgnsoilmin,avgpsoillab,avgpsoilsorb,avgpsoilocc
+  real,      dimension(mp) :: avg_af, avg_aw, avg_ar, avg_lf, avg_lw, avg_lr
+  real,      dimension(mp) :: avg_annual_cnpp
 
   ! local variables
   REAL(r_2), DIMENSION(mso) :: Psorder,pweasoil,xpsoil50
@@ -923,6 +927,15 @@ END SUBROUTINE sumcflux
 
   do npt=1,mp
    if(casamet%iveg2(npt)/=icewater.and.avgcnpp(npt) > 0.0) then
+
+      ! Compute steady-state plant C pool sizes
+      casapool%cplant(npt,leaf) = (avg_annual_cnpp(npt) * avg_af(npt)) / &
+                                   avg_lf(npt)
+      casapool%cplant(npt,wood) = (avg_annual_cnpp(npt) * avg_aw(npt)) / &
+                                   avg_lw(npt)
+      casapool%cplant(npt,froot) = (avg_annual_cnpp(npt) * avg_ar(npt)) / &
+                                    avg_lr(npt)
+
     ! compute steady-state litter and soil C pool sizes
      casapool%clitter(npt,metb) = (avgcleaf2met(npt)+avgcroot2met(npt))/casaflux%klitter(npt,metb)
      casapool%clitter(npt,str) = (avgcleaf2str(npt)+avgcroot2str(npt))/casaflux%klitter(npt,str)
