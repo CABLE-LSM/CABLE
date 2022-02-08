@@ -603,6 +603,14 @@ SUBROUTINE casa_rplant1(veg,casabiome,casapool,casaflux,casamet)
       casaflux%crmplant(:,wood)  = casaflux%crmplant(:,wood)  + delcrmwood(:)
       casaflux%crmplant(:,froot) = casaflux%crmplant(:,froot) + delcrmfroot(:)
       casaflux%crgplant(:) = 0.0
+
+      ! The logic above can still lead to a negative NPP as
+      ! SUM(casaflux%crmplant(:,:),2) can be a tiny number, if this
+      ! happens, set NPP to zero
+      WHERE(casaflux%Cnpp < 0.0)
+         casaflux%cnpp(:) = 0.0
+      ENDWHERE
+
     ENDWHERE
 
 !!!!!!!!!!!!!!!!!!!!!!! end from YPW 02/10/17 !!!!!!!!!!!!!!!!!!!!!!!!!!!
