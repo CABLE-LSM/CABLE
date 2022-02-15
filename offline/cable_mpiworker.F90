@@ -7260,6 +7260,14 @@ USE cbl_soil_snow_init_special_module
     REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_ratioNCsoilmic,  avg_ratioNCsoilslow,  avg_ratioNCsoilpass
     REAL(r_2), DIMENSION(:), ALLOCATABLE, SAVE  :: avg_xnplimit,  avg_xkNlimiting,avg_xklitter, avg_xksoil
 
+  REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_af
+  REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_aw
+  REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_ar
+  REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_lf
+  REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_lw
+  REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_lr
+  REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_annual_cnpp
+
     ! local variables
     INTEGER                  :: myearspin,nyear, nloop1, LOY
     CHARACTER(LEN=99)        :: ncfile
@@ -7313,6 +7321,20 @@ USE cbl_soil_snow_init_special_module
          avg_rationcsoilmic(mp),avg_rationcsoilslow(mp),avg_rationcsoilpass(mp),                        &
          avg_nsoilmin(mp),  avg_psoillab(mp),    avg_psoilsorb(mp), avg_psoilocc(mp))
 
+  ALLOCATE(avg_af(mp))
+  ALLOCATE(avg_aw(mp))
+  ALLOCATE(avg_ar(mp))
+  ALLOCATE(avg_lf(mp))
+  ALLOCATE(avg_lw(mp))
+  ALLOCATE(avg_lr(mp))
+  ALLOCATE(avg_annual_cnpp(mp))
+  avg_af = 0.0
+  avg_aw = 0.0
+  avg_ar = 0.0
+  avg_lf = 0.0
+  avg_lw = 0.0
+  avg_lr = 0.0
+  avg_annual_cnpp = 0.0
 
     myearspin = CABLE_USER%CASA_SPIN_ENDYEAR - CABLE_USER%CASA_SPIN_STARTYEAR + 1
     ! compute the mean fluxes and residence time of each carbon pool
@@ -7373,6 +7395,15 @@ USE cbl_soil_snow_init_special_module
           !    xkNlimiting = 0.001
           ! END WHERE
 
+        ! Calculate average allocation fractions  (-) for the plant pools
+        avg_af = avg_af + casaflux%fracCalloc(:,leaf)
+        avg_aw = avg_aw + casaflux%fracCalloc(:,wood)
+        avg_ar = avg_ar + casaflux%fracCalloc(:,froot)
+
+        ! Calculate average turnover rates for the plant pools (yr-1)
+        avg_lf = avg_lf + (casaflux%kplant(:,leaf) * REAL(LOY))
+        avg_lw = avg_lw + (casaflux%kplant(:,wood) * REAL(LOY))
+        avg_lr = avg_lr + (casaflux%kplant(:,froot) * REAL(LOY))
 
           avg_cleaf2met = avg_cleaf2met + cleaf2met
           avg_cleaf2str = avg_cleaf2str + cleaf2str
@@ -7413,46 +7444,57 @@ USE cbl_soil_snow_init_special_module
        ENDDO
     ENDDO
 
-    !!CLN    CLOSE(91)
+ ! Average the plant allocation fraction
+  avg_af = avg_af / REAL(nday)
+  avg_aw = avg_aw / REAL(nday)
+  avg_ar = avg_ar / REAL(nday)
 
-    avg_cleaf2met = avg_cleaf2met/REAL(nday*myearspin)
-    avg_cleaf2str = avg_cleaf2str/REAL(nday*myearspin)
-    avg_croot2met = avg_croot2met/REAL(nday*myearspin)
-    avg_croot2str = avg_croot2str/REAL(nday*myearspin)
-    avg_cwood2cwd = avg_cwood2cwd/REAL(nday*myearspin)
+  ! Average the plant turnover fraction
+  avg_lf = avg_lf / REAL(nday)
+  avg_lw = avg_lw / REAL(nday)
+  avg_lr = avg_lr / REAL(nday)
 
-    avg_nleaf2met = avg_nleaf2met/REAL(nday*myearspin)
-    avg_nleaf2str = avg_nleaf2str/REAL(nday*myearspin)
-    avg_nroot2met = avg_nroot2met/REAL(nday*myearspin)
-    avg_nroot2str = avg_nroot2str/REAL(nday*myearspin)
-    avg_nwood2cwd = avg_nwood2cwd/REAL(nday*myearspin)
+  ! Need the annual NPP to solve plant pools g C m-2 y-1
+  avg_annual_cnpp = avg_cnpp / REAL(myearspin)
 
-    avg_pleaf2met = avg_pleaf2met/REAL(nday*myearspin)
-    avg_pleaf2str = avg_pleaf2str/REAL(nday*myearspin)
-    avg_proot2met = avg_proot2met/REAL(nday*myearspin)
-    avg_proot2str = avg_proot2str/REAL(nday*myearspin)
-    avg_pwood2cwd = avg_pwood2cwd/REAL(nday*myearspin)
+  avg_cleaf2met = avg_cleaf2met/REAL(nday)
+  avg_cleaf2str = avg_cleaf2str/REAL(nday)
+  avg_croot2met = avg_croot2met/REAL(nday)
+  avg_croot2str = avg_croot2str/REAL(nday)
+  avg_cwood2cwd = avg_cwood2cwd/REAL(nday)
 
-    avg_cgpp      = avg_cgpp/REAL(nday*myearspin)
-    avg_cnpp      = avg_cnpp/REAL(nday*myearspin)
-    avg_nuptake   = avg_nuptake/REAL(nday*myearspin)
-    avg_puptake   = avg_puptake/REAL(nday*myearspin)
+  avg_nleaf2met = avg_nleaf2met/REAL(nday)
+  avg_nleaf2str = avg_nleaf2str/REAL(nday)
+  avg_nroot2met = avg_nroot2met/REAL(nday)
+  avg_nroot2str = avg_nroot2str/REAL(nday)
+  avg_nwood2cwd = avg_nwood2cwd/REAL(nday)
 
-    avg_xnplimit    = avg_xnplimit/REAL(nday*myearspin)
-    avg_xkNlimiting = avg_xkNlimiting/REAL(nday*myearspin)
-    avg_xklitter    = avg_xklitter/REAL(nday*myearspin)
-    avg_xksoil      = avg_xksoil/REAL(nday*myearspin)
+  avg_pleaf2met = avg_pleaf2met/REAL(nday)
+  avg_pleaf2str = avg_pleaf2str/REAL(nday)
+  avg_proot2met = avg_proot2met/REAL(nday)
+  avg_proot2str = avg_proot2str/REAL(nday)
+  avg_pwood2cwd = avg_pwood2cwd/REAL(nday)
 
-    avg_nsoilmin    = avg_nsoilmin/REAL(nday*myearspin)
-    avg_psoillab    = avg_psoillab/REAL(nday*myearspin)
-    avg_psoilsorb   = avg_psoilsorb/REAL(nday*myearspin)
-    avg_psoilocc    = avg_psoilocc/REAL(nday*myearspin)
+  avg_cgpp      = avg_cgpp/REAL(nday)
+  avg_cnpp      = avg_cnpp/REAL(nday)
 
-    avg_rationcsoilmic  = avg_rationcsoilmic  /REAL(nday*myearspin)
-    avg_rationcsoilslow = avg_rationcsoilslow /REAL(nday*myearspin)
-    avg_rationcsoilpass = avg_rationcsoilpass /REAL(nday*myearspin)
+  avg_nuptake   = avg_nuptake/REAL(nday)
+  avg_puptake   = avg_puptake/REAL(nday)
 
+  avg_xnplimit    = avg_xnplimit/REAL(nday)
+  avg_xkNlimiting = avg_xkNlimiting/REAL(nday)
+  avg_xklitter    = avg_xklitter/REAL(nday)
 
+  avg_xksoil      = avg_xksoil/REAL(nday)
+
+  avg_nsoilmin    = avg_nsoilmin/REAL(nday)
+  avg_psoillab    = avg_psoillab/REAL(nday)
+  avg_psoilsorb   = avg_psoilsorb/REAL(nday)
+  avg_psoilocc    = avg_psoilocc/REAL(nday)
+
+  avg_rationcsoilmic  = avg_rationcsoilmic  /REAL(nday)
+  avg_rationcsoilslow = avg_rationcsoilslow /REAL(nday)
+  avg_rationcsoilpass = avg_rationcsoilpass /REAL(nday)
 
     CALL analyticpool(kend,veg,soil,casabiome,casapool,                                          &
          casaflux,casamet,casabal,phen,                                         &
@@ -7462,7 +7504,8 @@ USE cbl_soil_snow_init_special_module
          avg_cgpp, avg_cnpp, avg_nuptake, avg_puptake,                          &
          avg_xnplimit,avg_xkNlimiting,avg_xklitter,avg_xksoil,                  &
          avg_ratioNCsoilmic,avg_ratioNCsoilslow,avg_ratioNCsoilpass,            &
-         avg_nsoilmin,avg_psoillab,avg_psoilsorb,avg_psoilocc)
+       avg_nsoilmin,avg_psoillab,avg_psoilsorb,avg_psoilocc,                  &
+       avg_af, avg_aw, avg_ar, avg_lf, avg_lw, avg_lr, avg_annual_cnpp)
 
 
     nloop1= MAX(1,mloop-3)
