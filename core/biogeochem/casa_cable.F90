@@ -744,7 +744,7 @@ contains
     data xnslope/0.80,1.00,2.00,1.00,1.00,1.00,0.50,1.00,0.34,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00/
     real                :: relcostJCi
     real, dimension(mp) :: relcostJ, Nefftmp
-    real, save, dimension(17) :: vcmaxx         ! last updated vcmaxx 
+    real, save, dimension(17) :: vcmaxx         ! last updated vcmaxx
     real, dimension(mp) :: vcmax_ref      ! vcmax25 at gmmax25
     real, dimension(mp) :: bjvci          ! Ci-based Jmax/Vcmax ratio
     real                :: gm_vcmax_slope ! slope between gmmax25 and Vcmax25 ((mol m-2 s-1) / (umol m-2 s-1))
@@ -758,12 +758,12 @@ contains
     ncleafx(:) = casabiome%ratioNCplantmax(veg%iveg(:),leaf)
     npleafx(:) = casabiome%ratioNPplantmin(veg%iveg(:),leaf)
 
-    if (cable_user%acclimate_photosyn) then  
-       veg%bjv(:) = 2.56 - 0.0375 * climate%mtemp_max20(:) - 0.0202 * (climate%mtemp(:) -  climate%mtemp_max20(:)) 
+    if (cable_user%acclimate_photosyn) then
+       veg%bjv(:) = 2.56 - 0.0375 * climate%mtemp_max20(:) - 0.0202 * (climate%mtemp(:) -  climate%mtemp_max20(:))
     else
        veg%bjv(:) = PHOTO%bjvref  ! 1.8245 at Tgrowth=15degC and Thome=25degC Kumarathunge et al. 2019, acclimises
     endif
-    
+
     DO np=1,mp
        ivt=veg%iveg(np)
        IF (casamet%iveg2(np)/=icewater &
@@ -822,7 +822,7 @@ contains
              veg%ejmax(np) = veg%bjv(np) * veg%vcmax(np)
           endif
           veg%c4kci(np) = effc4 * veg%vcmax(np)  ! not used for C3 plants
-          
+
           ! adjust Vcmax and Jmax accounting for gm
           if (cable_user%explicit_gm) then
              ! establish a relationship between gmmax and Vcmax
@@ -832,27 +832,40 @@ contains
                 ! nleafx = ncleafx/sla
                 ! ncleafx = (casabiome%ratioNCplantmin(ivt,leaf) + casabiome%ratioNCplantmax(ivt,leaf)) / 2.0_r_2
                 if (icycle>1) then
-                  vcmax_ref(np) = real( vcmax_np(((casabiome%ratioNCplantmin(ivt,leaf) + casabiome%ratioNCplantmax(ivt,leaf)) / 2.0_r_2) / &
-                       casabiome%sla(ivt), pleafx(np)) * casabiome%vcmax_scalar(ivt) )
+                   vcmax_ref(np) = real( &
+                        vcmax_np( &
+                        ( (casabiome%ratioNCplantmin(ivt,leaf) + &
+                        casabiome%ratioNCplantmax(ivt,leaf)) / 2.0_r_2 ) / &
+                        casabiome%sla(ivt), pleafx(np) ) * &
+                        casabiome%vcmax_scalar(ivt) )
                 endif
                 if (icycle>2) then
-                   ! pleaf = nleafx / npleafx 
+                   ! pleaf = nleafx / npleafx
                    ! npleafx = casabiome%ratioNPplantmin(ivt,leaf) + casabiome%ratioNPplantmax(ivt,leaf)) / 2.0_r_2
-                  vcmax_ref(np) = real( vcmax_np(((casabiome%ratioNCplantmin(ivt,leaf) + casabiome%ratioNCplantmax(ivt,leaf)) / 2.0_r_2) / &
-                       casabiome%sla(ivt), ((casabiome%ratioNCplantmin(ivt,leaf) + casabiome%ratioNCplantmax(ivt,leaf)) / 2.0_r_2) / &
-                       casabiome%sla(ivt)/(casabiome%ratioNPplantmin(ivt,leaf) + casabiome%ratioNPplantmax(ivt,leaf)) / 2.0_r_2) * casabiome%vcmax_scalar(ivt) )
+                   vcmax_ref(np) = real( &
+                        vcmax_np( &
+                        ( (casabiome%ratioNCplantmin(ivt,leaf) + &
+                        casabiome%ratioNCplantmax(ivt,leaf)) / 2.0_r_2 ) / &
+                        casabiome%sla(ivt), &
+                        ( (casabiome%ratioNCplantmin(ivt,leaf) + &
+                        casabiome%ratioNCplantmax(ivt,leaf)) / 2.0_r_2 ) / &
+                        casabiome%sla(ivt) / &
+                        (casabiome%ratioNPplantmin(ivt,leaf) + &
+                        casabiome%ratioNPplantmax(ivt,leaf)) / 2.0_r_2 ) * &
+                        casabiome%vcmax_scalar(ivt) )
                 endif
              endif
 
-             if (ivt .EQ. 1 .OR. ivt .EQ. 3) then  ! slopes from database as presented in Knauer et al. 2019, GCB
+             ! slopes from database as presented in Knauer et al. 2019, GCB
+             if (ivt .EQ. 1 .OR. ivt .EQ. 3) then
                 gm_vcmax_slope = 0.0035e6_r_2
              else
                 gm_vcmax_slope = 0.0020e6_r_2
-             endif 
-             
+             endif
+
              veg%gm(np) = veg%gmmax(np) + &
                   gm_vcmax_slope * (veg%vcmax(np) - vcmax_ref(np))
-         
+
 
              !if (.not. veg%is_read_gmLUT) then  ! not working
              !if (ABS(vcmaxx(np) - veg%vcmax(np)) .GT. 1.0E-08 .OR. ktau==1) then
