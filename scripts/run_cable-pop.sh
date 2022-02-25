@@ -48,7 +48,7 @@ system=cuntz@mc16
 # nproc should fit with job tasks
 dompi=0   # 0: normal run: ./cable
           # 1: MPI run: mpiexec -n ${nproc} ./cable_mpi
-nproc=2   # Number of cores for MPI runs
+nproc=6   # Number of cores for MPI runs
           # must be same as above: SBATCH -n nproc or PBS -l ncpus=nproc
 
 # --------------------------------------------------------------------
@@ -212,8 +212,8 @@ if [[ "${sys}" == "explor" ]] ; then
     export mpiexecdir=/opt/soft/hf/openmpi/3.0.1/gcc/6.3.0/bin
     if [[ ${doextractsite} -ge 1 ]] ; then module load python/intel/2019/3 ; fi
 elif [[ "${sys}" == "mc16" ]] ; then
-    # export mpiexecdir=/usr/local/openmpi-4.0.4-gfortran/bin
-    export mpiexecdir=/usr/local/openmpi-4.0.5-ifort/bin
+    export mpiexecdir=/usr/local/openmpi-4.1.1-gfortran/bin
+    # export mpiexecdir=/usr/local/openmpi-4.1.1-ifort/bin
 elif [[ "${sys}" == "mcinra" ]] ; then
     export mpiexecdir=/usr/local/openmpi-3.1.4-gfortran/bin
     # export mpiexecdir=/usr/local/openmpi-3.1.5-ifort/bin
@@ -308,7 +308,7 @@ if [[ "${system}" == "cuntz@explor" ]] ; then
     # Run directory: runpath="${sitepath}/run_xxx"
     cablebase="/home/oqx29/zzy20/prog/cable"
     sitepath="${cablebase}/runs/single_sites/${experiment}"
-    cablehome="${cablebase}/branches/NESP2pt9_BLAZE"
+    cablehome="${cablebase}/branches/CABLE-POP_TRENDY"
     # Cable executable
     if [[ ${dompi} -eq 1 ]] ; then
         exe="${cablehome}/offline/cable-mpi"
@@ -324,17 +324,18 @@ if [[ "${system}" == "cuntz@explor" ]] ; then
     # GlobalLandMaskFile="/home/oqx29/zzy20/data/crujra/daily_1deg/glob_ipsl_1x1.nc"
     # Global CRU
     GlobalMetPath="/home/oqx29/zzy20/data/crujra/daily_1deg"
+    MetVersion="CRUJRA_2018"
     # Global LUC
     GlobalTransitionFilePath="/home/oqx29/zzy20/data/LUH2_v3_1deg/"
 elif [[ "${system}" == "cuntz@mc16" || "${system}" == "cuntz@mcinra" ]] ; then
     # Run directory: runpath="${sitepath}/run_xxx"
     cablebase="/Users/cuntz/prog/vanessa/cable"
     sitepath="${cablebase}/runs/single_sites/${experiment}"
-    cablehome="${cablebase}/branches/NESP2pt9_BLAZE"
+    cablehome="${cablebase}/branches/CABLE-POP_TRENDY"
     # Cable executable
     if [[ ${dompi} -eq 1 ]] ; then
-        # exe="${cablehome}/branches/NESP2pt9_BLAZE/offline/cable-mpi-gfortran"
-        exe="${cablehome}/offline/cable-mpi-ifort"
+        exe="${cablehome}/offline/cable-mpi-gfortran"
+        # exe="${cablehome}/offline/cable-mpi-ifort"
     else
         exe="${cablehome}/offline/cable"
     fi
@@ -344,12 +345,13 @@ elif [[ "${system}" == "cuntz@mc16" || "${system}" == "cuntz@mcinra" ]] ; then
     GlobalLandMaskFile="${aux}/offline/gridinfo_CSIRO_1x1.nc"
     SurfaceFile="${aux}/offline/gridinfo_CSIRO_1x1.nc"   # note that SurfaceFile does not need subsetting
     GlobalMetPath=
+    MetVersion="CRUJRA_2018"
     GlobalTransitionFilePath=
 elif [[ "${system}" == "moc801@gadi" || "${system}" == "cuntz@gadi" ]] ; then
     # Run directory: runpath="${sitepath}/run_xxx"
     # sitepath="/home/801/moc801/prog/cable/runs/single_sites/${experiment}"
     sitepath="/scratch/x45/moc801/cable/c13"
-    cablehome="/home/801/moc801/prog/cable/branches/NESP2pt9_BLAZE"
+    cablehome="/home/801/moc801/prog/cable/branches/CABLE-POP_TRENDY"
     # Cable executable
     if [[ ${dompi} -eq 1 ]] ; then
         exe="${cablehome}/offline/cable-mpi"
@@ -363,12 +365,13 @@ elif [[ "${system}" == "moc801@gadi" || "${system}" == "cuntz@gadi" ]] ; then
     GlobalLandMaskFile="/g/data/x45/ipbes/masks/glob_ipsl_1x1.nc"
     # Global CRU
     GlobalMetPath="/g/data/x45/crujra/daily_1deg"
+    MetVersion="CRUJRA_2021"
     # Global LUC
     GlobalTransitionFilePath="/g/data/x45/LUH2/GCB_2018/1deg/EXTRACT"
 elif [[ "${system}" == "kna016@pearcey" || "${system}" == "knauer@pearcey" ]] ; then
     # Run directory: runpath="${sitepath}/run_xxx"
     sitepath="/OSM/CBR/OA_GLOBALCABLE/work/Juergen/CABLE_run/parallel_runs/${experiment}"
-    cablehome="/OSM/CBR/OA_GLOBALCABLE/work/Juergen/CABLE_code/NESP2pt9_BLAZE"
+    cablehome="/OSM/CBR/OA_GLOBALCABLE/work/Juergen/CABLE_code/CABLE-POP_TRENDY"
     # Cable executable
     if [[ ${dompi} -eq 1 ]] ; then
         exe="${cablehome}/offline/cable-mpi"
@@ -382,6 +385,7 @@ elif [[ "${system}" == "kna016@pearcey" || "${system}" == "knauer@pearcey" ]] ; 
     SurfaceFile="${aux}/offline/gridinfo_CSIRO_1x1.nc"   # note that SurfaceFile does not need subsetting
     # Global CRU
     GlobalMetPath="/OSM/CBR/OA_GLOBALCABLE/work/CRU-JRA55/crujra/daily_1deg"
+    MetVersion="CRUJRA_2021"
     # Global LUC
     GlobalTransitionFilePath="/OSM/CBR/OA_GLOBALCABLE/work/LUH2/v3/1deg"
 elif [[ "${system}" == "jk8585@gadi" || "${system}" == "knauer@gadi" ]] ; then
@@ -403,16 +407,19 @@ elif [[ "${system}" == "jk8585@gadi" || "${system}" == "knauer@gadi" ]] ; then
     if [[ "${mettype}" == "cru" ]] ; then
 	      GlobalLandMaskFile="/g/data/x45/ipbes/masks/glob_ipsl_1x1.nc"
         GlobalMetPath="/g/data/x45/CRUJRA2020/daily_1deg"
+        MetVersion="CRUJRA_2021"
     elif [[ "${mettype}" == "plume" ]] ; then
 	      # GlobalLandMaskFile="/g/data/x45/ipbes/masks/glob_ipsl_1x1.nc"
 	      GlobalLandMaskFile="/g/data/x45/ipbes/masks/gridinfo_CSIRO_1x1.nc"
 	      GlobalMetPath="/g/data/x45/ipbes/${metmodel}/1deg"
+        MetVersion=
         # only in plume.nml
         CO2Path="/g/data/x45/ipbes/co2"
 	      NdepPath="/g/data/x45/ipbes/ndep"
     elif [[ "${mettype}" == "bios" ]] ; then
 	      GlobalLandMaskFile="/g/data/x45/BIOS3_forcing/acttest9/acttest9" # no file extension
         GlobalMetPath="/g/data/x45/BIOS3_forcing/acttest9/met/"  # last slash is needed
+        MetVersion=
         # only in bios.nml
 	      ParamPath="/g/data/x45/BIOS3_forcing/acttest9/params/"
     fi
@@ -423,7 +430,7 @@ else
     exit 1
 fi
 # Run directory
-runpath="${sitepath}/run_20210204"
+runpath="${sitepath}/run_20220224"
 # runpath="${sitepath}/run"
 
 # Cable parameters
@@ -766,6 +773,7 @@ if [[ "${mettype}" == "cru" ]] ; then
     cat > ${tmp}/sedtmp.${pid} << EOF
         BasePath     = "${MetPath}"
         MetPath      = "${MetPath}"
+        MetVersion   = "${MetVersion}"
         LandMaskFile = "${LandMaskFile}"
         Run          = "S0_TRENDY"
 EOF
@@ -1378,7 +1386,7 @@ if [[ ${doinidyn} -eq 1 ]] ; then
         cat > ${tmp}/sedtmp.${pid} << EOF
             Run = "S1_TRENDY"
 EOF
-        applysed ${tmp}/sedtmp.${pid} ${ndir}/cru.nml ${rdir}/cru.nml
+        applysed ${tmp}/sedtmp.${pid} ${rdir}/cru_${experiment}.nml ${rdir}/cru.nml
     elif [[ "${mettype}" == "plume" ]] ; then
 	      YearStart=1850
         YearEnd=1900
@@ -1462,7 +1470,7 @@ if [[ ${dofinal} -eq 1 ]] ; then
         cat > ${tmp}/sedtmp.${pid} << EOF
             Run = "S2_TRENDY"
 EOF
-        applysed ${tmp}/sedtmp.${pid} ${ndir}/cru.nml ${rdir}/cru.nml
+        applysed ${tmp}/sedtmp.${pid} ${rdir}/cru_${experiment}.nml ${rdir}/cru.nml
     elif [[ "${mettype}" == "plume" ]] ; then
 	      YearStart=1901
         YearEnd=2005
