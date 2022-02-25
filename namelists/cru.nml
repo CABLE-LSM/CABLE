@@ -1,6 +1,7 @@
 &CRUNML
     BasePath     = "../met/cru_jra_1deg"
     MetPath      = "../met/cru_jra_1deg"
+    MetVersion   = "CRUJRA_2021"
     LandMaskFile = "../mask/glob_ipsl_1x1_HarvardForest.nc"
     Run          = "S0_TRENDY" ! Run types are "spinup" (spinup), "1750_1900" (initialisation), "1901_2014" (run)
     DThrs        = 3.0         ! **CABLE** timestep hours (not the met timestep)
