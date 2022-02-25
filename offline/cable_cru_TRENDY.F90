@@ -326,9 +326,9 @@ CONTAINS
 
     CRU%Metstart = 1901
 
-    IF (CRU%MetVersion == "CRUJRA_2021") THEN
+    IF (trim(CRU%MetVersion) == "CRUJRA_2021") THEN
        CRU%VAR_NAME(swdn) = "tswrf"
-    ELSE IF (CRU%MetVersion == "VERIFY_2021") THEN
+    ELSE IF (trim(CRU%MetVersion) == "VERIFY_2021") THEN
        CRU%VAR_NAME(rain)  = "Precipalign"
        CRU%VAR_NAME(lwdn)  = "LWdownnoalign"
        CRU%VAR_NAME(swdn)  = "SWdownalign"
@@ -336,9 +336,9 @@ CONTAINS
        CRU%VAR_NAME(qair)  = "Qairnoalign"
        CRU%VAR_NAME(tmax)  = "Tmaxalign"
        CRU%VAR_NAME(tmin)  = "Tminalign"
-       CRU%VAR_NAME(uwind) = "Wind_Enoalign" 
+       CRU%VAR_NAME(uwind) = "Wind_Enoalign"
        CRU%VAR_NAME(vwind) = "Wind_Nnoalign"
-    ELSE IF (CRU%MetVersion == "Drought_Heat") THEN
+    ELSE IF (trim(CRU%MetVersion) == "Drought_Heat") THEN
        CRU%VAR_NAME(rain) = "pr"
        CRU%VAR_NAME(lwdn) = "lwd"
        CRU%VAR_NAME(swdn) = "swd"
@@ -351,7 +351,7 @@ CONTAINS
 
        CRU%Metstart = 2000
     END IF
-    
+
     write(*,'(a)') "========================================= CRU ============"
     WRITE(logn,*)  "========================================= CRU ============"
 
@@ -510,7 +510,7 @@ CONTAINS
     metp = trim(CRU%MetPath)
     fn   = trim(metp)
 
-    SELECT CASE (CRU%MetVersion)
+    SELECT CASE (trim(CRU%MetVersion))
        CASE("CRUJRA_2018") ; cruver="crujra.V1.1"
        CASE("CRUJRA_2019") ; cruver="crujra.v2.0"
        CASE("CRUJRA_2020") ; cruver="crujra.v2.1"
@@ -518,14 +518,14 @@ CONTAINS
        CASE("VERIFY_2021") ; cruver="cru_verify"
        CASE("Drought_Heat"); cruver=fn(SCAN(fn,"/",.TRUE.)+1:) ! scenario
     END SELECT
-       
+
     ! Build the rest of the filename according to the value of par, which references 11 possible
     ! types of met through the parameter names rain, lwdn, etc.
 
-    IF (CRU%MetVersion == "Drought_Heat") THEN
+    IF (trim(CRU%MetVersion) == "Drought_Heat") THEN
        SELECT CASE(par)
           CASE(rain) ; FN = TRIM(FN)//"/pr/"//trim(cruver)//"_pr_"//cy//".nc"
-          CASE(lwdn) ; FN = TRIM(FN)//"/lwd/"//trim(cruver)//"_lwd_"//cy//".nc" 
+          CASE(lwdn) ; FN = TRIM(FN)//"/lwd/"//trim(cruver)//"_lwd_"//cy//".nc"
           CASE(swdn) ; FN = TRIM(FN)//"/swd/"//trim(cruver)//"_swd_"//cy//".nc"
           CASE(pres) ; FN = TRIM(FN)//"/psl/"//trim(cruver)//"_psl_"//cy//".nc"
           CASE(qair) ; FN = TRIM(FN)//"/Qair/"//trim(cruver)//"_Qair_"//cy//".nc"
@@ -534,7 +534,7 @@ CONTAINS
           CASE(uwind) ; FN = TRIM(FN)//"/uas/"//trim(cruver)//"_uas_"//cy//".nc"
           CASE(vwind) ; FN = TRIM(FN)//"/vas/"//trim(cruver)//"_vas_"//cy//".nc"
        END SELECT
-    ELSE IF (CRU%MetVersion == "VERIFY_2021") THEN
+    ELSE IF (trim(CRU%MetVersion) == "VERIFY_2021") THEN
       SELECT CASE ( par )
          CASE(rain) ; FN = TRIM(FN)//"/"//trim(cruver)//"_"//cy//"_daily_Precipalign.nc"
          CASE(lwdn) ; FN = TRIM(FN)//"/"//trim(cruver)//"_"//cy//"_daily_LWdownnoalign.nc"
@@ -553,7 +553,7 @@ CONTAINS
         case(lwdn)
           fn = trim(fn)//"/dlwrf/"//trim(cruver)//".5d.dlwrf."//cy//".365d.noc.daymean.1deg.nc"
         case(swdn)
-           IF (CRU%MetVersion == "CRUJRA_2021") THEN
+           IF (trim(CRU%MetVersion) == "CRUJRA_2021") THEN
               fn = trim(fn)//"/tswrf/tswrf_v10_"//cy//".daymean.1deg.nc"
            ELSE
               fn = trim(fn)//"/dswrf/"//trim(cruver)//".5d.dswrf."//cy//".365d.noc.daymean.1deg.nc"
@@ -572,7 +572,7 @@ CONTAINS
           fn = trim(fn)//"/vgrd/"//trim(cruver)//".5d.vgrd."//cy//".365d.noc.daymean.1deg.nc"
        end select
     ENDIF
-    
+
   END SUBROUTINE CRU_GET_FILENAME
 
   !**************************************************************************************************
@@ -600,27 +600,27 @@ CONTAINS
     ELSE IF ( TRIM(CRU%CO2) .EQ. "static2011") THEN
        CO2air = 389.78   ! CO2 in ppm for 2011
        RETURN
-    
+
     ELSE ! If not S0_TRENDY, varying CO2 values will be used...
 
        ! On the first call, allocate the CRU%CO2VALS array to store the entire history of annual CO2
        ! values, open the (ascii) CO2 file and read the values into the array.
        IF (CALL1) THEN
-          SELECT CASE (CRU%MetVersion)
-             CASE("CRUJRA_2018") 
-                ALLOCATE( CRU%CO2VALS( 1700:2017 ) )
+          SELECT CASE (trim(CRU%MetVersion))
+             CASE("CRUJRA_2018")
+                ALLOCATE(CRU%CO2VALS(1700:2017))
                 CO2FILE = TRIM(CRU%BasePath)//"/co2/global_co2_ann_1700_2017.csv"
              CASE("CRUJRA_2019")
-                ALLOCATE( CRU%CO2VALS( 1700:2018 ) )
+                ALLOCATE(CRU%CO2VALS(1700:2018))
                 CO2FILE = TRIM(CRU%BasePath)//"/co2/global_co2_ann_1700_2018.csv"
              CASE("CRUJRA_2020")
-                ALLOCATE( CRU%CO2VALS( 1700:2019 ) )
+                ALLOCATE(CRU%CO2VALS(1700:2019))
                 CO2FILE = TRIM(CRU%BasePath)//"/co2/global_co2_ann_1700_2019.txt"
-             CASE("CRUJRA_2021","VERIFY_2021")
-                ALLOCATE( CRU%CO2VALS( 1700:2020 ) )
+             CASE("CRUJRA_2021", "VERIFY_2021")
+                ALLOCATE(CRU%CO2VALS(1700:2020))
                CO2FILE = TRIM(CRU%BasePath)//"/co2/global_co2_ann_1700_2020.txt"
           END SELECT
-            
+
           CALL GET_UNIT(iunit)
           OPEN(iunit, FILE=TRIM(CO2FILE), STATUS="OLD", ACTION="READ")
           DO WHILE( IOS .EQ. 0 )
@@ -671,9 +671,9 @@ CONTAINS
     IF (CALL1) THEN
        IF (trim(CRU%MetVersion) == "Drought_Heat") THEN
           NdepFILE = trim(CRU%BasePath)//"/ndep/ndep_NHx_NOy_2011_1x1deg.nc"
-       ELSE IF (CRU%MetVersion == "CRUJRA_2018") THEN
+       ELSE IF (trim(CRU%MetVersion) == "CRUJRA_2018") THEN
           NdepFILE = trim(CRU%BasePath)//"/ndep/NOy_plus_NHx_dry_plus_wet_deposition_hist_1850_2015_annual_1deg.nc"
-       ELSE IF (CRU%MetVersion == "VERIFY_2021") THEN
+       ELSE IF (trim(CRU%MetVersion) == "VERIFY_2021") THEN
           NdepFILE = TRIM(CRU%BasePath)//"/ndep/NOy_plus_NHx_dry_plus_wet_deposition_1850_2099_annual.0.125deg_Europe.nc"
        ELSE
           NdepFILE = TRIM(CRU%BasePath)//"/ndep/NOy_plus_NHx_dry_plus_wet_deposition_1850_2099_annual.1deg.nc"
@@ -761,13 +761,13 @@ CONTAINS
      ELSE IF ( TRIM(CRU%Run) .EQ. 'drought_heat_run' ) THEN
 
         MetYear = CRU%CYEAR
-        
+
      ELSE IF ((TRIM(CRU%Run) .EQ. 'S0_TRENDY') .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' ) &
           .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2') &
           .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Ndep' ) ) THEN
 
         MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear, CRU%metrecyc)
-        
+
      ELSE IF  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Precip' .OR. &
           TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Precip'.OR. &
           TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2_Temp_Precip'.OR. &
@@ -905,7 +905,7 @@ CONTAINS
        ELSE IF ( TRIM(CRU%Run) .EQ. 'drought_heat_run' ) THEN
 
           MetYear = CRU%CYEAR
-          
+
        ELSE IF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY' .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' ) &
             .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2') &
             .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Ndep' )) THEN
@@ -1036,7 +1036,7 @@ CONTAINS
                 ELSE IF ( TRIM(CRU%Run) .EQ. 'drought_heat_run' ) THEN
 
                    NextMetYear = CRU%CYEAR + 1
-                   
+
                 ELSEIF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY' .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' ) &
                      .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_CO2') &
                      .OR.  ( TRIM(CRU%Run) .EQ. 'S0_TRENDY_Ndep' )) THEN
@@ -1317,7 +1317,7 @@ CONTAINS
                   start=(/1,1,t/),count=(/xds,yds,1/) )
              CALL HANDLE_ERR(ErrStatus, "Reading from "//trim(CRU%MetFile(iVar)))
              DO k = 1, CRU%mland
-                CRU%MET(ii)%METVALS(k) = tmparr( land_x(k), land_y(k) )   
+                CRU%MET(ii)%METVALS(k) = tmparr( land_x(k), land_y(k) )
              END DO
           ENDIF
 
