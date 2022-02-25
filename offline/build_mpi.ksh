@@ -265,7 +265,7 @@ host_mc16()
     if [[ ${iintel} -eq 1 ]] ;  then
         # INTEL
         /opt/intel/compilers_and_libraries/mac/bin/compilervars.sh intel64
-        export FC=/usr/local/openmpi-4.0.5-ifort/bin/mpifort
+        export FC=/usr/local/openmpi-4.1.1-ifort/bin/mpifort
         # release
         export CFLAGS="-fpp -O3 -nofixed -assume byterecl -fp-model precise -ip -diag-disable=10382"
         export LDFLAGS="-O3"
@@ -283,7 +283,7 @@ host_mc16()
         export PROG=cable-mpi-ifort
     elif [[ ${ignu} -eq 1 ]] ;  then
         # GFORTRAN
-        export FC=/usr/local/openmpi-4.0.4-gfortran/bin/mpifort
+        export FC=/usr/local/openmpi-4.1.1-gfortran/bin/mpifort
         # release
         export CFLAGS="-cpp -O3 -Wno-aggressive-loop-optimizations -ffree-form -ffixed-line-length-132 -frecursive"
         export LDFLAGS="-O3"
@@ -302,7 +302,7 @@ host_mc16()
         export PROG=cable-mpi-gfortran
     elif [[ ${inag} -eq 1 ]] ;  then
         # NAG
-        export FC=/usr/local/openmpi-4.0.5-nagfor/bin/mpifort
+        export FC=/usr/local/openmpi-4.1.1-nagfor/bin/mpifort
         # release
         export CFLAGS="-O4"
         export LDFLAGS="-O4"
