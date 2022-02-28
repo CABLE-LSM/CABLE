@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/ksh
 
 export dosvn=0 # 1/0: do/do not check svn
 
@@ -10,9 +10,9 @@ fi
 known_hosts()
 {
     if [ -z ${PS3} ] ; then
-        kh=(kh gadi pear mcin mc16 vm_o)
+        kh=(kh gadi pear mcin mc16 vm_o auro)
     else
-        set -A kh gadi pear mcin mc16 vm_o
+        set -A kh gadi pear mcin mc16 vm_o auro
     fi
 }
 
@@ -38,7 +38,7 @@ host_gadi()
     module purge
     module load intel-compiler/2019.5.281
     module load netcdf/4.6.3
-    
+
     export FC=ifort
     export NCDIR=${NETCDF_ROOT}"/lib/Intel"
     export NCMOD=${NETCDF_ROOT}"/include/Intel"
@@ -406,6 +406,43 @@ host_vm_o()
     build_status
 }
 
+## Lars Nieradzik @ aurora.lunarc.lu.se
+host_auro()
+{
+    if [ -z ${PS3} ] ; then
+        . /etc/bashrc
+    else
+        . /etc/kshrc
+    fi
+    module purge
+    module load intel/2020a
+    module load netCDF-Fortran/4.5.2
+
+    export FC=ifort
+    export NETCDF_RT="/sw/easybuild/software/netCDF-Fortran/4.5.2-iimpi-2020a"
+    export NCDIR=${NETCDF_RT}"/lib"
+    export NCMOD=${NETCDF_RT}"/include"
+    if [[ ${1} == "debug" ]]; then
+        # debug
+        # export CFLAGS='-O0 -fpp -traceback -g -fp-model precise -ftz -fpe0'
+        #CLNexport CFLAGS="-fpp -O0 -debug extended -traceback -g -check all,noarg_temp_created -warn all -fp-stack-check -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0" # -fpe-all=0 -no-ftz -ftrapuv"
+        export CFLAGS="-fpp -O0 -debug extended -traceback -g -check all,noarg_temp_created -warn all -fp-stack-check -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0" # -fpe-all=0 -no-ftz -ftrapuv"export LDFLAGS="-O0"
+        OPTFLAG=""
+    else
+        # release
+        export CFLAGS='-O2 -fpp -fp-model precise'
+        export CFLAGS="-fpp -O3 -nofixed -assume byterecl -fp-model precise -ip -diag-disable=10382"
+        export LDFLAGS="-O3"
+        OPTFLAG=""
+    fi
+    export CFLAGS="${CFLAGS} ${OPTFLAG}"
+    export LDFLAGS="-L"${NCDIR}" "${LDFLAGS}
+    export LD="-lnetcdf -lnetcdff"
+    export MFLAGS="-j 8"
+    build_build
+    cd ../
+    build_status
+}
 
 clean_ask()
 {

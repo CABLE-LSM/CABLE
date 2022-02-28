@@ -136,8 +136,6 @@ MODULE cable_common_module
      REAL :: &
           dva_T_perturbation = 1.0, &
           Ta_perturbation    = 1.0
-     CHARACTER(len=6) :: SIMFIRE_REGION = "ANZ"   ! either GLOBAL, EUROPE, ANZ
-     CHARACTER(len=7) :: burnt_area = "SIMFIRE"   ! either SIMFIRE
      !--- LN ------------------------------------------
 
      CHARACTER(LEN=5) :: RUN_DIAG_LEVEL

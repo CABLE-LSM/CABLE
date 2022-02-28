@@ -698,7 +698,7 @@ CONTAINS
              endif
 
              !par disabled as blaze init moved below
-             ! ! Abort, if an error occurred during BLAZE/SIMFIRE init
+             ! ! Abort, if an error occurred during BLAZE/SIMFIRE init !CLN check again
              ! IF (BLAZE%ERR) CALL MPI_Abort(comm,0,ierr)
 
              IF (cable_user%POPLUC .AND. TRIM(cable_user%POPLUC_RunType) .EQ. 'static') &
@@ -839,6 +839,8 @@ CONTAINS
                       call master_send_input(comm, blaze_in_ts, ktau)
                       call INI_SIMFIRE(mland ,SIMFIRE, &
                          climate%modis_igbp(landpt(:)%cstart) ) !CLN here we need to check for the SIMFIRE biome setting
+                      WRITE(logn,*)"After ini_simf"
+                      CALL FLUSH(logn)
 
                       !par blaze restart not required uses climate data
                       !allocate(simfire_restart_ts(wnp))

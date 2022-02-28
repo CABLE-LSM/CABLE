@@ -530,10 +530,12 @@ CONTAINS
                    !   call MPI_recv(MPI_BOTTOM, 1, blaze_restart_t, 0, ktau_gl, comm, stat, ierr)
                    !endif
                    ! cln:  burnt_area
-                   if ( blaze%burnt_area_src == "SIMFIRE" ) then
+                   if ( TRIM(blaze%burnt_area_src) == "SIMFIRE" ) then
                       call MPI_recv(MPI_BOTTOM, 1, blaze_in_t, 0, ktau_gl, comm, stat, ierr)
                       !CLN here we need to check for the SIMFIRE biome setting
                       call INI_SIMFIRE(mland, SIMFIRE, climate%modis_igbp(landpt(:)%cstart))
+                      WRITE(wlogn,*)"After ini_simf"
+                      CALL FLUSH(wlogn)
                       !par blaze restart not required uses climate data
                       !call worker_simfire_types(comm, mland, simfire, simfire_restart_t, simfire_inp_t, simfire_out_t)
                       !if (.not. spinup) then

@@ -62,8 +62,8 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
 
   TYPE (TYPE_SIMFIRE), INTENT(INOUT) :: SF
   INTEGER,             INTENT(IN)    :: NCELLS, modis_igbp(NCELLS)
-  CHARACTER(len=400)   :: HydePath,  BurnedAreaSource, BurnedAreaFile, &
-       BurnedAreaClimatologyFile, SIMFIRE_REGION
+  CHARACTER(len=400)  :: HydePath, BurnedAreaFile = "", BurnedAreaClimatologyFile, SIMFIRE_REGION
+  CHARACTER(len=10)   :: BurnedAreaSource = "SIMFIRE", blazeTStep = "annually"
   INTEGER :: F_ID, V_ID, V_ID_lat, V_ID_lon, ilat,ilon
   INTEGER :: iu
   INTEGER :: i
@@ -71,8 +71,7 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
   REAL, DIMENSION(360):: lat_BA
   integer :: status
 
-  NAMELIST /BLAZENML/ HydePath,  BurnedAreaSource, BurnedAreaFile, BurnedAreaClimatologyFile, &
-       SIMFIRE_REGION
+  NAMELIST /SIMFIRENML/ SIMFIRE_REGION, HydePath, BurnedAreaClimatologyFile
 
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -113,17 +112,15 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
   !vh!
   ! inherit modis_igbp from climate variable
 
-
-
   ! READ BLAZE settings
-   CALL GET_UNIT(iu)
-   OPEN (iu,FILE="BLAZE.nml",STATUS='OLD',ACTION='READ')
-   READ (iu,NML=BLAZENML)
-   CLOSE(iu)
-
-   SF%HYDEPATH = TRIM(HydePath)
-   SF%BA_CLIM_FILE = TRIM(BurnedAreaClimatologyFile)
-
+  CALL GET_UNIT(iu)
+  OPEN (iu,FILE="blaze.nml",STATUS='OLD',ACTION='READ')
+  READ (iu,NML=SIMFIRENML)
+  CLOSE(iu)
+  
+  SF%HYDEPATH = TRIM(HydePath)
+  SF%BA_CLIM_FILE = TRIM(BurnedAreaClimatologyFile)
+  WRITE(*,*)"SIMFIRENML :", SIMFIRE_REGION, HydePath, BurnedAreaClimatologyFile
   SF%IGBP = modis_igbp
 
   DO i = 1, NCELLS
@@ -278,7 +275,7 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
   ELSE
      ISTEP = 5
   END IF
- SF%RES    = HYRES
+  SF%RES    = HYRES
   IF ( CALL1 ) THEN
      RF = NINT(SF%RES/HYRES)
      ! Check for Res being an integral multiple of 5' [RES] = fract. deg
@@ -508,10 +505,6 @@ IF ( BIOME .EQ. 0 ) THEN
 ELSE
    ANNUAL_BA = &
         a(BIOME,ai) * FAPAR ** b(ai) * (scalar * FIRE_IDX) ** c(ai) * EXP(e(ai)*POPDENS)
-
-
-    ANNUAL_BA = &
-        a(BIOME,ai) * FAPAR ** b(ai) * (scalar * FIRE_IDX) ** c(ai) * EXP(e(ai)*POPDENS)
 !CLNELSE
 !CLN ! W.KNORR: Instead of fpar_corr1 * fpar_leafon + fpar_corr2 * fpar_leafon * fpar_leafon,
 !CLN ! simply use FAPAR - the correction takes into account that fpar_leafon has a high bias
@@ -523,18 +516,6 @@ ELSE
 ENDIF
 
 END FUNCTION ANNUAL_BA
-
-SUBROUTINE UPDATE_FIRE_BIOME
-
-
-
-
-
-
-
-
-
-END SUBROUTINE UPDATE_FIRE_BIOME
 
 SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate )
 

@@ -750,11 +750,13 @@ PROGRAM cable_offline_driver
               if ( trim(cable_user%MetType) .eq. 'bios' ) call cable_bios_load_climate_params(climate)
 
               IF (cable_user%CALL_BLAZE) THEN
+PRINT*,"CLN BLAZE INIT"
                  CALL INI_BLAZE( mland, rad%latitude(landpt(:)%cstart), &
                       rad%longitude(landpt(:)%cstart), BLAZE )
 
 
                  IF ( TRIM(BLAZE%BURNT_AREA_SRC) == "SIMFIRE" ) THEN
+PRINT*,"CLN SIMFIRE INIT"
                     CALL INI_SIMFIRE(mland ,SIMFIRE, &
                          climate%modis_igbp(landpt(:)%cstart) ) !CLN here we need to check for the SIMFIRE biome setting
                  ENDIF
@@ -1017,6 +1019,7 @@ PROGRAM cable_offline_driver
 
                  IF (liseod) THEN ! end of day
                     IF ( cable_user%CALL_BLAZE ) THEN
+       PRINT*,"CLN CAlling BLAZE"
                        CALL BLAZE_ACCOUNTING(BLAZE, climate, ktau, dels, YYYY, idoy)
 
                        call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
@@ -1213,7 +1216,7 @@ PROGRAM cable_offline_driver
                        WRITE( 12, '(F20.7)' ) new_sumbal  ! written by previous trunk version
                        CLOSE(12)
                     ENDIF
-                 ENDIF
+                 ENDIF 
 
               ENDIF ! consistency_check
 

@@ -2693,7 +2693,6 @@ SUBROUTINE casa_cnpbal(casapool, casaflux, casabal, idoy)
      casabal%psoilocclast  = casapool%psoilocc
      casabal%sumpbal = casabal%sumpbal + casabal%pbalance
   ENDIF
-
 END SUBROUTINE casa_cnpbal
 
 

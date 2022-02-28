@@ -193,7 +193,8 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
 !!$       casaflux%fire_mortality_vs_height(Iw,:,:))
   CALL ADJUST_POP_FOR_FIRE(pop,int(veg%disturbance_interval(Iw,:), i4b), &
      veg%disturbance_intensity(Iw,1), veg%disturbance_intensity(Iw,2)  )
-  
+  print*,"CLN ADJUST_POP_FOR_FIRE" ,int(veg%disturbance_interval(Iw,:), i4b), &
+     veg%disturbance_intensity(Iw,1), veg%disturbance_intensity(Iw,2) 
   casaflux%kplant_fire(Iw,WOOD) = max(min(POP%pop_grid(:)%fire_mortality/POP%pop_grid(:)%cmass_sum, &
        0.99_dp),0.0_dp)
 
@@ -208,8 +209,8 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
 
         IF ( casamet%lnonwood(patch_index) == 1 ) THEN ! Here non-wood
 
-           casaflux%kplant_fire(patch_index,LEAF)  = real(BLAZE%AB(i), r_2)
-           casaflux%kplant_fire(patch_index,FROOT) =  real(BLAZE%AB(i), r_2)
+           casaflux%kplant_fire(patch_index,LEAF)  = real(BLAZE%AB(i), r_2) !CLN ???
+           casaflux%kplant_fire(patch_index,FROOT) =  real(BLAZE%AB(i), r_2) !CLN ???
            casaflux%kplant_fire(patch_index,WOOD)  = 0.0_r_2
 
            casaflux%klitter_fire(patch_index,METB) = real(BLAZE%AB(i) * ag_litter_frac, r_2)
