@@ -1809,7 +1809,7 @@ CONTAINS
     REAL :: MOL_WATER_2_G_WATER, G_TO_KG, UMOL_TO_MOL, MB_TO_KPA, PA_TO_KPA
     REAL :: avg_kplant, new_plc
     REAL, DIMENSION(mp) :: Kcmax
-
+    REAL :: gamma_star
 
 #define VanessasCanopy
 #ifdef VanessasCanopy
@@ -1954,6 +1954,10 @@ CONTAINS
              ! Leuning 2002 (P C & E) equation for temperature response
              ! used for Vcmax for C3 plants:
              temp(i) =  xvcmxt3(tlfx(i)) * veg%vcmax(i) * (1.0-veg%frac4(i))
+
+             !gamma_star = arrh(42.75, 37830.0, tlfx(i)-273.15)
+             gamma_star = co2cp3 ! This is always zero in CABLE
+
 
              vcmxt3(i,1) = rad%scalex(i,1) * temp(i)
              vcmxt3(i,2) = rad%scalex(i,2) * temp(i)
@@ -2144,7 +2148,7 @@ CONTAINS
                                      veg%b_plant(i), veg%c_plant(i), &
                                      resolution, vcmxt3, ejmxt3, rdx, vx3, &
                                      cx1(i), an_canopy, e_canopy, veg%gmin(i), &
-                                     p, i)
+                                     gamma_star, p, i)
 
                    ! fix units for CABLE and pack into arrays
                    anx(i,1) = an_canopy(1) * UMOL_TO_MOL
@@ -3047,7 +3051,7 @@ CONTAINS
    SUBROUTINE optimisation(canopy, rad, ssnow, qcan, vpd, press, tleaf, csx, lai_leaf, &
                            psi_soil, Rsr, Kcmax, Kmax, Kcrit, b_plant, &
                            c_plant, N, vcmxt3, ejmxt3, rdx, vx3, cx1, &
-                           an_canopy, e_canopy, gmin, p, i)
+                           an_canopy, e_canopy, gmin, gamma_star, p, i)
 
       ! Optimisation wrapper for the ProfitMax model. The Sperry model
       ! assumes that plant maximises the normalised (0-1) difference
@@ -3081,7 +3085,7 @@ CONTAINS
       INTEGER :: j, k, idx
 
       REAL, INTENT(IN) :: cx1, Kmax, Kcrit, b_plant, c_plant, vpd, press, tleaf
-      REAL, INTENT(IN) :: gmin
+      REAL, INTENT(IN) :: gmin, gamma_star
       REAL(r_2), INTENT(IN) :: psi_soil, Rsr
       REAL, INTENT(INOUT) :: e_canopy
       REAL, DIMENSION(mf), INTENT(INOUT) :: an_canopy
@@ -3097,7 +3101,7 @@ CONTAINS
       REAL :: p_crit, lower, upper, Cs
       REAL :: J_TO_MOL, MOL_TO_UMOL, gsw, Vcmax, Jmax, Rd, Vj, Km
       REAL, DIMENSION(mf) :: e_leaves, p_leaves
-      REAL :: Kplant, Rsrl, e_cuticular, gamma_star
+      REAL :: Kplant, Rsrl, e_cuticular
       REAL, PARAMETER :: MMOL_2_MOL = 0.001
       REAL, PARAMETER :: MOL_TO_MMOL = 1E3
       REAL, DIMENSION(2)  :: fsun
@@ -3139,7 +3143,6 @@ CONTAINS
          ! CO2 concentration at the leaf surface, umol m-2 -s-1
          Cs = csx(i,j) * MOL_TO_UMOL
 
-         gamma_star = 0.0 ! cable says it is 0
 
          ! Generate a sequence of Ci's that we will solve the optimisation
          ! model for, range btw gamma_star and Cs. umol mol-1
@@ -3182,9 +3185,24 @@ CONTAINS
             canopy%psi_leaf(i) = ssnow%weighted_psi_soil(i)
          ELSE
 
+
             ! Calculate the sunlit/shaded A_leaf (i.e. scaled up), umol m-2 s-1
             Ac = assim(Ci, gamma_star, Vcmax, Km) ! umol m-2 s-1
+            !where (Ci <= 0.0 .OR. Ci > Cs)
+            !    Ac = 0.0
+            !elsewhere
+            !   Ac = assim(Ci, gamma_star, Vcmax, Km) ! umol m-2 s-1
+            !endwhere
+
             Aj = assim(Ci, gamma_star, Vj, 2.0*gamma_star) ! umol m-2 s-1
+
+            ! When below light-compensation points, assume Ci=Ca.
+            !where (Aj <= Rd + 1E-09)
+            !   Aj = Vj * (Cs - gamma_star) / ((2.0*gamma_star) + Cs)
+            !elsewhere
+            !   Aj = Aj
+            !endwhere
+
             A = -QUADP(1.0-1E-04, Ac+Aj, Ac*Aj) ! umol m-2 s-1
             an_leaf = A - Rd ! Net photosynthesis, umol m-2 s-1
 
@@ -3228,10 +3246,15 @@ CONTAINS
             p_leaves(j) = p(idx)
             canopy%gswx(i,j) = MAX( 1.e-3, gsc(idx) * C%RGSWC)
 
-            !if (p_leaves(j) < -4 ) then
-            !   print*, p_leaves(j) , canopy%gswx(i,j), Ci(idx), C%RGSWC
+            !if (p_leaves(j) < -4 .AND. canopy%gswx(i,j) > 0.01) then
+            !   write(*,1010) p_leaves(j) , canopy%gswx(i,j), Ci(idx), vpd, Ci(idx)/Cs, apar(j)
+            !   1010 format (1x,F8.4, 1x,F8.4, 1x,F8.4, 1x,F8.4,1x,F8.4, 1x,F8.4)
             !endif
 
+            !if (p_leaves(j) < -4 .AND. canopy%gswx(i,j) > 0.01) then
+            !   write(*,1010) profit(idx), gain(idx), cost(idx)
+            !   1010 format (1x,F8.4, 1x,F8.4, 1x,F8.4)
+            !endif
 
             ! scale up cuticular conductance, mol H2O m-2 s-1
             !e_cuticular = gmin * MMOL_2_MOL * rad%scalex(i,j) / press * vpd
