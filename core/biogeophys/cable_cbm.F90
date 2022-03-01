@@ -204,7 +204,7 @@ CONTAINS
           CALL calc_swp(ssnow, soil, i)
           CALL calc_weighted_swp_and_frac_uptake(ssnow, soil, canopy, veg, &
                                                  root_length, i)
-         
+
        END DO
     END IF
 

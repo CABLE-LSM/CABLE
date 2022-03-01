@@ -3226,7 +3226,13 @@ CONTAINS
             an_canopy(j) = an_leaf(idx) ! umol m-2 s-1
             e_leaves(j) = e_leaf(idx) ! mol H2O m-2 s-1
             p_leaves(j) = p(idx)
-            canopy%gswx(i,j) = MAX( 1.e-3, gsc(idx))
+            canopy%gswx(i,j) = MAX( 1.e-3, gsc(idx) * C%RGSWC)
+
+            !if (p_leaves(j) < -4 ) then
+            !   print*, p_leaves(j) , canopy%gswx(i,j), Ci(idx), C%RGSWC
+            !endif
+
+
             ! scale up cuticular conductance, mol H2O m-2 s-1
             !e_cuticular = gmin * MMOL_2_MOL * rad%scalex(i,j) / press * vpd
 
@@ -3254,7 +3260,7 @@ CONTAINS
                !canopy%psi_leaf_prev(i) = canopy%psi_leaf(i) ! MPa
 
             END IF
-            
+
             canopy%psi_soil_prev(i) = psi_soil ! MPa
             e_canopy = sum(e_leaves) ! mol H2O m-2 s-1
 
