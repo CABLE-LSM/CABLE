@@ -1,6 +1,7 @@
 &CRUNML
         BasePath     = "/g/data/x45/CRUJRA2021/daily_1deg"
         MetPath      = "/g/data/x45/CRUJRA2021/daily_1deg"
+	MetVersion   = "CRUJRA_2021"
         LandMaskFile = "/g/data/x45/ipbes/masks/glob_ipsl_1x1.nc"
         Run          = "S0_TRENDY"
 	DThrs        = 3.0                ! **CABLE** timestep hours (not the met timestep)
