@@ -1802,15 +1802,17 @@ CONTAINS
     REAL :: press
 
     INTEGER, PARAMETER :: resolution = 1000 ! allows jumps in Ci ~ 0.35 umol mol-1
+     INTEGER, PARAMETER :: bigger_resolution = 10000 ! allows jumps in Ci ~ 0.35 umol mol-1
     REAL, DIMENSION(2) :: an_canopy
-    REAL :: e_canopy
+    REAL :: e_canopy, ci_ca
     REAL(r_2), DIMENSION(resolution) :: p
+    REAL(r_2), DIMENSION(bigger_resolution) :: bigger_p
 
     REAL :: MOL_WATER_2_G_WATER, G_TO_KG, UMOL_TO_MOL, MB_TO_KPA, PA_TO_KPA
     REAL :: avg_kplant, new_plc
     REAL, DIMENSION(mp) :: Kcmax
     REAL :: gamma_star
-
+    REAL :: MOL_TO_UMOL, J_TO_MOL
 #define VanessasCanopy
 #ifdef VanessasCanopy
     REAL, DIMENSION(mp,mf)  ::                                                  &
@@ -1847,6 +1849,8 @@ CONTAINS
 
     ENDIF
 
+     MOL_TO_UMOL = 1E6
+     J_TO_MOL = 4.6E-6  ! Convert from J to Mol for light
      MOL_WATER_2_G_WATER = 18.02
      G_TO_KG = 1E-03
      UMOL_TO_MOL = 1E-06
@@ -2147,8 +2151,26 @@ CONTAINS
                                      ssnow%Rsr(i), Kcmax, veg%Kmax(i), veg%Kcrit(i), &
                                      veg%b_plant(i), veg%c_plant(i), &
                                      resolution, vcmxt3, ejmxt3, rdx, vx3, &
-                                     cx1(i), an_canopy, e_canopy, veg%gmin(i), &
+                                     cx1(i), an_canopy, e_canopy, ci_ca, veg%gmin(i), &
                                      gamma_star, p, i)
+
+                    ! Check if our Ci/Ca is at the low end, if so, re-run optimisation with
+                    ! a higher resolution. There is the potential for not sufficient resolution
+                    ! in the Ci-Psi reln, which means the optimisation goes looking for "gain"
+                    ! when it shouldn't. This tradeoffs catches this scenario.
+                    if (rad%qcan(i,j,1) * J_TO_MOL * MOL_TO_UMOL > 50 .AND. ci_ca < 0.15) then
+
+                      !print*, "here"
+                      CALL optimisation(canopy, rad, ssnow, rad%qcan, vpd, press, tlfx(i), &
+                                        csx, rad%fvlai, &
+                                        ssnow%weighted_psi_soil(i), &
+                                        ssnow%Rsr(i), Kcmax, veg%Kmax(i), veg%Kcrit(i), &
+                                        veg%b_plant(i), veg%c_plant(i), &
+                                        bigger_resolution, vcmxt3, ejmxt3, rdx, vx3, &
+                                        cx1(i), an_canopy, e_canopy, ci_ca, veg%gmin(i), &
+                                        gamma_star, bigger_p, i)
+
+                   end if
 
                    ! fix units for CABLE and pack into arrays
                    anx(i,1) = an_canopy(1) * UMOL_TO_MOL
@@ -3051,7 +3073,7 @@ CONTAINS
    SUBROUTINE optimisation(canopy, rad, ssnow, qcan, vpd, press, tleaf, csx, lai_leaf, &
                            psi_soil, Rsr, Kcmax, Kmax, Kcrit, b_plant, &
                            c_plant, N, vcmxt3, ejmxt3, rdx, vx3, cx1, &
-                           an_canopy, e_canopy, gmin, gamma_star, p, i)
+                           an_canopy, e_canopy, ci_ca, gmin, gamma_star, p, i)
 
       ! Optimisation wrapper for the ProfitMax model. The Sperry model
       ! assumes that plant maximises the normalised (0-1) difference
@@ -3088,6 +3110,7 @@ CONTAINS
       REAL, INTENT(IN) :: gmin, gamma_star
       REAL(r_2), INTENT(IN) :: psi_soil, Rsr
       REAL, INTENT(INOUT) :: e_canopy
+      REAL, INTENT(INOUT) :: ci_ca
       REAL, DIMENSION(mf), INTENT(INOUT) :: an_canopy
       REAL, DIMENSION(mp), INTENT(IN) :: Kcmax
       REAL(r_2), DIMENSION(mp,mf), INTENT(IN) :: csx
@@ -3244,7 +3267,11 @@ CONTAINS
             an_canopy(j) = an_leaf(idx) ! umol m-2 s-1
             e_leaves(j) = e_leaf(idx) ! mol H2O m-2 s-1
             p_leaves(j) = p(idx)
-            canopy%gswx(i,j) = MAX( 1.e-3, gsc(idx) * C%RGSWC)
+            !canopy%gswx(i,j) = MAX( 1.e-3, gsc(idx) * C%RGSWC)
+            canopy%gswx(i,j) = MAX( 1.e-3, gsc(idx) )
+            ci_ca = Ci(idx)/Cs
+
+
 
             !if (p_leaves(j) < -4 .AND. canopy%gswx(i,j) > 0.01) then
             !   write(*,1010) p_leaves(j) , canopy%gswx(i,j), Ci(idx), vpd, Ci(idx)/Cs, apar(j)
@@ -3252,8 +3279,7 @@ CONTAINS
             !endif
 
             !if (p_leaves(j) < -4 .AND. canopy%gswx(i,j) > 0.01) then
-            !   write(*,1010) profit(idx), gain(idx), cost(idx)
-            !   1010 format (1x,F8.4, 1x,F8.4, 1x,F8.4)
+            !   print*, idx, an_leaf(idx)/gsc(idx), an_leaf(idx), gsc(idx), Ci(idx)/Cs
             !endif
 
             ! scale up cuticular conductance, mol H2O m-2 s-1
