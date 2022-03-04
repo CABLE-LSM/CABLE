@@ -195,6 +195,8 @@ CONTAINS
 
     !print*, "******"
     !print*, " "
+    ! Sensitivity experiment 40% inc LAI
+    !canopy%vlaiw = canopy%vlaiw * 1.4
 
     ! PH: mgk576, 13/10/17, added two funcs
     IF (cable_user%FWSOIL_SWITCH == 'profitmax') THEN
