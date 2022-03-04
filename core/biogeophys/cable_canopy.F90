@@ -3112,12 +3112,6 @@ CONTAINS
       REAL, DIMENSION(2)  :: fsun
       REAL, DIMENSION(2)  :: apar
 
-      INTEGER, PARAMETER :: bigger_N = 10000 !
-      REAL(r_2), DIMENSION(bigger_N) :: px
-      LOGICAL, DIMENSION(bigger_N) ::  maskx
-      REAL, DIMENSION(bigger_N) :: Cix, Acx, Ajx, Ax, an_leafx, gscx, Cxx
-      REAL, DIMENSION(bigger_N) :: Kcx, e_leafx, costx, gainx, profitx
-
       logical :: bounded_psi
       bounded_psi = .false.!.false.
 
@@ -3251,80 +3245,37 @@ CONTAINS
             profit = gain - cost
             idx = MAXLOC(profit, 1, mask=mask)
 
-            ! load into stores
-            an_canopy(j) = an_leaf(idx) ! umol m-2 s-1
-            e_leaves(j) = e_leaf(idx) ! mol H2O m-2 s-1
-            p_leaves(j) = p(idx)
-            !canopy%gswx(i,j) = MAX( 1.e-3, gsc(idx) * C%RGSWC)
-            canopy%gswx(i,j) = MAX( 1.e-3, gsc(idx) )
-            ci_ca = Ci(idx)/Cs
+            ! Mask instances of very low profit. These result from our
+            ! optimisation approximation, which doesn't fully ramp up the cost
+            ! as would be expected in the full optimiality model. Here, we are
+            ! ignoring profit below 0.5%, which I think we can fairly conclude
+            ! is noise.
+            if (profit(idx) < 0.005) then
+               ! load into stores
+               an_canopy(j) = 0.0 ! umol m-2 s-1
+               e_leaves(j) = 0.0 ! mol H2O m-2 s-1
+               p_leaves(j) = p(idx)
+               !canopy%gswx(i,j) = MAX( 1.e-3, gsc(idx) * C%RGSWC)
+               canopy%gswx(i,j) = MAX( 1.e-3, 0.0 )
+            else
+               ! load into stores
+               an_canopy(j) = an_leaf(idx) ! umol m-2 s-1
+               e_leaves(j) = e_leaf(idx) ! mol H2O m-2 s-1
+               p_leaves(j) = p(idx)
+               !canopy%gswx(i,j) = MAX( 1.e-3, gsc(idx) * C%RGSWC)
+               canopy%gswx(i,j) = MAX( 1.e-3, gsc(idx) )
+            endif
 
-            !if (ci_ca < 0.15) then
-            !
-            !   ! Generate a sequence of Ci's that we will solve the optimisation
-            !   ! model for, range btw gamma_star and Cs. umol mol-1
-            !   lower = gamma_star
-            !   upper = Cs
-            !   DO k=1, bigger_N
-            !     Cix(k)  = lower + float(k) * (upper - lower) / float(bigger_N-1)
-            !   END DO
-            !
-            !   ! Calculate the sunlit/shaded A_leaf (i.e. scaled up), umol m-2 s-1
-            !   Acx = assim(Cix, gamma_star, Vcmax, Km) ! umol m-2 s-1
-            !   Ajx = assim(Cix, gamma_star, Vj, 2.0*gamma_star) ! umol m-2 s-1
-            !   Ax = -QUADP(1.0-1E-04, Acx+Ajx, Acx*Ajx) ! umol m-2 s-1
-            !   an_leafx = Ax - Rd ! Net photosynthesis, umol m-2 s-1
-            !
-            !   ! Use an_leaf to infer gsc_sun/sha. NB. An is the scaled up values
-            !   ! via scalex applied to Vcmax/Jmax
-            !   gscx = an_leafx / MAX(1.e-6, Cs - Cix) ! mol CO2 m-2 s-1
-            !
-            !   ! Assuming perfect coupling, infer E_sun/sha from gsc. NB. as we're
-            !   ! iterating, Tleaf will change and so VPD, maintaining energy
-            !   ! balance
-            !   e_leafx = gscx * C%RGSWC / press * vpd ! mol H2O m-2 s-1
-            !
-            !   ! MPa
-            !   px = calc_psi_leaf(psi_soil, e_leafx, &
-            !                      rad%scalex(i,j), Kplant, bigger_N)
-            !
-            !   ! Ensure we don't check for profit in bad psi_leaf search space
-            !   where (px >= psi_soil .OR. px <= p_crit)
-            !      maskx = .FALSE.
-            !   elsewhere
-            !      maskx = .TRUE.
-            !   end where
-            !
-            !   ! Soil–plant hydraulic conductance at canopy xylem pressure,
-            !   ! mmol m-2 s-1 MPa-1
-            !   Kcx = Kplant * get_xylem_vulnerabilityx(px, b_plant, c_plant)
-            !
-            !   ! normalised gain (-)
-            !   gainx = an_leafx / MAXVAL(an_leafx, mask=maskx)
-            !
-            !   ! normalised cost (-)
-            !   costx = (kcmax(i) - Kcx) / (kcmax(i) - Kcrit)
-            !
-            !   ! Locate maximum profit
-            !   profitx = gainx - costx
-            !   idx = MAXLOC(profitx, 1, mask=maskx)
-            !
-            !   ! load into stores
-            !   an_canopy(j) = an_leafx(idx) ! umol m-2 s-1
-            !   e_leaves(j) = e_leafx(idx) ! mol H2O m-2 s-1
-            !   p_leaves(j) = px(idx)
-            !   !canopy%gswx(i,j) = MAX( 1.e-3, gscx(idx) * C%RGSWC)
-            !   canopy%gswx(i,j) = MAX( 1.e-3, gscx(idx) )
-            !
-            !endif
+            ci_ca = Ci(idx)/Cs
 
             !if (p_leaves(j) < -4 .AND. canopy%gswx(i,j) > 0.01) then
             !   write(*,1010) p_leaves(j) , canopy%gswx(i,j), Ci(idx), vpd, Ci(idx)/Cs, apar(j)
             !   1010 format (1x,F8.4, 1x,F8.4, 1x,F8.4, 1x,F8.4,1x,F8.4, 1x,F8.4)
             !endif
 
-            !if (p_leaves(j) < -4 .AND. canopy%gswx(i,j) > 0.01) then
-            !   print*, idx, an_leaf(idx)/gsc(idx), an_leaf(idx), gsc(idx), Ci(idx)/Cs
+            !if (p_leaves(j) < -4 .AND. profit(idx) < 0.001) then
+            !   write(*,1010) profit(idx), gain(idx), cost(idx), an_canopy(j)
+            !   1010 format (1x,F8.4, 1x,F8.4, 1x,F8.4, 1x,F8.4)
             !endif
 
             ! scale up cuticular conductance, mol H2O m-2 s-1
