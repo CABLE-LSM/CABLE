@@ -1165,8 +1165,8 @@ CONTAINS
        !PFT: New PFT, Eucalyptus blakelyi, mgk576, 25/7/21
        !=========================================================
 
-       vegin%Kmax(18) = 0.75 !1.5
-       vegin%Kcrit(18) = 0.0375 !0.075 ! vegin%Kmax * 0.05
+       vegin%Kmax(18) = 1.5
+       vegin%Kcrit(18) = 0.075 ! vegin%Kmax * 0.05
        vegin%b_plant(18) = 5.030576014
        vegin%c_plant(18) = 3.355198155
        vegin%gmin(18) = 0.720828 ! single sided, above was double-sided, mmol m-2 s-1
@@ -1234,8 +1234,8 @@ CONTAINS
        !PFT: New PFT, Eucalyptus camaldulensis, mgk576, 25/7/21
        !=========================================================
 
-       vegin%Kmax(19) = 0.75 !1.5
-       vegin%Kcrit(19) = 0.0375 !0.075 ! vegin%Kmax * 0.05
+       vegin%Kmax(19) = 1.5
+       vegin%Kcrit(19) = 0.075 ! vegin%Kmax * 0.05
        vegin%b_plant(19) = 4.102123226
        vegin%c_plant(19) = 4.347350048
        vegin%gmin(19) = 0.720828 ! single sided, above was double-sided, mmol m-2 s-1
@@ -1303,8 +1303,8 @@ CONTAINS
        !PFT: New PFT, Eucalyptus crebra, mgk576, 25/7/21
        !=========================================================
 
-       vegin%Kmax(20) = 0.75 !1.5
-       vegin%Kcrit(20) = 0.0375 !0.075 ! vegin%Kmax * 0.05
+       vegin%Kmax(20) = 1.5
+       vegin%Kcrit(20) = 0.075 ! vegin%Kmax * 0.05
        vegin%b_plant(20) = 5.52013939
        vegin%c_plant(20) = 3.075600898
        vegin%gmin(20) = 0.720828 ! single sided, above was double-sided, mmol m-2 s-1
@@ -1372,8 +1372,8 @@ CONTAINS
        !PFT: New PFT, Eucalyptus dunnii, mgk576, 25/7/21
        !=========================================================
 
-       vegin%Kmax(21) = 0.75 !1.5
-       vegin%Kcrit(21) = 0.0375 !0.075 ! vegin%Kmax * 0.05
+       vegin%Kmax(21) = 1.5
+       vegin%Kcrit(21) = 0.075 ! vegin%Kmax * 0.05
        vegin%b_plant(21) = 5.557394056
        vegin%c_plant(21) = 3.059620633
        vegin%gmin(21) = 0.720828 ! single sided, above was double-sided, mmol m-2 s-1
@@ -1441,8 +1441,8 @@ CONTAINS
        !PFT: New PFT, Eucalyptus globulus, mgk576, 25/7/21
        !=========================================================
 
-       vegin%Kmax(22) = 0.75 !1.5
-       vegin%Kcrit(22) = 0.0375 !0.075 ! vegin%Kmax * 0.05
+       vegin%Kmax(22) = 1.5
+       vegin%Kcrit(22) = 0.075 ! vegin%Kmax * 0.05
        vegin%b_plant(22) = 2.550186588
        vegin%c_plant(22) = 8.298063366
        vegin%gmin(22) = 0.720828 ! single sided, above was double-sided, mmol m-2 s-1
@@ -1511,8 +1511,8 @@ CONTAINS
        !PFT: New PFT, Eucalyptus grandis, mgk576, 25/7/21
        !=========================================================
 
-       vegin%Kmax(23) = 0.75 !1.5
-       vegin%Kcrit(23) = 0.0375 !0.075 ! vegin%Kmax * 0.05
+       vegin%Kmax(23) = 1.5
+       vegin%Kcrit(23) = 0.075 ! vegin%Kmax * 0.05
        vegin%b_plant(23) = 3.579776939
        vegin%c_plant(23) = 5.286522315
        vegin%gmin(23) = 0.720828 ! single sided, above was double-sided, mmol m-2 s-1
@@ -1580,8 +1580,8 @@ CONTAINS
        !PFT: New PFT, Eucalyptus largiflorens, mgk576, 25/7/21
        !=========================================================
 
-       vegin%Kmax(24) = 0.75 !1.5
-       vegin%Kcrit(24) = 0.0375 !0.075 ! vegin%Kmax * 0.05
+       vegin%Kmax(24) = 1.5
+       vegin%Kcrit(24) = 0.075 ! vegin%Kmax * 0.05
        vegin%b_plant(24) = 8.28282906
        vegin%c_plant(24) = 3.251978832
        vegin%gmin(24) = 0.720828 ! single sided, above was double-sided, mmol m-2 s-1
@@ -1649,8 +1649,8 @@ CONTAINS
        !PFT: New PFT, Eucalyptus macrorhyncha, mgk576, 25/7/21
        !=========================================================
 
-       vegin%Kmax(25) = 0.75 !1.5
-       vegin%Kcrit(25) = 0.0375 !0.075 ! vegin%Kmax * 0.05
+       vegin%Kmax(25) = 1.5
+       vegin%Kcrit(25) = 0.075 ! vegin%Kmax * 0.05
        vegin%b_plant(25) = 4.400036199
        vegin%c_plant(25) = 3.948576733
        vegin%gmin(25) = 0.720828 ! single sided, above was double-sided, mmol m-2 s-1
@@ -1725,8 +1725,8 @@ CONTAINS
        !PFT: New PFT, Eucalyptus melliodora, mgk576, 25/7/21
        !=========================================================
 
-       vegin%Kmax(26) = 0.75 !1.5
-       vegin%Kcrit(26) = 0.0375 !0.075 ! vegin%Kmax * 0.05
+       vegin%Kmax(26) = 1.5
+       vegin%Kcrit(26) = 0.075 ! vegin%Kmax * 0.05
        vegin%b_plant(26) = 5.668675883
        vegin%c_plant(26) = 3.015931136
        vegin%gmin(26) = 0.720828 ! single sided, above was double-sided, mmol m-2 s-1
@@ -1794,8 +1794,8 @@ CONTAINS
        !PFT: New PFT, Eucalyptus obliqua, mgk576, 25/7/21
        !=========================================================
 
-       vegin%Kmax(27) = 0.75 !1.5
-       vegin%Kcrit(27) = 0.0375 !0.075 ! vegin%Kmax * 0.05
+       vegin%Kmax(27) = 1.5
+       vegin%Kcrit(27) = 0.075 ! vegin%Kmax * 0.05
        vegin%b_plant(27) = 2.725198383
        vegin%c_plant(27) = 7.667745303
        vegin%gmin(27) = 0.720828 ! single sided, above was double-sided, mmol m-2 s-1
@@ -1863,8 +1863,8 @@ CONTAINS
        !PFT: New PFT, Eucalyptus populnea, mgk576, 25/7/21
        !=========================================================
 
-       vegin%Kmax(28) = 0.75 !1.5
-       vegin%Kcrit(28) = 0.0375 !0.075 ! vegin%Kmax * 0.05
+       vegin%Kmax(28) = 1.5
+       vegin%Kcrit(28) = 0.075 ! vegin%Kmax * 0.05
        vegin%b_plant(28) = 6.410296129
        vegin%c_plant(28) = 2.8629035
        vegin%gmin(28) = 0.720828 ! single sided, above was double-sided, mmol m-2 s-1
@@ -1932,8 +1932,8 @@ CONTAINS
        !PFT: New PFT, Eucalyptus saligna, mgk576, 25/7/21
        !=========================================================
 
-       vegin%Kmax(29) = 0.75 !1.5
-       vegin%Kcrit(29) = 0.0375 !0.075 ! vegin%Kmax * 0.05
+       vegin%Kmax(29) = 1.5
+       vegin%Kcrit(29) = 0.075 ! vegin%Kmax * 0.05
        vegin%b_plant(29) = 3.651439207
        vegin%c_plant(29) = 5.13712216
        vegin%gmin(29) = 0.720828 ! single sided, above was double-sided, mmol m-2 s-1
@@ -2001,8 +2001,8 @@ CONTAINS
        !PFT: New PFT, E. sideroxylon, mgk576, 25/7/21
        !=========================================================
 
-       vegin%Kmax(30) = 0.75 !1.5
-       vegin%Kcrit(30) = 0.0375 !0.075 ! vegin%Kmax * 0.05
+       vegin%Kmax(30) = 1.5
+       vegin%Kcrit(30) = 0.075 ! vegin%Kmax * 0.05
        vegin%b_plant(30) = 4.538102944
        vegin%c_plant(30) = 3.791935013
        vegin%gmin(30) = 0.720828 ! single sided, above was double-sided, mmol m-2 s-1
@@ -2071,8 +2071,8 @@ CONTAINS
        !PFT: New PFT, Eucalyptus tereticornis, mgk576, 25/7/21
        !=========================================================
 
-       vegin%Kmax(31) = 0.75 !1.5
-       vegin%Kcrit(31) = 0.0375 !0.075 ! vegin%Kmax * 0.05
+       vegin%Kmax(31) = 1.5
+       vegin%Kcrit(31) = 0.075 ! vegin%Kmax * 0.05
        vegin%b_plant(31) = 4.362501154
        vegin%c_plant(31) = 3.994093418
        vegin%gmin(31) = 0.720828 ! single sided, above was double-sided, mmol m-2 s-1
@@ -2140,8 +2140,8 @@ CONTAINS
        !PFT: New PFT, Eucalyptus viminalis, mgk576, 25/7/21
        !=========================================================
 
-       vegin%Kmax(32) = 0.75 !1.5
-       vegin%Kcrit(32) = 0.0375 !0.075 ! vegin%Kmax * 0.05
+       vegin%Kmax(32) = 1.5
+       vegin%Kcrit(32) = 0.075 ! vegin%Kmax * 0.05
        vegin%b_plant(32) = 3.355422803
        vegin%c_plant(32) = 5.801519551
        vegin%gmin(32) = 0.720828 ! single sided, above was double-sided, mmol m-2 s-1
