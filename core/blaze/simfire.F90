@@ -75,9 +75,7 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
 
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-  ! SF%RES    = 1./12.
-
-  ! SF%RES = 0.5
+  SF%RES    = 0.5 ! CLN should stay 0.5 deg becasue SIMFIRE was trained on it. 
   SF%NCELLS = NCELLS
 
   ALLOCATE( SF%IGBP        (NCELLS) )
@@ -275,12 +273,12 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
   ELSE
      ISTEP = 5
   END IF
-  SF%RES    = HYRES
+  !CLN WROOONGGG!!!! SF%RES    = HYRES
   IF ( CALL1 ) THEN
      RF = NINT(SF%RES/HYRES)
      ! Check for Res being an integral multiple of 5' [RES] = fract. deg
      IF ( REAL(RF) .NE. SF%RES/HYRES .OR. SF%RES .LT. HYRES ) THEN
-        WRITE(*,*) 'Spatial resolution must be integral multiple of HYDE res. '
+        WRITE(*,*) 'Spatial resolution must be integer multiple of HYDE res. '
         WRITE(*,*) "RES:",SF%RES,"/ HYDE:",HYRES," = ",SF%RES/HYRES
         STOP "get_popdens in simfire_mod.f90"
      END IF
@@ -336,7 +334,7 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
      NREAD = 0
   END IF
 
-  SF%RES = 1./12.
+  !CLN SF%RES = 1./12.
   RF = NINT(SF%RES/HYRES)
 
 
@@ -390,7 +388,7 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
            ix0 = RF * (X(i)-1) + 1
            jy0 = RF * (Y(i)-1) + 1
            dxy = RF - 1
-!write(*,*) 'ix0,iy0', RF,ix0, jy0
+           !write(*,*) 'ix0,iy0', RF,ix0, jy0
            ! average over sub-gridcells, weighted by land area of cell
            wPOPD = 0.
            wTOT  = 0.
@@ -405,9 +403,15 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
            END DO
 
            IF ( wTOT .EQ. 0. ) THEN
+              ! There are land-pixels in the CABLE grid that are non-land in HYDE 3.1
+              ! therefore assume zero population on these
               WRITE(*,*)"Pixel LAT:",SF%LAT(i)," LON:",SF%LON(i)," does not contain land!"
-              STOP "GET_POPDENS in simfire_mod.f90"
-           ELSEIF ( nr .EQ. 1 ) THEN
+              !CLN STOP "GET_POPDENS in simfire_mod.f90"
+              wPOPD = 0.
+              wTOT  = 1.
+           ENDIF
+
+           IF ( nr .EQ. 1 ) THEN
               EPOPD(i) = wPOPD / wTOT
            ELSE
               SPOPD(i) = wPOPD / wTOT
