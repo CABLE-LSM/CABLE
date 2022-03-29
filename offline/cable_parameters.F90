@@ -1481,10 +1481,16 @@ CONTAINS
        ! Prescribe parameters for current gridcell based on veg/soil type (which
        ! may have loaded from default value file or met file):
        DO h = landpt(e)%cstart, landpt(e)%cend ! over each patch in current grid
-          bgc%cplant(h,:) = vegin%cplant(:, veg%iveg(h))
-          bgc%csoil(h,:)  = vegin%csoil(:, veg%iveg(h))
-          bgc%ratecp(:)   = vegin%ratecp(:, veg%iveg(h))
-          bgc%ratecs(:)   = vegin%ratecs(:, veg%iveg(h))
+          bgc%cplant(h,1) = vegin%cplant1( veg%iveg(h))
+          bgc%cplant(h,2) = vegin%cplant2( veg%iveg(h))
+          bgc%cplant(h,3) = vegin%cplant3( veg%iveg(h))
+          bgc%csoil(h,1)  = vegin%csoil1(  veg%iveg(h))
+          bgc%csoil(h,2)  = vegin%csoil2(  veg%iveg(h))
+          bgc%ratecp(1)   = vegin%ratecp1(  veg%iveg(h))
+          bgc%ratecp(2)   = vegin%ratecp2(  veg%iveg(h))
+          bgc%ratecp(3)   = vegin%ratecp3(  veg%iveg(h))
+          bgc%ratecs(1)   = vegin%ratecs1(  veg%iveg(h))
+          bgc%ratecs(2)   = vegin%ratecs2(  veg%iveg(h))
 
           IF (.NOT. soilparmnew) THEN   ! Q,Zhang @ 12/20/2010
              soil%swilt(h)   =  soilin%swilt(soil%isoilm(h))
@@ -2682,10 +2688,10 @@ CONTAINS
     ! may have loaded from default value file or met file):
     DO h = ifmp, fmp          ! over each patch in current grid
        veg%frac4(h)    = vegin%frac4(veg%iveg(h))
-       veg%taul(h,1)    = vegin%taul(1,veg%iveg(h))
-       veg%taul(h,2)    = vegin%taul(2,veg%iveg(h))
-       veg%refl(h,1)    = vegin%refl(1,veg%iveg(h))
-       veg%refl(h,2)    = vegin%refl(2,veg%iveg(h))
+       veg%taul(h,1)    = vegin%taul1(veg%iveg(h))
+       veg%taul(h,2)    = vegin%taul2(veg%iveg(h))
+       veg%refl(h,1)    = vegin%refl1(veg%iveg(h))
+       veg%refl(h,2)    = vegin%refl2(veg%iveg(h))
        veg%canst1(h)   = vegin%canst1(veg%iveg(h))
        veg%dleaf(h)    = vegin%dleaf(veg%iveg(h))
        veg%vcmax(h)    = vegin%vcmax(veg%iveg(h))
