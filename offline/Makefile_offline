@@ -140,7 +140,7 @@ cable_soilsnow.o: cable_soilsnow.F90 cable_iovars.o cable_define_types.o cable_c
 casa_variable.o: casa_variable.F90 POP.o cable_define_types.o
 
 spincasacnp.o: spincasacnp.F90 cable_define_types.o cable_carbon.o cable_common.o casa_variable.o \
-	       cable_c13o2.o cable_c13o2_def.o casa_inout.o blaze.o casa_cable.o pop_io.o
+	       cable_c13o2.o cable_c13o2_def.o casa_inout.o blaze.o blaze_driver.o casa_cable.o pop_io.o
 
 #cable_LUC.o: cable_LUC.F90 cable_carbon.o cable_common.o casa_variable.o POP.o POPLUC.o cable_LUC_EXPT.o cable_c13o2.o cable_c13o2_def.o
 

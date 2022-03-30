@@ -95,19 +95,19 @@ SUBROUTINE cable_um_runtime_vars(runtime_vars_file)
    INTEGER :: funit=88
    
    !--- namelist for CABLE runtime vars, files, switches 
-   NAMELIST/CABLE/filename, l_casacnp, l_laiFeedbk, l_vcmaxFeedbk, icycle,   &
-                  casafile, cable_user, redistrb, wiltParam, satuParam
+   NAMELIST /CABLENML/ filename, l_casacnp, l_laiFeedbk, l_vcmaxFeedbk, icycle, &
+        casafile, cable_user, redistrb, wiltParam, satuParam
 
       !--- assume namelist exists. no iostatus check 
-      OPEN(unit=funit,FILE= runtime_vars_file)
-         READ(funit,NML=CABLE)
-         IF( knode_gl==0)  THEN
-            PRINT *, '  '; PRINT *, 'CABLE_log:' 
-            PRINT *, '  Opened file - '
-            PRINT *, '  ', trim(runtime_vars_file)
-            PRINT *, '  for reading runtime vars.' 
-            PRINT *, 'End CABLE_log:'; PRINT *, '  '
-        ENDIF
+      OPEN(unit=funit, FILE=runtime_vars_file)
+      READ(funit, NML=CABLENML)
+      IF( knode_gl==0)  THEN
+         PRINT *, '  '; PRINT *, 'CABLE_log:' 
+         PRINT *, '  Opened file - '
+         PRINT *, '  ', trim(runtime_vars_file)
+         PRINT *, '  for reading runtime vars.' 
+         PRINT *, 'End CABLE_log:'; PRINT *, '  '
+      ENDIF
       CLOSE(funit)
 
       if (knode_gl==0) then

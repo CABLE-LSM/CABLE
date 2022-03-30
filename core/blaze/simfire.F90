@@ -71,7 +71,7 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
   REAL, DIMENSION(360):: lat_BA
   integer :: status
 
-  NAMELIST /SIMFIRENML/ SIMFIRE_REGION, HydePath, BurnedAreaClimatologyFile
+  namelist /simfirenml/ SIMFIRE_REGION, HydePath, BurnedAreaClimatologyFile
 
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -113,11 +113,11 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
   ! inherit modis_igbp from climate variable
 
   ! READ BLAZE settings
-  CALL GET_UNIT(iu)
-  OPEN (iu,FILE="blaze.nml",STATUS='OLD',ACTION='READ')
-  READ (iu,NML=SIMFIRENML)
-  CLOSE(iu)
-  
+  call get_unit(iu)
+  open(iu, file="blaze.nml", status='old', action='read')
+  read(iu, nml=simfirenml)
+  close(iu)
+
   SF%HYDEPATH = TRIM(HydePath)
   SF%BA_CLIM_FILE = TRIM(BurnedAreaClimatologyFile)
   WRITE(*,*)"SIMFIRENML :", SIMFIRE_REGION, HydePath, BurnedAreaClimatologyFile

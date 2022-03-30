@@ -1,4 +1,4 @@
-!==============================================================================
+! ==============================================================================
 ! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
 ! This work is licensed under the CSIRO Open Source Software License
@@ -21,30 +21,28 @@
 ! Jan 2016: Now includes climate% for use in climate variables required for
 ! prognostic phenology and potential veg type
 ! ==============================================================================
-
-MODULE cable_def_types_mod
+module cable_def_types_mod
 
   ! Contains all variables which are not subroutine-internal
 
-  IMPLICIT NONE
+  implicit none
 
-  SAVE
+  private
 
-  PUBLIC
+  !--- CABLE default KINDs for representing INTEGER/REAL values
+  !--- at least 10-digit precision
 
-  !---CABLE default KINDs for representing INTEGER/REAL values
-  !---at least 10-digit precision
+  integer, public :: &
+       mp,     & ! # total no of patches/tiles
+       mvtype, & ! total # vegetation types, from input
+       mstype, & ! total # soil types,       from input
+       mland     ! # land grid cells
 
-  INTEGER :: mp, & ! # total no of patches/tiles
-       mvtype,   & ! total # vegetation types,   from input
-       mstype,   & ! total # soil types,         from input
-       mland       ! # land grid cells
-
-  INTEGER, PARAMETER :: &
+  integer, public, parameter :: &
        ! i_d  = KIND(9), &                  ! probably unintended
-       i_d  = SELECTED_INT_KIND(9), &       ! as in pop.f90
+       i_d  = SELECTED_INT_kind(9), &       ! as in pop.f90
        ! r_2  = SELECTED_REAL_KIND(12, 50), & ! old
-       r_2  = KIND(1.0d0), &                ! as in pop.f90
+       r_2  = kind(1.0d0), &                ! as in pop.f90
        n_tiles = 17,  & ! # possible no of different
        ncp = 3,       & ! # vegetation carbon stores
        ncs = 2,       & ! # soil carbon stores
@@ -53,19 +51,42 @@ MODULE cable_def_types_mod
        msn = 3,       & ! max # snow layers
        swb = 2,       & ! # shortwave bands
        niter = 4,     & ! number of iterations for za/L
-                                ! ms = 12          ! # soil layers
+       ! ms = 12          ! # soil layers
        ms = 6           ! # soil layers - standard
   ! ms = 13          ! for Loetschental experiment
   ! ms = 10
 
-  !   PRIVATE :: r_2, ms, msn, mf, nrb, ncp, ncs
+  ! defined types
+  public :: balances_type
+  public :: soil_parameter_type
+  public :: soil_snow_type
+  public :: veg_parameter_type
+  public :: canopy_type
+  public :: radiation_type
+  public :: roughness_type
+  public :: air_type
+  public :: met_type
+  public :: climate_type
+  public :: sum_flux_type
+  public :: bgc_pool_type
+
+  ! functions on the defined types
+  public :: alloc_cbm_var         ! allocate all variables in a type
+  public :: dealloc_cbm_var       ! deallocate all variables in a type
+  public :: print_cbm_var         ! print all variables of a type to screen
+  public :: read_netcdf_cbm_var   ! read all variables of a type from a netcdf file
+  public :: write_netcdf_cbm_var  ! write all variables of a type in a netcdf file
+  public :: zero_cbm_var          ! set to zero all variables in a type
+
+  ! general functions
+  public :: nc_err
 
   ! .............................................................................
 
   ! Energy and water balance variables:
-  TYPE balances_type
+  type balances_type
 
-     REAL, DIMENSION(:), POINTER :: &
+     real, dimension(:), pointer :: &
           drybal => null(),           & ! energy balance for dry canopy
           ebal => null(),             & ! energy balance per time step (W/m^2)
           ebal_tot => null(),         & ! cumulative energy balance (W/m^2)
@@ -98,17 +119,17 @@ MODULE cable_def_types_mod
           Ebalveg => null(), &
           Radbalsum => null()
 
-  END TYPE balances_type
+  end type balances_type
 
   ! .............................................................................
 
   ! Soil parameters:
-  TYPE soil_parameter_type
+  type soil_parameter_type
 
-     INTEGER, DIMENSION(:), POINTER :: &
+     integer, dimension(:), pointer :: &
           isoilm     ! integer soil type
 
-     REAL, DIMENSION(:), POINTER :: &
+     real, dimension(:), pointer :: &
           bch => null(),     & ! parameter b in Campbell equation
           c3 => null(),      & ! c3 drainage coeff (fraction)
           clay => null(),    & ! fraction of soil which is clay
@@ -130,33 +151,33 @@ MODULE cable_def_types_mod
           soilcol => null(), & ! keep color for all patches/tiles
           albsoilf => null()   ! soil reflectance
 
-     REAL(r_2), DIMENSION(:), POINTER :: &
+     real(r_2), dimension(:), pointer :: &
           cnsd => null(),    & ! thermal conductivity of dry soil [W/m/K]
           pwb_min => null()    ! working variable (swilt/ssat)**ibp2
 
-     REAL, DIMENSION(:,:), POINTER :: &
+     real, dimension(:,:), pointer :: &
           albsoil    ! soil reflectance (2nd dim. BP 21Oct2009)
 
      ! Additional SLI parameters
-     INTEGER,   DIMENSION(:),   POINTER :: nhorizons => null() ! number of soil horizons
-     INTEGER,   DIMENSION(:,:), POINTER :: ishorizon => null() ! horizon number 1:nhorizons
-     REAL(r_2), DIMENSION(:),   POINTER :: clitt => null()     ! litter (tC/ha)
-     REAL(r_2), DIMENSION(:),   POINTER :: zeta => null()      ! macropore parameter
-     REAL(r_2), DIMENSION(:),   POINTER :: fsatmax => null()   ! variably saturated area parameter
-     REAL(r_2), DIMENSION(:,:), POINTER :: swilt_vec => null() ! vol H2O @ wilting
-     REAL(r_2), DIMENSION(:,:), POINTER :: ssat_vec => null()  ! vol H2O @ sat
-     REAL(r_2), DIMENSION(:,:), POINTER :: sfc_vec => null()   ! vol H2O @ fc
+     integer,   dimension(:),   pointer :: nhorizons => null() ! number of soil horizons
+     integer,   dimension(:,:), pointer :: ishorizon => null() ! horizon number 1:nhorizons
+     real(r_2), dimension(:),   pointer :: clitt => null()     ! litter (tC/ha)
+     real(r_2), dimension(:),   pointer :: zeta => null()      ! macropore parameter
+     real(r_2), dimension(:),   pointer :: fsatmax => null()   ! variably saturated area parameter
+     real(r_2), dimension(:,:), pointer :: swilt_vec => null() ! vol H2O @ wilting
+     real(r_2), dimension(:,:), pointer :: ssat_vec => null()  ! vol H2O @ sat
+     real(r_2), dimension(:,:), pointer :: sfc_vec => null()   ! vol H2O @ fc
 
-  END TYPE soil_parameter_type
+  end type soil_parameter_type
 
   ! .............................................................................
 
   ! Soil and snow variables:
-  TYPE soil_snow_type
+  type soil_snow_type
 
-     INTEGER, DIMENSION(:), POINTER :: isflag => null() ! 0 => no snow 1 => snow
+     integer, dimension(:), pointer :: isflag => null() ! 0 => no snow 1 => snow
 
-     REAL, DIMENSION(:), POINTER :: &
+     real, dimension(:), pointer :: &
           iantrct => null(), & ! pointer to Antarctic land points
           pudsto => null(),  & ! puddle storage
           pudsmx => null(),  & ! puddle storage
@@ -207,7 +228,7 @@ MODULE cable_def_types_mod
           deltss => null(),  & ! surface temperature (weighted soil, snow)
           owb1 => null()       ! surface temperature (weighted soil, snow)
 
-     REAL, DIMENSION(:,:), POINTER :: &
+     real, dimension(:,:), pointer :: &
           sconds => null(),     & !
           sdepth => null(),     & ! snow depth
           smass => null(),      & ! snow mass
@@ -219,10 +240,10 @@ MODULE cable_def_types_mod
           evapfbl => null(),    & !
           tilefrac => null()      ! factor for latent heat
 
-     REAL(r_2), DIMENSION(:), POINTER :: &
+     real(r_2), dimension(:), pointer :: &
           wbtot => null()   ! total soil water (mm)
 
-     REAL(r_2), DIMENSION(:,:), POINTER :: &
+     real(r_2), dimension(:,:), pointer :: &
           gammzz => null(),  & ! heat capacity for each soil layer
           wb => null(),      & ! volumetric soil moisture (solid+liq)
           wbice => null(),   & ! soil ice
@@ -230,33 +251,33 @@ MODULE cable_def_types_mod
           wbfice => null()     !
 
      ! Additional SLI variables:
-     REAL(r_2), DIMENSION(:,:), POINTER :: S => null()         ! moisture content relative to sat value    (edit vh 23/01/08)
-     REAL(r_2), DIMENSION(:,:), POINTER :: Tsoil => null()     ! Tsoil (deg C)
-     REAL(r_2), DIMENSION(:),   POINTER :: SL => null()        ! litter moisture content relative to sat value (edit vh 23/01/08)
-     REAL(r_2), DIMENSION(:),   POINTER :: TL => null()        ! litter temperature in K     (edit vh 23/01/08)
-     REAL(r_2), DIMENSION(:),   POINTER :: h0 => null()        ! pond height in m            (edit vh 23/01/08)
-     REAL(r_2), DIMENSION(:,:), POINTER :: rex => null()       ! root extraction from each layer (mm/dels)
-     REAL(r_2), DIMENSION(:,:), POINTER :: wflux => null()     ! water flux at layer boundaries (mm s-1)
-     REAL(r_2), DIMENSION(:),   POINTER :: delwcol => null()   ! change in water column (mm / dels)
-     REAL(r_2), DIMENSION(:),   POINTER :: zdelta => null()    ! water table depth           (edit vh 23/06/08)
-     REAL(r_2), DIMENSION(:,:), POINTER :: kth => null()       ! thermal conductivity           (edit vh 29/07/08)
-     REAL(r_2), DIMENSION(:),   POINTER :: Tsurface => null()  !  tepmerature at surface (soil, pond or litter) (edit vh 22/10/08)
-     REAL(r_2), DIMENSION(:),   POINTER :: lE => null()      ! soil latent heat flux
-     REAL(r_2), DIMENSION(:),   POINTER :: evap => null()    ! soil evaporation (mm / dels)
-     REAL(r_2), DIMENSION(:,:), POINTER :: ciso => null()    ! concentration of minor isotopologue in soil water (kg m-3 water)
-     REAL(r_2), DIMENSION(:),   POINTER :: cisoL => null()   ! concentration of minor isotopologue in litter water (kg m-3 water)
-     REAL(r_2), DIMENSION(:),   POINTER :: rlitt => null()   ! resistance to heat/moisture transfer through litter (m-1 s)
-     REAL(r_2), DIMENSION(:,:), POINTER :: thetai => null()  ! volumetric ice content (MC)
-     REAL(r_2), DIMENSION(:,:), POINTER :: snowliq => null() ! liquid snow content (mm H2O)
-     REAL(r_2), DIMENSION(:),   POINTER :: nsteps => null()  ! number of iterations at each timestep
-     REAL(r_2), DIMENSION(:),   POINTER :: TsurfaceFR => null() ! temperature at surface (soil, pond or litter) (edit vh 22/10/08)
-     REAL(r_2), DIMENSION(:,:), POINTER :: Ta_daily => null() ! air temp averaged over last 24h
-     INTEGER, DIMENSION(:),     POINTER :: nsnow => null() ! number of layers in snow-pack (0-nsnow_max)
-     REAL(r_2), DIMENSION(:),   POINTER :: Qadv_daily => null() ! advective heat flux into surface , daily average (W m-2)
-     REAL(r_2), DIMENSION(:),   POINTER :: G0_daily => null()  ! conductive heat flux into surface , daily average (W m-2)
-     REAL(r_2), DIMENSION(:),   POINTER :: Qevap_daily => null() ! evaporative flux at surface, daily average (m s-1)
-     REAL(r_2), DIMENSION(:),   POINTER :: Qprec_daily => null() ! liquid precip, daily average (m s-1)
-     REAL(r_2), DIMENSION(:),   POINTER :: Qprec_snow_daily => null() ! solid precip, daily average (m s-1)
+     real(r_2), dimension(:,:), pointer :: S => null()         ! moisture content relative to sat value    (edit vh 23/01/08)
+     real(r_2), dimension(:,:), pointer :: Tsoil => null()     ! Tsoil (deg C)
+     real(r_2), dimension(:),   pointer :: SL => null()        ! litter moisture content relative to sat value (edit vh 23/01/08)
+     real(r_2), dimension(:),   pointer :: TL => null()        ! litter temperature in K     (edit vh 23/01/08)
+     real(r_2), dimension(:),   pointer :: h0 => null()        ! pond height in m            (edit vh 23/01/08)
+     real(r_2), dimension(:,:), pointer :: rex => null()       ! root extraction from each layer (mm/dels)
+     real(r_2), dimension(:,:), pointer :: wflux => null()     ! water flux at layer boundaries (mm s-1)
+     real(r_2), dimension(:),   pointer :: delwcol => null()   ! change in water column (mm / dels)
+     real(r_2), dimension(:),   pointer :: zdelta => null()    ! water table depth           (edit vh 23/06/08)
+     real(r_2), dimension(:,:), pointer :: kth => null()       ! thermal conductivity           (edit vh 29/07/08)
+     real(r_2), dimension(:),   pointer :: Tsurface => null()  !  tepmerature at surface (soil, pond or litter) (edit vh 22/10/08)
+     real(r_2), dimension(:),   pointer :: lE => null()      ! soil latent heat flux
+     real(r_2), dimension(:),   pointer :: evap => null()    ! soil evaporation (mm / dels)
+     real(r_2), dimension(:,:), pointer :: ciso => null()    ! concentration of minor isotopologue in soil water (kg m-3 water)
+     real(r_2), dimension(:),   pointer :: cisoL => null()   ! concentration of minor isotopologue in litter water (kg m-3 water)
+     real(r_2), dimension(:),   pointer :: rlitt => null()   ! resistance to heat/moisture transfer through litter (m-1 s)
+     real(r_2), dimension(:,:), pointer :: thetai => null()  ! volumetric ice content (MC)
+     real(r_2), dimension(:,:), pointer :: snowliq => null() ! liquid snow content (mm H2O)
+     real(r_2), dimension(:),   pointer :: nsteps => null()  ! number of iterations at each timestep
+     real(r_2), dimension(:),   pointer :: TsurfaceFR => null() ! temperature at surface (soil, pond or litter) (edit vh 22/10/08)
+     real(r_2), dimension(:,:), pointer :: Ta_daily => null() ! air temp averaged over last 24h
+     integer, dimension(:),     pointer :: nsnow => null() ! number of layers in snow-pack (0-nsnow_max)
+     real(r_2), dimension(:),   pointer :: Qadv_daily => null() ! advective heat flux into surface , daily average (W m-2)
+     real(r_2), dimension(:),   pointer :: G0_daily => null()  ! conductive heat flux into surface , daily average (W m-2)
+     real(r_2), dimension(:),   pointer :: Qevap_daily => null() ! evaporative flux at surface, daily average (m s-1)
+     real(r_2), dimension(:),   pointer :: Qprec_daily => null() ! liquid precip, daily average (m s-1)
+     real(r_2), dimension(:),   pointer :: Qprec_snow_daily => null() ! solid precip, daily average (m s-1)
      real(r_2), dimension(:),   pointer :: E_fusion_sn => null()
      real(r_2), dimension(:),   pointer :: E_sublimation_sn => null()
      real(r_2), dimension(:),   pointer :: latent_heat_sn => null()
@@ -264,19 +285,19 @@ MODULE cable_def_types_mod
      real(r_2), dimension(:),   pointer :: surface_melt => null()
      real(r_2), dimension(:),   pointer :: Qadv_rain_sn => null()
 
-  END TYPE soil_snow_type
+  end type soil_snow_type
 
   ! .............................................................................
 
   ! Vegetation parameters:
-  TYPE veg_parameter_type
+  type veg_parameter_type
 
-     INTEGER, DIMENSION(:), POINTER :: &
+     integer, dimension(:), pointer :: &
           iveg => null(),   & ! vegetation type
           ivegp => null(),  & ! dominant potential vegetation type
           iLU => null()        ! land use type
 
-     REAL, DIMENSION(:), POINTER :: &
+     real, dimension(:), pointer :: &
           canst1 => null(),  & ! max intercepted water by canopy (mm/LAI)
           dleaf => null(),   & ! chararacteristc legnth of leaf (m)
           ejmax => null(),   & ! max pot. electron transp rate top leaf(mol/m2/s)
@@ -323,34 +344,34 @@ MODULE cable_def_types_mod
           c4kcc => null(),   & ! C4 plants: initial slope of An-Ci response curve (Cc-based)
           bjv => null()        ! Jmax-Vcmax ratio at 25degC
 
-     LOGICAL, DIMENSION(:), POINTER :: &
+     logical, dimension(:), pointer :: &
           deciduous => null() ! flag used for phenology fix
 
-     REAL, DIMENSION(:,:), POINTER :: &
+     real, dimension(:,:), pointer :: &
           refl => null(),    &
           taul => null(),    &
           froot => null()      ! fraction of root in each soil layer
 
      ! Additional  veg parameters:
-     REAL(r_2), DIMENSION(:), POINTER :: rootbeta => null() ! parameter for estimating vertical root mass distribution (froot)
-     REAL(r_2), DIMENSION(:), POINTER :: gamma => null()    ! parameter in root efficiency function (Lai and Katul 2000)
-     REAL(r_2), DIMENSION(:), POINTER :: ZR => null()       ! maximum rooting depth (cm)
-     REAL(r_2), DIMENSION(:), POINTER :: F10 => null()      ! fraction of roots in top 10 cm
+     real(r_2), dimension(:), pointer :: rootbeta => null() ! parameter for estimating vertical root mass distribution (froot)
+     real(r_2), dimension(:), pointer :: gamma => null()    ! parameter in root efficiency function (Lai and Katul 2000)
+     real(r_2), dimension(:), pointer :: ZR => null()       ! maximum rooting depth (cm)
+     real(r_2), dimension(:), pointer :: F10 => null()      ! fraction of roots in top 10 cm
 
-     REAL(r_2), DIMENSION(:), POINTER :: clitt => null()     !
+     real(r_2), dimension(:), pointer :: clitt => null()     !
 
      ! Additional POP veg param
-     INTEGER,   DIMENSION(:,:), POINTER :: disturbance_interval => null()
-     REAL(r_2), DIMENSION(:,:), POINTER :: disturbance_intensity => null()
+     integer,   dimension(:,:), pointer :: disturbance_interval => null()
+     real(r_2), dimension(:,:), pointer :: disturbance_intensity => null()
 
-  END TYPE veg_parameter_type
+  end type veg_parameter_type
 
   ! .............................................................................
 
   ! Canopy/vegetation variables:
-  TYPE canopy_type
+  type canopy_type
 
-     REAL, DIMENSION(:), POINTER :: &
+     real, dimension(:), pointer :: &
           cansto => null(),  & ! canopy water storage (mm)
           cduv => null(),    & ! drag coefficient for momentum
           delwc => null(),   & ! change in canopy water store (mm/dels)
@@ -398,14 +419,14 @@ MODULE cable_def_types_mod
           rghlai => null(),  & ! lai adj for snow depth for calc of resistances
           fwet => null()       ! fraction of canopy wet
 
-     REAL, DIMENSION(:,:), POINTER :: &
+     real, dimension(:,:), pointer :: &
           evapfbl => null(), &
           gswx => null(),    & ! stom cond for water
           zetar => null(),   & ! stability parameter (ref height)
                                 !! vh_js !!
           zetash => null()     ! stability parameter (shear height)
 
-     REAL(r_2), DIMENSION(:), POINTER :: &
+     real(r_2), dimension(:), pointer :: &
           fess => null(),    & ! latent heatfl from soil (W/m2)
           fesp => null(),    & ! latent heatfl from soil (W/m2)
           dgdtg => null(),   & ! derivative of gflux wrt soil temp
@@ -413,14 +434,14 @@ MODULE cable_def_types_mod
           fes_cor => null(), & ! latent heatfl from soil (W/m2)
           fevc => null(),    & ! dry canopy transpiration (W/m2)
           ofes => null(),    & ! latent heatfl from soil (W/m2)
-          A_sh => null(),    & ! net photosynthesis from shaded leaves
           A_sl => null(),    & ! net photosynthesis from sunlit leaves
+          A_sh => null(),    & ! net photosynthesis from shaded leaves
           A_slC => null(),   & ! net photosynthesis from sunlit leaves (rubisco limited)
           A_shC => null(),   & ! net photosynthesis from shaded leaves  (rubisco limited)
           A_slJ => null(),   & ! net photosynthesis from sunlit leaves (rubp limited)
           A_shJ => null(),   & ! net photosynthesis from shaded leaves  (rubp limited)
-          GPP_sh => null(), &  ! gross photosynthesis from shaded leaves
           GPP_sl => null(), &  ! gross photosynthesis from sunlit leaves
+          GPP_sh => null(), &  ! gross photosynthesis from shaded leaves
           fevc_sl => null(), &  ! dry canopy transpiration sunlit leaves (W/m2)
           fevc_sh => null(), &  ! dry canopy transpiration shaded leaves (W/m2)
           eta_A_cs => null(),& ! elasticity of net photosynthesis wrt cs, mulitplied by net  photosythesis
@@ -440,17 +461,17 @@ MODULE cable_def_types_mod
           dlf => null()        ! dryleaf vp minus in-canopy vp (Pa)
 
      ! Additional variables:
-     REAL(r_2), DIMENSION(:,:),   POINTER :: gw => null()     ! dry canopy conductance (ms-1) edit vh 6/7/09
-     REAL(r_2), DIMENSION(:,:,:), POINTER :: ancj => null()   ! limiting photosynthetic rates (Rubisco,RuBP,sink) vh 6/7/09
-     REAL(r_2), DIMENSION(:,:),   POINTER :: tlfy => null()   ! sunlit and shaded leaf temperatures
-     REAL(r_2), DIMENSION(:,:),   POINTER :: ecy => null()    ! sunlit and shaded leaf transpiration (dry canopy)
-     REAL(r_2), DIMENSION(:,:),   POINTER :: ecx => null()    ! sunlit and shaded leaf latent heat flux
+     real(r_2), dimension(:,:),   pointer :: gw => null()     ! dry canopy conductance (ms-1) edit vh 6/7/09
+     real(r_2), dimension(:,:,:), pointer :: ancj => null()   ! limiting photosynthetic rates (Rubisco,RuBP,sink) vh 6/7/09
+     real(r_2), dimension(:,:),   pointer :: tlfy => null()   ! sunlit and shaded leaf temperatures
+     real(r_2), dimension(:,:),   pointer :: ecy => null()    ! sunlit and shaded leaf transpiration (dry canopy)
+     real(r_2), dimension(:,:),   pointer :: ecx => null()    ! sunlit and shaded leaf latent heat flux
      ! REAL(r_2), DIMENSION(:,:,:), POINTER :: ci => null()     ! intra-cellular CO2 vh 6/7/09
-     REAL(r_2), DIMENSION(:),     POINTER :: fwsoil => null() !
+     real(r_2), dimension(:),     pointer :: fwsoil => null() !
 
      ! vh_js - litter thermal conductivity (Wm-2K-1) and vapour diffusivity (m2s-1)
-     REAL(r_2), DIMENSION(:), POINTER :: kthLitt => null()
-     REAL(r_2), DIMENSION(:), POINTER :: DvLitt => null()
+     real(r_2), dimension(:), pointer :: kthLitt => null()
+     real(r_2), dimension(:), pointer :: DvLitt => null()
 
      ! 13C
      real(r_2), dimension(:,:), pointer :: An => null()        ! sunlit and shaded net assimilation [mol(CO2)/m2/s]
@@ -464,14 +485,14 @@ MODULE cable_def_types_mod
      real(r_2), dimension(:,:), pointer :: gac => null()       ! aerodynamic conductance for CO2 [mol(CO2)/m^2/s]
      real(r_2), dimension(:,:), pointer :: ci => null()        ! stomatal CO2 concentration [mol(CO2)/mol(air)]
 
-  END TYPE canopy_type
+  end type canopy_type
 
   ! .............................................................................
 
   ! Radiation variables:
-  TYPE radiation_type
+  type radiation_type
 
-     REAL, DIMENSION(:), POINTER :: &
+     real, dimension(:), pointer :: &
           transb => null(),  & ! fraction SW beam tranmitted through canopy
           albedo_T => null(),& ! canopy+soil albedo for VIS+NIR
           longitude => null(),&! longitude
@@ -488,7 +509,7 @@ MODULE cable_def_types_mod
           transd => null(),  & ! frac SW diffuse transmitted through canopy
           trad => null()       !  radiative temperature (soil and veg)
 
-     REAL, DIMENSION(:,:), POINTER :: &
+     real, dimension(:,:), pointer :: &
           fvlai => null(),   & ! leaf area index of big leaf
           rhocdf => null(),  & ! canopy diffuse reflectance (-)
           rniso => null(),   & ! sum(rad%qcan, 3) total abs by canopy (W/m2)
@@ -504,17 +525,17 @@ MODULE cable_def_types_mod
           rhocbm => null(),  & ! modified canopy beam reflectance(6.21)
           gradis => null()     ! radiative conductance
 
-     REAL, DIMENSION(:,:,:), POINTER :: &
+     real, dimension(:,:,:), pointer :: &
           qcan => null() ! absorbed radiation for canopy (W/m^2)
 
-  END TYPE radiation_type
+  end type radiation_type
 
   ! .............................................................................
 
   ! Roughness variables:
-  TYPE roughness_type
+  type roughness_type
 
-     REAL, DIMENSION(:), POINTER :: &
+     real, dimension(:), pointer :: &
           disp => null(),    & ! zero-plane displacement
           hruff => null(),   & ! canopy height above snow level
           hruff_grmx => null(),&! max ht of canopy from tiles on same grid
@@ -534,24 +555,28 @@ MODULE cable_def_types_mod
      ! "coexp": coefficient in exponential in-canopy wind profile
      ! U(z) = U(h)*exp(coexp*(z/h-1)), found by gradient-matching
      ! canopy and roughness-sublayer U(z) at z=h
-     REAL, DIMENSION(:), POINTER :: &
+     real, dimension(:), pointer :: &
           coexp => null() ! Extinction coef for wind profile in canopy
 
      ! "usuh": us/uh (us=friction velocity, uh = mean velocity at z=h)
-     REAL, DIMENSION(:), POINTER :: &
+     real, dimension(:), pointer :: &
           usuh => null() ! Friction velocity/windspeed at canopy height
 
-     REAL, DIMENSION(:), POINTER :: & ! for aerodyn resist. calc.
-          term2 => null(), term3 => null(), term5 => null(), term6 => null(), term6a => null()
+     real, dimension(:), pointer :: & ! for aerodyn resist. calc.
+          term2 => null(), &
+          term3 => null(), &
+          term5 => null(), &
+          term6 => null(), &
+          term6a => null()
 
-  END TYPE roughness_type
+  end type roughness_type
 
   ! .............................................................................
 
   ! Air variables:
-  TYPE air_type
+  type air_type
 
-     REAL, DIMENSION(:), POINTER :: &
+     real, dimension(:), pointer :: &
           rho => null(),     & ! dry air density (kg m-3)
           volm => null(),    & ! molar volume (m3 mol-1)
           rlam => null(),    & ! latent heat for water (j/kg)
@@ -562,18 +587,18 @@ MODULE cable_def_types_mod
           dsatdk => null(),  & ! d(es)/dT (mb/K)
           cmolar => null()     ! conv. from m/s to mol/m2/s
 
-  END TYPE air_type
+  end type air_type
 
   ! .............................................................................
 
   ! Meterological data:
-  TYPE met_type
+  type met_type
 
-     INTEGER, DIMENSION(:), POINTER :: &
+     integer, dimension(:), pointer :: &
           year => null(),    & ! local time year AD
           moy => null()        ! local time month of year
 
-     REAL, DIMENSION(:), POINTER :: &
+     real, dimension(:), pointer :: &
           ca => null(),      & ! CO2 concentration (mol/mol)
           doy => null(),     & ! local time day of year = days since 0 hr 1st Jan
           hod => null(),     & ! local hour of day
@@ -595,24 +620,24 @@ MODULE cable_def_types_mod
           Pdep => null(),    & ! P deposition (gP m-2 d-1)
           u10 => null(),     & ! 10 m horizontal wind (m/s)
           rhum => null()       ! relative humidity (%)
-     REAL, DIMENSION(:,:), POINTER :: &
+     real, dimension(:,:), pointer :: &
           fsd => null()  ! downward short-wave radiation (W/m2)
 
-  END TYPE met_type
+  end type met_type
 
   ! .............................................................................
 
   ! Climate data:
-  TYPE climate_type
+  type climate_type
 
-     INTEGER :: nyear_average = 20
-     INTEGER :: nday_average  = 31
+     integer :: nyear_average = 20
+     integer :: nday_average  = 31
      !      INTEGER, POINTER ::                                                  &
-     INTEGER :: &
+     integer :: &
           nyears, & ! number of years in climate record
           doy ! day of year
 
-     INTEGER, DIMENSION(:), POINTER :: &
+     integer, dimension(:), pointer :: &
           chilldays => null(), &  ! length of chilling period (period with T<5deg)
           iveg => null(), &       ! potential vegetation type based on climatic constraints
           biome => null(), &
@@ -621,7 +646,7 @@ MODULE cable_def_types_mod
           DSLR => null(), &       ! days since last rain
           NDAY_Nesterov => null()
 
-     REAL, DIMENSION(:), POINTER :: &
+     real, dimension(:), pointer :: &
           dtemp => null(),        &                ! daily mean temperature
           dmoist => null(),        &               ! daily moisture availability
           dmoist_min => null(),        &           ! minimum daily moisture availability over the year
@@ -668,7 +693,7 @@ MODULE cable_def_types_mod
           Nesterov_ann_max_last_year  => null(), & ! annual maximum nesterov index (last year)
           Nesterov_ann_running_max => null()
 
-     REAL, DIMENSION(:,:), POINTER :: &
+     real, dimension(:,:), pointer :: &
           mtemp_min_20 => null(), &    ! mimimum monthly temperatures for the last 20 y
           mtemp_max_20 => null(), &    ! maximum monthly temperatures for the last 20 y
           dmoist_min_20 => null(), &   ! min daily moisture for the last 20 y
@@ -691,14 +716,14 @@ MODULE cable_def_types_mod
           aprecip_20 => null(), &      ! annual average rainfall for the last 20 years
           Rd_sun => null(), &
           Rd_shade => null()
-  END TYPE climate_type
+  end type climate_type
 
   ! .............................................................................
 
   ! Cumulative flux variables:
-  TYPE sum_flux_type
+  type sum_flux_type
 
-     REAL, DIMENSION(:), POINTER :: &
+     real, dimension(:), pointer :: &
           sumpn => null(),   & ! sum of canopy photosynthesis (g C m-2)
           sumrp => null(),   & ! sum of plant respiration (g C m-2)
           sumrpw => null(),  & ! sum of plant respiration (g C m-2)
@@ -712,32 +737,27 @@ MODULE cable_def_types_mod
           sumxrp => null(),  & ! sum plant resp. modifier
           sumxrs => null()     ! sum soil resp. modifier
 
-  END TYPE sum_flux_type
+  end type sum_flux_type
 
   ! .............................................................................
 
-  TYPE bgc_pool_type
+  type bgc_pool_type
 
-     REAL, DIMENSION(:,:), POINTER :: &
+     real, dimension(:,:), pointer :: &
           cplant => null(),  & ! plant carbon (g C/m2))
           csoil => null()      ! soil carbon (g C/m2)
 
-     REAL, DIMENSION(ncp)  :: ratecp ! plant carbon rate constant (1/year)
-     REAL, DIMENSION(ncs)  :: ratecs ! soil carbon rate constant (1/year)
+     real, dimension(ncp)  :: ratecp ! plant carbon rate constant (1/year)
+     real, dimension(ncs)  :: ratecs ! soil carbon rate constant (1/year)
 
-  END TYPE bgc_pool_type
+  end type bgc_pool_type
 
   ! .............................................................................
 
-  ! Functions for allocating these types
-  ! All overloaded so code only needs to call alloc_cbm_var
-  ! Alloc routines could all initialise to NaN or zero for debugging?
-  ! Don't need the mp argument here as it's a module variable.
-  PUBLIC :: alloc_cbm_var
-  PRIVATE :: alloc_bgc_pool_type, dealloc_bgc_pool_type
-
-  INTERFACE alloc_cbm_var
-     MODULE PROCEDURE alloc_balances_type, &
+  ! Functions for allocating and deallocating these types
+  ! Functions are overloaded, i.e. all called by calling alloc_cbm_var.
+  interface alloc_cbm_var
+     module procedure alloc_balances_type, &
           alloc_soil_parameter_type,         &
           alloc_soil_snow_type,              &
           alloc_veg_parameter_type,          &
@@ -749,10 +769,10 @@ MODULE cable_def_types_mod
           alloc_sum_flux_type,               &
           alloc_bgc_pool_type,               &
           alloc_climate_type
-  END INTERFACE alloc_cbm_var
+  end interface alloc_cbm_var
 
-  INTERFACE dealloc_cbm_var
-     MODULE PROCEDURE dealloc_balances_type, &
+  interface dealloc_cbm_var
+     module procedure dealloc_balances_type, &
           dealloc_soil_parameter_type,         &
           dealloc_soil_snow_type,              &
           dealloc_veg_parameter_type,          &
@@ -763,9 +783,9 @@ MODULE cable_def_types_mod
           dealloc_met_type,                    &
           dealloc_sum_flux_type,               &
           dealloc_bgc_pool_type
-  END INTERFACE dealloc_cbm_var
+  end interface dealloc_cbm_var
 
-  public :: zero_cbm_var
+  ! Functions for setting to zero all variables in types
   interface zero_cbm_var
      module procedure zero_balances_type, &
           zero_soil_parameter_type,         &
@@ -781,7 +801,7 @@ MODULE cable_def_types_mod
           zero_climate_type
   end interface zero_cbm_var
 
-  public :: print_cbm_var
+  ! Functions to print to screen all variables in types
   interface print_cbm_var
      module procedure print_balances_type, &
           print_soil_parameter_type,         &
@@ -797,2428 +817,2846 @@ MODULE cable_def_types_mod
           print_climate_type
   end interface print_cbm_var
 
-CONTAINS
+  ! Functions to read from netcdf file all variables in types
+  interface read_netcdf_cbm_var
+     module procedure read_netcdf_climate_type
+  end interface read_netcdf_cbm_var
 
-  SUBROUTINE alloc_balances_type(var, mp)
+  ! Functions to write to netcdf file all variables in types
+  interface write_netcdf_cbm_var
+     module procedure write_netcdf_climate_type
+  end interface write_netcdf_cbm_var
 
-    TYPE(balances_type), INTENT(inout) :: var
-    INTEGER, INTENT(in) :: mp
+contains
 
-    allocate(var%drybal(mp))
-    allocate(var%ebal(mp))
-    allocate(var%ebal_tot(mp))
-    allocate(var%ebaltr(mp))
-    allocate(var%ebal_tottr(mp))
-    allocate(var%ebal_cncheck(mp))
-    allocate(var%ebal_tot_cncheck(mp))
-    allocate(var%evap_tot(mp))
-    allocate(var%osnowd0(mp))
-    allocate(var%precip_tot(mp))
-    allocate(var%rnoff_tot(mp))
-    allocate(var%wbal(mp))
-    allocate(var%wbal_tot(mp))
-    allocate(var%wbtot0(mp))
-    allocate(var%wetbal(mp))
-    allocate(var%cansto0(mp))
-    allocate(var%evapc_tot(mp))
-    allocate(var%evaps_tot(mp))
-    allocate(var%rnof1_tot(mp))
-    allocate(var%rnof2_tot(mp))
-    allocate(var%snowdc_tot(mp))
-    allocate(var%wbal_tot1(mp))
-    allocate(var%owbtot(mp))
-    allocate(var%delwc_tot(mp))
-    allocate(var%qasrf_tot(mp))
-    allocate(var%qfsrf_tot(mp))
-    allocate(var%qssrf_tot(mp))
+  subroutine alloc_balances_type(bal, mp)
 
-    allocate(var%Radbal(mp))
-    allocate(var%EbalSoil(mp))
-    allocate(var%Ebalveg(mp))
-    allocate(var%Radbalsum(mp))
+    type(balances_type), intent(inout) :: bal
+    integer, intent(in) :: mp
 
-  END SUBROUTINE alloc_balances_type
+    allocate(bal%drybal(mp))
+    allocate(bal%ebal(mp))
+    allocate(bal%ebal_tot(mp))
+    allocate(bal%ebal_cncheck(mp))
+    allocate(bal%ebal_tot_cncheck(mp))
+    allocate(bal%ebaltr(mp))
+    allocate(bal%ebal_tottr(mp))
+    allocate(bal%evap_tot(mp))
+    allocate(bal%osnowd0(mp))
+    allocate(bal%precip_tot(mp))
+    allocate(bal%rnoff_tot(mp))
+    allocate(bal%wbal(mp))
+    allocate(bal%wbal_tot(mp))
+    allocate(bal%wbtot0(mp))
+    allocate(bal%wetbal(mp))
+    allocate(bal%cansto0(mp))
+    allocate(bal%owbtot(mp))
+    allocate(bal%evapc_tot(mp))
+    allocate(bal%evaps_tot(mp))
+    allocate(bal%rnof1_tot(mp))
+    allocate(bal%rnof2_tot(mp))
+    allocate(bal%snowdc_tot(mp))
+    allocate(bal%wbal_tot1(mp))
+    allocate(bal%delwc_tot(mp))
+    allocate(bal%qasrf_tot(mp))
+    allocate(bal%qfsrf_tot(mp))
+    allocate(bal%qssrf_tot(mp))
+    allocate(bal%Radbal(mp))
+    allocate(bal%EbalSoil(mp))
+    allocate(bal%Ebalveg(mp))
+    allocate(bal%Radbalsum(mp))
 
-  ! ------------------------------------------------------------------------------
+  end subroutine alloc_balances_type
 
-  SUBROUTINE alloc_soil_parameter_type(var, mp)
+  ! ------------------------------------------------------------------
 
-    TYPE(soil_parameter_type), INTENT(inout) :: var
-    INTEGER, INTENT(in) :: mp
+  subroutine alloc_soil_parameter_type(soil, mp)
 
-    allocate(var%bch(mp))
-    allocate(var%c3(mp))
-    allocate(var%clay(mp))
-    allocate(var%css(mp))
-    allocate(var%hsbh(mp))
-    allocate(var%hyds(mp))
-    allocate(var%i2bp3(mp))
-    allocate(var%ibp2(mp))
-    allocate(var%isoilm(mp))
-    allocate(var%rhosoil(mp))
-    allocate(var%sand(mp))
-    allocate(var%sfc(mp))
-    allocate(var%silt(mp))
-    allocate(var%ssat(mp))
-    allocate(var%sucs(mp))
-    allocate(var%swilt(mp))
-    allocate(var%zse(ms))
-    allocate(var%zshh(ms+1))
-    allocate(var%cnsd(mp))
-    allocate(var%albsoil(mp, nrb))
-    allocate(var%pwb_min(mp))
-    allocate(var%albsoilf(mp))
-    allocate(var%soilcol(mp))
+    type(soil_parameter_type), intent(inout) :: soil
+    integer, intent(in) :: mp
 
+    allocate(soil%isoilm(mp))
+    allocate(soil%bch(mp))
+    allocate(soil%c3(mp))
+    allocate(soil%clay(mp))
+    allocate(soil%css(mp))
+    allocate(soil%hsbh(mp))
+    allocate(soil%hyds(mp))
+    allocate(soil%i2bp3(mp))
+    allocate(soil%ibp2(mp))
+    allocate(soil%rhosoil(mp))
+    allocate(soil%sand(mp))
+    allocate(soil%sfc(mp))
+    allocate(soil%silt(mp))
+    allocate(soil%ssat(mp))
+    allocate(soil%sucs(mp))
+    allocate(soil%swilt(mp))
+    allocate(soil%zse(ms))
+    allocate(soil%zshh(ms+1))
+    allocate(soil%soilcol(mp))
+    allocate(soil%albsoilf(mp))
+    allocate(soil%cnsd(mp))
+    allocate(soil%pwb_min(mp))
+    allocate(soil%albsoil(mp, nrb))
     ! Allocate variables for SLI soil model:
-    allocate(var%nhorizons(mp))
-    allocate(var%ishorizon(mp,ms))
-    allocate(var%clitt(mp))
-    allocate(var%zeta(mp))
-    allocate(var%fsatmax(mp))
-    allocate(var%swilt_vec(mp,ms))
-    allocate(var%ssat_vec(mp,ms))
-    allocate(var%sfc_vec(mp,ms))
-    if (.not.(associated(var%swilt_vec))) allocate(var%swilt_vec(mp,ms))
-    if (.not.(associated(var%ssat_vec)))  allocate(var%ssat_vec(mp,ms))
-    if (.not.(associated(var%sfc_vec)))   allocate(var%sfc_vec(mp,ms))
+    allocate(soil%nhorizons(mp))
+    allocate(soil%ishorizon(mp,ms))
+    allocate(soil%clitt(mp))
+    allocate(soil%zeta(mp))
+    allocate(soil%fsatmax(mp))
+    allocate(soil%swilt_vec(mp,ms))
+    allocate(soil%ssat_vec(mp,ms))
+    allocate(soil%sfc_vec(mp,ms))
 
-  END SUBROUTINE alloc_soil_parameter_type
+  end subroutine alloc_soil_parameter_type
 
-  ! ------------------------------------------------------------------------------
+  ! ------------------------------------------------------------------
 
-  SUBROUTINE alloc_soil_snow_type(var, mp)
+  subroutine alloc_soil_snow_type(ssnow, mp)
 
-    TYPE(soil_snow_type), INTENT(inout) :: var
-    INTEGER, INTENT(in) :: mp
+    type(soil_snow_type), intent(inout) :: ssnow
+    integer, intent(in) :: mp
 
-    allocate(var%iantrct(mp))
-    allocate(var%pudsto(mp))
-    allocate(var%pudsmx(mp))
-    allocate(var%dtmlt(mp,3))
-    allocate(var%albsoilsn(mp,nrb))
-    allocate(var%cls(mp))
-    allocate(var%dfn_dtg(mp))
-    allocate(var%dfh_dtg(mp))
-    allocate(var%dfe_ddq(mp))
-    allocate(var%ddq_dtg(mp))
-    allocate(var%evapsn(mp))
-    allocate(var%fwtop(mp))
-    allocate(var%fwtop1(mp))
-    allocate(var%fwtop2(mp))
-    allocate(var%fwtop3(mp))
-    allocate(var%gammzz(mp,ms))
-    allocate(var%isflag(mp))
-    allocate(var%osnowd(mp))
-    allocate(var%potev(mp))
-    allocate(var%runoff(mp))
-    allocate(var%rnof1(mp))
-    allocate(var%rnof2(mp))
-    allocate(var%rtsoil(mp))
-    allocate(var%sconds(mp,msn))
-    allocate(var%sdepth(mp,msn))
-    allocate(var%smass(mp,msn))
-    allocate(var%snage(mp))
-    allocate(var%snowd(mp))
-    allocate(var%smelt(mp))
-    allocate(var%ssdn(mp,msn))
-    allocate(var%ssdnn(mp))
-    allocate(var%tgg(mp,ms))
-    allocate(var%tggsn(mp,msn))
-    allocate(var%tss(mp))
-    allocate(var%tss_p(mp))
-    allocate(var%deltss(mp))
-    allocate(var%owb1(mp))
-    allocate(var%wb(mp,ms))
-    allocate(var%wbice(mp,ms))
-    allocate(var%wblf(mp,ms))
-    allocate(var%wbtot(mp))
-    allocate(var%wbtot1(mp))
-    allocate(var%wbtot2(mp))
-    allocate(var%wb_lake(mp))
-    allocate(var%sinfil(mp))
-    allocate(var%evapfbl(mp,ms))
-    allocate(var%qstss(mp))
-    allocate(var%wetfac(mp))
-    allocate(var%owetfac(mp))
-    allocate(var%t_snwlr(mp))
-    allocate(var%wbfice(mp,ms))
-    allocate(var%tggav(mp))
-    allocate(var%otgg(mp))
-    allocate(var%otss(mp))
-    allocate(var%otss_0(mp))
-    allocate(var%tprecip(mp))
-    allocate(var%tevap(mp))
-    allocate(var%trnoff(mp))
-    allocate(var%totenbal(mp))
-    allocate(var%totenbal2(mp))
-    allocate(var%fland(mp))
-    allocate(var%ifland(mp))
-    allocate(var%tilefrac(mp,n_tiles))
-    allocate(var%qasrf(mp))
-    allocate(var%qfsrf(mp))
-    allocate(var%qssrf(mp))
-
+    allocate(ssnow%isflag(mp))
+    allocate(ssnow%iantrct(mp))
+    allocate(ssnow%pudsto(mp))
+    allocate(ssnow%pudsmx(mp))
+    allocate(ssnow%cls(mp))
+    allocate(ssnow%dfn_dtg(mp))
+    allocate(ssnow%dfh_dtg(mp))
+    allocate(ssnow%dfe_ddq(mp))
+    allocate(ssnow%ddq_dtg(mp))
+    allocate(ssnow%evapsn(mp))
+    allocate(ssnow%fwtop(mp))
+    allocate(ssnow%fwtop1(mp))
+    allocate(ssnow%fwtop2(mp))
+    allocate(ssnow%fwtop3(mp))
+    allocate(ssnow%osnowd(mp))
+    allocate(ssnow%potev(mp))
+    allocate(ssnow%runoff(mp))
+    allocate(ssnow%rnof1(mp))
+    allocate(ssnow%rnof2(mp))
+    allocate(ssnow%rtsoil(mp))
+    allocate(ssnow%wbtot1(mp))
+    allocate(ssnow%wbtot2(mp))
+    allocate(ssnow%wb_lake(mp))
+    allocate(ssnow%sinfil(mp))
+    allocate(ssnow%qstss(mp))
+    allocate(ssnow%wetfac(mp))
+    allocate(ssnow%owetfac(mp))
+    allocate(ssnow%t_snwlr(mp))
+    allocate(ssnow%tggav(mp))
+    allocate(ssnow%otgg(mp))
+    allocate(ssnow%otss(mp))
+    allocate(ssnow%otss_0(mp))
+    allocate(ssnow%tprecip(mp))
+    allocate(ssnow%tevap(mp))
+    allocate(ssnow%trnoff(mp))
+    allocate(ssnow%totenbal(mp))
+    allocate(ssnow%totenbal2(mp))
+    allocate(ssnow%fland(mp))
+    allocate(ssnow%ifland(mp))
+    allocate(ssnow%qasrf(mp))
+    allocate(ssnow%qfsrf(mp))
+    allocate(ssnow%qssrf(mp))
+    allocate(ssnow%snage(mp))
+    allocate(ssnow%snowd(mp))
+    allocate(ssnow%smelt(mp))
+    allocate(ssnow%ssdnn(mp))
+    allocate(ssnow%tss(mp))
+    allocate(ssnow%tss_p(mp))
+    allocate(ssnow%deltss(mp))
+    allocate(ssnow%owb1(mp))
+    allocate(ssnow%sconds(mp,msn))
+    allocate(ssnow%sdepth(mp,msn))
+    allocate(ssnow%smass(mp,msn))
+    allocate(ssnow%ssdn(mp,msn))
+    allocate(ssnow%tgg(mp,ms))
+    allocate(ssnow%tggsn(mp,msn))
+    allocate(ssnow%dtmlt(mp,3))
+    allocate(ssnow%albsoilsn(mp,nrb))
+    allocate(ssnow%evapfbl(mp,ms))
+    allocate(ssnow%tilefrac(mp,n_tiles))
+    allocate(ssnow%wbtot(mp))
+    allocate(ssnow%gammzz(mp,ms))
+    allocate(ssnow%wb(mp,ms))
+    allocate(ssnow%wbice(mp,ms))
+    allocate(ssnow%wblf(mp,ms))
+    allocate(ssnow%wbfice(mp,ms))
     ! Allocate variables for SLI soil model:
-    ! IF(cable_user%SOIL_STRUC=='sli') THEN
-    allocate(var%S(mp,ms))
-    allocate(var%Tsoil(mp,ms))
-    allocate(var%SL(mp))
-    allocate(var%TL(mp))
-    allocate(var%h0(mp))
-    allocate(var%rex(mp,ms))
-    allocate(var%wflux(mp,0:ms))
-    allocate(var%delwcol(mp))
-    allocate(var%zdelta(mp))
-    allocate(var%kth(mp,ms))
-    allocate(var%Tsurface(mp))
-    allocate(var%lE(mp))
-    allocate(var%evap(mp))
-    allocate(var%ciso(mp,ms+1))
-    allocate(var%cisoL(mp))
-    allocate(var%rlitt(mp))
-    allocate(var%thetai(mp,ms))
-    allocate(var%snowliq(mp,msn))
-    allocate(var%nsteps(mp))
-    allocate(var%nsnow(mp))
-    allocate(var%TsurfaceFR(mp))
-    allocate(var%Ta_daily(mp,100))
-    allocate(var%Qadv_daily(mp))
-    allocate(var%G0_daily(mp))
-    allocate(var%Qevap_daily(mp))
-    allocate(var%Qprec_daily(mp))
-    allocate(var%Qprec_snow_daily(mp))
-    allocate(var%E_fusion_sn(mp))
-    allocate(var%E_sublimation_sn(mp))
-    allocate(var%latent_heat_sn(mp))
-    allocate(var%evap_liq_sn(mp))
-    allocate(var%surface_melt(mp))
-    allocate(var%Qadv_rain_sn(mp))
-    ! END IF
+    allocate(ssnow%S(mp,ms))
+    allocate(ssnow%Tsoil(mp,ms))
+    allocate(ssnow%SL(mp))
+    allocate(ssnow%TL(mp))
+    allocate(ssnow%h0(mp))
+    allocate(ssnow%rex(mp,ms))
+    allocate(ssnow%wflux(mp,0:ms))
+    allocate(ssnow%delwcol(mp))
+    allocate(ssnow%zdelta(mp))
+    allocate(ssnow%kth(mp,ms))
+    allocate(ssnow%Tsurface(mp))
+    allocate(ssnow%lE(mp))
+    allocate(ssnow%evap(mp))
+    allocate(ssnow%ciso(mp,ms+1))
+    allocate(ssnow%cisoL(mp))
+    allocate(ssnow%rlitt(mp))
+    allocate(ssnow%thetai(mp,ms))
+    allocate(ssnow%snowliq(mp,msn))
+    allocate(ssnow%nsteps(mp))
+    allocate(ssnow%TsurfaceFR(mp))
+    allocate(ssnow%Ta_daily(mp,100))
+    allocate(ssnow%nsnow(mp))
+    allocate(ssnow%Qadv_daily(mp))
+    allocate(ssnow%G0_daily(mp))
+    allocate(ssnow%Qevap_daily(mp))
+    allocate(ssnow%Qprec_daily(mp))
+    allocate(ssnow%Qprec_snow_daily(mp))
+    allocate(ssnow%E_fusion_sn(mp))
+    allocate(ssnow%E_sublimation_sn(mp))
+    allocate(ssnow%latent_heat_sn(mp))
+    allocate(ssnow%evap_liq_sn(mp))
+    allocate(ssnow%surface_melt(mp))
+    allocate(ssnow%Qadv_rain_sn(mp))
 
-  END SUBROUTINE alloc_soil_snow_type
+  end subroutine alloc_soil_snow_type
 
-  ! ------------------------------------------------------------------------------
+  ! ------------------------------------------------------------------
 
-  SUBROUTINE alloc_veg_parameter_type(var, mp)
+  subroutine alloc_veg_parameter_type(veg, mp)
 
-    TYPE(veg_parameter_type), INTENT(inout) :: var
-    INTEGER, INTENT(in) :: mp
+    type(veg_parameter_type), intent(inout) :: veg
+    integer, intent(in) :: mp
 
-    allocate(var%canst1(mp))
-    allocate(var%dleaf(mp))
-    allocate(var%ejmax(mp))
-    allocate(var%ejmax_shade(mp))
-    allocate(var%ejmax_sun(mp))
-    allocate(var%iveg(mp))
-    allocate(var%ivegp(mp))
-    allocate(var%iLU(mp))
-    allocate(var%meth(mp))
-    allocate(var%frac4(mp))
-    allocate(var%hc(mp))
-    allocate(var%vlai(mp))
-    allocate(var%xalbnir(mp))
-    allocate(var%rp20(mp))
-    allocate(var%rpcoef(mp))
-    allocate(var%rs20(mp))
-    allocate(var%shelrb(mp))
-    allocate(var%vegcf(mp))
-    allocate(var%tminvj(mp))
-    allocate(var%toptvj(mp))
-    allocate(var%tmaxvj(mp))
-    allocate(var%vbeta(mp))
-    allocate(var%vcmax(mp))
-    allocate(var%vcmax_shade(mp))
-    allocate(var%vcmax_sun(mp))
-    allocate(var%xfang(mp))
-    allocate(var%extkn(mp))
-    allocate(var%wai(mp))
-    allocate(var%deciduous(mp))
-    allocate(var%froot(mp,ms))
-    !was nrb(=3), but never uses (:,3) in model
-    allocate(var%refl(mp,2)) !jhan:swb?
-    allocate(var%taul(mp,2))
-    allocate(var%vlaimax(mp))
-    allocate(var%a1gs(mp))
-    allocate(var%d0gs(mp))
-    allocate(var%alpha(mp))
-    allocate(var%convex(mp))
-    allocate(var%cfrd(mp))
-    allocate(var%gswmin(mp))
-    allocate(var%conkc0(mp))
-    allocate(var%conko0(mp))
-    allocate(var%ekc(mp))
-    allocate(var%eko(mp))
-    allocate(var%g0(mp))   ! Ticket #56.
-    allocate(var%g1(mp))   ! Ticket #56.
-    allocate(var%vcmaxcc(mp))
-    allocate(var%ejmaxcc(mp))
-    allocate(var%gmmax(mp))
-    allocate(var%gm(mp))
-    allocate(var%c4kci(mp))
-    allocate(var%c4kcc(mp))
-    allocate(var%bjv(mp))
+    allocate(veg%iveg(mp))
+    allocate(veg%ivegp(mp))
+    allocate(veg%iLU(mp))
+    allocate(veg%canst1(mp))
+    allocate(veg%dleaf(mp))
+    allocate(veg%ejmax(mp))
+    allocate(veg%ejmax_shade(mp))
+    allocate(veg%ejmax_sun(mp))
+    allocate(veg%meth(mp))
+    allocate(veg%frac4(mp))
+    allocate(veg%hc(mp))
+    allocate(veg%vlai(mp))
+    allocate(veg%xalbnir(mp))
+    allocate(veg%rp20(mp))
+    allocate(veg%rpcoef(mp))
+    allocate(veg%rs20(mp))
+    allocate(veg%shelrb(mp))
+    allocate(veg%vegcf(mp))
+    allocate(veg%tminvj(mp))
+    allocate(veg%toptvj(mp))
+    allocate(veg%tmaxvj(mp))
+    allocate(veg%vbeta(mp))
+    allocate(veg%vcmax(mp))
+    allocate(veg%vcmax_shade(mp))
+    allocate(veg%vcmax_sun(mp))
+    allocate(veg%xfang(mp))
+    allocate(veg%extkn(mp))
+    allocate(veg%vlaimax(mp))
+    allocate(veg%wai(mp))
+    allocate(veg%a1gs(mp))
+    allocate(veg%d0gs(mp))
+    allocate(veg%alpha(mp))
+    allocate(veg%convex(mp))
+    allocate(veg%cfrd(mp))
+    allocate(veg%gswmin(mp))
+    allocate(veg%conkc0(mp))
+    allocate(veg%conko0(mp))
+    allocate(veg%ekc(mp))
+    allocate(veg%eko(mp))
+    allocate(veg%g0(mp))   ! Ticket #56.
+    allocate(veg%g1(mp))   ! Ticket #56.
+    allocate(veg%vcmaxcc(mp))
+    allocate(veg%ejmaxcc(mp))
+    allocate(veg%gmmax(mp))
+    allocate(veg%gm(mp))
+    allocate(veg%c4kci(mp))
+    allocate(veg%c4kcc(mp))
+    allocate(veg%bjv(mp))
+    allocate(veg%deciduous(mp))
+    ! was nrb(=3), but never uses (:,3) in model
+    allocate(veg%refl(mp,2)) ! jhan:swb?
+    allocate(veg%taul(mp,2))
+    allocate(veg%froot(mp,ms))
+    allocate(veg%rootbeta(mp))
+    allocate(veg%gamma(mp))
+    allocate(veg%ZR(mp))
+    allocate(veg%F10(mp))
+    allocate(veg%clitt(mp))
+    allocate(veg%disturbance_interval(mp,2))
+    allocate(veg%disturbance_intensity(mp,2))
 
-    allocate(var%rootbeta(mp))
-    allocate(var%gamma(mp))
-    allocate(var%F10(mp))
-    allocate(var%ZR(mp))
-    allocate(var%clitt(mp))
+  end subroutine alloc_veg_parameter_type
 
-    allocate(var%disturbance_interval(mp,2))
-    allocate(var%disturbance_intensity(mp,2))
+  ! ------------------------------------------------------------------
 
-  END SUBROUTINE alloc_veg_parameter_type
+  subroutine alloc_canopy_type(canopy, mp)
 
-  ! ------------------------------------------------------------------------------
+    type(canopy_type), intent(inout) :: canopy
+    integer, intent(in) :: mp
 
-  SUBROUTINE alloc_canopy_type(var, mp)
-
-    TYPE(canopy_type), INTENT(inout) :: var
-    INTEGER, INTENT(in) :: mp
-
-    allocate(var%fess(mp))
-    allocate(var%fesp(mp))
-    allocate(var%cansto(mp))
-    allocate(var%cduv(mp))
-    allocate(var%delwc(mp))
-    allocate(var%dewmm(mp))
-    allocate(var%dgdtg(mp))
-    allocate(var%fe(mp))
-    allocate(var%fh(mp))
-    allocate(var%fpn(mp))
-    allocate(var%frp(mp))
-    allocate(var%frpw(mp))
-    allocate(var%frpr(mp))
-    allocate(var%frs(mp))
-    allocate(var%fnee(mp))
-    allocate(var%frday(mp))
-    allocate(var%fnv(mp))
-    allocate(var%fev(mp))
-    allocate(var%fevc(mp))
-    allocate(var%fhv(mp))
-    allocate(var%fns(mp))
-    allocate(var%fhs(mp))
-    allocate(var%fhs_cor(mp))
-    allocate(var%ga(mp))
-    allocate(var%ghflux(mp))
-    allocate(var%precis(mp))
-    allocate(var%qscrn(mp))
-    allocate(var%rnet(mp))
-    allocate(var%rniso(mp))
-    allocate(var%segg(mp))
-    allocate(var%sghflux(mp))
-    allocate(var%through(mp))
-    allocate(var%spill(mp))
-    allocate(var%tscrn(mp))
-    allocate(var%wcint(mp))
-    allocate(var%tv(mp))
-    allocate(var%us(mp))
-    allocate(var%uscrn(mp))
-    allocate(var%rghlai(mp))
-    allocate(var%vlaiw(mp))
-    allocate(var%fwet(mp))
-    allocate(var%A_sh(mp))
-    allocate(var%A_sl(mp))
-    allocate(var%A_slC(mp))
-    allocate(var%A_shC(mp))
-    allocate(var%A_slJ(mp))
-    allocate(var%A_shJ(mp))
-    allocate(var%GPP_sh(mp))
-    allocate(var%GPP_sl(mp))
-    allocate(var%fevc_sh(mp))
-    allocate(var%fevc_sl(mp))
-    allocate(var%eta_GPP_cs(mp))
-    allocate(var%eta_fevc_cs(mp))
-    allocate(var%eta_A_cs(mp))
-    allocate(var%eta_A_cs_sh(mp))
-    allocate(var%eta_A_cs_sl(mp))
-    allocate(var%eta_fevc_cs_sh(mp))
-    allocate(var%eta_fevc_cs_sl(mp))
-    allocate(var%cs(mp))
-    allocate(var%dAdcs(mp))
-    allocate(var%cs_sl(mp))
-    allocate(var%cs_sh(mp))
-    ! allocate(var%ci_sl(mp))
-    ! allocate(var%ci_sh(mp))
-    allocate(var%tlf(mp))
-    allocate(var%dlf(mp))
-
-    allocate(var%evapfbl(mp,ms))
-    allocate(var%epot(mp))
-    allocate(var%fnpp(mp))
-    allocate(var%fevw_pot(mp))
-    allocate(var%gswx_T(mp))
-    allocate(var%cdtq(mp))
-    allocate(var%wetfac_cs(mp))
-    allocate(var%fevw(mp))
-    allocate(var%fhvw(mp))
-    allocate(var%fes(mp))
-    allocate(var%fes_cor(mp))
-    allocate(var%gswx(mp,mf))
-    allocate(var%oldcansto(mp))
-    allocate(var%zetar(mp,NITER))
-    allocate(var%zetash(mp,NITER))
-    allocate(var%fwsoil(mp))
-    allocate(var%ofes(mp))
-
-    allocate(var%gw(mp,mf))     ! dry canopy conductance (ms-1) edit vh 6/7/09
-    allocate(var%ancj(mp,mf,3)) ! limiting photosynthetic rates (Rubisco,RuBP,sink) vh 6/7/09
-    allocate(var%tlfy(mp,mf))   ! sunlit and shaded leaf temperatures
-    allocate(var%ecy(mp,mf))    ! sunlit and shaded leaf transpiration (dry canopy)
-    allocate(var%ecx(mp,mf))    ! sunlit and shaded leaf latent heat flux
-    ! allocate(var%ci(mp,mf,3))   ! intra-cellular CO2 vh 6/7/09
-    allocate(var%fwsoil(mp))
-
+    allocate(canopy%cansto(mp))
+    allocate(canopy%cduv(mp))
+    allocate(canopy%delwc(mp))
+    allocate(canopy%dewmm(mp))
+    allocate(canopy%fe(mp))
+    allocate(canopy%fh(mp))
+    allocate(canopy%fpn(mp))
+    allocate(canopy%frp(mp))
+    allocate(canopy%frpw(mp))
+    allocate(canopy%frpr(mp))
+    allocate(canopy%frs(mp))
+    allocate(canopy%fnee(mp))
+    allocate(canopy%frday(mp))
+    allocate(canopy%fnv(mp))
+    allocate(canopy%fev(mp))
+    allocate(canopy%epot(mp))
+    allocate(canopy%fnpp(mp))
+    allocate(canopy%fevw_pot(mp))
+    allocate(canopy%gswx_T(mp))
+    allocate(canopy%cdtq(mp))
+    allocate(canopy%wetfac_cs(mp))
+    allocate(canopy%fevw(mp))
+    allocate(canopy%fhvw(mp))
+    allocate(canopy%oldcansto(mp))
+    allocate(canopy%fhv(mp))
+    allocate(canopy%fns(mp))
+    allocate(canopy%fhs(mp))
+    allocate(canopy%fhs_cor(mp))
+    allocate(canopy%ga(mp))
+    allocate(canopy%ghflux(mp))
+    allocate(canopy%precis(mp))
+    allocate(canopy%qscrn(mp))
+    allocate(canopy%rnet(mp))
+    allocate(canopy%rniso(mp))
+    allocate(canopy%segg(mp))
+    allocate(canopy%sghflux(mp))
+    allocate(canopy%through(mp))
+    allocate(canopy%spill(mp))
+    allocate(canopy%tscrn(mp))
+    allocate(canopy%wcint(mp))
+    allocate(canopy%tv(mp))
+    allocate(canopy%us(mp))
+    allocate(canopy%uscrn(mp))
+    allocate(canopy%vlaiw(mp))
+    allocate(canopy%rghlai(mp))
+    allocate(canopy%fwet(mp))
+    allocate(canopy%evapfbl(mp,ms))
+    allocate(canopy%gswx(mp,mf))
+    allocate(canopy%zetar(mp,NITER))
+    allocate(canopy%zetash(mp,NITER))
+    allocate(canopy%fess(mp))
+    allocate(canopy%fesp(mp))
+    allocate(canopy%dgdtg(mp))
+    allocate(canopy%fes(mp))
+    allocate(canopy%fes_cor(mp))
+    allocate(canopy%fevc(mp))
+    allocate(canopy%ofes(mp))
+    allocate(canopy%A_sl(mp))
+    allocate(canopy%A_sh(mp))
+    allocate(canopy%A_slC(mp))
+    allocate(canopy%A_shC(mp))
+    allocate(canopy%A_slJ(mp))
+    allocate(canopy%A_shJ(mp))
+    allocate(canopy%GPP_sl(mp))
+    allocate(canopy%GPP_sh(mp))
+    allocate(canopy%fevc_sl(mp))
+    allocate(canopy%fevc_sh(mp))
+    allocate(canopy%eta_A_cs(mp))
+    allocate(canopy%dAdcs(mp))
+    allocate(canopy%eta_GPP_cs(mp))
+    allocate(canopy%eta_A_cs_sl(mp))
+    allocate(canopy%eta_A_cs_sh(mp))
+    allocate(canopy%eta_fevc_cs_sl(mp))
+    allocate(canopy%eta_fevc_cs_sh(mp))
+    allocate(canopy%eta_fevc_cs(mp))
+    allocate(canopy%cs(mp))
+    allocate(canopy%cs_sl(mp))
+    allocate(canopy%cs_sh(mp))
+    ! allocate(canopy%ci_sl(mp))
+    ! allocate(canopy%ci_sh(mp))
+    allocate(canopy%tlf(mp))
+    allocate(canopy%dlf(mp))
+    allocate(canopy%gw(mp,mf))     ! dry canopy conductance (ms-1) edit vh 6/7/09
+    allocate(canopy%ancj(mp,mf,3)) ! limiting photosynthetic rates (Rubisco,RuBP,sink) vh 6/7/09
+    allocate(canopy%tlfy(mp,mf))   ! sunlit and shaded leaf temperatures
+    allocate(canopy%ecy(mp,mf))    ! sunlit and shaded leaf transpiration (dry canopy)
+    allocate(canopy%ecx(mp,mf))    ! sunlit and shaded leaf latent heat flux
+    ! allocate(canopy%ci(mp,mf,3))   ! intra-cellular CO2 vh 6/7/09
+    allocate(canopy%fwsoil(mp))
     ! vh_js - litter resistances to heat and vapour transfer
-    allocate(var%kthLitt(mp))
-    allocate(var%DvLitt(mp))
-
+    allocate(canopy%kthLitt(mp))
+    allocate(canopy%DvLitt(mp))
     ! 13C
-    allocate(var%An(mp,mf))
-    allocate(var%Rd(mp,mf))
-    allocate(var%isc3(mp))
-    allocate(var%vcmax(mp,mf))
-    allocate(var%gammastar(mp,mf))
-    allocate(var%gsc(mp,mf))
-    allocate(var%gbc(mp,mf))
-    allocate(var%gac(mp,mf))
-    allocate(var%ci(mp,mf))
+    allocate(canopy%An(mp,mf))
+    allocate(canopy%Rd(mp,mf))
+    allocate(canopy%isc3(mp))
+    allocate(canopy%vcmax(mp,mf))
+    allocate(canopy%gammastar(mp,mf))
+    allocate(canopy%gsc(mp,mf))
+    allocate(canopy%gbc(mp,mf))
+    allocate(canopy%gac(mp,mf))
+    allocate(canopy%ci(mp,mf))
 
-  END SUBROUTINE alloc_canopy_type
+  end subroutine alloc_canopy_type
 
-  ! ------------------------------------------------------------------------------
+  ! ------------------------------------------------------------------
 
-  SUBROUTINE alloc_radiation_type(var, mp)
+  subroutine alloc_radiation_type(rad, mp)
 
-    TYPE(radiation_type), INTENT(inout) :: var
-    INTEGER, INTENT(in) :: mp
+    type(radiation_type), intent(inout) :: rad
+    integer, intent(in) :: mp
 
-    allocate(var%albedo(mp,nrb))
-    allocate(var%extkb(mp))
-    allocate(var%extkd2(mp))
-    allocate(var%extkd(mp))
-    allocate(var%flws(mp))
-    allocate(var%fvlai(mp,mf))
-    allocate(var%latitude(mp))
-    allocate(var%lwabv(mp))
-    allocate(var%qcan(mp,mf,nrb))
-    allocate(var%qssabs(mp))
-    allocate(var%rhocdf(mp,nrb))
-    allocate(var%rniso(mp,mf))
-    allocate(var%scalex(mp,mf))
-    allocate(var%transd(mp))
-    allocate(var%trad(mp))
-    allocate(var%reffdf(mp,nrb))
-    allocate(var%reffbm(mp,nrb))
-    allocate(var%extkbm(mp,nrb))
-    allocate(var%extkdm(mp,nrb))
-    allocate(var%cexpkbm(mp,swb))
-    allocate(var%cexpkdm(mp,swb))
-    allocate(var%fbeam(mp,nrb))
-    allocate(var%rhocbm(mp,nrb))
-    allocate(var%transb(mp))
-    allocate(var%albedo_T(mp))
-    allocate(var%gradis(mp,mf))
-    allocate(var%longitude(mp))
-    allocate(var%workp1(mp))
-    allocate(var%workp2(mp))
-    allocate(var%workp3(mp))
+    allocate(rad%transb(mp))
+    allocate(rad%albedo_T(mp))
+    allocate(rad%longitude(mp))
+    allocate(rad%workp1(mp))
+    allocate(rad%workp2(mp))
+    allocate(rad%workp3(mp))
+    allocate(rad%extkb(mp))
+    allocate(rad%extkd2(mp))
+    allocate(rad%extkd(mp))
+    allocate(rad%flws(mp))
+    allocate(rad%latitude(mp))
+    allocate(rad%lwabv(mp))
+    allocate(rad%qssabs(mp))
+    allocate(rad%transd(mp))
+    allocate(rad%trad(mp))
+    allocate(rad%fvlai(mp,mf))
+    allocate(rad%rhocdf(mp,nrb))
+    allocate(rad%rniso(mp,mf))
+    allocate(rad%scalex(mp,mf))
+    allocate(rad%albedo(mp,nrb))
+    allocate(rad%reffdf(mp,nrb))
+    allocate(rad%reffbm(mp,nrb))
+    allocate(rad%extkbm(mp,nrb))
+    allocate(rad%extkdm(mp,nrb))
+    allocate(rad%fbeam(mp,nrb))
+    allocate(rad%cexpkbm(mp,swb))
+    allocate(rad%cexpkdm(mp,swb))
+    allocate(rad%rhocbm(mp,nrb))
+    allocate(rad%gradis(mp,mf))
+    allocate(rad%qcan(mp,mf,nrb))
 
-  END SUBROUTINE alloc_radiation_type
+  end subroutine alloc_radiation_type
 
-  ! ------------------------------------------------------------------------------
+  ! ------------------------------------------------------------------
 
-  SUBROUTINE alloc_roughness_type(var, mp)
+  subroutine alloc_roughness_type(rough, mp)
 
-    TYPE(roughness_type), INTENT(inout) :: var
-    INTEGER, INTENT(in) :: mp
+    type(roughness_type), intent(inout) :: rough
+    integer, intent(in) :: mp
 
-    allocate(var%coexp(mp))
-    allocate(var%disp(mp))
-    allocate(var%hruff(mp))
-    allocate(var%hruff_grmx(mp))
-    allocate(var%rt0us(mp))
-    allocate(var%rt1usa(mp))
-    allocate(var%rt1usb(mp))
-    allocate(var%rt1(mp))
-    allocate(var%term2(mp))
-    allocate(var%term3(mp))
-    allocate(var%term5(mp))
-    allocate(var%term6(mp))
-    allocate(var%term6a(mp))
-    allocate(var%usuh(mp))
-    allocate(var%za_uv(mp))
-    allocate(var%za_tq(mp))
-    allocate(var%z0m(mp))
-    allocate(var%zref_uv(mp))
-    allocate(var%zref_tq(mp))
-    allocate(var%zruffs(mp))
-    allocate(var%z0soilsn(mp))
-    allocate(var%z0soil(mp))
+    allocate(rough%disp(mp))
+    allocate(rough%hruff(mp))
+    allocate(rough%hruff_grmx(mp))
+    allocate(rough%rt0us(mp))
+    allocate(rough%rt1usa(mp))
+    allocate(rough%rt1usb(mp))
+    allocate(rough%rt1(mp))
+    allocate(rough%za_uv(mp))
+    allocate(rough%za_tq(mp))
+    allocate(rough%z0m(mp))
+    allocate(rough%zref_uv(mp))
+    allocate(rough%zref_tq(mp))
+    allocate(rough%zruffs(mp))
+    allocate(rough%z0soilsn(mp))
+    allocate(rough%z0soil(mp))
+    allocate(rough%coexp(mp))
+    allocate(rough%usuh(mp))
+    allocate(rough%term2(mp))
+    allocate(rough%term3(mp))
+    allocate(rough%term5(mp))
+    allocate(rough%term6(mp))
+    allocate(rough%term6a(mp))
 
-  END SUBROUTINE alloc_roughness_type
+  end subroutine alloc_roughness_type
 
-  ! ------------------------------------------------------------------------------
+  ! ------------------------------------------------------------------
 
-  SUBROUTINE alloc_air_type(var, mp)
+  subroutine alloc_air_type(air, mp)
 
-    TYPE(air_type), INTENT(inout) :: var
-    INTEGER, INTENT(in) :: mp
+    type(air_type), intent(inout) :: air
+    integer, intent(in) :: mp
 
-    allocate(var%rho(mp))
-    allocate(var%volm(mp))
-    allocate(var%rlam(mp))
-    allocate(var%qsat(mp))
-    allocate(var%epsi(mp))
-    allocate(var%visc(mp))
-    allocate(var%psyc(mp))
-    allocate(var%dsatdk(mp))
-    allocate(var%cmolar(mp))
+    allocate(air%rho(mp))
+    allocate(air%volm(mp))
+    allocate(air%rlam(mp))
+    allocate(air%qsat(mp))
+    allocate(air%epsi(mp))
+    allocate(air%visc(mp))
+    allocate(air%psyc(mp))
+    allocate(air%dsatdk(mp))
+    allocate(air%cmolar(mp))
 
-  END SUBROUTINE alloc_air_type
+  end subroutine alloc_air_type
 
-  ! ------------------------------------------------------------------------------
+  ! ------------------------------------------------------------------
 
-  SUBROUTINE alloc_met_type(var, mp)
+  subroutine alloc_met_type(met, mp)
 
-    TYPE(met_type), INTENT(inout) :: var
-    INTEGER, INTENT(in) :: mp
+    type(met_type), intent(inout) :: met
+    integer, intent(in) :: mp
 
-    allocate(var%ca(mp))
-    allocate(var%year(mp))
-    allocate(var%moy(mp))
-    allocate(var%doy(mp))
-    allocate(var%hod(mp))
-    allocate(var%fsd(mp,swb))
-    allocate(var%ofsd(mp))
-    allocate(var%fld(mp))
-    allocate(var%precip(mp))
-    allocate(var%precip_sn(mp))
-    allocate(var%tk(mp))
-    allocate(var%tvair(mp))
-    allocate(var%tvrad(mp))
-    allocate(var%pmb(mp))
-    allocate(var%ua(mp))
-    allocate(var%qv(mp))
-    allocate(var%qvair(mp))
-    allocate(var%da(mp))
-    allocate(var%dva(mp))
-    allocate(var%coszen(mp))
-    allocate(var%Ndep(mp))
-    allocate(var%Pdep(mp))
-    allocate(var%rhum(mp))
-    allocate(var%u10(mp))
+    allocate(met%year(mp))
+    allocate(met%moy(mp))
+    allocate(met%ca(mp))
+    allocate(met%doy(mp))
+    allocate(met%hod(mp))
+    allocate(met%ofsd(mp))
+    allocate(met%fld(mp))
+    allocate(met%precip(mp))
+    allocate(met%precip_sn(mp))
+    allocate(met%tk(mp))
+    allocate(met%tvair(mp))
+    allocate(met%tvrad(mp))
+    allocate(met%pmb(mp))
+    allocate(met%ua(mp))
+    allocate(met%qv(mp))
+    allocate(met%qvair(mp))
+    allocate(met%da(mp))
+    allocate(met%dva(mp))
+    allocate(met%coszen(mp))
+    allocate(met%Ndep(mp))
+    allocate(met%Pdep(mp))
+    allocate(met%u10(mp))
+    allocate(met%rhum(mp))
+    allocate(met%fsd(mp,swb))
 
-  END SUBROUTINE alloc_met_type
+  end subroutine alloc_met_type
 
-  ! ------------------------------------------------------------------------------
+  ! ------------------------------------------------------------------
 
-  SUBROUTINE alloc_climate_type(var, mp, ktauday)
+  subroutine alloc_climate_type(climate, mp, ktauday)
 
-    IMPLICIT NONE
+    implicit none
 
-    TYPE(climate_type), INTENT(inout) :: var
-    INTEGER, INTENT(in) :: mp, ktauday
-    INTEGER :: ny, nd
-    ny = var%nyear_average
-    nd = var%nday_average
+    type(climate_type), intent(inout) :: climate
+    integer,            intent(in)    :: mp
+    integer,            intent(in)    :: ktauday
 
-    allocate(var%chilldays(mp))
-    allocate(var%iveg(mp))
-    allocate(var%biome(mp))
-    allocate(var%GMD(mp))
-    allocate(var%modis_igbp(mp))
-    allocate(var%DSLR(mp))
-    allocate(var%NDAY_Nesterov(mp))
+    integer :: ny, nd
 
-    allocate(var%dtemp(mp))
-    allocate(var%dmoist(mp))
-    allocate(var%dmoist_min(mp))
-    allocate(var%dmoist_min20(mp))
-    allocate(var%dmoist_max(mp))
-    allocate(var%dmoist_max20(mp))
-    allocate(var%mtemp(mp))
-    allocate(var%qtemp(mp))
-    allocate(var%mmoist(mp))
-    allocate(var%mtemp_min(mp))
-    allocate(var%mtemp_max(mp))
-    allocate(var%qtemp_max(mp))
-    allocate(var%qtemp_max_last_year(mp))
-    allocate(var%mtemp_min20(mp))
-    allocate(var%mtemp_max20(mp))
-    allocate(var%atemp_mean(mp))
-    allocate(var%AGDD5(mp))
-    allocate(var%GDD5(mp))
-    allocate(var%AGDD0(mp))
-    allocate(var%GDD0(mp))
-    allocate(var%alpha_PT(mp))
-    allocate(var%evap_PT(mp))
-    allocate(var%aevap(mp))
-    allocate(var%alpha_PT20(mp))
-    allocate(var%GDD0_rec(mp))
-    allocate(var%frec(mp))
-    allocate(var%dtemp_min(mp))
-    allocate(var%fdorm(mp))
-    allocate(var%fapar_ann_max(mp))
-    allocate(var%fapar_ann_max_last_year(mp))
-    allocate(var%AvgAnnMaxFAPAR(mp))
-    allocate(var%dtemp_max(mp))
-    allocate(var%drhum(mp))
-    allocate(var%du10_max(mp))
-    allocate(var%dprecip(mp))
-    allocate(var%aprecip(mp))
-    allocate(var%aprecip_av20(mp))
-    allocate(var%last_precip(mp))
-    allocate(var%KBDI(mp))
-    allocate(var%FFDI(mp))
-    allocate(var%D_MacArthur(mp))
-    allocate(var%Nesterov_Current(mp))
-    allocate(var%Nesterov_ann_max(mp))
-    allocate(var%Nesterov_ann_max_last_year(mp))
-    allocate(var%Nesterov_ann_running_max(mp))
+    ny = climate%nyear_average
+    nd = climate%nday_average
 
-    allocate(var%mtemp_min_20(mp,ny))
-    allocate(var%mtemp_max_20(mp,ny))
-    allocate(var%dmoist_min_20(mp,ny))
-    allocate(var%dmoist_max_20(mp,ny))
-    allocate(var%dtemp_31(mp,nd))
-    allocate(var%dmoist_31(mp,nd))
-    allocate(var%alpha_PT_20(mp,ny))
-    allocate(var%dtemp_91(mp,91))
-    allocate(var%APAR_leaf_sun(mp,ktauday*5))
-    allocate(var%APAR_leaf_shade(mp,ktauday*5))
-    allocate(var%Dleaf_sun(mp,ktauday*5))
-    allocate(var%Dleaf_shade(mp,ktauday*5))
-    allocate(var%Tleaf_sun(mp,ktauday*5))
-    allocate(var%Tleaf_shade(mp,ktauday*5))
-    allocate(var%cs_sun(mp,ktauday*5))
-    allocate(var%cs_shade(mp,ktauday*5))
-    allocate(var%scalex_sun(mp,ktauday*5))
-    allocate(var%scalex_shade(mp,ktauday*5))
-    allocate(var%fwsoil(mp,ktauday*5))
-    allocate(var%aprecip_20(mp,ny))
-    allocate(var%Rd_sun(mp,ktauday*5))
-    allocate(var%Rd_shade(mp,ktauday*5))
+    allocate(climate%chilldays(mp))
+    allocate(climate%iveg(mp))
+    allocate(climate%biome(mp))
+    allocate(climate%GMD(mp))
+    allocate(climate%modis_igbp(mp))
+    allocate(climate%DSLR(mp))
+    allocate(climate%NDAY_Nesterov(mp))
+    allocate(climate%dtemp(mp))
+    allocate(climate%dmoist(mp))
+    allocate(climate%dmoist_min(mp))
+    allocate(climate%dmoist_min20(mp))
+    allocate(climate%dmoist_max(mp))
+    allocate(climate%dmoist_max20(mp))
+    allocate(climate%mtemp(mp))
+    allocate(climate%qtemp(mp))
+    allocate(climate%mmoist(mp))
+    allocate(climate%mtemp_min(mp))
+    allocate(climate%mtemp_max(mp))
+    allocate(climate%qtemp_max(mp))
+    allocate(climate%qtemp_max_last_year(mp))
+    allocate(climate%mtemp_min20(mp))
+    allocate(climate%mtemp_max20(mp))
+    allocate(climate%atemp_mean(mp))
+    allocate(climate%AGDD5(mp))
+    allocate(climate%GDD5(mp))
+    allocate(climate%AGDD0(mp))
+    allocate(climate%GDD0(mp))
+    allocate(climate%alpha_PT(mp))
+    allocate(climate%evap_PT(mp))
+    allocate(climate%aevap(mp))
+    allocate(climate%alpha_PT20(mp))
+    allocate(climate%GDD0_rec(mp))
+    allocate(climate%frec(mp))
+    allocate(climate%dtemp_min(mp))
+    allocate(climate%fdorm(mp))
+    allocate(climate%fapar_ann_max(mp))
+    allocate(climate%fapar_ann_max_last_year(mp))
+    allocate(climate%AvgAnnMaxFAPAR(mp))
+    allocate(climate%dtemp_max(mp))
+    allocate(climate%drhum(mp))
+    allocate(climate%du10_max(mp))
+    allocate(climate%dprecip(mp))
+    allocate(climate%aprecip(mp))
+    allocate(climate%aprecip_av20(mp))
+    allocate(climate%last_precip(mp))
+    allocate(climate%KBDI(mp))
+    allocate(climate%FFDI(mp))
+    allocate(climate%D_MacArthur(mp))
+    allocate(climate%Nesterov_Current(mp))
+    allocate(climate%Nesterov_ann_max(mp))
+    allocate(climate%Nesterov_ann_max_last_year(mp))
+    allocate(climate%Nesterov_ann_running_max(mp))
+    allocate(climate%mtemp_min_20(mp, ny))
+    allocate(climate%mtemp_max_20(mp, ny))
+    allocate(climate%dmoist_min_20(mp, ny))
+    allocate(climate%dmoist_max_20(mp, ny))
+    allocate(climate%dtemp_31(mp, nd))
+    allocate(climate%dmoist_31(mp, nd))
+    allocate(climate%alpha_PT_20(mp, ny))
+    allocate(climate%dtemp_91(mp, 91))
+    allocate(climate%APAR_leaf_sun(mp, ktauday*5))
+    allocate(climate%APAR_leaf_shade(mp, ktauday*5))
+    allocate(climate%Dleaf_sun(mp, ktauday*5))
+    allocate(climate%Dleaf_shade(mp, ktauday*5))
+    allocate(climate%Tleaf_sun(mp, ktauday*5))
+    allocate(climate%Tleaf_shade(mp, ktauday*5))
+    allocate(climate%cs_sun(mp, ktauday*5))
+    allocate(climate%cs_shade(mp, ktauday*5))
+    allocate(climate%scalex_sun(mp, ktauday*5))
+    allocate(climate%scalex_shade(mp, ktauday*5))
+    allocate(climate%fwsoil(mp, ktauday*5))
+    allocate(climate%aprecip_20(mp, ny))
+    allocate(climate%Rd_sun(mp, ktauday*5))
+    allocate(climate%Rd_shade(mp, ktauday*5))
 
-  END SUBROUTINE alloc_climate_type
+  end subroutine alloc_climate_type
 
-  ! ------------------------------------------------------------------------------
+  ! ------------------------------------------------------------------
 
-  SUBROUTINE alloc_sum_flux_type(var, mp)
+  subroutine alloc_sum_flux_type(sum_flux, mp)
 
-    TYPE(sum_flux_type), INTENT(inout) :: var
-    INTEGER, INTENT(in) :: mp
+    type(sum_flux_type), intent(inout) :: sum_flux
+    integer, intent(in) :: mp
 
-    allocate(var%sumpn(mp))
-    allocate(var%sumrp(mp))
-    allocate(var%sumrpw(mp))
-    allocate(var%sumrpr(mp))
-    allocate(var%sumrs(mp))
-    allocate(var%sumrd(mp))
-    allocate(var%dsumpn(mp))
-    allocate(var%dsumrp(mp))
-    allocate(var%dsumrs(mp))
-    allocate(var%dsumrd(mp))
-    allocate(var%sumxrp(mp))
-    allocate(var%sumxrs(mp))
+    allocate(sum_flux%sumpn(mp))
+    allocate(sum_flux%sumrp(mp))
+    allocate(sum_flux%sumrpw(mp))
+    allocate(sum_flux%sumrpr(mp))
+    allocate(sum_flux%sumrs(mp))
+    allocate(sum_flux%sumrd(mp))
+    allocate(sum_flux%dsumpn(mp))
+    allocate(sum_flux%dsumrp(mp))
+    allocate(sum_flux%dsumrs(mp))
+    allocate(sum_flux%dsumrd(mp))
+    allocate(sum_flux%sumxrp(mp))
+    allocate(sum_flux%sumxrs(mp))
 
-  END SUBROUTINE alloc_sum_flux_type
+  end subroutine alloc_sum_flux_type
 
-  ! ------------------------------------------------------------------------------
+  ! ------------------------------------------------------------------
 
-  SUBROUTINE alloc_bgc_pool_type(var, mp)
+  subroutine alloc_bgc_pool_type(bgc, mp)
 
-    TYPE(bgc_pool_type), INTENT(inout) :: var
-    INTEGER, INTENT(in) :: mp
+    type(bgc_pool_type), intent(inout) :: bgc
+    integer, intent(in) :: mp
 
-    allocate(var%cplant(mp,ncp))
-    allocate(var%csoil(mp,ncs))
+    allocate(bgc%cplant(mp,ncp))
+    allocate(bgc%csoil(mp,ncs))
 
-  END SUBROUTINE alloc_bgc_pool_type
+  end subroutine alloc_bgc_pool_type
 
-  ! ------------------------------------------------------------------------------
+  ! ------------------------------------------------------------------
 
   ! Begin deallocation routines:
-  SUBROUTINE dealloc_balances_type(var)
+  subroutine dealloc_balances_type(bal)
 
-    TYPE(balances_type), INTENT(inout) :: var
+    type(balances_type), intent(inout) :: bal
 
-    deallocate(var%drybal)
-    deallocate(var%ebal)
-    deallocate(var%ebal_tot)
-    deallocate(var%ebaltr)
-    deallocate(var%ebal_tottr)
-    deallocate(var%ebal_cncheck)
-    deallocate(var%ebal_tot_cncheck)
-    deallocate(var%evap_tot)
-    deallocate(var%osnowd0)
-    deallocate(var%precip_tot)
-    deallocate(var%rnoff_tot)
-    deallocate(var%wbal)
-    deallocate(var%wbal_tot)
-    deallocate(var%wbtot0)
-    deallocate(var%wetbal)
-    deallocate(var%cansto0)
-    deallocate(var%evapc_tot)
-    deallocate(var%evaps_tot)
-    deallocate(var%rnof1_tot)
-    deallocate(var%rnof2_tot)
-    deallocate(var%snowdc_tot)
-    deallocate(var%wbal_tot1)
-    deallocate(var%owbtot)
-    deallocate(var%delwc_tot)
-    deallocate(var%qasrf_tot)
-    deallocate(var%qfsrf_tot)
-    deallocate(var%qssrf_tot)
+    deallocate(bal%drybal)
+    deallocate(bal%ebal)
+    deallocate(bal%ebal_tot)
+    deallocate(bal%ebaltr)
+    deallocate(bal%ebal_tottr)
+    deallocate(bal%ebal_cncheck)
+    deallocate(bal%ebal_tot_cncheck)
+    deallocate(bal%evap_tot)
+    deallocate(bal%osnowd0)
+    deallocate(bal%precip_tot)
+    deallocate(bal%rnoff_tot)
+    deallocate(bal%wbal)
+    deallocate(bal%wbal_tot)
+    deallocate(bal%wbtot0)
+    deallocate(bal%wetbal)
+    deallocate(bal%cansto0)
+    deallocate(bal%evapc_tot)
+    deallocate(bal%evaps_tot)
+    deallocate(bal%rnof1_tot)
+    deallocate(bal%rnof2_tot)
+    deallocate(bal%snowdc_tot)
+    deallocate(bal%wbal_tot1)
+    deallocate(bal%owbtot)
+    deallocate(bal%delwc_tot)
+    deallocate(bal%qasrf_tot)
+    deallocate(bal%qfsrf_tot)
+    deallocate(bal%qssrf_tot)
+    deallocate(bal%Radbal)
+    deallocate(bal%Ebalsoil)
+    deallocate(bal%Ebalveg)
+    deallocate(bal%Radbalsum)
 
-    deallocate(var%Radbal)
-    deallocate(var%Ebalsoil)
-    deallocate(var%Ebalveg)
-    deallocate(var%Radbalsum)
+  end subroutine dealloc_balances_type
 
-  END SUBROUTINE dealloc_balances_type
+  ! ------------------------------------------------------------------
 
-  ! ------------------------------------------------------------------------------
+  subroutine dealloc_soil_parameter_type(soil)
 
-  SUBROUTINE dealloc_soil_parameter_type(var)
+    type(soil_parameter_type), intent(inout) :: soil
 
-    TYPE(soil_parameter_type), INTENT(inout) :: var
-
-    deallocate(var%bch)
-    deallocate(var%c3)
-    deallocate(var%clay)
-    deallocate(var%css)
-    deallocate(var%hsbh)
-    deallocate(var%hyds)
-    deallocate(var%i2bp3)
-    deallocate(var%ibp2)
-    deallocate(var%isoilm)
-    deallocate(var%rhosoil)
-    deallocate(var%sand)
-    deallocate(var%sfc)
-    deallocate(var%silt)
-    deallocate(var%ssat)
-    deallocate(var%sucs)
-    deallocate(var%swilt)
-    deallocate(var%zse)
-    deallocate(var%zshh)
-    deallocate(var%cnsd)
-    deallocate(var%albsoil)
-    deallocate(var%cnsd)
-    deallocate(var%pwb_min)
-    deallocate(var%albsoilf)
-    deallocate(var%soilcol)
+    deallocate(soil%bch)
+    deallocate(soil%c3)
+    deallocate(soil%clay)
+    deallocate(soil%css)
+    deallocate(soil%hsbh)
+    deallocate(soil%hyds)
+    deallocate(soil%i2bp3)
+    deallocate(soil%ibp2)
+    deallocate(soil%isoilm)
+    deallocate(soil%rhosoil)
+    deallocate(soil%sand)
+    deallocate(soil%sfc)
+    deallocate(soil%silt)
+    deallocate(soil%ssat)
+    deallocate(soil%sucs)
+    deallocate(soil%swilt)
+    deallocate(soil%zse)
+    deallocate(soil%zshh)
+    deallocate(soil%cnsd)
+    deallocate(soil%albsoil)
+    deallocate(soil%cnsd)
+    deallocate(soil%pwb_min)
+    deallocate(soil%albsoilf)
+    deallocate(soil%soilcol)
     ! Deallocate variables for SLI soil model:
-    ! IF(cable_user%SOIL_STRUC=='sli') THEN
-    deallocate(var%nhorizons)
-    deallocate(var%ishorizon)
-    deallocate(var%clitt)
-    deallocate(var%zeta)
-    deallocate(var%fsatmax)
-    deallocate(var%swilt_vec)
-    deallocate(var%ssat_vec)
-    deallocate(var%sfc_vec)
-    if (associated(var%swilt_vec)) deallocate(var%swilt_vec)
-    if (associated(var%ssat_vec))  deallocate(var%ssat_vec)
-    if (associated(var%sfc_vec))   deallocate(var%sfc_vec)
-    ! END IF
+    deallocate(soil%nhorizons)
+    deallocate(soil%ishorizon)
+    deallocate(soil%clitt)
+    deallocate(soil%zeta)
+    deallocate(soil%fsatmax)
+    deallocate(soil%swilt_vec)
+    deallocate(soil%ssat_vec)
+    deallocate(soil%sfc_vec)
+    if (associated(soil%swilt_vec)) deallocate(soil%swilt_vec)
+    if (associated(soil%ssat_vec))  deallocate(soil%ssat_vec)
+    if (associated(soil%sfc_vec))   deallocate(soil%sfc_vec)
 
-  END SUBROUTINE dealloc_soil_parameter_type
+  end subroutine dealloc_soil_parameter_type
 
-  ! ------------------------------------------------------------------------------
+  ! ------------------------------------------------------------------
 
-  SUBROUTINE dealloc_soil_snow_type(var)
+  subroutine dealloc_soil_snow_type(ssnow)
 
-    TYPE(soil_snow_type), INTENT(inout) :: var
+    type(soil_snow_type), intent(inout) :: ssnow
 
-    deallocate(var%iantrct)
-    deallocate(var%pudsto)
-    deallocate(var%pudsmx)
-    deallocate(var%dtmlt)
-    deallocate(var%albsoilsn)
-    deallocate(var%cls)
-    deallocate(var%dfn_dtg)
-    deallocate(var%dfh_dtg)
-    deallocate(var%dfe_ddq)
-    deallocate(var%ddq_dtg)
-    deallocate(var%evapsn)
-    deallocate(var%fwtop)
-    deallocate(var%fwtop1)
-    deallocate(var%fwtop2)
-    deallocate(var%fwtop3)
-    deallocate(var%gammzz)
-    deallocate(var%isflag)
-    deallocate(var%osnowd)
-    deallocate(var%potev)
-    deallocate(var%runoff)
-    deallocate(var%rnof1)
-    deallocate(var%rnof2)
-    deallocate(var%rtsoil)
-    deallocate(var%sconds)
-    deallocate(var%sdepth)
-    deallocate(var%smass)
-    deallocate(var%snage)
-    deallocate(var%snowd)
-    deallocate(var%smelt)
-    deallocate(var%ssdn)
-    deallocate(var%ssdnn)
-    deallocate(var%tgg)
-    deallocate(var%tggsn)
-    deallocate(var%tss)
-    deallocate(var%tss_p)
-    deallocate(var%deltss)
-    deallocate(var%owb1)
-    deallocate(var%wb)
-    deallocate(var%wbice)
-    deallocate(var%wblf)
-    deallocate(var%wbtot)
-    deallocate(var%wbtot1)
-    deallocate(var%wbtot2)
-    deallocate(var%wb_lake)
-    deallocate(var%sinfil)
-    deallocate(var%evapfbl)
-    deallocate(var%qstss)
-    deallocate(var%wetfac)
-    deallocate(var%owetfac)
-    deallocate(var%t_snwlr)
-    deallocate(var%wbfice)
-    deallocate(var%tggav)
-    deallocate(var%otgg)
-    deallocate(var%otss)
-    deallocate(var%otss_0)
-    deallocate(var%tprecip)
-    deallocate(var%tevap)
-    deallocate(var%trnoff)
-    deallocate(var%totenbal)
-    deallocate(var%totenbal2)
-    deallocate(var%fland)
-    deallocate(var%ifland)
-    deallocate(var%tilefrac)
-    deallocate(var%qasrf)
-    deallocate(var%qfsrf)
-    deallocate(var%qssrf)
+    deallocate(ssnow%iantrct)
+    deallocate(ssnow%pudsto)
+    deallocate(ssnow%pudsmx)
+    deallocate(ssnow%dtmlt)
+    deallocate(ssnow%albsoilsn)
+    deallocate(ssnow%cls)
+    deallocate(ssnow%dfn_dtg)
+    deallocate(ssnow%dfh_dtg)
+    deallocate(ssnow%dfe_ddq)
+    deallocate(ssnow%ddq_dtg)
+    deallocate(ssnow%evapsn)
+    deallocate(ssnow%fwtop)
+    deallocate(ssnow%fwtop1)
+    deallocate(ssnow%fwtop2)
+    deallocate(ssnow%fwtop3)
+    deallocate(ssnow%gammzz)
+    deallocate(ssnow%isflag)
+    deallocate(ssnow%osnowd)
+    deallocate(ssnow%potev)
+    deallocate(ssnow%runoff)
+    deallocate(ssnow%rnof1)
+    deallocate(ssnow%rnof2)
+    deallocate(ssnow%rtsoil)
+    deallocate(ssnow%sconds)
+    deallocate(ssnow%sdepth)
+    deallocate(ssnow%smass)
+    deallocate(ssnow%snage)
+    deallocate(ssnow%snowd)
+    deallocate(ssnow%smelt)
+    deallocate(ssnow%ssdn)
+    deallocate(ssnow%ssdnn)
+    deallocate(ssnow%tgg)
+    deallocate(ssnow%tggsn)
+    deallocate(ssnow%tss)
+    deallocate(ssnow%tss_p)
+    deallocate(ssnow%deltss)
+    deallocate(ssnow%owb1)
+    deallocate(ssnow%wb)
+    deallocate(ssnow%wbice)
+    deallocate(ssnow%wblf)
+    deallocate(ssnow%wbtot)
+    deallocate(ssnow%wbtot1)
+    deallocate(ssnow%wbtot2)
+    deallocate(ssnow%wb_lake)
+    deallocate(ssnow%sinfil)
+    deallocate(ssnow%evapfbl)
+    deallocate(ssnow%qstss)
+    deallocate(ssnow%wetfac)
+    deallocate(ssnow%owetfac)
+    deallocate(ssnow%t_snwlr)
+    deallocate(ssnow%wbfice)
+    deallocate(ssnow%tggav)
+    deallocate(ssnow%otgg)
+    deallocate(ssnow%otss)
+    deallocate(ssnow%otss_0)
+    deallocate(ssnow%tprecip)
+    deallocate(ssnow%tevap)
+    deallocate(ssnow%trnoff)
+    deallocate(ssnow%totenbal)
+    deallocate(ssnow%totenbal2)
+    deallocate(ssnow%fland)
+    deallocate(ssnow%ifland)
+    deallocate(ssnow%tilefrac)
+    deallocate(ssnow%qasrf)
+    deallocate(ssnow%qfsrf)
+    deallocate(ssnow%qssrf)
+    deallocate(ssnow%S)
+    deallocate(ssnow%Tsoil)
+    deallocate(ssnow%SL)
+    deallocate(ssnow%TL)
+    deallocate(ssnow%h0)
+    deallocate(ssnow%rex)
+    deallocate(ssnow%wflux)
+    deallocate(ssnow%delwcol)
+    deallocate(ssnow%zdelta)
+    deallocate(ssnow%kth)
+    deallocate(ssnow%Tsurface)
+    deallocate(ssnow%lE)
+    deallocate(ssnow%evap)
+    deallocate(ssnow%ciso)
+    deallocate(ssnow%cisoL)
+    deallocate(ssnow%rlitt)
+    deallocate(ssnow%thetai)
+    deallocate(ssnow%snowliq)
+    deallocate(ssnow%nsteps)
+    deallocate(ssnow%nsnow)
+    deallocate(ssnow%TsurfaceFR)
+    deallocate(ssnow%Ta_daily)
+    deallocate(ssnow%G0_daily)
+    deallocate(ssnow%Qadv_daily)
+    deallocate(ssnow%Qevap_daily)
+    deallocate(ssnow%Qprec_daily)
+    deallocate(ssnow%Qprec_snow_daily)
+    deallocate(ssnow%E_fusion_sn)
+    deallocate(ssnow%E_sublimation_sn)
+    deallocate(ssnow%latent_heat_sn)
+    deallocate(ssnow%evap_liq_sn)
+    deallocate(ssnow%surface_melt)
+    deallocate(ssnow%Qadv_rain_sn)
 
-    ! IF(cable_user%SOIL_STRUC=='sli') THEN
-    deallocate(var%S)
-    deallocate(var%Tsoil)
-    deallocate(var%SL)
-    deallocate(var%TL)
-    deallocate(var%h0)
-    deallocate(var%rex)
-    deallocate(var%wflux)
-    deallocate(var%delwcol)
-    deallocate(var%zdelta)
-    deallocate(var%kth)
-    deallocate(var%Tsurface)
-    deallocate(var%lE)
-    deallocate(var%evap)
-    deallocate(var%ciso)
-    deallocate(var%cisoL)
-    deallocate(var%rlitt)
-    deallocate(var%thetai)
-    deallocate(var%snowliq)
-    deallocate(var%nsteps)
-    deallocate(var%nsnow)
-    deallocate(var%TsurfaceFR)
-    deallocate(var%Ta_daily)
-    deallocate(var%G0_daily)
-    deallocate(var%Qadv_daily)
-    deallocate(var%Qevap_daily)
-    deallocate(var%Qprec_daily)
-    deallocate(var%Qprec_snow_daily)
+  end subroutine dealloc_soil_snow_type
 
-    deallocate(var%E_fusion_sn)
-    deallocate(var%E_sublimation_sn)
-    deallocate(var%latent_heat_sn)
-    deallocate(var%evap_liq_sn)
-    deallocate(var%surface_melt)
-    deallocate(var%Qadv_rain_sn)
-    ! END IF
+  ! ------------------------------------------------------------------
 
-  END SUBROUTINE dealloc_soil_snow_type
+  subroutine dealloc_veg_parameter_type(veg)
 
-  ! ------------------------------------------------------------------------------
+    type(veg_parameter_type), intent(inout) :: veg
 
-  SUBROUTINE dealloc_veg_parameter_type(var)
-
-    TYPE(veg_parameter_type), INTENT(inout) :: var
-
-    deallocate(var%canst1)
-    deallocate(var%dleaf)
-    deallocate(var%ejmax)
-    deallocate(var%ejmax_shade)
-    deallocate(var%ejmax_sun)
-    deallocate(var%iveg)
-    deallocate(var%ivegp)
-    deallocate(var%iLU)
-    deallocate(var%meth)
-    deallocate(var%frac4)
-    deallocate(var%hc)
-    deallocate(var%vlai)
-    deallocate(var%xalbnir)
-    deallocate(var%rp20)
-    deallocate(var%rpcoef)
-    deallocate(var%rs20)
-    deallocate(var%shelrb)
-    deallocate(var%vegcf)
-    deallocate(var%tminvj)
-    deallocate(var%toptvj)
-    deallocate(var%tmaxvj)
-    deallocate(var%vbeta)
-    deallocate(var%vcmax)
-    deallocate(var%vcmax_shade)
-    deallocate(var%vcmax_sun)
-    deallocate(var%xfang)
-    deallocate(var%extkn)
-    deallocate(var%wai)
-    deallocate(var%deciduous)
-    deallocate(var%froot)
-    deallocate(var%refl)
-    deallocate(var%taul)
-    deallocate(var%a1gs)
-    deallocate(var%d0gs)
-    deallocate(var%alpha)
-    deallocate(var%convex)
-    deallocate(var%cfrd)
-    deallocate(var%gswmin)
-    deallocate(var%conkc0)
-    deallocate(var%conko0)
-    deallocate(var%ekc)
-    deallocate(var%eko)
-    deallocate(var%g0) ! Ticket #56.
-    deallocate(var%g1) ! Ticket #56.
-
+    deallocate(veg%canst1)
+    deallocate(veg%dleaf)
+    deallocate(veg%ejmax)
+    deallocate(veg%ejmax_shade)
+    deallocate(veg%ejmax_sun)
+    deallocate(veg%iveg)
+    deallocate(veg%ivegp)
+    deallocate(veg%iLU)
+    deallocate(veg%meth)
+    deallocate(veg%frac4)
+    deallocate(veg%hc)
+    deallocate(veg%vlai)
+    deallocate(veg%xalbnir)
+    deallocate(veg%rp20)
+    deallocate(veg%rpcoef)
+    deallocate(veg%rs20)
+    deallocate(veg%shelrb)
+    deallocate(veg%vegcf)
+    deallocate(veg%tminvj)
+    deallocate(veg%toptvj)
+    deallocate(veg%tmaxvj)
+    deallocate(veg%vbeta)
+    deallocate(veg%vcmax)
+    deallocate(veg%vcmax_shade)
+    deallocate(veg%vcmax_sun)
+    deallocate(veg%xfang)
+    deallocate(veg%extkn)
+    deallocate(veg%wai)
+    deallocate(veg%deciduous)
+    deallocate(veg%froot)
+    deallocate(veg%refl)
+    deallocate(veg%taul)
+    deallocate(veg%a1gs)
+    deallocate(veg%d0gs)
+    deallocate(veg%alpha)
+    deallocate(veg%convex)
+    deallocate(veg%cfrd)
+    deallocate(veg%gswmin)
+    deallocate(veg%conkc0)
+    deallocate(veg%conko0)
+    deallocate(veg%ekc)
+    deallocate(veg%eko)
+    deallocate(veg%g0) ! Ticket #56.
+    deallocate(veg%g1) ! Ticket #56.
     ! Deallocate variables for SLI soil model:
-    ! IF(cable_user%SOIL_STRUC=='sli') THEN
-    deallocate(var%rootbeta)
-    deallocate(var%gamma) ! vh 20/07/09
-    deallocate(var%F10)
-    deallocate(var%ZR)
-    deallocate(var%CLitt)
-    deallocate(var%disturbance_interval)
-    deallocate(var%disturbance_intensity)
-    ! END IF
+    deallocate(veg%rootbeta)
+    deallocate(veg%gamma) ! vh 20/07/09
+    deallocate(veg%F10)
+    deallocate(veg%ZR)
+    deallocate(veg%CLitt)
+    deallocate(veg%disturbance_interval)
+    deallocate(veg%disturbance_intensity)
 
-  END SUBROUTINE dealloc_veg_parameter_type
+  end subroutine dealloc_veg_parameter_type
 
-  ! ------------------------------------------------------------------------------
+  ! ------------------------------------------------------------------
 
-  SUBROUTINE dealloc_canopy_type(var)
+  subroutine dealloc_canopy_type(canopy)
 
-    TYPE(canopy_type), INTENT(inout) :: var
+    type(canopy_type), intent(inout) :: canopy
 
-    deallocate(var%fess)
-    deallocate(var%fesp)
-    deallocate(var%cansto)
-    deallocate(var%cduv)
-    deallocate(var%delwc)
-    deallocate(var%dewmm)
-    deallocate(var%dgdtg)
-    deallocate(var%fe)
-    deallocate(var%fh)
-    deallocate(var%fpn)
-    deallocate(var%frp)
-    deallocate(var%frpw)
-    deallocate(var%frpr)
-    deallocate(var%frs)
-    deallocate(var%fnee)
-    deallocate(var%frday)
-    deallocate(var%fnv)
-    deallocate(var%fev)
-    deallocate(var%fevc)
-    deallocate(var%fhv)
-    deallocate(var%fns)
-    deallocate(var%fhs)
-    deallocate(var%fhs_cor)
-    deallocate(var%ga)
-    deallocate(var%ghflux)
-    deallocate(var%precis)
-    deallocate(var%qscrn)
-    deallocate(var%rnet)
-    deallocate(var%rniso)
-    deallocate(var%segg)
-    deallocate(var%sghflux)
-    deallocate(var%through)
-    deallocate(var%spill)
-    deallocate(var%tscrn)
-    deallocate(var%wcint)
-    deallocate(var%tv)
-    deallocate(var%us)
-    deallocate(var%uscrn)
-    deallocate(var%rghlai)
-    deallocate(var%vlaiw)
-    deallocate(var%fwet)
-    deallocate(var%A_sh)
-    deallocate(var%A_sl)
-    deallocate(var%A_slC)
-    deallocate(var%A_shC)
-    deallocate(var%A_slJ)
-    deallocate(var%A_shJ)
-    deallocate(var%eta_A_cs)
-    deallocate(var%cs)
-    deallocate(var%dAdcs)
-    deallocate(var%cs_sl)
-    deallocate(var%cs_sh)
-    deallocate(var%tlf)
-    deallocate(var%dlf)
-
-    deallocate(var%evapfbl)
-    deallocate(var%epot)
-    deallocate(var%fnpp)
-    deallocate(var%fevw_pot)
-    deallocate(var%gswx_T)
-    deallocate(var%cdtq)
-    deallocate(var%wetfac_cs)
-    deallocate(var%fevw)
-    deallocate(var%fhvw)
-    deallocate(var%fes)
-    deallocate(var%fes_cor)
-    deallocate(var%gswx)
-    deallocate(var%oldcansto)
-    deallocate(var%zetar)
-    deallocate(var%zetash)
-    deallocate(var%fwsoil)
-    deallocate(var%ofes)
-
+    deallocate(canopy%fess)
+    deallocate(canopy%fesp)
+    deallocate(canopy%cansto)
+    deallocate(canopy%cduv)
+    deallocate(canopy%delwc)
+    deallocate(canopy%dewmm)
+    deallocate(canopy%dgdtg)
+    deallocate(canopy%fe)
+    deallocate(canopy%fh)
+    deallocate(canopy%fpn)
+    deallocate(canopy%frp)
+    deallocate(canopy%frpw)
+    deallocate(canopy%frpr)
+    deallocate(canopy%frs)
+    deallocate(canopy%fnee)
+    deallocate(canopy%frday)
+    deallocate(canopy%fnv)
+    deallocate(canopy%fev)
+    deallocate(canopy%fevc)
+    deallocate(canopy%fhv)
+    deallocate(canopy%fns)
+    deallocate(canopy%fhs)
+    deallocate(canopy%fhs_cor)
+    deallocate(canopy%ga)
+    deallocate(canopy%ghflux)
+    deallocate(canopy%precis)
+    deallocate(canopy%qscrn)
+    deallocate(canopy%rnet)
+    deallocate(canopy%rniso)
+    deallocate(canopy%segg)
+    deallocate(canopy%sghflux)
+    deallocate(canopy%through)
+    deallocate(canopy%spill)
+    deallocate(canopy%tscrn)
+    deallocate(canopy%wcint)
+    deallocate(canopy%tv)
+    deallocate(canopy%us)
+    deallocate(canopy%uscrn)
+    deallocate(canopy%rghlai)
+    deallocate(canopy%vlaiw)
+    deallocate(canopy%fwet)
+    deallocate(canopy%A_sh)
+    deallocate(canopy%A_sl)
+    deallocate(canopy%A_slC)
+    deallocate(canopy%A_shC)
+    deallocate(canopy%A_slJ)
+    deallocate(canopy%A_shJ)
+    deallocate(canopy%eta_A_cs)
+    deallocate(canopy%cs)
+    deallocate(canopy%dAdcs)
+    deallocate(canopy%cs_sl)
+    deallocate(canopy%cs_sh)
+    deallocate(canopy%tlf)
+    deallocate(canopy%dlf)
+    deallocate(canopy%evapfbl)
+    deallocate(canopy%epot)
+    deallocate(canopy%fnpp)
+    deallocate(canopy%fevw_pot)
+    deallocate(canopy%gswx_T)
+    deallocate(canopy%cdtq)
+    deallocate(canopy%wetfac_cs)
+    deallocate(canopy%fevw)
+    deallocate(canopy%fhvw)
+    deallocate(canopy%fes)
+    deallocate(canopy%fes_cor)
+    deallocate(canopy%gswx)
+    deallocate(canopy%oldcansto)
+    deallocate(canopy%zetar)
+    deallocate(canopy%zetash)
+    deallocate(canopy%fwsoil)
+    deallocate(canopy%ofes)
     !! vh_js !! litter resistances to heat and vapour transfer
-    deallocate(var%kthLitt)
-    deallocate(var%DvLitt)
-
-  END SUBROUTINE dealloc_canopy_type
-
-  ! ------------------------------------------------------------------------------
-
-  SUBROUTINE dealloc_radiation_type(var)
-
-    TYPE(radiation_type), INTENT(inout) :: var
-
-    deallocate(var%albedo)
-    deallocate(var%extkb)
-    deallocate(var%extkd2)
-    deallocate(var%extkd)
-    deallocate(var%flws)
-    deallocate(var%fvlai)
-    deallocate(var%latitude)
-    deallocate(var%lwabv)
-    deallocate(var%qcan)
-    deallocate(var%qssabs)
-    deallocate(var%rhocdf)
-    deallocate(var%rniso)
-    deallocate(var%scalex)
-    deallocate(var%transd)
-    deallocate(var%trad)
-    deallocate(var%reffdf)
-    deallocate(var%reffbm)
-    deallocate(var%extkbm)
-    deallocate(var%extkdm)
-    deallocate(var%fbeam)
-    deallocate(var%cexpkbm)
-    deallocate(var%cexpkdm)
-    deallocate(var%rhocbm)
-    deallocate(var%transb)
-    deallocate(var%albedo_T)
-    deallocate(var%gradis)
-    deallocate(var%longitude)
-    deallocate(var%workp1)
-    deallocate(var%workp2)
-    deallocate(var%workp3)
-
-  END SUBROUTINE dealloc_radiation_type
-
-  ! ------------------------------------------------------------------------------
-
-  SUBROUTINE dealloc_roughness_type(var)
-
-    TYPE(roughness_type), INTENT(inout) :: var
-
-    deallocate(var%coexp)
-    deallocate(var%disp)
-    deallocate(var%hruff)
-    deallocate(var%hruff_grmx)
-    deallocate(var%rt0us)
-    deallocate(var%rt1usa)
-    deallocate(var%rt1usb)
-    deallocate(var%rt1)
-    deallocate(var%term2)
-    deallocate(var%term3)
-    deallocate(var%term5)
-    deallocate(var%term6)
-    deallocate(var%term6a)
-    deallocate(var%usuh)
-    deallocate(var%za_uv)
-    deallocate(var%za_tq)
-    deallocate(var%z0m)
-    deallocate(var%zref_uv)
-    deallocate(var%zref_tq)
-    deallocate(var%zruffs)
-    deallocate(var%z0soilsn)
-    deallocate(var%z0soil)
-
-  END SUBROUTINE dealloc_roughness_type
-
-  ! ------------------------------------------------------------------------------
-
-  SUBROUTINE dealloc_air_type(var)
-
-    TYPE(air_type), INTENT(inout) :: var
-
-    deallocate(var%rho)
-    deallocate(var%volm)
-    deallocate(var%rlam)
-    deallocate(var%qsat)
-    deallocate(var%epsi)
-    deallocate(var%visc)
-    deallocate(var%psyc)
-    deallocate(var%dsatdk)
-    deallocate(var%cmolar)
-
-  END SUBROUTINE dealloc_air_type
-
-  ! ------------------------------------------------------------------------------
-
-  SUBROUTINE dealloc_met_type(var)
-
-    TYPE(met_type), INTENT(inout) :: var
-
-    deallocate(var%ca)
-    deallocate(var%year)
-    deallocate(var%moy)
-    deallocate(var%doy)
-    deallocate(var%hod)
-    deallocate(var%fsd)
-    deallocate(var%ofsd)
-    deallocate(var%fld)
-    deallocate(var%precip)
-    deallocate(var%precip_sn)
-    deallocate(var%tk)
-    deallocate(var%tvair)
-    deallocate(var%tvrad)
-    deallocate(var%pmb)
-    deallocate(var%ua)
-    deallocate(var%qv)
-    deallocate(var%qvair)
-    deallocate(var%da)
-    deallocate(var%dva)
-    deallocate(var%coszen)
-    deallocate(var%Ndep)
-    deallocate(var%Pdep)
-    deallocate(var%rhum)
-    deallocate(var%u10)
-
-  END SUBROUTINE dealloc_met_type
-
-  ! ------------------------------------------------------------------------------
-
-  SUBROUTINE dealloc_sum_flux_type(var)
-
-    TYPE(sum_flux_type), INTENT(inout) :: var
-
-    deallocate(var%sumpn)
-    deallocate(var%sumrp)
-    deallocate(var%sumrpw)
-    deallocate(var%sumrpr)
-    deallocate(var%sumrs)
-    deallocate(var%sumrd)
-    deallocate(var%dsumpn)
-    deallocate(var%dsumrp)
-    deallocate(var%dsumrs)
-    deallocate(var%dsumrd)
-    deallocate(var%sumxrp)
-    deallocate(var%sumxrs)
-
-  END SUBROUTINE dealloc_sum_flux_type
-
-  ! ------------------------------------------------------------------------------
-
-  SUBROUTINE dealloc_bgc_pool_type(var)
-
-    TYPE(bgc_pool_type), INTENT(inout) :: var
-
-    deallocate(var%cplant)
-    deallocate(var%csoil)
-
-  END SUBROUTINE dealloc_bgc_pool_type
-
-
-  ! ------------------------------------------------------------------------------
-
-
-  SUBROUTINE zero_balances_type(var)
-
-    TYPE(balances_type), INTENT(inout) :: var
-
-    var%drybal           = 0
-    var%ebal             = 0
-    var%ebal_tot         = 0
-    var%ebaltr           = 0
-    var%ebal_tottr       = 0
-    var%ebal_cncheck     = 0
-    var%ebal_tot_cncheck = 0
-    var%evap_tot         = 0
-    var%osnowd0          = 0
-    var%precip_tot       = 0
-    var%rnoff_tot        = 0
-    var%wbal             = 0
-    var%wbal_tot         = 0
-    var%wbtot0           = 0
-    var%wetbal           = 0
-    var%cansto0          = 0
-    var%evapc_tot        = 0
-    var%evaps_tot        = 0
-    var%rnof1_tot        = 0
-    var%rnof2_tot        = 0
-    var%snowdc_tot       = 0
-    var%wbal_tot1        = 0
-    var%owbtot           = 0
-    var%delwc_tot        = 0
-    var%qasrf_tot        = 0
-    var%qfsrf_tot        = 0
-    var%qssrf_tot        = 0
-
-    var%Radbal    = 0
-    var%EbalSoil  = 0
-    var%Ebalveg   = 0
-    var%Radbalsum = 0
-
-  END SUBROUTINE zero_balances_type
-
-
-  ! ------------------------------------------------------------------------------
-
-
-  SUBROUTINE zero_soil_parameter_type(var)
-
-    TYPE(soil_parameter_type), INTENT(inout) :: var
-
-    var%bch      = 0
-    var%c3       = 0
-    var%clay     = 0
-    var%css      = 0
-    var%hsbh     = 0
-    var%hyds     = 0
-    var%i2bp3    = 0
-    var%ibp2     = 0
-    var%isoilm   = 0
-    var%rhosoil  = 0
-    var%sand     = 0
-    var%sfc      = 0
-    var%silt     = 0
-    var%ssat     = 0
-    var%sucs     = 0
-    var%swilt    = 0
-    var%zse      = 0
-    var%zshh     = 0
-    var%cnsd     = 0
-    var%albsoil  = 0
-    var%pwb_min  = 0
-    var%albsoilf = 0
-    var%soilcol  = 0
-
-    var%nhorizons = 0
-    var%ishorizon = 0
-    var%clitt     = 0
-    var%zeta      = 0
-    var%fsatmax   = 0
-    var%swilt_vec = 0
-    var%ssat_vec  = 0
-    var%sfc_vec   = 0
-    var%swilt_vec = 0
-    var%ssat_vec  = 0
-    var%sfc_vec   = 0
-
-  END SUBROUTINE zero_soil_parameter_type
-
-
-  ! ------------------------------------------------------------------------------
-
-
-  SUBROUTINE zero_soil_snow_type(var)
-
-    TYPE(soil_snow_type), INTENT(inout) :: var
-
-    var%iantrct   = 0
-    var%pudsto    = 0
-    var%pudsmx    = 0
-    var%dtmlt     = 0
-    var%albsoilsn = 0
-    var%cls       = 0
-    var%dfn_dtg   = 0
-    var%dfh_dtg   = 0
-    var%dfe_ddq   = 0
-    var%ddq_dtg   = 0
-    var%evapsn    = 0
-    var%fwtop     = 0
-    var%fwtop1    = 0
-    var%fwtop2    = 0
-    var%fwtop3    = 0
-    var%gammzz    = 0
-    var%isflag    = 0
-    var%osnowd    = 0
-    var%potev     = 0
-    var%runoff    = 0
-    var%rnof1     = 0
-    var%rnof2     = 0
-    var%rtsoil    = 0
-    var%sconds    = 0
-    var%sdepth    = 0
-    var%smass     = 0
-    var%snage     = 0
-    var%snowd     = 0
-    var%smelt     = 0
-    var%ssdn      = 0
-    var%ssdnn     = 0
-    var%tgg       = 0
-    var%tggsn     = 0
-    var%tss       = 0
-    var%tss_p     = 0
-    var%deltss    = 0
-    var%owb1      = 0
-    var%wb        = 0
-    var%wbice     = 0
-    var%wblf      = 0
-    var%wbtot     = 0
-    var%wbtot1    = 0
-    var%wbtot2    = 0
-    var%wb_lake   = 0
-    var%sinfil    = 0
-    var%evapfbl   = 0
-    var%qstss     = 0
-    var%wetfac    = 0
-    var%owetfac   = 0
-    var%t_snwlr   = 0
-    var%wbfice    = 0
-    var%tggav     = 0
-    var%otgg      = 0
-    var%otss      = 0
-    var%otss_0    = 0
-    var%tprecip   = 0
-    var%tevap     = 0
-    var%trnoff    = 0
-    var%totenbal  = 0
-    var%totenbal2 = 0
-    var%fland     = 0
-    var%ifland    = 0
-    var%tilefrac  = 0
-    var%qasrf     = 0
-    var%qfsrf     = 0
-    var%qssrf     = 0
-
-    var%S                = 0
-    var%Tsoil            = 0
-    var%SL               = 0
-    var%TL               = 0
-    var%h0               = 0
-    var%rex              = 0
-    var%wflux            = 0
-    var%delwcol          = 0
-    var%zdelta           = 0
-    var%kth              = 0
-    var%Tsurface         = 0
-    var%lE               = 0
-    var%evap             = 0
-    var%ciso             = 0
-    var%cisoL            = 0
-    var%rlitt            = 0
-    var%thetai           = 0
-    var%snowliq          = 0
-    var%nsteps           = 0
-    var%nsnow            = 0
-    var%TsurfaceFR       = 0
-    var%Ta_daily         = 0
-    var%Qadv_daily       = 0
-    var%G0_daily         = 0
-    var%Qevap_daily      = 0
-    var%Qprec_daily      = 0
-    var%Qprec_snow_daily = 0
-    var%E_fusion_sn      = 0
-    var%E_sublimation_sn = 0
-    var%latent_heat_sn   = 0
-    var%evap_liq_sn      = 0
-    var%surface_melt     = 0
-    var%Qadv_rain_sn     = 0
-
-  END SUBROUTINE zero_soil_snow_type
-
-
-  ! ------------------------------------------------------------------------------
-
-
-  SUBROUTINE zero_veg_parameter_type(var)
-
-    TYPE(veg_parameter_type), INTENT(inout) :: var
-
-    var%canst1      = 0
-    var%dleaf       = 0
-    var%ejmax       = 0
-    var%ejmax_shade = 0
-    var%ejmax_sun   = 0
-    var%iveg        = 0
-    var%ivegp       = 0
-    var%iLU         = 0
-    var%meth        = 0
-    var%frac4       = 0
-    var%hc          = 0
-    var%vlai        = 0
-    var%xalbnir     = 0
-    var%rp20        = 0
-    var%rpcoef      = 0
-    var%rs20        = 0
-    var%shelrb      = 0
-    var%vegcf       = 0
-    var%tminvj      = 0
-    var%toptvj      = 0
-    var%tmaxvj      = 0
-    var%vbeta       = 0
-    var%vcmax       = 0
-    var%vcmax_shade = 0
-    var%vcmax_sun   = 0
-    var%xfang       = 0
-    var%extkn       = 0
-    var%wai         = 0
-    var%deciduous   = .false.
-    var%froot       = 0
-    var%refl        = 0
-    var%taul        = 0
-    var%vlaimax     = 0
-    var%a1gs        = 0
-    var%d0gs        = 0
-    var%alpha       = 0
-    var%convex      = 0
-    var%cfrd        = 0
-    var%gswmin      = 0
-    var%conkc0      = 0
-    var%conko0      = 0
-    var%ekc         = 0
-    var%eko         = 0
-    var%g0          = 0
-    var%g1          = 0
-    var%vcmaxcc     = 0
-    var%ejmaxcc     = 0
-    var%gmmax       = 0
-    var%gm          = 0
-    var%c4kci       = 0
-    var%c4kcc       = 0
-    var%bjv         = 0
-
-    var%rootbeta = 0
-    var%gamma    = 0
-    var%F10      = 0
-    var%ZR       = 0
-    var%clitt    = 0
-
-    var%disturbance_interval  = 0
-    var%disturbance_intensity = 0
-
-  END SUBROUTINE zero_veg_parameter_type
-
-
-  ! ------------------------------------------------------------------------------
-
-
-  SUBROUTINE zero_canopy_type(var)
-
-    TYPE(canopy_type), INTENT(inout) :: var
-
-    var%fess           = 0
-    var%fesp           = 0
-    var%cansto         = 0
-    var%cduv           = 0
-    var%delwc          = 0
-    var%dewmm          = 0
-    var%dgdtg          = 0
-    var%fe             = 0
-    var%fh             = 0
-    var%fpn            = 0
-    var%frp            = 0
-    var%frpw           = 0
-    var%frpr           = 0
-    var%frs            = 0
-    var%fnee           = 0
-    var%frday          = 0
-    var%fnv            = 0
-    var%fev            = 0
-    var%fevc           = 0
-    var%fhv            = 0
-    var%fns            = 0
-    var%fhs            = 0
-    var%fhs_cor        = 0
-    var%ga             = 0
-    var%ghflux         = 0
-    var%precis         = 0
-    var%qscrn          = 0
-    var%rnet           = 0
-    var%rniso          = 0
-    var%segg           = 0
-    var%sghflux        = 0
-    var%through        = 0
-    var%spill          = 0
-    var%tscrn          = 0
-    var%wcint          = 0
-    var%tv             = 0
-    var%us             = 0
-    var%uscrn          = 0
-    var%rghlai         = 0
-    var%vlaiw          = 0
-    var%fwet           = 0
-    var%A_sh           = 0
-    var%A_sl           = 0
-    var%A_slC          = 0
-    var%A_shC          = 0
-    var%A_slJ          = 0
-    var%A_shJ          = 0
-    var%GPP_sh         = 0
-    var%GPP_sl         = 0
-    var%fevc_sh        = 0
-    var%fevc_sl        = 0
-    var%eta_GPP_cs     = 0
-    var%eta_fevc_cs    = 0
-    var%eta_A_cs       = 0
-    var%eta_A_cs_sh    = 0
-    var%eta_A_cs_sl    = 0
-    var%eta_fevc_cs_sh = 0
-    var%eta_fevc_cs_sl = 0
-    var%cs             = 0
-    var%dAdcs          = 0
-    var%cs_sl          = 0
-    var%cs_sh          = 0
-    var%tlf            = 0
-    var%dlf            = 0
-
-    var%evapfbl   = 0
-    var%epot      = 0
-    var%fnpp      = 0
-    var%fevw_pot  = 0
-    var%gswx_T    = 0
-    var%cdtq      = 0
-    var%wetfac_cs = 0
-    var%fevw      = 0
-    var%fhvw      = 0
-    var%fes       = 0
-    var%fes_cor   = 0
-    var%gswx      = 0
-    var%oldcansto = 0
-    var%zetar     = 0
-    var%zetash    = 0
-    var%fwsoil    = 0
-    var%ofes      = 0
-
-    var%gw     = 0
-    var%ancj   = 0
-    var%tlfy   = 0
-    var%ecy    = 0
-    var%ecx    = 0
-    var%fwsoil = 0
-
-    var%kthLitt = 0
-    var%DvLitt  = 0
-
-    var%An        = 0
-    var%Rd        = 0
-    var%isc3      = .false.
-    var%vcmax     = 0
-    var%gammastar = 0
-    var%gsc       = 0
-    var%gbc       = 0
-    var%gac       = 0
-    var%ci        = 0
-
-  END SUBROUTINE zero_canopy_type
-
-
-  ! ------------------------------------------------------------------------------
-
-
-  SUBROUTINE zero_radiation_type(var)
-
-    TYPE(radiation_type), INTENT(inout) :: var
-
-    var%albedo    = 0
-    var%extkb     = 0
-    var%extkd2    = 0
-    var%extkd     = 0
-    var%flws      = 0
-    var%fvlai     = 0
-    var%latitude  = 0
-    var%lwabv     = 0
-    var%qcan      = 0
-    var%qssabs    = 0
-    var%rhocdf    = 0
-    var%rniso     = 0
-    var%scalex    = 0
-    var%transd    = 0
-    var%trad      = 0
-    var%reffdf    = 0
-    var%reffbm    = 0
-    var%extkbm    = 0
-    var%extkdm    = 0
-    var%cexpkbm   = 0
-    var%cexpkdm   = 0
-    var%fbeam     = 0
-    var%rhocbm    = 0
-    var%transb    = 0
-    var%albedo_T  = 0
-    var%gradis    = 0
-    var%longitude = 0
-    var%workp1    = 0
-    var%workp2    = 0
-    var%workp3    = 0
-
-  END SUBROUTINE zero_radiation_type
-
-
-  ! ------------------------------------------------------------------------------
-
-
-  SUBROUTINE zero_roughness_type(var)
-
-    TYPE(roughness_type), INTENT(inout) :: var
-
-    var%coexp      = 0
-    var%disp       = 0
-    var%hruff      = 0
-    var%hruff_grmx = 0
-    var%rt0us      = 0
-    var%rt1usa     = 0
-    var%rt1usb     = 0
-    var%rt1        = 0
-    var%term2      = 0
-    var%term3      = 0
-    var%term5      = 0
-    var%term6      = 0
-    var%term6a     = 0
-    var%usuh       = 0
-    var%za_uv      = 0
-    var%za_tq      = 0
-    var%z0m        = 0
-    var%zref_uv    = 0
-    var%zref_tq    = 0
-    var%zruffs     = 0
-    var%z0soilsn   = 0
-    var%z0soil     = 0
-
-  END SUBROUTINE zero_roughness_type
-
-
-  ! ------------------------------------------------------------------------------
-
-
-  SUBROUTINE zero_air_type(var)
-
-    TYPE(air_type), INTENT(inout) :: var
-
-    var%rho    = 0
-    var%volm   = 0
-    var%rlam   = 0
-    var%qsat   = 0
-    var%epsi   = 0
-    var%visc   = 0
-    var%psyc   = 0
-    var%dsatdk = 0
-    var%cmolar = 0
-
-  END SUBROUTINE zero_air_type
-
-
-  ! ------------------------------------------------------------------------------
-
-
-  SUBROUTINE zero_met_type(var)
-
-    TYPE(met_type), INTENT(inout) :: var
-
-    var%ca        = 0
-    var%year      = 0
-    var%moy       = 0
-    var%doy       = 0
-    var%hod       = 0
-    var%fsd       = 0
-    var%ofsd      = 0
-    var%fld       = 0
-    var%precip    = 0
-    var%precip_sn = 0
-    var%tk        = 0
-    var%tvair     = 0
-    var%tvrad     = 0
-    var%pmb       = 0
-    var%ua        = 0
-    var%qv        = 0
-    var%qvair     = 0
-    var%da        = 0
-    var%dva       = 0
-    var%coszen    = 0
-    var%Ndep      = 0
-    var%Pdep      = 0
-    var%rhum      = 0
-    var%u10       = 0
-
-  END SUBROUTINE zero_met_type
-
-
-  ! ------------------------------------------------------------------------------
-
-
-  SUBROUTINE zero_climate_type(var)
-
-    IMPLICIT NONE
-
-    TYPE(climate_type), INTENT(inout) :: var
-
-    var%chilldays     = 0
-    var%iveg          = 0
-    var%biome         = 0
-    var%GMD           = 0
-    var%modis_igbp    = 0
-    var%DSLR          = 0
-    var%NDAY_Nesterov = 0
-
-    var%dtemp                      = 0
-    var%dmoist                     = 0
-    var%dmoist_min                 = 0
-    var%dmoist_min20               = 0
-    var%dmoist_max                 = 0
-    var%dmoist_max20               = 0
-    var%mtemp                      = 0
-    var%qtemp                      = 0
-    var%mmoist                     = 0
-    var%mtemp_min                  = 0
-    var%mtemp_max                  = 0
-    var%qtemp_max                  = 0
-    var%qtemp_max_last_year        = 0
-    var%mtemp_min20                = 0
-    var%mtemp_max20                = 0
-    var%atemp_mean                 = 0
-    var%AGDD5                      = 0
-    var%GDD5                       = 0
-    var%AGDD0                      = 0
-    var%GDD0                       = 0
-    var%alpha_PT                   = 0
-    var%evap_PT                    = 0
-    var%aevap                      = 0
-    var%alpha_PT20                 = 0
-    var%GDD0_rec                   = 0
-    var%frec                       = 0
-    var%dtemp_min                  = 0
-    var%fdorm                      = 0
-    var%fapar_ann_max              = 0
-    var%fapar_ann_max_last_year    = 0
-    var%AvgAnnMaxFAPAR             = 0
-    var%dtemp_max                  = 0
-    var%drhum                      = 0
-    var%du10_max                   = 0
-    var%dprecip                    = 0
-    var%aprecip                    = 0
-    var%aprecip_av20               = 0
-    var%last_precip                = 0
-    var%KBDI                       = 0
-    var%FFDI                       = 0
-    var%D_MacArthur                = 0
-    var%Nesterov_Current           = 0
-    var%Nesterov_ann_max           = 0
-    var%Nesterov_ann_max_last_year = 0
-    var%Nesterov_ann_running_max   = 0
-
-    var%mtemp_min_20    = 0
-    var%mtemp_max_20    = 0
-    var%dmoist_min_20   = 0
-    var%dmoist_max_20   = 0
-    var%dtemp_31        = 0
-    var%dmoist_31       = 0
-    var%alpha_PT_20     = 0
-    var%dtemp_91        = 0
-    var%APAR_leaf_sun   = 0
-    var%APAR_leaf_shade = 0
-    var%Dleaf_sun       = 0
-    var%Dleaf_shade     = 0
-    var%Tleaf_sun       = 0
-    var%Tleaf_shade     = 0
-    var%cs_sun          = 0
-    var%cs_shade        = 0
-    var%scalex_sun      = 0
-    var%scalex_shade    = 0
-    var%fwsoil          = 0
-    var%aprecip_20      = 0
-    var%Rd_sun          = 0
-    var%Rd_shade        = 0
-
-  END SUBROUTINE zero_climate_type
-
-
-  ! ------------------------------------------------------------------------------
-
-
-  SUBROUTINE zero_sum_flux_type(var)
-
-    TYPE(sum_flux_type), INTENT(inout) :: var
-
-    var%sumpn  = 0
-    var%sumrp  = 0
-    var%sumrpw = 0
-    var%sumrpr = 0
-    var%sumrs  = 0
-    var%sumrd  = 0
-    var%dsumpn = 0
-    var%dsumrp = 0
-    var%dsumrs = 0
-    var%dsumrd = 0
-    var%sumxrp = 0
-    var%sumxrs = 0
-
-  END SUBROUTINE zero_sum_flux_type
-
-
-  ! ------------------------------------------------------------------------------
-
-
-  SUBROUTINE zero_bgc_pool_type(var)
-
-    TYPE(bgc_pool_type), INTENT(inout) :: var
-
-    var%cplant = 0
-    var%csoil  = 0
-
-  END SUBROUTINE zero_bgc_pool_type
-
-
-  ! ------------------------------------------------------------------------------
-
-
-  SUBROUTINE print_balances_type(var)
-
-    TYPE(balances_type), INTENT(in) :: var
-
-    write(*,*) 'bal%drybal ', var%drybal
-    write(*,*) 'bal%ebal ', var%ebal
-    write(*,*) 'bal%ebal_tot ', var%ebal_tot
-    write(*,*) 'bal%ebaltr ', var%ebaltr
-    write(*,*) 'bal%ebal_tottr ', var%ebal_tottr
-    write(*,*) 'bal%ebal_cncheck ', var%ebal_cncheck
-    write(*,*) 'bal%ebal_tot_cncheck ', var%ebal_tot_cncheck
-    write(*,*) 'bal%evap_tot ', var%evap_tot
-    write(*,*) 'bal%osnowd0 ', var%osnowd0
-    write(*,*) 'bal%precip_tot ', var%precip_tot
-    write(*,*) 'bal%rnoff_tot ', var%rnoff_tot
-    write(*,*) 'bal%wbal ', var%wbal
-    write(*,*) 'bal%wbal_tot ', var%wbal_tot
-    write(*,*) 'bal%wbtot0 ', var%wbtot0
-    write(*,*) 'bal%wetbal ', var%wetbal
-    write(*,*) 'bal%cansto0 ', var%cansto0
-    write(*,*) 'bal%evapc_tot ', var%evapc_tot
-    write(*,*) 'bal%evaps_tot ', var%evaps_tot
-    write(*,*) 'bal%rnof1_tot ', var%rnof1_tot
-    write(*,*) 'bal%rnof2_tot ', var%rnof2_tot
-    write(*,*) 'bal%snowdc_tot ', var%snowdc_tot
-    write(*,*) 'bal%wbal_tot1 ', var%wbal_tot1
-    write(*,*) 'bal%owbtot ', var%owbtot
-    write(*,*) 'bal%delwc_tot ', var%delwc_tot
-    write(*,*) 'bal%qasrf_tot ', var%qasrf_tot
-    write(*,*) 'bal%qfsrf_tot ', var%qfsrf_tot
-    write(*,*) 'bal%qssrf_tot ', var%qssrf_tot
-
-    write(*,*) 'bal%Radbal ', var%Radbal
-    write(*,*) 'bal%EbalSoil ', var%EbalSoil
-    write(*,*) 'bal%Ebalveg ', var%Ebalveg
-    write(*,*) 'bal%Radbalsum ', var%Radbalsum
-
-  END SUBROUTINE print_balances_type
-
-
-  ! ------------------------------------------------------------------------------
-
-
-  SUBROUTINE print_soil_parameter_type(var)
-
-    TYPE(soil_parameter_type), INTENT(in) :: var
-
-    write(*,*) 'soil%bch ', var%bch
-    write(*,*) 'soil%c3 ', var%c3
-    write(*,*) 'soil%clay ', var%clay
-    write(*,*) 'soil%css ', var%css
-    write(*,*) 'soil%hsbh ', var%hsbh
-    write(*,*) 'soil%hyds ', var%hyds
-    write(*,*) 'soil%i2bp3 ', var%i2bp3
-    write(*,*) 'soil%ibp2 ', var%ibp2
-    write(*,*) 'soil%isoilm ', var%isoilm
-    write(*,*) 'soil%rhosoil ', var%rhosoil
-    write(*,*) 'soil%sand ', var%sand
-    write(*,*) 'soil%sfc ', var%sfc
-    write(*,*) 'soil%silt ', var%silt
-    write(*,*) 'soil%ssat ', var%ssat
-    write(*,*) 'soil%sucs ', var%sucs
-    write(*,*) 'soil%swilt ', var%swilt
-    write(*,*) 'soil%zse ', var%zse
-    write(*,*) 'soil%zshh ', var%zshh
-    write(*,*) 'soil%cnsd ', var%cnsd
-    write(*,*) 'soil%albsoil ', var%albsoil
-    write(*,*) 'soil%pwb_min ', var%pwb_min
-    write(*,*) 'soil%albsoilf ', var%albsoilf
-    write(*,*) 'soil%soilcol ', var%soilcol
-
-    write(*,*) 'soil%nhorizons ', var%nhorizons
-    write(*,*) 'soil%ishorizon ', var%ishorizon
-    write(*,*) 'soil%clitt ', var%clitt
-    write(*,*) 'soil%zeta ', var%zeta
-    write(*,*) 'soil%fsatmax ', var%fsatmax
-    write(*,*) 'soil%swilt_vec ', var%swilt_vec
-    write(*,*) 'soil%ssat_vec ', var%ssat_vec
-    write(*,*) 'soil%sfc_vec ', var%sfc_vec
-    write(*,*) 'soil%swilt_vec ', var%swilt_vec
-    write(*,*) 'soil%ssat_vec ', var%ssat_vec
-    write(*,*) 'soil%sfc_vec ', var%sfc_vec
-
-  END SUBROUTINE print_soil_parameter_type
-
-
-  ! ------------------------------------------------------------------------------
-
-
-  SUBROUTINE print_soil_snow_type(var)
-
-    TYPE(soil_snow_type), INTENT(in) :: var
-
-    write(*,*) 'ssnow%iantrct ', var%iantrct
-    write(*,*) 'ssnow%pudsto ', var%pudsto
-    write(*,*) 'ssnow%pudsmx ', var%pudsmx
-    write(*,*) 'ssnow%dtmlt ', var%dtmlt
-    write(*,*) 'ssnow%albsoilsn ', var%albsoilsn
-    write(*,*) 'ssnow%cls ', var%cls
-    write(*,*) 'ssnow%dfn_dtg ', var%dfn_dtg
-    write(*,*) 'ssnow%dfh_dtg ', var%dfh_dtg
-    write(*,*) 'ssnow%dfe_ddq ', var%dfe_ddq
-    write(*,*) 'ssnow%ddq_dtg ', var%ddq_dtg
-    write(*,*) 'ssnow%evapsn ', var%evapsn
-    write(*,*) 'ssnow%fwtop ', var%fwtop
-    write(*,*) 'ssnow%fwtop1 ', var%fwtop1
-    write(*,*) 'ssnow%fwtop2 ', var%fwtop2
-    write(*,*) 'ssnow%fwtop3 ', var%fwtop3
-    write(*,*) 'ssnow%gammzz ', var%gammzz
-    write(*,*) 'ssnow%isflag ', var%isflag
-    write(*,*) 'ssnow%osnowd ', var%osnowd
-    write(*,*) 'ssnow%potev ', var%potev
-    write(*,*) 'ssnow%runoff ', var%runoff
-    write(*,*) 'ssnow%rnof1 ', var%rnof1
-    write(*,*) 'ssnow%rnof2 ', var%rnof2
-    write(*,*) 'ssnow%rtsoil ', var%rtsoil
-    write(*,*) 'ssnow%sconds ', var%sconds
-    write(*,*) 'ssnow%sdepth ', var%sdepth
-    write(*,*) 'ssnow%smass ', var%smass
-    write(*,*) 'ssnow%snage ', var%snage
-    write(*,*) 'ssnow%snowd ', var%snowd
-    write(*,*) 'ssnow%smelt ', var%smelt
-    write(*,*) 'ssnow%ssdn ', var%ssdn
-    write(*,*) 'ssnow%ssdnn ', var%ssdnn
-    write(*,*) 'ssnow%tgg ', var%tgg
-    write(*,*) 'ssnow%tggsn ', var%tggsn
-    write(*,*) 'ssnow%tss ', var%tss
-    write(*,*) 'ssnow%tss_p ', var%tss_p
-    write(*,*) 'ssnow%deltss ', var%deltss
-    write(*,*) 'ssnow%owb1 ', var%owb1
-    write(*,*) 'ssnow%wb ', var%wb
-    write(*,*) 'ssnow%wbice ', var%wbice
-    write(*,*) 'ssnow%wblf ', var%wblf
-    write(*,*) 'ssnow%wbtot ', var%wbtot
-    write(*,*) 'ssnow%wbtot1 ', var%wbtot1
-    write(*,*) 'ssnow%wbtot2 ', var%wbtot2
-    write(*,*) 'ssnow%wb_lake ', var%wb_lake
-    write(*,*) 'ssnow%sinfil ', var%sinfil
-    write(*,*) 'ssnow%evapfbl ', var%evapfbl
-    write(*,*) 'ssnow%qstss ', var%qstss
-    write(*,*) 'ssnow%wetfac ', var%wetfac
-    write(*,*) 'ssnow%owetfac ', var%owetfac
-    write(*,*) 'ssnow%t_snwlr ', var%t_snwlr
-    write(*,*) 'ssnow%wbfice ', var%wbfice
-    write(*,*) 'ssnow%tggav ', var%tggav
-    write(*,*) 'ssnow%otgg ', var%otgg
-    write(*,*) 'ssnow%otss ', var%otss
-    write(*,*) 'ssnow%otss_0 ', var%otss_0
-    write(*,*) 'ssnow%tprecip ', var%tprecip
-    write(*,*) 'ssnow%tevap ', var%tevap
-    write(*,*) 'ssnow%trnoff ', var%trnoff
-    write(*,*) 'ssnow%totenbal ', var%totenbal
-    write(*,*) 'ssnow%totenbal2 ', var%totenbal2
-    write(*,*) 'ssnow%fland ', var%fland
-    write(*,*) 'ssnow%ifland ', var%ifland
-    write(*,*) 'ssnow%tilefrac ', var%tilefrac
-    write(*,*) 'ssnow%qasrf ', var%qasrf
-    write(*,*) 'ssnow%qfsrf ', var%qfsrf
-    write(*,*) 'ssnow%qssrf ', var%qssrf
-
-    write(*,*) 'ssnow%S ', var%S
-    write(*,*) 'ssnow%Tsoil ', var%Tsoil
-    write(*,*) 'ssnow%SL ', var%SL
-    write(*,*) 'ssnow%TL ', var%TL
-    write(*,*) 'ssnow%h0 ', var%h0
-    write(*,*) 'ssnow%rex ', var%rex
-    write(*,*) 'ssnow%wflux ', var%wflux
-    write(*,*) 'ssnow%delwcol ', var%delwcol
-    write(*,*) 'ssnow%zdelta ', var%zdelta
-    write(*,*) 'ssnow%kth ', var%kth
-    write(*,*) 'ssnow%Tsurface ', var%Tsurface
-    write(*,*) 'ssnow%lE ', var%lE
-    write(*,*) 'ssnow%evap ', var%evap
-    write(*,*) 'ssnow%ciso ', var%ciso
-    write(*,*) 'ssnow%cisoL ', var%cisoL
-    write(*,*) 'ssnow%rlitt ', var%rlitt
-    write(*,*) 'ssnow%thetai ', var%thetai
-    write(*,*) 'ssnow%snowliq ', var%snowliq
-    write(*,*) 'ssnow%nsteps ', var%nsteps
-    write(*,*) 'ssnow%nsnow ', var%nsnow
-    write(*,*) 'ssnow%TsurfaceFR ', var%TsurfaceFR
-    write(*,*) 'ssnow%Ta_daily ', var%Ta_daily
-    write(*,*) 'ssnow%Qadv_daily ', var%Qadv_daily
-    write(*,*) 'ssnow%G0_daily ', var%G0_daily
-    write(*,*) 'ssnow%Qevap_daily ', var%Qevap_daily
-    write(*,*) 'ssnow%Qprec_daily ', var%Qprec_daily
-    write(*,*) 'ssnow%Qprec_snow_daily ', var%Qprec_snow_daily
-    write(*,*) 'ssnow%E_fusion_sn ', var%E_fusion_sn
-    write(*,*) 'ssnow%E_sublimation_sn ', var%E_sublimation_sn
-    write(*,*) 'ssnow%latent_heat_sn ', var%latent_heat_sn
-    write(*,*) 'ssnow%evap_liq_sn ', var%evap_liq_sn
-    write(*,*) 'ssnow%surface_melt ', var%surface_melt
-    write(*,*) 'ssnow%Qadv_rain_sn ', var%Qadv_rain_sn
-
-  END SUBROUTINE print_soil_snow_type
-
-
-  ! ------------------------------------------------------------------------------
-
-
-  SUBROUTINE print_veg_parameter_type(var)
-
-    TYPE(veg_parameter_type), INTENT(in) :: var
-
-    write(*,*) 'veg%canst1 ', var%canst1
-    write(*,*) 'veg%dleaf ', var%dleaf
-    write(*,*) 'veg%ejmax ', var%ejmax
-    write(*,*) 'veg%ejmax_shade ', var%ejmax_shade
-    write(*,*) 'veg%ejmax_sun ', var%ejmax_sun
-    write(*,*) 'veg%iveg ', var%iveg
-    write(*,*) 'veg%ivegp ', var%ivegp
-    write(*,*) 'veg%iLU ', var%iLU
-    write(*,*) 'veg%meth ', var%meth
-    write(*,*) 'veg%frac4 ', var%frac4
-    write(*,*) 'veg%hc ', var%hc
-    write(*,*) 'veg%vlai ', var%vlai
-    write(*,*) 'veg%xalbnir ', var%xalbnir
-    write(*,*) 'veg%rp20 ', var%rp20
-    write(*,*) 'veg%rpcoef ', var%rpcoef
-    write(*,*) 'veg%rs20 ', var%rs20
-    write(*,*) 'veg%shelrb ', var%shelrb
-    write(*,*) 'veg%vegcf ', var%vegcf
-    write(*,*) 'veg%tminvj ', var%tminvj
-    write(*,*) 'veg%toptvj ', var%toptvj
-    write(*,*) 'veg%tmaxvj ', var%tmaxvj
-    write(*,*) 'veg%vbeta ', var%vbeta
-    write(*,*) 'veg%vcmax ', var%vcmax
-    write(*,*) 'veg%vcmax_shade ', var%vcmax_shade
-    write(*,*) 'veg%vcmax_sun ', var%vcmax_sun
-    write(*,*) 'veg%xfang ', var%xfang
-    write(*,*) 'veg%extkn ', var%extkn
-    write(*,*) 'veg%wai ', var%wai
-    write(*,*) 'veg%deciduous ', var%deciduous
-    write(*,*) 'veg%froot ', var%froot
-    write(*,*) 'veg%refl ', var%refl
-    write(*,*) 'veg%taul ', var%taul
-    write(*,*) 'veg%vlaimax ', var%vlaimax
-    write(*,*) 'veg%a1gs ', var%a1gs
-    write(*,*) 'veg%d0gs ', var%d0gs
-    write(*,*) 'veg%alpha ', var%alpha
-    write(*,*) 'veg%convex ', var%convex
-    write(*,*) 'veg%cfrd ', var%cfrd
-    write(*,*) 'veg%gswmin ', var%gswmin
-    write(*,*) 'veg%conkc0 ', var%conkc0
-    write(*,*) 'veg%conko0 ', var%conko0
-    write(*,*) 'veg%ekc ', var%ekc
-    write(*,*) 'veg%eko ', var%eko
-    write(*,*) 'veg%g0 ', var%g0
-    write(*,*) 'veg%g1 ', var%g1
-    write(*,*) 'veg%vcmaxcc ', var%vcmaxcc
-    write(*,*) 'veg%ejmaxcc ', var%ejmaxcc
-    write(*,*) 'veg%gmmax ', var%gmmax
-    write(*,*) 'veg%gm ', var%gm
-    write(*,*) 'veg%c4kci ', var%c4kci
-    write(*,*) 'veg%c4kcc ', var%c4kcc
-    write(*,*) 'veg%bjv ', var%bjv
-
-    write(*,*) 'veg%rootbeta ', var%rootbeta
-    write(*,*) 'veg%gamma ', var%gamma
-    write(*,*) 'veg%F10 ', var%F10
-    write(*,*) 'veg%ZR ', var%ZR
-    write(*,*) 'veg%clitt ', var%clitt
-
-    write(*,*) 'veg%disturbance_interval ', var%disturbance_interval
-    write(*,*) 'veg%disturbance_intensity ', var%disturbance_intensity
-
-  END SUBROUTINE print_veg_parameter_type
-
-
-  ! ------------------------------------------------------------------------------
-
-
-  SUBROUTINE print_canopy_type(var)
-
-    TYPE(canopy_type), INTENT(in) :: var
-
-    write(*,*) 'canopy%fess ', var%fess
-    write(*,*) 'canopy%fesp ', var%fesp
-    write(*,*) 'canopy%cansto ', var%cansto
-    write(*,*) 'canopy%cduv ', var%cduv
-    write(*,*) 'canopy%delwc ', var%delwc
-    write(*,*) 'canopy%dewmm ', var%dewmm
-    write(*,*) 'canopy%dgdtg ', var%dgdtg
-    write(*,*) 'canopy%fe ', var%fe
-    write(*,*) 'canopy%fh ', var%fh
-    write(*,*) 'canopy%fpn ', var%fpn
-    write(*,*) 'canopy%frp ', var%frp
-    write(*,*) 'canopy%frpw ', var%frpw
-    write(*,*) 'canopy%frpr ', var%frpr
-    write(*,*) 'canopy%frs ', var%frs
-    write(*,*) 'canopy%fnee ', var%fnee
-    write(*,*) 'canopy%frday ', var%frday
-    write(*,*) 'canopy%fnv ', var%fnv
-    write(*,*) 'canopy%fev ', var%fev
-    write(*,*) 'canopy%fevc ', var%fevc
-    write(*,*) 'canopy%fhv ', var%fhv
-    write(*,*) 'canopy%fns ', var%fns
-    write(*,*) 'canopy%fhs ', var%fhs
-    write(*,*) 'canopy%fhs_cor ', var%fhs_cor
-    write(*,*) 'canopy%ga ', var%ga
-    write(*,*) 'canopy%ghflux ', var%ghflux
-    write(*,*) 'canopy%precis ', var%precis
-    write(*,*) 'canopy%qscrn ', var%qscrn
-    write(*,*) 'canopy%rnet ', var%rnet
-    write(*,*) 'canopy%rniso ', var%rniso
-    write(*,*) 'canopy%segg ', var%segg
-    write(*,*) 'canopy%sghflux ', var%sghflux
-    write(*,*) 'canopy%through ', var%through
-    write(*,*) 'canopy%spill ', var%spill
-    write(*,*) 'canopy%tscrn ', var%tscrn
-    write(*,*) 'canopy%wcint ', var%wcint
-    write(*,*) 'canopy%tv ', var%tv
-    write(*,*) 'canopy%us ', var%us
-    write(*,*) 'canopy%uscrn ', var%uscrn
-    write(*,*) 'canopy%rghlai ', var%rghlai
-    write(*,*) 'canopy%vlaiw ', var%vlaiw
-    write(*,*) 'canopy%fwet ', var%fwet
-    write(*,*) 'canopy%A_sh ', var%A_sh
-    write(*,*) 'canopy%A_sl ', var%A_sl
-    write(*,*) 'canopy%A_slC ', var%A_slC
-    write(*,*) 'canopy%A_shC ', var%A_shC
-    write(*,*) 'canopy%A_slJ ', var%A_slJ
-    write(*,*) 'canopy%A_shJ ', var%A_shJ
-    write(*,*) 'canopy%GPP_sh ', var%GPP_sh
-    write(*,*) 'canopy%GPP_sl ', var%GPP_sl
-    write(*,*) 'canopy%fevc_sh ', var%fevc_sh
-    write(*,*) 'canopy%fevc_sl ', var%fevc_sl
-    write(*,*) 'canopy%eta_GPP_cs ', var%eta_GPP_cs
-    write(*,*) 'canopy%eta_fevc_cs ', var%eta_fevc_cs
-    write(*,*) 'canopy%eta_A_cs ', var%eta_A_cs
-    write(*,*) 'canopy%eta_A_cs_sh ', var%eta_A_cs_sh
-    write(*,*) 'canopy%eta_A_cs_sl ', var%eta_A_cs_sl
-    write(*,*) 'canopy%eta_fevc_cs_sh ', var%eta_fevc_cs_sh
-    write(*,*) 'canopy%eta_fevc_cs_sl ', var%eta_fevc_cs_sl
-    write(*,*) 'canopy%cs ', var%cs
-    write(*,*) 'canopy%dAdcs ', var%dAdcs
-    write(*,*) 'canopy%cs_sl ', var%cs_sl
-    write(*,*) 'canopy%cs_sh ', var%cs_sh
-    write(*,*) 'canopy%tlf ', var%tlf
-    write(*,*) 'canopy%dlf ', var%dlf
-
-    write(*,*) 'canopy%evapfbl ', var%evapfbl
-    write(*,*) 'canopy%epot ', var%epot
-    write(*,*) 'canopy%fnpp ', var%fnpp
-    write(*,*) 'canopy%fevw_pot ', var%fevw_pot
-    write(*,*) 'canopy%gswx_T ', var%gswx_T
-    write(*,*) 'canopy%cdtq ', var%cdtq
-    write(*,*) 'canopy%wetfac_cs ', var%wetfac_cs
-    write(*,*) 'canopy%fevw ', var%fevw
-    write(*,*) 'canopy%fhvw ', var%fhvw
-    write(*,*) 'canopy%fes ', var%fes
-    write(*,*) 'canopy%fes_cor ', var%fes_cor
-    write(*,*) 'canopy%gswx ', var%gswx
-    write(*,*) 'canopy%oldcansto ', var%oldcansto
-    write(*,*) 'canopy%zetar ', var%zetar
-    write(*,*) 'canopy%zetash ', var%zetash
-    write(*,*) 'canopy%fwsoil ', var%fwsoil
-    write(*,*) 'canopy%ofes ', var%ofes
-
-    write(*,*) 'canopy%gw ', var%gw
-    write(*,*) 'canopy%ancj ', var%ancj
-    write(*,*) 'canopy%tlfy ', var%tlfy
-    write(*,*) 'canopy%ecy ', var%ecy
-    write(*,*) 'canopy%ecx ', var%ecx
-    write(*,*) 'canopy%fwsoil ', var%fwsoil
-
-    write(*,*) 'canopy%kthLitt ', var%kthLitt
-    write(*,*) 'canopy%DvLitt ', var%DvLitt
-
-    write(*,*) 'canopy%An ', var%An
-    write(*,*) 'canopy%Rd ', var%Rd
-    write(*,*) 'canopy%isc3 ', var%isc3
-    write(*,*) 'canopy%vcmax ', var%vcmax
-    write(*,*) 'canopy%gammastar ', var%gammastar
-    write(*,*) 'canopy%gsc ', var%gsc
-    write(*,*) 'canopy%gbc ', var%gbc
-    write(*,*) 'canopy%gac ', var%gac
-    write(*,*) 'canopy%ci ', var%ci
-
-  END SUBROUTINE print_canopy_type
-
-
-  ! ------------------------------------------------------------------------------
-
-
-  SUBROUTINE print_radiation_type(var)
-
-    TYPE(radiation_type), INTENT(in) :: var
-
-    write(*,*) 'rad%albedo ', var%albedo
-    write(*,*) 'rad%extkb ', var%extkb
-    write(*,*) 'rad%extkd2 ', var%extkd2
-    write(*,*) 'rad%extkd ', var%extkd
-    write(*,*) 'rad%flws ', var%flws
-    write(*,*) 'rad%fvlai ', var%fvlai
-    write(*,*) 'rad%latitude ', var%latitude
-    write(*,*) 'rad%lwabv ', var%lwabv
-    write(*,*) 'rad%qcan ', var%qcan
-    write(*,*) 'rad%qssabs ', var%qssabs
-    write(*,*) 'rad%rhocdf ', var%rhocdf
-    write(*,*) 'rad%rniso ', var%rniso
-    write(*,*) 'rad%scalex ', var%scalex
-    write(*,*) 'rad%transd ', var%transd
-    write(*,*) 'rad%trad ', var%trad
-    write(*,*) 'rad%reffdf ', var%reffdf
-    write(*,*) 'rad%reffbm ', var%reffbm
-    write(*,*) 'rad%extkbm ', var%extkbm
-    write(*,*) 'rad%extkdm ', var%extkdm
-    write(*,*) 'rad%cexpkbm ', var%cexpkbm
-    write(*,*) 'rad%cexpkdm ', var%cexpkdm
-    write(*,*) 'rad%fbeam ', var%fbeam
-    write(*,*) 'rad%rhocbm ', var%rhocbm
-    write(*,*) 'rad%transb ', var%transb
-    write(*,*) 'rad%albedo_T ', var%albedo_T
-    write(*,*) 'rad%gradis ', var%gradis
-    write(*,*) 'rad%longitude ', var%longitude
-    write(*,*) 'rad%workp1 ', var%workp1
-    write(*,*) 'rad%workp2 ', var%workp2
-    write(*,*) 'rad%workp3 ', var%workp3
-
-  END SUBROUTINE print_radiation_type
-
-
-  ! ------------------------------------------------------------------------------
-
-
-  SUBROUTINE print_roughness_type(var)
-
-    TYPE(roughness_type), INTENT(in) :: var
-
-    write(*,*) 'rough%coexp ', var%coexp
-    write(*,*) 'rough%disp ', var%disp
-    write(*,*) 'rough%hruff ', var%hruff
-    write(*,*) 'rough%hruff_grmx ', var%hruff_grmx
-    write(*,*) 'rough%rt0us ', var%rt0us
-    write(*,*) 'rough%rt1usa ', var%rt1usa
-    write(*,*) 'rough%rt1usb ', var%rt1usb
-    write(*,*) 'rough%rt1 ', var%rt1
-    write(*,*) 'rough%term2 ', var%term2
-    write(*,*) 'rough%term3 ', var%term3
-    write(*,*) 'rough%term5 ', var%term5
-    write(*,*) 'rough%term6 ', var%term6
-    write(*,*) 'rough%term6a ', var%term6a
-    write(*,*) 'rough%usuh ', var%usuh
-    write(*,*) 'rough%za_uv ', var%za_uv
-    write(*,*) 'rough%za_tq ', var%za_tq
-    write(*,*) 'rough%z0m ', var%z0m
-    write(*,*) 'rough%zref_uv ', var%zref_uv
-    write(*,*) 'rough%zref_tq ', var%zref_tq
-    write(*,*) 'rough%zruffs ', var%zruffs
-    write(*,*) 'rough%z0soilsn ', var%z0soilsn
-    write(*,*) 'rough%z0soil ', var%z0soil
-
-  END SUBROUTINE print_roughness_type
-
-
-  ! ------------------------------------------------------------------------------
-
-
-  SUBROUTINE print_air_type(var)
-
-    TYPE(air_type), INTENT(in) :: var
-
-    write(*,*) 'air%rho ', var%rho
-    write(*,*) 'air%volm ', var%volm
-    write(*,*) 'air%rlam ', var%rlam
-    write(*,*) 'air%qsat ', var%qsat
-    write(*,*) 'air%epsi ', var%epsi
-    write(*,*) 'air%visc ', var%visc
-    write(*,*) 'air%psyc ', var%psyc
-    write(*,*) 'air%dsatdk ', var%dsatdk
-    write(*,*) 'air%cmolar ', var%cmolar
-
-  END SUBROUTINE print_air_type
-
-
-  ! ------------------------------------------------------------------------------
-
-
-  SUBROUTINE print_met_type(var)
-
-    TYPE(met_type), INTENT(in) :: var
-
-    write(*,*) 'met%ca ', var%ca
-    write(*,*) 'met%year ', var%year
-    write(*,*) 'met%moy ', var%moy
-    write(*,*) 'met%doy ', var%doy
-    write(*,*) 'met%hod ', var%hod
-    write(*,*) 'met%fsd ', var%fsd
-    write(*,*) 'met%ofsd ', var%ofsd
-    write(*,*) 'met%fld ', var%fld
-    write(*,*) 'met%precip ', var%precip
-    write(*,*) 'met%precip_sn ', var%precip_sn
-    write(*,*) 'met%tk ', var%tk
-    write(*,*) 'met%tvair ', var%tvair
-    write(*,*) 'met%tvrad ', var%tvrad
-    write(*,*) 'met%pmb ', var%pmb
-    write(*,*) 'met%ua ', var%ua
-    write(*,*) 'met%qv ', var%qv
-    write(*,*) 'met%qvair ', var%qvair
-    write(*,*) 'met%da ', var%da
-    write(*,*) 'met%dva ', var%dva
-    write(*,*) 'met%coszen ', var%coszen
-    write(*,*) 'met%Ndep ', var%Ndep
-    write(*,*) 'met%Pdep ', var%Pdep
-    write(*,*) 'met%rhum ', var%rhum
-    write(*,*) 'met%u10 ', var%u10
-
-  END SUBROUTINE print_met_type
-
-
-  ! ------------------------------------------------------------------------------
-
-
-  SUBROUTINE print_climate_type(var)
-
-    IMPLICIT NONE
-
-    TYPE(climate_type), INTENT(in) :: var
-
-    write(*,*) 'climate%chilldays ', var%chilldays
-    write(*,*) 'climate%iveg ', var%iveg
-    write(*,*) 'climate%biome ', var%biome
-    write(*,*) 'climate%GMD ', var%GMD
-    write(*,*) 'climate%modis_igbp ', var%modis_igbp
-    write(*,*) 'climate%DSLR ', var%DSLR
-    write(*,*) 'climate%NDAY_Nesterov ', var%NDAY_Nesterov
-
-    write(*,*) 'climate%dtemp ', var%dtemp
-    write(*,*) 'climate%dmoist ', var%dmoist
-    write(*,*) 'climate%dmoist_min ', var%dmoist_min
-    write(*,*) 'climate%dmoist_min20 ', var%dmoist_min20
-    write(*,*) 'climate%dmoist_max ', var%dmoist_max
-    write(*,*) 'climate%dmoist_max20 ', var%dmoist_max20
-    write(*,*) 'climate%mtemp ', var%mtemp
-    write(*,*) 'climate%qtemp ', var%qtemp
-    write(*,*) 'climate%mmoist ', var%mmoist
-    write(*,*) 'climate%mtemp_min ', var%mtemp_min
-    write(*,*) 'climate%mtemp_max ', var%mtemp_max
-    write(*,*) 'climate%qtemp_max ', var%qtemp_max
-    write(*,*) 'climate%qtemp_max_last_year ', var%qtemp_max_last_year
-    write(*,*) 'climate%mtemp_min20 ', var%mtemp_min20
-    write(*,*) 'climate%mtemp_max20 ', var%mtemp_max20
-    write(*,*) 'climate%atemp_mean ', var%atemp_mean
-    write(*,*) 'climate%AGDD5 ', var%AGDD5
-    write(*,*) 'climate%GDD5 ', var%GDD5
-    write(*,*) 'climate%AGDD0 ', var%AGDD0
-    write(*,*) 'climate%GDD0 ', var%GDD0
-    write(*,*) 'climate%alpha_PT ', var%alpha_PT
-    write(*,*) 'climate%evap_PT ', var%evap_PT
-    write(*,*) 'climate%aevap ', var%aevap
-    write(*,*) 'climate%alpha_PT20 ', var%alpha_PT20
-    write(*,*) 'climate%GDD0_rec ', var%GDD0_rec
-    write(*,*) 'climate%frec ', var%frec
-    write(*,*) 'climate%dtemp_min ', var%dtemp_min
-    write(*,*) 'climate%fdorm ', var%fdorm
-    write(*,*) 'climate%fapar_ann_max ', var%fapar_ann_max
-    write(*,*) 'climate%fapar_ann_max_last_year ', var%fapar_ann_max_last_year
-    write(*,*) 'climate%AvgAnnMaxFAPAR ', var%AvgAnnMaxFAPAR
-    write(*,*) 'climate%dtemp_max ', var%dtemp_max
-    write(*,*) 'climate%drhum ', var%drhum
-    write(*,*) 'climate%du10_max ', var%du10_max
-    write(*,*) 'climate%dprecip ', var%dprecip
-    write(*,*) 'climate%aprecip ', var%aprecip
-    write(*,*) 'climate%aprecip_av20 ', var%aprecip_av20
-    write(*,*) 'climate%last_precip ', var%last_precip
-    write(*,*) 'climate%KBDI ', var%KBDI
-    write(*,*) 'climate%FFDI ', var%FFDI
-    write(*,*) 'climate%D_MacArthur ', var%D_MacArthur
-    write(*,*) 'climate%Nesterov_Current ', var%Nesterov_Current
-    write(*,*) 'climate%Nesterov_ann_max ', var%Nesterov_ann_max
-    write(*,*) 'climate%Nesterov_ann_max_last_year ', var%Nesterov_ann_max_last_year
-    write(*,*) 'climate%Nesterov_ann_running_max ', var%Nesterov_ann_running_max
-
-    write(*,*) 'climate%mtemp_min_20 ', var%mtemp_min_20
-    write(*,*) 'climate%mtemp_max_20 ', var%mtemp_max_20
-    write(*,*) 'climate%dmoist_min_20 ', var%dmoist_min_20
-    write(*,*) 'climate%dmoist_max_20 ', var%dmoist_max_20
-    write(*,*) 'climate%dtemp_31 ', var%dtemp_31
-    write(*,*) 'climate%dmoist_31 ', var%dmoist_31
-    write(*,*) 'climate%alpha_PT_20 ', var%alpha_PT_20
-    write(*,*) 'climate%dtemp_91 ', var%dtemp_91
-    write(*,*) 'climate%APAR_leaf_sun ', var%APAR_leaf_sun
-    write(*,*) 'climate%APAR_leaf_shade ', var%APAR_leaf_shade
-    write(*,*) 'climate%Dleaf_sun ', var%Dleaf_sun
-    write(*,*) 'climate%Dleaf_shade ', var%Dleaf_shade
-    write(*,*) 'climate%Tleaf_sun ', var%Tleaf_sun
-    write(*,*) 'climate%Tleaf_shade ', var%Tleaf_shade
-    write(*,*) 'climate%cs_sun ', var%cs_sun
-    write(*,*) 'climate%cs_shade ', var%cs_shade
-    write(*,*) 'climate%scalex_sun ', var%scalex_sun
-    write(*,*) 'climate%scalex_shade ', var%scalex_shade
-    write(*,*) 'climate%fwsoil ', var%fwsoil
-    write(*,*) 'climate%aprecip_20 ', var%aprecip_20
-    write(*,*) 'climate%Rd_sun ', var%Rd_sun
-    write(*,*) 'climate%Rd_shade ', var%Rd_shade
-
-  END SUBROUTINE print_climate_type
-
-
-  ! ------------------------------------------------------------------------------
-
-
-  SUBROUTINE print_sum_flux_type(var)
-
-    TYPE(sum_flux_type), INTENT(in) :: var
-
-    write(*,*) 'sumflux%sumpn ', var%sumpn
-    write(*,*) 'sumflux%sumrp ', var%sumrp
-    write(*,*) 'sumflux%sumrpw ', var%sumrpw
-    write(*,*) 'sumflux%sumrpr ', var%sumrpr
-    write(*,*) 'sumflux%sumrs ', var%sumrs
-    write(*,*) 'sumflux%sumrd ', var%sumrd
-    write(*,*) 'sumflux%dsumpn ', var%dsumpn
-    write(*,*) 'sumflux%dsumrp ', var%dsumrp
-    write(*,*) 'sumflux%dsumrs ', var%dsumrs
-    write(*,*) 'sumflux%dsumrd ', var%dsumrd
-    write(*,*) 'sumflux%sumxrp ', var%sumxrp
-    write(*,*) 'sumflux%sumxrs ', var%sumxrs
-
-  END SUBROUTINE print_sum_flux_type
-
-
-  ! ------------------------------------------------------------------------------
-
-
-  SUBROUTINE print_bgc_pool_type(var)
-
-    TYPE(bgc_pool_type), INTENT(in) :: var
-
-    write(*,*) 'bgc%cplant ', var%cplant
-    write(*,*) 'bgc%csoil ', var%csoil
-
-  END SUBROUTINE print_bgc_pool_type
-
-
-  ! ------------------------------------------------------------------------------
-
-END MODULE cable_def_types_mod
+    deallocate(canopy%kthLitt)
+    deallocate(canopy%DvLitt)
+
+  end subroutine dealloc_canopy_type
+
+  ! ------------------------------------------------------------------
+
+  subroutine dealloc_radiation_type(rad)
+
+    type(radiation_type), intent(inout) :: rad
+
+    deallocate(rad%albedo)
+    deallocate(rad%extkb)
+    deallocate(rad%extkd2)
+    deallocate(rad%extkd)
+    deallocate(rad%flws)
+    deallocate(rad%fvlai)
+    deallocate(rad%latitude)
+    deallocate(rad%lwabv)
+    deallocate(rad%qcan)
+    deallocate(rad%qssabs)
+    deallocate(rad%rhocdf)
+    deallocate(rad%rniso)
+    deallocate(rad%scalex)
+    deallocate(rad%transd)
+    deallocate(rad%trad)
+    deallocate(rad%reffdf)
+    deallocate(rad%reffbm)
+    deallocate(rad%extkbm)
+    deallocate(rad%extkdm)
+    deallocate(rad%fbeam)
+    deallocate(rad%cexpkbm)
+    deallocate(rad%cexpkdm)
+    deallocate(rad%rhocbm)
+    deallocate(rad%transb)
+    deallocate(rad%albedo_T)
+    deallocate(rad%gradis)
+    deallocate(rad%longitude)
+    deallocate(rad%workp1)
+    deallocate(rad%workp2)
+    deallocate(rad%workp3)
+
+  end subroutine dealloc_radiation_type
+
+  ! ------------------------------------------------------------------
+
+  subroutine dealloc_roughness_type(rough)
+
+    type(roughness_type), intent(inout) :: rough
+
+    deallocate(rough%coexp)
+    deallocate(rough%disp)
+    deallocate(rough%hruff)
+    deallocate(rough%hruff_grmx)
+    deallocate(rough%rt0us)
+    deallocate(rough%rt1usa)
+    deallocate(rough%rt1usb)
+    deallocate(rough%rt1)
+    deallocate(rough%term2)
+    deallocate(rough%term3)
+    deallocate(rough%term5)
+    deallocate(rough%term6)
+    deallocate(rough%term6a)
+    deallocate(rough%usuh)
+    deallocate(rough%za_uv)
+    deallocate(rough%za_tq)
+    deallocate(rough%z0m)
+    deallocate(rough%zref_uv)
+    deallocate(rough%zref_tq)
+    deallocate(rough%zruffs)
+    deallocate(rough%z0soilsn)
+    deallocate(rough%z0soil)
+
+  end subroutine dealloc_roughness_type
+
+  ! ------------------------------------------------------------------
+
+  subroutine dealloc_air_type(air)
+
+    type(air_type), intent(inout) :: air
+
+    deallocate(air%rho)
+    deallocate(air%volm)
+    deallocate(air%rlam)
+    deallocate(air%qsat)
+    deallocate(air%epsi)
+    deallocate(air%visc)
+    deallocate(air%psyc)
+    deallocate(air%dsatdk)
+    deallocate(air%cmolar)
+
+  end subroutine dealloc_air_type
+
+  ! ------------------------------------------------------------------
+
+  subroutine dealloc_met_type(met)
+
+    type(met_type), intent(inout) :: met
+
+    deallocate(met%ca)
+    deallocate(met%year)
+    deallocate(met%moy)
+    deallocate(met%doy)
+    deallocate(met%hod)
+    deallocate(met%fsd)
+    deallocate(met%ofsd)
+    deallocate(met%fld)
+    deallocate(met%precip)
+    deallocate(met%precip_sn)
+    deallocate(met%tk)
+    deallocate(met%tvair)
+    deallocate(met%tvrad)
+    deallocate(met%pmb)
+    deallocate(met%ua)
+    deallocate(met%qv)
+    deallocate(met%qvair)
+    deallocate(met%da)
+    deallocate(met%dva)
+    deallocate(met%coszen)
+    deallocate(met%Ndep)
+    deallocate(met%Pdep)
+    deallocate(met%rhum)
+    deallocate(met%u10)
+
+  end subroutine dealloc_met_type
+
+  ! ------------------------------------------------------------------
+
+  subroutine dealloc_sum_flux_type(sum_flux)
+
+    type(sum_flux_type), intent(inout) :: sum_flux
+
+    deallocate(sum_flux%sumpn)
+    deallocate(sum_flux%sumrp)
+    deallocate(sum_flux%sumrpw)
+    deallocate(sum_flux%sumrpr)
+    deallocate(sum_flux%sumrs)
+    deallocate(sum_flux%sumrd)
+    deallocate(sum_flux%dsumpn)
+    deallocate(sum_flux%dsumrp)
+    deallocate(sum_flux%dsumrs)
+    deallocate(sum_flux%dsumrd)
+    deallocate(sum_flux%sumxrp)
+    deallocate(sum_flux%sumxrs)
+
+  end subroutine dealloc_sum_flux_type
+
+  ! ------------------------------------------------------------------
+
+  subroutine dealloc_bgc_pool_type(bgc)
+
+    type(bgc_pool_type), intent(inout) :: bgc
+
+    deallocate(bgc%cplant)
+    deallocate(bgc%csoil)
+
+  end subroutine dealloc_bgc_pool_type
+
+
+  ! ------------------------------------------------------------------
+
+
+  subroutine zero_balances_type(bal)
+
+    type(balances_type), intent(inout) :: bal
+
+    bal%drybal           = 0
+    bal%ebal             = 0
+    bal%ebal_tot         = 0
+    bal%ebaltr           = 0
+    bal%ebal_tottr       = 0
+    bal%ebal_cncheck     = 0
+    bal%ebal_tot_cncheck = 0
+    bal%evap_tot         = 0
+    bal%osnowd0          = 0
+    bal%precip_tot       = 0
+    bal%rnoff_tot        = 0
+    bal%wbal             = 0
+    bal%wbal_tot         = 0
+    bal%wbtot0           = 0
+    bal%wetbal           = 0
+    bal%cansto0          = 0
+    bal%evapc_tot        = 0
+    bal%evaps_tot        = 0
+    bal%rnof1_tot        = 0
+    bal%rnof2_tot        = 0
+    bal%snowdc_tot       = 0
+    bal%wbal_tot1        = 0
+    bal%owbtot           = 0
+    bal%delwc_tot        = 0
+    bal%qasrf_tot        = 0
+    bal%qfsrf_tot        = 0
+    bal%qssrf_tot        = 0
+    bal%Radbal    = 0
+    bal%EbalSoil  = 0
+    bal%Ebalveg   = 0
+    bal%Radbalsum = 0
+
+  end subroutine zero_balances_type
+
+
+  ! ------------------------------------------------------------------
+
+
+  subroutine zero_soil_parameter_type(soil)
+
+    type(soil_parameter_type), intent(inout) :: soil
+
+    soil%bch      = 0
+    soil%c3       = 0
+    soil%clay     = 0
+    soil%css      = 0
+    soil%hsbh     = 0
+    soil%hyds     = 0
+    soil%i2bp3    = 0
+    soil%ibp2     = 0
+    soil%isoilm   = 0
+    soil%rhosoil  = 0
+    soil%sand     = 0
+    soil%sfc      = 0
+    soil%silt     = 0
+    soil%ssat     = 0
+    soil%sucs     = 0
+    soil%swilt    = 0
+    soil%zse      = 0
+    soil%zshh     = 0
+    soil%cnsd     = 0
+    soil%albsoil  = 0
+    soil%pwb_min  = 0
+    soil%albsoilf = 0
+    soil%soilcol  = 0
+    soil%nhorizons = 0
+    soil%ishorizon = 0
+    soil%clitt     = 0
+    soil%zeta      = 0
+    soil%fsatmax   = 0
+    soil%swilt_vec = 0
+    soil%ssat_vec  = 0
+    soil%sfc_vec   = 0
+    soil%swilt_vec = 0
+    soil%ssat_vec  = 0
+    soil%sfc_vec   = 0
+
+  end subroutine zero_soil_parameter_type
+
+
+  ! ------------------------------------------------------------------
+
+
+  subroutine zero_soil_snow_type(ssnow)
+
+    type(soil_snow_type), intent(inout) :: ssnow
+
+    ssnow%iantrct   = 0
+    ssnow%pudsto    = 0
+    ssnow%pudsmx    = 0
+    ssnow%dtmlt     = 0
+    ssnow%albsoilsn = 0
+    ssnow%cls       = 0
+    ssnow%dfn_dtg   = 0
+    ssnow%dfh_dtg   = 0
+    ssnow%dfe_ddq   = 0
+    ssnow%ddq_dtg   = 0
+    ssnow%evapsn    = 0
+    ssnow%fwtop     = 0
+    ssnow%fwtop1    = 0
+    ssnow%fwtop2    = 0
+    ssnow%fwtop3    = 0
+    ssnow%gammzz    = 0
+    ssnow%isflag    = 0
+    ssnow%osnowd    = 0
+    ssnow%potev     = 0
+    ssnow%runoff    = 0
+    ssnow%rnof1     = 0
+    ssnow%rnof2     = 0
+    ssnow%rtsoil    = 0
+    ssnow%sconds    = 0
+    ssnow%sdepth    = 0
+    ssnow%smass     = 0
+    ssnow%snage     = 0
+    ssnow%snowd     = 0
+    ssnow%smelt     = 0
+    ssnow%ssdn      = 0
+    ssnow%ssdnn     = 0
+    ssnow%tgg       = 0
+    ssnow%tggsn     = 0
+    ssnow%tss       = 0
+    ssnow%tss_p     = 0
+    ssnow%deltss    = 0
+    ssnow%owb1      = 0
+    ssnow%wb        = 0
+    ssnow%wbice     = 0
+    ssnow%wblf      = 0
+    ssnow%wbtot     = 0
+    ssnow%wbtot1    = 0
+    ssnow%wbtot2    = 0
+    ssnow%wb_lake   = 0
+    ssnow%sinfil    = 0
+    ssnow%evapfbl   = 0
+    ssnow%qstss     = 0
+    ssnow%wetfac    = 0
+    ssnow%owetfac   = 0
+    ssnow%t_snwlr   = 0
+    ssnow%wbfice    = 0
+    ssnow%tggav     = 0
+    ssnow%otgg      = 0
+    ssnow%otss      = 0
+    ssnow%otss_0    = 0
+    ssnow%tprecip   = 0
+    ssnow%tevap     = 0
+    ssnow%trnoff    = 0
+    ssnow%totenbal  = 0
+    ssnow%totenbal2 = 0
+    ssnow%fland     = 0
+    ssnow%ifland    = 0
+    ssnow%tilefrac  = 0
+    ssnow%qasrf     = 0
+    ssnow%qfsrf     = 0
+    ssnow%qssrf     = 0
+    ssnow%S                = 0
+    ssnow%Tsoil            = 0
+    ssnow%SL               = 0
+    ssnow%TL               = 0
+    ssnow%h0               = 0
+    ssnow%rex              = 0
+    ssnow%wflux            = 0
+    ssnow%delwcol          = 0
+    ssnow%zdelta           = 0
+    ssnow%kth              = 0
+    ssnow%Tsurface         = 0
+    ssnow%lE               = 0
+    ssnow%evap             = 0
+    ssnow%ciso             = 0
+    ssnow%cisoL            = 0
+    ssnow%rlitt            = 0
+    ssnow%thetai           = 0
+    ssnow%snowliq          = 0
+    ssnow%nsteps           = 0
+    ssnow%nsnow            = 0
+    ssnow%TsurfaceFR       = 0
+    ssnow%Ta_daily         = 0
+    ssnow%Qadv_daily       = 0
+    ssnow%G0_daily         = 0
+    ssnow%Qevap_daily      = 0
+    ssnow%Qprec_daily      = 0
+    ssnow%Qprec_snow_daily = 0
+    ssnow%E_fusion_sn      = 0
+    ssnow%E_sublimation_sn = 0
+    ssnow%latent_heat_sn   = 0
+    ssnow%evap_liq_sn      = 0
+    ssnow%surface_melt     = 0
+    ssnow%Qadv_rain_sn     = 0
+
+  end subroutine zero_soil_snow_type
+
+
+  ! ------------------------------------------------------------------
+
+
+  subroutine zero_veg_parameter_type(veg)
+
+    type(veg_parameter_type), intent(inout) :: veg
+
+    veg%canst1      = 0
+    veg%dleaf       = 0
+    veg%ejmax       = 0
+    veg%ejmax_shade = 0
+    veg%ejmax_sun   = 0
+    veg%iveg        = 0
+    veg%ivegp       = 0
+    veg%iLU         = 0
+    veg%meth        = 0
+    veg%frac4       = 0
+    veg%hc          = 0
+    veg%vlai        = 0
+    veg%xalbnir     = 0
+    veg%rp20        = 0
+    veg%rpcoef      = 0
+    veg%rs20        = 0
+    veg%shelrb      = 0
+    veg%vegcf       = 0
+    veg%tminvj      = 0
+    veg%toptvj      = 0
+    veg%tmaxvj      = 0
+    veg%vbeta       = 0
+    veg%vcmax       = 0
+    veg%vcmax_shade = 0
+    veg%vcmax_sun   = 0
+    veg%xfang       = 0
+    veg%extkn       = 0
+    veg%wai         = 0
+    veg%deciduous   = .false.
+    veg%froot       = 0
+    veg%refl        = 0
+    veg%taul        = 0
+    veg%vlaimax     = 0
+    veg%a1gs        = 0
+    veg%d0gs        = 0
+    veg%alpha       = 0
+    veg%convex      = 0
+    veg%cfrd        = 0
+    veg%gswmin      = 0
+    veg%conkc0      = 0
+    veg%conko0      = 0
+    veg%ekc         = 0
+    veg%eko         = 0
+    veg%g0          = 0
+    veg%g1          = 0
+    veg%vcmaxcc     = 0
+    veg%ejmaxcc     = 0
+    veg%gmmax       = 0
+    veg%gm          = 0
+    veg%c4kci       = 0
+    veg%c4kcc       = 0
+    veg%bjv         = 0
+    veg%rootbeta = 0
+    veg%gamma    = 0
+    veg%F10      = 0
+    veg%ZR       = 0
+    veg%clitt    = 0
+    veg%disturbance_interval  = 0
+    veg%disturbance_intensity = 0
+
+  end subroutine zero_veg_parameter_type
+
+
+  ! ------------------------------------------------------------------
+
+
+  subroutine zero_canopy_type(canopy)
+
+    type(canopy_type), intent(inout) :: canopy
+
+    canopy%fess           = 0
+    canopy%fesp           = 0
+    canopy%cansto         = 0
+    canopy%cduv           = 0
+    canopy%delwc          = 0
+    canopy%dewmm          = 0
+    canopy%dgdtg          = 0
+    canopy%fe             = 0
+    canopy%fh             = 0
+    canopy%fpn            = 0
+    canopy%frp            = 0
+    canopy%frpw           = 0
+    canopy%frpr           = 0
+    canopy%frs            = 0
+    canopy%fnee           = 0
+    canopy%frday          = 0
+    canopy%fnv            = 0
+    canopy%fev            = 0
+    canopy%fevc           = 0
+    canopy%fhv            = 0
+    canopy%fns            = 0
+    canopy%fhs            = 0
+    canopy%fhs_cor        = 0
+    canopy%ga             = 0
+    canopy%ghflux         = 0
+    canopy%precis         = 0
+    canopy%qscrn          = 0
+    canopy%rnet           = 0
+    canopy%rniso          = 0
+    canopy%segg           = 0
+    canopy%sghflux        = 0
+    canopy%through        = 0
+    canopy%spill          = 0
+    canopy%tscrn          = 0
+    canopy%wcint          = 0
+    canopy%tv             = 0
+    canopy%us             = 0
+    canopy%uscrn          = 0
+    canopy%rghlai         = 0
+    canopy%vlaiw          = 0
+    canopy%fwet           = 0
+    canopy%A_sh           = 0
+    canopy%A_sl           = 0
+    canopy%A_slC          = 0
+    canopy%A_shC          = 0
+    canopy%A_slJ          = 0
+    canopy%A_shJ          = 0
+    canopy%GPP_sh         = 0
+    canopy%GPP_sl         = 0
+    canopy%fevc_sh        = 0
+    canopy%fevc_sl        = 0
+    canopy%eta_GPP_cs     = 0
+    canopy%eta_fevc_cs    = 0
+    canopy%eta_A_cs       = 0
+    canopy%eta_A_cs_sh    = 0
+    canopy%eta_A_cs_sl    = 0
+    canopy%eta_fevc_cs_sh = 0
+    canopy%eta_fevc_cs_sl = 0
+    canopy%cs             = 0
+    canopy%dAdcs          = 0
+    canopy%cs_sl          = 0
+    canopy%cs_sh          = 0
+    canopy%tlf            = 0
+    canopy%dlf            = 0
+    canopy%evapfbl   = 0
+    canopy%epot      = 0
+    canopy%fnpp      = 0
+    canopy%fevw_pot  = 0
+    canopy%gswx_T    = 0
+    canopy%cdtq      = 0
+    canopy%wetfac_cs = 0
+    canopy%fevw      = 0
+    canopy%fhvw      = 0
+    canopy%fes       = 0
+    canopy%fes_cor   = 0
+    canopy%gswx      = 0
+    canopy%oldcansto = 0
+    canopy%zetar     = 0
+    canopy%zetash    = 0
+    canopy%fwsoil    = 0
+    canopy%ofes      = 0
+    canopy%gw     = 0
+    canopy%ancj   = 0
+    canopy%tlfy   = 0
+    canopy%ecy    = 0
+    canopy%ecx    = 0
+    canopy%fwsoil = 0
+    canopy%kthLitt = 0
+    canopy%DvLitt  = 0
+    canopy%An        = 0
+    canopy%Rd        = 0
+    canopy%isc3      = .false.
+    canopy%vcmax     = 0
+    canopy%gammastar = 0
+    canopy%gsc       = 0
+    canopy%gbc       = 0
+    canopy%gac       = 0
+    canopy%ci        = 0
+
+  end subroutine zero_canopy_type
+
+
+  ! ------------------------------------------------------------------
+
+
+  subroutine zero_radiation_type(rad)
+
+    type(radiation_type), intent(inout) :: rad
+
+    rad%albedo    = 0
+    rad%extkb     = 0
+    rad%extkd2    = 0
+    rad%extkd     = 0
+    rad%flws      = 0
+    rad%fvlai     = 0
+    rad%latitude  = 0
+    rad%lwabv     = 0
+    rad%qcan      = 0
+    rad%qssabs    = 0
+    rad%rhocdf    = 0
+    rad%rniso     = 0
+    rad%scalex    = 0
+    rad%transd    = 0
+    rad%trad      = 0
+    rad%reffdf    = 0
+    rad%reffbm    = 0
+    rad%extkbm    = 0
+    rad%extkdm    = 0
+    rad%cexpkbm   = 0
+    rad%cexpkdm   = 0
+    rad%fbeam     = 0
+    rad%rhocbm    = 0
+    rad%transb    = 0
+    rad%albedo_T  = 0
+    rad%gradis    = 0
+    rad%longitude = 0
+    rad%workp1    = 0
+    rad%workp2    = 0
+    rad%workp3    = 0
+
+  end subroutine zero_radiation_type
+
+
+  ! ------------------------------------------------------------------
+
+
+  subroutine zero_roughness_type(rought)
+
+    type(roughness_type), intent(inout) :: rought
+
+    rought%coexp      = 0
+    rought%disp       = 0
+    rought%hruff      = 0
+    rought%hruff_grmx = 0
+    rought%rt0us      = 0
+    rought%rt1usa     = 0
+    rought%rt1usb     = 0
+    rought%rt1        = 0
+    rought%term2      = 0
+    rought%term3      = 0
+    rought%term5      = 0
+    rought%term6      = 0
+    rought%term6a     = 0
+    rought%usuh       = 0
+    rought%za_uv      = 0
+    rought%za_tq      = 0
+    rought%z0m        = 0
+    rought%zref_uv    = 0
+    rought%zref_tq    = 0
+    rought%zruffs     = 0
+    rought%z0soilsn   = 0
+    rought%z0soil     = 0
+
+  end subroutine zero_roughness_type
+
+
+  ! ------------------------------------------------------------------
+
+
+  subroutine zero_air_type(air)
+
+    type(air_type), intent(inout) :: air
+
+    air%rho    = 0
+    air%volm   = 0
+    air%rlam   = 0
+    air%qsat   = 0
+    air%epsi   = 0
+    air%visc   = 0
+    air%psyc   = 0
+    air%dsatdk = 0
+    air%cmolar = 0
+
+  end subroutine zero_air_type
+
+
+  ! ------------------------------------------------------------------
+
+
+  subroutine zero_met_type(met)
+
+    type(met_type), intent(inout) :: met
+
+    met%ca        = 0
+    met%year      = 0
+    met%moy       = 0
+    met%doy       = 0
+    met%hod       = 0
+    met%fsd       = 0
+    met%ofsd      = 0
+    met%fld       = 0
+    met%precip    = 0
+    met%precip_sn = 0
+    met%tk        = 0
+    met%tvair     = 0
+    met%tvrad     = 0
+    met%pmb       = 0
+    met%ua        = 0
+    met%qv        = 0
+    met%qvair     = 0
+    met%da        = 0
+    met%dva       = 0
+    met%coszen    = 0
+    met%Ndep      = 0
+    met%Pdep      = 0
+    met%rhum      = 0
+    met%u10       = 0
+
+  end subroutine zero_met_type
+
+
+  ! ------------------------------------------------------------------
+
+
+  subroutine zero_climate_type(climate)
+
+    implicit none
+
+    type(climate_type), intent(inout) :: climate
+
+    climate%chilldays     = 0
+    climate%iveg          = 0
+    climate%biome         = 0
+    climate%GMD           = 0
+    climate%modis_igbp    = 0
+    climate%DSLR          = 0
+    climate%NDAY_Nesterov = 0
+    climate%dtemp                      = 0
+    climate%dmoist                     = 0
+    climate%dmoist_min                 = 0
+    climate%dmoist_min20               = 0
+    climate%dmoist_max                 = 0
+    climate%dmoist_max20               = 0
+    climate%mtemp                      = 0
+    climate%qtemp                      = 0
+    climate%mmoist                     = 0
+    climate%mtemp_min                  = 0
+    climate%mtemp_max                  = 0
+    climate%qtemp_max                  = 0
+    climate%qtemp_max_last_year        = 0
+    climate%mtemp_min20                = 0
+    climate%mtemp_max20                = 0
+    climate%atemp_mean                 = 0
+    climate%AGDD5                      = 0
+    climate%GDD5                       = 0
+    climate%AGDD0                      = 0
+    climate%GDD0                       = 0
+    climate%alpha_PT                   = 0
+    climate%evap_PT                    = 0
+    climate%aevap                      = 0
+    climate%alpha_PT20                 = 0
+    climate%GDD0_rec                   = 0
+    climate%frec                       = 0
+    climate%dtemp_min                  = 0
+    climate%fdorm                      = 0
+    climate%fapar_ann_max              = 0
+    climate%fapar_ann_max_last_year    = 0
+    climate%AvgAnnMaxFAPAR             = 0
+    climate%dtemp_max                  = 0
+    climate%drhum                      = 0
+    climate%du10_max                   = 0
+    climate%dprecip                    = 0
+    climate%aprecip                    = 0
+    climate%aprecip_av20               = 0
+    climate%last_precip                = 0
+    climate%KBDI                       = 0
+    climate%FFDI                       = 0
+    climate%D_MacArthur                = 0
+    climate%Nesterov_Current           = 0
+    climate%Nesterov_ann_max           = 0
+    climate%Nesterov_ann_max_last_year = 0
+    climate%Nesterov_ann_running_max   = 0
+    climate%mtemp_min_20    = 0
+    climate%mtemp_max_20    = 0
+    climate%dmoist_min_20   = 0
+    climate%dmoist_max_20   = 0
+    climate%dtemp_31        = 0
+    climate%dmoist_31       = 0
+    climate%alpha_PT_20     = 0
+    climate%dtemp_91        = 0
+    climate%APAR_leaf_sun   = 0
+    climate%APAR_leaf_shade = 0
+    climate%Dleaf_sun       = 0
+    climate%Dleaf_shade     = 0
+    climate%Tleaf_sun       = 0
+    climate%Tleaf_shade     = 0
+    climate%cs_sun          = 0
+    climate%cs_shade        = 0
+    climate%scalex_sun      = 0
+    climate%scalex_shade    = 0
+    climate%fwsoil          = 0
+    climate%aprecip_20      = 0
+    climate%Rd_sun          = 0
+    climate%Rd_shade        = 0
+
+  end subroutine zero_climate_type
+
+
+  ! ------------------------------------------------------------------
+
+
+  subroutine zero_sum_flux_type(sum_flux)
+
+    type(sum_flux_type), intent(inout) :: sum_flux
+
+    sum_flux%sumpn  = 0
+    sum_flux%sumrp  = 0
+    sum_flux%sumrpw = 0
+    sum_flux%sumrpr = 0
+    sum_flux%sumrs  = 0
+    sum_flux%sumrd  = 0
+    sum_flux%dsumpn = 0
+    sum_flux%dsumrp = 0
+    sum_flux%dsumrs = 0
+    sum_flux%dsumrd = 0
+    sum_flux%sumxrp = 0
+    sum_flux%sumxrs = 0
+
+  end subroutine zero_sum_flux_type
+
+
+  ! ------------------------------------------------------------------
+
+
+  subroutine zero_bgc_pool_type(bgc)
+
+    type(bgc_pool_type), intent(inout) :: bgc
+
+    bgc%cplant = 0
+    bgc%csoil  = 0
+
+  end subroutine zero_bgc_pool_type
+
+
+  ! ------------------------------------------------------------------
+
+
+  subroutine print_balances_type(bal)
+
+    type(balances_type), intent(in) :: bal
+
+    write(*,*) 'bal%drybal ', bal%drybal
+    write(*,*) 'bal%ebal ', bal%ebal
+    write(*,*) 'bal%ebal_tot ', bal%ebal_tot
+    write(*,*) 'bal%ebaltr ', bal%ebaltr
+    write(*,*) 'bal%ebal_tottr ', bal%ebal_tottr
+    write(*,*) 'bal%ebal_cncheck ', bal%ebal_cncheck
+    write(*,*) 'bal%ebal_tot_cncheck ', bal%ebal_tot_cncheck
+    write(*,*) 'bal%evap_tot ', bal%evap_tot
+    write(*,*) 'bal%osnowd0 ', bal%osnowd0
+    write(*,*) 'bal%precip_tot ', bal%precip_tot
+    write(*,*) 'bal%rnoff_tot ', bal%rnoff_tot
+    write(*,*) 'bal%wbal ', bal%wbal
+    write(*,*) 'bal%wbal_tot ', bal%wbal_tot
+    write(*,*) 'bal%wbtot0 ', bal%wbtot0
+    write(*,*) 'bal%wetbal ', bal%wetbal
+    write(*,*) 'bal%cansto0 ', bal%cansto0
+    write(*,*) 'bal%evapc_tot ', bal%evapc_tot
+    write(*,*) 'bal%evaps_tot ', bal%evaps_tot
+    write(*,*) 'bal%rnof1_tot ', bal%rnof1_tot
+    write(*,*) 'bal%rnof2_tot ', bal%rnof2_tot
+    write(*,*) 'bal%snowdc_tot ', bal%snowdc_tot
+    write(*,*) 'bal%wbal_tot1 ', bal%wbal_tot1
+    write(*,*) 'bal%owbtot ', bal%owbtot
+    write(*,*) 'bal%delwc_tot ', bal%delwc_tot
+    write(*,*) 'bal%qasrf_tot ', bal%qasrf_tot
+    write(*,*) 'bal%qfsrf_tot ', bal%qfsrf_tot
+    write(*,*) 'bal%qssrf_tot ', bal%qssrf_tot
+    write(*,*) 'bal%Radbal ', bal%Radbal
+    write(*,*) 'bal%EbalSoil ', bal%EbalSoil
+    write(*,*) 'bal%Ebalveg ', bal%Ebalveg
+    write(*,*) 'bal%Radbalsum ', bal%Radbalsum
+
+  end subroutine print_balances_type
+
+
+  ! ------------------------------------------------------------------
+
+
+  subroutine print_soil_parameter_type(soil)
+
+    type(soil_parameter_type), intent(in) :: soil
+
+    write(*,*) 'soil%bch ', soil%bch
+    write(*,*) 'soil%c3 ', soil%c3
+    write(*,*) 'soil%clay ', soil%clay
+    write(*,*) 'soil%css ', soil%css
+    write(*,*) 'soil%hsbh ', soil%hsbh
+    write(*,*) 'soil%hyds ', soil%hyds
+    write(*,*) 'soil%i2bp3 ', soil%i2bp3
+    write(*,*) 'soil%ibp2 ', soil%ibp2
+    write(*,*) 'soil%isoilm ', soil%isoilm
+    write(*,*) 'soil%rhosoil ', soil%rhosoil
+    write(*,*) 'soil%sand ', soil%sand
+    write(*,*) 'soil%sfc ', soil%sfc
+    write(*,*) 'soil%silt ', soil%silt
+    write(*,*) 'soil%ssat ', soil%ssat
+    write(*,*) 'soil%sucs ', soil%sucs
+    write(*,*) 'soil%swilt ', soil%swilt
+    write(*,*) 'soil%zse ', soil%zse
+    write(*,*) 'soil%zshh ', soil%zshh
+    write(*,*) 'soil%cnsd ', soil%cnsd
+    write(*,*) 'soil%albsoil ', soil%albsoil
+    write(*,*) 'soil%pwb_min ', soil%pwb_min
+    write(*,*) 'soil%albsoilf ', soil%albsoilf
+    write(*,*) 'soil%soilcol ', soil%soilcol
+    write(*,*) 'soil%nhorizons ', soil%nhorizons
+    write(*,*) 'soil%ishorizon ', soil%ishorizon
+    write(*,*) 'soil%clitt ', soil%clitt
+    write(*,*) 'soil%zeta ', soil%zeta
+    write(*,*) 'soil%fsatmax ', soil%fsatmax
+    write(*,*) 'soil%swilt_vec ', soil%swilt_vec
+    write(*,*) 'soil%ssat_vec ', soil%ssat_vec
+    write(*,*) 'soil%sfc_vec ', soil%sfc_vec
+    write(*,*) 'soil%swilt_vec ', soil%swilt_vec
+    write(*,*) 'soil%ssat_vec ', soil%ssat_vec
+    write(*,*) 'soil%sfc_vec ', soil%sfc_vec
+
+  end subroutine print_soil_parameter_type
+
+
+  ! ------------------------------------------------------------------
+
+
+  subroutine print_soil_snow_type(ssnow)
+
+    type(soil_snow_type), intent(in) :: ssnow
+
+    write(*,*) 'ssnow%iantrct ', ssnow%iantrct
+    write(*,*) 'ssnow%pudsto ', ssnow%pudsto
+    write(*,*) 'ssnow%pudsmx ', ssnow%pudsmx
+    write(*,*) 'ssnow%dtmlt ', ssnow%dtmlt
+    write(*,*) 'ssnow%albsoilsn ', ssnow%albsoilsn
+    write(*,*) 'ssnow%cls ', ssnow%cls
+    write(*,*) 'ssnow%dfn_dtg ', ssnow%dfn_dtg
+    write(*,*) 'ssnow%dfh_dtg ', ssnow%dfh_dtg
+    write(*,*) 'ssnow%dfe_ddq ', ssnow%dfe_ddq
+    write(*,*) 'ssnow%ddq_dtg ', ssnow%ddq_dtg
+    write(*,*) 'ssnow%evapsn ', ssnow%evapsn
+    write(*,*) 'ssnow%fwtop ', ssnow%fwtop
+    write(*,*) 'ssnow%fwtop1 ', ssnow%fwtop1
+    write(*,*) 'ssnow%fwtop2 ', ssnow%fwtop2
+    write(*,*) 'ssnow%fwtop3 ', ssnow%fwtop3
+    write(*,*) 'ssnow%gammzz ', ssnow%gammzz
+    write(*,*) 'ssnow%isflag ', ssnow%isflag
+    write(*,*) 'ssnow%osnowd ', ssnow%osnowd
+    write(*,*) 'ssnow%potev ', ssnow%potev
+    write(*,*) 'ssnow%runoff ', ssnow%runoff
+    write(*,*) 'ssnow%rnof1 ', ssnow%rnof1
+    write(*,*) 'ssnow%rnof2 ', ssnow%rnof2
+    write(*,*) 'ssnow%rtsoil ', ssnow%rtsoil
+    write(*,*) 'ssnow%sconds ', ssnow%sconds
+    write(*,*) 'ssnow%sdepth ', ssnow%sdepth
+    write(*,*) 'ssnow%smass ', ssnow%smass
+    write(*,*) 'ssnow%snage ', ssnow%snage
+    write(*,*) 'ssnow%snowd ', ssnow%snowd
+    write(*,*) 'ssnow%smelt ', ssnow%smelt
+    write(*,*) 'ssnow%ssdn ', ssnow%ssdn
+    write(*,*) 'ssnow%ssdnn ', ssnow%ssdnn
+    write(*,*) 'ssnow%tgg ', ssnow%tgg
+    write(*,*) 'ssnow%tggsn ', ssnow%tggsn
+    write(*,*) 'ssnow%tss ', ssnow%tss
+    write(*,*) 'ssnow%tss_p ', ssnow%tss_p
+    write(*,*) 'ssnow%deltss ', ssnow%deltss
+    write(*,*) 'ssnow%owb1 ', ssnow%owb1
+    write(*,*) 'ssnow%wb ', ssnow%wb
+    write(*,*) 'ssnow%wbice ', ssnow%wbice
+    write(*,*) 'ssnow%wblf ', ssnow%wblf
+    write(*,*) 'ssnow%wbtot ', ssnow%wbtot
+    write(*,*) 'ssnow%wbtot1 ', ssnow%wbtot1
+    write(*,*) 'ssnow%wbtot2 ', ssnow%wbtot2
+    write(*,*) 'ssnow%wb_lake ', ssnow%wb_lake
+    write(*,*) 'ssnow%sinfil ', ssnow%sinfil
+    write(*,*) 'ssnow%evapfbl ', ssnow%evapfbl
+    write(*,*) 'ssnow%qstss ', ssnow%qstss
+    write(*,*) 'ssnow%wetfac ', ssnow%wetfac
+    write(*,*) 'ssnow%owetfac ', ssnow%owetfac
+    write(*,*) 'ssnow%t_snwlr ', ssnow%t_snwlr
+    write(*,*) 'ssnow%wbfice ', ssnow%wbfice
+    write(*,*) 'ssnow%tggav ', ssnow%tggav
+    write(*,*) 'ssnow%otgg ', ssnow%otgg
+    write(*,*) 'ssnow%otss ', ssnow%otss
+    write(*,*) 'ssnow%otss_0 ', ssnow%otss_0
+    write(*,*) 'ssnow%tprecip ', ssnow%tprecip
+    write(*,*) 'ssnow%tevap ', ssnow%tevap
+    write(*,*) 'ssnow%trnoff ', ssnow%trnoff
+    write(*,*) 'ssnow%totenbal ', ssnow%totenbal
+    write(*,*) 'ssnow%totenbal2 ', ssnow%totenbal2
+    write(*,*) 'ssnow%fland ', ssnow%fland
+    write(*,*) 'ssnow%ifland ', ssnow%ifland
+    write(*,*) 'ssnow%tilefrac ', ssnow%tilefrac
+    write(*,*) 'ssnow%qasrf ', ssnow%qasrf
+    write(*,*) 'ssnow%qfsrf ', ssnow%qfsrf
+    write(*,*) 'ssnow%qssrf ', ssnow%qssrf
+    write(*,*) 'ssnow%S ', ssnow%S
+    write(*,*) 'ssnow%Tsoil ', ssnow%Tsoil
+    write(*,*) 'ssnow%SL ', ssnow%SL
+    write(*,*) 'ssnow%TL ', ssnow%TL
+    write(*,*) 'ssnow%h0 ', ssnow%h0
+    write(*,*) 'ssnow%rex ', ssnow%rex
+    write(*,*) 'ssnow%wflux ', ssnow%wflux
+    write(*,*) 'ssnow%delwcol ', ssnow%delwcol
+    write(*,*) 'ssnow%zdelta ', ssnow%zdelta
+    write(*,*) 'ssnow%kth ', ssnow%kth
+    write(*,*) 'ssnow%Tsurface ', ssnow%Tsurface
+    write(*,*) 'ssnow%lE ', ssnow%lE
+    write(*,*) 'ssnow%evap ', ssnow%evap
+    write(*,*) 'ssnow%ciso ', ssnow%ciso
+    write(*,*) 'ssnow%cisoL ', ssnow%cisoL
+    write(*,*) 'ssnow%rlitt ', ssnow%rlitt
+    write(*,*) 'ssnow%thetai ', ssnow%thetai
+    write(*,*) 'ssnow%snowliq ', ssnow%snowliq
+    write(*,*) 'ssnow%nsteps ', ssnow%nsteps
+    write(*,*) 'ssnow%nsnow ', ssnow%nsnow
+    write(*,*) 'ssnow%TsurfaceFR ', ssnow%TsurfaceFR
+    write(*,*) 'ssnow%Ta_daily ', ssnow%Ta_daily
+    write(*,*) 'ssnow%Qadv_daily ', ssnow%Qadv_daily
+    write(*,*) 'ssnow%G0_daily ', ssnow%G0_daily
+    write(*,*) 'ssnow%Qevap_daily ', ssnow%Qevap_daily
+    write(*,*) 'ssnow%Qprec_daily ', ssnow%Qprec_daily
+    write(*,*) 'ssnow%Qprec_snow_daily ', ssnow%Qprec_snow_daily
+    write(*,*) 'ssnow%E_fusion_sn ', ssnow%E_fusion_sn
+    write(*,*) 'ssnow%E_sublimation_sn ', ssnow%E_sublimation_sn
+    write(*,*) 'ssnow%latent_heat_sn ', ssnow%latent_heat_sn
+    write(*,*) 'ssnow%evap_liq_sn ', ssnow%evap_liq_sn
+    write(*,*) 'ssnow%surface_melt ', ssnow%surface_melt
+    write(*,*) 'ssnow%Qadv_rain_sn ', ssnow%Qadv_rain_sn
+
+  end subroutine print_soil_snow_type
+
+
+  ! ------------------------------------------------------------------
+
+
+  subroutine print_veg_parameter_type(veg)
+
+    type(veg_parameter_type), intent(in) :: veg
+
+    write(*,*) 'veg%canst1 ', veg%canst1
+    write(*,*) 'veg%dleaf ', veg%dleaf
+    write(*,*) 'veg%ejmax ', veg%ejmax
+    write(*,*) 'veg%ejmax_shade ', veg%ejmax_shade
+    write(*,*) 'veg%ejmax_sun ', veg%ejmax_sun
+    write(*,*) 'veg%iveg ', veg%iveg
+    write(*,*) 'veg%ivegp ', veg%ivegp
+    write(*,*) 'veg%iLU ', veg%iLU
+    write(*,*) 'veg%meth ', veg%meth
+    write(*,*) 'veg%frac4 ', veg%frac4
+    write(*,*) 'veg%hc ', veg%hc
+    write(*,*) 'veg%vlai ', veg%vlai
+    write(*,*) 'veg%xalbnir ', veg%xalbnir
+    write(*,*) 'veg%rp20 ', veg%rp20
+    write(*,*) 'veg%rpcoef ', veg%rpcoef
+    write(*,*) 'veg%rs20 ', veg%rs20
+    write(*,*) 'veg%shelrb ', veg%shelrb
+    write(*,*) 'veg%vegcf ', veg%vegcf
+    write(*,*) 'veg%tminvj ', veg%tminvj
+    write(*,*) 'veg%toptvj ', veg%toptvj
+    write(*,*) 'veg%tmaxvj ', veg%tmaxvj
+    write(*,*) 'veg%vbeta ', veg%vbeta
+    write(*,*) 'veg%vcmax ', veg%vcmax
+    write(*,*) 'veg%vcmax_shade ', veg%vcmax_shade
+    write(*,*) 'veg%vcmax_sun ', veg%vcmax_sun
+    write(*,*) 'veg%xfang ', veg%xfang
+    write(*,*) 'veg%extkn ', veg%extkn
+    write(*,*) 'veg%wai ', veg%wai
+    write(*,*) 'veg%deciduous ', veg%deciduous
+    write(*,*) 'veg%froot ', veg%froot
+    write(*,*) 'veg%refl ', veg%refl
+    write(*,*) 'veg%taul ', veg%taul
+    write(*,*) 'veg%vlaimax ', veg%vlaimax
+    write(*,*) 'veg%a1gs ', veg%a1gs
+    write(*,*) 'veg%d0gs ', veg%d0gs
+    write(*,*) 'veg%alpha ', veg%alpha
+    write(*,*) 'veg%convex ', veg%convex
+    write(*,*) 'veg%cfrd ', veg%cfrd
+    write(*,*) 'veg%gswmin ', veg%gswmin
+    write(*,*) 'veg%conkc0 ', veg%conkc0
+    write(*,*) 'veg%conko0 ', veg%conko0
+    write(*,*) 'veg%ekc ', veg%ekc
+    write(*,*) 'veg%eko ', veg%eko
+    write(*,*) 'veg%g0 ', veg%g0
+    write(*,*) 'veg%g1 ', veg%g1
+    write(*,*) 'veg%vcmaxcc ', veg%vcmaxcc
+    write(*,*) 'veg%ejmaxcc ', veg%ejmaxcc
+    write(*,*) 'veg%gmmax ', veg%gmmax
+    write(*,*) 'veg%gm ', veg%gm
+    write(*,*) 'veg%c4kci ', veg%c4kci
+    write(*,*) 'veg%c4kcc ', veg%c4kcc
+    write(*,*) 'veg%bjv ', veg%bjv
+    write(*,*) 'veg%rootbeta ', veg%rootbeta
+    write(*,*) 'veg%gamma ', veg%gamma
+    write(*,*) 'veg%F10 ', veg%F10
+    write(*,*) 'veg%ZR ', veg%ZR
+    write(*,*) 'veg%clitt ', veg%clitt
+    write(*,*) 'veg%disturbance_interval ', veg%disturbance_interval
+    write(*,*) 'veg%disturbance_intensity ', veg%disturbance_intensity
+
+  end subroutine print_veg_parameter_type
+
+
+  ! ------------------------------------------------------------------
+
+
+  subroutine print_canopy_type(canopy)
+
+    type(canopy_type), intent(in) :: canopy
+
+    write(*,*) 'canopy%fess ', canopy%fess
+    write(*,*) 'canopy%fesp ', canopy%fesp
+    write(*,*) 'canopy%cansto ', canopy%cansto
+    write(*,*) 'canopy%cduv ', canopy%cduv
+    write(*,*) 'canopy%delwc ', canopy%delwc
+    write(*,*) 'canopy%dewmm ', canopy%dewmm
+    write(*,*) 'canopy%dgdtg ', canopy%dgdtg
+    write(*,*) 'canopy%fe ', canopy%fe
+    write(*,*) 'canopy%fh ', canopy%fh
+    write(*,*) 'canopy%fpn ', canopy%fpn
+    write(*,*) 'canopy%frp ', canopy%frp
+    write(*,*) 'canopy%frpw ', canopy%frpw
+    write(*,*) 'canopy%frpr ', canopy%frpr
+    write(*,*) 'canopy%frs ', canopy%frs
+    write(*,*) 'canopy%fnee ', canopy%fnee
+    write(*,*) 'canopy%frday ', canopy%frday
+    write(*,*) 'canopy%fnv ', canopy%fnv
+    write(*,*) 'canopy%fev ', canopy%fev
+    write(*,*) 'canopy%fevc ', canopy%fevc
+    write(*,*) 'canopy%fhv ', canopy%fhv
+    write(*,*) 'canopy%fns ', canopy%fns
+    write(*,*) 'canopy%fhs ', canopy%fhs
+    write(*,*) 'canopy%fhs_cor ', canopy%fhs_cor
+    write(*,*) 'canopy%ga ', canopy%ga
+    write(*,*) 'canopy%ghflux ', canopy%ghflux
+    write(*,*) 'canopy%precis ', canopy%precis
+    write(*,*) 'canopy%qscrn ', canopy%qscrn
+    write(*,*) 'canopy%rnet ', canopy%rnet
+    write(*,*) 'canopy%rniso ', canopy%rniso
+    write(*,*) 'canopy%segg ', canopy%segg
+    write(*,*) 'canopy%sghflux ', canopy%sghflux
+    write(*,*) 'canopy%through ', canopy%through
+    write(*,*) 'canopy%spill ', canopy%spill
+    write(*,*) 'canopy%tscrn ', canopy%tscrn
+    write(*,*) 'canopy%wcint ', canopy%wcint
+    write(*,*) 'canopy%tv ', canopy%tv
+    write(*,*) 'canopy%us ', canopy%us
+    write(*,*) 'canopy%uscrn ', canopy%uscrn
+    write(*,*) 'canopy%rghlai ', canopy%rghlai
+    write(*,*) 'canopy%vlaiw ', canopy%vlaiw
+    write(*,*) 'canopy%fwet ', canopy%fwet
+    write(*,*) 'canopy%A_sh ', canopy%A_sh
+    write(*,*) 'canopy%A_sl ', canopy%A_sl
+    write(*,*) 'canopy%A_slC ', canopy%A_slC
+    write(*,*) 'canopy%A_shC ', canopy%A_shC
+    write(*,*) 'canopy%A_slJ ', canopy%A_slJ
+    write(*,*) 'canopy%A_shJ ', canopy%A_shJ
+    write(*,*) 'canopy%GPP_sh ', canopy%GPP_sh
+    write(*,*) 'canopy%GPP_sl ', canopy%GPP_sl
+    write(*,*) 'canopy%fevc_sh ', canopy%fevc_sh
+    write(*,*) 'canopy%fevc_sl ', canopy%fevc_sl
+    write(*,*) 'canopy%eta_GPP_cs ', canopy%eta_GPP_cs
+    write(*,*) 'canopy%eta_fevc_cs ', canopy%eta_fevc_cs
+    write(*,*) 'canopy%eta_A_cs ', canopy%eta_A_cs
+    write(*,*) 'canopy%eta_A_cs_sh ', canopy%eta_A_cs_sh
+    write(*,*) 'canopy%eta_A_cs_sl ', canopy%eta_A_cs_sl
+    write(*,*) 'canopy%eta_fevc_cs_sh ', canopy%eta_fevc_cs_sh
+    write(*,*) 'canopy%eta_fevc_cs_sl ', canopy%eta_fevc_cs_sl
+    write(*,*) 'canopy%cs ', canopy%cs
+    write(*,*) 'canopy%dAdcs ', canopy%dAdcs
+    write(*,*) 'canopy%cs_sl ', canopy%cs_sl
+    write(*,*) 'canopy%cs_sh ', canopy%cs_sh
+    write(*,*) 'canopy%tlf ', canopy%tlf
+    write(*,*) 'canopy%dlf ', canopy%dlf
+    write(*,*) 'canopy%evapfbl ', canopy%evapfbl
+    write(*,*) 'canopy%epot ', canopy%epot
+    write(*,*) 'canopy%fnpp ', canopy%fnpp
+    write(*,*) 'canopy%fevw_pot ', canopy%fevw_pot
+    write(*,*) 'canopy%gswx_T ', canopy%gswx_T
+    write(*,*) 'canopy%cdtq ', canopy%cdtq
+    write(*,*) 'canopy%wetfac_cs ', canopy%wetfac_cs
+    write(*,*) 'canopy%fevw ', canopy%fevw
+    write(*,*) 'canopy%fhvw ', canopy%fhvw
+    write(*,*) 'canopy%fes ', canopy%fes
+    write(*,*) 'canopy%fes_cor ', canopy%fes_cor
+    write(*,*) 'canopy%gswx ', canopy%gswx
+    write(*,*) 'canopy%oldcansto ', canopy%oldcansto
+    write(*,*) 'canopy%zetar ', canopy%zetar
+    write(*,*) 'canopy%zetash ', canopy%zetash
+    write(*,*) 'canopy%fwsoil ', canopy%fwsoil
+    write(*,*) 'canopy%ofes ', canopy%ofes
+    write(*,*) 'canopy%gw ', canopy%gw
+    write(*,*) 'canopy%ancj ', canopy%ancj
+    write(*,*) 'canopy%tlfy ', canopy%tlfy
+    write(*,*) 'canopy%ecy ', canopy%ecy
+    write(*,*) 'canopy%ecx ', canopy%ecx
+    write(*,*) 'canopy%fwsoil ', canopy%fwsoil
+    write(*,*) 'canopy%kthLitt ', canopy%kthLitt
+    write(*,*) 'canopy%DvLitt ', canopy%DvLitt
+    write(*,*) 'canopy%An ', canopy%An
+    write(*,*) 'canopy%Rd ', canopy%Rd
+    write(*,*) 'canopy%isc3 ', canopy%isc3
+    write(*,*) 'canopy%vcmax ', canopy%vcmax
+    write(*,*) 'canopy%gammastar ', canopy%gammastar
+    write(*,*) 'canopy%gsc ', canopy%gsc
+    write(*,*) 'canopy%gbc ', canopy%gbc
+    write(*,*) 'canopy%gac ', canopy%gac
+    write(*,*) 'canopy%ci ', canopy%ci
+
+  end subroutine print_canopy_type
+
+
+  ! ------------------------------------------------------------------
+
+
+  subroutine print_radiation_type(rad)
+
+    type(radiation_type), intent(in) :: rad
+
+    write(*,*) 'rad%albedo ', rad%albedo
+    write(*,*) 'rad%extkb ', rad%extkb
+    write(*,*) 'rad%extkd2 ', rad%extkd2
+    write(*,*) 'rad%extkd ', rad%extkd
+    write(*,*) 'rad%flws ', rad%flws
+    write(*,*) 'rad%fvlai ', rad%fvlai
+    write(*,*) 'rad%latitude ', rad%latitude
+    write(*,*) 'rad%lwabv ', rad%lwabv
+    write(*,*) 'rad%qcan ', rad%qcan
+    write(*,*) 'rad%qssabs ', rad%qssabs
+    write(*,*) 'rad%rhocdf ', rad%rhocdf
+    write(*,*) 'rad%rniso ', rad%rniso
+    write(*,*) 'rad%scalex ', rad%scalex
+    write(*,*) 'rad%transd ', rad%transd
+    write(*,*) 'rad%trad ', rad%trad
+    write(*,*) 'rad%reffdf ', rad%reffdf
+    write(*,*) 'rad%reffbm ', rad%reffbm
+    write(*,*) 'rad%extkbm ', rad%extkbm
+    write(*,*) 'rad%extkdm ', rad%extkdm
+    write(*,*) 'rad%cexpkbm ', rad%cexpkbm
+    write(*,*) 'rad%cexpkdm ', rad%cexpkdm
+    write(*,*) 'rad%fbeam ', rad%fbeam
+    write(*,*) 'rad%rhocbm ', rad%rhocbm
+    write(*,*) 'rad%transb ', rad%transb
+    write(*,*) 'rad%albedo_T ', rad%albedo_T
+    write(*,*) 'rad%gradis ', rad%gradis
+    write(*,*) 'rad%longitude ', rad%longitude
+    write(*,*) 'rad%workp1 ', rad%workp1
+    write(*,*) 'rad%workp2 ', rad%workp2
+    write(*,*) 'rad%workp3 ', rad%workp3
+
+  end subroutine print_radiation_type
+
+
+  ! ------------------------------------------------------------------
+
+
+  subroutine print_roughness_type(rought)
+
+    type(roughness_type), intent(in) :: rought
+
+    write(*,*) 'rough%coexp ', rought%coexp
+    write(*,*) 'rough%disp ', rought%disp
+    write(*,*) 'rough%hruff ', rought%hruff
+    write(*,*) 'rough%hruff_grmx ', rought%hruff_grmx
+    write(*,*) 'rough%rt0us ', rought%rt0us
+    write(*,*) 'rough%rt1usa ', rought%rt1usa
+    write(*,*) 'rough%rt1usb ', rought%rt1usb
+    write(*,*) 'rough%rt1 ', rought%rt1
+    write(*,*) 'rough%term2 ', rought%term2
+    write(*,*) 'rough%term3 ', rought%term3
+    write(*,*) 'rough%term5 ', rought%term5
+    write(*,*) 'rough%term6 ', rought%term6
+    write(*,*) 'rough%term6a ', rought%term6a
+    write(*,*) 'rough%usuh ', rought%usuh
+    write(*,*) 'rough%za_uv ', rought%za_uv
+    write(*,*) 'rough%za_tq ', rought%za_tq
+    write(*,*) 'rough%z0m ', rought%z0m
+    write(*,*) 'rough%zref_uv ', rought%zref_uv
+    write(*,*) 'rough%zref_tq ', rought%zref_tq
+    write(*,*) 'rough%zruffs ', rought%zruffs
+    write(*,*) 'rough%z0soilsn ', rought%z0soilsn
+    write(*,*) 'rough%z0soil ', rought%z0soil
+
+  end subroutine print_roughness_type
+
+
+  ! ------------------------------------------------------------------
+
+
+  subroutine print_air_type(air)
+
+    type(air_type), intent(in) :: air
+
+    write(*,*) 'air%rho ', air%rho
+    write(*,*) 'air%volm ', air%volm
+    write(*,*) 'air%rlam ', air%rlam
+    write(*,*) 'air%qsat ', air%qsat
+    write(*,*) 'air%epsi ', air%epsi
+    write(*,*) 'air%visc ', air%visc
+    write(*,*) 'air%psyc ', air%psyc
+    write(*,*) 'air%dsatdk ', air%dsatdk
+    write(*,*) 'air%cmolar ', air%cmolar
+
+  end subroutine print_air_type
+
+
+  ! ------------------------------------------------------------------
+
+
+  subroutine print_met_type(met)
+
+    type(met_type), intent(in) :: met
+
+    write(*,*) 'met%ca ', met%ca
+    write(*,*) 'met%year ', met%year
+    write(*,*) 'met%moy ', met%moy
+    write(*,*) 'met%doy ', met%doy
+    write(*,*) 'met%hod ', met%hod
+    write(*,*) 'met%fsd ', met%fsd
+    write(*,*) 'met%ofsd ', met%ofsd
+    write(*,*) 'met%fld ', met%fld
+    write(*,*) 'met%precip ', met%precip
+    write(*,*) 'met%precip_sn ', met%precip_sn
+    write(*,*) 'met%tk ', met%tk
+    write(*,*) 'met%tvair ', met%tvair
+    write(*,*) 'met%tvrad ', met%tvrad
+    write(*,*) 'met%pmb ', met%pmb
+    write(*,*) 'met%ua ', met%ua
+    write(*,*) 'met%qv ', met%qv
+    write(*,*) 'met%qvair ', met%qvair
+    write(*,*) 'met%da ', met%da
+    write(*,*) 'met%dva ', met%dva
+    write(*,*) 'met%coszen ', met%coszen
+    write(*,*) 'met%Ndep ', met%Ndep
+    write(*,*) 'met%Pdep ', met%Pdep
+    write(*,*) 'met%rhum ', met%rhum
+    write(*,*) 'met%u10 ', met%u10
+
+  end subroutine print_met_type
+
+
+  ! ------------------------------------------------------------------
+
+
+  subroutine print_climate_type(met)
+
+    implicit none
+
+    type(climate_type), intent(in) :: met
+
+    write(*,*) 'climate%chilldays ', met%chilldays
+    write(*,*) 'climate%iveg ', met%iveg
+    write(*,*) 'climate%biome ', met%biome
+    write(*,*) 'climate%GMD ', met%GMD
+    write(*,*) 'climate%modis_igbp ', met%modis_igbp
+    write(*,*) 'climate%DSLR ', met%DSLR
+    write(*,*) 'climate%NDAY_Nesterov ', met%NDAY_Nesterov
+    write(*,*) 'climate%dtemp ', met%dtemp
+    write(*,*) 'climate%dmoist ', met%dmoist
+    write(*,*) 'climate%dmoist_min ', met%dmoist_min
+    write(*,*) 'climate%dmoist_min20 ', met%dmoist_min20
+    write(*,*) 'climate%dmoist_max ', met%dmoist_max
+    write(*,*) 'climate%dmoist_max20 ', met%dmoist_max20
+    write(*,*) 'climate%mtemp ', met%mtemp
+    write(*,*) 'climate%qtemp ', met%qtemp
+    write(*,*) 'climate%mmoist ', met%mmoist
+    write(*,*) 'climate%mtemp_min ', met%mtemp_min
+    write(*,*) 'climate%mtemp_max ', met%mtemp_max
+    write(*,*) 'climate%qtemp_max ', met%qtemp_max
+    write(*,*) 'climate%qtemp_max_last_year ', met%qtemp_max_last_year
+    write(*,*) 'climate%mtemp_min20 ', met%mtemp_min20
+    write(*,*) 'climate%mtemp_max20 ', met%mtemp_max20
+    write(*,*) 'climate%atemp_mean ', met%atemp_mean
+    write(*,*) 'climate%AGDD5 ', met%AGDD5
+    write(*,*) 'climate%GDD5 ', met%GDD5
+    write(*,*) 'climate%AGDD0 ', met%AGDD0
+    write(*,*) 'climate%GDD0 ', met%GDD0
+    write(*,*) 'climate%alpha_PT ', met%alpha_PT
+    write(*,*) 'climate%evap_PT ', met%evap_PT
+    write(*,*) 'climate%aevap ', met%aevap
+    write(*,*) 'climate%alpha_PT20 ', met%alpha_PT20
+    write(*,*) 'climate%GDD0_rec ', met%GDD0_rec
+    write(*,*) 'climate%frec ', met%frec
+    write(*,*) 'climate%dtemp_min ', met%dtemp_min
+    write(*,*) 'climate%fdorm ', met%fdorm
+    write(*,*) 'climate%fapar_ann_max ', met%fapar_ann_max
+    write(*,*) 'climate%fapar_ann_max_last_year ', met%fapar_ann_max_last_year
+    write(*,*) 'climate%AvgAnnMaxFAPAR ', met%AvgAnnMaxFAPAR
+    write(*,*) 'climate%dtemp_max ', met%dtemp_max
+    write(*,*) 'climate%drhum ', met%drhum
+    write(*,*) 'climate%du10_max ', met%du10_max
+    write(*,*) 'climate%dprecip ', met%dprecip
+    write(*,*) 'climate%aprecip ', met%aprecip
+    write(*,*) 'climate%aprecip_av20 ', met%aprecip_av20
+    write(*,*) 'climate%last_precip ', met%last_precip
+    write(*,*) 'climate%KBDI ', met%KBDI
+    write(*,*) 'climate%FFDI ', met%FFDI
+    write(*,*) 'climate%D_MacArthur ', met%D_MacArthur
+    write(*,*) 'climate%Nesterov_Current ', met%Nesterov_Current
+    write(*,*) 'climate%Nesterov_ann_max ', met%Nesterov_ann_max
+    write(*,*) 'climate%Nesterov_ann_max_last_year ', met%Nesterov_ann_max_last_year
+    write(*,*) 'climate%Nesterov_ann_running_max ', met%Nesterov_ann_running_max
+    ! commented because of large output: uncomment if needed
+    ! write(*,*) 'climate%mtemp_min_20 ', met%mtemp_min_20
+    ! write(*,*) 'climate%mtemp_max_20 ', met%mtemp_max_20
+    ! write(*,*) 'climate%dmoist_min_20 ', met%dmoist_min_20
+    ! write(*,*) 'climate%dmoist_max_20 ', met%dmoist_max_20
+    ! write(*,*) 'climate%dtemp_31 ', met%dtemp_31
+    ! write(*,*) 'climate%dmoist_31 ', met%dmoist_31
+    ! write(*,*) 'climate%alpha_PT_20 ', met%alpha_PT_20
+    ! write(*,*) 'climate%dtemp_91 ', met%dtemp_91
+    ! write(*,*) 'climate%APAR_leaf_sun ', met%APAR_leaf_sun
+    ! write(*,*) 'climate%APAR_leaf_shade ', met%APAR_leaf_shade
+    ! write(*,*) 'climate%Dleaf_sun ', met%Dleaf_sun
+    ! write(*,*) 'climate%Dleaf_shade ', met%Dleaf_shade
+    ! write(*,*) 'climate%Tleaf_sun ', met%Tleaf_sun
+    ! write(*,*) 'climate%Tleaf_shade ', met%Tleaf_shade
+    ! write(*,*) 'climate%cs_sun ', met%cs_sun
+    ! write(*,*) 'climate%cs_shade ', met%cs_shade
+    ! write(*,*) 'climate%scalex_sun ', met%scalex_sun
+    ! write(*,*) 'climate%scalex_shade ', met%scalex_shade
+    ! write(*,*) 'climate%fwsoil ', met%fwsoil
+    ! write(*,*) 'climate%aprecip_20 ', met%aprecip_20
+    ! write(*,*) 'climate%Rd_sun ', met%Rd_sun
+    ! write(*,*) 'climate%Rd_shade ', met%Rd_shade
+
+  end subroutine print_climate_type
+
+
+  ! ------------------------------------------------------------------
+
+
+  subroutine print_sum_flux_type(sum_flux)
+
+    type(sum_flux_type), intent(in) :: sum_flux
+
+    write(*,*) 'sumflux%sumpn ', sum_flux%sumpn
+    write(*,*) 'sumflux%sumrp ', sum_flux%sumrp
+    write(*,*) 'sumflux%sumrpw ', sum_flux%sumrpw
+    write(*,*) 'sumflux%sumrpr ', sum_flux%sumrpr
+    write(*,*) 'sumflux%sumrs ', sum_flux%sumrs
+    write(*,*) 'sumflux%sumrd ', sum_flux%sumrd
+    write(*,*) 'sumflux%dsumpn ', sum_flux%dsumpn
+    write(*,*) 'sumflux%dsumrp ', sum_flux%dsumrp
+    write(*,*) 'sumflux%dsumrs ', sum_flux%dsumrs
+    write(*,*) 'sumflux%dsumrd ', sum_flux%dsumrd
+    write(*,*) 'sumflux%sumxrp ', sum_flux%sumxrp
+    write(*,*) 'sumflux%sumxrs ', sum_flux%sumxrs
+
+  end subroutine print_sum_flux_type
+
+
+  ! ------------------------------------------------------------------
+
+
+  subroutine print_bgc_pool_type(bgc)
+
+    type(bgc_pool_type), intent(in) :: bgc
+
+    write(*,*) 'bgc%cplant ', bgc%cplant
+    write(*,*) 'bgc%csoil ', bgc%csoil
+
+  end subroutine print_bgc_pool_type
+
+
+  ! ------------------------------------------------------------------
+
+
+  subroutine nc_err(status, ivar)
+
+    use netcdf, only: nf90_noerr, nf90_strerror
+#ifdef __MPI__
+    use mpi, only: MPI_Abort
+#endif
+
+    integer, intent(in)              :: status
+    integer, intent(inout), optional :: ivar
+
+#ifdef __MPI__
+    integer :: ierr
+#endif
+
+    if (status /= nf90_noerr) then
+       write(*,*) "netCDF error"
+       write(*,*) trim(nf90_strerror(status))
+#ifdef __MPI__
+       call MPI_Abort(0, 171, ierr)
+#else
+       stop 171
+#endif
+    else
+       if (present(ivar)) ivar = ivar + 1
+    end if
+
+  end subroutine nc_err
+
+
+  ! ------------------------------------------------------------------
+
+
+  subroutine read_netcdf_climate_type(filename, climate)
+
+    use netcdf, only: nf90_open, nf90_nowrite, &
+         nf90_inq_varid, nf90_get_var, nf90_close
+#ifdef __MPI__
+    use mpi, only: MPI_Abort
+#endif
+
+    implicit none
+
+    character(len=*),   intent(in)  :: filename
+    type(climate_type), intent(inout) :: climate
+
+    logical :: existfile
+    integer :: fid, vid
+#ifdef __MPI__
+    integer :: ierr
+#endif
+
+    ! open netCDF file
+    inquire(file=trim(filename), exist=existfile)
+    if (.not. existfile) then
+       write(*,*) filename, ' does not exist!'
+#ifdef __MPI__
+       call MPI_Abort(0, 172, ierr)
+#else
+       stop 172
+#endif
+    endif
+
+    ! open netCDF file
+    call nc_err(nf90_open(trim(filename), nf90_nowrite, fid))
+
+    ! read variables
+    ! integer scalars
+    call nc_err(nf90_inq_varid(fid, 'nyear_average', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%nyear_average))
+    call nc_err(nf90_inq_varid(fid, 'nday_average', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%nday_average))
+    call nc_err(nf90_inq_varid(fid, 'nyears', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%nyears))
+    call nc_err(nf90_inq_varid(fid, 'doy', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%doy))
+    ! integer vectors
+    call nc_err(nf90_inq_varid(fid, 'chilldays', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%chilldays))
+    call nc_err(nf90_inq_varid(fid, 'iveg', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%iveg))
+    call nc_err(nf90_inq_varid(fid, 'biome', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%biome))
+    call nc_err(nf90_inq_varid(fid, 'gmd', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%gmd))
+    call nc_err(nf90_inq_varid(fid, 'modis_igbp', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%modis_igbp))
+    call nc_err(nf90_inq_varid(fid, 'dslr', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%dslr))
+    call nc_err(nf90_inq_varid(fid, 'nday_nesterov', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%nday_nesterov))
+    ! real vectors
+    call nc_err(nf90_inq_varid(fid, 'dtemp', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%dtemp))
+    call nc_err(nf90_inq_varid(fid, 'dmoist', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%dmoist))
+    call nc_err(nf90_inq_varid(fid, 'dmoist_min', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%dmoist_min))
+    call nc_err(nf90_inq_varid(fid, 'dmoist_min20', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%dmoist_min20))
+    call nc_err(nf90_inq_varid(fid, 'dmoist_max', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%dmoist_max))
+    call nc_err(nf90_inq_varid(fid, 'dmoist_max20', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%dmoist_max20))
+    call nc_err(nf90_inq_varid(fid, 'mtemp', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%mtemp))
+    call nc_err(nf90_inq_varid(fid, 'qtemp', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%qtemp))
+    call nc_err(nf90_inq_varid(fid, 'mmoist', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%mmoist))
+    call nc_err(nf90_inq_varid(fid, 'mtemp_min', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%mtemp_min))
+    call nc_err(nf90_inq_varid(fid, 'mtemp_max', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%mtemp_max))
+    call nc_err(nf90_inq_varid(fid, 'qtemp_max', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%qtemp_max))
+    call nc_err(nf90_inq_varid(fid, 'qtemp_max_last_year', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%qtemp_max_last_year))
+    call nc_err(nf90_inq_varid(fid, 'mtemp_min20', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%mtemp_min20))
+    call nc_err(nf90_inq_varid(fid, 'mtemp_max20', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%mtemp_max20))
+    call nc_err(nf90_inq_varid(fid, 'atemp_mean', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%atemp_mean))
+    call nc_err(nf90_inq_varid(fid, 'agdd5', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%agdd5))
+    call nc_err(nf90_inq_varid(fid, 'gdd5', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%gdd5))
+    call nc_err(nf90_inq_varid(fid, 'agdd0', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%agdd0))
+    call nc_err(nf90_inq_varid(fid, 'gdd0', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%gdd0))
+    call nc_err(nf90_inq_varid(fid, 'alpha_pt', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%alpha_pt))
+    call nc_err(nf90_inq_varid(fid, 'evap_pt', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%evap_pt))
+    call nc_err(nf90_inq_varid(fid, 'aevap', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%aevap))
+    call nc_err(nf90_inq_varid(fid, 'alpha_pt20', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%alpha_pt20))
+    call nc_err(nf90_inq_varid(fid, 'gdd0_rec', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%gdd0_rec))
+    call nc_err(nf90_inq_varid(fid, 'frec', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%frec))
+    call nc_err(nf90_inq_varid(fid, 'dtemp_min', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%dtemp_min))
+    call nc_err(nf90_inq_varid(fid, 'fdorm', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%fdorm))
+    call nc_err(nf90_inq_varid(fid, 'fapar_ann_max', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%fapar_ann_max))
+    call nc_err(nf90_inq_varid(fid, 'fapar_ann_max_last_year', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%fapar_ann_max_last_year))
+    call nc_err(nf90_inq_varid(fid, 'avgannmaxfapar', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%avgannmaxfapar))
+    call nc_err(nf90_inq_varid(fid, 'dtemp_max', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%dtemp_max))
+    call nc_err(nf90_inq_varid(fid, 'drhum', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%drhum))
+    call nc_err(nf90_inq_varid(fid, 'du10_max', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%du10_max))
+    call nc_err(nf90_inq_varid(fid, 'dprecip', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%dprecip))
+    call nc_err(nf90_inq_varid(fid, 'aprecip', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%aprecip))
+    call nc_err(nf90_inq_varid(fid, 'aprecip_av20', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%aprecip_av20))
+    call nc_err(nf90_inq_varid(fid, 'last_precip', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%last_precip))
+    call nc_err(nf90_inq_varid(fid, 'kbdi', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%kbdi))
+    call nc_err(nf90_inq_varid(fid, 'ffdi', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%ffdi))
+    call nc_err(nf90_inq_varid(fid, 'd_macarthur', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%d_macarthur))
+    call nc_err(nf90_inq_varid(fid, 'nesterov_current', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%nesterov_current))
+    call nc_err(nf90_inq_varid(fid, 'nesterov_ann_max', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%nesterov_ann_max))
+    call nc_err(nf90_inq_varid(fid, 'nesterov_ann_max_last_year', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%nesterov_ann_max_last_year))
+    call nc_err(nf90_inq_varid(fid, 'nesterov_ann_running_max', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%nesterov_ann_running_max))
+    ! real arrays, [dim1, dim2]
+    call nc_err(nf90_inq_varid(fid, 'mtemp_min_20', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%mtemp_min_20))
+    call nc_err(nf90_inq_varid(fid, 'mtemp_max_20', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%mtemp_max_20))
+    call nc_err(nf90_inq_varid(fid, 'dmoist_min_20', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%dmoist_min_20))
+    call nc_err(nf90_inq_varid(fid, 'dmoist_max_20', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%dmoist_max_20))
+    call nc_err(nf90_inq_varid(fid, 'alpha_pt_20', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%alpha_pt_20))
+    call nc_err(nf90_inq_varid(fid, 'aprecip_20', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%aprecip_20))
+    ! real arrays, [dim1, dim3]
+    call nc_err(nf90_inq_varid(fid, 'dtemp_31', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%dtemp_31))
+    call nc_err(nf90_inq_varid(fid, 'dmoist_31', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%dmoist_31))
+    ! real arrays, [dim1, dim4]
+    call nc_err(nf90_inq_varid(fid, 'dtemp_91', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%dtemp_91))
+    ! real arrays, [dim1, dim5]
+    call nc_err(nf90_inq_varid(fid, 'apar_leaf_sun', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%apar_leaf_sun))
+    call nc_err(nf90_inq_varid(fid, 'apar_leaf_shade', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%apar_leaf_shade))
+    call nc_err(nf90_inq_varid(fid, 'dleaf_sun', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%dleaf_sun))
+    call nc_err(nf90_inq_varid(fid, 'dleaf_shade', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%dleaf_shade))
+    call nc_err(nf90_inq_varid(fid, 'tleaf_sun', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%tleaf_sun))
+    call nc_err(nf90_inq_varid(fid, 'tleaf_shade', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%tleaf_shade))
+    call nc_err(nf90_inq_varid(fid, 'cs_sun', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%cs_sun))
+    call nc_err(nf90_inq_varid(fid, 'cs_shade', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%cs_shade))
+    call nc_err(nf90_inq_varid(fid, 'scalex_sun', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%scalex_sun))
+    call nc_err(nf90_inq_varid(fid, 'scalex_shade', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%scalex_shade))
+    call nc_err(nf90_inq_varid(fid, 'fwsoil', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%fwsoil))
+    call nc_err(nf90_inq_varid(fid, 'rd_sun', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%rd_sun))
+    call nc_err(nf90_inq_varid(fid, 'rd_shade', vid))
+    call nc_err(nf90_get_var(fid, vid, climate%rd_shade))
+
+    ! close NetCDF file
+    call nc_err(nf90_close(fid))
+
+  end subroutine read_netcdf_climate_type
+
+
+  ! ------------------------------------------------------------------
+
+
+  subroutine write_netcdf_climate_type(filename, climate)
+
+    use netcdf, only: nf90_create, nf90_clobber, nf90_64bit_offset, &
+         nf90_def_dim, nf90_def_var, nf90_int, nf90_float, nf90_enddef, &
+         nf90_put_var, nf90_close
+
+    implicit none
+
+    character(len=*),   intent(in) :: filename
+    type(climate_type), intent(in) :: climate
+
+    integer :: fid
+    integer :: dimid1, dimid2, dimid3, dimid4, dimid5
+    integer :: i
+    integer, dimension(78) :: vid
+
+    ! create netCDF file
+    call nc_err(nf90_create(trim(filename), ior(nf90_clobber, nf90_64bit_offset), fid))
+
+    ! define dimensions
+    ! land
+    call nc_err(nf90_def_dim(fid, 'dim1', size(climate%dtemp, 1), dimid1))
+    ! number of years (stored for 20 yr running means)
+    call nc_err(nf90_def_dim(fid, 'dim2', size(climate%mtemp_min_20, 2), dimid2))
+    ! number of days (stored for 31 day monthly means)
+    call nc_err(nf90_def_dim(fid, 'dim3', size(climate%dtemp_31, 2), dimid3))
+    ! number of days (stored for 91 day quarterly means)
+    call nc_err(nf90_def_dim(fid, 'dim4', size(climate%dtemp_91, 2), dimid4))
+    ! number of 5 days of sub-diurnal time-steps (stored for leaf photosynthesis drivers)
+    call nc_err(nf90_def_dim(fid, 'dim5', size(climate%fwsoil, 2), dimid5))
+
+    ! define variables
+    i = 1
+    ! define integer scalar variables
+    call nc_err(nf90_def_var(fid, 'nyear_average', nf90_int, vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'nday_average', nf90_int, vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'nyears', nf90_int, vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'doy', nf90_int, vid(i)), i)
+
+    ! define integer vector variables
+    call nc_err(nf90_def_var(fid, 'chilldays', nf90_int, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'iveg', nf90_int, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'biome', nf90_int, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'gmd', nf90_int, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'modis_igbp', nf90_int, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dslr', nf90_int, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'nday_nesterov', nf90_int, [dimid1], vid(i)), i)
+
+    ! define real vector variables
+    call nc_err(nf90_def_var(fid, 'dtemp', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dmoist', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dmoist_min', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dmoist_min20', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dmoist_max', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dmoist_max20', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'mtemp', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'qtemp', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'mmoist', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'mtemp_min', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'mtemp_max', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'qtemp_max', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'qtemp_max_last_year', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'mtemp_min20', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'mtemp_max20', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'atemp_mean', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'agdd5', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'gdd5', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'agdd0', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'gdd0', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'alpha_pt', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'evap_pt', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'aevap', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'alpha_pt20', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'gdd0_rec', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'frec', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dtemp_min', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fdorm', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fapar_ann_max', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fapar_ann_max_last_year', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'avgannmaxfapar', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dtemp_max', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'drhum', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'du10_max', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dprecip', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'aprecip', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'aprecip_av20', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'last_precip', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'kbdi', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'ffdi', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'd_macarthur', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'nesterov_current', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'nesterov_ann_max', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'nesterov_ann_max_last_year', nf90_float, [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'nesterov_ann_running_max', nf90_float, [dimid1], vid(i)), i)
+
+    ! define real array variables, [dim1, dim2]
+    call nc_err(nf90_def_var(fid, 'mtemp_min_20', nf90_float, [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'mtemp_max_20', nf90_float, [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dmoist_min_20', nf90_float, [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dmoist_max_20', nf90_float, [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'alpha_pt_20', nf90_float, [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'aprecip_20', nf90_float, [dimid1, dimid2], vid(i)), i)
+
+    ! define real array variables, [dim1, dim3]
+    call nc_err(nf90_def_var(fid, 'dtemp_31', nf90_float, [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dmoist_31', nf90_float, [dimid1, dimid3], vid(i)), i)
+
+    ! define real array variables, [dim1, dim4]
+    call nc_err(nf90_def_var(fid, 'dtemp_91', nf90_float, [dimid1, dimid4], vid(i)), i)
+
+    ! define real array variables, [dim1, dim5]
+    call nc_err(nf90_def_var(fid, 'apar_leaf_sun', nf90_float, [dimid1, dimid5], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'apar_leaf_shade', nf90_float, [dimid1, dimid5], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dleaf_sun', nf90_float, [dimid1, dimid5], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dleaf_shade', nf90_float, [dimid1, dimid5], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'tleaf_sun', nf90_float, [dimid1, dimid5], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'tleaf_shade', nf90_float, [dimid1, dimid5], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'cs_sun', nf90_float, [dimid1, dimid5], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'cs_shade', nf90_float, [dimid1, dimid5], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'scalex_sun', nf90_float, [dimid1, dimid5], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'scalex_shade', nf90_float, [dimid1, dimid5], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fwsoil', nf90_float, [dimid1, dimid5], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'rd_sun', nf90_float, [dimid1, dimid5], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'rd_shade', nf90_float, [dimid1, dimid5], vid(i)), i)
+
+    ! end define mode
+    call nc_err(nf90_enddef(fid))
+
+    ! put variables
+    i = 1
+    ! integer scalars
+    call nc_err(nf90_put_var(fid, vid(i), climate%nyear_average), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%nday_average), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%nyears), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%doy), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%chilldays), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%iveg), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%biome), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%gmd), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%modis_igbp), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%dslr), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%nday_nesterov), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%dtemp), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%dmoist), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%dmoist_min), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%dmoist_min20), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%dmoist_max), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%dmoist_max20), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%mtemp), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%qtemp), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%mmoist), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%mtemp_min), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%mtemp_max), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%qtemp_max), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%qtemp_max_last_year), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%mtemp_min20), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%mtemp_max20), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%atemp_mean), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%agdd5), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%gdd5), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%agdd0), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%gdd0), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%alpha_pt), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%evap_pt), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%aevap), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%alpha_pt20), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%gdd0_rec), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%frec), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%dtemp_min), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%fdorm), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%fapar_ann_max), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%fapar_ann_max_last_year), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%avgannmaxfapar), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%dtemp_max), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%drhum), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%du10_max), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%dprecip), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%aprecip), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%aprecip_av20), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%last_precip), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%kbdi), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%ffdi), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%d_macarthur), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%nesterov_current), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%nesterov_ann_max), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%nesterov_ann_max_last_year), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%nesterov_ann_running_max), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%mtemp_min_20), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%mtemp_max_20), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%dmoist_min_20), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%dmoist_max_20), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%alpha_pt_20), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%aprecip_20), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%dtemp_31), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%dmoist_31), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%dtemp_91), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%apar_leaf_sun), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%apar_leaf_shade), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%dleaf_sun), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%dleaf_shade), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%tleaf_sun), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%tleaf_shade), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%cs_sun), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%cs_shade), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%scalex_sun), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%scalex_shade), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%fwsoil), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%rd_sun), i)
+    call nc_err(nf90_put_var(fid, vid(i), climate%rd_shade), i)
+
+    ! close NetCDF file
+    call nc_err(nf90_close(fid))
+
+  end subroutine write_netcdf_climate_type
+
+end module cable_def_types_mod

@@ -27,6 +27,7 @@ contains
          c13o2_create_output, c13o2_write_output, c13o2_close_output, &
          c13o2_nvars_output, c13o2_sanity_pools
     use mo_isotope,          only: isoratio
+    use blaze_drv,           only: blaze_driver
     USE BLAZE_MOD,           ONLY: TYPE_BLAZE,  BLAZE_ACCOUNTING,  WRITE_BLAZE_OUTPUT_NC
     USE SIMFIRE_MOD,         ONLY: TYPE_SIMFIRE
 
@@ -501,7 +502,6 @@ contains
                 endif
 
              endif
-
 
              !MC - Should this be nyear==myearspin instead of nyear==1?
              if (nloop==mloop .and. nyear==myearspin) then

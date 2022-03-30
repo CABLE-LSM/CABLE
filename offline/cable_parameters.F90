@@ -1,4 +1,4 @@
-!==============================================================================
+! ==============================================================================
 ! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
 ! This work is licensed under the CSIRO Open Source Software License
@@ -70,7 +70,7 @@ MODULE cable_param_module
        check_parameter_values, report_parameters, parID_type, &
        write_cnp_params
 
-  CHARACTER(LEN=4)  :: classification
+  CHARACTER(LEN=4) :: classification
 
   ! Variables below are temporary - for file read-in:
   INTEGER, DIMENSION(:, :, :),    ALLOCATABLE :: inVeg
@@ -110,8 +110,8 @@ MODULE cable_param_module
 CONTAINS
 
   SUBROUTINE get_default_params(logn, vegparmnew, LUC_EXPT)
-    
-    use cable_common_module, only : get_type_parameters, filename,             &
+
+    use cable_common_module, only : get_type_parameters, filename, &
                                     calcsoilalbedo
     ! Load parameters for each veg type and each soil type. (get_type_parameters)
     ! Also read in initial information for each grid point. (read_gridinfo)
@@ -121,7 +121,7 @@ CONTAINS
     ! soil profiles with the correct monthly average values (BP apr2010)
 
     IMPLICIT NONE
-    
+
     INTEGER,             INTENT(IN)    :: logn     ! log file unit number
     LOGICAL,             INTENT(IN)    :: vegparmnew ! new format input file (BP dec2007)
     TYPE(LUC_EXPT_TYPE), INTENT(INOUT) :: LUC_EXPT
@@ -160,7 +160,7 @@ CONTAINS
     IF (calcsoilalbedo) THEN
        CALL read_soilcolor()
     END IF
-    
+
     ! count to obtain 'landpt', 'max_vegpatches' and 'mp'
     CALL countPatch(nlon, nlat, npatch)
 
@@ -307,10 +307,10 @@ CONTAINS
     endif
 
     ok = NF90_INQ_VARID(ncid, 'longitude', varID)
-    IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
+    IF (ok /= NF90_NOERR) CALL nc_abort(ok, &
                                         'Error finding variable longitude.')
     ok = NF90_GET_VAR(ncid, varID, inLon)
-    IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
+    IF (ok /= NF90_NOERR) CALL nc_abort(ok, &
                                         'Error reading variable longitude.')
 
     ok = NF90_INQ_VARID(ncid, 'latitude', varID)
@@ -345,7 +345,7 @@ CONTAINS
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error reading variable iveg.')
 
     ok = NF90_INQ_VARID(ncid, 'patchfrac', varID)
-    IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
+    IF (ok /= NF90_NOERR) CALL nc_abort(ok, &
                                         'Error finding variable patchfrac.')
     if (npatch_LUC .gt. npatch) then
        ok = NF90_GET_VAR(ncid, varID, rdummy)
@@ -369,7 +369,7 @@ CONTAINS
     else
        ok = NF90_GET_VAR(ncid, varID, inPFrac)
     endif
-    IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
+    IF (ok /= NF90_NOERR) CALL nc_abort(ok, &
          'Error reading variable patchfrac.')
 
     ok = NF90_INQ_VARID(ncid, 'isoil', varID)
@@ -378,10 +378,10 @@ CONTAINS
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error reading variable isoil.')
 
     ok = NF90_INQ_VARID(ncid, 'SoilMoist', varID)
-    IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
+    IF (ok /= NF90_NOERR) CALL nc_abort(ok, &
                                         'Error finding variable SoilMoist.')
     ok = NF90_GET_VAR(ncid, varID, inWB)
-    IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
+    IF (ok /= NF90_NOERR) CALL nc_abort(ok, &
                                         'Error reading variable SoilMoist.')
 
     ok = NF90_INQ_VARID(ncid, 'SoilTemp', varID)
@@ -410,10 +410,10 @@ CONTAINS
     ENDDO
 
     ok = NF90_INQ_VARID(ncid, 'SnowDepth', varID)
-    IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
+    IF (ok /= NF90_NOERR) CALL nc_abort(ok, &
                                         'Error finding variable SnowDepth.')
     ok = NF90_GET_VAR(ncid,varID,r3dum2)
-    IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
+    IF (ok /= NF90_NOERR) CALL nc_abort(ok, &
                                         'Error reading variable SnowDepth.')
     ! DO kk = 1, ntime
     !   inSND(:, :, 1, kk) = r3dum2(:, :, kk)
@@ -484,7 +484,7 @@ CONTAINS
       inNfix  = inNfix  / 365.0
       inPwea  = inPwea  / 365.0
       inPdust = inPdust / 365.0
-      
+
     ENDIF
 
     ok = NF90_CLOSE(ncid)
@@ -785,14 +785,14 @@ CONTAINS
     ! ALLOCATE( soilcol(mp) )
 
     ok = NF90_INQ_VARID(ncid, 'longitude', varID)
-    IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
+    IF (ok /= NF90_NOERR) CALL nc_abort(ok, &
                                         'Error finding variable longitude.')
     ok = NF90_GET_VAR(ncid, varID, inLonSoilCol)
-    IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
+    IF (ok /= NF90_NOERR) CALL nc_abort(ok, &
                                         'Error reading variable longitude.')
 
     DO r = 1, nlon
-      IF ( ne(inLonSoilCol(r), inLon(r)) ) CALL nc_abort(ok,                     &
+      IF ( ne(inLonSoilCol(r), inLon(r)) ) CALL nc_abort(ok, &
                                                'Wrong resolution in longitude.')
     END DO
 
@@ -802,7 +802,7 @@ CONTAINS
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error reading variable latitude.')
 
     DO r = 1, nlat
-      IF ( ne(inLatSoilCol(r), inLat(r)) ) CALL nc_abort(ok,                     &
+      IF ( ne(inLatSoilCol(r), inLat(r)) ) CALL nc_abort(ok, &
                                                'Wrong resolution in latitude.')
     END DO
 
@@ -859,7 +859,7 @@ CONTAINS
 #endif
 
     IMPLICIT NONE
-    
+
     INTEGER, INTENT(IN) :: nlon, nlat
 
     ! local variables
@@ -880,7 +880,7 @@ CONTAINS
        DO jj = 1, nlat
           DO ii = 1, nlon
              IF (inVeg(ii,jj, 1) > 0 .and. inTgg(ii,jj,1,1).gt.0.0) THEN
-                newLength = SQRT((inLon(ii) - longitude(kk))**2                      &
+                newLength = SQRT((inLon(ii) - longitude(kk))**2 &
                      + (inLat(jj) -  latitude(kk))**2)
                 IF (newLength < distance) THEN
                    distance = newLength
@@ -1177,7 +1177,7 @@ CONTAINS
     canopy%fns    = 0.0
     canopy%fnv    = 0.0
     canopy%fhv    = 0.0
-    canopy%fwsoil = 1.0_r_2 ! vh -should be calculated from soil moisture or be in restart file
+    canopy%fwsoil = 1.0_r_2 ! vh -should be calculated from soil moisture
     rad%fvlai     = 0.0
 
     ! parameters that are not spatially dependent
@@ -1226,9 +1226,9 @@ CONTAINS
 
        ! Write to CABLE variables from temp variables saved in
        ! get_default_params
-       veg%iveg(landpt(e)%cstart:landpt(e)%cend) =                              &
+       veg%iveg(landpt(e)%cstart:landpt(e)%cend) = &
             inVeg(landpt(e)%ilon, landpt(e)%ilat, 1:landpt(e)%nap)
-       patch(landpt(e)%cstart:landpt(e)%cend)%frac =                            &
+       patch(landpt(e)%cstart:landpt(e)%cend)%frac = &
             real(inPFrac(landpt(e)%ilon, landpt(e)%ilat, 1:landpt(e)%nap), r_2)
        ! set land use (1 = primary; 2 = secondary, 3 = open)
        veg%iLU(landpt(e)%cstart:landpt(e)%cend)= 1
@@ -1286,6 +1286,8 @@ CONTAINS
           ssnow%wb(landpt(e)%cstart:landpt(e)%cend, is) = &
                real(inWB(landpt(e)%ilon, landpt(e)%ilat, min(is,size(inTGG,3)), month), r_2)
        END DO
+       ssnow%tss(landpt(e)%cstart:landpt(e)%cend) = ssnow%tgg(landpt(e)%cstart:landpt(e)%cend, 1)
+       ssnow%otss(landpt(e)%cstart:landpt(e)%cend) = ssnow%tgg(landpt(e)%cstart:landpt(e)%cend, 1)
 
        !write(61,*) e, ssnow%tgg(landpt(e)%cstart:landpt(e)%cend,:) , landpt(e)%ilon,landpt(e)%ilat
 
@@ -1657,21 +1659,21 @@ CONTAINS
     INTEGER :: ee, hh
 
     DO ee=1, mland ! over all land grid points
-      casamet%isorder(landpt(ee)%cstart:landpt(ee)%cend) =                     &
+      casamet%isorder(landpt(ee)%cstart:landpt(ee)%cend) = &
                                        inSorder(landpt(ee)%ilon,landpt(ee)%ilat)
       DO hh = landpt(ee)%cstart, landpt(ee)%cend  ! each patch in current grid
         casamet%lon(hh) = real(patch(hh)%longitude, r_2)
         casamet%lat(hh) = real(patch(hh)%latitude, r_2)
         ! MC - casamet%areacell should also be r_2 but it is not really used except for output in single precision
-        casamet%areacell(hh) = real(patch(hh)%frac)                            &
+        casamet%areacell(hh) = real(patch(hh)%frac) &
                                * inArea(landpt(ee)%ilon, landpt(ee)%ilat)
-        casaflux%Nmindep(hh) = patch(hh)%frac                                  &
+        casaflux%Nmindep(hh) = patch(hh)%frac &
                                * real(inNdep(landpt(ee)%ilon, landpt(ee)%ilat), r_2)
-        casaflux%Nminfix(hh) = patch(hh)%frac                                  &
+        casaflux%Nminfix(hh) = patch(hh)%frac &
                                * real(inNfix(landpt(ee)%ilon, landpt(ee)%ilat), r_2)
-        casaflux%Pdep(hh)    = patch(hh)%frac                                  &
+        casaflux%Pdep(hh)    = patch(hh)%frac &
                                * real(inPdust(landpt(ee)%ilon, landpt(ee)%ilat), r_2)
-        casaflux%Pwea(hh)    = patch(hh)%frac                                  &
+        casaflux%Pwea(hh)    = patch(hh)%frac &
                                * real(inPwea(landpt(ee)%ilon, landpt(ee)%ilat), r_2)
         !! vh !! fluxes shouldn't be weighted by patch frac.
      !   IF (CABLE_USER%POPLUC) then
@@ -1687,9 +1689,9 @@ CONTAINS
         ! fertilizer addition is included here
         IF (veg%iveg(hh) == cropland .OR. veg%iveg(hh) == croplnd2) then
           ! P fertilizer =13 Mt P globally in 1994
-          casaflux%Pdep(hh)    = casaflux%Pdep(hh)                             &
+          casaflux%Pdep(hh)    = casaflux%Pdep(hh) &
                                  + patch(hh)%frac * 0.7_r_2 / 365.0_r_2
-          casaflux%Nmindep(hh) = casaflux%Nmindep(hh)                          &
+          casaflux%Nmindep(hh) = casaflux%Nmindep(hh) &
                                  + patch(hh)%frac * 4.0_r_2 / 365.0_r_2
         ENDIF
       ENDDO
@@ -1721,7 +1723,7 @@ CONTAINS
     soil%zshh(ms + 1) = 0.5 * soil%zse(ms)
     soil%zshh(2:ms)   = 0.5 * (soil%zse(1:ms-1) + soil%zse(2:ms))
     IF ( .NOT. soilparmnew) THEN  ! Q,Zhang @ 12/20/2010
-      soil%cnsd  = soil%sand * 0.3 + soil%clay * 0.25                          &
+      soil%cnsd  = soil%sand * 0.3 + soil%clay * 0.25 &
                    + soil%silt * 0.265 ! set dry soil thermal conductivity
                                        ! [W/m/K]
     END IF
@@ -1735,8 +1737,8 @@ CONTAINS
     rough%hruff = max(0.01, veg%hc - 1.2 * ssnow%snowd/max(ssnow%ssdnn, 100.))
     rough%hruff_grmx = rough%hruff
     ! owetfac introduced by EAK apr2009
-    ssnow%owetfac = MAX(0.0, MIN(1.0,                                          &
-                   (REAL(ssnow%wb(:, 1)) - soil%swilt) /                  &
+    ssnow%owetfac = MAX(0.0, MIN(1.0, &
+                   (REAL(ssnow%wb(:, 1)) - soil%swilt) / &
                    (soil%sfc - soil%swilt)))
     temp(:) = 0.0_r_2
     tmp2(:) = 0.0
@@ -1765,17 +1767,17 @@ CONTAINS
     bal%precip_tot = 0.0
     bal%rnoff_tot  = 0.0
     bal%evap_tot   = 0.0
-    bal%wbal_tot   = 0.0
-    bal%ebal_tot   = 0.0
+    ! bal%wbal_tot   = 0.0
+    ! bal%ebal_tot   = 0.0
     bal%ebal_tot_cncheck = 0.0
     bal%drybal     = 0.0
     bal%wetbal     = 0.0
-    bal%wbtot0     = 0.0
+    ! bal%wbtot0     = 0.0
+    ! DO j=1, ms
+    !    bal%wbtot0 = bal%wbtot0 + REAL(ssnow%wb(:, j)) * soil%zse(j) * 1000.0
+    ! END DO
     bal%RadbalSum  = 0.0
-    DO j=1, ms
-       bal%wbtot0 = bal%wbtot0 + REAL(ssnow%wb(:, j)) * soil%zse(j) * 1000.0
-    END DO
-    bal%osnowd0 = ssnow%osnowd
+    ! bal%osnowd0 = ssnow%osnowd
 
     !! vh_js !! comment out hide% condition
     ! IF (hide%Ticket49Bug6) THEN
@@ -1802,41 +1804,41 @@ CONTAINS
 
     DO i = 1, mland
        ! Check all veg types make sense:
-       IF(ANY(veg%iveg(landpt(i)%cstart:(landpt(i)%cstart + landpt(i)%nap      &
-          - 1)) < 1 ) .OR. ANY(veg%iveg(landpt(i)%cstart:(landpt(i)%cstart +   &
+       IF(ANY(veg%iveg(landpt(i)%cstart:(landpt(i)%cstart + landpt(i)%nap &
+          - 1)) < 1 ) .OR. ANY(veg%iveg(landpt(i)%cstart:(landpt(i)%cstart + &
           landpt(i)%nap - 1)) > mvtype)) THEN
           WRITE(*, *) 'SUBROUTINE load_parameters:'
           WRITE(*, *) 'Land point number:', i
-          WRITE(*, *) 'Veg types:', veg%iveg(landpt(i)%cstart:                 &
+          WRITE(*, *) 'Veg types:', veg%iveg(landpt(i)%cstart: &
                       (landpt(i)%cstart + landpt(i)%nap - 1))
           CALL cable_abort('Unknown vegetation type! Aborting.')
        END IF
        ! Check all soil types make sense:
-       IF(ANY(soil%isoilm(landpt(i)%cstart:(landpt(i)%cstart + landpt(i)%nap   &
-          - 1)) < 1 ) .OR. ANY(soil%isoilm(landpt(i)%cstart:(landpt(i)%cstart  &
+       IF(ANY(soil%isoilm(landpt(i)%cstart:(landpt(i)%cstart + landpt(i)%nap &
+          - 1)) < 1 ) .OR. ANY(soil%isoilm(landpt(i)%cstart:(landpt(i)%cstart &
           + landpt(i)%nap - 1)) > mstype)) THEN
           WRITE(*,*) 'SUBROUTINE load_parameters:'
           WRITE(*,*) 'Land point number:',i
           CALL cable_abort('Unknown soil type! Aborting.')
        END IF
        ! Check patch fractions sum to 1 in each grid cell:
-       IF((SUM(patch(landpt(i)%cstart:landpt(i)%cend)%frac) - 1.0_r_2)             &
+       IF((SUM(patch(landpt(i)%cstart:landpt(i)%cend)%frac) - 1.0_r_2) &
           > 1.0E-6_r_2) THEN
           WRITE(*,*) 'SUBROUTINE load_parameters:'
           WRITE(*,*) 'At land point number', i
           WRITE(*,*) 'And patch numbers:  ', landpt(i)%cstart, landpt(i)%cend
-          WRITE(*,*) 'patchfrac values are: ',                                 &
+          WRITE(*,*) 'patchfrac values are: ', &
                       patch(landpt(i)%cstart:landpt(i)%cend)%frac
-          WRITE(*,*) 'veg types are:        ',                                 &
+          WRITE(*,*) 'veg types are:        ', &
                       veg%iveg(landpt(i)%cstart:landpt(i)%cend)
-          WRITE(*,*) 'patch longitudes are: ',                                 &
+          WRITE(*,*) 'patch longitudes are: ', &
                       patch(landpt(i)%cstart:landpt(i)%cend)%longitude
-          WRITE(*,*) 'patch latitudes are:  ',                                 &
+          WRITE(*,*) 'patch latitudes are:  ', &
                       patch(landpt(i)%cstart:landpt(i)%cend)%latitude
           CALL cable_abort ('Sum of fractional coverage of vegetation patches /= 1!')
        END IF
        !      ! Check sum of surface type fractions is 1:
-       !      IF(landpt(i)%veg%frac + landpt(i)%urban%frac +                   &
+       !      IF(landpt(i)%veg%frac + landpt(i)%urban%frac + &
        !         landpt(i)%lake%frac + landpt(i)%ice%frac /= 1) THEN
        !        WRITE(*,*) 'SUBROUTINE load_parameters:'
        !        WRITE(*,*) 'At land point number', i
@@ -1847,11 +1849,11 @@ CONTAINS
     DO i = 1, mland
        DO j = 1, landpt(i)%nap
  ! vh changed limits from 1.0000001, 0.999999 to 1.01 and 0.99 for compatibility with gridinfo
-          IF((soil%sand(landpt(i)%cstart + j - 1)                              &
-              + soil%silt(landpt(i)%cstart + j - 1)                            &
-              + soil%clay(landpt(i)%cstart + j - 1)) > 1.01 .OR.          &
-             (soil%sand(landpt(i)%cstart + j - 1)                              &
-              + soil%silt(landpt(i)%cstart + j - 1)                            &
+          IF((soil%sand(landpt(i)%cstart + j - 1) &
+              + soil%silt(landpt(i)%cstart + j - 1) &
+              + soil%clay(landpt(i)%cstart + j - 1)) > 1.01 .OR. &
+             (soil%sand(landpt(i)%cstart + j - 1) &
+              + soil%silt(landpt(i)%cstart + j - 1) &
               + soil%clay(landpt(i)%cstart + j - 1)) < 0.99) THEN
              WRITE(*,*) 'SUBROUTINE load_parameters:'
              WRITE(*,*) 'At land point number:', i
@@ -1859,8 +1861,8 @@ CONTAINS
              WRITE(*,*) 'Clay fraction is ',soil%clay(landpt(i)%cstart + j - 1)
              WRITE(*,*) 'Sand fraction is ',soil%sand(landpt(i)%cstart + j - 1)
              WRITE(*,*) 'Silt fraction is ',soil%silt(landpt(i)%cstart + j - 1)
-             WRITE(*,*) 'SUM:',soil%sand(landpt(i)%cstart + j - 1)             &
-                               + soil%silt(landpt(i)%cstart + j - 1)           &
+             WRITE(*,*) 'SUM:',soil%sand(landpt(i)%cstart + j - 1) &
+                               + soil%silt(landpt(i)%cstart + j - 1) &
                                + soil%clay(landpt(i)%cstart + j - 1)
              CALL cable_abort ('clay+sand+silt fraction does not sum to 1!')
           END IF
@@ -1869,7 +1871,7 @@ CONTAINS
     ! Check that fraction of roots in each layer sum to 1:
     DO i = 1, mland
        DO j = 1, landpt(i)%nap
-          IF(ABS(1 - SUM(veg%froot((landpt(i)%cstart + j - 1), :)))            &
+          IF(ABS(1 - SUM(veg%froot((landpt(i)%cstart + j - 1), :))) &
              > 0.00001) THEN
              WRITE(*,*) 'SUBROUTINE load_parameters:'
              WRITE(*,*) 'At land point number:', i, 'patch:', j
@@ -1883,13 +1885,13 @@ CONTAINS
     IF(ANY(soil%swilt > soil%sfc) .OR. ANY(soil%sfc > soil%ssat)) THEN
        DO i = 1, mland
           DO j = 1, landpt(i)%nap
-             IF(soil%swilt(landpt(i)%cstart + j - 1) >                         &
-                soil%sfc(landpt(i)%cstart + j - 1)                             &
-                .OR. soil%sfc(landpt(i)%cstart + j - 1) >                      &
+             IF(soil%swilt(landpt(i)%cstart + j - 1) > &
+                soil%sfc(landpt(i)%cstart + j - 1) &
+                .OR. soil%sfc(landpt(i)%cstart + j - 1) > &
                 soil%ssat(landpt(i)%cstart + j - 1)) THEN
                 WRITE(*, *) 'SUBROUTINE load_parameters:'
                 WRITE(*, *) 'At land point number', i, 'patch:', j
-                CALL cable_abort('Wilting pt < field capacity < saturation '//      &
+                CALL cable_abort('Wilting pt < field capacity < saturation '// &
                             'violated!')
              END IF
           END DO
@@ -1904,11 +1906,11 @@ CONTAINS
     END DO
 
   END SUBROUTINE check_parameter_values
-  
+
   !===============================================================================
-  
-SUBROUTINE report_parameters(logn, soil, veg, bgc, rough,                    &
-                               ssnow, canopy, casamet, casapool, casaflux,     &
+
+SUBROUTINE report_parameters(logn, soil, veg, bgc, rough, &
+                               ssnow, canopy, casamet, casapool, casaflux, &
                                phen, verbose )
 
   USE cable_common_module, ONLY : veg_desc, soil_desc
@@ -1943,37 +1945,37 @@ SUBROUTINE report_parameters(logn, soil, veg, bgc, rough,                    &
 
    ! Only report parameters for active vegetation patches:
    DO e = 1, mland
-      WRITE(logn, *) '==================================================='//  &
+      WRITE(logn, *) '==================================================='// &
                      '======'
-      WRITE(logn, '(A36, I8, 1X, A1)') ' CABLE setup details for land'//      &
+      WRITE(logn, '(A36, I8, 1X, A1)') ' CABLE setup details for land'// &
             ' point ',e,':'
-      WRITE(logn, *) '==================================================='//  &
+      WRITE(logn, *) '==================================================='// &
                      '======'
       !      WRITE(logn,'(A21)') ' Surface type ratios:'
-      !      WRITE(logn,*) '---------------------------------------------'//  &
+      !      WRITE(logn,*) '---------------------------------------------'// &
       !                    '------------'
       !      ! Write surface type ratios to log file:
-      !      WRITE(logn,'(A30,I3,A1)') '                   vegetated: ',&
+      !      WRITE(logn,'(A30,I3,A1)') '                   vegetated: ', &
       !           INT(landpt(e)%veg%frac*100.0),'%'
-      !      WRITE(logn,'(A30,I3,A1)') '                       urban: ',&
+      !      WRITE(logn,'(A30,I3,A1)') '                       urban: ', &
       !           INT(landpt(e)%urban%frac*100.0),'%'
-      !      WRITE(logn,'(A30,I3,A1)') '                       lakes: ',&
+      !      WRITE(logn,'(A30,I3,A1)') '                       lakes: ', &
       !           INT(landpt(e)%lake%frac*100.0),'%'
-      !      WRITE(logn,'(A30,I3,A1)') '                    land ice: ',&
+      !      WRITE(logn,'(A30,I3,A1)') '                    land ice: ', &
       !           INT(landpt(e)%ice%frac*100.0),'%'
       !      ! Report patch details to log file:
-      !      WRITE(logn,*) '---------------------------------------------'//  &
+      !      WRITE(logn,*) '---------------------------------------------'// &
       !                    '------------'
       WRITE(logn, '(A43)') ' Proportions of each active veg/soil patch:'
-      WRITE(logn, *) '---------------------------------------------------'//  &
+      WRITE(logn, *) '---------------------------------------------------'// &
                      '------'
       DO g = 1, landpt(e)%nap
-         WRITE(logn, '(A7, I2, A3, F6.2, A11, I3, 1X, A30)') ' patch ',       &
+         WRITE(logn, '(A7, I2, A3, F6.2, A11, I3, 1X, A30)') ' patch ', &
                g,':  ', patch(landpt(e)%cstart + g - 1)%frac * 100.0_r_2, &
-               '% veg type ', veg%iveg(landpt(e)%cstart + g - 1),             &
+               '% veg type ', veg%iveg(landpt(e)%cstart + g - 1), &
                TRIM(veg_desc(veg%iveg(landpt(e)%cstart + g - 1)))
-         WRITE(logn,'(18X, A11, I3, 1X, A45)') '  soil type',                 &
-               soil%isoilm(landpt(e)%cstart + g - 1),                         &
+         WRITE(logn,'(18X, A11, I3, 1X, A45)') '  soil type', &
+               soil%isoilm(landpt(e)%cstart + g - 1), &
                TRIM(soil_desc(soil%isoilm(landpt(e)%cstart + g - 1)))
       END DO
 
@@ -1985,285 +1987,285 @@ SUBROUTINE report_parameters(logn, soil, veg, bgc, rough,                    &
          WRITE(patchfmte,'(A8, I1, A6)') '(4X,A50,', landpt(e)%nap, 'E12.4)'
          WRITE(patchfmte2,'(A8, I1, A6)') '(4X,A50,', landpt(e)%nap, 'E12.4)'
          ! Write parameter set details to log file:
-         WRITE(logn, *) '------------------------------------------------'//  &
+         WRITE(logn, *) '------------------------------------------------'// &
                         '---------'
-         WRITE(logn, '(A36, I8, 1X, A2)') ' CABLE parameter values (land '//  &
+         WRITE(logn, '(A36, I8, 1X, A2)') ' CABLE parameter values (land '// &
                'point ', e, '):'
-         WRITE(logn, *) '------------------------------------------------'//  &
+         WRITE(logn, *) '------------------------------------------------'// &
                         '---------'
-         WRITE(logn,'(4X, A50, 2F10.4)') 'reference height (m): ',            &
+         WRITE(logn,'(4X, A50, 2F10.4)') 'reference height (m): ', &
                                ! AJA MODIFIED
                                ! rough%za(e*max_vegpatches)
-               rough%za_uv(landpt(e)%cend - landpt(e)%cstart + 1),            &
+               rough%za_uv(landpt(e)%cend - landpt(e)%cstart + 1), &
                rough%za_tq(landpt(e)%cend - landpt(e)%cstart + 1)
          WRITE(logn, *) ' Vegetation parameters: '
-         WRITE(logn, patchfmti) 'Veg type for each active (>0% gridcell) '//  &
+         WRITE(logn, patchfmti) 'Veg type for each active (>0% gridcell) '// &
                'patch: ', veg%iveg(landpt(e)%cstart:landpt(e)%cend)
-         WRITE(logn, patchfmtr) 'Vegetation height (m): ',                    &
+         WRITE(logn, patchfmtr) 'Vegetation height (m): ', &
                veg%hc(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap - 1))
-         WRITE(logn, patchfmtr) 'Fraction of roots in layer 1 (-): ',         &
-               veg%froot(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap   &
+         WRITE(logn, patchfmtr) 'Fraction of roots in layer 1 (-): ', &
+               veg%froot(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1), 1)
-         WRITE(logn, patchfmtr) 'Fraction of roots in layer 2 (-): ',         &
-               veg%froot(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap   &
+         WRITE(logn, patchfmtr) 'Fraction of roots in layer 2 (-): ', &
+               veg%froot(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1), 2)
-         WRITE(logn, patchfmtr) 'Fraction of roots in layer 3 (-): ',         &
-               veg%froot(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap   &
+         WRITE(logn, patchfmtr) 'Fraction of roots in layer 3 (-): ', &
+               veg%froot(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1), 3)
-         WRITE(logn, patchfmtr) 'Fraction of roots in layer 4 (-): ',         &
-               veg%froot(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap   &
+         WRITE(logn, patchfmtr) 'Fraction of roots in layer 4 (-): ', &
+               veg%froot(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1), 4)
-         WRITE(logn, patchfmtr) 'Fraction of roots in layer 5 (-): ',         &
-               veg%froot(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap   &
+         WRITE(logn, patchfmtr) 'Fraction of roots in layer 5 (-): ', &
+               veg%froot(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1), 5)
-         WRITE(logn, patchfmtr) 'Fraction of roots in layer 6 (-): ',         &
-               veg%froot(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap   &
+         WRITE(logn, patchfmtr) 'Fraction of roots in layer 6 (-): ', &
+               veg%froot(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1), 6)
-         WRITE(logn, patchfmtr) 'Fraction of plants which are C4 (-): ',      &
-               veg%frac4(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap   &
+         WRITE(logn, patchfmtr) 'Fraction of plants which are C4 (-): ', &
+               veg%frac4(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1))
-         WRITE(logn, patchfmtr) 'Maximum canopy water storage (mm/LAI): ',    &
-               veg%canst1(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap  &
+         WRITE(logn, patchfmtr) 'Maximum canopy water storage (mm/LAI): ', &
+               veg%canst1(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1))
-         WRITE(logn, patchfmte)                                               &
-               'Max pot elec transport rate top leaf (mol/m2/s): ',           &
-               veg%ejmax(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap   &
+         WRITE(logn, patchfmte) &
+               'Max pot elec transport rate top leaf (mol/m2/s): ', &
+               veg%ejmax(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1))
-         WRITE(logn, patchfmte)                                               &
-               'Max RuBP carboxylation rate top leaf (mol/m^2/s): ',          &
-               veg%vcmax(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap   &
+         WRITE(logn, patchfmte) &
+               'Max RuBP carboxylation rate top leaf (mol/m^2/s): ', &
+               veg%vcmax(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1))
-         WRITE(logn, patchfmtr) 'Plant respiration coeff @ 20 C '//           &
-               '(mol/m^2/s): ', veg%rp20(landpt(e)%cstart:(landpt(e)%cstart   &
+         WRITE(logn, patchfmtr) 'Plant respiration coeff @ 20 C '// &
+               '(mol/m^2/s): ', veg%rp20(landpt(e)%cstart:(landpt(e)%cstart &
                + landpt(e)%nap - 1))
-         WRITE(logn, patchfmtr)                                               &
-               'Temperature coef nonleaf plant respiration (1/C): ',          &
-               veg%rpcoef(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap  &
+         WRITE(logn, patchfmtr) &
+               'Temperature coef nonleaf plant respiration (1/C): ', &
+               veg%rpcoef(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1))
-         WRITE(logn, patchfmtr) 'Sheltering factor (-): ',                    &
-               veg%shelrb(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap  &
+         WRITE(logn, patchfmtr) 'Sheltering factor (-): ', &
+               veg%shelrb(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1))
-         WRITE(logn, patchfmtr) 'Chararacteristic legnth of leaf (m): ',      &
-               veg%dleaf(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap   &
+         WRITE(logn, patchfmtr) 'Chararacteristic legnth of leaf (m): ', &
+               veg%dleaf(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1))
-         WRITE(logn, patchfmtr) 'Leaf angle parameter (-): ',                 &
-               veg%xfang(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap   &
+         WRITE(logn, patchfmtr) 'Leaf angle parameter (-): ', &
+               veg%xfang(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1))
-         WRITE(logn, patchfmtr)                                               &
-               'Min temperature for start of photosynthesis (C): ',           &
-               veg%tminvj(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap  &
+         WRITE(logn, patchfmtr) &
+               'Min temperature for start of photosynthesis (C): ', &
+               veg%tminvj(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1))
-         WRITE(logn, patchfmtr)                                               &
-               'Max temperature for start of photosynthesis (C): ',           &
-               veg%tmaxvj(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap  &
+         WRITE(logn, patchfmtr) &
+               'Max temperature for start of photosynthesis (C): ', &
+               veg%tmaxvj(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1))
-         WRITE(logn, patchfmtr) 'Stomatal sensitivity to soil water: ',       &
-               veg%vbeta(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap   &
+         WRITE(logn, patchfmtr) 'Stomatal sensitivity to soil water: ', &
+               veg%vbeta(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1))
-         WRITE(logn, patchfmtr) 'Modifier for surface albedo in near IR '//   &
-               'band: ', veg%xalbnir(landpt(e)%cstart:(landpt(e)%cstart +     &
+         WRITE(logn, patchfmtr) 'Modifier for surface albedo in near IR '// &
+               'band: ', veg%xalbnir(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1))
-         WRITE(logn, patchfmtr) 'a1 parameter in leaf stomatal model  ',      &
-               veg%a1gs(landpt(e)%cstart:(landpt(e)%cstart +                  &
+         WRITE(logn, patchfmtr) 'a1 parameter in leaf stomatal model  ', &
+               veg%a1gs(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1))
-         WRITE(logn, patchfmtr) 'd0 parameter in leaf stomatal model  ',      &
-               veg%d0gs(landpt(e)%cstart:(landpt(e)%cstart +                  &
+         WRITE(logn, patchfmtr) 'd0 parameter in leaf stomatal model  ', &
+               veg%d0gs(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1))
          IF (icycle == 0) THEN
-           WRITE(logn,'(4X, A50, F12.4)')                                     &
+           WRITE(logn,'(4X, A50, F12.4)') &
                  'Plant carbon rate constant pool 1 (1/year): ', bgc%ratecp(1)
-           WRITE(logn,'(4X, A50, F12.4)')                                     &
+           WRITE(logn,'(4X, A50, F12.4)') &
                  'Plant carbon rate constant pool 2 (1/year): ', bgc%ratecp(2)
-           WRITE(logn,'(4X, A50, F12.4)')                                     &
+           WRITE(logn,'(4X, A50, F12.4)') &
                  'Plant carbon rate constant pool 3 (1/year): ', bgc%ratecp(3)
          ENDIF
-         WRITE(logn, *) '------------------------------------------------'//  &
+         WRITE(logn, *) '------------------------------------------------'// &
                         '---------'
          WRITE(logn, *) ' Soil parameters: '
-         WRITE(logn, patchfmti)        'Soil type for each active (>0%) '//   &
+         WRITE(logn, patchfmti)        'Soil type for each active (>0%) '// &
                'patch: ', soil%isoilm(landpt(e)%cstart:landpt(e)%cend)
-         WRITE(logn, patchfmtr) 'Fraction of soil which is sand (-): ',       &
-               soil%sand(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap   &
+         WRITE(logn, patchfmtr) 'Fraction of soil which is sand (-): ', &
+               soil%sand(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1))
-         WRITE(logn, patchfmtr) 'Fraction of soil which is silt (-): ',       &
-               soil%silt(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap   &
+         WRITE(logn, patchfmtr) 'Fraction of soil which is silt (-): ', &
+               soil%silt(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1))
-         WRITE(logn, patchfmtr) 'Fraction of soil which is clay (-): ',       &
-               soil%clay(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap   &
+         WRITE(logn, patchfmtr) 'Fraction of soil which is clay (-): ', &
+               soil%clay(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1))
-         WRITE(logn, patchfmtr)                                               &
-               'Volumetric soil moisture at saturation (m^3/m^3): ',          &
-               soil%ssat(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap   &
+         WRITE(logn, patchfmtr) &
+               'Volumetric soil moisture at saturation (m^3/m^3): ', &
+               soil%ssat(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1))
-         WRITE(logn,patchfmtr)                                                &
-               'Vol. soil moisture at field capacity (m^3/m^3): ',            &
-               soil%sfc(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap    &
+         WRITE(logn,patchfmtr) &
+               'Vol. soil moisture at field capacity (m^3/m^3): ', &
+               soil%sfc(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1))
-         WRITE(logn, patchfmtr) 'Vol. soil moisture at wilting point '//      &
-               '(m^3/m^3): ', soil%swilt(landpt(e)%cstart:(landpt(e)%cstart   &
+         WRITE(logn, patchfmtr) 'Vol. soil moisture at wilting point '// &
+               '(m^3/m^3): ', soil%swilt(landpt(e)%cstart:(landpt(e)%cstart &
                + landpt(e)%nap - 1))
-         WRITE(logn,patchfmtr) 'Soil respiration coeff @ 20C (mol/m^2/s): ',  &
+         WRITE(logn,patchfmtr) 'Soil respiration coeff @ 20C (mol/m^2/s): ', &
                veg%rs20(landpt(e)%cstart:(landpt(e)%cstart+landpt(e)%nap-1))
 !              soil%rs20(landpt(e)%cstart:(landpt(e)%cstart+landpt(e)%nap-1))
-         WRITE(logn, patchfmtr) 'Suction at saturation (m): ',                &
+         WRITE(logn, patchfmtr) 'Suction at saturation (m): ', &
                soil%sucs(landpt(e)%cstart:(landpt(e)%cstart+landpt(e)%nap-1))
-         WRITE(logn, patchfmtr) 'Soil density (kg/m^3): ',                    &
-               soil%rhosoil(landpt(e)%cstart:(landpt(e)%cstart +              &
+         WRITE(logn, patchfmtr) 'Soil density (kg/m^3): ', &
+               soil%rhosoil(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1))
-         WRITE(logn, patchfmtr) 'Soil specific heat capacity (kJ/kg/K): ',    &
-               soil%css(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap    &
+         WRITE(logn, patchfmtr) 'Soil specific heat capacity (kJ/kg/K): ', &
+               soil%css(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1))
-         WRITE(logn, patchfmtr) 'Parameter b in Campbell equation: ',         &
-               soil%bch(landpt(e)%cstart:(landpt(e)%cstart+landpt(e)%nap      &
+         WRITE(logn, patchfmtr) 'Parameter b in Campbell equation: ', &
+               soil%bch(landpt(e)%cstart:(landpt(e)%cstart+landpt(e)%nap &
                - 1))
-         WRITE(logn, patchfmte2) 'Hydraulic conductivity @ saturation '//     &
-               '(m/s): ', soil%hyds(landpt(e)%cstart:(landpt(e)%cstart +      &
+         WRITE(logn, patchfmte2) 'Hydraulic conductivity @ saturation '// &
+               '(m/s): ', soil%hyds(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1))
          IF (icycle == 0) THEN
-           WRITE(logn,'(4X, A50, F12.4)')                                     &
+           WRITE(logn,'(4X, A50, F12.4)') &
               'Soil carbon rate constant pool 1 (1/year): ', bgc%ratecs(1)
-            WRITE(logn,'(4X, A50, F12.4)')                                    &
+            WRITE(logn,'(4X, A50, F12.4)') &
               'Soil carbon rate constant pool 2 (1/year): ', bgc%ratecs(2)
          ENDIF
 
-         WRITE(logn, patchfmtr) 'Bare soil albedo, vis (-): ',                &
-               soil%albsoil(landpt(e)%cstart:(landpt(e)%cstart +              &
+         WRITE(logn, patchfmtr) 'Bare soil albedo, vis (-): ', &
+               soil%albsoil(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1), 1)
-         WRITE(logn, patchfmtr) 'Bare soil albedo, nir (-): ',                &
-               soil%albsoil(landpt(e)%cstart:(landpt(e)%cstart +              &
+         WRITE(logn, patchfmtr) 'Bare soil albedo, nir (-): ', &
+               soil%albsoil(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1), 2)
-         WRITE(logn, *) '------------------------------------------------'//  &
+         WRITE(logn, *) '------------------------------------------------'// &
                         '---------'
-         WRITE(logn,'(A35, I8, 1X, A2)') ' CABLE initialisations (land '//    &
+         WRITE(logn,'(A35, I8, 1X, A2)') ' CABLE initialisations (land '// &
                'point ', e, '):'
-         WRITE(logn, *) '------------------------------------------------'//  &
+         WRITE(logn, *) '------------------------------------------------'// &
                         '---------'
-         WRITE(logn, *) ' Soil-specific initialisations, per patch: -----'//  &
+         WRITE(logn, *) ' Soil-specific initialisations, per patch: -----'// &
                         '---------'
-         WRITE(logn, patchfmtr) 'Soil moisture, layer 1: ',                   &
-               ssnow%wb(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap    &
+         WRITE(logn, patchfmtr) 'Soil moisture, layer 1: ', &
+               ssnow%wb(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1), 1)
-         WRITE(logn, patchfmtr) 'Soil moisture, layer 2: ',                   &
-               ssnow%wb(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap    &
+         WRITE(logn, patchfmtr) 'Soil moisture, layer 2: ', &
+               ssnow%wb(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1), 2)
-         WRITE(logn, patchfmtr) 'Soil moisture, layer 3: ',                   &
-               ssnow%wb(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap    &
+         WRITE(logn, patchfmtr) 'Soil moisture, layer 3: ', &
+               ssnow%wb(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1), 3)
-         WRITE(logn, patchfmtr) 'Soil moisture, layer 4: ',                   &
-               ssnow%wb(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap    &
+         WRITE(logn, patchfmtr) 'Soil moisture, layer 4: ', &
+               ssnow%wb(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1), 4)
-         WRITE(logn, patchfmtr) 'Soil moisture, layer 5: ',                   &
-               ssnow%wb(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap    &
+         WRITE(logn, patchfmtr) 'Soil moisture, layer 5: ', &
+               ssnow%wb(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1), 5)
-         WRITE(logn, patchfmtr) 'Soil moisture, layer 6: ',                   &
-               ssnow%wb(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap    &
+         WRITE(logn, patchfmtr) 'Soil moisture, layer 6: ', &
+               ssnow%wb(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1), 6)
          DO f = landpt(e)%cstart, (landpt(e)%cstart + landpt(e)%nap - 1)
-            IF(ANY(ssnow%wb(f, :) < soil%swilt(f)))                           &
-                 WRITE(logn, '(3X, A6, I2, A47)')                             &
-                 'PATCH ',f - landpt(e)%cstart + 1,                           &
+            IF(ANY(ssnow%wb(f, :) < soil%swilt(f))) &
+                 WRITE(logn, '(3X, A6, I2, A47)') &
+                 'PATCH ',f - landpt(e)%cstart + 1, &
                  ' SOIL MOISTURE INITIALISED BELOW WILTING POINT!'
-            IF(ANY(ssnow%wb(f,:)>soil%ssat(f)))                               &
-                 WRITE(logn,'(3X, A6, I2, A50)')                              &
-                 'PATCH ',f - landpt(e)%cstart + 1,                           &
+            IF(ANY(ssnow%wb(f,:)>soil%ssat(f))) &
+                 WRITE(logn,'(3X, A6, I2, A50)') &
+                 'PATCH ',f - landpt(e)%cstart + 1, &
                  ' SOIL MOISTURE INITIALISED ABOVE SATURATION VALUE!'
          END DO
-         WRITE(logn, patchfmtr) 'Soil temperature, layer 1: ',                &
-               ssnow%tgg(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap   &
+         WRITE(logn, patchfmtr) 'Soil temperature, layer 1: ', &
+               ssnow%tgg(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1), 1)
-         WRITE(logn, patchfmtr) 'Soil temperature, layer 2: ',                &
-               ssnow%tgg(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap   &
+         WRITE(logn, patchfmtr) 'Soil temperature, layer 2: ', &
+               ssnow%tgg(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1), 2)
-         WRITE(logn, patchfmtr) 'Soil temperature, layer 3: ',                &
-               ssnow%tgg(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap   &
+         WRITE(logn, patchfmtr) 'Soil temperature, layer 3: ', &
+               ssnow%tgg(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1), 3)
-         WRITE(logn, patchfmtr) 'Soil temperature, layer 4: ',                &
-               ssnow%tgg(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap   &
+         WRITE(logn, patchfmtr) 'Soil temperature, layer 4: ', &
+               ssnow%tgg(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1), 4)
-         WRITE(logn, patchfmtr) 'Soil temperature, layer 5: ',                &
-               ssnow%tgg(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap   &
+         WRITE(logn, patchfmtr) 'Soil temperature, layer 5: ', &
+               ssnow%tgg(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1), 5)
-         WRITE(logn, patchfmtr) 'Soil temperature, layer 6: ',                &
-               ssnow%tgg(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap   &
+         WRITE(logn, patchfmtr) 'Soil temperature, layer 6: ', &
+               ssnow%tgg(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1), 6)
          IF (icycle == 0) THEN
-            WRITE(logn, patchfmtr) 'Soil carbon pool size (g C/m2), pool 1: ',&
-               bgc%csoil(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap   &
+            WRITE(logn, patchfmtr) 'Soil carbon pool size (g C/m2), pool 1: ', &
+               bgc%csoil(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1), 1)
-            WRITE(logn, patchfmtr) 'Soil carbon pool size (g C/m2), pool 2: ',&
-               bgc%csoil(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap   &
+            WRITE(logn, patchfmtr) 'Soil carbon pool size (g C/m2), pool 2: ', &
+               bgc%csoil(landpt(e)%cstart:(landpt(e)%cstart + landpt(e)%nap &
                - 1), 2)
          ENDIF
-         WRITE(logn, patchfmtr) 'Volumetric soil ice, layer 1: ',             &
-               ssnow%wbice(landpt(e)%cstart:(landpt(e)%cstart +               &
+         WRITE(logn, patchfmtr) 'Volumetric soil ice, layer 1: ', &
+               ssnow%wbice(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1), 1)
-         WRITE(logn, patchfmtr) 'Volumetric soil ice, layer 2: ',             &
-               ssnow%wbice(landpt(e)%cstart:(landpt(e)%cstart +               &
+         WRITE(logn, patchfmtr) 'Volumetric soil ice, layer 2: ', &
+               ssnow%wbice(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1), 2)
-         WRITE(logn, patchfmtr) 'Volumetric soil ice, layer 3: ',             &
-               ssnow%wbice(landpt(e)%cstart:(landpt(e)%cstart +               &
+         WRITE(logn, patchfmtr) 'Volumetric soil ice, layer 3: ', &
+               ssnow%wbice(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1), 3)
-         WRITE(logn, patchfmtr) 'Volumetric soil ice, layer 4: ',             &
-               ssnow%wbice(landpt(e)%cstart:(landpt(e)%cstart +               &
+         WRITE(logn, patchfmtr) 'Volumetric soil ice, layer 4: ', &
+               ssnow%wbice(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1), 4)
-         WRITE(logn, patchfmtr) 'Volumetric soil ice, layer 5: ',             &
-               ssnow%wbice(landpt(e)%cstart:(landpt(e)%cstart +               &
+         WRITE(logn, patchfmtr) 'Volumetric soil ice, layer 5: ', &
+               ssnow%wbice(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1), 5)
-         WRITE(logn, patchfmtr) 'Volumetric soil ice, layer 6: ',             &
-               ssnow%wbice(landpt(e)%cstart:(landpt(e)%cstart +               &
+         WRITE(logn, patchfmtr) 'Volumetric soil ice, layer 6: ', &
+               ssnow%wbice(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1), 6)
-         WRITE(logn, patchfmtr) 'Turbulent resistance for soil: ',            &
-               ssnow%rtsoil(landpt(e)%cstart:(landpt(e)%cstart +              &
+         WRITE(logn, patchfmtr) 'Turbulent resistance for soil: ', &
+               ssnow%rtsoil(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1))
-         WRITE(logn, *) ' Snow-specific initialisations, per patch: '//       &
+         WRITE(logn, *) ' Snow-specific initialisations, per patch: '// &
                         '--------------'
-         WRITE(logn, patchfmtr) 'Snow liquid water equivalent depth (mm): ',  &
-               ssnow%snowd(landpt(e)%cstart:(landpt(e)%cstart +               &
+         WRITE(logn, patchfmtr) 'Snow liquid water equivalent depth (mm): ', &
+               ssnow%snowd(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1))
-         WRITE(logn, patchfmtr)                                               &
-               'Snow liq. water equiv. depth previous tstep (mm): ',          &
-               ssnow%osnowd(landpt(e)%cstart:(landpt(e)%cstart +              &
+         WRITE(logn, patchfmtr) &
+               'Snow liq. water equiv. depth previous tstep (mm): ', &
+               ssnow%osnowd(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1))
-         WRITE(logn, patchfmtr) 'Overall snow density (kg/m^3): ',            &
-               ssnow%ssdnn(landpt(e)%cstart:(landpt(e)%cstart +               &
+         WRITE(logn, patchfmtr) 'Overall snow density (kg/m^3): ', &
+               ssnow%ssdnn(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1))
-         WRITE(logn, patchfmtr) 'Snow age (-): ',                             &
-               ssnow%snage(landpt(e)%cstart:(landpt(e)%cstart +               &
+         WRITE(logn, patchfmtr) 'Snow age (-): ', &
+               ssnow%snage(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1))
-         WRITE(logn, patchfmtr) 'Snow temperature (K), layer 1: ',            &
-               ssnow%tggsn(landpt(e)%cstart:(landpt(e)%cstart +               &
+         WRITE(logn, patchfmtr) 'Snow temperature (K), layer 1: ', &
+               ssnow%tggsn(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1), 1)
-         WRITE(logn, patchfmtr) 'Snow temperature (K), layer 2: ',            &
-               ssnow%tggsn(landpt(e)%cstart:(landpt(e)%cstart +               &
+         WRITE(logn, patchfmtr) 'Snow temperature (K), layer 2: ', &
+               ssnow%tggsn(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1), 2)
-         WRITE(logn, patchfmtr) 'Snow temperature (K), layer 3: ',            &
-               ssnow%tggsn(landpt(e)%cstart:(landpt(e)%cstart +               &
+         WRITE(logn, patchfmtr) 'Snow temperature (K), layer 3: ', &
+               ssnow%tggsn(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1), 3)
-         WRITE(logn, patchfmtr) 'Snow density (kg/m^3), layer 1: ',           &
-               ssnow%ssdn(landpt(e)%cstart:(landpt(e)%cstart +                &
+         WRITE(logn, patchfmtr) 'Snow density (kg/m^3), layer 1: ', &
+               ssnow%ssdn(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1), 1)
-         WRITE(logn, patchfmtr) 'Snow density (kg/m^3), layer 2: ',           &
-               ssnow%ssdn(landpt(e)%cstart:(landpt(e)%cstart +                &
+         WRITE(logn, patchfmtr) 'Snow density (kg/m^3), layer 2: ', &
+               ssnow%ssdn(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1), 2)
-         WRITE(logn, patchfmtr) 'Snow density (kg/m^3), layer 3: ',           &
-               ssnow%ssdn(landpt(e)%cstart:(landpt(e)%cstart +                &
+         WRITE(logn, patchfmtr) 'Snow density (kg/m^3), layer 3: ', &
+               ssnow%ssdn(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1), 3)
-         WRITE(logn, patchfmtr) 'Snow mass (kg/m^2), layer 1: ',              &
-               ssnow%smass(landpt(e)%cstart:(landpt(e)%cstart +               &
+         WRITE(logn, patchfmtr) 'Snow mass (kg/m^2), layer 1: ', &
+               ssnow%smass(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1), 1)
-         WRITE(logn, patchfmtr) 'Snow mass (kg/m^2), layer 2: ',              &
-               ssnow%smass(landpt(e)%cstart:(landpt(e)%cstart +               &
+         WRITE(logn, patchfmtr) 'Snow mass (kg/m^2), layer 2: ', &
+               ssnow%smass(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1), 2)
-         WRITE(logn, patchfmtr) 'Snow mass (kg/m^2), layer 3: ',              &
-               ssnow%smass(landpt(e)%cstart:(landpt(e)%cstart +               &
+         WRITE(logn, patchfmtr) 'Snow mass (kg/m^2), layer 3: ', &
+               ssnow%smass(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1), 3)
-         WRITE(logn, patchfmti) 'Snow layer scheme flag: ',                   &
-               ssnow%isflag(landpt(e)%cstart:(landpt(e)%cstart +              &
+         WRITE(logn, patchfmti) 'Snow layer scheme flag: ', &
+               ssnow%isflag(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1))
-         WRITE(logn, *) ' Vegetation-specific initialisations, per patch:'//  &
+         WRITE(logn, *) ' Vegetation-specific initialisations, per patch:'// &
                         ' --------'
-         WRITE(logn, patchfmtr) 'Canopy surface water storage (mm): ',        &
-               canopy%cansto(landpt(e)%cstart:(landpt(e)%cstart +             &
+         WRITE(logn, patchfmtr) 'Canopy surface water storage (mm): ', &
+               canopy%cansto(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1))
          WRITE(logn,*) '                 default monthly Leaf area index: '
          DO f = 1, 12
@@ -2275,38 +2277,38 @@ SUBROUTINE report_parameters(logn, soil, veg, bgc, rough,                    &
            WRITE(logn,*) 'These default values are used as no LAI in met file.'
          ENDIF
          IF (icycle == 0) THEN
-            WRITE(logn, patchfmtr)                                            &
-               'Plant carbon pool size (g C/m2), pool 1: ',                   &
-                bgc%cplant(landpt(e)%cstart:(landpt(e)%cstart +               &
+            WRITE(logn, patchfmtr) &
+               'Plant carbon pool size (g C/m2), pool 1: ', &
+                bgc%cplant(landpt(e)%cstart:(landpt(e)%cstart + &
                 landpt(e)%nap - 1), 1)
-            WRITE(logn, patchfmtr)                                            &
-               'Plant carbon pool size (g C/m2), pool 2: ',                   &
-               bgc%cplant(landpt(e)%cstart:(landpt(e)%cstart +                &
+            WRITE(logn, patchfmtr) &
+               'Plant carbon pool size (g C/m2), pool 2: ', &
+               bgc%cplant(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1), 2)
          ENDIF
-         WRITE(logn, *) ' Other initialisations, per patch: '//               &
+         WRITE(logn, *) ' Other initialisations, per patch: '// &
                         '----------------------'
-         WRITE(logn, patchfmtr) 'Soil+snow albedo (-), visible: ',            &
-               ssnow%albsoilsn(landpt(e)%cstart:(landpt(e)%cstart +           &
+         WRITE(logn, patchfmtr) 'Soil+snow albedo (-), visible: ', &
+               ssnow%albsoilsn(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1), 1)
-         WRITE(logn, patchfmtr) 'Soil+snow albedo (-), near infrared: ',      &
-               ssnow%albsoilsn(landpt(e)%cstart:(landpt(e)%cstart +           &
+         WRITE(logn, patchfmtr) 'Soil+snow albedo (-), near infrared: ', &
+               ssnow%albsoilsn(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1), 2)
-         WRITE(logn, patchfmtr) 'Soil+snow albedo (-), thermal: ',            &
-               ssnow%albsoilsn(landpt(e)%cstart:(landpt(e)%cstart +           &
+         WRITE(logn, patchfmtr) 'Soil+snow albedo (-), thermal: ', &
+               ssnow%albsoilsn(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1), 3)
-         WRITE(logn, patchfmtr) 'Runoff total (mm/time step): ',              &
-               ssnow%runoff(landpt(e)%cstart:(landpt(e)%cstart +              &
+         WRITE(logn, patchfmtr) 'Runoff total (mm/time step): ', &
+               ssnow%runoff(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1))
-         WRITE(logn, patchfmtr) 'Surface runoff (mm/time step): ',            &
-               ssnow%rnof1(landpt(e)%cstart:(landpt(e)%cstart +               &
+         WRITE(logn, patchfmtr) 'Surface runoff (mm/time step): ', &
+               ssnow%rnof1(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1))
-         WRITE(logn, patchfmtr) 'Deep drainage runoff (mm/time step): ',      &
-               ssnow%rnof2(landpt(e)%cstart:(landpt(e)%cstart +               &
+         WRITE(logn, patchfmtr) 'Deep drainage runoff (mm/time step): ', &
+               ssnow%rnof2(landpt(e)%cstart:(landpt(e)%cstart + &
                landpt(e)%nap - 1))
-         WRITE(logn, *) '================================================'//  &
+         WRITE(logn, *) '================================================'// &
                         '========='
-         WRITE(logn, *) '================================================'//  &
+         WRITE(logn, *) '================================================'// &
                         '========='
          WRITE(logn, *)
 
@@ -2315,207 +2317,207 @@ SUBROUTINE report_parameters(logn, soil, veg, bgc, rough,                    &
 
             WRITE(logn,*) 'CASA-CNP initialisations, per patch:'
 
-            WRITE(logn,patchfmti)                                              &
-               '  veg class (0=noveg,1=grassy,2=shrub,3=woody): ',             &
-               casamet%iveg2( landpt(e)%cstart :                               &
+            WRITE(logn,patchfmti) &
+               '  veg class (0=noveg,1=grassy,2=shrub,3=woody): ', &
+               casamet%iveg2( landpt(e)%cstart : &
                (landpt(e)%cstart + landpt(e)%nap-1) )
 
-            WRITE(logn,patchfmti)                                              &
-               '                                    soil order: ',             &
-               casamet%isorder( landpt(e)%cstart :                             &
+            WRITE(logn,patchfmti) &
+               '                                    soil order: ', &
+               casamet%isorder( landpt(e)%cstart : &
                (landpt(e)%cstart + landpt(e)%nap-1) )
 
-            WRITE(logn,patchfmtr)                                              &
-               ' patch area (10^9 m^2): ',                                     &
-               casamet%areacell(landpt(e)%cstart :                             &
+            WRITE(logn,patchfmtr) &
+               ' patch area (10^9 m^2): ', &
+               casamet%areacell(landpt(e)%cstart : &
                (landpt(e)%cstart + landpt(e)%nap-1) )*1.0e-9
 
-            WRITE(logn,patchfmtr)                                              &
-               '          Nitrogen deposition   (g N/m^2/year): ',             &
-               casaflux%Nmindep(landpt(e)%cstart :                             &
+            WRITE(logn,patchfmtr) &
+               '          Nitrogen deposition   (g N/m^2/year): ', &
+               casaflux%Nmindep(landpt(e)%cstart : &
                (landpt(e)%cstart + landpt(e)%nap-1) )
 
-            WRITE(logn,patchfmtr)                                              &
-               '          Nitrogen fixation     (g N/m^2/year): ',             &
-               casaflux%Nminfix(landpt(e)%cstart :                             &
+            WRITE(logn,patchfmtr) &
+               '          Nitrogen fixation     (g N/m^2/year): ', &
+               casaflux%Nminfix(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1) )
 
-            WRITE(logn,patchfmtr)                                              &
-               '          Phosphorus weathering (g P/m^2/year): ',             &
-               casaflux%Pwea(landpt(e)%cstart :                                &
+            WRITE(logn,patchfmtr) &
+               '          Phosphorus weathering (g P/m^2/year): ', &
+               casaflux%Pwea(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1) )
 
-            WRITE(logn,patchfmtr)                                              &
-               '          Phosphorus in dust    (g P/m^2/year): ',             &
-               casaflux%Pdep(landpt(e)%cstart :                                &
+            WRITE(logn,patchfmtr) &
+               '          Phosphorus in dust    (g P/m^2/year): ', &
+               casaflux%Pdep(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1) )
 
-            WRITE(logn,patchfmtr)                                              &
-               '  Leaf area index in CASA-CNP: ',                              &
-               casamet%glai(landpt(e)%cstart :                                 &
+            WRITE(logn,patchfmtr) &
+               '  Leaf area index in CASA-CNP: ', &
+               casamet%glai(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1) )
 
-            WRITE(logn,patchfmti)                                              &
-               '  Phenological phase: ',                                       &
-               phen%phase(landpt(e)%cstart :                                   &
+            WRITE(logn,patchfmti) &
+               '  Phenological phase: ', &
+               phen%phase(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1) )
 
-            WRITE(logn,patchfmtr)                                              &
-               '  Carbon pools (g C/m^2)       - labile: ',                    &
-               casapool%clabile(landpt(e)%cstart :                             &
+            WRITE(logn,patchfmtr) &
+               '  Carbon pools (g C/m^2)       - labile: ', &
+               casapool%clabile(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1) )
 
-            WRITE(logn,patchfmtr)                                              &
-               '               - plant - Leaf: ',                              &
-               casapool%cplant(landpt(e)%cstart :                              &
+            WRITE(logn,patchfmtr) &
+               '               - plant - Leaf: ', &
+               casapool%cplant(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1), 1 )
 
-            WRITE(logn,patchfmtr)                                              &
-               '               - plant - Wood: ',                              &
-               casapool%cplant(landpt(e)%cstart :                              &
+            WRITE(logn,patchfmtr) &
+               '               - plant - Wood: ', &
+               casapool%cplant(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1), 2)
 
-            WRITE(logn,patchfmtr)                                              &
-               '               - plant - Root: ',                              &
-               casapool%cplant(landpt(e)%cstart :                              &
+            WRITE(logn,patchfmtr) &
+               '               - plant - Root: ', &
+               casapool%cplant(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1), 3 )
 
-            WRITE(logn,patchfmtr)                                              &
-               '               - litter - MTB: ',                              &
-               casapool%clitter(landpt(e)%cstart :                             &
+            WRITE(logn,patchfmtr) &
+               '               - litter - MTB: ', &
+               casapool%clitter(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1), 1 )
 
-            WRITE(logn,patchfmtr)                                              &
-               '               - litter - STR: ',                              &
-               casapool%clitter(landpt(e)%cstart :                             &
+            WRITE(logn,patchfmtr) &
+               '               - litter - STR: ', &
+               casapool%clitter(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1), 2 )
 
-            WRITE(logn,patchfmtr)                                              &
-               '               - litter - CWD: ',                              &
-               casapool%clitter(landpt(e)%cstart :                             &
+            WRITE(logn,patchfmtr) &
+               '               - litter - CWD: ', &
+               casapool%clitter(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1), 3 )
 
-            WRITE(logn,patchfmtr)                                              &
-               '               - soil - micro: ',                              &
-               casapool%csoil(landpt(e)%cstart :                               &
+            WRITE(logn,patchfmtr) &
+               '               - soil - micro: ', &
+               casapool%csoil(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1), 1 )
 
-            WRITE(logn,patchfmtr)                                              &
-               '               - soil -  slow: ',                              &
-               casapool%csoil(landpt(e)%cstart :                               &
+            WRITE(logn,patchfmtr) &
+               '               - soil -  slow: ', &
+               casapool%csoil(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1), 2 )
 
-            WRITE(logn,patchfmtr)                                              &
-               '               - soil - passv: ',                              &
-               casapool%csoil(landpt(e)%cstart :                               &
+            WRITE(logn,patchfmtr) &
+               '               - soil - passv: ', &
+               casapool%csoil(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1), 3 )
 
          ENDIF
 
          IF (icycle >= 2) THEN
 
-            WRITE(logn,patchfmtr) '  Nitrogen pools (g N/m^2) - plant - Leaf: ',&
-               casapool%nplant(landpt(e)%cstart :                              &
+            WRITE(logn,patchfmtr) '  Nitrogen pools (g N/m^2) - plant - Leaf: ', &
+               casapool%nplant(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1), 1  )
 
-            WRITE(logn,patchfmtr) '               - plant - Wood: ',           &
-               casapool%nplant(landpt(e)%cstart:                               &
+            WRITE(logn,patchfmtr) '               - plant - Wood: ', &
+               casapool%nplant(landpt(e)%cstart: &
                (landpt(e)%cstart+landpt(e)%nap-1), 2 )
 
-            WRITE(logn,patchfmtr) '               - plant - Root: ',           &
-               casapool%nplant(landpt(e)%cstart :                              &
+            WRITE(logn,patchfmtr) '               - plant - Root: ', &
+               casapool%nplant(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1), 3 )
 
-            WRITE(logn,patchfmtr) '               - litter - MTB: ',           &
-               casapool%nlitter(landpt(e)%cstart :                             &
+            WRITE(logn,patchfmtr) '               - litter - MTB: ', &
+               casapool%nlitter(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1), 1 )
 
-            WRITE(logn,patchfmtr) '               - litter - STR: ',           &
-               casapool%nlitter(landpt(e)%cstart :                             &
+            WRITE(logn,patchfmtr) '               - litter - STR: ', &
+               casapool%nlitter(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1), 2 )
 
-            WRITE(logn,patchfmtr) '               - litter - CWD: ',           &
-               casapool%nlitter(landpt(e)%cstart :                             &
+            WRITE(logn,patchfmtr) '               - litter - CWD: ', &
+               casapool%nlitter(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1), 3 )
 
-            WRITE(logn,patchfmtr) '               - soil - micro: ',           &
-               casapool%nsoil(landpt(e)%cstart :                               &
+            WRITE(logn,patchfmtr) '               - soil - micro: ', &
+               casapool%nsoil(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1), 1 )
 
-            WRITE(logn,patchfmtr) '               - soil -  slow: ',           &
-               casapool%nsoil(landpt(e)%cstart :                               &
+            WRITE(logn,patchfmtr) '               - soil -  slow: ', &
+               casapool%nsoil(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1), 2 )
 
-            WRITE(logn,patchfmtr) '               - soil - passv: ',           &
-               casapool%nsoil(landpt(e)%cstart :                               &
+            WRITE(logn,patchfmtr) '               - soil - passv: ', &
+               casapool%nsoil(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1), 3 )
 
-            WRITE(logn,patchfmtr) '  Mineral nitrogen (inorganic): ',          &
-               casapool%nsoilmin(landpt(e)%cstart :                            &
+            WRITE(logn,patchfmtr) '  Mineral nitrogen (inorganic): ', &
+               casapool%nsoilmin(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1) )
 
          ENDIF
 
          IF (icycle == 3) THEN
 
-            WRITE(logn,patchfmtr)                                              &
-               '  Phosphorus pools (g P/m^2) - plant - Leaf: ',                &
-               casapool%pplant(landpt(e)%cstart :                              &
+            WRITE(logn,patchfmtr) &
+               '  Phosphorus pools (g P/m^2) - plant - Leaf: ', &
+               casapool%pplant(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1), 1 )
 
-            WRITE(logn,patchfmtr)                                              &
-               '                   - plant - Wood: ',                          &
-               casapool%pplant(landpt(e)%cstart :                              &
+            WRITE(logn,patchfmtr) &
+               '                   - plant - Wood: ', &
+               casapool%pplant(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1), 2 )
 
-            WRITE(logn,patchfmtr)                                              &
-               '                   - plant - Root: ',                          &
-               casapool%pplant(landpt(e)%cstart :                              &
+            WRITE(logn,patchfmtr) &
+               '                   - plant - Root: ', &
+               casapool%pplant(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1), 3 )
 
-            WRITE(logn,patchfmtr)                                              &
-               '                   - litter - MTB: ',                          &
-               casapool%plitter(landpt(e)%cstart :                             &
+            WRITE(logn,patchfmtr) &
+               '                   - litter - MTB: ', &
+               casapool%plitter(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1), 1 )
 
-            WRITE(logn,patchfmtr)                                              &
-               '                   - litter - STR: ',                          &
-               casapool%plitter(landpt(e)%cstart :                             &
+            WRITE(logn,patchfmtr) &
+               '                   - litter - STR: ', &
+               casapool%plitter(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1), 2 )
 
-            WRITE(logn,patchfmtr)                                              &
-               '                   - litter - CWD: ',                          &
-               casapool%plitter(landpt(e)%cstart :                             &
+            WRITE(logn,patchfmtr) &
+               '                   - litter - CWD: ', &
+               casapool%plitter(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1), 3 )
 
-            WRITE(logn,patchfmtr)                                              &
-               '                   - soil - micro: ',                          &
-               casapool%psoil(landpt(e)%cstart :                               &
+            WRITE(logn,patchfmtr) &
+               '                   - soil - micro: ', &
+               casapool%psoil(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1), 1 )
 
-            WRITE(logn,patchfmtr)                                              &
-               '                   - soil -  slow: ',                          &
-               casapool%psoil(landpt(e)%cstart :                               &
+            WRITE(logn,patchfmtr) &
+               '                   - soil -  slow: ', &
+               casapool%psoil(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1), 2 )
 
-            WRITE(logn,patchfmtr)                                              &
-               '                   - soil - passv: ',                          &
-               casapool%psoil(landpt(e)%cstart :                               &
+            WRITE(logn,patchfmtr) &
+               '                   - soil - passv: ', &
+               casapool%psoil(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1), 3 )
 
-            WRITE(logn,patchfmtr)                                              &
-               '  Mineral phosphorus -  Labile: ',                             &
-               casapool%psoillab(landpt(e)%cstart :                            &
+            WRITE(logn,patchfmtr) &
+               '  Mineral phosphorus -  Labile: ', &
+               casapool%psoillab(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1) )
 
-            WRITE(logn,patchfmtr)                                              &
-               '  - Adsorbed: ',                                               &
-               casapool%psoilsorb(landpt(e)%cstart :                           &
+            WRITE(logn,patchfmtr) &
+               '  - Adsorbed: ', &
+               casapool%psoilsorb(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1) )
 
-            WRITE(logn,patchfmtr)                                              &
-               '  - Occluded: ',                                               &
-               casapool%psoilocc(landpt(e)%cstart :                            &
+            WRITE(logn,patchfmtr) &
+               '  - Occluded: ', &
+               casapool%psoilocc(landpt(e)%cstart : &
                (landpt(e)%cstart+landpt(e)%nap-1) )
 
          ENDIF

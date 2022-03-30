@@ -110,14 +110,14 @@ cable_mpimaster.o: cable_mpimaster.F90 cable_mpicommon.o cable_output.o \
 	casa_inout.o cable_input.o cable_define_types.o cable_common.o \
 	cable_data.o cable_plume_mip.o pop_io.o pop_mpi.o \
 	cable_climate.o cable_cru_TRENDY.o POPLUC.o cable_LUC_EXPT.o \
-	CASAONLY_LUC.o cable_bios_met_obs_params.o blaze.o blaze_mpi.o blaze_driver.o \
+	CASAONLY_LUC.o cable_bios_met_obs_params.o blaze.o blaze_mpi.o \
 	simfire.o cable_c13o2_def.o cable_c13o2.o casa_cable.o casa_inout.o
 
 cable_mpiworker.o: cable_mpiworker.F90 cable_mpicommon.o cable_output.o \
 	cable_iovars.o cable_cbm.o casa_variable.o casa_cable.o casa_cnp.o \
 	casa_inout.o cable_input.o cable_define_types.o  cable_common.o pop_mpi.o \
-	cable_climate.o blaze.o blaze_mpi.o cable_c13o2_def.o cable_c13o2.o mo_c13o2_photosynthesis.o \
-	casa_cable.o pop_io.o
+	cable_climate.o blaze.o blaze_mpi.o blaze_driver.o cable_c13o2_def.o cable_c13o2.o \
+  mo_c13o2_photosynthesis.o casa_cable.o pop_io.o
 
 cable_mpidrv.o: cable_mpidrv.F90 cable_mpicommon.o cable_mpimaster.o cable_mpiworker.o
 

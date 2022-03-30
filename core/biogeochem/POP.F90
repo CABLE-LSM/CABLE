@@ -3668,7 +3668,7 @@ END SUBROUTINE Allometry
 
     INTEGER(i4b) :: j, k
 
-    CALL alloc_POP(pop,int(np))
+    CALL alloc_POP(pop, int(np))
     POP%np     = np
     POP%Iwood  = Iwood
     POP%it_pop = 0
@@ -3677,10 +3677,10 @@ END SUBROUTINE Allometry
 
     CALL ZeroPOP(pop)
 
-    CALL InitPOP2D_Poisson(pop, INT(disturbance_interval,i4b))
+    CALL InitPOP2D_Poisson(pop, int(disturbance_interval, i4b))
 
-    DO j=1,np
-       DO k=1,NPATCH2D
+    DO j=1, np
+       DO k=1, NPATCH2D
           ! understorey recruitment
           IF (PRESENT(precip)) THEN
              CALL layer_recruitment_single_patch(pop, k, j, precip)

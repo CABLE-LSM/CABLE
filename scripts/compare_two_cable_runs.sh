@@ -79,11 +79,11 @@ done
 shift $((${OPTIND} - 1))
 
 # Check args
-if [[ $# -lt 2 ]] ; then 
+if [[ $# -lt 2 ]] ; then
     printf "Error ${pprog}: two Cable-POP output directories must be given.\n\n" 1>&2
     usage 1>&2
     exit 1
-elif [[ $# -gt 2 ]] ; then 
+elif [[ $# -gt 2 ]] ; then
     printf "Error ${pprog}: only two Cable-POP output directories can be given.\n\n" 1>&2
     usage 1>&2
     exit 1

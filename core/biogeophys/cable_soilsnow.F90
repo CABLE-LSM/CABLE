@@ -1119,7 +1119,6 @@ SUBROUTINE stempv(dels, canopy, ssnow, soil)
    END WHERE
 
    DO k = 3, ms
-
       WHERE (ssnow%isflag == 0)
          coeff(:,k) = 2.0 / ( soil%zse(k-1) / ccnsw(:,k-1) + soil%zse(k) /     &
                       ccnsw(:,k) )

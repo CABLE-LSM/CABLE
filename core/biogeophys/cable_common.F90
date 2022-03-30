@@ -293,7 +293,7 @@ MODULE cable_common_module
 
 CONTAINS
 
-  SUBROUTINE get_type_parameters(logn,vegparmnew, classification)
+  SUBROUTINE get_type_parameters(logn, vegparmnew, classification)
 
     ! Gets parameter values for each vegetation type and soil type.
 
@@ -495,7 +495,6 @@ CONTAINS
 
     ! new calculation dleaf since April 2012 (cable v1.8 did not use width)
     vegin%dleaf = SQRT(vegin%width * vegin%length)
-
 
     !================= Read in soil type specifications: ============
     OPEN(40, FILE=trim(filename%soil), STATUS='old', ACTION='READ', IOSTAT=ioerror)

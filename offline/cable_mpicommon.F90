@@ -1,4 +1,4 @@
-!==============================================================================
+! ==============================================================================
 ! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
 ! This work is licensed under the CSIRO Open Source Software License
@@ -17,16 +17,24 @@
 !
 ! ==============================================================================
 !
-MODULE cable_mpicommon
+module cable_mpicommon
 
-  USE cable_def_types_mod
+  use cable_def_types_mod
 
-  IMPLICIT NONE
+  implicit none
 
-  SAVE
+  private
 
-  PUBLIC
+  ! type
+  public :: lpdecomp_t          ! type for landpoint decomposition
+  ! functions
+  public :: add_address_1block  ! passing arrays for worker
+  public :: add_address_hvector ! passing arrays for master
+  public :: decomp_types        ! derived type for landpt and patch arrays
+  public :: bcast_start_time    ! broadcast day, month, ... of datetime
+  public :: find_extents        ! byte size of kinds
 
+  ! parameters
   ! MPI: base number of input fields sent to workers as start up parameters
   !   INTEGER, PARAMETER :: nparam = 68
   ! MPI: Bernard commented out two canopy params (potev_c and rwater)
@@ -43,9 +51,8 @@ MODULE cable_mpicommon
   ! Paul Ryan: add 1 soil params for SLI -> 321
   ! Jurgen Knauer: add 10 veg params -> 331
   ! Matthias Cuntz: add 4 soil params for SLI -> 335
-  INTEGER, PARAMETER :: nparam = 335
-  ! MPI: extra params sent only if nsoilparmnew is true
-  INTEGER, PARAMETER :: nsoilnew = 1
+  ! Matthias Cuntz: send all parameters of types -> 418
+  integer, parameter, public :: nparam = 418
 
   ! MPI: number of casa parameters sent to workers as start up parameters
   !   INTEGER, PARAMETER :: ncasaparam = 68
@@ -60,37 +67,28 @@ MODULE cable_mpicommon
   ! ? 2 extra params -> 222
   ! Matthias Cuntz: add 7 canopy params for 13C -> 229
   ! Matthias Cuntz: add 3 for fire -> 232
-  INTEGER, PARAMETER :: ncasaparam = 232
-  ! MPI: base number of casa_init parameters sent to the workers
-  INTEGER, PARAMETER :: ncinit = 18
-
-  ! MPI: number of casa_init parameters sent to the workers only if icycle = 2 or 3
-  INTEGER, PARAMETER :: ncinit2 = 13
-
-  ! MPI: number of casa_init parameters sent to the workers only if icycle = 3
-  INTEGER, PARAMETER :: ncinit3 = 18
+  integer, parameter, public :: ncasaparam = 232
 
   ! MPI: number of casa_dump parameters sent/rec'd to/from the workers every timestep
   ! Matthias Cuntz: add 2 casamet params for 13C -> 11
   ! Matthias Cuntz: calc as ncdumprw+icycle-1 and add 2 in case of 13C -> 8
   ! Vanessa Haverd: 12 extra climate dump variables (frec + 11 needed for BLAZE) -> 20
   ! Matthias Cuntz: add 11 in case of call_blaze -> 9
-  INTEGER, PARAMETER :: ncdumprw = 9
+  integer, parameter, public :: ncdumprw = 9
   ! MPI: number of casa_LUC parameters sent/rec'd to/from the workers every year
   ! Matthias Cuntz: add 5 1D and 3 2D used in luc_casa_transfer -> 24
-  INTEGER, PARAMETER :: nLUCrw = 24
+  integer, parameter, public :: nLUCrw = 24
 
   ! MPI: number of POP parameters sent/rec'd to/from the workers every
   ! timestep or at start, end. Here, with POP the dimensions are separate!
-  INTEGER, PARAMETER :: npop = 988
+  integer, parameter, public :: npop = 988
 
   ! MPI: number of input fields sent to workers at the start of each timestep
-  !   INTEGER, PARAMETER :: ninput = 11
   ! added 4 time fields in met: year, moy, doy, hod
-  INTEGER, PARAMETER :: ninput = 18
+  integer, parameter, public :: ninput = 18
 
   ! MPI: number of 3D array slices / worker (results)
-  INTEGER, PARAMETER :: n3d = 1
+  integer, parameter, public :: n3d = 1
 
   ! MPI: number of matrix slices / worker (results)
   !   INTEGER, PARAMETER :: nmat = 29
@@ -102,7 +100,7 @@ MODULE cable_mpicommon
   ! vh sli nmat + 4 36 -> 40
   ! Matthias Cuntz: add 8 2D canopy params for 13C -> 48
   ! Matthias Cuntz: add 1 2D ssnow params for SLI -> 49
-  INTEGER, PARAMETER :: nmat = 49
+  integer, parameter, public :: nmat = 49
 
   ! MPI: number of contig vector parts / worker (results)
   !   INTEGER, PARAMETER :: nvec = 149
@@ -119,193 +117,987 @@ MODULE cable_mpicommon
   ! ? 15 extra params -> 183
   ! Matthias Cuntz: add 1 1D canopy param for 13C -> 184
   ! Matthias Cuntz: add 3 1D canopy params for elasticities -> 187
-  INTEGER, PARAMETER :: nvec = 187
+  integer, parameter, public :: nvec = 187
 
-  ! MPI: number of final casa result matrices and vectors to receive
-  ! by the master for casa_poolout and casa_fluxout
-  ! Matthias Cuntz: add 6 params for 13C -> 40
-  ! Matthias Cuntz: add 2 params for fire -> 42
-  ! Paul Ryan: add 5 params for fire -> 47
-  INTEGER, PARAMETER :: ncasa_mat = 47
-  ! INTEGER, PARAMETER :: ncasa_vec = 27
-  ! INTEGER, PARAMETER :: ncasa_vec = 32
-  ! changed on 30-jan-2013 for adding four new respiration variable to the output
-  ! vh changed on 5-feb-2016 for adding sapwood area and frac_sapwood
-  ! Matthias Cuntz: add 1 1D param for 13C -> 61
-  ! Matthias Cuntz: add 3 missing 1D param -> 64
-  ! Paul Ryan: add 3 missing 1D param -> 67
-  ! Matthias Cuntz: add 2 missing 1D for LUC -> 69
-  ! Matthias Cuntz: add 1 missing 1D for output -> 70
-  INTEGER, PARAMETER :: ncasa_vec = 70
   ! MPI: number of fields included in restart_t type for data
   ! that is returned only for creating a restart file at the end of the run
   !   INTEGER, PARAMETER :: nrestart = 16
-  ! MPI: gol124: canopy%rwater removed when Bernard ported to CABLE_r491
-  INTEGER, PARAMETER :: nrestart = 15
-  INTEGER, PARAMETER :: nsumcasaflux = 62
-  INTEGER, PARAMETER :: nsumcasapool = 40
+  ! MPI: gol124: canopy%rwater removed when Bernard ported to CABLE_r491 -> 15
+  ! Matthias Cuntz: add 7 vars of canopy, veg, ssnow -> 22
+  integer, parameter, public :: nrestart = 22
+  integer, parameter, public :: nsumcasaflux = 62
+  integer, parameter, public :: nsumcasapool = 40
   ! Matthias Cuntz: add 1 2D and 20 1D vars for restart file -> 72
   ! Paul Ryan: add 2 2D vars -> 74
-  INTEGER, PARAMETER :: nclimate = 74
-  INTEGER, PARAMETER :: nphen = 9
-  ! MPI: type to hold landpoint decomposition info
-  TYPE lpdecomp_t
-     INTEGER :: landp0      ! starting land point index
-     INTEGER :: nland       ! number of landpoints
-     INTEGER :: patch0      ! starting patch index in global CABLE vars
-     INTEGER :: npatch      ! sum of patches for all landpoints of this worker
-     INTEGER :: npop_iwood  ! number of pop-patches for each worker
-     INTEGER, ALLOCATABLE :: iwood(:)  ! number of pop-patches for each worker
-  END TYPE
+  ! Matthias Cuntz: add 4 vars to pass all climate variables -> 78
+  integer, parameter, public :: nclimate = 78
 
   ! 13C
   ! MPI: number of variables in c13o2_flux type
-  integer, parameter :: nc13o2_flux = 10
+  integer, parameter, public :: nc13o2_flux = 10
   ! MPI: number of variables in c13o2_pool type
-  integer, parameter :: nc13o2_pool = 5
+  integer, parameter, public :: nc13o2_pool = 5
   ! MPI: number of variables in c13o2_luc type
-  integer, parameter :: nc13o2_luc = 3
-  
+  integer, parameter, public :: nc13o2_luc = 3
+
+  ! MPI: type to hold landpoint decomposition info
+  type lpdecomp_t
+     integer :: landp0      ! starting land point index
+     integer :: nland       ! number of landpoints
+     integer :: patch0      ! starting patch index in global CABLE vars
+     integer :: npatch      ! sum of patches for all landpoints of this worker
+     integer :: npop_iwood  ! number of pop-patches for each worker
+     integer, allocatable :: iwood(:)  ! number of pop-patches for each worker
+  end type lpdecomp_t
+
   ! MPI: worker's local landpoints and patches
-  TYPE(lpdecomp_t) :: wpatch
+  type(lpdecomp_t), public :: wpatch
 
   ! MPI: Fortran types extents
-  INTEGER :: extr1, extr2, extid, extl
+  integer, public :: extr1, extr2, extid, extl
 
-CONTAINS
+  ! Routines for passing arrays in Fortran types with MPI.
+  ! The master uses add_address_hvector and the worker receives
+  ! with add_address_1block.
+  ! add_address_hvector and add_address_1block are equivalent
+  ! for 1D-arrays.
 
+  ! add address, block length, and type of variable
+  interface add_address_1block
+     module procedure add_address_1block_1d_i1, add_address_1block_1d_l, &
+          add_address_1block_1d_r1, add_address_1block_1d_r2, &
+          add_address_1block_2d_i1, add_address_1block_2d_l, &
+          add_address_1block_2d_r1, add_address_1block_2d_r2, &
+          add_address_1block_3d_i1, add_address_1block_3d_l, &
+          add_address_1block_3d_r1, add_address_1block_3d_r2
+  end interface add_address_1block
 
-! calculates extents of the Fortran types used by CABLE
-SUBROUTINE find_extents()
+  ! add address, block length, and type of variable,
+  ! creating MPI types for arrays
+  interface add_address_hvector
+     module procedure add_address_hvector_1d_i1, add_address_hvector_1d_l, &
+          add_address_hvector_1d_r1, add_address_hvector_1d_r2, &
+          add_address_hvector_2d_i1, add_address_hvector_2d_l, &
+          add_address_hvector_2d_r1, add_address_hvector_2d_r2, &
+          add_address_hvector_3d_i1, add_address_hvector_3d_l, &
+          add_address_hvector_3d_r1, add_address_hvector_3d_r2
+  end interface add_address_hvector
 
-  USE mpi
-  USE cable_def_types_mod
+contains
 
-  IMPLICIT NONE
+  ! calculates extents of the Fortran types used by CABLE
+  subroutine find_extents()
 
-  INTEGER,   DIMENSION(2) :: itmp
-  REAL,      DIMENSION(2) :: r1tmp
-  REAL(r_2), DIMENSION(2) :: r2tmp
-  LOGICAL,   DIMENSION(2) :: ltmp
+    use mpi
+    use cable_def_types_mod
 
-  INTEGER(KIND=MPI_ADDRESS_KIND), DIMENSION(2) :: a
+    implicit none
 
-  INTEGER :: ierr
+    integer,   dimension(2) :: itmp
+    real,      dimension(2) :: r1tmp
+    real(r_2), dimension(2) :: r2tmp
+    logical,   dimension(2) :: ltmp
 
-  CALL MPI_Get_address(itmp(1), a(1), ierr)
-  CALL MPI_Get_address(itmp(2), a(2), ierr)
-  extid = INT(a(2)-a(1))
+    integer(KIND=MPI_ADDRESS_KIND), dimension(2) :: a
 
-  CALL MPI_Get_address(r1tmp(1), a(1), ierr)
-  CALL MPI_Get_address(r1tmp(2), a(2), ierr)
-  extr1 = INT(a(2)-a(1))
+    integer :: ierr
 
-  CALL MPI_Get_address(r2tmp(1), a(1), ierr)
-  CALL MPI_Get_address(r2tmp(2), a(2), ierr)
-  extr2 = INT(a(2)-a(1))
+    call MPI_Get_address(itmp(1), a(1), ierr)
+    call MPI_Get_address(itmp(2), a(2), ierr)
+    extid = int(a(2)-a(1))
 
-  CALL MPI_Get_address(ltmp(1), a(1), ierr)
-  CALL MPI_Get_address(ltmp(2), a(2), ierr)
-  extl = INT(a(2)-a(1))
+    call MPI_Get_address(r1tmp(1), a(1), ierr)
+    call MPI_Get_address(r1tmp(2), a(2), ierr)
+    extr1 = int(a(2)-a(1))
 
-END SUBROUTINE find_extents
+    call MPI_Get_address(r2tmp(1), a(1), ierr)
+    call MPI_Get_address(r2tmp(2), a(2), ierr)
+    extr2 = int(a(2)-a(1))
 
+    call MPI_Get_address(ltmp(1), a(1), ierr)
+    call MPI_Get_address(ltmp(2), a(2), ierr)
+    extl = int(a(2)-a(1))
 
-! creates MPI derived datatypes for exchanging landpt and patch arrays
-SUBROUTINE decomp_types(landpt_t, patch_t)
-
-  USE mpi
-  USE cable_IO_vars_module
-
-  IMPLICIT NONE
-
-  INTEGER, INTENT(OUT) :: landpt_t, patch_t
-
-  ! dummy vars to calculate field offsets
-  TYPE(land_type)  :: dlandpt(2)
-  TYPE(patch_type) :: dpatch(2)
-
-  INTEGER(KIND=MPI_ADDRESS_KIND) :: base_d, el2, text
-
-  INTEGER, PARAMETER :: fields = 5
-  INTEGER, DIMENSION(fields) :: blocks, types
-  INTEGER(KIND=MPI_ADDRESS_KIND), DIMENSION(fields) :: displs
-
-  ! temp variable for lower bound parameter when setting extent
-  INTEGER(KIND=MPI_ADDRESS_KIND) :: lb
-
-  INTEGER :: tmp_t, ierr
-
-  lb = 0
-  blocks = 1
-
-  ! create MPI type to exchange landpt records
-  types = MPI_INTEGER
-
-  CALL MPI_Get_address(dlandpt(1), base_d, ierr)
-
-  CALL MPI_Get_address(dlandpt(1)%nap, displs(1), ierr)
-  CALL MPI_Get_address(dlandpt(1)%cstart, displs(2), ierr)
-  CALL MPI_Get_address(dlandpt(1)%cend, displs(3), ierr)
-  CALL MPI_Get_address(dlandpt(1)%ilat, displs(4), ierr)
-  CALL MPI_Get_address(dlandpt(1)%ilon, displs(5), ierr)
-
-  displs = displs - base_d
-
-  CALL MPI_Type_create_struct(5, blocks, displs, types, tmp_t, ierr)
-  CALL MPI_Type_commit(tmp_t, ierr)
-
-  ! make sure the type has correct extent for use in arrays
-  CALL MPI_Get_Address(dlandpt(2), el2, ierr)
-  text = el2 - base_d
-  CALL MPI_Type_create_resized(tmp_t, lb, text, landpt_t, ierr)
-  CALL MPI_Type_commit(landpt_t, ierr)
-
-  ! create MPI type to exchange patch records
-  types = MPI_REAL
-  types(1) = MPI_DOUBLE_PRECISION
-
-  CALL MPI_Get_address(dpatch(1), base_d, ierr)
-
-  CALL MPI_Get_address(dpatch(1)%frac, displs(1), ierr)
-  CALL MPI_Get_address(dpatch(1)%latitude, displs(2), ierr)
-  CALL MPI_Get_address(dpatch(1)%longitude, displs(3), ierr)
-
-  displs = displs - base_d
-
-  CALL MPI_Type_create_struct(3, blocks, displs, types, tmp_t, ierr)
-  CALL MPI_Type_commit(tmp_t, ierr)
-
-  ! make sure the type has correct extent for use in arrays
-  CALL MPI_Get_Address(dpatch(2), el2, ierr)
-  text = el2 - base_d
-  CALL MPI_Type_create_resized(tmp_t, lb, text, patch_t, ierr)
-  CALL MPI_Type_commit(patch_t, ierr)
-
-  RETURN
-
-END SUBROUTINE decomp_types
+  end subroutine find_extents
 
 
-SUBROUTINE bcast_start_time(comm)
+  ! creates MPI derived datatypes for exchanging landpt and patch arrays
+  subroutine decomp_types(landpt_t, patch_t)
 
-  USE mpi
-  USE cable_IO_vars_module
+    use mpi
+    use cable_IO_vars_module
 
-  IMPLICIT NONE
+    implicit none
 
-  INTEGER, INTENT(IN) :: comm
+    integer, intent(OUT) :: landpt_t, patch_t
 
-  INTEGER :: ierr
+    ! dummy vars to calculate field offsets
+    type(land_type)  :: dlandpt(2)
+    type(patch_type) :: dpatch(2)
 
-  CALL MPI_Bcast(shod, 1, MPI_REAL, 0, comm, ierr)
-  CALL MPI_Bcast(sdoy, 1, MPI_INTEGER, 0, comm, ierr)
-  CALL MPI_Bcast(smoy, 1, MPI_INTEGER, 0, comm, ierr)
-  CALL MPI_Bcast(syear, 1, MPI_INTEGER, 0, comm, ierr)
-  CALL MPI_Bcast(time_coord, 3, MPI_CHARACTER, 0, comm, ierr)
+    integer(KIND=MPI_ADDRESS_KIND) :: base_d, el2, text
 
-  RETURN
+    integer, parameter :: fields = 5
+    integer, dimension(fields) :: blocks, types
+    integer(KIND=MPI_ADDRESS_KIND), dimension(fields) :: displs
 
-END SUBROUTINE bcast_start_time
+    ! temp variable for lower bound parameter when setting extent
+    integer(KIND=MPI_ADDRESS_KIND) :: lb
 
-END MODULE cable_mpicommon
+    integer :: tmp_t, ierr
+
+    lb = 0
+    blocks = 1
+
+    ! create MPI type to exchange landpt records
+    types = MPI_INTEGER
+
+    call MPI_Get_address(dlandpt(1), base_d, ierr)
+
+    call MPI_Get_address(dlandpt(1)%nap, displs(1), ierr)
+    call MPI_Get_address(dlandpt(1)%cstart, displs(2), ierr)
+    call MPI_Get_address(dlandpt(1)%cend, displs(3), ierr)
+    call MPI_Get_address(dlandpt(1)%ilat, displs(4), ierr)
+    call MPI_Get_address(dlandpt(1)%ilon, displs(5), ierr)
+
+    displs = displs - base_d
+
+    call MPI_Type_create_struct(5, blocks, displs, types, tmp_t, ierr)
+    call MPI_Type_commit(tmp_t, ierr)
+
+    ! make sure the type has correct extent for use in arrays
+    call MPI_Get_Address(dlandpt(2), el2, ierr)
+    text = el2 - base_d
+    call MPI_Type_create_resized(tmp_t, lb, text, landpt_t, ierr)
+    call MPI_Type_commit(landpt_t, ierr)
+
+    ! create MPI type to exchange patch records
+    types = MPI_REAL
+    types(1) = MPI_DOUBLE_PRECISION
+
+    call MPI_Get_address(dpatch(1), base_d, ierr)
+
+    call MPI_Get_address(dpatch(1)%frac, displs(1), ierr)
+    call MPI_Get_address(dpatch(1)%latitude, displs(2), ierr)
+    call MPI_Get_address(dpatch(1)%longitude, displs(3), ierr)
+
+    displs = displs - base_d
+
+    call MPI_Type_create_struct(3, blocks, displs, types, tmp_t, ierr)
+    call MPI_Type_commit(tmp_t, ierr)
+
+    ! make sure the type has correct extent for use in arrays
+    call MPI_Get_Address(dpatch(2), el2, ierr)
+    text = el2 - base_d
+    call MPI_Type_create_resized(tmp_t, lb, text, patch_t, ierr)
+    call MPI_Type_commit(patch_t, ierr)
+
+    return
+
+  end subroutine decomp_types
+
+
+  subroutine bcast_start_time(comm)
+
+    use mpi
+    use cable_IO_vars_module
+
+    implicit none
+
+    integer, intent(IN) :: comm
+
+    integer :: ierr
+
+    call MPI_Bcast(shod, 1, MPI_REAL, 0, comm, ierr)
+    call MPI_Bcast(sdoy, 1, MPI_INTEGER, 0, comm, ierr)
+    call MPI_Bcast(smoy, 1, MPI_INTEGER, 0, comm, ierr)
+    call MPI_Bcast(syear, 1, MPI_INTEGER, 0, comm, ierr)
+    call MPI_Bcast(time_coord, 3, MPI_CHARACTER, 0, comm, ierr)
+
+    return
+
+  end subroutine bcast_start_time
+
+
+  ! ------------------------------------------------------------------
+
+
+  ! Routines for passing arrays in Fortran types with MPI.
+  ! The master uses add_address_hvector and the worker receives
+  ! with add_address_1block.
+  ! add_address_hvector and add_address_1block are equivalent
+  ! for 1D-arrays.
+
+  subroutine add_address_1block_1d_i1(var, off, cnt, addr, blen, typ, idx)
+
+    use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+
+    implicit none
+
+    ! variable to add from offset *off* with length *cnt*
+    integer, dimension(:), intent(in) :: var
+    integer,               intent(in) :: off
+    integer,               intent(in) :: cnt
+    ! MPI adress
+    integer(MPI_Address_kind), dimension(:), intent(inout) :: addr
+    ! block length
+    integer,                   dimension(:), intent(inout) :: blen
+    ! MPI data type
+    integer,                   dimension(:), intent(inout) :: typ
+    ! index in *addr*, *blen*, *typ*
+    integer, intent(inout) :: idx
+
+    integer :: ierr
+
+    idx = idx + 1
+    call MPI_Get_address(var(off), addr(idx), ierr)
+    blen(idx) = cnt * extid
+    typ(idx)  = MPI_Byte
+
+  end subroutine add_address_1block_1d_i1
+
+
+  subroutine add_address_1block_1d_l(var, off, cnt, addr, blen, typ, idx)
+
+    use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+
+    implicit none
+
+    ! variable to add from offset *off* with length *cnt*
+    logical, dimension(:), intent(in) :: var
+    integer,               intent(in) :: off
+    integer,               intent(in) :: cnt
+    ! MPI adress
+    integer(MPI_Address_kind), dimension(:), intent(inout) :: addr
+    ! block length
+    integer,                   dimension(:), intent(inout) :: blen
+    ! MPI data type
+    integer,                   dimension(:), intent(inout) :: typ
+    ! index in *addr*, *blen*, *typ*
+    integer, intent(inout) :: idx
+
+    integer :: ierr
+
+    idx = idx + 1
+    call MPI_Get_address(var(off), addr(idx), ierr)
+    blen(idx) = cnt * extl
+    typ(idx)  = MPI_Byte
+
+  end subroutine add_address_1block_1d_l
+
+
+  subroutine add_address_1block_1d_r1(var, off, cnt, addr, blen, typ, idx)
+
+    use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+
+    implicit none
+
+    ! variable to add from offset *off* with length *cnt*
+    real, dimension(:), intent(in) :: var
+    integer,            intent(in) :: off
+    integer,            intent(in) :: cnt
+    ! MPI adress
+    integer(MPI_Address_kind), dimension(:), intent(inout) :: addr
+    ! block length
+    integer,                   dimension(:), intent(inout) :: blen
+    ! MPI data type
+    integer,                   dimension(:), intent(inout) :: typ
+    ! index in *addr*, *blen*, *typ*
+    integer, intent(inout) :: idx
+
+    integer :: ierr
+
+    idx = idx + 1
+    call MPI_Get_address(var(off), addr(idx), ierr)
+    blen(idx) = cnt * extr1
+    typ(idx)  = MPI_Byte
+
+  end subroutine add_address_1block_1d_r1
+
+
+  subroutine add_address_1block_1d_r2(var, off, cnt, addr, blen, typ, idx)
+
+    use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+    use cable_def_types_mod, only: r_2
+
+    implicit none
+
+    ! variable to add from offset *off* with length *cnt*
+    real(r_2), dimension(:), intent(in) :: var
+    integer,                 intent(in) :: off
+    integer,                 intent(in) :: cnt
+    ! MPI adress
+    integer(MPI_Address_kind), dimension(:), intent(inout) :: addr
+    ! block length
+    integer,                   dimension(:), intent(inout) :: blen
+    ! MPI data type
+    integer,                   dimension(:), intent(inout) :: typ
+    ! index in *addr*, *blen*, *typ*
+    integer, intent(inout) :: idx
+
+    integer :: ierr
+
+    idx = idx + 1
+    call MPI_Get_address(var(off), addr(idx), ierr)
+    blen(idx) = cnt * extr2
+    typ(idx)  = MPI_Byte
+
+  end subroutine add_address_1block_1d_r2
+
+
+  subroutine add_address_1block_2d_i1(var, off, cnt, addr, blen, typ, idx)
+
+    use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+
+    implicit none
+
+    ! variable to add from offset *off* with length *cnt*
+    integer, dimension(:,:), intent(in) :: var
+    integer,                 intent(in) :: off
+    integer,                 intent(in) :: cnt
+    ! MPI adress
+    integer(MPI_Address_kind), dimension(:), intent(inout) :: addr
+    ! block length
+    integer,                   dimension(:), intent(inout) :: blen
+    ! MPI data type
+    integer,                   dimension(:), intent(inout) :: typ
+    ! index in *addr*, *blen*, *typ*
+    integer, intent(inout) :: idx
+
+    integer :: ierr
+
+    idx = idx + 1
+    call MPI_Get_address(var(off, 1), addr(idx), ierr)
+    blen(idx) = size(var, 2) * cnt * extid
+    typ(idx)  = MPI_Byte
+
+  end subroutine add_address_1block_2d_i1
+
+
+  subroutine add_address_1block_2d_l(var, off, cnt, addr, blen, typ, idx)
+
+    use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+
+    implicit none
+
+    ! variable to add from offset *off* with length *cnt*
+    logical, dimension(:,:), intent(in) :: var
+    integer,                 intent(in) :: off
+    integer,                 intent(in) :: cnt
+    ! MPI adress
+    integer(MPI_Address_kind), dimension(:), intent(inout) :: addr
+    ! block length
+    integer,                   dimension(:), intent(inout) :: blen
+    ! MPI data type
+    integer,                   dimension(:), intent(inout) :: typ
+    ! index in *addr*, *blen*, *typ*
+    integer, intent(inout) :: idx
+
+    integer :: ierr
+
+    idx = idx + 1
+    call MPI_Get_address(var(off, 1), addr(idx), ierr)
+    blen(idx) = size(var, 2) * cnt * extl
+    typ(idx)  = MPI_Byte
+
+  end subroutine add_address_1block_2d_l
+
+
+  subroutine add_address_1block_2d_r1(var, off, cnt, addr, blen, typ, idx)
+
+    use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+
+    implicit none
+
+    ! variable to add from offset *off* with length *cnt*
+    real, dimension(:,:), intent(in) :: var
+    integer,              intent(in) :: off
+    integer,              intent(in) :: cnt
+    ! MPI adress
+    integer(MPI_Address_kind), dimension(:), intent(inout) :: addr
+    ! block length
+    integer,                   dimension(:), intent(inout) :: blen
+    ! MPI data type
+    integer,                   dimension(:), intent(inout) :: typ
+    ! index in *addr*, *blen*, *typ*
+    integer, intent(inout) :: idx
+
+    integer :: ierr
+
+    idx = idx + 1
+    call MPI_Get_address(var(off, 1), addr(idx), ierr)
+    blen(idx) = size(var, 2) * cnt * extr1
+    typ(idx)  = MPI_Byte
+
+  end subroutine add_address_1block_2d_r1
+
+
+  subroutine add_address_1block_2d_r2(var, off, cnt, addr, blen, typ, idx)
+
+    use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+    use cable_def_types_mod, only: r_2
+
+    implicit none
+
+    ! variable to add from offset *off* with length *cnt*
+    real(r_2), dimension(:,:), intent(in) :: var
+    integer,                   intent(in) :: off
+    integer,                   intent(in) :: cnt
+    ! MPI adress
+    integer(MPI_Address_kind), dimension(:), intent(inout) :: addr
+    ! block length
+    integer,                   dimension(:), intent(inout) :: blen
+    ! MPI data type
+    integer,                   dimension(:), intent(inout) :: typ
+    ! index in *addr*, *blen*, *typ*
+    integer, intent(inout) :: idx
+
+    integer :: ierr
+
+    idx = idx + 1
+    call MPI_Get_address(var(off, 1), addr(idx), ierr)
+    blen(idx) = size(var, 2) * cnt * extr2
+    typ(idx)  = MPI_Byte
+
+  end subroutine add_address_1block_2d_r2
+
+
+  subroutine add_address_1block_3d_i1(var, off, cnt, addr, blen, typ, idx)
+
+    use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+
+    implicit none
+
+    ! variable to add from offset *off* with length *cnt*
+    integer, dimension(:,:,:), intent(in) :: var
+    integer,                   intent(in) :: off
+    integer,                   intent(in) :: cnt
+    ! MPI adress
+    integer(MPI_Address_kind), dimension(:), intent(inout) :: addr
+    ! block length
+    integer,                   dimension(:), intent(inout) :: blen
+    ! MPI data type
+    integer,                   dimension(:), intent(inout) :: typ
+    ! index in *addr*, *blen*, *typ*
+    integer, intent(inout) :: idx
+
+    integer :: ierr
+
+    idx = idx + 1
+    call MPI_Get_address(var(off, 1, 1), addr(idx), ierr)
+    blen(idx) = size(var, 3) * size(var, 2) * cnt * extid
+    typ(idx)  = MPI_Byte
+
+  end subroutine add_address_1block_3d_i1
+
+
+  subroutine add_address_1block_3d_l(var, off, cnt, addr, blen, typ, idx)
+
+    use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+
+    implicit none
+
+    ! variable to add from offset *off* with length *cnt*
+    logical, dimension(:,:,:), intent(in) :: var
+    integer,                   intent(in) :: off
+    integer,                   intent(in) :: cnt
+    ! MPI adress
+    integer(MPI_Address_kind), dimension(:), intent(inout) :: addr
+    ! block length
+    integer,                   dimension(:), intent(inout) :: blen
+    ! MPI data type
+    integer,                   dimension(:), intent(inout) :: typ
+    ! index in *addr*, *blen*, *typ*
+    integer, intent(inout) :: idx
+
+    integer :: ierr
+
+    idx = idx + 1
+    call MPI_Get_address(var(off, 1, 1), addr(idx), ierr)
+    blen(idx) = size(var, 3) * size(var, 2) * cnt * extl
+    typ(idx)  = MPI_Byte
+
+  end subroutine add_address_1block_3d_l
+
+
+  subroutine add_address_1block_3d_r1(var, off, cnt, addr, blen, typ, idx)
+
+    use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+
+    implicit none
+
+    ! variable to add from offset *off* with length *cnt*
+    real, dimension(:,:,:), intent(in) :: var
+    integer,                intent(in) :: off
+    integer,                intent(in) :: cnt
+    ! MPI adress
+    integer(MPI_Address_kind), dimension(:), intent(inout) :: addr
+    ! block length
+    integer,                   dimension(:), intent(inout) :: blen
+    ! MPI data type
+    integer,                   dimension(:), intent(inout) :: typ
+    ! index in *addr*, *blen*, *typ*
+    integer, intent(inout) :: idx
+
+    integer :: ierr
+
+    idx = idx + 1
+    call MPI_Get_address(var(off, 1, 1), addr(idx), ierr)
+    blen(idx) = size(var, 3) * size(var, 2) * cnt * extr1
+    typ(idx)  = MPI_Byte
+
+  end subroutine add_address_1block_3d_r1
+
+
+  subroutine add_address_1block_3d_r2(var, off, cnt, addr, blen, typ, idx)
+
+    use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+    use cable_def_types_mod, only: r_2
+
+    implicit none
+
+    ! variable to add from offset *off* with length *cnt*
+    real(r_2), dimension(:,:,:), intent(in) :: var
+    integer,                     intent(in) :: off
+    integer,                     intent(in) :: cnt
+    ! MPI adress
+    integer(MPI_Address_kind), dimension(:), intent(inout) :: addr
+    ! block length
+    integer,                   dimension(:), intent(inout) :: blen
+    ! MPI data type
+    integer,                   dimension(:), intent(inout) :: typ
+    ! index in *addr*, *blen*, *typ*
+    integer, intent(inout) :: idx
+
+    integer :: ierr
+
+    idx = idx + 1
+    call MPI_Get_address(var(off, 1, 1), addr(idx), ierr)
+    blen(idx) = size(var, 3) * size(var, 2) * cnt * extr2
+    typ(idx)  = MPI_Byte
+
+  end subroutine add_address_1block_3d_r2
+
+
+  ! ------------------------------------------------------------------
+
+
+  subroutine add_address_hvector_1d_i1(var, off, cnt, stride, &
+       addr, blen, typ, idx)
+
+    use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+
+    implicit none
+
+    ! variable to add from offset *off* with length *cnt*
+    integer, dimension(:), intent(in) :: var
+    integer,               intent(in) :: off
+    integer,               intent(in) :: cnt
+    ! length of 1st dim of original array
+    integer,               intent(in) :: stride  ! not used
+    ! MPI adress
+    integer(MPI_Address_kind), dimension(:), intent(inout) :: addr
+    ! block length
+    integer,                   dimension(:), intent(inout) :: blen
+    ! MPI data type
+    integer,                   dimension(:), intent(inout) :: typ
+    ! index in *addr*, *blen*, *typ*
+    integer, intent(inout) :: idx
+
+    integer :: ierr
+
+    idx = idx + 1
+    call MPI_Get_address(var(off), addr(idx), ierr)
+    blen(idx) = cnt * extid
+    typ(idx)  = MPI_Byte
+
+  end subroutine add_address_hvector_1d_i1
+
+
+  subroutine add_address_hvector_1d_l(var, off, cnt, stride, &
+       addr, blen, typ, idx)
+
+    use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+
+    implicit none
+
+    ! variable to add from offset *off* with length *cnt*
+    logical, dimension(:), intent(in) :: var
+    integer,               intent(in) :: off
+    integer,               intent(in) :: cnt
+    ! length of 1st dim of original array
+    integer,               intent(in) :: stride  ! not used
+    ! MPI adress
+    integer(MPI_Address_kind), dimension(:), intent(inout) :: addr
+    ! block length
+    integer,                   dimension(:), intent(inout) :: blen
+    ! MPI data type
+    integer,                   dimension(:), intent(inout) :: typ
+    ! index in *addr*, *blen*, *typ*
+    integer, intent(inout) :: idx
+
+    integer :: ierr
+
+    idx = idx + 1
+    call MPI_Get_address(var(off), addr(idx), ierr)
+    blen(idx) = cnt * extl
+    typ(idx)  = MPI_Byte
+
+  end subroutine add_address_hvector_1d_l
+
+
+  subroutine add_address_hvector_1d_r1(var, off, cnt, stride, &
+       addr, blen, typ, idx)
+
+    use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+
+    implicit none
+
+    ! variable to add from offset *off* with length *cnt*
+    real, dimension(:), intent(in) :: var
+    integer,            intent(in) :: off
+    integer,            intent(in) :: cnt
+    ! length of 1st dim of original array
+    integer,            intent(in) :: stride  ! not used
+    ! MPI adress
+    integer(MPI_Address_kind), dimension(:), intent(inout) :: addr
+    ! block length
+    integer,                   dimension(:), intent(inout) :: blen
+    ! MPI data type
+    integer,                   dimension(:), intent(inout) :: typ
+    ! index in *addr*, *blen*, *typ*
+    integer, intent(inout) :: idx
+
+    integer :: ierr
+
+    idx = idx + 1
+    call MPI_Get_address(var(off), addr(idx), ierr)
+    blen(idx) = cnt * extr1
+    typ(idx)  = MPI_Byte
+
+  end subroutine add_address_hvector_1d_r1
+
+
+  subroutine add_address_hvector_1d_r2(var, off, cnt, stride, &
+       addr, blen, typ, idx)
+
+    use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+    use cable_def_types_mod, only: r_2
+
+    implicit none
+
+    ! variable to add from offset *off* with length *cnt*
+    real(r_2), dimension(:), intent(in) :: var
+    integer,                 intent(in) :: off
+    integer,                 intent(in) :: cnt
+    ! length of 1st dim of original array
+    integer,                 intent(in) :: stride  ! not used
+    ! MPI adress
+    integer(MPI_Address_kind), dimension(:), intent(inout) :: addr
+    ! block length
+    integer,                   dimension(:), intent(inout) :: blen
+    ! MPI data type
+    integer,                   dimension(:), intent(inout) :: typ
+    ! index in *addr*, *blen*, *typ*
+    integer, intent(inout) :: idx
+
+    integer :: ierr
+
+    idx = idx + 1
+    call MPI_Get_address(var(off), addr(idx), ierr)
+    blen(idx) = cnt * extr2
+    typ(idx)  = MPI_Byte
+
+  end subroutine add_address_hvector_1d_r2
+
+
+  subroutine add_address_hvector_2d_i1(var, off, cnt, stride, &
+       addr, blen, typ, idx)
+
+    use mpi, only: MPI_Address_kind, MPI_Get_address, &
+         MPI_Type_create_hvector, MPI_Byte
+
+    implicit none
+
+    ! variable to add from offset *off* with length *cnt*
+    integer, dimension(:,:), intent(in) :: var
+    integer,                 intent(in) :: off
+    integer,                 intent(in) :: cnt
+    ! length of 1st dim of original array
+    integer,                 intent(in) :: stride
+    ! MPI adress
+    integer(MPI_Address_kind), dimension(:), intent(inout) :: addr
+    ! block length
+    integer,                   dimension(:), intent(inout) :: blen
+    ! MPI data type
+    integer,                   dimension(:), intent(inout) :: typ
+    ! index in *addr*, *blen*, *typ*
+    integer, intent(inout) :: idx
+
+    integer(MPI_Address_kind) :: istride
+    integer :: ierr
+
+    idx = idx + 1
+    call MPI_Get_address(var(off, 1), addr(idx), ierr)
+    istride = stride * extid
+    call MPI_Type_create_hvector(size(var, 2), cnt * extid, istride, &
+         MPI_BYTE, typ(idx), ierr)
+    blen(idx) = 1
+
+  end subroutine add_address_hvector_2d_i1
+
+
+  subroutine add_address_hvector_2d_l(var, off, cnt, stride, &
+       addr, blen, typ, idx)
+
+    use mpi, only: MPI_Address_kind, MPI_Get_address, &
+         MPI_Type_create_hvector, MPI_Byte
+
+    implicit none
+
+    ! variable to add from offset *off* with length *cnt*
+    logical, dimension(:,:), intent(in) :: var
+    integer,                 intent(in) :: off
+    integer,                 intent(in) :: cnt
+    ! length of 1st dim of original array
+    integer,                 intent(in) :: stride
+    ! MPI adress
+    integer(MPI_Address_kind), dimension(:), intent(inout) :: addr
+    ! block length
+    integer,                   dimension(:), intent(inout) :: blen
+    ! MPI data type
+    integer,                   dimension(:), intent(inout) :: typ
+    ! index in *addr*, *blen*, *typ*
+    integer, intent(inout) :: idx
+
+    integer(MPI_Address_kind) :: istride
+    integer :: ierr
+
+    idx = idx + 1
+    call MPI_Get_address(var(off, 1), addr(idx), ierr)
+    istride = stride * extl
+    call MPI_Type_create_hvector(size(var, 2), cnt * extl, istride, &
+         MPI_BYTE, typ(idx), ierr)
+    blen(idx) = 1
+
+  end subroutine add_address_hvector_2d_l
+
+
+  subroutine add_address_hvector_2d_r1(var, off, cnt, stride, &
+       addr, blen, typ, idx)
+
+    use mpi, only: MPI_Address_kind, MPI_Get_address, &
+         MPI_Type_create_hvector, MPI_Byte
+
+    implicit none
+
+    ! variable to add from offset *off* with length *cnt*
+    real, dimension(:,:), intent(in) :: var
+    integer,              intent(in) :: off
+    integer,              intent(in) :: cnt
+    ! length of 1st dim of original array
+    integer,              intent(in) :: stride
+    ! MPI adress
+    integer(MPI_Address_kind), dimension(:), intent(inout) :: addr
+    ! block length
+    integer,                   dimension(:), intent(inout) :: blen
+    ! MPI data type
+    integer,                   dimension(:), intent(inout) :: typ
+    ! index in *addr*, *blen*, *typ*
+    integer, intent(inout) :: idx
+
+    integer(MPI_Address_kind) :: istride
+    integer :: ierr
+
+    idx = idx + 1
+    call MPI_Get_address(var(off, 1), addr(idx), ierr)
+    istride = stride * extr1
+    call MPI_Type_create_hvector(size(var, 2), cnt * extr1, istride, &
+         MPI_BYTE, typ(idx), ierr)
+    blen(idx) = 1
+
+  end subroutine add_address_hvector_2d_r1
+
+
+  subroutine add_address_hvector_2d_r2(var, off, cnt, stride, &
+       addr, blen, typ, idx)
+
+    use mpi, only: MPI_Address_kind, MPI_Get_address, &
+         MPI_Type_create_hvector, MPI_Byte
+    use cable_def_types_mod, only: r_2
+
+    implicit none
+
+    ! variable to add from offset *off* with length *cnt*
+    real(r_2), dimension(:,:), intent(in) :: var
+    integer,                   intent(in) :: off
+    integer,                   intent(in) :: cnt
+    ! length of 1st dim of original array
+    integer,                   intent(in) :: stride
+    ! MPI adress
+    integer(MPI_Address_kind), dimension(:), intent(inout) :: addr
+    ! block length
+    integer,                   dimension(:), intent(inout) :: blen
+    ! MPI data type
+    integer,                   dimension(:), intent(inout) :: typ
+    ! index in *addr*, *blen*, *typ*
+    integer, intent(inout) :: idx
+
+    integer(MPI_Address_kind) :: istride
+    integer :: ierr
+
+    idx = idx + 1
+    call MPI_Get_address(var(off, 1), addr(idx), ierr)
+    istride = stride * extr2
+    call MPI_Type_create_hvector(size(var, 2), cnt * extr2, istride, &
+         MPI_BYTE, typ(idx), ierr)
+    blen(idx) = 1
+
+  end subroutine add_address_hvector_2d_r2
+
+
+  subroutine add_address_hvector_3d_i1(var, off, cnt, stride, &
+       addr, blen, typ, idx)
+
+    use mpi, only: MPI_Address_kind, MPI_Get_address, &
+         MPI_Type_create_hvector, MPI_Byte
+
+    implicit none
+
+    ! variable to add from offset *off* with length *cnt*
+    integer, dimension(:,:,:), intent(in) :: var
+    integer,                   intent(in) :: off
+    integer,                   intent(in) :: cnt
+    ! length of 1st dim of original array
+    integer,                   intent(in) :: stride
+    ! MPI adress
+    integer(MPI_Address_kind), dimension(:), intent(inout) :: addr
+    ! block length
+    integer,                   dimension(:), intent(inout) :: blen
+    ! MPI data type
+    integer,                   dimension(:), intent(inout) :: typ
+    ! index in *addr*, *blen*, *typ*
+    integer, intent(inout) :: idx
+
+    integer(MPI_Address_kind) :: istride
+    integer :: ierr
+
+    idx = idx + 1
+    call MPI_Get_address(var(off, 1, 1), addr(idx), ierr)
+    istride = stride * extid
+    call MPI_Type_create_hvector(size(var, 3) * size(var, 2), cnt * extid, &
+         istride, MPI_BYTE, typ(idx), ierr)
+    blen(idx) = 1
+
+  end subroutine add_address_hvector_3d_i1
+
+
+  subroutine add_address_hvector_3d_l(var, off, cnt, stride, &
+       addr, blen, typ, idx)
+
+    use mpi, only: MPI_Address_kind, MPI_Get_address, &
+         MPI_Type_create_hvector, MPI_Byte
+
+    implicit none
+
+    ! variable to add from offset *off* with length *cnt*
+    logical, dimension(:,:,:), intent(in) :: var
+    integer,                   intent(in) :: off
+    integer,                   intent(in) :: cnt
+    ! length of 1st dim of original array
+    integer,                   intent(in) :: stride
+    ! MPI adress
+    integer(MPI_Address_kind), dimension(:), intent(inout) :: addr
+    ! block length
+    integer,                   dimension(:), intent(inout) :: blen
+    ! MPI data type
+    integer,                   dimension(:), intent(inout) :: typ
+    ! index in *addr*, *blen*, *typ*
+    integer, intent(inout) :: idx
+
+    integer(MPI_Address_kind) :: istride
+    integer :: ierr
+
+    idx = idx + 1
+    call MPI_Get_address(var(off, 1, 1), addr(idx), ierr)
+    istride = stride * extl
+    call MPI_Type_create_hvector(size(var, 3) * size(var, 2), cnt * extl, &
+         istride, MPI_BYTE, typ(idx), ierr)
+    blen(idx) = 1
+
+  end subroutine add_address_hvector_3d_l
+
+
+  subroutine add_address_hvector_3d_r1(var, off, cnt, stride, &
+       addr, blen, typ, idx)
+
+    use mpi, only: MPI_Address_kind, MPI_Get_address, &
+         MPI_Type_create_hvector, MPI_Byte
+
+    implicit none
+
+    ! variable to add from offset *off* with length *cnt*
+    real, dimension(:,:,:), intent(in) :: var
+    integer,                intent(in) :: off
+    integer,                intent(in) :: cnt
+    ! length of 1st dim of original array
+    integer,                intent(in) :: stride
+    ! MPI adress
+    integer(MPI_Address_kind), dimension(:), intent(inout) :: addr
+    ! block length
+    integer,                   dimension(:), intent(inout) :: blen
+    ! MPI data type
+    integer,                   dimension(:), intent(inout) :: typ
+    ! index in *addr*, *blen*, *typ*
+    integer, intent(inout) :: idx
+
+    integer(MPI_Address_kind) :: istride
+    integer :: ierr
+
+    idx = idx + 1
+    call MPI_Get_address(var(off, 1, 1), addr(idx), ierr)
+    istride = stride * extr1
+    call MPI_Type_create_hvector(size(var, 3) * size(var, 2), cnt * extr1, &
+         istride, MPI_BYTE, typ(idx), ierr)
+    blen(idx) = 1
+
+  end subroutine add_address_hvector_3d_r1
+
+
+  subroutine add_address_hvector_3d_r2(var, off, cnt, stride, &
+       addr, blen, typ, idx)
+
+    use mpi, only: MPI_Address_kind, MPI_Get_address, &
+         MPI_Type_create_hvector, MPI_Byte
+    use cable_def_types_mod, only: r_2
+
+    implicit none
+
+    ! variable to add from offset *off* with length *cnt*
+    real(r_2), dimension(:,:,:), intent(in) :: var
+    integer,                     intent(in) :: off
+    integer,                     intent(in) :: cnt
+    ! length of 1st dim of original array
+    integer,                     intent(in) :: stride
+    ! MPI adress
+    integer(MPI_Address_kind), dimension(:), intent(inout) :: addr
+    ! block length
+    integer,                   dimension(:), intent(inout) :: blen
+    ! MPI data type
+    integer,                   dimension(:), intent(inout) :: typ
+    ! index in *addr*, *blen*, *typ*
+    integer, intent(inout) :: idx
+
+    integer(MPI_Address_kind) :: istride
+    integer :: ierr
+
+    idx = idx + 1
+    call MPI_Get_address(var(off, 1, 1), addr(idx), ierr)
+    istride = stride * extr2
+    call MPI_Type_create_hvector(size(var, 3) * size(var, 2), cnt * extr2, &
+         istride, MPI_BYTE, typ(idx), ierr)
+    blen(idx) = 1
+
+  end subroutine add_address_hvector_3d_r2
+
+end module cable_mpicommon

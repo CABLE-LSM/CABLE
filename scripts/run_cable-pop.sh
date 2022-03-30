@@ -48,7 +48,7 @@ system=cuntz@mc16
 # nproc should fit with job tasks
 dompi=0   # 0: normal run: ./cable
           # 1: MPI run: mpiexec -n ${nproc} ./cable_mpi
-nproc=6   # Number of cores for MPI runs
+nproc=2   # Number of cores for MPI runs
           # must be same as above: SBATCH -n nproc or PBS -l ncpus=nproc
 
 # --------------------------------------------------------------------
@@ -114,7 +114,7 @@ imeteo=2        # 0: Use global meteo, land use and mask
                 # 1: Use local mask, but global meteo and land use (doextractsite=1)
                 # 2: Use local meteo, land use and mask (doextractsite=2)
 # Step 0
-purge_restart=1 # 1/0: Do/Do not delete all restart files (completely new run, e.g. if settings changed)
+purge_restart=0 # 1/0: Do/Do not delete all restart files (completely new run, e.g. if settings changed)
 doextractsite=0 # 0: Do not extract local meteo, land use nor mask
                 # 1: Do extract only mask at specific site/region (imeteo=1)
                 # 2: Do extract meteo, land use and mask at specific site/region (imeteo=2)
@@ -331,7 +331,7 @@ elif [[ "${system}" == "cuntz@mc16" || "${system}" == "cuntz@mcinra" ]] ; then
     # Run directory: runpath="${sitepath}/run_xxx"
     cablebase="/Users/cuntz/prog/vanessa/cable"
     sitepath="${cablebase}/runs/single_sites/${experiment}"
-    cablehome="${cablebase}/branches/CABLE-POP_TRENDY"
+    cablehome="${cablebase}/branches/CABLE-POP_TRENDY.MC"
     # Cable executable
     if [[ ${dompi} -eq 1 ]] ; then
         exe="${cablehome}/offline/cable-mpi-gfortran"
@@ -822,6 +822,8 @@ cat > ${tmp}/sedtmp.${pid} << EOF
 EOF
 applysed ${tmp}/sedtmp.${pid} ${ndir}/LUC.nml ${rdir}/LUC_${experiment}.nml
 
+# casafile%cnpipool                  = "restart/${mettype}_casa_rst.nc"
+# casafile%cnpepool                  = "restart/${mettype}_casa_rst.nc"
 # global Cable namelist
 cat > ${tmp}/sedtmp.${pid} << EOF
     filename%met                       = "${mettype}"
@@ -833,8 +835,8 @@ cat > ${tmp}/sedtmp.${pid} << EOF
     filename%restart_out               = "restart/${mettype}_cable_rst.nc"
     casafile%cnpbiome                  = "${casafile_cnpbiome}"
     casafile%out                       = "outputs/${mettype}_out_casa.nc"
-    casafile%cnpipool                  = "restart/${mettype}_casa_rst.nc"
-    casafile%cnpepool                  = "restart/${mettype}_casa_rst.nc"
+    casafile%cnpipool                  = "restart/${mettype}_casa"
+    casafile%cnpepool                  = "restart/${mettype}_casa"
     cable_user%CASA_OUT_FREQ           = "monthly"
     cable_user%POP_restart_in          = "restart/pop_${mettype}_ini.nc"
     cable_user%POP_restart_out         = "restart/pop_${mettype}_ini.nc"
@@ -1026,7 +1028,8 @@ EOF
     cd logs
     renameid ${rid} log_cable.txt log_out_cable.txt
     cd ../restart
-    copyid ${rid} ${mettype}_climate_rst.nc ${mettype}_casa_rst.nc ${mettype}_cable_rst.nc pop_${mettype}_ini.nc
+    # copyid ${rid} ${mettype}_climate_rst.nc ${mettype}_casa_rst.nc ${mettype}_cable_rst.nc pop_${mettype}_ini.nc
+    copyid ${rid} ${mettype}_climate_rst.nc ${mettype}_casa_met_rst.nc ${mettype}_casa_bal_rst.nc ${mettype}_casa_biome_rst.nc ${mettype}_casa_pool_rst.nc ${mettype}_casa_flux_rst.nc ${mettype}_casa_phen_rst.nc ${mettype}_cable_rst.nc pop_${mettype}_ini.nc
     copyid ${rid} ${mettype}_c13o2_flux_rst.nc ${mettype}_c13o2_pools_rst.nc
     cd ../outputs
     renameid ${rid} ${mettype}_out_cable.nc ${mettype}_out_casa.nc ${mettype}_out_casa_c13o2.nc
@@ -1094,7 +1097,8 @@ EOF
         cd logs
         renameid ${rid} log_cable.txt log_out_cable.txt
         cd ../restart
-        copyid ${rid} ${mettype}_climate_rst.nc ${mettype}_casa_rst.nc ${mettype}_cable_rst.nc pop_${mettype}_ini.nc
+        # copyid ${rid} ${mettype}_climate_rst.nc ${mettype}_casa_rst.nc ${mettype}_cable_rst.nc pop_${mettype}_ini.nc
+        copyid ${rid} ${mettype}_climate_rst.nc ${mettype}_casa_met_rst.nc ${mettype}_casa_bal_rst.nc ${mettype}_casa_biome_rst.nc ${mettype}_casa_pool_rst.nc ${mettype}_casa_flux_rst.nc ${mettype}_casa_phen_rst.nc ${mettype}_cable_rst.nc pop_${mettype}_ini.nc
         copyid ${rid} ${mettype}_c13o2_flux_rst.nc ${mettype}_c13o2_pools_rst.nc
         cd ../outputs
         renameid ${rid} ${mettype}_out_cable.nc ${mettype}_out_casa.nc ${mettype}_out_casa_c13o2.nc
@@ -1155,7 +1159,8 @@ EOF
         cd logs
         renameid ${rid} log_cable.txt log_out_cable.txt
         cd ../restart
-        copyid ${rid} ${mettype}_casa_rst.nc pop_${mettype}_ini.nc
+        # copyid ${rid} ${mettype}_casa_rst.nc pop_${mettype}_ini.nc
+        copyid ${rid} ${mettype}_casa_met_rst.nc ${mettype}_casa_bal_rst.nc ${mettype}_casa_biome_rst.nc ${mettype}_casa_pool_rst.nc ${mettype}_casa_flux_rst.nc ${mettype}_casa_phen_rst.nc pop_${mettype}_ini.nc
         copyid ${rid} ${mettype}_c13o2_flux_rst.nc ${mettype}_c13o2_pools_rst.nc
         if [[ ${dompi} -eq 0 ]] ; then # no output only restart if MPI
             cd ../outputs
@@ -1226,7 +1231,8 @@ EOF
         cd logs
         renameid ${rid} log_cable.txt log_out_cable.txt
         cd ../restart
-        copyid ${rid} ${mettype}_climate_rst.nc ${mettype}_casa_rst.nc ${mettype}_cable_rst.nc pop_${mettype}_ini.nc
+        # copyid ${rid} ${mettype}_climate_rst.nc ${mettype}_casa_rst.nc ${mettype}_cable_rst.nc pop_${mettype}_ini.nc
+        copyid ${rid} ${mettype}_climate_rst.nc ${mettype}_casa_met_rst.nc ${mettype}_casa_bal_rst.nc ${mettype}_casa_biome_rst.nc ${mettype}_casa_pool_rst.nc ${mettype}_casa_flux_rst.nc ${mettype}_casa_phen_rst.nc ${mettype}_cable_rst.nc pop_${mettype}_ini.nc
         copyid ${rid} ${mettype}_c13o2_flux_rst.nc ${mettype}_c13o2_pools_rst.nc
         cd ../outputs
         renameid ${rid} ${mettype}_out_cable.nc ${mettype}_out_casa.nc ${mettype}_out_casa_c13o2.nc
@@ -1287,7 +1293,8 @@ EOF
         cd logs
         renameid ${rid} log_cable.txt log_out_cable.txt
         cd ../restart
-        copyid ${rid} ${mettype}_casa_rst.nc pop_${mettype}_ini.nc
+        # copyid ${rid} ${mettype}_casa_rst.nc pop_${mettype}_ini.nc
+        copyid ${rid} ${mettype}_casa_met_rst.nc ${mettype}_casa_bal_rst.nc ${mettype}_casa_biome_rst.nc ${mettype}_casa_pool_rst.nc ${mettype}_casa_flux_rst.nc ${mettype}_casa_phen_rst.nc pop_${mettype}_ini.nc
         copyid ${rid} ${mettype}_c13o2_flux_rst.nc ${mettype}_c13o2_pools_rst.nc
         if [[ ${dompi} -eq 0 ]] ; then # no output only restart if MPI
             cd ../outputs
@@ -1366,7 +1373,8 @@ EOF
     cd logs
     renameid ${rid} log_cable.txt log_out_cable.txt
     cd ../restart
-    copyid ${rid} ${mettype}_casa_rst.nc ${mettype}_LUC_rst.nc pop_${mettype}_ini.nc
+    # copyid ${rid} ${mettype}_casa_rst.nc ${mettype}_LUC_rst.nc pop_${mettype}_ini.nc
+    copyid ${rid} ${mettype}_casa_met_rst.nc ${mettype}_casa_bal_rst.nc ${mettype}_casa_biome_rst.nc ${mettype}_casa_pool_rst.nc ${mettype}_casa_flux_rst.nc ${mettype}_casa_phen_rst.nc ${mettype}_LUC_rst.nc pop_${mettype}_ini.nc
     copyid ${rid} ${mettype}_c13o2_pools_rst.nc ${mettype}_c13o2_luc_rst.nc
     # cd ../outputs
     # renameid ${rid} ${mettype}_out_LUC.nc
@@ -1448,7 +1456,8 @@ EOF
     cd logs
     renameid ${rid} log_cable.txt log_out_cable.txt
     cd ../restart
-    copyid ${rid} ${mettype}_climate_rst.nc ${mettype}_casa_rst.nc ${mettype}_cable_rst.nc
+    # copyid ${rid} ${mettype}_climate_rst.nc ${mettype}_casa_rst.nc ${mettype}_cable_rst.nc
+    copyid ${rid} ${mettype}_climate_rst.nc ${mettype}_casa_met_rst.nc ${mettype}_casa_bal_rst.nc ${mettype}_casa_biome_rst.nc ${mettype}_casa_pool_rst.nc ${mettype}_casa_flux_rst.nc ${mettype}_casa_phen_rst.nc ${mettype}_cable_rst.nc
     copyid ${rid} ${mettype}_LUC_rst.nc pop_${mettype}_ini.nc
     copyid ${rid} ${mettype}_c13o2_flux_rst.nc ${mettype}_c13o2_pools_rst.nc ${mettype}_c13o2_luc_rst.nc
     cd ../outputs
@@ -1533,7 +1542,8 @@ EOF
     cd logs
     renameid ${rid} log_cable.txt log_out_cable.txt
     cd ../restart
-    copyid ${rid} ${mettype}_climate_rst.nc ${mettype}_casa_rst.nc ${mettype}_cable_rst.nc
+    # copyid ${rid} ${mettype}_climate_rst.nc ${mettype}_casa_rst.nc ${mettype}_cable_rst.nc
+    copyid ${rid} ${mettype}_climate_rst.nc ${mettype}_casa_met_rst.nc ${mettype}_casa_bal_rst.nc ${mettype}_casa_biome_rst.nc ${mettype}_casa_pool_rst.nc ${mettype}_casa_flux_rst.nc ${mettype}_casa_phen_rst.nc ${mettype}_cable_rst.nc
     copyid ${rid} ${mettype}_LUC_rst.nc pop_${mettype}_ini.nc
     copyid ${rid} ${mettype}_c13o2_flux_rst.nc ${mettype}_c13o2_pools_rst.nc ${mettype}_c13o2_luc_rst.nc
     cd ../outputs
@@ -1606,7 +1616,8 @@ EOF
     cd logs
     renameid ${rid} log_cable.txt log_out_cable.txt
     cd ../restart
-    copyid ${rid} ${mettype}_climate_rst.nc ${mettype}_casa_rst.nc ${mettype}_cable_rst.nc pop_${mettype}_ini.nc
+    # copyid ${rid} ${mettype}_climate_rst.nc ${mettype}_casa_rst.nc ${mettype}_cable_rst.nc pop_${mettype}_ini.nc
+    copyid ${rid} ${mettype}_climate_rst.nc ${mettype}_casa_met_rst.nc ${mettype}_casa_bal_rst.nc ${mettype}_casa_biome_rst.nc ${mettype}_casa_pool_rst.nc ${mettype}_casa_flux_rst.nc ${mettype}_casa_phen_rst.nc ${mettype}_cable_rst.nc pop_${mettype}_ini.nc
     copyid ${rid} ${mettype}_c13o2_flux_rst.nc ${mettype}_c13o2_pools_rst.nc
     cd ../outputs
     renameid ${rid} ${mettype}_out_cable.nc ${mettype}_out_casa.nc

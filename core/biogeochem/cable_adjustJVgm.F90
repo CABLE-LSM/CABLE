@@ -48,7 +48,7 @@ CONTAINS
     integer  :: i, k, z
     integer  :: kmax = 20  ! maximum nr of iterations (inner loop)
     integer  :: zmax = 8   ! maximum nr of iterations (outer loop)
-    integer  :: lAn, cntr
+    integer  :: lAn
     real(dp) :: vstart, v
     real(dp) :: Vcmax25Cct1  ! Vcmax25Cc of previous iteration
     real(dp) :: Vcmax_diff
@@ -390,7 +390,7 @@ CONTAINS
           k = k + 1
        end do
 
-       veg%c4kcc(p) = real(k25Cc - 2.0*kinc) ! single precision
+       veg%c4kcc(p) = real(k25Cc - 2.0_dp*kinc) ! single precision
        ! subtract 2x the increment to get the right value
     else   ! C3 (not used)
       veg%c4kcc(p) = 0.0

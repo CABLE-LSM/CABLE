@@ -4,7 +4,7 @@ module cable_pop_io
 
 contains
 
-  SUBROUTINE POP_IO( POP, casamet, YEAR, ACTION, CF )
+  SUBROUTINE POP_IO(POP, casamet, YEAR, ACTION, CF)
     ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     ! POP        : POP structure containing all specific parameter
     ! casamet    : structure containing met and grid specific parameters from CASA
@@ -20,7 +20,8 @@ contains
     USE TypeDef,      only: dp
     USE POP_constants
     USE POP_types
-    USE CASAVARIABLE, only: casa_met, icycle
+    USE CASADIMENSION, only: icycle
+    USE CASAVARIABLE, only: casa_met
     USE CABLE_COMMON_MODULE
     use mo_utils,     only: ne
 #ifdef __MPI__

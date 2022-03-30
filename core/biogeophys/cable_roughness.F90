@@ -22,186 +22,191 @@
 
 MODULE cable_roughness_module
 
-   USE cable_data_module, ONLY : irough_type, point2constants
+  USE cable_data_module, ONLY: irough_type, point2constants
 
-   IMPLICIT NONE
+  IMPLICIT NONE
 
-   TYPE ( irough_type ) :: C
-   PRIVATE
-   PUBLIC ruff_resist
+  TYPE(irough_type) :: C
+
+  PRIVATE
+
+  PUBLIC :: ruff_resist
 
 CONTAINS
 
-SUBROUTINE ruff_resist(veg, rough, ssnow, canopy)
+  SUBROUTINE ruff_resist(veg, rough, ssnow, canopy)
 
-   ! m.r. raupach, 24-oct-92
-   ! see: Raupach, 1992, BLM 60 375-395
-   !      MRR notes "Simplified wind model for canopy", 23-oct-92
-   !      MRR draft paper "Simplified expressions...", dec-92
-   ! modified to include resistance calculations by Ray leuning 19 Jun 1998
+    ! M.R. Raupach, 24-oct-92
+    ! see: Raupach, 1992, BLM 60 375-395
+    !      MRR notes "Simplified wind model for canopy", 23-oct-92
+    !      MRR draft paper "Simplified expressions...", dec-92
+    ! modified to include resistance calculations by Ray leuning 19 Jun 1998
 
-   USE cable_common_module, ONLY : cable_user
-   USE cable_def_types_mod, ONLY : veg_parameter_type, roughness_type,         &
-                                   soil_snow_type, canopy_type, mp
+    USE cable_common_module, ONLY: cable_user
+    USE cable_def_types_mod, ONLY: veg_parameter_type, roughness_type, &
+         soil_snow_type, canopy_type, mp
 
-   TYPE(roughness_type), INTENT(INOUT) :: rough
-   TYPE (canopy_type),   INTENT(INOUT) :: canopy
-   TYPE(soil_snow_type), INTENT(IN)    :: ssnow
-   TYPE (veg_parameter_type),  INTENT(INOUT) :: veg
+    TYPE(roughness_type),     INTENT(INOUT) :: rough
+    TYPE(canopy_type),        INTENT(INOUT) :: canopy
+    TYPE(soil_snow_type),     INTENT(IN)    :: ssnow
+    TYPE(veg_parameter_type), INTENT(INOUT) :: veg
 
-   REAL, DIMENSION(mp) ::                                                      &
-      xx,      & ! =C%CCD*LAI; working variable
-      dh         ! d/h where d is zero-plane displacement
-   REAL :: take_off_disp
+    REAL, DIMENSION(mp) :: &
+         xx, & ! =C%CCD*LAI; working variable
+         dh         ! d/h where d is zero-plane displacement
+    REAL :: take_off_disp
 
-   CALL point2constants( C )
+    CALL point2constants(C)
 
-   ! for site-level runs, subtract displacement height from reference height
-   take_off_disp = 0.0
-   if (trim(cable_user%MetType) .EQ. 'site') then
-     take_off_disp = 1.0
-   endif
+    ! for site-level runs, subtract displacement height from reference height
+    take_off_disp = 0.0
+    if (trim(cable_user%MetType) == 'site') then
+       take_off_disp = 1.0
+    endif
 
-   ! Set canopy height above snow level:
-   rough%hruff = MAX( 1.e-6, veg%hc - 1.2 * ssnow%snowd /                       &
-        MAX( ssnow%ssdnn, 100. ) )
+    ! print*, 'YY01 ', veg%hc
+    ! print*, 'YY02 ', ssnow%snowd
+    ! print*, 'YY03 ', ssnow%ssdnn
+    ! print*, 'YY04 ', veg%vlai
+    ! Set canopy height above snow level:
+    rough%hruff = MAX( 1.e-6, veg%hc - 1.2 * ssnow%snowd / &
+         MAX(ssnow%ssdnn, 100.) )
 
-   ! LAI decreases due to snow:
-   canopy%vlaiw = veg%vlai * rough%hruff / MAX( 0.01, veg%hc )
-   canopy%rghlai = canopy%vlaiw
+    ! LAI decreases due to snow:
+    canopy%vlaiw = veg%vlai * rough%hruff / MAX( 0.01, veg%hc )
+    canopy%rghlai = canopy%vlaiw
 
+    ! print*, 'YY06 ', canopy%us
     IF (cable_user%soil_struc=='default') THEN
 
        ! Roughness length of bare soil (m): new formulation- E.Kowalczyk 2014
-       IF (.not.cable_user%l_new_roughness_soil) THEN
-          rough%z0soil = 0.0009*min(1.0,canopy%vlaiw) + 1.e-4
+       IF (.not. cable_user%l_new_roughness_soil) THEN
+          rough%z0soil = 0.0009 * min(1.0, canopy%vlaiw) + 1.e-4
           rough%z0soilsn = rough%z0soil
        ELSE
-          rough%z0soil = 0.01*min(1.0,canopy%vlaiw) + 0.02*min(canopy%us**2/C%GRAV,1.0)
-          rough%z0soilsn = max(1.e-7,rough%z0soil)
+          rough%z0soil = 0.01 * min(1.0, canopy%vlaiw) + 0.02 * min(canopy%us**2 / C%GRAV, 1.0)
+          rough%z0soilsn = max(1.e-7, rough%z0soil)
        ENDIF
 
-       WHERE( ssnow%snowd .GT. 0.01   )  &
-            rough%z0soilsn =  max( 1.e-7, rough%z0soil - rough%z0soil*min(ssnow%snowd,10.)/10.)
+       WHERE (ssnow%snowd > 0.01) &
+            rough%z0soilsn =  max(1.e-7, rough%z0soil - rough%z0soil*min(ssnow%snowd,10.)/10.)
 
     ELSEIF (cable_user%soil_struc=='sli') THEN
 
-       rough%z0soil = 0.01*min(1.0,canopy%vlaiw) + 0.02*min(canopy%us**2/C%GRAV,1.0)
-       rough%z0soilsn = max(1.e-2,rough%z0soil) ! (1e-2: Mori et al., J Ag Met, 2010)
+       rough%z0soil = 0.01 * min(1.0, canopy%vlaiw) + 0.02 * min(canopy%us**2 / C%GRAV, 1.0)
+       rough%z0soilsn = max(1.e-2, rough%z0soil) ! (1e-2: Mori et al., J Ag Met, 2010)
 
-
-       WHERE( ssnow%snowd .GT. 0.01   )  &
-            rough%z0soilsn =  max( 1.e-2, rough%z0soil - rough%z0soil*min(ssnow%snowd,10.)/10.)
+       WHERE (ssnow%snowd > 0.01) &
+            rough%z0soilsn =  max(1.e-2, rough%z0soil - rough%z0soil * min(ssnow%snowd, 10.) / 10.)
 
     ENDIF
 
-   !! vh_js !! use LAI_THRESH here
-   WHERE( canopy%vlaiw .LT. C%LAI_THRESH  .OR.                                          &
-           rough%hruff .LT. rough%z0soilsn ) ! BARE SOIL SURFACE
+    !! vh_js !! use LAI_THRESH here
+    ! print*, 'YY07 ', canopy%rghlai
+    ! print*, 'YY08 ', rough%hruff
+    ! print*, 'YY09 ', rough%za_uv
+    ! print*, 'YY10 ', rough%za_tq
+    WHERE((canopy%vlaiw < C%LAI_THRESH) .OR. &
+         (rough%hruff < rough%z0soilsn)) ! BARE SOIL SURFACE
 
-      rough%z0m = rough%z0soilsn
-      rough%rt0us = 0.0
-      rough%disp = 0.0
+       rough%z0m = rough%z0soilsn
+       rough%rt0us = 0.0
+       rough%disp = 0.0
 
-      ! Reference height zref is height above the displacement height
-      rough%zref_uv = MAX( 2.0, rough%za_uv )
-      rough%zref_tq = MAX( 2.0, rough%za_tq )
+       ! Reference height zref is height above the displacement height
+       rough%zref_uv = MAX( 2.0, rough%za_uv )
+       rough%zref_tq = MAX( 2.0, rough%za_tq )
 
-      rough%zruffs = 0.0
-      rough%rt1usa = 0.0
-      rough%rt1usb = 0.0
+       rough%zruffs = 0.0
+       rough%rt1usa = 0.0
+       rough%rt1usb = 0.0
 
-      ! Friction velocity/windspeed at canopy height
-      ! eq. 7 Raupach 1994, BLM, vol 71, p211-216
-      ! (C%USUHM set in physical_constants module):
-      rough%usuh = MIN( SQRT( C%CSD + C%CRD * ( canopy%vlaiw * 0.5 ) ), C%USUHM )
+       ! Friction velocity/windspeed at canopy height
+       ! eq. 7 Raupach 1994, BLM, vol 71, p211-216
+       ! (C%USUHM set in physical_constants module):
+       rough%usuh = MIN( SQRT( C%CSD + C%CRD * ( canopy%vlaiw * 0.5 ) ), C%USUHM )
 
-      xx = SQRT( C%CCD * MAX( ( canopy%vlaiw * 0.5 ), 0.0005 ) )
+       xx = SQRT( C%CCD * MAX( ( canopy%vlaiw * 0.5 ), 0.0005 ) )
 
-      ! Displacement height/canopy height:
-      ! eq.8 Raupach 1994, BLM, vol 71, p211-216
-      dh = 1.0 - ( 1.0 - EXP( -xx ) ) / xx
+       ! Displacement height/canopy height:
+       ! eq.8 Raupach 1994, BLM, vol 71, p211-216
+       dh = 1.0 - ( 1.0 - EXP( -xx ) ) / xx
 
-      ! Extinction coefficient for wind profile in canopy:
-      ! eq. 3.14, SCAM manual (CSIRO tech report 132)
-      rough%coexp = rough%usuh / ( C%VONK * C%CCW_C * ( 1.0 - dh ) )
+       ! Extinction coefficient for wind profile in canopy:
+       ! eq. 3.14, SCAM manual (CSIRO tech report 132)
+       rough%coexp = rough%usuh / ( C%VONK * C%CCW_C * ( 1.0 - dh ) )
 
-   ELSEWHERE ! VEGETATED SURFACE
+    ELSEWHERE ! VEGETATED SURFACE
 
-      ! Friction velocity/windspeed at canopy height
-      ! eq. 7 Raupach 1994, BLM, vol 71, p211-216
-      ! (C%USUHM set in physical_constants module):
-      rough%usuh = MIN( SQRT( C%CSD + C%CRD * ( canopy%rghlai * 0.5 ) ),       &
-                   C%USUHM )
+       ! Friction velocity/windspeed at canopy height
+       ! eq. 7 Raupach 1994, BLM, vol 71, p211-216
+       ! (C%USUHM set in physical_constants module):
+       rough%usuh = MIN( SQRT(C%CSD + C%CRD * (canopy%rghlai * 0.5)), &
+            C%USUHM )
 
-      xx = SQRT( C%CCD * MAX( ( canopy%rghlai * 0.5 ), 0.0005 ) )
+       xx = SQRT( C%CCD * MAX( ( canopy%rghlai * 0.5 ), 0.0005 ) )
 
-      ! eq.8 Raupach 1994, BLM, vol 71, p211-216:
-      dh = 1.0 - ( 1.0 - EXP( -xx ) ) / xx
+       ! eq.8 Raupach 1994, BLM, vol 71, p211-216:
+       dh = 1.0 - ( 1.0 - EXP( -xx ) ) / xx
 
-      ! Calculate zero-plane displacement:
-      rough%disp = dh * rough%hruff
+       ! Calculate zero-plane displacement:
+       rough%disp = dh * rough%hruff
 
-      ! Reference height zref is height above the displacement height
-      rough%zref_uv = MAX(2.0, rough%za_uv - take_off_disp * rough%disp)
-      rough%zref_tq = MAX(2.0, rough%za_tq - take_off_disp * rough%disp)
-      rough%zref_uv = MAX(rough%zref_uv, rough%hruff - rough%disp)
-      rough%zref_tq = MAX(rough%zref_tq, rough%hruff - rough%disp)
-
-
-      ! Calculate roughness length:
-      rough%z0m = ( (1.0 - dh) * EXP( LOG( C%CCW_C ) - 1. + 1. / C%CCW_C       &
-                  - C%VONK / rough%usuh ) ) * rough%hruff
-
-      ! find coexp: see notes "simplified wind model ..." eq 34a
-      ! Extinction coefficient for wind profile in canopy:
-      ! eq. 3.14, SCAM manual (CSIRO tech report 132)
-      rough%coexp = rough%usuh / ( C%VONK * C%CCW_C * ( 1.0 - dh ) )
-
-      rough%term2  = EXP( 2 * C%CSW * canopy%rghlai *                          &
-                     ( 1 - rough%disp / rough%hruff ) )
-      rough%term3  = C%A33**2 * C%CTL * 2 * C%CSW * canopy%rghlai
-      rough%term5  = MAX( ( 2. / 3. ) * rough%hruff / rough%disp, 1.0 )
-      rough%term6 =  EXP( 3. * rough%coexp * ( rough%disp / rough%hruff -1. ) )
-      rough%term6a = EXP(rough%coexp * ( 0.1 * rough%hruff / rough%hruff -1. ))
+       ! Reference height zref is height above the displacement height
+       rough%zref_uv = MAX(2.0, rough%za_uv - take_off_disp * rough%disp)
+       rough%zref_tq = MAX(2.0, rough%za_tq - take_off_disp * rough%disp)
+       rough%zref_uv = MAX(rough%zref_uv, rough%hruff - rough%disp)
+       rough%zref_tq = MAX(rough%zref_tq, rough%hruff - rough%disp)
 
 
-         ! eq. 3.54, SCAM manual (CSIRO tech report 132)
-         rough%rt0us  = rough%term5 * ( C%ZDLIN * LOG(                            &
-              C%ZDLIN * rough%disp / rough%z0soilsn ) +                 &
-              ( 1 - C%ZDLIN ) )                                         &
-              * ( EXP( 2 * C%CSW * canopy%rghlai )  -  rough%term2 )    &
-              / rough%term3
+       ! Calculate roughness length:
+       rough%z0m = ( (1.0 - dh) * EXP( LOG( C%CCW_C ) - 1. + 1. / C%CCW_C &
+            - C%VONK / rough%usuh ) ) * rough%hruff
 
-         ! See CSIRO SCAM, Raupach et al 1997, eq. 3.49:
-         rough%zruffs = rough%disp + rough%hruff * C%A33**2 * C%CTL / C%VONK /    &
-              rough%term5
+       ! find coexp: see notes "simplified wind model ..." eq 34a
+       ! Extinction coefficient for wind profile in canopy:
+       ! eq. 3.14, SCAM manual (CSIRO tech report 132)
+       rough%coexp = rough%usuh / ( C%VONK * C%CCW_C * ( 1.0 - dh ) )
 
-         ! See CSIRO SCAM, Raupach et al 1997, eq. 3.51:
-         rough%rt1usa = rough%term5 * ( rough%term2 - 1.0 ) / rough%term3
-         rough%rt1usb = rough%term5 * ( MIN( rough%zref_tq + rough%disp,          &
-              rough%zruffs ) - rough%hruff ) /                          &
-              ( C%A33**2 * C%CTL * rough%hruff )
+       rough%term2  = EXP( 2 * C%CSW * canopy%rghlai * &
+            ( 1 - rough%disp / rough%hruff ) )
+       rough%term3  = C%A33**2 * C%CTL * 2 * C%CSW * canopy%rghlai
+       rough%term5  = MAX( ( 2. / 3. ) * rough%hruff / rough%disp, 1.0 )
+       rough%term6 =  EXP( 3. * rough%coexp * ( rough%disp / rough%hruff -1. ) )
+       rough%term6a = EXP(rough%coexp * ( 0.1 * rough%hruff / rough%hruff -1. ))
 
-         rough%rt1usb = MAX( rough%rt1usb, 0.0 ) ! in case zrufs < rough%hruff
+       ! eq. 3.54, SCAM manual (CSIRO tech report 132)
+       rough%rt0us  = rough%term5 * ( C%ZDLIN * LOG( &
+            C%ZDLIN * rough%disp / rough%z0soilsn ) + &
+            ( 1 - C%ZDLIN ) ) &
+            * ( EXP( 2 * C%CSW * canopy%rghlai )  -  rough%term2 ) &
+            / rough%term3
 
-      END WHERE
+       ! See CSIRO SCAM, Raupach et al 1997, eq. 3.49:
+       rough%zruffs = rough%disp + rough%hruff * C%A33**2 * C%CTL / C%VONK / &
+            rough%term5
 
+       ! See CSIRO SCAM, Raupach et al 1997, eq. 3.51:
+       rough%rt1usa = rough%term5 * ( rough%term2 - 1.0 ) / rough%term3
+       rough%rt1usb = rough%term5 * ( MIN( rough%zref_tq + rough%disp, &
+            rough%zruffs ) - rough%hruff ) / &
+            ( C%A33**2 * C%CTL * rough%hruff )
 
-       IF (cable_user%soil_struc.eq.'sli') THEN
-         WHERE( canopy%vlaiw .GE. C%LAI_THRESH  .AND.                                          &
-              rough%hruff .GE. rough%z0soilsn ) ! VEGETATED SURFACE
+       rough%rt1usb = MAX( rough%rt1usb, 0.0 ) ! in case zrufs < rough%hruff
 
-            rough%rt0us  = log(rough%disp/(0.1 * rough%hruff)) * &
-                    EXP(2. * C%CSW * canopy%rghlai) * rough%disp &
-                    / rough%hruff / (c%a33 ** 2 * c%ctl) ! vh ! Haverd et al., Biogeosciences 10, 2011-2040, 2013
+    END WHERE
 
-         ENDWHERE
-      ENDIF
+    ! print*, 'YY13 ', rough%disp
+    IF (cable_user%soil_struc.eq.'sli') THEN
+       WHERE ((canopy%vlaiw .GE. C%LAI_THRESH) .AND. &
+            (rough%hruff .GE. rough%z0soilsn)) ! VEGETATED SURFACE
+          ! Haverd et al., Biogeosciences 10, 2011-2040, 2013
+          rough%rt0us  = log(rough%disp/(0.1 * rough%hruff)) * &
+               EXP(2. * C%CSW * canopy%rghlai) * rough%disp &
+               / rough%hruff / (c%a33 ** 2 * c%ctl) ! vh
+       ENDWHERE
+    ENDIF
 
-
-
-END SUBROUTINE ruff_resist
-
+  END SUBROUTINE ruff_resist
 
 END MODULE cable_roughness_module

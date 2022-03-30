@@ -93,15 +93,15 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   CHARACTER(len=10)   :: BurnedAreaSource = "SIMFIRE", blazeTStep = "annually"
   INTEGER :: iu
 
-  !CLNNAMELIST /BLAZENML/ HydePath,  BurnedAreaSource, BurnedAreaFile, BurnedAreaClimatologyFile, &
+  !CLNNAMELIST /blazenml/ HydePath,  BurnedAreaSource, BurnedAreaFile, BurnedAreaClimatologyFile, &
   !CLN     SIMFIRE_REGION
-  NAMELIST /BLAZENML/ blazeTStep,  BurnedAreaSource, BurnedAreaFile, OutputMode
-       
+  namelist /blazenml/ blazeTStep,  BurnedAreaSource, BurnedAreaFile, OutputMode
+
   ! READ BLAZE settings
-  CALL GET_UNIT(iu)
-  OPEN (iu,FILE="blaze.nml",STATUS='OLD',ACTION='READ')
-  READ (iu,NML=BLAZENML)
-  CLOSE(iu)
+  call get_unit(iu)
+  open(iu, file="blaze.nml", status='old', action='read')
+  read(iu, nml=blazenml)
+  close(iu)
 
   ! READ ini-nml
   BLAZE%NCELLS = np

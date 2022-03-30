@@ -31,6 +31,7 @@
 ! casa_inout.f90
 !
 ! the following routines are used when "casacnp" is coupled to "cable"
+!   zero_casa_dump
 !   casa_readbiome
 !   casa_readphen
 !   casa_readpoint   (removed, now done in parameter_module)
@@ -44,7 +45,66 @@ module casa_inout
 
 contains
 
-  !#define UM_BUILD YES
+  subroutine zero_casa_dump(casamet, phen)
+    ! Zero variables that will be read from dump files.
+    ! This is done to have zero in MPI and non MPI code
+    ! if .not. cable_user%casa_dump_read.
+
+    use cable_def_types_mod, only: r_2
+    use casavariable,        only: casa_met
+    use phenvariable,        only: phen_variable
+    use cable_common_module, only: cable_user
+
+    implicit none
+
+    type(casa_met),      intent(inout) :: casamet
+    type(phen_variable), intent(inout) :: phen
+
+    casamet%Tairkspin      = 0.0_r_2
+    casamet%Tsoilspin_1    = 0.0_r_2
+    casamet%Tsoilspin_2    = 0.0_r_2
+    casamet%Tsoilspin_3    = 0.0_r_2
+    casamet%Tsoilspin_4    = 0.0_r_2
+    casamet%Tsoilspin_5    = 0.0_r_2
+    casamet%Tsoilspin_6    = 0.0_r_2
+    casamet%moistspin_1    = 0.0_r_2
+    casamet%moistspin_2    = 0.0_r_2
+    casamet%moistspin_3    = 0.0_r_2
+    casamet%moistspin_4    = 0.0_r_2
+    casamet%moistspin_5    = 0.0_r_2
+    casamet%moistspin_6    = 0.0_r_2
+    casamet%cgppspin       = 0.0_r_2
+    casamet%crmplantspin_1 = 0.0_r_2
+    casamet%crmplantspin_2 = 0.0_r_2
+    casamet%crmplantspin_3 = 0.0_r_2
+    phen%phasespin      = 0
+    phen%doyphasespin_1 = 0
+    phen%doyphasespin_2 = 0
+    phen%doyphasespin_3 = 0
+    phen%doyphasespin_4 = 0
+    casamet%mtempspin = 0.0_r_2
+    casamet%frecspin  = 0.0_r_2
+    if (cable_user%c13o2) then
+       casamet%cAn12spin = 0.0_r_2
+       casamet%cAn13spin = 0.0_r_2
+    end if
+    if (cable_user%call_blaze) then
+       casamet%dprecip_spin      = 0.0_r_2
+       casamet%aprecip_av20_spin = 0.0_r_2
+       casamet%du10_max_spin     = 0.0_r_2
+       casamet%drhum_spin        = 0.0_r_2
+       casamet%dtemp_max_spin    = 0.0_r_2
+       casamet%dtemp_max_spin    = 0.0_r_2
+       casamet%KBDI_spin         = 0.0_r_2
+       casamet%D_MacArthur_spin  = 0.0_r_2
+       casamet%FFDI_spin         = 0.0_r_2
+       casamet%DSLR_spin         = 0
+       casamet%last_precip_spin  = 0.0_r_2
+    end if
+
+  end subroutine zero_casa_dump
+
+  ! #define UM_BUILD YES
   SUBROUTINE casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
     ! mst actually not used in this routine (BP sep2010)
     !SUBROUTINE casa_readbiome(mvt,mst,veg,soil, &
@@ -269,10 +329,10 @@ contains
 
     DO nv=1,mvtype
        casabiome%sla(nv)             = slax(nv)
-       casabiome%fraclabile(nv,leaf) = deltcasa*0.6    !1/day
-       casabiome%fraclabile(nv,froot)= deltcasa*0.4    !1/day
-       casabiome%fraclabile(nv,wood) = deltcasa*0.0
-       casabiome%plantrate(nv,leaf)  = deltcasa/(leafage(nv)*(1.0-xfherbivore(nv)))
+       casabiome%fraclabile(nv,leaf) = deltcasa*0.6_r_2    !1/day
+       casabiome%fraclabile(nv,froot)= deltcasa*0.4_r_2    !1/day
+       casabiome%fraclabile(nv,wood) = deltcasa*0.0_r_2
+       casabiome%plantrate(nv,leaf)  = deltcasa/(leafage(nv)*(1.0_r_2-xfherbivore(nv)))
        casabiome%plantrate(nv,froot) = deltcasa/frootage(nv)
        casabiome%plantrate(nv,wood)  = deltcasa/woodage(nv)
        casabiome%litterrate(nv,metb) = deltcasa/metage(nv)
@@ -291,7 +351,7 @@ contains
        casabiome%q10soil(nv)         = xq10soil(nv)
        casabiome%xkoptlitter(nv)     = xxkoptlitter(nv)
        casabiome%xkoptsoil(nv)       = xxkoptsoil(nv)
-       casabiome%prodptase(nv)       = xprodptase(nv)/365.0   ! convert from yearly to daily
+       casabiome%prodptase(nv)       = xprodptase(nv)/365.0_r_2   ! convert from yearly to daily
        casabiome%costnpup(nv)        = xcostnpup(nv)
        casabiome%maxfinelitter(nv)   = xmaxfinelitter(nv)
        casabiome%maxcwd(nv)          = xmaxcwd(nv)
@@ -413,7 +473,7 @@ contains
   END SUBROUTINE casa_readbiome
 
 
-  SUBROUTINE casa_readphen(veg,casamet,phen)
+  SUBROUTINE casa_readphen(veg, casamet, phen)
     !SUBROUTINE casa_readphen(mvt,veg,casamet,phen)
     ! read in the tabulated modis-derived leaf phenology data
     ! for latitude bands of 79.75 to -55.25
@@ -424,31 +484,31 @@ contains
     USE phenvariable
     IMPLICIT NONE
     !  INTEGER,              INTENT(IN)    :: mvt
-    TYPE (veg_parameter_type), INTENT(IN)    :: veg  ! vegetation parameters
-    TYPE (casa_met),           INTENT(IN)    :: casamet
-    TYPE (phen_variable),      INTENT(INOUT) :: phen
+    TYPE(veg_parameter_type), INTENT(IN)    :: veg  ! vegetation parameters
+    TYPE(casa_met),           INTENT(IN)    :: casamet
+    TYPE(phen_variable),      INTENT(INOUT) :: phen
 
     ! local variables
-    INTEGER, PARAMETER            :: nphen=8! was 10(IGBP). changed by Q.Zhang @01/12/2011
+    INTEGER, PARAMETER             :: npheno=8 ! was 10(IGBP). changed by Q.Zhang @01/12/2011
     INTEGER :: np,nx,ilat
     INTEGER, DIMENSION(271,mvtype) :: greenup, fall,  phendoy1
-    INTEGER, DIMENSION(nphen)     :: greenupx,fallx,xphendoy1
-    INTEGER, DIMENSION(nphen)     :: ivtx
-    REAL(r_2), DIMENSION(271)     :: xlat
+    INTEGER, DIMENSION(npheno)     :: greenupx,fallx,xphendoy1
+    INTEGER, DIMENSION(npheno)     :: ivtx
+    REAL(r_2), DIMENSION(271)      :: xlat
 
     ! initilize for evergreen PFTs
     greenup(:,:) = -50
     fall(:,:)    = 367
     phendoy1(:,:)= 2
 
-    OPEN(101,file=casafile%phen)
-    READ(101,*)
-    READ(101,*) (ivtx(nx),nx=1,nphen) ! fixed at 10, as only 10 of 17 IGBP PFT
+    OPEN(101, file=casafile%phen)
+    READ(101, *)
+    READ(101, *) (ivtx(nx), nx=1, npheno) ! fixed at 10, as only 10 of 17 IGBP PFT
     ! have seasonal leaf phenology
     DO ilat=271,1,-1
-       READ(101,*) xlat(ilat),(greenupx(nx),nx=1,nphen), &
-            (fallx(nx),nx=1,nphen),(xphendoy1(nx),nx=1,nphen)
-       DO nx=1,nphen
+       READ(101,*) xlat(ilat), (greenupx(nx), nx=1, npheno), &
+            (fallx(nx), nx=1, npheno), (xphendoy1(nx), nx=1, npheno)
+       DO nx=1, npheno
           greenup(ilat,ivtx(nx)) = greenupx(nx)
           fall(ilat,ivtx(nx))    = fallx(nx)
           phendoy1(ilat,ivtx(nx))= xphendoy1(nx)
@@ -467,13 +527,12 @@ contains
        phen%doyphase(np,4) = phen%doyphase(np,3) +14    ! DOY for minimal LAI season
        IF (phen%doyphase(np,2) > 365) phen%doyphase(np,2)=phen%doyphase(np,2)-365
        IF (phen%doyphase(np,4) > 365) phen%doyphase(np,4)=phen%doyphase(np,4)-365
-
     ENDDO
 
   END SUBROUTINE casa_readphen
 
 
-  SUBROUTINE casa_init(casamet, casaflux, casapool, casabal, phen)
+  SUBROUTINE casa_init(casabiome, casamet, casaflux, casapool, casabal, phen)
     ! mst not used (BP sep2010)
     !! for first time reading file *_1220.csv  (BP may2010)
     !SUBROUTINE casa_init(mst,casapool,casabal,veg)
@@ -492,114 +551,114 @@ contains
     ! end addition (BP may2010)
     IMPLICIT NONE
 
-    !  INTEGER,        INTENT(IN)    :: mst
-    TYPE (casa_met),     INTENT(INOUT) :: casamet
-    TYPE (casa_flux),    INTENT(INOUT) :: casaflux
-    TYPE (casa_pool),    INTENT(INOUT) :: casapool
-    TYPE (casa_balance), INTENT(INOUT) :: casabal
+    TYPE(casa_biome),    INTENT(INOUT) :: casabiome
+    TYPE(casa_met),      INTENT(INOUT) :: casamet
+    TYPE(casa_flux),     INTENT(INOUT) :: casaflux
+    TYPE(casa_pool),     INTENT(INOUT) :: casapool
+    TYPE(casa_balance),  INTENT(INOUT) :: casabal
     ! for first time reading file *_1220.csv  (BP may2010)
-    TYPE (phen_variable),   INTENT(INOUT) :: phen
+    TYPE(phen_variable), INTENT(INOUT) :: phen
     ! end addition (BP may2010)
 
     ! local variables
-    INTEGER   :: npt
-    INTEGER   :: nyearz
+    INTEGER :: npt
 
-    if (.NOT.cable_user%casa_fromzero) THEN
+    if (.not. cable_user%casa_fromzero) then
        write(*,*) 'initial pool from restart file'
-    ENDIF
-    write(*,*) 'icycle,initcasa,mp ', icycle,initcasa,mp
+    endif
+    write(*,*) 'icycle, initcasa, mp ', icycle, initcasa, mp
     !phen%phase = 2
 
-    !CLN initialise all !!!!! THIS NEEDS FIXING because of e.g. ICE-WATER
-    casaflux%Cgpp         = 0.0_r_2
-    casaflux%Cnpp         = 0.0_r_2
-    casaflux%Crp          = 0.0_r_2
-    casaflux%Crgplant     = 0.0_r_2
-    ! casaflux%Nminfix      = 0.0_r_2
-    casaflux%Nminuptake   = 0.0_r_2
-    casaflux%Plabuptake   = 0.0_r_2
-    casaflux%Clabloss     = 0.0_r_2
-    casaflux%fracClabile  = 0.0_r_2
-    casaflux%stemnpp      = 0.0_r_2
-    casaflux%frac_sapwood = 0.0_r_2
-    casaflux%sapwood_area = 0.0_r_2
-    casaflux%FluxCtohwp   = 0.0_r_2
-    casaflux%FluxCtoClear = 0.0_r_2
-    casaflux%fracCalloc   = 0.0_r_2
-    casaflux%fracNalloc   = 0.0_r_2
-    casaflux%fracPalloc   = 0.0_r_2
-    casaflux%Crmplant     = 0.0_r_2
-    casaflux%kplant       = 0.0_r_2
-    casaflux%kplant_fire  = 0.0_r_2
-    casaflux%kplant_tot   = 0.0_r_2
+    !MC - remove zeroing because done in load_parameters before
+    ! !CLN initialise all !!!!! THIS NEEDS FIXING because of e.g. ICE-WATER
+    ! casaflux%Cgpp         = 0.0_r_2
+    ! casaflux%Cnpp         = 0.0_r_2
+    ! casaflux%Crp          = 0.0_r_2
+    ! casaflux%Crgplant     = 0.0_r_2
+    ! ! casaflux%Nminfix      = 0.0_r_2
+    ! casaflux%Nminuptake   = 0.0_r_2
+    ! casaflux%Plabuptake   = 0.0_r_2
+    ! casaflux%Clabloss     = 0.0_r_2
+    ! casaflux%fracClabile  = 0.0_r_2
+    ! casaflux%stemnpp      = 0.0_r_2
+    ! casaflux%frac_sapwood = 0.0_r_2
+    ! casaflux%sapwood_area = 0.0_r_2
+    ! casaflux%FluxCtohwp   = 0.0_r_2
+    ! casaflux%FluxCtoClear = 0.0_r_2
+    ! casaflux%fracCalloc   = 0.0_r_2
+    ! casaflux%fracNalloc   = 0.0_r_2
+    ! casaflux%fracPalloc   = 0.0_r_2
+    ! casaflux%Crmplant     = 0.0_r_2
+    ! casaflux%kplant       = 0.0_r_2
+    ! casaflux%kplant_fire  = 0.0_r_2
+    ! casaflux%kplant_tot   = 0.0_r_2
 
-    casaflux%fromPtoL      = 0.0_r_2
-    casaflux%fromPtoL_fire = 0.0_r_2
+    ! casaflux%fromPtoL      = 0.0_r_2
+    ! casaflux%fromPtoL_fire = 0.0_r_2
 
-    casaflux%Cnep         = 0.0_r_2
-    casaflux%Crsoil       = 0.0_r_2
-    casapool%dClabiledt   = 0.0_r_2
-    ! casaflux%Nmindep      =  casaflux%Nmindep /2.0_r_2
-    ! casaflux%Nmindep      = 0.0_r_2
-    casaflux%Nminloss     = 0.0_r_2
-    casaflux%Nminleach    = 0.0_r_2
-    casaflux%Nupland      = 0.0_r_2
-    casaflux%Nlittermin   = 0.0_r_2
-    casaflux%Nsmin        = 0.0_r_2
-    casaflux%Nsimm        = 0.0_r_2
-    casaflux%Nsnet        = 0.0_r_2
-    ! casaflux%fNminloss    = 0.0_r_2
-    ! casaflux%fNminleach   = 0.0_r_2
-    ! casaflux%Pdep         = 0.0_r_2
-    ! casaflux%Pwea         = 0.0_r_2
-    casaflux%Pleach       = 0.0_r_2
-    casaflux%Ploss        = 0.0_r_2
-    casaflux%Pupland      = 0.0_r_2
-    casaflux%Plittermin   = 0.0_r_2
-    casaflux%Psmin        = 0.0_r_2
-    casaflux%Psimm        = 0.0_r_2
-    casaflux%Psnet        = 0.0_r_2
-    ! casaflux%fPleach      = 0.0_r_2 !vh ! this should be a parameter, not a flux variable
-    casaflux%kplab        = 0.0_r_2
-    casaflux%kpsorb       = 0.0_r_2
-    casaflux%kpocc        = 0.0_r_2
-    ! casaflux%kmlabp       = 0.0_r_2  !vh ! this should be a paramter, not a flux variable
-    ! casaflux%Psorbmax     = 0.0_r_2 !vh ! this should be a paramter, not a flux variable
+    ! casaflux%Cnep         = 0.0_r_2
+    ! casaflux%Crsoil       = 0.0_r_2
+    ! casapool%dClabiledt   = 0.0_r_2
+    ! ! casaflux%Nmindep      =  casaflux%Nmindep /2.0_r_2
+    ! ! casaflux%Nmindep      = 0.0_r_2
+    ! casaflux%Nminloss     = 0.0_r_2
+    ! casaflux%Nminleach    = 0.0_r_2
+    ! casaflux%Nupland      = 0.0_r_2
+    ! casaflux%Nlittermin   = 0.0_r_2
+    ! casaflux%Nsmin        = 0.0_r_2
+    ! casaflux%Nsimm        = 0.0_r_2
+    ! casaflux%Nsnet        = 0.0_r_2
+    ! ! casaflux%fNminloss    = 0.0_r_2
+    ! ! casaflux%fNminleach   = 0.0_r_2
+    ! ! casaflux%Pdep         = 0.0_r_2
+    ! ! casaflux%Pwea         = 0.0_r_2
+    ! casaflux%Pleach       = 0.0_r_2
+    ! casaflux%Ploss        = 0.0_r_2
+    ! casaflux%Pupland      = 0.0_r_2
+    ! casaflux%Plittermin   = 0.0_r_2
+    ! casaflux%Psmin        = 0.0_r_2
+    ! casaflux%Psimm        = 0.0_r_2
+    ! casaflux%Psnet        = 0.0_r_2
+    ! ! casaflux%fPleach      = 0.0_r_2 !vh ! this should be a parameter, not a flux variable
+    ! casaflux%kplab        = 0.0_r_2
+    ! casaflux%kpsorb       = 0.0_r_2
+    ! casaflux%kpocc        = 0.0_r_2
+    ! ! casaflux%kmlabp       = 0.0_r_2  !vh ! this should be a paramter, not a flux variable
+    ! ! casaflux%Psorbmax     = 0.0_r_2 !vh ! this should be a paramter, not a flux variable
 
-    casaflux%klitter       = 0.0_r_2
-    casaflux%klitter_fire  = 0.0_r_2
-    casaflux%ksoil         = 0.0_r_2
-    casaflux%fromLtoS      = 0.0_r_2
-    casaflux%fromStoS      = 0.0_r_2
-    casaflux%fromLtoCO2    = 0.0_r_2
-    casaflux%fromStoCO2    = 0.0_r_2
-    casaflux%FluxCtolitter = 0.0_r_2
-    casaflux%FluxNtolitter = 0.0_r_2
-    casaflux%FluxPtolitter = 0.0_r_2
-    casaflux%FluxCtosoil   = 0.0_r_2
-    casaflux%FluxNtosoil   = 0.0_r_2
-    casaflux%FluxPtosoil   = 0.0_r_2
-    casaflux%FluxCtoCO2    = 0.0_r_2
-    casaflux%FluxCtoCO2_plant_fire  = 0.0_r_2
-    casaflux%FluxCtoCO2_litter_fire = 0.0_r_2
+    ! casaflux%klitter       = 0.0_r_2
+    ! casaflux%klitter_fire  = 0.0_r_2
+    ! casaflux%ksoil         = 0.0_r_2
+    ! casaflux%fromLtoS      = 0.0_r_2
+    ! casaflux%fromStoS      = 0.0_r_2
+    ! casaflux%fromLtoCO2    = 0.0_r_2
+    ! casaflux%fromStoCO2    = 0.0_r_2
+    ! casaflux%FluxCtolitter = 0.0_r_2
+    ! casaflux%FluxNtolitter = 0.0_r_2
+    ! casaflux%FluxPtolitter = 0.0_r_2
+    ! casaflux%FluxCtosoil   = 0.0_r_2
+    ! casaflux%FluxNtosoil   = 0.0_r_2
+    ! casaflux%FluxPtosoil   = 0.0_r_2
+    ! casaflux%FluxCtoCO2    = 0.0_r_2
+    ! casaflux%FluxCtoCO2_plant_fire  = 0.0_r_2
+    ! casaflux%FluxCtoCO2_litter_fire = 0.0_r_2
 
-    casaflux%FluxFromPtoL       = 0.0_r_2
-    casaflux%FluxFromLtoS       = 0.0_r_2
-    casaflux%FluxFromStoS       = 0.0_r_2
-    casaflux%FluxFromPtoCO2     = 0.0_r_2
-    casaflux%FluxFromLtoCO2     = 0.0_r_2
-    casaflux%FluxFromStoCO2     = 0.0_r_2
-    casaflux%FluxFromPtoHarvest = 0.0_r_2
+    ! casaflux%FluxFromPtoL       = 0.0_r_2
+    ! casaflux%FluxFromLtoS       = 0.0_r_2
+    ! casaflux%FluxFromStoS       = 0.0_r_2
+    ! casaflux%FluxFromPtoCO2     = 0.0_r_2
+    ! casaflux%FluxFromLtoCO2     = 0.0_r_2
+    ! casaflux%FluxFromStoCO2     = 0.0_r_2
+    ! casaflux%FluxFromPtoHarvest = 0.0_r_2
 
-    casaflux%Cplant_turnover                     = 0.0_r_2
-    casaflux%Cplant_turnover_disturbance         = 0.0_r_2
-    casaflux%Cplant_turnover_crowding            = 0.0_r_2
-    casaflux%Cplant_turnover_resource_limitation = 0.0_r_2
-    casaflux%fHarvest = 0.0_r_2
-    casaflux%Charvest = 0.0_r_2
-    casaflux%Nharvest = 0.0_r_2
-    casaflux%fcrop    = 0.0_r_2
+    ! casaflux%Cplant_turnover                     = 0.0_r_2
+    ! casaflux%Cplant_turnover_disturbance         = 0.0_r_2
+    ! casaflux%Cplant_turnover_crowding            = 0.0_r_2
+    ! casaflux%Cplant_turnover_resource_limitation = 0.0_r_2
+    ! casaflux%fHarvest = 0.0_r_2
+    ! casaflux%Charvest = 0.0_r_2
+    ! casaflux%Nharvest = 0.0_r_2
+    ! casaflux%fcrop    = 0.0_r_2
 
     phen%doyphase(:,1) = -50
     phen%doyphase(:,2) = phen%doyphase(:,1) + 14
@@ -609,119 +668,144 @@ contains
     phen%phen(:)  = 1
     phen%aphen(:) = 0
 
-    casapool%dCplantdt     = 0.0_r_2
-    casapool%dNplantdt     = 0.0_r_2
-    casapool%dPplantdt     = 0.0_r_2
-    casapool%dNsoilmindt   = 0.0_r_2
-    casapool%dPsoillabdt   = 0.0_r_2
-    casapool%dPsoilsorbdt  = 0.0_r_2
-    casapool%dPsoiloccdt   = 0.0_r_2
-    casapool%dClitterdt    = 0.0_r_2
-    casapool%dNlitterdt    = 0.0_r_2
-    casapool%dPlitterdt    = 0.0_r_2
-    casapool%dCsoildt      = 0.0_r_2
-    casapool%dNsoildt      = 0.0_r_2
-    casapool%dPsoildt      = 0.0_r_2
-    casapool%ratioNClitter = 0.0_r_2
-    casapool%ratioNCsoil   = 0.0_r_2
-    casapool%ratioPClitter = 0.0_r_2
-    casapool%ratioPCsoil   = 0.0_r_2
-    !CLN add more if necessary
+    ! casapool%dCplantdt     = 0.0_r_2
+    ! casapool%dNplantdt     = 0.0_r_2
+    ! casapool%dPplantdt     = 0.0_r_2
+    ! casapool%dNsoilmindt   = 0.0_r_2
+    ! casapool%dPsoillabdt   = 0.0_r_2
+    ! casapool%dPsoilsorbdt  = 0.0_r_2
+    ! casapool%dPsoiloccdt   = 0.0_r_2
+    ! casapool%dClitterdt    = 0.0_r_2
+    ! casapool%dNlitterdt    = 0.0_r_2
+    ! casapool%dPlitterdt    = 0.0_r_2
+    ! casapool%dCsoildt      = 0.0_r_2
+    ! casapool%dNsoildt      = 0.0_r_2
+    ! casapool%dPsoildt      = 0.0_r_2
+    ! casapool%ratioNClitter = 0.0_r_2
+    ! casapool%ratioNCsoil   = 0.0_r_2
+    ! casapool%ratioPClitter = 0.0_r_2
+    ! casapool%ratioPCsoil   = 0.0_r_2
+    ! !CLN add more if necessary
 
-    IF (initcasa==1) THEN
-       if (.NOT.cable_user%casa_fromzero) THEN
+    casapool%Nsoilmin(:) = 2.5_r_2
+    !MC - Check if next commented 2 if-blocks are necessary
+    ! if (icycle > 1) then
+    !    casapool%nplant     = MAX(1.e-6_r_2, casapool%nplant)
+    !    casapool%nlitter    = MAX(1.e-6_r_2, casapool%nlitter)
+    !    casapool%nsoil      = MAX(1.e-6_r_2, casapool%nsoil)
+    !    casapool%nsoilmin   = MAX(1.e-6_r_2, casapool%nsoilmin)
+    !    casabal%cplantlast  = casapool%cplant
+    !    casabal%clitterlast = casapool%clitter
+    !    casabal%csoillast   = casapool%csoil
+    !    casabal%clabilelast = casapool%clabile
+    ! endif
+    ! if (icycle > 2) then
+    !    casapool%pplant       = MAX(1.e-7_r_2, casapool%pplant)
+    !    casapool%plitter      = MAX(1.e-7_r_2, casapool%plitter)
+    !    casapool%psoil        = MAX(1.e-7_r_2, casapool%psoil)
+    !    casapool%Psoillab     = MAX(1.e-7_r_2, casapool%psoillab)
+    !    casapool%psoilsorb    = MAX(1.e-7_r_2, casapool%psoilsorb)
+    !    casapool%psoilocc     = MAX(1.e-7_r_2, casapool%psoilocc)
+    !    casabal%pplantlast    = casapool%pplant
+    !    casabal%plitterlast   = casapool%plitter
+    !    casabal%psoillast     = casapool%psoil
+    !    casabal%psoillablast  = casapool%psoillab
+    !    casabal%psoilsorblast = casapool%psoilsorb
+    !    casabal%psoilocclast  = casapool%psoilocc
+    ! endif
+    if ((initcasa == 1) .and. cable_user%casa_fromzero) then
+       write(*,*) 'casa_init: not using restart file!'
+       write(*,*) 'Using input from readbiome.!!!'
+       write(*,*) 'initialising frac_sapwood=1 and sapwood_area = 0)'
+       casaflux%frac_sapwood(:) = 1.0_r_2
+       casaflux%sapwood_area(:) = 0.0_r_2
 #ifndef UM_BUILD
-          CALL READ_CASA_RESTART_NC(casamet, casapool, casaflux, phen)
+    else if ((initcasa == 1) .and. (.not. cable_user%casa_fromzero)) then
+       call read_casa_restart_nc(casabiome, casamet, casapool, casaflux, &
+            casabal, phen)
+       call zero_casa_dump(casamet, phen)
 #endif
-       ELSE
-          WRITE(*,*) 'casa_init: not using restart file!'
-          WRITE(*,*) 'Using input from readbiome.!!!'
-          WRITE(*,*) 'initialising frac_sapwood=1 and sapwood_area = 0)'
-          casaflux%frac_sapwood(:) = 1.0_r_2
-          casaflux%sapwood_area(:) = 0.0_r_2
-       ENDIF
-    ENDIF
-    WHERE(casamet%lnonwood==1) casapool%cplant(:,WOOD) = 0.0_r_2
-    WHERE(casamet%lnonwood==1) casapool%nplant(:,WOOD) = 0.0_r_2
-    WHERE(casamet%lnonwood==1) casapool%pplant(:,WOOD) = 0.0_r_2
-
-    if (initcasa==0) then
-       nyearz = 1
+    else
        do npt=1, mp
           casamet%lon(npt) = real(patch(npt)%longitude, r_2)
           casamet%lat(npt) = real(patch(npt)%latitude, r_2)
        enddo
     endif
 
-    ! reset labile C pool, comment out by Q.Zhang 10/09/2011: casapool%clabile = 0.0
-    ! check pool sizes
-    casapool%Ctot_0     = 0.0_r_2
-    casapool%Ctot       = 0.0_r_2
-    casapool%cplant     = MAX(0.0_r_2,casapool%cplant)
-    casapool%clitter    = MAX(0.0_r_2,casapool%clitter)
-    casapool%csoil      = MAX(0.0_r_2,casapool%csoil)
-    casabal%cplantlast  = casapool%cplant
-    casabal%clitterlast = casapool%clitter
-    casabal%csoillast   = casapool%csoil
-    casabal%clabilelast = casapool%clabile
-    casabal%sumcbal     = 0.0_r_2
-    casabal%FCgppyear   = 0.0_r_2
-    casabal%FCrpyear    = 0.0_r_2
-    casabal%FCnppyear   = 0.0_r_2
-    casabal%FCrsyear    = 0.0_r_2
-    casabal%FCneeyear   = 0.0_r_2
-    ! vh !
-    WHERE (casamet%lnonwood==1) casapool%cplant(:,WOOD) = 0.0_r_2
-    IF (icycle==1) THEN
-       casapool%Nplant(:,:) = casapool%cplant(:,:) * casapool%ratioNCplant(:,:)
-       casapool%Nsoil(:,:)  = casapool%ratioNCsoil(:,:) * casapool%Csoil(:,:)
-       casapool%Psoil(:,:)  = casapool%Nsoil(:,:) / casapool%ratioNPsoil(:,:)
-       casapool%Nsoilmin(:) = 2.5_r_2
-    ENDIF
+    !MC - remove zeroing because done in load_parameters before
+    ! where(casamet%lnonwood==1) casapool%cplant(:,WOOD) = 0.0_r_2
+    ! where(casamet%lnonwood==1) casapool%nplant(:,WOOD) = 0.0_r_2
+    ! where(casamet%lnonwood==1) casapool%pplant(:,WOOD) = 0.0_r_2
 
-    IF (icycle >=1) THEN
-       casapool%nplant     = MAX(1.0e-6_r_2,casapool%nplant)
-       casapool%nlitter    = MAX(1.0e-6_r_2,casapool%nlitter)
-       casapool%nsoil      = MAX(1.0e-6_r_2,casapool%nsoil)
-       casapool%nsoilmin   = MAX(1.0e-6_r_2,casapool%nsoilmin)
-       casabal%nplantlast  = casapool%nplant
-       casabal%nlitterlast = casapool%nlitter
-       casabal%nsoillast   = casapool%nsoil
-       casabal%nsoilminlast= casapool%nsoilmin
-       casabal%sumnbal     = 0.0_r_2
-       casabal%FNdepyear   = 0.0_r_2
-       casabal%FNfixyear   = 0.0_r_2
-       casabal%FNsnetyear  = 0.0_r_2
-       casabal%FNupyear    = 0.0_r_2
-       casabal%FNleachyear = 0.0_r_2
-       casabal%FNlossyear  = 0.0_r_2
-       ! vh !
-       WHERE(casamet%lnonwood==1) casapool%nplant(:,WOOD) = 0.0_r_2
-    ENDIF
+    ! ! reset labile C pool, comment out by Q.Zhang 10/09/2011: casapool%clabile = 0.0
+    ! ! check pool sizes
+    ! casapool%Ctot_0     = 0.0_r_2
+    ! casapool%Ctot       = 0.0_r_2
+    ! casapool%cplant     = MAX(0.0_r_2, casapool%cplant)
+    ! casapool%clitter    = MAX(0.0_r_2, casapool%clitter)
+    ! casapool%csoil      = MAX(0.0_r_2, casapool%csoil)
+    ! casabal%cplantlast  = casapool%cplant
+    ! casabal%clitterlast = casapool%clitter
+    ! casabal%csoillast   = casapool%csoil
+    ! casabal%clabilelast = casapool%clabile
+    ! casabal%sumcbal     = 0.0_r_2
+    ! casabal%FCgppyear   = 0.0_r_2
+    ! casabal%FCrpyear    = 0.0_r_2
+    ! casabal%FCnppyear   = 0.0_r_2
+    ! casabal%FCrsyear    = 0.0_r_2
+    ! casabal%FCneeyear   = 0.0_r_2
+    ! ! vh !
+    ! WHERE (casamet%lnonwood==1) casapool%cplant(:,WOOD) = 0.0_r_2
+    ! IF (icycle == 1) THEN
+    !    casapool%Nplant(:,:) = casapool%cplant(:,:) * casapool%ratioNCplant(:,:)
+    !    casapool%Nsoil(:,:)  = casapool%ratioNCsoil(:,:) * casapool%Csoil(:,:)
+    !    casapool%Psoil(:,:)  = casapool%Nsoil(:,:) / casapool%ratioNPsoil(:,:)
+    !    casapool%Nsoilmin(:) = 2.5_r_2
+    ! ENDIF
 
-    IF (icycle >=1) THEN
-       casapool%pplant       = MAX(1.0e-7_r_2,casapool%pplant)
-       casapool%plitter      = MAX(1.0e-7_r_2,casapool%plitter)
-       casapool%psoil        = MAX(1.0e-7_r_2,casapool%psoil)
-       casapool%Psoillab     = MAX(1.0e-7_r_2,casapool%psoillab)  ! was 2.0, changed according to  YP
-       casapool%psoilsorb    = MAX(1.0e-7_r_2,casapool%psoilsorb) ! was 10.0, -
-       casapool%psoilocc     = MAX(1.0e-7_r_2,casapool%psoilocc)  ! was 50.0, -
-       casabal%pplantlast    = casapool%pplant
-       casabal%plitterlast   = casapool%plitter
-       casabal%psoillast     = casapool%psoil
-       casabal%psoillablast  = casapool%psoillab
-       casabal%psoilsorblast = casapool%psoilsorb
-       casabal%psoilocclast  = casapool%psoilocc
-       casabal%sumpbal       = 0.0_r_2
-       casabal%FPweayear     = 0.0_r_2
-       casabal%FPdustyear    = 0.0_r_2
-       casabal%FPsnetyear    = 0.0_r_2
-       casabal%FPupyear      = 0.0_r_2
-       casabal%FPleachyear   = 0.0_r_2
-       casabal%FPlossyear    = 0.0_r_2
-       ! vh !
-       WHERE(casamet%lnonwood==1) casapool%pplant(:,WOOD) = 0.0_r_2
-    ENDIF
+    ! IF (icycle >= 1) THEN
+    !    casapool%nplant     = MAX(1.0e-6_r_2, casapool%nplant)
+    !    casapool%nlitter    = MAX(1.0e-6_r_2, casapool%nlitter)
+    !    casapool%nsoil      = MAX(1.0e-6_r_2, casapool%nsoil)
+    !    casapool%nsoilmin   = MAX(1.0e-6_r_2, casapool%nsoilmin)
+    !    casabal%nplantlast  = casapool%nplant
+    !    casabal%nlitterlast = casapool%nlitter
+    !    casabal%nsoillast   = casapool%nsoil
+    !    casabal%nsoilminlast= casapool%nsoilmin
+    !    casabal%sumnbal     = 0.0_r_2
+    !    casabal%FNdepyear   = 0.0_r_2
+    !    casabal%FNfixyear   = 0.0_r_2
+    !    casabal%FNsnetyear  = 0.0_r_2
+    !    casabal%FNupyear    = 0.0_r_2
+    !    casabal%FNleachyear = 0.0_r_2
+    !    casabal%FNlossyear  = 0.0_r_2
+    !    ! vh !
+    !    WHERE(casamet%lnonwood==1) casapool%nplant(:,WOOD) = 0.0_r_2
+    ! ENDIF
+
+    ! IF (icycle >=1 ) THEN
+    !    casapool%pplant       = MAX(1.0e-7_r_2, casapool%pplant)
+    !    casapool%plitter      = MAX(1.0e-7_r_2, casapool%plitter)
+    !    casapool%psoil        = MAX(1.0e-7_r_2, casapool%psoil)
+    !    casapool%Psoillab     = MAX(1.0e-7_r_2, casapool%psoillab)  ! was 2.0, changed according to  YP
+    !    casapool%psoilsorb    = MAX(1.0e-7_r_2, casapool%psoilsorb) ! was 10.0, -
+    !    casapool%psoilocc     = MAX(1.0e-7_r_2, casapool%psoilocc)  ! was 50.0, -
+    !    casabal%pplantlast    = casapool%pplant
+    !    casabal%plitterlast   = casapool%plitter
+    !    casabal%psoillast     = casapool%psoil
+    !    casabal%psoillablast  = casapool%psoillab
+    !    casabal%psoilsorblast = casapool%psoilsorb
+    !    casabal%psoilocclast  = casapool%psoilocc
+    !    casabal%sumpbal       = 0.0_r_2
+    !    casabal%FPweayear     = 0.0_r_2
+    !    casabal%FPdustyear    = 0.0_r_2
+    !    casabal%FPsnetyear    = 0.0_r_2
+    !    casabal%FPupyear      = 0.0_r_2
+    !    casabal%FPleachyear   = 0.0_r_2
+    !    casabal%FPlossyear    = 0.0_r_2
+    !    ! vh !
+    !    WHERE(casamet%lnonwood==1) casapool%pplant(:,WOOD) = 0.0_r_2
+    ! ENDIF
 
   END SUBROUTINE casa_init
 
@@ -749,8 +833,8 @@ contains
     TYPE(phen_variable),       INTENT(INOUT) :: phen
 
     ! local variables
-    REAL(r_2), DIMENSION(mso) :: Psorder, Pweasoil, xPsoil50
-    REAL(r_2), DIMENSION(mso) :: fracPlab, fracPsorb, fracPocc, fracPorg
+    REAL(r_2), DIMENSION(mso) :: Psorder, xPsoil50 ! , Pweasoil
+    REAL(r_2), DIMENSION(mso) :: fracPlab, fracPocc ! , fracPsorb, fracPorg
     REAL(r_2), DIMENSION(mp)  :: totPsoil
     INTEGER :: npt, nout, nso
 
@@ -769,16 +853,16 @@ contains
     ! Vertisol    12      190.6
     DATA Psorder/61.3_r_2, 103.9_r_2, 92.8_r_2, 136.9_r_2, 98.2_r_2, 107.6_r_2, 84.1_r_2, &
          110.1_r_2, 35.4_r_2, 41.0_r_2, 51.5_r_2, 190.6_r_2/
-    DATA Pweasoil/0.05_r_2, 0.04_r_2, 0.03_r_2, 0.02_r_2, 0.01_r_2, 0.009_r_2, 0.008_r_2, &
-         0.007_r_2, 0.006_r_2, 0.005_r_2, 0.004_r_2, 0.003_r_2/
+    ! DATA Pweasoil/0.05_r_2, 0.04_r_2, 0.03_r_2, 0.02_r_2, 0.01_r_2, 0.009_r_2, 0.008_r_2, &
+    !      0.007_r_2, 0.006_r_2, 0.005_r_2, 0.004_r_2, 0.003_r_2/
     DATA fracPlab/0.08_r_2, 0.08_r_2, 0.10_r_2, 0.02_r_2, 0.08_r_2, 0.08_r_2, 0.08_r_2, &
          0.06_r_2, 0.02_r_2, 0.05_r_2, 0.09_r_2, 0.05_r_2/
-    DATA fracPsorb/0.32_r_2, 0.37_r_2, 0.57_r_2, 0.67_r_2, 0.37_r_2, 0.37_r_2, 0.37_r_2, &
-         0.32_r_2, 0.24_r_2, 0.22_r_2, 0.21_r_2, 0.38_r_2/
+    ! DATA fracPsorb/0.32_r_2, 0.37_r_2, 0.57_r_2, 0.67_r_2, 0.37_r_2, 0.37_r_2, 0.37_r_2, &
+    !      0.32_r_2, 0.24_r_2, 0.22_r_2, 0.21_r_2, 0.38_r_2/
     DATA fracPocc/0.36_r_2, 0.38_r_2, 0.25_r_2, 0.26_r_2, 0.38_r_2, 0.38_r_2, 0.38_r_2, &
          0.44_r_2, 0.38_r_2, 0.38_r_2, 0.37_r_2, 0.45_r_2/
-    DATA fracPorg/0.25_r_2, 0.17_r_2, 0.08_r_2, 0.05_r_2, 0.17_r_2, 0.17_r_2, 0.17_r_2, &
-         0.18_r_2, 0.36_r_2, 0.35_r_2, 0.34_r_2, 0.12_r_2/
+    ! DATA fracPorg/0.25_r_2, 0.17_r_2, 0.08_r_2, 0.05_r_2, 0.17_r_2, 0.17_r_2, 0.17_r_2, &
+    !      0.18_r_2, 0.36_r_2, 0.35_r_2, 0.34_r_2, 0.12_r_2/
     DATA xPsoil50/7.6_r_2, 4.1_r_2, 4.2_r_2, 3.4_r_2, 4.1_r_2, 4.1_r_2, 4.8_r_2, 4.1_r_2, &
          6.9_r_2, 6.9_r_2, 6.9_r_2, 1.7_r_2/
     !
@@ -809,9 +893,9 @@ contains
     OPEN(nout,file=casafile%cnpepool)
     write(*,*) 'Opened file ', casafile%cnpepool
 
-    casabal%sumcbal = MIN(9999.0_r_2,MAX(-9999.0_r_2,casabal%sumcbal))
-    casabal%sumnbal = MIN(9999.0_r_2,MAX(-9999.0_r_2,casabal%sumnbal))
-    casabal%sumpbal = MIN(9999.0_r_2,MAX(-9999.0_r_2,casabal%sumpbal))
+    casabal%sumcbal = MIN(9999.0_r_2, MAX(-9999.0_r_2, casabal%sumcbal))
+    casabal%sumnbal = MIN(9999.0_r_2, MAX(-9999.0_r_2, casabal%sumnbal))
+    casabal%sumpbal = MIN(9999.0_r_2, MAX(-9999.0_r_2, casabal%sumpbal))
 
     DO npt =1, mp
        nso = casamet%isorder(npt)
@@ -835,7 +919,7 @@ contains
           IF (icycle<3) THEN
              casabal%sumpbal(npt)    = 0.0_r_2
              casapool%pplant(npt,:)  = casapool%Nplant(npt,:)/casapool%ratioNPplant(npt,:)
-             casapool%plitter(npt,:) = casapool%Nlitter(npt,:)/(casapool%ratioNPlitter(npt,:)+1.0e-10_r_2)
+             casapool%plitter(npt,:) = casapool%Nlitter(npt,:)/(casapool%ratioNPlitter(npt,:) + 1.e-10_r_2)
              casapool%psoil(npt,:)   = casapool%Nsoil(npt,:)/casapool%ratioNPsoil(npt,:)
              casapool%psoillab(npt)  = totpsoil(npt) *fracpLab(nso)
              casapool%psoilsorb(npt) = casaflux%psorbmax(npt) * casapool%psoillab(npt) &
@@ -870,7 +954,7 @@ contains
        IF (cable_user%CALL_POP) THEN
           WRITE(nout,92) ktau,npt,veg%iveg(npt),soil%isoilm(npt) ,     &
                casamet%isorder(npt),casamet%lat(npt),casamet%lon(npt), &
-               casamet%areacell(npt)*(1.0e-9),casamet%glai(npt),       &
+               casamet%areacell(npt)*(1.0e-9_r_2),casamet%glai(npt),       &
                casabiome%sla(veg%iveg(npt)), phen%phase(npt), &
                phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &
                casapool%clabile(npt), &
@@ -884,7 +968,7 @@ contains
        ELSE
           WRITE(nout,92) ktau,npt,veg%iveg(npt),soil%isoilm(npt),     &
                casamet%isorder(npt),casamet%lat(npt),casamet%lon(npt), &
-               casamet%areacell(npt)*(1.0e-9),casamet%glai(npt),       &
+               casamet%areacell(npt)*(1.0e-9_r_2),casamet%glai(npt),       &
                casabiome%sla(veg%iveg(npt)), phen%phase(npt), &
                phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &
                casapool%clabile(npt), &
@@ -964,7 +1048,7 @@ contains
        CASE(1)
           WRITE(nout,*) myear,npt,veg%iveg(npt),soil%isoilm(npt),    &
                casamet%isorder(npt),casamet%lat(npt),casamet%lon(npt), &
-               casamet%areacell(npt)*(1.0e-9),casabal%Fcgppyear(npt),  &
+               casamet%areacell(npt)*(1.0e-9_r_2),casabal%Fcgppyear(npt),  &
                casabal%Fcnppyear(npt),  &
                casabal%Fcrmleafyear(npt),casabal%Fcrmwoodyear(npt),     &
                casabal%Fcrmrootyear(npt),casabal%Fcrgrowyear(npt),     &
@@ -973,8 +1057,8 @@ contains
        CASE(2)
           WRITE(nout,*) myear,npt,veg%iveg(npt),soil%isoilm(npt),    &
                casamet%isorder(npt),casamet%lat(npt),casamet%lon(npt), &
-               !MC - casamet%areacell is different between MPI and serial
-               casamet%areacell(npt)*(1.0e-9),casabal%Fcgppyear(npt),  &
+                                !MC - casamet%areacell is different between MPI and serial
+               casamet%areacell(npt)*(1.0e-9_r_2),casabal%Fcgppyear(npt),  &
                casabal%FCnppyear(npt),                                 &
                casabal%Fcrmleafyear(npt),casabal%Fcrmwoodyear(npt),     &
                casabal%Fcrmrootyear(npt),casabal%Fcrgrowyear(npt),     &
@@ -985,7 +1069,7 @@ contains
        CASE(3)
           WRITE(nout,*) myear,npt,veg%iveg(npt),soil%isoilm(npt), &
                casamet%isorder(npt),casamet%lat(npt),casamet%lon(npt),  &
-               casamet%areacell(npt)*(1.0e-9),casabal%Fcgppyear(npt), &
+               casamet%areacell(npt)*(1.0e-9_r_2),casabal%Fcgppyear(npt), &
                casabal%FCnppyear(npt),                                  &
                casabal%Fcrmleafyear(npt),casabal%Fcrmwoodyear(npt),     &
                casabal%Fcrmrootyear(npt),casabal%Fcrgrowyear(npt),     &
@@ -1000,8 +1084,9 @@ contains
        totNPP = totNPP+casabal%Fcnppyear(npt)* casamet%areacell(npt)
     ENDDO
 
-    write(*,*) 'totGPP global = ', totGPP*(1.0e-15)
-    write(*,*) 'totNPP global = ', totNPP*(1.0e-15)
+    write(*,*) 'totGPP global = ', totGPP * (1.0e-15_r_2)
+    write(*,*) 'totNPP global = ', totNPP * (1.0e-15_r_2)
+
     CLOSE(nout)
 
   END SUBROUTINE casa_fluxout
@@ -1084,7 +1169,7 @@ contains
        !    !csoilinput(:,n) = csoilinput(:,n)+casaflux%fluxCtolitter(:,n)*deltpool
        !  ENDDO
 
-       IF (icycle >1) THEN
+       IF (icycle > 1) THEN
           casabal%FNdepyear   = casabal%FNdepyear   + casaflux%Nmindep    * deltpool
           casabal%FNfixyear   = casabal%FNfixyear   + casaflux%Nminfix    * deltpool
           casabal%FNsnetyear  = casabal%FNsnetyear  + casaflux%Nsnet      * deltpool
@@ -1093,7 +1178,7 @@ contains
           casabal%FNlossyear  = casabal%FNlossyear  + casaflux%Nminloss   * deltpool
        ENDIF
 
-       IF (icycle >2) THEN
+       IF (icycle > 2) THEN
           casabal%FPweayear   = casabal%FPweayear   + casaflux%Pwea       * deltpool
           casabal%FPdustyear  = casabal%FPdustyear  + casaflux%Pdep       * deltpool
           casabal%FPsnetyear  = casabal%FPsnetyear  + casaflux%Psnet      * deltpool
@@ -1151,7 +1236,7 @@ contains
     xKNlimiting = 1.0_r_2
 
     ! zero annual sums
-    if (idoy==1) CALL casa_cnpflux(casaflux,casapool,casabal,.true.)
+    if (idoy==1) CALL casa_cnpflux(casaflux, casapool, casabal, .true.)
 
     IF (cable_user%PHENOLOGY_SWITCH.eq.'MODIS') THEN
        call phenology(idoy,veg,phen)
@@ -1274,577 +1359,143 @@ contains
 
     ! for spinning up only
     IF (cable_user%limit_labile) THEN
-       casapool%Nsoilmin = max(casapool%Nsoilmin,5.0_r_2)
-       casapool%Psoillab = max(casapool%Psoillab,1.0_r_2)
+       casapool%Nsoilmin = max(casapool%Nsoilmin, 5.0_r_2)
+       casapool%Psoillab = max(casapool%Psoillab, 1.0_r_2)
     ENDIF
 
   END SUBROUTINE biogeochem
 
 
 #ifndef UM_BUILD
-  SUBROUTINE WRITE_CASA_RESTART_NC( casamet, casapool, casaflux, phen, CASAONLY )
+  subroutine write_casa_restart_nc(casabiome, casamet, casapool, casaflux, &
+       casabal, phen)
 
-    USE CABLE_COMMON_MODULE
-    USE CABLE_DEF_TYPES_MOD, ONLY: mp
-    USE CASAVARIABLE,        ONLY: casa_met, casa_pool, casa_flux, icycle, mplant, mlitter, msoil, casafile
-    USE phenvariable
-    USE netcdf
+    use cable_common_module, only: cable_user, filename
+    use casavariable, only: casa_biome, casa_met, casa_pool, casa_flux, &
+         casa_balance, write_netcdf_casa_var, casafile
+    use phenvariable, only: phen_variable, write_netcdf_phen_var
 
-    IMPLICIT NONE
+    implicit none
 
+    type(casa_biome),    intent(in) :: casabiome
+    type(casa_met),      intent(in) :: casamet
+    type(casa_pool),     intent(in) :: casapool
+    type(casa_flux),     intent(in) :: casaflux
+    type(casa_balance),  intent(in) :: casabal
+    type(phen_variable), intent(in) :: phen
 
-    TYPE(casa_met),      INTENT(IN) :: casamet
-    TYPE(casa_pool),     INTENT(IN) :: casapool
-    TYPE(casa_flux),     INTENT(IN) :: casaflux
-    TYPE(phen_variable), INTENT(IN) :: phen
+    character(len=99) :: basename, fname
 
-    INTEGER(KIND=4) :: mp4
-    INTEGER(KIND=4), parameter   :: pmp4 =0
-    INTEGER, parameter   :: fmp4 = kind(pmp4)
-    INTEGER(KIND=4)   :: STATUS
-    INTEGER(KIND=4)   :: FILE_ID, land_ID, plnt_ID, litt_ID, soil_ID, i
-    LOGICAL   :: CASAONLY
-    CHARACTER :: CYEAR*4, FNAME*99, dum*50
+    if (len_trim(casafile%cnpepool) > 0) then
+       basename = trim(casafile%cnpepool)
+    else
+       basename = trim(filename%path) // '/' // &
+            trim(cable_user%runiden) // '_casa'
+    end if
 
-    ! ! 1 dim arrays (npt )
-    ! CHARACTER(len=20),DIMENSION(7), PARAMETER :: A1 = (/ 'latitude', 'longitude', 'glai', &
-    !      'clabile', 'psoillab','psoilsorb','psoilocc' /)
-    ! ! 2 dim arrays (npt,mplant)
-    ! CHARACTER(len=20),DIMENSION(3), PARAMETER :: A2 = (/ 'cplant' , 'nplant' , 'pplantc' /)
-    ! ! 2 dim arrays (npt,mlitter)
-    ! CHARACTER(len=20),DIMENSION(3), PARAMETER :: A3 = (/ 'clitter', 'nlitter', 'plitter' /)
-    ! ! 2 dim arrays (npt,msoil)
-    ! CHARACTER(len=20),DIMENSION(3), PARAMETER :: A4 = (/ 'csoil', 'nsoil', 'psoil' /)
+    ! casabiome
+    fname = trim(basename) // '_biome_rst.nc'
+    write(*,*) 'Writing casa_biome restart: ', trim(fname)
+    call write_netcdf_casa_var(trim(fname), casabiome)
 
-    ! 1 dim arrays (npt )
-    CHARACTER(len=20),DIMENSION(14) :: A1
-    CHARACTER(len=20),DIMENSION(2) :: AI1
-    ! 2 dim arrays (npt,mplant)
-    CHARACTER(len=20),DIMENSION(3) :: A2
-    ! 2 dim arrays (npt,mlitter)
-    CHARACTER(len=20),DIMENSION(3) :: A3
-    ! 2 dim arrays (npt,msoil)
-    CHARACTER(len=20),DIMENSION(3) :: A4
-    INTEGER(KIND=4) :: VID1(SIZE(A1)), VIDI1(SIZE(AI1)), VID2(SIZE(A2)), VID3(SIZE(A3)), VID4(SIZE(A4))
+    ! casamet
+    fname = trim(basename) // '_met_rst.nc'
+    write(*,*) 'Writing casa_met restart: ', trim(fname)
+    call write_netcdf_casa_var(trim(fname), casamet)
 
-    mp4=int(mp,fmp4)
-    A1(1) = 'latitude'
-    A1(2) = 'longitude'
-    A1(3) = 'glai'
-    A1(4) = 'clabile'
-    A1(5) = 'psoillab'
-    A1(6) = 'psoilsorb'
-    A1(7) = 'psoilocc'
-    A1(8) = 'frac_sapwood'
-    A1(9) = 'sapwood_area'
-    A1(10) = 'phen'
-    A1(11) = 'aphen'
-    A1(12) = 'nsoilmin'
-    A1(13) = 'fHarvest'
-    A1(14) = 'fCrop'
+    ! casapool
+    fname = trim(basename) // '_pool_rst.nc'
+    write(*,*) 'Writing casa_pool restart: ', trim(fname)
+    call write_netcdf_casa_var(trim(fname), casapool)
 
-    AI1(1) = 'phase'
-    AI1(2) = 'doyphase3'
+    ! casaflux
+    fname = trim(basename) // '_flux_rst.nc'
+    write(*,*) 'Writing casa_flux restart: ', trim(fname)
+    call write_netcdf_casa_var(trim(fname), casaflux)
 
-    A2(1) = 'cplant'
-    A2(2) = 'nplant'
-    A2(3) = 'pplant'
-    A3(1) = 'clitter'
-    A3(2) = 'nlitter'
-    A3(3) = 'plitter'
-    A4(1) = 'csoil'
-    A4(2) = 'nsoil'
-    A4(3) = 'psoil'
+    ! casabal
+    fname = trim(basename) // '_bal_rst.nc'
+    write(*,*) 'Writing casa_bal restart: ', trim(fname)
+    call write_netcdf_casa_var(trim(fname), casabal)
 
-    ! Get File-Name
-    WRITE(CYEAR, FMT='(I4)') CurYear + 1
+    ! phen
+    fname = trim(basename) // '_phen_rst.nc'
+    write(*,*) 'Writing casa_phen restart: ', trim(fname)
+    call write_netcdf_phen_var(trim(fname), phen)
 
-    IF (( LEN_TRIM(casafile%cnpepool) ) .gt. 0) THEN
-       fname=TRIM(casafile%cnpepool)
-    ELSE
-       fname = TRIM(filename%path)//'/'//TRIM( cable_user%RunIden )//&
-            '_casa_rst.nc'
-    ENDIF
+    ! write(*,*) 'Done writing casa restart files'
 
-    ! Create NetCDF file:
-    STATUS = NF90_create(trim(fname), ior(nf90_clobber,nf90_64bit_offset), FILE_ID)
-    IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-    write(*,*) 'Writing casa restart: ', trim(fname)
-
-    STATUS = NF90_PUT_ATT( FILE_ID, NF90_GLOBAL, "Valid restart date", "01/01/"//CYEAR  )
-    STATUS = NF90_PUT_ATT( FILE_ID, NF90_GLOBAL, "Icycle", icycle  )
-    IF ( CASAONLY ) THEN
-       dum = 'CASA-ONLY run'
-    ELSE
-       dum = 'CABLE-CASA coupled run'
-    ENDIF
-    STATUS = NF90_PUT_ATT( FILE_ID, NF90_GLOBAL, "Run-Type", TRIM(dum) )
-
-    ! Define dimensions:
-    ! Land (number of points)
-    STATUS = NF90_def_dim(FILE_ID, 'land'   , mp4     , land_ID)
-    IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-    STATUS = NF90_def_dim(FILE_ID, 'mplant' , mplant , plnt_ID)
-    IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-    STATUS = NF90_def_dim(FILE_ID, 'mlitter', mlitter, litt_ID)
-    IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-    STATUS = NF90_def_dim(FILE_ID, 'msoil'  , msoil  , soil_ID)
-    IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-
-    DO i = 1, SIZE(A1)
-       STATUS = NF90_def_var(FILE_ID,TRIM(A1(i)) ,NF90_DOUBLE,(/land_ID/),VID1(i))
-       IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-    END DO
-
-    DO i = 1, SIZE(AI1)
-       STATUS = NF90_def_var(FILE_ID,TRIM(AI1(i)) ,NF90_INT,(/land_ID/),VIDI1(i))
-       IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-    END DO
-
-    DO i = 1, SIZE(A2)
-       STATUS = NF90_def_var(FILE_ID,TRIM(A2(i)) ,NF90_DOUBLE,(/land_ID,plnt_ID/),VID2(i))
-       IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-    END DO
-
-    DO i = 1, SIZE(A3)
-       STATUS = NF90_def_var(FILE_ID,TRIM(A3(i)) ,NF90_DOUBLE,(/land_ID,litt_ID/),VID3(i))
-       IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-    END DO
-
-    DO i = 1, SIZE(A4)
-       STATUS = NF90_def_var(FILE_ID,TRIM(A4(i)) ,NF90_DOUBLE,(/land_ID,soil_ID/),VID4(i))
-       IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-    END DO
-
-    ! End define mode:
-    STATUS = NF90_enddef(FILE_ID)
-    IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-
-    ! PUT LAT / LON
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1(1), casamet%lat )
-    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1(2), casamet%lon )
-    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-    ! PUT VARS
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1(3), casamet%glai )
-    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1(4), casapool%clabile )
-    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1(8), casaflux%frac_sapwood )
-    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1(9), casaflux%sapwood_area )
-    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1(10), real(phen%phen,r_2) )
-    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1(11), real(phen%aphen,r_2) )
-    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1(12), casapool%Nsoilmin )
-    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1(13), casaflux%fHarvest )
-    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1(14), casaflux%fCrop )
-    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-    STATUS = NF90_PUT_VAR(FILE_ID, VIDI1(1), phen%phase )
-    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-    STATUS = NF90_PUT_VAR(FILE_ID, VIDI1(2), phen%doyphase(:,3) )
-    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-    STATUS = NF90_PUT_VAR(FILE_ID, VID2(1), casapool%cplant  )
-    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-    STATUS = NF90_PUT_VAR(FILE_ID, VID2(2), casapool%nplant  )
-    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-    STATUS = NF90_PUT_VAR(FILE_ID, VID3(1), casapool%clitter  )
-    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-    STATUS = NF90_PUT_VAR(FILE_ID, VID3(2), casapool%nlitter )
-    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-    STATUS = NF90_PUT_VAR(FILE_ID, VID4(1), casapool%csoil )
-    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-    STATUS = NF90_PUT_VAR(FILE_ID, VID4(2), casapool%nsoil )
-    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-    IF (icycle ==3) then
-       STATUS = NF90_PUT_VAR(FILE_ID, VID1(5), casapool%psoillab )
-       IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-       STATUS = NF90_PUT_VAR(FILE_ID, VID1(6), casapool%psoilsorb )
-       IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-       STATUS = NF90_PUT_VAR(FILE_ID, VID1(7), casapool%psoilocc )
-       IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-
-       STATUS = NF90_PUT_VAR(FILE_ID, VID4(3), casapool%psoil )
-       IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-       STATUS = NF90_PUT_VAR(FILE_ID, VID2(3), casapool%pplant  )
-       IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-       STATUS = NF90_PUT_VAR(FILE_ID, VID3(3), casapool%plitter )
-       IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
-    ENDIF
-    ! Close NetCDF file:
-    STATUS = NF90_close(FILE_ID)
-    file_id = -1
-    IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-
-  END SUBROUTINE WRITE_CASA_RESTART_NC
+  end subroutine write_casa_restart_nc
 #endif
 
 
 #ifndef UM_BUILD
-  SUBROUTINE READ_CASA_RESTART_NC(casamet, casapool, casaflux, phen)
+  subroutine read_casa_restart_nc(casabiome, casamet, casapool, casaflux, &
+       casabal, phen)
 
-    USE CASAVARIABLE
-    USE phenvariable
-    USE CABLE_COMMON_MODULE
-    USE CABLE_DEF_TYPES_MOD, ONLY: r_2, mp
-    USE netcdf
-#ifdef __MPI__
-    use mpi,                 only: MPI_Abort
-#endif
+    use cable_common_module, only: cable_user, filename
+    use casavariable, only: casa_biome, casa_met, casa_pool, casa_flux, &
+         casa_balance, read_netcdf_casa_var, casafile
+    use phenvariable, only: phen_variable, read_netcdf_phen_var
 
-    IMPLICIT NONE
+    implicit none
 
-    !INTEGER, INTENT(in)    :: YEAR
-    TYPE(casa_met) ,     INTENT(inout) :: casamet
-    TYPE(casa_pool),     INTENT(inout) :: casapool
-    TYPE(casa_flux),     INTENT(inout) :: casaflux
-    TYPE(phen_variable), INTENT(inout) :: phen
+    type(casa_biome),    intent(inout) :: casabiome
+    type(casa_met),      intent(inout) :: casamet
+    type(casa_pool),     intent(inout) :: casapool
+    type(casa_flux),     intent(inout) :: casaflux
+    type(casa_balance),  intent(inout) :: casabal
+    type(phen_variable), intent(inout) :: phen
 
-    INTEGER(KIND=4) :: mp4
-    INTEGER(KIND=4), parameter :: pmp4 =0
-    INTEGER, parameter :: fmp4 = kind(pmp4)
-    INTEGER(KIND=4) :: STATUS, i
-    INTEGER(KIND=4) :: FILE_ID, dID, land_dim, mp_dim, ml_dim, ms_dim
-    CHARACTER :: CYEAR*4, CDATE*12, RSTDATE*12, FNAME*99
+    character(len=99) :: basename, fname
 
-    ! ! 1 dim arrays (npt )
-    ! CHARACTER(len=20),DIMENSION(7), PARAMETER :: A1 = (/ 'latitude', 'longitude', 'glai', &
-    !      'clabile', 'psoillab','psoilsorb','psoilocc' /)
-    ! ! 2 dim arrays (npt,mplant)
-    ! CHARACTER(len=20),DIMENSION(3), PARAMETER :: A2 = (/ 'cplant' , 'nplant' , 'pplantc' /)
-    ! ! 2 dim arrays (npt,mlitter)
-    ! CHARACTER(len=20),DIMENSION(3), PARAMETER :: A3 = (/ 'clitter', 'nlitter', 'plitter' /)
-    ! ! 2 dim arrays (npt,msoil)
-    ! CHARACTER(len=20),DIMENSION(3), PARAMETER :: A4 = (/ 'csoil', 'nsoil', 'psoil' /)
-    REAL(r_2), DIMENSION(mp)          :: LAT, LON, TMP
-    INTEGER,   DIMENSION(mp)          :: ITMP
-    REAL(r_2)                         :: TMP2(mp,mplant), TMP3(mp,mlitter), TMP4(mp,msoil)
+    if (len_trim(casafile%cnpipool) > 0) then
+       basename = trim(casafile%cnpipool)
+    else
+       basename = trim(filename%path) // '/' // &
+            trim(cable_user%runiden) // '_casa'
+    end if
 
-    ! 1 dim arrays (npt )
-    CHARACTER(len=20),DIMENSION(14) :: A1
-    CHARACTER(len=20),DIMENSION(2) :: AI1
-    ! 2 dim arrays (npt,mplant)
-    CHARACTER(len=20),DIMENSION(3) :: A2
-    ! 2 dim arrays (npt,mlitter)
-    CHARACTER(len=20),DIMENSION(3) :: A3
-    ! 2 dim arrays (npt,msoil)
-    CHARACTER(len=20),DIMENSION(3) :: A4
-    LOGICAL            ::  EXISTFILE, EXISTFILE1
-#ifdef __MPI__
-    integer :: ierr
-#endif
+    ! casabiome
+    fname = trim(basename) // '_biome_rst.nc'
+    write(*,*) 'Reading casa_biome restart: ', trim(fname)
+    call read_netcdf_casa_var(trim(fname), casabiome)
 
-    mp4=int(mp,fmp4)
-    A1(1) = 'latitude'
-    A1(2) = 'longitude'
-    A1(3) = 'glai'
-    A1(4) = 'clabile'
-    A1(5) = 'psoillab'
-    A1(6) = 'psoilsorb'
-    A1(7) = 'psoilocc'
-    A1(8) = 'frac_sapwood'
-    A1(9) = 'sapwood_area'
-    A1(10) = 'phen'
-    A1(11) = 'aphen'
-    A1(12) = 'nsoilmin'
-    A1(13) = 'fHarvest'
-    A1(14) = 'fCrop'
+    ! casamet
+    fname = trim(basename) // '_met_rst.nc'
+    write(*,*) 'Reading casa_met restart: ', trim(fname)
+    call read_netcdf_casa_var(trim(fname), casamet)
 
-    AI1(1) = 'phase'
-    AI1(2) = 'doyphase3'
+    ! casapool
+    fname = trim(basename) // '_pool_rst.nc'
+    write(*,*) 'Reading casa_pool restart: ', trim(fname)
+    call read_netcdf_casa_var(trim(fname), casapool)
 
-    A2(1) = 'cplant'
-    A2(2) = 'nplant'
-    A2(3) = 'pplant'
-    A3(1) = 'clitter'
-    A3(2) = 'nlitter'
-    A3(3) = 'plitter'
-    A4(1) = 'csoil'
-    A4(2) = 'nsoil'
-    A4(3) = 'psoil'
+    ! casaflux
+    fname = trim(basename) // '_flux_rst.nc'
+    write(*,*) 'Reading casa_flux restart: ', trim(fname)
+    call read_netcdf_casa_var(trim(fname), casaflux)
 
-    !fname = TRIM(filename%path)//'/'//TRIM( cable_user%RunIden )//&
-    !       '_casa_rst.nc'
-    fname =  TRIM(casafile%cnpipool)
-    INQUIRE( FILE=TRIM(fname), EXIST=EXISTFILE )
-    IF (EXISTFILE) THEN
-       STATUS = NF90_OPEN( TRIM(fname), NF90_NOWRITE, FILE_ID )
-       IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-       write(*,*) 'initial pool from restart file: ', trim(fname)
-    ELSE
-       write(*,*) 'CASA restart file:', TRIM(fname), ' does not exist'
-       fname = TRIM(filename%path)//'/'//TRIM( cable_user%RunIden )//&
-            '_casa_rst.nc'
-       INQUIRE( FILE=TRIM(fname), EXIST=EXISTFILE1 )
-       IF (EXISTFILE1) THEN
-          STATUS = NF90_OPEN( TRIM(fname), NF90_NOWRITE, FILE_ID )
-          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-          write(*,*) 'initial pool from restart file: ', trim(fname)
-       ELSE
-          write(*,*) 'CASA restart file:', TRIM(fname), ' does not exist either'
-          write(*,*) 'Set cable_user%CASA_fromZero to true to initialise without restart file.'
-          write(*,*) 'Otherwise set casafile%cnpipool to netcdf restart file name in cable.nml'
-#ifdef __MPI__
-          call MPI_Abort(0, 92, ierr) ! Do not know comm nor rank here
-#else
-          stop 92
-#endif
-       ENDIF
-    ENDIF
+    ! casabal
+    fname = trim(basename) // '_bal_rst.nc'
+    write(*,*) 'Reading casa_bal restart: ', trim(fname)
+    call read_netcdf_casa_var(trim(fname), casabal)
 
-    ! TIME
-    STATUS = NF90_GET_ATT( FILE_ID, NF90_GLOBAL, "Valid restart date", RSTDATE )
-    IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-    !
-    WRITE(CYEAR, FMT="(I4)") CurYear
-    CDATE = '01/01/'//CYEAR
-    ! compare current year with restart year (only for non-site type met data)
-    IF ( CDATE .NE. RSTDATE .and. &
-         TRIM(cable_user%MetType).NE.'' .and. TRIM(cable_user%MetType).NE.'site' ) THEN
-       WRITE(*,*) "Restart Date in rst file doesn't match start date of Run!"
-       WRITE(*,*) "File: "//RSTDATE//' Run: '//CDATE
-       ! STOP
-    ENDIF
+    ! phen
+    fname = trim(basename) // '_phen_rst.nc'
+    write(*,*) 'Reading casa_phen restart: ', trim(fname)
+    call read_netcdf_phen_var(trim(fname), phen)
 
-    ! DIMS
-    STATUS = NF90_INQ_DIMID( FILE_ID, 'land', dID )
-    IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-    STATUS = NF90_INQUIRE_DIMENSION( FILE_ID, dID, LEN=land_dim )
-    IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-
-    STATUS = NF90_INQ_DIMID( FILE_ID, 'mplant', dID )
-    IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-    STATUS = NF90_INQUIRE_DIMENSION( FILE_ID, dID, LEN=mp_dim )
-    IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-
-    STATUS = NF90_INQ_DIMID( FILE_ID, 'mlitter', dID )
-    IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-    STATUS = NF90_INQUIRE_DIMENSION( FILE_ID, dID, LEN=ml_dim )
-    IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-
-    STATUS = NF90_INQ_DIMID( FILE_ID, 'msoil', dID )
-    IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-    STATUS = NF90_INQUIRE_DIMENSION( FILE_ID, dID, LEN=ms_dim )
-    IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-
-    IF ( land_dim .NE. SIZE(casamet%lon) .OR. mp_dim .NE. mplant .OR. &
-         ml_dim   .NE. mlitter           .OR. ms_dim .NE. msoil ) THEN
-       WRITE(*,*) "Dimension misfit!"
-       WRITE(*,*) "Restart file      Run"
-       WRITE(*,*) "# points  ",land_dim,"     ",SIZE(casamet%lon)
-       WRITE(*,*) "# mplant  ",mp_dim,"     ",mplant
-       WRITE(*,*) "# mlitter ",ml_dim,"     ",mlitter
-       WRITE(*,*) "# msoil   ",ms_dim,"     ",msoil
-#ifdef __MPI__
-       call MPI_Abort(0, 93, ierr) ! Do not know comm nor rank here
-#else
-       stop 93
-#endif
-    ENDIF
-
-    ! LAT & LON
-    STATUS = NF90_INQ_VARID( FILE_ID, A1(1), dID )
-    IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-    STATUS = NF90_GET_VAR( FILE_ID, dID, LAT )
-    IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-
-    STATUS = NF90_INQ_VARID( FILE_ID, A1(2), dID )
-    IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-    STATUS = NF90_GET_VAR( FILE_ID, dID, LON )
-    IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-
-    ! CHECK FOR VALID LONS
-
-    ! READ 1-dimensional fields
-    DO i = 3, SIZE(A1)
-       STATUS = NF90_INQ_VARID( FILE_ID, A1(i), dID )
-       IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-       STATUS = NF90_GET_VAR( FILE_ID, dID, TMP )
-       IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-
-       SELECT CASE (TRIM(A1(i)))
-       CASE ('glai')
-          casamet%glai = TMP
-       CASE ('clabile')
-          casapool%clabile = TMP
-       CASE ('frac_sapwood')
-          casaflux%frac_sapwood = TMP
-       CASE ('sapwood_area')
-          casaflux%sapwood_area = TMP
-       CASE ('phen')
-          phen%phen = real(TMP)
-       CASE ('aphen')
-          phen%aphen = real(TMP)
-       CASE ('nsoilmin')
-          casapool%Nsoilmin = TMP
-       CASE ('fHarvest')
-          casaflux%fHarvest = TMP
-       CASE ('fCrop')
-          casaflux%fCrop = TMP
-       END SELECT
-    END DO
-
-    IF (icycle==3) then
-       DO i = 3, SIZE(A1)
-          STATUS = NF90_INQ_VARID( FILE_ID, A1(i), dID )
-          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-          STATUS = NF90_GET_VAR( FILE_ID, dID, TMP )
-          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-
-          SELECT CASE (TRIM(A1(i)))
-          CASE ('psoillab')
-             casapool%psoillab  = TMP
-          CASE ('psoilsorb')
-             casapool%psoilsorb = TMP
-          CASE ('psoilocc')
-             casapool%psoilocc  = TMP
-          END SELECT
-       END DO
-    ENDIF
-
-    DO i = 1, SIZE(AI1)
-       STATUS = NF90_INQ_VARID( FILE_ID, AI1(i), dID )
-       IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-       STATUS = NF90_GET_VAR( FILE_ID, dID, ITMP )
-       IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-
-       SELECT CASE (TRIM(AI1(i)))
-       CASE ('phase')
-          phen%phase = ITMP
-       CASE ('doyphase3')
-          phen%doyphase(:,3) = ITMP
-       END SELECT
-    END DO
-
-    ! READ 2-dimensional fields (mplant)
-    DO i = 1, SIZE(A2)
-       STATUS = NF90_INQ_VARID( FILE_ID, A2(i), dID )
-       IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-       STATUS = NF90_GET_VAR( FILE_ID, dID, TMP2 )
-       IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-
-       SELECT CASE (TRIM(A2(i)))
-       CASE ('cplant')
-          casapool%cplant = TMP2
-       CASE ('nplant')
-          casapool%nplant = TMP2
-       END SELECT
-    END DO
-
-    IF (icycle==3) then
-       DO i = 1, SIZE(A2)
-          STATUS = NF90_INQ_VARID( FILE_ID, A2(i), dID )
-          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-          STATUS = NF90_GET_VAR( FILE_ID, dID, TMP2 )
-          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-
-          SELECT CASE (TRIM(A2(i)))
-          CASE ('pplant')
-             casapool%pplant = TMP2
-          END SELECT
-       END DO
-    ENDIF
-
-    ! READ 2-dimensional fields (mlitter)
-    DO i = 1, SIZE(A3)
-       STATUS = NF90_INQ_VARID( FILE_ID, A3(i), dID )
-       IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-       STATUS = NF90_GET_VAR( FILE_ID, dID, TMP3 )
-       IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-
-       SELECT CASE (TRIM(A3(i)))
-       CASE ('clitter')
-          casapool%clitter = TMP3
-       CASE ('nlitter')
-          casapool%nlitter = TMP3
-       END SELECT
-    END DO
-
-    IF (icycle==3) then
-       DO i = 1, SIZE(A3)
-          STATUS = NF90_INQ_VARID( FILE_ID, A3(i), dID )
-          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-          STATUS = NF90_GET_VAR( FILE_ID, dID, TMP3 )
-          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-
-          SELECT CASE (TRIM(A3(i)))
-          CASE ('plitter')
-             casapool%plitter = TMP3
-          END SELECT
-       END DO
-    ENDIF
-
-    ! READ 2-dimensional fields (msoil)
-    DO i = 1, SIZE(A4)
-       STATUS = NF90_INQ_VARID( FILE_ID, A4(i), dID )
-       IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-       STATUS = NF90_GET_VAR( FILE_ID, dID, TMP4 )
-       IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-
-       SELECT CASE (TRIM(A4(i)))
-       CASE ('csoil')
-          casapool%csoil = TMP4
-       CASE ('nsoil')
-          casapool%nsoil = TMP4
-       END SELECT
-    END DO
-
-    IF (icycle==3) then
-       DO i = 1, SIZE(A4)
-          STATUS = NF90_INQ_VARID( FILE_ID, A4(i), dID )
-          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-          STATUS = NF90_GET_VAR( FILE_ID, dID, TMP4 )
-          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-
-          SELECT CASE (TRIM(A4(i)))
-          CASE ('psoil')
-             casapool%psoil = TMP4
-          END SELECT
-       END DO
-    ENDIF
-
-    STATUS  = NF90_CLOSE( FILE_ID )
-    file_id = -1
-
-  END SUBROUTINE READ_CASA_RESTART_NC
+  end subroutine read_casa_restart_nc
 #endif
 
 
 #ifndef UM_BUILD
   subroutine write_casa_output_nc(veg, casamet, casapool, casabal, casaflux, casaonly, ctime, lfinal)
 
+    use casadimension,        only: mplant, mlitter, msoil, icycle
     use casavariable,         only: casa_met, casa_pool, casa_balance, casa_flux, &
-         mplant, mlitter, msoil, icycle, casafile, casa_timeunits
+         casafile, casa_timeunits
     use cable_common_module,  only: cable_user, filename, handle_err
     use cable_def_types_mod,  only: veg_parameter_type, mp
     ! use cable_def_types_mod,  only: sp => r_2

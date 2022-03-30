@@ -703,12 +703,6 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
         timevar(i+1) = timevar(i) + real(dels,r_2)
       ENDDO
       write(*,*) 'New      timevar(kend) = ', timevar(kend)
-      ! hacking (BP feb2011)
-      !      kend = 16   ! 2 days for 1986
-      !      kend = 480  ! 2 months for 1986
-      !      PRINT *, 'Hacked   timevar(kend) = ', timevar(kend)
-      !      PRINT *, 'Hacked kend = ', kend
-      ! end hacking
     END IF
     !********* done bug fixing for timevar in gswp input file **
 
@@ -2369,7 +2363,7 @@ END SUBROUTINE close_met_file
 !
 ! CALLs: get_default_params
 !        allocate_cable_vars
-!        alloc_casavariable
+!        alloc_casa_var
 !        alloc_phenvariable
 !        write_default_params
 !        write_cnp_params
@@ -2419,29 +2413,29 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, bgc, soil, canopy, rough, rad, 
    TYPE(met_type),            INTENT(INOUT) :: met
    TYPE(air_type),            INTENT(INOUT) :: air
    TYPE(soil_snow_type),      INTENT(INOUT) :: ssnow
-   TYPE(veg_parameter_type),  INTENT(OUT)   :: veg
-   TYPE(bgc_pool_type),       INTENT(OUT)   :: bgc
-   TYPE(soil_parameter_type), INTENT(OUT)   :: soil
-   TYPE(canopy_type),         INTENT(OUT)   :: canopy
-   TYPE(roughness_type),      INTENT(OUT)   :: rough
-   TYPE(radiation_type),      INTENT(OUT)   :: rad
-   TYPE(sum_flux_type),       INTENT(OUT)   :: sum_flux
-   TYPE(balances_type),       INTENT(OUT)   :: bal
-   TYPE(casa_biome),          INTENT(OUT)   :: casabiome
-   TYPE(casa_pool),           INTENT(OUT)   :: casapool
-   TYPE(casa_flux),           INTENT(OUT)   :: casaflux
-   TYPE(casa_pool),           INTENT(OUT)   :: sum_casapool
-   TYPE(casa_flux),           INTENT(OUT)   :: sum_casaflux
-   TYPE(casa_met),            INTENT(OUT)   :: casamet
-   TYPE(casa_balance),        INTENT(OUT)   :: casabal
-   TYPE(phen_variable),       INTENT(OUT)   :: phen
+   TYPE(veg_parameter_type),  INTENT(INOUT) :: veg
+   TYPE(bgc_pool_type),       INTENT(INOUT) :: bgc
+   TYPE(soil_parameter_type), INTENT(INOUT) :: soil
+   TYPE(canopy_type),         INTENT(INOUT) :: canopy
+   TYPE(roughness_type),      INTENT(INOUT) :: rough
+   TYPE(radiation_type),      INTENT(INOUT) :: rad
+   TYPE(sum_flux_type),       INTENT(INOUT) :: sum_flux
+   TYPE(balances_type),       INTENT(INOUT) :: bal
+   TYPE(casa_biome),          INTENT(INOUT) :: casabiome
+   TYPE(casa_pool),           INTENT(INOUT) :: casapool
+   TYPE(casa_flux),           INTENT(INOUT) :: casaflux
+   TYPE(casa_pool),           INTENT(INOUT) :: sum_casapool
+   TYPE(casa_flux),           INTENT(INOUT) :: sum_casaflux
+   TYPE(casa_met),            INTENT(INOUT) :: casamet
+   TYPE(casa_balance),        INTENT(INOUT) :: casabal
+   TYPE(phen_variable),       INTENT(INOUT) :: phen
    TYPE(POP_TYPE),            INTENT(INOUT) :: POP
    TYPE(POPLUC_TYPE),         INTENT(INOUT) :: POPLUC
    TYPE(LUC_EXPT_TYPE),       INTENT(INOUT) :: LUC_EXPT
    ! 13C
-   type(c13o2_flux),          intent(out)   :: c13o2flux
-   type(c13o2_pool),          intent(out)   :: c13o2pools, sum_c13o2pools
-   type(c13o2_luc),           intent(out)   :: c13o2luc
+   type(c13o2_flux),          intent(inout) :: c13o2flux
+   type(c13o2_pool),          intent(inout) :: c13o2pools, sum_c13o2pools
+   type(c13o2_luc),           intent(inout) :: c13o2luc
    INTEGER,                   INTENT(IN)    :: logn     ! log file unit number
    LOGICAL,                   INTENT(IN)    :: vegparmnew, spinup ! are we using the new format? ! for POP (initialize pop)
    REAL,                      INTENT(IN)    :: TFRZ, EMSOIL
@@ -2470,9 +2464,9 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, bgc, soil, canopy, rough, rad, 
     ! They will be overwritten by values from the restart file, if present.
     ! Those variables found in the met file will again overwrite existing ones.
 
-    CALL get_default_params(logn,vegparmnew,LUC_EXPT)
-    CALL allocate_cable_vars(air,bgc,canopy,met,bal,rad,rough,soil,ssnow, &
-            sum_flux,veg,mp)
+    CALL get_default_params(logn, vegparmnew, LUC_EXPT)
+    CALL allocate_cable_vars(air, bgc, canopy, met, bal, &
+         rad, rough, soil, ssnow, sum_flux, veg, mp)
     ! 13C
     if (cable_user%c13o2) then
        call c13o2_alloc_flux(c13o2flux, mp)
@@ -2481,23 +2475,24 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, bgc, soil, canopy, rough, rad, 
     WRITE(logn,*) ' CABLE variables allocated with ', mp, ' patch(es).'
 
     IF ((icycle > 0) .OR. CABLE_USER%CASA_DUMP_WRITE) then
-       CALL alloc_casavariable(casabiome, mp)
-       CALL alloc_casavariable(casapool, mp)
-       CALL alloc_casavariable(casaflux, mp)
-       CALL alloc_casavariable(casamet, mp)
-       CALL alloc_casavariable(casabal, mp)
-       call zero_casavariable(casabiome)
-       call zero_casavariable(casapool)
-       call zero_casavariable(casaflux)
-       call zero_casavariable(casamet)
-       call zero_casavariable(casabal)
+       CALL alloc_casa_var(casabiome)
+       CALL alloc_casa_var(casapool, mp)
+       CALL alloc_casa_var(casaflux, mp)
+       CALL alloc_casa_var(casamet, mp)
+       CALL alloc_casa_var(casabal, mp)
+       call zero_casa_var(casabiome)
+       call zero_casa_var(casapool)
+       call zero_casa_var(casaflux)
+       call zero_casa_var(casamet)
+       call zero_casa_var(casabal)
        ! 13C
        if (cable_user%c13o2) then
           call c13o2_alloc_pools(c13o2pools, mp)
           call c13o2_zero_pools(c13o2pools)
        endif
     endif
-    CALL alloc_sum_casavariable(sum_casapool, sum_casaflux, mp)
+    call alloc_sum_casa(sum_casapool, sum_casaflux, mp)
+    call zero_sum_casa(sum_casapool, sum_casaflux)
     ! 13C
     if (cable_user%c13o2) then
        call c13o2_alloc_pools(sum_c13o2pools, mp)
@@ -2508,7 +2503,7 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, bgc, soil, canopy, rough, rad, 
        call zero_phenvariable(phen)
     ENDIF
 
-    ! Write parameter values to CABLE's parameter variables:
+    ! Write parameter values to CABLE's parameter variables
     CALL write_default_params(met, ssnow, veg, bgc, soil, canopy, rough, &
             rad, logn, smoy, TFRZ, LUC_EXPT)
     ! 13C
@@ -2521,12 +2516,13 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, bgc, soil, canopy, rough, rad, 
     WHERE (veg%iveg(:) .GE. 14) veg%vlai = 0.
 
     IF (icycle > 0) THEN
-      CALL write_cnp_params(veg,casaflux,casamet)
-      CALL casa_readbiome(veg,soil,casabiome,casapool,casaflux, &
-           casamet,phen)
-      IF (cable_user%PHENOLOGY_SWITCH.eq.'MODIS') CALL casa_readphen(veg,casamet,phen)
+      CALL write_cnp_params(veg, casaflux, casamet)
+      CALL casa_readbiome(veg, soil, casabiome, casapool, casaflux, &
+           casamet, phen)
+      IF (cable_user%PHENOLOGY_SWITCH .eq. 'MODIS') &
+           CALL casa_readphen(veg, casamet, phen)
 
-      CALL casa_init(casamet, casaflux, casapool, casabal, phen)
+      CALL casa_init(casabiome, casamet, casaflux, casapool, casabal, phen)
       ! 13C
       if (cable_user%c13o2) then
          call c13o2_init_pools(casapool, casaflux, c13o2pools)
@@ -2547,8 +2543,8 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, bgc, soil, canopy, rough, rad, 
             ENDIF
          ENDDO
 
-         CALL POP_init( POP, veg%disturbance_interval(Iwood,:), mp_POP, Iwood )
-         IF ( .NOT. (spinup .OR. CABLE_USER%POP_fromZero )) &
+         CALL POP_init(POP, veg%disturbance_interval(Iwood,:), mp_POP, Iwood)
+         IF (.NOT. (spinup .OR. CABLE_USER%POP_fromZero)) &
               CALL POP_IO(POP, casamet, cable_user%YearStart, "READ_RST", .TRUE.)
       ENDIF
 
@@ -2624,7 +2620,7 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, bgc, soil, canopy, rough, rad, 
             'to number in default/met file settings. (SUB load_parameters) ' &
             //'Recommend running without restart file.')
 
-      ! Load initialisations and parameters from restart file:
+      ! Load initialisations and parameters from restart file
       CALL get_restart_data(ssnow, canopy, bgc, bal, veg, rad, EMSOIL)
 
       ! 13C
@@ -2647,7 +2643,7 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, bgc, soil, canopy, rough, rad, 
     CALL get_parameters_met(soil,veg,bgc,rough,completeSet)
     ! Results of looking for parameters in the met file:
     WRITE(logn,*)
-    IF(exists%parameters.AND.completeSet) THEN
+    IF (exists%parameters .AND. completeSet) THEN
       ! All pars were found in met file:
       WRITE(logn,*) ' Loaded all parameters from met input file: ', &
                     TRIM(filename%met)

@@ -75,7 +75,7 @@ CONTAINS
     ! Input arguments
     TYPE (met_type), INTENT(IN)            :: met
     TYPE (soil_snow_type), INTENT(INOUT)   :: ssnow
-    TYPE (canopy_type), INTENT(OUT)        :: canopy
+    TYPE (canopy_type), INTENT(INOUT)      :: canopy
     INTEGER,INTENT(IN)                :: logn     ! log file unit number
     REAL, INTENT(IN) :: EMSOIL
     ! Local variables
@@ -137,7 +137,8 @@ CONTAINS
     canopy%fev     = 0.0   ! latent heat flux from vegetation (W/m2)
     canopy%fes     = 0.0   ! latent heat flux from soil (W/m2)
     canopy%fhs     = 0.0   ! sensible heat flux from soil (W/m2)
-    canopy%us      = 0.1 ! friction velocity (needed in roughness before first call to canopy: should in be in restart?)
+    canopy%us      = 0.1 ! friction velocity (needed in roughness before first call to canopy)
+    canopy%fwsoil  = 1.0   ! water limitation factor
 
     ! GPP_components
     canopy%A_shC          = 0.0_r_2
@@ -213,15 +214,15 @@ CONTAINS
     ! INTEGER, POINTER, DIMENSION(:) :: INvar => null()
     !    REAL, POINTER,DIMENSION(:,:) :: surffrac => null() ! fraction of each surf type
     INTEGER :: &
-         mland_restart,         & ! number of land points in restart file
-         INvegt,                &
-         INsoilt,               &
-         INpatch,               &
-         mpatchID,              &
-                                ! surftype_restart,      & ! number of surface types in restart file
-         latID, lonID,          & ! lat,lon variable ID
-         mvtypeID,              & ! veg type variable ID
-         mstypeID,              & ! soil type variable ID
+         mland_restart, & ! number of land points in restart file
+         INvegt, &
+         INsoilt, &
+         INpatch, &
+         mpatchID, &
+                                ! surftype_restart, & ! number of surface types in restart file
+         latID, lonID, & ! lat,lon variable ID
+         mvtypeID, & ! veg type variable ID
+         mstypeID, & ! soil type variable ID
          mlandID                  ! netcdf ID for land points
     LOGICAL :: &
          from_restart = .TRUE., & ! insist variables/params load
@@ -393,49 +394,54 @@ CONTAINS
     !   we're reading from the restart file.
     ! Use 'defd' for single dim double precision.
     ! Use, e.g., 'msd' to fetch double precision 2D soil varible
-    CALL readpar(ncid_rin,'tgg',dummy,ssnow%tgg,filename%restart_in,            &
+    CALL readpar(ncid_rin,'tgg',dummy,ssnow%tgg,filename%restart_in, &
          max_vegpatches,'ms',from_restart,mp)
-    CALL readpar(ncid_rin,'wb',dummy,ssnow%wb,filename%restart_in,              &
+    CALL readpar(ncid_rin,'wb',dummy,ssnow%wb,filename%restart_in, &
          max_vegpatches,'msd',from_restart,mp)
-    CALL readpar(ncid_rin,'wbice',dummy,ssnow%wbice,filename%restart_in,        &
+    CALL readpar(ncid_rin,'wbice',dummy,ssnow%wbice,filename%restart_in, &
          max_vegpatches,'msd',from_restart,mp)
     ! WHERE (ssnow%tgg > 273.2 .AND. ssnow%wbice >0.0) ssnow%wbice=0.0
-    CALL readpar(ncid_rin,'gammzz',dummy,ssnow%gammzz,filename%restart_in,      &
+    CALL readpar(ncid_rin,'gammzz',dummy,ssnow%gammzz,filename%restart_in, &
          max_vegpatches,'msd',from_restart,mp)
-    CALL readpar(ncid_rin,'tss',dummy,ssnow%tss,filename%restart_in,            &
+    CALL readpar(ncid_rin, 'tss', dummy, ssnow%tss, filename%restart_in, &
+         max_vegpatches, 'def', from_restart, mp)
+    CALL readpar(ncid_rin,'ssdnn',dummy,ssnow%ssdnn,filename%restart_in, &
          max_vegpatches,'def',from_restart,mp)
-    CALL readpar(ncid_rin,'ssdnn',dummy,ssnow%ssdnn,filename%restart_in,        &
-         max_vegpatches,'def',from_restart,mp)
-    CALL readpar(ncid_rin,'ssdn',dummy,ssnow%ssdn,filename%restart_in,          &
+    CALL readpar(ncid_rin,'ssdn',dummy,ssnow%ssdn,filename%restart_in, &
          max_vegpatches,'snow',from_restart,mp)
-    CALL readpar(ncid_rin,'osnowd',dummy,ssnow%osnowd,filename%restart_in,      &
+    CALL readpar(ncid_rin,'osnowd',dummy,ssnow%osnowd,filename%restart_in, &
          max_vegpatches,'def',from_restart,mp)
-    CALL readpar(ncid_rin,'smass',dummy,ssnow%smass,filename%restart_in,        &
+    CALL readpar(ncid_rin,'smass',dummy,ssnow%smass,filename%restart_in, &
          max_vegpatches,'snow',from_restart,mp)
-    CALL readpar(ncid_rin,'sdepth',dummy,ssnow%sdepth,filename%restart_in,      &
+    CALL readpar(ncid_rin,'sdepth',dummy,ssnow%sdepth,filename%restart_in, &
          max_vegpatches,'snow',from_restart,mp)
-    CALL readpar(ncid_rin,'tggsn',dummy,ssnow%tggsn,filename%restart_in,        &
+    CALL readpar(ncid_rin,'tggsn',dummy,ssnow%tggsn,filename%restart_in, &
          max_vegpatches,'snow',from_restart,mp)
-    CALL readpar(ncid_rin,'snage',dummy,ssnow%snage,filename%restart_in,        &
+    CALL readpar(ncid_rin,'snage',dummy,ssnow%snage,filename%restart_in, &
          max_vegpatches,'def',from_restart,mp)
-    CALL readpar(ncid_rin,'snowd',dummy,ssnow%snowd,filename%restart_in,        &
+    CALL readpar(ncid_rin,'snowd',dummy,ssnow%snowd,filename%restart_in, &
          max_vegpatches,'def',from_restart,mp)
-    CALL readpar(ncid_rin,'rtsoil',dummy,ssnow%rtsoil,filename%restart_in,      &
+    CALL readpar(ncid_rin,'rtsoil',dummy,ssnow%rtsoil,filename%restart_in, &
          max_vegpatches,'def',from_restart,mp)
-    CALL readpar(ncid_rin,'isflag',dummy,ssnow%isflag,filename%restart_in,      &
+    CALL readpar(ncid_rin,'isflag',dummy,ssnow%isflag,filename%restart_in, &
          max_vegpatches,'def',from_restart,mp)
-    CALL readpar(ncid_rin,'albsoilsn',dummy,ssnow%albsoilsn,                    &
+    CALL readpar(ncid_rin,'albsoilsn',dummy,ssnow%albsoilsn, &
          filename%restart_in,max_vegpatches,'nrb',from_restart,mp)
     ssnow%albsoilsn(:,3) = 1.0 - emsoil  !! (BP Nov 2009)
-    CALL readpar(ncid_rin,'rnof1',dummy,ssnow%rnof1,filename%restart_in,        &
+    CALL readpar(ncid_rin,'rnof1',dummy,ssnow%rnof1,filename%restart_in, &
          max_vegpatches,'def',from_restart,mp)
-    CALL readpar(ncid_rin,'rnof2',dummy,ssnow%rnof2,filename%restart_in,        &
+    CALL readpar(ncid_rin,'rnof2',dummy,ssnow%rnof2,filename%restart_in, &
          max_vegpatches,'def',from_restart,mp)
-    CALL readpar(ncid_rin,'runoff',dummy,ssnow%runoff,filename%restart_in,      &
+    CALL readpar(ncid_rin,'runoff',dummy,ssnow%runoff,filename%restart_in, &
          max_vegpatches,'def',from_restart,mp)
+    ! MC - 20220303 - add 2 ssnow parameters to restart
+    CALL readpar(ncid_rin, 'otss', dummy, ssnow%otss, filename%restart_in, &
+         max_vegpatches, 'def', from_restart, mp)
+    CALL readpar(ncid_rin, 'wetfac', dummy, ssnow%wetfac, filename%restart_in, &
+         max_vegpatches, 'def', from_restart, mp)
 
     ! IF(cable_user%SOIL_STRUC=='sli'.or.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
-    !    CALL readpar(ncid_rin,'gamma',dummy,veg%gamma,filename%restart_in,           &
+    !    CALL readpar(ncid_rin,'gamma',dummy,veg%gamma,filename%restart_in, &
     !         max_vegpatches,'def',from_restart,mp)
     ! ENDIF
 
@@ -458,50 +464,63 @@ CONTAINS
        !      filename%restart_in,max_vegpatches,'def',from_restart,mp)
        ! CALL readpar(ncid_rin,'F10',dummy,veg%F10, &
        !      filename%restart_in,max_vegpatches,'def',from_restart,mp)
-       ! CALL readpar(ncid_rin,'zeta',dummy,soil%zeta,filename%restart_in,           &
+       ! CALL readpar(ncid_rin,'zeta',dummy,soil%zeta,filename%restart_in, &
        !      max_vegpatches,'def',from_restart,mp)
-       ! CALL readpar(ncid_rin,'fsatmax',dummy,soil%fsatmax,filename%restart_in,           &
+       ! CALL readpar(ncid_rin,'fsatmax',dummy,soil%fsatmax,filename%restart_in, &
        !      max_vegpatches,'def',from_restart,mp)
-       ! CALL readpar(ncid_rin,'nhorizons',dummy,soil%nhorizons,filename%restart_in,           &
+       ! CALL readpar(ncid_rin,'nhorizons',dummy,soil%nhorizons,filename%restart_in, &
        !      max_vegpatches,'def',from_restart,mp)
        ! ALLOCATE(var_r2(mp,ms))
-       ! CALL readpar(ncid_rin,'ishorizon',dummy,var_r2,filename%restart_in,           &
+       ! CALL readpar(ncid_rin,'ishorizon',dummy,var_r2,filename%restart_in, &
        !      max_vegpatches,'ms',from_restart,mp)
        ! soil%ishorizon = int(var_r2)
        ! DEALLOCATE(var_r2)
-       ! CALL readpar(ncid_rin,'clitt',dummy,veg%clitt,filename%restart_in,           &
+       ! CALL readpar(ncid_rin,'clitt',dummy,veg%clitt,filename%restart_in, &
        !      max_vegpatches,'def',from_restart,mp)
     ENDIF
-    CALL readpar(ncid_rin,'cansto',dummy,canopy%cansto,filename%restart_in,     &
+    CALL readpar(ncid_rin,'cansto',dummy,canopy%cansto,filename%restart_in, &
          max_vegpatches,'def',from_restart,mp)
-    CALL readpar(ncid_rin,'sghflux',dummy,canopy%sghflux,filename%restart_in,   &
+    CALL readpar(ncid_rin,'sghflux',dummy,canopy%sghflux,filename%restart_in, &
          max_vegpatches,'def',from_restart,mp)
-    CALL readpar(ncid_rin,'ghflux',dummy,canopy%ghflux,filename%restart_in,     &
+    CALL readpar(ncid_rin,'ghflux',dummy,canopy%ghflux,filename%restart_in, &
          max_vegpatches,'def',from_restart,mp)
-    CALL readpar(ncid_rin,'ga',dummy,canopy%ga,filename%restart_in,             &
+    CALL readpar(ncid_rin, 'ga', dummy, canopy%ga, filename%restart_in, &
+         max_vegpatches, 'def', from_restart, mp)
+    CALL readpar(ncid_rin, 'dgdtg', dummy, canopy%dgdtg, filename%restart_in, &
+         max_vegpatches, 'def', from_restart, mp)
+    CALL readpar(ncid_rin,'fev',dummy,canopy%fev,filename%restart_in, &
          max_vegpatches,'def',from_restart,mp)
-    CALL readpar(ncid_rin,'dgdtg',dummy,canopy%dgdtg,filename%restart_in,       &
-         max_vegpatches,'def',from_restart,mp)
-    CALL readpar(ncid_rin,'fev',dummy,canopy%fev,filename%restart_in,           &
-         max_vegpatches,'def',from_restart,mp)
+    ! MC - 20220303 - add 2 canopy parameters to restart
+    CALL readpar(ncid_rin, 'fwsoil', dummy, canopy%fwsoil, filename%restart_in, &
+         max_vegpatches, 'def', from_restart, mp)
+    CALL readpar(ncid_rin, 'us', dummy, canopy%us, filename%restart_in, &
+         max_vegpatches, 'def', from_restart, mp)
     !jhan:hack - elimiinate call as r_2 now
-    ! CALL readpar(ncid_rin,'fes',dummy,canopy%fes,filename%restart_in,          &
+    ! CALL readpar(ncid_rin,'fes',dummy,canopy%fes,filename%restart_in, &
     !      max_vegpatches,'def',from_restart,mp)
-    CALL readpar(ncid_rin,'fhs',dummy,canopy%fhs,filename%restart_in,           &
+    CALL readpar(ncid_rin,'fhs',dummy,canopy%fhs,filename%restart_in, &
          max_vegpatches,'def',from_restart,mp)
-    CALL readpar(ncid_rin,'cplant',dummy,bgc%cplant,filename%restart_in,        &
+    CALL readpar(ncid_rin,'cplant',dummy,bgc%cplant,filename%restart_in, &
          max_vegpatches,'ncp',from_restart,mp)
-    CALL readpar(ncid_rin,'csoil',dummy,bgc%csoil,filename%restart_in,          &
+    CALL readpar(ncid_rin,'csoil',dummy,bgc%csoil,filename%restart_in, &
          max_vegpatches,'ncs',from_restart,mp)
-    CALL readpar(ncid_rin,'wbtot0',dummy,bal%wbtot0,filename%restart_in,        &
+    CALL readpar(ncid_rin,'wbtot0',dummy,bal%wbtot0,filename%restart_in, &
          max_vegpatches,'def',from_restart,mp)
-    CALL readpar(ncid_rin,'osnowd0',dummy,bal%osnowd0,filename%restart_in,      &
+    CALL readpar(ncid_rin,'osnowd0',dummy,bal%osnowd0,filename%restart_in, &
          max_vegpatches,'def',from_restart,mp)
     ! The following two restart file additions are to initialise Mk3L:
-    CALL readpar(ncid_rin,'albedo',dummy,rad%albedo,filename%restart_in,        &
+    CALL readpar(ncid_rin,'albedo',dummy,rad%albedo,filename%restart_in, &
          max_vegpatches,'nrb',from_restart,mp)
-    CALL readpar(ncid_rin,'trad',dummy,rad%trad,filename%restart_in,            &
+    CALL readpar(ncid_rin,'trad',dummy,rad%trad,filename%restart_in, &
          max_vegpatches,'def',from_restart,mp)
+    ! MC - 20220303 - add 3 veg parameters to restart
+    CALL readpar(ncid_rin, 'cfrd', dummy, veg%cfrd, filename%restart_in, &
+         max_vegpatches, 'def', from_restart, mp)
+    CALL readpar(ncid_rin, 'vlai', dummy, veg%vlai, filename%restart_in, &
+         max_vegpatches, 'def', from_restart, mp)
+    CALL readpar(ncid_rin, 'hc', dummy, veg%hc, filename%restart_in, &
+         max_vegpatches, 'def', from_restart, mp)
+
 
     ! Get model parameters =============================================
     ! rad%latitude set above in lat/lon checking section
@@ -738,26 +757,26 @@ CONTAINS
     TYPE (radiation_type),INTENT(INOUT)       :: rad
 
     ! local variables
-    INTEGER, ALLOCATABLE, DIMENSION(:)   ::                                &
-         nap,                                                                   &
+    INTEGER, ALLOCATABLE, DIMENSION(:)   :: &
+         nap, &
          var_i
     REAL,    ALLOCATABLE, DIMENSION(:)   :: var_r
     REAL(r_2),    ALLOCATABLE, DIMENSION(:)   :: var_rd
     REAL,    ALLOCATABLE, DIMENSION(:,:) :: var_r2
     REAL(r_2),    ALLOCATABLE, DIMENSION(:,:) :: var_r2d
-    LOGICAL                                   ::                                &
-         from_restart = .TRUE.,    & ! insist variables/params load
+    LOGICAL                                   :: &
+         from_restart = .TRUE., & ! insist variables/params load
          dummy = .TRUE.              ! To replace completeSet in parameter read; unused
     INTEGER                              :: napID
 
     write(*,*) '***** NOTE: now in extraRestart. *****'
     ALLOCATE(nap(mland))
     ok = NF90_INQ_VARID(ncid_rin,'nap',napID)
-    IF(ok /= NF90_NOERR) CALL nc_abort                                          &
-         (ok,'Error finding number of active patches in restart file '          &
+    IF(ok /= NF90_NOERR) CALL nc_abort &
+         (ok,'Error finding number of active patches in restart file ' &
          //TRIM(filename%restart_in)//' (SUBROUTINE extraRestart)')
     ok=NF90_GET_VAR(ncid_rin,napID,nap)
-    IF(ok/=NF90_NOERR) CALL nc_abort(ok,'Error reading nap in file '            &
+    IF(ok/=NF90_NOERR) CALL nc_abort(ok,'Error reading nap in file ' &
          //TRIM(filename%restart_in)// '(SUBROUTINE extraRestart)')
 
     ALLOCATE(var_i(INpatch))
@@ -765,110 +784,133 @@ CONTAINS
     ALLOCATE(var_rd(INpatch))
     ALLOCATE(var_r2(INpatch,msn))
     ALLOCATE(var_r2d(INpatch,ms))
-    CALL readpar(ncid_rin,'wbice',dummy,var_r2d,filename%restart_in,            &
+    CALL readpar(ncid_rin,'wbice',dummy,var_r2d,filename%restart_in, &
          max_vegpatches,'msd',from_restart,INpatch)
     CALL redistr_r2d(INpatch,nap,var_r2d,ssnow%wbice,'wbice',ms)
-    CALL readpar(ncid_rin,'gammzz',dummy,var_r2d,filename%restart_in,           &
+    CALL readpar(ncid_rin,'gammzz',dummy,var_r2d,filename%restart_in, &
          max_vegpatches,'msd',from_restart,INpatch)
     CALL redistr_r2d(INpatch,nap,var_r2d,ssnow%gammzz,'gammzz',ms)
-    CALL readpar(ncid_rin,'tss',dummy,var_r,filename%restart_in,                &
-         max_vegpatches,'def',from_restart,INpatch)
-    CALL redistr_r(INpatch,nap,var_r,ssnow%tss,'tss')
-    CALL readpar(ncid_rin,'ssdnn',dummy,var_r,filename%restart_in,              &
+    CALL readpar(ncid_rin, 'tss', dummy, var_r, filename%restart_in, &
+         max_vegpatches, 'def', from_restart, INpatch)
+    CALL redistr_r(INpatch, nap, var_r, ssnow%tss, 'tss')
+    CALL readpar(ncid_rin,'ssdnn',dummy,var_r,filename%restart_in, &
          max_vegpatches,'def',from_restart,INpatch)
     CALL redistr_r(INpatch,nap,var_r,ssnow%ssdnn,'ssdnn')
-    CALL readpar(ncid_rin,'ssdn',dummy,var_r2,filename%restart_in,              &
+    CALL readpar(ncid_rin,'ssdn',dummy,var_r2,filename%restart_in, &
          max_vegpatches,'snow',from_restart,INpatch)
     CALL redistr_r2(INpatch,nap,var_r2,ssnow%ssdn,'ssdn',msn)
-    CALL readpar(ncid_rin,'osnowd',dummy,var_r,filename%restart_in,             &
+    CALL readpar(ncid_rin,'osnowd',dummy,var_r,filename%restart_in, &
          max_vegpatches,'def',from_restart,INpatch)
     CALL redistr_r(INpatch,nap,var_r,ssnow%osnowd,'osnowd')
-    CALL readpar(ncid_rin,'smass',dummy,var_r2,filename%restart_in,             &
+    CALL readpar(ncid_rin,'smass',dummy,var_r2,filename%restart_in, &
          max_vegpatches,'snow',from_restart,INpatch)
     CALL redistr_r2(INpatch,nap,var_r2,ssnow%smass,'smass',msn)
-    CALL readpar(ncid_rin,'sdepth',dummy,var_r2,filename%restart_in,            &
+    CALL readpar(ncid_rin,'sdepth',dummy,var_r2,filename%restart_in, &
          max_vegpatches,'snow',from_restart,INpatch)
     CALL redistr_r2(INpatch,nap,var_r2,ssnow%sdepth,'sdepth',msn)
-    CALL readpar(ncid_rin,'tggsn',dummy,var_r2,filename%restart_in,             &
+    CALL readpar(ncid_rin,'tggsn',dummy,var_r2,filename%restart_in, &
          max_vegpatches,'snow',from_restart,INpatch)
     CALL redistr_r2(INpatch,nap,var_r2,ssnow%tggsn,'tggsn',msn)
-    CALL readpar(ncid_rin,'snage',dummy,var_r,filename%restart_in,              &
+    CALL readpar(ncid_rin,'snage',dummy,var_r,filename%restart_in, &
          max_vegpatches,'def',from_restart,INpatch)
     CALL redistr_r(INpatch,nap,var_r,ssnow%snage,'snage')
-    CALL readpar(ncid_rin,'snowd',dummy,ssnow%snowd,filename%restart_in,        &
+    CALL readpar(ncid_rin,'snowd',dummy,ssnow%snowd,filename%restart_in, &
          max_vegpatches,'def',from_restart,INpatch)
     CALL redistr_r(INpatch,nap,var_r,ssnow%snowd,'snowd')
-    CALL readpar(ncid_rin,'rtsoil',dummy,var_r,filename%restart_in,             &
+    CALL readpar(ncid_rin,'rtsoil',dummy,var_r,filename%restart_in, &
          max_vegpatches,'def',from_restart,INpatch)
     CALL redistr_r(INpatch,nap,var_r,ssnow%rtsoil,'rtsoil')
-    CALL readpar(ncid_rin,'isflag',dummy,var_i,filename%restart_in,             &
+    CALL readpar(ncid_rin,'isflag',dummy,var_i,filename%restart_in, &
          max_vegpatches,'def',from_restart,INpatch)
     CALL redistr_i(INpatch,nap,var_i,ssnow%isflag,'isflag')
-
+    ! MC - 20220303 - add 2 ssnow parameters to restart
+    CALL readpar(ncid_rin, 'otss', dummy, var_r, filename%restart_in, &
+         max_vegpatches, 'def', from_restart, INpatch)
+    CALL redistr_r(INpatch, nap, var_r, ssnow%otss, 'otss')
+    CALL readpar(ncid_rin, 'wetfac', dummy, var_r, filename%restart_in, &
+         max_vegpatches, 'def', from_restart, INpatch)
+    CALL redistr_r(INpatch, nap, var_r, ssnow%wetfac, 'wetfac')
     DEALLOCATE(var_r2)
+
     ALLOCATE(var_r2(INpatch,nrb))
-    CALL readpar(ncid_rin,'albsoilsn',dummy,var_r2,filename%restart_in,         &
+    CALL readpar(ncid_rin,'albsoilsn',dummy,var_r2,filename%restart_in, &
          max_vegpatches,'nrb',from_restart,INpatch)
     CALL redistr_r2(INpatch,nap,var_r2,ssnow%albsoilsn,'albsoilsn',nrb)
     ssnow%albsoilsn(:,3) = 1.0 - emsoil  !! (BP Nov 2009)
     ! The following two restart file additions are to initialise Mk3L:
-    CALL readpar(ncid_rin,'albedo',dummy,var_r2,filename%restart_in,            &
+    CALL readpar(ncid_rin,'albedo',dummy,var_r2,filename%restart_in, &
          max_vegpatches,'nrb',from_restart,INpatch)
     CALL redistr_r2(INpatch,nap,var_r2,rad%albedo,'albedo',nrb)
-    CALL readpar(ncid_rin,'trad',dummy,var_r,filename%restart_in,               &
+    CALL readpar(ncid_rin,'trad',dummy,var_r,filename%restart_in, &
          max_vegpatches,'def',from_restart,INpatch)
     CALL redistr_r(INpatch,nap,var_r,rad%trad,'trad')
-
-    CALL readpar(ncid_rin,'rnof1',dummy,var_r,filename%restart_in,              &
+    ! MC - 20220303 - add 3 veg parameters to restart
+    CALL readpar(ncid_rin,'cfrd',dummy,var_r,filename%restart_in, &
+         max_vegpatches,'def',from_restart,INpatch)
+    CALL redistr_r(INpatch,nap,var_r,veg%cfrd,'cfrd')
+    CALL readpar(ncid_rin,'vlai',dummy,var_r,filename%restart_in, &
+         max_vegpatches,'def',from_restart,INpatch)
+    CALL redistr_r(INpatch,nap,var_r,veg%vlai,'vlai')
+    CALL readpar(ncid_rin,'hc',dummy,var_r,filename%restart_in, &
+         max_vegpatches,'def',from_restart,INpatch)
+    CALL redistr_r(INpatch,nap,var_r,veg%hc,'hc')
+    CALL readpar(ncid_rin,'rnof1',dummy,var_r,filename%restart_in, &
          max_vegpatches,'def',from_restart,INpatch)
     CALL redistr_r(INpatch,nap,var_r,ssnow%rnof1,'rnof1')
-    CALL readpar(ncid_rin,'rnof2',dummy,var_r,filename%restart_in,              &
+    CALL readpar(ncid_rin,'rnof2',dummy,var_r,filename%restart_in, &
          max_vegpatches,'def',from_restart,INpatch)
     CALL redistr_r(INpatch,nap,var_r,ssnow%rnof2,'rnof2')
-    CALL readpar(ncid_rin,'runoff',dummy,var_r,filename%restart_in,             &
+    CALL readpar(ncid_rin,'runoff',dummy,var_r,filename%restart_in, &
          max_vegpatches,'def',from_restart,INpatch)
     CALL redistr_r(INpatch,nap,var_r,ssnow%runoff,'runoff')
-    CALL readpar(ncid_rin,'cansto',dummy,var_r,filename%restart_in,             &
+    CALL readpar(ncid_rin,'cansto',dummy,var_r,filename%restart_in, &
          max_vegpatches,'def',from_restart,INpatch)
     CALL redistr_r(INpatch,nap,var_r,canopy%cansto,'cansto')
-    CALL readpar(ncid_rin,'sghflux',dummy,var_r,filename%restart_in,            &
+    CALL readpar(ncid_rin,'sghflux',dummy,var_r,filename%restart_in, &
          max_vegpatches,'def',from_restart,INpatch)
     CALL redistr_r(INpatch,nap,var_r,canopy%sghflux,'sghflux')
-    CALL readpar(ncid_rin,'ghflux',dummy,var_r,filename%restart_in,             &
+    CALL readpar(ncid_rin,'ghflux',dummy,var_r,filename%restart_in, &
          max_vegpatches,'def',from_restart,INpatch)
     CALL redistr_r(INpatch,nap,var_r,canopy%ghflux,'ghflux')
-    CALL readpar(ncid_rin,'ga',dummy,var_r,filename%restart_in,                 &
-         max_vegpatches,'def',from_restart,INpatch)
-    CALL redistr_r(INpatch,nap,var_r,canopy%ga,'ga')
-    CALL readpar(ncid_rin,'dgdtg',dummy,var_rd,filename%restart_in,             &
-         max_vegpatches,'def',from_restart,INpatch)
-    CALL redistr_rd(INpatch,nap,var_rd,canopy%dgdtg,'dgdtg')
-    CALL readpar(ncid_rin,'fev',dummy,var_r,filename%restart_in,                &
+    CALL readpar(ncid_rin, 'ga', dummy, var_r, filename%restart_in, &
+         max_vegpatches, 'def', from_restart, INpatch)
+    CALL redistr_r(INpatch, nap, var_r, canopy%ga, 'ga')
+    CALL readpar(ncid_rin, 'dgdtg', dummy, var_rd, filename%restart_in, &
+         max_vegpatches, 'def', from_restart, INpatch)
+    CALL redistr_rd(INpatch, nap, var_rd, canopy%dgdtg, 'dgdtg')
+    CALL readpar(ncid_rin,'fev',dummy,var_r,filename%restart_in, &
          max_vegpatches,'def',from_restart,INpatch)
     CALL redistr_r(INpatch,nap,var_r,canopy%fev,'fev')
+    ! MC - 20220303 - add 2 canopy parameters to restart
+    CALL readpar(ncid_rin, 'fwsoil', dummy, var_rd, filename%restart_in, &
+         max_vegpatches, 'def', from_restart, INpatch)
+    CALL redistr_rd(INpatch, nap, var_rd, canopy%fwsoil, 'fwsoil')
+    CALL readpar(ncid_rin, 'us', dummy, var_r, filename%restart_in, &
+         max_vegpatches, 'def', from_restart, INpatch)
+    CALL redistr_r(INpatch, nap, var_r, canopy%us, 'us')
     !jhan:hack - elimiinate call as r_2 now
-    !    CALL readpar(ncid_rin,'fes',dummy,var_r,filename%restart_in,               &
+    !    CALL readpar(ncid_rin,'fes',dummy,var_r,filename%restart_in, &
     !         max_vegpatches,'def',from_restart,INpatch)
     !    CALL redistr_r(INpatch,nap,var_r,canopy%fes,'fes')
-    CALL readpar(ncid_rin,'fhs',dummy,var_r,filename%restart_in,                &
+    CALL readpar(ncid_rin,'fhs',dummy,var_r,filename%restart_in, &
          max_vegpatches,'def',from_restart,INpatch)
     CALL redistr_r(INpatch,nap,var_r,canopy%fhs,'fhs')
 
     DEALLOCATE(var_r2)
     ALLOCATE(var_r2(INpatch,ncp))
-    CALL readpar(ncid_rin,'cplant',dummy,var_r2,filename%restart_in,            &
+    CALL readpar(ncid_rin,'cplant',dummy,var_r2,filename%restart_in, &
          max_vegpatches,'ncp',from_restart,INpatch)
     CALL redistr_r2(INpatch,nap,var_r2,bgc%cplant,'cplant',ncp)
 
     DEALLOCATE(var_r2)
     ALLOCATE(var_r2(INpatch,ncs))
-    CALL readpar(ncid_rin,'csoil',dummy,var_r2,filename%restart_in,             &
+    CALL readpar(ncid_rin,'csoil',dummy,var_r2,filename%restart_in, &
          max_vegpatches,'ncs',from_restart,INpatch)
     CALL redistr_r2(INpatch,nap,var_r2,bgc%csoil,'csoil',ncs)
-    CALL readpar(ncid_rin,'wbtot0',dummy,var_r,filename%restart_in,             &
+    CALL readpar(ncid_rin,'wbtot0',dummy,var_r,filename%restart_in, &
          max_vegpatches,'def',from_restart,INpatch)
     CALL redistr_r(INpatch,nap,var_r,bal%wbtot0,'wbtot0')
-    CALL readpar(ncid_rin,'osnowd0',dummy,bal%osnowd0,filename%restart_in,      &
+    CALL readpar(ncid_rin,'osnowd0',dummy,bal%osnowd0,filename%restart_in, &
          max_vegpatches,'def',from_restart,INpatch)
     CALL redistr_r(INpatch,nap,var_r,bal%osnowd0,'osnowd0')
 

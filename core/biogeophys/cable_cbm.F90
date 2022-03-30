@@ -91,7 +91,7 @@ CONTAINS
          met%tk = met%tk + C%grav/C%capp*(rough%zref_tq + 0.9*rough%z0m)
       ENDIF
 
-      CALL define_air (met, air)
+      CALL define_air(met, air)
    ELSE
       call ruff_resist(veg, rough, ssnow, canopy)
    ENDIF
@@ -110,8 +110,9 @@ CONTAINS
 
    ssnow%otss_0 = ssnow%otss  ! vh should be before call to canopy?
    ssnow%otss   = ssnow%tss
+   ssnow%owetfac = ssnow%wetfac ! MC should also be before canopy
 
-   ! Calculate canopy variables:
+   ! Calculate canopy variables
    CALL define_canopy(bal, rad, rough, air, met, dels, ssnow, soil, veg, canopy, climate)
 
    ! write(*,*) 'hod, TVeg: ', met%hod(1), canopy%fevc(1), canopy%fwsoil(1)
@@ -121,10 +122,10 @@ CONTAINS
    !ssnow%otss = ssnow%tss
 
    ! RML moved out of following IF after discussion with Eva
-   ssnow%owetfac = ssnow%wetfac
+   ! ssnow%owetfac = ssnow%wetfac
 
-   IF ( cable_runtime%um ) THEN
-      IF ( cable_runtime%um_implicit ) THEN
+   IF (cable_runtime%um) THEN
+      IF (cable_runtime%um_implicit) THEN
          CALL soil_snow(dels, soil, ssnow, canopy, met, veg)
       ENDIF
    ELSE
@@ -153,7 +154,7 @@ CONTAINS
 
    ssnow%deltss = ssnow%tss-ssnow%otss
    ! correction required for energy balance in online simulations
-   IF ( cable_runtime%um ) THEN
+   IF (cable_runtime%um) THEN
 
       canopy%fhs = canopy%fhs + ( ssnow%tss-ssnow%otss ) * ssnow%dfh_dtg
 
@@ -179,24 +180,24 @@ CONTAINS
    canopy%rnet = canopy%fns + canopy%fnv
 
    ! Calculate radiative/skin temperature:
-   rad%trad = ( ( 1.-rad%transd ) * canopy%tv**4 +                             &
-              rad%transd * ssnow%tss**4 )**0.25
+   rad%trad = ( (1. - rad%transd) * canopy%tv**4 + &
+        rad%transd * ssnow%tss**4 )**0.25
 
    ! rml 17/1/11 move all plant resp and soil resp calculations here
    ! from canopy. in UM only call on implicit step.
    ! put old and new soil resp calculations into soilcarb subroutine
    ! make new plantcarb subroutine
-   IF (.not.cable_runtime%um_explicit .AND. icycle == 0) THEN
+   IF ((.not. cable_runtime%um_explicit) .AND. (icycle == 0)) THEN
 
       !calculate canopy%frp
-      CALL plantcarb(veg,bgc,met,canopy)
+      CALL plantcarb(veg, bgc, met, canopy)
 
       !calculate canopy%frs
       CALL soilcarb(soil, ssnow, veg, bgc, canopy)
 
       CALL carbon_pl(dels, soil, ssnow, veg, canopy, bgc)
 
-      canopy%fnpp = -1.0* canopy%fpn - canopy%frp
+      canopy%fnpp = -1.0 * canopy%fpn - canopy%frp
       canopy%fnee = canopy%fpn + canopy%frs + canopy%frp
 
    ENDIF

@@ -1,4 +1,4 @@
-!==============================================================================
+! ==============================================================================
 ! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
 ! This work is licensed under the CSIRO Open Source Software License
@@ -23,212 +23,266 @@
 ! the following modules are used when "casacnp" is coupled to "cable"
 !   casadimension
 !   casaparm
-!   casavariable with subroutine alloc_casavariable
+!   casavariable with subroutine alloc_casa_var
 !   phenvariable with subroutine alloc_phenvariable
 
-MODULE casadimension
+module casadimension
 
-  USE cable_def_types_mod, ONLY : mp, r_2, mvtype, ms
+  use cable_def_types_mod, only: r_2
 
-  IMPLICIT NONE
+  implicit none
 
-  INTEGER, PARAMETER :: mdyear=365         ! days per year
-  INTEGER, PARAMETER :: mdmonth=30         ! days per month
-  INTEGER, PARAMETER :: mdweek=7           ! days per week
-  INTEGER, PARAMETER :: mmyear=12          ! month per year
-  INTEGER, PARAMETER :: mt=36500           ! integration time step
-  INTEGER, PARAMETER :: mpftmax=2          ! max. PFT/cell
-  INTEGER, PARAMETER :: mplant   = 3       ! plant pools
-  INTEGER, PARAMETER :: mlitter  = 3       ! litter pools
-  INTEGER, PARAMETER :: msoil    = 3       ! soil pools
-  INTEGER, PARAMETER :: mso      = 12      ! soil order number
-  INTEGER, PARAMETER :: mhwp     = 1       ! harvested wood pools
-  INTEGER, PARAMETER :: mclear   = 1       ! forest clearing pools
-  INTEGER, PARAMETER :: mheights = 10      ! height clas
+  public
+
+  integer, parameter :: mdyear = 365  ! days per year
+  integer, parameter :: mdmonth = 30  ! days per month
+  integer, parameter :: mdweek = 7    ! days per week
+  integer, parameter :: mmyear = 12   ! month per year
+  integer, parameter :: mt = 36500    ! integration time step
+  integer, parameter :: mpftmax = 2   ! max. PFT/cell
+  integer, parameter :: mplant   = 3  ! plant pools
+  integer, parameter :: mlitter  = 3  ! litter pools
+  integer, parameter :: msoil    = 3  ! soil pools
+  integer, parameter :: mso      = 12 ! soil order number
+  integer, parameter :: mhwp     = 1  ! harvested wood pools
+  integer, parameter :: mclear   = 1  ! forest clearing pools
+  integer, parameter :: mheights = 10 ! height clas
   ! BP put icycle into namelist file
-  INTEGER            :: icycle
-  ! INTEGER, PARAMETER :: icycle=3           ! =1 for C, =2 for C+N; =3 for C+N+P
-  INTEGER, PARAMETER :: mstart=1           ! starting time step
-  INTEGER, PARAMETER :: mphase=4           ! phen. phases
-  REAL(r_2), PARAMETER :: deltcasa = 1.0_r_2/365.0_r_2 ! fraction 1 day of year
-  REAL(r_2), PARAMETER :: deltpool = 1.0_r_2           ! pool delt(1day)
+  integer            :: icycle
+  ! INTEGER, PARAMETER :: icycle=3    ! =1 for C, =2 for C+N; =3 for C+N+P
+  integer, parameter :: mstart = 1    ! starting time step
+  integer, parameter :: mphase = 4    ! phen. phases
+  real(r_2), parameter :: deltcasa = 1.0_r_2/365.0_r_2 ! fraction 1 day of year
+  real(r_2), parameter :: deltpool = 1.0_r_2           ! pool delt(1day)
 
-END MODULE casadimension
+end module casadimension
 
 
-MODULE casaparm
+! ------------------------------------------------------------------
 
-  USE casadimension
 
-  IMPLICIT NONE
+module casaparm
 
-  INTEGER, PARAMETER :: initcasa = 1  ! =0 spin; 1 restart file
-  INTEGER, PARAMETER :: iceland  = 17 !=13 for casa vegtype =15 for IGBP vegtype
-  INTEGER, PARAMETER :: cropland = 9  ! 12 and 14 for IGBP vegtype
-  INTEGER, PARAMETER :: croplnd2 = 10 ! ditto
-  INTEGER, PARAMETER :: forest   = 3
-  INTEGER, PARAMETER :: shrub    = 2
-  INTEGER, PARAMETER :: grass    = 1
-  INTEGER, PARAMETER :: icewater = 0
-  INTEGER, PARAMETER :: LEAF     = 1
-  INTEGER, PARAMETER :: WOOD     = 2
-  INTEGER, PARAMETER :: FROOT    = 3
-  !  INTEGER, PARAMETER :: LABILE = 4
-  INTEGER, PARAMETER :: METB    = 1
-  INTEGER, PARAMETER :: STR     = 2
-  INTEGER, PARAMETER :: CWD     = 3
-  INTEGER, PARAMETER :: MIC     = 1
-  INTEGER, PARAMETER :: SLOW    = 2
-  INTEGER, PARAMETER :: PASS    = 3
-  INTEGER, PARAMETER :: PLAB    = 1
-  INTEGER, PARAMETER :: PSORB   = 2
-  INTEGER, PARAMETER :: POCC    = 3
+  use cable_def_types_mod, only: r_2
+  ! use casadimension, only: deltcasa
+
+  implicit none
+
+  public
+
+  integer, parameter :: initcasa = 1  ! =0 spin; 1 restart file
+  integer, parameter :: iceland  = 17 !=13 for casa vegtype =15 for IGBP vegtype
+  integer, parameter :: cropland = 9  ! 12 and 14 for IGBP vegtype
+  integer, parameter :: croplnd2 = 10 ! ditto
+  integer, parameter :: forest   = 3
+  integer, parameter :: shrub    = 2
+  integer, parameter :: grass    = 1
+  integer, parameter :: icewater = 0
+  integer, parameter :: LEAF     = 1
+  integer, parameter :: WOOD     = 2
+  integer, parameter :: FROOT    = 3
+  ! integer, parameter :: LABILE = 4
+  integer, parameter :: METB    = 1
+  integer, parameter :: STR     = 2
+  integer, parameter :: CWD     = 3
+  integer, parameter :: MIC     = 1
+  integer, parameter :: SLOW    = 2
+  integer, parameter :: pass    = 3
+  integer, parameter :: PLAB    = 1
+  integer, parameter :: PSORB   = 2
+  integer, parameter :: POCC    = 3
   !! vh_js !! LALLOC moved to bgcdriver to allow for value to be switchable
-  ! INTEGER, PARAMETER :: LALLOC  = 0      !=0 constant; 1 variable
-  REAL(r_2), PARAMETER :: z30=0.3_r_2
-  REAL(r_2), PARAMETER :: R0=0.3_r_2
-  REAL(r_2), PARAMETER :: S0=0.3_r_2
-  REAL(r_2), PARAMETER :: fixed_stem=1.0_r_2/3.0_r_2
-  REAL(r_2), PARAMETER :: Q10alloc=2.0_r_2
-  REAL(r_2), PARAMETER :: ratioNCstrfix = 1.0_r_2/150.0_r_2
-  REAL(r_2), PARAMETER :: ratioNPstrfix = 25.0_r_2
-  REAL(r_2), PARAMETER :: fracCbiomass = 0.50_r_2
-  REAL(r_2), PARAMETER :: tsoilrefc=25.0_r_2
-  REAL(r_2), PARAMETER :: tkzeroc=273.15_r_2
-  REAL(r_2), PARAMETER :: frootparma = 0.3192_r_2
-  REAL(r_2), PARAMETER :: frootparmb =-0.0485_r_2
-  REAL(r_2), PARAMETER :: frootparmc = 0.1755_r_2
-  REAL(r_2), PARAMETER :: xweightalloc = 0.2_r_2
-  !  REAL(r_2), PARAMETER :: xkplab=0.5_r_2*deltcasa
-  !  REAL(r_2), PARAMETER :: xkpsorb=0.01_r_2*deltcasa
-  !  REAL(r_2), PARAMETER :: xkpocc =0.01_r_2*deltcasa
+  ! integer, parameter :: LALLOC = 0  ! 0 constant; 1 variable
+  real(r_2), parameter :: z30 = 0.3_r_2
+  real(r_2), parameter :: R0 = 0.3_r_2
+  real(r_2), parameter :: S0 = 0.3_r_2
+  real(r_2), parameter :: fixed_stem = 1.0_r_2 / 3.0_r_2
+  real(r_2), parameter :: Q10alloc = 2.0_r_2
+  real(r_2), parameter :: ratioNCstrfix = 1.0_r_2 / 150.0_r_2
+  real(r_2), parameter :: ratioNPstrfix = 25.0_r_2
+  real(r_2), parameter :: fracCbiomass = 0.50_r_2
+  real(r_2), parameter :: tsoilrefc = 25.0_r_2
+  real(r_2), parameter :: tkzeroc = 273.15_r_2
+  real(r_2), parameter :: frootparma = 0.3192_r_2
+  real(r_2), parameter :: frootparmb =-0.0485_r_2
+  real(r_2), parameter :: frootparmc = 0.1755_r_2
+  real(r_2), parameter :: xweightalloc = 0.2_r_2
+  !  real(r_2), parameter :: xkplab  = 0.5_r_2 * deltcasa
+  !  real(r_2), parameter :: xkpsorb = 0.01_r_2 * deltcasa
+  !  real(r_2), parameter :: xkpocc  = 0.01_r_2 * deltcasa
 
-END MODULE casaparm
+end module casaparm
 
 
-MODULE casavariable
+! ------------------------------------------------------------------
 
-  USE casadimension
 
-  IMPLICIT NONE
+module casavariable
 
-  SAVE
+  use cable_def_types_mod, only: r_2
+
+  implicit none
+
+  private
+
+  ! types
+  public :: casa_balance
+  public :: casa_biome
+  public :: casa_flux
+  public :: casa_met
+  public :: casa_pool
+  public :: casafiles_type
+
+  ! routines on types
+  public :: alloc_casa_var
+  public :: print_casa_var
+  public :: read_netcdf_casa_var
+  public :: write_netcdf_casa_var
+  public :: zero_casa_var
+
+  ! routines on sum variables
+  public :: alloc_sum_casa
+  public :: update_sum_casa
+  public :: zero_sum_casa
+
+  ! public variables
+  public :: casa_timeunits
+  public :: casafile
+
+  ! number of variables in type definitions
+  ! used in write_netcdf and in MPI code
+  integer, parameter, public :: ncasa_biome = 53
+  integer, parameter, public :: ncasa_pool = 42
+  integer, parameter, public :: ncasa_flux = 91
+  integer, parameter, public :: ncasa_met = 47
+  integer, parameter, public :: ncasa_bal = 47
+
+  ! private section
 
   character(len=200) :: casa_timeunits
 
-  TYPE casa_biome
-     INTEGER,   DIMENSION(:),POINTER :: ivt2 => null()
-     REAL(r_2), DIMENSION(:),POINTER :: xkleafcoldmax => null(),  &
-          xkleafcoldexp => null(),  &
-          xkleafdrymax => null(),   &
-          xkleafdryexp => null(),   &
-          glaimax => null(),        &
-          glaimin => null(),        &
-          sla => null(),            &
+  type casa_biome
+     integer, dimension(:), pointer :: &
+          ivt2 => null()
+     real(r_2), dimension(:), pointer :: &
+          xkleafcoldmax => null(), &
+          xkleafcoldexp => null(), &
+          xkleafdrymax => null(), &
+          xkleafdryexp => null(), &
+          glaimax => null(), &
+          glaimin => null(), &
+          sla => null(), &
           ratiofrootleaf => null(), &
-          kroot => null(),          &
-          krootlen => null(),       &
-          rootdepth => null(),      &
-          kuptake => null(),        &
-          kminN => null(),          &
-          kuplabP => null(),        &
-          kclabrate => null(),      &
-          xnpmax => null(),         &
-          q10soil => null(),        &
-          xkoptlitter => null(),    &
-          xkoptsoil => null(),      &
-          xkplab => null(),         &
-          xkpsorb => null(),        &
-          xkpocc => null(),         &
-          prodptase => null(),      &
-          costnpup => null(),       &
-          maxfinelitter => null(),  &
-          maxcwd => null(),         &
-          nintercept => null(),     &
-          nslope => null(),         &
-          la_to_sa => null(),       &
-          vcmax_scalar => null(),   &
+          kroot => null(), &
+          krootlen => null(), &
+          rootdepth => null(), &
+          kuptake => null(), &
+          kminN => null(), &
+          kuplabP => null(), &
+          kclabrate => null(), &
+          xnpmax => null(), &
+          q10soil => null(), &
+          xkoptlitter => null(), &
+          xkoptsoil => null(), &
+          xkplab => null(), &
+          xkpsorb => null(), &
+          xkpocc => null(), &
+          prodptase => null(), &
+          costnpup => null(), &
+          maxfinelitter => null(), &
+          maxcwd => null(), &
+          nintercept => null(), &
+          nslope => null(), &
+          la_to_sa => null(), &
+          vcmax_scalar => null(), &
           disturbance_interval => null(), &
           DAMM_EnzPool => null(), &
           DAMM_KMO2 => null(), &
           DAMM_KMcp => null(), &
           DAMM_Ea => null(), &
           DAMM_alpha => null()
-
-     REAL(r_2), DIMENSION(:,:),POINTER :: plantrate => null(),     &
-          rmplant => null(),         &
-          fracnpptoP => null(),      &
-          fraclignin => null(),      &
-          fraclabile => null(),      &
+     real(r_2), dimension(:,:), pointer :: &
+          plantrate => null(), &
+          rmplant => null(), &
+          fracnpptoP => null(), &
+          fraclignin => null(), &
+          fraclabile => null(), &
           ratioNCplantmin => null(), &
           ratioNCplantmax => null(), &
           ratioNPplantmin => null(), &
           ratioNPplantmax => null(), &
           fracLigninplant => null(), &
-          ftransNPtoL => null(),     &
-          ftransPPtoL => null(),     &
-          litterrate => null(),      &
+          ftransNPtoL => null(), &
+          ftransPPtoL => null(), &
+          litterrate => null(), &
           ratioPcplantmin => null(), &
           ratioPcplantmax => null()
-     REAL(r_2), DIMENSION(:,:),POINTER :: soilrate => null()
-  END TYPE casa_biome
+     real(r_2), dimension(:,:), pointer :: &
+          soilrate => null()
+  end type casa_biome
 
 
-  TYPE casa_pool
-     REAL(r_2), DIMENSION(:),POINTER :: Clabile => null(),       &
-          dClabiledt => null(),    &
-          Ctot => null(),         &          !! vh_js !!
+  type casa_pool
+     real(r_2), dimension(:), pointer :: &
+          Clabile => null(), &
+          dClabiledt => null(), &
+          Ctot => null(), &          !! vh_js !!
           Ctot_0 => null()
-     REAL(r_2), DIMENSION(:,:),POINTER :: Cplant => null(),      &
-          Nplant => null(),        &
-          Pplant => null(),        &
-          dCplantdt => null(),     &
-          dNplantdt => null(),     &
-          dPplantdt => null(),     &
-          ratioNCplant => null(),  &
+     real(r_2), dimension(:,:), pointer :: &
+          Cplant => null(), &
+          Nplant => null(), &
+          Pplant => null(), &
+          dCplantdt => null(), &
+          dNplantdt => null(), &
+          dPplantdt => null(), &
+          ratioNCplant => null(), &
           ratioNPplant => null()
-     REAL(r_2), DIMENSION(:),POINTER :: Nsoilmin => null(),      &
-          Psoillab => null(),      &
-          Psoilsorb => null(),     &
-          Psoilocc => null(),      &
-          dNsoilmindt => null(),   &
-          dPsoillabdt => null(),   &
-          dPsoilsorbdt => null(),  &
+     real(r_2), dimension(:), pointer :: &
+          Nsoilmin => null(), &
+          Psoillab => null(), &
+          Psoilsorb => null(), &
+          Psoilocc => null(), &
+          dNsoilmindt => null(), &
+          dPsoillabdt => null(), &
+          dPsoilsorbdt => null(), &
           dPsoiloccdt => null()
-     REAL(r_2), DIMENSION(:,:), POINTER :: Clitter => null(),    &
-          Nlitter => null(),       &
-          Plitter => null(),       &
-          dClitterdt => null(),    &
-          dNlitterdt => null(),    &
-          dPlitterdt => null(),    &
+     real(r_2), dimension(:,:), pointer :: &
+          Clitter => null(), &
+          Nlitter => null(), &
+          Plitter => null(), &
+          dClitterdt => null(), &
+          dNlitterdt => null(), &
+          dPlitterdt => null(), &
           ratioNClitter => null(), &
           ratioNPlitter => null()
-     REAL(r_2), DIMENSION(:,:),POINTER :: Csoil => null(),       &
-          Nsoil => null(),         &
-          Psoil => null(),         &
-          dCsoildt => null(),      &
-          dNsoildt => null(),      &
-          dPsoildt => null(),      &
-          ratioNCsoil => null(),   &
-          ratioNCsoilnew => null(),&
-          ratioNPsoil => null(),   &
-          ratioNCsoilmin => null(),&
-          ratioNCsoilmax => null(),&
-          ratioPCsoil => null(),   &
-          ratioPCplant => null(),  &
+     real(r_2), dimension(:,:), pointer :: &
+          Csoil => null(), &
+          Nsoil => null(), &
+          Psoil => null(), &
+          dCsoildt => null(), &
+          dNsoildt => null(), &
+          dPsoildt => null(), &
+          ratioNCsoil => null(), &
+          ratioNCsoilnew => null(), &
+          ratioNPsoil => null(), &
+          ratioNCsoilmin => null(), &
+          ratioNCsoilmax => null(), &
+          ratioPCsoil => null(), &
+          ratioPCplant => null(), &
           ratioPClitter => null()
-  END TYPE casa_pool
+  end type casa_pool
 
 
-  TYPE casa_flux
-     REAL(r_2), DIMENSION(:),POINTER :: Cgpp => null(),          &
-          Cnpp => null(),          &
-          Crp => null(),           &
-          Crgplant => null(),      &
-          Nminfix => null(),       &
-          Nminuptake => null(),    &
-          Plabuptake => null(),    &
-          Clabloss => null(),      &
+  type casa_flux
+     real(r_2), dimension(:), pointer :: &
+          Cgpp => null(), &
+          Cnpp => null(), &
+          Crp => null(), &
+          Crgplant => null(), &
+          Nminfix => null(), &
+          Nminuptake => null(), &
+          Plabuptake => null(), &
+          Clabloss => null(), &
           fracClabile => null(), &
           !! vh_js !! the 3 variables below are needed for POP coupling to CASA
           stemnpp => null(), &
@@ -239,169 +293,218 @@ MODULE casavariable
           Pharvest => null(), & ! leaf P removed due to crop or pasture management
           fHarvest => null(), &  ! fraction leaf biomass removed due to crop or pasture management
           fcrop => null()        ! fraction of 'grass' that is crop
-     REAL(r_2), DIMENSION(:,:),POINTER :: fracCalloc => null(),  &
-          fracNalloc => null(),    &
-          fracPalloc => null(),    &
-          Crmplant => null(),      &
-          kplant => null(),        &
+     real(r_2), dimension(:,:), pointer :: &
+          fracCalloc => null(), &
+          fracNalloc => null(), &
+          fracPalloc => null(), &
+          Crmplant => null(), &
+          kplant => null(), &
           !! vh_js !! additional diagnostic
           Cplant_turnover => null()
-     REAL(r_2), DIMENSION(:,:,:),POINTER :: fromPtoL => null()
-     REAL(r_2), DIMENSION(:),POINTER :: Cnep => null(),        &
-          Crsoil => null(),      &
-          Nmindep => null(),     &
-          Nminloss => null(),    &
-          Nminleach => null(),   &
-          Nupland => null(),     &
-          Nlittermin => null(),  &
-          Nsmin => null(),       &
-          Nsimm => null(),       &
-          Nsnet => null(),       &
-          fNminloss => null(),   &
-          fNminleach => null(),  &
-          Pdep => null(),        &
-          Pwea => null(),        &
-          Pleach => null(),      &
-          Ploss => null(),       &
-          Pupland => null(),     &
-          Plittermin => null(),  &
-          Psmin => null(),       &
-          Psimm => null(),       &
-          Psnet => null(),       &
-          fPleach => null(),     &
-          kplab => null(),       &
-          kpsorb => null(),      &
-          kpocc => null(),       &
-          kmlabp => null(),      &
-          Psorbmax => null(),    &
+     real(r_2), dimension(:,:,:), pointer :: &
+          fromPtoL => null()
+     real(r_2), dimension(:),pointer :: &
+          Cnep => null(), &
+          Crsoil => null(), &
+          Nmindep => null(), &
+          Nminloss => null(), &
+          Nminleach => null(), &
+          Nupland => null(), &
+          Nlittermin => null(), &
+          Nsmin => null(), &
+          Nsimm => null(), &
+          Nsnet => null(), &
+          fNminloss => null(), &
+          fNminleach => null(), &
+          Pdep => null(), &
+          Pwea => null(), &
+          Pleach => null(), &
+          Ploss => null(), &
+          Pupland => null(), &
+          Plittermin => null(), &
+          Psmin => null(), &
+          Psimm => null(), &
+          Psnet => null(), &
+          fPleach => null(), &
+          kplab => null(), &
+          kpsorb => null(), &
+          kpocc => null(), &
+          kmlabp => null(), &
+          Psorbmax => null(), &
           !! additional diagnostics for partitioning biomass turnover
           Cplant_turnover_disturbance => null(), &
           Cplant_turnover_crowding  => null(), &
           Cplant_turnover_resource_limitation => null()
-
-     REAL(r_2), DIMENSION(:,:),POINTER    :: klitter => null()
-     REAL(r_2), DIMENSION(:,:),POINTER    :: ksoil => null()
-     REAL(r_2), DIMENSION(:,:,:),POINTER  :: fromLtoS => null()
-     REAL(r_2), DIMENSION(:,:,:),POINTER  :: fromStoS => null()
-     REAL(r_2), DIMENSION(:,:),POINTER    :: fromLtoCO2 => null()
-     REAL(r_2), DIMENSION(:,:),POINTER    :: fromStoCO2 => null()
-     REAL(r_2), DIMENSION(:,:),POINTER    :: FluxCtolitter => null()
-     REAL(r_2), DIMENSION(:,:),POINTER    :: FluxNtolitter => null()
-     REAL(r_2), DIMENSION(:,:),POINTER    :: FluxPtolitter => null()
-     REAL(r_2), DIMENSION(:,:),POINTER    :: FluxCtosoil => null()
-     REAL(r_2), DIMENSION(:,:),POINTER    :: FluxNtosoil => null()
-     REAL(r_2), DIMENSION(:,:),POINTER    :: FluxPtosoil => null()
-     REAL(r_2), DIMENSION(:),POINTER      :: FluxCtoCO2 => null()
-     REAL(r_2), DIMENSION(:),POINTER    :: FluxCtohwp => null()
-     REAL(r_2), DIMENSION(:),POINTER    :: FluxNtohwp => null()
-     REAL(r_2), DIMENSION(:),POINTER    :: FluxPtohwp => null()
-     REAL(r_2), DIMENSION(:),POINTER    :: FluxCtoclear => null()
-     REAL(r_2), DIMENSION(:),POINTER    :: FluxNtoclear => null()
-     REAL(r_2), DIMENSION(:),POINTER    :: FluxPtoclear => null()
-     REAL(r_2), DIMENSION(:),POINTER    :: CtransferLUC => null()
-
+     real(r_2), dimension(:,:),   pointer :: klitter => null()
+     real(r_2), dimension(:,:),   pointer :: ksoil => null()
+     real(r_2), dimension(:,:,:), pointer :: fromLtoS => null()
+     real(r_2), dimension(:,:,:), pointer :: fromStoS => null()
+     real(r_2), dimension(:,:),   pointer :: fromLtoCO2 => null()
+     real(r_2), dimension(:,:),   pointer :: fromStoCO2 => null()
+     real(r_2), dimension(:,:),   pointer :: FluxCtolitter => null()
+     real(r_2), dimension(:,:),   pointer :: FluxNtolitter => null()
+     real(r_2), dimension(:,:),   pointer :: FluxPtolitter => null()
+     real(r_2), dimension(:,:),   pointer :: FluxCtosoil => null()
+     real(r_2), dimension(:,:),   pointer :: FluxNtosoil => null()
+     real(r_2), dimension(:,:),   pointer :: FluxPtosoil => null()
+     real(r_2), dimension(:),     pointer :: FluxCtoCO2 => null()
+     real(r_2), dimension(:),     pointer :: FluxCtohwp => null()
+     real(r_2), dimension(:),     pointer :: FluxNtohwp => null()
+     real(r_2), dimension(:),     pointer :: FluxPtohwp => null()
+     real(r_2), dimension(:),     pointer :: FluxCtoclear => null()
+     real(r_2), dimension(:),     pointer :: FluxNtoclear => null()
+     real(r_2), dimension(:),     pointer :: FluxPtoclear => null()
+     real(r_2), dimension(:),     pointer :: CtransferLUC => null()
      !CVH variables inherited from BLAZE
-     REAL(r_2), DIMENSION(:,:,:),POINTER  :: fromPtoL_fire => null()
-     REAL(r_2), DIMENSION(:,:),POINTER    :: klitter_fire => null()
-     REAL(r_2), DIMENSION(:,:),POINTER    :: klitter_tot => null()  ! sum of fire turnover and non-fire turnover (litter)
-     REAL(r_2), DIMENSION(:,:),POINTER    :: kplant_fire => null()
-     REAL(r_2), DIMENSION(:,:),POINTER    :: kplant_tot => null()  ! sum of fire turnover and non-fire turnover (plants)
-
+     real(r_2), dimension(:,:,:), pointer :: fromPtoL_fire => null()
+     real(r_2), dimension(:,:), pointer   :: klitter_fire => null()
+     ! sum of fire turnover and non-fire turnover (litter)
+     real(r_2), dimension(:,:), pointer   :: klitter_tot => null()
+     real(r_2), dimension(:,:), pointer   :: kplant_fire => null()
+     ! sum of fire turnover and non-fire turnover (plants)
+     real(r_2), dimension(:,:), pointer   :: kplant_tot => null()
      !CVH diagnostic: CO2 emissions from fire
-     REAL(r_2), DIMENSION(:),POINTER      :: fluxCtoCO2_plant_fire => null()
-     REAL(r_2), DIMENSION(:),POINTER      :: fluxCtoCO2_litter_fire => null()
+     real(r_2), dimension(:), pointer     :: fluxCtoCO2_plant_fire => null()
+     real(r_2), dimension(:), pointer     :: fluxCtoCO2_litter_fire => null()
      ! contribution to fire emissions from individual plant pools
-     REAL(r_2), DIMENSION(:,:),POINTER      :: fluxfromPtoCO2_fire => null()
+     real(r_2), dimension(:,:), pointer   :: fluxfromPtoCO2_fire => null()
      ! contribution to fire emissions from individual litter pools
-     REAL(r_2), DIMENSION(:,:),POINTER      :: fluxfromLtoCO2_fire => null()
-     REAL(r_2), DIMENSION(:),POINTER      :: fluxNtoAtm_fire => null()
-     !REAL(r_2), DIMENSION(:,:,:),POINTER  :: fire_mortality_vs_height => null()
-
+     real(r_2), dimension(:,:), pointer   :: fluxfromLtoCO2_fire => null()
+     real(r_2), dimension(:), pointer     :: fluxNtoAtm_fire => null()
+     ! real(r_2), dimension(:,:,:),pointer  :: fire_mortality_vs_height => null()
      ! Diagnostic fluxes for use in 13C
-     REAL(r_2), DIMENSION(:,:,:), POINTER :: FluxFromPtoL => null()
-     REAL(r_2), DIMENSION(:,:,:), POINTER :: FluxFromLtoS => null()
-     REAL(r_2), DIMENSION(:,:,:), POINTER :: FluxFromStoS => null()
-     REAL(r_2), DIMENSION(:,:),   POINTER :: FluxFromPtoCO2 => null()
-     REAL(r_2), DIMENSION(:,:),   POINTER :: FluxFromLtoCO2 => null()
-     REAL(r_2), DIMENSION(:,:),   POINTER :: FluxFromStoCO2 => null()
-     REAL(r_2), DIMENSION(:),     POINTER :: FluxFromPtoHarvest => null()
-  END TYPE casa_flux
+     real(r_2), dimension(:,:,:), pointer :: FluxFromPtoL => null()
+     real(r_2), dimension(:,:,:), pointer :: FluxFromLtoS => null()
+     real(r_2), dimension(:,:,:), pointer :: FluxFromStoS => null()
+     real(r_2), dimension(:,:),   pointer :: FluxFromPtoCO2 => null()
+     real(r_2), dimension(:,:),   pointer :: FluxFromLtoCO2 => null()
+     real(r_2), dimension(:,:),   pointer :: FluxFromStoCO2 => null()
+     real(r_2), dimension(:),     pointer :: FluxFromPtoHarvest => null()
+  end type casa_flux
 
 
-  TYPE casa_met
-     REAL(r_2), DIMENSION(:),POINTER    :: glai => null(),     &
-          Tairk => null(),    &
-          precip => null(),   &
+  type casa_met
+     real(r_2), dimension(:), pointer :: &
+          glai => null(), &
+          Tairk => null(), &
+          precip => null(), &
           tsoilavg => null(), &
           moistavg => null(), &
           btran => null()
-     INTEGER, DIMENSION(:), POINTER     :: lnonwood => null()
-     REAL(r_2), DIMENSION(:,:), POINTER :: Tsoil => null(),    &
+     integer, dimension(:), pointer :: &
+          lnonwood => null()
+     real(r_2), dimension(:,:), pointer :: &
+          Tsoil => null(), &
           moist => null()
-     INTEGER, DIMENSION(:), POINTER     :: iveg2 => null(),    &
-          ijgcm => null(),    &
+     integer, dimension(:), pointer :: &
+          iveg2 => null(), &
+          ijgcm => null(), &
           isorder => null()
-     REAL(r_2), DIMENSION(:), POINTER   :: lat => null(),      &
-          lon => null(),      &
+     real(r_2), dimension(:), pointer :: &
+          lat => null(), &
+          lon => null(), &
           areacell => null()
      ! added yp wang 5/nov/2012
-     REAL(r_2), DIMENSION(:,:), POINTER :: Tairkspin => null(),&
-          cgppspin => null(),&
-          crmplantspin_1 => null(),&
-          crmplantspin_2 => null(),&
-          crmplantspin_3 => null(),&
-          Tsoilspin_1 => null(),&
-          Tsoilspin_2 => null(),&
-          Tsoilspin_3 => null(),&
-          Tsoilspin_4 => null(),&
-          Tsoilspin_5 => null(),&
-          Tsoilspin_6 => null(),&
-          moistspin_1 => null(),&
-          moistspin_2 => null(),&
-          moistspin_3 => null(),&
-          moistspin_4 => null(),&
-          moistspin_5 => null(),&
+     real(r_2), dimension(:,:), pointer :: &
+          Tairkspin => null(), &
+          cgppspin => null(), &
+          crmplantspin_1 => null(), &
+          crmplantspin_2 => null(), &
+          crmplantspin_3 => null(), &
+          Tsoilspin_1 => null(), &
+          Tsoilspin_2 => null(), &
+          Tsoilspin_3 => null(), &
+          Tsoilspin_4 => null(), &
+          Tsoilspin_5 => null(), &
+          Tsoilspin_6 => null(), &
+          moistspin_1 => null(), &
+          moistspin_2 => null(), &
+          moistspin_3 => null(), &
+          moistspin_4 => null(), &
+          moistspin_5 => null(), &
           moistspin_6 => null(), &
           mtempspin => null(), &
           frecspin => null()
      ! 13C
-     real(r_2), dimension(:,:), pointer :: cAn12spin => null() ! daily cumulated total 12CO2 net assimilation in [g(C)/m2]
-     real(r_2), dimension(:,:), pointer :: cAn13spin => null() ! daily cumulated total 13CO2 net assimilation in [g(13C)/m2]
+     real(r_2), dimension(:,:), pointer :: &
+          ! daily cumulated total 12CO2 net assimilation in [g(C)/m2]
+          cAn12spin => null()
+     real(r_2), dimension(:,:), pointer :: &
+          ! daily cumulated total 13CO2 net assimilation in [g(13C)/m2]
+          cAn13spin => null()
      ! BLAZE
-     REAL(r_2), DIMENSION(:,:), POINTER :: dprecip_spin => null(),&
-          aprecip_av20_spin => null(),&
-          du10_max_spin     => null(),&
-          drhum_spin        => null(),&
-          dtemp_max_spin    => null(),&
-          dtemp_min_spin    => null(),&
-          KBDI_spin         => null(),&
-          D_MacArthur_spin  => null(),&
-          FFDI_spin         => null(),&
+     real(r_2), dimension(:,:), pointer :: &
+          dprecip_spin => null(), &
+          aprecip_av20_spin => null(), &
+          du10_max_spin     => null(), &
+          drhum_spin        => null(), &
+          dtemp_max_spin    => null(), &
+          dtemp_min_spin    => null(), &
+          KBDI_spin         => null(), &
+          D_MacArthur_spin  => null(), &
+          FFDI_spin         => null(), &
           last_precip_spin  => null()
-      INTEGER, DIMENSION(:,:), POINTER :: DSLR_spin => null()
-  END TYPE casa_met
+     integer, dimension(:,:), pointer :: &
+          DSLR_spin => null()
+  end type casa_met
 
 
-  TYPE casa_balance
-     REAL(r_2), DIMENSION(:),POINTER   :: FCgppyear => null(), FCnppyear => null(), &
-          FCrmleafyear => null(), FCrmwoodyear => null(), FCrmrootyear => null(), FCrgrowyear => null(), &
-          FCrpyear => null(), FCrsyear => null(),FCneeyear => null(),  dCdtyear => null(), &
-          LAImax => null(), Cleafmean => null(), Crootmean => null(), &
-          FNdepyear => null(), FNfixyear => null(), FNsnetyear => null(), FNupyear => null(), &
-          FNleachyear => null(), FNlossyear => null(), &
-          FPweayear => null(), FPdustyear => null(), FPsnetyear => null(), &
-          FPupyear => null(), FPleachyear => null(), FPlossyear => null()
-
-     REAL(r_2), DIMENSION(:,:),POINTER :: glaimon => null(), glaimonx => null()
-     REAL(r_2), DIMENSION(:,:),POINTER :: cplantlast => null(), nplantlast => null(), pplantlast => null()
-     REAL(r_2), DIMENSION(:,:),POINTER :: clitterlast => null(), nlitterlast => null(), plitterlast => null()
-     REAL(r_2), DIMENSION(:,:),POINTER :: csoillast => null(), nsoillast => null(), psoillast => null()
-     REAL(r_2), DIMENSION(:),  POINTER :: nsoilminlast => null(), psoillablast => null(),  &
-          psoilsorblast => null(), psoilocclast => null(), &
-          cbalance => null(), nbalance => null(), pbalance => null(), &
-          sumcbal => null(), sumnbal => null(), sumpbal => null()
-     REAL(r_2), DIMENSION(:),POINTER   :: clabilelast => null()
-  END TYPE casa_balance
+  type casa_balance
+     real(r_2), dimension(:), pointer :: &
+          FCgppyear => null(), &
+          FCnppyear => null(), &
+          FCrmleafyear => null(), &
+          FCrmwoodyear => null(), &
+          FCrmrootyear => null(), &
+          FCrgrowyear => null(), &
+          FCrpyear => null(), &
+          FCrsyear => null(), &
+          FCneeyear => null(), &
+          dCdtyear => null(), &
+          LAImax => null(), &
+          Cleafmean => null(), &
+          Crootmean => null(), &
+          FNdepyear => null(), &
+          FNfixyear => null(), &
+          FNsnetyear => null(), &
+          FNupyear => null(), &
+          FNleachyear => null(), &
+          FNlossyear => null(), &
+          FPweayear => null(), &
+          FPdustyear => null(), &
+          FPsnetyear => null(), &
+          FPupyear => null(), &
+          FPleachyear => null(), &
+          FPlossyear => null()
+     real(r_2), dimension(:,:),pointer :: &
+          glaimon => null(), &
+          glaimonx => null()
+     real(r_2), dimension(:,:), pointer :: &
+          cplantlast => null(), &
+          nplantlast => null(), &
+          pplantlast => null()
+     real(r_2), dimension(:,:), pointer :: &
+          clitterlast => null(), &
+          nlitterlast => null(), &
+          plitterlast => null()
+     real(r_2), dimension(:,:), pointer :: &
+          csoillast => null(), &
+          nsoillast => null(), &
+          psoillast => null()
+     real(r_2), dimension(:), pointer :: &
+          nsoilminlast => null(), &
+          psoillablast => null(), &
+          psoilsorblast => null(), &
+          psoilocclast => null(), &
+          cbalance => null(), &
+          nbalance => null(), &
+          pbalance => null(), &
+          sumcbal => null(), &
+          sumnbal => null(), &
+          sumpbal => null()
+     real(r_2), dimension(:), pointer :: &
+          clabilelast => null()
+  end type casa_balance
 
 
   ! The following declarations are removed and have to be passed using
@@ -414,283 +517,300 @@ MODULE casavariable
 
 
   ! Added filename type for casaCNP (BP apr2010)
-  TYPE casafiles_type
-     CHARACTER(LEN=200) :: cnpbiome    ! file for biome-specific BGC parameters
-     CHARACTER(LEN=200) :: cnppoint    ! file for point-specific BGC inputs
-     CHARACTER(LEN=200) :: cnpepool    ! file for end-of-run pool sizes
-     CHARACTER(LEN=200) :: cnpipool=''    ! file for inital pool sizes
-     CHARACTER(LEN=200) :: cnpmetin      ! met file for spin up
-     CHARACTER(LEN=200) :: cnpmetout     ! met file for spin up
-     CHARACTER(LEN=200) :: ndep          ! N deposition input file
+  type casafiles_type
+     character(LEN=200) :: cnpbiome    ! file for biome-specific BGC parameters
+     character(LEN=200) :: cnppoint    ! file for point-specific BGC inputs
+     character(LEN=200) :: cnpepool    ! file for end-of-run pool sizes
+     character(LEN=200) :: cnpipool=''    ! file for inital pool sizes
+     character(LEN=200) :: cnpmetin      ! met file for spin up
+     character(LEN=200) :: cnpmetout     ! met file for spin up
+     character(LEN=200) :: ndep          ! N deposition input file
      ! added yp wang
-     CHARACTER(LEN=200) :: cnpspin       ! input file for spin up
-     CHARACTER(LEN=200) :: dump_cnpspin  ! name of dump file for spinning casa-cnp
+     character(LEN=200) :: cnpspin       ! input file for spin up
+     character(LEN=200) :: dump_cnpspin  ! name of dump file for spinning casa-cnp
 
-     CHARACTER(LEN=200) :: phen        ! leaf phenology datafile
-     CHARACTER(LEN=200) :: cnpflux     ! modelled mean yearly CNP fluxes
-     LOGICAL            :: l_ndep
+     character(LEN=200) :: phen        ! leaf phenology datafile
+     character(LEN=200) :: cnpflux     ! modelled mean yearly CNP fluxes
+     logical            :: l_ndep
      ! added vh
-     CHARACTER(LEN=200) :: c2cdumppath='' ! cable2casa dump for casa spinup
-     CHARACTER(LEN=200) :: out=''    ! casa output file
-  END TYPE casafiles_type
-  TYPE(casafiles_type) :: casafile
+     character(LEN=200) :: c2cdumppath='' ! cable2casa dump for casa spinup
+     character(LEN=200) :: out=''    ! casa output file
+  end type casafiles_type
+  type(casafiles_type) :: casafile
 
-  public :: alloc_casavariable
-  interface alloc_casavariable
+  interface alloc_casa_var
      module procedure &
           alloc_casabiome, &
           alloc_casapool, &
           alloc_casaflux, &
-          alloc_casamet,  &
+          alloc_casamet, &
           alloc_casabal
-  end interface alloc_casavariable
+  end interface alloc_casa_var
 
-  public :: zero_casavariable
-  interface zero_casavariable
+  interface zero_casa_var
      module procedure &
           zero_casabiome, &
           zero_casapool, &
           zero_casaflux, &
-          zero_casamet,  &
+          zero_casamet, &
           zero_casabal
-  end interface zero_casavariable
+  end interface zero_casa_var
 
-  public :: print_casavariable
-  interface print_casavariable
+  interface print_casa_var
      module procedure &
           print_casabiome, &
           print_casapool, &
           print_casaflux, &
-          print_casamet,  &
+          print_casamet, &
           print_casabal
-  end interface print_casavariable
+  end interface print_casa_var
 
-Contains
+  interface read_netcdf_casa_var
+     module procedure &
+          read_netcdf_casabiome, &
+          read_netcdf_casapool, &
+          read_netcdf_casaflux, &
+          read_netcdf_casamet, &
+          read_netcdf_casabal
+  end interface read_netcdf_casa_var
 
-  SUBROUTINE alloc_casabiome(casabiome, arraysize)
+  interface write_netcdf_casa_var
+     module procedure &
+          write_netcdf_casabiome, &
+          write_netcdf_casapool, &
+          write_netcdf_casaflux, &
+          write_netcdf_casamet, &
+          write_netcdf_casabal
+  end interface write_netcdf_casa_var
+
+contains
+
+  ! ------------------------------------------------------------------
+
+  subroutine alloc_casabiome(casabiome)
+
+    use cable_def_types_mod, only: mvtype
+    use casadimension, only: mplant, mlitter, msoil, mso
 
     implicit none
 
     type(casa_biome), intent(inout) :: casabiome
-    integer,          intent(in)    :: arraysize
 
-    allocate(casabiome%ivt2(mvtype),               &
-         casabiome%xkleafcoldmax(mvtype),          &
-         casabiome%xkleafcoldexp(mvtype),          &
-         casabiome%xkleafdrymax(mvtype),           &
-         casabiome%xkleafdryexp(mvtype),           &
-         casabiome%glaimax(mvtype),                &
-         casabiome%glaimin(mvtype),                &
-         casabiome%sla(mvtype),                    &
-         casabiome%ratiofrootleaf(mvtype),         &
-         casabiome%kroot(mvtype),                  &
-         casabiome%krootlen(mvtype),               &
-         casabiome%rootdepth(mvtype),              &
-         casabiome%kuptake(mvtype),                &
-         casabiome%kminN(mvtype),                  &
-         casabiome%KuplabP(mvtype),                &
-         casabiome%kclabrate(mvtype),              &
-         casabiome%xnpmax(mvtype),                 &
-         casabiome%q10soil(mvtype),                &
-         casabiome%xkoptlitter(mvtype),            &
-         casabiome%xkoptsoil(mvtype),              &
-         casabiome%xkplab(mso),                    &
-         casabiome%xkpsorb(mso),                   &
-         casabiome%xkpocc(mso),                    &
-         casabiome%prodptase(mvtype),              &
-         casabiome%costnpup(mvtype),               &
-         casabiome%maxfinelitter(mvtype),          &
-         casabiome%maxcwd(mvtype),                 &
-         casabiome%nintercept(mvtype),             &
-         casabiome%nslope(mvtype),                 &
-         casabiome%plantrate(mvtype,mplant),       &
-         casabiome%rmplant(mvtype,mplant),         &
-         casabiome%fracnpptoP(mvtype,mplant),      &
-         casabiome%fraclignin(mvtype,mplant),      &
-         casabiome%fraclabile(mvtype,mplant),      &
+    allocate( &
+         casabiome%ivt2(mvtype), &
+         casabiome%xkleafcoldmax(mvtype), &
+         casabiome%xkleafcoldexp(mvtype), &
+         casabiome%xkleafdrymax(mvtype), &
+         casabiome%xkleafdryexp(mvtype), &
+         casabiome%glaimax(mvtype), &
+         casabiome%glaimin(mvtype), &
+         casabiome%sla(mvtype), &
+         casabiome%ratiofrootleaf(mvtype), &
+         casabiome%kroot(mvtype), &
+         casabiome%krootlen(mvtype), &
+         casabiome%rootdepth(mvtype), &
+         casabiome%kuptake(mvtype), &
+         casabiome%kminN(mvtype), &
+         casabiome%KuplabP(mvtype), &
+         casabiome%kclabrate(mvtype), &
+         casabiome%xnpmax(mvtype), &
+         casabiome%q10soil(mvtype), &
+         casabiome%xkoptlitter(mvtype), &
+         casabiome%xkoptsoil(mvtype), &
+         casabiome%xkplab(mso), &
+         casabiome%xkpsorb(mso), &
+         casabiome%xkpocc(mso), &
+         casabiome%prodptase(mvtype), &
+         casabiome%costnpup(mvtype), &
+         casabiome%maxfinelitter(mvtype), &
+         casabiome%maxcwd(mvtype), &
+         casabiome%nintercept(mvtype), &
+         casabiome%nslope(mvtype), &
+         casabiome%la_to_sa(mvtype), &
+         casabiome%vcmax_scalar(mvtype), &
+         casabiome%disturbance_interval(mvtype), &
+         casabiome%DAMM_EnzPool(mvtype), &
+         casabiome%DAMM_KMO2(mvtype), &
+         casabiome%DAMM_KMcp(mvtype), &
+         casabiome%DAMM_Ea(mvtype), &
+         casabiome%DAMM_alpha(mvtype), &
+         casabiome%plantrate(mvtype,mplant), &
+         casabiome%rmplant(mvtype,mplant), &
+         casabiome%fracnpptoP(mvtype,mplant), &
+         casabiome%fraclignin(mvtype,mplant), &
+         casabiome%fraclabile(mvtype,mplant), &
          casabiome%ratioNCplantmin(mvtype,mplant), &
          casabiome%ratioNCplantmax(mvtype,mplant), &
          casabiome%ratioNPplantmin(mvtype,mplant), &
          casabiome%ratioNPplantmax(mvtype,mplant), &
          casabiome%fracLigninplant(mvtype,mplant), &
-         casabiome%ftransNPtoL(mvtype,mplant),     &
-         casabiome%ftransPPtoL(mvtype,mplant),     &
-         casabiome%litterrate(mvtype,mlitter),     &
-         casabiome%soilrate(mvtype,msoil),         &
-         !  casabiome%ratioPcplantmax(mvtype,leaf),   &
-         !  casabiome%ratioPcplantmin(mvtype,leaf)    &
+         casabiome%ftransNPtoL(mvtype,mplant), &
+         casabiome%ftransPPtoL(mvtype,mplant), &
+         casabiome%litterrate(mvtype,mlitter), &
+         !  casabiome%ratioPcplantmax(mvtype,leaf), &
+         !  casabiome%ratioPcplantmin(mvtype,leaf) &
          !! vh_js !!
-         casabiome%ratioPcplantmax(mvtype,mplant),   &
-         casabiome%ratioPcplantmin(mvtype,mplant),   &
-         casabiome%la_to_sa(mvtype),                 &
-         casabiome%vcmax_scalar(mvtype),             &
-         casabiome%disturbance_interval(mvtype),     &
-         casabiome%DAMM_EnzPool(mvtype),     &
-         casabiome%DAMM_KMO2(mvtype),     &
-         casabiome%DAMM_KMcp(mvtype),     &
-         casabiome%DAMM_Ea(mvtype),       &
-         casabiome%DAMM_alpha(mvtype)     &
+         casabiome%ratioPcplantmax(mvtype,mplant), &
+         casabiome%ratioPcplantmin(mvtype,mplant), &
+         casabiome%soilrate(mvtype,msoil) &
          )
 
-  END SUBROUTINE alloc_casabiome
+  end subroutine alloc_casabiome
 
 
-  SUBROUTINE alloc_casapool(casapool, arraysize)
+  subroutine alloc_casapool(casapool, arraysize)
+
+    use casadimension, only: mplant, mlitter, msoil
 
     implicit none
 
     type(casa_pool), intent(inout) :: casapool
     integer,         intent(in)    :: arraysize
 
-    allocate(casapool%Clabile(arraysize),           &
-         casapool%dClabiledt(arraysize),            &
-         casapool%Cplant(arraysize,mplant),         &
-         casapool%Nplant(arraysize,mplant),         &
-         casapool%Pplant(arraysize,mplant),         &
-         casapool%dCplantdt(arraysize,mplant),      &
-         casapool%dNplantdt(arraysize,mplant),      &
-         casapool%dPplantdt(arraysize,mplant),      &
-         casapool%ratioNCplant(arraysize,mplant),   &
-         casapool%ratioNPplant(arraysize,mplant),   &
-         casapool%Nsoilmin(arraysize),              &
-         casapool%Psoillab(arraysize),              &
-         casapool%Psoilsorb(arraysize),             &
-         casapool%Psoilocc(arraysize),              &
-         casapool%dNsoilmindt(arraysize),           &
-         casapool%dPsoillabdt(arraysize),           &
-         casapool%dPsoilsorbdt(arraysize),          &
-         casapool%dPsoiloccdt(arraysize),           &
-         casapool%Clitter(arraysize,mlitter),       &
-         casapool%Nlitter(arraysize,mlitter),       &
-         casapool%Plitter(arraysize,mlitter),       &
-         casapool%dClitterdt(arraysize,mlitter),    &
-         casapool%dNlitterdt(arraysize,mlitter),    &
-         casapool%dPlitterdt(arraysize,mlitter),    &
+    allocate( &
+         casapool%Clabile(arraysize), &
+         casapool%dClabiledt(arraysize), &
+         casapool%Ctot(arraysize), &
+         casapool%Ctot_0(arraysize), &
+         casapool%Cplant(arraysize,mplant), &
+         casapool%Nplant(arraysize,mplant), &
+         casapool%Pplant(arraysize,mplant), &
+         casapool%dCplantdt(arraysize,mplant), &
+         casapool%dNplantdt(arraysize,mplant), &
+         casapool%dPplantdt(arraysize,mplant), &
+         casapool%ratioNCplant(arraysize,mplant), &
+         casapool%ratioNPplant(arraysize,mplant), &
+         casapool%Nsoilmin(arraysize), &
+         casapool%Psoillab(arraysize), &
+         casapool%Psoilsorb(arraysize), &
+         casapool%Psoilocc(arraysize), &
+         casapool%dNsoilmindt(arraysize), &
+         casapool%dPsoillabdt(arraysize), &
+         casapool%dPsoilsorbdt(arraysize), &
+         casapool%dPsoiloccdt(arraysize), &
+         casapool%Clitter(arraysize,mlitter), &
+         casapool%Nlitter(arraysize,mlitter), &
+         casapool%Plitter(arraysize,mlitter), &
+         casapool%dClitterdt(arraysize,mlitter), &
+         casapool%dNlitterdt(arraysize,mlitter), &
+         casapool%dPlitterdt(arraysize,mlitter), &
          casapool%ratioNClitter(arraysize,mlitter), &
          casapool%ratioNPlitter(arraysize,mlitter), &
-         casapool%Csoil(arraysize,msoil),           &
-         casapool%Nsoil(arraysize,msoil),           &
-         casapool%Psoil(arraysize,msoil),           &
-         casapool%dCsoildt(arraysize,msoil),        &
-         casapool%dNsoildt(arraysize,msoil),        &
-         casapool%dPsoildt(arraysize,msoil),        &
-         casapool%ratioNCsoil(arraysize,msoil),     &
-         casapool%ratioNPsoil(arraysize,msoil),     &
-         casapool%ratioNCsoilnew(arraysize,msoil),  &
-         casapool%ratioNCsoilmin(arraysize,msoil),  &
-         casapool%ratioNCsoilmax(arraysize,msoil),  &
-         casapool%ratioPCsoil(arraysize,msoil),     &
-         casapool%ratioPCplant(arraysize,mplant),   &
-         casapool%ratioPClitter(arraysize,mlitter), &
-         casapool%Ctot_0(arraysize),                &
-         casapool%Ctot(arraysize)   )
+         casapool%Csoil(arraysize,msoil), &
+         casapool%Nsoil(arraysize,msoil), &
+         casapool%Psoil(arraysize,msoil), &
+         casapool%dCsoildt(arraysize,msoil), &
+         casapool%dNsoildt(arraysize,msoil), &
+         casapool%dPsoildt(arraysize,msoil), &
+         casapool%ratioNCsoil(arraysize,msoil), &
+         casapool%ratioNPsoil(arraysize,msoil), &
+         casapool%ratioNCsoilnew(arraysize,msoil), &
+         casapool%ratioNCsoilmin(arraysize,msoil), &
+         casapool%ratioNCsoilmax(arraysize,msoil), &
+         casapool%ratioPCsoil(arraysize,msoil), &
+         casapool%ratioPCplant(arraysize,mplant), &
+         casapool%ratioPClitter(arraysize,mlitter) &
+         )
+
+  end subroutine alloc_casapool
 
 
-  END SUBROUTINE alloc_casapool
+  subroutine alloc_casaflux(casaflux, arraysize)
 
-
-  SUBROUTINE alloc_casaflux(casaflux, arraysize)
+    use casadimension, only: mplant, mlitter, msoil
 
     implicit none
 
     type(casa_flux), intent(inout) :: casaflux
     integer,         intent(in)    :: arraysize
 
-    allocate(casaflux%Cgpp(arraysize),                 &
-         casaflux%Cnpp(arraysize),                     &
-         casaflux%Crp(arraysize),                      &
-         casaflux%Crgplant(arraysize),                 &
-         casaflux%Nminfix(arraysize),                  &
-         casaflux%Nminuptake(arraysize),               &
-         casaflux%Plabuptake(arraysize),               &
-         casaflux%Clabloss(arraysize),                 &
-         casaflux%fracClabile(arraysize),              &
-         casaflux%fracCalloc(arraysize,mplant),        &
-         casaflux%fracNalloc(arraysize,mplant),        &
-         casaflux%fracPalloc(arraysize,mplant),        &
-         casaflux%kplant(arraysize,mplant),            &
-         casaflux%Crmplant(arraysize,mplant),          &
-         casaflux%fromPtoL(arraysize,mlitter,mplant),  &
-         casaflux%Cnep(arraysize),                     &
-         casaflux%Crsoil(arraysize),                   &
-         casaflux%Nmindep(arraysize),                  &
-         casaflux%Nminloss(arraysize),                 &
-         casaflux%Nminleach(arraysize),                &
-         casaflux%Nupland(arraysize),                  &
-         casaflux%Nlittermin(arraysize),               &
-         casaflux%Nsmin(arraysize),                    &
-         casaflux%Nsimm(arraysize),                    &
-         casaflux%Nsnet(arraysize),                    &
-         casaflux%fNminloss(arraysize),                &
-         casaflux%fNminleach(arraysize),               &
-         casaflux%Pdep(arraysize),                     &
-         casaflux%Pwea(arraysize),                     &
-         casaflux%Pleach(arraysize),                   &
-         casaflux%Ploss(arraysize),                    &
-         casaflux%Pupland(arraysize),                  &
-         casaflux%Plittermin(arraysize),               &
-         casaflux%Psmin(arraysize),                    &
-         casaflux%Psimm(arraysize),                    &
-         casaflux%Psnet(arraysize),                    &
-         casaflux%fPleach(arraysize),                  &
-         casaflux%kplab(arraysize),                    &
-         casaflux%kpsorb(arraysize),                   &
-         casaflux%kpocc(arraysize),                    &
-         casaflux%kmlabP(arraysize),                   &
-         casaflux%Psorbmax(arraysize),                 &
-         casaflux%klitter(arraysize,mlitter),          &
-         casaflux%ksoil(arraysize,msoil),              &
-         casaflux%fromLtoS(arraysize,msoil,mlitter),   &
-         casaflux%fromStoS(arraysize,msoil,msoil),     &
-         casaflux%fromLtoCO2(arraysize,mlitter),       &
-         casaflux%fromStoCO2(arraysize,msoil),         &
-         casaflux%stemnpp(arraysize),                  &
-         casaflux%frac_sapwood(arraysize),             &
+    allocate( &
+         casaflux%Cgpp(arraysize), &
+         casaflux%Cnpp(arraysize), &
+         casaflux%Crp(arraysize), &
+         casaflux%Crgplant(arraysize), &
+         casaflux%Nminfix(arraysize), &
+         casaflux%Nminuptake(arraysize), &
+         casaflux%Plabuptake(arraysize), &
+         casaflux%Clabloss(arraysize), &
+         casaflux%fracClabile(arraysize), &
+         casaflux%stemnpp(arraysize), &
+         casaflux%frac_sapwood(arraysize), &
          casaflux%sapwood_area(arraysize), &
-         casaflux%fharvest(arraysize), &
          casaflux%Charvest(arraysize), &
          casaflux%Nharvest(arraysize), &
          casaflux%Pharvest(arraysize), &
+         casaflux%fharvest(arraysize), &
          casaflux%fcrop(arraysize), &
+         casaflux%fracCalloc(arraysize,mplant), &
+         casaflux%fracNalloc(arraysize,mplant), &
+         casaflux%fracPalloc(arraysize,mplant), &
+         casaflux%Crmplant(arraysize,mplant), &
+         casaflux%kplant(arraysize,mplant), &
          casaflux%Cplant_turnover(arraysize,mplant), &
+         casaflux%fromPtoL(arraysize,mlitter,mplant), &
+         casaflux%Cnep(arraysize), &
+         casaflux%Crsoil(arraysize), &
+         casaflux%Nmindep(arraysize), &
+         casaflux%Nminloss(arraysize), &
+         casaflux%Nminleach(arraysize), &
+         casaflux%Nupland(arraysize), &
+         casaflux%Nlittermin(arraysize), &
+         casaflux%Nsmin(arraysize), &
+         casaflux%Nsimm(arraysize), &
+         casaflux%Nsnet(arraysize), &
+         casaflux%fNminloss(arraysize), &
+         casaflux%fNminleach(arraysize), &
+         casaflux%Pdep(arraysize), &
+         casaflux%Pwea(arraysize), &
+         casaflux%Pleach(arraysize), &
+         casaflux%Ploss(arraysize), &
+         casaflux%Pupland(arraysize), &
+         casaflux%Plittermin(arraysize), &
+         casaflux%Psmin(arraysize), &
+         casaflux%Psimm(arraysize), &
+         casaflux%Psnet(arraysize), &
+         casaflux%fPleach(arraysize), &
+         casaflux%kplab(arraysize), &
+         casaflux%kpsorb(arraysize), &
+         casaflux%kpocc(arraysize), &
+         casaflux%kmlabP(arraysize), &
+         casaflux%Psorbmax(arraysize), &
          casaflux%Cplant_turnover_disturbance(arraysize), &
          casaflux%Cplant_turnover_crowding(arraysize), &
-         casaflux%Cplant_turnover_resource_limitation(arraysize))
-
-    !CVH Alllocate fire turnover rates and plant-to-litter partitioning coefficients
-    allocate(casaflux%fromPtoL_fire(arraysize,mlitter,mplant), &
-         casaflux%kplant_fire(arraysize,mplant),        &
-         casaflux%klitter_fire(arraysize,mlitter),           &
-         casaflux%kplant_tot(arraysize,mplant),        &
-         casaflux%klitter_tot(arraysize,mlitter),           &
-         casaflux%FluxCtoCO2_plant_fire(arraysize),             &
-         casaflux%FluxCtoCO2_litter_fire(arraysize),             &
-         casaflux%fluxfromPtoCO2_fire(arraysize,mplant),         &
-         casaflux%fluxfromLtoCO2_fire(arraysize,mlitter),         &
-         casaflux%FluxNtoAtm_fire(arraysize))
-    !casaflux%fire_mortality_vs_height(arraysize,mheights,2))
-
-    allocate(casaflux%FluxCtolitter(arraysize,mlitter),    &
-         casaflux%FluxNtolitter(arraysize,mlitter),    &
-         casaflux%FluxPtolitter(arraysize,mlitter))
-
-    allocate(casaflux%FluxCtosoil(arraysize,msoil),        &
-         casaflux%FluxNtosoil(arraysize,msoil),        &
-         casaflux%FluxPtosoil(arraysize,msoil))
-
-    allocate(casaflux%FluxCtohwp(arraysize),    &
-         casaflux%FluxNtohwp(arraysize),    &
-         casaflux%FluxPtohwp(arraysize))
-
-    allocate(casaflux%FluxCtoclear(arraysize),    &
-         casaflux%FluxNtoclear(arraysize),    &
-         casaflux%FluxPtoclear(arraysize))
-
-    allocate(casaflux%CtransferLUC(arraysize))
-
-    allocate(casaflux%FluxCtoco2(arraysize))
-
-    allocate(casaflux%FluxFromPtoL(arraysize,mplant,mlitter), &
+         casaflux%Cplant_turnover_resource_limitation(arraysize), &
+         casaflux%klitter(arraysize,mlitter), &
+         casaflux%ksoil(arraysize,msoil), &
+         casaflux%fromLtoS(arraysize,msoil,mlitter), &
+         casaflux%fromStoS(arraysize,msoil,msoil), &
+         casaflux%fromLtoCO2(arraysize,mlitter), &
+         casaflux%fromStoCO2(arraysize,msoil), &
+         casaflux%FluxCtolitter(arraysize,mlitter), &
+         casaflux%FluxNtolitter(arraysize,mlitter), &
+         casaflux%FluxPtolitter(arraysize,mlitter), &
+         casaflux%FluxCtosoil(arraysize,msoil), &
+         casaflux%FluxNtosoil(arraysize,msoil), &
+         casaflux%FluxPtosoil(arraysize,msoil), &
+         casaflux%FluxCtoCO2(arraysize), &
+         casaflux%FluxCtohwp(arraysize), &
+         casaflux%FluxNtohwp(arraysize), &
+         casaflux%FluxPtohwp(arraysize), &
+         casaflux%FluxCtoclear(arraysize), &
+         casaflux%FluxNtoclear(arraysize), &
+         casaflux%FluxPtoclear(arraysize), &
+         casaflux%CtransferLUC(arraysize), &
+         casaflux%fromPtoL_fire(arraysize,mlitter,mplant), &
+         casaflux%klitter_fire(arraysize,mlitter), &
+         casaflux%klitter_tot(arraysize,mlitter), &
+         casaflux%kplant_fire(arraysize,mplant), &
+         casaflux%kplant_tot(arraysize,mplant), &
+         casaflux%FluxCtoCO2_plant_fire(arraysize), &
+         casaflux%FluxCtoCO2_litter_fire(arraysize), &
+         casaflux%fluxfromPtoCO2_fire(arraysize,mplant), &
+         casaflux%fluxfromLtoCO2_fire(arraysize,mlitter), &
+         casaflux%FluxNtoAtm_fire(arraysize), &
+         ! casabal%fire_mortality_vs_height(arraysize,mheights,2) )
+         casaflux%FluxFromPtoL(arraysize,mplant,mlitter), &
          casaflux%FluxFromLtoS(arraysize,mlitter,msoil), &
          casaflux%FluxFromStoS(arraysize,msoil,msoil), &
          casaflux%FluxFromPtoCO2(arraysize,mplant), &
@@ -698,600 +818,489 @@ Contains
          casaflux%FluxFromStoCO2(arraysize,msoil), &
          casaflux%FluxFromPtoHarvest(arraysize))
 
-  END SUBROUTINE alloc_casaflux
+  end subroutine alloc_casaflux
 
 
-  SUBROUTINE alloc_casamet(casamet, arraysize)
+  subroutine alloc_casamet(casamet, arraysize)
+
+    use cable_def_types_mod, only: ms
+    use casadimension, only: mdyear
 
     implicit none
 
     type(casa_met), intent(inout) :: casamet
     integer,        intent(in)    :: arraysize
 
-    allocate(casamet%glai(arraysize),                 &
-         casamet%lnonwood(arraysize),             &
-         casamet%Tairk(arraysize),                &
-         casamet%precip(arraysize),               &
-         casamet%tsoilavg(arraysize),             &
-         casamet%moistavg(arraysize),             &
-         casamet%btran(arraysize),                &
-         casamet%Tsoil(arraysize,ms),             &
-         casamet%moist(arraysize,ms),             &
-         casamet%iveg2(arraysize),                &
-         casamet%ijgcm(arraysize),                &
-         casamet%isorder(arraysize),              &
-         casamet%lat(arraysize),                  &
-         casamet%lon(arraysize),                  &
-         casamet%areacell(arraysize),             &
-         casamet%Tairkspin(arraysize,mdyear),     &
-         casamet%cgppspin(arraysize,mdyear),      &
-         casamet%crmplantspin_1(arraysize,mdyear),&
-         casamet%crmplantspin_2(arraysize,mdyear),&
-         casamet%crmplantspin_3(arraysize,mdyear),&
-         casamet%Tsoilspin_1(arraysize,mdyear),   &
-         casamet%Tsoilspin_2(arraysize,mdyear),   &
-         casamet%Tsoilspin_3(arraysize,mdyear),   &
-         casamet%Tsoilspin_4(arraysize,mdyear),   &
-         casamet%Tsoilspin_5(arraysize,mdyear),   &
-         casamet%Tsoilspin_6(arraysize,mdyear),   &
-         casamet%moistspin_1(arraysize,mdyear),   &
-         casamet%moistspin_2(arraysize,mdyear),   &
-         casamet%moistspin_3(arraysize,mdyear),   &
-         casamet%moistspin_4(arraysize,mdyear),   &
-         casamet%moistspin_5(arraysize,mdyear),   &
-         casamet%moistspin_6(arraysize,mdyear),  &
+    allocate( &
+         casamet%glai(arraysize), &
+         casamet%Tairk(arraysize), &
+         casamet%precip(arraysize), &
+         casamet%tsoilavg(arraysize), &
+         casamet%moistavg(arraysize), &
+         casamet%btran(arraysize), &
+         casamet%lnonwood(arraysize), &
+         casamet%Tsoil(arraysize,ms), &
+         casamet%moist(arraysize,ms), &
+         casamet%iveg2(arraysize), &
+         casamet%ijgcm(arraysize), &
+         casamet%isorder(arraysize), &
+         casamet%lat(arraysize), &
+         casamet%lon(arraysize), &
+         casamet%areacell(arraysize), &
+         casamet%Tairkspin(arraysize,mdyear), &
+         casamet%cgppspin(arraysize,mdyear), &
+         casamet%crmplantspin_1(arraysize,mdyear), &
+         casamet%crmplantspin_2(arraysize,mdyear), &
+         casamet%crmplantspin_3(arraysize,mdyear), &
+         casamet%Tsoilspin_1(arraysize,mdyear), &
+         casamet%Tsoilspin_2(arraysize,mdyear), &
+         casamet%Tsoilspin_3(arraysize,mdyear), &
+         casamet%Tsoilspin_4(arraysize,mdyear), &
+         casamet%Tsoilspin_5(arraysize,mdyear), &
+         casamet%Tsoilspin_6(arraysize,mdyear), &
+         casamet%moistspin_1(arraysize,mdyear), &
+         casamet%moistspin_2(arraysize,mdyear), &
+         casamet%moistspin_3(arraysize,mdyear), &
+         casamet%moistspin_4(arraysize,mdyear), &
+         casamet%moistspin_5(arraysize,mdyear), &
+         casamet%moistspin_6(arraysize,mdyear), &
          casamet%mtempspin(arraysize,mdyear), &
-         casamet%frecspin(arraysize,mdyear))
-    allocate(casamet%cAn12spin(arraysize,mdyear), &
-         casamet%cAn13spin(arraysize,mdyear))
-    allocate(casamet%dprecip_spin(arraysize,mdyear), &
-            casamet%aprecip_av20_spin(arraysize,mdyear), &
-            casamet%du10_max_spin(arraysize,mdyear), &
-            casamet%drhum_spin(arraysize,mdyear), &
-            casamet%dtemp_max_spin(arraysize,mdyear), &
-            casamet%dtemp_min_spin(arraysize,mdyear), &
-            casamet%KBDI_spin(arraysize,mdyear), &
-            casamet%D_MacArthur_spin(arraysize,mdyear), &
-            casamet%FFDI_spin(arraysize,mdyear), &
-            casamet%DSLR_spin(arraysize,mdyear), &
-            casamet%last_precip_spin(arraysize,mdyear))
+         casamet%frecspin(arraysize,mdyear), &
+         casamet%cAn12spin(arraysize,mdyear), &
+         casamet%cAn13spin(arraysize,mdyear), &
+         casamet%dprecip_spin(arraysize,mdyear), &
+         casamet%aprecip_av20_spin(arraysize,mdyear), &
+         casamet%du10_max_spin(arraysize,mdyear), &
+         casamet%drhum_spin(arraysize,mdyear), &
+         casamet%dtemp_max_spin(arraysize,mdyear), &
+         casamet%dtemp_min_spin(arraysize,mdyear), &
+         casamet%KBDI_spin(arraysize,mdyear), &
+         casamet%D_MacArthur_spin(arraysize,mdyear), &
+         casamet%FFDI_spin(arraysize,mdyear), &
+         casamet%last_precip_spin(arraysize,mdyear), &
+         casamet%DSLR_spin(arraysize,mdyear))
 
-  END SUBROUTINE alloc_casamet
+  end subroutine alloc_casamet
 
 
-  SUBROUTINE alloc_casabal(casabal, arraysize)
+  subroutine alloc_casabal(casabal, arraysize)
+
+    use casadimension, only: mplant, mlitter, msoil
 
     implicit none
 
     type(casa_balance), intent(inout) :: casabal
     integer,            intent(in)    :: arraysize
 
-    allocate(casabal%FCgppyear(arraysize),           &
-         casabal%FCnppyear(arraysize),           &
-         casabal%FCrpyear(arraysize),            &
-         casabal%FCrmleafyear(arraysize),        &
-         casabal%FCrmwoodyear(arraysize),        &
-         casabal%FCrmrootyear(arraysize),        &
-         casabal%FCrgrowyear(arraysize),         &
-         casabal%FCrsyear(arraysize),            &
-         casabal%FCneeyear(arraysize),           &
-         casabal%FNdepyear(arraysize),           &
-         casabal%FNfixyear(arraysize),           &
-         casabal%FNsnetyear(arraysize),          &
-         casabal%FNupyear(arraysize),            &
-         casabal%FNleachyear(arraysize),         &
-         casabal%FNlossyear(arraysize),          &
-         casabal%FPweayear(arraysize),           &
-         casabal%FPdustyear(arraysize),          &
-         casabal%FPsnetyear(arraysize),          &
-         casabal%FPupyear(arraysize),            &
-         casabal%FPleachyear(arraysize),         &
-         casabal%FPlossyear(arraysize),          &
-         casabal%dCdtyear(arraysize),            &
-         casabal%LAImax(arraysize),              &
-         casabal%Cleafmean(arraysize),           &
-         casabal%Crootmean(arraysize)) !,           &
-    !casabal%fire_mortality_vs_height(arraysize,mheights,2) )
-
-
-    allocate(casabal%glaimon(arraysize,12),          &
-         casabal%glaimonx(arraysize,12))
-
-    allocate(casabal%cplantlast(arraysize,mplant),   &
-         casabal%nplantlast(arraysize,mplant),   &
-         casabal%pplantlast(arraysize,mplant))
-
-    allocate(casabal%clitterlast(arraysize,mlitter), &
+    allocate( &
+         casabal%FCgppyear(arraysize), &
+         casabal%FCnppyear(arraysize), &
+         casabal%FCrmleafyear(arraysize), &
+         casabal%FCrmwoodyear(arraysize), &
+         casabal%FCrmrootyear(arraysize), &
+         casabal%FCrgrowyear(arraysize), &
+         casabal%FCrpyear(arraysize), &
+         casabal%FCrsyear(arraysize), &
+         casabal%FCneeyear(arraysize), &
+         casabal%dCdtyear(arraysize), &
+         casabal%LAImax(arraysize), &
+         casabal%Cleafmean(arraysize), &
+         casabal%Crootmean(arraysize), &
+         casabal%FNdepyear(arraysize), &
+         casabal%FNfixyear(arraysize), &
+         casabal%FNsnetyear(arraysize), &
+         casabal%FNupyear(arraysize), &
+         casabal%FNleachyear(arraysize), &
+         casabal%FNlossyear(arraysize), &
+         casabal%FPweayear(arraysize), &
+         casabal%FPdustyear(arraysize), &
+         casabal%FPsnetyear(arraysize), &
+         casabal%FPupyear(arraysize), &
+         casabal%FPleachyear(arraysize), &
+         casabal%FPlossyear(arraysize), &
+         casabal%glaimon(arraysize,12), &
+         casabal%glaimonx(arraysize,12), &
+         casabal%cplantlast(arraysize,mplant), &
+         casabal%nplantlast(arraysize,mplant), &
+         casabal%pplantlast(arraysize,mplant), &
+         casabal%clitterlast(arraysize,mlitter), &
          casabal%nlitterlast(arraysize,mlitter), &
-         casabal%plitterlast(arraysize,mlitter))
-
-    allocate(casabal%csoillast(arraysize,msoil),     &
-         casabal%nsoillast(arraysize,msoil),     &
-         casabal%psoillast(arraysize,msoil))
-
-    allocate(casabal%nsoilminlast(arraysize),        &
-         casabal%psoillablast(arraysize),        &
-         casabal%psoilsorblast(arraysize),       &
-         casabal%psoilocclast(arraysize),        &
-         casabal%cbalance(arraysize),            &
-         casabal%nbalance(arraysize),            &
-         casabal%pbalance(arraysize),            &
-         casabal%sumcbal(arraysize),             &
-         casabal%sumnbal(arraysize),             &
-         casabal%sumpbal(arraysize),             &
+         casabal%plitterlast(arraysize,mlitter), &
+         casabal%csoillast(arraysize,msoil), &
+         casabal%nsoillast(arraysize,msoil), &
+         casabal%psoillast(arraysize,msoil), &
+         casabal%nsoilminlast(arraysize), &
+         casabal%psoillablast(arraysize), &
+         casabal%psoilsorblast(arraysize), &
+         casabal%psoilocclast(arraysize), &
+         casabal%cbalance(arraysize), &
+         casabal%nbalance(arraysize), &
+         casabal%pbalance(arraysize), &
+         casabal%sumcbal(arraysize), &
+         casabal%sumnbal(arraysize), &
+         casabal%sumpbal(arraysize), &
          casabal%clabilelast(arraysize))
 
-  END SUBROUTINE alloc_casabal
+  end subroutine alloc_casabal
 
+  ! ------------------------------------------------------------------
 
-  SUBROUTINE alloc_sum_casavariable(sum_casapool, sum_casaflux, arraysize)
+  subroutine alloc_sum_casa(sum_casapool, sum_casaflux, arraysize)
 
-    IMPLICIT NONE
+    implicit none
 
-    TYPE(casa_pool), INTENT(INOUT) :: sum_casapool
-    TYPE(casa_flux), INTENT(INOUT) :: sum_casaflux
-    INTEGER,         INTENT(IN)    :: arraysize
+    type(casa_pool), intent(inout) :: sum_casapool
+    type(casa_flux), intent(inout) :: sum_casaflux
+    integer,         intent(in)    :: arraysize
 
-    ALLOCATE(sum_casapool%Clabile(arraysize),           &
-         sum_casapool%dClabiledt(arraysize),            &
-         sum_casapool%Cplant(arraysize,mplant),         &
-         sum_casapool%Nplant(arraysize,mplant),         &
-         sum_casapool%Pplant(arraysize,mplant),         &
-         sum_casapool%dCplantdt(arraysize,mplant),      &
-         sum_casapool%dNplantdt(arraysize,mplant),      &
-         sum_casapool%dPplantdt(arraysize,mplant),      &
-         sum_casapool%ratioNCplant(arraysize,mplant),   &
-         sum_casapool%ratioNPplant(arraysize,mplant),   &
-         sum_casapool%Nsoilmin(arraysize),              &
-         sum_casapool%Psoillab(arraysize),              &
-         sum_casapool%Psoilsorb(arraysize),             &
-         sum_casapool%Psoilocc(arraysize),              &
-         sum_casapool%dNsoilmindt(arraysize),           &
-         sum_casapool%dPsoillabdt(arraysize),           &
-         sum_casapool%dPsoilsorbdt(arraysize),          &
-         sum_casapool%dPsoiloccdt(arraysize),           &
-         sum_casapool%Clitter(arraysize,mlitter),       &
-         sum_casapool%Nlitter(arraysize,mlitter),       &
-         sum_casapool%Plitter(arraysize,mlitter),       &
-         sum_casapool%dClitterdt(arraysize,mlitter),    &
-         sum_casapool%dNlitterdt(arraysize,mlitter),    &
-         sum_casapool%dPlitterdt(arraysize,mlitter),    &
-         sum_casapool%ratioNClitter(arraysize,mlitter), &
-         sum_casapool%ratioNPlitter(arraysize,mlitter), &
-         sum_casapool%Csoil(arraysize,msoil),           &
-         sum_casapool%Nsoil(arraysize,msoil),           &
-         sum_casapool%Psoil(arraysize,msoil),           &
-         sum_casapool%dCsoildt(arraysize,msoil),        &
-         sum_casapool%dNsoildt(arraysize,msoil),        &
-         sum_casapool%dPsoildt(arraysize,msoil),        &
-         sum_casapool%ratioNCsoil(arraysize,msoil),     &
-         sum_casapool%ratioNPsoil(arraysize,msoil),     &
-         sum_casapool%ratioNCsoilnew(arraysize,msoil),  &
-         sum_casapool%ratioNCsoilmin(arraysize,msoil),  &
-         sum_casapool%ratioNCsoilmax(arraysize,msoil),  &
-         sum_casapool%ratioPCsoil(arraysize,msoil),     &
-         sum_casapool%ratioPCplant(arraysize,mplant),   &
-         sum_casapool%ratioPClitter(arraysize,mlitter)  &
-         )
+    call alloc_casapool(sum_casapool, arraysize)
+    call alloc_casaflux(sum_casaflux, arraysize)
 
-    ALLOCATE(sum_casaflux%Cgpp(arraysize),                 &
-         sum_casaflux%Cnpp(arraysize),                     &
-         sum_casaflux%Crp(arraysize),                      &
-         sum_casaflux%Crgplant(arraysize),                 &
-         sum_casaflux%Nminfix(arraysize),                  &
-         sum_casaflux%Nminuptake(arraysize),               &
-         sum_casaflux%Plabuptake(arraysize),               &
-         sum_casaflux%Clabloss(arraysize),                 &
-         sum_casaflux%fracClabile(arraysize),              &
-         sum_casaflux%fracCalloc(arraysize,mplant),        &
-         sum_casaflux%fracNalloc(arraysize,mplant),        &
-         sum_casaflux%fracPalloc(arraysize,mplant),        &
-         sum_casaflux%kplant(arraysize,mplant),            &
-         sum_casaflux%Crmplant(arraysize,mplant),          &
-         sum_casaflux%fromPtoL(arraysize,mlitter,mplant),  &
-         sum_casaflux%Cnep(arraysize),                     &
-         sum_casaflux%Crsoil(arraysize),                   &
-         sum_casaflux%Nmindep(arraysize),                  &
-         sum_casaflux%Nminloss(arraysize),                 &
-         sum_casaflux%Nminleach(arraysize),                &
-         sum_casaflux%Nupland(arraysize),                  &
-         sum_casaflux%Nlittermin(arraysize),               &
-         sum_casaflux%Nsmin(arraysize),                    &
-         sum_casaflux%Nsimm(arraysize),                    &
-         sum_casaflux%Nsnet(arraysize),                    &
-         sum_casaflux%fNminloss(arraysize),                &
-         sum_casaflux%fNminleach(arraysize),               &
-         sum_casaflux%Pdep(arraysize),                     &
-         sum_casaflux%Pwea(arraysize),                     &
-         sum_casaflux%Pleach(arraysize),                   &
-         sum_casaflux%Ploss(arraysize),                    &
-         sum_casaflux%Pupland(arraysize),                  &
-         sum_casaflux%Plittermin(arraysize),               &
-         sum_casaflux%Psmin(arraysize),                    &
-         sum_casaflux%Psimm(arraysize),                    &
-         sum_casaflux%Psnet(arraysize),                    &
-         sum_casaflux%fPleach(arraysize),                  &
-         sum_casaflux%kplab(arraysize),                    &
-         sum_casaflux%kpsorb(arraysize),                   &
-         sum_casaflux%kpocc(arraysize),                    &
-         sum_casaflux%kmlabP(arraysize),                   &
-         sum_casaflux%Psorbmax(arraysize),                 &
-         sum_casaflux%klitter(arraysize,mlitter),          &
-         sum_casaflux%ksoil(arraysize,msoil),              &
-         sum_casaflux%fromLtoS(arraysize,msoil,mlitter),   &
-         sum_casaflux%fromStoS(arraysize,msoil,msoil),     &
-         sum_casaflux%fromLtoCO2(arraysize,mlitter),       &
-         sum_casaflux%fromStoCO2(arraysize,msoil),         &
-         sum_casaflux%stemnpp(arraysize),                  &
-         sum_casaflux%frac_sapwood(arraysize),             &
-         sum_casaflux%sapwood_area(arraysize), &
-         sum_casaflux%Cplant_turnover(arraysize,mplant), &
-         sum_casaflux%Cplant_turnover_disturbance(arraysize), &
-         sum_casaflux%Cplant_turnover_crowding(arraysize), &
-         sum_casaflux%Cplant_turnover_resource_limitation(arraysize))
+  end subroutine alloc_sum_casa
 
-    ALLOCATE(sum_casaflux%FluxCtolitter(arraysize,mlitter),    &
-         sum_casaflux%FluxNtolitter(arraysize,mlitter),    &
-         sum_casaflux%FluxPtolitter(arraysize,mlitter))
-
-    ALLOCATE(sum_casaflux%FluxCtosoil(arraysize,msoil),        &
-         sum_casaflux%FluxNtosoil(arraysize,msoil),        &
-         sum_casaflux%FluxPtosoil(arraysize,msoil))
-
-    ALLOCATE(sum_casaflux%fromPtoL_fire(arraysize,mlitter,mplant), &
-         sum_casaflux%kplant_fire(arraysize,mplant),        &
-         sum_casaflux%klitter_fire(arraysize,mlitter),           &
-         sum_casaflux%kplant_tot(arraysize,mplant),        &
-         sum_casaflux%klitter_tot(arraysize,mlitter),           &
-         sum_casaflux%FluxCtoCO2_plant_fire(arraysize),             &
-         sum_casaflux%FluxCtoCO2_litter_fire(arraysize),             &
-         sum_casaflux%fluxfromPtoCO2_fire(arraysize,mplant),         &
-         sum_casaflux%fluxfromLtoCO2_fire(arraysize,mlitter),        &
-         sum_casaflux%FluxNtoAtm_fire(arraysize))
-
-    ALLOCATE(sum_casaflux%FluxFromPtoL(arraysize,mplant,mlitter), &
-         sum_casaflux%FluxFromLtoS(arraysize,mlitter,msoil), &
-         sum_casaflux%FluxFromStoS(arraysize,msoil,msoil), &
-         sum_casaflux%FluxFromPtoCO2(arraysize,mplant), &
-         sum_casaflux%FluxFromLtoCO2(arraysize,mlitter), &
-         sum_casaflux%FluxFromStoCO2(arraysize,msoil), &
-         sum_casaflux%FluxFromPtoHarvest(arraysize))
-
-    ALLOCATE(sum_casaflux%FluxCtoco2(arraysize))
-
-  END SUBROUTINE alloc_sum_casavariable
-
+  ! ------------------------------------------------------------------
 
   subroutine zero_casabiome(casabiome)
+
+    use cable_def_types_mod, only: r_2
 
     implicit none
 
     type(casa_biome), intent(inout) :: casabiome
 
-    casabiome%ivt2                 = 0.0_r_2
-    casabiome%xkleafcoldmax        = 0.0_r_2
-    casabiome%xkleafcoldexp        = 0.0_r_2
-    casabiome%xkleafdrymax         = 0.0_r_2
-    casabiome%xkleafdryexp         = 0.0_r_2
-    casabiome%glaimax              = 0.0_r_2
-    casabiome%glaimin              = 0.0_r_2
-    casabiome%sla                  = 0.0_r_2
-    casabiome%ratiofrootleaf       = 0.0_r_2
-    casabiome%kroot                = 0.0_r_2
-    casabiome%krootlen             = 0.0_r_2
-    casabiome%rootdepth            = 0.0_r_2
-    casabiome%kuptake              = 0.0_r_2
-    casabiome%kminN                = 0.0_r_2
-    casabiome%KuplabP              = 0.0_r_2
-    casabiome%kclabrate            = 0.0_r_2
-    casabiome%xnpmax               = 0.0_r_2
-    casabiome%q10soil              = 0.0_r_2
-    casabiome%xkoptlitter          = 0.0_r_2
-    casabiome%xkoptsoil            = 0.0_r_2
-    casabiome%xkplab               = 0.0_r_2
-    casabiome%xkpsorb              = 0.0_r_2
-    casabiome%xkpocc               = 0.0_r_2
-    casabiome%prodptase            = 0.0_r_2
-    casabiome%costnpup             = 0.0_r_2
-    casabiome%maxfinelitter        = 0.0_r_2
-    casabiome%maxcwd               = 0.0_r_2
-    casabiome%nintercept           = 0.0_r_2
-    casabiome%nslope               = 0.0_r_2
-    casabiome%plantrate            = 0.0_r_2
-    casabiome%rmplant              = 0.0_r_2
-    casabiome%fracnpptoP           = 0.0_r_2
-    casabiome%fraclignin           = 0.0_r_2
-    casabiome%fraclabile           = 0.0_r_2
-    casabiome%ratioNCplantmin      = 0.0_r_2
-    casabiome%ratioNCplantmax      = 0.0_r_2
-    casabiome%ratioNPplantmin      = 0.0_r_2
-    casabiome%ratioNPplantmax      = 0.0_r_2
-    casabiome%fracLigninplant      = 0.0_r_2
-    casabiome%ftransNPtoL          = 0.0_r_2
-    casabiome%ftransPPtoL          = 0.0_r_2
-    casabiome%litterrate           = 0.0_r_2
-    casabiome%soilrate             = 0.0_r_2
-    casabiome%ratioPcplantmax      = 0.0_r_2
-    casabiome%ratioPcplantmin      = 0.0_r_2
-    casabiome%la_to_sa             = 0.0_r_2
-    casabiome%vcmax_scalar         = 0.0_r_2
+    casabiome%ivt2 = 0
+    casabiome%xkleafcoldmax = 0.0_r_2
+    casabiome%xkleafcoldexp = 0.0_r_2
+    casabiome%xkleafdrymax = 0.0_r_2
+    casabiome%xkleafdryexp = 0.0_r_2
+    casabiome%glaimax = 0.0_r_2
+    casabiome%glaimin = 0.0_r_2
+    casabiome%sla = 0.0_r_2
+    casabiome%ratiofrootleaf = 0.0_r_2
+    casabiome%kroot = 0.0_r_2
+    casabiome%krootlen = 0.0_r_2
+    casabiome%rootdepth = 0.0_r_2
+    casabiome%kuptake = 0.0_r_2
+    casabiome%kminN = 0.0_r_2
+    casabiome%kuplabP = 0.0_r_2
+    casabiome%kclabrate = 0.0_r_2
+    casabiome%xnpmax = 0.0_r_2
+    casabiome%q10soil = 0.0_r_2
+    casabiome%xkoptlitter = 0.0_r_2
+    casabiome%xkoptsoil = 0.0_r_2
+    casabiome%xkplab = 0.0_r_2
+    casabiome%xkpsorb = 0.0_r_2
+    casabiome%xkpocc = 0.0_r_2
+    casabiome%prodptase = 0.0_r_2
+    casabiome%costnpup = 0.0_r_2
+    casabiome%maxfinelitter = 0.0_r_2
+    casabiome%maxcwd = 0.0_r_2
+    casabiome%nintercept = 0.0_r_2
+    casabiome%nslope = 0.0_r_2
+    casabiome%la_to_sa = 0.0_r_2
+    casabiome%vcmax_scalar = 0.0_r_2
     casabiome%disturbance_interval = 0.0_r_2
-    casabiome%DAMM_EnzPool         = 0.0_r_2
-    casabiome%DAMM_KMO2            = 0.0_r_2
-    casabiome%DAMM_KMcp            = 0.0_r_2
-    casabiome%DAMM_Ea              = 0.0_r_2
-    casabiome%DAMM_alpha           = 0.0_r_2
+    casabiome%DAMM_EnzPool = 0.0_r_2
+    casabiome%DAMM_KMO2 = 0.0_r_2
+    casabiome%DAMM_KMcp = 0.0_r_2
+    casabiome%DAMM_Ea = 0.0_r_2
+    casabiome%DAMM_alpha = 0.0_r_2
+    casabiome%plantrate = 0.0_r_2
+    casabiome%rmplant = 0.0_r_2
+    casabiome%fracnpptoP = 0.0_r_2
+    casabiome%fraclignin = 0.0_r_2
+    casabiome%fraclabile = 0.0_r_2
+    casabiome%ratioNCplantmin = 0.0_r_2
+    casabiome%ratioNCplantmax = 0.0_r_2
+    casabiome%ratioNPplantmin = 0.0_r_2
+    casabiome%ratioNPplantmax = 0.0_r_2
+    casabiome%fracLigninplant = 0.0_r_2
+    casabiome%ftransNPtoL = 0.0_r_2
+    casabiome%ftransPPtoL = 0.0_r_2
+    casabiome%litterrate = 0.0_r_2
+    casabiome%ratioPcplantmin = 0.0_r_2
+    casabiome%ratioPcplantmax = 0.0_r_2
+    casabiome%soilrate = 0.0_r_2
 
-  END SUBROUTINE zero_casabiome
+  end subroutine zero_casabiome
 
 
   subroutine zero_casapool(casapool)
+
+    use cable_def_types_mod, only: r_2
 
     implicit none
 
     type(casa_pool), intent(inout) :: casapool
 
-    casapool%Clabile        = 0.0_r_2
-    casapool%dClabiledt     = 0.0_r_2
-    casapool%Cplant         = 0.0_r_2
-    casapool%Nplant         = 0.0_r_2
-    casapool%Pplant         = 0.0_r_2
-    casapool%dCplantdt      = 0.0_r_2
-    casapool%dNplantdt      = 0.0_r_2
-    casapool%dPplantdt      = 0.0_r_2
-    casapool%ratioNCplant   = 0.0_r_2
-    casapool%ratioNPplant   = 0.0_r_2
-    casapool%Nsoilmin       = 0.0_r_2
-    casapool%Psoillab       = 0.0_r_2
-    casapool%Psoilsorb      = 0.0_r_2
-    casapool%Psoilocc       = 0.0_r_2
-    casapool%dNsoilmindt    = 0.0_r_2
-    casapool%dPsoillabdt    = 0.0_r_2
-    casapool%dPsoilsorbdt   = 0.0_r_2
-    casapool%dPsoiloccdt    = 0.0_r_2
-    casapool%Clitter        = 0.0_r_2
-    casapool%Nlitter        = 0.0_r_2
-    casapool%Plitter        = 0.0_r_2
-    casapool%dClitterdt     = 0.0_r_2
-    casapool%dNlitterdt     = 0.0_r_2
-    casapool%dPlitterdt     = 0.0_r_2
-    casapool%ratioNClitter  = 0.0_r_2
-    casapool%ratioNPlitter  = 0.0_r_2
-    casapool%Csoil          = 0.0_r_2
-    casapool%Nsoil          = 0.0_r_2
-    casapool%Psoil          = 0.0_r_2
-    casapool%dCsoildt       = 0.0_r_2
-    casapool%dNsoildt       = 0.0_r_2
-    casapool%dPsoildt       = 0.0_r_2
-    casapool%ratioNCsoil    = 0.0_r_2
-    casapool%ratioNPsoil    = 0.0_r_2
+    casapool%Clabile = 0.0_r_2
+    casapool%dClabiledt = 0.0_r_2
+    casapool%Ctot = 0.0_r_2
+    casapool%Ctot_0 = 0.0_r_2
+    casapool%Cplant = 0.0_r_2
+    casapool%Nplant = 0.0_r_2
+    casapool%Pplant = 0.0_r_2
+    casapool%dCplantdt = 0.0_r_2
+    casapool%dNplantdt = 0.0_r_2
+    casapool%dPplantdt = 0.0_r_2
+    casapool%ratioNCplant = 0.0_r_2
+    casapool%ratioNPplant = 0.0_r_2
+    casapool%Nsoilmin = 0.0_r_2
+    casapool%Psoillab = 0.0_r_2
+    casapool%Psoilsorb = 0.0_r_2
+    casapool%Psoilocc = 0.0_r_2
+    casapool%dNsoilmindt = 0.0_r_2
+    casapool%dPsoillabdt = 0.0_r_2
+    casapool%dPsoilsorbdt = 0.0_r_2
+    casapool%dPsoiloccdt = 0.0_r_2
+    casapool%Clitter = 0.0_r_2
+    casapool%Nlitter = 0.0_r_2
+    casapool%Plitter = 0.0_r_2
+    casapool%dClitterdt = 0.0_r_2
+    casapool%dNlitterdt = 0.0_r_2
+    casapool%dPlitterdt = 0.0_r_2
+    casapool%ratioNClitter = 0.0_r_2
+    casapool%ratioNPlitter = 0.0_r_2
+    casapool%Csoil = 0.0_r_2
+    casapool%Nsoil = 0.0_r_2
+    casapool%Psoil = 0.0_r_2
+    casapool%dCsoildt = 0.0_r_2
+    casapool%dNsoildt = 0.0_r_2
+    casapool%dPsoildt = 0.0_r_2
+    casapool%ratioNCsoil = 0.0_r_2
     casapool%ratioNCsoilnew = 0.0_r_2
+    casapool%ratioNPsoil = 0.0_r_2
     casapool%ratioNCsoilmin = 0.0_r_2
     casapool%ratioNCsoilmax = 0.0_r_2
-    casapool%ratioPCsoil    = 0.0_r_2
-    casapool%ratioPCplant   = 0.0_r_2
-    casapool%ratioPClitter  = 0.0_r_2
-    casapool%Ctot_0         = 0.0_r_2
-    casapool%Ctot           = 0.0_r_2
+    casapool%ratioPCsoil = 0.0_r_2
+    casapool%ratioPCplant = 0.0_r_2
+    casapool%ratioPClitter = 0.0_r_2
 
-  END SUBROUTINE zero_casapool
+  end subroutine zero_casapool
 
 
   subroutine zero_casaflux(casaflux)
+
+    use cable_def_types_mod, only: r_2
 
     implicit none
 
     type(casa_flux), intent(inout) :: casaflux
 
-    casaflux%Cgpp         = 0.0_r_2
-    casaflux%Cnpp         = 0.0_r_2
-    casaflux%Crp          = 0.0_r_2
-    casaflux%Crgplant     = 0.0_r_2
-    casaflux%Nminfix      = 0.0_r_2
-    casaflux%Nminuptake   = 0.0_r_2
-    casaflux%Plabuptake   = 0.0_r_2
-    casaflux%Clabloss     = 0.0_r_2
-    casaflux%fracClabile  = 0.0_r_2
-    casaflux%fracCalloc   = 0.0_r_2
-    casaflux%fracNalloc   = 0.0_r_2
-    casaflux%fracPalloc   = 0.0_r_2
-    casaflux%kplant       = 0.0_r_2
-    casaflux%Crmplant     = 0.0_r_2
-    casaflux%fromPtoL     = 0.0_r_2
-    casaflux%Cnep         = 0.0_r_2
-    casaflux%Crsoil       = 0.0_r_2
-    casaflux%Nmindep      = 0.0_r_2
-    casaflux%Nminloss     = 0.0_r_2
-    casaflux%Nminleach    = 0.0_r_2
-    casaflux%Nupland      = 0.0_r_2
-    casaflux%Nlittermin   = 0.0_r_2
-    casaflux%Nsmin        = 0.0_r_2
-    casaflux%Nsimm        = 0.0_r_2
-    casaflux%Nsnet        = 0.0_r_2
-    casaflux%fNminloss    = 0.0_r_2
-    casaflux%fNminleach   = 0.0_r_2
-    casaflux%Pdep         = 0.0_r_2
-    casaflux%Pwea         = 0.0_r_2
-    casaflux%Pleach       = 0.0_r_2
-    casaflux%Ploss        = 0.0_r_2
-    casaflux%Pupland      = 0.0_r_2
-    casaflux%Plittermin   = 0.0_r_2
-    casaflux%Psmin        = 0.0_r_2
-    casaflux%Psimm        = 0.0_r_2
-    casaflux%Psnet        = 0.0_r_2
-    casaflux%fPleach      = 0.0_r_2
-    casaflux%kplab        = 0.0_r_2
-    casaflux%kpsorb       = 0.0_r_2
-    casaflux%kpocc        = 0.0_r_2
-    casaflux%kmlabP       = 0.0_r_2
-    casaflux%Psorbmax     = 0.0_r_2
-    casaflux%klitter      = 0.0_r_2
-    casaflux%ksoil        = 0.0_r_2
-    casaflux%fromLtoS     = 0.0_r_2
-    casaflux%fromStoS     = 0.0_r_2
-    casaflux%fromLtoCO2   = 0.0_r_2
-    casaflux%fromStoCO2   = 0.0_r_2
-    casaflux%stemnpp      = 0.0_r_2
+    casaflux%Cgpp = 0.0_r_2
+    casaflux%Cnpp = 0.0_r_2
+    casaflux%Crp = 0.0_r_2
+    casaflux%Crgplant = 0.0_r_2
+    casaflux%Nminfix = 0.0_r_2
+    casaflux%Nminuptake = 0.0_r_2
+    casaflux%Plabuptake = 0.0_r_2
+    casaflux%Clabloss = 0.0_r_2
+    casaflux%fracClabile = 0.0_r_2
+    casaflux%stemnpp = 0.0_r_2
     casaflux%frac_sapwood = 0.0_r_2
     casaflux%sapwood_area = 0.0_r_2
-    casaflux%fharvest     = 0.0_r_2
-    casaflux%Charvest     = 0.0_r_2
-    casaflux%Nharvest     = 0.0_r_2
-    casaflux%Pharvest     = 0.0_r_2
-    casaflux%fcrop        = 0.0_r_2
-    casaflux%Cplant_turnover                     = 0.0_r_2
-    casaflux%Cplant_turnover_disturbance         = 0.0_r_2
-    casaflux%Cplant_turnover_crowding            = 0.0_r_2
+    casaflux%Charvest = 0.0_r_2
+    casaflux%Nharvest = 0.0_r_2
+    casaflux%Pharvest = 0.0_r_2
+    casaflux%fHarvest = 0.0_r_2
+    casaflux%fcrop = 0.0_r_2
+    casaflux%fracCalloc = 0.0_r_2
+    casaflux%fracNalloc = 0.0_r_2
+    casaflux%fracPalloc = 0.0_r_2
+    casaflux%Crmplant = 0.0_r_2
+    casaflux%kplant = 0.0_r_2
+    casaflux%Cplant_turnover = 0.0_r_2
+    casaflux%fromPtoL = 0.0_r_2
+    casaflux%Cnep = 0.0_r_2
+    casaflux%Crsoil = 0.0_r_2
+    casaflux%Nmindep = 0.0_r_2
+    casaflux%Nminloss = 0.0_r_2
+    casaflux%Nminleach = 0.0_r_2
+    casaflux%Nupland = 0.0_r_2
+    casaflux%Nlittermin = 0.0_r_2
+    casaflux%Nsmin = 0.0_r_2
+    casaflux%Nsimm = 0.0_r_2
+    casaflux%Nsnet = 0.0_r_2
+    casaflux%fNminloss = 0.0_r_2
+    casaflux%fNminleach = 0.0_r_2
+    casaflux%Pdep = 0.0_r_2
+    casaflux%Pwea = 0.0_r_2
+    casaflux%Pleach = 0.0_r_2
+    casaflux%Ploss = 0.0_r_2
+    casaflux%Pupland = 0.0_r_2
+    casaflux%Plittermin = 0.0_r_2
+    casaflux%Psmin = 0.0_r_2
+    casaflux%Psimm = 0.0_r_2
+    casaflux%Psnet = 0.0_r_2
+    casaflux%fPleach = 0.0_r_2
+    casaflux%kplab = 0.0_r_2
+    casaflux%kpsorb = 0.0_r_2
+    casaflux%kpocc = 0.0_r_2
+    casaflux%kmlabp = 0.0_r_2
+    casaflux%Psorbmax = 0.0_r_2
+    casaflux%Cplant_turnover_disturbance = 0.0_r_2
+    casaflux%Cplant_turnover_crowding  = 0.0_r_2
     casaflux%Cplant_turnover_resource_limitation = 0.0_r_2
-
-    casaflux%fromPtoL_fire          = 0.0_r_2
-    casaflux%kplant_fire            = 0.0_r_2
-    casaflux%klitter_fire           = 0.0_r_2
-    casaflux%kplant_tot             = 0.0_r_2
-    casaflux%klitter_tot            = 0.0_r_2
-    casaflux%FluxCtoCO2_plant_fire  = 0.0_r_2
-    casaflux%FluxCtoCO2_litter_fire = 0.0_r_2
-    casaflux%fluxfromPtoCO2_fire    = 0.0_r_2
-    casaflux%fluxfromLtoCO2_fire    = 0.0_r_2
-    casaflux%FluxNtoAtm_fire        = 0.0_r_2
-
+    casaflux%klitter = 0.0_r_2
+    casaflux%ksoil = 0.0_r_2
+    casaflux%fromLtoS = 0.0_r_2
+    casaflux%fromStoS = 0.0_r_2
+    casaflux%fromLtoCO2 = 0.0_r_2
+    casaflux%fromStoCO2 = 0.0_r_2
     casaflux%FluxCtolitter = 0.0_r_2
     casaflux%FluxNtolitter = 0.0_r_2
     casaflux%FluxPtolitter = 0.0_r_2
-
     casaflux%FluxCtosoil = 0.0_r_2
     casaflux%FluxNtosoil = 0.0_r_2
     casaflux%FluxPtosoil = 0.0_r_2
-
+    casaflux%FluxCtoCO2 = 0.0_r_2
     casaflux%FluxCtohwp = 0.0_r_2
     casaflux%FluxNtohwp = 0.0_r_2
     casaflux%FluxPtohwp = 0.0_r_2
-
     casaflux%FluxCtoclear = 0.0_r_2
     casaflux%FluxNtoclear = 0.0_r_2
     casaflux%FluxPtoclear = 0.0_r_2
-
     casaflux%CtransferLUC = 0.0_r_2
-
-    casaflux%FluxCtoco2 = 0.0_r_2
-
+    casaflux%fromPtoL_fire = 0.0_r_2
+    casaflux%klitter_fire = 0.0_r_2
+    casaflux%klitter_tot = 0.0_r_2
+    casaflux%kplant_fire = 0.0_r_2
+    casaflux%kplant_tot = 0.0_r_2
+    casaflux%fluxCtoCO2_plant_fire = 0.0_r_2
+    casaflux%fluxCtoCO2_litter_fire = 0.0_r_2
+    casaflux%fluxfromPtoCO2_fire = 0.0_r_2
+    casaflux%fluxfromLtoCO2_fire = 0.0_r_2
+    casaflux%fluxNtoAtm_fire = 0.0_r_2
+    ! casaflux%fire_mortality_vs_height = 0.0_r_2
     casaflux%FluxFromPtoL = 0.0_r_2
-    casaflux%FluxFromLtoS       = 0.0_r_2
-    casaflux%FluxFromStoS       = 0.0_r_2
-    casaflux%FluxFromPtoCO2     = 0.0_r_2
-    casaflux%FluxFromLtoCO2     = 0.0_r_2
-    casaflux%FluxFromStoCO2     = 0.0_r_2
+    casaflux%FluxFromLtoS = 0.0_r_2
+    casaflux%FluxFromStoS = 0.0_r_2
+    casaflux%FluxFromPtoCO2 = 0.0_r_2
+    casaflux%FluxFromLtoCO2 = 0.0_r_2
+    casaflux%FluxFromStoCO2 = 0.0_r_2
     casaflux%FluxFromPtoHarvest = 0.0_r_2
 
-  END SUBROUTINE zero_casaflux
+  end subroutine zero_casaflux
 
 
   subroutine zero_casamet(casamet)
+
+    use cable_def_types_mod, only: r_2
 
     implicit none
 
     type(casa_met), intent(inout) :: casamet
 
-    casamet%glai           = 0.0_r_2
-    casamet%lnonwood       = 0.0_r_2
-    casamet%Tairk          = 0.0_r_2
-    casamet%precip         = 0.0_r_2
-    casamet%tsoilavg       = 0.0_r_2
-    casamet%moistavg       = 0.0_r_2
-    casamet%btran          = 0.0_r_2
-    casamet%Tsoil          = 0.0_r_2
-    casamet%moist          = 0.0_r_2
-    casamet%iveg2          = 0.0_r_2
-    casamet%ijgcm          = 0.0_r_2
-    casamet%isorder        = 0.0_r_2
-    casamet%lat            = 0.0_r_2
-    casamet%lon            = 0.0_r_2
-    casamet%areacell       = 0.0_r_2
-    casamet%Tairkspin      = 0.0_r_2
-    casamet%cgppspin       = 0.0_r_2
+    casamet%glai = 0.0_r_2
+    casamet%Tairk = 0.0_r_2
+    casamet%precip = 0.0_r_2
+    casamet%tsoilavg = 0.0_r_2
+    casamet%moistavg = 0.0_r_2
+    casamet%btran = 0.0_r_2
+    casamet%lnonwood = 0
+    casamet%Tsoil = 0.0_r_2
+    casamet%moist = 0.0_r_2
+    casamet%iveg2 = 0
+    casamet%ijgcm = 0
+    casamet%isorder = 0
+    casamet%lat = 0.0_r_2
+    casamet%lon = 0.0_r_2
+    casamet%areacell = 0.0_r_2
+    casamet%Tairkspin = 0.0_r_2
+    casamet%cgppspin = 0.0_r_2
     casamet%crmplantspin_1 = 0.0_r_2
     casamet%crmplantspin_2 = 0.0_r_2
     casamet%crmplantspin_3 = 0.0_r_2
-    casamet%Tsoilspin_1    = 0.0_r_2
-    casamet%Tsoilspin_2    = 0.0_r_2
-    casamet%Tsoilspin_3    = 0.0_r_2
-    casamet%Tsoilspin_4    = 0.0_r_2
-    casamet%Tsoilspin_5    = 0.0_r_2
-    casamet%Tsoilspin_6    = 0.0_r_2
-    casamet%moistspin_1    = 0.0_r_2
-    casamet%moistspin_2    = 0.0_r_2
-    casamet%moistspin_3    = 0.0_r_2
-    casamet%moistspin_4    = 0.0_r_2
-    casamet%moistspin_5    = 0.0_r_2
-    casamet%moistspin_6    = 0.0_r_2
-    casamet%mtempspin      = 0.0_r_2
-    casamet%cAn12spin      = 0.0_r_2
-    casamet%cAn13spin      = 0.0_r_2
+    casamet%Tsoilspin_1 = 0.0_r_2
+    casamet%Tsoilspin_2 = 0.0_r_2
+    casamet%Tsoilspin_3 = 0.0_r_2
+    casamet%Tsoilspin_4 = 0.0_r_2
+    casamet%Tsoilspin_5 = 0.0_r_2
+    casamet%Tsoilspin_6 = 0.0_r_2
+    casamet%moistspin_1 = 0.0_r_2
+    casamet%moistspin_2 = 0.0_r_2
+    casamet%moistspin_3 = 0.0_r_2
+    casamet%moistspin_4 = 0.0_r_2
+    casamet%moistspin_5 = 0.0_r_2
+    casamet%moistspin_6 = 0.0_r_2
+    casamet%mtempspin = 0.0_r_2
+    casamet%frecspin = 0.0_r_2
+    casamet%cAn12spin = 0.0_r_2
+    casamet%cAn13spin = 0.0_r_2
+    casamet%dprecip_spin = 0.0_r_2
+    casamet%aprecip_av20_spin = 0.0_r_2
+    casamet%du10_max_spin     = 0.0_r_2
+    casamet%drhum_spin        = 0.0_r_2
+    casamet%dtemp_max_spin    = 0.0_r_2
+    casamet%dtemp_min_spin    = 0.0_r_2
+    casamet%KBDI_spin         = 0.0_r_2
+    casamet%D_MacArthur_spin  = 0.0_r_2
+    casamet%FFDI_spin         = 0.0_r_2
+    casamet%last_precip_spin  = 0.0_r_2
+    casamet%DSLR_spin = 0
 
-  END SUBROUTINE zero_casamet
+  end subroutine zero_casamet
 
 
   subroutine zero_casabal(casabal)
+
+    use cable_def_types_mod, only: r_2
 
     implicit none
 
     type(casa_balance), intent(inout) :: casabal
 
-    casabal%FCgppyear    = 0.0_r_2
-    casabal%FCnppyear    = 0.0_r_2
-    casabal%FCrpyear     = 0.0_r_2
+    casabal%FCgppyear = 0.0_r_2
+    casabal%FCnppyear = 0.0_r_2
     casabal%FCrmleafyear = 0.0_r_2
     casabal%FCrmwoodyear = 0.0_r_2
     casabal%FCrmrootyear = 0.0_r_2
-    casabal%FCrgrowyear  = 0.0_r_2
-    casabal%FCrsyear     = 0.0_r_2
-    casabal%FCneeyear    = 0.0_r_2
-    casabal%FNdepyear    = 0.0_r_2
-    casabal%FNfixyear    = 0.0_r_2
-    casabal%FNsnetyear   = 0.0_r_2
-    casabal%FNupyear     = 0.0_r_2
-    casabal%FNleachyear  = 0.0_r_2
-    casabal%FNlossyear   = 0.0_r_2
-    casabal%FPweayear    = 0.0_r_2
-    casabal%FPdustyear   = 0.0_r_2
-    casabal%FPsnetyear   = 0.0_r_2
-    casabal%FPupyear     = 0.0_r_2
-    casabal%FPleachyear  = 0.0_r_2
-    casabal%FPlossyear   = 0.0_r_2
-    casabal%dCdtyear     = 0.0_r_2
-    casabal%LAImax       = 0.0_r_2
-    casabal%Cleafmean    = 0.0_r_2
-    casabal%Crootmean    = 0.0_r_2
-
-    casabal%glaimon  = 0.0_r_2
+    casabal%FCrgrowyear = 0.0_r_2
+    casabal%FCrpyear = 0.0_r_2
+    casabal%FCrsyear = 0.0_r_2
+    casabal%FCneeyear = 0.0_r_2
+    casabal%dCdtyear = 0.0_r_2
+    casabal%LAImax = 0.0_r_2
+    casabal%Cleafmean = 0.0_r_2
+    casabal%Crootmean = 0.0_r_2
+    casabal%FNdepyear = 0.0_r_2
+    casabal%FNfixyear = 0.0_r_2
+    casabal%FNsnetyear = 0.0_r_2
+    casabal%FNupyear = 0.0_r_2
+    casabal%FNleachyear = 0.0_r_2
+    casabal%FNlossyear = 0.0_r_2
+    casabal%FPweayear = 0.0_r_2
+    casabal%FPdustyear = 0.0_r_2
+    casabal%FPsnetyear = 0.0_r_2
+    casabal%FPupyear = 0.0_r_2
+    casabal%FPleachyear = 0.0_r_2
+    casabal%FPlossyear = 0.0_r_2
+    casabal%glaimon = 0.0_r_2
     casabal%glaimonx = 0.0_r_2
-
     casabal%cplantlast = 0.0_r_2
     casabal%nplantlast = 0.0_r_2
     casabal%pplantlast = 0.0_r_2
-
     casabal%clitterlast = 0.0_r_2
     casabal%nlitterlast = 0.0_r_2
     casabal%plitterlast = 0.0_r_2
-
     casabal%csoillast = 0.0_r_2
     casabal%nsoillast = 0.0_r_2
     casabal%psoillast = 0.0_r_2
-
-    casabal%nsoilminlast  = 0.0_r_2
-    casabal%psoillablast  = 0.0_r_2
+    casabal%nsoilminlast = 0.0_r_2
+    casabal%psoillablast = 0.0_r_2
     casabal%psoilsorblast = 0.0_r_2
-    casabal%psoilocclast  = 0.0_r_2
-    casabal%cbalance      = 0.0_r_2
-    casabal%nbalance      = 0.0_r_2
-    casabal%pbalance      = 0.0_r_2
-    casabal%sumcbal       = 0.0_r_2
-    casabal%sumnbal       = 0.0_r_2
-    casabal%sumpbal       = 0.0_r_2
-    casabal%clabilelast   = 0.0_r_2
+    casabal%psoilocclast = 0.0_r_2
+    casabal%cbalance = 0.0_r_2
+    casabal%nbalance = 0.0_r_2
+    casabal%pbalance = 0.0_r_2
+    casabal%sumcbal = 0.0_r_2
+    casabal%sumnbal = 0.0_r_2
+    casabal%sumpbal = 0.0_r_2
+    casabal%clabilelast = 0.0_r_2
 
-  END SUBROUTINE zero_casabal
+  end subroutine zero_casabal
 
+  ! ------------------------------------------------------------------
 
   subroutine print_casabiome(casabiome)
 
@@ -1353,7 +1362,7 @@ Contains
     write(*,*) 'DAMM_Ea ', casabiome%DAMM_Ea
     write(*,*) 'DAMM_alpha ', casabiome%DAMM_alpha
 
-  END SUBROUTINE print_casabiome
+  end subroutine print_casabiome
 
 
   subroutine print_casapool(casapool)
@@ -1405,7 +1414,7 @@ Contains
     write(*,*) 'Ctot_0 ', casapool%Ctot_0
     write(*,*) 'Ctot ', casapool%Ctot
 
-  END SUBROUTINE print_casapool
+  end subroutine print_casapool
 
 
   subroutine print_casaflux(casaflux)
@@ -1514,7 +1523,7 @@ Contains
     write(*,*) 'FluxFromStoCO2 ', casaflux%FluxFromStoCO2
     write(*,*) 'FluxFromPtoHarvest ', casaflux%FluxFromPtoHarvest
 
-  END SUBROUTINE print_casaflux
+  end subroutine print_casaflux
 
 
   subroutine print_casamet(casamet)
@@ -1559,7 +1568,7 @@ Contains
     write(*,*) 'cAn12spin ', casamet%cAn12spin
     write(*,*) 'cAn13spin ', casamet%cAn13spin
 
-  END SUBROUTINE print_casamet
+  end subroutine print_casamet
 
 
   subroutine print_casabal(casabal)
@@ -1621,161 +1630,41 @@ Contains
     write(*,*) 'sumpbal ', casabal%sumpbal
     write(*,*) 'clabilelast ', casabal%clabilelast
 
-  END SUBROUTINE print_casabal
+  end subroutine print_casabal
+
+  ! ------------------------------------------------------------------
+
+  subroutine zero_sum_casa(sum_casapool, sum_casaflux)
+
+    implicit none
+
+    type(casa_pool), intent(inout) :: sum_casapool
+    type(casa_flux), intent(inout) :: sum_casaflux
+
+    call zero_casapool(sum_casapool)
+    call zero_casaflux(sum_casaflux)
+
+  end subroutine zero_sum_casa
 
 
-  SUBROUTINE zero_sum_casa(sum_casapool, sum_casaflux)
+  subroutine update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, sum_now, average_now, nsteps)
 
-    IMPLICIT NONE
+    use cable_def_types_mod, only: r_2
 
-    TYPE(casa_pool), INTENT(INOUT) :: sum_casapool
-    TYPE(casa_flux), INTENT(INOUT) :: sum_casaflux
+    implicit none
 
-    sum_casapool%Clabile        = 0.0_r_2
-    sum_casapool%dClabiledt     = 0.0_r_2
-    sum_casapool%Cplant         = 0.0_r_2
-    sum_casapool%Nplant         = 0.0_r_2
-    sum_casapool%Pplant         = 0.0_r_2
-    sum_casapool%dCplantdt      = 0.0_r_2
-    sum_casapool%dNplantdt      = 0.0_r_2
-    sum_casapool%dPplantdt      = 0.0_r_2
-    sum_casapool%ratioNCplant   = 0.0_r_2
-    sum_casapool%ratioNPplant   = 0.0_r_2
-    sum_casapool%Nsoilmin       = 0.0_r_2
-    sum_casapool%Psoillab       = 0.0_r_2
-    sum_casapool%Psoilsorb      = 0.0_r_2
-    sum_casapool%Psoilocc       = 0.0_r_2
-    sum_casapool%dNsoilmindt    = 0.0_r_2
-    sum_casapool%dPsoillabdt    = 0.0_r_2
-    sum_casapool%dPsoilsorbdt   = 0.0_r_2
-    sum_casapool%dPsoiloccdt    = 0.0_r_2
-    sum_casapool%Clitter        = 0.0_r_2
-    sum_casapool%Nlitter        = 0.0_r_2
-    sum_casapool%Plitter        = 0.0_r_2
-    sum_casapool%dClitterdt     = 0.0_r_2
-    sum_casapool%dNlitterdt     = 0.0_r_2
-    sum_casapool%dPlitterdt     = 0.0_r_2
-    sum_casapool%ratioNClitter  = 0.0_r_2
-    sum_casapool%ratioNPlitter  = 0.0_r_2
-    sum_casapool%Csoil          = 0.0_r_2
-    sum_casapool%Nsoil          = 0.0_r_2
-    sum_casapool%Psoil          = 0.0_r_2
-    sum_casapool%dCsoildt       = 0.0_r_2
-    sum_casapool%dNsoildt       = 0.0_r_2
-    sum_casapool%dPsoildt       = 0.0_r_2
-    sum_casapool%ratioNCsoil    = 0.0_r_2
-    sum_casapool%ratioNPsoil    = 0.0_r_2
-    sum_casapool%ratioNCsoilnew = 0.0_r_2
-    sum_casapool%ratioNCsoilmin = 0.0_r_2
-    sum_casapool%ratioNCsoilmax = 0.0_r_2
-    sum_casapool%ratioPCsoil    = 0.0_r_2
-    sum_casapool%ratioPCplant   = 0.0_r_2
-    sum_casapool%ratioPClitter  = 0.0_r_2
+    type(casa_pool), intent(inout) :: sum_casapool
+    type(casa_flux), intent(inout) :: sum_casaflux
+    type(casa_pool), intent(in)    :: casapool
+    type(casa_flux), intent(in)    :: casaflux
+    logical,         intent(in)    :: sum_now, average_now
+    integer,         intent(in)    :: nsteps
 
-    sum_casaflux%Cgpp         = 0.0_r_2
-    sum_casaflux%Cnpp         = 0.0_r_2
-    sum_casaflux%Crp          = 0.0_r_2
-    sum_casaflux%Crgplant     = 0.0_r_2
-    sum_casaflux%Nminfix      = 0.0_r_2
-    sum_casaflux%Nminuptake   = 0.0_r_2
-    sum_casaflux%Plabuptake   = 0.0_r_2
-    sum_casaflux%Clabloss     = 0.0_r_2
-    sum_casaflux%fracClabile  = 0.0_r_2
-    sum_casaflux%fracCalloc   = 0.0_r_2
-    sum_casaflux%fracNalloc   = 0.0_r_2
-    sum_casaflux%fracPalloc   = 0.0_r_2
-    sum_casaflux%kplant       = 0.0_r_2
-    sum_casaflux%Crmplant     = 0.0_r_2
-    sum_casaflux%fromPtoL     = 0.0_r_2
-    sum_casaflux%Cnep         = 0.0_r_2
-    sum_casaflux%Crsoil       = 0.0_r_2
-    sum_casaflux%Nmindep      = 0.0_r_2
-    sum_casaflux%Nminloss     = 0.0_r_2
-    sum_casaflux%Nminleach    = 0.0_r_2
-    sum_casaflux%Nupland      = 0.0_r_2
-    sum_casaflux%Nlittermin   = 0.0_r_2
-    sum_casaflux%Nsmin        = 0.0_r_2
-    sum_casaflux%Nsimm        = 0.0_r_2
-    sum_casaflux%Nsnet        = 0.0_r_2
-    sum_casaflux%fNminloss    = 0.0_r_2
-    sum_casaflux%fNminleach   = 0.0_r_2
-    sum_casaflux%Pdep         = 0.0_r_2
-    sum_casaflux%Pwea         = 0.0_r_2
-    sum_casaflux%Pleach       = 0.0_r_2
-    sum_casaflux%Ploss        = 0.0_r_2
-    sum_casaflux%Pupland      = 0.0_r_2
-    sum_casaflux%Plittermin   = 0.0_r_2
-    sum_casaflux%Psmin        = 0.0_r_2
-    sum_casaflux%Psimm        = 0.0_r_2
-    sum_casaflux%Psnet        = 0.0_r_2
-    sum_casaflux%fPleach      = 0.0_r_2
-    sum_casaflux%kplab        = 0.0_r_2
-    sum_casaflux%kpsorb       = 0.0_r_2
-    sum_casaflux%kpocc        = 0.0_r_2
-    sum_casaflux%kmlabP       = 0.0_r_2
-    sum_casaflux%Psorbmax     = 0.0_r_2
-    sum_casaflux%klitter      = 0.0_r_2
-    sum_casaflux%ksoil        = 0.0_r_2
-    sum_casaflux%fromLtoS     = 0.0_r_2
-    sum_casaflux%fromStoS     = 0.0_r_2
-    sum_casaflux%fromLtoCO2   = 0.0_r_2
-    sum_casaflux%fromStoCO2   = 0.0_r_2
-    sum_casaflux%stemnpp      = 0.0_r_2
-    sum_casaflux%frac_sapwood = 0.0_r_2
-    sum_casaflux%sapwood_area = 0.0_r_2
-    sum_casaflux%Cplant_turnover                     = 0.0_r_2
-    sum_casaflux%Cplant_turnover_disturbance         = 0.0_r_2
-    sum_casaflux%Cplant_turnover_crowding            = 0.0_r_2
-    sum_casaflux%Cplant_turnover_resource_limitation = 0.0_r_2
+    real(r_2) :: rnsteps
 
-    sum_casaflux%FluxCtolitter = 0.0_r_2
-    sum_casaflux%FluxNtolitter = 0.0_r_2
-    sum_casaflux%FluxPtolitter = 0.0_r_2
+    rnsteps = 1.0 / real(nsteps, r_2)
 
-    sum_casaflux%FluxCtosoil = 0.0_r_2
-    sum_casaflux%FluxNtosoil = 0.0_r_2
-    sum_casaflux%FluxPtosoil = 0.0_r_2
-
-    sum_casaflux%FluxCtoco2 = 0.0_r_2
-
-    sum_casaflux%fromPtoL_fire          = 0.0_r_2
-    sum_casaflux%kplant_fire            = 0.0_r_2
-    sum_casaflux%klitter_fire           = 0.0_r_2
-    sum_casaflux%kplant_tot             = 0.0_r_2
-    sum_casaflux%klitter_tot            = 0.0_r_2
-    sum_casaflux%FluxCtoCO2_plant_fire  = 0.0_r_2
-    sum_casaflux%FluxCtoCO2_litter_fire = 0.0_r_2
-    sum_casaflux%fluxfromPtoCO2_fire    = 0.0_r_2
-    sum_casaflux%fluxfromLtoCO2_fire    = 0.0_r_2
-    sum_casaflux%FluxNtoAtm_fire        = 0.0_r_2
-
-    sum_casaflux%FluxFromPtoL       = 0.0_r_2
-    sum_casaflux%FluxFromLtoS       = 0.0_r_2
-    sum_casaflux%FluxFromStoS       = 0.0_r_2
-    sum_casaflux%FluxFromPtoCO2     = 0.0_r_2
-    sum_casaflux%FluxFromLtoCO2     = 0.0_r_2
-    sum_casaflux%FluxFromStoCO2     = 0.0_r_2
-    sum_casaflux%FluxFromPtoHarvest = 0.0_r_2
-
-  END SUBROUTINE zero_sum_casa
-
-
-  SUBROUTINE update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, sum_now, average_now, nsteps)
-
-    IMPLICIT NONE
-
-    TYPE(casa_pool), INTENT(INOUT) :: sum_casapool
-    TYPE(casa_flux), INTENT(INOUT) :: sum_casaflux
-    TYPE(casa_pool), INTENT(IN)    :: casapool
-    TYPE(casa_flux), INTENT(IN)    :: casaflux
-    LOGICAL,         INTENT(IN)    :: sum_now, average_now
-    INTEGER,         INTENT(IN)    :: nsteps
-
-    real :: rnsteps
-
-    rnsteps = 1.0 / real(nsteps)
-
-    IF (sum_now) then
+    if (sum_now) then
        sum_casapool%Clabile        = sum_casapool%Clabile        + casapool%Clabile
        sum_casapool%dClabiledt     = sum_casapool%Clabile        + casapool%Clabile
        sum_casapool%Cplant         = sum_casapool%Cplant         + casapool%Cplant
@@ -1922,7 +1811,7 @@ Contains
 
     if (average_now) then
        ! sum_casaflux%fracCalloc = sum_casaflux%fracCalloc * rnsteps
-       where (sum_casaflux%Cnpp .gt. 1.e-12_r_2)
+       where (sum_casaflux%Cnpp > 1.e-12_r_2)
           sum_casaflux%fracCalloc(:,1) = sum_casaflux%fracCalloc(:,1) / sum_casaflux%Cnpp
           sum_casaflux%fracCalloc(:,2) = sum_casaflux%fracCalloc(:,2) / sum_casaflux%Cnpp
           sum_casaflux%fracCalloc(:,3) = sum_casaflux%fracCalloc(:,3) / sum_casaflux%Cnpp
@@ -1932,7 +1821,7 @@ Contains
           sum_casaflux%fracCalloc(:,3) = 0.0_r_2
        endwhere
        ! sum_casaflux%kplant = sum_casaflux%kplant * rnsteps
-       where (sum_casapool%Cplant .gt. 1.e-12_r_2)
+       where (sum_casapool%Cplant > 1.e-12_r_2)
           sum_casaflux%kplant = sum_casaflux%kplant / sum_casapool%Cplant
        elsewhere
           sum_casaflux%kplant = 0.0_r_2
@@ -2067,46 +1956,1966 @@ Contains
        sum_casaflux%FluxFromPtoHarvest = sum_casaflux%FluxFromPtoHarvest * rnsteps
     endif ! average_now
 
-  END SUBROUTINE update_sum_casa
+  end subroutine update_sum_casa
 
 
-END MODULE casavariable
+  ! ------------------------------------------------------------------
 
 
-MODULE phenvariable
+  subroutine read_netcdf_casabiome(filename, casabiome)
 
-  USE casadimension
+    use netcdf, only: nf90_open, nf90_nowrite, &
+         nf90_inq_varid, nf90_get_var, nf90_close
+#ifdef __MPI__
+    use mpi, only: MPI_Abort
+#endif
+    use cable_def_types_mod, only: nc_err
 
-  IMPLICIT NONE
+    implicit none
 
-  TYPE phen_variable
-     INTEGER,   DIMENSION(:),  POINTER :: phase => null()
-     REAL(r_2), DIMENSION(:),  POINTER :: TKshed => null()
-     INTEGER,   DIMENSION(:,:),POINTER :: doyphase => null()
-     REAL, DIMENSION(:),  POINTER :: phen => null()   ! fraction of max LAI
-     REAL, DIMENSION(:),  POINTER :: aphen => null()  ! annual leaf on sum
-     INTEGER,   DIMENSION(:,:),POINTER :: phasespin => null()
-     INTEGER,   DIMENSION(:,:),POINTER :: doyphasespin_1 => null()
-     INTEGER,   DIMENSION(:,:),POINTER :: doyphasespin_2 => null()
-     INTEGER,   DIMENSION(:,:),POINTER :: doyphasespin_3 => null()
-     INTEGER,   DIMENSION(:,:),POINTER :: doyphasespin_4 => null()
-  END type phen_variable
+    character(len=*), intent(in)    :: filename
+    type(casa_biome), intent(inout) :: casabiome
+
+    logical :: existfile
+    integer :: fid, vid
+#ifdef __MPI__
+    integer :: ierr
+#endif
+
+    ! open netCDF file
+    inquire(file=trim(filename), exist=existfile)
+    if (.not. existfile) then
+       write(*,*) filename, ' does not exist!'
+#ifdef __MPI__
+       call MPI_Abort(0, 173, ierr)
+#else
+       stop 173
+#endif
+    endif
+
+    ! open netCDF file
+    call nc_err(nf90_open(trim(filename), nf90_nowrite, fid))
+
+    ! read variables
+    ! integer vectors
+    call nc_err(nf90_inq_varid(fid, 'ivt2', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%ivt2))
+    ! double vectors
+    call nc_err(nf90_inq_varid(fid, 'xkleafcoldmax', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%xkleafcoldmax))
+    call nc_err(nf90_inq_varid(fid, 'xkleafcoldexp', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%xkleafcoldexp))
+    call nc_err(nf90_inq_varid(fid, 'xkleafdrymax', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%xkleafdrymax))
+    call nc_err(nf90_inq_varid(fid, 'xkleafdryexp', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%xkleafdryexp))
+    call nc_err(nf90_inq_varid(fid, 'glaimax', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%glaimax))
+    call nc_err(nf90_inq_varid(fid, 'glaimin', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%glaimin))
+    call nc_err(nf90_inq_varid(fid, 'sla', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%sla))
+    call nc_err(nf90_inq_varid(fid, 'ratiofrootleaf', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%ratiofrootleaf))
+    call nc_err(nf90_inq_varid(fid, 'kroot', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%kroot))
+    call nc_err(nf90_inq_varid(fid, 'krootlen', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%krootlen))
+    call nc_err(nf90_inq_varid(fid, 'rootdepth', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%rootdepth))
+    call nc_err(nf90_inq_varid(fid, 'kuptake', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%kuptake))
+    call nc_err(nf90_inq_varid(fid, 'kminn', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%kminn))
+    call nc_err(nf90_inq_varid(fid, 'kuplabp', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%kuplabp))
+    call nc_err(nf90_inq_varid(fid, 'kclabrate', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%kclabrate))
+    call nc_err(nf90_inq_varid(fid, 'xnpmax', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%xnpmax))
+    call nc_err(nf90_inq_varid(fid, 'q10soil', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%q10soil))
+    call nc_err(nf90_inq_varid(fid, 'xkoptlitter', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%xkoptlitter))
+    call nc_err(nf90_inq_varid(fid, 'xkoptsoil', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%xkoptsoil))
+    call nc_err(nf90_inq_varid(fid, 'xkplab', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%xkplab))
+    call nc_err(nf90_inq_varid(fid, 'xkpsorb', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%xkpsorb))
+    call nc_err(nf90_inq_varid(fid, 'xkpocc', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%xkpocc))
+    call nc_err(nf90_inq_varid(fid, 'prodptase', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%prodptase))
+    call nc_err(nf90_inq_varid(fid, 'costnpup', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%costnpup))
+    call nc_err(nf90_inq_varid(fid, 'maxfinelitter', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%maxfinelitter))
+    call nc_err(nf90_inq_varid(fid, 'maxcwd', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%maxcwd))
+    call nc_err(nf90_inq_varid(fid, 'nintercept', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%nintercept))
+    call nc_err(nf90_inq_varid(fid, 'nslope', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%nslope))
+    call nc_err(nf90_inq_varid(fid, 'la_to_sa', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%la_to_sa))
+    call nc_err(nf90_inq_varid(fid, 'vcmax_scalar', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%vcmax_scalar))
+    call nc_err(nf90_inq_varid(fid, 'disturbance_interval', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%disturbance_interval))
+    call nc_err(nf90_inq_varid(fid, 'damm_enzpool', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%damm_enzpool))
+    call nc_err(nf90_inq_varid(fid, 'damm_kmo2', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%damm_kmo2))
+    call nc_err(nf90_inq_varid(fid, 'damm_kmcp', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%damm_kmcp))
+    call nc_err(nf90_inq_varid(fid, 'damm_ea', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%damm_ea))
+    call nc_err(nf90_inq_varid(fid, 'damm_alpha', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%damm_alpha))
+    ! double arrays
+    call nc_err(nf90_inq_varid(fid, 'plantrate', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%plantrate))
+    call nc_err(nf90_inq_varid(fid, 'rmplant', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%rmplant))
+    call nc_err(nf90_inq_varid(fid, 'fracnpptop', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%fracnpptop))
+    call nc_err(nf90_inq_varid(fid, 'fraclignin', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%fraclignin))
+    call nc_err(nf90_inq_varid(fid, 'fraclabile', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%fraclabile))
+    call nc_err(nf90_inq_varid(fid, 'rationcplantmin', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%rationcplantmin))
+    call nc_err(nf90_inq_varid(fid, 'rationcplantmax', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%rationcplantmax))
+    call nc_err(nf90_inq_varid(fid, 'rationpplantmin', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%rationpplantmin))
+    call nc_err(nf90_inq_varid(fid, 'rationpplantmax', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%rationpplantmax))
+    call nc_err(nf90_inq_varid(fid, 'fracligninplant', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%fracligninplant))
+    call nc_err(nf90_inq_varid(fid, 'ftransnptol', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%ftransnptol))
+    call nc_err(nf90_inq_varid(fid, 'ftranspptol', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%ftranspptol))
+    call nc_err(nf90_inq_varid(fid, 'litterrate', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%litterrate))
+    call nc_err(nf90_inq_varid(fid, 'ratiopcplantmin', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%ratiopcplantmin))
+    call nc_err(nf90_inq_varid(fid, 'ratiopcplantmax', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%ratiopcplantmax))
+    call nc_err(nf90_inq_varid(fid, 'soilrate', vid))
+    call nc_err(nf90_get_var(fid, vid, casabiome%soilrate))
+
+    ! close NetCDF file
+    call nc_err(nf90_close(fid))
+
+  end subroutine read_netcdf_casabiome
 
 
-CONTAINS
+  subroutine read_netcdf_casapool(filename, casapool)
+
+    use netcdf, only: nf90_open, nf90_nowrite, &
+         nf90_inq_varid, nf90_get_var, nf90_close
+#ifdef __MPI__
+    use mpi, only: MPI_Abort
+#endif
+    use cable_def_types_mod, only: nc_err
+
+    implicit none
+
+    character(len=*), intent(in)    :: filename
+    type(casa_pool),  intent(inout) :: casapool
+
+    logical :: existfile
+    integer :: fid, vid
+#ifdef __MPI__
+    integer :: ierr
+#endif
+
+    ! open netCDF file
+    inquire(file=trim(filename), exist=existfile)
+    if (.not. existfile) then
+       write(*,*) filename, ' does not exist!'
+#ifdef __MPI__
+       call MPI_Abort(0, 174, ierr)
+#else
+       stop 174
+#endif
+    endif
+
+    ! open netCDF file
+    call nc_err(nf90_open(trim(filename), nf90_nowrite, fid))
+
+    ! read variables
+    call nc_err(nf90_inq_varid(fid, 'clabile', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%clabile))
+    call nc_err(nf90_inq_varid(fid, 'dclabiledt', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%dclabiledt))
+    call nc_err(nf90_inq_varid(fid, 'ctot', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%ctot))
+    call nc_err(nf90_inq_varid(fid, 'ctot_0', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%ctot_0))
+    call nc_err(nf90_inq_varid(fid, 'cplant', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%cplant))
+    call nc_err(nf90_inq_varid(fid, 'nplant', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%nplant))
+    call nc_err(nf90_inq_varid(fid, 'pplant', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%pplant))
+    call nc_err(nf90_inq_varid(fid, 'dcplantdt', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%dcplantdt))
+    call nc_err(nf90_inq_varid(fid, 'dnplantdt', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%dnplantdt))
+    call nc_err(nf90_inq_varid(fid, 'dpplantdt', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%dpplantdt))
+    call nc_err(nf90_inq_varid(fid, 'rationcplant', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%rationcplant))
+    call nc_err(nf90_inq_varid(fid, 'rationpplant', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%rationpplant))
+    call nc_err(nf90_inq_varid(fid, 'nsoilmin', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%nsoilmin))
+    call nc_err(nf90_inq_varid(fid, 'psoillab', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%psoillab))
+    call nc_err(nf90_inq_varid(fid, 'psoilsorb', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%psoilsorb))
+    call nc_err(nf90_inq_varid(fid, 'psoilocc', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%psoilocc))
+    call nc_err(nf90_inq_varid(fid, 'dnsoilmindt', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%dnsoilmindt))
+    call nc_err(nf90_inq_varid(fid, 'dpsoillabdt', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%dpsoillabdt))
+    call nc_err(nf90_inq_varid(fid, 'dpsoilsorbdt', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%dpsoilsorbdt))
+    call nc_err(nf90_inq_varid(fid, 'dpsoiloccdt', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%dpsoiloccdt))
+    call nc_err(nf90_inq_varid(fid, 'clitter', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%clitter))
+    call nc_err(nf90_inq_varid(fid, 'nlitter', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%nlitter))
+    call nc_err(nf90_inq_varid(fid, 'plitter', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%plitter))
+    call nc_err(nf90_inq_varid(fid, 'dclitterdt', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%dclitterdt))
+    call nc_err(nf90_inq_varid(fid, 'dnlitterdt', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%dnlitterdt))
+    call nc_err(nf90_inq_varid(fid, 'dplitterdt', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%dplitterdt))
+    call nc_err(nf90_inq_varid(fid, 'rationclitter', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%rationclitter))
+    call nc_err(nf90_inq_varid(fid, 'rationplitter', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%rationplitter))
+    call nc_err(nf90_inq_varid(fid, 'csoil', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%csoil))
+    call nc_err(nf90_inq_varid(fid, 'nsoil', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%nsoil))
+    call nc_err(nf90_inq_varid(fid, 'psoil', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%psoil))
+    call nc_err(nf90_inq_varid(fid, 'dcsoildt', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%dcsoildt))
+    call nc_err(nf90_inq_varid(fid, 'dnsoildt', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%dnsoildt))
+    call nc_err(nf90_inq_varid(fid, 'dpsoildt', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%dpsoildt))
+    call nc_err(nf90_inq_varid(fid, 'rationcsoil', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%rationcsoil))
+    call nc_err(nf90_inq_varid(fid, 'rationcsoilnew', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%rationcsoilnew))
+    call nc_err(nf90_inq_varid(fid, 'rationpsoil', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%rationpsoil))
+    call nc_err(nf90_inq_varid(fid, 'rationcsoilmin', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%rationcsoilmin))
+    call nc_err(nf90_inq_varid(fid, 'rationcsoilmax', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%rationcsoilmax))
+    call nc_err(nf90_inq_varid(fid, 'ratiopcsoil', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%ratiopcsoil))
+    call nc_err(nf90_inq_varid(fid, 'ratiopcplant', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%ratiopcplant))
+    call nc_err(nf90_inq_varid(fid, 'ratiopclitter', vid))
+    call nc_err(nf90_get_var(fid, vid, casapool%ratiopclitter))
+
+    ! close NetCDF file
+    call nc_err(nf90_close(fid))
+
+  end subroutine read_netcdf_casapool
 
 
-  SUBROUTINE alloc_phenvariable(phen,arraysize)
+  subroutine read_netcdf_casaflux(filename, casaflux)
 
-    IMPLICIT NONE
+    use netcdf, only: nf90_open, nf90_nowrite, &
+         nf90_inq_varid, nf90_get_var, nf90_close
+#ifdef __MPI__
+    use mpi, only: MPI_Abort
+#endif
+    use cable_def_types_mod, only: nc_err
 
-    TYPE(phen_variable), INTENT(INOUT) :: phen
-    INTEGER,             INTENT(IN) :: arraysize
+    implicit none
 
-    ALLOCATE(phen%Tkshed(mvtype))
-    ALLOCATE(phen%phase(arraysize),         &
-         phen%doyphase(arraysize,mphase))
-    ALLOCATE(phen%phen(arraysize), &
+    character(len=*), intent(in)    :: filename
+    type(casa_flux),  intent(inout) :: casaflux
+
+    logical :: existfile
+    integer :: fid, vid
+#ifdef __MPI__
+    integer :: ierr
+#endif
+
+    ! open netCDF file
+    inquire(file=trim(filename), exist=existfile)
+    if (.not. existfile) then
+       write(*,*) filename, ' does not exist!'
+#ifdef __MPI__
+       call MPI_Abort(0, 175, ierr)
+#else
+       stop 175
+#endif
+    endif
+
+    ! open netCDF file
+    call nc_err(nf90_open(trim(filename), nf90_nowrite, fid))
+
+    ! read variables
+    call nc_err(nf90_inq_varid(fid, 'cgpp', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%cgpp))
+    call nc_err(nf90_inq_varid(fid, 'cnpp', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%cnpp))
+    call nc_err(nf90_inq_varid(fid, 'crp', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%crp))
+    call nc_err(nf90_inq_varid(fid, 'crgplant', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%crgplant))
+    call nc_err(nf90_inq_varid(fid, 'nminfix', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%nminfix))
+    call nc_err(nf90_inq_varid(fid, 'nminuptake', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%nminuptake))
+    call nc_err(nf90_inq_varid(fid, 'plabuptake', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%plabuptake))
+    call nc_err(nf90_inq_varid(fid, 'clabloss', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%clabloss))
+    call nc_err(nf90_inq_varid(fid, 'fracclabile', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fracclabile))
+    call nc_err(nf90_inq_varid(fid, 'stemnpp', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%stemnpp))
+    call nc_err(nf90_inq_varid(fid, 'frac_sapwood', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%frac_sapwood))
+    call nc_err(nf90_inq_varid(fid, 'sapwood_area', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%sapwood_area))
+    call nc_err(nf90_inq_varid(fid, 'charvest', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%charvest))
+    call nc_err(nf90_inq_varid(fid, 'nharvest', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%nharvest))
+    call nc_err(nf90_inq_varid(fid, 'pharvest', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%pharvest))
+    call nc_err(nf90_inq_varid(fid, 'fharvest', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fharvest))
+    call nc_err(nf90_inq_varid(fid, 'fcrop', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fcrop))
+    call nc_err(nf90_inq_varid(fid, 'fraccalloc', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fraccalloc))
+    call nc_err(nf90_inq_varid(fid, 'fracnalloc', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fracnalloc))
+    call nc_err(nf90_inq_varid(fid, 'fracpalloc', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fracpalloc))
+    call nc_err(nf90_inq_varid(fid, 'crmplant', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%crmplant))
+    call nc_err(nf90_inq_varid(fid, 'kplant', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%kplant))
+    call nc_err(nf90_inq_varid(fid, 'cplant_turnover', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%cplant_turnover))
+    call nc_err(nf90_inq_varid(fid, 'fromptol', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fromptol))
+    call nc_err(nf90_inq_varid(fid, 'cnep', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%cnep))
+    call nc_err(nf90_inq_varid(fid, 'crsoil', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%crsoil))
+    call nc_err(nf90_inq_varid(fid, 'nmindep', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%nmindep))
+    call nc_err(nf90_inq_varid(fid, 'nminloss', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%nminloss))
+    call nc_err(nf90_inq_varid(fid, 'nminleach', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%nminleach))
+    call nc_err(nf90_inq_varid(fid, 'nupland', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%nupland))
+    call nc_err(nf90_inq_varid(fid, 'nlittermin', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%nlittermin))
+    call nc_err(nf90_inq_varid(fid, 'nsmin', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%nsmin))
+    call nc_err(nf90_inq_varid(fid, 'nsimm', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%nsimm))
+    call nc_err(nf90_inq_varid(fid, 'nsnet', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%nsnet))
+    call nc_err(nf90_inq_varid(fid, 'fnminloss', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fnminloss))
+    call nc_err(nf90_inq_varid(fid, 'fnminleach', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fnminleach))
+    call nc_err(nf90_inq_varid(fid, 'pdep', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%pdep))
+    call nc_err(nf90_inq_varid(fid, 'pwea', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%pwea))
+    call nc_err(nf90_inq_varid(fid, 'pleach', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%pleach))
+    call nc_err(nf90_inq_varid(fid, 'ploss', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%ploss))
+    call nc_err(nf90_inq_varid(fid, 'pupland', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%pupland))
+    call nc_err(nf90_inq_varid(fid, 'plittermin', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%plittermin))
+    call nc_err(nf90_inq_varid(fid, 'psmin', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%psmin))
+    call nc_err(nf90_inq_varid(fid, 'psimm', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%psimm))
+    call nc_err(nf90_inq_varid(fid, 'psnet', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%psnet))
+    call nc_err(nf90_inq_varid(fid, 'fpleach', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fpleach))
+    call nc_err(nf90_inq_varid(fid, 'kplab', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%kplab))
+    call nc_err(nf90_inq_varid(fid, 'kpsorb', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%kpsorb))
+    call nc_err(nf90_inq_varid(fid, 'kpocc', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%kpocc))
+    call nc_err(nf90_inq_varid(fid, 'kmlabp', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%kmlabp))
+    call nc_err(nf90_inq_varid(fid, 'psorbmax', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%psorbmax))
+    call nc_err(nf90_inq_varid(fid, 'cplant_turnover_disturbance', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%cplant_turnover_disturbance))
+    call nc_err(nf90_inq_varid(fid, 'cplant_turnover_crowding', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%cplant_turnover_crowding))
+    call nc_err(nf90_inq_varid(fid, 'cplant_turnover_resource_limitation', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%cplant_turnover_resource_limitation))
+    call nc_err(nf90_inq_varid(fid, 'klitter', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%klitter))
+    call nc_err(nf90_inq_varid(fid, 'ksoil', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%ksoil))
+    call nc_err(nf90_inq_varid(fid, 'fromltos', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fromltos))
+    call nc_err(nf90_inq_varid(fid, 'fromstos', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fromstos))
+    call nc_err(nf90_inq_varid(fid, 'fromltoco2', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fromltoco2))
+    call nc_err(nf90_inq_varid(fid, 'fromstoco2', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fromstoco2))
+    call nc_err(nf90_inq_varid(fid, 'fluxctolitter', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fluxctolitter))
+    call nc_err(nf90_inq_varid(fid, 'fluxntolitter', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fluxntolitter))
+    call nc_err(nf90_inq_varid(fid, 'fluxptolitter', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fluxptolitter))
+    call nc_err(nf90_inq_varid(fid, 'fluxctosoil', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fluxctosoil))
+    call nc_err(nf90_inq_varid(fid, 'fluxntosoil', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fluxntosoil))
+    call nc_err(nf90_inq_varid(fid, 'fluxptosoil', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fluxptosoil))
+    call nc_err(nf90_inq_varid(fid, 'fluxctoco2', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fluxctoco2))
+    call nc_err(nf90_inq_varid(fid, 'fluxctohwp', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fluxctohwp))
+    call nc_err(nf90_inq_varid(fid, 'fluxntohwp', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fluxntohwp))
+    call nc_err(nf90_inq_varid(fid, 'fluxptohwp', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fluxptohwp))
+    call nc_err(nf90_inq_varid(fid, 'fluxctoclear', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fluxctoclear))
+    call nc_err(nf90_inq_varid(fid, 'fluxntoclear', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fluxntoclear))
+    call nc_err(nf90_inq_varid(fid, 'fluxptoclear', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fluxptoclear))
+    call nc_err(nf90_inq_varid(fid, 'ctransferluc', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%ctransferluc))
+    call nc_err(nf90_inq_varid(fid, 'fromptol_fire', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fromptol_fire))
+    call nc_err(nf90_inq_varid(fid, 'klitter_fire', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%klitter_fire))
+    call nc_err(nf90_inq_varid(fid, 'klitter_tot', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%klitter_tot))
+    call nc_err(nf90_inq_varid(fid, 'kplant_fire', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%kplant_fire))
+    call nc_err(nf90_inq_varid(fid, 'kplant_tot', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%kplant_tot))
+    call nc_err(nf90_inq_varid(fid, 'fluxctoco2_plant_fire', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fluxctoco2_plant_fire))
+    call nc_err(nf90_inq_varid(fid, 'fluxctoco2_litter_fire', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fluxctoco2_litter_fire))
+    call nc_err(nf90_inq_varid(fid, 'fluxfromptoco2_fire', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fluxfromptoco2_fire))
+    call nc_err(nf90_inq_varid(fid, 'fluxfromltoco2_fire', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fluxfromltoco2_fire))
+    call nc_err(nf90_inq_varid(fid, 'fluxntoatm_fire', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fluxntoatm_fire))
+    call nc_err(nf90_inq_varid(fid, 'fluxfromptol', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fluxfromptol))
+    call nc_err(nf90_inq_varid(fid, 'fluxfromltos', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fluxfromltos))
+    call nc_err(nf90_inq_varid(fid, 'fluxfromstos', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fluxfromstos))
+    call nc_err(nf90_inq_varid(fid, 'fluxfromptoco2', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fluxfromptoco2))
+    call nc_err(nf90_inq_varid(fid, 'fluxfromltoco2', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fluxfromltoco2))
+    call nc_err(nf90_inq_varid(fid, 'fluxfromstoco2', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fluxfromstoco2))
+    call nc_err(nf90_inq_varid(fid, 'fluxfromptoharvest', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fluxfromptoharvest))
+
+    ! close NetCDF file
+    call nc_err(nf90_close(fid))
+
+  end subroutine read_netcdf_casaflux
+
+
+  subroutine read_netcdf_casamet(filename, casamet)
+
+    use netcdf, only: nf90_open, nf90_nowrite, &
+         nf90_inq_varid, nf90_get_var, nf90_close
+#ifdef __MPI__
+    use mpi, only: MPI_Abort
+#endif
+    use cable_def_types_mod, only: nc_err
+
+    implicit none
+
+    character(len=*), intent(in)    :: filename
+    type(casa_met),   intent(inout) :: casamet
+
+    logical :: existfile
+    integer :: fid, vid
+#ifdef __MPI__
+    integer :: ierr
+#endif
+
+    ! open netCDF file
+    inquire(file=trim(filename), exist=existfile)
+    if (.not. existfile) then
+       write(*,*) filename, ' does not exist!'
+#ifdef __MPI__
+       call MPI_Abort(0, 176, ierr)
+#else
+       stop 176
+#endif
+    endif
+
+    ! open netCDF file
+    call nc_err(nf90_open(trim(filename), nf90_nowrite, fid))
+
+    ! read variables
+    call nc_err(nf90_inq_varid(fid, 'glai', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%glai))
+    call nc_err(nf90_inq_varid(fid, 'tairk', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%tairk))
+    call nc_err(nf90_inq_varid(fid, 'precip', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%precip))
+    call nc_err(nf90_inq_varid(fid, 'tsoilavg', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%tsoilavg))
+    call nc_err(nf90_inq_varid(fid, 'moistavg', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%moistavg))
+    call nc_err(nf90_inq_varid(fid, 'btran', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%btran))
+    call nc_err(nf90_inq_varid(fid, 'lnonwood', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%lnonwood))
+    call nc_err(nf90_inq_varid(fid, 'tsoil', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%tsoil))
+    call nc_err(nf90_inq_varid(fid, 'moist', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%moist))
+    call nc_err(nf90_inq_varid(fid, 'iveg2', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%iveg2))
+    call nc_err(nf90_inq_varid(fid, 'ijgcm', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%ijgcm))
+    call nc_err(nf90_inq_varid(fid, 'isorder', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%isorder))
+    call nc_err(nf90_inq_varid(fid, 'lat', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%lat))
+    call nc_err(nf90_inq_varid(fid, 'lon', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%lon))
+    call nc_err(nf90_inq_varid(fid, 'areacell', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%areacell))
+    call nc_err(nf90_inq_varid(fid, 'tairkspin', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%tairkspin))
+    call nc_err(nf90_inq_varid(fid, 'cgppspin', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%cgppspin))
+    call nc_err(nf90_inq_varid(fid, 'crmplantspin_1', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%crmplantspin_1))
+    call nc_err(nf90_inq_varid(fid, 'crmplantspin_2', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%crmplantspin_2))
+    call nc_err(nf90_inq_varid(fid, 'crmplantspin_3', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%crmplantspin_3))
+    call nc_err(nf90_inq_varid(fid, 'tsoilspin_1', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%tsoilspin_1))
+    call nc_err(nf90_inq_varid(fid, 'tsoilspin_2', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%tsoilspin_2))
+    call nc_err(nf90_inq_varid(fid, 'tsoilspin_3', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%tsoilspin_3))
+    call nc_err(nf90_inq_varid(fid, 'tsoilspin_4', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%tsoilspin_4))
+    call nc_err(nf90_inq_varid(fid, 'tsoilspin_5', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%tsoilspin_5))
+    call nc_err(nf90_inq_varid(fid, 'tsoilspin_6', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%tsoilspin_6))
+    call nc_err(nf90_inq_varid(fid, 'moistspin_1', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%moistspin_1))
+    call nc_err(nf90_inq_varid(fid, 'moistspin_2', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%moistspin_2))
+    call nc_err(nf90_inq_varid(fid, 'moistspin_3', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%moistspin_3))
+    call nc_err(nf90_inq_varid(fid, 'moistspin_4', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%moistspin_4))
+    call nc_err(nf90_inq_varid(fid, 'moistspin_5', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%moistspin_5))
+    call nc_err(nf90_inq_varid(fid, 'moistspin_6', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%moistspin_6))
+    call nc_err(nf90_inq_varid(fid, 'mtempspin', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%mtempspin))
+    call nc_err(nf90_inq_varid(fid, 'frecspin', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%frecspin))
+    call nc_err(nf90_inq_varid(fid, 'can12spin', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%can12spin))
+    call nc_err(nf90_inq_varid(fid, 'can13spin', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%can13spin))
+    call nc_err(nf90_inq_varid(fid, 'dprecip_spin', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%dprecip_spin))
+    call nc_err(nf90_inq_varid(fid, 'aprecip_av20_spin', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%aprecip_av20_spin))
+    call nc_err(nf90_inq_varid(fid, 'du10_max_spin', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%du10_max_spin))
+    call nc_err(nf90_inq_varid(fid, 'drhum_spin', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%drhum_spin))
+    call nc_err(nf90_inq_varid(fid, 'dtemp_max_spin', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%dtemp_max_spin))
+    call nc_err(nf90_inq_varid(fid, 'dtemp_min_spin', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%dtemp_min_spin))
+    call nc_err(nf90_inq_varid(fid, 'kbdi_spin', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%kbdi_spin))
+    call nc_err(nf90_inq_varid(fid, 'd_macarthur_spin', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%d_macarthur_spin))
+    call nc_err(nf90_inq_varid(fid, 'ffdi_spin', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%ffdi_spin))
+    call nc_err(nf90_inq_varid(fid, 'last_precip_spin', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%last_precip_spin))
+    call nc_err(nf90_inq_varid(fid, 'dslr_spin', vid))
+    call nc_err(nf90_get_var(fid, vid, casamet%dslr_spin))
+
+    ! close NetCDF file
+    call nc_err(nf90_close(fid))
+
+  end subroutine read_netcdf_casamet
+
+
+  subroutine read_netcdf_casabal(filename, casabal)
+
+    use netcdf, only: nf90_open, nf90_nowrite, &
+         nf90_inq_varid, nf90_get_var, nf90_close
+#ifdef __MPI__
+    use mpi, only: MPI_Abort
+#endif
+    use cable_def_types_mod, only: nc_err
+
+    implicit none
+
+    character(len=*),   intent(in)    :: filename
+    type(casa_balance), intent(inout) :: casabal
+
+    logical :: existfile
+    integer :: fid, vid
+#ifdef __MPI__
+    integer :: ierr
+#endif
+
+    ! open netCDF file
+    inquire(file=trim(filename), exist=existfile)
+    if (.not. existfile) then
+       write(*,*) filename, ' does not exist!'
+#ifdef __MPI__
+       call MPI_Abort(0, 177, ierr)
+#else
+       stop 177
+#endif
+    endif
+
+    ! open netCDF file
+    call nc_err(nf90_open(trim(filename), nf90_nowrite, fid))
+
+    ! read variables
+    call nc_err(nf90_inq_varid(fid, 'fcgppyear', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%fcgppyear))
+    call nc_err(nf90_inq_varid(fid, 'fcnppyear', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%fcnppyear))
+    call nc_err(nf90_inq_varid(fid, 'fcrmleafyear', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%fcrmleafyear))
+    call nc_err(nf90_inq_varid(fid, 'fcrmwoodyear', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%fcrmwoodyear))
+    call nc_err(nf90_inq_varid(fid, 'fcrmrootyear', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%fcrmrootyear))
+    call nc_err(nf90_inq_varid(fid, 'fcrgrowyear', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%fcrgrowyear))
+    call nc_err(nf90_inq_varid(fid, 'fcrpyear', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%fcrpyear))
+    call nc_err(nf90_inq_varid(fid, 'fcrsyear', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%fcrsyear))
+    call nc_err(nf90_inq_varid(fid, 'fcneeyear', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%fcneeyear))
+    call nc_err(nf90_inq_varid(fid, 'dcdtyear', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%dcdtyear))
+    call nc_err(nf90_inq_varid(fid, 'laimax', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%laimax))
+    call nc_err(nf90_inq_varid(fid, 'cleafmean', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%cleafmean))
+    call nc_err(nf90_inq_varid(fid, 'crootmean', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%crootmean))
+    call nc_err(nf90_inq_varid(fid, 'fndepyear', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%fndepyear))
+    call nc_err(nf90_inq_varid(fid, 'fnfixyear', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%fnfixyear))
+    call nc_err(nf90_inq_varid(fid, 'fnsnetyear', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%fnsnetyear))
+    call nc_err(nf90_inq_varid(fid, 'fnupyear', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%fnupyear))
+    call nc_err(nf90_inq_varid(fid, 'fnleachyear', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%fnleachyear))
+    call nc_err(nf90_inq_varid(fid, 'fnlossyear', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%fnlossyear))
+    call nc_err(nf90_inq_varid(fid, 'fpweayear', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%fpweayear))
+    call nc_err(nf90_inq_varid(fid, 'fpdustyear', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%fpdustyear))
+    call nc_err(nf90_inq_varid(fid, 'fpsnetyear', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%fpsnetyear))
+    call nc_err(nf90_inq_varid(fid, 'fpupyear', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%fpupyear))
+    call nc_err(nf90_inq_varid(fid, 'fpleachyear', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%fpleachyear))
+    call nc_err(nf90_inq_varid(fid, 'fplossyear', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%fplossyear))
+    call nc_err(nf90_inq_varid(fid, 'glaimon', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%glaimon))
+    call nc_err(nf90_inq_varid(fid, 'glaimonx', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%glaimonx))
+    call nc_err(nf90_inq_varid(fid, 'cplantlast', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%cplantlast))
+    call nc_err(nf90_inq_varid(fid, 'nplantlast', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%nplantlast))
+    call nc_err(nf90_inq_varid(fid, 'pplantlast', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%pplantlast))
+    call nc_err(nf90_inq_varid(fid, 'clitterlast', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%clitterlast))
+    call nc_err(nf90_inq_varid(fid, 'nlitterlast', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%nlitterlast))
+    call nc_err(nf90_inq_varid(fid, 'plitterlast', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%plitterlast))
+    call nc_err(nf90_inq_varid(fid, 'csoillast', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%csoillast))
+    call nc_err(nf90_inq_varid(fid, 'nsoillast', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%nsoillast))
+    call nc_err(nf90_inq_varid(fid, 'psoillast', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%psoillast))
+    call nc_err(nf90_inq_varid(fid, 'nsoilminlast', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%nsoilminlast))
+    call nc_err(nf90_inq_varid(fid, 'psoillablast', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%psoillablast))
+    call nc_err(nf90_inq_varid(fid, 'psoilsorblast', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%psoilsorblast))
+    call nc_err(nf90_inq_varid(fid, 'psoilocclast', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%psoilocclast))
+    call nc_err(nf90_inq_varid(fid, 'cbalance', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%cbalance))
+    call nc_err(nf90_inq_varid(fid, 'nbalance', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%nbalance))
+    call nc_err(nf90_inq_varid(fid, 'pbalance', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%pbalance))
+    call nc_err(nf90_inq_varid(fid, 'sumcbal', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%sumcbal))
+    call nc_err(nf90_inq_varid(fid, 'sumnbal', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%sumnbal))
+    call nc_err(nf90_inq_varid(fid, 'sumpbal', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%sumpbal))
+    call nc_err(nf90_inq_varid(fid, 'clabilelast', vid))
+    call nc_err(nf90_get_var(fid, vid, casabal%clabilelast))
+
+    ! close NetCDF file
+    call nc_err(nf90_close(fid))
+
+  end subroutine read_netcdf_casabal
+
+
+  ! ------------------------------------------------------------------
+
+
+  subroutine write_netcdf_casabiome(filename, casabiome)
+
+    use netcdf, only: nf90_create, nf90_clobber, nf90_64bit_offset, &
+         nf90_def_dim, nf90_def_var, nf90_int, nf90_double, &
+         nf90_enddef, nf90_put_var, nf90_close
+    use cable_def_types_mod, only: nc_err
+
+    implicit none
+
+    character(len=*), intent(in) :: filename
+    type(casa_biome), intent(in) :: casabiome
+
+    integer :: fid
+    integer :: dimid1, dimid2, dimid3, dimid4
+    integer :: i
+    integer, dimension(ncasa_biome) :: vid
+
+    ! create netCDF file
+    call nc_err(nf90_create(trim(filename), ior(nf90_clobber, nf90_64bit_offset), fid))
+
+    ! define dimensions
+    ! vegetation types
+    call nc_err(nf90_def_dim(fid, 'dim1', size(casabiome%plantrate, 1), dimid1))
+    ! mplant
+    call nc_err(nf90_def_dim(fid, 'dim2', size(casabiome%plantrate, 2), dimid2))
+    ! mlitter
+    call nc_err(nf90_def_dim(fid, 'dim3', size(casabiome%litterrate, 2), dimid3))
+    ! msoil
+    call nc_err(nf90_def_dim(fid, 'dim4', size(casabiome%soilrate, 2), dimid4))
+
+    ! define variables
+    i = 1
+    ! define integer vector variables [dim1]
+    call nc_err(nf90_def_var(fid, 'ivt2', nf90_int, &
+         [dimid1], vid(i)), i)
+
+    ! define double vector variables [dim1]
+    call nc_err(nf90_def_var(fid, 'xkleafcoldmax', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'xkleafcoldexp', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'xkleafdrymax', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'xkleafdryexp', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'glaimax', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'glaimin', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'sla', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'ratiofrootleaf', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'kroot', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'krootlen', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'rootdepth', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'kuptake', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'kminn', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'kuplabp', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'kclabrate', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'xnpmax', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'q10soil', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'xkoptlitter', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'xkoptsoil', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'xkplab', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'xkpsorb', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'xkpocc', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'prodptase', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'costnpup', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'maxfinelitter', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'maxcwd', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'nintercept', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'nslope', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'la_to_sa', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'vcmax_scalar', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'disturbance_interval', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'damm_enzpool', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'damm_kmo2', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'damm_kmcp', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'damm_ea', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'damm_alpha', nf90_double, &
+         [dimid1], vid(i)), i)
+
+    ! define double array variables [dim1, dim2]
+    call nc_err(nf90_def_var(fid, 'plantrate', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'rmplant', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fracnpptop', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fraclignin', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fraclabile', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'rationcplantmin', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'rationcplantmax', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'rationpplantmin', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'rationpplantmax', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fracligninplant', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'ftransnptol', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'ftranspptol', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'ratiopcplantmax', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'ratiopcplantmin', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+
+    ! define double array variables [dim1, dim3]
+    call nc_err(nf90_def_var(fid, 'litterrate', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+
+    ! define double array variables [dim1, dim4]
+    call nc_err(nf90_def_var(fid, 'soilrate', nf90_double, &
+         [dimid1, dimid4], vid(i)), i)
+
+    ! end define mode
+    call nc_err(nf90_enddef(fid))
+
+    ! put variables
+    i = 1
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%ivt2), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%xkleafcoldmax), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%xkleafcoldexp), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%xkleafdrymax), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%xkleafdryexp), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%glaimax), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%glaimin), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%sla), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%ratiofrootleaf), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%kroot), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%krootlen), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%rootdepth), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%kuptake), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%kminN), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%KuplabP), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%kclabrate), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%xnpmax), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%q10soil), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%xkoptlitter), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%xkoptsoil), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%xkplab), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%xkpsorb), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%xkpocc), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%prodptase), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%costnpup), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%maxfinelitter), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%maxcwd), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%nintercept), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%nslope), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%la_to_sa), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%vcmax_scalar), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%disturbance_interval), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%DAMM_EnzPool), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%DAMM_KMO2), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%DAMM_KMcp), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%DAMM_Ea), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%DAMM_alpha), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%plantrate), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%rmplant), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%fracnpptoP), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%fraclignin), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%fraclabile), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%ratioNCplantmin), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%ratioNCplantmax), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%ratioNPplantmin), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%ratioNPplantmax), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%fracLigninplant), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%ftransNPtoL), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%ftransPPtoL), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%ratioPcplantmax), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%ratioPcplantmin), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%litterrate), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabiome%soilrate), i)
+
+    ! close NetCDF file
+    call nc_err(nf90_close(fid))
+
+  end subroutine write_netcdf_casabiome
+
+
+  subroutine write_netcdf_casapool(filename, casapool)
+
+    use netcdf, only: nf90_create, nf90_clobber, nf90_64bit_offset, &
+         nf90_def_dim, nf90_def_var, nf90_double, &
+         nf90_enddef, nf90_put_var, nf90_close
+    use cable_def_types_mod, only: nc_err
+
+    implicit none
+
+    character(len=*), intent(in) :: filename
+    type(casa_pool),  intent(in) :: casapool
+
+    integer :: fid
+    integer :: dimid1, dimid2, dimid3, dimid4
+    integer :: i
+    integer, dimension(ncasa_pool) :: vid
+
+    ! create netCDF file
+    call nc_err(nf90_create(trim(filename), ior(nf90_clobber, nf90_64bit_offset), fid))
+
+    ! define dimensions
+    ! land
+    call nc_err(nf90_def_dim(fid, 'dim1', size(casapool%Cplant, 1), dimid1))
+    ! mplant
+    call nc_err(nf90_def_dim(fid, 'dim2', size(casapool%Cplant, 2), dimid2))
+    ! mlitter
+    call nc_err(nf90_def_dim(fid, 'dim3', size(casapool%Clitter, 2), dimid3))
+    ! msoil
+    call nc_err(nf90_def_dim(fid, 'dim4', size(casapool%Csoil, 2), dimid4))
+
+    ! define variables
+    i = 1
+    ! define double vector variables [dim1]
+    call nc_err(nf90_def_var(fid, 'clabile', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dclabiledt', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'nsoilmin', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'psoillab', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'psoilsorb', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'psoilocc', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dnsoilmindt', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dpsoillabdt', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dpsoilsorbdt', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dpsoiloccdt', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'ctot_0', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'ctot', nf90_double, &
+         [dimid1], vid(i)), i)
+
+    ! define double array variables [dim1, dim2]
+    call nc_err(nf90_def_var(fid, 'cplant', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'nplant', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'pplant', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dcplantdt', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dnplantdt', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dpplantdt', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'rationcplant', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'rationpplant', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'ratiopcplant', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+
+    ! define double array variables [dim1, dim3]
+    call nc_err(nf90_def_var(fid, 'clitter', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'nlitter', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'plitter', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dclitterdt', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dnlitterdt', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dplitterdt', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'rationclitter', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'rationplitter', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'ratiopclitter', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+
+    ! define double array variables [dim1, dim4]
+    call nc_err(nf90_def_var(fid, 'csoil', nf90_double, &
+         [dimid1, dimid4], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'nsoil', nf90_double, &
+         [dimid1, dimid4], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'psoil', nf90_double, &
+         [dimid1, dimid4], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dcsoildt', nf90_double, &
+         [dimid1, dimid4], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dnsoildt', nf90_double, &
+         [dimid1, dimid4], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dpsoildt', nf90_double, &
+         [dimid1, dimid4], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'rationcsoil', nf90_double, &
+         [dimid1, dimid4], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'rationpsoil', nf90_double, &
+         [dimid1, dimid4], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'rationcsoilnew', nf90_double, &
+         [dimid1, dimid4], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'rationcsoilmin', nf90_double, &
+         [dimid1, dimid4], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'rationcsoilmax', nf90_double, &
+         [dimid1, dimid4], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'ratiopcsoil', nf90_double, &
+         [dimid1, dimid4], vid(i)), i)
+
+    ! end define mode
+    call nc_err(nf90_enddef(fid))
+
+    ! put variables
+    i = 1
+    call nc_err(nf90_put_var(fid, vid(i), casapool%Clabile), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%dClabiledt), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%Nsoilmin), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%Psoillab), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%Psoilsorb), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%Psoilocc), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%dNsoilmindt), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%dPsoillabdt), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%dPsoilsorbdt), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%dPsoiloccdt), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%Ctot_0), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%Ctot), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%Cplant), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%Nplant), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%Pplant), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%dCplantdt), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%dNplantdt), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%dPplantdt), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%ratioNCplant), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%ratioNPplant), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%ratioPCplant), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%Clitter), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%Nlitter), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%Plitter), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%dClitterdt), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%dNlitterdt), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%dPlitterdt), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%ratioNClitter), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%ratioNPlitter), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%ratioPClitter), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%Csoil), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%Nsoil), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%Psoil), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%dCsoildt), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%dNsoildt), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%dPsoildt), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%ratioNCsoil), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%ratioNPsoil), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%ratioNCsoilnew), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%ratioNCsoilmin), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%ratioNCsoilmax), i)
+    call nc_err(nf90_put_var(fid, vid(i), casapool%ratioPCsoil), i)
+
+    ! close NetCDF file
+    call nc_err(nf90_close(fid))
+
+  end subroutine write_netcdf_casapool
+
+
+  subroutine write_netcdf_casaflux(filename, casaflux)
+
+    use netcdf, only: nf90_create, nf90_clobber, nf90_64bit_offset, &
+         nf90_def_dim, nf90_def_var, nf90_double, &
+         nf90_enddef, nf90_put_var, nf90_close
+    use cable_def_types_mod, only: nc_err
+
+    implicit none
+
+    character(len=*), intent(in) :: filename
+    type(casa_flux),  intent(in) :: casaflux
+
+    integer :: fid
+    integer :: dimid1, dimid2, dimid3, dimid4
+    integer :: i
+    integer, dimension(ncasa_flux) :: vid
+
+    ! create netCDF file
+    call nc_err(nf90_create(trim(filename), ior(nf90_clobber, nf90_64bit_offset), fid))
+
+    ! define dimensions
+    ! land
+    call nc_err(nf90_def_dim(fid, 'dim1', size(casaflux%kplant, 1), dimid1))
+    ! mplant
+    call nc_err(nf90_def_dim(fid, 'dim2', size(casaflux%kplant, 2), dimid2))
+    ! mlitter
+    call nc_err(nf90_def_dim(fid, 'dim3', size(casaflux%klitter, 2), dimid3))
+    ! msoil
+    call nc_err(nf90_def_dim(fid, 'dim4', size(casaflux%ksoil, 2), dimid4))
+
+    ! define variables
+    i = 1
+    ! define double vector variables [dim1]
+    call nc_err(nf90_def_var(fid, 'cgpp', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'cnpp', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'crp', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'crgplant', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'nminfix', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'nminuptake', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'plabuptake', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'clabloss', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fracclabile', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'cnep', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'crsoil', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'nmindep', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'nminloss', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'nminleach', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'nupland', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'nlittermin', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'nsmin', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'nsimm', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'nsnet', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fnminloss', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fnminleach', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'pdep', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'pwea', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'pleach', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'ploss', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'pupland', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'plittermin', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'psmin', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'psimm', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'psnet', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fpleach', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'kplab', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'kpsorb', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'kpocc', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'kmlabp', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'psorbmax', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'stemnpp', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'frac_sapwood', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'sapwood_area', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fharvest', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'charvest', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'nharvest', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'pharvest', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fcrop', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'cplant_turnover_disturbance', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'cplant_turnover_crowding', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'cplant_turnover_resource_limitation', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fluxctoco2_plant_fire', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fluxctoco2_litter_fire', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fluxntoatm_fire', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fluxctohwp', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fluxntohwp', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fluxptohwp', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fluxctoclear', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fluxntoclear', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fluxptoclear', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'ctransferluc', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fluxctoco2', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fluxfromptoharvest', nf90_double, &
+         [dimid1], vid(i)), i)
+
+    ! define double array variables [dim1, dim2]
+    call nc_err(nf90_def_var(fid, 'fraccalloc', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fracnalloc', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fracpalloc', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'kplant', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'crmplant', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'cplant_turnover', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'kplant_fire', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'kplant_tot', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fluxfromptoco2_fire', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fluxfromptoco2', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+
+    ! define double array variables [dim1, dim3]
+    call nc_err(nf90_def_var(fid, 'klitter', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fromltoco2', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'klitter_fire', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'klitter_tot', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fluxctolitter', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fluxntolitter', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fluxptolitter', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fluxfromltoco2_fire', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fluxfromltoco2', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+
+    ! define double array variables [dim1, dim4]
+    call nc_err(nf90_def_var(fid, 'ksoil', nf90_double, &
+         [dimid1, dimid4], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fromstoco2', nf90_double, &
+         [dimid1, dimid4], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fluxctosoil', nf90_double, &
+         [dimid1, dimid4], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fluxntosoil', nf90_double, &
+         [dimid1, dimid4], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fluxptosoil', nf90_double, &
+         [dimid1, dimid4], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fluxfromstoco2', nf90_double, &
+         [dimid1, dimid4], vid(i)), i)
+
+    ! define double array variables [dim1, dim2, dim3]
+    call nc_err(nf90_def_var(fid, 'fluxfromptol', nf90_double, &
+         [dimid1, dimid2, dimid3], vid(i)), i)
+
+    ! define double array variables [dim1, dim3, dim2]
+    call nc_err(nf90_def_var(fid, 'fromptol', nf90_double, &
+         [dimid1, dimid3, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fromptol_fire', nf90_double, &
+         [dimid1, dimid3, dimid2], vid(i)), i)
+
+    ! define double array variables [dim1, dim3, dim4]
+    call nc_err(nf90_def_var(fid, 'fluxfromltos', nf90_double, &
+         [dimid1, dimid3, dimid4], vid(i)), i)
+
+    ! define double array variables [dim1, dim4, dim3]
+    call nc_err(nf90_def_var(fid, 'fromltos', nf90_double, &
+         [dimid1, dimid4, dimid3], vid(i)), i)
+
+    ! define double array variables [dim1, dim4, dim4]
+    call nc_err(nf90_def_var(fid, 'fromstos', nf90_double, &
+         [dimid1, dimid4, dimid4], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fluxfromstos', nf90_double, &
+         [dimid1, dimid4, dimid4], vid(i)), i)
+
+    ! end define mode
+    call nc_err(nf90_enddef(fid))
+
+    ! put variables
+    i = 1
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Cgpp), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Cnpp), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Crp), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Crgplant), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Nminfix), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Nminuptake), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Plabuptake), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Clabloss), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%fracClabile), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Cnep), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Crsoil), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Nmindep), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Nminloss), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Nminleach), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Nupland), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Nlittermin), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Nsmin), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Nsimm), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Nsnet), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%fNminloss), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%fNminleach), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Pdep), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Pwea), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Pleach), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Ploss), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Pupland), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Plittermin), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Psmin), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Psimm), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Psnet), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%fPleach), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%kplab), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%kpsorb), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%kpocc), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%kmlabP), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Psorbmax), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%stemnpp), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%frac_sapwood), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%sapwood_area), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%fharvest), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Charvest), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Nharvest), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Pharvest), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%fcrop), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Cplant_turnover_disturbance), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Cplant_turnover_crowding), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Cplant_turnover_resource_limitation), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%FluxCtoCO2_plant_fire), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%FluxCtoCO2_litter_fire), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%FluxNtoAtm_fire), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%FluxCtohwp), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%FluxNtohwp), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%FluxPtohwp), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%FluxCtoclear), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%FluxNtoclear), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%FluxPtoclear), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%CtransferLUC), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%FluxCtoco2), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%FluxFromPtoHarvest), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%fracCalloc), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%fracNalloc), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%fracPalloc), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%kplant), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Crmplant), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%Cplant_turnover), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%kplant_fire), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%kplant_tot), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%fluxfromPtoCO2_fire), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%FluxFromPtoCO2), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%klitter), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%fromLtoCO2), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%klitter_fire), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%klitter_tot), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%FluxCtolitter), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%FluxNtolitter), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%FluxPtolitter), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%fluxfromLtoCO2_fire), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%FluxFromLtoCO2), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%ksoil), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%fromStoCO2), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%FluxCtosoil), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%FluxNtosoil), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%FluxPtosoil), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%FluxFromStoCO2), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%FluxFromPtoL), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%fromPtoL), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%fromPtoL_fire), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%FluxFromLtoS), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%fromLtoS), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%fromStoS), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%FluxFromStoS), i)
+
+    ! close NetCDF file
+    call nc_err(nf90_close(fid))
+
+  end subroutine write_netcdf_casaflux
+
+
+  subroutine write_netcdf_casamet(filename, casamet)
+
+    use netcdf, only: nf90_create, nf90_clobber, nf90_64bit_offset, &
+         nf90_def_dim, nf90_def_var, nf90_int, nf90_double, &
+         nf90_enddef, nf90_put_var, nf90_close
+    use cable_def_types_mod, only: nc_err
+
+    implicit none
+
+    character(len=*), intent(in) :: filename
+    type(casa_met),   intent(in) :: casamet
+
+    integer :: fid
+    integer :: dimid1, dimid2, dimid3
+    integer :: i
+    integer, dimension(ncasa_met) :: vid
+
+    ! create netCDF file
+    call nc_err(nf90_create(trim(filename), ior(nf90_clobber, nf90_64bit_offset), fid))
+
+    ! define dimensions
+    ! land
+    call nc_err(nf90_def_dim(fid, 'dim1', size(casamet%Tsoil, 1), dimid1))
+    ! soil layer
+    call nc_err(nf90_def_dim(fid, 'dim2', size(casamet%Tsoil, 2), dimid2))
+    ! days of year = 365
+    call nc_err(nf90_def_dim(fid, 'dim3', size(casamet%Tairkspin, 2), dimid3))
+
+    ! define variables
+    i = 1
+    ! define integer vector variables [dim1]
+    call nc_err(nf90_def_var(fid, 'lnonwood', nf90_int, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'iveg2', nf90_int, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'ijgcm', nf90_int, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'isorder', nf90_int, &
+         [dimid1], vid(i)), i)
+
+    ! define double vector variables [dim1]
+    call nc_err(nf90_def_var(fid, 'glai', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'tairk', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'precip', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'tsoilavg', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'moistavg', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'btran', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'lat', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'lon', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'areacell', nf90_double, &
+         [dimid1], vid(i)), i)
+
+    ! define double array variables [dim1, dim2]
+    call nc_err(nf90_def_var(fid, 'tsoil', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'moist', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+
+    ! define integer array variables [dim1, dim3]
+    call nc_err(nf90_def_var(fid, 'dslr_spin', nf90_int, &
+         [dimid1, dimid3], vid(i)), i)
+
+    ! define double array variables [dim1, dim3]
+    call nc_err(nf90_def_var(fid, 'tairkspin', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'cgppspin', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'crmplantspin_1', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'crmplantspin_2', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'crmplantspin_3', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'tsoilspin_1', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'tsoilspin_2', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'tsoilspin_3', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'tsoilspin_4', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'tsoilspin_5', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'tsoilspin_6', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'moistspin_1', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'moistspin_2', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'moistspin_3', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'moistspin_4', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'moistspin_5', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'moistspin_6', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'mtempspin', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'frecspin', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'can12spin', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'can13spin', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dprecip_spin', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'aprecip_av20_spin', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'du10_max_spin', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'drhum_spin', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dtemp_max_spin', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dtemp_min_spin', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'kbdi_spin', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'd_macarthur_spin', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'ffdi_spin', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'last_precip_spin', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+
+    ! end define mode
+    call nc_err(nf90_enddef(fid))
+
+    ! put variables
+    i = 1
+    call nc_err(nf90_put_var(fid, vid(i), casamet%lnonwood), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%iveg2), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%ijgcm), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%isorder), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%glai), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%Tairk), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%precip), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%tsoilavg), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%moistavg), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%btran), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%lat), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%lon), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%areacell), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%Tsoil), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%moist), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%DSLR_spin), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%Tairkspin), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%cgppspin), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%crmplantspin_1), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%crmplantspin_2), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%crmplantspin_3), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%Tsoilspin_1), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%Tsoilspin_2), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%Tsoilspin_3), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%Tsoilspin_4), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%Tsoilspin_5), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%Tsoilspin_6), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%moistspin_1), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%moistspin_2), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%moistspin_3), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%moistspin_4), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%moistspin_5), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%moistspin_6), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%mtempspin), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%frecspin), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%cAn12spin), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%cAn13spin), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%dprecip_spin), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%aprecip_av20_spin), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%du10_max_spin), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%drhum_spin), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%dtemp_max_spin), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%dtemp_min_spin), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%KBDI_spin), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%D_MacArthur_spin), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%FFDI_spin), i)
+    call nc_err(nf90_put_var(fid, vid(i), casamet%last_precip_spin), i)
+
+    ! close NetCDF file
+    call nc_err(nf90_close(fid))
+
+  end subroutine write_netcdf_casamet
+
+
+  subroutine write_netcdf_casabal(filename, casabal)
+
+    use netcdf, only: nf90_create, nf90_clobber, nf90_64bit_offset, &
+         nf90_def_dim, nf90_def_var, nf90_float, nf90_double, &
+         nf90_enddef, nf90_put_var, nf90_close
+    use cable_def_types_mod, only: nc_err
+
+    implicit none
+
+    character(len=*),   intent(in) :: filename
+    type(casa_balance), intent(in) :: casabal
+
+    integer :: fid
+    integer :: dimid1, dimid2, dimid3, dimid4, dimid5
+    integer :: i
+    integer, dimension(ncasa_bal) :: vid
+
+    ! create netCDF file
+    call nc_err(nf90_create(trim(filename), ior(nf90_clobber, nf90_64bit_offset), fid))
+
+    ! define dimensions
+    ! land
+    call nc_err(nf90_def_dim(fid, 'dim1', size(casabal%cplantlast, 1), dimid1))
+    ! mplant
+    call nc_err(nf90_def_dim(fid, 'dim2', size(casabal%cplantlast, 2), dimid2))
+    ! mlitter
+    call nc_err(nf90_def_dim(fid, 'dim3', size(casabal%clitterlast, 2), dimid3))
+    ! msoil
+    call nc_err(nf90_def_dim(fid, 'dim4', size(casabal%csoillast, 2), dimid4))
+    ! number of months = 12
+    call nc_err(nf90_def_dim(fid, 'dim5', size(casabal%glaimon, 2), dimid5))
+
+    ! define variables
+    i = 1
+    ! define double vector variables [dim1]
+    call nc_err(nf90_def_var(fid, 'fcgppyear', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fcnppyear', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fcrpyear', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fcrmleafyear', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fcrmwoodyear', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fcrmrootyear', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fcrgrowyear', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fcrsyear', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fcneeyear', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fndepyear', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fnfixyear', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fnsnetyear', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fnupyear', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fnleachyear', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fnlossyear', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fpweayear', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fpdustyear', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fpsnetyear', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fpupyear', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fpleachyear', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fplossyear', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'dcdtyear', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'laimax', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'cleafmean', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'crootmean', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'nsoilminlast', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'psoillablast', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'psoilsorblast', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'psoilocclast', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'cbalance', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'nbalance', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'pbalance', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'sumcbal', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'sumnbal', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'sumpbal', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'clabilelast', nf90_double, &
+         [dimid1], vid(i)), i)
+
+    ! define double array variables [dim1, dim2]
+    call nc_err(nf90_def_var(fid, 'cplantlast', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'nplantlast', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'pplantlast', nf90_double, &
+         [dimid1, dimid2], vid(i)), i)
+
+    ! define double array variables [dim1, dim3]
+    call nc_err(nf90_def_var(fid, 'clitterlast', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'nlitterlast', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'plitterlast', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+
+    ! define double array variables [dim1, dim4]
+    call nc_err(nf90_def_var(fid, 'csoillast', nf90_double, &
+         [dimid1, dimid4], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'nsoillast', nf90_double, &
+         [dimid1, dimid4], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'psoillast', nf90_double, &
+         [dimid1, dimid4], vid(i)), i)
+
+    ! define double array variables [dim1, dim5]
+    call nc_err(nf90_def_var(fid, 'glaimon', nf90_double, &
+         [dimid1, dimid5], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'glaimonx', nf90_double, &
+         [dimid1, dimid5], vid(i)), i)
+
+    ! end define mode
+    call nc_err(nf90_enddef(fid))
+
+    ! put variables
+    i = 1
+    call nc_err(nf90_put_var(fid, vid(i), casabal%FCgppyear), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%FCnppyear), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%FCrpyear), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%FCrmleafyear), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%FCrmwoodyear), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%FCrmrootyear), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%FCrgrowyear), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%FCrsyear), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%FCneeyear), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%FNdepyear), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%FNfixyear), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%FNsnetyear), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%FNupyear), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%FNleachyear), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%FNlossyear), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%FPweayear), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%FPdustyear), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%FPsnetyear), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%FPupyear), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%FPleachyear), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%FPlossyear), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%dCdtyear), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%LAImax), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%Cleafmean), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%Crootmean), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%nsoilminlast), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%psoillablast), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%psoilsorblast), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%psoilocclast), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%cbalance), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%nbalance), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%pbalance), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%sumcbal), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%sumnbal), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%sumpbal), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%clabilelast), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%cplantlast), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%nplantlast), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%pplantlast), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%clitterlast), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%nlitterlast), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%plitterlast), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%csoillast), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%nsoillast), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%psoillast), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%glaimon), i)
+    call nc_err(nf90_put_var(fid, vid(i), casabal%glaimonx), i)
+
+    ! close NetCDF file
+    call nc_err(nf90_close(fid))
+
+  end subroutine write_netcdf_casabal
+
+
+end module casavariable
+
+
+! ------------------------------------------------------------------
+
+
+module phenvariable
+
+  use cable_def_types_mod, only: mvtype, r_2
+  use casadimension, only: mdyear, mphase
+
+  implicit none
+
+  private
+
+  ! type
+  public :: phen_variable
+
+  ! routines on type
+  public :: alloc_phenvariable
+  public :: dealloc_phenvariable
+  public :: print_phenvariable
+  public :: read_netcdf_phen_var
+  public :: write_netcdf_phen_var
+  public :: zero_phenvariable
+
+  ! number of variables in type definitions
+  ! used in write_netcdf and in MPI code
+  integer, parameter, public :: ncasa_phen = 10
+
+  type phen_variable
+     integer,   dimension(:),   pointer :: phase => null()
+     real(r_2), dimension(:),   pointer :: TKshed => null()
+     integer,   dimension(:,:), pointer :: doyphase => null()
+     ! fraction of max LAI
+     real,      dimension(:),   pointer :: phen => null()
+     ! annual leaf on sum
+     real,      dimension(:),   pointer :: aphen => null()
+     integer,   dimension(:,:), pointer :: phasespin => null()
+     integer,   dimension(:,:), pointer :: doyphasespin_1 => null()
+     integer,   dimension(:,:), pointer :: doyphasespin_2 => null()
+     integer,   dimension(:,:), pointer :: doyphasespin_3 => null()
+     integer,   dimension(:,:), pointer :: doyphasespin_4 => null()
+  end type phen_variable
+
+contains
+
+  subroutine alloc_phenvariable(phen,arraysize)
+
+    use cable_def_types_mod, only: mvtype
+    use casadimension, only: mdyear, mphase
+
+    implicit none
+
+    type(phen_variable), intent(inout) :: phen
+    integer,             intent(in) :: arraysize
+
+    allocate(phen%Tkshed(mvtype))
+    allocate( &
+         phen%phase(arraysize), &
+         phen%doyphase(arraysize,mphase), &
+         phen%phen(arraysize), &
          phen%aphen(arraysize), &
          phen%phasespin(arraysize,mdyear), &
          phen%doyphasespin_1(arraysize,mdyear), &
@@ -2114,10 +3923,52 @@ CONTAINS
          phen%doyphasespin_3(arraysize,mdyear), &
          phen%doyphasespin_4(arraysize,mdyear))
 
-  END SUBROUTINE alloc_phenvariable
+  end subroutine alloc_phenvariable
+
+
+  subroutine dealloc_phenvariable(phen)
+
+    implicit none
+
+    type(phen_variable), intent(inout) :: phen
+
+    deallocate(phen%Tkshed)
+    deallocate(phen%phase)
+    deallocate(phen%doyphase)
+    deallocate(phen%phen)
+    deallocate(phen%aphen)
+    deallocate(phen%phasespin)
+    deallocate(phen%doyphasespin_1)
+    deallocate(phen%doyphasespin_2)
+    deallocate(phen%doyphasespin_3)
+    deallocate(phen%doyphasespin_4)
+
+  end subroutine dealloc_phenvariable
+
+
+  subroutine print_phenvariable(phen)
+
+    implicit none
+
+    type(phen_variable), intent(in) :: phen
+
+    write(*,*) 'phen%Tkshed ', phen%Tkshed
+    write(*,*) 'phen%phase ', phen%phase
+    write(*,*) 'phen%doyphase ', phen%doyphase
+    write(*,*) 'phen%phen ', phen%phen
+    write(*,*) 'phen%aphen ', phen%aphen
+    write(*,*) 'phen%phasespin ', phen%phasespin
+    write(*,*) 'phen%doyphasespin_1 ', phen%doyphasespin_1
+    write(*,*) 'phen%doyphasespin_2 ', phen%doyphasespin_2
+    write(*,*) 'phen%doyphasespin_3 ', phen%doyphasespin_3
+    write(*,*) 'phen%doyphasespin_4 ', phen%doyphasespin_4
+
+  end subroutine print_phenvariable
 
 
   subroutine zero_phenvariable(phen)
+
+    use cable_def_types_mod, only: r_2
 
     implicit none
 
@@ -2136,4 +3987,154 @@ CONTAINS
 
   end subroutine zero_phenvariable
 
-End MODULE phenvariable
+
+  subroutine read_netcdf_phen_var(filename, phen)
+
+    use netcdf, only: nf90_open, nf90_nowrite, &
+         nf90_inq_varid, nf90_get_var, nf90_close
+#ifdef __MPI__
+    use mpi, only: MPI_Abort
+#endif
+    use cable_def_types_mod, only: nc_err
+
+    implicit none
+
+    character(len=*),    intent(in)    :: filename
+    type(phen_variable), intent(inout) :: phen
+
+    logical :: existfile
+    integer :: fid, vid
+#ifdef __MPI__
+    integer :: ierr
+#endif
+
+    ! open netCDF file
+    inquire(file=trim(filename), exist=existfile)
+    if (.not. existfile) then
+       write(*,*) filename, ' does not exist!'
+#ifdef __MPI__
+       call MPI_Abort(0, 178, ierr)
+#else
+       stop 178
+#endif
+    endif
+
+    ! open netCDF file
+    call nc_err(nf90_open(trim(filename), nf90_nowrite, fid))
+
+    ! read variables
+    ! integer vectors
+    call nc_err(nf90_inq_varid(fid, 'phase', vid))
+    call nc_err(nf90_get_var(fid, vid, phen%phase))
+    ! integer arrays
+    call nc_err(nf90_inq_varid(fid, 'doyphase', vid))
+    call nc_err(nf90_get_var(fid, vid, phen%doyphase))
+    call nc_err(nf90_inq_varid(fid, 'phasespin', vid))
+    call nc_err(nf90_get_var(fid, vid, phen%phasespin))
+    call nc_err(nf90_inq_varid(fid, 'doyphasespin_1', vid))
+    call nc_err(nf90_get_var(fid, vid, phen%doyphasespin_1))
+    call nc_err(nf90_inq_varid(fid, 'doyphasespin_2', vid))
+    call nc_err(nf90_get_var(fid, vid, phen%doyphasespin_2))
+    call nc_err(nf90_inq_varid(fid, 'doyphasespin_3', vid))
+    call nc_err(nf90_get_var(fid, vid, phen%doyphasespin_3))
+    call nc_err(nf90_inq_varid(fid, 'doyphasespin_4', vid))
+    call nc_err(nf90_get_var(fid, vid, phen%doyphasespin_4))
+    ! real vectors
+    call nc_err(nf90_inq_varid(fid, 'phen', vid))
+    call nc_err(nf90_get_var(fid, vid, phen%phen))
+    call nc_err(nf90_inq_varid(fid, 'aphen', vid))
+    call nc_err(nf90_get_var(fid, vid, phen%aphen))
+    ! double vectors
+    call nc_err(nf90_inq_varid(fid, 'tkshed', vid))
+    call nc_err(nf90_get_var(fid, vid, phen%tkshed))
+
+    ! close NetCDF file
+    call nc_err(nf90_close(fid))
+
+  end subroutine read_netcdf_phen_var
+
+
+  subroutine write_netcdf_phen_var(filename, phen)
+
+    use netcdf, only: nf90_create, nf90_clobber, nf90_64bit_offset, &
+         nf90_def_dim, nf90_def_var, nf90_int, nf90_float, nf90_double, &
+         nf90_enddef, nf90_put_var, nf90_close
+    use cable_def_types_mod, only: nc_err
+
+    implicit none
+
+    character(len=*),    intent(in) :: filename
+    type(phen_variable), intent(in) :: phen
+
+    integer :: fid
+    integer :: dimid1, dimid2, dimid3, dimid4
+    integer :: i
+    integer, dimension(ncasa_phen) :: vid
+
+    ! create netCDF file
+    call nc_err(nf90_create(trim(filename), ior(nf90_clobber, nf90_64bit_offset), fid))
+
+    ! define dimensions
+    ! land
+    call nc_err(nf90_def_dim(fid, 'dim1', size(phen%phase, 1), dimid1))
+    ! phenology phases
+    call nc_err(nf90_def_dim(fid, 'dim2', size(phen%doyphase, 2), dimid2))
+    ! days of the year = 365
+    call nc_err(nf90_def_dim(fid, 'dim3', size(phen%phasespin, 2), dimid3))
+    ! vegetation types
+    call nc_err(nf90_def_dim(fid, 'dim4', size(phen%TKshed, 1), dimid4))
+
+    ! define variables
+    i = 1
+    ! define integer vector variables [dim1]
+    call nc_err(nf90_def_var(fid, 'phase', nf90_int, &
+         [dimid1], vid(i)), i)
+
+    ! define integer array variables [dim1, dim2]
+    call nc_err(nf90_def_var(fid, 'doyphase', nf90_int, &
+         [dimid1, dimid2], vid(i)), i)
+
+    ! define integer array variables [dim1, dim3]
+    call nc_err(nf90_def_var(fid, 'phasespin', nf90_int, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'doyphasespin_1', nf90_int, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'doyphasespin_2', nf90_int, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'doyphasespin_3', nf90_int, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'doyphasespin_4', nf90_int, &
+         [dimid1, dimid3], vid(i)), i)
+
+    ! define real vector variables [dim1]
+    call nc_err(nf90_def_var(fid, 'phen', nf90_float, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'aphen', nf90_float, &
+         [dimid1], vid(i)), i)
+
+    ! define double vector variables [dim4]
+    call nc_err(nf90_def_var(fid, 'tkshed', nf90_double, &
+         [dimid4], vid(i)), i)
+
+    ! end define mode
+    call nc_err(nf90_enddef(fid))
+
+    ! put variables
+    i = 1
+    call nc_err(nf90_put_var(fid, vid(i), phen%phase), i)
+    call nc_err(nf90_put_var(fid, vid(i), phen%doyphase), i)
+    call nc_err(nf90_put_var(fid, vid(i), phen%phasespin), i)
+    call nc_err(nf90_put_var(fid, vid(i), phen%doyphasespin_1), i)
+    call nc_err(nf90_put_var(fid, vid(i), phen%doyphasespin_2), i)
+    call nc_err(nf90_put_var(fid, vid(i), phen%doyphasespin_3), i)
+    call nc_err(nf90_put_var(fid, vid(i), phen%doyphasespin_4), i)
+    call nc_err(nf90_put_var(fid, vid(i), phen%phen), i)
+    call nc_err(nf90_put_var(fid, vid(i), phen%aphen), i)
+    call nc_err(nf90_put_var(fid, vid(i), phen%TKshed), i)
+
+    ! close NetCDF file
+    call nc_err(nf90_close(fid))
+
+  end subroutine write_netcdf_phen_var
+
+end module phenvariable

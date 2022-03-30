@@ -215,7 +215,7 @@ SUBROUTINE mass_balance(dels, ktau, ssnow, soil, canopy, met, air, bal)
    REAL, DIMENSION(mp)                  :: canopy_wbal !canopy water balance
    INTEGER                              :: k           ! do loop counter
 
-   IF(ktau==1) THEN
+   IF (ktau==1) THEN
       ALLOCATE( bwb(mp,ms,2) )
       ! initial vlaue of soil moisture
       bwb(:,:,1) = ssnow%wb
@@ -252,7 +252,7 @@ SUBROUTINE mass_balance(dels, ktau, ssnow, soil, canopy, met, air, bal)
    canopy_wbal = met%precip - canopy%delwc - canopy%through &
         - (canopy%fevw+min(real(canopy%fevc),0.0))*dels/air%rlam
 
-   IF (cable_user%soil_struc=='sli') then  !! vh March 2014 !!
+   IF (cable_user%soil_struc == 'sli') then  !! vh March 2014 !!
       ! delwcol includes change in soil water, pond and snowpack
       bal%wbal = canopy_wbal + canopy%through - ssnow%runoff - &
            real(ssnow%delwcol) - real(ssnow%evap) - max(real(canopy%fevc), 0.0)*dels/air%rlam
@@ -262,19 +262,22 @@ SUBROUTINE mass_balance(dels, ktau, ssnow, soil, canopy, met, air, bal)
    !                   - ssnow%evap(1) - max(canopy%fevc(1),0.0)*dels/air%rlam(1), r_2), &
    ! canopy%through(1),  ssnow%delwcol(1), ssnow%runoff(1),  ssnow%evap(1),  max(canopy%fevc(1),0.0)*dels/air%rlam(1)
 
-   if(ktau==1) then
-      bal%wbal_tot = 0.; bal%precip_tot = 0.
-      bal%rnoff_tot = 0.; bal%evap_tot = 0.
-   endif
+   if (ktau == 1) then
+      bal%wbal_tot = 0.
+      bal%precip_tot = 0.
+      bal%rnoff_tot = 0.
+      bal%evap_tot = 0.
+   end if
 
-   IF(ktau>10) THEN ! Avoid wobbly balances for ktau<10 pending later fix
-      ! Add to accumulation variables:
-      bal%wbal_tot = bal%wbal_tot + bal%wbal
-      bal%precip_tot = bal%precip_tot + met%precip
-      bal%rnoff_tot = bal%rnoff_tot + ssnow%rnof1 + ssnow%rnof2
-      bal%evap_tot = bal%evap_tot &
-           + (real(canopy%fev)+real(canopy%fes)/ssnow%cls) * dels/air%rlam
-   END IF
+   !MC accumulate all time steps for balances
+   ! IF (ktau > 10) THEN ! Avoid wobbly balances for ktau<10 pending later fix
+   ! Add to accumulation variables:
+   bal%wbal_tot = bal%wbal_tot + bal%wbal
+   bal%precip_tot = bal%precip_tot + met%precip
+   bal%rnoff_tot = bal%rnoff_tot + ssnow%rnof1 + ssnow%rnof2
+   bal%evap_tot = bal%evap_tot &
+        + (canopy%fev + real(canopy%fes) / ssnow%cls) * dels / air%rlam
+   ! END IF
 
 END SUBROUTINE mass_balance
 

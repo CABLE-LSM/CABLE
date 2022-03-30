@@ -86,7 +86,7 @@ CONTAINS
     CHARACTER(len=4) :: yearstr
     REAL :: projection_factor
 
-    NAMELIST /LUCNML/  TransitionFilePath, ClimateFile, Run, DirectRead, YearStart, YearEnd, &
+    namelist /lucnml/  TransitionFilePath, ClimateFile, Run, DirectRead, YearStart, YearEnd, &
          NotPrimOnlyFile
 
     ALLOCATE( LUC_EXPT%prim_only(mland) )
@@ -114,10 +114,10 @@ CONTAINS
     ALLOCATE( CPC(mland))
     LUC_EXPT%NotPrimOnlyFile = 'none'
     ! READ LUC_EXPT settings
-    CALL GET_UNIT(iu)
-    OPEN(iu,FILE="LUC.nml",STATUS='OLD',ACTION='READ')
-    READ(iu,NML=LUCNML)
-    CLOSE(iu)
+    call get_unit(iu)
+    open(iu, file="luc.nml", status='old', action='read')
+    read(iu, nml=lucnml)
+    close(iu)
     LUC_EXPT%TransitionFilePath = TransitionFilePath
     LUC_EXPT%ClimateFile        = ClimateFile
     LUC_EXPT%DirectRead         = DirectRead
@@ -528,7 +528,7 @@ CONTAINS
     luc_expt%mtemp_min20 = 0.
 
   end subroutine luc_expt_zero
-  
+
   ! ------------------------------------------------------------------
 
 
@@ -539,7 +539,7 @@ CONTAINS
     INTEGER,             INTENT(INOUT) :: inVeg(:,:,:)
     REAL,                INTENT(INOUT) :: inPFrac(:,:,:)
     TYPE(LUC_EXPT_TYPE), INTENT(INOUT) :: LUC_EXPT
-    
+
     INTEGER :: k, m, n
 
     DO k=1, mland
@@ -565,7 +565,7 @@ CONTAINS
              endif
 
           elseif ((.NOT.LUC_EXPT%prim_only(k)) ) then
-             
+
              inVeg(m,n,1) = LUC_EXPT%ivegp(k)
              inVeg(m,n,2) = LUC_EXPT%ivegp(k)
 
@@ -613,7 +613,7 @@ CONTAINS
     INTEGER,              INTENT(INOUT) :: inVeg(:,:,:)
     REAL,                 INTENT(INOUT) :: inPFrac(:,:,:)
     TYPE (LUC_EXPT_TYPE), INTENT(INOUT) :: LUC_EXPT
-    
+
     REAL :: fracC4(mland)
     INTEGER :: k, m, n
 
@@ -640,7 +640,7 @@ CONTAINS
           endif
 
        elseif ((.NOT.LUC_EXPT%prim_only(k)) ) then
-          
+
           inVeg(m,n,1) = LUC_EXPT%ivegp(k)
           inVeg(m,n,2) = LUC_EXPT%ivegp(k)
           if (fracC4(k).gt.0.5) then
@@ -653,152 +653,226 @@ CONTAINS
           inPFrac(m,n,3) = 1.0 - inPFrac(m,n,1) - inPFrac(m,n,2)
 
        endif
-       
+
     ENDDO
 
   END SUBROUTINE LUC_EXPT_SET_TILES_BIOS
 
 
-  ! ------------------------------------------------------------------
+  ! ------------------------------------------------------------------------------
 
 
-  SUBROUTINE READ_ClimateFile(LUC_EXPT)
+  subroutine nc_err(status, ivar)
 
-    use netcdf, only: nf90_open, nf90_nowrite, nf90_inq_varid, nf90_inq_dimid, &
-         nf90_inquire_dimension, nf90_inq_varid, nf90_get_var, nf90_close, nf90_noerr
+    use netcdf, only: nf90_noerr, nf90_strerror
 #ifdef __MPI__
-    use mpi,    only: MPI_Abort
+    use mpi, only: MPI_Abort
 #endif
 
-    IMPLICIT NONE
+    integer, intent(in)              :: status
+    integer, intent(inout), optional :: ivar
 
-    TYPE(LUC_EXPT_type), INTENT(INOUT) :: LUC_EXPT ! climate variables
-
-    INTEGER(KIND=4) :: mp4
-    INTEGER(KIND=4), parameter :: pmp4 = 0
-    INTEGER, parameter :: fmp4 = kind(pmp4)
-    INTEGER(KIND=4)    :: STATUS
-    INTEGER(KIND=4)    :: FILE_ID, dID, i, land_dim
-    CHARACTER :: FNAME*99
-
-    ! 0 dim arrays
-    CHARACTER(len=20),DIMENSION(2) :: A0
-    ! 1 dim arrays (npt )
-    CHARACTER(len=20),DIMENSION(3) :: A1
-    ! 1 dim arrays (integer) (npt )
-    CHARACTER(len=20),DIMENSION(2) :: AI1
-
-    ! REAL(r_2), DIMENSION(mland) :: LAT, LON, TMP
-    REAL, DIMENSION(mland) :: LAT, LON, TMP
-    INTEGER(KIND=4) :: TMPI(mland)
-    LOGICAL         :: EXISTFILE
 #ifdef __MPI__
     integer :: ierr
 #endif
 
-    mp4 = int(mland,fmp4)
-    A0(1) = 'nyears'
-    A0(2) = 'year'
-
-    A1(1) = 'latitude'
-    A1(2) = 'longitude'
-    A1(3) = 'mtemp_min20'
-
-    AI1(1) = 'iveg'
-    AI1(2) = 'biome'
-
-    fname = TRIM(LUC_EXPT%ClimateFile)
-
-    INQUIRE( FILE=TRIM( fname ), EXIST=EXISTFILE )
-
-    IF ( .NOT.EXISTFILE) THEN
-       write(*,'(a)') trim(fname)//' does not exist!!'
-    ELSE
-       write(*,'(a)') 'reading biome from : '//trim(fname)
-    ENDIF
-    ! Open NetCDF file:
-    STATUS = NF90_OPEN(TRIM(fname), NF90_NOWRITE, FILE_ID)
-    IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-
-    ! dimensions:
-    ! Land (number of points)
-
-
-    STATUS = NF90_INQ_DIMID(FILE_ID, 'land'   , dID)
-    IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-    STATUS = NF90_INQUIRE_DIMENSION( FILE_ID, dID, LEN=land_dim )
-    IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-
-    IF ( land_dim .NE. mland) THEN
-       WRITE(*,*) "Dimension misfit, ", fname
-       WRITE(*,*) "land_dim", land_dim
-       WRITE(*,*) "mland", mland
+    if (status /= nf90_noerr) then
+       write(*,*) "netCDF error:"
+       write(*,*) trim(nf90_strerror(status))
 #ifdef __MPI__
-       call MPI_Abort(0, 4, ierr) ! Do not know comm nor rank here
+       call MPI_Abort(0, 170, ierr)
 #else
-       stop 4
+       stop 170
 #endif
-    ENDIF
+    else
+       if (present(ivar)) ivar = ivar + 1
+    end if
 
-    ! LAT & LON
-    STATUS = NF90_INQ_VARID( FILE_ID, A1(1), dID )
-    IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-    STATUS = NF90_GET_VAR( FILE_ID, dID, LAT )
-    IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-
-    STATUS = NF90_INQ_VARID( FILE_ID, A1(2), dID )
-    IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-    STATUS = NF90_GET_VAR( FILE_ID, dID, LON )
-    IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-
-
-    ! READ 1-dimensional real fields
-    DO i = 3, SIZE(A1)
-       STATUS = NF90_INQ_VARID( FILE_ID, A1(i), dID )
-       IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-       STATUS = NF90_GET_VAR( FILE_ID, dID, TMP )
-       IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-
-       SELECT CASE (TRIM(A1(i)))
-       CASE ('mtemp_min20')
-          LUC_EXPT%mtemp_min20 = TMP
-       END SELECT
-    END DO
-
-    ! READ 1-dimensional integer fields
-    DO i = 1, SIZE(AI1)
-       write(*,*)  TRIM(AI1(i))
-       STATUS = NF90_INQ_VARID( FILE_ID, AI1(i), dID )
-       IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-       STATUS = NF90_GET_VAR( FILE_ID, dID, TMPI )
-       IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-
-       SELECT CASE ( TRIM(AI1(i)))
-       CASE ('iveg')
-          LUC_EXPT%ivegp = TMPI
-       CASE ('biome')
-          LUC_EXPT%biome = TMPI
-       END SELECT
-    END DO
-
-    ! non-woody potential vegetation not considered to undergo LU change
-    WHERE (LUC_EXPT%ivegp .GT. 5)
-       LUC_EXPT%prim_only=.TRUE.
-    ENDWHERE
-
-    ! Close NetCDF file:
-    STATUS  = NF90_close(FILE_ID)
-    file_id = -1
-    IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-
-    write(*,'(a)') "end read_climatefile"
-
-  END SUBROUTINE READ_CLIMATEFILE
+  end subroutine nc_err
 
 
   ! ------------------------------------------------------------------
 
-  
+
+  subroutine READ_ClimateFile(LUC_EXPT)
+
+    use cable_def_types_mod, only: climate_type, &
+         alloc_cbm_var, read_netcdf_cbm_var
+    use cable_climate_mod, only: climate_init
+    use netcdf, only: nf90_open, nf90_nowrite, &
+         nf90_inq_dimid, nf90_inquire_dimension, nf90_close
+
+    implicit none
+
+    type(LUC_EXPT_type), intent(inout) :: LUC_EXPT
+
+    type(climate_type) :: climate
+    integer :: fid, dimid, mp, ktauday
+
+    write(*,'(a)') 'reading biome from : ' // trim(LUC_EXPT%ClimateFile)
+
+    ! get mp and ktauday to allocate climate type
+    call nc_err(nf90_open(trim(LUC_EXPT%ClimateFile), nf90_nowrite, fid))
+    call nc_err(nf90_inq_dimid(fid, 'dim1', dimid))
+    call nc_err(nf90_inquire_dimension(fid, dimid, len=mp))
+    call nc_err(nf90_inq_dimid(fid, 'dim5', dimid))
+    call nc_err(nf90_inquire_dimension(fid, dimid, len=ktauday))
+    ktauday = ktauday / 5
+    call nc_err(nf90_close(fid))
+
+    call alloc_cbm_var(climate, mp, ktauday)
+
+    call read_netcdf_cbm_var(trim(LUC_EXPT%ClimateFile), climate)
+
+    LUC_EXPT%mtemp_min20 = climate%mtemp_min20
+    LUC_EXPT%ivegp = climate%iveg
+    LUC_EXPT%biome = climate%biome
+
+    ! non-woody potential vegetation not considered to undergo LU change
+    where (LUC_EXPT%ivegp > 5)
+       LUC_EXPT%prim_only = .true.
+    end where
+
+  end subroutine READ_ClimateFile
+
+
+!   SUBROUTINE READ_ClimateFile(LUC_EXPT)
+
+!     use netcdf, only: nf90_open, nf90_nowrite, nf90_inq_varid, nf90_inq_dimid, &
+!          nf90_inquire_dimension, nf90_inq_varid, nf90_get_var, nf90_close, nf90_noerr
+! #ifdef __MPI__
+!     use mpi,    only: MPI_Abort
+! #endif
+
+!     IMPLICIT NONE
+
+!     TYPE(LUC_EXPT_type), INTENT(INOUT) :: LUC_EXPT ! climate variables
+
+!     INTEGER(KIND=4) :: mp4
+!     INTEGER(KIND=4), parameter :: pmp4 = 0
+!     INTEGER, parameter :: fmp4 = kind(pmp4)
+!     INTEGER(KIND=4)    :: STATUS
+!     INTEGER(KIND=4)    :: FILE_ID, dID, i, land_dim
+!     CHARACTER :: FNAME*99
+
+!     ! 0 dim arrays
+!     CHARACTER(len=20),DIMENSION(2) :: A0
+!     ! 1 dim arrays (npt )
+!     CHARACTER(len=20),DIMENSION(3) :: A1
+!     ! 1 dim arrays (integer) (npt )
+!     CHARACTER(len=20),DIMENSION(2) :: AI1
+
+!     ! REAL(r_2), DIMENSION(mland) :: LAT, LON, TMP
+!     REAL, DIMENSION(mland) :: LAT, LON, TMP
+!     INTEGER(KIND=4) :: TMPI(mland)
+!     LOGICAL         :: EXISTFILE
+! #ifdef __MPI__
+!     integer :: ierr
+! #endif
+
+!     mp4 = int(mland,fmp4)
+!     A0(1) = 'nyears'
+!     A0(2) = 'year'
+
+!     A1(1) = 'latitude'
+!     A1(2) = 'longitude'
+!     A1(3) = 'mtemp_min20'
+
+!     AI1(1) = 'iveg'
+!     AI1(2) = 'biome'
+
+!     fname = TRIM(LUC_EXPT%ClimateFile)
+
+!     INQUIRE( FILE=TRIM( fname ), EXIST=EXISTFILE )
+
+!     IF ( .NOT.EXISTFILE) THEN
+!        write(*,'(a)') trim(fname)//' does not exist!!'
+!     ELSE
+!        write(*,'(a)') 'reading biome from : '//trim(fname)
+!     ENDIF
+!     ! Open NetCDF file:
+!     STATUS = NF90_OPEN(TRIM(fname), NF90_NOWRITE, FILE_ID)
+!     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+
+!     ! dimensions:
+!     ! Land (number of points)
+
+
+!     STATUS = NF90_INQ_DIMID(FILE_ID, 'land'   , dID)
+!     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+!     STATUS = NF90_INQUIRE_DIMENSION( FILE_ID, dID, LEN=land_dim )
+!     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+
+!     IF ( land_dim .NE. mland) THEN
+!        WRITE(*,*) "Dimension misfit, ", fname
+!        WRITE(*,*) "land_dim", land_dim
+!        WRITE(*,*) "mland", mland
+! #ifdef __MPI__
+!        call MPI_Abort(0, 4, ierr) ! Do not know comm nor rank here
+! #else
+!        stop 4
+! #endif
+!     ENDIF
+
+!     ! LAT & LON
+!     STATUS = NF90_INQ_VARID( FILE_ID, A1(1), dID )
+!     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+!     STATUS = NF90_GET_VAR( FILE_ID, dID, LAT )
+!     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+
+!     STATUS = NF90_INQ_VARID( FILE_ID, A1(2), dID )
+!     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+!     STATUS = NF90_GET_VAR( FILE_ID, dID, LON )
+!     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+
+
+!     ! READ 1-dimensional real fields
+!     DO i = 3, SIZE(A1)
+!        STATUS = NF90_INQ_VARID( FILE_ID, A1(i), dID )
+!        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+!        STATUS = NF90_GET_VAR( FILE_ID, dID, TMP )
+!        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+
+!        SELECT CASE (TRIM(A1(i)))
+!        CASE ('mtemp_min20')
+!           LUC_EXPT%mtemp_min20 = TMP
+!        END SELECT
+!     END DO
+
+!     ! READ 1-dimensional integer fields
+!     DO i = 1, SIZE(AI1)
+!        write(*,*)  TRIM(AI1(i))
+!        STATUS = NF90_INQ_VARID( FILE_ID, AI1(i), dID )
+!        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+!        STATUS = NF90_GET_VAR( FILE_ID, dID, TMPI )
+!        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+
+!        SELECT CASE ( TRIM(AI1(i)))
+!        CASE ('iveg')
+!           LUC_EXPT%ivegp = TMPI
+!        CASE ('biome')
+!           LUC_EXPT%biome = TMPI
+!        END SELECT
+!     END DO
+
+!     ! non-woody potential vegetation not considered to undergo LU change
+!     WHERE (LUC_EXPT%ivegp .GT. 5)
+!        LUC_EXPT%prim_only=.TRUE.
+!     ENDWHERE
+
+!     ! Close NetCDF file:
+!     STATUS  = NF90_close(FILE_ID)
+!     file_id = -1
+!     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+
+!     write(*,'(a)') "end read_climatefile"
+
+!   END SUBROUTINE READ_CLIMATEFILE
+
+
+  ! ------------------------------------------------------------------
+
+
   SUBROUTINE READ_LUH2(LUC_EXPT)
 
     use netcdf, only: nf90_get_var
@@ -878,10 +952,10 @@ CONTAINS
 
   END SUBROUTINE READ_LUH2
 
-  
+
   ! ------------------------------------------------------------------
 
-  
+
   SUBROUTINE close_luh2(LUC_EXPT)
 
     use netcdf, only: nf90_close

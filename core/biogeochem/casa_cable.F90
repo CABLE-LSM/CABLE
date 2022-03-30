@@ -28,8 +28,8 @@ module casa_cable
 contains
 
 !#define UM_BUILD YES
-  SUBROUTINE bgcdriver(ktau,kstart,dels,met,ssnow,canopy,veg,soil, &
-       climate,casabiome,casapool,casaflux,casamet,casabal,phen, &
+  SUBROUTINE bgcdriver(ktau, kstart, dels, met, ssnow, canopy, veg, soil, &
+       climate, casabiome, casapool, casaflux, casamet, casabal, phen, &
        pop, ktauday, idoy, loy, dump_read, &
        LALLOC, c13o2flux, c13o2pools)
 
@@ -86,10 +86,11 @@ contains
     ! 13C
     if (cable_user%c13o2) allocate(casasave(c13o2pools%ntile,c13o2pools%npools))
 
-    IF ( .NOT. dump_read ) THEN  ! construct casa met and flux inputs from current CABLE run
-       IF ( TRIM(cable_user%MetType) .EQ. 'cru' .OR. &
-            TRIM(cable_user%MetType) .EQ. 'plume' .OR. &
-            TRIM(cable_user%MetType) .EQ. 'site' ) THEN
+    IF (.NOT. dump_read) THEN
+       ! construct casa met and flux inputs from current CABLE run
+       IF ( (TRIM(cable_user%MetType) == 'cru') .OR. &
+            (TRIM(cable_user%MetType) == 'plume') .OR. &
+            (TRIM(cable_user%MetType) == 'site') ) THEN
           casaflux%Pdep    = real(met%Pdep, r_2)
           casaflux%Nmindep = real(met%Ndep, r_2)
        ENDIF
@@ -100,13 +101,13 @@ contains
           casamet%moist = 0.0_r_2
        ENDIF
 
-       IF(MOD(ktau,ktauday)==1) THEN
+       IF (MOD(ktau, ktauday) == 1) THEN
           casamet%tairk = real(met%tk, r_2)
           casamet%tsoil = real(ssnow%tgg, r_2)
-          !casamet%moist = max(ssnow%wb - ssnow%wbice, 0.0)
+          ! casamet%moist = max(ssnow%wb - ssnow%wbice, 0.0)
           casamet%moist = max(ssnow%wb, 0.0_r_2)
           casaflux%cgpp = real((-canopy%fpn+canopy%frday)*dels, r_2)
-          casaflux%crmplant(:,leaf) = real(canopy%frday*dels, r_2)
+          casaflux%crmplant(:, leaf) = real(canopy%frday*dels, r_2)
           ! 13C
           if (cable_user%c13o2) then
              c13o2flux%cAn12 = sum(canopy%An,2)    * real(dels, r_2)
@@ -118,7 +119,7 @@ contains
           !casamet%moist = casamet%moist + max(ssnow%wb -  ssnow%wbice, 0.0_r_2)
           casamet%moist = casamet%moist + max(ssnow%wb, 0.0_r_2)
           casaflux%cgpp = casaflux%cgpp + real((-canopy%fpn+canopy%frday)*dels, r_2)
-          casaflux%crmplant(:,leaf) = casaflux%crmplant(:,leaf) + real(canopy%frday*dels, r_2)
+          casaflux%crmplant(:, leaf) = casaflux%crmplant(:, leaf) + real(canopy%frday*dels, r_2)
           ! 13C
           if (cable_user%c13o2) then
              c13o2flux%cAn12 = c13o2flux%cAn12 + sum(canopy%An,2)    * real(dels, r_2)
@@ -126,13 +127,13 @@ contains
           endif
        ENDIF
 
-       IF (MOD((ktau-kstart+1),ktauday)==0) THEN  ! end of day
-          casamet%tairk = casamet%tairk / real(ktauday,r_2)
-          casamet%tsoil = casamet%tsoil / real(ktauday,r_2)
-          casamet%moist = casamet%moist / real(ktauday,r_2)
+       IF (MOD((ktau-kstart+1), ktauday) == 0) THEN  ! end of day
+          casamet%tairk = casamet%tairk / real(ktauday, r_2)
+          casamet%tsoil = casamet%tsoil / real(ktauday, r_2)
+          casamet%moist = casamet%moist / real(ktauday, r_2)
 
           IF (icycle > 0) THEN
-             IF (trim(cable_user%PHENOLOGY_SWITCH)=='climate') THEN
+             IF (trim(cable_user%PHENOLOGY_SWITCH) == 'climate') THEN
                 ! get climate_dependent phenology
                 call cable_phenology_clim(veg, climate, phen)
              ENDIF
@@ -154,7 +155,7 @@ contains
 
              IF (cable_user%CALL_POP) THEN
                 ! accumulate annual variables for use in POP
-                IF (MOD(ktau/ktauday,LOY)==1 ) THEN
+                IF (MOD(ktau/ktauday, LOY) == 1) THEN
                    casaflux%stemnpp  =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_r_2
                    ! (assumes 70% of wood NPP is allocated above ground)
                    casabal%LAImax    = casamet%glai
@@ -176,7 +177,7 @@ contains
 
     ELSE ! dump_read: ! use casa met and flux inputs from dumpfile
 
-       IF (MOD((ktau-kstart+1),ktauday) == 0) THEN  ! end of day
+       IF (MOD((ktau-kstart+1), ktauday) == 0) THEN  ! end of day
 
           ! 13C
           if (cable_user%c13o2) call c13o2_save_casapool(casapool, casasave)
@@ -273,7 +274,7 @@ contains
 
   ! ==============================================================================
 
-  subroutine read_casa_dump( ncfile, casamet, casaflux,phen, climate, c13o2flux, ncall, kend, allatonce )
+  subroutine read_casa_dump(ncfile, casamet, casaflux,phen, climate, c13o2flux, ncall, kend, allatonce)
 
     use netcdf
     use cable_def_types_mod, only: r_2, ms, mp, climate_type
@@ -355,13 +356,13 @@ contains
     endif
     if ( allatonce ) then
        do idoy=1, mdyear
-          call get_var_nc(ncrid, var_name(3),  tairk, idoy)
-          call get_var_nc(ncrid, var_name(4),  tsoil, idoy, ms)
-          call get_var_nc(ncrid, var_name(5),  moist, idoy, ms)
-          call get_var_nc(ncrid, var_name(6),  cgpp,  idoy)
-          call get_var_nc(ncrid, var_name(7),  crmplant,  idoy, mplant)
-          call get_var_nc(ncrid, var_name(8),  phenphase, idoy)
-          call get_var_nc(ncrid, var_name(9),  phendoyphase1, idoy)
+          call get_var_nc(ncrid, var_name(3), tairk, idoy)
+          call get_var_nc(ncrid, var_name(4), tsoil, idoy, ms)
+          call get_var_nc(ncrid, var_name(5), moist, idoy, ms)
+          call get_var_nc(ncrid, var_name(6), cgpp,  idoy)
+          call get_var_nc(ncrid, var_name(7), crmplant,  idoy, mplant)
+          call get_var_nc(ncrid, var_name(8), phenphase, idoy)
+          call get_var_nc(ncrid, var_name(9), phendoyphase1, idoy)
           call get_var_nc(ncrid, var_name(10), phendoyphase2, idoy)
           call get_var_nc(ncrid, var_name(11), phendoyphase3, idoy)
           call get_var_nc(ncrid, var_name(12), phendoyphase4, idoy)
@@ -437,17 +438,17 @@ contains
        end do
     else   !vh ! code below is redundant since this subroutine is always called with allatonce = .T.
 
-       call get_var_nc(ncrid, var_name(3),  tairk   ,ncall )
-       call get_var_nc(ncrid, var_name(4),  tsoil   ,ncall , ms)
-       call get_var_nc(ncrid, var_name(5),  moist   ,ncall , ms)
-       call get_var_nc(ncrid, var_name(6),  cgpp    ,ncall )
-       call get_var_nc(ncrid, var_name(7),  crmplant,ncall , mplant)
-       call get_var_nc(ncrid, var_name(8),  phenphase    ,ncall )
-       call get_var_nc(ncrid, var_name(9),  phendoyphase1    ,ncall )
-       call get_var_nc(ncrid, var_name(10), phendoyphase2    ,ncall )
-       call get_var_nc(ncrid, var_name(11), phendoyphase3    ,ncall )
-       call get_var_nc(ncrid, var_name(12), phendoyphase4    ,ncall )
-       call get_var_nc(ncrid, var_name(13), mtemp   , ncall )
+       call get_var_nc(ncrid, var_name(3), tairk, ncall)
+       call get_var_nc(ncrid, var_name(4), tsoil, ncall, ms)
+       call get_var_nc(ncrid, var_name(5), moist, ncall, ms)
+       call get_var_nc(ncrid, var_name(6), cgpp, ncall)
+       call get_var_nc(ncrid, var_name(7), crmplant, ncall, mplant)
+       call get_var_nc(ncrid, var_name(8), phenphase, ncall)
+       call get_var_nc(ncrid, var_name(9), phendoyphase1, ncall)
+       call get_var_nc(ncrid, var_name(10), phendoyphase2, ncall)
+       call get_var_nc(ncrid, var_name(11), phendoyphase3, ncall)
+       call get_var_nc(ncrid, var_name(12), phendoyphase4, ncall)
+       call get_var_nc(ncrid, var_name(13), mtemp, ncall)
        call get_var_nc(ncrid, var_name(14), frec, ncall)
        if (icycle>1) CALL get_var_nc(ncrid, var_name(15), Ndep, ncall)
        if (icycle>2) CALL get_var_nc(ncrid, var_name(16), Pdep, ncall)
@@ -492,6 +493,9 @@ contains
        endif
        !blaze
        if (cable_user%call_blaze) then
+          !MCJK - I think this is wrong.
+          ! The code in allatonce writes to casamet.
+          ! A comment states that this code is always called with allatonce.
           climate%dprecip      = real(dprecip)
           climate%aprecip_av20 = real(aprecip_av20)
           climate%du10_max     = real(du10_max)
@@ -649,20 +653,20 @@ contains
     CALL put_var_nc(ncid, var_name(5), casamet%moist, n_call, ms)
     CALL put_var_nc(ncid, var_name(6), casaflux%cgpp, n_call)
     CALL put_var_nc(ncid, var_name(7), casaflux%crmplant, n_call, mplant)
-    CALL put_var_nc(ncid, var_name(8), real(phen%phase,r_2), n_call)
-    CALL put_var_nc(ncid, var_name(9), real(phen%doyphase(:,1),r_2), n_call)
-    CALL put_var_nc(ncid, var_name(10), real(phen%doyphase(:,2),r_2), n_call)
-    CALL put_var_nc(ncid, var_name(11), real(phen%doyphase(:,3),r_2), n_call)
-    CALL put_var_nc(ncid, var_name(12), real(phen%doyphase(:,4),r_2), n_call)
-    CALL put_var_nc(ncid, var_name(13), real(climate%qtemp_max_last_year,r_2), n_call)
-    CALL put_var_nc(ncid, var_name(14), real(climate%frec,r_2), n_call)
+    CALL put_var_nc(ncid, var_name(8), real(phen%phase, r_2), n_call)
+    CALL put_var_nc(ncid, var_name(9), real(phen%doyphase(:,1), r_2), n_call)
+    CALL put_var_nc(ncid, var_name(10), real(phen%doyphase(:,2), r_2), n_call)
+    CALL put_var_nc(ncid, var_name(11), real(phen%doyphase(:,3), r_2), n_call)
+    CALL put_var_nc(ncid, var_name(12), real(phen%doyphase(:,4), r_2), n_call)
+    CALL put_var_nc(ncid, var_name(13), real(climate%qtemp_max_last_year, r_2), n_call)
+    CALL put_var_nc(ncid, var_name(14), real(climate%frec, r_2), n_call)
     if (icycle>1) then
-       CALL put_var_nc(ncid, var_name(15), real(casaflux%Nmindep,r_2), n_call)
+       CALL put_var_nc(ncid, var_name(15), casaflux%Nmindep, n_call)
     else
        CALL put_var_nc(ncid, var_name(15), zeros, n_call)
     endif
     if (icycle>2) then
-       CALL put_var_nc(ncid, var_name(16), real(casaflux%Pdep,r_2), n_call)
+       CALL put_var_nc(ncid, var_name(16), casaflux%Pdep, n_call)
     else
        CALL put_var_nc(ncid, var_name(16), zeros, n_call)
     endif
@@ -739,9 +743,9 @@ contains
     ! local variables
     integer np,ivt
     real(r_2), dimension(mp) :: ncleafx, npleafx, pleafx, nleafx ! local variables
-    real, dimension(17) ::  xnslope
-    !ASKJK - what are these hard-coded parameters? Why hard-coded?
-    data xnslope/0.80,1.00,2.00,1.00,1.00,1.00,0.50,1.00,0.34,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00/
+    ! real, dimension(17) ::  xnslope
+    ! !ASKJK - what are these hard-coded parameters? Why hard-coded?
+    ! data xnslope/0.80,1.00,2.00,1.00,1.00,1.00,0.50,1.00,0.34,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00/
     real                :: relcostJCi
     real, dimension(mp) :: relcostJ, Nefftmp
     real, save, dimension(17) :: vcmaxx         ! last updated vcmaxx
@@ -787,7 +791,7 @@ contains
                 veg%vcmax(np) = real(casabiome%nintercept(ivt) &
                      + casabiome%nslope(ivt)*ncleafx(np)/casabiome%sla(ivt)) * 1.0e-6
              ELSE
-                IF (casapool%nplant(np,leaf)>0.0.AND.casapool%pplant(np,leaf)>0.0) THEN
+                IF (casapool%nplant(np,leaf)>0.0_r_2.AND.casapool%pplant(np,leaf)>0.0_r_2) THEN
                    veg%vcmax(np) = real(casabiome%nintercept(ivt)  &
                         + casabiome%nslope(ivt)*(0.4_r_2+9.0_r_2/npleafx(np)) &
                         * ncleafx(np)/casabiome%sla(ivt)) * 1.0e-6
@@ -866,22 +870,23 @@ contains
              veg%gm(np) = veg%gmmax(np) + &
                   gm_vcmax_slope * (veg%vcmax(np) - vcmax_ref(np))
 
-
              !if (.not. veg%is_read_gmLUT) then  ! not working
              !if (ABS(vcmaxx(np) - veg%vcmax(np)) .GT. 1.0E-08 .OR. ktau==1) then
              if (ktau==1) then
                 ! C4 plants: first time step only because Vcmax does not change with N
-                call adjust_k_Collatz(veg,np)
+                call adjust_k_Collatz(veg, np)
              endif
              ! adjust parameters
              if (len(trim(cable_user%gm_LUT_file)) .gt. 1) then
-                call find_Vcmax_Jmax_LUT(veg,np,LUT_VcmaxJmax,LUT_gm,LUT_vcmax,LUT_Rd)
+                call find_Vcmax_Jmax_LUT(veg, np, LUT_VcmaxJmax, LUT_gm, &
+                     LUT_vcmax, LUT_Rd)
              else  ! no LUT, adjustment using An-Ci curves
-                if ( ABS(vcmaxx(ivt) - veg%vcmax(np)) .GT. 5.0E-08 .OR. ktau .LT. ktauday ) then
+                if ( (abs(vcmaxx(ivt) - veg%vcmax(np)) > 5.0E-08) .OR. &
+                     (ktau < ktauday) ) then
                      vcmaxx(ivt) = veg%vcmax(np)
                    ! The approach by Sun et al. 2014 is replaced with a subroutine
                    ! based on Knauer et al. 2019, GCB
-                   call adjust_JV_gm(veg,np)
+                   call adjust_JV_gm(veg, np)
                 endif
              endif
 
@@ -918,7 +923,8 @@ contains
        endif ! cable_user%vcmax
     ENDDO ! np=1, mp
 
-    !if (mod(ktau,ktauday) ==1) then   ! JK: whole routine is now called once per day
+    ! JK: whole routine is now called once per day
+    ! if (mod(ktau, ktauday) ==1) then
     if (cable_user%coordinate_photosyn) then
        CALL optimise_JV(veg, climate, ktauday, veg%bjv, relcostJ)
     else
@@ -936,10 +942,7 @@ contains
           veg%ejmax_sun = veg%ejmax
        endif
     endif
-    ! for 2 day test
-    !if (ktau == ) stop
 
-    !991 format(i6,2x,i4,2x,2(f9.3,2x))
   END SUBROUTINE casa_feedback
 
 
@@ -954,29 +957,30 @@ contains
 
     IMPLICIT NONE
 
-    INTEGER, INTENT(IN)    :: ktau ! integration step number
-    INTEGER, INTENT(IN)    :: kstart ! starting value of ktau
+    INTEGER, INTENT(IN) :: ktau ! integration step number
+    INTEGER, INTENT(IN) :: kstart ! starting value of ktau
     !  INTEGER, INTENT(IN)    :: mvtype  ! Number of veg types
     !  INTEGER, INTENT(IN)    :: mstype ! Number of soil types
-    REAL,    INTENT(IN)    :: dels ! time setp size (s)
-    TYPE (canopy_type),         INTENT(INOUT) :: canopy
-    TYPE (sum_flux_type),       INTENT(INOUT) :: sum_flux
-    TYPE (casa_flux),           INTENT(INOUT) :: casaflux
-    LOGICAL, INTENT(IN)   :: l_vcmaxFeedbk ! using prognostic Vcmax
+    REAL,    INTENT(IN) :: dels ! time setp size (s)
+    TYPE (canopy_type),   INTENT(INOUT) :: canopy
+    TYPE (sum_flux_type), INTENT(INOUT) :: sum_flux
+    TYPE (casa_flux),     INTENT(INOUT) :: casaflux
+    LOGICAL, INTENT(IN) :: l_vcmaxFeedbk ! using prognostic Vcmax
 
     !   if(icycle<=0) then
     !     these are executed in cbm
     !      CALL soilcarb(soil, ssoil, veg, bgc, met, canopy)
     !      CALL carbon_pl(dels, soil, ssoil, veg, canopy, bgc)
     !   else
-    if(icycle>0) then
+    if (icycle>0) then
        canopy%frp(:)  = real((casaflux%crmplant(:,wood) + casaflux%crmplant(:,froot) + &
-            casaflux%crgplant(:))/86400.0_r_2)
-       canopy%frs(:)  = real(casaflux%Crsoil(:)/86400.0_r_2)
-       canopy%frpw(:) = real(casaflux%crmplant(:,wood)/86400.0_r_2)
-       canopy%frpr(:) = real(casaflux%crmplant(:,froot)/86400.0_r_2)
+            casaflux%crgplant(:)) / 86400.0_r_2)
+       canopy%frs(:)  = real(casaflux%Crsoil(:) / 86400.0_r_2)
+       canopy%frpw(:) = real(casaflux%crmplant(:,wood) / 86400.0_r_2)
+       canopy%frpr(:) = real(casaflux%crmplant(:,froot) / 86400.0_r_2)
     endif
-    if(ktau == kstart) then
+
+    if (ktau == kstart) then
        sum_flux%sumpn  = canopy%fpn*dels
        sum_flux%sumrd  = canopy%frday*dels
        sum_flux%dsumpn = canopy%fpn*dels
@@ -997,19 +1001,19 @@ contains
        sum_flux%sumrp  = sum_flux%sumrp  + canopy%frp*dels
        sum_flux%dsumrp = sum_flux%dsumrp + canopy%frp*dels
        ! canopy%frs set in soilcarb
-       sum_flux%sumrs = sum_flux%sumrs+canopy%frs*dels
+       sum_flux%sumrs = sum_flux%sumrs + canopy%frs*dels
     endif
     ! Set net ecosystem exchange after adjustments to frs:
-    canopy%fnpp = -1.0* canopy%fpn - canopy%frp
+    canopy%fnpp = -1.0 * canopy%fpn - canopy%frp
     IF (icycle <= 1) THEN
        canopy%fnee = canopy%fpn + canopy%frs + canopy%frp
     ELSE
        IF (l_vcmaxFeedbk) THEN
           canopy%fnee = canopy%fpn + canopy%frs + canopy%frp &
-               + real(casaflux%clabloss(:)/86400.0_r_2)
+               + real(casaflux%clabloss(:) / 86400.0_r_2)
        ELSE
           canopy%fnee = real((casaflux%Crsoil - casaflux%cnpp + &
-               casaflux%clabloss)/86400.0_r_2)
+               casaflux%clabloss) / 86400.0_r_2)
        ENDIF
     ENDIF
 
@@ -1025,7 +1029,7 @@ contains
     USE casavariable
     IMPLICIT NONE
     INTEGER,                     INTENT(IN)  :: kloop
-    TYPE (veg_parameter_type),   INTENT(IN)  :: veg  ! vegetation parameters
+    TYPE(veg_parameter_type),    INTENT(IN)  :: veg  ! vegetation parameters
     TYPE(casa_pool),             INTENT(IN)  :: casapool
     TYPE(casa_met),              INTENT(IN)  :: casamet
     real,      dimension(5,mvtype,mplant)    :: bmcplant,  bmnplant,  bmpplant
@@ -1036,15 +1040,24 @@ contains
     ! local variables
     INTEGER  npt,nvt
 
-    bmcplant(kloop,:,:)  = 0.0;  bmnplant(kloop,:,:)  = 0.0; bmpplant(kloop,:,:)  = 0.0
-    bmclitter(kloop,:,:) = 0.0;  bmnlitter(kloop,:,:) = 0.0; bmplitter(kloop,:,:) = 0.0
-    bmcsoil(kloop,:,:)   = 0.0;  bmnsoil(kloop,:,:)   = 0.0; bmpsoil(kloop,:,:)   = 0.0
-    bmnsoilmin(kloop,:)  = 0.0;  bmpsoillab(kloop,:)  = 0.0; bmpsoilsorb(kloop,:) = 0.0;  bmpsoilocc(kloop,:) = 0.0
+    bmcplant(kloop,:,:)  = 0.0
+    bmnplant(kloop,:,:)  = 0.0
+    bmpplant(kloop,:,:)  = 0.0
+    bmclitter(kloop,:,:) = 0.0
+    bmnlitter(kloop,:,:) = 0.0
+    bmplitter(kloop,:,:) = 0.0
+    bmcsoil(kloop,:,:)   = 0.0
+    bmnsoil(kloop,:,:)   = 0.0
+    bmpsoil(kloop,:,:)   = 0.0
+    bmnsoilmin(kloop,:)  = 0.0
+    bmpsoillab(kloop,:)  = 0.0
+    bmpsoilsorb(kloop,:) = 0.0
+    bmpsoilocc(kloop,:)  = 0.0
 
     bmarea(:) = 0.0
 
-    do npt=1,mp
-       nvt=veg%iveg(npt)
+    do npt=1, mp
+       nvt = veg%iveg(npt)
        bmcplant(kloop,nvt,:) = bmcplant(kloop,nvt,:)   + real(casapool%cplant(npt,:) * casamet%areacell(npt))
        bmnplant(kloop,nvt,:) = bmnplant(kloop,nvt,:)   + real(casapool%nplant(npt,:) * casamet%areacell(npt))
        bmpplant(kloop,nvt,:) = bmpplant(kloop,nvt,:)   + real(casapool%pplant(npt,:) * casamet%areacell(npt))
@@ -1129,8 +1142,8 @@ contains
     type(c13o2_pool),          intent(inout) :: c13o2pools
 
     ! local variables
-    real(r_2), dimension(mso) :: Psorder, Pweasoil, xPsoil50
-    real(r_2), dimension(mso) :: fracPlab, fracPsorb, fracPocc, fracPorg
+    real(r_2), dimension(mso) :: Psorder, xPsoil50 ! , Pweasoil
+    real(r_2), dimension(mso) :: fracPlab, fracPocc ! , fracPsorb, fracPorg
     real(r_2), dimension(mp)  :: totPsoil
     integer :: npt
 
@@ -1149,16 +1162,16 @@ contains
     ! Vertisol    12      190.6
     data Psorder/61.3_r_2, 103.9_r_2, 92.8_r_2, 136.9_r_2, 98.2_r_2, 107.6_r_2, 84.1_r_2, &
          110.1_r_2, 35.4_r_2, 41.0_r_2, 51.5_r_2, 190.6_r_2/
-    data Pweasoil/0.05_r_2, 0.04_r_2, 0.03_r_2, 0.02_r_2, 0.01_r_2, 0.009_r_2, 0.008_r_2, &
-         0.007_r_2, 0.006_r_2, 0.005_r_2, 0.004_r_2, 0.003_r_2/
+    ! data Pweasoil/0.05_r_2, 0.04_r_2, 0.03_r_2, 0.02_r_2, 0.01_r_2, 0.009_r_2, 0.008_r_2, &
+    !      0.007_r_2, 0.006_r_2, 0.005_r_2, 0.004_r_2, 0.003_r_2/
     data fracPlab/0.08_r_2, 0.08_r_2, 0.10_r_2, 0.02_r_2, 0.08_r_2, 0.08_r_2, 0.08_r_2, &
          0.06_r_2, 0.02_r_2, 0.05_r_2, 0.09_r_2, 0.05_r_2/
-    data fracPsorb/0.32_r_2, 0.37_r_2, 0.57_r_2, 0.67_r_2, 0.37_r_2, 0.37_r_2, 0.37_r_2, &
-         0.32_r_2, 0.24_r_2, 0.22_r_2, 0.21_r_2, 0.38_r_2/
+    ! data fracPsorb/0.32_r_2, 0.37_r_2, 0.57_r_2, 0.67_r_2, 0.37_r_2, 0.37_r_2, 0.37_r_2, &
+    !      0.32_r_2, 0.24_r_2, 0.22_r_2, 0.21_r_2, 0.38_r_2/
     data fracPocc/0.36_r_2, 0.38_r_2, 0.25_r_2, 0.26_r_2, 0.38_r_2, 0.38_r_2, 0.38_r_2, &
          0.44_r_2, 0.38_r_2, 0.38_r_2, 0.37_r_2, 0.45_r_2/
-    data fracPorg/0.25_r_2, 0.17_r_2, 0.08_r_2, 0.05_r_2, 0.17_r_2, 0.17_r_2, 0.17_r_2, &
-         0.18_r_2, 0.36_r_2, 0.35_r_2, 0.34_r_2, 0.12_r_2/
+    ! data fracPorg/0.25_r_2, 0.17_r_2, 0.08_r_2, 0.05_r_2, 0.17_r_2, 0.17_r_2, 0.17_r_2, &
+    !      0.18_r_2, 0.36_r_2, 0.35_r_2, 0.34_r_2, 0.12_r_2/
     data xPsoil50/7.6_r_2, 4.1_r_2, 4.2_r_2, 3.4_r_2, 4.1_r_2, 4.1_r_2, 4.8_r_2, 4.1_r_2, &
          6.9_r_2, 6.9_r_2, 6.9_r_2, 1.7_r_2/
 
