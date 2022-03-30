@@ -5,6 +5,8 @@ IMPLICIT NONE
 
 TYPE vegin_type
 
+CHARACTER(LEN=70) :: desc(ntype_max)         ! decriptions of veg type
+
 REAL ::                                                                        &
    canst1(ntype_max),                                                          &
    length(ntype_max),                                                          &
@@ -67,28 +69,29 @@ REAL ::                                                                        &
 
 END TYPE vegin_type
 
-CHARACTER(LEN=70) :: veg_desc(ntype_max)         ! decriptions of veg type
 
 TYPE(vegin_type) :: vegin
+
+CHARACTER(LEN=70) :: veg_desc(ntype_max)         ! decriptions of veg type
 
 CONTAINS
 
 subroutine cable_pft_params()
 
 ! Gets parameter values for each vegetation type 
-USE cable_def_types_mod, ONLY : mvtype, ms, ncs, ncp, nrb 
+USE cable_def_types_mod, ONLY : mvtype
 
 integer :: ERROR
 integer :: namelist_unit
 integer :: j
-CHARACTER(LEN=*), parameter :: iomessage='something wrong with your PFT params file' 
 CHARACTER(LEN=*), parameter :: nml_dir='./' 
-CHARACTER(LEN=*), PARAMETER :: routinename='VEGIN_CABLE'
+CHARACTER(LEN=*), parameter :: iomessage='something wrong with your PFT params file' 
+CHARACTER(LEN=*), PARAMETER :: routinename='cable_pft_params'
 
 NAMELIST / cable_pftparm/ vegin
 
-!HACK:offline checks mvtype so we need to define it or get rid off the checks
-   mvtype=17    
+!HACK:offline(cable_parameters) checks mvtype
+mvtype=ntype_max    
 !-----------------------------------------------------------------------------
 ! Read namelist
 !-----------------------------------------------------------------------------
@@ -105,6 +108,8 @@ CLOSE(namelist_unit, IOSTAT = ERROR)
 
 ! new calculation dleaf since April 2012 (cable v1.8 did not use width)
 vegin%dleaf = SQRT(vegin%width * vegin%length)
+
+veg_desc = vegin%desc
     
 End subroutine cable_pft_params
 

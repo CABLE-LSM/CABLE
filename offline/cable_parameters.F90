@@ -2071,11 +2071,11 @@ CONTAINS
     TYPE (phen_variable), INTENT(IN)  :: phen
 
     INTEGER :: e, f, g ! do loop counter
-    CHARACTER(LEN=16) :: patchfmtr  ! patch format specifier for real numbers
-    CHARACTER(LEN=14) :: patchfmti  ! patch format specifier for integer
+    CHARACTER(LEN=15) :: patchfmtr  ! patch format specifier for real numbers
+    CHARACTER(LEN=13) :: patchfmti  ! patch format specifier for integer
     ! numbers
-    CHARACTER(LEN=16) :: patchfmte  ! patch format specifier for expon. numbers
-    CHARACTER(LEN=16) :: patchfmte2 ! patch format specifier for expon. numbers
+    CHARACTER(LEN=15) :: patchfmte  ! patch format specifier for expon. numbers
+    CHARACTER(LEN=15) :: patchfmte2 ! patch format specifier for expon. numbers
 
     ! Get vegetation/soil type descriptions in case they haven't yet been
     ! loaded (i.e. if restart file + met file contains all parameter/init/LAI
@@ -2123,10 +2123,10 @@ CONTAINS
 
        IF(verbose) THEN
           ! Set up format specifier for writing active patch details below:
-          WRITE(patchfmtr,'(A8, I2, A6)') '(4X,A50,', landpt(e)%nap, 'F12.4)'
-          WRITE(patchfmti,'(A8, I2, A4)') '(4X,A50,', landpt(e)%nap, 'I12)'
-          WRITE(patchfmte,'(A8, I2, A6)') '(4X,A50,', landpt(e)%nap, 'E12.4)'
-          WRITE(patchfmte2,'(A8, I2, A6)') '(4X,A50,', landpt(e)%nap, 'E12.4)'
+          WRITE(patchfmtr,'(A8, I1, A6)') '(4X,A50,', landpt(e)%nap, 'F12.4)'
+          WRITE(patchfmti,'(A8, I1, A4)') '(4X,A50,', landpt(e)%nap, 'I12)'
+          WRITE(patchfmte,'(A8, I1, A6)') '(4X,A50,', landpt(e)%nap, 'E12.4)'
+          WRITE(patchfmte2,'(A8, I1, A6)') '(4X,A50,', landpt(e)%nap, 'E12.4)'
           ! Write parameter set details to log file:
           WRITE(logn, *) '------------------------------------------------'//  &
                '---------'
