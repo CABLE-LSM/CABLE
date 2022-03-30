@@ -152,20 +152,49 @@ dofuture=0      # 1/0: Do/Do not future runs (plume only)
 #
 
 # MetType
-mettype="cru"       # "cru", "plume", "bios"
-metmodel="hadgem2"  # "hadgem2", "ipsl" (only used if mettype="plume")
-RCP="hist"          # "hist", "2.6", "4.5", "6.0", "8.5" (no future runs if RCP="hist")
+mettype="cru"         # "cru", "plume", "bios"
+metmodel="hadgem2"    # "hadgem2", "ipsl" (only used if mettype="plume")
+RCP="hist"            # "hist", "2.6", "4.5", "6.0", "8.5" (no future runs if RCP="hist")
 
 # Cable
-explicit_gm=0       # 1/0: explicit (finite) or implicit mesophyll conductance
-use_LUTgm=1         # 1/0: Do/Do not use lookup table for parameter conversion accounting for gm (only used if explicit_gm=1)
-Rubisco_params="Bernacchi_2002"   # "Bernacchi_2002" or "Walker_2013"
-coordinate_photosyn=1 # 1/0: Do/Do not coordinate photosynthesis
-coord=F               # T/F: version of photosyn. optimisation (optimised(F) or forced (T))
-acclimate_photosyn=0  # 1/0: Do/Do not acclimate photosynthesis
-call_pop=1          # 1/0: Do/Do not use POP population dynamics model, coupled to CASA
-doc13o2=0           # 1/0: Do/Do not calculate 13C
-c13o2_simple_disc=0 # 1/0: simple or full 13C leaf discrimination
+# Accounting for mesophyll conductance
+# 1: explicit (finite)
+# 0: implicit
+explicit_gm=1
+# Parameter conversion accounting for gm (only used if explicit_gm=1)
+# 1: Use lookup table for parameter conversion accounting for gm
+# 0: Do not use lookup table
+use_LUTgm=1
+# Parameters for RubisCO temperature function
+# "Bernacchi_2002" or "Walker_2013"
+Rubisco_params="Bernacchi_2002"
+# Coordination of photosynthesis
+# 1: Coordinate photosynthetic rates
+# 0: Do not coordinate
+coordinate_photosyn=1
+# Coordination type (only used if coordinate_photosyn=1)
+# T: force coordinated RubisCO- and energy-limited rates
+# F: optimise photosynthesis
+coord=T
+# Acclimation of photosynthesis
+# 1: Acclimate photosynthesis
+# 0: Do not acclimate
+acclimate_photosyn=1
+# POP
+# 1: Use POP, population dynamics model coupled to CASA
+# 0: Do not use POP
+call_pop=1
+# Soil and snow model
+# "default" or "sli"
+soil_struc="default"
+# 13C
+# 1: Calculate 13C
+# 0: no 13C
+doc13o2=0
+# 13C leaf discrimination
+# 1: use simple 13C leaf discrimination (a+(b-a)*Ci/Ca)
+# 0: calculate full 13C leaf discrimination
+c13o2_simple_disc=0
 
 # --------------------------------------------------------------------
 # Setup
@@ -331,7 +360,7 @@ elif [[ "${system}" == "cuntz@mc16" || "${system}" == "cuntz@mcinra" ]] ; then
     # Run directory: runpath="${sitepath}/run_xxx"
     cablebase="/Users/cuntz/prog/vanessa/cable"
     sitepath="${cablebase}/runs/single_sites/${experiment}"
-    cablehome="${cablebase}/branches/CABLE-POP_TRENDY.MC"
+    cablehome="${cablebase}/branches/CABLE-POP_TRENDY"
     # Cable executable
     if [[ ${dompi} -eq 1 ]] ; then
         exe="${cablehome}/offline/cable-mpi-gfortran"
@@ -586,6 +615,7 @@ printf "        coordinate_photosyn=${coordinate_photosyn}\n"
 printf "        coord=${coord}\n"
 printf "        acclimate_photosyn=${acclimate_photosyn}\n"
 printf "        call_pop=${call_pop}\n"
+printf "        soil_struc=${soil_struc}\n"
 printf "        doc13o2=${doc13o2}\n"
 printf "        c13o2_simple_disc=${c13o2_simple_disc}\n"
 printf "\n"
@@ -850,7 +880,7 @@ cat > ${tmp}/sedtmp.${pid} << EOF
     output%averaging                   = "monthly"
     output%grid                        = "land"
     leaps                              = .false.
-    cable_user%SOIL_STRUC              = "default"
+    cable_user%SOIL_STRUC              = "${soil_struc}"
     cable_user%Rubisco_parameters      = "${Rubisco_params}"
     cable_user%CALL_POP                = .false.
     cable_user%coordinate_photosyn     = .false.

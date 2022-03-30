@@ -211,9 +211,14 @@ CONTAINS
   SUBROUTINE read_gm_LUT(gm_LUT_file, LUT_VcmaxJmax, LUT_gm, LUT_vcmax, LUT_Rd)
     ! Read lookup table needed for parameter conversion of photosynthetic parameters
     ! from Ci- to Cc-based values (the latter considering gm explicitly)
+    use netcdf, only: nf90_open, nf90_nowrite, nf90_noerr, &
+         nf90_inq_dimid, nf90_inquire_dimension, &
+         nf90_inq_varid, nf90_get_var, &
+         nf90_close
+
     implicit none
 
-    character(len=200),                        intent(in)  :: gm_LUT_file
+    character(len=*),                          intent(in)  :: gm_LUT_file
     real(dp), dimension(:,:,:,:), allocatable, intent(out) :: LUT_VcmaxJmax
     real(dp), dimension(:),       allocatable, intent(out) :: LUT_gm
     real(dp), dimension(:),       allocatable, intent(out) :: LUT_vcmax
@@ -226,7 +231,7 @@ CONTAINS
     integer  :: gm_len, vcmax_len, Rd_len       ! dimensions of LUT
     integer  :: vcmax_id, jmax_id
 
-    ok = nf90_open(trim(gm_LUT_file), 0, ncid_gmlut)
+    ok = nf90_open(trim(gm_LUT_file), nf90_nowrite, ncid_gmlut)
     if (ok /= NF90_NOERR) call nc_abort(ok, 'Error opening gm lookup table.')
     ok = nf90_inq_dimid(ncid_gmlut, 'gm', gm_dimid)
     if (ok /= NF90_NOERR) call nc_abort(ok, 'Error inquiring dimension gm from LUT.')
@@ -273,6 +278,9 @@ CONTAINS
     LUT_VcmaxJmax = LUT_VcmaxJmax * 1.0e-06
     LUT_vcmax     = LUT_vcmax     * 1.0e-06
     LUT_Rd        = LUT_Rd        * 1.0e-06
+
+    ok = nf90_close(ncid_gmlut)
+    if (ok /= NF90_NOERR) call nc_abort(ok, 'Error closing gm lookup table.')
 
   END SUBROUTINE read_gm_LUT
 
