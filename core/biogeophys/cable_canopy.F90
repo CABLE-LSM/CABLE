@@ -2672,6 +2672,9 @@ CONTAINS
 
     real :: EHa, EHd, Entrop
     real :: xgmes
+#ifdef __MPI__
+    integer :: ierr
+#endif
 
     if (trim(cable_user%Rubisco_parameters) == 'Bernacchi_2002') then
        EHa    = 49.6e3  ! J/mol

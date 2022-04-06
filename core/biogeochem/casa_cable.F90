@@ -832,15 +832,19 @@ contains
                 ! nleafx = ncleafx/sla
                 ! ncleafx = (casabiome%ratioNCplantmin(ivt,leaf) + casabiome%ratioNCplantmax(ivt,leaf)) / 2.0_r_2
                 if (icycle>1) then
-                  vcmax_ref(np) = real( vcmax_np(((casabiome%ratioNCplantmin(ivt,leaf) + casabiome%ratioNCplantmax(ivt,leaf)) / 2.0_r_2) / &
-                       casabiome%sla(ivt), pleafx(np)) * casabiome%vcmax_scalar(ivt) )
+                   vcmax_ref(np) = real( vcmax_np(((casabiome%ratioNCplantmin(ivt,leaf) + &
+                        casabiome%ratioNCplantmax(ivt,leaf)) / 2.0_r_2) / &
+                        casabiome%sla(ivt), pleafx(np)) * casabiome%vcmax_scalar(ivt) )
                 endif
                 if (icycle>2) then
                    ! pleaf = nleafx / npleafx 
                    ! npleafx = casabiome%ratioNPplantmin(ivt,leaf) + casabiome%ratioNPplantmax(ivt,leaf)) / 2.0_r_2
-                  vcmax_ref(np) = real( vcmax_np(((casabiome%ratioNCplantmin(ivt,leaf) + casabiome%ratioNCplantmax(ivt,leaf)) / 2.0_r_2) / &
-                       casabiome%sla(ivt), ((casabiome%ratioNCplantmin(ivt,leaf) + casabiome%ratioNCplantmax(ivt,leaf)) / 2.0_r_2) / &
-                       casabiome%sla(ivt)/(casabiome%ratioNPplantmin(ivt,leaf) + casabiome%ratioNPplantmax(ivt,leaf)) / 2.0_r_2) * casabiome%vcmax_scalar(ivt) )
+                   vcmax_ref(np) = real( vcmax_np(((casabiome%ratioNCplantmin(ivt,leaf) + &
+                        casabiome%ratioNCplantmax(ivt,leaf)) / 2.0_r_2) / &
+                        casabiome%sla(ivt), ((casabiome%ratioNCplantmin(ivt,leaf) + &
+                        casabiome%ratioNCplantmax(ivt,leaf)) / 2.0_r_2) / &
+                        casabiome%sla(ivt)/(casabiome%ratioNPplantmin(ivt,leaf) + &
+                        casabiome%ratioNPplantmax(ivt,leaf)) / 2.0_r_2) * casabiome%vcmax_scalar(ivt) )
                 endif
              endif
 
