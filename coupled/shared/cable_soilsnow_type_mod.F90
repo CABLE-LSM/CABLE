@@ -1,6 +1,6 @@
 MODULE cable_soil_snow_type_mod
 
-USE cable_other_constants_mod, ONLY: r_2
+USE cable_types_mod, ONLY: r_2
 
 IMPLICIT NONE
 
@@ -152,14 +152,17 @@ TYPE soil_snow_type
 
 END TYPE soil_snow_type
 
+!Instantiation:
+TYPE(soil_snow_type) :: ssnow_cbl
+
 CONTAINS
 
 SUBROUTINE alloc_soil_snow_type(var, mp)
 
-USE grid_constants_mod_cbl,   ONLY: ntiles  ! # land-cover types
-USE grid_constants_mod_cbl,   ONLY: nsl     ! # soil layers
-USE grid_constants_mod_cbl,   ONLY: nsnl    ! # snow layers
-USE grid_constants_mod_cbl,   ONLY: nrb     ! # rad "bands"
+USE grid_constants_cbl_mod,   ONLY: ntiles  ! # land-cover types
+USE grid_constants_cbl_mod,   ONLY: nsl     ! # soil layers
+USE grid_constants_cbl_mod,   ONLY: nsnl    ! # snow layers
+USE grid_constants_cbl_mod,   ONLY: nrb     ! # rad "bands"
 
 IMPLICIT NONE
 

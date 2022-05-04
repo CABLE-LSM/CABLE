@@ -1,6 +1,6 @@
 MODULE cable_canopy_type_mod
 
-USE cable_other_constants_mod, ONLY: r_2
+USE cable_types_mod, ONLY: r_2
 
 IMPLICIT NONE
 
@@ -100,12 +100,15 @@ TYPE canopy_type
 
 END TYPE canopy_type
 
+!Instantiation:
+TYPE(canopy_type) :: canopy_cbl
+
 CONTAINS
 
 SUBROUTINE alloc_canopy_type(var, mp)
 
-USE grid_constants_mod_cbl,   ONLY: mf               ! # leaves (sunlit/shaded)
-USE grid_constants_mod_cbl,   ONLY: niter            ! number of iterations for za/L
+USE grid_constants_cbl_mod,   ONLY: mf               ! # leaves (sunlit/shaded)
+USE grid_constants_cbl_mod,   ONLY: niter            ! number of iterations for za/L
 
 IMPLICIT NONE
 
