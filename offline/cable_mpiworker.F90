@@ -2475,10 +2475,14 @@ contains
   subroutine worker_casa_type(comm, casabiome, casapool, casaflux, casamet, &
        casabal, phen)
 
+#ifndef __INTEL__
     use mpi,             only: MPI_Address_kind, MPI_Abort, &
          MPI_Type_create_struct, MPI_Type_commit, MPI_Type_size, &
          MPI_Type_get_extent, MPI_Reduce, MPI_Datatype_null, MPI_Integer, &
          MPI_Sum
+#else
+    use mpi
+#endif
     use cable_def_types_mod, only: mp, mvtype
     use casadimension,   only: mso
     use casavariable,    only: casa_biome, casa_pool, casa_flux, casa_met, &
@@ -2860,12 +2864,16 @@ contains
 
   subroutine worker_climate_types(comm, climate, ktauday)
 
+#ifndef __INTEL__
     use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Status_size, &
          MPI_Abort, &
          MPI_Type_create_struct, MPI_Type_commit, MPI_Type_size, &
          MPI_Type_get_extent, MPI_Reduce, MPI_Datatype_null, MPI_Integer, &
          MPI_Sum, MPI_Recv, MPI_Byte, MPI_Get_count, MPI_SUCCESS, &
          MPI_Unpack, MPI_Bottom
+#else
+    use mpi
+#endif
     use cable_def_types_mod, only: climate_type, alloc_cbm_var, mp, &
          zero_cbm_var
     use cable_mpicommon, only: nclimate, add_address_1block
@@ -3055,10 +3063,14 @@ contains
   ! results sent at the end of each time step
   subroutine worker_restart_type(comm, canopy, air, veg, ssnow)
 
+#ifndef __INTEL__
     use mpi,                 only: MPI_Address_kind, MPI_Comm_rank, &
          MPI_Abort, MPI_Type_create_struct, MPI_Type_commit, &
          MPI_Type_size, MPI_Type_get_extent, MPI_Reduce, MPI_Datatype_null, &
          MPI_Integer, MPI_Sum
+#else
+    use mpi
+#endif
     use cable_def_types_mod, only: mp, ms, canopy_type, air_type, &
          veg_parameter_type, soil_snow_type
     use cable_mpicommon,     only: nrestart, add_address_1block

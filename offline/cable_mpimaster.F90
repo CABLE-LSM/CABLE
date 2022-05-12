@@ -3758,10 +3758,14 @@ END SUBROUTINE master_outtypes
 subroutine master_casa_types(comm, casabiome, casapool, casaflux, casamet, &
      casabal, phen)
 
+#ifndef __INTEL__
   use mpi,            only: MPI_Address_kind, MPI_Abort, &
        MPI_Type_create_struct, MPI_Type_commit, MPI_Type_size, &
        MPI_Type_get_extent, MPI_Type_free, MPI_Reduce, &
        MPI_In_place, MPI_Integer, MPI_Sum, MPI_Byte
+#else
+  use mpi
+#endif
   use cable_def_types_mod, only: mp, mvtype
   use casadimension,   only: mso
   use casavariable,    only: casa_biome, casa_pool, casa_flux, casa_met, &
@@ -4177,11 +4181,15 @@ end subroutine master_casa_types
 
 subroutine master_climate_types(comm, climate)
 
+#ifndef __INTEL__
   use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Abort, &
        MPI_Byte, &
        MPI_Type_create_struct, MPI_Type_commit, MPI_Type_size, &
        MPI_Type_get_extent, MPI_Reduce, MPI_In_place, MPI_Integer, &
        MPI_Sum, MPI_Abort, MPI_Isend, MPI_Bottom, MPI_Waitall
+#else
+  use mpi
+#endif
   use cable_def_types_mod, only: climate_type, mp
 
   integer,            intent(in)    :: comm
@@ -4371,10 +4379,14 @@ end subroutine master_climate_types
 ! MPI: creates datatype handles to receive restart data from workers
 subroutine master_restart_types(comm, canopy, air, veg, ssnow)
 
+#ifndef __INTEL__
   use mpi,                 only: MPI_Address_kind, MPI_Abort, &
        MPI_Type_create_struct, MPI_Type_commit, MPI_Type_size, &
        MPI_Type_get_extent, MPI_Type_free, MPI_Reduce, &
        MPI_In_place, MPI_Integer, MPI_Sum
+#else
+  use mpi
+#endif
   use cable_def_types_mod, only: mp, ms, canopy_type, air_type, &
        veg_parameter_type, soil_snow_type
   use cable_mpicommon,     only: nrestart, add_address_hvector
@@ -6208,7 +6220,11 @@ SUBROUTINE master_CASAONLY_LUC(dels, kstart, kend, veg, casabiome, casapool, &
      c13o2flux, c13o2pools, c13o2luc, &
      icomm, ocomm)
 
+#ifndef __INTEL__
   use mpi, only: MPI_Send
+#else
+  use mpi
+#endif
   USE cable_def_types_mod
   USE cable_carbon_module
   USE cable_common_module,  ONLY: cable_user

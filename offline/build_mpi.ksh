@@ -36,11 +36,15 @@ host_gadi()
         . /etc/kshrc
     fi
     module purge
-    module load intel-compiler/2019.5.281
-    module load intel-mpi/2019.5.281
-    module load netcdf/4.6.3
+    # module load intel-compiler/2019.5.281
+    # module load intel-mpi/2019.5.281
+    # module load netcdf/4.6.3
+    module load intel-compiler/2021.5.0
+    module load intel-mpi/2021.5.1
+    module load netcdf/4.8.0
 
-    export FC=mpif90
+    # export FC=mpif90
+    export FC=mpiifort
     export NCMOD=${NETCDF_ROOT}"/include/Intel"
     #if [[ ${1} == "debug" ]]; then
         # debug
@@ -60,6 +64,7 @@ host_gadi()
         # OPTFLAG="-xSKYLAKE"     # or -xSKYLAKE-AVX512 depends on performance; queues: normalsl
     #fi
     export CFLAGS="${CFLAGS} ${OPTFLAG}"
+    export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
     export CFLAGS="${CFLAGS} -D__MPI__"
     #export CFLAGS="${CFLAGS} -D__CRU2020__"
     export CFLAGS="${CFLAGS} -D__NETCDF3__"
@@ -107,6 +112,7 @@ host_pear()
 
     # best debug flags
     #   export LDFLAGS='-g -L'$NCDIR  #'-L'$NCDIR' -O2'
+    export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
     export CFLAGS="${CFLAGS} -D__MPI__"
     export LDFLAGS='-O0 -L'$NCDIR''
     export MFLAGS='-j 8'
@@ -470,6 +476,7 @@ host_auro()
         OPTFLAG=""
     fi
     export CFLAGS="${CFLAGS} ${OPTFLAG}"
+    export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
     export LDFLAGS="-L"${NCDIR}" "${LDFLAGS}
     export LD="-lnetcdf -lnetcdff"
     export MFLAGS="-j 8"

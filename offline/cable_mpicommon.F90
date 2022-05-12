@@ -330,7 +330,11 @@ contains
 
   subroutine add_address_1block_1d_i1(var, off, cnt, addr, blen, typ, idx)
 
+#ifndef __INTEL__
     use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+#else
+    use mpi
+#endif
 
     implicit none
 
@@ -359,7 +363,11 @@ contains
 
   subroutine add_address_1block_1d_l(var, off, cnt, addr, blen, typ, idx)
 
+#ifndef __INTEL__
     use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+#else
+    use mpi
+#endif
 
     implicit none
 
@@ -388,7 +396,11 @@ contains
 
   subroutine add_address_1block_1d_r1(var, off, cnt, addr, blen, typ, idx)
 
+#ifndef __INTEL__
     use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+#else
+    use mpi
+#endif
 
     implicit none
 
@@ -417,7 +429,11 @@ contains
 
   subroutine add_address_1block_1d_r2(var, off, cnt, addr, blen, typ, idx)
 
+#ifndef __INTEL__
     use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+#else
+    use mpi
+#endif
     use cable_def_types_mod, only: r_2
 
     implicit none
@@ -447,7 +463,11 @@ contains
 
   subroutine add_address_1block_2d_i1(var, off, cnt, addr, blen, typ, idx)
 
+#ifndef __INTEL__
     use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+#else
+    use mpi
+#endif
 
     implicit none
 
@@ -476,7 +496,11 @@ contains
 
   subroutine add_address_1block_2d_l(var, off, cnt, addr, blen, typ, idx)
 
+#ifndef __INTEL__
     use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+#else
+    use mpi
+#endif
 
     implicit none
 
@@ -505,7 +529,11 @@ contains
 
   subroutine add_address_1block_2d_r1(var, off, cnt, addr, blen, typ, idx)
 
+#ifndef __INTEL__
     use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+#else
+    use mpi
+#endif
 
     implicit none
 
@@ -534,7 +562,11 @@ contains
 
   subroutine add_address_1block_2d_r2(var, off, cnt, addr, blen, typ, idx)
 
+#ifndef __INTEL__
     use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+#else
+    use mpi
+#endif
     use cable_def_types_mod, only: r_2
 
     implicit none
@@ -564,7 +596,11 @@ contains
 
   subroutine add_address_1block_3d_i1(var, off, cnt, addr, blen, typ, idx)
 
+#ifndef __INTEL__
     use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+#else
+    use mpi
+#endif
 
     implicit none
 
@@ -593,7 +629,11 @@ contains
 
   subroutine add_address_1block_3d_l(var, off, cnt, addr, blen, typ, idx)
 
+#ifndef __INTEL__
     use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+#else
+    use mpi
+#endif
 
     implicit none
 
@@ -622,7 +662,11 @@ contains
 
   subroutine add_address_1block_3d_r1(var, off, cnt, addr, blen, typ, idx)
 
+#ifndef __INTEL__
     use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+#else
+    use mpi
+#endif
 
     implicit none
 
@@ -651,7 +695,11 @@ contains
 
   subroutine add_address_1block_3d_r2(var, off, cnt, addr, blen, typ, idx)
 
+#ifndef __INTEL__
     use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+#else
+    use mpi
+#endif
     use cable_def_types_mod, only: r_2
 
     implicit none
@@ -685,7 +733,11 @@ contains
   subroutine add_address_hvector_1d_i1(var, off, cnt, stride, &
        addr, blen, typ, idx)
 
+#ifndef __INTEL__
     use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+#else
+    use mpi
+#endif
 
     implicit none
 
@@ -717,7 +769,11 @@ contains
   subroutine add_address_hvector_1d_l(var, off, cnt, stride, &
        addr, blen, typ, idx)
 
+#ifndef __INTEL__
     use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+#else
+    use mpi
+#endif
 
     implicit none
 
@@ -749,7 +805,11 @@ contains
   subroutine add_address_hvector_1d_r1(var, off, cnt, stride, &
        addr, blen, typ, idx)
 
+#ifndef __INTEL__
     use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+#else
+    use mpi
+#endif
 
     implicit none
 
@@ -781,7 +841,11 @@ contains
   subroutine add_address_hvector_1d_r2(var, off, cnt, stride, &
        addr, blen, typ, idx)
 
+#ifndef __INTEL__
     use mpi, only: MPI_Address_kind, MPI_Get_address, MPI_Byte
+#else
+    use mpi
+#endif
     use cable_def_types_mod, only: r_2
 
     implicit none
@@ -814,8 +878,12 @@ contains
   subroutine add_address_hvector_2d_i1(var, off, cnt, stride, &
        addr, blen, typ, idx)
 
+#ifndef __INTEL__
     use mpi, only: MPI_Address_kind, MPI_Get_address, &
          MPI_Type_create_hvector, MPI_Byte
+#else
+    use mpi
+#endif
 
     implicit none
 
@@ -850,8 +918,12 @@ contains
   subroutine add_address_hvector_2d_l(var, off, cnt, stride, &
        addr, blen, typ, idx)
 
+#ifndef __INTEL__
     use mpi, only: MPI_Address_kind, MPI_Get_address, &
          MPI_Type_create_hvector, MPI_Byte
+#else
+    use mpi
+#endif
 
     implicit none
 
@@ -886,8 +958,12 @@ contains
   subroutine add_address_hvector_2d_r1(var, off, cnt, stride, &
        addr, blen, typ, idx)
 
+#ifndef __INTEL__
     use mpi, only: MPI_Address_kind, MPI_Get_address, &
          MPI_Type_create_hvector, MPI_Byte
+#else
+    use mpi
+#endif
 
     implicit none
 
@@ -922,8 +998,12 @@ contains
   subroutine add_address_hvector_2d_r2(var, off, cnt, stride, &
        addr, blen, typ, idx)
 
+#ifndef __INTEL__
     use mpi, only: MPI_Address_kind, MPI_Get_address, &
          MPI_Type_create_hvector, MPI_Byte
+#else
+    use mpi
+#endif
     use cable_def_types_mod, only: r_2
 
     implicit none
@@ -959,8 +1039,12 @@ contains
   subroutine add_address_hvector_3d_i1(var, off, cnt, stride, &
        addr, blen, typ, idx)
 
+#ifndef __INTEL__
     use mpi, only: MPI_Address_kind, MPI_Get_address, &
          MPI_Type_create_hvector, MPI_Byte
+#else
+    use mpi
+#endif
 
     implicit none
 
@@ -995,8 +1079,12 @@ contains
   subroutine add_address_hvector_3d_l(var, off, cnt, stride, &
        addr, blen, typ, idx)
 
+#ifndef __INTEL__
     use mpi, only: MPI_Address_kind, MPI_Get_address, &
          MPI_Type_create_hvector, MPI_Byte
+#else
+    use mpi
+#endif
 
     implicit none
 
@@ -1031,8 +1119,12 @@ contains
   subroutine add_address_hvector_3d_r1(var, off, cnt, stride, &
        addr, blen, typ, idx)
 
+#ifndef __INTEL__
     use mpi, only: MPI_Address_kind, MPI_Get_address, &
          MPI_Type_create_hvector, MPI_Byte
+#else
+    use mpi
+#endif
 
     implicit none
 
@@ -1067,8 +1159,12 @@ contains
   subroutine add_address_hvector_3d_r2(var, off, cnt, stride, &
        addr, blen, typ, idx)
 
+#ifndef __INTEL__
     use mpi, only: MPI_Address_kind, MPI_Get_address, &
          MPI_Type_create_hvector, MPI_Byte
+#else
+    use mpi
+#endif
     use cable_def_types_mod, only: r_2
 
     implicit none
