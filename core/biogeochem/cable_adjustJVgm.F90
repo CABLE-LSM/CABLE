@@ -230,6 +230,7 @@ CONTAINS
     integer  :: gm_dimid, vcmax_dimid, Rd_dimid ! dimension IDs
     integer  :: gm_len, vcmax_len, Rd_len       ! dimensions of LUT
     integer  :: vcmax_id, jmax_id
+    real(dp), dimension(:,:,:), allocatable :: tmp ! for reading
 
     ok = nf90_open(trim(gm_LUT_file), nf90_nowrite, ncid_gmlut)
     if (ok /= NF90_NOERR) call nc_abort(ok, 'Error opening gm lookup table.')
@@ -253,6 +254,7 @@ CONTAINS
     write(*,*) 'Rd_len:', Rd_len
 
     ! allocate variables in veg structure
+    allocate(tmp(Rd_len, vcmax_len, gm_len))
     allocate(LUT_VcmaxJmax(2, Rd_len, vcmax_len, gm_len))
     allocate(LUT_gm(gm_len))
     allocate(LUT_vcmax(vcmax_len))
@@ -263,10 +265,12 @@ CONTAINS
     ok = nf90_inq_varid(ncid_gmlut, 'Jmax', jmax_id)
     if (ok /= NF90_NOERR) call nc_abort(ok, 'Error inquiring variable Jmax from LUT.')
 
-    ok = nf90_get_var(ncid_gmlut, vcmax_id, LUT_VcmaxJmax(1,:,:,:))
+    ok = nf90_get_var(ncid_gmlut, vcmax_id, tmp)
     if (ok /= NF90_NOERR) call nc_abort(ok, 'Error getting variable Vcmax from LUT.')
-    ok = nf90_get_var(ncid_gmlut, jmax_id, LUT_VcmaxJmax(2,:,:,:))
+    LUT_VcmaxJmax(1, :, :, :) = tmp
+    ok = nf90_get_var(ncid_gmlut, jmax_id, tmp)
     if (ok /= NF90_NOERR) call nc_abort(ok, 'Error getting variable Jmax from LUT.')
+    LUT_VcmaxJmax(2, :, :, :) = tmp
     ok = nf90_get_var(ncid_gmlut, gm_dimid, LUT_gm)
     if (ok /= NF90_NOERR) call nc_abort(ok, 'Error getting dimension gm from LUT.')
     ok = nf90_get_var(ncid_gmlut, vcmax_dimid, LUT_vcmax)
@@ -281,6 +285,8 @@ CONTAINS
 
     ok = nf90_close(ncid_gmlut)
     if (ok /= NF90_NOERR) call nc_abort(ok, 'Error closing gm lookup table.')
+
+    deallocate(tmp)
 
   END SUBROUTINE read_gm_LUT
 
