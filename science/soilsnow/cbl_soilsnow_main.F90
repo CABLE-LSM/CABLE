@@ -200,7 +200,7 @@ ENDIF
        ssnow%wbtot = ssnow%wbtot + REAL(ssnow%wb(:,k)*1000.0*soil%zse(k),r_2)
     END DO
 
-  IF( ALLOCATED(heat_cap_lower_limit) ) DEALLOCATE(heat_cap_lower_limit)
+    IF( ALLOCATED(heat_cap_lower_limit) ) DEALLOCATE(heat_cap_lower_limit)
 
 RETURN
 END SUBROUTINE soil_snow
