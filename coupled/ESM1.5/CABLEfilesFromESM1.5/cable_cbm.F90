@@ -30,6 +30,7 @@ USE cable_other_constants_mod, ONLY: Ccoszen_tols => coszen_tols
 USE cable_other_constants_mod,  ONLY : Crad_thresh => rad_thresh
 USE cable_other_constants_mod, ONLY: clai_thresh => lai_thresh
 USE cable_other_constants_mod, ONLY: cgauss_w => gauss_w
+USE cable_other_constants_mod, ONLY : cmax_kLAI => max_kLAI
 USE cable_math_constants_mod,  ONLY: cpi => pi
 USE cable_math_constants_mod,  ONLY: cpi180 => pi180
 USE cable_climate_type_mod, ONLY : climate_cbl
@@ -102,11 +103,13 @@ IF( cable_runtime%um_explicit ) THEN
  !Ticket 331 refactored albedo code for JAC
  CALL snow_aging(ssnow%snage,mp,dels,ssnow%snowd,ssnow%osnowd,ssnow%tggsn(:,1),&
          ssnow%tgg(:,1),ssnow%isflag,veg%iveg,soil%isoilm) 
-         
+
+ !Ticket 334 as ESM force to use old scheme
+ cable_user%limit_all_exp = .FALSE.
  CALL Albedo( ssnow%AlbSoilsn, soil%AlbSoil,                                 &
              !AlbSnow, AlbSoil,              
              mp, nrb,                                                       &
-             jls_radiation,                                                 &
+             jls_radiation, cable_user%limit_all_exp, Cmax_kLAI,            &
              veg_mask, sunlit_mask, sunlit_veg_mask,                        &  
              Ccoszen_tols, cgauss_w,                                        & 
              veg%iveg, soil%isoilm, veg%refl, veg%taul,                     & 

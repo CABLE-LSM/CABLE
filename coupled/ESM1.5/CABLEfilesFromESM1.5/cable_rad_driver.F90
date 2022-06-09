@@ -44,6 +44,7 @@ USE cable_other_constants_mod, ONLY: Ccoszen_tols => coszen_tols
 USE cable_other_constants_mod,  ONLY : Crad_thresh => rad_thresh
 USE cable_other_constants_mod, ONLY: clai_thresh => lai_thresh
 USE cable_other_constants_mod, ONLY: cgauss_w => gauss_w
+USE cable_other_constants_mod, ONLY : cmax_kLAI => max_kLAI
 USE cable_math_constants_mod,  ONLY: cpi => pi
 USE cable_math_constants_mod,  ONLY: cpi180 => pi180
 
@@ -122,10 +123,12 @@ LOGICAL :: cbl_standalone = .FALSE.
       ssnow%tggsn(:,1) = PACK( SNOW_TMP3L(:,:,1), um1%L_TILE_PTS )
       ssnow%tgg(:,1) =   PACK( TSOIL_TILE(:,:,1), um1%L_TILE_PTS )
 
- CALL Albedo( ssnow%AlbSoilsn, soil%AlbSoil,                                &
+      !#334 - force ESM to use old scheme
+      cable_user%limit_all_exp = .FALSE.
+      CALL Albedo( ssnow%AlbSoilsn, soil%AlbSoil,                           &
              !AlbSnow, AlbSoil,              
              mp, nrb,                                                       &
-             jls_radiation,                                                 &
+             jls_radiation, cable_user%limit_all_exp, Cmax_kLAI,            &
              veg_mask, sunlit_mask, sunlit_veg_mask,                        &  
              Ccoszen_tols, cgauss_w,                                        & 
              veg%iveg, soil%isoilm, veg%refl, veg%taul,                     & 

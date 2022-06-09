@@ -9,7 +9,7 @@ CONTAINS
 
 SUBROUTINE Albedo( AlbSnow, AlbSoil,              & 
 mp, nrb,                                          &
-jls_radiation ,                                   &
+jls_radiation , limit_all_exp, max_kLAI,          &
 veg_mask, sunlit_mask, sunlit_veg_mask,           &  
 Ccoszen_tols, CGAUSS_W,                           & 
 surface_type, soil_type, VegRefl, VegTaul,        &
@@ -39,8 +39,11 @@ REAL :: EffSurfRefl_beam(mp,nrb)    !Effective Surface Relectance as seen by atm
 !constants
 real :: Ccoszen_tols                !threshold cosine of sun's zenith angle, below which considered SUNLIT
 real :: Cgauss_w(nrb)
+REAL :: max_kLAI                    !upper limit on k*LAI applied if limit_all_exp = T
 LOGICAL :: jls_radiation            !runtime switch def. in cable_*main routines 
-                                    !signifying this is the radiation pathway 
+                                    !signifying this is the radiation pathway
+LOGICAL :: limit_all_exp            !#334: applies consistent limit on x in EXP(-x)
+                                    !if .TRUE.
 
 !masks
 LOGICAL :: veg_mask(mp)             ! this "mp" is vegetated (uses minimum LAI) 
@@ -127,7 +130,7 @@ call CanopyReflectance( CanopyRefl_beam, CanopyRefl_dif, &
 ! Define canopy diffuse transmittance 
 ! Formerly rad%cexpkbm, rad%cexpkdm
 call CanopyTransmitance(CanopyTransmit_beam, CanopyTransmit_dif, mp, nrb,&
-                              sunlit_veg_mask, reducedLAIdue2snow, &
+                      limit_all_exp,max_kLAI, sunlit_veg_mask, reducedLAIdue2snow, &
                               EffExtCoeff_dif, EffExtCoeff_beam)
 
 !---1 = visible, 2 = nir radiaition
@@ -245,14 +248,16 @@ End subroutine CanopyReflectance_dif
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 subroutine CanopyTransmitance(CanopyTransmit_beam, CanopyTransmit_dif, mp, nrb,&
-                              mask, reducedLAIdue2snow, &
+                              limit_all_exp,max_kLAI, mask, reducedLAIdue2snow,&
                               EffExtCoeff_dif, EffExtCoeff_beam)
 implicit none
 !re-decl in args
 integer :: mp                       !total number of "tiles"  
 integer :: nrb                      !number of radiation bands [per legacy=3, but really=2 VIS,NIR. 3rd dim was for LW]
 REAL :: CanopyTransmit_dif(mp,nrb)      !Canopy Transmitance (rad%cexpkdm) 
-REAL :: CanopyTransmit_beam(mp,nrb)     !Canopy Transmitance (rad%cexpkbm)   
+REAL :: CanopyTransmit_beam(mp,nrb)     !Canopy Transmitance (rad%cexpkbm)
+REAL :: max_kLAI                        !limit on k*LAI if limit_all_exp = T
+LOGICAL :: limit_all_exp                !apply a consistent limit on x in EXP(-x): #334
 LOGICAL :: mask(mp)      ! this "mp" is BOTH sunlit AND  vegetated  
 LOGICAL :: dummyMask(mp)
 real :: reducedLAIdue2snow(mp)
@@ -260,62 +265,89 @@ REAL :: EffExtCoeff_beam(mp,nrb)           !"raw" Extinction co-efficient for Di
 REAL :: EffExtCoeff_dif(mp,nrb)            !"raw"Extinction co-efficient for Diffuse component of SW radiation (rad%extkd)
 
 ! For beam, compute canopy trasmitance when sunlit (and vegetated)
-call CanopyTransmitance_beam( CanopyTransmit_beam, mp, nrb, EffExtCoeff_beam,  &
-                              reducedLAIdue2snow, mask )
+call CanopyTransmitance_beam( CanopyTransmit_beam, mp, nrb, limit_all_exp, max_kLAI, &
+                              EffExtCoeff_beam, reducedLAIdue2snow, mask )
 
 !'=1.0' initialization remains the calculated value where "mask"=FALSE
 dummyMask(:) = .true. 
 
 ! For diffuse rad, always compute canopy trasmitance
-call CanopyTransmitance_dif( CanopyTransmit_dif, mp, nrb, EffExtCoeff_dif, &
-                             reducedLAIdue2snow, dummyMask )
+call CanopyTransmitance_dif( CanopyTransmit_dif, mp, nrb, limit_all_exp, max_kLAI,  &
+                             EffExtCoeff_dif, reducedLAIdue2snow, dummyMask )
 
 End subroutine CanopyTransmitance
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-subroutine CanopyTransmitance_dif(CanopyTransmit, mp, nrb, ExtinctionCoeff, reducedLAIdue2snow, mask )
+subroutine CanopyTransmitance_dif(CanopyTransmit, mp, nrb, limit_all_exp, max_kLAI, &
+                                     ExtinctionCoeff, reducedLAIdue2snow, mask )
 implicit none
 integer :: mp 
 integer :: nrb
+LOGICAL :: limit_all_exp                !apply a consistent limit on x in EXP(-x): #334
 logical :: mask(mp) 
+REAL :: max_kLAI                        !limit on k*LAI if limit_all_exp = T
 real :: CanopyTransmit(mp,nrb) 
 real :: ExtinctionCoeff(mp,nrb) 
 real :: reducedLAIdue2snow(mp)
 real :: dummy(mp,nrb) 
 integer :: i, b
- 
-DO i = 1,mp
-  DO b = 1, 2 
-    dummy(i,b) = ExtinctionCoeff(i,b) * reducedLAIdue2snow(i)
-    CanopyTransmit(i,b) = EXP( -1.* dummy(i,b) )
-  enddo
-enddo
+
+IF (limit_all_exp) THEN
+   DO i = 1,mp
+      DO b = 1, 2 
+         dummy(i,b) = MIN(ExtinctionCoeff(i,b) * reducedLAIdue2snow(i),max_kLAI)
+         CanopyTransmit(i,b) = EXP( -1.* dummy(i,b) )
+      enddo
+   enddo
+ELSE   
+   DO i = 1,mp
+      DO b = 1, 2 
+         dummy(i,b) = ExtinctionCoeff(i,b) * reducedLAIdue2snow(i)
+         CanopyTransmit(i,b) = EXP( -1.* dummy(i,b) )
+      enddo
+   enddo
+END IF
+
 
 End subroutine  CanopyTransmitance_dif
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
-subroutine CanopyTransmitance_beam(CanopyTransmit, mp, nrb, ExtinctionCoeff, reducedLAIdue2snow, mask )
+subroutine CanopyTransmitance_beam(CanopyTransmit, mp, nrb, limit_all_exp, max_kLAI, &
+                                   ExtinctionCoeff, reducedLAIdue2snow, mask )
 implicit none
 integer :: mp 
 integer :: nrb
+LOGICAL :: limit_all_exp                !apply a consistent limit on x in EXP(-x): #334
 logical :: mask(mp) 
+REAL :: max_kLAI                        !limit on k*LAI if limit_all_exp = T
 real :: CanopyTransmit(mp,nrb) 
 real :: ExtinctionCoeff(mp,nrb) 
 real :: reducedLAIdue2snow(mp)
 real :: dummy(mp,nrb) 
 integer :: i, b
- 
-DO i = 1,mp
-  DO b = 1, 2 
-    if( mask(i) ) then 
-      dummy(i,b) = min( ExtinctionCoeff(i,b) * reducedLAIdue2snow(i), 20. )
-      CanopyTransmit(i,b) = EXP( -1.* dummy(i,b) )
-    endif
-  enddo
-enddo
+
+IF (limit_all_exp) THEN
+   DO i = 1,mp
+      DO b = 1, 2 
+         if( mask(i) ) then 
+            dummy(i,b) = min( ExtinctionCoeff(i,b) * reducedLAIdue2snow(i), max_kLAI )
+            CanopyTransmit(i,b) = EXP( -1.* dummy(i,b) )
+         endif
+      enddo
+   enddo
+ELSE
+   DO i = 1,mp
+      DO b = 1, 2 
+         if( mask(i) ) then 
+            dummy(i,b) = min( ExtinctionCoeff(i,b) * reducedLAIdue2snow(i), 20. )
+            CanopyTransmit(i,b) = EXP( -1.* dummy(i,b) )
+         endif
+      enddo
+   enddo
+END IF
 
 End subroutine  CanopyTransmitance_beam
 

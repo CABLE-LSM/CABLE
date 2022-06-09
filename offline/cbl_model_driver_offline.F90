@@ -66,6 +66,7 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH => lai_thresh
 USE cable_other_constants_mod,  ONLY : Crad_thresh => rad_thresh
 USE cable_other_constants_mod,  ONLY : Ccoszen_tols => coszen_tols
 USE cable_other_constants_mod, ONLY : CGAUSS_W => gauss_w
+USE cable_other_constants_mod, ONLY : Cmax_kLAI => max_kLAI
 USE cable_math_constants_mod, ONLY : CPI => pi
 USE cable_math_constants_mod, ONLY : CPI180 => pi180
 use cbl_masks_mod, ONLY :  fveg_mask,  fsunlit_mask,  fsunlit_veg_mask
@@ -135,10 +136,12 @@ CALL init_radiation( rad%extkb, rad%extkd,                                     &
 CALL snow_aging(ssnow%snage,mp,dels,ssnow%snowd,ssnow%osnowd,ssnow%tggsn(:,1),&
          ssnow%tgg(:,1),ssnow%isflag,veg%iveg,soil%isoilm) 
 
+!Ticket 334 - passing max_kLAI and limit_all_exp to albedo
+!limit_all_exp inherited from cable_runtime_opts via cable_common
 call Albedo( ssnow%AlbSoilsn, soil%AlbSoil,                                &
              !AlbSnow, AlbSoil,              
              mp, nrb,                                                      &
-             jls_radiation,                                                &
+             jls_radiation, cable_user%limit_all_exp, Cmax_kLAI,           &
              veg_mask, sunlit_mask, sunlit_veg_mask,                       &  
              Ccoszen_tols, CGAUSS_W,                                       & 
              veg%iveg, soil%isoilm, veg%refl, veg%taul,                    & 
