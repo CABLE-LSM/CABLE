@@ -113,7 +113,11 @@ TYPE kbl_user_switches
   LOGICAL :: access13roots = .FALSE.     !switch to use ACCESS1.3 %froot
 
   LOGICAL :: l_limit_labile = .FALSE.    ! #237: limit Labile in spinup
-  LOGICAL :: NtilesThruMetFile = .FALSE. ! #199: Specify Ntiles thru met file 
+  LOGICAL :: NtilesThruMetFile = .FALSE. ! #199: Specify Ntiles thru met file
+
+  !Ticket 334
+  LOGICAL :: use_new_beam_coef = .FALSE. !.TRUE. enforces continuity in kb(cosZ)
+  LOGICAL :: limit_all_exp = .FALSE.     !.TRUE. enforces 1 limit in EXP()
 
 END TYPE kbl_user_switches
 

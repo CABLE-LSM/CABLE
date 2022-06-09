@@ -112,6 +112,8 @@ call fveg_mask( veg_mask, mp, Clai_thresh, canopy%vlaiw )
 call fsunlit_mask( sunlit_mask, mp, CRAD_THRESH,( met%fsd(:,1)+met%fsd(:,2) ) )
 call fsunlit_veg_mask( sunlit_veg_mask, mp )
 
+!Ticket 334 - passing use_new_beam_coef to init_radiation
+!inherited from cable_runtime_opts via cable_common
 CALL init_radiation( rad%extkb, rad%extkd,                                     &
                      !ExtCoeff_beam, ExtCoeff_dif,
                      rad%extkbm, rad%extkdm, Rad%Fbeam,                        &
@@ -120,7 +122,7 @@ CALL init_radiation( rad%extkb, rad%extkd,                                     &
                      mp,nrb,                                                   &
                      Clai_thresh, Ccoszen_tols, CGauss_w, Cpi, Cpi180,         &
                      cbl_standalone, jls_standalone, jls_radiation,            &
-                     subr_name,                                                &
+                     cable_user%use_new_beam_coef, subr_name,                 &
                      veg_mask, sunlit_mask, sunlit_veg_mask,                   &
                      veg%Xfang, veg%taul, veg%refl,                            &
                      !VegXfang, VegTaul, VegRefl

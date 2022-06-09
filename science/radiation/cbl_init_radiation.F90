@@ -37,7 +37,7 @@ SUBROUTINE init_radiation( ExtCoeff_beam, ExtCoeff_dif,                        &
                         mp,nrb,                                                &
                         Clai_thresh, Ccoszen_tols, CGauss_w, Cpi, Cpi180,      &
                         cbl_standalone, jls_standalone, jls_radiation,         &
-                        subr_name,                                             &
+                        use_new_beam_coef, subr_name,                          &
                         veg_mask, sunlit_mask, sunlit_veg_mask,                &
                         VegXfang, VegTaul, VegRefl,                            &
                         coszen, metDoY, SW_down,                               & 
@@ -67,7 +67,8 @@ real :: Cpi180                  !PI in radians - from cable_math_constants origi
 !what model am i in
 LOGICAL :: cbl_standalone       !runtime switch defined in cable_*main routines signifying this is cable_standalone
 LOGICAL :: jls_standalone       !runtime switch defined in cable_*main routines signifying this is jules_standalone
-LOGICAL :: jls_radiation        !runtime switch defined in cable_*main routines signifying this is the radiation pathway 
+LOGICAL :: jls_radiation        !runtime switch defined in cable_*main routines signifying this is the radiation pathway
+LOGICAL :: use_new_beam_coef    !Ticket 334 - applies continuity of kb(cosZ)
 character(len=*) :: subr_name !where am i called from
 !masks
 logical :: veg_mask(mp)         !vegetated mask [formed by comparrisson of LAI CLAI_thresh ]
@@ -119,7 +120,8 @@ Ccoszen_tols_tiny = Ccoszen_tols * 1e-2
 call ExtinctionCoeff( ExtCoeff_beam, ExtCoeff_dif, mp, nrb,                    &
                       CGauss_w,Ccoszen_tols_tiny, reducedLAIdue2snow,          &
                       sunlit_mask, veg_mask, sunlit_veg_mask,                  &
-                      cLAI_thresh, coszen, xphi1, xphi2, xk, xvlai2)
+                      cLAI_thresh, coszen, xphi1, xphi2, xk, xvlai2,           &
+                      use_new_beam_coef)
 
 ! Define effective Extinction co-efficient for direct beam/diffuse radiation
 ! Extincion Co-eff defined by parametrized leaf reflect(transmit)ance - used in
@@ -225,7 +227,7 @@ End subroutine common_InitRad_coeffs
 
 subroutine ExtinctionCoeff( ExtCoeff_beam, ExtCoeff_dif, mp, nrb, CGauss_w, Ccoszen_tols_tiny, reducedLAIdue2snow, &
                             sunlit_mask, veg_mask, sunlit_veg_mask,  &
-                            cLAI_thresh, coszen, xphi1, xphi2, xk, xvlai2)
+                            cLAI_thresh, coszen, xphi1, xphi2, xk, xvlai2, use_new_beam_coef)
 
 implicit none
 !re-decl in args
@@ -245,13 +247,15 @@ real :: xphi1(mp)
 real :: xphi2(mp)
 REAL :: xvlai2(mp,nrb)  ! 2D vlai
 REAL :: xk(mp,nrb)      ! extinct. coef.for beam rad. and black leaves
+LOGICAL :: use_new_beam_coef    !Ticket 334 - applies continuity of kb(cosZ)
+
 
 call ExtinctionCoeff_dif( ExtCoeff_dif, mp, nrb, CGauss_w, reducedLAIdue2snow, &
                           veg_mask, cLAI_thresh, xk, xvlai2)
 
 call ExtinctionCoeff_beam( ExtCoeff_beam, mp, nrb, Ccoszen_tols_tiny,&
                            sunlit_mask, veg_mask, sunlit_veg_mask,  &
-                           coszen, xphi1, xphi2, ExtCoeff_dif )
+                           coszen, xphi1, xphi2, ExtCoeff_dif, use_new_beam_coef )
 
 End subroutine ExtinctionCoeff
 
@@ -259,7 +263,7 @@ End subroutine ExtinctionCoeff
 
 subroutine ExtinctionCoeff_beam( ExtCoeff_beam, mp, nrb,Ccoszen_tols_tiny, &
                                  sunlit_mask, veg_mask, sunlit_veg_mask,  &
-                                 coszen, xphi1, xphi2, ExtCoeff_dif )
+                                 coszen, xphi1, xphi2, ExtCoeff_dif, use_new_beam_coef )
 
 implicit none
 integer :: mp
@@ -274,19 +278,36 @@ real :: xphi1(mp)
 real :: xphi2(mp)
 real :: ExtCoeff_dif(mp)
 logical:: veg_mask(mp)
+LOGICAL :: use_new_beam_coef     !Ticket 334 - applies continuity of kb(cosZ)
 
 ! retain this initialization for bare soil
 ExtCoeff_beam = 0.5
 
 ! SW beam extinction coefficient ("black" leaves, extinction neglects
 ! leaf SW transmittance and REFLectance):
-WHERE ( veg_mask .AND. coszen > 1.e-6 ) &
-  ExtCoeff_beam = xphi1 / Coszen + xphi2
 
+!WHERE ( veg_mask .AND. coszen > 1.e-6 ) &
+!  ExtCoeff_beam = xphi1 / Coszen + xphi2
+!
 ! higher value precludes sunlit leaves at night. affects
 ! nighttime evaporation - Ticket #90 
-WHERE( coszen <  1.e-6 ) ExtCoeff_beam = 1.0e5 
+!WHERE( coszen <  1.e-6 ) ExtCoeff_beam = 1.0e5 
 
+!Ticket 334 enforces continuity of ExtCoeff_beam with coszen
+!important in ACCESS for low sun angles
+IF (use_new_beam_coef) THEN
+   WHERE (veg_mask) &
+        ExtCoeff_beam = xphi1 / MAX(coszen,1.0e-6)
+
+ELSE
+   WHERE ( veg_mask .AND. coszen > 1.e-6 ) &
+        ExtCoeff_beam = xphi1 / Coszen + xphi2
+
+   ! higher value precludes sunlit leaves at night. affects
+   ! nighttime evaporation - Ticket #90 
+   WHERE( coszen <  1.e-6 ) ExtCoeff_beam = 1.0e5 
+   
+END IF
 
 ! Seems to be for stability only
 WHERE ( abs(ExtCoeff_beam - ExtCoeff_dif )  < 0.001 ) &
