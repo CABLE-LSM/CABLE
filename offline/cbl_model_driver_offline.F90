@@ -167,7 +167,7 @@ call Albedo( ssnow%AlbSoilsn, soil%AlbSoil,                                &
 ssnow%otss_0 = ssnow%otss  ! vh should be before call to canopy?
 ssnow%otss = ssnow%tss
 
-CALL define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy,climate, sunlit_veg_mask,  canopy%vlaiw)
+CALL define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy,climate, sunlit_veg_mask,  canopy%vlaiw, cable_user%limit_all_exp, Cmax_kLAI)
     
 ssnow%owetfac = ssnow%wetfac
 

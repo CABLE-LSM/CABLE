@@ -7,7 +7,7 @@ MODULE cable_canopy_module
 
 CONTAINS
 
-SUBROUTINE define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy,climate, sunlit_veg_mask, reducedLAIdue2snow )
+SUBROUTINE define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy,climate, sunlit_veg_mask, reducedLAIdue2snow, limit_all_exp, max_kLAI)
     USE cable_def_types_mod
    USE cbl_radiation_module, ONLY : radiation
     USE cable_air_module
@@ -66,7 +66,6 @@ USE cable_math_constants_mod,  ONLY : CPI_C  => PI
 USE cable_other_constants_mod, ONLY : CLAI_THRESH  => LAI_THRESH
 
 
-
     TYPE (balances_type), INTENT(INOUT)  :: bal
     TYPE (radiation_type), INTENT(INOUT) :: rad
     TYPE (roughness_type), INTENT(INOUT) :: rough
@@ -80,7 +79,10 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH  => LAI_THRESH
     TYPE (veg_parameter_type), INTENT(INOUT)    :: veg
 
 REAL :: reducedLAIdue2snow(mp)
-logical :: sunlit_veg_mask(mp) 
+logical :: sunlit_veg_mask(mp)
+LOGICAL :: limit_all_exp                   !#334
+REAL :: max_kLAI                           !#334   
+
     REAL, INTENT(IN)               :: dels ! integration time setp (s)
     INTEGER  ::                                                                 &
          iter,  & ! iteration #
@@ -226,7 +228,7 @@ logical :: sunlit_veg_mask(mp)
 
 CALL radiation( ssnow, veg, air, met, rad, canopy, sunlit_veg_mask, &
   !constants
-  clai_thresh, Csboltz, Cemsoil, Cemleaf, Ccapp &
+  clai_thresh, Csboltz, Cemsoil, Cemleaf, Ccapp, limit_all_exp, max_kLAI &
 )
 
     canopy%zetar(:,1) = CZETA0 ! stability correction terms

@@ -29,7 +29,7 @@ CONTAINS
 
 SUBROUTINE radiation( ssnow, veg, air, met, rad, canopy, sunlit_veg_mask,&
   !constants
-  clai_thresh, Csboltz, Cemsoil, Cemleaf, Ccapp &
+  clai_thresh, Csboltz, Cemsoil, Cemleaf, Ccapp, limit_all_exp, max_kLAI &
 )
 
     USE cable_def_types_mod, ONLY : radiation_type, met_type, canopy_type,      &
@@ -39,12 +39,14 @@ SUBROUTINE radiation( ssnow, veg, air, met, rad, canopy, sunlit_veg_mask,&
 USE cable_other_constants_mod,  ONLY : Crad_thresh => rad_thresh
 IMPLICIT NONE
 logical :: sunlit_veg_mask(mp)
+LOGICAL :: limit_all_exp       !#334
 !constants
 real :: CLAI_thresh
 real :: CSboltz
 real :: Cemsoil
 real :: Cemleaf
 real :: Ccapp
+REAL :: max_kLAI
 
     TYPE (canopy_type),   INTENT(IN) :: canopy
     TYPE (air_type),      INTENT(IN) :: air
@@ -63,6 +65,8 @@ real :: Ccapp
          flwv, &     ! vegetation long-wave radiation (isothermal)
          dummy, dummy2
 
+    REAL :: local_max_kLAI  !#for Ticket 334
+
 
     INTEGER :: b ! rad. band 1=visible, 2=near-infrared, 3=long-wave
 
@@ -71,28 +75,37 @@ real :: Ccapp
     call_number = call_number + 1
 
     ! Relative leaf nitrogen concentration within canopy:
-    cf2n = EXP(-veg%extkn * canopy%vlaiw)
-
+    IF (limit_all_exp) THEN
+       cf2n = EXP(-1.0*MIN(veg%extkn * canopy%vlaiw, max_kLAI))
+    ELSE
+       cf2n = EXP(-veg%extkn * canopy%vlaiw)
+    END IF
+    
     rad%transd = 1.0
-
-    WHERE (canopy%vlaiw > cLAI_thresh )    ! where vegetation exists....
-
-       ! Diffuse SW transmission fraction ("black" leaves, extinction neglects
-       ! leaf SW transmittance and REFLectance);
-       ! from Monsi & Saeki 1953, quoted in eq. 18 of Sellers 1985:
-       rad%transd = EXP(-rad%extkd * canopy%vlaiw)
-
-    END WHERE
-
+    ! Diffuse SW transmission fraction ("black" leaves, extinction neglects
+    ! leaf SW transmittance and REFLectance);
+    ! from Monsi & Saeki 1953, quoted in eq. 18 of Sellers 1985:
+    IF (limit_all_exp) THEN
+       WHERE (canopy%vlaiw > cLAI_thresh )    
+          rad%transd = EXP(-1.0*MIN(rad%extkd * canopy%vlaiw,max_kLAI))
+       END WHERE
+    ELSE
+       WHERE (canopy%vlaiw > cLAI_thresh )    
+          rad%transd = EXP(-rad%extkd * canopy%vlaiw)
+       END WHERE
+    END IF
+    
     ! Define fraction of SW beam tranmitted through canopy:
-    !C!jhan: check rel. b/n extkb, extkbm,transb,cexpkbm def. cable_albedo, qsabbs
-    !! vh_js !!
-    dummy2 = MIN(rad%extkb * canopy%vlaiw,30.) ! vh version to avoid floating underflow !
-    dummy = EXP(-dummy2)
-    ! dummy2 = -rad%extkb * canopy%vlaiw
-    ! dummy = EXP(dummy2)
-    rad%transb = REAL(dummy)
-
+    IF (limit_all_exp) THEN
+       rad%transb = EXP(-1.0*MIN(rad%extkb*canopy%vlaiw,max_kLAI))
+    ELSE
+       !C!jhan: check rel. b/n extkb, extkbm,transb,cexpkbm def. cable_albedo, qsabbs
+       !! vh_js !!
+       dummy2 = MIN(rad%extkb * canopy%vlaiw,30.) ! vh - avoid floating underflow !
+       dummy = EXP(-dummy2)
+       rad%transb = REAL(dummy)
+    END IF
+    
     ! Define longwave from vegetation:
     flpwb = CSboltz * (met%tvrad) ** 4
     flwv = Cemleaf * flpwb
@@ -176,19 +189,28 @@ real :: Ccapp
 
     END DO
 
+    !#334 limit_all_exp applies consistency across code base
+    !using a local value to facilitate backwards compatibility
+    ! -> aim to remove after testing
+    IF (limit_all_exp) THEN
+       local_max_klai = max_kLAI
+    ELSE
+       local_max_klai = 20.0
+    END IF
+
+    ! Calculate shortwave radiation absorbed by soil:
+    ! (av. of transmitted NIR and PAR through canopy)*SWdown
     rad%qssabs = 0.
 
     WHERE (sunlit_veg_mask) ! i.e. vegetation and sunlight are present
 
-       ! Calculate shortwave radiation absorbed by soil:
-       ! (av. of transmitted NIR and PAR through canopy)*SWdown
-       rad%qssabs = met%fsd(:,1) * (                                            &
-            rad%fbeam(:,1) * ( 1. - rad%reffbm(:,1) ) *                 &
-            EXP( -MIN(rad%extkbm(:,1) * canopy%vlaiw,20.) ) +           &
-            ( 1. - rad%fbeam(:,1) ) * ( 1. - rad%reffdf(:,1) ) *        &
-            EXP( -MIN(rad%extkdm(:,1) * canopy%vlaiw,20.) ) )           &
-            + met%fsd(:,2) * ( rad%fbeam(:,2) * ( 1. - rad%reffbm(:,2) )&
-            * rad%cexpkbm(:,2) + ( 1. - rad%fbeam(:,2) ) *              &
+       rad%qssabs = met%fsd(:,1) * (                                     &
+            rad%fbeam(:,1) * ( 1. - rad%reffbm(:,1) ) *                  &
+            EXP( -MIN(rad%extkbm(:,1) * canopy%vlaiw,local_max_klai) ) + &
+            ( 1. - rad%fbeam(:,1) ) * ( 1. - rad%reffdf(:,1) ) *         &
+            EXP( -MIN(rad%extkdm(:,1) * canopy%vlaiw,local_max_klai) ) ) &
+            + met%fsd(:,2) * ( rad%fbeam(:,2) * ( 1. - rad%reffbm(:,2) ) &
+            * rad%cexpkbm(:,2) + ( 1. - rad%fbeam(:,2) ) *               &
             ( 1. - rad%reffdf(:,2) ) * rad%cexpkdm(:,2) )
 
        ! Scaling from single leaf to canopy, see Wang & Leuning 1998 appendix C:

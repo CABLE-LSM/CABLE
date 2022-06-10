@@ -135,7 +135,7 @@ IF( cable_runtime%um_explicit ) THEN
       ENDIF
    
    ! Calculate canopy variables:
-   CALL define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy, climate_cbl, sunlit_veg_mask, canopy%vlaiw )
+   CALL define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy, climate_cbl, sunlit_veg_mask, canopy%vlaiw, cable_user%limit_all_exp, Cmax_kLAI )
 
    ssnow%otss_0 = ssnow%otss
    ssnow%otss = ssnow%tss

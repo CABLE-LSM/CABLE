@@ -337,6 +337,8 @@ REAL :: cos3(nrb)      ! cos(15 45 75 degrees)
 
 ExtCoeff_dif = 0.7
 
+!Ticket 334 - possibly need to take MAX( xk*vlai2,max_kLAI) here
+!to avoid passing 0.0 to log function in dense canopies
 WHERE ( veg_mask ) ! vegetated
   ! Extinction coefficient for diffuse radiation for black leaves:
   ExtCoeff_dif = -LOG( SUM(                                                   &
