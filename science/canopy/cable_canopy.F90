@@ -148,7 +148,7 @@ REAL :: max_kLAI                           !#334
          gbhf,          & ! freeConvectionBndryLayerCond
          csx              ! leaf surface CO2 concentration
 
-    REAL  :: rt_min
+    REAL  :: rt_min, local_max_klai
     REAL, DIMENSION(mp)       :: zstar, rL, phist, csw, psihat,rt0bus
 
     INTEGER :: j
@@ -236,6 +236,12 @@ CALL radiation( ssnow, veg, air, met, rad, canopy, sunlit_veg_mask, &
     canopy%zetash(:,1) = CZETA0 ! stability correction terms
     canopy%zetash(:,2) = CZETPOS + 1
 
+    !#334: apply consistent limits of exp() - here for efficiency
+    IF (limit_all_exp) THEN
+       local_max_klai = max_kLAI
+    ELSE
+       local_max_klai = 20.0
+    END IF    
 
     DO iter = 1, NITER
 
@@ -375,12 +381,13 @@ CALL radiation( ssnow, veg, air, met, rad, canopy, sunlit_veg_mask, &
 
 
              !vh! inserted 'min' to avoid floating underflow
+             !#334 apply consistent value through the code base
              gbhu(j,1) = gbvtop(j)*(1.0-EXP(-MIN(canopy%vlaiw(j)                    &
-                  *(0.5*rough%coexp(j)+rad%extkb(j) ),20.0))) /            &
+                  *(0.5*rough%coexp(j)+rad%extkb(j) ),local_max_klai))) /  &
                   (rad%extkb(j)+0.5*rough%coexp(j))
 
              gbhu(j,2) = (2.0/rough%coexp(j))*gbvtop(j)*  &
-                  (1.0-EXP(-MIN(0.5*rough%coexp(j)*canopy%vlaiw(j),20.0))) &
+                  (1.0-EXP(-MIN(0.5*rough%coexp(j)*canopy%vlaiw(j),local_max_klai))) &
                   - gbhu(j,1)
           ENDIF
 
