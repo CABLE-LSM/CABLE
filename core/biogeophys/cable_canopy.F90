@@ -2159,12 +2159,12 @@ CONTAINS
                    anx(i,2) = an_canopy(2) * UMOL_TO_MOL
 
                    ! fix units for CABLE and pack into arrays
-                   IF (e_canopy > 0.0) THEN
-                      conv = MOL_WATER_2_G_WATER * G_TO_KG
-                      ecx(i) = e_canopy * air%rlam(i) * conv
-                   ELSE
-                      ecx(i) = 0.0
-                   END IF
+                   !IF (e_canopy > 0.0) THEN
+                   !   conv = MOL_WATER_2_G_WATER * G_TO_KG
+                   !   ecx(i) = e_canopy * air%rlam(i) * conv
+                   !ELSE
+                   !   ecx(i) = 0.0
+                   !END IF
                 END IF
 
              ELSE
@@ -2197,7 +2197,7 @@ CONTAINS
 
              DO kk=1,mf
 
-                IF(rad%fvlai(i,kk)>C%LAI_THRESH .AND. cable_user%FWSOIL_SWITCH /= 'profitmax') THEN
+                IF(rad%fvlai(i,kk)>C%LAI_THRESH) THEN
 
                    csx(i,kk) = met%ca(i) - C%RGBWC*anx(i,kk) / (                &
                         gbhu(i,kk) + gbhf(i,kk) )
@@ -2227,9 +2227,9 @@ CONTAINS
 
              ENDDO
 
-             IF (cable_user%FWSOIL_SWITCH /= 'profitmax') THEN
+             !IF (cable_user%FWSOIL_SWITCH /= 'profitmax') THEN
 
-                ecx(i) = ( air%dsatdk(i) * ( rad%rniso(i,1) - C%capp * C%rmair     &
+             ecx(i) = ( air%dsatdk(i) * ( rad%rniso(i,1) - C%capp * C%rmair     &
                      * ( met%tvair(i) - met%tk(i) ) * rad%gradis(i,1) )        &
                      + C%capp * C%rmair * met%dva(i) * ghr(i,1) )              &
                      / ( air%dsatdk(i) + psycst(i,1) ) + ( air%dsatdk(i)       &
@@ -2238,7 +2238,7 @@ CONTAINS
                      met%dva(i) * ghr(i,2) ) /                                 &
                      ( air%dsatdk(i) + psycst(i,2) )
 
-            END IF
+             !END IF
 
 
              IF (cable_user%fwsoil_switch=='Haverd2013') THEN
@@ -3145,9 +3145,8 @@ CONTAINS
          !Kplant = 1.0 / (1.0 / Kmax + Rsrl)
          Kplant = Kmax
 
-         ! CO2 concentration at the leaf surface, umol m-2 -s-1
+         ! CO2 concentration at the leaf surface, umol mol-1
          Cs = csx(i,j) * MOL_TO_UMOL
-
 
          ! Generate a sequence of Ci's that we will solve the optimisation
          ! model for, range btw gamma_star and Cs. umol mol-1
@@ -3215,7 +3214,7 @@ CONTAINS
             ! via scalex applied to Vcmax/Jmax
             gsc = an_leaf / MAX(1.e-6, Cs - Ci) ! mol CO2 m-2 s-1
 
-            ! Assuming perfect coupling, infer E_sun/sha from gsc. NB. as we're
+            ! Infer E_sun/sha from gsc. NB. as we're
             ! iterating, Tleaf will change and so VPD, maintaining energy
             ! balance
             e_leaf = gsc * C%RGSWC / press * vpd ! mol H2O m-2 s-1
@@ -3255,15 +3254,13 @@ CONTAINS
                an_canopy(j) = 0.0 ! umol m-2 s-1
                e_leaves(j) = 0.0 ! mol H2O m-2 s-1
                p_leaves(j) = p(idx)
-               !canopy%gswx(i,j) = MAX( 1.e-3, gsc(idx) * C%RGSWC)
-               canopy%gswx(i,j) = MAX( 1.e-3, 0.0 )
+               canopy%gswx(i,j) = MAX(1.e-3, gsc(idx) * C%RGSWC)
             else
                ! load into stores
                an_canopy(j) = an_leaf(idx) ! umol m-2 s-1
                e_leaves(j) = e_leaf(idx) ! mol H2O m-2 s-1
                p_leaves(j) = p(idx)
-               !canopy%gswx(i,j) = MAX( 1.e-3, gsc(idx) * C%RGSWC)
-               canopy%gswx(i,j) = MAX( 1.e-3, gsc(idx) )
+               canopy%gswx(i,j) = MAX(1.e-3, gsc(idx) * C%RGSWC)
             endif
 
             ci_ca = Ci(idx)/Cs
