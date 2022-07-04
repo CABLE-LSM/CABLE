@@ -16,7 +16,7 @@ TYPE kbl_user_switches
 
   ! Ticket #56
   !jhan:options?
-  CHARACTER(LEN=20) :: gs_switch=''
+  CHARACTER(LEN=20) :: gs_switch='medlyn'
 
   !INH - new switch for revised coupling on implicit step of ACCESS-CM2 Ticket #132
   LOGICAL :: l_revised_coupling = .FALSE.
