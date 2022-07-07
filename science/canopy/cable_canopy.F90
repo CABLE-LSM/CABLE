@@ -663,7 +663,7 @@ write(6,*) "SLI is not an option right now"
 
        ENDDO
 
-  CALL update_zetar( mp, NITER, canopy%zetar, iter, nrb, CVONK, CGRAV, CCAPP,  &
+  CALL update_zetar( mp, NITER, canopy%zetar, iter, iterplus, nrb, CVONK, CGRAV, CCAPP,  &
                      CLAI_THRESH, CZETmul, CZETPOS, CZETNEG,          &
                      cable_user%soil_struc, air%rho, met%tk,  met%fsd, &
                      rough%zref_tq, rough%hruff, rough%term6a, rough%z0soilsn,   &

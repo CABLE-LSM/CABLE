@@ -8,7 +8,7 @@ PRIVATE
 
 CONTAINS
 
-SUBROUTINE update_zetar( mp, NITER, canopy_zetar, iter, nrb, CVONK, CGRAV, CCAPP,  &
+SUBROUTINE update_zetar( mp, NITER, canopy_zetar, iter, iterplus, nrb, CVONK, CGRAV, CCAPP,  &
                    CLAI_THRESH, CZETmul, CZETPOS, CZETNEG,          &
                    cable_user_soil_struc, air_rho, met_tk,  met_fsd, &
                    rough_zref_tq, rough_hruff, rough_term6a, rough_z0soilsn,   &
@@ -20,9 +20,10 @@ INTEGER, INTENT(IN) :: mp
 INTEGER, INTENT(IN) :: NITER
 INTEGER, INTENT(IN) :: nrb
 
-REAL, INTENT(OUT) :: canopy_zetar(mp, NITER)
-REAL, INTENT(OUT) :: canopy_zetash(mp, NITER)
+REAL, INTENT(INOUT) :: canopy_zetar(mp, NITER)
+REAL, INTENT(INOUT) :: canopy_zetash(mp, NITER)
 INTEGER, INTENT(IN) :: iter
+INTEGER, INTENT(INOUT) :: iterplus  !INOUT because of iter==NITER case
 
 ! constants
 REAL, INTENT(IN) :: CVONK, CGRAV, CCAPP, CLAI_THRESH, CZETmul, CZETPOS, CZETNEG
@@ -43,7 +44,6 @@ REAL, INTENT(IN) :: canopy_fhs(mp)
 REAL, INTENT(IN) :: canopy_fes(mp)
 
 !local vars
-INTEGER :: iterplus
 INTEGER :: j
 
 ! monin-obukhov stability parameter zetar=zref/l
