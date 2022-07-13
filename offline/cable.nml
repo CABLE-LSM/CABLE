@@ -68,4 +68,5 @@
    cable_user%CASA_DUMP_READ = .FALSE.      ! TRUE reads CASA forcing from netcdf format
    cable_user%CASA_DUMP_WRITE = .FALSE.      ! TRUE outputs CASA forcing in netcdf format
    cable_user%SSNOW_POTEV= 'HDM'      ! Humidity Deficit Method
+   cable_user%jules_cosz = .FALSE.
 &end

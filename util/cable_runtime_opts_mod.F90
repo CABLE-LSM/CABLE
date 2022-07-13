@@ -27,6 +27,9 @@ TYPE kbl_user_switches
   !ticket#179
   LOGICAL :: soil_thermal_fix = .FALSE.
 
+  !ticket#339 - use JULES formulae for cos(zenith angle)
+  LOGICAL :: jules_cosz = .FALSE.
+
   !jhan:options?
   CHARACTER(LEN=3) :: ssnow_potev=''
      

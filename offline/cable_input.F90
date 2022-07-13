@@ -2471,7 +2471,7 @@ CONTAINS
     ENDIF
 
     ! Set cosine of zenith angle (provided by GCM when online):
-    met%coszen = sinbet(met%doy, rad%latitude, met%hod)
+    met%coszen = sinbet(met%year,met%doy, rad%latitude, met%hod,cable_user%jules_cosz)
     ! initialise within canopy air temp
     met%tvair = met%tk
     met%tvrad = met%tk
