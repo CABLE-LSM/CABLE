@@ -1876,21 +1876,21 @@ contains
     integer, parameter :: sp = kind(1.0)
 
     ! 1 dim arrays (mp)
-    character(len=20), dimension(2)  :: a0
+    character(len=22), dimension(2)  :: a0
     ! 2 dim arrays (mp,t)
-    character(len=20), dimension(51) :: a1
+    character(len=22), dimension(51) :: a1
     ! 3 dim arrays (mp,mplant,t)
-    character(len=20), dimension(9)  :: a2
+    character(len=22), dimension(10) :: a2
     ! 3 dim arrays (mp,mlitter,t)
-    character(len=20), dimension(9)  :: a3
+    character(len=22), dimension(10) :: a3
     ! 3 dim arrays (mp,msoil,t)
-    character(len=20), dimension(8)  :: a4
+    character(len=22), dimension(8)  :: a4
     ! 4 dim arrays (mp,mlitter,mplant,t)
-    character(len=20), dimension(1)  :: a5
+    character(len=22), dimension(1)  :: a5
     ! 4 dim arrays (mp,msoil,mlitter,t)
-    character(len=20), dimension(1)  :: a6
+    character(len=22), dimension(1)  :: a6
     ! 4 dim arrays (mp,msoil,msoil,t)
-    character(len=20), dimension(1)  :: a7
+    character(len=22), dimension(1)  :: a7
 
     integer, dimension(size(a0)), save :: vid0
     integer, dimension(size(a1)), save :: vid1
@@ -1974,15 +1974,16 @@ contains
     a2(3) = 'kplant'
     a2(4) = 'Crmplant'
     a2(5) = 'kplant_fire'
-    na2 = 5
+    a2(6) = 'fluxCtoCO2_plant_fire'
+    na2 = 6
     ! N
-    a2(6) = 'nplant'
-    a2(7) = 'fracNalloc'
-    if (icycle==2) na2 = 7
+    a2(7) = 'nplant'
+    a2(8) = 'fracNalloc'
+    if (icycle==2) na2 = na2 + 2
     ! P
-    a2(8) = 'pplant'
-    a2(9) = 'fracPalloc'
-    if (icycle==3) na2 = 9
+    a2(9) = 'pplant'
+    a2(10)= 'fracPalloc'
+    if (icycle==3) na2 = na2 + 2
 
     ! C
     a3(1) = 'clitter'
@@ -1990,15 +1991,16 @@ contains
     a3(3) = 'fromLtoCO2'
     a3(4) = 'FluxCtolitter'
     a3(5) = 'klitter_fire'
-    na3 = 5
+    a3(6) = 'fluxCtoCO2_litter_fire'
+    na3 = 6
     ! N
-    a3(6) = 'nlitter'
-    a3(7) = 'FluxNtolitter'
-    if (icycle==2) na3 = 7
+    a3(7) = 'nlitter'
+    a3(8) = 'FluxNtolitter'
+    if (icycle==2) na3 = na3 + 2
     ! P
-    a3(8) = 'plitter'
-    a3(9) = 'FluxPtolitter'
-    if (icycle==3) na3 = 9
+    a3(9) = 'plitter'
+    a3(10)= 'FluxPtolitter'
+    if (icycle==3) na3 = na3 + 2
 
     ! C
     a4(1) = 'csoil'
@@ -2304,6 +2306,9 @@ contains
     if(status /= nf90_noerr) call handle_err(status)
     status = nf90_put_var(file_id, vid2(5), real(casaflux%kplant_fire,sp), start=(/1,1,cnt/), count=(/mp,mplant,1/))
     if(status /= nf90_noerr) call handle_err(status)
+    status = nf90_put_var(file_id, vid2(6), real(casaflux%fluxCtoCO2_plant_fire,sp), &
+         start=(/1,1,cnt/), count=(/mp,mplant,1/))
+    if(status /= nf90_noerr) call handle_err(status)
     ! N
     if (icycle > 1) then
        status = nf90_put_var(file_id, vid2(6), real(casapool%nplant,sp),     start=(/1,1,cnt/), count=(/mp,mplant,1/))
@@ -2330,6 +2335,9 @@ contains
     status = nf90_put_var(file_id, vid3(4), real(casaflux%fluxctolitter,sp), start=(/1,1,cnt/), count=(/mp,mlitter,1/))
     if(status /= nf90_noerr) call handle_err(status)
     status = nf90_put_var(file_id, vid3(5), real(casaflux%klitter_fire,sp),  start=(/1,1,cnt/), count=(/mp,mlitter,1/))
+    if(status /= nf90_noerr) call handle_err(status)
+    status = nf90_put_var(file_id, vid3(6), real(casaflux%fluxCtoCO2_litter_fire,sp),  &
+         start=(/1,1,cnt/), count=(/mp,mlitter,1/))
     if(status /= nf90_noerr) call handle_err(status)
     ! N
     if (icycle > 1) then
@@ -2393,7 +2401,7 @@ contains
        if (status /= nf90_noerr) call handle_err(status)
        write(*,*) " casa output written to ", trim(fname)
     endif
-
+    
   end subroutine write_casa_output_nc
 #endif
 

@@ -462,6 +462,11 @@ host_auro()
         #CLNexport CFLAGS="-fpp -O0 -debug extended -traceback -g -check all,noarg_temp_created -warn all -fp-stack-check -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0" # -fpe-all=0 -no-ftz -ftrapuv"
         export CFLAGS="-fpp -O0 -debug extended -traceback -g -check all,noarg_temp_created -warn all -fp-stack-check -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0" # -fpe-all=0 -no-ftz -ftrapuv"export LDFLAGS="-O0"
         OPTFLAG=""
+    elif [[ $1 == "fastcomp" ]]; then
+        # fast compilation
+        export CFLAGS='-O0 -fpp -fp-model precise'
+        export CFLAGS="-fpp -O0 -nofixed -assume byterecl -fp-model precise -ip -diag-disable=10382"
+        export LDFLAGS="-O0"
     else
         # release
         export CFLAGS='-O2 -fpp -fp-model precise'

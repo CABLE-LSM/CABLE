@@ -270,6 +270,7 @@ MODULE POP_Types
      REAL(dp), DIMENSION(NYEAR_HISTORY) :: cat_mortality_history
      REAL(dp), DIMENSION(AGEMAX) :: freq_age ! age weighting (by age in y: 0:AGE_MAX-1)
      REAL(dp), DIMENSION(AGEMAX) :: biomass_age
+     REAL(dp) :: rkill
   END TYPE Landscape
 
   TYPE POP_TYPE
@@ -390,6 +391,7 @@ CONTAINS
        POP%pop_grid(g)%fire_mortality_history  = 0.0_dp
        POP%pop_grid(g)%cat_mortality_history   = 0.0_dp
        POP%pop_grid(g)%freq_age                = 0.0_dp
+       POP%pop_grid(g)%rkill                   = 0.0_dp
        IF (PRESENT(n)) THEN
           POP%pop_grid(g)%freq_age(1) = 1.0_dp
        ENDIF
@@ -2955,8 +2957,16 @@ CONTAINS
        ! creates new value for  POP%pop_grid(g)%fire_mortality
        CALL INTERPOLATE_FIREMORTALITY(pop, disturbance_interval,it,g)
 
-       POP%pop_grid(g)%cmass_sum = POP%pop_grid(g)%cmass_sum - POP%pop_grid(g)%fire_mortality
+       !CLN Kill ratio to be used within BLAZE to compute fluxes
+       POP%pop_grid(g)%rkill = 0.
+       IF ( POP%pop_grid(g)%cmass_sum .GT. 0.) THEN
+          POP%pop_grid(g)%rkill = POP%pop_grid(g)%fire_mortality / POP%pop_grid(g)%cmass_sum
+       ELSE
+          POP%pop_grid(g)%rkill = 0.
+       ENDIF
 
+       POP%pop_grid(g)%cmass_sum = POP%pop_grid(g)%cmass_sum - POP%pop_grid(g)%fire_mortality
+       
 
 
      ENDDO

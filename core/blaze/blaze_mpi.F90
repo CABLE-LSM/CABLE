@@ -17,7 +17,7 @@ MODULE BLAZE_MPI
   ! for BLAZE%OUTMODE == "std"
   INTEGER, PARAMETER :: n_blaze_output_std   = 10
   ! add for BLAZE%OUTMODE == "full"
-  INTEGER, PARAMETER :: n_blaze_output_extra = 14
+  INTEGER, PARAMETER :: n_blaze_output_extra = 15
 
   ! Total number of restart parameters for SIMFIRE
   INTEGER, PARAMETER :: n_simfire_restart = 4
@@ -315,12 +315,19 @@ write(*,*)" CLN ierr4 " , ierr
      r2len = cnt * extr2
 
      bidx   = 0
-     last2d = 0
+     last2d = 0   
      
      ! ------------- 2D arrays -------------
 
      IF ( TRIM(BLAZE%OUTMODE) == "full" ) THEN 
         
+        ! fluxes 
+        bidx = bidx + 1
+        CALL MPI_Get_address (BLAZE%FLUXES(off,1), displs(bidx), ierr) 
+        CALL MPI_Type_create_hvector (NFLUXES, r1len, r1stride, MPI_BYTE, &
+             &                             types(bidx), ierr)
+        blocks(bidx) = 1
+ 
         ! Annual (daily) rainfall (ncells,366)
         bidx = bidx + 1
         CALL MPI_Get_address (BLAZE%TO(off,1), displs(bidx), ierr) ! 1
@@ -422,6 +429,7 @@ write(*,*)" CLN ierr4 " , ierr
         bidx = bidx + 1
         CALL MPI_Get_address (BLAZE%w_prior(off), displs(bidx), ierr)
         blocks(bidx) = r1len
+
      END IF
      
      ! current KBDI
@@ -712,9 +720,14 @@ SUBROUTINE worker_blaze_types(comm, mp, BLAZE, blaze_restart_t, blaze_in_t, blaz
   
   bidx = 0
 
-  ! ------------- 2D arrays -------------
+ ! ------------- 2D arrays -------------
 
   IF ( TRIM(BLAZE%OUTMODE) == "full" ) THEN 
+  
+     ! fluxes 
+     bidx = bidx + 1
+     CALL MPI_Get_address (BLAZE%FLUXES(off,1), displs(bidx), ierr) 
+     blocks(bidx) = r1len * NFLUXES 
   
      bidx = bidx + 1
      CALL MPI_Get_address (BLAZE%TO(off,1), displs(bidx), ierr)

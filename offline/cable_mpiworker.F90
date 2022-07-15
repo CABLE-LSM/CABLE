@@ -520,6 +520,8 @@ CONTAINS
                    ! if (cable_user%call_pop) allocate(pop_to(mp), pop_cwd(mp), pop_str(mp))
                    call ini_blaze( mland, rad%latitude(landpt(:)%cstart), &
                                    rad%longitude(landpt(:)%cstart), blaze )
+                   CALL MPI_Comm_rank(comm, rank, ierr)
+                   BLAZE%IAM = rank
 
                    !par blaze restart not required uses climate data
                    allocate(latitude(mland))
