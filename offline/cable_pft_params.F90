@@ -82,7 +82,7 @@ subroutine cable_pft_params()
 USE cable_def_types_mod, ONLY : mvtype
 
 integer :: ERROR
-integer :: namelist_unit
+integer, parameter :: namelist_unit=711179
 integer :: j
 CHARACTER(LEN=*), parameter :: nml_dir='./' 
 CHARACTER(LEN=*), parameter :: iomessage='something wrong with your PFT params file' 

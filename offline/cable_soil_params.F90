@@ -37,7 +37,7 @@ USE cable_def_types_mod, ONLY : mstype
 implicit none
 
 integer :: ERROR
-integer :: namelist_unit
+integer, parameter :: namelist_unit=711178
 integer :: j
 CHARACTER(LEN=*), parameter :: iomessage='something wrong with your soil params file' 
 CHARACTER(LEN=*), parameter :: nml_dir='./' 
