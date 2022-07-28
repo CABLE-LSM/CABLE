@@ -1497,6 +1497,7 @@ contains
     use casavariable,         only: casa_met, casa_pool, casa_balance, casa_flux, &
          casafile, casa_timeunits
     use cable_common_module,  only: cable_user, filename, handle_err
+    use cable_IO_vars_module, only: patch
     use cable_def_types_mod,  only: veg_parameter_type, mp
     ! use cable_def_types_mod,  only: sp => r_2
     use netcdf,               only: nf90_noerr, &
@@ -1527,9 +1528,9 @@ contains
     integer, parameter :: sp = kind(1.0)
 
     ! 1 dim arrays (mp)
-    character(len=20), dimension(2)  :: a0
+    character(len=20), dimension(3)  :: a0
     ! 2 dim arrays (mp,t)
-    character(len=20), dimension(51) :: a1
+    character(len=20), dimension(52) :: a1
     ! 3 dim arrays (mp,mplant,t)
     character(len=20), dimension(9)  :: a2
     ! 3 dim arrays (mp,mlitter,t)
@@ -1559,7 +1560,8 @@ contains
 
     a0(1) = 'latitude'
     a0(2) = 'longitude'
-    na0 = 2
+    a0(3) = 'area_gridcell'
+    na0 = 3
 
     ! C
     a1(1)  = 'glai'
@@ -1617,7 +1619,9 @@ contains
     a1(49) = 'kpocc'
     a1(50) = 'kmlabP'
     a1(51) = 'Psorbmax'
-    if (icycle==3) na1 = 51
+    ! patchfrac
+    a1(52) = 'patchfrac'
+    if (icycle==3) na1 = 52
 
     ! C
     a2(1) = 'cplant'
@@ -1824,6 +1828,9 @@ contains
        status = nf90_put_var(file_id, vid0(2), real(casamet%lon,sp))
        if(status /= nf90_noerr) call handle_err(status)
 
+       status = nf90_put_var(file_id, vid0(3), real(casamet%areacell,sp))
+       if(status /= nf90_noerr) call handle_err(status)
+
        call1 = .false.
     endif ! call1
 
@@ -1940,6 +1947,9 @@ contains
        status = nf90_put_var(file_id, vid1(50), real(casaflux%kmlabp,sp),      start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
        status = nf90_put_var(file_id, vid1(51), real(casaflux%psorbmax,sp),    start=(/1,cnt/), count=(/mp,1/) )
+       if(status /= nf90_noerr) call handle_err(status)
+       ! patchfrac
+       status = nf90_put_var(file_id, vid1(52), real(patch(:)%frac,sp),         start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
     endif
 

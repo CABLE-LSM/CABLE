@@ -253,17 +253,16 @@ elif [[ "${sys}" == "pearcey" ]] ; then
     module add intel-cc/16.0.1.150 intel-fc/16.0.1.150
     module unload intel-mpi/5.0.1.035
     module add netcdf/4.3.3.1 openmpi/1.8.8
-elif [[ "${sys}" == "raijin" ]] ; then
-    module del intel-cc intel-fc
-    module add intel-cc/16.0.1.150 intel-fc/16.0.1.150
-    module add netcdf/4.3.3.1
 elif [[ "${sys}" == "gadi" ]] ; then
     pdir=${isdir}
     . /etc/bashrc
     module purge
-    module load intel-compiler/2019.5.281
-    module load intel-mpi/2019.5.281
-    module load netcdf/4.6.3
+    #module load intel-compiler/2019.5.281
+    #module load intel-mpi/2019.5.281
+    #module load netcdf/4.6.3
+    module load intel-compiler/2021.5.0
+    module load intel-mpi/2021.5.1
+    module load netcdf/4.8.0
     # module load hdf5/1.10.5
     if [[ ${doextractsite} -ge 1 ]] ; then
         module load python3/3.7.4

@@ -330,6 +330,9 @@ contains
 
     if (trim(CRU%MetVersion) == "CRUJRA_2021") then
        CRU%VAR_NAME(swdn) = "tswrf"
+    else if (trim(CRU%MetVersion) == "CRUJRA_2022") then
+       CRU%VAR_NAME(swdn) = "tswrf"
+       !CRU%NMET = 10
     else if (trim(CRU%MetVersion) == "VERIFY_2021") then
        CRU%VAR_NAME(rain)  = "Precipalign"
        CRU%VAR_NAME(lwdn)  = "LWdownnoalign"
@@ -519,6 +522,8 @@ contains
        cruver="crujra.v2.1"
     case("CRUJRA_2021")
        cruver="crujra.v2.2"
+    case("CRUJRA_2022")
+       cruver="crujra.v2.3"
     case("VERIFY_2021")
        cruver="cru_verify"
     case("Drought_Heat")
@@ -579,6 +584,8 @@ contains
        case(swdn)
           if (trim(CRU%MetVersion) == "CRUJRA_2021") then
              fn = trim(fn)//"/tswrf/tswrf_v10_"//cy//".daymean.1deg.nc"
+          else if (trim(CRU%MetVersion) == "CRUJRA_2022") then
+             fn = trim(fn)//"/tswrf/tswrf_v11_"//cy//".daymean.1deg.nc"
           else
              fn = trim(fn)//"/dswrf/"//trim(cruver)//".5d.dswrf."//cy//".365d.noc.daymean.1deg.nc"
           endif
@@ -751,6 +758,9 @@ contains
           case("CRUJRA_2021", "VERIFY_2021")
              allocate(CRU%CO2VALS(1700:2020))
              CO2FILE = trim(CRU%BasePath)//"/co2/global_co2_ann_1700_2020.txt"
+          case("CRUJRA_2022")
+             allocate(CRU%CO2VALS(1700:2021))
+             CO2FILE = trim(CRU%BasePath)//"/co2/global_co2_ann_1700_2021.txt"
           end select
 
           call GET_UNIT(iunit)

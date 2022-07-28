@@ -1158,7 +1158,7 @@ contains
        STATUS = NF90_INQUIRE_DIMENSION( FILE_ID, dID, LEN=NCOHORT_MAX_dim )
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
-       IF ( land_dim .NE. mp .OR.  npatch2d_dim .NE. NPATCH2D .OR.  &
+       IF ( land_dim .NE. mp .OR. npatch2d_dim .NE. NPATCH2D .OR.  &
             HEIGHT_BINS_dim .NE. HEIGHT_BINS .OR. NCOHORT_MAX_dim .NE. NCOHORT_MAX &
             .OR. NLAYER_dim .NE. NLAYER .OR. NDISTURB_dim .NE. NDISTURB ) THEN
           WRITE(*,*)"Dimension misfit in pop_io.F90!"
