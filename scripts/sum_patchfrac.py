@@ -19,37 +19,54 @@ optional arguments:
 
 Example
 -------
-  python sum_patchfrac.py -o cru_out_cable_2009_2011-no_patch.nc cru_out_cable_2009_2011.nc
+  python sum_patchfrac.py -o cru_out_cable_2009_2011-no_patch.nc \
+      cru_out_cable_2009_2011.nc
 
 
 History
 -------
 Written  Matthias Cuntz, Oct 2018
-Modified Matthias Cuntz, Apr 2020 - set _FillValue when creating variables
-                                  - script more general for all Cable-POP output files
-         Matthias Cuntz, Apr 2020 - use python module cablepop
+Modified Matthias Cuntz, Apr 2020
+             - set _FillValue when creating variables
+             - script more general for all Cable-POP output files
+         Matthias Cuntz, Apr 2020
+             - use python module cablepop
+         Matthias Cuntz, Jul 2022
+             - flake8 compatible
+             - simply sum Area of patches
+
 """
+import sys
+import argparse
+import time as ptime
+import numpy as np
+import netCDF4 as nc
+import cablepop as cp
 
 # -------------------------------------------------------------------------
 # Command line
 #
 
-import argparse
-
 ofile   = None
 verbose = False
 izip    = False
-parser  = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
-                                  description=('''Copy Cable output summing variables weighted with patchfrac.'''))
+parser  = argparse.ArgumentParser(
+    formatter_class=argparse.RawDescriptionHelpFormatter,
+    description=('Copy Cable output summing variables weighted with'
+                 ' patchfrac.'))
 parser.add_argument('-o', '--outfile', action='store',
                     default=ofile, dest='ofile', metavar='output_netcdf',
-                        help='output netcdf file name (default: input-no_patch.nc).')
-parser.add_argument('-v', '--verbose', action='store_true', default=verbose, dest='verbose',
+                    help=('output netcdf file name (default:'
+                          ' input-no_patch.nc).'))
+parser.add_argument('-v', '--verbose', action='store_true',
+                    default=verbose, dest='verbose',
                     help='Feedback during copy (default: no feedback).')
-parser.add_argument('-z', '--zip', action='store_true', default=izip, dest='izip',
-                    help='Use netCDF4 variable compression (default: same format as input file).')
+parser.add_argument('-z', '--zip', action='store_true', default=izip,
+                    dest='izip',
+                    help=('Use netCDF4 variable compression (default:'
+                          ' same format as input file).'))
 parser.add_argument('ifile', nargs='?', default=None, metavar='input_netcdf',
-                   help='input netcdf file.')
+                    help='input netcdf file.')
 args    = parser.parse_args()
 ofile   = args.ofile
 verbose = args.verbose
@@ -60,11 +77,6 @@ del parser, args
 if ifile is None:
     raise IOError('Input file must be given.')
 
-import sys
-import numpy as np
-import netCDF4 as nc
-import cablepop as cp
-import time as ptime
 if verbose:
     tstart = ptime.time()
 
@@ -75,13 +87,10 @@ if verbose:
 #
 # Open files
 #
-if ofile is None: # Default output filename
-    ofile = cp.set_output_filename(ifile, '-no_patch')
 fi = nc.Dataset(ifile, 'r')
 if 'patchfrac' not in fi.variables:
     fi.close()
-    print('No variable patchfrac in input file '+ifile)
-    import sys
+    print('No variable patchfrac in input file ' + ifile)
     sys.exit()
 # Check patch dimensions 1
 patchfrac = fi.variables['patchfrac']
@@ -91,12 +100,17 @@ elif 'mp' in patchfrac.dimensions:
     pname = 'mp'
 else:
     fi.close()
-    print("Did not understand patchfrac: neither 'patch' nor 'mp' in dimensions - "+ifile)
+    print("Did not understand patchfrac: neither 'patch' nor 'mp'"
+          " in dimensions - " + ifile)
     import sys
     sys.exit()
+if verbose:
+    print('Input file:  ', ifile)
 
-if verbose: print('Input file:  ', ifile)
-if verbose: print('Output file: ', ofile)
+if ofile is None:  # Default output filename
+    ofile = cp.set_output_filename(ifile, '-no_patch')
+if verbose:
+    print('Output file: ', ofile)
 if izip:
     fo = nc.Dataset(ofile, 'w', format='NETCDF4')
 else:
@@ -115,7 +129,9 @@ else:
 ntime  = fi.dimensions['time'].size
 
 # Copy global attributes, adding script
-cp.set_global_attributes(fi, fo, add={'history':ptime.asctime()+': '+' '.join(sys.argv)})
+cp.set_global_attributes(fi, fo,
+                         add={'history': (ptime.asctime() + ': ' +
+                                          ' '.join(sys.argv))})
 
 # Copy dimensions
 cp.create_dimensions(fi, fo, removedim=[pname])
@@ -131,12 +147,14 @@ cp.create_variables(fi, fo, time=True, izip=izip, removedim=pname)
 #
 
 # copy static variables
-if verbose: print('Copy static variables')
+if verbose:
+    print('Copy static variables')
 if pidxt:
-    pfrac  = patchfrac[0,...]
+    pfrac  = patchfrac[0, ...]
 else:
     pfrac  = patchfrac
-np.seterr(over='ignore', under='ignore', invalid='ignore') # multiply masked elements
+# multiply masked elements
+np.seterr(over='ignore', under='ignore', invalid='ignore')
 for ivar in fi.variables.values():
     if 'time' not in ivar.dimensions:
         ovar  = fo.variables[ivar.name]
@@ -145,9 +163,9 @@ for ivar in fi.variables.values():
             idx = ivar.dimensions.index(pname)
             if ivar.name == 'iveg':
                 # take first patch, could also be patch with maximum frac
-                out = np.delete(invar, range(1,npatch), axis=idx).squeeze()
+                out = np.delete(invar, range(1, npatch), axis=idx).squeeze()
             else:
-                out = np.sum(invar*pfrac, axis=idx) # numpy broadcasting
+                out = np.sum(invar * pfrac, axis=idx)  # numpy broadcasting
         else:
             out = invar
         ovar[:] = out
@@ -160,25 +178,30 @@ if ntime < 20:
 else:
     t10 = ntime // 10
 for tt in range(ntime):
-    if verbose and (tt > 0) and ((tt % t10) == 0): print('  {:d}%'.format(int(tt/ntime*100.)))
+    if verbose and (tt > 0) and ((tt % t10) == 0):
+        print('  {:d}%'.format(int(tt / ntime * 100.)))
     if pidxt:
-        pfrac  = patchfrac[tt,...]
+        pfrac  = patchfrac[tt, ...]
     else:
         pfrac  = patchfrac
     for ivar in fi.variables.values():
         if 'time' in ivar.dimensions:
             ovar = fo.variables[ivar.name]
-            invar = ivar[tt,...]
+            invar = ivar[tt, ...]
             if pname in ivar.dimensions:
-                idx = ivar.dimensions.index(pname) - 1 # -1 because time removed at beginning
+                # -1 because selected timestep of patchfrac
+                idx = ivar.dimensions.index(pname) - 1
                 if ivar.name == 'iveg':
                     # take first patch, could also be patch with maximum frac
-                    out = np.delete(invar, range(1,npatch), axis=idx).squeeze()
+                    out = np.delete(invar, range(1, npatch),
+                                    axis=idx).squeeze()
+                elif ivar.name == 'Area':
+                    out = np.sum(invar, axis=idx)
                 else:
-                    out = np.sum(invar*pfrac, axis=idx) # numpy broadcasting
+                    out = np.sum(invar * pfrac, axis=idx)  # numpy broadcasting
             else:
                 out = invar
-            ovar[tt,...] = out
+            ovar[tt, ...] = out
 
 fi.close()
 fo.close()
@@ -188,4 +211,4 @@ fo.close()
 
 if verbose:
     tstop = ptime.time()
-    print('Finished in [s]: {:.2f}'.format(tstop-tstart))
+    print('Finished in [s]: {:.2f}'.format(tstop - tstart))
