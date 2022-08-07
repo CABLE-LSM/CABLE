@@ -1564,7 +1564,7 @@ contains
 
     ! patch fraction and area
     a1(1)  = 'patchfrac'
-    a2(2)  = 'patcharea'
+    a1(2)  = 'patcharea'
     ! C
     a1(3)  = 'glai'
     a1(4)  = 'clabile'
