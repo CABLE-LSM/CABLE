@@ -126,7 +126,8 @@ MODULE cable_common_module
           within_canopy_isothermal = .FALSE., &
           amphistomatous           = .FALSE., &
           perturb_dva_by_T         = .FALSE., &  ! switch to perturb esat by dva_T_perturbation
-          perturb_Ta               = .FALSE.     ! switch to perturb air temp by Ta_perturbation (site met only)
+          perturb_Ta               = .FALSE., &  ! switch to perturb air temp by Ta_perturbation (site met only)
+          calc_fdiff             = .FALSE.       ! switch to calculate diffuse radiation or prescribe from met
      INTEGER ::  &
           CASA_SPIN_STARTYEAR = 1950, &
           CASA_SPIN_ENDYEAR   = 1960, &

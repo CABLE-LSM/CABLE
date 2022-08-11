@@ -1082,6 +1082,7 @@ contains
     call add_address_1block(met%u10, 1, mp, displs, blen, types, bidx)
     call add_address_1block(met%rhum, 1, mp, displs, blen, types, bidx)
     call add_address_1block(met%fsd, 1, mp, displs, blen, types, bidx)
+    call add_address_1block(met%fdiff, 1, mp, displs, blen, types, bidx)
 
     ! ----------- air --------------
 
@@ -2014,6 +2015,7 @@ contains
     ! met fields
 
     call add_address_1block(met%fsd, 1, mp, displs, blocks, types, bidx)
+    call add_address_1block(met%fdiff, 1, mp, displs, blocks, types, bidx)
     call add_address_1block(met%tk, 1, mp, displs, blocks, types, bidx)
     call add_address_1block(met%pmb, 1, mp, displs, blocks, types, bidx)
     call add_address_1block(met%qv, 1, mp, displs, blocks, types, bidx)
@@ -2254,6 +2256,7 @@ contains
     call add_address_1block(met%da, 1, mp, displs, blocks, types, bidx)
     call add_address_1block(met%dva, 1, mp, displs, blocks, types, bidx)
     call add_address_1block(met%coszen, 1, mp, displs, blocks, types, bidx)
+    call add_address_1block(met%fdiff, 1, mp, displs, blocks, types, bidx)
 
     ! canopy
     call add_address_1block(canopy%fess, 1, mp, displs, blocks, types, bidx)

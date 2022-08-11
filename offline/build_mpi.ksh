@@ -43,14 +43,14 @@ host_gadi()
     module load intel-mpi/2021.5.1
     module load netcdf/4.8.0
 
-    # export FC=mpif90
+    #export FC=mpif90
     export FC=mpiifort
     export NCMOD=${NETCDF_ROOT}"/include/Intel"
     #if [[ ${1} == "debug" ]]; then
         # debug
-        # export CFLAGS='-O0 -fpp -traceback -g -fp-model precise -ftz -fpe0'
-        #export CFLAGS="-fpp -O0 -debug extended -traceback -g -check all,noarg_temp_created -warn all -fp-stack-check -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0" # -fpe-all=0 -no-ftz -ftrapuv"
-        #export LDFLAGS="-O0"
+        ##export CFLAGS='-O0 -fpp -traceback -g -fp-model precise -ftz -fpe0'
+        ##export CFLAGS="-fpp -O0 -debug extended -traceback -g -check all,noarg_temp_created -warn all -fp-stack-check -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0" # -fpe-all=0 -no-ftz -ftrapuv"
+        ##export LDFLAGS="-O0"
         #OPTFLAG=""
     #else
         # release

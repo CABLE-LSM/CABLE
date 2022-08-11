@@ -20,7 +20,8 @@
 
 MODULE cable_radiation_module
 
-   USE cable_data_module, ONLY : irad_type, point2constants
+  USE cable_data_module, ONLY : irad_type, point2constants
+  USE cable_common_module
 
    IMPLICIT NONE
 
@@ -40,7 +41,6 @@ SUBROUTINE init_radiation(met, rad, veg, canopy)
 
    USE cable_def_types_mod, ONLY: radiation_type, met_type, canopy_type, &
         veg_parameter_type, nrb, mp
-   USE cable_common_module
 
    implicit none
 
@@ -131,11 +131,21 @@ SUBROUTINE init_radiation(met, rad, veg, canopy)
    ! print*, 'XX05 ', met%doy
    ! print*, 'XX06 ', met%coszen
 
+   !write(83,*) "cable_user%calc_fdiff", cable_user%calc_fdiff
    IF( .NOT. cable_runtime%um) THEN
       ! Define beam fraction, fbeam:
-      rad%fbeam(:,1) = spitter(met%doy, met%coszen, met%fsd(:,1))
-      rad%fbeam(:,2) = spitter(met%doy, met%coszen, met%fsd(:,2))
-
+      IF (cable_user%calc_fdiff) THEN
+         rad%fbeam(:,1) = spitter(met%doy, met%coszen, met%fsd(:,1))
+         rad%fbeam(:,2) = spitter(met%doy, met%coszen, met%fsd(:,2))
+         !write(87,*) "rad%fbeam:", rad%fbeam(:,1)
+      ELSE
+         rad%fbeam(:,1) = max(min(1.0 - met%fdiff(:),1.0),0.0)
+         rad%fbeam(:,2) = max(min(1.0 - met%fdiff(:),1.0),0.0)
+         !write(83,*) "rad%fbeam:", rad%fbeam(:,1)
+         !write(83,*) "met%fdiff(:)", met%fdiff(:)
+         !write(83,*) "met%fsd(:,1)", met%fsd(:,1)
+      ENDIF
+         
       ! coszen is set during met data read in.
       WHERE (met%coszen <1.0e-2)
          rad%fbeam(:,1) = 0.0

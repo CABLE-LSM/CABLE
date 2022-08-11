@@ -1965,6 +1965,7 @@ SUBROUTINE master_cable_params(comm, met, air, ssnow, veg, bgc, soil, canopy, ro
      call add_address_hvector(met%Pdep, off, cnt, mp, displs, blen, types, bidx)
      call add_address_hvector(met%u10, off, cnt, mp, displs, blen, types, bidx)
      call add_address_hvector(met%rhum, off, cnt, mp, displs, blen, types, bidx)
+     call add_address_hvector(met%fdiff, off, cnt, mp, displs, blen, types, bidx)
      call add_address_hvector(met%fsd, off, cnt, mp, displs, blen, types, bidx)
 
      ! ----------- air --------------
@@ -2920,6 +2921,7 @@ SUBROUTINE master_intypes(comm, met, veg)
      ! met fields
 
      call add_address_hvector(met%fsd, off, cnt, mp, displs, blocks, types, bidx)
+     call add_address_hvector(met%fdiff, off, cnt, mp, displs, blocks, types, bidx)
      call add_address_hvector(met%tk, off, cnt, mp, displs, blocks, types, bidx)
      call add_address_hvector(met%pmb, off, cnt, mp, displs, blocks, types, bidx)
      call add_address_hvector(met%qv, off, cnt, mp, displs, blocks, types, bidx)
@@ -3478,6 +3480,7 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      call add_address_hvector(met%da, off, cnt, mp, vaddr, blen, types, vidx)
      call add_address_hvector(met%dva, off, cnt, mp, vaddr, blen, types, vidx)
      call add_address_hvector(met%coszen, off, cnt, mp, vaddr, blen, types, vidx)
+     call add_address_hvector(met%fdiff, off, cnt, mp, vaddr, blen, types, vidx)
 
      ! canopy
 

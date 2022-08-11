@@ -52,7 +52,8 @@ module cable_mpicommon
   ! Jurgen Knauer: add 10 veg params -> 331
   ! Matthias Cuntz: add 4 soil params for SLI -> 335
   ! Matthias Cuntz: send all parameters of types -> 418
-  integer, parameter, public :: nparam = 418
+  ! JK: met%fdiff -> 419
+  integer, parameter, public :: nparam = 419
 
   ! MPI: number of casa parameters sent to workers as start up parameters
   !   INTEGER, PARAMETER :: ncasaparam = 68
@@ -85,7 +86,8 @@ module cable_mpicommon
 
   ! MPI: number of input fields sent to workers at the start of each timestep
   ! added 4 time fields in met: year, moy, doy, hod
-  integer, parameter, public :: ninput = 18
+  ! JK: add fdiff -> 19
+  integer, parameter, public :: ninput = 19
 
   ! MPI: number of 3D array slices / worker (results)
   integer, parameter, public :: n3d = 1
@@ -117,7 +119,8 @@ module cable_mpicommon
   ! ? 15 extra params -> 183
   ! Matthias Cuntz: add 1 1D canopy param for 13C -> 184
   ! Matthias Cuntz: add 3 1D canopy params for elasticities -> 187
-  integer, parameter, public :: nvec = 187
+  ! JK: added fdiff to met -> 188
+  integer, parameter, public :: nvec = 188
 
   ! MPI: number of fields included in restart_t type for data
   ! that is returned only for creating a restart file at the end of the run

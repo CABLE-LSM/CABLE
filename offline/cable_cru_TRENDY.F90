@@ -5,7 +5,8 @@ module cable_cru
        nf90_inq_varid, nf90_get_var, nf90_close
   use cable_common_module, only: &  ! Selected cable_common.f90 routines:
        handle_err,  &               ! Print error status info returned by netcdf file operations
-       get_unit                     ! Finds an unused unit number for file opens
+       get_unit, &                  ! Finds an unused unit number for file opens
+       cable_user                   ! used for diffuse radiation switch
   use cable_IO_vars_module, only: & ! Selected cable_iovars.F90 variables:
        logn,            &           ! Log file unit number
        land_x, land_y,  &           ! Col (x) & row (y) indices of each land point
@@ -36,14 +37,15 @@ module cable_cru
      integer :: Dtsecs             ! Model Timestep In Seconds, Converted From Namelist Value In Hours
      integer :: Ktau               ! Current model timestep, reset at the start of a new year of met
      integer :: metrecyc=20        ! number of years for the met recycling
-     integer, dimension(9) :: f_id, v_id ! NetCDF object id's for files and variables (NetCDF bookkeeping stuff)
+     integer, dimension(10) :: f_id, v_id ! NetCDF object id's for files and variables (NetCDF bookkeeping stuff)
      ! Avg of one day's diurnal cycle of lwdn calculated by Swinbank. AVG_LWDN
      ! is used to rescale the diurnal cycle to match the day's CRUNCEP lwdn. (dim=mland)
      real, dimension(:), allocatable :: avg_lwdn
      ! Global annual CO2 values (dim is the number of years of data, or 1 if time-invariant)
      real, dimension(:), allocatable :: co2vals
-     logical :: DirectRead ! Flag to do with reading small numbers of points efficiently. Set true for small numbers of points
-     logical :: LeapYears  ! Flag for whether leaps years occur, required by CABLE. Always false for CRUNCEP (no Feb 29th)
+     logical :: DirectRead   ! Flag to do with reading small numbers of points efficiently. Set true for small numbers of points
+     logical :: LeapYears    ! Flag for whether leaps years occur, required by CABLE. Always false for CRUNCEP (no Feb 29th)
+     logical :: ReadDiffFrac ! Is fraction of diffuse radiation read in from met file (TRUE) or calculated in rad routine (FALSE)?
      logical, dimension(:,:), allocatable :: LandMask ! Logical landmask, true for land, false for non-land
      !
      character(len=30)  :: run            ! Where run type is      : "S0_TRENDY", "S1_TRENDY", "S2_TRENDY"
@@ -55,11 +57,11 @@ module cable_cru
      character(len=50)  :: MetVersion     ! Met Forcing Version (currently CRUJRA_YEAR and VERIFY_2021)
      character(len=200) :: LandMaskFile   ! Land mask filename, without path
      ! Netcdf variable 'Name' for each type of met (dim=# of met vars). Note: Name, not 'Title'
-     character(len=30),  dimension(9)  :: var_name
+     character(len=30),  dimension(10)  :: var_name
      ! Met file names incl metpath, constructed in CRU_GET_FILENAME (dim=# of met vars)
-     character(len=200), dimension(9)  :: MetFile
+     character(len=200), dimension(10)  :: MetFile
      ! Met data vectors (METVALS) for one timestep, dim=# of met vars + 2 for prev Tmax and next Tmin
-     type(cru_met_type), dimension(11) :: met
+     type(cru_met_type), dimension(12) :: met
      real, dimension(:), allocatable :: ndepvals
      integer :: ndepf_id, ndepv_id
      integer :: ndep_ctstep   ! counter for Ndep in input file
@@ -79,8 +81,9 @@ module cable_cru
        tmin     =  7, &
        uwind    =  8, &
        vwind    =  9, &
-       prevTmax = 10, &
-       nextTmin = 11
+       fdiff    = 10, &
+       prevTmax = 11, &
+       nextTmin = 12
 
   ! Error status of various operations (mostly netcdf-related). Typically 0 means ok, > 0 means unexpected condition.
   integer, private :: ErrStatus
@@ -130,6 +133,7 @@ contains
     ! namelist file. Note that CRU%CO2 and CRU%Forcing are assigned based on the
     ! value of Run, not read as options from the namelist file.
     logical            :: DirectRead = .false.
+    logical            :: ReadDiffFrac = .false.
     character(len=30)  :: Run
     character(len=200) :: BasePath
     character(len=200) :: MetPath
@@ -147,7 +151,7 @@ contains
     integer :: ierr
 #endif
 
-    namelist /crunml/ BasePath, MetPath, MetVersion, LandMaskFile, Run, DThrs, DirectRead
+    namelist /crunml/ BasePath, MetPath, MetVersion, ReadDiffFrac, LandMaskFile, Run, DThrs, DirectRead
 
     ! Read CRU namelist settings
     call get_unit(nmlunit)  ! CABLE routine finds spare unit number
@@ -159,10 +163,17 @@ contains
     CRU%BasePath     = BasePath
     CRU%MetPath      = MetPath
     CRU%MetVersion   = trim(MetVersion)
+    CRU%ReadDiffFrac = ReadDiffFrac
     CRU%LandMaskFile = trim(LandMaskFile)
     CRU%Run          = Run
     CRU%DTsecs       = int(DThrs * 3600.)  ! in seconds
     CRU%DirectRead   = DirectRead
+
+    ! diffuse fraction not available for all Metversions
+    if ((CRU%ReadDiffFrac == .true.) .and. (trim(CRU%MetVersion) /= "CRUJRA_2022")) then
+       write(*,'(a)') "Diffuse Fraction only available for CRUJRA_2022!"
+       write(logn,*)  "Diffuse Fraction only available for CRUJRA_2022!"
+    endif
 
     ! Assign Forcing and CO2 labels based only on the value of CRU%Run
     select case(trim(CRU%Run))
@@ -283,6 +294,10 @@ contains
     write(logn,*) " CO2     (assigned): ",trim(CRU%CO2)
     write(logn,*) " Ndep    (assigned): ",trim(CRU%Ndep)
     write(logn,*) " DT(secs): ",CRU%DTsecs
+    if (CRU%ReadDiffFrac) then
+       write(*,'(a)') "  Reading diffuse fraction from met file"
+       write(logn,*) " Reading diffuse fraction from met file"
+    endif
 
     ! Error trap for bad namelist.
     if (ERR) then
@@ -332,7 +347,10 @@ contains
        CRU%VAR_NAME(swdn) = "tswrf"
     else if (trim(CRU%MetVersion) == "CRUJRA_2022") then
        CRU%VAR_NAME(swdn) = "tswrf"
-       !CRU%NMET = 10
+       if (CRU%ReadDiffFrac) then
+          CRU%NMET = 10
+          CRU%VAR_NAME(fdiff) = "fd"
+       endif
     else if (trim(CRU%MetVersion) == "VERIFY_2021") then
        CRU%VAR_NAME(rain)  = "Precipalign"
        CRU%VAR_NAME(lwdn)  = "LWdownnoalign"
@@ -601,6 +619,10 @@ contains
           fn = trim(fn)//"/ugrd/"//trim(cruver)//".5d.ugrd."//cy//".365d.noc.daymean.1deg.nc"
        case(vwind)
           fn = trim(fn)//"/vgrd/"//trim(cruver)//".5d.vgrd."//cy//".365d.noc.daymean.1deg.nc"
+       case(fdiff)
+          if (trim(CRU%MetVersion) == "CRUJRA_2022") then
+             fn = trim(fn)//"/fd/fd_v11_"//cy//".daymean.1deg.nc"
+          endif
        end select
     endif
 
@@ -1069,7 +1091,7 @@ contains
        end select
 
     end do  ! do iVar=1, CRU%NMET -> end of loop through all met variables
-
+    
     ! Convert pressure Pa -> hPa
     cru%met(pres)%metvals(:) = cru%met(pres)%metvals(:) / 100.
 
@@ -1121,8 +1143,16 @@ contains
     dt = CRU%DTsecs
 
     ! On first step read and check CRU settings and read land-mask
-    if (CALL1) call WGEN_INIT(WG, CRU%mland, latitude, dt)
-
+    if (CALL1) then
+       if (CRU%ReadDiffFrac) then
+          cable_user%calc_fdiff = .false.
+       else
+          cable_user%calc_fdiff = .true.
+       endif
+       
+       call WGEN_INIT(WG, CRU%mland, latitude, dt)
+    endif
+       
     ! Pass time-step information to CRU
     CRU%CYEAR = CurYear
     CRU%ktau  = ktau     ! ktau is the current timestep in the year.
@@ -1167,6 +1197,7 @@ contains
        !   CALL CPU_TIME(etime)
        !   PRINT *, 'b4 daily ', etime, ' seconds needed '
        LastDayOfYear = ktau == (kend-(nint(SecDay/dt)-1))
+
        call CRU_GET_DAILY_MET(CRU, LastDayOfYear)
        !   CALL CPU_TIME(etime)
        !   PRINT *, 'after daily ', etime, ' seconds needed '
@@ -1225,6 +1256,10 @@ contains
        ! get half of the CRU-NCEP swdown each.
        met%fsd(is:ie,1) = real(WG%PhiSD(iland) * 0.5_r_2)  ! Visible
        met%fsd(is:ie,2) = real(WG%PhiSD(iland) * 0.5_r_2)  ! NIR
+
+       if (CRU%ReadDiffFrac) then ! read from met forcing, otherwise calculated in cable_radiation.F90
+          met%fdiff(is:ie) = CRU%MET(fdiff)%METVALS(iland)
+       endif
 
        ! Convert C to K for cable's tk
        met%tk(is:ie)     = real(WG%Temp(iland) + 273.15_r_2)

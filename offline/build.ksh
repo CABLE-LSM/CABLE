@@ -36,19 +36,21 @@ host_gadi()
         . /etc/kshrc
     fi
     module purge
-    module load intel-compiler/2019.5.281
-    module load netcdf/4.6.3
+    #module load intel-compiler/2019.5.281
+    #module load netcdf/4.6.3
+    module load intel-compiler/2021.5.0
+    module load netcdf/4.8.0
 
     export FC=ifort
     export NCDIR=${NETCDF_ROOT}"/lib/Intel"
     export NCMOD=${NETCDF_ROOT}"/include/Intel"
     #if [[ ${1} == "debug" ]]; then
         # debug
-    #export CFLAGS='-O0 -fpp -debug -traceback -g -fp-model precise -ftz -fpe0'
-    #export CFLAGS='-O0 -fpe=0 -fpe-all=0 -fpp -g -debug -traceback -fp-stack-check -no-ftz -ftrapuv -check bounds'
-        #export CFLAGS="-fpp -O0 -debug extended -traceback -g -check all,noarg_temp_created -warn all -fp-stack-check -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0" # -fpe-all=0 -no-ftz -ftrapuv"
-       # export LDFLAGS="-O0"
-        #OPTFLAG=""
+        ##export CFLAGS='-O0 -fpp -debug -traceback -g -fp-model precise -ftz -fpe0'
+        ##export CFLAGS='-O0 -fpe=0 -fpe-all=0 -fpp -g -debug -traceback -fp-stack-check -no-ftz -ftrapuv -check bounds'
+        ##export CFLAGS="-fpp -O0 -debug extended -traceback -g -check all,noarg_temp_created -warn all -fp-stack-check -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0" # -fpe-all=0 -no-ftz -ftrapuv"
+        ##export LDFLAGS="-O0"
+        ##OPTFLAG=""
     #else
         # release
         # export CFLAGS='-O2 -fpp -fp-model precise'

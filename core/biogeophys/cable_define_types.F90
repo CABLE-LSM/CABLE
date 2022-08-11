@@ -619,7 +619,8 @@ module cable_def_types_mod
           Ndep => null(),    & ! nitrogen deposition (gN m-2 d-1)
           Pdep => null(),    & ! P deposition (gP m-2 d-1)
           u10 => null(),     & ! 10 m horizontal wind (m/s)
-          rhum => null()       ! relative humidity (%)
+          rhum => null(),    & ! relative humidity (%)
+          fdiff => null()      ! fraction of diffuse radiation
      real, dimension(:,:), pointer :: &
           fsd => null()  ! downward short-wave radiation (W/m2)
 
@@ -1323,6 +1324,7 @@ contains
     allocate(met%Pdep(mp))
     allocate(met%u10(mp))
     allocate(met%rhum(mp))
+    allocate(met%fdiff(mp))
     allocate(met%fsd(mp,swb))
 
   end subroutine alloc_met_type
@@ -1908,6 +1910,7 @@ contains
     deallocate(met%Ndep)
     deallocate(met%Pdep)
     deallocate(met%rhum)
+    deallocate(met%fdiff)
     deallocate(met%u10)
 
   end subroutine dealloc_met_type
@@ -2445,6 +2448,7 @@ contains
     met%Ndep      = 0
     met%Pdep      = 0
     met%rhum      = 0
+    met%fdiff     = 0
     met%u10       = 0
 
   end subroutine zero_met_type
@@ -3073,6 +3077,7 @@ contains
     write(*,*) 'met%Ndep ', met%Ndep
     write(*,*) 'met%Pdep ', met%Pdep
     write(*,*) 'met%rhum ', met%rhum
+    write(*,*) 'met%fdiff ', met%fdiff
     write(*,*) 'met%u10 ', met%u10
 
   end subroutine print_met_type
