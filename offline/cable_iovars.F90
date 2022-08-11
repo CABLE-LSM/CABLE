@@ -228,6 +228,7 @@ MODULE cable_IO_vars_module
           Ewater = .FALSE.,    & ! 23 evap. from surface water storage [kg/m2/s]
           ESoil = .FALSE.,     & ! 24 bare soil evaporation [kg/m2/s]
           TVeg = .FALSE.,      & ! 25 vegetation transpiration [kg/m2/s]
+          TSap = .FALSE.,      & ! 25b, trans. from sapflux at top of leaves [kg/m2/s], ms8355
           ECanop = .FALSE.,    & ! 26 interception evaporation [kg/m2/s]
           PotEvap = .FALSE.,   & ! 27 potential evapotranspiration [kg/m2/s]
           ACond = .FALSE.,     & ! 28 aerodynamic conductance [m/s]
@@ -304,12 +305,8 @@ MODULE cable_IO_vars_module
           PlantTurnoverWoodResourceLim = .FALSE., &
           LandUseFlux = .FALSE., &
 
-          ! mgdk, 19/2/2019, plant hydraulics
-          !weighted_psi_soil = .FALSE., &
-          !psi_soil = .FALSE., &
-          !psi_leaf = .FALSE., &
-
-          weighted_psi_soil = .TRUE., &
+          ! plant hydraulics, ms8355
+          psi_rootzone = .TRUE., &
           psi_soil = .TRUE., &
           psi_leaf = .TRUE., &
           psi_stem = .TRUE., &

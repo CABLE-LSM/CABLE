@@ -1754,6 +1754,7 @@ CONTAINS
     REAL(r_2), DIMENSION(mp)  ::                                                &
          ecx,        & ! lat. hflux big leaf
          ecx_t,      & ! lat. hflux big leaf
+         ecxs,        & ! lat. hflux big leaf (sap flux)
          hcx,        & ! sens heat fl big leaf prev iteration
          rnx,        & ! net rad prev timestep
          fwsoil_coef   !
@@ -1807,8 +1808,8 @@ CONTAINS
     REAL(r_2), DIMENSION(resolution) :: p
 
     REAL :: MOL_WATER_2_G_WATER, G_TO_KG, UMOL_TO_MOL, MB_TO_KPA, PA_TO_KPA
-    REAL :: avg_kplant, new_plc
-    REAL, DIMENSION(mp) :: Kcmax
+    REAL :: new_plc
+    REAL, DIMENSION(mp) :: Kcmax, avg_kplant
     REAL :: gamma_star
     REAL :: MOL_TO_UMOL, J_TO_MOL
 #define VanessasCanopy
@@ -1877,9 +1878,11 @@ CONTAINS
     hcy = 0.0
     rdy = 0.0
     ecx = SUM(rad%rniso,2) ! init lat heat iteration memory variable
+    ecxs = 0.0
     tlfxx = tlfx
     psycst(:,:) = SPREAD(air%psyc,2,mf)
     canopy%fevc = 0.0
+    canopy%fevcs = 0.0
     ssnow%evapfbl = 0.0
 
     ghwet = 1.0e-3
@@ -1896,6 +1899,7 @@ CONTAINS
        IF(canopy%vlaiw(kk) <= C%LAI_THRESH) THEN
           rnx(kk) = 0.0 ! intialise
           ecx(kk) = 0.0 ! intialise
+          ecxs(kk) = 0.0 ! initialise
           ecy(kk) = ecx(kk) ! store initial values
           abs_deltlf(kk)=0.0
           rny(kk) = rnx(kk) ! store initial values
@@ -1909,8 +1913,8 @@ CONTAINS
 
     DO i=1,mp
       ! Plant hydraulic conductance (mmol m-2 leaf s-1 MPa-1)
-      kcmax(i) = veg%Kmax(i) * &
-                  get_xylem_vulnerability(ssnow%weighted_psi_soil(i), &
+      Kcmax(i) = veg%Kmax(i) * &
+                  get_xylem_vulnerability(ssnow%psi_rootzone(i), &
                                           veg%b_plant(i), veg%c_plant(i))
     END DO
 
@@ -2140,16 +2144,17 @@ CONTAINS
 
                 IF (vpd < 0.05) THEN
                    ecx(i) = 0.0
+                   ecxs(i) = 0.0
                    anx(i,1) = 0.0 - rdx(i,1)
                    anx(i,2) = 0.0 - rdx(i,2)
                 ELSE
                    CALL optimisation(canopy, rad, ssnow, rad%qcan, vpd, press, tlfx(i), &
                                      csx, rad%fvlai, &
-                                     ssnow%weighted_psi_soil(i), &
+                                     ssnow%psi_rootzone(i), &
                                      ssnow%Rsr(i), Kcmax, veg%Kmax(i), veg%Kcrit(i), &
                                      veg%b_plant(i), veg%c_plant(i), &
                                      resolution, vcmxt3, ejmxt3, rdx, vx3, &
-                                     cx1(i), an_canopy, e_canopy, veg%gmin(i), &
+                                     cx1(i), an_canopy, e_canopy, avg_kplant, veg%gmin(i), &
                                      gamma_star, p, i)
 
 
@@ -2158,13 +2163,13 @@ CONTAINS
                    anx(i,1) = an_canopy(1) * UMOL_TO_MOL
                    anx(i,2) = an_canopy(2) * UMOL_TO_MOL
 
-                   ! fix units for CABLE and pack into arrays
-                   !IF (e_canopy > 0.0) THEN
-                   !   conv = MOL_WATER_2_G_WATER * G_TO_KG
-                   !   ecx(i) = e_canopy * air%rlam(i) * conv
-                   !ELSE
-                   !   ecx(i) = 0.0
-                   !END IF
+                   ! fix units for CABLE and pack sap flux E into arrays
+                   IF (e_canopy > 0.0) THEN
+                      conv = MOL_WATER_2_G_WATER * G_TO_KG
+                      ecxs(i) = e_canopy * air%rlam(i) * conv
+                   ELSE
+                      ecxs(i) = 0.0
+                   END IF
                 END IF
 
              ELSE
@@ -2227,7 +2232,6 @@ CONTAINS
 
              ENDDO
 
-             !IF (cable_user%FWSOIL_SWITCH /= 'profitmax') THEN
 
              ecx(i) = ( air%dsatdk(i) * ( rad%rniso(i,1) - C%capp * C%rmair     &
                      * ( met%tvair(i) - met%tk(i) ) * rad%gradis(i,1) )        &
@@ -2237,8 +2241,7 @@ CONTAINS
                      met%tk(i) ) * rad%gradis(i,2) ) + C%capp * C%rmair *      &
                      met%dva(i) * ghr(i,2) ) /                                 &
                      ( air%dsatdk(i) + psycst(i,2) )
-
-             !END IF
+             ecx(i) = MAX(1.e-3, ecx(i))
 
 
              IF (cable_user%fwsoil_switch=='Haverd2013') THEN
@@ -2267,7 +2270,7 @@ CONTAINS
              ! PH: mgk576, 13/10/17
              ! This is over the combined direct & diffuse leaves due to the
              ! way the loops fall above
-          ELSEIF (cable_user%FWSOIL_SWITCH == 'profitmax') THEN
+             ELSEIF (cable_user%FWSOIL_SWITCH == 'profitmax') THEN
 
 
                 IF (ecx(i) > 0.0 .AND. canopy%fwet(i) < 1.0) THEN
@@ -2276,12 +2279,17 @@ CONTAINS
 
                     DO kk = 1,ms
 
-                       ssnow%evapfbl(i,kk) = MIN(evapfb(i) * &
-                                                 ssnow%fraction_uptake(i,kk),  &
-                                                 MAX(0.0, &
-                                                     REAL(ssnow%wb(i,kk)) -    &
-                                                     soil%swilt(i)) * &
-                                                 soil%zse(kk) * 1000.0)
+                       !ssnow%evapfbl(i,kk) = MIN(evapfb(i) * &
+                       !                          ssnow%fraction_uptake(i,kk),  &
+                       !                          MAX(0.0, &
+                       !                              REAL(ssnow%wb(i,kk)) -    &
+                       !                              soil%swilt(i)) * &
+                       !                          soil%zse(kk) * 1000.0)
+
+                       ! ms8355: no bounding by swilt in this version, or the
+                       ! "beneits" from hydraulics are cancelled
+                       ssnow%evapfbl(i,kk) = evapfb(i) * &
+                                             ssnow%fraction_uptake(i,kk)
 
                    ENDDO
                    canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels
@@ -2343,6 +2351,7 @@ CONTAINS
           ENDIF !lai/abs_deltlf
 
        ENDDO !i=1,mp
+
        ! Where leaf temp change b/w iterations is significant, and
        ! difference is smaller than the previous iteration, store results:
        DO i=1,mp
@@ -2447,25 +2456,25 @@ CONTAINS
 
     IF (cable_user%FWSOIL_SWITCH == 'profitmax') THEN
 
-       ! Calculate this here after we've finsihed iterating...
+       ! Calculate this here after we've finished iterating...
+       canopy%fevcs = (1.0-canopy%fwet) * ecxs  ! trans. from sapflux
+
        DO i = 1, mp
 
-          new_plc = calc_plc(Kcmax(i), veg%Kmax(i))
+          IF (avg_kplant(i) > 0.) THEN
+             new_plc = calc_plc(avg_kplant(i), veg%Kmax(i))
 
-          ! This will get a cumulative plc, but cannot reset....
-          ! Used in swiss experiment for one summer
-          IF (new_plc > canopy%plc(i) ) THEN
-             canopy%plc(i) = new_plc
-          ENDIF ! otherwise don't update
+             IF (canopy%psi_leaf(i) < ssnow%psi_rootzone(i)) THEN
+                ! allows for resetting...used in furture runs as we're collecting
+                ! continuous dry spells, but dont have growth so need to allow a reset
+                canopy%plc(i) = new_plc
 
-          ! allows for resetting...used in furture runs as we're collecting
-          ! continuous dry spells, but dont have growth so need to allow a reset
-          !canopy%plc(i) = new_plc
-
-          ! We've reached the point of hydraulic failure, so hold the plc
-          ! here for outputting purposes..
-          IF (canopy%plc(i) >= 88.) THEN
-             canopy%plc(i) = 88.
+                ! We've reached the point of hydraulic failure, so hold the plc
+                ! here for outputting purposes..
+                IF (canopy%plc(i) >= 88.) THEN
+                   canopy%plc(i) = 88.
+                ENDIF
+             ENDIF
           ENDIF
 
        END DO
@@ -2675,7 +2684,6 @@ CONTAINS
 
                 ! minimal of three limited rates
                 anxz(i,j) = MIN(anrubiscoz(i,j),anrubpz(i,j),ansinkz(i,j))
-
 
              ENDIF
 
@@ -3055,7 +3063,7 @@ CONTAINS
    SUBROUTINE optimisation(canopy, rad, ssnow, qcan, vpd, press, tleaf, csx, lai_leaf, &
                            psi_soil, Rsr, Kcmax, Kmax, Kcrit, b_plant, &
                            c_plant, N, vcmxt3, ejmxt3, rdx, vx3, cx1, &
-                           an_canopy, e_canopy, gmin, gamma_star, p, i)
+                           an_canopy, e_canopy, avg_kplant, gmin, gamma_star, p, i)
 
       ! Optimisation wrapper for the ProfitMax model. The Sperry model
       ! assumes that plant maximises the normalised (0-1) difference
@@ -3095,6 +3103,7 @@ CONTAINS
       REAL :: ci_ca
       REAL, DIMENSION(mf), INTENT(INOUT) :: an_canopy
       REAL, DIMENSION(mp), INTENT(IN) :: Kcmax
+      REAL, DIMENSION(mp), INTENT(OUT) :: avg_kplant
       REAL(r_2), DIMENSION(mp,mf), INTENT(IN) :: csx
       REAL, DIMENSION(mp,mf,nrb), INTENT(IN) :: qcan
       REAL(r_2), DIMENSION(N), INTENT(INOUT) :: p
@@ -3105,7 +3114,7 @@ CONTAINS
       REAL, DIMENSION(N) :: Kc, e_leaf, cost, gain, profit
       REAL :: p_crit, lower, upper, Cs
       REAL :: J_TO_MOL, MOL_TO_UMOL, gsw, Vcmax, Jmax, Rd, Vj, Km
-      REAL, DIMENSION(mf) :: e_leaves, p_leaves
+      REAL, DIMENSION(mf) :: e_leaves, p_leaves, kc_leaves
       REAL :: Kplant, Rsrl, e_cuticular
       REAL, PARAMETER :: MMOL_2_MOL = 0.001
       REAL, PARAMETER :: MOL_TO_MMOL = 1E3
@@ -3179,14 +3188,10 @@ CONTAINS
             e_canopy = 0.0 ! mol H2O m-2 s-1
 
             ! It's not clear what should happen to the leaf water potential if
-            ! there is no light. We could use the previous calculated value,
-            ! but then you have a constant offset. Going to set it to the
-            ! weighted soil water potential on the basis that there is "some"
-            ! evidence the leaf and soil water potential come back into
-            ! equilibrium overnight. Plus these values don't get used in any
-            ! meaningful way...
-            !canopy%psi_leaf(i) = canopy%psi_leaf_prev(i) ! MPa
-            canopy%psi_leaf(i) = ssnow%weighted_psi_soil(i)
+            ! there is no light. Setting it to the root zone water potential
+            ! on the basis that there is some evidence the leaf and soil water
+            ! potential come back into equilibrium overnight.
+            canopy%psi_leaf(i) = ssnow%psi_rootzone(i)
          ELSE
 
 
@@ -3238,7 +3243,7 @@ CONTAINS
             gain = an_leaf / MAXVAL(an_leaf, mask=mask)
 
             ! normalised cost (-)
-            cost = (kcmax(i) - Kc) / (kcmax(i) - Kcrit)
+            cost = (Kcmax(i) - Kc) / (Kcmax(i) - Kcrit)
 
             ! Locate maximum profit
             profit = gain - cost
@@ -3253,16 +3258,16 @@ CONTAINS
                ! load into stores
                an_canopy(j) = 0.0 ! umol m-2 s-1
                e_leaves(j) = 0.0 ! mol H2O m-2 s-1
-               p_leaves(j) = p(idx)
-               canopy%gswx(i,j) = MAX(1.e-3, gsc(idx) * C%RGSWC)
             else
                ! load into stores
                an_canopy(j) = an_leaf(idx) ! umol m-2 s-1
                e_leaves(j) = e_leaf(idx) ! mol H2O m-2 s-1
-               p_leaves(j) = p(idx)
-               canopy%gswx(i,j) = MAX(1.e-3, gsc(idx) * C%RGSWC)
             endif
 
+            p_leaves(j) = p(idx)
+            kc_leaves(j) = Kc(idx)
+
+            canopy%gswx(i,j) = MAX(1.e-3, gsc(idx) * C%RGSWC)
             ci_ca = Ci(idx)/Cs
 
             !if (p_leaves(j) < -4 .AND. canopy%gswx(i,j) > 0.01) then
@@ -3290,16 +3295,19 @@ CONTAINS
                !canopy%psi_leaf(i) = sum(p_leaves) / 2.0 ! MPa
                canopy%psi_leaf(i) = (p_leaves(1) * fsun(1)) + (p_leaves(2) * fsun(2))
                !canopy%psi_leaf_prev(i) = canopy%psi_leaf(i) ! MPa
+               avg_kplant(i) = (kc_leaves(1) * fsun(1)) + (kc_leaves(2) * fsun(2))
 
             ELSE IF (apar(1) >= 50 .AND. apar(2) < 50) THEN
 
                canopy%psi_leaf(i) = p_leaves(1)
                !canopy%psi_leaf_prev(i) = canopy%psi_leaf(i) ! MPa
+               avg_kplant(i) = kc_leaves(1)
 
             ELSE IF (apar(1) < 50 .AND. apar(2) >= 50) THEN
 
                canopy%psi_leaf(i) = p_leaves(2)
                !canopy%psi_leaf_prev(i) = canopy%psi_leaf(i) ! MPa
+               avg_kplant(i) = kc_leaves(2)
 
             END IF
 
@@ -3340,9 +3348,6 @@ CONTAINS
 
       ! Infer the matching leaf water potential (MPa).
       psi_leaf = psi_soil - eleaf_mmol / Kplant
-
-      !psi_leaf = psi_soil - ((e_leaf * MOL_TO_MMOL) / &
-      !         scalex ) / Kplant
 
 
    END FUNCTION calc_psi_leaf
@@ -3447,11 +3452,6 @@ CONTAINS
       REAL, INTENT(IN) :: b_plant, c_plant
       REAL, DIMENSION( SIZE(p) ) :: weibull
 
-      !print*, "b_plant", b_plant
-      !print*, "c_plant", c_plant
-      !print*, "p", p
-      !print*, " "
-      !weibull = max(1.0E-09, exp(-(-p / b_plant)**c_plant))
       weibull = min(1.0, max(1.0E-09, exp(-(-p / b_plant)**c_plant)))
 
    END FUNCTION get_xylem_vulnerabilityx
@@ -3473,7 +3473,6 @@ CONTAINS
       REAL, INTENT(IN) :: b_plant, c_plant
       REAL :: weibull
 
-      !weibull = max(1.0E-09, exp(-(-p / b_plant)**c_plant))
       weibull = min(1.0, max(1.0E-09, exp(-(-p / b_plant)**c_plant)))
 
    END FUNCTION get_xylem_vulnerability

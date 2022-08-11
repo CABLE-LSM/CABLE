@@ -4,7 +4,24 @@ export dosvn=1 # 1/0: do/do not check svn
 
 known_hosts()
 {
-   set -A kh  pear jigg nXXX raij ces2 ccrc mael
+   set -A kh  pear jigg nXXX raij ces2 ccrc mael cycl
+}
+
+
+host_cycl()
+{
+   export NCDIR='/share/apps/netcdf-f/intel/4.4.4/lib'
+   export NCMOD='/share/apps/netcdf-f/intel/4.4.4/include'
+   export FC=ifort
+   export CFLAGS='-O2 -fp-model precise'
+   if [[ $1 = 'debug' ]]; then
+      export CFLAGS='-O0 -fp-model precise -fpe0 -g -traceback -nostand -check all,nobounds,noarg_temp_created -debug all'
+   fi
+   export LD='-lnetcdf -lnetcdff'
+   export LDFLAGS='-L/share/apps/netcdf-f/intel/4.4.4/lib -O2'
+   build_build
+   cd ../
+   build_status
 }
 
 

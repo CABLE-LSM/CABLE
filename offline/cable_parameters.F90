@@ -1191,6 +1191,7 @@ CONTAINS
     !IF(hide%Ticket49Bug2) THEN
     canopy%ofes    = 0.0  ! latent heat flux from soil (W/m2)
     canopy%fevc     = 0.0 !vh!
+    canopy%fevcs    = 0.0 ! ms8355, plant hydraulics
     canopy%fevw     = 0.0 !vh!
     canopy%fns      = 0.0
     canopy%fnv     = 0.0
@@ -1655,7 +1656,7 @@ CONTAINS
     canopy%plc(:) = 0.0
 
     ssnow%Rsr(:) = 0.0
-    ssnow%weighted_psi_soil(:) = 0.0
+    ssnow%psi_rootzone(:) = 0.0
     ssnow%soilR(:,:) = 0.0
     ssnow%psi_soil(:,:) = 0.0
     ssnow%fraction_uptake(:,:) = 0.0

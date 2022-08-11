@@ -51,7 +51,7 @@ MODULE cable_output_module
   INTEGER :: ncid_out ! output data netcdf file ID
   REAL :: missing_value = -999999.0 ! for netcdf output
   TYPE out_varID_type ! output variable IDs in netcdf file
-     INTEGER ::      SWdown, LWdown, Wind, Wind_E, PSurf,                       &
+     INTEGER ::      SWdown, LWdown, Wind, Wind_E, PSurf,            &
           Tair, Qair, Tscrn, Qscrn, Rainf, Snowf, CO2air,            &
           Tmx, Tmn, Txx, Tnn,                                        &
           Qmom, Qle, Qh, Qg, NEE, SWnet,                             &
@@ -60,8 +60,8 @@ MODULE cable_output_module
           Qs, Qsb, Evap, BaresoilT, SWE, SnowT,                      &
           RadT, VegT, Ebal, Wbal, AutoResp, RootResp,                &
           StemResp, LeafResp, HeteroResp, GPP, NPP, LAI,             &
-          ECanop, TVeg, ESoil, CanopInt, SnowDepth,                  &
-          HVeg, HSoil, Rnet, tvar, CanT,Fwsoil, RnetSoil, SnowMelt, &
+          ECanop, TVeg, TSap, ESoil, CanopInt, SnowDepth,            &
+          HVeg, HSoil, Rnet, tvar, CanT,Fwsoil, RnetSoil, SnowMelt,  &
           NBP, TotSoilCarb, TotLivBiomass, &
           TotLittCarb, SoilCarbFast, SoilCarbSlow, SoilCarbPassive, &
           LittCarbMetabolic, LittCarbStructural, LittCarbCWD, &
@@ -70,7 +70,7 @@ MODULE cable_output_module
           PlantTurnoverWood, PlantTurnoverWoodDist, PlantTurnoverWoodCrowding, &
           PlantTurnoverWoodResourceLim, dCdt, Area, LandUseFlux, patchfrac, &
           vcmax,hc,WatTable,GWMoist,SatFrac,Qrecharge, &
-          weighted_psi_soil, psi_soil, psi_leaf, psi_stem, gsw_sun, gsw_sha, &
+          psi_rootzone, psi_soil, psi_leaf, psi_stem, gsw_sun, gsw_sha, &
           plc
 
   END TYPE out_varID_type
@@ -124,6 +124,8 @@ MODULE cable_output_module
      REAL(KIND=4), POINTER, DIMENSION(:) :: ESoil  ! 24 bare soil evaporation
      ! [kg/m2/s]
      REAL(KIND=4), POINTER, DIMENSION(:) :: TVeg   ! 25 vegetation transpiration
+     ! [kg/m2/s]
+     REAL(KIND=4), POINTER, DIMENSION(:) :: TSap   ! 25b trans. from sapflux, ms8355
      ! [kg/m2/s]
      REAL(KIND=4), POINTER, DIMENSION(:) :: ECanop ! 26 interception evaporation
      ! [kg/m2/s]
@@ -233,7 +235,7 @@ MODULE cable_output_module
      REAL(KIND=4), POINTER, DIMENSION(:) :: RootResp   !  autotrophic root respiration [umol/m2/s]
      REAL(KIND=4), POINTER, DIMENSION(:) :: StemResp   !  autotrophic stem respiration [umol/m2/s]
 
-     REAL(KIND=4), POINTER, DIMENSION(:)   :: weighted_psi_soil      ! mgk576
+     REAL(KIND=4), POINTER, DIMENSION(:)   :: psi_rootzone           ! ms8355
      REAL(KIND=4), POINTER, DIMENSION(:,:) :: psi_soil               ! mgk576
      REAL(KIND=4), POINTER, DIMENSION(:)   :: psi_leaf               ! mgk576
      REAL(KIND=4), POINTER, DIMENSION(:)   :: psi_stem               ! mgk576
@@ -544,6 +546,16 @@ CONTAINS
        ALLOCATE(out%TVeg(mp))
        out%TVeg = 0.0 ! initialise
     END IF
+
+    ! plant hydraulics, ms8355
+    IF(output%flux .OR. output%TSap) THEN
+       CALL define_ovar(ncid_out, ovid%TSap, 'TSap', 'kg/m^2/s',               &
+            'Vegetation transpiration from sapflux', patchout%TSap, 'dummy',    &
+            xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%TSap(mp))
+       out%TSap = 0.0 ! initialise
+    END IF
+
     IF(output%flux .OR. output%ESoil) THEN
        CALL define_ovar(ncid_out, ovid%ESoil, 'ESoil', 'kg/m^2/s',             &
             'Evaporation from soil', patchout%ESoil, 'dummy',      &
@@ -640,19 +652,19 @@ CONTAINS
     ! mgk576, 19/2/2019 - I think the issue is that I turn this off for other PFTs?
     !IF(output%soil .OR. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
     IF(output%soil) THEN
-       CALL define_ovar(ncid_out, ovid%weighted_psi_soil, &
-                        'weighted_psi_soil', 'MPa', 'weighted psi soil', &
-                        patchout%weighted_psi_soil, 'dummy', xID, yID, zID, &
+       CALL define_ovar(ncid_out, ovid%psi_rootzone, &
+                        'psi_rootzone', 'MPa', 'Weighted root zone water potential', &
+                        patchout%psi_rootzone, 'dummy', xID, yID, zID, &
                         landID, patchID, tID)
-       ALLOCATE(out%weighted_psi_soil(mp))
-       out%weighted_psi_soil = 0.0 ! initialise
+       ALLOCATE(out%psi_rootzone(mp))
+       out%psi_rootzone = 0.0 ! initialise
     END IF
 
     ! mgk576, 19/2/2019 - I think the issue is that I turn this off for other PFTs?
     !IF(output%soil .OR. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
     IF(output%soil) THEN
        CALL define_ovar(ncid_out, ovid%psi_soil, &
-                        'psi_soil', 'MPa', 'psi soil', &
+                        'psi_soil', 'MPa', 'Soil water potential', &
                         patchout%psi_soil, 'soil', xID, yID, zID, &
                         landID, patchID, soilID, tID)
        ALLOCATE(out%psi_soil(mp,ms))
@@ -663,7 +675,7 @@ CONTAINS
     !IF(output%soil .OR. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
     IF(output%veg) THEN
        CALL define_ovar(ncid_out, ovid%psi_leaf, &
-                        'psi_leaf', 'MPa', 'psi leaf', &
+                        'psi_leaf', 'MPa', 'Leaf water potential', &
                         patchout%psi_leaf, 'dummy', xID, yID, zID, &
                         landID, patchID, tID)
        ALLOCATE(out%psi_leaf(mp))
@@ -690,7 +702,7 @@ CONTAINS
 
     IF(output%veg) THEN
        CALL define_ovar(ncid_out, ovid%plc, &
-                        'plc', '-', 'percentage loss of conductivity', &
+                        'plc', '%', 'Percentage loss of hydraulic conductivity', &
                         patchout%plc, 'dummy', xID, yID, zID, &
                         landID, patchID, tID)
        ALLOCATE(out%plc(mp))
@@ -699,7 +711,7 @@ CONTAINS
 
     IF(output%soil) THEN
        CALL define_ovar(ncid_out, ovid%psi_stem, &
-                        'psi_stem', 'MPa', 'psi stem', &
+                        'psi_stem', 'MPa', 'Stem water potential', &
                         patchout%psi_stem, 'dummy', xID, yID, zID, &
                         landID, patchID, tID)
        ALLOCATE(out%psi_stem(mp))
@@ -1975,6 +1987,22 @@ CONTAINS
           out%TVeg = 0.0
        END IF
     END IF
+
+    ! TSap: vegetation transpiration from sapflux [kg/m^2/s]
+    IF(output%flux .OR. output%TSap) THEN
+       ! Add current timestep's value to total of temporary output variable:
+       out%TSap = out%TSap + REAL(canopy%fevcs / air%rlam, 4)
+       IF(writenow) THEN
+          ! Divide accumulated variable by number of accumulated time steps:
+          out%TSap = out%TSap / REAL(output%interval, 4)
+          ! Write value to file:
+          CALL write_ovar(out_timestep, ncid_out, ovid%TSap, 'TSap', out%TSap, &
+               ranges%TSap, patchout%TSap, 'default', met)
+          ! Reset temporary output variable:
+          out%TSap = 0.0
+       END IF
+    END IF
+
     ! ESoil: bare soil evaporation [kg/m^2/s]
     IF(output%flux .OR. output%ESoil) THEN
        ! Add current timestep's value to total of temporary output variable:
@@ -2047,23 +2075,23 @@ CONTAINS
        END IF
     END IF
 
-    ! mgk576, 19/2/2019
+    ! ms8355
      !IF((output%soil) .and. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
      IF(output%soil) THEN
        ! Add current timestep's value to total of temporary output variable:
-       out%weighted_psi_soil = out%weighted_psi_soil + &
-                                  REAL(ssnow%weighted_psi_soil, 4)
+       out%psi_rootzone = out%psi_rootzone + &
+                             REAL(ssnow%psi_rootzone, 4)
        IF(writenow) THEN
            ! Divide accumulated variable by number of accumulated time steps:
-           out%weighted_psi_soil = out%weighted_psi_soil &
-                                        / REAL(output%interval, 4)
+           out%psi_rootzone = out%psi_rootzone &
+                                 / REAL(output%interval, 4)
            ! Write value to file:
-           CALL write_ovar(out_timestep, ncid_out, ovid%weighted_psi_soil, &
-                           'weighted_psi_soil', out%weighted_psi_soil, &
-                           ranges%weighted_psi_soil, &
-                           patchout%weighted_psi_soil, 'soil', met)
+           CALL write_ovar(out_timestep, ncid_out, ovid%psi_rootzone, &
+                           'psi_rootzone', out%psi_rootzone, &
+                           ranges%psi_rootzone, &
+                           patchout%psi_rootzone, 'soil', met)
            ! Reset temporary output variable:
-           out%weighted_psi_soil = 0.0
+           out%psi_rootzone = 0.0
        END IF
      END IF
 

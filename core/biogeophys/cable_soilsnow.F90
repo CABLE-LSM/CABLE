@@ -1679,6 +1679,7 @@ CONTAINS
           canopy%fevw = canopy%fevw+canopy%fevc
           canopy%fevc = 0.0_r_2
        END WHERE
+
        DO k = 1,ms
           ssnow%wb(:,k) = ssnow%wb(:,k) - ssnow%evapfbl(:,k)/(soil%zse(k)*1000.0)
 
@@ -2755,17 +2756,20 @@ CONTAINS
 
      DO j = 1, ms ! Loop over 6 soil layers
 
-       ! Below the wilting point (-1.5 MPa) the water potential drops to
-       ! silly value, due to the non-linear reln btw swc and swp. This is really
-       ! more of an implentation issue. The very thin upper layers would obv
-       ! get extremely negative, which in turn would bias the weighted_swp.
+       ! Below the wilting point, the water potential drops to silly values, due
+       ! to the non-linear reln btw swc and swp. This is really more of an
+       ! implentation issue. The very thin upper layers would obv get extremely
+       ! negative, which in turn would bias the weighted_swp.
        ! The bounding here can be considered as a physical disconnection of the
        ! roots from the soil, although frankly this is an imperfect solution
        ! to the use of layer thickness and inferring swp.
        t_over_t_sat = MAX(1.0e-9, MIN(1.0, ssnow%wb(i,j) / soil%ssat(i)))
-       !ssnow%psi_soil(i,j) = psi_sat * t_over_t_sat**(-soil%bch(i))
 
-       ssnow%psi_soil(i,j) = MAX(-5.0, psi_sat * t_over_t_sat**(-soil%bch(i)))
+       if (j < 3) then
+          ssnow%psi_soil(i,j) = MAX(-5.0, psi_sat * t_over_t_sat**(-soil%bch(i)))
+       else
+          ssnow%psi_soil(i,j) = psi_sat * t_over_t_sat**(-soil%bch(i))
+       endif
 
     END DO
 
@@ -2817,7 +2821,7 @@ CONTAINS
 
      total_est_evap = 0.0
      est_evap = 0.0
-     ssnow%weighted_psi_soil(i) = 0.0
+     ssnow%psi_rootzone(i) = 0.0
      ssnow%fraction_uptake(i,:) = 0.0
 
      ! Estimate max transpiration from gradient-gravity / soil resistance
@@ -2838,8 +2842,8 @@ CONTAINS
 
         IF (veg%froot(i,j) .GT. 0.0) THEN
            ! Soil water potential weighted by layer Emax (from SPA)
-           ssnow%weighted_psi_soil(i) = ssnow%weighted_psi_soil(i) + &
-                                        ssnow%psi_soil(i,j) * est_evap(j)
+           ssnow%psi_rootzone(i) = ssnow%psi_rootzone(i) + &
+                                   ssnow%psi_soil(i,j) * est_evap(j)
         ENDIF
      END DO
      total_est_evap = SUM(est_evap)
@@ -2847,22 +2851,22 @@ CONTAINS
      ! calculate the weighted psi_soil
      IF (total_est_evap > 0.0) THEN
         ! Soil water potential is weighted by total_est_evap.
-        ssnow%weighted_psi_soil(i) = ssnow%weighted_psi_soil(i) / total_est_evap
+        ssnow%psi_rootzone(i) = ssnow%psi_rootzone(i) / total_est_evap
      ELSE
-        ssnow%weighted_psi_soil(i) = 0.0
+        ssnow%psi_rootzone(i) = 0.0
         depth_sum = 0.0
         DO j = 1, ms ! Loop over 6 soil layers
            IF (veg%froot(i,j) .GT. 0.0) THEN
-              ssnow%weighted_psi_soil(i) = ssnow%weighted_psi_soil(i) + &
-                                           ssnow%psi_soil(i,j) * soil%zse(j)
+              ssnow%psi_rootzone(i) = ssnow%psi_rootzone(i) + &
+                                      ssnow%psi_soil(i,j) * soil%zse(j)
               depth_sum = depth_sum + soil%zse(j)
            ENDIF
         END DO
-        ssnow%weighted_psi_soil(i) = ssnow%weighted_psi_soil(i) / depth_sum
+        ssnow%psi_rootzone(i) = ssnow%psi_rootzone(i) / depth_sum
      END IF
 
-     IF (ssnow%weighted_psi_soil(i) < -20.0) THEN
-        ssnow%weighted_psi_soil(i) = -20.0
+     IF (ssnow%psi_rootzone(i) < -20.0) THEN
+        ssnow%psi_rootzone(i) = -20.0
      ENDIF
 
      ! SPA method to figure out relative water uptake.

@@ -1915,13 +1915,13 @@ CONTAINS
        CALL MPI_Get_address (ssnow%runoff(off), displs(bidx), ierr)
        blen(bidx) = r1len
 
-       ! plant hydraulics, mgdk576, 23/07/2019: +2vev (s1)
+       ! plant hydraulics, ms8355
        bidx = bidx + 1
-       CALL MPI_Get_address (ssnow%weighted_psi_soil(off), displs(bidx), ierr)
+       CALL MPI_Get_address (ssnow%Rsr(off), displs(bidx), ierr)
        blen(bidx) = r2len
 
        bidx = bidx + 1
-       CALL MPI_Get_address (ssnow%Rsr(off), displs(bidx), ierr)
+       CALL MPI_Get_address (ssnow%psi_rootzone(off), displs(bidx), ierr)
        blen(bidx) = r2len
 
        bidx = bidx + 1
@@ -2596,6 +2596,10 @@ CONTAINS
 
        bidx = bidx + 1
        CALL MPI_Get_address (canopy%fevc(off), displs(bidx), ierr)
+       blen(bidx) = r2len
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (canopy%fevcs(off), displs(bidx), ierr) ! ms8355, plant hydraulics
        blen(bidx) = r2len
 
        bidx = bidx + 1
@@ -5456,6 +5460,12 @@ CONTAINS
        CALL MPI_Get_address (canopy%fevc(off), vaddr(vidx), ierr) ! 36
        blen(vidx) = cnt * extr2
        vidx = vidx + 1
+
+       ! REAL(r_2), plant hydraulics, ms8355
+       CALL MPI_Get_address (canopy%fevcs(off), vaddr(vidx), ierr) ! 36b
+       blen(vidx) = cnt * extr2
+       vidx = vidx + 1
+
        ! REAL(r_2)
        CALL MPI_Get_address (canopy%fevw(off), vaddr(vidx), ierr) ! 37
        blen(vidx) = cnt * extr1
@@ -5748,12 +5758,12 @@ CONTAINS
        blen(vidx) = cnt * extr1
        vidx = vidx + 1
 
-       ! plant hydraulics, mgdk576, 23/07/2019: +2 vec (s2)
-       CALL MPI_Get_address (ssnow%weighted_psi_soil(off), vaddr(vidx), ierr) ! 69
+       ! plant hydraulics, ms8355
+       CALL MPI_Get_address (ssnow%Rsr(off), vaddr(vidx), ierr) ! 69
        blen(vidx) = cnt * extr2
        vidx = vidx + 1
 
-       CALL MPI_Get_address (ssnow%Rsr(off), vaddr(vidx), ierr) ! 69
+       CALL MPI_Get_address (ssnow%psi_rootzone(off), vaddr(vidx), ierr) ! 69
        blen(vidx) = cnt * extr2
        vidx = vidx + 1
 

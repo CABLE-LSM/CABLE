@@ -149,8 +149,8 @@ CONTAINS
     !print*, met%year, met%doy
     !print*, "tot_bg_resist"
     !print*, ssnow%tot_bg_resist
-    !print*, "weighted_psi_soil"
-    !print*, ssnow%weighted_psi_soil
+    !print*, "psi_rootzone"
+    !print*, ssnow%psi_rootzone
     !print*, "soilR"
     !print*, ssnow%soilR
     !print*, "psi_soil"
@@ -225,8 +225,8 @@ CONTAINS
     !print*, " "
     !print*, "tot_bg_resist"
     !print*, ssnow%tot_bg_resist
-    !print*, "weighted_psi_soil"
-    !print*, ssnow%weighted_psi_soil
+    !print*, "psi_rootzone"
+    !print*, ssnow%psi_rootzone
     !print*, "soilR"
     !print*, ssnow%soilR
     !print*, "psi_soil"

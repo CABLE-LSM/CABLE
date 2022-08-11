@@ -289,18 +289,17 @@ MODULE cable_def_types_mod
           rtevap_unsat,&
           rt_qh_sublayer
 
-      ! mgk576
-      ! Plant hydraulics variables
-      REAL(r_2), DIMENSION(:), POINTER ::                                      &
-          Rsr   ! Total belowground resistance across layers (excludes
-                          ! root resistance).
-
-      REAL(r_2), DIMENSION(:), POINTER :: weighted_psi_soil
-
       REAL(r_2), DIMENSION(:,:), POINTER ::                                      &
           soilR, & !
-          psi_soil,&
+          psi_soil, &
           fraction_uptake
+
+      ! ms8355
+      ! Plant hydraulics variables
+      REAL(r_2), DIMENSION(:), POINTER ::                                      &
+          Rsr, &   ! Total belowground resistance across layers (excludes
+                   ! root resistance).
+          psi_rootzone
 
      REAL(r_2), DIMENSION(:,:), POINTER  ::                                     &
           wbeq,    &    ! equilibrium water content [mm3/mm3]
@@ -502,6 +501,7 @@ MODULE cable_def_types_mod
           fes,     & ! latent heatfl from soil (W/m2)
           fes_cor, & ! latent heatfl from soil (W/m2)
           fevc,     &  ! dry canopy transpiration (W/m2)
+          fevcs,     &  ! sapflux-based transpiration (W/m2), plant hydraulics, ms8355
           ofes     ! latent heatfl from soil (W/m2)
 
      !SSEB - new variables limits on correction terms - for future use
@@ -518,6 +518,7 @@ MODULE cable_def_types_mod
      REAL(r_2), DIMENSION(:,:),   POINTER :: tlfy   ! sunlit and shaded leaf temperatures
      REAL(r_2), DIMENSION(:,:),   POINTER :: ecy    ! sunlit and shaded leaf transpiration (dry canopy)
      REAL(r_2), DIMENSION(:,:),   POINTER :: ecx    ! sunlit and shaded leaf latent heat flux
+     REAL(r_2), DIMENSION(:,:),   POINTER :: ecxs   ! sunlit and shaded leaf latent heat flux (sap flux)
      REAL(r_2), DIMENSION(:,:,:), POINTER :: ci     ! intra-cellular CO2 vh 6/7/09
      REAL(r_2), DIMENSION(:),     POINTER :: fwsoil !
 
@@ -1032,7 +1033,7 @@ CONTAINS
     ALLOCATE ( var%soilR(mp,ms) )
     ALLOCATE ( var%fraction_uptake(mp,ms) )
     ALLOCATE ( var%psi_soil(mp,ms) )
-    ALLOCATE ( var%weighted_psi_soil(mp) )
+    ALLOCATE ( var%psi_rootzone(mp) )
 
     ! Allocate variables for SLI soil model:
     !IF(cable_user%SOIL_STRUC=='sli') THEN
@@ -1169,6 +1170,7 @@ CONTAINS
     ALLOCATE( var% fnv(mp) )
     ALLOCATE( var% fev(mp) )
     ALLOCATE( var% fevc(mp) )
+    ALLOCATE( var% fevcs(mp) )
     ALLOCATE( var% fhv(mp) )
     ALLOCATE( var% fns(mp) )
     ALLOCATE( var% fhs(mp) )
@@ -1221,6 +1223,7 @@ CONTAINS
     ALLOCATE ( var % tlfy(mp,mf) )   ! sunlit and shaded leaf temperatures
     ALLOCATE ( var % ecy(mp,mf) )    ! sunlit and shaded leaf transpiration (dry canopy)
     ALLOCATE ( var % ecx(mp,mf) )    ! sunlit and shaded leaf latent heat flux
+    ALLOCATE ( var % ecxs(mp,mf) )    ! sunlit and shaded leaf latent heat flux (sap flux)
     ALLOCATE ( var % ci(mp,mf,3) )   ! intra-cellular CO2 vh 6/7/09
     ALLOCATE ( var % fwsoil (mp) )
 
@@ -1685,7 +1688,7 @@ CONTAINS
     DEALLOCATE( var%soilR  )
     DEALLOCATE( var%fraction_uptake  )
     DEALLOCATE( var%psi_soil )
-    DEALLOCATE( var%weighted_psi_soil )
+    DEALLOCATE( var%psi_rootzone )
 
     !IF(cable_user%SOIL_STRUC=='sli') THEN
     DEALLOCATE ( var % S )
@@ -1820,6 +1823,7 @@ CONTAINS
     DEALLOCATE( var% fnv )
     DEALLOCATE( var% fev )
     DEALLOCATE( var% fevc )
+    DEALLOCATE( var% fevcs )
     DEALLOCATE( var% fhv )
     DEALLOCATE( var% fns )
     DEALLOCATE( var% fhs )

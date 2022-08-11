@@ -82,6 +82,7 @@ MODULE cable_checks_module
           Ewater = (/-0.0005,0.0005/),        &
           ESoil = (/-0.0015,0.0015/),         &
           TVeg = (/-0.0003,0.0003/),          &
+          TSap = (/-0.0003,0.0003/),          & ! ms8355, plant hydraulics
           ECanop = (/-0.0003,0.0003/),        &
           PotEvap = (/-0.0006,0.0006/),       &
           ACond = (/0.0,1.0/),                &
@@ -178,12 +179,13 @@ MODULE cable_checks_module
           Area = (/0.0, 5000./),&
 
           !mgk576, 10/10/2017
-          weighted_psi_soil = (/-100.,100./),          &
+          psi_rootzone = (/-100.,100./),          &
           psi_soil = (/-100.,100./),                   &
           psi_leaf = (/-100.,100./),                   &
           plc = (/0.,100./),                   &
           psi_stem = (/-100.,100./),                   &
           gswx = (/-1,10/),                            &
+          
           !MD
           WatTable = (/0.0,1.0e10/),          &
           GWwb = (/0.0,1.0/),              &

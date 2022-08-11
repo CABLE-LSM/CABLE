@@ -1210,13 +1210,13 @@ CONTAINS
     CALL MPI_Get_address (ssnow%runoff, displs(bidx), ierr)
     blen(bidx) = r1len
 
-    ! plant hydraulics, mgdk576, 23/07/2019: +2 (r_2) vectors (s1)
+    ! plant hydraulics, ms8355
     bidx = bidx + 1
-    CALL MPI_Get_address (ssnow%weighted_psi_soil, displs(bidx), ierr)
+    CALL MPI_Get_address (ssnow%Rsr, displs(bidx), ierr)
     blen(bidx) = r2len
 
     bidx = bidx + 1
-    CALL MPI_Get_address (ssnow%Rsr, displs(bidx), ierr)
+    CALL MPI_Get_address (ssnow%psi_rootzone, displs(bidx), ierr)
     blen(bidx) = r2len
 
 
@@ -1816,6 +1816,11 @@ CONTAINS
 
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%fevc, displs(bidx), ierr)
+    blen(bidx) = r2len
+
+    ! ms8355, plant hydraulics
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%fevcs, displs(bidx), ierr)
     blen(bidx) = r2len
 
     bidx = bidx + 1
@@ -3782,7 +3787,7 @@ CONTAINS
   !
   ! air%          rlam
   !
-  ! canopy%       delwc, fe, fev, fh, fhs, fhv, fevw, fevc, fes, fnee, fpn, frday,
+  ! canopy%       delwc, fe, fev, fh, fhs, fhv, fevw, fevc, fevcs, fes, fnee, fpn, frday,
   !               frp, frs, ga, through, spill, tv, cansto,
   !
   ! met%          precip, precip_sn, fld, fsd, tk, pmb, qv, ua, ca,
@@ -4555,6 +4560,11 @@ CONTAINS
     CALL MPI_Get_address (canopy%fevc(off), displs(bidx), ierr)
     blocks(bidx) = r2len
 
+    ! ms8355, plant hydraulics
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%fevcs(off), displs(bidx), ierr)
+    blocks(bidx) = r2len
+
     !vidx = vidx + 1
     ! REAL(r_2)
     !CALL MPI_Get_address (canopy%fevw(off), vaddr(vidx), ierr) ! 37
@@ -4958,13 +4968,13 @@ CONTAINS
     CALL MPI_Get_address (ssnow%runoff(off), displs(bidx), ierr)
     blocks(bidx) = r1len
 
-    ! plant hydraulics, mgdk576, 23/07/2019: +2 vectors (s2)
+    ! plant hydraulics, ms8355
     bidx = bidx + 1
-    CALL MPI_Get_address (ssnow%weighted_psi_soil(off), displs(bidx), ierr)
+    CALL MPI_Get_address (ssnow%Rsr(off), displs(bidx), ierr)
     blocks(bidx) = r2len
 
     bidx = bidx + 1
-    CALL MPI_Get_address (ssnow%Rsr(off), displs(bidx), ierr)
+    CALL MPI_Get_address (ssnow%psi_rootzone(off), displs(bidx), ierr)
     blocks(bidx) = r2len
 
     !vidx = vidx + 1
