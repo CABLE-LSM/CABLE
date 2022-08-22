@@ -10,9 +10,9 @@ fi
 known_hosts()
 {
     if [ -z ${PS3} ] ; then
-        kh=(kh gadi pear mcin mc16 vm_o auro)
+        kh=(kh gadi petr mcin mc16 vm_o auro)
     else
-        set -A kh gadi pear mcin mc16 vm_o auro
+        set -A kh gadi petr mcin mc16 vm_o auro
     fi
 }
 
@@ -20,9 +20,9 @@ known_hosts()
 known_domains()
 {
     if [ -z ${PS3} ] ; then
-        kd=(kd nci.org.au pear local local explor)
+        kd=(kd nci.org.au petr local local explor)
     else
-        set -A kd nci.org.au pear local local explor
+        set -A kd nci.org.au hpc local local explor
     fi
 }
 
@@ -72,22 +72,26 @@ host_gadi()
 }
 
 
-## pearcey.hpsc.csiro.au
-host_pear()
+## petrichor.hpsc.csiro.au
+host_petr()
 {
     #    export LD_PRELOAD=/apps/netcdf/4.3.3/lib/libnetcdf.so
     #    export LD_PRELOAD=/apps/openmpi/1.8.4/lib/libopen-rte.so.7:/apps/openmpi/1.8.4/lib/libopen-pal.so.6
-    if [ -z ${PS3} ] ; then
+    #if [ -z ${PS3} ] ; then
         . /apps/modules/Modules/default/init/ksh
-    fi
+    #fi
 
     #   module add netcdf/4.3.3.1 openmpi/1.7.5
     #   module add netcdf/4.3.3.1 openmpi/1.8.8
 
-    module del intel-cc intel-fc
-    module add intel-cc/16.0.1.150 intel-fc/16.0.1.150
-    module add netcdf/4.3.3.1 openmpi/1.8.8
+    #module del intel-cc intel-fc
+    #module add intel-cc/16.0.1.150 intel-fc/16.0.1.150
+    #module add netcdf/4.3.3.1 openmpi/1.8.8
 
+    module del intel-cc intel-fc 
+    module add intel-cc/2020.4.304 intel-fc/2020.4.304
+    module add netcdf/4.8.0-intel20 openmpi/4.1.4-ofed54-intel20
+    
     export NCDIR=$NETCDF_ROOT'/lib/'
     export NCMOD=$NETCDF_ROOT'/include/'
     export FC='mpifort' #'mpif90'
