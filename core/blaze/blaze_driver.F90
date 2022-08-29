@@ -207,14 +207,14 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
 
            ! BLAZE fluxes
            BLAZE%FLUXES(i,11) = BLAZE%FLUXES(i,11) + casaflux%kplant_fire(patch_index,LEAF ) &
-                * real(casapool%cplant(patch_index,LEAF )*patch(patch_index)%frac)
+                * real(casapool%cplant(patch_index,LEAF )*patch(patch_index)%frac, r_2)
            BLAZE%FLUXES(i,12) = BLAZE%FLUXES(i,12) + casaflux%kplant_fire(patch_index,FROOT) &
-                * real(casapool%cplant(patch_index,FROOT)*patch(patch_index)%frac)
+                * real(casapool%cplant(patch_index,FROOT)*patch(patch_index)%frac, r_2)
 
            BLAZE%FLUXES(i,13) = BLAZE%FLUXES(i,13) + casaflux%klitter_fire(patch_index,METB) &
-                * real(casapool%clitter(patch_index,METB)*patch(patch_index)%frac)
+                * real(casapool%clitter(patch_index,METB)*patch(patch_index)%frac, r_2)
            BLAZE%FLUXES(i,14) = BLAZE%FLUXES(i,14) + casaflux%klitter_fire(patch_index,STR ) &
-                * real(casapool%clitter(patch_index,STR )*patch(patch_index)%frac)
+                * real(casapool%clitter(patch_index,STR )*patch(patch_index)%frac, r_2)
            
            WRITE(900+BLAZE%IAM,*)" Grass", BLAZE%FLUXES(i,11) , casaflux%kplant_fire(patch_index,LEAF ), &
                  casapool%cplant(patch_index,LEAF ),patch(patch_index)%frac
@@ -253,27 +253,27 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
 
            ! BLAZE fluxes 
            BLAZE%FLUXES(i, 1) = BLAZE%FLUXES(i, 1) + casaflux%kplant_fire(patch_index,LEAF ) &
-                * real(casapool%cplant(patch_index,LEAF )*patch(patch_index)%frac)
+                * real(casapool%cplant(patch_index,LEAF )*patch(patch_index)%frac, r_2)
            BLAZE%FLUXES(i, 2) = BLAZE%FLUXES(i, 2) + casaflux%kplant_fire(patch_index,FROOT) &
-                * real(casapool%cplant(patch_index,FROOT)*patch(patch_index)%frac)
+                * real(casapool%cplant(patch_index,FROOT)*patch(patch_index)%frac, r_2)
            BLAZE%FLUXES(i, 3) = BLAZE%FLUXES(i, 3) + casaflux%kplant_fire(patch_index,WOOD ) &
-                * real(casapool%cplant(patch_index,WOOD )*patch(patch_index)%frac) 
+                * real(casapool%cplant(patch_index,WOOD )*patch(patch_index)%frac, r_2) 
 
            BLAZE%FLUXES(i, 4) = BLAZE%FLUXES(i, 4) + casaflux%klitter_fire(patch_index,METB) &
-                * real(casapool%clitter(patch_index,METB)*patch(patch_index)%frac)
+                * real(casapool%clitter(patch_index,METB)*patch(patch_index)%frac, r_2)
            BLAZE%FLUXES(i, 5) = BLAZE%FLUXES(i, 5) + casaflux%klitter_fire(patch_index,STR ) &
-                * real(casapool%clitter(patch_index,STR )*patch(patch_index)%frac)
+                * real(casapool%clitter(patch_index,STR )*patch(patch_index)%frac, r_2)
            BLAZE%FLUXES(i, 6) = BLAZE%FLUXES(i, 6) + casaflux%klitter_fire(patch_index,CWD ) &
-                * real(casapool%clitter(patch_index,CWD )*patch(patch_index)%frac)
+                * real(casapool%clitter(patch_index,CWD )*patch(patch_index)%frac, r_2)
             
            BLAZE%FLUXES(i, 7) = BLAZE%FLUXES(i, 7) + casaflux%fromPtoL_fire(patch_index,STR,LEAF )  &
-                * real(casapool%clitter(patch_index,LEAF )*patch(patch_index)%frac)
+                * real(casapool%clitter(patch_index,LEAF )*patch(patch_index)%frac, r_2)
            BLAZE%FLUXES(i, 8) = BLAZE%FLUXES(i, 8) + casaflux%fromPtoL_fire(patch_index,STR,FROOT)  &
-                * real(casapool%clitter(patch_index,FROOT)*patch(patch_index)%frac)
+                * real(casapool%clitter(patch_index,FROOT)*patch(patch_index)%frac, r_2)
            BLAZE%FLUXES(i, 9) = BLAZE%FLUXES(i, 9) + casaflux%fromPtoL_fire(patch_index,STR,WOOD )  &
-                * real(casapool%clitter(patch_index,WOOD )*patch(patch_index)%frac)
+                * real(casapool%clitter(patch_index,WOOD )*patch(patch_index)%frac, r_2)
            BLAZE%FLUXES(i,10) = BLAZE%FLUXES(i,10) + casaflux%fromPtoL_fire(patch_index,CWD,WOOD )  &
-                * real(casapool%clitter(patch_index,WOOD)*patch(patch_index)%frac)
+                * real(casapool%clitter(patch_index,WOOD)*patch(patch_index)%frac, r_2)
            
            WRITE(900+BLAZE%IAM,*)" Wood", BLAZE%FLUXES(i, 1) , casaflux%kplant_fire(patch_index,WOOD ), &
                  casapool%cplant(patch_index,WOOD ),patch(patch_index)%frac,rkill
