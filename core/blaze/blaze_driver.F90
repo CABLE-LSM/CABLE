@@ -29,7 +29,7 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
   TYPE(TYPE_TURNOVER)   ,ALLOCATABLE,SAVE :: TO(:,:)
   REAL,   DIMENSION(NCELLS) :: POP_TO
 
-  INTEGER       :: MM, DD, i, np, j, patch_index, p
+  INTEGER       :: MM, DD, i, np, j, patch_index, p, pidx
   REAL          :: TSTP
   REAL          :: ag_litter_frac, twto, rkill
   REAL          :: CPLANT_g (ncells,3),CPLANT_w (ncells,3)
@@ -173,11 +173,12 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
   ! Apply turn-overs to biomass killed by fire in POP
 
   BLAZE%FLUXES(:,:) = 0.
-
+  ! pop_grid index
+  pidx=1
   WRITE(900+BLAZE%IAM,*)" NCELLS",BLAZE%NCELLS,SIZE(POP%pop_grid)
   DO i = 1, BLAZE%NCELLS
      ! Compute ratio of total biomass killed acc to POP 
-     rkill = POP%pop_grid(i)%rkill
+     !CRM rkill = POP%pop_grid(i)%rkill
      WRITE(900+BLAZE%IAM,*)" R Kill and ",rkill,i
 
      DO p = 1, landpt(i)%nap  ! loop over number of active patches
@@ -223,6 +224,10 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
 
         ELSEIF ( casamet%lnonwood(patch_index) == 0 ) THEN ! Here woody patches
 
+           !CLN increment iwood for pop_grid
+           
+           rkill=POP%pop_grid(pidx)%rkill
+           pidx = pidx + 1
            ! Check if there is mortality and COMBUST has only computed non-woody TO
            ! When POP is involved these fluxes need to sum up to 1, assuming that
            ! all that is not going to ATM or STR will be going to CWD (DEADWOOD)
