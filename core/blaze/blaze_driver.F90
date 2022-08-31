@@ -174,7 +174,7 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
 
   BLAZE%FLUXES(:,:) = 0.
 
-  WRITE(900+BLAZE%IAM,*)" NCELLS",BLAZE%NCELLS
+  WRITE(900+BLAZE%IAM,*)" NCELLS",BLAZE%NCELLS,SIZE(POP%pop_grid)
   DO i = 1, BLAZE%NCELLS
      ! Compute ratio of total biomass killed acc to POP 
      rkill = POP%pop_grid(i)%rkill
