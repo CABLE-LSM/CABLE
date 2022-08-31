@@ -174,10 +174,11 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
 
   BLAZE%FLUXES(:,:) = 0.
 
+  WRITE(900+BLAZE%IAM,*)" NCELLS",BLAZE%NCELLS
   DO i = 1, BLAZE%NCELLS
      ! Compute ratio of total biomass killed acc to POP 
      rkill = POP%pop_grid(i)%rkill
-     WRITE(900+BLAZE%IAM,*)" R Kill",rkill
+     WRITE(900+BLAZE%IAM,*)" R Kill and ",rkill,i
 
      DO p = 1, landpt(i)%nap  ! loop over number of active patches
         patch_index = landpt(i)%cstart + p - 1 ! patch index in CABLE vector
