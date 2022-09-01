@@ -2854,7 +2854,10 @@ CONTAINS
              elsewhere
                 tmp_array = 0.0_dp
              endwhere
-             tmp5_min = SUM(pop%pop_grid(g)%patch(:)%fire_mortality,MASK)/SUM(tmp_array)
+             IF ( SIZE(tmp_array) .GT. 0) THEN
+                tmp5_min = SUM(pop%pop_grid(g)%patch(:)%fire_mortality,MASK)/SUM(tmp_array)
+             ELSE
+                tmp5_min = 0.0_dp
           else
              tmp5_min = 0.0_dp
           endif
