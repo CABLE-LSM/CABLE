@@ -2867,7 +2867,7 @@ contains
           elsewhere
              tmp_array = 0.0_dp
           endwhere
-          IF any(MASK) then
+          IF ( any(MASK) ) then
              tmp5_max = sum(pop%pop_grid(g)%patch(:)%fire_mortality,MASK)/sum(tmp_array)
           endif
 
@@ -2968,7 +2968,9 @@ contains
        else
           POP%pop_grid(g)%rkill = 0.
        endif
-
+       if (POP%pop_grid(g)%rkill .GT. 0.) then
+          WRITE(*,*) "driver rkill",g,POP%pop_grid(g)%rkill
+       endif
        POP%pop_grid(g)%cmass_sum = POP%pop_grid(g)%cmass_sum - POP%pop_grid(g)%fire_mortality
        
 

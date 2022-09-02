@@ -175,7 +175,7 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
   BLAZE%FLUXES(:,:) = 0.
   ! pop_grid index
   pidx=1
-  WRITE(900+BLAZE%IAM,*)" NCELLS",BLAZE%NCELLS,SIZE(POP%pop_grid)
+  WRITE(900+BLAZE%IAM,*)" NCELLSabc",BLAZE%NCELLS,SIZE(POP%pop_grid)
   DO i = 1, BLAZE%NCELLS
      DO p = 1, landpt(i)%nap  ! loop over number of active patches
         patch_index = landpt(i)%cstart + p - 1 ! patch index in CABLE vector
@@ -223,6 +223,8 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
            !CLN increment iwood for pop_grid
            
            rkill=POP%pop_grid(pidx)%rkill
+           IF (rkill .GT. 0.) WRITE(900+BLAZE%IAM,*)" driver rkill", i, p,pidx,rkill
+
            pidx = pidx + 1
            ! Check if there is mortality and COMBUST has only computed non-woody TO
            ! When POP is involved these fluxes need to sum up to 1, assuming that
