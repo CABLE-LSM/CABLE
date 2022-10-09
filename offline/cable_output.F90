@@ -2670,10 +2670,10 @@ CONTAINS
     !      added frday in the calculation of GPP (BP may08)
     IF(output%carbon .OR. output%GPP) THEN
        ! Add current timestep's value to total of temporary output variable:
-       out%GPP = out%GPP + REAL((-1.0 * canopy%fpn + canopy%frday)             &
-            / 1.201E-5, 4)
-       ! out%GPP = out%GPP + REAL((-1.0 * canopy%fpn)             &
-       !                         / 1.201E-5, 4)
+       !out%GPP = out%GPP + REAL((-1.0 * canopy%fpn + canopy%frday)             &
+       !    / 1.201E-5, 4)
+        out%GPP = out%GPP + REAL((-1.0 * canopy%fpn)             &
+                               / 1.201E-5, 4)
 
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
