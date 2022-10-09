@@ -180,7 +180,7 @@ CONTAINS
     CALL surf_wetness_fact( cansat, canopy, ssnow,veg,met, soil, dels )
 
     canopy%fevw_pot = 0.0
-    canopy%gswx = 1e-3     ! default stomatal conuctance
+    canopy%gswx = 1e-9     ! default stomatal conudctance, new fixed min
     gbhf = 1e-3     ! default free convection boundary layer conductance
     gbhu = 1e-3     ! default forced convection boundary layer conductance
     ssnow%evapfbl = 0.0
@@ -1860,7 +1860,7 @@ CONTAINS
     frac42 = SPREAD(veg%frac4, 2, mf) ! frac C4 plants
     gsw_term = SPREAD(veg%gswmin,2,mf)
     lower_limit2 = rad%scalex * gsw_term
-    gswmin = MAX(1.e-6,lower_limit2)
+    gswmin = MAX(1e-9,lower_limit2)
 
 
     gw = 1.0e-3 ! default values of conductance
@@ -2194,6 +2194,19 @@ CONTAINS
                SPREAD( abs_deltlf, 2, mf ),                        &
                anx(:,:), fwsoil(:) )
 
+
+          IF (rad%qcan(i, 1, 1) * J_TO_MOL * MOL_TO_UMOL < 80) THEN
+
+             anx(i,1) = 0.0
+
+          END IF
+
+          IF (rad%qcan(i, 2, 1) * J_TO_MOL * MOL_TO_UMOL < 80) THEN
+
+             anx(i,2) = 0.0
+
+          END IF
+
        END IF
 
        DO i=1,mp
@@ -2211,7 +2224,7 @@ CONTAINS
                    IF (cable_user%FWSOIL_SWITCH /= 'profitmax') THEN
 
                       ! Ticket #56, xleuning replaced with gs_coeff here
-                      canopy%gswx(i,kk) = MAX( 1.e-3, gswmin(i,kk)*fwsoil(i) +     &
+                      canopy%gswx(i,kk) = MAX( 1.e-9, gswmin(i,kk)*fwsoil(i) +     &
                            MAX( 0.0, C%RGSWC * gs_coeff(i,kk) *     &
                            anx(i,kk) ) )
                    END IF
@@ -2241,7 +2254,7 @@ CONTAINS
                      met%tk(i) ) * rad%gradis(i,2) ) + C%capp * C%rmair *      &
                      met%dva(i) * ghr(i,2) ) /                                 &
                      ( air%dsatdk(i) + psycst(i,2) )
-             ecx(i) = MAX(1.e-3, ecx(i))
+             ecx(i) = MAX(1e-9, ecx(i))
 
 
              IF (cable_user%fwsoil_switch=='Haverd2013') THEN
@@ -2450,7 +2463,8 @@ CONTAINS
 
     canopy%frday = 12.0 * SUM(rdy, 2)
     !! vh !! inserted min to avoid -ve values of GPP
-    canopy%fpn = MIN(-12.0 * SUM(an_y, 2), canopy%frday)
+    !canopy%fpn = MIN(-12.0 * SUM(an_y, 2), canopy%frday) ! ms8355: commented this out because it leads to weird discrepancies at night
+    canopy%fpn = -12.0 * SUM(an_y, 2)
     canopy%evapfbl = ssnow%evapfbl
 
 
@@ -2471,8 +2485,14 @@ CONTAINS
 
                 ! We've reached the point of hydraulic failure, so hold the plc
                 ! here for outputting purposes..
-                IF (canopy%plc(i) >= 88.) THEN
-                   canopy%plc(i) = 88.
+
+                 ! this is to deal with a bug that makes the PLC 100 at night --
+                 ! need to deal with properly later
+                IF (canopy%plc(i) >= 99.0) THEN
+                   canopy%plc(i) = 0.0
+
+                ELSE IF (canopy%plc(i) >= 88.0) THEN
+                   canopy%plc(i) = 88.0
                 ENDIF
              ENDIF
           ENDIF
@@ -3132,7 +3152,9 @@ CONTAINS
 
       ! Canopy xylem pressure (P_crit) MPa, beyond which tree
       ! desiccates (Ecrit), MPa
+      ! assuming Kcrit = 0.12 * Kmax  for now, this will need to get properly implemented in the future!
       p_crit = -b_plant * log(Kmax / Kcrit)**(1.0 / c_plant)
+      p_crit = -b_plant * log(1 / 0.12)**(1.0 / c_plant)
 
       ! Loop over sunlit,shaded parts of the canopy and solve the carbon uptake
       ! and transpiration
@@ -3182,7 +3204,7 @@ CONTAINS
          Vj = vx3(i,j) * MOL_TO_UMOL
 
          ! If there is bugger all light, assume there are no fluxes
-         IF (apar(j) < 50) THEN
+         IF (apar(j) < 80) THEN
             ! load into stores
             an_canopy = 0.0 ! umol m-2 s-1
             e_canopy = 0.0 ! mol H2O m-2 s-1
@@ -3212,12 +3234,12 @@ CONTAINS
             !   Aj = Aj
             !endwhere
 
-            A = -QUADP(1.0-1E-04, Ac+Aj, Ac*Aj) ! umol m-2 s-1
+            A = -QUADP(1.0 - 1E-4, Ac+Aj, Ac*Aj) ! umol m-2 s-1
             an_leaf = A - Rd ! Net photosynthesis, umol m-2 s-1
 
             ! Use an_leaf to infer gsc_sun/sha. NB. An is the scaled up values
             ! via scalex applied to Vcmax/Jmax
-            gsc = an_leaf / MAX(1.e-6, Cs - Ci) ! mol CO2 m-2 s-1
+            gsc = MAX(1e-9, an_leaf / MAX(0.1, Cs - Ci)) ! mol CO2 m-2 s-1
 
             ! Infer E_sun/sha from gsc. NB. as we're
             ! iterating, Tleaf will change and so VPD, maintaining energy
@@ -3229,10 +3251,15 @@ CONTAINS
                               rad%scalex(i,j), Kplant, N)
 
             ! Ensure we don't check for profit in bad psi_leaf search space
-            where (p >= psi_soil .OR. p <= p_crit)
-                mask = .FALSE.
-            elsewhere
+            where (p < psi_soil .AND. p > p_crit)
                 mask = .TRUE.
+            elsewhere
+                mask = .FALSE.
+
+                where (p < p_crit)
+                   p = p_crit
+                end where
+
             end where
 
             ! Soil–plant hydraulic conductance at canopy xylem pressure,
@@ -3243,7 +3270,8 @@ CONTAINS
             gain = an_leaf / MAXVAL(an_leaf, mask=mask)
 
             ! normalised cost (-)
-            cost = (Kcmax(i) - Kc) / (Kcmax(i) - Kcrit)
+            !cost = (Kcmax(i) - Kc) / (Kcmax(i) - Kcrit)
+            cost = (Kcmax(i) - Kc) / (Kcmax(i) - 0.12 * Kplant)
 
             ! Locate maximum profit
             profit = gain - cost
@@ -3267,7 +3295,7 @@ CONTAINS
             p_leaves(j) = p(idx)
             kc_leaves(j) = Kc(idx)
 
-            canopy%gswx(i,j) = MAX(1.e-3, gsc(idx) * C%RGSWC)
+            canopy%gswx(i,j) = MAX(1e-9, gsc(idx) * C%RGSWC)
             ci_ca = Ci(idx)/Cs
 
             !if (p_leaves(j) < -4 .AND. canopy%gswx(i,j) > 0.01) then
@@ -3295,18 +3323,21 @@ CONTAINS
                !canopy%psi_leaf(i) = sum(p_leaves) / 2.0 ! MPa
                canopy%psi_leaf(i) = (p_leaves(1) * fsun(1)) + (p_leaves(2) * fsun(2))
                !canopy%psi_leaf_prev(i) = canopy%psi_leaf(i) ! MPa
-               avg_kplant(i) = (kc_leaves(1) * fsun(1)) + (kc_leaves(2) * fsun(2))
+               !avg_kplant(i) = 1.0 / (1.0 / Kcmax(i) + 1.0 / (fsun(1) / kc_leaves(1) + fsun(2) / kc_leaves(2)))
+               avg_kplant(i) = 1.0 / (fsun(1) / kc_leaves(1) + fsun(2) / kc_leaves(2))
 
             ELSE IF (apar(1) >= 50 .AND. apar(2) < 50) THEN
 
                canopy%psi_leaf(i) = p_leaves(1)
                !canopy%psi_leaf_prev(i) = canopy%psi_leaf(i) ! MPa
+               !avg_kplant(i) = 1.0 / (1.0 / Kcmax(i) + 1.0 / kc_leaves(1))
                avg_kplant(i) = kc_leaves(1)
 
             ELSE IF (apar(1) < 50 .AND. apar(2) >= 50) THEN
 
                canopy%psi_leaf(i) = p_leaves(2)
                !canopy%psi_leaf_prev(i) = canopy%psi_leaf(i) ! MPa
+               !avg_kplant(i) = 1.0 / (1.0 / Kcmax(i) + 1.0 / kc_leaves(2))
                avg_kplant(i) = kc_leaves(2)
 
             END IF
@@ -3348,7 +3379,6 @@ CONTAINS
 
       ! Infer the matching leaf water potential (MPa).
       psi_leaf = psi_soil - eleaf_mmol / Kplant
-
 
    END FUNCTION calc_psi_leaf
    ! ---------------------------------------------------------------------------
