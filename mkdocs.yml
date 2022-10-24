@@ -1,4 +1,42 @@
-site_name: My Docs
+site_name: CABLE Docs
+
+# Needed to generate the canonical_url for each pages that are 
+# then used to create the sitemap for search engine indexing
+site_url: https://cable-docs.readthedocs.io/en/latest/
+# Git repository
+repo_url: https://github.com/CABLE-LSM/cable-docs
+repo_name: cable-docs
+# Material default to a "master" branch, need to change to "main"
+edit_uri: edit/main/docs
+docs_dir: docs
 
 theme:
   name: material
+  palette:
+    - scheme: light
+      primary: red
+      accent: deep orange
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+    - scheme: slate
+      primary: red
+      accent: deep orange
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode
+
+  features:
+    - navigation.instant
+    - navigation.indexes
+
+plugins:
+  - git-revision-date-localized:
+      type: date
+      enable_creation_date: true
+  - search
+  - macros
+
+# Navigation
+nav:
+  - About: index.md
