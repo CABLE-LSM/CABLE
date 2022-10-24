@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Documentation for CABLE">
+    <meta name="author" content="CABLE community" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>PLUME_MIP_GET_MET &ndash; CABLE</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">CABLE </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>PLUME_MIP_GET_MET
+      <small>Subroutine</small>
+    </h1>
+    <div class="row">
+  <div class="col-lg-12">
+<div class="well well-sm">
+  <ul class="list-inline" style="margin-bottom:0px;display:inline">
+     <li><i class="fa fa-list-ol"></i>
+       <a data-toggle="tooltip"
+    data-placement="bottom" data-html="true"
+    title=" 0.2% of total for procedures.">77 statements</a>
+     </li> 
+    <li><i class="fa fa-code"></i><a href="../src/cable_plume_mip.F90"> Source File</a></li>
+  </ul>
+  <ol class="breadcrumb in-well text-right">
+     <li><a href='../sourcefile/cable_plume_mip.f90.html'>cable_plume_mip.F90</a></li>
+     <li><a href='../module/cable_plume_mip.html'>CABLE_PLUME_MIP</a></li>
+     <li class="active">PLUME_MIP_GET_MET</li>
+  </ol>
+</div>
+</div>
+</div>
+<script>
+  $(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+    <div id="sidebar">
+  <h3>Contents</h3>
+ 
+<em>None</em>
+
+</div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public subroutine PLUME_MIP_GET_MET(PLUME, MET, CurYear, ktau, kend, islast)</h2>
+        <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Uses</h3>
+      </div>
+      <ul class="list-group">
+      <li class="list-group-item">
+  <ul class="list-inline">
+    <li>cable_checks_module</li>
+    <li><a href='../module/cable_io_vars_module~3.html'>cable_IO_vars_module</a></li>
+    <li><a href='../module/cable_weathergenerator.html'>CABLE_WEATHERGENERATOR</a></li>
+    <li><a href='../module/casa_ncdf_module.html'>casa_ncdf_module</a></li>
+    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+  </ul>
+      </li>
+      <li class="list-group-item">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 6.0.2 (20221011.1828)
+ -->
+<!-- Title: proc~~plume_mip_get_met~~UsesGraph Pages: 1 -->
+<svg id="procplume_mip_get_metUsesGraph" width="497pt" height="196pt"
+ viewBox="0.00 0.00 497.00 196.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~plume_mip_get_met~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 192)">
+<title>proc~~plume_mip_get_met~~UsesGraph</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-192 493,-192 493,4 -4,4"/>
+<!-- proc~plume_mip_get_met -->
+<g id="proc~~plume_mip_get_met~~UsesGraph_node1" class="node">
+<title>proc~plume_mip_get_met</title>
+<polygon fill="none" stroke="black" points="489,-108 359,-108 359,-84 489,-84 489,-108"/>
+<text text-anchor="middle" x="424" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50">PLUME_MIP_GET_MET</text>
+</g>
+<!-- module~cable_io_vars_module~3 -->
+<g id="proc~~plume_mip_get_met~~UsesGraph_node2" class="node">
+<title>module~cable_io_vars_module~3</title>
+<g id="a_proc~~plume_mip_get_met~~UsesGraph_node2"><a xlink:href=".././module/cable_io_vars_module~3.html" xlink:title="cable_IO_vars_module">
+<polygon fill="#337ab7" stroke="#337ab7" points="300,-188 177,-188 177,-164 300,-164 300,-188"/>
+<text text-anchor="middle" x="238.5" y="-173.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_IO_vars_module</text>
+</a>
+</g>
+</g>
+<!-- proc~plume_mip_get_met&#45;&gt;module~cable_io_vars_module~3 -->
+<g id="proc~~plume_mip_get_met~~UsesGraph_edge1" class="edge">
+<title>proc~plume_mip_get_met&#45;&gt;module~cable_io_vars_module~3</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M403.26,-108.14C383.49,-119.94 351.91,-137.83 323,-150 313.66,-153.93 303.51,-157.58 293.62,-160.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="292.31,-157.57 283.84,-163.94 294.43,-164.24 292.31,-157.57"/>
+</g>
+<!-- module~cable_def_types_mod -->
+<g id="proc~~plume_mip_get_met~~UsesGraph_node3" class="node">
+<title>module~cable_def_types_mod</title>
+<g id="a_proc~~plume_mip_get_met~~UsesGraph_node3"><a xlink:href=".././module/cable_def_types_mod.html" xlink:title="cable_def_types_mod">
+<polygon fill="#337ab7" stroke="#337ab7" points="118,-168 0,-168 0,-144 118,-144 118,-168"/>
+<text text-anchor="middle" x="59" y="-153.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_def_types_mod</text>
+</a>
+</g>
+</g>
+<!-- proc~plume_mip_get_met&#45;&gt;module~cable_def_types_mod -->
+<g id="proc~~plume_mip_get_met~~UsesGraph_edge2" class="edge">
+<title>proc~plume_mip_get_met&#45;&gt;module~cable_def_types_mod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M368.62,-108.04C353.85,-111.14 337.84,-114.34 323,-117 257.05,-128.8 181.34,-139.76 128.14,-147.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="127.58,-143.58 118.14,-148.39 128.52,-150.51 127.58,-143.58"/>
+</g>
+<!-- cable_checks_module -->
+<g id="proc~~plume_mip_get_met~~UsesGraph_node4" class="node">
+<title>cable_checks_module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="297.5,-108 179.5,-108 179.5,-84 297.5,-84 297.5,-108"/>
+<text text-anchor="middle" x="238.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_checks_module</text>
+</g>
+<!-- proc~plume_mip_get_met&#45;&gt;cable_checks_module -->
+<g id="proc~~plume_mip_get_met~~UsesGraph_edge3" class="edge">
+<title>proc~plume_mip_get_met&#45;&gt;cable_checks_module</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M358.82,-96C342.3,-96 324.47,-96 307.75,-96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="307.51,-92.5 297.51,-96 307.51,-99.5 307.51,-92.5"/>
+</g>
+<!-- module~casa_ncdf_module -->
+<g id="proc~~plume_mip_get_met~~UsesGraph_node5" class="node">
+<title>module~casa_ncdf_module</title>
+<g id="a_proc~~plume_mip_get_met~~UsesGraph_node5"><a xlink:href=".././module/casa_ncdf_module.html" xlink:title="casa_ncdf_module">
+<polygon fill="#337ab7" stroke="#337ab7" points="290,-66 187,-66 187,-42 290,-42 290,-66"/>
+<text text-anchor="middle" x="238.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">casa_ncdf_module</text>
+</a>
+</g>
+</g>
+<!-- proc~plume_mip_get_met&#45;&gt;module~casa_ncdf_module -->
+<g id="proc~~plume_mip_get_met~~UsesGraph_edge5" class="edge">
+<title>proc~plume_mip_get_met&#45;&gt;module~casa_ncdf_module</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M370.42,-83.96C348.46,-78.94 322.82,-73.07 300.08,-67.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="300.72,-64.42 290.19,-65.6 299.16,-71.25 300.72,-64.42"/>
+</g>
+<!-- module~cable_weathergenerator -->
+<g id="proc~~plume_mip_get_met~~UsesGraph_node6" class="node">
+<title>module~cable_weathergenerator</title>
+<g id="a_proc~~plume_mip_get_met~~UsesGraph_node6"><a xlink:href=".././module/cable_weathergenerator.html" xlink:title="CABLE_WEATHERGENERATOR">
+<polygon fill="#337ab7" stroke="#337ab7" points="323,-24 154,-24 154,0 323,0 323,-24"/>
+<text text-anchor="middle" x="238.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CABLE_WEATHERGENERATOR</text>
+</a>
+</g>
+</g>
+<!-- proc~plume_mip_get_met&#45;&gt;module~cable_weathergenerator -->
+<g id="proc~~plume_mip_get_met~~UsesGraph_edge4" class="edge">
+<title>proc~plume_mip_get_met&#45;&gt;module~cable_weathergenerator</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M407.25,-83.84C388.25,-69.73 354.88,-46.64 323,-33 317.93,-30.83 312.59,-28.85 307.16,-27.05"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="307.92,-23.62 297.33,-24 305.85,-30.31 307.92,-23.62"/>
+</g>
+<!-- module~cable_io_vars_module~3&#45;&gt;module~cable_def_types_mod -->
+<g id="proc~~plume_mip_get_met~~UsesGraph_edge6" class="edge">
+<title>module~cable_io_vars_module~3&#45;&gt;module~cable_def_types_mod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M176.91,-169.17C161.34,-167.42 144.48,-165.52 128.54,-163.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="128.55,-160.2 118.22,-162.56 127.76,-167.16 128.55,-160.2"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 6.0.2 (20221011.1828)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="490pt" height="32pt"
+ viewBox="0.00 0.00 489.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28 485.5,-28 485.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="139.5,-24 72.5,-24 72.5,0 139.5,0 139.5,-24"/>
+<text text-anchor="middle" x="106" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="222,-24 158,-24 158,0 222,0 222,-24"/>
+<text text-anchor="middle" x="190" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="294,-24 240,-24 240,0 294,0 294,-24"/>
+<text text-anchor="middle" x="267" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="366,-24 312,-24 312,0 366,0 366,-24"/>
+<text text-anchor="middle" x="339" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="481.5,-24 384.5,-24 384.5,0 481.5,0 481.5,-24"/>
+<text text-anchor="middle" x="433" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a submodule to the (sub)module which it is
+    descended from. Dashed arrows point from a module or program unit to 
+    modules which it uses. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </li>
+      </ul>
+    </div>
+
+
+    <p>!!  this only works with CANBERRA cable_driver, as ktau    !!!!
+!!  restarts on Jan 1                                      !!!!</p>
+<p>$write(<em>,</em>) "met", met%precip(1), &amp;
+$met%precip_sn (is:ie)  , &amp;
+$     met%fld       (is:ie), &amp;
+$     met%fsd       (is:ie,1), &amp;
+$     met%fsd       (is:ie,2), &amp;
+$     met%tk        (is:ie) , &amp;
+$     met%ua        (is:ie)  , &amp;
+$     met%coszen    (is:ie)</p>
+
+    <h3>Arguments</h3>
+      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" id="variable-plume~7"></span>type(<a href='../type/plume_mip_type.html'>PLUME_MIP_TYPE</a>)</td>
+<td></td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>PLUME</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-met~4"></span>type(<a href='../type/met_type.html'>met_type</a>)</td>
+<td></td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>MET</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-curyear~2"></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>CurYear</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-ktau~11"></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ktau</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-kend~6"></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>kend</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-islast~2"></span>logical,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>islast</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Calls</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 6.0.2 (20221011.1828)
+ -->
+<!-- Title: proc~~plume_mip_get_met~~CallsGraph Pages: 1 -->
+<svg id="procplume_mip_get_metCallsGraph" width="613pt" height="532pt"
+ viewBox="0.00 0.00 613.00 532.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~plume_mip_get_met~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 528)">
+<title>proc~~plume_mip_get_met~~CallsGraph</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-528 609,-528 609,4 -4,4"/>
+<!-- proc~plume_mip_get_met -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_node1" class="node">
+<title>proc~plume_mip_get_met</title>
+<polygon fill="none" stroke="black" points="130,-212 0,-212 0,-188 130,-188 130,-212"/>
+<text text-anchor="middle" x="65" y="-197.6" font-family="Helvetica,sans-Serif" font-size="10.50">PLUME_MIP_GET_MET</text>
+</g>
+<!-- proc~open_plume_met -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_node2" class="node">
+<title>proc~open_plume_met</title>
+<g id="a_proc~~plume_mip_get_met~~CallsGraph_node2"><a xlink:href=".././proc/open_plume_met.html" xlink:title="OPEN_PLUME_MET">
+<polygon fill="#d9534f" stroke="#d9534f" points="297,-356 185,-356 185,-332 297,-332 297,-356"/>
+<text text-anchor="middle" x="241" y="-341.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OPEN_PLUME_MET</text>
+</a>
+</g>
+</g>
+<!-- proc~plume_mip_get_met&#45;&gt;proc~open_plume_met -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_edge1" class="edge">
+<title>proc~plume_mip_get_met&#45;&gt;proc~open_plume_met</title>
+<path fill="none" stroke="#ff0000" d="M80.54,-212.03C110.78,-237.06 180.69,-294.92 217.07,-325.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="215.2,-328.02 225.14,-331.7 219.66,-322.63 215.2,-328.02"/>
+</g>
+<!-- nf90_close -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_node3" class="node">
+<title>nf90_close</title>
+<polygon fill="#777777" stroke="#777777" points="451.5,-104 387.5,-104 387.5,-80 451.5,-80 451.5,-104"/>
+<text text-anchor="middle" x="419.5" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_close</text>
+</g>
+<!-- proc~plume_mip_get_met&#45;&gt;nf90_close -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_edge4" class="edge">
+<title>proc~plume_mip_get_met&#45;&gt;nf90_close</title>
+<path fill="none" stroke="#ff0000" d="M103.18,-212.09C155.51,-226.66 251.68,-244.18 316,-201 351.08,-177.45 320.91,-141.62 352,-113 359.06,-106.5 368.13,-102.01 377.29,-98.91"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="378.53,-102.19 387.17,-96.06 376.59,-95.47 378.53,-102.19"/>
+</g>
+<!-- proc~get_plume_co2 -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_node4" class="node">
+<title>proc~get_plume_co2</title>
+<g id="a_proc~~plume_mip_get_met~~CallsGraph_node4"><a xlink:href=".././proc/get_plume_co2.html" xlink:title="GET_PLUME_CO2">
+<polygon fill="#d9534f" stroke="#d9534f" points="293,-502 189,-502 189,-478 293,-478 293,-502"/>
+<text text-anchor="middle" x="241" y="-487.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GET_PLUME_CO2</text>
+</a>
+</g>
+</g>
+<!-- proc~plume_mip_get_met&#45;&gt;proc~get_plume_co2 -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_edge2" class="edge">
+<title>proc~plume_mip_get_met&#45;&gt;proc~get_plume_co2</title>
+<path fill="none" stroke="#ff0000" d="M69.72,-212.31C80.64,-247.16 115.06,-348.63 166,-420 180.09,-439.73 200.31,-458.41 216.05,-471.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="213.86,-474.22 223.83,-477.81 218.27,-468.79 213.86,-474.22"/>
+</g>
+<!-- proc~doysod2ymdhms -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_node5" class="node">
+<title>proc~doysod2ymdhms</title>
+<g id="a_proc~~plume_mip_get_met~~CallsGraph_node5"><a xlink:href=".././proc/doysod2ymdhms.html" xlink:title="DOYSOD2YMDHMS">
+<polygon fill="#d9534f" stroke="#d9534f" points="296,-108 186,-108 186,-84 296,-84 296,-108"/>
+<text text-anchor="middle" x="241" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DOYSOD2YMDHMS</text>
+</a>
+</g>
+</g>
+<!-- proc~plume_mip_get_met&#45;&gt;proc~doysod2ymdhms -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_edge3" class="edge">
+<title>proc~plume_mip_get_met&#45;&gt;proc~doysod2ymdhms</title>
+<path fill="none" stroke="#ff0000" d="M77.13,-188C94.45,-170.01 129.67,-136.13 166,-117 169.72,-115.04 173.65,-113.24 177.67,-111.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="179.05,-114.83 187.19,-108.05 176.6,-108.27 179.05,-114.83"/>
+</g>
+<!-- proc~handle_err -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_node6" class="node">
+<title>proc~handle_err</title>
+<g id="a_proc~~plume_mip_get_met~~CallsGraph_node6"><a xlink:href=".././proc/handle_err.html" xlink:title="HANDLE_ERR">
+<polygon fill="#d9534f" stroke="#d9534f" points="460.5,-482 378.5,-482 378.5,-458 460.5,-458 460.5,-482"/>
+<text text-anchor="middle" x="419.5" y="-467.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HANDLE_ERR</text>
+</a>
+</g>
+</g>
+<!-- proc~plume_mip_get_met&#45;&gt;proc~handle_err -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_edge5" class="edge">
+<title>proc~plume_mip_get_met&#45;&gt;proc~handle_err</title>
+<path fill="none" stroke="#ff0000" d="M70.37,-212.05C81.72,-241.81 114.86,-319.68 166,-365 224.87,-417.17 313.31,-445.79 368.38,-459.49"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="367.72,-462.93 378.26,-461.88 369.36,-456.13 367.72,-462.93"/>
+</g>
+<!-- proc~wgen_init -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_node7" class="node">
+<title>proc~wgen_init</title>
+<g id="a_proc~~plume_mip_get_met~~CallsGraph_node7"><a xlink:href=".././proc/wgen_init.html" xlink:title="WGEN_INIT">
+<polygon fill="#d9534f" stroke="#d9534f" points="276.5,-192 205.5,-192 205.5,-168 276.5,-168 276.5,-192"/>
+<text text-anchor="middle" x="241" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">WGEN_INIT</text>
+</a>
+</g>
+</g>
+<!-- proc~plume_mip_get_met&#45;&gt;proc~wgen_init -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_edge6" class="edge">
+<title>proc~plume_mip_get_met&#45;&gt;proc~wgen_init</title>
+<path fill="none" stroke="#ff0000" d="M130.3,-192.61C151.9,-190.13 175.5,-187.41 195.26,-185.14"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="195.68,-188.62 205.22,-184 194.88,-181.66 195.68,-188.62"/>
+</g>
+<!-- proc~file_switch -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_node8" class="node">
+<title>proc~file_switch</title>
+<g id="a_proc~~plume_mip_get_met~~CallsGraph_node8"><a xlink:href=".././proc/file_switch.html" xlink:title="FILE_SWITCH">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="282,-150 200,-150 200,-126 282,-126 282,-150"/>
+<text text-anchor="middle" x="241" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FILE_SWITCH</text>
+</a>
+</g>
+</g>
+<!-- proc~plume_mip_get_met&#45;&gt;proc~file_switch -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_edge7" class="edge">
+<title>proc~plume_mip_get_met&#45;&gt;proc~file_switch</title>
+<path fill="none" stroke="#ff0000" d="M93.27,-187.84C113.2,-179.2 140.99,-167.64 166,-159 173.72,-156.33 181.97,-153.74 190.06,-151.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="191.17,-154.66 199.8,-148.52 189.22,-147.94 191.17,-154.66"/>
+</g>
+<!-- proc~plume_get_daily_met -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_node9" class="node">
+<title>proc~plume_get_daily_met</title>
+<g id="a_proc~~plume_mip_get_met~~CallsGraph_node9"><a xlink:href=".././proc/plume_get_daily_met.html" xlink:title="PLUME_GET_DAILY_MET">
+<polygon fill="#d9534f" stroke="#d9534f" points="311,-272 171,-272 171,-248 311,-248 311,-272"/>
+<text text-anchor="middle" x="241" y="-257.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PLUME_GET_DAILY_MET</text>
+</a>
+</g>
+</g>
+<!-- proc~plume_mip_get_met&#45;&gt;proc~plume_get_daily_met -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_edge8" class="edge">
+<title>proc~plume_mip_get_met&#45;&gt;proc~plume_get_daily_met</title>
+<path fill="none" stroke="#ff0000" d="M101.21,-212.14C128.42,-221.53 166.26,-234.57 195.56,-244.68"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="194.54,-248.03 205.14,-247.98 196.83,-241.41 194.54,-248.03"/>
+</g>
+<!-- proc~wgen_daily_constants -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_node10" class="node">
+<title>proc~wgen_daily_constants</title>
+<g id="a_proc~~plume_mip_get_met~~CallsGraph_node10"><a xlink:href=".././proc/wgen_daily_constants.html" xlink:title="WGEN_DAILY_CONSTANTS">
+<polygon fill="#d9534f" stroke="#d9534f" points="316,-66 166,-66 166,-42 316,-42 316,-66"/>
+<text text-anchor="middle" x="241" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">WGEN_DAILY_CONSTANTS</text>
+</a>
+</g>
+</g>
+<!-- proc~plume_mip_get_met&#45;&gt;proc~wgen_daily_constants -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_edge9" class="edge">
+<title>proc~plume_mip_get_met&#45;&gt;proc~wgen_daily_constants</title>
+<path fill="none" stroke="#ff0000" d="M72.22,-187.97C85.76,-162.98 120.39,-105.29 166,-75 168.59,-73.28 171.31,-71.7 174.13,-70.25"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="175.75,-73.36 183.4,-66.04 172.85,-66.99 175.75,-73.36"/>
+</g>
+<!-- proc~wgen_subdiurnal_met -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_node11" class="node">
+<title>proc~wgen_subdiurnal_met</title>
+<g id="a_proc~~plume_mip_get_met~~CallsGraph_node11"><a xlink:href=".././proc/wgen_subdiurnal_met.html" xlink:title="WGEN_SUBDIURNAL_MET">
+<polygon fill="#d9534f" stroke="#d9534f" points="314,-24 168,-24 168,0 314,0 314,-24"/>
+<text text-anchor="middle" x="241" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">WGEN_SUBDIURNAL_MET</text>
+</a>
+</g>
+</g>
+<!-- proc~plume_mip_get_met&#45;&gt;proc~wgen_subdiurnal_met -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_edge10" class="edge">
+<title>proc~plume_mip_get_met&#45;&gt;proc~wgen_subdiurnal_met</title>
+<path fill="none" stroke="#ff0000" d="M69.78,-187.77C79.97,-156.88 111.01,-75.14 166,-33 167.85,-31.58 169.8,-30.26 171.81,-29.02"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="173.81,-31.92 181.03,-24.17 170.55,-25.73 173.81,-31.92"/>
+</g>
+<!-- proc~open_plume_met&#45;&gt;proc~handle_err -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_edge12" class="edge">
+<title>proc~open_plume_met&#45;&gt;proc~handle_err</title>
+<path fill="none" stroke="#ff0000" d="M266.23,-356.18C281.69,-364.75 301.47,-377.29 316,-392 337.06,-413.31 328.27,-430.71 352,-449 357.03,-452.88 362.8,-456.05 368.79,-458.64"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="367.71,-461.98 378.3,-462.26 370.19,-455.43 367.71,-461.98"/>
+</g>
+<!-- proc~plume_get_filename -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_node12" class="node">
+<title>proc~plume_get_filename</title>
+<g id="a_proc~~plume_mip_get_met~~CallsGraph_node12"><a xlink:href=".././proc/plume_get_filename.html" xlink:title="PLUME_GET_FILENAME">
+<polygon fill="#d9534f" stroke="#d9534f" points="487,-272 352,-272 352,-248 487,-248 487,-272"/>
+<text text-anchor="middle" x="419.5" y="-257.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PLUME_GET_FILENAME</text>
+</a>
+</g>
+</g>
+<!-- proc~open_plume_met&#45;&gt;proc~plume_get_filename -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_edge11" class="edge">
+<title>proc~open_plume_met&#45;&gt;proc~plume_get_filename</title>
+<path fill="none" stroke="#ff0000" d="M260.44,-331.8C281.78,-318.07 318.34,-295.75 352,-281 356.41,-279.07 361.06,-277.23 365.76,-275.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="367.15,-278.72 375.43,-272.11 364.83,-272.11 367.15,-278.72"/>
+</g>
+<!-- nf90_open -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_node16" class="node">
+<title>nf90_open</title>
+<polygon fill="#777777" stroke="#777777" points="451.5,-356 387.5,-356 387.5,-332 451.5,-332 451.5,-356"/>
+<text text-anchor="middle" x="419.5" y="-341.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_open</text>
+</g>
+<!-- proc~open_plume_met&#45;&gt;nf90_open -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_edge15" class="edge">
+<title>proc~open_plume_met&#45;&gt;nf90_open</title>
+<path fill="none" stroke="#ff0000" d="M297.36,-344C323.25,-344 353.55,-344 377.37,-344"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="377.48,-347.5 387.48,-344 377.48,-340.5 377.48,-347.5"/>
+</g>
+<!-- nf90_get_att -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_node17" class="node">
+<title>nf90_get_att</title>
+<polygon fill="#777777" stroke="#777777" points="456,-440 383,-440 383,-416 456,-416 456,-440"/>
+<text text-anchor="middle" x="419.5" y="-425.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_get_att</text>
+</g>
+<!-- proc~open_plume_met&#45;&gt;nf90_get_att -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_edge16" class="edge">
+<title>proc~open_plume_met&#45;&gt;nf90_get_att</title>
+<path fill="none" stroke="#ff0000" d="M260.44,-356.2C281.78,-369.93 318.34,-392.25 352,-407 358.71,-409.94 365.96,-412.66 373.12,-415.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="372.19,-418.48 382.78,-418.26 374.36,-411.83 372.19,-418.48"/>
+</g>
+<!-- proc~leap_day -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_node18" class="node">
+<title>proc~leap_day</title>
+<g id="a_proc~~plume_mip_get_met~~CallsGraph_node18"><a xlink:href=".././proc/leap_day.html" xlink:title="LEAP_DAY">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="452.5,-398 386.5,-398 386.5,-374 452.5,-374 452.5,-398"/>
+<text text-anchor="middle" x="419.5" y="-383.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LEAP_DAY</text>
+</a>
+</g>
+</g>
+<!-- proc~open_plume_met&#45;&gt;proc~leap_day -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_edge13" class="edge">
+<title>proc~open_plume_met&#45;&gt;proc~leap_day</title>
+<path fill="none" stroke="#ff0000" d="M292.58,-356.04C319.08,-362.34 351.16,-369.98 376.31,-375.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="375.74,-379.42 386.27,-378.33 377.36,-372.61 375.74,-379.42"/>
+</g>
+<!-- nf90_inq_varid -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_node19" class="node">
+<title>nf90_inq_varid</title>
+<polygon fill="#777777" stroke="#777777" points="461,-314 378,-314 378,-290 461,-290 461,-314"/>
+<text text-anchor="middle" x="419.5" y="-299.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_varid</text>
+</g>
+<!-- proc~open_plume_met&#45;&gt;nf90_inq_varid -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_edge14" class="edge">
+<title>proc~open_plume_met&#45;&gt;nf90_inq_varid</title>
+<path fill="none" stroke="#ff0000" d="M292.58,-331.96C316.29,-326.32 344.46,-319.62 368.14,-313.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="369.07,-317.36 377.99,-311.64 367.45,-310.55 369.07,-317.36"/>
+</g>
+<!-- proc~get_unit -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_node20" class="node">
+<title>proc~get_unit</title>
+<g id="a_proc~~plume_mip_get_met~~CallsGraph_node20"><a xlink:href=".././proc/get_unit.html" xlink:title="GET_UNIT">
+<polygon fill="#d9534f" stroke="#d9534f" points="452,-524 387,-524 387,-500 452,-500 452,-524"/>
+<text text-anchor="middle" x="419.5" y="-509.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GET_UNIT</text>
+</a>
+</g>
+</g>
+<!-- proc~get_plume_co2&#45;&gt;proc~get_unit -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_edge17" class="edge">
+<title>proc~get_plume_co2&#45;&gt;proc~get_unit</title>
+<path fill="none" stroke="#cbff00" d="M293.05,-496.36C319.72,-499.69 351.93,-503.7 377.03,-506.83"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="376.62,-510.31 386.97,-508.07 377.48,-503.36 376.62,-510.31"/>
+</g>
+<!-- proc~is_leapyear -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_node13" class="node">
+<title>proc~is_leapyear</title>
+<g id="a_proc~~plume_mip_get_met~~CallsGraph_node13"><a xlink:href=".././proc/is_leapyear.html" xlink:title="IS_LEAPYEAR">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="605,-231 523,-231 523,-207 605,-207 605,-231"/>
+<text text-anchor="middle" x="564" y="-216.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">IS_LEAPYEAR</text>
+</a>
+</g>
+</g>
+<!-- proc~doysod2ymdhms&#45;&gt;proc~is_leapyear -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_edge18" class="edge">
+<title>proc~doysod2ymdhms&#45;&gt;proc~is_leapyear</title>
+<path fill="none" stroke="#33ff00" d="M284.72,-83.95C304.93,-78.86 329.52,-73.52 352,-71 411.63,-64.31 435.79,-39.73 487,-71 532.38,-98.71 551.79,-163.09 559.12,-197.08"/>
+<polygon fill="#33ff00" stroke="#33ff00" points="555.7,-197.84 561.09,-206.96 562.57,-196.47 555.7,-197.84"/>
+</g>
+<!-- nf90_strerror -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_node21" class="node">
+<title>nf90_strerror</title>
+<polygon fill="#777777" stroke="#777777" points="601.5,-482 526.5,-482 526.5,-458 601.5,-458 601.5,-482"/>
+<text text-anchor="middle" x="564" y="-467.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_strerror</text>
+</g>
+<!-- proc~handle_err&#45;&gt;nf90_strerror -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_edge19" class="edge">
+<title>proc~handle_err&#45;&gt;nf90_strerror</title>
+<path fill="none" stroke="#00ff66" d="M460.57,-470C477.78,-470 498,-470 515.91,-470"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="516.15,-473.5 526.15,-470 516.15,-466.5 516.15,-473.5"/>
+</g>
+<!-- proc~plume_get_daily_met&#45;&gt;nf90_close -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_edge23" class="edge">
+<title>proc~plume_get_daily_met&#45;&gt;nf90_close</title>
+<path fill="none" stroke="#3200ff" d="M296.18,-247.84C303.54,-244.33 310.46,-239.82 316,-234 354.7,-193.37 312.66,-153 352,-113 358.93,-105.95 368.2,-101.26 377.62,-98.15"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="378.69,-101.48 387.39,-95.43 376.82,-94.74 378.69,-101.48"/>
+</g>
+<!-- proc~plume_get_daily_met&#45;&gt;proc~handle_err -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_edge21" class="edge">
+<title>proc~plume_get_daily_met&#45;&gt;proc~handle_err</title>
+<path fill="none" stroke="#3200ff" d="M261.84,-272.07C278.63,-283.27 302.12,-301.43 316,-323 347.52,-371.97 311.39,-407.25 352,-449 356.76,-453.9 362.66,-457.66 368.96,-460.54"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="367.79,-463.84 378.38,-464.17 370.31,-457.31 367.79,-463.84"/>
+</g>
+<!-- proc~plume_get_daily_met&#45;&gt;proc~plume_get_filename -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_edge22" class="edge">
+<title>proc~plume_get_daily_met&#45;&gt;proc~plume_get_filename</title>
+<path fill="none" stroke="#3200ff" d="M311.25,-260C321.25,-260 331.58,-260 341.72,-260"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="341.76,-263.5 351.76,-260 341.76,-256.5 341.76,-263.5"/>
+</g>
+<!-- nf90_get_var -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_node14" class="node">
+<title>nf90_get_var</title>
+<polygon fill="#777777" stroke="#777777" points="457.5,-230 381.5,-230 381.5,-206 457.5,-206 457.5,-230"/>
+<text text-anchor="middle" x="419.5" y="-215.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_get_var</text>
+</g>
+<!-- proc~plume_get_daily_met&#45;&gt;nf90_get_var -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_edge20" class="edge">
+<title>proc~plume_get_daily_met&#45;&gt;nf90_get_var</title>
+<path fill="none" stroke="#3200ff" d="M292.58,-247.96C317.47,-242.04 347.28,-234.95 371.65,-229.15"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="372.46,-232.55 381.38,-226.83 370.84,-225.74 372.46,-232.55"/>
+</g>
+<!-- nf90_inquire_dimension -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_node15" class="node">
+<title>nf90_inquire_dimension</title>
+<polygon fill="#777777" stroke="#777777" points="483,-188 356,-188 356,-164 483,-164 483,-188"/>
+<text text-anchor="middle" x="419.5" y="-173.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inquire_dimension</text>
+</g>
+<!-- proc~plume_get_daily_met&#45;&gt;nf90_inquire_dimension -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_edge24" class="edge">
+<title>proc~plume_get_daily_met&#45;&gt;nf90_inquire_dimension</title>
+<path fill="none" stroke="#3200ff" d="M286.98,-247.92C296.95,-244.25 307.16,-239.64 316,-234 335.34,-221.65 332.47,-209.04 352,-197 354.83,-195.25 357.83,-193.64 360.91,-192.15"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="362.59,-195.24 370.37,-188.05 359.81,-188.81 362.59,-195.24"/>
+</g>
+<!-- proc~plume_get_daily_met&#45;&gt;nf90_open -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_edge26" class="edge">
+<title>proc~plume_get_daily_met&#45;&gt;nf90_open</title>
+<path fill="none" stroke="#3200ff" d="M260.44,-272.2C281.78,-285.93 318.34,-308.25 352,-323 360.05,-326.53 368.88,-329.74 377.4,-332.54"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="376.61,-335.96 387.2,-335.62 378.72,-329.28 376.61,-335.96"/>
+</g>
+<!-- proc~plume_get_daily_met&#45;&gt;nf90_inq_varid -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_edge25" class="edge">
+<title>proc~plume_get_daily_met&#45;&gt;nf90_inq_varid</title>
+<path fill="none" stroke="#3200ff" d="M292.58,-272.04C316.29,-277.68 344.46,-284.38 368.14,-290.02"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="367.45,-293.45 377.99,-292.36 369.07,-286.64 367.45,-293.45"/>
+</g>
+<!-- nf90_inq_dimid -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_node22" class="node">
+<title>nf90_inq_dimid</title>
+<polygon fill="#777777" stroke="#777777" points="462,-146 377,-146 377,-122 462,-122 462,-146"/>
+<text text-anchor="middle" x="419.5" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_dimid</text>
+</g>
+<!-- proc~plume_get_daily_met&#45;&gt;nf90_inq_dimid -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_edge27" class="edge">
+<title>proc~plume_get_daily_met&#45;&gt;nf90_inq_dimid</title>
+<path fill="none" stroke="#3200ff" d="M293.58,-247.98C301.73,-244.44 309.57,-239.88 316,-234 344.48,-207.97 323.11,-180.57 352,-155 356.47,-151.04 361.69,-147.83 367.2,-145.22"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="368.72,-148.38 376.67,-141.38 366.09,-141.9 368.72,-148.38"/>
+</g>
+<!-- proc~leap_day&#45;&gt;proc~is_leapyear -->
+<g id="proc~~plume_mip_get_met~~CallsGraph_edge28" class="edge">
+<title>proc~leap_day&#45;&gt;proc~is_leapyear</title>
+<path fill="none" stroke="#00b9ff" d="M452.79,-381.14C464.57,-378.08 477.36,-373.1 487,-365 526.52,-331.82 548.1,-272.8 557.39,-240.91"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="560.78,-241.78 560.07,-231.21 554.03,-239.91 560.78,-241.78"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 6.0.2 (20221011.1828)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="560pt" height="32pt"
+ viewBox="0.00 0.00 559.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28 555.5,-28 555.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="64,-24 0,-24 0,0 64,0 64,-24"/>
+<text text-anchor="middle" x="32" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="136,-24 82,-24 82,0 136,0 136,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="209.5,-24 154.5,-24 154.5,0 209.5,0 209.5,-24"/>
+<text text-anchor="middle" x="182" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="364,-24 228,-24 228,0 364,0 364,-24"/>
+<text text-anchor="middle" x="296" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="436,-24 382,-24 382,0 436,0 436,-24"/>
+<text text-anchor="middle" x="409" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="551.5,-24 454.5,-24 454.5,0 551.5,0 551.5,-24"/>
+<text text-anchor="middle" x="503" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Called by</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 6.0.2 (20221011.1828)
+ -->
+<!-- Title: proc~~plume_mip_get_met~~CalledByGraph Pages: 1 -->
+<svg id="procplume_mip_get_metCalledByGraph" width="379pt" height="74pt"
+ viewBox="0.00 0.00 379.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~plume_mip_get_met~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<title>proc~~plume_mip_get_met~~CalledByGraph</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-70 375,-70 375,4 -4,4"/>
+<!-- proc~plume_mip_get_met -->
+<g id="proc~~plume_mip_get_met~~CalledByGraph_node1" class="node">
+<title>proc~plume_mip_get_met</title>
+<polygon fill="none" stroke="black" points="371,-45 241,-45 241,-21 371,-21 371,-45"/>
+<text text-anchor="middle" x="306" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">PLUME_MIP_GET_MET</text>
+</g>
+<!-- proc~mpidrv_master -->
+<g id="proc~~plume_mip_get_met~~CalledByGraph_node2" class="node">
+<title>proc~mpidrv_master</title>
+<g id="a_proc~~plume_mip_get_met~~CalledByGraph_node2"><a xlink:href=".././proc/mpidrv_master.html" xlink:title="mpidrv_master">
+<polygon fill="#d9534f" stroke="#d9534f" points="194,-66 110,-66 110,-42 194,-42 194,-66"/>
+<text text-anchor="middle" x="152" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpidrv_master</text>
+</a>
+</g>
+</g>
+<!-- proc~mpidrv_master&#45;&gt;proc~plume_mip_get_met -->
+<g id="proc~~plume_mip_get_met~~CalledByGraph_edge1" class="edge">
+<title>proc~mpidrv_master&#45;&gt;proc~plume_mip_get_met</title>
+<path fill="none" stroke="#ff0000" d="M194.13,-48.32C205.51,-46.75 218.22,-44.99 230.86,-43.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="231.53,-46.68 240.95,-41.85 230.57,-39.75 231.53,-46.68"/>
+</g>
+<!-- program~cable_offline_driver -->
+<g id="proc~~plume_mip_get_met~~CalledByGraph_node3" class="node">
+<title>program~cable_offline_driver</title>
+<g id="a_proc~~plume_mip_get_met~~CalledByGraph_node3"><a xlink:href=".././program/cable_offline_driver.html" xlink:title="cable_offline_driver">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="205,-24 99,-24 99,0 205,0 205,-24"/>
+<text text-anchor="middle" x="152" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_offline_driver</text>
+</a>
+</g>
+</g>
+<!-- program~cable_offline_driver&#45;&gt;proc~plume_mip_get_met -->
+<g id="proc~~plume_mip_get_met~~CalledByGraph_edge2" class="edge">
+<title>program~cable_offline_driver&#45;&gt;proc~plume_mip_get_met</title>
+<path fill="none" stroke="#ff0000" d="M205.31,-19.23C213.52,-20.36 222.14,-21.55 230.73,-22.74"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="230.39,-26.22 240.77,-24.13 231.34,-19.29 230.39,-26.22"/>
+</g>
+<!-- program~mpi_driver -->
+<g id="proc~~plume_mip_get_met~~CalledByGraph_node4" class="node">
+<title>program~mpi_driver</title>
+<g id="a_proc~~plume_mip_get_met~~CalledByGraph_node4"><a xlink:href=".././program/mpi_driver.html" xlink:title="mpi_driver">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="63,-66 0,-66 0,-42 63,-42 63,-66"/>
+<text text-anchor="middle" x="31.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_driver</text>
+</a>
+</g>
+</g>
+<!-- program~mpi_driver&#45;&gt;proc~mpidrv_master -->
+<g id="proc~~plume_mip_get_met~~CalledByGraph_edge3" class="edge">
+<title>program~mpi_driver&#45;&gt;proc~mpidrv_master</title>
+<path fill="none" stroke="#ff0000" d="M63.02,-54C74.16,-54 87.09,-54 99.56,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="99.87,-57.5 109.87,-54 99.87,-50.5 99.87,-57.5"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 6.0.2 (20221011.1828)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="560pt" height="32pt"
+ viewBox="0.00 0.00 559.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28 555.5,-28 555.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="64,-24 0,-24 0,0 64,0 64,-24"/>
+<text text-anchor="middle" x="32" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="136,-24 82,-24 82,0 136,0 136,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="209.5,-24 154.5,-24 154.5,0 209.5,0 209.5,-24"/>
+<text text-anchor="middle" x="182" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="364,-24 228,-24 228,0 364,0 364,-24"/>
+<text text-anchor="middle" x="296" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="436,-24 382,-24 382,0 436,0 436,-24"/>
+<text text-anchor="middle" x="409" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="551.5,-24 454.5,-24 454.5,0 551.5,0 551.5,-24"/>
+<text text-anchor="middle" x="503" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+      <h3>Contents</h3>
+ 
+<em>None</em>
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>CABLE was developed by CABLE community<br>&copy; 2022 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+          </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>

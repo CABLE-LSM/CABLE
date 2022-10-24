@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Documentation for CABLE">
+    <meta name="author" content="CABLE community" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>output_inclusion_type &ndash; CABLE </title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">CABLE </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>output_inclusion_type
+    <small>Derived Type</small>
+    </h1>
+    <div class="row">
+  <div class="col-lg-12">
+<div class="well well-sm">
+  <ul class="list-inline" style="margin-bottom:0px;display:inline">
+     <li><i class="fa fa-list-ol"></i>
+       <a data-toggle="tooltip"
+    data-placement="bottom" data-html="true"
+    title="<p> 0.6% of total for derived types.</p>Including implementation: 6 statements,  0.6% of total for derived types.">6 statements</a>
+     </li> 
+    <li><i class="fa fa-code"></i><a href="../src/cable_iovars.F90"> Source File</a></li>
+  </ul>
+  <ol class="breadcrumb in-well text-right">
+     <li><a href='../sourcefile/cable_iovars.f90~2.html'>cable_iovars.F90</a></li>
+     <li><a href='../module/cable_io_vars_module.html'>cable_IO_vars_module</a></li>
+     <li class="active">output_inclusion_type</li>
+  </ol>
+</div>
+</div>
+</div>
+<script>
+  $(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+    <div id="sidebar">
+  <h3>Contents</h3>
+ 
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#vars-0">Variables</a></h3></div>
+  <div id="vars-0" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-met~3">met</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-flux~3">flux</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-radiation~3">radiation</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-carbon~3">carbon</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-soil~3">soil</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-snow~3">snow</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-veg~3">veg</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-params~3">params</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-balances~3">balances</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-restart~3">restart</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-ensemble~3">ensemble</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-patch~5">patch</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-grid~2">grid</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-averaging~2">averaging</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-interval~2">interval</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-swdown~6">SWdown</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-lwdown~8">LWdown</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-rainf~3">Rainf</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-snowf~5">Snowf</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-psurf~8">PSurf</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-tair~6">Tair</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-qair~6">Qair</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-co2air~5">CO2air</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-wind~6">Wind</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-wind_n~3">Wind_N</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-wind_e~3">Wind_E</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-lai~5">LAI</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-qh~3">Qh</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-qle~3">Qle</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-qg~3">Qg</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-swnet~3">SWnet</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-lwnet~3">LWnet</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-evap~3">Evap</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-ewater~3">Ewater</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-esoil~3">ESoil</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-tveg~3">TVeg</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-ecanop~3">ECanop</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-potevap~3">PotEvap</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-acond~3">ACond</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-soilwet~3">SoilWet</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-albedo~3">Albedo</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-vegt~3">VegT</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-soiltemp~3">SoilTemp</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-soilmoist~3">SoilMoist</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-qs~3">Qs</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-qsb~3">Qsb</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-delsoilmoist~3">DelSoilMoist</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-delswe~3">DelSWE</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-delintercept~3">DelIntercept</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-snowt~3">SnowT</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-baresoilt~3">BaresoilT</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-avgsurft~3">AvgSurfT</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-radt~3">RadT</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-swe~3">SWE</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-rootmoist~3">RootMoist</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-canopint~3">CanopInt</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-nee~3">NEE</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-npp~3">NPP</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-gpp~3">GPP</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-autoresp~3">AutoResp</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-leafresp~3">LeafResp</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-heteroresp~3">HeteroResp</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-snowdepth~3">SnowDepth</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-rnet~3">Rnet</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-hveg~3">HVeg</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-hsoil~3">HSoil</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-ebal~3">Ebal</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-wbal~3">Wbal</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-bch~7">bch</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-latitude~8">latitude</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-clay~7">clay</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-css~7">css</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-rhosoil~7">rhosoil</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-hyds~7">hyds</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-rs20~7">rs20</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-sand~7">sand</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-sfc~7">sfc</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-silt~7">silt</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-ssat~7">ssat</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-sucs~7">sucs</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-swilt~7">swilt</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-froot~6">froot</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-zse~6">zse</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-canst1~7">canst1</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-dleaf~7">dleaf</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-ejmax~7">ejmax</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-frac4~7">frac4</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-hc~7">hc</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-rp20~7">rp20</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-rpcoef~7">rpcoef</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-shelrb~7">shelrb</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-vcmax~7">vcmax</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-xfang~7">xfang</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-wai~7">wai</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-vegcf~7">vegcf</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-extkn~7">extkn</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-ratecp~6">ratecp</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-ratecs~6">ratecs</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-albsoil~6">albsoil</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-taul~6">taul</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-refl~6">refl</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-tminvj~7">tminvj</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-tmaxvj~7">tmaxvj</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-vbeta~7">vbeta</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-xalbnir~7">xalbnir</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-iveg~8">iveg</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-patchfrac~5">patchfrac</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-isoil~5">isoil</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-meth~6">meth</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-za~3">za</a>
+    </div>
+  </div>
+</div>
+
+</div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+      <h2>type, public :: output_inclusion_type</h2>
+    
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+      <h3>Contents</h3>
+ 
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#vars-1">Variables</a></h3></div>
+  <div id="vars-1" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-met~3">met</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-flux~3">flux</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-radiation~3">radiation</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-carbon~3">carbon</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-soil~3">soil</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-snow~3">snow</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-veg~3">veg</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-params~3">params</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-balances~3">balances</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-restart~3">restart</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-ensemble~3">ensemble</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-patch~5">patch</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-grid~2">grid</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-averaging~2">averaging</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-interval~2">interval</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-swdown~6">SWdown</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-lwdown~8">LWdown</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-rainf~3">Rainf</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-snowf~5">Snowf</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-psurf~8">PSurf</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-tair~6">Tair</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-qair~6">Qair</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-co2air~5">CO2air</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-wind~6">Wind</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-wind_n~3">Wind_N</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-wind_e~3">Wind_E</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-lai~5">LAI</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-qh~3">Qh</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-qle~3">Qle</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-qg~3">Qg</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-swnet~3">SWnet</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-lwnet~3">LWnet</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-evap~3">Evap</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-ewater~3">Ewater</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-esoil~3">ESoil</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-tveg~3">TVeg</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-ecanop~3">ECanop</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-potevap~3">PotEvap</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-acond~3">ACond</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-soilwet~3">SoilWet</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-albedo~3">Albedo</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-vegt~3">VegT</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-soiltemp~3">SoilTemp</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-soilmoist~3">SoilMoist</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-qs~3">Qs</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-qsb~3">Qsb</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-delsoilmoist~3">DelSoilMoist</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-delswe~3">DelSWE</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-delintercept~3">DelIntercept</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-snowt~3">SnowT</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-baresoilt~3">BaresoilT</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-avgsurft~3">AvgSurfT</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-radt~3">RadT</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-swe~3">SWE</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-rootmoist~3">RootMoist</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-canopint~3">CanopInt</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-nee~3">NEE</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-npp~3">NPP</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-gpp~3">GPP</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-autoresp~3">AutoResp</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-leafresp~3">LeafResp</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-heteroresp~3">HeteroResp</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-snowdepth~3">SnowDepth</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-rnet~3">Rnet</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-hveg~3">HVeg</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-hsoil~3">HSoil</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-ebal~3">Ebal</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-wbal~3">Wbal</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-bch~7">bch</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-latitude~8">latitude</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-clay~7">clay</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-css~7">css</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-rhosoil~7">rhosoil</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-hyds~7">hyds</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-rs20~7">rs20</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-sand~7">sand</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-sfc~7">sfc</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-silt~7">silt</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-ssat~7">ssat</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-sucs~7">sucs</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-swilt~7">swilt</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-froot~6">froot</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-zse~6">zse</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-canst1~7">canst1</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-dleaf~7">dleaf</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-ejmax~7">ejmax</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-frac4~7">frac4</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-hc~7">hc</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-rp20~7">rp20</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-rpcoef~7">rpcoef</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-shelrb~7">shelrb</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-vcmax~7">vcmax</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-xfang~7">xfang</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-wai~7">wai</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-vegcf~7">vegcf</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-extkn~7">extkn</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-ratecp~6">ratecp</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-ratecs~6">ratecs</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-albsoil~6">albsoil</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-taul~6">taul</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-refl~6">refl</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-tminvj~7">tminvj</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-tmaxvj~7">tmaxvj</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-vbeta~7">vbeta</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-xalbnir~7">xalbnir</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-iveg~8">iveg</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-patchfrac~5">patchfrac</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-isoil~5">isoil</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-meth~6">meth</a>
+      <a class="list-group-item" href="../type/output_inclusion_type~3.html#variable-za~3">za</a>
+    </div>
+  </div>
+</div>
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+    <section>
+    <h2>Components</h2>
+    <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Visibility</th><th>Attributes</th><th></th><th>Name</th><th></th><th>Initial</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" id="variable-met~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>met</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-flux~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>flux</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-radiation~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>radiation</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-carbon~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>carbon</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-soil~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>soil</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-snow~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>snow</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-veg~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>veg</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-params~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>params</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-balances~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>balances</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-restart~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>restart</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-ensemble~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>ensemble</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-patch~5"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>patch</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-grid~2"></span>character(len=7),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>grid</strong></td><td> =</td><td>'default'</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-averaging~2"></span>character(len=7),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>averaging</strong></td><td> =</td><td>'all'</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-interval~2"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>interval</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-swdown~6"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>SWdown</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-lwdown~8"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>LWdown</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-rainf~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>Rainf</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-snowf~5"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>Snowf</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-psurf~8"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>PSurf</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-tair~6"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>Tair</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qair~6"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>Qair</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-co2air~5"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>CO2air</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-wind~6"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>Wind</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-wind_n~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>Wind_N</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-wind_e~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>Wind_E</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-lai~5"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>LAI</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qh~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>Qh</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qle~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>Qle</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qg~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>Qg</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-swnet~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>SWnet</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-lwnet~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>LWnet</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-evap~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>Evap</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-ewater~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>Ewater</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-esoil~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>ESoil</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-tveg~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>TVeg</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-ecanop~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>ECanop</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-potevap~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>PotEvap</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-acond~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>ACond</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-soilwet~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>SoilWet</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-albedo~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>Albedo</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-vegt~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>VegT</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-soiltemp~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>SoilTemp</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-soilmoist~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>SoilMoist</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qs~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>Qs</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qsb~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>Qsb</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-delsoilmoist~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>DelSoilMoist</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-delswe~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>DelSWE</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-delintercept~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>DelIntercept</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-snowt~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>SnowT</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-baresoilt~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>BaresoilT</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-avgsurft~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>AvgSurfT</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-radt~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>RadT</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-swe~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>SWE</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-rootmoist~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>RootMoist</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-canopint~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>CanopInt</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-nee~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>NEE</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-npp~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>NPP</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-gpp~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>GPP</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-autoresp~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>AutoResp</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-leafresp~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>LeafResp</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-heteroresp~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>HeteroResp</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-snowdepth~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>SnowDepth</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-rnet~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>Rnet</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-hveg~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>HVeg</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-hsoil~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>HSoil</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-ebal~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>Ebal</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-wbal~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>Wbal</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-bch~7"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>bch</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-latitude~8"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>latitude</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-clay~7"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>clay</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-css~7"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>css</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-rhosoil~7"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>rhosoil</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-hyds~7"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>hyds</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-rs20~7"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>rs20</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-sand~7"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>sand</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-sfc~7"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>sfc</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-silt~7"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>silt</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-ssat~7"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>ssat</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-sucs~7"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>sucs</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-swilt~7"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>swilt</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-froot~6"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>froot</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-zse~6"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>zse</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-canst1~7"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>canst1</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-dleaf~7"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>dleaf</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-ejmax~7"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>ejmax</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-frac4~7"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>frac4</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-hc~7"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>hc</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-rp20~7"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>rp20</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-rpcoef~7"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>rpcoef</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-shelrb~7"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>shelrb</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-vcmax~7"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>vcmax</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-xfang~7"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>xfang</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-wai~7"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>wai</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-vegcf~7"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>vegcf</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-extkn~7"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>extkn</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-ratecp~6"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>ratecp</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-ratecs~6"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>ratecs</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-albsoil~6"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>albsoil</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-taul~6"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>taul</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-refl~6"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>refl</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-tminvj~7"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>tminvj</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-tmaxvj~7"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>tmaxvj</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-vbeta~7"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>vbeta</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-xalbnir~7"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>xalbnir</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-iveg~8"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>iveg</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-patchfrac~5"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>patchfrac</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-isoil~5"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>isoil</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-meth~6"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>meth</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-za~3"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>za</strong></td><td> =</td><td>.FALSE.</td><td></td>
+</tr>
+</tbody>
+</table>
+
+    </section>
+    <br>
+    
+    
+    
+    
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>CABLE was developed by CABLE community<br>&copy; 2022 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+          </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>

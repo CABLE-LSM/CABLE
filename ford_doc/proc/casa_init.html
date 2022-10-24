@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Documentation for CABLE">
+    <meta name="author" content="CABLE community" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>casa_init &ndash; CABLE</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">CABLE </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>casa_init
+      <small>Subroutine</small>
+    </h1>
+    <div class="row">
+  <div class="col-lg-12">
+<div class="well well-sm">
+  <ul class="list-inline" style="margin-bottom:0px;display:inline">
+     <li><i class="fa fa-list-ol"></i>
+       <a data-toggle="tooltip"
+    data-placement="bottom" data-html="true"
+    title=" 0.3% of total for procedures.">101 statements</a>
+     </li> 
+    <li><i class="fa fa-code"></i><a href="../src/casa_inout.F90"> Source File</a></li>
+  </ul>
+  <ol class="breadcrumb in-well text-right">
+     <li><a href='../sourcefile/casa_inout.f90~2.html'>casa_inout.F90</a></li>
+     <li><a href='../module/casa_inout_mod.html'>casa_inout_mod</a></li>
+     <li class="active">casa_init</li>
+  </ol>
+</div>
+</div>
+</div>
+<script>
+  $(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+    <div id="sidebar">
+  <h3>Contents</h3>
+ 
+<em>None</em>
+
+</div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public subroutine casa_init(casabiome, casamet, casapool, casabal, veg, phen)</h2>
+        <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Uses</h3>
+      </div>
+      <ul class="list-group">
+      <li class="list-group-item">
+  <ul class="list-inline">
+    <li><a href='../module/casaparm~2.html'>casaparm</a></li>
+    <li><a href='../module/casadimension.html'>casadimension</a></li>
+    <li><a href='../module/phenvariable.html'>phenvariable</a></li>
+    <li><a href='../module/cable_io_vars_module~3.html'>cable_IO_vars_module</a></li>
+    <li><a href='../module/casavariable.html'>casavariable</a></li>
+    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+  </ul>
+      </li>
+      <li class="list-group-item">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 6.0.2 (20221011.1828)
+ -->
+<!-- Title: proc~~casa_init~~UsesGraph Pages: 1 -->
+<svg id="proccasa_initUsesGraph" width="486pt" height="196pt"
+ viewBox="0.00 0.00 486.00 196.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~casa_init~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 192)">
+<title>proc~~casa_init~~UsesGraph</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-192 482,-192 482,4 -4,4"/>
+<!-- proc~casa_init -->
+<g id="proc~~casa_init~~UsesGraph_node1" class="node">
+<title>proc~casa_init</title>
+<polygon fill="none" stroke="black" points="478,-87 423,-87 423,-63 478,-63 478,-87"/>
+<text text-anchor="middle" x="450.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">casa_init</text>
+</g>
+<!-- module~cable_io_vars_module~3 -->
+<g id="proc~~casa_init~~UsesGraph_node2" class="node">
+<title>module~cable_io_vars_module~3</title>
+<g id="a_proc~~casa_init~~UsesGraph_node2"><a xlink:href=".././module/cable_io_vars_module~3.html" xlink:title="cable_IO_vars_module">
+<polygon fill="#337ab7" stroke="#337ab7" points="277,-188 154,-188 154,-164 277,-164 277,-188"/>
+<text text-anchor="middle" x="215.5" y="-173.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_IO_vars_module</text>
+</a>
+</g>
+</g>
+<!-- proc~casa_init&#45;&gt;module~cable_io_vars_module~3 -->
+<g id="proc~~casa_init~~UsesGraph_edge1" class="edge">
+<title>proc~casa_init&#45;&gt;module~cable_io_vars_module~3</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M349,-136C320.91,-143.86 289.67,-153.26 264.58,-160.97"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="263.46,-157.65 254.94,-163.94 265.52,-164.34 263.46,-157.65"/>
+</g>
+<!-- module~cable_def_types_mod -->
+<g id="proc~~casa_init~~UsesGraph_node3" class="node">
+<title>module~cable_def_types_mod</title>
+<g id="a_proc~~casa_init~~UsesGraph_node3"><a xlink:href=".././module/cable_def_types_mod.html" xlink:title="cable_def_types_mod">
+<polygon fill="#337ab7" stroke="#337ab7" points="118,-148 0,-148 0,-124 118,-124 118,-148"/>
+<text text-anchor="middle" x="59" y="-133.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_def_types_mod</text>
+</a>
+</g>
+</g>
+<!-- proc~casa_init&#45;&gt;module~cable_def_types_mod -->
+<g id="proc~~casa_init~~UsesGraph_edge2" class="edge">
+<title>proc~casa_init&#45;&gt;module~cable_def_types_mod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M349,-136C275.69,-156.51 187.76,-152.71 128.3,-146.21"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="128.61,-142.72 118.27,-145.06 127.81,-149.67 128.61,-142.72"/>
+</g>
+<!-- module~casadimension -->
+<g id="proc~~casa_init~~UsesGraph_node4" class="node">
+<title>module~casadimension</title>
+<g id="a_proc~~casa_init~~UsesGraph_node4"><a xlink:href=".././module/casadimension.html" xlink:title="casadimension">
+<polygon fill="#337ab7" stroke="#337ab7" points="257.5,-108 173.5,-108 173.5,-84 257.5,-84 257.5,-108"/>
+<text text-anchor="middle" x="215.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">casadimension</text>
+</a>
+</g>
+</g>
+<!-- proc~casa_init&#45;&gt;module~casadimension -->
+<g id="proc~~casa_init~~UsesGraph_edge4" class="edge">
+<title>proc~casa_init&#45;&gt;module~casadimension</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M349,-136C330.94,-141.05 285.64,-125.07 253.04,-111.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="254.37,-108.59 243.79,-108.01 251.7,-115.06 254.37,-108.59"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M435.72,-87.12C417.71,-102.06 384.51,-126.63 351,-136"/>
+</g>
+<!-- module~casaparm~2 -->
+<g id="proc~~casa_init~~UsesGraph_node5" class="node">
+<title>module~casaparm~2</title>
+<g id="a_proc~~casa_init~~UsesGraph_node5"><a xlink:href=".././module/casaparm~2.html" xlink:title="casaparm">
+<polygon fill="#337ab7" stroke="#337ab7" points="380,-108 320,-108 320,-84 380,-84 380,-108"/>
+<text text-anchor="middle" x="350" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">casaparm</text>
+</a>
+</g>
+</g>
+<!-- proc~casa_init&#45;&gt;module~casaparm~2 -->
+<g id="proc~~casa_init~~UsesGraph_edge3" class="edge">
+<title>proc~casa_init&#45;&gt;module~casaparm~2</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M422.84,-80.68C412.72,-82.84 400.98,-85.34 389.95,-87.7"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="389.15,-84.29 380.1,-89.8 390.61,-91.13 389.15,-84.29"/>
+</g>
+<!-- module~casavariable -->
+<g id="proc~~casa_init~~UsesGraph_node6" class="node">
+<title>module~casavariable</title>
+<g id="a_proc~~casa_init~~UsesGraph_node6"><a xlink:href=".././module/casavariable.html" xlink:title="casavariable">
+<polygon fill="#337ab7" stroke="#337ab7" points="386.5,-66 313.5,-66 313.5,-42 386.5,-42 386.5,-66"/>
+<text text-anchor="middle" x="350" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">casavariable</text>
+</a>
+</g>
+</g>
+<!-- proc~casa_init&#45;&gt;module~casavariable -->
+<g id="proc~~casa_init~~UsesGraph_edge5" class="edge">
+<title>proc~casa_init&#45;&gt;module~casavariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M422.84,-69.32C414.73,-67.59 405.57,-65.63 396.58,-63.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="397.07,-60.24 386.56,-61.58 395.61,-67.09 397.07,-60.24"/>
+</g>
+<!-- module~phenvariable -->
+<g id="proc~~casa_init~~UsesGraph_node7" class="node">
+<title>module~phenvariable</title>
+<g id="a_proc~~casa_init~~UsesGraph_node7"><a xlink:href=".././module/phenvariable.html" xlink:title="phenvariable">
+<polygon fill="#337ab7" stroke="#337ab7" points="387,-24 313,-24 313,0 387,0 387,-24"/>
+<text text-anchor="middle" x="350" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">phenvariable</text>
+</a>
+</g>
+</g>
+<!-- proc~casa_init&#45;&gt;module~phenvariable -->
+<g id="proc~~casa_init~~UsesGraph_edge6" class="edge">
+<title>proc~casa_init&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M432.18,-62.93C419.75,-54.37 402.51,-42.72 387,-33 385.11,-31.81 383.15,-30.61 381.16,-29.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="382.84,-26.33 372.45,-24.21 379.25,-32.34 382.84,-26.33"/>
+</g>
+<!-- module~cable_io_vars_module~3&#45;&gt;module~cable_def_types_mod -->
+<g id="proc~~casa_init~~UsesGraph_edge7" class="edge">
+<title>module~cable_io_vars_module~3&#45;&gt;module~cable_def_types_mod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M168.14,-164C151.87,-159.79 133.41,-155.01 116.41,-150.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="117.15,-147.18 106.59,-148.06 115.39,-153.96 117.15,-147.18"/>
+</g>
+<!-- module~casadimension&#45;&gt;module~cable_def_types_mod -->
+<g id="proc~~casa_init~~UsesGraph_edge8" class="edge">
+<title>module~casadimension&#45;&gt;module~cable_def_types_mod</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M173.1,-106.72C155.67,-111.23 135.12,-116.55 116.34,-121.41"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="115.23,-118.09 106.42,-123.98 116.98,-124.86 115.23,-118.09"/>
+</g>
+<!-- module~casaparm~2&#45;&gt;module~casadimension -->
+<g id="proc~~casa_init~~UsesGraph_edge9" class="edge">
+<title>module~casaparm~2&#45;&gt;module~casadimension</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M319.92,-96C304.64,-96 285.45,-96 267.77,-96"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="267.57,-92.5 257.57,-96 267.57,-99.5 267.57,-92.5"/>
+</g>
+<!-- module~casavariable&#45;&gt;module~casadimension -->
+<g id="proc~~casa_init~~UsesGraph_edge10" class="edge">
+<title>module~casavariable&#45;&gt;module~casadimension</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M313.49,-65.26C298.38,-70.04 280.53,-75.7 264.29,-80.85"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="262.9,-77.62 254.43,-83.98 265.02,-84.29 262.9,-77.62"/>
+</g>
+<!-- module~phenvariable&#45;&gt;module~casadimension -->
+<g id="proc~~casa_init~~UsesGraph_edge11" class="edge">
+<title>module~phenvariable&#45;&gt;module~casadimension</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M327.95,-24.04C323.02,-26.93 317.8,-30.03 313,-33 289.05,-47.79 262.27,-65.36 243.01,-78.18"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="240.84,-75.42 234.47,-83.88 244.73,-81.24 240.84,-75.42"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 6.0.2 (20221011.1828)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="490pt" height="32pt"
+ viewBox="0.00 0.00 489.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28 485.5,-28 485.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="139.5,-24 72.5,-24 72.5,0 139.5,0 139.5,-24"/>
+<text text-anchor="middle" x="106" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="222,-24 158,-24 158,0 222,0 222,-24"/>
+<text text-anchor="middle" x="190" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="294,-24 240,-24 240,0 294,0 294,-24"/>
+<text text-anchor="middle" x="267" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="366,-24 312,-24 312,0 366,0 366,-24"/>
+<text text-anchor="middle" x="339" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="481.5,-24 384.5,-24 384.5,0 481.5,0 481.5,-24"/>
+<text text-anchor="middle" x="433" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a submodule to the (sub)module which it is
+    descended from. Dashed arrows point from a module or program unit to 
+    modules which it uses. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </li>
+      </ul>
+    </div>
+
+
+    <p>for first time reading file *_1220.csv  (BP may2010)</p>
+<p>SUBROUTINE casa_init(mst,casapool,casabal)
+ end addition (BP may2010)</p>
+
+    <h3>Arguments</h3>
+      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" id="variable-casabiome~28"></span>type(<a href='../type/casa_biome.html'>casa_biome</a>),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>casabiome</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-casamet~38"></span>type(<a href='../type/casa_met.html'>casa_met</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>casamet</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-casapool~33"></span>type(<a href='../type/casa_pool~2.html'>casa_pool</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>casapool</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-casabal~13"></span>type(<a href='../type/casa_balance.html'>casa_balance</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>casabal</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-veg~51"></span>type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>veg</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-phen~23"></span>type(<a href='../type/phen_variable.html'>phen_variable</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>phen</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Calls</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 6.0.2 (20221011.1828)
+ -->
+<!-- Title: proc~~casa_init~~CallsGraph Pages: 1 -->
+<svg id="proccasa_initCallsGraph" width="153pt" height="74pt"
+ viewBox="0.00 0.00 153.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~casa_init~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<title>proc~~casa_init~~CallsGraph</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-70 149,-70 149,4 -4,4"/>
+<!-- proc~casa_init -->
+<g id="proc~~casa_init~~CallsGraph_node1" class="node">
+<title>proc~casa_init</title>
+<polygon fill="none" stroke="black" points="55,-45 0,-45 0,-21 55,-21 55,-45"/>
+<text text-anchor="middle" x="27.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">casa_init</text>
+</g>
+<!-- 5 -->
+<g id="proc~~casa_init~~CallsGraph_node2" class="node">
+<title>5</title>
+<polygon fill="#777777" stroke="#777777" points="145,-66 91,-66 91,-42 145,-42 145,-66"/>
+<text text-anchor="middle" x="118" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">5</text>
+</g>
+<!-- proc~casa_init&#45;&gt;5 -->
+<g id="proc~~casa_init~~CallsGraph_edge1" class="edge">
+<title>proc~casa_init&#45;&gt;5</title>
+<path fill="none" stroke="#ff0000" d="M55.05,-39.3C63.18,-41.23 72.25,-43.38 80.9,-45.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="80.23,-48.87 90.77,-47.78 81.85,-42.06 80.23,-48.87"/>
+</g>
+<!-- 100 -->
+<g id="proc~~casa_init~~CallsGraph_node3" class="node">
+<title>100</title>
+<polygon fill="#777777" stroke="#777777" points="145,-24 91,-24 91,0 145,0 145,-24"/>
+<text text-anchor="middle" x="118" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">100</text>
+</g>
+<!-- proc~casa_init&#45;&gt;100 -->
+<g id="proc~~casa_init~~CallsGraph_edge2" class="edge">
+<title>proc~casa_init&#45;&gt;100</title>
+<path fill="none" stroke="#ff0000" d="M55.05,-26.7C63.18,-24.77 72.25,-22.62 80.9,-20.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="81.85,-23.94 90.77,-18.22 80.23,-17.13 81.85,-23.94"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 6.0.2 (20221011.1828)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="560pt" height="32pt"
+ viewBox="0.00 0.00 559.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28 555.5,-28 555.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="64,-24 0,-24 0,0 64,0 64,-24"/>
+<text text-anchor="middle" x="32" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="136,-24 82,-24 82,0 136,0 136,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="209.5,-24 154.5,-24 154.5,0 209.5,0 209.5,-24"/>
+<text text-anchor="middle" x="182" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="364,-24 228,-24 228,0 364,0 364,-24"/>
+<text text-anchor="middle" x="296" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="436,-24 382,-24 382,0 436,0 436,-24"/>
+<text text-anchor="middle" x="409" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="551.5,-24 454.5,-24 454.5,0 551.5,0 551.5,-24"/>
+<text text-anchor="middle" x="503" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+      <h3>Contents</h3>
+ 
+<em>None</em>
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>CABLE was developed by CABLE community<br>&copy; 2022 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+          </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>

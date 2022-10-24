@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Documentation for CABLE">
+    <meta name="author" content="CABLE community" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>cable_phys_constants_mod.F90 &ndash; CABLE</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">CABLE </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>cable_phys_constants_mod.F90
+    <small>Source File</small>
+    </h1>
+    <div class="row">
+  <div class="col-lg-12">
+<div class="well well-sm">
+  <ul class="list-inline" style="margin-bottom:0px;display:inline">
+     <li><i class="fa fa-list-ol"></i>
+       <a data-toggle="tooltip"
+    data-placement="bottom" data-html="true"
+    title=" 0.1% of total for source files.">51 statements</a>
+     </li> 
+    <li><i class="fa fa-code"></i><a href="../src/cable_phys_constants_mod.F90"> Source File</a></li>
+  </ul>
+  <ol class="breadcrumb in-well text-right">
+     <li class="active">cable_phys_constants_mod.F90</li>
+  </ol>
+</div>
+</div>
+</div>
+<script>
+  $(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+    <div id="sidebar">
+  <h3>Contents</h3>
+ 
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#mods-0">Modules</a></h3></div>
+  <div id="mods-0" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/cable_phys_constants_mod~2.html">cable_phys_constants_mod</a>
+    </div>
+  </div>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  <div class="list-group">
+    <a class="list-group-item" href="../sourcefile/cable_phys_constants_mod.f90.html#src">cable_phys_constants_mod.F90</a>
+  </div>
+</div>
+
+</div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Files dependent on this one</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 6.0.2 (20221011.1828)
+ -->
+<!-- Title: sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilecable_phys_constants_modf90AfferentGraph" width="641pt" height="409pt"
+ viewBox="0.00 0.00 641.00 409.20" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph" class="graph" transform="scale(0.439643 0.439643) rotate(0) translate(4 926.76)">
+<title>sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-926.76 1454,-926.76 1454,4 -4,4"/>
+<!-- sourcefile~cable_phys_constants_mod.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~cable_phys_constants_mod.f90</title>
+<polygon fill="none" stroke="black" points="167,-164 0,-164 0,-140 167,-140 167,-164"/>
+<text text-anchor="middle" x="83.5" y="-149.6" font-family="Helvetica,sans-Serif" font-size="10.50">cable_phys_constants_mod.F90</text>
+</g>
+<!-- sourcefile~cable_air.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~cable_air.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node2"><a xlink:href=".././sourcefile/cable_air.f90.html" xlink:title="cable_air.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="938.5,-286 861.5,-286 861.5,-262 938.5,-262 938.5,-286"/>
+<text text-anchor="middle" x="900" y="-271.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_air.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_air.f90&#45;&gt;sourcefile~cable_phys_constants_mod.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~cable_air.f90&#45;&gt;sourcefile~cable_phys_constants_mod.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M861.48,-274.71C829.87,-275.13 783.47,-275.36 743,-274"/>
+</g>
+<!-- sourcefile~cable_mpimaster.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~cable_mpimaster.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node3"><a xlink:href=".././sourcefile/cable_mpimaster.f90.html" xlink:title="cable_mpimaster.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1309.5,-24 1194.5,-24 1194.5,0 1309.5,0 1309.5,-24"/>
+<text text-anchor="middle" x="1252" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_mpimaster.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_mpimaster.f90&#45;&gt;sourcefile~cable_phys_constants_mod.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~cable_mpimaster.f90&#45;&gt;sourcefile~cable_phys_constants_mod.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1073.5,-14C997.97,-26.76 819.03,-102.64 743,-112"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M741,-112C502.36,-129.28 440.93,-105.84 203,-131 186.74,-132.72 169.35,-135.35 153.03,-138.17"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="152.27,-134.75 143.04,-139.95 153.49,-141.65 152.27,-134.75"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1194.27,-7.05C1159.59,-5.4 1114.55,-5.73 1075.5,-14"/>
+</g>
+<!-- sourcefile~cable_carbon.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~cable_carbon.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node6"><a xlink:href=".././sourcefile/cable_carbon.f90.html" xlink:title="cable_carbon.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="949.5,-124 850.5,-124 850.5,-100 949.5,-100 949.5,-124"/>
+<text text-anchor="middle" x="900" y="-109.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_carbon.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_mpimaster.f90&#45;&gt;sourcefile~cable_carbon.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge18" class="edge">
+<title>sourcefile~cable_mpimaster.f90&#45;&gt;sourcefile~cable_carbon.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M1073.5,-14C1038.78,-19.87 1029.24,-21.75 998,-38 969.19,-52.99 940.1,-76.56 921.4,-93.07"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="918.91,-90.59 913.81,-99.88 923.59,-95.8 918.91,-90.59"/>
+</g>
+<!-- sourcefile~cbl_model_driver_offline.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~cbl_model_driver_offline.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node8"><a xlink:href=".././sourcefile/cbl_model_driver_offline.f90.html" xlink:title="cbl_model_driver_offline.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1150,-306 999,-306 999,-282 1150,-282 1150,-306"/>
+<text text-anchor="middle" x="1074.5" y="-291.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_model_driver_offline.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_mpimaster.f90&#45;&gt;sourcefile~cbl_model_driver_offline.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge46" class="edge">
+<title>sourcefile~cable_mpimaster.f90&#45;&gt;sourcefile~cbl_model_driver_offline.f90</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M1197.75,-24.08C1193.74,-26.53 1190.07,-29.47 1187,-33 1127.21,-101.86 1198.04,-156.87 1151,-235 1140.6,-252.27 1123.12,-266.42 1107.6,-276.52"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="1105.42,-273.76 1098.76,-282 1109.1,-279.71 1105.42,-273.76"/>
+</g>
+<!-- sourcefile~casa_cable.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~casa_cable.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node13"><a xlink:href=".././sourcefile/casa_cable.f90.html" xlink:title="casa_cable.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1118.5,-104 1030.5,-104 1030.5,-80 1118.5,-80 1118.5,-104"/>
+<text text-anchor="middle" x="1074.5" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">casa_cable.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_mpimaster.f90&#45;&gt;sourcefile~casa_cable.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge52" class="edge">
+<title>sourcefile~cable_mpimaster.f90&#45;&gt;sourcefile~casa_cable.f90</title>
+<path fill="none" stroke="#ff3400" stroke-dasharray="5,2" d="M1205.87,-24.11C1199.34,-26.62 1192.85,-29.57 1187,-33 1168.27,-43.96 1169.65,-54.9 1151,-66 1143.97,-70.18 1136.17,-73.82 1128.33,-76.94"/>
+<polygon fill="#ff3400" stroke="#ff3400" points="1126.94,-73.72 1118.79,-80.49 1129.38,-80.28 1126.94,-73.72"/>
+</g>
+<!-- sourcefile~cbl_snow_aging.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~cbl_snow_aging.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node4"><a xlink:href=".././sourcefile/cbl_snow_aging.f90.html" xlink:title="cbl_snow_aging.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="324.5,-164 213.5,-164 213.5,-140 324.5,-140 324.5,-164"/>
+<text text-anchor="middle" x="269" y="-149.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_snow_aging.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cbl_snow_aging.f90&#45;&gt;sourcefile~cable_phys_constants_mod.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~cbl_snow_aging.f90&#45;&gt;sourcefile~cable_phys_constants_mod.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M213.44,-152C202.05,-152 189.74,-152 177.4,-152"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="177.05,-148.5 167.05,-152 177.05,-155.5 177.05,-148.5"/>
+</g>
+<!-- sourcefile~cable_roughness.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~cable_roughness.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node5"><a xlink:href=".././sourcefile/cable_roughness.f90.html" xlink:title="cable_roughness.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="958,-244 842,-244 842,-220 958,-220 958,-244"/>
+<text text-anchor="middle" x="900" y="-229.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_roughness.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_roughness.f90&#45;&gt;sourcefile~cable_phys_constants_mod.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~cable_roughness.f90&#45;&gt;sourcefile~cable_phys_constants_mod.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M741,-274C697.97,-270.83 688.41,-261.96 646,-254 479.54,-222.77 437.1,-219.63 270,-192"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M863.69,-244.1C825.31,-256.78 766.34,-274.78 743,-274"/>
+</g>
+<!-- sourcefile~cable_carbon.f90&#45;&gt;sourcefile~cable_phys_constants_mod.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~cable_carbon.f90&#45;&gt;sourcefile~cable_phys_constants_mod.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M850.33,-108.95C819.46,-107.77 778.75,-107.6 743,-112"/>
+</g>
+<!-- sourcefile~cbl_soilsnow_data.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~cbl_soilsnow_data.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node7"><a xlink:href=".././sourcefile/cbl_soilsnow_data.f90.html" xlink:title="cbl_soilsnow_data.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="329.5,-702 208.5,-702 208.5,-678 329.5,-678 329.5,-702"/>
+<text text-anchor="middle" x="269" y="-687.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_soilsnow_data.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cbl_soilsnow_data.f90&#45;&gt;sourcefile~cable_phys_constants_mod.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~cbl_soilsnow_data.f90&#45;&gt;sourcefile~cable_phys_constants_mod.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M263.82,-677.75C240.17,-608.39 122.97,-264.8 92.01,-174.02"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="95.29,-172.8 88.75,-164.46 88.67,-175.06 95.29,-172.8"/>
+</g>
+<!-- sourcefile~cbl_model_driver_offline.f90&#45;&gt;sourcefile~cable_phys_constants_mod.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~cbl_model_driver_offline.f90&#45;&gt;sourcefile~cable_phys_constants_mod.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M432,-192C360.04,-189.71 341.25,-202.35 270,-192"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M268,-192C224.94,-185.75 176.91,-175.14 140.79,-166.42"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="141.47,-162.99 130.93,-164.02 139.82,-169.79 141.47,-162.99"/>
+</g>
+<!-- sourcefile~cbl_model_driver_offline.f90&#45;&gt;sourcefile~cable_air.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~cbl_model_driver_offline.f90&#45;&gt;sourcefile~cable_air.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M998.84,-285.34C981.97,-283.39 964.5,-281.36 949.08,-279.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="949.09,-276.05 938.75,-278.38 948.28,-283.01 949.09,-276.05"/>
+</g>
+<!-- sourcefile~cbl_model_driver_offline.f90&#45;&gt;sourcefile~cbl_snow_aging.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~cbl_model_driver_offline.f90&#45;&gt;sourcefile~cbl_snow_aging.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M432,-192C390.86,-189.5 345.41,-177.42 313.14,-167.19"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="314.17,-163.84 303.58,-164.08 312.01,-170.5 314.17,-163.84"/>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M1024.72,-281.87C1015.25,-278.1 1005.85,-273.24 998,-267 974.83,-248.59 987.71,-225.64 962,-211 757.95,-94.79 668.39,-206.24 434,-192"/>
+</g>
+<!-- sourcefile~cbl_model_driver_offline.f90&#45;&gt;sourcefile~cable_roughness.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~cbl_model_driver_offline.f90&#45;&gt;sourcefile~cable_roughness.f90</title>
+<path fill="none" stroke="#33ff00" stroke-dasharray="5,2" d="M1036.85,-281.9C1024.45,-277.67 1010.57,-272.78 998,-268 981.8,-261.84 978.2,-259.16 962,-253 957.15,-251.16 952.06,-249.29 946.97,-247.48"/>
+<polygon fill="#33ff00" stroke="#33ff00" points="947.86,-244.08 937.26,-244.06 945.53,-250.68 947.86,-244.08"/>
+</g>
+<!-- sourcefile~cbl_model_driver_offline.f90&#45;&gt;sourcefile~cable_carbon.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge21" class="edge">
+<title>sourcefile~cbl_model_driver_offline.f90&#45;&gt;sourcefile~cable_carbon.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M1019.48,-281.88C1011.62,-278.36 1004.12,-273.83 998,-268 966.8,-238.29 985,-214.43 962,-178 951.03,-160.63 935.21,-143.67 922.43,-131.29"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="924.6,-128.53 914.93,-124.21 919.8,-133.62 924.6,-128.53"/>
+</g>
+<!-- sourcefile~cbl_soilsnow_main.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node18" class="node">
+<title>sourcefile~cbl_soilsnow_main.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node18"><a xlink:href=".././sourcefile/cbl_soilsnow_main.f90.html" xlink:title="cbl_soilsnow_main.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="962,-522 838,-522 838,-498 962,-498 962,-522"/>
+<text text-anchor="middle" x="900" y="-507.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_soilsnow_main.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cbl_model_driver_offline.f90&#45;&gt;sourcefile~cbl_soilsnow_main.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge63" class="edge">
+<title>sourcefile~cbl_model_driver_offline.f90&#45;&gt;sourcefile~cbl_soilsnow_main.f90</title>
+<path fill="none" stroke="#c1ff00" stroke-dasharray="5,2" d="M1012.29,-306.04C1007.16,-308.5 1002.3,-311.45 998,-315 942.18,-361.09 915.6,-447.3 905.75,-487.85"/>
+<polygon fill="#c1ff00" stroke="#c1ff00" points="902.29,-487.25 903.45,-497.78 909.11,-488.83 902.29,-487.25"/>
+</g>
+<!-- sourcefile~cable_driver.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~cable_driver.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node9"><a xlink:href=".././sourcefile/cable_driver.f90.html" xlink:title="cable_driver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1298,-306 1206,-306 1206,-282 1298,-282 1298,-306"/>
+<text text-anchor="middle" x="1252" y="-291.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_driver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_driver.f90&#45;&gt;sourcefile~cable_phys_constants_mod.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~cable_driver.f90&#45;&gt;sourcefile~cable_phys_constants_mod.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1249.76,-306.03C1240.49,-388.75 1174.81,-870 901,-870 901,-870 901,-870 432,-870 115.05,-870 87.07,-296.13 84.7,-174.49"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="88.2,-174.11 84.54,-164.16 81.2,-174.21 88.2,-174.11"/>
+</g>
+<!-- sourcefile~cable_driver.f90&#45;&gt;sourcefile~cable_carbon.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge23" class="edge">
+<title>sourcefile~cable_driver.f90&#45;&gt;sourcefile~cable_carbon.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M1205.94,-284.42C1135.53,-269.32 1006.52,-241.06 998,-235 973.58,-217.63 980.24,-201.77 962,-178 949.25,-161.4 933.12,-144.07 920.64,-131.34"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="922.94,-128.68 913.41,-124.05 917.97,-133.61 922.94,-128.68"/>
+</g>
+<!-- sourcefile~cable_driver.f90&#45;&gt;sourcefile~cbl_model_driver_offline.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge47" class="edge">
+<title>sourcefile~cable_driver.f90&#45;&gt;sourcefile~cbl_model_driver_offline.f90</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M1205.8,-294C1191.89,-294 1176.09,-294 1160.42,-294"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="1160.16,-290.5 1150.16,-294 1160.16,-297.5 1160.16,-290.5"/>
+</g>
+<!-- sourcefile~cable_driver.f90&#45;&gt;sourcefile~casa_cable.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge53" class="edge">
+<title>sourcefile~cable_driver.f90&#45;&gt;sourcefile~casa_cable.f90</title>
+<path fill="none" stroke="#ff3400" stroke-dasharray="5,2" d="M1234.46,-281.99C1220.34,-271.04 1200.26,-253.76 1187,-235 1163.55,-201.84 1175.78,-183.18 1151,-151 1138.36,-134.58 1120.15,-120.17 1104.78,-109.71"/>
+<polygon fill="#ff3400" stroke="#ff3400" points="1106.4,-106.58 1096.12,-104.01 1102.55,-112.43 1106.4,-106.58"/>
+</g>
+<!-- sourcefile~cbl_soilsnow_init_special.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node16" class="node">
+<title>sourcefile~cbl_soilsnow_init_special.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node16"><a xlink:href=".././sourcefile/cbl_soilsnow_init_special.f90.html" xlink:title="cbl_soilsnow_init_special.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1151,-390 998,-390 998,-366 1151,-366 1151,-390"/>
+<text text-anchor="middle" x="1074.5" y="-375.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_soilsnow_init_special.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_driver.f90&#45;&gt;sourcefile~cbl_soilsnow_init_special.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge61" class="edge">
+<title>sourcefile~cable_driver.f90&#45;&gt;sourcefile~cbl_soilsnow_init_special.f90</title>
+<path fill="none" stroke="#ffd300" stroke-dasharray="5,2" d="M1235.19,-306.02C1216.13,-320 1182.71,-342.96 1151,-357 1146.3,-359.08 1141.34,-361 1136.31,-362.77"/>
+<polygon fill="#ffd300" stroke="#ffd300" points="1134.97,-359.53 1126.57,-365.98 1137.16,-366.18 1134.97,-359.53"/>
+</g>
+<!-- sourcefile~cbl_surfacewetness.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~cbl_surfacewetness.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node10"><a xlink:href=".././sourcefile/cbl_surfacewetness.f90.html" xlink:title="cbl_SurfaceWetness.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="335,-84 203,-84 203,-60 335,-60 335,-84"/>
+<text text-anchor="middle" x="269" y="-69.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_SurfaceWetness.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cbl_surfacewetness.f90&#45;&gt;sourcefile~cable_phys_constants_mod.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~cbl_surfacewetness.f90&#45;&gt;sourcefile~cable_phys_constants_mod.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M237.13,-84C226.29,-88.31 214.06,-93.27 203,-98 174.68,-110.11 142.94,-124.62 119.45,-135.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="117.82,-132.45 110.23,-139.85 120.78,-138.79 117.82,-132.45"/>
+</g>
+<!-- sourcefile~cbl_dryleaf.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~cbl_dryleaf.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node11"><a xlink:href=".././sourcefile/cbl_dryleaf.f90.html" xlink:title="cbl_dryLeaf.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="314,-42 224,-42 224,-18 314,-18 314,-42"/>
+<text text-anchor="middle" x="269" y="-27.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_dryLeaf.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cbl_dryleaf.f90&#45;&gt;sourcefile~cable_phys_constants_mod.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~cbl_dryleaf.f90&#45;&gt;sourcefile~cable_phys_constants_mod.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M224,-41.6C216.77,-44.24 209.52,-47.36 203,-51 163.1,-73.28 124.21,-110.18 102.41,-132.68"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="99.81,-130.33 95.44,-139.98 104.87,-135.17 99.81,-130.33"/>
+</g>
+<!-- sourcefile~casa_bgcdriver.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~casa_bgcdriver.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node12"><a xlink:href=".././sourcefile/casa_bgcdriver.f90.html" xlink:title="casa_bgcdriver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1127.5,-184 1021.5,-184 1021.5,-160 1127.5,-160 1127.5,-184"/>
+<text text-anchor="middle" x="1074.5" y="-169.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">casa_bgcdriver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~casa_bgcdriver.f90&#45;&gt;sourcefile~cable_carbon.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge20" class="edge">
+<title>sourcefile~casa_bgcdriver.f90&#45;&gt;sourcefile~cable_carbon.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M1038.15,-159.87C1025.48,-155.51 1011.1,-150.55 998,-146 980.53,-139.93 961.3,-133.2 944.61,-127.34"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="945.7,-124.01 935.1,-124 943.38,-130.62 945.7,-124.01"/>
+</g>
+<!-- sourcefile~casa_cable.f90&#45;&gt;sourcefile~cable_carbon.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge17" class="edge">
+<title>sourcefile~casa_cable.f90&#45;&gt;sourcefile~cable_carbon.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M1030.42,-97C1009.03,-99.47 982.88,-102.51 959.69,-105.2"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="959.15,-101.73 949.62,-106.36 959.96,-108.69 959.15,-101.73"/>
+</g>
+<!-- sourcefile~cbl_stempv.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~cbl_stempv.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node14"><a xlink:href=".././sourcefile/cbl_stempv.f90.html" xlink:title="cbl_stempv.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="632,-766 545,-766 545,-742 632,-742 632,-766"/>
+<text text-anchor="middle" x="588.5" y="-751.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_stempv.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cbl_stempv.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge27" class="edge">
+<title>sourcefile~cbl_stempv.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M432,-832C404.38,-825.42 394.55,-828.86 371,-813 330.82,-785.94 298.3,-738.25 281.8,-710.88"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="284.73,-708.96 276.64,-702.12 278.69,-712.51 284.73,-708.96"/>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M576.3,-766.31C551.91,-791.56 491.57,-845.72 434,-832"/>
+</g>
+<!-- sourcefile~cbl_conductivity.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node23" class="node">
+<title>sourcefile~cbl_conductivity.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node23"><a xlink:href=".././sourcefile/cbl_conductivity.f90.html" xlink:title="cbl_conductivity.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="487,-762 379,-762 379,-738 487,-738 487,-762"/>
+<text text-anchor="middle" x="433" y="-747.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_conductivity.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cbl_stempv.f90&#45;&gt;sourcefile~cbl_conductivity.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge71" class="edge">
+<title>sourcefile~cbl_stempv.f90&#45;&gt;sourcefile~cbl_conductivity.f90</title>
+<path fill="none" stroke="#00ff46" stroke-dasharray="5,2" d="M544.74,-752.89C530.11,-752.5 513.42,-752.07 497.52,-751.66"/>
+<polygon fill="#00ff46" stroke="#00ff46" points="497.29,-748.15 487.2,-751.39 497.11,-755.15 497.29,-748.15"/>
+</g>
+<!-- sourcefile~cbl_trimb.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node31" class="node">
+<title>sourcefile~cbl_trimb.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node31"><a xlink:href=".././sourcefile/cbl_trimb.f90.html" xlink:title="cbl_trimb.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="472,-682 394,-682 394,-658 472,-658 472,-682"/>
+<text text-anchor="middle" x="433" y="-667.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_trimb.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cbl_stempv.f90&#45;&gt;sourcefile~cbl_trimb.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge76" class="edge">
+<title>sourcefile~cbl_stempv.f90&#45;&gt;sourcefile~cbl_trimb.f90</title>
+<path fill="none" stroke="#0011ff" stroke-dasharray="5,2" d="M551.43,-741.95C544.53,-739.26 537.45,-736.24 531,-733 505.02,-719.94 477.39,-701.49 458.29,-687.93"/>
+<polygon fill="#0011ff" stroke="#0011ff" points="460.32,-685.08 450.16,-682.09 456.23,-690.76 460.32,-685.08"/>
+</g>
+<!-- sourcefile~cbl_oldconductivity.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node35" class="node">
+<title>sourcefile~cbl_oldconductivity.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node35"><a xlink:href=".././sourcefile/cbl_oldconductivity.f90.html" xlink:title="cbl_Oldconductivity.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="495,-804 371,-804 371,-780 495,-780 495,-804"/>
+<text text-anchor="middle" x="433" y="-789.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_Oldconductivity.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cbl_stempv.f90&#45;&gt;sourcefile~cbl_oldconductivity.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge82" class="edge">
+<title>sourcefile~cbl_stempv.f90&#45;&gt;sourcefile~cbl_oldconductivity.f90</title>
+<path fill="none" stroke="#c100ff" stroke-dasharray="5,2" d="M544.74,-764.59C528.58,-768.59 509.89,-773.21 492.52,-777.51"/>
+<polygon fill="#c100ff" stroke="#c100ff" points="491.35,-774.2 482.48,-780 493.03,-780.99 491.35,-774.2"/>
+</g>
+<!-- sourcefile~cbl_snowdensity.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~cbl_snowdensity.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node15"><a xlink:href=".././sourcefile/cbl_snowdensity.f90.html" xlink:title="cbl_snowDensity.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="644.5,-564 532.5,-564 532.5,-540 644.5,-540 644.5,-564"/>
+<text text-anchor="middle" x="588.5" y="-549.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_snowDensity.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cbl_snowdensity.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge28" class="edge">
+<title>sourcefile~cbl_snowdensity.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M545.79,-539.92C540.53,-537.44 535.45,-534.49 531,-531 470.58,-483.59 502.51,-353.31 434,-388"/>
+</g>
+<!-- sourcefile~cbl_soilsnow_init_special.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge29" class="edge">
+<title>sourcefile~cbl_soilsnow_init_special.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M432,-388C321.5,-443.79 283.61,-608.36 273.29,-668.06"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="269.84,-667.5 271.67,-677.93 276.74,-668.63 269.84,-667.5"/>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M1023.3,-365.93C926.96,-342.99 719.2,-294.7 646,-287 595.17,-281.65 578.02,-266.96 531,-287 473.74,-311.4 489.56,-359.95 434,-388"/>
+</g>
+<!-- sourcefile~cable_mpiworker.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node17" class="node">
+<title>sourcefile~cable_mpiworker.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node17"><a xlink:href=".././sourcefile/cable_mpiworker.f90.html" xlink:title="cable_mpiworker.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1309.5,-150 1194.5,-150 1194.5,-126 1309.5,-126 1309.5,-150"/>
+<text text-anchor="middle" x="1252" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_mpiworker.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_mpiworker.f90&#45;&gt;sourcefile~cable_carbon.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge22" class="edge">
+<title>sourcefile~cable_mpiworker.f90&#45;&gt;sourcefile~cable_carbon.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M1194.38,-133.79C1129.92,-129.01 1025.12,-121.22 959.78,-116.37"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="959.87,-112.86 949.64,-115.61 959.35,-119.84 959.87,-112.86"/>
+</g>
+<!-- sourcefile~cable_mpiworker.f90&#45;&gt;sourcefile~cbl_model_driver_offline.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge49" class="edge">
+<title>sourcefile~cable_mpiworker.f90&#45;&gt;sourcefile~cbl_model_driver_offline.f90</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M1235.69,-150.06C1222.35,-160.81 1202.74,-177.24 1187,-193 1169.63,-210.4 1168.77,-218.01 1151,-235 1135.52,-249.8 1116.51,-264.63 1101.45,-275.72"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="1099.12,-273.09 1093.09,-281.79 1103.23,-278.75 1099.12,-273.09"/>
+</g>
+<!-- sourcefile~cable_mpiworker.f90&#45;&gt;sourcefile~casa_cable.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge54" class="edge">
+<title>sourcefile~cable_mpiworker.f90&#45;&gt;sourcefile~casa_cable.f90</title>
+<path fill="none" stroke="#ff3400" stroke-dasharray="5,2" d="M1204.89,-125.91C1181.41,-119.76 1152.76,-112.25 1128.39,-105.86"/>
+<polygon fill="#ff3400" stroke="#ff3400" points="1129.15,-102.44 1118.59,-103.29 1127.38,-109.22 1129.15,-102.44"/>
+</g>
+<!-- sourcefile~cable_mpiworker.f90&#45;&gt;sourcefile~cbl_soilsnow_init_special.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge60" class="edge">
+<title>sourcefile~cable_mpiworker.f90&#45;&gt;sourcefile~cbl_soilsnow_init_special.f90</title>
+<path fill="none" stroke="#ffd300" stroke-dasharray="5,2" d="M1230.88,-150.18C1216.45,-159.96 1197.74,-175.01 1187,-193 1148.73,-257.06 1202.29,-302.8 1151,-357 1150.08,-357.97 1149.12,-358.9 1148.12,-359.79"/>
+<polygon fill="#ffd300" stroke="#ffd300" points="1145.87,-357.1 1139.83,-365.8 1149.98,-362.76 1145.87,-357.1"/>
+</g>
+<!-- sourcefile~cbl_soilsnow_main.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge30" class="edge">
+<title>sourcefile~cbl_soilsnow_main.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M898.89,-522.27C897.76,-566.55 887.59,-719.28 802,-793 729.25,-855.67 685.08,-822.75 589.5,-832"/>
+</g>
+<!-- sourcefile~cbl_soilsnow_main.f90&#45;&gt;sourcefile~cbl_stempv.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge57" class="edge">
+<title>sourcefile~cbl_soilsnow_main.f90&#45;&gt;sourcefile~cbl_stempv.f90</title>
+<path fill="none" stroke="#ff6900" stroke-dasharray="5,2" d="M893.33,-522.12C880.41,-548.65 846.46,-612.59 802,-652 754.4,-694.19 686.26,-722.75 640.07,-738.68"/>
+<polygon fill="#ff6900" stroke="#ff6900" points="638.92,-735.37 630.56,-741.89 641.16,-742.01 638.92,-735.37"/>
+</g>
+<!-- sourcefile~cbl_soilsnow_main.f90&#45;&gt;sourcefile~cbl_snowdensity.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge58" class="edge">
+<title>sourcefile~cbl_soilsnow_main.f90&#45;&gt;sourcefile~cbl_snowdensity.f90</title>
+<path fill="none" stroke="#ff9e00" stroke-dasharray="5,2" d="M741,-591C699.71,-595.58 653.68,-580.76 623.31,-568.1"/>
+<polygon fill="#ff9e00" stroke="#ff9e00" points="624.6,-564.84 614.03,-564.09 621.82,-571.26 624.6,-564.84"/>
+</g>
+<!-- sourcefile~cbl_hyd_redistrib.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node19" class="node">
+<title>sourcefile~cbl_hyd_redistrib.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node19"><a xlink:href=".././sourcefile/cbl_hyd_redistrib.f90.html" xlink:title="cbl_hyd_redistrib.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="799.5,-784 684.5,-784 684.5,-760 799.5,-760 799.5,-784"/>
+<text text-anchor="middle" x="742" y="-769.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_hyd_redistrib.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cbl_soilsnow_main.f90&#45;&gt;sourcefile~cbl_hyd_redistrib.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge65" class="edge">
+<title>sourcefile~cbl_soilsnow_main.f90&#45;&gt;sourcefile~cbl_hyd_redistrib.f90</title>
+<path fill="none" stroke="#8cff00" stroke-dasharray="5,2" d="M894.36,-522.09C881.92,-553.78 845.81,-641.21 802,-706 790.59,-722.87 775.19,-739.96 762.98,-752.52"/>
+<polygon fill="#8cff00" stroke="#8cff00" points="760.41,-750.14 755.86,-759.71 765.38,-755.07 760.41,-750.14"/>
+</g>
+<!-- sourcefile~cbl_snowaccum.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node20" class="node">
+<title>sourcefile~cbl_snowaccum.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node20"><a xlink:href=".././sourcefile/cbl_snowaccum.f90.html" xlink:title="cbl_snowAccum.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="644,-522 533,-522 533,-498 644,-498 644,-522"/>
+<text text-anchor="middle" x="588.5" y="-507.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_snowAccum.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cbl_soilsnow_main.f90&#45;&gt;sourcefile~cbl_snowaccum.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge66" class="edge">
+<title>sourcefile~cbl_soilsnow_main.f90&#45;&gt;sourcefile~cbl_snowaccum.f90</title>
+<path fill="none" stroke="#57ff00" stroke-dasharray="5,2" d="M741,-591C691.37,-596.5 690.76,-553.15 646,-531 642.41,-529.22 638.63,-527.51 634.8,-525.88"/>
+<polygon fill="#57ff00" stroke="#57ff00" points="635.82,-522.51 625.24,-522 633.19,-529 635.82,-522.51"/>
+<path fill="none" stroke="#57ff00" stroke-dasharray="5,2" d="M884.73,-522.1C858.65,-543.09 800.63,-584.61 743,-591"/>
+</g>
+<!-- sourcefile~cbl_snowl_adjust.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node22" class="node">
+<title>sourcefile~cbl_snowl_adjust.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node22"><a xlink:href=".././sourcefile/cbl_snowl_adjust.f90.html" xlink:title="cbl_snowl_adjust.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="646,-442 531,-442 531,-418 646,-418 646,-442"/>
+<text text-anchor="middle" x="588.5" y="-427.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_snowl_adjust.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cbl_soilsnow_main.f90&#45;&gt;sourcefile~cbl_snowl_adjust.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge69" class="edge">
+<title>sourcefile~cbl_soilsnow_main.f90&#45;&gt;sourcefile~cbl_snowl_adjust.f90</title>
+<path fill="none" stroke="#00ff11" stroke-dasharray="5,2" d="M741,-430C714.06,-421.6 683.09,-420.24 656.2,-421.49"/>
+<polygon fill="#00ff11" stroke="#00ff11" points="655.89,-418.01 646.11,-422.09 656.3,-424.99 655.89,-418.01"/>
+</g>
+<!-- sourcefile~cbl_surfbv.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node26" class="node">
+<title>sourcefile~cbl_surfbv.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node26"><a xlink:href=".././sourcefile/cbl_surfbv.f90.html" xlink:title="cbl_surfbv.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="783,-643 701,-643 701,-619 783,-619 783,-643"/>
+<text text-anchor="middle" x="742" y="-628.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_surfbv.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cbl_soilsnow_main.f90&#45;&gt;sourcefile~cbl_surfbv.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge74" class="edge">
+<title>sourcefile~cbl_soilsnow_main.f90&#45;&gt;sourcefile~cbl_surfbv.f90</title>
+<path fill="none" stroke="#00ffe4" stroke-dasharray="5,2" d="M889.09,-522.23C872.69,-541.83 838.11,-580.56 802,-605 796.77,-608.54 790.98,-611.78 785.12,-614.69"/>
+<polygon fill="#00ffe4" stroke="#00ffe4" points="783.53,-611.57 775.95,-618.97 786.49,-617.91 783.53,-611.57"/>
+</g>
+<!-- sourcefile~cbl_soilfreeze.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node30" class="node">
+<title>sourcefile~cbl_soilfreeze.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node30"><a xlink:href=".././sourcefile/cbl_soilfreeze.f90.html" xlink:title="cbl_soilfreeze.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="483,-602 383,-602 383,-578 483,-578 483,-602"/>
+<text text-anchor="middle" x="433" y="-587.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_soilfreeze.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cbl_soilsnow_main.f90&#45;&gt;sourcefile~cbl_soilfreeze.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge75" class="edge">
+<title>sourcefile~cbl_soilsnow_main.f90&#45;&gt;sourcefile~cbl_soilfreeze.f90</title>
+<path fill="none" stroke="#0046ff" stroke-dasharray="5,2" d="M741,-591C655.19,-600.51 555.06,-597.59 493.09,-594.16"/>
+<polygon fill="#0046ff" stroke="#0046ff" points="493.29,-590.66 483.1,-593.58 492.88,-597.65 493.29,-590.66"/>
+</g>
+<!-- sourcefile~cbl_snowcheck.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node34" class="node">
+<title>sourcefile~cbl_snowcheck.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node34"><a xlink:href=".././sourcefile/cbl_snowcheck.f90.html" xlink:title="cbl_snowCheck.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="643,-400 534,-400 534,-376 643,-376 643,-400"/>
+<text text-anchor="middle" x="588.5" y="-385.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_snowCheck.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cbl_soilsnow_main.f90&#45;&gt;sourcefile~cbl_snowcheck.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge80" class="edge">
+<title>sourcefile~cbl_soilsnow_main.f90&#45;&gt;sourcefile~cbl_snowcheck.f90</title>
+<path fill="none" stroke="#8c00ff" stroke-dasharray="5,2" d="M882.56,-497.86C863.83,-484.46 831.93,-462.96 802,-449 777.03,-437.35 769.3,-438.2 743,-430"/>
+<path fill="none" stroke="#8c00ff" stroke-dasharray="5,2" d="M741,-430C709.65,-420.22 674.31,-410.36 645.64,-402.65"/>
+<polygon fill="#8c00ff" stroke="#8c00ff" points="646.37,-399.22 635.8,-400.02 644.56,-405.98 646.37,-399.22"/>
+</g>
+<!-- sourcefile~cbl_snowmelt.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node36" class="node">
+<title>sourcefile~cbl_snowmelt.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node36"><a xlink:href=".././sourcefile/cbl_snowmelt.f90.html" xlink:title="cbl_snowMelt.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="638,-320 539,-320 539,-296 638,-296 638,-320"/>
+<text text-anchor="middle" x="588.5" y="-305.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_snowMelt.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cbl_soilsnow_main.f90&#45;&gt;sourcefile~cbl_snowmelt.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge84" class="edge">
+<title>sourcefile~cbl_soilsnow_main.f90&#45;&gt;sourcefile~cbl_snowmelt.f90</title>
+<path fill="none" stroke="#f600ff" stroke-dasharray="5,2" d="M894.03,-497.69C882.3,-470.25 850.23,-403.72 802,-369 777.37,-351.27 702.06,-332.16 648.1,-320.15"/>
+<polygon fill="#f600ff" stroke="#f600ff" points="648.81,-316.72 638.29,-317.99 647.3,-323.56 648.81,-316.72"/>
+</g>
+<!-- sourcefile~cbl_remove_trans.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node39" class="node">
+<title>sourcefile~cbl_remove_trans.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node39"><a xlink:href=".././sourcefile/cbl_remove_trans.f90.html" xlink:title="cbl_remove_trans.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="802,-402 682,-402 682,-378 802,-378 802,-402"/>
+<text text-anchor="middle" x="742" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_remove_trans.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cbl_soilsnow_main.f90&#45;&gt;sourcefile~cbl_remove_trans.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge86" class="edge">
+<title>sourcefile~cbl_soilsnow_main.f90&#45;&gt;sourcefile~cbl_remove_trans.f90</title>
+<path fill="none" stroke="#ff0069" stroke-dasharray="5,2" d="M889.06,-497.91C872.62,-478.53 837.99,-440.22 802,-416 796.76,-412.47 790.96,-409.24 785.11,-406.34"/>
+<polygon fill="#ff0069" stroke="#ff0069" points="786.48,-403.11 775.93,-402.06 783.52,-409.46 786.48,-403.11"/>
+</g>
+<!-- sourcefile~cbl_hyd_redistrib.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge31" class="edge">
+<title>sourcefile~cbl_hyd_redistrib.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M587.5,-832C519.6,-838.57 500.36,-847.82 434,-832"/>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M720.86,-784.24C692.68,-800.34 639.34,-827.18 589.5,-832"/>
+</g>
+<!-- sourcefile~cbl_snowaccum.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge32" class="edge">
+<title>sourcefile~cbl_snowaccum.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M556.24,-497.96C547.72,-494.06 538.72,-489.35 531,-484 481.14,-449.46 488.11,-360.6 434,-388"/>
+</g>
+<!-- sourcefile~casa_sumcflux.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node21" class="node">
+<title>sourcefile~casa_sumcflux.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node21"><a xlink:href=".././sourcefile/casa_sumcflux.f90.html" xlink:title="casa_sumcflux.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1127,-226 1022,-226 1022,-202 1127,-202 1127,-226"/>
+<text text-anchor="middle" x="1074.5" y="-211.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">casa_sumcflux.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~casa_sumcflux.f90&#45;&gt;sourcefile~cable_carbon.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge19" class="edge">
+<title>sourcefile~casa_sumcflux.f90&#45;&gt;sourcefile~cable_carbon.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M1021.61,-202.72C1013.48,-200.07 1005.35,-196.86 998,-193 967.24,-176.85 937.41,-149.68 919.14,-131.31"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="921.53,-128.75 912.05,-124.03 916.52,-133.63 921.53,-128.75"/>
+</g>
+<!-- sourcefile~cbl_snowl_adjust.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge33" class="edge">
+<title>sourcefile~cbl_snowl_adjust.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M552.92,-417.92C511.01,-403.68 444.66,-382.6 434,-388"/>
+</g>
+<!-- sourcefile~cbl_conductivity.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge34" class="edge">
+<title>sourcefile~cbl_conductivity.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M399.22,-737.86C374.1,-728.56 339.26,-715.65 312.09,-705.59"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="313.05,-702.21 302.46,-702.02 310.62,-708.78 313.05,-702.21"/>
+</g>
+<!-- sourcefile~cbl_gw.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node24" class="node">
+<title>sourcefile~cbl_gw.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node24"><a xlink:href=".././sourcefile/cbl_gw.f90.html" xlink:title="cbl_GW.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="624.5,-724 552.5,-724 552.5,-700 624.5,-700 624.5,-724"/>
+<text text-anchor="middle" x="588.5" y="-709.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_GW.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cbl_gw.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge35" class="edge">
+<title>sourcefile~cbl_gw.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M552.31,-709.56C501.27,-706.03 405.66,-699.4 339.95,-694.85"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="339.89,-691.33 329.68,-694.14 339.41,-698.32 339.89,-691.33"/>
+</g>
+<!-- sourcefile~cbl_gw.f90&#45;&gt;sourcefile~cbl_conductivity.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge72" class="edge">
+<title>sourcefile~cbl_gw.f90&#45;&gt;sourcefile~cbl_conductivity.f90</title>
+<path fill="none" stroke="#00ff46" stroke-dasharray="5,2" d="M552.28,-720.72C534.56,-725.11 512.61,-730.54 492.45,-735.53"/>
+<polygon fill="#00ff46" stroke="#00ff46" points="491.58,-732.14 482.72,-737.94 493.27,-738.93 491.58,-732.14"/>
+</g>
+<!-- sourcefile~cbl_gw.f90&#45;&gt;sourcefile~cbl_trimb.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge77" class="edge">
+<title>sourcefile~cbl_gw.f90&#45;&gt;sourcefile~cbl_trimb.f90</title>
+<path fill="none" stroke="#0011ff" stroke-dasharray="5,2" d="M552.28,-702.36C531.39,-696.65 504.62,-689.32 481.83,-683.09"/>
+<polygon fill="#0011ff" stroke="#0011ff" points="482.58,-679.66 472.01,-680.4 480.73,-686.41 482.58,-679.66"/>
+</g>
+<!-- sourcefile~cbl_gw.f90&#45;&gt;sourcefile~cbl_oldconductivity.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge83" class="edge">
+<title>sourcefile~cbl_gw.f90&#45;&gt;sourcefile~cbl_oldconductivity.f90</title>
+<path fill="none" stroke="#c100ff" stroke-dasharray="5,2" d="M552.23,-722.27C544.91,-725.17 537.46,-728.73 531,-733 511.59,-745.83 514.56,-758.41 495,-771 492.4,-772.67 489.65,-774.23 486.82,-775.68"/>
+<polygon fill="#c100ff" stroke="#c100ff" points="485.18,-772.58 477.54,-779.92 488.09,-778.94 485.18,-772.58"/>
+</g>
+<!-- sourcefile~spincasacnp.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node25" class="node">
+<title>sourcefile~spincasacnp.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node25"><a xlink:href=".././sourcefile/spincasacnp.f90.html" xlink:title="spincasacnp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1299,-108 1205,-108 1205,-84 1299,-84 1299,-108"/>
+<text text-anchor="middle" x="1252" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">spincasacnp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~spincasacnp.f90&#45;&gt;sourcefile~cable_carbon.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge25" class="edge">
+<title>sourcefile~spincasacnp.f90&#45;&gt;sourcefile~cable_carbon.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M1215.02,-83.89C1171.95,-69.95 1102.3,-49.28 1075.5,-52"/>
+</g>
+<!-- sourcefile~spincasacnp.f90&#45;&gt;sourcefile~casa_cable.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge55" class="edge">
+<title>sourcefile~spincasacnp.f90&#45;&gt;sourcefile~casa_cable.f90</title>
+<path fill="none" stroke="#ff3400" stroke-dasharray="5,2" d="M1204.89,-94.95C1181.52,-94.42 1153.02,-93.77 1128.72,-93.21"/>
+<polygon fill="#ff3400" stroke="#ff3400" points="1128.67,-89.71 1118.59,-92.98 1128.51,-96.71 1128.67,-89.71"/>
+</g>
+<!-- sourcefile~cbl_surfbv.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge36" class="edge">
+<title>sourcefile~cbl_surfbv.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M432,-630C384.32,-635.33 332.98,-657.43 301.17,-673.25"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="299.28,-670.29 291.95,-677.94 302.45,-676.53 299.28,-670.29"/>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M700.61,-627.94C641.76,-624.13 529.08,-619.36 434,-630"/>
+</g>
+<!-- sourcefile~cbl_smoisturev.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node40" class="node">
+<title>sourcefile~cbl_smoisturev.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node40"><a xlink:href=".././sourcefile/cbl_smoisturev.f90.html" xlink:title="cbl_smoisturev.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="640.5,-682 536.5,-682 536.5,-658 640.5,-658 640.5,-682"/>
+<text text-anchor="middle" x="588.5" y="-667.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_smoisturev.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cbl_surfbv.f90&#45;&gt;sourcefile~cbl_smoisturev.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge87" class="edge">
+<title>sourcefile~cbl_surfbv.f90&#45;&gt;sourcefile~cbl_smoisturev.f90</title>
+<path fill="none" stroke="#ff0034" stroke-dasharray="5,2" d="M700.8,-641.35C684.08,-645.65 664.38,-650.72 646.23,-655.4"/>
+<polygon fill="#ff0034" stroke="#ff0034" points="645.15,-652.06 636.34,-657.94 646.9,-658.84 645.15,-652.06"/>
+</g>
+<!-- sourcefile~cable_explicit_driver.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node27" class="node">
+<title>sourcefile~cable_explicit_driver.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node27"><a xlink:href=".././sourcefile/cable_explicit_driver.f90.html" xlink:title="cable_explicit_driver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1317,-624 1187,-624 1187,-600 1317,-600 1317,-624"/>
+<text text-anchor="middle" x="1252" y="-609.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_explicit_driver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_explicit_driver.f90&#45;&gt;sourcefile~cbl_model_driver_offline.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge48" class="edge">
+<title>sourcefile~cable_explicit_driver.f90&#45;&gt;sourcefile~cbl_model_driver_offline.f90</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M1250.73,-599.7C1249.07,-554.6 1237.08,-396.59 1151,-315 1149.71,-313.78 1148.36,-312.62 1146.95,-311.54"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="1148.65,-308.47 1138.34,-306.01 1144.86,-314.36 1148.65,-308.47"/>
+</g>
+<!-- sourcefile~cable_um_init.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node32" class="node">
+<title>sourcefile~cable_um_init.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node32"><a xlink:href=".././sourcefile/cable_um_init.f90.html" xlink:title="cable_um_init.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="483,-922 383,-922 383,-898 483,-898 483,-922"/>
+<text text-anchor="middle" x="433" y="-907.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_um_init.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_explicit_driver.f90&#45;&gt;sourcefile~cable_um_init.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge79" class="edge">
+<title>sourcefile~cable_explicit_driver.f90&#45;&gt;sourcefile~cable_um_init.f90</title>
+<path fill="none" stroke="#2300ff" stroke-dasharray="5,2" d="M1250.76,-624.06C1249.2,-667.5 1237.51,-816.99 1151,-884 1062.72,-952.38 1012.67,-909 901,-909 901,-909 901,-909 741,-909 654.97,-909 555.38,-909.4 493.53,-909.69"/>
+<polygon fill="#2300ff" stroke="#2300ff" points="493.17,-906.19 483.18,-909.74 493.2,-913.19 493.17,-906.19"/>
+</g>
+<!-- sourcefile~cable_implicit_driver.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node28" class="node">
+<title>sourcefile~cable_implicit_driver.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node28"><a xlink:href=".././sourcefile/cable_implicit_driver.f90.html" xlink:title="cable_implicit_driver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1317,-226 1187,-226 1187,-202 1317,-202 1317,-226"/>
+<text text-anchor="middle" x="1252" y="-211.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_implicit_driver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_implicit_driver.f90&#45;&gt;sourcefile~cbl_model_driver_offline.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge50" class="edge">
+<title>sourcefile~cable_implicit_driver.f90&#45;&gt;sourcefile~cbl_model_driver_offline.f90</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M1224.35,-226.15C1194.15,-239.92 1144.79,-262.42 1111.26,-277.7"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="1109.48,-274.66 1101.83,-282 1112.38,-281.03 1109.48,-274.66"/>
+</g>
+<!-- sourcefile~cable_implicit_driver.f90&#45;&gt;sourcefile~casa_bgcdriver.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge51" class="edge">
+<title>sourcefile~cable_implicit_driver.f90&#45;&gt;sourcefile~casa_bgcdriver.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1200.71,-201.96C1180.42,-197.11 1156.85,-191.47 1135.66,-186.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1136.34,-182.96 1125.8,-184.04 1134.71,-189.77 1136.34,-182.96"/>
+</g>
+<!-- sourcefile~cable_implicit_driver.f90&#45;&gt;sourcefile~casa_sumcflux.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge68" class="edge">
+<title>sourcefile~cable_implicit_driver.f90&#45;&gt;sourcefile~casa_sumcflux.f90</title>
+<path fill="none" stroke="#23ff00" stroke-dasharray="5,2" d="M1186.65,-214C1170.6,-214 1153.42,-214 1137.49,-214"/>
+<polygon fill="#23ff00" stroke="#23ff00" points="1137.22,-210.5 1127.22,-214 1137.22,-217.5 1137.22,-210.5"/>
+</g>
+<!-- sourcefile~cable_mpidrv.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node29" class="node">
+<title>sourcefile~cable_mpidrv.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node29"><a xlink:href=".././sourcefile/cable_mpidrv.f90.html" xlink:title="cable_mpidrv.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1450,-87 1353,-87 1353,-63 1450,-63 1450,-87"/>
+<text text-anchor="middle" x="1401.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_mpidrv.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_mpidrv.f90&#45;&gt;sourcefile~cable_mpimaster.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~cable_mpidrv.f90&#45;&gt;sourcefile~cable_mpimaster.f90</title>
+<path fill="none" stroke="#ff9900" stroke-dasharray="5,2" d="M1378.59,-62.85C1361.99,-53.92 1338.45,-41.86 1317,-33 1312.32,-31.07 1307.4,-29.19 1302.45,-27.4"/>
+<polygon fill="#ff9900" stroke="#ff9900" points="1303.53,-24.08 1292.94,-24.09 1301.23,-30.69 1303.53,-24.08"/>
+</g>
+<!-- sourcefile~cable_mpidrv.f90&#45;&gt;sourcefile~cable_mpiworker.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge62" class="edge">
+<title>sourcefile~cable_mpidrv.f90&#45;&gt;sourcefile~cable_mpiworker.f90</title>
+<path fill="none" stroke="#f6ff00" stroke-dasharray="5,2" d="M1378.59,-87.15C1361.99,-96.08 1338.45,-108.14 1317,-117 1312.32,-118.93 1307.4,-120.81 1302.45,-122.6"/>
+<polygon fill="#f6ff00" stroke="#f6ff00" points="1301.23,-119.31 1292.94,-125.91 1303.53,-125.92 1301.23,-119.31"/>
+</g>
+<!-- sourcefile~cbl_soilfreeze.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge37" class="edge">
+<title>sourcefile~cbl_soilfreeze.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M399.99,-602.02C390.44,-606.03 380.1,-610.82 371,-616 342.24,-632.38 311.97,-655.45 292.15,-671.46"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="289.86,-668.81 284.33,-677.85 294.29,-674.23 289.86,-668.81"/>
+</g>
+<!-- sourcefile~cbl_trimb.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge38" class="edge">
+<title>sourcefile~cbl_trimb.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M393.61,-674.74C377.5,-676.73 358.26,-679.1 339.8,-681.38"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="339.15,-677.94 329.65,-682.64 340.01,-684.88 339.15,-677.94"/>
+</g>
+<!-- sourcefile~cable_um_init.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge39" class="edge">
+<title>sourcefile~cable_um_init.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M419.12,-897.88C406.24,-885.46 386.21,-865.28 371,-846 335.11,-800.52 299.88,-742.09 282.04,-711.25"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="284.89,-709.19 276.88,-702.26 278.82,-712.68 284.89,-709.19"/>
+</g>
+<!-- sourcefile~casaonly_luc.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node33" class="node">
+<title>sourcefile~casaonly_luc.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node33"><a xlink:href=".././sourcefile/casaonly_luc.f90.html" xlink:title="CASAONLY_LUC.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1310.5,-66 1193.5,-66 1193.5,-42 1310.5,-42 1310.5,-66"/>
+<text text-anchor="middle" x="1252" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CASAONLY_LUC.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~casaonly_luc.f90&#45;&gt;sourcefile~cable_carbon.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge26" class="edge">
+<title>sourcefile~casaonly_luc.f90&#45;&gt;sourcefile~cable_carbon.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M1073.5,-52C1022.82,-57.14 967.82,-79.46 933.88,-95.37"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="931.98,-92.4 924.47,-99.87 935,-98.71 931.98,-92.4"/>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M1193.15,-50.08C1158.86,-48.57 1114.61,-48.03 1075.5,-52"/>
+</g>
+<!-- sourcefile~casaonly_luc.f90&#45;&gt;sourcefile~casa_cable.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge56" class="edge">
+<title>sourcefile~casaonly_luc.f90&#45;&gt;sourcefile~casa_cable.f90</title>
+<path fill="none" stroke="#ff3400" stroke-dasharray="5,2" d="M1195.47,-66.02C1174.06,-70.66 1149.67,-75.94 1128.5,-80.52"/>
+<polygon fill="#ff3400" stroke="#ff3400" points="1127.75,-77.11 1118.71,-82.64 1129.23,-83.95 1127.75,-77.11"/>
+</g>
+<!-- sourcefile~cbl_snowcheck.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge40" class="edge">
+<title>sourcefile~cbl_snowcheck.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M533.93,-376.49C503.11,-372.59 464.55,-372.53 434,-388"/>
+</g>
+<!-- sourcefile~cbl_oldconductivity.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge41" class="edge">
+<title>sourcefile~cbl_oldconductivity.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M390.8,-780C384.01,-777.41 377.18,-774.41 371,-771 339.86,-753.83 308.63,-726.95 289.32,-708.92"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="291.71,-706.36 282.05,-702.01 286.89,-711.44 291.71,-706.36"/>
+</g>
+<!-- sourcefile~cbl_snowmelt.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge42" class="edge">
+<title>sourcefile~cbl_snowmelt.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M560.28,-320.01C550.93,-324.28 540.44,-329.21 531,-334 487,-356.33 478.02,-365.71 434,-388"/>
+</g>
+<!-- sourcefile~cbl_thermal.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node37" class="node">
+<title>sourcefile~cbl_thermal.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node37"><a xlink:href=".././sourcefile/cbl_thermal.f90.html" xlink:title="cbl_thermal.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="787,-482 697,-482 697,-458 787,-458 787,-482"/>
+<text text-anchor="middle" x="742" y="-467.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_thermal.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cbl_thermal.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge43" class="edge">
+<title>sourcefile~cbl_thermal.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M696.68,-472.09C653.27,-472.74 585.83,-469.97 531,-451 482.42,-434.19 479.86,-364.78 434,-388"/>
+</g>
+<!-- sourcefile~cbl_thermal.f90&#45;&gt;sourcefile~cbl_snowdensity.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge59" class="edge">
+<title>sourcefile~cbl_thermal.f90&#45;&gt;sourcefile~cbl_snowdensity.f90</title>
+<path fill="none" stroke="#ff9e00" stroke-dasharray="5,2" d="M724.49,-482.16C706.03,-495.38 674.93,-516.55 646,-531 642.47,-532.76 638.75,-534.47 634.98,-536.08"/>
+<polygon fill="#ff9e00" stroke="#ff9e00" points="633.5,-532.91 625.56,-539.92 636.14,-539.39 633.5,-532.91"/>
+</g>
+<!-- sourcefile~cbl_thermal.f90&#45;&gt;sourcefile~cbl_snowaccum.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge67" class="edge">
+<title>sourcefile~cbl_thermal.f90&#45;&gt;sourcefile~cbl_snowaccum.f90</title>
+<path fill="none" stroke="#57ff00" stroke-dasharray="5,2" d="M696.77,-481.68C680.56,-485.96 662.01,-490.85 644.95,-495.36"/>
+<polygon fill="#57ff00" stroke="#57ff00" points="643.87,-492.02 635.1,-497.96 645.66,-498.79 643.87,-492.02"/>
+</g>
+<!-- sourcefile~cbl_thermal.f90&#45;&gt;sourcefile~cbl_snowl_adjust.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge70" class="edge">
+<title>sourcefile~cbl_thermal.f90&#45;&gt;sourcefile~cbl_snowl_adjust.f90</title>
+<path fill="none" stroke="#00ff11" stroke-dasharray="5,2" d="M696.77,-458.32C680.56,-454.04 662.01,-449.15 644.95,-444.64"/>
+<polygon fill="#00ff11" stroke="#00ff11" points="645.66,-441.21 635.1,-442.04 643.87,-447.98 645.66,-441.21"/>
+</g>
+<!-- sourcefile~cbl_thermal.f90&#45;&gt;sourcefile~cbl_gw.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge73" class="edge">
+<title>sourcefile~cbl_thermal.f90&#45;&gt;sourcefile~cbl_gw.f90</title>
+<path fill="none" stroke="#00ff7b" stroke-dasharray="5,2" d="M733.27,-482.12C721.13,-501.54 697.38,-541.12 682,-577 661.07,-625.84 682.62,-652.5 646,-691 642.57,-694.6 638.47,-697.59 634.07,-700.07"/>
+<polygon fill="#00ff7b" stroke="#00ff7b" points="632.27,-697.05 624.71,-704.47 635.25,-703.38 632.27,-697.05"/>
+</g>
+<!-- sourcefile~cbl_thermal.f90&#45;&gt;sourcefile~cbl_snowcheck.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge81" class="edge">
+<title>sourcefile~cbl_thermal.f90&#45;&gt;sourcefile~cbl_snowcheck.f90</title>
+<path fill="none" stroke="#8c00ff" stroke-dasharray="5,2" d="M708.06,-457.95C699.26,-454.08 689.98,-449.38 682,-444 663.5,-431.53 664.86,-420.92 646,-409 643.39,-407.35 640.62,-405.8 637.78,-404.35"/>
+<polygon fill="#8c00ff" stroke="#8c00ff" points="639.06,-401.08 628.51,-400.06 636.12,-407.43 639.06,-401.08"/>
+</g>
+<!-- sourcefile~cbl_thermal.f90&#45;&gt;sourcefile~cbl_snowmelt.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge85" class="edge">
+<title>sourcefile~cbl_thermal.f90&#45;&gt;sourcefile~cbl_snowmelt.f90</title>
+<path fill="none" stroke="#f600ff" stroke-dasharray="5,2" d="M702.61,-457.9C695.15,-454.28 687.84,-449.71 682,-444 654.99,-417.59 667.35,-398.17 646,-367 635.97,-352.36 622.25,-337.94 610.84,-327.01"/>
+<polygon fill="#f600ff" stroke="#f600ff" points="613.08,-324.32 603.38,-320.05 608.3,-329.44 613.08,-324.32"/>
+</g>
+<!-- sourcefile~cable_cbm.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node38" class="node">
+<title>sourcefile~cable_cbm.f90</title>
+<g id="a_sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_node38"><a xlink:href=".././sourcefile/cable_cbm.f90.html" xlink:title="cable_cbm.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1117.5,-348 1031.5,-348 1031.5,-324 1117.5,-324 1117.5,-348"/>
+<text text-anchor="middle" x="1074.5" y="-333.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_cbm.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_cbm.f90&#45;&gt;sourcefile~cable_air.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~cable_cbm.f90&#45;&gt;sourcefile~cable_air.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1031.27,-325.29C1020.35,-322.23 1008.66,-318.72 998,-315 994.89,-313.91 964.47,-301.03 938.52,-289.99"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="939.79,-286.73 929.22,-286.03 937.05,-293.17 939.79,-286.73"/>
+</g>
+<!-- sourcefile~cable_cbm.f90&#45;&gt;sourcefile~cable_roughness.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~cable_cbm.f90&#45;&gt;sourcefile~cable_roughness.f90</title>
+<path fill="none" stroke="#33ff00" stroke-dasharray="5,2" d="M1031.26,-330.3C1019.62,-327.2 1007.58,-322.4 998,-315 972.79,-295.51 986.61,-273.24 962,-253 960.24,-251.56 958.38,-250.21 956.44,-248.95"/>
+<polygon fill="#33ff00" stroke="#33ff00" points="957.97,-245.79 947.53,-244 954.57,-251.91 957.97,-245.79"/>
+</g>
+<!-- sourcefile~cable_cbm.f90&#45;&gt;sourcefile~cable_carbon.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge24" class="edge">
+<title>sourcefile~cable_cbm.f90&#45;&gt;sourcefile~cable_carbon.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M1031.47,-331.74C1019.44,-328.7 1007.12,-323.57 998,-315 962.36,-281.5 982.95,-255.2 962,-211 948.49,-182.5 928.74,-151.91 915.41,-132.4"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="918.18,-130.24 909.61,-124.01 912.42,-134.23 918.18,-130.24"/>
+</g>
+<!-- sourcefile~cable_cbm.f90&#45;&gt;sourcefile~cbl_soilsnow_main.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge64" class="edge">
+<title>sourcefile~cable_cbm.f90&#45;&gt;sourcefile~cbl_soilsnow_main.f90</title>
+<path fill="none" stroke="#c1ff00" stroke-dasharray="5,2" d="M1031.44,-341.94C1019.81,-345.05 1007.72,-349.78 998,-357 951.74,-391.34 922.02,-454.87 908.85,-488.24"/>
+<polygon fill="#c1ff00" stroke="#c1ff00" points="905.45,-487.34 905.16,-497.93 911.99,-489.83 905.45,-487.34"/>
+</g>
+<!-- sourcefile~cbl_remove_trans.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge44" class="edge">
+<title>sourcefile~cbl_remove_trans.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M700.24,-377.88C683.58,-373.52 664.03,-369.15 646,-367 551.98,-355.78 518.3,-344.89 434,-388"/>
+</g>
+<!-- sourcefile~cbl_smoisturev.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge45" class="edge">
+<title>sourcefile~cbl_smoisturev.f90&#45;&gt;sourcefile~cbl_soilsnow_data.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M563.45,-657.97C533.57,-644.37 480.8,-624.76 434,-630"/>
+</g>
+<!-- sourcefile~cbl_smoisturev.f90&#45;&gt;sourcefile~cbl_trimb.f90 -->
+<g id="sourcefile~~cable_phys_constants_mod.f90~~AfferentGraph_edge78" class="edge">
+<title>sourcefile~cbl_smoisturev.f90&#45;&gt;sourcefile~cbl_trimb.f90</title>
+<path fill="none" stroke="#0011ff" stroke-dasharray="5,2" d="M536.39,-670C519.05,-670 499.75,-670 482.61,-670"/>
+<polygon fill="#0011ff" stroke="#0011ff" points="482.26,-666.5 472.26,-670 482.26,-673.5 482.26,-666.5"/>
+</g>
+</g>
+</svg>
+</div><script>var pansourcefilecable_phys_constants_modf90AfferentGraph = svgPanZoom('#sourcefilecable_phys_constants_modf90AfferentGraph', {zoomEnabled: true,controlIconsEnabled: true, fit: true, center: true,}); </script><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 6.0.2 (20221011.1828)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="190pt" height="32pt"
+ viewBox="0.00 0.00 190.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28 186,-28 186,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="67,-24 0,-24 0,0 67,0 67,-24"/>
+<text text-anchor="middle" x="33.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="182,-24 85,-24 85,0 182,0 182,-24"/>
+<text text-anchor="middle" x="133.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a file to a file which it depends on. A file
+    is dependent upon another if the latter must be compiled before the former
+    can be. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+<br>
+    <section class="visible-xs visible-sm hidden-md">
+      <h3>Contents</h3>
+ 
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#mods-1">Modules</a></h3></div>
+  <div id="mods-1" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/cable_phys_constants_mod~2.html">cable_phys_constants_mod</a>
+    </div>
+  </div>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  <div class="list-group">
+    <a class="list-group-item" href="../sourcefile/cable_phys_constants_mod.f90.html#src">cable_phys_constants_mod.F90</a>
+  </div>
+</div>
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+    <section>
+      <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="k">MODULE </span><span class="n">cable_phys_constants_mod</span><span class="w"></span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="k">IMPLICIT NONE</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="k">PUBLIC</span><span class="w"></span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="c">!-----------------------------------------------------------------------------</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="c">! Description:</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="c">!   CABLE physical constants</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="c">!</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="c">! Code Owner: Please refer to ModuleLeaders.txt</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="c">! This file belongs in </span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="c">!-----------------------------------------------------------------------------</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tfrz</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mi">27</span><span class="mf">3.16</span><span class="w">        </span><span class="c">! Temp (K) corresp. to 0 C</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">sboltz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">5.67e-8</span><span class="w">       </span><span class="c">! Stefan-Boltz. const (W/m2/K4)</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">emsoil</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="w">           </span><span class="c">! soil emissivity</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">emleaf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="w">           </span><span class="c">! leaf emissivity</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">capp</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="mf">4.64</span><span class="w">    </span><span class="c">! air spec. heat (J/kg/K)</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.5014e6</span><span class="w">       </span><span class="c">! latent heat of vaporization (J/s/m2)</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">  </span><span class="c">!Below are constants used in CABLE model which are not as yet used in JAC-6.2</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hlf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.334e6</span><span class="w">          </span><span class="c">! latent heat of fusion</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.8350e6</span><span class="w">         </span><span class="c">! latent heatOFsublimation (J/kg)</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dheat</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="mf">1.5E-6</span><span class="w">       </span><span class="c">! molecular diffusivity for heat</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grav</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mf">9.8086</span><span class="w">        </span><span class="c">! gravity acceleration (m/s2)</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rgas</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mf">8.3143</span><span class="w">        </span><span class="c">! universal gas const  (J/mol/K)</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rmair</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mf">0.02897</span><span class="w">       </span><span class="c">! molecular wt: dry air (kg/mol)</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rmh2o</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mf">0.018016</span><span class="w">      </span><span class="c">! molecular wt: water (kg/mol)</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cgsnow</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">209</span><span class="mf">0.0</span><span class="w">        </span><span class="c">! specific heat capacity for snow</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cs_rho_ice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.9341e6</span><span class="w">  </span><span class="c">!heat capacity * density ice</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cs_rho_wat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">4.218e6</span><span class="w">   </span><span class="c">! heat capacity * density  water</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">csice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.100e3</span><span class="w">        </span><span class="c">! specific heat capacity for ice</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cswat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">4.218e3</span><span class="w">        </span><span class="c">! specific heat capacity water</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">density_liq</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="mf">0.0</span><span class="w">   </span><span class="c">! density of liquid water</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">density_ice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">92</span><span class="mf">1.0</span><span class="w">    </span><span class="c">! denisty of ice</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">  </span><span class="c">! Teten coefficients</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tetena</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">6.106</span><span class="w">         </span><span class="c">! Magnus Tetans (Murray 1967)</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tetenb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="mf">7.27</span><span class="w"></span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tetenc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">23</span><span class="mf">7.3</span><span class="w"></span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">  </span><span class="c">! mrd561 the parameters for sat above ice</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tetena_ice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">6.1078</span><span class="w">    </span><span class="c">! ??? refs?</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tetenb_ice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="mf">1.875</span><span class="w"></span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tetenc_ice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">26</span><span class="mf">5.5</span><span class="w"></span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">  </span><span class="c">! Aerodynamic parameters, diffusivities, water density:</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vonk</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mf">0.40</span><span class="w">          </span><span class="c">! von Karman constant</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">a33</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="mf">1.25</span><span class="w">          </span><span class="c">! inertial sublayer sw/us</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">csw</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="mf">0.50</span><span class="w">          </span><span class="c">! canopy sw decay (Weil theory)</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ctl</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="mf">0.40</span><span class="w">          </span><span class="c">! Wagga wheat (RDD 1992-Challenges)</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">apol</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mf">0.70</span><span class="w">          </span><span class="c">! Polhausen coeff: one-sided plate</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">prandt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.71</span><span class="w">          </span><span class="c">! Prandtl number: visc/diffh</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">schmid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.60</span><span class="w">          </span><span class="c">! Schmidt number: visc/diffw</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">diffwc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.60</span><span class="w">          </span><span class="c">! diffw/diffc = H2O/CO2 diffusivity</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rhow</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="mf">0.0</span><span class="w">        </span><span class="c">! liquid water density   [kg/m3]</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">crd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.3</span><span class="w">              </span><span class="c">! element drag coefficient</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">csd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.003</span><span class="w">            </span><span class="c">! substrate drag coefficient</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">  </span><span class="c">!jhan:hardwire for now. note beta2 = crd/csd</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w">  </span><span class="n">beta2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.3</span><span class="o">/</span><span class="mf">0.003</span><span class="w">     </span><span class="c">! ratio cr/cs</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w">  </span><span class="n">ccd</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="mf">5.0</span><span class="w">          </span><span class="c">! constant in d/h equation</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w">  </span><span class="n">ccw_c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.0</span><span class="w">           </span><span class="c">! ccw=(zw-d)/(h-d)</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w">  </span><span class="n">usuhm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.3</span><span class="w">           </span><span class="c">! (max of us/uh)</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">  </span><span class="c">! Turbulence parameters:</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">zetmul</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.4</span><span class="w">     </span><span class="c">! if niter=2, final zeta=zetmul*zetar(2)</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">                                      </span><span class="c">! niter=4 ATM see cable_define_types.F90</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">zeta0</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="w">     </span><span class="c">! initial value of za/L</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">zetneg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="mf">5.0</span><span class="w">   </span><span class="c">! negative limit on za/L when niter&gt;=3</span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">zetpos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="w">     </span><span class="c">! positive limit on za/L when niter&gt;=3</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">zdlin</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="w">     </span><span class="c">! height frac of d below which TL linear</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">umin</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="w">     </span><span class="c">! guarantees convergence, was 0.01 </span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="k">END MODULE </span><span class="n">cable_phys_constants_mod</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>CABLE was developed by CABLE community<br>&copy; 2022 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+          </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>

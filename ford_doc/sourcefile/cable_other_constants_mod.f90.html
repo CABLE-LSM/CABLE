@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Documentation for CABLE">
+    <meta name="author" content="CABLE community" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>cable_other_constants_mod.F90 &ndash; CABLE</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">CABLE </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>cable_other_constants_mod.F90
+    <small>Source File</small>
+    </h1>
+    <div class="row">
+  <div class="col-lg-12">
+<div class="well well-sm">
+  <ul class="list-inline" style="margin-bottom:0px;display:inline">
+     <li><i class="fa fa-list-ol"></i>
+       <a data-toggle="tooltip"
+    data-placement="bottom" data-html="true"
+    title=" 0.0% of total for source files.">13 statements</a>
+     </li> 
+    <li><i class="fa fa-code"></i><a href="../src/cable_other_constants_mod.F90"> Source File</a></li>
+  </ul>
+  <ol class="breadcrumb in-well text-right">
+     <li class="active">cable_other_constants_mod.F90</li>
+  </ol>
+</div>
+</div>
+</div>
+<script>
+  $(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+    <div id="sidebar">
+  <h3>Contents</h3>
+ 
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#mods-0">Modules</a></h3></div>
+  <div id="mods-0" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/cable_other_constants_mod~2.html">cable_other_constants_mod</a>
+    </div>
+  </div>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  <div class="list-group">
+    <a class="list-group-item" href="../sourcefile/cable_other_constants_mod.f90.html#src">cable_other_constants_mod.F90</a>
+  </div>
+</div>
+
+</div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">This file depends on</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 6.0.2 (20221011.1828)
+ -->
+<!-- Title: sourcefile~~cable_other_constants_mod.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilecable_other_constants_modf90EfferentGraph" width="337pt" height="32pt"
+ viewBox="0.00 0.00 337.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~cable_other_constants_mod.f90~~EfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>sourcefile~~cable_other_constants_mod.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28 333,-28 333,4 -4,4"/>
+<!-- sourcefile~cable_other_constants_mod.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~cable_other_constants_mod.f90</title>
+<polygon fill="none" stroke="black" points="329,-24 160,-24 160,0 329,0 329,-24"/>
+<text text-anchor="middle" x="244.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">cable_other_constants_mod.F90</text>
+</g>
+<!-- sourcefile~grid_constants_cbl.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~grid_constants_cbl.f90</title>
+<g id="a_sourcefile~~cable_other_constants_mod.f90~~EfferentGraph_node2"><a xlink:href=".././sourcefile/grid_constants_cbl.f90.html" xlink:title="grid_constants_cbl.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="124,-24 0,-24 0,0 124,0 124,-24"/>
+<text text-anchor="middle" x="62" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">grid_constants_cbl.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_other_constants_mod.f90&#45;&gt;sourcefile~grid_constants_cbl.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~cable_other_constants_mod.f90&#45;&gt;sourcefile~grid_constants_cbl.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M159.85,-12C151.27,-12 142.6,-12 134.16,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="134.01,-8.5 124.01,-12 134.01,-15.5 134.01,-8.5"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 6.0.2 (20221011.1828)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="190pt" height="32pt"
+ viewBox="0.00 0.00 190.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28 186,-28 186,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="67,-24 0,-24 0,0 67,0 67,-24"/>
+<text text-anchor="middle" x="33.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="182,-24 85,-24 85,0 182,0 182,-24"/>
+<text text-anchor="middle" x="133.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a file to a file which it depends on. A file
+    is dependent upon another if the latter must be compiled before the former
+    can be. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Files dependent on this one</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 6.0.2 (20221011.1828)
+ -->
+<!-- Title: sourcefile~~cable_other_constants_mod.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilecable_other_constants_modf90AfferentGraph" width="641pt" height="263pt"
+ viewBox="0.00 0.00 641.00 263.29" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph" class="graph" transform="scale(0.52455 0.52455) rotate(0) translate(4 497.93)">
+<title>sourcefile~~cable_other_constants_mod.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-497.93 1218,-497.93 1218,4 -4,4"/>
+<!-- sourcefile~cable_other_constants_mod.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~cable_other_constants_mod.f90</title>
+<polygon fill="none" stroke="black" points="169,-161.93 0,-161.93 0,-137.93 169,-137.93 169,-161.93"/>
+<text text-anchor="middle" x="84.5" y="-147.53" font-family="Helvetica,sans-Serif" font-size="10.50">cable_other_constants_mod.F90</text>
+</g>
+<!-- sourcefile~cable_roughness.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~cable_roughness.f90</title>
+<g id="a_sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node2"><a xlink:href=".././sourcefile/cable_roughness.f90.html" xlink:title="cable_roughness.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="327.5,-449.93 211.5,-449.93 211.5,-425.93 327.5,-425.93 327.5,-449.93"/>
+<text text-anchor="middle" x="269.5" y="-435.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_roughness.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_roughness.f90&#45;&gt;sourcefile~cable_other_constants_mod.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~cable_roughness.f90&#45;&gt;sourcefile~cable_other_constants_mod.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M226.17,-425.86C218.48,-422.28 211.01,-417.71 205,-411.93 132.96,-342.68 100.57,-221.85 89.82,-172.2"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="93.21,-171.29 87.75,-162.21 86.36,-172.71 93.21,-171.29"/>
+</g>
+<!-- sourcefile~cable_params_mod.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~cable_params_mod.f90</title>
+<g id="a_sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node3"><a xlink:href=".././sourcefile/cable_params_mod.f90.html" xlink:title="cable_params_mod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="334,-225.93 205,-225.93 205,-201.93 334,-201.93 334,-225.93"/>
+<text text-anchor="middle" x="269.5" y="-211.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_params_mod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_params_mod.f90&#45;&gt;sourcefile~cable_other_constants_mod.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~cable_params_mod.f90&#45;&gt;sourcefile~cable_other_constants_mod.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M234.08,-201.9C204.52,-191.56 161.74,-176.6 129.66,-165.38"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="130.67,-162.02 120.08,-162.03 128.36,-168.63 130.67,-162.02"/>
+</g>
+<!-- sourcefile~cable_rad_driver.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~cable_rad_driver.f90</title>
+<g id="a_sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node4"><a xlink:href=".././sourcefile/cable_rad_driver.f90.html" xlink:title="cable_rad_driver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="863.5,-407.93 749.5,-407.93 749.5,-383.93 863.5,-383.93 863.5,-407.93"/>
+<text text-anchor="middle" x="806.5" y="-393.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_rad_driver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_rad_driver.f90&#45;&gt;sourcefile~cable_other_constants_mod.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~cable_rad_driver.f90&#45;&gt;sourcefile~cable_other_constants_mod.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M447,-397.93C368.66,-393.82 341.94,-430.34 270.5,-397.93"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M627.5,-397.93C548.26,-394 528.22,-402.09 449,-397.93"/>
+</g>
+<!-- sourcefile~cable_um_tech.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~cable_um_tech.f90</title>
+<g id="a_sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node15"><a xlink:href=".././sourcefile/cable_um_tech.f90.html" xlink:title="cable_um_tech.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="501.5,-369.93 394.5,-369.93 394.5,-345.93 501.5,-345.93 501.5,-369.93"/>
+<text text-anchor="middle" x="448" y="-355.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_um_tech.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_rad_driver.f90&#45;&gt;sourcefile~cable_um_tech.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge31" class="edge">
+<title>sourcefile~cable_rad_driver.f90&#45;&gt;sourcefile~cable_um_tech.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M627.5,-397.93C581.69,-395.66 530.76,-383.22 495.06,-372.81"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="496,-369.44 485.41,-369.94 494,-376.15 496,-369.44"/>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M749.19,-398.32C714.63,-399.35 669.48,-399.92 629.5,-397.93"/>
+</g>
+<!-- sourcefile~cable_um_init_subrs.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node17" class="node">
+<title>sourcefile~cable_um_init_subrs.f90</title>
+<g id="a_sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node17"><a xlink:href=".././sourcefile/cable_um_init_subrs.f90.html" xlink:title="cable_um_init_subrs.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="695,-289.93 562,-289.93 562,-265.93 695,-265.93 695,-289.93"/>
+<text text-anchor="middle" x="628.5" y="-275.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_um_init_subrs.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_rad_driver.f90&#45;&gt;sourcefile~cable_um_init_subrs.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge39" class="edge">
+<title>sourcefile~cable_rad_driver.f90&#45;&gt;sourcefile~cable_um_init_subrs.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M791.45,-383.81C764.1,-360.28 705.46,-310.15 695,-303.93 688.78,-300.24 681.94,-296.86 675.1,-293.86"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="676.4,-290.61 665.82,-289.99 673.71,-297.07 676.4,-290.61"/>
+</g>
+<!-- sourcefile~allocate_veg_params_cbl.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~allocate_veg_params_cbl.f90</title>
+<g id="a_sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node5"><a xlink:href=".././sourcefile/allocate_veg_params_cbl.f90.html" xlink:title="allocate_veg_params_cbl.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="526,-121.93 370,-121.93 370,-97.93 526,-97.93 526,-121.93"/>
+<text text-anchor="middle" x="448" y="-107.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">allocate_veg_params_cbl.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~allocate_veg_params_cbl.f90&#45;&gt;sourcefile~cable_other_constants_mod.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~allocate_veg_params_cbl.f90&#45;&gt;sourcefile~cable_other_constants_mod.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M400.84,-121.95C365.4,-130.79 315.13,-142.52 270.5,-149.93"/>
+</g>
+<!-- sourcefile~allocate_veg_params_cbl.f90&#45;&gt;sourcefile~cable_params_mod.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~allocate_veg_params_cbl.f90&#45;&gt;sourcefile~cable_params_mod.f90</title>
+<path fill="none" stroke="#ff8b00" stroke-dasharray="5,2" d="M390.26,-122.06C383.23,-124.52 376.31,-127.45 370,-130.93 350.99,-141.42 350.54,-149.88 334,-163.93 321.27,-174.76 306.64,-186.33 294.63,-195.62"/>
+<polygon fill="#ff8b00" stroke="#ff8b00" points="292.22,-193.06 286.42,-201.93 296.48,-198.61 292.22,-193.06"/>
+</g>
+<!-- sourcefile~cable_um_init.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~cable_um_init.f90</title>
+<g id="a_sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node6"><a xlink:href=".././sourcefile/cable_um_init.f90.html" xlink:title="cable_um_init.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1033,-249.93 933,-249.93 933,-225.93 1033,-225.93 1033,-249.93"/>
+<text text-anchor="middle" x="983" y="-235.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_um_init.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_um_init.f90&#45;&gt;sourcefile~cable_other_constants_mod.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~cable_um_init.f90&#45;&gt;sourcefile~cable_other_constants_mod.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M932.69,-236.47C897.72,-235.78 849.7,-235.57 807.5,-237.93"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M805.5,-237.93C727.4,-242.31 707.14,-247.47 629.5,-237.93"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M627.5,-237.93C532.09,-226.22 608.39,-96.46 526,-46.93 403.72,26.56 338.74,2.75 205,-46.93 160.67,-63.4 121.78,-104.5 101.16,-129.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="98.18,-127.65 94.65,-137.64 103.64,-132.03 98.18,-127.65"/>
+</g>
+<!-- sourcefile~cable_um_init.f90&#45;&gt;sourcefile~cable_um_tech.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge32" class="edge">
+<title>sourcefile~cable_um_init.f90&#45;&gt;sourcefile~cable_um_tech.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M627.5,-237.93C597.41,-234.24 584.89,-237.06 562,-256.93 532.56,-282.5 555.64,-311.61 526,-336.93 521.55,-340.74 516.46,-343.86 511.08,-346.42"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="509.73,-343.19 501.8,-350.22 512.38,-349.67 509.73,-343.19"/>
+</g>
+<!-- sourcefile~cable_um_init.f90&#45;&gt;sourcefile~cable_um_init_subrs.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge41" class="edge">
+<title>sourcefile~cable_um_init.f90&#45;&gt;sourcefile~cable_um_init_subrs.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M805.5,-237.93C760.79,-240.44 711.16,-252.61 676.03,-262.88"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="674.65,-259.64 666.07,-265.85 676.65,-266.34 674.65,-259.64"/>
+</g>
+<!-- sourcefile~casa_um_inout.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node25" class="node">
+<title>sourcefile~casa_um_inout.f90</title>
+<g id="a_sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node25"><a xlink:href=".././sourcefile/casa_um_inout.f90.html" xlink:title="casa_um_inout.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="860,-289.93 753,-289.93 753,-265.93 860,-265.93 860,-289.93"/>
+<text text-anchor="middle" x="806.5" y="-275.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">casa_um_inout.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_um_init.f90&#45;&gt;sourcefile~casa_um_inout.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge43" class="edge">
+<title>sourcefile~cable_um_init.f90&#45;&gt;sourcefile~casa_um_inout.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M932.93,-249.18C913.35,-253.67 890.58,-258.89 869.85,-263.64"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="868.83,-260.29 859.86,-265.93 870.39,-267.11 868.83,-260.29"/>
+</g>
+<!-- sourcefile~cbl_photosynthesis.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~cbl_photosynthesis.f90</title>
+<g id="a_sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node7"><a xlink:href=".././sourcefile/cbl_photosynthesis.f90.html" xlink:title="cbl_photosynthesis.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="332,-121.93 207,-121.93 207,-97.93 332,-97.93 332,-121.93"/>
+<text text-anchor="middle" x="269.5" y="-107.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_photosynthesis.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cbl_photosynthesis.f90&#45;&gt;sourcefile~cable_other_constants_mod.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~cbl_photosynthesis.f90&#45;&gt;sourcefile~cable_other_constants_mod.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M213.59,-121.94C193.78,-126.27 171.22,-131.2 150.62,-135.7"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="149.71,-132.32 140.68,-137.87 151.2,-139.16 149.71,-132.32"/>
+</g>
+<!-- sourcefile~cbl_model_driver_offline.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~cbl_model_driver_offline.f90</title>
+<g id="a_sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node8"><a xlink:href=".././sourcefile/cbl_model_driver_offline.f90.html" xlink:title="cbl_model_driver_offline.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="882,-449.93 731,-449.93 731,-425.93 882,-425.93 882,-449.93"/>
+<text text-anchor="middle" x="806.5" y="-435.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_model_driver_offline.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cbl_model_driver_offline.f90&#45;&gt;sourcefile~cable_other_constants_mod.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~cbl_model_driver_offline.f90&#45;&gt;sourcefile~cable_other_constants_mod.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M627.5,-435.93C546.41,-434.02 530,-402.19 449,-397.93"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M730.99,-437.49C699.65,-437.2 662.8,-436.72 629.5,-435.93"/>
+</g>
+<!-- sourcefile~cbl_model_driver_offline.f90&#45;&gt;sourcefile~cable_roughness.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~cbl_model_driver_offline.f90&#45;&gt;sourcefile~cable_roughness.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M627.5,-435.93C581.25,-435.93 571.97,-453.79 526,-458.93 457.1,-466.64 438.96,-466.13 370,-458.93 356.08,-457.48 341.24,-454.92 327.39,-452.06"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="328.01,-448.62 317.5,-449.95 326.55,-455.46 328.01,-448.62"/>
+</g>
+<!-- sourcefile~allocate_soil_params_cbl.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~allocate_soil_params_cbl.f90</title>
+<g id="a_sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node9"><a xlink:href=".././sourcefile/allocate_soil_params_cbl.f90.html" xlink:title="allocate_soil_params_cbl.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="525,-327.93 371,-327.93 371,-303.93 525,-303.93 525,-327.93"/>
+<text text-anchor="middle" x="448" y="-313.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">allocate_soil_params_cbl.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~allocate_soil_params_cbl.f90&#45;&gt;sourcefile~cable_other_constants_mod.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~allocate_soil_params_cbl.f90&#45;&gt;sourcefile~cable_other_constants_mod.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M268.5,-397.93C169.57,-353.06 112.46,-223.4 93.06,-171.64"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="96.3,-170.31 89.58,-162.11 89.72,-172.7 96.3,-170.31"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M394.95,-327.96C386.47,-330.54 377.89,-333.52 370,-336.93 322.39,-357.52 317.74,-419.36 270.5,-397.93"/>
+</g>
+<!-- sourcefile~allocate_soil_params_cbl.f90&#45;&gt;sourcefile~cable_params_mod.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge19" class="edge">
+<title>sourcefile~allocate_soil_params_cbl.f90&#45;&gt;sourcefile~cable_params_mod.f90</title>
+<path fill="none" stroke="#ff8b00" stroke-dasharray="5,2" d="M391.67,-303.87C384.2,-301.37 376.78,-298.42 370,-294.93 338.62,-278.81 307.99,-251.63 289.18,-233.25"/>
+<polygon fill="#ff8b00" stroke="#ff8b00" points="291.44,-230.56 281.88,-225.97 286.49,-235.51 291.44,-230.56"/>
+</g>
+<!-- sourcefile~cable_cbm.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~cable_cbm.f90</title>
+<g id="a_sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node10"><a xlink:href=".././sourcefile/cable_cbm.f90.html" xlink:title="cable_cbm.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="491,-449.93 405,-449.93 405,-425.93 491,-425.93 491,-449.93"/>
+<text text-anchor="middle" x="448" y="-435.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_cbm.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_cbm.f90&#45;&gt;sourcefile~cable_other_constants_mod.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~cable_cbm.f90&#45;&gt;sourcefile~cable_other_constants_mod.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M404.9,-430.42C360.6,-422.16 294.11,-408.64 270.5,-397.93"/>
+</g>
+<!-- sourcefile~cable_cbm.f90&#45;&gt;sourcefile~cable_roughness.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~cable_cbm.f90&#45;&gt;sourcefile~cable_roughness.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M404.72,-437.93C384.74,-437.93 360.38,-437.93 337.94,-437.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="337.78,-434.43 327.78,-437.93 337.78,-441.43 337.78,-434.43"/>
+</g>
+<!-- sourcefile~cbl_radiation.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~cbl_radiation.f90</title>
+<g id="a_sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node11"><a xlink:href=".././sourcefile/cbl_radiation.f90.html" xlink:title="cbl_radiation.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="317,-79.93 222,-79.93 222,-55.93 317,-55.93 317,-79.93"/>
+<text text-anchor="middle" x="269.5" y="-65.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_radiation.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cbl_radiation.f90&#45;&gt;sourcefile~cable_other_constants_mod.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~cbl_radiation.f90&#45;&gt;sourcefile~cable_other_constants_mod.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M228.86,-80.01C220.88,-82.73 212.61,-85.76 205,-88.93 173.69,-102.01 139.32,-119.96 115.51,-133"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="113.68,-130.01 106.62,-137.91 117.07,-136.14 113.68,-130.01"/>
+</g>
+<!-- sourcefile~cbl_dryleaf.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~cbl_dryleaf.f90</title>
+<g id="a_sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node12"><a xlink:href=".././sourcefile/cbl_dryleaf.f90.html" xlink:title="cbl_dryLeaf.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="493,-79.93 403,-79.93 403,-55.93 493,-55.93 493,-79.93"/>
+<text text-anchor="middle" x="448" y="-65.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_dryLeaf.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cbl_dryleaf.f90&#45;&gt;sourcefile~cable_other_constants_mod.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~cbl_dryleaf.f90&#45;&gt;sourcefile~cable_other_constants_mod.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M268.5,-149.93C239.76,-154.71 208.14,-156.06 179.38,-155.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="179.38,-152.34 169.33,-155.69 179.28,-159.33 179.38,-152.34"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M402.75,-75.21C391.51,-78.31 379.84,-82.71 370,-88.93 349.23,-102.08 354.61,-117.53 334,-130.93 309.3,-146.99 299.56,-145.11 270.5,-149.93"/>
+</g>
+<!-- sourcefile~cbl_dryleaf.f90&#45;&gt;sourcefile~cbl_photosynthesis.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge23" class="edge">
+<title>sourcefile~cbl_dryleaf.f90&#45;&gt;sourcefile~cbl_photosynthesis.f90</title>
+<path fill="none" stroke="#00ffb9" stroke-dasharray="5,2" d="M402.92,-78.42C381.21,-83.59 354.69,-89.9 331.11,-95.51"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="330.12,-92.15 321.2,-97.87 331.74,-98.96 330.12,-92.15"/>
+</g>
+<!-- sourcefile~cable_pft_params.f90~2 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~cable_pft_params.f90~2</title>
+<g id="a_sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node13"><a xlink:href=".././sourcefile/cable_pft_params.f90~2.html" xlink:title="cable_pft_params.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="508,-285.93 388,-285.93 388,-261.93 508,-261.93 508,-285.93"/>
+<text text-anchor="middle" x="448" y="-271.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_pft_params.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_pft_params.f90~2&#45;&gt;sourcefile~cable_params_mod.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~cable_pft_params.f90~2&#45;&gt;sourcefile~cable_params_mod.f90</title>
+<path fill="none" stroke="#ff8b00" stroke-dasharray="5,2" d="M411.34,-261.92C398.33,-257.53 383.49,-252.52 370,-247.93 352.23,-241.9 332.68,-235.23 315.65,-229.4"/>
+<polygon fill="#ff8b00" stroke="#ff8b00" points="316.54,-226.01 305.95,-226.08 314.28,-232.63 316.54,-226.01"/>
+</g>
+<!-- sourcefile~cable_mpimaster.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~cable_mpimaster.f90</title>
+<g id="a_sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node14"><a xlink:href=".././sourcefile/cable_mpimaster.f90.html" xlink:title="cable_mpimaster.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1040.5,-493.93 925.5,-493.93 925.5,-469.93 1040.5,-469.93 1040.5,-493.93"/>
+<text text-anchor="middle" x="983" y="-479.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_mpimaster.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_mpimaster.f90&#45;&gt;sourcefile~cbl_model_driver_offline.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge24" class="edge">
+<title>sourcefile~cable_mpimaster.f90&#45;&gt;sourcefile~cbl_model_driver_offline.f90</title>
+<path fill="none" stroke="#00b9ff" stroke-dasharray="5,2" d="M934.32,-469.91C912.87,-464.5 887.37,-458.07 864.89,-452.4"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="865.68,-448.99 855.13,-449.94 863.97,-455.78 865.68,-448.99"/>
+</g>
+<!-- sourcefile~cable_um_tech.f90&#45;&gt;sourcefile~cable_params_mod.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge17" class="edge">
+<title>sourcefile~cable_um_tech.f90&#45;&gt;sourcefile~cable_params_mod.f90</title>
+<path fill="none" stroke="#ff8b00" stroke-dasharray="5,2" d="M394.16,-348.26C385.68,-345.4 377.31,-341.71 370,-336.93 329.68,-310.61 297.92,-262.65 281.9,-235.04"/>
+<polygon fill="#ff8b00" stroke="#ff8b00" points="284.87,-233.17 276.91,-226.19 278.77,-236.62 284.87,-233.17"/>
+</g>
+<!-- sourcefile~cable_define_types.f90~2 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node16" class="node">
+<title>sourcefile~cable_define_types.f90~2</title>
+<g id="a_sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node16"><a xlink:href=".././sourcefile/cable_define_types.f90~2.html" xlink:title="cable_define_types.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="511.5,-205.93 384.5,-205.93 384.5,-181.93 511.5,-181.93 511.5,-205.93"/>
+<text text-anchor="middle" x="448" y="-191.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_define_types.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_define_types.f90~2&#45;&gt;sourcefile~cable_params_mod.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge20" class="edge">
+<title>sourcefile~cable_define_types.f90~2&#45;&gt;sourcefile~cable_params_mod.f90</title>
+<path fill="none" stroke="#ff8b00" stroke-dasharray="5,2" d="M384.28,-201.04C371.33,-202.51 357.58,-204.07 344.27,-205.57"/>
+<polygon fill="#ff8b00" stroke="#ff8b00" points="343.76,-202.11 334.21,-206.71 344.54,-209.07 343.76,-202.11"/>
+</g>
+<!-- sourcefile~cable_um_init_subrs.f90&#45;&gt;sourcefile~cable_params_mod.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge18" class="edge">
+<title>sourcefile~cable_um_init_subrs.f90&#45;&gt;sourcefile~cable_params_mod.f90</title>
+<path fill="none" stroke="#ff8b00" stroke-dasharray="5,2" d="M582.47,-265.92C564.93,-261.48 544.6,-256.64 526,-252.93 465.04,-240.8 395.25,-230.38 344.03,-223.37"/>
+<polygon fill="#ff8b00" stroke="#ff8b00" points="344.42,-219.89 334.04,-222.01 343.48,-226.83 344.42,-219.89"/>
+</g>
+<!-- sourcefile~cable_um_init_subrs.f90&#45;&gt;sourcefile~allocate_veg_params_cbl.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge21" class="edge">
+<title>sourcefile~cable_um_init_subrs.f90&#45;&gt;sourcefile~allocate_veg_params_cbl.f90</title>
+<path fill="none" stroke="#5cff00" stroke-dasharray="5,2" d="M581.49,-265.91C574.23,-262.37 567.37,-257.8 562,-251.93 524.12,-210.54 566.13,-170.15 526,-130.93 524.89,-129.84 523.72,-128.81 522.51,-127.83"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="524.21,-124.75 513.96,-122.08 520.3,-130.56 524.21,-124.75"/>
+</g>
+<!-- sourcefile~cable_um_init_subrs.f90&#45;&gt;sourcefile~allocate_soil_params_cbl.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge29" class="edge">
+<title>sourcefile~cable_um_init_subrs.f90&#45;&gt;sourcefile~allocate_soil_params_cbl.f90</title>
+<path fill="none" stroke="#002eff" stroke-dasharray="5,2" d="M571.02,-289.96C553.35,-293.72 533.7,-297.9 515.41,-301.8"/>
+<polygon fill="#002eff" stroke="#002eff" points="514.47,-298.42 505.42,-303.92 515.93,-305.27 514.47,-298.42"/>
+</g>
+<!-- sourcefile~cable_um_init_subrs.f90&#45;&gt;sourcefile~cable_um_tech.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge36" class="edge">
+<title>sourcefile~cable_um_init_subrs.f90&#45;&gt;sourcefile~cable_um_tech.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M590.32,-289.98C580.75,-293.8 570.71,-298.48 562,-303.93 543.61,-315.46 545.01,-326.45 526,-336.93 521.42,-339.46 516.51,-341.7 511.47,-343.68"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="509.92,-340.52 501.68,-347.18 512.27,-347.11 509.92,-340.52"/>
+</g>
+<!-- sourcefile~cable_soil_params.f90~2 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node18" class="node">
+<title>sourcefile~cable_soil_params.f90~2</title>
+<g id="a_sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node18"><a xlink:href=".././sourcefile/cable_soil_params.f90~2.html" xlink:title="cable_soil_params.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="510,-163.93 386,-163.93 386,-139.93 510,-139.93 510,-163.93"/>
+<text text-anchor="middle" x="448" y="-149.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_soil_params.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_soil_params.f90~2&#45;&gt;sourcefile~cable_params_mod.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~cable_soil_params.f90~2&#45;&gt;sourcefile~cable_params_mod.f90</title>
+<path fill="none" stroke="#ff8b00" stroke-dasharray="5,2" d="M399.07,-164.01C389.38,-166.73 379.31,-169.76 370,-172.93 348.62,-180.22 325.23,-189.78 306.51,-197.82"/>
+<polygon fill="#ff8b00" stroke="#ff8b00" points="304.96,-194.68 297.18,-201.88 307.75,-201.1 304.96,-194.68"/>
+</g>
+<!-- sourcefile~cable_explicit_driver.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node19" class="node">
+<title>sourcefile~cable_explicit_driver.f90</title>
+<g id="a_sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node19"><a xlink:href=".././sourcefile/cable_explicit_driver.f90.html" xlink:title="cable_explicit_driver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1214,-289.93 1084,-289.93 1084,-265.93 1214,-265.93 1214,-289.93"/>
+<text text-anchor="middle" x="1149" y="-275.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_explicit_driver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_explicit_driver.f90&#45;&gt;sourcefile~cable_um_init.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge22" class="edge">
+<title>sourcefile~cable_explicit_driver.f90&#45;&gt;sourcefile~cable_um_init.f90</title>
+<path fill="none" stroke="#00ff2e" stroke-dasharray="5,2" d="M1098.79,-265.93C1081.28,-261.66 1061.38,-256.81 1043.12,-252.35"/>
+<polygon fill="#00ff2e" stroke="#00ff2e" points="1043.72,-248.9 1033.17,-249.93 1042.06,-255.7 1043.72,-248.9"/>
+</g>
+<!-- sourcefile~cable_explicit_driver.f90&#45;&gt;sourcefile~cbl_model_driver_offline.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge26" class="edge">
+<title>sourcefile~cable_explicit_driver.f90&#45;&gt;sourcefile~cbl_model_driver_offline.f90</title>
+<path fill="none" stroke="#00b9ff" stroke-dasharray="5,2" d="M982,-357.93C953.96,-367.64 943.09,-361.09 918,-376.93 897.78,-389.71 902.31,-404.3 882,-416.93 879.06,-418.76 875.95,-420.44 872.75,-421.97"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="871.32,-418.77 863.5,-425.92 874.07,-425.21 871.32,-418.77"/>
+</g>
+<!-- sourcefile~cable_explicit_driver.f90&#45;&gt;sourcefile~cable_um_tech.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge35" class="edge">
+<title>sourcefile~cable_explicit_driver.f90&#45;&gt;sourcefile~cable_um_tech.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M1131.05,-290.17C1111.74,-303.65 1078.85,-325.23 1048,-338.93 1020.89,-350.98 1012.04,-348.23 984,-357.93"/>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M982,-357.93C876.02,-394.62 842.34,-345.38 731,-331.93 685.79,-326.48 674.76,-312.89 629.5,-317.93"/>
+</g>
+<!-- sourcefile~cable_explicit_driver.f90&#45;&gt;sourcefile~casa_um_inout.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge44" class="edge">
+<title>sourcefile~cable_explicit_driver.f90&#45;&gt;sourcefile~casa_um_inout.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M1083.95,-277.93C1022.77,-277.93 931.1,-277.93 870.32,-277.93"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="870.1,-274.43 860.1,-277.93 870.1,-281.43 870.1,-274.43"/>
+</g>
+<!-- sourcefile~cable_driver.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node20" class="node">
+<title>sourcefile~cable_driver.f90</title>
+<g id="a_sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node20"><a xlink:href=".././sourcefile/cable_driver.f90.html" xlink:title="cable_driver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1029,-409.93 937,-409.93 937,-385.93 1029,-385.93 1029,-409.93"/>
+<text text-anchor="middle" x="983" y="-395.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_driver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_driver.f90&#45;&gt;sourcefile~cbl_model_driver_offline.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge25" class="edge">
+<title>sourcefile~cable_driver.f90&#45;&gt;sourcefile~cbl_model_driver_offline.f90</title>
+<path fill="none" stroke="#00b9ff" stroke-dasharray="5,2" d="M936.61,-408.34C916.29,-413 892.01,-418.56 870.01,-423.61"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="869.05,-420.23 860.08,-425.88 870.61,-427.06 869.05,-420.23"/>
+</g>
+<!-- sourcefile~cable_mpiworker.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node21" class="node">
+<title>sourcefile~cable_mpiworker.f90</title>
+<g id="a_sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node21"><a xlink:href=".././sourcefile/cable_mpiworker.f90.html" xlink:title="cable_mpiworker.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1040.5,-451.93 925.5,-451.93 925.5,-427.93 1040.5,-427.93 1040.5,-451.93"/>
+<text text-anchor="middle" x="983" y="-437.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_mpiworker.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_mpiworker.f90&#45;&gt;sourcefile~cbl_model_driver_offline.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge27" class="edge">
+<title>sourcefile~cable_mpiworker.f90&#45;&gt;sourcefile~cbl_model_driver_offline.f90</title>
+<path fill="none" stroke="#00b9ff" stroke-dasharray="5,2" d="M925.34,-439.29C914.83,-439.16 903.64,-439.04 892.49,-438.91"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="892.33,-435.41 882.29,-438.79 892.25,-442.41 892.33,-435.41"/>
+</g>
+<!-- sourcefile~cable_implicit_driver.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node22" class="node">
+<title>sourcefile~cable_implicit_driver.f90</title>
+<g id="a_sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node22"><a xlink:href=".././sourcefile/cable_implicit_driver.f90.html" xlink:title="cable_implicit_driver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1048,-329.93 918,-329.93 918,-305.93 1048,-305.93 1048,-329.93"/>
+<text text-anchor="middle" x="983" y="-315.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_implicit_driver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_implicit_driver.f90&#45;&gt;sourcefile~cbl_model_driver_offline.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge28" class="edge">
+<title>sourcefile~cable_implicit_driver.f90&#45;&gt;sourcefile~cbl_model_driver_offline.f90</title>
+<path fill="none" stroke="#00b9ff" stroke-dasharray="5,2" d="M939.81,-329.96C931.93,-333.55 924.23,-338.13 918,-343.93 891.51,-368.57 909.81,-393.8 882,-416.93 880.41,-418.26 878.74,-419.49 877.02,-420.65"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="874.88,-417.84 867.92,-425.83 878.34,-423.93 874.88,-417.84"/>
+</g>
+<!-- sourcefile~cable_implicit_driver.f90&#45;&gt;sourcefile~cable_um_tech.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge37" class="edge">
+<title>sourcefile~cable_implicit_driver.f90&#45;&gt;sourcefile~cable_um_tech.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M805.5,-317.93C727.4,-313.56 707.24,-309.28 629.5,-317.93"/>
+</g>
+<!-- sourcefile~cable_implicit_driver.f90&#45;&gt;sourcefile~cable_um_init_subrs.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge40" class="edge">
+<title>sourcefile~cable_implicit_driver.f90&#45;&gt;sourcefile~cable_um_init_subrs.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M805.5,-317.93C760.79,-315.43 711.16,-303.26 676.03,-292.99"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="676.65,-289.53 666.07,-290.02 674.65,-296.23 676.65,-289.53"/>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M917.72,-319.65C884.75,-320.1 843.95,-319.98 807.5,-317.93"/>
+</g>
+<!-- sourcefile~cable_implicit_driver.f90&#45;&gt;sourcefile~casa_um_inout.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge45" class="edge">
+<title>sourcefile~cable_implicit_driver.f90&#45;&gt;sourcefile~casa_um_inout.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M929.64,-305.93C910.92,-301.64 889.63,-296.76 870.13,-292.29"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="870.65,-288.82 860.12,-290 869.09,-295.64 870.65,-288.82"/>
+</g>
+<!-- sourcefile~cable_mpidrv.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node23" class="node">
+<title>sourcefile~cable_mpidrv.f90</title>
+<g id="a_sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node23"><a xlink:href=".././sourcefile/cable_mpidrv.f90.html" xlink:title="cable_mpidrv.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1197.5,-472.93 1100.5,-472.93 1100.5,-448.93 1197.5,-448.93 1197.5,-472.93"/>
+<text text-anchor="middle" x="1149" y="-458.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_mpidrv.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_mpidrv.f90&#45;&gt;sourcefile~cable_mpimaster.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge30" class="edge">
+<title>sourcefile~cable_mpidrv.f90&#45;&gt;sourcefile~cable_mpimaster.f90</title>
+<path fill="none" stroke="#ff9900" stroke-dasharray="5,2" d="M1100.12,-467.07C1084.7,-469.04 1067.31,-471.27 1050.79,-473.38"/>
+<polygon fill="#ff9900" stroke="#ff9900" points="1050.1,-469.94 1040.63,-474.68 1050.99,-476.88 1050.1,-469.94"/>
+</g>
+<!-- sourcefile~cable_mpidrv.f90&#45;&gt;sourcefile~cable_mpiworker.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge42" class="edge">
+<title>sourcefile~cable_mpidrv.f90&#45;&gt;sourcefile~cable_mpiworker.f90</title>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M1100.12,-454.8C1084.7,-452.83 1067.31,-450.6 1050.79,-448.49"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="1050.99,-444.98 1040.63,-447.19 1050.1,-451.93 1050.99,-444.98"/>
+</g>
+<!-- sourcefile~cable_hyd_driver.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node24" class="node">
+<title>sourcefile~cable_hyd_driver.f90</title>
+<g id="a_sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_node24"><a xlink:href=".././sourcefile/cable_hyd_driver.f90.html" xlink:title="cable_hyd_driver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="686,-369.93 571,-369.93 571,-345.93 686,-345.93 686,-369.93"/>
+<text text-anchor="middle" x="628.5" y="-355.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_hyd_driver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_hyd_driver.f90&#45;&gt;sourcefile~cable_um_tech.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge33" class="edge">
+<title>sourcefile~cable_hyd_driver.f90&#45;&gt;sourcefile~cable_um_tech.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M570.53,-357.93C551.85,-357.93 530.99,-357.93 511.89,-357.93"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="511.79,-354.43 501.79,-357.93 511.79,-361.43 511.79,-354.43"/>
+</g>
+<!-- sourcefile~casa_um_inout.f90&#45;&gt;sourcefile~cable_um_tech.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge34" class="edge">
+<title>sourcefile~casa_um_inout.f90&#45;&gt;sourcefile~cable_um_tech.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M764.7,-289.96C729.31,-299.72 676.52,-312.7 629.5,-317.93"/>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M627.5,-317.93C604.51,-320.49 549.9,-333.09 507.09,-343.47"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="506.21,-340.09 497.32,-345.85 507.87,-346.89 506.21,-340.09"/>
+</g>
+<!-- sourcefile~casa_um_inout.f90&#45;&gt;sourcefile~cable_um_init_subrs.f90 -->
+<g id="sourcefile~~cable_other_constants_mod.f90~~AfferentGraph_edge38" class="edge">
+<title>sourcefile~casa_um_inout.f90&#45;&gt;sourcefile~cable_um_init_subrs.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M752.69,-277.93C737.83,-277.93 721.35,-277.93 705.42,-277.93"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="705.05,-274.43 695.05,-277.93 705.05,-281.43 705.05,-274.43"/>
+</g>
+</g>
+</svg>
+</div><script>var pansourcefilecable_other_constants_modf90AfferentGraph = svgPanZoom('#sourcefilecable_other_constants_modf90AfferentGraph', {zoomEnabled: true,controlIconsEnabled: true, fit: true, center: true,}); </script><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 6.0.2 (20221011.1828)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="190pt" height="32pt"
+ viewBox="0.00 0.00 190.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28 186,-28 186,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="67,-24 0,-24 0,0 67,0 67,-24"/>
+<text text-anchor="middle" x="33.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="182,-24 85,-24 85,0 182,0 182,-24"/>
+<text text-anchor="middle" x="133.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a file to a file which it depends on. A file
+    is dependent upon another if the latter must be compiled before the former
+    can be. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+<br>
+    <section class="visible-xs visible-sm hidden-md">
+      <h3>Contents</h3>
+ 
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#mods-1">Modules</a></h3></div>
+  <div id="mods-1" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/cable_other_constants_mod~2.html">cable_other_constants_mod</a>
+    </div>
+  </div>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  <div class="list-group">
+    <a class="list-group-item" href="../sourcefile/cable_other_constants_mod.f90.html#src">cable_other_constants_mod.F90</a>
+  </div>
+</div>
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+    <section>
+      <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="k">MODULE </span><span class="n">cable_other_constants_mod</span><span class="w"></span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="k">USE </span><span class="n">grid_constants_mod_cbl</span><span class="p">,</span><span class="w"> </span><span class="k">ONLY</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">nrb</span><span class="p">,</span><span class="w"> </span><span class="n">nsl</span><span class="p">,</span><span class="w"> </span><span class="n">nsCs</span><span class="p">,</span><span class="w"> </span><span class="n">nvCs</span><span class="w"></span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="k">USE </span><span class="n">grid_constants_mod_cbl</span><span class="p">,</span><span class="w"> </span><span class="k">ONLY</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">msn</span><span class="w"> </span><span class="o">=&gt;</span><span class="w">  </span><span class="n">nsnl</span><span class="w"></span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="k">IMPLICIT NONE</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="k">PUBLIC</span><span class="w"></span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="c">!-----------------------------------------------------------------------------</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="c">! Description:</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="c">!   Other CABLE constants</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="c">!</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="c">! Code Owner: Please refer to ModuleLeaders.txt</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="c">! This file belongs in CABLE SCIENCE</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="c">!-----------------------------------------------------------------------------</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w">                                                          </span><span class="p">&amp;</span><span class="w"></span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">  </span><span class="n">swb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">           </span><span class="p">&amp;</span><span class="w"> </span><span class="c">! 2 shortwave bands (initial division - visible /</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">                       </span><span class="c">! near infrared)</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">  </span><span class="n">n_sw_bands</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w">    </span><span class="p">&amp;</span><span class="w"> </span><span class="c">! total number of shortwave radiation bands</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">                       </span><span class="c">! (above divided into direct / diffuse)</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">  </span><span class="n">mf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">            </span><span class="p">&amp;</span><span class="w"> </span><span class="c">! types of leaves (sunlit / shaded)</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">  </span><span class="n">r_2</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="nb">SELECTED_REAL_KIND</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span><span class="c">!this will be removed</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">                       </span><span class="c">! double precision real dimension</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">  </span><span class="n">niter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w">         </span><span class="p">&amp;</span><span class="w"> </span><span class="c">! number of iterations for za/L</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">  </span><span class="n">n_assim_rates</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"> </span><span class="c">! Rubisco, RuBP and Sink-limited rates of photosynthesis</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">  </span><span class="n">n_soiltypes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">9</span><span class="w">      </span><span class="c">! number of soil types</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w">                                                             </span><span class="p">&amp;</span><span class="w"></span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">  </span><span class="n">max_snow_depth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5000</span><span class="mf">0.0</span><span class="p">,</span><span class="w">  </span><span class="p">&amp;</span><span class="w"> </span><span class="c">! maximum depth of lying snow on tiles (kg/m2)</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">  </span><span class="n">init_snow_rho1l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">14</span><span class="mf">0.0</span><span class="w">      </span><span class="c">! Initial value for snow mean density</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="c">! Gaussian integ. weights</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="c">!REAL, PARAMETER :: gauss_w(nrb)=(/0.308,0.514,0.178 /) ! F90 </span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gauss_w</span><span class="p">(</span><span class="n">nrb</span><span class="p">)</span><span class="o">=</span><span class="p">[</span><span class="mf">0.308</span><span class="p">,</span><span class="mf">0.514</span><span class="p">,</span><span class="mf">0.178</span><span class="w"> </span><span class="p">]</span><span class="w">    </span><span class="c">! F03</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rad_thresh</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.001</span><span class="w"></span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">                        </span><span class="c">! minimum zenithal angle for downward SW radiation</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lai_thresh</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.001</span><span class="w"></span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">                        </span><span class="c">! threshold for minimum significant LAI</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="c">! minimum (cosine)zenith angle of sun signalling sunrise </span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">coszen_tols</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0e-4</span><span class="w"></span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">z0surf_min</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.e-7</span><span class="w"> </span><span class="c">! min. roughness of bare soil surface</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="c">!H!REAL, PARAMETER :: z0snow_min = 1.e-7 ! min. roughness of bare snow surface</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="k">END MODULE </span><span class="n">cable_other_constants_mod</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>CABLE was developed by CABLE community<br>&copy; 2022 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+          </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>

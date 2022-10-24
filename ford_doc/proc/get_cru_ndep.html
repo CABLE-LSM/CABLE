@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Documentation for CABLE">
+    <meta name="author" content="CABLE community" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>GET_CRU_Ndep &ndash; CABLE</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">CABLE </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>GET_CRU_Ndep
+      <small>Subroutine</small>
+    </h1>
+    <div class="row">
+  <div class="col-lg-12">
+<div class="well well-sm">
+  <ul class="list-inline" style="margin-bottom:0px;display:inline">
+     <li><i class="fa fa-list-ol"></i>
+       <a data-toggle="tooltip"
+    data-placement="bottom" data-html="true"
+    title=" 0.1% of total for procedures.">40 statements</a>
+     </li> 
+    <li><i class="fa fa-code"></i><a href="../src/cable_cru_TRENDY.F90"> Source File</a></li>
+  </ul>
+  <ol class="breadcrumb in-well text-right">
+     <li><a href='../sourcefile/cable_cru_trendy.f90.html'>cable_cru_TRENDY.F90</a></li>
+     <li><a href='../module/cable_cru.html'>CABLE_CRU</a></li>
+     <li class="active">GET_CRU_Ndep</li>
+  </ol>
+</div>
+</div>
+</div>
+<script>
+  $(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+    <div id="sidebar">
+  <h3>Contents</h3>
+ 
+<em>None</em>
+
+</div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public subroutine GET_CRU_Ndep(CRU)</h2>
+    
+
+
+    <h3>Arguments</h3>
+      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" id="variable-cru~4"></span>type(<a href='../type/cru_type.html'>CRU_TYPE</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>CRU</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Calls</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 6.0.2 (20221011.1828)
+ -->
+<!-- Title: proc~~get_cru_ndep~~CallsGraph Pages: 1 -->
+<svg id="procget_cru_ndepCallsGraph" width="332pt" height="158pt"
+ viewBox="0.00 0.00 332.00 158.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_cru_ndep~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 154)">
+<title>proc~~get_cru_ndep~~CallsGraph</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-154 328,-154 328,4 -4,4"/>
+<!-- proc~get_cru_ndep -->
+<g id="proc~~get_cru_ndep~~CallsGraph_node1" class="node">
+<title>proc~get_cru_ndep</title>
+<polygon fill="none" stroke="black" points="94,-87 0,-87 0,-63 94,-63 94,-87"/>
+<text text-anchor="middle" x="47" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">GET_CRU_Ndep</text>
+</g>
+<!-- nf90_open -->
+<g id="proc~~get_cru_ndep~~CallsGraph_node2" class="node">
+<title>nf90_open</title>
+<polygon fill="#777777" stroke="#777777" points="203.5,-150 139.5,-150 139.5,-126 203.5,-126 203.5,-150"/>
+<text text-anchor="middle" x="171.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_open</text>
+</g>
+<!-- proc~get_cru_ndep&#45;&gt;nf90_open -->
+<g id="proc~~get_cru_ndep~~CallsGraph_edge1" class="edge">
+<title>proc~get_cru_ndep&#45;&gt;nf90_open</title>
+<path fill="none" stroke="#ff0000" d="M71.62,-87.15C90.43,-96.82 116.97,-110.47 137.82,-121.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="136.46,-124.43 146.95,-125.89 139.66,-118.2 136.46,-124.43"/>
+</g>
+<!-- proc~handle_err -->
+<g id="proc~~get_cru_ndep~~CallsGraph_node3" class="node">
+<title>proc~handle_err</title>
+<g id="a_proc~~get_cru_ndep~~CallsGraph_node3"><a xlink:href=".././proc/handle_err.html" xlink:title="HANDLE_ERR">
+<polygon fill="#d9534f" stroke="#d9534f" points="212.5,-108 130.5,-108 130.5,-84 212.5,-84 212.5,-108"/>
+<text text-anchor="middle" x="171.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HANDLE_ERR</text>
+</a>
+</g>
+</g>
+<!-- proc~get_cru_ndep&#45;&gt;proc~handle_err -->
+<g id="proc~~get_cru_ndep~~CallsGraph_edge2" class="edge">
+<title>proc~get_cru_ndep&#45;&gt;proc~handle_err</title>
+<path fill="none" stroke="#ff0000" d="M94.31,-82.94C102.79,-84.39 111.67,-85.91 120.25,-87.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="119.69,-90.84 130.14,-89.08 120.88,-83.94 119.69,-90.84"/>
+</g>
+<!-- nf90_inq_varid -->
+<g id="proc~~get_cru_ndep~~CallsGraph_node4" class="node">
+<title>nf90_inq_varid</title>
+<polygon fill="#777777" stroke="#777777" points="213,-66 130,-66 130,-42 213,-42 213,-66"/>
+<text text-anchor="middle" x="171.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_varid</text>
+</g>
+<!-- proc~get_cru_ndep&#45;&gt;nf90_inq_varid -->
+<g id="proc~~get_cru_ndep~~CallsGraph_edge4" class="edge">
+<title>proc~get_cru_ndep&#45;&gt;nf90_inq_varid</title>
+<path fill="none" stroke="#ff0000" d="M94.31,-67.06C102.6,-65.64 111.27,-64.15 119.67,-62.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="120.48,-66.13 129.75,-60.99 119.3,-59.23 120.48,-66.13"/>
+</g>
+<!-- nf90_get_var -->
+<g id="proc~~get_cru_ndep~~CallsGraph_node5" class="node">
+<title>nf90_get_var</title>
+<polygon fill="#777777" stroke="#777777" points="209.5,-24 133.5,-24 133.5,0 209.5,0 209.5,-24"/>
+<text text-anchor="middle" x="171.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_get_var</text>
+</g>
+<!-- proc~get_cru_ndep&#45;&gt;nf90_get_var -->
+<g id="proc~~get_cru_ndep~~CallsGraph_edge3" class="edge">
+<title>proc~get_cru_ndep&#45;&gt;nf90_get_var</title>
+<path fill="none" stroke="#ff0000" d="M71.62,-62.85C90.43,-53.18 116.97,-39.53 137.82,-28.81"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="139.66,-31.8 146.95,-24.11 136.46,-25.57 139.66,-31.8"/>
+</g>
+<!-- nf90_strerror -->
+<g id="proc~~get_cru_ndep~~CallsGraph_node6" class="node">
+<title>nf90_strerror</title>
+<polygon fill="#777777" stroke="#777777" points="324,-108 249,-108 249,-84 324,-84 324,-108"/>
+<text text-anchor="middle" x="286.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_strerror</text>
+</g>
+<!-- proc~handle_err&#45;&gt;nf90_strerror -->
+<g id="proc~~get_cru_ndep~~CallsGraph_edge5" class="edge">
+<title>proc~handle_err&#45;&gt;nf90_strerror</title>
+<path fill="none" stroke="#7fff00" d="M212.66,-96C221.14,-96 230.16,-96 238.85,-96"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="238.86,-99.5 248.86,-96 238.86,-92.5 238.86,-99.5"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 6.0.2 (20221011.1828)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="560pt" height="32pt"
+ viewBox="0.00 0.00 559.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28 555.5,-28 555.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="64,-24 0,-24 0,0 64,0 64,-24"/>
+<text text-anchor="middle" x="32" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="136,-24 82,-24 82,0 136,0 136,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="209.5,-24 154.5,-24 154.5,0 209.5,0 209.5,-24"/>
+<text text-anchor="middle" x="182" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="364,-24 228,-24 228,0 364,0 364,-24"/>
+<text text-anchor="middle" x="296" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="436,-24 382,-24 382,0 436,0 436,-24"/>
+<text text-anchor="middle" x="409" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="551.5,-24 454.5,-24 454.5,0 551.5,0 551.5,-24"/>
+<text text-anchor="middle" x="503" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Called by</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 6.0.2 (20221011.1828)
+ -->
+<!-- Title: proc~~get_cru_ndep~~CalledByGraph Pages: 1 -->
+<svg id="procget_cru_ndepCalledByGraph" width="543pt" height="74pt"
+ viewBox="0.00 0.00 543.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_cru_ndep~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<title>proc~~get_cru_ndep~~CalledByGraph</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-70 539,-70 539,4 -4,4"/>
+<!-- proc~get_cru_ndep -->
+<g id="proc~~get_cru_ndep~~CalledByGraph_node1" class="node">
+<title>proc~get_cru_ndep</title>
+<polygon fill="none" stroke="black" points="535,-45 441,-45 441,-21 535,-21 535,-45"/>
+<text text-anchor="middle" x="488" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">GET_CRU_Ndep</text>
+</g>
+<!-- proc~cru_get_subdiurnal_met -->
+<g id="proc~~get_cru_ndep~~CalledByGraph_node2" class="node">
+<title>proc~cru_get_subdiurnal_met</title>
+<g id="a_proc~~get_cru_ndep~~CalledByGraph_node2"><a xlink:href=".././proc/cru_get_subdiurnal_met.html" xlink:title="CRU_GET_SUBDIURNAL_MET">
+<polygon fill="#d9534f" stroke="#d9534f" points="405,-45 241,-45 241,-21 405,-21 405,-45"/>
+<text text-anchor="middle" x="323" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CRU_GET_SUBDIURNAL_MET</text>
+</a>
+</g>
+</g>
+<!-- proc~cru_get_subdiurnal_met&#45;&gt;proc~get_cru_ndep -->
+<g id="proc~~get_cru_ndep~~CalledByGraph_edge1" class="edge">
+<title>proc~cru_get_subdiurnal_met&#45;&gt;proc~get_cru_ndep</title>
+<path fill="none" stroke="#ff0000" d="M405.02,-33C413.67,-33 422.33,-33 430.61,-33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="430.86,-36.5 440.86,-33 430.86,-29.5 430.86,-36.5"/>
+</g>
+<!-- proc~mpidrv_master -->
+<g id="proc~~get_cru_ndep~~CalledByGraph_node3" class="node">
+<title>proc~mpidrv_master</title>
+<g id="a_proc~~get_cru_ndep~~CalledByGraph_node3"><a xlink:href=".././proc/mpidrv_master.html" xlink:title="mpidrv_master">
+<polygon fill="#d9534f" stroke="#d9534f" points="194,-66 110,-66 110,-42 194,-42 194,-66"/>
+<text text-anchor="middle" x="152" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpidrv_master</text>
+</a>
+</g>
+</g>
+<!-- proc~mpidrv_master&#45;&gt;proc~cru_get_subdiurnal_met -->
+<g id="proc~~get_cru_ndep~~CalledByGraph_edge2" class="edge">
+<title>proc~mpidrv_master&#45;&gt;proc~cru_get_subdiurnal_met</title>
+<path fill="none" stroke="#ff0000" d="M194.34,-48.86C205.45,-47.48 217.91,-45.93 230.58,-44.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="231.27,-47.8 240.76,-43.09 230.41,-40.85 231.27,-47.8"/>
+</g>
+<!-- program~cable_offline_driver -->
+<g id="proc~~get_cru_ndep~~CalledByGraph_node4" class="node">
+<title>program~cable_offline_driver</title>
+<g id="a_proc~~get_cru_ndep~~CalledByGraph_node4"><a xlink:href=".././program/cable_offline_driver.html" xlink:title="cable_offline_driver">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="205,-24 99,-24 99,0 205,0 205,-24"/>
+<text text-anchor="middle" x="152" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_offline_driver</text>
+</a>
+</g>
+</g>
+<!-- program~cable_offline_driver&#45;&gt;proc~cru_get_subdiurnal_met -->
+<g id="proc~~get_cru_ndep~~CalledByGraph_edge3" class="edge">
+<title>program~cable_offline_driver&#45;&gt;proc~cru_get_subdiurnal_met</title>
+<path fill="none" stroke="#ff0000" d="M205.08,-18.47C213.33,-19.5 222.06,-20.58 230.89,-21.68"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="230.52,-25.16 240.87,-22.92 231.38,-18.21 230.52,-25.16"/>
+</g>
+<!-- program~mpi_driver -->
+<g id="proc~~get_cru_ndep~~CalledByGraph_node5" class="node">
+<title>program~mpi_driver</title>
+<g id="a_proc~~get_cru_ndep~~CalledByGraph_node5"><a xlink:href=".././program/mpi_driver.html" xlink:title="mpi_driver">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="63,-66 0,-66 0,-42 63,-42 63,-66"/>
+<text text-anchor="middle" x="31.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_driver</text>
+</a>
+</g>
+</g>
+<!-- program~mpi_driver&#45;&gt;proc~mpidrv_master -->
+<g id="proc~~get_cru_ndep~~CalledByGraph_edge4" class="edge">
+<title>program~mpi_driver&#45;&gt;proc~mpidrv_master</title>
+<path fill="none" stroke="#ff0000" d="M63.02,-54C74.16,-54 87.09,-54 99.56,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="99.87,-57.5 109.87,-54 99.87,-50.5 99.87,-57.5"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 6.0.2 (20221011.1828)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="560pt" height="32pt"
+ viewBox="0.00 0.00 559.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28 555.5,-28 555.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="64,-24 0,-24 0,0 64,0 64,-24"/>
+<text text-anchor="middle" x="32" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="136,-24 82,-24 82,0 136,0 136,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="209.5,-24 154.5,-24 154.5,0 209.5,0 209.5,-24"/>
+<text text-anchor="middle" x="182" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="364,-24 228,-24 228,0 364,0 364,-24"/>
+<text text-anchor="middle" x="296" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="436,-24 382,-24 382,0 436,0 436,-24"/>
+<text text-anchor="middle" x="409" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="551.5,-24 454.5,-24 454.5,0 551.5,0 551.5,-24"/>
+<text text-anchor="middle" x="503" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+      <h3>Contents</h3>
+ 
+<em>None</em>
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>CABLE was developed by CABLE community<br>&copy; 2022 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+          </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>

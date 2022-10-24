@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Documentation for CABLE">
+    <meta name="author" content="CABLE community" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>cable_sli_numbers.F90 &ndash; CABLE</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">CABLE </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>cable_sli_numbers.F90
+    <small>Source File</small>
+    </h1>
+    <div class="row">
+  <div class="col-lg-12">
+<div class="well well-sm">
+  <ul class="list-inline" style="margin-bottom:0px;display:inline">
+     <li><i class="fa fa-list-ol"></i>
+       <a data-toggle="tooltip"
+    data-placement="bottom" data-html="true"
+    title=" 0.2% of total for source files.">117 statements</a>
+     </li> 
+    <li><i class="fa fa-code"></i><a href="../src/cable_sli_numbers.F90"> Source File</a></li>
+  </ul>
+  <ol class="breadcrumb in-well text-right">
+     <li class="active">cable_sli_numbers.F90</li>
+  </ol>
+</div>
+</div>
+</div>
+<script>
+  $(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+    <div id="sidebar">
+  <h3>Contents</h3>
+ 
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#mods-0">Modules</a></h3></div>
+  <div id="mods-0" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/sli_numbers.html">sli_numbers</a>
+    </div>
+  </div>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  <div class="list-group">
+    <a class="list-group-item" href="../sourcefile/cable_sli_numbers.f90.html#src">cable_sli_numbers.F90</a>
+  </div>
+</div>
+
+</div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">This file depends on</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 6.0.2 (20221011.1828)
+ -->
+<!-- Title: sourcefile~~cable_sli_numbers.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilecable_sli_numbersf90EfferentGraph" width="295pt" height="32pt"
+ viewBox="0.00 0.00 295.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~cable_sli_numbers.f90~~EfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>sourcefile~~cable_sli_numbers.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28 291,-28 291,4 -4,4"/>
+<!-- sourcefile~cable_sli_numbers.f90 -->
+<g id="sourcefile~~cable_sli_numbers.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~cable_sli_numbers.f90</title>
+<polygon fill="none" stroke="black" points="287,-24 163,-24 163,0 287,0 287,-24"/>
+<text text-anchor="middle" x="225" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">cable_sli_numbers.F90</text>
+</g>
+<!-- sourcefile~cable_define_types.f90 -->
+<g id="sourcefile~~cable_sli_numbers.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~cable_define_types.f90</title>
+<g id="a_sourcefile~~cable_sli_numbers.f90~~EfferentGraph_node2"><a xlink:href=".././sourcefile/cable_define_types.f90.html" xlink:title="cable_define_types.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="127,-24 0,-24 0,0 127,0 127,-24"/>
+<text text-anchor="middle" x="63.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_define_types.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_sli_numbers.f90&#45;&gt;sourcefile~cable_define_types.f90 -->
+<g id="sourcefile~~cable_sli_numbers.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~cable_sli_numbers.f90&#45;&gt;sourcefile~cable_define_types.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M162.79,-12C154.48,-12 145.89,-12 137.41,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="137.13,-8.5 127.13,-12 137.13,-15.5 137.13,-8.5"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 6.0.2 (20221011.1828)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="190pt" height="32pt"
+ viewBox="0.00 0.00 190.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28 186,-28 186,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="67,-24 0,-24 0,0 67,0 67,-24"/>
+<text text-anchor="middle" x="33.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="182,-24 85,-24 85,0 182,0 182,-24"/>
+<text text-anchor="middle" x="133.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a file to a file which it depends on. A file
+    is dependent upon another if the latter must be compiled before the former
+    can be. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Files dependent on this one</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 6.0.2 (20221011.1828)
+ -->
+<!-- Title: sourcefile~~cable_sli_numbers.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilecable_sli_numbersf90AfferentGraph" width="641pt" height="142pt"
+ viewBox="0.00 0.00 641.00 142.29" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~cable_sli_numbers.f90~~AfferentGraph" class="graph" transform="scale(0.711432 0.711432) rotate(0) translate(4 196)">
+<title>sourcefile~~cable_sli_numbers.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-196 897,-196 897,4 -4,4"/>
+<!-- sourcefile~cable_sli_numbers.f90 -->
+<g id="sourcefile~~cable_sli_numbers.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~cable_sli_numbers.f90</title>
+<polygon fill="none" stroke="black" points="124,-108 0,-108 0,-84 124,-84 124,-108"/>
+<text text-anchor="middle" x="62" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50">cable_sli_numbers.F90</text>
+</g>
+<!-- sourcefile~cable_sli_main.f90 -->
+<g id="sourcefile~~cable_sli_numbers.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~cable_sli_main.f90</title>
+<g id="a_sourcefile~~cable_sli_numbers.f90~~AfferentGraph_node2"><a xlink:href=".././sourcefile/cable_sli_main.f90.html" xlink:title="cable_sli_main.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="407,-108 302,-108 302,-84 407,-84 407,-108"/>
+<text text-anchor="middle" x="354.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_sli_main.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_sli_main.f90&#45;&gt;sourcefile~cable_sli_numbers.f90 -->
+<g id="sourcefile~~cable_sli_numbers.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~cable_sli_main.f90&#45;&gt;sourcefile~cable_sli_numbers.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M312.03,-108.07C297.59,-111.7 281.2,-115.2 266,-117 219.22,-122.54 206.84,-122.01 160,-117 146.62,-115.57 132.38,-113.06 119.04,-110.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="119.57,-106.79 109.05,-108.07 118.07,-113.63 119.57,-106.79"/>
+</g>
+<!-- sourcefile~cable_sli_roots.f90 -->
+<g id="sourcefile~~cable_sli_numbers.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~cable_sli_roots.f90</title>
+<g id="a_sourcefile~~cable_sli_numbers.f90~~AfferentGraph_node3"><a xlink:href=".././sourcefile/cable_sli_roots.f90.html" xlink:title="cable_sli_roots.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="266,-108 160,-108 160,-84 266,-84 266,-108"/>
+<text text-anchor="middle" x="213" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_sli_roots.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_sli_main.f90&#45;&gt;sourcefile~cable_sli_roots.f90 -->
+<g id="sourcefile~~cable_sli_numbers.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~cable_sli_main.f90&#45;&gt;sourcefile~cable_sli_roots.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M301.95,-96C293.67,-96 285.03,-96 276.53,-96"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="276.27,-92.5 266.27,-96 276.27,-99.5 276.27,-92.5"/>
+</g>
+<!-- sourcefile~cable_sli_solve.f90 -->
+<g id="sourcefile~~cable_sli_numbers.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~cable_sli_solve.f90</title>
+<g id="a_sourcefile~~cable_sli_numbers.f90~~AfferentGraph_node4"><a xlink:href=".././sourcefile/cable_sli_solve.f90.html" xlink:title="cable_sli_solve.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="266,-66 160,-66 160,-42 266,-42 266,-66"/>
+<text text-anchor="middle" x="213" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_sli_solve.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_sli_main.f90&#45;&gt;sourcefile~cable_sli_solve.f90 -->
+<g id="sourcefile~~cable_sli_numbers.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~cable_sli_main.f90&#45;&gt;sourcefile~cable_sli_solve.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M313.52,-83.96C298.06,-79.31 280.18,-73.93 263.89,-69.02"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="264.57,-65.57 253.98,-66.04 262.55,-72.27 264.57,-65.57"/>
+</g>
+<!-- sourcefile~cable_sli_roots.f90&#45;&gt;sourcefile~cable_sli_numbers.f90 -->
+<g id="sourcefile~~cable_sli_numbers.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~cable_sli_roots.f90&#45;&gt;sourcefile~cable_sli_numbers.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M159.89,-96C151.56,-96 142.83,-96 134.15,-96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="134.03,-92.5 124.03,-96 134.03,-99.5 134.03,-92.5"/>
+</g>
+<!-- sourcefile~cable_sli_solve.f90&#45;&gt;sourcefile~cable_sli_numbers.f90 -->
+<g id="sourcefile~~cable_sli_numbers.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~cable_sli_solve.f90&#45;&gt;sourcefile~cable_sli_numbers.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M169.3,-66.04C152.63,-70.74 133.33,-76.18 115.79,-81.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="114.38,-77.88 105.7,-83.96 116.28,-84.62 114.38,-77.88"/>
+</g>
+<!-- sourcefile~cbl_model_driver_offline.f90 -->
+<g id="sourcefile~~cable_sli_numbers.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~cbl_model_driver_offline.f90</title>
+<g id="a_sourcefile~~cable_sli_numbers.f90~~AfferentGraph_node5"><a xlink:href=".././sourcefile/cbl_model_driver_offline.f90.html" xlink:title="cbl_model_driver_offline.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="594,-108 443,-108 443,-84 594,-84 594,-108"/>
+<text text-anchor="middle" x="518.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_model_driver_offline.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cbl_model_driver_offline.f90&#45;&gt;sourcefile~cable_sli_main.f90 -->
+<g id="sourcefile~~cable_sli_numbers.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~cbl_model_driver_offline.f90&#45;&gt;sourcefile~cable_sli_main.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M442.66,-96C434.27,-96 425.79,-96 417.58,-96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="417.36,-92.5 407.36,-96 417.36,-99.5 417.36,-92.5"/>
+</g>
+<!-- sourcefile~cable_mpimaster.f90 -->
+<g id="sourcefile~~cable_sli_numbers.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~cable_mpimaster.f90</title>
+<g id="a_sourcefile~~cable_sli_numbers.f90~~AfferentGraph_node6"><a xlink:href=".././sourcefile/cable_mpimaster.f90.html" xlink:title="cable_mpimaster.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="752.5,-192 637.5,-192 637.5,-168 752.5,-168 752.5,-192"/>
+<text text-anchor="middle" x="695" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_mpimaster.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_mpimaster.f90&#45;&gt;sourcefile~cbl_model_driver_offline.f90 -->
+<g id="sourcefile~~cable_sli_numbers.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~cable_mpimaster.f90&#45;&gt;sourcefile~cbl_model_driver_offline.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M653.25,-167.99C645.42,-165.31 637.38,-162.27 630,-159 600.5,-145.91 568.68,-127.24 546.79,-113.62"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="548.39,-110.49 538.06,-108.13 544.66,-116.41 548.39,-110.49"/>
+</g>
+<!-- sourcefile~cable_driver.f90 -->
+<g id="sourcefile~~cable_sli_numbers.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~cable_driver.f90</title>
+<g id="a_sourcefile~~cable_sli_numbers.f90~~AfferentGraph_node7"><a xlink:href=".././sourcefile/cable_driver.f90.html" xlink:title="cable_driver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="741,-108 649,-108 649,-84 741,-84 741,-108"/>
+<text text-anchor="middle" x="695" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_driver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_driver.f90&#45;&gt;sourcefile~cbl_model_driver_offline.f90 -->
+<g id="sourcefile~~cable_sli_numbers.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~cable_driver.f90&#45;&gt;sourcefile~cbl_model_driver_offline.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M648.61,-96C634.94,-96 619.48,-96 604.12,-96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="604.06,-92.5 594.06,-96 604.06,-99.5 604.06,-92.5"/>
+</g>
+<!-- sourcefile~cable_explicit_driver.f90 -->
+<g id="sourcefile~~cable_sli_numbers.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~cable_explicit_driver.f90</title>
+<g id="a_sourcefile~~cable_sli_numbers.f90~~AfferentGraph_node8"><a xlink:href=".././sourcefile/cable_explicit_driver.f90.html" xlink:title="cable_explicit_driver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="760,-66 630,-66 630,-42 760,-42 760,-66"/>
+<text text-anchor="middle" x="695" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_explicit_driver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_explicit_driver.f90&#45;&gt;sourcefile~cbl_model_driver_offline.f90 -->
+<g id="sourcefile~~cable_sli_numbers.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~cable_explicit_driver.f90&#45;&gt;sourcefile~cbl_model_driver_offline.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M644,-66.04C623.82,-70.89 600.38,-76.53 579.32,-81.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="578.42,-78.22 569.51,-83.96 580.05,-85.03 578.42,-78.22"/>
+</g>
+<!-- sourcefile~cable_mpiworker.f90 -->
+<g id="sourcefile~~cable_sli_numbers.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~cable_mpiworker.f90</title>
+<g id="a_sourcefile~~cable_sli_numbers.f90~~AfferentGraph_node9"><a xlink:href=".././sourcefile/cable_mpiworker.f90.html" xlink:title="cable_mpiworker.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="752.5,-150 637.5,-150 637.5,-126 752.5,-126 752.5,-150"/>
+<text text-anchor="middle" x="695" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_mpiworker.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_mpiworker.f90&#45;&gt;sourcefile~cbl_model_driver_offline.f90 -->
+<g id="sourcefile~~cable_sli_numbers.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~cable_mpiworker.f90&#45;&gt;sourcefile~cbl_model_driver_offline.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M644,-125.96C623.82,-121.11 600.38,-115.47 579.32,-110.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="580.05,-106.97 569.51,-108.04 578.42,-113.78 580.05,-106.97"/>
+</g>
+<!-- sourcefile~cable_implicit_driver.f90 -->
+<g id="sourcefile~~cable_sli_numbers.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~cable_implicit_driver.f90</title>
+<g id="a_sourcefile~~cable_sli_numbers.f90~~AfferentGraph_node10"><a xlink:href=".././sourcefile/cable_implicit_driver.f90.html" xlink:title="cable_implicit_driver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="760,-24 630,-24 630,0 760,0 760,-24"/>
+<text text-anchor="middle" x="695" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_implicit_driver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_implicit_driver.f90&#45;&gt;sourcefile~cbl_model_driver_offline.f90 -->
+<g id="sourcefile~~cable_sli_numbers.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~cable_implicit_driver.f90&#45;&gt;sourcefile~cbl_model_driver_offline.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M653.25,-24.01C645.42,-26.69 637.38,-29.73 630,-33 600.5,-46.09 568.68,-64.76 546.79,-78.38"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="544.66,-75.59 538.06,-83.87 548.39,-81.51 544.66,-75.59"/>
+</g>
+<!-- sourcefile~cable_mpidrv.f90 -->
+<g id="sourcefile~~cable_sli_numbers.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~cable_mpidrv.f90</title>
+<g id="a_sourcefile~~cable_sli_numbers.f90~~AfferentGraph_node11"><a xlink:href=".././sourcefile/cable_mpidrv.f90.html" xlink:title="cable_mpidrv.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="893,-171 796,-171 796,-147 893,-147 893,-171"/>
+<text text-anchor="middle" x="844.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_mpidrv.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_mpidrv.f90&#45;&gt;sourcefile~cable_mpimaster.f90 -->
+<g id="sourcefile~~cable_sli_numbers.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~cable_mpidrv.f90&#45;&gt;sourcefile~cable_mpimaster.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M795.61,-165.82C785.11,-167.31 773.81,-168.92 762.73,-170.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="762.05,-167.06 752.64,-171.94 763.03,-173.99 762.05,-167.06"/>
+</g>
+<!-- sourcefile~cable_mpidrv.f90&#45;&gt;sourcefile~cable_mpiworker.f90 -->
+<g id="sourcefile~~cable_sli_numbers.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~cable_mpidrv.f90&#45;&gt;sourcefile~cable_mpiworker.f90</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M795.61,-152.18C785.11,-150.69 773.81,-149.08 762.73,-147.5"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="763.03,-144.01 752.64,-146.06 762.05,-150.94 763.03,-144.01"/>
+</g>
+</g>
+</svg>
+</div><script>var pansourcefilecable_sli_numbersf90AfferentGraph = svgPanZoom('#sourcefilecable_sli_numbersf90AfferentGraph', {zoomEnabled: true,controlIconsEnabled: true, fit: true, center: true,}); </script><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 6.0.2 (20221011.1828)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="190pt" height="32pt"
+ viewBox="0.00 0.00 190.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28 186,-28 186,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="67,-24 0,-24 0,0 67,0 67,-24"/>
+<text text-anchor="middle" x="33.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="182,-24 85,-24 85,0 182,0 182,-24"/>
+<text text-anchor="middle" x="133.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a file to a file which it depends on. A file
+    is dependent upon another if the latter must be compiled before the former
+    can be. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+<br>
+    <section class="visible-xs visible-sm hidden-md">
+      <h3>Contents</h3>
+ 
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#mods-1">Modules</a></h3></div>
+  <div id="mods-1" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/sli_numbers.html">sli_numbers</a>
+    </div>
+  </div>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  <div class="list-group">
+    <a class="list-group-item" href="../sourcefile/cable_sli_numbers.f90.html#src">cable_sli_numbers.F90</a>
+  </div>
+</div>
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+    <section>
+      <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="k">MODULE </span><span class="n">sli_numbers</span><span class="w"></span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="w">  </span><span class="k">USE </span><span class="n">cable_def_types_mod</span><span class="p">,</span><span class="w">  </span><span class="k">ONLY</span><span class="p">:</span><span class="w"> </span><span class="n">r_2</span><span class="p">,</span><span class="w"> </span><span class="n">i_d</span><span class="w"></span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">  </span><span class="k">IMPLICIT NONE</span><span class="w"></span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">  </span><span class="c">! define some numbers</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">zero</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0_r_2</span><span class="w"></span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">half</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="mf">0.5_r_2</span><span class="w"></span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">one</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0_r_2</span><span class="w"></span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">two</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="mf">2.0_r_2</span><span class="w"></span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">four</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="mf">4.0_r_2</span><span class="w"></span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">thousand</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="mf">0._r_2</span><span class="w"></span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">e1</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="mf">1.e-1_r_2</span><span class="w"></span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">e2</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="mf">1.e-2_r_2</span><span class="w"></span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">e3</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="mf">1.e-3_r_2</span><span class="w"></span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">e4</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="mf">1.e-4_r_2</span><span class="w"></span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">e5</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="mf">1.e-5_r_2</span><span class="w"></span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">e6</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="mf">1.e-6_r_2</span><span class="w"></span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">e7</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="mf">1.e-7_r_2</span><span class="w"></span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">  </span><span class="c">! define some constants</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">pi</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="mf">3.1415927_r_2</span><span class="w"></span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Tzero</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="mi">27</span><span class="mf">3.16_r_2</span><span class="w">          </span><span class="c">! Celcius -&gt; Kelvin</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gravity</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mf">9.8086_r_2</span><span class="w">          </span><span class="c">! gravitation constant [m/s2]</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Mw</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="mf">0.018016_r_2</span><span class="w">        </span><span class="c">! weight of 1 mol of water [kg]</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rmair</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="mf">0.02897_r_2</span><span class="w">         </span><span class="c">! molecular wt: dry air (kg/mol)</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Mw18</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="mf">0.018_r_2</span><span class="w">           </span><span class="c">! weight of 1 mol of water [kg] (main isotopologue only)</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cpa</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="mf">4.64_r_2</span><span class="w">         </span><span class="c">! specific heat capacity of dry air at 0-40 degC [J/kgK]</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">esata</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="mf">6.106_r_2</span><span class="o">*</span><span class="mi">10</span><span class="mf">0.0_r_2</span><span class="w"> </span><span class="c">! constants for saturated vapour pressure calculation</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">esatb</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="mf">7.27_r_2</span><span class="w">           </span><span class="c">! %</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">esatc</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="mi">23</span><span class="mf">7.3_r_2</span><span class="w">           </span><span class="c">! %</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rlambda</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mf">2.442e6_r_2</span><span class="w">  </span><span class="c">! latent heat of condensation at 25 degC [J/kg]</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lambdaf</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mi">33500</span><span class="mf">0._r_2</span><span class="w">  </span><span class="c">! latent heat of fusion (J kg-1)</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lambdas</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mi">283500</span><span class="mf">0._r_2</span><span class="w"> </span><span class="c">! latent heat of sublimation (J kg-1)</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Dva</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="mf">2.17e-5_r_2</span><span class="w">  </span><span class="c">! vapour diffusivity of water in air at 0 degC [m2/s]</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rhow</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="mf">0.0_r_2</span><span class="w">   </span><span class="c">! denisty of water [kg/m3]</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rhoi</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="mi">92</span><span class="mf">0._r_2</span><span class="w">     </span><span class="c">! density of ice (kg m-3)</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rhoa</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="mf">1.184_r_2</span><span class="w">    </span><span class="c">! denisty of dry air at std (25 degC) [kg/m3]</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rhocp</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="mi">118</span><span class="mf">9.8_r_2</span><span class="w">   </span><span class="c">! cpa*rhoa at std (25 degC) [J/m3K]</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">esata_ice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">61</span><span class="mf">1.2_r_2</span><span class="w">   </span><span class="c">! constants for saturated vapour pressure calculation over ice (WMO, 2008)</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">esatb_ice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="mf">2.46_r_2</span><span class="w">   </span><span class="c">! %</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">esatc_ice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">27</span><span class="mf">2.62_r_2</span><span class="w">  </span><span class="c">! %</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">csice</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="mf">2.100e3_r_2</span><span class="w"> </span><span class="c">! specific heat capacity for ice</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cswat</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="mf">4.218e3_r_2</span><span class="w"> </span><span class="c">! specific heat capacity for water</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rgas</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="mf">8.3143_r_2</span><span class="w">  </span><span class="c">! universal gas const  (J/mol/K)</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">kw</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="mf">0.58_r_2</span><span class="w">    </span><span class="c">! dito</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">  </span><span class="c">! numerical limits</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dSfac</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="mf">5.25_r_2</span><span class="w"></span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">  </span><span class="c">!REAL(r_2), PARAMETER :: dSfac        = 1.25_r_2</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dpmaxr</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="mf">0.5_r_2</span><span class="w"></span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">h0min</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mf">5.e-3_r_2</span><span class="w"></span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">snmin</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="mf">0.005_r_2</span><span class="w"> </span><span class="c">! depth of snowpack (m) without dedicated snow layer(s)</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fsnowliq_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.03_r_2</span><span class="w">  </span><span class="c">! max fraction of snow water in liquid phase</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="p">(</span><span class="n">i_d</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nsnow_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w">     </span><span class="c">! maximum number of dedicated snow layers (1 or 2)</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dh0max</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0001_r_2</span><span class="w"></span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">SLmax</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="mf">1.01_r_2</span><span class="w"></span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">SLmin</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="mf">0.001_r_2</span><span class="w"></span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Smax</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="mf">1.05_r_2</span><span class="w"></span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">h0max</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="mf">0.005_r_2</span><span class="w"></span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">qprecmax</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0e10_r_2</span><span class="w"></span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">  </span><span class="c">!REAL(r_2), PARAMETER :: dSmax     = 0.5_r_2</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">  </span><span class="c">!REAL(r_2), PARAMETER :: dSmaxr    = 0.5_r_2</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dSmax</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1_r_2</span><span class="w"></span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">  </span><span class="c">!REAL(r_2), PARAMETER :: dSmaxr    = 0.1_r_2</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dSmaxr</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="mf">0.4_r_2</span><span class="w"></span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dtmax</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="mi">8640</span><span class="mf">0._r_2</span><span class="w"></span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dtmin</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="mf">0.01_r_2</span><span class="w"></span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dsmmax</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0_r_2</span><span class="w"></span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dTsoilmax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="mf">0.0_r_2</span><span class="w"></span>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dTLmax</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="mf">0.0_r_2</span><span class="w"></span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="w">  </span><span class="c">!REAL(r_2), PARAMETER :: dTsoilmax = 1.0_r_2</span>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="w">  </span><span class="c">!REAL(r_2), PARAMETER :: dTLmax    = 1.0_r_2</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tol_dthetaldT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.e-12_r_2</span><span class="w"></span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="p">(</span><span class="n">i_d</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nsteps_ice_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">20</span><span class="w"></span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="p">(</span><span class="n">i_d</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nsteps_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">200</span><span class="w"></span>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">  </span><span class="c">!MC-ToDo! Identify why smaller time-steps are needed for isotopes</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">  </span><span class="c">! With isotopes  REAL(r_2), PARAMETER :: dSmax=0.1_r_2, dSmaxr=0.1_r_2, dtmax=0.05_r_2*3600.,</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a><span class="w">  </span><span class="c">!                                        dtmin=0.0_r_2, dsmmax=1.0_r_2</span>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="w">  </span><span class="c">! With isotopes   REAL(r_2), PARAMETER ::  dTsoilmax=1.0_r_2, dTLmax=1.0_r_2</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gf</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0_r_2</span><span class="w">    </span><span class="c">! gravity factor for flow direction (usually 1 for straight down).</span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hmin</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mf">1.0e6_r_2</span><span class="w"> </span><span class="c">! minimum matric head h (used by MF).</span>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">csol</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0_r_2</span><span class="w">    </span><span class="c">! solute concentration (mol kg-1 soil water)</span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rhmin</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="mf">0.05_r_2</span><span class="w">   </span><span class="c">! minimum relative humidity in soil and litter</span>
+<a id="ln-90" name="ln-90" href="#ln-90"></a>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="w">  </span><span class="c">! boundary conditions</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hbot</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0_r_2</span><span class="w"></span>
+<a id="ln-93" name="ln-93" href="#ln-93"></a><span class="w">  </span><span class="kt">CHARACTER</span><span class="p">(</span><span class="nb">LEN</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">botbc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;free drainage&quot;</span><span class="w"></span>
+<a id="ln-94" name="ln-94" href="#ln-94"></a><span class="w">  </span><span class="c">! CHARACTER(LEN=20)    :: botbc = &quot;zero flux&quot;</span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a><span class="w">  </span><span class="c">! CHARACTER(LEN=20)    :: botbc = &quot;aquifer&quot;</span>
+<a id="ln-96" name="ln-96" href="#ln-96"></a><span class="w">  </span><span class="c">! CHARACTER(LEN=20)    :: botbc = &quot;constant head&quot;</span>
+<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="w">  </span><span class="c">! CHARACTER(LEN=20)    :: botbc = &quot;seepage&quot;</span>
+<a id="ln-98" name="ln-98" href="#ln-98"></a>
+<a id="ln-99" name="ln-99" href="#ln-99"></a><span class="w">  </span><span class="c">! Special setups for sli stand-alone, such as 1-8: testcases of Haverd &amp; Cuntz (2010);</span>
+<a id="ln-100" name="ln-100" href="#ln-100"></a><span class="w">  </span><span class="c">!  0: normal run</span>
+<a id="ln-101" name="ln-101" href="#ln-101"></a><span class="w">  </span><span class="c">! 11: Mizoguchi (1990) / Hansson et al. (2004) lab experiment of freezing unsaturated soil; etc.</span>
+<a id="ln-102" name="ln-102" href="#ln-102"></a><span class="w">  </span><span class="c">! 16: Loetschental</span>
+<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="p">(</span><span class="n">i_d</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">experiment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<a id="ln-104" name="ln-104" href="#ln-104"></a>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="w">  </span><span class="c">! Steeper freezing curve factor: 1=normal, &gt;1=steeper (e.g. 1.5-2.0)</span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">freezefac</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0_r_2</span><span class="w"></span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a>
+<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="w">  </span><span class="c">! Topmodel approach</span>
+<a id="ln-109" name="ln-109" href="#ln-109"></a><span class="w">  </span><span class="c">! 0: normal ponding and free drainage</span>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">  </span><span class="c">! 1: topmodel surface runoff</span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">  </span><span class="c">! 2: topmodel deep drainage</span>
+<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="w">  </span><span class="c">! 3: topmodel surface runoff and deep drainage</span>
+<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="p">(</span><span class="n">i_d</span><span class="p">),</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">topmodel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w">    </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">alpha</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1_r_2</span><span class="w"> </span><span class="c">! anistropy param for lateral flow (topmodel)</span>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w">    </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fsat_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.0_r_2</span><span class="w"> </span><span class="c">! exponent for vertical profile of Ksat (topmodel)</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a>
+<a id="ln-117" name="ln-117" href="#ln-117"></a><span class="w">  </span><span class="c">! Thermal conductivity of soil</span>
+<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="w">  </span><span class="c">! 0: Campbell (1985)</span>
+<a id="ln-119" name="ln-119" href="#ln-119"></a><span class="w">  </span><span class="c">! 1: Van de Griend and O&#39;Neill (1986)</span>
+<a id="ln-120" name="ln-120" href="#ln-120"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="p">(</span><span class="n">i_d</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ithermalcond</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<a id="ln-121" name="ln-121" href="#ln-121"></a>
+<a id="ln-122" name="ln-122" href="#ln-122"></a><span class="w">  </span><span class="c">! define types</span>
+<a id="ln-123" name="ln-123" href="#ln-123"></a><span class="w">  </span><span class="k">TYPE </span><span class="n">vars_met</span><span class="w"></span>
+<a id="ln-124" name="ln-124" href="#ln-124"></a><span class="w">     </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Ta</span><span class="p">,</span><span class="w"> </span><span class="n">rha</span><span class="p">,</span><span class="w"> </span><span class="n">rbw</span><span class="p">,</span><span class="w"> </span><span class="n">rbh</span><span class="p">,</span><span class="w"> </span><span class="n">rrc</span><span class="p">,</span><span class="w"> </span><span class="n">Rn</span><span class="p">,</span><span class="w"> </span><span class="n">Da</span><span class="p">,</span><span class="w"> </span><span class="n">cva</span><span class="p">,</span><span class="w"> </span><span class="n">civa</span><span class="p">,</span><span class="w"> </span><span class="n">phiva</span><span class="p">,</span><span class="w"> </span><span class="n">Rnsw</span><span class="w"></span>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="w">  </span><span class="k">END TYPE </span><span class="n">vars_met</span><span class="w"></span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a>
+<a id="ln-127" name="ln-127" href="#ln-127"></a><span class="w">  </span><span class="k">TYPE </span><span class="n">vars</span><span class="w"></span>
+<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="w">     </span><span class="kt">INTEGER</span><span class="p">(</span><span class="n">i_d</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">isat</span><span class="w"></span>
+<a id="ln-129" name="ln-129" href="#ln-129"></a><span class="w">     </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">h</span><span class="p">,</span><span class="w"> </span><span class="n">phi</span><span class="p">,</span><span class="w"> </span><span class="n">phiS</span><span class="p">,</span><span class="w"> </span><span class="n">K</span><span class="p">,</span><span class="w"> </span><span class="n">KS</span><span class="p">,</span><span class="w"> </span><span class="n">Dv</span><span class="p">,</span><span class="w"> </span><span class="n">cvsat</span><span class="p">,</span><span class="w"> </span><span class="n">rh</span><span class="p">,</span><span class="w"> </span><span class="n">phiv</span><span class="p">,</span><span class="w"> </span><span class="n">phivS</span><span class="p">,</span><span class="w"> </span><span class="n">kH</span><span class="w"></span>
+<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="w">     </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">kE</span><span class="p">,</span><span class="w"> </span><span class="n">kth</span><span class="p">,</span><span class="w"> </span><span class="n">csoil</span><span class="p">,</span><span class="w"> </span><span class="n">eta_th</span><span class="p">,</span><span class="w"> </span><span class="n">hS</span><span class="p">,</span><span class="w"> </span><span class="n">rhS</span><span class="p">,</span><span class="w"> </span><span class="n">sl</span><span class="p">,</span><span class="w"> </span><span class="n">cv</span><span class="p">,</span><span class="w"> </span><span class="n">cvsatT</span><span class="p">,</span><span class="w"> </span><span class="n">cvS</span><span class="p">,</span><span class="w"> </span><span class="n">kv</span><span class="w"></span>
+<a id="ln-131" name="ln-131" href="#ln-131"></a><span class="w">     </span><span class="kt">INTEGER</span><span class="p">(</span><span class="n">i_d</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iice</span><span class="w"></span>
+<a id="ln-132" name="ln-132" href="#ln-132"></a><span class="w">     </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">thetai</span><span class="p">,</span><span class="w"> </span><span class="n">thetal</span><span class="p">,</span><span class="w"> </span><span class="n">phiT</span><span class="p">,</span><span class="w"> </span><span class="n">KT</span><span class="p">,</span><span class="w"> </span><span class="n">lambdav</span><span class="p">,</span><span class="w"> </span><span class="n">lambdaf</span><span class="p">,</span><span class="w"> </span><span class="n">Sliq</span><span class="w"></span>
+<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="w">     </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">he</span><span class="p">,</span><span class="w"> </span><span class="n">phie</span><span class="p">,</span><span class="w"> </span><span class="n">Ksat</span><span class="w"> </span><span class="c">! air-entry potential values (different to core sp params for frozen soil)</span>
+<a id="ln-134" name="ln-134" href="#ln-134"></a><span class="w">     </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">dthetaldT</span><span class="w"></span>
+<a id="ln-135" name="ln-135" href="#ln-135"></a><span class="w">     </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">Tfrz</span><span class="w"> </span><span class="c">! freezing point (deg C) depends on csol and S</span>
+<a id="ln-136" name="ln-136" href="#ln-136"></a><span class="w">     </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">csoileff</span><span class="w"></span>
+<a id="ln-137" name="ln-137" href="#ln-137"></a><span class="w">     </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">zsat</span><span class="w"> </span><span class="c">! height of saturated/unsaturated boundary (relative to bottom of layer)</span>
+<a id="ln-138" name="ln-138" href="#ln-138"></a><span class="w">     </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">macropore_factor</span><span class="w"></span>
+<a id="ln-139" name="ln-139" href="#ln-139"></a><span class="w">  </span><span class="k">END TYPE </span><span class="n">vars</span><span class="w"></span>
+<a id="ln-140" name="ln-140" href="#ln-140"></a>
+<a id="ln-141" name="ln-141" href="#ln-141"></a><span class="w">  </span><span class="k">TYPE </span><span class="n">vars_snow</span><span class="w"></span>
+<a id="ln-142" name="ln-142" href="#ln-142"></a><span class="w">     </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">DIMENSION</span><span class="p">(</span><span class="n">nsnow_max</span><span class="p">)</span><span class="kd">::</span><span class="w"> </span><span class="n">depth</span><span class="p">,</span><span class="w"> </span><span class="n">hsnow</span><span class="p">,</span><span class="w"> </span><span class="n">hliq</span><span class="p">,</span><span class="w"> </span><span class="n">dens</span><span class="p">,</span><span class="w"> </span><span class="n">tsn</span><span class="p">,</span><span class="w"> </span><span class="n">kH</span><span class="p">,</span><span class="w"> </span><span class="n">kE</span><span class="p">,</span><span class="w"> </span><span class="n">kth</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<a id="ln-143" name="ln-143" href="#ln-143"></a><span class="w">          </span><span class="n">Dv</span><span class="p">,</span><span class="w"> </span><span class="n">cv</span><span class="p">,</span><span class="w"> </span><span class="n">sl</span><span class="p">,</span><span class="w"> </span><span class="n">melt</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<a id="ln-144" name="ln-144" href="#ln-144"></a><span class="w">          </span><span class="n">Jsensible</span><span class="p">,</span><span class="w"> </span><span class="n">Jlatent</span><span class="p">,</span><span class="w">  </span><span class="n">deltaJlatent</span><span class="p">,</span><span class="w"> </span><span class="n">deltaJsensible</span><span class="p">,</span><span class="w"> </span><span class="n">fsnowliq_max</span><span class="w"></span>
+<a id="ln-145" name="ln-145" href="#ln-145"></a><span class="w">     </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w">  </span><span class="n">wcol</span><span class="p">,</span><span class="w"> </span><span class="n">Qadv_snow</span><span class="p">,</span><span class="w"> </span><span class="n">Qadv_rain</span><span class="p">,</span><span class="w"> </span><span class="n">totdepth</span><span class="p">,</span><span class="w"> </span><span class="n">J</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<a id="ln-146" name="ln-146" href="#ln-146"></a><span class="w">          </span><span class="n">Qadv_melt</span><span class="p">,</span><span class="w"> </span><span class="n">Qadv_vap</span><span class="p">,</span><span class="w"> </span><span class="n">Qcond_net</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<a id="ln-147" name="ln-147" href="#ln-147"></a><span class="w">          </span><span class="n">Qadv_transfer</span><span class="p">,</span><span class="w"> </span><span class="n">Qmelt</span><span class="p">,</span><span class="w"> </span><span class="n">Qtransfer</span><span class="p">,</span><span class="n">FluxDivergence</span><span class="p">,</span><span class="w"> </span><span class="n">deltaJ</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<a id="ln-148" name="ln-148" href="#ln-148"></a><span class="w">          </span><span class="n">Qvap</span><span class="p">,</span><span class="w"> </span><span class="n">MoistureFluxDivergence</span><span class="p">,</span><span class="w"> </span><span class="n">Qprec</span><span class="p">,</span><span class="w"> </span><span class="n">Qevap</span><span class="p">,</span><span class="w"> </span><span class="n">deltawcol</span><span class="w"></span>
+<a id="ln-149" name="ln-149" href="#ln-149"></a><span class="w">     </span><span class="kt">INTEGER</span><span class="p">(</span><span class="n">i_d</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nsnow</span><span class="p">,</span><span class="w"> </span><span class="n">nsnow_last</span><span class="w"></span>
+<a id="ln-150" name="ln-150" href="#ln-150"></a><span class="w">  </span><span class="k">END TYPE </span><span class="n">vars_snow</span><span class="w"></span>
+<a id="ln-151" name="ln-151" href="#ln-151"></a>
+<a id="ln-152" name="ln-152" href="#ln-152"></a><span class="w">  </span><span class="k">TYPE </span><span class="n">vars_aquifer</span><span class="w"></span>
+<a id="ln-153" name="ln-153" href="#ln-153"></a><span class="w">     </span><span class="kt">INTEGER</span><span class="p">(</span><span class="n">i_d</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">isat</span><span class="w"></span>
+<a id="ln-154" name="ln-154" href="#ln-154"></a><span class="w">     </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">zdelta</span><span class="p">,</span><span class="w"> </span><span class="n">zsoil</span><span class="p">,</span><span class="w"> </span><span class="n">zzero</span><span class="p">,</span><span class="w"> </span><span class="n">K</span><span class="p">,</span><span class="w"> </span><span class="n">Wa</span><span class="p">,</span><span class="w"> </span><span class="n">discharge</span><span class="p">,</span><span class="w"> </span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">Rsmax</span><span class="p">,</span><span class="w"> </span><span class="n">Sy</span><span class="w"></span>
+<a id="ln-155" name="ln-155" href="#ln-155"></a><span class="w">  </span><span class="k">END TYPE </span><span class="n">vars_aquifer</span><span class="w"></span>
+<a id="ln-156" name="ln-156" href="#ln-156"></a>
+<a id="ln-157" name="ln-157" href="#ln-157"></a><span class="w">  </span><span class="k">TYPE </span><span class="n">params</span><span class="w"></span>
+<a id="ln-158" name="ln-158" href="#ln-158"></a><span class="w">     </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">the</span><span class="p">,</span><span class="w"> </span><span class="n">thre</span><span class="p">,</span><span class="w"> </span><span class="n">he</span><span class="p">,</span><span class="w"> </span><span class="n">lam</span><span class="p">,</span><span class="w"> </span><span class="n">Ke</span><span class="p">,</span><span class="w"> </span><span class="n">eta</span><span class="p">,</span><span class="w"> </span><span class="n">thr</span><span class="w"></span>
+<a id="ln-159" name="ln-159" href="#ln-159"></a><span class="w">     </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">KSe</span><span class="p">,</span><span class="w"> </span><span class="n">phie</span><span class="p">,</span><span class="w"> </span><span class="n">phiSe</span><span class="p">,</span><span class="w"> </span><span class="n">rho</span><span class="p">,</span><span class="w"> </span><span class="n">thw</span><span class="p">,</span><span class="w"> </span><span class="n">thfc</span><span class="p">,</span><span class="w"> </span><span class="n">kd</span><span class="p">,</span><span class="w"> </span><span class="n">css</span><span class="p">,</span><span class="w"> </span><span class="n">clay</span><span class="p">,</span><span class="w"> </span><span class="n">tortuosity</span><span class="w"></span>
+<a id="ln-160" name="ln-160" href="#ln-160"></a><span class="w">     </span><span class="kt">INTEGER</span><span class="p">(</span><span class="n">i_d</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ishorizon</span><span class="w"> </span><span class="c">! horizon number with different soil properties</span>
+<a id="ln-161" name="ln-161" href="#ln-161"></a><span class="w">     </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">zeta</span><span class="w"></span>
+<a id="ln-162" name="ln-162" href="#ln-162"></a><span class="w">     </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fsatmax</span><span class="w"></span>
+<a id="ln-163" name="ln-163" href="#ln-163"></a><span class="w">     </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lambc</span><span class="w">        </span><span class="c">! original lam for storage</span>
+<a id="ln-164" name="ln-164" href="#ln-164"></a><span class="w">     </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">LambdaS</span><span class="w">      </span><span class="c">! thermal inertia of saturation for van de Griend &amp; O&#39;Neill (1986) thermal conductivity</span>
+<a id="ln-165" name="ln-165" href="#ln-165"></a><span class="w">  </span><span class="k">END TYPE </span><span class="n">params</span><span class="w"></span>
+<a id="ln-166" name="ln-166" href="#ln-166"></a>
+<a id="ln-167" name="ln-167" href="#ln-167"></a><span class="w">  </span><span class="k">TYPE </span><span class="n">rapointer</span><span class="w"></span>
+<a id="ln-168" name="ln-168" href="#ln-168"></a><span class="w">     </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">DIMENSION</span><span class="p">(:),</span><span class="w"> </span><span class="k">POINTER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">p</span><span class="w"></span>
+<a id="ln-169" name="ln-169" href="#ln-169"></a><span class="w">  </span><span class="k">END TYPE </span><span class="n">rapointer</span><span class="w"></span>
+<a id="ln-170" name="ln-170" href="#ln-170"></a>
+<a id="ln-171" name="ln-171" href="#ln-171"></a><span class="w">  </span><span class="k">TYPE </span><span class="n">solve_type</span><span class="w"> </span><span class="c">! for energy and moisture balance in rh0_sol, etc.</span>
+<a id="ln-172" name="ln-172" href="#ln-172"></a><span class="w">     </span><span class="kt">INTEGER</span><span class="p">(</span><span class="n">i_d</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">k</span><span class="w"></span>
+<a id="ln-173" name="ln-173" href="#ln-173"></a><span class="w">     </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">T1</span><span class="p">,</span><span class="w"> </span><span class="n">Ta</span><span class="p">,</span><span class="w"> </span><span class="n">cva</span><span class="p">,</span><span class="w"> </span><span class="n">Rnet</span><span class="p">,</span><span class="w"> </span><span class="n">hr1</span><span class="p">,</span><span class="w"> </span><span class="n">hra</span><span class="p">,</span><span class="w"> </span><span class="n">Dv</span><span class="p">,</span><span class="w"> </span><span class="n">gv</span><span class="p">,</span><span class="w"> </span><span class="n">gh</span><span class="p">,</span><span class="w"> </span><span class="n">Dh</span><span class="p">,</span><span class="w"> </span><span class="n">dz</span><span class="p">,</span><span class="w"> </span><span class="n">phie</span><span class="p">,</span><span class="w"> </span><span class="n">he</span><span class="p">,</span><span class="w"> </span><span class="n">K1</span><span class="p">,</span><span class="w"> </span><span class="n">eta</span><span class="p">,</span><span class="n">lambda</span><span class="p">,</span><span class="w"> </span><span class="n">Ks</span><span class="p">,</span><span class="w"> </span><span class="n">lambdav</span><span class="w"></span>
+<a id="ln-174" name="ln-174" href="#ln-174"></a><span class="w">  </span><span class="k">END TYPE </span><span class="n">solve_type</span><span class="w"></span>
+<a id="ln-175" name="ln-175" href="#ln-175"></a>
+<a id="ln-176" name="ln-176" href="#ln-176"></a><span class="k">END MODULE </span><span class="n">sli_numbers</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>CABLE was developed by CABLE community<br>&copy; 2022 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+          </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>
