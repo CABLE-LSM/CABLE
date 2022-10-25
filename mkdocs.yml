@@ -40,3 +40,32 @@ plugins:
 # Navigation
 nav:
   - About: index.md
+  - User Guide:
+    - Tutorial:
+      - Install and compilation: user_guide/tutorial/compilation.md
+      - Understand the configuration: user_guide/tutorial/configuration_desc.md
+      - Run an experiment: user_guide/tutorial/run_cable.md
+      - Outputs description: user_guide/tutorial/outputs_desc.md
+    - Inputs description:
+      - List of inputs: user_guide/inputs/list_inputs.md
+      - Inputs precedence rules: user_guide/inputs/precedence.md
+      - cable.nml options: user_guide/inputs/cable_nml.md
+      - pft_params.nml options: user_guide/inputs/pft_params_nml.md
+      - cable_soilparm.nml options: user_guide/inputs/cable_soilparm_nml.md
+    - Existing configurations: user_guide/configurations/config.md
+    - Scientific description: 
+      - Radiation: user_guide/science/radiation.md
+      - Canopy: user_guide/science/canopy.md
+      - Soil: user_guide/science/soil.md
+      - Snow: user_guide/science/snow.md
+      - Groundwater: user_guide/science/groundwater.md
+      - CASA: user_guide/science/CASA.md
+  - Developer Guide:
+    - CABLE's Contribution guidelines: developer_guide/contribution.md
+    - Coding standards: developer_guide/coding_standards.md
+    - CABLE's release process: developer_guide/release.md
+#    - CABLE's source documentation:
+  - How-to:
+    - How to prepare fields for CABLE: how-to/input_fields.md
+    - How to work with 1D arrays: how-to/1D.md
+      
