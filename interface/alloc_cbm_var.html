@@ -88,13 +88,13 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title="<p> 0.0% of total for procedures.</p>Including implementation: 518 statements,  1.6% of total for procedures.">3 statements</a>
+    title="<p> 0.0% of total for procedures.</p>Including implementation: 153 statements,  0.5% of total for procedures.">3 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/cable_define_types.F90"> Source File</a></li>
   </ul>
   <ol class="breadcrumb in-well text-right">
      <li><a href='../sourcefile/cable_define_types.f90.html'>cable_define_types.F90</a></li>
-     <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+     <li><a href='../module/cable_def_types_mod~2.html'>cable_def_types_mod</a></li>
      <li class="active">alloc_cbm_var</li>
   </ol>
 </div>
@@ -118,17 +118,12 @@
   <div id="modprocs-0" class="panel-collapse collapse">
     <div class="list-group">
       <a class="list-group-item" href="../interface/alloc_cbm_var.html#moduleprocedure-alloc_balances_type">alloc_balances_type</a>
-      <a class="list-group-item" href="../interface/alloc_cbm_var.html#moduleprocedure-alloc_soil_parameter_type">alloc_soil_parameter_type</a>
-      <a class="list-group-item" href="../interface/alloc_cbm_var.html#moduleprocedure-alloc_soil_snow_type">alloc_soil_snow_type</a>
-      <a class="list-group-item" href="../interface/alloc_cbm_var.html#moduleprocedure-alloc_veg_parameter_type">alloc_veg_parameter_type</a>
-      <a class="list-group-item" href="../interface/alloc_cbm_var.html#moduleprocedure-alloc_canopy_type">alloc_canopy_type</a>
       <a class="list-group-item" href="../interface/alloc_cbm_var.html#moduleprocedure-alloc_radiation_type">alloc_radiation_type</a>
       <a class="list-group-item" href="../interface/alloc_cbm_var.html#moduleprocedure-alloc_roughness_type">alloc_roughness_type</a>
       <a class="list-group-item" href="../interface/alloc_cbm_var.html#moduleprocedure-alloc_air_type">alloc_air_type</a>
       <a class="list-group-item" href="../interface/alloc_cbm_var.html#moduleprocedure-alloc_met_type">alloc_met_type</a>
       <a class="list-group-item" href="../interface/alloc_cbm_var.html#moduleprocedure-alloc_sum_flux_type">alloc_sum_flux_type</a>
       <a class="list-group-item" href="../interface/alloc_cbm_var.html#moduleprocedure-alloc_bgc_pool_type">alloc_bgc_pool_type</a>
-      <a class="list-group-item" href="../interface/alloc_cbm_var.html#moduleprocedure-alloc_climate_type">alloc_climate_type</a>
     </div>
   </div>
 </div>
@@ -149,17 +144,12 @@
   <div id="modprocs-1" class="panel-collapse collapse">
     <div class="list-group">
       <a class="list-group-item" href="../interface/alloc_cbm_var.html#moduleprocedure-alloc_balances_type">alloc_balances_type</a>
-      <a class="list-group-item" href="../interface/alloc_cbm_var.html#moduleprocedure-alloc_soil_parameter_type">alloc_soil_parameter_type</a>
-      <a class="list-group-item" href="../interface/alloc_cbm_var.html#moduleprocedure-alloc_soil_snow_type">alloc_soil_snow_type</a>
-      <a class="list-group-item" href="../interface/alloc_cbm_var.html#moduleprocedure-alloc_veg_parameter_type">alloc_veg_parameter_type</a>
-      <a class="list-group-item" href="../interface/alloc_cbm_var.html#moduleprocedure-alloc_canopy_type">alloc_canopy_type</a>
       <a class="list-group-item" href="../interface/alloc_cbm_var.html#moduleprocedure-alloc_radiation_type">alloc_radiation_type</a>
       <a class="list-group-item" href="../interface/alloc_cbm_var.html#moduleprocedure-alloc_roughness_type">alloc_roughness_type</a>
       <a class="list-group-item" href="../interface/alloc_cbm_var.html#moduleprocedure-alloc_air_type">alloc_air_type</a>
       <a class="list-group-item" href="../interface/alloc_cbm_var.html#moduleprocedure-alloc_met_type">alloc_met_type</a>
       <a class="list-group-item" href="../interface/alloc_cbm_var.html#moduleprocedure-alloc_sum_flux_type">alloc_sum_flux_type</a>
       <a class="list-group-item" href="../interface/alloc_cbm_var.html#moduleprocedure-alloc_bgc_pool_type">alloc_bgc_pool_type</a>
-      <a class="list-group-item" href="../interface/alloc_cbm_var.html#moduleprocedure-alloc_climate_type">alloc_climate_type</a>
     </div>
   </div>
 </div>
@@ -178,113 +168,7 @@
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/balances_type.html'>balances_type</a>),</td>
-<td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>var</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>integer,</td>
-<td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>mp</strong></td><td></td>
-</tr>
-</tbody>
-</table>
-
-
-  </div>
-  </div>
-
-      <div class="panel panel-default">
-  <div class="panel-heading codesum"><span class="anchor" id="proc-alloc_soil_parameter_type"></span><h3>public subroutine <a href='../proc/alloc_soil_parameter_type.html'>alloc_soil_parameter_type</a>(var, mp)</h3></div>
-  <div class="panel-body">
-           
-<h4>Arguments</h4>      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" ></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
-<td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>var</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>integer,</td>
-<td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>mp</strong></td><td></td>
-</tr>
-</tbody>
-</table>
-
-
-  </div>
-  </div>
-
-      <div class="panel panel-default">
-  <div class="panel-heading codesum"><span class="anchor" id="proc-alloc_soil_snow_type"></span><h3>public subroutine <a href='../proc/alloc_soil_snow_type.html'>alloc_soil_snow_type</a>(var, mp)</h3></div>
-  <div class="panel-body">
-           
-<h4>Arguments</h4>      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" ></span>type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),</td>
-<td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>var</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>integer,</td>
-<td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>mp</strong></td><td></td>
-</tr>
-</tbody>
-</table>
-
-
-  </div>
-  </div>
-
-      <div class="panel panel-default">
-  <div class="panel-heading codesum"><span class="anchor" id="proc-alloc_veg_parameter_type"></span><h3>public subroutine <a href='../proc/alloc_veg_parameter_type.html'>alloc_veg_parameter_type</a>(var, mp)</h3></div>
-  <div class="panel-body">
-           
-<h4>Arguments</h4>      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" ></span>type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),</td>
-<td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>var</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>integer,</td>
-<td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>mp</strong></td><td></td>
-</tr>
-</tbody>
-</table>
-
-
-  </div>
-  </div>
-
-      <div class="panel panel-default">
-  <div class="panel-heading codesum"><span class="anchor" id="proc-alloc_canopy_type"></span><h3>public subroutine <a href='../proc/alloc_canopy_type.html'>alloc_canopy_type</a>(var, mp)</h3></div>
-  <div class="panel-body">
-       
-<p>vh_js !! liiter resistances to heat and vapour transfer</p>
-    
-<h4>Arguments</h4>      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" ></span>type(<a href='../type/canopy_type.html'>canopy_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/balances_type~2.html'>balances_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>var</strong></td><td></td>
@@ -310,7 +194,7 @@
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/radiation_type.html'>radiation_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/radiation_type~2.html'>radiation_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>var</strong></td><td></td>
@@ -336,7 +220,7 @@
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/roughness_type.html'>roughness_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/roughness_type~2.html'>roughness_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>var</strong></td><td></td>
@@ -362,7 +246,7 @@
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/air_type.html'>air_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/air_type~2.html'>air_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>var</strong></td><td></td>
@@ -388,7 +272,7 @@
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/met_type.html'>met_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/met_type~2.html'>met_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>var</strong></td><td></td>
@@ -414,7 +298,7 @@
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/sum_flux_type.html'>sum_flux_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/sum_flux_type~2.html'>sum_flux_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>var</strong></td><td></td>
@@ -440,33 +324,7 @@
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/bgc_pool_type.html'>bgc_pool_type</a>),</td>
-<td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>var</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>integer,</td>
-<td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>mp</strong></td><td></td>
-</tr>
-</tbody>
-</table>
-
-
-  </div>
-  </div>
-
-      <div class="panel panel-default">
-  <div class="panel-heading codesum"><span class="anchor" id="proc-alloc_climate_type"></span><h3>public subroutine <a href='../proc/alloc_climate_type.html'>alloc_climate_type</a>(var, mp)</h3></div>
-  <div class="panel-body">
-           
-<h4>Arguments</h4>      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" ></span>type(<a href='../type/climate_type.html'>climate_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/bgc_pool_type~2.html'>bgc_pool_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>var</strong></td><td></td>
