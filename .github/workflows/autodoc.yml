@@ -17,6 +17,7 @@ jobs:
     - uses: JamesIves/github-pages-deploy-action@3.7.1
       with:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        BRANCH: gh-pages
-        FOLDER: ford_doc
-        CLEAN: true
+        branch: gh-pages
+        folder: ford_doc
+        target_folder: api
+        clean: true
