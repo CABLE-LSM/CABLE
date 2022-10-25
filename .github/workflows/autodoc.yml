@@ -1,23 +1,42 @@
-name: autodoc
+name: Build and publish API docs
 
-on: [push, pull_request]
+on:
+  push:
+    branches: 
+      - main
+
+workflow_run:
+  # Only run once docs build and publish finished
+  workflows: ["Build and publish docs"]
+  type:
+    - complete
 
 jobs:
   build-and-deploy:
+    concurrency: ci-${{ github.ref }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v1
-      with:
-        python-version: '3.x'
-    - name: Install dependencies
-      run: pip install ford graphviz
-    - name: Build Documentation
-      run: ford cable_ford.md
-    - uses: JamesIves/github-pages-deploy-action@3.7.1
-      with:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        branch: gh-pages
-        folder: ford_doc
-        target_folder: api
-        clean: true
+      - name: Checkout
+        uses: actions/checkout@v3
+        
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install ford graphviz
+
+      - name: Build Documentation
+        run: |
+          ford cable_ford.md
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@3.7.1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          branch: gh-pages # default
+          folder: ford_doc
+          target_folder: api
+          clean: true
