@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Documentation for CABLE">
+    <meta name="author" content="CABLE community" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>create_restart &ndash; CABLE</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">CABLE </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>create_restart
+      <small>Subroutine</small>
+    </h1>
+    <div class="row">
+  <div class="col-lg-12">
+<div class="well well-sm">
+  <ul class="list-inline" style="margin-bottom:0px;display:inline">
+     <li><i class="fa fa-list-ol"></i>
+       <a data-toggle="tooltip"
+    data-placement="bottom" data-html="true"
+    title=" 0.6% of total for procedures.">205 statements</a>
+     </li> 
+    <li><i class="fa fa-code"></i><a href="../src/cable_output.F90"> Source File</a></li>
+  </ul>
+  <ol class="breadcrumb in-well text-right">
+     <li><a href='../sourcefile/cable_output.f90.html'>cable_output.F90</a></li>
+     <li><a href='../module/cable_output_module.html'>cable_output_module</a></li>
+     <li class="active">create_restart</li>
+  </ol>
+</div>
+</div>
+</div>
+<script>
+  $(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+    <div id="sidebar">
+  <h3>Contents</h3>
+ 
+<em>None</em>
+
+</div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public subroutine create_restart(logn, dels, ktau, soil, veg, ssnow, canopy, rough, rad, bgc, bal, met)</h2>
+    
+
+    <p>$    CALL define_ovar(ncid_restart, rpid%clay, 'clay', '-',                     &amp;
+$                     'Fraction of soil which is clay',                         &amp;
+$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+$    CALL define_ovar(ncid_restart, rpid%sand, 'sand', '-',                     &amp;
+$                     'Fraction of soil which is sand',                         &amp;
+$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+$    CALL define_ovar(ncid_restart, rpid%silt, 'silt', '-',                     &amp;
+$                     'Fraction of soil which is silt',                         &amp;
+$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+$    CALL define_ovar(ncid_restart, rpid%ssat, 'ssat', '-',                     &amp;
+$                     'Fraction of soil volume which is water @ saturation',    &amp;
+$                    .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+$    CALL define_ovar(ncid_restart, rpid%sfc, 'sfc', '-',                       &amp;
+$                    'Fraction of soil volume which is water @ field capacity', &amp;
+$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+$    CALL define_ovar(ncid_restart, rpid%swilt, 'swilt', '-',                   &amp;
+$                     'Fraction of soil volume which is water @ wilting point', &amp;
+$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)</p>
+<p>$    CALL define_ovar(ncid_restart, rpid%froot, 'froot', '-',                   &amp;
+$                     'Fraction of roots in each soil layer',                   &amp;
+$                      .TRUE., soilID, 'soil', 0, 0, 0, mpID, dummy, .TRUE.)
+$    CALL define_ovar(ncid_restart, rpid%bch, 'bch', '-',                       &amp;
+$                     'Parameter b, Campbell eqn 1985',                         &amp;
+$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+$    CALL define_ovar(ncid_restart, rpid%hyds, 'hyds', 'm/s',                   &amp;
+$                     'Hydraulic conductivity @ saturation',                    &amp;
+$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+$    CALL define_ovar(ncid_restart, rpid%sucs, 'sucs', 'm',                     &amp;
+$                     'Suction @ saturation', .TRUE.,                           &amp;
+$                     'real', 0, 0, 0, mpID, dummy, .TRUE.)
+$    CALL define_ovar(ncid_restart, rpid%css, 'css', 'J/kg/C',                  &amp;
+$                     'Heat capacity of soil minerals',                         &amp;
+$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+$    CALL define_ovar(ncid_restart, rpid%rhosoil, 'rhosoil', 'kg/m^3',          &amp;
+$                     'Density of soil minerals',                               &amp;
+$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+$    CALL define_ovar(ncid_restart, rpid%rs20, 'rs20', '-',                     &amp;
+$                     'Soil respiration coefficient at 20C',                    &amp;
+$                      .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+$    CALL define_ovar(ncid_restart, rpid%hc, 'hc', 'm',                         &amp;
+$                     'Height of canopy', .TRUE.,                               &amp;
+$                     'real', 0, 0, 0, mpID, dummy, .TRUE.)
+$    CALL define_ovar(ncid_restart, rpid%canst1, 'canst1', 'mm/LAI',            &amp;
+$                     'Max water intercepted by canopy',                        &amp;
+$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+$    CALL define_ovar(ncid_restart, rpid%dleaf, 'dleaf', 'm',                   &amp;
+$                     'Chararacteristic length of leaf',                        &amp;
+$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+$    CALL define_ovar(ncid_restart, rpid%frac4, 'frac4', '-',                   &amp;
+$                     'Fraction of plants which are C4',                        &amp;
+$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+$    CALL define_ovar(ncid_restart, rpid%ejmax, 'ejmax', 'mol/m^2/s',           &amp;
+$                     'Max potential electron transport rate top leaf', .TRUE., &amp;
+$                     'real', 0, 0, 0, mpID, dummy, .TRUE.)
+$    CALL define_ovar(ncid_restart, rpid%vcmax, 'vcmax', 'mol/m^2/s',           &amp;
+$                     'Maximum RuBP carboxylation rate top leaf', .TRUE.,       &amp;
+$                     'real', 0, 0, 0, mpID, dummy, .TRUE.)
+$    CALL define_ovar(ncid_restart, rpid%rp20, 'rp20', '-',                     &amp;
+$                     'Plant respiration coefficient at 20C', .TRUE., 'real',   &amp;
+$                     0, 0, 0, mpID, dummy, .TRUE.)
+$    CALL define_ovar(ncid_restart, rpid%g0, 'g0', '-',                     &amp;
+$                     'g0 term in Medlyn Stomatal Cond. Param', .TRUE.,'real',&amp;
+$                     0, 0, 0, mpID, dummy, .TRUE.) ! Ticket #56
+$    CALL define_ovar(ncid_restart, rpid%g1, 'g1', '-',                     &amp;
+$                     'g1 term in Medlyn Stomatal Cond. Param', .TRUE.,'real',&amp;
+$                     0, 0, 0, mpID, dummy, .TRUE.)  ! Ticket #56
+$    CALL define_ovar(ncid_restart, rpid%rpcoef, 'rpcoef', '1/C',               &amp;
+$                     'Temperature coef nonleaf plant respiration', .TRUE.,     &amp;
+$                     'real', 0, 0, 0, mpID, dummy, .TRUE.)
+$    CALL define_ovar(ncid_restart, rpid%shelrb, 'shelrb', '-',                 &amp;
+$              'Sheltering factor', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+$    CALL define_ovar(ncid_restart, rpid%xfang, 'xfang', '-',                   &amp;
+$           'Leaf angle parameter', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+$    CALL define_ovar(ncid_restart, rpid%wai, 'wai', '-',                       &amp;
+$                'Wood area index', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+$    CALL define_ovar(ncid_restart, rpid%vegcf, 'vegcf', '-',                   &amp;
+$                     'vegcf', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+$    CALL define_ovar(ncid_restart, rpid%extkn, 'extkn', '-',                   &amp;
+$                     'Extinction coef for vertical nitrogen profile',          &amp;
+$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+$    CALL define_ovar(ncid_restart, rpid%tminvj, 'tminvj', 'C',                 &amp;
+$                     'Min temperature for the start of photosynthesis',        &amp;
+$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+$    CALL define_ovar(ncid_restart, rpid%tmaxvj, 'tmaxvj', 'C',                 &amp;
+$                     'Max temperature for the start of photosynthesis',        &amp;
+$                      .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+$    CALL define_ovar(ncid_restart, rpid%vbeta, 'vbeta', '-',                   &amp;
+$                     'Stomatal sensitivity to soil water',                     &amp;
+$                      .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+$    CALL define_ovar(ncid_restart, rpid%xalbnir, 'xalbnir', '-',               &amp;
+$                     'modifier for albedo in near ir band',                    &amp;
+$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+$    ! ratecp (Plant carbon rate constant):
+$    ok = NF90_DEF_VAR(ncid_restart, 'ratecp', NF90_FLOAT, (/plantcarbID/),     &amp;
+$                      rpid%ratecp)
+$    IF (ok /= NF90_NOERR) CALL nc_abort                                        &amp;
+$                     (ok, 'Error defining ratecp variable in restart file. '// &amp;
+$                      '(SUBROUTINE create_restart)')
+$    ok = NF90_PUT_ATT(ncid_restart, rpid%ratecp, "long_name",                  &amp;
+$                      "Plant carbon rate constant")
+$    ok = NF90_PUT_ATT(ncid_restart, rpid%ratecp, "units", "1/year")
+$    ! ratecs (Soil carbon rate constant):
+$    ok = NF90_DEF_VAR(ncid_restart, 'ratecs', NF90_FLOAT, (/soilcarbID/),      &amp;
+$                      rpid%ratecs)
+$    IF (ok /= NF90_NOERR) CALL nc_abort                                        &amp;
+$                     (ok, 'Error defining ratecs variable in restart file. '// &amp;
+$                      '(SUBROUTINE create_restart)')
+$    ok = NF90_PUT_ATT(ncid_restart, rpid%ratecs, "long_name",                  &amp;
+$                      "Soil carbon rate constant")
+$    ok = NF90_PUT_ATT(ncid_restart, rpid%ratecs, "units", "1/year")
+$    CALL define_ovar(ncid_restart, rpid%meth, 'meth', '-',                     &amp;
+$                     'Canopy turbulence parameterisation switch',              &amp;
+$                     .TRUE., 'integer', 0, 0, 0, mpID, dummy, .TRUE.)
+$    CALL define_ovar(ncid_restart, rpid%za_uv, 'za_uv', 'm',                   &amp;
+$                    'Reference height (lowest atm. model layer) for momentum', &amp;
+$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+$    CALL define_ovar(ncid_restart, rpid%za_tq, 'za_tq', 'm',                   &amp;
+$                     'Reference height (lowest atm. model layer) for scalars', &amp;
+$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+$    IF(cable_user%SOIL_STRUC=='sli'.OR.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
+$      CALL define_ovar(ncid_restart,rpid%gamma,'gamma','-', &amp;
+$            'Parameter in root efficiency function (Lai and Katul 2000)', &amp;
+$            .TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
+$    ENDIF</p>
+<p>$       CALL define_ovar(ncid_restart,rpid%nhorizons,'nhorizons','-', &amp;
+$            'Number of soil horizons',.TRUE.,'integer',0,0,0,mpID,dummy,.TRUE.)
+$       CALL define_ovar(ncid_restart,rpid%zeta,'zeta','[ ]', &amp;
+$            'exponent factor in Topmodel eq',.TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
+$       CALL define_ovar(ncid_restart,rpid%fsatmax,'fsatmax','[ ]', &amp;
+$            'param in Topmodel eq',.TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
+$       CALL define_ovar(ncid_restart,rpid%ishorizon,'ishorizon','-', &amp;
+$            'Horizon number',.TRUE., soilID, 'soil', 0, 0, 0, mpID, dummy, .TRUE.)
+$       CALL define_ovar(ncid_restart,rpid%clitt,'clitt','tC/ha', &amp;
+$            'Litter layer carbon content',.TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
+$       CALL define_ovar(ncid_restart,rpid%ZR,'ZR','cm', &amp;
+$            'Maximum rooting depth',.TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
+$       CALL define_ovar(ncid_restart,rpid%F10,'F10','-', &amp;
+$            'Fraction of roots in top 10 cm', &amp;
+$            .TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)</p>
+<p>$    CALL write_ovar (ncid_restart, rpid%bch, 'bch', REAL(soil%bch, 4),         &amp;
+$                     ranges%bch, .TRUE., 'real', .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%bch, 'bch', REAL(soil%bch, 4),         &amp;
+$                     ranges%bch, .TRUE., 'real', .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%clay, 'clay', REAL(soil%clay, 4),      &amp;
+$                     ranges%clay, .TRUE., 'real', .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%sand, 'sand', REAL(soil%sand, 4),      &amp;
+$                     ranges%sand, .TRUE., 'real', .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%silt, 'silt', REAL(soil%silt, 4),      &amp;
+$                     ranges%silt, .TRUE., 'real', .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%css, 'css', REAL(soil%css, 4),         &amp;
+$                     ranges%css, .TRUE., 'real', .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%rhosoil, 'rhosoil',                    &amp;
+$                     REAL(soil%rhosoil,4), ranges%rhosoil, .TRUE., 'real',     &amp;
+$                     .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%hyds, 'hyds', REAL(soil%hyds, 4),      &amp;
+$                     ranges%hyds, .TRUE., 'real', .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%sucs, 'sucs', REAL(soil%sucs, 4),      &amp;
+$                     ranges%sucs, .TRUE., 'real', .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%rs20, 'rs20', REAL(veg%rs20, 4),       &amp;
+$                     ranges%rs20, .TRUE., 'real', .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%ssat, 'ssat', REAL(soil%ssat, 4),      &amp;
+$                     ranges%ssat, .TRUE., 'real', .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%sfc, 'sfc', REAL(soil%sfc, 4),         &amp;
+$                     ranges%sfc, .TRUE., 'real', .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%swilt, 'swilt', REAL(soil%swilt, 4),   &amp;
+$                     ranges%swilt, .TRUE., 'real', .TRUE.)</p>
+<p>$    CALL write_ovar (ncid_restart, rpid%froot, 'froot', REAL(veg%froot, 4),    &amp;
+$                     ranges%froot, .TRUE., 'soil', .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%canst1, 'canst1', REAL(veg%canst1, 4), &amp;
+$                     ranges%canst1, .TRUE., 'real', .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%dleaf, 'dleaf', REAL(veg%dleaf, 4),    &amp;
+$                     ranges%dleaf, .TRUE., 'real', .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%ejmax, 'ejmax', REAL(veg%ejmax, 4),    &amp;
+$                     ranges%ejmax, .TRUE., 'real', .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%vcmax, 'vcmax', REAL(veg%vcmax, 4),    &amp;
+$                     ranges%vcmax, .TRUE., 'real', .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%frac4, 'frac4', REAL(veg%frac4, 4),    &amp;
+$                     ranges%frac4, .TRUE., 'real', .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%hc, 'hc', REAL(veg%hc, 4),             &amp;
+$                     ranges%hc, .TRUE., 'real', .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%rp20, 'rp20', REAL(veg%rp20, 4),       &amp;
+$                     ranges%rp20, .TRUE., 'real', .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%g0, 'g0', REAL(veg%g0, 4),       &amp;
+$                     ranges%g0, .TRUE., 'real', .TRUE.) ! Ticket #56
+$    CALL write_ovar (ncid_restart, rpid%g1, 'g1', REAL(veg%g1, 4),       &amp;
+$                     ranges%g1, .TRUE., 'real', .TRUE.) ! Ticket #56
+$    CALL write_ovar (ncid_restart, rpid%rpcoef, 'rpcoef', REAL(veg%rpcoef, 4), &amp;
+$                     ranges%rpcoef, .TRUE., 'real', .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%shelrb, 'shelrb', REAL(veg%shelrb, 4), &amp;
+$                     ranges%shelrb, .TRUE., 'real', .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%xfang, 'xfang', REAL(veg%xfang, 4),    &amp;
+$                     ranges%xfang, .TRUE., 'real', .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%wai, 'wai', REAL(veg%wai, 4),          &amp;
+$                     ranges%wai, .TRUE., 'real', .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%vegcf, 'vegcf', REAL(veg%vegcf, 4),    &amp;
+$                     ranges%vegcf, .TRUE., 'real', .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%extkn, 'extkn', REAL(veg%extkn, 4),    &amp;
+$                     ranges%extkn, .TRUE., 'real', .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%tminvj, 'tminvj', REAL(veg%tminvj, 4), &amp;
+$                     ranges%tminvj, .TRUE., 'real', .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%tmaxvj, 'tmaxvj', REAL(veg%tmaxvj, 4), &amp;
+$                     ranges%tmaxvj, .TRUE., 'real', .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%vbeta, 'vbeta', REAL(veg%vbeta, 4),    &amp;
+$                     ranges%vbeta, .TRUE., 'real', .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%xalbnir, 'xalbnir',                    &amp;
+$                     REAL(veg%xalbnir, 4), ranges%xalbnir, .TRUE.,             &amp;
+$                     'real', .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%tmaxvj, 'tmaxvj', REAL(veg%tmaxvj, 4), &amp;
+$                     ranges%tmaxvj, .TRUE., 'real', .TRUE.)
+$    ok = NF90_PUT_VAR(ncid_restart, rpid%ratecp, REAL(bgc%ratecp, 4))
+$    IF(ok /= NF90_NOERR) CALL nc_abort(ok,                                     &amp;
+$                                       'Error writing ratecp parameter to '    &amp;
+$         //TRIM(frst_out)// '(SUBROUTINE create_restart)')
+$    ok = NF90_PUT_VAR(ncid_restart, rpid%ratecs, REAL(bgc%ratecs, 4))
+$    IF(ok /= NF90_NOERR) CALL nc_abort(ok,                                     &amp;
+$                                       'Error writing ratecs parameter to '    &amp;
+$         //TRIM(frst_out)// '(SUBROUTINE create_restart)')
+$    CALL write_ovar (ncid_restart, rpid%meth, 'meth', REAL(veg%meth, 4),       &amp;
+$                     ranges%meth, .TRUE., 'integer', .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%za_uv, 'za_uv', REAL(rough%za_uv, 4),  &amp;
+$                     ranges%za, .TRUE., 'real', .TRUE.)
+$    CALL write_ovar (ncid_restart, rpid%za_tq, 'za_tq', REAL(rough%za_tq, 4),  &amp;
+$                     ranges%za, .TRUE., 'real', .TRUE.)
+$    IF(cable_user%SOIL_STRUC=='sli'.OR.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
+$       CALL write_ovar (ncid_restart,rpid%gamma,'gamma', &amp;
+$            REAL(veg%gamma,4),(/-99999.0,99999.0/),.TRUE.,'real',.TRUE.)
+$    ENDIF
+$</p>
+<p>$       CALL write_ovar (ncid_restart,rpid%nhorizons,'nhorizons', &amp;
+$            REAL(soil%nhorizons,4),(/-99999.0,99999.0/),.TRUE.,'integer',.TRUE.)
+$       CALL write_ovar (ncid_restart,rpid%ishorizon,'ishorizon', &amp;
+$            REAL(soil%ishorizon,4),(/-99999.0,99999.0/),.TRUE.,'soil',.TRUE.)
+$       CALL write_ovar (ncid_restart,rpid%clitt,'clitt', &amp;
+$            REAL(veg%clitt,4),(/-99999.0,99999.0/),.TRUE.,'real',.TRUE.)
+$       CALL write_ovar (ncid_restart,rpid%ZR,'ZR', &amp;
+$            REAL(veg%ZR,4),(/-99999.0,99999.0/),.TRUE.,'real',.TRUE.)
+$       CALL write_ovar (ncid_restart,rpid%F10,'F10', &amp;
+$            REAL(veg%F10,4),(/-99999.0,99999.0/),.TRUE.,'real',.TRUE.)</p>
+
+    <h3>Arguments</h3>
+      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" id="variable-logn~5"></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>logn</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-dels~11"></span>real,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>dels</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-ktau~11"></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ktau</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-soil~19"></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>soil</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-veg~19"></span>type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>veg</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-ssnow~8"></span>type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ssnow</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-canopy~8"></span>type(<a href='../type/canopy_type.html'>canopy_type</a>),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>canopy</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-rough~6"></span>type(<a href='../type/roughness_type.html'>roughness_type</a>),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>rough</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-rad~8"></span>type(<a href='../type/radiation_type.html'>radiation_type</a>),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>rad</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-bgc~8"></span>type(<a href='../type/bgc_pool_type.html'>bgc_pool_type</a>),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>bgc</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-bal~7"></span>type(<a href='../type/balances_type.html'>balances_type</a>),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>bal</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-met~14"></span>type(<a href='../type/met_type.html'>met_type</a>),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>met</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+      <h3>Contents</h3>
+ 
+<em>None</em>
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>CABLE was developed by CABLE community<br>&copy; 2022 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+          </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>
