@@ -28,11 +28,11 @@ runs:
     - name: Build documentation
       run: |
         # outputs to "site" directory
-        mkdocs build
+        mkdocs build -f documentation/mkdocs.yml
       shell: bash
 
     - name: Build API documentation
       run: |
         # outputs to "site/api" directory
-        ford cable_ford.md
+        ford documentation/cable_ford.md
       shell: bash
