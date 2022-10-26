@@ -1,10 +1,11 @@
 name: Build and publish API docs
 
-workflow_run:
-  # Only run once docs build and publish finished
-  workflows: ["Build and publish docs"]
-  type:
-    - complete
+on:
+  workflow_run:
+    # Only run once docs build and publish finished
+    workflows: ["Build and publish docs"]
+    type:
+      - complete
 
 jobs:
   build-and-deploy:
