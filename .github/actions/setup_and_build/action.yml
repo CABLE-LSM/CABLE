@@ -26,13 +26,15 @@ runs:
       shell: bash
 
     - name: Build documentation
+      working-directory: documentation
       run: |
         # outputs to "site" directory
-        mkdocs build -f documentation/mkdocs.yml
+        mkdocs build -f mkdocs.yml
       shell: bash
 
     - name: Build API documentation
+      working-directory: documentation
       run: |
         # outputs to "site/api" directory
-        ford documentation/cable_ford.md
+        ford cable_ford.md
       shell: bash
