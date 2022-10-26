@@ -1,0 +1,35 @@
+name: Build docs
+description: Build mkdocs and API docs
+inputs:
+  name:
+    required: false
+    description: "Name"
+
+outputs:
+  random:
+    description: "Random number output"
+    value: ${{ steps.step1.outputs.random }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.x
+
+    - name: Install dependencies
+      run: | 
+        pip install -r requirements.txt
+
+    - name: Build documentation
+      run: |
+        # outputs to "site" directory
+        mkdocs build
+
+    - name: Build API documentation
+      run: |
+        # outputs to "site/api" directory
+        ford cable_ford.md

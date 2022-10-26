@@ -10,26 +10,11 @@ jobs:
     concurrency: ci-${{ github.ref }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout # Necessary to access local action
         uses: actions/checkout@v3
-        
-      - uses: actions/setup-python@v2
-        with:
-          python-version: 3.x
 
-      - name: Install dependencies
-        run: | 
-          pip install -r requirements.txt
-
-      - name: Build documentation
-        run: |
-          # outputs to "site" directory
-          mkdocs build
-
-      - name: Build API documentation
-        run: |
-          # outputs to "site/api" directory
-          ford cable_ford.md
+      - name: Build docs
+        uses: ./.github/actions/setup_and_build
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
