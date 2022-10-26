@@ -23,13 +23,16 @@ runs:
     - name: Install dependencies
       run: | 
         pip install -r requirements.txt
+      shell: bash
 
     - name: Build documentation
       run: |
         # outputs to "site" directory
         mkdocs build
+      shell: bash
 
     - name: Build API documentation
       run: |
         # outputs to "site/api" directory
         ford cable_ford.md
+      shell: bash
