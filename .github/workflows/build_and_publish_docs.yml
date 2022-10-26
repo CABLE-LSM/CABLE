@@ -28,7 +28,7 @@ jobs:
 
       - name: Build API documentation
         run: |
-          # outputs to "site/ford_doc" directory
+          # outputs to "site/api" directory
           ford cable_ford.md
 
       - name: Deploy

@@ -6,7 +6,7 @@ src_dir: coupled
 src_dir: params
 src_dir: science
 src_dir: util
-output_dir: site/ford_doc
+output_dir: site/api
 graph: true
 coloured_edges: true
 ---
