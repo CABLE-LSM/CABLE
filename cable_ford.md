@@ -1,11 +1,7 @@
 ---
 project: CABLE
 author: CABLE community
-src_dir: offline
-src_dir: coupled
-src_dir: params
-src_dir: science
-src_dir: util
+src_dir: source_code
 output_dir: site/api
 graph: true
 coloured_edges: true
