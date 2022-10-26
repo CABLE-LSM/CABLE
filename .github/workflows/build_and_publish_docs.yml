@@ -19,11 +19,17 @@ jobs:
 
       - name: Install dependencies
         run: | 
-          pip install -r requirements_mkdocs.txt
+          pip install -r requirements.txt
 
-      - name: Build
+      - name: Build documentation
         run: |
+          # outputs to "site" directory
           mkdocs build
+
+      - name: Build API documentation
+        run: |
+          # outputs to "site/ford_doc" directory
+          ford cable_ford.md
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
