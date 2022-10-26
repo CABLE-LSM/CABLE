@@ -1,7 +1,7 @@
 ---
 project: CABLE
 author: CABLE community
-src_dir: source_code
+src_dir: ../src
 output_dir: site/api
 graph: true
 coloured_edges: true
