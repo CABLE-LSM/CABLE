@@ -1,10 +1,5 @@
 name: Build and publish API docs
 
-on:
-  push:
-    branches: 
-      - main
-
 workflow_run:
   # Only run once docs build and publish finished
   workflows: ["Build and publish docs"]
@@ -26,7 +21,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install ford graphviz
+          pip install -r requirements_ford.txt
 
       - name: Build Documentation
         run: |
