@@ -160,7 +160,8 @@ CONTAINS
          verbose, fixedCO2,output,check,patchout,    &
          patch_type,soilparmnew,&
          defaultLAI, sdoy, smoy, syear, timeunits, exists, output, &
-         latitude,longitude, calendar
+         latitude,longitude, calendar,                             &
+         patch,wlogn               ! added line as per MMY code -- rk4417
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
          cable_runtime, fileName, myhome,            &
          redistrb, wiltParam, satuParam, CurYear,    &
@@ -274,7 +275,10 @@ CONTAINS
          vegparmnew    = .FALSE., & ! using new format input file (BP dec 2007)
          spinup        = .FALSE., & ! model spinup to soil state equilibrium?
          spinConv      = .FALSE., & ! has spinup converged?
+         spincasainput = .FALSE., & ! TRUE: SAVE input req'd to spin CASA-CNP;  ! inserted line as per MMY code -- rk4417
+                                    ! FALSE: READ input to spin CASA-CNP
          spincasa      = .FALSE., & ! TRUE: CASA-CNP Will spin mloop times,
+                                    ! FALSE: no spin up           ! inserted comment as per MMY code -- rk4417
          l_casacnp     = .FALSE., & ! using CASA-CNP with CABLE
          l_laiFeedbk   = .FALSE., & ! using prognostic LAI
          l_vcmaxFeedbk = .FALSE., & ! using prognostic Vcmax
@@ -339,6 +343,7 @@ CONTAINS
          leaps,            &
          logn,             &
          fixedCO2,         &
+         spincasainput,    &      ! inserted line as per MMY code -- rk4417
          spincasa,         &
          l_casacnp,        &
          l_laiFeedbk,      &
@@ -352,7 +357,7 @@ CONTAINS
          satuParam,        &
          cable_user,       &  ! additional USER switches
          gw_params
-    INTEGER :: i,x,kk
+    INTEGER :: i,x,kk,klev       !  added klev as per MMY code -- rk4417
     INTEGER :: LALLOC
     INTEGER, PARAMETER ::	 mloop	= 30   ! CASA-CNP PreSpinup loops
     REAL    :: etime
@@ -386,7 +391,9 @@ CONTAINS
     ENDIF
 
     ! INITIALISATION depending on nml settings
-    IF (TRIM(cable_user%MetType) .EQ. 'gswp' .OR. TRIM(cable_user%MetType) .EQ. 'gswp3') THEN
+!!$    IF (TRIM(cable_user%MetType) .EQ. 'gswp' .OR. TRIM(cable_user%MetType) .EQ. 'gswp3') THEN  ! replaced by line below
+    IF (TRIM(cable_user%MetType) .EQ. 'gswp' .or. TRIM(cable_user%MetType) .EQ. 'gswp3' & ! MMY   ! as per MMY code -- rk4417 
+         .or. TRIM(cable_user%MetType) .EQ. 'prin') THEN                                  ! MMY
        IF ( CABLE_USER%YearStart.EQ.0 .AND. ncciy.GT.0) THEN
           CABLE_USER%YearStart = ncciy
           CABLE_USER%YearEnd = ncciy
@@ -460,6 +467,7 @@ CONTAINS
     ! latitudes, longitudes, number of sites.
     IF ( TRIM(cable_user%MetType) .NE. "gswp" .AND. &
          TRIM(cable_user%MetType) .NE. "gswp3" .AND. &
+         TRIM(cable_user%MetType) .NE. "prin" .AND. & ! MMY    ! inserted line as per MMY code -- rk4417
          TRIM(cable_user%MetType) .NE. "gpgs" .AND. &
          TRIM(cable_user%MetType) .NE. "plum"  .AND. &
          TRIM(cable_user%MetType) .NE. "cru") THEN
@@ -542,14 +550,16 @@ CONTAINS
              ncciy = CurYear
              WRITE(*,*) 'Looking for global offline run info.'
              CALL open_met_file( dels, koffset, kend, spinup, C%TFRZ )
-
+             
              IF ( leaps .AND. IS_LEAPYEAR( YYYY ) ) THEN
                 calendar = "standard"
              ELSE
                 calendar = "noleap"
              ENDIF
-
-
+          ELSE IF (TRIM(cable_user%MetType) .EQ. 'prin') THEN          ! MMY   ! added elseif block as per MMY code -- rk4417
+             ncciy = CurYear                                           ! MMY
+             WRITE(*,*) 'Looking for global offline run info.'         ! MMY
+             CALL open_met_file( dels, koffset, kend, spinup, C%TFRZ ) ! MMY
           ENDIF
 
           ! somethings (e.g. CASA-CNP) only need to be done once per day
@@ -629,7 +639,8 @@ CONTAINS
              IF (cable_user%call_climate) THEN
                 CALL master_climate_types(comm, climate, ktauday)
              ENDIF
-
+!!$             CALL master_climate_types(comm, climate)  ! block above appears this way in MMY code -- rk4417
+             
              ! MPI: mvtype and mstype send out here instead of inside master_casa_params
              !      so that old CABLE carbon module can use them. (BP May 2013)
              CALL MPI_Bcast (mvtype, 1, MPI_INTEGER, 0, comm, ierr)
@@ -774,8 +785,8 @@ CONTAINS
           canopy%oldcansto=canopy%cansto
 
           ! Zero out lai where there is no vegetation acc. to veg. index
-          WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.
-
+!!$          WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.    ! replaced by line below as per MMY -- rk4417
+          WHERE ( veg%iveg(:) .GE. 14 ) veg%vlai = 0. ! MMY change from iveg%vlai to veg%vlai
 
 
           IF ( .NOT. CASAONLY ) THEN
@@ -834,6 +845,7 @@ CONTAINS
 
              ENDIF
              IF ( (TRIM(cable_user%MetType) .NE. 'gswp') .AND. &
+                  (TRIM(cable_user%MetType) .NE. 'prin') .and. & ! MMY    ! inserted line as per MMY -- rk4417
                   (TRIM(cable_user%MetType) .NE. 'gswp3') ) CurYear = met%year(1)
 
 !!$             IF ( CASAONLY .AND. IS_CASA_TIME("dread", yyyy, iktau, kstart, koffset, &
@@ -916,7 +928,8 @@ CONTAINS
              canopy%oldcansto=canopy%cansto
 
              ! Zero out lai where there is no vegetation acc. to veg. index
-             WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.
+!!$             WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.   ! replaced by line below as per MMY -- rk4417
+             WHERE ( veg%iveg(:) .GE. 14 ) veg%vlai = 0. ! MMY change from iveg%vlai to veg%vlai
 
              ! Write time step's output to file if either: we're not spinning up
              ! or we're spinning up and the spinup has converged:
@@ -944,6 +957,7 @@ CONTAINS
                    IF ( TRIM(cable_user%MetType) .EQ. 'plum'       &
                         .OR. TRIM(cable_user%MetType) .EQ. 'cru'   &
                         .OR. TRIM(cable_user%MetType) .EQ. 'gswp'  &
+                        .OR. TRIM(cable_user%MetType) .EQ. 'prin'  &  ! MMY    ! inserted line as per MMY -- rk4417
                         .OR. TRIM(cable_user%MetType) .EQ. 'gswp3') THEN
                       CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, &
                            casamet,ssnow,         &
@@ -978,7 +992,7 @@ CONTAINS
                 ! check for Nans in biophysical outputs and abort if there are any
                 IF (ANY( canopy%fe.NE. canopy%fe)) THEN
                    DO kk=1,mp
-
+                      
                       IF (canopy%fe(kk).NE. canopy%fe(kk)) THEN
                          WRITE(*,*) 'Nan in evap flux,', kk, patch(kk)%latitude, patch(kk)%longitude
                          WRITE(*,*) 'fe nan', kk, ktau,met%qv(kk), met%precip(kk),met%precip_sn(kk), &
@@ -987,13 +1001,64 @@ CONTAINS
                               canopy%ga(kk), ssnow%tgg(kk,:), canopy%fwsoil(kk), &
                               rad%fvlai(kk,:) ,  rad%fvlai(kk,1), &
                               rad%fvlai(kk,2), canopy%vlaiw(kk)
-
+                         
+                         WRITE(*,*) 'Nan in evap flux'  !  ---------------------------- rk4417 ---------------------------
+                         write(*,*) 'mp ',kk            !  I have inserted this block from MMY code despite some redundancy
+                         write(*,*) 'lat',patch(kk)%latitude
+                         write(*,*) 'lon-',patch(kk)%longitude
+                         write(*,*) 'ktau ',ktau
+                         write(*,*) 'qv-',met%qv(kk)
+                         write(*,*) 'precip',met%precip(kk)
+                         write(*,*) 'sn-',met%precip_sn(kk)
+                         write(*,*) 'fld-',met%fld(kk)
+                         write(*,*) 'fsd1',met%fsd(kk,1)
+                         write(*,*) 'fsd2',met%fsd(kk,2)
+                         write(*,*) 'tk', met%tk(kk)
+                         write(*,*) 'ua', met%ua(kk)
+                         write(*,*) 'potev',ssnow%potev(kk)
+                         write(*,*) 'pmb', met%pmb(kk)
+                         write(*,*) 'ga', canopy%ga(kk)
+                         do klev=1,ms
+                            write(*,*) 'lvl',klev,'tgg',ssnow%tgg(kk,klev)
+                            write(*,*) 'lvl',klev,'wb',ssnow%wb(kk,klev)
+                            write(*,*) 'lvl',klev,'wbliq',ssnow%wbliq(kk,klev)
+                            write(*,*) 'lvl',klev,'wbice',ssnow%wbice   (kk,klev)
+                            write(*,*) 'lvl',klev,'smp',ssnow%smp     (kk,klev)
+                            write(*,*) 'lvl',klev,'hk',ssnow%hk      (kk,klev)
+                            write(*,*) 'lvl',klev,'smp_hys',ssnow%smp_hys (kk,klev)
+                            write(*,*) 'lvl',klev,'ssat_hys',ssnow%ssat_hys(kk,klev)
+                            write(*,*) 'lvl',klev,'watr_hys',ssnow%watr_hys(kk,klev)
+                            write(*,*) 'lvl',klev,'wb_hys',ssnow%wb_hys  (kk,klev)
+                            write(*,*) 'lvl',klev,'hys_fac',ssnow%hys_fac (kk,klev)
+                            
+                            write(*,*) 'lvl',klev,'ssuc_vec',soil%sucs_vec(kk,klev)
+                            write(*,*) 'lvl',klev,'ssat_vec',soil%ssat_vec(kk,klev)
+                            write(*,*) 'lvl',klev,'watr_hys',soil%watr(kk,klev)
+                         end do
+                         write(*,*) 'rh',ssnow%rh_srf(kk)
+                         write(*,*) 'or sat',ssnow%rtevap_sat(kk)
+                         write(*,*) 'or unsat',ssnow%rtevap_unsat(kk)
+                         write(*,*) 'sub dz',canopy%sublayer_dz(kk)
+                         write(*,*) 'fwsoil',canopy%fwsoil(kk)
+                         write(*,*) 'vlai1',rad%fvlai(kk,1)
+                         write(*,*) 'vlai2',rad%fvlai(kk,2)
+                         write(*,*) 'vlaiw', canopy%vlaiw(kk)
+                         write(*,*) 'snowd',ssnow%snowd(kk)
+                         write(*,*) 'satfrac',ssnow%satfrac(kk)
+                         write(*,*) 'GWwb',ssnow%GWwb(kk)
+                         write(*,*) 'wtd',ssnow%wtd(kk)
+                         write(*,*) 'rnof1',ssnow%rnof1(kk)
+                         write(*,*) 'rnof2',ssnow%rnof2(kk)
+                         write(*,*) 'isoil',soil%isoilm(kk)
+                         write(*,*) 'iveg',veg%iveg(kk)   !  ---------------------------- rk4417 ---------------------------
+                         
                          CALL MPI_Abort(comm, 0, ierr)
                       ENDIF
-
+                      
                    ENDDO
-
+                   
                 ENDIF
+
                 IF(ktau==(kend-1)) THEN
 
                    nkend = nkend+1
@@ -1066,9 +1131,13 @@ CONTAINS
           met%ofsd = met%fsd(:,1) + met%fsd(:,2)
           canopy%oldcansto=canopy%cansto
 
-          IF ( (TRIM(cable_user%MetType) .EQ. "gswp") .OR. (TRIM(cable_user%MetType) .EQ. "gswp3") ) &
+!!$          IF ( (TRIM(cable_user%MetType) .EQ. "gswp") .OR. (TRIM(cable_user%MetType) .EQ. "gswp3") ) &
+!!$               CALL close_met_file
+          IF ( (TRIM(cable_user%MetType) .EQ. "gswp") &            ! replaced if above as per MMY -- rk4417
+               .or. (TRIM(cable_user%MetType) .EQ. "prin") & ! MMY
+               .or. (TRIM(cable_user%MetType) .EQ. "gswp3") ) &
                CALL close_met_file
-
+          
           IF (icycle>0 .AND.   cable_user%CALL_POP)  THEN
              WRITE(*,*), 'b4 annual calcs'
 
@@ -1163,6 +1232,7 @@ CONTAINS
                 IF ( TRIM(cable_user%MetType) .EQ. 'plum' &
                      .OR. TRIM(cable_user%MetType) .EQ. 'cru'   &
                      .OR. TRIM(cable_user%MetType) .EQ. 'gswp' &
+                     .OR. TRIM(cable_user%MetType) .EQ. 'prin' &      ! MMY   ! inserted line as per MMY -- rk4417
                      .OR. TRIM(cable_user%MetType) .EQ. 'gswp3') THEN
 
                    CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, &
@@ -1372,6 +1442,7 @@ CONTAINS
 
 
           CALL WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
+!!$          CALL WRITE_CLIMATE_RESTART_NC ( climate )  ! above line appears this way in MMY code -- rk4417
        END IF
 
     END IF
@@ -1381,6 +1452,7 @@ CONTAINS
     ! Close met data input file:
     IF ( TRIM(cable_user%MetType) .NE. "gswp"  .AND. &
          TRIM(cable_user%MetType) .NE. "gswp3" .AND. &
+         TRIM(cable_user%MetType) .NE. "prin"  .AND. & ! MMY   ! inserted line as per MMY -- rk4417
          TRIM(cable_user%MetType) .NE. "plum"  .AND. &
          TRIM(cable_user%MetType) .NE. "cru") CALL close_met_file
     IF  (.NOT. CASAONLY) THEN
@@ -2683,6 +2755,10 @@ CONTAINS
        CALL MPI_Get_address (canopy%fwsoil(off), displs(bidx), ierr)
        blen(bidx) = r2len
 
+       bidx = bidx + 1        ! inserted this block as per MMY code -- rk4417
+       CALL MPI_Get_address (canopy%sublayer_dz(off), displs(bidx), ierr)
+       blen(bidx) = r2len
+     
        bidx = bidx + 1
        CALL MPI_Get_address (canopy%gswx(off,1), displs(bidx), ierr)
        CALL MPI_Type_create_hvector (mf, r1len, r1stride, MPI_BYTE, &
@@ -3224,7 +3300,97 @@ CONTAINS
             &                             types(bidx), ierr)
        blen(bidx) = 1
 
+!!$ inserted block below as per MMY code -- rk4417       
+!!$  --------------------- start of block --------------------- rk4417
 
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%css_vec(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%rhosoil_vec(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%cnsd_vec(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%zse_vec(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%sand_vec(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%clay_vec(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%silt_vec(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%org_vec(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (ssnow%ssat_hys(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (ssnow%watr_hys(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (ssnow%smp_hys(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (ssnow%wb_hys(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (ssnow%hys_fac(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+!!$  --------------------- end of block --------------------- rk4417
+  
        !1D
        bidx = bidx + 1
        CALL MPI_Get_address (soil%GWssat_vec(off), displs(bidx), ierr)
@@ -3246,7 +3412,7 @@ CONTAINS
        CALL MPI_Get_address (soil%GWwatr(off), displs(bidx), ierr)
        blen(bidx) = r2len
 
-       bidx = bidx + 1
+       bidx = bidx + 1                ! note that this block is missing from MMY code -- rk4417 
        CALL MPI_Get_address (soil%GWz(off), displs(bidx), ierr)
        blen(bidx) = r2len
 
@@ -3254,6 +3420,10 @@ CONTAINS
        CALL MPI_Get_address (soil%GWdz(off), displs(bidx), ierr)
        blen(bidx) = r2len
 
+       bidx = bidx + 1            ! inserted this block as per MMY code -- rk4417
+       CALL MPI_Get_address (soil%elev(off), displs(bidx), ierr)
+       blen(bidx) = r2len
+  
        bidx = bidx + 1
        CALL MPI_Get_address (soil%slope(off), displs(bidx), ierr)
        blen(bidx) = r2len
@@ -3262,6 +3432,44 @@ CONTAINS
        CALL MPI_Get_address (soil%slope_std(off), displs(bidx), ierr)
        blen(bidx) = r2len
 
+!!$ inserted block below as per MMY code -- rk4417       
+!!$  --------------------- start of block --------------------- rk4417
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%drain_dens(off), displs(bidx), ierr)
+       blen(bidx) = r2len
+       
+       
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%hkrz(off), displs(bidx), ierr)
+       blen(bidx) = r2len
+       
+       
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%zdepth(off), displs(bidx), ierr)
+       blen(bidx) = r2len
+       
+       
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%srf_frac_ma(off), displs(bidx), ierr)
+       blen(bidx) = r2len
+       
+       
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%edepth_ma(off), displs(bidx), ierr)
+       blen(bidx) = r2len
+       
+       
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%qhz_max(off), displs(bidx), ierr)
+       blen(bidx) = r2len
+       
+       
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%qhz_efold(off), displs(bidx), ierr)
+       blen(bidx) = r2len
+
+!!$  --------------------- end of block --------------------- rk4417
+
        bidx = bidx + 1
        CALL MPI_Get_address (ssnow%GWwb(off), displs(bidx), ierr)
        blen(bidx) = r2len
@@ -3269,6 +3477,7 @@ CONTAINS
        ! MPI: sanity check
        IF (bidx /= ntyp) THEN
           WRITE (*,*) 'master: invalid number of param_t fields ',bidx,', fix it!'
+          WRITE (*,*) 'local counbt bidx is ',bidx,' while ntyp is ',ntyp  ! inserted line as per MMY code -- rk4417
           CALL MPI_Abort (comm, 1, ierr)
        END IF
 
@@ -4471,6 +4680,7 @@ CONTAINS
        ! MPI: sanity check
        IF (bidx /= ntyp) THEN
           WRITE (*,*) 'master: invalid number of casa_t param fields ',bidx,', fix it!'
+          WRITE (*,*) 'local counbt bidx is ',bidx,' while ntyp is ',ntyp  ! inserted line as per MMY code -- rk4417
           CALL MPI_Abort (comm, 1, ierr)
        END IF
 
@@ -4935,6 +5145,56 @@ CONTAINS
             &                        mat_t(midx, rank), ierr)
        CALL MPI_Type_commit (mat_t(midx, rank), ierr)
        midx = midx + 1
+       
+!!$ inserted block below as per MMY code -- rk4417       
+!!$  --------------------- start of block --------------------- rk4417
+
+     ! REAL(r_2)
+     CALL MPI_Get_address (ssnow%smp(off,1), maddr(midx), ierr) ! 12
+     CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+          &                        mat_t(midx, rank), ierr)
+     CALL MPI_Type_commit (mat_t(midx, rank), ierr)
+     midx = midx + 1
+
+     ! REAL(r_2)
+     CALL MPI_Get_address (ssnow%wb_hys(off,1), maddr(midx), ierr) ! 12
+     CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+          &                        mat_t(midx, rank), ierr)
+     CALL MPI_Type_commit (mat_t(midx, rank), ierr)
+     midx = midx + 1
+
+     ! REAL(r_2)
+     CALL MPI_Get_address (ssnow%smp_hys(off,1), maddr(midx), ierr) ! 12
+     CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+          &                        mat_t(midx, rank), ierr)
+     CALL MPI_Type_commit (mat_t(midx, rank), ierr)
+     midx = midx + 1
+
+     ! REAL(r_2)
+     CALL MPI_Get_address (ssnow%ssat_hys(off,1), maddr(midx), ierr) ! 12
+     CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+          &                        mat_t(midx, rank), ierr)
+     CALL MPI_Type_commit (mat_t(midx, rank), ierr)
+     midx = midx + 1
+
+
+     ! REAL(r_2)
+     CALL MPI_Get_address (ssnow%watr_hys(off,1), maddr(midx), ierr) ! 12
+     CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+          &                        mat_t(midx, rank), ierr)
+     CALL MPI_Type_commit (mat_t(midx, rank), ierr)
+     midx = midx + 1
+
+
+     ! REAL(r_2)
+     CALL MPI_Get_address (ssnow%hys_fac(off,1), maddr(midx), ierr) ! 12
+     CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+          &                        mat_t(midx, rank), ierr)
+     CALL MPI_Type_commit (mat_t(midx, rank), ierr)
+     midx = midx + 1
+
+!!$  --------------------- end of block --------------------- rk4417
+
        ! REAL(r_1)
        CALL MPI_Get_address (ssnow%evapfbl(off,1), maddr(midx), ierr) ! 12
        CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
@@ -5443,6 +5703,11 @@ CONTAINS
        vidx = vidx + 1
        ! REAL(r_2)
        CALL MPI_Get_address (canopy%fwsoil(off), vaddr(vidx), ierr) ! 59
+       blen(vidx) = cnt * extr2
+
+       vidx = vidx + 1   ! added block as per MMY code -- rk4417
+       ! REAL(r_2)
+       CALL MPI_Get_address (canopy%sublayer_dz(off), vaddr(vidx), ierr) ! 59
        blen(vidx) = cnt * extr2
 
        ! MPI: 2D vars moved above
@@ -6730,7 +6995,8 @@ CONTAINS
   END SUBROUTINE master_casa_types
 
   SUBROUTINE master_climate_types (comm, climate, ktauday)
-
+!!$SUBROUTINE master_climate_types (comm, climate)  ! line above appears this way in MMY code -- rk4417
+    
     USE mpi
 
     USE cable_def_types_mod, ONLY: climate_type, mp
@@ -6745,7 +7011,7 @@ CONTAINS
     INTEGER, ALLOCATABLE, DIMENSION(:) :: types
     INTEGER :: ntyp ! number of worker's types
 
-    INTEGER :: last2d, i, ktauday
+    INTEGER :: last2d, i, ktauday   ! ktauday missing from MMY code -- rk4417
 
     ! MPI: block lenghts for hindexed representing all vectors
     INTEGER, ALLOCATABLE, DIMENSION(:) :: blen
@@ -6762,7 +7028,11 @@ CONTAINS
 
     IF (cable_user%call_climate) CALL climate_init ( climate, mp, ktauday )
     IF (cable_user%call_climate .AND.(.NOT.cable_user%climate_fromzero)) &
-      CALL READ_CLIMATE_RESTART_NC (climate, ktauday)
+         CALL READ_CLIMATE_RESTART_NC (climate, ktauday)
+!!$  CALL climate_init (climate, mp)    ! block above appears this way in MMY code -- rk4417
+!!$  if (cable_user%call_climate .AND.(.NOT.cable_user%climate_fromzero)) &
+!!$       CALL READ_CLIMATE_RESTART_NC (climate)
+    
     ALLOCATE (climate_ts(wnp))
 
     ! MPI: allocate temp vectors used for marshalling

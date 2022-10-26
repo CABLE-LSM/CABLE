@@ -16,7 +16,7 @@
 ! History: Vanessa Haverd Jan 2015
 
 ! ==============================================================================
-!#define UM_BUILD YES
+!#define UM_BUILD YES       ! This line is uncommented in MMY code -- rk4417
 MODULE cable_climate_mod
 
   USE cable_def_types_mod, ONLY: met_type, climate_type, canopy_type, mp, &
@@ -33,7 +33,7 @@ CONTAINS
 
 
   SUBROUTINE cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met,climate, canopy, &
-       air, rad, dels, np)
+       air, rad, dels, np)   ! missing rad argument in MMY code -- rk4417
 
 
     IMPLICIT NONE
@@ -568,7 +568,7 @@ CONTAINS
 
   ! ==============================================================================
 
-  SUBROUTINE climate_init ( climate,np, ktauday )
+  SUBROUTINE climate_init ( climate,np, ktauday )  ! missing ktauday argument in MMY code -- rk4417
     IMPLICIT NONE
 
     TYPE (climate_type), INTENT(INOUT)       :: climate  ! climate variables
@@ -619,7 +619,7 @@ CONTAINS
 
 
     ELSE
-       CALL READ_CLIMATE_RESTART_NC (climate, ktauday)
+       CALL READ_CLIMATE_RESTART_NC (climate, ktauday)  ! missing ktauday argument in MMY code -- rk4417
 
     ENDIF
     !else
@@ -631,7 +631,7 @@ CONTAINS
 
   ! ==============================================================================
 
-  SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
+  SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate, ktauday ) ! missing ktauday argument in MMY code -- rk4417
 
     USE netcdf
 
@@ -872,7 +872,7 @@ CONTAINS
   END SUBROUTINE WRITE_CLIMATE_RESTART_NC
   ! ==============================================================================
 
-  SUBROUTINE READ_CLIMATE_RESTART_NC ( climate, ktauday )
+  SUBROUTINE READ_CLIMATE_RESTART_NC ( climate, ktauday ) ! missing ktauday argument in MMY code -- rk4417
 
     USE netcdf
 

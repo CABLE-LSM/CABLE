@@ -226,7 +226,10 @@ USE cbl_soil_snow_init_special_module
          vegparmnew    = .FALSE., & ! using new format input file (BP dec 2007)
          spinup        = .FALSE., & ! model spinup to soil state equilibrium?
          spinConv      = .FALSE., & ! has spinup converged?
+         spincasainput = .FALSE., & ! TRUE: SAVE input req'd to spin CASA-CNP;  ! inserted 2 lines as per MMY code -- rk4417
+                                ! FALSE: READ input to spin CASA-CNP    
          spincasa      = .FALSE., & ! TRUE: CASA-CNP Will spin mloop times,
+                                ! FALSE: no spin up    ! inserted comment as per MMY code -- rk4417
          l_casacnp     = .FALSE., & ! using CASA-CNP with CABLE
          l_laiFeedbk   = .FALSE., & ! using prognostic LAI
          l_vcmaxFeedbk = .FALSE., & ! using prognostic Vcmax
@@ -265,6 +268,7 @@ USE cbl_soil_snow_init_special_module
          leaps,            &
          logn,             &
          fixedCO2,         &
+         spincasainput,    &   ! inserted line as per MMY code -- rk4417
          spincasa,         &
          l_casacnp,        &
          l_laiFeedbk,      &
@@ -279,7 +283,7 @@ USE cbl_soil_snow_init_special_module
          cable_user,       &  ! additional USER switches
          gw_params
 
-    INTEGER :: i,x,kk
+    INTEGER :: i,x,kk,klev   !  added klev as per MMY code -- rk4417
     INTEGER :: LALLOC, iu
     ! END header
 
@@ -461,7 +465,8 @@ USE cbl_soil_snow_init_special_module
              IF (cable_user%call_climate) THEN
                 CALL worker_climate_types(comm, climate, ktauday )
              ENDIF
-
+!!$             CALL worker_climate_types(comm, climate)   ! block above appears this way in MMY code -- rk4417
+             
              ! MPI: mvtype and mstype send out here instead of inside worker_casa_params
              !      so that old CABLE carbon module can use them. (BP May 2013)
              CALL MPI_Bcast (mvtype, 1, MPI_INTEGER, 0, comm, ierr)
@@ -608,6 +613,8 @@ USE cbl_soil_snow_init_special_module
 
              ! Get met data and LAI, set time variables.
              ! Rainfall input may be augmented for spinup purposes:
+             ! PRINT *, met%fsd(:,1) ! MMY    ! inserted 2 lines as per MMY code -- rk4417
+             ! PRINT *, met%fsd(:,2) ! MMY
              met%ofsd = met%fsd(:,1) + met%fsd(:,2)
              ! MPI: input file read on the master only
              !CALL get_met_data( spinup, spinConv, met, soil,                    &
@@ -641,6 +648,16 @@ USE cbl_soil_snow_init_special_module
                   CALL cable_climate(ktau_tot,kstart,kend,ktauday,idoy,LOY,met, &
                   climate, canopy, air, rad, dels, mp)
 
+!!$             if (cable_user%CALL_climate) &     ! above if appears this way in MMY code -- rk4417
+!!$                 CALL cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met, &  ! missing rad argument -- rk4417
+!!$                      climate, canopy,air, dels,mp)                           ! ktau_tot  not ktau ??
+
+             do i=1,mp                                        ! added do loop as per MMY code -- rk4417
+                if (met%ua(i) .gt. 50.0) then
+                   write(wlogn,*) 'ua error',i,met%ua(i)
+                   write(wlogn,*) 't error',i,met%tk(i)
+                end if
+             end do
 
              ! CALL land surface scheme for this timestep, all grid points:
              CALL cbm( ktau, dels, air, bgc, canopy, met,                  &
@@ -653,6 +670,66 @@ USE cbl_soil_snow_init_special_module
              ssnow%runoff = ssnow%runoff*dels
 
 
+!!$added do loop below as per MMY code -- rk4417
+!!$--------------------------------------- rk4417 ---------------------------------------
+
+! check for Nans in biophysical outputs and abort if there are any
+             DO kk=1,mp
+                
+                IF (canopy%fe(kk).NE. canopy%fe(kk)) THEN
+                   WRITE(wlogn,*) 'Nan in evap flux'
+                   write(wlogn,*) 'mp ',kk
+                   write(wlogn,*) 'ktau ',ktau
+                   write(wlogn,*) 'qv-',met%qv(kk)
+                   write(wlogn,*) 'precip',met%precip(kk)
+                   write(wlogn,*) 'sn-',met%precip_sn(kk)
+                   write(wlogn,*) 'fld-',met%fld(kk)
+                   write(wlogn,*) 'fsd1',met%fsd(kk,1)
+                   write(wlogn,*) 'fsd2',met%fsd(kk,2)
+                   write(wlogn,*) 'tk', met%tk(kk)
+                   write(wlogn,*) 'ua', met%ua(kk)
+                   write(wlogn,*) 'potev',ssnow%potev(kk)
+                   write(wlogn,*) 'pmb', met%pmb(kk)
+                   write(wlogn,*) 'ga', canopy%ga(kk)
+                   do klev=1,ms
+                      write(wlogn,*) 'lvl',klev,'tgg',ssnow%tgg(kk,klev)
+                      write(wlogn,*) 'lvl',klev,'wb',ssnow%wb(kk,klev)
+                      write(wlogn,*) 'lvl',klev,'wbliq',ssnow%wbliq(kk,klev)
+                      write(wlogn,*) 'lvl',klev,'wbice',ssnow%wbice   (kk,klev)
+                      write(wlogn,*) 'lvl',klev,'smp',ssnow%smp     (kk,klev)
+                      write(wlogn,*) 'lvl',klev,'hk',ssnow%hk      (kk,klev)
+                      write(wlogn,*) 'lvl',klev,'smp_hys',ssnow%smp_hys (kk,klev)
+                      write(wlogn,*) 'lvl',klev,'ssat_hys',ssnow%ssat_hys(kk,klev)
+                      write(wlogn,*) 'lvl',klev,'watr_hys',ssnow%watr_hys(kk,klev)
+                      write(wlogn,*) 'lvl',klev,'wb_hys',ssnow%wb_hys  (kk,klev)
+                      write(wlogn,*) 'lvl',klev,'hys_fac',ssnow%hys_fac (kk,klev)
+                      
+                      write(wlogn,*) 'lvl',klev,'ssuc_vec',soil%sucs_vec(kk,klev)
+                      write(wlogn,*) 'lvl',klev,'ssat_vec',soil%ssat_vec(kk,klev)
+                      write(wlogn,*) 'lvl',klev,'watr_hys',soil%watr(kk,klev)
+                   end do
+                   write(wlogn,*) 'rh',ssnow%rh_srf(kk)
+                   write(wlogn,*) 'or sat',ssnow%rtevap_sat(kk)
+                   write(wlogn,*) 'or unsat',ssnow%rtevap_unsat(kk)
+                   write(wlogn,*) 'sub dz',canopy%sublayer_dz(kk)
+                   write(wlogn,*) 'fwsoil',canopy%fwsoil(kk)
+                   write(wlogn,*) 'vlai1',rad%fvlai(kk,1)
+                   write(wlogn,*) 'vlai2',rad%fvlai(kk,2)
+                   write(wlogn,*) 'vlaiw', canopy%vlaiw(kk)
+                   write(wlogn,*) 'snowd',ssnow%snowd(kk)
+                   write(wlogn,*) 'satfrac',ssnow%satfrac(kk)
+                   write(wlogn,*) 'GWwb',ssnow%GWwb(kk)
+                   write(wlogn,*) 'wtd',ssnow%wtd(kk)
+                   write(wlogn,*) 'rnof1',ssnow%rnof1(kk)
+                   write(wlogn,*) 'rnof2',ssnow%rnof2(kk)
+                   write(wlogn,*) 'isoil',soil%isoilm(kk)
+                   write(wlogn,*) 'iveg',veg%iveg(kk)
+                end if
+                
+             ENDDO
+             
+!!$--------------------------------------- rk4417 ---------------------------------------
+             
              !jhan this is insufficient testing. condition for
              !spinup=.false. & we want CASA_dump.nc (spinConv=.true.)
 
@@ -1907,6 +1984,10 @@ USE cbl_soil_snow_init_special_module
     CALL MPI_Get_address (canopy%fwsoil, displs(bidx), ierr)
     blen(bidx) = r2len
 
+    bidx = bidx + 1       ! inserted this block as per MMY code -- rk4417
+    CALL MPI_Get_address (canopy%sublayer_dz, displs(bidx), ierr)
+    blen(bidx) = r2len
+
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%gswx, displs(bidx), ierr)
     blen(bidx) = mf * r1len
@@ -2385,7 +2466,76 @@ USE cbl_soil_snow_init_special_module
     CALL MPI_Get_address (soil%sfc_vec, displs(bidx), ierr)
     blen(bidx) = ms * r2len
 
+!!$ inserted block below as per MMY code -- rk4417       
+!!$  --------------------- start of block --------------------- rk4417
 
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%css_vec, displs(bidx), ierr)
+  blen(bidx) = ms * r2len
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%rhosoil_vec, displs(bidx), ierr)
+  blen(bidx) = ms * r2len
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%cnsd_vec, displs(bidx), ierr)
+  blen(bidx) = ms * r2len
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%zse_vec, displs(bidx), ierr)
+  blen(bidx) = ms * r2len
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%sand_vec, displs(bidx), ierr)
+  blen(bidx) = ms * r2len
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%clay_vec, displs(bidx), ierr)
+  blen(bidx) = ms * r2len
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%silt_vec, displs(bidx), ierr)
+  blen(bidx) = ms * r2len
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%org_vec, displs(bidx), ierr)
+  blen(bidx) = ms * r2len
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (ssnow%ssat_hys, displs(bidx), ierr)
+  blen(bidx) = ms * r2len
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (ssnow%watr_hys, displs(bidx), ierr)
+  blen(bidx) = ms * r2len
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (ssnow%smp_hys, displs(bidx), ierr)
+  blen(bidx) = ms * r2len
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (ssnow%wb_hys, displs(bidx), ierr)
+  blen(bidx) = ms * r2len
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (ssnow%hys_fac, displs(bidx), ierr)
+  blen(bidx) = ms * r2len
+
+
+!!$  --------------------- end of block --------------------- rk4417
+
+    
     !1d
     bidx = bidx + 1
     CALL MPI_Get_address (soil%GWssat_vec, displs(bidx), ierr)
@@ -2407,12 +2557,16 @@ USE cbl_soil_snow_init_special_module
     CALL MPI_Get_address (soil%GWwatr, displs(bidx), ierr)
     blen(bidx) = r2len
 
-    bidx = bidx + 1
+    bidx = bidx + 1                ! note that this block is missing from MMY code -- rk4417 
     CALL MPI_Get_address (soil%GWz, displs(bidx), ierr)
     blen(bidx) = r2len
 
     bidx = bidx + 1
     CALL MPI_Get_address (soil%GWdz, displs(bidx), ierr)
+    blen(bidx) = r2len
+
+    bidx = bidx + 1         ! inserted this block as per MMY code -- rk4417
+    CALL MPI_Get_address (soil%elev, displs(bidx), ierr)
     blen(bidx) = r2len
 
     bidx = bidx + 1
@@ -2423,6 +2577,45 @@ USE cbl_soil_snow_init_special_module
     CALL MPI_Get_address (soil%slope_std, displs(bidx), ierr)
     blen(bidx) = r2len
 
+!!$ inserted block below as per MMY code -- rk4417       
+!!$  --------------------- start of block --------------------- rk4417
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%drain_dens, displs(bidx), ierr)
+  blen(bidx) = r2len
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%hkrz, displs(bidx), ierr)
+  blen(bidx) = r2len
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%zdepth, displs(bidx), ierr)
+  blen(bidx) = r2len
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%srf_frac_ma, displs(bidx), ierr)
+  blen(bidx) = r2len
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%edepth_ma, displs(bidx), ierr)
+  blen(bidx) = r2len
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%qhz_max, displs(bidx), ierr)
+  blen(bidx) = r2len
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%qhz_efold, displs(bidx), ierr)
+  blen(bidx) = r2len
+
+!!$  --------------------- end of block --------------------- rk4417
+
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%GWwb, displs(bidx), ierr)
     blen(bidx) = r2len
@@ -2430,6 +2623,7 @@ USE cbl_soil_snow_init_special_module
     ! MPI: sanity check
     IF (bidx /= ntyp) THEN
        WRITE (*,*) 'worker ',rank,' invalid number of param_t fields',bidx,', fix it!'
+       WRITE (*,*) 'worker ',rank,' invalid number ntyp is ',ntyp,', fix it!'  ! inserted line as per MMY code -- rk4417
        CALL MPI_Abort (comm, 1, ierr)
     END IF
 
@@ -3880,6 +4074,36 @@ USE cbl_soil_snow_init_special_module
     CALL MPI_Get_address (ssnow%wb(off,1), displs(bidx), ierr)
     blocks(bidx) = r2len * ms
 
+!!$ inserted block below as per MMY code -- rk4417       
+!!$  --------------------- start of block --------------------- rk4417
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%smp(off,1), displs(bidx), ierr)
+    blocks(bidx) = r2len * ms
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%wb_hys(off,1), displs(bidx), ierr)
+    blocks(bidx) = r2len * ms
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%smp_hys(off,1), displs(bidx), ierr)
+    blocks(bidx) = r2len * ms
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%ssat_hys(off,1), displs(bidx), ierr)
+    blocks(bidx) = r2len * ms
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%watr_hys(off,1), displs(bidx), ierr)
+    blocks(bidx) = r2len * ms
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%hys_fac(off,1), displs(bidx), ierr)
+    blocks(bidx) = r2len * ms
+
+
+!!$  --------------------- end of block --------------------- rk4417
+
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%evapfbl(off,1), displs(bidx), ierr)
     blocks(bidx) = r1len * ms
@@ -4641,6 +4865,10 @@ USE cbl_soil_snow_init_special_module
 
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%fwsoil(off), displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+    bidx = bidx + 1   ! added block as per MMY code -- rk4417
+    CALL MPI_Get_address (canopy%sublayer_dz(off), displs(bidx), ierr)
     blocks(bidx) = r2len
 
     ! MPI: 2D vars moved above
@@ -6351,6 +6579,7 @@ USE cbl_soil_snow_init_special_module
 
 
   SUBROUTINE worker_climate_types (comm, climate, ktauday )
+!!$SUBROUTINE worker_climate_types (comm, climate)  ! line above appears this way in MMY code -- rk4417
 
     USE mpi
 
@@ -6360,7 +6589,7 @@ USE cbl_soil_snow_init_special_module
     IMPLICIT NONE
 
     TYPE(climate_type), INTENT(INOUT):: climate
-    INTEGER, INTENT(IN) :: comm, ktauday
+    INTEGER, INTENT(IN) :: comm, ktauday     ! ktauday missing from MMY code -- rk4417
 
     ! MPI: temp arrays for marshalling all types into a struct
     INTEGER, ALLOCATABLE, DIMENSION(:) :: blocks
@@ -6390,6 +6619,7 @@ USE cbl_soil_snow_init_special_module
     ! CALL alloc_cbm_var(climate,mp)
 
     IF (cable_user%call_climate) CALL climate_init ( climate, mp, ktauday )
+!!$        CALL climate_init (climate, mp)   ! line above appears this way in MMY code -- rk4417
     ! MPI: allocate temp vectors used for marshalling
     ntyp = nclimate
 

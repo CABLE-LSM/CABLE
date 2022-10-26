@@ -17,12 +17,12 @@ MODULE sli_roots
   INTERFACE setroots
      MODULE PROCEDURE setroots_1d
      MODULE PROCEDURE setroots_2d
-  END INTERFACE
+  END INTERFACE setroots
 
   INTERFACE getrex
      MODULE PROCEDURE getrex_1d
      MODULE PROCEDURE getrex_2d
-  END INTERFACE
+  END INTERFACE getrex
 
   ! Definitions:
   ! setroots - subroutine to set current root distribution based on Li, K.Y., De Jong, R. and J.B. Boisvert (2001).

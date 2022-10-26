@@ -29,6 +29,8 @@ MODULE cable_common_module
 
   IMPLICIT NONE
 
+  LOGICAL :: report_parameters_to_log=.false.   ! line inserted as per MMY -- rk4417
+  
   !---allows reference to "gl"obal timestep in run (from atm_step)
   !---total number of timesteps, and processing node
   INTEGER, SAVE :: ktau_gl, kend_gl, knode_gl, kwidth_gl
@@ -67,6 +69,7 @@ MODULE cable_common_module
   TYPE kbl_internal_switches
      LOGICAL :: um = .FALSE., um_explicit = .FALSE., um_implicit = .FALSE.,   &
           um_radiation = .FALSE., um_hydrology = .FALSE.
+  ! just note that MMY has only  um_radiation = .FALSE.  -- rk4417
      LOGICAL :: offline = .FALSE., mk3l = .FALSE.
   END TYPE kbl_internal_switches
 
@@ -105,8 +108,13 @@ MODULE cable_common_module
           CALL_Climate           = .FALSE., &
           Climate_fromZero       = .FALSE., &
           CASA_fromZero          = .FALSE., &
-          POPLUC                 = .FALSE.
-
+          POPLUC                 = .FALSE., &
+          compress_output        = .FALSE.     ! added line as per MMY -- rk4417
+     
+     ! note that MMY has the following instead -- rk4417
+!!$          Climate_fromZero       = .TRUE., &
+!!$          CASA_fromZero          = .TRUE., &
+     
      INTEGER  :: &
           CASA_SPIN_STARTYEAR = 1950, &
           CASA_SPIN_ENDYEAR   = 1960, &
@@ -162,14 +170,17 @@ MODULE cable_common_module
      LOGICAL :: test_new_gw=.FALSE.
      LOGICAL :: sync_nc_file=.FALSE.
      INTEGER :: max_spins = -1
+     !just need to test  ! inserted line as per MMY -- rk4417
      LOGICAL :: fix_access_roots = .FALSE.  !use pft dependent roots in ACCESS
      !ticket#179
      LOGICAL :: soil_thermal_fix=.FALSE.
+     LOGICAL :: change_soil_depths=.false.   ! added line as per MMY -- rk4417
      !ACCESS roots
      LOGICAL :: access13roots = .FALSE.     !switch to use ACCESS1.3 %froot
      
      LOGICAL :: l_limit_labile = .FALSE.    ! #237: limit Labile in spinup
 
+     INTEGER :: force_npatches_as=-1   ! added line as per MMY -- rk4417
   END TYPE kbl_user_switches
 
   ! instantiate internal switches
@@ -192,14 +203,17 @@ MODULE cable_common_module
           soilcolor,  & ! file for soil color(soilcolor_global_1x1.nc)
           inits,      & ! name of file for initialisations
           soilIGBP,   & ! name of file for IGBP soil map
-          gw_elev       !name of file for gw/elevation data
-
+!!$          gw_elev       !name of file for gw/elevation data  ! replaced as per MMY -- rk4417
+          gw_elev='', & !name of file for gw/elevation datq
+          gw_soils=''   !itled/layerd soil params
+                        !give default as not not required
+     
   END TYPE filenames_type
 
   TYPE(filenames_type) :: filename
 
   ! hydraulic_redistribution switch _soilsnow module
-  LOGICAL :: redistrb = .FALSE.  
+  LOGICAL :: redistrb = .FALSE.    ! Turn on/off the hydraulic redistribution ! added comment -- rk4417
 
   ! hydraulic_redistribution parameters _soilsnow module
   REAL :: wiltParam=0.5, satuParam=0.8
@@ -213,9 +227,18 @@ MODULE cable_common_module
           clappb_organic = 2.91,     &
           ssat_vec_organic = 0.9,    &
           watr_organic   = 0.1,     &
-          sfc_vec_hk      = 1.157407e-06, &
+          sfc_vec_hk      = 1.157407e-06, & ! these 2 lines appear in MMY under gw_parameters_type -- rk4417
           swilt_vec_hk      = 2.31481481e-8
 
+     REAL ::    &                  ! added this block from MMY. Some of the names appear above 
+          hyds_vec = 1.0e-4,&      ! with _organic -- rk4417
+          sucs_vec = 10.3,   &
+          bch_vec  = 2.91,     &    
+          ssat_vec = 0.9,    &    
+          watr     = 0.1,&
+          css_vec  = 4000.0,&
+          cnsd_vec = 0.1 
+     
   END TYPE organic_soil_params
 
   TYPE gw_parameters_type
@@ -223,27 +246,48 @@ MODULE cable_common_module
      REAL ::                   &
           MaxHorzDrainRate=2e-4,  & !anisintropy * q_max [qsub]
           EfoldHorzDrainRate=2.0, & !e fold rate of q_horz
+          EfoldHorzDrainScale=1.0, & !e fold rate of q_horz   ! inserted line as per MMY -- rk4417
           MaxSatFraction=2500.0,     & !parameter controll max sat fraction
           hkrz=0.5,               & !hyds_vec variation with z
           zdepth=1.5,             & !level where hyds_vec(z) = hyds_vec(no z)
           frozen_frac=0.05,       & !ice fraction to determine first non-frozen layer for qsub
           SoilEvapAlpha = 1.0,    & !modify field capacity dependence of soil evap limit
           IceAlpha=3.0,           &
-          IceBeta=1.0
+          IceBeta=1.0,            &
+          sfc_vec_hk      = 1.157407e-06, & ! inserted 2 lines as per MMY  -- rk4417
+          swilt_vec_hk      = 2.31481481e-8
 
      REAL :: ice_impedence=5.0
-
+     REAL :: ssat_wet_factor=0.85            ! inserted line as per MMY -- rk4417
+                    !hysteresis reduces ssat due to air entra[pment
+     
      TYPE(organic_soil_params) :: org
-
+     INTEGER :: aquifer_recharge_function=-1  !0=>no flux,1=>assume gw at hydrostat eq !inserted line as per MMY -- rk4417
      INTEGER :: level_for_satfrac = 6
      LOGICAL :: ssgw_ice_switch = .FALSE.
 
      LOGICAL :: subsurface_sat_drainage = .TRUE.
+     LOGICAL :: cosby_univariate=.false. ! added 4 declarations as per MMY -- rk4417
+     LOGICAL :: cosby_multivariate=.false.
+     LOGICAL :: HC_SWC=.false. !use Hutson Cass modified brooks corey
+                               !seperates wet/dry to remove need for watr and
+                               !gives better numerical behavoir for soln
+     LOGICAL :: BC_hysteresis=.false.
 
   END TYPE gw_parameters_type
 
   TYPE(gw_parameters_type), SAVE :: gw_params
 
+  REAL, DIMENSION(17),SAVE :: psi_c = (/-2550000.0,-2550000.0,-2550000.0, &  ! added 2 declarations as per MMY -- rk4417
+                                  -2240000.0,-4280000.0,-2750000.0,-2750000.0,&
+                                  -2750000.0,-2750000.0,-2750000.0,-2750000.0,-2750000.0,&
+                                  -2750000.0,-2750000.0,-2750000.0,-2750000.0,-2750000.0/)
+
+  REAL, DIMENSION(17),SAVE :: psi_o = (/-66000.0,-66000.0,-66000.0,&
+                                  -35000.0,-83000.0,-74000.0,-74000.0,&
+                                  -74000.0,-74000.0,-74000.0,-74000.0,-74000.0,&
+                                  -74000.0,-74000.0,-74000.0,-74000.0,-74000.0/)
+  
   REAL, SAVE ::        &!should be able to change parameters!!!
        max_glacier_snowd=1100.0,&
        snow_ccnsw = 2.0, &
@@ -265,10 +309,17 @@ MODULE cable_common_module
   !jhan:temporary measure. improve hiding
   !   real, dimension(:,:), pointer,save :: c1, rhoch
 
+!!$  !CABLE_LSM: intro'd quick writing capbility. remove from here. keep for ref
+!!$  character(len=*), parameter :: &                     ! this bit appears in MMY code but seems 
+!!$    fprintf_dir_root = "/short/w35/mrd561/10.6/diag/"  ! customized for mrd561
+!!$                                                       ! I will commented out -- rk4417
+!!$  character(len=200) :: fprintf_dir
+  
   INTERFACE fudge_out
      MODULE PROCEDURE fudge_out_r2D, fudge_out_r1D, fudge_out_r3D, fudge_out_i2D
-  END INTERFACE
-
+!!$  END INTERFACE               ! replaced as per MMY -- rk4417
+  END INTERFACE fudge_out
+  
 CONTAINS
 
   !--- LN ------------------------------------------[
@@ -488,6 +539,8 @@ CONTAINS
 
   SUBROUTINE init_veg_from_vegin(ifmp,fmp, veg, soil_zse )
     USE cable_def_types_mod, ONLY : veg_parameter_type, ms
+!!$    SUBROUTINE init_veg_from_vegin(ifmp,fmp, veg)        ! above 2 lines appear this way in MMY code
+!!$      use cable_def_types_mod, ONLY : veg_parameter_type ! most likely superseded by 2 lines here -- rk4417
     INTEGER ::  ifmp,  & ! start local mp, # landpoints (jhan:when is this not 1 )
          fmp     ! local mp, # landpoints
     REAL, DIMENSION(ms) :: soil_zse
@@ -538,6 +591,7 @@ CONTAINS
        veg%ekc(h)    = vegin%ekc(veg%iveg(h))
        veg%eko(h)    = vegin%eko(veg%iveg(h))
        veg%rootbeta(h)  = vegin%rootbeta(veg%iveg(h))
+       veg%froot(h,:)  = vegin%froot(:, veg%iveg(h))   ! inserted this line as per MMY -- rk4417
        veg%zr(h)       = vegin%zr(veg%iveg(h))
        veg%clitt(h)    = vegin%clitt(veg%iveg(h))
     END DO ! over each veg patch in land point
@@ -553,10 +607,6 @@ CONTAINS
     DO is = ms-1, 2, -1
        veg%froot(:, is) = veg%froot(:, is)-veg%froot(:,is-1)
     END DO
-
-
-
-
 
   END SUBROUTINE init_veg_from_vegin
 

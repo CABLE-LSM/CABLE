@@ -458,6 +458,18 @@ CONTAINS
     CASE(vwind) ; FN = TRIM(FN)//"/vwind/cruncepV8_vwind_"//cy//".daymean.nc"
     END SELECT
 
+!!$    SELECT CASE ( par )    ! the case construct above appears as below in MMY code -- rk4417
+!!$    CASE(rain) ; FN = TRIM(FN)//"/rain/cruncepV7_rain_"//cy//".daytot.nc"
+!!$    CASE(lwdn) ; FN = TRIM(FN)//"/lwdown/cruncepV7_lwdown_"//cy//".daymean.nc"
+!!$    CASE(swdn) ; FN = TRIM(FN)//"/swdown/cruncepV7_swdown_"//cy//".daymean.nc"
+!!$    CASE(pres) ; FN = TRIM(FN)//"/press/cruncepV7_press_"//cy//".daymean.nc"
+!!$    CASE(qair) ; FN = TRIM(FN)//"/qair/cruncepV7_qair_"//cy//".daymean.nc"
+!!$    CASE(tmax,PrevTmax) ; FN = TRIM(FN)//"/tmax/cruncepV7_tmax_"//cy//".daymax.nc"
+!!$    CASE(tmin,NextTmin) ; FN = TRIM(FN)//"/tmin/cruncepV7_tmin_"//cy//".daymin.nc"
+!!$    CASE(uwind) ; FN = TRIM(FN)//"/uwind/cruncepV7_uwind_"//cy//".daymean.nc"
+!!$    CASE(vwind) ; FN = TRIM(FN)//"/vwind/cruncepV7_vwind_"//cy//".daymean.nc"
+!!$    END SELECT
+    
   END SUBROUTINE CRU_GET_FILENAME
 
   !**************************************************************************************************
@@ -490,6 +502,8 @@ CONTAINS
        IF (CALL1) THEN
           ALLOCATE( CRU%CO2VALS( 1750:2016 ) )
           CO2FILE = TRIM(CRU%BasePath)//"/co2/1750_2015_globalCO2_time_series.csv"
+!!$          ALLOCATE( CRU%CO2VALS( 1860:2015 ) )   ! the two lines above appear as below in MMY code -- rk4417
+!!$          CO2FILE = TRIM(CRU%BasePath)//"/co2/1860_2015_globalCO2_time_series.csv"
           CALL GET_UNIT(iunit)
           OPEN (iunit, FILE=TRIM(CO2FILE), STATUS="OLD", ACTION="READ")
           DO WHILE( IOS .EQ. 0 )
@@ -513,7 +527,7 @@ CONTAINS
   !**************************************************************************************************
 
   SUBROUTINE GET_CRU_Ndep( CRU )
-
+!!$! Get CO2 values for use with a CRU-NCEP run. Assign a static 1860 value if specified otherwise ! this comment line replaces one below in MMY code -- rk4417 
     ! Get Ndep values for use with a CRU-NCEP run. Assign a static 1860 value if specified otherwise
     ! on the first call read all the annual values from a file into the CRU%CO2VALS array. On the first
     ! and subsequent
@@ -579,6 +593,8 @@ CONTAINS
 
        ! read Ndep at current year (noting that file starts at 1850 and ends in 2015)
        CRU%Ndep_CTSTEP = MIN(CRU%CYEAR, 2015) - 1850 + 1
+!!$       ! read Ndep at current year (noting that file starts at 1850) ! 2 lines replace ones above in MMY code -- rk4417
+!!$       CRU%Ndep_CTSTEP = CRU%CYEAR - 1850 + 1
        t =  CRU%Ndep_CTSTEP
        ErrStatus = NF90_GET_VAR(CRU%NdepF_ID, CRU%NdepV_ID, tmparr, &
             start=(/1,1,t/),count=(/xds,yds,1/) )
@@ -621,6 +637,7 @@ CONTAINS
     ! Keep the initial value of CYEAR for calculation of different MetYear if required.
     !IF (CALL1) RunStartYear = 1710 ! edit vh !
     IF (CALL1) RunStartYear = 1691 ! edit vh !
+!!$    IF (CALL1) RunStartYear = 1800 ! edit vh !  ! line above appears this way in MMY code -- rk4417
     DO iVar = 1, CRU%NMET  ! For each met variable
 
        ! For S0_TRENDY and initialisation, calculate the required met year for repeatedly cycling through the
@@ -726,7 +743,7 @@ CONTAINS
     ! If first call...
     ! Keep the initial value of CYEAR for calculation of different MetYear if required.
     IF (CALL1) THEN
-       !RunStartYear = CRU%CYEAR
+       !RunStartYear = CRU%CYEAR    ! this line replaces the one below in MMY code -- rk4417
        RunStartYear = 1691
        ! If this is not the first call, capture the existing Tmax from the previous day as the
        ! 'previous Tmax' before reading another one. Move the existing next day's Tmin into the current
@@ -742,7 +759,7 @@ CONTAINS
     ! through the 50 years of 1951-2000 spinup meteorology. For normal runs 1901-2015, MetYear = CYEAR.
     ! Stop with error for anything else.
 
-
+!!$The code below is uncommented in MMY code -- rk4417
 !!$  IF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY' .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' )) THEN
 !!$    MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
 !!$  ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY' ) THEN

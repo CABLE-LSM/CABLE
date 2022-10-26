@@ -47,37 +47,37 @@ MODULE sli_utils
   INTERFACE generic_thomas
      MODULE PROCEDURE generic_thomas_1d
      MODULE PROCEDURE generic_thomas_2d
-  END INTERFACE
+  END INTERFACE generic_thomas
 
   INTERFACE getfluxes_vp
      MODULE PROCEDURE getfluxes_vp_1d
      MODULE PROCEDURE getfluxes_vp_2d
-  END INTERFACE
+  END INTERFACE getfluxes_vp
 
   INTERFACE getheatfluxes
      MODULE PROCEDURE getheatfluxes_1d
      MODULE PROCEDURE getheatfluxes_2d
-  END INTERFACE
+  END INTERFACE getheatfluxes
 
   INTERFACE massman_sparse
      MODULE PROCEDURE massman_sparse_1d
      MODULE PROCEDURE massman_sparse_2d
-  END INTERFACE
+  END INTERFACE massman_sparse
 
   INTERFACE tri
      MODULE PROCEDURE tri_1d
      MODULE PROCEDURE tri_2d
-  END INTERFACE
+  END INTERFACE tri
 
   ! Function interfaces
 
   INTERFACE mean
      MODULE PROCEDURE mean_1d, mean_2d
-  END INTERFACE
+  END INTERFACE mean
 
   INTERFACE nse
      MODULE PROCEDURE nse_1d, nse_2d
-  END INTERFACE
+  END INTERFACE nse
 
   !P.J. Ross 2005-2007:
   ! This module implements Brooks-Corey (BC) soil water retention and conductivity

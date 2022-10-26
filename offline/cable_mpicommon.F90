@@ -29,8 +29,23 @@ MODULE cable_mpicommon
 
   ! base number of input fields: must correspond to CALLS to 
   ! MPI_address (field ) in *_mpimaster/ *_mpiworker
-  INTEGER, PARAMETER :: nparam = 330
+!!$  INTEGER, PARAMETER :: nparam = 330    !  replaced line by block below as per MMY code -- rk4417
    
+  ! MPI: base number of input fields sent to workers as start up
+  ! parameters !INTEGER, PARAMETER :: nparam = 68
+  ! MPI: Bernard commented out two canopy params (potev_c and rwater)
+  ! when porting to CABLE_r491 ! nparam = 219 -> nparam = 217
+  ! MPI: CABLE_r491, after following up with Bernard on the new variables
+  !INTEGER, PARAMETER :: nparam = 260
+  ! added 23 params when trying to fix the bug in MPI ! nparam -> 283
+  ! add 10 vairable to veg% param -> 293
+  ! Ticket #56, add 2 new params for the Medlyns Stom Cond model 293 -> 295
+  !Vanessa Haverd: add 4 new params 295 -> 299
+  ! VH add 9 params for sli 299 -> 308
+  ! INH add 7 params for REV_CORR package
+  ! mrd561 9 more: vector soils
+  INTEGER, PARAMETER :: nparam =351!hysteresis 346! 341!1 !326!308 
+
   ! MPI: extra params sent only if nsoilparmnew is true
   INTEGER, PARAMETER :: nsoilnew = 1
 
@@ -81,8 +96,9 @@ MODULE cable_mpicommon
   !INTEGER, PARAMETER :: nmat = 29
   ! MPI: CABLE_r491, after following up with Bernard on the new variables
   ! vh sli nmat + 4 36 -> 40
-  INTEGER, PARAMETER :: nmat = 40
-
+!!$  INTEGER, PARAMETER :: nmat = 40   ! replaced line by one below as per MMY code -- rk4417
+  INTEGER, PARAMETER :: nmat = 46  !hysteresis 41
+  
   ! MPI: number of contig vector parts / worker (results)
   !INTEGER, PARAMETER :: nvec = 149
   ! MPI: 2011-06-28 - removed ebal, ebal_tot, seb, seb_tot from data exchange
@@ -98,7 +114,8 @@ MODULE cable_mpicommon
   ! vh sli nvec + 6 162 -> 168
   ! INTEGER, PARAMETER :: nvec = 172! 168
   ! INH REV_CORR +3  (SSEB +2 will be needed)
-  INTEGER, PARAMETER :: nvec = 175
+!!$  INTEGER, PARAMETER :: nvec = 175    ! replaced line by one below as per MMY code -- rk4417
+  INTEGER, PARAMETER :: nvec = 176! 176!175
 
   ! MPI: number of final casa result matrices and vectors to receive
   ! by the master for casa_poolout and casa_fluxout

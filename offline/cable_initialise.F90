@@ -39,8 +39,9 @@ MODULE cable_init_module
        soiltype_metfile
   USE cable_read_module
   USE netcdf
-  USE cable_common_module, ONLY : filename, cable_user
-
+!!$  USE cable_common_module, ONLY : filename, cable_user  ! replaced line by below as per MMY -- rk4417
+  USE cable_common_module, ONLY : filename, cable_user,gw_params
+  
   IMPLICIT NONE
 
   PRIVATE
@@ -141,6 +142,18 @@ CONTAINS
     canopy%fhs     = 0.0   ! sensible heat flux from soil (W/m2)
     canopy%us = 0.1 ! friction velocity (needed in roughness before first call to canopy: should in be in restart?)
 
+    canopy%sublayer_dz = 0.001   ! added block here as per MMY -- rk4417
+    ssnow%rtevap_sat   = 0.0
+    ssnow%rtevap_unsat = 0.0
+    ssnow%satfrac    = 1.0e-12
+    ssnow%qhz        = 0.0
+    ssnow%wtd        = 1000.0
+    ssnow%wb_hys  = 0.99*soil%ssat_vec
+    ssnow%smp_hys = -0.99*soil%sucs_vec
+    ssnow%ssat_hys = gw_params%ssat_wet_factor*soil%ssat_vec
+    ssnow%watr_hys = soil%watr
+    ssnow%hys_fac = 1.0
+    
   END SUBROUTINE get_default_inits
 
   !==============================================================================
@@ -409,19 +422,93 @@ CONTAINS
          max_vegpatches,'def',from_restart,mp)
 
     !MD
-    ok = NF90_INQ_VARID(ncid_rin,'GWwb',parID)
-    IF(ok == NF90_NOERR) THEN
-       CALL readpar(ncid_rin,'GWwb',dummy,ssnow%GWwb,filename%restart_in,            &
-            max_vegpatches,'def',from_restart,mp)
-    ELSE
-       ssnow%GWwb = 0.95*soil%ssat
-    END IF
+!!$    ok = NF90_INQ_VARID(ncid_rin,'GWwb',parID)   ! commented out by rk4417 as it appears below 
+!!$    IF(ok == NF90_NOERR) THEN                    ! in added block 
+!!$       CALL readpar(ncid_rin,'GWwb',dummy,ssnow%GWwb,filename%restart_in,            &
+!!$            max_vegpatches,'def',from_restart,mp)
+!!$    ELSE
+!!$       ssnow%GWwb = 0.95*soil%ssat
+!!$    END IF
 
-!!$   IF(cable_user%SOIL_STRUC=='sli'.or.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
-!!$      CALL readpar(ncid_rin,'gamma',dummy,veg%gamma,filename%restart_in,           &
+!!$   IF(cable_user%SOIL_STRUC=='sli'.or.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN   ! I did not comment this out,
+!!$      CALL readpar(ncid_rin,'gamma',dummy,veg%gamma,filename%restart_in,           & ! see below for duplicate -- rk4417
 !!$           max_vegpatches,'def',from_restart,mp)
 !!$   ENDIF
 
+! added block below as per MMY code -- rk4417    
+!----------------------------- rk4417 -------------------------------------------------
+   IF (cable_user%gw_model) THEN
+      ok = NF90_INQ_VARID(ncid_rin,'GWwb',parID)
+      IF(ok == NF90_NOERR) THEN 
+        CALL readpar(ncid_rin,'GWwb',dummy,ssnow%GWwb,filename%restart_in,            &
+                   max_vegpatches,'def',from_restart,mp)   
+      ELSE
+         ssnow%GWwb = 0.95*soil%ssat
+      END IF
+
+      ok = NF90_INQ_VARID(ncid_rin,'wb_hys',parID)
+      IF(ok == NF90_NOERR) THEN 
+        CALL readpar(ncid_rin,'wb_hys',dummy,ssnow%wb_hys,filename%restart_in,            &
+                   max_vegpatches,'msd',from_restart,mp)   
+      ELSE
+         ssnow%wb_hys = 0.99*soil%ssat_vec
+      END IF
+
+      ok = NF90_INQ_VARID(ncid_rin,'smp_hys',parID)
+      IF(ok == NF90_NOERR) THEN 
+        CALL readpar(ncid_rin,'smp_hys',dummy,ssnow%smp_hys,filename%restart_in,            &
+                   max_vegpatches,'msd',from_restart,mp)   
+      ELSE
+         ssnow%smp_hys = -1.0*abs(soil%sucs_vec)*0.99
+      END IF
+
+      ok = NF90_INQ_VARID(ncid_rin,'ssat_hys',parID)
+      IF(ok == NF90_NOERR) THEN 
+        CALL readpar(ncid_rin,'ssat_hys',dummy,ssnow%ssat_hys,filename%restart_in,            &
+                   max_vegpatches,'msd',from_restart,mp)   
+      ELSE
+         ssnow%ssat_hys = soil%ssat_vec
+      END IF
+
+      ok = NF90_INQ_VARID(ncid_rin,'watr_hys',parID)
+      IF(ok == NF90_NOERR) THEN 
+        CALL readpar(ncid_rin,'watr_hys',dummy,ssnow%watr_hys,filename%restart_in,            &
+                   max_vegpatches,'msd',from_restart,mp)   
+      ELSE
+         ssnow%watr_hys = soil%watr
+      END IF
+
+
+      ok = NF90_INQ_VARID(ncid_rin,'hys_fac',parID)
+      IF(ok == NF90_NOERR) THEN 
+        CALL readpar(ncid_rin,'hys_fac',dummy,ssnow%hys_fac,filename%restart_in,            &
+                   max_vegpatches,'msd',from_restart,mp)   
+      ELSE
+         ssnow%hys_fac = 1.0
+      END IF
+
+   END IF
+
+   IF (cable_user%or_evap) THEN
+      ok = NF90_INQ_VARID(ncid_rin,'sublayer_dz',parID)
+      IF(ok == NF90_NOERR) THEN 
+         CALL readpar(ncid_rin,'sublayer_dz',dummy,canopy%sublayer_dz,filename%restart_in,            &
+              max_vegpatches,'def',from_restart,mp)   
+      ELSE
+         canopy%sublayer_dz(:) = 0.01
+      END IF
+
+      IF (any(canopy%sublayer_dz .lt. 0.0) .or. any(canopy%sublayer_dz .gt. 0.5))then
+         WRITE(*,*) 'problem with sublayer_dz and restart.  check restart values!'
+      END IF
+   END IF
+   
+   IF(cable_user%SOIL_STRUC=='sli'.or.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN  ! if block commented out in MMY code -- rk4417
+      CALL readpar(ncid_rin,'gamma',dummy,veg%gamma,filename%restart_in,           &
+           max_vegpatches,'def',from_restart,mp)
+   ENDIF
+!----------------------------- rk4417 -------------------------------------------------
+    
     IF(cable_user%SOIL_STRUC=='sli') THEN
        CALL readpar(ncid_rin,'S',dummy,ssnow%S,filename%restart_in, &
             max_vegpatches,'ms',from_restart,mp)
@@ -437,7 +524,7 @@ CONTAINS
             max_vegpatches,'snow',from_restart,mp)
        CALL readpar(ncid_rin,'sconds',dummy,ssnow%sconds,filename%restart_in, &
             max_vegpatches,'snow',from_restart,mp)
-!!$       CALL readpar(ncid_rin,'ZR',dummy,veg%ZR, &
+!!$       CALL readpar(ncid_rin,'ZR',dummy,veg%ZR, &                       ! this block is not commented out in MMY -- rk4417
 !!$            filename%restart_in,max_vegpatches,'def',from_restart,mp)
 !!$       CALL readpar(ncid_rin,'F10',dummy,veg%F10, &
 !!$            filename%restart_in,max_vegpatches,'def',from_restart,mp)
@@ -547,7 +634,7 @@ CONTAINS
     ENDIF
     !    CALL readpar(ncid_rin,'isoil',dummy,soil%isoilm,filename%restart_in,       &
     !         max_vegpatches,'def',from_restart,mp)
-    !   CALL readpar(ncid_rin,'clay',dummy,soil%clay,filename%restart_in,           &
+    !   CALL readpar(ncid_rin,'clay',dummy,soil%clay,filename%restart_in,           &  ! ---- block uncommented in MMY -- rk4417
     !                max_vegpatches,'def',from_restart,mp)
     !   CALL readpar(ncid_rin,'sand',dummy,soil%sand,filename%restart_in,           &
     !                max_vegpatches,'def',from_restart,mp)
@@ -587,10 +674,11 @@ CONTAINS
     !         CALL readpar(ncid_rin,'albsoil',dummy,soil%albsoil,filename%restart_in, &
     !                      max_vegpatches,'nrb',from_restart,mp)
     !      END IF
-    !   END IF
+    !   END IF    ! ------------------------------------------------------------------------- end of block -- rk4417
+
     !    CALL readpar(ncid_rin,'rs20',dummy,soil%rs20,filename%restart_in,          &
     !         max_vegpatches,'def',from_restart,mp)
-    !   CALL readpar(ncid_rin,'rs20',dummy,veg%rs20,filename%restart_in,            &
+    !   CALL readpar(ncid_rin,'rs20',dummy,veg%rs20,filename%restart_in,            & ! ---- block uncommented in MMY -- rk4417
     !                max_vegpatches,'def',from_restart,mp)
     !   CALL readpar(ncid_rin,'froot',dummy,veg%froot,filename%restart_in,          &
     !                max_vegpatches,'ms',from_restart,mp)
@@ -634,10 +722,12 @@ CONTAINS
     !   CALL readpar(ncid_rin,'g1',dummy,veg%g1,filename%restart_in,            &
     !                max_vegpatches,'def',from_restart,mp) ! Ticket #56
     !   CALL readpar(ncid_rin,'meth',dummy,veg%meth,filename%restart_in,            &
-    !                max_vegpatches,'def',from_restart,mp)
+    !                max_vegpatches,'def',from_restart,mp) ! --------------------------------- end of block -- rk4417
+
     !   ! special treatment of za with the introduction of za_uv and za_tq
     ! in case an old restart file is used
-    !   ok = NF90_INQ_VARID(ncid_rin,'za',parID)
+
+    !   ok = NF90_INQ_VARID(ncid_rin,'za',parID)                   ! ---- block uncommented in MMY -- rk4417
     !   IF(ok == NF90_NOERR) THEN ! if it does exist
     !      CALL readpar(ncid_rin,'za',dummy,rough%za_uv,filename%restart_in,        &
     !                   max_vegpatches,'def',from_restart,mp)
@@ -648,13 +738,15 @@ CONTAINS
     !                   max_vegpatches,'def',from_restart,mp)
     !      CALL readpar(ncid_rin,'za_tq',dummy,rough%za_tq,filename%restart_in,     &
     !                   max_vegpatches,'def',from_restart,mp)
-    !   ENDIF
+    !   ENDIF                                     ! --------------------------------- end of block -- rk4417
+    
     CALL readpar(ncid_rin,'zse',dummy,soil%zse,filename%restart_in,             &
          max_vegpatches,'ms',from_restart,mp)
-    !   CALL readpar(ncid_rin,'ratecp',dummy,bgc%ratecp,filename%restart_in,        &
+
+    !   CALL readpar(ncid_rin,'ratecp',dummy,bgc%ratecp,filename%restart_in,        &   ! ---- block uncommented in MMY -- rk4417
     !                max_vegpatches,'ncp',from_restart,mp)
     !   CALL readpar(ncid_rin,'ratecs',dummy,bgc%ratecs,filename%restart_in,        &
-    !                max_vegpatches,'ncs',from_restart,mp)
+    !                max_vegpatches,'ncs',from_restart,mp)    ! --------------------------------- end of block -- rk4417
     !
     ! Close restart file:
     ok = NF90_CLOSE(ncid_rin)

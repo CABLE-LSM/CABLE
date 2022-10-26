@@ -36,21 +36,24 @@ MODULE cable_def_types_mod
   !---at least 10-digit precision
 
   INTEGER :: mp,    & ! # total no of patches/tiles
-       mvtype,& ! total # vegetation types,   from input
-#ifdef UM_BUILD 
-       mstype=9,& ! total # soil types, needs to de defined atCompile TimeForNow
+             mvtype,& ! total # vegetation types,   from input
+#ifdef UM_BUILD    ! note that this if block is not found in MMY code -- rk4417 
+             mstype=9,& ! total # soil types, needs to de defined atCompile TimeForNow
 #else       
-       mstype,& ! total # soil types,         from input
+             mstype,& ! total # soil types,         from input
 #endif
-       mland                           ! # land grid cells
+!!$             mland                           ! # land grid cells   ! replaced by rk4417 as per MMY
+             mland,& !                         ! # land grid cells
+             mpatch  !number of patches per tile 
+                     !allows for setting this to a const value
 
   INTEGER, PARAMETER ::                                                        &
        i_d  = KIND(9), &
-#ifdef UM_BUILD 
+#ifdef UM_BUILD            ! note that this if block is not found in MMY code -- rk4417 
        r_2  = KIND(1.0),&!SELECTED_REAL_KIND(12, 50), &
 #else       
-       r_2  = KIND(1.d0),&!SELECTED_REAL_KIND(12, 50), &
-#endif
+       r_2  = KIND(1.d0),&!SELECTED_REAL_KIND(12, 50), & ! note that MMY code uses the commented out bit
+#endif                                                   ! -- rk4417  
        n_tiles = 17,  & ! # possible no of different
        ncp = 3,       & ! # vegetation carbon stores
        ncs = 2,       & ! # soil carbon stores
@@ -160,10 +163,18 @@ MODULE cable_def_types_mod
           rhosoil_vec,& !soil density  [kg/m3]
           ssat_vec, & !volumetric water content at saturation [mm3/mm3]
           watr,   & !residual water content of the soil [mm3/mm3]
+          smpc_vec, &  ! Hutson Cass SWC potential cutoff    ! 2 lines inserted by rk4417 as per MMY
+          wbc_vec,  &  ! Hutson Cass SWC volumetric water cutoff
           sfc_vec, & !field capcacity (hk = 1 mm/day)
           swilt_vec     ! wilting point (hk = 0.02 mm/day)
 
      REAL(r_2), DIMENSION(:), POINTER ::                                      &
+          hkrz,&! rate hyds changes with depth                  ! 6 lines added by rk4417 as per MMY
+          zdepth,&!  depth [m] where hkrz has zero impact
+          srf_frac_ma,&! fraction of surface with macropores 
+          edepth_ma,&!  e fold depth macropore fraction
+          qhz_max,&!  maximum base flow when fully sat
+          qhz_efold,&!  base flow efold rate dep on wtd, from drain-dens and param
           drain_dens,&!  drainage density ( mean dist to rivers/streams )
           elev, &  !elevation above sea level
           elev_std, &  !elevation above sea level
@@ -178,6 +189,8 @@ MODULE cable_def_types_mod
           GWssat_vec,  & !saturated water content of the aquifer [mm3/mm3]
           GWwatr,    & !residual water content of the aquifer [mm3/mm3]
           GWz,       & !node depth of the aquifer    [m]
+          smpc_GW, &  ! Hutson Cass SWC potential cutoff  ! 2 lines inserted by rk4417 as per MMY
+          wbc_GW,  &  ! Hutson Cass SWC volumetric water cutoff
           GWdz,      & !thickness of the aquifer   [m]
           GWrhosoil_vec    !density of the aquifer substrate [kg/m3]
 
@@ -231,7 +244,7 @@ MODULE cable_def_types_mod
           owetfac, & ! surface wetness fact. at previous time step
           t_snwlr, & ! top snow layer depth in 3 layer snowpack
           tggav,   & ! mean soil temperature in K
-          otgg,    & ! soil temperature in K
+!!$          otgg,    & ! soil temperature in K  ! This is 2-dim in MMY (see below) -- rk4417
           otss,    & ! surface temperature (weighted soil, snow)
           otss_0,  & ! surface temperature (weighted soil, snow)
           tprecip, &
@@ -258,6 +271,7 @@ MODULE cable_def_types_mod
           sdepth,     & ! snow depth
           smass,      & ! snow mass
           ssdn,       & ! snow densities
+          otgg,       & ! soil temperature in K  ! inserted as per MMY (no longer 1-dim) -- rk4417
           tgg,        & ! soil temperature in K
           tggsn,      & ! snow temperature in K
           dtmlt,      & ! water flux to the soil
@@ -308,7 +322,15 @@ MODULE cable_def_types_mod
           wmliq,   &    !water mass [mm] liq
           wmice,   &    !water mass [mm] ice
           wmtot,   &    !water mass [mm] liq+ice ->total
-          qhlev
+          qhlev,   &
+          smp_hys, & !soil swc props dynamic from hysteresis ! added as per MMY -- rk4417
+          wb_hys,  &
+          sucs_hys,&
+          ssat_hys,&
+          watr_hys,&
+          hys_fac, &
+          wbliq_old
+     
      ! Additional SLI variables:
      REAL(r_2), DIMENSION(:,:), POINTER :: S         ! moisture content relative to sat value    (edit vh 23/01/08)
      REAL(r_2), DIMENSION(:,:), POINTER :: Tsoil         !     Tsoil (deg C)
@@ -527,7 +549,7 @@ MODULE cable_def_types_mod
           lwabv,   & ! long wave absorbed by vegetation
           qssabs,  & ! absorbed short-wave radiation for soil
           transd,  & ! frac SW diffuse transmitted through canopy
-          trad,    & !  radiative temperature (soil and veg)
+          trad,    & ! radiative temperature (soil and veg)
           otrad      ! radiative temperature on previous timestep (ACCESS)
 
      REAL, DIMENSION(:,:), POINTER  ::                                        &
@@ -862,7 +884,11 @@ CONTAINS
     ALLOCATE( var%bch_vec(mp,ms) )
     ALLOCATE( var%ssat_vec(mp,ms) )
     ALLOCATE( var%watr(mp,ms) )
-    var%watr(:,:) = 0.05
+    var%watr(:,:) = 0.05            ! line not found in MYY code -- rk4417
+    ALLOCATE( var%wbc_GW(mp) )      ! 4 lines added by rk4417 as per MMY
+    ALLOCATE( var%smpc_GW(mp) )
+    ALLOCATE( var%wbc_vec(mp,ms) )
+    ALLOCATE( var%smpc_vec(mp,ms) )
     ALLOCATE( var%sfc_vec(mp,ms) )
     ALLOCATE( var%swilt_vec(mp,ms) )
     ALLOCATE( var%sand_vec(mp,ms) )
@@ -872,6 +898,12 @@ CONTAINS
     ALLOCATE( var%rhosoil_vec(mp,ms) )
 
     ALLOCATE( var%drain_dens(mp) )
+    ALLOCATE( var%hkrz(mp) )   ! 6 lines inserted by rk4417 as per MMY
+    ALLOCATE( var%zdepth(mp) )
+    ALLOCATE( var%srf_frac_ma(mp) )
+    ALLOCATE( var%edepth_ma(mp) )
+    ALLOCATE( var%qhz_max(mp) )
+    ALLOCATE( var%qhz_efold(mp) )
     ALLOCATE( var%elev(mp) )
     ALLOCATE( var%elev_std(mp) )
     ALLOCATE( var%slope(mp) )
@@ -954,7 +986,8 @@ CONTAINS
     ALLOCATE( var%t_snwlr(mp) )
     ALLOCATE( var%wbfice(mp,ms) )
     ALLOCATE( var%tggav(mp) )
-    ALLOCATE( var%otgg(mp) )
+!!$    ALLOCATE( var%otgg(mp) )     ! replaced as per MMY -- rk4417
+    ALLOCATE( var%otgg(mp,ms) )
     ALLOCATE( var%otss(mp) )
     ALLOCATE( var%otss_0(mp) )
     ALLOCATE( var%tprecip(mp) )
@@ -1001,6 +1034,14 @@ CONTAINS
     ALLOCATE( var%wmliq(mp,ms) )
     ALLOCATE( var%wmice(mp,ms) )
     ALLOCATE( var%wmtot(mp,ms) )
+    ALLOCATE(var % smp_hys(mp,ms) )   !1      ! block added as per MMY -- rk4417
+    ALLOCATE(var % wb_hys(mp,ms) )    !2
+    ALLOCATE(var % ssat_hys(mp,ms) )   !3
+    ALLOCATE(var % watr_hys(mp,ms) )   !4
+    ALLOCATE(var % hys_fac(mp,ms) )    !5
+    ALLOCATE(var % sucs_hys(mp,ms) )    !5
+    ALLOCATE(var % wbliq_old(mp,ms) ) 
+    
 
     ! Allocate variables for SLI soil model:
     !IF(cable_user%SOIL_STRUC=='sli') THEN
@@ -1069,7 +1110,7 @@ CONTAINS
     ALLOCATE( var%deciduous(mp) )
     ALLOCATE( var%froot(mp,ms) )
     !was nrb(=3), but never uses (:,3) in model
-#ifdef UM_BUILD 
+#ifdef UM_BUILD                                ! note that this if block is not found in MMY code -- rk4417  
     ALLOCATE( var%refl(mp,nrb) ) !jhan:swb?
     ALLOCATE( var%taul(mp,nrb) )
 #else
@@ -1489,6 +1530,10 @@ CONTAINS
     DEALLOCATE( var% cnsd_vec )
     DEALLOCATE( var%hyds_vec )
     DEALLOCATE( var%sucs_vec )
+    DEALLOCATE( var%wbc_GW )   ! 4 lines inserted by rk4417 as per MMY
+    DEALLOCATE( var%smpc_GW )
+    DEALLOCATE( var%wbc_vec )
+    DEALLOCATE( var%smpc_vec )
     DEALLOCATE( var%bch_vec )
     DEALLOCATE( var%ssat_vec )
     DEALLOCATE( var%watr )
@@ -1504,6 +1549,13 @@ CONTAINS
     DEALLOCATE( var%elev_std )
     DEALLOCATE( var%slope )
     DEALLOCATE( var%slope_std )
+    DEALLOCATE( var%drain_dens ) ! 7 lines inserted by rk4417 as per MMY
+    DEALLOCATE( var%hkrz )
+    DEALLOCATE( var%zdepth )
+    DEALLOCATE( var%srf_frac_ma )
+    DEALLOCATE( var%edepth_ma )
+    DEALLOCATE( var%qhz_max )
+    DEALLOCATE( var%qhz_efold )
     ! Deallocate variables for SLI soil model:
     !IF(cable_user%SOIL_STRUC=='sli') THEN
     DEALLOCATE ( var % nhorizons)
@@ -1627,7 +1679,15 @@ CONTAINS
     DEALLOCATE( var%wmliq )
     DEALLOCATE( var%wmice )
     DEALLOCATE( var%wmtot )
+    DEALLOCATE(var % smp_hys ) ! 7 lines added by rk4417 as per MMY 
+    DEALLOCATE(var % wb_hys )
+    DEALLOCATE(var % ssat_hys )
+    DEALLOCATE(var % watr_hys )
+    DEALLOCATE(var % hys_fac )
+    DEALLOCATE(var % sucs_hys )
+    DEALLOCATE(var % wbliq_old )
 
+    
     !IF(cable_user%SOIL_STRUC=='sli') THEN
     DEALLOCATE ( var % S )
     DEALLOCATE ( var % Tsoil )

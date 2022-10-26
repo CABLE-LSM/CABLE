@@ -4,7 +4,8 @@ MODULE cable_psm
        canopy_type,soil_parameter_type,veg_parameter_type,&
        roughness_type
   USE cable_common_module, ONLY : cable_user
-
+  USE cable_io_vars_module, only: wlogn   ! added by rk4417 as per MMY code but seems to do nothing in cable_io_vars_module or here
+  
   IMPLICIT NONE
 
 
@@ -14,6 +15,8 @@ MODULE cable_psm
        litter_thermal_diff=2.7e-5  !param based on vh thermal diffusivity
 
   REAL(r_2), PARAMETER :: rtevap_max = 10000.0
+  ! these precomputed values are taken by the sample code in Wikipedia, ! comment inserted by rk4417 as per MMY code 
+  ! and the sample itself takes them from the GNU Scientific Library
   REAL(r_2), DIMENSION(0:8), PARAMETER :: gamma_pre = &
        (/ 0.99999999999980993, 676.5203681218851, -1259.1392167224028, &
        771.32342877765313, -176.61502916214059, 12.507343278686905, &
@@ -69,8 +72,8 @@ CONTAINS
 
 
 
-    REAL(r_2), DIMENSION(mp) :: sublayer_dz, eddy_shape,eddy_mod,soil_moisture_mod, &
-         soil_moisture_mod_sat, wb_liq, &
+    REAL(r_2), DIMENSION(mp) :: sublayer_dz, eddy_shape,eddy_mod,soil_moisture_mod, &  ! sublayer_dz is not used and is also missing
+         soil_moisture_mod_sat, wb_liq, &                                              ! from MMY code -- rk4417
          pore_size,pore_radius, rel_s,hk_zero,hk_zero_sat,time_scale  !note pore_size in m
 
     REAL(r_2), DIMENSION(mp) :: litter_dz
@@ -81,20 +84,32 @@ CONTAINS
 
     INTEGER :: i,j,k
 
+!!$    canopy%sublayer_dz(:) = 0.005   ! this line appears in MMY code but will leave commented for now -- rk4417
+   
     IF (cable_user%litter) THEN
        litter_dz(:) = veg%clitt*0.003
     ELSE
        litter_dz(:) = 0.0
     ENDIF
 
+!!$   litter_dz(:) = 0.0                ! this block replaces the if block above in MMY code -- rk4417
+!!$   if (cable_user%litter) then
+!!$      where (ssnow%isflag .eq. 0 .or. ssnow%snowd .le. 0.1)
+!!$         litter_dz(:) = veg%clitt*0.003
+!!$      endwhere
+!!$   endif
+
+    
     pore_radius(:) = 0.148  / (1000.0*9.81*ABS(soil%sucs_vec(:,1))/1000.0)  !should replace 0.148 with surface tension, unit coversion, and angle
     pore_size(:) = pore_radius(:)*SQRT((pi_r_2))
 
     !scale ustar according to the exponential wind profile, assuming we are a mm from the surface
-    eddy_shape = 0.3*met%ua/ MAX(1.0e-4,MAX(1.0e-3,canopy%us)*&
-         EXP(-rough%coexp*(1.0-canopy%sublayer_dz/MAX(1e-2,rough%hruff))))
-    int_eddy_shape = FLOOR(eddy_shape)
+
+    eddy_shape = 0.3*met%ua/ MAX(1.0e-4,MAX(1.0e-3,canopy%us)*&             ! eddy_shape and int_eddy_shape are computed inside
+         EXP(-rough%coexp*(1.0-canopy%sublayer_dz/MAX(1e-2,rough%hruff))))  ! the do loop below in MMY code -- rk4417 
+    int_eddy_shape = FLOOR(eddy_shape)                                      ! the if condition below applies to them in MMY code -- rk4417
     eddy_mod(:) = 0.0
+
     DO i=1,mp
        IF (veg%iveg(i) .LT. 16) THEN
           eddy_mod(i) = 2.2*SQRT(112.0*(pi_r_2)) / (2.0**(eddy_shape(i)+1.0) * SQRT(eddy_shape(i)+1.0))
@@ -126,6 +141,8 @@ CONTAINS
           rel_s(i) = REAL( MAX(wb_liq(i)-soil%watr(i,1),0._r_2)/(soil%ssat_vec(i,1)-soil%watr(i,1)) )
           hk_zero(i) = MAX(0.001*soil%hyds_vec(i,1)*(MIN(MAX(rel_s(i),0.001_r_2),1._r_2)**(2._r_2*soil%bch_vec(i,1)+3._r_2) ),1e-8)
           hk_zero_sat(i) = MAX(0.001*soil%hyds_vec(i,1),1e-8)
+!!$          hk_zero(i) = max(0.001*soil%hyds_vec(i,1)*(min(max(rel_s(i),0.001_r_2),1._r_2)**(2._r_2*soil%bch_vec(i,1)+3._r_2) ),1e-12)
+!!$          hk_zero_sat(i) = max(0.001*soil%hyds_vec(i,1),1e-12)   ! 2 lines here replace ones above in MMY code -- rk4417
 
           soil_moisture_mod(i)     = 1.0/(pi_r_2)/SQRT(wb_liq(i))* ( SQRT((pi_r_2)/(4.0*wb_liq(i)))-1.0)
           soil_moisture_mod_sat(i) = 1.0/(pi_r_2)/SQRT(soil%ssat_vec(i,1))* ( SQRT((pi_r_2)/(4.0*soil%ssat_vec(i,1)))-1.0)
@@ -144,7 +161,19 @@ CONTAINS
 
           END IF
 
+!!$          if (ssnow%isflag(i) .eq. 1 .or. (ssnow%snowd(i) .gt. 0.1) ) then
+!!$
+!!$             hk_zero(i)     = 1.0e15
+!!$             hk_zero_sat(i) = 1.0e15
+!!$             soil_moisture_mod(i)     = 0.0
+!!$             soil_moisture_mod_sat(i) = 0.0
+!!$             
+!!$          end if     ! this if block replaces one above in MMY code -- rk4417
+
+!!$       canopy%sublayer_dz(i) = canopy%sublayer_dz(i) + litter_dz(i)  ! line from above appears here in MMY code -- rk4417
+          
           IF (canopy%sublayer_dz(i) .GE. 1.0e-7) THEN
+!!$      if (canopy%sublayer_dz(i) .ge. 1.0e-7 .and. hk_zero(i) .lt. 1.0e14) then  ! line replaces above one in MMY code -- rk4417 
              ssnow%rtevap_unsat(i) = MIN(rtevap_max, &
                   rough%z0soil(i)/canopy%sublayer_dz(i) * (lm/ (4.0*hk_zero(i)) +&
                   (canopy%sublayer_dz(i) + pore_size(i) * soil_moisture_mod(i)) / rt_Dff))
@@ -161,6 +190,7 @@ CONTAINS
                   lm/ (4.0*hk_zero_sat(i)) + (canopy%sublayer_dz(i) + pore_size(i) * soil_moisture_mod_sat(i)) / rt_Dff)
 
              ssnow%rt_qh_sublayer(i) = 0.0
+!!$             ssnow%rt_qh_sublayer(i) = canopy%sublayer_dz(i) / litter_thermal_diff  ! line replaces above one in MMY code -- rk4417 
           END IF
 
        ELSE

@@ -93,6 +93,77 @@ USE cbl_soil_snow_subrs_module
           soil%heat_cap_lower_limit(:,k) = soil%css(:) * soil%rhosoil(:)
        END DO
     END IF
+
+!!$ inserted block below as per MMY code -- rk4417
+
+   IF( .NOT.cable_user%cable_runtime_coupled ) THEN
+
+      IF( ktau_gl <= 1 ) THEN
+
+         IF (cable_runtime%um) canopy%dgdtg = 0.0 ! RML added um condition
+                                                  ! after discussion with BP
+         ! N.B. snmin should exceed sum of layer depths, i.e. .11 m
+         ssnow%wbtot = 0.0
+         DO k = 1, ms
+            ssnow%wb(:,k)  = MIN( soil%ssat, MAX( real(ssnow%wb(:,k)), soil%swilt ) )
+         END DO
+
+         ssnow%wb(:,ms-2)  = MIN( soil%ssat, MAX( real(ssnow%wb(:,ms-2)),           &
+                             0.5 * ( soil%sfc + soil%swilt ) ) )
+         ssnow%wb(:,ms-1)  = MIN( soil%ssat, MAX( real(ssnow%wb(:,ms-1)),           &
+                             0.8 * soil%sfc ) )
+         ssnow%wb(:,ms)    = MIN( soil%ssat, MAX( real(ssnow%wb(:,ms)), soil%sfc ) )
+
+         DO k = 1, ms
+
+            WHERE( ssnow%tgg(:,k) <= C%TFRZ .AND. ssnow%wbice(:,k) <= 0.01 )   &
+               ssnow%wbice(:,k) = 0.5 * ssnow%wb(:,k)
+
+            WHERE( ssnow%tgg(:,k) < C%TFRZ)                                    &
+               ssnow%wbice(:,k) = frozen_limit * ssnow%wb(:,k)
+
+         END DO
+
+         WHERE (soil%isoilm == 9)
+            ! permanent ice: fix hard-wired number in next version
+            ssnow%snowd = max_glacier_snowd
+            ssnow%osnowd = max_glacier_snowd
+            ssnow%tgg(:,1) = ssnow%tgg(:,1) - 1.0
+            ssnow%wb(:,1) = 0.95 * soil%ssat
+            ssnow%wb(:,2) = 0.95 * soil%ssat
+            ssnow%wb(:,3) = 0.95 * soil%ssat
+            ssnow%wb(:,4) = 0.95 * soil%ssat
+            ssnow%wb(:,5) = 0.95 * soil%ssat
+            ssnow%wb(:,6) = 0.95 * soil%ssat
+            ssnow%wbice(:,1) = 0.90 * ssnow%wb(:,1)
+            ssnow%wbice(:,2) = 0.90 * ssnow%wb(:,2)
+            ssnow%wbice(:,3) = 0.90 * ssnow%wb(:,3)
+            ssnow%wbice(:,4) = 0.90 * ssnow%wb(:,4)
+            ssnow%wbice(:,5) = 0.90 * ssnow%wb(:,5)
+            ssnow%wbice(:,6) = 0.90 * ssnow%wb(:,6)
+         ENDWHERE
+
+         xx=real(soil%heat_cap_lower_limit(:,1))
+
+         ssnow%gammzz(:,1) = MAX( (1.0 - soil%ssat) * soil%css * soil%rhosoil &
+              & + (ssnow%wb(:,1) - ssnow%wbice(:,1) ) * C%cswat * C%density_liq &
+              & + ssnow%wbice(:,1) * C%csice * C%density_liq * .9, xx ) * soil%zse(1)
+      END IF
+   ENDIF  ! if(.NOT.cable_runtime_coupled)
+
+
+   IF (ktau <= 1)       THEN
+
+       xx=soil%heat_cap_lower_limit(:,1)
+     ssnow%gammzz(:,1) = MAX( (1.0 - soil%ssat) * soil%css * soil%rhosoil      &
+            & + (ssnow%wb(:,1) - ssnow%wbice(:,1) ) * C%cswat * C%density_liq           &
+            & + ssnow%wbice(:,1) * C%csice * C%density_liq * .9, xx ) * soil%zse(1) +   &
+            & (1. - ssnow%isflag) * C%cgsnow * ssnow%snowd
+
+   END IF
+
+!!$ -------------  end of block -------------- rk4417 -----------
+    
     ssnow%wbliq = ssnow%wb - ssnow%wbice
 
     DO k = 1, ms ! for stempv
