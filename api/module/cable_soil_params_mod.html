@@ -88,12 +88,12 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.2% of total for modules and submodules.">109 statements</a>
+    title=" 0.1% of total for modules and submodules.">30 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/cable_soil_params.F90"> Source File</a></li>
   </ul>
   <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/cable_soil_params.f90~2.html'>cable_soil_params.F90</a></li>
+     <li><a href='../sourcefile/cable_soil_params.f90.html'>cable_soil_params.F90</a></li>
      <li class="active">cable_soil_params_mod</li>
   </ol>
 </div>
@@ -113,10 +113,27 @@
   <h3>Contents</h3>
  
 <div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#vars-0">Variables</a></h3></div>
+  <div id="vars-0" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/cable_soil_params_mod.html#variable-soilin">soilin</a>
+      <a class="list-group-item" href="../module/cable_soil_params_mod.html#variable-soil_desc">soil_desc</a>
+    </div>
+  </div>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#types-0">Derived Types</a></h3></div>
+  <div id="types-0" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/cable_soil_params_mod.html#type-soilin_type~2">soilin_type</a>
+    </div>
+  </div>
+</div>
+<div class="panel panel-primary">
   <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#subs-0">Subroutines</a></h3></div>
   <div class="list-group">
     <div id="subs-0" class="panel-collapse collapse">
-      <a class="list-group-item" href="../module/cable_soil_params_mod.html#proc-cable_soil_params">cable_soil_params</a>
+      <a class="list-group-item" href="../module/cable_soil_params_mod.html#proc-cable_soil_params~2">cable_soil_params</a>
     </div>
   </div>
 </div>
@@ -127,7 +144,19 @@
     
     <div class="col-md-9" id='text'>
     
-    
+<br>        <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Uses</h3>
+      </div>
+      <ul class="list-group">
+      <li class="list-group-item">
+  <ul class="list-inline">
+    <li><a href='../module/grid_constants_mod_cbl.html'>grid_constants_mod_cbl</a></li>
+  </ul>
+      </li>
+      </ul>
+    </div>
+
     
     <br>
 
@@ -135,10 +164,27 @@
       <h3>Contents</h3>
  
 <div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#vars-1">Variables</a></h3></div>
+  <div id="vars-1" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/cable_soil_params_mod.html#variable-soilin">soilin</a>
+      <a class="list-group-item" href="../module/cable_soil_params_mod.html#variable-soil_desc">soil_desc</a>
+    </div>
+  </div>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#types-1">Derived Types</a></h3></div>
+  <div id="types-1" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/cable_soil_params_mod.html#type-soilin_type~2">soilin_type</a>
+    </div>
+  </div>
+</div>
+<div class="panel panel-primary">
   <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#subs-1">Subroutines</a></h3></div>
   <div class="list-group">
     <div id="subs-1" class="panel-collapse collapse">
-      <a class="list-group-item" href="../module/cable_soil_params_mod.html#proc-cable_soil_params">cable_soil_params</a>
+      <a class="list-group-item" href="../module/cable_soil_params_mod.html#proc-cable_soil_params~2">cable_soil_params</a>
     </div>
   </div>
 </div>
@@ -147,16 +193,119 @@
     <br class="visible-xs visible-sm hidden-md">
 
 
+    <section>
+    <h2>Variables</h2>
+    <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Visibility</th><th>Attributes</th><th></th><th>Name</th><th></th><th>Initial</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" id="variable-soilin"></span>type(<a href='../type/soilin_type~2.html'>soilin_type</a>),</td>
+<td>public,</td>  <td>SAVE</td><td>::</td>
+  <td><strong>soilin</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-soil_desc"></span>character(len=70),</td>
+<td>public,</td>  <td>DIMENSION(nsoil_max)</td><td>::</td>
+  <td><strong>soil_desc</strong></td><td></td><td></td><td></td>
+</tr>
+</tbody>
+</table>
+
+    </section>
+    <br>
     
     
 
     
+    <section>
+     <h2>Derived Types</h2>
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="type-soilin_type~2"></span><h3>type, public :: <a href='../type/soilin_type~2.html'>soilin_type</a>  </h3></div>
+  <div class="panel-body">
+     <h4>Components</h4>
+    <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Visibility</th><th>Attributes</th><th></th><th>Name</th><th></th><th>Initial</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" id="variable-desc~2"></span>character(len=70),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>desc</strong>(nsoil_max)</td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-silt~7"></span>real,</td>
+<td>public,</td>  <td>DIMENSION(nsoil_max)</td><td>::</td>
+  <td><strong>silt</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-clay~7"></span>real,</td>
+<td>public,</td>  <td>DIMENSION(nsoil_max)</td><td>::</td>
+  <td><strong>clay</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-sand~7"></span>real,</td>
+<td>public,</td>  <td>DIMENSION(nsoil_max)</td><td>::</td>
+  <td><strong>sand</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-swilt~7"></span>real,</td>
+<td>public,</td>  <td>DIMENSION(nsoil_max)</td><td>::</td>
+  <td><strong>swilt</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-sfc~7"></span>real,</td>
+<td>public,</td>  <td>DIMENSION(nsoil_max)</td><td>::</td>
+  <td><strong>sfc</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-ssat~7"></span>real,</td>
+<td>public,</td>  <td>DIMENSION(nsoil_max)</td><td>::</td>
+  <td><strong>ssat</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-bch~7"></span>real,</td>
+<td>public,</td>  <td>DIMENSION(nsoil_max)</td><td>::</td>
+  <td><strong>bch</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-hyds~7"></span>real,</td>
+<td>public,</td>  <td>DIMENSION(nsoil_max)</td><td>::</td>
+  <td><strong>hyds</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-sucs~7"></span>real,</td>
+<td>public,</td>  <td>DIMENSION(nsoil_max)</td><td>::</td>
+  <td><strong>sucs</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-rhosoil~7"></span>real,</td>
+<td>public,</td>  <td>DIMENSION(nsoil_max)</td><td>::</td>
+  <td><strong>rhosoil</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-css~7"></span>real,</td>
+<td>public,</td>  <td>DIMENSION(nsoil_max)</td><td>::</td>
+  <td><strong>css</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-c3~2"></span>real,</td>
+<td>public,</td>  <td>DIMENSION(nsoil_max)</td><td>::</td>
+  <td><strong>c3</strong></td><td></td><td></td><td></td>
+</tr>
+</tbody>
+</table>
+
+     
+  </div>
+</div>
+
+    </section>
+  <br>
     
 
     <section>
     <h2>Subroutines</h2>
       <div class="panel panel-default">
-  <div class="panel-heading codesum"><span class="anchor" id="proc-cable_soil_params"></span><h3>public subroutine <a href='../proc/cable_soil_params.html'>cable_soil_params</a>()</h3></div>
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cable_soil_params~2"></span><h3>public subroutine <a href='../proc/cable_soil_params~2.html'>cable_soil_params</a>()</h3></div>
   <div class="panel-body">
            
 <h4>Arguments</h4>      <em>None</em>
