@@ -1,0 +1,16 @@
+{
+    "ignorePatterns": [
+        {
+            "pattern": "^https://code.metoffice.gov.uk"
+        },
+        {
+            "pattern": "^http://127.0.0.1:8000"
+        },
+        {
+            "pattern": "^http://www.bom.gov.au"
+        },
+        {
+            "pattern": "^https://docs.github.com"
+        }
+    ]
+}
