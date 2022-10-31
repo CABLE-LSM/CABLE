@@ -20,9 +20,9 @@ runs:
       with:
         python-version: 3.x
 
-    - name: Install dependencies
+    - name: Install dependencies for mkdocs
       run: | 
-        pip install -r requirements.txt
+        pip install -r documentation/mkdocs-requirements.txt
       shell: bash
 
     - name: Build documentation
@@ -30,6 +30,11 @@ runs:
       run: |
         # outputs to "site" directory
         mkdocs build -f mkdocs.yml
+      shell: bash
+
+    - name: Install dependencies for ford
+      run: | 
+        pip install -r documentation/ford-requirements.txt
       shell: bash
 
     # Builds without call graphs for faster result
