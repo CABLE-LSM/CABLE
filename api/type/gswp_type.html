@@ -90,10 +90,10 @@
     data-placement="bottom" data-html="true"
     title="<p> 0.3% of total for derived types.</p>Including implementation: 3 statements,  0.3% of total for derived types.">3 statements</a>
      </li> 
-    <li><i class="fa fa-code"></i><a href="../src/cable_iovars.F90"> Source File</a></li>
+    <li><i class="fa fa-code"></i><a href="../src/cable_iovars_CMIP6.F90"> Source File</a></li>
   </ul>
   <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/cable_iovars.f90.html'>cable_iovars.F90</a></li>
+     <li><a href='../sourcefile/cable_iovars_cmip6.f90.html'>cable_iovars_CMIP6.F90</a></li>
      <li><a href='../module/cable_io_vars_module.html'>cable_IO_vars_module</a></li>
      <li class="active">gswp_type</li>
   </ol>
@@ -117,14 +117,15 @@
   <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#vars-0">Variables</a></h3></div>
   <div id="vars-0" class="panel-collapse collapse">
     <div class="list-group">
-      <a class="list-group-item" href="../type/gswp_type.html#variable-rainf">rainf</a>
-      <a class="list-group-item" href="../type/gswp_type.html#variable-snowf">snowf</a>
-      <a class="list-group-item" href="../type/gswp_type.html#variable-lwdown~3">LWdown</a>
-      <a class="list-group-item" href="../type/gswp_type.html#variable-swdown~3">SWdown</a>
-      <a class="list-group-item" href="../type/gswp_type.html#variable-psurf~3">PSurf</a>
-      <a class="list-group-item" href="../type/gswp_type.html#variable-qair~3">Qair</a>
-      <a class="list-group-item" href="../type/gswp_type.html#variable-tair~3">Tair</a>
-      <a class="list-group-item" href="../type/gswp_type.html#variable-wind">wind</a>
+      <a class="list-group-item" href="../type/gswp_type.html#variable-rainf~4">rainf</a>
+      <a class="list-group-item" href="../type/gswp_type.html#variable-snowf~4">snowf</a>
+      <a class="list-group-item" href="../type/gswp_type.html#variable-lwdown~9">LWdown</a>
+      <a class="list-group-item" href="../type/gswp_type.html#variable-swdown~7">SWdown</a>
+      <a class="list-group-item" href="../type/gswp_type.html#variable-psurf~9">PSurf</a>
+      <a class="list-group-item" href="../type/gswp_type.html#variable-qair~7">Qair</a>
+      <a class="list-group-item" href="../type/gswp_type.html#variable-tair~7">Tair</a>
+      <a class="list-group-item" href="../type/gswp_type.html#variable-wind~4">wind</a>
+      <a class="list-group-item" href="../type/gswp_type.html#variable-mask~2">mask</a>
     </div>
   </div>
 </div>
@@ -145,14 +146,15 @@
   <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#vars-1">Variables</a></h3></div>
   <div id="vars-1" class="panel-collapse collapse">
     <div class="list-group">
-      <a class="list-group-item" href="../type/gswp_type.html#variable-rainf">rainf</a>
-      <a class="list-group-item" href="../type/gswp_type.html#variable-snowf">snowf</a>
-      <a class="list-group-item" href="../type/gswp_type.html#variable-lwdown~3">LWdown</a>
-      <a class="list-group-item" href="../type/gswp_type.html#variable-swdown~3">SWdown</a>
-      <a class="list-group-item" href="../type/gswp_type.html#variable-psurf~3">PSurf</a>
-      <a class="list-group-item" href="../type/gswp_type.html#variable-qair~3">Qair</a>
-      <a class="list-group-item" href="../type/gswp_type.html#variable-tair~3">Tair</a>
-      <a class="list-group-item" href="../type/gswp_type.html#variable-wind">wind</a>
+      <a class="list-group-item" href="../type/gswp_type.html#variable-rainf~4">rainf</a>
+      <a class="list-group-item" href="../type/gswp_type.html#variable-snowf~4">snowf</a>
+      <a class="list-group-item" href="../type/gswp_type.html#variable-lwdown~9">LWdown</a>
+      <a class="list-group-item" href="../type/gswp_type.html#variable-swdown~7">SWdown</a>
+      <a class="list-group-item" href="../type/gswp_type.html#variable-psurf~9">PSurf</a>
+      <a class="list-group-item" href="../type/gswp_type.html#variable-qair~7">Qair</a>
+      <a class="list-group-item" href="../type/gswp_type.html#variable-tair~7">Tair</a>
+      <a class="list-group-item" href="../type/gswp_type.html#variable-wind~4">wind</a>
+      <a class="list-group-item" href="../type/gswp_type.html#variable-mask~2">mask</a>
     </div>
   </div>
 </div>
@@ -166,44 +168,49 @@
 <thead><tr><th>Type</th><th>Visibility</th><th>Attributes</th><th></th><th>Name</th><th></th><th>Initial</th><th></th></thead>
 <tbody>
 <tr>
-  <td><span class="anchor" id="variable-rainf"></span>character(len=99),</td>
+  <td><span class="anchor" id="variable-rainf~4"></span>character(len=200),</td>
 <td>public</td>  <td></td><td>::</td>
   <td><strong>rainf</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-snowf"></span>character(len=99),</td>
+  <td><span class="anchor" id="variable-snowf~4"></span>character(len=200),</td>
 <td>public</td>  <td></td><td>::</td>
   <td><strong>snowf</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-lwdown~3"></span>character(len=99),</td>
+  <td><span class="anchor" id="variable-lwdown~9"></span>character(len=200),</td>
 <td>public</td>  <td></td><td>::</td>
   <td><strong>LWdown</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-swdown~3"></span>character(len=99),</td>
+  <td><span class="anchor" id="variable-swdown~7"></span>character(len=200),</td>
 <td>public</td>  <td></td><td>::</td>
   <td><strong>SWdown</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-psurf~3"></span>character(len=99),</td>
+  <td><span class="anchor" id="variable-psurf~9"></span>character(len=200),</td>
 <td>public</td>  <td></td><td>::</td>
   <td><strong>PSurf</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qair~3"></span>character(len=99),</td>
+  <td><span class="anchor" id="variable-qair~7"></span>character(len=200),</td>
 <td>public</td>  <td></td><td>::</td>
   <td><strong>Qair</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-tair~3"></span>character(len=99),</td>
+  <td><span class="anchor" id="variable-tair~7"></span>character(len=200),</td>
 <td>public</td>  <td></td><td>::</td>
   <td><strong>Tair</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-wind"></span>character(len=99),</td>
+  <td><span class="anchor" id="variable-wind~4"></span>character(len=200),</td>
 <td>public</td>  <td></td><td>::</td>
   <td><strong>wind</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-mask~2"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>mask</strong></td><td></td><td></td><td></td>
 </tr>
 </tbody>
 </table>
