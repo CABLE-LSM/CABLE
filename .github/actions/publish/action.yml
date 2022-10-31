@@ -37,6 +37,11 @@ runs:
         pip install -r documentation/ford-requirements.txt
       shell: bash
 
+    - name: Update PATH for graphviz
+      run: |
+        echo "$HOME/.local/" >> $GITHUB_PATH
+      shell: bash
+
     # Builds with all call graphs on
     - name: Build API documentation
       working-directory: documentation
