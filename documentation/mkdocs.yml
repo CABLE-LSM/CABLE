@@ -29,6 +29,8 @@ theme:
   features:
     - navigation.instant
     - navigation.indexes
+    - navigation.tabs
+    - navigation.tabs.sticky
 
 plugins:
   - git-revision-date-localized:
