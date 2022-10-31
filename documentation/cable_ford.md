@@ -3,7 +3,6 @@ project: CABLE
 author: CABLE community
 src_dir: ../src
 output_dir: site/api
-graph: true
 coloured_edges: true
 ---
 

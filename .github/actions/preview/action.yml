@@ -32,6 +32,7 @@ runs:
         mkdocs build -f mkdocs.yml
       shell: bash
 
+    # Builds without call graphs for faster result
     - name: Build API documentation
       working-directory: documentation
       run: |
