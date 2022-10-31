@@ -88,12 +88,12 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.0% of total for modules and submodules.">17 statements</a>
+    title=" 0.1% of total for modules and submodules.">25 statements</a>
      </li> 
-    <li><i class="fa fa-code"></i><a href="../src/casa_phenvar.F90"> Source File</a></li>
+    <li><i class="fa fa-code"></i><a href="../src/casa_phenology.F90"> Source File</a></li>
   </ul>
   <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/casa_phenvar.f90.html'>casa_phenvar.F90</a></li>
+     <li><a href='../sourcefile/casa_phenology.f90.html'>casa_phenology.F90</a></li>
      <li class="active">phenvariable</li>
   </ol>
 </div>
@@ -116,7 +116,7 @@
   <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#types-0">Derived Types</a></h3></div>
   <div id="types-0" class="panel-collapse collapse">
     <div class="list-group">
-      <a class="list-group-item" href="../module/phenvariable.html#type-phen_variable">phen_variable</a>
+      <a class="list-group-item" href="../module/phenvariable.html#type-phen_variable~2">phen_variable</a>
     </div>
   </div>
 </div>
@@ -124,7 +124,7 @@
   <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#subs-0">Subroutines</a></h3></div>
   <div class="list-group">
     <div id="subs-0" class="panel-collapse collapse">
-      <a class="list-group-item" href="../module/phenvariable.html#proc-alloc_phenvariable">alloc_phenvariable</a>
+      <a class="list-group-item" href="../module/phenvariable.html#proc-alloc_phenvariable~2">alloc_phenvariable</a>
     </div>
   </div>
 </div>
@@ -142,7 +142,7 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/casadimension~2.html'>casadimension</a></li>
+    <li><a href='../module/casadimension.html'>casadimension</a></li>
   </ul>
       </li>
       </ul>
@@ -158,7 +158,7 @@
   <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#types-1">Derived Types</a></h3></div>
   <div id="types-1" class="panel-collapse collapse">
     <div class="list-group">
-      <a class="list-group-item" href="../module/phenvariable.html#type-phen_variable">phen_variable</a>
+      <a class="list-group-item" href="../module/phenvariable.html#type-phen_variable~2">phen_variable</a>
     </div>
   </div>
 </div>
@@ -166,7 +166,7 @@
   <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#subs-1">Subroutines</a></h3></div>
   <div class="list-group">
     <div id="subs-1" class="panel-collapse collapse">
-      <a class="list-group-item" href="../module/phenvariable.html#proc-alloc_phenvariable">alloc_phenvariable</a>
+      <a class="list-group-item" href="../module/phenvariable.html#proc-alloc_phenvariable~2">alloc_phenvariable</a>
     </div>
   </div>
 </div>
@@ -182,26 +182,61 @@
     <section>
      <h2>Derived Types</h2>
      <div class="panel panel-default">
-  <div class="panel-heading codesum"><span class="anchor" id="type-phen_variable"></span><h3>type, public :: <a href='../type/phen_variable.html'>phen_variable</a>  </h3></div>
+  <div class="panel-heading codesum"><span class="anchor" id="type-phen_variable~2"></span><h3>type, public :: <a href='../type/phen_variable~2.html'>phen_variable</a>  </h3></div>
   <div class="panel-body">
      <h4>Components</h4>
     <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Visibility</th><th>Attributes</th><th></th><th>Name</th><th></th><th>Initial</th><th></th></thead>
 <tbody>
 <tr>
-  <td><span class="anchor" id="variable-phase"></span>integer,</td>
+  <td><span class="anchor" id="variable-phase~3"></span>integer,</td>
 <td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
   <td><strong>phase</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-tkshed"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-tkshed~2"></span>real(kind=r_2),</td>
 <td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
   <td><strong>TKshed</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-doyphase"></span>integer,</td>
+  <td><span class="anchor" id="variable-doyphase~2"></span>integer,</td>
 <td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
   <td><strong>doyphase</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-phen~3"></span>real,</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>phen</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-aphen~2"></span>real,</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>aphen</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-phasespin"></span>integer,</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>phasespin</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-doyphasespin_1"></span>integer,</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>doyphasespin_1</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-doyphasespin_2"></span>integer,</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>doyphasespin_2</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-doyphasespin_3"></span>integer,</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>doyphasespin_3</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-doyphasespin_4"></span>integer,</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>doyphasespin_4</strong></td><td></td><td></td><td></td>
 </tr>
 </tbody>
 </table>
@@ -217,14 +252,14 @@
     <section>
     <h2>Subroutines</h2>
       <div class="panel panel-default">
-  <div class="panel-heading codesum"><span class="anchor" id="proc-alloc_phenvariable"></span><h3>public subroutine <a href='../proc/alloc_phenvariable.html'>alloc_phenvariable</a>(phen, arraysize)</h3></div>
+  <div class="panel-heading codesum"><span class="anchor" id="proc-alloc_phenvariable~2"></span><h3>public subroutine <a href='../proc/alloc_phenvariable~2.html'>alloc_phenvariable</a>(phen, arraysize)</h3></div>
   <div class="panel-body">
            
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/phen_variable.html'>phen_variable</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/phen_variable~2.html'>phen_variable</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>phen</strong></td><td></td>
