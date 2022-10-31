@@ -66,6 +66,7 @@ nav:
     - CABLE's Contribution guidelines: developer_guide/contribution.md
     - Coding standards: developer_guide/coding_standards.md
     - CABLE's release process: developer_guide/release.md
+    - API documentation: developer_guide/api.md
 #    - CABLE's source documentation:
   - How-to:
     - How to prepare fields for CABLE: how-to/input_fields.md
