@@ -1203,7 +1203,12 @@ SUBROUTINE calc_equilibrium_water_content(ssnow,soil)
                                (ssnow%ssat_hys(i,k))&
                                *(zimm(i,k)-ssnow%wtd(i)))/(zimm(i,k)-zimm(i,k-1))
           else
-
+             ! _____________ MMY to compare with Ramzi ______
+             ! print *,"ssnow%sucs_hys(i,k)", ssnow%sucs_hys(i,k)
+             ! print *, "ssnow%wtd(i)", ssnow%wtd(i)
+             ! print *, "zimm(i,k)", zimm(i,k)
+             ! print *, "soil%bch_vec(i,k)", soil%bch_vec(i,k)
+             ! _______________________________________________ 
              tempi = (((ssnow%sucs_hys(i,k)+ssnow%wtd(i)-zimm(i,k))/&
                       ssnow%sucs_hys(i,k)))**(1._r_2-1._r_2/soil%bch_vec(i,k))
              temp0 = (((ssnow%sucs_hys(i,k)+ssnow%wtd(i)-zimm(i,k-1))/&
