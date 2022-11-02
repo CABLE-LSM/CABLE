@@ -376,15 +376,15 @@ USE cable_photo_constants_mod, ONLY : CRGBWC => RGBWC
                      rdx(i,2) = rdx(i,2) * &
                      (0.5 - 0.05*LOG(jtomol*1.0e6*rad%qcan(i,1,2)))
 
-!!$                xleuning(i,1) = ( fwsoil(i) / ( csx(i,1) - co2cp3 ) )              &
-!!$                     * ( veg%a1gs(i) / ( 1.0 + dsx(i)/veg%d0gs(i)))
-!!$                xleuning(i,2) = ( fwsoil(i) / ( csx(i,2) - co2cp3 ) )              &
-!!$                     * ( veg%a1gs(i) / ( 1.0 + dsx(i)/veg%d0gs(i)))
+!$                xleuning(i,1) = ( fwsoil(i) / ( csx(i,1) - co2cp3 ) )              &
+!$                     * ( veg%a1gs(i) / ( 1.0 + dsx(i)/veg%d0gs(i)))
+!$                xleuning(i,2) = ( fwsoil(i) / ( csx(i,2) - co2cp3 ) )              &
+!$                     * ( veg%a1gs(i) / ( 1.0 + dsx(i)/veg%d0gs(i)))
 
              ELSE !cable_user%call_climate
 
-!!$!Vanessa:note there is no xleuning to go into photosynthesis etc anymore
-!!$             gs_coeff = xleuning
+!$!Vanessa:note there is no xleuning to go into photosynthesis etc anymore
+!$             gs_coeff = xleuning
 
                 !#else
                 rdx(i,1) = (veg%cfrd(i)*vcmxt3(i,1) + veg%cfrd(i)*vcmxt4(i,1))
@@ -658,7 +658,7 @@ USE cable_photo_constants_mod, ONLY : CRGBWC => RGBWC
     ENDIF
 
     canopy%frday = 12.0 * SUM(rdy, 2)
-    !! vh !! inserted min to avoid -ve values of GPP
+    ! vh ! inserted min to avoid -ve values of GPP
     canopy%fpn = MIN(-12.0 * SUM(an_y, 2), canopy%frday)
     canopy%evapfbl = ssnow%evapfbl
 

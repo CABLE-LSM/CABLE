@@ -167,7 +167,7 @@ CONTAINS
 
     !    WOOD:
     ! fraction of photosynthate going to roots, (1-fr) to wood, eq. 9
-    !!vh!! inserted '0.0001' to avoide floating pt underflow
+    !vh! inserted '0.0001' to avoide floating pt underflow
     fr = MIN( 1., EXP (- rw( veg%iveg ) * beta *0.0001* bgc%cplant(:,3)         &
          / MAX( bgc%cplant(:,2), 0.01 ) ) / beta )
 

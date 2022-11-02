@@ -102,7 +102,7 @@ IMPLICIT NONE
 !    casafile%cnpipool =' '
 !    casafile%cnpmetin =' '
 !    casafile%cnpmetout=' '
-!!   casafile%cnpmetin ='/home/599/lxs599/surface_data/casametDH.csv'
+!   casafile%cnpmetin ='/home/599/lxs599/surface_data/casametDH.csv'
 !    casafile%cnpflux  =' '
 
 !print *,'Lest um_inout',mp,um1%land_pts,um1%ntiles
@@ -227,7 +227,7 @@ SUBROUTINE casa_init_pk(casabiome,casaflux,casamet,casapool,casabal,veg,canopy,p
 !  initialize some values in phenology parameters and leaf growth phase
 
    USE cable_def_types_mod
-!!  USE define_dimensions    ! mp, r_2
+!  USE define_dimensions    ! mp, r_2
   USE casadimension        ! icycle,mplant,mlitter,msoil
 !  USE define_types
   USE cable_um_tech_mod, ONLY : um1!, veg
@@ -554,7 +554,7 @@ SUBROUTINE casa_reinit_pk(casabiome,casamet,casapool,casabal,veg,phen, &
   !frac_x(:,:) = um1%tile_frac(:,:)
   frac_x(:,:) = PREV_YR_SFRAC(:,:)
 
-  !!!! DEBUG START !!! 
+  ! DEBUG START ! 
   !if (mp.ge.4) then
   !   write(6,*)"DEBUG frac first 17 tiles  :", frac_x(1,:)
   !   write(6,*)"DEBUG lon of first point   :", casamet%lon(1:4)
@@ -566,7 +566,7 @@ SUBROUTINE casa_reinit_pk(casabiome,casamet,casapool,casabal,veg,phen, &
   !   write(6,*)"DEBUG mvtype       :", mvtype
   !   write(6,*)"DEBUG um1%ntiles   :", um1%ntiles
   !end if
-  !!!! DEBUG END !!!!!
+  ! DEBUG END !
 
   ! assign fractions (current)
   frac_y(:,:) = um1%tile_frac(:,:)
@@ -644,7 +644,7 @@ SUBROUTINE casa_reinit_pk(casabiome,casamet,casapool,casabal,veg,phen, &
                     clitter_x(g,:,:),nlitter_x(g,:,:),plitter_x(g,:,:), &
                     clitter_y(g,:,:),nlitter_y(g,:,:),plitter_y(g,:,:))
 
-     !! Re-calculate soil C, N, P pools
+     ! Re-calculate soil C, N, P pools
      !CALL newsoil(msoil,csoil_x(g,:,:),frac_x(g,:),ifpre_x(g,:),&
      !             csoil_y(g,:,:),frac_y(g,:),ifpre_y(g,:))
      !CALL newsoil(1,clabile_x(g,:),frac_x(g,:),ifpre_x(g,:),&
@@ -896,9 +896,9 @@ IMPLICIT NONE
 
 ! pack variables
 
-!! test initialization of LAI
+! test initialization of LAI
 !    casamet%glai = pack(GLAI(:,:)/2.  ,um1%l_tile_pts)
-!! test end
+! test end
 
     casamet%glai = pack(GLAI(:,:)  ,um1%l_tile_pts)
     phenph = INT(PHENPHASE)
@@ -907,9 +907,9 @@ IMPLICIT NONE
     casapool%clabile       = pack(clabile(:,:)  ,um1%l_tile_pts)
     do k=1,3
 
-!! test initilization of plant pool  
+! test initilization of plant pool  
 !     casapool%cplant(:,k)  = pack(cplant(:,:,k)/2. ,um1%l_tile_pts)
-!! test end
+! test end
 
      casapool%cplant(:,k)  = pack(cplant(:,:,k) ,um1%l_tile_pts)
      casapool%clitter(:,k) = pack(clitter(:,:,k),um1%l_tile_pts)
@@ -951,7 +951,7 @@ SUBROUTINE casa_poolout_unpk(casapool,casaflux,casamet,casabal,phen,  &
   USE cable_def_types_mod
   !USE define_dimensions    ! mp, r_1, r_2, i_d
   USE casadimension        ! icycle,mplant,mlitter,msoil
-!!   USE define_types
+!   USE define_types
 !   USE casaparm
     USE casavariable
     USE phenvariable

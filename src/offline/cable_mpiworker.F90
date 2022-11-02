@@ -339,14 +339,14 @@ USE cbl_soil_snow_init_special_module
        CABLE_USER%CALL_POP        = .FALSE.
     ENDIF
 
-    !! vh_js !!
+    ! vh_js !
     IF (icycle.GT.0) THEN
        l_casacnp = .TRUE.
     ELSE
        l_casacnp = .FALSE.
     ENDIF
 
-    !! vh_js !! suggest LALLOC should ulitmately be a switch in the .nml file
+    ! vh_js ! suggest LALLOC should ulitmately be a switch in the .nml file
     IF (CABLE_USER%CALL_POP) THEN
        LALLOC = 3 ! for use with POP: makes use of pipe model to partition between stem and leaf
     ELSE
@@ -376,7 +376,7 @@ USE cbl_soil_snow_init_special_module
     ! OPEN(logn,FILE=filename%log)
 
 
-    !! Check for gswp run
+    ! Check for gswp run
     ! MPI: done by the master only; if check fails then master MPI_Aborts
     ! everyone
     !IF (ncciy /= 0) THEN
@@ -598,11 +598,11 @@ USE cbl_soil_snow_init_special_module
 
              ! somethings (e.g. CASA-CNP) only need to be done once per day
              ktauday=INT(24.0*3600.0/dels)
-!!$             idoy = mod(ktau/ktauday,365)
-!!$             IF(idoy==0) idoy=365
-!!$
-!!$             ! needed for CASA-CNP
-!!$             nyear =INT((kend-kstart+1)/(365*ktauday))
+!$             idoy = mod(ktau/ktauday,365)
+!$             IF(idoy==0) idoy=365
+!$
+!$             ! needed for CASA-CNP
+!$             nyear =INT((kend-kstart+1)/(365*ktauday))
 
              ! some things (e.g. CASA-CNP) only need to be done once per day
              idoy =INT( MOD((REAL(ktau+koffset)/REAL(ktauday)),REAL(LOY)))
@@ -773,9 +773,9 @@ USE cbl_soil_snow_init_special_module
        IF (spincasa .OR. casaonly) THEN
           EXIT
        ENDIF
-       !!jhan this is insufficient testing. condition for
-       !!spinup=.false. & we want CASA_dump.nc (spinConv=.true.)
-       !! see if spinup (if conducting one) has converged:
+       !jhan this is insufficient testing. condition for
+       !spinup=.false. & we want CASA_dump.nc (spinConv=.true.)
+       ! see if spinup (if conducting one) has converged:
        !IF(spinup.AND..NOT.spinConv) THEN
        !
        !   ! Write to screen and log file:
@@ -1301,7 +1301,7 @@ USE cbl_soil_snow_init_special_module
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%Tsoil, displs(bidx), ierr)
     blen(bidx) = ms * r2len
-!!$
+!$
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%thetai, displs(bidx), ierr)
     blen(bidx) = ms * r2len
@@ -4414,7 +4414,7 @@ USE cbl_soil_snow_init_special_module
     blocks(bidx) = r1len
 
 
-    ! gol124: MPI: DONE until here!!!
+    ! gol124: MPI: DONE until here!
 
     !vidx = vidx + 1
     ! REAL(r_1)
@@ -6614,7 +6614,7 @@ USE cbl_soil_snow_init_special_module
     types(bidx)  = MPI_BYTE
 
 
-!!$types = MPI_BYTE
+!$types = MPI_BYTE
     ! MPI: sanity check
     IF (bidx /= ntyp) THEN
        WRITE (*,*) 'worker: invalid number of climate fields, fix it!'
@@ -6656,7 +6656,7 @@ USE cbl_soil_snow_init_special_module
     RETURN
 
   END SUBROUTINE worker_climate_types
-!!$
+!$
   ! MPI: creates restart_t type to send to the master the fields
   ! that are only required for the restart file but not included in the
   ! results sent at the end of each time step
@@ -6933,13 +6933,13 @@ USE cbl_soil_snow_init_special_module
     DEALLOCATE(displs)
     DEALLOCATE(blen)
 
-!!$ ! if anything went wrong the master will mpi_abort
-!!$ ! which mpi_recv below is going to catch...
-!!$ ! so, now receive all the parameters
-!!$ CALL MPI_Recv (MPI_BOTTOM, 1, casa_dump_t, 0, 0, comm, stat, ierr)
-!!$
-!!$ ! finally free the MPI type
-!!$ CALL MPI_Type_Free (casa_dump_t, ierr)
+!$ ! if anything went wrong the master will mpi_abort
+!$ ! which mpi_recv below is going to catch...
+!$ ! so, now receive all the parameters
+!$ CALL MPI_Recv (MPI_BOTTOM, 1, casa_dump_t, 0, 0, comm, stat, ierr)
+!$
+!$ ! finally free the MPI type
+!$ CALL MPI_Type_Free (casa_dump_t, ierr)
 
     ! all casa parameters have been received from the master by now
 
@@ -7068,13 +7068,13 @@ USE cbl_soil_snow_init_special_module
     DEALLOCATE(displs)
     DEALLOCATE(blen)
 
-!!$ ! if anything went wrong the master will mpi_abort
-!!$ ! which mpi_recv below is going to catch...
-!!$ ! so, now receive all the parameters
-!!$ CALL MPI_Recv (MPI_BOTTOM, 1, casa_dump_t, 0, 0, comm, stat, ierr)
-!!$
-!!$ ! finally free the MPI type
-!!$ CALL MPI_Type_Free (casa_dump_t, ierr)
+!$ ! if anything went wrong the master will mpi_abort
+!$ ! which mpi_recv below is going to catch...
+!$ ! so, now receive all the parameters
+!$ CALL MPI_Recv (MPI_BOTTOM, 1, casa_dump_t, 0, 0, comm, stat, ierr)
+!$
+!$ ! finally free the MPI type
+!$ CALL MPI_Type_Free (casa_dump_t, ierr)
 
     ! all casa parameters have been received from the master by now
 
@@ -7227,7 +7227,7 @@ USE cbl_soil_snow_init_special_module
     USE cable_IO_vars_module, ONLY: wlogn
 
     IMPLICIT NONE
-    !!CLN  CHARACTER(LEN=99), INTENT(IN)  :: fcnpspin
+    !CLN  CHARACTER(LEN=99), INTENT(IN)  :: fcnpspin
     REAL,    INTENT(IN)    :: dels
     INTEGER, INTENT(IN)    :: kstart
     INTEGER, INTENT(IN)    :: kend
@@ -7301,7 +7301,7 @@ USE cbl_soil_snow_init_special_module
     IF (.NOT.ALLOCATED(Iw)) ALLOCATE(Iw(POP%np))
 
 
-    !! vh_js !!
+    ! vh_js !
     IF (cable_user%CALL_POP) THEN
 
        Iw = POP%Iwood
@@ -7365,7 +7365,7 @@ USE cbl_soil_snow_init_special_module
                pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
 
           IF (cable_user%CALL_POP .AND. POP%np.GT.0) THEN ! CALL_POP
-!!$           ! accumulate annual variables for use in POP
+!$           ! accumulate annual variables for use in POP
              IF(MOD(ktau/ktauday,LOY)==1 ) THEN
                 casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7 ! (assumes 70% of wood NPP is allocated above ground)
                 casabal%LAImax = casamet%glai
@@ -7512,8 +7512,8 @@ USE cbl_soil_snow_init_special_module
 
     DO nloop=1,mloop
 
-       !!CLN  OPEN(91,file=fcnpspin)
-       !!CLN  read(91,*)
+       !CLN  OPEN(91,file=fcnpspin)
+       !CLN  read(91,*)
        DO nyear=1,myearspin
 
           ! WRITE(CYEAR,FMT="(I4)") CABLE_USER%CASA_SPIN_STARTYEAR + nyear - 1
@@ -7596,7 +7596,7 @@ USE cbl_soil_snow_init_special_module
     USE cable_IO_vars_module, ONLY: wlogn
 
     IMPLICIT NONE
-    !!CLN  CHARACTER(LEN=99), INTENT(IN)  :: fcnpspin
+    !CLN  CHARACTER(LEN=99), INTENT(IN)  :: fcnpspin
     REAL,    INTENT(IN)    :: dels
     INTEGER, INTENT(IN)    :: kstart
     INTEGER, INTENT(IN)    :: kend
@@ -7703,11 +7703,11 @@ USE cbl_soil_snow_init_special_module
              CALL MPI_Comm_rank (icomm, rank, ierr)
              WRITE(wlogn,*)
              WRITE(wlogn,*),'rank receiving pop_grid from master', rank
-!!$           write(wlogn,*) 'b4 MPI_Recv, pop_t cmass: ', POP%pop_grid%cmass_sum
-!!$           write(wlogn,*) 'b4 MPI_Recv, pop_t LU: ', POP%pop_grid%LU
+!$           write(wlogn,*) 'b4 MPI_Recv, pop_t cmass: ', POP%pop_grid%cmass_sum
+!$           write(wlogn,*) 'b4 MPI_Recv, pop_t LU: ', POP%pop_grid%LU
              CALL MPI_Recv( POP%pop_grid(1), POP%np, pop_t, 0, 0, icomm, stat, ierr )
-!!$           write(wlogn,*)
-!!$           write(wlogn,*) 'after MPI_Recv, pop_t cmass: ', POP%pop_grid%cmass_sum
+!$           write(wlogn,*)
+!$           write(wlogn,*) 'after MPI_Recv, pop_t cmass: ', POP%pop_grid%cmass_sum
              WRITE(wlogn,*) 'after MPI_Recv, pop_t '
              CALL flush(wlogn)
              IF (cable_user%CALL_POP .AND. POP%np.GT.0) THEN ! CALL_POP
@@ -7715,8 +7715,8 @@ USE cbl_soil_snow_init_special_module
                 CALL POPdriver(casaflux,casabal,veg, POP)
 
              ENDIF
-!!$           write(wlogn,*)
-!!$           write(wlogn,*) 'after POPstep cmass: ', POP%pop_grid%cmass_sum
+!$           write(wlogn,*)
+!$           write(wlogn,*) 'after POPstep cmass: ', POP%pop_grid%cmass_sum
              WRITE(wlogn,*) 'after POPstep ',  POP%pop_grid%cmass_sum
              CALL flush(wlogn)
              CALL worker_send_pop (POP, ocomm)

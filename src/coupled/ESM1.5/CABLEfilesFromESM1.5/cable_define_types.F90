@@ -30,7 +30,7 @@
 
 MODULE cable_def_types_mod
 
-!cbl3!USE cable_types_mod!!,          ONLY: mp, l_tile_pts
+!cbl3!USE cable_types_mod!,          ONLY: mp, l_tile_pts
 !cbl3!USE cable_air_type_mod,       ONLY: air_type
 !cbl3!USE cable_balances_type_mod,  ONLY: balances_type
 !cbl3!USE cable_bgc_pool_type_mod,  ONLY: bgc_pool_type

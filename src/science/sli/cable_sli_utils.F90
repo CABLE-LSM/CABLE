@@ -443,7 +443,7 @@ CONTAINS
           qvTb = zero
        ELSE ! supply limited
           qTb = -dE_vapdT1/(thousand*var(1)%lambdav)
-          qyb = -(var(1)%phiS/(half*dx(1)) - var(1)%KS)  !!vh!! include vapour component??
+          qyb = -(var(1)%phiS/(half*dx(1)) - var(1)%KS)  !vh! include vapour component??
           qliq = -E_liq/(thousand*var(1)%lambdav)
           qv   = -E_vap/(thousand*var(1)%lambdav)
           qlyb = -(var(1)%phiS/(half*dx(1)) - var(1)%KS)
@@ -479,7 +479,7 @@ CONTAINS
        IF (vsnow%hliq(1)>zero) THEN
           Tsurface = 0.0_r_2
           !Epot = (esat(Tsurface)*0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero)  - & ! m3 H2O (liq) m-3 (air)
-          !            vmet%cva)*rhow*rlambda/vmet%rbw !!vh check this !!
+          !            vmet%cva)*rhow*rlambda/vmet%rbw !vh check this !
           Epot = (csat(Tsurface)/thousand - vmet%cva)/vmet%rbw *rlambda*rhow  ! m3 H2O (liq) m-3 (air) -> W/m2
           ! write(*,*) "Epot", vmet%rha, vmet%Ta,
           !            esat(Tsurface)*0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero)*rhow*rlambda/vmet%rbw, &
@@ -494,9 +494,9 @@ CONTAINS
           qTb = zero
           !     write(*,*) "Epot2", Tsurface, vmet%Ta, Epot, Hpot, vmet%rrc, rhocp1
        ELSE
-          !! vh !! use max snow depth of 20 cm in this calculation to avoid huge resistances
-          !! leading to large negative surface temperatures when snow-pack is thick and
-          !! Rn is large and negative (~-100 Wm-2)
+          ! vh ! use max snow depth of 20 cm in this calculation to avoid huge resistances
+          ! leading to large negative surface temperatures when snow-pack is thick and
+          ! Rn is large and negative (~-100 Wm-2)
           CALL potential_evap(vmet%Rn-vmet%Rnsw, vmet%rbh, vmet%rbw, vmet%Ta, vmet%rha, &
                vsnow%tsn(1), MAX(vsnow%kth(1),0.1_r_2), half*MIN(vsnow%depth(1),0.05_r_2), &
                lambdas, Tsurface, Epot, Hpot, &
@@ -512,16 +512,16 @@ CONTAINS
              dEdTs= zero
              !   write(*,*) "Epot3", Tsurface, vmet%Ta, Epot, Hpot, vmet%rbh
           ENDIF
-!!$          elseif (abs(Tsurface - vmet%Ta).gt. 20) then
-!!$             Tsurface = min(vmet%Ta, 0.0)
-!!$             Epot = (esat(Tsurface)*0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero)  - & ! m3 H2O (liq) m-3 (air)
-!!$                  vmet%cva)*rhow*lambdas/vmet%rbw
-!!$             dEdTsoil = zero
-!!$             dGdTsoil = zero
-!!$             Hpot = rhocp*(Tsurface - vmet%Ta)/vmet%rbh
-!!$             Gpot = vmet%Rn-vmet%Rnsw - Hpot - Epot
-!!$             dEdTs= zero
-!!$           endif
+!$          elseif (abs(Tsurface - vmet%Ta).gt. 20) then
+!$             Tsurface = min(vmet%Ta, 0.0)
+!$             Epot = (esat(Tsurface)*0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero)  - & ! m3 H2O (liq) m-3 (air)
+!$                  vmet%cva)*rhow*lambdas/vmet%rbw
+!$             dEdTsoil = zero
+!$             dGdTsoil = zero
+!$             Hpot = rhocp*(Tsurface - vmet%Ta)/vmet%rbh
+!$             Gpot = vmet%Rn-vmet%Rnsw - Hpot - Epot
+!$             dEdTs= zero
+!$           endif
           qevap = Epot/(rhow*lambdas)
           qTb = -dEdTsoil/(thousand*lambdas)
        ENDIF
@@ -693,7 +693,7 @@ CONTAINS
           qvTb = zero
        ELSE ! supply limited
           qTb = -dE_vapdT1/(thousand*var(1)%lambdav)
-          qyb = -(var(1)%phiS/(half*dx(1)) - var(1)%KS)  !!vh!! include vapour component??
+          qyb = -(var(1)%phiS/(half*dx(1)) - var(1)%KS)  !vh! include vapour component??
           qliq = -E_liq/(thousand*var(1)%lambdav)
           qv = -E_vap/(thousand*var(1)%lambdav)
           qlyb = -(var(1)%phiS/(half*dx(1)) - var(1)%KS)
@@ -1754,16 +1754,16 @@ CONTAINS
 
        ! add advective terms
        IF (advection==1) THEN
-!!$                   if (q(i) > zero) then
-!!$                       w = (var(i)%kth/dx(i))/(var(i)%kth/dx(i)+var(i+1)%kth/dx(i+1))
-!!$                    else
-!!$                       w = (var(i)%kth/dx(i))/(var(i)%kth/dx(i)+var(i+1)%kth/dx(i+1))
-!!$                    endif
-!!$                    qadv(i) = rhow*cswat*q(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))
-!!$                    qadvya(i) =  rhow*cswat*qya(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))
-!!$                    qadvyb(i) =  rhow*cswat*qyb(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))
-!!$                    qadvTa(i) =  rhow*cswat*q(i)*w
-!!$                    qadvTb(i) =  rhow*cswat*q(i)*(one-w)
+!$                   if (q(i) > zero) then
+!$                       w = (var(i)%kth/dx(i))/(var(i)%kth/dx(i)+var(i+1)%kth/dx(i+1))
+!$                    else
+!$                       w = (var(i)%kth/dx(i))/(var(i)%kth/dx(i)+var(i+1)%kth/dx(i+1))
+!$                    endif
+!$                    qadv(i) = rhow*cswat*q(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))
+!$                    qadvya(i) =  rhow*cswat*qya(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))
+!$                    qadvyb(i) =  rhow*cswat*qyb(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))
+!$                    qadvTa(i) =  rhow*cswat*q(i)*w
+!$                    qadvTb(i) =  rhow*cswat*q(i)*(one-w)
           Tqw  = MERGE(T(i), T(i+1), q(i)>zero) +zero
 
           dTqwdTa = MERGE(one, zero, (q(i)>zero))
@@ -3247,7 +3247,7 @@ CONTAINS
     !MC freezing point? csol?
     csol1 = zero ! use zero instead of csol for the moment
     IF (PRESENT(Ksat)) THEN
-       IF (T < zero) THEN     ! frozen soil  !! need to adjust freezing point for csol and use global csol
+       IF (T < zero) THEN     ! frozen soil  ! need to adjust freezing point for csol and use global csol
           h   = (lambdaf*T/gravity/(T+Tzero)) + csol1*Rgas* (T + Tzero)/gravity
           ! phi = Ksat * he/(one-eta*lambda) * (h/he)**(one-eta*lambda)
           phi = Ksat * he/(one-eta*lambda) * EXP((one-eta*lambda)*LOG(h/he))
@@ -3699,7 +3699,7 @@ CONTAINS
 
     !*****************************************************************************80
     !
-    !! BRACKET searches a sorted vector for successive brackets of a value.
+    ! BRACKET searches a sorted vector for successive brackets of a value.
     !
     !  Discussion:
     !
@@ -3770,7 +3770,7 @@ CONTAINS
 
     !*****************************************************************************80
     !
-    !! SPLINE_B_VAL evaluates a cubic B spline approximant.
+    ! SPLINE_B_VAL evaluates a cubic B spline approximant.
     !
     !  Discussion:
     !

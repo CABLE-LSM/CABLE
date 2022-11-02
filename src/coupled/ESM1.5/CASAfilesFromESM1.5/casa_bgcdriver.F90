@@ -81,7 +81,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
          casamet%moist  = 0.0
          casaflux%cgpp  = 0.0
          ! add initializations (BP jul2010)
-         !! Les 10jan13 - init cnpp ?
+         ! Les 10jan13 - init cnpp ?
          !casaflux%cnpp  = 0.0
          casaflux%Crsoil   = 0.0
          casaflux%crgplant = 0.0
@@ -164,7 +164,7 @@ End module bgcdriver_mod
   real, dimension(17)                   ::  nintercept,nslope,xnslope
 ! Will move to look-up table in later version
   data nintercept/6.32,4.19,6.32,5.73,14.71,6.42,2.00,14.71,4.71,14.71,14.71,7.00,14.71,14.71,14.71,14.71,14.71/
-!! r29
+! r29
   data nslope/9.00,28.00,12.00,40.00,10.00,25.00,20.00,4.00,45.00,23.15,23.15,10.00,23.15,23.15,23.15,23.15,23.15/
 ! Modified further in ACCESS-1.4
   data xnslope/0.80,1.00,2.00,1.00,1.00,1.00,0.50,1.00,0.34,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00/

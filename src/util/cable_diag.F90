@@ -1102,13 +1102,13 @@ end subroutine isnan
 !logical function isinf(a) 
 !real a 
 !
-!!if ((a*0).ne.0) then 
-!!isinf = .true. 
-!!else 
-!!isinf = .false. 
-!!end if 
-!!return 
-!!end 
+!if ((a*0).ne.0) then 
+!isinf = .true. 
+!else 
+!isinf = .false. 
+!end if 
+!return 
+!end 
 
 
 SUBROUTINE cable_farray1( mp, CheckNames, CheckFields, &

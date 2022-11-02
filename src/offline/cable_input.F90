@@ -43,7 +43,7 @@ MODULE cable_input_module
   USE casavariable
   USE casaparm, ONLY: forest, shrub
   USE phenvariable
-  !! vh_js !!
+  ! vh_js !
   USE POP_Types,               ONLY: POP_TYPE
   USE POPLUC_Types,               ONLY: POPLUC_TYPE
   USE cable_param_module
@@ -484,7 +484,7 @@ CONTAINS
             ' (SUBROUTINE open_met_file)')
     ENDIF
 
-    !!=====================VV Determine spatial details VV=================
+    !=====================VV Determine spatial details VV=================
     ! Determine number of sites/gridcells.
     ! Find size of 'x' or 'lon' dimension:
     ok = NF90_INQ_DIMID(ncid_met,'x', xdimID)
@@ -726,9 +726,9 @@ CONTAINS
          CALL abort('Latitudes read from '//TRIM(filename%met)// &
          ' are not [-90,90]! Please set.')
 
-    !!=================^^ End spatial details ^^========================
+    !=================^^ End spatial details ^^========================
 
-    !!=========VV Determine simulation timing details VV================
+    !=========VV Determine simulation timing details VV================
     ! Inquire 'time' variable's ID:
     CALL find_metvarid(ncid_met, possible_varnames%TimeNames, timevarID, ok)
     IF(ok /= NF90_NOERR) CALL nc_abort &
@@ -771,12 +771,12 @@ CONTAINS
           timevar(i+1) = timevar(i) + dels
        ENDDO
        PRINT *, 'New      timevar(kend) = ', timevar(kend)
-       !! hacking (BP feb2011)
+       ! hacking (BP feb2011)
        !      kend = 16   ! 2 days for 1986
-       !!      kend = 480  ! 2 months for 1986
+       ! !    kend = 480  ! 2 months for 1986
        !      PRINT *, 'Hacked   timevar(kend) = ', timevar(kend)
        !      PRINT *, 'Hacked kend = ', kend
-       !! end hacking
+       ! end hacking
     END IF
     !********* done bug fixing for timevar in gswp input file **
 
@@ -802,8 +802,8 @@ CONTAINS
          //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
 
     !****** PALS met file has timevar(1)=0 while timeunits from 00:30:00 ******
-    !!CLN CRITICAL! From my point of view, the information in the file is correct...
-    !!CLN WHY DO the input files all have bugs???
+    !CLN CRITICAL! From my point of view, the information in the file is correct...
+    !CLN WHY DO the input files all have bugs???
     IF (timevar(1) == 0.0) THEN
        READ(timeunits(29:30),*) tsmin
        IF (tsmin*60.0 >= dels) THEN
@@ -855,7 +855,7 @@ CONTAINS
 
     ! if site data, shift start time to middle of timestep
     ! only do this if not already at middle of timestep
-    !! vh_js !!
+    ! vh_js !
     IF ((TRIM(cable_user%MetType).EQ.'' .OR. &
          TRIM(cable_user%MetType).EQ.'site').AND. MOD(shod*3600, dels)==0 .AND. &
          (shod.GT.dels/3600./2.) ) THEN
@@ -960,9 +960,9 @@ CONTAINS
     WRITE(logn,'(1X,A12,F5.2,A14,I3,A14,I4,2X,A3,1X,A4)') 'Run ends:   ',&
          ehod,' hour-of-day, ',edoy, &
          ' day-of-year, ', eyear, time_coord, 'time'
-    !!===================^^ End timing details ^^==========================
+    !===================^^ End timing details ^^==========================
 
-    !!===================VV Look for met variables VV======================
+    !===================VV Look for met variables VV======================
     all_met = .TRUE. ! initialise
     ! Look for SWdown (essential):- - - - - - - - - - - - - - - - - -
     IF (ncciy > 0) ncid_met = ncid_sw
@@ -979,7 +979,7 @@ CONTAINS
     IF(ok /= NF90_NOERR) CALL nc_abort &
          (ok,'Error finding SWdown units in met data file ' &
          //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
-    !! vh_js !! fixed bug in logic
+    ! vh_js ! fixed bug in logic
     IF(.NOT.(metunits%SWdown(1:4)/='W/m2'.OR.metunits%SWdown(1:5) &
          /='W/m^2'.OR.metunits%SWdown(1:5)/='Wm^-2' &
          .OR.metunits%SWdown(1:4)/='Wm-2'.OR.metunits%SWdown(1:5) /= 'W m-2')) THEN
@@ -1110,10 +1110,10 @@ CONTAINS
        IF(ok /= NF90_NOERR) CALL nc_abort &
             (ok,'Error finding LWdown units in met data file ' &
             //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
-       !! vh_js !! fixed bug in logic
-!!$       IF(metunits%LWdown(1:4)/='W/m2'.AND.metunits%LWdown(1:5) &
-!!$            /='W/m^2'.AND.metunits%LWdown(1:5)/='Wm^-2' &
-!!$            .AND.metunits%LWdown(1:4)/='Wm-2') THEN
+       ! vh_js ! fixed bug in logic
+!$       IF(metunits%LWdown(1:4)/='W/m2'.AND.metunits%LWdown(1:5) &
+!$            /='W/m^2'.AND.metunits%LWdown(1:5)/='Wm^-2' &
+!$            .AND.metunits%LWdown(1:4)/='Wm-2') THEN
        IF(.NOT.(metunits%LWdown(1:4)/='W/m2'.OR.metunits%LWdown(1:5) &
             /='W/m^2'.OR.metunits%LWdown(1:5)/='Wm^-2' &
             .OR.metunits%LWdown(1:4)/='Wm-2'.OR.metunits%SWdown(1:5) /= 'W m-2')) THEN
@@ -1570,7 +1570,7 @@ CONTAINS
             ' some synthesised (as above).'
     END IF
 
-    !!=================^^ End met variables search^^=======================
+    !=================^^ End met variables search^^=======================
   END SUBROUTINE open_met_file
   !==============================================================================
   !
@@ -1730,7 +1730,7 @@ CONTAINS
           met%doy(landpt(i)%cstart) = met%doy(landpt(i)%cstart) + 1
           met%hod(landpt(i)%cstart) = met%hod(landpt(i)%cstart) - 24.0
           ! If a leap year AND we're using leap year timing:
-          !! vh_js !! use is_leapyear function here instead of multiple conditions
+          ! vh_js ! use is_leapyear function here instead of multiple conditions
           IF (is_leapyear(met%year(landpt(i)%cstart))) THEN
              SELECT CASE(INT(met%doy(landpt(i)%cstart)))
              CASE(32) ! Feb
@@ -2445,7 +2445,7 @@ CONTAINS
        ELSE
           ! If not in met file, use default LAI value:
           DO i=1,mland ! over all land points/grid cells
-             !! vh_js !! corrected indices of defaultLAI
+             ! vh_js ! corrected indices of defaultLAI
              veg%vlai(landpt(i)%cstart:landpt(i)%cend) =  &
                   defaultLAI(landpt(i)%cstart:landpt(i)%cend,met%moy(landpt(i)%cstart))
 
@@ -2567,7 +2567,7 @@ CONTAINS
     !   (determined here or from sub get_default_params <- countPatch)
     !   landpt%type    - via cable_IO_vars_module (nap,cstart,cend,ilon,ilat)
     !   max_vegpatches - via cable_IO_vars_module
-    !! vh_js !!
+    ! vh_js !
     USE POPmodule, ONLY: POP_INIT
     USE POPLUC_module, ONLY: POPLUC_INIT
     USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE
@@ -2601,7 +2601,7 @@ CONTAINS
     INTEGER,INTENT(IN)                      :: logn     ! log file unit number
     LOGICAL,INTENT(IN)                      :: &
          vegparmnew, &  ! are we using the new format?
-                                !! vh_js !!
+                                ! vh_js !
          spinup         ! for POP (initialize pop)
     REAL, INTENT(IN) :: TFRZ, EMSOIL
 
@@ -2614,14 +2614,14 @@ CONTAINS
          mpID,              &
          napID,             &
          i , j                   ! do loop variables
-    !! vh_js !!
+    ! vh_js !
     ! CHARACTER :: frst_in*100, CYEAR*4
     CHARACTER :: frst_in*200, CYEAR*4
 
     INTEGER   :: IOS
     CHARACTER :: TACC*20
     INTEGER,DIMENSION(:), ALLOCATABLE :: ALLVEG
-    !! vh_js !!
+    ! vh_js !
     INTEGER :: mp_POP
     INTEGER, DIMENSION(:), ALLOCATABLE :: Iwood
 
@@ -2666,7 +2666,7 @@ CONTAINS
        IF (cable_user%PHENOLOGY_SWITCH.EQ.'MODIS') CALL casa_readphen(veg,casamet,phen)
 
        CALL casa_init(casabiome,casamet,casaflux,casapool,casabal,veg,phen)
-       !! vh_js !!
+       ! vh_js !
        IF ( CABLE_USER%CALL_POP ) THEN
           ! evaluate mp_POP and POP_array
           mp_POP = COUNT(casamet%iveg2==forest)+COUNT(casamet%iveg2==shrub)

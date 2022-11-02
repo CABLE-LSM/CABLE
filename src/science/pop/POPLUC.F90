@@ -229,7 +229,7 @@ CONTAINS
           POPLUC%area_history_secdf(g,n) = frac_open_grid
           POPLUC%age_history_secdf(g,n) = 0
           POPLUC%freq_age_secondary(g,1) = POPLUC%freq_age_secondary(g,1) + frac_open_grid
-          ! gtos to frac_change_grid here!!
+          ! gtos to frac_change_grid here!
           POPLUC%gtos(g) =  frac_open_grid
 
 
@@ -1493,16 +1493,16 @@ CONTAINS
              IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
           END DO
        ENDIF
-!!$
-!!$       DO i = 1, SIZE(A3)
-!!$          STATUS = NF90_def_var(FILE_ID,TRIM(A3(i)) ,NF90_FLOAT,(/land_ID,hist_ID,t_ID/),VID3(i))
-!!$          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-!!$       END DO
-!!$
-!!$       DO i = 1, SIZE(A3)
-!!$          STATUS = NF90_def_var(FILE_ID,TRIM(AI3(i)) ,NF90_INT,(/land_ID,hist_ID,t_ID/),VIDI3(i))
-!!$          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-!!$       END DO
+!$
+!$       DO i = 1, SIZE(A3)
+!$          STATUS = NF90_def_var(FILE_ID,TRIM(A3(i)) ,NF90_FLOAT,(/land_ID,hist_ID,t_ID/),VID3(i))
+!$          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+!$       END DO
+!$
+!$       DO i = 1, SIZE(A3)
+!$          STATUS = NF90_def_var(FILE_ID,TRIM(AI3(i)) ,NF90_INT,(/land_ID,hist_ID,t_ID/),VIDI3(i))
+!$          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+!$       END DO
 
        DO i = 1, SIZE(A4)
           STATUS = NF90_def_var(FILE_ID,TRIM(A4(i)) ,NF90_FLOAT,(/land_ID,nLU_ID,t_ID/),VID4(i))
