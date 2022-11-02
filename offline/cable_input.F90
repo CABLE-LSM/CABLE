@@ -1615,6 +1615,7 @@ SUBROUTINE get_met_data(spinup,spinConv,met,soil,rad,                          &
    INTEGER, INTENT(IN)               :: ktau, &  ! timestep in loop including spinup
                                         kend, & ! total number of timesteps in run
                                         kstart  ! starting timestep
+
    REAL,INTENT(IN)                   :: dels ! time step size
    REAL, INTENT(IN) :: TFRZ
 
@@ -1624,6 +1625,7 @@ SUBROUTINE get_met_data(spinup,spinConv,met,soil,rad,                          &
    REAL(KIND=4),DIMENSION(1,1)            :: data2 ! " "
    REAL(KIND=4),DIMENSION(1)              :: data1 ! " "
    INTEGER                           :: i,j ! do loop counter
+   INTEGER                           :: ndims ! number of dims of met var if in met file ! MMY@Nov2022
    REAL(KIND=4),ALLOCATABLE,DIMENSION(:)       :: tmpDat1
    REAL(KIND=4),ALLOCATABLE,DIMENSION(:,:)     :: tmpDat2, tmpDat2x
    REAL(KIND=4),ALLOCATABLE,DIMENSION(:,:,:)   :: tmpDat3, tmpDat3x
@@ -1832,6 +1834,7 @@ SUBROUTINE get_met_data(spinup,spinConv,met,soil,rad,                          &
         ! PRINT *, "met%fsd",met%fsd
       ! ____________________________________________________
       ELSE ! MMY
+        print *, "cable_user%MetType .ne. 'prin' in Get SWdown data for mask grid" ! MMY
         ok= NF90_GET_VAR(ncid_met,id%SWdown,tmpDat3, &
              start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
         IF(ok /= NF90_NOERR) CALL nc_abort &
@@ -1845,39 +1848,291 @@ SUBROUTINE get_met_data(spinup,spinConv,met,soil,rad,                          &
           met%fsd(landpt(i)%cstart:landpt(i)%cend,2) = &
                0.5 * REAL(tmpDat3(land_x(i),land_y(i),1))
         ENDDO
+        print *, "met%fsd",met%fsd ! MMY
       END IF ! MMY
 
-      ! Get Tair data for mask grid:- - - - - - - - - - - - - - - - - -
-    IF(cable_user%GSWP3) THEN
-      ncid_met = ncid_ta
-      ! ______________________ MMY _________________________
-      IF (TRIM(cable_user%MetType) .eq. "prin") THEN
-        ok= NF90_GET_VAR(ncid_met,id%Tair,tmpDat4, &
-             start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
-        IF(ok /= NF90_NOERR) CALL nc_abort &
-             (ok,'Error reading Tair in met data file ' &
-             //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
-        ! Assign value to met data variable with units change:
-        DO i=1,mland ! over all land points/grid cells
-          met%tk(landpt(i)%cstart:landpt(i)%cend) = &
-               REAL(tmpDat4(land_x(i),land_y(i),1,1)) + convert%Tair
-        ENDDO
-        ! PRINT *, "========== MMY =========="
-        ! PRINT *, "met%tk",met%tk
-      ! ____________________________________________________
-      ELSE ! MMY
-        ok= NF90_GET_VAR(ncid_met,id%Tair,tmpDat3, &
-             start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
-        IF(ok /= NF90_NOERR) CALL nc_abort &
-             (ok,'Error reading Tair in met data file ' &
-             //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
-        ! Assign value to met data variable with units change:
-        DO i=1,mland ! over all land points/grid cells
-          met%tk(landpt(i)%cstart:landpt(i)%cend) = &
+! _______________________ MMY bring below from CABLE trunk r8444  ______________________
+   !   ! Get Tair data for mask grid:- - - - - - - - - - - - - - - - - -
+   !  IF(cable_user%GSWP3) THEN
+   !    ncid_met = ncid_ta
+   !    ! ______________________ MMY _________________________
+   !    IF (TRIM(cable_user%MetType) .eq. "prin") THEN
+   !      ok= NF90_GET_VAR(ncid_met,id%Tair,tmpDat4, &
+   !           start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
+   !      IF(ok /= NF90_NOERR) CALL nc_abort &
+   !           (ok,'Error reading Tair in met data file ' &
+   !           //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+   !      ! Assign value to met data variable with units change:
+   !      DO i=1,mland ! over all land points/grid cells
+   !        met%tk(landpt(i)%cstart:landpt(i)%cend) = &
+   !             REAL(tmpDat4(land_x(i),land_y(i),1,1)) + convert%Tair
+   !      ENDDO
+   !      ! PRINT *, "========== MMY =========="
+   !      ! PRINT *, "met%tk",met%tk
+   !    ! ____________________________________________________
+   !    ELSE ! MMY
+   !      ok= NF90_GET_VAR(ncid_met,id%Tair,tmpDat3, &
+   !           start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
+   !      IF(ok /= NF90_NOERR) CALL nc_abort &
+   !           (ok,'Error reading Tair in met data file ' &
+   !           //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+   !      ! Assign value to met data variable with units change:
+   !      DO i=1,mland ! over all land points/grid cells
+   !        met%tk(landpt(i)%cstart:landpt(i)%cend) = &
+   !             REAL(tmpDat3(land_x(i),land_y(i),1)) + convert%Tair
+   !      ENDDO
+   !    END IF ! MMY
+   !  ELSE  !Anna, site runs need extra z dimension
+   
+   !    ok= NF90_GET_VAR(ncid_met,id%Tair,tmpDat4, &
+   !          start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
+   !    IF(ok /= NF90_NOERR) CALL nc_abort &
+   !          (ok,'Error reading Tair in met data file HERE' &
+   !          //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+   !    ! Assign value to met data variable with units change:
+   !    DO i=1,mland ! over all land points/grid cells
+   !      met%tk(landpt(i)%cstart:landpt(i)%cend) = &
+   !            REAL(tmpDat4(land_x(i),land_y(i),1,1)) + convert%Tair
+   !     ENDDO
+   !  END IF !gswp3/site
+
+   !    ! Get PSurf data for mask grid:- - - - - - - - - - - - - - - - - -
+   !    if (cable_user%GSWP3) THEN
+   !       ncid_met = ncid_ps
+   !       ! ______________________ MMY _________________________
+   !       IF (TRIM(cable_user%MetType) .eq. "prin") THEN
+   !          ok= NF90_GET_VAR(ncid_met,id%PSurf,tmpDat4, &
+   !               start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
+   !          IF(ok /= NF90_NOERR) CALL nc_abort &
+   !               (ok,'Error reading PSurf in met data file ' &
+   !               //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+   !          DO i=1,mland ! over all land points/grid cells
+   !            met%pmb(landpt(i)%cstart:landpt(i)%cend) = &
+   !                 REAL(tmpDat4(land_x(i),land_y(i),1,1)) * convert%PSurf
+   !          ENDDO
+   !          ! PRINT *, "========== MMY =========="
+   !          ! PRINT *, "met%pmb",met%pmb
+   !       ! ____________________________________________________
+   !       ELSE ! MMY
+   !         IF(exists%PSurf) THEN ! IF PSurf is in met file:
+   !            ok= NF90_GET_VAR(ncid_met,id%PSurf,tmpDat3, &
+   !                start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
+   !           IF(ok /= NF90_NOERR) CALL nc_abort &
+   !                (ok,'Error reading PSurf in met data file ' &
+   !                //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+   !           DO i=1,mland ! over all land points/grid cells
+   !             met%pmb(landpt(i)%cstart:landpt(i)%cend) = &
+   !                  REAL(tmpDat3(land_x(i),land_y(i),1)) * convert%PSurf
+   !           ENDDO
+   !         ELSE ! PSurf must be fixed as a function of site elevation and T:
+   !           DO i=1,mland ! over all land points/grid cells
+   !            met%pmb(landpt(i)%cstart:landpt(i)%cend)=1013.25* &
+   !                 (met%tk(landpt(i)%cstart)/(met%tk(landpt(i)%cstart) + 0.0065* &
+   !                 elevation(i)))**(9.80665/287.04/0.0065)
+   !           ENDDO
+   !         END IF
+   !      END IF   ! MMY
+   !    ELSE
+   !       IF(exists%PSurf) THEN ! IF PSurf is in met file:
+   !          ok= NF90_GET_VAR(ncid_met,id%PSurf,tmpDat4, &
+   !              start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1/))
+   !         IF(ok /= NF90_NOERR) CALL nc_abort &
+   !              (ok,'Error reading PSurf in met data file ' &
+   !              //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+   !         DO i=1,mland ! over all land points/grid cells
+   !           met%pmb(landpt(i)%cstart:landpt(i)%cend) = &
+   !                REAL(tmpDat4(land_x(i),land_y(i),1,1)) * convert%PSurf
+   !         ENDDO
+   !       ELSE ! PSurf must be fixed as a function of site elevation and T:
+   !         DO i=1,mland ! over all land points/grid cells
+   !          met%pmb(landpt(i)%cstart:landpt(i)%cend)=1013.25* &
+   !               (met%tk(landpt(i)%cstart)/(met%tk(landpt(i)%cstart) + 0.0065* &
+   !               elevation(i)))**(9.80665/287.04/0.0065)
+   !         ENDDO
+   !       END IF
+   !    END IF
+
+   !    ! Get Qair data for mask grid: - - - - - - - - - - - - - - - - - -
+   !  IF(cable_user%GSWP3) THEN
+   !    ncid_met = ncid_qa
+   !    ! ______________________ MMY _________________________
+   !    IF (TRIM(cable_user%MetType) .eq. "prin") THEN
+   !      ok= NF90_GET_VAR(ncid_met,id%Qair,tmpDat4, &
+   !           start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
+   !      IF(ok /= NF90_NOERR) CALL nc_abort &
+   !           (ok,'Error reading Qair in met data file ' &
+   !           //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+   !      IF(convert%Qair==-999.0) THEN
+   !        ! Convert relative value using only first veg/soil patch values
+   !        ! (identical)
+   !        DO i=1,mland ! over all land points/grid cells
+   !          CALL rh_sh(REAL(tmpDat4(land_x(i),land_y(i),1,1)), &
+   !               met%tk(landpt(i)%cstart), &
+   !               met%pmb(landpt(i)%cstart),met%qv(landpt(i)%cstart))
+   !          met%qv(landpt(i)%cstart:landpt(i)%cend) = met%qv(landpt(i)%cstart)
+   !        ENDDO
+   !      ELSE
+   !        DO i=1,mland ! over all land points/grid cells
+   !          met%qv(landpt(i)%cstart:landpt(i)%cend) = &
+   !               REAL(tmpDat4(land_x(i),land_y(i),1,1))
+   !        ENDDO
+   !      END IF
+   !      ! PRINT *, "========== MMY =========="
+   !      ! PRINT *, "met%qv",met%qv
+   !    ! ___________________________________________________
+   !    ELSE ! MMY
+   !      ok= NF90_GET_VAR(ncid_met,id%Qair,tmpDat3, &
+   !           start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
+   !      IF(ok /= NF90_NOERR) CALL nc_abort &
+   !           (ok,'Error reading Qair in met data file ' &
+   !           //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+   !      IF(convert%Qair==-999.0) THEN
+   !        ! Convert relative value using only first veg/soil patch values
+   !        ! (identical)
+   !        DO i=1,mland ! over all land points/grid cells
+   !          CALL rh_sh(REAL(tmpDat3(land_x(i),land_y(i),1)), &
+   !               met%tk(landpt(i)%cstart), &
+   !               met%pmb(landpt(i)%cstart),met%qv(landpt(i)%cstart))
+   !          met%qv(landpt(i)%cstart:landpt(i)%cend) = met%qv(landpt(i)%cstart)
+   !        ENDDO
+   !      ELSE
+   !        DO i=1,mland ! over all land points/grid cells
+   !          met%qv(landpt(i)%cstart:landpt(i)%cend) = &
+   !               REAL(tmpDat3(land_x(i),land_y(i),1))
+   !        ENDDO
+   !      END IF
+   !    END IF ! MMY
+   !  ELSE !Anna, site runs need extra z dimension
+   !    ok= NF90_GET_VAR(ncid_met,id%Qair,tmpDat4, &
+   !         start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
+   !    IF(ok /= NF90_NOERR) CALL nc_abort &
+   !         (ok,'Error reading Qair in met data file ' &
+   !         //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+   !    IF(convert%Qair==-999.0) THEN
+   !      ! Convert relative value using only first veg/soil patch values
+   !      ! (identical)
+   !      DO i=1,mland ! over all land points/grid cells
+   !        CALL rh_sh(REAL(tmpDat4(land_x(i),land_y(i),1,1)), &
+   !             met%tk(landpt(i)%cstart), &
+   !             met%pmb(landpt(i)%cstart),met%qv(landpt(i)%cstart))
+   !        met%qv(landpt(i)%cstart:landpt(i)%cend) = met%qv(landpt(i)%cstart)
+   !      ENDDO
+   !    ELSE
+   !      DO i=1,mland ! over all land points/grid cells
+   !        met%qv(landpt(i)%cstart:landpt(i)%cend) = &
+   !             REAL(tmpDat4(land_x(i),land_y(i),1,1))
+   !      ENDDO
+   !    END IF
+   !   END IF
+
+   !    ! Get Wind data for mask grid: - - - - - - - - - - - - - - - - - -
+   !  IF(cable_user%GSWP3) THEN
+   !    ncid_met = ncid_wd
+   !    ! ______________________ MMY _________________________
+   !    IF (TRIM(cable_user%MetType) .eq. "prin") THEN
+   !      ok= NF90_GET_VAR(ncid_met,id%Wind,tmpDat4, &
+   !           start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
+   !      IF(ok /= NF90_NOERR) CALL nc_abort &
+   !           (ok,'Error reading Wind in met data file ' &
+   !           //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+   !      ! Assign value to met data variable (no units change required):
+   !      DO i=1,mland ! over all land points/grid cells
+   !        met%ua(landpt(i)%cstart:landpt(i)%cend) = &
+   !             REAL(tmpDat4(land_x(i),land_y(i),1,1))
+   !      ENDDO
+   !      ! PRINT *, "========== MMY =========="
+   !      ! PRINT *, "met%ua",met%ua
+   !    ! ____________________________________________________
+   !    ELSE ! MMY
+   !      IF(exists%Wind) THEN ! Scalar Wind
+   !        ok= NF90_GET_VAR(ncid_met,id%Wind,tmpDat3, &
+   !             start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
+   !        IF(ok /= NF90_NOERR) CALL nc_abort &
+   !             (ok,'Error reading Wind in met data file ' &
+   !             //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+   !        ! Assign value to met data variable (no units change required):
+   !        DO i=1,mland ! over all land points/grid cells
+   !          met%ua(landpt(i)%cstart:landpt(i)%cend) = &
+   !               REAL(tmpDat3(land_x(i),land_y(i),1))
+   !        ENDDO
+   !      ELSE ! Vector wind
+   !        ! Get Wind_N:
+   !        ok= NF90_GET_VAR(ncid_met,id%Wind,tmpDat3, &
+   !             start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
+   !        IF(ok /= NF90_NOERR) CALL nc_abort &
+   !             (ok,'Error reading Wind_N in met data file ' &
+   !             //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+   !        ! only part of wind variable
+   !        DO i=1,mland ! over all land points/grid cells
+   !          met%ua(landpt(i)%cstart) = REAL(tmpDat3(land_x(i),land_y(i),1))
+   !        ENDDO
+   !        ok= NF90_GET_VAR(ncid_met,id%Wind_E,tmpDat3, &
+   !             start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
+   !        IF(ok /= NF90_NOERR) CALL nc_abort &
+   !             (ok,'Error reading Wind_E in met data file ' &
+   !             //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+   !        ! Write final scalar Wind value:
+   !        DO i=1,mland ! over all land points/grid cells
+   !          met%ua(landpt(i)%cstart:landpt(i)%cend) = &
+   !               SQRT(met%ua(landpt(i)%cstart)**2 + &
+   !               REAL(tmpDat3(land_x(i),land_y(i),1))**2)
+   !        ENDDO
+   !      END IF
+   !    END IF ! MMY
+   !  ELSE ! Anna, site runs need extra z dimension
+   !    IF(exists%Wind) THEN ! Scalar Wind
+   !      ok= NF90_GET_VAR(ncid_met,id%Wind,tmpDat4, &
+   !           start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
+   !      IF(ok /= NF90_NOERR) CALL nc_abort &
+   !           (ok,'Error reading Wind in met data file ' &
+   !           //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+   !      ! Assign value to met data variable (no units change required):
+   !      DO i=1,mland ! over all land points/grid cells
+   !        met%ua(landpt(i)%cstart:landpt(i)%cend) = &
+   !             REAL(tmpDat4(land_x(i),land_y(i),1,1))
+   !      ENDDO
+   !    ELSE ! Vector wind
+   !      ! Get Wind_N:
+   !      ok= NF90_GET_VAR(ncid_met,id%Wind,tmpDat4, &
+   !           start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
+   !      IF(ok /= NF90_NOERR) CALL nc_abort &
+   !           (ok,'Error reading Wind_N in met data file ' &
+   !           //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+   !      ! only part of wind variable
+   !      DO i=1,mland ! over all land points/grid cells
+   !        met%ua(landpt(i)%cstart) = REAL(tmpDat4(land_x(i),land_y(i),1,1))
+   !      ENDDO
+   !      ok= NF90_GET_VAR(ncid_met,id%Wind_E,tmpDat4, &
+   !           start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
+   !      IF(ok /= NF90_NOERR) CALL nc_abort &
+   !           (ok,'Error reading Wind_E in met data file ' &
+   !           //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+   !      ! Write final scalar Wind value:
+   !      DO i=1,mland ! over all land points/grid cells
+   !        met%ua(landpt(i)%cstart:landpt(i)%cend) = &
+   !             SQRT(met%ua(landpt(i)%cstart)**2 + &
+   !             REAL(tmpDat4(land_x(i),land_y(i),1,1))**2)
+   !      ENDDO
+   !    END IF
+   !  END IF
+
+   ! === MMY below taken from trunk r8444 ===
+   ! Get Tair data for mask grid:- - - - - - - - - - - - - - - - - -
+   IF(cable_user%GSWP3) ncid_met = ncid_ta ! since GSWP3 multiple met files
+      ! Find number of dimensions of Tair:
+   ok = NF90_INQUIRE_VARIABLE(ncid_met,id%Tair,ndims=ndims)
+   IF(ndims==3) THEN ! 3D var, either on grid or new ALMA format single site
+      ok= NF90_GET_VAR(ncid_met,id%Tair,tmpDat3, &
+            start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
+      IF(ok /= NF90_NOERR) CALL nc_abort & ! check for error
+            (ok,'Error reading Tair in met data file ' &
+            //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+      ! Assign value to met data variable with units change:
+      DO i=1,mland ! over all land points/grid cells
+         met%tk(landpt(i)%cstart:landpt(i)%cend) = &
                REAL(tmpDat3(land_x(i),land_y(i),1)) + convert%Tair
-        ENDDO
-      END IF ! MMY
-    ELSE  !Anna, site runs need extra z dimension
+      ENDDO
+   ELSE ! i.e. ndims==4, the older ALMA format for Tair
       ok= NF90_GET_VAR(ncid_met,id%Tair,tmpDat4, &
             start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
       IF(ok /= NF90_NOERR) CALL nc_abort &
@@ -1885,230 +2140,173 @@ SUBROUTINE get_met_data(spinup,spinConv,met,soil,rad,                          &
             //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
       ! Assign value to met data variable with units change:
       DO i=1,mland ! over all land points/grid cells
-        met%tk(landpt(i)%cstart:landpt(i)%cend) = &
-              REAL(tmpDat4(land_x(i),land_y(i),1,1)) + convert%Tair
-       ENDDO
-    END IF !gswp3/site
+         met%tk(landpt(i)%cstart:landpt(i)%cend) = &
+               REAL(tmpDat4(land_x(i),land_y(i),1,1)) + convert%Tair
+      ENDDO
+   END IF
 
-      ! Get PSurf data for mask grid:- - - - - - - - - - - - - - - - - -
-      if (cable_user%GSWP3) THEN
-         ncid_met = ncid_ps
-         ! ______________________ MMY _________________________
-         IF (TRIM(cable_user%MetType) .eq. "prin") THEN
-            ok= NF90_GET_VAR(ncid_met,id%PSurf,tmpDat4, &
-                 start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
-            IF(ok /= NF90_NOERR) CALL nc_abort &
-                 (ok,'Error reading PSurf in met data file ' &
-                 //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
-            DO i=1,mland ! over all land points/grid cells
-              met%pmb(landpt(i)%cstart:landpt(i)%cend) = &
-                   REAL(tmpDat4(land_x(i),land_y(i),1,1)) * convert%PSurf
-            ENDDO
-            ! PRINT *, "========== MMY =========="
-            ! PRINT *, "met%pmb",met%pmb
-         ! ____________________________________________________
-         ELSE ! MMY
-           IF(exists%PSurf) THEN ! IF PSurf is in met file:
-              ok= NF90_GET_VAR(ncid_met,id%PSurf,tmpDat3, &
-                  start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
-             IF(ok /= NF90_NOERR) CALL nc_abort &
-                  (ok,'Error reading PSurf in met data file ' &
+   ! Get PSurf data for mask grid:- - - - - - - - - - - - - - - - - -
+   IF (cable_user%GSWP3) ncid_met = ncid_ps ! since GSWP3 multiple met files
+   IF(exists%PSurf) THEN ! IF PSurf is in met file:
+      ! Find number of dimensions of PSurf:
+      ok = NF90_INQUIRE_VARIABLE(ncid_met,id%PSurf,ndims=ndims)
+      IF(ndims==3) THEN ! 3D var, either grid or new ALMA format single site
+         ok= NF90_GET_VAR(ncid_met,id%PSurf,tmpDat3, &
+               start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
+         IF(ok /= NF90_NOERR) CALL nc_abort &
+               (ok,'Error reading PSurf in met data file ' &
+               //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+         DO i=1,mland ! over all land points/grid cells
+            met%pmb(landpt(i)%cstart:landpt(i)%cend) = &
+                  REAL(tmpDat3(land_x(i),land_y(i),1)) * convert%PSurf
+         ENDDO
+      ELSE ! i.e. ndims==4, the older ALMA format for PSurf
+         ok= NF90_GET_VAR(ncid_met,id%PSurf,tmpDat4, &
+               start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1/))
+         IF(ok /= NF90_NOERR) CALL nc_abort &
+                           (ok,'Error reading PSurf in met data file ' &
                   //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
-             DO i=1,mland ! over all land points/grid cells
+            DO i=1,mland ! over all land points/grid cells
                met%pmb(landpt(i)%cstart:landpt(i)%cend) = &
-                    REAL(tmpDat3(land_x(i),land_y(i),1)) * convert%PSurf
-             ENDDO
-           ELSE ! PSurf must be fixed as a function of site elevation and T:
-             DO i=1,mland ! over all land points/grid cells
-              met%pmb(landpt(i)%cstart:landpt(i)%cend)=1013.25* &
-                   (met%tk(landpt(i)%cstart)/(met%tk(landpt(i)%cstart) + 0.0065* &
-                   elevation(i)))**(9.80665/287.04/0.0065)
-             ENDDO
-           END IF
-        END IF   ! MMY
-      ELSE
-         IF(exists%PSurf) THEN ! IF PSurf is in met file:
-            ok= NF90_GET_VAR(ncid_met,id%PSurf,tmpDat4, &
-                start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1/))
-           IF(ok /= NF90_NOERR) CALL nc_abort &
-                (ok,'Error reading PSurf in met data file ' &
-                //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
-           DO i=1,mland ! over all land points/grid cells
-             met%pmb(landpt(i)%cstart:landpt(i)%cend) = &
-                  REAL(tmpDat4(land_x(i),land_y(i),1,1)) * convert%PSurf
-           ENDDO
-         ELSE ! PSurf must be fixed as a function of site elevation and T:
-           DO i=1,mland ! over all land points/grid cells
-            met%pmb(landpt(i)%cstart:landpt(i)%cend)=1013.25* &
-                 (met%tk(landpt(i)%cstart)/(met%tk(landpt(i)%cstart) + 0.0065* &
-                 elevation(i)))**(9.80665/287.04/0.0065)
-           ENDDO
-         END IF
+                     REAL(tmpDat4(land_x(i),land_y(i),1,1)) * convert%PSurf
+            ENDDO
       END IF
+   ELSE ! PSurf must be fixed as a function of site elevation and T:
+      DO i=1,mland ! over all land points/grid cells
+         met%pmb(landpt(i)%cstart:landpt(i)%cend)=1013.25* &
+               (met%tk(landpt(i)%cstart)/(met%tk(landpt(i)%cstart) + 0.0065* &
+               elevation(i)))**(9.80665/287.04/0.0065)
+      ENDDO
+   END IF
 
-      ! Get Qair data for mask grid: - - - - - - - - - - - - - - - - - -
-    IF(cable_user%GSWP3) THEN
-      ncid_met = ncid_qa
-      ! ______________________ MMY _________________________
-      IF (TRIM(cable_user%MetType) .eq. "prin") THEN
-        ok= NF90_GET_VAR(ncid_met,id%Qair,tmpDat4, &
-             start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
-        IF(ok /= NF90_NOERR) CALL nc_abort &
-             (ok,'Error reading Qair in met data file ' &
-             //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
-        IF(convert%Qair==-999.0) THEN
-          ! Convert relative value using only first veg/soil patch values
-          ! (identical)
-          DO i=1,mland ! over all land points/grid cells
-            CALL rh_sh(REAL(tmpDat4(land_x(i),land_y(i),1,1)), &
-                 met%tk(landpt(i)%cstart), &
-                 met%pmb(landpt(i)%cstart),met%qv(landpt(i)%cstart))
-            met%qv(landpt(i)%cstart:landpt(i)%cend) = met%qv(landpt(i)%cstart)
-          ENDDO
-        ELSE
-          DO i=1,mland ! over all land points/grid cells
-            met%qv(landpt(i)%cstart:landpt(i)%cend) = &
-                 REAL(tmpDat4(land_x(i),land_y(i),1,1))
-          ENDDO
-        END IF
-        ! PRINT *, "========== MMY =========="
-        ! PRINT *, "met%qv",met%qv
-      ! ___________________________________________________
-      ELSE ! MMY
-        ok= NF90_GET_VAR(ncid_met,id%Qair,tmpDat3, &
-             start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
-        IF(ok /= NF90_NOERR) CALL nc_abort &
-             (ok,'Error reading Qair in met data file ' &
-             //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
-        IF(convert%Qair==-999.0) THEN
-          ! Convert relative value using only first veg/soil patch values
-          ! (identical)
-          DO i=1,mland ! over all land points/grid cells
-            CALL rh_sh(REAL(tmpDat3(land_x(i),land_y(i),1)), &
-                 met%tk(landpt(i)%cstart), &
-                 met%pmb(landpt(i)%cstart),met%qv(landpt(i)%cstart))
-            met%qv(landpt(i)%cstart:landpt(i)%cend) = met%qv(landpt(i)%cstart)
-          ENDDO
-        ELSE
-          DO i=1,mland ! over all land points/grid cells
-            met%qv(landpt(i)%cstart:landpt(i)%cend) = &
-                 REAL(tmpDat3(land_x(i),land_y(i),1))
-          ENDDO
-        END IF
-      END IF ! MMY
-    ELSE !Anna, site runs need extra z dimension
-      ok= NF90_GET_VAR(ncid_met,id%Qair,tmpDat4, &
-           start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
-      IF(ok /= NF90_NOERR) CALL nc_abort &
-           (ok,'Error reading Qair in met data file ' &
-           //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+   ! Get Qair data for mask grid: - - - - - - - - - - - - - - - - - -
+   IF(cable_user%GSWP3) ncid_met = ncid_qa ! since GSWP3 multiple met files
+   ! Find number of dimensions of Qair:
+   ok = NF90_INQUIRE_VARIABLE(ncid_met,id%Qair,ndims=ndims)
+   IF(ndims==3) THEN ! 3D var, either grid or new ALMA format single site
+      ok= NF90_GET_VAR(ncid_met,id%Qair,tmpDat3, & ! read 3D Qair var
+            start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
+      IF(ok /= NF90_NOERR) CALL nc_abort & ! check for error
+            (ok,'Error reading Qair in met data file ' &
+            //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
       IF(convert%Qair==-999.0) THEN
-        ! Convert relative value using only first veg/soil patch values
-        ! (identical)
-        DO i=1,mland ! over all land points/grid cells
-          CALL rh_sh(REAL(tmpDat4(land_x(i),land_y(i),1,1)), &
+         ! Convert relative value using only first veg/soil patch values
+         ! (identical)
+         DO i=1,mland ! over all land points/grid cells
+            CALL rh_sh(REAL(tmpDat3(land_x(i),land_y(i),1)), &
                met%tk(landpt(i)%cstart), &
                met%pmb(landpt(i)%cstart),met%qv(landpt(i)%cstart))
-          met%qv(landpt(i)%cstart:landpt(i)%cend) = met%qv(landpt(i)%cstart)
-        ENDDO
+               met%qv(landpt(i)%cstart:landpt(i)%cend) = met%qv(landpt(i)%cstart)
+         ENDDO
       ELSE
-        DO i=1,mland ! over all land points/grid cells
-          met%qv(landpt(i)%cstart:landpt(i)%cend) = &
-               REAL(tmpDat4(land_x(i),land_y(i),1,1))
-        ENDDO
+         DO i=1,mland ! over all land points/grid cells
+            met%qv(landpt(i)%cstart:landpt(i)%cend) = &
+               REAL(tmpDat3(land_x(i),land_y(i),1))
+         ENDDO
       END IF
-     END IF
+   ELSE   ! i.e. ndims==4, the older ALMA format for Qair
+      ok= NF90_GET_VAR(ncid_met,id%Qair,tmpDat4, &
+         start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
+      IF(ok /= NF90_NOERR) CALL nc_abort &
+         (ok,'Error reading Qair in met data file ' &
+         //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+      IF(convert%Qair==-999.0) THEN
+         ! Convert relative value using only first veg/soil patch values
+         ! (identical)
+         DO i=1,mland ! over all land points/grid cells
+            CALL rh_sh(REAL(tmpDat4(land_x(i),land_y(i),1,1)), &
+               met%tk(landpt(i)%cstart), &
+               met%pmb(landpt(i)%cstart),met%qv(landpt(i)%cstart))
+               met%qv(landpt(i)%cstart:landpt(i)%cend) = met%qv(landpt(i)%cstart)
+         ENDDO
+      ELSE
+         DO i=1,mland ! over all land points/grid cells
+            met%qv(landpt(i)%cstart:landpt(i)%cend) = &
+                  REAL(tmpDat4(land_x(i),land_y(i),1,1))
+         ENDDO
+      END IF
+   END IF
 
-      ! Get Wind data for mask grid: - - - - - - - - - - - - - - - - - -
-    IF(cable_user%GSWP3) THEN
-      ncid_met = ncid_wd
-      ! ______________________ MMY _________________________
-      IF (TRIM(cable_user%MetType) .eq. "prin") THEN
-        ok= NF90_GET_VAR(ncid_met,id%Wind,tmpDat4, &
-             start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
-        IF(ok /= NF90_NOERR) CALL nc_abort &
-             (ok,'Error reading Wind in met data file ' &
-             //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
-        ! Assign value to met data variable (no units change required):
-        DO i=1,mland ! over all land points/grid cells
-          met%ua(landpt(i)%cstart:landpt(i)%cend) = &
-               REAL(tmpDat4(land_x(i),land_y(i),1,1))
-        ENDDO
-        ! PRINT *, "========== MMY =========="
-        ! PRINT *, "met%ua",met%ua
-      ! ____________________________________________________
-      ELSE ! MMY
-        IF(exists%Wind) THEN ! Scalar Wind
-          ok= NF90_GET_VAR(ncid_met,id%Wind,tmpDat3, &
+   ! Get Wind data for mask grid: - - - - - - - - - - - - - - - - - -
+   IF(cable_user%GSWP3) ncid_met = ncid_wd ! since GSWP3 multiple met files
+   IF(exists%Wind) THEN ! Scalar Wind
+      ! Find number of dimensions of Wind:
+      ok = NF90_INQUIRE_VARIABLE(ncid_met,id%Wind,ndims=ndims)
+      IF(ndims==3) THEN ! 3D var, either grid or new ALMA format single site
+         ok= NF90_GET_VAR(ncid_met,id%Wind,tmpDat3, &
                start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
-          IF(ok /= NF90_NOERR) CALL nc_abort &
+         IF(ok /= NF90_NOERR) CALL nc_abort &
                (ok,'Error reading Wind in met data file ' &
                //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
-          ! Assign value to met data variable (no units change required):
-          DO i=1,mland ! over all land points/grid cells
+         ! Assign value to met data variable (no units change required):
+         DO i=1,mland ! over all land points/grid cells
             met%ua(landpt(i)%cstart:landpt(i)%cend) = &
-                 REAL(tmpDat3(land_x(i),land_y(i),1))
-          ENDDO
-        ELSE ! Vector wind
-          ! Get Wind_N:
-          ok= NF90_GET_VAR(ncid_met,id%Wind,tmpDat3, &
+                  REAL(tmpDat3(land_x(i),land_y(i),1))
+         ENDDO
+      ELSE ! i.e. ndims==4, the older ALMA format for Wind
+         ok= NF90_GET_VAR(ncid_met,id%Wind,tmpDat4, &
+               start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
+         IF(ok /= NF90_NOERR) CALL nc_abort &
+               (ok,'Error reading Wind in met data file ' &
+               //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+         ! Assign value to met data variable (no units change required):
+         DO i=1,mland ! over all land points/grid cells
+            met%ua(landpt(i)%cstart:landpt(i)%cend) = &
+                  REAL(tmpDat4(land_x(i),land_y(i),1,1))
+         ENDDO
+      END IF ! 3 or 4D for 'Wind' variable
+   ELSE ! Vector wind
+      ! Find number of dimensions of Wind_N:
+      ok = NF90_INQUIRE_VARIABLE(ncid_met,id%Wind,ndims=ndims)
+      IF(ndims==3) THEN ! 3D var, either grid or new ALMA format single site
+         ok= NF90_GET_VAR(ncid_met,id%Wind,tmpDat3, &
                start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
-          IF(ok /= NF90_NOERR) CALL nc_abort &
+         IF(ok /= NF90_NOERR) CALL nc_abort &
                (ok,'Error reading Wind_N in met data file ' &
                //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
-          ! only part of wind variable
-          DO i=1,mland ! over all land points/grid cells
+         ! Write part of wind variable to met%ua:
+         DO i=1,mland ! over all land points/grid cells
             met%ua(landpt(i)%cstart) = REAL(tmpDat3(land_x(i),land_y(i),1))
-          ENDDO
-          ok= NF90_GET_VAR(ncid_met,id%Wind_E,tmpDat3, &
+         ENDDO
+         ! Then fetch 3D Wind_E, and combine:
+         ok= NF90_GET_VAR(ncid_met,id%Wind_E,tmpDat3, &
                start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
-          IF(ok /= NF90_NOERR) CALL nc_abort &
+         IF(ok /= NF90_NOERR) CALL nc_abort &
                (ok,'Error reading Wind_E in met data file ' &
                //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
-          ! Write final scalar Wind value:
-          DO i=1,mland ! over all land points/grid cells
+         ! Write final scalar Wind value:
+         DO i=1,mland ! over all land points/grid cells
             met%ua(landpt(i)%cstart:landpt(i)%cend) = &
-                 SQRT(met%ua(landpt(i)%cstart)**2 + &
-                 REAL(tmpDat3(land_x(i),land_y(i),1))**2)
-          ENDDO
-        END IF
-      END IF ! MMY
-    ELSE ! Anna, site runs need extra z dimension
-      IF(exists%Wind) THEN ! Scalar Wind
-        ok= NF90_GET_VAR(ncid_met,id%Wind,tmpDat4, &
-             start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
-        IF(ok /= NF90_NOERR) CALL nc_abort &
-             (ok,'Error reading Wind in met data file ' &
-             //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
-        ! Assign value to met data variable (no units change required):
-        DO i=1,mland ! over all land points/grid cells
-          met%ua(landpt(i)%cstart:landpt(i)%cend) = &
-               REAL(tmpDat4(land_x(i),land_y(i),1,1))
-        ENDDO
-      ELSE ! Vector wind
-        ! Get Wind_N:
-        ok= NF90_GET_VAR(ncid_met,id%Wind,tmpDat4, &
-             start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
-        IF(ok /= NF90_NOERR) CALL nc_abort &
-             (ok,'Error reading Wind_N in met data file ' &
-             //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
-        ! only part of wind variable
-        DO i=1,mland ! over all land points/grid cells
-          met%ua(landpt(i)%cstart) = REAL(tmpDat4(land_x(i),land_y(i),1,1))
-        ENDDO
-        ok= NF90_GET_VAR(ncid_met,id%Wind_E,tmpDat4, &
-             start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
-        IF(ok /= NF90_NOERR) CALL nc_abort &
-             (ok,'Error reading Wind_E in met data file ' &
-             //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
-        ! Write final scalar Wind value:
-        DO i=1,mland ! over all land points/grid cells
-          met%ua(landpt(i)%cstart:landpt(i)%cend) = &
-               SQRT(met%ua(landpt(i)%cstart)**2 + &
-               REAL(tmpDat4(land_x(i),land_y(i),1,1))**2)
-        ENDDO
-      END IF
-     END IF
+                  SQRT(met%ua(landpt(i)%cstart)**2 + &
+                  REAL(tmpDat3(land_x(i),land_y(i),1))**2)
+         ENDDO
+      ELSE ! i.e. ndims==4, the older ALMA format for Wind_N and _E
+         ! Get 4D Wind_N:
+         ok= NF90_GET_VAR(ncid_met,id%Wind,tmpDat4, &
+               start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
+         IF(ok /= NF90_NOERR) CALL nc_abort &
+               (ok,'Error reading Wind_N in met data file ' &
+               //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+         ! Write part of wind variable to met%ua:
+         DO i=1,mland ! over all land points/grid cells
+            met%ua(landpt(i)%cstart) = REAL(tmpDat4(land_x(i),land_y(i),1,1))
+         ENDDO
+         ! Then fetch 4D Wind_E, and combine:
+         ok= NF90_GET_VAR(ncid_met,id%Wind_E,tmpDat4, &
+               start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
+         IF(ok /= NF90_NOERR) CALL nc_abort &
+               (ok,'Error reading Wind_E in met data file ' &
+               //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+         ! Write final scalar Wind value:
+         DO i=1,mland ! over all land points/grid cells
+            met%ua(landpt(i)%cstart:landpt(i)%cend) = &
+                  SQRT(met%ua(landpt(i)%cstart)**2 + &
+                  REAL(tmpDat4(land_x(i),land_y(i),1,1))**2)
+         ENDDO
+      END IF ! 3 or 4D for 'Wind_N' and 'Wind_E' variables
+   END IF ! scalar or vector wind - 'Wind' or 'Wind_N'/'Wind_E'
+! _________________________________________________________________
+
 
       ! Get Rainf and Snowf data for mask grid:- - - - - - - - - - - - -
       if (cable_user%GSWP3) ncid_met = ncid_rain
@@ -2204,8 +2402,37 @@ SUBROUTINE get_met_data(spinup,spinConv,met,soil,rad,                          &
           met%fld(:) = 0.0000094*0.0000000567*(met%tk(:)**6.0)
         END IF
       END IF
-      ! Get CO2air data for mask grid:- - - - - - - - - - - - - - - - - -
-      IF(exists%CO2air) THEN ! If CO2air exists in met file
+! ___________________ MMY modified for reading PLUMBER2 met ___________________
+      ! ! Get CO2air data for mask grid:- - - - - - - - - - - - - - - - - -
+      ! IF(exists%CO2air) THEN ! If CO2air exists in met file
+      !   ok= NF90_GET_VAR(ncid_met,id%CO2air,tmpDat4, &
+      !        start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
+      !   IF(ok /= NF90_NOERR) CALL nc_abort &
+      !        (ok,'Error reading CO2air in met data file ' &
+      !        //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+      !   DO i=1,mland ! over all land points/grid cells
+      !     met%ca(landpt(i)%cstart:landpt(i)%cend) = &
+      !             REAL(tmpDat4(land_x(i),land_y(i),1,1))/1000000.0
+      !   ENDDO
+      ! ELSE
+      !   ! Fix CO2 air concentration:
+      !   met%ca(:) = fixedCO2 /1000000.0
+      ! END IF
+   ! Get CO2air data for mask grid:- - - - - - - - - - - - - - - - - -
+   IF(exists%CO2air) THEN ! If CO2air exists in met file
+      ok = NF90_INQUIRE_VARIABLE(ncid_met,id%CO2air,ndims=ndims)
+      IF(ndims==3) THEN ! 3D var, either on grid or new ALMA format single site
+         ok= NF90_GET_VAR(ncid_met,id%CO2air,tmpDat3, &
+               start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
+         IF(ok /= NF90_NOERR) CALL nc_abort & ! check for error
+               (ok,'Error reading CO2air in met data file ' &
+               //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+         ! Assign value to met data variable with units change:
+         DO i=1,mland ! over all land points/grid cells
+            met%ca(landpt(i)%cstart:landpt(i)%cend) = &
+                  REAL(tmpDat3(land_x(i),land_y(i),1))/1000000.0
+         ENDDO
+      ELSE ! i.e. ndims==4, the older ALMA format for CO2air
         ok= NF90_GET_VAR(ncid_met,id%CO2air,tmpDat4, &
              start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
         IF(ok /= NF90_NOERR) CALL nc_abort &
@@ -2215,11 +2442,10 @@ SUBROUTINE get_met_data(spinup,spinConv,met,soil,rad,                          &
           met%ca(landpt(i)%cstart:landpt(i)%cend) = &
                   REAL(tmpDat4(land_x(i),land_y(i),1,1))/1000000.0
         ENDDO
-      ELSE
-        ! Fix CO2 air concentration:
-        met%ca(:) = fixedCO2 /1000000.0
-      END IF
-
+      END IF  
+   END IF
+! __________________________________________________________________________
+      
       ! Get LAI, if it's present, for mask grid:- - - - - - - - - - - - -
       IF(exists%LAI) THEN ! If LAI exists in met file
         IF(exists%LAI_T) THEN ! i.e. time dependent LAI
@@ -2305,7 +2531,7 @@ SUBROUTINE get_met_data(spinup,spinConv,met,soil,rad,                          &
         ENDDO
       END IF
 
-
+! ===========================
       DEALLOCATE(tmpDat2,tmpDat3,tmpDat4,tmpDat3x,tmpDat4x)
 
     ELSE IF(metGrid=='land') THEN
