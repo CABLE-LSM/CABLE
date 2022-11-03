@@ -764,7 +764,7 @@ CONTAINS
     ! if kend > # days in selected episode
 
 
-    !********* gswp input file has bug in timevar **************
+    !========= gswp input file has bug in timevar ==========
     IF (ncciy > 0) THEN
        PRINT *, 'original timevar(kend) = ', timevar(kend)
        DO i = 1, kend - 1
@@ -778,7 +778,7 @@ CONTAINS
        !      PRINT *, 'Hacked kend = ', kend
        ! end hacking
     END IF
-    !********* done bug fixing for timevar in gswp input file **
+    !=========== done bug fixing for timevar in gswp input file ==
 
     ! Write time step size to log file:
     WRITE(logn,'(1X,A17,F8.1,1X,A7)') 'Time step size:  ', dels, 'seconds'
@@ -801,7 +801,7 @@ CONTAINS
          (ok,'Error finding time variable units in met data file ' &
          //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
 
-    !****** PALS met file has timevar(1)=0 while timeunits from 00:30:00 ******
+    !===== PALS met file has timevar(1)=0 while timeunits from 00:30:00 ====
     !CLN CRITICAL! From my point of view, the information in the file is correct...
     !CLN WHY DO the input files all have bugs???
     IF (timevar(1) == 0.0) THEN
@@ -812,11 +812,11 @@ CONTAINS
           WRITE(timeunits(29:30),'(i2.2)') tsmin
        ENDIF
     ENDIF
-    !****** done bug fixing for timevar in PALS met file **********************
+    !===== done bug fixing for timevar in PALS met file ===============
 
-    !********* gswp input file has bug in timeunits ************
+    !===== gswp input file has bug in timeunits ===========
     IF (ncciy > 0) WRITE(timeunits(26:27),'(i2.2)') 0
-    !********* done bug fixing for timeunits in gwsp file ******
+    !===== done bug fixing for timeunits in gwsp file ========
     WRITE(logn,*) 'Time variable units: ', timeunits
     ! Get coordinate field:
     ok = NF90_GET_ATT(ncid_met,timevarID,'coordinate',time_coord)

@@ -1,6 +1,6 @@
 SUBROUTINE POP_IO ( POP, casamet, YEAR, ACTION, CF )
 
-!******************************************************************************
+!==============================================================================
   ! POP        : POP structure containing all specific parameter
   ! casamet    : structure containing met and grid specific parameters from CASA
   ! YEAR       : Current year <YYYY>
@@ -10,7 +10,7 @@ SUBROUTINE POP_IO ( POP, casamet, YEAR, ACTION, CF )
   !              "WRITE_RST" : Write a restart file for YEAR+1
   !              "WRITE_EPI" : Write data at the end of each year
   ! CLOSE_FILE : Flag to close file at the end of Episode (Episode only)
-!******************************************************************************
+!==============================================================================
   USE netcdf
   USE POP_constants
   USE POP_types
@@ -245,7 +245,7 @@ SUBROUTINE POP_IO ( POP, casamet, YEAR, ACTION, CF )
 
   ntile  = mp
 
-!******************************************************************************
+!==============================================================================
 
   !IF ( PRESENT( CF ) ) THEN
   CLOSE_FILE = CF
@@ -265,9 +265,9 @@ SUBROUTINE POP_IO ( POP, casamet, YEAR, ACTION, CF )
      STOP -1
   ENDIF
 
-!******************************************************************************
+!==============================================================================
   ! WRITE POP VALUES TO OUTPUT FILE
-!******************************************************************************
+!==============================================================================
 
   IF ( INDEX(ACTION,"WRITE") .GT. 0 ) THEN
 
@@ -926,9 +926,9 @@ SUBROUTINE POP_IO ( POP, casamet, YEAR, ACTION, CF )
 !$        END DO PAT
 !$     END DO MPS
 
-!******************************************************************************
+!==============================================================================
      ! READ POP VALUES AS RESTART VALUES
-!******************************************************************************
+!==============================================================================
 
   ELSE IF ( INDEX(ACTION,'READ') .GT. 0 ) THEN
 

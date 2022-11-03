@@ -1311,7 +1311,7 @@ SUBROUTINE renameFiles(logn,inFile,ncciy,inName)
 
 END SUBROUTINE renameFiles
 
-!***************************************************************************************
+!==============================================================================
 ! subroutine for reading LU input data, zeroing biomass in empty secondary forest tiles
 ! and tranferring LUC-based age weights for secondary forest to POP structure
 

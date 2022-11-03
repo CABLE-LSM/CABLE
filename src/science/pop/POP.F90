@@ -28,7 +28,7 @@
 
 ! Attribution-Share Alike 3.0 License:
 ! http://creativecommons.org/licenses/by-sa/3.0/
-!*******************************************************************************
+!===============================================================================
 
 MODULE TypeDef
   !-------------------------------------------------------------------------------
@@ -52,7 +52,7 @@ MODULE TypeDef
 END MODULE TypeDef
 
 
-!*******************************************************************************
+!===============================================================================
 MODULE POP_Constants
   USE TYPEdef, ONLY: dp, i4b
 
@@ -108,7 +108,7 @@ MODULE POP_Constants
   INTEGER(i4b),PARAMETER :: NYEAR_HISTORY =  NYEAR_SMOOTH-NYEAR_SMOOTH/2
   INTEGER(i4b),PARAMETER :: AGEMAX = 1000
 END MODULE POP_Constants
-!*******************************************************************************
+!===============================================================================
 MODULE POP_Types
   USE TYPEdef, ONLY: dp, i4b
   USE POP_Constants, ONLY: NCOHORT_MAX, NLAYER, HEIGHT_BINS, NDISTURB, NPATCH, NPATCH2D, &
@@ -243,7 +243,7 @@ MODULE POP_Types
   END TYPE POP_TYPE
 
 END MODULE POP_Types
-!*******************************************************************************
+!==============================================================================
 
 MODULE POPModule
   !-------------------------------------------------------------------------------
@@ -257,7 +257,7 @@ MODULE POPModule
 CONTAINS
 
 
-  !*******************************************************************************
+  !=============================================================================
   SUBROUTINE ZeroPOP(POP,n)
     TYPE(POP_TYPE), INTENT(INOUT) :: POP
     INTEGER, OPTIONAL, INTENT(IN) ::n
@@ -401,7 +401,7 @@ CONTAINS
 
 
   END SUBROUTINE ZeroPOP
-  !*******************************************************************************
+  !=============================================================================
   SUBROUTINE InitPOP2D_Poisson(POP, mean_disturbance_interval, m)
     ! Initialises vector of patches with maximum age correpondding to 95% of pdf
     ! Starting year: uniform distribution up to maximum age
@@ -552,7 +552,7 @@ CONTAINS
 
   END SUBROUTINE InitPOP2D_Poisson
   !
-  !*******************************************************************************
+  !=============================================================================
 
   SUBROUTINE POPStep(POP, StemNPP, disturbance_interval, disturbance_intensity,LAI,Cleaf,Croot, &
        NPPtoGPP, StemNPP_av,frac_intensity1,precip )
@@ -650,7 +650,7 @@ CONTAINS
 
 
   END SUBROUTINE POPStep
-  !*******************************************************************************
+  !=============================================================================
   SUBROUTINE PatchAnnualDynamics(pop, StemNPP,NPPtoGPP, disturbance_interval, it, precip,StemNPP_av)
     IMPLICIT NONE
 
@@ -1098,7 +1098,7 @@ CONTAINS
 
 
   END SUBROUTINE PatchAnnualDynamics
-  !*******************************************************************************
+  !=============================================================================
   SUBROUTINE GetUniqueAgeFrequencies(pop, disturbance_interval, idisturb, it)
     IMPLICIT NONE
 
@@ -1237,7 +1237,7 @@ CONTAINS
     ENDDO
 
   END SUBROUTINE GetUniqueAgeFrequencies
-  !*******************************************************************************
+  !=============================================================================
   SUBROUTINE GetPatchFrequencies(pop,it)
     IMPLICIT NONE
 
@@ -1294,7 +1294,7 @@ CONTAINS
 
   END SUBROUTINE GetPatchFrequencies
 
-  !*******************************************************************************
+  !=============================================================================
   SUBROUTINE GetDiagnostics(pop,LAI,Cleaf,Croot,disturbance_interval, it, precip)
     ! Gets diagnostic data for current landscape structure
     IMPLICIT NONE
@@ -1614,12 +1614,12 @@ CONTAINS
                         MAX(pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area,1.e-3),-20.0))
 
                    pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area = &
-                        pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area*(1.-Pwc) !*1.4142
+                        pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area*(1.-Pwc) ! *1.4142
                 ENDIF
 
              ELSE
                 pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area = &
-                     0.5*pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%LAI !*1.4142
+                     0.5*pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%LAI ! *1.4142
              ENDIF
              pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area= &
                   MAX(pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area,0.01)
@@ -1718,7 +1718,7 @@ CONTAINS
 
 
   END SUBROUTINE GetDiagnostics
-  !*******************************************************************************
+  !=============================================================================
   SUBROUTINE Patch_partial_disturb(pop,idisturb,intensity,precip,frac_intensity1)
     IMPLICIT NONE
 
@@ -1844,7 +1844,7 @@ CONTAINS
     ENDDO
 
   END SUBROUTINE Patch_partial_disturb
-  !*******************************************************************************
+  !=============================================================================
   SUBROUTINE Patch_partial_disturb2(pop,idisturb,precip)
     IMPLICIT NONE
 
@@ -1951,7 +1951,7 @@ CONTAINS
     ENDDO
 
   END SUBROUTINE Patch_partial_disturb2
-  !*******************************************************************************
+  !=============================================================================
 
   SUBROUTINE Patch_disturb(pop,idisturb,precip)
     IMPLICIT NONE
@@ -2061,7 +2061,7 @@ CONTAINS
     ENDDO
 
   END SUBROUTINE Patch_disturb
-  !*******************************************************************************
+  !=============================================================================
   SUBROUTINE  layer_recruitment(pop,precip)
     IMPLICIT NONE
     TYPE(POP_TYPE), INTENT(INOUT)  :: POP
@@ -2111,7 +2111,7 @@ CONTAINS
 
   END SUBROUTINE layer_recruitment
 
-  !*******************************************************************************
+  !=============================================================================
   SUBROUTINE  layer_recruitment_single_patch(pop, index, grid_index,precip)
     IMPLICIT NONE
     TYPE(POP_TYPE), INTENT(INOUT)  :: POP
@@ -2163,7 +2163,7 @@ CONTAINS
 
   END SUBROUTINE layer_recruitment_single_patch
 
-  !*******************************************************************************
+  !=============================================================================
   ! Exponential distribution
   ! Returns probability of a given time-between-events (x)
   ! Given a Poisson process with expected frequency (events per unit time) lambda
@@ -2183,7 +2183,7 @@ CONTAINS
     ENDIF
 
   END FUNCTION Exponential
-  !*******************************************************************************
+  !=============================================================================
   ! Exponential distribution
   ! Returns probability of a given time-between-events (x)
   ! Given a Poisson process with expected frequency (events per unit time) lambda
@@ -2206,7 +2206,7 @@ CONTAINS
 
 
 
-  !*******************************************************************************
+  !=============================================================================
   REAL(dp) FUNCTION CumExponential(lambda, x)
     IMPLICIT NONE
     REAL(dp), INTENT(IN) :: x
@@ -2221,7 +2221,7 @@ CONTAINS
   END FUNCTION CumExponential
 
 
-  !*******************************************************************************
+  !=============================================================================
 
   REAL(dp)  FUNCTION Factorial(n)
     IMPLICIT NONE
@@ -2237,9 +2237,9 @@ CONTAINS
     Factorial = Ans
 
   END FUNCTION Factorial
-  !*******************************************************************************
+  !=============================================================================
   ! ALLOMETRY
-  !*******************************************************************************
+  !=============================================================================
   SUBROUTINE GET_ALLOMETRY( ALLOM_SWITCH,  biomass, density, ht, diam, basal, precip )
 
     IMPLICIT NONE
@@ -2272,9 +2272,9 @@ CONTAINS
     ENDIF
 
   END SUBROUTINE GET_ALLOMETRY
-  !*******************************************************************************
+  !=============================================================================
   ! TOP-END ALLOMETRY STARTS HERE
-  !*******************************************************************************
+  !=============================================================================
   ! Tree height based on precipitation and Gary Cook Top-End allometry
   ! Bisection solution for tree height (m) based on modified height-DBH relationship
   ! from Garry Cook (pers. comm. 15/4/2013)
@@ -2336,7 +2336,7 @@ CONTAINS
     GetHeight=xmid
 
   END FUNCTION GetHeight
-  !*******************************************************************************
+  !=============================================================================
   SUBROUTINE INTERPOLATE_BIOMASS_1D(pop, disturbance_interval,it,g)
     IMPLICIT NONE
 
@@ -2616,7 +2616,7 @@ CONTAINS
 
 
   END SUBROUTINE INTERPOLATE_BIOMASS_1D
-  !*******************************************************************************
+  !=============================================================================
   SUBROUTINE INTERPOLATE_BIOMASS_2D(pop, disturbance_interval,it,g)
     IMPLICIT NONE
 
@@ -3033,7 +3033,7 @@ CONTAINS
 
   END SUBROUTINE INTERPOLATE_BIOMASS_2D
 
-  !******************************************************************************
+  !=============================================================================
   SUBROUTINE SMOOTH_FLUX(POP,g,t)
     IMPLICIT NONE
 
@@ -3085,7 +3085,7 @@ CONTAINS
 
 
   END SUBROUTINE SMOOTH_FLUX
-  !******************************************************************************
+  !=============================================================================
   SUBROUTINE SMOOTH_FLUX_cat(POP,g,t)
     IMPLICIT NONE
 
@@ -3137,7 +3137,7 @@ CONTAINS
 
 
   END SUBROUTINE SMOOTH_FLUX_cat
-  !******************************************************************************
+  !=============================================================================
   SUBROUTINE REGRESS(x, y, n, a, b, r)
     IMPLICIT NONE
     REAL(dp), INTENT(IN) :: x(:), y(:)
@@ -3184,7 +3184,7 @@ CONTAINS
 
 
   END SUBROUTINE REGRESS
-  !******************************************************************************
+  !=============================================================================
   REAL(dp) FUNCTION Area_Triangle(x1,y1,x2,y2,x3,y3)
     IMPLICIT NONE
     REAL(dp), INTENT(IN) :: x1, y1, x2, y2, x3, y3
@@ -3194,7 +3194,7 @@ CONTAINS
   END FUNCTION Area_Triangle
 
 
-  !******************************************************************************
+  !=============================================================================
   ! Top-End Allometry
   ! Computes tree stem diameter (m) and basal area (m2/ha)
   ! given height (m), stem biomass (kgC/m2) and tree population density (indiv/m2)
@@ -3216,7 +3216,7 @@ CONTAINS
     basal=PI*(diam/2.0)*(diam/2.0)*density*1e4
 
   END SUBROUTINE Allometry
-  !*******************************************************************************
+  !=============================================================================
   SUBROUTINE Williams_Allometry(agBiomass, density, height, dbh, basal)
 
     IMPLICIT NONE
@@ -3249,7 +3249,7 @@ CONTAINS
 
   END SUBROUTINE Williams_Allometry
 
-  !*******************************************************************************
+  !=============================================================================
   SUBROUTINE POP_init(POP, disturbance_interval,np,Iwood,precip)
     USE POP_types,     ONLY: POP_TYPE
     USE TypeDef,       ONLY: i4b
@@ -3288,7 +3288,7 @@ CONTAINS
 
 
   END SUBROUTINE POP_init
-  !*******************************************************************************
+  !=============================================================================
   SUBROUTINE POP_init_single(POP, disturbance_interval,n,precip)
     USE POP_types,     ONLY: POP_TYPE
     USE TypeDef,       ONLY: i4b
@@ -3326,7 +3326,7 @@ CONTAINS
 
   END SUBROUTINE POP_init_single
 
-  !*******************************************************************************
+  !==============================================================================
   SUBROUTINE alloc_POP(POP, arraysize)
 
     USE TypeDef,   ONLY: i4b, dp
@@ -3344,6 +3344,6 @@ CONTAINS
 
   END SUBROUTINE alloc_POP
 
-  !*******************************************************************************
+  !==============================================================================
 END MODULE POPModule
-!*******************************************************************************
+!==============================================================================

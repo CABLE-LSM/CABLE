@@ -582,7 +582,7 @@ SUBROUTINE casa_rplant1(veg,casabiome,casapool,casaflux,casamet)
       casaflux%crgplant(:) = 0.0
     ENDWHERE
 
-!********************** begin from YPW 02/10/17 !**************************
+!================== begin from YPW 02/10/17 =======================
 
     casaflux%Cnpp(:) = casaflux%Cgpp(:) - SUM(casaflux%crmplant(:,:),2) &
                      - casaflux%crgplant(:)
@@ -613,7 +613,7 @@ SUBROUTINE casa_rplant1(veg,casabiome,casapool,casaflux,casamet)
 
     ENDWHERE
 
-!********************** end from YPW 02/10/17 !**************************
+!===================== end from YPW 02/10/17 =========================
   ENDWHERE
 
   casaflux%Cnpp(:) = casaflux%Cgpp(:) - SUM(casaflux%crmplant(:,:),2) &
