@@ -187,7 +187,7 @@ call CanopyReflectance_dif( CanopyRefl_dif, mp, nrb, CGauss_w, &
                              ExtCoeff_dif, xk, rhoch )
 End subroutine CanopyReflectance
 
-!================================================================================
+!===============================================================================
 
 subroutine CanopyReflectance_beam( CanopyRefl_beam, mp, nrb, sunlit_veg_mask, &
               ExtCoeff_beam,ExtCoeff_dif, rhoch )
@@ -213,7 +213,7 @@ END DO
 
 End subroutine CanopyReflectance_beam
 
-!================================================================================
+!===============================================================================
 
 subroutine CanopyReflectance_dif( CanopyRefl_dif, mp, nrb, CGauss_w,  &
                                   ExtCoeff_dif, xk, rhoch )
