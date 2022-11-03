@@ -177,21 +177,39 @@ End subroutine Common_InitRad_Scalings
 
 subroutine  common_InitRad_coeffs( xphi1, xphi2, xk, xvlai2, mp, nrb, Cpi180,&
                             cLAI_thresh, veg_mask, VegXfang, reducedLAIdue2snow  )
-
+!*  # Purpose
+! Calculates the extinction coefficients for black leaves. It returns:
+!  * the extinction coefficients for three values of the zenith angle 
+!    to be used to calculate the real extinction coefficient for the
+!    diffuse radiation (Gauss quadrature)
+!  * the \(phi\) coefficients from Sellers 1985 to calculate the
+!    real extinction coefficient for direct beam radaiation in
+!    the subroutine ExtinctionCoeff_beam
 
 implicit none
 !re-decl in args
-integer :: mp
+integer :: mp 
+  !! Number of tiles
 integer :: nrb
+  !! Number of radiation bands
 real :: Cpi180
+  !! \(pi\)
 real :: xphi1(mp)    ! leaf angle parmameter 1
+  !! Leaf angle parameter defined by Sellers 1985 \(phi_1\) 
 real :: xphi2(mp)    ! leaf angle parmameter 2
+  !! Leaf angle parameter defined by Sellers 1985 \(phi_2\) 
 REAL :: xvlai2(mp,nrb)  ! 2D vlai
+  !! LAI spread over the 3 different zenith angles
 REAL :: xk(mp,nrb)      ! extinct. coef.for beam rad. and black leaves
+  !! Extinction coefficients for black leaves at 3 different zenith angles
 real :: VegXfang(mp)
+  !! Parameter \(chi\) in Sellers 1985
 real :: reducedLAIdue2snow(mp)
+  !! LAI after the effect of snow
 logical :: veg_mask(mp)
+  !! Mask indicating the presence of vegetation on a tile
 real:: cLAI_thresh
+  !! Threshold for the LAI under which a tile is considered unvegetated
 
 !local vars
 REAL :: cos3(nrb)      ! cos(15 45 75 degrees)
