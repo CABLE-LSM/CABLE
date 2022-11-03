@@ -4,6 +4,8 @@ author: CABLE community
 src_dir: ../src
 output_dir: site/api
 coloured_edges: true
+# Removes all pre-processing of the CABLE files as it is not used in CABLE
+preprocess: false
 ---
 
 The Community Atmosphere Biosphere Land Exchange (CABLE) model is developed by a community of users under the CSIRO - MIT BSD license. 
