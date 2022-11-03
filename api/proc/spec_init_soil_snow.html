@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.2% of total for procedures.">59 statements</a>
+    title=" 0.1% of total for procedures.">59 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/cbl_soilsnow_init_special.F90"> Source File</a></li>
   </ul>
@@ -128,7 +128,7 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/cable_common_module~2.html'>cable_common_module</a></li>
+    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
   </ul>
       </li>
       <li class="list-group-item">
@@ -149,18 +149,18 @@
 <polygon fill="none" stroke="black" points="473,-24 358,-24 358,0 473,0 473,-24"/>
 <text text-anchor="middle" x="415.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">spec_init_soil_snow</text>
 </g>
-<!-- module~cable_common_module~2 -->
+<!-- module~cable_common_module -->
 <g id="proc~~spec_init_soil_snow~~UsesGraph_node2" class="node">
-<title>module~cable_common_module~2</title>
-<g id="a_proc~~spec_init_soil_snow~~UsesGraph_node2"><a xlink:href=".././module/cable_common_module~2.html" xlink:title="cable_common_module">
+<title>module~cable_common_module</title>
+<g id="a_proc~~spec_init_soil_snow~~UsesGraph_node2"><a xlink:href=".././module/cable_common_module.html" xlink:title="cable_common_module">
 <polygon fill="#337ab7" stroke="#337ab7" points="322,-24 182,-24 182,0 322,0 322,-24"/>
 <text text-anchor="middle" x="252" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_common_module</text>
 </a>
 </g>
 </g>
-<!-- proc~spec_init_soil_snow&#45;&gt;module~cable_common_module~2 -->
+<!-- proc~spec_init_soil_snow&#45;&gt;module~cable_common_module -->
 <g id="proc~~spec_init_soil_snow~~UsesGraph_edge1" class="edge">
-<title>proc~spec_init_soil_snow&#45;&gt;module~cable_common_module~2</title>
+<title>proc~spec_init_soil_snow&#45;&gt;module~cable_common_module</title>
 <path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M357.56,-12C349.34,-12 340.75,-12 332.19,-12"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="332.17,-8.5 322.17,-12 332.17,-15.5 332.17,-8.5"/>
 </g>
@@ -173,9 +173,9 @@
 </a>
 </g>
 </g>
-<!-- module~cable_common_module~2&#45;&gt;module~cable_runtime_opts_mod -->
+<!-- module~cable_common_module&#45;&gt;module~cable_runtime_opts_mod -->
 <g id="proc~~spec_init_soil_snow~~UsesGraph_edge2" class="edge">
-<title>module~cable_common_module~2&#45;&gt;module~cable_runtime_opts_mod</title>
+<title>module~cable_common_module&#45;&gt;module~cable_runtime_opts_mod</title>
 <path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M181.81,-12C173.37,-12 164.7,-12 156.1,-12"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="156.06,-8.5 146.06,-12 156.06,-15.5 156.06,-8.5"/>
 </g>
@@ -250,43 +250,43 @@
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
 <tr>
-  <td><span class="anchor" id="variable-dels~28"></span>real,</td>
+  <td><span class="anchor" id="variable-dels~32"></span>real,</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>dels</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-soil~58"></span>type(<a href='../type/soil_parameter_type~2.html'>soil_parameter_type</a>),</td>
+  <td><span class="anchor" id="variable-soil~64"></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>soil</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-ssnow~42"></span>type(<a href='../type/soil_snow_type~2.html'>soil_snow_type</a>),</td>
+  <td><span class="anchor" id="variable-ssnow~54"></span>type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>ssnow</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-canopy~34"></span>type(<a href='../type/canopy_type~2.html'>canopy_type</a>),</td>
+  <td><span class="anchor" id="variable-canopy~39"></span>type(<a href='../type/canopy_type.html'>canopy_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>canopy</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-met~32"></span>type(<a href='../type/met_type~2.html'>met_type</a>),</td>
+  <td><span class="anchor" id="variable-met~35"></span>type(<a href='../type/met_type.html'>met_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>met</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-bal~15"></span>type(<a href='../type/balances_type~2.html'>balances_type</a>),</td>
+  <td><span class="anchor" id="variable-bal~19"></span>type(<a href='../type/balances_type.html'>balances_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>bal</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-veg~79"></span>type(<a href='../type/veg_parameter_type~2.html'>veg_parameter_type</a>),</td>
+  <td><span class="anchor" id="variable-veg~66"></span>type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>veg</strong></td><td></td>

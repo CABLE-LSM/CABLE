@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 2.7% of total for modules and submodules.">1384 statements</a>
+    title=" 3.1% of total for modules and submodules.">1384 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/cable_write.F90"> Source File</a></li>
   </ul>
@@ -116,6 +116,8 @@
   <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#vars-0">Variables</a></h3></div>
   <div id="vars-0" class="panel-collapse collapse">
     <div class="list-group">
+      <a class="list-group-item" href="../module/cable_write_module.html#variable-ncmissingi">ncmissingi</a>
+      <a class="list-group-item" href="../module/cable_write_module.html#variable-ok~2">ok</a>
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp1">otmp1</a>
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp1l">otmp1l</a>
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp2lt">otmp2lt</a>
@@ -144,6 +146,7 @@
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp3xysf">otmp3xysf</a>
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp3lpr">otmp3lpr</a>
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp3lpsn">otmp3lpsn</a>
+      <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp3xyr">otmp3xyr</a>
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp4xypt">otmp4xypt</a>
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp4xyzt">otmp4xyzt</a>
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp4xyst">otmp4xyst</a>
@@ -159,11 +162,13 @@
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp4xyps">otmp4xyps</a>
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp4xyppc">otmp4xyppc</a>
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp4xypsc">otmp4xypsc</a>
+      <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp4xypr">otmp4xypr</a>
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp5xypst">otmp5xypst</a>
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp5xypsnt">otmp5xypsnt</a>
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp5xyprt">otmp5xyprt</a>
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp5xyppct">otmp5xyppct</a>
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp5xypsct">otmp5xypsct</a>
+      <a class="list-group-item" href="../module/cable_write_module.html#variable-ncmissingr">ncmissingr</a>
     </div>
   </div>
 </div>
@@ -181,6 +186,16 @@
   <div class="list-group">
     <div id="subs-0" class="panel-collapse collapse">
       <a class="list-group-item" href="../module/cable_write_module.html#proc-nullify_write">nullify_write</a>
+      <a class="list-group-item" href="../module/cable_write_module.html#proc-define_output_variable_r1">define_output_variable_r1</a>
+      <a class="list-group-item" href="../module/cable_write_module.html#proc-define_output_variable_r2">define_output_variable_r2</a>
+      <a class="list-group-item" href="../module/cable_write_module.html#proc-define_output_parameter_r1">define_output_parameter_r1</a>
+      <a class="list-group-item" href="../module/cable_write_module.html#proc-define_output_parameter_r2">define_output_parameter_r2</a>
+      <a class="list-group-item" href="../module/cable_write_module.html#proc-write_output_variable_r1">write_output_variable_r1</a>
+      <a class="list-group-item" href="../module/cable_write_module.html#proc-write_output_variable_r2">write_output_variable_r2</a>
+      <a class="list-group-item" href="../module/cable_write_module.html#proc-write_output_parameter_r1">write_output_parameter_r1</a>
+      <a class="list-group-item" href="../module/cable_write_module.html#proc-write_output_parameter_r1d">write_output_parameter_r1d</a>
+      <a class="list-group-item" href="../module/cable_write_module.html#proc-write_output_parameter_r2">write_output_parameter_r2</a>
+      <a class="list-group-item" href="../module/cable_write_module.html#proc-write_output_parameter_r2d">write_output_parameter_r2d</a>
     </div>
   </div>
 </div>
@@ -198,10 +213,10 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/cable_def_types_mod~2.html'>cable_def_types_mod</a></li>
+    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
     <li>netcdf</li>
     <li><a href='../module/cable_abort_module.html'>cable_abort_module</a></li>
-    <li><a href='../module/cable_io_vars_module.html'>cable_IO_vars_module</a></li>
+    <li><a href='../module/cable_io_vars_module~2.html'>cable_IO_vars_module</a></li>
   </ul>
       </li>
       <li class="list-group-item">
@@ -211,212 +226,83 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: module~~cable_write_module~~UsesGraph Pages: 1 -->
-<svg id="modulecable_write_moduleUsesGraph" width="641pt" height="137pt"
- viewBox="0.00 0.00 641.00 136.73" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="module~~cable_write_module~~UsesGraph" class="graph" transform="scale(1.59 1.59) rotate(0) translate(4 214)">
+<svg id="modulecable_write_moduleUsesGraph" width="458pt" height="131pt"
+ viewBox="0.00 0.00 458.00 131.26" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~cable_write_module~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 127.26)">
 <title>module~~cable_write_module~~UsesGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-214 1018,-214 1018,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-127.26 454,-127.26 454,4 -4,4"/>
 <!-- module~cable_write_module -->
 <g id="module~~cable_write_module~~UsesGraph_node1" class="node">
 <title>module~cable_write_module</title>
-<polygon fill="none" stroke="black" points="1014,-87 895,-87 895,-63 1014,-63 1014,-87"/>
-<text text-anchor="middle" x="954.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">cable_write_module</text>
+<polygon fill="none" stroke="black" points="450,-87 331,-87 331,-63 450,-63 450,-87"/>
+<text text-anchor="middle" x="390.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">cable_write_module</text>
 </g>
-<!-- module~cable_def_types_mod~2 -->
+<!-- module~cable_def_types_mod -->
 <g id="module~~cable_write_module~~UsesGraph_node2" class="node">
-<title>module~cable_def_types_mod~2</title>
-<g id="a_module~~cable_write_module~~UsesGraph_node2"><a xlink:href=".././module/cable_def_types_mod~2.html" xlink:title="cable_def_types_mod">
-<polygon fill="#337ab7" stroke="#337ab7" points="691,-128 564,-128 564,-104 691,-104 691,-128"/>
-<text text-anchor="middle" x="627.5" y="-113.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_def_types_mod</text>
+<title>module~cable_def_types_mod</title>
+<g id="a_module~~cable_write_module~~UsesGraph_node2"><a xlink:href=".././module/cable_def_types_mod.html" xlink:title="cable_def_types_mod">
+<polygon fill="#337ab7" stroke="#337ab7" points="127,-107 0,-107 0,-83 127,-83 127,-107"/>
+<text text-anchor="middle" x="63.5" y="-92.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_def_types_mod</text>
 </a>
 </g>
 </g>
-<!-- module~cable_write_module&#45;&gt;module~cable_def_types_mod~2 -->
+<!-- module~cable_write_module&#45;&gt;module~cable_def_types_mod -->
 <g id="module~~cable_write_module~~UsesGraph_edge1" class="edge">
-<title>module~cable_write_module&#45;&gt;module~cable_def_types_mod~2</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M932.97,-87.16C914.38,-97.41 885.87,-111.3 859,-117 807.14,-128.01 747.22,-127.35 701.48,-124.16"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="701.59,-120.66 691.35,-123.4 701.06,-127.64 701.59,-120.66"/>
-</g>
-<!-- module~cable_io_vars_module -->
-<g id="module~~cable_write_module~~UsesGraph_node3" class="node">
-<title>module~cable_io_vars_module</title>
-<g id="a_module~~cable_write_module~~UsesGraph_node3"><a xlink:href=".././module/cable_io_vars_module.html" xlink:title="cable_IO_vars_module">
-<polygon fill="#337ab7" stroke="#337ab7" points="859,-108 727,-108 727,-84 859,-84 859,-108"/>
-<text text-anchor="middle" x="793" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_IO_vars_module</text>
-</a>
-</g>
-</g>
-<!-- module~cable_write_module&#45;&gt;module~cable_io_vars_module -->
-<g id="module~~cable_write_module~~UsesGraph_edge2" class="edge">
-<title>module~cable_write_module&#45;&gt;module~cable_io_vars_module</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M894.56,-82.76C886.27,-83.85 877.65,-84.99 869.11,-86.11"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="868.6,-82.65 859.14,-87.42 869.51,-89.59 868.6,-82.65"/>
-</g>
-<!-- netcdf -->
-<g id="module~~cable_write_module~~UsesGraph_node4" class="node">
-<title>netcdf</title>
-<polygon fill="#337ab7" stroke="#337ab7" points="820,-66 766,-66 766,-42 820,-42 820,-66"/>
-<text text-anchor="middle" x="793" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">netcdf</text>
-</g>
-<!-- module~cable_write_module&#45;&gt;netcdf -->
-<g id="module~~cable_write_module~~UsesGraph_edge3" class="edge">
-<title>module~cable_write_module&#45;&gt;netcdf</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M894.56,-67.24C873,-64.4 849.25,-61.27 830.25,-58.77"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="830.6,-55.29 820.23,-57.45 829.68,-62.23 830.6,-55.29"/>
+<title>module~cable_write_module&#45;&gt;module~cable_def_types_mod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M368.97,-87.16C350.38,-97.41 321.87,-111.3 295,-117 235.47,-129.63 165.74,-119.63 118.69,-109.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="119.24,-105.88 108.71,-107.09 117.69,-112.71 119.24,-105.88"/>
 </g>
 <!-- module~cable_abort_module -->
-<g id="module~~cable_write_module~~UsesGraph_node5" class="node">
+<g id="module~~cable_write_module~~UsesGraph_node3" class="node">
 <title>module~cable_abort_module</title>
-<g id="a_module~~cable_write_module~~UsesGraph_node5"><a xlink:href=".././module/cable_abort_module.html" xlink:title="cable_abort_module">
-<polygon fill="#337ab7" stroke="#337ab7" points="853.5,-24 732.5,-24 732.5,0 853.5,0 853.5,-24"/>
-<text text-anchor="middle" x="793" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_abort_module</text>
+<g id="a_module~~cable_write_module~~UsesGraph_node3"><a xlink:href=".././module/cable_abort_module.html" xlink:title="cable_abort_module">
+<polygon fill="#337ab7" stroke="#337ab7" points="289.5,-108 168.5,-108 168.5,-84 289.5,-84 289.5,-108"/>
+<text text-anchor="middle" x="229" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_abort_module</text>
 </a>
 </g>
 </g>
 <!-- module~cable_write_module&#45;&gt;module~cable_abort_module -->
-<g id="module~~cable_write_module~~UsesGraph_edge4" class="edge">
+<g id="module~~cable_write_module~~UsesGraph_edge2" class="edge">
 <title>module~cable_write_module&#45;&gt;module~cable_abort_module</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M928.14,-62.85C909.28,-54.03 882.81,-42.11 859,-33 853.95,-31.07 848.63,-29.16 843.3,-27.32"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="844.36,-23.98 833.76,-24.11 842.12,-30.62 844.36,-23.98"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M330.56,-82.76C320.58,-84.07 310.13,-85.45 299.9,-86.8"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="299.22,-83.36 289.76,-88.13 300.13,-90.3 299.22,-83.36"/>
 </g>
-<!-- module~cable_soil_snow_type_mod -->
-<g id="module~~cable_write_module~~UsesGraph_node6" class="node">
-<title>module~cable_soil_snow_type_mod</title>
-<g id="a_module~~cable_write_module~~UsesGraph_node6"><a xlink:href=".././module/cable_soil_snow_type_mod.html" xlink:title="cable_soil_snow_type_mod">
-<polygon fill="#337ab7" stroke="#337ab7" points="528,-210 373,-210 373,-186 528,-186 528,-210"/>
-<text text-anchor="middle" x="450.5" y="-195.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_soil_snow_type_mod</text>
+<!-- module~cable_io_vars_module~2 -->
+<g id="module~~cable_write_module~~UsesGraph_node4" class="node">
+<title>module~cable_io_vars_module~2</title>
+<g id="a_module~~cable_write_module~~UsesGraph_node4"><a xlink:href=".././module/cable_io_vars_module~2.html" xlink:title="cable_IO_vars_module">
+<polygon fill="#337ab7" stroke="#337ab7" points="295,-66 163,-66 163,-42 295,-42 295,-66"/>
+<text text-anchor="middle" x="229" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_IO_vars_module</text>
 </a>
 </g>
 </g>
-<!-- module~cable_def_types_mod~2&#45;&gt;module~cable_soil_snow_type_mod -->
+<!-- module~cable_write_module&#45;&gt;module~cable_io_vars_module~2 -->
+<g id="module~~cable_write_module~~UsesGraph_edge3" class="edge">
+<title>module~cable_write_module&#45;&gt;module~cable_io_vars_module~2</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M330.56,-67.24C322.27,-66.15 313.65,-65.01 305.11,-63.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="305.51,-60.41 295.14,-62.58 304.6,-67.35 305.51,-60.41"/>
+</g>
+<!-- netcdf -->
+<g id="module~~cable_write_module~~UsesGraph_node5" class="node">
+<title>netcdf</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="256,-24 202,-24 202,0 256,0 256,-24"/>
+<text text-anchor="middle" x="229" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">netcdf</text>
+</g>
+<!-- module~cable_write_module&#45;&gt;netcdf -->
+<g id="module~~cable_write_module~~UsesGraph_edge4" class="edge">
+<title>module~cable_write_module&#45;&gt;netcdf</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M364.14,-62.85C345.28,-54.03 318.81,-42.11 295,-33 285.63,-29.42 275.35,-25.91 265.79,-22.81"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="266.75,-19.45 256.16,-19.76 264.63,-26.12 266.75,-19.45"/>
+</g>
+<!-- module~cable_io_vars_module~2&#45;&gt;module~cable_def_types_mod -->
 <g id="module~~cable_write_module~~UsesGraph_edge5" class="edge">
-<title>module~cable_def_types_mod~2&#45;&gt;module~cable_soil_snow_type_mod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M610.23,-128.12C591.33,-141.71 558.79,-163.57 528,-177 523.23,-179.08 518.2,-181 513.1,-182.77"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="511.66,-179.56 503.23,-185.98 513.82,-186.22 511.66,-179.56"/>
-</g>
-<!-- module~cable_canopy_type_mod -->
-<g id="module~~cable_write_module~~UsesGraph_node7" class="node">
-<title>module~cable_canopy_type_mod</title>
-<g id="a_module~~cable_write_module~~UsesGraph_node7"><a xlink:href=".././module/cable_canopy_type_mod.html" xlink:title="cable_canopy_type_mod">
-<polygon fill="#337ab7" stroke="#337ab7" points="522.5,-168 378.5,-168 378.5,-144 522.5,-144 522.5,-168"/>
-<text text-anchor="middle" x="450.5" y="-153.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_canopy_type_mod</text>
-</a>
-</g>
-</g>
-<!-- module~cable_def_types_mod~2&#45;&gt;module~cable_canopy_type_mod -->
-<g id="module~~cable_write_module~~UsesGraph_edge7" class="edge">
-<title>module~cable_def_types_mod~2&#45;&gt;module~cable_canopy_type_mod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M573.99,-128C555.13,-132.31 533.67,-137.22 514.04,-141.7"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="513.24,-138.3 504.27,-143.94 514.8,-145.12 513.24,-138.3"/>
-</g>
-<!-- module~cable_params_mod -->
-<g id="module~~cable_write_module~~UsesGraph_node8" class="node">
-<title>module~cable_params_mod</title>
-<g id="a_module~~cable_write_module~~UsesGraph_node8"><a xlink:href=".././module/cable_params_mod.html" xlink:title="cable_params_mod">
-<polygon fill="#337ab7" stroke="#337ab7" points="509,-88 392,-88 392,-64 509,-64 509,-88"/>
-<text text-anchor="middle" x="450.5" y="-73.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_params_mod</text>
-</a>
-</g>
-</g>
-<!-- module~cable_def_types_mod~2&#45;&gt;module~cable_params_mod -->
-<g id="module~~cable_write_module~~UsesGraph_edge8" class="edge">
-<title>module~cable_def_types_mod~2&#45;&gt;module~cable_params_mod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M573.99,-104C555.13,-99.69 533.67,-94.78 514.04,-90.3"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="514.8,-86.88 504.27,-88.06 513.24,-93.7 514.8,-86.88"/>
-</g>
-<!-- module~cable_types_mod -->
-<g id="module~~cable_write_module~~UsesGraph_node9" class="node">
-<title>module~cable_types_mod</title>
-<g id="a_module~~cable_write_module~~UsesGraph_node9"><a xlink:href=".././module/cable_types_mod.html" xlink:title="cable_types_mod">
-<polygon fill="#337ab7" stroke="#337ab7" points="309,-168 204,-168 204,-144 309,-144 309,-168"/>
-<text text-anchor="middle" x="256.5" y="-153.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_types_mod</text>
-</a>
-</g>
-</g>
-<!-- module~cable_def_types_mod~2&#45;&gt;module~cable_types_mod -->
-<g id="module~~cable_write_module~~UsesGraph_edge6" class="edge">
-<title>module~cable_def_types_mod~2&#45;&gt;module~cable_types_mod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M563.81,-118.86C512.39,-121.65 437.79,-126.71 373,-135 355.42,-137.25 336.47,-140.39 319.09,-143.56"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="318.26,-140.16 309.07,-145.43 319.54,-147.04 318.26,-140.16"/>
-</g>
-<!-- module~cable_climate_type_mod~2 -->
-<g id="module~~cable_write_module~~UsesGraph_node10" class="node">
-<title>module~cable_climate_type_mod~2</title>
-<g id="a_module~~cable_write_module~~UsesGraph_node10"><a xlink:href=".././module/cable_climate_type_mod~2.html" xlink:title="cable_climate_type_mod">
-<polygon fill="#337ab7" stroke="#337ab7" points="523,-46 378,-46 378,-22 523,-22 523,-46"/>
-<text text-anchor="middle" x="450.5" y="-31.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_climate_type_mod</text>
-</a>
-</g>
-</g>
-<!-- module~cable_def_types_mod~2&#45;&gt;module~cable_climate_type_mod~2 -->
-<g id="module~~cable_write_module~~UsesGraph_edge9" class="edge">
-<title>module~cable_def_types_mod~2&#45;&gt;module~cable_climate_type_mod~2</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M610.23,-103.88C591.33,-90.29 558.79,-68.43 528,-55 523.23,-52.92 518.2,-51 513.1,-49.23"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="513.82,-45.78 503.23,-46.02 511.66,-52.44 513.82,-45.78"/>
-</g>
-<!-- module~cable_io_vars_module&#45;&gt;module~cable_def_types_mod~2 -->
-<g id="module~~cable_write_module~~UsesGraph_edge10" class="edge">
-<title>module~cable_io_vars_module&#45;&gt;module~cable_def_types_mod~2</title>
-<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M726.91,-103.96C718.46,-105 709.77,-106.06 701.2,-107.11"/>
-<polygon fill="#7fff00" stroke="#7fff00" points="700.74,-103.64 691.23,-108.33 701.59,-110.59 700.74,-103.64"/>
-</g>
-<!-- module~cable_soil_snow_type_mod&#45;&gt;module~cable_types_mod -->
-<g id="module~~cable_write_module~~UsesGraph_edge11" class="edge">
-<title>module~cable_soil_snow_type_mod&#45;&gt;module~cable_types_mod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M394.48,-185.96C370.91,-180.81 343.29,-174.77 319.04,-169.46"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="319.75,-166.03 309.23,-167.32 318.25,-172.87 319.75,-166.03"/>
-</g>
-<!-- module~cable_canopy_type_mod&#45;&gt;module~cable_types_mod -->
-<g id="module~~cable_write_module~~UsesGraph_edge12" class="edge">
-<title>module~cable_canopy_type_mod&#45;&gt;module~cable_types_mod</title>
-<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M378.28,-156C358.92,-156 338.12,-156 319.32,-156"/>
-<polygon fill="#cbff00" stroke="#cbff00" points="319.11,-152.5 309.11,-156 319.11,-159.5 319.11,-152.5"/>
-</g>
-<!-- module~cable_other_constants_mod~2 -->
-<g id="module~~cable_write_module~~UsesGraph_node11" class="node">
-<title>module~cable_other_constants_mod~2</title>
-<g id="a_module~~cable_write_module~~UsesGraph_node11"><a xlink:href=".././module/cable_other_constants_mod~2.html" xlink:title="cable_other_constants_mod">
-<polygon fill="#337ab7" stroke="#337ab7" points="337,-107 176,-107 176,-83 337,-83 337,-107"/>
-<text text-anchor="middle" x="256.5" y="-92.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_other_constants_mod</text>
-</a>
-</g>
-</g>
-<!-- module~cable_params_mod&#45;&gt;module~cable_other_constants_mod~2 -->
-<g id="module~~cable_write_module~~UsesGraph_edge13" class="edge">
-<title>module~cable_params_mod&#45;&gt;module~cable_other_constants_mod~2</title>
-<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M391.89,-81.7C377.76,-83.1 362.29,-84.63 347.05,-86.14"/>
-<polygon fill="#00ff66" stroke="#00ff66" points="346.68,-82.66 337.08,-87.13 347.37,-89.62 346.68,-82.66"/>
-</g>
-<!-- grid_constants_cbl_mod -->
-<g id="module~~cable_write_module~~UsesGraph_node12" class="node">
-<title>grid_constants_cbl_mod</title>
-<polygon fill="#337ab7" stroke="#337ab7" points="326.5,-65 186.5,-65 186.5,-41 326.5,-41 326.5,-65"/>
-<text text-anchor="middle" x="256.5" y="-50.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">grid_constants_cbl_mod</text>
-</g>
-<!-- module~cable_params_mod&#45;&gt;grid_constants_cbl_mod -->
-<g id="module~~cable_write_module~~UsesGraph_edge14" class="edge">
-<title>module~cable_params_mod&#45;&gt;grid_constants_cbl_mod</title>
-<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M391.89,-69.1C374.56,-67.02 355.22,-64.71 336.74,-62.49"/>
-<polygon fill="#00ff66" stroke="#00ff66" points="336.93,-58.99 326.58,-61.28 336.1,-65.94 336.93,-58.99"/>
-</g>
-<!-- module~grid_constants_mod_cbl -->
-<g id="module~~cable_write_module~~UsesGraph_node13" class="node">
-<title>module~grid_constants_mod_cbl</title>
-<g id="a_module~~cable_write_module~~UsesGraph_node13"><a xlink:href=".././module/grid_constants_mod_cbl.html" xlink:title="grid_constants_mod_cbl">
-<polygon fill="#337ab7" stroke="#337ab7" points="140,-107 0,-107 0,-83 140,-83 140,-107"/>
-<text text-anchor="middle" x="70" y="-92.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">grid_constants_mod_cbl</text>
-</a>
-</g>
-</g>
-<!-- module~cable_other_constants_mod~2&#45;&gt;module~grid_constants_mod_cbl -->
-<g id="module~~cable_write_module~~UsesGraph_edge15" class="edge">
-<title>module~cable_other_constants_mod~2&#45;&gt;module~grid_constants_mod_cbl</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M175.92,-95C167.46,-95 158.85,-95 150.4,-95"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="150.17,-91.5 140.17,-95 150.17,-98.5 150.17,-91.5"/>
+<title>module~cable_io_vars_module~2&#45;&gt;module~cable_def_types_mod</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M179.83,-66.08C161.86,-70.58 141.28,-75.75 122.52,-80.45"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="121.46,-77.11 112.61,-82.94 123.16,-83.9 121.46,-77.11"/>
 </g>
 </g>
 </svg>
-</div><script>var panmodulecable_write_moduleUsesGraph = svgPanZoom('#modulecable_write_moduleUsesGraph', {zoomEnabled: true,controlIconsEnabled: true, fit: true, center: true,}); </script><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
     <p>Nodes of different colours represent the following: </p>
     <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
@@ -526,15 +412,15 @@
 </g>
 </g>
 <!-- proc~mpidrv_master&#45;&gt;module~cable_write_module -->
-<g id="module~~cable_write_module~~UsedByGraph_edge2" class="edge">
+<g id="module~~cable_write_module~~UsedByGraph_edge3" class="edge">
 <title>proc~mpidrv_master&#45;&gt;module~cable_write_module</title>
 <path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M371.49,-93.19C310.21,-89.41 200.65,-82.65 129.29,-78.24"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="129.24,-74.74 119.04,-77.61 128.81,-81.72 129.24,-74.74"/>
 </g>
 <!-- module~cable_output_module -->
-<g id="module~~cable_write_module~~UsedByGraph_node4" class="node">
+<g id="module~~cable_write_module~~UsedByGraph_node5" class="node">
 <title>module~cable_output_module</title>
-<g id="a_module~~cable_write_module~~UsedByGraph_node4"><a xlink:href=".././module/cable_output_module.html" xlink:title="cable_output_module">
+<g id="a_module~~cable_write_module~~UsedByGraph_node5"><a xlink:href=".././module/cable_output_module.html" xlink:title="cable_output_module">
 <polygon fill="#337ab7" stroke="#337ab7" points="302.5,-66 175.5,-66 175.5,-42 302.5,-42 302.5,-66"/>
 <text text-anchor="middle" x="239" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_output_module</text>
 </a>
@@ -543,35 +429,35 @@
 <!-- proc~mpidrv_master&#45;&gt;module~cable_output_module -->
 <g id="module~~cable_write_module~~UsedByGraph_edge5" class="edge">
 <title>proc~mpidrv_master&#45;&gt;module~cable_output_module</title>
-<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M371.42,-85.18C349.82,-80.06 323.72,-73.87 300.49,-68.35"/>
-<polygon fill="#00ffff" stroke="#00ffff" points="301.27,-64.94 290.73,-66.04 299.65,-71.75 301.27,-64.94"/>
-</g>
-<!-- module~cable_output_module&#45;&gt;module~cable_write_module -->
-<g id="module~~cable_write_module~~UsedByGraph_edge3" class="edge">
-<title>module~cable_output_module&#45;&gt;module~cable_write_module</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M175.42,-61.05C160.58,-62.72 144.67,-64.52 129.56,-66.22"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="128.79,-62.78 119.25,-67.38 129.57,-69.74 128.79,-62.78"/>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M371.42,-85.18C349.82,-80.06 323.72,-73.87 300.49,-68.35"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="301.27,-64.94 290.73,-66.04 299.65,-71.75 301.27,-64.94"/>
 </g>
 <!-- program~cable_offline_driver -->
-<g id="module~~cable_write_module~~UsedByGraph_node5" class="node">
+<g id="module~~cable_write_module~~UsedByGraph_node4" class="node">
 <title>program~cable_offline_driver</title>
-<g id="a_module~~cable_write_module~~UsedByGraph_node5"><a xlink:href=".././program/cable_offline_driver.html" xlink:title="cable_offline_driver">
+<g id="a_module~~cable_write_module~~UsedByGraph_node4"><a xlink:href=".././program/cable_offline_driver.html" xlink:title="cable_offline_driver">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="477,-24 359,-24 359,0 477,0 477,-24"/>
 <text text-anchor="middle" x="418" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_offline_driver</text>
 </a>
 </g>
 </g>
 <!-- program~cable_offline_driver&#45;&gt;module~cable_write_module -->
-<g id="module~~cable_write_module~~UsedByGraph_edge4" class="edge">
+<g id="module~~cable_write_module~~UsedByGraph_edge2" class="edge">
 <title>program~cable_offline_driver&#45;&gt;module~cable_write_module</title>
 <path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M358.88,-11.23C305.2,-11.78 223.62,-15.87 155,-33 133.19,-38.45 110.01,-48.43 92.06,-57.18"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="90.05,-54.28 82.68,-61.88 93.19,-60.54 90.05,-54.28"/>
 </g>
 <!-- program~cable_offline_driver&#45;&gt;module~cable_output_module -->
-<g id="module~~cable_write_module~~UsedByGraph_edge7" class="edge">
+<g id="module~~cable_write_module~~UsedByGraph_edge6" class="edge">
 <title>program~cable_offline_driver&#45;&gt;module~cable_output_module</title>
-<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M366.28,-24.04C345.82,-28.89 322.04,-34.53 300.68,-39.6"/>
-<polygon fill="#00ffff" stroke="#00ffff" points="299.65,-36.25 290.73,-41.96 301.27,-43.06 299.65,-36.25"/>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M366.28,-24.04C345.82,-28.89 322.04,-34.53 300.68,-39.6"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="299.65,-36.25 290.73,-41.96 301.27,-43.06 299.65,-36.25"/>
+</g>
+<!-- module~cable_output_module&#45;&gt;module~cable_write_module -->
+<g id="module~~cable_write_module~~UsedByGraph_edge4" class="edge">
+<title>module~cable_output_module&#45;&gt;module~cable_write_module</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M175.42,-61.05C160.58,-62.72 144.67,-64.52 129.56,-66.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="128.79,-62.78 119.25,-67.38 129.57,-69.74 128.79,-62.78"/>
 </g>
 <!-- proc~mpidrv_worker -->
 <g id="module~~cable_write_module~~UsedByGraph_node6" class="node">
@@ -583,10 +469,10 @@
 </g>
 </g>
 <!-- proc~mpidrv_worker&#45;&gt;module~cable_output_module -->
-<g id="module~~cable_write_module~~UsedByGraph_edge6" class="edge">
+<g id="module~~cable_write_module~~UsedByGraph_edge7" class="edge">
 <title>proc~mpidrv_worker&#45;&gt;module~cable_output_module</title>
-<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M371.88,-54C353.92,-54 332.79,-54 312.77,-54"/>
-<polygon fill="#00ffff" stroke="#00ffff" points="312.74,-50.5 302.74,-54 312.74,-57.5 312.74,-50.5"/>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M371.88,-54C353.92,-54 332.79,-54 312.77,-54"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="312.74,-50.5 302.74,-54 312.74,-57.5 312.74,-50.5"/>
 </g>
 </g>
 </svg>
@@ -661,6 +547,8 @@
   <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#vars-1">Variables</a></h3></div>
   <div id="vars-1" class="panel-collapse collapse">
     <div class="list-group">
+      <a class="list-group-item" href="../module/cable_write_module.html#variable-ncmissingi">ncmissingi</a>
+      <a class="list-group-item" href="../module/cable_write_module.html#variable-ok~2">ok</a>
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp1">otmp1</a>
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp1l">otmp1l</a>
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp2lt">otmp2lt</a>
@@ -689,6 +577,7 @@
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp3xysf">otmp3xysf</a>
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp3lpr">otmp3lpr</a>
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp3lpsn">otmp3lpsn</a>
+      <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp3xyr">otmp3xyr</a>
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp4xypt">otmp4xypt</a>
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp4xyzt">otmp4xyzt</a>
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp4xyst">otmp4xyst</a>
@@ -704,11 +593,13 @@
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp4xyps">otmp4xyps</a>
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp4xyppc">otmp4xyppc</a>
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp4xypsc">otmp4xypsc</a>
+      <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp4xypr">otmp4xypr</a>
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp5xypst">otmp5xypst</a>
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp5xypsnt">otmp5xypsnt</a>
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp5xyprt">otmp5xyprt</a>
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp5xyppct">otmp5xyppct</a>
       <a class="list-group-item" href="../module/cable_write_module.html#variable-otmp5xypsct">otmp5xypsct</a>
+      <a class="list-group-item" href="../module/cable_write_module.html#variable-ncmissingr">ncmissingr</a>
     </div>
   </div>
 </div>
@@ -726,6 +617,16 @@
   <div class="list-group">
     <div id="subs-1" class="panel-collapse collapse">
       <a class="list-group-item" href="../module/cable_write_module.html#proc-nullify_write">nullify_write</a>
+      <a class="list-group-item" href="../module/cable_write_module.html#proc-define_output_variable_r1">define_output_variable_r1</a>
+      <a class="list-group-item" href="../module/cable_write_module.html#proc-define_output_variable_r2">define_output_variable_r2</a>
+      <a class="list-group-item" href="../module/cable_write_module.html#proc-define_output_parameter_r1">define_output_parameter_r1</a>
+      <a class="list-group-item" href="../module/cable_write_module.html#proc-define_output_parameter_r2">define_output_parameter_r2</a>
+      <a class="list-group-item" href="../module/cable_write_module.html#proc-write_output_variable_r1">write_output_variable_r1</a>
+      <a class="list-group-item" href="../module/cable_write_module.html#proc-write_output_variable_r2">write_output_variable_r2</a>
+      <a class="list-group-item" href="../module/cable_write_module.html#proc-write_output_parameter_r1">write_output_parameter_r1</a>
+      <a class="list-group-item" href="../module/cable_write_module.html#proc-write_output_parameter_r1d">write_output_parameter_r1d</a>
+      <a class="list-group-item" href="../module/cable_write_module.html#proc-write_output_parameter_r2">write_output_parameter_r2</a>
+      <a class="list-group-item" href="../module/cable_write_module.html#proc-write_output_parameter_r2d">write_output_parameter_r2d</a>
     </div>
   </div>
 </div>
@@ -739,6 +640,16 @@
     <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Visibility</th><th>Attributes</th><th></th><th>Name</th><th></th><th>Initial</th><th></th></thead>
 <tbody>
+<tr>
+  <td><span class="anchor" id="variable-ncmissingi"></span>integer,</td>
+<td>private</td>  <td></td><td>::</td>
+  <td><strong>ncmissingi</strong></td><td> =</td><td>-9999999</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-ok~2"></span>integer,</td>
+<td>private</td>  <td></td><td>::</td>
+  <td><strong>ok</strong></td><td></td><td></td><td></td>
+</tr>
 <tr>
   <td><span class="anchor" id="variable-otmp1"></span>real,</td>
 <td>public,</td>  <td>POINTER, DIMENSION(:)</td><td>::</td>
@@ -880,6 +791,11 @@
   <td><strong>otmp3lpsn</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
+  <td><span class="anchor" id="variable-otmp3xyr"></span>real,</td>
+<td>private,</td>  <td>POINTER, DIMENSION(:, :, :)</td><td>::</td>
+  <td><strong>otmp3xyr</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
   <td><span class="anchor" id="variable-otmp4xypt"></span>real,</td>
 <td>public,</td>  <td>POINTER, DIMENSION(:, :, :, :)</td><td>::</td>
   <td><strong>otmp4xypt</strong></td><td></td><td></td><td></td>
@@ -955,6 +871,11 @@
   <td><strong>otmp4xypsc</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
+  <td><span class="anchor" id="variable-otmp4xypr"></span>real,</td>
+<td>private,</td>  <td>POINTER, DIMENSION(:, :, :, :)</td><td>::</td>
+  <td><strong>otmp4xypr</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
   <td><span class="anchor" id="variable-otmp5xypst"></span>real,</td>
 <td>public,</td>  <td>POINTER, DIMENSION(:, :, :, :, :)</td><td>::</td>
   <td><strong>otmp5xypst</strong></td><td></td><td></td><td></td>
@@ -979,6 +900,11 @@
 <td>public,</td>  <td>POINTER, DIMENSION(:, :, :, :, :)</td><td>::</td>
   <td><strong>otmp5xypsct</strong></td><td></td><td></td><td></td>
 </tr>
+<tr>
+  <td><span class="anchor" id="variable-ncmissingr"></span>real,</td>
+<td>private</td>  <td></td><td>::</td>
+  <td><strong>ncmissingr</strong></td><td> =</td><td>-1.0e+33</td><td></td>
+</tr>
 </tbody>
 </table>
 
@@ -992,7 +918,7 @@
   <div class="panel-heading codesum"><span class="anchor" id="interface-define_ovar"></span><h3>public interface <a href='../interface/define_ovar.html'>define_ovar</a>  </h3></div>
   <ul class="list-group">
     <li class="list-group-item">
-    <h3>private subroutine define_output_variable_r1(ncid, varID, vname, vunits, longname, writepatch, dimswitch, xID, yID, zID, landID, patchID, tID)</h3>    
+    <h3>private subroutine <a href='../proc/define_output_variable_r1.html'>define_output_variable_r1</a>(ncid, varID, vname, vunits, longname, writepatch, dimswitch, xID, yID, zID, landID, patchID, tID)</h3>    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -1080,7 +1006,7 @@
 
     </li>
     <li class="list-group-item">
-    <h3>private subroutine define_output_variable_r2(ncid, varID, vname, vunits, longname, writepatch, dimswitch, xID, yID, zID, landID, patchID, othdimID, tID)</h3>    
+    <h3>private subroutine <a href='../proc/define_output_variable_r2.html'>define_output_variable_r2</a>(ncid, varID, vname, vunits, longname, writepatch, dimswitch, xID, yID, zID, landID, patchID, othdimID, tID)</h3>    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -1174,7 +1100,7 @@
 
     </li>
     <li class="list-group-item">
-    <h3>private subroutine define_output_parameter_r1(ncid, parID, pname, punits, longname, writepatch, dimswitch, xID, yID, zID, landID, patchID, restart)</h3>    
+    <h3>private subroutine <a href='../proc/define_output_parameter_r1.html'>define_output_parameter_r1</a>(ncid, parID, pname, punits, longname, writepatch, dimswitch, xID, yID, zID, landID, patchID, restart)</h3>    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -1262,7 +1188,7 @@
 
     </li>
     <li class="list-group-item">
-    <h3>private subroutine define_output_parameter_r2(ncid, parID, pname, punits, longname, writepatch, othdimID, dimswitch, xID, yID, zID, landID, patchID, restart)</h3>    
+    <h3>private subroutine <a href='../proc/define_output_parameter_r2.html'>define_output_parameter_r2</a>(ncid, parID, pname, punits, longname, writepatch, othdimID, dimswitch, xID, yID, zID, landID, patchID, restart)</h3>    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -1362,7 +1288,7 @@
   <div class="panel-heading codesum"><span class="anchor" id="interface-write_ovar"></span><h3>public interface <a href='../interface/write_ovar.html'>write_ovar</a>  </h3></div>
   <ul class="list-group">
     <li class="list-group-item">
-    <h3>private subroutine write_output_variable_r1(ktau, ncid, varID, vname, var_r1, vrange, writepatch, dimswitch, met)</h3>    
+    <h3>private subroutine <a href='../proc/write_output_variable_r1.html'>write_output_variable_r1</a>(ktau, ncid, varID, vname, var_r1, vrange, writepatch, dimswitch, met)</h3>    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -1415,7 +1341,7 @@
   <td><strong>dimswitch</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/met_type~2.html'>met_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/met_type.html'>met_type</a>),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>met</strong></td><td></td>
@@ -1426,7 +1352,7 @@
 
     </li>
     <li class="list-group-item">
-    <h3>private subroutine write_output_variable_r2(ktau, ncid, varID, vname, var_r2, vrange, writepatch, dimswitch, met)</h3>    
+    <h3>private subroutine <a href='../proc/write_output_variable_r2.html'>write_output_variable_r2</a>(ktau, ncid, varID, vname, var_r2, vrange, writepatch, dimswitch, met)</h3>    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -1479,7 +1405,7 @@
   <td><strong>dimswitch</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/met_type~2.html'>met_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/met_type.html'>met_type</a>),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>met</strong></td><td></td>
@@ -1490,7 +1416,7 @@
 
     </li>
     <li class="list-group-item">
-    <h3>private subroutine write_output_parameter_r1(ncid, parID, pname, par_r1, prange, writepatch, dimswitch, restart)</h3>    
+    <h3>private subroutine <a href='../proc/write_output_parameter_r1.html'>write_output_parameter_r1</a>(ncid, parID, pname, par_r1, prange, writepatch, dimswitch, restart)</h3>    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -1548,7 +1474,7 @@
 
     </li>
     <li class="list-group-item">
-    <h3>private subroutine write_output_parameter_r1d(ncid, parID, pname, par_r1d, prange, writepatch, dimswitch, restart)</h3>    
+    <h3>private subroutine <a href='../proc/write_output_parameter_r1d.html'>write_output_parameter_r1d</a>(ncid, parID, pname, par_r1d, prange, writepatch, dimswitch, restart)</h3>    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -1606,7 +1532,7 @@
 
     </li>
     <li class="list-group-item">
-    <h3>private subroutine write_output_parameter_r2(ncid, parID, pname, par_r2, prange, writepatch, dimswitch, restart)</h3>    
+    <h3>private subroutine <a href='../proc/write_output_parameter_r2.html'>write_output_parameter_r2</a>(ncid, parID, pname, par_r2, prange, writepatch, dimswitch, restart)</h3>    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -1664,7 +1590,7 @@
 
     </li>
     <li class="list-group-item">
-    <h3>private subroutine write_output_parameter_r2d(ncid, parID, pname, par_r2d, prange, writepatch, dimswitch, restart)</h3>    
+    <h3>private subroutine <a href='../proc/write_output_parameter_r2d.html'>write_output_parameter_r2d</a>(ncid, parID, pname, par_r2d, prange, writepatch, dimswitch, restart)</h3>    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -1737,6 +1663,770 @@
   <div class="panel-body">
            
 <h4>Arguments</h4>      <em>None</em>
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-define_output_variable_r1"></span><h3>private subroutine <a href='../proc/define_output_variable_r1.html'>define_output_variable_r1</a>(ncid, varID, vname, vunits, longname, writepatch, dimswitch, xID, yID, zID, landID, patchID, tID)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ncid</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(out)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>varID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>vname</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>vunits</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>longname</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>logical,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>writepatch</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>dimswitch</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>xID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>yID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>zID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>landID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>patchID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>tID</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-define_output_variable_r2"></span><h3>private subroutine <a href='../proc/define_output_variable_r2.html'>define_output_variable_r2</a>(ncid, varID, vname, vunits, longname, writepatch, dimswitch, xID, yID, zID, landID, patchID, othdimID, tID)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ncid</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(out)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>varID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>vname</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>vunits</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>longname</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>logical,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>writepatch</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>dimswitch</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>xID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>yID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>zID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>landID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>patchID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>othdimID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>tID</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-define_output_parameter_r1"></span><h3>private subroutine <a href='../proc/define_output_parameter_r1.html'>define_output_parameter_r1</a>(ncid, parID, pname, punits, longname, writepatch, dimswitch, xID, yID, zID, landID, patchID, restart)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ncid</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(out)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>parID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>pname</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>punits</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>longname</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>logical,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>writepatch</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>dimswitch</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>xID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>yID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>zID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>landID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>patchID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>logical,</td>
+<td>intent(in),</td>
+  <td>optional</td>  <td></td><td>::</td>
+  <td><strong>restart</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-define_output_parameter_r2"></span><h3>private subroutine <a href='../proc/define_output_parameter_r2.html'>define_output_parameter_r2</a>(ncid, parID, pname, punits, longname, writepatch, othdimID, dimswitch, xID, yID, zID, landID, patchID, restart)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ncid</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(out)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>parID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>pname</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>punits</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>longname</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>logical,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>writepatch</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>othdimID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>dimswitch</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>xID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>yID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>zID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>landID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>patchID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>logical,</td>
+<td>intent(in),</td>
+  <td>optional</td>  <td></td><td>::</td>
+  <td><strong>restart</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-write_output_variable_r1"></span><h3>private subroutine <a href='../proc/write_output_variable_r1.html'>write_output_variable_r1</a>(ktau, ncid, varID, vname, var_r1, vrange, writepatch, dimswitch, met)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ktau</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ncid</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>varID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>vname</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=4),</td>
+<td>intent(in),</td>
+  <td></td>  <td>DIMENSION(:)</td><td>::</td>
+  <td><strong>var_r1</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real,</td>
+<td>intent(in),</td>
+  <td></td>  <td>DIMENSION(2)</td><td>::</td>
+  <td><strong>vrange</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>logical,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>writepatch</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>dimswitch</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/met_type.html'>met_type</a>),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>met</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-write_output_variable_r2"></span><h3>private subroutine <a href='../proc/write_output_variable_r2.html'>write_output_variable_r2</a>(ktau, ncid, varID, vname, var_r2, vrange, writepatch, dimswitch, met)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ktau</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ncid</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>varID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>vname</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=4),</td>
+<td>intent(in),</td>
+  <td></td>  <td>DIMENSION(:, :)</td><td>::</td>
+  <td><strong>var_r2</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real,</td>
+<td>intent(in),</td>
+  <td></td>  <td>DIMENSION(2)</td><td>::</td>
+  <td><strong>vrange</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>logical,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>writepatch</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>dimswitch</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/met_type.html'>met_type</a>),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>met</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-write_output_parameter_r1"></span><h3>private subroutine <a href='../proc/write_output_parameter_r1.html'>write_output_parameter_r1</a>(ncid, parID, pname, par_r1, prange, writepatch, dimswitch, restart)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ncid</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>parID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>pname</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=4),</td>
+<td>intent(in),</td>
+  <td></td>  <td>DIMENSION(:)</td><td>::</td>
+  <td><strong>par_r1</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real,</td>
+<td>intent(in),</td>
+  <td></td>  <td>DIMENSION(2)</td><td>::</td>
+  <td><strong>prange</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>logical,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>writepatch</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>dimswitch</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>logical,</td>
+<td>intent(in),</td>
+  <td>optional</td>  <td></td><td>::</td>
+  <td><strong>restart</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-write_output_parameter_r1d"></span><h3>private subroutine <a href='../proc/write_output_parameter_r1d.html'>write_output_parameter_r1d</a>(ncid, parID, pname, par_r1d, prange, writepatch, dimswitch, restart)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ncid</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>parID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>pname</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=r_2),</td>
+<td>intent(in),</td>
+  <td></td>  <td>DIMENSION(:)</td><td>::</td>
+  <td><strong>par_r1d</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real,</td>
+<td>intent(in),</td>
+  <td></td>  <td>DIMENSION(2)</td><td>::</td>
+  <td><strong>prange</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>logical,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>writepatch</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>dimswitch</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>logical,</td>
+<td>intent(in),</td>
+  <td>optional</td>  <td></td><td>::</td>
+  <td><strong>restart</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-write_output_parameter_r2"></span><h3>private subroutine <a href='../proc/write_output_parameter_r2.html'>write_output_parameter_r2</a>(ncid, parID, pname, par_r2, prange, writepatch, dimswitch, restart)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ncid</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>parID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>pname</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=4),</td>
+<td>intent(in),</td>
+  <td></td>  <td>DIMENSION(:, :)</td><td>::</td>
+  <td><strong>par_r2</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real,</td>
+<td>intent(in),</td>
+  <td></td>  <td>DIMENSION(2)</td><td>::</td>
+  <td><strong>prange</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>logical,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>writepatch</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>dimswitch</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>logical,</td>
+<td>intent(in),</td>
+  <td>optional</td>  <td></td><td>::</td>
+  <td><strong>restart</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-write_output_parameter_r2d"></span><h3>private subroutine <a href='../proc/write_output_parameter_r2d.html'>write_output_parameter_r2d</a>(ncid, parID, pname, par_r2d, prange, writepatch, dimswitch, restart)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ncid</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>parID</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>pname</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=r_2),</td>
+<td>intent(in),</td>
+  <td></td>  <td>DIMENSION(:, :)</td><td>::</td>
+  <td><strong>par_r2d</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real,</td>
+<td>intent(in),</td>
+  <td></td>  <td>DIMENSION(2)</td><td>::</td>
+  <td><strong>prange</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>logical,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>writepatch</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>dimswitch</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>logical,</td>
+<td>intent(in),</td>
+  <td>optional</td>  <td></td><td>::</td>
+  <td><strong>restart</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
 
   </div>
   </div>

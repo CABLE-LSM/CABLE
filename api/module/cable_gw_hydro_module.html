@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 2.1% of total for modules and submodules.">1105 statements</a>
+    title=" 2.5% of total for modules and submodules.">1105 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/cable_gw_hydro.F90"> Source File</a></li>
   </ul>
@@ -113,11 +113,47 @@
   <h3>Contents</h3>
  
 <div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#vars-0">Variables</a></h3></div>
+  <div id="vars-0" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#variable-smp_cor">smp_cor</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#variable-sucmin">sucmin</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#variable-volwatmin">volwatmin</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#variable-wtd_uncert">wtd_uncert</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#variable-wtd_max">wtd_max</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#variable-wtd_min">wtd_min</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#variable-close_to_one">close_to_one</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#variable-sy_deep">Sy_deep</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#variable-dz_deep">dz_deep</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#variable-wtd_iter_max">wtd_iter_max</a>
+    </div>
+  </div>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#funcs-0">Functions</a></h3></div>
+  <div id="funcs-0" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-my_erf">my_erf</a>
+    </div>
+  </div>
+</div>
+<div class="panel panel-primary">
   <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#subs-0">Subroutines</a></h3></div>
   <div class="list-group">
     <div id="subs-0" class="panel-collapse collapse">
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-gwsoilfreeze">GWsoilfreeze</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-remove_transgw">remove_transGW</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-ovrlndflx">ovrlndflx</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-simple_wtd">simple_wtd</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-iterative_wtd">iterative_wtd</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-smoistgw">smoistgw</a>
       <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-soil_snow_gw">soil_snow_gw</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-calc_equilibrium_water_content">calc_equilibrium_water_content</a>
       <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-calc_srf_wet_fraction">calc_srf_wet_fraction</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-calc_soil_hydraulic_props">calc_soil_hydraulic_props</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-aquifer_recharge">aquifer_recharge</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-subsurface_drainage">subsurface_drainage</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-saturated_fraction">saturated_fraction</a>
       <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-pore_space_relative_humidity">pore_space_relative_humidity</a>
       <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-sli_hydrology">sli_hydrology</a>
       <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-set_unsed_gw_vars">set_unsed_gw_vars</a>
@@ -138,10 +174,10 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/cable_def_types_mod~2.html'>cable_def_types_mod</a></li>
+    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
+    <li><a href='../module/cable_phys_constants_mod.html'>cable_phys_constants_mod</a></li>
     <li><a href='../module/cable_math_constants_mod.html'>cable_math_constants_mod</a></li>
-    <li><a href='../module/cable_common_module~2.html'>cable_common_module</a></li>
-    <li><a href='../module/cable_phys_constants_mod~2.html'>cable_phys_constants_mod</a></li>
   </ul>
       </li>
       <li class="list-group-item">
@@ -151,224 +187,95 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: module~~cable_gw_hydro_module~~UsesGraph Pages: 1 -->
-<svg id="modulecable_gw_hydro_moduleUsesGraph" width="641pt" height="169pt"
- viewBox="0.00 0.00 641.00 168.87" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="module~~cable_gw_hydro_module~~UsesGraph" class="graph" transform="scale(1.42 1.42) rotate(0) translate(4 236)">
+<svg id="modulecable_gw_hydro_moduleUsesGraph" width="529pt" height="158pt"
+ viewBox="0.00 0.00 529.00 158.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~cable_gw_hydro_module~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 154)">
 <title>module~~cable_gw_hydro_module~~UsesGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-236 907,-236 907,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-154 525,-154 525,4 -4,4"/>
 <!-- module~cable_gw_hydro_module -->
 <g id="module~~cable_gw_hydro_module~~UsesGraph_node1" class="node">
 <title>module~cable_gw_hydro_module</title>
-<polygon fill="none" stroke="black" points="903,-87 760,-87 760,-63 903,-63 903,-87"/>
-<text text-anchor="middle" x="831.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">cable_gw_hydro_module</text>
+<polygon fill="none" stroke="black" points="521,-87 378,-87 378,-63 521,-63 521,-87"/>
+<text text-anchor="middle" x="449.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">cable_gw_hydro_module</text>
 </g>
-<!-- module~cable_def_types_mod~2 -->
+<!-- module~cable_def_types_mod -->
 <g id="module~~cable_gw_hydro_module~~UsesGraph_node2" class="node">
-<title>module~cable_def_types_mod~2</title>
-<g id="a_module~~cable_gw_hydro_module~~UsesGraph_node2"><a xlink:href=".././module/cable_def_types_mod~2.html" xlink:title="cable_def_types_mod">
-<polygon fill="#337ab7" stroke="#337ab7" points="707.5,-150 580.5,-150 580.5,-126 707.5,-126 707.5,-150"/>
-<text text-anchor="middle" x="644" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_def_types_mod</text>
+<title>module~cable_def_types_mod</title>
+<g id="a_module~~cable_gw_hydro_module~~UsesGraph_node2"><a xlink:href=".././module/cable_def_types_mod.html" xlink:title="cable_def_types_mod">
+<polygon fill="#337ab7" stroke="#337ab7" points="325.5,-150 198.5,-150 198.5,-126 325.5,-126 325.5,-150"/>
+<text text-anchor="middle" x="262" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_def_types_mod</text>
 </a>
 </g>
 </g>
-<!-- module~cable_gw_hydro_module&#45;&gt;module~cable_def_types_mod~2 -->
+<!-- module~cable_gw_hydro_module&#45;&gt;module~cable_def_types_mod -->
 <g id="module~~cable_gw_hydro_module~~UsesGraph_edge1" class="edge">
-<title>module~cable_gw_hydro_module&#45;&gt;module~cable_def_types_mod~2</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M802.35,-87.14C781.07,-96.06 751,-108.12 724,-117 717.48,-119.14 710.6,-121.23 703.73,-123.2"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="702.41,-119.93 693.72,-126 704.3,-126.68 702.41,-119.93"/>
+<title>module~cable_gw_hydro_module&#45;&gt;module~cable_def_types_mod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M420.35,-87.14C399.07,-96.06 369,-108.12 342,-117 335.48,-119.14 328.6,-121.23 321.73,-123.2"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="320.41,-119.93 311.72,-126 322.3,-126.68 320.41,-119.93"/>
+</g>
+<!-- module~cable_common_module -->
+<g id="module~~cable_gw_hydro_module~~UsesGraph_node3" class="node">
+<title>module~cable_common_module</title>
+<g id="a_module~~cable_gw_hydro_module~~UsesGraph_node3"><a xlink:href=".././module/cable_common_module.html" xlink:title="cable_common_module">
+<polygon fill="#337ab7" stroke="#337ab7" points="332,-108 192,-108 192,-84 332,-84 332,-108"/>
+<text text-anchor="middle" x="262" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_common_module</text>
+</a>
+</g>
+</g>
+<!-- module~cable_gw_hydro_module&#45;&gt;module~cable_common_module -->
+<g id="module~~cable_gw_hydro_module~~UsesGraph_edge2" class="edge">
+<title>module~cable_gw_hydro_module&#45;&gt;module~cable_common_module</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M377.84,-83C366.28,-84.31 354.23,-85.67 342.47,-87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="341.78,-83.56 332.24,-88.16 342.57,-90.51 341.78,-83.56"/>
+</g>
+<!-- module~cable_phys_constants_mod -->
+<g id="module~~cable_gw_hydro_module~~UsesGraph_node4" class="node">
+<title>module~cable_phys_constants_mod</title>
+<g id="a_module~~cable_gw_hydro_module~~UsesGraph_node4"><a xlink:href=".././module/cable_phys_constants_mod.html" xlink:title="cable_phys_constants_mod">
+<polygon fill="#337ab7" stroke="#337ab7" points="340.5,-66 183.5,-66 183.5,-42 340.5,-42 340.5,-66"/>
+<text text-anchor="middle" x="262" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_phys_constants_mod</text>
+</a>
+</g>
+</g>
+<!-- module~cable_gw_hydro_module&#45;&gt;module~cable_phys_constants_mod -->
+<g id="module~~cable_gw_hydro_module~~UsesGraph_edge3" class="edge">
+<title>module~cable_gw_hydro_module&#45;&gt;module~cable_phys_constants_mod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M377.84,-67C368.99,-66 359.85,-64.96 350.78,-63.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="350.91,-60.43 340.58,-62.78 350.12,-67.39 350.91,-60.43"/>
 </g>
 <!-- module~cable_math_constants_mod -->
-<g id="module~~cable_gw_hydro_module~~UsesGraph_node3" class="node">
+<g id="module~~cable_gw_hydro_module~~UsesGraph_node5" class="node">
 <title>module~cable_math_constants_mod</title>
-<g id="a_module~~cable_gw_hydro_module~~UsesGraph_node3"><a xlink:href=".././module/cable_math_constants_mod.html" xlink:title="cable_math_constants_mod">
-<polygon fill="#337ab7" stroke="#337ab7" points="724,-108 564,-108 564,-84 724,-84 724,-108"/>
-<text text-anchor="middle" x="644" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_math_constants_mod</text>
+<g id="a_module~~cable_gw_hydro_module~~UsesGraph_node5"><a xlink:href=".././module/cable_math_constants_mod.html" xlink:title="cable_math_constants_mod">
+<polygon fill="#337ab7" stroke="#337ab7" points="342,-24 182,-24 182,0 342,0 342,-24"/>
+<text text-anchor="middle" x="262" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_math_constants_mod</text>
 </a>
 </g>
 </g>
 <!-- module~cable_gw_hydro_module&#45;&gt;module~cable_math_constants_mod -->
-<g id="module~~cable_gw_hydro_module~~UsesGraph_edge2" class="edge">
-<title>module~cable_gw_hydro_module&#45;&gt;module~cable_math_constants_mod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M759.84,-83C751.45,-83.95 742.81,-84.93 734.2,-85.9"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="733.68,-82.44 724.14,-87.04 734.47,-89.39 733.68,-82.44"/>
-</g>
-<!-- module~cable_phys_constants_mod~2 -->
-<g id="module~~cable_gw_hydro_module~~UsesGraph_node4" class="node">
-<title>module~cable_phys_constants_mod~2</title>
-<g id="a_module~~cable_gw_hydro_module~~UsesGraph_node4"><a xlink:href=".././module/cable_phys_constants_mod~2.html" xlink:title="cable_phys_constants_mod">
-<polygon fill="#337ab7" stroke="#337ab7" points="722.5,-66 565.5,-66 565.5,-42 722.5,-42 722.5,-66"/>
-<text text-anchor="middle" x="644" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_phys_constants_mod</text>
-</a>
-</g>
-</g>
-<!-- module~cable_gw_hydro_module&#45;&gt;module~cable_phys_constants_mod~2 -->
-<g id="module~~cable_gw_hydro_module~~UsesGraph_edge3" class="edge">
-<title>module~cable_gw_hydro_module&#45;&gt;module~cable_phys_constants_mod~2</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M759.84,-67C750.99,-66 741.85,-64.96 732.78,-63.94"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="732.91,-60.43 722.58,-62.78 732.12,-67.39 732.91,-60.43"/>
-</g>
-<!-- module~cable_common_module~2 -->
-<g id="module~~cable_gw_hydro_module~~UsesGraph_node5" class="node">
-<title>module~cable_common_module~2</title>
-<g id="a_module~~cable_gw_hydro_module~~UsesGraph_node5"><a xlink:href=".././module/cable_common_module~2.html" xlink:title="cable_common_module">
-<polygon fill="#337ab7" stroke="#337ab7" points="714,-24 574,-24 574,0 714,0 714,-24"/>
-<text text-anchor="middle" x="644" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_common_module</text>
-</a>
-</g>
-</g>
-<!-- module~cable_gw_hydro_module&#45;&gt;module~cable_common_module~2 -->
 <g id="module~~cable_gw_hydro_module~~UsesGraph_edge4" class="edge">
-<title>module~cable_gw_hydro_module&#45;&gt;module~cable_common_module~2</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M802.35,-62.86C781.07,-53.94 751,-41.88 724,-33 717.48,-30.86 710.6,-28.77 703.73,-26.8"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="704.3,-23.32 693.72,-24 702.41,-30.07 704.3,-23.32"/>
-</g>
-<!-- module~cable_soil_snow_type_mod -->
-<g id="module~~cable_gw_hydro_module~~UsesGraph_node6" class="node">
-<title>module~cable_soil_snow_type_mod</title>
-<g id="a_module~~cable_gw_hydro_module~~UsesGraph_node6"><a xlink:href=".././module/cable_soil_snow_type_mod.html" xlink:title="cable_soil_snow_type_mod">
-<polygon fill="#337ab7" stroke="#337ab7" points="528,-232 373,-232 373,-208 528,-208 528,-232"/>
-<text text-anchor="middle" x="450.5" y="-217.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_soil_snow_type_mod</text>
-</a>
-</g>
-</g>
-<!-- module~cable_def_types_mod~2&#45;&gt;module~cable_soil_snow_type_mod -->
-<g id="module~~cable_gw_hydro_module~~UsesGraph_edge5" class="edge">
-<title>module~cable_def_types_mod~2&#45;&gt;module~cable_soil_snow_type_mod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M623.28,-150.19C600.87,-163.62 562.87,-185.16 528,-199 522.67,-201.12 517.05,-203.1 511.37,-204.94"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="510.34,-201.59 501.81,-207.89 512.4,-208.28 510.34,-201.59"/>
-</g>
-<!-- module~cable_canopy_type_mod -->
-<g id="module~~cable_gw_hydro_module~~UsesGraph_node7" class="node">
-<title>module~cable_canopy_type_mod</title>
-<g id="a_module~~cable_gw_hydro_module~~UsesGraph_node7"><a xlink:href=".././module/cable_canopy_type_mod.html" xlink:title="cable_canopy_type_mod">
-<polygon fill="#337ab7" stroke="#337ab7" points="522.5,-190 378.5,-190 378.5,-166 522.5,-166 522.5,-190"/>
-<text text-anchor="middle" x="450.5" y="-175.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_canopy_type_mod</text>
-</a>
-</g>
-</g>
-<!-- module~cable_def_types_mod~2&#45;&gt;module~cable_canopy_type_mod -->
-<g id="module~~cable_gw_hydro_module~~UsesGraph_edge7" class="edge">
-<title>module~cable_def_types_mod~2&#45;&gt;module~cable_canopy_type_mod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M585.54,-150C564.62,-154.37 540.78,-159.35 519.06,-163.89"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="518.32,-160.47 509.25,-165.94 519.75,-167.32 518.32,-160.47"/>
-</g>
-<!-- module~cable_params_mod -->
-<g id="module~~cable_gw_hydro_module~~UsesGraph_node8" class="node">
-<title>module~cable_params_mod</title>
-<g id="a_module~~cable_gw_hydro_module~~UsesGraph_node8"><a xlink:href=".././module/cable_params_mod.html" xlink:title="cable_params_mod">
-<polygon fill="#337ab7" stroke="#337ab7" points="509,-110 392,-110 392,-86 509,-86 509,-110"/>
-<text text-anchor="middle" x="450.5" y="-95.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_params_mod</text>
-</a>
-</g>
-</g>
-<!-- module~cable_def_types_mod~2&#45;&gt;module~cable_params_mod -->
-<g id="module~~cable_gw_hydro_module~~UsesGraph_edge8" class="edge">
-<title>module~cable_def_types_mod~2&#45;&gt;module~cable_params_mod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M585.54,-126C564.62,-121.63 540.78,-116.65 519.06,-112.11"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="519.75,-108.68 509.25,-110.06 518.32,-115.53 519.75,-108.68"/>
-</g>
-<!-- module~cable_types_mod -->
-<g id="module~~cable_gw_hydro_module~~UsesGraph_node9" class="node">
-<title>module~cable_types_mod</title>
-<g id="a_module~~cable_gw_hydro_module~~UsesGraph_node9"><a xlink:href=".././module/cable_types_mod.html" xlink:title="cable_types_mod">
-<polygon fill="#337ab7" stroke="#337ab7" points="309,-190 204,-190 204,-166 309,-166 309,-190"/>
-<text text-anchor="middle" x="256.5" y="-175.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_types_mod</text>
-</a>
-</g>
-</g>
-<!-- module~cable_def_types_mod~2&#45;&gt;module~cable_types_mod -->
-<g id="module~~cable_gw_hydro_module~~UsesGraph_edge6" class="edge">
-<title>module~cable_def_types_mod~2&#45;&gt;module~cable_types_mod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M580.34,-140.46C525.5,-143.08 443.75,-148.11 373,-157 355.42,-159.21 336.46,-162.34 319.08,-165.51"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="318.25,-162.11 309.06,-167.38 319.53,-168.99 318.25,-162.11"/>
-</g>
-<!-- module~cable_climate_type_mod~2 -->
-<g id="module~~cable_gw_hydro_module~~UsesGraph_node10" class="node">
-<title>module~cable_climate_type_mod~2</title>
-<g id="a_module~~cable_gw_hydro_module~~UsesGraph_node10"><a xlink:href=".././module/cable_climate_type_mod~2.html" xlink:title="cable_climate_type_mod">
-<polygon fill="#337ab7" stroke="#337ab7" points="523,-68 378,-68 378,-44 523,-44 523,-68"/>
-<text text-anchor="middle" x="450.5" y="-53.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_climate_type_mod</text>
-</a>
-</g>
-</g>
-<!-- module~cable_def_types_mod~2&#45;&gt;module~cable_climate_type_mod~2 -->
-<g id="module~~cable_gw_hydro_module~~UsesGraph_edge9" class="edge">
-<title>module~cable_def_types_mod~2&#45;&gt;module~cable_climate_type_mod~2</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M582.8,-125.98C576.22,-123.51 569.81,-120.55 564,-117 543.6,-104.52 548.35,-89.56 528,-77 525.04,-75.17 521.92,-73.5 518.7,-71.97"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="519.97,-68.71 509.4,-68.03 517.24,-75.16 519.97,-68.71"/>
+<title>module~cable_gw_hydro_module&#45;&gt;module~cable_math_constants_mod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M420.35,-62.86C399.07,-53.94 369,-41.88 342,-33 335.48,-30.86 328.6,-28.77 321.73,-26.8"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="322.3,-23.32 311.72,-24 320.41,-30.07 322.3,-23.32"/>
 </g>
 <!-- module~cable_runtime_opts_mod -->
-<g id="module~~cable_gw_hydro_module~~UsesGraph_node11" class="node">
+<g id="module~~cable_gw_hydro_module~~UsesGraph_node6" class="node">
 <title>module~cable_runtime_opts_mod</title>
-<g id="a_module~~cable_gw_hydro_module~~UsesGraph_node11"><a xlink:href=".././module/cable_runtime_opts_mod.html" xlink:title="cable_runtime_opts_mod">
-<polygon fill="#337ab7" stroke="#337ab7" points="523.5,-24 377.5,-24 377.5,0 523.5,0 523.5,-24"/>
-<text text-anchor="middle" x="450.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_runtime_opts_mod</text>
+<g id="a_module~~cable_gw_hydro_module~~UsesGraph_node6"><a xlink:href=".././module/cable_runtime_opts_mod.html" xlink:title="cable_runtime_opts_mod">
+<polygon fill="#337ab7" stroke="#337ab7" points="146,-108 0,-108 0,-84 146,-84 146,-108"/>
+<text text-anchor="middle" x="73" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_runtime_opts_mod</text>
 </a>
 </g>
 </g>
-<!-- module~cable_common_module~2&#45;&gt;module~cable_runtime_opts_mod -->
-<g id="module~~cable_gw_hydro_module~~UsesGraph_edge10" class="edge">
-<title>module~cable_common_module~2&#45;&gt;module~cable_runtime_opts_mod</title>
-<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M573.86,-12C560.89,-12 547.2,-12 533.87,-12"/>
-<polygon fill="#7f00ff" stroke="#7f00ff" points="533.76,-8.5 523.76,-12 533.76,-15.5 533.76,-8.5"/>
-</g>
-<!-- module~cable_soil_snow_type_mod&#45;&gt;module~cable_types_mod -->
-<g id="module~~cable_gw_hydro_module~~UsesGraph_edge11" class="edge">
-<title>module~cable_soil_snow_type_mod&#45;&gt;module~cable_types_mod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M394.48,-207.96C370.91,-202.81 343.29,-196.77 319.04,-191.46"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="319.75,-188.03 309.23,-189.32 318.25,-194.87 319.75,-188.03"/>
-</g>
-<!-- module~cable_canopy_type_mod&#45;&gt;module~cable_types_mod -->
-<g id="module~~cable_gw_hydro_module~~UsesGraph_edge12" class="edge">
-<title>module~cable_canopy_type_mod&#45;&gt;module~cable_types_mod</title>
-<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M378.28,-178C358.92,-178 338.12,-178 319.32,-178"/>
-<polygon fill="#ffff00" stroke="#ffff00" points="319.11,-174.5 309.11,-178 319.11,-181.5 319.11,-174.5"/>
-</g>
-<!-- module~cable_other_constants_mod~2 -->
-<g id="module~~cable_gw_hydro_module~~UsesGraph_node12" class="node">
-<title>module~cable_other_constants_mod~2</title>
-<g id="a_module~~cable_gw_hydro_module~~UsesGraph_node12"><a xlink:href=".././module/cable_other_constants_mod~2.html" xlink:title="cable_other_constants_mod">
-<polygon fill="#337ab7" stroke="#337ab7" points="337,-129 176,-129 176,-105 337,-105 337,-129"/>
-<text text-anchor="middle" x="256.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_other_constants_mod</text>
-</a>
-</g>
-</g>
-<!-- module~cable_params_mod&#45;&gt;module~cable_other_constants_mod~2 -->
-<g id="module~~cable_gw_hydro_module~~UsesGraph_edge13" class="edge">
-<title>module~cable_params_mod&#45;&gt;module~cable_other_constants_mod~2</title>
-<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M391.89,-103.7C377.76,-105.1 362.29,-106.63 347.05,-108.14"/>
-<polygon fill="#00ff00" stroke="#00ff00" points="346.68,-104.66 337.08,-109.13 347.37,-111.62 346.68,-104.66"/>
-</g>
-<!-- grid_constants_cbl_mod -->
-<g id="module~~cable_gw_hydro_module~~UsesGraph_node13" class="node">
-<title>grid_constants_cbl_mod</title>
-<polygon fill="#337ab7" stroke="#337ab7" points="326.5,-87 186.5,-87 186.5,-63 326.5,-63 326.5,-87"/>
-<text text-anchor="middle" x="256.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">grid_constants_cbl_mod</text>
-</g>
-<!-- module~cable_params_mod&#45;&gt;grid_constants_cbl_mod -->
-<g id="module~~cable_gw_hydro_module~~UsesGraph_edge14" class="edge">
-<title>module~cable_params_mod&#45;&gt;grid_constants_cbl_mod</title>
-<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M391.89,-91.1C374.56,-89.02 355.22,-86.71 336.74,-84.49"/>
-<polygon fill="#00ff00" stroke="#00ff00" points="336.93,-80.99 326.58,-83.28 336.1,-87.94 336.93,-80.99"/>
-</g>
-<!-- module~grid_constants_mod_cbl -->
-<g id="module~~cable_gw_hydro_module~~UsesGraph_node14" class="node">
-<title>module~grid_constants_mod_cbl</title>
-<g id="a_module~~cable_gw_hydro_module~~UsesGraph_node14"><a xlink:href=".././module/grid_constants_mod_cbl.html" xlink:title="grid_constants_mod_cbl">
-<polygon fill="#337ab7" stroke="#337ab7" points="140,-129 0,-129 0,-105 140,-105 140,-129"/>
-<text text-anchor="middle" x="70" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">grid_constants_mod_cbl</text>
-</a>
-</g>
-</g>
-<!-- module~cable_other_constants_mod~2&#45;&gt;module~grid_constants_mod_cbl -->
-<g id="module~~cable_gw_hydro_module~~UsesGraph_edge15" class="edge">
-<title>module~cable_other_constants_mod~2&#45;&gt;module~grid_constants_mod_cbl</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M175.92,-117C167.46,-117 158.85,-117 150.4,-117"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="150.17,-113.5 140.17,-117 150.17,-120.5 150.17,-113.5"/>
+<!-- module~cable_common_module&#45;&gt;module~cable_runtime_opts_mod -->
+<g id="module~~cable_gw_hydro_module~~UsesGraph_edge5" class="edge">
+<title>module~cable_common_module&#45;&gt;module~cable_runtime_opts_mod</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M191.9,-96C180.39,-96 168.35,-96 156.55,-96"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="156.26,-92.5 146.26,-96 156.26,-99.5 156.26,-92.5"/>
 </g>
 </g>
 </svg>
-</div><script>var panmodulecable_gw_hydro_moduleUsesGraph = svgPanZoom('#modulecable_gw_hydro_moduleUsesGraph', {zoomEnabled: true,controlIconsEnabled: true, fit: true, center: true,}); </script><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
     <p>Nodes of different colours represent the following: </p>
     <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
@@ -453,18 +360,18 @@
 <polygon fill="none" stroke="black" points="143,-24 0,-24 0,0 143,0 143,-24"/>
 <text text-anchor="middle" x="71.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">cable_gw_hydro_module</text>
 </g>
-<!-- proc~cbm~2 -->
+<!-- proc~cbm -->
 <g id="module~~cable_gw_hydro_module~~UsedByGraph_node2" class="node">
-<title>proc~cbm~2</title>
-<g id="a_module~~cable_gw_hydro_module~~UsedByGraph_node2"><a xlink:href=".././proc/cbm~2.html" xlink:title="cbm">
+<title>proc~cbm</title>
+<g id="a_module~~cable_gw_hydro_module~~UsedByGraph_node2"><a xlink:href=".././proc/cbm.html" xlink:title="cbm">
 <polygon fill="#d9534f" stroke="#d9534f" points="233,-24 179,-24 179,0 233,0 233,-24"/>
 <text text-anchor="middle" x="206" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbm</text>
 </a>
 </g>
 </g>
-<!-- proc~cbm~2&#45;&gt;module~cable_gw_hydro_module -->
+<!-- proc~cbm&#45;&gt;module~cable_gw_hydro_module -->
 <g id="module~~cable_gw_hydro_module~~UsedByGraph_edge1" class="edge">
-<title>proc~cbm~2&#45;&gt;module~cable_gw_hydro_module</title>
+<title>proc~cbm&#45;&gt;module~cable_gw_hydro_module</title>
 <path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M178.82,-12C171.18,-12 162.4,-12 153.22,-12"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="153.15,-8.5 143.15,-12 153.15,-15.5 153.15,-8.5"/>
 </g>
@@ -538,11 +445,47 @@
       <h3>Contents</h3>
  
 <div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#vars-1">Variables</a></h3></div>
+  <div id="vars-1" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#variable-smp_cor">smp_cor</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#variable-sucmin">sucmin</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#variable-volwatmin">volwatmin</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#variable-wtd_uncert">wtd_uncert</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#variable-wtd_max">wtd_max</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#variable-wtd_min">wtd_min</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#variable-close_to_one">close_to_one</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#variable-sy_deep">Sy_deep</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#variable-dz_deep">dz_deep</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#variable-wtd_iter_max">wtd_iter_max</a>
+    </div>
+  </div>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#funcs-1">Functions</a></h3></div>
+  <div id="funcs-1" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-my_erf">my_erf</a>
+    </div>
+  </div>
+</div>
+<div class="panel panel-primary">
   <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#subs-1">Subroutines</a></h3></div>
   <div class="list-group">
     <div id="subs-1" class="panel-collapse collapse">
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-gwsoilfreeze">GWsoilfreeze</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-remove_transgw">remove_transGW</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-ovrlndflx">ovrlndflx</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-simple_wtd">simple_wtd</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-iterative_wtd">iterative_wtd</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-smoistgw">smoistgw</a>
       <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-soil_snow_gw">soil_snow_gw</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-calc_equilibrium_water_content">calc_equilibrium_water_content</a>
       <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-calc_srf_wet_fraction">calc_srf_wet_fraction</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-calc_soil_hydraulic_props">calc_soil_hydraulic_props</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-aquifer_recharge">aquifer_recharge</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-subsurface_drainage">subsurface_drainage</a>
+      <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-saturated_fraction">saturated_fraction</a>
       <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-pore_space_relative_humidity">pore_space_relative_humidity</a>
       <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-sli_hydrology">sli_hydrology</a>
       <a class="list-group-item" href="../module/cable_gw_hydro_module.html#proc-set_unsed_gw_vars">set_unsed_gw_vars</a>
@@ -554,14 +497,352 @@
     <br class="visible-xs visible-sm hidden-md">
 
 
+    <section>
+    <h2>Variables</h2>
+    <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Visibility</th><th>Attributes</th><th></th><th>Name</th><th></th><th>Initial</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" id="variable-smp_cor"></span>real(kind=r_2),</td>
+<td>private,</td>  <td>SAVE</td><td>::</td>
+  <td><strong>smp_cor</strong></td><td> =</td><td>8.0</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-sucmin"></span>real(kind=r_2),</td>
+<td>private,</td>  <td>parameter</td><td>::</td>
+  <td><strong>sucmin</strong></td><td> =</td><td>-1.0e8</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-volwatmin"></span>real(kind=r_2),</td>
+<td>private,</td>  <td>parameter</td><td>::</td>
+  <td><strong>volwatmin</strong></td><td> =</td><td>1e-4</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-wtd_uncert"></span>real(kind=r_2),</td>
+<td>private,</td>  <td>parameter</td><td>::</td>
+  <td><strong>wtd_uncert</strong></td><td> =</td><td>0.1</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-wtd_max"></span>real(kind=r_2),</td>
+<td>private,</td>  <td>parameter</td><td>::</td>
+  <td><strong>wtd_max</strong></td><td> =</td><td>1000000.0</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-wtd_min"></span>real(kind=r_2),</td>
+<td>private,</td>  <td>parameter</td><td>::</td>
+  <td><strong>wtd_min</strong></td><td> =</td><td>10.0</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-close_to_one"></span>real(kind=r_2),</td>
+<td>private,</td>  <td>parameter</td><td>::</td>
+  <td><strong>close_to_one</strong></td><td> =</td><td>0.9999</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-sy_deep"></span>real(kind=r_2),</td>
+<td>private,</td>  <td>parameter</td><td>::</td>
+  <td><strong>Sy_deep</strong></td><td> =</td><td>0.1</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-dz_deep"></span>real(kind=r_2),</td>
+<td>private,</td>  <td>parameter</td><td>::</td>
+  <td><strong>dz_deep</strong></td><td> =</td><td>50000.0</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-wtd_iter_max"></span>integer,</td>
+<td>private,</td>  <td>parameter</td><td>::</td>
+  <td><strong>wtd_iter_max</strong></td><td> =</td><td>20</td><td></td>
+</tr>
+</tbody>
+</table>
+
+    </section>
+    <br>
     
     
 
     
     
+ 
+    <section>
+    <h2>Functions</h2>
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-my_erf"></span><h3>private function <a href='../proc/my_erf.html'>my_erf</a>(x)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>real(kind=r_2),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>x</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+<h4>Return Value <small>real(kind=r_2)</small></h4>  
+
+  </div>
+  </div>
+
+    </section>
+    <br>
 
     <section>
     <h2>Subroutines</h2>
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-gwsoilfreeze"></span><h3>private subroutine <a href='../proc/gwsoilfreeze.html'>GWsoilfreeze</a>(dels, soil, ssnow, tgg_old)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>real,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>dels</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>soil</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ssnow</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real,</td>
+<td>intent(inout),</td>
+  <td></td>  <td>DIMENSION(mp,ms)</td><td>::</td>
+  <td><strong>tgg_old</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-remove_transgw"></span><h3>private subroutine <a href='../proc/remove_transgw.html'>remove_transGW</a>(dels, soil, ssnow, canopy, veg)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>real,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>dels</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>soil</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ssnow</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/canopy_type.html'>canopy_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>canopy</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>veg</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-ovrlndflx"></span><h3>private subroutine <a href='../proc/ovrlndflx.html'>ovrlndflx</a>(dels, ssnow, soil, veg, canopy, sli_call)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>real,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>dels</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ssnow</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>soil</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>veg</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/canopy_type.html'>canopy_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>canopy</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>logical,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>sli_call</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-simple_wtd"></span><h3>private subroutine <a href='../proc/simple_wtd.html'>simple_wtd</a>(ssnow, soil, veg)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ssnow</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>soil</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>veg</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-iterative_wtd"></span><h3>private subroutine <a href='../proc/iterative_wtd.html'>iterative_wtd</a>(ssnow, soil, veg, include_aquifer)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ssnow</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>soil</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>veg</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>logical,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>include_aquifer</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-smoistgw"></span><h3>private subroutine <a href='../proc/smoistgw.html'>smoistgw</a>(dels, ktau, ssnow, soil, veg, canopy)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>real,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>dels</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ktau</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ssnow</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>soil</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>veg</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/canopy_type.html'>canopy_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>canopy</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-soil_snow_gw"></span><h3>public subroutine <a href='../proc/soil_snow_gw.html'>soil_snow_gw</a>(dels, soil, ssnow, canopy, met, bal, veg)</h3></div>
   <div class="panel-body">
@@ -576,40 +857,66 @@
   <td><strong>dels</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/soil_parameter_type~2.html'>soil_parameter_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>soil</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/soil_snow_type~2.html'>soil_snow_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>ssnow</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/canopy_type~2.html'>canopy_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/canopy_type.html'>canopy_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>canopy</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/met_type~2.html'>met_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/met_type.html'>met_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>met</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/balances_type~2.html'>balances_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/balances_type.html'>balances_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>bal</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/veg_parameter_type~2.html'>veg_parameter_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>veg</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-calc_equilibrium_water_content"></span><h3>private subroutine <a href='../proc/calc_equilibrium_water_content.html'>calc_equilibrium_water_content</a>(ssnow, soil)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ssnow</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>soil</strong></td><td></td>
 </tr>
 </tbody>
 </table>
@@ -626,25 +933,183 @@
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/soil_snow_type~2.html'>soil_snow_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>ssnow</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/soil_parameter_type~2.html'>soil_parameter_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>soil</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/met_type~2.html'>met_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/met_type.html'>met_type</a>),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>met</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/veg_parameter_type~2.html'>veg_parameter_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>veg</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-calc_soil_hydraulic_props"></span><h3>private subroutine <a href='../proc/calc_soil_hydraulic_props.html'>calc_soil_hydraulic_props</a>(ssnow, soil, veg)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ssnow</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>soil</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>veg</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-aquifer_recharge"></span><h3>private subroutine <a href='../proc/aquifer_recharge.html'>aquifer_recharge</a>(dt, ssnow, soil, veg, zaq, zmm, dzmm)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>real,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>dt</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ssnow</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>soil</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>veg</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=r_2),</td>
+<td>intent(in),</td>
+  <td></td>  <td>DIMENSION(:)</td><td>::</td>
+  <td><strong>zaq</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=r_2),</td>
+<td>intent(in),</td>
+  <td></td>  <td>DIMENSION(:)</td><td>::</td>
+  <td><strong>zmm</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=r_2),</td>
+<td>intent(in),</td>
+  <td></td>  <td>DIMENSION(:)</td><td>::</td>
+  <td><strong>dzmm</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-subsurface_drainage"></span><h3>private subroutine <a href='../proc/subsurface_drainage.html'>subsurface_drainage</a>(ssnow, soil, veg, dzmm)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ssnow</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>soil</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>veg</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=r_2),</td>
+<td>intent(in),</td>
+  <td></td>  <td>DIMENSION(:)</td><td>::</td>
+  <td><strong>dzmm</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-saturated_fraction"></span><h3>private subroutine <a href='../proc/saturated_fraction.html'>saturated_fraction</a>(ssnow, soil, veg)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ssnow</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>soil</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>veg</strong></td><td></td>
@@ -664,19 +1129,19 @@
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/soil_snow_type~2.html'>soil_snow_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>ssnow</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/soil_parameter_type~2.html'>soil_parameter_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>soil</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/veg_parameter_type~2.html'>veg_parameter_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>veg</strong></td><td></td>
@@ -702,25 +1167,25 @@
   <td><strong>dels</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/soil_snow_type~2.html'>soil_snow_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>ssnow</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/soil_parameter_type~2.html'>soil_parameter_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>soil</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/veg_parameter_type~2.html'>veg_parameter_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>veg</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/canopy_type~2.html'>canopy_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/canopy_type.html'>canopy_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>canopy</strong></td><td></td>
@@ -740,19 +1205,19 @@
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/soil_snow_type~2.html'>soil_snow_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>ssnow</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/soil_parameter_type~2.html'>soil_parameter_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>soil</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/canopy_type~2.html'>canopy_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/canopy_type.html'>canopy_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>canopy</strong></td><td></td>

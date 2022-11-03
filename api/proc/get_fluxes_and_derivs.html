@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Documentation for CABLE">
+    <meta name="author" content="CABLE community" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>get_fluxes_and_derivs &ndash; CABLE</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">CABLE </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>get_fluxes_and_derivs
+      <small>Subroutine</small>
+    </h1>
+    <div class="row">
+  <div class="col-lg-12">
+<div class="well well-sm">
+  <ul class="list-inline" style="margin-bottom:0px;display:inline">
+     <li><i class="fa fa-list-ol"></i>
+       <a data-toggle="tooltip"
+    data-placement="bottom" data-html="true"
+    title=" 0.6% of total for procedures.">255 statements</a>
+     </li> 
+    <li><i class="fa fa-code"></i><a href="../src/cable_sli_solve.F90"> Source File</a></li>
+  </ul>
+  <ol class="breadcrumb in-well text-right">
+     <li><a href='../sourcefile/cable_sli_solve.f90.html'>cable_sli_solve.F90</a></li>
+     <li><a href='../module/sli_solve.html'>sli_solve</a></li>
+     <li class="active">get_fluxes_and_derivs</li>
+  </ol>
+</div>
+</div>
+</div>
+<script>
+  $(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+    <div id="sidebar">
+  <h3>Contents</h3>
+ 
+<em>None</em>
+
+</div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private subroutine get_fluxes_and_derivs(irec, mp, qprec, qprec_snow, n, dx, h0, Tsoil, S, qh, vmet, vlit, vsnow, var, T0, Tsurface, dxL, SL, Tl, plit, par, qali, qvh, qevap, again, getq0, getqn, init, ns, nsat, nsatlast, phip, qpme, hint, phimin, qexd, q, qya, qyb, qTa, qTb, qhya, qhyb, qhTa, qhTb, qadv, qadvya, qadvyb, qadvTa, qadvTb, vtmp, qliq, qv, qvT, qlya, qlyb, qvya, qvyb, qlTb, qvTa, qvTb, vtop, vbot, lE0, G0, Epot, surface_case, iflux, litter, j, kk, advection, dTqwdTa, dTqwdTb, Tqw, keff, hice)</h2>
+    
+
+
+    <h3>Arguments</h3>
+      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" id="variable-irec~3"></span>integer(kind=i_d)</td>
+<td></td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>irec</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-mp~33"></span>integer(kind=i_d)</td>
+<td></td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>mp</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qprec~3"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
+  <td><strong>qprec</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qprec_snow~3"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
+  <td><strong>qprec_snow</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-n~9"></span>integer(kind=i_d)</td>
+<td></td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>n</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-dx~12"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
+  <td><strong>dx</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-h0~9"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
+  <td><strong>h0</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-tsoil~10"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
+  <td><strong>Tsoil</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-s~11"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
+  <td><strong>S</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qh~4"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
+  <td><strong>qh</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-vmet~3"></span>type(<a href='../type/vars_met.html'>vars_met</a>),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
+  <td><strong>vmet</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-vlit~4"></span>type(<a href='../type/vars.html'>vars</a>),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
+  <td><strong>vlit</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-vsnow~3"></span>type(<a href='../type/vars_snow.html'>vars_snow</a>),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
+  <td><strong>vsnow</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-var~37"></span>type(<a href='../type/vars.html'>vars</a>),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
+  <td><strong>var</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-t0~3"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
+  <td><strong>T0</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-tsurface~4"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
+  <td><strong>Tsurface</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-dxl~3"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
+  <td><strong>dxL</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-sl~2"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
+  <td><strong>SL</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-tl"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
+  <td><strong>Tl</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-plit~2"></span>type(<a href='../type/params.html'>params</a>),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
+  <td><strong>plit</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-par~5"></span>type(<a href='../type/params.html'>params</a>),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
+  <td><strong>par</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qali"></span>real(kind=r_2),</td>
+<td></td>
+  <td>optional</td>  <td>DIMENSION(1:mp)</td><td>::</td>
+  <td><strong>qali</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qvh~2"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
+  <td><strong>qvh</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qevap~3"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
+  <td><strong>qevap</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-again"></span>logical,</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
+  <td><strong>again</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-getq0~3"></span>logical,</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
+  <td><strong>getq0</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-getqn~3"></span>logical,</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
+  <td><strong>getqn</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-init~3"></span>logical,</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
+  <td><strong>init</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-ns~3"></span>integer(kind=i_d),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
+  <td><strong>ns</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-nsat~3"></span>integer(kind=i_d),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
+  <td><strong>nsat</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-nsatlast~3"></span>integer(kind=i_d),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
+  <td><strong>nsatlast</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-phip"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
+  <td><strong>phip</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qpme"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
+  <td><strong>qpme</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-hint~3"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
+  <td><strong>hint</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-phimin~3"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
+  <td><strong>phimin</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qexd"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
+  <td><strong>qexd</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-q~4"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
+  <td><strong>q</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qya~4"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
+  <td><strong>qya</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qyb~6"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
+  <td><strong>qyb</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qta~4"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
+  <td><strong>qTa</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qtb~6"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
+  <td><strong>qTb</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qhya~2"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
+  <td><strong>qhya</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qhyb~4"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
+  <td><strong>qhyb</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qhta~2"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
+  <td><strong>qhTa</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qhtb~4"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
+  <td><strong>qhTb</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qadv~4"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
+  <td><strong>qadv</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qadvya~2"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
+  <td><strong>qadvya</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qadvyb~4"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
+  <td><strong>qadvyb</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qadvta~2"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
+  <td><strong>qadvTa</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qadvtb~4"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
+  <td><strong>qadvTb</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-vtmp"></span>type(<a href='../type/vars.html'>vars</a>)</td>
+<td></td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>vtmp</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qliq~3"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
+  <td><strong>qliq</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qv~5"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
+  <td><strong>qv</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qvt~2"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
+  <td><strong>qvT</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qlya~2"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
+  <td><strong>qlya</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qlyb~4"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
+  <td><strong>qlyb</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qvya~2"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
+  <td><strong>qvya</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qvyb~4"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
+  <td><strong>qvyb</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qltb~3"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
+  <td><strong>qlTb</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qvta"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
+  <td><strong>qvTa</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qvtb~3"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
+  <td><strong>qvTb</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-vtop~3"></span>type(<a href='../type/vars.html'>vars</a>),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
+  <td><strong>vtop</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-vbot~3"></span>type(<a href='../type/vars.html'>vars</a>),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
+  <td><strong>vbot</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-le0~5"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
+  <td><strong>lE0</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-g0~3"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
+  <td><strong>G0</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-epot~2"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
+  <td><strong>Epot</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-surface_case"></span>integer(kind=i_d),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
+  <td><strong>surface_case</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-iflux~3"></span>integer(kind=i_d),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
+  <td><strong>iflux</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-litter~4"></span>logical</td>
+<td></td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>litter</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-j"></span>integer(kind=i_d)</td>
+<td></td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>j</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-kk"></span>integer(kind=i_d)</td>
+<td></td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>kk</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-advection~3"></span>integer(kind=i_d)</td>
+<td></td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>advection</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-dtqwdta"></span>real(kind=r_2)</td>
+<td></td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>dTqwdTa</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-dtqwdtb"></span>real(kind=r_2)</td>
+<td></td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>dTqwdTb</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-tqw"></span>real(kind=r_2)</td>
+<td></td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>Tqw</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-keff"></span>real(kind=r_2)</td>
+<td></td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>keff</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-hice"></span>real(kind=r_2),</td>
+<td></td>
+  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
+  <td><strong>hice</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Calls</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_fluxes_and_derivs~~CallsGraph Pages: 1 -->
+<svg id="procget_fluxes_and_derivsCallsGraph" width="641pt" height="304pt"
+ viewBox="0.00 0.00 641.00 304.17" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph" class="graph" transform="scale(1.1 1.1) rotate(0) translate(4 330.54)">
+<title>proc~~get_fluxes_and_derivs~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-330.54 701,-330.54 701,4 -4,4"/>
+<!-- proc~get_fluxes_and_derivs -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_node1" class="node">
+<title>proc~get_fluxes_and_derivs</title>
+<polygon fill="none" stroke="black" points="130,-228 0,-228 0,-204 130,-204 130,-228"/>
+<text text-anchor="middle" x="65" y="-213.6" font-family="Helvetica,sans-Serif" font-size="10.50">get_fluxes_and_derivs</text>
+</g>
+<!-- proc~flux -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_node2" class="node">
+<title>proc~flux</title>
+<g id="a_proc~~get_fluxes_and_derivs~~CallsGraph_node2"><a xlink:href=".././proc/flux.html" xlink:title="flux">
+<polygon fill="#d9534f" stroke="#d9534f" points="499,-310 445,-310 445,-286 499,-286 499,-310"/>
+<text text-anchor="middle" x="472" y="-295.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">flux</text>
+</a>
+</g>
+</g>
+<!-- proc~get_fluxes_and_derivs&#45;&gt;proc~flux -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge1" class="edge">
+<title>proc~get_fluxes_and_derivs&#45;&gt;proc~flux</title>
+<path fill="none" stroke="#ff0000" d="M83.42,-228.22C102.88,-241.48 135.65,-262.68 166,-277 217.48,-301.29 230.87,-309.53 287,-319 332.58,-326.69 345.16,-324.92 391,-319 405.53,-317.13 421.18,-313.41 434.75,-309.62"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="436.05,-312.89 444.67,-306.74 434.09,-306.17 436.05,-312.89"/>
+</g>
+<!-- proc~zerovars -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_node3" class="node">
+<title>proc~zerovars</title>
+<g id="a_proc~~get_fluxes_and_derivs~~CallsGraph_node3"><a xlink:href=".././proc/zerovars.html" xlink:title="zerovars">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="501,-268 443,-268 443,-244 501,-244 501,-268"/>
+<text text-anchor="middle" x="472" y="-253.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">zerovars</text>
+</a>
+</g>
+</g>
+<!-- proc~get_fluxes_and_derivs&#45;&gt;proc~zerovars -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge2" class="edge">
+<title>proc~get_fluxes_and_derivs&#45;&gt;proc~zerovars</title>
+<path fill="none" stroke="#ff0000" d="M130.23,-216.01C196.08,-216.9 301.27,-220.74 391,-235 404.9,-237.21 419.88,-240.8 433.08,-244.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="432.21,-247.79 442.78,-247.13 434.1,-241.05 432.21,-247.79"/>
+</g>
+<!-- proc~seb -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_node4" class="node">
+<title>proc~seb</title>
+<g id="a_proc~~get_fluxes_and_derivs~~CallsGraph_node4"><a xlink:href=".././proc/seb.html" xlink:title="SEB">
+<polygon fill="#d9534f" stroke="#d9534f" points="235.5,-168 181.5,-168 181.5,-144 235.5,-144 235.5,-168"/>
+<text text-anchor="middle" x="208.5" y="-153.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SEB</text>
+</a>
+</g>
+</g>
+<!-- proc~get_fluxes_and_derivs&#45;&gt;proc~seb -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge5" class="edge">
+<title>proc~get_fluxes_and_derivs&#45;&gt;proc~seb</title>
+<path fill="none" stroke="#ff0000" d="M94.63,-203.86C116.92,-194.41 147.97,-181.24 171.87,-171.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="173.45,-174.24 181.29,-167.11 170.72,-167.79 173.45,-174.24"/>
+</g>
+<!-- interface~getheatfluxes -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_node5" class="node">
+<title>interface~getheatfluxes</title>
+<g id="a_proc~~get_fluxes_and_derivs~~CallsGraph_node5"><a xlink:href=".././interface/getheatfluxes.html" xlink:title="getheatfluxes">
+<polygon fill="#a7506f" stroke="#a7506f" points="251,-66 166,-66 166,-42 251,-42 251,-66"/>
+<text text-anchor="middle" x="208.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">getheatfluxes</text>
+</a>
+</g>
+</g>
+<!-- proc~get_fluxes_and_derivs&#45;&gt;interface~getheatfluxes -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge3" class="edge">
+<title>proc~get_fluxes_and_derivs&#45;&gt;interface~getheatfluxes</title>
+<path fill="none" stroke="#ff0000" d="M76.64,-203.82C100.81,-176.15 160.09,-108.28 189.85,-74.21"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="192.8,-76.15 196.74,-66.32 187.53,-71.55 192.8,-76.15"/>
+</g>
+<!-- interface~getfluxes_vp -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_node6" class="node">
+<title>interface~getfluxes_vp</title>
+<g id="a_proc~~get_fluxes_and_derivs~~CallsGraph_node6"><a xlink:href=".././interface/getfluxes_vp.html" xlink:title="getfluxes_vp">
+<polygon fill="#a7506f" stroke="#a7506f" points="248,-268 169,-268 169,-244 248,-244 248,-268"/>
+<text text-anchor="middle" x="208.5" y="-253.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">getfluxes_vp</text>
+</a>
+</g>
+</g>
+<!-- proc~get_fluxes_and_derivs&#45;&gt;interface~getfluxes_vp -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge4" class="edge">
+<title>proc~get_fluxes_and_derivs&#45;&gt;interface~getfluxes_vp</title>
+<path fill="none" stroke="#ff0000" d="M108.45,-228C124.36,-232.5 142.56,-237.64 158.98,-242.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="158.36,-245.75 168.93,-245.1 160.26,-239.01 158.36,-245.75"/>
+</g>
+<!-- proc~weight -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_node7" class="node">
+<title>proc~weight</title>
+<g id="a_proc~~get_fluxes_and_derivs~~CallsGraph_node7"><a xlink:href=".././proc/weight.html" xlink:title="weight">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="607,-289 553,-289 553,-265 607,-265 607,-289"/>
+<text text-anchor="middle" x="580" y="-274.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">weight</text>
+</a>
+</g>
+</g>
+<!-- proc~flux&#45;&gt;proc~weight -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge6" class="edge">
+<title>proc~flux&#45;&gt;proc~weight</title>
+<path fill="none" stroke="#ff0000" d="M499.2,-292.81C512.33,-290.21 528.42,-287.02 542.71,-284.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="543.6,-287.58 552.73,-282.2 542.24,-280.71 543.6,-287.58"/>
+</g>
+<!-- proc~potential_evap -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_node8" class="node">
+<title>proc~potential_evap</title>
+<g id="a_proc~~get_fluxes_and_derivs~~CallsGraph_node8"><a xlink:href=".././proc/potential_evap.html" xlink:title="potential_evap">
+<polygon fill="#d9534f" stroke="#d9534f" points="384.5,-108 293.5,-108 293.5,-84 384.5,-84 384.5,-108"/>
+<text text-anchor="middle" x="339" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">potential_evap</text>
+</a>
+</g>
+</g>
+<!-- proc~seb&#45;&gt;proc~potential_evap -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge7" class="edge">
+<title>proc~seb&#45;&gt;proc~potential_evap</title>
+<path fill="none" stroke="#00ff66" d="M235.5,-143.86C254.84,-134.83 281.43,-122.41 302.69,-112.49"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="304.45,-115.53 312.03,-108.12 301.49,-109.18 304.45,-115.53"/>
+</g>
+<!-- proc~hyofh -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_node9" class="node">
+<title>proc~hyofh</title>
+<g id="a_proc~~get_fluxes_and_derivs~~CallsGraph_node9"><a xlink:href=".././proc/hyofh.html" xlink:title="hyofh">
+<polygon fill="#d9534f" stroke="#d9534f" points="697,-258 643,-258 643,-234 697,-234 697,-258"/>
+<text text-anchor="middle" x="670" y="-243.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">hyofh</text>
+</a>
+</g>
+</g>
+<!-- proc~seb&#45;&gt;proc~hyofh -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge8" class="edge">
+<title>proc~seb&#45;&gt;proc~hyofh</title>
+<path fill="none" stroke="#00ff66" d="M235.69,-155.58C250.7,-155.36 269.91,-155.11 287,-155 333.22,-154.7 345.35,-147.72 391,-155 480.99,-169.35 581.4,-208.29 633.42,-230.3"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="632.29,-233.62 642.86,-234.33 635.04,-227.19 632.29,-233.62"/>
+</g>
+<!-- proc~slope_csat -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_node10" class="node">
+<title>proc~slope_csat</title>
+<g id="a_proc~~get_fluxes_and_derivs~~CallsGraph_node10"><a xlink:href=".././proc/slope_csat.html" xlink:title="slope_csat">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="373,-188 305,-188 305,-164 373,-164 373,-188"/>
+<text text-anchor="middle" x="339" y="-173.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">slope_csat</text>
+</a>
+</g>
+</g>
+<!-- proc~seb&#45;&gt;proc~slope_csat -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge9" class="edge">
+<title>proc~seb&#45;&gt;proc~slope_csat</title>
+<path fill="none" stroke="#00ff66" d="M235.5,-160.05C252.49,-162.69 275.08,-166.21 294.74,-169.27"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="294.28,-172.74 304.7,-170.82 295.36,-165.82 294.28,-172.74"/>
+</g>
+<!-- proc~getheatfluxes_1d -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_node11" class="node">
+<title>proc~getheatfluxes_1d</title>
+<g id="a_proc~~get_fluxes_and_derivs~~CallsGraph_node11"><a xlink:href=".././proc/getheatfluxes_1d.html" xlink:title="getheatfluxes_1d">
+<polygon fill="#d9534f" stroke="#d9534f" points="391,-24 287,-24 287,0 391,0 391,-24"/>
+<text text-anchor="middle" x="339" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">getheatfluxes_1d</text>
+</a>
+</g>
+</g>
+<!-- interface~getheatfluxes&#45;&gt;proc~getheatfluxes_1d -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge10" class="edge">
+<title>interface~getheatfluxes&#45;&gt;proc~getheatfluxes_1d</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M246.32,-41.96C260.44,-37.35 276.73,-32.03 291.62,-27.16"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="292.75,-30.47 301.17,-24.04 290.58,-23.82 292.75,-30.47"/>
+</g>
+<!-- proc~getheatfluxes_2d -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_node12" class="node">
+<title>proc~getheatfluxes_2d</title>
+<g id="a_proc~~get_fluxes_and_derivs~~CallsGraph_node12"><a xlink:href=".././proc/getheatfluxes_2d.html" xlink:title="getheatfluxes_2d">
+<polygon fill="#d9534f" stroke="#d9534f" points="391,-66 287,-66 287,-42 391,-42 391,-66"/>
+<text text-anchor="middle" x="339" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">getheatfluxes_2d</text>
+</a>
+</g>
+</g>
+<!-- interface~getheatfluxes&#45;&gt;proc~getheatfluxes_2d -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge11" class="edge">
+<title>interface~getheatfluxes&#45;&gt;proc~getheatfluxes_2d</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M251.22,-54C259.33,-54 267.99,-54 276.58,-54"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="276.6,-57.5 286.6,-54 276.6,-50.5 276.6,-57.5"/>
+</g>
+<!-- proc~getfluxes_vp_1d -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_node13" class="node">
+<title>proc~getfluxes_vp_1d</title>
+<g id="a_proc~~get_fluxes_and_derivs~~CallsGraph_node13"><a xlink:href=".././proc/getfluxes_vp_1d.html" xlink:title="getfluxes_vp_1d">
+<polygon fill="#d9534f" stroke="#d9534f" points="388,-268 290,-268 290,-244 388,-244 388,-268"/>
+<text text-anchor="middle" x="339" y="-253.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">getfluxes_vp_1d</text>
+</a>
+</g>
+</g>
+<!-- interface~getfluxes_vp&#45;&gt;proc~getfluxes_vp_1d -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge12" class="edge">
+<title>interface~getfluxes_vp&#45;&gt;proc~getfluxes_vp_1d</title>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M248.05,-256C258.03,-256 268.99,-256 279.72,-256"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="279.91,-259.5 289.91,-256 279.91,-252.5 279.91,-259.5"/>
+</g>
+<!-- proc~getfluxes_vp_2d -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_node14" class="node">
+<title>proc~getfluxes_vp_2d</title>
+<g id="a_proc~~get_fluxes_and_derivs~~CallsGraph_node14"><a xlink:href=".././proc/getfluxes_vp_2d.html" xlink:title="getfluxes_vp_2d">
+<polygon fill="#d9534f" stroke="#d9534f" points="388,-310 290,-310 290,-286 388,-286 388,-310"/>
+<text text-anchor="middle" x="339" y="-295.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">getfluxes_vp_2d</text>
+</a>
+</g>
+</g>
+<!-- interface~getfluxes_vp&#45;&gt;proc~getfluxes_vp_2d -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge13" class="edge">
+<title>interface~getfluxes_vp&#45;&gt;proc~getfluxes_vp_2d</title>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M246.32,-268.04C260.44,-272.65 276.73,-277.97 291.62,-282.84"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="290.58,-286.18 301.17,-285.96 292.75,-279.53 290.58,-286.18"/>
+</g>
+<!-- proc~weight&#45;&gt;proc~hyofh -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge14" class="edge">
+<title>proc~weight&#45;&gt;proc~hyofh</title>
+<path fill="none" stroke="#ff0000" d="M607.4,-267.7C615.57,-264.82 624.7,-261.6 633.38,-258.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="634.65,-261.81 642.92,-255.19 632.32,-255.21 634.65,-261.81"/>
+</g>
+<!-- proc~slope_esat_ice -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_node15" class="node">
+<title>proc~slope_esat_ice</title>
+<g id="a_proc~~get_fluxes_and_derivs~~CallsGraph_node15"><a xlink:href=".././proc/slope_esat_ice.html" xlink:title="slope_esat_ice">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="517,-66 427,-66 427,-42 517,-42 517,-66"/>
+<text text-anchor="middle" x="472" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">slope_esat_ice</text>
+</a>
+</g>
+</g>
+<!-- proc~potential_evap&#45;&gt;proc~slope_esat_ice -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge15" class="edge">
+<title>proc~potential_evap&#45;&gt;proc~slope_esat_ice</title>
+<path fill="none" stroke="#ffbf00" d="M377.54,-83.96C391.93,-79.35 408.53,-74.03 423.72,-69.16"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="425,-72.42 433.46,-66.04 422.86,-65.76 425,-72.42"/>
+</g>
+<!-- proc~slope_esat -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_node16" class="node">
+<title>proc~slope_esat</title>
+<g id="a_proc~~get_fluxes_and_derivs~~CallsGraph_node16"><a xlink:href=".././proc/slope_esat.html" xlink:title="slope_esat">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="506.5,-108 437.5,-108 437.5,-84 506.5,-84 506.5,-108"/>
+<text text-anchor="middle" x="472" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">slope_esat</text>
+</a>
+</g>
+</g>
+<!-- proc~potential_evap&#45;&gt;proc~slope_esat -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge16" class="edge">
+<title>proc~potential_evap&#45;&gt;proc~slope_esat</title>
+<path fill="none" stroke="#ffbf00" d="M384.72,-96C398.42,-96 413.48,-96 427.12,-96"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="427.24,-99.5 437.24,-96 427.24,-92.5 427.24,-99.5"/>
+</g>
+<!-- proc~getfluxes_vp_1d&#45;&gt;proc~flux -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge19" class="edge">
+<title>proc~getfluxes_vp_1d&#45;&gt;proc~flux</title>
+<path fill="none" stroke="#7f00ff" d="M377.54,-268.04C395.49,-273.79 416.89,-280.65 434.68,-286.35"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="434.09,-289.84 444.68,-289.56 436.23,-283.18 434.09,-289.84"/>
+</g>
+<!-- proc~getfluxes_vp_1d&#45;&gt;proc~zerovars -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge17" class="edge">
+<title>proc~getfluxes_vp_1d&#45;&gt;proc~zerovars</title>
+<path fill="none" stroke="#7f00ff" d="M388.04,-256C402.7,-256 418.62,-256 432.56,-256"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="432.78,-259.5 442.78,-256 432.78,-252.5 432.78,-259.5"/>
+</g>
+<!-- proc~getfluxes_vp_1d&#45;&gt;proc~hyofh -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge18" class="edge">
+<title>proc~getfluxes_vp_1d&#45;&gt;proc~hyofh</title>
+<path fill="none" stroke="#7f00ff" d="M381.23,-243.93C395.59,-240.3 411.88,-236.8 427,-235 499.61,-226.36 585.2,-234.53 632.66,-240.66"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="632.38,-244.15 642.76,-242.01 633.31,-237.21 632.38,-244.15"/>
+</g>
+<!-- proc~getfluxes_vp_2d&#45;&gt;proc~flux -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge22" class="edge">
+<title>proc~getfluxes_vp_2d&#45;&gt;proc~flux</title>
+<path fill="none" stroke="#ff00bf" d="M388.04,-298C403.43,-298 420.21,-298 434.63,-298"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="434.66,-301.5 444.66,-298 434.66,-294.5 434.66,-301.5"/>
+</g>
+<!-- proc~getfluxes_vp_2d&#45;&gt;proc~zerovars -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge20" class="edge">
+<title>proc~getfluxes_vp_2d&#45;&gt;proc~zerovars</title>
+<path fill="none" stroke="#ff00bf" d="M377.54,-285.96C394.86,-280.41 415.38,-273.83 432.78,-268.25"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="434.17,-271.49 442.62,-265.1 432.03,-264.82 434.17,-271.49"/>
+</g>
+<!-- proc~getfluxes_vp_2d&#45;&gt;proc~hyofh -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge21" class="edge">
+<title>proc~getfluxes_vp_2d&#45;&gt;proc~hyofh</title>
+<path fill="none" stroke="#ff00bf" d="M381.23,-310.07C395.59,-313.7 411.88,-317.2 427,-319 506.98,-328.52 534.96,-334.01 607,-298 623.34,-289.83 639.07,-276.55 650.6,-265.46"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="653.25,-267.75 657.86,-258.21 648.31,-262.79 653.25,-267.75"/>
+</g>
+</g>
+</svg>
+</div><script>var panprocget_fluxes_and_derivsCallsGraph = svgPanZoom('#procget_fluxes_and_derivsCallsGraph', {zoomEnabled: true,controlIconsEnabled: true, fit: true, center: true,}); </script><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Called by</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_fluxes_and_derivs~~CalledByGraph Pages: 1 -->
+<svg id="procget_fluxes_and_derivsCalledByGraph" width="544pt" height="32pt"
+ viewBox="0.00 0.00 544.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_fluxes_and_derivs~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~get_fluxes_and_derivs~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 540,-28 540,4 -4,4"/>
+<!-- proc~get_fluxes_and_derivs -->
+<g id="proc~~get_fluxes_and_derivs~~CalledByGraph_node1" class="node">
+<title>proc~get_fluxes_and_derivs</title>
+<polygon fill="none" stroke="black" points="536,-24 406,-24 406,0 536,0 536,-24"/>
+<text text-anchor="middle" x="471" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">get_fluxes_and_derivs</text>
+</g>
+<!-- proc~iflux_loop -->
+<g id="proc~~get_fluxes_and_derivs~~CalledByGraph_node2" class="node">
+<title>proc~iflux_loop</title>
+<g id="a_proc~~get_fluxes_and_derivs~~CalledByGraph_node2"><a xlink:href=".././proc/iflux_loop.html" xlink:title="iflux_loop">
+<polygon fill="#d9534f" stroke="#d9534f" points="370,-24 306,-24 306,0 370,0 370,-24"/>
+<text text-anchor="middle" x="338" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iflux_loop</text>
+</a>
+</g>
+</g>
+<!-- proc~iflux_loop&#45;&gt;proc~get_fluxes_and_derivs -->
+<g id="proc~~get_fluxes_and_derivs~~CalledByGraph_edge1" class="edge">
+<title>proc~iflux_loop&#45;&gt;proc~get_fluxes_and_derivs</title>
+<path fill="none" stroke="#ff0000" d="M370.05,-12C377.91,-12 386.69,-12 395.71,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="395.94,-15.5 405.94,-12 395.94,-8.5 395.94,-15.5"/>
+</g>
+<!-- proc~timestep_loop -->
+<g id="proc~~get_fluxes_and_derivs~~CalledByGraph_node3" class="node">
+<title>proc~timestep_loop</title>
+<g id="a_proc~~get_fluxes_and_derivs~~CalledByGraph_node3"><a xlink:href=".././proc/timestep_loop.html" xlink:title="timestep_loop">
+<polygon fill="#d9534f" stroke="#d9534f" points="270,-24 182,-24 182,0 270,0 270,-24"/>
+<text text-anchor="middle" x="226" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">timestep_loop</text>
+</a>
+</g>
+</g>
+<!-- proc~timestep_loop&#45;&gt;proc~iflux_loop -->
+<g id="proc~~get_fluxes_and_derivs~~CalledByGraph_edge2" class="edge">
+<title>proc~timestep_loop&#45;&gt;proc~iflux_loop</title>
+<path fill="none" stroke="#ff0000" d="M270.16,-12C278.54,-12 287.3,-12 295.62,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="295.86,-15.5 305.86,-12 295.86,-8.5 295.86,-15.5"/>
+</g>
+<!-- proc~solve -->
+<g id="proc~~get_fluxes_and_derivs~~CalledByGraph_node4" class="node">
+<title>proc~solve</title>
+<g id="a_proc~~get_fluxes_and_derivs~~CalledByGraph_node4"><a xlink:href=".././proc/solve.html" xlink:title="solve">
+<polygon fill="#d9534f" stroke="#d9534f" points="146,-24 92,-24 92,0 146,0 146,-24"/>
+<text text-anchor="middle" x="119" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">solve</text>
+</a>
+</g>
+</g>
+<!-- proc~solve&#45;&gt;proc~timestep_loop -->
+<g id="proc~~get_fluxes_and_derivs~~CalledByGraph_edge3" class="edge">
+<title>proc~solve&#45;&gt;proc~timestep_loop</title>
+<path fill="none" stroke="#ff0000" d="M146.23,-12C154.08,-12 162.99,-12 171.93,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="171.97,-15.5 181.97,-12 171.97,-8.5 171.97,-15.5"/>
+</g>
+<!-- proc~sli_main -->
+<g id="proc~~get_fluxes_and_derivs~~CalledByGraph_node5" class="node">
+<title>proc~sli_main</title>
+<g id="a_proc~~get_fluxes_and_derivs~~CalledByGraph_node5"><a xlink:href=".././proc/sli_main.html" xlink:title="sli_main">
+<polygon fill="#d9534f" stroke="#d9534f" points="56,-24 0,-24 0,0 56,0 56,-24"/>
+<text text-anchor="middle" x="28" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">sli_main</text>
+</a>
+</g>
+</g>
+<!-- proc~sli_main&#45;&gt;proc~solve -->
+<g id="proc~~get_fluxes_and_derivs~~CalledByGraph_edge4" class="edge">
+<title>proc~sli_main&#45;&gt;proc~solve</title>
+<path fill="none" stroke="#ff0000" d="M56.19,-12C64.25,-12 73.22,-12 81.77,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="81.89,-15.5 91.89,-12 81.89,-8.5 81.89,-15.5"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+      <h3>Contents</h3>
+ 
+<em>None</em>
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>CABLE was developed by CABLE community<br>&copy; 2022 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+          </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>

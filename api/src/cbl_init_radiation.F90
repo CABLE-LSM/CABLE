@@ -177,21 +177,54 @@ End subroutine Common_InitRad_Scalings
 
 subroutine  common_InitRad_coeffs( xphi1, xphi2, xk, xvlai2, mp, nrb, Cpi180,&
                             cLAI_thresh, veg_mask, VegXfang, reducedLAIdue2snow  )
-
+!* Calculates the extinction coefficients for black leaves. It returns:
+!
+! * the extinction coefficients for three values of the zenith angle 
+!  to be used to calculate the real extinction coefficient for the
+!  diffuse radiation (Gauss quadrature)
+!
+! * the \(\phi\) coefficients from Sellers 1985 to calculate the
+!  real extinction coefficient for direct beam radaiation in
+!  the subroutine [[ExtinctionCoeff_beam]]
+! ### Equations
+! This subroutine is using the equation B6 from 
+! [Wang and Leuning 1998](https://www.sciencedirect.com/science/article/abs/pii/S0168192398000616)
+! and equation 13 from [Sellers 1985](https://www.tandfonline.com/doi/pdf/10.1080/01431168508948283?needAccess=true):
+!
+! \[
+! k_b = \frac{G_{ross}}{\cos\theta} 
+! 
+! G_{ross} = \phi_1 + \phi_2 \cos\theta
+! 
+! \phi_1 = 0.5 - 0.633 \chi_L - 0.33 \chi_L^2
+! 
+! \phi_2 = 0.877 (1.0 - 2.0 \phi_1)
+! \]
 
 implicit none
 !re-decl in args
-integer :: mp
+integer :: mp 
+  !! Number of tiles
 integer :: nrb
+  !! Number of radiation bands
 real :: Cpi180
+  !! \(\pi\)
 real :: xphi1(mp)    ! leaf angle parmameter 1
+  !! Leaf angle parameter defined by Sellers 1985 \(\phi_1\) 
 real :: xphi2(mp)    ! leaf angle parmameter 2
+  !! Leaf angle parameter defined by Sellers 1985 \(\phi_2\) 
 REAL :: xvlai2(mp,nrb)  ! 2D vlai
+  !! LAI spread over the 3 different zenith angles
 REAL :: xk(mp,nrb)      ! extinct. coef.for beam rad. and black leaves
+  !! Extinction coefficients for black leaves at 3 different zenith angles
 real :: VegXfang(mp)
+  !! Parameter \(\chi\) in Sellers 1985
 real :: reducedLAIdue2snow(mp)
+  !! LAI after the effect of snow
 logical :: veg_mask(mp)
+  !! Mask indicating the presence of vegetation on a tile
 real:: cLAI_thresh
+  !! Threshold for the LAI under which a tile is considered unvegetated
 
 !local vars
 REAL :: cos3(nrb)      ! cos(15 45 75 degrees)

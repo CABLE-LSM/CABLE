@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.3% of total for modules and submodules.">170 statements</a>
+    title=" 0.4% of total for modules and submodules.">170 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/cable_weathergenerator.F90"> Source File</a></li>
   </ul>
@@ -112,6 +112,20 @@
     <div id="sidebar">
   <h3>Contents</h3>
  
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#vars-0">Variables</a></h3></div>
+  <div id="vars-0" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/cable_weathergenerator.html#variable-sp">sp</a>
+      <a class="list-group-item" href="../module/cable_weathergenerator.html#variable-pi">Pi</a>
+      <a class="list-group-item" href="../module/cable_weathergenerator.html#variable-piby2">PiBy2</a>
+      <a class="list-group-item" href="../module/cable_weathergenerator.html#variable-secday">SecDay</a>
+      <a class="list-group-item" href="../module/cable_weathergenerator.html#variable-solarconst">SolarConst</a>
+      <a class="list-group-item" href="../module/cable_weathergenerator.html#variable-epsilon">epsilon</a>
+      <a class="list-group-item" href="../module/cable_weathergenerator.html#variable-sboltz">SBoltz</a>
+    </div>
+  </div>
+</div>
 <div class="panel panel-primary">
   <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#types-0">Derived Types</a></h3></div>
   <div id="types-0" class="panel-collapse collapse">
@@ -261,6 +275,20 @@
       <h3>Contents</h3>
  
 <div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#vars-1">Variables</a></h3></div>
+  <div id="vars-1" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/cable_weathergenerator.html#variable-sp">sp</a>
+      <a class="list-group-item" href="../module/cable_weathergenerator.html#variable-pi">Pi</a>
+      <a class="list-group-item" href="../module/cable_weathergenerator.html#variable-piby2">PiBy2</a>
+      <a class="list-group-item" href="../module/cable_weathergenerator.html#variable-secday">SecDay</a>
+      <a class="list-group-item" href="../module/cable_weathergenerator.html#variable-solarconst">SolarConst</a>
+      <a class="list-group-item" href="../module/cable_weathergenerator.html#variable-epsilon">epsilon</a>
+      <a class="list-group-item" href="../module/cable_weathergenerator.html#variable-sboltz">SBoltz</a>
+    </div>
+  </div>
+</div>
+<div class="panel panel-primary">
   <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#types-1">Derived Types</a></h3></div>
   <div id="types-1" class="panel-collapse collapse">
     <div class="list-group">
@@ -283,6 +311,51 @@
     <br class="visible-xs visible-sm hidden-md">
 
 
+    <section>
+    <h2>Variables</h2>
+    <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Visibility</th><th>Attributes</th><th></th><th>Name</th><th></th><th>Initial</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" id="variable-sp"></span>integer,</td>
+<td>private,</td>  <td>parameter</td><td>::</td>
+  <td><strong>sp</strong></td><td> =</td><td>8</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-pi"></span>real(kind=sp),</td>
+<td>private,</td>  <td>parameter</td><td>::</td>
+  <td><strong>Pi</strong></td><td> =</td><td>3.14159265</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-piby2"></span>real(kind=sp),</td>
+<td>private,</td>  <td>parameter</td><td>::</td>
+  <td><strong>PiBy2</strong></td><td> =</td><td>1.57079632</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-secday"></span>real(kind=sp),</td>
+<td>private,</td>  <td>parameter</td><td>::</td>
+  <td><strong>SecDay</strong></td><td> =</td><td>86400.0</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-solarconst"></span>real(kind=sp),</td>
+<td>private,</td>  <td>parameter</td><td>::</td>
+  <td><strong>SolarConst</strong></td><td> =</td><td>1370*SecDay/1e6</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-epsilon"></span>real(kind=sp),</td>
+<td>private,</td>  <td>parameter</td><td>::</td>
+  <td><strong>epsilon</strong></td><td> =</td><td>0.736</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-sboltz"></span>real(kind=sp),</td>
+<td>private,</td>  <td>parameter</td><td>::</td>
+  <td><strong>SBoltz</strong></td><td> =</td><td>5.67e-8</td><td></td>
+</tr>
+</tbody>
+</table>
+
+    </section>
+    <br>
     
     
 
@@ -462,7 +535,7 @@
   <td><strong>Snow</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-wind~6"></span>real(kind=sp),</td>
+  <td><span class="anchor" id="variable-wind~7"></span>real(kind=sp),</td>
 <td>public,</td>  <td>DIMENSION(:), ALLOCATABLE</td><td>::</td>
   <td><strong>Wind</strong></td><td></td><td></td><td></td>
 </tr>
@@ -482,7 +555,7 @@
   <td><strong>Pmb</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-coszen~3"></span>real(kind=sp),</td>
+  <td><span class="anchor" id="variable-coszen~2"></span>real(kind=sp),</td>
 <td>public,</td>  <td>DIMENSION(:), ALLOCATABLE</td><td>::</td>
   <td><strong>coszen</strong></td><td></td><td></td><td></td>
 </tr>
