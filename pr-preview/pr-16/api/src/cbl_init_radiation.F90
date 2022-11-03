@@ -196,17 +196,17 @@ integer :: mp
 integer :: nrb
   !! Number of radiation bands
 real :: Cpi180
-  !! \(pi\)
+  !! \(\pi\)
 real :: xphi1(mp)    ! leaf angle parmameter 1
-  !! Leaf angle parameter defined by Sellers 1985 \(phi_1\) 
+  !! Leaf angle parameter defined by Sellers 1985 \(\phi_1\) 
 real :: xphi2(mp)    ! leaf angle parmameter 2
-  !! Leaf angle parameter defined by Sellers 1985 \(phi_2\) 
+  !! Leaf angle parameter defined by Sellers 1985 \(\phi_2\) 
 REAL :: xvlai2(mp,nrb)  ! 2D vlai
   !! LAI spread over the 3 different zenith angles
 REAL :: xk(mp,nrb)      ! extinct. coef.for beam rad. and black leaves
   !! Extinction coefficients for black leaves at 3 different zenith angles
 real :: VegXfang(mp)
-  !! Parameter \(chi\) in Sellers 1985
+  !! Parameter \(\chi\) in Sellers 1985
 real :: reducedLAIdue2snow(mp)
   !! LAI after the effect of snow
 logical :: veg_mask(mp)
