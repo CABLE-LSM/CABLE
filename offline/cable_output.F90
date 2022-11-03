@@ -2575,6 +2575,8 @@ CONTAINS
        IF(output%casa) THEN
           out%NPP = out%NPP + REAL(casaflux%cnpp/86400.0 / 1.201E-5, 4)
        ELSE
+          out%NPP = out%NPP + REAL((-1.0 * canopy%fpn - canopy%frp)) ! MMY @Nov2022 add from
+          ! MMY https://trac.nci.org.au/trac/cable/browser/branches/Users/ms8355/CableHydraulics/offline/cable_output.F90 r9110
           !  out%NPP = out%NPP + REAL((canopy%frday) / 1.201E-5, 4)
        ENDIF
        IF(writenow) THEN
