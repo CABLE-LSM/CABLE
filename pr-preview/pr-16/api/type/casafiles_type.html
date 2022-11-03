@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title="<p> 0.9% of total for derived types.</p>Including implementation: 10 statements,  0.9% of total for derived types.">10 statements</a>
+    title="<p> 1.6% of total for derived types.</p>Including implementation: 15 statements,  1.6% of total for derived types.">15 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/casa_variable.F90"> Source File</a></li>
   </ul>
@@ -123,8 +123,13 @@
       <a class="list-group-item" href="../type/casafiles_type.html#variable-cnpipool">cnpipool</a>
       <a class="list-group-item" href="../type/casafiles_type.html#variable-cnpmetin">cnpmetin</a>
       <a class="list-group-item" href="../type/casafiles_type.html#variable-cnpmetout">cnpmetout</a>
-      <a class="list-group-item" href="../type/casafiles_type.html#variable-phen">phen</a>
+      <a class="list-group-item" href="../type/casafiles_type.html#variable-ndep">ndep</a>
+      <a class="list-group-item" href="../type/casafiles_type.html#variable-cnpspin">cnpspin</a>
+      <a class="list-group-item" href="../type/casafiles_type.html#variable-dump_cnpspin">dump_cnpspin</a>
+      <a class="list-group-item" href="../type/casafiles_type.html#variable-phen~3">phen</a>
       <a class="list-group-item" href="../type/casafiles_type.html#variable-cnpflux">cnpflux</a>
+      <a class="list-group-item" href="../type/casafiles_type.html#variable-l_ndep">l_ndep</a>
+      <a class="list-group-item" href="../type/casafiles_type.html#variable-c2cdumppath">c2cdumppath</a>
     </div>
   </div>
 </div>
@@ -151,8 +156,13 @@
       <a class="list-group-item" href="../type/casafiles_type.html#variable-cnpipool">cnpipool</a>
       <a class="list-group-item" href="../type/casafiles_type.html#variable-cnpmetin">cnpmetin</a>
       <a class="list-group-item" href="../type/casafiles_type.html#variable-cnpmetout">cnpmetout</a>
-      <a class="list-group-item" href="../type/casafiles_type.html#variable-phen">phen</a>
+      <a class="list-group-item" href="../type/casafiles_type.html#variable-ndep">ndep</a>
+      <a class="list-group-item" href="../type/casafiles_type.html#variable-cnpspin">cnpspin</a>
+      <a class="list-group-item" href="../type/casafiles_type.html#variable-dump_cnpspin">dump_cnpspin</a>
+      <a class="list-group-item" href="../type/casafiles_type.html#variable-phen~3">phen</a>
       <a class="list-group-item" href="../type/casafiles_type.html#variable-cnpflux">cnpflux</a>
+      <a class="list-group-item" href="../type/casafiles_type.html#variable-l_ndep">l_ndep</a>
+      <a class="list-group-item" href="../type/casafiles_type.html#variable-c2cdumppath">c2cdumppath</a>
     </div>
   </div>
 </div>
@@ -183,7 +193,7 @@
 <tr>
   <td><span class="anchor" id="variable-cnpipool"></span>character(len=99),</td>
 <td>public</td>  <td></td><td>::</td>
-  <td><strong>cnpipool</strong></td><td></td><td></td><td></td>
+  <td><strong>cnpipool</strong></td><td> =</td><td>''</td><td></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-cnpmetin"></span>character(len=99),</td>
@@ -196,7 +206,22 @@
   <td><strong>cnpmetout</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-phen"></span>character(len=99),</td>
+  <td><span class="anchor" id="variable-ndep"></span>character(len=99),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>ndep</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-cnpspin"></span>character(len=99),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>cnpspin</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-dump_cnpspin"></span>character(len=99),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>dump_cnpspin</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-phen~3"></span>character(len=99),</td>
 <td>public</td>  <td></td><td>::</td>
   <td><strong>phen</strong></td><td></td><td></td><td></td>
 </tr>
@@ -204,6 +229,16 @@
   <td><span class="anchor" id="variable-cnpflux"></span>character(len=99),</td>
 <td>public</td>  <td></td><td>::</td>
   <td><strong>cnpflux</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-l_ndep"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>l_ndep</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-c2cdumppath"></span>character(len=99),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>c2cdumppath</strong></td><td> =</td><td>''</td><td></td>
 </tr>
 </tbody>
 </table>

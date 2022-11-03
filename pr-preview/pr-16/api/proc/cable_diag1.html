@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.0% of total for procedures.">12 statements</a>
+    title=" 0.1% of total for procedures.">24 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/cable_diag.F90"> Source File</a></li>
   </ul>
@@ -120,7 +120,7 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public subroutine cable_diag1(Nvars, basename, dimx, dimy, timestep, node, vname1, var1)</h2>
+    <h2>public subroutine cable_diag1(iDiag, basename, dimx, dimy, timestep, node, vname1, var1, once)</h2>
     
 
 
@@ -129,37 +129,37 @@
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
 <tr>
-  <td><span class="anchor" id="variable-nvars"></span>integer,</td>
-<td>intent(in)</td>
+  <td><span class="anchor" id="variable-idiag~14"></span>integer,</td>
+<td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>Nvars</strong></td><td></td>
+  <td><strong>iDiag</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-basename"></span>character(len=*),</td>
+  <td><span class="anchor" id="variable-basename~11"></span>character(len=*),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>basename</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-dimx"></span>integer,</td>
+  <td><span class="anchor" id="variable-dimx~12"></span>integer,</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>dimx</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-dimy"></span>integer,</td>
+  <td><span class="anchor" id="variable-dimy~7"></span>integer,</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>dimy</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-timestep~4"></span>integer,</td>
+  <td><span class="anchor" id="variable-timestep~7"></span>integer,</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>timestep</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-node"></span>integer,</td>
+  <td><span class="anchor" id="variable-node~8"></span>integer,</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>node</strong></td><td></td>
@@ -171,10 +171,16 @@
   <td><strong>vname1</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-var1"></span>real,</td>
+  <td><span class="anchor" id="variable-var1~9"></span>real,</td>
 <td>intent(in),</td>
   <td></td>  <td>dimension(:)</td><td>::</td>
   <td><strong>var1</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-once"></span>integer,</td>
+<td></td>
+  <td>optional</td>  <td></td><td>::</td>
+  <td><strong>once</strong></td><td></td>
 </tr>
 </tbody>
 </table>

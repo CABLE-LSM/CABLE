@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 1.5% of total for modules and submodules.">783 statements</a>
+    title=" 1.7% of total for modules and submodules.">783 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/cable_cru_TRENDY.F90"> Source File</a></li>
   </ul>
@@ -117,6 +117,20 @@
   <div id="vars-0" class="panel-collapse collapse">
     <div class="list-group">
       <a class="list-group-item" href="../module/cable_cru.html#variable-cru~8">CRU</a>
+      <a class="list-group-item" href="../module/cable_cru.html#variable-rain">rain</a>
+      <a class="list-group-item" href="../module/cable_cru.html#variable-lwdn~2">lwdn</a>
+      <a class="list-group-item" href="../module/cable_cru.html#variable-swdn~2">swdn</a>
+      <a class="list-group-item" href="../module/cable_cru.html#variable-pres~2">pres</a>
+      <a class="list-group-item" href="../module/cable_cru.html#variable-qair">qair</a>
+      <a class="list-group-item" href="../module/cable_cru.html#variable-tmax~2">tmax</a>
+      <a class="list-group-item" href="../module/cable_cru.html#variable-tmin~2">tmin</a>
+      <a class="list-group-item" href="../module/cable_cru.html#variable-uwind">uwind</a>
+      <a class="list-group-item" href="../module/cable_cru.html#variable-vwind">vwind</a>
+      <a class="list-group-item" href="../module/cable_cru.html#variable-prevtmax~2">prevTmax</a>
+      <a class="list-group-item" href="../module/cable_cru.html#variable-nexttmin~2">nextTmin</a>
+      <a class="list-group-item" href="../module/cable_cru.html#variable-errstatus">ErrStatus</a>
+      <a class="list-group-item" href="../module/cable_cru.html#variable-secday~3">SecDay</a>
+      <a class="list-group-item" href="../module/cable_cru.html#variable-pref~2">PREF</a>
     </div>
   </div>
 </div>
@@ -157,9 +171,9 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/casa_ncdf_module.html'>casa_ncdf_module</a></li>
-    <li><a href='../module/cable_io_vars_module.html'>cable_IO_vars_module</a></li>
+    <li><a href='../module/cable_io_vars_module~2.html'>cable_IO_vars_module</a></li>
     <li>netcdf</li>
+    <li><a href='../module/casa_ncdf_module.html'>casa_ncdf_module</a></li>
   </ul>
       </li>
       </ul>
@@ -176,6 +190,20 @@
   <div id="vars-1" class="panel-collapse collapse">
     <div class="list-group">
       <a class="list-group-item" href="../module/cable_cru.html#variable-cru~8">CRU</a>
+      <a class="list-group-item" href="../module/cable_cru.html#variable-rain">rain</a>
+      <a class="list-group-item" href="../module/cable_cru.html#variable-lwdn~2">lwdn</a>
+      <a class="list-group-item" href="../module/cable_cru.html#variable-swdn~2">swdn</a>
+      <a class="list-group-item" href="../module/cable_cru.html#variable-pres~2">pres</a>
+      <a class="list-group-item" href="../module/cable_cru.html#variable-qair">qair</a>
+      <a class="list-group-item" href="../module/cable_cru.html#variable-tmax~2">tmax</a>
+      <a class="list-group-item" href="../module/cable_cru.html#variable-tmin~2">tmin</a>
+      <a class="list-group-item" href="../module/cable_cru.html#variable-uwind">uwind</a>
+      <a class="list-group-item" href="../module/cable_cru.html#variable-vwind">vwind</a>
+      <a class="list-group-item" href="../module/cable_cru.html#variable-prevtmax~2">prevTmax</a>
+      <a class="list-group-item" href="../module/cable_cru.html#variable-nexttmin~2">nextTmin</a>
+      <a class="list-group-item" href="../module/cable_cru.html#variable-errstatus">ErrStatus</a>
+      <a class="list-group-item" href="../module/cable_cru.html#variable-secday~3">SecDay</a>
+      <a class="list-group-item" href="../module/cable_cru.html#variable-pref~2">PREF</a>
     </div>
   </div>
 </div>
@@ -216,6 +244,76 @@
   <td><span class="anchor" id="variable-cru~8"></span>type(<a href='../type/cru_type.html'>CRU_TYPE</a>),</td>
 <td>public</td>  <td></td><td>::</td>
   <td><strong>CRU</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-rain"></span>integer,</td>
+<td>private,</td>  <td>parameter</td><td>::</td>
+  <td><strong>rain</strong></td><td> =</td><td>1</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-lwdn~2"></span>integer,</td>
+<td>private,</td>  <td>parameter</td><td>::</td>
+  <td><strong>lwdn</strong></td><td> =</td><td>2</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-swdn~2"></span>integer,</td>
+<td>private,</td>  <td>parameter</td><td>::</td>
+  <td><strong>swdn</strong></td><td> =</td><td>3</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-pres~2"></span>integer,</td>
+<td>private,</td>  <td>parameter</td><td>::</td>
+  <td><strong>pres</strong></td><td> =</td><td>4</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qair"></span>integer,</td>
+<td>private,</td>  <td>parameter</td><td>::</td>
+  <td><strong>qair</strong></td><td> =</td><td>5</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-tmax~2"></span>integer,</td>
+<td>private,</td>  <td>parameter</td><td>::</td>
+  <td><strong>tmax</strong></td><td> =</td><td>6</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-tmin~2"></span>integer,</td>
+<td>private,</td>  <td>parameter</td><td>::</td>
+  <td><strong>tmin</strong></td><td> =</td><td>7</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-uwind"></span>integer,</td>
+<td>private,</td>  <td>parameter</td><td>::</td>
+  <td><strong>uwind</strong></td><td> =</td><td>8</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-vwind"></span>integer,</td>
+<td>private,</td>  <td>parameter</td><td>::</td>
+  <td><strong>vwind</strong></td><td> =</td><td>9</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-prevtmax~2"></span>integer,</td>
+<td>private,</td>  <td>parameter</td><td>::</td>
+  <td><strong>prevTmax</strong></td><td> =</td><td>10</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-nexttmin~2"></span>integer,</td>
+<td>private,</td>  <td>parameter</td><td>::</td>
+  <td><strong>nextTmin</strong></td><td> =</td><td>11</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-errstatus"></span>integer,</td>
+<td>private</td>  <td></td><td>::</td>
+  <td><strong>ErrStatus</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-secday~3"></span>real,</td>
+<td>private,</td>  <td>parameter</td><td>::</td>
+  <td><strong>SecDay</strong></td><td> =</td><td>86400.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-pref~2"></span>character(len=6),</td>
+<td>private,</td>  <td>parameter, DIMENSION(9)</td><td>::</td>
+  <td><strong>PREF</strong></td><td> =</td><td>(/"rain&nbsp;&nbsp;", "lwdown", "swdown", "press ", "qair&nbsp;&nbsp;", "tmax&nbsp;&nbsp;", "tmin&nbsp;&nbsp;", "uwind ", "vwind "/)</td><td></td>
 </tr>
 </tbody>
 </table>
@@ -597,7 +695,7 @@
   <td><strong>CRU</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/met_type~2.html'>met_type</a>)</td>
+  <td><span class="anchor" ></span>type(<a href='../type/met_type.html'>met_type</a>)</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
   <td><strong>MET</strong></td><td></td>

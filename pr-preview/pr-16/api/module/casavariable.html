@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.2% of total for modules and submodules.">90 statements</a>
+    title=" 1.0% of total for modules and submodules.">453 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/casa_variable.F90"> Source File</a></li>
   </ul>
@@ -138,6 +138,9 @@
   <div class="list-group">
     <div id="subs-0" class="panel-collapse collapse">
       <a class="list-group-item" href="../module/casavariable.html#proc-alloc_casavariable">alloc_casavariable</a>
+      <a class="list-group-item" href="../module/casavariable.html#proc-alloc_sum_casavariable">alloc_sum_casavariable</a>
+      <a class="list-group-item" href="../module/casavariable.html#proc-zero_sum_casa">zero_sum_casa</a>
+      <a class="list-group-item" href="../module/casavariable.html#proc-update_sum_casa">update_sum_casa</a>
     </div>
   </div>
 </div>
@@ -155,7 +158,7 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/casadimension~2.html'>casadimension</a></li>
+    <li><a href='../module/casadimension.html'>casadimension</a></li>
   </ul>
       </li>
       </ul>
@@ -193,6 +196,9 @@
   <div class="list-group">
     <div id="subs-1" class="panel-collapse collapse">
       <a class="list-group-item" href="../module/casavariable.html#proc-alloc_casavariable">alloc_casavariable</a>
+      <a class="list-group-item" href="../module/casavariable.html#proc-alloc_sum_casavariable">alloc_sum_casavariable</a>
+      <a class="list-group-item" href="../module/casavariable.html#proc-zero_sum_casa">zero_sum_casa</a>
+      <a class="list-group-item" href="../module/casavariable.html#proc-update_sum_casa">update_sum_casa</a>
     </div>
   </div>
 </div>
@@ -265,7 +271,7 @@
   <td><strong>glaimin</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-sla"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-sla~2"></span>real(kind=r_2),</td>
 <td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
   <td><strong>sla</strong></td><td></td><td></td><td></td>
 </tr>
@@ -310,6 +316,71 @@
   <td><strong>kclabrate</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
+  <td><span class="anchor" id="variable-xnpmax"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>xnpmax</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-q10soil"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>q10soil</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-xkoptlitter"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>xkoptlitter</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-xkoptsoil"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>xkoptsoil</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-xkplab"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>xkplab</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-xkpsorb"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>xkpsorb</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-xkpocc"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>xkpocc</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-prodptase"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>prodptase</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-costnpup"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>costnpup</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-maxfinelitter"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>maxfinelitter</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-maxcwd"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>maxcwd</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-nintercept"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>nintercept</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-nslope"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>nslope</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
   <td><span class="anchor" id="variable-plantrate"></span>real(kind=r_2),</td>
 <td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
   <td><strong>plantrate</strong></td><td></td><td></td><td></td>
@@ -345,14 +416,14 @@
   <td><strong>ratioNCplantmax</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-ratiopcplantmin"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-rationpplantmin"></span>real(kind=r_2),</td>
 <td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
-  <td><strong>ratioPCplantmin</strong></td><td></td><td></td><td></td>
+  <td><strong>ratioNPplantmin</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-ratiopcplantmax"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-rationpplantmax"></span>real(kind=r_2),</td>
 <td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
-  <td><strong>ratioPCplantmax</strong></td><td></td><td></td><td></td>
+  <td><strong>ratioNPplantmax</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-fracligninplant"></span>real(kind=r_2),</td>
@@ -373,6 +444,16 @@
   <td><span class="anchor" id="variable-litterrate"></span>real(kind=r_2),</td>
 <td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
   <td><strong>litterrate</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-ratiopcplantmin"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>ratioPcplantmin</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-ratiopcplantmax"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>ratioPcplantmax</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-soilrate"></span>real(kind=r_2),</td>
@@ -402,6 +483,16 @@
   <td><span class="anchor" id="variable-dclabiledt"></span>real(kind=r_2),</td>
 <td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
   <td><strong>dClabiledt</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-ctot"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>Ctot</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-ctot_0"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>Ctot_0</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-cplant"></span>real(kind=r_2),</td>
@@ -439,9 +530,9 @@
   <td><strong>ratioNCplant</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-ratiopcplant"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-rationpplant"></span>real(kind=r_2),</td>
 <td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
-  <td><strong>ratioPCplant</strong></td><td></td><td></td><td></td>
+  <td><strong>ratioNPplant</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-nsoilmin"></span>real(kind=r_2),</td>
@@ -519,12 +610,12 @@
   <td><strong>ratioNClitter</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-ratiopclitter"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-rationplitter"></span>real(kind=r_2),</td>
 <td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
-  <td><strong>ratioPClitter</strong></td><td></td><td></td><td></td>
+  <td><strong>ratioNPlitter</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-csoil"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-csoil~2"></span>real(kind=r_2),</td>
 <td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
   <td><strong>Csoil</strong></td><td></td><td></td><td></td>
 </tr>
@@ -564,9 +655,9 @@
   <td><strong>ratioNCsoilnew</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-ratiopcsoil"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-rationpsoil"></span>real(kind=r_2),</td>
 <td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
-  <td><strong>ratioPCsoil</strong></td><td></td><td></td><td></td>
+  <td><strong>ratioNPsoil</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-rationcsoilmin"></span>real(kind=r_2),</td>
@@ -577,6 +668,36 @@
   <td><span class="anchor" id="variable-rationcsoilmax"></span>real(kind=r_2),</td>
 <td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
   <td><strong>ratioNCsoilmax</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-ratiopcsoil"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>ratioPcsoil</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-ratiopcplant"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>ratioPcplant</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-ratiopclitter"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>ratioPclitter</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-cwoodprod~2"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>cwoodprod</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-nwoodprod~2"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>nwoodprod</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-pwoodprod~2"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>pwoodprod</strong></td><td></td><td></td><td></td>
 </tr>
 </tbody>
 </table>
@@ -638,6 +759,21 @@
   <td><strong>fracClabile</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
+  <td><span class="anchor" id="variable-stemnpp"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>stemnpp</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-frac_sapwood~2"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>frac_sapwood</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-sapwood_area~5"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>sapwood_area</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
   <td><span class="anchor" id="variable-fraccalloc"></span>real(kind=r_2),</td>
 <td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
   <td><strong>fracCalloc</strong></td><td></td><td></td><td></td>
@@ -661,6 +797,11 @@
   <td><span class="anchor" id="variable-kplant"></span>real(kind=r_2),</td>
 <td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
   <td><strong>kplant</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-cplant_turnover"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>Cplant_turnover</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-fromptol"></span>real(kind=r_2),</td>
@@ -728,7 +869,7 @@
   <td><strong>fNminleach</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-pdep~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-pdep~3"></span>real(kind=r_2),</td>
 <td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
   <td><strong>Pdep</strong></td><td></td><td></td><td></td>
 </tr>
@@ -803,6 +944,21 @@
   <td><strong>Psorbmax</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
+  <td><span class="anchor" id="variable-cplant_turnover_disturbance"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>Cplant_turnover_disturbance</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-cplant_turnover_crowding"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>Cplant_turnover_crowding</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-cplant_turnover_resource_limitation"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>Cplant_turnover_resource_limitation</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
   <td><span class="anchor" id="variable-klitter"></span>real(kind=r_2),</td>
 <td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
   <td><strong>klitter</strong></td><td></td><td></td><td></td>
@@ -868,6 +1024,41 @@
   <td><strong>FluxCtoCO2</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
+  <td><span class="anchor" id="variable-fluxctohwp"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>FluxCtohwp</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-fluxntohwp"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>FluxNtohwp</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-fluxptohwp"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>FluxPtohwp</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-fluxctoclear"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>FluxCtoclear</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-fluxntoclear"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>FluxNtoclear</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-fluxptoclear"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>FluxPtoclear</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-ctransferluc"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>CtransferLUC</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
   <td><span class="anchor" id="variable-meangpp"></span>real(kind=r_2),</td>
 <td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
   <td><strong>meangpp</strong></td><td></td><td></td><td></td>
@@ -902,7 +1093,7 @@
   <td><strong>Tairk</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-precip~3"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-precip~2"></span>real(kind=r_2),</td>
 <td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
   <td><strong>precip</strong></td><td></td><td></td><td></td>
 </tr>
@@ -952,19 +1143,109 @@
   <td><strong>isorder</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-lat"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-lat~2"></span>real(kind=r_2),</td>
 <td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
   <td><strong>lat</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-lon"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-lon~2"></span>real(kind=r_2),</td>
 <td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
   <td><strong>lon</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-areacell"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-areacell~2"></span>real(kind=r_2),</td>
 <td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
   <td><strong>areacell</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-tairkspin"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>Tairkspin</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-cgppspin"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>cgppspin</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-crmplantspin_1"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>crmplantspin_1</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-crmplantspin_2"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>crmplantspin_2</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-crmplantspin_3"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>crmplantspin_3</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-tsoilspin_1"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>Tsoilspin_1</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-tsoilspin_2"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>Tsoilspin_2</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-tsoilspin_3"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>Tsoilspin_3</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-tsoilspin_4"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>Tsoilspin_4</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-tsoilspin_5"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>Tsoilspin_5</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-tsoilspin_6"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>Tsoilspin_6</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-moistspin_1"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>moistspin_1</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-moistspin_2"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>moistspin_2</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-moistspin_3"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>moistspin_3</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-moistspin_4"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>moistspin_4</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-moistspin_5"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>moistspin_5</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-moistspin_6"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>moistspin_6</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-mtempspin"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>mtempspin</strong></td><td></td><td></td><td></td>
 </tr>
 </tbody>
 </table>
@@ -991,6 +1272,26 @@
   <td><strong>FCnppyear</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
+  <td><span class="anchor" id="variable-fcrmleafyear"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>FCrmleafyear</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-fcrmwoodyear"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>FCrmwoodyear</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-fcrmrootyear"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>FCrmrootyear</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-fcrgrowyear"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>FCrgrowyear</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
   <td><span class="anchor" id="variable-fcrpyear"></span>real(kind=r_2),</td>
 <td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
   <td><strong>FCrpyear</strong></td><td></td><td></td><td></td>
@@ -1004,6 +1305,26 @@
   <td><span class="anchor" id="variable-fcneeyear"></span>real(kind=r_2),</td>
 <td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
   <td><strong>FCneeyear</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-dcdtyear"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>dCdtyear</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-laimax"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>LAImax</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-cleafmean"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>Cleafmean</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-crootmean"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>Crootmean</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-fndepyear"></span>real(kind=r_2),</td>
@@ -1156,17 +1477,17 @@
   <td><strong>pbalance</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-sumcbal"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-sumcbal~2"></span>real(kind=r_2),</td>
 <td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
   <td><strong>sumcbal</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-sumnbal"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-sumnbal~2"></span>real(kind=r_2),</td>
 <td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
   <td><strong>sumnbal</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-sumpbal"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-sumpbal~2"></span>real(kind=r_2),</td>
 <td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
   <td><strong>sumpbal</strong></td><td></td><td></td><td></td>
 </tr>
@@ -1207,7 +1528,7 @@
 <tr>
   <td><span class="anchor" id="variable-cnpipool"></span>character(len=99),</td>
 <td>public</td>  <td></td><td>::</td>
-  <td><strong>cnpipool</strong></td><td></td><td></td><td></td>
+  <td><strong>cnpipool</strong></td><td> =</td><td>''</td><td></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-cnpmetin"></span>character(len=99),</td>
@@ -1220,7 +1541,22 @@
   <td><strong>cnpmetout</strong></td><td></td><td></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-phen"></span>character(len=99),</td>
+  <td><span class="anchor" id="variable-ndep"></span>character(len=99),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>ndep</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-cnpspin"></span>character(len=99),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>cnpspin</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-dump_cnpspin"></span>character(len=99),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>dump_cnpspin</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-phen~3"></span>character(len=99),</td>
 <td>public</td>  <td></td><td>::</td>
   <td><strong>phen</strong></td><td></td><td></td><td></td>
 </tr>
@@ -1228,6 +1564,16 @@
   <td><span class="anchor" id="variable-cnpflux"></span>character(len=99),</td>
 <td>public</td>  <td></td><td>::</td>
   <td><strong>cnpflux</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-l_ndep"></span>logical,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>l_ndep</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-c2cdumppath"></span>character(len=99),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>c2cdumppath</strong></td><td> =</td><td>''</td><td></td>
 </tr>
 </tbody>
 </table>
@@ -1284,6 +1630,120 @@
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>arraysize</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-alloc_sum_casavariable"></span><h3>public subroutine <a href='../proc/alloc_sum_casavariable.html'>alloc_sum_casavariable</a>(sum_casapool, sum_casaflux, arraysize)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/casa_pool.html'>casa_pool</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>sum_casapool</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/casa_flux.html'>casa_flux</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>sum_casaflux</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>arraysize</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-zero_sum_casa"></span><h3>public subroutine <a href='../proc/zero_sum_casa.html'>zero_sum_casa</a>(sum_casapool, sum_casaflux)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/casa_pool.html'>casa_pool</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>sum_casapool</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/casa_flux.html'>casa_flux</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>sum_casaflux</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-update_sum_casa"></span><h3>public subroutine <a href='../proc/update_sum_casa.html'>update_sum_casa</a>(sum_casapool, sum_casaflux, casapool, casaflux, sum_now, average_now, nsteps)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/casa_pool.html'>casa_pool</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>sum_casapool</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/casa_flux.html'>casa_flux</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>sum_casaflux</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/casa_pool.html'>casa_pool</a>),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>casapool</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/casa_flux.html'>casa_flux</a>),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>casaflux</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>logical,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>sum_now</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>logical,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>average_now</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>nsteps</strong></td><td></td>
 </tr>
 </tbody>
 </table>

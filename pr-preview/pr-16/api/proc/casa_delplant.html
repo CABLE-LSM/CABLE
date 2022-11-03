@@ -88,13 +88,13 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.1% of total for procedures.">53 statements</a>
+    title=" 0.2% of total for procedures.">112 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/casa_cnp.F90"> Source File</a></li>
   </ul>
   <ol class="breadcrumb in-well text-right">
      <li><a href='../sourcefile/casa_cnp.f90.html'>casa_cnp.F90</a></li>
-     <li><a href='../module/casa_cnp_module~2.html'>casa_cnp_module</a></li>
+     <li><a href='../module/casa_cnp_module.html'>casa_cnp_module</a></li>
      <li class="active">casa_delplant</li>
   </ol>
 </div>
@@ -120,7 +120,7 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public subroutine casa_delplant(veg, casabiome, casapool, casaflux, casamet)</h2>
+    <h2>public subroutine casa_delplant(veg, casabiome, casapool, casaflux, casamet, cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd, nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd, pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd)</h2>
     
 
 
@@ -129,34 +129,124 @@
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
 <tr>
-  <td><span class="anchor" id="variable-veg~24"></span>type(<a href='../type/veg_parameter_type~2.html'>veg_parameter_type</a>),</td>
+  <td><span class="anchor" id="variable-veg~85"></span>type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>veg</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-casabiome~14"></span>type(<a href='../type/casa_biome.html'>casa_biome</a>),</td>
+  <td><span class="anchor" id="variable-casabiome~24"></span>type(<a href='../type/casa_biome.html'>casa_biome</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>casabiome</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-casapool~10"></span>type(<a href='../type/casa_pool.html'>casa_pool</a>),</td>
+  <td><span class="anchor" id="variable-casapool~27"></span>type(<a href='../type/casa_pool.html'>casa_pool</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>casapool</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-casaflux~12"></span>type(<a href='../type/casa_flux.html'>casa_flux</a>),</td>
+  <td><span class="anchor" id="variable-casaflux~29"></span>type(<a href='../type/casa_flux.html'>casa_flux</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>casaflux</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-casamet~14"></span>type(<a href='../type/casa_met.html'>casa_met</a>),</td>
+  <td><span class="anchor" id="variable-casamet~30"></span>type(<a href='../type/casa_met.html'>casa_met</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>casamet</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-cleaf2met"></span>real,</td>
+<td>intent(out),</td>
+  <td></td>  <td>DIMENSION(mp)</td><td>::</td>
+  <td><strong>cleaf2met</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-cleaf2str"></span>real,</td>
+<td>intent(out),</td>
+  <td></td>  <td>DIMENSION(mp)</td><td>::</td>
+  <td><strong>cleaf2str</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-croot2met"></span>real,</td>
+<td>intent(out),</td>
+  <td></td>  <td>DIMENSION(mp)</td><td>::</td>
+  <td><strong>croot2met</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-croot2str"></span>real,</td>
+<td>intent(out),</td>
+  <td></td>  <td>DIMENSION(mp)</td><td>::</td>
+  <td><strong>croot2str</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-cwood2cwd"></span>real,</td>
+<td>intent(out),</td>
+  <td></td>  <td>DIMENSION(mp)</td><td>::</td>
+  <td><strong>cwood2cwd</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-nleaf2met"></span>real,</td>
+<td>intent(out),</td>
+  <td></td>  <td>DIMENSION(mp)</td><td>::</td>
+  <td><strong>nleaf2met</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-nleaf2str"></span>real,</td>
+<td>intent(out),</td>
+  <td></td>  <td>DIMENSION(mp)</td><td>::</td>
+  <td><strong>nleaf2str</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-nroot2met"></span>real,</td>
+<td>intent(out),</td>
+  <td></td>  <td>DIMENSION(mp)</td><td>::</td>
+  <td><strong>nroot2met</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-nroot2str"></span>real,</td>
+<td>intent(out),</td>
+  <td></td>  <td>DIMENSION(mp)</td><td>::</td>
+  <td><strong>nroot2str</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-nwood2cwd"></span>real,</td>
+<td>intent(out),</td>
+  <td></td>  <td>DIMENSION(mp)</td><td>::</td>
+  <td><strong>nwood2cwd</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-pleaf2met"></span>real,</td>
+<td>intent(out),</td>
+  <td></td>  <td>DIMENSION(mp)</td><td>::</td>
+  <td><strong>pleaf2met</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-pleaf2str"></span>real,</td>
+<td>intent(out),</td>
+  <td></td>  <td>DIMENSION(mp)</td><td>::</td>
+  <td><strong>pleaf2str</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-proot2met"></span>real,</td>
+<td>intent(out),</td>
+  <td></td>  <td>DIMENSION(mp)</td><td>::</td>
+  <td><strong>proot2met</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-proot2str"></span>real,</td>
+<td>intent(out),</td>
+  <td></td>  <td>DIMENSION(mp)</td><td>::</td>
+  <td><strong>proot2str</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-pwood2cwd"></span>real,</td>
+<td>intent(out),</td>
+  <td></td>  <td>DIMENSION(mp)</td><td>::</td>
+  <td><strong>pwood2cwd</strong></td><td></td>
 </tr>
 </tbody>
 </table>
