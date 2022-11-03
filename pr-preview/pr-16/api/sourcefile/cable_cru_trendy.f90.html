@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 1.6% of total for source files.">783 statements</a>
+    title=" 1.4% of total for source files.">783 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/cable_cru_TRENDY.F90"> Source File</a></li>
   </ul>
@@ -239,14 +239,14 @@
 <a id="ln-82" name="ln-82" href="#ln-82"></a>
 <a id="ln-83" name="ln-83" href="#ln-83"></a><span class="k">CONTAINS</span><span class="w"></span>
 <a id="ln-84" name="ln-84" href="#ln-84"></a>
-<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="w">  </span><span class="c">!**************************************************************************************************</span>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="w">  </span><span class="c">!============================================================================</span>
 <a id="ln-86" name="ln-86" href="#ln-86"></a>
 <a id="ln-87" name="ln-87" href="#ln-87"></a><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">CRU_INIT</span><span class="p">(</span><span class="w"> </span><span class="n">CRU</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <a id="ln-88" name="ln-88" href="#ln-88"></a>
 <a id="ln-89" name="ln-89" href="#ln-89"></a><span class="w">    </span><span class="c">! Initialise the contents of the CRU defined type collection, from the CRU namelist file</span>
 <a id="ln-90" name="ln-90" href="#ln-90"></a><span class="w">    </span><span class="c">! and by obtaining dimensions from the landmask</span>
 <a id="ln-91" name="ln-91" href="#ln-91"></a>
-<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">    </span><span class="c">!**************************************************************************************************</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">    </span><span class="c">!===========================================================================</span>
 <a id="ln-93" name="ln-93" href="#ln-93"></a>
 <a id="ln-94" name="ln-94" href="#ln-94"></a><span class="w">    </span><span class="k">USE </span><span class="n">cable_IO_vars_module</span><span class="p">,</span><span class="w"> </span><span class="k">ONLY</span><span class="p">:</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-95" name="ln-95" href="#ln-95"></a><span class="w">         </span><span class="n">latitude</span><span class="p">,</span><span class="w"> </span><span class="n">longitude</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"> </span><span class="c">! (R) Lat and long of landcells only (?)</span>
@@ -616,7 +616,7 @@
 <a id="ln-459" name="ln-459" href="#ln-459"></a>
 <a id="ln-460" name="ln-460" href="#ln-460"></a><span class="k">  END SUBROUTINE </span><span class="n">CRU_GET_FILENAME</span><span class="w"></span>
 <a id="ln-461" name="ln-461" href="#ln-461"></a>
-<a id="ln-462" name="ln-462" href="#ln-462"></a><span class="w">  </span><span class="c">!**************************************************************************************************</span>
+<a id="ln-462" name="ln-462" href="#ln-462"></a><span class="w">  </span><span class="c">!============================================================================</span>
 <a id="ln-463" name="ln-463" href="#ln-463"></a>
 <a id="ln-464" name="ln-464" href="#ln-464"></a><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">GET_CRU_CO2</span><span class="p">(</span><span class="w"> </span><span class="n">CRU</span><span class="p">,</span><span class="w"> </span><span class="n">CO2air</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <a id="ln-465" name="ln-465" href="#ln-465"></a>
@@ -666,7 +666,7 @@
 <a id="ln-509" name="ln-509" href="#ln-509"></a>
 <a id="ln-510" name="ln-510" href="#ln-510"></a><span class="k">  END SUBROUTINE </span><span class="n">GET_CRU_CO2</span><span class="w"></span>
 <a id="ln-511" name="ln-511" href="#ln-511"></a>
-<a id="ln-512" name="ln-512" href="#ln-512"></a><span class="w">  </span><span class="c">!**************************************************************************************************</span>
+<a id="ln-512" name="ln-512" href="#ln-512"></a><span class="w">  </span><span class="c">!============================================================================</span>
 <a id="ln-513" name="ln-513" href="#ln-513"></a>
 <a id="ln-514" name="ln-514" href="#ln-514"></a><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">GET_CRU_Ndep</span><span class="p">(</span><span class="w"> </span><span class="n">CRU</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <a id="ln-515" name="ln-515" href="#ln-515"></a>
@@ -751,7 +751,7 @@
 <a id="ln-594" name="ln-594" href="#ln-594"></a>
 <a id="ln-595" name="ln-595" href="#ln-595"></a><span class="k">  END SUBROUTINE </span><span class="n">GET_CRU_Ndep</span><span class="w"></span>
 <a id="ln-596" name="ln-596" href="#ln-596"></a>
-<a id="ln-597" name="ln-597" href="#ln-597"></a><span class="w">  </span><span class="c">!**************************************************************************************************</span>
+<a id="ln-597" name="ln-597" href="#ln-597"></a><span class="w">  </span><span class="c">!============================================================================</span>
 <a id="ln-598" name="ln-598" href="#ln-598"></a>
 <a id="ln-599" name="ln-599" href="#ln-599"></a><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">OPEN_CRU_MET</span><span class="p">(</span><span class="w"> </span><span class="n">CRU</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <a id="ln-600" name="ln-600" href="#ln-600"></a>
@@ -855,7 +855,7 @@
 <a id="ln-698" name="ln-698" href="#ln-698"></a>
 <a id="ln-699" name="ln-699" href="#ln-699"></a><span class="w">  </span><span class="k">END SUBROUTINE </span><span class="n">OPEN_CRU_MET</span><span class="w"></span>
 <a id="ln-700" name="ln-700" href="#ln-700"></a>
-<a id="ln-701" name="ln-701" href="#ln-701"></a><span class="w">  </span><span class="c">!**************************************************************************************************</span>
+<a id="ln-701" name="ln-701" href="#ln-701"></a><span class="w">  </span><span class="c">!============================================================================</span>
 <a id="ln-702" name="ln-702" href="#ln-702"></a>
 <a id="ln-703" name="ln-703" href="#ln-703"></a><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">CRU_GET_DAILY_MET</span><span class="p">(</span><span class="w"> </span><span class="n">CRU</span><span class="p">,</span><span class="w"> </span><span class="n">LastDayOfYear</span><span class="p">,</span><span class="w"> </span><span class="n">LastYearOfMet</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <a id="ln-704" name="ln-704" href="#ln-704"></a>
@@ -1365,7 +1365,7 @@
 <a id="ln-1208" name="ln-1208" href="#ln-1208"></a>
 <a id="ln-1209" name="ln-1209" href="#ln-1209"></a><span class="w">  </span><span class="k">END SUBROUTINE </span><span class="n">CRU_GET_DAILY_MET</span><span class="w"></span>
 <a id="ln-1210" name="ln-1210" href="#ln-1210"></a>
-<a id="ln-1211" name="ln-1211" href="#ln-1211"></a><span class="w">  </span><span class="c">!**************************************************************************************************</span>
+<a id="ln-1211" name="ln-1211" href="#ln-1211"></a><span class="w">  </span><span class="c">!============================================================================</span>
 <a id="ln-1212" name="ln-1212" href="#ln-1212"></a>
 <a id="ln-1213" name="ln-1213" href="#ln-1213"></a><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">CRU_GET_SUBDIURNAL_MET</span><span class="p">(</span><span class="n">CRU</span><span class="p">,</span><span class="w"> </span><span class="n">MET</span><span class="p">,</span><span class="w"> </span><span class="n">CurYear</span><span class="p">,</span><span class="w"> </span><span class="n">ktau</span><span class="p">,</span><span class="w"> </span><span class="n">kend</span><span class="p">,</span><span class="w"> </span><span class="n">LastYearOfMet</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <a id="ln-1214" name="ln-1214" href="#ln-1214"></a>

@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 3.0% of total for source files.">1515 statements</a>
+    title=" 2.7% of total for source files.">1515 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/POPLUC.F90"> Source File</a></li>
   </ul>
@@ -131,11 +131,9 @@
 
     </div>
     <div class="col-md-9" id='text'>
-      <hr>
-<hr>
-<hr>
+      
       <br>
-<br>
+
     <section class="visible-xs visible-sm hidden-md">
       <h3>Contents</h3>
  
@@ -198,7 +196,7 @@
 <a id="ln-35" name="ln-35" href="#ln-35"></a><span class="c">! History: Vanessa Haverd July 2016</span>
 <a id="ln-36" name="ln-36" href="#ln-36"></a>
 <a id="ln-37" name="ln-37" href="#ln-37"></a><span class="c">! ==============================================================================</span>
-<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="c">!*********************************************************************************</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="c">!===============================================================================</span>
 <a id="ln-39" name="ln-39" href="#ln-39"></a><span class="k">MODULE </span><span class="n">POPLUC_CONSTANTS</span><span class="w"></span>
 <a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">  </span><span class="k">USE </span><span class="n">TYPEdef</span><span class="p">,</span><span class="w"> </span><span class="k">ONLY</span><span class="p">:</span><span class="w"> </span><span class="n">dp</span><span class="p">,</span><span class="w"> </span><span class="n">i4b</span><span class="w"></span>
 <a id="ln-41" name="ln-41" href="#ln-41"></a>
@@ -214,7 +212,7 @@
 <a id="ln-51" name="ln-51" href="#ln-51"></a>
 <a id="ln-52" name="ln-52" href="#ln-52"></a><span class="k">END MODULE </span><span class="n">POPLUC_CONSTANTS</span><span class="w"></span>
 <a id="ln-53" name="ln-53" href="#ln-53"></a>
-<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="c">!*******************************************************************************</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="c">!===============================================================================</span>
 <a id="ln-55" name="ln-55" href="#ln-55"></a><span class="k">MODULE </span><span class="n">POPLUC_Types</span><span class="w"></span>
 <a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">  </span><span class="k">USE </span><span class="n">TYPEdef</span><span class="p">,</span><span class="w"> </span><span class="k">ONLY</span><span class="p">:</span><span class="w"> </span><span class="n">dp</span><span class="p">,</span><span class="w"> </span><span class="n">i4b</span><span class="w"></span>
 <a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">  </span><span class="k">USE </span><span class="n">POPLUC_Constants</span><span class="p">,</span><span class="w"> </span><span class="k">ONLY</span><span class="p">:</span><span class="w"> </span><span class="n">LENGTH_SECDF_HISTORY</span><span class="p">,</span><span class="w"> </span><span class="n">AGE_MAX</span><span class="w"></span>
@@ -244,7 +242,7 @@
 <a id="ln-81" name="ln-81" href="#ln-81"></a><span class="w">  </span><span class="k">END TYPE </span><span class="n">POPLUC_TYPE</span><span class="w"></span>
 <a id="ln-82" name="ln-82" href="#ln-82"></a>
 <a id="ln-83" name="ln-83" href="#ln-83"></a><span class="k">END MODULE </span><span class="n">POPLUC_Types</span><span class="w"></span>
-<a id="ln-84" name="ln-84" href="#ln-84"></a><span class="c">!*******************************************************************************</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a><span class="c">!===============================================================================</span>
 <a id="ln-85" name="ln-85" href="#ln-85"></a>
 <a id="ln-86" name="ln-86" href="#ln-86"></a><span class="k">MODULE </span><span class="n">POPLUC_Module</span><span class="w"></span>
 <a id="ln-87" name="ln-87" href="#ln-87"></a>
@@ -263,7 +261,7 @@
 <a id="ln-100" name="ln-100" href="#ln-100"></a>
 <a id="ln-101" name="ln-101" href="#ln-101"></a><span class="k">CONTAINS</span><span class="w"></span>
 <a id="ln-102" name="ln-102" href="#ln-102"></a>
-<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="w">  </span><span class="c">!*******************************************************************************</span>
+<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="w">  </span><span class="c">!=============================================================================</span>
 <a id="ln-104" name="ln-104" href="#ln-104"></a><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">ZeroPOPLUC</span><span class="p">(</span><span class="n">POPLUC</span><span class="p">)</span><span class="w"></span>
 <a id="ln-105" name="ln-105" href="#ln-105"></a><span class="w">    </span><span class="k">TYPE</span><span class="p">(</span><span class="n">POPLUC_TYPE</span><span class="p">),</span><span class="w"> </span><span class="k">INTENT</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">POPLUC</span><span class="w"></span>
 <a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">    </span><span class="kt">INTEGER</span><span class="kd">::</span><span class="w"> </span><span class="n">g</span><span class="p">,</span><span class="n">np</span><span class="w"></span>
@@ -308,7 +306,7 @@
 <a id="ln-145" name="ln-145" href="#ln-145"></a>
 <a id="ln-146" name="ln-146" href="#ln-146"></a>
 <a id="ln-147" name="ln-147" href="#ln-147"></a><span class="w">  </span><span class="k">END SUBROUTINE </span><span class="n">ZeroPOPLUC</span><span class="w"></span>
-<a id="ln-148" name="ln-148" href="#ln-148"></a><span class="w">  </span><span class="c">!*******************************************************************************</span>
+<a id="ln-148" name="ln-148" href="#ln-148"></a><span class="w">  </span><span class="c">!============================================================================</span>
 <a id="ln-149" name="ln-149" href="#ln-149"></a>
 <a id="ln-150" name="ln-150" href="#ln-150"></a><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">execute_luc_event</span><span class="p">(</span><span class="n">from_state</span><span class="p">,</span><span class="n">to_state</span><span class="p">,</span><span class="n">frac_change_grid</span><span class="p">,</span><span class="n">g</span><span class="p">,</span><span class="n">POPLUC</span><span class="p">)</span><span class="w"></span>
 <a id="ln-151" name="ln-151" href="#ln-151"></a><span class="w">    </span><span class="c">! Execute a transition between land use types (states)</span>
@@ -409,7 +407,7 @@
 <a id="ln-246" name="ln-246" href="#ln-246"></a><span class="k">  ENDSUBROUTINE </span><span class="n">execute_luc_event</span><span class="w"></span>
 <a id="ln-247" name="ln-247" href="#ln-247"></a>
 <a id="ln-248" name="ln-248" href="#ln-248"></a>
-<a id="ln-249" name="ln-249" href="#ln-249"></a><span class="w">  </span><span class="c">!*******************************************************************************</span>
+<a id="ln-249" name="ln-249" href="#ln-249"></a><span class="w">  </span><span class="c">!============================================================================</span>
 <a id="ln-250" name="ln-250" href="#ln-250"></a><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">CALCULATE_WEIGHTS</span><span class="p">(</span><span class="n">POPLUC</span><span class="p">,</span><span class="w"> </span><span class="n">g</span><span class="p">)</span><span class="w"></span>
 <a id="ln-251" name="ln-251" href="#ln-251"></a><span class="w">    </span><span class="c">! Calculates weights (fraction of total forest area on grid cell)</span>
 <a id="ln-252" name="ln-252" href="#ln-252"></a><span class="w">    </span><span class="c">!for primary and secondary forest stands up to specified maximum stand age</span>
@@ -446,7 +444,7 @@
 <a id="ln-283" name="ln-283" href="#ln-283"></a>
 <a id="ln-284" name="ln-284" href="#ln-284"></a>
 <a id="ln-285" name="ln-285" href="#ln-285"></a><span class="k">  END SUBROUTINE </span><span class="n">CALCULATE_WEIGHTS</span><span class="w"></span>
-<a id="ln-286" name="ln-286" href="#ln-286"></a><span class="w">  </span><span class="c">!*******************************************************************************</span>
+<a id="ln-286" name="ln-286" href="#ln-286"></a><span class="w">  </span><span class="c">!============================================================================</span>
 <a id="ln-287" name="ln-287" href="#ln-287"></a><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">INCREMENT_AGE</span><span class="p">(</span><span class="n">POPLUC</span><span class="p">,</span><span class="n">g</span><span class="p">)</span><span class="w"></span>
 <a id="ln-288" name="ln-288" href="#ln-288"></a>
 <a id="ln-289" name="ln-289" href="#ln-289"></a><span class="w">    </span><span class="k">IMPLICIT NONE</span>
@@ -504,7 +502,7 @@
 <a id="ln-341" name="ln-341" href="#ln-341"></a>
 <a id="ln-342" name="ln-342" href="#ln-342"></a>
 <a id="ln-343" name="ln-343" href="#ln-343"></a><span class="k">  END SUBROUTINE </span><span class="n">INCREMENT_AGE</span><span class="w"></span>
-<a id="ln-344" name="ln-344" href="#ln-344"></a><span class="w">  </span><span class="c">!*******************************************************************************</span>
+<a id="ln-344" name="ln-344" href="#ln-344"></a><span class="w">  </span><span class="c">!============================================================================</span>
 <a id="ln-345" name="ln-345" href="#ln-345"></a><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">POPLUCStep</span><span class="p">(</span><span class="n">POPLUC</span><span class="p">,</span><span class="n">year</span><span class="p">)</span><span class="w"></span>
 <a id="ln-346" name="ln-346" href="#ln-346"></a><span class="w">    </span><span class="k">IMPLICIT NONE</span>
 <a id="ln-347" name="ln-347" href="#ln-347"></a><span class="k">    TYPE</span><span class="p">(</span><span class="n">POPLUC_TYPE</span><span class="p">),</span><span class="w"> </span><span class="k">INTENT</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">POPLUC</span><span class="w"></span>
@@ -550,7 +548,7 @@
 <a id="ln-387" name="ln-387" href="#ln-387"></a><span class="k">    ENDIF</span>
 <a id="ln-388" name="ln-388" href="#ln-388"></a>
 <a id="ln-389" name="ln-389" href="#ln-389"></a><span class="k">  END SUBROUTINE </span><span class="n">POPLUCStep</span><span class="w"></span>
-<a id="ln-390" name="ln-390" href="#ln-390"></a><span class="w">  </span><span class="c">!*******************************************************************************</span>
+<a id="ln-390" name="ln-390" href="#ln-390"></a><span class="w">  </span><span class="c">!=============================================================================</span>
 <a id="ln-391" name="ln-391" href="#ln-391"></a><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">POPLUC_weights_transfer</span><span class="p">(</span><span class="n">POPLUC</span><span class="p">,</span><span class="n">POP</span><span class="p">,</span><span class="n">LUC_EXPT</span><span class="p">)</span><span class="w"></span>
 <a id="ln-392" name="ln-392" href="#ln-392"></a>
 <a id="ln-393" name="ln-393" href="#ln-393"></a><span class="w">    </span><span class="c">!-------------------------------------------------------------------------------</span>
@@ -584,7 +582,7 @@
 <a id="ln-421" name="ln-421" href="#ln-421"></a><span class="k">    DEALLOCATE</span><span class="w"> </span><span class="p">(</span><span class="n">freq_age</span><span class="p">)</span><span class="w"></span>
 <a id="ln-422" name="ln-422" href="#ln-422"></a>
 <a id="ln-423" name="ln-423" href="#ln-423"></a><span class="w">  </span><span class="k">END SUBROUTINE </span><span class="n">POPLUC_weights_transfer</span><span class="w"></span>
-<a id="ln-424" name="ln-424" href="#ln-424"></a><span class="w">  </span><span class="c">!*******************************************************************************</span>
+<a id="ln-424" name="ln-424" href="#ln-424"></a><span class="w">  </span><span class="c">!=============================================================================</span>
 <a id="ln-425" name="ln-425" href="#ln-425"></a><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">POP_LUC_CASA_transfer</span><span class="p">(</span><span class="n">POPLUC</span><span class="p">,</span><span class="n">POP</span><span class="p">,</span><span class="n">LUC_EXPT</span><span class="p">,</span><span class="n">casapool</span><span class="p">,</span><span class="n">casabal</span><span class="p">,</span><span class="n">casaflux</span><span class="p">,</span><span class="n">ktauday</span><span class="p">)</span><span class="w"></span>
 <a id="ln-426" name="ln-426" href="#ln-426"></a>
 <a id="ln-427" name="ln-427" href="#ln-427"></a><span class="w">    </span><span class="c">!-------------------------------------------------------------------------------</span>
@@ -1211,7 +1209,7 @@
 <a id="ln-1048" name="ln-1048" href="#ln-1048"></a>
 <a id="ln-1049" name="ln-1049" href="#ln-1049"></a>
 <a id="ln-1050" name="ln-1050" href="#ln-1050"></a><span class="w">  </span><span class="k">END SUBROUTINE </span><span class="n">POP_LUC_CASA_transfer</span><span class="w"></span>
-<a id="ln-1051" name="ln-1051" href="#ln-1051"></a><span class="w">  </span><span class="c">!*******************************************************************************</span>
+<a id="ln-1051" name="ln-1051" href="#ln-1051"></a><span class="w">  </span><span class="c">!============================================================================</span>
 <a id="ln-1052" name="ln-1052" href="#ln-1052"></a><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">POPLUC_Init</span><span class="p">(</span><span class="n">POPLUC</span><span class="p">,</span><span class="n">LUC_EXPT</span><span class="p">,</span><span class="w"> </span><span class="n">casapool</span><span class="p">,</span><span class="w"> </span><span class="n">casaflux</span><span class="p">,</span><span class="w"> </span><span class="n">casabiome</span><span class="p">,</span><span class="w"> </span><span class="n">veg</span><span class="p">,</span><span class="w"> </span><span class="n">POP</span><span class="p">,</span><span class="w"> </span><span class="n">np</span><span class="p">)</span><span class="w"></span>
 <a id="ln-1053" name="ln-1053" href="#ln-1053"></a><span class="w">    </span><span class="k">USE </span><span class="n">cable_def_types_mod</span><span class="p">,</span><span class="w"> </span><span class="k">ONLY</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">veg_parameter_type</span><span class="w"></span>
 <a id="ln-1054" name="ln-1054" href="#ln-1054"></a><span class="w">    </span><span class="k">USE </span><span class="n">casaparm</span><span class="p">,</span><span class="w"> </span><span class="k">ONLY</span><span class="p">:</span><span class="w"> </span><span class="n">LEAF</span><span class="p">,</span><span class="w"> </span><span class="n">WOOD</span><span class="p">,</span><span class="w"> </span><span class="n">FROOT</span><span class="w"></span>
@@ -1303,7 +1301,7 @@
 <a id="ln-1140" name="ln-1140" href="#ln-1140"></a>
 <a id="ln-1141" name="ln-1141" href="#ln-1141"></a>
 <a id="ln-1142" name="ln-1142" href="#ln-1142"></a><span class="k">  END SUBROUTINE </span><span class="n">POPLUC_Init</span><span class="w"></span>
-<a id="ln-1143" name="ln-1143" href="#ln-1143"></a><span class="w">  </span><span class="c">!*******************************************************************************</span>
+<a id="ln-1143" name="ln-1143" href="#ln-1143"></a><span class="w">  </span><span class="c">!============================================================================</span>
 <a id="ln-1144" name="ln-1144" href="#ln-1144"></a><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">POPLUC_set_patchfrac</span><span class="p">(</span><span class="n">POPLUC</span><span class="p">,</span><span class="n">LUC_EXPT</span><span class="p">)</span><span class="w"></span>
 <a id="ln-1145" name="ln-1145" href="#ln-1145"></a><span class="w">    </span><span class="k">IMPLICIT NONE</span>
 <a id="ln-1146" name="ln-1146" href="#ln-1146"></a><span class="k">    TYPE</span><span class="p">(</span><span class="n">POPLUC_TYPE</span><span class="p">),</span><span class="w"> </span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">POPLUC</span><span class="w"></span>
@@ -1322,7 +1320,7 @@
 <a id="ln-1159" name="ln-1159" href="#ln-1159"></a>
 <a id="ln-1160" name="ln-1160" href="#ln-1160"></a>
 <a id="ln-1161" name="ln-1161" href="#ln-1161"></a><span class="k">  END SUBROUTINE </span><span class="n">POPLUC_SET_PATCHFRAC</span><span class="w"></span>
-<a id="ln-1162" name="ln-1162" href="#ln-1162"></a><span class="w">  </span><span class="c">!*******************************************************************************</span>
+<a id="ln-1162" name="ln-1162" href="#ln-1162"></a><span class="w">  </span><span class="c">!============================================================================</span>
 <a id="ln-1163" name="ln-1163" href="#ln-1163"></a><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">POPLUC_set_params</span><span class="p">(</span><span class="n">POPLUC</span><span class="p">,</span><span class="n">LUC_EXPT</span><span class="p">)</span><span class="w"></span>
 <a id="ln-1164" name="ln-1164" href="#ln-1164"></a><span class="w">    </span><span class="k">IMPLICIT NONE</span>
 <a id="ln-1165" name="ln-1165" href="#ln-1165"></a><span class="k">    TYPE</span><span class="p">(</span><span class="n">POPLUC_TYPE</span><span class="p">),</span><span class="w"> </span><span class="k">INTENT</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">POPLUC</span><span class="w"></span>
@@ -1410,7 +1408,7 @@
 <a id="ln-1247" name="ln-1247" href="#ln-1247"></a><span class="k">    ENDDO</span>
 <a id="ln-1248" name="ln-1248" href="#ln-1248"></a>
 <a id="ln-1249" name="ln-1249" href="#ln-1249"></a><span class="k">  END SUBROUTINE </span><span class="n">POPLUC_SET_PARAMS</span><span class="w"></span>
-<a id="ln-1250" name="ln-1250" href="#ln-1250"></a><span class="w">  </span><span class="c">!*******************************************************************************</span>
+<a id="ln-1250" name="ln-1250" href="#ln-1250"></a><span class="w">  </span><span class="c">!=============================================================================</span>
 <a id="ln-1251" name="ln-1251" href="#ln-1251"></a><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">alloc_POPLUC</span><span class="p">(</span><span class="n">POPLUC</span><span class="p">,</span><span class="w"> </span><span class="n">arraysize</span><span class="p">)</span><span class="w"></span>
 <a id="ln-1252" name="ln-1252" href="#ln-1252"></a><span class="w">    </span><span class="k">IMPLICIT NONE</span>
 <a id="ln-1253" name="ln-1253" href="#ln-1253"></a><span class="k">    TYPE</span><span class="p">(</span><span class="n">POPLUC_TYPE</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">POPLUC</span><span class="w"></span>
@@ -1463,7 +1461,7 @@
 <a id="ln-1300" name="ln-1300" href="#ln-1300"></a><span class="w">    </span><span class="k">ALLOCATE</span><span class="p">(</span><span class="n">POPLUC</span><span class="p">%</span><span class="n">fracClearResid</span><span class="p">(</span><span class="n">arraysize</span><span class="p">))</span><span class="w"></span>
 <a id="ln-1301" name="ln-1301" href="#ln-1301"></a>
 <a id="ln-1302" name="ln-1302" href="#ln-1302"></a><span class="w">  </span><span class="k">END SUBROUTINE </span><span class="n">alloc_POPLUC</span><span class="w"></span>
-<a id="ln-1303" name="ln-1303" href="#ln-1303"></a><span class="w">  </span><span class="c">!*******************************************************************************</span>
+<a id="ln-1303" name="ln-1303" href="#ln-1303"></a><span class="w">  </span><span class="c">!=============================================================================</span>
 <a id="ln-1304" name="ln-1304" href="#ln-1304"></a><span class="w">  </span><span class="c">! Exponential distribution</span>
 <a id="ln-1305" name="ln-1305" href="#ln-1305"></a><span class="w">  </span><span class="c">! Returns probability of a given time-between-events (x)</span>
 <a id="ln-1306" name="ln-1306" href="#ln-1306"></a><span class="w">  </span><span class="c">! Given a Poisson process with expected frequency (events per unit time) lambda</span>
@@ -1485,7 +1483,7 @@
 <a id="ln-1322" name="ln-1322" href="#ln-1322"></a><span class="k">  END FUNCTION </span><span class="n">REALExponential</span><span class="w"></span>
 <a id="ln-1323" name="ln-1323" href="#ln-1323"></a>
 <a id="ln-1324" name="ln-1324" href="#ln-1324"></a>
-<a id="ln-1325" name="ln-1325" href="#ln-1325"></a><span class="w">  </span><span class="c">!*******************************************************************************</span>
+<a id="ln-1325" name="ln-1325" href="#ln-1325"></a><span class="w">  </span><span class="c">!=============================================================================</span>
 <a id="ln-1326" name="ln-1326" href="#ln-1326"></a><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">WRITE_LUC_OUTPUT_NC</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">POPLUC</span><span class="p">,</span><span class="w"> </span><span class="nb">ctime</span><span class="p">,</span><span class="w"> </span><span class="k">FINAL</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <a id="ln-1327" name="ln-1327" href="#ln-1327"></a>
 <a id="ln-1328" name="ln-1328" href="#ln-1328"></a><span class="w">    </span><span class="k">USE </span><span class="n">CABLE_COMMON_MODULE</span><span class="p">,</span><span class="w"> </span><span class="k">ONLY</span><span class="p">:</span><span class="w">  </span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="n">cable_user</span><span class="w"></span>
@@ -1810,7 +1808,7 @@
 <a id="ln-1647" name="ln-1647" href="#ln-1647"></a><span class="w">    </span><span class="k">ENDIF</span>
 <a id="ln-1648" name="ln-1648" href="#ln-1648"></a>
 <a id="ln-1649" name="ln-1649" href="#ln-1649"></a><span class="k">  END SUBROUTINE </span><span class="n">WRITE_LUC_OUTPUT_NC</span><span class="w"></span>
-<a id="ln-1650" name="ln-1650" href="#ln-1650"></a><span class="w">  </span><span class="c">!************************************************************************************************************************************</span>
+<a id="ln-1650" name="ln-1650" href="#ln-1650"></a><span class="w">  </span><span class="c">!=============================================================================</span>
 <a id="ln-1651" name="ln-1651" href="#ln-1651"></a><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">WRITE_LUC_RESTART_NC</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">POPLUC</span><span class="p">,</span><span class="w"> </span><span class="nb">ctime</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <a id="ln-1652" name="ln-1652" href="#ln-1652"></a>
 <a id="ln-1653" name="ln-1653" href="#ln-1653"></a><span class="w">    </span><span class="k">USE </span><span class="n">CABLE_COMMON_MODULE</span><span class="p">,</span><span class="w"> </span><span class="k">ONLY</span><span class="p">:</span><span class="w">  </span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="n">cable_user</span><span class="w"></span>
@@ -1951,7 +1949,7 @@
 <a id="ln-1788" name="ln-1788" href="#ln-1788"></a>
 <a id="ln-1789" name="ln-1789" href="#ln-1789"></a>
 <a id="ln-1790" name="ln-1790" href="#ln-1790"></a><span class="w">  </span><span class="k">END SUBROUTINE </span><span class="n">WRITE_LUC_RESTART_NC</span><span class="w"></span>
-<a id="ln-1791" name="ln-1791" href="#ln-1791"></a><span class="w">  </span><span class="c">!*******************************************************************************</span>
+<a id="ln-1791" name="ln-1791" href="#ln-1791"></a><span class="w">  </span><span class="c">!=============================================================================</span>
 <a id="ln-1792" name="ln-1792" href="#ln-1792"></a><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">READ_LUC_RESTART_NC</span><span class="w"> </span><span class="p">(</span><span class="n">POPLUC</span><span class="p">)</span><span class="w"></span>
 <a id="ln-1793" name="ln-1793" href="#ln-1793"></a><span class="w">    </span><span class="k">USE </span><span class="n">CABLE_COMMON_MODULE</span><span class="p">,</span><span class="w"> </span><span class="k">ONLY</span><span class="p">:</span><span class="w">  </span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="n">cable_user</span><span class="w"></span>
 <a id="ln-1794" name="ln-1794" href="#ln-1794"></a><span class="w">     </span><span class="k">USE </span><span class="n">casa_ncdf_module</span><span class="p">,</span><span class="w"> </span><span class="k">ONLY</span><span class="p">:</span><span class="w"> </span><span class="n">HANDLE_ERR</span><span class="w"></span>
@@ -2067,7 +2065,7 @@
 <a id="ln-1904" name="ln-1904" href="#ln-1904"></a><span class="k">    </span><span class="n">STATUS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_CLOSE</span><span class="p">(</span><span class="w"> </span><span class="n">FILE_ID</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <a id="ln-1905" name="ln-1905" href="#ln-1905"></a>
 <a id="ln-1906" name="ln-1906" href="#ln-1906"></a><span class="w">  </span><span class="k">END SUBROUTINE </span><span class="n">READ_LUC_RESTART_NC</span><span class="w"></span>
-<a id="ln-1907" name="ln-1907" href="#ln-1907"></a><span class="w">  </span><span class="c">!*******************************************************************************</span>
+<a id="ln-1907" name="ln-1907" href="#ln-1907"></a><span class="w">  </span><span class="c">!============================================================================</span>
 <a id="ln-1908" name="ln-1908" href="#ln-1908"></a><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">WRITE_LUC_OUTPUT_GRID_NC</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">POPLUC</span><span class="p">,</span><span class="w"> </span><span class="nb">ctime</span><span class="p">,</span><span class="w"> </span><span class="k">FINAL</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <a id="ln-1909" name="ln-1909" href="#ln-1909"></a>
 <a id="ln-1910" name="ln-1910" href="#ln-1910"></a><span class="w">    </span><span class="k">USE </span><span class="n">cable_IO_vars_module</span><span class="p">,</span><span class="w"> </span><span class="k">ONLY</span><span class="p">:</span><span class="w"> </span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="n">xdimsize</span><span class="p">,</span><span class="w"> </span><span class="n">ydimsize</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="n">lat_all</span><span class="p">,</span><span class="w"> </span><span class="n">lon_all</span><span class="w"></span>
@@ -2591,7 +2589,7 @@
 <a id="ln-2428" name="ln-2428" href="#ln-2428"></a><span class="w">    </span><span class="k">ENDIF</span>
 <a id="ln-2429" name="ln-2429" href="#ln-2429"></a>
 <a id="ln-2430" name="ln-2430" href="#ln-2430"></a><span class="k">  END SUBROUTINE </span><span class="n">WRITE_LUC_OUTPUT_GRID_NC</span><span class="w"></span>
-<a id="ln-2431" name="ln-2431" href="#ln-2431"></a><span class="w">  </span><span class="c">!************************************************************************************************************************************</span>
+<a id="ln-2431" name="ln-2431" href="#ln-2431"></a><span class="w">  </span><span class="c">!=============================================================================</span>
 <a id="ln-2432" name="ln-2432" href="#ln-2432"></a>
 <a id="ln-2433" name="ln-2433" href="#ln-2433"></a>
 <a id="ln-2434" name="ln-2434" href="#ln-2434"></a>

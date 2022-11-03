@@ -6693,7 +6693,7 @@ USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
        CALL MPI_Get_address (casabal%FPlossyear(off), displs(bidx), ierr)
        blocks(bidx) = r2len
 
-       !*****************************
+       !=======================
        bidx = bidx + 1
        CALL MPI_Get_address (casaflux%Cgpp(off), displs(bidx), ierr)
        blocks(bidx) = r2len
@@ -6769,7 +6769,7 @@ USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
        bidx = bidx + 1
        CALL MPI_Get_address (casaflux%Nsnet(off), displs(bidx), ierr)
        blocks(bidx) = r2len
-       !****************************************************
+       !==================================
 
        bidx = bidx + 1
        CALL MPI_Get_address (casaflux%frac_sapwood(off), displs(bidx), ierr)
@@ -7596,7 +7596,7 @@ USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
             types(bidx), ierr)
        blocks(bidx) = 1
 
-       !****************************************************************
+       !===========================
        ! phen fields
 
 
@@ -7616,14 +7616,14 @@ USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
        ! CALL MPI_Get_address (climate%mtemp_max(off), displs(bidx), ierr)
        ! blocks(bidx) = r1len
 
-       !****************************************************************
+       !==============================
        ! Ndep
        bidx = bidx + 1
        CALL MPI_Get_address (casaflux%Nmindep(off), displs(bidx), ierr)
        blocks(bidx) = r2len
 
 
-       !******************************************************************
+       !===============================
 
 
        ! MPI: sanity check
@@ -8327,7 +8327,8 @@ USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
 
 
   END SUBROUTINE master_spincasacnp
-  !*********************************************************************************************
+  !============================================================================
+
   SUBROUTINE master_CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
        casaflux,casamet,casabal,phen,POP,climate,LALLOC,LUC_EXPT, POPLUC, &
        icomm, ocomm )
@@ -8628,7 +8629,7 @@ USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
 
   END SUBROUTINE master_CASAONLY_LUC
 
-  !********************************************************************************************************
+  !============================================================================
   ! subroutine for reading LU input data, zeroing biomass in empty secondary forest tiles
   ! and tranferring LUC-based age weights for secondary forest to POP structure
 
@@ -8725,6 +8726,6 @@ USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
     CALL POPLUC_weights_transfer(POPLUC,POP,LUC_EXPT)
 
   END SUBROUTINE LUCdriver
-  !*********************************************************************************************************
+  !============================================================================
 
 END MODULE cable_mpimaster

@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 8.5% of total for source files.">4262 statements</a>
+    title=" 7.5% of total for source files.">4262 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/cable_mpiworker.F90"> Source File</a></li>
   </ul>
@@ -6414,7 +6414,7 @@
 <a id="ln-6257" name="ln-6257" href="#ln-6257"></a><span class="w">    </span><span class="n">bidx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bidx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 <a id="ln-6258" name="ln-6258" href="#ln-6258"></a><span class="w">    </span><span class="k">CALL </span><span class="n">MPI_Get_address</span><span class="w"> </span><span class="p">(</span><span class="n">casabal</span><span class="p">%</span><span class="n">FPlossyear</span><span class="p">(</span><span class="n">off</span><span class="p">),</span><span class="w"> </span><span class="n">displs</span><span class="p">(</span><span class="n">bidx</span><span class="p">),</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"></span>
 <a id="ln-6259" name="ln-6259" href="#ln-6259"></a><span class="w">    </span><span class="n">blocks</span><span class="p">(</span><span class="n">bidx</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">r2len</span><span class="w"></span>
-<a id="ln-6260" name="ln-6260" href="#ln-6260"></a><span class="w">    </span><span class="c">!*****************************</span>
+<a id="ln-6260" name="ln-6260" href="#ln-6260"></a><span class="w">    </span><span class="c">!===========================</span>
 <a id="ln-6261" name="ln-6261" href="#ln-6261"></a><span class="w">    </span><span class="n">bidx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bidx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 <a id="ln-6262" name="ln-6262" href="#ln-6262"></a><span class="w">    </span><span class="k">CALL </span><span class="n">MPI_Get_address</span><span class="w"> </span><span class="p">(</span><span class="n">casaflux</span><span class="p">%</span><span class="n">Cgpp</span><span class="p">(</span><span class="n">off</span><span class="p">),</span><span class="w"> </span><span class="n">displs</span><span class="p">(</span><span class="n">bidx</span><span class="p">),</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"></span>
 <a id="ln-6263" name="ln-6263" href="#ln-6263"></a><span class="w">    </span><span class="n">blocks</span><span class="p">(</span><span class="n">bidx</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">r2len</span><span class="w"></span>
@@ -6491,7 +6491,7 @@
 <a id="ln-6334" name="ln-6334" href="#ln-6334"></a><span class="w">    </span><span class="k">CALL </span><span class="n">MPI_Get_address</span><span class="w"> </span><span class="p">(</span><span class="n">casaflux</span><span class="p">%</span><span class="n">Nsnet</span><span class="p">(</span><span class="n">off</span><span class="p">),</span><span class="w"> </span><span class="n">displs</span><span class="p">(</span><span class="n">bidx</span><span class="p">),</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"></span>
 <a id="ln-6335" name="ln-6335" href="#ln-6335"></a><span class="w">    </span><span class="n">blocks</span><span class="p">(</span><span class="n">bidx</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">r2len</span><span class="w"></span>
 <a id="ln-6336" name="ln-6336" href="#ln-6336"></a>
-<a id="ln-6337" name="ln-6337" href="#ln-6337"></a><span class="w">    </span><span class="c">!*****************************</span>
+<a id="ln-6337" name="ln-6337" href="#ln-6337"></a><span class="w">    </span><span class="c">!============================</span>
 <a id="ln-6338" name="ln-6338" href="#ln-6338"></a><span class="w">    </span><span class="n">bidx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bidx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 <a id="ln-6339" name="ln-6339" href="#ln-6339"></a><span class="w">    </span><span class="k">CALL </span><span class="n">MPI_Get_address</span><span class="w"> </span><span class="p">(</span><span class="n">casaflux</span><span class="p">%</span><span class="n">frac_sapwood</span><span class="p">(</span><span class="n">off</span><span class="p">),</span><span class="w"> </span><span class="n">displs</span><span class="p">(</span><span class="n">bidx</span><span class="p">),</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"></span>
 <a id="ln-6340" name="ln-6340" href="#ln-6340"></a><span class="w">    </span><span class="n">blocks</span><span class="p">(</span><span class="n">bidx</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">r2len</span><span class="w"></span>
@@ -7039,7 +7039,7 @@
 <a id="ln-6882" name="ln-6882" href="#ln-6882"></a>
 <a id="ln-6883" name="ln-6883" href="#ln-6883"></a>
 <a id="ln-6884" name="ln-6884" href="#ln-6884"></a>
-<a id="ln-6885" name="ln-6885" href="#ln-6885"></a><span class="w">    </span><span class="c">!****************************************************************</span>
+<a id="ln-6885" name="ln-6885" href="#ln-6885"></a><span class="w">    </span><span class="c">!=================================</span>
 <a id="ln-6886" name="ln-6886" href="#ln-6886"></a><span class="w">    </span><span class="c">! phen fields</span>
 <a id="ln-6887" name="ln-6887" href="#ln-6887"></a>
 <a id="ln-6888" name="ln-6888" href="#ln-6888"></a>
@@ -7057,14 +7057,14 @@
 <a id="ln-6900" name="ln-6900" href="#ln-6900"></a><span class="w">    </span><span class="c">! CALL MPI_Get_address (climate%mtemp_max, displs(bidx), ierr)</span>
 <a id="ln-6901" name="ln-6901" href="#ln-6901"></a><span class="w">    </span><span class="c">! blen(bidx) = r1len</span>
 <a id="ln-6902" name="ln-6902" href="#ln-6902"></a>
-<a id="ln-6903" name="ln-6903" href="#ln-6903"></a><span class="w">    </span><span class="c">!****************************************************************</span>
+<a id="ln-6903" name="ln-6903" href="#ln-6903"></a><span class="w">    </span><span class="c">!==================================</span>
 <a id="ln-6904" name="ln-6904" href="#ln-6904"></a><span class="w">    </span><span class="c">! Ndep</span>
 <a id="ln-6905" name="ln-6905" href="#ln-6905"></a><span class="w">    </span><span class="n">bidx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bidx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 <a id="ln-6906" name="ln-6906" href="#ln-6906"></a><span class="w">    </span><span class="k">CALL </span><span class="n">MPI_Get_address</span><span class="w"> </span><span class="p">(</span><span class="n">casaflux</span><span class="p">%</span><span class="n">Nmindep</span><span class="p">,</span><span class="w"> </span><span class="n">displs</span><span class="p">(</span><span class="n">bidx</span><span class="p">),</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"></span>
 <a id="ln-6907" name="ln-6907" href="#ln-6907"></a><span class="w">    </span><span class="n">blen</span><span class="p">(</span><span class="n">bidx</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">r2len</span><span class="w"></span>
 <a id="ln-6908" name="ln-6908" href="#ln-6908"></a>
 <a id="ln-6909" name="ln-6909" href="#ln-6909"></a>
-<a id="ln-6910" name="ln-6910" href="#ln-6910"></a><span class="w">    </span><span class="c">!******************************************************************</span>
+<a id="ln-6910" name="ln-6910" href="#ln-6910"></a><span class="w">    </span><span class="c">!==================================</span>
 <a id="ln-6911" name="ln-6911" href="#ln-6911"></a>
 <a id="ln-6912" name="ln-6912" href="#ln-6912"></a>
 <a id="ln-6913" name="ln-6913" href="#ln-6913"></a><span class="w">    </span><span class="c">! MPI: sanity check</span>
@@ -7362,7 +7362,7 @@
 <a id="ln-7205" name="ln-7205" href="#ln-7205"></a><span class="k">  END SUBROUTINE </span><span class="n">worker_end</span><span class="w"></span>
 <a id="ln-7206" name="ln-7206" href="#ln-7206"></a>
 <a id="ln-7207" name="ln-7207" href="#ln-7207"></a>
-<a id="ln-7208" name="ln-7208" href="#ln-7208"></a><span class="w">  </span><span class="c">!*********************************************************************************************</span>
+<a id="ln-7208" name="ln-7208" href="#ln-7208"></a><span class="w">  </span><span class="c">!==================================</span>
 <a id="ln-7209" name="ln-7209" href="#ln-7209"></a>
 <a id="ln-7210" name="ln-7210" href="#ln-7210"></a><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">worker_spincasacnp</span><span class="p">(</span><span class="w"> </span><span class="n">dels</span><span class="p">,</span><span class="n">kstart</span><span class="p">,</span><span class="n">kend</span><span class="p">,</span><span class="n">mloop</span><span class="p">,</span><span class="n">veg</span><span class="p">,</span><span class="n">soil</span><span class="p">,</span><span class="n">casabiome</span><span class="p">,</span><span class="n">casapool</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-7211" name="ln-7211" href="#ln-7211"></a><span class="w">       </span><span class="n">casaflux</span><span class="p">,</span><span class="n">casamet</span><span class="p">,</span><span class="n">casabal</span><span class="p">,</span><span class="n">phen</span><span class="p">,</span><span class="n">POP</span><span class="p">,</span><span class="n">climate</span><span class="p">,</span><span class="n">LALLOC</span><span class="p">,</span><span class="w">  </span><span class="n">icomm</span><span class="p">,</span><span class="w"> </span><span class="n">ocomm</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
@@ -7731,7 +7731,7 @@
 <a id="ln-7574" name="ln-7574" href="#ln-7574"></a>
 <a id="ln-7575" name="ln-7575" href="#ln-7575"></a><span class="w">  </span><span class="k">END SUBROUTINE </span><span class="n">worker_spincasacnp</span><span class="w"></span>
 <a id="ln-7576" name="ln-7576" href="#ln-7576"></a>
-<a id="ln-7577" name="ln-7577" href="#ln-7577"></a><span class="w">  </span><span class="c">!*********************************************************************************************</span>
+<a id="ln-7577" name="ln-7577" href="#ln-7577"></a><span class="w">  </span><span class="c">!==================================</span>
 <a id="ln-7578" name="ln-7578" href="#ln-7578"></a>
 <a id="ln-7579" name="ln-7579" href="#ln-7579"></a><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">worker_CASAONLY_LUC</span><span class="p">(</span><span class="w"> </span><span class="n">dels</span><span class="p">,</span><span class="n">kstart</span><span class="p">,</span><span class="n">kend</span><span class="p">,</span><span class="n">veg</span><span class="p">,</span><span class="n">soil</span><span class="p">,</span><span class="n">casabiome</span><span class="p">,</span><span class="n">casapool</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-7580" name="ln-7580" href="#ln-7580"></a><span class="w">       </span><span class="n">casaflux</span><span class="p">,</span><span class="n">casamet</span><span class="p">,</span><span class="n">casabal</span><span class="p">,</span><span class="n">phen</span><span class="p">,</span><span class="n">POP</span><span class="p">,</span><span class="n">climate</span><span class="p">,</span><span class="n">LALLOC</span><span class="p">,</span><span class="w">  </span><span class="n">icomm</span><span class="p">,</span><span class="w"> </span><span class="n">ocomm</span><span class="w"> </span><span class="p">)</span><span class="w"></span>

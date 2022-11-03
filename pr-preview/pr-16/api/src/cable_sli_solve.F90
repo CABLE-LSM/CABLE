@@ -2552,7 +2552,7 @@ CONTAINS
 
   END SUBROUTINE get_and_solve_eqn
 
-  !*********************************************************************************************************************
+  !=============================================================================
 
   SUBROUTINE timestep_loop( &
        tfin, irec, mp, qprec, qprec_snow, n, dx, h0, S, thetai, Jsensible, Tsoil, evap, runoff, infil, &
@@ -3657,7 +3657,7 @@ CONTAINS
 
   END SUBROUTINE solve
 
-  !*********************************************************************************************************************
+  !=============================================================================
 
   ! SUBROUTINE solute(ti,tf,thi,thf,win,cin,n,ns,dx,jt,dsmmax,sm,sdrn,nssteps,c, &
   !      isosub)
@@ -3818,7 +3818,7 @@ CONTAINS
   !      end do
   !   end do
   ! END SUBROUTINE solute
-  !*********************************************************************************************************************
+  !=============================================================================
   SUBROUTINE snow_augment( mp, kk,  qprec_snow, Ta, tfin,     vsnow     &
        )
 
@@ -3875,7 +3875,7 @@ CONTAINS
 
   END SUBROUTINE snow_augment
 
-  !*********************************************************************************************************************
+  !=============================================================================
 
   SUBROUTINE snow_adjust(irec, mp, n, kk, ns, h0, hice, thetai, dx, vsnow, var, par, S, Tsoil, &
        Jcol_latent_S, Jcol_latent_T, Jcol_sensible, deltaJ_sensible_S, qmelt, qtransfer, j0snow)
@@ -4572,7 +4572,7 @@ CONTAINS
 
   END SUBROUTINE snow_adjust
 
-  !*********************************************************************************************************************
+  !=============================================================================
 
   SUBROUTINE isotope_vap(irec,isotopologue, n, nsnow, nsnow_last,  & ! scalar in
        ns, dx, deltaz, sig, dt, &     ! in soil
@@ -5319,6 +5319,6 @@ CONTAINS
 
   END SUBROUTINE isotope_vap
 
-  !*********************************************************************************************************************
+  !=============================================================================
 
 END MODULE sli_solve

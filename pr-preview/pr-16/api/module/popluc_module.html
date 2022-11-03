@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 3.3% of total for modules and submodules.">1482 statements</a>
+    title=" 2.9% of total for modules and submodules.">1482 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/POPLUC.F90"> Source File</a></li>
   </ul>
@@ -116,7 +116,7 @@
   <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#funcs-0">Functions</a></h3></div>
   <div id="funcs-0" class="panel-collapse collapse">
     <div class="list-group">
-      <a class="list-group-item" href="../module/popluc_module.html#proc-realexponential">REALExponential</a>
+      <a class="list-group-item" href="../module/popluc_module.html#proc-realexponential~2">REALExponential</a>
     </div>
   </div>
 </div>
@@ -148,29 +148,7 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <hr>
-<hr>
-<hr>
-<hr>
-<hr>
-<hr>
-<hr>
-<hr>
-<hr>
-<hr>
-<hr>
-<hr>
-<p>Exponential distribution
- Returns probability of a given time-between-events (x)
- Given a Poisson process with expected frequency (events per unit time) lambda
- Reference: http://en.wikipedia.org/wiki/Exponential_distribution
- Use to determine average age (x, years) of patches with a given random disturbance
- frequency lambda (disturbances per year)</p>
-<hr>
-<hr>
-<hr>
-<hr>
-<hr>
+    
 <br>        <div class="panel panel-default">
       <div class="panel-heading">
   <h3 class="panel-title">Uses</h3>
@@ -178,15 +156,15 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li>POP_Types</li>
     <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
-    <li>TYPEdef</li>
-    <li>POPModule</li>
     <li><a href='../module/casavariable.html'>casavariable</a></li>
-    <li><a href='../module/popluc_types.html'>POPLUC_Types</a></li>
+    <li><a href='../module/typedef.html'>TypeDef</a></li>
     <li><a href='../module/popluc_constants.html'>POPLUC_CONSTANTS</a></li>
+    <li><a href='../module/pop_types.html'>POP_Types</a></li>
     <li><a href='../module/cable_luc_expt.html'>CABLE_LUC_EXPT</a></li>
+    <li><a href='../module/popluc_types.html'>POPLUC_Types</a></li>
     <li><a href='../module/cable_io_vars_module~2.html'>cable_IO_vars_module</a></li>
+    <li><a href='../module/popmodule.html'>POPModule</a></li>
   </ul>
       </li>
       </ul>
@@ -202,7 +180,7 @@
   <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#funcs-1">Functions</a></h3></div>
   <div id="funcs-1" class="panel-collapse collapse">
     <div class="list-group">
-      <a class="list-group-item" href="../module/popluc_module.html#proc-realexponential">REALExponential</a>
+      <a class="list-group-item" href="../module/popluc_module.html#proc-realexponential~2">REALExponential</a>
     </div>
   </div>
 </div>
@@ -242,7 +220,7 @@
     <section>
     <h2>Functions</h2>
       <div class="panel panel-default">
-  <div class="panel-heading codesum"><span class="anchor" id="proc-realexponential"></span><h3>public function <a href='../proc/realexponential.html'>REALExponential</a>(lambda, x)</h3></div>
+  <div class="panel-heading codesum"><span class="anchor" id="proc-realexponential~2"></span><h3>public function <a href='../proc/realexponential~2.html'>REALExponential</a>(lambda, x)</h3></div>
   <div class="panel-body">
            
 <h4>Arguments</h4>      <table class="table table-striped varlist">
@@ -429,7 +407,7 @@
   <td><strong>POPLUC</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(POP_TYPE),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/pop_type.html'>POP_TYPE</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>POP</strong></td><td></td>
@@ -461,7 +439,7 @@
   <td><strong>POPLUC</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(POP_TYPE),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/pop_type.html'>POP_TYPE</a>),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>POP</strong></td><td></td>
@@ -547,7 +525,7 @@
   <td><strong>veg</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(POP_TYPE),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/pop_type.html'>POP_TYPE</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>POP</strong></td><td></td>

@@ -6257,7 +6257,7 @@ USE cbl_soil_snow_init_special_module
     bidx = bidx + 1
     CALL MPI_Get_address (casabal%FPlossyear(off), displs(bidx), ierr)
     blocks(bidx) = r2len
-    !*****************************
+    !===========================
     bidx = bidx + 1
     CALL MPI_Get_address (casaflux%Cgpp(off), displs(bidx), ierr)
     blocks(bidx) = r2len
@@ -6334,7 +6334,7 @@ USE cbl_soil_snow_init_special_module
     CALL MPI_Get_address (casaflux%Nsnet(off), displs(bidx), ierr)
     blocks(bidx) = r2len
 
-    !*****************************
+    !============================
     bidx = bidx + 1
     CALL MPI_Get_address (casaflux%frac_sapwood(off), displs(bidx), ierr)
     blocks(bidx) = r2len
@@ -6882,7 +6882,7 @@ USE cbl_soil_snow_init_special_module
 
 
 
-    !****************************************************************
+    !=================================
     ! phen fields
 
 
@@ -6900,14 +6900,14 @@ USE cbl_soil_snow_init_special_module
     ! CALL MPI_Get_address (climate%mtemp_max, displs(bidx), ierr)
     ! blen(bidx) = r1len
 
-    !****************************************************************
+    !==================================
     ! Ndep
     bidx = bidx + 1
     CALL MPI_Get_address (casaflux%Nmindep, displs(bidx), ierr)
     blen(bidx) = r2len
 
 
-    !******************************************************************
+    !==================================
 
 
     ! MPI: sanity check
@@ -7205,7 +7205,7 @@ USE cbl_soil_snow_init_special_module
   END SUBROUTINE worker_end
 
 
-  !*********************************************************************************************
+  !==================================
 
   SUBROUTINE worker_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
        casaflux,casamet,casabal,phen,POP,climate,LALLOC,  icomm, ocomm )
@@ -7574,7 +7574,7 @@ USE cbl_soil_snow_init_special_module
 
   END SUBROUTINE worker_spincasacnp
 
-  !*********************************************************************************************
+  !==================================
 
   SUBROUTINE worker_CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
        casaflux,casamet,casabal,phen,POP,climate,LALLOC,  icomm, ocomm )

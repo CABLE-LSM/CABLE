@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 3.4% of total for procedures.">1125 statements</a>
+    title=" 3.1% of total for procedures.">1125 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/pop_io.F90"> Source File</a></li>
   </ul>
@@ -128,42 +128,24 @@
       <li class="list-group-item">
   <ul class="list-inline">
     <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
-    <li>POP_types</li>
     <li><a href='../module/casavariable.html'>casavariable</a></li>
+    <li><a href='../module/pop_constants.html'>POP_Constants</a></li>
     <li>netcdf</li>
     <li><a href='../module/casa_ncdf_module.html'>casa_ncdf_module</a></li>
-    <li>POP_constants</li>
+    <li><a href='../module/pop_types.html'>POP_Types</a></li>
   </ul>
       </li>
       </ul>
     </div>
 
 
-    <hr>
-<p>POP        : POP structure containing all specific parameter
- casamet    : structure containing met and grid specific parameters from CASA
- YEAR       : Current year <YYYY>
- ACTION     : What do you want?
-              "READ_RST"  : Read a restart file (will be looking for a file
-                            either with given name or from YEAR-1
-              "WRITE_RST" : Write a restart file for YEAR+1
-              "WRITE_EPI" : Write data at the end of each year
- CLOSE_FILE : Flag to close file at the end of Episode (Episode only)</p>
-<hr>
-<hr>
-<hr>
-<p>WRITE POP VALUES TO OUTPUT FILE</p>
-<hr>
-<hr>
-<p>READ POP VALUES AS RESTART VALUES</p>
-<hr>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
 <tr>
-  <td><span class="anchor" id="variable-pop~2"></span>type(POP_TYPE),</td>
+  <td><span class="anchor" id="variable-pop~2"></span>type(<a href='../type/pop_type.html'>POP_TYPE</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>POP</strong></td><td></td>

@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 3.3% of total for source files.">1641 statements</a>
+    title=" 2.9% of total for source files.">1641 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/cable_input.F90"> Source File</a></li>
   </ul>
@@ -921,7 +921,7 @@
 <a id="ln-764" name="ln-764" href="#ln-764"></a><span class="w">    </span><span class="c">! if kend &gt; # days in selected episode</span>
 <a id="ln-765" name="ln-765" href="#ln-765"></a>
 <a id="ln-766" name="ln-766" href="#ln-766"></a>
-<a id="ln-767" name="ln-767" href="#ln-767"></a><span class="w">    </span><span class="c">!********* gswp input file has bug in timevar **************</span>
+<a id="ln-767" name="ln-767" href="#ln-767"></a><span class="w">    </span><span class="c">!========= gswp input file has bug in timevar ==========</span>
 <a id="ln-768" name="ln-768" href="#ln-768"></a><span class="w">    </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">ncciy</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
 <a id="ln-769" name="ln-769" href="#ln-769"></a><span class="k">       PRINT</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;original timevar(kend) = &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">timevar</span><span class="p">(</span><span class="n">kend</span><span class="p">)</span><span class="w"></span>
 <a id="ln-770" name="ln-770" href="#ln-770"></a><span class="w">       </span><span class="k">DO </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">kend</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
@@ -935,7 +935,7 @@
 <a id="ln-778" name="ln-778" href="#ln-778"></a><span class="w">       </span><span class="c">!      PRINT *, &#39;Hacked kend = &#39;, kend</span>
 <a id="ln-779" name="ln-779" href="#ln-779"></a><span class="w">       </span><span class="c">! end hacking</span>
 <a id="ln-780" name="ln-780" href="#ln-780"></a><span class="w">    </span><span class="k">END IF</span><span class="w"></span>
-<a id="ln-781" name="ln-781" href="#ln-781"></a><span class="w">    </span><span class="c">!********* done bug fixing for timevar in gswp input file **</span>
+<a id="ln-781" name="ln-781" href="#ln-781"></a><span class="w">    </span><span class="c">!=========== done bug fixing for timevar in gswp input file ==</span>
 <a id="ln-782" name="ln-782" href="#ln-782"></a>
 <a id="ln-783" name="ln-783" href="#ln-783"></a><span class="w">    </span><span class="c">! Write time step size to log file:</span>
 <a id="ln-784" name="ln-784" href="#ln-784"></a><span class="w">    </span><span class="k">WRITE</span><span class="p">(</span><span class="n">logn</span><span class="p">,</span><span class="s1">&#39;(1X,A17,F8.1,1X,A7)&#39;</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;Time step size:  &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">dels</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;seconds&#39;</span><span class="w"></span>
@@ -958,7 +958,7 @@
 <a id="ln-801" name="ln-801" href="#ln-801"></a><span class="w">         </span><span class="p">(</span><span class="n">ok</span><span class="p">,</span><span class="s1">&#39;Error finding time variable units in met data file &#39;</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-802" name="ln-802" href="#ln-802"></a><span class="w">         </span><span class="o">//</span><span class="nb">TRIM</span><span class="p">(</span><span class="n">filename</span><span class="p">%</span><span class="n">met</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39; (SUBROUTINE open_met_file)&#39;</span><span class="p">)</span><span class="w"></span>
 <a id="ln-803" name="ln-803" href="#ln-803"></a>
-<a id="ln-804" name="ln-804" href="#ln-804"></a><span class="w">    </span><span class="c">!****** PALS met file has timevar(1)=0 while timeunits from 00:30:00 ******</span>
+<a id="ln-804" name="ln-804" href="#ln-804"></a><span class="w">    </span><span class="c">!===== PALS met file has timevar(1)=0 while timeunits from 00:30:00 ====</span>
 <a id="ln-805" name="ln-805" href="#ln-805"></a><span class="w">    </span><span class="c">!CLN CRITICAL! From my point of view, the information in the file is correct...</span>
 <a id="ln-806" name="ln-806" href="#ln-806"></a><span class="w">    </span><span class="c">!CLN WHY DO the input files all have bugs???</span>
 <a id="ln-807" name="ln-807" href="#ln-807"></a><span class="w">    </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">timevar</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mf">0.0</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
@@ -969,11 +969,11 @@
 <a id="ln-812" name="ln-812" href="#ln-812"></a><span class="w">          </span><span class="k">WRITE</span><span class="p">(</span><span class="n">timeunits</span><span class="p">(</span><span class="mi">29</span><span class="p">:</span><span class="mi">30</span><span class="p">),</span><span class="s1">&#39;(i2.2)&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">tsmin</span><span class="w"></span>
 <a id="ln-813" name="ln-813" href="#ln-813"></a><span class="w">       </span><span class="k">ENDIF</span>
 <a id="ln-814" name="ln-814" href="#ln-814"></a><span class="k">    ENDIF</span><span class="w"></span>
-<a id="ln-815" name="ln-815" href="#ln-815"></a><span class="w">    </span><span class="c">!****** done bug fixing for timevar in PALS met file **********************</span>
+<a id="ln-815" name="ln-815" href="#ln-815"></a><span class="w">    </span><span class="c">!===== done bug fixing for timevar in PALS met file ===============</span>
 <a id="ln-816" name="ln-816" href="#ln-816"></a>
-<a id="ln-817" name="ln-817" href="#ln-817"></a><span class="w">    </span><span class="c">!********* gswp input file has bug in timeunits ************</span>
+<a id="ln-817" name="ln-817" href="#ln-817"></a><span class="w">    </span><span class="c">!===== gswp input file has bug in timeunits ===========</span>
 <a id="ln-818" name="ln-818" href="#ln-818"></a><span class="w">    </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">ncciy</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">WRITE</span><span class="p">(</span><span class="n">timeunits</span><span class="p">(</span><span class="mi">26</span><span class="p">:</span><span class="mi">27</span><span class="p">),</span><span class="s1">&#39;(i2.2)&#39;</span><span class="p">)</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
-<a id="ln-819" name="ln-819" href="#ln-819"></a><span class="w">    </span><span class="c">!********* done bug fixing for timeunits in gwsp file ******</span>
+<a id="ln-819" name="ln-819" href="#ln-819"></a><span class="w">    </span><span class="c">!===== done bug fixing for timeunits in gwsp file ========</span>
 <a id="ln-820" name="ln-820" href="#ln-820"></a><span class="w">    </span><span class="k">WRITE</span><span class="p">(</span><span class="n">logn</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;Time variable units: &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">timeunits</span><span class="w"></span>
 <a id="ln-821" name="ln-821" href="#ln-821"></a><span class="w">    </span><span class="c">! Get coordinate field:</span>
 <a id="ln-822" name="ln-822" href="#ln-822"></a><span class="w">    </span><span class="n">ok</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_ATT</span><span class="p">(</span><span class="n">ncid_met</span><span class="p">,</span><span class="n">timevarID</span><span class="p">,</span><span class="s1">&#39;coordinate&#39;</span><span class="p">,</span><span class="n">time_coord</span><span class="p">)</span><span class="w"></span>
