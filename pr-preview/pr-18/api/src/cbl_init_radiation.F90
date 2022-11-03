@@ -177,9 +177,7 @@ End subroutine Common_InitRad_Scalings
 
 subroutine  common_InitRad_coeffs( xphi1, xphi2, xk, xvlai2, mp, nrb, Cpi180,&
                             cLAI_thresh, veg_mask, VegXfang, reducedLAIdue2snow  )
-!*
-!
-! Calculates the extinction coefficients for black leaves. It returns:
+!* Calculates the extinction coefficients for black leaves. It returns:
 !
 ! * the extinction coefficients for three values of the zenith angle 
 !  to be used to calculate the real extinction coefficient for the
