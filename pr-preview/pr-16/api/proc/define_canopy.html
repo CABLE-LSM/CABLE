@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.9% of total for procedures.">423 statements</a>
+    title=" 1.2% of total for procedures.">423 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/cable_canopy.F90"> Source File</a></li>
   </ul>
@@ -129,23 +129,23 @@
       <li class="list-group-item">
   <ul class="list-inline">
     <li><a href='../module/cable_roughness_module.html'>cable_roughness_module</a></li>
-    <li><a href='../module/cable_air_module.html'>cable_air_module</a></li>
-    <li><a href='../module/cbl_pot_evap_snow_module.html'>cbl_pot_evap_snow_module</a></li>
-    <li><a href='../module/cable_other_constants_mod.html'>cable_other_constants_mod</a></li>
-    <li><a href='../module/cable_phys_constants_mod.html'>cable_phys_constants_mod</a></li>
-    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
-    <li><a href='../module/cable_latent_heat_module.html'>cable_latent_heat_module</a></li>
-    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
-    <li><a href='../module/cable_wetleaf_module.html'>cable_wetleaf_module</a></li>
-    <li><a href='../module/cable_within_canopy_module.html'>cable_within_canopy_module</a></li>
+    <li><a href='../module/cbl_friction_vel_module.html'>cbl_friction_vel_module</a></li>
     <li><a href='../module/cbl_qsat_module.html'>cbl_qsat_module</a></li>
     <li><a href='../module/cbl_zetar_module.html'>cbl_zetar_module</a></li>
-    <li><a href='../module/cbl_surfacewetness_module.html'>cbl_SurfaceWetness_module</a></li>
-    <li><a href='../module/cable_photo_constants_mod.html'>cable_photo_constants_mod</a></li>
-    <li><a href='../module/cable_math_constants_mod.html'>cable_math_constants_mod</a></li>
-    <li><a href='../module/cbl_friction_vel_module.html'>cbl_friction_vel_module</a></li>
-    <li><a href='../module/cbl_radiation_module.html'>cbl_radiation_module</a></li>
+    <li><a href='../module/cable_latent_heat_module.html'>cable_latent_heat_module</a></li>
     <li><a href='../module/cbl_dryleaf_module.html'>cbl_dryLeaf_module</a></li>
+    <li><a href='../module/cbl_radiation_module.html'>cbl_radiation_module</a></li>
+    <li><a href='../module/cable_within_canopy_module.html'>cable_within_canopy_module</a></li>
+    <li><a href='../module/cbl_surfacewetness_module.html'>cbl_SurfaceWetness_module</a></li>
+    <li><a href='../module/cbl_pot_evap_snow_module.html'>cbl_pot_evap_snow_module</a></li>
+    <li><a href='../module/cable_wetleaf_module.html'>cable_wetleaf_module</a></li>
+    <li><a href='../module/cable_phys_constants_mod~2.html'>cable_phys_constants_mod</a></li>
+    <li><a href='../module/cable_photo_constants_mod.html'>cable_photo_constants_mod</a></li>
+    <li><a href='../module/cable_def_types_mod~2.html'>cable_def_types_mod</a></li>
+    <li><a href='../module/cable_math_constants_mod.html'>cable_math_constants_mod</a></li>
+    <li><a href='../module/cable_other_constants_mod~2.html'>cable_other_constants_mod</a></li>
+    <li><a href='../module/cable_common_module~2.html'>cable_common_module</a></li>
+    <li><a href='../module/cable_air_module.html'>cable_air_module</a></li>
   </ul>
       </li>
       </ul>
@@ -158,31 +158,31 @@
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
 <tr>
-  <td><span class="anchor" id="variable-bal~17"></span>type(<a href='../type/balances_type.html'>balances_type</a>),</td>
+  <td><span class="anchor" id="variable-bal~13"></span>type(<a href='../type/balances_type~2.html'>balances_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>bal</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-rad~22"></span>type(<a href='../type/radiation_type.html'>radiation_type</a>),</td>
+  <td><span class="anchor" id="variable-rad~18"></span>type(<a href='../type/radiation_type~2.html'>radiation_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>rad</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-rough~19"></span>type(<a href='../type/roughness_type.html'>roughness_type</a>),</td>
+  <td><span class="anchor" id="variable-rough~16"></span>type(<a href='../type/roughness_type~2.html'>roughness_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>rough</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-air~19"></span>type(<a href='../type/air_type.html'>air_type</a>),</td>
+  <td><span class="anchor" id="variable-air~14"></span>type(<a href='../type/air_type~2.html'>air_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>air</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-met~31"></span>type(<a href='../type/met_type.html'>met_type</a>),</td>
+  <td><span class="anchor" id="variable-met~28"></span>type(<a href='../type/met_type~2.html'>met_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>met</strong></td><td></td>
@@ -194,43 +194,43 @@
   <td><strong>dels</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-ssnow~28"></span>type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),</td>
+  <td><span class="anchor" id="variable-ssnow~27"></span>type(<a href='../type/soil_snow_type~2.html'>soil_snow_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>ssnow</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-soil~40"></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
+  <td><span class="anchor" id="variable-soil~45"></span>type(<a href='../type/soil_parameter_type~2.html'>soil_parameter_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>soil</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-veg~45"></span>type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),</td>
+  <td><span class="anchor" id="variable-veg~67"></span>type(<a href='../type/veg_parameter_type~2.html'>veg_parameter_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>veg</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-canopy~28"></span>type(<a href='../type/canopy_type.html'>canopy_type</a>),</td>
+  <td><span class="anchor" id="variable-canopy~26"></span>type(<a href='../type/canopy_type~2.html'>canopy_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>canopy</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-climate~14"></span>type(<a href='../type/climate_type.html'>climate_type</a>),</td>
+  <td><span class="anchor" id="variable-climate~6"></span>type(<a href='../type/climate_type~2.html'>climate_type</a>),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>climate</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-sunlit_veg_mask~10"></span>logical</td>
+  <td><span class="anchor" id="variable-sunlit_veg_mask~4"></span>logical</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
   <td><strong>sunlit_veg_mask</strong>(mp)</td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-reducedlaidue2snow~12"></span>real</td>
+  <td><span class="anchor" id="variable-reducedlaidue2snow~5"></span>real</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
   <td><strong>reducedLAIdue2snow</strong>(mp)</td><td></td>

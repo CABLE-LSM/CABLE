@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.0% of total for source files.">21 statements</a>
+    title=" 0.0% of total for source files.">20 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/casa_dimension.F90"> Source File</a></li>
   </ul>
@@ -114,7 +114,7 @@
   <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#mods-0">Modules</a></h3></div>
   <div id="mods-0" class="panel-collapse collapse">
     <div class="list-group">
-      <a class="list-group-item" href="../module/casadimension.html">casadimension</a>
+      <a class="list-group-item" href="../module/casadimension~2.html">casadimension</a>
     </div>
   </div>
 </div>
@@ -139,7 +139,7 @@
   <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#mods-1">Modules</a></h3></div>
   <div id="mods-1" class="panel-collapse collapse">
     <div class="list-group">
-      <a class="list-group-item" href="../module/casadimension.html">casadimension</a>
+      <a class="list-group-item" href="../module/casadimension~2.html">casadimension</a>
     </div>
   </div>
 </div>
@@ -156,62 +156,69 @@
     <section>
       <h2><span class="anchor" id="src"></span>Source Code</h2>
     <div class="hl"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="c">!==============================================================================</span>
-<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="c">! This source code is part of the</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="c">! This source code is part of the </span>
 <a id="ln-3" name="ln-3" href="#ln-3"></a><span class="c">! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.</span>
-<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="c">! This work is licensed under the CSIRO Open Source Software License</span>
-<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="c">! Agreement (variation of the BSD / MIT License).</span>
-<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="c">!</span>
-<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="c">! You may not use this file except in compliance with this License.</span>
-<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="c">! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located</span>
-<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="c">! in each directory containing CABLE code.</span>
-<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="c">!</span>
-<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="c">! ==============================================================================</span>
-<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="c">! Purpose: defines/allocates variables for CASA-CNP</span>
-<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="c">!</span>
-<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="c">! Contact: Yingping.Wang@csiro.au</span>
-<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="c">!</span>
-<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="c">! History: Developed for offline CASA-CNP, code revision likely to better</span>
-<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="c">!          suit ACCESS and to merge more consistently with CABLE code</span>
-<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="c">!</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="c">! This work is licensed under the CABLE Academic User Licence Agreement </span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="c">! (the &quot;Licence&quot;).</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="c">! You may not use this file except in compliance with the Licence.</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="c">! A copy of the Licence and registration form can be obtained from </span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="c">! http://www.cawcr.gov.au/projects/access/cable</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="c">! You need to register and read the Licence agreement before use.</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="c">! Please contact cable_help@nf.nci.org.au for any questions on </span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="c">! registration and the Licence.</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="c">!</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="c">! Unless required by applicable law or agreed to in writing, </span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="c">! software distributed under the Licence is distributed on an &quot;AS IS&quot; BASIS,</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="c">! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="c">! See the Licence for the specific language governing permissions and </span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="c">! limitations under the Licence.</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="c">! ==============================================================================</span>
 <a id="ln-19" name="ln-19" href="#ln-19"></a><span class="c">!</span>
-<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="c">! ==============================================================================</span>
-<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="c">! casa_variable.f90</span>
-<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="c">!</span>
-<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="c">! the following modules are used when &quot;casacnp&quot; is coupled to &quot;cable&quot;</span>
-<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="c">!   casadimension</span>
-<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="c">!   casaparm</span>
-<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="c">!   casavariable with subroutine alloc_casavariable</span>
-<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="c">!   phenvariable with subroutine alloc_phenvariable</span>
-<a id="ln-28" name="ln-28" href="#ln-28"></a>
-<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="k">MODULE </span><span class="n">casadimension</span><span class="w"></span>
-<a id="ln-30" name="ln-30" href="#ln-30"></a>
-<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">  </span><span class="k">USE </span><span class="n">cable_def_types_mod</span><span class="p">,</span><span class="w"> </span><span class="k">ONLY</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">mp</span><span class="p">,</span><span class="w"> </span><span class="n">r_2</span><span class="p">,</span><span class="w"> </span><span class="n">mvtype</span><span class="p">,</span><span class="w"> </span><span class="n">ms</span><span class="w"></span>
-<a id="ln-32" name="ln-32" href="#ln-32"></a>
-<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">  </span><span class="k">IMPLICIT NONE</span>
-<a id="ln-34" name="ln-34" href="#ln-34"></a>
-<a id="ln-35" name="ln-35" href="#ln-35"></a>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="c">! Purpose: defines/allocates variables for CASA-CNP</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="c">!</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="c">! Contact: Yingping.Wang@csiro.au</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="c">!</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="c">! History: Developed for offline CASA-CNP, code revision likely to better</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="c">!          suit ACCESS and to merge more consistently with CABLE code</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="c">!</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="c">!</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="c">! ==============================================================================</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="c">! casa_variable.f90</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="c">!</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="c">! the following modules are used when &quot;casacnp&quot; is coupled to &quot;cable&quot;</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="c">!   casadimension</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="c">!   casaparm</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="c">!   casavariable with subroutine alloc_casavariable</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="c">!   phenvariable with subroutine alloc_phenvariable</span>
 <a id="ln-36" name="ln-36" href="#ln-36"></a>
-<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="k">  </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mdyear</span><span class="o">=</span><span class="mi">365</span><span class="w">         </span><span class="c">! days per year</span>
-<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mdmonth</span><span class="o">=</span><span class="mi">30</span><span class="w">         </span><span class="c">! days per month</span>
-<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mdweek</span><span class="o">=</span><span class="mi">7</span><span class="w">           </span><span class="c">! days per week</span>
-<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mmyear</span><span class="o">=</span><span class="mi">12</span><span class="w">          </span><span class="c">! month per year</span>
-<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mt</span><span class="o">=</span><span class="mi">36500</span><span class="w">           </span><span class="c">! integration time step</span>
-<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mplant</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="w">         </span><span class="c">! plant pools</span>
-<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mlitter</span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="w">         </span><span class="c">! litter pools</span>
-<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">msoil</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="w">         </span><span class="c">! soil pools</span>
-<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mso</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="mi">12</span><span class="w">        </span><span class="c">! soil order number</span>
-<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mhwp</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w">          </span><span class="c">! harvested wood pools</span>
-<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mwood</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="w">         </span><span class="c">! wood product pools</span>
-<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mclear</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w">        </span><span class="c">! forest clearing pools</span>
-<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">  </span><span class="c">! BP put icycle into namelist file</span>
-<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="w">            </span><span class="kd">::</span><span class="w"> </span><span class="n">icycle</span><span class="w"></span>
-<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">  </span><span class="c">!  INTEGER, PARAMETER :: icycle=3           ! =1 for C, =2 for C+N; =3 for C+N+P</span>
-<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mstart</span><span class="o">=</span><span class="mi">1</span><span class="w">           </span><span class="c">! starting time step</span>
-<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mphase</span><span class="o">=</span><span class="mi">4</span><span class="w">           </span><span class="c">! phen. phases</span>
-<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w">    </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">deltcasa</span><span class="o">=</span><span class="mf">1.0</span><span class="o">/</span><span class="mi">36</span><span class="mf">5.0</span><span class="w"> </span><span class="c">! year</span>
-<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w">    </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">deltpool</span><span class="o">=</span><span class="mf">1.0</span><span class="w">       </span><span class="c">! pool delt(1day)</span>
-<a id="ln-56" name="ln-56" href="#ln-56"></a>
-<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="k">END MODULE </span><span class="n">casadimension</span><span class="w"></span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="k">MODULE </span><span class="n">casadimension</span><span class="w"></span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">   </span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">   </span><span class="k">USE </span><span class="n">cable_def_types_mod</span><span class="p">,</span><span class="w"> </span><span class="k">ONLY</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">mp</span><span class="p">,</span><span class="w"> </span><span class="n">r_2</span><span class="p">,</span><span class="w"> </span><span class="n">mvtype</span><span class="p">,</span><span class="w"> </span><span class="n">ms</span><span class="w"></span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">   </span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">   </span><span class="k">IMPLICIT NONE</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="k">  </span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="k">  </span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="k">  </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mdyear</span><span class="o">=</span><span class="mi">365</span><span class="w">         </span><span class="c">! days per year</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mdmonth</span><span class="o">=</span><span class="mi">30</span><span class="w">         </span><span class="c">! days per month</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mdweek</span><span class="o">=</span><span class="mi">7</span><span class="w">           </span><span class="c">! days per week</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mmyear</span><span class="o">=</span><span class="mi">12</span><span class="w">          </span><span class="c">! month per year</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mt</span><span class="o">=</span><span class="mi">36500</span><span class="w">           </span><span class="c">! integration time step</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mpftmax</span><span class="o">=</span><span class="mi">2</span><span class="w">          </span><span class="c">! max. PFT/cell</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mplant</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="w">         </span><span class="c">! plant pools</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mlitter</span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="w">         </span><span class="c">! litter pools</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">msoil</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="w">         </span><span class="c">! soil pools</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mso</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="mi">12</span><span class="w">        </span><span class="c">! soil order number</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="c">! BP put icycle into namelist file</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="w">            </span><span class="kd">::</span><span class="w"> </span><span class="n">icycle</span><span class="w"></span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="c">!  INTEGER, PARAMETER :: icycle=3           ! =1 for C, =2 for C+N; =3 for C+N+P</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mstart</span><span class="o">=</span><span class="mi">1</span><span class="w">           </span><span class="c">! starting time step</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mphase</span><span class="o">=</span><span class="mi">4</span><span class="w">           </span><span class="c">! phen. phases</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">  </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mlogmax</span><span class="o">=</span><span class="mi">4</span><span class="w">         </span><span class="c">! max.woody PFT,CSIRO type only for land use</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w">    </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">deltcasa</span><span class="o">=</span><span class="mf">1.0</span><span class="o">/</span><span class="mi">36</span><span class="mf">5.0</span><span class="w"> </span><span class="c">! year</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w">    </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">deltpool</span><span class="o">=</span><span class="mf">1.0</span><span class="w">       </span><span class="c">! pool delt(1day)</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="k">END MODULE </span><span class="n">casadimension</span><span class="w"></span>
 </pre></div>
 
     </section>

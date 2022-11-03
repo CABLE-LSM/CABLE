@@ -88,12 +88,12 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.2% of total for modules and submodules.">82 statements</a>
+    title=" 0.2% of total for modules and submodules.">83 statements</a>
      </li> 
-    <li><i class="fa fa-code"></i><a href="../src/cbl_model_driver_offline.F90"> Source File</a></li>
+    <li><i class="fa fa-code"></i><a href="../src/cable_cbm.F90"> Source File</a></li>
   </ul>
   <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/cbl_model_driver_offline.f90.html'>cbl_model_driver_offline.F90</a></li>
+     <li><a href='../sourcefile/cable_cbm.f90.html'>cable_cbm.F90</a></li>
      <li class="active">cable_cbm_module</li>
   </ol>
 </div>
@@ -127,7 +127,19 @@
     
     <div class="col-md-9" id='text'>
     
-    
+<br>        <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Uses</h3>
+      </div>
+      <ul class="list-group">
+      <li class="list-group-item">
+  <ul class="list-inline">
+    <li><a href='../module/cable_canopy_module.html'>cable_canopy_module</a></li>
+  </ul>
+      </li>
+      </ul>
+    </div>
+
     
     <br>
 
@@ -156,18 +168,12 @@
     <section>
     <h2>Subroutines</h2>
       <div class="panel panel-default">
-  <div class="panel-heading codesum"><span class="anchor" id="proc-cbm"></span><h3>public subroutine <a href='../proc/cbm.html'>cbm</a>(ktau, dels, air, bgc, canopy, met, bal, rad, rough, soil, ssnow, sum_flux, veg, climate, xk, c1, rhoch)</h3></div>
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cbm"></span><h3>public subroutine <a href='../proc/cbm.html'>cbm</a>(dels, air, bgc, canopy, met, bal, rad, rough, soil, ssnow, sum_flux, veg)</h3></div>
   <div class="panel-body">
            
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
-<tr>
-  <td><span class="anchor" ></span>integer,</td>
-<td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>ktau</strong></td><td></td>
-</tr>
 <tr>
   <td><span class="anchor" ></span>real,</td>
 <td>intent(in)</td>
@@ -175,94 +181,70 @@
   <td><strong>dels</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/air_type.html'>air_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/air_type~2.html'>air_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>air</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/bgc_pool_type.html'>bgc_pool_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/bgc_pool_type~2.html'>bgc_pool_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>bgc</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/canopy_type.html'>canopy_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/canopy_type~2.html'>canopy_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>canopy</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/met_type.html'>met_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/met_type~2.html'>met_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>met</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/balances_type.html'>balances_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/balances_type~2.html'>balances_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>bal</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/radiation_type.html'>radiation_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/radiation_type~2.html'>radiation_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>rad</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/roughness_type.html'>roughness_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/roughness_type~2.html'>roughness_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>rough</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_parameter_type~2.html'>soil_parameter_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>soil</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_snow_type~2.html'>soil_snow_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>ssnow</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/sum_flux_type.html'>sum_flux_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/sum_flux_type~2.html'>sum_flux_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>sum_flux</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/veg_parameter_type~2.html'>veg_parameter_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>veg</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>type(<a href='../type/climate_type.html'>climate_type</a>),</td>
-<td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>climate</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>real</td>
-<td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>xk</strong>(mp,nrb)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>real</td>
-<td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>c1</strong>(mp,nrb)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>real</td>
-<td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>rhoch</strong>(mp,nrb)</td><td></td>
 </tr>
 </tbody>
 </table>
