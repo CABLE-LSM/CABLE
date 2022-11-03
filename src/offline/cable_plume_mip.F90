@@ -54,9 +54,9 @@ MODULE CABLE_PLUME_MIP
 
 CONTAINS
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!==============================================================================
   ! PLUME routines
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!==============================================================================
 
   SUBROUTINE PLUME_MIP_INIT( PLUME )
 
@@ -131,14 +131,14 @@ CONTAINS
     CASE( "2006_2099" ) ; CONTINUE
     CASE( "spinup")
        IF ( TRIM(PLUME%CO2) .NE. "static1850" ) THEN
-          WRITE(*   ,*)"'spinup' chosen: Set CO2 to 'static1850'!!!"
-          WRITE(logn,*)"'spinup' chosen: Set CO2 to 'static1850'!!!"
+          WRITE(*   ,*)"'spinup' chosen: Set CO2 to 'static1850'!"
+          WRITE(logn,*)"'spinup' chosen: Set CO2 to 'static1850'!"
           ERR = .TRUE.
        ENDIF
     CASE("1850_1900")
        IF ( TRIM(PLUME%CO2) .NE. "varying" ) THEN
-          WRITE(*   ,*)"'1850_1900' chosen: Set CO2 to 'varying'!!!"
-          WRITE(logn,*)"'1850_1900' chosen: Set CO2 to 'varying'!!!"
+          WRITE(*   ,*)"'1850_1900' chosen: Set CO2 to 'varying'!"
+          WRITE(logn,*)"'1850_1900' chosen: Set CO2 to 'varying'!"
           ERR = .TRUE.
        ENDIF
     CASE( "1901_2001" )
@@ -384,7 +384,7 @@ CONTAINS
 
   END SUBROUTINE PLUME_MIP_INIT
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !============================================================================
 
   SUBROUTINE PLUME_GET_FILENAME ( PLUME, cyear, par, FN )
 
@@ -506,7 +506,7 @@ CONTAINS
 
   END SUBROUTINE PLUME_GET_FILENAME
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!==============================================================================
 
   FUNCTION FILE_SWITCH ( PLUME, action )
 
@@ -560,7 +560,7 @@ CONTAINS
 
   END FUNCTION FILE_SWITCH
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!==============================================================================
 
   SUBROUTINE GET_PLUME_CO2( PLUME, CO2air )
 
@@ -622,7 +622,7 @@ CONTAINS
 
   END SUBROUTINE GET_PLUME_CO2
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!==============================================================================
 
   SUBROUTINE OPEN_PLUME_MET( PLUME )
 
@@ -687,7 +687,7 @@ CONTAINS
 
   END SUBROUTINE OPEN_PLUME_MET
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!==============================================================================
 
   SUBROUTINE PLUME_GET_DAILY_MET( PLUME, TminFlag, islast )
 
@@ -882,7 +882,7 @@ CONTAINS
 
   END SUBROUTINE PLUME_GET_DAILY_MET
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!==============================================================================
 
   SUBROUTINE PLUME_MIP_GET_MET(PLUME, MET, CurYear, ktau, kend, islast )
     !==============================================================================
@@ -951,8 +951,8 @@ CONTAINS
     PLUME%CYEAR = CurYear
     PLUME%ktau  = ktau
 
-!!!!  this only works with CANBERRA cable_driver, as ktau    !!!!
-!!!!  restarts on Jan 1                                      !!!!
+!  this only works with CANBERRA cable_driver, as ktau    !
+!  restarts on Jan 1                                      !
 
     met%hod (:) = REAL(MOD( (ktau-1) * NINT(dt), INT(SecDay)) ) / 3600.
     met%doy (:) = INT(REAL(ktau-1) * dt / SecDay ) + 1
@@ -1049,14 +1049,14 @@ CONTAINS
 
 
 
-!!$write(*,*) "met", met%precip(1), &
-!!$met%precip_sn (is:ie)  , &
-!!$     met%fld       (is:ie), &
-!!$     met%fsd       (is:ie,1), &
-!!$     met%fsd       (is:ie,2), &
-!!$     met%tk        (is:ie) , &
-!!$     met%ua        (is:ie)  , &
-!!$     met%coszen    (is:ie)
+!$write(*,*) "met", met%precip(1), &
+!$met%precip_sn (is:ie)  , &
+!$     met%fld       (is:ie), &
+!$     met%fsd       (is:ie,1), &
+!$     met%fsd       (is:ie,2), &
+!$     met%tk        (is:ie) , &
+!$     met%ua        (is:ie)  , &
+!$     met%coszen    (is:ie)
 
     !CLN  IF ( ktau.EQ.1 ) &
     !CLN       WRITE(*,*)"#    qv       Precip   snow   LWDin  PhiLD   rPhiLD   PhiSD Temp     Wind     coszen"

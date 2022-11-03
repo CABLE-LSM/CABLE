@@ -472,7 +472,7 @@ MODULE cable_def_types_mod
           evapfbl, &
           gswx,    & ! stom cond for water
           zetar, &   ! stability parameter (ref height)
-                                !! vh_js !!
+                                ! vh_js !
           zetash      ! stability parameter (shear height)
 
      REAL(r_2), DIMENSION(:), POINTER ::                                      &
@@ -501,7 +501,7 @@ MODULE cable_def_types_mod
      REAL(r_2), DIMENSION(:,:,:), POINTER :: ci     ! intra-cellular CO2 vh 6/7/09
      REAL(r_2), DIMENSION(:),     POINTER :: fwsoil !
 
-     !! vh_js !! !litter thermal conductivity (Wm-2K-1) and vapour diffusivity (m2s-1)
+     ! vh_js ! !litter thermal conductivity (Wm-2K-1) and vapour diffusivity (m2s-1)
      REAL(r_2), DIMENSION(:), POINTER :: kthLitt, DvLitt
 
 
@@ -1185,7 +1185,7 @@ CONTAINS
     ALLOCATE ( var % ci(mp,mf,3) )   ! intra-cellular CO2 vh 6/7/09
     ALLOCATE ( var % fwsoil (mp) )
 
-    !! vh_js !! liiter resistances to heat and vapour transfer
+    ! vh_js ! liiter resistances to heat and vapour transfer
     ALLOCATE (var % kthLitt(mp))
     ALLOCATE (var % DvLitt(mp))
 
@@ -1792,7 +1792,7 @@ CONTAINS
     DEALLOCATE ( var % ofes )
     DEALLOCATE( var% sublayer_dz )
 
-    !! vh_js !! liiter resistances to heat and vapour transfer
+    ! vh_js ! liiter resistances to heat and vapour transfer
     DEALLOCATE (var % kthLitt)
     DEALLOCATE (var % DvLitt)
 

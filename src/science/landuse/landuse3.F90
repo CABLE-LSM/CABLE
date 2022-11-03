@@ -335,7 +335,7 @@ MODULE landuse_variable
     !        luc%doyphase3_y(mland,mvmax),        &
     !        luc%frac_sapwood_y(mland,mvmax),     &
     !        luc%sapwood_area_y(mland,mvmax))        
-   !! Initialize temporary variables
+   ! Initialize temporary variables
            ! patch-genric variables
            luc%iveg_x   = -1;     luc%isoil_x=-1;          luc%soilorder_x=-1;     luc%phase_x=0;    luc%isflag_x=0
            luc%phen_x   = 0.0;    luc%aphen_x=0.0;         luc%doyphase3_x=-1;     luc%frac_sapwood_x=1.0;  luc%sapwood_area_x=0.0
@@ -927,7 +927,7 @@ end subroutine landuse_driver
      ivt = lucmp%iveg(np)
      if(ivt<1.or.ivt>17) then
         print *, 'at landuse_mp2land: vegtype outy of range!',g,np,ivt
-        print *, 'stop!!'
+        print *, 'stop!'
      endif
 
      ! patch-genric variables 

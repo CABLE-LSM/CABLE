@@ -226,7 +226,7 @@ SUBROUTINE POPdriver(casaflux,casabal,veg, POP)
   REAL(dp), allocatable ::  LAImax(:)  , Cleafmean(:),  Crootmean(:)
   CHARACTER                                 :: cyear*4
   CHARACTER                                 :: ncfile*99
-  !! vh_js !!
+  ! vh_js !
   INTEGER, allocatable :: Iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
 
   ! INTEGER, INTENT(IN) :: wlogn
@@ -896,7 +896,7 @@ END SUBROUTINE sumcflux
                                           ! CWD -> fmic
     casaflux%fromLtoS(npt,slow,cwd)  = 0.7 * casabiome%fracLigninplant(veg%iveg(npt),wood)
                                           ! CWD -> slow
-!! set the following two backflow to set (see Bolker 199x)
+! set the following two backflow to set (see Bolker 199x)
 !    casaflux%fromStoS(npt,mic,slow)  = 0.45 * (0.997 - 0.009 *soil%clay(npt))
 !    casaflux%fromStoS(npt,mic,pass)  = 0.45
 

@@ -70,7 +70,7 @@ INTEGER :: i,l  ! Index variables
 
 INTEGER :: ERROR  ! Error indicator
 
-!! Variables passed to fill_variables_from_file
+! Variables passed to fill_variables_from_file
 !CHARACTER(LEN=identifier_len) :: file_var(max_cable_vars)
 !                      ! The variable identifiers of the variables to set
 !                      ! from file

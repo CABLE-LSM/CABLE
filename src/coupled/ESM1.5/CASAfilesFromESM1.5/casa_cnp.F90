@@ -310,7 +310,7 @@ SUBROUTINE casa_allocation(veg,soil,casabiome,casaflux,casamet,phen)
         casaflux%fracCalloc(:,froot) = 1.0-casaflux%fracCalloc(:,leaf)
       ENDWHERE
     ENDWHERE
-    !! added in for negative NPP and one of biomass pool being zero ypw 27/jan/2014
+    ! added in for negative NPP and one of biomass pool being zero ypw 27/jan/2014
     WHERE(casaflux%Cnpp<0.0)
        casaflux%fracCalloc(:,leaf)  = casaflux%Crmplant(:,leaf)/sum(casaflux%Crmplant,2)
        casaflux%fracCalloc(:,wood)  = casaflux%Crmplant(:,wood)/sum(casaflux%Crmplant,2)
@@ -391,7 +391,7 @@ SUBROUTINE casa_rplant(veg,casabiome,casapool,casaflux,casamet)
       casaflux%crgplant(:) = 0.0
     ENDWHERE
 
-!!!!!!!!!!!!!!!!!!!!!!! begin from YPW 02/10/17 !!!!!!!!!!!!!!!!!!!!!!!!!!!
+! begin from YPW 02/10/17 !
 
     casaflux%Cnpp(:) = casaflux%Cgpp(:) - SUM(casaflux%crmplant(:,:),2) &
                      - casaflux%crgplant(:)
@@ -415,7 +415,7 @@ SUBROUTINE casa_rplant(veg,casabiome,casapool,casaflux,casamet)
       casaflux%crgplant(:) = 0.0
     ENDWHERE
 
-!!!!!!!!!!!!!!!!!!!!!!! end from YPW 02/10/17 !!!!!!!!!!!!!!!!!!!!!!!!!!!
+! end from YPW 02/10/17 !
   ENDWHERE
 
   casaflux%Cnpp(:) = casaflux%Cgpp(:) - SUM(casaflux%crmplant(:,:),2) &
@@ -579,7 +579,7 @@ SUBROUTINE casa_xratesoil(xklitter,xksoil,veg,soil,casamet)
 
   REAL(r_2), DIMENSION(mp)       :: xkwater,xktemp
   REAL(r_2), DIMENSION(mp)       :: fwps,tsavg
-!,tsurfavg  !!, msurfavg
+!,tsurfavg  !, msurfavg
   INTEGER :: npt
 
   xklitter(:) = 1.0
@@ -603,11 +603,11 @@ SUBROUTINE casa_xratesoil(xklitter,xksoil,veg,soil,casamet)
   END IF
   END DO
 !  WHERE(casamet%iveg2/=icewater)  
-!!    ! Kirschbaum function
-!!    xktemp(:) = exp(xkalpha + xkbeta*(tsavg(:)-TKzeroC) &
-!!              * (1.0-0.5*(tsavg(:)-TKzeroc)/xktoptc))
+!    ! Kirschbaum function
+!    xktemp(:) = exp(xkalpha + xkbeta*(tsavg(:)-TKzeroC) &
+!              * (1.0-0.5*(tsavg(:)-TKzeroc)/xktoptc))
 !    ! add by ypwang on 3/april/2009
-!!    xktemp(:) = xkoptcoeff(veg%iveg(:))*exp(xkbeta*(tsavg(:)-TKzeroC-xktoptc))
+!    xktemp(:) = xkoptcoeff(veg%iveg(:))*exp(xkbeta*(tsavg(:)-TKzeroC-xktoptc))
 !    xktemp(:)  = q10soil**(0.1*(tsavg(:)-TKzeroC-35.0))
 !    xkwater(:) = ((fwps(:)-wfpscoefb)/(wfpscoefa-wfpscoefb))**wfpscoefe    &
 !               * ((fwps(:)-wfpscoefc)/(wfpscoefa-wfpscoefc))**wfpscoefd
@@ -751,7 +751,7 @@ SUBROUTINE casa_coeffsoil(xklitter,xksoil,veg,soil,casabiome,casaflux,casamet)
     casaflux%fromLtoS(:,slow,cwd)  = 0.7 * casabiome%fracLigninplant(veg%iveg(:),wood)        
                                           ! CWD -> slow
  
-!! set the following two backflow to set (see Bolker 199x)
+! set the following two backflow to set (see Bolker 199x)
 !    casaflux%fromStoS(:,mic,slow)  = 0.45 * (0.997 - 0.009 *soil%clay(:))
 !    casaflux%fromStoS(:,mic,pass)  = 0.45
 
@@ -1675,7 +1675,7 @@ SUBROUTINE casa_cnpcycle(veg,casabiome,casapool,casaflux,casamet)
       ENDIF
     ENDDO
 
-!  check if any pool size, and terminate model run if any pool size is negative!!
+!  check if any pool size, and terminate model run if any pool size is negative!
     IF(icycle >1) THEN
       DO j=1,mlitter
         IF(casapool%nlitter(np,j) < 0.0)  THEN
@@ -1702,27 +1702,27 @@ SUBROUTINE casa_poolzero(n,ipool,casapool)
   INTEGER, INTENT(IN) :: n, ipool
   TYPE (casa_pool), INTENT(INOUT) :: casapool
 
-  WRITE(57,*) ' WARNING: negative pools are reset to ZERO!!'
+  WRITE(57,*) ' WARNING: negative pools are reset to ZERO!'
   SELECT CASE(ipool)
   CASE(1)
-     WRITE(57,*) 'plant carbon pool size negative!!'
+     WRITE(57,*) 'plant carbon pool size negative!'
      WRITE(57,*) 'plant C pools: ', n,casapool%cplant(n,:)
   CASE(2)
-     WRITE(57,*) 'plant nitrogen pool size negative!!'
+     WRITE(57,*) 'plant nitrogen pool size negative!'
      WRITE(57,*) 'plant C pools: ',n,casapool%cplant(n,:)
      WRITE(57,*) 'plant N pools: ',n,casapool%nplant(n,:)
   CASE(3)
-     WRITE(57,*) 'litter carbon pool size negative!!'
+     WRITE(57,*) 'litter carbon pool size negative!'
      WRITE(57,*) 'litter C pools: ',n,casapool%clitter(n,:)
   CASE(4)
-     WRITE(57,*) 'litter nitrogen pool size negative!!'
+     WRITE(57,*) 'litter nitrogen pool size negative!'
      WRITE(57,*) 'carbon pool: ',n,casapool%clitter(n,:)
      WRITE(57,*) 'nitrogen pools: ',n,casapool%nlitter(n,:)
   CASE(5)
-     WRITE(57,*) 'soil carbon pool size negative!!'
+     WRITE(57,*) 'soil carbon pool size negative!'
      WRITE(57,*) 'soil C pools: ',n,casapool%csoil(n,:)
   CASE(6)
-     WRITE(57,*) 'soil nitrogen pool size negative!!'
+     WRITE(57,*) 'soil nitrogen pool size negative!'
      WRITE(57,*) 'soil C pools: ', n,casapool%csoil(n,:)
      WRITE(57,*) 'soil N pools: ', n,casapool%nsoil(n,:)
   END SELECT 

@@ -257,7 +257,7 @@ CONTAINS
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error getting rad dimension.')
 
     ! check dimensions of soil-layers and time
-    !! vh_js !!
+    ! vh_js !
     IF ( (nslayer /= ms) .OR. (ntime /= 12)) THEN
        PRINT *, 'Variable dimensions do not match:'
        PRINT *, 'nslayer and ms = ', nslayer, ms
@@ -1193,7 +1193,7 @@ CONTAINS
     canopy%fev    = 0.0  ! latent heat flux from vegetation (W/m2)
     canopy%fes    = 0.0  ! latent heat flux from soil (W/m2)
     canopy%fhs    = 0.0  ! sensible heat flux from soil (W/m2)
-    !! vh_js !!
+    ! vh_js !
     canopy%us = 0.1 ! friction velocity (needed in roughness before first call to canopy: should in be retart?
     canopy%fh    = 0.0  ! sensible heat flux
     canopy%fe    = 0.0  ! sensible heat flux
@@ -1245,17 +1245,17 @@ CONTAINS
 
     veg%meth = 1 ! canopy turbulence parameterisation method: 0 or 1
 
-    !! I brought this in with manual merge of #199 BUT Am i bringing this back in ?
-    !!! calculate vegin%froot from using rootbeta and soil depth
-    !!! (Jackson et al. 1996, Oceologica, 108:389-411)
-    !!totdepth = 0.0
-    !!DO is = 1, ms
-    !!   totdepth = totdepth + soil%zse(is) * 100.0  ! unit in centimetres
-    !!   vegin%froot(is, :) = MIN(1.0, 1.0-vegin%rootbeta(:)**totdepth)
-    !!END DO
-    !!DO is = ms, 2, -1
-    !!   vegin%froot(is, :) = vegin%froot(is, :)-vegin%froot(is-1, :)
-    !!END DO
+    ! I brought this in with manual merge of #199 BUT Am i bringing this back in ?
+    ! calculate vegin%froot from using rootbeta and soil depth
+    ! (Jackson et al. 1996, Oceologica, 108:389-411)
+    !totdepth = 0.0
+    !DO is = 1, ms
+    !   totdepth = totdepth + soil%zse(is) * 100.0  ! unit in centimetres
+    !   vegin%froot(is, :) = MIN(1.0, 1.0-vegin%rootbeta(:)**totdepth)
+    !END DO
+    !DO is = ms, 2, -1
+    !   vegin%froot(is, :) = vegin%froot(is, :)-vegin%froot(is-1, :)
+    !END DO
 
     ALLOCATE(defaultLAI(mp, 12))
 
@@ -1306,7 +1306,7 @@ CONTAINS
        soil%isoilm(landpt(e)%cstart:landpt(e)%cend) =                           &
             inSoil(landpt(e)%ilon, landpt(e)%ilat)
        ! Set initial soil temperature and moisture according to starting month
-       !! vh_js !!
+       ! vh_js !
 
        !IF(hide%Ticket49Bug3) THEN
        ! Set initial soil temperature and moisture according to starting month
@@ -1634,7 +1634,7 @@ CONTAINS
 
     !IF(hide%Ticket49Bug5) THEN
 
-    !! vh_js !! neeed to remove this if to enable the code below
+    ! vh_js ! neeed to remove this if to enable the code below
 
     ! SLI specific initialisations:
     !  IF(cable_user%SOIL_STRUC=='sli') THEN
@@ -1658,7 +1658,7 @@ CONTAINS
     IF(cable_user%SOIL_STRUC=='sli'.OR.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
        veg%gamma = 3.e-2
     ENDIF
-    !! vh_js !!
+    ! vh_js !
     IF(cable_user%CALL_POP) THEN
        veg%disturbance_interval = 100
        veg%disturbance_intensity = 0.
@@ -1712,7 +1712,7 @@ CONTAINS
                * inPdust(landpt(ee)%ilon, landpt(ee)%ilat)
           casaflux%Pwea(hh)    = patch(hh)%frac                                  &
                * inPwea(landpt(ee)%ilon, landpt(ee)%ilat)
-          !! vh !! fluxes shouldn't be weighted by patch frac.
+          ! vh ! fluxes shouldn't be weighted by patch frac.
           !   IF (CABLE_USER%POPLUC) then
           casaflux%Nmindep(hh) =  inNdep(landpt(ee)%ilon, landpt(ee)%ilat)
           casaflux%Nminfix(hh) = MAX( inNfix(landpt(ee)%ilon, landpt(ee)%ilat), &
@@ -1818,7 +1818,7 @@ CONTAINS
                soil%Org_Vec(:,klev)*gw_params%org%watr_organic
        END DO
 
-       !!vegetation dependent field capacity (point plants get stressed) and
+       !vegetation dependent field capacity (point plants get stressed) and
        !wilting point
        DO i=1,mp
           psi_tmp(i,:) = -psi_c(veg%iveg(i))
@@ -1917,7 +1917,7 @@ CONTAINS
     END DO
     bal%osnowd0 = ssnow%osnowd
 
-    !! vh_js !! comment out hide% condition
+    ! vh_js ! comment out hide% condition
     ! IF (hide%Ticket49Bug6) THEN
 
     IF(cable_user%SOIL_STRUC=='sli') THEN

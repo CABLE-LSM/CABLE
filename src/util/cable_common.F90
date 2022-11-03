@@ -130,7 +130,7 @@ USE cable_runtime_opts_mod ,ONLY : wiltparam
 
   TYPE(gw_parameters_type), SAVE :: gw_params
 
-  REAL, SAVE ::        &!should be able to change parameters!!!
+  REAL, SAVE ::        &!should be able to change parameters!
        max_glacier_snowd=1100.0,&
        snow_ccnsw = 2.0, &
                                 !jh!an:clobber - effectively force single layer snow

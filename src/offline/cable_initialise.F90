@@ -400,7 +400,7 @@ CONTAINS
          max_vegpatches,'def',from_restart,mp)
     CALL readpar(ncid_rin,'albsoilsn',dummy,ssnow%albsoilsn,                    &
          filename%restart_in,max_vegpatches,'nrb',from_restart,mp)
-    ssnow%albsoilsn(:,3) = 1.0 - emsoil  !! (BP Nov 2009)
+    ssnow%albsoilsn(:,3) = 1.0 - emsoil  ! (BP Nov 2009)
     CALL readpar(ncid_rin,'rnof1',dummy,ssnow%rnof1,filename%restart_in,        &
          max_vegpatches,'def',from_restart,mp)
     CALL readpar(ncid_rin,'rnof2',dummy,ssnow%rnof2,filename%restart_in,        &
@@ -417,10 +417,10 @@ CONTAINS
        ssnow%GWwb = 0.95*soil%ssat
     END IF
 
-!!$   IF(cable_user%SOIL_STRUC=='sli'.or.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
-!!$      CALL readpar(ncid_rin,'gamma',dummy,veg%gamma,filename%restart_in,           &
-!!$           max_vegpatches,'def',from_restart,mp)
-!!$   ENDIF
+!$   IF(cable_user%SOIL_STRUC=='sli'.or.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
+!$      CALL readpar(ncid_rin,'gamma',dummy,veg%gamma,filename%restart_in,           &
+!$           max_vegpatches,'def',from_restart,mp)
+!$   ENDIF
 
     IF(cable_user%SOIL_STRUC=='sli') THEN
        CALL readpar(ncid_rin,'S',dummy,ssnow%S,filename%restart_in, &
@@ -437,23 +437,23 @@ CONTAINS
             max_vegpatches,'snow',from_restart,mp)
        CALL readpar(ncid_rin,'sconds',dummy,ssnow%sconds,filename%restart_in, &
             max_vegpatches,'snow',from_restart,mp)
-!!$       CALL readpar(ncid_rin,'ZR',dummy,veg%ZR, &
-!!$            filename%restart_in,max_vegpatches,'def',from_restart,mp)
-!!$       CALL readpar(ncid_rin,'F10',dummy,veg%F10, &
-!!$            filename%restart_in,max_vegpatches,'def',from_restart,mp)
-!!$       CALL readpar(ncid_rin,'zeta',dummy,soil%zeta,filename%restart_in,           &
-!!$            max_vegpatches,'def',from_restart,mp)
-!!$       CALL readpar(ncid_rin,'fsatmax',dummy,soil%fsatmax,filename%restart_in,           &
-!!$            max_vegpatches,'def',from_restart,mp)
-!!$       CALL readpar(ncid_rin,'nhorizons',dummy,soil%nhorizons,filename%restart_in,           &
-!!$            max_vegpatches,'def',from_restart,mp)
-!!$       ALLOCATE(var_r2(mp,ms))
-!!$       CALL readpar(ncid_rin,'ishorizon',dummy,var_r2,filename%restart_in,           &
-!!$            max_vegpatches,'ms',from_restart,mp)
-!!$       soil%ishorizon = int(var_r2)
-!!$       DEALLOCATE(var_r2)
-!!$       CALL readpar(ncid_rin,'clitt',dummy,veg%clitt,filename%restart_in,           &
-!!$            max_vegpatches,'def',from_restart,mp)
+!$       CALL readpar(ncid_rin,'ZR',dummy,veg%ZR, &
+!$            filename%restart_in,max_vegpatches,'def',from_restart,mp)
+!$       CALL readpar(ncid_rin,'F10',dummy,veg%F10, &
+!$            filename%restart_in,max_vegpatches,'def',from_restart,mp)
+!$       CALL readpar(ncid_rin,'zeta',dummy,soil%zeta,filename%restart_in,           &
+!$            max_vegpatches,'def',from_restart,mp)
+!$       CALL readpar(ncid_rin,'fsatmax',dummy,soil%fsatmax,filename%restart_in,           &
+!$            max_vegpatches,'def',from_restart,mp)
+!$       CALL readpar(ncid_rin,'nhorizons',dummy,soil%nhorizons,filename%restart_in,           &
+!$            max_vegpatches,'def',from_restart,mp)
+!$       ALLOCATE(var_r2(mp,ms))
+!$       CALL readpar(ncid_rin,'ishorizon',dummy,var_r2,filename%restart_in,           &
+!$            max_vegpatches,'ms',from_restart,mp)
+!$       soil%ishorizon = int(var_r2)
+!$       DEALLOCATE(var_r2)
+!$       CALL readpar(ncid_rin,'clitt',dummy,veg%clitt,filename%restart_in,           &
+!$            max_vegpatches,'def',from_restart,mp)
     ENDIF
     CALL readpar(ncid_rin,'cansto',dummy,canopy%cansto,filename%restart_in,     &
          max_vegpatches,'def',from_restart,mp)
@@ -518,8 +518,8 @@ CONTAINS
     !      END IF
     !    END DO
     !    END DO
-    !! getting rid of spurious veg types in Antarctica from the CCAM2Mk3L process
-    !! Doing it once will fix the problem in the restart file in subsequent runs
+    ! ! getting rid of spurious veg types in Antarctica from the CCAM2Mk3L process
+    ! ! Doing it once will fix the problem in the restart file in subsequent runs
     !    DO i=1, mland
     !      IF ( rad%latitude(landpt(i)%cstart) < -60.0 .AND. &
     !           patch(landpt(i)%cstart)%frac < 1.0 ) THEN
@@ -530,7 +530,7 @@ CONTAINS
     !        END IF
     !      END IF
     !    END DO
-    !! end of fix to spurious veg types
+    ! ! end of fix to spurious veg types
 
     CALL readpar(ncid_rin,'isoil',dummy,INvar,filename%restart_in,              &
          max_vegpatches,'def',from_restart,mp)
@@ -772,7 +772,7 @@ CONTAINS
     CALL readpar(ncid_rin,'albsoilsn',dummy,var_r2,filename%restart_in,         &
          max_vegpatches,'nrb',from_restart,INpatch)
     CALL redistr_r2(INpatch,nap,var_r2,ssnow%albsoilsn,'albsoilsn',nrb)
-    ssnow%albsoilsn(:,3) = 1.0 - emsoil  !! (BP Nov 2009)
+    ssnow%albsoilsn(:,3) = 1.0 - emsoil  ! (BP Nov 2009)
     ! The following two restart file additions are to initialise Mk3L:
     CALL readpar(ncid_rin,'albedo',dummy,var_r2,filename%restart_in,            &
          max_vegpatches,'nrb',from_restart,INpatch)

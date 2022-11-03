@@ -433,10 +433,10 @@ SUBROUTINE casa_readphen(veg,casamet,phen)
 END SUBROUTINE casa_readphen
 
 !SUBROUTINE casa_readpoint(veg,soil,casaflux,casamet,rad)
-!! Transfer grid information from CABLE internally, read N&P input from
-!! integral NETCDF file "cnpdata_r21.nc" (Q.Zhang 01/08/2011)
+! ! Transfer grid information from CABLE internally, read N&P input from
+! ! integral NETCDF file "cnpdata_r21.nc" (Q.Zhang 01/08/2011)
 !
-!!SUBROUTINE casa_readpoint(mvt,veg,soil,casaflux,casamet,patch,rad)
+! !SUBROUTINE casa_readpoint(mvt,veg,soil,casaflux,casamet,patch,rad)
 !  USE netcdf
 !  USE cable_def_types_mod
 !  USE abort_module
@@ -445,7 +445,7 @@ END SUBROUTINE casa_readphen
 !  USE casadimension
 !  USE casavariable
 !  IMPLICIT NONE
-!!  INTEGER,               INTENT(IN)    :: mvt
+! ! INTEGER,               INTENT(IN)    :: mvt
 !  TYPE (veg_parameter_type),  INTENT(INOUT) :: veg  ! vegetation parameters
 !  TYPE (soil_parameter_type), INTENT(INOUT) :: soil ! soil parameters  
 !  TYPE (casa_flux),           INTENT(INOUT) :: casaflux
@@ -551,81 +551,81 @@ END SUBROUTINE casa_readphen
 !
 !  DEALLOCATE(latx,lonx,iso,annNdep,annNfix,annPwea,annPdust)
 !
-!!  ! local variables
-!!  INTEGER :: np,nland
-!!  REAL(r_2) :: annNdep,annNfix,annPwea,annPdust
-!!  REAL(r_2) :: annNfert,annPfert   ! not really used yet
-!!  INTEGER, DIMENSION(mp) :: vtypex,stypex
-!!  INTEGER :: nlandx,ivtigbp,inPatch,ilat,ilon
-!!  REAL    :: frac,ssat,swilt,sfc   ! used in offline version, Q.Zhang @ 25/02/2011
-!!     
-!!  OPEN(101,file=casafile%cnppoint,FORM='FORMATTED')
-!!  READ(101,*) 
-!!!  READ(101,*) inPatch
-!!  PRINT * ,'Within casa_readpoint, mp = ', mp
-!!!  PRINT * ,'Input file has ', inPatch, ' patches.'
-!!
-!!  np = 0
-!!  DO nland=1,mp
-!!    np = np + 1
-!!!    READ(101,*) &
-!!!        nlandx,ivtigbp,stypex(np),casamet%isorder(np), &
-!!!               casamet%lat(np),casamet%lon(np),casamet%areacell(np), &
-!!!               annNfix,annNdep,annNfert,annPwea,annPdust,annPfert
-!!
-!!    ! 'ijgcm,j,i,lat,lon,frac,iveg,isoil,ist,parea,ssat,swilt,sfc,ndep,nfix,pwea,pdust'
-!!    read(101,*) nlandx,ilat,ilon,casamet%lat(np),casamet%lon(np),&
-!!                frac,vtypex(np),stypex(np),casamet%isorder(np),&
-!!                casamet%areacell(np),ssat,swilt,&
-!!                sfc,annNdep,annNfix,annPwea,annPdust
-!!
-!!!    PRINT * , nlandx,ivtigbp,stypex(np),veg%iveg(np),soil%isoilm(np), &
-!!!              patch(np)%frac,patch(np)%latitude,patch(np)%longitude, &
-!!!              casamet%lat(np),casamet%lon(np)
-!!
-!!!    IF (ivtigbp == 0) ivtigbp = iceland
-!!
-!!    IF (ABS(casamet%lat(np) - patch(np)%latitude) < 0.1 .AND. &
-!!        ABS(casamet%lon(np) - patch(np)%longitude) < 0.1) THEN
-!!      IF (vtypex(np) /= veg%iveg(np) .OR. stypex(np) /= soil%isoilm(np)) THEN
-!!        PRINT * ,'Check why iveg, isoil do not match'
-!!        STOP
-!!      ELSE
-!!        casaflux%Nmindep(np) = annNdep/365.0
-!!        casaflux%Nminfix(np) = annNfix/365.0
-!!        casaflux%Pdep(np)    = annPdust/365.0     ! gP/m2/day
-!!        casaflux%Pwea(np)    = annPwea/365.0      ! gP/m2/day
-!!!        IF (mvtype==17) THEN
-!!!          vtypex(np)  = ivtigbp  ! for running IGBP veg type only
-!!!        END IF 
-!!      END IF
-!!    ELSE
-!!      PRINT * ,'Check why lat, lon do not match'
-!!      print * ,'casamet',casamet%lat(np),casamet%lon(np)
-!!      print * ,'cable  ',patch(np)%latitude,patch(np)%longitude
-!!      STOP
-!!    END IF
-!!
-!!    if(veg%iveg(np)==cropland .or. veg%iveg(np)==croplnd2) then
-!!    ! P fertilizer =13 Mt P globally in 1994
-!!      casaflux%Pdep(np) = casaflux%Pdep(np)+0.7/365.0
-!!    ! N fertilizer =86 Mt N globally in 1994
-!!      casaflux%Nminfix(np) = casaflux%Nminfix(np)+4.3/365.0
-!!    endif
-!!!    IF (veg%iveg(np)==12 .OR. veg%iveg(np)==14) casaflux%Pdep(np)= &
-!!!       casaflux%Pdep(np)+0.7/365.0    ! P fertilizer =13 Mt P globally in 1994
-!!
-!!  ENDDO 
-!!  CLOSE(101)
+! ! ! local variables
+! ! INTEGER :: np,nland
+! ! REAL(r_2) :: annNdep,annNfix,annPwea,annPdust
+! ! REAL(r_2) :: annNfert,annPfert   ! not really used yet
+! ! INTEGER, DIMENSION(mp) :: vtypex,stypex
+! ! INTEGER :: nlandx,ivtigbp,inPatch,ilat,ilon
+! ! REAL    :: frac,ssat,swilt,sfc   ! used in offline version, Q.Zhang @ 25/02/2011
+! !    
+! ! OPEN(101,file=casafile%cnppoint,FORM='FORMATTED')
+! ! READ(101,*) 
+! ! READ(101,*) inPatch
+! ! PRINT * ,'Within casa_readpoint, mp = ', mp
+! ! PRINT * ,'Input file has ', inPatch, ' patches.'
+! !
+! ! np = 0
+! ! DO nland=1,mp
+! !   np = np + 1
+! !   READ(101,*) &
+! !        nlandx,ivtigbp,stypex(np),casamet%isorder(np), &
+! !              casamet%lat(np),casamet%lon(np),casamet%areacell(np), &
+! !              annNfix,annNdep,annNfert,annPwea,annPdust,annPfert
+! !
+!    ! 'ijgcm,j,i,lat,lon,frac,iveg,isoil,ist,parea,ssat,swilt,sfc,ndep,nfix,pwea,pdust'
+! !  read(101,*) nlandx,ilat,ilon,casamet%lat(np),casamet%lon(np),&
+! !              frac,vtypex(np),stypex(np),casamet%isorder(np),&
+! !              casamet%areacell(np),ssat,swilt,&
+! !              sfc,annNdep,annNfix,annPwea,annPdust
+! !
+! !   PRINT * , nlandx,ivtigbp,stypex(np),veg%iveg(np),soil%isoilm(np), &
+! !             patch(np)%frac,patch(np)%latitude,patch(np)%longitude, &
+! !             casamet%lat(np),casamet%lon(np)
+! !
+! !   IF (ivtigbp == 0) ivtigbp = iceland
+! !
+! !  IF (ABS(casamet%lat(np) - patch(np)%latitude) < 0.1 .AND. &
+! !       ABS(casamet%lon(np) - patch(np)%longitude) < 0.1) THEN
+! !     IF (vtypex(np) /= veg%iveg(np) .OR. stypex(np) /= soil%isoilm(np)) THEN
+! !       PRINT * ,'Check why iveg, isoil do not match'
+! !       STOP
+! !     ELSE
+! !       casaflux%Nmindep(np) = annNdep/365.0
+! !       casaflux%Nminfix(np) = annNfix/365.0
+! !       casaflux%Pdep(np)    = annPdust/365.0     ! gP/m2/day
+! !       casaflux%Pwea(np)    = annPwea/365.0      ! gP/m2/day
+! !       IF (mvtype==17) THEN
+! !         vtypex(np)  = ivtigbp  ! for running IGBP veg type only
+! !       END IF 
+! !     END IF
+! !   ELSE
+! !     PRINT * ,'Check why lat, lon do not match'
+! !     print * ,'casamet',casamet%lat(np),casamet%lon(np)
+! !     print * ,'cable  ',patch(np)%latitude,patch(np)%longitude
+! !     STOP
+! !  END IF
+! !
+! !   if(veg%iveg(np)==cropland .or. veg%iveg(np)==croplnd2) then
+! !   ! P fertilizer =13 Mt P globally in 1994
+! !     casaflux%Pdep(np) = casaflux%Pdep(np)+0.7/365.0
+! !   ! N fertilizer =86 Mt N globally in 1994
+! !     casaflux%Nminfix(np) = casaflux%Nminfix(np)+4.3/365.0
+! !   endif
+! !   IF (veg%iveg(np)==12 .OR. veg%iveg(np)==14) casaflux%Pdep(np)= &
+! !      casaflux%Pdep(np)+0.7/365.0    ! P fertilizer =13 Mt P globally in 1994
+! !
+! !ENDDO 
+! !CLOSE(101)
 !
 !END SUBROUTINE casa_readpoint
 
 SUBROUTINE casa_init(casabiome,casamet,casapool,casabal,veg,phen)
 ! mst not used (BP sep2010)
-!! for first time reading file *_1220.csv  (BP may2010)
+! for first time reading file *_1220.csv  (BP may2010)
 !SUBROUTINE casa_init(mst,casapool,casabal,veg)
-!!SUBROUTINE casa_init(mst,casapool,casabal)
-!! end addition (BP may2010)
+! !SUBROUTINE casa_init(mst,casapool,casabal)
+! !end addition (BP may2010)
 !  initialize some values in phenology parameters and leaf growth phase
   USE casadimension
   USE casaparm

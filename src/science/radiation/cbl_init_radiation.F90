@@ -25,7 +25,7 @@ MODULE cbl_init_radiation_module
    PUBLIC init_radiation
    PRIVATE
 
-!FUDGED local pars -masks tuned at other times - review conssitency!!
+!FUDGED local pars -masks tuned at other times - review conssitency!
 real :: Ccoszen_tols_huge  ! 1e-4 * threshold cosine of sun's zenith angle, below which considered SUNLIT
 real :: Ccoszen_tols_tiny  ! 1e-4 * threshold cosine of sun's zenith angle, below which considered SUNLIT
 
@@ -138,8 +138,8 @@ IF( cbl_standalone .OR. jls_standalone .AND. .NOT. jls_radiation ) &
    
 END SUBROUTINE init_radiation
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!===============================================================================
+!===============================================================================
 
 subroutine Common_InitRad_Scalings( xphi1, xphi2, xk, xvlai2, c1, rhoch,      &
                             mp, nrb, Cpi180,cLAI_thresh, veg_mask,             &
@@ -173,7 +173,7 @@ CALL calc_rhoch( c1,rhoch, mp, nrb, VegTaul, VegRefl )
 End subroutine Common_InitRad_Scalings
 
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!===============================================================================
 
 subroutine  common_InitRad_coeffs( xphi1, xphi2, xk, xvlai2, mp, nrb, Cpi180,&
                             cLAI_thresh, veg_mask, VegXfang, reducedLAIdue2snow  )
@@ -220,8 +220,8 @@ END WHERE
 
 End subroutine common_InitRad_coeffs
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!===============================================================================
+!===============================================================================
 
 subroutine ExtinctionCoeff( ExtCoeff_beam, ExtCoeff_dif, mp, nrb, CGauss_w, Ccoszen_tols_tiny, reducedLAIdue2snow, &
                             sunlit_mask, veg_mask, sunlit_veg_mask,  &
@@ -255,7 +255,7 @@ call ExtinctionCoeff_beam( ExtCoeff_beam, mp, nrb, Ccoszen_tols_tiny,&
 
 End subroutine ExtinctionCoeff
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!===============================================================================
 
 subroutine ExtinctionCoeff_beam( ExtCoeff_beam, mp, nrb,Ccoszen_tols_tiny, &
                                  sunlit_mask, veg_mask, sunlit_veg_mask,  &
@@ -294,7 +294,7 @@ WHERE ( abs(ExtCoeff_beam - ExtCoeff_dif )  < 0.001 ) &
 
 End subroutine ExtinctionCoeff_beam
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!===============================================================================
 
 subroutine ExtinctionCoeff_dif( ExtCoeff_dif, mp, nrb, Cgauss_w, reducedLAIdue2snow, veg_mask, &
                                  cLAI_thresh, xk, xvlai2)
@@ -327,8 +327,8 @@ WHERE ( veg_mask ) ! vegetated
    END WHERE
 End subroutine ExtinctionCoeff_dif
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!===============================================================================
+!===============================================================================
 
 Subroutine EffectiveExtinctCoeffs( EffExtCoeff_beam, EffExtCoeff_dif, mp, nrb, &
                                    sunlit_veg_mask,                        &
@@ -353,7 +353,7 @@ call EffectiveExtinctCoeff( EffExtCoeff_beam, mp, ExtCoeff_beam, c1, &
                             sunlit_veg_mask )
 End Subroutine EffectiveExtinctCoeffs
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!===============================================================================
 
 ! modified k diffuse(6.20)(for leaf scattering)
 subroutine EffectiveExtinctCoeff(Eff_ExtCoeff, mp, ExtCoeff, c1, mask )
@@ -380,8 +380,8 @@ enddo
 
 End subroutine EffectiveExtinctCoeff
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!===============================================================================
+!===============================================================================
 subroutine BeamFraction( RadFbeam, mp, nrb, Cpi,Ccoszen_tols_huge, metDoy, &
 coszen, SW_down ) 
 USE cbl_spitter_module, ONLY : Spitter
