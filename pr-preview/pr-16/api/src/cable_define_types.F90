@@ -621,25 +621,44 @@ MODULE cable_def_types_mod
           moy        !! Month in the year (local time)
 
      REAL, DIMENSION(:), POINTER ::                                           &
-          ca,      & !! CO2 concentration (mol/mol)
-          doy,     & !! Day of year, i.e. days since 01-01T00:00 (local time)
-          hod,     & !! Hour in the day (local time)
-          ofsd,    & !! downward short-wave radiation (W/m2)
-          fld,     & !! downward long-wave radiation (W/m2)
-          precip,  & !! rainfall (liquid+solid)(mm/dels)
-          precip_sn,&!! solid precipitation only (mm/dels)
-          tk,      & !! surface air temperature (K)
-          tvair,   & !! within canopy air temperature (K)
-          tvrad,   & !! radiative vegetation temperature (K)
-          pmb,     & !! surface air pressure (mbar)
-          ua,      & !! surface wind speed (m/s)
-          qv,      & !! surface specific humidity (g/g)
-          qvair,   & !! within canopy specific humidity (g/g)
-          da,      & !! water vap pressure deficit at ref height (Pa)
-          dva,     & !! in canopy water vap pressure deficit (Pa)
-          coszen,   &  !! Cosine of the zenith angle of the sun
-          Ndep,     &   !! nitrogen deposition (gN m-2 d-1)
-          Pdep !1 Phosphorus deposition (gP m-2 d-1)
+          ca,      & 
+               !! CO2 concentration (mol/mol)
+          doy,     & 
+               !! Day of year, i.e. days since 01-01T00:00 (local time)
+          hod,     & 
+               !! Hour in the day (local time)
+          ofsd,    & 
+               !! downward short-wave radiation (W/m2)
+          fld,     & 
+               !! downward long-wave radiation (W/m2)
+          precip,  & 
+               !! rainfall (liquid+solid)(mm/dels)
+          precip_sn,&
+               !! solid precipitation only (mm/dels)
+          tk,      & 
+               !! surface air temperature (K)
+          tvair,   & 
+               !! within canopy air temperature (K)
+          tvrad,   & 
+               !! radiative vegetation temperature (K)
+          pmb,     & 
+               !! surface air pressure (mbar)
+          ua,      & 
+               !! surface wind speed (m/s)
+          qv,      & 
+               !! surface specific humidity (g/g)
+          qvair,   & 
+               !! within canopy specific humidity (g/g)
+          da,      & 
+               !! water vap pressure deficit at ref height (Pa)
+          dva,     & 
+               !! in canopy water vap pressure deficit (Pa)
+          coszen,   &  
+               !! Cosine of the zenith angle of the sun
+          Ndep,     &   
+               !! nitrogen deposition (gN m-2 d-1)
+          Pdep 
+               !! Phosphorus deposition (gP m-2 d-1)
 
      REAL, DIMENSION(:,:), POINTER ::                                         &
           fsd  !1 downward short-wave radiation (W/m2)
