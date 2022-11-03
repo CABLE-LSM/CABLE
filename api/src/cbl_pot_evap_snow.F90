@@ -62,7 +62,7 @@ CALL qsatfjh( mp, qsatfvar, CRMH2o, Crmair, CTETENA, CTETENB, CTETENC,         &
 !to HDM method and latent_heat_flux() and elsewhere
 
 IF (cable_user_litter) THEN
-  !! vh_js !!
+  ! vh_js !
   ssnowpotev = cc1 * (canopy_fns - ground_H_flux) + &
                cc2 * air_rho * air_rlam*(qsatfvar - met_qvair)/ &
                (ssnow_rtsoil+ REAL((1-ssnow_isflag))*veg_clitt*0.003/canopy_DvLitt)
@@ -156,7 +156,7 @@ IF (cable_user_or_evap .or. cable_user_gw_model) then
                ssnow_rtsoil + REAL(ssnow_rtevap_unsat)) )
 
  ELSEIF (cable_user_litter) THEN
-         !! vh_js !!
+         ! vh_js !
   ssnowpotev = air_rho * air_rlam * dq /( ssnow_rtsoil +                       &
                           REAL((1-ssnow_isflag))* veg_clitt*0.003/canopy_DvLitt)
  ELSE

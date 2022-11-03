@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 1.8% of total for procedures.">588 statements</a>
+    title=" 1.6% of total for procedures.">588 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/cable_input.F90"> Source File</a></li>
   </ul>
@@ -123,8 +123,6 @@
     <h2>public subroutine get_met_data(spinup, spinConv, met, soil, rad, veg, kend, dels, TFRZ, ktau, kstart)</h2>
     
 
-    <p>vh_js !! use is_leapyear function here instead of multiple conditions
-vh_js !! corrected indices of defaultLAI</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">
@@ -143,19 +141,19 @@ vh_js !! corrected indices of defaultLAI</p>
   <td><strong>spinConv</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-met~12"></span>type(<a href='../type/met_type~2.html'>met_type</a>),</td>
+  <td><span class="anchor" id="variable-met~14"></span>type(<a href='../type/met_type~2.html'>met_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>met</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-soil~25"></span>type(<a href='../type/soil_parameter_type~2.html'>soil_parameter_type</a>),</td>
+  <td><span class="anchor" id="variable-soil~26"></span>type(<a href='../type/soil_parameter_type~2.html'>soil_parameter_type</a>),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>soil</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-rad~4"></span>type(<a href='../type/radiation_type~2.html'>radiation_type</a>),</td>
+  <td><span class="anchor" id="variable-rad~5"></span>type(<a href='../type/radiation_type~2.html'>radiation_type</a>),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>rad</strong></td><td></td>
@@ -173,7 +171,7 @@ vh_js !! corrected indices of defaultLAI</p>
   <td><strong>kend</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-dels~11"></span>real,</td>
+  <td><span class="anchor" id="variable-dels~13"></span>real,</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>dels</strong></td><td></td>
@@ -185,7 +183,7 @@ vh_js !! corrected indices of defaultLAI</p>
   <td><strong>TFRZ</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-ktau~13"></span>integer,</td>
+  <td><span class="anchor" id="variable-ktau~15"></span>integer,</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>ktau</strong></td><td></td>
@@ -222,71 +220,74 @@ vh_js !! corrected indices of defaultLAI</p>
 <polygon fill="none" stroke="black" points="85,-129 0,-129 0,-105 85,-105 85,-129"/>
 <text text-anchor="middle" x="42.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50">get_met_data</text>
 </g>
-<!-- nf90_inquire_variable -->
-<g id="proc~~get_met_data~~CallsGraph_node2" class="node">
-<title>nf90_inquire_variable</title>
-<polygon fill="#777777" stroke="#777777" points="248,-234 121,-234 121,-210 248,-210 248,-234"/>
-<text text-anchor="middle" x="184.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inquire_variable</text>
-</g>
-<!-- proc~get_met_data&#45;&gt;nf90_inquire_variable -->
-<g id="proc~~get_met_data~~CallsGraph_edge1" class="edge">
-<title>proc~get_met_data&#45;&gt;nf90_inquire_variable</title>
-<path fill="none" stroke="#ff0000" d="M51.59,-129.08C64.31,-147.19 90.69,-181.36 121,-201 123.61,-202.69 126.36,-204.25 129.2,-205.71"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="127.96,-208.99 138.51,-209.96 130.87,-202.62 127.96,-208.99"/>
-</g>
-<!-- rh_sh -->
-<g id="proc~~get_met_data~~CallsGraph_node3" class="node">
-<title>rh_sh</title>
-<polygon fill="#777777" stroke="#777777" points="211.5,-192 157.5,-192 157.5,-168 211.5,-168 211.5,-192"/>
-<text text-anchor="middle" x="184.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">rh_sh</text>
-</g>
-<!-- proc~get_met_data&#45;&gt;rh_sh -->
-<g id="proc~~get_met_data~~CallsGraph_edge2" class="edge">
-<title>proc~get_met_data&#45;&gt;rh_sh</title>
-<path fill="none" stroke="#ff0000" d="M63.42,-129.03C78.8,-138.02 100.79,-150.21 121,-159 129.47,-162.68 138.8,-166.13 147.62,-169.12"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="146.68,-172.5 157.27,-172.3 148.87,-165.85 146.68,-172.5"/>
-</g>
-<!-- nf90_get_var -->
-<g id="proc~~get_met_data~~CallsGraph_node4" class="node">
-<title>nf90_get_var</title>
-<polygon fill="#777777" stroke="#777777" points="225.5,-150 143.5,-150 143.5,-126 225.5,-126 225.5,-150"/>
-<text text-anchor="middle" x="184.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_get_var</text>
-</g>
-<!-- proc~get_met_data&#45;&gt;nf90_get_var -->
-<g id="proc~~get_met_data~~CallsGraph_edge3" class="edge">
-<title>proc~get_met_data&#45;&gt;nf90_get_var</title>
-<path fill="none" stroke="#ff0000" d="M85.13,-123.24C100.2,-125.51 117.39,-128.08 133.14,-130.45"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="132.83,-133.94 143.24,-131.96 133.87,-127.02 132.83,-133.94"/>
-</g>
 <!-- proc~is_leapyear -->
-<g id="proc~~get_met_data~~CallsGraph_node5" class="node">
+<g id="proc~~get_met_data~~CallsGraph_node2" class="node">
 <title>proc~is_leapyear</title>
-<g id="a_proc~~get_met_data~~CallsGraph_node5"><a xlink:href=".././proc/is_leapyear.html" xlink:title="IS_LEAPYEAR">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="225.5,-108 143.5,-108 143.5,-84 225.5,-84 225.5,-108"/>
-<text text-anchor="middle" x="184.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">IS_LEAPYEAR</text>
+<g id="a_proc~~get_met_data~~CallsGraph_node2"><a xlink:href=".././proc/is_leapyear.html" xlink:title="IS_LEAPYEAR">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="225.5,-234 143.5,-234 143.5,-210 225.5,-210 225.5,-234"/>
+<text text-anchor="middle" x="184.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">IS_LEAPYEAR</text>
 </a>
 </g>
 </g>
 <!-- proc~get_met_data&#45;&gt;proc~is_leapyear -->
-<g id="proc~~get_met_data~~CallsGraph_edge4" class="edge">
+<g id="proc~~get_met_data~~CallsGraph_edge1" class="edge">
 <title>proc~get_met_data&#45;&gt;proc~is_leapyear</title>
-<path fill="none" stroke="#ff0000" d="M85.13,-110.76C100.2,-108.49 117.39,-105.92 133.14,-103.55"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="133.87,-106.98 143.24,-102.04 132.83,-100.06 133.87,-106.98"/>
+<path fill="none" stroke="#ff0000" d="M51.59,-129.08C64.31,-147.19 90.69,-181.36 121,-201 125.05,-203.62 129.46,-205.95 134,-208.01"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="132.86,-211.33 143.44,-211.87 135.51,-204.85 132.86,-211.33"/>
+</g>
+<!-- nf90_inquire_variable -->
+<g id="proc~~get_met_data~~CallsGraph_node3" class="node">
+<title>nf90_inquire_variable</title>
+<polygon fill="#777777" stroke="#777777" points="248,-192 121,-192 121,-168 248,-168 248,-192"/>
+<text text-anchor="middle" x="184.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inquire_variable</text>
+</g>
+<!-- proc~get_met_data&#45;&gt;nf90_inquire_variable -->
+<g id="proc~~get_met_data~~CallsGraph_edge2" class="edge">
+<title>proc~get_met_data&#45;&gt;nf90_inquire_variable</title>
+<path fill="none" stroke="#ff0000" d="M63.42,-129.03C78.8,-138.02 100.79,-150.21 121,-159 125.36,-160.9 129.96,-162.73 134.59,-164.48"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="133.51,-167.81 144.1,-167.91 135.89,-161.22 133.51,-167.81"/>
 </g>
 <!-- proc~nc_abort -->
-<g id="proc~~get_met_data~~CallsGraph_node6" class="node">
+<g id="proc~~get_met_data~~CallsGraph_node4" class="node">
 <title>proc~nc_abort</title>
-<g id="a_proc~~get_met_data~~CallsGraph_node6"><a xlink:href=".././proc/nc_abort.html" xlink:title="nc_abort">
-<polygon fill="#d9534f" stroke="#d9534f" points="214,-66 155,-66 155,-42 214,-42 214,-66"/>
-<text text-anchor="middle" x="184.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nc_abort</text>
+<g id="a_proc~~get_met_data~~CallsGraph_node4"><a xlink:href=".././proc/nc_abort.html" xlink:title="nc_abort">
+<polygon fill="#d9534f" stroke="#d9534f" points="214,-150 155,-150 155,-126 214,-126 214,-150"/>
+<text text-anchor="middle" x="184.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nc_abort</text>
 </a>
 </g>
 </g>
 <!-- proc~get_met_data&#45;&gt;proc~nc_abort -->
-<g id="proc~~get_met_data~~CallsGraph_edge5" class="edge">
+<g id="proc~~get_met_data~~CallsGraph_edge4" class="edge">
 <title>proc~get_met_data&#45;&gt;proc~nc_abort</title>
-<path fill="none" stroke="#ff0000" d="M63.42,-104.97C78.8,-95.98 100.79,-83.79 121,-75 128.69,-71.66 137.09,-68.51 145.17,-65.71"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="146.42,-68.99 154.8,-62.5 144.2,-62.35 146.42,-68.99"/>
+<path fill="none" stroke="#ff0000" d="M85.13,-123.24C103.94,-126.07 126.06,-129.38 144.54,-132.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="144.27,-135.65 154.68,-133.68 145.31,-128.73 144.27,-135.65"/>
+</g>
+<!-- proc~rh_sh -->
+<g id="proc~~get_met_data~~CallsGraph_node5" class="node">
+<title>proc~rh_sh</title>
+<g id="a_proc~~get_met_data~~CallsGraph_node5"><a xlink:href=".././proc/rh_sh.html" xlink:title="rh_sh">
+<polygon fill="#d9534f" stroke="#d9534f" points="211.5,-108 157.5,-108 157.5,-84 211.5,-84 211.5,-108"/>
+<text text-anchor="middle" x="184.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">rh_sh</text>
+</a>
+</g>
+</g>
+<!-- proc~get_met_data&#45;&gt;proc~rh_sh -->
+<g id="proc~~get_met_data~~CallsGraph_edge3" class="edge">
+<title>proc~get_met_data&#45;&gt;proc~rh_sh</title>
+<path fill="none" stroke="#ff0000" d="M85.13,-110.76C104.85,-107.8 128.19,-104.3 147.18,-101.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="147.87,-104.88 157.24,-99.94 146.83,-97.96 147.87,-104.88"/>
+</g>
+<!-- nf90_get_var -->
+<g id="proc~~get_met_data~~CallsGraph_node6" class="node">
+<title>nf90_get_var</title>
+<polygon fill="#777777" stroke="#777777" points="225.5,-66 143.5,-66 143.5,-42 225.5,-42 225.5,-66"/>
+<text text-anchor="middle" x="184.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_get_var</text>
+</g>
+<!-- proc~get_met_data&#45;&gt;nf90_get_var -->
+<g id="proc~~get_met_data~~CallsGraph_edge5" class="edge">
+<title>proc~get_met_data&#45;&gt;nf90_get_var</title>
+<path fill="none" stroke="#ff0000" d="M63.42,-104.97C78.8,-95.98 100.79,-83.79 121,-75 125.36,-73.1 129.96,-71.27 134.59,-69.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="135.89,-72.78 144.1,-66.09 133.51,-66.19 135.89,-72.78"/>
 </g>
 <!-- proc~sinbet -->
 <g id="proc~~get_met_data~~CallsGraph_node7" class="node">
@@ -306,14 +307,14 @@ vh_js !! corrected indices of defaultLAI</p>
 <!-- nf90_strerror -->
 <g id="proc~~get_met_data~~CallsGraph_node8" class="node">
 <title>nf90_strerror</title>
-<polygon fill="#777777" stroke="#777777" points="365,-66 284,-66 284,-42 365,-42 365,-66"/>
-<text text-anchor="middle" x="324.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_strerror</text>
+<polygon fill="#777777" stroke="#777777" points="365,-150 284,-150 284,-126 365,-126 365,-150"/>
+<text text-anchor="middle" x="324.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_strerror</text>
 </g>
 <!-- proc~nc_abort&#45;&gt;nf90_strerror -->
 <g id="proc~~get_met_data~~CallsGraph_edge7" class="edge">
 <title>proc~nc_abort&#45;&gt;nf90_strerror</title>
-<path fill="none" stroke="#0000ff" d="M214.09,-54C231.3,-54 253.69,-54 273.73,-54"/>
-<polygon fill="#0000ff" stroke="#0000ff" points="273.95,-57.5 283.95,-54 273.95,-50.5 273.95,-57.5"/>
+<path fill="none" stroke="#00ff00" d="M214.09,-138C231.3,-138 253.69,-138 273.73,-138"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="273.95,-141.5 283.95,-138 273.95,-134.5 273.95,-141.5"/>
 </g>
 </g>
 </svg>

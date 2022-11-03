@@ -6,9 +6,9 @@ MODULE cbl_spitter_module
    PRIVATE
 
 CONTAINS
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!===============================================================================
 ! Calculate beam fraction: See Spitters et al. 1986, agric. for meteorol., 38:217-229
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!===============================================================================
 FUNCTION spitter(mp, cpi, doy, coszen, fsd) RESULT(fbeam)
 implicit none
 !re-decl input args

@@ -51,7 +51,7 @@ MODULE casaparm
   INTEGER, PARAMETER :: PLAB    = 1
   INTEGER, PARAMETER :: PSORB   = 2
   INTEGER, PARAMETER :: POCC    = 3
-  !! vh_js !! LALLOC moved to bgcdriver to allow for value to be switchable
+  ! vh_js ! LALLOC moved to bgcdriver to allow for value to be switchable
   !INTEGER, PARAMETER :: LALLOC  = 0      !=0 constant; 1 variable
   REAL(r_2), PARAMETER :: z30=0.3
   REAL(r_2), PARAMETER :: R0=0.3

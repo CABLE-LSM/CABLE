@@ -123,12 +123,6 @@
     <h2>public subroutine LUC_EXPT_INIT(LUC_EXPT)</h2>
     
 
-    <p>$          STATUS = NF90_GET_VAR( Luc_expt%f_id(i), timID, tmp, &amp;
-$               start=(/1,1,1/) )
-$          CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )</p>
-<p>$    WHERE (LUC_EXPT%ivegp == 14)
-$       LUC_EXPT%prim_only = .TRUE.
-$    END WHERE</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">
@@ -163,173 +157,173 @@ $    END WHERE</p>
 <!-- proc~luc_expt_init -->
 <g id="proc~~luc_expt_init~~CallsGraph_node1" class="node">
 <title>proc~luc_expt_init</title>
-<polygon fill="none" stroke="black" points="91,-160 0,-160 0,-136 91,-136 91,-160"/>
-<text text-anchor="middle" x="45.5" y="-145.6" font-family="Helvetica,sans-Serif" font-size="10.50">LUC_EXPT_INIT</text>
-</g>
-<!-- nf90_inq_dimid -->
-<g id="proc~~luc_expt_init~~CallsGraph_node2" class="node">
-<title>nf90_inq_dimid</title>
-<polygon fill="#777777" stroke="#777777" points="386.5,-306 292.5,-306 292.5,-282 386.5,-282 386.5,-306"/>
-<text text-anchor="middle" x="339.5" y="-291.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_dimid</text>
-</g>
-<!-- proc~luc_expt_init&#45;&gt;nf90_inq_dimid -->
-<g id="proc~~luc_expt_init~~CallsGraph_edge1" class="edge">
-<title>proc~luc_expt_init&#45;&gt;nf90_inq_dimid</title>
-<path fill="none" stroke="#ff0000" d="M53.72,-160.24C66.11,-180.13 93.37,-219.33 127,-240 174.48,-269.17 237.2,-282.65 281.98,-288.83"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="281.73,-292.33 292.1,-290.15 282.64,-285.39 281.73,-292.33"/>
-</g>
-<!-- nf90_get_var -->
-<g id="proc~~luc_expt_init~~CallsGraph_node3" class="node">
-<title>nf90_get_var</title>
-<polygon fill="#777777" stroke="#777777" points="380.5,-264 298.5,-264 298.5,-240 380.5,-240 380.5,-264"/>
-<text text-anchor="middle" x="339.5" y="-249.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_get_var</text>
-</g>
-<!-- proc~luc_expt_init&#45;&gt;nf90_get_var -->
-<g id="proc~~luc_expt_init~~CallsGraph_edge4" class="edge">
-<title>proc~luc_expt_init&#45;&gt;nf90_get_var</title>
-<path fill="none" stroke="#ff0000" d="M58.1,-160.06C72.75,-174.53 99.39,-198.41 127,-211 178.83,-234.63 243.84,-244.65 288.01,-248.9"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="287.94,-252.41 298.21,-249.81 288.56,-245.43 287.94,-252.41"/>
-</g>
-<!-- nf90_inquire_dimension -->
-<g id="proc~~luc_expt_init~~CallsGraph_node4" class="node">
-<title>nf90_inquire_dimension</title>
-<polygon fill="#777777" stroke="#777777" points="409,-222 270,-222 270,-198 409,-198 409,-222"/>
-<text text-anchor="middle" x="339.5" y="-207.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inquire_dimension</text>
-</g>
-<!-- proc~luc_expt_init&#45;&gt;nf90_inquire_dimension -->
-<g id="proc~~luc_expt_init~~CallsGraph_edge3" class="edge">
-<title>proc~luc_expt_init&#45;&gt;nf90_inquire_dimension</title>
-<path fill="none" stroke="#ff0000" d="M65.18,-160.06C80.98,-169.62 104.57,-182.43 127,-189 169.76,-201.53 219.25,-206.91 259.6,-209.1"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="259.49,-212.6 269.65,-209.59 259.83,-205.61 259.49,-212.6"/>
-</g>
-<!-- nf90_open -->
-<g id="proc~~luc_expt_init~~CallsGraph_node5" class="node">
-<title>nf90_open</title>
-<polygon fill="#777777" stroke="#777777" points="374,-138 305,-138 305,-114 374,-114 374,-138"/>
-<text text-anchor="middle" x="339.5" y="-123.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_open</text>
-</g>
-<!-- proc~luc_expt_init&#45;&gt;nf90_open -->
-<g id="proc~~luc_expt_init~~CallsGraph_edge2" class="edge">
-<title>proc~luc_expt_init&#45;&gt;nf90_open</title>
-<path fill="none" stroke="#ff0000" d="M91.17,-144.63C146.4,-140.47 239.81,-133.44 294.66,-129.3"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="295.05,-132.78 304.76,-128.54 294.53,-125.8 295.05,-132.78"/>
-</g>
-<!-- proc~read_climatefile -->
-<g id="proc~~luc_expt_init~~CallsGraph_node6" class="node">
-<title>proc~read_climatefile</title>
-<g id="a_proc~~luc_expt_init~~CallsGraph_node6"><a xlink:href=".././proc/read_climatefile.html" xlink:title="READ_ClimateFile">
-<polygon fill="#d9534f" stroke="#d9534f" points="234,-180 127,-180 127,-156 234,-156 234,-180"/>
-<text text-anchor="middle" x="180.5" y="-165.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">READ_ClimateFile</text>
-</a>
-</g>
-</g>
-<!-- proc~luc_expt_init&#45;&gt;proc~read_climatefile -->
-<g id="proc~~luc_expt_init~~CallsGraph_edge5" class="edge">
-<title>proc~luc_expt_init&#45;&gt;proc~read_climatefile</title>
-<path fill="none" stroke="#ff0000" d="M91.16,-154.72C99.4,-155.96 108.15,-157.27 116.81,-158.57"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="116.5,-162.06 126.91,-160.09 117.54,-155.14 116.5,-162.06"/>
+<polygon fill="none" stroke="black" points="91,-170 0,-170 0,-146 91,-146 91,-170"/>
+<text text-anchor="middle" x="45.5" y="-155.6" font-family="Helvetica,sans-Serif" font-size="10.50">LUC_EXPT_INIT</text>
 </g>
 <!-- proc~get_unit -->
-<g id="proc~~luc_expt_init~~CallsGraph_node7" class="node">
+<g id="proc~~luc_expt_init~~CallsGraph_node2" class="node">
 <title>proc~get_unit</title>
-<g id="a_proc~~luc_expt_init~~CallsGraph_node7"><a xlink:href=".././proc/get_unit.html" xlink:title="GET_UNIT">
-<polygon fill="#d9534f" stroke="#d9534f" points="212.5,-24 148.5,-24 148.5,0 212.5,0 212.5,-24"/>
-<text text-anchor="middle" x="180.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GET_UNIT</text>
+<g id="a_proc~~luc_expt_init~~CallsGraph_node2"><a xlink:href=".././proc/get_unit.html" xlink:title="GET_UNIT">
+<polygon fill="#d9534f" stroke="#d9534f" points="212.5,-306 148.5,-306 148.5,-282 212.5,-282 212.5,-306"/>
+<text text-anchor="middle" x="180.5" y="-291.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GET_UNIT</text>
 </a>
 </g>
 </g>
 <!-- proc~luc_expt_init&#45;&gt;proc~get_unit -->
-<g id="proc~~luc_expt_init~~CallsGraph_edge6" class="edge">
+<g id="proc~~luc_expt_init~~CallsGraph_edge1" class="edge">
 <title>proc~luc_expt_init&#45;&gt;proc~get_unit</title>
-<path fill="none" stroke="#ff0000" d="M52.74,-135.95C64.63,-114.01 92.41,-67.1 127,-38 130.94,-34.69 135.37,-31.67 139.94,-28.96"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="141.71,-31.98 148.83,-24.13 138.37,-25.83 141.71,-31.98"/>
+<path fill="none" stroke="#ff0000" d="M52.74,-170.05C64.63,-191.99 92.41,-238.9 127,-268 130.94,-271.31 135.37,-274.33 139.94,-277.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="138.37,-280.17 148.83,-281.87 141.71,-274.02 138.37,-280.17"/>
 </g>
-<!-- nf90_inq_varid -->
-<g id="proc~~luc_expt_init~~CallsGraph_node8" class="node">
-<title>nf90_inq_varid</title>
-<polygon fill="#777777" stroke="#777777" points="385,-96 294,-96 294,-72 385,-72 385,-96"/>
-<text text-anchor="middle" x="339.5" y="-81.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_varid</text>
+<!-- nf90_open -->
+<g id="proc~~luc_expt_init~~CallsGraph_node3" class="node">
+<title>nf90_open</title>
+<polygon fill="#777777" stroke="#777777" points="374,-276 305,-276 305,-252 374,-252 374,-276"/>
+<text text-anchor="middle" x="339.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_open</text>
 </g>
-<!-- proc~luc_expt_init&#45;&gt;nf90_inq_varid -->
-<g id="proc~~luc_expt_init~~CallsGraph_edge7" class="edge">
-<title>proc~luc_expt_init&#45;&gt;nf90_inq_varid</title>
-<path fill="none" stroke="#ff0000" d="M91.2,-137.96C102.85,-135.35 115.39,-132.56 127,-130 180.34,-118.24 241.29,-105 284.01,-95.76"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="284.89,-99.15 293.92,-93.62 283.41,-92.31 284.89,-99.15"/>
+<!-- proc~luc_expt_init&#45;&gt;nf90_open -->
+<g id="proc~~luc_expt_init~~CallsGraph_edge2" class="edge">
+<title>proc~luc_expt_init&#45;&gt;nf90_open</title>
+<path fill="none" stroke="#ff0000" d="M62.66,-170.06C78.38,-181.28 103.28,-197.77 127,-208 182.7,-232.03 251.21,-247.87 294.87,-256.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="294.4,-259.86 304.88,-258.3 295.71,-252.99 294.4,-259.86"/>
 </g>
 <!-- proc~handle_err -->
-<g id="proc~~luc_expt_init~~CallsGraph_node9" class="node">
+<g id="proc~~luc_expt_init~~CallsGraph_node4" class="node">
 <title>proc~handle_err</title>
-<g id="a_proc~~luc_expt_init~~CallsGraph_node9"><a xlink:href=".././proc/handle_err.html" xlink:title="HANDLE_ERR">
-<polygon fill="#d9534f" stroke="#d9534f" points="381.5,-54 297.5,-54 297.5,-30 381.5,-30 381.5,-54"/>
-<text text-anchor="middle" x="339.5" y="-39.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HANDLE_ERR</text>
+<g id="a_proc~~luc_expt_init~~CallsGraph_node4"><a xlink:href=".././proc/handle_err.html" xlink:title="HANDLE_ERR">
+<polygon fill="#d9534f" stroke="#d9534f" points="381.5,-234 297.5,-234 297.5,-210 381.5,-210 381.5,-234"/>
+<text text-anchor="middle" x="339.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HANDLE_ERR</text>
 </a>
 </g>
 </g>
 <!-- proc~luc_expt_init&#45;&gt;proc~handle_err -->
-<g id="proc~~luc_expt_init~~CallsGraph_edge8" class="edge">
+<g id="proc~~luc_expt_init~~CallsGraph_edge3" class="edge">
 <title>proc~luc_expt_init&#45;&gt;proc~handle_err</title>
-<path fill="none" stroke="#ff0000" d="M65.39,-135.8C81.32,-125.92 104.98,-112.19 127,-103 180.17,-80.82 244.06,-63.61 287.61,-53.2"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="288.47,-56.6 297.4,-50.9 286.87,-49.78 288.47,-56.6"/>
+<path fill="none" stroke="#ff0000" d="M82.31,-170.12C96.17,-174.55 112.22,-179.36 127,-183 181.2,-196.36 244.23,-207.42 287.29,-214.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="286.83,-217.78 297.25,-215.88 287.92,-210.86 286.83,-217.78"/>
+</g>
+<!-- nf90_inq_dimid -->
+<g id="proc~~luc_expt_init~~CallsGraph_node5" class="node">
+<title>nf90_inq_dimid</title>
+<polygon fill="#777777" stroke="#777777" points="386.5,-192 292.5,-192 292.5,-168 386.5,-168 386.5,-192"/>
+<text text-anchor="middle" x="339.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_dimid</text>
+</g>
+<!-- proc~luc_expt_init&#45;&gt;nf90_inq_dimid -->
+<g id="proc~~luc_expt_init~~CallsGraph_edge4" class="edge">
+<title>proc~luc_expt_init&#45;&gt;nf90_inq_dimid</title>
+<path fill="none" stroke="#ff0000" d="M91.17,-161.37C142.45,-165.23 226.66,-171.57 282.34,-175.77"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="282.16,-179.26 292.39,-176.53 282.68,-172.28 282.16,-179.26"/>
+</g>
+<!-- nf90_inq_varid -->
+<g id="proc~~luc_expt_init~~CallsGraph_node6" class="node">
+<title>nf90_inq_varid</title>
+<polygon fill="#777777" stroke="#777777" points="385,-108 294,-108 294,-84 385,-84 385,-108"/>
+<text text-anchor="middle" x="339.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_varid</text>
+</g>
+<!-- proc~luc_expt_init&#45;&gt;nf90_inq_varid -->
+<g id="proc~~luc_expt_init~~CallsGraph_edge5" class="edge">
+<title>proc~luc_expt_init&#45;&gt;nf90_inq_varid</title>
+<path fill="none" stroke="#ff0000" d="M65.18,-145.94C80.98,-136.38 104.57,-123.57 127,-117 178.8,-101.82 240.45,-97.13 283.79,-95.9"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="283.93,-99.4 293.84,-95.67 283.77,-92.4 283.93,-99.4"/>
+</g>
+<!-- nf90_inquire_dimension -->
+<g id="proc~~luc_expt_init~~CallsGraph_node7" class="node">
+<title>nf90_inquire_dimension</title>
+<polygon fill="#777777" stroke="#777777" points="409,-66 270,-66 270,-42 409,-42 409,-66"/>
+<text text-anchor="middle" x="339.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inquire_dimension</text>
+</g>
+<!-- proc~luc_expt_init&#45;&gt;nf90_inquire_dimension -->
+<g id="proc~~luc_expt_init~~CallsGraph_edge6" class="edge">
+<title>proc~luc_expt_init&#45;&gt;nf90_inquire_dimension</title>
+<path fill="none" stroke="#ff0000" d="M58.41,-145.91C73.15,-131.67 99.69,-108.4 127,-96 168.73,-77.06 218.9,-66.63 259.91,-60.9"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="260.41,-64.36 269.86,-59.58 259.48,-57.43 260.41,-64.36"/>
+</g>
+<!-- nf90_get_var -->
+<g id="proc~~luc_expt_init~~CallsGraph_node8" class="node">
+<title>nf90_get_var</title>
+<polygon fill="#777777" stroke="#777777" points="380.5,-24 298.5,-24 298.5,0 380.5,0 380.5,-24"/>
+<text text-anchor="middle" x="339.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_get_var</text>
+</g>
+<!-- proc~luc_expt_init&#45;&gt;nf90_get_var -->
+<g id="proc~~luc_expt_init~~CallsGraph_edge7" class="edge">
+<title>proc~luc_expt_init&#45;&gt;nf90_get_var</title>
+<path fill="none" stroke="#ff0000" d="M53.15,-145.82C65.1,-125.18 92.19,-83.46 127,-62 176.46,-31.5 242.95,-19.6 288.09,-14.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="288.6,-18.43 298.23,-14 287.94,-11.46 288.6,-18.43"/>
+</g>
+<!-- proc~read_climatefile -->
+<g id="proc~~luc_expt_init~~CallsGraph_node9" class="node">
+<title>proc~read_climatefile</title>
+<g id="a_proc~~luc_expt_init~~CallsGraph_node9"><a xlink:href=".././proc/read_climatefile.html" xlink:title="READ_ClimateFile">
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-150 127,-150 127,-126 234,-126 234,-150"/>
+<text text-anchor="middle" x="180.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">READ_ClimateFile</text>
+</a>
+</g>
+</g>
+<!-- proc~luc_expt_init&#45;&gt;proc~read_climatefile -->
+<g id="proc~~luc_expt_init~~CallsGraph_edge8" class="edge">
+<title>proc~luc_expt_init&#45;&gt;proc~read_climatefile</title>
+<path fill="none" stroke="#ff0000" d="M91.16,-151.28C99.4,-150.04 108.15,-148.73 116.81,-147.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="117.54,-150.86 126.91,-145.91 116.5,-143.94 117.54,-150.86"/>
+</g>
+<!-- nf90_strerror -->
+<g id="proc~~luc_expt_init~~CallsGraph_node10" class="node">
+<title>nf90_strerror</title>
+<polygon fill="#777777" stroke="#777777" points="526,-234 445,-234 445,-210 526,-210 526,-234"/>
+<text text-anchor="middle" x="485.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_strerror</text>
+</g>
+<!-- proc~handle_err&#45;&gt;nf90_strerror -->
+<g id="proc~~luc_expt_init~~CallsGraph_edge9" class="edge">
+<title>proc~handle_err&#45;&gt;nf90_strerror</title>
+<path fill="none" stroke="#7fff00" d="M381.76,-222C398.14,-222 417.14,-222 434.3,-222"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="434.72,-225.5 444.72,-222 434.72,-218.5 434.72,-225.5"/>
+</g>
+<!-- proc~read_climatefile&#45;&gt;nf90_open -->
+<g id="proc~~luc_expt_init~~CallsGraph_edge10" class="edge">
+<title>proc~read_climatefile&#45;&gt;nf90_open</title>
+<path fill="none" stroke="#ff00bf" d="M188.37,-150.01C201.44,-171.8 232.01,-217.89 270,-243 277.54,-247.98 286.32,-251.83 295.02,-254.78"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="294.17,-258.18 304.75,-257.75 296.21,-251.48 294.17,-258.18"/>
+</g>
+<!-- proc~read_climatefile&#45;&gt;proc~handle_err -->
+<g id="proc~~luc_expt_init~~CallsGraph_edge12" class="edge">
+<title>proc~read_climatefile&#45;&gt;proc~handle_err</title>
+<path fill="none" stroke="#ff00bf" d="M195.61,-150.25C212.35,-164.24 241.58,-186.99 270,-201 275.64,-203.78 281.72,-206.28 287.85,-208.5"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="286.87,-211.87 297.46,-211.77 289.12,-205.24 286.87,-211.87"/>
 </g>
 <!-- proc~read_climatefile&#45;&gt;nf90_inq_dimid -->
 <g id="proc~~luc_expt_init~~CallsGraph_edge11" class="edge">
 <title>proc~read_climatefile&#45;&gt;nf90_inq_dimid</title>
-<path fill="none" stroke="#00ffff" d="M188.37,-180.01C201.44,-201.8 232.01,-247.89 270,-273 274.01,-275.65 278.36,-277.97 282.87,-280.01"/>
-<polygon fill="#00ffff" stroke="#00ffff" points="281.69,-283.31 292.27,-283.82 284.31,-276.82 281.69,-283.31"/>
-</g>
-<!-- proc~read_climatefile&#45;&gt;nf90_get_var -->
-<g id="proc~~luc_expt_init~~CallsGraph_edge12" class="edge">
-<title>proc~read_climatefile&#45;&gt;nf90_get_var</title>
-<path fill="none" stroke="#00ffff" d="M195.61,-180.25C212.35,-194.24 241.58,-216.99 270,-231 275.78,-233.85 282.03,-236.41 288.33,-238.68"/>
-<polygon fill="#00ffff" stroke="#00ffff" points="287.59,-242.12 298.18,-242 289.82,-235.49 287.59,-242.12"/>
-</g>
-<!-- proc~read_climatefile&#45;&gt;nf90_inquire_dimension -->
-<g id="proc~~luc_expt_init~~CallsGraph_edge10" class="edge">
-<title>proc~read_climatefile&#45;&gt;nf90_inquire_dimension</title>
-<path fill="none" stroke="#00ffff" d="M226.49,-180.04C244.31,-184.8 264.96,-190.33 283.65,-195.33"/>
-<polygon fill="#00ffff" stroke="#00ffff" points="282.94,-198.76 293.5,-197.96 284.75,-192 282.94,-198.76"/>
-</g>
-<!-- proc~read_climatefile&#45;&gt;nf90_open -->
-<g id="proc~~luc_expt_init~~CallsGraph_edge9" class="edge">
-<title>proc~read_climatefile&#45;&gt;nf90_open</title>
-<path fill="none" stroke="#00ffff" d="M226.49,-155.96C248.08,-150.19 273.83,-143.3 295.2,-137.58"/>
-<polygon fill="#00ffff" stroke="#00ffff" points="296.23,-140.93 304.99,-134.97 294.42,-134.17 296.23,-140.93"/>
+<path fill="none" stroke="#ff00bf" d="M226.49,-150.04C244.31,-154.8 264.96,-160.33 283.65,-165.33"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="282.94,-168.76 293.5,-167.96 284.75,-162 282.94,-168.76"/>
 </g>
 <!-- proc~read_climatefile&#45;&gt;nf90_inq_varid -->
 <g id="proc~~luc_expt_init~~CallsGraph_edge13" class="edge">
 <title>proc~read_climatefile&#45;&gt;nf90_inq_varid</title>
-<path fill="none" stroke="#00ffff" d="M195.61,-155.75C212.35,-141.76 241.58,-119.01 270,-105 274.55,-102.75 279.4,-100.69 284.32,-98.81"/>
-<polygon fill="#00ffff" stroke="#00ffff" points="285.6,-102.07 293.84,-95.41 283.25,-95.48 285.6,-102.07"/>
+<path fill="none" stroke="#ff00bf" d="M226.49,-125.96C244.39,-121.18 265.14,-115.62 283.89,-110.61"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="285.02,-113.93 293.78,-107.96 283.21,-107.17 285.02,-113.93"/>
 </g>
-<!-- proc~read_climatefile&#45;&gt;proc~handle_err -->
+<!-- proc~read_climatefile&#45;&gt;nf90_inquire_dimension -->
 <g id="proc~~luc_expt_init~~CallsGraph_edge14" class="edge">
-<title>proc~read_climatefile&#45;&gt;proc~handle_err</title>
-<path fill="none" stroke="#00ffff" d="M188.37,-155.99C201.44,-134.2 232.01,-88.11 270,-63 275.38,-59.44 281.39,-56.47 287.55,-53.98"/>
-<polygon fill="#00ffff" stroke="#00ffff" points="289.08,-57.15 297.3,-50.47 286.71,-50.57 289.08,-57.15"/>
+<title>proc~read_climatefile&#45;&gt;nf90_inquire_dimension</title>
+<path fill="none" stroke="#ff00bf" d="M195.61,-125.75C212.35,-111.76 241.58,-89.01 270,-75 274,-73.03 278.22,-71.2 282.52,-69.51"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="283.84,-72.75 292.02,-66.03 281.43,-66.18 283.84,-72.75"/>
+</g>
+<!-- proc~read_climatefile&#45;&gt;nf90_get_var -->
+<g id="proc~~luc_expt_init~~CallsGraph_edge15" class="edge">
+<title>proc~read_climatefile&#45;&gt;nf90_get_var</title>
+<path fill="none" stroke="#ff00bf" d="M188.37,-125.99C201.44,-104.2 232.01,-58.11 270,-33 275.72,-29.22 282.15,-26.1 288.72,-23.52"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="290.1,-26.74 298.38,-20.12 287.78,-20.14 290.1,-26.74"/>
 </g>
 <!-- nf90_close -->
-<g id="proc~~luc_expt_init~~CallsGraph_node10" class="node">
+<g id="proc~~luc_expt_init~~CallsGraph_node11" class="node">
 <title>nf90_close</title>
-<polygon fill="#777777" stroke="#777777" points="374.5,-180 304.5,-180 304.5,-156 374.5,-156 374.5,-180"/>
-<text text-anchor="middle" x="339.5" y="-165.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_close</text>
+<polygon fill="#777777" stroke="#777777" points="374.5,-150 304.5,-150 304.5,-126 374.5,-126 374.5,-150"/>
+<text text-anchor="middle" x="339.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_close</text>
 </g>
 <!-- proc~read_climatefile&#45;&gt;nf90_close -->
-<g id="proc~~luc_expt_init~~CallsGraph_edge15" class="edge">
-<title>proc~read_climatefile&#45;&gt;nf90_close</title>
-<path fill="none" stroke="#00ffff" d="M234.22,-168C253.76,-168 275.7,-168 294.39,-168"/>
-<polygon fill="#00ffff" stroke="#00ffff" points="294.41,-171.5 304.41,-168 294.41,-164.5 294.41,-171.5"/>
-</g>
-<!-- nf90_strerror -->
-<g id="proc~~luc_expt_init~~CallsGraph_node11" class="node">
-<title>nf90_strerror</title>
-<polygon fill="#777777" stroke="#777777" points="526,-54 445,-54 445,-30 526,-30 526,-54"/>
-<text text-anchor="middle" x="485.5" y="-39.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_strerror</text>
-</g>
-<!-- proc~handle_err&#45;&gt;nf90_strerror -->
 <g id="proc~~luc_expt_init~~CallsGraph_edge16" class="edge">
-<title>proc~handle_err&#45;&gt;nf90_strerror</title>
-<path fill="none" stroke="#ff00bf" d="M381.76,-42C398.14,-42 417.14,-42 434.3,-42"/>
-<polygon fill="#ff00bf" stroke="#ff00bf" points="434.72,-45.5 444.72,-42 434.72,-38.5 434.72,-45.5"/>
+<title>proc~read_climatefile&#45;&gt;nf90_close</title>
+<path fill="none" stroke="#ff00bf" d="M234.22,-138C253.76,-138 275.7,-138 294.39,-138"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="294.41,-141.5 304.41,-138 294.41,-134.5 294.41,-141.5"/>
 </g>
 </g>
 </svg>

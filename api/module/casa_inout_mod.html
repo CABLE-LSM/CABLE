@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 1.2% of total for modules and submodules.">558 statements</a>
+    title=" 1.1% of total for modules and submodules.">558 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/casa_inout.F90"> Source File</a></li>
   </ul>
@@ -116,13 +116,13 @@
   <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#subs-0">Subroutines</a></h3></div>
   <div class="list-group">
     <div id="subs-0" class="panel-collapse collapse">
-      <a class="list-group-item" href="../module/casa_inout_mod.html#proc-casa_readbiome~2">casa_readbiome</a>
+      <a class="list-group-item" href="../module/casa_inout_mod.html#proc-casa_readbiome">casa_readbiome</a>
       <a class="list-group-item" href="../module/casa_inout_mod.html#proc-casa_readphen">casa_readphen</a>
       <a class="list-group-item" href="../module/casa_inout_mod.html#proc-casa_init">casa_init</a>
-      <a class="list-group-item" href="../module/casa_inout_mod.html#proc-casa_poolout~2">casa_poolout</a>
+      <a class="list-group-item" href="../module/casa_inout_mod.html#proc-casa_poolout">casa_poolout</a>
       <a class="list-group-item" href="../module/casa_inout_mod.html#proc-casa_fluxout~2">casa_fluxout</a>
       <a class="list-group-item" href="../module/casa_inout_mod.html#proc-casa_cnpflux">casa_cnpflux</a>
-      <a class="list-group-item" href="../module/casa_inout_mod.html#proc-biogeochem~2">biogeochem</a>
+      <a class="list-group-item" href="../module/casa_inout_mod.html#proc-biogeochem">biogeochem</a>
     </div>
   </div>
 </div>
@@ -132,74 +132,7 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <p>Transfer grid information from CABLE internally, read N&amp;P input from
- integral NETCDF file "cnpdata_r21.nc" (Q.Zhang 01/08/2011)</p>
-<p>SUBROUTINE casa_readpoint(mvt,veg,soil,casaflux,casamet,patch,rad)</p>
-<p>INTEGER,               INTENT(IN)    :: mvt</p>
-<p>! local variables
-  INTEGER :: np,nland
-  REAL(r_2) :: annNdep,annNfix,annPwea,annPdust
-  REAL(r_2) :: annNfert,annPfert   ! not really used yet
-  INTEGER, DIMENSION(mp) :: vtypex,stypex
-  INTEGER :: nlandx,ivtigbp,inPatch,ilat,ilon
-  REAL    :: frac,ssat,swilt,sfc   ! used in offline version, Q.Zhang @ 25/02/2011</p>
-<p>OPEN(101,file=casafile%cnppoint,FORM='FORMATTED')
-  READ(101,<em>) 
-!  READ(101,</em>) inPatch
-  PRINT * ,'Within casa_readpoint, mp = ', mp
-!  PRINT * ,'Input file has ', inPatch, ' patches.'</p>
-<p>np = 0
-  DO nland=1,mp
-    np = np + 1
-!    READ(101,*) &amp;
-!        nlandx,ivtigbp,stypex(np),casamet%isorder(np), &amp;
-!               casamet%lat(np),casamet%lon(np),casamet%areacell(np), &amp;
-!               annNfix,annNdep,annNfert,annPwea,annPdust,annPfert</p>
-<div class="codehilite"><pre><span></span><code>! &#39;ijgcm,j,i,lat,lon,frac,iveg,isoil,ist,parea,ssat,swilt,sfc,ndep,nfix,pwea,pdust&#39;
-read(101,*) nlandx,ilat,ilon,casamet%lat(np),casamet%lon(np),&amp;
-            frac,vtypex(np),stypex(np),casamet%isorder(np),&amp;
-            casamet%areacell(np),ssat,swilt,&amp;
-            sfc,annNdep,annNfix,annPwea,annPdust
-</code></pre></div>
-
-<p>!    PRINT * , nlandx,ivtigbp,stypex(np),veg%iveg(np),soil%isoilm(np), &amp;
-!              patch(np)%frac,patch(np)%latitude,patch(np)%longitude, &amp;
-!              casamet%lat(np),casamet%lon(np)</p>
-<p>!    IF (ivtigbp == 0) ivtigbp = iceland</p>
-<div class="codehilite"><pre><span></span><code><span class="k">IF</span> <span class="ss">(</span><span class="nv">ABS</span><span class="ss">(</span><span class="nv">casamet</span><span class="o">%</span><span class="nv">lat</span><span class="ss">(</span><span class="nv">np</span><span class="ss">)</span> <span class="o">-</span> <span class="nv">patch</span><span class="ss">(</span><span class="nv">np</span><span class="ss">)</span><span class="o">%</span><span class="nv">latitude</span><span class="ss">)</span> <span class="o">&lt;</span> <span class="mi">0</span>.<span class="mi">1</span> .<span class="nv">AND</span>. <span class="o">&amp;</span>
-    <span class="nv">ABS</span><span class="ss">(</span><span class="nv">casamet</span><span class="o">%</span><span class="nv">lon</span><span class="ss">(</span><span class="nv">np</span><span class="ss">)</span> <span class="o">-</span> <span class="nv">patch</span><span class="ss">(</span><span class="nv">np</span><span class="ss">)</span><span class="o">%</span><span class="nv">longitude</span><span class="ss">)</span> <span class="o">&lt;</span> <span class="mi">0</span>.<span class="mi">1</span><span class="ss">)</span> <span class="k">THEN</span>
-  <span class="k">IF</span> <span class="ss">(</span><span class="nv">vtypex</span><span class="ss">(</span><span class="nv">np</span><span class="ss">)</span> <span class="o">/=</span> <span class="nv">veg</span><span class="o">%</span><span class="nv">iveg</span><span class="ss">(</span><span class="nv">np</span><span class="ss">)</span> .<span class="nv">OR</span>. <span class="nv">stypex</span><span class="ss">(</span><span class="nv">np</span><span class="ss">)</span> <span class="o">/=</span> <span class="nv">soil</span><span class="o">%</span><span class="nv">isoilm</span><span class="ss">(</span><span class="nv">np</span><span class="ss">))</span> <span class="k">THEN</span>
-    <span class="nv">PRINT</span> <span class="o">*</span> ,<span class="s1">&#39;</span><span class="s">Check why iveg, isoil do not match</span><span class="s1">&#39;</span>
-    <span class="nv">STOP</span>
-  <span class="k">ELSE</span>
-    <span class="nv">casaflux</span><span class="o">%</span><span class="nv">Nmindep</span><span class="ss">(</span><span class="nv">np</span><span class="ss">)</span> <span class="o">=</span> <span class="nv">annNdep</span><span class="o">/</span><span class="mi">365</span>.<span class="mi">0</span>
-    <span class="nv">casaflux</span><span class="o">%</span><span class="nv">Nminfix</span><span class="ss">(</span><span class="nv">np</span><span class="ss">)</span> <span class="o">=</span> <span class="nv">annNfix</span><span class="o">/</span><span class="mi">365</span>.<span class="mi">0</span>
-    <span class="nv">casaflux</span><span class="o">%</span><span class="nv">Pdep</span><span class="ss">(</span><span class="nv">np</span><span class="ss">)</span>    <span class="o">=</span> <span class="nv">annPdust</span><span class="o">/</span><span class="mi">365</span>.<span class="mi">0</span>     <span class="o">!</span> <span class="nv">gP</span><span class="o">/</span><span class="nv">m2</span><span class="o">/</span><span class="nv">day</span>
-    <span class="nv">casaflux</span><span class="o">%</span><span class="nv">Pwea</span><span class="ss">(</span><span class="nv">np</span><span class="ss">)</span>    <span class="o">=</span> <span class="nv">annPwea</span><span class="o">/</span><span class="mi">365</span>.<span class="mi">0</span>      <span class="o">!</span> <span class="nv">gP</span><span class="o">/</span><span class="nv">m2</span><span class="o">/</span><span class="nv">day</span>
-</code></pre></div>
-
-<p>!        IF (mvtype==17) THEN
-!          vtypex(np)  = ivtigbp  ! for running IGBP veg type only
-!        END IF 
-      END IF
-    ELSE
-      PRINT * ,'Check why lat, lon do not match'
-      print * ,'casamet',casamet%lat(np),casamet%lon(np)
-      print * ,'cable  ',patch(np)%latitude,patch(np)%longitude
-      STOP
-    END IF</p>
-<div class="codehilite"><pre><span></span><code><span class="k">if</span><span class="ss">(</span><span class="nv">veg</span><span class="o">%</span><span class="nv">iveg</span><span class="ss">(</span><span class="nv">np</span><span class="ss">)</span><span class="o">==</span><span class="nv">cropland</span> .<span class="nv">or</span>. <span class="nv">veg</span><span class="o">%</span><span class="nv">iveg</span><span class="ss">(</span><span class="nv">np</span><span class="ss">)</span><span class="o">==</span><span class="nv">croplnd2</span><span class="ss">)</span> <span class="k">then</span>
-<span class="o">!</span> <span class="nv">P</span> <span class="nv">fertilizer</span> <span class="o">=</span><span class="mi">13</span> <span class="nv">Mt</span> <span class="nv">P</span> <span class="nv">globally</span> <span class="nv">in</span> <span class="mi">1994</span>
-  <span class="nv">casaflux</span><span class="o">%</span><span class="nv">Pdep</span><span class="ss">(</span><span class="nv">np</span><span class="ss">)</span> <span class="o">=</span> <span class="nv">casaflux</span><span class="o">%</span><span class="nv">Pdep</span><span class="ss">(</span><span class="nv">np</span><span class="ss">)</span><span class="o">+</span><span class="mi">0</span>.<span class="mi">7</span><span class="o">/</span><span class="mi">365</span>.<span class="mi">0</span>
-<span class="o">!</span> <span class="nv">N</span> <span class="nv">fertilizer</span> <span class="o">=</span><span class="mi">86</span> <span class="nv">Mt</span> <span class="nv">N</span> <span class="nv">globally</span> <span class="nv">in</span> <span class="mi">1994</span>
-  <span class="nv">casaflux</span><span class="o">%</span><span class="nv">Nminfix</span><span class="ss">(</span><span class="nv">np</span><span class="ss">)</span> <span class="o">=</span> <span class="nv">casaflux</span><span class="o">%</span><span class="nv">Nminfix</span><span class="ss">(</span><span class="nv">np</span><span class="ss">)</span><span class="o">+</span><span class="mi">4</span>.<span class="mi">3</span><span class="o">/</span><span class="mi">365</span>.<span class="mi">0</span>
-<span class="k">endif</span>
-</code></pre></div>
-
-<p>!    IF (veg%iveg(np)==12 .OR. veg%iveg(np)==14) casaflux%Pdep(np)= &amp;
-!       casaflux%Pdep(np)+0.7/365.0    ! P fertilizer =13 Mt P globally in 1994</p>
-<p>ENDDO 
-  CLOSE(101)</p>
+    
 <br>    
         <div class="panel panel-default">
       <div class="panel-heading">
@@ -221,89 +154,89 @@ read(101,*) nlandx,ilat,ilon,casamet%lat(np),casamet%lon(np),&amp;
 <!-- module~casa_inout_mod -->
 <g id="module~~casa_inout_mod~~UsedByGraph_node1" class="node">
 <title>module~casa_inout_mod</title>
-<polygon fill="none" stroke="black" points="99,-87 0,-87 0,-63 99,-63 99,-87"/>
-<text text-anchor="middle" x="49.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">casa_inout_mod</text>
-</g>
-<!-- module~bgcdriver_mod -->
-<g id="module~~casa_inout_mod~~UsedByGraph_node2" class="node">
-<title>module~bgcdriver_mod</title>
-<g id="a_module~~casa_inout_mod~~UsedByGraph_node2"><a xlink:href=".././module/bgcdriver_mod.html" xlink:title="bgcdriver_mod">
-<polygon fill="#337ab7" stroke="#337ab7" points="242,-108 149,-108 149,-84 242,-84 242,-108"/>
-<text text-anchor="middle" x="195.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">bgcdriver_mod</text>
-</a>
-</g>
-</g>
-<!-- module~bgcdriver_mod&#45;&gt;module~casa_inout_mod -->
-<g id="module~~casa_inout_mod~~UsedByGraph_edge1" class="edge">
-<title>module~bgcdriver_mod&#45;&gt;module~casa_inout_mod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M148.94,-89.36C136.27,-87.51 122.32,-85.47 109.02,-83.53"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="109.4,-80.05 99,-82.07 108.39,-86.98 109.4,-80.05"/>
+<polygon fill="none" stroke="black" points="99,-45 0,-45 0,-21 99,-21 99,-45"/>
+<text text-anchor="middle" x="49.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">casa_inout_mod</text>
 </g>
 <!-- module~casa_um_inout_mod -->
-<g id="module~~casa_inout_mod~~UsedByGraph_node3" class="node">
+<g id="module~~casa_inout_mod~~UsedByGraph_node2" class="node">
 <title>module~casa_um_inout_mod</title>
-<g id="a_module~~casa_inout_mod~~UsedByGraph_node3"><a xlink:href=".././module/casa_um_inout_mod.html" xlink:title="casa_um_inout_mod">
+<g id="a_module~~casa_inout_mod~~UsedByGraph_node2"><a xlink:href=".././module/casa_um_inout_mod.html" xlink:title="casa_um_inout_mod">
 <polygon fill="#337ab7" stroke="#337ab7" points="256,-66 135,-66 135,-42 256,-42 256,-66"/>
 <text text-anchor="middle" x="195.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">casa_um_inout_mod</text>
 </a>
 </g>
 </g>
 <!-- module~casa_um_inout_mod&#45;&gt;module~casa_inout_mod -->
-<g id="module~~casa_inout_mod~~UsedByGraph_edge2" class="edge">
+<g id="module~~casa_inout_mod~~UsedByGraph_edge1" class="edge">
 <title>module~casa_um_inout_mod&#45;&gt;module~casa_inout_mod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M134.68,-62.72C126.33,-63.94 117.76,-65.19 109.42,-66.41"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="108.8,-62.96 99.41,-67.87 109.81,-69.89 108.8,-62.96"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M134.68,-45.28C126.33,-44.06 117.76,-42.81 109.42,-41.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="109.81,-38.11 99.41,-40.13 108.8,-45.04 109.81,-38.11"/>
+</g>
+<!-- module~bgcdriver_mod -->
+<g id="module~~casa_inout_mod~~UsedByGraph_node3" class="node">
+<title>module~bgcdriver_mod</title>
+<g id="a_module~~casa_inout_mod~~UsedByGraph_node3"><a xlink:href=".././module/bgcdriver_mod.html" xlink:title="bgcdriver_mod">
+<polygon fill="#337ab7" stroke="#337ab7" points="242,-24 149,-24 149,0 242,0 242,-24"/>
+<text text-anchor="middle" x="195.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">bgcdriver_mod</text>
+</a>
+</g>
+</g>
+<!-- module~bgcdriver_mod&#45;&gt;module~casa_inout_mod -->
+<g id="module~~casa_inout_mod~~UsedByGraph_edge2" class="edge">
+<title>module~bgcdriver_mod&#45;&gt;module~casa_inout_mod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M148.94,-18.64C136.27,-20.49 122.32,-22.53 109.02,-24.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="108.39,-21.02 99,-25.93 109.4,-27.95 108.39,-21.02"/>
 </g>
 <!-- proc~cable_implicit_driver -->
 <g id="module~~casa_inout_mod~~UsedByGraph_node4" class="node">
 <title>proc~cable_implicit_driver</title>
 <g id="a_module~~casa_inout_mod~~UsedByGraph_node4"><a xlink:href=".././proc/cable_implicit_driver.html" xlink:title="cable_implicit_driver">
-<polygon fill="#d9534f" stroke="#d9534f" points="415,-108 292,-108 292,-84 415,-84 415,-108"/>
-<text text-anchor="middle" x="353.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_implicit_driver</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="415,-24 292,-24 292,0 415,0 415,-24"/>
+<text text-anchor="middle" x="353.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_implicit_driver</text>
 </a>
 </g>
 </g>
-<!-- proc~cable_implicit_driver&#45;&gt;module~bgcdriver_mod -->
-<g id="module~~casa_inout_mod~~UsedByGraph_edge3" class="edge">
-<title>proc~cable_implicit_driver&#45;&gt;module~bgcdriver_mod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M291.74,-96C278.78,-96 265.15,-96 252.38,-96"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="252.36,-92.5 242.36,-96 252.36,-99.5 252.36,-92.5"/>
-</g>
 <!-- proc~cable_implicit_driver&#45;&gt;module~casa_um_inout_mod -->
-<g id="module~~casa_inout_mod~~UsedByGraph_edge4" class="edge">
+<g id="module~~casa_inout_mod~~UsedByGraph_edge3" class="edge">
 <title>proc~cable_implicit_driver&#45;&gt;module~casa_um_inout_mod</title>
-<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M307.8,-83.96C290.09,-79.2 269.57,-73.67 251,-68.67"/>
-<polygon fill="#00ffff" stroke="#00ffff" points="251.78,-65.26 241.21,-66.04 249.96,-72.02 251.78,-65.26"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M307.8,-24.04C290.09,-28.8 269.57,-34.33 251,-39.33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="249.96,-35.98 241.21,-41.96 251.78,-42.74 249.96,-35.98"/>
+</g>
+<!-- proc~cable_implicit_driver&#45;&gt;module~bgcdriver_mod -->
+<g id="module~~casa_inout_mod~~UsedByGraph_edge6" class="edge">
+<title>proc~cable_implicit_driver&#45;&gt;module~bgcdriver_mod</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M291.74,-12C278.78,-12 265.15,-12 252.38,-12"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="252.36,-8.5 242.36,-12 252.36,-15.5 252.36,-8.5"/>
 </g>
 <!-- proc~cable_explicit_driver -->
 <g id="module~~casa_inout_mod~~UsedByGraph_node5" class="node">
 <title>proc~cable_explicit_driver</title>
 <g id="a_module~~casa_inout_mod~~UsedByGraph_node5"><a xlink:href=".././proc/cable_explicit_driver.html" xlink:title="cable_explicit_driver">
-<polygon fill="#d9534f" stroke="#d9534f" points="414,-66 293,-66 293,-42 414,-42 414,-66"/>
-<text text-anchor="middle" x="353.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_explicit_driver</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="414,-108 293,-108 293,-84 414,-84 414,-108"/>
+<text text-anchor="middle" x="353.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_explicit_driver</text>
 </a>
 </g>
 </g>
 <!-- proc~cable_explicit_driver&#45;&gt;module~casa_um_inout_mod -->
-<g id="module~~casa_inout_mod~~UsedByGraph_edge6" class="edge">
+<g id="module~~casa_inout_mod~~UsedByGraph_edge4" class="edge">
 <title>proc~cable_explicit_driver&#45;&gt;module~casa_um_inout_mod</title>
-<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M292.63,-54C284.05,-54 275.15,-54 266.4,-54"/>
-<polygon fill="#00ffff" stroke="#00ffff" points="266.21,-50.5 256.21,-54 266.21,-57.5 266.21,-50.5"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M307.8,-83.96C290.09,-79.2 269.57,-73.67 251,-68.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="251.78,-65.26 241.21,-66.04 249.96,-72.02 251.78,-65.26"/>
 </g>
 <!-- proc~interface_um_data -->
 <g id="module~~casa_inout_mod~~UsedByGraph_node6" class="node">
 <title>proc~interface_um_data</title>
 <g id="a_module~~casa_inout_mod~~UsedByGraph_node6"><a xlink:href=".././proc/interface_um_data.html" xlink:title="interface_UM_data">
-<polygon fill="#d9534f" stroke="#d9534f" points="409.5,-24 297.5,-24 297.5,0 409.5,0 409.5,-24"/>
-<text text-anchor="middle" x="353.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">interface_UM_data</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="409.5,-66 297.5,-66 297.5,-42 409.5,-42 409.5,-66"/>
+<text text-anchor="middle" x="353.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">interface_UM_data</text>
 </a>
 </g>
 </g>
 <!-- proc~interface_um_data&#45;&gt;module~casa_um_inout_mod -->
 <g id="module~~casa_inout_mod~~UsedByGraph_edge5" class="edge">
 <title>proc~interface_um_data&#45;&gt;module~casa_um_inout_mod</title>
-<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M307.8,-24.04C290.09,-28.8 269.57,-34.33 251,-39.33"/>
-<polygon fill="#00ffff" stroke="#00ffff" points="249.96,-35.98 241.21,-41.96 251.78,-42.74 249.96,-35.98"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M297.06,-54C287.14,-54 276.69,-54 266.43,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="266.26,-50.5 256.26,-54 266.26,-57.5 266.26,-50.5"/>
 </g>
 </g>
 </svg>
@@ -378,13 +311,13 @@ read(101,*) nlandx,ilat,ilon,casamet%lat(np),casamet%lon(np),&amp;
   <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#subs-1">Subroutines</a></h3></div>
   <div class="list-group">
     <div id="subs-1" class="panel-collapse collapse">
-      <a class="list-group-item" href="../module/casa_inout_mod.html#proc-casa_readbiome~2">casa_readbiome</a>
+      <a class="list-group-item" href="../module/casa_inout_mod.html#proc-casa_readbiome">casa_readbiome</a>
       <a class="list-group-item" href="../module/casa_inout_mod.html#proc-casa_readphen">casa_readphen</a>
       <a class="list-group-item" href="../module/casa_inout_mod.html#proc-casa_init">casa_init</a>
-      <a class="list-group-item" href="../module/casa_inout_mod.html#proc-casa_poolout~2">casa_poolout</a>
+      <a class="list-group-item" href="../module/casa_inout_mod.html#proc-casa_poolout">casa_poolout</a>
       <a class="list-group-item" href="../module/casa_inout_mod.html#proc-casa_fluxout~2">casa_fluxout</a>
       <a class="list-group-item" href="../module/casa_inout_mod.html#proc-casa_cnpflux">casa_cnpflux</a>
-      <a class="list-group-item" href="../module/casa_inout_mod.html#proc-biogeochem~2">biogeochem</a>
+      <a class="list-group-item" href="../module/casa_inout_mod.html#proc-biogeochem">biogeochem</a>
     </div>
   </div>
 </div>
@@ -402,7 +335,7 @@ read(101,*) nlandx,ilat,ilon,casamet%lat(np),casamet%lon(np),&amp;
     <section>
     <h2>Subroutines</h2>
       <div class="panel panel-default">
-  <div class="panel-heading codesum"><span class="anchor" id="proc-casa_readbiome~2"></span><h3>public subroutine <a href='../proc/casa_readbiome~2.html'>casa_readbiome</a>(veg, soil, casabiome, casapool, casaflux, casamet, phen)</h3></div>
+  <div class="panel-heading codesum"><span class="anchor" id="proc-casa_readbiome"></span><h3>public subroutine <a href='../proc/casa_readbiome.html'>casa_readbiome</a>(veg, soil, casabiome, casapool, casaflux, casamet, phen)</h3></div>
   <div class="panel-body">
            
 <h4>Arguments</h4>      <table class="table table-striped varlist">
@@ -427,13 +360,13 @@ read(101,*) nlandx,ilat,ilon,casamet%lat(np),casamet%lon(np),&amp;
   <td><strong>casabiome</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/casa_pool~2.html'>casa_pool</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/casa_pool.html'>casa_pool</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>casapool</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/casa_flux~2.html'>casa_flux</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/casa_flux.html'>casa_flux</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>casaflux</strong></td><td></td>
@@ -492,9 +425,7 @@ read(101,*) nlandx,ilat,ilon,casamet%lat(np),casamet%lon(np),&amp;
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-casa_init"></span><h3>public subroutine <a href='../proc/casa_init.html'>casa_init</a>(casabiome, casamet, casapool, casabal, veg, phen)</h3></div>
   <div class="panel-body">
-       
-<p>for first time reading file *_1220.csv  (BP may2010)</p><a href="../proc/casa_init.html" class="pull-right"><emph>Read more&hellip;</emph></a>
-    
+           
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -511,7 +442,7 @@ read(101,*) nlandx,ilat,ilon,casamet%lat(np),casamet%lon(np),&amp;
   <td><strong>casamet</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/casa_pool~2.html'>casa_pool</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/casa_pool.html'>casa_pool</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>casapool</strong></td><td></td>
@@ -542,7 +473,7 @@ read(101,*) nlandx,ilat,ilon,casamet%lat(np),casamet%lon(np),&amp;
   </div>
 
       <div class="panel panel-default">
-  <div class="panel-heading codesum"><span class="anchor" id="proc-casa_poolout~2"></span><h3>public subroutine <a href='../proc/casa_poolout~2.html'>casa_poolout</a>(ktau, veg, soil, casabiome, casapool, casaflux, casamet, casabal, phen)</h3></div>
+  <div class="panel-heading codesum"><span class="anchor" id="proc-casa_poolout"></span><h3>public subroutine <a href='../proc/casa_poolout.html'>casa_poolout</a>(ktau, veg, soil, casabiome, casapool, casaflux, casamet, casabal, phen)</h3></div>
   <div class="panel-body">
            
 <h4>Arguments</h4>      <table class="table table-striped varlist">
@@ -573,13 +504,13 @@ read(101,*) nlandx,ilat,ilon,casamet%lat(np),casamet%lon(np),&amp;
   <td><strong>casabiome</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/casa_pool~2.html'>casa_pool</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/casa_pool.html'>casa_pool</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>casapool</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/casa_flux~2.html'>casa_flux</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/casa_flux.html'>casa_flux</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>casaflux</strong></td><td></td>
@@ -661,7 +592,7 @@ read(101,*) nlandx,ilat,ilon,casamet%lat(np),casamet%lon(np),&amp;
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/casa_flux~2.html'>casa_flux</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/casa_flux.html'>casa_flux</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>casaflux</strong></td><td></td>
@@ -680,7 +611,7 @@ read(101,*) nlandx,ilat,ilon,casamet%lat(np),casamet%lon(np),&amp;
   </div>
 
       <div class="panel panel-default">
-  <div class="panel-heading codesum"><span class="anchor" id="proc-biogeochem~2"></span><h3>public subroutine <a href='../proc/biogeochem~2.html'>biogeochem</a>(ktau, dels, idoy, veg, soil, casabiome, casapool, casaflux, casamet, casabal, phen)</h3></div>
+  <div class="panel-heading codesum"><span class="anchor" id="proc-biogeochem"></span><h3>public subroutine <a href='../proc/biogeochem.html'>biogeochem</a>(ktau, dels, idoy, veg, soil, casabiome, casapool, casaflux, casamet, casabal, phen)</h3></div>
   <div class="panel-body">
            
 <h4>Arguments</h4>      <table class="table table-striped varlist">
@@ -723,13 +654,13 @@ read(101,*) nlandx,ilat,ilon,casamet%lat(np),casamet%lon(np),&amp;
   <td><strong>casabiome</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/casa_pool~2.html'>casa_pool</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/casa_pool.html'>casa_pool</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>casapool</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" ></span>type(<a href='../type/casa_flux~2.html'>casa_flux</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/casa_flux.html'>casa_flux</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>casaflux</strong></td><td></td>

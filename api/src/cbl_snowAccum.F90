@@ -150,7 +150,7 @@ IMPLICIT NONE
     ssnow%evapsn = 0
     DO i=1,mp
        ! Snow evaporation and dew on snow
-       ! NB the conditions on when %fes applies to %segg or %evapsn MUST(!!)
+       ! NB the conditions on when %fes applies to %segg or %evapsn MUST(!)
        ! match those used to set %cls in the latent_heat_flux calculations
        ! for moisture conservation purposes
        ! Ticket 137 - using %cls as the trigger not %snowd

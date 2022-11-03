@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.5% of total for procedures.">157 statements</a>
+    title=" 0.4% of total for procedures.">157 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/cable_initialise.F90"> Source File</a></li>
   </ul>
@@ -123,31 +123,6 @@
     <h2>public subroutine get_restart_data(logn, ssnow, canopy, rough, bgc, bal, veg, soil, rad, vegparmnew, EMSOIL)</h2>
     
 
-    <p>(BP Nov 2009)
-$   IF(cable_user%SOIL_STRUC=='sli'.or.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
-$      CALL readpar(ncid_rin,'gamma',dummy,veg%gamma,filename%restart_in,           &amp;
-$           max_vegpatches,'def',from_restart,mp)
-$   ENDIF</p>
-<p>$       CALL readpar(ncid_rin,'ZR',dummy,veg%ZR, &amp;
-$            filename%restart_in,max_vegpatches,'def',from_restart,mp)
-$       CALL readpar(ncid_rin,'F10',dummy,veg%F10, &amp;
-$            filename%restart_in,max_vegpatches,'def',from_restart,mp)
-$       CALL readpar(ncid_rin,'zeta',dummy,soil%zeta,filename%restart_in,           &amp;
-$            max_vegpatches,'def',from_restart,mp)
-$       CALL readpar(ncid_rin,'fsatmax',dummy,soil%fsatmax,filename%restart_in,           &amp;
-$            max_vegpatches,'def',from_restart,mp)
-$       CALL readpar(ncid_rin,'nhorizons',dummy,soil%nhorizons,filename%restart_in,           &amp;
-$            max_vegpatches,'def',from_restart,mp)
-$       ALLOCATE(var_r2(mp,ms))
-$       CALL readpar(ncid_rin,'ishorizon',dummy,var_r2,filename%restart_in,           &amp;
-$            max_vegpatches,'ms',from_restart,mp)
-$       soil%ishorizon = int(var_r2)
-$       DEALLOCATE(var_r2)
-$       CALL readpar(ncid_rin,'clitt',dummy,veg%clitt,filename%restart_in,           &amp;
-$            max_vegpatches,'def',from_restart,mp)
- getting rid of spurious veg types in Antarctica from the CCAM2Mk3L process
- Doing it once will fix the problem in the restart file in subsequent runs</p>
-<p>end of fix to spurious veg types</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">
@@ -160,13 +135,13 @@ $            max_vegpatches,'def',from_restart,mp)
   <td><strong>logn</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-ssnow~13"></span>type(<a href='../type/soil_snow_type~2.html'>soil_snow_type</a>),</td>
+  <td><span class="anchor" id="variable-ssnow~15"></span>type(<a href='../type/soil_snow_type~2.html'>soil_snow_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>ssnow</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-canopy~14"></span>type(<a href='../type/canopy_type.html'>canopy_type</a>),</td>
+  <td><span class="anchor" id="variable-canopy~16"></span>type(<a href='../type/canopy_type~2.html'>canopy_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>canopy</strong></td><td></td>
@@ -184,7 +159,7 @@ $            max_vegpatches,'def',from_restart,mp)
   <td><strong>bgc</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-bal~9"></span>type(<a href='../type/balances_type~2.html'>balances_type</a>),</td>
+  <td><span class="anchor" id="variable-bal~11"></span>type(<a href='../type/balances_type~2.html'>balances_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>bal</strong></td><td></td>
@@ -196,13 +171,13 @@ $            max_vegpatches,'def',from_restart,mp)
   <td><strong>veg</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-soil~33"></span>type(<a href='../type/soil_parameter_type~2.html'>soil_parameter_type</a>),</td>
+  <td><span class="anchor" id="variable-soil~34"></span>type(<a href='../type/soil_parameter_type~2.html'>soil_parameter_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>soil</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-rad~10"></span>type(<a href='../type/radiation_type~2.html'>radiation_type</a>),</td>
+  <td><span class="anchor" id="variable-rad~11"></span>type(<a href='../type/radiation_type~2.html'>radiation_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>rad</strong></td><td></td>
@@ -214,7 +189,7 @@ $            max_vegpatches,'def',from_restart,mp)
   <td><strong>vegparmnew</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-emsoil~7"></span>real,</td>
+  <td><span class="anchor" id="variable-emsoil~8"></span>real,</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>EMSOIL</strong></td><td></td>
@@ -264,22 +239,25 @@ $            max_vegpatches,'def',from_restart,mp)
 <text text-anchor="middle" x="204.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inquire_dimension</text>
 </g>
 <!-- proc~get_restart_data&#45;&gt;nf90_inquire_dimension -->
-<g id="proc~~get_restart_data~~CallsGraph_edge2" class="edge">
+<g id="proc~~get_restart_data~~CallsGraph_edge4" class="edge">
 <title>proc~get_restart_data&#45;&gt;nf90_inquire_dimension</title>
 <path fill="none" stroke="#ff0000" d="M63.59,-150.04C79.43,-164.04 107.42,-187.02 135,-201 138.81,-202.93 142.82,-204.72 146.93,-206.37"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="146,-209.76 156.6,-209.98 148.45,-203.2 146,-209.76"/>
 </g>
-<!-- nf90_get_var -->
+<!-- proc~nc_abort -->
 <g id="proc~~get_restart_data~~CallsGraph_node4" class="node">
-<title>nf90_get_var</title>
-<polygon fill="#777777" stroke="#777777" points="245.5,-192 163.5,-192 163.5,-168 245.5,-168 245.5,-192"/>
-<text text-anchor="middle" x="204.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_get_var</text>
+<title>proc~nc_abort</title>
+<g id="a_proc~~get_restart_data~~CallsGraph_node4"><a xlink:href=".././proc/nc_abort.html" xlink:title="nc_abort">
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-192 175,-192 175,-168 234,-168 234,-192"/>
+<text text-anchor="middle" x="204.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nc_abort</text>
+</a>
 </g>
-<!-- proc~get_restart_data&#45;&gt;nf90_get_var -->
-<g id="proc~~get_restart_data~~CallsGraph_edge3" class="edge">
-<title>proc~get_restart_data&#45;&gt;nf90_get_var</title>
-<path fill="none" stroke="#ff0000" d="M94.34,-150.04C112.84,-155.11 134.48,-161.05 153.58,-166.3"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="152.75,-169.7 163.32,-168.97 154.6,-162.95 152.75,-169.7"/>
+</g>
+<!-- proc~get_restart_data&#45;&gt;proc~nc_abort -->
+<g id="proc~~get_restart_data~~CallsGraph_edge2" class="edge">
+<title>proc~get_restart_data&#45;&gt;proc~nc_abort</title>
+<path fill="none" stroke="#ff0000" d="M94.34,-150.04C116.6,-156.15 143.4,-163.5 164.88,-169.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="164.07,-172.81 174.64,-172.08 165.92,-166.06 164.07,-172.81"/>
 </g>
 <!-- nf90_inq_varid -->
 <g id="proc~~get_restart_data~~CallsGraph_node5" class="node">
@@ -288,25 +266,22 @@ $            max_vegpatches,'def',from_restart,mp)
 <text text-anchor="middle" x="204.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_varid</text>
 </g>
 <!-- proc~get_restart_data&#45;&gt;nf90_inq_varid -->
-<g id="proc~~get_restart_data~~CallsGraph_edge4" class="edge">
+<g id="proc~~get_restart_data~~CallsGraph_edge3" class="edge">
 <title>proc~get_restart_data&#45;&gt;nf90_inq_varid</title>
 <path fill="none" stroke="#ff0000" d="M99.33,-138C114.97,-138 132.39,-138 148.44,-138"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="148.76,-141.5 158.76,-138 148.76,-134.5 148.76,-141.5"/>
 </g>
-<!-- proc~nc_abort -->
+<!-- nf90_get_var -->
 <g id="proc~~get_restart_data~~CallsGraph_node6" class="node">
-<title>proc~nc_abort</title>
-<g id="a_proc~~get_restart_data~~CallsGraph_node6"><a xlink:href=".././proc/nc_abort.html" xlink:title="nc_abort">
-<polygon fill="#d9534f" stroke="#d9534f" points="234,-108 175,-108 175,-84 234,-84 234,-108"/>
-<text text-anchor="middle" x="204.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nc_abort</text>
-</a>
+<title>nf90_get_var</title>
+<polygon fill="#777777" stroke="#777777" points="245.5,-108 163.5,-108 163.5,-84 245.5,-84 245.5,-108"/>
+<text text-anchor="middle" x="204.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_get_var</text>
 </g>
-</g>
-<!-- proc~get_restart_data&#45;&gt;proc~nc_abort -->
+<!-- proc~get_restart_data&#45;&gt;nf90_get_var -->
 <g id="proc~~get_restart_data~~CallsGraph_edge5" class="edge">
-<title>proc~get_restart_data&#45;&gt;proc~nc_abort</title>
-<path fill="none" stroke="#ff0000" d="M94.34,-125.96C116.6,-119.85 143.4,-112.5 164.88,-106.6"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="165.92,-109.94 174.64,-103.92 164.07,-103.19 165.92,-109.94"/>
+<title>proc~get_restart_data&#45;&gt;nf90_get_var</title>
+<path fill="none" stroke="#ff0000" d="M94.34,-125.96C112.84,-120.89 134.48,-114.95 153.58,-109.7"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="154.6,-113.05 163.32,-107.03 152.75,-106.3 154.6,-113.05"/>
 </g>
 <!-- interface~readpar -->
 <g id="proc~~get_restart_data~~CallsGraph_node7" class="node">
@@ -338,14 +313,14 @@ $            max_vegpatches,'def',from_restart,mp)
 <!-- nf90_strerror -->
 <g id="proc~~get_restart_data~~CallsGraph_node9" class="node">
 <title>nf90_strerror</title>
-<polygon fill="#777777" stroke="#777777" points="391,-108 310,-108 310,-84 391,-84 391,-108"/>
-<text text-anchor="middle" x="350.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_strerror</text>
+<polygon fill="#777777" stroke="#777777" points="391,-192 310,-192 310,-168 391,-168 391,-192"/>
+<text text-anchor="middle" x="350.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_strerror</text>
 </g>
 <!-- proc~nc_abort&#45;&gt;nf90_strerror -->
 <g id="proc~~get_restart_data~~CallsGraph_edge8" class="edge">
 <title>proc~nc_abort&#45;&gt;nf90_strerror</title>
-<path fill="none" stroke="#0091ff" d="M234.29,-96C253,-96 277.88,-96 299.73,-96"/>
-<polygon fill="#0091ff" stroke="#0091ff" points="299.85,-99.5 309.85,-96 299.85,-92.5 299.85,-99.5"/>
+<path fill="none" stroke="#48ff00" d="M234.29,-180C253,-180 277.88,-180 299.73,-180"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="299.85,-183.5 309.85,-180 299.85,-176.5 299.85,-183.5"/>
 </g>
 </g>
 </svg>

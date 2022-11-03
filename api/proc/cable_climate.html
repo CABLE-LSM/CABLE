@@ -123,26 +123,13 @@
     <h2>public subroutine cable_climate(ktau, kstart, kend, ktauday, idoy, LOY, met, climate, canopy, air, rad, dels, np)</h2>
     
 
-    <p>$! * Find irradiances, available energy, equilibrium latent heat flux
-$PPc    = Gaero / ( Gaero + 4.0<em>SBoltz</em>((TempA+273.16)<strong>3)/(RhoA<em>Capp) )
-$                                                    ! PPc = Ga/(Ga+Gr)      [-]
-$EpsA   = Epsif(TempA, Pmb)                          ! Epsi at TempA         [-]
-$PhiSd  = SolarMJ * 1.0e6 / (DayltFrac</em>SecDay)       ! daylt down solar      [W/m2]
-$PhiLd  = 335.97 * (((TempA + 273.16) / 293.0)</strong>6)   ! daylt down thermal    [W/m2]
-$                                                    !   (Swinbank formula)
-$PhiAi  = (1.0-Albedo)<em>PhiSd + Emis *    &amp;           ! daylt iso-avail engy  [W/m2]
-$         (PhiLd - SBoltz</em>((TempA + 273.16)<em><em>4))     !   (veg + soil)
-$PhiEq  = PhiAi * (PPc</em>EpsA) / (PPc</em>EpsA + 1.0)      ! equil ltnt heat flux  [W/m2]
-$PhiEq  = max(PhiEq, 1.0)                            ! PhiEq &gt; +1 W/m2, so non-negative
-$                                    ! precipitation         [m/day]
-$FWPT   = CoeffPT * PhiEq * ((DayltFrac<em>SecDay) / (RhoW</em>Rlat))</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
 <tr>
-  <td><span class="anchor" id="variable-ktau~20"></span>integer,</td>
+  <td><span class="anchor" id="variable-ktau~22"></span>integer,</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>ktau</strong></td><td></td>
@@ -178,43 +165,43 @@ $FWPT   = CoeffPT * PhiEq * ((DayltFrac<em>SecDay) / (RhoW</em>Rlat))</p>
   <td><strong>LOY</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-met~38"></span>type(<a href='../type/met_type~2.html'>met_type</a>),</td>
+  <td><span class="anchor" id="variable-met~43"></span>type(<a href='../type/met_type~2.html'>met_type</a>),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>met</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-climate~6"></span>type(<a href='../type/climate_type~2.html'>climate_type</a>),</td>
+  <td><span class="anchor" id="variable-climate~7"></span>type(<a href='../type/climate_type~2.html'>climate_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>climate</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-canopy~39"></span>type(<a href='../type/canopy_type.html'>canopy_type</a>),</td>
+  <td><span class="anchor" id="variable-canopy~45"></span>type(<a href='../type/canopy_type~2.html'>canopy_type</a>),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>canopy</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-air~15"></span>type(<a href='../type/air_type~2.html'>air_type</a>),</td>
+  <td><span class="anchor" id="variable-air~17"></span>type(<a href='../type/air_type~2.html'>air_type</a>),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>air</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-rad~17"></span>type(<a href='../type/radiation_type~2.html'>radiation_type</a>),</td>
+  <td><span class="anchor" id="variable-rad~19"></span>type(<a href='../type/radiation_type~2.html'>radiation_type</a>),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>rad</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-dels~38"></span>real,</td>
+  <td><span class="anchor" id="variable-dels~43"></span>real,</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>dels</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-np~7"></span>integer,</td>
+  <td><span class="anchor" id="variable-np~9"></span>integer,</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>np</strong></td><td></td>
@@ -260,32 +247,32 @@ $FWPT   = CoeffPT * PhiEq * ((DayltFrac<em>SecDay) / (RhoW</em>Rlat))</p>
 <path fill="none" stroke="#ff0000" d="M77.17,-66.04C91.39,-71.27 108.09,-77.43 122.66,-82.79"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="121.74,-86.19 132.34,-86.36 124.16,-79.62 121.74,-86.19"/>
 </g>
-<!-- float -->
-<g id="proc~~cable_climate~~CallsGraph_node3" class="node">
-<title>float</title>
-<polygon fill="#777777" stroke="#777777" points="186.5,-66 132.5,-66 132.5,-42 186.5,-42 186.5,-66"/>
-<text text-anchor="middle" x="159.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">float</text>
-</g>
-<!-- proc~cable_climate&#45;&gt;float -->
-<g id="proc~~cable_climate~~CallsGraph_edge2" class="edge">
-<title>proc~cable_climate&#45;&gt;float</title>
-<path fill="none" stroke="#ff0000" d="M87.27,-54C98.76,-54 111.08,-54 122.18,-54"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="122.39,-57.5 132.39,-54 122.39,-50.5 122.39,-57.5"/>
-</g>
 <!-- proc~biome1_pft -->
-<g id="proc~~cable_climate~~CallsGraph_node4" class="node">
+<g id="proc~~cable_climate~~CallsGraph_node3" class="node">
 <title>proc~biome1_pft</title>
-<g id="a_proc~~cable_climate~~CallsGraph_node4"><a xlink:href=".././proc/biome1_pft.html" xlink:title="biome1_pft">
-<polygon fill="#d9534f" stroke="#d9534f" points="196,-24 123,-24 123,0 196,0 196,-24"/>
-<text text-anchor="middle" x="159.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">biome1_pft</text>
+<g id="a_proc~~cable_climate~~CallsGraph_node3"><a xlink:href=".././proc/biome1_pft.html" xlink:title="biome1_pft">
+<polygon fill="#d9534f" stroke="#d9534f" points="196,-66 123,-66 123,-42 196,-42 196,-66"/>
+<text text-anchor="middle" x="159.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">biome1_pft</text>
 </a>
 </g>
 </g>
 <!-- proc~cable_climate&#45;&gt;proc~biome1_pft -->
-<g id="proc~~cable_climate~~CallsGraph_edge3" class="edge">
+<g id="proc~~cable_climate~~CallsGraph_edge2" class="edge">
 <title>proc~cable_climate&#45;&gt;proc~biome1_pft</title>
-<path fill="none" stroke="#ff0000" d="M77.17,-41.96C89.33,-37.48 103.32,-32.33 116.22,-27.58"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="117.65,-30.78 125.83,-24.04 115.23,-24.21 117.65,-30.78"/>
+<path fill="none" stroke="#ff0000" d="M87.27,-54C95.63,-54 104.42,-54 112.86,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="112.94,-57.5 122.94,-54 112.94,-50.5 112.94,-57.5"/>
+</g>
+<!-- float -->
+<g id="proc~~cable_climate~~CallsGraph_node4" class="node">
+<title>float</title>
+<polygon fill="#777777" stroke="#777777" points="186.5,-24 132.5,-24 132.5,0 186.5,0 186.5,-24"/>
+<text text-anchor="middle" x="159.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">float</text>
+</g>
+<!-- proc~cable_climate&#45;&gt;float -->
+<g id="proc~~cable_climate~~CallsGraph_edge3" class="edge">
+<title>proc~cable_climate&#45;&gt;float</title>
+<path fill="none" stroke="#ff0000" d="M77.17,-41.96C91.39,-36.73 108.09,-30.57 122.66,-25.21"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="124.16,-28.38 132.34,-21.64 121.74,-21.81 124.16,-28.38"/>
 </g>
 </g>
 </svg>

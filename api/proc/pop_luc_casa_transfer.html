@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 1.1% of total for procedures.">351 statements</a>
+    title=" 1.0% of total for procedures.">351 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/POPLUC.F90"> Source File</a></li>
   </ul>
@@ -135,7 +135,7 @@
   <td><strong>POPLUC</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-pop~7"></span>type(POP_TYPE),</td>
+  <td><span class="anchor" id="variable-pop~25"></span>type(<a href='../type/pop_type.html'>POP_TYPE</a>),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>POP</strong></td><td></td>
@@ -147,7 +147,7 @@
   <td><strong>LUC_EXPT</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-casapool~36"></span>type(<a href='../type/casa_pool~2.html'>casa_pool</a>),</td>
+  <td><span class="anchor" id="variable-casapool~36"></span>type(<a href='../type/casa_pool.html'>casa_pool</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>casapool</strong></td><td></td>
@@ -159,7 +159,7 @@
   <td><strong>casabal</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-casaflux~34"></span>type(<a href='../type/casa_flux~2.html'>casa_flux</a>),</td>
+  <td><span class="anchor" id="variable-casaflux~34"></span>type(<a href='../type/casa_flux.html'>casa_flux</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>casaflux</strong></td><td></td>
@@ -308,17 +308,32 @@
 <path fill="none" stroke="#ff0000" d="M248.13,-54C256.23,-54 264.87,-54 273.58,-54"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="273.8,-57.5 283.8,-54 273.8,-50.5 273.8,-57.5"/>
 </g>
-<!-- program~cable_offline_driver -->
+<!-- proc~mpidrv_master -->
 <g id="proc~~pop_luc_casa_transfer~~CalledByGraph_node3" class="node">
+<title>proc~mpidrv_master</title>
+<g id="a_proc~~pop_luc_casa_transfer~~CalledByGraph_node3"><a xlink:href=".././proc/mpidrv_master.html" xlink:title="mpidrv_master">
+<polygon fill="#d9534f" stroke="#d9534f" points="247.5,-24 154.5,-24 154.5,0 247.5,0 247.5,-24"/>
+<text text-anchor="middle" x="201" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpidrv_master</text>
+</a>
+</g>
+</g>
+<!-- proc~mpidrv_master&#45;&gt;proc~pop_luc_casa_transfer -->
+<g id="proc~~pop_luc_casa_transfer~~CalledByGraph_edge2" class="edge">
+<title>proc~mpidrv_master&#45;&gt;proc~pop_luc_casa_transfer</title>
+<path fill="none" stroke="#ff0000" d="M245.27,-24.04C262.33,-28.78 282.09,-34.28 300,-39.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="299.15,-42.65 309.72,-41.96 301.03,-35.91 299.15,-42.65"/>
+</g>
+<!-- program~cable_offline_driver -->
+<g id="proc~~pop_luc_casa_transfer~~CalledByGraph_node4" class="node">
 <title>program~cable_offline_driver</title>
-<g id="a_proc~~pop_luc_casa_transfer~~CalledByGraph_node3"><a xlink:href=".././program/cable_offline_driver.html" xlink:title="cable_offline_driver">
+<g id="a_proc~~pop_luc_casa_transfer~~CalledByGraph_node4"><a xlink:href=".././program/cable_offline_driver.html" xlink:title="cable_offline_driver">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="118,-86 0,-86 0,-62 118,-62 118,-86"/>
 <text text-anchor="middle" x="59" y="-71.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_offline_driver</text>
 </a>
 </g>
 </g>
 <!-- program~cable_offline_driver&#45;&gt;proc~pop_luc_casa_transfer -->
-<g id="proc~~pop_luc_casa_transfer~~CalledByGraph_edge2" class="edge">
+<g id="proc~~pop_luc_casa_transfer~~CalledByGraph_edge3" class="edge">
 <title>program~cable_offline_driver&#45;&gt;proc~pop_luc_casa_transfer</title>
 <path fill="none" stroke="#ff0000" d="M118.17,-74.72C130.02,-74.83 142.41,-74.94 154,-75 195.78,-75.22 206.43,-79.12 248,-75 262.81,-73.53 278.62,-70.93 293.36,-68.05"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="294.26,-71.44 303.36,-66.02 292.87,-64.58 294.26,-71.44"/>
@@ -328,21 +343,6 @@
 <title>program~cable_offline_driver&#45;&gt;proc~casaonly_luc</title>
 <path fill="none" stroke="#ff0000" d="M118.16,-65.69C126.6,-64.49 135.27,-63.25 143.67,-62.05"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="144.35,-65.49 153.75,-60.61 143.36,-58.56 144.35,-65.49"/>
-</g>
-<!-- proc~mpidrv_master -->
-<g id="proc~~pop_luc_casa_transfer~~CalledByGraph_node4" class="node">
-<title>proc~mpidrv_master</title>
-<g id="a_proc~~pop_luc_casa_transfer~~CalledByGraph_node4"><a xlink:href=".././proc/mpidrv_master.html" xlink:title="mpidrv_master">
-<polygon fill="#d9534f" stroke="#d9534f" points="247.5,-24 154.5,-24 154.5,0 247.5,0 247.5,-24"/>
-<text text-anchor="middle" x="201" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpidrv_master</text>
-</a>
-</g>
-</g>
-<!-- proc~mpidrv_master&#45;&gt;proc~pop_luc_casa_transfer -->
-<g id="proc~~pop_luc_casa_transfer~~CalledByGraph_edge3" class="edge">
-<title>proc~mpidrv_master&#45;&gt;proc~pop_luc_casa_transfer</title>
-<path fill="none" stroke="#ff0000" d="M245.27,-24.04C262.33,-28.78 282.09,-34.28 300,-39.26"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="299.15,-42.65 309.72,-41.96 301.03,-35.91 299.15,-42.65"/>
 </g>
 <!-- program~mpi_driver -->
 <g id="proc~~pop_luc_casa_transfer~~CalledByGraph_node5" class="node">
@@ -356,8 +356,8 @@
 <!-- program~mpi_driver&#45;&gt;proc~mpidrv_master -->
 <g id="proc~~pop_luc_casa_transfer~~CalledByGraph_edge5" class="edge">
 <title>program~mpi_driver&#45;&gt;proc~mpidrv_master</title>
-<path fill="none" stroke="#0000ff" d="M94.25,-12C109.26,-12 127.28,-12 144.15,-12"/>
-<polygon fill="#0000ff" stroke="#0000ff" points="144.47,-15.5 154.47,-12 144.47,-8.5 144.47,-15.5"/>
+<path fill="none" stroke="#00ff00" d="M94.25,-12C109.26,-12 127.28,-12 144.15,-12"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="144.47,-15.5 154.47,-12 144.47,-8.5 144.47,-15.5"/>
 </g>
 </g>
 </svg>

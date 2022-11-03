@@ -48,11 +48,11 @@ MODULE CABLE_LUC_EXPT
 
 CONTAINS
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!===============================================================================
   ! CALBE_LUC_EXPT routines
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!===============================================================================
 
-  ! ==============================================================================
+  !=============================================================================
   SUBROUTINE LUC_EXPT_INIT( LUC_EXPT)
 
     IMPLICIT NONE
@@ -160,9 +160,9 @@ CONTAINS
           CALL HANDLE_ERR(STATUS, "Inquiring 'time'"//TRIM(LUC_EXPT%TransFile(i)))
           LUC_EXPT%nrec = tdimsize
 
-!!$          STATUS = NF90_GET_VAR( Luc_expt%f_id(i), timID, tmp, &
-!!$               start=(/1,1,1/) )
-!!$          CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )
+!$          STATUS = NF90_GET_VAR( Luc_expt%f_id(i), timID, tmp, &
+!$               start=(/1,1,1/) )
+!$          CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )
 
 
 
@@ -310,9 +310,9 @@ CONTAINS
     END WHERE
 
 
-!!$    WHERE (LUC_EXPT%ivegp == 14)
-!!$       LUC_EXPT%prim_only = .TRUE.
-!!$    END WHERE
+!$    WHERE (LUC_EXPT%ivegp == 14)
+!$       LUC_EXPT%prim_only = .TRUE.
+!$    END WHERE
 
   END SUBROUTINE LUC_EXPT_INIT
 
@@ -439,7 +439,7 @@ CONTAINS
     INQUIRE( FILE=TRIM( fname ), EXIST=EXISTFILE )
 
     IF ( .NOT.EXISTFILE) THEN
-       WRITE(*,*) fname, ' does not exist!!'
+       WRITE(*,*) fname, ' does not exist!'
     ELSE
        WRITE(*,*) 'reading biome from : ', fname
     ENDIF

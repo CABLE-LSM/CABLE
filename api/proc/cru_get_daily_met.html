@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.8% of total for procedures.">258 statements</a>
+    title=" 0.7% of total for procedures.">258 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/cable_cru_TRENDY.F90"> Source File</a></li>
   </ul>
@@ -123,18 +123,6 @@
     <h2>public subroutine CRU_GET_DAILY_MET(CRU, LastDayOfYear, LastYearOfMet)</h2>
     
 
-    <p>$  IF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY' .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' )) THEN
-$    MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
-$  ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY' ) THEN
-$    MetYear = CRU%CYEAR
-$  ELSE
-$    STOP 'Error in cable_cru.F90: CRU%Run not S0_TRENDY, S1_TRENDY, or 1901-2015'
-$  ENDIF</p>
-<p>$          IF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY' .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' )) THEN
-$            NextMetYear = 1901 + MOD(CRU%CYEAR + 1 - RunStartYear,30)
-$          ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY' ) THEN
-$            NextMetYear = CRU%CYEAR + 1
-$          ENDIF</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">
@@ -211,92 +199,92 @@ $          ENDIF</p>
 <path fill="none" stroke="#ff0000" d="M74.31,-171.07C91.14,-189.18 125.4,-223.35 161,-243 164.3,-244.82 167.77,-246.5 171.34,-248.06"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="170.34,-251.43 180.93,-251.87 172.93,-244.92 170.34,-251.43"/>
 </g>
-<!-- nf90_inquire_dimension -->
-<g id="proc~~cru_get_daily_met~~CallsGraph_node4" class="node">
-<title>nf90_inquire_dimension</title>
-<polygon fill="#777777" stroke="#777777" points="300,-234 161,-234 161,-210 300,-210 300,-234"/>
-<text text-anchor="middle" x="230.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inquire_dimension</text>
-</g>
-<!-- proc~cru_get_daily_met&#45;&gt;nf90_inquire_dimension -->
-<g id="proc~~cru_get_daily_met~~CallsGraph_edge5" class="edge">
-<title>proc~cru_get_daily_met&#45;&gt;nf90_inquire_dimension</title>
-<path fill="none" stroke="#ff0000" d="M89.26,-171.01C108.74,-179.87 136.26,-191.91 161,-201 166.46,-203.01 172.21,-204.98 177.96,-206.87"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="177.01,-210.24 187.6,-209.95 179.14,-203.57 177.01,-210.24"/>
-</g>
-<!-- nf90_open -->
-<g id="proc~~cru_get_daily_met~~CallsGraph_node5" class="node">
-<title>nf90_open</title>
-<polygon fill="#777777" stroke="#777777" points="265,-192 196,-192 196,-168 265,-168 265,-192"/>
-<text text-anchor="middle" x="230.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_open</text>
-</g>
-<!-- proc~cru_get_daily_met&#45;&gt;nf90_open -->
-<g id="proc~~cru_get_daily_met~~CallsGraph_edge3" class="edge">
-<title>proc~cru_get_daily_met&#45;&gt;nf90_open</title>
-<path fill="none" stroke="#ff0000" d="M125.31,-166.82C145.29,-169.35 167.01,-172.1 185.43,-174.43"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="185.22,-177.93 195.58,-175.71 186.09,-170.98 185.22,-177.93"/>
-</g>
-<!-- nf90_inq_dimid -->
-<g id="proc~~cru_get_daily_met~~CallsGraph_node6" class="node">
-<title>nf90_inq_dimid</title>
-<polygon fill="#777777" stroke="#777777" points="277.5,-150 183.5,-150 183.5,-126 277.5,-126 277.5,-150"/>
-<text text-anchor="middle" x="230.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_dimid</text>
-</g>
-<!-- proc~cru_get_daily_met&#45;&gt;nf90_inq_dimid -->
-<g id="proc~~cru_get_daily_met~~CallsGraph_edge4" class="edge">
-<title>proc~cru_get_daily_met&#45;&gt;nf90_inq_dimid</title>
-<path fill="none" stroke="#ff0000" d="M125.31,-151.18C141.12,-149.18 158.02,-147.04 173.51,-145.08"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="173.98,-148.55 183.46,-143.82 173.1,-141.61 173.98,-148.55"/>
-</g>
-<!-- nf90_inq_varid -->
-<g id="proc~~cru_get_daily_met~~CallsGraph_node7" class="node">
-<title>nf90_inq_varid</title>
-<polygon fill="#777777" stroke="#777777" points="276,-108 185,-108 185,-84 276,-84 276,-108"/>
-<text text-anchor="middle" x="230.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_varid</text>
-</g>
-<!-- proc~cru_get_daily_met&#45;&gt;nf90_inq_varid -->
-<g id="proc~~cru_get_daily_met~~CallsGraph_edge6" class="edge">
-<title>proc~cru_get_daily_met&#45;&gt;nf90_inq_varid</title>
-<path fill="none" stroke="#ff0000" d="M89.26,-146.99C108.74,-138.13 136.26,-126.09 161,-117 166.46,-114.99 172.21,-113.02 177.96,-111.13"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="179.14,-114.43 187.6,-108.05 177.01,-107.76 179.14,-114.43"/>
-</g>
 <!-- proc~handle_err -->
-<g id="proc~~cru_get_daily_met~~CallsGraph_node8" class="node">
+<g id="proc~~cru_get_daily_met~~CallsGraph_node4" class="node">
 <title>proc~handle_err</title>
-<g id="a_proc~~cru_get_daily_met~~CallsGraph_node8"><a xlink:href=".././proc/handle_err.html" xlink:title="HANDLE_ERR">
-<polygon fill="#d9534f" stroke="#d9534f" points="272.5,-66 188.5,-66 188.5,-42 272.5,-42 272.5,-66"/>
-<text text-anchor="middle" x="230.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HANDLE_ERR</text>
+<g id="a_proc~~cru_get_daily_met~~CallsGraph_node4"><a xlink:href=".././proc/handle_err.html" xlink:title="HANDLE_ERR">
+<polygon fill="#d9534f" stroke="#d9534f" points="272.5,-234 188.5,-234 188.5,-210 272.5,-210 272.5,-234"/>
+<text text-anchor="middle" x="230.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HANDLE_ERR</text>
 </a>
 </g>
 </g>
 <!-- proc~cru_get_daily_met&#45;&gt;proc~handle_err -->
-<g id="proc~~cru_get_daily_met~~CallsGraph_edge7" class="edge">
+<g id="proc~~cru_get_daily_met~~CallsGraph_edge3" class="edge">
 <title>proc~cru_get_daily_met&#45;&gt;proc~handle_err</title>
-<path fill="none" stroke="#ff0000" d="M74.31,-146.93C91.14,-128.82 125.4,-94.65 161,-75 166.5,-71.96 172.5,-69.31 178.59,-67"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="179.88,-70.26 188.16,-63.66 177.57,-63.65 179.88,-70.26"/>
+<path fill="none" stroke="#ff0000" d="M89.26,-171.01C108.74,-179.87 136.26,-191.91 161,-201 166.61,-203.06 172.53,-205.09 178.44,-207.02"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="177.73,-210.47 188.33,-210.18 179.86,-203.8 177.73,-210.47"/>
+</g>
+<!-- nf90_inq_varid -->
+<g id="proc~~cru_get_daily_met~~CallsGraph_node5" class="node">
+<title>nf90_inq_varid</title>
+<polygon fill="#777777" stroke="#777777" points="276,-192 185,-192 185,-168 276,-168 276,-192"/>
+<text text-anchor="middle" x="230.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_varid</text>
+</g>
+<!-- proc~cru_get_daily_met&#45;&gt;nf90_inq_varid -->
+<g id="proc~~cru_get_daily_met~~CallsGraph_edge4" class="edge">
+<title>proc~cru_get_daily_met&#45;&gt;nf90_inq_varid</title>
+<path fill="none" stroke="#ff0000" d="M125.31,-166.82C141.49,-168.87 158.83,-171.06 174.62,-173.06"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="174.39,-176.56 184.75,-174.34 175.27,-169.61 174.39,-176.56"/>
+</g>
+<!-- nf90_open -->
+<g id="proc~~cru_get_daily_met~~CallsGraph_node6" class="node">
+<title>nf90_open</title>
+<polygon fill="#777777" stroke="#777777" points="265,-150 196,-150 196,-126 265,-126 265,-150"/>
+<text text-anchor="middle" x="230.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_open</text>
+</g>
+<!-- proc~cru_get_daily_met&#45;&gt;nf90_open -->
+<g id="proc~~cru_get_daily_met~~CallsGraph_edge5" class="edge">
+<title>proc~cru_get_daily_met&#45;&gt;nf90_open</title>
+<path fill="none" stroke="#ff0000" d="M125.31,-151.18C145.29,-148.65 167.01,-145.9 185.43,-143.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="186.09,-147.02 195.58,-142.29 185.22,-140.07 186.09,-147.02"/>
 </g>
 <!-- nf90_close -->
-<g id="proc~~cru_get_daily_met~~CallsGraph_node9" class="node">
+<g id="proc~~cru_get_daily_met~~CallsGraph_node7" class="node">
 <title>nf90_close</title>
-<polygon fill="#777777" stroke="#777777" points="265.5,-24 195.5,-24 195.5,0 265.5,0 265.5,-24"/>
-<text text-anchor="middle" x="230.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_close</text>
+<polygon fill="#777777" stroke="#777777" points="265.5,-108 195.5,-108 195.5,-84 265.5,-84 265.5,-108"/>
+<text text-anchor="middle" x="230.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_close</text>
 </g>
 <!-- proc~cru_get_daily_met&#45;&gt;nf90_close -->
-<g id="proc~~cru_get_daily_met~~CallsGraph_edge8" class="edge">
+<g id="proc~~cru_get_daily_met~~CallsGraph_edge6" class="edge">
 <title>proc~cru_get_daily_met&#45;&gt;nf90_close</title>
-<path fill="none" stroke="#ff0000" d="M69.51,-146.94C82.6,-121.9 116.18,-63.98 161,-33 168.36,-27.91 176.99,-24.03 185.6,-21.07"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="186.71,-24.39 195.24,-18.11 184.65,-17.7 186.71,-24.39"/>
+<path fill="none" stroke="#ff0000" d="M89.26,-146.99C108.74,-138.13 136.26,-126.09 161,-117 168.97,-114.07 177.56,-111.21 185.88,-108.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="186.94,-111.93 195.46,-105.63 184.87,-105.24 186.94,-111.93"/>
+</g>
+<!-- nf90_inq_dimid -->
+<g id="proc~~cru_get_daily_met~~CallsGraph_node8" class="node">
+<title>nf90_inq_dimid</title>
+<polygon fill="#777777" stroke="#777777" points="277.5,-66 183.5,-66 183.5,-42 277.5,-42 277.5,-66"/>
+<text text-anchor="middle" x="230.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_dimid</text>
+</g>
+<!-- proc~cru_get_daily_met&#45;&gt;nf90_inq_dimid -->
+<g id="proc~~cru_get_daily_met~~CallsGraph_edge7" class="edge">
+<title>proc~cru_get_daily_met&#45;&gt;nf90_inq_dimid</title>
+<path fill="none" stroke="#ff0000" d="M74.31,-146.93C91.14,-128.82 125.4,-94.65 161,-75 165.14,-72.72 169.56,-70.65 174.08,-68.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="175.35,-72.04 183.46,-65.23 172.87,-65.5 175.35,-72.04"/>
+</g>
+<!-- nf90_inquire_dimension -->
+<g id="proc~~cru_get_daily_met~~CallsGraph_node9" class="node">
+<title>nf90_inquire_dimension</title>
+<polygon fill="#777777" stroke="#777777" points="300,-24 161,-24 161,0 300,0 300,-24"/>
+<text text-anchor="middle" x="230.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inquire_dimension</text>
+</g>
+<!-- proc~cru_get_daily_met&#45;&gt;nf90_inquire_dimension -->
+<g id="proc~~cru_get_daily_met~~CallsGraph_edge8" class="edge">
+<title>proc~cru_get_daily_met&#45;&gt;nf90_inquire_dimension</title>
+<path fill="none" stroke="#ff0000" d="M69.51,-146.94C82.6,-121.9 116.18,-63.98 161,-33 163.4,-31.34 165.93,-29.81 168.55,-28.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="170.22,-31.48 177.76,-24.04 167.22,-25.16 170.22,-31.48"/>
 </g>
 <!-- nf90_strerror -->
 <g id="proc~~cru_get_daily_met~~CallsGraph_node10" class="node">
 <title>nf90_strerror</title>
-<polygon fill="#777777" stroke="#777777" points="417,-66 336,-66 336,-42 417,-42 417,-66"/>
-<text text-anchor="middle" x="376.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_strerror</text>
+<polygon fill="#777777" stroke="#777777" points="417,-234 336,-234 336,-210 417,-210 417,-234"/>
+<text text-anchor="middle" x="376.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_strerror</text>
 </g>
 <!-- proc~handle_err&#45;&gt;nf90_strerror -->
 <g id="proc~~cru_get_daily_met~~CallsGraph_edge9" class="edge">
 <title>proc~handle_err&#45;&gt;nf90_strerror</title>
-<path fill="none" stroke="#7f00ff" d="M272.76,-54C289.14,-54 308.14,-54 325.3,-54"/>
-<polygon fill="#7f00ff" stroke="#7f00ff" points="325.72,-57.5 335.72,-54 325.72,-50.5 325.72,-57.5"/>
+<path fill="none" stroke="#7fff00" d="M272.76,-222C289.14,-222 308.14,-222 325.3,-222"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="325.72,-225.5 335.72,-222 325.72,-218.5 325.72,-225.5"/>
 </g>
 </g>
 </svg>

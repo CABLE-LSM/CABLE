@@ -213,7 +213,7 @@ MODULE cable_IO_vars_module
           ensemble = .FALSE.,  & ! are we creating an ensemble run?
           patch = .FALSE. , &   ! should patch-specific info be written
                                 ! to output file?
-                                !! vh_js !!
+                                ! vh_js !
           casa = .FALSE.       ! additional casa outputs (C stores and plant turnover)
 
      ! Should output grid follow met file 'default'; force with 'land' or 'mask':
@@ -292,7 +292,7 @@ MODULE cable_IO_vars_module
           RnetSoil = .FALSE.,     & ! sensible heat from soil [W/m2] !vh!
           Ebal = .FALSE.,      & ! cumulative energy balance [W/m2]
           Wbal = .FALSE.,      & ! cumulative water balance [W/m2]
-                                !! vh_js ! added CanT and fwsoil to the list
+                                ! vh_js ! added CanT and fwsoil to the list
           CanT = .FALSE.,      & ! within-canopy temperature [K]
           Fwsoil = .FALSE.,      & ! soil moisture modifier to stomatal conductance
           Area = .FALSE., & ! patch area in km2
@@ -303,7 +303,7 @@ MODULE cable_IO_vars_module
           Qrecharge=.FALSE.,   &  !recharge to /from auqifer
           SatFrac=.FALSE.,       & ! Saturated Fraction of Gridcell (tile)
 
-                                !! vh_js !! additional casa variables
+                                ! vh_js ! additional casa variables
           NBP = .FALSE., &
           dCdt = .FALSE., &
           TotSoilCarb = .FALSE.,   &

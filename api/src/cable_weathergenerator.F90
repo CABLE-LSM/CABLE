@@ -207,10 +207,10 @@ CONTAINS
     ! TempMaxDay                                                        Tx
     ! TempMinDayNext                                                    Tp
     ! TempMaxDayPrev
-!!$write(71, "( 1000e16.6)") WG%DecRad
-!!$   write(72, "( 1000e16.6)") TAN(WG%DecRad)
-!!$   write(73, "( 1000e16.6)") TAN(WG%LatRad)
-!!$ write(74, "( 1000e16.6)")  WG%DayLength
+!$write(71, "( 1000e16.6)") WG%DecRad
+!$   write(72, "( 1000e16.6)") TAN(WG%DecRad)
+!$   write(73, "( 1000e16.6)") TAN(WG%LatRad)
+!$ write(74, "( 1000e16.6)")  WG%DayLength
     WHERE ( WG%DayLength .LT. 0.01 )
        ! Polar night
        WG%TimeSunrise     = 9.              ! Hn
@@ -242,7 +242,7 @@ CONTAINS
 
   END SUBROUTINE WGEN_DAILY_CONSTANTS
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!==============================================================================
 
   SUBROUTINE WGEN_SUBDIURNAL_MET(WG, np, itime)
 

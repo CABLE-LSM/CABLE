@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 2.2% of total for source files.">1107 statements</a>
+    title=" 1.9% of total for source files.">1107 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/cable_define_types.F90"> Source File</a></li>
   </ul>
@@ -629,7 +629,7 @@
 <a id="ln-472" name="ln-472" href="#ln-472"></a><span class="w">          </span><span class="n">evapfbl</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-473" name="ln-473" href="#ln-473"></a><span class="w">          </span><span class="n">gswx</span><span class="p">,</span><span class="w">    </span><span class="p">&amp;</span><span class="w"> </span><span class="c">! stom cond for water</span>
 <a id="ln-474" name="ln-474" href="#ln-474"></a><span class="w">          </span><span class="n">zetar</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w">   </span><span class="c">! stability parameter (ref height)</span>
-<a id="ln-475" name="ln-475" href="#ln-475"></a><span class="w">                                </span><span class="c">!! vh_js !!</span>
+<a id="ln-475" name="ln-475" href="#ln-475"></a><span class="w">                                </span><span class="c">! vh_js !</span>
 <a id="ln-476" name="ln-476" href="#ln-476"></a><span class="w">          </span><span class="n">zetash</span><span class="w">      </span><span class="c">! stability parameter (shear height)</span>
 <a id="ln-477" name="ln-477" href="#ln-477"></a>
 <a id="ln-478" name="ln-478" href="#ln-478"></a><span class="w">     </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">DIMENSION</span><span class="p">(:),</span><span class="w"> </span><span class="k">POINTER</span><span class="w"> </span><span class="kd">::</span><span class="w">                                      </span><span class="p">&amp;</span><span class="w"></span>
@@ -658,7 +658,7 @@
 <a id="ln-501" name="ln-501" href="#ln-501"></a><span class="w">     </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">DIMENSION</span><span class="p">(:,:,:),</span><span class="w"> </span><span class="k">POINTER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ci</span><span class="w">     </span><span class="c">! intra-cellular CO2 vh 6/7/09</span>
 <a id="ln-502" name="ln-502" href="#ln-502"></a><span class="w">     </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">DIMENSION</span><span class="p">(:),</span><span class="w">     </span><span class="k">POINTER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fwsoil</span><span class="w"> </span><span class="c">!</span>
 <a id="ln-503" name="ln-503" href="#ln-503"></a>
-<a id="ln-504" name="ln-504" href="#ln-504"></a><span class="w">     </span><span class="c">!! vh_js !! !litter thermal conductivity (Wm-2K-1) and vapour diffusivity (m2s-1)</span>
+<a id="ln-504" name="ln-504" href="#ln-504"></a><span class="w">     </span><span class="c">! vh_js ! !litter thermal conductivity (Wm-2K-1) and vapour diffusivity (m2s-1)</span>
 <a id="ln-505" name="ln-505" href="#ln-505"></a><span class="w">     </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">DIMENSION</span><span class="p">(:),</span><span class="w"> </span><span class="k">POINTER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">kthLitt</span><span class="p">,</span><span class="w"> </span><span class="n">DvLitt</span><span class="w"></span>
 <a id="ln-506" name="ln-506" href="#ln-506"></a>
 <a id="ln-507" name="ln-507" href="#ln-507"></a>
@@ -1342,7 +1342,7 @@
 <a id="ln-1185" name="ln-1185" href="#ln-1185"></a><span class="w">    </span><span class="k">ALLOCATE</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">var</span><span class="w"> </span><span class="p">%</span><span class="w"> </span><span class="n">ci</span><span class="p">(</span><span class="n">mp</span><span class="p">,</span><span class="n">mf</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w">   </span><span class="c">! intra-cellular CO2 vh 6/7/09</span>
 <a id="ln-1186" name="ln-1186" href="#ln-1186"></a><span class="w">    </span><span class="k">ALLOCATE</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">var</span><span class="w"> </span><span class="p">%</span><span class="w"> </span><span class="n">fwsoil</span><span class="w"> </span><span class="p">(</span><span class="n">mp</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <a id="ln-1187" name="ln-1187" href="#ln-1187"></a>
-<a id="ln-1188" name="ln-1188" href="#ln-1188"></a><span class="w">    </span><span class="c">!! vh_js !! liiter resistances to heat and vapour transfer</span>
+<a id="ln-1188" name="ln-1188" href="#ln-1188"></a><span class="w">    </span><span class="c">! vh_js ! liiter resistances to heat and vapour transfer</span>
 <a id="ln-1189" name="ln-1189" href="#ln-1189"></a><span class="w">    </span><span class="k">ALLOCATE</span><span class="w"> </span><span class="p">(</span><span class="n">var</span><span class="w"> </span><span class="p">%</span><span class="w"> </span><span class="n">kthLitt</span><span class="p">(</span><span class="n">mp</span><span class="p">))</span><span class="w"></span>
 <a id="ln-1190" name="ln-1190" href="#ln-1190"></a><span class="w">    </span><span class="k">ALLOCATE</span><span class="w"> </span><span class="p">(</span><span class="n">var</span><span class="w"> </span><span class="p">%</span><span class="w"> </span><span class="n">DvLitt</span><span class="p">(</span><span class="n">mp</span><span class="p">))</span><span class="w"></span>
 <a id="ln-1191" name="ln-1191" href="#ln-1191"></a>
@@ -1949,7 +1949,7 @@
 <a id="ln-1792" name="ln-1792" href="#ln-1792"></a><span class="w">    </span><span class="k">DEALLOCATE</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">var</span><span class="w"> </span><span class="p">%</span><span class="w"> </span><span class="n">ofes</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <a id="ln-1793" name="ln-1793" href="#ln-1793"></a><span class="w">    </span><span class="k">DEALLOCATE</span><span class="p">(</span><span class="w"> </span><span class="n">var</span><span class="p">%</span><span class="w"> </span><span class="n">sublayer_dz</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <a id="ln-1794" name="ln-1794" href="#ln-1794"></a>
-<a id="ln-1795" name="ln-1795" href="#ln-1795"></a><span class="w">    </span><span class="c">!! vh_js !! liiter resistances to heat and vapour transfer</span>
+<a id="ln-1795" name="ln-1795" href="#ln-1795"></a><span class="w">    </span><span class="c">! vh_js ! liiter resistances to heat and vapour transfer</span>
 <a id="ln-1796" name="ln-1796" href="#ln-1796"></a><span class="w">    </span><span class="k">DEALLOCATE</span><span class="w"> </span><span class="p">(</span><span class="n">var</span><span class="w"> </span><span class="p">%</span><span class="w"> </span><span class="n">kthLitt</span><span class="p">)</span><span class="w"></span>
 <a id="ln-1797" name="ln-1797" href="#ln-1797"></a><span class="w">    </span><span class="k">DEALLOCATE</span><span class="w"> </span><span class="p">(</span><span class="n">var</span><span class="w"> </span><span class="p">%</span><span class="w"> </span><span class="n">DvLitt</span><span class="p">)</span><span class="w"></span>
 <a id="ln-1798" name="ln-1798" href="#ln-1798"></a>

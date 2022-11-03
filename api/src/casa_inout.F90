@@ -46,7 +46,7 @@ CONTAINS
     USE casaparm
     USE casavariable
     USE phenvariable
-    !! vh_js !!
+    ! vh_js !
     USE cable_common_module, ONLY: cable_user
     IMPLICIT NONE
     !  INTEGER,               INTENT(IN)    :: mvt,mst
@@ -318,13 +318,13 @@ CONTAINS
           casapool%nlitter(npt,cwd)  = ncwd(iv1)
           casapool%pplant(npt,wood)  = xpwood(iv1)
           casapool%plitter(npt,cwd)  = xpcwd(iv1)
-          !! vh_js !!
+          ! vh_js !
           IF (cable_user%CALL_POP) THEN  ! initialise very small wood pool, so POP can start from zero.
              casapool%cplant(npt,wood) = 0.01
              casapool%nplant(npt,wood)= casabiome%ratioNCplantmin(iv1,wood)* casapool%cplant(npt,wood)
              casapool%pplant(npt,wood)= casabiome%ratioPCplantmin(iv1,wood)* casapool%cplant(npt,wood)
           ENDIF
-          !! vh_js
+          ! vh_js
 
        ENDIF
        casapool%cplant(npt,leaf)     = cleaf(iv1)
@@ -473,10 +473,10 @@ CONTAINS
   END SUBROUTINE casa_readphen
 
   !SUBROUTINE casa_readpoint(veg,soil,casaflux,casamet,rad)
-  !! Transfer grid information from CABLE internally, read N&P input from
-  !! integral NETCDF file "cnpdata_r21.nc" (Q.Zhang 01/08/2011)
+  ! ! Transfer grid information from CABLE internally, read N&P input from
+  ! ! integral NETCDF file "cnpdata_r21.nc" (Q.Zhang 01/08/2011)
   !
-  !!SUBROUTINE casa_readpoint(mvt,veg,soil,casaflux,casamet,patch,rad)
+  ! !SUBROUTINE casa_readpoint(mvt,veg,soil,casaflux,casamet,patch,rad)
   !  USE netcdf
   !  USE cable_def_types_mod
   !  USE abort_module
@@ -485,7 +485,7 @@ CONTAINS
   !  USE casadimension
   !  USE casavariable
   !  IMPLICIT NONE
-  !!  INTEGER,               INTENT(IN)    :: mvt
+  ! ! INTEGER,               INTENT(IN)    :: mvt
   !  TYPE (veg_parameter_type),  INTENT(INOUT) :: veg  ! vegetation parameters
   !  TYPE (soil_parameter_type), INTENT(INOUT) :: soil ! soil parameters
   !  TYPE (casa_flux),           INTENT(INOUT) :: casaflux
@@ -591,81 +591,81 @@ CONTAINS
   !
   !  DEALLOCATE(latx,lonx,iso,annNdep,annNfix,annPwea,annPdust)
   !
-  !!  ! local variables
-  !!  INTEGER :: np,nland
-  !!  REAL(r_2) :: annNdep,annNfix,annPwea,annPdust
-  !!  REAL(r_2) :: annNfert,annPfert   ! not really used yet
-  !!  INTEGER, DIMENSION(mp) :: vtypex,stypex
-  !!  INTEGER :: nlandx,ivtigbp,inPatch,ilat,ilon
-  !!  REAL    :: frac,ssat,swilt,sfc   ! used in offline version, Q.Zhang @ 25/02/2011
-  !!
-  !!  OPEN(101,file=casafile%cnppoint,FORM='FORMATTED')
-  !!  READ(101,*)
-!!!  READ(101,*) inPatch
-  !!  PRINT * ,'Within casa_readpoint, mp = ', mp
-!!!  PRINT * ,'Input file has ', inPatch, ' patches.'
-  !!
-  !!  np = 0
-  !!  DO nland=1,mp
-  !!    np = np + 1
-!!!    READ(101,*) &
-!!!        nlandx,ivtigbp,stypex(np),casamet%isorder(np), &
-!!!               casamet%lat(np),casamet%lon(np),casamet%areacell(np), &
-!!!               annNfix,annNdep,annNfert,annPwea,annPdust,annPfert
-  !!
-  !!    ! 'ijgcm,j,i,lat,lon,frac,iveg,isoil,ist,parea,ssat,swilt,sfc,ndep,nfix,pwea,pdust'
-  !!    read(101,*) nlandx,ilat,ilon,casamet%lat(np),casamet%lon(np),&
-  !!                frac,vtypex(np),stypex(np),casamet%isorder(np),&
-  !!                casamet%areacell(np),ssat,swilt,&
-  !!                sfc,annNdep,annNfix,annPwea,annPdust
-  !!
-!!!    PRINT * , nlandx,ivtigbp,stypex(np),veg%iveg(np),soil%isoilm(np), &
-!!!              patch(np)%frac,patch(np)%latitude,patch(np)%longitude, &
-!!!              casamet%lat(np),casamet%lon(np)
-  !!
-!!!    IF (ivtigbp == 0) ivtigbp = iceland
-  !!
-  !!    IF (ABS(casamet%lat(np) - patch(np)%latitude) < 0.1 .AND. &
-  !!        ABS(casamet%lon(np) - patch(np)%longitude) < 0.1) THEN
-  !!      IF (vtypex(np) /= veg%iveg(np) .OR. stypex(np) /= soil%isoilm(np)) THEN
-  !!        PRINT * ,'Check why iveg, isoil do not match'
-  !!        STOP
-  !!      ELSE
-  !!        casaflux%Nmindep(np) = annNdep/365.0
-  !!        casaflux%Nminfix(np) = annNfix/365.0
-  !!        casaflux%Pdep(np)    = annPdust/365.0     ! gP/m2/day
-  !!        casaflux%Pwea(np)    = annPwea/365.0      ! gP/m2/day
-!!!        IF (mvtype==17) THEN
-!!!          vtypex(np)  = ivtigbp  ! for running IGBP veg type only
-!!!        END IF
-  !!      END IF
-  !!    ELSE
-  !!      PRINT * ,'Check why lat, lon do not match'
-  !!      print * ,'casamet',casamet%lat(np),casamet%lon(np)
-  !!      print * ,'cable  ',patch(np)%latitude,patch(np)%longitude
-  !!      STOP
-  !!    END IF
-  !!
-  !!    if(veg%iveg(np)==9 .or. veg%iveg(np)==10) then
-  !!    ! P fertilizer =13 Mt P globally in 1994
-  !!      casaflux%Pdep(np) = casaflux%Pdep(np)+0.7/365.0
-  !!    ! N fertilizer =86 Mt N globally in 1994
-  !!      casaflux%Nminfix(np) = casaflux%Nminfix(np)+4.3/365.0
-  !!    endif
-!!!    IF (veg%iveg(np)==12 .OR. veg%iveg(np)==14) casaflux%Pdep(np)= &
-!!!       casaflux%Pdep(np)+0.7/365.0    ! P fertilizer =13 Mt P globally in 1994
-  !!
-  !!  ENDDO
-  !!  CLOSE(101)
+  !  ! local variables
+  !  INTEGER :: np,nland
+  !  REAL(r_2) :: annNdep,annNfix,annPwea,annPdust
+  !  REAL(r_2) :: annNfert,annPfert   ! not really used yet
+  !  INTEGER, DIMENSION(mp) :: vtypex,stypex
+  !  INTEGER :: nlandx,ivtigbp,inPatch,ilat,ilon
+  !  REAL    :: frac,ssat,swilt,sfc   ! used in offline version, Q.Zhang @ 25/02/2011
+  !
+  !  OPEN(101,file=casafile%cnppoint,FORM='FORMATTED')
+  !  READ(101,*)
+! !  READ(101,*) inPatch
+  !  PRINT * ,'Within casa_readpoint, mp = ', mp
+! !  PRINT * ,'Input file has ', inPatch, ' patches.'
+  !
+  !  np = 0
+  !  DO nland=1,mp
+  !    np = np + 1
+! !   READ(101,*) &
+! !       nlandx,ivtigbp,stypex(np),casamet%isorder(np), &
+! !              casamet%lat(np),casamet%lon(np),casamet%areacell(np), &
+! !              annNfix,annNdep,annNfert,annPwea,annPdust,annPfert
+  !
+  !    ! 'ijgcm,j,i,lat,lon,frac,iveg,isoil,ist,parea,ssat,swilt,sfc,ndep,nfix,pwea,pdust'
+  !    read(101,*) nlandx,ilat,ilon,casamet%lat(np),casamet%lon(np),&
+  !                frac,vtypex(np),stypex(np),casamet%isorder(np),&
+  !                casamet%areacell(np),ssat,swilt,&
+  !                sfc,annNdep,annNfix,annPwea,annPdust
+  !
+! !   PRINT * , nlandx,ivtigbp,stypex(np),veg%iveg(np),soil%isoilm(np), &
+! !             patch(np)%frac,patch(np)%latitude,patch(np)%longitude, &
+! !             casamet%lat(np),casamet%lon(np)
+  !
+! !   IF (ivtigbp == 0) ivtigbp = iceland
+  !
+  !    IF (ABS(casamet%lat(np) - patch(np)%latitude) < 0.1 .AND. &
+  !        ABS(casamet%lon(np) - patch(np)%longitude) < 0.1) THEN
+  !      IF (vtypex(np) /= veg%iveg(np) .OR. stypex(np) /= soil%isoilm(np)) THEN
+  !        PRINT * ,'Check why iveg, isoil do not match'
+  !        STOP
+  !      ELSE
+  !        casaflux%Nmindep(np) = annNdep/365.0
+  !        casaflux%Nminfix(np) = annNfix/365.0
+  !        casaflux%Pdep(np)    = annPdust/365.0     ! gP/m2/day
+  !        casaflux%Pwea(np)    = annPwea/365.0      ! gP/m2/day
+! !        IF (mvtype==17) THEN
+! !          vtypex(np)  = ivtigbp  ! for running IGBP veg type only
+! !        END IF
+  !      END IF
+  !    ELSE
+  !      PRINT * ,'Check why lat, lon do not match'
+  !      print * ,'casamet',casamet%lat(np),casamet%lon(np)
+  !      print * ,'cable  ',patch(np)%latitude,patch(np)%longitude
+  !      STOP
+  !    END IF
+  !
+  !    if(veg%iveg(np)==9 .or. veg%iveg(np)==10) then
+  !    ! P fertilizer =13 Mt P globally in 1994
+  !      casaflux%Pdep(np) = casaflux%Pdep(np)+0.7/365.0
+  !    ! N fertilizer =86 Mt N globally in 1994
+  !      casaflux%Nminfix(np) = casaflux%Nminfix(np)+4.3/365.0
+  !    endif
+! !    IF (veg%iveg(np)==12 .OR. veg%iveg(np)==14) casaflux%Pdep(np)= &
+! !       casaflux%Pdep(np)+0.7/365.0    ! P fertilizer =13 Mt P globally in 1994
+  !
+  !  ENDDO
+  !  CLOSE(101)
   !
   !END SUBROUTINE casa_readpoint
 
   SUBROUTINE casa_init(casabiome,casamet,casaflux,casapool,casabal,veg,phen)
     ! mst not used (BP sep2010)
-    !! for first time reading file *_1220.csv  (BP may2010)
+    ! ! for first time reading file *_1220.csv  (BP may2010)
     !SUBROUTINE casa_init(mst,casapool,casabal,veg)
-    !!SUBROUTINE casa_init(mst,casapool,casabal)
-    !! end addition (BP may2010)
+    ! !SUBROUTINE casa_init(mst,casapool,casabal)
+    ! ! end addition (BP may2010)
     !  initialize some values in phenology parameters and leaf growth phase
     USE casadimension
     USE casaparm
@@ -705,7 +705,7 @@ CONTAINS
     PRINT *, 'icycle,initcasa,mp ', icycle,initcasa,mp
     !phen%phase = 2
 
-    !CLN initialise all !!!!! THIS NEEDS FIXING because of e.g. ICE-WATER
+    !CLN initialise all ! THIS NEEDS FIXING because of e.g. ICE-WATER
     casaflux%Cgpp         = 0.
     casaflux%Cnpp         = 0.
     casaflux%Crp          = 0.
@@ -781,7 +781,7 @@ CONTAINS
 #endif
        ELSE
           WRITE(*,*)'casa_init: not using restart file!'
-          WRITE(*,*)'Using input from readbiome.!!!'
+          WRITE(*,*)'Using input from readbiome.!'
           WRITE(*,*) 'initialising frac_sapwood=1 and sapwood_area = 0)'
           casaflux%frac_sapwood(:) = 1.0
           casaflux%sapwood_area(:) = 0.0
@@ -790,118 +790,118 @@ CONTAINS
     WHERE(casamet%lnonwood==1) casapool%cplant(:,WOOD) = 0.0
     WHERE(casamet%lnonwood==1) casapool%nplant(:,WOOD) = 0.0
     WHERE(casamet%lnonwood==1) casapool%pplant(:,WOOD) = 0.0
-!!$IF (initcasa==1) THEN
-!!$     INQUIRE( FILE=TRIM(casafile%cnpipool), EXIST=EXRST )
-!!$!! vh_js!!
-!!$     IF ( EXRST ) THEN
-!!$
-!!$           PRINT*, ' Reading cnppoolOutfile as input: ,',casafile%cnpipool
-!!$
-!!$    OPEN(99,file=casafile%cnpipool)
-!!$
-!!$    DO npt =1, mp
-!!$       SELECT CASE(icycle)
-!!$       CASE(1)
-!!$          !! vh_js !!
-!!$          IF (cable_user%CALL_POP) THEN
-!!$
-!!$             READ(99,*) nyearz,npz,ivtz,istz,isoz,latz,lonz,areacellz, &
-!!$                  casamet%glai(npt),slaz,phen%phase(npt) , &
-!!$                  phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &
-!!$                  casapool%clabile(npt) ,casapool%cplant(npt,:) ,  &
-!!$                  casapool%clitter(npt,:),casapool%csoil(npt,:), &
-!!$                  casaflux%frac_sapwood(npt), casaflux%sapwood_area(npt)
-!!$
-!!$
-!!$             ELSE
-!!$              READ(99,*) nyearz,npz,ivtz,istz,isoz,latz,lonz,areacellz, &
-!!$                  casamet%glai(npt),slaz,phen%phase(npt) , &
-!!$                  phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &
-!!$                  casapool%clabile(npt) ,casapool%cplant(npt,:) ,  &
-!!$                  casapool%clitter(npt,:),casapool%csoil(npt,:)
-!!$             casaflux%frac_sapwood(:) = 1.0
-!!$             casaflux%sapwood_area(:) = 0.0
-!!$          ENDIF
-!!$
-!!$
-!!$       CASE(2)
-!!$!! vh_js !!
-!!$          IF (cable_user%CALL_POP) THEN
-!!$             READ(99,*) nyearz,npz,ivtz,istz,isoz,latz,lonz,areacellz, &
-!!$                  casamet%glai(npt),slaz,phen%phase(npt), &
-!!$                  phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &
-!!$                  casapool%clabile(npt),casapool%cplant(npt,:),   &
-!!$                  casapool%clitter(npt,:),casapool%csoil(npt,:),       &
-!!$                  casaflux%frac_sapwood(npt), casaflux%sapwood_area(npt), &
-!!$                  casapool%nplant(npt,:),casapool%nlitter(npt,:),      &
-!!$                  casapool%nsoil(npt,:),casapool%nsoilmin(npt)
-!!$
-!!$          ELSE
-!!$             READ(99,*) nyearz,npz,ivtz,istz,isoz,latz,lonz,areacellz, &
-!!$                  casamet%glai(npt),slaz,phen%phase(npt), &
-!!$                  phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &
-!!$                  casapool%clabile(npt),casapool%cplant(npt,:),   &
-!!$                  casapool%clitter(npt,:),casapool%csoil(npt,:),       &
-!!$                  casapool%nplant(npt,:),casapool%nlitter(npt,:),      &
-!!$                  casapool%nsoil(npt,:),casapool%nsoilmin(npt)
-!!$             casaflux%frac_sapwood(:) = 1.0
-!!$             casaflux%sapwood_area(:) = 0.0
-!!$
-!!$          ENDIF
-!!$       CASE(3)
-!!$!! vh_js !!
-!!$          IF (cable_user%CALL_POP) THEN
-!!$             READ(99,*) nyearz,npz,ivtz,istz,isoz,latz,lonz,areacellz, &
-!!$                  casamet%glai(npt),slaz,phen%phase(npt), &
-!!$                  phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &
-!!$                  casapool%clabile(npt),casapool%cplant(npt,:),   &
-!!$                  casapool%clitter(npt,:),casapool%csoil(npt,:),       &
-!!$                  casaflux%frac_sapwood(npt), casaflux%sapwood_area(npt), &
-!!$                  casapool%nplant(npt,:),casapool%nlitter(npt,:),      &
-!!$                  casapool%nsoil(npt,:),casapool%nsoilmin(npt),        &
-!!$                  casapool%pplant(npt,:),casapool%plitter(npt,:),      &
-!!$                  casapool%psoil(npt,:),casapool%psoillab(npt),        &
-!!$                  casapool%psoilsorb(npt),casapool%psoilocc(npt)
-!!$          ELSE
-!!$             READ(99,*) nyearz,npz,ivtz,istz,isoz,latz,lonz,areacellz, &
-!!$                  casamet%glai(npt),slaz,phen%phase(npt), &
-!!$                  phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &
-!!$                  casapool%clabile(npt),casapool%cplant(npt,:),   &
-!!$                  casapool%clitter(npt,:),casapool%csoil(npt,:),       &
-!!$                  casapool%nplant(npt,:),casapool%nlitter(npt,:),      &
-!!$                  casapool%nsoil(npt,:),casapool%nsoilmin(npt),        &
-!!$                  casapool%pplant(npt,:),casapool%plitter(npt,:),      &
-!!$                  casapool%psoil(npt,:),casapool%psoillab(npt),        &
-!!$                  casapool%psoilsorb(npt),casapool%psoilocc(npt)
-!!$             casaflux%frac_sapwood(:) = 1.0
-!!$             casaflux%sapwood_area(:) = 0.0
-!!$
-!!$
-!!$          ENDIF
-!!$       END SELECT
-!!$       IF (ABS(patch(npt)%longitude - lonz) > 0.9 .OR. &
-!!$            ABS(patch(npt)%latitude  - latz) > 0.9) THEN
-!!$          PRINT *, 'patch(npt)%longitude, lonz:', patch(npt)%longitude, lonz
-!!$          PRINT *, 'patch(npt)%latitude,  latz:', patch(npt)%latitude,  latz
-!!$          PRINT *, 'npt = ', npt
-!!$          STOP
-!!$       ENDIF
-!!$    ENDDO
-!!$    CLOSE(99)
-!!$
-!!$
-!!$ ELSE
-!!$ !! vh_js !!
-!!$    WRITE(*,*)'No valid restart file for casa_init found.'
-!!$    WRITE(*,*)'Using input from readbiome.!!!'
-!!$    WRITE(*,*) 'initialising frac_sapwood=1 and sapwood_area = 0)'
-!!$    casaflux%frac_sapwood(:) = 1.0
-!!$    casaflux%sapwood_area(:) = 0.0
-!!$
-!!$
-!!$ ENDIF  ! IF (EXRST)
+!$IF (initcasa==1) THEN
+!$     INQUIRE( FILE=TRIM(casafile%cnpipool), EXIST=EXRST )
+!$! vh_js!
+!$     IF ( EXRST ) THEN
+!$
+!$           PRINT*, ' Reading cnppoolOutfile as input: ,',casafile%cnpipool
+!$
+!$    OPEN(99,file=casafile%cnpipool)
+!$
+!$    DO npt =1, mp
+!$       SELECT CASE(icycle)
+!$       CASE(1)
+!$          ! vh_js !
+!$          IF (cable_user%CALL_POP) THEN
+!$
+!$             READ(99,*) nyearz,npz,ivtz,istz,isoz,latz,lonz,areacellz, &
+!$                  casamet%glai(npt),slaz,phen%phase(npt) , &
+!$                  phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &
+!$                  casapool%clabile(npt) ,casapool%cplant(npt,:) ,  &
+!$                  casapool%clitter(npt,:),casapool%csoil(npt,:), &
+!$                  casaflux%frac_sapwood(npt), casaflux%sapwood_area(npt)
+!$
+!$
+!$             ELSE
+!$              READ(99,*) nyearz,npz,ivtz,istz,isoz,latz,lonz,areacellz, &
+!$                  casamet%glai(npt),slaz,phen%phase(npt) , &
+!$                  phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &
+!$                  casapool%clabile(npt) ,casapool%cplant(npt,:) ,  &
+!$                  casapool%clitter(npt,:),casapool%csoil(npt,:)
+!$             casaflux%frac_sapwood(:) = 1.0
+!$             casaflux%sapwood_area(:) = 0.0
+!$          ENDIF
+!$
+!$
+!$       CASE(2)
+!$! vh_js !
+!$          IF (cable_user%CALL_POP) THEN
+!$             READ(99,*) nyearz,npz,ivtz,istz,isoz,latz,lonz,areacellz, &
+!$                  casamet%glai(npt),slaz,phen%phase(npt), &
+!$                  phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &
+!$                  casapool%clabile(npt),casapool%cplant(npt,:),   &
+!$                  casapool%clitter(npt,:),casapool%csoil(npt,:),       &
+!$                  casaflux%frac_sapwood(npt), casaflux%sapwood_area(npt), &
+!$                  casapool%nplant(npt,:),casapool%nlitter(npt,:),      &
+!$                  casapool%nsoil(npt,:),casapool%nsoilmin(npt)
+!$
+!$          ELSE
+!$             READ(99,*) nyearz,npz,ivtz,istz,isoz,latz,lonz,areacellz, &
+!$                  casamet%glai(npt),slaz,phen%phase(npt), &
+!$                  phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &
+!$                  casapool%clabile(npt),casapool%cplant(npt,:),   &
+!$                  casapool%clitter(npt,:),casapool%csoil(npt,:),       &
+!$                  casapool%nplant(npt,:),casapool%nlitter(npt,:),      &
+!$                  casapool%nsoil(npt,:),casapool%nsoilmin(npt)
+!$             casaflux%frac_sapwood(:) = 1.0
+!$             casaflux%sapwood_area(:) = 0.0
+!$
+!$          ENDIF
+!$       CASE(3)
+!$! vh_js !
+!$          IF (cable_user%CALL_POP) THEN
+!$             READ(99,*) nyearz,npz,ivtz,istz,isoz,latz,lonz,areacellz, &
+!$                  casamet%glai(npt),slaz,phen%phase(npt), &
+!$                  phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &
+!$                  casapool%clabile(npt),casapool%cplant(npt,:),   &
+!$                  casapool%clitter(npt,:),casapool%csoil(npt,:),       &
+!$                  casaflux%frac_sapwood(npt), casaflux%sapwood_area(npt), &
+!$                  casapool%nplant(npt,:),casapool%nlitter(npt,:),      &
+!$                  casapool%nsoil(npt,:),casapool%nsoilmin(npt),        &
+!$                  casapool%pplant(npt,:),casapool%plitter(npt,:),      &
+!$                  casapool%psoil(npt,:),casapool%psoillab(npt),        &
+!$                  casapool%psoilsorb(npt),casapool%psoilocc(npt)
+!$          ELSE
+!$             READ(99,*) nyearz,npz,ivtz,istz,isoz,latz,lonz,areacellz, &
+!$                  casamet%glai(npt),slaz,phen%phase(npt), &
+!$                  phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &
+!$                  casapool%clabile(npt),casapool%cplant(npt,:),   &
+!$                  casapool%clitter(npt,:),casapool%csoil(npt,:),       &
+!$                  casapool%nplant(npt,:),casapool%nlitter(npt,:),      &
+!$                  casapool%nsoil(npt,:),casapool%nsoilmin(npt),        &
+!$                  casapool%pplant(npt,:),casapool%plitter(npt,:),      &
+!$                  casapool%psoil(npt,:),casapool%psoillab(npt),        &
+!$                  casapool%psoilsorb(npt),casapool%psoilocc(npt)
+!$             casaflux%frac_sapwood(:) = 1.0
+!$             casaflux%sapwood_area(:) = 0.0
+!$
+!$
+!$          ENDIF
+!$       END SELECT
+!$       IF (ABS(patch(npt)%longitude - lonz) > 0.9 .OR. &
+!$            ABS(patch(npt)%latitude  - latz) > 0.9) THEN
+!$          PRINT *, 'patch(npt)%longitude, lonz:', patch(npt)%longitude, lonz
+!$          PRINT *, 'patch(npt)%latitude,  latz:', patch(npt)%latitude,  latz
+!$          PRINT *, 'npt = ', npt
+!$          STOP
+!$       ENDIF
+!$    ENDDO
+!$    CLOSE(99)
+!$
+!$
+!$ ELSE
+!$ ! vh_js !
+!$    WRITE(*,*)'No valid restart file for casa_init found.'
+!$    WRITE(*,*)'Using input from readbiome.!'
+!$    WRITE(*,*) 'initialising frac_sapwood=1 and sapwood_area = 0)'
+!$    casaflux%frac_sapwood(:) = 1.0
+!$    casaflux%sapwood_area(:) = 0.0
+!$
+!$
+!$ ENDIF  ! IF (EXRST)
 
-!!$ENDIF
+!$ENDIF
     !92 format(5(i6,2x),5(f18.6,3x),2(i6,',',2x),',',2x,100(f18.6,3x))
 92  FORMAT(5(i6,',',2x),5(f18.6,',',2x),2(i6,',',2x),',',2x,100(f18.6,',',2x))
 
@@ -1095,7 +1095,7 @@ CONTAINS
           casabal%sumcbal(npt) =0.0; casabal%sumnbal(npt) =0.0; casabal%sumpbal(npt) = 0.0
        ENDIF
 
-       !! vh_js  !!
+       ! vh_js  !
        IF (cable_user%CALL_POP) THEN
 
           WRITE(nout,92) ktau,npt,veg%iveg(npt),soil%isoilm(npt) ,     &
@@ -1432,18 +1432,18 @@ CONTAINS
        ENDWHERE
 
     ENDIF
-!!$if (idoy.eq.365) then
-!!$ write(667,*) pop%LU
-!!$ write(667,*) veg%ilu
-!!$ write(667,991) casaflux%FluxCtohwp(POP%Iwood,1)
-!!$ write(667,991) POP%pop_grid(:)%cat_mortality/POP%pop_grid(:)%cmass_sum_old
-!!$   write(667,991)max(min((POP%pop_grid(:)%cat_mortality                &
-!!$        /POP%pop_grid(:)%cmass_sum_old),0.99),0.0)**(1.0/365.0)
-!!$   write(667,991) (1.0 - (1.0 -max( min((POP%pop_grid(:)%cat_mortality  &
-!!$        /POP%pop_grid(:)%cmass_sum_old),0.99), 0.0))**(1.0/365.0))
-!!$write(667,*)
-!!$   endif
-!!$
+!$if (idoy.eq.365) then
+!$ write(667,*) pop%LU
+!$ write(667,*) veg%ilu
+!$ write(667,991) casaflux%FluxCtohwp(POP%Iwood,1)
+!$ write(667,991) POP%pop_grid(:)%cat_mortality/POP%pop_grid(:)%cmass_sum_old
+!$   write(667,991)max(min((POP%pop_grid(:)%cat_mortality                &
+!$        /POP%pop_grid(:)%cmass_sum_old),0.99),0.0)**(1.0/365.0)
+!$   write(667,991) (1.0 - (1.0 -max( min((POP%pop_grid(:)%cat_mortality  &
+!$        /POP%pop_grid(:)%cmass_sum_old),0.99), 0.0))**(1.0/365.0))
+!$write(667,*)
+!$   endif
+!$
     !write(667,991) casaflux%cgpp(147),casaflux%cnpp(147),casaflux%kplant(147,2),casapool%cplant(147,:)
     !  write(*,991)casaflux%cgpp(2058),casaflux%cnpp(2058),casaflux%fracClabile(2058), &
     !            casaflux%fracCalloc(2058,:),casaflux%crmplant(2058,:),casaflux%crgplant(2058), casapool%Nsoilmin(2058), &
@@ -1495,8 +1495,8 @@ CONTAINS
     ! add "casabal" to store pool sizes before updating
     CALL casa_cnpcycle(veg,casabiome,casapool,casaflux,casamet,casabal, LALLOC)
 
-    !! vh_js !!
-    !CLN ndummy must be before pdummy!!!!
+    ! vh_js !
+    !CLN ndummy must be before pdummy!
     IF (icycle<3) THEN
         IF (icycle<2) CALL casa_ndummy(casamet,casabal,casapool)
         CALL casa_pdummy(casamet,casabal,casaflux,casapool)
@@ -1849,7 +1849,7 @@ CONTAINS
     ! TIME
     STATUS = NF90_GET_ATT( FILE_ID, NF90_GLOBAL, "Valid restart date", RSTDATE )
     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-!!$
+!$
     WRITE(CYEAR, FMT="(I4)") CurYear
     CDATE = '01/01/'//CYEAR
     ! compare current year with restart year (only for non-site type met data)

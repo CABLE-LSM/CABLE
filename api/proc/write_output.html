@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 2.4% of total for procedures.">772 statements</a>
+    title=" 2.1% of total for procedures.">772 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/cable_output.F90"> Source File</a></li>
   </ul>
@@ -123,46 +123,43 @@
     <h2>public subroutine write_output(dels, ktau, met, canopy, casaflux, casapool, casamet, ssnow, rad, bal, air, soil, veg, SBOLTZ, EMLEAF, EMSOIL)</h2>
     
 
-    <p>vh_js !!
-vh_js !!
-vh_js !!</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
 <tr>
-  <td><span class="anchor" id="variable-dels~14"></span>real,</td>
+  <td><span class="anchor" id="variable-dels~16"></span>real,</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>dels</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-ktau~15"></span>integer,</td>
+  <td><span class="anchor" id="variable-ktau~17"></span>integer,</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>ktau</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-met~15"></span>type(<a href='../type/met_type~2.html'>met_type</a>),</td>
+  <td><span class="anchor" id="variable-met~17"></span>type(<a href='../type/met_type~2.html'>met_type</a>),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>met</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-canopy~10"></span>type(<a href='../type/canopy_type.html'>canopy_type</a>),</td>
+  <td><span class="anchor" id="variable-canopy~12"></span>type(<a href='../type/canopy_type~2.html'>canopy_type</a>),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>canopy</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-casaflux~31"></span>type(<a href='../type/casa_flux~2.html'>casa_flux</a>),</td>
+  <td><span class="anchor" id="variable-casaflux~31"></span>type(<a href='../type/casa_flux.html'>casa_flux</a>),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>casaflux</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-casapool~34"></span>type(<a href='../type/casa_pool~2.html'>casa_pool</a>),</td>
+  <td><span class="anchor" id="variable-casapool~34"></span>type(<a href='../type/casa_pool.html'>casa_pool</a>),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>casapool</strong></td><td></td>
@@ -174,31 +171,31 @@ vh_js !!</p>
   <td><strong>casamet</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-ssnow~9"></span>type(<a href='../type/soil_snow_type~2.html'>soil_snow_type</a>),</td>
+  <td><span class="anchor" id="variable-ssnow~11"></span>type(<a href='../type/soil_snow_type~2.html'>soil_snow_type</a>),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>ssnow</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-rad~7"></span>type(<a href='../type/radiation_type~2.html'>radiation_type</a>),</td>
+  <td><span class="anchor" id="variable-rad~8"></span>type(<a href='../type/radiation_type~2.html'>radiation_type</a>),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>rad</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-bal~6"></span>type(<a href='../type/balances_type~2.html'>balances_type</a>),</td>
+  <td><span class="anchor" id="variable-bal~8"></span>type(<a href='../type/balances_type~2.html'>balances_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>bal</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-air~5"></span>type(<a href='../type/air_type~2.html'>air_type</a>),</td>
+  <td><span class="anchor" id="variable-air~6"></span>type(<a href='../type/air_type~2.html'>air_type</a>),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>air</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-soil~29"></span>type(<a href='../type/soil_parameter_type~2.html'>soil_parameter_type</a>),</td>
+  <td><span class="anchor" id="variable-soil~30"></span>type(<a href='../type/soil_parameter_type~2.html'>soil_parameter_type</a>),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>soil</strong></td><td></td>
@@ -210,19 +207,19 @@ vh_js !!</p>
   <td><strong>veg</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-sboltz~4"></span>real,</td>
+  <td><span class="anchor" id="variable-sboltz~5"></span>real,</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>SBOLTZ</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-emleaf~4"></span>real,</td>
+  <td><span class="anchor" id="variable-emleaf~5"></span>real,</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>EMLEAF</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-emsoil~5"></span>real,</td>
+  <td><span class="anchor" id="variable-emsoil~6"></span>real,</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>EMSOIL</strong></td><td></td>
@@ -253,110 +250,116 @@ vh_js !!</p>
 <polygon fill="none" stroke="black" points="79,-150 0,-150 0,-126 79,-126 79,-150"/>
 <text text-anchor="middle" x="39.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50">write_output</text>
 </g>
-<!-- mass_balance -->
+<!-- proc~mass_balance -->
 <g id="proc~~write_output~~CallsGraph_node2" class="node">
-<title>mass_balance</title>
-<polygon fill="#777777" stroke="#777777" points="208,-276 120,-276 120,-252 208,-252 208,-276"/>
+<title>proc~mass_balance</title>
+<g id="a_proc~~write_output~~CallsGraph_node2"><a xlink:href=".././proc/mass_balance.html" xlink:title="mass_balance">
+<polygon fill="#d9534f" stroke="#d9534f" points="208,-276 120,-276 120,-252 208,-252 208,-276"/>
 <text text-anchor="middle" x="164" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mass_balance</text>
-</g>
-<!-- proc~write_output&#45;&gt;mass_balance -->
-<g id="proc~~write_output~~CallsGraph_edge1" class="edge">
-<title>proc~write_output&#45;&gt;mass_balance</title>
-<path fill="none" stroke="#ff0000" d="M46.4,-150.33C57.24,-171.81 82.23,-216.34 115,-243 116.72,-244.4 118.55,-245.72 120.45,-246.97"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="118.71,-250.01 129.12,-251.98 122.21,-243.95 118.71,-250.01"/>
-</g>
-<!-- nf90_sync -->
-<g id="proc~~write_output~~CallsGraph_node3" class="node">
-<title>nf90_sync</title>
-<polygon fill="#777777" stroke="#777777" points="197,-234 131,-234 131,-210 197,-210 197,-234"/>
-<text text-anchor="middle" x="164" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_sync</text>
-</g>
-<!-- proc~write_output&#45;&gt;nf90_sync -->
-<g id="proc~~write_output~~CallsGraph_edge2" class="edge">
-<title>proc~write_output&#45;&gt;nf90_sync</title>
-<path fill="none" stroke="#ff0000" d="M52.55,-150.13C66.6,-163.79 90.99,-186.04 115,-201 117.46,-202.53 120.05,-204.01 122.71,-205.42"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="121.34,-208.65 131.85,-209.95 124.45,-202.38 121.34,-208.65"/>
-</g>
-<!-- proc~is_leapyear -->
-<g id="proc~~write_output~~CallsGraph_node4" class="node">
-<title>proc~is_leapyear</title>
-<g id="a_proc~~write_output~~CallsGraph_node4"><a xlink:href=".././proc/is_leapyear.html" xlink:title="IS_LEAPYEAR">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="205,-192 123,-192 123,-168 205,-168 205,-192"/>
-<text text-anchor="middle" x="164" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">IS_LEAPYEAR</text>
 </a>
 </g>
 </g>
-<!-- proc~write_output&#45;&gt;proc~is_leapyear -->
-<g id="proc~~write_output~~CallsGraph_edge3" class="edge">
-<title>proc~write_output&#45;&gt;proc~is_leapyear</title>
-<path fill="none" stroke="#ff0000" d="M75.6,-150.04C88.93,-154.6 104.29,-159.87 118.38,-164.7"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="117.3,-168.03 127.89,-167.96 119.57,-161.41 117.3,-168.03"/>
+<!-- proc~write_output&#45;&gt;proc~mass_balance -->
+<g id="proc~~write_output~~CallsGraph_edge1" class="edge">
+<title>proc~write_output&#45;&gt;proc~mass_balance</title>
+<path fill="none" stroke="#ff0000" d="M46.4,-150.33C57.24,-171.81 82.23,-216.34 115,-243 116.72,-244.4 118.55,-245.72 120.45,-246.97"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="118.71,-250.01 129.12,-251.98 122.21,-243.95 118.71,-250.01"/>
+</g>
+<!-- proc~energy_balance -->
+<g id="proc~~write_output~~CallsGraph_node3" class="node">
+<title>proc~energy_balance</title>
+<g id="a_proc~~write_output~~CallsGraph_node3"><a xlink:href=".././proc/energy_balance.html" xlink:title="energy_balance">
+<polygon fill="#d9534f" stroke="#d9534f" points="213,-234 115,-234 115,-210 213,-210 213,-234"/>
+<text text-anchor="middle" x="164" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">energy_balance</text>
+</a>
+</g>
+</g>
+<!-- proc~write_output&#45;&gt;proc~energy_balance -->
+<g id="proc~~write_output~~CallsGraph_edge2" class="edge">
+<title>proc~write_output&#45;&gt;proc~energy_balance</title>
+<path fill="none" stroke="#ff0000" d="M52.55,-150.13C66.6,-163.79 90.99,-186.04 115,-201 117.46,-202.53 120.05,-204.01 122.71,-205.42"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="121.34,-208.65 131.85,-209.95 124.45,-202.38 121.34,-208.65"/>
 </g>
 <!-- proc~nc_abort -->
-<g id="proc~~write_output~~CallsGraph_node5" class="node">
+<g id="proc~~write_output~~CallsGraph_node4" class="node">
 <title>proc~nc_abort</title>
-<g id="a_proc~~write_output~~CallsGraph_node5"><a xlink:href=".././proc/nc_abort.html" xlink:title="nc_abort">
-<polygon fill="#d9534f" stroke="#d9534f" points="193.5,-150 134.5,-150 134.5,-126 193.5,-126 193.5,-150"/>
-<text text-anchor="middle" x="164" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nc_abort</text>
+<g id="a_proc~~write_output~~CallsGraph_node4"><a xlink:href=".././proc/nc_abort.html" xlink:title="nc_abort">
+<polygon fill="#d9534f" stroke="#d9534f" points="193.5,-192 134.5,-192 134.5,-168 193.5,-168 193.5,-192"/>
+<text text-anchor="middle" x="164" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nc_abort</text>
 </a>
 </g>
 </g>
 <!-- proc~write_output&#45;&gt;proc~nc_abort -->
-<g id="proc~~write_output~~CallsGraph_edge5" class="edge">
+<g id="proc~~write_output~~CallsGraph_edge3" class="edge">
 <title>proc~write_output&#45;&gt;proc~nc_abort</title>
-<path fill="none" stroke="#ff0000" d="M79.26,-138C93.59,-138 109.82,-138 124.15,-138"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="124.2,-141.5 134.2,-138 124.2,-134.5 124.2,-141.5"/>
+<path fill="none" stroke="#ff0000" d="M75.6,-150.04C91.06,-155.34 109.25,-161.57 125.02,-166.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="123.89,-170.29 134.49,-170.22 126.16,-163.67 123.89,-170.29"/>
 </g>
-<!-- energy_balance -->
-<g id="proc~~write_output~~CallsGraph_node6" class="node">
-<title>energy_balance</title>
-<polygon fill="#777777" stroke="#777777" points="213,-108 115,-108 115,-84 213,-84 213,-108"/>
-<text text-anchor="middle" x="164" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">energy_balance</text>
+<!-- nf90_put_var -->
+<g id="proc~~write_output~~CallsGraph_node5" class="node">
+<title>nf90_put_var</title>
+<polygon fill="#777777" stroke="#777777" points="205,-150 123,-150 123,-126 205,-126 205,-150"/>
+<text text-anchor="middle" x="164" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_put_var</text>
 </g>
-<!-- proc~write_output&#45;&gt;energy_balance -->
+<!-- proc~write_output&#45;&gt;nf90_put_var -->
 <g id="proc~~write_output~~CallsGraph_edge4" class="edge">
-<title>proc~write_output&#45;&gt;energy_balance</title>
+<title>proc~write_output&#45;&gt;nf90_put_var</title>
+<path fill="none" stroke="#ff0000" d="M79.26,-138C89.89,-138 101.56,-138 112.73,-138"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="112.8,-141.5 122.8,-138 112.8,-134.5 112.8,-141.5"/>
+</g>
+<!-- proc~is_leapyear -->
+<g id="proc~~write_output~~CallsGraph_node6" class="node">
+<title>proc~is_leapyear</title>
+<g id="a_proc~~write_output~~CallsGraph_node6"><a xlink:href=".././proc/is_leapyear.html" xlink:title="IS_LEAPYEAR">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="205,-108 123,-108 123,-84 205,-84 205,-108"/>
+<text text-anchor="middle" x="164" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">IS_LEAPYEAR</text>
+</a>
+</g>
+</g>
+<!-- proc~write_output&#45;&gt;proc~is_leapyear -->
+<g id="proc~~write_output~~CallsGraph_edge5" class="edge">
+<title>proc~write_output&#45;&gt;proc~is_leapyear</title>
 <path fill="none" stroke="#ff0000" d="M75.6,-125.96C88.93,-121.4 104.29,-116.13 118.38,-111.3"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="119.57,-114.59 127.89,-108.04 117.3,-107.97 119.57,-114.59"/>
 </g>
-<!-- nf90_put_var -->
-<g id="proc~~write_output~~CallsGraph_node7" class="node">
-<title>nf90_put_var</title>
-<polygon fill="#777777" stroke="#777777" points="205,-66 123,-66 123,-42 205,-42 205,-66"/>
-<text text-anchor="middle" x="164" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_put_var</text>
-</g>
-<!-- proc~write_output&#45;&gt;nf90_put_var -->
-<g id="proc~~write_output~~CallsGraph_edge6" class="edge">
-<title>proc~write_output&#45;&gt;nf90_put_var</title>
-<path fill="none" stroke="#ff0000" d="M52.55,-125.87C66.6,-112.21 90.99,-89.96 115,-75 117.46,-73.47 120.05,-71.99 122.71,-70.58"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="124.45,-73.62 131.85,-66.05 121.34,-67.35 124.45,-73.62"/>
-</g>
 <!-- interface~write_ovar -->
-<g id="proc~~write_output~~CallsGraph_node8" class="node">
+<g id="proc~~write_output~~CallsGraph_node7" class="node">
 <title>interface~write_ovar</title>
-<g id="a_proc~~write_output~~CallsGraph_node8"><a xlink:href=".././interface/write_ovar.html" xlink:title="write_ovar">
-<polygon fill="#a7506f" stroke="#a7506f" points="198,-24 130,-24 130,0 198,0 198,-24"/>
-<text text-anchor="middle" x="164" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">write_ovar</text>
+<g id="a_proc~~write_output~~CallsGraph_node7"><a xlink:href=".././interface/write_ovar.html" xlink:title="write_ovar">
+<polygon fill="#a7506f" stroke="#a7506f" points="198,-66 130,-66 130,-42 198,-42 198,-66"/>
+<text text-anchor="middle" x="164" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">write_ovar</text>
 </a>
 </g>
 </g>
 <!-- proc~write_output&#45;&gt;interface~write_ovar -->
-<g id="proc~~write_output~~CallsGraph_edge7" class="edge">
+<g id="proc~~write_output~~CallsGraph_edge6" class="edge">
 <title>proc~write_output&#45;&gt;interface~write_ovar</title>
-<path fill="none" stroke="#ff0000" d="M46.4,-125.67C57.24,-104.19 82.23,-59.66 115,-33 116.81,-31.53 118.73,-30.15 120.73,-28.84"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="122.91,-31.63 129.87,-23.64 119.45,-25.55 122.91,-31.63"/>
+<path fill="none" stroke="#ff0000" d="M52.55,-125.87C66.6,-112.21 90.99,-89.96 115,-75 117.46,-73.47 120.05,-71.99 122.71,-70.58"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="124.45,-73.62 131.85,-66.05 121.34,-67.35 124.45,-73.62"/>
+</g>
+<!-- nf90_sync -->
+<g id="proc~~write_output~~CallsGraph_node8" class="node">
+<title>nf90_sync</title>
+<polygon fill="#777777" stroke="#777777" points="197,-24 131,-24 131,0 197,0 197,-24"/>
+<text text-anchor="middle" x="164" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_sync</text>
+</g>
+<!-- proc~write_output&#45;&gt;nf90_sync -->
+<g id="proc~~write_output~~CallsGraph_edge7" class="edge">
+<title>proc~write_output&#45;&gt;nf90_sync</title>
+<path fill="none" stroke="#ff0000" d="M46.4,-125.67C57.24,-104.19 82.23,-59.66 115,-33 117.22,-31.2 119.61,-29.52 122.11,-27.97"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="123.79,-31.03 130.87,-23.15 120.42,-24.9 123.79,-31.03"/>
 </g>
 <!-- nf90_strerror -->
 <g id="proc~~write_output~~CallsGraph_node9" class="node">
 <title>nf90_strerror</title>
-<polygon fill="#777777" stroke="#777777" points="330,-150 249,-150 249,-126 330,-126 330,-150"/>
-<text text-anchor="middle" x="289.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_strerror</text>
+<polygon fill="#777777" stroke="#777777" points="330,-192 249,-192 249,-168 330,-168 330,-192"/>
+<text text-anchor="middle" x="289.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_strerror</text>
 </g>
 <!-- proc~nc_abort&#45;&gt;nf90_strerror -->
 <g id="proc~~write_output~~CallsGraph_edge8" class="edge">
 <title>proc~nc_abort&#45;&gt;nf90_strerror</title>
-<path fill="none" stroke="#00ff91" d="M193.64,-138C206.96,-138 223.19,-138 238.44,-138"/>
-<polygon fill="#00ff91" stroke="#00ff91" points="238.79,-141.5 248.79,-138 238.79,-134.5 238.79,-141.5"/>
+<path fill="none" stroke="#48ff00" d="M193.64,-180C206.96,-180 223.19,-180 238.44,-180"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="238.79,-183.5 248.79,-180 238.79,-176.5 238.79,-183.5"/>
 </g>
 </g>
 </svg>

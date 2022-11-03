@@ -95,7 +95,7 @@ TYPE kbl_user_switches
                              ! Switch for customized soil respiration - see Ticket #42
        srf = .FALSE.,                                                         &
 
-                             !! vh_js !!
+                             ! vh_js !
        litter = .FALSE.
 
   !MD

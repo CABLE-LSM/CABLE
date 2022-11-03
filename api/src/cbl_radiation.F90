@@ -86,7 +86,7 @@ real :: Ccapp
 
     ! Define fraction of SW beam tranmitted through canopy:
     !C!jhan: check rel. b/n extkb, extkbm,transb,cexpkbm def. cable_albedo, qsabbs
-    !! vh_js !!
+    ! vh_js !
     dummy2 = MIN(rad%extkb * canopy%vlaiw,30.) ! vh version to avoid floating underflow !
     dummy = EXP(-dummy2)
     ! dummy2 = -rad%extkb * canopy%vlaiw

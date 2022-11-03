@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.5% of total for procedures.">162 statements</a>
+    title=" 0.4% of total for procedures.">162 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/casa_cnp.F90"> Source File</a></li>
   </ul>
@@ -123,42 +123,19 @@
     <h2>public subroutine casa_allocation(veg, soil, casabiome, casaflux, casapool, casamet, phen, LALLOC)</h2>
     
 
-    <p>vh_js !!
- vh_js !!
- as long as biomass is positive, adjust allocation to be
- proportional to stock when NPP -ve   (Ticket#108)
- vh !! don't require this fix for LALLOC = 3 (POP allocation scheme)
- Thiss fix can lead to over-allocation to roots, in turn bumping up N-uptake
- , leading to decline in mineral nitrogen availability and spikes in fracCalloc,
- causing spikes in tree mortality and lack of model convergence in productive
- regions where LAI is hitting LAImax.
-$        ! IF Prognostic LAI reached glaimax, no C is allocated to leaf
-$        ! Q.Zhang 17/03/2011
-$        WHERE(casamet%glai(:)&gt;=casabiome%glaimax(veg%iveg(:)))
-$           casaflux%fracCalloc(:,leaf)  = 0.0
-$           casaflux%fracCalloc(:,froot) =  casaflux%fracCalloc(:,froot) &amp;
-$                /(casaflux%fracCalloc(:,froot) &amp;
-$                +casaflux%fracCalloc(:,wood))
-$           WHERE (casamet%lnonwood==0)
-$              casaflux%fracCalloc(:,wood)  = 1.0 -casaflux%fracCalloc(:,froot)
-$           ELSEWHERE
-$              casaflux%fracCalloc(:,wood) = 0.0
-$           ENDWHERE
-$        ENDWHERE</p>
-<p>vh_js !!  Ticket#108</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
 <tr>
-  <td><span class="anchor" id="variable-veg~84"></span>type(<a href='../type/veg_parameter_type~2.html'>veg_parameter_type</a>),</td>
+  <td><span class="anchor" id="variable-veg~90"></span>type(<a href='../type/veg_parameter_type~2.html'>veg_parameter_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>veg</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-soil~66"></span>type(<a href='../type/soil_parameter_type~2.html'>soil_parameter_type</a>),</td>
+  <td><span class="anchor" id="variable-soil~75"></span>type(<a href='../type/soil_parameter_type~2.html'>soil_parameter_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>soil</strong></td><td></td>
@@ -170,13 +147,13 @@ $        ENDWHERE</p>
   <td><strong>casabiome</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-casaflux~37"></span>type(<a href='../type/casa_flux~2.html'>casa_flux</a>),</td>
+  <td><span class="anchor" id="variable-casaflux~37"></span>type(<a href='../type/casa_flux.html'>casa_flux</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>casaflux</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-casapool~39"></span>type(<a href='../type/casa_pool~2.html'>casa_pool</a>),</td>
+  <td><span class="anchor" id="variable-casapool~39"></span>type(<a href='../type/casa_pool.html'>casa_pool</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>casapool</strong></td><td></td>

@@ -205,7 +205,7 @@ CONTAINS
        vtop(kk)%lambdav = rlambda
        vtop(kk)%lambdaf = lambdaf
        ! var(1)%phi = var(1)%phie
-       ! calculates phi1,eff (pond + top soil layer)   !!vh!! does this get used???
+       ! calculates phi1,eff (pond + top soil layer)   !vh! does this get used???
        CALL flux(par(1), vtop(kk), var(1), half*dx(1), &
             q(0), qya(0), qyb(0), qTa(0), qTb(0))
 
@@ -1062,24 +1062,24 @@ CONTAINS
        END IF
 
        IF (.NOT. again(kk)) THEN
-!!$                   if (h0(kk)<zero .and. var(1)%isat==0 .and. (i==1)) then ! start negative pond correction
-!!$                      infil(kk)     = infil(kk)+h0(kk)
-!!$                      ! negative pond converted to loss of soil moisture in top two layers
-!!$                      S(1) = S(1) + h0(kk)/(dx(1)*par(1)%thre)* dx(1)/(dx(1)+dx(2))
-!!$                      deltaS(1) = h0(kk)/(dx(1)*par(1)%thre)* dx(1)/(dx(1)+dx(2))
-!!$                      ! adjust flux between layer 1 and layer 2
-!!$                      qlsig(1) = qlsig(1) + h0(kk)* dx(2)/(dx(1)+dx(2))/dt(kk)
-!!$                      deltaS(2) =   h0(kk)/(dx(2)*par(2)%thre)* dx(2)/(dx(1)+dx(2))
-!!$                      if (var(2)%isat.eq.0) then
-!!$                         dy(2) = dy(2) + deltaS(2)
-!!$                      else
-!!$                         dy(2) = deltaS(2)
-!!$                         var(2)%isat = 0
-!!$                      endif
-!!$
-!!$                      deltah0(kk) = -(h0(kk)-deltah0(kk)) ! whole pond lost (new change = - original pond height)
-!!$                      h0(kk) = zero  ! zero pond remaining
-!!$                   endif
+!$                   if (h0(kk)<zero .and. var(1)%isat==0 .and. (i==1)) then ! start negative pond correction
+!$                      infil(kk)     = infil(kk)+h0(kk)
+!$                      ! negative pond converted to loss of soil moisture in top two layers
+!$                      S(1) = S(1) + h0(kk)/(dx(1)*par(1)%thre)* dx(1)/(dx(1)+dx(2))
+!$                      deltaS(1) = h0(kk)/(dx(1)*par(1)%thre)* dx(1)/(dx(1)+dx(2))
+!$                      ! adjust flux between layer 1 and layer 2
+!$                      qlsig(1) = qlsig(1) + h0(kk)* dx(2)/(dx(1)+dx(2))/dt(kk)
+!$                      deltaS(2) =   h0(kk)/(dx(2)*par(2)%thre)* dx(2)/(dx(1)+dx(2))
+!$                      if (var(2)%isat.eq.0) then
+!$                         dy(2) = dy(2) + deltaS(2)
+!$                      else
+!$                         dy(2) = deltaS(2)
+!$                         var(2)%isat = 0
+!$                      endif
+!$
+!$                      deltah0(kk) = -(h0(kk)-deltah0(kk)) ! whole pond lost (new change = - original pond height)
+!$                      h0(kk) = zero  ! zero pond remaining
+!$                   endif
 
           ! water in profile initially
           wpi = SUM((par(:)%thr + (par(:)%the-par(:)%thr)*S(:))*dx(:))
@@ -1745,7 +1745,7 @@ CONTAINS
           ! update heat flux components
           Tqw  = MERGE(vmet(kk)%Ta, vsnow(kk)%tsn(vsnow(kk)%nsnow), -qevap(kk)>zero)
 
-          !!vsnow(kk)%Qadv_vap = vsnow(kk)%Qadv_vap + &
+          !vsnow(kk)%Qadv_vap = vsnow(kk)%Qadv_vap + &
           !   rhow*(-qevapsig(kk))*cswat*Tqw*dt(kk) - &
           !    qadvsig(0)*dt(kk)
 
@@ -2156,7 +2156,7 @@ CONTAINS
           ggh(1) = -(qh(0)-qh(1))*rsig(kk) + deltaTa(kk)*qhTa(0)
        ENDIF
 
-       ! litter and pond !!vh!! need to check this now that pond is lumped with top soil layer
+       ! litter and pond !vh! need to check this now that pond is lumped with top soil layer
        IF (litter .AND. ns(kk)==0) THEN
           ddh(0) = -qhTa(0)-cswat*rhow*h0(kk)*rsigdt(kk) -vlit(kk)%csoil*dxL(kk)*rsigdt(kk)
        ENDIF
@@ -2443,18 +2443,18 @@ CONTAINS
           ENDIF
 
           ! pond decreasing or runoff starts
-!!$          if (iok(kk)==1 .and. ns(kk)<1 .and. h0(kk)+dy(1)<h0min) then ! pond going
-!!$             fac(kk) = -(h0(kk)-half*h0min)/dy(1)
-!!$             nfac9(kk) = nfac9(kk) +1
-!!$             iok(kk) = 0
-!!$          end if
+!$          if (iok(kk)==1 .and. ns(kk)<1 .and. h0(kk)+dy(1)<h0min) then ! pond going
+!$             fac(kk) = -(h0(kk)-half*h0min)/dy(1)
+!$             nfac9(kk) = nfac9(kk) +1
+!$             iok(kk) = 0
+!$          end if
 
-!!$           ! pond decreasing or runoff starts
-!!$          if (iok(kk)==1 .and. ns(kk)<1 .and.S(1)*par(1)%thre*dx(1) + h0(kk)+dy(1)<0.1*dx(1)) then ! pond going
-!!$             fac(kk) = -(S(1)*par(1)%thre*dx(1)+h0(kk)-half*0.1*dx(1))/dy(1)
-!!$             nfac9(kk) = nfac9(kk) +1
-!!$             iok(kk) = 0
-!!$          end if
+!$           ! pond decreasing or runoff starts
+!$          if (iok(kk)==1 .and. ns(kk)<1 .and.S(1)*par(1)%thre*dx(1) + h0(kk)+dy(1)<0.1*dx(1)) then ! pond going
+!$             fac(kk) = -(S(1)*par(1)%thre*dx(1)+h0(kk)-half*0.1*dx(1))/dy(1)
+!$             nfac9(kk) = nfac9(kk) +1
+!$             iok(kk) = 0
+!$          end if
 
           ! J0+deltaJ<J(thetai=theta) i.e. too much energy extracted
           J0(1) = rhow*cswat*(Tsoil(1))*dx(1)*var(1)%thetal + &
@@ -2469,11 +2469,11 @@ CONTAINS
           c2 = rhow*((tmp1d3(kk))*csice-lambdaf)*(dx(1)*theta+tmp1d4(kk)*theta/par(1)%thre) + & ! projected energy content
                rhow*(tmp1d3(kk))*cswat*tmp1d4(kk)*(one-theta/par(1)%thre) + &
                dx(1)*(tmp1d3(kk))*par(1)%rho*par(1)%css
-!!$          if(((tmp1d2(kk))-c2)<zero) then
-!!$             fac(kk) = 0.5_r_2
-!!$             iok(kk) = 0
-!!$             nfac10(kk) = nfac10(kk)+1
-!!$          endif
+!$          if(((tmp1d2(kk))-c2)<zero) then
+!$             fac(kk) = 0.5_r_2
+!$             iok(kk) = 0
+!$             nfac10(kk) = nfac10(kk)+1
+!$          endif
 
           IF (fac(kk) < one) THEN
              again_ice(kk,1:n) = .FALSE.  ! reset all again_ice if calc is to be repeated with smaller time-step
@@ -2517,27 +2517,27 @@ CONTAINS
        END IF  ! (.not. again(kk))
        nsteps(kk) = nsteps(kk) + 1
 
-!!$                if ((irec.eq.8992).and.(kk.eq.1) ) then
-!!$                   !if ((irec.eq.5).and.(kk.eq.1626)  .and. wlogn == 1011) then
-!!$                    write(*,*) 'writing diags', again(kk), nsteps(kk)
-!!$
-!!$                    ! if (.not. again(kk)) then
-!!$ !write(345,"(13i8,1500e16.6)")
-!!$                    write(346,"(13i8,1500e16.6)") nsteps(kk), nfac1(kk), nfac2(kk), nfac3(kk), &
-!!$                         nfac4(kk), nfac5(kk), nfac6(kk), nfac7(kk), nfac8(kk), nfac9(kk), nfac10(kk), &
-!!$                         nfac11(kk), nfac12(kk) , q(:), qsig(:), qH(:), qhsig(:), &
-!!$                         dy(0:n), de(0:n), dTsoil(:), S(:),thetai(:), Tsoil(:), &
-!!$                         real(var(1)%iice), real(var(1)%isat), &
-!!$                         h0(kk), real(iok(kk)), var(1)%phie, var(1)%phi, phip(kk),var(2)%phi, &
-!!$                         vsnow(kk)%wcol, &
-!!$                         qadv(:), qadvsig(:), qhya(:), qhyb(:), qhTa(:), qhTb(:), &
-!!$                         qya(:), qyb(:), qTa(:), qTb(:), &
-!!$                         var(1:n)%kH, LHS_h(1:n)*dt(kk), &
-!!$                         RHS(1:n)*dt(kk), LHS(1:n)*dt(kk), par(1:n)%thre,dx(1:n), &
-!!$                         real(-var(1:n)%isat), dt(kk), real(ns(kk)), vsnow(kk)%tsn(1), vsnow(kk)%hsnow(1)
-!!$                  !  endif
-!!$                    if (nsteps(kk).gt.1000) STOP
-!!$                 endif
+!$                if ((irec.eq.8992).and.(kk.eq.1) ) then
+!$                   !if ((irec.eq.5).and.(kk.eq.1626)  .and. wlogn == 1011) then
+!$                    write(*,*) 'writing diags', again(kk), nsteps(kk)
+!$
+!$                    ! if (.not. again(kk)) then
+!$ !write(345,"(13i8,1500e16.6)")
+!$                    write(346,"(13i8,1500e16.6)") nsteps(kk), nfac1(kk), nfac2(kk), nfac3(kk), &
+!$                         nfac4(kk), nfac5(kk), nfac6(kk), nfac7(kk), nfac8(kk), nfac9(kk), nfac10(kk), &
+!$                         nfac11(kk), nfac12(kk) , q(:), qsig(:), qH(:), qhsig(:), &
+!$                         dy(0:n), de(0:n), dTsoil(:), S(:),thetai(:), Tsoil(:), &
+!$                         real(var(1)%iice), real(var(1)%isat), &
+!$                         h0(kk), real(iok(kk)), var(1)%phie, var(1)%phi, phip(kk),var(2)%phi, &
+!$                         vsnow(kk)%wcol, &
+!$                         qadv(:), qadvsig(:), qhya(:), qhyb(:), qhTa(:), qhTb(:), &
+!$                         qya(:), qyb(:), qTa(:), qTb(:), &
+!$                         var(1:n)%kH, LHS_h(1:n)*dt(kk), &
+!$                         RHS(1:n)*dt(kk), LHS(1:n)*dt(kk), par(1:n)%thre,dx(1:n), &
+!$                         real(-var(1:n)%isat), dt(kk), real(ns(kk)), vsnow(kk)%tsn(1), vsnow(kk)%hsnow(1)
+!$                  !  endif
+!$                    if (nsteps(kk).gt.1000) STOP
+!$                 endif
 
        IF (nsteps(kk) > nsteps_max) THEN
           WRITE(wlogn,*) "nsteps > nsteps_max ", irec, kk
@@ -2552,7 +2552,7 @@ CONTAINS
 
   END SUBROUTINE get_and_solve_eqn
 
-  !*********************************************************************************************************************
+  !=============================================================================
 
   SUBROUTINE timestep_loop( &
        tfin, irec, mp, qprec, qprec_snow, n, dx, h0, S, thetai, Jsensible, Tsoil, evap, runoff, infil, &
@@ -3035,7 +3035,7 @@ CONTAINS
 
        ENDIF
 
-       IF (littercase==1) THEN  !!!! vh needs attention !!!!
+       IF (littercase==1) THEN  ! vh needs attention !
           SL0(kk)    = SL(kk) - deltaSL(kk)
           cvL0(kk)   = vlit(kk)%cv
           SLliq0(kk) = (SL0(kk) - cvL0(kk))/(one-cvL0(kk))
@@ -3657,7 +3657,7 @@ CONTAINS
 
   END SUBROUTINE solve
 
-  !*********************************************************************************************************************
+  !=============================================================================
 
   ! SUBROUTINE solute(ti,tf,thi,thf,win,cin,n,ns,dx,jt,dsmmax,sm,sdrn,nssteps,c, &
   !      isosub)
@@ -3818,7 +3818,7 @@ CONTAINS
   !      end do
   !   end do
   ! END SUBROUTINE solute
-  !*********************************************************************************************************************
+  !=============================================================================
   SUBROUTINE snow_augment( mp, kk,  qprec_snow, Ta, tfin,     vsnow     &
        )
 
@@ -3875,7 +3875,7 @@ CONTAINS
 
   END SUBROUTINE snow_augment
 
-  !*********************************************************************************************************************
+  !=============================================================================
 
   SUBROUTINE snow_adjust(irec, mp, n, kk, ns, h0, hice, thetai, dx, vsnow, var, par, S, Tsoil, &
        Jcol_latent_S, Jcol_latent_T, Jcol_sensible, deltaJ_sensible_S, qmelt, qtransfer, j0snow)
@@ -4572,7 +4572,7 @@ CONTAINS
 
   END SUBROUTINE snow_adjust
 
-  !*********************************************************************************************************************
+  !=============================================================================
 
   SUBROUTINE isotope_vap(irec,isotopologue, n, nsnow, nsnow_last,  & ! scalar in
        ns, dx, deltaz, sig, dt, &     ! in soil
@@ -5045,7 +5045,7 @@ CONTAINS
        ! print*, 'alpha ', alphak_vdiff, half
 
        dbetaqv(ns_ciso:n-1)   = (beta(ns_ciso:n-1) - beta(ns_ciso+1:n))/deltaz(ns_ciso:n-1)
-       dbetaqv(ns_ciso-1)     = zero !! vh ???? !!
+       dbetaqv(ns_ciso-1)     = zero ! vh ???? !
        dbetaqv(n)             = zero
 
        !MC
@@ -5093,7 +5093,7 @@ CONTAINS
          + Dvbetamean(ns_ciso:n-1)/deltaz(ns_ciso:n-1)
     !MC ??? thetasat-thetar
     bb(ns_ciso)       = -(Seff(ns_ciso)+kfreeze(ns_ciso)*Sicesig(ns_ciso)) * &
-         thetasat(ns_ciso)*dx(ns_ciso)/sig/dt & !!!vh!!! NB thetasat should be (thetasat-thetar)??
+         thetasat(ns_ciso)*dx(ns_ciso)/sig/dt & !vh! NB thetasat should be (thetasat-thetar)??
          - qevapout*dcevapoutdciso &
          - qlsig(ns_ciso)*dcqldca(ns_ciso) - qvsig(ns_ciso)*betaqv(ns_ciso)*dcqvdca(ns_ciso) &
          - dbetaqv(ns_ciso)*dcqvdca(ns_ciso)*Dvmean(ns_ciso) &
@@ -5319,6 +5319,6 @@ CONTAINS
 
   END SUBROUTINE isotope_vap
 
-  !*********************************************************************************************************************
+  !=============================================================================
 
 END MODULE sli_solve

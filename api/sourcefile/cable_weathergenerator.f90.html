@@ -208,7 +208,7 @@
 </g>
 </g>
 <!-- sourcefile~cable_mpimaster.f90&#45;&gt;sourcefile~cable_plume_mip.f90 -->
-<g id="sourcefile~~cable_weathergenerator.f90~~AfferentGraph_edge5" class="edge">
+<g id="sourcefile~~cable_weathergenerator.f90~~AfferentGraph_edge4" class="edge">
 <title>sourcefile~cable_mpimaster.f90&#45;&gt;sourcefile~cable_plume_mip.f90</title>
 <path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M385.15,-83.96C366.42,-79.15 344.68,-73.57 325.08,-68.54"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="325.92,-65.14 315.36,-66.04 324.17,-71.92 325.92,-65.14"/>
@@ -229,7 +229,7 @@
 </g>
 </g>
 <!-- sourcefile~cable_driver.f90&#45;&gt;sourcefile~cable_plume_mip.f90 -->
-<g id="sourcefile~~cable_weathergenerator.f90~~AfferentGraph_edge4" class="edge">
+<g id="sourcefile~~cable_weathergenerator.f90~~AfferentGraph_edge5" class="edge">
 <title>sourcefile~cable_driver.f90&#45;&gt;sourcefile~cable_plume_mip.f90</title>
 <path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M382.94,-54C370.08,-54 355.92,-54 342.07,-54"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="342.07,-50.5 332.07,-54 342.07,-57.5 342.07,-50.5"/>
@@ -532,10 +532,10 @@
 <a id="ln-207" name="ln-207" href="#ln-207"></a><span class="w">    </span><span class="c">! TempMaxDay                                                        Tx</span>
 <a id="ln-208" name="ln-208" href="#ln-208"></a><span class="w">    </span><span class="c">! TempMinDayNext                                                    Tp</span>
 <a id="ln-209" name="ln-209" href="#ln-209"></a><span class="w">    </span><span class="c">! TempMaxDayPrev</span>
-<a id="ln-210" name="ln-210" href="#ln-210"></a><span class="c">!!$write(71, &quot;( 1000e16.6)&quot;) WG%DecRad</span>
-<a id="ln-211" name="ln-211" href="#ln-211"></a><span class="c">!!$   write(72, &quot;( 1000e16.6)&quot;) TAN(WG%DecRad)</span>
-<a id="ln-212" name="ln-212" href="#ln-212"></a><span class="c">!!$   write(73, &quot;( 1000e16.6)&quot;) TAN(WG%LatRad)</span>
-<a id="ln-213" name="ln-213" href="#ln-213"></a><span class="c">!!$ write(74, &quot;( 1000e16.6)&quot;)  WG%DayLength</span>
+<a id="ln-210" name="ln-210" href="#ln-210"></a><span class="c">!$write(71, &quot;( 1000e16.6)&quot;) WG%DecRad</span>
+<a id="ln-211" name="ln-211" href="#ln-211"></a><span class="c">!$   write(72, &quot;( 1000e16.6)&quot;) TAN(WG%DecRad)</span>
+<a id="ln-212" name="ln-212" href="#ln-212"></a><span class="c">!$   write(73, &quot;( 1000e16.6)&quot;) TAN(WG%LatRad)</span>
+<a id="ln-213" name="ln-213" href="#ln-213"></a><span class="c">!$ write(74, &quot;( 1000e16.6)&quot;)  WG%DayLength</span>
 <a id="ln-214" name="ln-214" href="#ln-214"></a><span class="w">    </span><span class="k">WHERE</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">WG</span><span class="p">%</span><span class="n">DayLength</span><span class="w"> </span><span class="p">.</span><span class="n">LT</span><span class="p">.</span><span class="w"> </span><span class="mf">0.01</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <a id="ln-215" name="ln-215" href="#ln-215"></a><span class="w">       </span><span class="c">! Polar night</span>
 <a id="ln-216" name="ln-216" href="#ln-216"></a><span class="w">       </span><span class="n">WG</span><span class="p">%</span><span class="n">TimeSunrise</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="mf">9.</span><span class="w">              </span><span class="c">! Hn</span>
@@ -567,7 +567,7 @@
 <a id="ln-242" name="ln-242" href="#ln-242"></a>
 <a id="ln-243" name="ln-243" href="#ln-243"></a><span class="w">  </span><span class="k">END SUBROUTINE </span><span class="n">WGEN_DAILY_CONSTANTS</span><span class="w"></span>
 <a id="ln-244" name="ln-244" href="#ln-244"></a>
-<a id="ln-245" name="ln-245" href="#ln-245"></a><span class="c">!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</span>
+<a id="ln-245" name="ln-245" href="#ln-245"></a><span class="c">!==============================================================================</span>
 <a id="ln-246" name="ln-246" href="#ln-246"></a>
 <a id="ln-247" name="ln-247" href="#ln-247"></a><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">WGEN_SUBDIURNAL_MET</span><span class="p">(</span><span class="n">WG</span><span class="p">,</span><span class="w"> </span><span class="n">np</span><span class="p">,</span><span class="w"> </span><span class="nb">itime</span><span class="p">)</span><span class="w"></span>
 <a id="ln-248" name="ln-248" href="#ln-248"></a>

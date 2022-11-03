@@ -84,7 +84,7 @@ MODULE casavariable
   TYPE casa_pool
      REAL(r_2), DIMENSION(:),POINTER :: Clabile,       &
           dClabiledt,    &
-          Ctot ,         &          !! vh_js !!
+          Ctot ,         &          ! vh_js !
           Ctot_0
      REAL(r_2), DIMENSION(:,:),POINTER :: Cplant,      &
           Nplant,        &
@@ -139,7 +139,7 @@ MODULE casavariable
           Plabuptake,    &
           Clabloss,      &
           fracClabile, &
-                                !! vh_js !! the 3 variables below are needed for POP coupling to CASA
+                                ! vh_js ! the 3 variables below are needed for POP coupling to CASA
           stemnpp, &
           frac_sapwood, &
           sapwood_area
@@ -148,7 +148,7 @@ MODULE casavariable
           fracPalloc,    &
           Crmplant,      &
           kplant, &
-                                !! vh_js !! additional diagnostic
+                                ! vh_js ! additional diagnostic
           Cplant_turnover
      REAL(r_2), DIMENSION(:,:,:),POINTER :: fromPtoL
      REAL(r_2), DIMENSION(:),POINTER :: Cnep,        &
@@ -178,7 +178,7 @@ MODULE casavariable
           kpocc,       &
           kmlabp,      &
           Psorbmax,    &
-                                !! additional diagnostics for partitioning biomass turnover
+                                ! additional diagnostics for partitioning biomass turnover
           Cplant_turnover_disturbance, &
           Cplant_turnover_crowding , &
           Cplant_turnover_resource_limitation
@@ -352,7 +352,7 @@ CONTAINS
          casabiome%soilrate(mvtype,msoil),         &
                                 !  casabiome%ratioPcplantmax(mvtype,leaf),   &
                                 !  casabiome%ratioPcplantmin(mvtype,leaf)    &
-                                !! vh_js !!
+                                ! vh_js !
          casabiome%ratioPcplantmax(mvtype,mplant),   &
          casabiome%ratioPcplantmin(mvtype,mplant)    &
          )

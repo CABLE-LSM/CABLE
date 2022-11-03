@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.9% of total for procedures.">310 statements</a>
+    title=" 0.8% of total for procedures.">310 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/cable_parameters.F90"> Source File</a></li>
   </ul>
@@ -128,7 +128,7 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
+    <li><a href='../module/cable_common_module~2.html'>cable_common_module</a></li>
   </ul>
       </li>
       <li class="list-group-item">
@@ -149,18 +149,18 @@
 <polygon fill="none" stroke="black" points="485,-24 358,-24 358,0 485,0 485,-24"/>
 <text text-anchor="middle" x="421.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">write_default_params</text>
 </g>
-<!-- module~cable_common_module -->
+<!-- module~cable_common_module~2 -->
 <g id="proc~~write_default_params~~UsesGraph_node2" class="node">
-<title>module~cable_common_module</title>
-<g id="a_proc~~write_default_params~~UsesGraph_node2"><a xlink:href=".././module/cable_common_module.html" xlink:title="cable_common_module">
+<title>module~cable_common_module~2</title>
+<g id="a_proc~~write_default_params~~UsesGraph_node2"><a xlink:href=".././module/cable_common_module~2.html" xlink:title="cable_common_module">
 <polygon fill="#337ab7" stroke="#337ab7" points="322,-24 182,-24 182,0 322,0 322,-24"/>
 <text text-anchor="middle" x="252" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_common_module</text>
 </a>
 </g>
 </g>
-<!-- proc~write_default_params&#45;&gt;module~cable_common_module -->
+<!-- proc~write_default_params&#45;&gt;module~cable_common_module~2 -->
 <g id="proc~~write_default_params~~UsesGraph_edge1" class="edge">
-<title>proc~write_default_params&#45;&gt;module~cable_common_module</title>
+<title>proc~write_default_params&#45;&gt;module~cable_common_module~2</title>
 <path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M357.65,-12C349.31,-12 340.68,-12 332.11,-12"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="332.1,-8.5 322.1,-12 332.1,-15.5 332.1,-8.5"/>
 </g>
@@ -173,9 +173,9 @@
 </a>
 </g>
 </g>
-<!-- module~cable_common_module&#45;&gt;module~cable_runtime_opts_mod -->
+<!-- module~cable_common_module~2&#45;&gt;module~cable_runtime_opts_mod -->
 <g id="proc~~write_default_params~~UsesGraph_edge2" class="edge">
-<title>module~cable_common_module&#45;&gt;module~cable_runtime_opts_mod</title>
+<title>module~cable_common_module~2&#45;&gt;module~cable_runtime_opts_mod</title>
 <path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M181.81,-12C173.37,-12 164.7,-12 156.1,-12"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="156.06,-8.5 146.06,-12 156.06,-15.5 156.06,-8.5"/>
 </g>
@@ -244,40 +244,25 @@
     </div>
 
 
-    <p>vh_js !!
- I brought this in with manual merge of #199 BUT Am i bringing this back in ?
-! calculate vegin%froot from using rootbeta and soil depth
-! (Jackson et al. 1996, Oceologica, 108:389-411)
-totdepth = 0.0
-DO is = 1, ms
-   totdepth = totdepth + soil%zse(is) * 100.0  ! unit in centimetres
-   vegin%froot(is, :) = MIN(1.0, 1.0-vegin%rootbeta(:)**totdepth)
-END DO
-DO is = ms, 2, -1
-   vegin%froot(is, :) = vegin%froot(is, :)-vegin%froot(is-1, :)
-END DO</p>
-<p>vh_js !!</p>
-<p>vh_js !! neeed to remove this if to enable the code below</p>
-<p>vh_js !!</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
 <tr>
-  <td><span class="anchor" id="variable-met~19"></span>type(<a href='../type/met_type~2.html'>met_type</a>),</td>
+  <td><span class="anchor" id="variable-met~21"></span>type(<a href='../type/met_type~2.html'>met_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>met</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-air~7"></span>type(<a href='../type/air_type~2.html'>air_type</a>),</td>
+  <td><span class="anchor" id="variable-air~8"></span>type(<a href='../type/air_type~2.html'>air_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>air</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-ssnow~14"></span>type(<a href='../type/soil_snow_type~2.html'>soil_snow_type</a>),</td>
+  <td><span class="anchor" id="variable-ssnow~16"></span>type(<a href='../type/soil_snow_type~2.html'>soil_snow_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>ssnow</strong></td><td></td>
@@ -295,13 +280,13 @@ END DO</p>
   <td><strong>bgc</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-soil~34"></span>type(<a href='../type/soil_parameter_type~2.html'>soil_parameter_type</a>),</td>
+  <td><span class="anchor" id="variable-soil~35"></span>type(<a href='../type/soil_parameter_type~2.html'>soil_parameter_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>soil</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-canopy~15"></span>type(<a href='../type/canopy_type.html'>canopy_type</a>),</td>
+  <td><span class="anchor" id="variable-canopy~17"></span>type(<a href='../type/canopy_type~2.html'>canopy_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>canopy</strong></td><td></td>
@@ -313,7 +298,7 @@ END DO</p>
   <td><strong>rough</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-rad~11"></span>type(<a href='../type/radiation_type~2.html'>radiation_type</a>),</td>
+  <td><span class="anchor" id="variable-rad~12"></span>type(<a href='../type/radiation_type~2.html'>radiation_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>rad</strong></td><td></td>
