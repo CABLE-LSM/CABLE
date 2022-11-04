@@ -185,7 +185,7 @@
 </g>
 </g>
 <!-- proc~cru_init&#45;&gt;proc~get_unit -->
-<g id="proc~~get_unit~~CalledByGraph_edge5" class="edge">
+<g id="proc~~get_unit~~CalledByGraph_edge2" class="edge">
 <title>proc~cru_init&#45;&gt;proc~get_unit</title>
 <path fill="none" stroke="#ff0000" d="M372.72,-177.73C417.75,-176.84 505.77,-173.24 579,-159 587.51,-157.34 596.47,-154.99 604.97,-152.45"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="606.18,-155.73 614.68,-149.41 604.09,-149.05 606.18,-155.73"/>
@@ -230,7 +230,7 @@
 </g>
 </g>
 <!-- proc~luc_expt_init&#45;&gt;proc~get_unit -->
-<g id="proc~~get_unit~~CalledByGraph_edge2" class="edge">
+<g id="proc~~get_unit~~CalledByGraph_edge5" class="edge">
 <title>proc~luc_expt_init&#45;&gt;proc~get_unit</title>
 <path fill="none" stroke="#ff0000" d="M387.95,-259.4C437.59,-254.84 518.5,-242.33 579,-208 600.6,-195.74 619.58,-174.34 631.76,-158.41"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="634.69,-160.35 637.81,-150.23 629.06,-156.19 634.69,-160.35"/>
@@ -293,9 +293,9 @@
 <polygon fill="#0091ff" stroke="#0091ff" points="285.79,-254.01 296.36,-253.29 287.65,-247.26 285.79,-254.01"/>
 </g>
 <!-- proc~cru_get_subdiurnal_met -->
-<g id="proc~~get_unit~~CalledByGraph_node11" class="node">
+<g id="proc~~get_unit~~CalledByGraph_node10" class="node">
 <title>proc~cru_get_subdiurnal_met</title>
-<g id="a_proc~~get_unit~~CalledByGraph_node11"><a xlink:href=".././proc/cru_get_subdiurnal_met.html" xlink:title="CRU_GET_SUBDIURNAL_MET">
+<g id="a_proc~~get_unit~~CalledByGraph_node10"><a xlink:href=".././proc/cru_get_subdiurnal_met.html" xlink:title="CRU_GET_SUBDIURNAL_MET">
 <polygon fill="#d9534f" stroke="#d9534f" points="424,-106 260,-106 260,-82 424,-82 424,-106"/>
 <text text-anchor="middle" x="342" y="-91.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CRU_GET_SUBDIURNAL_MET</text>
 </a>
@@ -304,8 +304,8 @@
 <!-- proc~mpidrv_master&#45;&gt;proc~cru_get_subdiurnal_met -->
 <g id="proc~~get_unit~~CalledByGraph_edge19" class="edge">
 <title>proc~mpidrv_master&#45;&gt;proc~cru_get_subdiurnal_met</title>
-<path fill="none" stroke="#00ffff" d="M207.55,-165.95C213.32,-163.44 218.98,-160.47 224,-157 244.22,-143.02 239.14,-128.02 260,-115 262.83,-113.23 265.81,-111.61 268.89,-110.13"/>
-<polygon fill="#00ffff" stroke="#00ffff" points="270.54,-113.23 278.35,-106.07 267.78,-106.79 270.54,-113.23"/>
+<path fill="none" stroke="#7fff00" d="M207.55,-165.95C213.32,-163.44 218.98,-160.47 224,-157 244.22,-143.02 239.14,-128.02 260,-115 262.83,-113.23 265.81,-111.61 268.89,-110.13"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="270.54,-113.23 278.35,-106.07 267.78,-106.79 270.54,-113.23"/>
 </g>
 <!-- proc~plume_mip_get_met -->
 <g id="proc~~get_unit~~CalledByGraph_node12" class="node">
@@ -322,10 +322,16 @@
 <path fill="none" stroke="#7f00ff" d="M211.52,-167.07C232.69,-161.99 258.16,-155.88 280.89,-150.43"/>
 <polygon fill="#7f00ff" stroke="#7f00ff" points="281.87,-153.79 290.78,-148.05 280.24,-146.98 281.87,-153.79"/>
 </g>
+<!-- proc~cru_get_subdiurnal_met&#45;&gt;proc~get_cru_co2 -->
+<g id="proc~~get_unit~~CalledByGraph_edge13" class="edge">
+<title>proc~cru_get_subdiurnal_met&#45;&gt;proc~get_cru_co2</title>
+<path fill="none" stroke="#00ff91" d="M424.07,-94.92C437.54,-95.08 451.23,-95.23 463.84,-95.38"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="464.12,-98.88 474.16,-95.49 464.2,-91.88 464.12,-98.88"/>
+</g>
 <!-- program~cable_offline_driver -->
-<g id="proc~~get_unit~~CalledByGraph_node10" class="node">
+<g id="proc~~get_unit~~CalledByGraph_node11" class="node">
 <title>program~cable_offline_driver</title>
-<g id="a_proc~~get_unit~~CalledByGraph_node10"><a xlink:href=".././program/cable_offline_driver.html" xlink:title="cable_offline_driver">
+<g id="a_proc~~get_unit~~CalledByGraph_node11"><a xlink:href=".././program/cable_offline_driver.html" xlink:title="cable_offline_driver">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="224,-148 106,-148 106,-124 224,-124 224,-148"/>
 <text text-anchor="middle" x="165" y="-133.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_offline_driver</text>
 </a>
@@ -364,20 +370,14 @@
 <!-- program~cable_offline_driver&#45;&gt;proc~cru_get_subdiurnal_met -->
 <g id="proc~~get_unit~~CalledByGraph_edge20" class="edge">
 <title>program~cable_offline_driver&#45;&gt;proc~cru_get_subdiurnal_met</title>
-<path fill="none" stroke="#00ffff" d="M216.15,-123.96C236.38,-119.11 259.88,-113.47 281.01,-108.4"/>
-<polygon fill="#00ffff" stroke="#00ffff" points="281.94,-111.77 290.84,-106.04 280.3,-104.97 281.94,-111.77"/>
+<path fill="none" stroke="#7fff00" d="M216.15,-123.96C236.38,-119.11 259.88,-113.47 281.01,-108.4"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="281.94,-111.77 290.84,-106.04 280.3,-104.97 281.94,-111.77"/>
 </g>
 <!-- program~cable_offline_driver&#45;&gt;proc~plume_mip_get_met -->
 <g id="proc~~get_unit~~CalledByGraph_edge22" class="edge">
 <title>program~cable_offline_driver&#45;&gt;proc~plume_mip_get_met</title>
 <path fill="none" stroke="#7f00ff" d="M224.27,-136C238.65,-136 254.22,-136 269.16,-136"/>
 <polygon fill="#7f00ff" stroke="#7f00ff" points="269.38,-139.5 279.38,-136 269.38,-132.5 269.38,-139.5"/>
-</g>
-<!-- proc~cru_get_subdiurnal_met&#45;&gt;proc~get_cru_co2 -->
-<g id="proc~~get_unit~~CalledByGraph_edge13" class="edge">
-<title>proc~cru_get_subdiurnal_met&#45;&gt;proc~get_cru_co2</title>
-<path fill="none" stroke="#00ff91" d="M424.07,-94.92C437.54,-95.08 451.23,-95.23 463.84,-95.38"/>
-<polygon fill="#00ff91" stroke="#00ff91" points="464.12,-98.88 474.16,-95.49 464.2,-91.88 464.12,-98.88"/>
 </g>
 <!-- proc~plume_mip_get_met&#45;&gt;proc~get_plume_co2 -->
 <g id="proc~~get_unit~~CalledByGraph_edge12" class="edge">
