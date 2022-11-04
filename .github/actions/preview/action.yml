@@ -44,3 +44,10 @@ runs:
         # outputs to "site/api" directory
         ford cable_ford.md
       shell: bash
+
+    - name: Build POP API documentation
+      working-directory: documentation
+      run: |
+        # outputs to "site/pop/api" directory
+        ford pop_ford.md
+      shell: bash
